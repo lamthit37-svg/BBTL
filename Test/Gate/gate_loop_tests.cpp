@@ -1,5 +1,6 @@
 // Một phiên thật qua socket loopback: bắt tay, Hello, Ping, Logout, rồi một khách gửi rác.
 #include "core/error.hpp"
+#include "gate/table.hpp"
 #include "io/file.hpp"
 #include "io/platform.hpp"
 #include "net/net.hpp"
@@ -265,8 +266,23 @@ void loopback_session(Context& context) {
     std::filesystem::remove_all(prepared.dir, error);
 }
 
+// Hồi quy: 400 sự kiện tới dồn trong một tick không được đẩy mốc tick ra xa 400/60 giây.
+void early_wakes_keep_deadline(Context& context) {
+    const std::int64_t first = 1'000'000'000;
+    gate::TickPlan plan{.deadline = first, .missed = 0};
+    for (int wake = 0; wake < 400; ++wake) plan = gate::next_tick(plan.deadline, first - 1'000'000);
+    context.expect(plan.deadline == first, "thức sớm giữ mốc");
+    plan = gate::next_tick(first, first);
+    context.expect(plan.deadline == first + gate::kTickNs && plan.missed == 0, "đúng mốc tiến một tick");
+    plan = gate::next_tick(first, first + (3 * gate::kTickNs) + 1);
+    context.expect(plan.deadline > first + (3 * gate::kTickNs) + 1, "mốc vượt qua lúc bắt đầu");
+    context.expect(plan.deadline - (first + (3 * gate::kTickNs) + 1) <= gate::kTickNs, "mốc không xa quá một tick");
+    context.expect(plan.missed == 3, "đếm tick lỡ");
+}
+
 constexpr std::array kCases{
     Case{.name = "loopback_session", .body = loopback_session},
+    Case{.name = "early_wakes_keep_deadline", .body = early_wakes_keep_deadline},
 };
 
 } // namespace

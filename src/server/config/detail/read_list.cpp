@@ -102,6 +102,32 @@ std::optional<StringList> Cursor::addresses(std::string_view key, ListKind kind)
     return values;
 }
 
+std::optional<IntList> Cursor::integers(std::string_view key, Bound bound, std::size_t most) {
+    const Node* node = required(key, NodeKind::kArray);
+    if (node == nullptr) return std::nullopt;
+    if (node->items.empty() || node->items.size() > most) {
+        add_issue(*bag_, node->line, std::format("mảng {} rỗng hoặc vượt trần", key));
+        return std::nullopt;
+    }
+    IntList values;
+    ItemScan scan{.bag = bag_, .key = key};
+    for (const Node& item : node->items) {
+        if (item.kind != NodeKind::kInteger) {
+            reject_item(scan, item, std::format("phần tử của {} sai kiểu", key));
+            continue;
+        }
+        if (item.integer < bound.least || item.integer > bound.most) {
+            reject_item(scan, item, std::format("phần tử của {} ngoài miền", key));
+            continue;
+        }
+        values.push_back(item.integer);
+    }
+    const bool is_repeated = scan.is_valid && has_repeat(values);
+    if (is_repeated) add_issue(*bag_, node->line, std::format("khoá {} có giá trị lặp", key));
+    if (!scan.is_valid || is_repeated) return std::nullopt;
+    return values;
+}
+
 std::optional<IntList> Cursor::hours(std::string_view key) {
     const Node* node = required(key, NodeKind::kArray);
     if (node == nullptr) return std::nullopt;

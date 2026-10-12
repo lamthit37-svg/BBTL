@@ -5,6 +5,9 @@
 #include "config/issue.hpp"
 
 #include <array>
+#include <chrono>
+#include <cstdint>
+#include <optional>
 #include <string_view>
 
 namespace game::config {
@@ -16,11 +19,16 @@ using detail::keep;
 using detail::ListKind;
 using detail::Node;
 
-constexpr std::array<std::string_view, 7> kRoot{
-    "schema", "identity_key_file", "trusted_proxies", "listen", "limits", "client", "ip_filter"};
+constexpr std::array<std::string_view, 8> kRoot{
+    "schema", "identity_key_file", "trusted_proxies", "listen", "limits", "client", "ip_filter", "resume"};
 constexpr std::array<std::string_view, 2> kListen{"game", "auth"};
-constexpr std::array<std::string_view, 6> kLimits{"max_connections", "per_ip_connections", "handshake_timeout_ms",
-    "idle_timeout_ms", "client_frame_bytes", "messages_per_second"};
+constexpr std::array<std::string_view, 7> kLimits{"max_connections", "per_ip_connections", "handshake_timeout_ms",
+    "idle_timeout_ms", "client_frame_bytes", "messages_per_second", "per_ip_prefix"};
+constexpr std::array<std::string_view, 2> kResume{"bind_to_ip", "grace_ms"};
+// Dải gom: /16 tới /32. Rộng hơn /16 thì một nhà mạng NAT chặn cả vùng.
+constexpr detail::Bound kPrefix{.least = 16, .most = 32};
+// Trần 5 phút cho cửa sổ token Resume còn hiệu lực.
+constexpr detail::Bound kGraceMs{.least = 0, .most = 300000};
 constexpr std::array<std::string_view, 1> kClient{"min_version"};
 constexpr std::array<std::string_view, 2> kFilter{"allow", "deny"};
 
@@ -42,6 +50,18 @@ void read_limits(Bag& bag, const Node* table, GateLimits& limits) {
     keep(cursor.millis("idle_timeout_ms"), limits.idle_timeout_ms);
     keep(cursor.bounded("client_frame_bytes", detail::kCount), limits.client_frame_bytes);
     keep(cursor.bounded("messages_per_second", detail::kCount), limits.messages_per_second);
+    if (cursor.has("per_ip_prefix")) keep(cursor.bounded("per_ip_prefix", kPrefix), limits.per_ip_prefix);
+}
+
+void read_resume(Bag& bag, const Node* table, GateResume& resume) {
+    if (table == nullptr) return;
+    Cursor cursor{bag, *table};
+    cursor.only(kResume);
+    if (cursor.has("bind_to_ip")) keep(cursor.flag("bind_to_ip"), resume.bind_to_ip);
+    if (cursor.has("grace_ms")) {
+        const std::optional<std::int64_t> ms = cursor.bounded("grace_ms", kGraceMs);
+        if (ms) resume.grace_ms = std::chrono::milliseconds{*ms};
+    }
 }
 
 void read_client(Bag& bag, const Node* table, GateClient& client) {
@@ -70,6 +90,7 @@ void read_filter(Bag& bag, const Node* table, GateIpFilter& filter) {
     read_limits(bag, cursor.child("limits"), gate.limits);
     read_client(bag, cursor.child("client"), gate.client);
     read_filter(bag, cursor.child("ip_filter"), gate.ip_filter);
+    if (cursor.has("resume")) read_resume(bag, cursor.child("resume"), gate.resume);
     return gate;
 }
 

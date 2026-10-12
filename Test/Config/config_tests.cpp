@@ -408,6 +408,58 @@ void real_store(Context& context) {
         store->database.pool == 4 && store->character_ms.count() == 30000 && store->world_ms.count() == 60000 &&
         store->dir == "../data/store/journal";
     context.expect(is_same, "store.toml");
+    const config::StoreSecurity& security = store->security;
+    const config::StoreSecurity defaults;
+    const bool is_security = security.standing_cache_ms.count() == 1000 && security.name_reserve_days == 30 &&
+        security.female_faces == defaults.female_faces && security.male_faces == defaults.male_faces &&
+        security.female_hairs == defaults.female_hairs && security.male_hairs == defaults.male_hairs;
+    context.expect(is_security, "store.toml [security] khớp mặc định");
+}
+
+constexpr View kStoreBase = "schema = 1\n[database]\nname = \"g\"\nuser = \"u\"\npool = 1\n"
+                            "[flush]\ncharacter_ms = 1\nworld_ms = 1\n[journal]\ndir = \"x\"\n";
+
+[[nodiscard]] bool store_ok(View tail) {
+    return config::read_store(std::string{kStoreBase} + std::string{tail}).has_value();
+}
+
+// [security] tuỳ chọn và có miền: tệp cũ vẫn đọc được, giá trị nguy hiểm bị từ chối khi khởi động.
+void store_security_is_optional_and_bounded(Context& context) {
+    const auto plain = config::read_store(kStoreBase);
+    context.expect(plain && plain->security.standing_cache_ms.count() == 1000 && plain->security.name_reserve_days == 30,
+        "thiếu [security] thì dùng mặc định");
+    const auto partial = config::read_store(std::string{kStoreBase} + "[security]\nname_reserve_days = 7\n");
+    context.expect(partial && partial->security.name_reserve_days == 7 && partial->security.standing_cache_ms.count() == 1000,
+        "thiếu khoá thì khoá đó lấy mặc định");
+    context.expect(store_ok("[security]\nstanding_cache_ms = 0\nfemale_faces = [9]\n"), "0 và danh sách riêng hợp lệ");
+    context.expect(!store_ok("[security]\nstanding_cache_ms = 20000\n"), "cửa sổ ban quá 10 giây bị từ chối");
+    context.expect(!store_ok("[security]\nname_reserve_days = -1\n"), "ngày âm bị từ chối");
+    context.expect(!store_ok("[security]\nfemale_faces = [65535]\n"), "id canh 65535 bị từ chối");
+    context.expect(!store_ok("[security]\nmale_hairs = []\n"), "danh sách rỗng bị từ chối");
+    context.expect(!store_ok("[security]\nmale_hairs = [5, 5]\n"), "id lặp bị từ chối");
+    context.expect(!store_ok("[security]\nmale_hairs = [\"5\"]\n"), "phần tử sai kiểu bị từ chối");
+    context.expect(!store_ok("[security]\nunknown = 1\n"), "khoá lạ bị từ chối");
+}
+
+[[nodiscard]] bool gate_ok_with(Context& context, View from, View to) {
+    std::string text = real_text(context, "gate.toml");
+    const std::size_t at = text.find(from);
+    if (at == std::string::npos) return false;
+    text.replace(at, from.size(), to);
+    return config::read_gate(text).has_value();
+}
+
+// [resume] và per_ip_prefix của gate.toml: mặc định an toàn, miền chặt.
+void gate_resume_and_prefix_are_bounded(Context& context) {
+    const std::optional gate = real(context, "gate.toml", config::read_gate);
+    if (!gate) return;
+    context.expect(gate->resume.bind_to_ip && gate->resume.grace_ms.count() == 30000, "[resume] mặc định");
+    context.expect(gate->limits.per_ip_prefix == 32, "per_ip_prefix mặc định /32");
+    context.expect(gate_ok_with(context, "per_ip_prefix        = 32", "per_ip_prefix = 24"), "/24 hợp lệ");
+    context.expect(!gate_ok_with(context, "per_ip_prefix        = 32", "per_ip_prefix = 8"), "/8 bị từ chối");
+    context.expect(gate_ok_with(context, "grace_ms   = 30000", "grace_ms = 0"), "tắt Resume hợp lệ");
+    context.expect(!gate_ok_with(context, "grace_ms   = 30000", "grace_ms = 400000"), "quá 5 phút bị từ chối");
+    context.expect(!gate_ok_with(context, "bind_to_ip = true", "bind_to_ip = 1"), "bind_to_ip phải là bool");
 }
 
 void real_admin(Context& context) {
@@ -469,6 +521,8 @@ constexpr std::array kCases{
     Case{.name = "same_side_meets_until_the_flag_opens", .body = &same_side_meets_until_the_flag_opens},
     Case{.name = "real_zone", .body = &real_zone},
     Case{.name = "real_store", .body = &real_store},
+    Case{.name = "store_security_is_optional_and_bounded", .body = &store_security_is_optional_and_bounded},
+    Case{.name = "gate_resume_and_prefix_are_bounded", .body = &gate_resume_and_prefix_are_bounded},
     Case{.name = "real_admin", .body = &real_admin},
     Case{.name = "secrets_shape", .body = &secrets_shape},
     Case{.name = "real_startup", .body = &real_startup},

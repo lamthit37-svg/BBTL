@@ -17,6 +17,7 @@
 #include <cstdio>
 #include <cstring>
 #include <iterator>
+#include <limits>
 #include <memory>
 #include <print>
 #include <format>
@@ -27,6 +28,7 @@
 #include <string_view>
 #include <system_error>
 #include <thread>
+#include <unordered_map>
 #include <utility>
 #include <vector>
 
@@ -48,6 +50,9 @@ struct Slot {
     bool resume_queued = false;
     // Đang chờ thư ký trả lời một câu hỏi auth/store; câu hỏi kế bị từ chối kBusy.
     bool asking = false;
+    // Đã vào nhân vật: giữ khoá phiên để Resume tìm lại sau khi rớt mạng.
+    bool has_session = false;
+    std::uint64_t session_key = 0;
     Drop drain_as = Drop::kLogout;
     Door door = Door::kGame;
     bool has_account = false;
@@ -113,7 +118,7 @@ struct Probe {
 }
 
 // Câu hỏi luồng tick gửi thư ký. secret là mật khẩu hoặc vé hex, xoá ngay sau khi dùng.
-enum class AskKind : std::uint8_t { kCreateAccount, kSignIn, kLogin, kCreateCharacter, kDeleteCharacter, kEnter };
+enum class AskKind : std::uint8_t { kCreateAccount, kSignIn, kLogin, kCreateCharacter, kDeleteCharacter, kEnter, kResume };
 
 struct Ask {
     Handle handle{};
@@ -129,6 +134,7 @@ struct Ask {
 struct Answer {
     Handle handle{};
     AskKind kind = AskKind::kLogin;
+    std::uint64_t character = 0;
     account::TicketReply ticket{};
     account::RosterReply roster{};
     account::EnterReply enter{};
@@ -138,6 +144,26 @@ struct Answer {
 // khi nhận kBusy.
 constexpr std::size_t kAskRoom = 64;
 
+// Phiên đã vào game. Gate chỉ giữ SHA-256 của token SessionStart; token dùng một lần và đổi mới
+// sau mỗi Resume. Rớt mạng (idle, chậm, đóng) thì phiên chờ kResumeGraceNs; Logout hay vi phạm
+// thì xoá ngay. Resume vẫn hỏi store enter, nên ban, cap hết hạn hay nhân vật đã xoá vẫn chặn.
+// Gate khởi động lại là mất mọi phiên: client đăng nhập lại.
+// Token gắn với IP đã vào game (limits.resume_bind_ip, mặc định bật): Resume từ IP khác là token bị
+// lộ, phiên bị huỷ ngay (kể cả khi chủ còn nối) và client phải đăng nhập lại. Đổi mạng (Wi-Fi sang 4G)
+// cũng phải đăng nhập lại: chấp nhận. Thời gian chờ là limits.resume_grace_ns (gate.toml [resume]).
+constexpr std::size_t kSessionDigestBytes = 32;
+
+struct Session {
+    std::array<std::byte, kSessionDigestBytes> digest{};
+    std::uint64_t account = 0;
+    std::array<std::byte, account::kCapBytes> cap{};
+    std::uint64_t character = 0;
+    net::Ipv4 address{};
+    bool owned = false;
+    Handle owner{};
+    std::int64_t expires_ns = 0;
+};
+
 } // namespace
 
 struct Engine {
@@ -146,6 +172,10 @@ struct Engine {
     std::vector<Cidr> deny;
     const secure::Identity* identity = nullptr;
     std::vector<Slot> slots;
+    // Mốc sớm nhất một ô có thể tới hạn bắt tay hoặc idle, xếp liền nhau để advance() chỉ quét 8 byte
+    // mỗi ô thay vì chạm vào Slot (hàng chục KB, nhiều lần trượt cache mỗi ô). Mốc chỉ được sớm hơn
+    // hạn thật: seen_ns chỉ tiến, nên mốc cũ luôn sớm hơn hoặc bằng; tới mốc thì kiểm thật rồi tính lại.
+    std::vector<std::int64_t> due;
     std::vector<std::uint32_t> free_slots;
     std::vector<Handle> closed;
     // Lane 0: bắt tay, ưu tiên chặt. Lane 1: gói nhỏ. Lane 2: gói lớn, trọng số 1 so với 4.
@@ -158,6 +188,8 @@ struct Engine {
     std::int64_t log_ns = 0;
     std::size_t live = 0;
     std::optional<account::Realm> realm;
+    // Khoá là 8 byte đầu của digest; so khớp cả 32 byte bằng phép so thời gian hằng.
+    std::unordered_map<std::uint64_t, Session> sessions;
     // Luồng tick đẩy asks và lấy answers; luồng thư ký làm ngược lại. Mỗi hàng đúng một bên đẩy.
     net::SpscMail<Ask, kAskRoom> asks{};
     net::SpscMail<Answer, kAskRoom> answers{};
@@ -224,13 +256,20 @@ void log_drop(Engine& state, Drop reason, net::Ipv4 address, std::int64_t now);
     return found;
 }
 
+// Khoá đếm per_ip: địa chỉ cắt về dải /per_ip_prefix, để nhiều IP trong một dải chung một trần.
+[[nodiscard]] std::uint32_t ip_key(const Engine& state, net::Ipv4 address) noexcept {
+    const std::uint32_t prefix = std::clamp<std::uint32_t>(state.limits.per_ip_prefix, 1, 32);
+    const std::uint32_t mask = prefix >= 32 ? 0xFFFFFFFFU : ~(0xFFFFFFFFU >> prefix);
+    return pack(address) & mask;
+}
+
 [[nodiscard]] bool gain_ip(Engine& state, net::Ipv4 address) noexcept {
-    IpSlot* slot = find_ip(state, pack(address));
+    IpSlot* slot = find_ip(state, ip_key(state, address));
     if (slot == nullptr) return false;
     if (slot->state == kIpLive && slot->count >= state.limits.per_ip) return false;
     if (slot->state != kIpLive) {
         slot->state = kIpLive;
-        slot->address = pack(address);
+        slot->address = ip_key(state, address);
         slot->count = 0;
     }
     ++slot->count;
@@ -238,7 +277,7 @@ void log_drop(Engine& state, Drop reason, net::Ipv4 address, std::int64_t now);
 }
 
 void lose_ip(Engine& state, net::Ipv4 address) noexcept {
-    IpSlot* slot = find_ip(state, pack(address));
+    IpSlot* slot = find_ip(state, ip_key(state, address));
     if (slot == nullptr || slot->state != kIpLive) return;
     if (slot->count > 0) --slot->count;
     if (slot->count == 0) slot->state = kIpTomb;
@@ -256,9 +295,12 @@ void remember_closed(Engine& state, Handle handle) {
     state.closed.push_back(handle);
 }
 
+void release_session(Engine& state, Slot& slot, Drop reason);
+
 void release(Engine& state, Slot& slot, std::uint32_t index, Drop reason) {
     if (!slot.live) return;
     const Handle handle{.index = index, .generation = slot.generation};
+    release_session(state, slot, reason);
     log_drop(state, reason, slot.address, slot.seen_ns);
     lose_ip(state, slot.address);
     slot.live = false;
@@ -550,25 +592,181 @@ void finish_roster(Engine& state, Slot& slot, std::uint32_t index, std::uint16_t
     send_roster(state, slot, index, roster);
 }
 
-void finish_enter(Engine& state, Slot& slot, std::uint32_t index, const account::EnterReply& entered) {
-    if (!entered.ok) {
-        send_reject(state, slot, index, protocol::EnterGame::kKind, entered.code);
+[[nodiscard]] std::uint64_t key_of(const std::array<std::byte, kSessionDigestBytes>& digest) noexcept {
+    std::uint64_t key = 0;
+    for (std::size_t at = 0; at < sizeof(key); ++at) {
+        key |= static_cast<std::uint64_t>(static_cast<unsigned>(digest[at])) << (8U * at);
+    }
+    return key;
+}
+
+[[nodiscard]] bool same_digest(const std::array<std::byte, kSessionDigestBytes>& left,
+    const std::array<std::byte, kSessionDigestBytes>& right) noexcept {
+    unsigned diff = 0;
+    for (std::size_t at = 0; at < kSessionDigestBytes; ++at) {
+        diff |= static_cast<unsigned>(left[at] ^ right[at]);
+    }
+    return diff == 0;
+}
+
+void erase_session(Engine& state, std::unordered_map<std::uint64_t, Session>::iterator found) {
+    secure::wipe_bytes(found->second.cap);
+    secure::wipe_bytes(found->second.digest);
+    state.sessions.erase(found);
+}
+
+void forget_session(Engine& state, Slot& slot) {
+    if (!slot.has_session) return;
+    const auto found = state.sessions.find(slot.session_key);
+    if (found != state.sessions.end()) erase_session(state, found);
+    slot.has_session = false;
+    slot.session_key = 0;
+}
+
+[[nodiscard]] bool parks_on(Drop reason) noexcept {
+    return reason == Drop::kIdle || reason == Drop::kSlow || reason == Drop::kClosed;
+}
+
+void release_session(Engine& state, Slot& slot, Drop reason) {
+    if (!slot.has_session) return;
+    const auto found = state.sessions.find(slot.session_key);
+    if (found == state.sessions.end() || !parks_on(reason)) {
+        forget_session(state, slot);
         return;
     }
-    slot.scratch.clear();
-    protocol::SessionStart session;
-    if (!secure::fill_random(session.token) || !protocol::encode(slot.scratch, session).has_value() ||
-        !seal_to(state, slot, index, slot.scratch)) {
-        release(state, slot, index, Drop::kSlow);
+    found->second.owned = false;
+    found->second.owner = {};
+    found->second.expires_ns = slot.seen_ns + state.limits.resume_grace_ns;
+    slot.has_session = false;
+    slot.session_key = 0;
+}
+
+[[nodiscard]] std::size_t session_room(const Engine& state) noexcept {
+    return std::max<std::size_t>(64, state.limits.max_connections * 2);
+}
+
+void prune_sessions(Engine& state, std::int64_t now) {
+    for (auto row = state.sessions.begin(); row != state.sessions.end();) {
+        const bool stale = !row->second.owned && now >= row->second.expires_ns;
+        if (!stale) {
+            ++row;
+            continue;
+        }
+        secure::wipe_bytes(row->second.cap);
+        row = state.sessions.erase(row);
     }
 }
 
-void on_resume(Engine& state, Slot& slot, std::uint32_t index) {
+// Cấp token mới và nhớ digest. Không nhớ được (đầy, trùng khoá) thì token vẫn gửi nhưng Resume
+// sẽ nhận kNoSession: client chỉ mất khả năng nối lại, không mất phiên đang chạy.
+[[nodiscard]] bool open_session(Engine& state, Slot& slot, std::uint32_t index, std::uint64_t character,
+    std::span<std::byte, protocol::kSessionStartTokenBytes> token) {
+    forget_session(state, slot);
+    if (!secure::fill_random(token)) return false;
+    Session session;
+    if (!secure::sha256(token, session.digest)) return false;
+    const std::uint64_t key = key_of(session.digest);
+    if (state.sessions.size() >= session_room(state)) prune_sessions(state, slot.seen_ns);
+    if (state.sessions.size() >= session_room(state) || state.sessions.contains(key)) return true;
+    session.account = slot.account_id;
+    session.cap = slot.cap;
+    session.character = character;
+    session.address = slot.address;
+    session.owned = true;
+    session.owner = Handle{.index = index, .generation = slot.generation};
+    state.sessions.emplace(key, session);
+    secure::wipe_bytes(session.cap);
+    slot.has_session = true;
+    slot.session_key = key;
+    return true;
+}
+
+void on_resume(Engine& state, Slot& slot, std::uint32_t index, const protocol::Resume& request, std::int64_t now) {
     if (!slot.greeted) {
         send_goodbye(state, slot, index, protocol::DisconnectReason::kProtocolViolation, Drop::kProtocol);
         return;
     }
-    send_reject(state, slot, index, protocol::Resume::kKind, protocol::ErrorCode::kSessionExpired);
+    if (slot.has_account) {
+        send_reject(state, slot, index, protocol::Resume::kKind, protocol::ErrorCode::kOutOfOrder);
+        return;
+    }
+    if (!state.realm.has_value()) {
+        send_reject(state, slot, index, protocol::Resume::kKind, protocol::ErrorCode::kBusy);
+        return;
+    }
+    if (!may_ask(state, slot, index, protocol::Resume::kKind)) return;
+    std::array<std::byte, kSessionDigestBytes> digest{};
+    if (!secure::sha256(request.token, digest)) {
+        send_reject(state, slot, index, protocol::Resume::kKind, protocol::ErrorCode::kBusy);
+        return;
+    }
+    const auto found = state.sessions.find(key_of(digest));
+    if (found == state.sessions.end() || !same_digest(found->second.digest, digest)) {
+        send_reject(state, slot, index, protocol::Resume::kKind, protocol::ErrorCode::kNoSession);
+        return;
+    }
+    if (!found->second.owned && now >= found->second.expires_ns) {
+        erase_session(state, found);
+        send_reject(state, slot, index, protocol::Resume::kKind, protocol::ErrorCode::kSessionExpired);
+        return;
+    }
+    if (state.limits.resume_bind_ip && found->second.address != slot.address) {
+        // Token đúng nhưng từ IP khác: coi như lộ. Huỷ phiên để kẻ lấy token không thử lại được; chủ
+        // đang nối vẫn chơi tiếp nhưng mất quyền Resume. Trả cùng mã như token lạ, không lộ gì thêm.
+        if (found->second.owned) {
+            Slot* owner = live_slot(state, found->second.owner);
+            if (owner != nullptr) {
+                owner->has_session = false;
+                owner->session_key = 0;
+            }
+        }
+        erase_session(state, found);
+        send_reject(state, slot, index, protocol::Resume::kKind, protocol::ErrorCode::kNoSession);
+        return;
+    }
+    Ask ask;
+    ask.kind = AskKind::kResume;
+    ask.cap = found->second.cap;
+    ask.character = found->second.character;
+    post_ask(state, slot, index, ask, protocol::Resume::kKind);
+    if (!slot.asking) return;
+    // Câu hỏi đã đi: token cũ hết giá trị dù store trả lời thế nào. Kết nối cũ còn sống thì bị đẩy ra.
+    if (found->second.owned) {
+        const Handle owner = found->second.owner;
+        Slot* old = live_slot(state, owner);
+        if (old != nullptr) {
+            old->has_session = false;
+            old->session_key = 0;
+            send_goodbye(state, *old, owner.index, protocol::DisconnectReason::kLoginElsewhere, Drop::kLogout);
+        }
+    }
+    slot.has_account = true;
+    slot.has_cap = true;
+    slot.account_id = found->second.account;
+    slot.cap = found->second.cap;
+    erase_session(state, found);
+}
+
+void finish_enter(Engine& state, Slot& slot, std::uint32_t index, std::uint16_t request, std::uint64_t character,
+    const account::EnterReply& entered) {
+    if (!entered.ok) {
+        if (request == protocol::Resume::kKind) {
+            forget_session(state, slot);
+            slot.has_account = false;
+            slot.has_cap = false;
+            slot.account_id = 0;
+            secure::wipe_bytes(slot.cap);
+        }
+        send_reject(state, slot, index, request, entered.code);
+        return;
+    }
+    slot.scratch.clear();
+    protocol::SessionStart session;
+    const bool opened = open_session(state, slot, index, character, session.token);
+    const bool sent = opened && protocol::encode(slot.scratch, session).has_value() &&
+                      seal_to(state, slot, index, slot.scratch);
+    secure::wipe_bytes(session.token);
+    if (!sent) release(state, slot, index, Drop::kSlow);
 }
 
 void send_ticket(Engine& state, Slot& slot, std::uint32_t index, std::uint16_t request, const account::TicketReply& ticket) {
@@ -631,7 +829,12 @@ void finish(Engine& state, Slot& slot, std::uint32_t index, const Answer& answer
     case AskKind::kDeleteCharacter:
         finish_roster(state, slot, index, protocol::DeleteCharacter::kKind, answer.roster);
         return;
-    case AskKind::kEnter: finish_enter(state, slot, index, answer.enter); return;
+    case AskKind::kEnter:
+        finish_enter(state, slot, index, protocol::EnterGame::kKind, answer.character, answer.enter);
+        return;
+    case AskKind::kResume:
+        finish_enter(state, slot, index, protocol::Resume::kKind, answer.character, answer.enter);
+        return;
     }
 }
 
@@ -639,6 +842,7 @@ void finish(Engine& state, Slot& slot, std::uint32_t index, const Answer& answer
     Answer answer;
     answer.handle = ask.handle;
     answer.kind = ask.kind;
+    answer.character = ask.character;
     switch (ask.kind) {
     case AskKind::kCreateAccount: answer.ticket = realm.create_account(ask.account, ask.secret, ask.ip); break;
     case AskKind::kSignIn: answer.ticket = realm.sign_in(ask.account, ask.secret, ask.ip); break;
@@ -646,6 +850,7 @@ void finish(Engine& state, Slot& slot, std::uint32_t index, const Answer& answer
     case AskKind::kCreateCharacter: answer.roster = realm.create_character(ask.cap, ask.create); break;
     case AskKind::kDeleteCharacter: answer.roster = realm.remove_character(ask.cap, ask.character); break;
     case AskKind::kEnter: answer.enter = realm.enter(ask.cap, ask.character); break;
+    case AskKind::kResume: answer.enter = realm.enter(ask.cap, ask.character); break;
     }
     return answer;
 }
@@ -730,7 +935,9 @@ void dispatch_game(SlotNow in, protocol::Frame frame, secure::ByteView body) {
         on_hello(in.state, in.slot, in.index, *hello, in.now);
     }
     if (auto* login = std::get_if<protocol::Login>(&*decoded)) on_login(in.state, in.slot, in.index, *login);
-    if (std::get_if<protocol::Resume>(&*decoded) != nullptr) on_resume(in.state, in.slot, in.index);
+    if (const auto* resume = std::get_if<protocol::Resume>(&*decoded)) {
+        on_resume(in.state, in.slot, in.index, *resume, in.now);
+    }
     if (const auto* ping = std::get_if<protocol::Ping>(&*decoded)) on_ping(in.state, in.slot, in.index, *ping, in.now);
     if (std::get_if<protocol::Logout>(&*decoded) != nullptr) on_logout(in.state, in.slot, in.index);
     if (const auto* create = std::get_if<protocol::CreateCharacter>(&*decoded)) {
@@ -992,6 +1199,7 @@ Table::Table(Limits limits, std::vector<Cidr> allow, std::vector<Cidr> deny, con
     state_->deny = std::move(deny);
     state_->identity = &identity;
     state_->slots.resize(limits.max_connections);
+    state_->due.assign(limits.max_connections, std::numeric_limits<std::int64_t>::max());
     state_->free_slots.reserve(limits.max_connections);
     state_->closed.reserve(limits.max_connections);
     const std::size_t queue_room = limits.max_connections + 256;
@@ -1070,6 +1278,7 @@ Admit Table::admit(net::Ipv4 address, std::int64_t now, Door door) {
     slot.asking = false;
     slot.handshake.emplace(*state_->identity);
     slot.pipe.reset();
+    state_->due[index] = now;
     ++state_->live;
     return Admit{.code = AdmitCode::kOk, .handle = Handle{.index = index, .generation = slot.generation}};
 }
@@ -1116,14 +1325,27 @@ struct TickAt {
     std::int64_t now = 0;
 };
 
+// Mốc kế: hạn idle tính từ seen_ns hiện tại, và hạn bắt tay nếu còn bắt tay. Luôn tính cả hạn idle
+// (kể cả khi đang bắt tay): bắt tay xong thì seen_ns chỉ tiến, nên mốc này không bao giờ trễ hơn hạn thật.
+[[nodiscard]] std::int64_t next_due(const Engine& state, const Slot& slot) noexcept {
+    if (!slot.live) return std::numeric_limits<std::int64_t>::max();
+    std::int64_t due = slot.seen_ns + state.limits.idle_ns;
+    if (slot.handshake.has_value()) due = std::min(due, slot.born_ns + state.limits.handshake_ns);
+    return due;
+}
+
 void clock_slot(Engine& state, TickAt at) {
     Slot& slot = state.slots[at.index];
-    if (!slot.live) return;
-    const bool handshake_late = slot.handshake.has_value() && at.now - slot.born_ns >= state.limits.handshake_ns;
-    if (handshake_late) release(state, slot, at.index, Drop::kHandshake);
-    if (!slot.live || !slot.pipe.has_value() || slot.draining) return;
-    const bool idle_late = at.now - slot.seen_ns >= state.limits.idle_ns;
-    if (idle_late) send_goodbye(state, slot, at.index, protocol::DisconnectReason::kIdle, Drop::kIdle);
+    if (slot.live) {
+        const bool handshake_late = slot.handshake.has_value() && at.now - slot.born_ns >= state.limits.handshake_ns;
+        if (handshake_late) release(state, slot, at.index, Drop::kHandshake);
+    }
+    if (slot.live && slot.pipe.has_value() && !slot.draining) {
+        const bool idle_late = at.now - slot.seen_ns >= state.limits.idle_ns;
+        if (idle_late) send_goodbye(state, slot, at.index, protocol::DisconnectReason::kIdle, Drop::kIdle);
+    }
+    // Đã gửi goodbye (draining) thì không còn hạn đồng hồ nào; vẫn tính mốc idle để kiểm lại, rẻ.
+    state.due[at.index] = next_due(state, slot);
 }
 
 void release_live(Engine& state, std::uint32_t index) {
@@ -1134,7 +1356,9 @@ void release_live(Engine& state, std::uint32_t index) {
 } // namespace
 
 void Table::advance(std::int64_t now) {
-    for (std::uint32_t index = 0; index < state_->slots.size(); ++index) {
+    const std::span<const std::int64_t> due{state_->due};
+    for (std::uint32_t index = 0; index < due.size(); ++index) {
+        if (now < due[index]) continue;
         clock_slot(*state_, TickAt{.index = index, .now = now});
     }
 }

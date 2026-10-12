@@ -739,9 +739,11 @@ kết luận ngay dưới mục đó chứ không xoá.
     `redeem` không xét bảng `ban`; (f) `CreateAccount` tên trùng trả `kDuplicate` mà không ghi lần
     thử, dò tài khoản không trần; nay tính vào trần theo IP; (g) `guard::Pace` dời mốc tới cả bước
     vượt tầm chưa bị phạt và đặt lại mốc khi tick không tiến, nên nhảy xen bước thường không bao
-    giờ bị bắt (test chặn ở `Test/Server/guard_tests.cpp`). CÒN MỞ: (h) vé năng lực 8 giờ không bị
-    thu hồi khi cấm; cần store hỏi auth hoặc auth đẩy danh sách thu hồi; (i) `Resume` chưa lưu
-    token; (j) `serve_loop` của auth/store đọc trọn yêu cầu và ghi trọn trả lời trên luồng nhận với
-    hạn 3 giây mỗi kết nối, một kết nối loopback chậm chặn mọi kết nối khác tới 3 giây; (k)
+    giờ bị bắt (test chặn ở `Test/Server/guard_tests.cpp`). ĐỢT 2 ĐÃ SỬA: (h) cấm sau khi đổi vé: store
+    hỏi auth `kStanding`, nhớ ≤5 giây; (i) `Resume` lưu digest token, giữ 60 giây, dùng một lần;
+    (j) `serve_loop` không chặn, 64 kết nối, hạn đọc/ghi riêng. (l) `catch_up` của gate cộng 1/60 giây vào
+    mốc tick sau mỗi lượt, kể cả lượt bị sự kiện đánh thức sớm: 400 kết nối tới đẩy mốc xa ~6,4 giây
+    và vòng chờ tới đó không chạy tick; nay `gate::next_tick` giữ mốc khi thức sớm (test
+    `early_wakes_keep_deadline`; 400 kết nối im lặng: bắt tay thật p99 6187 → 33 ms). CÒN MỞ: (k)
     `gate_tests` không dịch được (thiếu `metrics::Registry`, `gate::Backing`) và test `layers` đỏ
     (`metrics/serve` chưa có trong bảng tầng) từ trước lượt này.

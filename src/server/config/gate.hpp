@@ -24,6 +24,16 @@ struct GateLimits {
     std::chrono::milliseconds idle_timeout_ms{0};
     std::int64_t client_frame_bytes = 0;
     std::int64_t messages_per_second = 0;
+    // Trần per_ip_connections tính theo dải /per_ip_prefix (32 = từng IP, 24 = cả dải /24). Tuỳ chọn.
+    std::int64_t per_ip_prefix = 32;
+};
+
+// Nối lại phiên sau rớt mạng. Nhóm [resume] tuỳ chọn; token luôn dùng một lần (không có nút tắt).
+struct GateResume {
+    // true: Resume từ IP khác IP đã vào game thì huỷ phiên (token coi như lộ).
+    bool bind_to_ip = true;
+    // Phiên rớt mạng chờ Resume chừng này; 0 là tắt Resume.
+    std::chrono::milliseconds grace_ms{30000};
 };
 
 struct GateClient {
@@ -42,6 +52,7 @@ struct Gate {
     GateLimits limits;
     GateClient client;
     GateIpFilter ip_filter;
+    GateResume resume;
 };
 
 [[nodiscard]] ReadResult<Gate> read_gate(std::string_view text);

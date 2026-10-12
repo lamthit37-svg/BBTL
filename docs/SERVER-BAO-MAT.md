@@ -182,10 +182,18 @@ Dừng theo giao kèo mục 3.1: stdin hết hoặc tín hiệu console. Gate ng
   cả hai luồng sau khi dùng.
 - Dừng: bảng đặt cờ dừng, đánh thức thư ký và chờ nó xong câu đang hỏi (tối đa 8 giây, hạn của
   `Realm`).
-- `Resume` luôn trả `kSessionExpired`: token của `SessionStart` là ngẫu nhiên và chưa được lưu ở
-  đâu. Phiên chưa nối lại được.
-- Sau khi đổi vé, gate giữ vé năng lực HMAC 8 giờ (`kCapTtlSeconds`). Store chỉ kiểm HMAC và hạn,
-  không thấy bảng `ban` của database auth: tài khoản bị cấm sau lúc đổi vé vẫn tạo, xoá nhân vật
-  và vào game được tới khi vé năng lực hết hạn. Lúc đổi vé (`redeem`) auth xét cả `disabled_at`
+- `Resume`: gate giữ SHA-256 của token `SessionStart` (so hằng thời gian), tài khoản, vé năng
+  lực và nhân vật. Kết nối rớt vì idle/chậm/đóng thì phiên được giữ 60 giây (`kResumeGraceNs`);
+  `Logout` xoá phiên. Token dùng một lần, mỗi lần nối lại cấp token mới; chủ cũ còn sống bị đá bằng
+  `Goodbye kLoginElsewhere`. Nối lại đi qua `EnterGame` của store nên cấm/vé/nhân vật được xét lại.
+  Lỗi: `kNoSession`, `kSessionExpired`, `kOutOfOrder` (kết nối đã có tài khoản), `kBusy`. Bảng phiên
+  tối đa `max(64, 2*max_connections)`.
+- Vé năng lực HMAC 8 giờ (`kCapTtlSeconds`) vẫn còn, nhưng store hỏi auth `kStanding` (bảng `ban` +
+  `disabled_at`, tham số bind) trước mỗi list/create/delete/enter, kết quả nhớ tối đa 5 giây
+  (`StandingCache`, 4096 mục, không nhớ lỗi `kBusy`), auth không trả lời trong 2 giây thì từ chối.
+  Cấm có hiệu lực trong ≤5 giây (đo: 5,3 giây). Lúc đổi vé (`redeem`) auth xét cả `disabled_at`
   lẫn bảng `ban`.
+- `serve_loop` của auth/store không chặn: tối đa 64 kết nối, mỗi kết nối một khung, hạn đọc 3 giây
+  và ghi 3 giây (không tính thời gian DB), hàng việc đầy trả `kBusy`, đầy chỗ thì đuổi kết nối đang
+  đọc lâu nhất. Listener Windows đặt `SO_EXCLUSIVEADDRUSE`.
 - `guard::Pace` chưa nối vào đường nhận tin: chưa có tin di chuyển và chưa có zone.

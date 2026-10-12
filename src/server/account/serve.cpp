@@ -5,6 +5,7 @@
 #include "account/rpc.hpp"
 #include "account/rules.hpp"
 #include "account/sql.hpp"
+#include "account/standing.hpp"
 #include "config/auth.hpp"
 #include "config/cluster.hpp"
 #include "config/secrets.hpp"
@@ -134,7 +135,12 @@ struct AuthCtx {
 struct GameCtx {
     GameDb* db = nullptr;
     const std::array<std::byte, kIpcKeyBytes>* key = nullptr;
+    std::optional<net::Endpoint> auth;
+    StandingCache standing;
 };
+
+// Hỏi auth chặn luồng database của store tối đa chừng này; quá hạn là Busy.
+constexpr std::chrono::milliseconds kStandingWait{2000};
 
 [[nodiscard]] std::uint64_t unix_now() {
     const auto now = std::chrono::system_clock::now().time_since_epoch();
@@ -161,6 +167,33 @@ struct OpenedCap {
     return opened;
 }
 
+[[nodiscard]] Standing ask_standing(const GameCtx& ctx, const std::array<std::byte, kCapBytes>& token) {
+    Standing asked;
+    if (!ctx.auth) return asked;
+    const std::optional<Reply> reply = exchange(*ctx.auth, standing_call(token), kStandingWait, *ctx.key);
+    if (!reply) return asked;
+    const EnterResult result = enter_from(*reply);
+    asked.ok = result.ok;
+    asked.code = result.ok ? protocol::ErrorCode::kBusy : result.code;
+    return asked;
+}
+
+// Cap đúng chữ ký chưa đủ: tài khoản có thể bị ban sau khi cap được cấp.
+[[nodiscard]] OpenedCap open_standing(GameCtx& ctx, const std::array<std::byte, kCapBytes>& token) {
+    OpenedCap who = open_account(ctx, token);
+    if (!who.ok) return who;
+    const StandingCache::Clock::time_point now = StandingCache::Clock::now();
+    std::optional<Standing> known = ctx.standing.find(who.account, now);
+    if (!known) {
+        known = ask_standing(ctx, token);
+        ctx.standing.put(who.account, *known, now);
+    }
+    if (known->ok) return who;
+    OpenedCap denied;
+    denied.code = known->code;
+    return denied;
+}
+
 Reply on_auth(void* ctx, const Call& call) {
     auto* box = static_cast<AuthCtx*>(ctx);
     if (call.op == Op::kCreateAccount || call.op == Op::kSignIn) {
@@ -185,6 +218,17 @@ Reply on_auth(void* ctx, const Call& call) {
         }
         return reply_of(result);
     }
+    if (call.op == Op::kStanding) {
+        std::array<std::byte, kCapBytes> token{};
+        EnterResult result;
+        result.code = protocol::ErrorCode::kNotAuthenticated;
+        if (!read_list_call(call, token)) return reply_of(result);
+        Cap cap;
+        const CapStatus status = open_cap(*box->key, token, unix_now(), cap);
+        if (status == CapStatus::kExpired) result.code = protocol::ErrorCode::kSessionExpired;
+        if (status != CapStatus::kOk) return reply_of(result);
+        return reply_of(box->db->standing(cap.account));
+    }
     return reply_of(TicketResult{});
 }
 
@@ -193,7 +237,7 @@ Reply on_game(void* ctx, const Call& call) {
     std::array<std::byte, kCapBytes> token{};
     if (call.op == Op::kList) {
         if (!read_list_call(call, token)) return reply_of(ListResult{});
-        const OpenedCap who = open_account(*box, token);
+        const OpenedCap who = open_standing(*box, token);
         if (!who.ok) return reply_of(ListResult{.code = who.code});
         return reply_of(box->db->list(who.account));
     }
@@ -203,21 +247,21 @@ Reply on_game(void* ctx, const Call& call) {
         std::uint16_t face = 0;
         std::uint16_t hair = 0;
         if (!read_character_call(call, token, name, gender, face, hair)) return reply_of(ListResult{});
-        const OpenedCap who = open_account(*box, token);
+        const OpenedCap who = open_standing(*box, token);
         if (!who.ok) return reply_of(ListResult{.code = who.code});
         return reply_of(box->db->create_character(who.account, name, gender, face, hair));
     }
     if (call.op == Op::kDeleteCharacter) {
         std::uint64_t character = 0;
         if (!read_id_call(call, token, character)) return reply_of(ListResult{});
-        const OpenedCap who = open_account(*box, token);
+        const OpenedCap who = open_standing(*box, token);
         if (!who.ok) return reply_of(ListResult{.code = who.code});
         return reply_of(box->db->remove_character(who.account, character));
     }
     if (call.op == Op::kEnter) {
         std::uint64_t character = 0;
         if (!read_id_call(call, token, character)) return reply_of(EnterResult{});
-        const OpenedCap who = open_account(*box, token);
+        const OpenedCap who = open_standing(*box, token);
         if (!who.ok) {
             EnterResult denied;
             denied.code = who.code;
@@ -365,8 +409,32 @@ int serve_game(const Path& config_dir) {
         std::println(stderr, "store: {}", error);
         return 1;
     }
-    GameDb db{*conn};
-    GameCtx ctx{&db, &*key};
+    const std::optional<config::ProcessBlock> auth_process = find_process(*cluster, config::ProcessKind::kAuth);
+    std::optional<net::Endpoint> auth_endpoint;
+    if (auth_process) auth_endpoint = endpoint_of(auth_process->host, auth_process->port);
+    if (!auth_endpoint || !loopback_address(*auth_endpoint) || auth_endpoint->port == 0) {
+        std::println(stderr, "store: cần cổng auth 0 cố định trên 127.0.0.1 để kiểm ban");
+        return 2;
+    }
+    const config::StoreSecurity& security = store_cfg->security;
+    const auto ids = [](const std::vector<std::int64_t>& from) {
+        std::vector<std::uint16_t> out;
+        out.reserve(from.size());
+        for (const std::int64_t id : from) out.push_back(static_cast<std::uint16_t>(id));
+        return out;
+    };
+    CharacterPolicy policy;
+    policy.look.female_faces = ids(security.female_faces);
+    policy.look.male_faces = ids(security.male_faces);
+    policy.look.female_hairs = ids(security.female_hairs);
+    policy.look.male_hairs = ids(security.male_hairs);
+    policy.name_reserve = std::chrono::hours{24} * security.name_reserve_days;
+    GameDb db{*conn, std::move(policy)};
+    GameCtx ctx;
+    ctx.standing = StandingCache{security.standing_cache_ms};
+    ctx.db = &db;
+    ctx.key = &*key;
+    ctx.auth = *auth_endpoint;
     std::println("ready ipc={}", opened->port);
     static_cast<void>(std::fflush(stdout));
     return serve_loop(opened->listener, &on_game, &ctx, *key);

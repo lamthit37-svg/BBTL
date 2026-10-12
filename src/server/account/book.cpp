@@ -87,9 +87,12 @@ std::vector<protocol::CharacterSummary> MemoryBook::list_of(std::uint64_t accoun
     return rows;
 }
 
-bool MemoryBook::name_taken(std::string_view fold) const {
+// Giống GameDb: tên sống của bất kỳ ai, hoặc tên tài khoản khác đã xoá mềm. Bản nhớ không giữ giờ xoá
+// nên chỗ giữ tên kéo dài hết đời của sổ (dài hơn kNameReserve, không ngắn hơn).
+bool MemoryBook::name_taken(std::string_view fold, std::uint64_t account) const {
     for (const CharacterRow& row : characters_) {
-        if (!row.deleted && fold_ascii(row.summary.name) == fold) return true;
+        if (fold_character_name(row.summary.name) != fold) continue;
+        if (!row.deleted || row.account != account) return true;
     }
     return false;
 }
@@ -106,7 +109,8 @@ TicketResult MemoryBook::create_account(std::string_view name, std::string_view 
     const NameFault fault = account_fault(name, password);
     if (fault != NameFault::kOk) return fail_ticket(fault_code(fault));
     const std::string fold = fold_ascii(name);
-    if (find_fold(fold) != nullptr) return fail_ticket(protocol::ErrorCode::kDuplicate);
+    // Tên đã có trả cùng mã như đăng nhập sai, để không dò được tài khoản (giống AuthDb).
+    if (find_fold(fold) != nullptr) return fail_ticket(protocol::ErrorCode::kBadCredentials);
     if (config_.hash.hash == nullptr) return fail_ticket(protocol::ErrorCode::kBusy);
     AccountRow row;
     row.id = next_account_++;
@@ -168,10 +172,11 @@ ListResult MemoryBook::create_character(std::uint64_t account, std::string_view 
     std::uint16_t face, std::uint16_t hair) {
     const bool owned = std::ranges::any_of(accounts_, [&](const AccountRow& row) { return row.id == account; });
     if (!owned) return fail_list(protocol::ErrorCode::kNotAuthenticated);
+    if (!look_ok(config_.look, gender, face, hair)) return fail_list(protocol::ErrorCode::kBadOption);
     const std::optional<std::string> canonical = canonical_character_name(name);
     if (!canonical) return fail_list(protocol::ErrorCode::kNameInvalid);
-    const std::string fold = fold_ascii(*canonical);
-    const CreateStep step = create_step(true, live_count(account), name_taken(fold));
+    const std::string fold = fold_character_name(*canonical);
+    const CreateStep step = create_step(true, live_count(account), name_taken(fold, account));
     if (step != CreateStep::kOk) return fail_list(create_code(step));
     CharacterRow row;
     row.id = next_character_++;

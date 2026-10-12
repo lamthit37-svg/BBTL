@@ -34,3 +34,17 @@ world_ms     = 60000   # Thay đổi của dữ liệu world: bang, thư, xếp 
 # Store ghi thay đổi vào nhật ký trước khi xuống database, để sập giữa chừng không mất.
 [journal]
 dir = "../data/store/journal"   # Thư mục chứa nhật ký
+
+#==================================================
+# Bảo mật
+#==================================================
+# Nhóm tuỳ chọn; thiếu nhóm hay thiếu khoá thì dùng đúng giá trị mặc định ghi dưới đây.
+[security]
+# Cửa sổ tối đa sau ban; 0 tới 10000, 0 là mỗi lệnh đều hỏi auth.
+standing_cache_ms = 1000                             # Nhớ trạng thái ban của auth, mili giây
+name_reserve_days = 30                               # Ngày giữ tên nhân vật xoá mềm cho chủ cũ (0 tới 3650)
+# Id mặt/tóc tạo được, khớp creatable = 1 trong faces.tsv/hairs.tsv (race 0 nữ, 1 nam).
+female_faces      = [1, 2, 3, 4, 5, 14]              # Id mặt nữ tạo được
+male_faces        = [100, 101, 102, 103, 104, 113]   # Id mặt nam tạo được
+female_hairs      = [1, 17, 19]                      # Id tóc nữ tạo được
+male_hairs        = [5, 12, 14]                      # Id tóc nam tạo được

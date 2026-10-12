@@ -11,6 +11,7 @@
 #include <span>
 #include <string>
 #include <string_view>
+#include <vector>
 
 namespace game::account {
 
@@ -32,8 +33,39 @@ enum class SignStep : std::uint8_t { kRate, kCreate, kMissing, kDisabled, kMisma
 
 enum class CreateStep : std::uint8_t { kBadName, kFull, kTaken, kOk };
 
-// Chỉ hạ chữ ASCII. Chữ có dấu giữ nguyên, nên "Á" và "á" là hai tên.
+// Chỉ hạ chữ ASCII. Dùng cho tên tài khoản (chỉ có ASCII) và mật khẩu.
 [[nodiscard]] std::string fold_ascii(std::string_view text);
+
+// Khoá duy nhất của tên nhân vật đã qua canonical_character_name: hạ hoa thường cả chữ có dấu
+// ("Á" và "á", "Đ" và "đ", "Ầ" và "ầ" là một tên). Tên ngoài tập chữ không tới được đây.
+[[nodiscard]] std::string fold_character_name(std::string_view canonical);
+
+// Tên nhân vật đã xoá mềm giữ chỗ cho chủ cũ chừng này; tài khoản khác không lấy được tên đó
+// trong hạn (chống chiếm tên vừa xoá để giả danh). Mặc định; store.toml name_reserve_days đè lên.
+inline constexpr std::chrono::hours kNameReserve{24 * 30};
+
+// Mặt và tóc nhân vật mới: chỉ id có creatable = 1 trong faces.tsv/hairs.tsv của client (race 0 = nữ,
+// race 1 = nam). Client tự gửi id nên máy chủ đối chiếu danh sách đóng; ngoài danh sách là từ chối.
+// Danh sách đọc từ store.toml [security] female_faces/male_faces/female_hairs/male_hairs; thiếu khoá
+// thì dùng default_look_policy() (khớp bảng client hiện tại).
+struct LookPolicy {
+    std::vector<std::uint16_t> female_faces;
+    std::vector<std::uint16_t> male_faces;
+    std::vector<std::uint16_t> female_hairs;
+    std::vector<std::uint16_t> male_hairs;
+};
+
+[[nodiscard]] const LookPolicy& default_look_policy();
+[[nodiscard]] bool look_ok(const LookPolicy& policy, protocol::Gender gender, std::uint16_t face,
+    std::uint16_t hair) noexcept;
+// Theo default_look_policy().
+[[nodiscard]] bool look_ok(protocol::Gender gender, std::uint16_t face, std::uint16_t hair) noexcept;
+
+// Nút cấu hình của sổ nhân vật (store.toml [security]).
+struct CharacterPolicy {
+    LookPolicy look = default_look_policy();
+    std::chrono::seconds name_reserve = kNameReserve;
+};
 
 [[nodiscard]] NameFault account_fault(std::string_view name, std::string_view password);
 
@@ -43,7 +75,7 @@ enum class CreateStep : std::uint8_t { kBadName, kFull, kTaken, kOk };
 [[nodiscard]] bool character_name_ok(std::string_view name);
 
 // Tên đã NFC cho Latin và tiếng Việt. nullopt khi có NUL, điều khiển hướng, ký tự rộng zero,
-// dấu tổ hợp không ghép được, hoặc vượt 48 byte.
+// dấu tổ hợp không ghép được, chữ ngoài tập (Cyrillic, Hy Lạp, toàn khổ...), hoặc vượt 48 byte.
 [[nodiscard]] std::optional<std::string> canonical_character_name(std::string_view name);
 
 // Bốn octet 0–255, không số 0 thừa ở đầu. "127.0.0.1" đúng, "127.00.0.1" sai.

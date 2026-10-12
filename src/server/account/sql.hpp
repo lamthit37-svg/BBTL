@@ -37,6 +37,8 @@ public:
     [[nodiscard]] TicketResult create_account(std::string_view name, std::string_view password, std::string_view ip);
     [[nodiscard]] TicketResult sign_in(std::string_view name, std::string_view password, std::string_view ip);
     [[nodiscard]] RedeemResult redeem(std::string_view ticket_hex);
+    // Còn được chơi không: không khoá và không có ban còn hạn. Store hỏi trước mọi thao tác.
+    [[nodiscard]] EnterResult standing(std::uint64_t account);
 
 private:
     store::PgConn& conn_;
@@ -45,7 +47,7 @@ private:
 
 class GameDb {
 public:
-    explicit GameDb(store::PgConn& conn);
+    explicit GameDb(store::PgConn& conn, CharacterPolicy policy = {});
 
     [[nodiscard]] ListResult list(std::uint64_t account);
     [[nodiscard]] ListResult create_character(std::uint64_t account, std::string_view name, protocol::Gender gender,
@@ -55,6 +57,7 @@ public:
 
 private:
     store::PgConn& conn_;
+    CharacterPolicy policy_;
 };
 
 } // namespace game::account

@@ -1,6 +1,10 @@
 #include "account/rules.hpp"
 
+#include <algorithm>
+#include <array>
+#include <cstdint>
 #include <optional>
+#include <span>
 #include <vector>
 
 namespace game::account {
@@ -239,7 +243,63 @@ void append_utf8(std::string& out, char32_t cp) {
     out.push_back(static_cast<char>(0x80 | (cp & 0x3F)));
 }
 
+// Tập chữ được phép trong tên nhân vật, kiểm sau khi ghép NFC: ASCII in được, chữ Latin có dấu
+// nằm trong bảng ghép (Latin-1 có dấu và chữ Việt), Đ/đ, và chữ Hán thống nhất (khối chính + mở rộng A).
+// Ngoài tập là từ chối: Cyrillic, Hy Lạp, chữ toàn khổ, ký hiệu chữ cái, chữ Latin không có trong
+// tiếng Việt (Æ, Ð, Ø, Þ, ß...) đều nhìn giống chữ Latin hoặc chữ Việt và dùng để giả tên.
+[[nodiscard]] bool name_repertoire(char32_t cp) noexcept {
+    if (cp >= 0x20 && cp <= 0x7E) return true;
+    if (cp == 0x0110 || cp == 0x0111) return true;
+    if (cp >= 0x4E00 && cp <= 0x9FFF) return true;
+    if (cp >= 0x3400 && cp <= 0x4DBF) return true;
+    for (const Compose& row : kCompose) {
+        if (row.out == cp) return true;
+    }
+    return false;
+}
+
+// Hạ hoa thường đầy đủ cho đúng tập chữ name_repertoire. Tập đóng nên không cần bảng Unicode.
+[[nodiscard]] char32_t fold_codepoint(char32_t cp) noexcept {
+    if (cp >= 'A' && cp <= 'Z') return cp + 0x20;
+    if (cp >= 0x00C0 && cp <= 0x00DE && cp != 0x00D7) return cp + 0x20;
+    if (cp == 0x0102 || cp == 0x0110 || cp == 0x01A0 || cp == 0x01AF) return cp + 1;
+    if (cp >= 0x1EA0 && cp <= 0x1EF9 && (cp % 2U) == 0) return cp + 1;
+    return cp;
+}
+
 } // namespace
+
+const LookPolicy& default_look_policy() {
+    static const LookPolicy kDefault{
+        .female_faces = {1, 2, 3, 4, 5, 14},
+        .male_faces = {100, 101, 102, 103, 104, 113},
+        .female_hairs = {1, 17, 19},
+        .male_hairs = {5, 12, 14},
+    };
+    return kDefault;
+}
+
+bool look_ok(const LookPolicy& policy, protocol::Gender gender, std::uint16_t face, std::uint16_t hair) noexcept {
+    const auto has = [](std::span<const std::uint16_t> set, std::uint16_t id) {
+        return std::ranges::find(set, id) != set.end();
+    };
+    if (gender == protocol::Gender::kFemale) return has(policy.female_faces, face) && has(policy.female_hairs, hair);
+    if (gender == protocol::Gender::kMale) return has(policy.male_faces, face) && has(policy.male_hairs, hair);
+    return false;
+}
+
+bool look_ok(protocol::Gender gender, std::uint16_t face, std::uint16_t hair) noexcept {
+    return look_ok(default_look_policy(), gender, face, hair);
+}
+
+std::string fold_character_name(std::string_view canonical) {
+    const std::optional<std::vector<char32_t>> decoded = decode_utf8(canonical);
+    if (!decoded) return fold_ascii(canonical);
+    std::string out;
+    out.reserve(canonical.size());
+    for (const char32_t cp : *decoded) append_utf8(out, fold_codepoint(cp));
+    return out;
+}
 
 std::optional<std::string> canonical_character_name(std::string_view name) {
     const std::optional<std::vector<char32_t>> decoded = decode_utf8(name);
@@ -256,6 +316,9 @@ std::optional<std::string> canonical_character_name(std::string_view name) {
         const std::optional<char32_t> joined = compose(folded.back(), cp);
         if (!joined) return std::nullopt;
         folded.back() = *joined;
+    }
+    for (const char32_t cp : folded) {
+        if (!name_repertoire(cp)) return std::nullopt;
     }
     std::string text;
     for (const char32_t cp : folded) append_utf8(text, cp);

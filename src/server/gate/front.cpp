@@ -127,6 +127,9 @@ void fail_listen(std::string_view name, net::NetError error) {
     limits.frame_bytes = static_cast<std::size_t>(gate.limits.client_frame_bytes);
     limits.per_second = gate.limits.messages_per_second;
     limits.min_version = static_cast<std::uint16_t>(gate.client.min_version);
+    limits.per_ip_prefix = static_cast<std::uint32_t>(gate.limits.per_ip_prefix);
+    limits.resume_grace_ns = gate.resume.grace_ms.count() * kNsPerMs;
+    limits.resume_bind_ip = gate.resume.bind_to_ip;
     return limits;
 }
 
@@ -392,11 +395,9 @@ void note_phase(std::uint64_t& slot, std::int64_t began) {
 }
 
 void catch_up(Loop& loop, TickSpan span) {
-    loop.deadline += kTickNs;
-    while (loop.deadline <= span.start) {
-        loop.deadline += kTickNs;
-        ++loop.late;
-    }
+    const TickPlan plan = next_tick(loop.deadline, span.start);
+    loop.deadline = plan.deadline;
+    loop.late += plan.missed;
 }
 
 [[nodiscard]] int one_tick(Loop& loop) {

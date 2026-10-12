@@ -32,6 +32,7 @@ struct BookConfig {
     std::chrono::seconds ticket_ttl{300};
     HashOps hash{};
     RandomOps random{};
+    LookPolicy look = default_look_policy();
 };
 
 struct TicketResult {
@@ -96,7 +97,7 @@ private:
     void note_failure(AccountRow& row, std::chrono::system_clock::time_point now);
     [[nodiscard]] TicketResult issue(std::uint64_t account, std::chrono::system_clock::time_point now);
     [[nodiscard]] std::vector<protocol::CharacterSummary> list_of(std::uint64_t account) const;
-    [[nodiscard]] bool name_taken(std::string_view fold) const;
+    [[nodiscard]] bool name_taken(std::string_view fold, std::uint64_t account) const;
     [[nodiscard]] int live_count(std::uint64_t account) const;
 
     BookConfig config_;

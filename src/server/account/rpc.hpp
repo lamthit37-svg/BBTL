@@ -26,6 +26,8 @@ enum class Op : std::uint16_t {
     kCreateCharacter = 5,
     kDeleteCharacter = 6,
     kEnter = 7,
+    // Store hỏi auth: tài khoản trong cap còn được chơi không (khoá, ban sau khi đăng nhập).
+    kStanding = 8,
 };
 
 struct Call {
@@ -43,6 +45,7 @@ struct Reply {
 [[nodiscard]] Call list_call(std::span<const std::byte, kCapBytes> cap);
 [[nodiscard]] Call character_call(std::span<const std::byte, kCapBytes> cap, std::string_view name,
     protocol::Gender gender, std::uint16_t face, std::uint16_t hair);
+[[nodiscard]] Call standing_call(std::span<const std::byte, kCapBytes> cap);
 [[nodiscard]] Call id_call(Op op, std::span<const std::byte, kCapBytes> cap, std::uint64_t character);
 
 [[nodiscard]] bool read_account_call(const Call& call, std::string& name, std::string& password, std::string& ip);
@@ -68,7 +71,9 @@ struct Reply {
 using Handler = Reply (*)(void* ctx, const Call& call);
 
 // Chạy tới khi process::stop_requested. 0 khi dừng theo yêu cầu, 1 khi poll hỏng.
-// key là khoá ipc 32 byte. Khung không mở được thì bỏ kết nối, không trả lời.
+// key là khoá ipc 32 byte. Khung không mở được thì bỏ kết nối, không trả lời. Không chặn:
+// tối đa 64 kết nối cùng lúc, mỗi kết nối 3 giây để gửi khung và 3 giây để nhận trả lời.
+// Hàng database đầy thì trả Busy.
 [[nodiscard]] int serve_loop(net::TcpListener& listener, Handler handler, void* ctx, secure::ByteView key);
 
 } // namespace game::account

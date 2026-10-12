@@ -122,6 +122,10 @@ public:
     [[nodiscard]] std::optional<StringList> addresses(std::string_view key, ListKind kind);
     // Mảng giờ trong ngày, 0 tới 23, không lặp.
     [[nodiscard]] std::optional<IntList> hours(std::string_view key);
+    // Mảng số nguyên trong bound, 1 tới most phần tử, không lặp.
+    [[nodiscard]] std::optional<IntList> integers(std::string_view key, Bound bound, std::size_t most);
+    // Bảng có khoá này không (cho khoá tuỳ chọn có mặc định). Không ghi lỗi.
+    [[nodiscard]] bool has(std::string_view key) const noexcept { return find_field(*table_, key) != nullptr; }
 
     // Chuỗi thuộc một tập đóng; choices là mảng Choice<Enum>, trả giá trị ứng với tên.
     template <typename Choices>

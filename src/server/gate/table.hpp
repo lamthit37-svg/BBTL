@@ -22,6 +22,25 @@ namespace game::gate {
 inline constexpr std::int64_t kNsPerMs = 1'000'000;
 inline constexpr std::int64_t kNsPerSecond = 1'000'000'000;
 inline constexpr std::int64_t kTickNs = kNsPerSecond / 60;
+
+struct TickPlan {
+    std::int64_t deadline = 0;
+    std::uint64_t missed = 0;
+};
+
+// Mốc tick kế sau một lượt bắt đầu lúc start. Lượt bị sự kiện đánh thức sớm (start < deadline) giữ
+// nguyên mốc: cộng kTickNs mỗi lượt bất kể giờ thì mỗi sự kiện đẩy mốc xa thêm 1/60 giây, vài trăm
+// kết nối tới dồn làm vòng chờ hàng giây không chạy tick.
+[[nodiscard]] constexpr TickPlan next_tick(std::int64_t deadline, std::int64_t start) noexcept {
+    TickPlan plan{.deadline = deadline, .missed = 0};
+    if (start < deadline) return plan;
+    plan.deadline += kTickNs;
+    while (plan.deadline <= start) {
+        plan.deadline += kTickNs;
+        ++plan.missed;
+    }
+    return plan;
+}
 inline constexpr std::size_t kOutboxBytes = 1024;
 inline constexpr std::size_t kScratchBytes = 256;
 inline constexpr std::size_t kHeldBytes = secure::kMaxRecordBytes * 2;
@@ -56,6 +75,11 @@ struct Limits {
     std::size_t frame_bytes = 0;
     std::int64_t per_second = 0;
     std::uint16_t min_version = 1;
+    // Trần per_ip đếm theo dải /per_ip_prefix (gate.toml [limits] per_ip_prefix).
+    std::uint32_t per_ip_prefix = 32;
+    // gate.toml [resume].
+    std::int64_t resume_grace_ns = std::int64_t{30} * kNsPerSecond;
+    bool resume_bind_ip = true;
 };
 
 struct Cidr {

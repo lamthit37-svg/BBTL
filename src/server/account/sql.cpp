@@ -6,6 +6,7 @@
 
 #include <array>
 #include <charconv>
+#include <chrono>
 #include <optional>
 #include <utility>
 #include <vector>
@@ -383,16 +384,21 @@ TicketResult AuthDb::create_account(std::string_view name, std::string_view pass
     secure::wipe_bytes(std::as_writable_bytes(std::span{existing.password_hash.data(), existing.password_hash.size()}));
     if (existing.failed) return {};
     if (existing.found) {
-        // Tên đã có cũng là một lần thử hỏng của IP này, để không dò được danh sách tài khoản không trần.
+        // Tên đã có trả cùng mã và cùng thời gian băm như đăng nhập sai: không dò được tài khoản nào
+        // tồn tại. Vẫn là một lần thử hỏng của IP này, nên tổng số lần dò có trần kIpFailLimit.
+        burn_dummy(options_, password);
         if (!note_attempt(conn_, std::nullopt, fold, ip, false) || !tx.commit()) return {};
-        return fail_ticket(protocol::ErrorCode::kDuplicate);
+        return fail_ticket(protocol::ErrorCode::kBadCredentials);
     }
     const std::optional<std::int64_t> id = insert_account(conn_, options_, name, fold, password);
     if (!id) return {};
     if (*id < 0) {
-        TicketResult result;
-        result.code = protocol::ErrorCode::kDuplicate;
-        return result;
+        // Đua với một lệnh tạo khác cùng tên: cùng câu trả lời như tên đã có (đã băm một lần).
+        Tx again{conn_};
+        tx.open = false;
+        static_cast<void>(conn_.exec("ROLLBACK"));
+        if (!again.begin() || !note_attempt(conn_, std::nullopt, fold, ip, false) || !again.commit()) return {};
+        return fail_ticket(protocol::ErrorCode::kBadCredentials);
     }
     if (!note_attempt(conn_, *id, fold, ip, true)) return {};
     const std::optional<std::string> hex = issue_ticket(conn_, *id, options_.ttl_seconds);
@@ -510,7 +516,30 @@ RedeemResult AuthDb::redeem(std::string_view ticket_hex) {
     return result;
 }
 
-GameDb::GameDb(PgConn& conn) : conn_(conn) {}
+EnterResult AuthDb::standing(std::uint64_t account) {
+    EnterResult result;
+    result.code = protocol::ErrorCode::kBusy;
+    Args who;
+    who.i64(static_cast<std::int64_t>(account));
+    const PgExec found = conn_.exec(
+        "SELECT (disabled_at IS NOT NULL OR EXISTS (SELECT 1 FROM ban WHERE ban.account_id = account.id "
+        "AND (ban.until_at IS NULL OR ban.until_at > now())))::text FROM account WHERE id = $1",
+        who.span());
+    if (!found.ok) return result;
+    const std::string* disabled = cell(found, 0, 0);
+    if (disabled == nullptr) {
+        result.code = protocol::ErrorCode::kNotAuthenticated;
+        return result;
+    }
+    if (as_flag(*disabled)) {
+        result.code = protocol::ErrorCode::kBadCredentials;
+        return result;
+    }
+    result.ok = true;
+    return result;
+}
+
+GameDb::GameDb(PgConn& conn, CharacterPolicy policy) : conn_(conn), policy_(std::move(policy)) {}
 
 ListResult GameDb::list(std::uint64_t account) {
     return list_players(conn_, account);
@@ -518,20 +547,22 @@ ListResult GameDb::list(std::uint64_t account) {
 
 ListResult GameDb::create_character(std::uint64_t account, std::string_view name, protocol::Gender gender,
     std::uint16_t face, std::uint16_t hair) {
-    if (!protocol::is_valid(gender)) {
+    if (!protocol::is_valid(gender) || !look_ok(policy_.look, gender, face, hair)) {
         ListResult result;
         result.code = protocol::ErrorCode::kBadOption;
         return result;
     }
     const std::optional<std::string> canonical = canonical_character_name(name);
     if (!canonical) return fail_list(protocol::ErrorCode::kNameInvalid);
-    const std::string fold = fold_ascii(*canonical);
+    const std::string fold = fold_character_name(*canonical);
     Tx tx{conn_};
     if (!tx.begin()) return {};
     Args lock;
     lock.i64(static_cast<std::int64_t>(account));
     const PgExec locked = conn_.exec("SELECT pg_advisory_xact_lock($1)", lock.span());
     if (!locked.ok) return {};
+    // Khoá theo tên: chỗ giữ tên đã xoá không có chỉ mục duy nhất nào canh, phải tuần tự hoá ở đây.
+    if (!lock_name(conn_, std::string("player:") + fold)) return {};
     Args count_args;
     count_args.i64(static_cast<std::int64_t>(account));
     const PgExec counted = conn_.exec(
@@ -543,8 +574,13 @@ ListResult GameDb::create_character(std::uint64_t account, std::string_view name
     const int live_count = *live > 100000 ? 100000 : static_cast<int>(*live);
     Args taken_args;
     taken_args.text(fold);
+    taken_args.i64(static_cast<std::int64_t>(account));
+    taken_args.i64(policy_.name_reserve.count());
+    // Tên đang sống của bất kỳ ai, hoặc tên tài khoản khác vừa xoá mềm còn trong hạn giữ chỗ.
     const PgExec taken = conn_.exec(
-        "SELECT 1 FROM player WHERE name_fold = $1 AND deleted_at IS NULL", taken_args.span());
+        "SELECT 1 FROM player WHERE name_fold = $1 AND (deleted_at IS NULL OR "
+        "(account_id <> $2 AND deleted_at > now() - make_interval(secs => $3::int))) LIMIT 1",
+        taken_args.span());
     if (!taken.ok) return {};
     const CreateStep step = create_step(character_name_ok(name), live_count, !taken.rows.empty());
     if (step != CreateStep::kOk) {

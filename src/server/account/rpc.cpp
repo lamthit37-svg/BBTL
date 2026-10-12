@@ -275,6 +275,12 @@ Call list_call(std::span<const std::byte, kCapBytes> cap) {
     return Call{.op = Op::kList, .body = std::move(out.bytes)};
 }
 
+Call standing_call(std::span<const std::byte, kCapBytes> cap) {
+    Out out;
+    out.bytes.insert(out.bytes.end(), cap.begin(), cap.end());
+    return Call{.op = Op::kStanding, .body = std::move(out.bytes)};
+}
+
 Call character_call(std::span<const std::byte, kCapBytes> cap, std::string_view name, protocol::Gender gender,
     std::uint16_t face, std::uint16_t hair) {
     Out out;
@@ -445,28 +451,47 @@ std::optional<Reply> exchange(const net::Endpoint& endpoint, const Call& call, s
     return reply;
 }
 
-constexpr std::size_t kFlight = 8;
+namespace {
 
-struct Live {
-    std::uint64_t id = 0;
+// Mỗi kết nối là một máy trạng thái không chặn: đọc khung, chờ luồng database, ghi trả lời.
+// Một kết nối chậm chỉ giữ một ô của nó; luồng nhận không bao giờ chờ trên một socket.
+// Hạn 3 giây tính riêng cho phần đọc và phần ghi; thời gian database không tính.
+constexpr std::size_t kConns = 64;
+constexpr std::size_t kMailRoom = 64;
+constexpr auto kIoLimit = std::chrono::seconds{3};
+constexpr std::uint32_t kFrameMin = 24 + 16 + 2;
+constexpr std::uint32_t kFrameMax = kFrameMin + kPayloadMax;
+constexpr std::uint64_t kFirstConnTag = 2;
+static_assert(kMailRoom >= kConns, "hàng done phải chứa đủ mọi kết nối đang chờ database");
+
+enum class Phase : std::uint8_t { kFree, kReading, kWorking, kWriting };
+
+struct Conn {
+    Phase phase = Phase::kFree;
+    std::uint32_t generation = 0;
+    std::uint64_t tag = 0;
     net::TcpStream stream;
-    bool used = false;
+    std::vector<std::byte> in;
+    std::vector<std::byte> out;
+    std::size_t sent = 0;
+    bool sending = false;
+    Clock::time_point deadline{};
 };
 
 struct Work {
-    std::uint64_t id = 0;
+    std::uint64_t tag = 0;
     Call call;
 };
 
 struct Done {
-    std::uint64_t id = 0;
+    std::uint64_t tag = 0;
     Reply reply;
 };
 
 struct Shared {
     std::atomic<bool> stop{false};
-    net::SpscMail<Work, 16> jobs{};
-    net::SpscMail<Done, 16> done{};
+    net::SpscMail<Work, kMailRoom> jobs{};
+    net::SpscMail<Done, kMailRoom> done{};
     net::Reactor* reactor = nullptr;
     Handler handler = nullptr;
     void* ctx = nullptr;
@@ -480,7 +505,6 @@ struct StopDb {
         if (shared == nullptr) return;
         shared->stop.store(true, std::memory_order_seq_cst);
         shared->jobs.wake();
-        if (shared->reactor != nullptr) shared->reactor->wake();
         if (thread != nullptr && thread->joinable()) thread->join();
     }
 };
@@ -500,10 +524,11 @@ void db_main(Shared& shared) {
             continue;
         }
         Done item;
-        item.id = work.id;
+        item.tag = work.tag;
         item.reply = shared.handler(shared.ctx, work.call);
         wipe_call(work.call);
         if (shared.stop.load(std::memory_order_acquire)) return;
+        // Không đầy được: số việc đang bay không vượt kConns <= kMailRoom.
         while (!shared.done.try_push(item)) {
             if (shared.stop.load(std::memory_order_acquire)) return;
             std::this_thread::yield();
@@ -512,79 +537,208 @@ void db_main(Shared& shared) {
     }
 }
 
-[[nodiscard]] std::size_t flying(const std::array<Live, kFlight>& lives) noexcept {
-    std::size_t count = 0;
-    for (const Live& live : lives) {
-        if (live.used) ++count;
-    }
-    return count;
+struct Server {
+    net::Reactor& reactor;
+    Shared& shared;
+    secure::ByteView key;
+    std::array<Conn, kConns> conns{};
+    std::size_t open = 0;
+};
+
+[[nodiscard]] Conn* conn_of(Server& server, std::uint64_t tag) noexcept {
+    const std::uint64_t low = tag & 0xFFFFFFFFULL;
+    if (low < kFirstConnTag || low - kFirstConnTag >= kConns) return nullptr;
+    Conn& conn = server.conns[static_cast<std::size_t>(low - kFirstConnTag)];
+    if (conn.phase == Phase::kFree || conn.tag != tag) return nullptr;
+    return &conn;
 }
 
-[[nodiscard]] Live* find_live(std::array<Live, kFlight>& lives, std::uint64_t id) noexcept {
-    for (Live& live : lives) {
-        if (live.used && live.id == id) return &live;
-    }
-    return nullptr;
+void close_conn(Server& server, Conn& conn) {
+    server.reactor.unwatch(conn.tag);
+    conn.stream = net::TcpStream{};
+    if (!conn.in.empty()) secure::wipe_bytes(conn.in);
+    conn.in.clear();
+    conn.out.clear();
+    conn.sent = 0;
+    conn.sending = false;
+    conn.phase = Phase::kFree;
+    --server.open;
 }
 
-[[nodiscard]] Live* free_live(std::array<Live, kFlight>& lives) noexcept {
-    for (Live& live : lives) {
-        if (!live.used) return &live;
-    }
-    return nullptr;
-}
-
-void release_live(Live& live) {
-    live.stream = net::TcpStream{};
-    live.used = false;
-    live.id = 0;
-}
-
-void drain_done(Shared& shared, std::array<Live, kFlight>& lives, secure::ByteView key) {
-    Done item;
-    while (shared.done.try_pop(item)) {
-        Live* live = find_live(lives, item.id);
-        if (live == nullptr) continue;
-        const std::optional<std::vector<std::byte>> frame = seal_message(key, item.reply.code, item.reply.body);
-        if (frame) {
-            net::PollSet poll;
-            if (poll.add(live->stream.handle(), kTag)) {
-                const Clock::time_point deadline = Clock::now() + std::chrono::seconds{3};
-                static_cast<void>(write_all(live->stream, poll, *frame, deadline));
-                poll.remove(kTag);
-            }
+void flush(Server& server, Conn& conn) {
+    while (!conn.sending && conn.sent < conn.out.size()) {
+        const std::span<const std::byte> rest = std::span<const std::byte>{conn.out}.subspan(conn.sent);
+        const net::SendOutcome outcome = server.reactor.submit_send(conn.tag, rest);
+        if (outcome.state == net::SendState::kReset) {
+            close_conn(server, conn);
+            return;
         }
-        release_live(*live);
+        if (outcome.state == net::SendState::kPending) {
+            conn.sending = true;
+            return;
+        }
+        if (outcome.sent == 0) {
+            close_conn(server, conn);
+            return;
+        }
+        conn.sent += outcome.sent;
     }
+    if (!conn.sending && conn.sent >= conn.out.size()) close_conn(server, conn);
 }
 
-[[nodiscard]] bool take_job(net::Reactor& reactor, Shared& shared, std::array<Live, kFlight>& lives,
-    std::uint64_t& next_id, secure::ByteView key) {
-    if (flying(lives) >= kFlight) return false;
-    net::NetResult<std::optional<net::Accepted>> got = reactor.take_accept(kTag);
-    if (!got || !got->has_value()) return false;
-    Live* live = free_live(lives);
-    if (live == nullptr) return false;
-    live->stream = std::move((*got)->stream);
-    live->used = true;
-    ++next_id;
-    live->id = next_id;
-    net::PollSet poll;
-    Call call;
-    const bool read = poll.add(live->stream.handle(), kTag) && read_call(live->stream, poll, key, call);
-    poll.remove(kTag);
-    if (!read) {
-        release_live(*live);
-        return true;
+void begin_reply(Server& server, Conn& conn, std::uint16_t code, std::span<const std::byte> body) {
+    std::optional<std::vector<std::byte>> sealed = seal_message(server.key, code, body);
+    if (!sealed) {
+        close_conn(server, conn);
+        return;
+    }
+    conn.out = std::move(*sealed);
+    conn.sent = 0;
+    conn.sending = false;
+    conn.phase = Phase::kWriting;
+    conn.deadline = Clock::now() + kIoLimit;
+    flush(server, conn);
+}
+
+[[nodiscard]] std::uint32_t frame_size(std::span<const std::byte> head) noexcept {
+    return static_cast<std::uint32_t>(static_cast<unsigned>(head[0])) |
+           (static_cast<std::uint32_t>(static_cast<unsigned>(head[1])) << 8U) |
+           (static_cast<std::uint32_t>(static_cast<unsigned>(head[2])) << 16U) |
+           (static_cast<std::uint32_t>(static_cast<unsigned>(head[3])) << 24U);
+}
+
+void take_frame(Server& server, Conn& conn) {
+    if (conn.in.size() < 4) return;
+    const std::uint32_t size = frame_size(conn.in);
+    if (size < kFrameMin || size > kFrameMax) {
+        close_conn(server, conn);
+        return;
+    }
+    if (conn.in.size() < std::size_t{4} + size) return;
+    // Một yêu cầu một kết nối: byte thừa sau khung là bên kia nói sai giao thức.
+    if (conn.in.size() > std::size_t{4} + size) {
+        close_conn(server, conn);
+        return;
+    }
+    std::optional<std::vector<std::byte>> plain =
+        secure::ipc_open(server.key, std::span<const std::byte>{conn.in}.subspan(4));
+    secure::wipe_bytes(conn.in);
+    conn.in.clear();
+    if (!plain || plain->size() < 2) {
+        close_conn(server, conn);
+        return;
     }
     Work work;
-    work.id = live->id;
-    work.call = std::move(call);
-    if (shared.jobs.try_push(work)) return true;
+    work.tag = conn.tag;
+    const auto low = static_cast<unsigned>((*plain)[0]);
+    const auto high = static_cast<unsigned>((*plain)[1]) << 8U;
+    work.call.op = static_cast<Op>(static_cast<std::uint16_t>(low | high));
+    work.call.body.assign(plain->begin() + 2, plain->end());
+    secure::wipe_bytes(*plain);
+    conn.phase = Phase::kWorking;
+    if (server.shared.jobs.try_push(work)) return;
     wipe_call(work.call);
-    release_live(*live);
+    begin_reply(server, conn, static_cast<std::uint16_t>(protocol::ErrorCode::kBusy), {});
+}
+
+void read_some(Server& server, Conn& conn) {
+    std::array<std::byte, 4096> buffer{};
+    const std::size_t room = std::size_t{4} + kFrameMax - conn.in.size();
+    const std::size_t want = std::min(room + 1, buffer.size());
+    const net::NetResult<std::size_t> got = conn.stream.receive(std::span<std::byte>{buffer}.first(want));
+    if (!got) {
+        close_conn(server, conn);
+        return;
+    }
+    server.reactor.note_read(conn.tag, *got);
+    if (*got == 0) return;
+    if (*got > room) {
+        close_conn(server, conn);
+        return;
+    }
+    conn.in.insert(conn.in.end(), buffer.begin(), buffer.begin() + static_cast<std::ptrdiff_t>(*got));
+    secure::wipe_bytes(buffer);
+    take_frame(server, conn);
+}
+
+// Có kết nối mới mà đầy ô thì đuổi kết nối đang đọc lâu nhất: kết nối im không giữ được cổng ipc.
+// Bên gọi thật gửi trọn khung ngay khi nối nên xong trong một lượt đọc. Ô đang chờ database
+// hay đang ghi không bị đuổi.
+[[nodiscard]] bool evict_reader(Server& server) {
+    Conn* oldest = nullptr;
+    for (Conn& conn : server.conns) {
+        if (conn.phase != Phase::kReading) continue;
+        if (oldest == nullptr || conn.deadline < oldest->deadline) oldest = &conn;
+    }
+    if (oldest == nullptr) return false;
+    close_conn(server, *oldest);
     return true;
 }
+
+void accept_all(Server& server) {
+    for (;;) {
+        net::NetResult<std::optional<net::Accepted>> got = server.reactor.take_accept(kTag);
+        if (!got || !got->has_value()) return;
+        // Mọi ô đang chờ database hay đang ghi: đóng kết nối mới, bên gọi nhận lỗi và báo Busy.
+        if (server.open >= kConns && !evict_reader(server)) continue;
+        Conn* free = nullptr;
+        std::size_t index = 0;
+        for (; index < kConns; ++index) {
+            if (server.conns[index].phase == Phase::kFree) {
+                free = &server.conns[index];
+                break;
+            }
+        }
+        if (free == nullptr) return;
+        ++free->generation;
+        free->tag = (static_cast<std::uint64_t>(free->generation) << 32U) | (kFirstConnTag + index);
+        free->stream = std::move((*got)->stream);
+        if (!server.reactor.watch(free->stream.handle(), free->tag)) {
+            free->stream = net::TcpStream{};
+            continue;
+        }
+        free->phase = Phase::kReading;
+        free->deadline = Clock::now() + kIoLimit;
+        free->in.clear();
+        ++server.open;
+    }
+}
+
+void on_event(Server& server, const net::PollEvent& event) {
+    Conn* conn = conn_of(server, event.tag);
+    if (conn == nullptr) return;
+    if (conn->phase == Phase::kWriting && (event.sent > 0 || event.writable)) {
+        conn->sent += event.sent;
+        conn->sending = false;
+        flush(server, *conn);
+        return;
+    }
+    if (event.failed) {
+        if (conn->phase == Phase::kWorking) return;
+        close_conn(server, *conn);
+        return;
+    }
+    if (event.readable && conn->phase == Phase::kReading) read_some(server, *conn);
+}
+
+void drain_done(Server& server) {
+    Done item;
+    while (server.shared.done.try_pop(item)) {
+        Conn* conn = conn_of(server, item.tag);
+        if (conn == nullptr || conn->phase != Phase::kWorking) continue;
+        begin_reply(server, *conn, item.reply.code, item.reply.body);
+        if (!item.reply.body.empty()) secure::wipe_bytes(item.reply.body);
+    }
+}
+
+void sweep(Server& server, Clock::time_point now) {
+    for (Conn& conn : server.conns) {
+        if (conn.phase != Phase::kReading && conn.phase != Phase::kWriting) continue;
+        if (now >= conn.deadline) close_conn(server, conn);
+    }
+}
+
+} // namespace
 
 int serve_loop(net::TcpListener& listener, Handler handler, void* ctx, secure::ByteView key) {
     Shared shared;
@@ -593,21 +747,25 @@ int serve_loop(net::TcpListener& listener, Handler handler, void* ctx, secure::B
     net::Reactor reactor;
     shared.reactor = &reactor;
     if (!reactor.watch_listener(listener, kTag)) return 1;
-    std::array<Live, kFlight> lives{};
-    std::uint64_t next_id = 0;
+    Server server{.reactor = reactor, .shared = shared, .key = key};
     std::jthread db(db_main, std::ref(shared));
     [[maybe_unused]] const StopDb guard{.shared = &shared, .thread = &db};
     int code = 0;
+    net::PollEvents events;
     while (!process::stop_requested()) {
-        drain_done(shared, lives, key);
-        net::PollEvents events;
         if (!reactor.wait(std::chrono::milliseconds{200}, events)) {
             code = 1;
             break;
         }
-        drain_done(shared, lives, key);
-        while (take_job(reactor, shared, lives, next_id, key)) {
+        for (const net::PollEvent& event : events) {
+            if (event.tag != kTag) on_event(server, event);
         }
+        drain_done(server);
+        accept_all(server);
+        sweep(server, Clock::now());
+    }
+    for (Conn& conn : server.conns) {
+        if (conn.phase != Phase::kFree) close_conn(server, conn);
     }
     return code;
 }
