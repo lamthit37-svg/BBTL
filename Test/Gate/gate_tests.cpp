@@ -210,11 +210,11 @@ void foreign_is_not_decoded(Context& context) {
     const secure::Identity identity = make_identity();
     Linked linked = connected(identity, small_limits());
     std::vector<std::byte> frame(8);
-    frame[4] = std::byte{0x02};
-    frame[5] = std::byte{0x01};
+    frame[4] = std::byte{0x09};
+    frame[5] = std::byte{0x09};
     send_bytes(linked, frame, kNow);
     drain(linked);
-    context.expect(!linked.table.is_live(linked.handle), "tin đăng nhập bị ngắt");
+    context.expect(!linked.table.is_live(linked.handle), "mã tin lạ bị ngắt");
     context.expect(linked.table.drops(Drop::kForeign) == 1, "đếm tin ngoài mức phiên");
 }
 

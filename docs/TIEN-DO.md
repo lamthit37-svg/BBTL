@@ -16,6 +16,20 @@ StaticEntity bằng Vulkan đúng phép đặt gốc, có camera bay; `--shot <t
 `--dump-bounds <tệp.tsv>` ghi hộp bao thế giới của từng vật thể. Sáu bước con làm đúng thứ tự, bước
 sau chỉ bắt đầu khi bước trước đạt mọi tiêu chí.
 
+## Đăng ký, đăng nhập, nhân vật (2026-10-12)
+
+PostgreSQL 18.6 trong `SERVER/pgsql`, libpq 18.4. Schema `SERVER/sql/auth` và `SERVER/sql/game`:
+tài khoản Argon2id, vé một lần (SHA-256, không lưu vé thô), nhân vật tách cột và bảng con
+(`player_skill`, `player_life_skill`, `player_recipe`, `player_setting`, `item`) với id `bigint`.
+`thienlong_auth` và `thienlong_store` nghe ipc `7011` và `7010` khi có `secrets.local.toml`; không
+có tệp đó thì vẫn in `ready` để cụm thử khởi động. Gate chuyển CreateAccount, SignIn, Login,
+CreateCharacter, DeleteCharacter, EnterGame. Trần nhân vật đang sống là 3, khớp màn chọn của client
+2026. Chưa có IPC tổng quát, chưa có zone, chưa nạp vật phẩm tân thủ.
+
+Đã chạy: `account_tests` thoát 0; vòng thật trên PostgreSQL tạo tài khoản, từ chối trùng tên và sai
+mật khẩu, đổi vé một lần, tạo nhân vật `Lý Mộ`, từ chối trùng tên, vào game, xoá. Lệnh:
+`py -B TOOLS/server/setup_db.py start` rồi `thienlong_auth` và `thienlong_store --config SERVER/config`.
+
 ## Đã xong
 
 - **B1 — cửa sổ** (2026-10-05). Cửa sổ mở, đổi cỡ, đóng sạch, mã thoát 0. Chép 21 tệp từ Forge2

@@ -8,9 +8,11 @@
 #include <cstdint>
 #include <expected>
 #include <filesystem>
+#include <optional>
 #include <span>
 #include <string>
 #include <string_view>
+#include <vector>
 
 namespace game::secure {
 
@@ -229,5 +231,34 @@ private:
 
 // Hex thường, hai chữ số một byte. Lệnh sinh khoá in khoá công khai; không dùng cho nửa bí mật.
 [[nodiscard]] std::string hex_encode(ByteView bytes);
+
+// Entropy của libsodium. false khi thư viện không khởi động được.
+[[nodiscard]] bool fill_random(std::span<std::byte> out) noexcept;
+
+// SHA-256, out đúng 32 byte. Dùng để lưu vết vé, không phải để băm mật khẩu.
+[[nodiscard]] bool sha256(ByteView data, std::span<std::byte> out) noexcept;
+
+// Argon2id. ops và mem_bytes là tham số libsodium; mem_bytes tính bằng byte.
+// auth.toml ghi mem_limit_kib, bên gọi nhân 1024 trước khi đưa vào đây.
+struct PasswordPolicy {
+    unsigned long long ops = 2;
+    std::size_t mem_bytes = 67108864;
+};
+
+// out nhận chuỗi băm có dấu kết thúc, khoảng dưới 128 byte. Không ghi mật khẩu ra log.
+[[nodiscard]] bool hash_password(std::string_view password, PasswordPolicy policy, std::string& out);
+
+[[nodiscard]] bool verify_password(std::string_view hash, std::string_view password) noexcept;
+
+// Xoá byte nhạy cảm. Vùng rỗng thì không làm gì.
+void wipe_bytes(std::span<std::byte> region) noexcept;
+
+// Khung ipc: nonce 24 byte rồi bản mã XChaCha20-Poly1305 (thân cộng 16 byte tag). Khoá 32 byte.
+[[nodiscard]] std::optional<std::vector<std::byte>> ipc_seal(ByteView key, ByteView plain);
+[[nodiscard]] std::optional<std::vector<std::byte>> ipc_open(ByteView key, ByteView boxed);
+
+// HMAC-SHA512-256, tag 32 byte. Dùng cho vé năng lực giữa auth và store.
+[[nodiscard]] bool mac32(ByteView key, ByteView message, std::span<std::byte> tag);
+[[nodiscard]] bool mac32_verify(ByteView key, ByteView message, ByteView tag) noexcept;
 
 } // namespace game::secure

@@ -238,6 +238,18 @@ void Socket::close() noexcept {
 
 TcpStream::TcpStream(Socket socket) noexcept : socket_(std::move(socket)) {}
 
+TcpStream::TcpStream(TcpStream&& other) noexcept
+    : socket_(std::move(other.socket_)), connecting_(other.connecting_) {
+    other.connecting_ = false;
+}
+
+TcpStream& TcpStream::operator=(TcpStream&& other) noexcept {
+    socket_ = std::move(other.socket_);
+    connecting_ = other.connecting_;
+    other.connecting_ = false;
+    return *this;
+}
+
 NetResult<TcpStream> TcpStream::begin_connect(Endpoint target) noexcept {
     if (target.port == 0) return std::unexpected(NetError::kConnect);
     auto socket = make_socket();

@@ -4,6 +4,7 @@
 
 #include <cstddef>
 #include <span>
+#include <string_view>
 
 namespace game::secure::detail {
 
@@ -76,5 +77,32 @@ void wipe(std::span<std::byte> region) noexcept;
 [[nodiscard]] bool seal_box(const Box& box) noexcept;
 [[nodiscard]] bool open_box(const OpenBox& box) noexcept;
 [[nodiscard]] bool equal64(SecretPair pair) noexcept;
+
+// out đúng 32 byte. data rỗng vẫn băm được.
+[[nodiscard]] bool sha256(std::span<const std::byte> data, std::span<std::byte> out) noexcept;
+
+// out phải đủ 128 byte, kể cả dấu kết thúc. ops và mem_bytes là tham số Argon2id của libsodium
+// (mem_bytes là byte, không phải KiB). Sai tham số hoặc hết entropy thì false, không abort.
+struct PasswordRequest {
+    std::span<char> out;
+    std::string_view password;
+    unsigned long long ops = 0;
+    std::size_t mem_bytes = 0;
+};
+
+[[nodiscard]] bool hash_password(const PasswordRequest& request) noexcept;
+[[nodiscard]] bool verify_password(std::string_view hash, std::string_view password) noexcept;
+
+// XChaCha20-Poly1305. nonce 24 byte, key 32 byte, cipher dài bằng plain cộng 16.
+[[nodiscard]] bool aead_seal(std::span<const std::byte> key, std::span<const std::byte> nonce,
+    std::span<const std::byte> plain, std::span<std::byte> cipher) noexcept;
+[[nodiscard]] bool aead_open(std::span<const std::byte> key, std::span<const std::byte> nonce,
+    std::span<const std::byte> cipher, std::span<std::byte> plain) noexcept;
+
+// HMAC-SHA512-256. tag 32 byte, key 32 byte.
+[[nodiscard]] bool mac32(std::span<const std::byte> key, std::span<const std::byte> message,
+    std::span<std::byte> tag) noexcept;
+[[nodiscard]] bool mac32_verify(std::span<const std::byte> key, std::span<const std::byte> message,
+    std::span<const std::byte> tag) noexcept;
 
 } // namespace game::secure::detail

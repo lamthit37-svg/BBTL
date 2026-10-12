@@ -20,12 +20,12 @@ struct Bound {
     bool over_teleport = false;
 };
 
-[[nodiscard]] Bound measure(Step step, float from_x, float from_z, std::uint32_t from_tick) noexcept {
+[[nodiscard]] Bound measure(Step step, float from_x, float from_z, std::uint32_t ticks) noexcept {
     Bound bound;
     const float dx = step.x_cm - from_x;
     const float dz = step.z_cm - from_z;
     bound.distance_cm = std::sqrt(dx * dx + dz * dz);
-    const float seconds = static_cast<float>(step.tick - from_tick) * kTickSeconds;
+    const float seconds = static_cast<float>(ticks) * kTickSeconds;
     bound.limit_cm = kRunCmPerSec * seconds * kSlack + kSlackCm;
     bound.over_speed = bound.distance_cm > bound.limit_cm;
     const float teleport_floor = bound.limit_cm * 4.0F;
@@ -43,14 +43,17 @@ void Pace::reset() noexcept {
 }
 
 Verdict Pace::observe(Step step) noexcept {
-    if (!has_step_ || step.tick <= tick_) {
+    if (!has_step_) {
         has_step_ = true;
         x_cm_ = step.x_cm;
         z_cm_ = step.z_cm;
         tick_ = step.tick;
         return Verdict::kOk;
     }
-    const Bound bound = measure(step, x_cm_, z_cm_, tick_);
+    // Hiệu có dấu theo modulo 2^32: tick quay vòng vẫn là tiến, tick lùi là âm.
+    const auto elapsed = static_cast<std::int32_t>(step.tick - tick_);
+    if (elapsed < 0) return Verdict::kOk;
+    const Bound bound = measure(step, x_cm_, z_cm_, static_cast<std::uint32_t>(elapsed));
     if (bound.over_speed) ++speed_streak_;
     if (!bound.over_speed) speed_streak_ = 0;
     if (bound.over_teleport) ++teleport_streak_;
@@ -59,6 +62,7 @@ Verdict Pace::observe(Step step) noexcept {
     if (speed_streak_ >= kSpeedSustain) verdict = Verdict::kSpeed;
     if (teleport_streak_ >= kTeleportSustain) verdict = Verdict::kTeleport;
     if (verdict != Verdict::kOk) return verdict;
+    if (bound.over_speed || bound.over_teleport) return Verdict::kOk;
     x_cm_ = step.x_cm;
     z_cm_ = step.z_cm;
     tick_ = step.tick;

@@ -1,12 +1,16 @@
 // Vòng tick của gate: chờ I/O tới hạn tick, đọc có ngân sách, chạy đồng hồ, đẩy hộp gửi.
 #include "gate/front.hpp"
 
+#include "account/ipc_key.hpp"
+#include "account/realm.hpp"
+#include "config/cluster.hpp"
 #include "config/gate.hpp"
 #include "config/issue.hpp"
 #include "config/types.hpp"
 #include "gate/table.hpp"
 #include "io/file.hpp"
 #include "net/net.hpp"
+#include "net/reactor.hpp"
 #include "process/process.hpp"
 #include "secure/secure.hpp"
 
@@ -33,7 +37,6 @@ namespace {
 constexpr std::uint64_t kListenGame = ~std::uint64_t{0} - 1U;
 constexpr std::uint64_t kListenAuth = ~std::uint64_t{0};
 constexpr std::size_t kAcceptBudget = 32;
-constexpr std::size_t kReadBudget = 512;
 constexpr std::size_t kResumeBudget = 32;
 constexpr std::int64_t kStatNs = 1'000'000'000;
 
@@ -55,7 +58,7 @@ struct Loop {
     Table& table;
     Listeners& listeners;
     std::vector<Held>& held;
-    net::PollSet poll;
+    net::Reactor reactor;
     net::PollEvents events;
     std::int64_t now = 0;
     std::int64_t deadline = 0;
@@ -139,76 +142,77 @@ void fail_listen(std::string_view name, net::NetError error) {
     return false;
 }
 
-void listen_on(Listeners& listeners, net::PollSet& poll) {
-    const bool game = poll.add(listeners.game.handle(), kListenGame);
-    const bool auth = poll.add(listeners.auth.handle(), kListenAuth);
+void listen_on(Listeners& listeners, net::Reactor& reactor) {
+    const bool game = reactor.watch_listener(listeners.game, kListenGame);
+    const bool auth = reactor.watch_listener(listeners.auth, kListenAuth);
     if (game && auth) {
         listeners.polled = true;
         return;
     }
-    if (game) poll.remove(kListenGame);
-    if (auth) poll.remove(kListenAuth);
+    if (game) reactor.unwatch(kListenGame);
+    if (auth) reactor.unwatch(kListenAuth);
     listeners.polled = false;
 }
 
-void listen_off(Listeners& listeners, net::PollSet& poll) {
-    poll.remove(kListenGame);
-    poll.remove(kListenAuth);
+void listen_off(Listeners& listeners, net::Reactor& reactor) {
+    reactor.unwatch(kListenGame);
+    reactor.unwatch(kListenAuth);
     listeners.polled = false;
 }
 
-void sync_listeners(Listeners& listeners, net::PollSet& poll, bool want) {
+void sync_listeners(Listeners& listeners, net::Reactor& reactor, bool want) {
     if (want == listeners.polled) return;
-    if (want) listen_on(listeners, poll);
-    if (!want) listen_off(listeners, poll);
+    if (want) listen_on(listeners, reactor);
+    if (!want) listen_off(listeners, reactor);
 }
 
-void drop_socket(Held& place, net::PollSet& poll, CloseHow how) {
+void drop_socket(Held& place, net::Reactor& reactor, CloseHow how) {
     if (!place.open) return;
-    poll.remove(tag_of(place.handle));
+    reactor.unwatch(tag_of(place.handle));
     if (how == CloseHow::kReset) place.stream.abort();
     if (how == CloseHow::kFinish) place.stream.shutdown_send();
     place.stream = net::TcpStream{};
     place.open = false;
 }
 
-void keep_stream(Held& place, net::TcpStream stream, Handle handle, net::PollSet& poll) {
+void keep_stream(Held& place, net::TcpStream stream, Handle handle, net::Reactor& reactor) {
     place.stream = std::move(stream);
     place.handle = handle;
     place.open = true;
-    const bool added = poll.add(place.stream.handle(), tag_of(handle));
+    const bool added = reactor.watch(place.stream.handle(), tag_of(handle));
     if (added) return;
     place.stream.abort();
     place.open = false;
 }
 
-[[nodiscard]] AcceptStep accept_one(net::TcpListener& listener, Loop& loop) {
-    net::NetResult<std::optional<net::Accepted>> got = listener.accept();
+[[nodiscard]] AcceptStep accept_one(net::TcpListener&, Loop& loop, Door door) {
+    const std::uint64_t tag = door == Door::kGame ? kListenGame : kListenAuth;
+    net::NetResult<std::optional<net::Accepted>> got = loop.reactor.take_accept(tag);
     if (!got || !got->has_value()) return AcceptStep::kStop;
     std::optional<net::Accepted>& waiting = *got;
     net::Accepted accepted = std::move(*waiting);
-    const Admit admitted = loop.table.admit(accepted.peer.address, loop.now);
+    const Admit admitted = loop.table.admit(accepted.peer.address, loop.now, door);
     if (admitted.code != AdmitCode::kOk) {
         accepted.stream.abort();
         return AcceptStep::kAgain;
     }
     Held& place = loop.held[admitted.handle.index];
-    keep_stream(place, std::move(accepted.stream), admitted.handle, loop.poll);
+    keep_stream(place, std::move(accepted.stream), admitted.handle, loop.reactor);
     if (!place.open) loop.table.drop(admitted.handle, Drop::kClosed);
     return AcceptStep::kAgain;
 }
 
-[[nodiscard]] bool take_one(net::TcpListener& listener, Loop& loop, std::size_t& budget) {
+[[nodiscard]] bool take_one(net::TcpListener& listener, Loop& loop, std::size_t& budget, Door door) {
     if (budget == 0 || !loop.table.listening()) return false;
-    const AcceptStep step = accept_one(listener, loop);
+    const AcceptStep step = accept_one(listener, loop, door);
     if (step == AcceptStep::kStop) return false;
     --budget;
     return true;
 }
 
-void accept_some(net::TcpListener& listener, Loop& loop) {
+void accept_some(net::TcpListener& listener, Loop& loop, Door door) {
     std::size_t budget = kAcceptBudget;
-    while (take_one(listener, loop, budget)) {
+    while (take_one(listener, loop, budget, door)) {
     }
 }
 
@@ -221,37 +225,38 @@ void read_one(Held& place, Loop& loop) {
     const net::NetResult<std::size_t> got = place.stream.receive(sink);
     if (!got) {
         const Handle handle = place.handle;
-        drop_socket(place, loop.poll, CloseHow::kReset);
+        drop_socket(place, loop.reactor, CloseHow::kReset);
         loop.table.drop(handle, Drop::kClosed);
         return;
     }
+    loop.reactor.note_read(tag_of(place.handle), *got);
     if (*got == 0) return;
     const secure::ByteView bytes{buffer.data(), *got};
     loop.table.receive(place.handle, bytes, loop.now);
     if (loop.table.is_live(place.handle)) return;
-    drop_socket(place, loop.poll, CloseHow::kReset);
+    drop_socket(place, loop.reactor, CloseHow::kReset);
 }
 
 void flush_one(Held& place, Loop& loop) {
-    const secure::ByteView pending = loop.table.outgoing(place.handle);
-    if (pending.empty()) {
-        loop.poll.want_write(tag_of(place.handle), false);
+    for (int spin = 0; spin < 4; ++spin) {
+        const secure::ByteView pending = loop.table.outgoing(place.handle);
+        if (pending.empty()) return;
+        const net::SendOutcome outcome = loop.reactor.submit_send(tag_of(place.handle), pending);
+        if (outcome.state == net::SendState::kReset) {
+            const Handle handle = place.handle;
+            drop_socket(place, loop.reactor, CloseHow::kReset);
+            loop.table.drop(handle, Drop::kClosed);
+            return;
+        }
+        if (outcome.state == net::SendState::kPending) return;
+        loop.table.mark_sent(place.handle, outcome.sent);
+        if (loop.table.is_live(place.handle) && outcome.sent > 0) continue;
+        if (!loop.table.is_live(place.handle)) drop_socket(place, loop.reactor, CloseHow::kFinish);
         return;
     }
-    const net::NetResult<std::size_t> sent = place.stream.send(pending);
-    if (!sent) {
-        const Handle handle = place.handle;
-        drop_socket(place, loop.poll, CloseHow::kReset);
-        loop.table.drop(handle, Drop::kClosed);
-        return;
-    }
-    loop.table.mark_sent(place.handle, *sent);
-    const bool live = loop.table.is_live(place.handle);
-    const bool more = live && !loop.table.outgoing(place.handle).empty();
-    loop.poll.want_write(tag_of(place.handle), more);
-    if (live) return;
-    drop_socket(place, loop.poll, CloseHow::kFinish);
 }
+
+void pump(Loop& loop);
 
 void flush_at(Loop& loop, Handle handle) {
     if (handle.index >= loop.held.size()) return;
@@ -273,6 +278,11 @@ void flush_pending(Loop& loop) {
         flush_batch(loop, std::span{batch.data(), count});
         count = loop.table.take_pending(std::span{batch});
     }
+    for (int pass = 0; pass < 4; ++pass) {
+        if (!loop.reactor.wait(net::Milliseconds{0}, loop.events)) return;
+        if (loop.events.empty()) return;
+        pump(loop);
+    }
 }
 
 void resume_one(Loop& loop, Handle handle) {
@@ -281,7 +291,7 @@ void resume_one(Loop& loop, Handle handle) {
     if (!place.open || place.handle != handle) return;
     loop.table.receive(handle, {}, loop.now);
     if (loop.table.is_live(handle)) return;
-    drop_socket(place, loop.poll, CloseHow::kReset);
+    drop_socket(place, loop.reactor, CloseHow::kReset);
 }
 
 void resume_some(Loop& loop) {
@@ -297,7 +307,7 @@ void close_if(Loop& loop, Handle handle) {
     if (handle.index >= loop.held.size()) return;
     Held& place = loop.held[handle.index];
     if (!place.open || place.handle != handle) return;
-    drop_socket(place, loop.poll, CloseHow::kFinish);
+    drop_socket(place, loop.reactor, CloseHow::kFinish);
 }
 
 void close_batch(Loop& loop, std::span<const Handle> dead) {
@@ -323,21 +333,26 @@ void handle_event(const net::PollEvent& event, Loop& loop) {
     if (!place.open) return;
     const auto generation = static_cast<std::uint32_t>(event.tag >> 32U);
     if (place.handle.generation != generation) return;
+    if (event.sent > 0) {
+        loop.table.mark_sent(place.handle, event.sent);
+        if (!loop.table.is_live(place.handle)) {
+            drop_socket(place, loop.reactor, CloseHow::kFinish);
+            return;
+        }
+        flush_one(place, loop);
+    }
+    if (!place.open) return;
     if (event.readable || event.failed) read_one(place, loop);
     if (!place.open || !event.writable) return;
     flush_one(place, loop);
 }
 
-[[nodiscard]] std::size_t pump_one(const net::PollEvent& event, Loop& loop, std::size_t reads) {
-    if (reads >= kReadBudget) return reads;
-    handle_event(event, loop);
-    return reads + 1;
-}
-
+// Mọi sự kiện phải được xử lý: reactor đã xoá cờ readable/sent khi trả sự kiện, bỏ một sự kiện là
+// socket ấy không bao giờ được đăng đọc lại và byte đã gửi không bao giờ được trừ khỏi outbox.
+// Việc mỗi socket đã có trần: read_room, kRecordBudget bản ghi mỗi lần đọc, bốn vòng gửi.
 void pump(Loop& loop) {
-    std::size_t reads = 0;
     for (const net::PollEvent& event : loop.events) {
-        reads = pump_one(event, loop, reads);
+        handle_event(event, loop);
     }
 }
 
@@ -390,17 +405,18 @@ void catch_up(Loop& loop, TickSpan span) {
     if (wait_ns < 0) wait_ns = 0;
     const auto wait_ms = static_cast<int>(wait_ns / kNsPerMs);
     const net::Milliseconds limit{wait_ms};
-    if (!loop.poll.wait(limit, loop.events)) return 1;
+    if (!loop.reactor.wait(limit, loop.events)) return 1;
     const std::int64_t start = steady_ns();
     loop.now = start;
-    sync_listeners(loop.listeners, loop.poll, loop.table.listening());
+    sync_listeners(loop.listeners, loop.reactor, loop.table.listening());
     resume_some(loop);
     std::int64_t mark = steady_ns();
-    if (loop.table.listening()) accept_some(loop.listeners.game, loop);
-    if (loop.table.listening()) accept_some(loop.listeners.auth, loop);
+    if (loop.table.listening()) accept_some(loop.listeners.game, loop, Door::kGame);
+    if (loop.table.listening()) accept_some(loop.listeners.auth, loop, Door::kAuth);
     note_phase(loop.accept_us, mark);
     mark = steady_ns();
     pump(loop);
+    loop.table.collect();
     note_phase(loop.pump_us, mark);
     mark = steady_ns();
     loop.table.advance(start);
@@ -408,7 +424,7 @@ void catch_up(Loop& loop, TickSpan span) {
     mark = steady_ns();
     flush_pending(loop);
     close_dead(loop);
-    sync_listeners(loop.listeners, loop.poll, loop.table.listening());
+    sync_listeners(loop.listeners, loop.reactor, loop.table.listening());
     note_phase(loop.flush_us, mark);
     const TickSpan span{.start = start, .end = steady_ns()};
     note_tick(loop, span);
@@ -423,9 +439,9 @@ void catch_up(Loop& loop, TickSpan span) {
 }
 
 [[nodiscard]] int run_loop(Table& table, Listeners& listeners, std::vector<Held>& held) {
-    Loop loop{.table = table, .listeners = listeners, .held = held, .poll = {}, .events = {}};
+    Loop loop{.table = table, .listeners = listeners, .held = held, .reactor = {}, .events = {}};
     loop.events.reserve(held.size() + 2);
-    sync_listeners(listeners, loop.poll, true);
+    sync_listeners(listeners, loop.reactor, true);
     loop.deadline = steady_ns();
     loop.next_report = loop.deadline + kStatNs;
     std::println("ready");
@@ -500,6 +516,38 @@ int write_identity(const std::filesystem::path& path) {
     return 0;
 }
 
+[[nodiscard]] std::optional<net::Endpoint> ipc_of(const config::Cluster& cluster, config::ProcessKind kind) {
+    for (const config::ProcessBlock& block : cluster.processes) {
+        const bool match = block.kind == kind && block.id.value() == 0 && block.port.value() != 0;
+        if (!match) continue;
+        const std::string text = std::format("{}:{}", block.host.text(), block.port.value());
+        const net::NetResult<net::Endpoint> parsed = net::parse_endpoint(text, net::ZeroPort::kRefuse);
+        if (!parsed) return std::nullopt;
+        return *parsed;
+    }
+    return std::nullopt;
+}
+
+[[nodiscard]] std::optional<account::Realm> open_realm(const std::filesystem::path& config_dir) {
+    const io::TextResult text = io::read_text(config_dir / "cluster.toml");
+    if (!text) return std::nullopt;
+    const config::ReadResult<config::Cluster> cluster = config::read_cluster(*text);
+    if (!cluster) return std::nullopt;
+    const std::optional<net::Endpoint> auth = ipc_of(*cluster, config::ProcessKind::kAuth);
+    const std::optional<net::Endpoint> store = ipc_of(*cluster, config::ProcessKind::kStore);
+    if (!auth || !store) {
+        std::println(stderr, "gate: cổng ipc của auth hoặc store là 0, đăng ký trả bận");
+        return std::nullopt;
+    }
+    std::string error;
+    const std::optional<std::array<std::byte, account::kIpcKeyBytes>> key = account::load_ipc_key(account::ipc_key_path(config_dir), error);
+    if (!key) {
+        std::println(stderr, "gate: {}", error);
+        return std::nullopt;
+    }
+    return account::Realm{*auth, *store, *key};
+}
+
 int serve(const std::filesystem::path& config_dir) {
     const io::TextResult text = io::read_text(config_dir / "gate.toml");
     if (!text) {
@@ -524,6 +572,8 @@ int serve(const std::filesystem::path& config_dir) {
     if (opened.code != 0) return opened.code;
     const Limits limits = limits_of(*loaded);
     Table table{limits, std::move(allow), std::move(deny), *identity};
+    std::optional<account::Realm> realm = open_realm(config_dir);
+    if (realm) table.set_realm(*realm);
     std::vector<Held> held(limits.max_connections);
     return run_loop(table, opened.listeners, held);
 }

@@ -111,6 +111,10 @@ private:
 class TcpStream {
 public:
     TcpStream() = default;
+    TcpStream(TcpStream&& other) noexcept;
+    TcpStream& operator=(TcpStream&& other) noexcept;
+    TcpStream(const TcpStream&) = delete;
+    TcpStream& operator=(const TcpStream&) = delete;
 
     // Bước một của nối: luồng trả về đang nối. Khi PollSet báo ghi được hoặc lỗi, gọi
     // finish_connect. Bị từ chối ngay (cổng 0, địa chỉ không dùng được) là kConnect.
@@ -146,6 +150,8 @@ public:
 
     [[nodiscard]] SocketHandle handle() const noexcept { return socket_.handle(); }
     [[nodiscard]] bool is_open() const noexcept { return socket_.is_open(); }
+    // Socket đã không chặn. Reactor bọc socket AcceptEx vừa nhận, chưa đi qua TcpListener::accept.
+    [[nodiscard]] static TcpStream from_socket(Socket socket) noexcept { return TcpStream{std::move(socket)}; }
 
 private:
     friend class TcpListener;
@@ -193,6 +199,8 @@ struct PollEvent {
     bool writable = false;
     // Lỗi hay đứt kết nối; receive hoặc finish_connect cho biết lý do.
     bool failed = false;
+    // Reactor: số byte một lần gửi chồng đã vào kernel. PollSet để 0.
+    std::size_t sent = 0;
 };
 
 using PollEvents = std::vector<PollEvent>;

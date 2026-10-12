@@ -3,10 +3,13 @@
 // Nguồn: danh sách ca của TLBB Dev tests/platform/socket_test.cpp, viết lại không hàm ngủ.
 #include "core/check.hpp"
 #include "net/net.hpp"
+#include "net/reactor.hpp"
+#include "net/shard.hpp"
 #include "test.hpp"
 
 #include <algorithm>
 #include <array>
+#include <atomic>
 #include <chrono>
 #include <cstddef>
 #include <cstdint>
@@ -14,6 +17,7 @@
 #include <optional>
 #include <span>
 #include <string_view>
+#include <thread>
 #include <utility>
 #include <vector>
 
@@ -276,6 +280,30 @@ void peer_abort_gives_reset(Context& context) {
         error_of(receive_ready(pair->server, sink)) == NetError::kReset, "RST là kReset");
 }
 
+void early_fin_keeps_bytes(Context& context) {
+    auto pair = loopback_pair(context);
+    if (!pair) return;
+    context.expect(pair->client.send(bytes_of("ab")) == std::size_t{2}, "gửi hai byte");
+    pair->client.shutdown_send();
+    context.expect(wait_ready(pair->server.handle(), false, kReadyLimit), "FIN đã vào hàng");
+    std::array<std::byte, 8> sink{};
+    context.expect(pair->server.receive(sink) == std::size_t{2}, "FIN tới trước vẫn còn byte");
+    context.expect(error_of(pair->server.receive(sink)) == NetError::kClosed, "hết byte thì đóng");
+}
+
+void early_reset_gives_reset(Context& context) {
+    auto pair = loopback_pair(context);
+    if (!pair) return;
+    context.expect(pair->client.send(bytes_of("x")) == std::size_t{1}, "gửi một byte rồi RST");
+    pair->client.abort();
+    context.expect(wait_ready(pair->server.handle(), false, kReadyLimit), "RST đã vào hàng");
+    std::array<std::byte, 8> sink{};
+    const Count got = pair->server.receive(sink);
+    const bool reset = !got && got.error() == NetError::kReset;
+    const bool byte_then_reset = got == std::size_t{1} && error_of(pair->server.receive(sink)) == NetError::kReset;
+    context.expect(reset || byte_then_reset, "RST sớm là kReset");
+}
+
 struct Transfer {
     std::span<const std::byte> data;
     std::size_t sent = 0;
@@ -427,6 +455,138 @@ void poll_set_toggles_write(Context& context) {
     context.expect(!events.empty() && events.front().readable && !events.front().writable, "đọc được");
 }
 
+void spsc_preserves_order(Context& context) {
+    constexpr std::uint32_t kCount = 100000;
+    net::SpscMail<std::uint32_t, 1024> mail;
+    std::jthread producer([&] {
+        for (std::uint32_t index = 0; index < kCount; ++index) {
+            std::uint32_t value = index;
+            while (!mail.try_push(value)) {
+            }
+        }
+    });
+    std::uint32_t expect = 0;
+    bool ordered = true;
+    while (expect < kCount) {
+        std::uint32_t value = 0;
+        if (!mail.try_pop(value)) continue;
+        if (value != expect) ordered = false;
+        if (value != expect) break;
+        ++expect;
+    }
+    producer.join();
+    context.expect(ordered && expect == kCount, "hàng một chiều giữ đúng thứ tự");
+}
+
+void spsc_rejects_when_full(Context& context) {
+    net::SpscMail<std::uint32_t, 8> mail;
+    bool filled = true;
+    for (std::uint32_t index = 0; index < 8; ++index) {
+        std::uint32_t value = index;
+        if (!mail.try_push(value)) filled = false;
+    }
+    std::uint32_t extra = 9;
+    const bool refused = !mail.try_push(extra);
+    std::uint32_t first = 0;
+    const bool popped = mail.try_pop(first) && first == 0;
+    const bool pushed = mail.try_push(extra);
+    context.expect(filled && refused && popped && pushed, "đầy thì từ chối, có chỗ thì nhận");
+}
+
+void spsc_wakes_a_parked_taker(Context& context) {
+    net::SpscMail<std::uint32_t, 8> mail;
+    std::uint32_t value = 0;
+    std::atomic<bool> popped{false};
+    std::jthread taker([&] {
+        mail.park([&] { return mail.empty(); });
+        popped.store(mail.try_pop(value) && value == 7, std::memory_order_release);
+    });
+    std::uint32_t send = 7;
+    while (!mail.try_push(send)) {
+    }
+    taker.join();
+    context.expect(popped.load(std::memory_order_acquire), "bên nhận đang ngủ vẫn lấy được phần tử");
+}
+
+void lanes_prefer_login_then_share(Context& context) {
+    constexpr std::array<net::LaneSpec, 3> specs{{
+        {.priority = 0, .weight = 1},
+        {.priority = 1, .weight = 4},
+        {.priority = 1, .weight = 1},
+    }};
+    net::LaneQueue<int> queue;
+    queue.reset(specs);
+    queue.push(2, 2);
+    queue.push(0, 0);
+    std::array<int, 1> first{};
+    context.expect(queue.pop(first) == 1 && first[0] == 0, "ưu tiên chặt lấy lane đăng nhập trước");
+    for (int index = 0; index < 4000; ++index) {
+        queue.push(1, 1);
+        queue.push(2, 2);
+    }
+    int control = 0;
+    int bulk = 0;
+    std::array<int, 64> batch{};
+    for (int step = 0; step < 8; ++step) {
+        const std::size_t count = queue.pop(batch);
+        for (std::size_t index = 0; index < count; ++index) {
+            if (batch[index] == 1) ++control;
+            if (batch[index] == 2) ++bulk;
+        }
+    }
+    const bool early = control >= 350 && control <= 450 && bulk >= 60 && bulk <= 160;
+    context.expect(early, "cùng mức ưu tiên thì trọng số 4 ăn khoảng bốn phần");
+}
+
+void reactor_accepts_and_echoes(Context& context) {
+    auto listener = open_listener();
+    context.expect(listener.has_value(), "mở được cổng");
+    if (!listener) return;
+    net::Reactor reactor;
+    context.expect(reactor.watch_listener(*listener, 3), "gắn cổng nghe");
+    const auto target = listener->local();
+    context.expect(target.has_value(), "đọc được địa chỉ nghe");
+    if (!target) return;
+    auto client = TcpStream::begin_connect(*target);
+    context.expect(client.has_value(), "client nối");
+    if (!client) return;
+    PollEvents events;
+    context.expect(reactor.wait(kReadyLimit, events).has_value(), "chờ nhận");
+    auto accepted = reactor.take_accept(3);
+    context.expect(accepted.has_value() && accepted->has_value(), "AcceptEx trả một kết nối");
+    if (!accepted || !accepted->has_value()) return;
+    context.expect(wait_ready(client->handle(), true, kReadyLimit), "client ghi được");
+    const auto connected = client->finish_connect();
+    context.expect(connected.has_value() && *connected, "client nối xong");
+    context.expect(reactor.watch((*accepted)->stream.handle(), 9), "theo dõi socket nhận");
+    context.expect(client->send(bytes_of("Z")) == std::size_t{1}, "gửi một byte");
+    context.expect(reactor.wait(kReadyLimit, events).has_value() && has_tag(events, 9), "byte làm socket đọc được");
+    std::array<std::byte, 4> sink{};
+    const auto got = (*accepted)->stream.receive(sink);
+    context.expect(got == std::size_t{1} && sink[0] == std::byte{'Z'}, "đọc đúng byte đã gửi");
+    if (got) reactor.note_read(9, *got);
+    const net::SendOutcome sent = reactor.submit_send(9, bytes_of("Y"));
+    context.expect(sent.state != net::SendState::kReset, "đăng gửi được");
+    std::array<std::byte, 4> back{};
+    const auto echoed = receive_ready(*client, back);
+    context.expect(echoed == std::size_t{1} && back[0] == std::byte{'Y'}, "client nhận byte gửi chồng");
+}
+
+void reactor_wakes_from_another_thread(Context& context) {
+    net::Reactor reactor;
+    std::jthread waker([&] {
+        std::this_thread::sleep_for(std::chrono::milliseconds{20});
+        reactor.wake();
+    });
+    PollEvents events;
+    const auto start = std::chrono::steady_clock::now();
+    const auto waited = reactor.wait(Milliseconds{2000}, events);
+    const auto elapsed = std::chrono::steady_clock::now() - start;
+    waker.join();
+    context.expect(waited.has_value(), "chờ không lỗi");
+    context.expect(elapsed < Milliseconds{500}, "luồng khác đánh thức lần chờ");
+}
+
 void empty_poll_set_waits_out_limit(Context& context) {
     PollSet poll;
     PollEvents events{net::PollEvent{.tag = 5}};
@@ -460,6 +620,12 @@ constexpr std::array kCases{
     Case{.name = "poll_set_add_and_remove", .body = poll_set_add_and_remove},
     Case{.name = "poll_set_toggles_write", .body = poll_set_toggles_write},
     Case{.name = "empty_poll_set_waits_out_limit", .body = empty_poll_set_waits_out_limit},
+    Case{.name = "spsc_preserves_order", .body = spsc_preserves_order},
+    Case{.name = "spsc_rejects_when_full", .body = spsc_rejects_when_full},
+    Case{.name = "spsc_wakes_a_parked_taker", .body = spsc_wakes_a_parked_taker},
+    Case{.name = "lanes_prefer_login_then_share", .body = lanes_prefer_login_then_share},
+    Case{.name = "reactor_accepts_and_echoes", .body = reactor_accepts_and_echoes},
+    Case{.name = "reactor_wakes_from_another_thread", .body = reactor_wakes_from_another_thread},
 };
 
 } // namespace

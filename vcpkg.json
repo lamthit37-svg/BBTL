@@ -12,6 +12,10 @@
     "xxhash",
     "zstd",
     "sse2neon",
-    "sdl3"
+    "sdl3",
+    {
+      "name": "libpq",
+      "default-features": false
+    }
   ]
 }

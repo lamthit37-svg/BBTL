@@ -7,8 +7,9 @@ Thiết kế của lớp `secure` và mặt trước `thienlong_gate`. Viết tr
 `G:\TLBB\Dev\docs\BAO-MAT.md` và `src/secure` (chỉ đọc). Mật mã không tự viết: mọi phép lấy từ
 libsodium 1.0.22 đã có trong `third_party/libsodium`.
 
-Vé đăng nhập, băm mật khẩu và cổng xác thực không thuộc bước này. Sau bắt tay, gate chỉ xử lý tin
-mức phiên: `Hello`, `Ping`, `Logout`.
+Phần đầu viết cho bước chỉ có tin mức phiên. Đối chiếu mã ngày 2026-10-12: gate đã xử lý thêm tin
+tài khoản và nhân vật (mục "Tài khoản qua gate" ở cuối tệp); vé, băm mật khẩu Argon2id và IPC tới
+`auth`, `store` nằm ở `src/server/account`.
 
 ## Mô hình mối đe doạ
 
@@ -119,8 +120,10 @@ mật. Đường dẫn mặc định trong `gate.toml` nằm dưới `SERVER/dat
 
 ## Mặt trước của gate
 
-Một luồng. Vòng tick 60 Hz. Mỗi tick chờ I/O tới hạn tick kế (`PollSet::wait`), rồi mới đọc, giải
-mã, chạy đồng hồ và đẩy hộp gửi. Hết hạn mà phần việc chưa xong thì tick đó tính là trễ.
+Một luồng tick. Vòng tick 60 Hz. Mỗi tick chờ I/O tới hạn tick kế (`net::Reactor::wait`: cổng hoàn
+thành trên Windows, poll trên POSIX), rồi mới đọc, giải mã, chạy đồng hồ và đẩy hộp gửi. Mọi sự
+kiện reactor trả về đều được xử lý trong tick đó: reactor đã xoá cờ đọc và số byte gửi xong khi
+trả sự kiện, bỏ một sự kiện là socket ấy không được đăng đọc lại. Hết hạn mà phần việc chưa xong thì tick đó tính là trễ.
 
 Đồng hồ là một hàm tiêm được, trả nano giây đơn điệu. Test đẩy đồng hồ bằng tay, không ngủ. Bản chạy
 thật đọc `steady_clock`.
@@ -148,8 +151,10 @@ Giới hạn tốc độ là thùng token, đơn vị một phần nghìn tin, n
 khung; giá trị trên 4096 bị từ chối lúc khởi động vì protocol không nhận thân client lớn hơn thế.
 `Hello.version` phải nằm trong `[min_version, protocol::kVersion]`.
 
-Tin đầu sau bắt tay phải là `Hello`. Rồi chỉ `Ping` (đáp `Pong`) và `Logout` (đáp `Goodbye` rồi
-đóng). Mã tin khác bị ngắt theo mã tin, không giải mã thân (thân có thể là mật khẩu). Hộp gửi đầy
+Tin đầu sau bắt tay phải là `Hello`. Cổng game nhận thêm `Ping` (đáp `Pong`), `Logout` (đáp
+`Goodbye` rồi đóng), `Login`, `Resume`, `CreateCharacter`, `DeleteCharacter`, `EnterGame`; cổng
+auth nhận `Hello`, `CreateAccount`, `SignIn`. Mã tin không thuộc cổng bị ngắt theo mã tin, không
+giải mã thân (thân có thể là mật khẩu). Hộp gửi đầy
 vì bên kia đọc chậm thì ngắt kết nối đó.
 
 Mọi độ dài, bộ đếm, mã tin và phiên bản lấy từ byte nhận được đều kiểm trước khi cấp phát hay lặp.
@@ -159,4 +164,28 @@ Dòng log chỉ có địa chỉ IP và tên lý do. Dữ liệu client không �
 Dừng theo giao kèo mục 3.1: stdin hết hoặc tín hiệu console. Gate ngừng nhận, đóng mọi kết nối, thoát
 0. `ready` chỉ in sau khi khoá đã nạp và cả hai cổng đã nghe.
 
-`listen.game` và `listen.auth` đều mở. Cả hai chỉ làm tin mức phiên cho tới bước tài khoản.
+`listen.game` và `listen.auth` đều mở.
+
+## Tài khoản qua gate
+
+Đối chiếu mã ngày 2026-10-12 (`src/server/gate/table.cpp`, `src/server/account`).
+
+- Luồng tick không gọi IPC. Tin tài khoản và nhân vật thành một câu hỏi gửi qua `SpscMail` cho
+  một luồng thư ký do `Table::set_realm` mở; thư ký gọi `Realm` (TCP tới `127.0.0.1`, bản ghi
+  XChaCha20-Poly1305 bằng `ipc.key`), trả lời quay về qua hàng thứ hai và được `Table::collect`
+  gửi cho client ở tick sau. Trước ngày này gate gọi `Realm` ngay trong tick, chờ tới 8 giây cho
+  mỗi `SignIn` hay `CreateAccount` (Argon2id ở auth), nên một client chưa đăng nhập đóng băng
+  được mọi kết nối.
+- Mỗi ô có tối đa một câu hỏi đang bay; câu kế được trả `Reject` mã `kBusy`. Hàng thư ký đầy
+  (64) thì client nhận `kBusy` ngay, không câu nào bị nuốt. Trả lời về khi ô đã đóng hay đã cấp
+  cho kết nối khác thì bị bỏ theo số thế hệ của tay nắm. Mật khẩu, vé và vé năng lực được xoá ở
+  cả hai luồng sau khi dùng.
+- Dừng: bảng đặt cờ dừng, đánh thức thư ký và chờ nó xong câu đang hỏi (tối đa 8 giây, hạn của
+  `Realm`).
+- `Resume` luôn trả `kSessionExpired`: token của `SessionStart` là ngẫu nhiên và chưa được lưu ở
+  đâu. Phiên chưa nối lại được.
+- Sau khi đổi vé, gate giữ vé năng lực HMAC 8 giờ (`kCapTtlSeconds`). Store chỉ kiểm HMAC và hạn,
+  không thấy bảng `ban` của database auth: tài khoản bị cấm sau lúc đổi vé vẫn tạo, xoá nhân vật
+  và vào game được tới khi vé năng lực hết hạn. Lúc đổi vé (`redeem`) auth xét cả `disabled_at`
+  lẫn bảng `ban`.
+- `guard::Pace` chưa nối vào đường nhận tin: chưa có tin di chuyển và chưa có zone.

@@ -604,7 +604,8 @@ kết luận ngay dưới mục đó chứ không xoá.
     121,4 ms so với hạn 16,7 ms, 1.088 tick trễ, chỉ 3.908 bắt tay xong trong 20 giây; ở 2.000 và
     400 thì p99 12,4 ms, không tick trễ. Chưa đo tách nguyên nhân. Hai nghi phạm đọc từ mã: không
     có ngân sách bắt tay trong một tick (mỗi lời chào 42 byte buộc gate sinh khoá X25519, ký
-    Ed25519 và suy khoá, trong khi `kReadBudget` cho 512 lượt đọc mỗi tick), và `WSAPoll` quét cả
+    Ed25519 và suy khoá, trong khi `kReadBudget` cho 512 lượt đọc mỗi tick — ngân sách này đã bỏ
+    ngày 2026-10-12, xem mục 47), và `WSAPoll` quét cả
     mảng 12.000 socket mỗi lượt chờ. Cần số đo từng pha theo số kết nối trước khi sửa.
     (b) ĐÃ SỬA MỘT PHẦN 2026-10-09 (gói P2-2). Bộ đếm lý do ngắt từng không ra khỏi tiến trình: chỉ
     có `Table::drops` trong bộ nhớ và dòng log bị giới hạn năm dòng mỗi giây, và ba lý do từ chối
@@ -724,3 +725,23 @@ kết luận ngay dưới mục đó chứ không xoá.
     chưa biết lần vào game đầu tiên bản gốc hiện bảng này, hiện video nạp (`PlayLoadingVideo`) hay
     không hiện gì. Cần: `python -B TOOLS/port/pe_refs.py "F:/tl 2026/Bin64/Game.exe" refs
     0x140afc7f8` rồi lần ngược tới thủ tục gọi (`CGamePro_Enter`, `CGamePro_ChangeScene`).
+
+47. **Máy chủ: review cuối 2026-10-12 — đã sửa và còn mở** (`src/server/gate`, `src/server/account`,
+    `src/server/guard`, `engine/net/shard.hpp`). ĐÃ SỬA: (a) gate gọi IPC auth/store đồng bộ trong
+    tick, nay qua luồng thư ký (`docs/SERVER-BAO-MAT.md` mục "Tài khoản qua gate"); (b) `pump` của
+    gate bỏ các sự kiện sau sự kiện thứ 512 của một lượt chờ, mà reactor IOCP đã xoá cờ của chúng,
+    nên với hơn 512 socket cùng có việc một số socket không bao giờ được đọc lại và byte đã gửi
+    không được trừ khỏi outbox; nay xử lý mọi sự kiện; (c) `SpscMail::poke` đọc `parked_` trước
+    fence, cặp ghi tail rồi đọc cờ ngủ bị đảo được trên x86, bên nhận có thể ngủ với phần tử trong
+    hàng; nay fence trước lần đọc đầu (đo `core_bench` trên máy dự án: `spsc_inline` từ khoảng
+    100–320 xuống 19–41 triệu tin/giây; người dùng duy nhất là hàng auth và hàng thư ký, vài nghìn
+    tin/giây); (d) `load_account` coi lỗi đọc bảng `ban` là không bị cấm; nay lỗi là lỗi; (e)
+    `redeem` không xét bảng `ban`; (f) `CreateAccount` tên trùng trả `kDuplicate` mà không ghi lần
+    thử, dò tài khoản không trần; nay tính vào trần theo IP; (g) `guard::Pace` dời mốc tới cả bước
+    vượt tầm chưa bị phạt và đặt lại mốc khi tick không tiến, nên nhảy xen bước thường không bao
+    giờ bị bắt (test chặn ở `Test/Server/guard_tests.cpp`). CÒN MỞ: (h) vé năng lực 8 giờ không bị
+    thu hồi khi cấm; cần store hỏi auth hoặc auth đẩy danh sách thu hồi; (i) `Resume` chưa lưu
+    token; (j) `serve_loop` của auth/store đọc trọn yêu cầu và ghi trọn trả lời trên luồng nhận với
+    hạn 3 giây mỗi kết nối, một kết nối loopback chậm chặn mọi kết nối khác tới 3 giây; (k)
+    `gate_tests` không dịch được (thiếu `metrics::Registry`, `gate::Backing`) và test `layers` đỏ
+    (`metrics/serve` chưa có trong bảng tầng) từ trước lượt này.

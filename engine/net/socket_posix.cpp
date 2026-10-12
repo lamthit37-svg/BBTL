@@ -134,4 +134,16 @@ NetResult<void> PollSet::wait(Milliseconds limit, PollEvents& events) {
     return {};
 }
 
+TcpStream::TcpStream(TcpStream&& other) noexcept
+    : socket_(std::move(other.socket_)), connecting_(other.connecting_) {
+    other.connecting_ = false;
+}
+
+TcpStream& TcpStream::operator=(TcpStream&& other) noexcept {
+    socket_ = std::move(other.socket_);
+    connecting_ = other.connecting_;
+    other.connecting_ = false;
+    return *this;
+}
+
 } // namespace game::net

@@ -2,6 +2,7 @@
 // `started ...`, `stopped ...`, `ports ...`); mọi câu cho người đọc ra stderr.
 #include "service/service.hpp"
 
+#include "account/serve.hpp"
 #include "config/cluster.hpp"
 #include "config/supervisor.hpp"
 #include "config/types.hpp"
@@ -157,6 +158,10 @@ void print_event(const supervise::Event& event) {
         return kExitMisuse;
     }
     if (kind == Kind::kGate) return gate::serve(request.config_dir);
+#if defined(GAME_HAS_LIBPQ)
+    if (kind == Kind::kAuth) return account::serve_auth(request.config_dir);
+    if (kind == Kind::kStore) return account::serve_game(request.config_dir);
+#endif
     std::println("ready");
     static_cast<void>(std::fflush(stdout));
     while (!process::stop_requested()) {

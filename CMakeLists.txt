@@ -115,8 +115,8 @@ set(game_engine_names audio audiotool capture core fs gpu io jobs math net rende
 set(game_shared_names protocol secure table link)
 set(game_client_names anim avatar classic client collision control fx gui hero look motion nav ogre
     quest scene seal sealtool skill ui)
-set(game_server_names authd billingd config content gate gated guard linttool metrics process service
-    stored supervise supervisor worldd zoned)
+set(game_server_names account authd billingd config content gate gated guard linttool metrics process
+    service store stored supervise supervisor worldd zoned)
 game_reject_foreign("${PROJECT_SOURCE_DIR}/engine" ${game_engine_names})
 game_reject_foreign("${PROJECT_SOURCE_DIR}/src/shared" ${game_engine_names} ${game_shared_names})
 game_reject_foreign("${PROJECT_SOURCE_DIR}/src/client" ${game_engine_names} ${game_shared_names}
@@ -363,13 +363,13 @@ if(NOT CMAKE_CROSSCOMPILING)
     game_module(protocol src/shared/protocol/wire.cpp src/shared/protocol/channel.cpp src/shared/protocol/messages.cpp)
     target_link_libraries(game_protocol PUBLIC game_core)
     if(WIN32)
-        game_module(net engine/net/net.cpp engine/net/socket_win32.cpp)
+        game_module(net engine/net/net.cpp engine/net/socket_win32.cpp engine/net/reactor_win32.cpp)
     else()
-        game_module(net engine/net/net.cpp engine/net/socket_posix.cpp)
+        game_module(net engine/net/net.cpp engine/net/socket_posix.cpp engine/net/reactor_posix.cpp)
     endif()
     target_link_libraries(game_net PUBLIC game_core)
     if(WIN32)
-        target_link_libraries(game_net PRIVATE ws2_32)
+        target_link_libraries(game_net PRIVATE ws2_32 mswsock)
     endif()
     # metrics: bộ đếm, mức đo, biểu đồ thời gian từng pha và ảnh chụp văn bản có trần; chỉ cần core,
     # nên đứng ngoài khối cần tomlplusplus. Cổng đọc qua loopback là module con metrics/serve.
@@ -379,7 +379,8 @@ if(NOT CMAKE_CROSSCOMPILING)
     target_link_libraries(game_metrics PUBLIC game_core)
     # secure: bắt tay và bản ghi. sodium.cpp tắt cảnh báo vì header C của libsodium không sạch
     # dưới -Werror; các tệp còn lại của module thì bật.
-    game_module(secure src/shared/secure/identity.cpp src/shared/secure/handshake.cpp src/shared/secure/record.cpp)
+    game_module(secure src/shared/secure/identity.cpp src/shared/secure/handshake.cpp src/shared/secure/record.cpp
+        src/shared/secure/password.cpp)
     add_library(game_secure_sodium STATIC src/shared/secure/detail/sodium.cpp)
     target_include_directories(game_secure_sodium PUBLIC ${PROJECT_SOURCE_DIR}/engine
         ${PROJECT_SOURCE_DIR}/src/shared)
@@ -398,6 +399,28 @@ if(NOT CMAKE_CROSSCOMPILING)
         target_link_libraries(game_gate PUBLIC game_core game_net game_protocol game_secure game_config
             PRIVATE game_io game_process)
         target_link_libraries(game_service PUBLIC game_gate)
+        game_module(account
+            src/server/account/rules.cpp
+            src/server/account/book.cpp
+            src/server/account/cap.cpp
+            src/server/account/ipc_key.cpp
+            src/server/account/rpc.cpp
+            src/server/account/realm.cpp)
+        target_link_libraries(game_account PUBLIC game_core game_net game_protocol game_secure game_config
+            game_io game_process)
+        target_link_libraries(game_gate PUBLIC game_account)
+        if(CMAKE_TOOLCHAIN_FILE MATCHES "[Vv]cpkg")
+            find_package(PostgreSQL REQUIRED)
+            game_module(store src/server/store/pg.cpp)
+            target_link_libraries(game_store PUBLIC game_core PostgreSQL::PostgreSQL)
+            if(WIN32)
+                target_link_libraries(game_store PUBLIC ws2_32)
+            endif()
+            target_sources(game_account PRIVATE src/server/account/sql.cpp src/server/account/serve.cpp)
+            target_link_libraries(game_account PUBLIC game_store)
+            target_compile_definitions(game_service PRIVATE GAME_HAS_LIBPQ)
+            target_link_libraries(game_service PUBLIC game_account)
+        endif()
     endif()
     if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/Test/bench/collision_bench.cpp")
         add_executable(collision_bench Test/bench/collision_bench.cpp)
@@ -1356,6 +1379,9 @@ if(TARGET game_net)
     game_test(protocol game_protocol)
     game_test(link game_link)
     game_test(guard game_guard)
+    if(TARGET game_account)
+        game_test(account game_account)
+    endif()
     if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/Test/Protocol/protocol_channel_tests.cpp")
         game_test(protocol_channel game_protocol)
     endif()
@@ -1380,6 +1406,11 @@ if(TARGET game_net)
         target_link_libraries(net_bench PRIVATE game_protocol game_net game::warnings)
     else()
         message(STATUS "Thiếu Test/bench/net_bench.cpp, bỏ net_bench")
+    endif()
+    if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/Test/bench/core_bench.cpp")
+        add_executable(core_bench Test/bench/core_bench.cpp)
+        target_include_directories(core_bench PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/Test")
+        target_link_libraries(core_bench PRIVATE game_net game::warnings)
     endif()
     game_test(secure game_secure)
     if(TARGET game_gate)

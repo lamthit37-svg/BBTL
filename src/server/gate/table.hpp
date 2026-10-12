@@ -13,6 +13,10 @@
 #include <string_view>
 #include <vector>
 
+namespace game::account {
+class Realm;
+}
+
 namespace game::gate {
 
 inline constexpr std::int64_t kNsPerMs = 1'000'000;
@@ -66,6 +70,8 @@ struct Handle {
     friend bool operator==(const Handle&, const Handle&) = default;
 };
 
+enum class Door : std::uint8_t { kGame, kAuth };
+
 enum class AdmitCode : std::uint8_t { kOk, kFull, kDenied, kPerIp };
 
 struct Admit {
@@ -86,6 +92,12 @@ public:
     Table& operator=(Table&&) noexcept;
 
     [[nodiscard]] Admit admit(net::Ipv4 address, std::int64_t now);
+    [[nodiscard]] Admit admit(net::Ipv4 address, std::int64_t now, Door door);
+    // Chép realm vào bảng và mở một luồng thư ký hỏi auth/store. Luồng tick không chờ IPC: mỗi ô có
+    // tối đa một câu hỏi đang bay, hàng đầy thì trả kBusy. Gọi một lần; lần sau bị bỏ qua.
+    void set_realm(const account::Realm& realm);
+    // Lấy các trả lời thư ký đã xong và gửi cho client. Gọi mỗi tick trên luồng tick.
+    void collect();
     void receive(Handle handle, secure::ByteView bytes, std::int64_t now);
     [[nodiscard]] secure::ByteView outgoing(Handle handle) const noexcept;
     void mark_sent(Handle handle, std::size_t count);

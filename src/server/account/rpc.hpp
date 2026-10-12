@@ -1,0 +1,74 @@
+#pragma once
+// Một yêu cầu, một kết nối, chỉ trên loopback. Gate đóng vai client; auth và store là server.
+// Mã 0 là thành công. Mã khác là protocol::ErrorCode. Thân tối đa 8 KiB.
+
+#include "account/book.hpp"
+#include "account/cap.hpp"
+#include "account/sql.hpp"
+#include "net/net.hpp"
+#include "secure/secure.hpp"
+
+#include <array>
+#include <chrono>
+#include <cstdint>
+#include <optional>
+#include <string>
+#include <string_view>
+#include <vector>
+
+namespace game::account {
+
+enum class Op : std::uint16_t {
+    kCreateAccount = 1,
+    kSignIn = 2,
+    kRedeem = 3,
+    kList = 4,
+    kCreateCharacter = 5,
+    kDeleteCharacter = 6,
+    kEnter = 7,
+};
+
+struct Call {
+    Op op = Op::kList;
+    std::vector<std::byte> body;
+};
+
+struct Reply {
+    std::uint16_t code = 0;
+    std::vector<std::byte> body;
+};
+
+[[nodiscard]] Call account_call(Op op, std::string_view name, std::string_view password, std::string_view ip);
+[[nodiscard]] Call redeem_call(std::string_view ticket_hex);
+[[nodiscard]] Call list_call(std::span<const std::byte, kCapBytes> cap);
+[[nodiscard]] Call character_call(std::span<const std::byte, kCapBytes> cap, std::string_view name,
+    protocol::Gender gender, std::uint16_t face, std::uint16_t hair);
+[[nodiscard]] Call id_call(Op op, std::span<const std::byte, kCapBytes> cap, std::uint64_t character);
+
+[[nodiscard]] bool read_account_call(const Call& call, std::string& name, std::string& password, std::string& ip);
+[[nodiscard]] bool read_text_call(const Call& call, std::string& text);
+[[nodiscard]] bool read_list_call(const Call& call, std::array<std::byte, kCapBytes>& cap);
+[[nodiscard]] bool read_character_call(const Call& call, std::array<std::byte, kCapBytes>& cap, std::string& name,
+    protocol::Gender& gender, std::uint16_t& face, std::uint16_t& hair);
+[[nodiscard]] bool read_id_call(const Call& call, std::array<std::byte, kCapBytes>& cap, std::uint64_t& character);
+
+[[nodiscard]] Reply reply_of(const TicketResult& result);
+[[nodiscard]] Reply reply_of(const RedeemResult& result);
+[[nodiscard]] Reply reply_of(const ListResult& result);
+[[nodiscard]] Reply reply_of(const EnterResult& result);
+
+[[nodiscard]] TicketResult ticket_from(const Reply& reply);
+[[nodiscard]] RedeemResult redeem_from(const Reply& reply);
+[[nodiscard]] ListResult list_from(const Reply& reply);
+[[nodiscard]] EnterResult enter_from(const Reply& reply);
+
+[[nodiscard]] std::optional<Reply> exchange(const net::Endpoint& endpoint, const Call& call,
+    std::chrono::milliseconds timeout, secure::ByteView key);
+
+using Handler = Reply (*)(void* ctx, const Call& call);
+
+// Chạy tới khi process::stop_requested. 0 khi dừng theo yêu cầu, 1 khi poll hỏng.
+// key là khoá ipc 32 byte. Khung không mở được thì bỏ kết nối, không trả lời.
+[[nodiscard]] int serve_loop(net::TcpListener& listener, Handler handler, void* ctx, secure::ByteView key);
+
+} // namespace game::account

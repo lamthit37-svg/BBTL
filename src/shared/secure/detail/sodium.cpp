@@ -14,6 +14,7 @@
 #include <sodium.h>
 
 #include <cstddef>
+#include <cstring>
 #include <span>
 
 namespace game::secure::detail {
@@ -182,6 +183,80 @@ bool equal64(SecretPair pair) noexcept {
     return crypto_verify_64(raw(pair.left), raw(pair.right)) == 0;
 }
 
+bool sha256(std::span<const std::byte> data, std::span<std::byte> out) noexcept {
+    if (!ready()) return false;
+    if (out.size() != crypto_hash_sha256_BYTES) return false;
+    const unsigned char* input = data.empty() ? nullptr : raw(data);
+    crypto_hash_sha256(raw_mut(out), input, data.size());
+    return true;
+}
+
+bool hash_password(const PasswordRequest& request) noexcept {
+    if (!ready()) return false;
+    if (request.out.size() < crypto_pwhash_STRBYTES) return false;
+    if (request.ops == 0 || request.mem_bytes == 0) return false;
+    const char* password = request.password.empty() ? "" : request.password.data();
+    const auto ops = request.ops;
+    const auto mem = request.mem_bytes;
+    const int failed = crypto_pwhash_str(request.out.data(), password, request.password.size(), ops, mem);
+    return failed == 0;
+}
+
+bool verify_password(std::string_view hash, std::string_view password) noexcept {
+    if (!ready()) return false;
+    if (hash.empty() || hash.size() >= crypto_pwhash_STRBYTES) return false;
+    char stored[crypto_pwhash_STRBYTES]{};
+    std::memcpy(stored, hash.data(), hash.size());
+    const char* plain = password.empty() ? "" : password.data();
+    const int failed = crypto_pwhash_str_verify(stored, plain, password.size());
+    sodium_memzero(stored, sizeof stored);
+    return failed == 0;
+}
+
+bool aead_seal(std::span<const std::byte> key, std::span<const std::byte> nonce, std::span<const std::byte> plain,
+    std::span<std::byte> cipher) noexcept {
+    if (!ready()) return false;
+    if (key.size() != crypto_aead_xchacha20poly1305_ietf_KEYBYTES) return false;
+    if (nonce.size() != crypto_aead_xchacha20poly1305_ietf_NPUBBYTES) return false;
+    if (cipher.size() != plain.size() + crypto_aead_xchacha20poly1305_ietf_ABYTES) return false;
+    unsigned long long written = 0;
+    const unsigned char* message = plain.empty() ? nullptr : raw(plain);
+    const int failed = crypto_aead_xchacha20poly1305_ietf_encrypt(raw_mut(cipher), &written, message, plain.size(),
+        nullptr, 0, nullptr, raw(nonce), raw(key));
+    return failed == 0 && written == cipher.size();
+}
+
+bool aead_open(std::span<const std::byte> key, std::span<const std::byte> nonce, std::span<const std::byte> cipher,
+    std::span<std::byte> plain) noexcept {
+    if (!ready()) return false;
+    if (key.size() != crypto_aead_xchacha20poly1305_ietf_KEYBYTES) return false;
+    if (nonce.size() != crypto_aead_xchacha20poly1305_ietf_NPUBBYTES) return false;
+    if (cipher.size() != plain.size() + crypto_aead_xchacha20poly1305_ietf_ABYTES) return false;
+    unsigned long long written = 0;
+    const int failed = crypto_aead_xchacha20poly1305_ietf_decrypt(raw_mut(plain), &written, nullptr, raw(cipher),
+        cipher.size(), nullptr, 0, raw(nonce), raw(key));
+    if (failed != 0) {
+        wipe(plain);
+        return false;
+    }
+    return written == plain.size();
+}
+
+bool mac32(std::span<const std::byte> key, std::span<const std::byte> message, std::span<std::byte> tag) noexcept {
+    if (!ready()) return false;
+    if (key.size() != crypto_auth_KEYBYTES || tag.size() != crypto_auth_BYTES) return false;
+    const unsigned char* input = message.empty() ? nullptr : raw(message);
+    return crypto_auth(raw_mut(tag), input, message.size(), raw(key)) == 0;
+}
+
+bool mac32_verify(std::span<const std::byte> key, std::span<const std::byte> message,
+    std::span<const std::byte> tag) noexcept {
+    if (!ready()) return false;
+    if (key.size() != crypto_auth_KEYBYTES || tag.size() != crypto_auth_BYTES) return false;
+    const unsigned char* input = message.empty() ? nullptr : raw(message);
+    return crypto_auth_verify(raw(tag), input, message.size(), raw(key)) == 0;
+}
+
 } // namespace game::secure::detail
 
 static_assert(crypto_kx_PUBLICKEYBYTES == game::secure::detail::kEphemeralPublic);
@@ -194,4 +269,12 @@ static_assert(crypto_sign_BYTES == game::secure::detail::kSignature);
 static_assert(crypto_aead_chacha20poly1305_ietf_ABYTES == game::secure::detail::kTag);
 static_assert(crypto_aead_chacha20poly1305_ietf_NPUBBYTES == game::secure::detail::kNonce);
 static_assert(crypto_aead_chacha20poly1305_ietf_KEYBYTES == game::secure::detail::kSession);
+static_assert(crypto_hash_sha256_BYTES == 32);
+static_assert(crypto_pwhash_STRBYTES == 128);
+static_assert(crypto_pwhash_MEMLIMIT_INTERACTIVE == 67108864U);
+static_assert(crypto_aead_xchacha20poly1305_ietf_KEYBYTES == 32);
+static_assert(crypto_aead_xchacha20poly1305_ietf_NPUBBYTES == 24);
+static_assert(crypto_aead_xchacha20poly1305_ietf_ABYTES == 16);
+static_assert(crypto_auth_KEYBYTES == 32);
+static_assert(crypto_auth_BYTES == 32);
 // NOLINTEND(cppcoreguidelines-pro-type-reinterpret-cast, misc-include-cleaner)

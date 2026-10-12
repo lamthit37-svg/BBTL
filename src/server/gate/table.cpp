@@ -1,13 +1,16 @@
 // Bảng kết nối của gate. Mọi số lấy từ byte nhận được đều kiểm trước khi dùng.
 #include "gate/table.hpp"
 
+#include "account/realm.hpp"
 #include "net/net.hpp"
+#include "net/shard.hpp"
 #include "protocol/messages.hpp"
 #include "protocol/wire.hpp"
 #include "secure/secure.hpp"
 
 #include <algorithm>
 #include <array>
+#include <atomic>
 #include <charconv>
 #include <cstddef>
 #include <cstdint>
@@ -16,12 +19,14 @@
 #include <iterator>
 #include <memory>
 #include <print>
+#include <format>
 #include <optional>
 #include <span>
 #include <variant>
 #include <string>
 #include <string_view>
 #include <system_error>
+#include <thread>
 #include <utility>
 #include <vector>
 
@@ -41,7 +46,14 @@ struct Slot {
     bool draining = false;
     bool send_queued = false;
     bool resume_queued = false;
+    // Đang chờ thư ký trả lời một câu hỏi auth/store; câu hỏi kế bị từ chối kBusy.
+    bool asking = false;
     Drop drain_as = Drop::kLogout;
+    Door door = Door::kGame;
+    bool has_account = false;
+    bool has_cap = false;
+    std::uint64_t account_id = 0;
+    std::array<std::byte, account::kCapBytes> cap{};
     net::Ipv4 address{};
     std::int64_t born_ns = 0;
     std::int64_t seen_ns = 0;
@@ -100,6 +112,32 @@ struct Probe {
     return ~std::uint32_t{0} << (32U - prefix);
 }
 
+// Câu hỏi luồng tick gửi thư ký. secret là mật khẩu hoặc vé hex, xoá ngay sau khi dùng.
+enum class AskKind : std::uint8_t { kCreateAccount, kSignIn, kLogin, kCreateCharacter, kDeleteCharacter, kEnter };
+
+struct Ask {
+    Handle handle{};
+    AskKind kind = AskKind::kLogin;
+    std::string account;
+    std::string secret;
+    std::string ip;
+    std::array<std::byte, account::kCapBytes> cap{};
+    protocol::CreateCharacter create{};
+    std::uint64_t character = 0;
+};
+
+struct Answer {
+    Handle handle{};
+    AskKind kind = AskKind::kLogin;
+    account::TicketReply ticket{};
+    account::RosterReply roster{};
+    account::EnterReply enter{};
+};
+
+// Auth băm Argon2id trên một luồng database, nên hàng sâu hơn chỉ làm client chờ lâu hơn trước
+// khi nhận kBusy.
+constexpr std::size_t kAskRoom = 64;
+
 } // namespace
 
 struct Engine {
@@ -110,8 +148,8 @@ struct Engine {
     std::vector<Slot> slots;
     std::vector<std::uint32_t> free_slots;
     std::vector<Handle> closed;
-    std::vector<Handle> pending;
-    std::size_t pending_from = 0;
+    // Lane 0: bắt tay, ưu tiên chặt. Lane 1: gói nhỏ. Lane 2: gói lớn, trọng số 1 so với 4.
+    net::LaneQueue<Handle> pending;
     std::vector<Handle> resume;
     std::size_t resume_from = 0;
     std::vector<IpSlot> ips;
@@ -119,6 +157,19 @@ struct Engine {
     std::int64_t log_credit = 5 * static_cast<std::int64_t>(kMilli);
     std::int64_t log_ns = 0;
     std::size_t live = 0;
+    std::optional<account::Realm> realm;
+    // Luồng tick đẩy asks và lấy answers; luồng thư ký làm ngược lại. Mỗi hàng đúng một bên đẩy.
+    net::SpscMail<Ask, kAskRoom> asks{};
+    net::SpscMail<Answer, kAskRoom> answers{};
+    std::atomic<bool> clerk_stop{false};
+    std::jthread clerk;
+
+    Engine() = default;
+    Engine(const Engine&) = delete;
+    Engine& operator=(const Engine&) = delete;
+    Engine(Engine&&) = delete;
+    Engine& operator=(Engine&&) = delete;
+    ~Engine();
 };
 
 namespace {
@@ -212,6 +263,11 @@ void release(Engine& state, Slot& slot, std::uint32_t index, Drop reason) {
     lose_ip(state, slot.address);
     slot.live = false;
     slot.greeted = false;
+    slot.has_account = false;
+    slot.has_cap = false;
+    slot.account_id = 0;
+    slot.cap = {};
+    slot.door = Door::kGame;
     slot.draining = false;
     slot.handshake.reset();
     slot.pipe.reset();
@@ -221,6 +277,7 @@ void release(Engine& state, Slot& slot, std::uint32_t index, Drop reason) {
     slot.held_at = 0;
     slot.send_queued = false;
     slot.resume_queued = false;
+    slot.asking = false;
     ++slot.generation;
     if (slot.generation == 0) slot.generation = 1;
     if (state.live > 0) --state.live;
@@ -260,10 +317,23 @@ void push_handle(std::vector<Handle>& queue, std::size_t& from, Handle handle) {
     queue.push_back(handle);
 }
 
+constexpr std::size_t kLoginLane = 0;
+constexpr std::size_t kControlLane = 1;
+constexpr std::size_t kBulkLane = 2;
+constexpr std::size_t kControlBytes = 64;
+
+// Bắt tay đi trước. Trong phiên, gói ngắn (điều khiển) được bốn suất rồi mới tới gói dài.
+[[nodiscard]] std::size_t send_lane(const Slot& slot) noexcept {
+    if (!slot.pipe) return kLoginLane;
+    const std::size_t held = slot.out_at - slot.out_from;
+    if (held <= kControlBytes) return kControlLane;
+    return kBulkLane;
+}
+
 void note_out(Engine& state, Slot& slot, std::uint32_t index) {
     if (slot.out_at == slot.out_from || slot.send_queued) return;
     const Handle handle{.index = index, .generation = slot.generation};
-    push_handle(state.pending, state.pending_from, handle);
+    state.pending.push(send_lane(slot), handle);
     slot.send_queued = true;
 }
 
@@ -337,6 +407,271 @@ void on_logout(Engine& state, Slot& slot, std::uint32_t index) {
     send_goodbye(state, slot, index, protocol::DisconnectReason::kLoggedOut, Drop::kLogout);
 }
 
+void forget(std::string& secret) {
+    secure::wipe_bytes(std::as_writable_bytes(std::span{secret.data(), secret.size()}));
+    secret.clear();
+}
+
+[[nodiscard]] std::string ip_text(net::Ipv4 address) {
+    return std::format("{}.{}.{}.{}", address[0], address[1], address[2], address[3]);
+}
+
+void send_reject(Engine& state, Slot& slot, std::uint32_t index, std::uint16_t request, protocol::ErrorCode code) {
+    slot.scratch.clear();
+    protocol::Reject message;
+    message.request = request;
+    message.code = code;
+    const bool encoded = protocol::encode(slot.scratch, message).has_value();
+    if (!encoded || !seal_to(state, slot, index, slot.scratch)) release(state, slot, index, Drop::kSlow);
+}
+
+void send_roster(Engine& state, Slot& slot, std::uint32_t index, const account::RosterReply& roster) {
+    if (!roster.ok) {
+        send_reject(state, slot, index, protocol::Login::kKind, roster.code);
+        return;
+    }
+    slot.scratch.clear();
+    protocol::CharacterList message;
+    message.characters = roster.characters;
+    const bool encoded = protocol::encode(slot.scratch, message).has_value();
+    if (!encoded || !seal_to(state, slot, index, slot.scratch)) release(state, slot, index, Drop::kSlow);
+}
+
+void wipe_ask(Ask& ask) noexcept {
+    forget(ask.secret);
+    secure::wipe_bytes(ask.cap);
+}
+
+void wipe_answer(Answer& answer) noexcept {
+    secure::wipe_bytes(answer.ticket.token);
+    secure::wipe_bytes(answer.roster.cap);
+}
+
+// Gửi câu hỏi cho thư ký. Hàng đầy thì client nhận kBusy ngay, không có câu hỏi nào bị nuốt.
+void post_ask(Engine& state, Slot& slot, std::uint32_t index, Ask& ask, std::uint16_t request) {
+    ask.handle = Handle{.index = index, .generation = slot.generation};
+    if (state.asks.try_push(ask)) {
+        slot.asking = true;
+        return;
+    }
+    wipe_ask(ask);
+    send_reject(state, slot, index, request, protocol::ErrorCode::kBusy);
+}
+
+[[nodiscard]] bool may_ask(Engine& state, Slot& slot, std::uint32_t index, std::uint16_t request) {
+    if (!slot.asking) return true;
+    send_reject(state, slot, index, request, protocol::ErrorCode::kBusy);
+    return false;
+}
+
+void on_login(Engine& state, Slot& slot, std::uint32_t index, protocol::Login& login) {
+    if (!slot.greeted) {
+        send_goodbye(state, slot, index, protocol::DisconnectReason::kProtocolViolation, Drop::kProtocol);
+        return;
+    }
+    if (!state.realm.has_value()) {
+        forget(login.ticket);
+        send_reject(state, slot, index, protocol::Login::kKind, protocol::ErrorCode::kBusy);
+        return;
+    }
+    if (!may_ask(state, slot, index, protocol::Login::kKind)) {
+        forget(login.ticket);
+        return;
+    }
+    Ask ask;
+    ask.kind = AskKind::kLogin;
+    ask.account = login.account;
+    ask.secret = login.ticket;
+    forget(login.ticket);
+    post_ask(state, slot, index, ask, protocol::Login::kKind);
+}
+
+void on_create_character(Engine& state, Slot& slot, std::uint32_t index, const protocol::CreateCharacter& request) {
+    if (!slot.greeted) {
+        send_goodbye(state, slot, index, protocol::DisconnectReason::kProtocolViolation, Drop::kProtocol);
+        return;
+    }
+    if (!slot.has_cap || !state.realm.has_value()) {
+        send_reject(state, slot, index, protocol::CreateCharacter::kKind, protocol::ErrorCode::kNotAuthenticated);
+        return;
+    }
+    if (!may_ask(state, slot, index, protocol::CreateCharacter::kKind)) return;
+    Ask ask;
+    ask.kind = AskKind::kCreateCharacter;
+    ask.cap = slot.cap;
+    ask.create = request;
+    post_ask(state, slot, index, ask, protocol::CreateCharacter::kKind);
+}
+
+void on_delete_character(Engine& state, Slot& slot, std::uint32_t index, const protocol::DeleteCharacter& request) {
+    if (!slot.greeted || !slot.has_cap || !state.realm.has_value()) {
+        send_reject(state, slot, index, protocol::DeleteCharacter::kKind, protocol::ErrorCode::kNotAuthenticated);
+        return;
+    }
+    if (!may_ask(state, slot, index, protocol::DeleteCharacter::kKind)) return;
+    Ask ask;
+    ask.kind = AskKind::kDeleteCharacter;
+    ask.cap = slot.cap;
+    ask.character = request.character;
+    post_ask(state, slot, index, ask, protocol::DeleteCharacter::kKind);
+}
+
+void on_enter(Engine& state, Slot& slot, std::uint32_t index, const protocol::EnterGame& request) {
+    if (!slot.greeted || !slot.has_cap || !state.realm.has_value()) {
+        send_reject(state, slot, index, protocol::EnterGame::kKind, protocol::ErrorCode::kNotAuthenticated);
+        return;
+    }
+    if (!may_ask(state, slot, index, protocol::EnterGame::kKind)) return;
+    Ask ask;
+    ask.kind = AskKind::kEnter;
+    ask.cap = slot.cap;
+    ask.character = request.character;
+    post_ask(state, slot, index, ask, protocol::EnterGame::kKind);
+}
+
+void finish_login(Engine& state, Slot& slot, std::uint32_t index, const account::RosterReply& roster) {
+    if (!roster.ok) {
+        send_reject(state, slot, index, protocol::Login::kKind, roster.code);
+        return;
+    }
+    slot.has_account = roster.has_cap;
+    slot.has_cap = roster.has_cap;
+    slot.account_id = roster.account;
+    slot.cap = roster.cap;
+    send_roster(state, slot, index, roster);
+}
+
+void finish_roster(Engine& state, Slot& slot, std::uint32_t index, std::uint16_t request,
+    const account::RosterReply& roster) {
+    if (!roster.ok) {
+        send_reject(state, slot, index, request, roster.code);
+        return;
+    }
+    send_roster(state, slot, index, roster);
+}
+
+void finish_enter(Engine& state, Slot& slot, std::uint32_t index, const account::EnterReply& entered) {
+    if (!entered.ok) {
+        send_reject(state, slot, index, protocol::EnterGame::kKind, entered.code);
+        return;
+    }
+    slot.scratch.clear();
+    protocol::SessionStart session;
+    if (!secure::fill_random(session.token) || !protocol::encode(slot.scratch, session).has_value() ||
+        !seal_to(state, slot, index, slot.scratch)) {
+        release(state, slot, index, Drop::kSlow);
+    }
+}
+
+void on_resume(Engine& state, Slot& slot, std::uint32_t index) {
+    if (!slot.greeted) {
+        send_goodbye(state, slot, index, protocol::DisconnectReason::kProtocolViolation, Drop::kProtocol);
+        return;
+    }
+    send_reject(state, slot, index, protocol::Resume::kKind, protocol::ErrorCode::kSessionExpired);
+}
+
+void send_ticket(Engine& state, Slot& slot, std::uint32_t index, std::uint16_t request, const account::TicketReply& ticket) {
+    if (!ticket.ok) {
+        send_reject(state, slot, index, request, ticket.code);
+        return;
+    }
+    slot.scratch.clear();
+    protocol::Ticket message;
+    message.token = ticket.token;
+    const bool encoded = protocol::encode(slot.scratch, message).has_value();
+    if (!encoded || !seal_to(state, slot, index, slot.scratch)) release(state, slot, index, Drop::kSlow);
+}
+
+// Mật khẩu chuyển vào câu hỏi rồi xoá bản trong tin; thư ký xoá bản của nó sau khi hỏi auth.
+void ask_password(Engine& state, Slot& slot, std::uint32_t index, AskKind kind, std::uint16_t request,
+    std::string_view name, std::string& password) {
+    if (!slot.greeted) {
+        forget(password);
+        send_goodbye(state, slot, index, protocol::DisconnectReason::kProtocolViolation, Drop::kProtocol);
+        return;
+    }
+    if (!state.realm.has_value()) {
+        forget(password);
+        send_reject(state, slot, index, request, protocol::ErrorCode::kBusy);
+        return;
+    }
+    if (!may_ask(state, slot, index, request)) {
+        forget(password);
+        return;
+    }
+    Ask ask;
+    ask.kind = kind;
+    ask.account = std::string{name};
+    ask.secret = password;
+    ask.ip = ip_text(slot.address);
+    forget(password);
+    post_ask(state, slot, index, ask, request);
+}
+
+void on_create_account(Engine& state, Slot& slot, std::uint32_t index, protocol::CreateAccount& request) {
+    ask_password(state, slot, index, AskKind::kCreateAccount, protocol::CreateAccount::kKind, request.account,
+        request.password);
+}
+
+void on_sign_in(Engine& state, Slot& slot, std::uint32_t index, protocol::SignIn& request) {
+    ask_password(state, slot, index, AskKind::kSignIn, protocol::SignIn::kKind, request.account, request.password);
+}
+
+void finish(Engine& state, Slot& slot, std::uint32_t index, const Answer& answer) {
+    switch (answer.kind) {
+    case AskKind::kCreateAccount:
+        send_ticket(state, slot, index, protocol::CreateAccount::kKind, answer.ticket);
+        return;
+    case AskKind::kSignIn: send_ticket(state, slot, index, protocol::SignIn::kKind, answer.ticket); return;
+    case AskKind::kLogin: finish_login(state, slot, index, answer.roster); return;
+    case AskKind::kCreateCharacter:
+        finish_roster(state, slot, index, protocol::CreateCharacter::kKind, answer.roster);
+        return;
+    case AskKind::kDeleteCharacter:
+        finish_roster(state, slot, index, protocol::DeleteCharacter::kKind, answer.roster);
+        return;
+    case AskKind::kEnter: finish_enter(state, slot, index, answer.enter); return;
+    }
+}
+
+[[nodiscard]] Answer run_ask(const account::Realm& realm, const Ask& ask) {
+    Answer answer;
+    answer.handle = ask.handle;
+    answer.kind = ask.kind;
+    switch (ask.kind) {
+    case AskKind::kCreateAccount: answer.ticket = realm.create_account(ask.account, ask.secret, ask.ip); break;
+    case AskKind::kSignIn: answer.ticket = realm.sign_in(ask.account, ask.secret, ask.ip); break;
+    case AskKind::kLogin: answer.roster = realm.login(ask.account, ask.secret); break;
+    case AskKind::kCreateCharacter: answer.roster = realm.create_character(ask.cap, ask.create); break;
+    case AskKind::kDeleteCharacter: answer.roster = realm.remove_character(ask.cap, ask.character); break;
+    case AskKind::kEnter: answer.enter = realm.enter(ask.cap, ask.character); break;
+    }
+    return answer;
+}
+
+// Luồng thư ký: một câu hỏi một lần, theo thứ tự. Dừng thì bỏ trả lời chưa gửi được (ô sắp đóng).
+void clerk_main(Engine& state) {
+    const account::Realm& realm = *state.realm;
+    for (;;) {
+        Ask ask;
+        if (!state.asks.try_pop(ask)) {
+            if (state.clerk_stop.load(std::memory_order_acquire)) return;
+            state.asks.park([&] { return state.asks.empty() && !state.clerk_stop.load(std::memory_order_acquire); });
+            continue;
+        }
+        Answer answer = run_ask(realm, ask);
+        wipe_ask(ask);
+        while (!state.answers.try_push(answer)) {
+            if (state.clerk_stop.load(std::memory_order_acquire)) {
+                wipe_answer(answer);
+                return;
+            }
+            std::this_thread::yield();
+        }
+    }
+}
+
 [[nodiscard]] bool spend(Slot& slot, const Limits& limits, std::int64_t now) noexcept {
     std::int64_t span = now - slot.credit_ns;
     if (span < 0) span = 0;
@@ -350,19 +685,15 @@ void on_logout(Engine& state, Slot& slot, std::uint32_t index) {
     return true;
 }
 
-void dispatch(SlotNow in, protocol::Frame frame, secure::ByteView body) {
-    if (!spend(in.slot, in.state.limits, in.now)) {
-        send_goodbye(in.state, in.slot, in.index, protocol::DisconnectReason::kKicked, Drop::kRate);
-        return;
-    }
+void dispatch_auth(SlotNow in, protocol::Frame frame, secure::ByteView body) {
     const bool is_hello = frame.kind == protocol::Hello::kKind;
-    const bool is_ping = frame.kind == protocol::Ping::kKind;
-    const bool is_logout = frame.kind == protocol::Logout::kKind;
-    if (!is_hello && !is_ping && !is_logout) {
+    const bool is_create = frame.kind == protocol::CreateAccount::kKind;
+    const bool is_sign = frame.kind == protocol::SignIn::kKind;
+    if (!is_hello && !is_create && !is_sign) {
         send_goodbye(in.state, in.slot, in.index, protocol::DisconnectReason::kProtocolViolation, Drop::kForeign);
         return;
     }
-    const protocol::GameClientResult decoded = protocol::decode_game_client(frame, body);
+    protocol::AuthClientResult decoded = protocol::decode_auth_client(frame, body);
     if (!decoded) {
         send_goodbye(in.state, in.slot, in.index, protocol::DisconnectReason::kProtocolViolation, Drop::kProtocol);
         return;
@@ -370,8 +701,54 @@ void dispatch(SlotNow in, protocol::Frame frame, secure::ByteView body) {
     if (const auto* hello = std::get_if<protocol::Hello>(&*decoded)) {
         on_hello(in.state, in.slot, in.index, *hello, in.now);
     }
+    if (auto* create = std::get_if<protocol::CreateAccount>(&*decoded)) {
+        on_create_account(in.state, in.slot, in.index, *create);
+    }
+    if (auto* sign = std::get_if<protocol::SignIn>(&*decoded)) on_sign_in(in.state, in.slot, in.index, *sign);
+}
+
+void dispatch_game(SlotNow in, protocol::Frame frame, secure::ByteView body) {
+    const bool is_hello = frame.kind == protocol::Hello::kKind;
+    const bool is_ping = frame.kind == protocol::Ping::kKind;
+    const bool is_logout = frame.kind == protocol::Logout::kKind;
+    const bool is_login = frame.kind == protocol::Login::kKind;
+    const bool is_resume = frame.kind == protocol::Resume::kKind;
+    const bool is_create = frame.kind == protocol::CreateCharacter::kKind;
+    const bool is_remove = frame.kind == protocol::DeleteCharacter::kKind;
+    const bool is_enter = frame.kind == protocol::EnterGame::kKind;
+    const bool known = is_hello || is_ping || is_logout || is_login || is_resume || is_create || is_remove || is_enter;
+    if (!known) {
+        send_goodbye(in.state, in.slot, in.index, protocol::DisconnectReason::kProtocolViolation, Drop::kForeign);
+        return;
+    }
+    protocol::GameClientResult decoded = protocol::decode_game_client(frame, body);
+    if (!decoded) {
+        send_goodbye(in.state, in.slot, in.index, protocol::DisconnectReason::kProtocolViolation, Drop::kProtocol);
+        return;
+    }
+    if (const auto* hello = std::get_if<protocol::Hello>(&*decoded)) {
+        on_hello(in.state, in.slot, in.index, *hello, in.now);
+    }
+    if (auto* login = std::get_if<protocol::Login>(&*decoded)) on_login(in.state, in.slot, in.index, *login);
+    if (std::get_if<protocol::Resume>(&*decoded) != nullptr) on_resume(in.state, in.slot, in.index);
     if (const auto* ping = std::get_if<protocol::Ping>(&*decoded)) on_ping(in.state, in.slot, in.index, *ping, in.now);
     if (std::get_if<protocol::Logout>(&*decoded) != nullptr) on_logout(in.state, in.slot, in.index);
+    if (const auto* create = std::get_if<protocol::CreateCharacter>(&*decoded)) {
+        on_create_character(in.state, in.slot, in.index, *create);
+    }
+    if (const auto* remove = std::get_if<protocol::DeleteCharacter>(&*decoded)) {
+        on_delete_character(in.state, in.slot, in.index, *remove);
+    }
+    if (const auto* enter = std::get_if<protocol::EnterGame>(&*decoded)) on_enter(in.state, in.slot, in.index, *enter);
+}
+
+void dispatch(SlotNow in, protocol::Frame frame, secure::ByteView body) {
+    if (!spend(in.slot, in.state.limits, in.now)) {
+        send_goodbye(in.state, in.slot, in.index, protocol::DisconnectReason::kKicked, Drop::kRate);
+        return;
+    }
+    if (in.slot.door == Door::kAuth) dispatch_auth(in, frame, body);
+    if (in.slot.door != Door::kAuth) dispatch_game(in, frame, body);
 }
 
 [[nodiscard]] bool take_frame(Engine& state, Slot& slot, std::uint32_t index, std::int64_t now) {
@@ -564,6 +941,16 @@ void log_drop(Engine& state, Drop reason, net::Ipv4 address, std::int64_t now) {
 
 } // namespace
 
+Engine::~Engine() {
+    clerk_stop.store(true, std::memory_order_seq_cst);
+    asks.wake();
+    if (clerk.joinable()) clerk.join();
+    Ask left;
+    while (asks.try_pop(left)) wipe_ask(left);
+    Answer done;
+    while (answers.try_pop(done)) wipe_answer(done);
+}
+
 std::string_view describe(Drop reason) noexcept {
     switch (reason) {
     case Drop::kHandshake: return "hết hạn bắt tay";
@@ -608,6 +995,12 @@ Table::Table(Limits limits, std::vector<Cidr> allow, std::vector<Cidr> deny, con
     state_->free_slots.reserve(limits.max_connections);
     state_->closed.reserve(limits.max_connections);
     const std::size_t queue_room = limits.max_connections + 256;
+    constexpr std::array<net::LaneSpec, 3> kSendLanes{{
+        {.priority = 0, .weight = 1},
+        {.priority = 1, .weight = 4},
+        {.priority = 1, .weight = 1},
+    }};
+    state_->pending.reset(kSendLanes);
     state_->pending.reserve(queue_room);
     state_->resume.reserve(queue_room);
     for (std::uint32_t index = 0; index < limits.max_connections; ++index) {
@@ -626,6 +1019,29 @@ Table::Table(Table&&) noexcept = default;
 Table& Table::operator=(Table&&) noexcept = default;
 
 Admit Table::admit(net::Ipv4 address, std::int64_t now) {
+    return admit(address, now, Door::kGame);
+}
+
+void Table::set_realm(const account::Realm& realm) {
+    if (state_->realm.has_value()) return;
+    state_->realm.emplace(realm);
+    Engine* const engine = state_.get();
+    state_->clerk = std::jthread([engine] { clerk_main(*engine); });
+}
+
+void Table::collect() {
+    Answer answer;
+    while (state_->answers.try_pop(answer)) {
+        Slot* slot = live_slot(*state_, answer.handle);
+        if (slot != nullptr) {
+            slot->asking = false;
+            finish(*state_, *slot, answer.handle.index, answer);
+        }
+        wipe_answer(answer);
+    }
+}
+
+Admit Table::admit(net::Ipv4 address, std::int64_t now, Door door) {
     if (state_->free_slots.empty()) return Admit{.code = AdmitCode::kFull};
     if (!address_ok(*state_, address)) return Admit{.code = AdmitCode::kDenied};
     if (!gain_ip(*state_, address)) return Admit{.code = AdmitCode::kPerIp};
@@ -634,6 +1050,11 @@ Admit Table::admit(net::Ipv4 address, std::int64_t now) {
     Slot& slot = state_->slots[index];
     slot.live = true;
     slot.greeted = false;
+    slot.door = door;
+    slot.has_account = false;
+    slot.has_cap = false;
+    slot.account_id = 0;
+    slot.cap = {};
     slot.draining = false;
     slot.address = address;
     slot.born_ns = now;
@@ -646,6 +1067,7 @@ Admit Table::admit(net::Ipv4 address, std::int64_t now) {
     slot.held_at = 0;
     slot.send_queued = false;
     slot.resume_queued = false;
+    slot.asking = false;
     slot.handshake.emplace(*state_->identity);
     slot.pipe.reset();
     ++state_->live;
@@ -788,7 +1210,7 @@ std::size_t take_queue(std::vector<Handle>& queue, std::size_t& from, std::span<
 } // namespace
 
 std::size_t Table::take_pending(std::span<Handle> out) {
-    return take_queue(state_->pending, state_->pending_from, out);
+    return state_->pending.pop(out);
 }
 
 std::size_t Table::take_resume(std::span<Handle> out) {
