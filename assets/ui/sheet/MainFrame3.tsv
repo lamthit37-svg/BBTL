@@ -1,0 +1,17 @@
+# ảnh, x, y, w, h, tệp atlas, các màn dùng
+
+MainFrame3_1	0	0	64	64	Common/tga_MainFrame3.dds	MainMenuBar
+MainFrame3_10	64	128	64	64	Common/tga_MainFrame3.dds	MainMenuBar,TeamFrame
+MainFrame3_11	128	128	64	64	Common/tga_MainFrame3.dds	MainMenuBar
+MainFrame3_12	192	128	64	64	Common/tga_MainFrame3.dds	MainMenuBar
+MainFrame3_13	0	192	64	64	Common/tga_MainFrame3.dds	MainMenuBar
+MainFrame3_14	64	192	64	64	Common/tga_MainFrame3.dds	MainMenuBar
+MainFrame3_15	128	192	64	64	Common/tga_MainFrame3.dds	AcceSetup,GameSetup,MainMenuBar,SoundSetup,ViewSetup
+MainFrame3_2	64	0	64	64	Common/tga_MainFrame3.dds	CommonSkill,MainMenuBar
+MainFrame3_3	128	0	64	64	Common/tga_MainFrame3.dds	MainMenuBar
+MainFrame3_4	192	0	64	64	Common/tga_MainFrame3.dds	MainMenuBar
+MainFrame3_5	0	64	64	64	Common/tga_MainFrame3.dds	MainMenuBar
+MainFrame3_6	64	64	64	64	Common/tga_MainFrame3.dds	MainMenuBar,Packet
+MainFrame3_7	128	64	64	64	Common/tga_MainFrame3.dds	MainMenuBar
+MainFrame3_8	192	64	64	64	Common/tga_MainFrame3.dds	Friend,MainMenuBar
+MainFrame3_9	0	128	64	64	Common/tga_MainFrame3.dds	MainMenuBar

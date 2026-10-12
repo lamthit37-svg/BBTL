@@ -1,0 +1,18 @@
+# ảnh, x, y, w, h, tệp atlas, các màn dùng
+
+Key_F1	0	72	36	36	Common/tga_Minimap.dds	MainMenuBar
+Key_F10	37	220	36	36	Common/tga_Minimap.dds	MainMenuBar
+Key_F2	37	72	36	36	Common/tga_Minimap.dds	MainMenuBar
+Key_F3	0	109	36	36	Common/tga_Minimap.dds	MainMenuBar
+Key_F4	37	109	36	36	Common/tga_Minimap.dds	MainMenuBar
+Key_F5	0	146	36	36	Common/tga_Minimap.dds	MainMenuBar
+Key_F6	37	146	36	36	Common/tga_Minimap.dds	MainMenuBar
+Key_F7	0	183	36	36	Common/tga_Minimap.dds	MainMenuBar
+Key_F8	37	183	36	36	Common/tga_Minimap.dds	MainMenuBar
+Key_F9	0	220	36	36	Common/tga_Minimap.dds	MainMenuBar
+LongWen	157	221	34	34	Common/tga_Minimap.dds	SelfEquip
+Minimap_Area	99	44	157	148	Common/tga_Minimap.dds	MiniMap
+Minimap_BK	72	0	184	28	Common/tga_Minimap.dds	MiniMap
+Minimap_Time	37	0	35	36	Common/tga_Minimap.dds	MiniMap
+PacketIcon1	192	224	32	32	Common/tga_Minimap.dds	Packet
+PacketIcon2	224	224	32	32	Common/tga_Minimap.dds	Packet

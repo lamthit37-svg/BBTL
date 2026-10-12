@@ -1,0 +1,342 @@
+# cửa sổ, loại, x, y, w, h, thuộc tính, atlas, ảnh, chữ
+
+SelfEquip_Icon	TLBB_StaticImageNULL					Image	MainFrame2	MainFrame2_12	
+SelfEquip_1	TLBB_ActionButton	0.000000	0.000000	34.000000	34.000000	Tooltip			#{INTERFACE_XML_701}
+SelfEquip_1	TLBB_ActionButton	0.000000	0.000000	34.000000	34.000000	BackImage	UIIcons	Equip_Cap	
+SelfEquip_1_Mask	TLBB_StaticImageNULL					Image	Face_04	Remind_Bak	
+SelfEquip_2	TLBB_ActionButton	0.000000	34.000000	34.000000	34.000000	Tooltip			#{INTERFACE_XML_328}
+SelfEquip_2	TLBB_ActionButton	0.000000	34.000000	34.000000	34.000000	BackImage	UIIcons	Equip_Shoulder	
+SelfEquip_2_Mask	TLBB_StaticImageNULL					Image	Face_04	Remind_Bak	
+SelfEquip_3	TLBB_ActionButton	0.000000	68.000000	34.000000	34.000000	Tooltip			#{INTERFACE_XML_329}
+SelfEquip_3	TLBB_ActionButton	0.000000	68.000000	34.000000	34.000000	BackImage	UIIcons	Equip_Wrist	
+SelfEquip_3_Mask	TLBB_StaticImageNULL					Image	Face_04	Remind_Bak	
+SelfEquip_4	TLBB_ActionButton	0.000000	102.000000	34.000000	34.000000	Tooltip			#{INTERFACE_XML_652}
+SelfEquip_4	TLBB_ActionButton	0.000000	102.000000	34.000000	34.000000	BackImage	UIIcons	Equip_Hand	
+SelfEquip_4_Mask	TLBB_StaticImageNULL					Image	Face_04	Remind_Bak	
+SelfEquip_5	TLBB_ActionButton	0.000000	136.000000	34.000000	34.000000	Tooltip			#{INTERFACE_XML_813}
+SelfEquip_5	TLBB_ActionButton	0.000000	136.000000	34.000000	34.000000	BackImage	UIIcons	Equip_Sash	
+SelfEquip_5_Mask	TLBB_StaticImageNULL					Image	Face_04	Remind_Bak	
+SelfEquip_6	TLBB_ActionButton	0.000000	170.000000	34.000000	34.000000	Tooltip			#{INTERFACE_XML_762}
+SelfEquip_6	TLBB_ActionButton	0.000000	170.000000	34.000000	34.000000	BackImage	UIIcons	Equip_Shot	
+SelfEquip_6_Mask	TLBB_StaticImageNULL					Image	Face_04	Remind_Bak	
+SelfEquip_7	TLBB_ActionButton	0.000000	204.000000	34.000000	34.000000	Tooltip			#{INTERFACE_XML_378}
+SelfEquip_7	TLBB_ActionButton	0.000000	204.000000	34.000000	34.000000	BackImage	UIIcons	Equip_Ring	
+SelfEquip_7_Mask	TLBB_StaticImageNULL					Image	Face_04	Remind_Bak	
+SelfEquip_8	TLBB_ActionButton	0.000000	238.000000	34.000000	34.000000	Tooltip			#{INTERFACE_XML_378}
+SelfEquip_8	TLBB_ActionButton	0.000000	238.000000	34.000000	34.000000	BackImage	UIIcons	Equip_Ring	
+SelfEquip_8_Mask	TLBB_StaticImageNULL					Image	Face_04	Remind_Bak	
+SelfEquip_9	TLBB_ActionButton	0.000000	272.000000	34.000000	34.000000	Tooltip			#{INTERFACE_XML_326}
+SelfEquip_9	TLBB_ActionButton	0.000000	272.000000	34.000000	34.000000	BackImage	UIIcons	Equip_Pifeng	
+SelfEquip_9_Mask	TLBB_StaticImageNULL					Image	Face_04	Remind_Bak	
+SelfEquip_10	TLBB_ActionButton	0.000000	306.000000	34.000000	34.000000	Tooltip			#{INTERFACE_XML_326}
+SelfEquip_10	TLBB_ActionButton	0.000000	306.000000	34.000000	34.000000	BackImage	UIIcons	Equip_Pifeng	
+SelfEquip_10_Mask	TLBB_StaticImageNULL					Image	Face_04	Remind_Bak	
+SelfEquip_11	TLBB_ActionButton					Tooltip			#{INTERFACE_XML_722}
+SelfEquip_11	TLBB_ActionButton					BackImage	UIIcons	Equip_Weapon	
+SelfEquip_11_Mask	TLBB_StaticImageNULL					Image	Face_04	Remind_Bak	
+SelfEquip_12	TLBB_ActionButton					Tooltip			#{INTERFACE_XML_327}
+SelfEquip_12	TLBB_ActionButton					BackImage	UIIcons	Equip_Armo	
+SelfEquip_12_Mask	TLBB_StaticImageNULL					Image	Face_04	Remind_Bak	
+SelfEquip_13	TLBB_ActionButton					Tooltip			#{INTERFACE_XML_756}
+SelfEquip_13	TLBB_ActionButton					BackImage	UIIcons	Equip_Nacket	
+SelfEquip_13_Mask	TLBB_StaticImageNULL					Image	Face_04	Remind_Bak	
+SelfEquip_14	TLBB_ActionButton					Tooltip			#{FBSJ_081209_77}
+SelfEquip_14	TLBB_ActionButton					BackImage	UIIcons	Equip_Anqi	
+SelfEquip_14_Mask	TLBB_StaticImageNULL					Image	Face_04	Remind_Bak	
+SelfEquip_16	TLBB_ActionButton					Tooltip			#{BHZB_140521_1}
+SelfEquip_16	TLBB_ActionButton					BackImage	UIIcons	Equip_LingPai	
+SelfEquip_16_Mask	TLBB_StaticImageNULL					Image	Face_04	Remind_Bak	
+SelfEquip_25	TLBB_ActionButton					Tooltip			#{LW_KVK_XML_34}
+SelfEquip_25	TLBB_ActionButton					BackImage	MiniMap	LongWen	
+SelfEquip_25_Mask	TLBB_StaticImageNULL					Image	Face_04	Remind_Bak	
+SelfEquip_BaoShiCheck_01red	TLBB_ButtonNULL					NormalImage	Button11	BaoShiCheck_red_Normal	
+SelfEquip_BaoShiCheck_01red	TLBB_ButtonNULL					HoverImage	Button11	BaoShiCheck_red_Hover	
+SelfEquip_BaoShiCheck_01red	TLBB_ButtonNULL					DisabledImage	Button11	BaoShiCheck_red_Disabled	
+SelfEquip_BaoShiCheck_01red	TLBB_ButtonNULL					PushedImage	Button11	BaoShiCheck_red_Pushed	
+SelfEquip_BaoShiCheck_01green	TLBB_ButtonNULL					NormalImage	Button11	BaoShiCheck_green_Normal	
+SelfEquip_BaoShiCheck_01green	TLBB_ButtonNULL					HoverImage	Button11	BaoShiCheck_green_Hover	
+SelfEquip_BaoShiCheck_01green	TLBB_ButtonNULL					DisabledImage	Button11	BaoShiCheck_green_Disabled	
+SelfEquip_BaoShiCheck_01green	TLBB_ButtonNULL					PushedImage	Button11	BaoShiCheck_green_Pushed	
+SelfEquip_BaoShiCheck_02red	TLBB_ButtonNULL					NormalImage	Button11	BaoShiCheck_red_Normal	
+SelfEquip_BaoShiCheck_02red	TLBB_ButtonNULL					HoverImage	Button11	BaoShiCheck_red_Hover	
+SelfEquip_BaoShiCheck_02red	TLBB_ButtonNULL					DisabledImage	Button11	BaoShiCheck_red_Disabled	
+SelfEquip_BaoShiCheck_02red	TLBB_ButtonNULL					PushedImage	Button11	BaoShiCheck_red_Pushed	
+SelfEquip_BaoShiCheck_02green	TLBB_ButtonNULL					NormalImage	Button11	BaoShiCheck_green_Normal	
+SelfEquip_BaoShiCheck_02green	TLBB_ButtonNULL					HoverImage	Button11	BaoShiCheck_green_Hover	
+SelfEquip_BaoShiCheck_02green	TLBB_ButtonNULL					DisabledImage	Button11	BaoShiCheck_green_Disabled	
+SelfEquip_BaoShiCheck_02green	TLBB_ButtonNULL					PushedImage	Button11	BaoShiCheck_green_Pushed	
+SelfEquip_BaoShiCheck_03red	TLBB_ButtonNULL					NormalImage	Button11	BaoShiCheck_red_Normal	
+SelfEquip_BaoShiCheck_03red	TLBB_ButtonNULL					HoverImage	Button11	BaoShiCheck_red_Hover	
+SelfEquip_BaoShiCheck_03red	TLBB_ButtonNULL					DisabledImage	Button11	BaoShiCheck_red_Disabled	
+SelfEquip_BaoShiCheck_03red	TLBB_ButtonNULL					PushedImage	Button11	BaoShiCheck_red_Pushed	
+SelfEquip_BaoShiCheck_03green	TLBB_ButtonNULL					NormalImage	Button11	BaoShiCheck_green_Normal	
+SelfEquip_BaoShiCheck_03green	TLBB_ButtonNULL					HoverImage	Button11	BaoShiCheck_green_Hover	
+SelfEquip_BaoShiCheck_03green	TLBB_ButtonNULL					DisabledImage	Button11	BaoShiCheck_green_Disabled	
+SelfEquip_BaoShiCheck_03green	TLBB_ButtonNULL					PushedImage	Button11	BaoShiCheck_green_Pushed	
+SelfEquip_BaoShiCheck_04red	TLBB_ButtonNULL					NormalImage	Button11	BaoShiCheck_red_Normal	
+SelfEquip_BaoShiCheck_04red	TLBB_ButtonNULL					HoverImage	Button11	BaoShiCheck_red_Hover	
+SelfEquip_BaoShiCheck_04red	TLBB_ButtonNULL					DisabledImage	Button11	BaoShiCheck_red_Disabled	
+SelfEquip_BaoShiCheck_04red	TLBB_ButtonNULL					PushedImage	Button11	BaoShiCheck_red_Pushed	
+SelfEquip_BaoShiCheck_04green	TLBB_ButtonNULL					NormalImage	Button11	BaoShiCheck_green_Normal	
+SelfEquip_BaoShiCheck_04green	TLBB_ButtonNULL					HoverImage	Button11	BaoShiCheck_green_Hover	
+SelfEquip_BaoShiCheck_04green	TLBB_ButtonNULL					DisabledImage	Button11	BaoShiCheck_green_Disabled	
+SelfEquip_BaoShiCheck_04green	TLBB_ButtonNULL					PushedImage	Button11	BaoShiCheck_green_Pushed	
+SelfEquip_BaoShiCheck_05red	TLBB_ButtonNULL					NormalImage	Button11	BaoShiCheck_red_Normal	
+SelfEquip_BaoShiCheck_05red	TLBB_ButtonNULL					HoverImage	Button11	BaoShiCheck_red_Hover	
+SelfEquip_BaoShiCheck_05red	TLBB_ButtonNULL					DisabledImage	Button11	BaoShiCheck_red_Disabled	
+SelfEquip_BaoShiCheck_05red	TLBB_ButtonNULL					PushedImage	Button11	BaoShiCheck_red_Pushed	
+SelfEquip_BaoShiCheck_05green	TLBB_ButtonNULL					NormalImage	Button11	BaoShiCheck_green_Normal	
+SelfEquip_BaoShiCheck_05green	TLBB_ButtonNULL					HoverImage	Button11	BaoShiCheck_green_Hover	
+SelfEquip_BaoShiCheck_05green	TLBB_ButtonNULL					DisabledImage	Button11	BaoShiCheck_green_Disabled	
+SelfEquip_BaoShiCheck_05green	TLBB_ButtonNULL					PushedImage	Button11	BaoShiCheck_green_Pushed	
+SelfEquip_BaoShiCheck_06red	TLBB_ButtonNULL					NormalImage	Button11	BaoShiCheck_red_Normal	
+SelfEquip_BaoShiCheck_06red	TLBB_ButtonNULL					HoverImage	Button11	BaoShiCheck_red_Hover	
+SelfEquip_BaoShiCheck_06red	TLBB_ButtonNULL					DisabledImage	Button11	BaoShiCheck_red_Disabled	
+SelfEquip_BaoShiCheck_06red	TLBB_ButtonNULL					PushedImage	Button11	BaoShiCheck_red_Pushed	
+SelfEquip_BaoShiCheck_06green	TLBB_ButtonNULL					NormalImage	Button11	BaoShiCheck_green_Normal	
+SelfEquip_BaoShiCheck_06green	TLBB_ButtonNULL					HoverImage	Button11	BaoShiCheck_green_Hover	
+SelfEquip_BaoShiCheck_06green	TLBB_ButtonNULL					DisabledImage	Button11	BaoShiCheck_green_Disabled	
+SelfEquip_BaoShiCheck_06green	TLBB_ButtonNULL					PushedImage	Button11	BaoShiCheck_green_Pushed	
+SelfEquip_BaoShiCheck_07red	TLBB_ButtonNULL					NormalImage	Button11	BaoShiCheck_red_Normal	
+SelfEquip_BaoShiCheck_07red	TLBB_ButtonNULL					HoverImage	Button11	BaoShiCheck_red_Hover	
+SelfEquip_BaoShiCheck_07red	TLBB_ButtonNULL					DisabledImage	Button11	BaoShiCheck_red_Disabled	
+SelfEquip_BaoShiCheck_07red	TLBB_ButtonNULL					PushedImage	Button11	BaoShiCheck_red_Pushed	
+SelfEquip_BaoShiCheck_07green	TLBB_ButtonNULL					NormalImage	Button11	BaoShiCheck_green_Normal	
+SelfEquip_BaoShiCheck_07green	TLBB_ButtonNULL					HoverImage	Button11	BaoShiCheck_green_Hover	
+SelfEquip_BaoShiCheck_07green	TLBB_ButtonNULL					DisabledImage	Button11	BaoShiCheck_green_Disabled	
+SelfEquip_BaoShiCheck_07green	TLBB_ButtonNULL					PushedImage	Button11	BaoShiCheck_green_Pushed	
+SelfEquip_BaoShiCheck_08red	TLBB_ButtonNULL					NormalImage	Button11	BaoShiCheck_red_Normal	
+SelfEquip_BaoShiCheck_08red	TLBB_ButtonNULL					HoverImage	Button11	BaoShiCheck_red_Hover	
+SelfEquip_BaoShiCheck_08red	TLBB_ButtonNULL					DisabledImage	Button11	BaoShiCheck_red_Disabled	
+SelfEquip_BaoShiCheck_08red	TLBB_ButtonNULL					PushedImage	Button11	BaoShiCheck_red_Pushed	
+SelfEquip_BaoShiCheck_08green	TLBB_ButtonNULL					NormalImage	Button11	BaoShiCheck_green_Normal	
+SelfEquip_BaoShiCheck_08green	TLBB_ButtonNULL					HoverImage	Button11	BaoShiCheck_green_Hover	
+SelfEquip_BaoShiCheck_08green	TLBB_ButtonNULL					DisabledImage	Button11	BaoShiCheck_green_Disabled	
+SelfEquip_BaoShiCheck_08green	TLBB_ButtonNULL					PushedImage	Button11	BaoShiCheck_green_Pushed	
+SelfEquip_BaoShiCheck_09red	TLBB_ButtonNULL					NormalImage	Button11	BaoShiCheck_red_Normal	
+SelfEquip_BaoShiCheck_09red	TLBB_ButtonNULL					HoverImage	Button11	BaoShiCheck_red_Hover	
+SelfEquip_BaoShiCheck_09red	TLBB_ButtonNULL					DisabledImage	Button11	BaoShiCheck_red_Disabled	
+SelfEquip_BaoShiCheck_09red	TLBB_ButtonNULL					PushedImage	Button11	BaoShiCheck_red_Pushed	
+SelfEquip_BaoShiCheck_09green	TLBB_ButtonNULL					NormalImage	Button11	BaoShiCheck_green_Normal	
+SelfEquip_BaoShiCheck_09green	TLBB_ButtonNULL					HoverImage	Button11	BaoShiCheck_green_Hover	
+SelfEquip_BaoShiCheck_09green	TLBB_ButtonNULL					DisabledImage	Button11	BaoShiCheck_green_Disabled	
+SelfEquip_BaoShiCheck_09green	TLBB_ButtonNULL					PushedImage	Button11	BaoShiCheck_green_Pushed	
+SelfEquip_BaoShiCheck_10red	TLBB_ButtonNULL					NormalImage	Button11	BaoShiCheck_red_Normal	
+SelfEquip_BaoShiCheck_10red	TLBB_ButtonNULL					HoverImage	Button11	BaoShiCheck_red_Hover	
+SelfEquip_BaoShiCheck_10red	TLBB_ButtonNULL					DisabledImage	Button11	BaoShiCheck_red_Disabled	
+SelfEquip_BaoShiCheck_10red	TLBB_ButtonNULL					PushedImage	Button11	BaoShiCheck_red_Pushed	
+SelfEquip_BaoShiCheck_10green	TLBB_ButtonNULL					NormalImage	Button11	BaoShiCheck_green_Normal	
+SelfEquip_BaoShiCheck_10green	TLBB_ButtonNULL					HoverImage	Button11	BaoShiCheck_green_Hover	
+SelfEquip_BaoShiCheck_10green	TLBB_ButtonNULL					DisabledImage	Button11	BaoShiCheck_green_Disabled	
+SelfEquip_BaoShiCheck_10green	TLBB_ButtonNULL					PushedImage	Button11	BaoShiCheck_green_Pushed	
+SelfEquip_BaoShiCheck_11red	TLBB_ButtonNULL					NormalImage	Button11	BaoShiCheck_red_Normal	
+SelfEquip_BaoShiCheck_11red	TLBB_ButtonNULL					HoverImage	Button11	BaoShiCheck_red_Hover	
+SelfEquip_BaoShiCheck_11red	TLBB_ButtonNULL					DisabledImage	Button11	BaoShiCheck_red_Disabled	
+SelfEquip_BaoShiCheck_11red	TLBB_ButtonNULL					PushedImage	Button11	BaoShiCheck_red_Pushed	
+SelfEquip_BaoShiCheck_11green	TLBB_ButtonNULL					NormalImage	Button11	BaoShiCheck_green_Normal	
+SelfEquip_BaoShiCheck_11green	TLBB_ButtonNULL					HoverImage	Button11	BaoShiCheck_green_Hover	
+SelfEquip_BaoShiCheck_11green	TLBB_ButtonNULL					DisabledImage	Button11	BaoShiCheck_green_Disabled	
+SelfEquip_BaoShiCheck_11green	TLBB_ButtonNULL					PushedImage	Button11	BaoShiCheck_green_Pushed	
+SelfEquip_BaoShiCheck_12red	TLBB_ButtonNULL					NormalImage	Button11	BaoShiCheck_red_Normal	
+SelfEquip_BaoShiCheck_12red	TLBB_ButtonNULL					HoverImage	Button11	BaoShiCheck_red_Hover	
+SelfEquip_BaoShiCheck_12red	TLBB_ButtonNULL					DisabledImage	Button11	BaoShiCheck_red_Disabled	
+SelfEquip_BaoShiCheck_12red	TLBB_ButtonNULL					PushedImage	Button11	BaoShiCheck_red_Pushed	
+SelfEquip_BaoShiCheck_12green	TLBB_ButtonNULL					NormalImage	Button11	BaoShiCheck_green_Normal	
+SelfEquip_BaoShiCheck_12green	TLBB_ButtonNULL					HoverImage	Button11	BaoShiCheck_green_Hover	
+SelfEquip_BaoShiCheck_12green	TLBB_ButtonNULL					DisabledImage	Button11	BaoShiCheck_green_Disabled	
+SelfEquip_BaoShiCheck_12green	TLBB_ButtonNULL					PushedImage	Button11	BaoShiCheck_green_Pushed	
+SelfEquip_BaoShiCheck_13red	TLBB_ButtonNULL					NormalImage	Button11	BaoShiCheck_red_Normal	
+SelfEquip_BaoShiCheck_13red	TLBB_ButtonNULL					HoverImage	Button11	BaoShiCheck_red_Hover	
+SelfEquip_BaoShiCheck_13red	TLBB_ButtonNULL					DisabledImage	Button11	BaoShiCheck_red_Disabled	
+SelfEquip_BaoShiCheck_13red	TLBB_ButtonNULL					PushedImage	Button11	BaoShiCheck_red_Pushed	
+SelfEquip_BaoShiCheck_13green	TLBB_ButtonNULL					NormalImage	Button11	BaoShiCheck_green_Normal	
+SelfEquip_BaoShiCheck_13green	TLBB_ButtonNULL					HoverImage	Button11	BaoShiCheck_green_Hover	
+SelfEquip_BaoShiCheck_13green	TLBB_ButtonNULL					DisabledImage	Button11	BaoShiCheck_green_Disabled	
+SelfEquip_BaoShiCheck_13green	TLBB_ButtonNULL					PushedImage	Button11	BaoShiCheck_green_Pushed	
+SelfEquip_BaoShiCheck_14red	TLBB_ButtonNULL					NormalImage	Button11	BaoShiCheck_red_Normal	
+SelfEquip_BaoShiCheck_14red	TLBB_ButtonNULL					HoverImage	Button11	BaoShiCheck_red_Hover	
+SelfEquip_BaoShiCheck_14red	TLBB_ButtonNULL					DisabledImage	Button11	BaoShiCheck_red_Disabled	
+SelfEquip_BaoShiCheck_14red	TLBB_ButtonNULL					PushedImage	Button11	BaoShiCheck_red_Pushed	
+SelfEquip_BaoShiCheck_14green	TLBB_ButtonNULL					NormalImage	Button11	BaoShiCheck_green_Normal	
+SelfEquip_BaoShiCheck_14green	TLBB_ButtonNULL					HoverImage	Button11	BaoShiCheck_green_Hover	
+SelfEquip_BaoShiCheck_14green	TLBB_ButtonNULL					DisabledImage	Button11	BaoShiCheck_green_Disabled	
+SelfEquip_BaoShiCheck_14green	TLBB_ButtonNULL					PushedImage	Button11	BaoShiCheck_green_Pushed	
+SelfEquip_BaoShiCheck_15red	TLBB_ButtonNULL					NormalImage	Button11	BaoShiCheck_red_Normal	
+SelfEquip_BaoShiCheck_15red	TLBB_ButtonNULL					HoverImage	Button11	BaoShiCheck_red_Hover	
+SelfEquip_BaoShiCheck_15red	TLBB_ButtonNULL					DisabledImage	Button11	BaoShiCheck_red_Disabled	
+SelfEquip_BaoShiCheck_15red	TLBB_ButtonNULL					PushedImage	Button11	BaoShiCheck_red_Pushed	
+SelfEquip_BaoShiCheck_15green	TLBB_ButtonNULL					NormalImage	Button11	BaoShiCheck_green_Normal	
+SelfEquip_BaoShiCheck_15green	TLBB_ButtonNULL					HoverImage	Button11	BaoShiCheck_green_Hover	
+SelfEquip_BaoShiCheck_15green	TLBB_ButtonNULL					DisabledImage	Button11	BaoShiCheck_green_Disabled	
+SelfEquip_BaoShiCheck_15green	TLBB_ButtonNULL					PushedImage	Button11	BaoShiCheck_green_Pushed	
+SelfEquip_BaoShiCheck_16red	TLBB_ButtonNULL					NormalImage	Button11	BaoShiCheck_red_Normal	
+SelfEquip_BaoShiCheck_16red	TLBB_ButtonNULL					HoverImage	Button11	BaoShiCheck_red_Hover	
+SelfEquip_BaoShiCheck_16red	TLBB_ButtonNULL					DisabledImage	Button11	BaoShiCheck_red_Disabled	
+SelfEquip_BaoShiCheck_16red	TLBB_ButtonNULL					PushedImage	Button11	BaoShiCheck_red_Pushed	
+SelfEquip_BaoShiCheck_16green	TLBB_ButtonNULL					NormalImage	Button11	BaoShiCheck_green_Normal	
+SelfEquip_BaoShiCheck_16green	TLBB_ButtonNULL					HoverImage	Button11	BaoShiCheck_green_Hover	
+SelfEquip_BaoShiCheck_16green	TLBB_ButtonNULL					DisabledImage	Button11	BaoShiCheck_green_Disabled	
+SelfEquip_BaoShiCheck_16green	TLBB_ButtonNULL					PushedImage	Button11	BaoShiCheck_green_Pushed	
+SelfEquip_BaoShiCheckBK1	TLBB_StaticImageNULL					Image	Button11	BaoShiCheckBK	
+SelfEquip_BaoShiCheckBK2	TLBB_StaticImageNULL					Image	Button11	BaoShiCheckBK	
+SelfEquip_BaoShiCheckBK3	TLBB_StaticImageNULL					Image	Button11	BaoShiCheckBK	
+SelfEquip_BaoShiCheckBK4	TLBB_StaticImageNULL					Image	Button11	BaoShiCheckBK	
+SelfEquip_BaoShiCheckBK5	TLBB_StaticImageNULL					Image	Button11	BaoShiCheckBK	
+SelfEquip_BaoShiCheckBK6	TLBB_StaticImageNULL					Image	Button11	BaoShiCheckBK	
+SelfEquip_BaoShiCheckBK7	TLBB_StaticImageNULL					Image	Button11	BaoShiCheckBK	
+SelfEquip_BaoShiCheckBK8	TLBB_StaticImageNULL					Image	Button11	BaoShiCheckBK	
+SelfEquip_BaoShiCheckBK9	TLBB_StaticImageNULL					Image	Button11	BaoShiCheckBK	
+SelfEquip_BaoShiCheckBK10	TLBB_StaticImageNULL					Image	Button11	BaoShiCheckBK	
+SelfEquip_BaoShiCheckBK11	TLBB_StaticImageNULL					Image	Button11	BaoShiCheckBK	
+SelfEquip_BaoShiCheckBK12	TLBB_StaticImageNULL					Image	Button11	BaoShiCheckBK	
+SelfEquip_BaoShiCheckBK13	TLBB_StaticImageNULL					Image	Button11	BaoShiCheckBK	
+SelfEquip_BaoShiCheckBK14	TLBB_StaticImageNULL					Image	Button11	BaoShiCheckBK	
+SelfEquip_BaoShiCheckBK15	TLBB_StaticImageNULL					Image	Button11	BaoShiCheckBK	
+SelfEquip_BaoShiCheckBK16	TLBB_StaticImageNULL					Image	Button11	BaoShiCheckBK	
+SelfEquip_Yirong_Icon	TLBB_ButtonNULL					Tooltip			#{DECOW_160126_73}
+SelfEquip_Yirong_Icon	TLBB_ButtonNULL					PushedImage	CommonFrame28	YiRong_Pushed	
+SelfEquip_Yirong_Icon	TLBB_ButtonNULL					NormalImage	CommonFrame28	YiRong_Normal	
+SelfEquip_Yirong_Icon	TLBB_ButtonNULL					HoverImage	CommonFrame28	YiRong_Hover	
+SelfEquip_Yirong_Icon	TLBB_ButtonNULL					DisabledImage	CommonFrame28	YiRong_Disabled	
+SelfEquip_Yirong_Icontips	TLBB_StaticImageNULL					Image	CommonFrame14	Tips	
+SelfEquip_FakeObject_BK	TLBB_StaticImageNULL					Image	SelfeEquipBK	SelfeEquipBK_image	
+SelfEquip_FightScore_Text	TLBB_SimpleText					Text			#{ZDPF_130115_01}
+SelfEquip_FightScore_Text	TLBB_SimpleText					Tooltip			#{ZDPF_130115_02}
+SelfEquip_FightScore	TLBB_ButtonNULL					Tooltip			#{PFZY_140613_199}
+SelfEquip_FightScore	TLBB_ButtonNULL					PushedImage	CreateRole2	ZBPF_Btn_Pushed	
+SelfEquip_FightScore	TLBB_ButtonNULL					NormalImage	CreateRole2	ZBPF_Btn_Normal	
+SelfEquip_FightScore	TLBB_ButtonNULL					HoverImage	CreateRole2	ZBPF_Btn_Hover	
+SelfEquip_Level	TLBB_SimpleText					Text			#{INTERFACE_XML_114}
+SelfEquip_PKLevel_Image	TLBB_StaticImageNULL					Image	CommonFrame39	PKLevel_Down	
+SelfEquip_Pretty	TLBB_ButtonNULL					Tooltip			#{WGPF_191106_10}
+SelfEquip_Pretty	TLBB_ButtonNULL					PushedImage	Pretty01	Pushed_1	
+SelfEquip_Pretty	TLBB_ButtonNULL					NormalImage	Pretty01	Normal_1	
+SelfEquip_Pretty	TLBB_ButtonNULL					HoverImage	Pretty01	Hover_1	
+SelfEquip_Pretty_tips	TLBB_StaticImageNULL					Image	CommonFrame14	Tips	
+SelfEquip_MenPai	TLBB_SimpleText					Text			#{INTERFACE_XML_689}
+SelfEquip_BW_Match_Button	TLBB_ButtonNULL					Tooltip			#{BWDH_180804_143}
+SelfEquip_BW_Match_Button	TLBB_ButtonNULL					PushedImage	BW_Match1	Dragon01_Pushed	
+SelfEquip_BW_Match_Button	TLBB_ButtonNULL					NormalImage	BW_Match1	Dragon01_Normal	
+SelfEquip_BW_Match_Button	TLBB_ButtonNULL					HoverImage	BW_Match1	Dragon01_Hover	
+SelfEquip_BW_Match1_Button	TLBB_ButtonNULL					Tooltip			#{BWDH_180804_143}
+SelfEquip_BW_Match1_Button	TLBB_ButtonNULL					PushedImage	BW_Match1	Dragon01_Pushed	
+SelfEquip_BW_Match1_Button	TLBB_ButtonNULL					NormalImage	BW_Match1	Dragon01_Normal	
+SelfEquip_BW_Match1_Button	TLBB_ButtonNULL					HoverImage	BW_Match1	Dragon01_Hover	
+SelfEquip_BW_Match1_Star	TLBB_StaticImageNULL					Image	BW_Match1	Bright_Stars	
+SelfEquip_BW_Match1_Text	TLBB_SimpleText					Text			#{BWDH_180804_170}
+SelfEquip_SectTitle	TLBB_ButtonNULL					Tooltip			#{TXYZ_230710_02}
+SelfEquip_SectTitle	TLBB_ButtonNULL					PushedImage	SectTitle	SectTitle_M0_Pushed	
+SelfEquip_SectTitle	TLBB_ButtonNULL					NormalImage	SectTitle	SectTitle_M0_Normal	
+SelfEquip_SectTitle	TLBB_ButtonNULL					HoverImage	SectTitle	SectTitle_M0_Hover	
+SelfEquip_SectTitle_tips	TLBB_StaticImageNULL					Image	CommonFrame14	Tips	
+SelfEquip_IceFastness	TLBB_StaticImageNULL			16.000000	16.000000	Image	UIIcons	Ice_Repellency_Normal	
+SelfEquip_FireFastness	TLBB_StaticImageNULL			16.000000	16.000000	Image	UIIcons	Fire_Repellency_Normal	
+SelfEquip_ThunderFastness	TLBB_StaticImageNULL			16.000000	16.000000	Image	UIIcons	Thunder_Repellency_Normal	
+SelfEquip_PoisonFastness	TLBB_StaticImageNULL			16.000000	16.000000	Image	UIIcons	Poison_Repellency_Normal	
+SelfEquip_HurtFastness	TLBB_StaticImageNULL					Tooltip			1
+SelfEquip_HurtFastness	TLBB_StaticImageNULL					Image	UIIcons	Hurt_Repellency_Normal	
+SelfEquip_DefenceFastness	TLBB_StaticImageNULL					Tooltip			1
+SelfEquip_DefenceFastness	TLBB_StaticImageNULL					Image	UIIcons	Defence_Repellency_Normal	
+SelfEquip_Effect	TLBB_StaticImageNULL					Image	UIIcons1	Equip_qianghua1	
+SelfEquip_Bar	TLBB_StaticImageNULL			4.000000	19.000000	Image	Button6	Set_Bar	
+SelfEquip_ShenDing_Icon	TLBB_StaticImageNULL					Image	SMWD_1	SMWD_ShenDing	
+SelfEquip_ZhiZun_Icon	TLBB_StaticImageNULL					Image	BaoJianUI1	BaoJian_Anniu	
+SelfEquip_ZongMenSkill_Icon	TLBB_ButtonNULL					Tooltip			#{ZMTF_230628_216}
+SelfEquip_ZongMenSkill_Icon	TLBB_ButtonNULL					PushedImage	ZongMenSkill	ZongMenSkill_Enter_Pushed	
+SelfEquip_ZongMenSkill_Icon	TLBB_ButtonNULL					NormalImage	ZongMenSkill	ZongMenSkill_Enter_Normal	
+SelfEquip_ZongMenSkill_Icon	TLBB_ButtonNULL					HoverImage	ZongMenSkill	ZongMenSkill_Enter_Hover	
+SelfEquip_ZongMenSkill_Icon	TLBB_ButtonNULL					DisabledImage	ZongMenSkill	ZongMenSkill_Enter_Disabled	
+SelfEquip_ZongMenSkill_IconTips	TLBB_StaticImageNULL					Image	CommonFrame14	Tips	
+SelfEquip_Shoulder_Visual_Icon	TLBB_ButtonNULL					Tooltip			#{XZXT_240517_12}
+SelfEquip_Shoulder_Visual_Icon	TLBB_ButtonNULL					PushedImage	TianXun	TianXun_Pushed	
+SelfEquip_Shoulder_Visual_Icon	TLBB_ButtonNULL					NormalImage	TianXun	TianXun_Normal	
+SelfEquip_Shoulder_Visual_Icon	TLBB_ButtonNULL					HoverImage	TianXun	TianXun_Hover	
+SelfEquip_Shoulder_Visual_Icon	TLBB_ButtonNULL					DisabledImage	TianXun	TianXun_Disbled	
+SelfEquip_Energy1_Text	TLBB_SimpleMulitiTextFrame					Text			#{INTERFACE_XML_342}
+SelfEquip_Vigor	TLBB_SimpleText					Text			9999/9999
+SelfEquip_Energy2_Text	TLBB_SimpleMulitiTextFrame					Text			#{INTERFACE_XML_384}
+SelfEquip_Energy	TLBB_SimpleText					Text			9999/9999
+SelfEquip_Exp1_Text	TLBB_SimpleMulitiTextFrame					Text			#{INTERFACE_XML_634}
+SelfEquip_Exp1	TLBB_SimpleText					Text			1234567890123
+SelfEquip_Exp2_Text	TLBB_SimpleMulitiTextFrame					Text			#{INTERFACE_XML_835}
+SelfEquip_Exp2	TLBB_SimpleText					Text			123456789
+SelfEquip_HP_Text	TLBB_SimpleMulitiTextFrame					Text			#{INTERFACE_XML_805}
+SelfEquip_HP	TLBB_SimpleText					Text			0/0
+SelfEquip_MP_Text	TLBB_SimpleMulitiTextFrame					Text			#{INTERFACE_XML_498}
+SelfEquip_SP_Text	TLBB_SimpleMulitiTextFrame					Text			#{INTERFACE_XML_481}
+SelfEquip_Str_Text	TLBB_SimpleMulitiTextFrame					Text			#{INTERFACE_XML_429}
+SelfEquip_Str_Text	TLBB_SimpleMulitiTextFrame					Tooltip			#{INTERFACE_XML_430}
+SelfEquip_Str	TLBB_SimpleText					Text			99999
+SelfEquip_Str	TLBB_SimpleText					Tooltip			#{INTERFACE_XML_430}
+SelfEquip_Nimbus_Text	TLBB_SimpleMulitiTextFrame					Text			#{INTERFACE_XML_437}
+SelfEquip_Nimbus_Text	TLBB_SimpleMulitiTextFrame					Tooltip			#{INTERFACE_XML_438}
+SelfEquip_Nimbus	TLBB_SimpleText					Text			99999
+SelfEquip_Nimbus	TLBB_SimpleText					Tooltip			#{INTERFACE_XML_438}
+SelfEquip_PhysicalStrength_Text	TLBB_SimpleMulitiTextFrame					Text			#{INTERFACE_XML_685}
+SelfEquip_PhysicalStrength_Text	TLBB_SimpleMulitiTextFrame					Tooltip			#{INTERFACE_XML_688}
+SelfEquip_PhysicalStrength	TLBB_SimpleText					Tooltip			#{INTERFACE_XML_688}
+SelfEquip_Stability_Text	TLBB_SimpleMulitiTextFrame					Text			#{INTERFACE_XML_250}
+SelfEquip_Stability_Text	TLBB_SimpleMulitiTextFrame					Tooltip			#{INTERFACE_XML_252}
+SelfEquip_Stability	TLBB_SimpleText					Tooltip			#{INTERFACE_XML_252}
+SelfEquip_Footwork_Text	TLBB_SimpleMulitiTextFrame					Text			#{INTERFACE_XML_628}
+SelfEquip_Footwork_Text	TLBB_SimpleMulitiTextFrame					Tooltip			#{INTERFACE_XML_629}
+SelfEquip_Footwork	TLBB_SimpleText					Tooltip			#{INTERFACE_XML_629}
+SelfEquip_Potential_Text	TLBB_SimpleText					Text			#{INTERFACE_XML_500}
+SelfEquip_Potential	TLBB_SimpleText					Text			9999
+SelfEquip_Accept	TLBB_ButtonCommon					Text			#{INTERFACE_XML_557}
+SelfEquip_PerportyText_1	TLBB_SimpleText					Text			#{INTERFACE_XML_707}
+SelfEquip_PerportyText_2	TLBB_SimpleText					Text			#{INTERFACE_XML_471}
+SelfEquip_PerportyText_3	TLBB_SimpleText					Text			#{INTERFACE_XML_706}
+SelfEquip_PerportyText_4	TLBB_SimpleText					Text			#{INTERFACE_XML_470}
+SelfEquip_PerportyText_7	TLBB_SimpleText					Text			#{INTERFACE_XML_468}
+SelfEquip_PerportyText_6	TLBB_SimpleText					Text			#{INTERFACE_XML_586}
+SelfEquip_PerportyText_5	TLBB_SimpleText					Text			#{INTERFACE_XML_338}
+SelfEquip_PerportyText_9	TLBB_SimpleText					Text			#{INTERFACE_XML_337}
+SelfEquip_UpLevel	TLBB_ButtonNULL					NormalImage	Button5	BtnLevelup_Normal	
+SelfEquip_UpLevel	TLBB_ButtonNULL					HoverImage	Button5	BtnLevelup_Hover	
+SelfEquip_UpLevel	TLBB_ButtonNULL					PushedImage	Button5	BtnLevelup_Pushed	
+SelfEquip_UpLevel	TLBB_ButtonNULL					DisabledImage	Button5	BtnLevelup_Disabled	
+SelfEquip_LevelUpLock	TLBB_ButtonNULL					Tooltip			#{JSSJ_220303_02}
+SelfEquip_LevelUpLock	TLBB_ButtonNULL					PushedImage	LevelUpLock	LevelUpLock_LockPushed	
+SelfEquip_LevelUpLock	TLBB_ButtonNULL					NormalImage	LevelUpLock	LevelUpLock_LockNormal	
+SelfEquip_LevelUpLock	TLBB_ButtonNULL					HoverImage	LevelUpLock	LevelUpLock_LockHover	
+SelfEquip_LevelUpLock_Open	TLBB_ButtonNULL					Tooltip			#{JSSJ_220303_01}
+SelfEquip_LevelUpLock_Open	TLBB_ButtonNULL					PushedImage	LevelUpLock	LevelUpLock_OpenPushed	
+SelfEquip_LevelUpLock_Open	TLBB_ButtonNULL					NormalImage	LevelUpLock	LevelUpLock_OpenNormal	
+SelfEquip_LevelUpLock_Open	TLBB_ButtonNULL					HoverImage	LevelUpLock	LevelUpLock_OpenHover	
+SelfEquip_LevelUpLock_SuoLian	TLBB_StaticImageNULL					Image	LevelUpLock	LevelUpLock_SuoLian	
+SelfEquip_LevelUpLock_Opening	TLBB_StaticImageNULL					Image	LevelUpLock	LevelUpLock_Opening	
+SelfEquip_UpLevel_Tip	DefaultWindow					Tooltip			#{KDJYD_250814_12}
+SelfEquip_SelfEquip	TLBB_ButtonPageDown					Text			#{INTERFACE_XML_877}
+SelfEquip_Pet	TLBB_ButtonPageDown					Text			#{INTERFACE_XML_854}
+SelfEquip_Infant	TLBB_ButtonPageDown					Text			#{ZNJCS_130825_7}
+SelfEquip_Infant_tips	TLBB_SimpleText					Tooltip			#{RWYQ_150707_01}
+SelfEquip_Wuhun	TLBB_ButtonPageDown					Text			#{WH_xml_XX(95)}
+SelfEquip_Wuhun_tips	TLBB_SimpleText					Tooltip			#{RWYQ_150707_02}
+SelfEquip_Xiulian	TLBB_ButtonPageDown					Text			#{XL_XML_35}
+SelfEquip_Xiulian_tips	TLBB_SimpleText					Tooltip			#{RWYQ_150707_03}
+SelfEquip_Miji	TLBB_ButtonPageDown					Text			#{WLMJ_130121_54}
+SelfEquip_Miji_tips	TLBB_SimpleText					Tooltip			#{RWYQ_150707_04}
+SelfEquip_ZhenYuan	TLBB_ButtonPageDown					Text			#{ZYXT_120528_154}
+SelfEquip_ZhenYuan_tips	TLBB_SimpleText					Tooltip			#{RWYQ_150707_05}
+SelfEquip_JingMai	TLBB_ButtonPageDown					Text			#{MPJJ_XT_XML_01}
+SelfEquip_JingMai_tips	TLBB_SimpleText					Tooltip			#{RWYQ_150707_06}
+SelfEquip_ShenDing	TLBB_ButtonPageDown					Text			#{XLDL_140606_04}
+SelfEquip_ShenDing_tips	TLBB_SimpleText					Tooltip			#{RWYQ_150707_07}
+SelfEquip_JunXian	TLBB_ButtonPageDown					Text			#{JXJW_140822_22}
+SelfEquip_JunXian_tips	TLBB_SimpleText					Tooltip			#{RWYQ_150707_08}
+SelfEquip_BaoJian	TLBB_ButtonPageDown					Text			#{ZZZB_150811_113}
+SelfEquip_BaoJian_tips	TLBB_SimpleText					Tooltip			#{ZZZB_150811_114}
+SelfEquip_WuYi	TLBB_ButtonPageDown					Text			#{WYXT_20170807_86}
+SelfEquip_WuYi_tips	TLBB_SimpleText					Tooltip			#{WYXT_20170907_302}
+SelfEquip_WuYi_Buttontips	TLBB_StaticImageNULL					Image	CommonFrame14	Tips	
+SelfEquip_ShenQi	TLBB_ButtonPageDown					Text			#{JXSQ_170829_216}
+SelfEquip_ShenQi_tips	TLBB_SimpleText					Tooltip			#{JXSQ_170829_217}
+SelfEquip_Ride	TLBB_ButtonPageDown					Text			#{INTERFACE_XML_497}
+SelfEquip_Armor	TLBB_ButtonPageDown					Text			#{NJBZ_220816_11}
+SelfEquip_Armor_tips	TLBB_SimpleText					Tooltip			#{NJBZ_220816_12}
+SelfEquip_CangPin	TLBB_ButtonPageDown					Text			#{CPSJ_260112_1}
+SelfEquip_CangPin_tips	TLBB_SimpleText					Tooltip			#{CPSJ_260112_2}
+SelfEquip_CangPin_Buttontips	TLBB_StaticImageNULL					Image	CommonFrame14	Tips	
+SelfEquip_OtherInfo	TLBB_ButtonPageDown					Text			#{INTERFACE_XML_496}
+SelfEquip_OtherInfo_ButtonTips	TLBB_StaticImageNULL					Image	CommonFrame14	Tips	

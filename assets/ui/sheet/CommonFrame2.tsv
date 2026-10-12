@@ -1,0 +1,8 @@
+# ảnh, x, y, w, h, tệp atlas, các màn dùng
+
+FenIcon_A1	183	3	25	26	Common/CommonFrame2.tga	MainMenuBar
+FenIcon_A2	216	3	25	26	Common/CommonFrame2.tga	MainMenuBar
+FenIcon_A3	183	35	25	26	Common/CommonFrame2.tga	MainMenuBar
+XinNiuIcon_B1	160	177	22	22	Common/CommonFrame2.tga	PlayerFrame
+XinNiuIcon_B2	182	177	22	22	Common/CommonFrame2.tga	PlayerFrame
+XinNiuIcon_B3	204	177	22	22	Common/CommonFrame2.tga	PlayerFrame

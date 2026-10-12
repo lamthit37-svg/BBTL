@@ -1,0 +1,6 @@
+# ảnh, x, y, w, h, tệp atlas, các màn dùng
+
+Packet_TemporaryClose_Disable	215	90	34	34	Common/CommonFrame37.png	Packet
+Packet_TemporaryClose_Hover	181	90	34	34	Common/CommonFrame37.png	Packet
+Packet_TemporaryClose_Normal	190	56	34	34	Common/CommonFrame37.png	Packet
+Packet_TemporaryClose_Pushed	156	56	34	34	Common/CommonFrame37.png	Packet

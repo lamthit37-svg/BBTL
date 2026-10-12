@@ -1,0 +1,7 @@
+# ảnh, x, y, w, h, tệp atlas, các màn dùng
+
+Cs_Congren_Normal	150	350	163	40	Common/tga_MainFrameLuo06.dds	CreateRole
+Cs_Congren_Pushed	150	430	163	40	Common/tga_MainFrameLuo06.dds	CreateRole
+Cs_ERenGu_Normal	314	350	150	40	Common/tga_MainFrameLuo06.dds	CreateRole
+Cs_ERenGu_Pushed	314	430	150	40	Common/tga_MainFrameLuo06.dds	CreateRole
+MenpaiInfo	0	47	232	123	Common/tga_MainFrameLuo06.dds	CreateRole

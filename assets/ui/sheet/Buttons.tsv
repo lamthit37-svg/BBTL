@@ -1,0 +1,7 @@
+# ảnh, x, y, w, h, tệp atlas, các màn dùng
+
+BaiBingJingTong	211	212	32	44	Common/Buttons.tga	MiniMap
+EquipEndurance	211	168	33	44	Common/Buttons.tga	MiniMap
+HuaShanLunJian_Hover	181	69	30	30	Common/Buttons.tga	MiniMap
+HuaShanLunJian_Normal	181	37	30	30	Common/Buttons.tga	MiniMap
+HuaShanLunJian_Pushed	181	101	30	30	Common/Buttons.tga	MiniMap

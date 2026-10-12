@@ -1,0 +1,91 @@
+# cửa sổ, loại, x, y, w, h, thuộc tính, atlas, ảnh, chữ
+
+YuanbaoShop_Text	TLBB_SimpleText					Text			#{YBSD_081225_073}
+YuanbaoShop_Yuanbao	TLBB_ButtonFenYe2	0.000000	0.000000	85.000000	25.000000	Text			#{BDYB_090714_16}
+YuanbaoShop_Gongzi	TLBB_ButtonFenYe2					Text			#{BDYB_090714_15}
+YuanbaoShop_Gongzi	TLBB_ButtonFenYe2					Tooltip			#{BDYB_XML_7}
+YuanbaoShop_XuanShop	TLBB_ButtonFenYe2					Text			#{IMXZ_20100813_07}
+YuanbaoShop_XuanShop	TLBB_ButtonFenYe2					Tooltip			#{IMXZ_20100813_08}
+YuanbaoShop_Fanquan	TLBB_ButtonFenYe2					Text			#{YBFQ_XML_3}
+YuanbaoShop_Fanquan	TLBB_ButtonFenYe2					Tooltip			#{FQ_101210_05}
+YuanbaoShop_VIP	TLBB_ButtonFenYe2					Text			#{FFSDGZ_120615_72}
+YuanbaoShop_VIP	TLBB_ButtonFenYe2					Tooltip			#{FFSDGZ_120615_123}
+YuanbaoShop_Lijin	TLBB_ButtonFenYe2					Text			#{TBSD_130816_8}
+YuanbaoShop_Lijin	TLBB_ButtonFenYe2					Tooltip			#{TBSD_130816_9}
+YuanbaoShop_Xinyibi	TLBB_ButtonFenYe2					Text			#{XCZB_160105_78}
+YuanbaoShop_Xinyibi	TLBB_ButtonFenYe2					Tooltip			#{XCZB_160105_79}
+YuanbaoShop_Button1	TLBB_ButtonCheckForRMBShop					Text			#{YBSD_081225_003}
+YuanbaoShop_Button1	TLBB_ButtonCheckForRMBShop					Tooltip			#{YBSD_081225_083}
+YuanbaoShop_Button2	TLBB_ButtonCheckForRMBShop					Text			#{YBSD_081225_004}
+YuanbaoShop_Button2	TLBB_ButtonCheckForRMBShop					Tooltip			#{YBSD_081225_084}
+YuanbaoShop_Button3	TLBB_ButtonCheckForRMBShop					Text			#{YBSD_081225_005}
+YuanbaoShop_Button3	TLBB_ButtonCheckForRMBShop					Tooltip			#{YBSD_081225_085}
+YuanbaoShop_Button4	TLBB_ButtonCheckForRMBShop					Text			#{YBSD_081225_006}
+YuanbaoShop_Button4	TLBB_ButtonCheckForRMBShop					Tooltip			#{YBSD_081225_086}
+YuanbaoShop_Button5	TLBB_ButtonCheckForRMBShop					Text			#{YBSD_081225_007}
+YuanbaoShop_Button5	TLBB_ButtonCheckForRMBShop					Tooltip			#{YBSD_081225_087}
+YuanbaoShop_Button6	TLBB_ButtonCheckForRMBShop					Text			#{YBSD_081225_008}
+YuanbaoShop_Button6	TLBB_ButtonCheckForRMBShop					Tooltip			#{YBSD_081225_088}
+YuanbaoShop_Button7	TLBB_ButtonCheckForRMBShop					Text			#{YBSD_081225_009}
+YuanbaoShop_Button7	TLBB_ButtonCheckForRMBShop					Tooltip			#{YBSD_081225_089}
+YuanbaoShop_Button8	TLBB_ButtonCheckForRMBShop					Text			#{YBSD_081225_010}
+YuanbaoShop_Button8	TLBB_ButtonCheckForRMBShop					Tooltip			#{YBSD_081225_090}
+YuanbaoShop_Button1_Bind	TLBB_ButtonCheckForRMBShop					Text			#{YBSD_081225_003}
+YuanbaoShop_Button1_Bind	TLBB_ButtonCheckForRMBShop					Tooltip			#{BDYB_XML_090817_2}
+YuanbaoShop_Button2_Bind	TLBB_ButtonCheckForRMBShop					Text			#{YBSD_081225_004}
+YuanbaoShop_Button2_Bind	TLBB_ButtonCheckForRMBShop					Tooltip			#{BDYB_XML_090817_3}
+YuanbaoShop_Button3_Bind	TLBB_ButtonCheckForRMBShop					Text			#{YBSD_081225_005}
+YuanbaoShop_Button3_Bind	TLBB_ButtonCheckForRMBShop					Tooltip			#{BDYB_XML_090817_4}
+YuanbaoShop_Button4_Bind	TLBB_ButtonCheckForRMBShop					Text			#{YBSD_081225_006}
+YuanbaoShop_Button4_Bind	TLBB_ButtonCheckForRMBShop					Tooltip			#{BDYB_XML_090817_5}
+YuanbaoShop_Button5_Bind	TLBB_ButtonCheckForRMBShop					Text			#{YBSD_081225_007}
+YuanbaoShop_Button5_Bind	TLBB_ButtonCheckForRMBShop					Tooltip			#{YBSD_081225_087}
+YuanbaoShop_Button6_Bind	TLBB_ButtonCheckForRMBShop					Text			#{YBSD_081225_008}
+YuanbaoShop_Button6_Bind	TLBB_ButtonCheckForRMBShop					Tooltip			#{YBSD_081225_088}
+YuanbaoShop_Button7_Bind	TLBB_ButtonCheckForRMBShop					Text			#{YBSD_081225_009}
+YuanbaoShop_Button7_Bind	TLBB_ButtonCheckForRMBShop					Tooltip			#{YBSD_081225_089}
+YuanbaoShop_Button8_Bind	TLBB_ButtonCheckForRMBShop					Text			#{YBSD_081225_010}
+YuanbaoShop_Button8_Bind	TLBB_ButtonCheckForRMBShop					Tooltip			#{YBSD_081225_090}
+YuanbaoShop_querengoumai	TLBB_ButtonCheck					Tooltip			#{YBSD_081225_053}
+YuanbaoShop_querengoumai_Text	TLBB_SimpleText					Text			#{YBSD_081225_074}
+YuanbaoShop_querengoumaiBind	TLBB_ButtonCheck			12.000000	13.000000	Tooltip			#{YBSD_081225_053}
+YuanbaoShop_querengoumaiBind_Text	TLBB_SimpleText					Text			#{YBSD_081225_074}
+YuanbaoShop_querenzhifuBind	TLBB_ButtonCheck			12.000000	13.000000	Tooltip			#{BDYB_XML_9}
+YuanbaoShop_querenzhifuBind_Text	TLBB_SimpleText					Text			#{BDYB_XML_8}
+YuanbaoShop_BK_PS_Text	TLBB_SimpleText					Text			#{FQSD_130809_01}
+YuanbaoShop_Try	TLBB_ButtonCommon2					Text			#{FFSDGZ_120615_01}
+YuanbaoShop_Try	TLBB_ButtonCommon2					Tooltip			#{HLYL_181229_24}
+YuanbaoShop_MBuy	TLBB_ButtonCommon2					Text			#{FFSDGZ_120615_04}
+YuanbaoShop_MBuy	TLBB_ButtonCommon2					Tooltip			#{FFSDGZ_120615_131}
+YuanbaoShop_Gift	TLBB_ButtonCommon2					Text			#{FFSDGZ_120615_71}
+YuanbaoShop_Gift	TLBB_ButtonCommon2					Tooltip			#{FFSDGZ_120615_132}
+YuanbaoShop_LastBuy_Text	TLBB_SimpleText	12.000000	36.000000	95.000000	18.000000	Text			#{FFSDGZ_120615_88}
+YuanbaoShop_LastItemInfo1_Text	TLBB_SimpleText	5.000000	0.000000	60.000000	18.000000	Text			#{FFSDGZ_120615_89}
+YuanbaoShop_LastItemInfo2_Text	TLBB_SimpleText	5.000000	0.000000	60.000000	18.000000	Text			#{FFSDGZ_120615_89}
+YuanbaoShop_LastItemInfo3_Text	TLBB_SimpleText	5.000000	0.000000	60.000000	18.000000	Text			#{FFSDGZ_120615_89}
+YuanbaoShop_LastItemInfo4_Text	TLBB_SimpleText	5.000000	0.000000	60.000000	18.000000	Text			#{FFSDGZ_120615_89}
+YuanbaoShop_LastItemInfo5_Text	TLBB_SimpleText	5.000000	0.000000	60.000000	18.000000	Text			#{FFSDGZ_120615_89}
+YuanbaoShop_UpPage	TLBB_ButtonCommon2	0.000000	6.000000			Text			#{YBSD_081225_078}
+YuanbaoShop_DownPage	TLBB_ButtonCommon2	113.000000	6.000000			Text			#{YBSD_081225_079}
+YuanbaoShop_Text1	TLBB_SimpleText	174.000000	3.000000	60.000000	17.000000	Text			#{YBSD_081225_076}
+YuanbaoShop_Begin	TLBB_ButtonCommon	411.000000	2.000000	63.000000	20.000000	Text			#{YBSD_081225_077}
+YuanbaoShop_Duihuan	TLBB_ButtonCommon2					Text			#{ZXCZ_120717_05}
+YuanbaoShop_Duihuan	TLBB_ButtonCommon2					Tooltip			#{ZXCZ_120717_06}
+YuanbaoShop_Lijin_Text1	TLBB_SimpleText					Text			#{LJSD_120508_45}
+YuanbaoShop_Lijin_Text2	TLBB_SimpleText					Tooltip			#{LJSD_120508_07}
+YuanbaoShop_ExText1	TLBB_SimpleText					Text			#{FFSDGZ_120615_90}
+YuanbaoShop_ExText2	TLBB_SimpleText					Text			#{FFSDGZ_120615_29}
+YuanbaoShop_ExItemInfo1_Buy	TLBB_ButtonCommon					Text			#{FFSDGZ_120615_03}
+YuanbaoShop_ExItemInfo2_Buy	TLBB_ButtonCommon					Text			#{FFSDGZ_120615_03}
+YuanbaoShop_ExItemInfo3_Buy	TLBB_ButtonCommon					Text			#{FFSDGZ_120615_03}
+YuanbaoShop_ExItemInfo4_Buy	TLBB_ButtonCommon					Text			#{FFSDGZ_120615_03}
+YuanbaoShop_ExItemInfo5_Buy	TLBB_ButtonCommon					Text			#{FFSDGZ_120615_03}
+YuanbaoShop_ExItemInfo6_Buy	TLBB_ButtonCommon					Text			#{FFSDGZ_120615_03}
+YuanbaoShop_ExPay	TLBB_ButtonNULL					NormalImage	Button13	PayBtn_Normal	
+YuanbaoShop_ExPay	TLBB_ButtonNULL					HoverImage	Button13	PayBtn_Hover	
+YuanbaoShop_ExPay	TLBB_ButtonNULL					DisabledImage	Button13	PayBtn_Disable	
+YuanbaoShop_ExPay	TLBB_ButtonNULL					PushedImage	Button13	PayBtn_Pushed	
+YuanbaoShop_ExHelp	TLBB_ButtonNULL					NormalImage	Button13	HelpBtn_Normal	
+YuanbaoShop_ExHelp	TLBB_ButtonNULL					HoverImage	Button13	HelpBtn_Hover	
+YuanbaoShop_ExHelp	TLBB_ButtonNULL					DisabledImage	Button13	HelpBtn_Disable	
+YuanbaoShop_ExHelp	TLBB_ButtonNULL					PushedImage	Button13	HelpBtn_Pushed	

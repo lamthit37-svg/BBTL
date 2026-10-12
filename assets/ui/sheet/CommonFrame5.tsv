@@ -1,0 +1,5 @@
+# ảnh, x, y, w, h, tệp atlas, các màn dùng
+
+YouLongKaBtn_Hover	97	0	22	22	Common/tga_CommonFrame5.dds	PlayerFrame
+YouLongKaBtn_Normal	119	0	22	22	Common/tga_CommonFrame5.dds	PlayerFrame
+YouLongKaBtn_Pushed	75	0	22	22	Common/tga_CommonFrame5.dds	PlayerFrame

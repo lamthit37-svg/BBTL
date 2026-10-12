@@ -1,0 +1,5 @@
+# ảnh, x, y, w, h, tệp atlas, các màn dùng
+
+Remind2_Bak	33	186	32	32	Common/tga_04.dds	TeamFrame
+Remind3_Bak	66	186	32	32	Common/tga_04.dds	PlayerFrame
+Remind_Bak	0	186	32	32	Common/tga_04.dds	SelfEquip,ZongMenSkill

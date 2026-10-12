@@ -1,0 +1,11 @@
+# ảnh, x, y, w, h, tệp atlas, các màn dùng
+
+BaoShiCheckBK	192	64	8	35	Common/tga_Button11.dds	SelfEquip
+BaoShiCheck_green_Disabled	137	161	9	33	Common/tga_Button11.dds	SelfEquip
+BaoShiCheck_green_Hover	146	161	9	33	Common/tga_Button11.dds	SelfEquip
+BaoShiCheck_green_Normal	128	161	9	33	Common/tga_Button11.dds	SelfEquip
+BaoShiCheck_green_Pushed	155	161	9	33	Common/tga_Button11.dds	SelfEquip
+BaoShiCheck_red_Disabled	137	128	9	33	Common/tga_Button11.dds	SelfEquip
+BaoShiCheck_red_Hover	146	128	9	33	Common/tga_Button11.dds	SelfEquip
+BaoShiCheck_red_Normal	128	128	9	33	Common/tga_Button11.dds	SelfEquip
+BaoShiCheck_red_Pushed	155	128	9	33	Common/tga_Button11.dds	SelfEquip

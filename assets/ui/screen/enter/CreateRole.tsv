@@ -1,0 +1,137 @@
+# cửa sổ, loại, x, y, w, h, thuộc tính, atlas, ảnh, chữ
+
+CreateRole_PageHeader_Bak	TLBB_StaticImageNULL			207.000000	46.000000	Image	MainFrameLuo05	MenpaiShow	
+CreateRole_MenpaiModel01	TLBB_ButtonNULL					HoverImage	MainFrameLuo03	Cs_Shaolin_Pushed	
+CreateRole_MenpaiModel01	TLBB_ButtonNULL					NormalImage	MainFrameLuo03	Cs_Shaolin_Normal	
+CreateRole_MenpaiModel01	TLBB_ButtonNULL					PushedImage	MainFrameLuo03	Cs_Shaolin_Pushed	
+CreateRole_MenpaiModel01	TLBB_ButtonNULL					DisabledImage	MainFrameLuo03	Cs_Shaolin_Pushed	
+CreateRole_MenpaiModel02	TLBB_ButtonNULL	55.000000	400.000000	150.000000	40.000000	HoverImage	MainFrameLuo03	Cs_Mingjiao_Pushed	
+CreateRole_MenpaiModel02	TLBB_ButtonNULL	55.000000	400.000000	150.000000	40.000000	NormalImage	MainFrameLuo03	Cs_Mingjiao_Normal	
+CreateRole_MenpaiModel02	TLBB_ButtonNULL	55.000000	400.000000	150.000000	40.000000	PushedImage	MainFrameLuo03	Cs_Mingjiao_Pushed	
+CreateRole_MenpaiModel02	TLBB_ButtonNULL	55.000000	400.000000	150.000000	40.000000	DisabledImage	MainFrameLuo03	Cs_Mingjiao_Pushed	
+CreateRole_MenpaiModel03	TLBB_ButtonNULL	55.000000	240.000000	150.000000	40.000000	HoverImage	MainFrameLuo03	Cs_Gaibang_Pushed	
+CreateRole_MenpaiModel03	TLBB_ButtonNULL	55.000000	240.000000	150.000000	40.000000	NormalImage	MainFrameLuo03	Cs_Gaibang_Normal	
+CreateRole_MenpaiModel03	TLBB_ButtonNULL	55.000000	240.000000	150.000000	40.000000	PushedImage	MainFrameLuo03	Cs_Gaibang_Pushed	
+CreateRole_MenpaiModel03	TLBB_ButtonNULL	55.000000	240.000000	150.000000	40.000000	DisabledImage	MainFrameLuo03	Cs_Gaibang_Pushed	
+CreateRole_MenpaiModel04	TLBB_ButtonNULL	55.000000	440.000000	150.000000	40.000000	HoverImage	MainFrameLuo05	Cs_Wudang_Pushed	
+CreateRole_MenpaiModel04	TLBB_ButtonNULL	55.000000	440.000000	150.000000	40.000000	NormalImage	MainFrameLuo05	Cs_Wudang_Normal	
+CreateRole_MenpaiModel04	TLBB_ButtonNULL	55.000000	440.000000	150.000000	40.000000	PushedImage	MainFrameLuo05	Cs_Wudang_Pushed	
+CreateRole_MenpaiModel04	TLBB_ButtonNULL	55.000000	440.000000	150.000000	40.000000	DisabledImage	MainFrameLuo05	Cs_Wudang_Pushed	
+CreateRole_MenpaiModel05	TLBB_ButtonNULL	55.000000	280.000000	150.000000	40.000000	HoverImage	MainFrameLuo03	Cs_Emei_Pushed	
+CreateRole_MenpaiModel05	TLBB_ButtonNULL	55.000000	280.000000	150.000000	40.000000	NormalImage	MainFrameLuo03	Cs_Emei_Normal	
+CreateRole_MenpaiModel05	TLBB_ButtonNULL	55.000000	280.000000	150.000000	40.000000	PushedImage	MainFrameLuo03	Cs_Emei_Pushed	
+CreateRole_MenpaiModel05	TLBB_ButtonNULL	55.000000	280.000000	150.000000	40.000000	DisabledImage	MainFrameLuo03	Cs_Emei_Pushed	
+CreateRole_MenpaiModel06	TLBB_ButtonNULL	55.000000	480.000000	150.000000	40.000000	HoverImage	MainFrameLuo05	Cs_Xingxiu_Pushed	
+CreateRole_MenpaiModel06	TLBB_ButtonNULL	55.000000	480.000000	150.000000	40.000000	NormalImage	MainFrameLuo05	Cs_Xingxiu_Normal	
+CreateRole_MenpaiModel06	TLBB_ButtonNULL	55.000000	480.000000	150.000000	40.000000	PushedImage	MainFrameLuo05	Cs_Xingxiu_Pushed	
+CreateRole_MenpaiModel06	TLBB_ButtonNULL	55.000000	480.000000	150.000000	40.000000	DisabledImage	MainFrameLuo05	Cs_Xingxiu_Pushed	
+CreateRole_MenpaiModel07	TLBB_ButtonNULL	55.000000	320.000000	150.000000	40.000000	HoverImage	MainFrameLuo04	Cs_Tianlong_Pushed	
+CreateRole_MenpaiModel07	TLBB_ButtonNULL	55.000000	320.000000	150.000000	40.000000	NormalImage	MainFrameLuo03	Cs_Tianlong_Normal	
+CreateRole_MenpaiModel07	TLBB_ButtonNULL	55.000000	320.000000	150.000000	40.000000	PushedImage	MainFrameLuo04	Cs_Tianlong_Pushed	
+CreateRole_MenpaiModel07	TLBB_ButtonNULL	55.000000	320.000000	150.000000	40.000000	DisabledImage	MainFrameLuo04	Cs_Tianlong_Pushed	
+CreateRole_MenpaiModel08	TLBB_ButtonNULL	55.000000	520.000000	150.000000	40.000000	HoverImage	MainFrameLuo04	Cs_Tianshan_Pushed	
+CreateRole_MenpaiModel08	TLBB_ButtonNULL	55.000000	520.000000	150.000000	40.000000	NormalImage	MainFrameLuo04	Cs_Tianshan_Normal	
+CreateRole_MenpaiModel08	TLBB_ButtonNULL	55.000000	520.000000	150.000000	40.000000	PushedImage	MainFrameLuo04	Cs_Tianshan_Pushed	
+CreateRole_MenpaiModel08	TLBB_ButtonNULL	55.000000	520.000000	150.000000	40.000000	DisabledImage	MainFrameLuo04	Cs_Tianshan_Pushed	
+CreateRole_MenpaiModel09	TLBB_ButtonNULL	55.000000	360.000000	150.000000	40.000000	HoverImage	MainFrameLuo05	Cs_Xiaoyao_Pushed	
+CreateRole_MenpaiModel09	TLBB_ButtonNULL	55.000000	360.000000	150.000000	40.000000	NormalImage	MainFrameLuo05	Cs_Xiaoyao_Normal	
+CreateRole_MenpaiModel09	TLBB_ButtonNULL	55.000000	360.000000	150.000000	40.000000	PushedImage	MainFrameLuo05	Cs_Xiaoyao_Pushed	
+CreateRole_MenpaiModel09	TLBB_ButtonNULL	55.000000	360.000000	150.000000	40.000000	DisabledImage	MainFrameLuo05	Cs_Xiaoyao_Pushed	
+CreateRole_MenpaiModel10	TLBB_ButtonNULL	55.000000	200.000000	150.000000	40.000000	HoverImage	MainFrameLuo03	Cs_Murong_Pushed	
+CreateRole_MenpaiModel10	TLBB_ButtonNULL	55.000000	200.000000	150.000000	40.000000	NormalImage	MainFrameLuo03	Cs_Murong_Normal	
+CreateRole_MenpaiModel10	TLBB_ButtonNULL	55.000000	200.000000	150.000000	40.000000	PushedImage	MainFrameLuo03	Cs_Murong_Pushed	
+CreateRole_MenpaiModel10	TLBB_ButtonNULL	55.000000	200.000000	150.000000	40.000000	DisabledImage	MainFrameLuo03	Cs_Murong_Pushed	
+CreateRole_MenpaiModel11	TLBB_ButtonNULL	55.000000	160.000000	150.000000	40.000000	HoverImage	MainFrameLuo05	Cs_Tangmen_Pushed	
+CreateRole_MenpaiModel11	TLBB_ButtonNULL	55.000000	160.000000	150.000000	40.000000	NormalImage	MainFrameLuo05	Cs_Tangmen_Normal	
+CreateRole_MenpaiModel11	TLBB_ButtonNULL	55.000000	160.000000	150.000000	40.000000	PushedImage	MainFrameLuo05	Cs_Tangmen_Pushed	
+CreateRole_MenpaiModel11	TLBB_ButtonNULL	55.000000	160.000000	150.000000	40.000000	DisabledImage	MainFrameLuo05	Cs_Tangmen_Pushed	
+CreateRole_MenpaiModel12	TLBB_ButtonNULL	55.000000	120.000000	150.000000	40.000000	HoverImage	MainFrameLuo05	Cs_Guigu_Pushed	
+CreateRole_MenpaiModel12	TLBB_ButtonNULL	55.000000	120.000000	150.000000	40.000000	NormalImage	MainFrameLuo05	Cs_Guigu_Normal	
+CreateRole_MenpaiModel12	TLBB_ButtonNULL	55.000000	120.000000	150.000000	40.000000	PushedImage	MainFrameLuo05	Cs_Guigu_Pushed	
+CreateRole_MenpaiModel12	TLBB_ButtonNULL	55.000000	120.000000	150.000000	40.000000	DisabledImage	MainFrameLuo05	Cs_Guigu_Pushed	
+CreateRole_MenpaiModel13	TLBB_ButtonNULL	55.000000	80.000000	150.000000	40.000000	HoverImage	MainFrameLuo05	Cs_Kunlun_Pushed	
+CreateRole_MenpaiModel13	TLBB_ButtonNULL	55.000000	80.000000	150.000000	40.000000	NormalImage	MainFrameLuo05	Cs_Kunlun_Normal	
+CreateRole_MenpaiModel13	TLBB_ButtonNULL	55.000000	80.000000	150.000000	40.000000	PushedImage	MainFrameLuo05	Cs_Kunlun_Pushed	
+CreateRole_MenpaiModel13	TLBB_ButtonNULL	55.000000	80.000000	150.000000	40.000000	DisabledImage	MainFrameLuo05	Cs_Kunlun_Pushed	
+CreateRole_MenpaiModel14	TLBB_ButtonNULL	55.000000	40.000000	150.000000	40.000000	HoverImage	MainFrameLuo06	Cs_Congren_Pushed	
+CreateRole_MenpaiModel14	TLBB_ButtonNULL	55.000000	40.000000	150.000000	40.000000	NormalImage	MainFrameLuo06	Cs_Congren_Normal	
+CreateRole_MenpaiModel14	TLBB_ButtonNULL	55.000000	40.000000	150.000000	40.000000	PushedImage	MainFrameLuo06	Cs_Congren_Pushed	
+CreateRole_MenpaiModel14	TLBB_ButtonNULL	55.000000	40.000000	150.000000	40.000000	DisabledImage	MainFrameLuo06	Cs_Congren_Pushed	
+CreateRole_MenpaiModel15	TLBB_ButtonNULL					HoverImage	MainFrameLuo06	Cs_ERenGu_Pushed	
+CreateRole_MenpaiModel15	TLBB_ButtonNULL					NormalImage	MainFrameLuo06	Cs_ERenGu_Normal	
+CreateRole_MenpaiModel15	TLBB_ButtonNULL					PushedImage	MainFrameLuo06	Cs_ERenGu_Pushed	
+CreateRole_MenpaiModel15	TLBB_ButtonNULL					DisabledImage	MainFrameLuo06	Cs_ERenGu_Pushed	
+Createshow_Info_Back	TLBB_StaticImageNULL					Image	MainFrameLuo06	MenpaiInfo	
+Createshow_Info	TLBB_SimpleText			134.000000	80.000000	Text			#{JSCJYH_121224_15}
+Createshow_Notice	TLBB_SimpleText					Text			#{XZRW_XML_12}
+CreateRole_Info_Frame_Back3	TLBB_StaticImageNULL	0.000000	7.000000	207.000000	268.000000	Image	MainFrameLuo05	CreateBkg	
+CreateRole_Info_Frame_Back4	TLBB_StaticImageNULL	23.000000	229.000000	162.000000	170.000000	Image	MainFrameLuo05	HeadBkg	
+CreateRole_SelectSex_Text	TLBB_StaticImageNULL	31.000000	54.000000	59.000000	13.000000	Image	MainFrameLuo04	SelectSex	
+CreateRole_SelectHair_Text	TLBB_StaticImageNULL	31.000000	94.000000	59.000000	13.000000	Image	MainFrameLuo04	SelectHair	
+CreateRole_SelectHair_TurnLeft1	TLBB_ButtonNULL	31.000000	111.000000	14.000000	19.000000	HoverImage	CreateRole1	BtnLeft_Hover	
+CreateRole_SelectHair_TurnLeft1	TLBB_ButtonNULL	31.000000	111.000000	14.000000	19.000000	NormalImage	CreateRole1	BtnLeft_Normal	
+CreateRole_SelectHair_TurnLeft1	TLBB_ButtonNULL	31.000000	111.000000	14.000000	19.000000	PushedImage	CreateRole1	BtnLeft_Pushed	
+CreateRole_SelectHair_TurnRight1	TLBB_ButtonNULL	161.000000	111.000000	14.000000	19.000000	PushedImage	CreateRole1	BtnRight_Pushed	
+CreateRole_SelectHair_TurnRight1	TLBB_ButtonNULL	161.000000	111.000000	14.000000	19.000000	NormalImage	CreateRole1	BtnRight_Normal	
+CreateRole_SelectHair_TurnRight1	TLBB_ButtonNULL	161.000000	111.000000	14.000000	19.000000	HoverImage	CreateRole1	BtnRight_Hover	
+CreateRole_SelectFace_Text	TLBB_StaticImageNULL	31.000000	134.000000	59.000000	13.000000	Image	MainFrameLuo04	SelectFace	
+CreateRole_SelectFace_TurnLeft1	TLBB_ButtonNULL	31.000000	151.000000	14.000000	19.000000	HoverImage	CreateRole1	BtnLeft_Hover	
+CreateRole_SelectFace_TurnLeft1	TLBB_ButtonNULL	31.000000	151.000000	14.000000	19.000000	NormalImage	CreateRole1	BtnLeft_Normal	
+CreateRole_SelectFace_TurnLeft1	TLBB_ButtonNULL	31.000000	151.000000	14.000000	19.000000	PushedImage	CreateRole1	BtnLeft_Pushed	
+CreateRole_SelectFace_TurnRight1	TLBB_ButtonNULL	161.000000	151.000000	14.000000	19.000000	PushedImage	CreateRole1	BtnRight_Pushed	
+CreateRole_SelectFace_TurnRight1	TLBB_ButtonNULL	161.000000	151.000000	14.000000	19.000000	NormalImage	CreateRole1	BtnRight_Normal	
+CreateRole_SelectFace_TurnRight1	TLBB_ButtonNULL	161.000000	151.000000	14.000000	19.000000	HoverImage	CreateRole1	BtnRight_Hover	
+CreateRole_SelectClothing_Text	TLBB_StaticImageNULL	31.000000	174.000000	59.000000	13.000000	Image	MainFrameLuo04	SelectCloth	
+CreateRole_SelectClothin_TurnLeft1	TLBB_ButtonNULL	31.000000	191.000000	14.000000	19.000000	HoverImage	CreateRole1	BtnLeft_Hover	
+CreateRole_SelectClothin_TurnLeft1	TLBB_ButtonNULL	31.000000	191.000000	14.000000	19.000000	NormalImage	CreateRole1	BtnLeft_Normal	
+CreateRole_SelectClothin_TurnLeft1	TLBB_ButtonNULL	31.000000	191.000000	14.000000	19.000000	PushedImage	CreateRole1	BtnLeft_Pushed	
+CreateRole_SelectClothin_TurnRight1	TLBB_ButtonNULL	161.000000	191.000000	14.000000	19.000000	PushedImage	CreateRole1	BtnRight_Pushed	
+CreateRole_SelectClothin_TurnRight1	TLBB_ButtonNULL	161.000000	191.000000	14.000000	19.000000	NormalImage	CreateRole1	BtnRight_Normal	
+CreateRole_SelectClothin_TurnRight1	TLBB_ButtonNULL	161.000000	191.000000	14.000000	19.000000	HoverImage	CreateRole1	BtnRight_Hover	
+CreateRole_SelectHead_Text	TLBB_StaticImageNULL	31.000000	214.000000	59.000000	13.000000	Image	MainFrameLuo04	SelectHead	
+CreateRole_PageUp	TLBB_ButtonNULL	48.000000	400.000000	53.000000	18.000000	HoverImage	MainFrameLuo04	Last_Create_Hover	
+CreateRole_PageUp	TLBB_ButtonNULL	48.000000	400.000000	53.000000	18.000000	NormalImage	MainFrameLuo04	Last_Create_Normal	
+CreateRole_PageUp	TLBB_ButtonNULL	48.000000	400.000000	53.000000	18.000000	PushedImage	MainFrameLuo04	Last_Create_Pushed	
+CreateRole_PageUp	TLBB_ButtonNULL	48.000000	400.000000	53.000000	18.000000	DisabledImage	MainFrameLuo04	Last_Create_Disabled	
+CreateRole_PageDown	TLBB_ButtonNULL	106.000000	400.000000	53.000000	18.000000	HoverImage	MainFrameLuo04	Next_Create_Hover	
+CreateRole_PageDown	TLBB_ButtonNULL	106.000000	400.000000	53.000000	18.000000	NormalImage	MainFrameLuo04	Next_Create_Normal	
+CreateRole_PageDown	TLBB_ButtonNULL	106.000000	400.000000	53.000000	18.000000	PushedImage	MainFrameLuo04	Next_Create_Pushed	
+CreateRole_PageDown	TLBB_ButtonNULL	106.000000	400.000000	53.000000	18.000000	DisabledImage	MainFrameLuo04	Next_Create_Disabled	
+CreateRole_Random	TLBB_ButtonNULL					HoverImage	CreateRole1	BtnRandom_Hover	
+CreateRole_Random	TLBB_ButtonNULL					NormalImage	CreateRole1	BtnRandom_Normal	
+CreateRole_Random	TLBB_ButtonNULL					PushedImage	CreateRole1	BtnRandom_Pushed	
+CreateRole_Random	TLBB_ButtonNULL					DisabledImage	CreateRole1	BtnRandom_Disable	
+CreateRole_Author	TLBB_ButtonNULL	37.000000	465.000000	132.000000	54.000000	HoverImage	MainFrameLuo04	CreateRole_Hover	
+CreateRole_Author	TLBB_ButtonNULL	37.000000	465.000000	132.000000	54.000000	NormalImage	MainFrameLuo04	CreateRole_Normal	
+CreateRole_Author	TLBB_ButtonNULL	37.000000	465.000000	132.000000	54.000000	PushedImage	MainFrameLuo04	CreateRole_Pushed	
+CreateRole_Author	TLBB_ButtonNULL	37.000000	465.000000	132.000000	54.000000	DisabledImage	MainFrameLuo04	CreateRole_Disabled	
+CreateRole_Last	TLBB_ButtonNULL	37.000000	519.000000	132.000000	54.000000	NormalImage	MainFrameLuo03	Last_Normal	
+CreateRole_Last	TLBB_ButtonNULL	37.000000	519.000000	132.000000	54.000000	HoverImage	MainFrameLuo03	Last_Hover	
+CreateRole_Last	TLBB_ButtonNULL	37.000000	519.000000	132.000000	54.000000	PushedImage	MainFrameLuo03	Last_Pushed	
+CreateRole_Last	TLBB_ButtonNULL	37.000000	519.000000	132.000000	54.000000	DisabledImage	MainFrameLuo03	Last_Disabled	
+Createshow_Info2_Back	TLBB_StaticImageNULL			214.000000	190.000000	Image	MainFrameLuo06	MenpaiInfo	
+Createshow_Info2	TLBB_SimpleText			144.000000	180.000000	Text			#{JSCJYH_121224_04}
+CreateRole_Info2_Frame_Back1	TLBB_StaticImageNULL			219.000000	44.000000	Image	CreateRole1	Icon_Menpai	
+CreateRole_Info2_Frame_Back2	TLBB_StaticImageNULL			184.000000	44.000000	Image	CreateRole3	Icon_Tianshan	
+CreateRole_info2_Frame_Back3	TLBB_StaticImageNULL					Image	CreateRole1	Icon_Sex	
+CreateRole_Info2_Frame_Back4	TLBB_ButtonCheckForPageRed			35.000000	18.000000	Text			男
+CreateRole_Info2_Frame_Back5	TLBB_ButtonCheckForPageRed			35.000000	18.000000	Text			女
+CreateRole_MenpaiModel00	TLBB_ButtonNULL					NormalImage	CreateRole2	BtnCancel_Normal	
+CreateRole_MenpaiModel00	TLBB_ButtonNULL					HoverImage	CreateRole2	BtnCancel_Hover	
+CreateRole_MenpaiModel00	TLBB_ButtonNULL					PushedImage	CreateRole2	BtnCancel_Pushed	
+CreateRole_MenpaiModel00	TLBB_ButtonNULL					DisabledImage	CreateRole2	BtnCancel_Disable	
+CreateRole_Role2_Model_TurnLeft	TLBB_ButtonNULL	9.000000	14.000000	46.000000	27.000000	HoverImage	CreateRole1	BtnTrunLeft_Hover	
+CreateRole_Role2_Model_TurnLeft	TLBB_ButtonNULL	9.000000	14.000000	46.000000	27.000000	NormalImage	CreateRole1	BtnTrunLeft_Normal	
+CreateRole_Role2_Model_TurnLeft	TLBB_ButtonNULL	9.000000	14.000000	46.000000	27.000000	PushedImage	CreateRole1	BtnTrunLeft_Pushed	
+CreateRole_Role2_Model_TurnRight	TLBB_ButtonNULL	160.000000	14.000000	46.000000	27.000000	HoverImage	CreateRole1	BtnTrunRight_Hover	
+CreateRole_Role2_Model_TurnRight	TLBB_ButtonNULL	160.000000	14.000000	46.000000	27.000000	NormalImage	CreateRole1	BtnTrunRight_Normal	
+CreateRole_Role2_Model_TurnRight	TLBB_ButtonNULL	160.000000	14.000000	46.000000	27.000000	PushedImage	CreateRole1	BtnTrunRight_Pushed	
+CreateRole_ModelZoomOut	TLBB_ButtonNULL			20.000000	19.000000	HoverImage	CreateRole1	BtnSub_Hover	
+CreateRole_ModelZoomOut	TLBB_ButtonNULL			20.000000	19.000000	NormalImage	CreateRole1	BtnSub_Normal	
+CreateRole_ModelZoomOut	TLBB_ButtonNULL			20.000000	19.000000	PushedImage	CreateRole1	BtnSub_Pushed	
+CreateRole_ModelZoomIn	TLBB_ButtonNULL			20.000000	19.000000	HoverImage	CreateRole1	BtnAdd_Hover	
+CreateRole_ModelZoomIn	TLBB_ButtonNULL			20.000000	19.000000	NormalImage	CreateRole1	BtnAdd_Normal	
+CreateRole_ModelZoomIn	TLBB_ButtonNULL			20.000000	19.000000	PushedImage	CreateRole1	BtnAdd_Pushed	
+CreateRole_Info_Frame_Back1	TLBB_StaticImageNULL			120.000000	20.000000	Image	CreateRole2	CreateRole_Name2	
+CreateRole_Info_Frame_Back2	TLBB_StaticImageNULL			100.000000	20.000000	Image	CreateRole1	CreateRole_Name	
+CreateRole_RandomName	TLBB_ButtonCommonRed					Text			#{TCMZ_211027_1}

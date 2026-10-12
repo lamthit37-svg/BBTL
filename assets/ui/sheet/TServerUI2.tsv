@@ -1,0 +1,5 @@
+# ảnh, x, y, w, h, tệp atlas, các màn dùng
+
+Bang_Xuanzhan_Hover	309	159	27	28	Common/tga_TServerUI2.dds	MiniMap
+Bang_Xuanzhan_Normal	284	159	27	28	Common/tga_TServerUI2.dds	MiniMap
+Bang_Xuanzhan_Pushed	334	159	27	28	Common/tga_TServerUI2.dds	MiniMap

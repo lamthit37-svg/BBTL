@@ -1,0 +1,21 @@
+# ảnh, x, y, w, h, tệp atlas, các màn dùng
+
+ZongMenSkill_BK	0	0	590	492	Common/png_ZongMenSkill.dds	ZongMenSkill
+ZongMenSkill_Check	590	0	82	82	Common/png_ZongMenSkill.dds	ZongMenSkill
+ZongMenSkill_Enter_Disabled	946	0	34	34	Common/png_ZongMenSkill.dds	SelfEquip
+ZongMenSkill_Enter_Hover	590	146	34	34	Common/png_ZongMenSkill.dds	SelfEquip
+ZongMenSkill_Enter_Normal	792	42	34	34	Common/png_ZongMenSkill.dds	SelfEquip
+ZongMenSkill_Enter_Pushed	912	0	34	34	Common/png_ZongMenSkill.dds	SelfEquip
+ZongMenSkill_ItemBK	590	82	64	64	Common/png_ZongMenSkill.dds	ZongMenSkill
+ZongMenSkill_PataEnter_Hover	672	42	120	42	Common/png_ZongMenSkill.dds	ZongMenSkill
+ZongMenSkill_PataEnter_Normal	792	0	120	42	Common/png_ZongMenSkill.dds	ZongMenSkill
+ZongMenSkill_PataEnter_Pushed	672	0	120	42	Common/png_ZongMenSkill.dds	ZongMenSkill
+ZongMenSkill_Share_Hover	40	492	20	20	Common/png_ZongMenSkill.dds	ZongMenSkill
+ZongMenSkill_Share_Normal	20	492	20	20	Common/png_ZongMenSkill.dds	ZongMenSkill
+ZongMenSkill_Share_Pushed	0	492	20	20	Common/png_ZongMenSkill.dds	ZongMenSkill
+ZongMenSkill_Tips1	848	42	22	22	Common/png_ZongMenSkill.dds	ZongMenSkill
+ZongMenSkill_Tips2	1002	0	22	22	Common/png_ZongMenSkill.dds	ZongMenSkill
+ZongMenSkill_Tips3	980	0	22	22	Common/png_ZongMenSkill.dds	ZongMenSkill
+ZongMenSkill_Tips4	624	146	22	22	Common/png_ZongMenSkill.dds	ZongMenSkill
+ZongMenSkill_Tips5	590	180	22	22	Common/png_ZongMenSkill.dds	ZongMenSkill
+ZongMenSkill_Tips6	826	42	22	22	Common/png_ZongMenSkill.dds	ZongMenSkill

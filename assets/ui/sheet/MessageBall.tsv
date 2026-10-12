@@ -1,0 +1,10 @@
+# ảnh, x, y, w, h, tệp atlas, các màn dùng
+
+FenpingSet_Disable	223	188	17	17	Common/tga_MessageBall.dds	ChatFrame
+FenpingSet_Hover	223	222	17	17	Common/tga_MessageBall.dds	ChatFrame
+FenpingSet_Normal	223	205	17	17	Common/tga_MessageBall.dds	ChatFrame
+FenpingSet_Pushed	223	239	17	17	Common/tga_MessageBall.dds	ChatFrame
+MsgBall_History_Disable	208	196	15	15	Common/tga_MessageBall.dds	Friend
+MsgBall_History_Hover	208	211	15	15	Common/tga_MessageBall.dds	Friend
+MsgBall_History_Normal	208	241	15	15	Common/tga_MessageBall.dds	Friend
+MsgBall_History_Pushed	208	226	15	15	Common/tga_MessageBall.dds	Friend

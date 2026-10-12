@@ -1,0 +1,162 @@
+# cửa sổ, loại, x, y, w, h, thuộc tính, atlas, ảnh, chữ
+
+Pet_Icon	TLBB_StaticImageNULL					Image	MainFrame2	MainFrame2_16	
+Pet_Client_Button01	TLBB_ButtonFenYe2					Text			#{INTERFACE_XML_854}
+Pet_Client_Button02	TLBB_ButtonFenYe2					Text			#{YSSJ_140818_4}
+Pet_Client_Button03	TLBB_ButtonFenYe2					Text			#{ZSHP_180814_05}
+Pet_Client_Button04	TLBB_ButtonFenYe2					Text			#{ZSND_230428_22}
+Pet_Client_Button04tips	TLBB_StaticImageNULL					Image	CommonFrame14	Tips	
+Pet_FakeObject_Frame_PetHead	TLBB_StaticImageNULL			68.000000	26.000000	Image	CommonItem	PetFrame_Head	
+Pet_Growth1	TLBB_SimpleText					Text			#{ZS_CZL}
+Pet_Growth	TLBB_SimpleText					Tooltip			#{INTERFACE_XML_986}
+PetAttack_Type	TLBB_StaticImageNULL	273.0	49.0	24	23	Image	Button6	PetAttack_Type1	
+Pet_Jian	TLBB_ButtonNULL	272.0	77.0	25	25	Tooltip			#{INTERFACE_20071227_01}
+Pet_Jian	TLBB_ButtonNULL	272.0	77.0	25	25	HoverImage	CommonFrame6	TuJian_Hover	
+Pet_Jian	TLBB_ButtonNULL	272.0	77.0	25	25	NormalImage	CommonFrame6	TuJian_Normal	
+Pet_Jian	TLBB_ButtonNULL	272.0	77.0	25	25	PushedImage	CommonFrame6	TuJian_Pushed	
+PetFood_Type	TLBB_StaticImageNULL	8.0	92.0	16	15	Image	UIIcons	PetFood_Type	
+Pet_Neidan_Lianhua	TLBB_StaticImageNULL					Image	PetNeidan	Lianhua1	
+Pet_Neidan_Lianhua_Mask	TLBB_StaticImageNULL					Image	PetNeidan	Lianhua2	
+Pet_lock	TLBB_StaticImageNULL	7.0	120.0	18	14	Image	UIIcons	Icon_Lock	
+Pet_Type	TLBB_SimpleText					Tooltip			#{INTERFACE_XML_857}
+Pet_Proficient_Text	TLBB_SimpleText	8.0000000	31.000000			Text			#{BSJT_130114_03}
+Pet_Proficient_Text	TLBB_SimpleText	8.0000000	31.000000			Tooltip			#{BSJT_130114_04}
+Pet_Model_Protect_Text	TLBB_SimpleText	8.0000000	49.000000	34.000000	15.000000	Text			#{GDWPBH_090507_4}
+Pet_Model_Protect_Text	TLBB_SimpleText	8.0000000	49.000000	34.000000	15.000000	Tooltip			#{GZSL_100525_1}
+Pet_Quality_Text	TLBB_SimpleText	8.0000000	64.000000	34.000000	15.000000	Text			#{ZSHP_180814_07}
+Pet_jieduan	TLBB_SimpleText					Text			升阶：一阶九级（未传承）
+Pet_PetName_Text	TLBB_SimpleText					Text			#{INTERFACE_XML_860}
+Pet_Amend	TLBB_ButtonCommon					Text			#{INTERFACE_XML_778}
+Pet_Amend	TLBB_ButtonCommon					Tooltip			#{MCCS_260302_1}
+Pet_Level	TLBB_SimpleText					Text			#{INTERFACE_XML_230}
+Pet_Sex	TLBB_SimpleText					Text			#{INTERFACE_XML_775}
+Pet_HuanLing	TLBB_SimpleText					Text			#{ZSHP_180814_05}
+Pet_HuanLing	TLBB_SimpleText					Tooltip			#{ZSHP_180814_06}
+Pet_PetID	TLBB_SimpleText					Text			#{INTERFACE_XML_856}
+Pet_ConsortID	TLBB_SimpleText					Text			#{INTERFACE_XML_486}
+Pet_Blood	TLBB_SimpleMulitiTextFrame					Text			#{INTERFACE_XML_1}
+Pet_Happy	TLBB_SimpleMulitiTextFrame					Text			#{INTERFACE_XML_414}
+Pet_Life	TLBB_SimpleMulitiTextFrame					Text			#{INTERFACE_XML_653}
+Pet_YanShou_Button	TLBB_ButtonCommon					Text			#{ZSYSYH_130812_01}
+Pet_Quick_Up_Animate	TLBB_Animate					Tooltip			#{ZSKJT_130428_22}
+Pet_Ronghedu	TLBB_SimpleMulitiTextFrame					Tooltip			#{ZSHT_XML_09}
+Pet_Exp	TLBB_SimpleMulitiTextFrame					Text			#{INTERFACE_XML_382}
+Pet_Exp_LevelUpLock_Opening	TLBB_ButtonNULL					PushedImage	LevelUpLock	LevelUpLock_OpenPushed	
+Pet_Exp_LevelUpLock_Opening	TLBB_ButtonNULL					NormalImage	LevelUpLock	LevelUpLock_OpenNormal	
+Pet_Exp_LevelUpLock_Opening	TLBB_ButtonNULL					HoverImage	LevelUpLock	LevelUpLock_OpenHover	
+Pet_Exp_LevelUpLock_Locked	TLBB_ButtonNULL					PushedImage	LevelUpLock	LevelUpLock_LockPushed	
+Pet_Exp_LevelUpLock_Locked	TLBB_ButtonNULL					NormalImage	LevelUpLock	LevelUpLock_LockNormal	
+Pet_Exp_LevelUpLock_Locked	TLBB_ButtonNULL					HoverImage	LevelUpLock	LevelUpLock_LockHover	
+Pet_List_Text	TLBB_SimpleText					Text			#{INTERFACE_XML_859}
+Pet_List_Text	TLBB_SimpleText					Tooltip			#{INTERFACE_XML_1137}
+Pet_List_Text_Addition	TLBB_ButtonAdd					Tooltip			#{ZSYH_170111_120}
+Pet_Feed	TLBB_ButtonCommon					Text			#{INTERFACE_XML_713}
+Pet_Domesticate	TLBB_ButtonCommon					Text			#{INTERFACE_XML_807}
+Pet_Campaign	TLBB_ButtonCommon					Text			#{INTERFACE_XML_187}
+Pet_Rest	TLBB_ButtonCommon					Text			#{INTERFACE_XML_776}
+Pet_Heti	TLBB_ButtonCommon					Text			#{ZSHT_XML_05}
+Pet_Fenli	TLBB_ButtonCommon					Text			#{ZSHT_XML_06}
+Pet_LockPet	TLBB_ButtonCommon					Text			#{INTERFACE_XML_974}
+Pet_Free	TLBB_ButtonCommon					Text			#{INTERFACE_XML_270}
+Pet_WuXing	TLBB_SimpleTextFrame	6.0	4.0	56.0	16.0	Text			#{INTERFACE_XML_732}
+Pet_WuXing	TLBB_SimpleTextFrame	6.0	4.0	56.0	16.0	Tooltip			#{INTERFACE_XML_733}
+Pet_GenGu	TLBB_SimpleTextFrame	64.0	4.0	56.0	16.0	Text			#{INTERFACE_XML_286}
+Pet_GenGu	TLBB_SimpleTextFrame	64.0	4.0	56.0	16.0	Tooltip			#{INTERFACE_XML_287}
+Pet_Lingxing	TLBB_SimpleTextFrame	122.0	4.0	56.0	16.0	Text			#{RXZS_XML_28}
+Pet_Lingxing	TLBB_SimpleTextFrame	122.0	4.0	56.0	16.0	Tooltip			#{RXZS_XML_29}
+Pet_Str_Text	TLBB_SimpleText	5.0	4.0			Text			#{INTERFACE_XML_429}
+Pet_Str_Text	TLBB_SimpleText	5.0	4.0			Tooltip			#{INTERFACE_XML_431}
+Pet_Nimbus_Text	TLBB_SimpleText	5.0	22.0			Text			#{INTERFACE_XML_437}
+Pet_Nimbus_Text	TLBB_SimpleText	5.0	22.0			Tooltip			#{INTERFACE_XML_439}
+Pet_PhysicalStrength_Text	TLBB_SimpleText	5.0	40.0			Text			#{INTERFACE_XML_685}
+Pet_PhysicalStrength_Text	TLBB_SimpleText	5.0	40.0			Tooltip			#{INTERFACE_XML_686}
+Pet_Stability_Text	TLBB_SimpleText	5.0	58.0			Text			#{INTERFACE_XML_250}
+Pet_Stability_Text	TLBB_SimpleText	5.0	58.0			Tooltip			#{INTERFACE_XML_251}
+Pet_Footwork_Text	TLBB_SimpleText	5.0	76.0			Text			#{INTERFACE_XML_628}
+Pet_Footwork_Text	TLBB_SimpleText	5.0	76.0			Tooltip			#{INTERFACE_XML_629}
+Pet_Str	TLBB_SimpleMulitiTextFrame					Text			1150
+Pet_Str	TLBB_SimpleMulitiTextFrame					Tooltip			#{INTERFACE_XML_431}
+Pet_Nimbus	TLBB_SimpleMulitiTextFrame					Text			200
+Pet_Nimbus	TLBB_SimpleMulitiTextFrame					Tooltip			#{INTERFACE_XML_439}
+Pet_PhysicalStrength	TLBB_SimpleMulitiTextFrame					Text			1500
+Pet_PhysicalStrength	TLBB_SimpleMulitiTextFrame					Tooltip			#{INTERFACE_XML_686}
+Pet_Stability	TLBB_SimpleMulitiTextFrame					Text			200
+Pet_Stability	TLBB_SimpleMulitiTextFrame					Tooltip			#{INTERFACE_XML_251}
+Pet_Dexterity	TLBB_SimpleMulitiTextFrame					Text			0
+Pet_Dexterity	TLBB_SimpleMulitiTextFrame					Tooltip			#{INTERFACE_XML_629}
+Pet_Str_jieduan	TLBB_SimpleText					Text			(+2541)
+Pet_Str_jieduan	TLBB_SimpleText					Tooltip			#{JJKHD_120808_79}
+Pet_Nimbus_jieduan	TLBB_SimpleText					Tooltip			#{JJKHD_120808_80}
+Pet_PhysicalStrength_jieduan	TLBB_SimpleText					Tooltip			#{JJKHD_120808_81}
+Pet_Stability_jieduan	TLBB_SimpleText					Tooltip			#{JJKHD_120808_82}
+Pet_Pet_Dexterity_jieduan	TLBB_SimpleText					Tooltip			#{JJKHD_120808_83}
+Pet_Potential_Text	TLBB_SimpleText	318.0	120.0			Text			#{INTERFACE_XML_500}
+Pet_Potential	TLBB_SimpleText	354.0	120.0			Text			0
+Pet_Cancel	TLBB_ButtonCommon					Text			#{INTERFACE_XML_542}
+Pet_Recommend	TLBB_ButtonCommon					Text			#{ZSZDJD_130812_01}
+Pet_Recommend	TLBB_ButtonCommon					Tooltip			#{ZSZDJD_130812_02}
+Pet_Accept	TLBB_ButtonCommon					Text			#{INTERFACE_XML_557}
+Pet_StrAptitude_Text	TLBB_SimpleText					Text			#{INTERFACE_XML_432}
+Pet_NimbusAptitude_Text	TLBB_SimpleText	5.0	21.0			Text			#{INTERFACE_XML_440}
+Pet_PhysicalStrengthAptitude_Text	TLBB_SimpleText	5.0	37.0			Text			#{INTERFACE_XML_687}
+Pet_StabilityAptitude_Text	TLBB_SimpleText	5.0	53.0			Text			#{INTERFACE_XML_253}
+Pet_FootworkAptitude_Text	TLBB_SimpleText	5.0	69.0			Text			#{INTERFACE_XML_630}
+Pet_StrAptitude	TLBB_SimpleMulitiTextFrame					Text			1993(+1.3%)
+Pet_PhysicsAttack_Text	TLBB_SimpleTextFrameLeft					Text			#{INTERFACE_XML_707}
+Pet_MagicAttack_Text	TLBB_SimpleTextFrameLeft					Text			#{INTERFACE_XML_471}
+Pet_PhysicsRecovery_Text	TLBB_SimpleTextFrameLeft					Text			#{INTERFACE_XML_706}
+Pet_MagicRecovery_Text	TLBB_SimpleTextFrameLeft					Text			#{INTERFACE_XML_470}
+Pet_Miss_Text	TLBB_SimpleTextFrameLeft					Text			#{INTERFACE_XML_586}
+Pet_ShootProbability_Text	TLBB_SimpleTextFrameLeft					Text			#{INTERFACE_XML_468}
+Pet_CriticalAttack_Text	TLBB_SimpleTextFrameLeft					Text			#{INTERFACE_XML_338}
+Pet_CriticalDefence_Text	TLBB_SimpleTextFrameLeft					Text			#{INTERFACE_XML_337}
+PetEquip_1	TLBB_ActionButton					Tooltip			#{ZSZB_090211_10}
+PetEquip_1	TLBB_ActionButton					BackImage	CommonFrame7	PetEquip_Tou	
+PetEquip_2	TLBB_ActionButton					Tooltip			#{ZSZB_090211_11}
+PetEquip_2	TLBB_ActionButton					BackImage	CommonFrame7	PetEquip_Zhua	
+PetEquip_3	TLBB_ActionButton					Tooltip			#{ZSZB_090211_12}
+PetEquip_3	TLBB_ActionButton					BackImage	CommonFrame7	PetEquip_Qugan	
+PetEquip_4	TLBB_ActionButton					Tooltip			#{ZSZB_090211_13}
+PetEquip_4	TLBB_ActionButton					BackImage	CommonFrame7	PetEquip_Xiangquan	
+PetEquip_5	TLBB_ActionButton					Tooltip			#{ZSZB_090211_14}
+PetEquip_5	TLBB_ActionButton					BackImage	CommonFrame7	PetEquip_Hufu	
+Pet_IceFastness	TLBB_StaticImageNULL			16.000000	16.000000	Image	UIIcons	Ice_Repellency_Normal	
+Pet_FireFastness	TLBB_StaticImageNULL			16.000000	16.000000	Image	UIIcons	Fire_Repellency_Normal	
+Pet_ThunderFastness	TLBB_StaticImageNULL			16.000000	16.000000	Image	UIIcons	Thunder_Repellency_Normal	
+Pet_PoisonFastness	TLBB_StaticImageNULL			16.000000	16.000000	Image	UIIcons	Poison_Repellency_Normal	
+OneKeyUnEquip	TLBB_ButtonCommon					Text			#{ZSZB_090211_15}
+OneKeyUnEquip	TLBB_ButtonCommon					Tooltip			#{ZSZB_090211_16}
+Pet_SelfEquip	TLBB_ButtonPageDown					Text			#{INTERFACE_XML_877}
+Pet_Pet	TLBB_ButtonPageDown					Text			#{INTERFACE_XML_854}
+Pet_Pet_Buttontips	TLBB_StaticImageNULL					Image	CommonFrame14	Tips	
+Pet_Infant	TLBB_ButtonPageDown					Text			#{ZNJCS_130825_7}
+Pet_Infant_tips	TLBB_SimpleText					Tooltip			#{RWYQ_150707_01}
+Pet_Wuhun	TLBB_ButtonPageDown					Text			#{WH_xml_XX(95)}
+Pet_Wuhun_tips	TLBB_SimpleText					Tooltip			#{RWYQ_150707_02}
+Pet_Xiulian	TLBB_ButtonPageDown					Text			#{XL_XML_35}
+Pet_Xiulian_tips	TLBB_SimpleText					Tooltip			#{RWYQ_150707_03}
+Pet_Miji	TLBB_ButtonPageDown					Text			#{WLMJ_130121_54}
+Pet_Miji_tips	TLBB_SimpleText					Tooltip			#{RWYQ_150707_04}
+Pet_ZhenYuan	TLBB_ButtonPageDown					Text			#{ZYXT_120528_154}
+Pet_ZhenYuan_tips	TLBB_SimpleText					Tooltip			#{RWYQ_150707_05}
+Pet_JingMai	TLBB_ButtonPageDown					Text			#{MPJJ_XT_XML_01}
+Pet_JingMai_tips	TLBB_SimpleText					Tooltip			#{RWYQ_150707_06}
+Pet_ShenDing	TLBB_ButtonPageDown					Text			#{XLDL_140606_04}
+Pet_ShenDing_tips	TLBB_SimpleText					Tooltip			#{RWYQ_150707_07}
+Pet_JueWei	TLBB_ButtonPageDown					Text			#{JXJW_140822_22}
+Pet_JueWei_tips	TLBB_SimpleText					Tooltip			#{RWYQ_150707_08}
+Pet_BaoJian	TLBB_ButtonPageDown					Text			#{ZZZB_150811_113}
+Pet_BaoJian_tips	TLBB_SimpleText					Tooltip			#{ZZZB_150811_114}
+Pet_WuYi	TLBB_ButtonPageDown					Text			#{WYXT_20170807_86}
+Pet_WuYi_tips	TLBB_SimpleText					Tooltip			#{WYXT_20170907_302}
+Pet_WuYi_Buttontips	TLBB_StaticImageNULL					Image	CommonFrame14	Tips	
+Pet_ShenQi	TLBB_ButtonPageDown					Text			#{JXSQ_170829_216}
+Pet_ShenQi_tips	TLBB_SimpleText					Tooltip			#{JXSQ_170829_217}
+Pet_Ride	TLBB_ButtonPageDown					Text			#{INTERFACE_XML_497}
+Pet_Armor	TLBB_ButtonPageDown					Text			#{NJBZ_220816_11}
+Pet_Armor_tips	TLBB_SimpleText					Tooltip			#{NJBZ_220816_12}
+Pet_CangPin	TLBB_ButtonPageDown					Text			#{CPSJ_260112_1}
+Pet_CangPin_tips	TLBB_SimpleText					Tooltip			#{CPSJ_260112_2}
+Pet_CangPin_Buttontips	TLBB_StaticImageNULL					Image	CommonFrame14	Tips	
+Pet_OtherInfo	TLBB_ButtonPageDown					Text			#{INTERFACE_XML_496}
+Pet_OtherInfo_ButtonTips	TLBB_StaticImageNULL					Image	CommonFrame14	Tips	

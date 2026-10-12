@@ -1,0 +1,17 @@
+# ảnh, x, y, w, h, tệp atlas, các màn dùng
+
+CreateBkg	150	170	207	268	Common/tga_MainFrameLuo05.dds	CreateRole
+Cs_Guigu_Normal	357	170	150	40	Common/tga_MainFrameLuo05.dds	CreateRole
+Cs_Guigu_Pushed	357	250	150	40	Common/tga_MainFrameLuo05.dds	CreateRole
+Cs_Kunlun_Normal	357	330	150	40	Common/tga_MainFrameLuo05.dds	CreateRole
+Cs_Kunlun_Pushed	357	410	150	40	Common/tga_MainFrameLuo05.dds	CreateRole
+Cs_Tangmen_Normal	327	0	150	40	Common/tga_MainFrameLuo05.dds	CreateRole
+Cs_Tangmen_Pushed	327	80	150	40	Common/tga_MainFrameLuo05.dds	CreateRole
+Cs_Wudang_Normal	0	0	150	40	Common/tga_MainFrameLuo05.dds	CreateRole
+Cs_Wudang_Pushed	0	80	150	40	Common/tga_MainFrameLuo05.dds	CreateRole
+Cs_Xiaoyao_Normal	0	160	150	40	Common/tga_MainFrameLuo05.dds	CreateRole
+Cs_Xiaoyao_Pushed	0	240	150	40	Common/tga_MainFrameLuo05.dds	CreateRole
+Cs_Xingxiu_Normal	0	320	150	40	Common/tga_MainFrameLuo05.dds	CreateRole
+Cs_Xingxiu_Pushed	0	400	150	40	Common/tga_MainFrameLuo05.dds	CreateRole
+HeadBkg	165	0	162	170	Common/tga_MainFrameLuo05.dds	CreateRole
+MenpaiShow	150	466	207	46	Common/tga_MainFrameLuo05.dds	CreateRole

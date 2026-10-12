@@ -1,0 +1,177 @@
+# cửa sổ, loại, x, y, w, h, thuộc tính, atlas, ảnh, chữ
+
+MiniMap_Background_Time	TLBB_StaticImageNULL	32	0	35.000000	36.000000	Image	MiniMap	Minimap_Time	
+MiniMap_ChineseTime	TLBB_MapImage					Image	CommonStaticImage	Minimap_Time1	
+MiniMap_ChineseTime	TLBB_MapImage					ChildImage	CommonStaticImage	Minimap_Time1	
+MiniMap_ChineseTime	TLBB_MapImage					ChildImage	CommonStaticImage	Minimap_Time2	
+MiniMap_ChineseTime	TLBB_MapImage					ChildImage	CommonStaticImage	Minimap_Time3	
+MiniMap_ChineseTime	TLBB_MapImage					ChildImage	CommonStaticImage	Minimap_Time4	
+MiniMap_ChineseTime	TLBB_MapImage					ChildImage	CommonStaticImage	Minimap_Time5	
+MiniMap_ChineseTime	TLBB_MapImage					ChildImage	CommonStaticImage	Minimap_Time6	
+MiniMap_ChineseTime	TLBB_MapImage					ChildImage	CommonStaticImage	Minimap_Time7	
+MiniMap_ChineseTime	TLBB_MapImage					ChildImage	CommonStaticImage	Minimap_Time8	
+MiniMap_ChineseTime	TLBB_MapImage					ChildImage	CommonStaticImage	Minimap_Time9	
+MiniMap_ChineseTime	TLBB_MapImage					ChildImage	CommonStaticImage	Minimap_Time10	
+MiniMap_ChineseTime	TLBB_MapImage					ChildImage	CommonStaticImage	Minimap_Time11	
+MiniMap_ChineseTime	TLBB_MapImage					ChildImage	CommonStaticImage	Minimap_Time12	
+MiniMap_MiniMap_NetStatus	TLBB_MapImage	3.000000	3.000000	31.000000	30.000000	Image	CommonStaticImage	Minimap_NetState1	
+MiniMap_MiniMap_NetStatus	TLBB_MapImage	3.000000	3.000000	31.000000	30.000000	ChildImage	CommonStaticImage	Minimap_NetState1	
+MiniMap_MiniMap_NetStatus	TLBB_MapImage	3.000000	3.000000	31.000000	30.000000	ChildImage	CommonStaticImage	Minimap_NetState2	
+MiniMap_MiniMap_NetStatus	TLBB_MapImage	3.000000	3.000000	31.000000	30.000000	ChildImage	CommonStaticImage	Minimap_NetState3	
+MiniMap_MiniMap_NetStatus	TLBB_MapImage	3.000000	3.000000	31.000000	30.000000	ChildImage	CommonStaticImage	Minimap_NetState4	
+MiniMap_TimeDot1	TLBB_StaticImageNULL	20.000000	0.000000	9.000000	9.000000	Image	CommonStaticImage	Minimap_TimePointer	
+MiniMap_TimeDot2	TLBB_StaticImageNULL	24.000000	5.000000	9.000000	9.000000	Image	CommonStaticImage	Minimap_TimePointer	
+MiniMap_TimeDot3	TLBB_StaticImageNULL	25.000000	11.000000	9.000000	9.000000	Image	CommonStaticImage	Minimap_TimePointer	
+MiniMap_TimeDot4	TLBB_StaticImageNULL	23.000000	18.000000	9.000000	9.000000	Image	CommonStaticImage	Minimap_TimePointer	
+MiniMap_TimeDot5	TLBB_StaticImageNULL	19.000000	22.000000	9.000000	9.000000	Image	CommonStaticImage	Minimap_TimePointer	
+MiniMap_TimeDot6	TLBB_StaticImageNULL	11.000000	24.000000	9.000000	9.000000	Image	CommonStaticImage	Minimap_TimePointer	
+MiniMap_TimeDot7	TLBB_StaticImageNULL	3.000000	22.000000	9.000000	9.000000	Image	CommonStaticImage	Minimap_TimePointer	
+MiniMap_TimeDot8	TLBB_StaticImageNULL	-1.000000	18.000000	9.000000	9.000000	Image	CommonStaticImage	Minimap_TimePointer	
+MiniMap_TimeDot9	TLBB_StaticImageNULL	-4.000000	11.000000	9.000000	9.000000	Image	CommonStaticImage	Minimap_TimePointer	
+MiniMap_TimeDot10	TLBB_StaticImageNULL	-2.000000	5.000000	9.000000	9.000000	Image	CommonStaticImage	Minimap_TimePointer	
+MiniMap_TimeDot11	TLBB_StaticImageNULL	2.000000	0.000000	9.000000	9.000000	Image	CommonStaticImage	Minimap_TimePointer	
+MiniMap_TimeDot12	TLBB_StaticImageNULL	11.000000	-4.000000	9.000000	9.000000	Image	CommonStaticImage	Minimap_TimePointer	
+MiniMap_Background_Title	TLBB_StaticImageNULL			184.000000	28.000000	Image	MiniMap	Minimap_BK	
+MiniMap_Coordinate	TLBB_SimpleText					Text			300 300
+MiniMap_Xinfu	TLBB_AnimateButton					Tooltip			#{XSHLY_150522_99}
+MiniMap_Xinfu	TLBB_AnimateButton					PushedImage	XSHLY01	XSHLY_Anniu_Pushed	
+MiniMap_Xinfu	TLBB_AnimateButton					NormalImage	XSHLY01	XSHLY_Anniu_Normal	
+MiniMap_Xinfu	TLBB_AnimateButton					HoverImage	XSHLY01	XSHLY_Anniu_Hover	
+MiniMap_Xinfu	TLBB_AnimateButton					DisabledImage	XSHLY01	XSHLY_Anniu_Disable	
+MiniMap_Xinfutips	TLBB_StaticImageNULL					Image	CommonFrame14	Tips	
+MiniMap_Shouchong	TLBB_AnimateButton					PushedImage	KJRK_3	ButtonSCJL_Pushed	
+MiniMap_Shouchong	TLBB_AnimateButton					NormalImage	KJRK_3	ButtonSCJL_Normal	
+MiniMap_Shouchong	TLBB_AnimateButton					HoverImage	KJRK_3	ButtonSCJL_Hover	
+MiniMap_Shouchong	TLBB_AnimateButton					DisabledImage	KJRK_3	ButtonSCJL_Disable	
+MiniMap_Shouchongtips	TLBB_StaticImageNULL					Image	CommonFrame14	Tips	
+MiniMap_XinShouNew	TLBB_AnimateButton					Tooltip			#{XSJNH_180111_01}
+MiniMap_XinShouNew	TLBB_AnimateButton					PushedImage	XSYNew02	XSJNH_Anniu_Pushed	
+MiniMap_XinShouNew	TLBB_AnimateButton					NormalImage	XSYNew02	XSJNH_Anniu_Normal	
+MiniMap_XinShouNew	TLBB_AnimateButton					HoverImage	XSYNew02	XSJNH_Anniu_Hover	
+MiniMap_XinShouNew	TLBB_AnimateButton					DisabledImage	XSYNew02	XSJNH_Anniu_Disabled	
+MiniMap_XinShouNew_tips	TLBB_StaticImageNULL					Image	CommonFrame14	Tips	
+MiniMap_XinShouNew_Over	TLBB_AnimateButton					PushedImage	KJRK_3	ButtonSCJL_Pushed	
+MiniMap_XinShouNew_Over	TLBB_AnimateButton					NormalImage	KJRK_3	ButtonSCJL_Normal	
+MiniMap_XinShouNew_Over	TLBB_AnimateButton					HoverImage	KJRK_3	ButtonSCJL_Hover	
+MiniMap_XinShouNew_Over	TLBB_AnimateButton					DisabledImage	KJRK_3	ButtonSCJL_Disable	
+MiniMap_XinShouNew_Over_tips	TLBB_StaticImageNULL					Image	CommonFrame14	Tips	
+MiniMap_BugUpdate	TLBB_ButtonNULL					Tooltip			#{BUGFK_XML_1}
+MiniMap_BugUpdate	TLBB_ButtonNULL					NormalImage	CommonFrame8	BugUpdate_Nor	
+MiniMap_BugUpdate	TLBB_ButtonNULL					HoverImage	CommonFrame8	BugUpdate_Hov	
+MiniMap_BugUpdate	TLBB_ButtonNULL					PushedImage	CommonFrame8	BugUpdate_Push	
+MiniMap_Fangchengmi_Btn	TLBB_ButtonNULL					Tooltip			#{INTERFACE_XML_1040}
+MiniMap_Fangchengmi_Btn	TLBB_ButtonNULL					HoverImage	CommonFrame4	JingTanHao_Hover	
+MiniMap_Fangchengmi_Btn	TLBB_ButtonNULL					NormalImage	CommonFrame4	JingTanHao_Normal	
+MiniMap_Fangchengmi_Btn	TLBB_ButtonNULL					PushedImage	CommonFrame4	JingTanHao_Normal	
+MiniMap_AutoSearch	TLBB_ButtonNULL					NormalImage	Button8	MiniMap_AutoSearch_Normal	
+MiniMap_AutoSearch	TLBB_ButtonNULL					HoverImage	Button8	MiniMap_AutoSearch_Hover	
+MiniMap_AutoSearch	TLBB_ButtonNULL					PushedImage	Button8	MiniMap_AutoSearch_Pushed	
+MiniMap_AutoSearch	TLBB_ButtonNULL					DisabledImage	Button8	MiniMap_AutoSearch_Disabled	
+MiniMap_Background_Map	TLBB_StaticImageNULL					Image	MiniMap	Minimap_Area	
+MiniMap_MapArea	TLBB_SceneMap					IconImage	UIIcons	Map_Animy	
+MiniMap_MapArea	TLBB_SceneMap					IconImage	UIIcons	Map_NPC	
+MiniMap_MapArea	TLBB_SceneMap					IconImage	UIIcons	Map_Teammate	
+MiniMap_MapArea	TLBB_SceneMap					IconImage	UIIcons	Map_OtherPlayer	
+MiniMap_MapArea	TLBB_SceneMap					IconImage	UIIcons	Map_Resource	
+MiniMap_MapArea	TLBB_SceneMap					IconImage	UIIcons	Map_Pet	
+MiniMap_MapArea	TLBB_SceneMap					IconImage	UIIcons	Map_Gurid	
+MiniMap_MapArea	TLBB_SceneMap					IconImage	UIIcons	Map_NPC	
+MiniMap_MapArea	TLBB_SceneMap					IconImage	UIIcons	Resource_Mine	
+MiniMap_MapArea	TLBB_SceneMap					IconImage	UIIcons	Resource_Herbal	
+MiniMap_MapArea	TLBB_SceneMap					IconImage	UIIcons	Resource_Fish	
+MiniMap_MapArea	TLBB_SceneMap					IconImage	UIIcons	Map_Trip	
+MiniMap_MapArea	TLBB_SceneMap					IconImage	CommonFrame7	Phoenix_Qi	
+MiniMap_MapArea	TLBB_SceneMap					IconImage	UIIcons	Map_Union	
+MiniMap_AutoSearchBK	TLBB_StaticImageNULL					Image	Button8	MiniMap_AutoSearch_BK	
+MiniMap_North	TLBB_ButtonNULL					Tooltip			#{INTERFACE_XML_869}
+MiniMap_North	TLBB_ButtonNULL					NormalImage	Button4	BtnN_Normal	
+MiniMap_North	TLBB_ButtonNULL					HoverImage	Button4	BtnN_Hover	
+MiniMap_North	TLBB_ButtonNULL					PushedImage	Button4	BtnN_Pushed	
+MiniMap_Plot	TLBB_ButtonNULL					Tooltip			#{INTERFACE_XML_233}
+MiniMap_Plot	TLBB_ButtonNULL					NormalImage	Button4	BtnQ_Normal	
+MiniMap_Plot	TLBB_ButtonNULL					HoverImage	Button4	BtnQ_Hover	
+MiniMap_Plot	TLBB_ButtonNULL					PushedImage	Button4	BtnQ_Pushed	
+MiniMap_XuanZhan	TLBB_AnimateButton					Tooltip			#{BHXZ_150831_02}
+MiniMap_XuanZhan	TLBB_AnimateButton					NormalImage	TServerUI2	Bang_Xuanzhan_Normal	
+MiniMap_XuanZhan	TLBB_AnimateButton					HoverImage	TServerUI2	Bang_Xuanzhan_Hover	
+MiniMap_XuanZhan	TLBB_AnimateButton					PushedImage	TServerUI2	Bang_Xuanzhan_Pushed	
+MiniMap_Fenxian	TLBB_ButtonNULL					NormalImage	CommonFrame39	Fenxian_Normal	
+MiniMap_Fenxian	TLBB_ButtonNULL					HoverImage	CommonFrame39	Fenxian_Hover	
+MiniMap_Fenxian	TLBB_ButtonNULL					PushedImage	CommonFrame39	Fenxian_Pushed	
+MiniMap_Fenxian	TLBB_ButtonNULL					DisabledImage	CommonFrame39	Fenxian_Disabled	
+MiniMap_Kefu	TLBB_ButtonNULL					Tooltip			#{FWNQ_141013_05}
+MiniMap_Kefu	TLBB_ButtonNULL					NormalImage	CommonFrame7	OlKefu_Normal	
+MiniMap_Kefu	TLBB_ButtonNULL					HoverImage	CommonFrame7	OlKefu_Hover	
+MiniMap_Kefu	TLBB_ButtonNULL					PushedImage	CommonFrame7	OlKefu_Pushed	
+MiniMap_WorldMap	TLBB_ButtonNULL					Tooltip			#{INTERFACE_XML_645}
+MiniMap_WorldMap	TLBB_ButtonNULL					NormalImage	Button4	BtnEye_Normal	
+MiniMap_WorldMap	TLBB_ButtonNULL					HoverImage	Button4	BtnEye_Hover	
+MiniMap_WorldMap	TLBB_ButtonNULL					PushedImage	Button4	BtnEye_Pushed	
+MiniMap_PK_Mode	TLBB_MapImage					Image	Button4	ModeWar	
+MiniMap_PK_Mode	TLBB_MapImage					ChildImage	Button4	ModeWar	
+MiniMap_PK_Mode	TLBB_MapImage					ChildImage	Button4	ModePeace	
+MiniMap_FindExp	TLBB_ButtonNULL					Tooltip			#{PKPK_20251021_3}
+MiniMap_FindExp	TLBB_ButtonNULL					NormalImage	CommonFrame39	PK_Button_Normal	
+MiniMap_FindExp	TLBB_ButtonNULL					HoverImage	CommonFrame39	PK_Button_Hover	
+MiniMap_FindExp	TLBB_ButtonNULL					PushedImage	CommonFrame39	PK_Button_Pushed	
+MiniMap_FindExp	TLBB_ButtonNULL					DisabledImage	CommonFrame39	PK_Button_Disabled	
+MiniMap_Forum	TLBB_AnimateButton					Tooltip			#{NQLT_141118_01}
+MiniMap_Forum	TLBB_AnimateButton					NormalImage	Button13	Community_Normal	
+MiniMap_Forum	TLBB_AnimateButton					HoverImage	Button13	Community_Hover	
+MiniMap_Forum	TLBB_AnimateButton					PushedImage	Button13	Community_Pushed	
+MiniMap_AutoAttack_Button	TLBB_ButtonNULL					Tooltip			#{ZDZD_200724_02}
+MiniMap_AutoAttack_Button	TLBB_ButtonNULL					NormalImage	AutoAttack_Button	AutoAttack_Btn_G_Normal	
+MiniMap_AutoAttack_Button	TLBB_ButtonNULL					HoverImage	AutoAttack_Button	AutoAttack_Btn_G_Hover	
+MiniMap_AutoAttack_Button	TLBB_ButtonNULL					PushedImage	AutoAttack_Button	AutoAttack_Btn_G_Pushed	
+MiniMap_AutoAttack_Button	TLBB_ButtonNULL					DisabledImage	AutoAttack_Button	AutoAttack_Btn_G_Disable	
+MiniMap_AutoAttack_Button_Off	TLBB_ButtonNULL					Tooltip			#{ZDZD_200724_02}
+MiniMap_AutoAttack_Button_Off	TLBB_ButtonNULL					NormalImage	AutoAttack_Button	AutoAttack_Btn_Y_Normal	
+MiniMap_AutoAttack_Button_Off	TLBB_ButtonNULL					HoverImage	AutoAttack_Button	AutoAttack_Btn_Y_Hover	
+MiniMap_AutoAttack_Button_Off	TLBB_ButtonNULL					PushedImage	AutoAttack_Button	AutoAttack_Btn_Y_Pushed	
+MiniMap_AutoAttack_Button_Off	TLBB_ButtonNULL					DisabledImage	AutoAttack_Button	AutoAttack_Btn_Y_Disable	
+MiniMap_PlayerAsk_Bn	TLBB_ButtonNULL					Tooltip			#{YXDY_081027_01}
+MiniMap_PlayerAsk_Bn	TLBB_ButtonNULL					NormalImage	CommonFrame7	XunIcon_A1	
+MiniMap_PlayerAsk_Bn	TLBB_ButtonNULL					HoverImage	CommonFrame7	XunIcon_A2	
+MiniMap_PlayerAsk_Bn	TLBB_ButtonNULL					PushedImage	CommonFrame7	XunIcon_A3	
+MiniMap_HuaShanLunJian	TLBB_ButtonNULL					Tooltip			#{INTERFACE_XML_331}
+MiniMap_HuaShanLunJian	TLBB_ButtonNULL					NormalImage	Buttons	HuaShanLunJian_Normal	
+MiniMap_HuaShanLunJian	TLBB_ButtonNULL					HoverImage	Buttons	HuaShanLunJian_Hover	
+MiniMap_HuaShanLunJian	TLBB_ButtonNULL					PushedImage	Buttons	HuaShanLunJian_Pushed	
+MiniMap_JiangHu	TLBB_ButtonNULL					Tooltip			#{INTERFACE_XML_198}
+MiniMap_JiangHu	TLBB_ButtonNULL					NormalImage	Button4	MiniMap_JiangHu_Normal	
+MiniMap_JiangHu	TLBB_ButtonNULL					HoverImage	Button4	MiniMap_JiangHu_Hover	
+MiniMap_JiangHu	TLBB_ButtonNULL					PushedImage	Button4	MiniMap_JiangHu_Pushed	
+MiniMap_PlayerAsk2_Bn	TLBB_ButtonNULL					Tooltip			#{TLDC_110512_02}
+MiniMap_PlayerAsk2_Bn	TLBB_ButtonNULL					NormalImage	CommonFrame15	DiaoIcon_A1	
+MiniMap_PlayerAsk2_Bn	TLBB_ButtonNULL					HoverImage	CommonFrame15	DiaoIcon_A2	
+MiniMap_PlayerAsk2_Bn	TLBB_ButtonNULL					PushedImage	CommonFrame15	DiaoIcon_A3	
+MiniMap_Yuanbao	TLBB_ButtonNULL					NormalImage	Button7	Minimap_Yuanbao_Normal	
+MiniMap_Yuanbao	TLBB_ButtonNULL					HoverImage	Button7	Minimap_Yuanbao_Hover	
+MiniMap_Yuanbao	TLBB_ButtonNULL					PushedImage	Button7	Minimap_Yuanbao_Pushed	
+MiniMap_Liebiao	TLBB_ButtonNULL					Tooltip			#{FJWJ_081106_01}
+MiniMap_Liebiao	TLBB_ButtonNULL					NormalImage	ButtonCampaign1	Campaign_IMG_Liebiao_Normal	
+MiniMap_Liebiao	TLBB_ButtonNULL					HoverImage	ButtonCampaign1	Campaign_IMG_Liebiao_Hover	
+MiniMap_Liebiao	TLBB_ButtonNULL					PushedImage	ButtonCampaign1	Campaign_IMG_Liebiao_Pushed	
+MiniMap_EquipEndurance	TLBB_StaticImageNULL					Image	Buttons	EquipEndurance	
+MiniMap_Mail	TLBB_ButtonMail					Tooltip			#{FJYX_110426_142}
+MiniMap_BaiBingJingTong	TLBB_StaticImageNULL					Image	Buttons	BaiBingJingTong	
+MiniMap_CloseButtons	TLBB_ButtonNULL			14.000000	17.000000	Tooltip			#{INTERFACE_XML_906}
+MiniMap_CloseButtons	TLBB_ButtonNULL			14.000000	17.000000	NormalImage	Button4	BtnClose_Normal	
+MiniMap_CloseButtons	TLBB_ButtonNULL			14.000000	17.000000	HoverImage	Button4	BtnClose_Hover	
+MiniMap_CloseButtons	TLBB_ButtonNULL			14.000000	17.000000	PushedImage	Button4	BtnClose_Pushed	
+MiniMap_OpenButtons	TLBB_ButtonNULL			14.000000	17.000000	Tooltip			#{INTERFACE_XML_332}
+MiniMap_OpenButtons	TLBB_ButtonNULL			14.000000	17.000000	NormalImage	Button4	BtnOpen_Normal	
+MiniMap_OpenButtons	TLBB_ButtonNULL			14.000000	17.000000	HoverImage	Button4	BtnOpen_Hover	
+MiniMap_OpenButtons	TLBB_ButtonNULL			14.000000	17.000000	PushedImage	Button4	BtnOpen_Pushed	
+MiniMap_SafeTime_Frame	TLBB_SimpleMulitiTextFrame					Text			#{INTERFACE_XML_MINI_02}
+MiniMap_SafeTime_Frame	TLBB_SimpleMulitiTextFrame					Tooltip			#{INTERFACE_XML_MINI_01}
+MiniMap_SafeCenter_Button	TLBB_ButtonNULL					Tooltip			#{AQZX_130812_01}
+MiniMap_SafeCenter_Button	TLBB_ButtonNULL					PushedImage	CommonFrame20	SafeCenter_MiniMapButton_Pushed	
+MiniMap_SafeCenter_Button	TLBB_ButtonNULL					NormalImage	CommonFrame20	SafeCenter_MiniMapButton_Normal	
+MiniMap_SafeCenter_Button	TLBB_ButtonNULL					HoverImage	CommonFrame20	SafeCenter_MiniMapButton_Hover	
+MiniMap_SafeCenter_Button	TLBB_ButtonNULL					DisabledImage	CommonFrame20	SafeCenter_MiniMapButton_Disable	
+MiniMap_Luzhi_Button	TLBB_ButtonNULL					Tooltip			#{KHD_220826_52}
+MiniMap_Luzhi_Button	TLBB_ButtonNULL					PushedImage	Luzhi	LZ_Pushed	
+MiniMap_Luzhi_Button	TLBB_ButtonNULL					NormalImage	Luzhi	LZ_Normal	
+MiniMap_Luzhi_Button	TLBB_ButtonNULL					HoverImage	Luzhi	LZ_Hover	
+MiniMap_Luzhi_Button	TLBB_ButtonNULL					DisabledImage	Luzhi	LZ_Disabled	

@@ -1,0 +1,7 @@
+# ảnh, x, y, w, h, tệp atlas, các màn dùng
+
+MainFrame2_12	192	128	64	64	Common/tga_MainFrame2.dds	MainMenuBar,SelfEquip
+MainFrame2_13	0	192	64	64	Common/tga_MainFrame2.dds	MainMenuBar
+MainFrame2_14	64	192	64	64	Common/tga_MainFrame2.dds	MainMenuBar,QuestLog
+MainFrame2_15	128	192	64	64	Common/tga_MainFrame2.dds	MainMenuBar
+MainFrame2_16	192	192	64	64	Common/tga_MainFrame2.dds	MainMenuBar,Pet

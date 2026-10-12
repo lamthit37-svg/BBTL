@@ -1,0 +1,25 @@
+# ảnh, x, y, w, h, tệp atlas, các màn dùng
+
+BtnClose_Hover	16	0	14	17	Common/Button04.tga	MiniMap
+BtnClose_Normal	0	0	14	17	Common/Button04.tga	MiniMap
+BtnClose_Pushed	32	0	14	17	Common/Button04.tga	MiniMap
+BtnEye_Hover	25	230	25	26	Common/Button04.tga	MiniMap
+BtnEye_Normal	0	230	25	26	Common/Button04.tga	MiniMap
+BtnEye_Pushed	75	230	25	26	Common/Button04.tga	MiniMap
+BtnN_Hover	29	181	15	22	Common/Button04.tga	MiniMap
+BtnN_Normal	5	181	15	22	Common/Button04.tga	MiniMap
+BtnN_Pushed	53	181	15	22	Common/Button04.tga	MiniMap
+BtnOpen_Hover	16	17	14	17	Common/Button04.tga	MiniMap
+BtnOpen_Normal	0	17	14	17	Common/Button04.tga	MiniMap
+BtnOpen_Pushed	32	17	14	17	Common/Button04.tga	MiniMap
+BtnQ_Hover	25	204	25	26	Common/Button04.tga	MiniMap
+BtnQ_Normal	0	204	25	26	Common/Button04.tga	MiniMap
+BtnQ_Pushed	75	204	25	26	Common/Button04.tga	MiniMap
+MiniMap_JiangHu_Hover	62	121	25	26	Common/Button04.tga	MiniMap
+MiniMap_JiangHu_Normal	0	121	25	26	Common/Button04.tga	MiniMap
+MiniMap_JiangHu_Pushed	31	121	25	26	Common/Button04.tga	MiniMap
+ModePeace	164	130	25	25	Common/Button04.tga	MiniMap
+ModeWar	207	130	26	26	Common/Button04.tga	MiniMap
+SoftKey_Hover	175	30	58	29	Common/Button04.tga	SoftKeyBoard
+SoftKey_Normal	175	0	58	29	Common/Button04.tga	SoftKeyBoard
+SoftKey_Pushed	175	61	58	29	Common/Button04.tga	SoftKeyBoard

@@ -1,0 +1,17 @@
+# ảnh, x, y, w, h, tệp atlas, các màn dùng
+
+Doub_Ditu	390	150	104	18	Common/CommonFrame28.tga	MainMenuBar
+Logon_EnterHouzhui_Hover	298	85	88	17	Common/CommonFrame28.tga	LogOn
+Logon_EnterHouzhui_Normal	298	51	88	17	Common/CommonFrame28.tga	LogOn
+Logon_EnterHouzhui_Pushed	298	68	88	17	Common/CommonFrame28.tga	LogOn
+Logon_Erweima_Hover	298	136	88	17	Common/CommonFrame28.tga	LogOn
+Logon_Erweima_Normal	298	102	88	17	Common/CommonFrame28.tga	LogOn
+Logon_Erweima_Pushed	298	118	88	17	Common/CommonFrame28.tga	LogOn
+Logon_Houzhui_Hover	298	34	88	17	Common/CommonFrame28.tga	LogOn
+Logon_Houzhui_Normal	298	0	88	17	Common/CommonFrame28.tga	LogOn
+Logon_Houzhui_Pushed	298	17	88	17	Common/CommonFrame28.tga	LogOn
+Logon_NewFrame	0	0	298	245	Common/CommonFrame28.tga	LogOn
+YiRong_Disabled	197	335	34	34	Common/CommonFrame28.tga	SelfEquip
+YiRong_Hover	129	335	34	34	Common/CommonFrame28.tga	SelfEquip
+YiRong_Normal	95	335	34	34	Common/CommonFrame28.tga	SelfEquip
+YiRong_Pushed	163	335	34	34	Common/CommonFrame28.tga	SelfEquip

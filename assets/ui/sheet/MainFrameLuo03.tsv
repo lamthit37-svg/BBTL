@@ -1,0 +1,23 @@
+# ảnh, x, y, w, h, tệp atlas, các màn dùng
+
+CreateRole_Hover	0	55	132	54	Common/tga_MainFrameLuo03.dds	SelectRole
+CreateRole_Normal	0	0	132	54	Common/tga_MainFrameLuo03.dds	SelectRole
+CreateRole_Pushed	0	110	132	54	Common/tga_MainFrameLuo03.dds	SelectRole
+Cs_Emei_Normal	0	220	150	40	Common/tga_MainFrameLuo03.dds	CreateRole
+Cs_Emei_Pushed	0	300	150	40	Common/tga_MainFrameLuo03.dds	CreateRole
+Cs_Gaibang_Normal	164	220	150	40	Common/tga_MainFrameLuo03.dds	CreateRole
+Cs_Gaibang_Pushed	164	300	150	40	Common/tga_MainFrameLuo03.dds	CreateRole
+Cs_Mingjiao_Normal	328	220	150	40	Common/tga_MainFrameLuo03.dds	CreateRole
+Cs_Mingjiao_Pushed	328	300	150	40	Common/tga_MainFrameLuo03.dds	CreateRole
+Cs_Murong_Normal	0	380	150	40	Common/tga_MainFrameLuo03.dds	CreateRole
+Cs_Murong_Pushed	0	460	150	40	Common/tga_MainFrameLuo03.dds	CreateRole
+Cs_Shaolin_Normal	164	420	150	40	Common/tga_MainFrameLuo03.dds	CreateRole
+Cs_Shaolin_Pushed	328	380	150	40	Common/tga_MainFrameLuo03.dds	CreateRole
+Cs_Tianlong_Normal	328	460	150	40	Common/tga_MainFrameLuo03.dds	CreateRole
+DelRole_Hover	133	55	132	54	Common/tga_MainFrameLuo03.dds	SelectRole
+DelRole_Normal	133	0	132	54	Common/tga_MainFrameLuo03.dds	SelectRole
+DelRole_Pushed	133	110	132	54	Common/tga_MainFrameLuo03.dds	SelectRole
+Last_Disabled	266	165	132	54	Common/tga_MainFrameLuo03.dds	CreateRole
+Last_Hover	266	55	132	54	Common/tga_MainFrameLuo03.dds	CreateRole,SelectRole
+Last_Normal	266	0	132	54	Common/tga_MainFrameLuo03.dds	CreateRole,SelectRole
+Last_Pushed	266	110	132	54	Common/tga_MainFrameLuo03.dds	CreateRole,SelectRole

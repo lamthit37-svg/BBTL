@@ -1,0 +1,52 @@
+# cửa sổ, loại, x, y, w, h, thuộc tính, atlas, ảnh, chữ
+
+Logon_Logo	TLBB_StaticImageNULL			202.0	118.0	Image	CommonFrame9	Logo	
+LogOn_xugou_Text	TLBB_SimpleText	8.000000	15.000000	100.000000	18.000000	Text			#{INTERFACE_XML_1037}
+LogOn_Input_Background_FrameImage	TLBB_StaticImageNULL					Image	CommonFrame28	Logon_NewFrame	
+OldLogOn_Input_Background_FrameImage	TLBB_StaticImageNULL					Image	CommonFrame19	Mail_Beijing	
+OldLogOn_TraditionLogon	TLBB_ButtonCheckNULL					PushedImage	CommonFrame20	CustomMail_Pushed	
+OldLogOn_TraditionLogon	TLBB_ButtonCheckNULL					NormalImage	CommonFrame20	CustomMail_Normal	
+OldLogOn_TraditionLogon	TLBB_ButtonCheckNULL					HoverImage	CommonFrame20	CustomMail_Hover	
+OldLogOn_OwnDefineLogon	TLBB_ButtonCheckNULL					PushedImage	CommonFrame20	ZidingyiMail_Pushed	
+OldLogOn_OwnDefineLogon	TLBB_ButtonCheckNULL					NormalImage	CommonFrame20	ZidingyiMail_Normal	
+OldLogOn_OwnDefineLogon	TLBB_ButtonCheckNULL					HoverImage	CommonFrame20	ZidingyiMail_Hover	
+LogOn_TraditionLogon	TLBB_ButtonCheckNULL					HoverImage	CommonFrame28	Logon_Houzhui_Hover	
+LogOn_TraditionLogon	TLBB_ButtonCheckNULL					PushedImage	CommonFrame28	Logon_Houzhui_Pushed	
+LogOn_TraditionLogon	TLBB_ButtonCheckNULL					NormalImage	CommonFrame28	Logon_Houzhui_Normal	
+LogOn_OwnDefineLogon	TLBB_ButtonCheckNULL					PushedImage	CommonFrame28	Logon_EnterHouzhui_Pushed	
+LogOn_OwnDefineLogon	TLBB_ButtonCheckNULL					NormalImage	CommonFrame28	Logon_EnterHouzhui_Normal	
+LogOn_OwnDefineLogon	TLBB_ButtonCheckNULL					HoverImage	CommonFrame28	Logon_EnterHouzhui_Hover	
+LogOn_ErweimaLogon	TLBB_ButtonCheckNULL					Tooltip			#{CYEWM_140609_04}
+LogOn_ErweimaLogon	TLBB_ButtonCheckNULL					HoverImage	CommonFrame28	Logon_Erweima_Hover	
+LogOn_ErweimaLogon	TLBB_ButtonCheckNULL					PushedImage	CommonFrame28	Logon_Erweima_Pushed	
+LogOn_ErweimaLogon	TLBB_ButtonCheckNULL					NormalImage	CommonFrame28	Logon_Erweima_Normal	
+LogOn_Keyboard	TLBB_ButtonNULL			23.000000	21.000000	NormalImage	Button1	BtnInpute_Normal	
+LogOn_Keyboard	TLBB_ButtonNULL			23.000000	21.000000	HoverImage	Button1	BtnInpute_Hover	
+LogOn_Keyboard	TLBB_ButtonNULL			23.000000	21.000000	PushedImage	Button1	BtnInpute_Pushed	
+LogOn_Input_Help	TLBB_ButtonCommonRed			40.000000	20.000000	Text			#{INTERFACE_XML_135}
+LogOn_Input_LostPassword	TLBB_ButtonCommonRed			60.000000	20.000000	Text			#{WJMM_090427_01}
+LogOn_Input_LostPassword	TLBB_ButtonCommonRed			60.000000	20.000000	Tooltip			#{WJMM_090427_03}
+LogOn_ID_Text	TLBB_SimpleText	16.000000	0.000000			Text			#{INTERFACE_XML_661}
+LogOn_MailID_Text	TLBB_SimpleText					Text			#{YXDL_111205_4}
+LogOn_TiShi	TLBB_ButtonNULL					Text			#{DLYH_121213_01}
+LogOn_Region_Text	TLBB_SimpleText	134.000000	0.000000			Text			#{DLYH_091208_2}
+LogOn_PassWord_Text	TLBB_SimpleText	16.000000	38.000000			Text			#{INTERFACE_XML_658}
+LogOn_Region	TLBB_ComboList	140.000000	18.000000	121.000000	19.000000	Text			@games.sohu.com
+LogOn_Input_NoticeText	TLBB_SimpleText					Text			lalalalal
+LogOn_PassWord_Protect_Text	TLBB_SimpleText	45.000000	13.000000			Text			#{INTERFACE_XML_1016}
+LogOn_PassWord_Protect_Text	TLBB_SimpleText	45.000000	13.000000			Tooltip			#{DHMB_0711_05}
+LogOn_mibaoka	TLBB_ButtonCommonGreen					Text			#{INTERFACE_XML_1035}
+LogOn_mibaoka	TLBB_ButtonCommonGreen					Tooltip			#{INTERFACE_XML_1036}
+OtherLogon_NewLogon	TLBB_SimpleText	45	0.000000			Text			#{FXDL_111216_08}
+LogOn_LogOnGame_Wegame_Text	TLBB_SimpleText					Text			#{WEGAME_20220209_06}
+LogOn_LogOnGame_Wegame_Img	TLBB_StaticImageNULL					Image	Wegame	Wegame_Icon	
+LogOn_CapsLock1Text	TLBB_SimpleText					Text			#{DXTS_190221_01}
+LogOn_CapsLock2Text	TLBB_SimpleText					Text			#{DXTS_190221_01}
+LogOn_LogOnGame	TLBB_ButtonNULL					NormalImage	CommonFrame18	EnterGame_Normal	
+LogOn_LogOnGame	TLBB_ButtonNULL					HoverImage	CommonFrame18	EnterGame_Hover	
+LogOn_LogOnGame	TLBB_ButtonNULL					PushedImage	CommonFrame18	EnterGame_Pushed	
+LogOn_LogOnGame	TLBB_ButtonNULL					DisabledImage	CommonFrame18	EnterGame_Pushed	
+LogOn_payment	TLBB_ButtonArrow_R					Text			#{INTERFACE_XML_851}
+LogOn_RequisitionID	TLBB_ButtonArrow_R					Text			#{INTERFACE_XML_852}
+LogOn_Last	TLBB_ButtonArrow_R					Text			#{INTERFACE_XML_600}
+MiBaoTips_InfoWindow	TLBB_SimpleText					Text			#{DHMB_90417_1}

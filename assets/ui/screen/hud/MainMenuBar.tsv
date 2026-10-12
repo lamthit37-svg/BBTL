@@ -1,0 +1,119 @@
+# cửa sổ, loại, x, y, w, h, thuộc tính, atlas, ảnh, chữ
+
+MainMenuBar_LeftBar	TLBB_StaticImageNULL					Image	Button12	MainMenuBar_LeftBlock	
+MainMenuBar_RightBar	TLBB_StaticImageNULL					Image	Button12	MainMenuBar_RightBlock	
+MainMenuBar_Left	TLBB_StaticImageNULL					Image	Button12	MainMenuBar_Left	
+MainMenuBar_Button_Peak_DoubleEXP2_TimeBK	TLBB_StaticImageNULL					Tooltip			#{TLZL_231107_67}
+MainMenuBar_Button_Peak_DoubleEXP2_TimeBK	TLBB_StaticImageNULL					Image	Zhanling5	Zhanling_Icons	
+MainMenuBar_Button_Peak_DoubleEXP2_Time	TLBB_SimpleText					Text			#{DFJY_250710_82}
+MainMenuBar_Button_Peak_DoubleEXP2_Time	TLBB_SimpleText					Tooltip			#{TLZL_231107_67}
+Button_Action1_Bak	TLBB_StaticImageNULL	0.000000	0.000000	36.000000	36.000000	Image	MiniMap	Key_F1	
+Button_Action51	TLBB_ActionButton					BackImage	CommonItem	ActionBK	
+Button_Action2_Bak	TLBB_StaticImageNULL	36.000000	0.000000	36.000000	36.000000	Image	MiniMap	Key_F2	
+Button_Action52	TLBB_ActionButton					BackImage	CommonItem	ActionBK	
+Button_Action3_Bak	TLBB_StaticImageNULL	72.000000	0.000000	36.000000	36.000000	Image	MiniMap	Key_F3	
+Button_Action53	TLBB_ActionButton					BackImage	CommonItem	ActionBK	
+Button_Action4_Bak	TLBB_StaticImageNULL	108.000000	0.000000	36.000000	36.000000	Image	MiniMap	Key_F4	
+Button_Action54	TLBB_ActionButton					BackImage	CommonItem	ActionBK	
+Button_Action5_Bak	TLBB_StaticImageNULL	144.000000	0.000000	36.000000	36.000000	Image	MiniMap	Key_F5	
+Button_Action55	TLBB_ActionButton					BackImage	CommonItem	ActionBK	
+Button_Action6_Bak	TLBB_StaticImageNULL	180.000000	0.000000	36.000000	36.000000	Image	MiniMap	Key_F6	
+Button_Action56	TLBB_ActionButton					BackImage	CommonItem	ActionBK	
+Button_Action7_Bak	TLBB_StaticImageNULL	216.000000	0.000000	36.000000	36.000000	Image	MiniMap	Key_F7	
+Button_Action57	TLBB_ActionButton					BackImage	CommonItem	ActionBK	
+Button_Action8_Bak	TLBB_StaticImageNULL	252.000000	0.000000	36.000000	36.000000	Image	MiniMap	Key_F8	
+Button_Action58	TLBB_ActionButton					BackImage	CommonItem	ActionBK	
+Button_Action9_Bak	TLBB_StaticImageNULL	288.000000	0.000000	36.000000	36.000000	Image	MiniMap	Key_F9	
+Button_Action59	TLBB_ActionButton					BackImage	CommonItem	ActionBK	
+Button_Action10_Bak	TLBB_StaticImageNULL	324.000000	0.000000	36.000000	36.000000	Image	MiniMap	Key_F10	
+Button_Action60	TLBB_ActionButton					BackImage	CommonItem	ActionBK	
+MainMenuBar_MainMenuBar_On	TLBB_ButtonNULL					Tooltip			#{INTERFACE_XML_201}
+MainMenuBar_MainMenuBar_On	TLBB_ButtonNULL					NormalImage	Button12	MainMenuUP_Normal	
+MainMenuBar_MainMenuBar_On	TLBB_ButtonNULL					HoverImage	Button12	MainMenuUP_Hover	
+MainMenuBar_MainMenuBar_On	TLBB_ButtonNULL					PushedImage	Button12	MainMenuUP_Pushed	
+MainMenuBar_MainMenuBar_On	TLBB_ButtonNULL					DisabledImage	Button12	MainMenuUP_Disable	
+MainMenuBar_MainMenuBar_Off	TLBB_ButtonNULL					Tooltip			#{INTERFACE_XML_304}
+MainMenuBar_MainMenuBar_Off	TLBB_ButtonNULL					NormalImage	Button12	MainMenuDown_Normal	
+MainMenuBar_MainMenuBar_Off	TLBB_ButtonNULL					HoverImage	Button12	MainMenuDown_Hover	
+MainMenuBar_MainMenuBar_Off	TLBB_ButtonNULL					PushedImage	Button12	MainMenuDown_Pushed	
+MainMenuBar_MainMenuBar_Off	TLBB_ButtonNULL					DisabledImage	Button12	MainMenuDown_Disable	
+MainMenuBar_ScrollBar_Up	TLBB_ButtonNULL					NormalImage	Button12	MainMenuUP_Normal	
+MainMenuBar_ScrollBar_Up	TLBB_ButtonNULL					HoverImage	Button12	MainMenuUP_Hover	
+MainMenuBar_ScrollBar_Up	TLBB_ButtonNULL					PushedImage	Button12	MainMenuUP_Pushed	
+MainMenuBar_ScrollBar_Up	TLBB_ButtonNULL					DisabledImage	Button12	MainMenuUP_Disable	
+MainMenuBar_ScrollBar_Number	TLBB_SimpleText					Text			1
+MainMenuBar_ScrollBar_Down	TLBB_ButtonNULL					NormalImage	Button12	MainMenuDown_Normal	
+MainMenuBar_ScrollBar_Down	TLBB_ButtonNULL					HoverImage	Button12	MainMenuDown_Hover	
+MainMenuBar_ScrollBar_Down	TLBB_ButtonNULL					PushedImage	Button12	MainMenuDown_Pushed	
+MainMenuBar_ScrollBar_Down	TLBB_ButtonNULL					DisabledImage	Button12	MainMenuDown_Disable	
+MainMenuBar_Right	TLBB_StaticImageNULL					Image	Button12	MainMenuBar_Right	
+MainMenuBar_Doub	TLBB_StaticImageNULL					Image	CommonFrame28	Doub_Ditu	
+MainMenuBar_Doub_Watch	TLBB_StopWatch					Text			00:00
+MainMenuBar_EXP2	TLBB_ProgressPropertyEXP					ProgressImage	MainMenuBar	EXPBar_3	
+MainMenuBar_EXP2_FK1	TLBB_StaticImageNULL					Image	Button12	MainMenuEXP_FK	
+MainMenuBar_EXP2_FK2	TLBB_StaticImageNULL					Image	Button12	MainMenuEXP_FK	
+MainMenuBar_EXP2_FK3	TLBB_StaticImageNULL					Image	Button12	MainMenuEXP_FK	
+MainMenuBar_EXP2_FK4	TLBB_StaticImageNULL					Image	Button12	MainMenuEXP_FK	
+MainMenuBar_EXP2_FK5	TLBB_StaticImageNULL					Image	Button12	MainMenuEXP_FK	
+MainMenuBar_EXP2_FK6	TLBB_StaticImageNULL					Image	Button12	MainMenuEXP_FK	
+MainMenuBar_EXP2_FK7	TLBB_StaticImageNULL					Image	Button12	MainMenuEXP_FK	
+MainMenuBar_EXP2_FK8	TLBB_StaticImageNULL					Image	Button12	MainMenuEXP_FK	
+MainMenuBar_EXP2_FK9	TLBB_StaticImageNULL					Image	Button12	MainMenuEXP_FK	
+MainMenuBar_EXP3_FK1	TLBB_StaticImageNULL					Image	Button12	MainMenuEXP_FK	
+MainMenuBar_EXP3_FK2	TLBB_StaticImageNULL					Image	Button12	MainMenuEXP_FK	
+MainMenuBar_EXP3_FK3	TLBB_StaticImageNULL					Image	Button12	MainMenuEXP_FK	
+MainMenuBar_EXP3_FK4	TLBB_StaticImageNULL					Image	Button12	MainMenuEXP_FK	
+MainMenuBar_EXP3_FK5	TLBB_StaticImageNULL					Image	Button12	MainMenuEXP_FK	
+MainMenuBar_EXP3_FK6	TLBB_StaticImageNULL					Image	Button12	MainMenuEXP_FK	
+MainMenuBar_EXP3_FK7	TLBB_StaticImageNULL					Image	Button12	MainMenuEXP_FK	
+MainMenuBar_EXP3_FK8	TLBB_StaticImageNULL					Image	Button12	MainMenuEXP_FK	
+MainMenuBar_EXP3_FK9	TLBB_StaticImageNULL					Image	Button12	MainMenuEXP_FK	
+Button_Character	TLBB_AnimateButton					Tooltip			#{INTERFACE_XML_566}
+Button_Character	TLBB_AnimateButton					HoverImage	MainFrame2	MainFrame2_12	
+Button_Character	TLBB_AnimateButton					NormalImage	MainFrame2	MainFrame2_12	
+Button_Character	TLBB_AnimateButton					PushedImage	MainFrame2	MainFrame2_13	
+Button_CharacterImage	TLBB_StaticImageNULL					Image	CommonFrame14	Tips	
+Button_Skills	TLBB_AnimateButton					Tooltip			#{INTERFACE_XML_346}
+Button_Skills	TLBB_AnimateButton					HoverImage	MainFrame3	MainFrame3_2	
+Button_Skills	TLBB_AnimateButton					NormalImage	MainFrame3	MainFrame3_2	
+Button_Skills	TLBB_AnimateButton					PushedImage	MainFrame3	MainFrame3_3	
+Button_Skills_Tips	TLBB_StaticImageNULL					Image	CommonFrame14	Tips	
+Button_Pet	TLBB_AnimateButton					Tooltip			#{INTERFACE_XML_855}
+Button_Pet	TLBB_AnimateButton					HoverImage	MainFrame2	MainFrame2_16	
+Button_Pet	TLBB_AnimateButton					NormalImage	MainFrame2	MainFrame2_16	
+Button_Pet	TLBB_AnimateButton					PushedImage	MainFrame3	MainFrame3_1	
+Button_Pet_Tips	TLBB_StaticImageNULL					Image	CommonFrame14	Tips	
+Button_Mission	TLBB_AnimateButton					Tooltip			#{INTERFACE_XML_572}
+Button_Mission	TLBB_AnimateButton					HoverImage	MainFrame2	MainFrame2_14	
+Button_Mission	TLBB_AnimateButton					NormalImage	MainFrame2	MainFrame2_14	
+Button_Mission	TLBB_AnimateButton					PushedImage	MainFrame2	MainFrame2_15	
+Button_Exchange	TLBB_AnimateButton					Tooltip			#{INTERFACE_XML_368}
+Button_Exchange	TLBB_AnimateButton					HoverImage	MainFrame3	MainFrame3_4	
+Button_Exchange	TLBB_AnimateButton					NormalImage	MainFrame3	MainFrame3_4	
+Button_Exchange	TLBB_AnimateButton					PushedImage	MainFrame3	MainFrame3_5	
+Button_Pack	TLBB_AnimateButton					Tooltip			#{INTERFACE_XML_725}
+Button_Pack	TLBB_AnimateButton					HoverImage	MainFrame3	MainFrame3_6	
+Button_Pack	TLBB_AnimateButton					NormalImage	MainFrame3	MainFrame3_6	
+Button_Pack	TLBB_AnimateButton					PushedImage	MainFrame3	MainFrame3_7	
+Button_Friend	TLBB_AnimateButton					Tooltip			#{INTERFACE_XML_313}
+Button_Friend	TLBB_AnimateButton					HoverImage	MainFrame3	MainFrame3_8	
+Button_Friend	TLBB_AnimateButton					NormalImage	MainFrame3	MainFrame3_8	
+Button_Friend	TLBB_AnimateButton					PushedImage	MainFrame3	MainFrame3_9	
+Button_Friend_Image	TLBB_StaticImageNULL					Image	CommonFrame14	Tips	
+Button_Friend_Image2	TLBB_StaticImageNULL					Image	CommonFrame14	Tips	
+Button_Team	TLBB_AnimateButton					Tooltip			#{XSYH_XML_44}
+Button_Team	TLBB_AnimateButton					HoverImage	MainFrame3	MainFrame3_10	
+Button_Team	TLBB_AnimateButton					NormalImage	MainFrame3	MainFrame3_10	
+Button_Team	TLBB_AnimateButton					PushedImage	MainFrame3	MainFrame3_11	
+Button_Reputation	TLBB_AnimateButton					Tooltip			#{INTERFACE_XML_125}
+Button_Reputation	TLBB_AnimateButton					HoverImage	MainFrame3	MainFrame3_12	
+Button_Reputation	TLBB_AnimateButton					NormalImage	MainFrame3	MainFrame3_12	
+Button_Reputation	TLBB_AnimateButton					PushedImage	MainFrame3	MainFrame3_13	
+Button_System	TLBB_AnimateButton					Tooltip			#{XSYH_XML_45}
+Button_System	TLBB_AnimateButton					HoverImage	MainFrame3	MainFrame3_14	
+Button_System	TLBB_AnimateButton					NormalImage	MainFrame3	MainFrame3_14	
+Button_System	TLBB_AnimateButton					PushedImage	MainFrame3	MainFrame3_15	
+Button_GuildBattleScore	TLBB_ButtonNULL					Tooltip			#{BHXZ_081103_158}
+Button_GuildBattleScore	TLBB_ButtonNULL					HoverImage	CommonFrame2	FenIcon_A3	
+Button_GuildBattleScore	TLBB_ButtonNULL					NormalImage	CommonFrame2	FenIcon_A1	
+Button_GuildBattleScore	TLBB_ButtonNULL					PushedImage	CommonFrame2	FenIcon_A2	

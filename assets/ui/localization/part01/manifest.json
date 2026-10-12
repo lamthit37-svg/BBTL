@@ -1,0 +1,128 @@
+{
+  "status": "part01_only_not_full_board",
+  "source": "board.png",
+  "source_sha256": "353b2275b925983db5152ffb8cef5ed110273dc647be8339aca13625b7923f80",
+  "items": [
+    {
+      "atlas": "tga_CreateRole2",
+      "name": "BtnCancel_Disable",
+      "width": 132,
+      "height": 55,
+      "board_y": 8910,
+      "files": {
+        "zh": "localization/part01/zh/tga_CreateRole2/BtnCancel_Disable.png",
+        "vi": "localization/part01/vi/tga_CreateRole2/BtnCancel_Disable.png",
+        "en": "localization/part01/en/tga_CreateRole2/BtnCancel_Disable.png"
+      }
+    },
+    {
+      "atlas": "tga_CreateRole2",
+      "name": "BtnCancel_Hover",
+      "width": 132,
+      "height": 55,
+      "board_y": 8978,
+      "files": {
+        "zh": "localization/part01/zh/tga_CreateRole2/BtnCancel_Hover.png",
+        "vi": "localization/part01/vi/tga_CreateRole2/BtnCancel_Hover.png",
+        "en": "localization/part01/en/tga_CreateRole2/BtnCancel_Hover.png"
+      }
+    },
+    {
+      "atlas": "tga_CreateRole2",
+      "name": "BtnCancel_Normal",
+      "width": 132,
+      "height": 55,
+      "board_y": 9046,
+      "files": {
+        "zh": "localization/part01/zh/tga_CreateRole2/BtnCancel_Normal.png",
+        "vi": "localization/part01/vi/tga_CreateRole2/BtnCancel_Normal.png",
+        "en": "localization/part01/en/tga_CreateRole2/BtnCancel_Normal.png"
+      }
+    },
+    {
+      "atlas": "tga_CreateRole2",
+      "name": "BtnCancel_Pushed",
+      "width": 132,
+      "height": 55,
+      "board_y": 9114,
+      "files": {
+        "zh": "localization/part01/zh/tga_CreateRole2/BtnCancel_Pushed.png",
+        "vi": "localization/part01/vi/tga_CreateRole2/BtnCancel_Pushed.png",
+        "en": "localization/part01/en/tga_CreateRole2/BtnCancel_Pushed.png"
+      }
+    },
+    {
+      "atlas": "CommonFrame18",
+      "name": "EnterGame_Hover",
+      "width": 132,
+      "height": 54,
+      "board_y": 19866,
+      "files": {
+        "zh": "localization/part01/zh/CommonFrame18/EnterGame_Hover.png",
+        "vi": "localization/part01/vi/CommonFrame18/EnterGame_Hover.png",
+        "en": "localization/part01/en/CommonFrame18/EnterGame_Hover.png"
+      }
+    },
+    {
+      "atlas": "CommonFrame18",
+      "name": "EnterGame_Normal",
+      "width": 132,
+      "height": 54,
+      "board_y": 19934,
+      "files": {
+        "zh": "localization/part01/zh/CommonFrame18/EnterGame_Normal.png",
+        "vi": "localization/part01/vi/CommonFrame18/EnterGame_Normal.png",
+        "en": "localization/part01/en/CommonFrame18/EnterGame_Normal.png"
+      }
+    },
+    {
+      "atlas": "CommonFrame18",
+      "name": "EnterGame_Pushed",
+      "width": 132,
+      "height": 54,
+      "board_y": 20002,
+      "files": {
+        "zh": "localization/part01/zh/CommonFrame18/EnterGame_Pushed.png",
+        "vi": "localization/part01/vi/CommonFrame18/EnterGame_Pushed.png",
+        "en": "localization/part01/en/CommonFrame18/EnterGame_Pushed.png"
+      }
+    },
+    {
+      "atlas": "tga_MainFrameLuo03",
+      "name": "CreateRole_Hover",
+      "width": 132,
+      "height": 54,
+      "board_y": 16466,
+      "files": {
+        "zh": "localization/part01/zh/tga_MainFrameLuo03/CreateRole_Hover.png",
+        "vi": "localization/part01/vi/tga_MainFrameLuo03/CreateRole_Hover.png",
+        "en": "localization/part01/en/tga_MainFrameLuo03/CreateRole_Hover.png"
+      }
+    },
+    {
+      "atlas": "tga_MainFrameLuo03",
+      "name": "CreateRole_Normal",
+      "width": 132,
+      "height": 54,
+      "board_y": 16602,
+      "files": {
+        "zh": "localization/part01/zh/tga_MainFrameLuo03/CreateRole_Normal.png",
+        "vi": "localization/part01/vi/tga_MainFrameLuo03/CreateRole_Normal.png",
+        "en": "localization/part01/en/tga_MainFrameLuo03/CreateRole_Normal.png"
+      }
+    },
+    {
+      "atlas": "tga_MainFrameLuo03",
+      "name": "CreateRole_Pushed",
+      "width": 132,
+      "height": 54,
+      "board_y": 16738,
+      "files": {
+        "zh": "localization/part01/zh/tga_MainFrameLuo03/CreateRole_Pushed.png",
+        "vi": "localization/part01/vi/tga_MainFrameLuo03/CreateRole_Pushed.png",
+        "en": "localization/part01/en/tga_MainFrameLuo03/CreateRole_Pushed.png"
+      }
+    }
+  ],
+  "processing": "AI tái tạo cả nút và chữ; thu về cỡ TSV bằng Lanczos; dùng chung hình viền tái tạo cho các trạng thái và ngôn ngữ."
+}

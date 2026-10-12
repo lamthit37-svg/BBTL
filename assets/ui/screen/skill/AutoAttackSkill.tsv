@@ -1,0 +1,108 @@
+# cửa sổ, loại, x, y, w, h, thuộc tính, atlas, ảnh, chữ
+
+AutoAttackSkill_Frame_Title	TLBB_DragTitle					Text			#{ZDZD_200724_09}
+AutoAttackSkill_Help	TLBB_ButtonHelp					Text			TLBB_ButtonHelp
+AutoAttackSkill_Close	TLBB_ButtonClose					Text			TLBB_ButtonClose
+AutoAttackSkill_Index1	TLBB_ButtonFenYe2					Text			#{QKH_20220802_21}
+AutoAttackSkill_Index2	TLBB_ButtonFenYe2					Text			#{QKH_20220802_22}
+AutoAttackSkill_MenPai_Attr_Intro	TLBB_SimpleText					Tooltip			#{MPZSX_20071221_10}
+AutoAttackSkill_lock1	TLBB_StaticImageNULL					Image	MissionAtrack	MKlock_Normal	
+AutoAttackSkill_Jin1	TLBB_SimpleText					Text			#{ZDZD_200724_72}
+AutoAttackSkill_lock2	TLBB_StaticImageNULL					Image	MissionAtrack	MKlock_Normal	
+AutoAttackSkill_Jin2	TLBB_SimpleText					Text			#{ZDZD_200724_72}
+AutoAttackSkill_lock3	TLBB_StaticImageNULL					Image	MissionAtrack	MKlock_Normal	
+AutoAttackSkill_Jin3	TLBB_SimpleText					Text			#{ZDZD_200724_72}
+AutoAttackSkill_lock4	TLBB_StaticImageNULL					Image	MissionAtrack	MKlock_Normal	
+AutoAttackSkill_Jin4	TLBB_SimpleText					Text			#{ZDZD_200724_72}
+AutoAttackSkill_lock5	TLBB_StaticImageNULL					Image	MissionAtrack	MKlock_Normal	
+AutoAttackSkill_Jin5	TLBB_SimpleText					Text			#{ZDZD_200724_72}
+AutoAttackSkill_Setting1	TLBB_ButtonPageUp					Text			#{ZDZD_200724_10}
+AutoAttackSkill_Setting2	TLBB_ButtonPageUp					Text			#{ZDZD_200724_11}
+AutoAttackSkill_Setting3	TLBB_ButtonPageUp					Text			#{ZDZD_200724_12}
+AutoAttackSkill_Setting4	TLBB_ButtonPageUp					Text			#{ZDZD_20220815_08}
+AutoAttackSkill_AutoFight	TLBB_ButtonCheckNULL					Tooltip			#{ZDCY_230525_02}
+AutoAttackSkill_AutoFight	TLBB_ButtonCheckNULL					PushedImage	AutoFight	AutoFight_Hover	
+AutoAttackSkill_AutoFight	TLBB_ButtonCheckNULL					NormalImage	AutoFight	AutoFight_Normal	
+AutoAttackSkill_AutoFight	TLBB_ButtonCheckNULL					HoverImage	AutoFight	AutoFight_Hover	
+AutoAttackSkill_AutoFight	TLBB_ButtonCheckNULL					DisabledImage	AutoFight	AutoFight_Disabled	
+AutoAttackSkill_NotAutoFight	TLBB_ButtonCheckNULL					Tooltip			#{ZDCY_230525_04}
+AutoAttackSkill_NotAutoFight	TLBB_ButtonCheckNULL					PushedImage	AutoFight	NotAutoFight_Hover	
+AutoAttackSkill_NotAutoFight	TLBB_ButtonCheckNULL					NormalImage	AutoFight	NotAutoFight_Normal	
+AutoAttackSkill_NotAutoFight	TLBB_ButtonCheckNULL					HoverImage	AutoFight	NotAutoFight_Hover	
+AutoAttackSkill_NotAutoFight	TLBB_ButtonCheckNULL					DisabledImage	AutoFight	NotAutoFight_Disabled	
+AutoAttackSkill_Explain1_Blood30Text	TLBB_SimpleText					Text			#{ZDZD_200724_18}
+AutoAttackSkill_Explain1_Blood50Text	TLBB_SimpleText					Text			#{ZDZD_200724_19}
+AutoAttackSkill_Explain1_Blood70Text	TLBB_SimpleText					Text			#{ZDZD_200724_20}
+AutoAttackSkill_Explain2_Blood	TLBB_SimpleText					Text			#{ZDZD_200724_21}
+AutoAttackSkill_Explain2_Blood30Text	TLBB_SimpleText					Text			#{ZDZD_200724_18}
+AutoAttackSkill_Explain2_Blood50Text	TLBB_SimpleText					Text			#{ZDZD_200724_19}
+AutoAttackSkill_Explain2_Blood70Text	TLBB_SimpleText					Text			#{ZDZD_200724_20}
+AutoAttackSkill_Explain3_Blood	TLBB_SimpleText					Text			#{ZDZD_200724_22}
+AutoAttackSkill_Explain3_Blood30Text	TLBB_SimpleText					Text			#{ZDZD_200724_18}
+AutoAttackSkill_Explain3_Blood50Text	TLBB_SimpleText					Text			#{ZDZD_200724_19}
+AutoAttackSkill_Explain3_Blood70Text	TLBB_SimpleText					Text			#{ZDZD_200724_20}
+AutoAttackSkill_PetExplain1_Blood30Text	TLBB_SimpleText					Text			#{ZDZD_200724_18}
+AutoAttackSkill_PetExplain1_Blood50Text	TLBB_SimpleText					Text			#{ZDZD_200724_19}
+AutoAttackSkill_PetExplain1_Blood70Text	TLBB_SimpleText					Text			#{ZDZD_200724_20}
+AutoAttackSkill_PetExplain2_Blood	TLBB_SimpleText					Text			#{ZDZD_200724_21}
+AutoAttackSkill_PetExplain2_Blood30Text	TLBB_SimpleText					Text			#{ZDZD_200724_18}
+AutoAttackSkill_PetExplain2_Blood50Text	TLBB_SimpleText					Text			#{ZDZD_200724_19}
+AutoAttackSkill_PetExplain2_Blood70Text	TLBB_SimpleText					Text			#{ZDZD_200724_20}
+AutoAttackSkill_PetExplain3_Blood	TLBB_SimpleText					Text			#{ZDZD_200724_22}
+AutoAttackSkill_PetExplain3_Blood30Text	TLBB_SimpleText					Text			#{ZDZD_200724_18}
+AutoAttackSkill_PetExplain3_Blood50Text	TLBB_SimpleText					Text			#{ZDZD_200724_19}
+AutoAttackSkill_PetExplain3_Blood70Text	TLBB_SimpleText					Text			#{ZDZD_200724_20}
+AutoAttackSkill_Skill1_Blood	TLBB_SimpleText					Text			#{ZDZD_200724_13}
+AutoAttackSkill_Skill1_Blood30Text	TLBB_SimpleText					Text			#{ZDZD_200724_18}
+AutoAttackSkill_Skill1_Blood50Text	TLBB_SimpleText					Text			#{ZDZD_200724_19}
+AutoAttackSkill_Skill1_Blood70Text	TLBB_SimpleText					Text			#{ZDZD_200724_20}
+AutoAttackSkill_Skill2_Blood	TLBB_SimpleText					Text			#{ZDZD_200724_13}
+AutoAttackSkill_Skill2_Blood30Text	TLBB_SimpleText					Text			#{ZDZD_200724_18}
+AutoAttackSkill_Skill2_Blood50Text	TLBB_SimpleText					Text			#{ZDZD_200724_19}
+AutoAttackSkill_Skill2_Blood70Text	TLBB_SimpleText					Text			#{ZDZD_200724_20}
+AutoAttackSkill_Skill3_Blood	TLBB_SimpleText					Text			#{ZDZD_200724_13}
+AutoAttackSkill_Skill3_Blood30Text	TLBB_SimpleText					Text			#{ZDZD_200724_18}
+AutoAttackSkill_Skill3_Blood50Text	TLBB_SimpleText					Text			#{ZDZD_200724_19}
+AutoAttackSkill_Skill3_Blood70Text	TLBB_SimpleText					Text			#{ZDZD_200724_20}
+AutoAttackSkill_Skill4_Button	TLBB_ButtonCheck					Tooltip			#{ZDZDYH_250618_10}
+AutoAttackSkill_Skill4_Text	TLBB_SimpleText					Text			#{ZDZDYH_250618_09}
+AutoAttackSkill_Skill4_Text	TLBB_SimpleText					Tooltip			#{ZDZDYH_250618_10}
+AutoAttackSkill_Others_Levelup	TLBB_SimpleText					Tooltip			#{ZDZD_20220815_24}
+AutoAttackSkill_Others_Levelup_Text1	TLBB_SimpleText					Text			#{ZDZD_20220815_14}
+AutoAttackSkill_Others_Levelup_Text1	TLBB_SimpleText					Tooltip			#{ZDZD_20220815_24}
+AutoAttackSkill_Others_Levelup_NumberInput	TLBB_EditBoxNormal					Text			999
+AutoAttackSkill_Others_Levelup_NumberInput	TLBB_EditBoxNormal					Tooltip			#{ZDZD_20220815_24}
+AutoAttackSkill_Others_Levelup_Text2	TLBB_SimpleText					Text			#{ZDZD_20220815_15}
+AutoAttackSkill_Others_Levelup_Text2	TLBB_SimpleText					Tooltip			#{ZDZD_20220815_24}
+AutoAttackSkill_Others_Text1	TLBB_SimpleText					Text			#{ZDZD_20220815_03}
+AutoAttackSkill_Others_NumberInput1	TLBB_EditBoxNormal					Text			9999999
+AutoAttackSkill_Others_Text2	TLBB_SimpleText					Text			#{ZDZD_20220815_05}
+AutoAttackSkill_Others_Text3	TLBB_SimpleText					Text			#{ZDZD_20220815_04}
+AutoAttackSkill_Others_NumberInput2	TLBB_EditBoxNormal					Text			9999999
+AutoAttackSkill_Others_Text4	TLBB_SimpleText					Text			#{ZDZD_20220815_05}
+AutoAttackSkill_Others_MaintainBattle_Text	TLBB_SimpleText					Text			#{ZDZDYH_250618_03}
+AutoAttackSkill_Others_MaintainBattle_Text	TLBB_SimpleText					Tooltip			#{ZDZDYH_250618_04}
+AutoAttackSkill_Others_TimeText	TLBB_SimpleText					Text			#{ZDZD_20220815_22}
+AutoAttackSkill_Others_TimeText	TLBB_SimpleText					Tooltip			#{ZDZD_20220815_20}
+AutoAttackSkill_Others_Text5	TLBB_SimpleText					Text			#{ZDZD_20220815_13}
+AutoAttackSkill_Others_TianlingDanText	TLBB_SimpleText					Text			#{ZDZD_20220815_16}
+AutoAttackSkill_Others_TianlingDanText	TLBB_SimpleText					Tooltip			#{ZDZD_20220815_17}
+AutoAttackSkill_Others_XuanlingDanText	TLBB_SimpleText					Text			#{ZDZD_20220815_18}
+AutoAttackSkill_Others_XuanlingDanText	TLBB_SimpleText					Tooltip			#{ZDZD_20220815_19}
+AutoAttackSkill_Others_ApplyText	TLBB_SimpleText					Text			#{DGUH_240911_01}
+AutoAttackSkill_Others_ApplyText	TLBB_SimpleText					Tooltip			#{DGUH_240911_02}
+AutoAttackSkill_Others_AutoGhostText	TLBB_SimpleText					Text			#{ZDZDYH_250618_05}
+AutoAttackSkill_Others_AutoGhostText	TLBB_SimpleText					Tooltip			#{ZDZDYH_250618_06}
+AutoAttackSkill_Others_Save	TLBB_ButtonCommon					Text			#{ZDZD_20220815_09}
+AutoAttackSkill_NoFight	TLBB_SimpleText					Text			#{ZDZD_200724_55}
+AutoAttackSkill_LongFightBtn	TLBB_ButtonCheck					Tooltip			#{ZDZD_200724_61}
+AutoAttackSkill_LongFight	TLBB_SimpleText					Text			#{ZDZD_200724_60}
+AutoAttackSkill_LongFight	TLBB_SimpleText					Tooltip			#{ZDZD_200724_61}
+AutoAttackSkill_Fight	TLBB_ButtonExpCheck1					Text			#{ZDZD_200724_71}
+AutoAttackSkill_CommonlySkill	TLBB_ButtonPageDown	0.0	0.0	35.000000	18.000000	Text			#{INTERFACE_XML_494}
+AutoAttackSkill_ActionSkill	TLBB_ButtonPageDown	36	0.0	35.000000	18.000000	Text			#{INTERFACE_XML_448}
+AutoAttackSkill_ZhenfaSkill	TLBB_ButtonPageDown	72	0.0	35.000000	18.000000	Text			#{JBGXW_150526_215}
+AutoAttackSkill_LifeSkill	TLBB_ButtonPageDown	108	0.0	35.000000	18.000000	Text			#{INTERFACE_XML_635}
+AutoAttackSkill_AutoAttack	TLBB_ButtonPageDown					Text			#{ZDZD_200724_08}
+AutoAttackSkill_ZongMenSkill	TLBB_ButtonPageDown					Text			#{ZMTF_230628_20}
+AutoAttackSkill_ZongMenSkill_Tips	TLBB_StaticImageNULL					Image	CommonFrame14	Tips	

@@ -1,0 +1,24 @@
+# cửa sổ, loại, x, y, w, h, thuộc tính, atlas, ảnh, chữ
+
+CommonSkill_Icon	TLBB_StaticImageNULL					Image	MainFrame3	MainFrame3_2	
+CommonSkill_DragTitle	TLBB_DragTitle					Text			#{INTERFACE_XML_49}
+CommonSkill_Help	TLBB_ButtonHelp					Text			TLBB_ButtonHelp
+CommonSkill_Close	TLBB_ButtonClose					Text			TLBB_ButtonClose
+CommonSkill_PageUp	TLBB_ButtonNULL			20.0	26.0	NormalImage	Button6	PageUp_Btn_Normal	
+CommonSkill_PageUp	TLBB_ButtonNULL			20.0	26.0	HoverImage	Button6	PageUp_Btn_Hover	
+CommonSkill_PageUp	TLBB_ButtonNULL			20.0	26.0	PushedImage	Button6	PageUp_Btn_Pushed	
+CommonSkill_PageUp	TLBB_ButtonNULL			20.0	26.0	DisabledImage	Button6	PageUp_Btn_Disabled	
+CommonSkill_PageDown	TLBB_ButtonNULL			20.0	26.0	NormalImage	Button6	PageDown_Btn_Normal	
+CommonSkill_PageDown	TLBB_ButtonNULL			20.0	26.0	HoverImage	Button6	PageDown_Btn_Hover	
+CommonSkill_PageDown	TLBB_ButtonNULL			20.0	26.0	PushedImage	Button6	PageDown_Btn_Pushed	
+CommonSkill_PageDown	TLBB_ButtonNULL			20.0	26.0	DisabledImage	Button6	PageDown_Btn_Disabled	
+CommonSkill_Target_Skill_Name	TLBB_SimpleMulitiTextFrame					Text			#{INTERFACE_XML_115}
+CommonSkill_Use	TLBB_ButtonCommon					Text			#{INTERFACE_XML_643}
+CommonSkill_Target_Skill_Explain	TLBB_StaticText					Text			#{INTERFACE_XML_116}
+CommonSkill_CommonlySkill	TLBB_ButtonPageDown	0.0	0.0	35.000000	18.000000	Text			#{INTERFACE_XML_494}
+CommonSkill_ActionSkill	TLBB_ButtonPageDown	36.0	0.0	35.000000	18.000000	Text			#{INTERFACE_XML_448}
+CommonSkill_ZhenfaSkill	TLBB_ButtonPageDown	72	0.0	35.000000	18.000000	Text			#{JBGXW_150526_215}
+CommonSkill_LifeSkill	TLBB_ButtonPageDown	108.0	0.0	35.000000	18.000000	Text			#{INTERFACE_XML_635}
+CommonSkill_AutoAttack	TLBB_ButtonPageDown					Text			#{ZDZD_200724_08}
+CommonSkill_ZongMenSkill	TLBB_ButtonPageDown					Text			#{ZMTF_230628_20}
+CommonSkill_ZongMenSkill_Tips	TLBB_StaticImageNULL					Image	CommonFrame14	Tips	

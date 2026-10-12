@@ -1,0 +1,19 @@
+# cửa sổ, loại, x, y, w, h, thuộc tính, atlas, ảnh, chữ
+
+SoftKeyBoardWord	TLBB_StaticImageNULL			52.0	18.0	Image	MainFrameLuo01	Softkeyboard	
+SoftKeyBoard_SoftKey_Help	TLBB_ButtonHelp			14.000000	14.000000	Text			TLBB_ButtonHelp
+SoftKeyBoard_SoftKey_Close	TLBB_ButtonClose			14.000000	14.000000	Text			TLBB_ButtonClose
+SoftKeyBoard_SoftKey	TLBB_SoftKeyWindow					NormalImage	Button1	BtnKey_Normal	
+SoftKeyBoard_SoftKey	TLBB_SoftKeyWindow					HoverImage	Button1	BtnKey_Hover	
+SoftKeyBoard_SoftKey	TLBB_SoftKeyWindow					PushedImage	Button1	BtnKey_Pushed	
+SoftKeyBoard_SoftKey	TLBB_SoftKeyWindow					NormalImage	Button4	SoftKey_Normal	
+SoftKeyBoard_SoftKey	TLBB_SoftKeyWindow					HoverImage	Button4	SoftKey_Hover	
+SoftKeyBoard_SoftKey	TLBB_SoftKeyWindow					PushedImage	Button4	SoftKey_Pushed	
+SoftKeyBoard_SoftKey	TLBB_SoftKeyWindow					NormalImage	Button4	SoftKey_Normal	
+SoftKeyBoard_SoftKey	TLBB_SoftKeyWindow					HoverImage	Button4	SoftKey_Hover	
+SoftKeyBoard_SoftKey	TLBB_SoftKeyWindow					PushedImage	Button4	SoftKey_Pushed	
+SoftKeyBoard_SoftKey	TLBB_SoftKeyWindow					NormalImage	Button5	BtnReturn_Normal	
+SoftKeyBoard_SoftKey	TLBB_SoftKeyWindow					HoverImage	Button5	BtnReturn_Hover	
+SoftKeyBoard_SoftKey	TLBB_SoftKeyWindow					PushedImage	Button5	BtnReturn_Pushed	
+SoftKeyBoard_SoftKey_Text	TLBB_SimpleText	421.000000	2.000000	27.000000	25.000000	Text			#{INTERFACE_XML_1010}
+SoftKeyBoard_SoftKey_Text1	TLBB_SimpleText	414.000000	33.000000	40.000000	25.000000	Text			#{INTERFACE_XML_1011}

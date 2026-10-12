@@ -1,0 +1,57 @@
+# cửa sổ, loại, x, y, w, h, thuộc tính, atlas, ảnh, chữ
+
+PlayerFrame_ChongZhi1	TLBB_ButtonNULL					Tooltip			#{ZXCZ_120717_03}
+PlayerFrame_ChongZhi1	TLBB_ButtonNULL					HoverImage	CommonItem	Chongzhibtn_Hover	
+PlayerFrame_ChongZhi1	TLBB_ButtonNULL					NormalImage	CommonItem	Chongzhibtn_Normal	
+PlayerFrame_ChongZhi1	TLBB_ButtonNULL					PushedImage	CommonItem	Chongzhibtn_Pushed	
+PlayerFrame_ChongZhi1	TLBB_ButtonNULL					DisabledImage	CommonItem	Chongzhibtn_Disabled	
+PlayerFrame_DuiHuan	TLBB_ButtonNULL					Tooltip			#{ZXCZ_120717_06}
+PlayerFrame_DuiHuan	TLBB_ButtonNULL					HoverImage	CommonItem	Duihuanbtn_Hover	
+PlayerFrame_DuiHuan	TLBB_ButtonNULL					NormalImage	CommonItem	Duihuanbtn_Normal	
+PlayerFrame_DuiHuan	TLBB_ButtonNULL					PushedImage	CommonItem	Duihuanbtn_Pushed	
+PlayerFrame_DuiHuan	TLBB_ButtonNULL					DisabledImage	CommonItem	Duihuanbtn_Disabled	
+PlayerFrame_PVPPK	TLBB_StaticImageNULL					Tooltip			#{ZDZT_20250109_1}
+PlayerFrame_PVPPK	TLBB_StaticImageNULL					Image	CommonFrame39	State_PK	
+PlayerFrame_UpdateBtn	TLBB_ButtonNULL					Tooltip			#{GXGG_010119_4}
+PlayerFrame_UpdateBtn	TLBB_ButtonNULL					HoverImage	CommonFrame2	XinNiuIcon_B3	
+PlayerFrame_UpdateBtn	TLBB_ButtonNULL					NormalImage	CommonFrame2	XinNiuIcon_B1	
+PlayerFrame_UpdateBtn	TLBB_ButtonNULL					PushedImage	CommonFrame2	XinNiuIcon_B2	
+PlayerFrame_YouLongKaBtn	TLBB_ButtonNULL					Tooltip			#{YLK_120307_25}
+PlayerFrame_YouLongKaBtn	TLBB_ButtonNULL					NormalImage	CommonFrame5	YouLongKaBtn_Normal	
+PlayerFrame_YouLongKaBtn	TLBB_ButtonNULL					HoverImage	CommonFrame5	YouLongKaBtn_Hover	
+PlayerFrame_YouLongKaBtn	TLBB_ButtonNULL					PushedImage	CommonFrame5	YouLongKaBtn_Pushed	
+PlayerFrame_LevelBtn	TLBB_ButtonNULL					Tooltip			#{QXFJYXG_260618_5}
+PlayerFrame_LevelBtn	TLBB_ButtonNULL					NormalImage	CommonFrame39	Xian_Button_Normal	
+PlayerFrame_LevelBtn	TLBB_ButtonNULL					HoverImage	CommonFrame39	Xian_Button_Hover	
+PlayerFrame_LevelBtn	TLBB_ButtonNULL					PushedImage	CommonFrame39	Xian_Button_Pushed	
+PlayerFrame_SongjincansiButton	TLBB_ButtonNULL					Tooltip			#{JSXL_140821_3}
+PlayerFrame_SongjincansiButton	TLBB_ButtonNULL					HoverImage	ImageButtons	Jincanxianli_Hover	
+PlayerFrame_SongjincansiButton	TLBB_ButtonNULL					NormalImage	ImageButtons	Jincanxianli_Normal	
+PlayerFrame_SongjincansiButton	TLBB_ButtonNULL					PushedImage	ImageButtons	Jincanxianli_Pushed	
+PlayerFrame_InfantCard	TLBB_ButtonNULL					Tooltip			#{ZNHK_151201_04}
+PlayerFrame_InfantCard	TLBB_ButtonNULL					HoverImage	ImageButtons	InfantCardGift_Hover	
+PlayerFrame_InfantCard	TLBB_ButtonNULL					NormalImage	ImageButtons	InfantCardGift_Normal	
+PlayerFrame_InfantCard	TLBB_ButtonNULL					PushedImage	ImageButtons	InfantCardGift_Pushed	
+PlayerFrame_BG	TLBB_StaticImageNULL					Image	CommonFrame8	PlayerFrame	
+PlayerFrame_Name	TLBB_SimpleText					Text			#{INTERFACE_XML_821}
+PlayerFrame_Level	TLBB_SimpleText					Text			999
+PlayerFrame_DoubleHit1	TLBB_StaticImageNULL					Image	UIIcons	DoubleHit_Dot1	
+PlayerFrame_DoubleHit2	TLBB_StaticImageNULL					Image	UIIcons	DoubleHit_Dot1	
+PlayerFrame_DoubleHit3	TLBB_StaticImageNULL					Image	UIIcons	DoubleHit_Dot1	
+PlayerFrame_DoubleHit4	TLBB_StaticImageNULL					Image	UIIcons	DoubleHit_Dot2	
+PlayerFrame_DoubleHit5	TLBB_StaticImageNULL					Image	UIIcons	DoubleHit_Dot2	
+PlayerFrame_DoubleHit6	TLBB_StaticImageNULL					Image	UIIcons	DoubleHit_Dot2	
+PlayerFrame_DoubleHit7	TLBB_StaticImageNULL					Image	UIIcons	DoubleHit_Dot3	
+PlayerFrame_DoubleHit8	TLBB_StaticImageNULL					Image	UIIcons	DoubleHit_Dot3	
+PlayerFrame_DoubleHit9	TLBB_StaticImageNULL					Image	UIIcons	DoubleHit_Dot3	
+PlayerFrame_DaoyiIcon1	TLBB_StaticImageNULL					Image	UIIcons	UI_DaoYi	
+PlayerFrame_DaoyiIcon2	TLBB_StaticImageNULL					Image	UIIcons	UI_DaoYi	
+PlayerFrame_DaoyiIcon3	TLBB_StaticImageNULL					Image	UIIcons	UI_DaoYi	
+PlayerFrame_DaoyiIcon4	TLBB_StaticImageNULL					Image	UIIcons	UI_DaoYi	
+PlayerFrame_XingLingDianIcon1	TLBB_StaticImageNULL					Image	CommonFrame39	GGJG_XLD2	
+PlayerFrame_XingLingDianIcon2	TLBB_StaticImageNULL					Image	CommonFrame39	GGJG_XLD2	
+PlayerFrame_XingLingDianIcon3	TLBB_StaticImageNULL					Image	CommonFrame39	GGJG_XLD2	
+PlayerFrame_Mask	TLBB_StaticImageNULL					Image	Face_04	Remind3_Bak	
+PlayerFrame_TypeFrame	TLBB_MapImage					ChildImage	CommonFrame27	TragetType8_3D	
+PlayerFrame_TypeFrame_2D	TLBB_MapImage					ChildImage	CommonFrame27	TragetType8	
+PlayerFrame_Captain	TLBB_StaticImageNULL					Image	UIIcons	LeaderOpening	

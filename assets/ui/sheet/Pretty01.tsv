@@ -1,0 +1,5 @@
+# ảnh, x, y, w, h, tệp atlas, các màn dùng
+
+Hover_1	877	217	58	45	Common/png_Pretty01.dds	SelfEquip
+Normal_1	813	421	58	45	Common/png_Pretty01.dds	SelfEquip
+Pushed_1	524	766	58	45	Common/png_Pretty01.dds	SelfEquip

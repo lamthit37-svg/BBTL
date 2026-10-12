@@ -1,0 +1,39 @@
+# cửa sổ, loại, x, y, w, h, thuộc tính, atlas, ảnh, chữ
+
+Team_Icon	TLBB_StaticImageNULL					Image	MainFrame3	MainFrame3_10	
+Team_Captain_Icon	TLBB_StaticImageNULL			32.000000	32.000000	Image	UIIcons	Icon_Captain_2	
+Team_Die_Icon1	TLBB_StaticImageNULL			32.000000	32.000000	Image	UIIcons	Icon_Death	
+Team_Downline_Icon1	TLBB_StaticImageNULL			32.000000	32.000000	Image	UIIcons	Icon_OutLine	
+Team_Model1_Disable	TLBB_StaticImageNULL					Image	Face_04	Remind2_Bak	
+Team_Model1_PingFen	TLBB_SimpleText					Text			#{BHXX_160531_3}
+Team_Die_Icon2	TLBB_StaticImageNULL			32.000000	32.000000	Image	UIIcons	Icon_Death	
+Team_Downline_Icon2	TLBB_StaticImageNULL			32.000000	32.000000	Image	UIIcons	Icon_OutLine	
+Team_Model2_Disable	TLBB_StaticImageNULL					Image	Face_04	Remind2_Bak	
+Team_Model2_PingFen	TLBB_SimpleText					Text			#{BHXX_160531_3}
+Team_Die_Icon3	TLBB_StaticImageNULL			32.000000	32.000000	Image	UIIcons	Icon_Death	
+Team_Downline_Icon3	TLBB_StaticImageNULL			32.000000	32.000000	Image	UIIcons	Icon_OutLine	
+Team_Model3_Disable	TLBB_StaticImageNULL					Image	Face_04	Remind2_Bak	
+Team_Model3_PingFen	TLBB_SimpleText					Text			#{BHXX_160531_3}
+Team_Die_Icon4	TLBB_StaticImageNULL			32.000000	32.000000	Image	UIIcons	Icon_Death	
+Team_Downline_Icon4	TLBB_StaticImageNULL			32.000000	32.000000	Image	UIIcons	Icon_OutLine	
+Team_Model4_Disable	TLBB_StaticImageNULL					Image	Face_04	Remind2_Bak	
+Team_Model4_PingFen	TLBB_SimpleText					Text			#{BHXX_160531_3}
+Team_Die_Icon5	TLBB_StaticImageNULL			32.000000	32.000000	Image	UIIcons	Icon_Death	
+Team_Downline_Icon5	TLBB_StaticImageNULL			32.000000	32.000000	Image	UIIcons	Icon_OutLine	
+Team_Model5_Disable	TLBB_StaticImageNULL					Image	Face_04	Remind2_Bak	
+Team_Model5_PingFen	TLBB_SimpleText					Text			#{BHXX_160531_3}
+Team_Die_Icon6	TLBB_StaticImageNULL			32.000000	32.000000	Image	UIIcons	Icon_Death	
+Team_Downline_Icon6	TLBB_StaticImageNULL			32.000000	32.000000	Image	UIIcons	Icon_OutLine	
+Team_Model6_Disable	TLBB_StaticImageNULL					Image	Face_04	Remind2_Bak	
+Team_Model6_PingFen	TLBB_SimpleText					Text			#{BHXX_160531_3}
+Team_PlayerInfo1_Banghui	TLBB_SimpleText					Text			#{BHXX_160531_1}
+Team_PlayerInfo2_Banghui	TLBB_SimpleText					Text			#{BHXX_160531_1}
+Team_PlayerInfo3_Banghui	TLBB_SimpleText					Text			#{BHXX_160531_1}
+Team_PlayerInfo4_Banghui	TLBB_SimpleText					Text			#{BHXX_160531_1}
+Team_PlayerInfo5_Banghui	TLBB_SimpleText					Text			#{BHXX_160531_1}
+Team_PlayerInfo6_Banghui	TLBB_SimpleText					Text			#{BHXX_160531_1}
+Team_Follow_Button	TLBB_ButtonCommon			62.000000	20.000000	Text			#{INTERFACE_XML_896}
+Team_Follow_Button	TLBB_ButtonCommon			62.000000	20.000000	Tooltip			#{ZDGS_Tips_90602_01}
+Team_AbortTeamFollow_Button	TLBB_ButtonCommon			62.000000	20.000000	Text			#{INTERFACE_XML_543}
+Team_AbortTeamFollow_Button	TLBB_ButtonCommon			62.000000	20.000000	Tooltip			#{ZDGS_Tips_90602_02}
+Team_Button_Frame8	TLBB_ButtonCommon			62.000000	20.000000	Text			#{TDGZ_XML_01}

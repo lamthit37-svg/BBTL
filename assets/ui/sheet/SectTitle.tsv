@@ -1,0 +1,5 @@
+# ảnh, x, y, w, h, tệp atlas, các màn dùng
+
+SectTitle_M0_Hover	630	540	45	45	Common/png_SectTitle.dds	SelfEquip
+SectTitle_M0_Normal	630	495	45	45	Common/png_SectTitle.dds	SelfEquip
+SectTitle_M0_Pushed	645	405	45	45	Common/png_SectTitle.dds	SelfEquip

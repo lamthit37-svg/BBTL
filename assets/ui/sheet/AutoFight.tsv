@@ -1,0 +1,8 @@
+# ảnh, x, y, w, h, tệp atlas, các màn dùng
+
+AutoFight_Disabled	196	0	28	80	Common/png_AutoFight.dds	AutoAttackSkill
+AutoFight_Hover	168	0	28	80	Common/png_AutoFight.dds	AutoAttackSkill
+AutoFight_Normal	140	0	28	80	Common/png_AutoFight.dds	AutoAttackSkill
+NotAutoFight_Disabled	84	0	28	80	Common/png_AutoFight.dds	AutoAttackSkill
+NotAutoFight_Hover	56	0	28	80	Common/png_AutoFight.dds	AutoAttackSkill
+NotAutoFight_Normal	28	0	28	80	Common/png_AutoFight.dds	AutoAttackSkill

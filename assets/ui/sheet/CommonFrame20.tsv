@@ -1,0 +1,12 @@
+# ảnh, x, y, w, h, tệp atlas, các màn dùng
+
+CustomMail_Hover	0	110	130	22	Common/CommonFrame20.tga	LogOn
+CustomMail_Normal	0	132	130	22	Common/CommonFrame20.tga	LogOn
+CustomMail_Pushed	0	88	130	22	Common/CommonFrame20.tga	LogOn
+SafeCenter_MiniMapButton_Disable	75	180	50	25	Common/CommonFrame20.tga	MiniMap
+SafeCenter_MiniMapButton_Hover	125	155	50	25	Common/CommonFrame20.tga	MiniMap
+SafeCenter_MiniMapButton_Normal	75	155	50	25	Common/CommonFrame20.tga	MiniMap
+SafeCenter_MiniMapButton_Pushed	175	155	50	25	Common/CommonFrame20.tga	MiniMap
+ZidingyiMail_Hover	0	25	130	22	Common/CommonFrame20.tga	LogOn
+ZidingyiMail_Normal	0	49	130	22	Common/CommonFrame20.tga	LogOn
+ZidingyiMail_Pushed	0	1	130	22	Common/CommonFrame20.tga	LogOn

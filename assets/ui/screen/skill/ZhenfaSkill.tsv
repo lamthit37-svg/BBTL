@@ -1,0 +1,19 @@
+# cửa sổ, loại, x, y, w, h, thuộc tính, atlas, ảnh, chữ
+
+ZhenfaSkill_Frame1_Title	TLBB_DragTitle	108.000000	4.000000			Text			#{JBGXW_150526_206}
+ZhenfaSkill_Help	TLBB_ButtonHelp			14.000000	14.000000	Text			TLBB_ButtonHelp
+ZhenfaSkill_Use	TLBB_ButtonCommon					Text			#{JBLC_150528_295}
+ZhenfaSkill_Use	TLBB_ButtonCommon					Tooltip			#{JBGXW_150526_220}
+ZhenfaSkill_QingyiNum_All	TLBB_SimpleMulitiTextFrame					Text			#{JBGXW_150526_10}
+ZhenfaSkill_QingyiNum_All	TLBB_SimpleMulitiTextFrame					Tooltip			#{JBGXW_150526_11}
+ZhenfaSkill_QingyiNum_Have	TLBB_SimpleMulitiTextFrame					Text			#{JBGXW_150526_12}
+ZhenfaSkill_QingyiNum_Have	TLBB_SimpleMulitiTextFrame					Tooltip			#{JBGXW_150526_13}
+ZhenfaSkill_Set	TLBB_ButtonCommon					Text			#{JBLC_150528_280}
+ZhenfaSkill_Set	TLBB_ButtonCommon					Tooltip			#{JBGXW_150526_221}
+ZhenfaSkill_CommonlySkill	TLBB_ButtonPageDown	0.0	0.0	35.000000	18.000000	Text			#{INTERFACE_XML_494}
+ZhenfaSkill_ActionSkill	TLBB_ButtonPageDown	36	0.0	35.000000	18.000000	Text			#{INTERFACE_XML_448}
+ZhenfaSkill_ZhenfaSkill	TLBB_ButtonPageDown	72	0.0	35.000000	18.000000	Text			#{JBGXW_150526_215}
+ZhenfaSkill_LifeSkill	TLBB_ButtonPageDown	108	0.0	35.000000	18.000000	Text			#{INTERFACE_XML_635}
+ZhenfaSkill_AutoAttack	TLBB_ButtonPageDown					Text			#{ZDZD_200724_08}
+ZhenfaSkill_ZongMenSkill	TLBB_ButtonPageDown					Text			#{ZMTF_230628_20}
+ZhenfaSkill_ZongMenSkill_Tips	TLBB_StaticImageNULL					Image	CommonFrame14	Tips	

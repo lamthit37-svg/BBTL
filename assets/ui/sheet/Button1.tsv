@@ -1,0 +1,8 @@
+# ảnh, x, y, w, h, tệp atlas, các màn dùng
+
+BtnInpute_Hover	24	0	23	21	Common/Button01.tga	LogOn
+BtnInpute_Normal	0	0	23	21	Common/Button01.tga	LogOn
+BtnInpute_Pushed	0	22	23	21	Common/Button01.tga	LogOn
+BtnKey_Hover	92	144	29	29	Common/Button01.tga	SoftKeyBoard
+BtnKey_Normal	92	115	29	29	Common/Button01.tga	SoftKeyBoard
+BtnKey_Pushed	63	115	29	29	Common/Button01.tga	SoftKeyBoard

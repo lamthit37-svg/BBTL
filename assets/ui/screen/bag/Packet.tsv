@@ -1,0 +1,32 @@
+# cửa sổ, loại, x, y, w, h, thuộc tính, atlas, ảnh, chữ
+
+Packet_Icon	TLBB_StaticImageNULL					Image	MainFrame3	MainFrame3_6	
+Packet_Title	TLBB_DragTitle					Text			#{INTERFACE_XML_18}
+Packet_Material	TLBB_ButtonPageUp	0.000000	0.000000	42.000000	24.000000	Text			#{INTERFACE_XML_226}
+Packet_Stall	TLBB_ButtonPageUp	44.000000	0.000000	42.000000	24.000000	Text			#{INTERFACE_XML_146}
+Packet_Mission	TLBB_ButtonPageUp	88.000000	0.000000	42.000000	24.000000	Text			#{INTERFACE_XML_570}
+Packet_Equip_Bag	TLBB_ActionButton			34.0	34.0	Tooltip			#{XSYH_XML_40}
+Packet_Equip_Bag	TLBB_ActionButton			34.0	34.0	BackImage	MiniMap	PacketIcon2	
+Packet_Equip_Box	TLBB_ActionButton			34.0	34.0	Tooltip			#{XSYH_XML_41}
+Packet_Equip_Box	TLBB_ActionButton			34.0	34.0	BackImage	MiniMap	PacketIcon1	
+Packet_Temporary_Button	TLBB_ButtonNULL					Tooltip			#{SSCK_180821_11}
+Packet_Temporary_Button	TLBB_ButtonNULL					PushedImage	CommonFrame37	Packet_TemporaryClose_Pushed	
+Packet_Temporary_Button	TLBB_ButtonNULL					NormalImage	CommonFrame37	Packet_TemporaryClose_Normal	
+Packet_Temporary_Button	TLBB_ButtonNULL					HoverImage	CommonFrame37	Packet_TemporaryClose_Hover	
+Packet_Temporary_Button	TLBB_ButtonNULL					DisabledImage	CommonFrame37	Packet_TemporaryClose_Disable	
+Packet_StallSale	TLBB_ButtonCommon			36.000000	20.000000	Text			#{INTERFACE_XML_122}
+Packet_Classify	TLBB_ButtonCommon			36.000000	20.000000	Text			#{INTERFACE_XML_861}
+Packet_Lock	TLBB_ButtonCommon			36.000000	20.000000	Text			#{INTERFACE_XML_675}
+Packet_Lock	TLBB_ButtonCommon			36.000000	20.000000	Tooltip			#{FDH_90316_1}
+Packet_Pet	TLBB_ButtonCommon			36.000000	20.000000	Text			#{INTERFACE_XML_167}
+Packet_Jiaozi	TLBB_Money					Tooltip			#{JZT_081211_1}
+Packet_Jiaozi	TLBB_Money					GoldIcon	Button6	Lace_JiaoziJin	
+Packet_Jiaozi	TLBB_Money					SilverIcon	Button6	Lace_JiaoziYin	
+Packet_Jiaozi	TLBB_Money					CopperIcon	Button6	Lace_JiaoziTong	
+Packet_BangdingYuanbao	TLBB_SimpleText					Tooltip			#{BDYB_090714_13}
+Packet_Tongbao	TLBB_SimpleText					Tooltip			#{LJSD_120508_02}
+Packet_YuanBao2	TLBB_SimpleText					Tooltip			#{INTERFACE_XML_937}
+Packet_Fanquan	TLBB_SimpleText					Tooltip			#{FQ_101210_04}
+Packet_Anti_Steal	TLBB_ButtonCommon			60.000000	20.000000	Text			#{AQZX_130812_02}
+Packet_Anti_Steal	TLBB_ButtonCommon			60.000000	20.000000	Tooltip			#{AQZX_130812_01}
+Packet_YuanBao	TLBB_SimpleText					Tooltip			#{INTERFACE_XML_936}

@@ -1,0 +1,9 @@
+# ảnh, x, y, w, h, tệp atlas, các màn dùng
+
+BtnLevelup_Disabled	85	8	60	71	Common/Button05.tga	SelfEquip
+BtnLevelup_Hover	148	8	60	71	Common/Button05.tga	SelfEquip
+BtnLevelup_Normal	148	8	60	71	Common/Button05.tga	SelfEquip
+BtnLevelup_Pushed	148	8	60	71	Common/Button05.tga	SelfEquip
+BtnReturn_Hover	182	158	58	58	Common/Button05.tga	SoftKeyBoard
+BtnReturn_Normal	182	93	58	58	Common/Button05.tga	SoftKeyBoard
+BtnReturn_Pushed	109	93	58	58	Common/Button05.tga	SoftKeyBoard

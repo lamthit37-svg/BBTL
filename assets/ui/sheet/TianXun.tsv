@@ -1,0 +1,6 @@
+# ảnh, x, y, w, h, tệp atlas, các màn dùng
+
+TianXun_Disbled	0	70	35	35	Common/png_TianXun.dds	SelfEquip
+TianXun_Hover	35	0	35	35	Common/png_TianXun.dds	SelfEquip
+TianXun_Normal	0	35	35	35	Common/png_TianXun.dds	SelfEquip
+TianXun_Pushed	0	0	35	35	Common/png_TianXun.dds	SelfEquip

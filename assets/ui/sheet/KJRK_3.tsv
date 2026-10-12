@@ -1,0 +1,6 @@
+# ảnh, x, y, w, h, tệp atlas, các màn dùng
+
+ButtonSCJL_Disable	118	186	59	64	Common/KJRK_3.tga	MiniMap
+ButtonSCJL_Hover	59	186	59	64	Common/KJRK_3.tga	MiniMap
+ButtonSCJL_Normal	177	186	59	64	Common/KJRK_3.tga	MiniMap
+ButtonSCJL_Pushed	0	186	59	64	Common/KJRK_3.tga	MiniMap

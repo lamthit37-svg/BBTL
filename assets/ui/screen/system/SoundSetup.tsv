@@ -1,0 +1,35 @@
+# cửa sổ, loại, x, y, w, h, thuộc tính, atlas, ảnh, chữ
+
+SoundSetup_Icon	TLBB_StaticImageNULL					Image	MainFrame3	MainFrame3_15	
+SoundSetup_PageHeader	TLBB_SimpleText					Text			#{INTERFACE_XML_60}
+SoundSetup_Help	TLBB_ButtonHelp			14.000000	14.000000	Text			TLBB_ButtonHelp
+SoundSetup_Close	TLBB_ButtonClose			14.000000	14.000000	Text			TLBB_ButtonClose
+SoundSetup_MenuBox_ViewSetup	TLBB_ButtonCheckForRMBShop					Text			#{INTERFACE_XML_744}
+SoundSetup_MenuBox_SoundSetup	TLBB_ButtonCheckForRMBShop					Text			#{INTERFACE_XML_637}
+SoundSetup_MenuBox_GameSetup	TLBB_ButtonCheckForRMBShop					Text			#{INTERFACE_XML_837}
+SoundSetup_MenuBox_AcceSetup	TLBB_ButtonCheckForRMBShop					Text			#{INTERFACE_XML_1053}
+SoundSetup_MenuBox_WASD	TLBB_ButtonCheckForRMBShop					Text			#{JPYD_130415_11}
+SoundSetup_DefaultSetup	TLBB_ButtonCommon2					Text			#{INTERFACE_XML_335}
+SoundSetup_DefaultSetup	TLBB_ButtonCommon2					Tooltip			#{XTSZYH_111220_07}
+SoundSetup_Accept	TLBB_ButtonCommon2					Text			#{INTERFACE_XML_557}
+SoundSetup_Cancel	TLBB_ButtonCommon2					Text			#{INTERFACE_XML_542}
+SoundSetup_YingYong	TLBB_ButtonCommon2					Text			#{LTQH_XML_46}
+SoundSetup_YingYong	TLBB_ButtonCommon2					Tooltip			#{XTSZYH_111220_01}
+SoundSetup_Item1_Text	TLBB_SimpleText					Text			#{INTERFACE_XML_386}
+SoundSetup_Item1_Text	TLBB_SimpleText					Tooltip			#{INTERFACE_XML_620}
+SoundSetup_Item2_Text	TLBB_SimpleText					Text			#{INTERFACE_XML_141}
+SoundSetup_Item2_Text	TLBB_SimpleText					Tooltip			#{INTERFACE_XML_169}
+SoundSetup_Item3_Text	TLBB_SimpleText					Text			#{INTERFACE_XML_333}
+SoundSetup_Item3_Text	TLBB_SimpleText					Tooltip			#{INTERFACE_XML_170}
+SoundSetup_Item4_Text	TLBB_SimpleText					Text			#{INTERFACE_XML_351}
+SoundSetup_Item4_Text	TLBB_SimpleText					Tooltip			#{INTERFACE_XML_349}
+SoundSetup_Item5_Text	TLBB_SimpleText					Text			#{INTERFACE_XML_648}
+SoundSetup_Item5_Text	TLBB_SimpleText					Tooltip			#{INTERFACE_XML_647}
+SoundSetup_Item2_Control_Text2	TLBB_SimpleText					Text			#{INTERFACE_XML_232}
+SoundSetup_Item2_Control_Text3	TLBB_SimpleText					Text			#{INTERFACE_XML_276}
+SoundSetup_Item3_Control_Text2	TLBB_SimpleText					Text			#{INTERFACE_XML_232}
+SoundSetup_Item3_Control_Text3	TLBB_SimpleText					Text			#{INTERFACE_XML_276}
+SoundSetup_Item4_Control_Text2	TLBB_SimpleText					Text			#{INTERFACE_XML_232}
+SoundSetup_Item4_Control_Text3	TLBB_SimpleText					Text			#{INTERFACE_XML_276}
+SoundSetup_Item5_Control_Text2	TLBB_SimpleText					Text			#{INTERFACE_XML_232}
+SoundSetup_Item5_Control_Text3	TLBB_SimpleText					Text			#{INTERFACE_XML_276}

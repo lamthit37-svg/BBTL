@@ -1,0 +1,220 @@
+# cửa sổ, loại, x, y, w, h, thuộc tính, atlas, ảnh, chữ
+
+AcceSetup_Icon	TLBB_StaticImageNULL					Image	MainFrame3	MainFrame3_15	
+AcceSetup_Title	TLBB_SimpleText					Text			#{INTERFACE_XML_1252}
+AcceSetup_MenuBox_ViewSetup	TLBB_ButtonCheckForRMBShop					Text			#{INTERFACE_XML_744}
+AcceSetup_MenuBox_SoundSetup	TLBB_ButtonCheckForRMBShop					Text			#{INTERFACE_XML_637}
+AcceSetup_MenuBox_GameSetup	TLBB_ButtonCheckForRMBShop					Text			#{INTERFACE_XML_837}
+AcceSetup_MenuBox_AcceSetup	TLBB_ButtonCheckForRMBShop					Text			#{INTERFACE_XML_1053}
+AcceSetup_DefaultSetup	TLBB_ButtonCommon2					Text			#{INTERFACE_XML_335}
+AcceSetup_DefaultSetup	TLBB_ButtonCommon2					Tooltip			#{XTSZYH_111220_07}
+AcceSetup_Accept	TLBB_ButtonCommon2					Text			#{INTERFACE_XML_557}
+AcceSetup_Cancel	TLBB_ButtonCommon2					Text			#{INTERFACE_XML_542}
+AcceSetup_YingYong	TLBB_ButtonCommon2					Text			#{LTQH_XML_46}
+AcceSetup_YingYong	TLBB_ButtonCommon2					Tooltip			#{XTSZYH_111220_01}
+AcceSetup_List_Text1	TLBB_SimpleText					Text			#{INTERFACE_XML_1054}
+AcceSetup_List_Text2	TLBB_SimpleText					Text			#{INTERFACE_XML_1055}
+AcceSetup_List_Text3	TLBB_SimpleText					Text			#{INTERFACE_XML_1056}
+AcceSetup_List_Name1	TLBB_SimpleMulitiTextFrame					Text			#{INTERFACE_XML_1062}
+AcceSetup_List_Name2	TLBB_SimpleMulitiTextFrame					Text			#{INTERFACE_XML_1063}
+AcceSetup_List_Name3	TLBB_SimpleMulitiTextFrame					Text			#{INTERFACE_XML_1064}
+AcceSetup_List_Name4	TLBB_SimpleMulitiTextFrame					Text			#{INTERFACE_XML_1065}
+AcceSetup_List_Name5	TLBB_SimpleMulitiTextFrame					Text			#{INTERFACE_XML_1066}
+AcceSetup_List_Name6	TLBB_SimpleMulitiTextFrame					Text			#{INTERFACE_XML_1067}
+AcceSetup_List_Name7	TLBB_SimpleMulitiTextFrame					Text			#{INTERFACE_XML_1068}
+AcceSetup_List_Name8	TLBB_SimpleMulitiTextFrame					Text			#{INTERFACE_XML_1069}
+AcceSetup_List_Name9	TLBB_SimpleMulitiTextFrame					Text			#{INTERFACE_XML_1070}
+AcceSetup_List_Name10	TLBB_SimpleMulitiTextFrame					Text			#{INTERFACE_XML_1071}
+AcceSetup_List_Name11	TLBB_SimpleMulitiTextFrame					Text			#{INTERFACE_XML_1072}
+AcceSetup_List_Name12	TLBB_SimpleMulitiTextFrame					Text			#{INTERFACE_XML_1073}
+AcceSetup_List_Name13	TLBB_SimpleMulitiTextFrame					Text			#{INTERFACE_XML_1074}
+AcceSetup_List_Name14	TLBB_SimpleMulitiTextFrame					Text			#{INTERFACE_XML_1075}
+AcceSetup_List_Name15	TLBB_SimpleMulitiTextFrame					Text			#{INTERFACE_XML_1076}
+AcceSetup_List_Name16	TLBB_SimpleMulitiTextFrame					Text			#{INTERFACE_XML_1077}
+AcceSetup_List_Name17	TLBB_SimpleMulitiTextFrame					Text			#{INTERFACE_XML_1078}
+AcceSetup_List_Name18	TLBB_SimpleMulitiTextFrame					Text			#{INTERFACE_XML_1079}
+AcceSetup_List_Name19	TLBB_SimpleMulitiTextFrame					Text			#{INTERFACE_XML_1080}
+AcceSetup_List_Name20	TLBB_SimpleMulitiTextFrame					Text			#{INTERFACE_XML_1081}
+AcceSetup_List_Name21	TLBB_SimpleMulitiTextFrame					Text			#{INTERFACE_XML_1082}
+AcceSetup_List_Name22	TLBB_SimpleMulitiTextFrame					Text			#{INTERFACE_XML_1083}
+AcceSetup_List_Name23	TLBB_SimpleMulitiTextFrame					Text			#{INTERFACE_XML_1084}
+AcceSetup_List_Name24	TLBB_SimpleMulitiTextFrame					Text			#{INTERFACE_XML_1085}
+AcceSetup_List_Name25	TLBB_SimpleMulitiTextFrame					Text			#{INTERFACE_XML_1086}
+AcceSetup_List_Name26	TLBB_SimpleMulitiTextFrame					Text			#{INTERFACE_XML_1087}
+AcceSetup_List_Name27	TLBB_SimpleMulitiTextFrame					Text			#{INTERFACE_XML_1088}
+AcceSetup_List_Name28	TLBB_SimpleMulitiTextFrame					Text			#{INTERFACE_XML_1089}
+AcceSetup_List_Name29	TLBB_SimpleMulitiTextFrame					Text			#{INTERFACE_XML_1090}
+AcceSetup_List_Name30	TLBB_SimpleMulitiTextFrame					Text			#{INTERFACE_XML_1091}
+AcceSetup_List_Name31	TLBB_SimpleMulitiTextFrame					Text			#{INTERFACE_XML_1092}
+AcceSetup_List_Name32	TLBB_SimpleMulitiTextFrame					Text			#{INTERFACE_XML_1093}
+AcceSetup_List_Name33	TLBB_SimpleMulitiTextFrame					Text			#{INTERFACE_XML_1094}
+AcceSetup_List_Name34	TLBB_SimpleMulitiTextFrame					Text			#{INTERFACE_XML_1095}
+AcceSetup_List_Name35	TLBB_SimpleMulitiTextFrame					Text			#{INTERFACE_XML_1096}
+AcceSetup_List_Name36	TLBB_SimpleMulitiTextFrame					Text			#{INTERFACE_XML_1097}
+AcceSetup_List_Name37	TLBB_SimpleMulitiTextFrame					Text			#{INTERFACE_XML_1098}
+AcceSetup_List_Name38	TLBB_SimpleMulitiTextFrame					Text			#{ZDYK_081212_01}
+AcceSetup_List_Name39	TLBB_SimpleMulitiTextFrame					Text			#{INTERFACE_XML_1100}
+AcceSetup_List_Name40	TLBB_SimpleMulitiTextFrame					Text			#{INTERFACE_XML_1101}
+AcceSetup_List_Name41	TLBB_SimpleMulitiTextFrame					Text			#{INTERFACE_XML_1102}
+AcceSetup_List_Name42	TLBB_SimpleMulitiTextFrame					Text			#{INTERFACE_XML_1103}
+AcceSetup_List_Name43	TLBB_SimpleMulitiTextFrame					Text			#{INTERFACE_XML_1104}
+AcceSetup_List_Name44	TLBB_SimpleMulitiTextFrame					Text			#{INTERFACE_XML_1105}
+AcceSetup_List_Name45	TLBB_SimpleMulitiTextFrame					Text			#{INTERFACE_XML_1106}
+AcceSetup_List_Name46	TLBB_SimpleMulitiTextFrame					Text			#{INTERFACE_XML_1107}
+AcceSetup_List_Name47	TLBB_SimpleMulitiTextFrame					Text			#{INTERFACE_XML_1108}
+AcceSetup_List_Name48	TLBB_SimpleMulitiTextFrame					Text			#{INTERFACE_XML_1109}
+AcceSetup_List_Name49	TLBB_SimpleMulitiTextFrame					Text			#{INTERFACE_XML_1170}
+AcceSetup_List_Name50	TLBB_SimpleMulitiTextFrame					Text			#{ZDGS_90602_01}
+AcceSetup_List_Name51	TLBB_SimpleMulitiTextFrame					Text			#{ZDGS_90602_02}
+AcceSetup_List_Name52	TLBB_SimpleMulitiTextFrame					Text			#{WH_xml_XX(99)}
+AcceSetup_List_Name53	TLBB_SimpleMulitiTextFrame					Text			#{XL_XML_89}
+AcceSetup_List_Name54	TLBB_SimpleMulitiTextFrame					Text			#{ZQGZ_110512_27}
+AcceSetup_List_Name55	TLBB_SimpleMulitiTextFrame					Text			#{SFJN_130608_01}
+AcceSetup_List_Name56	TLBB_SimpleMulitiTextFrame					Text			#{SFJN_130608_02}
+AcceSetup_List_Name57	TLBB_SimpleMulitiTextFrame					Text			#{SFJN_130608_03}
+AcceSetup_List_Name58	TLBB_SimpleMulitiTextFrame					Text			#{SFJN_130608_04}
+AcceSetup_List_Name59	TLBB_SimpleMulitiTextFrame					Text			#{SFJN_130608_05}
+AcceSetup_List_Name60	TLBB_SimpleMulitiTextFrame					Text			#{SFJN_130608_06}
+AcceSetup_List_Name61	TLBB_SimpleMulitiTextFrame					Text			#{SFJN_130608_07}
+AcceSetup_List_Name62	TLBB_SimpleMulitiTextFrame					Text			#{SFJN_130608_08}
+AcceSetup_List_Name63	TLBB_SimpleMulitiTextFrame					Text			#{SFJN_130608_09}
+AcceSetup_List_Name64	TLBB_SimpleMulitiTextFrame					Text			#{SFJN_130608_10}
+AcceSetup_NotChat_Button1	TLBB_ButtonCommon			85.000000	20.000000	Text			#{INTERFACE_XML_1055}
+AcceSetup_NotChat_Button2	TLBB_ButtonCommon			85.000000	20.000000	Text			#{INTERFACE_XML_1055}
+AcceSetup_NotChat_Button3	TLBB_ButtonCommon			85.000000	20.000000	Text			#{INTERFACE_XML_1055}
+AcceSetup_NotChat_Button4	TLBB_ButtonCommon			85.000000	20.000000	Text			#{INTERFACE_XML_1055}
+AcceSetup_NotChat_Button5	TLBB_ButtonCommon			85.000000	20.000000	Text			#{INTERFACE_XML_1055}
+AcceSetup_NotChat_Button6	TLBB_ButtonCommon			85.000000	20.000000	Text			#{INTERFACE_XML_1055}
+AcceSetup_NotChat_Button7	TLBB_ButtonCommon			85.000000	20.000000	Text			#{INTERFACE_XML_1055}
+AcceSetup_NotChat_Button8	TLBB_ButtonCommon			85.000000	20.000000	Text			#{INTERFACE_XML_1055}
+AcceSetup_NotChat_Button9	TLBB_ButtonCommon			85.000000	20.000000	Text			#{INTERFACE_XML_1055}
+AcceSetup_NotChat_Button10	TLBB_ButtonCommon			85.000000	20.000000	Text			#{INTERFACE_XML_1055}
+AcceSetup_NotChat_Button11	TLBB_ButtonCommon			85.000000	20.000000	Text			#{INTERFACE_XML_1055}
+AcceSetup_NotChat_Button12	TLBB_ButtonCommon			85.000000	20.000000	Text			#{INTERFACE_XML_1055}
+AcceSetup_NotChat_Button13	TLBB_ButtonCommon			85.000000	20.000000	Text			#{INTERFACE_XML_1055}
+AcceSetup_NotChat_Button14	TLBB_ButtonCommon			85.000000	20.000000	Text			#{INTERFACE_XML_1055}
+AcceSetup_NotChat_Button15	TLBB_ButtonCommon			85.000000	20.000000	Text			#{INTERFACE_XML_1055}
+AcceSetup_NotChat_Button16	TLBB_ButtonCommon			85.000000	20.000000	Text			#{INTERFACE_XML_1055}
+AcceSetup_NotChat_Button17	TLBB_ButtonCommon			85.000000	20.000000	Text			#{INTERFACE_XML_1055}
+AcceSetup_NotChat_Button18	TLBB_ButtonCommon			85.000000	20.000000	Text			#{INTERFACE_XML_1055}
+AcceSetup_NotChat_Button19	TLBB_ButtonCommon			85.000000	20.000000	Text			#{INTERFACE_XML_1055}
+AcceSetup_NotChat_Button20	TLBB_ButtonCommon			85.000000	20.000000	Text			#{INTERFACE_XML_1055}
+AcceSetup_NotChat_Button21	TLBB_ButtonCommon			85.000000	20.000000	Text			#{INTERFACE_XML_1055}
+AcceSetup_NotChat_Button22	TLBB_ButtonCommon			85.000000	20.000000	Text			#{INTERFACE_XML_1055}
+AcceSetup_NotChat_Button23	TLBB_ButtonCommon			85.000000	20.000000	Text			#{INTERFACE_XML_1055}
+AcceSetup_NotChat_Button24	TLBB_ButtonCommon			85.000000	20.000000	Text			#{INTERFACE_XML_1055}
+AcceSetup_NotChat_Button25	TLBB_ButtonCommon			85.000000	20.000000	Text			#{INTERFACE_XML_1055}
+AcceSetup_NotChat_Button26	TLBB_ButtonCommon			85.000000	20.000000	Text			#{INTERFACE_XML_1055}
+AcceSetup_NotChat_Button27	TLBB_ButtonCommon			85.000000	20.000000	Text			#{INTERFACE_XML_1055}
+AcceSetup_NotChat_Button28	TLBB_ButtonCommon			85.000000	20.000000	Text			#{INTERFACE_XML_1055}
+AcceSetup_NotChat_Button29	TLBB_ButtonCommon			85.000000	20.000000	Text			#{INTERFACE_XML_1055}
+AcceSetup_NotChat_Button30	TLBB_ButtonCommon			85.000000	20.000000	Text			#{INTERFACE_XML_1055}
+AcceSetup_NotChat_Button31	TLBB_ButtonCommon			85.000000	20.000000	Text			#{INTERFACE_XML_1055}
+AcceSetup_NotChat_Button32	TLBB_ButtonCommon			85.000000	20.000000	Text			#{INTERFACE_XML_1055}
+AcceSetup_NotChat_Button33	TLBB_ButtonCommon			85.000000	20.000000	Text			#{INTERFACE_XML_1055}
+AcceSetup_NotChat_Button34	TLBB_ButtonCommon			85.000000	20.000000	Text			#{INTERFACE_XML_1055}
+AcceSetup_NotChat_Button35	TLBB_ButtonCommon			85.000000	20.000000	Text			#{INTERFACE_XML_1055}
+AcceSetup_NotChat_Button36	TLBB_ButtonCommon			85.000000	20.000000	Text			#{INTERFACE_XML_1055}
+AcceSetup_NotChat_Button37	TLBB_ButtonCommon			85.000000	20.000000	Text			#{INTERFACE_XML_1055}
+AcceSetup_NotChat_Button38	TLBB_ButtonCommon			85.000000	20.000000	Text			#{INTERFACE_XML_1055}
+AcceSetup_NotChat_Button39	TLBB_ButtonCommon			85.000000	20.000000	Text			#{INTERFACE_XML_1055}
+AcceSetup_NotChat_Button40	TLBB_ButtonCommon			85.000000	20.000000	Text			#{INTERFACE_XML_1055}
+AcceSetup_NotChat_Button41	TLBB_ButtonCommon			85.000000	20.000000	Text			#{INTERFACE_XML_1055}
+AcceSetup_NotChat_Button42	TLBB_ButtonCommon			85.000000	20.000000	Text			#{INTERFACE_XML_1055}
+AcceSetup_NotChat_Button43	TLBB_ButtonCommon			85.000000	20.000000	Text			#{INTERFACE_XML_1055}
+AcceSetup_NotChat_Button44	TLBB_ButtonCommon			85.000000	20.000000	Text			#{INTERFACE_XML_1055}
+AcceSetup_NotChat_Button45	TLBB_ButtonCommon			85.000000	20.000000	Text			#{INTERFACE_XML_1055}
+AcceSetup_NotChat_Button46	TLBB_ButtonCommon			85.000000	20.000000	Text			#{INTERFACE_XML_1055}
+AcceSetup_NotChat_Button47	TLBB_ButtonCommon			85.000000	20.000000	Text			#{INTERFACE_XML_1055}
+AcceSetup_NotChat_Button48	TLBB_ButtonCommon			85.000000	20.000000	Text			#{INTERFACE_XML_1055}
+AcceSetup_NotChat_Button49	TLBB_ButtonCommon			85.000000	20.000000	Text			#{INTERFACE_XML_1055}
+AcceSetup_NotChat_Button50	TLBB_ButtonCommon			85.000000	20.000000	Text			#{INTERFACE_XML_1055}
+AcceSetup_NotChat_Button51	TLBB_ButtonCommon			85.000000	20.000000	Text			#{INTERFACE_XML_1055}
+AcceSetup_NotChat_Button52	TLBB_ButtonCommon			85.000000	20.000000	Text			#{INTERFACE_XML_1055}
+AcceSetup_NotChat_Button53	TLBB_ButtonCommon			85.000000	20.000000	Text			#{INTERFACE_XML_1055}
+AcceSetup_NotChat_Button54	TLBB_ButtonCommon			85.000000	20.000000	Text			#{INTERFACE_XML_1055}
+AcceSetup_NotChat_Button55	TLBB_ButtonCommon			85.000000	20.000000	Text			#{SFJN_130608_11}
+AcceSetup_NotChat_Button56	TLBB_ButtonCommon			85.000000	20.000000	Text			#{SFJN_130608_11}
+AcceSetup_NotChat_Button57	TLBB_ButtonCommon			85.000000	20.000000	Text			#{SFJN_130608_11}
+AcceSetup_NotChat_Button58	TLBB_ButtonCommon			85.000000	20.000000	Text			#{SFJN_130608_11}
+AcceSetup_NotChat_Button59	TLBB_ButtonCommon			85.000000	20.000000	Text			#{SFJN_130608_11}
+AcceSetup_NotChat_Button60	TLBB_ButtonCommon			85.000000	20.000000	Text			#{SFJN_130608_11}
+AcceSetup_NotChat_Button61	TLBB_ButtonCommon			85.000000	20.000000	Text			#{SFJN_130608_11}
+AcceSetup_NotChat_Button62	TLBB_ButtonCommon			85.000000	20.000000	Text			#{SFJN_130608_11}
+AcceSetup_NotChat_Button63	TLBB_ButtonCommon			85.000000	20.000000	Text			#{SFJN_130608_11}
+AcceSetup_NotChat_Button64	TLBB_ButtonCommon			85.000000	20.000000	Text			#{SFJN_130608_11}
+AcceSetup_Chat_Button1	TLBB_ButtonCommon			85.000000	20.000000	Text			#{INTERFACE_XML_1056}
+AcceSetup_Chat_Button2	TLBB_ButtonCommon			85.000000	20.000000	Text			#{INTERFACE_XML_1056}
+AcceSetup_Chat_Button3	TLBB_ButtonCommon			85.000000	20.000000	Text			#{INTERFACE_XML_1056}
+AcceSetup_Chat_Button4	TLBB_ButtonCommon			85.000000	20.000000	Text			#{INTERFACE_XML_1056}
+AcceSetup_Chat_Button5	TLBB_ButtonCommon			85.000000	20.000000	Text			#{INTERFACE_XML_1056}
+AcceSetup_Chat_Button6	TLBB_ButtonCommon			85.000000	20.000000	Text			#{INTERFACE_XML_1056}
+AcceSetup_Chat_Button7	TLBB_ButtonCommon			85.000000	20.000000	Text			#{INTERFACE_XML_1056}
+AcceSetup_Chat_Button8	TLBB_ButtonCommon			85.000000	20.000000	Text			#{INTERFACE_XML_1056}
+AcceSetup_Chat_Button9	TLBB_ButtonCommon			85.000000	20.000000	Text			#{INTERFACE_XML_1056}
+AcceSetup_Chat_Button10	TLBB_ButtonCommon			85.000000	20.000000	Text			#{INTERFACE_XML_1056}
+AcceSetup_Chat_Button11	TLBB_ButtonCommon			85.000000	20.000000	Text			#{INTERFACE_XML_1056}
+AcceSetup_Chat_Button12	TLBB_ButtonCommon			85.000000	20.000000	Text			#{INTERFACE_XML_1056}
+AcceSetup_Chat_Button13	TLBB_ButtonCommon			85.000000	20.000000	Text			#{INTERFACE_XML_1056}
+AcceSetup_Chat_Button14	TLBB_ButtonCommon			85.000000	20.000000	Text			#{INTERFACE_XML_1056}
+AcceSetup_Chat_Button15	TLBB_ButtonCommon			85.000000	20.000000	Text			#{INTERFACE_XML_1056}
+AcceSetup_Chat_Button16	TLBB_ButtonCommon			85.000000	20.000000	Text			#{INTERFACE_XML_1056}
+AcceSetup_Chat_Button17	TLBB_ButtonCommon			85.000000	20.000000	Text			#{INTERFACE_XML_1056}
+AcceSetup_Chat_Button18	TLBB_ButtonCommon			85.000000	20.000000	Text			#{INTERFACE_XML_1056}
+AcceSetup_Chat_Button19	TLBB_ButtonCommon			85.000000	20.000000	Text			#{INTERFACE_XML_1056}
+AcceSetup_Chat_Button20	TLBB_ButtonCommon			85.000000	20.000000	Text			#{INTERFACE_XML_1056}
+AcceSetup_Chat_Button21	TLBB_ButtonCommon			85.000000	20.000000	Text			#{INTERFACE_XML_1056}
+AcceSetup_Chat_Button22	TLBB_ButtonCommon			85.000000	20.000000	Text			#{INTERFACE_XML_1056}
+AcceSetup_Chat_Button23	TLBB_ButtonCommon			85.000000	20.000000	Text			#{INTERFACE_XML_1056}
+AcceSetup_Chat_Button24	TLBB_ButtonCommon			85.000000	20.000000	Text			#{INTERFACE_XML_1056}
+AcceSetup_Chat_Button25	TLBB_ButtonCommon			85.000000	20.000000	Text			#{INTERFACE_XML_1056}
+AcceSetup_Chat_Button26	TLBB_ButtonCommon			85.000000	20.000000	Text			#{INTERFACE_XML_1056}
+AcceSetup_Chat_Button27	TLBB_ButtonCommon			85.000000	20.000000	Text			#{INTERFACE_XML_1056}
+AcceSetup_Chat_Button28	TLBB_ButtonCommon			85.000000	20.000000	Text			#{INTERFACE_XML_1056}
+AcceSetup_Chat_Button29	TLBB_ButtonCommon			85.000000	20.000000	Text			#{INTERFACE_XML_1056}
+AcceSetup_Chat_Button30	TLBB_ButtonCommon			85.000000	20.000000	Text			#{INTERFACE_XML_1056}
+AcceSetup_Chat_Button31	TLBB_ButtonCommon			85.000000	20.000000	Text			#{INTERFACE_XML_1056}
+AcceSetup_Chat_Button32	TLBB_ButtonCommon			85.000000	20.000000	Text			#{INTERFACE_XML_1056}
+AcceSetup_Chat_Button33	TLBB_ButtonCommon			85.000000	20.000000	Text			#{INTERFACE_XML_1056}
+AcceSetup_Chat_Button34	TLBB_ButtonCommon			85.000000	20.000000	Text			#{INTERFACE_XML_1056}
+AcceSetup_Chat_Button35	TLBB_ButtonCommon			85.000000	20.000000	Text			#{INTERFACE_XML_1056}
+AcceSetup_Chat_Button36	TLBB_ButtonCommon			85.000000	20.000000	Text			#{INTERFACE_XML_1056}
+AcceSetup_Chat_Button37	TLBB_ButtonCommon			85.000000	20.000000	Text			#{INTERFACE_XML_1056}
+AcceSetup_Chat_Button38	TLBB_ButtonCommon			85.000000	20.000000	Text			#{INTERFACE_XML_1056}
+AcceSetup_Chat_Button39	TLBB_ButtonCommon			85.000000	20.000000	Text			#{INTERFACE_XML_1056}
+AcceSetup_Chat_Button40	TLBB_ButtonCommon			85.000000	20.000000	Text			#{INTERFACE_XML_1056}
+AcceSetup_Chat_Button41	TLBB_ButtonCommon			85.000000	20.000000	Text			#{INTERFACE_XML_1056}
+AcceSetup_Chat_Button42	TLBB_ButtonCommon			85.000000	20.000000	Text			#{INTERFACE_XML_1056}
+AcceSetup_Chat_Button43	TLBB_ButtonCommon			85.000000	20.000000	Text			#{INTERFACE_XML_1056}
+AcceSetup_Chat_Button44	TLBB_ButtonCommon			85.000000	20.000000	Text			#{INTERFACE_XML_1056}
+AcceSetup_Chat_Button45	TLBB_ButtonCommon			85.000000	20.000000	Text			#{INTERFACE_XML_1056}
+AcceSetup_Chat_Button46	TLBB_ButtonCommon			85.000000	20.000000	Text			#{INTERFACE_XML_1056}
+AcceSetup_Chat_Button47	TLBB_ButtonCommon			85.000000	20.000000	Text			#{INTERFACE_XML_1056}
+AcceSetup_Chat_Button48	TLBB_ButtonCommon			85.000000	20.000000	Text			#{INTERFACE_XML_1056}
+AcceSetup_Chat_Button49	TLBB_ButtonCommon			85.000000	20.000000	Text			#{INTERFACE_XML_1056}
+AcceSetup_Chat_Button50	TLBB_ButtonCommon			85.000000	20.000000	Text			#{INTERFACE_XML_1056}
+AcceSetup_Chat_Button51	TLBB_ButtonCommon			85.000000	20.000000	Text			#{INTERFACE_XML_1056}
+AcceSetup_Chat_Button52	TLBB_ButtonCommon			85.000000	20.000000	Text			#{INTERFACE_XML_1056}
+AcceSetup_Chat_Button53	TLBB_ButtonCommon			85.000000	20.000000	Text			#{INTERFACE_XML_1056}
+AcceSetup_Chat_Button54	TLBB_ButtonCommon			85.000000	20.000000	Text			#{INTERFACE_XML_1056}
+AcceSetup_Chat_Button55	TLBB_ButtonCommon			85.000000	20.000000	Text			#{SFJN_130608_11}
+AcceSetup_Chat_Button56	TLBB_ButtonCommon			85.000000	20.000000	Text			#{SFJN_130608_11}
+AcceSetup_Chat_Button57	TLBB_ButtonCommon			85.000000	20.000000	Text			#{SFJN_130608_11}
+AcceSetup_Chat_Button58	TLBB_ButtonCommon			85.000000	20.000000	Text			#{SFJN_130608_11}
+AcceSetup_Chat_Button59	TLBB_ButtonCommon			85.000000	20.000000	Text			#{SFJN_130608_11}
+AcceSetup_Chat_Button60	TLBB_ButtonCommon			85.000000	20.000000	Text			#{SFJN_130608_11}
+AcceSetup_Chat_Button61	TLBB_ButtonCommon			85.000000	20.000000	Text			#{SFJN_130608_11}
+AcceSetup_Chat_Button62	TLBB_ButtonCommon			85.000000	20.000000	Text			#{SFJN_130608_11}
+AcceSetup_Chat_Button63	TLBB_ButtonCommon			85.000000	20.000000	Text			#{SFJN_130608_11}
+AcceSetup_Chat_Button64	TLBB_ButtonCommon			85.000000	20.000000	Text			#{SFJN_130608_11}
+AcceSetup_List_Text4	TLBB_SimpleText					Text			#{INTERFACE_XML_1113}
+AcceSetup_shangyiye	TLBB_ButtonNULL			20.000000	26.000000	Tooltip			#{INTERFACE_XML_1060}
+AcceSetup_shangyiye	TLBB_ButtonNULL			20.000000	26.000000	DisabledImage	Button6	PageUp_Btn_Disabled	
+AcceSetup_shangyiye	TLBB_ButtonNULL			20.000000	26.000000	HoverImage	Button6	PageUp_Btn_Hover	
+AcceSetup_shangyiye	TLBB_ButtonNULL			20.000000	26.000000	NormalImage	Button6	PageUp_Btn_Normal	
+AcceSetup_shangyiye	TLBB_ButtonNULL			20.000000	26.000000	PushedImage	Button6	PageUp_Btn_Pushed	
+AcceSetup_xiayiye	TLBB_ButtonNULL			20.000000	26.000000	Tooltip			#{INTERFACE_XML_1061}
+AcceSetup_xiayiye	TLBB_ButtonNULL			20.000000	26.000000	DisabledImage	Button6	PageDown_Btn_Disabled	
+AcceSetup_xiayiye	TLBB_ButtonNULL			20.000000	26.000000	HoverImage	Button6	PageDown_Btn_Hover	
+AcceSetup_xiayiye	TLBB_ButtonNULL			20.000000	26.000000	NormalImage	Button6	PageDown_Btn_Normal	
+AcceSetup_xiayiye	TLBB_ButtonNULL			20.000000	26.000000	PushedImage	Button6	PageDown_Btn_Pushed	

@@ -1,0 +1,5 @@
+# ảnh, x, y, w, h, tệp atlas, các màn dùng
+
+EnterGame_Hover	306	54	132	54	Common/CommonFrame18.tga	LogOn,SelectRole
+EnterGame_Normal	306	0	132	54	Common/CommonFrame18.tga	LogOn,SelectRole
+EnterGame_Pushed	306	108	132	54	Common/CommonFrame18.tga	LogOn,SelectRole

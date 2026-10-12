@@ -1,0 +1,51 @@
+# cửa sổ, loại, x, y, w, h, thuộc tính, atlas, ảnh, chữ
+
+SelectRole_BKG	TLBB_StaticImageNULL			207.0	425.0	Image	MainFrameLuo04	SelectRoleBKG1	
+SelectRole_TargetInfo_Bk	TLBB_StaticImageNULL					Image	MainFrameLuo04	SelectRoleBKG2	
+SelectRole_TargetInfo_Name_Text	TLBB_SimpleText					Text			#{INTERFACE_XML_464}
+SelectRole_TargetInfo_Menpai_Text	TLBB_SimpleText					Text			#{INTERFACE_XML_451}
+SelectRole_TargetInfo_Create	TLBB_SimpleText					Text			#{DLJM_XML_15}
+SelectRole_TargetInfo_Level_Text	TLBB_SimpleText					Text			#{INTERFACE_XML_230}
+SelectRole_TargetInfo_Delete	TLBB_SimpleText					Text			#{JSCJYH_121224_01}
+SelectRole_Icon	TLBB_StaticImageNULL	3.000000	3.000000	32.000000	32.000000	Image	ManProtagonist	ManProtagonist_1	
+SelectRole_TargetInfo_Gaoliang1	TLBB_StaticImageNULL					Image	MainFrameLuo04	SelectRoleBKG3	
+SelectRole_TargetInfo_Bk2	TLBB_StaticImageNULL					Image	MainFrameLuo04	SelectRoleBKG2	
+SelectRole_TargetInfo_Name_Text2	TLBB_SimpleText					Text			#{INTERFACE_XML_464}
+SelectRole_TargetInfo_Menpai_Text2	TLBB_SimpleText					Text			#{INTERFACE_XML_451}
+SelectRole_TargetInfo_Create2	TLBB_SimpleText					Text			#{DLJM_XML_15}
+SelectRole_TargetInfo_Level_Text2	TLBB_SimpleText					Text			#{INTERFACE_XML_230}
+SelectRole_TargetInfo_Delete2	TLBB_SimpleText					Text			#{JSCJYH_121224_01}
+SelectRole_Icon2	TLBB_StaticImageNULL	3.000000	3.000000	32.000000	32.000000	Image	ManProtagonist	ManProtagonist_1	
+SelectRole_TargetInfo_Gaoliang2	TLBB_StaticImageNULL					Image	MainFrameLuo04	SelectRoleBKG3	
+SelectRole_TargetInfo_Bk3	TLBB_StaticImageNULL					Image	MainFrameLuo04	SelectRoleBKG2	
+SelectRole_TargetInfo_Name_Text3	TLBB_SimpleText					Text			#{INTERFACE_XML_464}
+SelectRole_TargetInfo_Menpai_Text3	TLBB_SimpleText					Text			#{INTERFACE_XML_451}
+SelectRole_TargetInfo_Create3	TLBB_SimpleText					Text			#{DLJM_XML_15}
+SelectRole_TargetInfo_Level_Text3	TLBB_SimpleText					Text			#{INTERFACE_XML_230}
+SelectRole_TargetInfo_Delete3	TLBB_SimpleText					Text			#{JSCJYH_121224_01}
+SelectRole_Icon3	TLBB_StaticImageNULL	3.000000	3.000000	32.000000	32.000000	Image	ManProtagonist	ManProtagonist_1	
+SelectRole_TargetInfo_Gaoliang3	TLBB_StaticImageNULL					Image	MainFrameLuo04	SelectRoleBKG3	
+SelectRole_Play	TLBB_ButtonNULL	0.000000	0.000000	132.000000	54.000000	NormalImage	CommonFrame18	EnterGame_Normal	
+SelectRole_Play	TLBB_ButtonNULL	0.000000	0.000000	132.000000	54.000000	HoverImage	CommonFrame18	EnterGame_Hover	
+SelectRole_Play	TLBB_ButtonNULL	0.000000	0.000000	132.000000	54.000000	PushedImage	CommonFrame18	EnterGame_Pushed	
+SelectRole_Create	TLBB_ButtonNULL	0.000000	54.000000	132.000000	54.000000	NormalImage	MainFrameLuo03	CreateRole_Normal	
+SelectRole_Create	TLBB_ButtonNULL	0.000000	54.000000	132.000000	54.000000	HoverImage	MainFrameLuo03	CreateRole_Hover	
+SelectRole_Create	TLBB_ButtonNULL	0.000000	54.000000	132.000000	54.000000	PushedImage	MainFrameLuo03	CreateRole_Pushed	
+SelectRole_Delete	TLBB_ButtonNULL	0.000000	108.000000	132.000000	54.000000	NormalImage	MainFrameLuo03	DelRole_Normal	
+SelectRole_Delete	TLBB_ButtonNULL	0.000000	108.000000	132.000000	54.000000	HoverImage	MainFrameLuo03	DelRole_Hover	
+SelectRole_Delete	TLBB_ButtonNULL	0.000000	108.000000	132.000000	54.000000	PushedImage	MainFrameLuo03	DelRole_Pushed	
+SelectRole_Last	TLBB_ButtonNULL	0.000000	162.000000	132.000000	54.000000	NormalImage	MainFrameLuo03	Last_Normal	
+SelectRole_Last	TLBB_ButtonNULL	0.000000	162.000000	132.000000	54.000000	HoverImage	MainFrameLuo03	Last_Hover	
+SelectRole_Last	TLBB_ButtonNULL	0.000000	162.000000	132.000000	54.000000	PushedImage	MainFrameLuo03	Last_Pushed	
+SelectRole_Role2_Model_TurnLeft	TLBB_ButtonNULL	9.000000	14.000000	46.000000	27.000000	HoverImage	CreateRole1	BtnTrunLeft_Hover	
+SelectRole_Role2_Model_TurnLeft	TLBB_ButtonNULL	9.000000	14.000000	46.000000	27.000000	NormalImage	CreateRole1	BtnTrunLeft_Normal	
+SelectRole_Role2_Model_TurnLeft	TLBB_ButtonNULL	9.000000	14.000000	46.000000	27.000000	PushedImage	CreateRole1	BtnTrunLeft_Pushed	
+SelectRole_Role2_Model_TurnRight	TLBB_ButtonNULL	160.000000	14.000000	46.000000	27.000000	HoverImage	CreateRole1	BtnTrunRight_Hover	
+SelectRole_Role2_Model_TurnRight	TLBB_ButtonNULL	160.000000	14.000000	46.000000	27.000000	NormalImage	CreateRole1	BtnTrunRight_Normal	
+SelectRole_Role2_Model_TurnRight	TLBB_ButtonNULL	160.000000	14.000000	46.000000	27.000000	PushedImage	CreateRole1	BtnTrunRight_Pushed	
+SelectRole_ModelZoomOut	TLBB_ButtonNULL			20.000000	19.000000	HoverImage	CreateRole1	BtnSub_Hover	
+SelectRole_ModelZoomOut	TLBB_ButtonNULL			20.000000	19.000000	NormalImage	CreateRole1	BtnSub_Normal	
+SelectRole_ModelZoomOut	TLBB_ButtonNULL			20.000000	19.000000	PushedImage	CreateRole1	BtnSub_Pushed	
+SelectRole_ModelZoomIn	TLBB_ButtonNULL			20.000000	19.000000	HoverImage	CreateRole1	BtnAdd_Hover	
+SelectRole_ModelZoomIn	TLBB_ButtonNULL			20.000000	19.000000	NormalImage	CreateRole1	BtnAdd_Normal	
+SelectRole_ModelZoomIn	TLBB_ButtonNULL			20.000000	19.000000	PushedImage	CreateRole1	BtnAdd_Pushed	

@@ -1,0 +1,98 @@
+# cửa sổ, loại, x, y, w, h, thuộc tính, atlas, ảnh, chữ
+
+Chat_SystemChk	TLBB_ButtonCheckForChatPage					Text			#{INTERFACE_XML_893}
+Chat_CommonChk	TLBB_ButtonCheckForChatPage					Text			#{INTERFACE_XML_734}
+Chat_SelfChk	TLBB_ButtonCheckForChatPage					Text			#{INTERFACE_XML_280}
+Chat_City	TLBB_ButtonCheckForChatPage					Text			#{INTERFACE_XML_280}
+Chat_CreateChk1	TLBB_ButtonCheckForChatPage					Text			#{ZZDY_130131_85}
+Chat_JiangHu	TLBB_ButtonCheckForChatPage					Text			#{XZLT_240829_1}
+Chat_CreateChk2	TLBB_ButtonCheckForChatPage					Text			#{INTERFACE_XML_889}
+Chat_CreateChk3	TLBB_ButtonCheckForChatPage					Text			#{INTERFACE_XML_890}
+Chat_Chat_ScaleBtn	TLBB_ButtonCorner					PushedImage	Button12	ChatFramBtn_Pushed	
+Chat_Chat_ScaleBtn	TLBB_ButtonCorner					NormalImage	Button12	ChatFramBtn_Normal	
+Chat_Chat_ScaleBtn	TLBB_ButtonCorner					HoverImage	Button12	ChatFramBtn_Hover	
+Chat_Chat_ScaleBtn	TLBB_ButtonCorner					DisabledImage	Button12	ChatFramBtn_Normal	
+Chat_Chat_IME	TLBB_ButtonNULL					Tooltip			#{INTERFACE_XML_656}
+Chat_Chat_IME	TLBB_ButtonNULL					PushedImage	Button2	BtnE_Pushed	
+Chat_Chat_IME	TLBB_ButtonNULL					NormalImage	Button2	BtnE_Normal	
+Chat_Chat_IME	TLBB_ButtonNULL					HoverImage	Button2	BtnE_Hover	
+Chat_Chat_IME	TLBB_ButtonNULL					DisabledImage	Button2	BtnE_Disable	
+Chat_Chat_LetterColor	TLBB_ButtonNULL					Tooltip			#{INTERFACE_XML_714}
+Chat_Chat_LetterColor	TLBB_ButtonNULL					PushedImage	Button2	BtnA_Pushed	
+Chat_Chat_LetterColor	TLBB_ButtonNULL					NormalImage	Button2	BtnA_Normal	
+Chat_Chat_LetterColor	TLBB_ButtonNULL					HoverImage	Button2	BtnA_Hover	
+Chat_Chat_LetterColor	TLBB_ButtonNULL					DisabledImage	Button2	BtnA_Disable	
+Chat_Chat_Face	TLBB_ButtonNULL					Tooltip			#{INTERFACE_XML_144}
+Chat_Chat_Face	TLBB_ButtonNULL					PushedImage	Button2	BtnFace_Pushed	
+Chat_Chat_Face	TLBB_ButtonNULL					NormalImage	Button2	BtnFace_Normal	
+Chat_Chat_Face	TLBB_ButtonNULL					HoverImage	Button2	BtnFace_Hover	
+Chat_Chat_Face	TLBB_ButtonNULL					DisabledImage	Button2	BtnFace_Disable	
+Chat_Chat_Action	TLBB_ButtonNULL					Tooltip			#{INTERFACE_XML_254}
+Chat_Chat_Action	TLBB_ButtonNULL					PushedImage	Button2	BtnRun_Pushed	
+Chat_Chat_Action	TLBB_ButtonNULL					NormalImage	Button2	BtnRun_Normal	
+Chat_Chat_Action	TLBB_ButtonNULL					HoverImage	Button2	BtnRun_Hover	
+Chat_Chat_Action	TLBB_ButtonNULL					DisabledImage	Button2	BtnRun_Disable	
+ChatFrame_Save_Reduce	TLBB_ButtonNULL					Tooltip			#{INTERFACE_XML_140}
+ChatFrame_Save_Reduce	TLBB_ButtonNULL					PushedImage	Button2	BtnSave_Pushed	
+ChatFrame_Save_Reduce	TLBB_ButtonNULL					NormalImage	Button2	BtnSave_Normal	
+ChatFrame_Save_Reduce	TLBB_ButtonNULL					HoverImage	Button2	BtnSave_Hover	
+ChatFrame_Save_Reduce	TLBB_ButtonNULL					DisabledImage	Button2	BtnSave_Disable	
+Chat_Chat_Screen	TLBB_ButtonNULL					Tooltip			#{ZDJB_161013_04}
+Chat_Chat_Screen	TLBB_ButtonNULL					PushedImage	Button2	BtnClose_Pushed	
+Chat_Chat_Screen	TLBB_ButtonNULL					NormalImage	Button2	BtnClose_Normal	
+Chat_Chat_Screen	TLBB_ButtonNULL					HoverImage	Button2	BtnClose_Hover	
+Chat_Chat_Screen	TLBB_ButtonNULL					DisabledImage	Button2	BtnClose_Disable	
+Chat_Chat_User	TLBB_ButtonNULL					Tooltip			#{INTERFACE_XML_884}
+Chat_Chat_User	TLBB_ButtonNULL					PushedImage	Button2	BtnEdit_Pushed	
+Chat_Chat_User	TLBB_ButtonNULL					NormalImage	Button2	BtnEdit_Normal	
+Chat_Chat_User	TLBB_ButtonNULL					HoverImage	Button2	BtnEdit_Hover	
+Chat_Chat_User	TLBB_ButtonNULL					DisabledImage	Button2	BtnEdit_Disable	
+Chat_Chat_Config	TLBB_ButtonNULL					Tooltip			#{INTERFACE_XML_488}
+Chat_Chat_Config	TLBB_ButtonNULL					PushedImage	Button2	BtnRepair_Pushed	
+Chat_Chat_Config	TLBB_ButtonNULL					NormalImage	Button2	BtnRepair_Normal	
+Chat_Chat_Config	TLBB_ButtonNULL					HoverImage	Button2	BtnRepair_Hover	
+Chat_Chat_Config	TLBB_ButtonNULL					DisabledImage	Button2	BtnRepair_Disable	
+Chat_Chat_Extend	TLBB_ButtonNULL					Tooltip			#{INTERFACE_XML_416}
+Chat_Chat_Extend	TLBB_ButtonNULL					PushedImage	Button2	BtnAdd_Pushed	
+Chat_Chat_Extend	TLBB_ButtonNULL					NormalImage	Button2	BtnAdd_Normal	
+Chat_Chat_Extend	TLBB_ButtonNULL					HoverImage	Button2	BtnAdd_Hover	
+Chat_Chat_Extend	TLBB_ButtonNULL					DisabledImage	Button2	BtnAdd_Disable	
+Chat_Chat_Reduce	TLBB_ButtonNULL					Tooltip			#{INTERFACE_XML_670}
+Chat_Chat_Reduce	TLBB_ButtonNULL					PushedImage	Button2	BtnSub_Pushed	
+Chat_Chat_Reduce	TLBB_ButtonNULL					NormalImage	Button2	BtnSub_Normal	
+Chat_Chat_Reduce	TLBB_ButtonNULL					HoverImage	Button2	BtnSub_Hover	
+Chat_Chat_Reduce	TLBB_ButtonNULL					DisabledImage	Button2	BtnSub_Disable	
+Chat_Chat_AddWidth	TLBB_ButtonNULL					Tooltip			#{INTERFACE_XML_1051}
+Chat_Chat_AddWidth	TLBB_ButtonNULL					PushedImage	Button7	BtnAddWidth_Pushed	
+Chat_Chat_AddWidth	TLBB_ButtonNULL					NormalImage	Button7	BtnAddWidth_Normal	
+Chat_Chat_AddWidth	TLBB_ButtonNULL					HoverImage	Button7	BtnAddWidth_Hover	
+Chat_Chat_AddWidth	TLBB_ButtonNULL					DisabledImage	Button7	BtnAddWidth_Disable	
+Chat_Chat_SubWidth	TLBB_ButtonNULL					Tooltip			#{INTERFACE_XML_1052}
+Chat_Chat_SubWidth	TLBB_ButtonNULL					PushedImage	Button7	BtnSubWidth_Pushed	
+Chat_Chat_SubWidth	TLBB_ButtonNULL					NormalImage	Button7	BtnSubWidth_Normal	
+Chat_Chat_SubWidth	TLBB_ButtonNULL					HoverImage	Button7	BtnSubWidth_Hover	
+Chat_Chat_SubWidth	TLBB_ButtonNULL					DisabledImage	Button7	BtnSubWidth_Disable	
+Chat_Chat_Fenping	TLBB_ButtonNULL					Tooltip			#{LTFP_091016_1}
+Chat_Chat_Fenping	TLBB_ButtonNULL					PushedImage	MessageBall	FenpingSet_Pushed	
+Chat_Chat_Fenping	TLBB_ButtonNULL					NormalImage	MessageBall	FenpingSet_Normal	
+Chat_Chat_Fenping	TLBB_ButtonNULL					HoverImage	MessageBall	FenpingSet_Hover	
+Chat_Chat_Fenping	TLBB_ButtonNULL					DisabledImage	MessageBall	FenpingSet_Disable	
+Chat_ChannelSelecter	TLBB_ButtonNULL					Tooltip			#{INTERFACE_XML_491}
+Chat_ChannelSelecter	TLBB_ButtonNULL					PushedImage	Button2	BtnNearBy_Pushed	
+Chat_ChannelSelecter	TLBB_ButtonNULL					NormalImage	Button2	BtnNearBy_Normal	
+Chat_ChannelSelecter	TLBB_ButtonNULL					HoverImage	Button2	BtnNearBy_Hover	
+Chat_ChannelSelecter	TLBB_ButtonNULL					DisabledImage	Button2	BtnNearBy_Disable	
+Chat_EditEnter	TLBB_ButtonNULL					PushedImage	Button2	BtnBack_Pushed	
+Chat_EditEnter	TLBB_ButtonNULL					NormalImage	Button2	BtnBack_Normal	
+Chat_EditEnter	TLBB_ButtonNULL					HoverImage	Button2	BtnBack_Hover	
+Chat_EditEnter	TLBB_ButtonNULL					DisabledImage	Button2	BtnBack_Disable	
+Chat_Chat_SpeakerBtn	TLBB_ButtonNULL					Tooltip			#{INTERFACE_XML_1038}
+Chat_Chat_SpeakerBtn	TLBB_ButtonNULL					PushedImage	CommonFrame6	Xiaolaba_Pushed	
+Chat_Chat_SpeakerBtn	TLBB_ButtonNULL					NormalImage	CommonFrame6	Xiaolaba_Normal	
+Chat_Chat_SpeakerBtn	TLBB_ButtonNULL					HoverImage	CommonFrame6	Xiaolaba_Hover	
+Chat_Chat_SpeakerBtn	TLBB_ButtonNULL					DisabledImage	CommonFrame6	Xiaolaba_Normal	
+Chat_Frame_Channel	TLBB_ChatChannel					HoverChannelBkg	CommonFrame	CommonEditBoxBK	
+Chat_Frame_Channel	TLBB_ChatChannel					ChannelBkg	Chat	CommonEditBoxBK	
+Chat_ChatSpeaker_StarWindow	TLBB_StarWindow					BackgroundLeft	stall01	tusu.gif_00	
+Chat_ChatSpeaker_StarWindow	TLBB_StarWindow					Background	stall01	tusu.gif_02	
+Chat_ChatSpeaker_StarWindow	TLBB_StarWindow					BackgroundRight	stall01	tusu.gif_01	

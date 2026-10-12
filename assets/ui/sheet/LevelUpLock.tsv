@@ -1,0 +1,10 @@
+# ảnh, x, y, w, h, tệp atlas, các màn dùng
+
+LevelUpLock_LockHover	25	40	20	18	Common/png_LevelUpLock.dds	Pet,SelfEquip
+LevelUpLock_LockNormal	64	13	20	18	Common/png_LevelUpLock.dds	Pet,SelfEquip
+LevelUpLock_LockPushed	0	94	20	18	Common/png_LevelUpLock.dds	Pet,SelfEquip
+LevelUpLock_OpenHover	0	58	25	18	Common/png_LevelUpLock.dds	Pet,SelfEquip
+LevelUpLock_OpenNormal	39	13	25	18	Common/png_LevelUpLock.dds	Pet,SelfEquip
+LevelUpLock_OpenPushed	0	40	25	18	Common/png_LevelUpLock.dds	Pet,SelfEquip
+LevelUpLock_Opening	39	0	43	13	Common/png_LevelUpLock.dds	SelfEquip
+LevelUpLock_SuoLian	0	0	39	40	Common/png_LevelUpLock.dds	SelfEquip

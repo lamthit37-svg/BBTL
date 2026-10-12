@@ -1,0 +1,9 @@
+Use case game UI text-localization remaster. Make ONE production sprite sheet, EXACT THREE columns and SEVEN rows =21 nameplates. Reference1 original sect labels, reference2 APPROVED soft bold rounded Latin calligraphic style C. Gold text on BLACK ink brush stroke swash, not a rectangular button. Truly transparent background outside swashes, no glow no titles no row labels. NORMAL state: black swash subtly tapered toward right, gold text centered. Every nameplate aspect150:40. Equal grid, at least40px transparent gutters, generous outer margin. Portrait1536x2304 or similarly high resolution; crisp lettering suitable for native150x40 export. Chinese brush calligraphy; Vietnamese and English soft bold curved terminals with restrained slight slant matching referenceC, gold ivory face and subtle golden bevel; complete accurate Vietnamese diacritics, no extra symbols. Balance shorter names by slightly larger lettering; longer names fit with ample margins. Columns Chinese / Vietnamese / English. Exact seven rows:
+1: "少林" | "Thiếu Lâm" | "Shaolin"
+2: "唐门" | "Đường Môn" | "Tang Sect"
+3: "天龙" | "Thiên Long" | "Tianlong"
+4: "天山" | "Thiên Sơn" | "Tianshan"
+5: "武当" | "Võ Đang" | "Wudang"
+6: "逍遥" | "Tiêu Dao" | "Xiaoyao"
+7: "星宿" | "Tinh Tú" | "Xingxiu"
+All21 nameplates fully visible, no extra rows, no clipped brush tips.

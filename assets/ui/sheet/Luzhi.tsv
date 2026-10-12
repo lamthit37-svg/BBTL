@@ -1,0 +1,6 @@
+# ảnh, x, y, w, h, tệp atlas, các màn dùng
+
+LZ_Disabled	0	66	33	33	Common/png_Luzhi.dds	MiniMap
+LZ_Hover	33	0	33	33	Common/png_Luzhi.dds	MiniMap
+LZ_Normal	0	33	33	33	Common/png_Luzhi.dds	MiniMap
+LZ_Pushed	0	0	33	33	Common/png_Luzhi.dds	MiniMap

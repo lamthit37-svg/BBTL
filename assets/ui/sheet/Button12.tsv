@@ -1,0 +1,18 @@
+# ảnh, x, y, w, h, tệp atlas, các màn dùng
+
+ChatFramBtn_Hover	240	222	12	12	Common/tga_Button12.dds	ChatFrame
+ChatFramBtn_Normal	240	206	12	12	Common/tga_Button12.dds	ChatFrame
+ChatFramBtn_Pushed	240	237	12	12	Common/tga_Button12.dds	ChatFrame
+MainMenuBar_Left	0	76	246	28	Common/tga_Button12.dds	MainMenuBar
+MainMenuBar_LeftBlock	57	0	31	40	Common/tga_Button12.dds	MainMenuBar
+MainMenuBar_Right	0	104	246	28	Common/tga_Button12.dds	MainMenuBar
+MainMenuBar_RightBlock	92	0	31	40	Common/tga_Button12.dds	MainMenuBar
+MainMenuDown_Disable	241	0	15	15	Common/tga_Button12.dds	MainMenuBar
+MainMenuDown_Hover	211	0	15	15	Common/tga_Button12.dds	MainMenuBar
+MainMenuDown_Normal	196	0	15	15	Common/tga_Button12.dds	MainMenuBar
+MainMenuDown_Pushed	226	0	15	15	Common/tga_Button12.dds	MainMenuBar
+MainMenuEXP_FK	70	141	4	5	Common/tga_Button12.dds	MainMenuBar
+MainMenuUP_Disable	241	15	15	15	Common/tga_Button12.dds	MainMenuBar
+MainMenuUP_Hover	211	15	15	15	Common/tga_Button12.dds	MainMenuBar
+MainMenuUP_Normal	196	15	15	15	Common/tga_Button12.dds	MainMenuBar
+MainMenuUP_Pushed	226	15	15	15	Common/tga_Button12.dds	MainMenuBar

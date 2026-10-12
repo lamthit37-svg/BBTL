@@ -1,0 +1,42 @@
+# cửa sổ, loại, x, y, w, h, thuộc tính, atlas, ảnh, chữ
+
+PlayerImpact_Text1	TLBB_StopWatch	0.000000	30.000000	36.000000	14.000000	Text			91:98
+PlayerImpact_Text2	TLBB_StopWatch	31.000000	30.000000	36.000000	14.000000	Text			#{INTERFACE_XML_106}
+PlayerImpact_Text3	TLBB_StopWatch	62.000000	30.000000	36.000000	14.000000	Text			#{INTERFACE_XML_107}
+PlayerImpact_Text4	TLBB_StopWatch	93.000000	30.000000	36.000000	14.000000	Text			#{INTERFACE_XML_108}
+PlayerImpact_Text5	TLBB_StopWatch	124.000000	30.000000	36.000000	14.000000	Text			#{INTERFACE_XML_109}
+PlayerImpact_Text6	TLBB_StopWatch					Text			#{INTERFACE_XML_110}
+PlayerImpact_Text7	TLBB_StopWatch					Text			#{INTERFACE_XML_111}
+PlayerImpact_Text8	TLBB_StopWatch					Text			#{INTERFACE_XML_112}
+PlayerImpact_Text9	TLBB_StopWatch					Text			#{INTERFACE_XML_113}
+PlayerImpact_Text10	TLBB_StopWatch					Text			#{INTERFACE_XML_104}
+PlayerImpact_Text11	TLBB_StopWatch					Text			#{INTERFACE_XML_105}
+PlayerImpact_Text12	TLBB_StopWatch					Text			#{INTERFACE_XML_106}
+PlayerImpact_Text13	TLBB_StopWatch					Text			#{INTERFACE_XML_106}
+PlayerImpact_Text14	TLBB_StopWatch					Text			#{INTERFACE_XML_106}
+PlayerImpact_Text15	TLBB_StopWatch					Text			#{INTERFACE_XML_106}
+PlayerImpact_Text16	TLBB_StopWatch					Text			#{INTERFACE_XML_106}
+PlayerImpact_Text17	TLBB_StopWatch					Text			#{INTERFACE_XML_106}
+PlayerImpact_Text18	TLBB_StopWatch					Text			#{INTERFACE_XML_106}
+PlayerImpact_Text19	TLBB_StopWatch					Text			#{INTERFACE_XML_106}
+PlayerImpact_Text20	TLBB_StopWatch					Text			#{INTERFACE_XML_106}
+PlayerImpact_Text21	TLBB_StopWatch					Text			#{INTERFACE_XML_106}
+PlayerImpact_Text22	TLBB_StopWatch					Text			#{INTERFACE_XML_106}
+PlayerImpact_Text23	TLBB_StopWatch					Text			#{INTERFACE_XML_106}
+PlayerImpact_Text24	TLBB_StopWatch					Text			#{INTERFACE_XML_106}
+PlayerImpact_Text25	TLBB_StopWatch					Text			#{INTERFACE_XML_106}
+PlayerImpact_Text26	TLBB_StopWatch					Text			#{INTERFACE_XML_106}
+PlayerImpact_Text27	TLBB_StopWatch					Text			#{INTERFACE_XML_106}
+PlayerImpact_Text28	TLBB_StopWatch					Text			#{INTERFACE_XML_106}
+PlayerImpact_Text29	TLBB_StopWatch					Text			#{INTERFACE_XML_106}
+PlayerImpact_Text30	TLBB_StopWatch					Text			#{INTERFACE_XML_106}
+PlayerImpact_Text31	TLBB_StopWatch					Text			#{INTERFACE_XML_106}
+PlayerImpact_Text32	TLBB_StopWatch					Text			#{INTERFACE_XML_106}
+PlayerImpact_Text33	TLBB_StopWatch					Text			#{INTERFACE_XML_106}
+PlayerImpact_Text34	TLBB_StopWatch					Text			#{INTERFACE_XML_106}
+PlayerImpact_Text35	TLBB_StopWatch					Text			#{INTERFACE_XML_106}
+PlayerImpact_Text36	TLBB_StopWatch					Text			#{INTERFACE_XML_106}
+PlayerImpact_Text37	TLBB_StopWatch					Text			#{INTERFACE_XML_106}
+PlayerImpact_Text38	TLBB_StopWatch					Text			#{INTERFACE_XML_106}
+PlayerImpact_Text39	TLBB_StopWatch					Text			#{INTERFACE_XML_106}
+PlayerImpact_Text40	TLBB_StopWatch					Text			#{INTERFACE_XML_106}

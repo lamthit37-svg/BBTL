@@ -1,0 +1,74 @@
+# cửa sổ, loại, x, y, w, h, thuộc tính, atlas, ảnh, chữ
+
+Friend_Icon	TLBB_StaticImageNULL					Image	MainFrame3	MainFrame3_8	
+Friend_DragTitle	TLBB_DragTitle					Text			#{LTQH_XML_88}
+Friend_Agname	TLBB_ButtonCommon					Text			#{INTERFACE_XML_173}
+Friend_ChatSign	TLBB_ButtonCommon					Text			#{LTBS_230508_01}
+Friend_ChatSign_Tips	TLBB_StaticImageNULL					Image	CommonFrame14	Tips	
+Friend_Edit	TLBB_ButtonCommon					Text			#{SNS_XML_100805_12}
+Friend_Edit	TLBB_ButtonCommon					Tooltip			#{INTERFACE_XML_782}
+Friend_Data	TLBB_ButtonCommon					Text			#{CKZL_260821_01}
+Friend_Data	TLBB_ButtonCommon					Tooltip			#{CKZL_260821_02}
+Friend_SearchBtn01	TLBB_ButtonCommon					Text			#{XST_110831_20}
+Friend_List_Page1	TLBB_ButtonCommon					Text			#{LTQH_XML_11}
+Friend_List_Page5	TLBB_ButtonCommon					Text			#{KVKGZ_110620_76}
+Friend_List_Page2	TLBB_ButtonCommon					Text			#{LTQH_XML_12}
+Friend_List_Page3	TLBB_ButtonCommon					Text			#{LTQH_XML_13}
+Friend_List_Page4	TLBB_ButtonCommon					Text			#{LTQH_XML_14}
+Friend_List_Page6	TLBB_ButtonCommon					Text			#{GS_130923_07}
+Friend_SystemInfo	TLBB_ButtonNULL					Tooltip			#{INTERFACE_XML_737}
+Friend_SystemInfo	TLBB_ButtonNULL					DisabledImage	Button7	Friend_SystemInfo_Disable	
+Friend_SystemInfo	TLBB_ButtonNULL					HoverImage	Button7	Friend_SystemInfo_Hover	
+Friend_SystemInfo	TLBB_ButtonNULL					NormalImage	Button7	Friend_SystemInfo_Normal	
+Friend_SystemInfo	TLBB_ButtonNULL					PushedImage	Button7	Friend_SystemInfo_Pushed	
+Friend_SystemInfo2	TLBB_ButtonNULL					Tooltip			#{INTERFACE_XML_737}
+Friend_SystemInfo2	TLBB_ButtonNULL					DisabledImage	Button7	Friend_SystemInfo_Disable	
+Friend_SystemInfo2	TLBB_ButtonNULL					HoverImage	Button7	Friend_SystemInfo_Hover	
+Friend_SystemInfo2	TLBB_ButtonNULL					NormalImage	Button7	Friend_SystemInfo_Normal	
+Friend_SystemInfo2	TLBB_ButtonNULL					PushedImage	Button7	Friend_SystemInfo_Pushed	
+Friend_NewMsgBallHistory	TLBB_ButtonNULL					Tooltip			#{CKWJ_Tips_09514_3}
+Friend_NewMsgBallHistory	TLBB_ButtonNULL					DisabledImage	MessageBall	MsgBall_History_Disable	
+Friend_NewMsgBallHistory	TLBB_ButtonNULL					HoverImage	MessageBall	MsgBall_History_Hover	
+Friend_NewMsgBallHistory	TLBB_ButtonNULL					NormalImage	MessageBall	MsgBall_History_Normal	
+Friend_NewMsgBallHistory	TLBB_ButtonNULL					PushedImage	MessageBall	MsgBall_History_Pushed	
+Friend_Lookup	TLBB_ButtonNULL					Tooltip			#{LTQH_20100810_02}
+Friend_Lookup	TLBB_ButtonNULL					DisabledImage	Button7	Friend_Serach_Disable	
+Friend_Lookup	TLBB_ButtonNULL					HoverImage	Button7	Friend_Serach_Hover	
+Friend_Lookup	TLBB_ButtonNULL					NormalImage	Button7	Friend_Serach_Normal	
+Friend_Lookup	TLBB_ButtonNULL					PushedImage	Button7	Friend_Serach_Pushed	
+Friend_TrustFriendList_Agname	TLBB_ButtonNULL					Tooltip			#{XRHB_09515_02}
+Friend_TrustFriendList_Agname	TLBB_ButtonNULL					DisabledImage	Button7	TrustFriendList_Disable	
+Friend_TrustFriendList_Agname	TLBB_ButtonNULL					HoverImage	Button7	TrustFriendList_Hover	
+Friend_TrustFriendList_Agname	TLBB_ButtonNULL					NormalImage	Button7	TrustFriendList_Normal	
+Friend_TrustFriendList_Agname	TLBB_ButtonNULL					PushedImage	Button7	TrustFriendList_Pushed	
+Friend_ViewHistoryMsg	TLBB_ButtonNULL					Tooltip			#{LTQH_XML_6}
+Friend_ViewHistoryMsg	TLBB_ButtonNULL					DisabledImage	Button7	IM_MsgManager_Dis	
+Friend_ViewHistoryMsg	TLBB_ButtonNULL					HoverImage	Button7	IM_MsgManager_Hov	
+Friend_ViewHistoryMsg	TLBB_ButtonNULL					NormalImage	Button7	IM_MsgManager_Nor	
+Friend_ViewHistoryMsg	TLBB_ButtonNULL					PushedImage	Button7	IM_MsgManager_Pus	
+Friend_SelfHead	TLBB_StaticImageFrame					Image	ManProtagonist	ManProtagonist_1	
+Friend_VIP	TLBB_StaticImageNULL					Tooltip			#{VIPTQ_110908_16}
+Friend_VIP	TLBB_StaticImageNULL					Image	CommonFrame19	VIPLevel_20	
+Friend_XuanBtn	TLBB_ButtonNULL					Tooltip			#{IMXZ_20100813_47}
+Friend_XuanBtn	TLBB_ButtonNULL					NormalImage	CommonFrame11	Xuan_Nor	
+Friend_XuanBtn	TLBB_ButtonNULL					HoverImage	CommonFrame11	Xuan_Hov	
+Friend_XuanBtn	TLBB_ButtonNULL					PushedImage	CommonFrame11	Xuan_Push	
+Friend_XuanBtn	TLBB_ButtonNULL					DisabledImage	CommonFrame11	Xuan_Dis	
+Friend_veriface	TLBB_ButtonNULL					Tooltip			#{}
+Friend_veriface	TLBB_ButtonNULL					PushedImage	Face_Authentication	Face_Authentication_Ren_Pushed	
+Friend_veriface	TLBB_ButtonNULL					NormalImage	Face_Authentication	Face_Authentication_Ren_Normal	
+Friend_veriface	TLBB_ButtonNULL					HoverImage	Face_Authentication	Face_Authentication_Ren_Hover	
+Friend_veriface	TLBB_ButtonNULL					DisabledImage	Face_Authentication	Face_Authentication_Ren_Disabled	
+Friend_LevelIcons	DefaultWindow					Tooltip			#{LTQH_XML_94}
+Friend_LevelIcons_1	TLBB_StaticImageNULL			16.000000	16.000000	Tooltip			#{LTQH_XML_94}
+Friend_LevelIcons_2	TLBB_StaticImageNULL			16.000000	16.000000	Tooltip			#{LTQH_XML_94}
+Friend_LevelIcons_3	TLBB_StaticImageNULL			16.000000	16.000000	Tooltip			#{LTQH_XML_94}
+Friend_LevelIcons_4	TLBB_StaticImageNULL			16.000000	16.000000	Tooltip			#{LTQH_XML_94}
+Friend_LevelIcons_5	TLBB_StaticImageNULL			16.000000	16.000000	Tooltip			#{LTQH_XML_94}
+Friend_LevelIcons_6	TLBB_StaticImageNULL			16.000000	16.000000	Tooltip			#{LTQH_XML_94}
+Friend_LevelIcons_7	TLBB_StaticImageNULL			16.000000	16.000000	Tooltip			#{LTQH_XML_94}
+Friend_ChangYou	TLBB_StaticImageNULL					Image	BHJS_02	Changyoujia	
+Friend_CreateGroup	TLBB_ButtonCommon					Text			#{LTQH_XML_15}
+Friend_IMSet	TLBB_ButtonCommon					Text			#{LTQH_XML_16}
+Friend_SearchBtn	TLBB_ButtonCommon					Text			#{DLJM_XML_41}
+Friend_SearchBtn	TLBB_ButtonCommon					Tooltip			#{LTQH_20100810_01}

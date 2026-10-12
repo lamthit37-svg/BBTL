@@ -1,0 +1,27 @@
+# ảnh, x, y, w, h, tệp atlas, các màn dùng
+
+BtnAdd_Hover	20	0	20	19	Common/tga_CreateRole1.dds	CreateRole,SelectRole
+BtnAdd_Normal	60	0	20	19	Common/tga_CreateRole1.dds	CreateRole,SelectRole
+BtnAdd_Pushed	40	0	20	19	Common/tga_CreateRole1.dds	CreateRole,SelectRole
+BtnLeft_Hover	0	92	14	19	Common/tga_CreateRole1.dds	CreateRole
+BtnLeft_Normal	0	111	14	19	Common/tga_CreateRole1.dds	CreateRole
+BtnLeft_Pushed	14	111	14	19	Common/tga_CreateRole1.dds	CreateRole
+BtnRandom_Disable	72	187	111	18	Common/tga_CreateRole1.dds	CreateRole
+BtnRandom_Hover	72	149	111	18	Common/tga_CreateRole1.dds	CreateRole
+BtnRandom_Normal	72	130	111	18	Common/tga_CreateRole1.dds	CreateRole
+BtnRandom_Pushed	72	168	111	18	Common/tga_CreateRole1.dds	CreateRole
+BtnRight_Hover	28	92	14	19	Common/tga_CreateRole1.dds	CreateRole
+BtnRight_Normal	28	111	14	19	Common/tga_CreateRole1.dds	CreateRole
+BtnRight_Pushed	42	111	14	19	Common/tga_CreateRole1.dds	CreateRole
+BtnSub_Hover	100	0	20	19	Common/tga_CreateRole1.dds	CreateRole,SelectRole
+BtnSub_Normal	140	0	20	19	Common/tga_CreateRole1.dds	CreateRole,SelectRole
+BtnSub_Pushed	120	0	20	19	Common/tga_CreateRole1.dds	CreateRole,SelectRole
+BtnTrunLeft_Hover	46	21	46	27	Common/tga_CreateRole1.dds	CreateRole,SelectRole
+BtnTrunLeft_Normal	138	21	46	27	Common/tga_CreateRole1.dds	CreateRole,SelectRole
+BtnTrunLeft_Pushed	92	21	46	27	Common/tga_CreateRole1.dds	CreateRole,SelectRole
+BtnTrunRight_Hover	46	48	46	27	Common/tga_CreateRole1.dds	CreateRole,SelectRole
+BtnTrunRight_Normal	138	48	46	27	Common/tga_CreateRole1.dds	CreateRole,SelectRole
+BtnTrunRight_Pushed	92	48	46	27	Common/tga_CreateRole1.dds	CreateRole,SelectRole
+CreateRole_Name	80	109	150	20	Common/tga_CreateRole1.dds	CreateRole
+Icon_Menpai	0	210	219	44	Common/tga_CreateRole1.dds	CreateRole
+Icon_Sex	80	94	89	13	Common/tga_CreateRole1.dds	CreateRole

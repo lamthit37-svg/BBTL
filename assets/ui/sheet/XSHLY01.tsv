@@ -1,0 +1,6 @@
+# ảnh, x, y, w, h, tệp atlas, các màn dùng
+
+XSHLY_Anniu_Disable	354	180	78	78	Common/tga_XSHLY01.dds	MiniMap
+XSHLY_Anniu_Hover	198	180	78	78	Common/tga_XSHLY01.dds	MiniMap
+XSHLY_Anniu_Normal	120	180	78	78	Common/tga_XSHLY01.dds	MiniMap
+XSHLY_Anniu_Pushed	276	180	78	78	Common/tga_XSHLY01.dds	MiniMap

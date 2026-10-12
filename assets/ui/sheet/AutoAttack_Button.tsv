@@ -1,0 +1,10 @@
+# ảnh, x, y, w, h, tệp atlas, các màn dùng
+
+AutoAttack_Btn_G_Disable	108	250	32	30	Common/png_AutoAttack_Button.dds	MiniMap
+AutoAttack_Btn_G_Hover	76	264	32	30	Common/png_AutoAttack_Button.dds	MiniMap
+AutoAttack_Btn_G_Normal	108	220	32	30	Common/png_AutoAttack_Button.dds	MiniMap
+AutoAttack_Btn_G_Pushed	76	234	32	30	Common/png_AutoAttack_Button.dds	MiniMap
+AutoAttack_Btn_Y_Disable	76	204	32	30	Common/png_AutoAttack_Button.dds	MiniMap
+AutoAttack_Btn_Y_Hover	76	174	32	30	Common/png_AutoAttack_Button.dds	MiniMap
+AutoAttack_Btn_Y_Normal	76	144	32	30	Common/png_AutoAttack_Button.dds	MiniMap
+AutoAttack_Btn_Y_Pushed	76	114	32	30	Common/png_AutoAttack_Button.dds	MiniMap

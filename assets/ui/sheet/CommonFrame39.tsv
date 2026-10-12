@@ -1,0 +1,16 @@
+# ảnh, x, y, w, h, tệp atlas, các màn dùng
+
+Fenxian_Disabled	86	633	27	28	Common/png_CommonFrame39.dds	MiniMap
+Fenxian_Hover	86	605	27	28	Common/png_CommonFrame39.dds	MiniMap
+Fenxian_Normal	86	577	27	28	Common/png_CommonFrame39.dds	MiniMap
+Fenxian_Pushed	86	549	27	28	Common/png_CommonFrame39.dds	MiniMap
+GGJG_XLD2	108	751	12	12	Common/png_CommonFrame39.dds	PlayerFrame
+PKLevel_Down	295	411	14	26	Common/png_CommonFrame39.dds	SelfEquip
+PK_Button_Disabled	86	521	27	28	Common/png_CommonFrame39.dds	MiniMap
+PK_Button_Hover	86	493	27	28	Common/png_CommonFrame39.dds	MiniMap
+PK_Button_Normal	86	465	27	28	Common/png_CommonFrame39.dds	MiniMap
+PK_Button_Pushed	86	437	27	28	Common/png_CommonFrame39.dds	MiniMap
+State_PK	120	391	20	20	Common/png_CommonFrame39.dds	PlayerFrame
+Xian_Button_Hover	86	739	22	22	Common/png_CommonFrame39.dds	PlayerFrame
+Xian_Button_Normal	488	0	22	22	Common/png_CommonFrame39.dds	PlayerFrame
+Xian_Button_Pushed	185	282	22	22	Common/png_CommonFrame39.dds	PlayerFrame

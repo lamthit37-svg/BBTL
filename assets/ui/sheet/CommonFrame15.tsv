@@ -1,0 +1,5 @@
+# ảnh, x, y, w, h, tệp atlas, các màn dùng
+
+DiaoIcon_A1	2	185	25	26	Common/tga_CommonFrame15.dds	MiniMap
+DiaoIcon_A2	34	185	25	26	Common/tga_CommonFrame15.dds	MiniMap
+DiaoIcon_A3	66	185	25	26	Common/tga_CommonFrame15.dds	MiniMap

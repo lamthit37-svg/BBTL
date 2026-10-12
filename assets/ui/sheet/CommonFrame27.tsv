@@ -1,0 +1,4 @@
+# ảnh, x, y, w, h, tệp atlas, các màn dùng
+
+TragetType8	232	435	89	77	Common/tga_CommonFrame27.dds	PlayerFrame
+TragetType8_3D	321	435	102	77	Common/tga_CommonFrame27.dds	PlayerFrame

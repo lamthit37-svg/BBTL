@@ -1,0 +1,6 @@
+# ảnh, x, y, w, h, tệp atlas, các màn dùng
+
+BugUpdate_Hov	22	234	21	21	Common/tga_CommonFrame8.dds	MiniMap
+BugUpdate_Nor	0	234	21	21	Common/tga_CommonFrame8.dds	MiniMap
+BugUpdate_Push	44	234	21	21	Common/tga_CommonFrame8.dds	MiniMap
+PlayerFrame	0	0	247	73	Common/tga_CommonFrame8.dds	PlayerFrame

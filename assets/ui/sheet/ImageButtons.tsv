@@ -1,0 +1,8 @@
+# ảnh, x, y, w, h, tệp atlas, các màn dùng
+
+InfantCardGift_Hover	290	199	90	28	Common/ImageButtons.tga	PlayerFrame
+InfantCardGift_Normal	290	170	90	28	Common/ImageButtons.tga	PlayerFrame
+InfantCardGift_Pushed	290	228	90	28	Common/ImageButtons.tga	PlayerFrame
+Jincanxianli_Hover	290	413	103	29	Common/ImageButtons.tga	PlayerFrame
+Jincanxianli_Normal	290	380	103	29	Common/ImageButtons.tga	PlayerFrame
+Jincanxianli_Pushed	290	446	103	29	Common/ImageButtons.tga	PlayerFrame

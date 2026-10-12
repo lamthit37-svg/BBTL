@@ -1,0 +1,22 @@
+# cửa sổ, loại, x, y, w, h, thuộc tính, atlas, ảnh, chữ
+
+LifeSkill_DragTitle	TLBB_DragTitle	102.000000	4.000000			Text			#{INTERFACE_XML_58}
+LifeSkill_UPdata1	TLBB_ButtonNULL			20.0	26.0	NormalImage	Button6	PageUp_Btn_Normal	
+LifeSkill_UPdata1	TLBB_ButtonNULL			20.0	26.0	HoverImage	Button6	PageUp_Btn_Hover	
+LifeSkill_UPdata1	TLBB_ButtonNULL			20.0	26.0	PushedImage	Button6	PageUp_Btn_Pushed	
+LifeSkill_UPdata1	TLBB_ButtonNULL			20.0	26.0	DisabledImage	Button6	PageUp_Btn_Disabled	
+LifeSkill_UPdata2	TLBB_ButtonNULL			20.0	26.0	NormalImage	Button6	PageDown_Btn_Normal	
+LifeSkill_UPdata2	TLBB_ButtonNULL			20.0	26.0	HoverImage	Button6	PageDown_Btn_Hover	
+LifeSkill_UPdata2	TLBB_ButtonNULL			20.0	26.0	PushedImage	Button6	PageDown_Btn_Pushed	
+LifeSkill_UPdata2	TLBB_ButtonNULL			20.0	26.0	DisabledImage	Button6	PageDown_Btn_Disabled	
+LifeSkill_Target_Skill_Name	TLBB_SimpleMulitiTextFrame					Text			#{INTERFACE_XML_812}
+LifeSkill_Target_Skill_Level	TLBB_SimpleMulitiTextFrame					Text			#{INTERFACE_XML_230}
+LifeSkill_Target_Skill_Sleight	TLBB_SimpleMulitiTextFrame					Text			#{INTERFACE_XML_662}
+LifeSkill_Next1	TLBB_ButtonCommon					Text			#{INTERFACE_XML_871}
+LifeSkill_CommonlySkill	TLBB_ButtonPageDown	0.0	0.0			Text			#{INTERFACE_XML_494}
+LifeSkill_ActionSkill	TLBB_ButtonPageDown	36.0	0.0			Text			#{INTERFACE_XML_448}
+LifeSkill_ZhenfaSkill	TLBB_ButtonPageDown	72	0.0	35.000000	18.000000	Text			#{JBGXW_150526_215}
+LifeSkill_LifeSkill	TLBB_ButtonPageDown	108.0	0.0			Text			#{INTERFACE_XML_635}
+LifeSkill_AutoAttack	TLBB_ButtonPageDown					Text			#{ZDZD_200724_08}
+LifeSkill_ZongMenSkill	TLBB_ButtonPageDown					Text			#{ZMTF_230628_20}
+LifeSkill_ZongMenSkill_Tips	TLBB_StaticImageNULL					Image	CommonFrame14	Tips	

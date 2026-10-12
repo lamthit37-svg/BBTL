@@ -1,0 +1,15 @@
+# ảnh, x, y, w, h, tệp atlas, các màn dùng
+
+Lace_JiaoziJin	98	238	16	16	Common/button06.tga	ActionSkill,Packet
+Lace_JiaoziTong	134	238	16	16	Common/button06.tga	ActionSkill,Packet
+Lace_JiaoziYin	116	238	16	16	Common/button06.tga	ActionSkill,Packet
+PageDown_Btn_Disabled	236	228	20	26	Common/button06.tga	AcceSetup,CommonSkill,LifeSkill
+PageDown_Btn_Hover	194	228	20	26	Common/button06.tga	AcceSetup,CommonSkill,LifeSkill
+PageDown_Btn_Normal	173	228	20	26	Common/button06.tga	AcceSetup,CommonSkill,LifeSkill
+PageDown_Btn_Pushed	215	228	20	26	Common/button06.tga	AcceSetup,CommonSkill,LifeSkill
+PageUp_Btn_Disabled	63	219	20	26	Common/button06.tga	AcceSetup,CommonSkill,LifeSkill
+PageUp_Btn_Hover	21	219	20	26	Common/button06.tga	AcceSetup,CommonSkill,LifeSkill
+PageUp_Btn_Normal	0	219	20	26	Common/button06.tga	AcceSetup,CommonSkill,LifeSkill
+PageUp_Btn_Pushed	42	219	20	26	Common/button06.tga	AcceSetup,CommonSkill,LifeSkill
+PetAttack_Type1	25	193	24	23	Common/button06.tga	Pet
+Set_Bar	235	115	4	19	Common/button06.tga	SelfEquip

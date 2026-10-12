@@ -1,0 +1,14 @@
+# ảnh, x, y, w, h, tệp atlas, các màn dùng
+
+OlKefu_Hover	90	205	25	26	Common/CommonFrame7.tga	MiniMap
+OlKefu_Normal	65	205	25	26	Common/CommonFrame7.tga	MiniMap
+OlKefu_Pushed	115	205	25	26	Common/CommonFrame7.tga	MiniMap
+PetEquip_Hufu	0	111	36	36	Common/CommonFrame7.tga	Pet
+PetEquip_Qugan	39	111	36	36	Common/CommonFrame7.tga	Pet
+PetEquip_Tou	78	111	36	36	Common/CommonFrame7.tga	Pet
+PetEquip_Xiangquan	117	111	36	36	Common/CommonFrame7.tga	Pet
+PetEquip_Zhua	156	111	36	36	Common/CommonFrame7.tga	Pet
+Phoenix_Qi	228	230	28	26	Common/CommonFrame7.tga	MiniMap
+XunIcon_A1	2	79	25	26	Common/CommonFrame7.tga	MiniMap
+XunIcon_A2	34	79	25	26	Common/CommonFrame7.tga	MiniMap
+XunIcon_A3	66	79	25	26	Common/CommonFrame7.tga	MiniMap

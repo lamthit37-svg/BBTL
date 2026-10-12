@@ -1,0 +1,6 @@
+# ảnh, x, y, w, h, tệp atlas, các màn dùng
+
+XSJNH_Anniu_Disabled	82	344	62	78	Common/tga_XSYNew02.dds	MiniMap
+XSJNH_Anniu_Hover	332	237	62	78	Common/tga_XSYNew02.dds	MiniMap
+XSJNH_Anniu_Normal	270	237	62	78	Common/tga_XSYNew02.dds	MiniMap
+XSJNH_Anniu_Pushed	438	48	62	78	Common/tga_XSYNew02.dds	MiniMap

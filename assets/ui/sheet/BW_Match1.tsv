@@ -1,0 +1,6 @@
+# ảnh, x, y, w, h, tệp atlas, các màn dùng
+
+Bright_Stars	32	480	32	32	Common/png_BW_Match1.dds	SelfEquip
+Dragon01_Hover	132	400	44	40	Common/png_BW_Match1.dds	SelfEquip
+Dragon01_Normal	88	440	44	40	Common/png_BW_Match1.dds	SelfEquip
+Dragon01_Pushed	88	400	44	40	Common/png_BW_Match1.dds	SelfEquip

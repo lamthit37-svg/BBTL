@@ -1,0 +1,25 @@
+# ảnh, x, y, w, h, tệp atlas, các màn dùng
+
+CreateRole_Disabled	380	301	132	54	Common/tga_MainFrameLuo04.dds	CreateRole
+CreateRole_Hover	380	301	132	54	Common/tga_MainFrameLuo04.dds	CreateRole
+CreateRole_Normal	380	246	132	54	Common/tga_MainFrameLuo04.dds	CreateRole
+CreateRole_Pushed	380	301	132	54	Common/tga_MainFrameLuo04.dds	CreateRole
+Cs_Tianlong_Pushed	210	250	150	40	Common/tga_MainFrameLuo04.dds	CreateRole
+Cs_Tianshan_Normal	210	330	150	40	Common/tga_MainFrameLuo04.dds	CreateRole
+Cs_Tianshan_Pushed	210	410	150	40	Common/tga_MainFrameLuo04.dds	CreateRole
+Last_Create_Disabled	404	116	53	18	Common/tga_MainFrameLuo04.dds	CreateRole
+Last_Create_Hover	404	97	53	18	Common/tga_MainFrameLuo04.dds	CreateRole
+Last_Create_Normal	404	78	53	18	Common/tga_MainFrameLuo04.dds	CreateRole
+Last_Create_Pushed	404	116	53	18	Common/tga_MainFrameLuo04.dds	CreateRole
+Next_Create_Disabled	459	116	53	18	Common/tga_MainFrameLuo04.dds	CreateRole
+Next_Create_Hover	459	97	53	18	Common/tga_MainFrameLuo04.dds	CreateRole
+Next_Create_Normal	459	78	53	18	Common/tga_MainFrameLuo04.dds	CreateRole
+Next_Create_Pushed	459	116	53	18	Common/tga_MainFrameLuo04.dds	CreateRole
+SelectCloth	453	62	59	13	Common/tga_MainFrameLuo04.dds	CreateRole
+SelectFace	453	32	59	13	Common/tga_MainFrameLuo04.dds	CreateRole
+SelectHair	453	17	59	13	Common/tga_MainFrameLuo04.dds	CreateRole
+SelectHead	453	47	59	13	Common/tga_MainFrameLuo04.dds	CreateRole
+SelectRoleBKG1	0	0	207	434	Common/tga_MainFrameLuo04.dds	SelectRole
+SelectRoleBKG2	210	0	168	123	Common/tga_MainFrameLuo04.dds	SelectRole
+SelectRoleBKG3	210	125	188	117	Common/tga_MainFrameLuo04.dds	SelectRole
+SelectSex	453	2	59	13	Common/tga_MainFrameLuo04.dds	CreateRole

@@ -1,0 +1,19 @@
+# ảnh, x, y, w, h, tệp atlas, các màn dùng
+
+Minimap_NetState1	224	0	31	30	Common/CommonStaticImage.tga	MiniMap
+Minimap_NetState2	224	35	31	30	Common/CommonStaticImage.tga	MiniMap
+Minimap_NetState3	224	70	31	30	Common/CommonStaticImage.tga	MiniMap
+Minimap_NetState4	225	105	31	30	Common/CommonStaticImage.tga	MiniMap
+Minimap_Time1	0	180	20	20	Common/CommonStaticImage.tga	MiniMap
+Minimap_Time10	60	200	20	20	Common/CommonStaticImage.tga	MiniMap
+Minimap_Time11	80	200	20	20	Common/CommonStaticImage.tga	MiniMap
+Minimap_Time12	100	200	20	20	Common/CommonStaticImage.tga	MiniMap
+Minimap_Time2	20	180	20	20	Common/CommonStaticImage.tga	MiniMap
+Minimap_Time3	40	180	20	20	Common/CommonStaticImage.tga	MiniMap
+Minimap_Time4	60	180	20	20	Common/CommonStaticImage.tga	MiniMap
+Minimap_Time5	80	180	20	20	Common/CommonStaticImage.tga	MiniMap
+Minimap_Time6	100	180	20	20	Common/CommonStaticImage.tga	MiniMap
+Minimap_Time7	0	200	20	20	Common/CommonStaticImage.tga	MiniMap
+Minimap_Time8	20	200	20	20	Common/CommonStaticImage.tga	MiniMap
+Minimap_Time9	40	200	20	20	Common/CommonStaticImage.tga	MiniMap
+Minimap_TimePointer	2	168	9	9	Common/CommonStaticImage.tga	MiniMap

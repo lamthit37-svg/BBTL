@@ -1,0 +1,7 @@
+# ảnh, x, y, w, h, tệp atlas, các màn dùng
+
+MiniMap_AutoSearch_BK	1	100	98	45	Common/Button08.tga	MiniMap
+MiniMap_AutoSearch_Disabled	16	74	70	23	Common/Button08.tga	MiniMap
+MiniMap_AutoSearch_Hover	16	26	70	23	Common/Button08.tga	MiniMap
+MiniMap_AutoSearch_Normal	16	2	70	23	Common/Button08.tga	MiniMap
+MiniMap_AutoSearch_Pushed	16	51	70	23	Common/Button08.tga	MiniMap

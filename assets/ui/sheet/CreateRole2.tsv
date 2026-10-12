@@ -1,0 +1,10 @@
+# ảnh, x, y, w, h, tệp atlas, các màn dùng
+
+BtnCancel_Disable	0	165	132	55	Common/tga_CreateRole2.dds	CreateRole
+BtnCancel_Hover	0	55	132	55	Common/tga_CreateRole2.dds	CreateRole
+BtnCancel_Normal	0	0	132	55	Common/tga_CreateRole2.dds	CreateRole
+BtnCancel_Pushed	0	110	132	55	Common/tga_CreateRole2.dds	CreateRole
+CreateRole_Name2	135	30	120	20	Common/tga_CreateRole2.dds	CreateRole
+ZBPF_Btn_Hover	148	50	13	13	Common/tga_CreateRole2.dds	SelfEquip
+ZBPF_Btn_Normal	135	50	13	13	Common/tga_CreateRole2.dds	SelfEquip
+ZBPF_Btn_Pushed	161	50	13	13	Common/tga_CreateRole2.dds	SelfEquip

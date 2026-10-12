@@ -1,0 +1,8 @@
+# ảnh, x, y, w, h, tệp atlas, các màn dùng
+
+TuJian_Hover	53	70	25	25	Common/tga_CommonFrame6.dds	Pet
+TuJian_Normal	26	70	25	25	Common/tga_CommonFrame6.dds	Pet
+TuJian_Pushed	80	70	25	25	Common/tga_CommonFrame6.dds	Pet
+Xiaolaba_Hover	198	120	22	22	Common/tga_CommonFrame6.dds	ChatFrame
+Xiaolaba_Normal	198	98	22	22	Common/tga_CommonFrame6.dds	ChatFrame
+Xiaolaba_Pushed	198	142	22	22	Common/tga_CommonFrame6.dds	ChatFrame

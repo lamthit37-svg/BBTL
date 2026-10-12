@@ -1,0 +1,22 @@
+# cửa sổ, loại, x, y, w, h, thuộc tính, atlas, ảnh, chữ
+
+Operation_Frame_BK	TLBB_StaticImageNULL					Image	CommonFrame16	SystemFrame_BK	
+Operation_DragTitle	TLBB_DragTitle					Text			#{INTERFACE_XML_69}
+Operation_Frame_Close	TLBB_ButtonClose			14.000000	14.000000	Text			TLBB_ButtonClose
+Operation_Help	TLBB_ButtonCommon5					Text			#{INTERFACE_XML_135}
+Operation_BBS	TLBB_ButtonCommon5					Text			#{NQLT_141118_05}
+Operation_System	TLBB_ButtonCommon5					Text			#{NQLT_141118_06}
+Operation_Sound	TLBB_ButtonCommon					Text			#{INTERFACE_XML_637}
+Operation_Geme	TLBB_ButtonCommon					Text			#{INTERFACE_XML_837}
+Operation_Acce_Custom	TLBB_ButtonCommon					Text			#{INTERFACE_XML_1053}
+Operation_2Menu	TLBB_ButtonCommon5					Text			#{INTERFACE_XML_929}
+Operation_QuitGame	TLBB_ButtonCommon5					Text			#{INTERFACE_XML_705}
+Operation_BackGame	TLBB_ButtonCommon6					Text			#{INTERFACE_XML_266}
+Operation_WeGame_Help	TLBB_ButtonCommon5					Text			#{INTERFACE_XML_135}
+Operation_WeGame_System	TLBB_ButtonCommon5					Text			#{NQLT_141118_06}
+Operation_WeGame_Sound	TLBB_ButtonCommon					Text			#{INTERFACE_XML_637}
+Operation_WeGame_Geme	TLBB_ButtonCommon					Text			#{INTERFACE_XML_837}
+Operation_WeGame_Acce_Custom	TLBB_ButtonCommon					Text			#{INTERFACE_XML_1053}
+Operation_WeGame_2Menu	TLBB_ButtonCommon5					Text			#{INTERFACE_XML_929}
+Operation_WeGame_QuitGame	TLBB_ButtonCommon5					Text			#{INTERFACE_XML_705}
+Operation_WeGame_BackGame	TLBB_ButtonCommon6					Text			#{INTERFACE_XML_266}

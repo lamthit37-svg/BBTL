@@ -1,0 +1,244 @@
+# cửa sổ, loại, x, y, w, h, thuộc tính, atlas, ảnh, chữ
+
+ZongMenSkill_DragTitle	TLBB_DragTitle					Text			#{ZMTF_230628_24}
+ZongMenSkill_PataBtn	TLBB_ButtonNULL					Tooltip			#{ZMPT_230629_02}
+ZongMenSkill_PataBtn	TLBB_ButtonNULL					PushedImage	ZongMenSkill	ZongMenSkill_PataEnter_Pushed	
+ZongMenSkill_PataBtn	TLBB_ButtonNULL					NormalImage	ZongMenSkill	ZongMenSkill_PataEnter_Normal	
+ZongMenSkill_PataBtn	TLBB_ButtonNULL					HoverImage	ZongMenSkill	ZongMenSkill_PataEnter_Hover	
+ZongMenSkill_PataBtn_Tips	TLBB_StaticImageNULL					Image	CommonFrame14	Tips	
+ZongMenSkill_LevelText	TLBB_SimpleText					Text			#{ZMDZ_230703_18}
+ZongMenSkill_SufferText	TLBB_SimpleText					Text			#{ZMDZ_230703_20}
+ZongMenSkill_SufferText	TLBB_SimpleText					Tooltip			#{ZMDZ_230703_21}
+ZongMenSkill_SufferBK_Jindu	TLBB_ZongMenSkill_Progress					Tooltip			#{ZMDZ_230703_19}
+ZongMenSkill_TalentEquip_SkillIconLock	TLBB_StaticImageNULL					Image	NewExterior3	NewExterior_jiaobiao_suo_di	
+ZongMenSkill_TalentEquip_SkillLock	TLBB_StaticImageNULL					Image	Face_04	Remind_Bak	
+ZongMenSkill_TalentIconLock1	TLBB_StaticImageNULL					Image	NewExterior3	NewExterior_jiaobiao_suo_di	
+ZongMenSkill_TalentLock1	TLBB_StaticImageNULL					Image	Face_04	Remind_Bak	
+ZongMenSkill_TalentIconLock2	TLBB_StaticImageNULL					Image	NewExterior3	NewExterior_jiaobiao_suo_di	
+ZongMenSkill_TalentLock2	TLBB_StaticImageNULL					Image	Face_04	Remind_Bak	
+ZongMenSkill_TalentIconLock3	TLBB_StaticImageNULL					Image	NewExterior3	NewExterior_jiaobiao_suo_di	
+ZongMenSkill_TalentLock3	TLBB_StaticImageNULL					Image	Face_04	Remind_Bak	
+ZongMenSkill_TalentIconLock4	TLBB_StaticImageNULL					Image	NewExterior3	NewExterior_jiaobiao_suo_di	
+ZongMenSkill_TalentLock4	TLBB_StaticImageNULL					Image	Face_04	Remind_Bak	
+ZongMenSkill_TalentIconLock5	TLBB_StaticImageNULL					Image	NewExterior3	NewExterior_jiaobiao_suo_di	
+ZongMenSkill_TalentLock5	TLBB_StaticImageNULL					Image	Face_04	Remind_Bak	
+ZongMenSkill_TalentIconLock6	TLBB_StaticImageNULL					Image	NewExterior3	NewExterior_jiaobiao_suo_di	
+ZongMenSkill_TalentLock6	TLBB_StaticImageNULL					Image	Face_04	Remind_Bak	
+ZongMenSkill_TalentIconLock7	TLBB_StaticImageNULL					Image	NewExterior3	NewExterior_jiaobiao_suo_di	
+ZongMenSkill_TalentLock7	TLBB_StaticImageNULL					Image	Face_04	Remind_Bak	
+ZongMenSkill_TalentIconLock8	TLBB_StaticImageNULL					Image	NewExterior3	NewExterior_jiaobiao_suo_di	
+ZongMenSkill_TalentLock8	TLBB_StaticImageNULL					Image	Face_04	Remind_Bak	
+ZongMenSkill_TalentIconLock9	TLBB_StaticImageNULL					Image	NewExterior3	NewExterior_jiaobiao_suo_di	
+ZongMenSkill_TalentLock9	TLBB_StaticImageNULL					Image	Face_04	Remind_Bak	
+ZongMenSkill_TalentIconLock10	TLBB_StaticImageNULL					Image	NewExterior3	NewExterior_jiaobiao_suo_di	
+ZongMenSkill_TalentLock10	TLBB_StaticImageNULL					Image	Face_04	Remind_Bak	
+ZongMenSkill_TalentIconLock11	TLBB_StaticImageNULL					Image	NewExterior3	NewExterior_jiaobiao_suo_di	
+ZongMenSkill_TalentLock11	TLBB_StaticImageNULL					Image	Face_04	Remind_Bak	
+ZongMenSkill_TalentIconLock12	TLBB_StaticImageNULL					Image	NewExterior3	NewExterior_jiaobiao_suo_di	
+ZongMenSkill_TalentLock12	TLBB_StaticImageNULL					Image	Face_04	Remind_Bak	
+ZongMenSkill_TalentIconLock13	TLBB_StaticImageNULL					Image	NewExterior3	NewExterior_jiaobiao_suo_di	
+ZongMenSkill_TalentLock13	TLBB_StaticImageNULL					Image	Face_04	Remind_Bak	
+ZongMenSkill_TalentIconLock14	TLBB_StaticImageNULL					Image	NewExterior3	NewExterior_jiaobiao_suo_di	
+ZongMenSkill_TalentLock14	TLBB_StaticImageNULL					Image	Face_04	Remind_Bak	
+ZongMenSkill_TalentIconLock15	TLBB_StaticImageNULL					Image	NewExterior3	NewExterior_jiaobiao_suo_di	
+ZongMenSkill_TalentLock15	TLBB_StaticImageNULL					Image	Face_04	Remind_Bak	
+ZongMenSkill_TalentLevelLock15	TLBB_StaticImageNULL					Image	Rune_Star01	Rune_Lock	
+ZongMenSkill_TalentIconLock16	TLBB_StaticImageNULL					Image	NewExterior3	NewExterior_jiaobiao_suo_di	
+ZongMenSkill_TalentLock16	TLBB_StaticImageNULL					Image	Face_04	Remind_Bak	
+ZongMenSkill_TalentLevelLock16	TLBB_StaticImageNULL					Image	Rune_Star01	Rune_Lock	
+ZongMenSkill_TalentFrameBK	TLBB_StaticImageNULL					Image	ZongMenSkill	ZongMenSkill_BK	
+ZongMenSkill_TalentBtn1	TLBB_ButtonCheckNULL					PushedImage	ZongMenSkill	ZongMenSkill_Check	
+ZongMenSkill_TalentAttr1_1	TLBB_StaticImageNULL					Image	ZongMenSkill	ZongMenSkill_Tips1	
+ZongMenSkill_TalentAttr1_2	TLBB_StaticImageNULL					Image	ZongMenSkill	ZongMenSkill_Tips2	
+ZongMenSkill_TalentAttr1_3	TLBB_StaticImageNULL					Image	ZongMenSkill	ZongMenSkill_Tips3	
+ZongMenSkill_TalentAttr1_4	TLBB_StaticImageNULL					Image	ZongMenSkill	ZongMenSkill_Tips4	
+ZongMenSkill_TalentAttr1_5	TLBB_StaticImageNULL					Image	ZongMenSkill	ZongMenSkill_Tips5	
+ZongMenSkill_TalentAttr1_6	TLBB_StaticImageNULL					Image	ZongMenSkill	ZongMenSkill_Tips6	
+ZongMenSkill_TalentBtn2	TLBB_ButtonCheckNULL					PushedImage	ZongMenSkill	ZongMenSkill_Check	
+ZongMenSkill_TalentAttr2_1	TLBB_StaticImageNULL					Image	ZongMenSkill	ZongMenSkill_Tips1	
+ZongMenSkill_TalentAttr2_2	TLBB_StaticImageNULL					Image	ZongMenSkill	ZongMenSkill_Tips2	
+ZongMenSkill_TalentAttr2_3	TLBB_StaticImageNULL					Image	ZongMenSkill	ZongMenSkill_Tips3	
+ZongMenSkill_TalentAttr2_4	TLBB_StaticImageNULL					Image	ZongMenSkill	ZongMenSkill_Tips4	
+ZongMenSkill_TalentAttr2_5	TLBB_StaticImageNULL					Image	ZongMenSkill	ZongMenSkill_Tips5	
+ZongMenSkill_TalentAttr2_6	TLBB_StaticImageNULL					Image	ZongMenSkill	ZongMenSkill_Tips6	
+ZongMenSkill_TalentBtn3	TLBB_ButtonCheckNULL					PushedImage	ZongMenSkill	ZongMenSkill_Check	
+ZongMenSkill_TalentAttr3_1	TLBB_StaticImageNULL					Image	ZongMenSkill	ZongMenSkill_Tips1	
+ZongMenSkill_TalentAttr3_2	TLBB_StaticImageNULL					Image	ZongMenSkill	ZongMenSkill_Tips2	
+ZongMenSkill_TalentAttr3_3	TLBB_StaticImageNULL					Image	ZongMenSkill	ZongMenSkill_Tips3	
+ZongMenSkill_TalentAttr3_4	TLBB_StaticImageNULL					Image	ZongMenSkill	ZongMenSkill_Tips4	
+ZongMenSkill_TalentAttr3_5	TLBB_StaticImageNULL					Image	ZongMenSkill	ZongMenSkill_Tips5	
+ZongMenSkill_TalentAttr3_6	TLBB_StaticImageNULL					Image	ZongMenSkill	ZongMenSkill_Tips6	
+ZongMenSkill_TalentBtn4	TLBB_ButtonCheckNULL					PushedImage	ZongMenSkill	ZongMenSkill_Check	
+ZongMenSkill_TalentAttr4_1	TLBB_StaticImageNULL					Image	ZongMenSkill	ZongMenSkill_Tips1	
+ZongMenSkill_TalentAttr4_2	TLBB_StaticImageNULL					Image	ZongMenSkill	ZongMenSkill_Tips2	
+ZongMenSkill_TalentAttr4_3	TLBB_StaticImageNULL					Image	ZongMenSkill	ZongMenSkill_Tips3	
+ZongMenSkill_TalentAttr4_4	TLBB_StaticImageNULL					Image	ZongMenSkill	ZongMenSkill_Tips4	
+ZongMenSkill_TalentAttr4_5	TLBB_StaticImageNULL					Image	ZongMenSkill	ZongMenSkill_Tips5	
+ZongMenSkill_TalentAttr4_6	TLBB_StaticImageNULL					Image	ZongMenSkill	ZongMenSkill_Tips6	
+ZongMenSkill_TalentBtn5	TLBB_ButtonCheckNULL					PushedImage	ZongMenSkill	ZongMenSkill_Check	
+ZongMenSkill_TalentAttr5_1	TLBB_StaticImageNULL					Image	ZongMenSkill	ZongMenSkill_Tips1	
+ZongMenSkill_TalentAttr5_2	TLBB_StaticImageNULL					Image	ZongMenSkill	ZongMenSkill_Tips2	
+ZongMenSkill_TalentAttr5_3	TLBB_StaticImageNULL					Image	ZongMenSkill	ZongMenSkill_Tips3	
+ZongMenSkill_TalentAttr5_4	TLBB_StaticImageNULL					Image	ZongMenSkill	ZongMenSkill_Tips4	
+ZongMenSkill_TalentAttr5_5	TLBB_StaticImageNULL					Image	ZongMenSkill	ZongMenSkill_Tips5	
+ZongMenSkill_TalentAttr5_6	TLBB_StaticImageNULL					Image	ZongMenSkill	ZongMenSkill_Tips6	
+ZongMenSkill_TalentBtn6	TLBB_ButtonCheckNULL					PushedImage	ZongMenSkill	ZongMenSkill_Check	
+ZongMenSkill_TalentAttr6_1	TLBB_StaticImageNULL					Image	ZongMenSkill	ZongMenSkill_Tips1	
+ZongMenSkill_TalentAttr6_2	TLBB_StaticImageNULL					Image	ZongMenSkill	ZongMenSkill_Tips2	
+ZongMenSkill_TalentAttr6_3	TLBB_StaticImageNULL					Image	ZongMenSkill	ZongMenSkill_Tips3	
+ZongMenSkill_TalentAttr6_4	TLBB_StaticImageNULL					Image	ZongMenSkill	ZongMenSkill_Tips4	
+ZongMenSkill_TalentAttr6_5	TLBB_StaticImageNULL					Image	ZongMenSkill	ZongMenSkill_Tips5	
+ZongMenSkill_TalentAttr6_6	TLBB_StaticImageNULL					Image	ZongMenSkill	ZongMenSkill_Tips6	
+ZongMenSkill_TalentBtn7	TLBB_ButtonCheckNULL					PushedImage	ZongMenSkill	ZongMenSkill_Check	
+ZongMenSkill_TalentAttr7_1	TLBB_StaticImageNULL					Image	ZongMenSkill	ZongMenSkill_Tips1	
+ZongMenSkill_TalentAttr7_2	TLBB_StaticImageNULL					Image	ZongMenSkill	ZongMenSkill_Tips2	
+ZongMenSkill_TalentAttr7_3	TLBB_StaticImageNULL					Image	ZongMenSkill	ZongMenSkill_Tips3	
+ZongMenSkill_TalentAttr7_4	TLBB_StaticImageNULL					Image	ZongMenSkill	ZongMenSkill_Tips4	
+ZongMenSkill_TalentAttr7_5	TLBB_StaticImageNULL					Image	ZongMenSkill	ZongMenSkill_Tips5	
+ZongMenSkill_TalentAttr7_6	TLBB_StaticImageNULL					Image	ZongMenSkill	ZongMenSkill_Tips6	
+ZongMenSkill_TalentBtn8	TLBB_ButtonCheckNULL					PushedImage	ZongMenSkill	ZongMenSkill_Check	
+ZongMenSkill_TalentAttr8_1	TLBB_StaticImageNULL					Image	ZongMenSkill	ZongMenSkill_Tips1	
+ZongMenSkill_TalentAttr8_2	TLBB_StaticImageNULL					Image	ZongMenSkill	ZongMenSkill_Tips2	
+ZongMenSkill_TalentAttr8_3	TLBB_StaticImageNULL					Image	ZongMenSkill	ZongMenSkill_Tips3	
+ZongMenSkill_TalentAttr8_4	TLBB_StaticImageNULL					Image	ZongMenSkill	ZongMenSkill_Tips4	
+ZongMenSkill_TalentAttr8_5	TLBB_StaticImageNULL					Image	ZongMenSkill	ZongMenSkill_Tips5	
+ZongMenSkill_TalentAttr8_6	TLBB_StaticImageNULL					Image	ZongMenSkill	ZongMenSkill_Tips6	
+ZongMenSkill_TalentBtn9	TLBB_ButtonCheckNULL					PushedImage	ZongMenSkill	ZongMenSkill_Check	
+ZongMenSkill_TalentAttr9_1	TLBB_StaticImageNULL					Image	ZongMenSkill	ZongMenSkill_Tips1	
+ZongMenSkill_TalentAttr9_2	TLBB_StaticImageNULL					Image	ZongMenSkill	ZongMenSkill_Tips2	
+ZongMenSkill_TalentAttr9_3	TLBB_StaticImageNULL					Image	ZongMenSkill	ZongMenSkill_Tips3	
+ZongMenSkill_TalentAttr9_4	TLBB_StaticImageNULL					Image	ZongMenSkill	ZongMenSkill_Tips4	
+ZongMenSkill_TalentAttr9_5	TLBB_StaticImageNULL					Image	ZongMenSkill	ZongMenSkill_Tips5	
+ZongMenSkill_TalentAttr9_6	TLBB_StaticImageNULL					Image	ZongMenSkill	ZongMenSkill_Tips6	
+ZongMenSkill_TalentBtn10	TLBB_ButtonCheckNULL					PushedImage	ZongMenSkill	ZongMenSkill_Check	
+ZongMenSkill_TalentAttr10_1	TLBB_StaticImageNULL					Image	ZongMenSkill	ZongMenSkill_Tips1	
+ZongMenSkill_TalentAttr10_2	TLBB_StaticImageNULL					Image	ZongMenSkill	ZongMenSkill_Tips2	
+ZongMenSkill_TalentAttr10_3	TLBB_StaticImageNULL					Image	ZongMenSkill	ZongMenSkill_Tips3	
+ZongMenSkill_TalentAttr10_4	TLBB_StaticImageNULL					Image	ZongMenSkill	ZongMenSkill_Tips4	
+ZongMenSkill_TalentAttr10_5	TLBB_StaticImageNULL					Image	ZongMenSkill	ZongMenSkill_Tips5	
+ZongMenSkill_TalentAttr10_6	TLBB_StaticImageNULL					Image	ZongMenSkill	ZongMenSkill_Tips6	
+ZongMenSkill_TalentBtn11	TLBB_ButtonCheckNULL					PushedImage	ZongMenSkill	ZongMenSkill_Check	
+ZongMenSkill_TalentAttr11_1	TLBB_StaticImageNULL					Image	ZongMenSkill	ZongMenSkill_Tips1	
+ZongMenSkill_TalentAttr11_2	TLBB_StaticImageNULL					Image	ZongMenSkill	ZongMenSkill_Tips2	
+ZongMenSkill_TalentAttr11_3	TLBB_StaticImageNULL					Image	ZongMenSkill	ZongMenSkill_Tips3	
+ZongMenSkill_TalentAttr11_4	TLBB_StaticImageNULL					Image	ZongMenSkill	ZongMenSkill_Tips4	
+ZongMenSkill_TalentAttr11_5	TLBB_StaticImageNULL					Image	ZongMenSkill	ZongMenSkill_Tips5	
+ZongMenSkill_TalentAttr11_6	TLBB_StaticImageNULL					Image	ZongMenSkill	ZongMenSkill_Tips6	
+ZongMenSkill_TalentBtn12	TLBB_ButtonCheckNULL					PushedImage	ZongMenSkill	ZongMenSkill_Check	
+ZongMenSkill_TalentAttr12_1	TLBB_StaticImageNULL					Image	ZongMenSkill	ZongMenSkill_Tips1	
+ZongMenSkill_TalentAttr12_2	TLBB_StaticImageNULL					Image	ZongMenSkill	ZongMenSkill_Tips2	
+ZongMenSkill_TalentAttr12_3	TLBB_StaticImageNULL					Image	ZongMenSkill	ZongMenSkill_Tips3	
+ZongMenSkill_TalentAttr12_4	TLBB_StaticImageNULL					Image	ZongMenSkill	ZongMenSkill_Tips4	
+ZongMenSkill_TalentAttr12_5	TLBB_StaticImageNULL					Image	ZongMenSkill	ZongMenSkill_Tips5	
+ZongMenSkill_TalentAttr12_6	TLBB_StaticImageNULL					Image	ZongMenSkill	ZongMenSkill_Tips6	
+ZongMenSkill_TalentBtn13	TLBB_ButtonCheckNULL					PushedImage	ZongMenSkill	ZongMenSkill_Check	
+ZongMenSkill_TalentAttr13_1	TLBB_StaticImageNULL					Image	ZongMenSkill	ZongMenSkill_Tips1	
+ZongMenSkill_TalentAttr13_2	TLBB_StaticImageNULL					Image	ZongMenSkill	ZongMenSkill_Tips2	
+ZongMenSkill_TalentAttr13_3	TLBB_StaticImageNULL					Image	ZongMenSkill	ZongMenSkill_Tips3	
+ZongMenSkill_TalentAttr13_4	TLBB_StaticImageNULL					Image	ZongMenSkill	ZongMenSkill_Tips4	
+ZongMenSkill_TalentAttr13_5	TLBB_StaticImageNULL					Image	ZongMenSkill	ZongMenSkill_Tips5	
+ZongMenSkill_TalentAttr13_6	TLBB_StaticImageNULL					Image	ZongMenSkill	ZongMenSkill_Tips6	
+ZongMenSkill_TalentBtn14	TLBB_ButtonCheckNULL					PushedImage	ZongMenSkill	ZongMenSkill_Check	
+ZongMenSkill_TalentAttr14_1	TLBB_StaticImageNULL					Image	ZongMenSkill	ZongMenSkill_Tips1	
+ZongMenSkill_TalentAttr14_2	TLBB_StaticImageNULL					Image	ZongMenSkill	ZongMenSkill_Tips2	
+ZongMenSkill_TalentAttr14_3	TLBB_StaticImageNULL					Image	ZongMenSkill	ZongMenSkill_Tips3	
+ZongMenSkill_TalentAttr14_4	TLBB_StaticImageNULL					Image	ZongMenSkill	ZongMenSkill_Tips4	
+ZongMenSkill_TalentAttr14_5	TLBB_StaticImageNULL					Image	ZongMenSkill	ZongMenSkill_Tips5	
+ZongMenSkill_TalentAttr14_6	TLBB_StaticImageNULL					Image	ZongMenSkill	ZongMenSkill_Tips6	
+ZongMenSkill_TalentBtn15	TLBB_ButtonCheckNULL					PushedImage	ZongMenSkill	ZongMenSkill_Check	
+ZongMenSkill_TalentAttr15_1	TLBB_StaticImageNULL					Image	ZongMenSkill	ZongMenSkill_Tips1	
+ZongMenSkill_TalentAttr15_2	TLBB_StaticImageNULL					Image	ZongMenSkill	ZongMenSkill_Tips2	
+ZongMenSkill_TalentAttr15_3	TLBB_StaticImageNULL					Image	ZongMenSkill	ZongMenSkill_Tips3	
+ZongMenSkill_TalentAttr15_4	TLBB_StaticImageNULL					Image	ZongMenSkill	ZongMenSkill_Tips4	
+ZongMenSkill_TalentAttr15_5	TLBB_StaticImageNULL					Image	ZongMenSkill	ZongMenSkill_Tips5	
+ZongMenSkill_TalentAttr15_6	TLBB_StaticImageNULL					Image	ZongMenSkill	ZongMenSkill_Tips6	
+ZongMenSkill_TalentBtn16	TLBB_ButtonCheckNULL					PushedImage	ZongMenSkill	ZongMenSkill_Check	
+ZongMenSkill_TalentAttr16_1	TLBB_StaticImageNULL					Image	ZongMenSkill	ZongMenSkill_Tips1	
+ZongMenSkill_TalentAttr16_2	TLBB_StaticImageNULL					Image	ZongMenSkill	ZongMenSkill_Tips2	
+ZongMenSkill_TalentAttr16_3	TLBB_StaticImageNULL					Image	ZongMenSkill	ZongMenSkill_Tips3	
+ZongMenSkill_TalentAttr16_4	TLBB_StaticImageNULL					Image	ZongMenSkill	ZongMenSkill_Tips4	
+ZongMenSkill_TalentAttr16_5	TLBB_StaticImageNULL					Image	ZongMenSkill	ZongMenSkill_Tips5	
+ZongMenSkill_TalentAttr16_6	TLBB_StaticImageNULL					Image	ZongMenSkill	ZongMenSkill_Tips6	
+ZongMenSkill_TalentEquip_Skill	TLBB_ButtonCheckNULL					PushedImage	ZongMenSkill	ZongMenSkill_Check	
+ZongMenSkill_TalentEquip_Skill_1	TLBB_StaticImageNULL					Image	ZongMenSkill	ZongMenSkill_Tips1	
+ZongMenSkill_TalentEquip_Skill_2	TLBB_StaticImageNULL					Image	ZongMenSkill	ZongMenSkill_Tips2	
+ZongMenSkill_TalentEquip_Skill_3	TLBB_StaticImageNULL					Image	ZongMenSkill	ZongMenSkill_Tips3	
+ZongMenSkill_TalentEquip_Skill_4	TLBB_StaticImageNULL					Image	ZongMenSkill	ZongMenSkill_Tips4	
+ZongMenSkill_TalentEquip_Skill_5	TLBB_StaticImageNULL					Image	ZongMenSkill	ZongMenSkill_Tips5	
+ZongMenSkill_TalentEquip_Skill_6	TLBB_StaticImageNULL					Image	ZongMenSkill	ZongMenSkill_Tips6	
+ZongMenSkill_TalentNum1	TLBB_SimpleText					Text			#{}
+ZongMenSkill_TalentName1	TLBB_SimpleText					Text			#{}
+ZongMenSkill_TalentNum2	TLBB_SimpleText					Text			#{}
+ZongMenSkill_TalentName2	TLBB_SimpleText					Text			#{}
+ZongMenSkill_TalentNum3	TLBB_SimpleText					Text			#{}
+ZongMenSkill_TalentName3	TLBB_SimpleText					Text			#{}
+ZongMenSkill_TalentNum4	TLBB_SimpleText					Text			#{}
+ZongMenSkill_TalentName4	TLBB_SimpleText					Text			#{}
+ZongMenSkill_TalentNum5	TLBB_SimpleText					Text			#{}
+ZongMenSkill_TalentName5	TLBB_SimpleText					Text			#{}
+ZongMenSkill_TalentNum6	TLBB_SimpleText					Text			#{}
+ZongMenSkill_TalentName6	TLBB_SimpleText					Text			#{}
+ZongMenSkill_TalentNum7	TLBB_SimpleText					Text			#{}
+ZongMenSkill_TalentName7	TLBB_SimpleText					Text			#{}
+ZongMenSkill_TalentNum8	TLBB_SimpleText					Text			#{}
+ZongMenSkill_TalentName8	TLBB_SimpleText					Text			#{}
+ZongMenSkill_TalentNum9	TLBB_SimpleText					Text			#{}
+ZongMenSkill_TalentName9	TLBB_SimpleText					Text			#{}
+ZongMenSkill_TalentNum10	TLBB_SimpleText					Text			#{}
+ZongMenSkill_TalentName10	TLBB_SimpleText					Text			#{}
+ZongMenSkill_TalentNum11	TLBB_SimpleText					Text			#{}
+ZongMenSkill_TalentName11	TLBB_SimpleText					Text			#{}
+ZongMenSkill_TalentNum12	TLBB_SimpleText					Text			#{}
+ZongMenSkill_TalentName12	TLBB_SimpleText					Text			#{}
+ZongMenSkill_TalentNum13	TLBB_SimpleText					Text			#{}
+ZongMenSkill_TalentName13	TLBB_SimpleText					Text			#{}
+ZongMenSkill_TalentNum14	TLBB_SimpleText					Text			#{}
+ZongMenSkill_TalentName14	TLBB_SimpleText					Text			#{}
+ZongMenSkill_TalentNum15	TLBB_SimpleText					Text			#{}
+ZongMenSkill_TalentName15	TLBB_SimpleText					Text			#{}
+ZongMenSkill_TalentNum16	TLBB_SimpleText					Text			#{}
+ZongMenSkill_TalentName16	TLBB_SimpleText					Text			#{}
+ZongMenSkill_TalentEquip_SkillNum	TLBB_SimpleText					Text			#{}
+ZongMenSkill_TalentEquip_SkillName	TLBB_SimpleText					Text			#{}
+ZongMenSkill_TalentEquip	TLBB_ActionButton					BackImage	ZongMenSkill	ZongMenSkill_ItemBK	
+ZongMenSkill_Talent_SaveBtn	TLBB_ButtonCommon					Text			#{ZMTFBC_230920_06}
+ZongMenSkill_Talent_SaveBtn	TLBB_ButtonCommon					Tooltip			#{ZMTFBC_230920_07}
+ZongMenSkill_Talent_UseBtn	TLBB_ButtonCommon					Text			#{ZMTFBC_230920_08}
+ZongMenSkill_Talent_UseBtn	TLBB_ButtonCommon					Tooltip			#{ZMTFBC_230920_09}
+ZongMenSkill_Talent_ShareBtn	TLBB_ButtonNULL					Tooltip			#{ZMTFBC_230920_05}
+ZongMenSkill_Talent_ShareBtn	TLBB_ButtonNULL					PushedImage	ZongMenSkill	ZongMenSkill_Share_Pushed	
+ZongMenSkill_Talent_ShareBtn	TLBB_ButtonNULL					NormalImage	ZongMenSkill	ZongMenSkill_Share_Normal	
+ZongMenSkill_Talent_ShareBtn	TLBB_ButtonNULL					HoverImage	ZongMenSkill	ZongMenSkill_Share_Hover	
+ZongMenSkill_Talent_ResetBtn	TLBB_ButtonCommon					Text			#{ZMTF_230628_121}
+ZongMenSkill_Talent_ResetBtn	TLBB_ButtonCommon					Tooltip			#{ZMTFBC_230920_72}
+ZongMenSkill_TalentPoint1	TLBB_SimpleText					Text			#{ZMTF_230628_112}
+ZongMenSkill_TalentPoint1	TLBB_SimpleText					Tooltip			#{ZMTF_230628_174}
+ZongMenSkill_TalentPoint2	TLBB_SimpleText					Text			#{ZMTF_230628_114}
+ZongMenSkill_TalentPoint2	TLBB_SimpleText					Tooltip			#{ZMTF_230628_175}
+ZongMenSkill_TalentInfo_EffectItem_1	TLBB_StaticImageNULL					Image	ZongMenSkill	ZongMenSkill_Tips1	
+ZongMenSkill_TalentInfo_EffectItem_2	TLBB_StaticImageNULL					Image	ZongMenSkill	ZongMenSkill_Tips2	
+ZongMenSkill_TalentInfo_EffectItem_3	TLBB_StaticImageNULL					Image	ZongMenSkill	ZongMenSkill_Tips3	
+ZongMenSkill_TalentInfo_EffectItem_4	TLBB_StaticImageNULL					Image	ZongMenSkill	ZongMenSkill_Tips4	
+ZongMenSkill_TalentInfo_EffectItem_5	TLBB_StaticImageNULL					Image	ZongMenSkill	ZongMenSkill_Tips5	
+ZongMenSkill_TalentInfo_EffectItem_6	TLBB_StaticImageNULL					Image	ZongMenSkill	ZongMenSkill_Tips6	
+ZongMenSkill_TalentInfo_EffectItemText1	TLBB_SimpleText					Text			#{ZMTF_230628_169}
+ZongMenSkill_TalentInfo_EffectItemText2	TLBB_SimpleText					Text			#{ZMTF_230628_170}
+ZongMenSkill_TalentInfo_EffectTitle1	TLBB_SimpleText					Text			#{ZMTF_230628_125}
+ZongMenSkill_TalentInfo_EffectText1	TLBB_SimpleText					Text			#{}
+ZongMenSkill_TalentInfo_EffectTitle2	TLBB_SimpleText					Text			#{ZMTF_230628_126}
+ZongMenSkill_TalentInfo_EffectBtn	TLBB_ButtonNULL					PushedImage	Button7	Friend_Serach_Pushed	
+ZongMenSkill_TalentInfo_EffectBtn	TLBB_ButtonNULL					NormalImage	Button7	Friend_Serach_Normal	
+ZongMenSkill_TalentInfo_EffectBtn	TLBB_ButtonNULL					HoverImage	Button7	Friend_Serach_Hover	
+ZongMenSkill_TalentInfo_EffectText2	TLBB_SimpleText					Text			#{}
+ZongMenSkill_TalentInfo_LevelUpCondition	TLBB_SimpleText					Text			#{ZMTF_230628_127}
+ZongMenSkill_TalentInfo_LevelUpCondition2	TLBB_SimpleText					Text			#{ZMTF_230628_172}
+ZongMenSkill_TalentInfo_LevelUpPoint	TLBB_SimpleText					Text			#{ZMTF_230628_128}
+ZongMenSkill_TalentInfo_LevelUpBtn	TLBB_ButtonCommon					Text			#{ZMTF_230628_129}
+ZongMenSkill_TalentEquip_LevelUp	TLBB_SimpleText					Text			#{XWXT_230825_130}
+ZongMenSkill_CommonlySkill	TLBB_ButtonPageDown					Text			#{INTERFACE_XML_494}
+ZongMenSkill_ActionSkill	TLBB_ButtonPageDown					Text			#{INTERFACE_XML_448}
+ZongMenSkill_ZhenfaSkill	TLBB_ButtonPageDown					Text			#{JBGXW_150526_215}
+ZongMenSkill_LifeSkill	TLBB_ButtonPageDown					Text			#{INTERFACE_XML_635}
+ZongMenSkill_AutoAttack	TLBB_ButtonPageDown					Text			#{ZDZD_200724_08}
+ZongMenSkill_ZongMenSkill	TLBB_ButtonPageDown					Text			#{ZMTF_230628_20}
+ZongMenSkill_ZongMenSkill_Tips	TLBB_StaticImageNULL					Image	CommonFrame14	Tips	

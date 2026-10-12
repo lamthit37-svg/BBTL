@@ -1,0 +1,16 @@
+Use case: text-localization plus high-fidelity game UI remaster.
+Create a SINGLE production sprite-sheet asset, exactly THREE columns and TEN rows = THIRTY individual buttons, on a truly TRANSPARENT background. No titles, labels, row numbers, captions, legends, checkerboard, or dimensions printed anywhere.
+Reference: the attached strip has exactly 10 Chinese character-selection buttons in order. Recreate the ENTIRE buttons in beautifully crisp high-definition artwork, retaining the precise characteristic narrow double gold frame, central angular ornamental knot top and bottom, pointed side corners, restrained dark metallic edges and red or charcoal inset. Do NOT substitute the rounded elaborate oval filigree of generic fantasy buttons. Reconstruct source geometry faithfully; lettering is integrated naturally in the artwork with fine bevel and shadow.
+Sheet layout: 3 equal columns, 10 equal rows, generous transparent gutter between every button, no touching. Every button has SAME physical width; aspect ratio outer bounds 132:55 for rows1-4 and132:54 for rows5-10. All rows and columns perfectly aligned and consistent. Native export will be 132x55 or132x54, so tiny decoration and lettering must remain legible there. Request large portrait canvas approx 1536x2560 or larger if supported.
+Columns from left to right: CHINESE remastered, VIETNAMESE, ENGLISH. Every row is corresponding same state and same border across languages.
+Row1 gray disabled: "取消预览" | "Hủy xem" | "Cancel"
+Row2 bright red hover: "取消预览" | "Hủy xem" | "Cancel"
+Row3 deep ruby normal: "取消预览" | "Hủy xem" | "Cancel"
+Row4 dark red pressed: "取消预览" | "Hủy xem" | "Cancel"
+Row5 bright red hover: "进入游戏" | "Vào game" | "Enter"
+Row6 deep ruby normal: "进入游戏" | "Vào game" | "Enter"
+Row7 dark red pressed: "进入游戏" | "Vào game" | "Enter"
+Row8 bright red hover: "创建角色" | "Tạo vai" | "Create"
+Row9 deep ruby normal: "创建角色" | "Tạo vai" | "Create"
+Row10 dark red pressed: "创建角色" | "Tạo vai" | "Create"
+Typography: sophisticated legible brush-calligraphic lettering faithful to source, controlled crisp tapered strokes, light antique gold with warm dark outline and understated bevel. Vietnamese diacritics EXACT and clear especially Hủy, Vào, Tạo. Disabled text silver-gray. Pressed text subdued but readable. Shorter English strings slightly larger and weight-balanced so their OPTICAL mass equals Chinese and Vietnamese, not tiny centered labels. Preserve comfortable inner margin and balanced composition, no artificial stretching of glyphs. Common phrase uses identical glyph design/placement across its states. State brightness must be visibly distinct. Sharp edges, meticulous craftsmanship, no blur, no extra text, no missing or duplicate rows. Render all thirty buttons and their three language columns.

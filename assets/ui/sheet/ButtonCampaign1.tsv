@@ -1,0 +1,5 @@
+# ảnh, x, y, w, h, tệp atlas, các màn dùng
+
+Campaign_IMG_Liebiao_Hover	173	41	25	26	Common/tga_ButtonCampaign1.dds	MiniMap
+Campaign_IMG_Liebiao_Normal	205	41	25	26	Common/tga_ButtonCampaign1.dds	MiniMap
+Campaign_IMG_Liebiao_Pushed	205	73	25	26	Common/tga_ButtonCampaign1.dds	MiniMap

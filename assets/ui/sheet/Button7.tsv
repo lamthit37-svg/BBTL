@@ -1,0 +1,29 @@
+# ảnh, x, y, w, h, tệp atlas, các màn dùng
+
+BtnAddWidth_Disable	0	124	17	17	Common/button07.tga	ChatFrame
+BtnAddWidth_Hover	34	124	17	17	Common/button07.tga	ChatFrame
+BtnAddWidth_Normal	51	124	17	17	Common/button07.tga	ChatFrame
+BtnAddWidth_Pushed	17	124	17	17	Common/button07.tga	ChatFrame
+BtnSubWidth_Disable	0	141	17	17	Common/button07.tga	ChatFrame
+BtnSubWidth_Hover	34	141	17	17	Common/button07.tga	ChatFrame
+BtnSubWidth_Normal	51	141	17	17	Common/button07.tga	ChatFrame
+BtnSubWidth_Pushed	17	141	17	17	Common/button07.tga	ChatFrame
+Friend_Serach_Disable	183	115	15	15	Common/button07.tga	Friend
+Friend_Serach_Hover	183	131	15	15	Common/button07.tga	Friend,ZongMenSkill
+Friend_Serach_Normal	183	163	15	15	Common/button07.tga	Friend,ZongMenSkill
+Friend_Serach_Pushed	183	147	15	15	Common/button07.tga	Friend,ZongMenSkill
+Friend_SystemInfo_Disable	18	172	15	15	Common/button07.tga	Friend
+Friend_SystemInfo_Hover	18	188	15	15	Common/button07.tga	Friend
+Friend_SystemInfo_Normal	18	220	15	15	Common/button07.tga	Friend
+Friend_SystemInfo_Pushed	18	204	15	15	Common/button07.tga	Friend
+IM_MsgManager_Dis	87	116	15	15	Common/button07.tga	Friend
+IM_MsgManager_Hov	87	132	15	15	Common/button07.tga	Friend
+IM_MsgManager_Nor	87	164	15	15	Common/button07.tga	Friend
+IM_MsgManager_Pus	87	148	15	15	Common/button07.tga	Friend
+Minimap_Yuanbao_Hover	190	81	33	33	Common/button07.tga	MiniMap
+Minimap_Yuanbao_Normal	223	81	33	33	Common/button07.tga	MiniMap
+Minimap_Yuanbao_Pushed	223	147	33	33	Common/button07.tga	MiniMap
+TrustFriendList_Disable	0	241	15	15	Common/button07.tga	Friend
+TrustFriendList_Hover	16	241	15	15	Common/button07.tga	Friend
+TrustFriendList_Normal	32	241	15	15	Common/button07.tga	Friend
+TrustFriendList_Pushed	48	241	15	15	Common/button07.tga	Friend

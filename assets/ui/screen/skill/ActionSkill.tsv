@@ -1,0 +1,29 @@
+# cửa sổ, loại, x, y, w, h, thuộc tính, atlas, ảnh, chữ
+
+ActionSkill_Frame1_Title	TLBB_DragTitle	108.000000	4.000000			Text			#{INTERFACE_XML_47}
+ActionSkill_Help	TLBB_ButtonHelp			14.000000	14.000000	Text			TLBB_ButtonHelp
+ActionSkill_Close	TLBB_ButtonClose			14.000000	14.000000	Text			TLBB_ButtonClose
+ActionSkill_MenPai_Attr_Intro	TLBB_SimpleText	60.000000	5.000000	80.000000	16.000000	Tooltip			#{MPZSX_20071221_10}
+ActionSkill_Name	TLBB_SimpleMulitiTextFrame					Text			#{INTERFACE_XML_115}
+ActionSkill_Use	TLBB_ButtonCommon					Text			#{INTERFACE_XML_643}
+ActionSkill_LearnExp	TLBB_SimpleMulitiTextFrame					Text			#{XFXL_151203_05}
+ActionSkill_LearnExp	TLBB_SimpleMulitiTextFrame					Tooltip			#{}
+ActionSkill_LearnDemand_Jiaozi_Text	TLBB_SimpleMulitiTextFrame					Text			#{XFXL_151203_06}
+ActionSkill_LearnDemand_Jiaozi	TLBB_Money					SilverIcon	Button6	Lace_JiaoziYin	
+ActionSkill_LearnDemand_Jiaozi	TLBB_Money					GoldIcon	Button6	Lace_JiaoziJin	
+ActionSkill_LearnDemand_Jiaozi	TLBB_Money					CopperIcon	Button6	Lace_JiaoziTong	
+ActionSkill_XinfaNotice	TLBB_SimpleMulitiTextFrame					Tooltip			#{DBXF_XML_3}
+ActionSkill_XiulianNotice	TLBB_SimpleMulitiTextFrame					Tooltip			#{DBXF_XML_4}
+ActionSkill_GemXiulianNotice	TLBB_SimpleMulitiTextFrame					Text			#{BSZJPF_130311_08}
+ActionSkill_GemXiulianNotice	TLBB_SimpleMulitiTextFrame					Tooltip			#{BSZJPF_130311_11}
+ActionSkill_GemXiulianLevel	TLBB_SimpleMulitiTextFrame					Text			#{BSZJPF_130311_09}
+ActionSkill_shuzhi02	TLBB_SimpleText					Text			1234/5678
+ActionSkill_shuzhi01	TLBB_SimpleText					Text			2
+ActionSkill_EffectNotice	TLBB_SimpleMulitiTextFrame					Text			#{BSZJPF_130311_10}
+ActionSkill_CommonlySkill	TLBB_ButtonPageDown	0.0	0.0	35.000000	18.000000	Text			#{INTERFACE_XML_494}
+ActionSkill_ActionSkill	TLBB_ButtonPageDown	36	0.0	35.000000	18.000000	Text			#{INTERFACE_XML_448}
+ActionSkill_ZhenfaSkill	TLBB_ButtonPageDown	72	0.0	35.000000	18.000000	Text			#{JBGXW_150526_215}
+ActionSkill_LifeSkill	TLBB_ButtonPageDown	108	0.0	35.000000	18.000000	Text			#{INTERFACE_XML_635}
+ActionSkill_AutoAttack	TLBB_ButtonPageDown					Text			#{ZDZD_200724_08}
+ActionSkill_ZongMenSkill	TLBB_ButtonPageDown					Text			#{ZMTF_230628_20}
+ActionSkill_ZongMenSkill_Tips	TLBB_StaticImageNULL					Image	CommonFrame14	Tips	
