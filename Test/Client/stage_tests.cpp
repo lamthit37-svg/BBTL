@@ -8,11 +8,14 @@
 #include "scene/scene_file.hpp"
 #include "test.hpp"
 
+#include <algorithm>
 #include <array>
 #include <cmath>
 #include <cstddef>
 #include <cstdint>
+#include <string>
 #include <string_view>
+#include <vector>
 
 namespace game::test {
 namespace {
@@ -137,6 +140,9 @@ void sky_uses_the_current_weather(Context& context) {
     context.expect(dome.bands.front().repeats == 4, "quấn bốn lần");
     context.expect(dome.bands.back().blends, "lớp sương trộn");
     context.expect(!client::sky_band(dome.bands.front()).vertices.empty(), "vòm có đỉnh");
+    client::Stage stage;
+    client::apply_sky(stage, text);
+    context.expect(stage.sky.size() == dome.bands.size(), "cảnh giữ các dải ảnh");
 }
 
 [[nodiscard]] bool is_close(float actual, float expected) noexcept {
@@ -177,7 +183,67 @@ void stage_of_empty_scene_is_empty(Context& context) {
     const client::Stage stage = client::stage_of(*file);
     context.expect(stage.props.empty() && stage.suns.empty() && stage.liquids.empty(),
         "không vật thể, không đèn, không mặt nước");
+    context.expect(stage.figures.empty() && stage.lamps.empty(), "không model, không đèn điểm");
     context.expect(stage.ambient == client::Rgb{}, "ambient mặc định là đen");
+}
+
+void stage_keeps_scene_models(Context& context) {
+    const client::Stage stage = sample_stage();
+    context.expect(stage.figures.size() == 1, "một object Model");
+    if (stage.figures.size() != 1) return;
+    context.expect(stage.figures.front().model == "x.model", "tên tệp model giữ nguyên");
+    context.expect(stage.props.size() == 2, "model chưa bung thành mesh ở bước trích cảnh");
+}
+
+void stage_turns_spot_lights_into_lamps(Context& context) {
+    constexpr std::string_view text =
+        "<Scene name=\"den\">\n"
+        "  <Object type=\"Light\">\n"
+        "    <Property name=\"type\" value=\"spot\"/>\n"
+        "    <Property name=\"position\" value=\"4 5 6\"/>\n"
+        "    <Property name=\"diffuse\" value=\"0.2 0.3 0.4\"/>\n"
+        "    <Property name=\"range\" value=\"12\"/>\n"
+        "    <Property name=\"attenuation\" value=\"2\"/>\n"
+        "    <Property name=\"intensity\" value=\"3\"/>\n"
+        "  </Object>\n"
+        "  <Object type=\"Light\">\n"
+        "    <Property name=\"type\" value=\"spotlight\"/>\n"
+        "    <Property name=\"position\" value=\"1 1 1\"/>\n"
+        "  </Object>\n"
+        "  <Object type=\"Light\">\n"
+        "    <Property name=\"type\" value=\"directional\"/>\n"
+        "    <Property name=\"direction\" value=\"0 -1 0\"/>\n"
+        "  </Object>\n"
+        "</Scene>\n";
+    const auto file = scene::read_scene(text);
+    context.expect(file.has_value(), "cảnh đèn đọc được");
+    if (!file) return;
+    const client::Stage stage = client::stage_of(*file);
+    context.expect(stage.lamps.size() == 2, "spot và spotlight là đèn điểm");
+    context.expect(stage.suns.size() == 1, "directional không vào danh sách đèn điểm");
+    if (stage.lamps.size() != 2) return;
+    const client::Lamp& spot = stage.lamps.front();
+    const scene::Vector3 position{.x = 4.0F, .y = 5.0F, .z = 6.0F};
+    context.expect(spot.position == position, "vị trí đèn spot");
+    context.expect(spot.range == 12.0F && spot.falloff == 2.0F && spot.power == 3.0F, "tầm, mũ, cường độ");
+    const client::Rgb colour{.red = 0.2F, .green = 0.3F, .blue = 0.4F};
+    context.expect(spot.colour == colour, "màu đèn spot");
+}
+
+void model_file_lists_entity_meshes(Context& context) {
+    constexpr std::string_view text =
+        "<model>\n"
+        "  <frame name=\"a\">\n"
+        "    <entity mesh=\"a/b.mesh\"/>\n"
+        "    <entity mesh=\"\"/>\n"
+        "  </frame>\n"
+        "  <entity mesh=\"c.mesh\"/>\n"
+        "</model>\n";
+    const std::vector<std::string> meshes = client::model_meshes(text);
+    context.expect(meshes.size() == 2, "bỏ entity không có mesh");
+    if (meshes.size() != 2) return;
+    context.expect(meshes[0] == "a/b.mesh" && meshes[1] == "c.mesh", "đúng thứ tự trong tệp");
+    context.expect(client::model_meshes("<not").empty(), "XML hỏng không có mesh");
 }
 
 constexpr std::array kCases{
@@ -190,6 +256,9 @@ constexpr std::array kCases{
     Case{.name = "sky_band_runs_columns_around_and_rows_down",
         .body = &sky_band_runs_columns_around_and_rows_down},
     Case{.name = "stage_of_empty_scene_is_empty", .body = &stage_of_empty_scene_is_empty},
+    Case{.name = "stage_keeps_scene_models", .body = &stage_keeps_scene_models},
+    Case{.name = "stage_turns_spot_lights_into_lamps", .body = &stage_turns_spot_lights_into_lamps},
+    Case{.name = "model_file_lists_entity_meshes", .body = &model_file_lists_entity_meshes},
 };
 
 } // namespace

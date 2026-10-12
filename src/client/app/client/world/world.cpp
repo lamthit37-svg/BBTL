@@ -1,12 +1,14 @@
 #include "client/world/world.hpp"
 
 #include "client/map/ground.hpp"
+#include "core/error.hpp"
 #include "core/number.hpp"
 #include "io/file.hpp"
 
 #include "client/map/book.hpp"
 #include "client/stage/sky.hpp"
 #include "client/stage/stage.hpp"
+#include "fs/file.hpp"
 #include "nav/mesh.hpp"
 #include "nav/route.hpp"
 #include "scene/scene_file.hpp"
@@ -18,6 +20,7 @@
 #include <memory>
 #include <mutex>
 #include <optional>
+#include <print>
 #include <span>
 #include <string>
 #include <string_view>
@@ -29,15 +32,6 @@ namespace {
 
 [[nodiscard]] EnterResult fail(EnterError error) {
     return std::unexpected(error);
-}
-
-// Bảng môi trường theo giờ của tệp .skysphere đi kèm cảnh; rỗng khi cảnh không có bầu trời hoặc
-// tệp không đọc được (cảnh vẫn vào được, ánh sáng theo số của tệp cảnh).
-[[nodiscard]] std::vector<DayKey> days_of(const std::filesystem::path& scene_folder, std::string_view sky_file) {
-    if (sky_file.empty()) return {};
-    const io::TextResult text = io::read_text(scene_folder / io::path_from_utf8(sky_file));
-    if (!text) return {};
-    return read_sky(*text).days;
 }
 
 // Lưới đi nằm cạnh tệp cảnh. Thiếu tệp không phải lỗi: bảng cảnh ghi tên .path cho cả những cảnh
@@ -78,7 +72,9 @@ void load_walk(ShownScene& shown, const std::filesystem::path& scene_folder, std
     shown->near_clip = row.near_clip;
     shown->scene = std::move(*scene);
     shown->stage = stage_of(shown->scene);
-    shown->stage.days = days_of(scene_folder, shown->scene.sky_file);
+    attach_sky_file(shown->stage, scene_folder, shown->scene.sky_file);
+    attach_models(shown->stage, scene_folder.parent_path());
+    attach_buildings(shown->buildings, scene_folder, shown->scene_file);
     load_walk(*shown, scene_folder, map::path_of(book, row));
     if (shown->scene.terrain_file.empty()) return shown;
     map::GroundResult ground = map::load_ground(scene_folder, shown->scene.terrain_file);
@@ -134,6 +130,63 @@ void remember(World& world, const std::shared_ptr<ShownScene>& shown) {
 }
 
 } // namespace
+
+void attach_sky_file(Stage& stage, const std::filesystem::path& scene_folder, std::string_view sky_file) {
+    if (sky_file.empty()) return;
+    const io::TextResult text = io::read_text(scene_folder / io::path_from_utf8(std::string(sky_file)));
+    if (!text) return;
+    apply_sky(stage, *text);
+}
+
+[[nodiscard]] bool escapes_model(const std::filesystem::path& relative) noexcept {
+    if (relative.empty() || relative.is_absolute()) return true;
+    for (const std::filesystem::path& part : relative) {
+        if (part == "..") return true;
+    }
+    return false;
+}
+
+void add_figure_mesh(Stage& stage, const std::filesystem::path& model_root, const std::filesystem::path& model_file,
+    const Figure& figure, const std::string& mesh) {
+    const std::filesystem::path full = (model_file.parent_path() / io::path_from_utf8(mesh)).lexically_normal();
+    const std::filesystem::path relative = full.lexically_relative(model_root.lexically_normal());
+    if (escapes_model(relative)) return;
+    Prop prop;
+    prop.mesh = relative.generic_string();
+    prop.placement = figure.placement;
+    stage.props.push_back(std::move(prop));
+}
+
+void add_figure(Stage& stage, const std::filesystem::path& data_root, const Figure& figure) {
+    const std::filesystem::path model_root = data_root / "Model";
+    const std::filesystem::path model_file = model_root / io::path_from_utf8(figure.model);
+    const io::TextResult text = io::read_text(model_file);
+    if (!text) return;
+    const std::vector<std::string> meshes = model_meshes(*text);
+    for (const std::string& mesh : meshes)
+        add_figure_mesh(stage, model_root, model_file, figure, mesh);
+}
+
+void attach_models(Stage& stage, const std::filesystem::path& data_root) {
+    for (const Figure& figure : stage.figures)
+        add_figure(stage, data_root, figure);
+}
+
+void attach_buildings(std::optional<collision::Model>& slot, const std::filesystem::path& scene_folder,
+    std::string_view scene_file) {
+    slot.reset();
+    if (scene_file.empty()) return;
+    std::filesystem::path file = scene_folder / io::path_from_utf8(std::string(scene_file));
+    file.replace_extension(".WCollision");
+    const core::Result<fs::Bytes> bytes = fs::read_file(io::utf8_of(file));
+    if (!bytes) return;
+    std::expected<collision::Model, collision::LoadError> loaded = collision::load(bytes->span());
+    if (!loaded) {
+        std::println(stderr, "Va chạm {}: {}", io::utf8_of(file), collision::describe(loaded.error()));
+        return;
+    }
+    slot = std::move(*loaded);
+}
 
 std::expected<World, map::BookError> open_world(std::string_view text) {
     map::BookResult book = map::read_book(text);

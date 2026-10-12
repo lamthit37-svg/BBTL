@@ -99,8 +99,8 @@ constexpr std::array<std::string_view, 36> kLayouts = {
 // Bảng chuyển cảnh đã hiện thì ở lại ít nhất chừng này (xem Hud::State::note_loading).
 constexpr std::chrono::milliseconds kTransShown{900};
 
-// Phông mặc định của scheme bản tiếng Việt (SongTiBmp12 trỏ tới VTNAM14, CodePage 1258).
-constexpr std::string_view kFontFile = "Schema/VTNAM14.bin";
+// Phông bitmap đầu của SongTiBmp12 trong scheme gốc: GBK12, trang 936. VTNAM14 để khi làm tiếng Việt.
+constexpr std::string_view kFontFile = "Schema/GBK12.bin";
 
 // Nạp mọi layout của HUD; lỗi đầu tiên được giữ lại.
 std::expected<void, std::string> add_layouts(gui::GuiLoader& loader) {
@@ -155,14 +155,11 @@ panel::RoleCast cast_of(const std::filesystem::path& data_root, const std::optio
 }
 
 
-// Bảng chuỗi: chữ gốc của client (Table/ui_strings.tsv) rồi bản dịch nạp đè
-// (Table/ui_strings.lang.tsv). Hai bảng .lang do TOOLS/content/build_i18n.py dựng cùng client từ
-// tệp assets/i18n của ngôn ngữ chọn lúc dựng; client không biết đó là ngôn ngữ nào. Khoá chưa
-// dịch hiện chữ gốc; thiếu cả hai thì chữ #{ID} không vẽ.
+// Bảng chuỗi gốc của client (Table/ui_strings.tsv, trích StrDictionary). Bản dịch
+// Table/ui_strings.lang.tsv chưa nạp: chủ dự án muốn hết bản gốc trước, tiếng Việt để sau.
 gui::StringBook strings_of(const std::filesystem::path& data_root) {
     gui::StringBook book;
     add_strings(book, data_root / "Table" / "ui_strings.tsv");
-    add_strings(book, data_root / "Table" / "ui_strings.lang.tsv");
     return book;
 }
 

@@ -231,6 +231,8 @@ using OpenResult = std::expected<OpenedScene, std::string>;
     if (!file) return std::unexpected(std::format("tệp cảnh hỏng: {}", io::utf8_of(path)));
     OpenedScene opened;
     opened.stage = client::stage_of(*file);
+    client::world::attach_sky_file(opened.stage, folder, file->sky_file);
+    client::world::attach_models(opened.stage, folder.parent_path());
     opened.ground = ground_of(folder, *file);
     opened.file = std::move(*file);
     return opened;
@@ -319,17 +321,27 @@ void report_named(const client::NamedScene& named, std::string_view label) {
     const SceneNames available = scene_names(folder);
     const std::optional<std::string> chosen = client::choose_scene(options.scene_name, available);
     if (!chosen) return report_no_scene(available);
-    const OpenResult opened = open_scene(folder, *chosen);
+    OpenResult opened = open_scene(folder, *chosen);
     if (!opened) {
         std::println(stderr, "Lỗi: {}", opened.error());
         return 1;
     }
     print_summary(opened->file);
     print_first_placements(opened->file);
+    // Không có bảng cảnh thì display nhận cảnh qua backdrop. Cùng ShownScene nên va chạm và
+    // model vẫn được nạp như đường đi qua SceneDefineEx.
+    auto shown = std::make_shared<world::ShownScene>();
+    shown->name = *chosen;
+    shown->scene_file = *chosen + ".Scene";
+    shown->stage = std::move(opened->stage);
+    shown->ground = std::move(opened->ground);
+    shown->scene = std::move(opened->file);
+    world::attach_buildings(shown->buildings, folder, shown->scene_file);
     client::ViewerDesc viewer = viewer_of(options);
     viewer.title += " — " + *chosen;
-    viewer.stage = &opened->stage;
-    viewer.ground = opened->ground ? &*opened->ground : nullptr;
+    viewer.backdrop = std::move(shown);
+    viewer.stage = &viewer.backdrop->stage;
+    viewer.ground = viewer.backdrop->ground ? &*viewer.backdrop->ground : nullptr;
     return client::run_viewer(viewer);
 }
 

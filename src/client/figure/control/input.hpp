@@ -1,8 +1,9 @@
 #pragma once
 // Thao tác người chơi mà cửa sổ nhận, tách khỏi hệ cửa sổ để control và chương trình không phải
-// biết Win32 hay Android. Vị trí con trỏ chuẩn hoá về [0, 1] theo khung cửa sổ, gốc ở góc trái
-// trên; độ dời của lần kéo tính bằng điểm (point) của cửa sổ, đúng đơn vị mà client gốc chia cho
-// 300 khi xoay. Chạm (Android) tới đây qua TouchGestures (touch.hpp): một ngón như chuột trái, hai
+// biết Win32 hay Android. Windows lấy chuột, phím, chữ và tay cầm từ SDL3. Vị trí con trỏ chuẩn
+// hoá về [0, 1] theo khung cửa sổ, gốc ở góc trái trên; độ dời của lần kéo tính bằng điểm (point)
+// của cửa sổ, đúng đơn vị mà client gốc chia cho 300 khi xoay. Chạm (Android) tới đây qua
+// TouchGestures (touch.hpp): một ngón như chuột trái, hai
 // ngón thành kéo phải và nấc lăn, ngón chạm góc trái dưới thành cần gạt ảo (Stick, StickEnd).
 // Nguồn: TLBB Dev src/render/input.hpp@e0d89a6. Khác gốc: namespace game::control; bỏ Key và trường
 // của nó (dự án chưa có phím tắt); Text mang một ký tự thay cho một chuỗi; enumerator theo

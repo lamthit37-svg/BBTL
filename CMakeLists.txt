@@ -441,7 +441,8 @@ game_module(nav src/client/place/nav/mesh.cpp src/client/place/nav/finder.cpp sr
 target_link_libraries(game_nav PUBLIC game_core)
 target_compile_options(game_nav PRIVATE "$<$<CXX_COMPILER_ID:GNU,Clang>:-ffp-contract=off>")
 # collision: va chạm công trình (.WCollision), port BuildingCollision của PathLib.dll. A: bộ đọc; C thêm Model.
-game_module(collision src/client/place/collision/building_file.cpp src/client/place/collision/mesh.cpp src/client/place/collision/opcode_tree.cpp)
+game_module(collision src/client/place/collision/building_file.cpp src/client/place/collision/mesh.cpp
+    src/client/place/collision/opcode_tree.cpp src/client/place/collision/model.cpp)
 target_link_libraries(game_collision PUBLIC game_core)
 target_compile_options(game_collision PRIVATE "$<$<CXX_COMPILER_ID:GNU,Clang>:-ffp-contract=off>" "$<$<CXX_COMPILER_ID:MSVC>:/fp:precise>")
 
@@ -813,7 +814,8 @@ else()
     set(game_client_screen src/client/app/client/display/display_none.cpp)
 endif()
 if(WIN32)
-    set(game_client_loop src/client/app/client/viewer/viewer_win32.cpp src/client/app/client/viewer/cursors.cpp)
+    set(game_client_loop src/client/app/client/viewer/viewer_win32.cpp src/client/app/client/viewer/cursors.cpp
+        src/client/app/client/viewer/sdl_input.cpp)
 else()
     set(game_client_loop src/client/app/client/viewer/viewer_none.cpp)
 endif()
@@ -823,7 +825,8 @@ game_module(client_stage
     src/client/app/client/stage/props.cpp)
 target_link_libraries(game_client_stage PUBLIC game_core game_xml game_scene)
 game_module(client_world src/client/app/client/world/world.cpp)
-target_link_libraries(game_client_world PUBLIC game_client_stage game_client_map game_io game_nav)
+target_link_libraries(game_client_world PUBLIC game_client_stage game_client_map game_io game_nav game_fs
+    game_collision)
 game_module(client_display ${game_client_screen})
 target_link_libraries(game_client_display PUBLIC game_core game_client_stage game_client_map
     game_client_world game_control)
@@ -835,7 +838,8 @@ game_module(client_viewer ${game_client_loop})
 target_link_libraries(game_client_viewer PUBLIC game_core game_client_stage
     PRIVATE game_client_display)
 if(WIN32)
-    target_link_libraries(game_client_viewer PRIVATE game_window)
+    find_package(SDL3 CONFIG REQUIRED)
+    target_link_libraries(game_client_viewer PRIVATE game_window SDL3::SDL3)
     target_link_libraries(game_client_viewer PUBLIC game_audio)
 endif()
 game_module(client src/client/app/client/options.cpp src/client/app/client/assets.cpp src/client/app/client/boot.cpp)
@@ -1195,6 +1199,7 @@ endif()
 if(TARGET collision_model_tests)
     set_tests_properties(collision_model_tests PROPERTIES SKIP_RETURN_CODE 77)
 endif()
+game_test(building_height game_collision)
 game_test(look game_look)
 game_test(head game_look)
 game_test(avatar game_avatar)

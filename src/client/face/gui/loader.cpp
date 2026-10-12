@@ -48,13 +48,17 @@ std::optional<std::string> read_at(const std::filesystem::path& root, std::strin
 std::optional<std::string> DiskSource::read(std::string_view path) const {
     std::string clean(path);
     std::ranges::replace(clean, '\\', '/');
-    const bool is_layout = phone_ && clean.ends_with(".layout.xml") && !clean.starts_with("phone/");
-    if (is_layout) {
+    const bool is_layout = clean.ends_with(".layout.xml") && !clean.starts_with("phone/");
+    if (phone_ && is_layout) {
         const std::string over = std::string("phone/") + clean;
         std::optional<std::string> found = read_at(root_, over);
         if (found) return found;
     }
-    return read_at(root_, clean);
+    std::optional<std::string> direct = read_at(root_, clean);
+    if (direct) return direct;
+    // Bản PC của layout không có trong kho này: dùng bản điện thoại tạm cùng tên.
+    if (!phone_ && is_layout) return read_at(root_, std::string("phone/") + clean);
+    return std::nullopt;
 }
 
 namespace detail {

@@ -10,6 +10,7 @@
 #include "client/display/display.hpp"
 #include "client/viewer/client_size.hpp"
 #include "client/viewer/cursors.hpp"
+#include "client/viewer/sdl_input.hpp"
 #include "control/cursor_rules.hpp"
 #include "control/input.hpp"
 #include "core/clock.hpp"
@@ -96,6 +97,8 @@ void finish_if_done(window::Window& opened, const ViewerDesc& desc, const Displa
 }
 
 // Mọi thứ của một lần chạy vòng lặp; các hàm dưới cùng nhận một tham chiếu tới nó.
+struct Controls;
+
 struct Session {
     window::Window* opened = nullptr;
     Display* display = nullptr;
@@ -108,44 +111,14 @@ struct Session {
     LoopStats stats;
     GameCursors cursors;
     std::optional<control::CursorKind> shown_kind;
+    SdlInput* input = nullptr;
+    Controls* controls = nullptr;
+    std::vector<SdlAction> actions;
 };
 
-// Thông điệp và phím Win32 mà viewer đọc. Bit 30 của lParam khi nhấn là "phím đang giữ"; wParam của
-// chuột mang cờ nút (MK_LBUTTON, MK_RBUTTON) ở từ thấp và độ lăn có dấu ở từ cao.
-constexpr std::uint32_t kKillFocus = 0x0008;
-constexpr std::uint32_t kKeyDown = 0x0100;
-constexpr std::uint32_t kKeyUp = 0x0101;
-constexpr std::uint32_t kChar = 0x0102;
-constexpr std::uint32_t kMouseMove = 0x0200;
-constexpr std::uint32_t kLeftDown = 0x0201;
-constexpr std::uint32_t kLeftUp = 0x0202;
-constexpr std::uint32_t kRightDown = 0x0204;
-constexpr std::uint32_t kRightUp = 0x0205;
-constexpr std::uint32_t kMiddleDown = 0x0207;
-constexpr std::uint32_t kMiddleUp = 0x0208;
-constexpr std::uint32_t kMouseWheel = 0x020A;
-constexpr std::uintptr_t kLeftButtonFlag = 0x0001;
-constexpr std::uintptr_t kRightButtonFlag = 0x0002;
-constexpr std::uintptr_t kShiftFlag = 0x0004;
-constexpr std::uintptr_t kMiddleButtonFlag = 0x0010;
-constexpr int kWheelDelta = 120;
-constexpr std::uintptr_t kKeyLeft = 0x25;
-constexpr std::uintptr_t kKeyUpArrow = 0x26;
-constexpr std::uintptr_t kKeyRight = 0x27;
-constexpr std::uintptr_t kKeyDownArrow = 0x28;
-constexpr std::uintptr_t kKeyPageUp = 0x21;
-constexpr std::uintptr_t kKeyPageDown = 0x22;
-constexpr std::uintptr_t kKeyV = 0x56;
-constexpr std::uintptr_t kKeyF11 = 0x7A;
-constexpr std::uintptr_t kKeyW = 0x57;
-constexpr std::uintptr_t kKeyA = 0x41;
-constexpr std::uintptr_t kKeyS = 0x53;
-constexpr std::uintptr_t kKeyD = 0x44;
-constexpr std::intptr_t kKeyWasDown = std::intptr_t{1} << 30;
-
-[[nodiscard]] int direction_of(std::uintptr_t key) noexcept {
-    if (key == kKeyPageDown) return 1;
-    if (key == kKeyPageUp) return -1;
+[[nodiscard]] int direction_of(SdlKey key) noexcept {
+    if (key == SdlKey::kPageDown) return 1;
+    if (key == SdlKey::kPageUp) return -1;
     return 0;
 }
 
@@ -267,12 +240,10 @@ struct Held {
     bool is_right = false;
 };
 
-// Con trỏ chuột: vị trí của lần đọc trước, để tính độ dời của mỗi lần di chuyển, và ba nút đang
-// giữ theo những gì viewer đã gửi. Khi cửa sổ đang giữ con trỏ cho camera thì vị trí này là chỗ
-// con trỏ bị kéo về sau mỗi lần dời.
+// Con trỏ theo SDL: vị trí đã chuẩn hoá và nút viewer đã gửi. Độ dời lấy từ xrel/yrel.
 struct Pointer {
-    int last_column = 0;
-    int last_row = 0;
+    float x = 0.0F;
+    float y = 0.0F;
     bool is_left_down = false;
     bool is_right_down = false;
     bool is_middle_down = false;
@@ -290,14 +261,6 @@ struct Controls {
     Pointer pointer;
 };
 
-[[nodiscard]] int low_word(std::intptr_t value) noexcept {
-    return static_cast<std::int16_t>(static_cast<std::uint16_t>(value & 0xFFFF));
-}
-
-[[nodiscard]] int high_word(std::intptr_t value) noexcept {
-    return static_cast<std::int16_t>(static_cast<std::uint16_t>((value >> 16) & 0xFFFF));
-}
-
 [[nodiscard]] float axis_of(bool is_positive, bool is_negative) noexcept {
     return (is_positive ? 1.0F : 0.0F) - (is_negative ? 1.0F : 0.0F);
 }
@@ -313,19 +276,19 @@ void send_walk(const Controls& controls) {
 
 // Phím đi bộ và cờ giữ tương ứng.
 struct WalkKey {
-    std::uintptr_t key = 0;
+    SdlKey key = SdlKey::kNone;
     bool Held::* flag = nullptr;
 };
 
 constexpr std::array<WalkKey, 4> kWalkKeys{{
-    {.key = kKeyW, .flag = &Held::is_forward},
-    {.key = kKeyS, .flag = &Held::is_back},
-    {.key = kKeyA, .flag = &Held::is_left},
-    {.key = kKeyD, .flag = &Held::is_right},
+    {.key = SdlKey::kW, .flag = &Held::is_forward},
+    {.key = SdlKey::kS, .flag = &Held::is_back},
+    {.key = SdlKey::kA, .flag = &Held::is_left},
+    {.key = SdlKey::kD, .flag = &Held::is_right},
 }};
 
 // Trả true khi phím là phím đi bộ và đã ghi nhận trạng thái.
-bool note_walk_key(Held& held, std::uintptr_t key, bool is_down) noexcept {
+bool note_walk_key(Held& held, SdlKey key, bool is_down) noexcept {
     const auto found = std::ranges::find(kWalkKeys, key, &WalkKey::key);
     if (found == kWalkKeys.end()) return false;
     held.*(found->flag) = is_down;
@@ -334,21 +297,21 @@ bool note_walk_key(Held& held, std::uintptr_t key, bool is_down) noexcept {
 
 // Phím xoay và zoom kính theo GamePro_Main.cpp: mỗi sự kiện phím (kể cả lặp) một bước.
 struct CameraKeyStep {
-    std::uintptr_t key = 0;
+    SdlKey key = SdlKey::kNone;
     int turn = 0;
     int zoom = 0;
 };
 
 constexpr std::array<CameraKeyStep, 4> kCameraKeys{{
-    {.key = kKeyLeft, .turn = 1, .zoom = 0},
-    {.key = kKeyRight, .turn = -1, .zoom = 0},
-    {.key = kKeyUpArrow, .turn = 0, .zoom = 1},
-    {.key = kKeyDownArrow, .turn = 0, .zoom = -1},
+    {.key = SdlKey::kLeft, .turn = 1, .zoom = 0},
+    {.key = SdlKey::kRight, .turn = -1, .zoom = 0},
+    {.key = SdlKey::kUp, .turn = 0, .zoom = 1},
+    {.key = SdlKey::kDown, .turn = 0, .zoom = -1},
 }};
 
-[[nodiscard]] Steering camera_key_steering(std::uintptr_t key) noexcept {
+[[nodiscard]] Steering camera_key_steering(SdlKey key) noexcept {
     Steering input;
-    input.is_home = key == kKeyV;
+    input.is_home = key == SdlKey::kV;
     const auto found = std::ranges::find(kCameraKeys, key, &CameraKeyStep::key);
     if (found == kCameraKeys.end()) return input;
     input.turn_keys = found->turn;
@@ -356,30 +319,19 @@ constexpr std::array<CameraKeyStep, 4> kCameraKeys{{
     return input;
 }
 
-void on_key_down(Controls& controls, const window::NativeMessage& message) {
-    const bool is_repeat = (message.lparam & kKeyWasDown) != 0;
-    if (note_walk_key(controls.held, message.wparam, true)) {
+void on_key_down(Controls& controls, SdlKey key, bool is_repeat) {
+    if (note_walk_key(controls.held, key, true)) {
         send_walk(controls);
         return;
     }
-    Steering input = camera_key_steering(message.wparam);
-    input.toggles_pace = message.wparam == kKeyF11 && !is_repeat;
+    Steering input = camera_key_steering(key);
+    input.toggles_pace = key == SdlKey::kF11 && !is_repeat;
     controls.display->steer(input);
-    const int step = direction_of(message.wparam);
+    const int step = direction_of(key);
     const bool has_world = controls.desc->playing != nullptr && controls.is_playing->load(std::memory_order_relaxed);
     const bool can_change = has_world && step != 0 && !is_repeat;
     if (!can_change || controls.desc->playing->book.rows.empty()) return;
     controls.maps->pending.fetch_add(step, std::memory_order_relaxed);
-}
-
-// Sự kiện chuột ở vị trí của thông điệp, chuẩn hoá về [0, 1] theo vùng vẽ; vùng vẽ rỗng thì ở góc.
-[[nodiscard]] control::InputEvent pointer_event(const Controls& controls, const window::NativeMessage& message) {
-    control::InputEvent event;
-    const window::Size size = controls.opened->client_size();
-    if (size.width == 0 || size.height == 0) return event;
-    event.x = static_cast<float>(low_word(message.lparam)) / static_cast<float>(size.width);
-    event.y = static_cast<float>(high_word(message.lparam)) / static_cast<float>(size.height);
-    return event;
 }
 
 void send_event(const Controls& controls, const control::InputEvent& event) {
@@ -387,184 +339,95 @@ void send_event(const Controls& controls, const control::InputEvent& event) {
     controls.display->input(one);
 }
 
-// Nhả một nút ở thông điệp message; sự kiện nhả mang vị trí của nó.
-void send_release(const Controls& controls, const window::NativeMessage& message, control::MouseButton button) {
-    control::InputEvent event = pointer_event(controls, message);
-    event.kind = control::InputKind::kRelease;
-    event.button = button;
-    send_event(controls, event);
+void remember_button(Pointer& pointer, control::MouseButton button, bool is_down) noexcept {
+    if (button == control::MouseButton::kLeft) pointer.is_left_down = is_down;
+    if (button == control::MouseButton::kRight) pointer.is_right_down = is_down;
+    if (button == control::MouseButton::kMiddle) pointer.is_middle_down = is_down;
 }
 
-// Sự kiện ở chỗ con trỏ được thấy lần cuối, cho thông điệp không mang vị trí (mất focus).
-[[nodiscard]] control::InputEvent last_seen_event(const Controls& controls) {
-    control::InputEvent event;
-    const window::Size size = controls.opened->client_size();
-    if (size.width == 0 || size.height == 0) return event;
-    event.x = static_cast<float>(controls.pointer.last_column) / static_cast<float>(size.width);
-    event.y = static_cast<float>(controls.pointer.last_row) / static_cast<float>(size.height);
-    return event;
-}
-
-// Viewer chỉ báo nút nào nhấn, nhả ở đâu. Việc ẩn và giữ con trỏ khi kéo camera do màn chơi quyết
-// (kéo phải quá ngưỡng, hay giữ nút giữa) và tới đây qua Display::cursor_choice.
-void on_left_down(Controls& controls, const window::NativeMessage& message) {
-    controls.pointer.is_left_down = true;
-    control::InputEvent event = pointer_event(controls, message);
-    event.kind = control::InputKind::kPress;
-    send_event(controls, event);
-}
-
-void on_left_up(Controls& controls, const window::NativeMessage& message) {
-    controls.pointer.is_left_down = false;
-    send_release(controls, message, control::MouseButton::kLeft);
-}
-
-void send_press(const Controls& controls, const window::NativeMessage& message, control::MouseButton button) {
-    control::InputEvent event = pointer_event(controls, message);
-    event.kind = control::InputKind::kPress;
-    event.button = button;
-    send_event(controls, event);
-}
-
-void on_right_down(Controls& controls, const window::NativeMessage& message) {
-    controls.pointer.is_right_down = true;
-    send_press(controls, message, control::MouseButton::kRight);
-}
-
-void on_right_up(Controls& controls, const window::NativeMessage& message) {
-    controls.pointer.is_right_down = false;
-    send_release(controls, message, control::MouseButton::kRight);
-}
-
-void on_middle_down(Controls& controls, const window::NativeMessage& message) {
-    controls.pointer.is_middle_down = true;
-    send_press(controls, message, control::MouseButton::kMiddle);
-}
-
-void on_middle_up(Controls& controls, const window::NativeMessage& message) {
-    controls.pointer.is_middle_down = false;
-    send_release(controls, message, control::MouseButton::kMiddle);
-}
-
-// Nút nhả ngoài cửa sổ (không có thông điệp nhả): thông điệp di chuyển kế tiếp không còn cờ nút,
-// nên bù sự kiện nhả cho phía còn nhớ là đang giữ. Chuột trái chỉ huỷ, không thành lệnh đi.
-void settle_buttons(Controls& controls, const window::NativeMessage& message) {
-    const bool is_left_gone = controls.pointer.is_left_down && (message.wparam & kLeftButtonFlag) == 0;
-    const bool is_right_gone = controls.pointer.is_right_down && (message.wparam & kRightButtonFlag) == 0;
-    const bool is_middle_gone = controls.pointer.is_middle_down && (message.wparam & kMiddleButtonFlag) == 0;
-    if (is_left_gone) {
-        controls.pointer.is_left_down = false;
-        control::InputEvent event;
-        event.kind = control::InputKind::kCancel;
-        send_event(controls, event);
+void apply_event(Controls& controls, const control::InputEvent& event) {
+    const bool is_press = event.kind == control::InputKind::kPress;
+    const bool is_release = event.kind == control::InputKind::kRelease;
+    if (is_press || is_release) remember_button(controls.pointer, event.button, is_press);
+    if (event.kind == control::InputKind::kMove || is_press || is_release) {
+        controls.pointer.x = event.x;
+        controls.pointer.y = event.y;
     }
-    if (is_right_gone) on_right_up(controls, message);
-    if (is_middle_gone) on_middle_up(controls, message);
+    send_event(controls, event);
 }
 
-// Đang giữ con trỏ cho camera thì sau mỗi lần dời con trỏ bị kéo về chỗ cũ, như client gốc gọi
-// MouseSetPos(ptOld) mỗi nhịp kéo: xoay bao lâu cũng không đụng mép màn hình. Thông điệp do chính
-// lần kéo về sinh ra có độ dời 0 nên không kéo lần nữa.
-void on_mouse_move(Controls& controls, const window::NativeMessage& message) {
-    settle_buttons(controls, message);
-    const int column = low_word(message.lparam);
-    const int row = high_word(message.lparam);
-    const int moved_x = column - controls.pointer.last_column;
-    const int moved_y = row - controls.pointer.last_row;
-    control::InputEvent event = pointer_event(controls, message);
-    event.kind = control::InputKind::kMove;
-    event.dx = static_cast<float>(moved_x);
-    event.dy = static_cast<float>(moved_y);
-    send_event(controls, event);
-    Pointer& seen = controls.pointer;
-    const bool is_moved = moved_x != 0 || moved_y != 0;
-    if (controls.opened->is_cursor_captured() && is_moved) {
-        controls.opened->move_cursor(window::Point{.x = seen.last_column, .y = seen.last_row});
+[[nodiscard]] char32_t control_char(SdlKey key) noexcept {
+    if (key == SdlKey::kBackspace) return 8;
+    if (key == SdlKey::kTab) return 9;
+    if (key == SdlKey::kEnter) return 13;
+    return 0;
+}
+
+void apply_key(Controls& controls, SdlKey key, bool is_down, bool is_repeat) {
+    const char32_t typed = control_char(key);
+    if (is_down && typed != 0) {
+        control::InputEvent text;
+        text.kind = control::InputKind::kText;
+        text.text = typed;
+        send_event(controls, text);
+    }
+    if (!is_down) {
+        if (note_walk_key(controls.held, key, false)) send_walk(controls);
         return;
     }
-    seen.last_column = column;
-    seen.last_row = row;
+    on_key_down(controls, key, is_repeat);
 }
 
-// Độ lăn tính theo nấc (120 đơn vị một nấc); phần lẻ để Display dồn lại. Giữ Shift mà lăn thì
-// client gốc lật trang thanh phím tắt chứ không zoom (Game.exe 0x14064d591); thanh đó chưa có nên
-// bỏ qua.
-// NOLINTNEXTLINE(misc-const-correctness): cùng chữ ký với mọi hàm của kMessageRoutes (API-04)
-void on_mouse_wheel(Controls& controls, const window::NativeMessage& message) {
-    if ((message.wparam & kShiftFlag) != 0) return;
-    control::InputEvent event;
-    event.kind = control::InputKind::kWheel;
-    const int delta = high_word(static_cast<std::intptr_t>(message.wparam));
-    event.wheel = static_cast<float>(delta) / static_cast<float>(kWheelDelta);
-    send_event(controls, event);
-}
-
-// Nhả một nút đang giữ mà không có thông điệp nhả, ở chỗ con trỏ được thấy lần cuối.
-void drop_button(Controls& controls, bool Pointer::* flag, control::MouseButton button) {
+void release_held(Controls& controls, bool Pointer::* flag, control::MouseButton button) {
     if (!(controls.pointer.*flag)) return;
     controls.pointer.*flag = false;
-    control::InputEvent release = last_seen_event(controls);
+    control::InputEvent release;
     release.kind = control::InputKind::kRelease;
     release.button = button;
+    release.x = controls.pointer.x;
+    release.y = controls.pointer.y;
     send_event(controls, release);
 }
 
-// Mất focus: thả phím đi bộ, huỷ thao tác trái đang dở, nhả nút phải và nút giữa đang kéo camera
-// và trả con trỏ ngay, không chờ khung kế của màn chơi.
-void on_lost_focus(Controls& controls, const window::NativeMessage& /*message*/) {
+// Mất focus: thả phím đi bộ, huỷ thao tác trái, nhả nút đang kéo camera.
+void apply_blur(Controls& controls) {
     controls.held = Held{};
     send_walk(controls);
     controls.pointer.is_left_down = false;
     control::InputEvent cancel;
     cancel.kind = control::InputKind::kCancel;
+    cancel.x = controls.pointer.x;
+    cancel.y = controls.pointer.y;
     send_event(controls, cancel);
-    drop_button(controls, &Pointer::is_right_down, control::MouseButton::kRight);
-    drop_button(controls, &Pointer::is_middle_down, control::MouseButton::kMiddle);
+    release_held(controls, &Pointer::is_right_down, control::MouseButton::kRight);
+    release_held(controls, &Pointer::is_middle_down, control::MouseButton::kMiddle);
     controls.opened->capture_cursor(false);
 }
 
-// Nhả một phím đi bộ.
-void on_key_up(Controls& controls, const window::NativeMessage& message) {
-    if (note_walk_key(controls.held, message.wparam, false)) send_walk(controls);
+void apply_stick(Controls& controls, const SdlAction& action) {
+    if (!action.stick_active) {
+        send_walk(controls);
+        return;
+    }
+    Steering input;
+    input.has_walk = true;
+    input.walk_forward = action.stick_forward;
+    input.walk_right = action.stick_right;
+    controls.display->steer(input);
 }
 
-// Ký tự đã gõ (WM_CHAR, do TranslateMessage sinh từ phím) cho ô nhập của giao diện: wParam là một
-// đơn vị UTF-16, gồm cả xoá lùi, Tab và Enter.
-// NOLINTNEXTLINE(misc-const-correctness): chữ ký chung của các hàm trong bảng kMessageRoutes (API-04)
-void on_char(Controls& controls, const window::NativeMessage& message) {
-    control::InputEvent typed;
-    typed.kind = control::InputKind::kText;
-    typed.text = static_cast<char32_t>(message.wparam);
-    const std::array<control::InputEvent, 1> one{typed};
-    controls.display->input(one);
+void apply_action(Controls& controls, const SdlAction& action) {
+    if (action.kind == SdlAction::Kind::kEvent) apply_event(controls, action.event);
+    if (action.kind == SdlAction::Kind::kKey) apply_key(controls, action.key, action.is_down, action.is_repeat);
+    if (action.kind == SdlAction::Kind::kBlur) apply_blur(controls);
+    if (action.kind == SdlAction::Kind::kStick) apply_stick(controls, action);
 }
 
-// Thông điệp Win32 và hàm dịch nó thành điều khiển.
-struct MessageRoute {
-    std::uint32_t id = 0;
-    void (*handle)(Controls&, const window::NativeMessage&) = nullptr;
-};
-
-constexpr std::array<MessageRoute, 12> kMessageRoutes{{
-    {.id = kLeftDown, .handle = &on_left_down},
-    {.id = kLeftUp, .handle = &on_left_up},
-    {.id = kRightDown, .handle = &on_right_down},
-    {.id = kRightUp, .handle = &on_right_up},
-    {.id = kMiddleDown, .handle = &on_middle_down},
-    {.id = kMiddleUp, .handle = &on_middle_up},
-    {.id = kKeyDown, .handle = &on_key_down},
-    {.id = kKeyUp, .handle = &on_key_up},
-    {.id = kChar, .handle = &on_char},
-    {.id = kMouseMove, .handle = &on_mouse_move},
-    {.id = kMouseWheel, .handle = &on_mouse_wheel},
-    {.id = kKillFocus, .handle = &on_lost_focus},
-}};
-
-// Dịch một thông điệp Win32 thành điều khiển: phím đi bộ, xoay, zoom, đổi map; chuột thành sự kiện.
-void on_message(Controls& controls, const window::NativeMessage& message) {
-    const auto found = std::ranges::find(kMessageRoutes, message.id, &MessageRoute::id);
-    if (found == kMessageRoutes.end()) return;
-    found->handle(controls, message);
+void drain_input(SdlInput& input, Controls& controls, std::vector<SdlAction>& actions) {
+    const bool is_held = controls.opened->is_cursor_captured();
+    input.set_relative(is_held);
+    input.drain(actions);
+    for (const SdlAction& action : actions) apply_action(controls, action);
 }
 
 // Cảnh đang chơi đổi thì in một dòng và đặt lại tiêu đề cửa sổ, tên cảnh theo ngôn ngữ của bản dựng.
@@ -651,6 +514,8 @@ void serve_requests(const Session& session) {
 }
 
 void one_frame(Session& session) {
+    if (session.input != nullptr && session.controls != nullptr)
+        drain_input(*session.input, *session.controls, session.actions);
     apply_game_cursor(session);
     serve_requests(session);
     const bool has_world = session.desc->playing != nullptr && session.is_playing->load(std::memory_order_relaxed);
@@ -724,8 +589,7 @@ void begin_speaker(audio::Engine& speaker, const std::filesystem::path& data_roo
     std::println("Hiển thị: {}", display.description());
     std::println("Đổi map: Page Up/Page Down. Camera: kéo chuột phải để xoay và ngẩng cúi, kéo nút giữa "
                  "để ngẩng cúi, lăn chuột hoặc mũi tên lên/xuống để zoom, mũi tên trái/phải để xoay, V "
-                 "quay về hướng ban đầu. Đi: nhấp chuột trái (giữ quá 1 giây thì chạy theo con trỏ) "
-                 "hoặc W A S D");
+                 "quay về hướng ban đầu. Đi: nhấp chuột trái, W A S D, hoặc cần trái tay cầm");
     const std::filesystem::path scene_folder = desc.data_folder / "Scene";
     MapLoader maps;
     if (desc.playing != nullptr) {
@@ -739,16 +603,19 @@ void begin_speaker(audio::Engine& speaker, const std::filesystem::path& data_roo
     controls.maps = &maps.request;
     controls.display = &display;
     controls.is_playing = &is_playing;
-    opened.set_message_hook([&controls](const window::NativeMessage& message) {
-        on_message(controls, message);
-        return std::optional<std::intptr_t>{};
-    });
+    core::Result<SdlInput> input = SdlInput::open(opened.native_handle());
+    if (!input) {
+        std::println(stderr, "SDL: {}", input.error());
+        return 1;
+    }
     Session session;
     session.opened = &opened;
     session.display = &display;
     session.desc = &desc;
     session.scene_title = scene_title_lookup(desc.data_folder);
     session.is_playing = &is_playing;
+    session.input = &*input;
+    session.controls = &controls;
     session.cursors = load_game_cursors(desc.data_folder);
     audio::Engine speaker;
     begin_speaker(speaker, desc.data_folder);
@@ -756,7 +623,6 @@ void begin_speaker(audio::Engine& speaker, const std::filesystem::path& data_roo
     const audio::Stats heard = speaker.stats();
     std::println("Âm thanh: {}", audio::describe(heard));
     speaker.close();
-    opened.set_message_hook({});
     return report(session);
 }
 

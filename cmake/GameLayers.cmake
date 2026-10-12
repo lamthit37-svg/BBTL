@@ -59,7 +59,7 @@ set(game_layer_resource "core io math fs gpu resource")
 set(game_layer_render "core math shader gpu resource capture render")
 set(game_layer_client/stage "core xml scene client/stage")
 set(game_layer_client/map "core io xml scene client/map")
-set(game_layer_client/world "core io xml scene nav client/stage client/map client/world")
+set(game_layer_client/world "core io fs xml scene nav collision client/stage client/map client/world")
 set(game_layer_client/display
     "core io math scene gpu resource capture render shader avatar look anim ogre fx control motion nav hero gui ui/panel ui classic client/stage client/map client/world client/display")
 set(game_layer_client/viewer

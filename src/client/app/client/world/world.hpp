@@ -5,6 +5,7 @@
 #include "client/map/book.hpp"
 #include "client/map/ground.hpp"
 #include "client/stage/stage.hpp"
+#include "collision/model.hpp"
 #include "nav/mesh.hpp"
 #include "nav/route.hpp"
 #include "scene/scene_file.hpp"
@@ -50,6 +51,8 @@ struct ShownScene {
     int near_clip = map::kDefaultNearClip;
     scene::SceneFile scene;
     Stage stage;
+    // Mặt công trình của cảnh, đơn vị game. Rỗng khi không có tệp .WCollision hoặc tệp hỏng.
+    std::optional<collision::Model> buildings;
     std::optional<map::Ground> ground;
     std::optional<map::MapError> terrain_error;
     std::optional<nav::Field> walk;
@@ -69,6 +72,17 @@ using EnterResult = std::expected<EnterCode, EnterError>;
 
 // `text` là SceneDefineEx.txt. Thư mục cảnh là data/Scene.
 [[nodiscard]] std::expected<World, map::BookError> open_world(std::string_view text);
+
+// Đọc .skysphere cạnh tệp cảnh và ghi mốc đèn cùng các dải ảnh vào stage. Thiếu tệp thì bỏ qua.
+void attach_sky_file(Stage& stage, const std::filesystem::path& scene_folder, std::string_view sky_file);
+
+// Đọc từng tệp .model mà stage.figures nêu và thêm mesh entity vào props. data_root chứa Model/.
+// Thiếu tệp thì bỏ qua figure đó. Mesh trỏ ra ngoài Model/ bị bỏ.
+void attach_models(Stage& stage, const std::filesystem::path& data_root);
+
+// Nạp Scene/<tệp cảnh đổi đuôi .WCollision> vào slot. Thiếu tệp thì slot rỗng, không in.
+void attach_buildings(std::optional<collision::Model>& slot, const std::filesystem::path& scene_folder,
+    std::string_view scene_file);
 
 // Nạp resid. Cùng id với cảnh đang chạy thì không nạp lại. Cảnh vừa vào nằm trong remembered.
 [[nodiscard]] EnterResult enter(World& world, int id, const std::filesystem::path& scene_folder);

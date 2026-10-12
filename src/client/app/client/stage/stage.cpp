@@ -2,11 +2,13 @@
 
 #include "scene/placement.hpp"
 #include "scene/scene_file.hpp"
+#include "xml/document.hpp"
 
 #include <cstdint>
 #include <string>
 #include <string_view>
 #include <utility>
+#include <vector>
 
 namespace game::client {
 namespace {
@@ -17,7 +19,7 @@ namespace {
     return Rgb{.red = colour.x, .green = colour.y, .blue = colour.z};
 }
 
-// StaticEntity không có "mesh name" không vẽ được; đèn điểm và Model không thuộc bước này.
+// StaticEntity không có "mesh name" không vẽ được. Model đi vào figures, không phải bước này.
 void take_prop(Stage& stage, const scene::Object& object) {
     const scene::OptionalText mesh = scene::property(object, "mesh name");
     if (!mesh || mesh->empty()) return;
@@ -25,6 +27,15 @@ void take_prop(Stage& stage, const scene::Object& object) {
     prop.mesh = std::string(*mesh);
     prop.placement = scene::placement_of(object);
     stage.props.push_back(std::move(prop));
+}
+
+void take_figure(Stage& stage, const scene::Object& object) {
+    const scene::OptionalText name = scene::property(object, "model name");
+    if (!name || name->empty()) return;
+    Figure figure;
+    figure.model = std::string(*name);
+    figure.placement = scene::placement_of(object);
+    stage.figures.push_back(std::move(figure));
 }
 
 constexpr std::string_view kMainLightOne = "#FairyMainLightOne";
@@ -77,11 +88,12 @@ void take_lamp(Stage& stage, const scene::Object& object) {
     stage.lamps.push_back(lamp);
 }
 
-// Đèn không khai type là đèn điểm. Đèn directional lấy ở take_suns (cần xếp đèn chính lên đầu);
-// đèn spot chưa vẽ.
+// Đèn không khai type, đèn điểm và đèn spot đều dùng công thức đèn điểm. Bản 2026 không đọc
+// góc nón. Đèn directional lấy ở take_suns vì đèn chính phải đứng đầu.
 void take_light(Stage& stage, const scene::Object& object) {
     const scene::OptionalText kind = scene::property(object, "type");
-    if (!kind || *kind == "point") take_lamp(stage, object);
+    const bool is_lamp = !kind || *kind == "point" || *kind == "spot" || *kind == "spotlight";
+    if (is_lamp) take_lamp(stage, object);
 }
 
 [[nodiscard]] FogMode fog_mode_of(std::string_view text) noexcept {
@@ -127,6 +139,8 @@ void take_fx(Stage& stage, const scene::Object& object, bool is_effect) {
 void take_object(Stage& stage, const scene::Object& object) {
     if (object.type == "StaticEntity")
         take_prop(stage, object);
+    else if (object.type == "Model")
+        take_figure(stage, object);
     else if (object.type == "Light")
         take_light(stage, object);
     else if (object.type == "Enviroment")
@@ -165,6 +179,15 @@ void take_suns(Stage& stage, const scene::SceneFile& file, SunPick pick) {
         take_picked(stage, object, pick);
 }
 
+void take_entity(const xml::Document& document, std::uint32_t index, std::vector<std::string>& meshes) {
+    if (index >= document.elements.size()) return;
+    const xml::Element& element = document.elements[index];
+    const xml::OptionalText mesh = element.name == "entity" ? xml::attribute(element, "mesh") : xml::OptionalText{};
+    if (mesh && !mesh->empty()) meshes.emplace_back(*mesh);
+    for (const std::uint32_t child : element.children)
+        take_entity(document, child, meshes);
+}
+
 } // namespace
 
 Stage stage_of(const scene::SceneFile& file) {
@@ -175,6 +198,14 @@ Stage stage_of(const scene::SceneFile& file) {
     take_suns(stage, file, SunPick::kTwo);
     take_suns(stage, file, SunPick::kRest);
     return stage;
+}
+
+std::vector<std::string> model_meshes(std::string_view text) {
+    const xml::ParseResult document = xml::parse(text);
+    std::vector<std::string> meshes;
+    if (!document) return meshes;
+    take_entity(*document, 0, meshes);
+    return meshes;
 }
 
 } // namespace game::client

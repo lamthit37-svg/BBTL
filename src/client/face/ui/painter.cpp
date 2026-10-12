@@ -5,7 +5,7 @@
 #include "gui/sheet.hpp"
 #include "io/file.hpp"
 #include "render/ui.hpp"
-#include "resource/image.hpp"
+#include "resource/tier.hpp"
 #include "ui/text.hpp"
 #include "ui/view.hpp"
 
@@ -135,17 +135,17 @@ template <typename Item>
 
 Painter::Painter(render::UiPass& pass, std::filesystem::path root) : pass_(&pass), root_(std::move(root)) {}
 
-// Đọc và giải mã Interface/<name>.png rồi đưa lên GPU; lỗi thì ghi một dòng và trả bản hỏng. Atlas
-// đã mang ảnh của ngôn ngữ chọn lúc dựng (TOOLS/content/build_i18n.py thay ngay trong tệp này).
+// Đọc đúng tệp Imagefile của imageset gốc (dds, tga, png, jpg) rồi đưa lên GPU. Không nối
+// ".png" và không lấy bản ghép hay bản chữ tiếng Việt. Lỗi thì ghi một dòng và trả bản hỏng.
 Painter::Loaded Painter::load(const std::string& name) {
-    const std::filesystem::path file = root_ / io::path_from_utf8(name + ".png");
+    const std::filesystem::path file = root_ / io::path_from_utf8(name);
     const io::TextResult bytes = io::read_text(file);
     if (!bytes) {
         std::println(stderr, "Giao diện: không đọc được {}: {}", name, io::describe(bytes.error()));
         return {};
     }
     const auto raw = std::as_bytes(std::span(*bytes));
-    const core::Result<resource::Image> image = resource::decode_image(raw);
+    const core::Result<resource::Image> image = resource::read_stored(raw);
     if (!image) {
         std::println(stderr, "Giao diện: ảnh {} hỏng: {}", name, image.error());
         return {};

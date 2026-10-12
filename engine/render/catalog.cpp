@@ -135,10 +135,21 @@ void note_required(const Entry& entry, const core::Error& error, std::optional<c
     return device.create_pipeline(pipeline);
 }
 
-void report_created(gpu::Backend backend, std::uint32_t created, core::Clock::time_point began) {
+[[nodiscard]] constexpr std::string_view tier_name(Tier tier) noexcept {
+    switch (tier) {
+    case Tier::kBootstrap: return "0";
+    case Tier::kEssential: return "1";
+    case Tier::kScene: return "2";
+    case Tier::kOptional: return "3";
+    }
+    std::unreachable();
+}
+
+void report_created(gpu::Backend backend, Tier tier, std::uint32_t created, core::Clock::time_point began) {
     const auto elapsed = core::Clock::now() - began;
     const double millis = std::chrono::duration<double, std::milli>(elapsed).count();
-    std::println("Pipeline: {} tạo {} PSO trong {:.1f} ms", gpu::name(backend), created, millis);
+    std::println("Pipeline: {} tầng {} tạo {} PSO trong {:.1f} ms", gpu::name(backend), tier_name(tier), created,
+        millis);
 }
 
 } // namespace
@@ -179,6 +190,14 @@ Catalog::SlotState& Catalog::state_of(Pso pso) noexcept {
     const std::size_t clamped = index < slots_.size() ? index : 0;
     // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-constant-array-index)
     return slots_[clamped];
+}
+
+bool Catalog::tier_pending(Tier tier) const noexcept {
+    for (const Entry& entry : entries()) {
+        const bool waiting = entry.tier == tier && !state_of(entry.pso).tried;
+        if (waiting) return true;
+    }
+    return false;
 }
 
 bool Catalog::tier_has(Tier tier, std::string_view vertex) const noexcept {
@@ -225,22 +244,31 @@ void Catalog::warm_family(Tier tier, std::string_view vertex, std::string_view p
 }
 
 core::Result<gpu::PipelineHandle> Catalog::build(const Entry& entry, std::span<const gpu::ShaderHandle> shaders) const {
-    const auto index = static_cast<std::size_t>(entry.pso);
-    if (index < kModelVariants) return make_model(*device_, desc_, entry, shaders);
-    if (entry.pso == Pso::kUi) return make_ui(*device_, desc_, shaders);
-    return make_fx(*device_, desc_, shaders);
+    switch (entry.pso) {
+    case Pso::kModelOpaque:
+    case Pso::kModelTwoSided:
+    case Pso::kModelBlend:
+    case Pso::kModelBlendTwoSided: return make_model(*device_, desc_, entry, shaders);
+    case Pso::kUi: return make_ui(*device_, desc_, shaders);
+    case Pso::kFx: return make_fx(*device_, desc_, shaders);
+    }
+    std::unreachable();
+}
+
+void Catalog::warm_tier(Tier tier, std::uint32_t& created, std::optional<core::Error>& required) {
+    for (const Entry& entry : entries()) {
+        if (entry.tier != tier) continue;
+        warm_family(tier, entry.vertex, entry.pixel, entry.frame_bytes, entry.draw_bytes, created, required);
+    }
 }
 
 core::Status Catalog::prepare(Tier tier) {
-    const bool has_work = tier_has(tier, "model.vs") || tier_has(tier, "ui.vs") || tier_has(tier, "fx.vs");
-    if (!has_work) return core::ok();
+    if (!tier_pending(tier)) return core::ok();
     const core::Clock::time_point began = core::Clock::now();
     std::uint32_t created = 0;
     std::optional<core::Error> required;
-    warm_family(tier, "model.vs", "model.ps", kModelFrameBytes, kModelDrawBytes, created, required);
-    warm_family(tier, "ui.vs", "ui.ps", 0, 0, created, required);
-    warm_family(tier, "fx.vs", "fx.ps", 0, 0, created, required);
-    report_created(device_->adapter().backend, created, began);
+    warm_tier(tier, created, required);
+    report_created(device_->adapter().backend, tier, created, began);
     if (!required) return core::ok();
     return std::unexpected(*required);
 }

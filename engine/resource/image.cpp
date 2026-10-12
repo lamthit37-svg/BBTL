@@ -2,6 +2,9 @@
 // tệp này.
 #include "resource/image.hpp"
 
+#include "fs/file.hpp"
+#include "resource/tier.hpp"
+
 #include <cstdlib>
 
 #define STB_IMAGE_IMPLEMENTATION
@@ -21,6 +24,12 @@ struct Pixels {
 };
 
 } // namespace
+
+core::Result<Image> load_image_file(std::string_view path) {
+    const core::Result<fs::Bytes> file = fs::read_file(path);
+    if (!file) return std::unexpected(file.error());
+    return read_stored(file->span());
+}
 
 core::Result<Image> decode_image(std::span<const std::byte> encoded) {
     if (encoded.empty()) return core::fail(core::ErrorCode::kInvalidArgument, "ảnh rỗng");

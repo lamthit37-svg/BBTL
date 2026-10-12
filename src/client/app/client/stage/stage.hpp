@@ -5,7 +5,8 @@
 // Tên thuộc tính và mặc định của đèn theo LightObject của client 2026 (Render.dll, hàm dựng ở
 // 0x108960): tầm 100000, cường độ 1, số mũ suy giảm 1. Bản 2026 chỉ còn "range", "intensity" và
 // "attenuation"; "attenuation.linear", "attenuation.quadric" của tệp cảnh cũ không còn được đọc.
-// Chưa lấy: Model có xương, Actor, FakeLight, Projector, đèn spot. Địa hình ở client/map.
+// Model của cảnh giữ tên tệp .model; world bung mesh. Đèn spot không có góc nón ở bản 2026
+// nên đi cùng đèn điểm. Chưa lấy: Actor có xương, FakeLight, Projector. Địa hình ở client/map.
 #pragma once
 
 #include "scene/placement.hpp"
@@ -30,6 +31,12 @@ struct Rgb {
 struct Prop {
     // Tên mesh như trong tệp cảnh, ví dụ "敦煌/敦煌山洞.mesh"; tệp GLB là Model/<tên>.glb.
     std::string mesh;
+    scene::Placement placement;
+};
+
+// Một object Model. model là thuộc tính "model name", tương đối với thư mục Model.
+struct Figure {
+    std::string model;
     scene::Placement placement;
 };
 
@@ -70,6 +77,15 @@ struct FxPlace {
     bool is_effect = false;
 };
 
+// Một dải vòm trời. pitch 0 là đỉnh, pi/2 là chân trời. repeats là số lần ảnh quấn quanh.
+struct SkyBand {
+    std::string texture;
+    float pitch_start = 0.0F;
+    float pitch_end = 0.0F;
+    int repeats = 1;
+    bool blends = false;
+};
+
 // Một mặt TerrainLiquid. Không có bán kính trong tệp: mặt lan theo độ cao địa hình.
 struct Liquid {
     std::string material;
@@ -105,6 +121,8 @@ struct DayKey {
 struct Stage {
     // Theo đúng thứ tự StaticEntity trong tệp cảnh; vật thể không có "mesh name" bị bỏ.
     std::vector<Prop> props;
+    // Object type Model, đúng thứ tự tệp. Mesh nằm trong XML .model, world mới bung ra props.
+    std::vector<Figure> figures;
     // Đèn mang tên "#FairyMainLightOne" đứng đầu, "#FairyMainLightTwo" đứng thứ hai (thứ tự Ogre
     // trao cho shader); đèn directional khác theo thứ tự tệp.
     std::vector<Sun> suns;
@@ -118,9 +136,15 @@ struct Stage {
     // Bảng môi trường theo giờ của bầu trời, xếp theo time. Khác rỗng thì ambient, sương và màu
     // đèn chính lấy từ bảng này (day_at) thay số ghi ở trên. stage_of để rỗng; nơi nạp cảnh điền.
     std::vector<DayKey> days;
+    // Các dải có ảnh của thời tiết đang dùng. Rỗng khi cảnh không có bầu trời.
+    std::vector<SkyBand> sky;
 };
 
 // Nội dung cần vẽ của một tệp cảnh đã đọc.
 [[nodiscard]] Stage stage_of(const scene::SceneFile& file);
+
+// Thuộc tính mesh của mọi phần tử entity trong XML .model. Chuỗi rỗng và XML hỏng bị bỏ.
+// Đường dẫn còn tương đối với thư mục của chính tệp .model.
+[[nodiscard]] std::vector<std::string> model_meshes(std::string_view text);
 
 } // namespace game::client

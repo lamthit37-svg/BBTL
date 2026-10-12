@@ -16,15 +16,6 @@
 
 namespace game::client {
 
-// Một dải trên vòm. pitch 0 là đỉnh, pi/2 là chân trời. repeats là số lần texture quấn quanh.
-struct SkyBand {
-    std::string texture;
-    float pitch_start = 0.0F;
-    float pitch_end = 0.0F;
-    int repeats = 1;
-    bool blends = false;
-};
-
 struct SkyDome {
     std::vector<SkyBand> bands;
     // Xếp theo time tăng dần. Rỗng khi thời tiết hiện tại không khai mốc nào.
@@ -47,6 +38,9 @@ struct SkyMesh {
 
 // Rỗng khi XML hỏng hoặc thời tiết không có lớp nào có texture.
 [[nodiscard]] SkyDome read_sky(std::string_view text);
+
+// Ghi mốc giờ và các dải ảnh của tệp .skysphere vào cảnh. Tệp hỏng thì cả hai về rỗng.
+void apply_sky(Stage& stage, std::string_view text);
 
 // Dải trên hình cầu đơn vị. Rỗng khi pitch không có bề rộng.
 [[nodiscard]] SkyMesh sky_band(const SkyBand& band);

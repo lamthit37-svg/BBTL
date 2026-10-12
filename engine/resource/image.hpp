@@ -28,4 +28,7 @@ struct Image {
 // `encoded` là một tệp PNG hoặc JPEG đủ. Kênh nào thiếu thì alpha = 255.
 [[nodiscard]] core::Result<Image> decode_image(std::span<const std::byte> encoded);
 
+// Đọc cả tệp rồi nhận PNG, JPEG hoặc DDS. Đường dẫn là UTF-8.
+[[nodiscard]] core::Result<Image> load_image_file(std::string_view path);
+
 } // namespace game::resource

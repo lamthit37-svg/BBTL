@@ -347,6 +347,12 @@ void step_bracket(Bracket& bracket, const DayKey& key, float time) noexcept {
 
 } // namespace
 
+void apply_sky(Stage& stage, std::string_view text) {
+    SkyDome dome = read_sky(text);
+    stage.days = std::move(dome.days);
+    stage.sky = std::move(dome.bands);
+}
+
 SkyDome read_sky(std::string_view text) {
     SkyDome dome;
     const xml::ParseResult document = xml::parse(text);

@@ -11,6 +11,7 @@
     "stb",
     "xxhash",
     "zstd",
-    "sse2neon"
+    "sse2neon",
+    "sdl3"
   ]
 }

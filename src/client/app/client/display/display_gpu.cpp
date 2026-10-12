@@ -18,6 +18,9 @@
 // --shot chụp khung đầu sau khi mesh của cảnh đã vào hết. Vòng acquire–vẽ–present
 // theo tools/view/main.cpp của Forge2; begin trả kInvalidState khi bề mặt đã đổi cỡ là đường chạy
 // thường ngày, khung ấy bị bỏ và màn hình vẽ được dựng lại sau.
+#include "client/display/assets.hpp"
+#include "client/display/sky_mesh.hpp"
+#include "client/display/water_mesh.hpp"
 #include "client/display/display.hpp"
 #include "client/display/fx_view.hpp"
 #include "client/display/lighting.hpp"
@@ -460,6 +463,21 @@ using MapGround = game::client::map::Ground;
 // Chỗ đứng hiện tại, đơn vị game. Axis_Trans GFX sang GAME, chỉ X và Z.
 [[nodiscard]] core::GroundPoint game_of(const map::TerrainFile& file, const WalkPose& pose) noexcept {
     return {.x = (pose.x - file.origin.x) / file.scale.x, .z = (pose.z - file.origin.z) / file.scale.z};
+}
+
+// Mặt công trình chỉ nâng chân lên trên địa hình. height là mặt trên cùng, đơn vị game.
+[[nodiscard]] float surface_y(const world::ShownScene* shown, const map::Ground* ground, float x, float z,
+    float terrain_y) noexcept {
+    if (shown == nullptr || !shown->buildings || ground == nullptr) return terrain_y;
+    const map::TerrainFile& file = ground->file;
+    if (!scale_ok(file) || !(file.scale.y > 0.0F)) return terrain_y;
+    const float game_x = (x - file.origin.x) / file.scale.x;
+    const float game_z = (z - file.origin.z) / file.scale.z;
+    const std::optional<float> game_y = shown->buildings->height(game_x, game_z);
+    if (!game_y) return terrain_y;
+    const float world_y = file.origin.y + (*game_y * file.scale.y);
+    if (!(world_y > terrain_y)) return terrain_y;
+    return world_y;
 }
 
 [[nodiscard]] bool cell_open_index(const MapGround& ground, int index) noexcept {
@@ -1376,6 +1394,16 @@ struct Display::State {
     void clear_shown();
     void clear_if_shown();
     void begin_load(std::shared_ptr<const world::ShownScene> next);
+    // Tầng 2 khi đã có cảnh, kể cả cảnh đưa thẳng qua stage, không chỉ cảnh đổi bằng begin_load.
+    void warm_scene();
+    // Mở bộ vẽ hiệu ứng sau khi tầng 2 đã tạo PSO. Chưa có cảnh thì chưa gọi prepare, không báo lỗi.
+    void open_fx();
+    void say_fx_fault();
+    void ensure_sky();
+    void append_sky(const render::Camera& camera);
+    void ensure_water();
+    void append_water();
+    [[nodiscard]] const std::string& material_script();
     void remember_mesh(Arrival& loading, FeedJob& job, std::size_t index);
     void remember_meshes(Arrival& loading, FeedJob& job);
     [[nodiscard]] bool needs_fresh_ground(const Arrival& loading) const;
@@ -1468,10 +1496,21 @@ struct Display::State {
     std::unique_ptr<render::Screen> screen;
     std::unique_ptr<render::Forward> forward;
     std::unique_ptr<FxView> fx_view;
+    // Đã in lỗi dựng hiệu ứng một lần. PSO chưa được yêu cầu thì fault còn trống, không in.
+    bool fx_fault_noted = false;
     // Giao diện 2D. Rỗng khi thiếu shader hay dữ liệu; game vẫn chạy.
     std::unique_ptr<render::UiPass> ui_pass;
     std::unique_ptr<ui::Hud> hud;
     const Stage* stage = nullptr;
+    // Vòm trời của cảnh đang vẽ. Drawable trỏ vào model và uploaded của chính optional này.
+    std::optional<LoadedMesh> sky_mesh;
+    std::string sky_stamp;
+    std::optional<LoadedMesh> water_mesh;
+    std::string water_stamp;
+    std::string material_text;
+    bool material_text_ready = false;
+    float clip_near = 0.25F;
+    float clip_far = 150.0F;
     const game::client::map::Ground* ground = nullptr;
     core::Clock::time_point started;
     std::atomic<PackedSize> posted_size{0};
@@ -1771,9 +1810,15 @@ core::Status Display::State::open_gpu(const DisplayDesc& desc) {
     core::Result<render::Catalog> opened = render::Catalog::open(*device, std::move(catalog_desc));
     if (!opened) return std::unexpected(opened.error());
     catalog = std::make_unique<render::Catalog>(std::move(*opened));
-    const core::Status warmed = catalog->prepare(render::Tier::kBootstrap);
-    store_pipeline_cache();
-    if (!warmed) return warmed;
+    const core::Status bootstrap = catalog->prepare(render::Tier::kBootstrap);
+    if (!bootstrap) return bootstrap;
+    // Tầng 1 trước Forward: bốn PSO model vẽ nền đăng nhập và người, không chờ tới lúc vào thế giới.
+    const core::Status essential = catalog->prepare(render::Tier::kEssential);
+    if (!essential) return essential;
+    if (render::optional_tier_allowed(device->adapter(), device->caps())) {
+        const core::Status optional = catalog->prepare(render::Tier::kOptional);
+        if (!optional) std::println(stderr, "Pipeline: tầng 3: {}", optional.error());
+    }
     core::Result<render::Forward> pass = make_forward(*device, *screen, shaders, catalog->models());
     if (!pass) return std::unexpected(pass.error());
     forward = std::make_unique<render::Forward>(std::move(*pass));
@@ -1845,19 +1890,12 @@ void Display::State::arm_scene(const DisplayDesc& desc) {
     started = core::Clock::now();
     // Nướng địa hình bắt đầu trước khi dựng giao diện và người chơi, để ba việc chạy cùng lúc.
     if (held) begin_load(held);
+    if (!held && stage != nullptr) warm_scene();
     // Màn đăng nhập chưa có nhân vật nào: không nạp mô hình. Sổ và danh sách tạo đọc trước khung đầu.
     if (desc.restored.has) apply_kept(desc.restored);
     if (procedure == Procedure::kLogin) open_login();
     if (procedure == Procedure::kPlay) load_player();
     prepare_board();
-    const gpu::PipelineHandle fx_pipeline = catalog->get(render::Pso::kFx);
-    if (!fx_pipeline) {
-        const core::Error* fault = catalog->fault(render::Pso::kFx);
-        if (fault != nullptr) std::println(stderr, "Hiệu ứng: bỏ qua, không dựng được bộ vẽ: {}", *fault);
-        if (fault == nullptr) std::println(stderr, "Hiệu ứng: bỏ qua, không dựng được bộ vẽ");
-    }
-    if (fx_pipeline) fx_view = FxView::open(*device, fx_pipeline);
-    if (fx_view) fx_view->load(data_root);
     const gpu::AdapterInfo& adapter = device->adapter();
     const gpu::PresentMode shown = screen->swapchain()->present_mode();
     const std::string_view api = gpu::name(adapter.backend);
@@ -1870,6 +1908,10 @@ core::Status Display::State::launch(const DisplayDesc& desc) {
     const core::Status opened = open_gpu(desc);
     if (!opened) return opened;
     arm_scene(desc);
+    const std::string gap = closed_port_line();
+    if (!gap.empty()) std::println("{}", gap);
+    // Cache ghi sau tầng 0, tầng 1 và cảnh đầu. Tầng 2 tạo trong warm_scene.
+    store_pipeline_cache();
     return core::ok();
 }
 
@@ -2058,11 +2100,125 @@ void Display::State::clear_shown() {
     if (feeder) feeder->cancel();
 }
 
-void Display::State::begin_load(std::shared_ptr<const world::ShownScene> next) {
-    if (catalog) {
-        const core::Status tier = catalog->prepare(render::Tier::kScene);
-        if (!tier) std::println(stderr, "Pipeline: tầng cảnh: {}", tier.error());
+const std::string& Display::State::material_script() {
+    if (material_text_ready) return material_text;
+    material_text_ready = true;
+    const io::TextResult text = io::read_text(data_root / "Material" / "all.material");
+    if (text) material_text = *text;
+    return material_text;
+}
+
+void Display::State::ensure_water() {
+    if (forward == nullptr || device == nullptr) return;
+    if (stage == nullptr || ground == nullptr) {
+        water_stamp.clear();
+        water_mesh.reset();
+        return;
     }
+    const std::string key = water_key(*stage, ground);
+    if (key == water_stamp) return;
+    water_stamp = key;
+    water_mesh.reset();
+    if (key.empty() || data_root.empty()) return;
+    resource::Model model = water_model(*stage, *ground, material_script(), data_root);
+    if (model.meshes.empty()) return;
+    ReadMesh read = baked_mesh(std::move(model));
+    water_mesh.emplace();
+    water_mesh->model = std::move(read.model);
+    auto uploaded = resource::upload_queued(*device, water_mesh->model, read.baked);
+    if (!uploaded) {
+        water_mesh.reset();
+        std::println(stderr, "Mặt nước: {}", uploaded.error());
+        return;
+    }
+    water_mesh->uploaded = std::move(*uploaded);
+    auto drawable = forward->prepare(water_mesh->model, water_mesh->uploaded);
+    if (!drawable) {
+        water_mesh.reset();
+        std::println(stderr, "Mặt nước: {}", drawable.error());
+        return;
+    }
+    water_mesh->drawable = std::move(*drawable);
+}
+
+void Display::State::append_water() {
+    if (!water_mesh) return;
+    render::Instance instance;
+    instance.drawable = &water_mesh->drawable;
+    frame_instances.push_back(instance);
+}
+
+void Display::State::ensure_sky() {
+    if (stage == nullptr || forward == nullptr || device == nullptr) return;
+    const std::string key = sky_key(*stage);
+    if (key == sky_stamp) return;
+    sky_stamp = key;
+    sky_mesh.reset();
+    if (key.empty() || data_root.empty()) return;
+    resource::Model model = sky_model(*stage, data_root);
+    if (model.meshes.empty()) return;
+    ReadMesh read = baked_mesh(std::move(model));
+    // prepare giữ con trỏ vào model và uploaded, nên hai thứ phải đứng yên trước khi prepare.
+    sky_mesh.emplace();
+    sky_mesh->model = std::move(read.model);
+    auto uploaded = resource::upload_queued(*device, sky_mesh->model, read.baked);
+    if (!uploaded) {
+        sky_mesh.reset();
+        std::println(stderr, "Vòm trời: {}", uploaded.error());
+        return;
+    }
+    sky_mesh->uploaded = std::move(*uploaded);
+    auto drawable = forward->prepare(sky_mesh->model, sky_mesh->uploaded);
+    if (!drawable) {
+        sky_mesh.reset();
+        std::println(stderr, "Vòm trời: {}", drawable.error());
+        return;
+    }
+    sky_mesh->drawable = std::move(*drawable);
+}
+
+void Display::State::append_sky(const render::Camera& camera) {
+    if (!sky_mesh) return;
+    const float span = clip_far - clip_near;
+    if (!(span > 1.0F)) return;
+    const math::Matrix4 placed = math::ortho_inverse(camera.view);
+    const math::Vector3 eye = placed.translation();
+    const float radius = clip_near + (span * 0.95F);
+    const math::Vector3 scale{radius, radius, radius};
+    render::Instance instance;
+    instance.drawable = &sky_mesh->drawable;
+    instance.world = math::Matrix4(math::Matrix3::identity(), eye) * math::Matrix4::scale(scale);
+    frame_instances.push_back(instance);
+}
+
+void Display::State::say_fx_fault() {
+    if (fx_fault_noted || catalog == nullptr) return;
+    const core::Error* fault = catalog->fault(render::Pso::kFx);
+    if (fault == nullptr) return;
+    fx_fault_noted = true;
+    std::println(stderr, "Hiệu ứng: bỏ qua, không dựng được bộ vẽ: {}", *fault);
+}
+
+void Display::State::open_fx() {
+    if (fx_view || catalog == nullptr || device == nullptr) return;
+    const gpu::PipelineHandle pipeline = catalog->get(render::Pso::kFx);
+    if (!pipeline) return say_fx_fault();
+    fx_view = FxView::open(*device, pipeline);
+    if (!fx_view) return;
+    fx_view->load(data_root);
+    if (stage != nullptr) fx_view->adopt(*stage);
+}
+
+void Display::State::warm_scene() {
+    if (catalog == nullptr) return;
+    const core::Status tier = catalog->prepare(render::Tier::kScene);
+    if (!tier) std::println(stderr, "Pipeline: tầng cảnh: {}", tier.error());
+    open_fx();
+}
+
+void Display::State::begin_load(std::shared_ptr<const world::ShownScene> next) {
+    // Tầng 2: hiệu ứng và pipeline theo cảnh, prefetch trước khi cảnh xuất hiện.
+    warm_scene();
     if (!next) {
         clear_shown();
         return;
@@ -2506,8 +2662,18 @@ render::Camera Display::State::idle_view(FrameAsk ask) {
     take_events(taken.events);
     if (procedure == Procedure::kLogin) step_role_stage();
     close_mouse_frame();
-    if (procedure == Procedure::kLogin && shows_role_scene()) return role_scene_camera(ask.size);
-    if (procedure == Procedure::kLogin) return login_camera(ask.size);
+    if (procedure == Procedure::kLogin && shows_role_scene()) {
+        clip_near = control::kRoleNear;
+        clip_far = control::kRoleFar;
+        return role_scene_camera(ask.size);
+    }
+    if (procedure == Procedure::kLogin) {
+        clip_near = control::kLoginView.near_plane;
+        clip_far = control::kLoginView.far_plane;
+        return login_camera(ask.size);
+    }
+    clip_near = 0.25F;
+    clip_far = 150.0F;
     return orbit_view(ask.elapsed, world, ask.size);
 }
 
@@ -2534,6 +2700,8 @@ render::Camera Display::State::frame_camera(FrameAsk ask) {
     // NOLINTNEXTLINE(bugprone-unchecked-optional-access): terrain đã kiểm ở đầu hàm
     follow.set_look_at(*terrain, foot());
     const control::CameraPose& pose = follow.pose();
+    clip_near = pose.near_plane;
+    clip_far = pose.far_plane;
     lens = lens_of(pose, aspect_of(ask.size));
     has_lens = true;
     return camera_of(pose, ask.size);
@@ -2770,7 +2938,8 @@ std::optional<core::GroundPoint> Display::State::pick_at(control::ScreenPoint po
 ogre::Vec3 Display::State::foot() const {
     const float x = has_shown ? shown_x : walk.x;
     const float z = has_shown ? shown_z : walk.z;
-    const float height = terrain ? terrain->height_at(x, z) : 0.0F;
+    const float terrain_y = terrain ? terrain->height_at(x, z) : 0.0F;
+    const float height = surface_y(held.get(), ground, x, z, terrain_y);
     return ogre::Vec3{.x = x, .y = height, .z = z};
 }
 
@@ -3359,6 +3528,10 @@ core::Status Display::State::draw_world(gpu::CommandList& list, std::uint32_t sl
     const render::Camera camera = ask.size.height > 0 ? frame_camera(ask) : render::Camera{};
     advance_fx(elapsed);
     compose_frame();
+    ensure_sky();
+    append_sky(camera);
+    ensure_water();
+    append_water();
     append_fx_meshes();
     const render::Lighting lighting = light.view();
     const core::Status drawn = forward->draw(list, slot, camera, lighting, frame_instances);
