@@ -48,9 +48,21 @@ struct ListResult {
     std::vector<protocol::CharacterSummary> characters;
 };
 
+// Trần toạ độ điểm vào game, centimet (100 km). Số nguyên tới đây vẫn đúng tuyệt đối trong float.
+inline constexpr std::int32_t kSpotLimitCm = 10'000'000;
+
+[[nodiscard]] constexpr bool spot_fits(std::int64_t cm) noexcept {
+    return cm >= -kSpotLimitCm && cm <= kSpotLimitCm;
+}
+
+// Kết quả vào game. scene/x_cm/z_cm là điểm vào do store giữ (cột position_x/position_z, đơn vị mét,
+// đổi sang centimet). Phiếu standing của auth cũng dùng struct này nhưng không mang toạ độ.
 struct EnterResult {
     bool ok = false;
     protocol::ErrorCode code = protocol::ErrorCode::kNoSuchCharacter;
+    std::uint16_t scene = 0;
+    std::int32_t x_cm = 0;
+    std::int32_t z_cm = 0;
 };
 
 class MemoryBook {

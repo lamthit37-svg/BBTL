@@ -2,6 +2,7 @@
 #include "account/book.hpp"
 #include "account/cap.hpp"
 #include "account/ipc_key.hpp"
+#include "account/rpc.hpp"
 #include "account/rules.hpp"
 #include "account/standing.hpp"
 #include "secure/secure.hpp"
@@ -121,6 +122,40 @@ void three_characters_then_one_slot(Context& context) {
     context.expect(reused.ok, "tên đã xoá dùng lại được");
     context.expect(book.enter(account, reused.characters.back().id).ok, "vào được nhân vật của mình");
     context.expect(!book.enter(account, 999).ok, "không vào nhân vật không có");
+    const account::EnterResult spot = book.enter(account, reused.characters.back().id);
+    context.expect(spot.x_cm == 16500 && spot.z_cm == 16900, "vào ở điểm sinh của hồ sơ mới, đổi mét ra centimet");
+}
+
+// Trả lời Op::kEnter mang điểm vào; thân hỏng hoặc toạ độ ngoài trần thì không vào.
+void enter_reply_carries_spot(Context& context) {
+    account::EnterResult sent;
+    sent.ok = true;
+    sent.scene = 71;
+    sent.x_cm = -12345;
+    sent.z_cm = 16900;
+    const account::EnterResult got = account::entered_from(account::enter_reply_of(sent));
+    context.expect(got.ok && got.scene == 71 && got.x_cm == -12345 && got.z_cm == 16900, "đi về giữ nguyên điểm vào");
+
+    account::EnterResult denied;
+    denied.code = protocol::ErrorCode::kNoSuchCharacter;
+    const account::EnterResult refused = account::entered_from(account::enter_reply_of(denied));
+    context.expect(!refused.ok && refused.code == protocol::ErrorCode::kNoSuchCharacter, "lỗi giữ nguyên mã");
+
+    account::Reply cut = account::enter_reply_of(sent);
+    cut.body.pop_back();
+    context.expect(!account::entered_from(cut).ok, "thân thiếu byte bị từ chối");
+    account::Reply longer = account::enter_reply_of(sent);
+    longer.body.push_back(std::byte{0});
+    context.expect(!account::entered_from(longer).ok, "thân thừa byte bị từ chối");
+    context.expect(!account::entered_from(account::Reply{}).ok, "thân rỗng (kiểu standing) không phải điểm vào");
+
+    account::EnterResult far = sent;
+    far.x_cm = account::kSpotLimitCm + 1;
+    context.expect(!account::entered_from(account::enter_reply_of(far)).ok, "store không gửi toạ độ ngoài trần");
+    account::Reply forged = account::enter_reply_of(sent);
+    const auto huge = static_cast<std::uint32_t>(account::kSpotLimitCm + 1);
+    for (std::size_t i = 0; i < 4; ++i) forged.body[2 + i] = std::byte{static_cast<std::uint8_t>(huge >> (8U * i))};
+    context.expect(!account::entered_from(forged).ok, "gate từ chối toạ độ ngoài trần");
 }
 
 void sign_in_hides_unknown_name(Context& context) {
@@ -319,6 +354,7 @@ constexpr std::array kCases{
     Case{.name = "register_sign_and_ticket", .body = &register_sign_and_ticket},
     Case{.name = "eight_failures_then_rate", .body = &eight_failures_then_rate},
     Case{.name = "three_characters_then_one_slot", .body = &three_characters_then_one_slot},
+    Case{.name = "enter_reply_carries_spot", .body = &enter_reply_carries_spot},
     Case{.name = "sign_in_hides_unknown_name", .body = &sign_in_hides_unknown_name},
     Case{.name = "names_are_canonical", .body = &names_are_canonical},
     Case{.name = "cap_rejects_tamper", .body = &cap_rejects_tamper},

@@ -260,14 +260,14 @@ Reply on_game(void* ctx, const Call& call) {
     }
     if (call.op == Op::kEnter) {
         std::uint64_t character = 0;
-        if (!read_id_call(call, token, character)) return reply_of(EnterResult{});
+        if (!read_id_call(call, token, character)) return enter_reply_of(EnterResult{});
         const OpenedCap who = open_standing(*box, token);
         if (!who.ok) {
             EnterResult denied;
             denied.code = who.code;
-            return reply_of(denied);
+            return enter_reply_of(denied);
         }
-        return reply_of(box->db->enter(who.account, character));
+        return enter_reply_of(box->db->enter(who.account, character));
     }
     return reply_of(ListResult{});
 }

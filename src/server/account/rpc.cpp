@@ -366,6 +366,16 @@ Reply reply_of(const EnterResult& result) {
     return ok_reply({});
 }
 
+Reply enter_reply_of(const EnterResult& result) {
+    if (!result.ok) return error_reply(result.code);
+    if (!spot_fits(result.x_cm) || !spot_fits(result.z_cm)) return error_reply(protocol::ErrorCode::kBusy);
+    Out out;
+    out.u16(result.scene);
+    out.u32(static_cast<std::uint32_t>(result.x_cm));
+    out.u32(static_cast<std::uint32_t>(result.z_cm));
+    return ok_reply(std::move(out.bytes));
+}
+
 TicketResult ticket_from(const Reply& reply) {
     TicketResult result;
     if (reply.code != 0) {
@@ -427,6 +437,27 @@ EnterResult enter_from(const Reply& reply) {
     }
     if (!reply.body.empty()) return result;
     result.ok = true;
+    return result;
+}
+
+EnterResult entered_from(const Reply& reply) {
+    EnterResult result;
+    if (reply.code != 0) {
+        result.code = code_of(reply.code);
+        return result;
+    }
+    In in{reply.body};
+    const std::uint16_t scene = in.u16();
+    const auto x_cm = static_cast<std::int32_t>(in.u32());
+    const auto z_cm = static_cast<std::int32_t>(in.u32());
+    if (!in.ok || !in.rest.empty() || !spot_fits(x_cm) || !spot_fits(z_cm)) {
+        result.code = protocol::ErrorCode::kBusy;
+        return result;
+    }
+    result.ok = true;
+    result.scene = scene;
+    result.x_cm = x_cm;
+    result.z_cm = z_cm;
     return result;
 }
 

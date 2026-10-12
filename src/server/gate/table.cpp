@@ -57,6 +57,9 @@ struct Slot {
     std::uint64_t session_key = 0;
     // Vị trí server làm chủ; chỉ có mốc sau khi vào game (docs/SERVER-DI-CHUYEN.md).
     Motion motion;
+    // Resume đang chờ store: mốc cuối của phiên cũ (do server đặt/nhận), dùng thay điểm trong store.
+    bool has_resume_spot = false;
+    guard::Anchor resume_spot{};
     Drop drain_as = Drop::kLogout;
     Door door = Door::kGame;
     bool has_account = false;
@@ -166,6 +169,9 @@ struct Session {
     bool owned = false;
     Handle owner{};
     std::int64_t expires_ns = 0;
+    // Mốc cuối server nhận được lúc phiên rớt; store chưa lưu vị trí giữa phiên.
+    bool has_spot = false;
+    guard::Anchor spot{};
 };
 
 } // namespace
@@ -314,6 +320,8 @@ void release(Engine& state, Slot& slot, std::uint32_t index, Drop reason) {
     slot.account_id = 0;
     slot.cap = {};
     slot.motion.clear();
+    slot.has_resume_spot = false;
+    slot.resume_spot = {};
     slot.door = Door::kGame;
     slot.draining = false;
     slot.handshake.reset();
@@ -647,6 +655,10 @@ void release_session(Engine& state, Slot& slot, Drop reason) {
     }
     found->second.owned = false;
     found->second.owner = {};
+    if (slot.motion.placed()) {
+        found->second.has_spot = true;
+        found->second.spot = slot.motion.anchor();
+    }
     found->second.expires_ns = slot.seen_ns + state.limits.resume_grace_ns;
     slot.has_session = false;
     slot.session_key = 0;
@@ -742,10 +754,16 @@ void on_resume(Engine& state, Slot& slot, std::uint32_t index, const protocol::R
     post_ask(state, slot, index, ask, protocol::Resume::kKind);
     if (!slot.asking) return;
     // Câu hỏi đã đi: token cũ hết giá trị dù store trả lời thế nào. Kết nối cũ còn sống thì bị đẩy ra.
+    slot.has_resume_spot = found->second.has_spot;
+    slot.resume_spot = found->second.spot;
     if (found->second.owned) {
         const Handle owner = found->second.owner;
         Slot* old = live_slot(state, owner);
         if (old != nullptr) {
+            if (old->motion.placed()) {
+                slot.has_resume_spot = true;
+                slot.resume_spot = old->motion.anchor();
+            }
             old->has_session = false;
             old->session_key = 0;
             send_goodbye(state, *old, owner.index, protocol::DisconnectReason::kLoginElsewhere, Drop::kLogout);
@@ -758,8 +776,19 @@ void on_resume(Engine& state, Slot& slot, std::uint32_t index, const protocol::R
     erase_session(state, found);
 }
 
+// Mốc đầu do server đặt: Resume giữ mốc cuối của phiên cũ; còn lại lấy điểm store giữ cho nhân vật.
+// Client không bao giờ chọn mốc (docs/SERVER-DI-CHUYEN.md).
+[[nodiscard]] guard::Anchor entry_anchor(const account::EnterReply& entered, bool resumed, guard::Anchor kept) noexcept {
+    if (resumed) return kept;
+    return guard::Anchor{.x_cm = entered.x_cm, .z_cm = entered.z_cm};
+}
+
 void finish_enter(Engine& state, Slot& slot, std::uint32_t index, std::uint16_t request, std::uint64_t character,
     const account::EnterReply& entered) {
+    const bool resumed_spot = request == protocol::Resume::kKind && slot.has_resume_spot;
+    const guard::Anchor resume_spot = slot.resume_spot;
+    slot.has_resume_spot = false;
+    slot.resume_spot = {};
     if (!entered.ok) {
         if (request == protocol::Resume::kKind) {
             forget_session(state, slot);
@@ -781,8 +810,7 @@ void finish_enter(Engine& state, Slot& slot, std::uint32_t index, std::uint16_t 
         release(state, slot, index, Drop::kSlow);
         return;
     }
-    // Mốc đầu do server đặt. Chưa có toạ độ sinh từ store nên tạm (0,0); xem docs/SERVER-DI-CHUYEN.md.
-    send_position(state, slot, index, slot.motion.place(guard::Anchor{}, slot.seen_ns));
+    send_position(state, slot, index, slot.motion.place(entry_anchor(entered, resumed_spot, resume_spot), slot.seen_ns));
 }
 
 // Mọi Move đi qua guard::Pace với đồng hồ của gate. Không nhận thì kéo về mốc; lặp lại thì đóng phiên.
@@ -1298,6 +1326,8 @@ Admit Table::admit(net::Ipv4 address, std::int64_t now, Door door) {
     slot.account_id = 0;
     slot.cap = {};
     slot.motion.clear();
+    slot.has_resume_spot = false;
+    slot.resume_spot = {};
     slot.draining = false;
     slot.address = address;
     slot.born_ns = now;

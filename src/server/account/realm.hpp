@@ -32,9 +32,13 @@ struct RosterReply {
     bool has_cap = false;
 };
 
+// ok thì scene/x_cm/z_cm là điểm vào store giữ cho nhân vật (centimet).
 struct EnterReply {
     protocol::ErrorCode code = protocol::ErrorCode::kBusy;
     bool ok = false;
+    std::uint16_t scene = 0;
+    float x_cm = 0.0F;
+    float z_cm = 0.0F;
 };
 
 class Realm {

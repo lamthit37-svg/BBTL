@@ -109,10 +109,16 @@ EnterReply Realm::enter(std::span<const std::byte, kCapBytes> cap, std::uint64_t
     const Call call = id_call(Op::kEnter, cap, character);
     const std::optional<Reply> reply = exchange(store_, call, kFast, key_);
     if (!reply) return {};
-    const EnterResult result = enter_from(*reply);
+    const EnterResult result = entered_from(*reply);
     EnterReply out;
     out.ok = result.ok;
-    if (!result.ok) out.code = result.code;
+    if (!result.ok) {
+        out.code = result.code;
+        return out;
+    }
+    out.scene = result.scene;
+    out.x_cm = static_cast<float>(result.x_cm);
+    out.z_cm = static_cast<float>(result.z_cm);
     return out;
 }
 

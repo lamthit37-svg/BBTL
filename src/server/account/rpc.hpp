@@ -59,11 +59,15 @@ struct Reply {
 [[nodiscard]] Reply reply_of(const RedeemResult& result);
 [[nodiscard]] Reply reply_of(const ListResult& result);
 [[nodiscard]] Reply reply_of(const EnterResult& result);
+// Trả lời Op::kEnter: như reply_of nhưng thân mang scene (u16), x_cm, z_cm (i32).
+[[nodiscard]] Reply enter_reply_of(const EnterResult& result);
 
 [[nodiscard]] TicketResult ticket_from(const Reply& reply);
 [[nodiscard]] RedeemResult redeem_from(const Reply& reply);
 [[nodiscard]] ListResult list_from(const Reply& reply);
 [[nodiscard]] EnterResult enter_from(const Reply& reply);
+// Đọc trả lời Op::kEnter. Thân sai cỡ hoặc toạ độ ngoài kSpotLimitCm thì không vào (kBusy).
+[[nodiscard]] EnterResult entered_from(const Reply& reply);
 
 [[nodiscard]] std::optional<Reply> exchange(const net::Endpoint& endpoint, const Call& call,
     std::chrono::milliseconds timeout, secure::ByteView key);

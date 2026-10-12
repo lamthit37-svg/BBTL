@@ -209,7 +209,11 @@ EnterResult MemoryBook::enter(std::uint64_t account, std::uint64_t character) {
     EnterResult result;
     for (const CharacterRow& row : characters_) {
         if (row.id == character && row.account == account && !row.deleted) {
+            // Sổ nhớ không lưu vị trí: nhân vật luôn ở điểm sinh của hồ sơ mới.
             result.ok = true;
+            result.scene = row.summary.scene;
+            result.x_cm = static_cast<std::int32_t>(starter::kPositionX * 100.0);
+            result.z_cm = static_cast<std::int32_t>(starter::kPositionZ * 100.0);
             return result;
         }
     }

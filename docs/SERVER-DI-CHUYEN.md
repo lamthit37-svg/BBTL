@@ -18,9 +18,17 @@
 `Move` sai độ dài / thừa byte: bộ giải mã từ chối → `Goodbye kProtocolViolation` như mọi tin khác.
 `Move` vẫn tốn credit rate-limit như mọi tin.
 
+## Mốc khi vào game và Resume
+- `EnterGame`: store trả điểm vào của nhân vật trong trả lời `Op::kEnter` (thân: `scene` u16, `x_cm` i32, `z_cm` i32).
+  Nguồn là cột `player.position_x/position_z` (mét, nhân vật mới lấy từ `rules/new_character.toml`), store đổi sang
+  centimet nguyên bằng `round(x * 100)`. Gate đặt `Motion::place` đúng điểm đó rồi gửi `Position`.
+- Fail-closed: hàng hỏng, toạ độ ngoài `±kSpotLimitCm` (100 km) hoặc thân sai cỡ thì không vào (`kBusy`), không
+  bao giờ rơi về `(0,0)`. Phiếu standing của auth vẫn thân rỗng, không lẫn với trả lời enter.
+- `Resume`: phiên rớt giữ mốc cuối server đã nhận (`Session.spot`); kết nối cũ còn sống thì lấy mốc của nó.
+  Resume đặt lại đúng mốc đó (store chưa lưu vị trí giữa phiên). Không có mốc thì dùng điểm trong store.
+
 ## Còn thiếu
-- Gate chưa có dữ liệu điểm sinh của nhân vật: tạm đặt mốc `(0,0)` khi vào game. Cần store trả toạ độ trong
-  `EnterReply` (hoặc zone server cấp) rồi truyền vào `Motion::place`.
+- Store chưa ghi vị trí khi rời game: đăng nhập lại (không Resume) về điểm lưu trong DB. `scene` đã về gate nhưng chưa dùng.
 - Hook hồi sinh / dịch chuyển chưa tồn tại; khi thêm phải gọi `Motion::place` (không reset Pace ở chỗ nào khác).
 - Client: gửi `Move` theo nhịp 30/giây, đếm tick từ `Position.tick`, khi nhận `Position` thì đặt lại vị trí và bộ đếm.
 - Chưa kiểm va chạm/địa hình (navmesh) và trục Y.

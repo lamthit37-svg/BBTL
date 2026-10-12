@@ -654,12 +654,33 @@ EnterResult GameDb::enter(std::uint64_t account, std::uint64_t character) {
     Args args;
     args.i64(static_cast<std::int64_t>(character));
     args.i64(static_cast<std::int64_t>(account));
+    // position_x/position_z lưu mét; gate làm việc bằng centimet nguyên.
     const PgExec found = conn_.exec(
-        "SELECT 1 FROM player WHERE id = $1 AND account_id = $2 AND deleted_at IS NULL", args.span());
+        "SELECT scene::text, round(position_x * 100)::bigint::text, round(position_z * 100)::bigint::text "
+        "FROM player WHERE id = $1 AND account_id = $2 AND deleted_at IS NULL",
+        args.span());
     EnterResult result;
     if (!found.ok) return result;
-    result.ok = !found.rows.empty();
-    if (!result.ok) result.code = protocol::ErrorCode::kNoSuchCharacter;
+    if (found.rows.empty()) {
+        result.code = protocol::ErrorCode::kNoSuchCharacter;
+        return result;
+    }
+    const std::string* scene = cell(found, 0, 0);
+    const std::string* x_cm = cell(found, 0, 1);
+    const std::string* z_cm = cell(found, 0, 2);
+    const std::optional<std::int64_t> scene_value = scene == nullptr ? std::nullopt : as_i64(*scene);
+    const std::optional<std::int64_t> x_value = x_cm == nullptr ? std::nullopt : as_i64(*x_cm);
+    const std::optional<std::int64_t> z_value = z_cm == nullptr ? std::nullopt : as_i64(*z_cm);
+    // Hàng hỏng hay toạ độ ngoài trần: không cho vào thay vì đặt mốc bừa.
+    if (!scene_value || !x_value || !z_value || !fits_wire(*scene_value, 65535) || !spot_fits(*x_value) ||
+        !spot_fits(*z_value)) {
+        result.code = protocol::ErrorCode::kBusy;
+        return result;
+    }
+    result.ok = true;
+    result.scene = static_cast<std::uint16_t>(*scene_value);
+    result.x_cm = static_cast<std::int32_t>(*x_value);
+    result.z_cm = static_cast<std::int32_t>(*z_value);
     return result;
 }
 
