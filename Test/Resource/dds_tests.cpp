@@ -3,10 +3,13 @@
 #include "core/error.hpp"
 #include "gpu/format.hpp"
 #include "resource/dds.hpp"
+#include "resource/tier.hpp"
 #include "resource/upload.hpp"
 #include "test.hpp"
 
 #include <array>
+#include <filesystem>
+#include <fstream>
 #include <bit>
 #include <cstdint>
 #include <cstring>
@@ -115,6 +118,13 @@ void cube_is_unsupported(Context& context) {
     context.expect(refused, "cube không nạp");
 }
 
+void sibling_strips_png_suffix(Context& context) {
+    context.expect(resource::dds_sibling("Material/a.dds.png") == "Material/a.dds", "bỏ .png");
+    context.expect(resource::dds_sibling("Material/a.DDS.PNG") == "Material/a.DDS", "không phân biệt hoa thường");
+    context.expect(resource::dds_sibling("Material/a.png").empty(), "png thường không đổi");
+    context.expect(resource::dds_sibling("Material/a.tga.png").empty(), "tga không thuộc pipe DDS");
+}
+
 void stage_keeps_blocks(Context& context) {
     const std::array<std::byte, 40> payload{};
     const std::vector<std::byte> file = dds_file(8, 8, 2, kDxt1, 0, payload);
@@ -131,13 +141,78 @@ void stage_keeps_blocks(Context& context) {
     context.expect(staged->bytes[0] == payload[0], "byte khối không đổi");
 }
 
+void put_u16(std::vector<std::byte>& out, std::uint16_t value) {
+    const auto bytes = std::bit_cast<std::array<std::byte, 2>>(value);
+    out.insert(out.end(), bytes.begin(), bytes.end());
+}
+
+std::vector<std::byte> tltx_file(std::uint16_t kind, std::uint32_t width, std::uint32_t height, std::uint32_t mips,
+    std::span<const std::byte> payload) {
+    std::vector<std::byte> out;
+    out.push_back(std::byte{'T'});
+    out.push_back(std::byte{'L'});
+    out.push_back(std::byte{'T'});
+    out.push_back(std::byte{'X'});
+    put_u16(out, 1);
+    put_u16(out, kind);
+    put_u32(out, width);
+    put_u32(out, height);
+    put_u32(out, mips);
+    put_bytes(out, payload);
+    return out;
+}
+
+void astc_block_stays_packed(Context& context) {
+    std::array<std::byte, 16> block{};
+    block[0] = std::byte{0xAB};
+    const auto image = resource::read_tltx(tltx_file(1, 4, 4, 1, block));
+    context.expect(image.has_value(), "đọc ASTC 4x4");
+    if (!image) return;
+    const bool is_packed = image->blocks == gpu::Format::kAstc4x4Unorm && image->levels.size() == 1 &&
+        image->levels[0][0] == std::byte{0xAB};
+    context.expect(is_packed, "khối ASTC không giải");
+}
+
+void short_tltx_is_refused(Context& context) {
+    std::array<std::byte, 8> block{};
+    const auto image = resource::read_tltx(tltx_file(2, 4, 4, 1, block));
+    context.expect(!image.has_value(), "ETC2 cụt bị từ chối");
+}
+
+void astc_sibling_is_chosen(Context& context) {
+    namespace files = std::filesystem;
+    std::string root = files::temp_directory_path().string();
+    for (char& unit : root) {
+        if (unit == '\\') unit = '/';
+    }
+    root += "/tl_tier_test";
+    const std::string side = root + "/mobile/astc/Material";
+    files::create_directories(side);
+    files::create_directories(root + "/Material");
+    std::ofstream original(root + "/Material/a.dds", std::ios::binary);
+    original << "DDS ";
+    original.close();
+    std::ofstream cooked(side + "/a.dds", std::ios::binary);
+    cooked << "TLTX";
+    cooked.close();
+    const std::string astc = resource::texture_file(root, "Material/a.dds", resource::TextureTier::kAstc);
+    const std::string bc = resource::texture_file(root, "Material/a.dds", resource::TextureTier::kBc);
+    context.expect(astc.find("mobile/astc/") != std::string::npos, "ASTC thắng khi có tệp");
+    context.expect(bc.find("mobile/") == std::string::npos, "PC giữ DDS");
+    files::remove_all(root);
+}
+
 constexpr std::array kCases{
     Case{.name = "dxt1_keeps_block_and_mips", .body = &dxt1_keeps_block_and_mips},
     Case{.name = "dxt3_and_dxt5_block_sizes", .body = &dxt3_and_dxt5_block_sizes},
     Case{.name = "bgra_swizzles_to_rgba", .body = &bgra_swizzles_to_rgba},
     Case{.name = "truncated_mip_is_corrupt", .body = &truncated_mip_is_corrupt},
     Case{.name = "cube_is_unsupported", .body = &cube_is_unsupported},
+    Case{.name = "sibling_strips_png_suffix", .body = &sibling_strips_png_suffix},
     Case{.name = "stage_keeps_blocks", .body = &stage_keeps_blocks},
+    Case{.name = "astc_block_stays_packed", .body = &astc_block_stays_packed},
+    Case{.name = "short_tltx_is_refused", .body = &short_tltx_is_refused},
+    Case{.name = "astc_sibling_is_chosen", .body = &astc_sibling_is_chosen},
 };
 
 } // namespace

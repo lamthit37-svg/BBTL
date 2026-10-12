@@ -13,6 +13,7 @@
 #include "resource/dds.hpp"
 
 #include "core/error.hpp"
+#include "fs/disk.hpp"
 #include "fs/file.hpp"
 #include "fs/path.hpp"
 #include "io/file.hpp"
@@ -864,7 +865,7 @@ void read_extensions(const cgltf_material& source, const Gltf& data, Material& m
 }
 
 [[nodiscard]] ImageResult finish_image(const cgltf_image& source, Encoded encoded) {
-    auto image = is_dds(encoded) ? read_dds(encoded) : decode_image(encoded);
+    auto image = read_stored(encoded);
     if (!image) return failure_of(image);
     image->name = text_of(source.name);
     return image;
@@ -963,7 +964,16 @@ void push_kept(std::string& out, char character) {
 [[nodiscard]] ImageResult image_from_file(const cgltf_image& source, const ImageScope& scope) {
     auto path = image_path(source.uri, scope);
     if (!path) return failure_of(path);
-    auto bytes = read_bytes(*path);
+    const std::string sibling = dds_sibling(*path);
+    const bool use_dds = !sibling.empty() && fs::is_file(sibling);
+    std::string chosen = use_dds ? sibling : *path;
+    if (scope.tier != TextureTier::kBc && !scope.root.empty()) {
+        const std::string root = fs::normalize(scope.root);
+        const std::string full = fs::normalize(chosen);
+        const bool inside = full.starts_with(root) && full.size() > root.size() && full[root.size()] == '/';
+        if (inside) chosen = texture_file(root, full.substr(root.size() + 1), scope.tier);
+    }
+    auto bytes = read_bytes(chosen);
     if (!bytes) return failure_of(bytes);
     const std::span<const std::byte> encoded = bytes->span();
     return finish_image(source, encoded);
@@ -1977,7 +1987,7 @@ core::Result<Model> load_glb(std::span<const std::byte> bytes) {
 }
 
 // NOLINTNEXTLINE(bugprone-easily-swappable-parameters): path rồi root (API-03)
-core::Result<Model> load_glb_file(std::string_view path, std::string_view root) {
+core::Result<Model> load_glb_file(std::string_view path, std::string_view root, TextureTier tier) {
     auto bytes = read_bytes(path);
     if (!bytes) return failure_of(bytes);
     const std::string owned(path);
@@ -1989,6 +1999,7 @@ core::Result<Model> load_glb_file(std::string_view path, std::string_view root) 
     ImageScope scope;
     scope.directory = fs::parent(owned);
     scope.root = root;
+    scope.tier = tier;
     const core::Status filled = fill_model(**data, scope, model);
     if (!filled) return failure_of(filled);
     return model;

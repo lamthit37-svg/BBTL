@@ -986,6 +986,9 @@ core::Result<StagedImage> stage_image(const Image& image, ColorSpace space) {
     if (format == gpu::Format::kBc2Unorm) return gpu::Format::kBc2UnormSrgb;
     if (format == gpu::Format::kBc3Unorm) return gpu::Format::kBc3UnormSrgb;
     if (format == gpu::Format::kBc7Unorm) return gpu::Format::kBc7UnormSrgb;
+    if (format == gpu::Format::kAstc4x4Unorm) return gpu::Format::kAstc4x4UnormSrgb;
+    if (format == gpu::Format::kEtc2Rgb8Unorm) return gpu::Format::kEtc2Rgb8UnormSrgb;
+    if (format == gpu::Format::kEtc2Rgba8Unorm) return gpu::Format::kEtc2Rgba8UnormSrgb;
     return format;
 }
 

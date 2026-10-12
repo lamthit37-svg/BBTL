@@ -3,7 +3,7 @@
 // đọc; thêm các ca JSON hỏng để chắc bộ quét dừng đúng chỗ.
 #include "core/check.hpp"
 #include "math/types.hpp"
-#include "resource/classic.hpp"
+#include "classic/classic.hpp"
 #include "test.hpp"
 
 #include <array>
@@ -14,9 +14,9 @@
 namespace game::test {
 namespace {
 
-using resource::Classic;
-using resource::Lit;
-using resource::TexOp;
+using classic::Classic;
+using classic::Lit;
+using classic::TexOp;
 
 [[nodiscard]] bool near_value(float left, float right) noexcept {
     return std::fabs(left - right) < 1.0e-6F;
@@ -31,7 +31,7 @@ void plain_pass_keeps_ogre_defaults(Context& context) {
     const std::string_viewextras =
         R"({"ogre": {"defined": true, "script": "material 站佛像2\n{\n\ttechnique\n\t{\n\t}\n}",)"
         R"( "parents": [], "pass_count": 1, "settings": {}, "has_program": false}})";
-    const std::optional<Classic> classic = resource::read_classic(extras);
+    const std::optional<Classic> classic = classic::read_classic(extras);
     context.expect(classic.has_value(), "có khoá ogre thì có chất liệu");
     if (!classic) return;
     context.expect(is_grey(classic->ambient, 1.0F), "ambient mặc định trắng");
@@ -51,7 +51,7 @@ void reads_specular_and_emissive(Context& context) {
     const std::string_viewextras =
         R"({"ogre": {"parents": [], "settings": {"specular": "0.588235 0.588235 0.588235 1 12.8",)"
         R"( "emissive": "0.15 0.15 0.15 1"}}})";
-    const std::optional<Classic> classic = resource::read_classic(extras);
+    const std::optional<Classic> classic = classic::read_classic(extras);
     context.expect(classic.has_value(), "đọc được");
     if (!classic) return;
     context.expect(is_grey(classic->specular, 0.588235F), "specular lấy ba số đầu");
@@ -62,7 +62,7 @@ void reads_specular_and_emissive(Context& context) {
 // Dạng bốn số của Ogre: r g b shininess, không có alpha.
 void four_number_specular_ends_with_shininess(Context& context) {
     const std::string_viewextras = R"({"ogre": {"settings": {"specular": "1 0.5 0.25 50"}}})";
-    const std::optional<Classic> classic = resource::read_classic(extras);
+    const std::optional<Classic> classic = classic::read_classic(extras);
     context.expect(classic.has_value(), "đọc được");
     if (!classic) return;
     const bool is_colour = near_value(classic->specular.x, 1.0F) && near_value(classic->specular.y, 0.5F) &&
@@ -75,9 +75,9 @@ void reads_lighting_and_fog(Context& context) {
     const std::string_viewpixel = R"({"ogre": {"settings": {"lighting": "on pslit"}}})";
     const std::string_viewoff = R"({"ogre": {"settings": {"lighting": "off", "fog_override": "true none"}}})";
     const std::string_viewown_fog = R"({"ogre": {"settings": {"fog_override": "true linear 1 1 1 0 10 100"}}})";
-    const std::optional<Classic> lit = resource::read_classic(pixel);
-    const std::optional<Classic> dark = resource::read_classic(off);
-    const std::optional<Classic> custom = resource::read_classic(own_fog);
+    const std::optional<Classic> lit = classic::read_classic(pixel);
+    const std::optional<Classic> dark = classic::read_classic(off);
+    const std::optional<Classic> custom = classic::read_classic(own_fog);
     context.expect(lit && lit->lit == Lit::kPixel, "on pslit là chiếu sáng từng điểm ảnh");
     context.expect(dark && dark->lit == Lit::kOff, "lighting off");
     context.expect(dark && !dark->has_fog, "fog_override true none tắt sương");
@@ -87,8 +87,8 @@ void reads_lighting_and_fog(Context& context) {
 void reads_colours_and_vertex_tracking(Context& context) {
     const std::string_viewextras = R"({"ogre": {"settings": {"ambient": "0.5 0.25 0.125 1", "diffuse": "1 1 1 0.8"}}})";
     const std::string_viewtracked = R"({"ogre": {"settings": {"diffuse": "vertexcolour"}}})";
-    const std::optional<Classic> classic = resource::read_classic(extras);
-    const std::optional<Classic> vertex = resource::read_classic(tracked);
+    const std::optional<Classic> classic = classic::read_classic(extras);
+    const std::optional<Classic> vertex = classic::read_classic(tracked);
     context.expect(classic.has_value() && vertex.has_value(), "đọc được");
     if (!classic || !vertex) return;
     const bool is_ambient = near_value(classic->ambient.x, 0.5F) && near_value(classic->ambient.y, 0.25F) &&
@@ -105,10 +105,10 @@ void parents_choose_the_texture_op(Context& context) {
     const std::string_viewfour = R"({"ogre": {"settings": {}, "parents": ["Mtl_Model_TwoTex_Tex1_ColorX4"]}})";
     const std::string_viewadded = R"({"ogre": {"parents": ["AlphaBlend/ColourChangable/AlphaTemplate"]}})";
     const std::string_viewsecond = R"({"ogre": {"parents": ["Mtl_Model_TwoTex_Tex2_ColorX4"]}})";
-    const std::optional<Classic> lava = resource::read_classic(twice);
-    const std::optional<Classic> bright = resource::read_classic(four);
-    const std::optional<Classic> hair = resource::read_classic(added);
-    const std::optional<Classic> other = resource::read_classic(second);
+    const std::optional<Classic> lava = classic::read_classic(twice);
+    const std::optional<Classic> bright = classic::read_classic(four);
+    const std::optional<Classic> hair = classic::read_classic(added);
+    const std::optional<Classic> other = classic::read_classic(second);
     context.expect(lava && lava->combine == TexOp::kModulate2, "ColorX2 nhân 2");
     context.expect(bright && bright->combine == TexOp::kModulate4, "Tex1_ColorX4 nhân 4");
     context.expect(hair && hair->combine == TexOp::kAdd, "ColourChangable cộng");
@@ -121,7 +121,7 @@ void skips_strings_with_braces_and_quotes(Context& context) {
     const std::string_viewextras = R"({"other": {"deep": [1, {"x": "}"}]}, "ogre": {"script": "pass \"a\" {\n}}}",)"
                                    R"( "textures": [{"alias": "", "texture": "敦煌/jpg_彩绘.dds"}],)"
                                    R"( "settings": {"emissive": "0.2 0.2 0.2 1"}}})";
-    const std::optional<Classic> classic = resource::read_classic(extras);
+    const std::optional<Classic> classic = classic::read_classic(extras);
     context.expect(classic.has_value(), "đọc được dù có ngoặc trong chuỗi");
     if (!classic) return;
     context.expect(is_grey(classic->emissive, 0.2F), "emissive nằm sau các chuỗi rắc rối");
@@ -138,7 +138,7 @@ void missing_or_broken_json_has_no_material(Context& context) {
         R"(["ogre", {}])",
     };
     for (const std::string_view text : texts) {
-        context.expect(!resource::read_classic(text).has_value(), "không có chất liệu");
+        context.expect(!classic::read_classic(text).has_value(), "không có chất liệu");
     }
 }
 
@@ -147,10 +147,10 @@ void missing_or_broken_json_has_no_material(Context& context) {
 void truncated_settings_keep_what_was_read(Context& context) {
     const std::string_viewwhole = R"({"ogre": {"settings": {"emissive": "0.4 0.4 0.4", "specular": "1 1 1 30"}}})";
     for (std::size_t length = 0; length < whole.size(); ++length) {
-        static_cast<void>(resource::read_classic(whole.substr(0, length)));
+        static_cast<void>(classic::read_classic(whole.substr(0, length)));
     }
     const std::string_viewcut = R"({"ogre": {"settings": {"emissive": "0.4 0.4 0.4", "spec)";
-    const std::optional<Classic> classic = resource::read_classic(cut);
+    const std::optional<Classic> classic = classic::read_classic(cut);
     context.expect(classic.has_value(), "phần đầu còn nguyên");
     if (!classic) return;
     context.expect(is_grey(classic->emissive, 0.4F), "emissive đã đọc trước chỗ cắt");

@@ -170,6 +170,29 @@ void store_bgra(std::span<const std::byte> packed, bool keep_alpha, std::vector<
 
 } // namespace
 
+namespace {
+
+[[nodiscard]] bool ends_ci(std::string_view text, std::string_view suffix) noexcept {
+    if (text.size() < suffix.size()) return false;
+    const std::string_view tail = text.substr(text.size() - suffix.size());
+    for (std::size_t index = 0; index < suffix.size(); ++index) {
+        const unsigned char left = static_cast<unsigned char>(tail[index]);
+        const unsigned char right = static_cast<unsigned char>(suffix[index]);
+        const unsigned char folded = left >= 'A' && left <= 'Z' ? static_cast<unsigned char>(left - 'A' + 'a') : left;
+        if (folded != right) return false;
+    }
+    return true;
+}
+
+} // namespace
+
+std::string dds_sibling(std::string_view path) {
+    if (!ends_ci(path, ".png")) return {};
+    const std::string_view stem = path.substr(0, path.size() - 4);
+    if (!ends_ci(stem, ".dds")) return {};
+    return std::string(stem);
+}
+
 core::Result<Image> read_dds(std::span<const std::byte> bytes) {
     auto head = read_head(bytes);
     if (!head) return std::unexpected(head.error());

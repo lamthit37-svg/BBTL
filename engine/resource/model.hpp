@@ -16,6 +16,7 @@
 #include "math/matrix.hpp"
 #include "math/types.hpp"
 #include "resource/image.hpp"
+#include "resource/tier.hpp"
 
 #include <array>
 #include <cstddef>
@@ -351,6 +352,8 @@ struct ImageScope {
     std::string_view directory;
     // Thư mục gốc dữ liệu, ảnh không được nằm ngoài; rỗng thì là directory.
     std::string_view root;
+    // Điện thoại thử mobile/astc hoặc mobile/etc2 trước DDS. PC là kBc.
+    TextureTier tier = TextureTier::kBc;
 };
 
 // Khác gốc: hàm nội bộ của gốc, nay công khai để test. Đường dẫn tệp của ảnh ngoài có URI `uri`
@@ -359,6 +362,7 @@ struct ImageScope {
 
 // Đọc tệp rồi nạp. Đường dẫn dùng để tìm buffer và ảnh ngoài. Khác gốc: thêm root, thư mục gốc dữ
 // liệu mà ảnh ngoài phải nằm trong; rỗng thì như gốc, ảnh phải nằm trong thư mục của tệp GLB.
-[[nodiscard]] core::Result<Model> load_glb_file(std::string_view path, std::string_view root = {});
+[[nodiscard]] core::Result<Model> load_glb_file(std::string_view path, std::string_view root = {},
+    TextureTier tier = TextureTier::kBc);
 
 } // namespace game::resource
