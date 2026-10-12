@@ -11,7 +11,7 @@
     này ghép lại từ nhật ký của các công cụ và nằm ở `D:\THIENLONG`, chưa có `.git`, chưa dựng và
     chưa chạy test lần nào sau khôi phục. 56 tệp `SRC` và 31 tệp test là bản cũ hơn bản cuối, 12
     tệp `CMakeLists.txt` nêu còn thiếu, `CMakeLists.txt` chưa có target của gói P2-2; client gốc,
-    `_raw`, `_glb`, `CLIENT/data`, `SERVER/tables`, `SERVER/scenes`, `tests/golden`, ảnh
+    `_raw`, `_glb`, `CLIENT/data`, `SERVER/tables`, `SERVER/scenes`, `Test/golden`, ảnh
     `assets/i18n` và `third_party/libsodium` phải cài, sinh hoặc tải lại. Danh sách từng tệp và
     lịch sử git 25 commit đầu ở `docs/KHOI-PHUC-2026-10-09/`. Các dòng dưới tả mã trước lúc mất.
   - Hình: vẽ được map (địa hình, vật thể tĩnh, hạt và hiệu ứng cộng sáng của bản 2026) và người
@@ -150,11 +150,24 @@
   `docs/giao-viec/` (hồ sơ từng đợt giao việc cho phiên AI phụ; `KD-DOT-1/GHI-CHU.md` giữ các ý
   tối ưu đã hoãn), `docs/BAY-DA-BIET.md` (bẫy đã đo của từng vùng; chỉ mục ở mục 11).
 - Lệch quy định chung bên dưới (mỗi dòng: mục nào — dự án làm gì thay — vì sao):
-  - Mục 3, bố cục: mã nguồn ở `SRC/<module>/` (không phải `src/`), bản chạy ở `CLIENT/bin`, dữ liệu
-    ở `CLIENT/data`, công cụ Python ở `TOOLS/` — chủ dự án đặt tên thư mục.
+  - Mục 3, bố cục — chủ dự án chốt 2026-10-12: `engine/` là hạ tầng tái sử dụng, không include
+    module game. Phần game ở `src/client/`, `src/server/`, `src/shared/`. Include vẫn `"<m>/x.hpp"`;
+    gốc include là `engine/`, `src/client/`, `src/server/`, `src/shared/`. Bản chạy ở `CLIENT/bin`,
+    dữ liệu ở `CLIENT/data`, runtime máy chủ ở `SERVER/`, công cụ Python ở `TOOLS/`, thư viện chép
+    nguồn ở `third_party/`. Bốn thứ `engine`, `src`, `TOOLS`, `third_party` nằm ngang hàng.
+  - Mục 2 bước 3, mục 6 và mục 8, test — chủ dự án chốt 2026-10-12: test nằm ở
+    `Test/<Domain>/<tên>_tests.cpp`, một domain một thư mục, tên domain trùng module
+    (`Test/Gpu/gpu_tests.cpp`, `Test/Protocol/protocol_tests.cpp`). Không dàn phẳng ở `tests/`.
+    Header dùng chung ở gốc `Test/`: `test.hpp`, `support/`, `bench/`, `fuzz/`, `golden/`.
+    `game_test` tìm `Test/*/<tên>_tests.cpp`. Tệp không có thì CMake in một dòng và bỏ target;
+    configure không đỏ, và thiếu file test không phải nợ phải viết bù. Không dựng một file test
+    cho mỗi file nguồn. Chỉ viết test khi logic thuần sai thì hỏng thầm, khi sửa bug cần chặn tái
+    phát, hoặc khi người dùng yêu cầu. Shader, mesh, camera, vẽ, layout và hiệu ứng kiểm bằng chạy
+    bản vừa build. Mục 6 ("hành vi mới có test", "mỗi ca biên có test") không áp ngoài ba trường
+    hợp đó.
   - Mục 3, thư mục `build/`: chỉ chứa thứ xoá đi là dựng lại được (cây dựng của preset, log, ảnh
     chụp, tệp giải mã, bản chép tạm). Không đặt ở đó thứ gì mất là mất việc: công cụ viết ra để
-    dùng lại vào `TOOLS/`, mã thử có giá trị vào `tests/`, worktree của phiên agent chạy song song
+    dùng lại vào `TOOLS/`, mã thử có giá trị vào `Test/<Domain>/`, worktree của phiên agent chạy song song
     vào `.worktrees/<tên>` (đã ignore), không vào `build/<tên>`. Agent dùng `build/` làm chỗ nháp
     thì trước khi báo xong phải dời thứ đáng giữ ra đúng chỗ và xoá phần còn lại — chủ dự án nhắc
     ngày 2026-10-08 ("tools phải ở tools, build sau này tôi xoá là mất code").
@@ -170,9 +183,9 @@
     chủ là component riêng: `cmake --install build/msvc-release --component server --prefix SERVER`
     chép tám exe vào `SERVER/bin`. Kiểm đầu cuối trình giám sát: `python -B
     docs/giao-viec/P2-DOT-1/kiem-claude/boot_check.py <thư mục exe> SERVER/config`.
-  - Mục 3, tệp sinh của protocol: sửa bảng ở `SRC/protocol/catalog/*.tsv` rồi chạy `python -B
-    TOOLS/server/gen_protocol.py`; nó ghi `SRC/protocol/messages.hpp`, `messages.cpp`,
-    `tests/protocol_samples.hpp` và `docs/PROTOCOL-TIN.md`. Không sửa tay bốn tệp đó; test
+  - Mục 3, tệp sinh của protocol: sửa bảng ở `src/shared/protocol/catalog/*.tsv` rồi chạy `python -B
+    TOOLS/server/gen_protocol.py`; nó ghi `src/shared/protocol/messages.hpp`, `messages.cpp`,
+    `Test/Protocol/protocol_samples.hpp` và `docs/PROTOCOL-TIN.md`. Không sửa tay bốn tệp đó; test
     `protocol_catalog_fresh` đỏ khi tệp sinh cũ hơn bảng. Bộ sinh tự bẻ dòng theo trần cột đọc
     từ `.clang-format`: đổi `.clang-format` hay chạy clang-format cả cây xong thì chạy lại bộ
     sinh, và `python -B -m unittest discover -s TOOLS/server -p "test_gen_protocol.py"` phải
@@ -196,7 +209,7 @@
     gốc; `--check` chỉ kiểm) và `python -B TOOLS/content/export_icons.py "F:/tl 2026/_raw"
     CLIENT/data` (`Table/icons.tsv`: tên icon sang bộ ảnh). `quest_tests`, `skill_tests` chỉ chạy
     ca bảng thật khi các tệp đó có lúc cấu hình CMake.
-  - Bảng port từ script Lua (`ui/panel/quest_log`...): số vàng ở `tests/golden/panel/` do trọng
+  - Bảng port từ script Lua (`ui/panel/quest_log`...): số vàng ở `Test/golden/panel/` do trọng
     tài sinh, tức script gốc chạy trên `LuaPlus.dll` của client: `python -B TOOLS/port/lua_oracle.py
     "F:/tl 2026/Bin64" <script đã giải bằng lua_plain.py> <layout> <kịch bản ở TOOLS/port/oracle>
     <tệp số vàng> --words TOOLS/port/oracle/words.vi.tsv --lib TOOLS/port/oracle/<api>.lua`. Script
@@ -434,14 +447,14 @@ nằm một nơi.
   Nay cấu hình của test khai `127.0.0.1:0` cho gate và cổng 0 cho mọi `[[process]]`: hệ điều hành
   cấp cổng lúc nghe, gate báo cổng thật ở dòng `ready game=<cổng> auth=<cổng>`, giám sát báo lại ở
   dòng `ready gate.game=<cổng> ...` của cụm (mục 3.1 của `docs/KE-HOACH-SERVER.md`). Test mới chạy
-  exe máy chủ thì dựng cấu hình bằng `stage_config` của `tests/support/loopback_config.hpp` và lấy
+  exe máy chủ thì dựng cấu hình bằng `stage_config` của `Test/support/loopback_config.hpp` và lấy
   cổng bằng `supervise::parse_ready`, không đưa thẳng `SERVER/config` cho tiến trình sẽ nghe cổng
   và không xin cổng trước rồi ghi số vào cấu hình. Tái hiện ca đỏ cũ: ở bản trước `2026-10-09`,
   chạy hai `thienlong_gate.exe` trên cùng một cấu hình khai `127.0.0.1:0` thì cả hai thoát 2 với
   `gate.toml:21: khoá game ngoài miền`; nay ca `two_gates_share_one_config` của `gate_loop_tests`
   chạy đúng việc đó và xanh. Exe chỉ nghe `127.0.0.1` không làm Windows thêm rule.
 - `audio_tests` phát tiếng thật (đọc mã 2026-10-08): ca `device_reports` mở thiết bị âm thanh của
-  máy, phát nhạc đăng nhập cùng một tiếng bấm rồi chờ 400 ms (`tests/audio_tests.cpp`), nên mỗi
+  máy, phát nhạc đăng nhập cùng một tiếng bấm rồi chờ 400 ms (`Test/Audio/audio_tests.cpp`), nên mỗi
   lượt `ctest` có test này là một lần loa của người đang dùng máy kêu. Chạy lặp thì loại nó ra:
   `ctest --preset <p> -E "^audio_tests$"`.
 

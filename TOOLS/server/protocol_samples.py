@@ -1,4 +1,4 @@
-# Sinh tests/protocol_samples.hpp: ba mẫu cho mỗi tin (nhỏ nhất, lớn nhất theo mọi trần với chữ nhiều
+# Sinh Test/Protocol/protocol_samples.hpp: ba mẫu cho mỗi tin (nhỏ nhất, lớn nhất theo mọi trần với chữ nhiều
 # byte, thường gặp), mỗi mẫu có giá trị C++ và byte mong đợi do protocol_wire.py tính (DE-BAI §3.5).
 """render_samples(catalog) trả nội dung protocol_samples.hpp, LF, kết thúc bằng một LF."""
 
@@ -219,7 +219,7 @@ def sample_includes(catalog: Catalog) -> list[str]:
 
 
 def render_samples(catalog: Catalog) -> str:
-    """Nội dung tests/protocol_samples.hpp."""
+    """Nội dung Test/Protocol/protocol_samples.hpp."""
     lines = [*NOTICE, *wrap_comment(
         "Mẫu của từng tin cho tests/protocol_catalog_tests.cpp: nhỏ nhất, lớn nhất theo mọi trần, thường gặp."
         " Giá trị C++ và byte mong đợi cùng sinh từ một mẫu Python, byte do bộ mã hoá Python độc lập tính.", 0),

@@ -141,3 +141,16 @@ làm: `resource::Image` mang dữ liệu nén và các mức mip, bộ tải lê
 nén, hỏi thiết bị có nhận BCn không (PowerVR GE8320 của máy tính bảng thì không: cần ETC2 hay
 ASTC, hoặc giữ đường PNG), bộ gom chép DDS gốc thay cho đổi sang PNG, và rà mọi chỗ đọc điểm ảnh
 của ảnh trên CPU. Chưa làm.
+
+## 7. Thời gian tạo PSO (2026-10-12)
+
+`render::Catalog::prepare` in một dòng khi tầng có mục: `Pipeline: <backend> tạo <số> PSO trong <ms>`.
+Sáu PSO tầng 0 vẫn tạo đồng bộ trên luồng vẽ trước khung đầu.
+
+Đo 2026-10-12, `build/msvc-release/thienlong_client.exe --data CLIENT\data --backend vulkan --login --frames 3`,
+NVIDIA GeForce RTX 5060, trình mailbox. Lần đầu (chưa có file cache): `Pipeline: vulkan tạo 6 PSO trong 227.4 ms`.
+File ghi ra `CLIENT/data/cache/pipeline-vulkan-000010de-00002d05-28baf619cd26cb5f.bin` (82491 byte).
+Lần sau, cùng lệnh, nạp blob đó: `Pipeline: vulkan tạo 6 PSO trong 3.2 ms`. 227 ms là phần khởi động,
+không phải vài mili giây; cache đĩa kéo lần sau xuống 3.2 ms. Cả hai lần cảnh đăng nhập không có tệp
+(`Scene/erengu_DL.Scene`, `Scene/tl3chuangjian.Scene`), giao diện và hiệu ứng bỏ qua vì thiếu dữ liệu,
+khung cuối 0 lệnh vẽ. Số này là thời gian tạo PSO, chưa phải thời gian khung có hình.

@@ -1,9 +1,9 @@
-"""Fuzz tầng hai của protocol: dựng năm harness libFuzzer ở tests/fuzz/ bằng lệnh trần rồi chạy.
+"""Fuzz tầng hai của protocol: dựng năm harness libFuzzer ở Test/fuzz/ bằng lệnh trần rồi chạy.
 
 cách dùng: python -B TOOLS/server/fuzz_protocol.py --runs 1000000 --seed 20261008 [--only <đích>]
 Đề bài P2 đợt 2, mục 3.8. Mỗi harness dựng vào build/p2-fuzz/<đích>/ bằng clang++ với
 -fsanitize=fuzzer,address,undefined, kèm các tệp .cpp của protocol nó cần, không qua CMake. Corpus
-mồi bằng byte mẫu của tests/protocol_samples.hpp, xoá và mồi lại mỗi lượt cho tất định. Chạy lần
+mồi bằng byte mẫu của Test/Protocol/protocol_samples.hpp, xoá và mồi lại mỗi lượt cho tất định. Chạy lần
 lượt từng đích với -max_len bằng trần thân của đích cộng 64. In một dòng mỗi đích. Log của từng đích
 là so-do/fuzz-<đích>-<giờ>.log; chạy đủ năm đích thì ghi so-do/fuzz-<giờ>.tsv, <giờ> là lúc bắt đầu
 lượt (YYYYmmdd-HHMMSS). Tệp đã có thì dừng, không ghi đè log của lượt trước (V3 của R; lượt 02:30 của
@@ -25,7 +25,7 @@ from pathlib import Path
 PROJECT = Path(__file__).resolve().parents[2]
 BUILD = PROJECT / "build" / "p2-fuzz"
 SO_DO = PROJECT / "docs" / "giao-viec" / "P2-DOT-2" / "so-do"
-SAMPLES = PROJECT / "tests" / "protocol_samples.hpp"
+SAMPLES = PROJECT / "Test" / "Protocol" / "protocol_samples.hpp"
 PROTOCOL = PROJECT / "SRC" / "protocol"
 HARNESSES = PROJECT / "tests" / "fuzz"
 MAX_BODY = 65536
@@ -139,7 +139,7 @@ def _runtime_env(cxx: str) -> dict[str, str]:
 
 
 def sample_frames(text: str) -> list[bytes]:
-    """Byte khung của mọi mẫu trong tests/protocol_samples.hpp, theo thứ tự khai."""
+    """Byte khung của mọi mẫu trong Test/Protocol/protocol_samples.hpp, theo thứ tự khai."""
     frames = []
     for match in _LIST.finditer(text):
         frames.append(bytes(int(value, 16) for value in _HEX.findall(match.group(1))))

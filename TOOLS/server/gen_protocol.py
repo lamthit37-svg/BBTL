@@ -26,9 +26,9 @@ from protocol_tsv import Problems, read_catalog_tables
 
 ROOT = Path(__file__).resolve().parents[2]
 RENDERERS: tuple[tuple[str, Callable[[Catalog], str]], ...] = (
-    ("SRC/protocol/messages.hpp", render_header),
-    ("SRC/protocol/messages.cpp", render_source),
-    ("tests/protocol_samples.hpp", render_samples),
+    ("src/shared/protocol/messages.hpp", render_header),
+    ("src/shared/protocol/messages.cpp", render_source),
+    ("Test/Protocol/protocol_samples.hpp", render_samples),
     ("docs/PROTOCOL-TIN.md", render_doc),
 )
 
@@ -76,7 +76,7 @@ def write_files(out: Path, files: dict[str, str]) -> None:
 def parse_arguments(argv: list[str]) -> argparse.Namespace | int:
     """Tham số đã đọc, hoặc mã thoát khi argparse dừng (0 cho --help, 2 cho sai cách gọi)."""
     parser = argparse.ArgumentParser(prog="gen_protocol.py", description="Sinh mã giao thức từ catalog/*.tsv.")
-    parser.add_argument("--catalog", type=Path, default=ROOT / "SRC" / "protocol" / "catalog")
+    parser.add_argument("--catalog", type=Path, default=ROOT / "src" / "shared" / "protocol" / "catalog")
     parser.add_argument("--out", type=Path, default=ROOT)
     parser.add_argument("--check", action="store_true")
     try:

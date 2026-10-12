@@ -1,6 +1,6 @@
 # THIENLONG — client tự viết nạp tài nguyên Thiên Long Bát Bộ. Khung theo bộ quy cách C++23
 # (refs/14 BD-01..BD-17): cờ theo target, cảnh báo từ config/warnings-*.txt, preset cho từng trình
-# dịch và nền tảng, sanitizer, cứng hoá, tách symbol. Mã nguồn ở SRC/<module>/, test ở tests/, công
+# dịch và nền tảng, sanitizer, cứng hoá, tách symbol. Mã nguồn ở engine/ và src/, test ở Test/<domain>/, công
 # cụ Python ở TOOLS/, bản chạy và dữ liệu ở CLIENT/.
 cmake_minimum_required(VERSION 3.28)
 project(thienlong VERSION 0.1.0 LANGUAGES CXX)
@@ -50,11 +50,12 @@ endif()
 # Gom mọi module để header_check thấy header của chúng.
 add_library(game_all_modules INTERFACE)
 
-# Module: SRC/<m>/, x.hpp cạnh x.cpp; include "<m>/x.hpp" từ gốc SRC/. Module mới: một dòng
+# Module: engine/<m>/ hoặc src/<client|server|shared>/<m>/, x.hpp cạnh x.cpp. Include vẫn
+# "<m>/x.hpp". Gốc include là engine/, src/client/, src/server/ và src/shared/. Module mới: một dòng
 # game_module ở dưới và một dòng trong bảng tầng cmake/GameLayers.cmake.
 function(game_module name)
     add_library(game_${name} STATIC ${ARGN})
-    target_include_directories(game_${name} PUBLIC ${PROJECT_SOURCE_DIR}/SRC)
+    target_include_directories(game_${name} PUBLIC ${PROJECT_SOURCE_DIR}/engine ${PROJECT_SOURCE_DIR}/src/client ${PROJECT_SOURCE_DIR}/src/server ${PROJECT_SOURCE_DIR}/src/shared)
     target_compile_features(game_${name} PUBLIC cxx_std_23)
     target_link_libraries(game_${name} PUBLIC game::options PRIVATE game::warnings)
     target_link_libraries(game_all_modules INTERFACE game_${name})
@@ -64,22 +65,22 @@ endfunction()
 # thêm biên C. Win32: WaitOnAddress và ntdll. POSIX: futex 4 byte (Android, nhân 4.9 không có
 # futex_waitv) hoặc __ulock_wait (iOS). log của Android là liblog.
 set(game_core_sources
-    SRC/core/clock.cpp
-    SRC/core/error.cpp
-    SRC/core/log.cpp
-    SRC/core/log_sink.cpp
-    SRC/core/range.cpp
-    SRC/core/system.cpp
-    SRC/core/text.cpp
-    SRC/core/uarch.cpp)
+    engine/core/clock.cpp
+    engine/core/error.cpp
+    engine/core/log.cpp
+    engine/core/log_sink.cpp
+    engine/core/range.cpp
+    engine/core/system.cpp
+    engine/core/text.cpp
+    engine/core/uarch.cpp)
 if(WIN32)
-    list(APPEND game_core_sources SRC/core/handle.cpp SRC/core/thread.cpp)
+    list(APPEND game_core_sources engine/core/handle.cpp engine/core/thread.cpp)
 else()
     list(APPEND game_core_sources
-        SRC/core/handle_posix.cpp
-        SRC/core/log_sink_posix.cpp
-        SRC/core/system_posix.cpp
-        SRC/core/thread_posix.cpp)
+        engine/core/handle_posix.cpp
+        engine/core/log_sink_posix.cpp
+        engine/core/system_posix.cpp
+        engine/core/thread_posix.cpp)
 endif()
 game_module(core ${game_core_sources})
 if(WIN32)
@@ -91,24 +92,24 @@ endif()
 
 # Phần phụ thuộc hệ điều hành của io nằm ở tệp riêng theo nền tảng.
 if(WIN32)
-    set(game_io_platform SRC/io/platform_win32.cpp)
+    set(game_io_platform engine/io/platform_win32.cpp)
 elseif(APPLE)
-    set(game_io_platform SRC/io/platform_apple.cpp)
+    set(game_io_platform engine/io/platform_apple.cpp)
 else()
-    set(game_io_platform SRC/io/platform_posix.cpp)
+    set(game_io_platform engine/io/platform_posix.cpp)
 endif()
-game_module(io SRC/io/file.cpp ${game_io_platform})
+game_module(io engine/io/file.cpp ${game_io_platform})
 target_link_libraries(game_io PUBLIC game_core)
 if(WIN32)
     # ShellExecuteExW của io::open_in_browser.
     target_link_libraries(game_io PRIVATE shell32)
 endif()
 
-game_module(xml SRC/xml/document.cpp)
+game_module(xml engine/xml/document.cpp)
 target_link_libraries(game_xml PUBLIC game_core)
 
 # miniaudio chỉ giải mã và mở thiết bị. Cảnh báo của header đó không vào game::warnings.
-add_library(game_audio_native STATIC SRC/audio/detail/native.cpp)
+add_library(game_audio_native STATIC engine/audio/detail/native.cpp)
 target_include_directories(game_audio_native PUBLIC ${PROJECT_SOURCE_DIR}/SRC
     ${PROJECT_SOURCE_DIR}/third_party/miniaudio)
 target_compile_features(game_audio_native PUBLIC cxx_std_23)
@@ -122,15 +123,15 @@ if(ANDROID)
     target_link_libraries(game_audio_native PUBLIC aaudio log)
 endif()
 game_module(audio
-    SRC/audio/catalog.cpp
-    SRC/audio/cook.cpp
-    SRC/audio/detail/codec.cpp
-    SRC/audio/detail/music.cpp
-    SRC/audio/engine.cpp
-    SRC/audio/gain.cpp
-    SRC/audio/limiter.cpp
-    SRC/audio/pack.cpp
-    SRC/audio/resample.cpp)
+    engine/audio/catalog.cpp
+    engine/audio/cook.cpp
+    engine/audio/detail/codec.cpp
+    engine/audio/detail/music.cpp
+    engine/audio/engine.cpp
+    engine/audio/gain.cpp
+    engine/audio/limiter.cpp
+    engine/audio/pack.cpp
+    engine/audio/resample.cpp)
 target_link_libraries(game_audio PUBLIC game_core game_io game_xml PRIVATE game_audio_native)
 # Tệp âm thanh cook (.tla) mang Opus. Preset GCC không lấy được gói vcpkg của MSVC: ở đó module
 # vẫn dựng, chỉ không đọc được tải Opus (tệp gốc WAV/MP3 và tải PCM vẫn chạy).
@@ -146,7 +147,7 @@ if(TARGET Opus::opus)
 endif()
 # Công cụ cook của máy dựng: cây sound gốc (WAV, MP3) thành tệp .tla 48 kHz. Không đóng vào thiết bị.
 if(NOT ANDROID AND NOT IOS)
-    add_executable(thienlong_audio SRC/audiotool/main.cpp)
+    add_executable(thienlong_audio engine/audiotool/main.cpp)
     target_link_libraries(thienlong_audio PRIVATE game_audio game::warnings)
     # Cook cây sound của client ra build/cooked/sound, chung cho mọi preset. Chạy lại chỉ cook
     # tệp đổi. Gọi tay (cmake --build ... --target cook_sound) trước khi đóng APK.
@@ -161,11 +162,11 @@ endif()
 if(NOT CMAKE_CROSSCOMPILING)
     add_subdirectory(third_party/libsodium)
     game_module(seal
-        SRC/seal/key.cpp
-        SRC/seal/package.cpp
-        SRC/seal/tree.cpp
-        SRC/seal/detail/format.cpp)
-    add_library(game_seal_native STATIC SRC/seal/detail/sodium.cpp)
+        src/client/seal/key.cpp
+        src/client/seal/package.cpp
+        src/client/seal/tree.cpp
+        src/client/seal/detail/format.cpp)
+    add_library(game_seal_native STATIC src/client/seal/detail/sodium.cpp)
     target_include_directories(game_seal_native PUBLIC ${PROJECT_SOURCE_DIR}/SRC)
     target_compile_features(game_seal_native PUBLIC cxx_std_23)
     target_link_libraries(game_seal_native PUBLIC game_sodium game::options)
@@ -175,7 +176,7 @@ if(NOT CMAKE_CROSSCOMPILING)
         target_compile_options(game_seal_native PRIVATE -w)
     endif()
     target_link_libraries(game_seal PUBLIC game_io game_seal_native)
-    add_executable(thienlong_seal SRC/sealtool/main.cpp)
+    add_executable(thienlong_seal src/client/sealtool/main.cpp)
     target_link_libraries(thienlong_seal PRIVATE game_seal game::warnings)
     if(WIN32)
         target_link_libraries(thienlong_seal PRIVATE shell32)
@@ -183,34 +184,34 @@ if(NOT CMAKE_CROSSCOMPILING)
     game_split_debug(thienlong_seal)
 endif()
 
-game_module(scene SRC/scene/placement.cpp SRC/scene/scene_file.cpp SRC/scene/transform.cpp)
+game_module(scene src/client/scene/placement.cpp src/client/scene/scene_file.cpp src/client/scene/transform.cpp)
 
 # ogre: toán vô hướng đúng thứ tự phép tính của OGRE 1.2.5 (vec3, quaternion); anim: xương và
 # animation theo OGRE, ra ma trận skin. Hai module thuần C++, port từ TLBB Dev, không cần math SIMD.
-game_module(ogre SRC/ogre/quat.cpp)
+game_module(ogre src/client/ogre/quat.cpp)
 game_module(fx
-    SRC/fx/script.cpp
-    SRC/fx/system.cpp
-    SRC/fx/field.cpp
-    SRC/fx/billboard.cpp
-    SRC/fx/mesh.cpp
-    SRC/fx/strip.cpp
-    SRC/fx/cast.cpp)
+    src/client/fx/script.cpp
+    src/client/fx/system.cpp
+    src/client/fx/field.cpp
+    src/client/fx/billboard.cpp
+    src/client/fx/mesh.cpp
+    src/client/fx/strip.cpp
+    src/client/fx/cast.cpp)
 target_link_libraries(game_fx PUBLIC game_ogre)
-game_module(anim SRC/anim/pose.cpp SRC/anim/rig.cpp)
+game_module(anim src/client/anim/pose.cpp src/client/anim/rig.cpp)
 target_link_libraries(game_anim PUBLIC game_ogre)
 
 # table: đọc bảng TSV của client; look: giải ngoại hình người chơi từ các bảng đó (port từ TLBB Dev).
-game_module(table SRC/table/tsv.cpp)
+game_module(table src/shared/table/tsv.cpp)
 target_link_libraries(game_table PUBLIC game_core)
 # Máy chủ. content chỉ nhận chữ và trả kết quả; exe thienlong_lint là nơi đọc đĩa.
 game_module(content
-    SRC/content/coverage.cpp
-    SRC/content/lint.cpp
-    SRC/content/path_glob.cpp
-    SRC/content/ref_rule.cpp
-    SRC/content/table_text.cpp
-    SRC/content/utf8.cpp)
+    src/server/content/coverage.cpp
+    src/server/content/lint.cpp
+    src/server/content/path_glob.cpp
+    src/server/content/ref_rule.cpp
+    src/server/content/table_text.cpp
+    src/server/content/utf8.cpp)
 target_link_libraries(game_content PUBLIC game_table game_core)
 # Phần còn lại của máy chủ chỉ dựng cho máy tính: client di động không mang mã máy chủ.
 # tomlplusplus chỉ cho thư mục include SYSTEM, không nối target của vcpkg: bản đã dịch của nó bật
@@ -224,45 +225,45 @@ if(GAME_TOML_INCLUDE)
     target_include_directories(game_toml SYSTEM INTERFACE "${GAME_TOML_INCLUDE}")
     # config: chữ TOML thành struct đã kiểm miền. Chỉ detail/parse.cpp thấy thư viện TOML.
     game_module(config
-        SRC/config/admin.cpp
-        SRC/config/auth.cpp
-        SRC/config/billing.cpp
-        SRC/config/cluster.cpp
-        SRC/config/gate.cpp
-        SRC/config/log.cpp
-        SRC/config/loose.cpp
-        SRC/config/secrets.cpp
-        SRC/config/startup.cpp
-        SRC/config/store.cpp
-        SRC/config/supervisor.cpp
-        SRC/config/types.cpp
-        SRC/config/world.cpp
-        SRC/config/zone.cpp
-        SRC/config/detail/node.cpp
-        SRC/config/detail/parse.cpp
-        SRC/config/detail/read.cpp
-        SRC/config/detail/read_list.cpp)
+        src/server/config/admin.cpp
+        src/server/config/auth.cpp
+        src/server/config/billing.cpp
+        src/server/config/cluster.cpp
+        src/server/config/gate.cpp
+        src/server/config/log.cpp
+        src/server/config/loose.cpp
+        src/server/config/secrets.cpp
+        src/server/config/startup.cpp
+        src/server/config/store.cpp
+        src/server/config/supervisor.cpp
+        src/server/config/types.cpp
+        src/server/config/world.cpp
+        src/server/config/zone.cpp
+        src/server/config/detail/node.cpp
+        src/server/config/detail/parse.cpp
+        src/server/config/detail/read.cpp
+        src/server/config/detail/read_list.cpp)
     target_link_libraries(game_config PUBLIC game_core PRIVATE game_toml)
     # process: chạy và dừng tiến trình con; supervise: máy trạng thái của trình giám sát, không
     # đụng hệ điều hành.
     if(WIN32)
         game_module(process
-            SRC/process/process.cpp SRC/process/process_win32.cpp SRC/process/self_win32.cpp)
+            src/server/process/process.cpp src/server/process/process_win32.cpp src/server/process/self_win32.cpp)
     else()
-        game_module(process SRC/process/process.cpp SRC/process/process_posix.cpp)
+        game_module(process src/server/process/process.cpp src/server/process/process_posix.cpp)
     endif()
     target_link_libraries(game_process PUBLIC game_core)
-    game_module(supervise SRC/supervise/supervise.cpp)
+    game_module(supervise src/server/supervise/supervise.cpp)
     target_link_libraries(game_supervise PUBLIC game_core)
     # service: khung chung của một tiến trình máy chủ; mỗi exe chỉ là một main.cpp ba dòng.
     game_module(service
-        SRC/service/host.cpp
-        SRC/service/load.cpp
-        SRC/service/request.cpp
-        SRC/service/service.cpp)
+        src/server/service/host.cpp
+        src/server/service/load.cpp
+        src/server/service/request.cpp
+        src/server/service/service.cpp)
     target_link_libraries(game_service
         PUBLIC game_core game_config game_supervise PRIVATE game_io game_process)
-    add_executable(thienlong_lint SRC/linttool/main.cpp SRC/linttool/config_lint.cpp)
+    add_executable(thienlong_lint src/server/linttool/main.cpp src/server/linttool/config_lint.cpp)
     target_link_libraries(thienlong_lint PRIVATE game_content game_config game_io game::warnings)
     if(WIN32)
         target_link_libraries(thienlong_lint PRIVATE shell32)
@@ -272,7 +273,7 @@ if(GAME_TOML_INCLUDE)
     # Lệnh cài mặc định của client không chép các exe này.
     install(TARGETS thienlong_lint RUNTIME DESTINATION bin COMPONENT server EXCLUDE_FROM_ALL)
     function(game_server_exe target folder)
-        add_executable(${target} "SRC/${folder}/main.cpp")
+        add_executable(${target} "src/server/${folder}/main.cpp")
         target_link_libraries(${target} PRIVATE game_service game::warnings)
         game_split_debug(${target})
         install(TARGETS ${target} RUNTIME DESTINATION bin COMPONENT server EXCLUDE_FROM_ALL)
@@ -285,7 +286,7 @@ if(GAME_TOML_INCLUDE)
     game_server_exe(thienlong_zone zoned)
     game_server_exe(thienlong_gate gated)
     # Exe phụ của process_tests: đóng vai một tiến trình con ngoan hoặc hư. Không cài.
-    add_executable(thienlong_test_child tests/support/server_child.cpp)
+    add_executable(thienlong_test_child Test/support/server_child.cpp)
     target_link_libraries(thienlong_test_child PRIVATE game_process game::warnings)
 elseif(NOT CMAKE_CROSSCOMPILING)
     message(STATUS "không thấy toml++/toml.hpp: bỏ các module, exe và test của máy chủ")
@@ -293,14 +294,14 @@ endif()
 # protocol: tầng byte, khung, kênh và danh mục tin sinh từ bảng; net: socket TCP không chặn và tập
 # chờ, nơi duy nhất include header mạng của hệ điều hành. Hai module không include nhau và không cần
 # tomlplusplus. messages.cpp (và messages.hpp) sinh bởi TOOLS/server/gen_protocol.py từ
-# SRC/protocol/catalog/*.tsv; socket_win32.cpp và socket_posix.cpp là hai nền của net.
+# src/shared/protocol/catalog/*.tsv; socket_win32.cpp và socket_posix.cpp là hai nền của net.
 if(NOT CMAKE_CROSSCOMPILING)
-    game_module(protocol SRC/protocol/wire.cpp SRC/protocol/channel.cpp SRC/protocol/messages.cpp)
+    game_module(protocol src/shared/protocol/wire.cpp src/shared/protocol/channel.cpp src/shared/protocol/messages.cpp)
     target_link_libraries(game_protocol PUBLIC game_core)
     if(WIN32)
-        game_module(net SRC/net/net.cpp SRC/net/socket_win32.cpp)
+        game_module(net engine/net/net.cpp engine/net/socket_win32.cpp)
     else()
-        game_module(net SRC/net/net.cpp SRC/net/socket_posix.cpp)
+        game_module(net engine/net/net.cpp engine/net/socket_posix.cpp)
     endif()
     target_link_libraries(game_net PUBLIC game_core)
     if(WIN32)
@@ -308,12 +309,12 @@ if(NOT CMAKE_CROSSCOMPILING)
     endif()
     # metrics: bộ đếm, mức đo, biểu đồ thời gian từng pha và ảnh chụp văn bản có trần; chỉ cần core,
     # nên đứng ngoài khối cần tomlplusplus. Cổng đọc qua loopback là module con metrics/serve.
-    game_module(metrics SRC/metrics/metrics.cpp)
+    game_module(metrics src/server/metrics/metrics.cpp)
     target_link_libraries(game_metrics PUBLIC game_core)
     # secure: bắt tay và bản ghi. sodium.cpp tắt cảnh báo vì header C của libsodium không sạch
     # dưới -Werror; các tệp còn lại của module thì bật.
-    game_module(secure SRC/secure/identity.cpp SRC/secure/handshake.cpp SRC/secure/record.cpp)
-    add_library(game_secure_sodium STATIC SRC/secure/detail/sodium.cpp)
+    game_module(secure src/shared/secure/identity.cpp src/shared/secure/handshake.cpp src/shared/secure/record.cpp)
+    add_library(game_secure_sodium STATIC src/shared/secure/detail/sodium.cpp)
     target_include_directories(game_secure_sodium PUBLIC ${PROJECT_SOURCE_DIR}/SRC)
     target_compile_features(game_secure_sodium PUBLIC cxx_std_23)
     target_link_libraries(game_secure_sodium PUBLIC game_sodium PRIVATE game::options)
@@ -324,48 +325,52 @@ if(NOT CMAKE_CROSSCOMPILING)
     endif()
     target_link_libraries(game_secure PUBLIC game_core PRIVATE game_secure_sodium)
     if(TARGET game_config)
-        game_module(gate SRC/gate/table.cpp SRC/gate/front.cpp)
+        game_module(gate src/server/gate/table.cpp src/server/gate/front.cpp)
         target_link_libraries(game_gate PUBLIC game_core game_net game_protocol game_secure game_config
             PRIVATE game_io game_process)
         target_link_libraries(game_service PUBLIC game_gate)
     endif()
-    add_executable(collision_bench tests/bench/collision_bench.cpp)
-    target_include_directories(collision_bench PRIVATE tests)
-    target_link_libraries(collision_bench PRIVATE game_collision game::warnings)
+    if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/Test/bench/collision_bench.cpp")
+        add_executable(collision_bench Test/bench/collision_bench.cpp)
+        target_include_directories(collision_bench PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/Test" "${CMAKE_CURRENT_SOURCE_DIR}/Test/Collision")
+        target_link_libraries(collision_bench PRIVATE game_collision game::warnings)
+    else()
+        message(STATUS "Thiếu Test/bench/collision_bench.cpp, bỏ collision_bench")
+    endif()
 endif()
-game_module(look SRC/look/appearance.cpp SRC/look/look.cpp SRC/look/head.cpp SRC/look/sect.cpp)
+game_module(look src/client/look/appearance.cpp src/client/look/look.cpp src/client/look/head.cpp src/client/look/sect.cpp)
 target_link_libraries(game_look PUBLIC game_table game_core)
 
 # avatar: chọn clip theo trạng thái (gait) và làm mượt hướng mặt (turning), port từ TLBB Dev.
-game_module(avatar SRC/avatar/gait.cpp SRC/avatar/turning.cpp)
+game_module(avatar src/client/avatar/gait.cpp src/client/avatar/turning.cpp)
 target_link_libraries(game_avatar PUBLIC game_anim game_core)
 
 # control: mặt đất của cảnh (độ cao, tia chạm đất, va chạm của mắt camera), tia từ màn hình, camera
 # bám theo, lệnh đi bằng chuột, chọn thứ dưới chuột, cử chỉ chạm và cần gạt ảo; port từ TLBB Dev.
 game_module(control
-    SRC/control/char_camera.cpp
-    SRC/control/cursor_rules.cpp
-    SRC/control/follow_camera.cpp
-    SRC/control/ground.cpp
-    SRC/control/hover.cpp
-    SRC/control/player_input.cpp
-    SRC/control/stick.cpp
-    SRC/control/touch.cpp
-    SRC/control/view_ray.cpp)
+    src/client/control/char_camera.cpp
+    src/client/control/cursor_rules.cpp
+    src/client/control/follow_camera.cpp
+    src/client/control/ground.cpp
+    src/client/control/hover.cpp
+    src/client/control/player_input.cpp
+    src/client/control/stick.cpp
+    src/client/control/touch.cpp
+    src/client/control/view_ray.cpp)
 target_link_libraries(game_control PUBLIC game_ogre game_core)
 
 # motion: luật đi dọc đường (vị trí là hàm đóng của điểm xuất phát, đường, tốc độ, thời gian).
-game_module(motion SRC/motion/motion.cpp)
+game_module(motion src/client/motion/motion.cpp)
 target_link_libraries(game_motion PUBLIC game_core)
 
 # nav: lưới đi của cảnh (tệp .path) và luật đi của người chơi, port PathLib.dll và CPath của client
 # 2026. Kết quả phải trùng từng bit với bản gốc, nên GCC và Clang không được gộp nhân với cộng
 # thành FMA (arm64 có sẵn FMA; MSVC x64 mặc định không gộp).
-game_module(nav SRC/nav/mesh.cpp SRC/nav/finder.cpp SRC/nav/route.cpp)
+game_module(nav src/client/nav/mesh.cpp src/client/nav/finder.cpp src/client/nav/route.cpp)
 target_link_libraries(game_nav PUBLIC game_core)
 target_compile_options(game_nav PRIVATE "$<$<CXX_COMPILER_ID:GNU,Clang>:-ffp-contract=off>")
 # collision: va chạm công trình (.WCollision), port BuildingCollision của PathLib.dll. A: bộ đọc; C thêm Model.
-game_module(collision SRC/collision/building_file.cpp SRC/collision/mesh.cpp SRC/collision/opcode_tree.cpp)
+game_module(collision src/client/collision/building_file.cpp src/client/collision/mesh.cpp src/client/collision/opcode_tree.cpp)
 target_link_libraries(game_collision PUBLIC game_core)
 target_compile_options(game_collision PRIVATE "$<$<CXX_COMPILER_ID:GNU,Clang>:-ffp-contract=off>" "$<$<CXX_COMPILER_ID:MSVC>:/fp:precise>")
 
@@ -373,62 +378,62 @@ target_compile_options(game_collision PRIVATE "$<$<CXX_COMPILER_ID:GNU,Clang>:-f
 # lúc chạy, dàn trang rồi ra lệnh vẽ ảnh và chữ; port từ TLBB Dev. Không vẽ thật: bộ vẽ 2D nằm ở
 # module ui.
 game_module(gui
-    SRC/gui/value.cpp
-    SRC/gui/strings.cpp
-    SRC/gui/loader.cpp
-    SRC/gui/loader_look.cpp
-    SRC/gui/layout.cpp
-    SRC/gui/paint.cpp
-    SRC/gui/text.cpp
-    SRC/gui/softkey.cpp
-    SRC/gui/widgets.cpp
-    SRC/gui/radar.cpp
-    SRC/gui/hub.cpp)
+    src/client/gui/value.cpp
+    src/client/gui/strings.cpp
+    src/client/gui/loader.cpp
+    src/client/gui/loader_look.cpp
+    src/client/gui/layout.cpp
+    src/client/gui/paint.cpp
+    src/client/gui/text.cpp
+    src/client/gui/softkey.cpp
+    src/client/gui/widgets.cpp
+    src/client/gui/radar.cpp
+    src/client/gui/hub.cpp)
 target_link_libraries(game_gui PUBLIC game_core game_io game_xml game_table)
 # hero: trạng thái của nhân vật người chơi mà giao diện hiển thị (tên, cấp, máu, khí, nộ, kinh
 # nghiệm). Giá trị thuần: mạng ghi vào, ui/panel đọc.
-game_module(hero SRC/hero/hero.cpp)
+game_module(hero src/client/hero/hero.cpp)
 target_link_libraries(game_hero PUBLIC game_core)
 # quest: sổ nhiệm vụ của người chơi và bảng nhiệm vụ nhận được, bộ lọc port từ mã máy client 2026.
-game_module(quest SRC/quest/outline.cpp)
+game_module(quest src/client/quest/outline.cpp)
 target_link_libraries(game_quest PUBLIC game_table game_core)
 # skill: bảng của sách võ công, sách kỹ năng của người chơi và hệ action, port từ mã máy client 2026.
-game_module(skill SRC/skill/tables.cpp SRC/skill/book.cpp SRC/skill/actions.cpp)
+game_module(skill src/client/skill/tables.cpp src/client/skill/book.cpp src/client/skill/actions.cpp)
 target_link_libraries(game_skill PUBLIC game_table game_core)
 # ui/panel: logic của từng cửa sổ HUD, thay script Lua của client gốc (hiện, giấu, điền chữ, đặt
 # thanh). Thuần logic trên gui, không cần GPU; module ui (bộ vẽ) dùng nó.
 game_module(ui_panel
-    SRC/ui/panel/deck.cpp
-    SRC/ui/panel/desk.cpp
-    SRC/ui/panel/logon.cpp
-    SRC/ui/panel/softkey.cpp
-    SRC/ui/panel/scene_trans.cpp
-    SRC/ui/panel/start.cpp
-    SRC/ui/panel/player_frame.cpp
-    SRC/ui/panel/minimap.cpp
-    SRC/ui/panel/maps.cpp
-    SRC/ui/panel/menubar.cpp
-    SRC/ui/panel/self_equip.cpp
-    SRC/ui/panel/quest_log.cpp
-    SRC/ui/panel/wording.cpp
-    SRC/ui/panel/widgets.cpp
-    SRC/ui/panel/portraits.cpp
-    SRC/ui/panel/role_cast.cpp
-    SRC/ui/panel/roles.cpp
-    SRC/ui/panel/select_role.cpp
-    SRC/ui/panel/create_role.cpp
-    SRC/ui/panel/login_flow.cpp)
+    src/client/ui/panel/deck.cpp
+    src/client/ui/panel/desk.cpp
+    src/client/ui/panel/logon.cpp
+    src/client/ui/panel/softkey.cpp
+    src/client/ui/panel/scene_trans.cpp
+    src/client/ui/panel/start.cpp
+    src/client/ui/panel/player_frame.cpp
+    src/client/ui/panel/minimap.cpp
+    src/client/ui/panel/maps.cpp
+    src/client/ui/panel/menubar.cpp
+    src/client/ui/panel/self_equip.cpp
+    src/client/ui/panel/quest_log.cpp
+    src/client/ui/panel/wording.cpp
+    src/client/ui/panel/widgets.cpp
+    src/client/ui/panel/portraits.cpp
+    src/client/ui/panel/role_cast.cpp
+    src/client/ui/panel/roles.cpp
+    src/client/ui/panel/select_role.cpp
+    src/client/ui/panel/create_role.cpp
+    src/client/ui/panel/login_flow.cpp)
 target_link_libraries(game_ui_panel PUBLIC game_gui game_hero game_quest game_table game_core)
 game_module(client_map
-    SRC/client/map/terrain.cpp
-    SRC/client/map/samples.cpp
-    SRC/client/map/picture.cpp
-    SRC/client/map/surface.cpp
-    SRC/client/map/liquid.cpp
-    SRC/client/map/sheet.cpp
-    SRC/client/map/ground.cpp
-    SRC/client/map/book.cpp
-    SRC/client/map/gates.cpp)
+    src/client/client/map/terrain.cpp
+    src/client/client/map/samples.cpp
+    src/client/client/map/picture.cpp
+    src/client/client/map/surface.cpp
+    src/client/client/map/liquid.cpp
+    src/client/client/map/sheet.cpp
+    src/client/client/map/ground.cpp
+    src/client/client/map/book.cpp
+    src/client/client/map/gates.cpp)
 target_link_libraries(game_client_map PUBLIC game_core game_io game_xml game_scene)
 target_link_libraries(game_scene PUBLIC game_core game_xml)
 
@@ -438,10 +443,10 @@ target_link_libraries(game_scene PUBLIC game_core game_xml)
 # từng màn hình, dwmapi cho thanh tiêu đề tối, shell32 cho kéo thả tệp, advapi32 cho registry.
 if(WIN32)
     game_module(window
-        SRC/window/cursor.cpp
-        SRC/window/monitor.cpp
-        SRC/window/system.cpp
-        SRC/window/window.cpp)
+        engine/window/cursor.cpp
+        engine/window/monitor.cpp
+        engine/window/system.cpp
+        engine/window/window.cpp)
     target_link_libraries(game_window
         PUBLIC game_core PRIVATE user32 gdi32 shell32 shcore dwmapi advapi32)
 endif()
@@ -450,13 +455,13 @@ endif()
 # đồng hồ của core. Core có bản POSIX nên dựng được cả trên Android; capture đi kèm vì nén dải
 # hình chạy qua jobs.
 if(WIN32 OR ANDROID)
-    game_module(jobs SRC/jobs/jobs.cpp SRC/jobs/queue.cpp)
+    game_module(jobs engine/jobs/jobs.cpp engine/jobs/queue.cpp)
     target_link_libraries(game_jobs PUBLIC game_core)
 
     game_module(capture
-        SRC/capture/deflate.cpp
-        SRC/capture/frame.cpp
-        SRC/capture/png.cpp)
+        engine/capture/deflate.cpp
+        engine/capture/frame.cpp
+        engine/capture/png.cpp)
     target_link_libraries(game_capture PUBLIC game_core PRIVATE game_jobs)
 endif()
 
@@ -467,7 +472,7 @@ if(CMAKE_SYSTEM_PROCESSOR MATCHES "AMD64|x86_64|arm64|aarch64")
     set(GAME_HAS_MATH ON)
 endif()
 if(GAME_HAS_MATH)
-    game_module(math SRC/math/geometry.cpp)
+    game_module(math engine/math/geometry.cpp)
     target_link_libraries(game_math PUBLIC game_core)
     if(NOT CMAKE_SYSTEM_PROCESSOR MATCHES "arm64|aarch64")
         # GCC và Clang chỉ nhận intrinsic SSE4.1 khi có cờ này (đã đo: thiếu thì _mm_blend_ps báo
@@ -501,48 +506,48 @@ if(GAME_HAS_GPU)
         # fs của thiết bị chỉ cần mã hoá (giải gói shader) và luồng byte; disk/file/watcher của
         # Forge2 là Win32 (shader/package.cpp đọc tệp qua io đã có bản POSIX).
         game_module(fs
-            SRC/fs/buny.cpp
-            SRC/fs/codec.cpp
-            SRC/fs/path.cpp
-            SRC/fs/stream.cpp)
+            engine/fs/buny.cpp
+            engine/fs/codec.cpp
+            engine/fs/path.cpp
+            engine/fs/stream.cpp)
     else()
         game_module(fs
-            SRC/fs/buny.cpp
-            SRC/fs/codec.cpp
-            SRC/fs/disk.cpp
-            SRC/fs/file.cpp
-            SRC/fs/path.cpp
-            SRC/fs/stream.cpp
-            SRC/fs/watcher.cpp)
+            engine/fs/buny.cpp
+            engine/fs/codec.cpp
+            engine/fs/disk.cpp
+            engine/fs/file.cpp
+            engine/fs/path.cpp
+            engine/fs/stream.cpp
+            engine/fs/watcher.cpp)
     endif()
     target_link_libraries(game_fs PUBLIC game_core PRIVATE lz4::lz4 xxHash::xxhash zstd::libzstd)
     if(ANDROID OR IOS)
         # Chạy trên thiết bị chỉ đọc gói .f2s; builder/compiler/dxil/dxbc là công cụ Windows.
         game_module(shader
-            SRC/shader/package.cpp
-            SRC/shader/reflection.cpp
-            SRC/shader/spirv.cpp
-            SRC/shader/types.cpp)
+            engine/shader/package.cpp
+            engine/shader/reflection.cpp
+            engine/shader/spirv.cpp
+            engine/shader/types.cpp)
         target_link_libraries(game_shader PUBLIC game_core game_fs PRIVATE game_io game_jobs)
     else()
         # builder dịch HLSL; compiler và dxil include <windows.h> trực tiếp (bản chép) rồi gọi
         # std::max. NOMINMAX phải có trước header ấy. check.py không thấy cờ của target này.
         game_module(shader
-            SRC/shader/builder.cpp
-            SRC/shader/compiler.cpp
-            SRC/shader/dxbc.cpp
-            SRC/shader/dxil.cpp
-            SRC/shader/manifest.cpp
-            SRC/shader/package.cpp
-            SRC/shader/reflection.cpp
-            SRC/shader/spirv.cpp
-            SRC/shader/types.cpp)
+            engine/shader/builder.cpp
+            engine/shader/compiler.cpp
+            engine/shader/dxbc.cpp
+            engine/shader/dxil.cpp
+            engine/shader/manifest.cpp
+            engine/shader/package.cpp
+            engine/shader/reflection.cpp
+            engine/shader/spirv.cpp
+            engine/shader/types.cpp)
         target_link_libraries(
             game_shader PUBLIC game_core game_fs PRIVATE game_io game_jobs d3dcompiler)
         target_compile_definitions(game_shader PRIVATE NOMINMAX)
         # compiler.cpp gọi __uuidof và IID_PPV_ARGS. Đó là extension của COM, không có dạng chuẩn.
         # Clang -Wlanguage-extension-token biến nó thành lỗi. Chỉ tắt đúng cảnh báo ấy, với Clang.
-        set_source_files_properties(SRC/shader/compiler.cpp PROPERTIES COMPILE_OPTIONS
+        set_source_files_properties(engine/shader/compiler.cpp PROPERTIES COMPILE_OPTIONS
             "$<$<CXX_COMPILER_ID:Clang>:-Wno-language-extension-token>")
     endif()
 
@@ -551,48 +556,48 @@ if(GAME_HAS_GPU)
     find_package(Vulkan REQUIRED)
     if(ANDROID)
         game_module(gpu
-            SRC/gpu/check.cpp
-            SRC/gpu/device.cpp
-            SRC/gpu/format.cpp
-            SRC/gpu/layout.cpp
-            SRC/gpu/vulkan/api.cpp
-            SRC/gpu/vulkan/commands.cpp
-            SRC/gpu/vulkan/convert.cpp
-            SRC/gpu/vulkan/device.cpp
-            SRC/gpu/vulkan/instance.cpp
-            SRC/gpu/vulkan/programs.cpp
-            SRC/gpu/vulkan/resources.cpp
-            SRC/gpu/vulkan/surface_android.cpp
-            SRC/gpu/vulkan/swapchain.cpp
-            SRC/gpu/gles/bind_map.cpp
-            SRC/gpu/gles/context_egl.cpp
-            SRC/gpu/gles/device.cpp
-            SRC/gpu/gles/load.cpp
-            SRC/gpu/gles/pick.cpp
-            SRC/gpu/gles/probe.cpp
-            SRC/gpu/gles/programs.cpp
-            SRC/gpu/gles/resources.cpp
-            SRC/gpu/gles/commands.cpp
-            SRC/gpu/gles/swapchain.cpp)
+            engine/gpu/check.cpp
+            engine/gpu/device.cpp
+            engine/gpu/format.cpp
+            engine/gpu/layout.cpp
+            engine/gpu/vulkan/api.cpp
+            engine/gpu/vulkan/commands.cpp
+            engine/gpu/vulkan/convert.cpp
+            engine/gpu/vulkan/device.cpp
+            engine/gpu/vulkan/instance.cpp
+            engine/gpu/vulkan/programs.cpp
+            engine/gpu/vulkan/resources.cpp
+            engine/gpu/vulkan/surface_android.cpp
+            engine/gpu/vulkan/swapchain.cpp
+            engine/gpu/gles/bind_map.cpp
+            engine/gpu/gles/context_egl.cpp
+            engine/gpu/gles/device.cpp
+            engine/gpu/gles/load.cpp
+            engine/gpu/gles/pick.cpp
+            engine/gpu/gles/probe.cpp
+            engine/gpu/gles/programs.cpp
+            engine/gpu/gles/resources.cpp
+            engine/gpu/gles/commands.cpp
+            engine/gpu/gles/swapchain.cpp)
         target_compile_definitions(game_gpu PRIVATE GAME_GPU_GLES)
         target_link_libraries(game_gpu PUBLIC game_core game_shader PRIVATE Vulkan::Vulkan EGL GLESv3)
     elseif(IOS)
         # iOS chạy Vulkan trên MoltenVK nhúng: bề mặt là CAMetalLayer (surface_ios.mm). MoltenVK
         # và framework của Apple tĩnh trong ứng dụng; đủ mã, chờ macOS để build.
         game_module(gpu
-            SRC/gpu/check.cpp
-            SRC/gpu/device.cpp
-            SRC/gpu/format.cpp
-            SRC/gpu/layout.cpp
-            SRC/gpu/vulkan/api.cpp
-            SRC/gpu/vulkan/commands.cpp
-            SRC/gpu/vulkan/convert.cpp
-            SRC/gpu/vulkan/device.cpp
-            SRC/gpu/vulkan/instance.cpp
-            SRC/gpu/vulkan/programs.cpp
-            SRC/gpu/vulkan/resources.cpp
-            SRC/gpu/vulkan/surface_ios.mm
-            SRC/gpu/vulkan/swapchain.cpp)
+            engine/gpu/check.cpp
+            engine/gpu/device.cpp
+            engine/gpu/format.cpp
+            engine/gpu/layout.cpp
+            engine/gpu/vulkan/api.cpp
+            engine/gpu/vulkan/commands.cpp
+            engine/gpu/vulkan/convert.cpp
+            engine/gpu/vulkan/device.cpp
+            engine/gpu/vulkan/instance.cpp
+            engine/gpu/vulkan/programs.cpp
+            engine/gpu/vulkan/resources.cpp
+            engine/gpu/vulkan/surface_ios.mm
+            engine/gpu/vulkan/swapchain.cpp)
         target_link_libraries(game_gpu PUBLIC game_core game_shader
             PRIVATE Vulkan::Vulkan "-framework Metal" "-framework QuartzCore" "-framework UIKit")
     else()
@@ -602,42 +607,42 @@ if(GAME_HAS_GPU)
         target_include_directories(game_shader PRIVATE
             "$<TARGET_PROPERTY:Vulkan::Vulkan,INTERFACE_INCLUDE_DIRECTORIES>")
         game_module(gpu
-            SRC/gpu/check.cpp
-            SRC/gpu/device.cpp
-            SRC/gpu/format.cpp
-            SRC/gpu/layout.cpp
-            SRC/gpu/vulkan/api.cpp
-            SRC/gpu/vulkan/commands.cpp
-            SRC/gpu/vulkan/convert.cpp
-            SRC/gpu/vulkan/device.cpp
-            SRC/gpu/vulkan/instance.cpp
-            SRC/gpu/vulkan/programs.cpp
-            SRC/gpu/vulkan/resources.cpp
-            SRC/gpu/vulkan/surface_win32.cpp
-            SRC/gpu/vulkan/swapchain.cpp
-            SRC/gpu/d3d12/commands.cpp
-            SRC/gpu/d3d12/convert.cpp
-            SRC/gpu/d3d12/device.cpp
-            SRC/gpu/d3d12/programs.cpp
-            SRC/gpu/d3d12/resources.cpp
-            SRC/gpu/d3d12/swapchain.cpp
-            SRC/gpu/d3d11/commands.cpp
-            SRC/gpu/d3d11/convert.cpp
-            SRC/gpu/d3d11/device.cpp
-            SRC/gpu/d3d11/hresult.cpp
-            SRC/gpu/d3d11/programs.cpp
-            SRC/gpu/d3d11/resources.cpp
-            SRC/gpu/d3d11/swapchain.cpp
-            SRC/gpu/gles/bind_map.cpp
-            SRC/gpu/gles/context_wgl.cpp
-            SRC/gpu/gles/device.cpp
-            SRC/gpu/gles/load.cpp
-            SRC/gpu/gles/pick.cpp
-            SRC/gpu/gles/probe.cpp
-            SRC/gpu/gles/programs.cpp
-            SRC/gpu/gles/resources.cpp
-            SRC/gpu/gles/commands.cpp
-            SRC/gpu/gles/swapchain.cpp)
+            engine/gpu/check.cpp
+            engine/gpu/device.cpp
+            engine/gpu/format.cpp
+            engine/gpu/layout.cpp
+            engine/gpu/vulkan/api.cpp
+            engine/gpu/vulkan/commands.cpp
+            engine/gpu/vulkan/convert.cpp
+            engine/gpu/vulkan/device.cpp
+            engine/gpu/vulkan/instance.cpp
+            engine/gpu/vulkan/programs.cpp
+            engine/gpu/vulkan/resources.cpp
+            engine/gpu/vulkan/surface_win32.cpp
+            engine/gpu/vulkan/swapchain.cpp
+            engine/gpu/d3d12/commands.cpp
+            engine/gpu/d3d12/convert.cpp
+            engine/gpu/d3d12/device.cpp
+            engine/gpu/d3d12/programs.cpp
+            engine/gpu/d3d12/resources.cpp
+            engine/gpu/d3d12/swapchain.cpp
+            engine/gpu/d3d11/commands.cpp
+            engine/gpu/d3d11/convert.cpp
+            engine/gpu/d3d11/device.cpp
+            engine/gpu/d3d11/hresult.cpp
+            engine/gpu/d3d11/programs.cpp
+            engine/gpu/d3d11/resources.cpp
+            engine/gpu/d3d11/swapchain.cpp
+            engine/gpu/gles/bind_map.cpp
+            engine/gpu/gles/context_wgl.cpp
+            engine/gpu/gles/device.cpp
+            engine/gpu/gles/load.cpp
+            engine/gpu/gles/pick.cpp
+            engine/gpu/gles/probe.cpp
+            engine/gpu/gles/programs.cpp
+            engine/gpu/gles/resources.cpp
+            engine/gpu/gles/commands.cpp
+            engine/gpu/gles/swapchain.cpp)
         target_compile_definitions(game_gpu PRIVATE GAME_GPU_D3D12 GAME_GPU_D3D11 GAME_GPU_GLES)
         target_link_libraries(game_gpu PUBLIC game_core game_shader
             PRIVATE Vulkan::Vulkan user32 gdi32 opengl32 d3d12 d3d11 dxgi dxguid)
@@ -650,7 +655,7 @@ if(GAME_HAS_GPU)
 
     # render: màn hình vẽ lên cửa sổ (swapchain kèm ảnh độ sâu, vòng acquire, vẽ, present).
     # camera và forward cần math và resource; thêm ở khối resource bên dưới khi cả hai có.
-    game_module(render SRC/render/screen.cpp)
+    game_module(render engine/render/screen.cpp)
     target_link_libraries(game_render PUBLIC game_core game_gpu)
 
     # resource: nạp GLB (cgltf, stb) và tải lên GPU (meshoptimizer giải EXT_meshopt_compression).
@@ -660,26 +665,25 @@ if(GAME_HAS_GPU)
         find_package(Stb REQUIRED)
         find_package(meshoptimizer CONFIG REQUIRED)
         game_module(resource
-            SRC/resource/classic.cpp
-            SRC/resource/image.cpp
-            SRC/resource/model.cpp
-            SRC/resource/rig.cpp
-            SRC/resource/upload.cpp)
+            engine/resource/classic.cpp
+            engine/resource/image.cpp
+            engine/resource/model.cpp
+            engine/resource/upload.cpp)
         target_include_directories(game_resource PRIVATE ${CGLTF_INCLUDE_DIR} ${Stb_INCLUDE_DIR})
         target_link_libraries(game_resource
-            PUBLIC game_core game_math game_fs game_gpu game_anim game_ogre
+            PUBLIC game_core game_math game_fs game_gpu
             PRIVATE meshoptimizer::meshoptimizer)
         # Forward đọc gói .f2s và vẽ model đã tải lên. Header của nó kéo math và resource.
-        target_sources(game_render PRIVATE SRC/render/camera.cpp SRC/render/forward.cpp
-            SRC/render/shade.cpp SRC/render/ui.cpp SRC/render/canvas.cpp)
+        target_sources(game_render PRIVATE engine/render/camera.cpp engine/render/catalog.cpp
+            engine/render/forward.cpp engine/render/shade.cpp engine/render/ui.cpp engine/render/canvas.cpp)
         target_link_libraries(game_render PUBLIC game_math game_resource PRIVATE game_shader)
         # Nạp người chơi từ GLB và ra ma trận skin mỗi khung (cần resource, look, io).
-        target_sources(game_avatar PRIVATE SRC/avatar/avatar.cpp)
-        target_link_libraries(game_avatar PUBLIC game_look game_math game_io game_resource)
+        target_sources(game_avatar PRIVATE src/client/avatar/avatar.cpp src/client/avatar/rig.cpp)
+        target_link_libraries(game_avatar PUBLIC game_look game_math game_io game_resource game_anim game_ogre)
         # ui: HUD của game: bộ vẽ quad của giao diện gốc lên lượt vẽ 2D (render/ui), gom bộ nạp, dàn trang
         # và bảng chuỗi (cần gui, render, resource).
-        game_module(ui SRC/ui/painter.cpp SRC/ui/hud.cpp SRC/ui/pace.cpp SRC/ui/text.cpp
-            SRC/ui/radar.cpp)
+        game_module(ui src/client/ui/painter.cpp src/client/ui/hud.cpp src/client/ui/pace.cpp src/client/ui/text.cpp
+            src/client/ui/radar.cpp)
         target_link_libraries(game_ui PUBLIC game_gui game_ui_panel game_render game_resource
             game_gpu game_io game_table game_core)
     endif()
@@ -688,11 +692,11 @@ endif()
 # Công cụ dịch shader, chạy trên máy dựng (Windows). Gói .f2s cho thiết bị đóng sẵn vào APK;
 # Android không dựng công cụ này vì builder/compiler là Win32.
 if(GAME_HAS_GPU AND WIN32)
-    add_executable(thienlong_shader SRC/shadertool/main.cpp)
+    add_executable(thienlong_shader engine/shadertool/main.cpp)
     target_link_libraries(thienlong_shader PRIVATE game_shader game_jobs game_io game::warnings)
     game_split_debug(thienlong_shader)
     set(game_shader_dir "${CMAKE_BINARY_DIR}/shaders")
-    set(game_shader_src "${PROJECT_SOURCE_DIR}/SRC/render/shaders")
+    set(game_shader_src "${PROJECT_SOURCE_DIR}/engine/render/shaders")
     # Danh sách gói lấy thẳng từ shaders.list (mỗi dòng "shader <tên> <tệp>" là một gói <tên>.f2s):
     # công cụ dịch mọi dòng của danh sách, nên gói nào nó sinh ra cũng được theo dõi và được cài.
     # Chép tên gói ra đây lần nữa thì thêm một dòng vào danh sách mà quên ở đây là gói đó không
@@ -704,7 +708,7 @@ if(GAME_HAS_GPU AND WIN32)
         list(APPEND game_shader_packages "${game_shader_dir}/${game_shader_name}.f2s")
     endforeach()
     if(NOT game_shader_packages)
-        message(FATAL_ERROR "SRC/render/shaders/shaders.list không có dòng shader nào")
+        message(FATAL_ERROR "engine/render/shaders/shaders.list không có dòng shader nào")
     endif()
     # Mọi tệp nguồn shader của thư mục: sửa tệp nào thì dịch lại.
     file(GLOB game_shader_sources CONFIGURE_DEPENDS
@@ -728,24 +732,24 @@ endif()
 # display (phần đồ hoạ, bản có chuỗi đồ hoạ hoặc bản không vẽ), viewer (vòng lặp cửa sổ). Gốc
 # client giữ tuỳ chọn dòng lệnh và các điểm vào (main, android_main, ios_main).
 if(GAME_HAS_GPU)
-    set(game_client_screen SRC/client/display/display_gpu.cpp SRC/client/display/player.cpp
-        SRC/client/display/portrait.cpp SRC/client/display/role_preview.cpp SRC/client/display/fx_view.cpp
-        SRC/client/display/role_stage.cpp
-        SRC/client/display/lighting.cpp SRC/client/display/login_data.cpp)
+    set(game_client_screen src/client/client/display/display_gpu.cpp src/client/client/display/player.cpp
+        src/client/client/display/portrait.cpp src/client/client/display/role_preview.cpp src/client/client/display/fx_view.cpp
+        src/client/client/display/role_stage.cpp
+        src/client/client/display/lighting.cpp src/client/client/display/login_data.cpp)
 else()
-    set(game_client_screen SRC/client/display/display_none.cpp)
+    set(game_client_screen src/client/client/display/display_none.cpp)
 endif()
 if(WIN32)
-    set(game_client_loop SRC/client/viewer/viewer_win32.cpp SRC/client/viewer/cursors.cpp)
+    set(game_client_loop src/client/client/viewer/viewer_win32.cpp src/client/client/viewer/cursors.cpp)
 else()
-    set(game_client_loop SRC/client/viewer/viewer_none.cpp)
+    set(game_client_loop src/client/client/viewer/viewer_none.cpp)
 endif()
 game_module(client_stage
-    SRC/client/stage/stage.cpp
-    SRC/client/stage/sky.cpp
-    SRC/client/stage/props.cpp)
+    src/client/client/stage/stage.cpp
+    src/client/client/stage/sky.cpp
+    src/client/client/stage/props.cpp)
 target_link_libraries(game_client_stage PUBLIC game_core game_xml game_scene)
-game_module(client_world SRC/client/world/world.cpp)
+game_module(client_world src/client/client/world/world.cpp)
 target_link_libraries(game_client_world PUBLIC game_client_stage game_client_map game_io game_nav)
 game_module(client_display ${game_client_screen})
 target_link_libraries(game_client_display PUBLIC game_core game_client_stage game_client_map
@@ -761,21 +765,21 @@ if(WIN32)
     target_link_libraries(game_client_viewer PRIVATE game_window)
     target_link_libraries(game_client_viewer PUBLIC game_audio)
 endif()
-game_module(client SRC/client/options.cpp SRC/client/assets.cpp SRC/client/boot.cpp)
+game_module(client src/client/client/options.cpp src/client/client/assets.cpp src/client/client/boot.cpp)
 target_link_libraries(game_client PUBLIC game_core game_io game_client_map game_client_world)
 
 # iOS: điểm vào UIKit. Chưa build trên máy này (không có macOS). Android giữ main.cpp cho exe adb;
 # APK là thư viện riêng bên dưới.
 if(IOS)
-    add_executable(thienlong_client SRC/client/ios_main.mm SRC/client/mobile_probe.cpp)
+    add_executable(thienlong_client src/client/client/ios_main.mm src/client/client/mobile_probe.cpp)
 else()
-    add_executable(thienlong_client SRC/client/main.cpp)
+    add_executable(thienlong_client src/client/client/main.cpp)
 endif()
 if(WIN32)
     # Icon của exe, dịch trong một target riêng không có thư mục include nào. windres của MinGW đưa
     # -I cho bộ tiền xử lý mà không bọc nháy, nên thư mục có dấu cách (chính đường dẫn dự án) làm
     # nó dừng. app.rc không include gì; đường dẫn icon trong đó tính từ chỗ tệp .rc.
-    add_library(thienlong_client_icon OBJECT SRC/client/app.rc)
+    add_library(thienlong_client_icon OBJECT src/client/client/app.rc)
     target_sources(thienlong_client PRIVATE $<TARGET_OBJECTS:thienlong_client_icon>)
 endif()
 target_link_libraries(thienlong_client PRIVATE game_client game_client_viewer game_client_stage
@@ -827,8 +831,8 @@ if(ANDROID)
     target_include_directories(android_native_app_glue PUBLIC "${game_glue}")
     set_property(TARGET android_native_app_glue PROPERTY COMPILE_WARNING_AS_ERROR OFF)
     add_library(thienlong_activity SHARED
-        SRC/client/android_main.cpp
-        SRC/client/mobile_probe.cpp)
+        src/client/client/android_main.cpp
+        src/client/client/mobile_probe.cpp)
     target_include_directories(thienlong_activity PRIVATE "${game_glue}")
     target_compile_features(thienlong_activity PRIVATE cxx_std_23)
     target_link_libraries(thienlong_activity PRIVATE
@@ -883,35 +887,39 @@ if(ANDROID)
 endif()
 
 # Mỗi header thành một .cpp include nó hai lần (tự đủ + #pragma once, KTR-03).
-file(GLOB_RECURSE game_headers CONFIGURE_DEPENDS ${PROJECT_SOURCE_DIR}/SRC/*.hpp)
+file(GLOB_RECURSE game_headers CONFIGURE_DEPENDS
+    ${PROJECT_SOURCE_DIR}/engine/*.hpp
+    ${PROJECT_SOURCE_DIR}/src/client/*.hpp
+    ${PROJECT_SOURCE_DIR}/src/server/*.hpp
+    ${PROJECT_SOURCE_DIR}/src/shared/*.hpp)
 # Header của module không dựng trong cấu hình này không vào header_check: chúng cần gói vcpkg và
 # Vulkan SDK mà cấu hình ấy không có (xem GAME_HAS_GPU ở trên).
 if(NOT GAME_HAS_GPU)
-    list(FILTER game_headers EXCLUDE REGEX "/SRC/(fs|shader|gpu|render|resource)/")
+    list(FILTER game_headers EXCLUDE REGEX "/engine/(fs|shader|gpu|render|resource)/")
 endif()
 # Backend D3D chỉ có trên Windows: header của nó đòi d3d11.h/d3d12.h của Windows SDK.
 if(NOT WIN32)
-    list(FILTER game_headers EXCLUDE REGEX "/SRC/gpu/d3d1[12]/")
+    list(FILTER game_headers EXCLUDE REGEX "/engine/gpu/d3d1[12]/")
 endif()
 if(NOT GAME_HAS_MATH)
-    list(FILTER game_headers EXCLUDE REGEX "/SRC/math/")
+    list(FILTER game_headers EXCLUDE REGEX "/engine/math/")
 endif()
 # capture chỉ có target trên Windows (xem khối jobs); ngoài Windows header của nó không vào
 # header_check. render/target.hpp chưa có target (target kéo capture). library.hpp là nạp lại lúc
 # chạy, công cụ shader không dựng nó. shadertool không có header.
 if(NOT WIN32)
-    list(FILTER game_headers EXCLUDE REGEX "/SRC/capture/")
+    list(FILTER game_headers EXCLUDE REGEX "/engine/capture/")
 endif()
 # Mã máy chủ không dựng cho client di động, hoặc khi thiếu header của tomlplusplus.
 if(NOT TARGET game_service)
-    list(FILTER game_headers EXCLUDE REGEX "/SRC/(config|process|supervise|service|linttool)/")
+    list(FILTER game_headers EXCLUDE REGEX "/src/server/(config|process|supervise|service|linttool)/")
 endif()
 # protocol và net chỉ dựng cho máy tính (khối NOT CMAKE_CROSSCOMPILING của hai module).
 if(NOT TARGET game_net)
-    list(FILTER game_headers EXCLUDE REGEX "/SRC/(protocol|net)/")
+    list(FILTER game_headers EXCLUDE REGEX "/(src/shared/protocol|engine/net)/")
 endif()
-list(FILTER game_headers EXCLUDE REGEX "/SRC/render/target\\.hpp$")
-list(FILTER game_headers EXCLUDE REGEX "/SRC/shader/library\\.hpp$")
+list(FILTER game_headers EXCLUDE REGEX "/engine/render/target\\.hpp$")
+list(FILTER game_headers EXCLUDE REGEX "/engine/shader/library\\.hpp$")
 foreach(header IN LISTS game_headers)
   file(RELATIVE_PATH relative "${PROJECT_SOURCE_DIR}" "${header}")
   string(MAKE_C_IDENTIFIER "${relative}" stem)
@@ -932,10 +940,20 @@ if(NOT BUILD_TESTING)
     return()
 endif()
 enable_testing()
-# Mỗi tệp tests/<tên>_tests.cpp là một exe test; đối số sau tên là các module nó cần.
+# Mỗi tệp Test/<domain>/<tên>_tests.cpp là một exe test; đối số sau tên là các module nó cần.
 function(game_test name)
-    add_executable(${name}_tests tests/${name}_tests.cpp)
-    target_include_directories(${name}_tests PRIVATE tests)
+    file(GLOB game_test_source "${CMAKE_CURRENT_SOURCE_DIR}/Test/*/${name}_tests.cpp")
+    if(NOT game_test_source)
+        message(STATUS "Thiếu test ${name}, bỏ ${name}_tests")
+        return()
+    endif()
+    list(LENGTH game_test_source game_test_count)
+    if(NOT game_test_count EQUAL 1)
+        message(FATAL_ERROR "test ${name} có nhiều tệp: ${game_test_source}")
+    endif()
+    cmake_path(GET game_test_source PARENT_PATH game_test_dir)
+    add_executable(${name}_tests ${game_test_source})
+    target_include_directories(${name}_tests PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/Test" "${game_test_dir}")
     target_link_libraries(${name}_tests PRIVATE ${ARGN} game::warnings)
     add_test(NAME ${name}_tests COMMAND ${name}_tests)
 endfunction()
@@ -988,17 +1006,23 @@ if(WIN32)
     game_test(window game_window)
     # Các ca vào vòng kéo thật của Windows. Luôn dựng, nhưng ctest chỉ chạy khi bật
     # GAME_DESKTOP_TESTS: vòng kéo đổi hình và vùng giam con trỏ chuột của cả phiên đăng nhập, người
-    # đang dùng máy thấy con trỏ nháy (tests/window_modal_tests.cpp).
+    # đang dùng máy thấy con trỏ nháy (Test/window_modal_tests.cpp).
     option(GAME_DESKTOP_TESTS "ctest chạy cả test đụng tới con trỏ chuột của phiên Windows" OFF)
-    game_test(window_modal game_window)
-    if(NOT GAME_DESKTOP_TESTS)
+    if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/Test/Window/window_modal_tests.cpp")
+        game_test(window_modal game_window)
+    endif()
+    if(TARGET window_modal_tests AND NOT GAME_DESKTOP_TESTS)
         set_tests_properties(window_modal_tests PROPERTIES DISABLED TRUE)
     endif()
 endif()
 # Test trên GPU thật qua backend Vulkan, lớp kiểm tra bật. Trên Android, gpu/resource_tests còn
 # cần fs::write_file (fs/file của Forge2 là Win32) để ghi tệp tạm — chờ bản fs POSIX.
 if(GAME_HAS_GPU AND NOT ANDROID)
-    game_test(gpu game_gpu)
+    if(WIN32)
+        game_test(gpu game_gpu user32)
+    else()
+        game_test(gpu game_gpu)
+    endif()
     if(TARGET game_resource)
         game_test(resource game_resource)
         game_test(resource_upload game_resource)
@@ -1022,19 +1046,23 @@ game_test(motion game_motion)
 # dựng: test chạy trên thiết bị Android không thấy nó nên tự bỏ qua phần so số vàng.
 game_test(nav game_nav game_io)
 if(NOT ANDROID)
-    target_compile_definitions(nav_tests PRIVATE GAME_NAV_GOLDEN="${PROJECT_SOURCE_DIR}/tests/golden")
+    target_compile_definitions(nav_tests PRIVATE GAME_NAV_GOLDEN="${PROJECT_SOURCE_DIR}/Test/golden")
     if(EXISTS "${PROJECT_SOURCE_DIR}/CLIENT/data/Scene/huoyangu.path")
         target_compile_definitions(nav_tests PRIVATE GAME_CLIENT_DATA="${PROJECT_SOURCE_DIR}/CLIENT/data")
     endif()
 endif()
 # collision (DE-BAI DH đợt 1, mục 4 và 5): collision_tests là bộ đọc trên byte tự dựng, số vàng của PathLib.dll gốc
-# (so-do/b-dinh-dang-tsv.md) và 435 tệp thật; collision_alloc_tests là G3 (tests/collision_hostile.hpp), H1, H2.
+# (so-do/b-dinh-dang-tsv.md) và 435 tệp thật; collision_alloc_tests là G3 (Test/collision_hostile.hpp), H1, H2.
 # Thứ tự dò byte nguồn số vàng: dòng file, rồi GAME_CLIENT_DATA/Scene/<cảnh>.WCollision, rồi
 # GAME_RAW_SCENE/<cảnh>.WCollision (lingxingfeng, xihu_Valentine đọc GAME_CLIENT_DATA rồi GAME_RAW_SCENE trước);
 # không có gì thì trả 77. Chưa có Model của C cũng trả 77 (CTest báo Skipped); ca hỏng vẫn trả 1. Đường dẫn là của
 # máy dựng nên Android tự bỏ qua.
-game_test(collision game_collision)
-game_test(collision_alloc game_collision)
+if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/Test/Collision/collision_tests.cpp")
+    game_test(collision game_collision)
+endif()
+if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/Test/Collision/collision_alloc_tests.cpp")
+    game_test(collision_alloc game_collision)
+endif()
 # Tệp .WCollision thật nằm ngoài dự án, nên không có mặc định nào trỏ ra ngoài cây nguồn: lấy thư mục _raw
 # từ biến môi trường THIENLONG_RAW_ROOT (cùng quy ước với các test dữ liệu thật của máy chủ), hoặc cấu hình
 # với -DGAME_RAW_SCENE=<_raw>/Scene. Không có thì các ca cần tệp thật trả 77.
@@ -1043,23 +1071,29 @@ if(DEFINED ENV{THIENLONG_RAW_ROOT})
     file(TO_CMAKE_PATH "$ENV{THIENLONG_RAW_ROOT}/Scene" game_raw_scene_default)
 endif()
 set(GAME_RAW_SCENE "${game_raw_scene_default}" CACHE PATH "Thư mục .WCollision thật cho collision_tests")
-if(NOT ANDROID)
-    target_compile_definitions(collision_tests PRIVATE GAME_COLLISION_GOLDEN="${PROJECT_SOURCE_DIR}/tests/golden")
+if(TARGET collision_tests AND NOT ANDROID)
+    target_compile_definitions(collision_tests PRIVATE GAME_COLLISION_GOLDEN="${PROJECT_SOURCE_DIR}/Test/golden")
     if(EXISTS "${PROJECT_SOURCE_DIR}/CLIENT/data/Scene/huoyangu.path")
         target_compile_definitions(collision_tests PRIVATE GAME_CLIENT_DATA="${PROJECT_SOURCE_DIR}/CLIENT/data")
     endif()
 endif()
-if(NOT ANDROID AND IS_DIRECTORY "${GAME_RAW_SCENE}")
+if(TARGET collision_tests AND NOT ANDROID AND IS_DIRECTORY "${GAME_RAW_SCENE}")
     target_compile_definitions(collision_tests PRIVATE GAME_COLLISION_SCENE="${GAME_RAW_SCENE}"
         GAME_COLLISION_COUNTS="${PROJECT_SOURCE_DIR}/docs/giao-viec/DH-DOT-1/so-do/b-t1-tep-2.tsv")
 endif()
-set_tests_properties(collision_tests collision_alloc_tests PROPERTIES SKIP_RETURN_CODE 77)
-game_test(collision_fuzz game_collision)
-# collision_model_tests (C, B3): lưới sau nạp và cây OPCODE của Model; chốt cây với tests/golden/collision_cay_*.tsv
+if(TARGET collision_tests AND TARGET collision_alloc_tests)
+    set_tests_properties(collision_tests collision_alloc_tests PROPERTIES SKIP_RETURN_CODE 77)
+endif()
+if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/Test/Collision/collision_fuzz_tests.cpp")
+    game_test(collision_fuzz game_collision)
+endif()
+# collision_model_tests (C, B3): lưới sau nạp và cây OPCODE của Model; chốt cây với Test/golden/collision_cay_*.tsv
 # (bianjing theo #sha256_day_du, bản đầy đủ ở build/vang nếu có). Thiếu .WCollision thật thì trả 77.
-game_test(collision_model game_collision)
-if(NOT ANDROID)
-    target_compile_definitions(collision_model_tests PRIVATE GAME_COLLISION_GOLDEN="${PROJECT_SOURCE_DIR}/tests/golden")
+if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/Test/Collision/collision_model_tests.cpp")
+    game_test(collision_model game_collision)
+endif()
+if(TARGET collision_model_tests AND NOT ANDROID)
+    target_compile_definitions(collision_model_tests PRIVATE GAME_COLLISION_GOLDEN="${PROJECT_SOURCE_DIR}/Test/golden")
     if(IS_DIRECTORY "${GAME_RAW_SCENE}")
         target_compile_definitions(collision_model_tests PRIVATE GAME_COLLISION_SCENE="${GAME_RAW_SCENE}")
     endif()
@@ -1067,7 +1101,9 @@ if(NOT ANDROID)
         target_compile_definitions(collision_model_tests PRIVATE GAME_COLLISION_VANG="${PROJECT_SOURCE_DIR}/build/vang")
     endif()
 endif()
-set_tests_properties(collision_model_tests PROPERTIES SKIP_RETURN_CODE 77)
+if(TARGET collision_model_tests)
+    set_tests_properties(collision_model_tests PROPERTIES SKIP_RETURN_CODE 77)
+endif()
 game_test(look game_look)
 game_test(head game_look)
 game_test(avatar game_avatar)
@@ -1109,7 +1145,7 @@ game_test(ui_widgets game_ui_panel)
 game_test(ui_quest game_ui_panel game_io)
 if(NOT ANDROID)
     target_compile_definitions(ui_quest_tests PRIVATE
-        GAME_PANEL_GOLDEN="${PROJECT_SOURCE_DIR}/tests/golden/panel")
+        GAME_PANEL_GOLDEN="${PROJECT_SOURCE_DIR}/Test/golden/panel")
 endif()
 # Bảng nhập tài khoản của thủ tục đăng nhập; ca đối chiếu layout thật chỉ dịch khi đã gom layout đó.
 game_test(ui_logon game_ui_panel)
@@ -1125,7 +1161,7 @@ game_test(ui_select game_ui_panel)
 game_test(ui_create game_ui_panel game_io)
 if(NOT ANDROID)
     target_compile_definitions(ui_create_tests PRIVATE
-        GAME_PANEL_GOLDEN="${PROJECT_SOURCE_DIR}/tests/golden/panel")
+        GAME_PANEL_GOLDEN="${PROJECT_SOURCE_DIR}/Test/golden/panel")
 endif()
 game_test(ui_flow game_ui_panel)
 if(NOT ANDROID AND EXISTS "${PROJECT_SOURCE_DIR}/CLIENT/data/Interface/SelectRole/SelectRole.layout.xml")
@@ -1154,11 +1190,12 @@ if(NOT ANDROID AND EXISTS "${PROJECT_SOURCE_DIR}/CLIENT/data/Interface/Schema/Wo
         GAME_CLIENT_DATA="${PROJECT_SOURCE_DIR}/CLIENT/data")
     target_compile_definitions(gui_real_tests PRIVATE
         GAME_CLIENT_DATA="${PROJECT_SOURCE_DIR}/CLIENT/data"
-        GAME_UI_GOLDEN="${PROJECT_SOURCE_DIR}/tests/golden")
+        GAME_UI_GOLDEN="${PROJECT_SOURCE_DIR}/Test/golden")
 endif()
 # Camera dựng ma trận bằng math và render/camera.cpp; chỉ cần module render, không cần GPU thật.
 if(TARGET game_render)
     game_test(camera game_render)
+    game_test(catalog game_render)
 endif()
 if(TARGET game_ui AND NOT ANDROID
         AND EXISTS "${PROJECT_SOURCE_DIR}/CLIENT/data/Interface/Schema/VTNAM14.bin")
@@ -1181,7 +1218,7 @@ if(TARGET game_service)
     add_dependencies(process_tests thienlong_test_child)
     game_test(supervise game_supervise)
     # Hai test dưới chạy exe thật nằm cạnh chúng, không PostgreSQL. Chúng chép cấu hình thật vào
-    # cây dựng và cho mọi cổng nghe là 127.0.0.1:0 (tests/support/loopback_config.hpp): hệ điều hành
+    # cây dựng và cho mọi cổng nghe là 127.0.0.1:0 (Test/support/loopback_config.hpp): hệ điều hành
     # cấp cổng, tiến trình báo cổng thật ở dòng ready, nên hai lượt ctest chạy cùng lúc không tranh cổng.
     set(game_server_programs thienlong_server thienlong_store thienlong_auth thienlong_billing
         thienlong_world thienlong_zone thienlong_gate)
@@ -1189,16 +1226,16 @@ if(TARGET game_service)
     target_compile_definitions(service_tests PRIVATE
         "GAME_SERVER_CONFIG=\"${PROJECT_SOURCE_DIR}/SERVER/config\"")
     add_dependencies(service_tests ${game_server_programs})
-    add_executable(server_boot tests/server_boot_tests.cpp)
-    target_include_directories(server_boot PRIVATE tests)
+    add_executable(server_boot Test/Service/server_boot_tests.cpp)
+    target_include_directories(server_boot PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/Test" "${CMAKE_CURRENT_SOURCE_DIR}/Test/Service")
     target_link_libraries(server_boot PRIVATE game_process game_io game::warnings)
     target_compile_definitions(server_boot PRIVATE
         "GAME_SERVER_CONFIG=\"${PROJECT_SOURCE_DIR}/SERVER/config\"")
     add_dependencies(server_boot ${game_server_programs})
     add_test(NAME server_boot COMMAND server_boot)
     # Ca B của nợ (a): chạy lại trọn server_boot rồi so SERVER/data/gate của cây nguồn trước và sau.
-    add_executable(server_boot_source_clean tests/server_boot_source_tests.cpp)
-    target_include_directories(server_boot_source_clean PRIVATE tests)
+    add_executable(server_boot_source_clean Test/Service/server_boot_source_tests.cpp)
+    target_include_directories(server_boot_source_clean PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/Test" "${CMAKE_CURRENT_SOURCE_DIR}/Test/Service")
     target_link_libraries(server_boot_source_clean PRIVATE game_process game_io game::warnings)
     target_compile_definitions(server_boot_source_clean PRIVATE
         "GAME_SERVER_CONFIG=\"${PROJECT_SOURCE_DIR}/SERVER/config\"")
@@ -1221,19 +1258,31 @@ endif()
 # loopback thật; protocol_catalog_fresh báo khi tệp sinh cũ hơn bảng danh mục.
 if(TARGET game_net)
     game_test(protocol game_protocol)
-    game_test(protocol_channel game_protocol)
+    if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/Test/Protocol/protocol_channel_tests.cpp")
+        game_test(protocol_channel game_protocol)
+    endif()
     game_test(protocol_catalog game_protocol)
-    game_test(protocol_fuzz game_protocol)
+    if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/Test/Protocol/protocol_fuzz_tests.cpp")
+        game_test(protocol_fuzz game_protocol)
+    endif()
     game_test(net game_net)
     game_test(metrics game_metrics)
     game_test(wire_loop game_protocol game_net)
     # Exe đo của mục 7 (Đ1 tới Đ3): dựng cùng mọi target, không đăng ký vào ctest.
-    add_executable(protocol_bench tests/bench/protocol_bench.cpp)
-    target_include_directories(protocol_bench PRIVATE tests)
-    target_link_libraries(protocol_bench PRIVATE game_protocol game::warnings)
-    add_executable(net_bench tests/bench/net_bench.cpp)
-    target_include_directories(net_bench PRIVATE tests)
-    target_link_libraries(net_bench PRIVATE game_protocol game_net game::warnings)
+    if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/Test/bench/protocol_bench.cpp")
+        add_executable(protocol_bench Test/bench/protocol_bench.cpp)
+        target_include_directories(protocol_bench PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/Test" "${CMAKE_CURRENT_SOURCE_DIR}/Test/Protocol")
+        target_link_libraries(protocol_bench PRIVATE game_protocol game::warnings)
+    else()
+        message(STATUS "Thiếu Test/bench/protocol_bench.cpp, bỏ protocol_bench")
+    endif()
+    if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/Test/bench/net_bench.cpp")
+        add_executable(net_bench Test/bench/net_bench.cpp)
+        target_include_directories(net_bench PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/Test" "${CMAKE_CURRENT_SOURCE_DIR}/Test/Net")
+        target_link_libraries(net_bench PRIVATE game_protocol game_net game::warnings)
+    else()
+        message(STATUS "Thiếu Test/bench/net_bench.cpp, bỏ net_bench")
+    endif()
     game_test(secure game_secure)
     if(TARGET game_gate)
         game_test(gate game_gate)

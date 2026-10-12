@@ -1,5 +1,5 @@
 # Bộ mã hoá Python độc lập với mã C++ sinh ra, và ba mẫu cho mỗi tin (DE-BAI §3.5): byte mong đợi của
-# tests/protocol_samples.hpp tính ở đây nên test C++ so được hai bản cài đặt với nhau.
+# Test/Protocol/protocol_samples.hpp tính ở đây nên test C++ so được hai bản cài đặt với nhau.
 """Giá trị Python: số nguyên, bool, float, str, bytes, list, None (optional rỗng), dict (record)."""
 
 from __future__ import annotations

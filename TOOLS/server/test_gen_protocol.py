@@ -22,7 +22,7 @@ sys.path.insert(0, str(ROOT))
 import gen_protocol  # noqa: E402
 
 TAB = "\t"
-GENERATED = ("SRC/protocol/messages.hpp", "SRC/protocol/messages.cpp", "tests/protocol_samples.hpp",
+GENERATED = ("src/shared/protocol/messages.hpp", "src/shared/protocol/messages.cpp", "Test/Protocol/protocol_samples.hpp",
              "docs/PROTOCOL-TIN.md")
 HEADS = {
     "groups.tsv": ["# schema 1", "# source: test", "# types: hex8\tident\ttext", "id\tname\tsummary"],
@@ -342,8 +342,8 @@ class OutputTests(Scratch):
         fields.write_text(text, encoding="utf-8", newline="\n")
         code, output = run_tool(["--catalog", str(copy), "--check"])
         self.assertEqual(code, 1, output)
-        self.assertIn("SRC/protocol/messages.hpp", output)
-        self.assertIn("tests/protocol_samples.hpp", output)
+        self.assertIn("src/shared/protocol/messages.hpp", output)
+        self.assertIn("Test/Protocol/protocol_samples.hpp", output)
 
     def test_check_passes_on_repo(self) -> None:
         code, output = run_tool(["--check"])
