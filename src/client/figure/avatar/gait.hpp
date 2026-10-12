@@ -52,9 +52,14 @@ public:
 
     // Clip lúc now khi đang đi hay đứng. now không được lùi.
     [[nodiscard]] Playing update(core::Clock::time_point now, bool is_moving, const ClipLengths& lengths);
+    // Phát stance ở khung kế, rồi về đứng. Dùng cho bài múa lúc người mẫu môn phái hiện.
+    void cue(Stance stance) noexcept;
+    // Sai thì hết bài không chọn động tác nghỉ. Mười hai môn đầu vẫn nghỉ bằng bài múa.
+    void set_fidget(bool enabled) noexcept;
 
 private:
     void enter(core::Clock::time_point now, bool is_moving);
+    void take_cue(core::Clock::time_point now);
     [[nodiscard]] Playing running(core::Clock::time_point now, const ClipLengths& lengths) const;
     void start_idle(core::Clock::time_point now);
     void fresh(core::Clock::time_point now, const ClipLengths& lengths);
@@ -66,6 +71,8 @@ private:
     std::chrono::milliseconds idle_ms_;
     // Sai trước lần update đầu: lúc đó chưa có clip nào.
     bool is_started_ = false;
+    bool fidget_ = true;
+    std::optional<Stance> cued_;
     Stance stance_ = Stance::kIdle;
     core::Clock::time_point clip_started_;
     core::Clock::time_point last_motion_;

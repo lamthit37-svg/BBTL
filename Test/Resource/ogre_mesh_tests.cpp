@@ -174,11 +174,44 @@ void child_inherits_blend_and_cull(Context& context) {
     std::filesystem::remove_all(root);
 }
 
+// Vũ khí và một số bộ đồ ghi <BaseTexture>, không phải <baseTexture>.
+void capital_alias_is_the_diffuse_map(Context& context) {
+    const std::string root = "ogre_mesh_base_out";
+    static_cast<void>(fs::create_directories(root + "/Material"));
+    const char* script = "material VuKhi : WeaponTemplateAlpha\n{\nset_texture_alias <BaseTexture> vu.dds\n}\n";
+    const auto* bytes = reinterpret_cast<const std::byte*>(script);
+    const core::Status written = fs::write_file(root + "/Material/all.material", std::span<const std::byte>(bytes, std::strlen(script)));
+    context.expect(static_cast<bool>(written), "ghi material chữ hoa");
+    if (!written) return;
+    std::vector<std::byte> dds;
+    put_u32(dds, 0x20534444U);
+    put_u32(dds, 124);
+    for (int index = 0; index < 30; ++index) put_u32(dds, 0);
+    dds.resize(128 + 8);
+    dds[12] = std::byte{4};
+    dds[16] = std::byte{4};
+    dds[80] = std::byte{4};
+    dds[84] = std::byte{'D'};
+    dds[85] = std::byte{'X'};
+    dds[86] = std::byte{'T'};
+    dds[87] = std::byte{'1'};
+    const core::Status texture = fs::write_file(root + "/Material/vu.dds", dds);
+    context.expect(static_cast<bool>(texture), "ghi dds vũ khí");
+    if (!texture) return;
+    std::vector<std::byte> file = triangle_mesh("VuKhi");
+    const auto model = resource::load_ogre_mesh(file, root);
+    context.expect(model.has_value(), "mesh đọc alias chữ hoa");
+    if (!model) return;
+    context.expect(model->materials[0].color.image.has_value(), "BaseTexture thành ảnh màu");
+    std::filesystem::remove_all(root);
+}
+
 constexpr std::array kCases{
     Case{.name = "reads_triangle_positions", .body = &reads_triangle_positions},
     Case{.name = "named_load_uses_mesh_suffix", .body = &named_load_uses_mesh_suffix},
     Case{.name = "reads_shipped_mesh_when_present", .body = &reads_shipped_mesh_when_present},
     Case{.name = "child_inherits_blend_and_cull", .body = &child_inherits_blend_and_cull},
+    Case{.name = "capital_alias_is_the_diffuse_map", .body = &capital_alias_is_the_diffuse_map},
 };
 
 } // namespace

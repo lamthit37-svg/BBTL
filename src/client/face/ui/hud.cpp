@@ -545,7 +545,11 @@ void Hud::State::fill_play(const HudView& view) {
     panel::fill_player(deck, *view.hero, face);
     panel::fill_menubar(deck, *view.hero);
     const bool is_sheet_open = panel::is_open(desk, panel::Board::kCharacter);
-    if (is_sheet_open) panel::fill_self_equip(deck, *view.hero, strings);
+    if (!is_sheet_open) return;
+    panel::fill_self_equip(deck, *view.hero, strings);
+    const auto is_body = [](const ViewPaint& paint) { return paint.name == panel::kEquipModel; };
+    if (!std::ranges::any_of(view.views, is_body)) return;
+    deck.set(gui::Override{.window = "SelfEquip_FakeObject", .name = "FakeObject", .value = panel::kEquipModel});
 }
 
 // Đẩy ảnh atlas vừa ghép lên GPU: lần đầu thêm texture, các lần sau thay ảnh của texture đó.

@@ -816,7 +816,14 @@ endif()
 # display (phần đồ hoạ, bản có chuỗi đồ hoạ hoặc bản không vẽ), viewer (vòng lặp cửa sổ). Gốc
 # client giữ tuỳ chọn dòng lệnh và các điểm vào (main, android_main, ios_main).
 if(GAME_HAS_GPU)
-    set(game_client_screen src/client/app/client/display/display_gpu.cpp src/client/app/client/display/player.cpp
+    set(game_client_screen
+        src/client/app/client/display/graphic/frame.cpp
+        src/client/app/client/display/graphic/stream.cpp
+        src/client/app/client/display/graphic/scene.cpp
+        src/client/app/client/display/graphic/play.cpp
+        src/client/app/client/display/graphic/face.cpp
+        src/client/app/client/display/graphic/effect.cpp
+        src/client/app/client/display/player.cpp
         src/client/app/client/display/portrait.cpp src/client/app/client/display/role_preview.cpp src/client/app/client/display/fx_view.cpp
         src/client/app/client/display/role_stage.cpp
         src/client/app/client/display/lighting.cpp src/client/app/client/display/login_data.cpp)

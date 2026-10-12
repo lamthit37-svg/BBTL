@@ -1,5 +1,5 @@
-// Đọc tệp dữ liệu của client từ đĩa. Đường dẫn trong dữ liệu game (tên mesh, tên map) là UTF-8;
-// path_from_utf8 đổi sang đường dẫn hệ điều hành mà không đi qua bảng mã ANSI của Windows.
+// Đọc tệp dữ liệu của client từ đĩa. Tên mesh và map trong mã là UTF-8. all.material và script hạt
+// ghi tên ảnh bằng GBK (trang 936): path_from_utf8 nhận cả hai, không đi qua bảng mã ANSI.
 // Quyết định: tệp là dữ liệu ngoài nên mọi lỗi đọc trả về qua std::expected, không dừng tiến trình;
 // có trần cỡ để một tệp hỏng không nuốt hết bộ nhớ.
 // Tên tệp tra không phân biệt hoa thường ASCII, như client gốc (nó hạ chữ thường tên trước khi tra
@@ -27,7 +27,8 @@ using TextResult = std::expected<std::string, FileError>;
 // hệ tệp không phân biệt hoa thường (Windows) kết quả có thể giữ cách viết của path.
 [[nodiscard]] std::filesystem::path find_ignoring_case(const std::filesystem::path& path);
 
-// Đường dẫn hệ điều hành của một chuỗi UTF-8.
+// Đường dẫn hệ điều hành. UTF-8 giữ nguyên. Byte không phải UTF-8 đọc theo trang 936. Không ném:
+// luồng vẽ không bắt exception, một tên GBK ném ra sẽ abort cả tiến trình.
 [[nodiscard]] std::filesystem::path path_from_utf8(std::string_view text);
 
 // Đường dẫn ở dạng UTF-8 với dấu phân cách "/", để in ra hoặc ghi vào tệp.

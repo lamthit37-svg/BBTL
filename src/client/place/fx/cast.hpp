@@ -43,8 +43,12 @@ struct Paint {
     std::string second;
     float scroll_u = 0.0F;
     float scroll_v = 0.0F;
-    // Màu ra chỉ là ảnh nhân hệ số nhân màu đỉnh: một ảnh đứng yên qua shader thường. Sai khi
-    // material cần ảnh thứ hai, cuộn hay xoay UV, hoặc shader riêng.
+    // scale của texture_unit. 1 là không đổi. Cuộn UV nhân thời gian cảnh rồi cộng vào.
+    float scale_u = 1.0F;
+    float scale_v = 1.0F;
+    // Shader fixed hoặc particle: màu là ảnh nhân màu đỉnh. Shader khác không vẽ ở billboard.
+    bool is_common = false;
+    // Một ảnh, không cuộn, không scale, shader thường. Hai ảnh vẫn không phải thường.
     bool is_plain = false;
 };
 

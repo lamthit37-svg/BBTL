@@ -8,6 +8,7 @@
 #include "gpu/device.hpp"
 #include "gpu/handle.hpp"
 #include "io/file.hpp"
+#include "look/body.hpp"
 #include "look/head.hpp"
 #include "math/vector.hpp"
 #include "render/camera.hpp"
@@ -68,6 +69,15 @@ render::Camera head_camera(const look::HeadPose& pose) noexcept {
     return render::look_camera(eye, target, lens, render::ViewSize{.width = 1, .height = 1});
 }
 
+// Toàn thân vừa khít FOV 20 độ, cùng ống kính fake object của bảng nhân vật.
+render::Camera body_camera(float height) noexcept {
+    const look::BodySight sight = look::body_sight(height);
+    const math::Point3 target(sight.target[0], sight.target[1], sight.target[2]);
+    const math::Point3 eye(sight.eye[0], sight.eye[1], sight.eye[2]);
+    const render::Lens lens{.fov_degrees = look::kBodyFovDegrees, .near_plane = look::kBodyNear, .far_plane = kFarPlane};
+    return render::look_camera(eye, target, lens, render::ViewSize{.width = 1, .height = 1});
+}
+
 struct HeadShot::State {
     State(PlayerActor made, render::Canvas target) : actor(std::move(made)), canvas(std::move(target)) {}
 
@@ -102,9 +112,16 @@ core::Result<HeadShot> HeadShot::create(gpu::Device& device, const HeadShotDesc&
     if (!canvas) return std::unexpected(canvas.error());
     auto state = std::make_unique<State>(std::move(*actor), std::move(*canvas));
     state->forward = desc.forward;
-    const look::HeadPose pose = pose_of(desc.player.data_root, state->actor.figure().template_name);
-    state->camera = head_camera(pose);
-    state->turn = pose.turn;
+    const look::Figure& figure = state->actor.figure();
+    if (desc.is_body) {
+        state->camera = body_camera(figure.height);
+        state->turn = 0.0F;
+    }
+    if (!desc.is_body) {
+        const look::HeadPose pose = pose_of(desc.player.data_root, figure.template_name);
+        state->camera = head_camera(pose);
+        state->turn = pose.turn;
+    }
     state->light.actor_ambient = math::Vector3(kAmbient);
     state->light.suns = {};
     return HeadShot(std::move(state));

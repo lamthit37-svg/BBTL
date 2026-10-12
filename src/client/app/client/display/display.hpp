@@ -8,9 +8,9 @@
 // CGamePro_Main (control/player_input); không có thì luồng vẽ xoay camera quanh hộp bao thế giới
 // theo đồng hồ. Luồng vẽ vẽ đèn directional đầu
 // tiên và ambient của cảnh, và ghi PNG khung đầu (--shot). Hai bản cài đặt, CMake chọn một:
-// display_gpu.cpp dùng module gpu và render (Vulkan, có lớp kiểm tra theo Desc), display_none.cpp
-// cho cấu hình không dựng chuỗi đồ hoạ — không vẽ gì. Nhờ vậy mã gọi không cần biết cấu hình nào
-// đang dựng.
+// display/graphic chia luồng vẽ theo domain (khung, nạp, cảnh, chơi, giao diện, hiệu ứng) và dùng
+// module gpu, render. display_none.cpp cho cấu hình không dựng chuỗi đồ hoạ — không vẽ gì. Nhờ vậy
+// mã gọi không cần biết cấu hình nào đang dựng.
 #pragma once
 
 #include "client/map/ground.hpp"

@@ -193,6 +193,15 @@ void type_making(LoginFlow& flow, char32_t code, const LoginFacts& facts) {
     return 0.0F;
 }
 
+// Hướng phóng đưa cho camera. Màn tạo lấy số đã chốt lúc nhấn; chuột còn nằm trên nút thì vẫn
+// phóng dù lần nhấn không kịp ghi. Bảng chọn chỉ có nút đang giữ.
+[[nodiscard]] std::int8_t held_zoom(const LoginFlow& flow, std::string_view window) noexcept {
+    const std::int8_t under = zoom_of(window);
+    if (flow.step != FlowStep::kCreate) return under != 0 ? under : flow.pose.zoom;
+    if (flow.create.game.zoom != 0) return static_cast<std::int8_t>(flow.create.game.zoom);
+    return under;
+}
+
 void fill_model(ShownModel& model, const Role& role) {
     model.sex = role.sex;
     model.face = role.face;
@@ -204,7 +213,7 @@ void fill_model(ShownModel& model, const Role& role) {
 
 // Người mẫu của bảng tạo: giới và bộ đồ mà ChangeNewRoleEquipSet đã đặt, mặt và tóc là dòng cao
 // mô của kiểu đã chọn.
-void fill_create_model(ShownModel& model, const CreateRole& panel, const LoginFacts& facts) {
+void fill_create_model(ShownModel& model, const CreateRole& panel, const LoginFacts& facts, std::int8_t flow_zoom) {
     const CreateGame& game = panel.game;
     ModelLook look{.sex = game.sex, .face = game.face, .hair = game.hair};
     const NewbieOutfit* outfit = nullptr;
@@ -229,7 +238,7 @@ void fill_create_model(ShownModel& model, const CreateRole& panel, const LoginFa
     model.entries = game.entries;
     model.entry_sex = game.entry_sex == kMale ? std::uint8_t{1} : std::uint8_t{0};
     model.outfit_calls = game.outfit_calls;
-    model.zoom = static_cast<std::int8_t>(game.zoom);
+    model.zoom = flow_zoom;
 }
 
 // Hướng mặt của người mẫu màn tạo, mỗi giới một số: người mẫu vừa thành hiện tại thì quay về 0
@@ -264,6 +273,7 @@ bool on_account(const LoginFlow& flow) noexcept {
 }
 
 void release_flow(LoginFlow& flow) {
+    flow.pose.zoom = 0;
     if (flow.step != FlowStep::kCreate) return;
     std::vector<Call> calls;
     release_create(flow.create, calls);
@@ -276,6 +286,7 @@ void hover_flow(LoginFlow& flow, std::string_view window) {
 void hold_flow(LoginFlow& flow, std::string_view window) noexcept {
     const bool is_making = flow.step == FlowStep::kCreate;
     hold_turn(flow.pose, is_making ? static_cast<float>(flow.create.game.spin) : spin_of(window));
+    flow.pose.zoom = held_zoom(flow, window);
 }
 
 void advance_flow(LoginFlow& flow, float seconds) noexcept {
@@ -295,16 +306,20 @@ ShownModel shown_model(const LoginFlow& flow, const LoginFacts& facts) {
     model.yaw = flow.pose.yaw;
     if (flow.step == FlowStep::kRoles) {
         model.on_role_scene = true;
+        model.zoom = flow.pose.zoom;
         const Role* role = chosen_role(flow.select);
         if (role == nullptr) return model;
         fill_model(model, *role);
         model.in_world = true;
         model.slot = flow.select.selected;
+        model.zoom = flow.pose.zoom;
         return model;
     }
     if (flow.step != FlowStep::kCreate) return model;
     model.on_role_scene = true;
-    fill_create_model(model, flow.create, facts);
+    std::int8_t zoom = flow.pose.zoom;
+    if (zoom == 0) zoom = static_cast<std::int8_t>(flow.create.game.zoom);
+    fill_create_model(model, flow.create, facts, zoom);
     model.yaw = *std::next(flow.create_yaw.begin(), static_cast<std::ptrdiff_t>(model.sex));
     return model;
 }

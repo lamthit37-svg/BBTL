@@ -9,8 +9,8 @@
 //   đảo chiều ngay.
 // Một nấc lăn đặt tốc độ phóng ±1 và cộng ±5 vào bộ đếm; mỗi nhịp bộ đếm lùi 1 về 0, tới 0 thì thôi
 // phóng. Hai thủ tục giữ bộ đếm riêng.
-// Khác gốc: lần đầu vào bảng chọn camera đứng sẵn ở ô đang chọn (đoạn vào bảng của bản gốc chưa
-// tháo); không kiểm hai ô đều có nhân vật trước khi chạy (giao diện chỉ cho chọn ô có nhân vật);
+// Lần đầu vào bảng chọn chạy track vào ô (khoá giữa lùi ra rồi tiến vào), không đứng sẵn.
+// Khác gốc: không kiểm hai ô đều có nhân vật trước khi chạy (giao diện chỉ cho chọn ô có nhân vật);
 // con lăn phóng ở mọi chỗ trên màn hình (bản gốc bỏ sự kiện mà giao diện đã nhận).
 #pragma once
 
@@ -36,6 +36,8 @@ public:
     void step(const ui::panel::ShownModel& model, const StageFrame& frame) noexcept;
     // Không có trước lần step đầu.
     [[nodiscard]] std::optional<control::TrackPose> camera() const noexcept;
+    // Cảnh 3D vừa hiện: lần step kế chạy lại track vào ô, để cú zoom không trôi trong lúc nạp.
+    void replay() noexcept;
 
 private:
     enum class Scene : std::uint8_t { kNone, kSelect, kCreate };
@@ -48,6 +50,9 @@ private:
     void step_create(const ui::panel::ShownModel& model, const StageFrame& frame) noexcept;
     void step_select(const ui::panel::ShownModel& model, const StageFrame& frame) noexcept;
     void roll(Wheel& wheel, const StageFrame& frame) noexcept;
+    // Nút phóng đang giữ thì tốc độ là hướng đó mỗi khung. Không giữ thì con lăn còn chạy thì
+    // để nguyên tốc độ của nó, hết lăn thì về 0.
+    void drive_zoom(std::int8_t zoom, Wheel& wheel) noexcept;
     void rest_at(std::uint8_t slot) noexcept;
     void select_slot(std::uint8_t slot) noexcept;
 
@@ -55,10 +60,9 @@ private:
     Scene scene_ = Scene::kNone;
     Wheel create_wheel_;
     Wheel select_wheel_;
-    // Màn tạo: số đã thấy của ShownModel::entries, outfit_calls và zoom.
+    // Màn tạo: số đã thấy của ShownModel::entries và outfit_calls.
     std::uint32_t entries_ = 0;
     std::uint32_t outfit_calls_ = 0;
-    std::int8_t zoom_ = 0;
     // Bảng chọn: ô đang đứng (+0x588), ô vừa rời (+0x590), ô chờ (+0x58c) và ô giao diện đòi lần
     // trước.
     std::uint8_t slot_ = 0;

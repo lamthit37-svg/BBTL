@@ -104,6 +104,19 @@ void moving_runs_looped(Context& context) {
     return found;
 }
 
+// ShowModel: bài múa phát ngay. Môn không fidget thì hết bài đứng yên, không múa lại.
+void demo_once(Context& context) {
+    avatar::Gait gait{1, avatar::kIdleInterval};
+    gait.set_fidget(false);
+    gait.cue(avatar::Stance::kIdleAlt);
+    const ClipLengths lengths = lengths_with_alt();
+    const Playing opened = gait.update(at(0.0F), false, lengths);
+    const bool started = opened.stance == Stance::kIdleAlt && opened.time == 0.0F;
+    context.expect(started, "hiện mẫu thì múa ngay");
+    const Playing rested = gait.update(at(30.0F), false, lengths);
+    context.expect(rested.stance == Stance::kIdle, "hết bài thì đứng, không múa lại");
+}
+
 void idle_alt_after_interval(Context& context) {
     int seen = 0;
     bool too_early = false;
@@ -221,6 +234,7 @@ constexpr std::array kCases{
     Case{.name = "standing_plays_idle_once", .body = &standing_plays_idle_once},
     Case{.name = "moving_runs_looped", .body = &moving_runs_looped},
     Case{.name = "idle_alt_after_interval", .body = &idle_alt_after_interval},
+    Case{.name = "demo_once", .body = &demo_once},
     Case{.name = "both_rests", .body = &both_rests},
     Case{.name = "first_sight", .body = &first_sight},
     Case{.name = "eases_in", .body = &eases_in},

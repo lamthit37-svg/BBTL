@@ -49,20 +49,31 @@ constexpr std::uint32_t kPlayerId = 1;
     return *figure;
 }
 
+// Hình đã giải, và môn có dùng bài múa làm động tác nghỉ hay không.
+struct Built {
+    look::Figure figure;
+    bool fidget = true;
+    bool demo = false;
+};
+
 // Môn phái xem trước dùng mẫu riêng. Không thì khối đã chọn, rồi bộ mặc định của giới.
-[[nodiscard]] core::Result<look::Figure> figure_of(const look::Tables& tables, const PlayerDesc& desc) {
+[[nodiscard]] core::Result<Built> figure_of(const look::Tables& tables, const PlayerDesc& desc) {
     if (desc.sect) {
         const std::string path = (desc.data_root / "Table" / "sect_models.tsv").string();
         const auto text = read_table(path);
         if (!text) return core::fail(core::ErrorCode::kNotFound, "không đọc được bảng người mẫu môn phái");
         const auto figure = look::sect_figure(*text, desc.race, *desc.sect);
         if (!figure) return core::fail(core::ErrorCode::kCorrupt, "không giải được người mẫu môn phái", figure.error());
-        return figure->figure;
+        return Built{.figure = std::move(figure->figure), .fidget = figure->has_fidget, .demo = true};
     }
-    if (!desc.look) return default_figure(tables, desc.race);
+    if (!desc.look) {
+        auto figure = default_figure(tables, desc.race);
+        if (!figure) return std::unexpected(figure.error());
+        return Built{.figure = std::move(*figure)};
+    }
     const auto figure = look::resolve(tables, desc.race, *desc.look);
     if (!figure) return core::fail(core::ErrorCode::kCorrupt, "không giải được ngoại hình đã chọn");
-    return *figure;
+    return Built{.figure = std::move(*figure)};
 }
 
 // Drawable của một bộ phận, hoặc nullptr kèm log khi nơi vẽ không nạp được lưới.
@@ -96,11 +107,14 @@ constexpr std::uint32_t kPlayerId = 1;
 
 } // namespace
 
-PlayerActor::PlayerActor(avatar::Avatar avatar, std::vector<const render::Drawable*> parts)
+PlayerActor::PlayerActor(avatar::Avatar avatar, std::vector<const render::Drawable*> parts, bool fidget, bool demo)
     : avatar_(std::move(avatar)),
       gait_(kSeed, avatar::kIdleInterval),
       lengths_(avatar_.lengths()),
-      parts_(std::move(parts)) {}
+      parts_(std::move(parts)),
+      cue_demo_(demo) {
+    gait_.set_fidget(fidget);
+}
 
 core::Result<PlayerActor> PlayerActor::create(const PlayerDesc& desc, const MeshLoader& load_mesh) {
     const std::string folder = io::utf8_of(desc.data_root / "Table");
@@ -108,15 +122,19 @@ core::Result<PlayerActor> PlayerActor::create(const PlayerDesc& desc, const Mesh
     if (!tables) {
         return core::fail(core::ErrorCode::kNotFound, "không nạp được bảng ngoại hình", "{}", tables.error());
     }
-    const auto figure = figure_of(*tables, desc);
-    if (!figure) return std::unexpected(figure.error());
-    auto avatar = avatar::Avatar::load(*figure, desc.data_root);
+    const auto built = figure_of(*tables, desc);
+    if (!built) return std::unexpected(built.error());
+    auto avatar = avatar::Avatar::load(built->figure, desc.data_root);
     if (!avatar) return std::unexpected(avatar.error());
-    std::vector<const render::Drawable*> parts = load_parts(*figure, load_mesh);
-    return PlayerActor(std::move(*avatar), std::move(parts));
+    std::vector<const render::Drawable*> parts = load_parts(built->figure, load_mesh);
+    return PlayerActor(std::move(*avatar), std::move(parts), built->fidget, built->demo);
 }
 
 core::Status PlayerActor::update(core::Clock::time_point now, const Stand& stand) {
+    if (cue_demo_) {
+        gait_.cue(avatar::Stance::kIdleAlt);
+        cue_demo_ = false;
+    }
     const avatar::Playing playing = gait_.update(now, stand.is_moving, lengths_);
     const core::Status posed = skinner_.update(avatar_, playing);
     if (!posed) return posed;

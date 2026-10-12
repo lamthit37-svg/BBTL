@@ -314,6 +314,33 @@ void select_puts_the_role_in_the_world(Context& context) {
     context.expect(gap > -0.001F && gap < 0.001F, "nút xoay của bảng chọn quay theo lúc giữ");
 }
 
+void zoom_buttons_set_the_shown_speed(Context& context) {
+    const World world = sample_world();
+    const LoginFacts facts = world.facts();
+    LoginFlow flow;
+    sign_in(flow);
+    ui::panel::press_flow(flow, "SelectRole_Create", facts);
+    type_text(flow, U"L", facts);
+    ui::panel::press_flow(flow, "CreateRole_Author", facts);
+    ui::panel::hold_flow(flow, "SelectRole_ModelZoomIn");
+    context.expect(ui::panel::shown_model(flow, facts).zoom == 1, "bảng chọn giữ nút cộng thì phóng tới");
+    ui::panel::hold_flow(flow, "");
+    context.expect(ui::panel::shown_model(flow, facts).zoom == 1, "trượt khỏi nút mà chưa nhả thì còn phóng");
+    ui::panel::release_flow(flow);
+    ui::panel::hold_flow(flow, "");
+    context.expect(ui::panel::shown_model(flow, facts).zoom == 0, "nhả nút bảng chọn thì thôi phóng");
+    ui::panel::hold_flow(flow, "SelectRole_ModelZoomOut");
+    context.expect(ui::panel::shown_model(flow, facts).zoom == -1, "bảng chọn giữ nút trừ thì lùi ra");
+    ui::panel::release_flow(flow);
+    ui::panel::press_flow(flow, "SelectRole_Create", facts);
+    ui::panel::press_flow(flow, "CreateRole_ModelZoomIn", facts);
+    ui::panel::hold_flow(flow, "");
+    context.expect(ui::panel::shown_model(flow, facts).zoom == 1, "màn tạo giữ phóng dù chuột đã trượt");
+    ui::panel::release_flow(flow);
+    ui::panel::hold_flow(flow, "");
+    context.expect(ui::panel::shown_model(flow, facts).zoom == 0, "nhả nút màn tạo thì thôi phóng");
+}
+
 void dice_changes_with_the_salt(Context& context) {
     const World world = sample_world();
     LoginFacts facts = world.facts();
@@ -344,6 +371,7 @@ constexpr std::array kCases{
     Case{.name = "create_model_wears_the_chosen_look", .body = &create_model_wears_the_chosen_look},
     Case{.name = "hover_reaches_the_create_panel", .body = &hover_reaches_the_create_panel},
     Case{.name = "select_puts_the_role_in_the_world", .body = &select_puts_the_role_in_the_world},
+    Case{.name = "zoom_buttons_set_the_shown_speed", .body = &zoom_buttons_set_the_shown_speed},
     Case{.name = "dice_changes_with_the_salt", .body = &dice_changes_with_the_salt},
 };
 

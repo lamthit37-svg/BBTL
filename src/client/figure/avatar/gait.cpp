@@ -24,8 +24,24 @@ std::chrono::milliseconds idle_interval(unsigned roll, std::chrono::milliseconds
 
 Gait::Gait(std::uint32_t seed, std::chrono::milliseconds interval) : random_(seed), idle_ms_(interval) {}
 
+void Gait::cue(Stance stance) noexcept {
+    cued_ = stance;
+}
+
+void Gait::set_fidget(bool enabled) noexcept {
+    fidget_ = enabled;
+}
+
+void Gait::take_cue(Clock::time_point now) {
+    if (!cued_ || stance_ == Stance::kRun) return;
+    stance_ = *cued_;
+    clip_started_ = now;
+    cued_.reset();
+}
+
 Playing Gait::update(Clock::time_point now, bool is_moving, const ClipLengths& lengths) {
     enter(now, is_moving);
+    take_cue(now);
     if (stance_ == Stance::kRun) return running(now, lengths);
     if (elapsed(now) >= length_of(stance_, lengths)) fresh(now, lengths);
     return Playing{.stance = stance_, .time = elapsed(now)};
@@ -62,6 +78,7 @@ void Gait::start_idle(Clock::time_point now) {
 void Gait::fresh(Clock::time_point now, const ClipLengths& lengths) {
     clip_started_ = now;
     stance_ = Stance::kIdle;
+    if (!fidget_) return;
     const bool is_due = last_motion_ + interval_ < now;
     if (!is_due) return;
     last_motion_ = now;

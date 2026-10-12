@@ -38,6 +38,8 @@ struct HeadShotDesc {
     std::uint32_t samples = 1;
     // Cạnh của texture theo điểm ảnh.
     std::uint32_t pixels = 128;
+    // Toàn thân cho vòng xem của bảng nhân vật. Không bật thì là ảnh đầu của khung người chơi.
+    bool is_body = false;
 };
 
 // NOLINTNEXTLINE(bugprone-exception-escape): giả dương của STL MSVC (HP-07)

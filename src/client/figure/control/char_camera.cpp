@@ -81,7 +81,8 @@ struct Moment {
     const float time = moment.time;
     const float length = moment.length;
     std::size_t next = 0;
-    while (next < keys.size() && keys[next].time < time) ++next;
+    while (next < keys.size() && keys[next].time < time)
+        ++next;
     Segment found;
     float later = 0.0F;
     if (next == keys.size()) {
@@ -128,7 +129,7 @@ struct Hermite {
     const float near_slope = (cube * 1.0F) + (square * -2.0F) + (blend * 1.0F) + (1.0F * 0.0F);
     const float far_slope = (cube * 1.0F) + (square * -1.0F) + (blend * 0.0F) + (1.0F * 0.0F);
     return (near_weight * row.from) + (far_weight * row.finish) + (near_slope * row.from_tangent) +
-           (far_slope * row.finish_tangent);
+        (far_slope * row.finish_tangent);
 }
 
 [[nodiscard]] ogre::Vec3 spline_eye(Keys keys, const Segment& at) noexcept {
@@ -222,7 +223,8 @@ CharCamera::CharCamera() noexcept {
 
 void CharCamera::activate_only(std::size_t index) noexcept {
     const std::span<Track> tracks(tracks_);
-    for (std::size_t at = 0; at < tracks.size(); ++at) tracks[at].is_active = at == index;
+    for (std::size_t at = 0; at < tracks.size(); ++at)
+        tracks[at].is_active = at == index;
 }
 
 void CharCamera::enable(std::size_t index) noexcept {
@@ -301,7 +303,10 @@ void CharCamera::zoom_select(float elapsed_ms) noexcept {
 }
 
 void CharCamera::update(std::uint32_t now_ms) noexcept {
-    const auto elapsed_ms = static_cast<float>(now_ms - last_ms_);
+    // Khung nạp dài không được hất camera cả mét. Lần đầu last_ms_ là 0, hiệu là tuổi tiến trình.
+    constexpr float kZoomStepMs = 50.0F;
+    float elapsed_ms = static_cast<float>(now_ms - last_ms_);
+    if (elapsed_ms > kZoomStepMs) elapsed_ms = kZoomStepMs;
     if (is_select_) {
         zoom_select(elapsed_ms);
     } else {

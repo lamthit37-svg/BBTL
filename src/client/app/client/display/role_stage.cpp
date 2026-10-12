@@ -49,6 +49,10 @@ std::optional<control::TrackPose> RoleStage::camera() const noexcept {
     return camera_.pose();
 }
 
+void RoleStage::replay() noexcept {
+    scene_ = Scene::kNone;
+}
+
 void RoleStage::roll(Wheel& wheel, const StageFrame& frame) noexcept {
     if (frame.is_wheel_up) {
         camera_.set_zoom_speed(kZoomIn);
@@ -74,10 +78,21 @@ void RoleStage::roll(Wheel& wheel, const StageFrame& frame) noexcept {
     camera_.set_zoom_speed(0.0F);
 }
 
+void RoleStage::drive_zoom(std::int8_t zoom, Wheel& wheel) noexcept {
+    if (zoom != 0) {
+        camera_.set_zoom_speed(static_cast<float>(zoom));
+        return;
+    }
+    if (wheel.is_rolling) return;
+    camera_.set_zoom_speed(0.0F);
+}
+
 void RoleStage::rest_at(std::uint8_t slot) noexcept {
+    // Chạy từ đầu track: khoá giữa lùi ra, khoá cuối tiến vào ô. Không đứng sẵn ở tư thế nghỉ.
     control::TrackPlay play;
     play.is_forward = true;
-    play.is_held = true;
+    play.is_held = false;
+    play.time = 0.0F;
     play.track = track_into(slot);
     camera_.play(play);
     slot_ = slot;
@@ -103,10 +118,18 @@ void RoleStage::select_slot(std::uint8_t slot) noexcept {
 }
 
 void RoleStage::step_create(const ui::panel::ShownModel& model, const StageFrame& frame) noexcept {
-    if (scene_ != Scene::kCreate || model.entries != entries_) {
-        camera_.set_mode(model.entry_sex == 0 ? control::CameraMode::kCreateFemale : control::CameraMode::kCreateMale);
+    const bool entering = scene_ != Scene::kCreate;
+    const bool is_female = model.entry_sex == 0;
+    if (entering || model.entries != entries_) {
+        camera_.set_mode(is_female ? control::CameraMode::kCreateFemale : control::CameraMode::kCreateMale);
         entries_ = model.entries;
         scene_ = Scene::kCreate;
+    }
+    if (entering) {
+        control::TrackPlay glide;
+        glide.is_forward = is_female;
+        glide.track = control::CameraTrack::kCreate;
+        camera_.play(glide);
     }
     if (model.outfit_calls != outfit_calls_) {
         control::TrackPlay play;
@@ -115,10 +138,7 @@ void RoleStage::step_create(const ui::panel::ShownModel& model, const StageFrame
         camera_.play(play);
         outfit_calls_ = model.outfit_calls;
     }
-    if (model.zoom != zoom_) {
-        camera_.set_zoom_speed(static_cast<float>(model.zoom));
-        zoom_ = model.zoom;
-    }
+    drive_zoom(model.zoom, create_wheel_);
     camera_.update(frame.now_ms);
     roll(create_wheel_, frame);
 }
@@ -133,6 +153,7 @@ void RoleStage::step_select(const ui::panel::ShownModel& model, const StageFrame
         wanted_ = model.slot;
         select_slot(model.slot);
     }
+    drive_zoom(model.zoom, select_wheel_);
     camera_.update(frame.now_ms);
     const bool is_moving = camera_.is_transitioning();
     roll(select_wheel_, frame);

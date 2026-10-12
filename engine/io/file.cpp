@@ -1,5 +1,12 @@
 #include "io/file.hpp"
 
+#include "core/text.hpp"
+#if defined(_WIN32)
+#include "core/win32.hpp" // IWYU pragma: keep
+
+#include <stringapiset.h>
+#endif
+
 #include <algorithm>
 #include <cstddef>
 #include <cstdint>
@@ -7,6 +14,7 @@
 #include <filesystem>
 #include <fstream>
 #include <ios>
+#include <limits>
 #include <string>
 #include <string_view>
 #include <system_error>
@@ -94,9 +102,31 @@ TextResult read_text(const std::filesystem::path& path) {
     return text;
 }
 
+// all.material ghi "jpg_" rồi tên GBK. path(u8string) của MSVC ném "No mapping for the Unicode
+// character" với byte đó. Exception trên luồng vẽ không có ai bắt, tiến trình abort khi dựng nước
+// của cảnh chọn nhân vật. UTF-8 hợp lệ không đổi, để đường dẫn tiếng Việt không bị đọc lại theo 936.
+#if defined(_WIN32)
+[[nodiscard]] static std::wstring wide_of_stored(std::string_view text) {
+    if (text.empty()) return {};
+    if (core::is_valid_utf8(text)) return core::widen(text);
+    const std::size_t bytes = text.size();
+    if (bytes > static_cast<std::size_t>(std::numeric_limits<int>::max())) return {};
+    const int size = static_cast<int>(bytes);
+    const int count = MultiByteToWideChar(936, MB_ERR_INVALID_CHARS, text.data(), size, nullptr, 0);
+    if (count <= 0) return core::widen(text);
+    std::wstring wide(static_cast<std::size_t>(count), L'\0');
+    MultiByteToWideChar(936, MB_ERR_INVALID_CHARS, text.data(), size, wide.data(), count);
+    return wide;
+}
+#endif
+
 std::filesystem::path path_from_utf8(std::string_view text) {
+#if defined(_WIN32)
+    return std::filesystem::path(wide_of_stored(text));
+#else
     const std::u8string utf8(text.begin(), text.end());
-    return {utf8};
+    return std::filesystem::path(utf8);
+#endif
 }
 
 std::string utf8_of(const std::filesystem::path& path) {

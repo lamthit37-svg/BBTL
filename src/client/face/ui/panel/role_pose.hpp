@@ -17,11 +17,24 @@ inline constexpr float kSpinRight = 1.0F;
 
 inline constexpr std::string_view kSelectTurnLeft = "SelectRole_Role2_Model_TurnLeft";
 inline constexpr std::string_view kSelectTurnRight = "SelectRole_Role2_Model_TurnRight";
+inline constexpr std::string_view kSelectZoomIn = "SelectRole_ModelZoomIn";
+inline constexpr std::string_view kSelectZoomOut = "SelectRole_ModelZoomOut";
+inline constexpr std::string_view kCreateZoomIn = "CreateRole_ModelZoomIn";
+inline constexpr std::string_view kCreateZoomOut = "CreateRole_ModelZoomOut";
 
-// yaw radian, spin là số vòng mỗi giây (âm là sang trái). 0 là nhìn thẳng vào camera.
+// Nút phóng đang nằm dưới chuột: 1 tiến, -1 lùi, 0 là không phải nút phóng.
+[[nodiscard]] inline std::int8_t zoom_of(std::string_view window) noexcept {
+    if (window == kSelectZoomIn || window == kCreateZoomIn) return 1;
+    if (window == kSelectZoomOut || window == kCreateZoomOut) return -1;
+    return 0;
+}
+
+// yaw radian, spin là số vòng mỗi giây (âm là sang trái). zoom là hướng phóng đang giữ.
+// 0 là nhìn thẳng vào camera và không phóng.
 struct RolePose {
     float yaw = 0.0F;
     float spin = 0.0F;
+    std::int8_t zoom = 0;
 };
 
 // Người mẫu đang hiện. Cả hai màn đặt người vào cảnh: script tạo vẫn gán fake object

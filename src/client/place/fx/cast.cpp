@@ -112,6 +112,25 @@ struct Row {
     return scroll.empty() || (speed && *speed == 0.0F);
 }
 
+// "scale 1.1 1.1" hoặc "scale 0.8 0.5; ..." trong cột extra. Thiếu số thì giữ 1.
+void take_scale(Paint& paint, std::string_view extra) {
+    constexpr std::string_view kMark = "scale ";
+    const std::size_t at = extra.find(kMark);
+    if (at == std::string_view::npos) return;
+    std::string_view rest = extra.substr(at + kMark.size());
+    const std::size_t gap = rest.find(' ');
+    if (gap == std::string_view::npos) return;
+    const std::optional<float> across = parse_float(rest.substr(0, gap));
+    std::string_view down = rest.substr(gap + 1);
+    const std::size_t end = down.find_first_of(" ;");
+    if (end != std::string_view::npos) down = down.substr(0, end);
+    const std::optional<float> along = parse_float(down);
+    if (!across || !along) return;
+    if (*across == 0.0F || *along == 0.0F) return;
+    paint.scale_u = *across;
+    paint.scale_v = *along;
+}
+
 [[nodiscard]] bool is_plain(const Row& row) {
     const bool is_single = row.cell(kSecondColumn).empty() && row.cell(kExtraColumn).empty();
     const bool is_fixed = is_still(row.cell(kScrollUColumn)) && is_still(row.cell(kScrollVColumn));
@@ -132,10 +151,11 @@ void take_paint(Paints& paints, const Row& row) {
     paint.blend = blend_of(row.cell(kBlendColumn));
     paint.gain = *gain;
     paint.second = std::string(row.cell(kSecondColumn));
-    if (const std::optional<float> along_u = parse_float(row.cell(kScrollUColumn)))
-        paint.scroll_u = *along_u;
-    if (const std::optional<float> along_v = parse_float(row.cell(kScrollVColumn)))
-        paint.scroll_v = *along_v;
+    if (const std::optional<float> along_u = parse_float(row.cell(kScrollUColumn))) paint.scroll_u = *along_u;
+    if (const std::optional<float> along_v = parse_float(row.cell(kScrollVColumn))) paint.scroll_v = *along_v;
+    take_scale(paint, row.cell(kExtraColumn));
+    const std::string_view shader = row.cell(kShaderColumn);
+    paint.is_common = std::ranges::find(kPlainShaders, shader) != kPlainShaders.end();
     paint.is_plain = is_plain(row);
     paints.try_emplace(std::string(name), std::move(paint));
 }
@@ -207,7 +227,7 @@ std::string_view describe(Skip skip) noexcept {
     case Skip::kUnknownAffector: return "affector chưa hỗ trợ";
     case Skip::kMeshRenderer: return "hạt mesh cần material hạt";
     case Skip::kNoMaterial: return "material không có trong bảng hoặc thiếu ảnh";
-    case Skip::kShading: return "material cần ảnh thứ hai, cuộn UV hoặc shader riêng";
+    case Skip::kShading: return "material cần ảnh thứ hai hoặc shader riêng";
     case Skip::kBlend: return "material không cộng sáng";
     }
     return "lý do không rõ";
@@ -268,8 +288,11 @@ const EffectDef* Library::effect(std::string_view name) {
 std::optional<Skip> Library::refuse_material(std::string_view material) const {
     const Paint* found = palette_.find(material);
     if (found == nullptr || found->image.empty()) return Skip::kNoMaterial;
-    if (!found->is_plain) return Skip::kShading;
     if (found->blend == Blend::kOther) return Skip::kBlend;
+    // Một ảnh, shader thường: cuộn UV và scale vẫn vẽ. Hai ảnh hoặc shader riêng thì bỏ,
+    // vì thiếu mặt nạ biến sương thành tấm đặc.
+    const bool draws = found->second.empty() && found->is_common;
+    if (!draws) return Skip::kShading;
     return std::nullopt;
 }
 

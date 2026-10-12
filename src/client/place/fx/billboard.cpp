@@ -48,6 +48,23 @@ struct Axes {
     return Axes{.x = camera.right, .y = camera.up};
 }
 
+struct Uv {
+    float u = 0.0F;
+    float v = 0.0F;
+};
+
+// Xoay UV quanh tâm khung. billboard_rotation_type texcoord của gốc xoay ảnh, không xoay quad.
+[[nodiscard]] Uv spin_uv(Uv uv, float angle, Uv center) noexcept {
+    const float du = uv.u - center.u;
+    const float dv = uv.v - center.v;
+    const float cosine = std::cos(angle);
+    const float sine = std::sin(angle);
+    Uv spun;
+    spun.u = center.u + (du * cosine) - (dv * sine);
+    spun.v = center.v + (du * sine) + (dv * cosine);
+    return spun;
+}
+
 void push_corner(BillboardBatch& batch, Vec3 at, float u, float v, Colour colour) {
     BillboardVertex vertex;
     vertex.x = at.x;
@@ -102,10 +119,22 @@ void push_grain(BillboardBatch& batch, const Field& field, const Grain& grain, C
     const Vec3 bottom = ogre::scale_vec3(axes.y, definition.origin.bottom * height);
     const Colour colour = grain.colour;
     const TexFrame frame = frame_of(definition, grain);
-    push_corner(batch, ogre::add_vec3(center, ogre::add_vec3(left, top)), frame.left, frame.top, colour);
-    push_corner(batch, ogre::add_vec3(center, ogre::add_vec3(right, top)), frame.right, frame.top, colour);
-    push_corner(batch, ogre::add_vec3(center, ogre::add_vec3(left, bottom)), frame.left, frame.bottom, colour);
-    push_corner(batch, ogre::add_vec3(center, ogre::add_vec3(right, bottom)), frame.right, frame.bottom, colour);
+    Uv top_left{.u = frame.left, .v = frame.top};
+    Uv top_right{.u = frame.right, .v = frame.top};
+    Uv low_left{.u = frame.left, .v = frame.bottom};
+    Uv low_right{.u = frame.right, .v = frame.bottom};
+    const bool spins = definition.rotate_texcoord && grain.rotation != 0.0F;
+    if (spins) {
+        const Uv middle{.u = (frame.left + frame.right) * 0.5F, .v = (frame.top + frame.bottom) * 0.5F};
+        top_left = spin_uv(top_left, grain.rotation, middle);
+        top_right = spin_uv(top_right, grain.rotation, middle);
+        low_left = spin_uv(low_left, grain.rotation, middle);
+        low_right = spin_uv(low_right, grain.rotation, middle);
+    }
+    push_corner(batch, ogre::add_vec3(center, ogre::add_vec3(left, top)), top_left.u, top_left.v, colour);
+    push_corner(batch, ogre::add_vec3(center, ogre::add_vec3(right, top)), top_right.u, top_right.v, colour);
+    push_corner(batch, ogre::add_vec3(center, ogre::add_vec3(left, bottom)), low_left.u, low_left.v, colour);
+    push_corner(batch, ogre::add_vec3(center, ogre::add_vec3(right, bottom)), low_right.u, low_right.v, colour);
     if (grain.rotation == 0.0F || definition.rotate_texcoord) return;
     static_cast<void>(grain.rotation);
 }

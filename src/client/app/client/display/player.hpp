@@ -63,7 +63,7 @@ public:
     [[nodiscard]] const look::Figure& figure() const noexcept { return avatar_.figure(); }
 
 private:
-    PlayerActor(avatar::Avatar avatar, std::vector<const render::Drawable*> parts);
+    PlayerActor(avatar::Avatar avatar, std::vector<const render::Drawable*> parts, bool fidget, bool demo);
 
     avatar::Avatar avatar_;
     avatar::Skinner skinner_;
@@ -72,6 +72,8 @@ private:
     avatar::ClipLengths lengths_;
     std::vector<const render::Drawable*> parts_;
     math::Matrix4 placed_ = math::Matrix4::identity();
+    // Môn phái: khung đầu phát bài múa một lần. fidget sai thì không múa lại lúc nghỉ.
+    bool cue_demo_ = false;
 };
 
 } // namespace game::client

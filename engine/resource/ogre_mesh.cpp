@@ -542,6 +542,13 @@ void set_field(std::string& field, std::string value) {
     field = std::move(value);
 }
 
+// all.material viết cả <baseTexture> và <BaseTexture> cho ảnh màu. Hai cách là cùng một ô.
+[[nodiscard]] bool is_diffuse_alias(std::string_view line) noexcept {
+    const bool lower = line.find("<baseTexture>") != std::string_view::npos;
+    const bool upper = line.find("<BaseTexture>") != std::string_view::npos;
+    return lower || upper;
+}
+
 [[nodiscard]] const MaterialRules& rules_of(std::string_view root) {
     static MaterialRules rules;
     static std::string loaded;
@@ -573,7 +580,7 @@ void set_field(std::string& field, std::string value) {
             remember_rule(rules, std::move(name), std::move(parent));
         } else if (rules.empty()) {
             continue;
-        } else if (line.starts_with("set_texture_alias") && line.find("<baseTexture>") != std::string_view::npos) {
+        } else if (line.starts_with("set_texture_alias") && is_diffuse_alias(line)) {
             rules.back().second.texture = std::string(last_token(line));
         } else if (line.starts_with("scroll_anim ")) {
             const std::string_view rest = trim_left(line.substr(12));
@@ -807,6 +814,44 @@ void put_u32(std::vector<std::byte>& out, std::uint32_t value) {
     return fs::join(fs::join(root, "cache/mesh"), relative + ".tlms");
 }
 
+void note_lane(std::uint16_t& highest, bool& weighted, std::uint16_t joint, float weight) noexcept {
+    if (!(weight > 0.0F)) return;
+    weighted = true;
+    if (joint > highest) highest = joint;
+}
+
+void note_vertex(std::uint16_t& highest, bool& weighted, const Vertex& vertex) noexcept {
+    for (std::uint8_t lane = 0; lane < 4; ++lane)
+        note_lane(highest, weighted, vertex.joints[lane], vertex.weights[lane]);
+}
+
+void note_primitive(std::uint16_t& highest, bool& weighted, const Primitive& primitive) noexcept {
+    for (const Vertex& vertex : primitive.vertices)
+        note_vertex(highest, weighted, vertex);
+}
+
+// Chỉ số khớp trên đỉnh là handle xương OGRE. Trần để một chỉ số rác không xin hàng nghìn ma trận.
+constexpr std::uint16_t kJointCeiling = 1024;
+
+// Mesh có trọng số mà không có skin thì shader để đỉnh ở tư thế bind: nhân vật đứng T-pose.
+// Bảng khớp 0..handle cao nhất, đúng thứ tự ma trận skin theo handle mà Skinner đưa.
+void ensure_skin(Model& model) {
+    if (model.meshes.empty() || !model.skins.empty() || model.nodes.empty()) return;
+    bool weighted = false;
+    std::uint16_t highest = 0;
+    for (const Primitive& primitive : model.meshes.front().primitives)
+        note_primitive(highest, weighted, primitive);
+    if (!weighted || highest > kJointCeiling) return;
+    Skin skin;
+    skin.name = "ogre";
+    const std::size_t count = static_cast<std::size_t>(highest) + 1U;
+    skin.joints.resize(count);
+    for (std::size_t index = 0; index < count; ++index)
+        skin.joints[index] = static_cast<std::uint32_t>(index);
+    model.skins.push_back(std::move(skin));
+    model.nodes.front().skin = 0;
+}
+
 // Mesh OGRE tĩnh không có nút. Bộ vẽ chỉ đi theo nút, nên thiếu nút thì mesh nạp xong mà không
 // thành vật thể (hộp bao rỗng). Một nút gốc đơn vị trỏ vào lưới 0.
 void ensure_static_root(Model& model) {
@@ -974,6 +1019,7 @@ core::Result<Model> load_named_model(std::string_view name, std::string_view dat
                 auto decoded = decode_model(stored->span(), data_root, tier);
                 if (decoded) {
                     ensure_static_root(*decoded);
+                    ensure_skin(*decoded);
                     return decoded;
                 }
             }
@@ -983,6 +1029,7 @@ core::Result<Model> load_named_model(std::string_view name, std::string_view dat
         auto model = load_ogre_mesh(bytes->span(), data_root, tier);
         if (!model) return model;
         ensure_static_root(*model);
+        ensure_skin(*model);
         store_cache(cache, *model);
         return model;
     }

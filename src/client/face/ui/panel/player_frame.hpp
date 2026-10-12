@@ -18,6 +18,8 @@ namespace game::ui::panel {
 
 // Tên fake object của đầu người chơi, như đối số SetFakeObject của client gốc.
 inline constexpr std::string_view kPlayerHead = "Player_Head";
+// Tên ảnh toàn thân mà bảng nhân vật gắn vào SelfEquip_FakeObject.
+inline constexpr std::string_view kEquipModel = "SelfEquip_Player";
 
 // Chân dung của khung. model là tên fake object của đầu 3D mà nơi vẽ đã dựng ảnh (rỗng khi chưa
 // có); image là ảnh phẳng của bảng chân dung, dạng "set:<bộ> image:<ảnh>", dùng khi không có đầu
