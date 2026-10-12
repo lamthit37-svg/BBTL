@@ -348,21 +348,56 @@ def row_of(name: str, library: ogre_material.MaterialLibrary, programs: dict[byt
     return Row(name, images[0] if images else "", blend_of(node), gain, second, scroll, shader, extra_of(node))
 
 
-# Ảnh của một dòng: có trong cây GLB thì nhận chép; kho gốc cũng không có thì chỉ ghi chú và xoá ô
-# ảnh nền (client coi material ấy là không có ảnh).
+# Ảnh của một dòng. Cây GLB có sẵn PNG thì chép. Không có thì giải DDS hoặc TGA gốc
+# thành PNG đúng đường materials.tsv, vì bộ vẽ hạt đọc PNG. Kho gốc cũng không có thì ghi chú
+# và xoá ô ảnh (client coi material ấy là không có ảnh).
+def bake_image(collector: Collector, image: str) -> bool:
+    target = os.path.join(collector.target, image)
+    if os.path.isfile(target) and os.path.getsize(target) > 32:
+        return True
+    stem = image[: -len(".png")] if image.lower().endswith(".png") else image
+    source = ""
+    for root in (collector.glb_root, collector.raw_root):
+        for candidate in (os.path.join(root, image), os.path.join(root, stem)):
+            if os.path.isfile(candidate):
+                source = candidate
+                break
+        if source:
+            break
+    if not source:
+        return False
+    os.makedirs(os.path.dirname(target), exist_ok=True)
+    from PIL import Image
+
+    pending = target + ".part"
+    with Image.open(source) as picture:
+        picture.convert("RGBA").save(pending, "PNG")
+    os.replace(pending, target)
+    return True
+
+
+def image_ready(collector: Collector, image: str) -> bool:
+    if os.path.normpath(image) in collector.files:
+        return True
+    target = os.path.join(collector.target, image)
+    return os.path.isfile(target) and os.path.getsize(target) > 32
+
+
 def claim_images(row: Row, collector: Collector, notes: list[str]) -> None:
     for image in (row.image, row.second):
-        if not image or os.path.normpath(image) in collector.files:
+        if not image or image_ready(collector, image):
             continue
         twin = os.path.normpath(image)
         source = twin[: -len(".png")] if twin.lower().endswith((".dds.png", ".tga.png")) else twin
         if os.path.isfile(os.path.join(collector.glb_root, twin)):
             collector.files[twin] = ("fx_texture", collector.glb_root)
+        elif bake_image(collector, image.replace("\\", "/")):
+            continue
         elif os.path.isfile(os.path.join(collector.raw_root, source)):
             collector.missing.append(("fx_texture", image))
         else:
             notes.append(f"kho gốc không có ảnh {image} của material {row.name}")
-    if row.image and os.path.normpath(row.image) not in collector.files:
+    if row.image and not image_ready(collector, row.image):
         row.image = ""
 
 

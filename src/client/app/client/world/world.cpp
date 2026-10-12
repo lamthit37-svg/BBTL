@@ -152,7 +152,8 @@ void add_figure_mesh(Stage& stage, const std::filesystem::path& model_root, cons
     const std::filesystem::path relative = full.lexically_relative(model_root.lexically_normal());
     if (escapes_model(relative)) return;
     Prop prop;
-    prop.mesh = relative.generic_string();
+    // generic_string ném khi tên mesh có chữ ngoài trang mã ANSI. Đường trong dữ liệu là UTF-8.
+    prop.mesh = io::utf8_of(relative);
     prop.placement = figure.placement;
     stage.props.push_back(std::move(prop));
 }
