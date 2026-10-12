@@ -15,6 +15,11 @@
 #include "gpu/types.hpp"
 #include "test.hpp"
 
+#if defined(_WIN32)
+#include "core/win32.hpp"
+#include <winuser.h>
+#endif
+
 #include <algorithm>
 #include <array>
 #include <atomic>
@@ -366,19 +371,151 @@ void gles_clear_of_srgb_target_is_encoded(Context& context) {
     context.expect(device.validation_errors() == 0, "lớp kiểm tra không báo lỗi nào");
 }
 
+void depth_view_keeps_device(Context& context, gpu::Backend backend) {
+    const DeviceResult made = validated_device(backend);
+    context.expect(made.has_value(), "tạo được thiết bị");
+    if (!made) return;
+    gpu::Device& device = **made;
+    gpu::TextureDesc texture_desc;
+    texture_desc.name = "gpu_tests.depth";
+    texture_desc.format = gpu::Format::kD32Float;
+    texture_desc.width = 4;
+    texture_desc.height = 4;
+    texture_desc.usage = gpu::TextureUsage::kDepthStencilTarget;
+    const core::Result<gpu::TextureHandle> texture = device.create_texture(texture_desc);
+    context.expect(texture.has_value(), "tạo được depth D32");
+    if (!texture) return;
+    gpu::TextureViewDesc view_desc;
+    view_desc.texture = *texture;
+    const core::Result<gpu::TextureViewHandle> view = device.create_view(view_desc);
+    context.expect(view.has_value(), "tạo được view depth");
+    context.expect(device.loss() == gpu::DeviceLoss::kNone, "thiết bị không bị gỡ");
+    context.expect(device.validation_errors() == 0, "lớp kiểm tra không báo lỗi");
+    if (view) device.destroy(*view);
+    device.destroy(*texture);
+}
+
+void submit_rejects_the_same_list_twice(Context& context, gpu::Backend backend) {
+    const DeviceResult made = validated_device(backend);
+    context.expect(made.has_value(), "tạo được thiết bị");
+    if (!made) return;
+    const core::Result<gpu::CommandList*> list = (*made)->begin_commands(gpu::QueueType::kGraphics);
+    context.expect(list.has_value(), "mở được list");
+    if (!list) return;
+    std::array<gpu::CommandList*, 2> lists{*list, *list};
+    gpu::SubmitDesc submit;
+    submit.lists = lists;
+    const core::Status submitted = (*made)->submit(gpu::QueueType::kGraphics, submit);
+    context.expect(!submitted.has_value(), "submit từ chối cùng một list hai lần");
+}
+
+#if defined(_WIN32)
+struct HiddenWindow {
+    HWND hwnd = nullptr;
+};
+
+void close_hidden(HiddenWindow& window) {
+    if (window.hwnd != nullptr) DestroyWindow(window.hwnd);
+    UnregisterClassW(L"ThienlongGpuTest", GetModuleHandleW(nullptr));
+    window.hwnd = nullptr;
+}
+
+[[nodiscard]] HiddenWindow open_hidden() {
+    WNDCLASSW klass{};
+    klass.lpfnWndProc = DefWindowProcW;
+    klass.hInstance = GetModuleHandleW(nullptr);
+    klass.lpszClassName = L"ThienlongGpuTest";
+    RegisterClassW(&klass);
+    HiddenWindow window;
+    window.hwnd = CreateWindowExW(WS_EX_NOACTIVATE, klass.lpszClassName, L"", WS_POPUP, 0, 0, 64, 64, nullptr,
+        nullptr, klass.hInstance, nullptr);
+    return window;
+}
+
+void present_srgb(Context& context, gpu::Device& device, void* hwnd) {
+    gpu::SwapchainDesc desc;
+    desc.window = hwnd;
+    desc.width = 64;
+    desc.height = 64;
+    const core::Result<std::unique_ptr<gpu::Swapchain>> chain = device.create_swapchain(desc);
+    context.expect(chain.has_value(), "swapchain sRGB tạo được");
+    context.expect(device.loss() == gpu::DeviceLoss::kNone, "thiết bị còn sống sau swapchain");
+    context.expect(device.validation_errors() == 0, "lớp kiểm tra không báo lỗi");
+}
+
+void use_hidden(Context& context, gpu::Backend backend, HWND hwnd) {
+    if (hwnd == nullptr) return;
+    const DeviceResult made = validated_device(backend);
+    context.expect(made.has_value(), "tạo được thiết bị");
+    if (!made) return;
+    present_srgb(context, **made, hwnd);
+}
+
+void swapchain_accepts_srgb(Context& context, gpu::Backend backend) {
+    HiddenWindow window = open_hidden();
+    context.expect(window.hwnd != nullptr, "tạo được cửa sổ ẩn");
+    use_hidden(context, backend, window.hwnd);
+    close_hidden(window);
+}
+#endif
+
+void d3d12_depth_view_keeps_device(Context& context) {
+    depth_view_keeps_device(context, gpu::Backend::kD3D12);
+}
+
+void d3d11_depth_view_keeps_device(Context& context) {
+    depth_view_keeps_device(context, gpu::Backend::kD3D11);
+}
+
+void d3d12_rejects_duplicate_list(Context& context) {
+    submit_rejects_the_same_list_twice(context, gpu::Backend::kD3D12);
+}
+
+void d3d11_rejects_duplicate_list(Context& context) {
+    submit_rejects_the_same_list_twice(context, gpu::Backend::kD3D11);
+}
+
+void vulkan_rejects_duplicate_list(Context& context) {
+    submit_rejects_the_same_list_twice(context, gpu::Backend::kVulkan);
+}
+
+void gles_rejects_duplicate_list(Context& context) {
+    submit_rejects_the_same_list_twice(context, gpu::Backend::kGles);
+}
+
+#if defined(_WIN32)
+void d3d12_swapchain_accepts_srgb(Context& context) {
+    swapchain_accepts_srgb(context, gpu::Backend::kD3D12);
+}
+
+void d3d11_swapchain_accepts_srgb(Context& context) {
+    swapchain_accepts_srgb(context, gpu::Backend::kD3D11);
+}
+#endif
+
 constexpr std::array kCases{
     Case{.name = "vulkan_device_starts", .body = &vulkan_device_starts},
     Case{.name = "vulkan_buffer_round_trip", .body = &vulkan_buffer_round_trip},
+    Case{.name = "vulkan_rejects_duplicate_list", .body = &vulkan_rejects_duplicate_list},
     Case{.name = "d3d12_device_starts", .body = &d3d12_device_starts},
     Case{.name = "d3d12_buffer_round_trip", .body = &d3d12_buffer_round_trip},
+    Case{.name = "d3d12_depth_view_keeps_device", .body = &d3d12_depth_view_keeps_device},
+    Case{.name = "d3d12_rejects_duplicate_list", .body = &d3d12_rejects_duplicate_list},
     Case{.name = "d3d11_device_starts", .body = &d3d11_device_starts},
     Case{.name = "d3d11_buffer_round_trip", .body = &d3d11_buffer_round_trip},
+    Case{.name = "d3d11_depth_view_keeps_device", .body = &d3d11_depth_view_keeps_device},
+    Case{.name = "d3d11_rejects_duplicate_list", .body = &d3d11_rejects_duplicate_list},
     Case{.name = "gles_device_starts", .body = &gles_device_starts},
     Case{.name = "gles_buffer_round_trip", .body = &gles_buffer_round_trip},
+    Case{.name = "gles_rejects_duplicate_list", .body = &gles_rejects_duplicate_list},
     Case{.name = "gles_names_are_not_ranked_by_unused_features", .body = &gles_names_are_not_ranked_by_unused_features},
     Case{.name = "gles_probe_follows_the_api_flavor", .body = &gles_probe_follows_the_api_flavor},
     Case{.name = "gles_probe_copies_driver_strings", .body = &gles_probe_copies_driver_strings},
     Case{.name = "gles_debug_sink_counts_only_errors", .body = &gles_debug_sink_counts_only_errors},
+#if defined(_WIN32)
+    Case{.name = "d3d12_swapchain_accepts_srgb", .body = &d3d12_swapchain_accepts_srgb},
+    Case{.name = "d3d11_swapchain_accepts_srgb", .body = &d3d11_swapchain_accepts_srgb},
+#endif
 };
 
 } // namespace

@@ -1,8 +1,8 @@
 // Test của client/props: gom vật thể tĩnh của stage thành bảng nạp. Mesh trùng nhau chỉ xuất hiện
 // một lần (theo thứ tự gặp đầu tiên) vì mỗi mesh chỉ nạp và tải lên GPU một lần; mỗi vật thể giữ
 // chỉ số mesh của mình và phép đặt đã tính thành ma trận thế giới đúng OGRE (T * R * S, double).
-#include "client/props.hpp"
-#include "client/stage.hpp"
+#include "client/stage/props.hpp"
+#include "client/stage/stage.hpp"
 #include "core/check.hpp"
 #include "scene/placement.hpp"
 #include "scene/transform.hpp"

@@ -12,7 +12,7 @@
 #include "ogre/quat.hpp"
 #include "ogre/vec3.hpp"
 #include "resource/model.hpp"
-#include "resource/rig.hpp"
+#include "avatar/rig.hpp"
 #include "test.hpp"
 
 #include <algorithm>

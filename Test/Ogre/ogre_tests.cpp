@@ -186,6 +186,18 @@ void quat_nlerp_direct(Context& context) {
 
 // Quaternion::FromAngleAxis: nửa góc, w = cos, phần vector = sin nhân trục. Quay mặt 90 độ quanh +y
 // đưa hướng +z sang +x, khớp quy ước hướng mặt atan2(dx, dz).
+void quat_log_exp_and_slerp_ends(Context& context) {
+    const Quat from{};
+    const Quat quarter = quarter_about_y();
+    context.expect(near_quat(ogre::quat_exp(ogre::quat_log(quarter)), quarter), "exp(log) trả lại phép xoay");
+    const Quat logged = ogre::quat_log(from);
+    context.expect(near_value(logged.w, 0.0F, kLoose) && near_value(logged.x, 0.0F, kLoose), "log đơn vị là 0");
+    context.expect(near_quat(ogre::quat_slerp(0.0F, from, quarter, Arc::kShortest), from), "slerp t = 0 là đầu");
+    context.expect(near_quat(ogre::quat_slerp(1.0F, from, quarter, Arc::kShortest), quarter), "slerp t = 1 là cuối");
+    const ogre::SquadSpan span{.from = from, .from_tangent = from, .finish_tangent = quarter, .finish = quarter};
+    context.expect(near_quat(ogre::quat_squad(0.0F, span, Arc::kShortest), from), "squad t = 0 là đầu");
+}
+
 void quat_angle_axis(Context& context) {
     const Vec3 up_axis{.x = 0.0F, .y = 1.0F, .z = 0.0F};
     const Quat quarter = ogre::quat_from_angle_axis(std::numbers::pi_v<float> / 2, up_axis);
@@ -193,6 +205,10 @@ void quat_angle_axis(Context& context) {
     const Vec3 turned = ogre::quat_rotate(quarter, Vec3{.x = 0.0F, .y = 0.0F, .z = 1.0F});
     context.expect(near_vec3(turned, Vec3{.x = 1.0F, .y = 0.0F, .z = 0.0F}), "quay 90 độ: +z sang +x");
     context.expect(near_quat(ogre::quat_from_angle_axis(0.0F, up_axis), Quat{}), "góc 0 là đơn vị");
+    context.expect(near_vec3(ogre::quat_z_axis(Quat{}), Vec3{.x = 0.0F, .y = 0.0F, .z = 1.0F}),
+        "đơn vị có trục z là +z");
+    context.expect(near_vec3(ogre::quat_z_axis(quarter), Vec3{.x = 1.0F, .y = 0.0F, .z = 0.0F}),
+        "quay 90 độ: trục z sang +x");
 }
 
 constexpr std::array kCases{
@@ -202,6 +218,7 @@ constexpr std::array kCases{
     Case{.name = "quat_inverse_normalize", .body = &quat_inverse_normalize},
     Case{.name = "quat_nlerp_shortest", .body = &quat_nlerp_shortest},
     Case{.name = "quat_nlerp_direct", .body = &quat_nlerp_direct},
+    Case{.name = "quat_log_exp_and_slerp_ends", .body = &quat_log_exp_and_slerp_ends},
     Case{.name = "quat_angle_axis", .body = &quat_angle_axis},
 };
 
