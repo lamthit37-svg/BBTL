@@ -13,12 +13,10 @@ namespace {
 
 using detail::Bag;
 using detail::Cursor;
-using detail::finish;
 using detail::keep;
 using detail::Node;
-using detail::parse_text;
 
-constexpr std::string_view kRoot[] = {"schema", "capacity", "player_count_report", "notice"};
+constexpr std::string_view kRoot[] = {"schema", "capacity", "player_count_report", "notice", "platform"};
 constexpr std::string_view kCapacity[] = {
     "online_users",
     "mail_users",
@@ -28,11 +26,12 @@ constexpr std::string_view kCapacity[] = {
 };
 constexpr std::string_view kReport[] = {"hours"};
 constexpr std::string_view kNotice[] = {"join_guild"};
+constexpr std::string_view kPlatform[] = {"pc_meets_mobile"};
 
 void read_capacity(Bag& bag, const Node* table, World& world) {
     if (table == nullptr) return;
     Cursor cursor{bag, *table};
-    cursor.unknown(kCapacity);
+    cursor.only(kCapacity);
     keep(cursor.bounded("online_users", detail::kCount), world.online_users);
     keep(cursor.bounded("mail_users", detail::kCount), world.mail_users);
     keep(cursor.bounded("offline_cache", detail::kCount), world.offline_cache);
@@ -43,35 +42,45 @@ void read_capacity(Bag& bag, const Node* table, World& world) {
 void read_report(Bag& bag, const Node* table, World& world) {
     if (table == nullptr) return;
     Cursor cursor{bag, *table};
-    cursor.unknown(kReport);
+    cursor.only(kReport);
     keep(cursor.hours("hours"), world.hours);
 }
 
 void read_notice(Bag& bag, const Node* table, World& world) {
     if (table == nullptr) return;
     Cursor cursor{bag, *table};
-    cursor.unknown(kNotice);
+    cursor.only(kNotice);
     keep(cursor.flag("join_guild"), world.join_guild);
+}
+
+void read_platform(Bag& bag, const Node* table, World& world) {
+    if (table == nullptr) return;
+    Cursor cursor{bag, *table};
+    cursor.only(kPlatform);
+    keep(cursor.flag("pc_meets_mobile"), world.pc_meets_mobile);
 }
 
 [[nodiscard]] World read_sections(Bag& bag, const Node& root) {
     Cursor cursor{bag, root};
     cursor.schema();
-    cursor.unknown(kRoot);
+    cursor.only(kRoot);
     World world;
     read_capacity(bag, cursor.child("capacity"), world);
     read_report(bag, cursor.child("player_count_report"), world);
     read_notice(bag, cursor.child("notice"), world);
+    read_platform(bag, cursor.child("platform"), world);
     return world;
 }
 
 } // namespace
 
 ReadResult<World> read_world(std::string_view text) {
-    const detail::Parsed parsed = parse_text(text);
-    if (!parsed.issues.empty()) return std::unexpected(std::move(parsed.issues));
-    Bag bag;
-    return finish(read_sections(bag, parsed.root), bag);
+    return detail::read_document<World>(text, read_sections);
+}
+
+bool may_meet(ClientKind left, ClientKind right, const World& world) noexcept {
+    if (left == right) return true;
+    return world.pc_meets_mobile;
 }
 
 } // namespace game::config

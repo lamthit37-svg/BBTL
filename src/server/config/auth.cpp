@@ -13,10 +13,8 @@ namespace {
 
 using detail::Bag;
 using detail::Cursor;
-using detail::finish;
 using detail::keep;
 using detail::Node;
-using detail::parse_text;
 using detail::read_login;
 
 constexpr std::string_view kRoot[] = {
@@ -45,7 +43,7 @@ constexpr std::string_view kCard[] = {"enabled"};
 void read_register(Bag& bag, const Node* table, Auth& auth) {
     if (table == nullptr) return;
     Cursor cursor{bag, *table};
-    cursor.unknown(kRegister);
+    cursor.only(kRegister);
     keep(cursor.flag("auto_register"), auth.auto_register);
     keep(cursor.bounded("gift_points", detail::kAmount), auth.gift_points);
 }
@@ -53,7 +51,7 @@ void read_register(Bag& bag, const Node* table, Auth& auth) {
 void read_password(Bag& bag, const Node* table, Auth& auth) {
     if (table == nullptr) return;
     Cursor cursor{bag, *table};
-    cursor.unknown(kPassword);
+    cursor.only(kPassword);
     keep(cursor.bounded("ops_limit", detail::kCount), auth.ops_limit);
     keep(cursor.bounded("mem_limit_kib", detail::kCount), auth.mem_limit_kib);
 }
@@ -61,14 +59,14 @@ void read_password(Bag& bag, const Node* table, Auth& auth) {
 void read_ticket(Bag& bag, const Node* table, Auth& auth) {
     if (table == nullptr) return;
     Cursor cursor{bag, *table};
-    cursor.unknown(kTicket);
+    cursor.only(kTicket);
     keep(cursor.seconds("ttl_seconds"), auth.ttl_seconds);
 }
 
 void read_login_rules(Bag& bag, const Node* table, Auth& auth) {
     if (table == nullptr) return;
     Cursor cursor{bag, *table};
-    cursor.unknown(kLogin);
+    cursor.only(kLogin);
     keep(cursor.flag("relogin_limit"), auth.relogin_limit);
     keep(cursor.flag("relogin_block"), auth.relogin_block);
     keep(cursor.millis("relogin_block_ms"), auth.relogin_block_ms);
@@ -79,7 +77,7 @@ void read_login_rules(Bag& bag, const Node* table, Auth& auth) {
 void read_captcha(Bag& bag, const Node* table, Auth& auth) {
     if (table == nullptr) return;
     Cursor cursor{bag, *table};
-    cursor.unknown(kCaptcha);
+    cursor.only(kCaptcha);
     keep(cursor.flag("on_create"), auth.on_create);
     keep(cursor.flag("on_enter"), auth.on_enter);
 }
@@ -87,14 +85,14 @@ void read_captcha(Bag& bag, const Node* table, Auth& auth) {
 void read_card(Bag& bag, const Node* table, Auth& auth) {
     if (table == nullptr) return;
     Cursor cursor{bag, *table};
-    cursor.unknown(kCard);
+    cursor.only(kCard);
     keep(cursor.flag("enabled"), auth.security_card);
 }
 
 [[nodiscard]] Auth read_sections(Bag& bag, const Node& root) {
     Cursor cursor{bag, root};
     cursor.schema();
-    cursor.unknown(kRoot);
+    cursor.only(kRoot);
     Auth auth;
     read_login(bag, cursor.child("database"), auth.database);
     read_register(bag, cursor.child("register"), auth);
@@ -109,10 +107,7 @@ void read_card(Bag& bag, const Node* table, Auth& auth) {
 } // namespace
 
 ReadResult<Auth> read_auth(std::string_view text) {
-    const detail::Parsed parsed = parse_text(text);
-    if (!parsed.issues.empty()) return std::unexpected(std::move(parsed.issues));
-    Bag bag;
-    return finish(read_sections(bag, parsed.root), bag);
+    return detail::read_document<Auth>(text, read_sections);
 }
 
 } // namespace game::config

@@ -13,10 +13,8 @@ namespace {
 
 using detail::Bag;
 using detail::Cursor;
-using detail::finish;
 using detail::keep;
 using detail::Node;
-using detail::parse_text;
 
 constexpr std::string_view kRoot[] = {
     "schema",
@@ -48,7 +46,7 @@ constexpr std::string_view kAudit[] = {"packet_stats_ms"};
 void read_capacity(Bag& bag, const Node* table, Zone& zone) {
     if (table == nullptr) return;
     Cursor cursor{bag, *table};
-    cursor.unknown(kCapacity);
+    cursor.only(kCapacity);
     keep(cursor.bounded("monsters", detail::kCount), zone.monsters);
     keep(cursor.bounded("pets", detail::kCount), zone.pets);
     keep(cursor.bounded("special_objects", detail::kCount), zone.special_objects);
@@ -62,7 +60,7 @@ void read_capacity(Bag& bag, const Node* table, Zone& zone) {
 void read_session(Bag& bag, const Node* table, Zone& zone) {
     if (table == nullptr) return;
     Cursor cursor{bag, *table};
-    cursor.unknown(kSession);
+    cursor.only(kSession);
     keep(cursor.millis("linger_after_disconnect_ms"), zone.linger_after_disconnect_ms);
     keep(cursor.millis("linger_hidden_ms"), zone.linger_hidden_ms);
     keep(cursor.millis("kick_idle_ms"), zone.kick_idle_ms);
@@ -71,42 +69,42 @@ void read_session(Bag& bag, const Node* table, Zone& zone) {
 void read_tick(Bag& bag, const Node* table, Zone& zone) {
     if (table == nullptr) return;
     Cursor cursor{bag, *table};
-    cursor.unknown(kTick);
+    cursor.only(kTick);
     keep(cursor.bounded("hz", detail::kCount), zone.hz);
 }
 
 void read_aoi(Bag& bag, const Node* table, Zone& zone) {
     if (table == nullptr) return;
     Cursor cursor{bag, *table};
-    cursor.unknown(kAoi);
+    cursor.only(kAoi);
     keep(cursor.bounded("cell_size", detail::kCount), zone.cell_size);
 }
 
 void read_clock(Bag& bag, const Node* table, Zone& zone) {
     if (table == nullptr) return;
     Cursor cursor{bag, *table};
-    cursor.unknown(kClock);
+    cursor.only(kClock);
     keep(cursor.millis("period_change_ms"), zone.period_change_ms);
 }
 
 void read_drops(Bag& bag, const Node* table, Zone& zone) {
     if (table == nullptr) return;
     Cursor cursor{bag, *table};
-    cursor.unknown(kDrops);
+    cursor.only(kDrops);
     keep(cursor.millis("box_recycle_ms"), zone.box_recycle_ms);
 }
 
 void read_audit(Bag& bag, const Node* table, Zone& zone) {
     if (table == nullptr) return;
     Cursor cursor{bag, *table};
-    cursor.unknown(kAudit);
+    cursor.only(kAudit);
     keep(cursor.millis("packet_stats_ms"), zone.packet_stats_ms);
 }
 
 [[nodiscard]] Zone read_sections(Bag& bag, const Node& root) {
     Cursor cursor{bag, root};
     cursor.schema();
-    cursor.unknown(kRoot);
+    cursor.only(kRoot);
     Zone zone;
     read_tick(bag, cursor.child("tick"), zone);
     read_aoi(bag, cursor.child("aoi"), zone);
@@ -121,10 +119,7 @@ void read_audit(Bag& bag, const Node* table, Zone& zone) {
 } // namespace
 
 ReadResult<Zone> read_zone(std::string_view text) {
-    const detail::Parsed parsed = parse_text(text);
-    if (!parsed.issues.empty()) return std::unexpected(std::move(parsed.issues));
-    Bag bag;
-    return finish(read_sections(bag, parsed.root), bag);
+    return detail::read_document<Zone>(text, read_sections);
 }
 
 } // namespace game::config

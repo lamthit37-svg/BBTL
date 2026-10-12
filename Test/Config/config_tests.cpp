@@ -367,9 +367,22 @@ void real_world(Context& context) {
     if (!world) return;
     const bool is_capacity = world->online_users == 4300 && world->mail_users == 52000 &&
         world->offline_cache == 50000 && world->speakers == 128 && world->pet_friend_ads == 1024;
-    context.expect(is_capacity && !world->join_guild, "sức chứa và thông báo");
+    const bool is_notice = !world->join_guild && !world->pc_meets_mobile;
+    context.expect(is_capacity && is_notice, "sức chứa, thông báo và phía");
     constexpr std::array<int, 3> kHours{13, 15, 21};
     context.expect(std::ranges::equal(world->hours, kHours), "giờ báo cáo");
+}
+
+void same_side_meets_until_the_flag_opens(Context& context) {
+    config::World world;
+    const bool pcs = config::may_meet(config::ClientKind::kPc, config::ClientKind::kPc, world);
+    const bool phones = config::may_meet(config::ClientKind::kMobile, config::ClientKind::kMobile, world);
+    context.expect(pcs && phones, "cùng phía gặp nhau");
+    const bool closed = config::may_meet(config::ClientKind::kPc, config::ClientKind::kMobile, world);
+    context.expect(!closed, "PC và mobile tách khi cờ tắt");
+    world.pc_meets_mobile = true;
+    const bool opened = config::may_meet(config::ClientKind::kMobile, config::ClientKind::kPc, world);
+    context.expect(opened, "cờ bật thì hai phía gặp");
 }
 
 void real_zone(Context& context) {
@@ -453,6 +466,7 @@ constexpr std::array kCases{
     Case{.name = "real_auth", .body = &real_auth},
     Case{.name = "real_billing", .body = &real_billing},
     Case{.name = "real_world", .body = &real_world},
+    Case{.name = "same_side_meets_until_the_flag_opens", .body = &same_side_meets_until_the_flag_opens},
     Case{.name = "real_zone", .body = &real_zone},
     Case{.name = "real_store", .body = &real_store},
     Case{.name = "real_admin", .body = &real_admin},
