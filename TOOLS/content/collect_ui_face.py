@@ -139,7 +139,7 @@ def write_tsv(path: Path, header: str, rows: list[tuple[str, ...]]) -> None:
     lines = [header, ""]
     for row in rows:
         lines.append("\t".join(row))
-    path.write_text("\n".join(lines) + "\n", encoding="utf-8")
+    path.write_text("\n".join(lines) + "\n", encoding="utf-8", newline="\n")
 
 
 def collect(interface: Path, out: Path) -> tuple[int, int, int]:

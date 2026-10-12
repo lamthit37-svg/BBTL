@@ -8,7 +8,7 @@ set "JAVA_HOME=C:\Program Files\Eclipse Adoptium\jdk-21.0.12.101-hotspot"
 set "PATH=%JAVA_HOME%\bin;%PATH%"
 set "GH=C:\Users\myhea\Desktop\ghidra_12.1.4_PUBLIC\support\analyzeHeadless.bat"
 set "PROJDIR=C:\Users\myhea\Desktop\ghidra-projects"
-set "SCRIPTS=%~dp0"
+set "SCRIPTS=%~dp0."
 set "PROG=%~1"
 set "OUT=%~2"
 shift

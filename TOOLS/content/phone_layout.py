@@ -109,7 +109,7 @@ def write_one(source: Path, dest: Path) -> tuple[int, int]:
     original = source.read_text(encoding="utf-8-sig")
     scaled = scale_layout(original)
     dest.parent.mkdir(parents=True, exist_ok=True)
-    dest.write_text(scaled, encoding="utf-8")
+    dest.write_text(scaled, encoding="utf-8", newline="\n")
     names = window_names(original)
     if names != window_names(scaled):
         raise SystemExit(f"lệch tên cửa sổ: {source}")

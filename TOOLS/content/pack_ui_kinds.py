@@ -95,7 +95,7 @@ def main() -> int:
         Image.fromarray(sheet, "RGBA").save(path)
         notes.append(f"# {kind}.png\t{sheet.shape[1]}x{sheet.shape[0]}\t{len(items)} ô")
         print(f"{kind} {len(items)} ô, {sheet.shape[1]}x{sheet.shape[0]} -> {path}")
-    (args.out / "parts.tsv").write_text("\n".join(notes + index) + "\n", encoding="utf-8")
+    (args.out / "parts.tsv").write_text("\n".join(notes + index) + "\n", encoding="utf-8", newline="\n")
     return 0
 
 

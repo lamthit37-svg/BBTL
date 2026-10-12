@@ -132,7 +132,7 @@ def main() -> int:
             )
             files.setdefault(set_name, imagefile.replace("\\", "/"))
     OUT.parent.mkdir(parents=True, exist_ok=True)
-    OUT.write_text(xml_text(groups, files), encoding="utf-8")
+    OUT.write_text(xml_text(groups, files), encoding="utf-8", newline="\n")
     print(f"{len(groups)} bộ ảnh, {sum(len(items) for items in groups.values())} ô -> {OUT}")
     return 0
 
