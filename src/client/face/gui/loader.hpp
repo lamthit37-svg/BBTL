@@ -40,7 +40,7 @@ public:
     [[nodiscard]] virtual std::optional<std::string> read(std::string_view path) const = 0;
 };
 
-// Đọc từ một thư mục trên đĩa (assets/client/Interface).
+// Đọc từ một thư mục trên đĩa (dev/client/assets/Interface).
 // phone: layout .xml có bản trong phone/ thì dùng bản đó, Android và iOS chung một thư mục.
 class DiskSource final : public FileSource {
 public:

@@ -20,13 +20,29 @@
 
 namespace game::net {
 
-// alignas(64) cố ý nới struct để head và tail không dùng chung một cache line.
-#if defined(_MSC_VER)
-#pragma warning(push)
-#pragma warning(disable: 4324)
-#endif
-
+// Head, tail và cờ ngủ mỗi cái một cache line. Đệm ghi tường minh để alignas không nới thêm.
+inline constexpr std::size_t kCacheLine = 64;
 inline constexpr std::size_t kLaneCount = 4;
+
+// Ô của SpscMail. Đệm cuối chỉ khi mảng chưa kín một cache line: mảng rỗng cấm (C4200).
+template <typename T, std::size_t Capacity, bool NeedPad>
+struct SpscSlots;
+
+template <typename T, std::size_t Capacity>
+struct alignas(kCacheLine) SpscSlots<T, Capacity, false> {
+    [[nodiscard]] T& operator[](std::uint32_t index) noexcept { return items_[index]; }
+
+    std::array<T, Capacity> items_{};
+};
+
+template <typename T, std::size_t Capacity>
+struct alignas(kCacheLine) SpscSlots<T, Capacity, true> {
+    static constexpr std::size_t kPad = kCacheLine - (sizeof(std::array<T, Capacity>) % kCacheLine);
+    [[nodiscard]] T& operator[](std::uint32_t index) noexcept { return items_[index]; }
+
+    std::array<T, Capacity> items_{};
+    unsigned char pad_[kPad]{};
+};
 
 struct LaneSpec {
     // Số nhỏ hơn được phục vụ hết trước số lớn hơn.
@@ -85,46 +101,64 @@ public:
     template <typename Pred>
     void park(Pred still_idle) {
         if (!still_idle()) return;
-        parked_.store(1, std::memory_order_relaxed);
+        parked_.flag.store(1, std::memory_order_relaxed);
         std::atomic_thread_fence(std::memory_order_seq_cst);
         if (!still_idle()) {
-            parked_.store(0, std::memory_order_relaxed);
+            parked_.flag.store(0, std::memory_order_relaxed);
             return;
         }
-        parked_.wait(1, std::memory_order_relaxed);
-        parked_.store(0, std::memory_order_relaxed);
+        parked_.flag.wait(1, std::memory_order_relaxed);
+        parked_.flag.store(0, std::memory_order_relaxed);
     }
 
     // Bên đẩy, hoặc luồng tắt máy: đánh thức nếu bên nhận đang ngủ. Không syscall khi không ngủ.
     void wake() noexcept { poke(); }
 
 private:
-    static constexpr std::uint32_t kMask = static_cast<std::uint32_t>(Capacity - 1);
-    static constexpr std::size_t kLine = 64;
-
-    struct alignas(kLine) Producer {
-        std::atomic<std::uint32_t> tail{0};
-        std::uint32_t cached_head = 0;
-    };
-    struct alignas(kLine) Consumer {
-        std::atomic<std::uint32_t> head{0};
-        std::uint32_t cached_tail = 0;
-    };
-
     // Fence trước lần đọc parked_ đầu tiên: ghi tail (hay cờ dừng của bên gọi) rồi đọc parked_ là
     // cặp ghi-đọc mà x86 cũng được đảo. Thiếu nó, bên nhận có thể gắn cờ ngủ, vẫn thấy hàng rỗng,
     // còn bên đẩy thấy parked_ == 0 nên không đánh thức: phần tử nằm trong hàng tới lần đẩy sau.
     void poke() noexcept {
         std::atomic_thread_fence(std::memory_order_seq_cst);
-        if (parked_.load(std::memory_order_relaxed) == 0) return;
-        parked_.store(0, std::memory_order_release);
-        parked_.notify_one();
+        if (parked_.flag.load(std::memory_order_relaxed) == 0) return;
+        parked_.flag.store(0, std::memory_order_release);
+        parked_.flag.notify_one();
     }
+
+    static constexpr std::uint32_t kMask = static_cast<std::uint32_t>(Capacity - 1);
+    static constexpr std::size_t kLine = kCacheLine;
+
+    struct alignas(kLine) Producer {
+        std::atomic<std::uint32_t> tail{0};
+        std::uint32_t cached_head = 0;
+        static constexpr std::size_t kPad = kLine - sizeof(std::atomic<std::uint32_t>) - sizeof(std::uint32_t);
+        unsigned char pad_[kPad]{};
+    };
+    struct alignas(kLine) Consumer {
+        std::atomic<std::uint32_t> head{0};
+        std::uint32_t cached_tail = 0;
+        static constexpr std::size_t kPad = kLine - sizeof(std::atomic<std::uint32_t>) - sizeof(std::uint32_t);
+        unsigned char pad_[kPad]{};
+    };
+    struct alignas(kLine) Parked {
+        std::atomic<std::uint32_t> flag{0};
+        static constexpr std::size_t kPad = kLine - sizeof(std::atomic<std::uint32_t>);
+        unsigned char pad_[kPad]{};
+    };
+
+    static constexpr bool kPadSlots = sizeof(std::array<T, Capacity>) % kLine != 0;
+    using Slots = SpscSlots<T, Capacity, kPadSlots>;
+
+    static_assert(sizeof(Producer) == kLine && alignof(Producer) == kLine);
+    static_assert(sizeof(Consumer) == kLine && alignof(Consumer) == kLine);
+    static_assert(sizeof(Parked) == kLine && alignof(Parked) == kLine);
+    static_assert(sizeof(Slots) % kLine == 0);
+    static_assert(alignof(Slots) >= kLine);
 
     Producer producer_{};
     Consumer consumer_{};
-    alignas(kLine) std::atomic<std::uint32_t> parked_{0};
-    alignas(kLine) std::array<T, Capacity> slots_{};
+    Parked parked_{};
+    Slots slots_{};
 };
 
 // Hàng một luồng. reset trước khi push. Không an toàn đa luồng: gate gọi trên luồng tick.
@@ -146,7 +180,8 @@ public:
     }
 
     void reserve(std::size_t count) {
-        for (std::size_t index = 0; index < used_; ++index) lanes_[index].items.reserve(count);
+        for (std::size_t index = 0; index < used_; ++index)
+            lanes_[index].items.reserve(count);
     }
 
     void push(std::size_t lane, T item) {
@@ -236,9 +271,5 @@ private:
     std::size_t total_ = 0;
     std::size_t cursor_ = 0;
 };
-
-#if defined(_MSC_VER)
-#pragma warning(pop)
-#endif
 
 } // namespace game::net

@@ -87,6 +87,10 @@ struct FrameBlock {
     math::Float4 fog_color{};
     math::Float4 rules{};
     std::array<LampWords, kLampSlots> lamps{};
+    math::Float4 hfog{};
+    math::Float4 dfog{};
+    math::Float4 hfog_color{};
+    math::Float4 hfog_scatter{};
 };
 static_assert(sizeof(FrameBlock) == kModelFrameBytes);
 
@@ -171,6 +175,33 @@ static_assert(sizeof(JointRows) == 48);
     if (material == nullptr) return 0;
     const std::uint32_t sides = material->double_sided ? kTwoSided : 0;
     return material->alpha == resource::Alpha::kBlend ? sides | kBlended : sides;
+}
+
+// Ảnh và sampler của một khe. Thiếu thì ảnh trắng 1×1 và sampler mặc định, để mọi nhóm đủ t0 và t1.
+struct TexBind {
+    gpu::TextureViewHandle view{};
+    gpu::SamplerHandle sampler{};
+};
+
+[[nodiscard]] TexBind tex_bind(const resource::Uploaded& uploaded, const resource::TexSlot& slot,
+    const resource::Uploaded& fallback) {
+    const std::span<const resource::GpuImage> images = uploaded.images();
+    const std::span<const gpu::SamplerHandle> samplers = uploaded.samplers();
+    const bool has_image = slot.image && *slot.image < images.size();
+    const bool has_sampler = slot.sampler && *slot.sampler < samplers.size();
+    TexBind bound;
+    bound.view = has_image ? core::at(images, *slot.image).view : fallback.images().front().view;
+    const gpu::SamplerHandle own = uploaded.default_sampler();
+    const gpu::SamplerHandle shared = own ? own : fallback.default_sampler();
+    bound.sampler = has_sampler ? core::at(samplers, *slot.sampler) : shared;
+    return bound;
+}
+
+void write_bind(gpu::BindEntry& entry, shader::RegisterType type, std::uint32_t slot,
+    const gpu::Bound& resource) {
+    entry.type = type;
+    entry.slot = slot;
+    entry.resource = resource;
 }
 
 // Bốn cột của một ma trận thế giới, cùng bố cục float4x4 trong buffer worlds.
@@ -552,21 +583,15 @@ core::Status Forward::State::make_fallback() {
 core::Result<gpu::BindGroupHandle> Forward::State::material_group(const resource::Uploaded& uploaded,
     const resource::Material* material) {
     const resource::TexSlot none;
-    const resource::TexSlot& slot = material != nullptr ? base_slot(*material) : none;
-    const std::span<const resource::GpuImage> images = uploaded.images();
-    const std::span<const gpu::SamplerHandle> samplers = uploaded.samplers();
-    const bool has_image = slot.image && *slot.image < images.size();
-    const bool has_sampler = slot.sampler && *slot.sampler < samplers.size();
-    const gpu::TextureViewHandle white = fallback.images().front().view;
-    const gpu::TextureViewHandle view = has_image ? core::at(images, *slot.image).view : white;
-    const gpu::SamplerHandle own = uploaded.default_sampler();
-    const gpu::SamplerHandle shared = own ? own : fallback.default_sampler();
-    const gpu::SamplerHandle sampler = has_sampler ? core::at(samplers, *slot.sampler) : shared;
-    std::array<gpu::BindEntry, 2> entries;
-    entries.front().type = shader::RegisterType::kResource;
-    entries.front().resource = view;
-    entries.back().type = shader::RegisterType::kSampler;
-    entries.back().resource = sampler;
+    const resource::TexSlot& color = material != nullptr ? base_slot(*material) : none;
+    const resource::TexSlot& mask = material != nullptr ? material->surface : none;
+    const TexBind base = tex_bind(uploaded, color, fallback);
+    const TexBind cover = tex_bind(uploaded, mask, fallback);
+    std::array<gpu::BindEntry, 4> entries{};
+    write_bind(entries[0], shader::RegisterType::kResource, 0, base.view);
+    write_bind(entries[1], shader::RegisterType::kSampler, 0, base.sampler);
+    write_bind(entries[2], shader::RegisterType::kResource, 1, cover.view);
+    write_bind(entries[3], shader::RegisterType::kSampler, 1, cover.sampler);
     gpu::BindGroupDesc group;
     group.name = "render.forward.material";
     group.pipeline = pipelines.front();
@@ -814,6 +839,11 @@ core::Status Forward::State::write(Slot& slot, const Camera& camera, const Light
     write_suns(block, lights);
     write_fog(block, lights.fog);
     block.rules.x = lights.is_overbright ? 1.0F : 0.0F;
+    block.rules.y = lights.seconds;
+    block.hfog = lights.hfog;
+    block.dfog = lights.dfog;
+    block.hfog_color = lights.hfog_color;
+    block.hfog_scatter = lights.hfog_scatter;
     write_lamps(block, lights.lamps);
     const auto frame_bytes = std::as_bytes(std::span(&block, 1));
     const core::Status status = device->write_buffer(slot.frame, 0, frame_bytes);

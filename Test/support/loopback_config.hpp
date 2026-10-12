@@ -1,12 +1,12 @@
 #pragma once
-// Cấu hình tạm cho test chạy exe thật của máy chủ: bản chép của SERVER/config nằm cạnh exe test.
+// Cấu hình tạm cho test chạy exe thật của máy chủ: bản chép của dev/server/config nằm cạnh exe test.
 // Trong bản chép, gate nghe 127.0.0.1 ở cổng 0 và mọi [[process]] của cluster.toml khai cổng 0: hệ
 // điều hành cấp cổng lúc nghe, tiến trình báo cổng thật ở dòng `ready` (mục 3.1 của
 // docs/KE-HOACH-SERVER.md), nên hai lượt test chạy cùng lúc không bao giờ tranh cổng. Khoá danh
 // tính sinh trong cây dựng.
 // Vì sao không đưa thẳng cấu hình thật cho tiến trình sẽ nghe cổng: cấu hình thật cho gate nghe mọi
 // địa chỉ ở cổng cố định. Hai lượt ctest chạy cùng lúc sẽ tranh cổng, Windows thêm rule tường lửa
-// cho từng đường dẫn exe của cây dựng, và khoá danh tính bị ghi vào SERVER/data của cây nguồn.
+// cho từng đường dẫn exe của cây dựng, và khoá danh tính bị ghi vào dev/server/data của cây nguồn.
 
 #include "io/file.hpp"
 #include "io/platform.hpp"
@@ -176,7 +176,7 @@ using Rewrite = std::optional<std::string> (*)(std::string_view);
 // Dựng <thư mục exe>/<name>/config từ thư mục cấu hình thật `source`, với mọi cổng nghe là
 // 127.0.0.1:0; thư mục <name> cũ bị xoá trước. Trả thư mục để đưa cho --config: đường dẫn tương đối
 // trong cấu hình (khoá danh tính, log) tính từ đó nên rơi vào <thư mục exe>/<name>, không rơi vào
-// SERVER/ của cây nguồn. Rỗng khi một bước hỏng. Chưa sinh khoá danh tính: test nào chạy gate thì
+// dev/server/ của cây nguồn. Rỗng khi một bước hỏng. Chưa sinh khoá danh tính: test nào chạy gate thì
 // gọi thêm ensure_gate_identity với thư mục trả về. Cổng thật đọc ở dòng `ready`.
 [[nodiscard]] inline std::optional<std::filesystem::path> stage_config(const std::filesystem::path& source,
     std::string_view name) {

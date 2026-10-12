@@ -25,6 +25,8 @@
 #include <winnt.h>
 #include <wrl/client.h>
 
+#include "gpu/com.hpp"
+
 #include <algorithm>
 #include <atomic>
 #include <chrono>
@@ -34,10 +36,6 @@
 #include <thread>
 #include <utility>
 #include <vector>
-
-#if defined(__clang__)
-#pragma clang diagnostic ignored "-Wlanguage-extension-token"
-#endif
 
 namespace game::gpu::d3d11 {
 
@@ -203,7 +201,7 @@ void raise_to(std::atomic<std::uint64_t>& slot, std::uint64_t value) noexcept {
 [[nodiscard]] Result<ComPtr<IDXGIFactory2>> open_factory() {
     ComPtr<IDXGIFactory2> factory;
     IDXGIFactory2** slot = factory.GetAddressOf();
-    const HRESULT created = CreateDXGIFactory2(0, IID_PPV_ARGS(slot));
+    const HRESULT created = CreateDXGIFactory2(0, com_iid(slot), com_pp(slot));
     if (FAILED(created)) return hresult_failure(created, "không tạo được factory DXGI");
     return factory;
 }
@@ -298,7 +296,7 @@ void fill_discard(DXGI_SWAP_CHAIN_DESC1& info) {
 [[nodiscard]] Result<ComPtr<ID3D11Texture2D>> take_buffer(IDXGISwapChain& swap, UINT index) {
     ComPtr<ID3D11Texture2D> texture;
     ID3D11Texture2D** slot = texture.GetAddressOf();
-    const HRESULT taken = swap.GetBuffer(index, IID_PPV_ARGS(slot));
+    const HRESULT taken = swap.GetBuffer(index, com_iid(slot), com_pp(slot));
     if (FAILED(taken)) return hresult_failure(taken, "không lấy được ảnh swapchain");
     return texture;
 }
@@ -384,7 +382,7 @@ void fill_discard(DXGI_SWAP_CHAIN_DESC1& info) {
 [[nodiscard]] Result<std::uint32_t> flip_index(IDXGISwapChain& swap) {
     ComPtr<IDXGISwapChain3> chain;
     IDXGISwapChain3** slot = chain.GetAddressOf();
-    const HRESULT queried = swap.QueryInterface(IID_PPV_ARGS(slot));
+    const HRESULT queried = swap.QueryInterface(com_iid(slot), com_pp(slot));
     if (FAILED(queried)) return hresult_failure(queried, "không lấy được chỉ số ảnh");
     return chain->GetCurrentBackBufferIndex();
 }

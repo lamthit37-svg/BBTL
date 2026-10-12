@@ -1,8 +1,8 @@
-# SERVER — runtime của máy chủ THIENLONG
+# dev/server — máy chủ thử
 
-Thư mục này nằm ngang `CLIENT/` và chứa mọi thứ máy chủ cần lúc chạy: exe, cấu hình, bảng, dữ liệu
-cảnh, SQL, cả PostgreSQL và dữ liệu của nó. Máy phát triển này là máy chủ thử online; không có chế độ
-offline. Kế hoạch ở `docs/KE-HOACH-SERVER.md`, danh sách từng tệp ở `docs/SERVER-TEP-CAU-HINH.md`.
+Đây là máy chủ của bản `dev`: cấu hình, bảng, cảnh, SQL, exe, PostgreSQL và dữ liệu của bản thử.
+Không có mã nguồn. Mã ở `src/server/`. Bản chính thức cùng hình nằm ở `release/server`, database
+riêng. Kế hoạch ở `docs/KE-HOACH-SERVER.md`, danh sách tệp ở `docs/SERVER-TEP-CAU-HINH.md`.
 
 Trạng thái theo mã ngày 2026-10-08 (đo lại trên bản `msvc-release` cài cùng ngày):
 
@@ -39,7 +39,7 @@ Trạng thái theo mã ngày 2026-10-08 (đo lại trên bản `msvc-release` c�
 Chạy ở gốc dự án:
 
 ```
-python TOOLS/server/setup_db.py fetch     tải PostgreSQL, kiểm SHA-256, giải nén vào SERVER/pgsql
+python TOOLS/server/setup_db.py fetch     tải PostgreSQL, kiểm SHA-256, giải nén vào dev/server/pgsql
 python TOOLS/server/setup_db.py init      tạo cụm, sinh mật khẩu, tạo role và database
 python TOOLS/server/setup_db.py start     chạy cụm
 python TOOLS/server/setup_db.py status    xem phiên bản và các database
@@ -59,9 +59,9 @@ Không xoá `data/pg`: đó là mọi tài khoản và nhân vật. Sao lưu b�
 Chạy ở gốc dự án, sau khi dựng preset `msvc-release`:
 
 ```
-cmake --install build/msvc-release --component server --prefix SERVER
-SERVER\bin\thienlong_gate.exe --gen-key SERVER\data\gate\identity.key
-SERVER\bin\thienlong_server.exe --config SERVER\config
+cmake --install build/msvc-debug --component server
+dev\server\bin\thienlong_gate.exe --gen-key dev\server\data\gate\identity.key
+dev\server\bin\thienlong_server.exe --config dev\server\config
 ```
 
 Lệnh đầu chép tám exe vào `bin/`. Cài lại sau mỗi lần đổi mã hay đổi khoá cấu hình: exe cũ gặp
@@ -87,7 +87,7 @@ chính máy này mà không muốn đụng tường lửa thì chép `config/` r
 (`service_tests`, `server_boot`, `gate_loop_tests`), công cụ đo tải `thienlong_gate_load` và
 `boot_check.py` tự làm đúng việc đó, nên không đụng cổng 7000, 7001 của cụm đang chạy.
 
-Kiểm bảng và cấu hình trước khi chạy: `SERVER\bin\thienlong_lint.exe --root SERVER --refs
+Kiểm bảng và cấu hình trước khi chạy: `dev\server\bin\thienlong_lint.exe --root dev\server --refs
 TOOLS\server\refs`. Giao kèo giữa các tiến trình ghi ở mục 3.1 của `docs/KE-HOACH-SERVER.md`.
 
 ## Sửa cấu hình

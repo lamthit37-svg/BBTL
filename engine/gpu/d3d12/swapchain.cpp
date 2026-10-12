@@ -3,7 +3,7 @@
 // Nguồn: Forge2 src/gpu/d3d12/swapchain.cpp@d7fcd76. Khác gốc: enumerator mang tiền tố k; vòng
 // adopt_images đưa điều kiện dừng lên điều kiện lặp; hai if chọn tearing tách thành present_choice;
 // ChosenFormat khởi tạo có tên trường; const HANDLE viết auto* const; include đúng header của từng
-// tên; Clang bỏ qua __uuidof của IID_PPV_ARGS.
+// tên; IID lấy từ hằng của SDK.
 #include "gpu/d3d12/swapchain.hpp"
 
 #include "core/error.hpp"
@@ -30,6 +30,8 @@
 #include <winuser.h>
 #include <wrl/client.h>
 
+#include "gpu/com.hpp"
+
 #include <algorithm>
 #include <chrono>
 #include <cstdint>
@@ -37,11 +39,6 @@
 #include <memory>
 #include <tuple>
 #include <utility>
-
-#if defined(__clang__)
-// __uuidof của IID_PPV_ARGS không có dạng chuẩn.
-#pragma clang diagnostic ignored "-Wlanguage-extension-token"
-#endif
 
 namespace game::gpu::d3d12 {
 
@@ -88,7 +85,7 @@ struct ChosenFormat {
 
 [[nodiscard]] bool tearing_allowed(IDXGIFactory4* factory) noexcept {
     Microsoft::WRL::ComPtr<IDXGIFactory5> newer;
-    if (FAILED(factory->QueryInterface(IID_PPV_ARGS(&newer)))) return false;
+    if (FAILED(factory->QueryInterface(com_iid(newer), com_pp(newer)))) return false;
     BOOL allow = FALSE;
     const HRESULT checked = newer->CheckFeatureSupport(DXGI_FEATURE_PRESENT_ALLOW_TEARING, &allow, sizeof(allow));
     return SUCCEEDED(checked) && allow == TRUE;
@@ -174,7 +171,7 @@ Swapchain12::~Swapchain12() {
 
 Status Swapchain12::adopt_one(UINT index) {
     Microsoft::WRL::ComPtr<ID3D12Resource> buffer;
-    const HRESULT taken = swap_->GetBuffer(index, IID_PPV_ARGS(&buffer));
+    const HRESULT taken = swap_->GetBuffer(index, com_iid(buffer), com_pp(buffer));
     if (FAILED(taken)) return device_->failed(taken, "không lấy được ảnh swapchain");
     TextureDesc desc;
     desc.kind = TextureKind::kTex2D;
@@ -281,7 +278,7 @@ Status Swapchain12::resize(std::uint32_t width, std::uint32_t height) {
 Result<std::unique_ptr<Timeline>> D3d12Device::create_timeline(std::uint64_t initial) {
     if (loss() != DeviceLoss::kNone) return fail(ErrorCode::kDeviceLost, "thiết bị đã mất");
     Microsoft::WRL::ComPtr<ID3D12Fence> fence;
-    const HRESULT created = device_->CreateFence(initial, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&fence));
+    const HRESULT created = device_->CreateFence(initial, D3D12_FENCE_FLAG_NONE, com_iid(fence), com_pp(fence));
     if (FAILED(created)) return failed(created, "không tạo được timeline");
     return std::make_unique<Timeline12>(*this, std::move(fence));
 }

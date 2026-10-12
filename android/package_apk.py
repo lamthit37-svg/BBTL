@@ -1,5 +1,5 @@
 # Đóng APK native (NativeActivity, không Gradle) từ libthienlong.so.
-# --data là thư mục assets/client: đóng Config, cảnh Config/startup.id, hai cảnh của thủ tục
+# --data là thư mục dev/client/assets: đóng Config, cảnh Config/startup.id, hai cảnh của thủ tục
 # đăng nhập (erengu_DL, tl3chuangjian — tên đọc từ header C++), giao diện Interface/ui.files.tsv
 # và Web/coming_soon.html khi tệp đó có.
 # Cả cây data vượt 4 GB, zipalign không mở được ZIP64.

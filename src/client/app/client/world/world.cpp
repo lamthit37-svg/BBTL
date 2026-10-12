@@ -6,6 +6,7 @@
 #include "io/file.hpp"
 
 #include "client/map/book.hpp"
+#include "client/stage/height_fog.hpp"
 #include "client/stage/sky.hpp"
 #include "client/stage/stage.hpp"
 #include "fs/file.hpp"
@@ -73,6 +74,7 @@ void load_walk(ShownScene& shown, const std::filesystem::path& scene_folder, std
     shown->scene = std::move(*scene);
     shown->stage = stage_of(shown->scene);
     attach_sky_file(shown->stage, scene_folder, shown->scene.sky_file);
+    attach_height_fog(shown->stage, scene_folder, shown->scene_file);
     attach_models(shown->stage, scene_folder.parent_path());
     attach_buildings(shown->buildings, scene_folder, shown->scene_file);
     load_walk(*shown, scene_folder, map::path_of(book, row));
@@ -130,6 +132,30 @@ void remember(World& world, const std::shared_ptr<ShownScene>& shown) {
 }
 
 } // namespace
+
+namespace {
+
+[[nodiscard]] std::string hfog_name(std::string_view scene_file) {
+    const std::size_t dot = scene_file.rfind('.');
+    const std::size_t stem = dot == std::string_view::npos ? scene_file.size() : dot;
+    std::string name(scene_file.substr(0, stem));
+    name.append(".hfog");
+    return name;
+}
+
+} // namespace
+
+void attach_height_fog(Stage& stage, const std::filesystem::path& scene_folder, std::string_view scene_file) {
+    if (scene_file.empty()) return;
+    const std::filesystem::path file = scene_folder / io::path_from_utf8(hfog_name(scene_file));
+    const auto bytes = fs::read_file(io::utf8_of(file));
+    if (!bytes) return;
+    stage.height_fog = read_height_fog(bytes->span());
+    if (!stage.height_fog) return;
+    const HeightFog& fog = *stage.height_fog;
+    std::println(stderr, "Sương chiều cao: cao {:.0f}, mật độ {:.3f}, tán xạ {:.2f}", fog.height, fog.density,
+        fog.inscatter);
+}
 
 void attach_sky_file(Stage& stage, const std::filesystem::path& scene_folder, std::string_view sky_file) {
     if (sky_file.empty()) return;

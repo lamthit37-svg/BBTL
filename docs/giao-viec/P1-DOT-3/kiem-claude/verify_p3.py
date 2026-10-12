@@ -19,7 +19,7 @@ sys.path.insert(0, str(ROOT / "docs/giao-viec/P1-DOT-1/kiem-claude"))
 from verify_p1 import parse_like_cpp  # noqa: E402
 
 sys.stdout.reconfigure(encoding="utf-8")
-SERVER = ROOT / "SERVER"
+SERVER = ROOT / "dev" / "server"
 TOOLS = ROOT / "TOOLS/server"
 PARTS = set(sys.argv[1:]) or {"H", "J", "L", "N"}
 INT = re.compile(r"-?(0|[1-9][0-9]*)")

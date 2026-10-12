@@ -262,46 +262,57 @@ struct OpenIn {
     return expose(blob, input.data, input.bytes);
 }
 
-// ID3DInclude không có destructor ảo. Đối tượng chỉ sống trên stack, không xoá qua base.
-#if defined(__GNUC__)
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wnon-virtual-dtor"
-#endif
-class IncludeHandler final : public ID3DInclude {
-public:
-    using Inc = D3D_INCLUDE_TYPE;
-    using CStr = LPCSTR;
-    using Void = LPCVOID;
-    using Data = LPCVOID*;
+// Không kế thừa ID3DInclude: destructor ảo đổi bảng hàm COM, destructor không ảo thì GCC
+// vẫn báo -Wnon-virtual-dtor. Bảng hai slot Open, Close. x64 đưa this vào đối số đầu.
+using IncludeOpen = HRESULT(STDMETHODCALLTYPE*)(ID3DInclude*, D3D_INCLUDE_TYPE, LPCSTR, LPCVOID, LPCVOID*, UINT*);
+using IncludeClose = HRESULT(STDMETHODCALLTYPE*)(ID3DInclude*, LPCVOID);
 
-    explicit IncludeHandler(IncludeState& state) noexcept : state_(&state) {}
-
-    HRESULT Open(Inc kind, CStr name, Void from, Data data, UINT* size) noexcept override {
-        try {
-            OpenIn input;
-            input.state = state_;
-            input.type = kind;
-            input.name = name;
-            input.parent = from;
-            input.data = data;
-            input.bytes = size;
-            return open_named(input);
-        } catch (...) {
-            return E_OUTOFMEMORY;
-        }
-    }
-
-    HRESULT Close(LPCVOID data) noexcept override {
-        static_cast<void>(data);
-        return S_OK;
-    }
-
-private:
-    IncludeState* state_ = nullptr;
+struct IncludeVtable {
+    IncludeOpen open = nullptr;
+    IncludeClose close = nullptr;
 };
-#if defined(__GNUC__)
-#pragma GCC diagnostic pop
-#endif
+
+struct IncludeObject {
+    const IncludeVtable* vptr = nullptr;
+    IncludeState* state = nullptr;
+};
+
+[[nodiscard]] HRESULT open_include(const IncludeObject& object, const OpenIn& input) {
+    OpenIn filled = input;
+    filled.state = object.state;
+    return open_named(filled);
+}
+
+// Sáu tham số là slot Open của ID3DInclude, không rút được.
+// NOLINTNEXTLINE(readability-function-size)
+HRESULT STDMETHODCALLTYPE include_open(ID3DInclude* self, D3D_INCLUDE_TYPE kind, LPCSTR name, LPCVOID from,
+    LPCVOID* data, UINT* size) noexcept {
+    try {
+        // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast): this của slot COM
+        const auto* object = reinterpret_cast<const IncludeObject*>(self);
+        OpenIn input;
+        input.type = kind;
+        input.name = name;
+        input.parent = from;
+        input.data = data;
+        input.bytes = size;
+        return open_include(*object, input);
+    } catch (...) {
+        return E_OUTOFMEMORY;
+    }
+}
+
+HRESULT STDMETHODCALLTYPE include_close(ID3DInclude*, LPCVOID) noexcept {
+    return S_OK;
+}
+
+const IncludeVtable kIncludeVtable{.open = include_open, .close = include_close};
+
+[[nodiscard]] ID3DInclude* include_as(IncludeObject& object) noexcept {
+    static_assert(offsetof(IncludeObject, vptr) == 0);
+    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast): đối tượng đứng ở đầu bảng hàm
+    return reinterpret_cast<ID3DInclude*>(&object);
+}
 
 struct NativeIn {
     std::string_view text;
@@ -319,8 +330,8 @@ struct NativeIn {
     const auto* source = static_cast<const void*>(input.text.data());
     ID3DBlob** code = input.code->GetAddressOf();
     ID3DBlob** errors = input.errors->GetAddressOf();
-    return D3DCompile(source, input.text.size(), input.name.c_str(), input.macros, input.includes,
-        input.entry.c_str(), input.profile, input.flags, 0, code, errors);
+    return D3DCompile(source, input.text.size(), input.name.c_str(), input.macros, input.includes, input.entry.c_str(),
+        input.profile, input.flags, 0, code, errors);
 }
 
 [[nodiscard]] std::string message_of(ID3DBlob* errors) {
@@ -348,7 +359,7 @@ ByteCode compile_bytecode(const BytecodeIn& input) {
     IncludeState includes;
     includes.source_dir = std::string(fs::parent(input.path));
     includes.include_dirs = input.options->include_dirs;
-    IncludeHandler handler(includes);
+    IncludeObject handler{.vptr = &kIncludeVtable, .state = &includes};
     const MacroList macros = macros_of(*input.options);
     ComPtr<ID3DBlob> code;
     ComPtr<ID3DBlob> errors;
@@ -358,7 +369,7 @@ ByteCode compile_bytecode(const BytecodeIn& input) {
     native.entry = input.options->entry;
     native.profile = profile;
     native.macros = macros.macros.data();
-    native.includes = &handler;
+    native.includes = include_as(handler);
     native.flags = flags_of(*input.options);
     native.code = &code;
     native.errors = &errors;

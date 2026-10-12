@@ -17,8 +17,10 @@
 namespace game::ui::panel {
 namespace {
 
-constexpr std::size_t kColumns = 10;
-constexpr std::string_view kVersion = "1";
+constexpr std::size_t kLegacyColumns = 10;
+constexpr std::size_t kColumns = 13;
+constexpr std::string_view kLegacyVersion = "1";
+constexpr std::string_view kVersion = "2";
 constexpr char32_t kHash = U'#';
 constexpr char32_t kDelete = 0x7F;
 constexpr char32_t kLastBmp = 0xFFFF;
@@ -27,6 +29,7 @@ constexpr char32_t kSurrogateLast = 0xDFFF;
 
 struct Cells {
     std::array<std::string_view, kColumns> fields{};
+    std::size_t count = 0;
     bool is_full = false;
 };
 
@@ -194,7 +197,10 @@ void write_row(std::string& out, const StoredRole& row, int slot) {
     add_number(out, row.role.level);
     add_number(out, static_cast<int>(row.role.sect));
     add_number(out, row.role.portrait);
-    add_text(out, row.role.icon, '\n');
+    add_text(out, row.role.icon, '\t');
+    add_number(out, static_cast<int>(row.role.body));
+    add_number(out, static_cast<int>(row.role.arm));
+    std::format_to(std::back_inserter(out), "{}\n", static_cast<int>(row.role.foot));
 }
 
 [[nodiscard]] std::size_t tab_count(std::string_view line) noexcept {
@@ -218,11 +224,13 @@ void store_cell(Cells& cells, std::size_t index, std::string_view& line) noexcep
     *std::next(cells.fields.begin(), at) = take_cell(line);
 }
 
-[[nodiscard]] Cells split_row(std::string_view line) noexcept {
+[[nodiscard]] Cells split_row(std::string_view line, std::size_t columns) noexcept {
     Cells cells;
-    if (tab_count(line) != kColumns - 1) return cells;
-    for (std::size_t index = 0; index < kColumns - 1; ++index) store_cell(cells, index, line);
-    cells.fields[kColumns - 1] = line;
+    const bool fits = columns > 0 && columns <= kColumns && tab_count(line) == columns - 1;
+    if (!fits) return cells;
+    for (std::size_t index = 0; index < columns - 1; ++index) store_cell(cells, index, line);
+    cells.fields[columns - 1] = line;
+    cells.count = columns;
     cells.is_full = true;
     return cells;
 }
@@ -258,11 +266,20 @@ void store_cell(Cells& cells, std::size_t index, std::string_view& line) noexcep
     stored.role.sect = static_cast<std::uint8_t>(*sect);
     stored.role.portrait = *portrait;
     stored.role.icon = std::string(cells.fields[9]);
+    if (cells.count == kLegacyColumns) return stored;
+    const std::optional<int> body = cell_int(cells.fields[10]);
+    const std::optional<int> arm = cell_int(cells.fields[11]);
+    const std::optional<int> foot = cell_int(cells.fields[12]);
+    if (!body || !arm || !foot) return std::nullopt;
+    if (!fits_byte(*body, 65535) || !fits_byte(*arm, 65535) || !fits_byte(*foot, 65535)) return std::nullopt;
+    stored.role.body = static_cast<std::uint16_t>(*body);
+    stored.role.arm = static_cast<std::uint16_t>(*arm);
+    stored.role.foot = static_cast<std::uint16_t>(*foot);
     return stored;
 }
 
-void take_role(Book& book, std::string_view line) {
-    const Cells cells = split_row(line);
+void take_role(Book& book, std::string_view line, std::size_t columns) {
+    const Cells cells = split_row(line, columns);
     std::optional<StoredRole> stored = role_of(cells);
     if (!stored) return;
     if (roster_of(book, stored->account).count >= kRoleCap) return;
@@ -273,18 +290,20 @@ void take_role(Book& book, std::string_view line) {
 
 struct VersionMark {
     bool seen = false;
-    bool ok = false;
+    int version = 0;
 };
 
 void take_line(Book& book, std::string_view line, VersionMark& mark) {
     if (line.empty()) return;
     if (!mark.seen) {
         mark.seen = true;
-        mark.ok = line == kVersion;
+        if (line == kVersion) mark.version = 2;
+        if (line == kLegacyVersion) mark.version = 1;
         return;
     }
-    if (!mark.ok) return;
-    take_role(book, line);
+    if (mark.version == 0) return;
+    const std::size_t columns = mark.version == 2 ? kColumns : kLegacyColumns;
+    take_role(book, line, columns);
 }
 
 void consume_line(Book& book, std::string_view& text, VersionMark& mark) {
@@ -353,7 +372,7 @@ std::optional<Book> decode_book(std::string_view text) {
     Book book;
     VersionMark mark;
     while (!text.empty()) consume_line(book, text, mark);
-    if (!mark.seen || !mark.ok) return std::nullopt;
+    if (!mark.seen || mark.version == 0) return std::nullopt;
     return book;
 }
 

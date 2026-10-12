@@ -51,7 +51,8 @@ namespace {
 void take_scene(render::Lighting& lighting, const Stage& stage) noexcept {
     lighting.ambient = vector_of(stage.ambient);
     lighting.actor_ambient = lighting.ambient;
-    lighting.fog.kind = kind_of(stage.fog.mode);
+    // Tắt lớp sương: không trộn màu sương lên vật thể. Màu vẫn giữ để nền trời không thành đen.
+    lighting.fog.kind = render::FogKind::kNone;
     lighting.fog.color = vector_of(stage.fog.colour);
     lighting.fog.density = stage.fog.density;
     lighting.fog.start = stage.fog.start;
@@ -65,6 +66,12 @@ void take_scene(render::Lighting& lighting, const Stage& stage) noexcept {
         lighting.suns.at(index).actor = lighting.suns.at(index).color;
     }
     lighting.specular = stage.suns.empty() ? math::Vector3(0.0F) : vector_of(stage.suns[0].specular);
+    if (!stage.height_fog) return;
+    const HeightFog& fog = *stage.height_fog;
+    lighting.hfog = {fog.density, fog.height, fog.height_falloff, fog.pow_factor};
+    lighting.dfog = {fog.depth_density, fog.depth_falloff, fog.depth_start, 0.0F};
+    lighting.hfog_color = {fog.color_r, fog.color_g, fog.color_b, 0.0F};
+    lighting.hfog_scatter = {fog.scatter_r, fog.scatter_g, fog.scatter_b, fog.inscatter};
 }
 
 // Mốc theo giờ của bầu trời đè lên số của tệp cảnh; kiểu sương và hướng đèn giữ của cảnh.
@@ -97,8 +104,8 @@ SceneLight::SceneLight(const Stage& stage, float time) {
     for (const Lamp& lamp : stage.lamps) {
         lamps_.push_back(lamp_of(lamp));
     }
-    const bool has_fog = base_.fog.kind != render::FogKind::kNone;
-    backdrop_ = has_fog ? base_.fog.color : vector_of(stage.background);
+    const bool has_colour = stage.fog.mode != FogMode::kNone;
+    backdrop_ = has_colour ? vector_of(stage.fog.colour) : vector_of(stage.background);
 }
 
 render::Lighting SceneLight::view() const noexcept {

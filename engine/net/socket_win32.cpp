@@ -323,6 +323,10 @@ NetResult<TcpListener> TcpListener::open(Endpoint address) noexcept {
     if (!socket) return std::unexpected(socket.error());
     const SOCKET raw = raw_of(socket->handle());
     const sockaddr_in where = to_native(address);
+    // Không có cờ này, tiến trình khác cùng người dùng bật SO_REUSEADDR rồi bind đúng cổng là
+    // chen được vào cổng ipc loopback và đọc khung của auth hay store.
+    const int exclusive = 1;
+    if (!set_option(raw, SOL_SOCKET, SO_EXCLUSIVEADDRUSE, exclusive)) return std::unexpected(NetError::kBind);
     if (bind(raw, as_sockaddr(where), kAddressSize) != 0) return std::unexpected(NetError::kBind);
     if (listen(raw, SOMAXCONN) != 0) return std::unexpected(NetError::kListen);
     return TcpListener{std::move(*socket)};

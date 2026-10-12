@@ -4,7 +4,7 @@ import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[4]
-for name in ("SERVER/tables/shared", "SERVER/tables/variants", "SERVER/tables/server", "SERVER/scenes", "TOOLS/server/columns"):
+for name in ("dev/server/tables/shared", "dev/server/tables/variants", "dev/server/tables/server", "dev/server/scenes", "TOOLS/server/columns"):
     digest = hashlib.sha256()
     count = size = 0
     for path in sorted((ROOT / name).rglob("*")):

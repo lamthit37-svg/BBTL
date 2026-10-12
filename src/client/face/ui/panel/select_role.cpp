@@ -223,9 +223,22 @@ const Role* chosen_role(const SelectRole& select) noexcept {
     return role_at(select, select.selected);
 }
 
+// Script gốc không gọi Disable. Mở bảng mà còn cờ Disabled thì nút vẽ lớp xám.
+void clear_disabled(Deck& deck, std::string_view window) {
+    put(deck, window, "Disabled", "False");
+}
+
 void paint_select(Deck& deck, const SelectRole& select) {
     deck.show(kRoot);
-    for (std::uint8_t index = 0; index < kRoleCap; ++index) paint_slot(deck, select, index);
+    clear_disabled(deck, kPlay);
+    clear_disabled(deck, kCreate);
+    clear_disabled(deck, kDelete);
+    clear_disabled(deck, kBack);
+    for (std::uint8_t index = 0; index < kRoleCap; ++index) {
+        const SlotView& slot = *std::next(kSlots.begin(), static_cast<std::ptrdiff_t>(index));
+        clear_disabled(deck, slot.button);
+        paint_slot(deck, select, index);
+    }
     put_text(deck, kInfo, select.info);
 }
 

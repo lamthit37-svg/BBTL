@@ -100,6 +100,13 @@ void drop_alpha(resource::Image& image) noexcept {
     }
 }
 
+// Tấm sương của cảnh đăng nhập. Không dựng: chúng phủ trời thành một lớp xám.
+[[nodiscard]] bool is_mist(std::string_view name) noexcept {
+    const bool directional = name.find("方向雾") != std::string_view::npos;
+    const bool sheets = name.find("远景雾片") != std::string_view::npos;
+    return directional || sheets;
+}
+
 [[nodiscard]] fx::Spawn spawn_of(const FxPlace& place) {
     const scene::Placement& placement = place.placement;
     fx::Spawn spawn;
@@ -180,7 +187,7 @@ void append_reason(std::string& text, const fx::Tally& tally, fx::Skip skip) {
     if (skip == fx::Skip::kUnknownAffector) text += kinds_text(tally);
 }
 
-// Rỗng khi không bỏ gì; không thì ": 15 hạt mesh cần material hạt; 57 material không cộng sáng".
+// Rỗng khi không bỏ gì; không thì ": 5 affector chưa hỗ trợ; 1 material không cộng sáng".
 [[nodiscard]] std::string skipped_text(const fx::Tally& tally) {
     std::string text;
     for (const fx::Skip skip : fx::kSkips) {
@@ -208,6 +215,8 @@ struct BatchDraw {
     std::uint32_t texture = 0;
     std::uint32_t first = 0;
     std::uint32_t quads = 0;
+    // src_alpha one_minus_src_alpha: pipeline trộn alpha, shader không nhân sẵn alpha vào rgb.
+    bool is_straight = false;
 };
 
 // Hình của một khung: đỉnh của mọi lô nối nhau, bốn đỉnh một quad, và lệnh vẽ của từng lô.
@@ -228,6 +237,7 @@ struct Pass {
 struct FxView::Body {
     gpu::Device* device = nullptr;
     gpu::PipelineHandle pipeline{};
+    gpu::PipelineHandle blend_pipeline{};
     // Mẫu chỉ số 0 1 2, 0 2 3 lặp cho từng quad, dùng chung cho mọi slot.
     gpu::BufferHandle indices{};
     std::uint32_t indexed_quads = 0;
@@ -319,11 +329,12 @@ std::optional<std::uint32_t> FxView::Body::texture_of(const fx::Paint& paint) {
     return texture;
 }
 
-// Cửa xét của fx::Cast đã chỉ để lại material cộng sáng; lô nào lọt tới đây mà không có dòng trong
-// bảng hay không nạp được ảnh thì bỏ, không vẽ bằng ảnh thay thế.
+// Lô không có trong bảng, hoặc kiểu trộn chưa có pipeline, thì bỏ. Không vẽ bằng ảnh thay thế.
 void FxView::Body::take_batch(Frame& frame, const fx::BillboardBatch& batch) {
     const fx::Paint* paint = library->palette().find(batch.material);
     if (paint == nullptr || paint->blend == fx::Blend::kOther) return;
+    const bool is_straight = paint->blend == fx::Blend::kAlpha;
+    if (is_straight && !blend_pipeline) return;
     const std::optional<std::uint32_t> texture = texture_of(*paint);
     const std::size_t quads = batch.vertices.size() / 4U;
     if (!texture || quads == 0) return;
@@ -331,7 +342,8 @@ void FxView::Body::take_batch(Frame& frame, const fx::BillboardBatch& batch) {
     draw.texture = *texture;
     draw.first = static_cast<std::uint32_t>(frame.vertices.size() / 4U);
     draw.quads = static_cast<std::uint32_t>(quads);
-    const Tint tint{.gain = paint->gain, .keeps_alpha = paint->blend == fx::Blend::kAlphaAdd};
+    draw.is_straight = is_straight;
+    const Tint tint{.gain = paint->gain, .keeps_alpha = paint->blend != fx::Blend::kAdd};
     for (const fx::BillboardVertex& source : std::span(batch.vertices).first(quads * 4U)) {
         frame.vertices.push_back(vertex_of(source, tint));
     }
@@ -380,6 +392,19 @@ core::Status FxView::Body::grow_vertices(SlotBuffer& buffer, std::uint32_t quads
     return core::ok();
 }
 
+struct FxGpuPush {
+    std::array<math::Float4, 4> view_proj{};
+    math::Float4 mode{};
+};
+
+void bind_fx(gpu::CommandList& list, const render::Camera& camera, gpu::PipelineHandle pipeline, bool straight) {
+    FxGpuPush push;
+    push.view_proj = math::store(camera.projection * camera.view);
+    push.mode.x = straight ? 1.0F : 0.0F;
+    list.bind_pipeline(pipeline);
+    list.push_constants(std::as_bytes(std::span(&push, 1)), 0);
+}
+
 void FxView::Body::draw_batch(gpu::CommandList& list, const BatchDraw& draw) const {
     list.bind_group(kTextureSpace, textures.at(draw.texture).group);
     gpu::DrawIndexedArguments arguments;
@@ -398,12 +423,10 @@ core::Status FxView::Body::submit(const Pass& pass, const Frame& frame) {
     if (!roomy) return roomy;
     const core::Status written = device->write_buffer(buffer.vertices, 0, std::as_bytes(std::span(frame.vertices)));
     if (!written) return written;
-    pass.list->bind_pipeline(pipeline);
-    const std::array<math::Float4, 4> view_proj = math::store(pass.camera->projection * pass.camera->view);
-    pass.list->push_constants(std::as_bytes(std::span(view_proj)), 0);
     pass.list->bind_vertex_buffer(0, buffer.vertices, 0);
     pass.list->bind_index_buffer(indices, gpu::IndexType::kUint32, 0);
     for (const BatchDraw& draw : frame.draws) {
+        bind_fx(*pass.list, *pass.camera, draw.is_straight ? blend_pipeline : pipeline, draw.is_straight);
         draw_batch(*pass.list, draw);
     }
     return core::ok();
@@ -436,7 +459,7 @@ FxView::FxView(FxView&&) noexcept = default;
 FxView& FxView::operator=(FxView&&) noexcept = default;
 FxView::~FxView() = default;
 
-std::unique_ptr<FxView> FxView::open(gpu::Device& device, gpu::PipelineHandle pipeline) {
+std::unique_ptr<FxView> FxView::open(gpu::Device& device, gpu::PipelineHandle pipeline, gpu::PipelineHandle blend) {
     if (!pipeline) {
         std::println(stderr, "Hiệu ứng: bỏ qua, không dựng được bộ vẽ");
         return nullptr;
@@ -444,6 +467,8 @@ std::unique_ptr<FxView> FxView::open(gpu::Device& device, gpu::PipelineHandle pi
     auto body = std::make_unique<Body>();
     body->device = &device;
     body->pipeline = pipeline;
+    body->blend_pipeline = blend;
+    if (!blend) std::println(stderr, "Hiệu ứng: không có pipeline trộn alpha, sương và bọt suối không vẽ");
     return std::unique_ptr<FxView>(new FxView(std::move(body)));
 }
 
@@ -477,6 +502,7 @@ void FxView::adopt(const Stage& stage) {
     body_->scene_age = 0.0F;
     body_->is_reported = false;
     for (const FxPlace& place : stage.effects) {
+        if (is_mist(place.name)) continue;
         const fx::Spawn spawn = spawn_of(place);
         body_->cast->add(spawn);
     }
@@ -492,6 +518,11 @@ void FxView::advance(float seconds) {
 std::vector<const fx::Field*> FxView::fields() const {
     if (!body_->cast) return {};
     return body_->cast->live();
+}
+
+const fx::Paint* FxView::paint(std::string_view material) const {
+    if (!body_->library) return nullptr;
+    return body_->library->palette().find(material);
 }
 
 void FxView::draw(gpu::CommandList& list, std::uint32_t slot, const render::Camera& camera) {

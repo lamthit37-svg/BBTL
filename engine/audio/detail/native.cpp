@@ -1,4 +1,4 @@
-// Giải mã và thiết bị. miniaudio chỉ có trong tệp này; cảnh báo của header đó tắt ở CMake.
+// Giải mã và thiết bị. miniaudio chỉ có trong tệp này. Header ấy là include SYSTEM.
 // Bộ giải mã và thiết bị đều chạy ở tần số riêng của chúng (sampleRate = 0): miniaudio không đổi
 // tần số ở đâu cả.
 #include "audio/detail/native.hpp"
@@ -11,8 +11,13 @@
 #include <utility>
 #include <vector>
 
+// libstdc++ của MinGW đã định nghĩa NOMINMAX là 1. Định nghĩa lại là cảnh báo.
+#ifndef NOMINMAX
 #define NOMINMAX
+#endif
+#ifndef WIN32_LEAN_AND_MEAN
 #define WIN32_LEAN_AND_MEAN
+#endif
 #define MA_NO_FLAC
 #define MA_NO_GENERATION
 #define MA_NO_RESOURCE_MANAGER

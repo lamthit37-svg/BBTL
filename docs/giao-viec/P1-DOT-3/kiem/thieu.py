@@ -5,7 +5,7 @@ import re
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[4]
-SERVER = ROOT / "SERVER"
+SERVER = ROOT / "dev" / "server"
 COLUMNS = ROOT / "TOOLS" / "server" / "columns"
 INT_CELL = re.compile(r"-?(0|[1-9][0-9]*)")
 COLUMN_N = re.compile(r"column_\d+(?:_\d+)?")

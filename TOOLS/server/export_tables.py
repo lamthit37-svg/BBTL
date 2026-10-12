@@ -1,7 +1,7 @@
 """Xuất bảng DBC của client 2026 thành TSV.
 
-  python TOOLS/server/export_tables.py <_raw> <tlbb> SERVER/tables
-  python TOOLS/server/export_tables.py <_raw> <tlbb> SERVER/tables --check
+  python TOOLS/server/export_tables.py <_raw> <tlbb> dev/server/tables
+  python TOOLS/server/export_tables.py <_raw> <tlbb> dev/server/tables --check
 
 Bố cục khớp thì lấy tên cột thẳng. Bố cục khác thì căn theo dữ liệu. Tên ASCII đưa về
 snake_case; tên lặp đánh số từ 1. Mười một bảng ưu tiên tra thêm column_terms.tsv.

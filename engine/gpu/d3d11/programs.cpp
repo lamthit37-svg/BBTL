@@ -29,6 +29,8 @@
 #include <winnt.h>
 #include <wrl/client.h>
 
+#include "gpu/com.hpp"
+
 #include <algorithm>
 #include <array>
 #include <cstddef>
@@ -41,11 +43,6 @@
 #include <utility>
 #include <variant>
 #include <vector>
-
-#if defined(__clang__)
-// __uuidof trong IID_PPV_ARGS không có dạng chuẩn.
-#pragma clang diagnostic ignored "-Wlanguage-extension-token"
-#endif
 
 // View D3D11 là union; enum của SDK không có giá trị 0 (UB-03, UB-06).
 // NOLINTBEGIN(cppcoreguidelines-pro-type-union-access,bugprone-invalid-enum-default-initialization)
@@ -664,7 +661,7 @@ void copy_strides(Pipeline& pipeline, std::span<const VertexBufferLayout> buffer
 template <class T>
 [[nodiscard]] Status query_as(ID3D11DeviceChild& child, ComPtr<T>& out) {
     T** slot = out.GetAddressOf();
-    const HRESULT queried = child.QueryInterface(IID_PPV_ARGS(slot));
+    const HRESULT queried = child.QueryInterface(com_iid(slot), com_pp(slot));
     if (FAILED(queried)) return failed(queried, "không lấy được shader của pipeline");
     return ok();
 }

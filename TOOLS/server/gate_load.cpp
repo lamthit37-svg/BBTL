@@ -257,7 +257,7 @@ void drain_errors(Load& load) {
 
 // Thư mục cấu hình thật, tính từ thư mục đang đứng (gốc dự án): chỉ đọc làm mẫu.
 [[nodiscard]] std::filesystem::path source_config() {
-    return game::io::path_from_utf8("SERVER/config");
+    return game::io::path_from_utf8("dev/server/config");
 }
 
 // Bảng [limits] của gate.toml nằm trong dir, đọc bằng bộ đọc của config (có kiểm miền). Rỗng khi
@@ -292,7 +292,7 @@ void drain_errors(Load& load) {
 [[nodiscard]] bool stage_limits(Started& started, int max_connections) {
     const std::optional<game::config::GateLimits> source = limits_in(source_config());
     if (!source.has_value()) {
-        std::println(std::cerr, "không đọc được bảng [limits] của SERVER/config/gate.toml");
+        std::println(std::cerr, "không đọc được bảng [limits] của dev/server/config/gate.toml");
         return false;
     }
     if (!write_config(started.dir, max_connections, source.value())) return false;

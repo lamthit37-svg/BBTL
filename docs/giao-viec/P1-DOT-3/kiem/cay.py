@@ -7,7 +7,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[4]
 EXE = ROOT / "build" / "gcc-debug" / "thienlong_lint.exe"
-SRC = ROOT / "SERVER"
+SRC = ROOT / "dev" / "server"
 DEST = ROOT / "build" / "p1-dot3-r" / "cay"
 
 

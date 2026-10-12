@@ -51,7 +51,8 @@ enum class Tier : std::uint8_t { kBootstrap, kEssential, kScene, kOptional };
     return caps.mesh_shader || caps.ray_query;
 }
 
-// Sáu PSO đang có. Bốn ô model trùng bit chất liệu: bit 0 hai mặt, bit 1 trộn alpha.
+// Bảy PSO đang có. Bốn ô model trùng bit chất liệu: bit 0 hai mặt, bit 1 trộn alpha.
+// kFxBlend dùng cùng shader với kFx; khác ở hệ số trộn src_alpha / one_minus_src_alpha.
 enum class Pso : std::uint8_t {
     kModelOpaque = 0,
     kModelTwoSided = 1,
@@ -59,15 +60,17 @@ enum class Pso : std::uint8_t {
     kModelBlendTwoSided = 3,
     kUi = 4,
     kFx = 5,
+    kFxBlend = 6,
 };
 
 inline constexpr std::uint32_t kModelTwoSided = 1;
 inline constexpr std::uint32_t kModelBlended = 2;
 // Cỡ khối hằng của model.hlsli. forward.cpp static_assert sizeof khối C++ bằng hai số này.
-inline constexpr std::uint32_t kModelFrameBytes = 1280;
+inline constexpr std::uint32_t kModelFrameBytes = 1344;
 inline constexpr std::uint32_t kModelDrawBytes = gpu::kMaxPushBytes;
 inline constexpr std::size_t kModelVariants = 4;
-inline constexpr std::size_t kSlotCount = 6;
+inline constexpr std::size_t kPackageCount = 6;
+inline constexpr std::size_t kSlotCount = 7;
 
 // Bố cục đỉnh hạt. fx_view giữ struct cùng các số này; catalog dựng pipeline theo chúng.
 inline constexpr std::uint32_t kFxStride = 36;
@@ -75,7 +78,7 @@ inline constexpr std::uint32_t kFxUv = 12;
 inline constexpr std::uint32_t kFxColour = 20;
 
 // Mọi gói .f2s catalog có thể nạp. Hash cache đĩa đi theo danh sách này, mỗi tên một lần.
-inline constexpr std::array<std::string_view, kSlotCount> kPackageNames{
+inline constexpr std::array<std::string_view, kPackageCount> kPackageNames{
     "model.vs", "model.ps", "ui.vs", "ui.ps", "fx.vs", "fx.ps"};
 
 // Một dòng của bảng. is_required: thiếu PSO ấy thì prepare của tầng trả lỗi.
@@ -142,6 +145,13 @@ inline constexpr std::array<Entry, kSlotCount> kEntries{{
         .group = Group::kVfx,
         .tier = Tier::kScene,
         .pso = Pso::kFx,
+        .vertex = "fx.vs",
+        .pixel = "fx.ps",
+        .is_required = false},
+    {.name = "render.fx.blend",
+        .group = Group::kVfx,
+        .tier = Tier::kScene,
+        .pso = Pso::kFxBlend,
         .vertex = "fx.vs",
         .pixel = "fx.ps",
         .is_required = false},

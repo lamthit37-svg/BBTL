@@ -249,8 +249,9 @@ velocity 0
 }
 )";
 
-// Sáu hệ, mỗi hệ một lý do của cửa xét: flame dựng được; fog trộn alpha; plane là hạt mesh; candle có
-// affector bộ đọc không biết; scrolled dùng material hai ảnh; bare dùng material ngoài bảng.
+// flame và fog dựng được (fog trộn alpha). card và falls là hạt mesh trộn alpha, falls có mặt nạ.
+// plane là hạt mesh cộng sáng, vẫn bỏ. candle có affector bộ đọc không biết; scrolled dùng
+// material hai ảnh trên billboad; bare dùng material ngoài bảng.
 constexpr std::string_view kGateParticles = R"(flame
 {
 quota 2
@@ -314,6 +315,30 @@ emitter Point
 emission_rate 100
 }
 }
+card
+{
+quota 1
+material mist
+renderer mesh
+mesh_name card.mesh
+emitter Point
+{
+emission_rate 100
+time_to_live 5
+}
+}
+falls
+{
+quota 1
+material veil
+renderer mesh
+mesh_name falls.mesh
+emitter Point
+{
+emission_rate 100
+time_to_live 5
+}
+}
 )";
 
 // camp: một hệ dựng được, một hệ trộn alpha, một element bộ đọc không biết, một projector trộn alpha.
@@ -360,7 +385,8 @@ constexpr std::string_view kGateTable =
     "mist\tMaterial/mist.png\tsrc_alpha one_minus_src_alpha\t1\t\t0\t0\tparticle\t\n"
     "flow\tMaterial/flow.png\tone one\t2\tMaterial/mask.png\t0\t0\tParticle_TwoTex_PS\t\n"
     "drift\tMaterial/drift.png\tone one\t1\t\t0\t0.5\tparticle\t\n"
-    "sized\tMaterial/sized.png\tone one\t1\t\t0\t0\tparticle\tscale 2 1\n";
+    "sized\tMaterial/sized.png\tone one\t1\t\t0\t0\tparticle\tscale 2 1\n"
+    "veil\tMaterial/veil.png\tsrc_alpha one_minus_src_alpha\t2\tMaterial/mask.png\t0\t0.3\tParticle_TwoTex_PS\t\n";
 
 // Cột đổi chỗ, có cột lạ, xuống dòng CRLF, thiếu ba cột second, scroll, extra; dòng spark dài hơn tiêu
 // đề một ô, dòng broken có hệ số không phải số, một dòng không tên, dòng short thiếu ô, dòng swirl dùng
@@ -372,8 +398,9 @@ constexpr std::string_view kOddTable = "gain\tnote\tname\tblend\timage\tshader\r
                                        "1\t\tshort\r\n"
                                        "1\t\tswirl\tone one\tMaterial/swirl.png\tModel_Flow_PS\r\n";
 
-// Sáu hệ của kGateParticles và một tên thư viện không có.
-constexpr std::array<std::string_view, 7> kGateNames{"flame", "fog", "plane", "candle", "scrolled", "bare", "ghost"};
+// Hệ của kGateParticles và một tên thư viện không có.
+constexpr std::array<std::string_view, 9> kGateNames{
+    "flame", "fog", "plane", "candle", "scrolled", "bare", "card", "falls", "ghost"};
 
 [[nodiscard]] fx::Library particles_only(std::string_view script) {
     fx::LibraryText text;
@@ -671,11 +698,15 @@ void palette_reads_columns(Context& context) {
     const fx::Paint* glow = palette.find("glow");
     context.expect(glow != nullptr && glow->blend == fx::Blend::kAlphaAdd && glow->is_plain, "glow: cộng theo alpha");
     const fx::Paint* mist = palette.find("mist");
-    context.expect(mist != nullptr && mist->blend == fx::Blend::kOther, "mist: trộn alpha không phải cộng sáng");
+    context.expect(mist != nullptr && mist->blend == fx::Blend::kAlpha && mist->is_plain, "mist: trộn alpha, một ảnh");
     const fx::Paint* flow = palette.find("flow");
-    context.expect(flow != nullptr && !flow->is_plain, "flow: hai ảnh, shader riêng");
+    const bool flow_mask = flow != nullptr && flow->second == "Material/mask.png" && !flow->is_plain;
+    context.expect(flow_mask, "flow: hai ảnh, shader riêng");
     const fx::Paint* drift = palette.find("drift");
-    context.expect(drift != nullptr && !drift->is_plain, "drift: cuộn UV");
+    context.expect(drift != nullptr && drift->scroll_v == 0.5F && !drift->is_plain, "drift: cuộn UV");
+    const fx::Paint* veil = palette.find("veil");
+    const bool veiled = veil != nullptr && veil->second == "Material/mask.png" && veil->scroll_v == 0.3F;
+    context.expect(veiled && veil->blend == fx::Blend::kAlpha, "veil: mặt nạ, cuộn và trộn alpha");
     const fx::Paint* sized = palette.find("sized");
     context.expect(sized != nullptr && !sized->is_plain, "sized: có thiết lập riêng");
     context.expect(palette.find("ghost") == nullptr, "tên lạ không có trong bảng");
@@ -699,8 +730,9 @@ void palette_survives_odd_table(Context& context) {
     context.expect(fx::Palette("").size() == 0, "bảng rỗng không làm hỏng gì");
 }
 
-// Mỗi lý do bỏ phải đếm đúng một lần cho mỗi hệ, và chỉ hệ qua cửa mới thành Field: vẽ một hệ trộn
-// alpha bằng pipeline cộng sáng ra quầng sáng thay cho sương.
+// Mỗi lý do bỏ phải đếm đúng một lần cho mỗi hệ. Trộn alpha một ảnh được nhận (pipeline riêng).
+// Billboad hai ảnh vẫn bị bỏ: vẽ thiếu mặt nạ thì sương thành tấm đặc. Hạt mesh trộn alpha thì nhận,
+// kể cả khi có mặt nạ. Hạt mesh cộng sáng vẫn bỏ.
 void cast_skips_by_reason(Context& context) {
     fx::Library library = gate_library();
     fx::Cast cast(&library);
@@ -711,17 +743,17 @@ void cast_skips_by_reason(Context& context) {
     cast.add(spawn_of("nope", true));
     cast.update(0.1F);
     const fx::Tally& tally = cast.tally();
-    context.expect(tally.systems == 2 && tally.strips == 0, "nhận hai hệ flame, không dải nào");
-    context.expect(cast.live().size() == 2, "hai Field có hạt");
-    context.expect(cast.strips(fx::CameraAxes{}).empty(), "projector trộn alpha không thành dải");
-    context.expect(tally.count(fx::Skip::kBlend) == 3, "fog hai lần và projector: không cộng sáng");
-    context.expect(tally.count(fx::Skip::kMeshRenderer) == 1, "plane: hạt mesh");
+    context.expect(tally.systems == 6 && tally.strips == 1, "flame, fog, card, falls và projector");
+    context.expect(cast.live().size() == 6, "sáu Field có hạt");
+    context.expect(cast.strips(fx::CameraAxes{}).size() == 1, "projector trộn alpha thành một dải");
+    context.expect(tally.count(fx::Skip::kBlend) == 0, "trộn alpha một ảnh không bị bỏ");
+    context.expect(tally.count(fx::Skip::kMeshRenderer) == 1, "plane: hạt mesh cộng sáng");
     context.expect(tally.count(fx::Skip::kUnknownAffector) == 1, "candle: affector lạ");
-    context.expect(tally.count(fx::Skip::kShading) == 1, "scrolled: material hai ảnh");
+    context.expect(tally.count(fx::Skip::kShading) == 1, "scrolled: billboad hai ảnh");
     context.expect(tally.count(fx::Skip::kNoMaterial) == 1, "bare: material ngoài bảng");
     context.expect(tally.count(fx::Skip::kUnknownName) == 2, "ghost và nope: tên lạ");
     context.expect(tally.count(fx::Skip::kUnknownElement) == 1, "PointLight: element lạ");
-    context.expect(tally.total_skipped() == 10, "tổng mười thứ bị bỏ");
+    context.expect(tally.total_skipped() == 7, "tổng bảy thứ bị bỏ");
     const auto kind = tally.affectors.find("SequenceFrame");
     const bool named = tally.affectors.size() == 1 && kind != tally.affectors.end() && kind->second == 1;
     context.expect(named, "nêu tên loại affector làm hệ bị bỏ");
@@ -735,7 +767,7 @@ void cast_clear_resets(Context& context) {
     cast.add(spawn_of("fog", false));
     cast.add(spawn_of("late", true));
     cast.update(0.1F);
-    context.expect(cast.live().size() == 1 && cast.tally().systems == 2, "một Field đang chạy, một hệ còn chờ");
+    context.expect(cast.live().size() == 2 && cast.tally().systems == 3, "flame và fog đang chạy, hệ late còn chờ");
     cast.clear();
     const bool reset = cast.tally().systems == 0 && cast.tally().total_skipped() == 0;
     context.expect(cast.live().empty() && reset, "clear bỏ Field và đặt lại số đếm");

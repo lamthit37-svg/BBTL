@@ -3,8 +3,7 @@
 // hoặc hai descriptor table (tài nguyên và sampler) trong heap nhìn thấy từ shader.
 // Nguồn: Forge2 src/gpu/d3d12/programs.cpp@d7fcd76. Khác gốc: enumerator mang tiền tố k; thân vòng
 // có nhánh tách hàm một lượt hoặc đưa điều kiện dừng lên điều kiện lặp; chữ ký dài gom tham số;
-// include trực tiếp header của từng tên; Clang bỏ qua __uuidof của IID_PPV_ARGS; pragma C4324 chỉ
-// khi dịch bằng MSVC.
+// include trực tiếp header của từng tên. Stream đệm tường minh tới bội của căn.
 #include "gpu/d3d12/device.hpp"
 
 #include "core/error.hpp"
@@ -32,6 +31,8 @@
 #include <winnt.h>
 #include <wrl/client.h>
 
+#include "gpu/com.hpp"
+
 #include <algorithm>
 #include <array>
 #include <cstddef>
@@ -48,11 +49,6 @@
 #include <utility>
 #include <variant>
 #include <vector>
-
-#if defined(__clang__)
-// __uuidof của IID_PPV_ARGS không có dạng chuẩn.
-#pragma clang diagnostic ignored "-Wlanguage-extension-token"
-#endif
 
 namespace game::gpu::d3d12 {
 
@@ -110,20 +106,36 @@ struct ShaderSlots {
     const Shader* pixel = nullptr;
 };
 
-// C4324 báo khoảng đệm sau enum. Bố cục stream D3D12 bắt payload nằm ở căn con trỏ (8 byte trên
-// x64), nên chỗ đệm ấy là hợp đồng, không phải thừa. Pragma chỉ MSVC hiểu.
-#if defined(_MSC_VER)
-#pragma warning(push)
-#pragma warning(disable : 4324)
-#endif
+// Đệm cuối đúng số byte alignas sẽ thêm. Bố cục vẫn là enum rồi payload, đúng stream D3D12.
+template <class Payload>
+consteval std::size_t stream_tail() noexcept {
+    constexpr std::size_t kEnum = sizeof(D3D12_PIPELINE_STATE_SUBOBJECT_TYPE);
+    constexpr std::size_t kPayloadAlign = alignof(Payload);
+    constexpr std::size_t kGap = (kPayloadAlign - (kEnum % kPayloadAlign)) % kPayloadAlign;
+    constexpr std::size_t kBody = kEnum + kGap + sizeof(Payload);
+    constexpr std::size_t kLine = kPayloadAlign > 8 ? kPayloadAlign : 8;
+    return (kLine - (kBody % kLine)) % kLine;
+}
+
+template <D3D12_PIPELINE_STATE_SUBOBJECT_TYPE Type, class Payload, bool NeedTail>
+struct StreamItemBase;
+
 template <D3D12_PIPELINE_STATE_SUBOBJECT_TYPE Type, class Payload>
-struct alignas(8) StreamItem {
+struct alignas(8) StreamItemBase<Type, Payload, false> {
     D3D12_PIPELINE_STATE_SUBOBJECT_TYPE type = Type;
     Payload value{};
 };
-#if defined(_MSC_VER)
-#pragma warning(pop)
-#endif
+
+template <D3D12_PIPELINE_STATE_SUBOBJECT_TYPE Type, class Payload>
+struct alignas(8) StreamItemBase<Type, Payload, true> {
+    static constexpr std::size_t kTail = stream_tail<Payload>();
+    D3D12_PIPELINE_STATE_SUBOBJECT_TYPE type = Type;
+    Payload value{};
+    unsigned char tail_[kTail]{};
+};
+
+template <D3D12_PIPELINE_STATE_SUBOBJECT_TYPE Type, class Payload>
+using StreamItem = StreamItemBase<Type, Payload, (stream_tail<Payload>() != 0)>;
 
 using Tables = std::vector<TableBuild>;
 
@@ -694,6 +706,11 @@ void fill_graphics(GraphicsDesc& info, const GraphicsFill& fill) {
 template <D3D12_PIPELINE_STATE_SUBOBJECT_TYPE Type, class Payload>
 void append_item(Bytes& out, const Payload& value) {
     using Item = StreamItem<Type, Payload>;
+    static_assert(sizeof(Item) % alignof(Item) == 0);
+    constexpr std::size_t kEnum = sizeof(D3D12_PIPELINE_STATE_SUBOBJECT_TYPE);
+    constexpr std::size_t kPayloadAlign = alignof(Payload);
+    constexpr std::size_t kGap = (kPayloadAlign - (kEnum % kPayloadAlign)) % kPayloadAlign;
+    static_assert(offsetof(Item, value) == kEnum + kGap);
     const std::size_t align = alignof(Item);
     const std::size_t base = (out.size() + align - 1) & ~(align - 1);
     out.resize(base);
@@ -754,14 +771,14 @@ void append_formats(Bytes& out, const GraphicsDesc& info) {
 [[nodiscard]] bool load_graphics(GraphicsLoad load, const GraphicsDesc& desc, State12& state) {
     if (load.library == nullptr || load.name.empty()) return false;
     const std::wstring wide = core::widen(load.name);
-    const HRESULT loaded = load.library->LoadGraphicsPipeline(wide.c_str(), &desc, IID_PPV_ARGS(&state));
+    const HRESULT loaded = load.library->LoadGraphicsPipeline(wide.c_str(), &desc, com_iid(state), com_pp(state));
     return SUCCEEDED(loaded);
 }
 
 [[nodiscard]] bool load_compute(GraphicsLoad load, const ComputeDesc& desc, State12& state) {
     if (load.library == nullptr || load.name.empty()) return false;
     const std::wstring wide = core::widen(load.name);
-    const HRESULT loaded = load.library->LoadComputePipeline(wide.c_str(), &desc, IID_PPV_ARGS(&state));
+    const HRESULT loaded = load.library->LoadComputePipeline(wide.c_str(), &desc, com_iid(state), com_pp(state));
     return SUCCEEDED(loaded);
 }
 
@@ -1149,7 +1166,7 @@ void null_group(ConstDevice& device, const Group& group, const SpaceLayout& spac
     // Struct của D3D12 nhận con trỏ không hằng dù chỉ đọc luồng.
     // NOLINTNEXTLINE(cppcoreguidelines-pro-type-const-cast)
     streamed.pPipelineStateSubobjectStream = const_cast<std::byte*>(stream.data());
-    return device->CreatePipelineState(&streamed, IID_PPV_ARGS(&state));
+    return device->CreatePipelineState(&streamed, com_iid(state), com_pp(state));
 }
 
 [[nodiscard]] Status emit_signature(D3d12Device& device, Layout& layout, const Tables& tables) {
@@ -1184,7 +1201,8 @@ void null_group(ConstDevice& device, const Group& group, const SpaceLayout& spac
     Device12* const hardware = device.device();
     const void* const bytes = blob->GetBufferPointer();
     const auto bytes_size = blob->GetBufferSize();
-    const HRESULT created = hardware->CreateRootSignature(0, bytes, bytes_size, IID_PPV_ARGS(&layout.signature));
+    const HRESULT created =
+        hardware->CreateRootSignature(0, bytes, bytes_size, com_iid(layout.signature), com_pp(layout.signature));
     if (FAILED(created)) return device.failed(created, "không tạo được root signature");
     return ok();
 }
@@ -1316,7 +1334,8 @@ Result<PipelineHandle> D3d12Device::create_pipeline(const PipelineDesc& desc) {
     if (load_graphics(library, built.info, built.pipeline.state)) {
         return keep_pipeline(std::move(built.pipeline), desc.name);
     }
-    created = device_->CreateGraphicsPipelineState(&built.info, IID_PPV_ARGS(&built.pipeline.state));
+    created =
+        device_->CreateGraphicsPipelineState(&built.info, com_iid(built.pipeline.state), com_pp(built.pipeline.state));
     if (FAILED(created)) return failed(created, "không tạo được pipeline đồ hoạ");
     return keep_pipeline(std::move(built.pipeline), desc.name);
 }
@@ -1344,7 +1363,7 @@ Result<PipelineHandle> D3d12Device::create_pipeline(const ComputePipelineDesc& d
     if (load_compute(library, info, pipeline.state)) {
         return keep_pipeline(std::move(pipeline), desc.name);
     }
-    const HRESULT created = device_->CreateComputePipelineState(&info, IID_PPV_ARGS(&pipeline.state));
+    const HRESULT created = device_->CreateComputePipelineState(&info, com_iid(pipeline.state), com_pp(pipeline.state));
     if (FAILED(created)) return failed(created, "không tạo được pipeline compute");
     return keep_pipeline(std::move(pipeline), desc.name);
 }

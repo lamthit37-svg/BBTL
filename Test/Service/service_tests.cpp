@@ -36,7 +36,7 @@ using Clock = std::chrono::steady_clock;
 constexpr std::string_view kConfigDir = GAME_SERVER_CONFIG;
 #else
 // check.py dịch tệp này không có định nghĩa của CMake; đường dẫn từ gốc dự án để tệp tự đứng được.
-constexpr std::string_view kConfigDir = "SERVER/config";
+constexpr std::string_view kConfigDir = "dev/server/config";
 #endif
 
 // Hạn cho một bước của tiến trình thật; bản ASan khởi động chậm hơn bản phát hành nhiều lần.

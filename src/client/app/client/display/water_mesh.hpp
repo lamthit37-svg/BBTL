@@ -1,5 +1,6 @@
 // Mặt TerrainLiquid: lũ trên địa hình thành một model. Ảnh lấy từ Material/all.material,
-// tìm ở Material/ rồi Scene/. Không có ảnh thì bỏ mặt đó. Cuộn UV chưa có trong shader model.
+// tìm ở Material/ rồi Scene/. Không có ảnh thì bỏ mặt đó. scroll_anim ghi vào emissive để
+// shader model cuộn UV; shader_water01 của login không khai scroll_anim.
 #pragma once
 
 #include "client/display/sky_mesh.hpp"
@@ -41,13 +42,17 @@ namespace game::client {
     return *text;
 }
 
-inline void add_water(resource::Model& model, const map::LiquidSheet& sheet, resource::Image image, bool blends) {
+inline void add_water(resource::Model& model, const map::LiquidSheet& sheet, resource::Image image, bool blends,
+    float speed_u, float speed_v) {
     if (sheet.points.empty() || sheet.indices.empty()) return;
     const auto image_index = static_cast<std::uint32_t>(model.images.size());
     model.images.push_back(std::move(image));
     resource::Material material;
     material.double_sided = true;
     material.alpha = blends ? resource::Alpha::kBlend : resource::Alpha::kOpaque;
+    const bool scrolls = speed_u != 0.0F || speed_v != 0.0F;
+    if (scrolls) material.unlit = true;
+    if (scrolls) material.emissive = math::Float3{speed_u, speed_v, 0.0F};
     material.color.image = image_index;
     material.color.sampler = 0;
     const auto material_index = static_cast<std::uint32_t>(model.materials.size());
@@ -90,7 +95,7 @@ inline void add_water(resource::Model& model, const map::LiquidSheet& sheet, res
         field.place.y = liquid.position.y;
         field.place.z = liquid.position.z;
         field.place.texture_scale = liquid.texture_scale;
-        add_water(model, map::build_liquid(field), std::move(*image), look->blends);
+        add_water(model, map::build_liquid(field), std::move(*image), look->blends, look->speed_u, look->speed_v);
     }
     if (model.meshes.front().primitives.empty()) return {};
     resource::Node node;

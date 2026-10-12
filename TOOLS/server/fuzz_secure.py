@@ -22,8 +22,8 @@ PROJECT = Path(__file__).resolve().parents[2]
 BUILD = PROJECT / "build" / "fuzz-secure"
 SODIUM_LIB = PROJECT / "build" / "clang-asan" / "third_party" / "libsodium" / "game_sodium.lib"
 SODIUM_INCLUDE = PROJECT / "build" / "clang-asan" / "third_party" / "libsodium" / "include"
-SECURE = PROJECT / "SRC" / "secure"
-HARNESSES = PROJECT / "tests" / "fuzz"
+SECURE = PROJECT / "src" / "shared" / "secure"
+HARNESSES = PROJECT / "Test" / "fuzz"
 FLAGS = (
     "-std=c++23",
     "-g",
@@ -132,7 +132,7 @@ def _sodium_objects(cc: str, env: dict[str, str]) -> list[Path]:
 def _command(cxx: str, name: str, sodium: list[Path], extra: tuple[str, ...]) -> list[str]:
     harness = HARNESSES / f"fuzz_{name}.cpp"
     sources = [str(harness), *(str(path) for path in SOURCES)]
-    includes = ["-I", str(PROJECT / "SRC"), "-isystem", str(SODIUM_INCLUDE)]
+    includes = ["-I", str(PROJECT / "src" / "shared"), "-I", str(PROJECT / "engine"), "-isystem", str(SODIUM_INCLUDE)]
     folder = name if not extra else f"{name}-teeth"
     output = _exe(folder)
     output.parent.mkdir(parents=True, exist_ok=True)

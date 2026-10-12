@@ -1,4 +1,4 @@
-"""Bố cục chung của tệp TOML trong SERVER/config, theo mẫu chủ dự án đưa ngày 2026-10-06.
+"""Bố cục chung của tệp TOML trong dev/server/config, theo mẫu chủ dự án đưa ngày 2026-10-06.
 
     #==================================================
     # TIÊU ĐỀ TỆP VIẾT IN HOA

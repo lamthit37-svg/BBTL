@@ -11,23 +11,22 @@
 /compile_commands.json
 CMakeUserPresets.json
 
-# Sản phẩm: exe cài vào Dev (bản dev) hoặc release (bản phát hành).
-# Dữ liệu client gom từ kho gốc nằm ở assets/client, không vào git.
-/Dev/
+# Bản thử và bản chính thức. Mỗi bản tự chứa assets, không trỏ vào assets/ của nguồn.
+# dev/server giữ config, bảng, cảnh, SQL trong git. Phần sinh lúc chạy và cả release thì không.
+/dev/client/
+/dev/web/
+/dev/tools/
+/dev/admin/
+/dev/load/
+/dev/server/bin/
+/dev/server/pgsql/
+/dev/server/data/
+/dev/server/log/
+/dev/server/tables/shared/
+/dev/server/tables/variants/
+/dev/server/scenes/**/*.nav
+/dev/server/scenes/**/*.bin
 /release/
-/assets/client/
-
-# Runtime của máy chủ: exe do bước install chép vào; nhị phân PostgreSQL do TOOLS/server/setup_db.py
-# tải; dữ liệu, khoá và log sinh lúc chạy; bảng xuất từ client và lưới đã nấu do TOOLS/server sinh.
-# Cấu hình TOML, bảng chỉ máy chủ giữ, tệp cảnh dạng chữ và SQL thì vào git.
-/SERVER/bin/
-/SERVER/pgsql/
-/SERVER/data/
-/SERVER/log/
-/SERVER/tables/shared/
-/SERVER/tables/variants/
-/SERVER/scenes/**/*.nav
-/SERVER/scenes/**/*.bin
 
 # vcpkg
 /vcpkg_installed/

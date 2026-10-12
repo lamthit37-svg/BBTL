@@ -36,6 +36,8 @@
 #include <winuser.h>
 #include <wrl/client.h>
 
+#include "gpu/com.hpp"
+
 #include <algorithm>
 #include <array>
 #include <atomic>
@@ -51,10 +53,6 @@
 #include <thread>
 #include <utility>
 #include <vector>
-
-#if defined(__clang__)
-#pragma clang diagnostic ignored "-Wlanguage-extension-token"
-#endif
 
 namespace game::gpu::d3d11 {
 
@@ -171,9 +169,9 @@ void enum_step(EnumState& state) {
     UINT flags = 0;
     if (debug) flags = DXGI_CREATE_FACTORY_DEBUG;
     ComPtr<IDXGIFactory1> factory;
-    HRESULT created = CreateDXGIFactory2(flags, IID_PPV_ARGS(factory.GetAddressOf()));
+    HRESULT created = CreateDXGIFactory2(flags, com_iid(factory.GetAddressOf()), com_pp(factory.GetAddressOf()));
     if (FAILED(created) && flags != 0) {
-        created = CreateDXGIFactory2(0, IID_PPV_ARGS(factory.GetAddressOf()));
+        created = CreateDXGIFactory2(0, com_iid(factory.GetAddressOf()), com_pp(factory.GetAddressOf()));
     }
     if (FAILED(created)) return failed(created, "không tạo được factory DXGI");
     return factory;
@@ -231,20 +229,20 @@ void fill_caps(DeviceCaps& caps) {
 
 void protect_device(ID3D11Device& device) {
     ComPtr<ID3D10Multithread> threads;
-    const HRESULT queried = device.QueryInterface(IID_PPV_ARGS(threads.GetAddressOf()));
+    const HRESULT queried = device.QueryInterface(com_iid(threads.GetAddressOf()), com_pp(threads.GetAddressOf()));
     if (FAILED(queried)) return;
     threads->SetMultithreadProtected(TRUE);
 }
 
 void attach_info(ID3D11Device& device, ComPtr<ID3D11InfoQueue>& info) {
-    const HRESULT queried = device.QueryInterface(IID_PPV_ARGS(info.GetAddressOf()));
+    const HRESULT queried = device.QueryInterface(com_iid(info.GetAddressOf()), com_pp(info.GetAddressOf()));
     if (FAILED(queried)) return;
     info->ClearStoredMessages();
 }
 
 [[nodiscard]] bool tearing_ok(IDXGIFactory1& factory) noexcept {
     ComPtr<IDXGIFactory5> fifth;
-    const HRESULT queried = factory.QueryInterface(IID_PPV_ARGS(fifth.GetAddressOf()));
+    const HRESULT queried = factory.QueryInterface(com_iid(fifth.GetAddressOf()), com_pp(fifth.GetAddressOf()));
     if (FAILED(queried)) return false;
     BOOL allow = FALSE;
     const UINT bytes = sizeof(allow);
@@ -499,7 +497,7 @@ void publish_signals(std::span<const TimelineNote> notes) {
 
 [[nodiscard]] DXGI_FORMAT texture_format(ID3D11Resource& resource) {
     ComPtr<ID3D11Texture2D> texture;
-    const HRESULT queried = resource.QueryInterface(IID_PPV_ARGS(texture.GetAddressOf()));
+    const HRESULT queried = resource.QueryInterface(com_iid(texture.GetAddressOf()), com_pp(texture.GetAddressOf()));
     if (FAILED(queried)) return DXGI_FORMAT_UNKNOWN;
     D3D11_TEXTURE2D_DESC desc{};
     texture->GetDesc(&desc);
@@ -875,7 +873,8 @@ FormatSupport D3d11Device::format_support(Format format) const {
 MemoryBudget D3d11Device::memory_budget() const {
     MemoryBudget budget;
     ComPtr<IDXGIAdapter3> adapter;
-    const HRESULT queried = adapter_dxgi_->QueryInterface(IID_PPV_ARGS(adapter.GetAddressOf()));
+    const HRESULT queried =
+        adapter_dxgi_->QueryInterface(com_iid(adapter.GetAddressOf()), com_pp(adapter.GetAddressOf()));
     if (FAILED(queried)) return budget;
     DXGI_QUERY_VIDEO_MEMORY_INFO info{};
     const HRESULT read = adapter->QueryVideoMemoryInfo(0, DXGI_MEMORY_SEGMENT_GROUP_LOCAL, &info);

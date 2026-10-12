@@ -667,7 +667,7 @@ class RealExportTest(unittest.TestCase):
         if roots is None:
             self.skipTest("thiếu THIENLONG_RAW_ROOT hoặc THIENLONG_LEGACY_ROOT")
         raw, legacy = roots
-        sample = next(Path("SERVER/tables/shared").glob("*.tsv"), None)
+        sample = next(Path("dev/server/tables/shared").glob("*.tsv"), None)
         before = None if sample is None else sample.read_bytes()
         root = Path("build") / "p1-a" / "real-export"
         if root.exists():

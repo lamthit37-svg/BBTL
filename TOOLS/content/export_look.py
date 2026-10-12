@@ -142,8 +142,7 @@ def skeleton_links(template) -> dict:
 # Tên của một dòng đi vào ô TSV: không được mang tab hay xuống dòng.
 def name_cell(table, row: int, column: int, source: str) -> str:
     name = table.text(row, column)
-    if "	" in name or "
-" in name or "" in name:
+    if "\t" in name or "\n" in name or "\r" in name:
         raise ExportError(f"{source} dòng {row}: tên có tab hay xuống dòng")
     return name
 

@@ -1,8 +1,8 @@
-"""Dựng cụm PostgreSQL nằm trong SERVER/ cho máy chủ thử.
+"""Dựng cụm PostgreSQL nằm trong dev/server/ cho máy chủ thử.
 
-Mọi thứ ở trong thư mục dự án: nhị phân ở SERVER/pgsql (git bỏ qua), dữ liệu ở SERVER/data/pg, mật
-khẩu ở SERVER/config/secrets.local.toml (git bỏ qua). Không cài dịch vụ Windows, không cần quyền
-quản trị. Địa chỉ, cổng và đường dẫn của cụm đọc từ SERVER/config/cluster.toml; tên database và
+Nhị phân ở dev/server/pgsql (git bỏ qua), dữ liệu ở dev/server/data/pg, mật khẩu ở
+dev/server/config/secrets.local.toml (git bỏ qua). Không cài dịch vụ Windows, không cần quyền
+quản trị. Địa chỉ, cổng và đường dẫn của cụm đọc từ dev/server/config/cluster.toml; tên database và
 role đọc từ auth.toml, billing.toml, store.toml: một nguồn sự thật với máy chủ.
 
   python TOOLS/server/setup_db.py fetch [--zip <tệp>]   tải gói nhị phân, kiểm SHA-256, giải nén
@@ -23,7 +23,7 @@ from pathlib import Path
 from config_style import render
 
 ROOT = Path(__file__).resolve().parents[2]
-SERVER = ROOT / "SERVER"
+SERVER = ROOT / "dev" / "server"
 CONFIG = SERVER / "config"
 SECRETS = CONFIG / "secrets.local.toml"
 
@@ -276,7 +276,7 @@ def status(cluster: Cluster) -> None:
 
 def main() -> int:
     sys.stdout.reconfigure(encoding="utf-8")
-    parser = argparse.ArgumentParser(description="Dựng cụm PostgreSQL của máy chủ thử trong SERVER/.")
+    parser = argparse.ArgumentParser(description="Dựng cụm PostgreSQL của máy chủ thử trong dev/server/.")
     commands = parser.add_subparsers(dest="command", required=True)
     fetch_parser = commands.add_parser("fetch", help="tải và giải nén gói nhị phân")
     fetch_parser.add_argument("--zip", type=Path, help="dùng tệp zip đã tải thay vì tải lại")

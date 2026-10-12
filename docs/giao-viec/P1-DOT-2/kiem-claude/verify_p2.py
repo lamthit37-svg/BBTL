@@ -24,7 +24,7 @@ from verify_p1 import atoi, parse_like_cpp, read_legacy_text  # noqa: E402
 
 sys.stdout.reconfigure(encoding="utf-8")
 TLBB = Path(os.environ.get("THIENLONG_LEGACY_ROOT", "thiếu THIENLONG_LEGACY_ROOT"))
-SERVER = ROOT / "SERVER"
+SERVER = ROOT / "dev" / "server"
 TOOLS = ROOT / "TOOLS/server"
 PARTS = set(sys.argv[1:]) or {"E", "F", "G"}
 

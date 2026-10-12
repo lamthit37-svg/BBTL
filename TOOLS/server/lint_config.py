@@ -1,6 +1,6 @@
-"""Kiểm tệp TOML của SERVER/config: đúng cú pháp, đúng bố cục, không cài đặt nào thiếu chú thích.
+"""Kiểm tệp TOML của dev/server/config: đúng cú pháp, đúng bố cục, không cài đặt nào thiếu chú thích.
 
-  python TOOLS/server/lint_config.py                  kiểm mọi tệp .toml dưới SERVER/config
+  python TOOLS/server/lint_config.py                  kiểm mọi tệp .toml dưới dev/server/config
   python TOOLS/server/lint_config.py <tệp...>         kiểm các tệp chỉ định
   python TOOLS/server/lint_config.py --fix [tệp...]   căn thẳng cột lại rồi mới kiểm
 
@@ -18,7 +18,7 @@ from pathlib import Path
 from config_style import KEY, LINE_LIMIT, RULE, TABLE, align_lines, split_setting
 
 ROOT = Path(__file__).resolve().parents[2]
-CONFIG = ROOT / "SERVER" / "config"
+CONFIG = ROOT / "dev" / "server" / "config"
 # Chữ chỉ tiếng Việt mới có: đủ để phân biệt chú thích tiếng Việt với chú thích trống hay tiếng Anh.
 VIETNAMESE = re.compile(r"[àáảãạăằắẳẵặâầấẩẫậđèéẻẽẹêềếểễệìíỉĩịòóỏõọôồốổỗộơờớởỡợùúủũụưừứửữựỳýỷỹỵ]", re.IGNORECASE)
 

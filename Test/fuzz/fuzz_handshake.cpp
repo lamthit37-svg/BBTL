@@ -5,6 +5,7 @@
 #include <array>
 #include <cstddef>
 #include <cstdint>
+#include <memory>
 #include <span>
 #include <utility>
 
@@ -15,7 +16,9 @@ namespace {
     return value;
 }
 
-void keep(std::uint64_t value) { mix_slot() ^= value; }
+void keep(std::uint64_t value) {
+    mix_slot() ^= value;
+}
 
 [[nodiscard]] std::array<std::byte, game::secure::kEphemeralBytes> seed_of() {
     std::array<std::byte, game::secure::kEphemeralBytes> seed{};
@@ -30,16 +33,14 @@ void keep(std::uint64_t value) { mix_slot() ^= value; }
 }
 
 [[nodiscard]] game::secure::Identity& identity() {
-    // Khoá một lần, huỷ khi tiến trình fuzz thoát. Clang cấm destructor lúc thoát.
-#if defined(__clang__)
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wexit-time-destructors"
-#endif
-    static game::secure::Identity kept = load_identity();
-#if defined(__clang__)
-#pragma clang diagnostic pop
-#endif
-    return kept;
+    // Một khoá cho cả tiến trình. Không đăng ký destructor lúc thoát: destructor xoá khoá,
+    // và chính việc đó là -Wexit-time-destructors. Khoá chết theo tiến trình.
+    alignas(game::secure::Identity) static std::byte storage[sizeof(game::secure::Identity)];
+    static game::secure::Identity* kept = nullptr;
+    if (kept != nullptr) return *kept;
+    void* raw = storage;
+    kept = std::construct_at(static_cast<game::secure::Identity*>(raw), load_identity());
+    return *kept;
 }
 
 void note_server(const game::secure::ServerHandshake& server, const game::secure::AbsorbResult& got) {

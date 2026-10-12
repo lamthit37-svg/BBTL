@@ -1,6 +1,7 @@
 // Test của client/stage: trích từ một tệp cảnh những thứ phần hiển thị cần — vật thể tĩnh có mesh
 // (đúng thứ tự trong tệp, kèm phép đặt), các đèn directional và màu ambient. Vật thể kiểu khác, đèn
 // điểm và vật thể tĩnh không có tên mesh không được lọt vào.
+#include "client/stage/height_fog.hpp"
 #include "client/stage/sky.hpp"
 #include "client/stage/stage.hpp"
 #include "core/check.hpp"
@@ -13,6 +14,8 @@
 #include <cmath>
 #include <cstddef>
 #include <cstdint>
+#include <cstring>
+#include <span>
 #include <string>
 #include <string_view>
 #include <vector>
@@ -246,6 +249,21 @@ void model_file_lists_entity_meshes(Context& context) {
     context.expect(client::model_meshes("<not").empty(), "XML hỏng không có mesh");
 }
 
+void height_fog_reads_sixty_four_bytes(Context& context) {
+    float source[16] = {0.3F, 0.4F, 0.5F, 1.0F, 1.0F, -1781.0F, 0.132F, 8.8F,
+        0.178F, 0.499F, 0.0F, 2.0F, 0.7F, 0.84F, 1.0F, 1.0F};
+    std::array<std::byte, client::kHeightFogBytes> bytes{};
+    std::memcpy(bytes.data(), source, bytes.size());
+    const std::optional<client::HeightFog> fog = client::read_height_fog(bytes);
+    context.expect(fog.has_value(), "64 byte là một tệp sương");
+    if (!fog) return;
+    context.expect(fog->color_r == 0.3F && fog->height == -1781.0F, "màu và cao độ");
+    context.expect(fog->pow_factor == 8.8F && fog->depth_start == 0.0F, "mũ và tầm sâu");
+    context.expect(fog->inscatter == 2.0F && fog->scatter_b == 1.0F, "tán xạ đứng sau tầm sâu");
+    bytes[0] = std::byte{0};
+    context.expect(!client::read_height_fog(std::span(bytes).first(63)).has_value(), "thiếu byte thì bỏ");
+}
+
 constexpr std::array kCases{
     Case{.name = "stage_keeps_static_entities_with_a_mesh_in_file_order",
         .body = &stage_keeps_static_entities_with_a_mesh_in_file_order},
@@ -259,6 +277,7 @@ constexpr std::array kCases{
     Case{.name = "stage_keeps_scene_models", .body = &stage_keeps_scene_models},
     Case{.name = "stage_turns_spot_lights_into_lamps", .body = &stage_turns_spot_lights_into_lamps},
     Case{.name = "model_file_lists_entity_meshes", .body = &model_file_lists_entity_meshes},
+    Case{.name = "height_fog_reads_sixty_four_bytes", .body = &height_fog_reads_sixty_four_bytes},
 };
 
 } // namespace

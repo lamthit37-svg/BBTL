@@ -1,9 +1,9 @@
-"""Đổi khoá ini luật chơi thành TOML trong SERVER/config/rules.
+"""Đổi khoá ini luật chơi thành TOML trong dev/server/config/rules.
 
     python TOOLS/server/import_rules.py <thư mục tlbb> <thư mục rules> [--check]
 
 Đọc TOOLS/server/legacy_rules.tsv. Khoá fate=rule được ghi bằng config_style.
-Khoá fate=process_config chỉ so với SERVER/config, không sửa mười một tệp đó.
+Khoá fate=process_config chỉ so với dev/server/config, không sửa mười một tệp đó.
 --check không ghi tệp. Thoát 0 khi hết lỗi chuyển đổi; lệch giá trị tiến trình
 được in, không làm lệnh thất bại. Dòng ini `#khoá=giá trị` là khoá, không phải chú thích.
 """
@@ -51,7 +51,7 @@ HELP = """\
 cách dùng: python TOOLS/server/import_rules.py <thư mục tlbb> <thư mục rules> [--check]
 
 Đọc legacy_rules.tsv, ghi các tệp luật fate=rule, so khoá fate=process_config
-với SERVER/config. --check không ghi. Thoát 0 khi sạch, 1 khi có lỗi.
+với dev/server/config. --check không ghi. Thoát 0 khi sạch, 1 khi có lỗi.
 """
 FILE_TEXT = {
     "global.toml": (
@@ -596,7 +596,7 @@ def _process_diffs(
     rows: list[HandRow], values: dict[tuple[str, str, str], SourceKey]
 ) -> list[str]:
     diffs = []
-    config = PROJECT / "SERVER" / "config"
+    config = PROJECT / "dev" / "server" / "config"
     cached: dict[str, dict[tuple[str, str], str]] = {}
     for (filename, table, key), literal, _note in _literals(rows, values):
         if filename not in cached:

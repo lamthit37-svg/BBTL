@@ -71,9 +71,10 @@ enum class NameFault : std::uint8_t { kOk, kEmpty, kLong, kBad, kTaken, kFull };
 [[nodiscard]] NameFault add_role(Book& book, std::string_view account, const Role& role);
 // Xoá nhân vật thứ index của account (0 là nhân vật đầu). Không có thì không đổi gì.
 [[nodiscard]] bool erase_role(Book& book, std::string_view account, std::uint8_t index);
-// Sổ thành chữ TSV phiên bản 1, kết thúc bằng dấu xuống dòng nếu có dòng.
+// Sổ thành chữ TSV phiên bản 2, kết thúc bằng dấu xuống dòng nếu có dòng.
 [[nodiscard]] std::string encode_book(const Book& book);
-// Đọc sổ. Không có khi dòng phiên bản không phải "1". Dòng hỏng bị bỏ, dòng đúng được giữ.
+// Đọc sổ phiên bản 2, hoặc phiên bản 1 (mười ô, trang phục về bộ mặc định). Không có khi dòng
+// phiên bản khác hai số đó. Dòng hỏng bị bỏ, dòng đúng được giữ.
 [[nodiscard]] std::optional<Book> decode_book(std::string_view text);
 
 } // namespace game::ui::panel

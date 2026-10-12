@@ -1,4 +1,4 @@
-// Dựng sáu PSO của bảng catalog từ gói .f2s. Mỗi cặp shader nạp một lần cho mọi biến thể của nó.
+// Dựng bảy PSO của bảng catalog từ gói .f2s. Mỗi cặp shader nạp một lần cho mọi biến thể của nó.
 // Bốn biến thể model khác nhau ở cull và blend; chỉ số ô trùng bit mà forward chọn chất liệu.
 #include "render/catalog.hpp"
 
@@ -117,11 +117,10 @@ void note_required(const Entry& entry, const core::Error& error, std::optional<c
 }
 
 [[nodiscard]] core::Result<gpu::PipelineHandle> make_fx(gpu::Device& device, const CatalogDesc& desc,
-    std::span<const gpu::ShaderHandle> shaders) {
+    std::span<const gpu::ShaderHandle> shaders, const gpu::BlendState& blend, std::string_view name) {
     const gpu::VertexBufferLayout layout{.stride = kFxStride};
-    const gpu::BlendState blend = add_blend();
     gpu::GraphicsPipelineDesc pipeline;
-    pipeline.name = "render.fx";
+    pipeline.name = name;
     pipeline.shaders = shaders;
     pipeline.vertex_buffers = std::span(&layout, 1);
     pipeline.vertex_attributes = kFxAttributes;
@@ -180,7 +179,7 @@ core::Result<Catalog> Catalog::open(gpu::Device& device, CatalogDesc desc) {
 const Catalog::SlotState& Catalog::state_of(Pso pso) const noexcept {
     const auto index = static_cast<std::size_t>(pso);
     const std::size_t clamped = index < slots_.size() ? index : 0;
-    // Pso chỉ có sáu giá trị, 0..5, đã kẹp trước khi lấy ô.
+    // Pso chỉ có bảy giá trị, 0..6, đã kẹp trước khi lấy ô.
     // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-constant-array-index)
     return slots_[clamped];
 }
@@ -250,7 +249,8 @@ core::Result<gpu::PipelineHandle> Catalog::build(const Entry& entry, std::span<c
     case Pso::kModelBlend:
     case Pso::kModelBlendTwoSided: return make_model(*device_, desc_, entry, shaders);
     case Pso::kUi: return make_ui(*device_, desc_, shaders);
-    case Pso::kFx: return make_fx(*device_, desc_, shaders);
+    case Pso::kFx: return make_fx(*device_, desc_, shaders, add_blend(), entry.name);
+    case Pso::kFxBlend: return make_fx(*device_, desc_, shaders, alpha_blend(), entry.name);
     }
     std::unreachable();
 }

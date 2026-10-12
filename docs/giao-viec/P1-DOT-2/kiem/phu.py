@@ -8,7 +8,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[4]
 TOOLS = ROOT / "TOOLS" / "server"
-SERVER = ROOT / "SERVER"
+SERVER = ROOT / "dev" / "server"
 LEGACY = Path(os.environ["THIENLONG_LEGACY_ROOT"])
 OUT = Path(__file__).resolve().parent / "phu-ra.txt"
 

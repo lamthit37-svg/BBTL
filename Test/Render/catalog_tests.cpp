@@ -24,7 +24,7 @@ using render::Tier;
 
 void ui_opens_with_the_client(Context& context) {
     const auto table = render::entries();
-    context.expect(table.size() == render::kSlotCount, "đủ sáu mục");
+    context.expect(table.size() == render::kSlotCount, "đủ số mục catalog");
     bool saw = false;
     for (const Entry& entry : table) {
         if (entry.pso != Pso::kUi) continue;
@@ -70,16 +70,20 @@ void model_variants_are_character(Context& context) {
 }
 
 void fx_waits_for_the_scene(Context& context) {
-    bool saw = false;
+    bool saw_add = false;
+    bool saw_blend = false;
     for (const Entry& entry : render::entries()) {
-        if (entry.pso != Pso::kFx) continue;
-        saw = true;
+        const bool is_fx = entry.pso == Pso::kFx || entry.pso == Pso::kFxBlend;
+        if (!is_fx) continue;
+        if (entry.pso == Pso::kFx) saw_add = true;
+        if (entry.pso == Pso::kFxBlend) saw_blend = true;
         context.expect(entry.group == Group::kVfx, "fx thuộc nhóm VFX");
         context.expect(entry.tier == Tier::kScene, "fx thuộc tầng 2");
         context.expect(!entry.is_required, "fx thiếu thì bỏ qua hiệu ứng");
         context.expect(entry.frame_bytes == 0, "fx không kiểm khối khung");
+        context.expect(same(entry.vertex, "fx.vs") && same(entry.pixel, "fx.ps"), "hai pipeline hạt chung shader");
     }
-    context.expect(saw, "có mục fx");
+    context.expect(saw_add && saw_blend, "có hạt cộng sáng và hạt trộn alpha");
 }
 
 void optional_tier_follows_the_gpu(Context& context) {

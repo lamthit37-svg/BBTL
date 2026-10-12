@@ -4,7 +4,7 @@ cách dùng: python TOOLS/server/build_data.py --legacy <tlbb> --raw <_raw> [--d
 
 Gọi table_census, export_tables, import_legacy, export_scene, import_rules và
 scene_refs, rồi lint_names và diff_tables --check. --dest chọn gốc chứa tables,
-scenes và config/rules; mặc định là SERVER của dự án. --check kiểm hết và không
+scenes và config/rules; mặc định là dev/server của dự án. --check kiểm hết và không
 ghi tệp nào. --digest in SHA-256 của tables và scenes. Thoát 0 khi sạch, 1 khi có lỗi.
 """
 from __future__ import annotations
@@ -28,7 +28,7 @@ import tsv_file
 HELP = """\
 cách dùng: python TOOLS/server/build_data.py --legacy <tlbb> --raw <_raw> [--dest <gốc>] [--check] [--digest]
 
-Sinh lại tables, scenes và config/rules dưới gốc đích. Mặc định gốc là SERVER.
+Sinh lại tables, scenes và config/rules dưới gốc đích. Mặc định gốc là dev/server.
 --dest chọn gốc khác để test ghi vào build. --check kiểm hết và không ghi tệp nào.
 Sau khi sinh thì in tổng kết lint_names và diff_tables --check.
 --digest in một mã SHA-256 của tables và scenes. Thoát 0 khi sạch, 1 khi có lỗi.
@@ -68,7 +68,7 @@ def _store(arg: str, value: str, legacy: str, raw: str, dest: Path) -> tuple[str
 def _parse(arguments: list[str]) -> tuple[str, str, Path, bool, bool]:
     legacy = ""
     raw = ""
-    dest = PROJECT / "SERVER"
+    dest = PROJECT / "dev" / "server"
     check = False
     digest = False
     index = 0
@@ -155,7 +155,7 @@ def _column(root: Path | None, name: str) -> Path | None:
 
 
 def _layout(dest: Path) -> _Layout:
-    redirect = dest.resolve() != (PROJECT / "SERVER").resolve()
+    redirect = dest.resolve() != (PROJECT / "dev" / "server").resolve()
     columns = dest / "columns" if redirect else None
     census = dest / "table_census.tsv" if redirect else None
     return _Layout(

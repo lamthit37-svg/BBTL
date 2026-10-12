@@ -22,7 +22,7 @@ table_variant = ""                 # Bộ bảng thay thế theo loại máy ch�
 #==================================================
 # Cụm PostgreSQL
 #==================================================
-# Database nằm ngay trong SERVER. TOOLS/server/setup_db.py dựng nó; supervisor chạy và dừng nó.
+# Database nằm trong dev/server, cạnh thư mục config này. setup_db.py dựng; supervisor chạy và dừng.
 [postgres]
 host     = "127.0.0.1"             # Địa chỉ cụm nghe; chỉ loopback, không mở ra mạng
 port     = 5432                    # Cổng TCP của cụm

@@ -153,7 +153,8 @@ SendOutcome Reactor::submit_send(std::uint64_t tag, std::span<const std::byte> d
     const auto* bytes = reinterpret_cast<const char*>(data.data());
     const ssize_t sent = ::send(fd, bytes, count, kFlags);
     if (sent > 0) {
-        if (static_cast<std::size_t>(sent) == data.size()) native.poll.want_write(tag, false);
+        // Gửi thiếu thì phải chờ writable: bên gọi có thể dừng vòng gửi trước khi gặp EAGAIN.
+        native.poll.want_write(tag, static_cast<std::size_t>(sent) < data.size());
         return SendOutcome{.state = SendState::kDone, .sent = static_cast<std::size_t>(sent)};
     }
     if (sent < 0 && (errno == EAGAIN || errno == EWOULDBLOCK)) {

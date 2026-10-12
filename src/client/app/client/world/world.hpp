@@ -76,6 +76,9 @@ using EnterResult = std::expected<EnterCode, EnterError>;
 // Đọc .skysphere cạnh tệp cảnh và ghi mốc đèn cùng các dải ảnh vào stage. Thiếu tệp thì bỏ qua.
 void attach_sky_file(Stage& stage, const std::filesystem::path& scene_folder, std::string_view sky_file);
 
+// Đọc Scene/<tên cảnh>.hfog (đuôi .Scene đổi thành .hfog). Thiếu tệp hoặc sai 64 byte thì bỏ.
+void attach_height_fog(Stage& stage, const std::filesystem::path& scene_folder, std::string_view scene_file);
+
 // Đọc từng tệp .model mà stage.figures nêu và thêm mesh entity vào props. data_root chứa Model/.
 // Thiếu tệp thì bỏ qua figure đó. Mesh trỏ ra ngoài Model/ bị bỏ.
 void attach_models(Stage& stage, const std::filesystem::path& data_root);

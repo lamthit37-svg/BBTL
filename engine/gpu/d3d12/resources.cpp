@@ -7,7 +7,7 @@
 // readback vì quá 40 dòng; place gộp if trùng điều kiện, format_support tách phép lọc vì
 // cognitive quá 10; NOLINT cho .at() trong hàm noexcept; MinGW không đặt tên
 // D3D12_UAV_DIMENSION_TEXTURE2DMS nên hai case đó chỉ dịch khi không phải MinGW, vẫn return false;
-// Clang bỏ qua __uuidof của IID_PPV_ARGS; include trực tiếp header của từng tên.
+// IID lấy từ hằng của SDK; include trực tiếp header của từng tên.
 #include "gpu/d3d12/device.hpp"
 
 #include "core/error.hpp"
@@ -29,6 +29,8 @@
 #include <winnt.h>
 #include <wrl/client.h>
 
+#include "gpu/com.hpp"
+
 #include <algorithm>
 #include <array>
 #include <cstddef>
@@ -39,11 +41,6 @@
 #include <optional>
 #include <span>
 #include <utility>
-
-#if defined(__clang__)
-// __uuidof của IID_PPV_ARGS không có dạng chuẩn.
-#pragma clang diagnostic ignored "-Wlanguage-extension-token"
-#endif
 
 namespace game::gpu::d3d12 {
 
@@ -579,7 +576,7 @@ MemoryBudget D3d12Device::memory_budget() const {
     budget.budget_bytes = adapter_.memory_bytes;
     if (adapter_com_ == nullptr) return budget;
     ComPtr<IDXGIAdapter3> adapter;
-    const HRESULT queried = adapter_com_->QueryInterface(IID_PPV_ARGS(&adapter));
+    const HRESULT queried = adapter_com_->QueryInterface(com_iid(adapter), com_pp(adapter));
     if (FAILED(queried)) return budget;
     DXGI_QUERY_VIDEO_MEMORY_INFO info{};
     const HRESULT read = adapter->QueryVideoMemoryInfo(0, DXGI_MEMORY_SEGMENT_GROUP_LOCAL, &info);
@@ -600,14 +597,14 @@ Result<D3d12Device::Placed> D3d12Device::place(const D3D12_RESOURCE_DESC& desc, 
     placed.memory = *memory;
     const ComPtr<ID3D12Heap> heap = heap_of(placed.memory);
     ComPtr<ID3D12Device10> device10;
-    const HRESULT queried = device_->QueryInterface(IID_PPV_ARGS(&device10));
+    const HRESULT queried = device_->QueryInterface(com_iid(device10), com_pp(device10));
     if (FAILED(queried)) {
         free(placed.memory);
         return fail(ErrorCode::kUnsupported, "thiết bị không có CreatePlacedResource2");
     }
     const D3D12_RESOURCE_DESC1 desc1 = as_desc1(desc);
     const HRESULT created = device10->CreatePlacedResource2(heap.Get(), placed.memory.span.offset, &desc1,
-        D3D12_BARRIER_LAYOUT_UNDEFINED, clear, 0, nullptr, IID_PPV_ARGS(&placed.resource));
+        D3D12_BARRIER_LAYOUT_UNDEFINED, clear, 0, nullptr, com_iid(placed.resource), com_pp(placed.resource));
     if (FAILED(created)) {
         placed.resource.Reset();
         free(placed.memory);
@@ -740,7 +737,7 @@ Result<QueryPoolHandle> D3d12Device::create_query_pool(const QueryPoolDesc& desc
     D3D12_QUERY_HEAP_DESC heap{};
     heap.Type = query_heap(caps_, desc);
     heap.Count = desc.count;
-    const HRESULT created = device_->CreateQueryHeap(&heap, IID_PPV_ARGS(&pool.heap));
+    const HRESULT created = device_->CreateQueryHeap(&heap, com_iid(pool.heap), com_pp(pool.heap));
     if (FAILED(created)) return failed(created, "không tạo được query heap");
     const D3D12_RESOURCE_DESC buffer = query_readback(desc.count);
     Result<Placed> placed = place(buffer, PoolKind::kReadback, nullptr, true);

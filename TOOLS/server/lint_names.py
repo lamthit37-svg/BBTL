@@ -267,7 +267,7 @@ def check_names() -> list[str]:
     exempt, morpheme_exempt, clash_exempt = _exception_sets()
     morphemes = _morphemes()
     errors: list[str] = []
-    rules = PROJECT / "SERVER" / "config" / "rules"
+    rules = PROJECT / "dev" / "server" / "config" / "rules"
     for path in sorted(rules.glob("*.toml")):
         errors.extend(_toml_names(path, banned, official, exempt))
     errors.extend(_column_names(banned, official, exempt))

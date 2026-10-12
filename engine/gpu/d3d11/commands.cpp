@@ -38,10 +38,6 @@
 #include <utility>
 #include <vector>
 
-#if defined(__clang__)
-#pragma clang diagnostic ignored "-Wlanguage-extension-token"
-#endif
-
 namespace game::gpu::d3d11 {
 
 namespace {

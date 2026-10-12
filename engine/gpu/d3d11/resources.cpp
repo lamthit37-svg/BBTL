@@ -35,10 +35,6 @@
 #include <utility>
 #include <vector>
 
-#if defined(__clang__)
-#pragma clang diagnostic ignored "-Wlanguage-extension-token"
-#endif
-
 namespace game::gpu::d3d11 {
 
 namespace {
@@ -673,8 +669,8 @@ void copy_out(const void* source, std::uint64_t size, OutSpan span) noexcept {
 }
 
 [[nodiscard]] bool needs_typeless(const TextureDesc& desc) noexcept {
-    const bool depth_sampled = has(desc.usage, TextureUsage::kDepthStencilTarget) &&
-        has(desc.usage, TextureUsage::kSampled);
+    const bool depth_sampled =
+        has(desc.usage, TextureUsage::kDepthStencilTarget) && has(desc.usage, TextureUsage::kSampled);
     if (depth_sampled) return true;
     return has(desc.usage, TextureUsage::kReinterpret);
 }

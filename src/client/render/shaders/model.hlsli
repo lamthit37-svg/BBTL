@@ -41,8 +41,17 @@ struct Frame {
     float4 fog_range;
     float4 fog_color;
     // x: 1 khi ánh sáng được phép vượt 1 (ColorGreaterOne của bản gốc), 0 thì kẹp.
+    // y: giây, để cuộn UV của thác.
     float4 rules;
     Lamp lamps[kLamps];
+    // HeightFog_ps: density, height, falloff, pow.
+    float4 hfog;
+    // density, falloff, start. w luôn 0, như FUN_1801c1440.
+    float4 dfog;
+    // rgb màu sương; a > 0 thì áp sương chiều cao.
+    float4 hfog_color;
+    // rgb màu tán xạ; w là InscatteringFactor.
+    float4 hfog_scatter;
 };
 #ifndef F2_DXBC
 ConstantBuffer<Frame> frame : register(b0, space0);
@@ -89,6 +98,8 @@ static const uint kSpecular = 64u;
 // Texture cộng ánh sáng thay vì nhân (BLEND_OP_0 = 3 của bản gốc).
 static const uint kAddLight = 128u;
 static const uint kVertexColor = 256u;
+// Ảnh t1 nhân lên ảnh t0, đúng Particle_2Tex của hạt mesh.
+static const uint kMaskTex = 512u;
 
 struct Varying {
     float4 clip : SV_Position;

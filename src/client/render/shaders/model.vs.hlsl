@@ -86,6 +86,8 @@ Varying main(Vertex vertex, uint instance_id : SV_InstanceID) {
     output.clip = mul(frame.view_proj, float4(place, 1.0));
     output.normal = facing;
     output.uv = vertex.uv;
+    // scroll_anim của thác: tốc độ nằm ở specular.xy, giây của khung ở rules.y. Chỉ chất liệu không đèn.
+    if ((draw.flags & kUnlit) != 0u) output.uv += draw.specular.xy * frame.rules.y;
     output.color = vertex.color;
     output.place = place;
     output.light = is_lit_here ? diffuse_light(facing, place, lamp) : float3(1.0, 1.0, 1.0);

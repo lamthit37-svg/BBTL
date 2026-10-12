@@ -90,6 +90,13 @@ struct Lighting {
     Fog fog;
     // ColorGreaterOne của bản gốc: ánh sáng không bị kẹp ở 1.
     bool is_overbright = false;
+    // Giây từ lúc mở cửa sổ. Shader model đưa vào rules.y để cuộn UV của thác (scroll_anim).
+    float seconds = 0.0F;
+    // Sương chiều cao. hfog_color.a > 0 thì shader áp HeightFog_ps. Mặc định tắt.
+    math::Float4 hfog{};
+    math::Float4 dfog{};
+    math::Float4 hfog_color{};
+    math::Float4 hfog_scatter{};
 };
 
 struct ForwardDesc {

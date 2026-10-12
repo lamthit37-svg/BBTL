@@ -22,8 +22,8 @@ import dbc  # noqa: E402
 
 SEED = 20261006
 SCENE = LEGACY / "Public" / "Scene"
-TABLES = ROOT / "SERVER" / "tables"
-SCENES = ROOT / "SERVER" / "scenes"
+TABLES = ROOT / "dev" / "server" / "tables"
+SCENES = ROOT / "dev" / "server" / "scenes"
 NAMES = ROOT / "TOOLS" / "server" / "table_names.tsv"
 
 
@@ -411,7 +411,7 @@ def section_legacy() -> None:
                     else:
                         written.append(cell)
                 expect.append(prefix + written)
-        destination = ROOT / "SERVER" / target
+        destination = ROOT / "dev" / "server" / target
         _meta, _types, header, got, _problems = load_tsv(destination)
         compared += 1
         width = len(expect[0]) if expect else len(header)

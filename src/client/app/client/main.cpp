@@ -1,8 +1,8 @@
 // thienlong_client: điểm vào của client. Nạp tệp cảnh của một map từ thư mục dữ liệu, in tóm tắt
 // (số vật thể theo kiểu, hộp bao vị trí, vài phép đặt đầu) để đối chiếu với tệp gốc, rồi mở cửa sổ
 // và vẽ mọi vật thể tĩnh của cảnh (GLB nạp từ thư mục dữ liệu, đúng phép đặt gốc); --shot ghi ảnh
-// chụp khung đầu tiên ra PNG. Dữ liệu tìm ở <thư mục chứa exe>/../data (bố cục CLIENT/bin và
-// CLIENT/data), đổi bằng --data. Không nêu --scene (bấm đúp exe) thì mở cảnh duy nhất của thư mục
+// chụp khung đầu tiên ra PNG. Dữ liệu tìm ở <thư mục chứa exe>/../assets (dev/client/bin và
+// dev/client/assets, hoặc release/client), đổi bằng --data. Không nêu --scene thì mở cảnh duy nhất của thư mục
 // dữ liệu. Mã thoát: 0 xong, 1 lỗi dữ liệu hoặc không mở được cửa sổ, 2 sai cách dùng hoặc không
 // biết mở cảnh nào.
 #include "client/boot.hpp"
@@ -73,7 +73,7 @@ struct Summary {
 
 [[nodiscard]] std::filesystem::path data_folder_of(const client::Options& options) {
     if (!options.data_folder.empty()) return options.data_folder;
-    return io::executable_directory().parent_path() / "data";
+    return io::executable_directory().parent_path() / "assets";
 }
 
 void extend(Bounds& bounds, const scene::Vector3& point) noexcept {
@@ -312,8 +312,13 @@ void report_named(const client::NamedScene& named, std::string_view label) {
     return client::run_viewer(viewer);
 }
 
+// Bấm đúp không kèm --scene: vào đăng nhập. --scene hoặc --scene-id vẫn mở thẳng cảnh đó.
+[[nodiscard]] bool asked_scene(const client::Options& options) noexcept {
+    return options.scene_id.has_value() || !options.scene_name.empty();
+}
+
 [[nodiscard]] int run(const client::Options& options) {
-    if (options.is_login) return run_login(options);
+    if (options.is_login || !asked_scene(options)) return run_login(options);
     const std::filesystem::path data_root = data_folder_of(options);
     const io::TextResult table = io::read_text(data_root / "Config" / "SceneDefineEx.txt");
     if (table) return run_book(options, *table);

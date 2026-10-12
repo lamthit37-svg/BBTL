@@ -11,6 +11,9 @@ SamplerState fx_sampler : register(s0);
 
 float4 main(Varying input) : SV_Target0 {
     const float4 texel = fx_map.Sample(fx_sampler, input.uv);
-    const float3 rgb = texel.rgb * input.color.rgb * input.color.a * texel.a;
-    return float4(rgb, 1.0);
+    const float3 straight = texel.rgb * input.color.rgb;
+    const float coverage = texel.a * input.color.a;
+    // Cộng sáng giữ công thức cũ: rgb đã nhân alpha, alpha ra 1, blend One + One bỏ alpha.
+    if (fx_push.mode.x < 0.5) return float4(straight * coverage, 1.0);
+    return float4(straight, coverage);
 }

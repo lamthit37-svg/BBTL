@@ -15,6 +15,7 @@
 #include "shader/spirv.hpp"
 
 #include <algorithm>
+#include <cstddef>
 #include <cstring>
 #include <filesystem>
 #include <format>
@@ -26,6 +27,9 @@
 
 #include <d3d12shader.h>
 #include <dxcapi.h>
+#include <guiddef.h>
+#include <winerror.h>
+#include <winnt.h>
 #include <wrl/client.h>
 
 namespace game::shader {
@@ -152,8 +156,8 @@ void add_mode(std::vector<std::wstring>& args, const CompileOptions& options) {
     return before == 0 || fs::is_separator(path.at(before - 1));
 }
 
-// Trạng thái của một lần dịch mà bộ nạp include ghi vào. Tách khỏi Handler để Handler chỉ giữ một
-// con trỏ: lớp COM không có destructor ảo, nên nó không được sở hữu gì.
+// Trạng thái của một lần dịch mà bộ nạp include ghi vào. IncludeObject chỉ giữ con trỏ:
+// bảng hàm COM không có destructor, nên đối tượng không được sở hữu gì.
 struct Includes {
     IDxcUtils* utils = nullptr;
     std::vector<std::string> files{};
@@ -189,37 +193,93 @@ void remember(std::vector<std::string>& files, std::string path) {
     return made;
 }
 
-// Bộ nạp include sống trên stack của compile(), nên đếm tham chiếu không làm gì.
-class Handler final : public IDxcIncludeHandler {
-public:
-    explicit Handler(Includes& includes) noexcept : includes_(&includes) {}
+// Chuỗi uuid trong dxcapi.h và d3d12shader.h. DXC không phát hằng IID_*, chỉ __declspec(uuid).
+constexpr GUID kIidUnknown{
+    .Data1 = 0x00000000, .Data2 = 0x0000, .Data3 = 0x0000, .Data4 = {0xC0, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x46}};
+constexpr GUID kIidBlob{
+    .Data1 = 0x8BA5FB08, .Data2 = 0x5195, .Data3 = 0x40E2, .Data4 = {0xAC, 0x58, 0x0D, 0x98, 0x9C, 0x3A, 0x01, 0x02}};
+constexpr GUID kIidBlobUtf8{
+    .Data1 = 0x3DA636C9, .Data2 = 0xBA71, .Data3 = 0x4024, .Data4 = {0xA3, 0x01, 0x30, 0xCB, 0xF1, 0x25, 0x30, 0x5B}};
+constexpr GUID kIidInclude{
+    .Data1 = 0x7F61FC7D, .Data2 = 0x950D, .Data3 = 0x467F, .Data4 = {0xB3, 0xE3, 0x3C, 0x02, 0xFB, 0x49, 0x18, 0x7C}};
+constexpr GUID kIidUtils{
+    .Data1 = 0x4605C4CB, .Data2 = 0x2019, .Data3 = 0x492A, .Data4 = {0xAD, 0xA4, 0x65, 0xF2, 0x0B, 0xB7, 0xD6, 0x7F}};
+constexpr GUID kIidResult{
+    .Data1 = 0x58346CDA, .Data2 = 0xDDE7, .Data3 = 0x4497, .Data4 = {0x94, 0x61, 0x6F, 0x87, 0xAF, 0x5E, 0x06, 0x59}};
+constexpr GUID kIidCompiler3{
+    .Data1 = 0x228B4687, .Data2 = 0x5A6A, .Data3 = 0x4730, .Data4 = {0x90, 0x0C, 0x97, 0x02, 0xB2, 0x20, 0x3F, 0x54}};
+constexpr GUID kIidVersion2{
+    .Data1 = 0xFB6904C4, .Data2 = 0x42F0, .Data3 = 0x4B62, .Data4 = {0x9C, 0x46, 0x98, 0x3A, 0xF7, 0xDA, 0x7C, 0x83}};
+constexpr GUID kIidShader{
+    .Data1 = 0x5A58797D, .Data2 = 0xA72C, .Data3 = 0x478D, .Data4 = {0x8B, 0xA2, 0xEF, 0xC6, 0xB0, 0xEF, 0xE8, 0x8E}};
+constexpr GUID kIidLibrary{
+    .Data1 = 0x8E349D19, .Data2 = 0x54DB, .Data3 = 0x4A56, .Data4 = {0x9D, 0xC9, 0x11, 0x9D, 0x87, 0xBD, 0xB8, 0x04}};
 
-    HRESULT STDMETHODCALLTYPE LoadSource(LPCWSTR name, IDxcBlob** out) noexcept override {
-        // Ngoại lệ không được thoát qua ranh giới COM.
-        try {
-            return load(*includes_, name, out);
-        } catch (...) {
-            return E_OUTOFMEMORY;
-        }
-    }
+template <typename T>
+[[nodiscard]] void** dxc_pp(Microsoft::WRL::ComPtr<T>& slot) noexcept {
+    // T** không đổi được sang void** bằng static_cast. Đây là biên COM.
+    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
+    return reinterpret_cast<void**>(slot.GetAddressOf());
+}
 
-    HRESULT STDMETHODCALLTYPE QueryInterface(REFIID id, void** object) noexcept override {
-        if (object == nullptr) return E_POINTER;
-        const bool mine = id == __uuidof(IDxcIncludeHandler) || id == __uuidof(IUnknown);
-        *object = mine ? static_cast<IDxcIncludeHandler*>(this) : nullptr;
-        return mine ? S_OK : E_NOINTERFACE;
-    }
+// Không kế thừa IDxcIncludeHandler: destructor ảo đổi bảng hàm, destructor không ảo thì GCC
+// vẫn báo. Bốn slot: QueryInterface, AddRef, Release, LoadSource. Đối tượng sống trên stack.
+using IncludeQuery = HRESULT(STDMETHODCALLTYPE*)(IDxcIncludeHandler*, REFIID, void**);
+using IncludeCount = ULONG(STDMETHODCALLTYPE*)(IDxcIncludeHandler*);
+using IncludeLoad = HRESULT(STDMETHODCALLTYPE*)(IDxcIncludeHandler*, LPCWSTR, IDxcBlob**);
 
-    ULONG STDMETHODCALLTYPE AddRef() noexcept override { return 1; }
-    ULONG STDMETHODCALLTYPE Release() noexcept override { return 1; }
-
-private:
-    Includes* includes_;
+struct IncludeVtable {
+    IncludeQuery query = nullptr;
+    IncludeCount add = nullptr;
+    IncludeCount release = nullptr;
+    IncludeLoad load = nullptr;
 };
+
+struct IncludeObject {
+    const IncludeVtable* vptr = nullptr;
+    Includes* includes = nullptr;
+};
+
+HRESULT STDMETHODCALLTYPE include_query(IDxcIncludeHandler* self, REFIID riid, void** object) noexcept {
+    if (object == nullptr) return E_POINTER;
+    const bool is_handler = IsEqualGUID(riid, kIidInclude) != FALSE;
+    const bool is_unknown = IsEqualGUID(riid, kIidUnknown) != FALSE;
+    const bool mine = is_handler || is_unknown;
+    *object = mine ? static_cast<void*>(self) : nullptr;
+    return mine ? S_OK : E_NOINTERFACE;
+}
+
+ULONG STDMETHODCALLTYPE include_add(IDxcIncludeHandler*) noexcept {
+    return 1;
+}
+
+ULONG STDMETHODCALLTYPE include_release(IDxcIncludeHandler*) noexcept {
+    return 1;
+}
+
+HRESULT STDMETHODCALLTYPE include_load(IDxcIncludeHandler* self, LPCWSTR name, IDxcBlob** out) noexcept {
+    // Ngoại lệ không được thoát qua ranh giới COM.
+    try {
+        // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast): this của slot COM
+        const auto* object = reinterpret_cast<const IncludeObject*>(self);
+        return load(*object->includes, name, out);
+    } catch (...) {
+        return E_OUTOFMEMORY;
+    }
+}
+
+const IncludeVtable kIncludeVtable{
+    .query = include_query, .add = include_add, .release = include_release, .load = include_load};
+
+[[nodiscard]] IDxcIncludeHandler* include_as(IncludeObject& object) noexcept {
+    static_assert(offsetof(IncludeObject, vptr) == 0);
+    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast): đối tượng đứng ở đầu bảng hàm
+    return reinterpret_cast<IDxcIncludeHandler*>(&object);
+}
 
 [[nodiscard]] std::string text_of(IDxcResult& result, DXC_OUT_KIND kind) {
     ComPtr<IDxcBlobUtf8> blob;
-    const HRESULT got = result.GetOutput(kind, IID_PPV_ARGS(&blob), nullptr);
+    const HRESULT got = result.GetOutput(kind, kIidBlobUtf8, dxc_pp(blob), nullptr);
     if (FAILED(got) || blob == nullptr) return {};
     return {blob->GetStringPointer(), blob->GetStringLength()};
 }
@@ -232,20 +292,19 @@ private:
 
 [[nodiscard]] Result<StageReflection> reflect_library(IDxcUtils& utils, const DxcBuffer& buffer) {
     ComPtr<ID3D12LibraryReflection> library;
-    const HRESULT made = utils.CreateReflection(&buffer, IID_PPV_ARGS(&library));
+    const HRESULT made = utils.CreateReflection(&buffer, kIidLibrary, dxc_pp(library));
     if (FAILED(made) || library == nullptr) return internal("DXC không mở được phản chiếu");
     return reflect_dxil(*library.Get());
 }
 
 [[nodiscard]] StageResult reflect(Utils& utils, IDxcResult& result, const CompileOptions& options) {
     ComPtr<IDxcBlob> blob;
-    const HRESULT got = result.GetOutput(DXC_OUT_REFLECTION, IID_PPV_ARGS(&blob), nullptr);
+    const HRESULT got = result.GetOutput(DXC_OUT_REFLECTION, kIidBlob, dxc_pp(blob), nullptr);
     if (FAILED(got) || blob == nullptr) return internal("DXC không trả phản chiếu");
-    const DxcBuffer buffer{
-        .Ptr = blob->GetBufferPointer(), .Size = blob->GetBufferSize(), .Encoding = DXC_CP_ACP};
+    const DxcBuffer buffer{.Ptr = blob->GetBufferPointer(), .Size = blob->GetBufferSize(), .Encoding = DXC_CP_ACP};
     if (options.stage == Stage::kLibrary) return reflect_library(utils, buffer);
     ComPtr<ID3D12ShaderReflection> shader;
-    const HRESULT made = utils.CreateReflection(&buffer, IID_PPV_ARGS(&shader));
+    const HRESULT made = utils.CreateReflection(&buffer, kIidShader, dxc_pp(shader));
     if (FAILED(made) || shader == nullptr) return internal("DXC không mở được phản chiếu");
     return reflect_dxil(*shader.Get(), options.stage, options.entry);
 }
@@ -283,13 +342,12 @@ struct Collected {
     const bool reported = SUCCEEDED(result.GetStatus(&status));
     if (!reported || FAILED(status)) return refuse(compiled.messages);
     ComPtr<IDxcBlob> object;
-    const HRESULT got = result.GetOutput(DXC_OUT_OBJECT, IID_PPV_ARGS(&object), nullptr);
+    const HRESULT got = result.GetOutput(DXC_OUT_OBJECT, kIidBlob, dxc_pp(object), nullptr);
     if (FAILED(got) || object == nullptr) return internal("DXC không trả mã đã dịch");
     compiled.code = bytes_of(*object.Get());
     const bool spirv = options.target == Target::kSpirV;
-    Result<StageReflection> reflection = spirv
-        ? reflect_spirv(compiled.code, options.stage, options.entry)
-        : reflect(utils, result, options);
+    Result<StageReflection> reflection =
+        spirv ? reflect_spirv(compiled.code, options.stage, options.entry) : reflect(utils, result, options);
     if (!reflection) return pass(reflection);
     const bool unsigned_dxil = !spirv && !is_signed(compiled.code);
     if (unsigned_dxil) return fail(ErrorCode::kUnsupported, "DXC không ký được DXIL");
@@ -326,15 +384,14 @@ struct Collected {
 // "1.9.5399 (a107ba613)": số phiên bản, số commit và mã commit của bản DXC đã nạp.
 [[nodiscard]] std::string version_of(DxcCreateInstanceProc create) {
     ComPtr<IDxcCompiler3> compiler;
-    if (FAILED(create(CLSID_DxcCompiler, IID_PPV_ARGS(&compiler)))) return {};
+    if (FAILED(create(CLSID_DxcCompiler, kIidCompiler3, dxc_pp(compiler)))) return {};
     ComPtr<IDxcVersionInfo2> info;
-    if (FAILED(compiler.As(&info))) return {};
+    if (FAILED(compiler->QueryInterface(kIidVersion2, dxc_pp(info)))) return {};
     UINT32 major = 0;
     UINT32 minor = 0;
     UINT32 commits = 0;
     char* hash = nullptr;
-    const bool read = SUCCEEDED(info->GetVersion(&major, &minor)) &&
-        SUCCEEDED(info->GetCommitInfo(&commits, &hash));
+    const bool read = SUCCEEDED(info->GetVersion(&major, &minor)) && SUCCEEDED(info->GetCommitInfo(&commits, &hash));
     if (!read || hash == nullptr) return std::format("{}.{}", major, minor);
     std::string text = std::format("{}.{}.{} ({})", major, minor, commits, hash);
     ::CoTaskMemFree(hash);
@@ -436,11 +493,11 @@ Result<Compiled> Compiler::compile(const MemorySource& source, CompileRef option
     }
     ComPtr<IDxcUtils> utils;
     ComPtr<IDxcCompiler3> compiler;
-    const bool made = SUCCEEDED(state_->create(CLSID_DxcUtils, IID_PPV_ARGS(&utils))) &&
-        SUCCEEDED(state_->create(CLSID_DxcCompiler, IID_PPV_ARGS(&compiler)));
+    const bool made = SUCCEEDED(state_->create(CLSID_DxcUtils, kIidUtils, dxc_pp(utils))) &&
+        SUCCEEDED(state_->create(CLSID_DxcCompiler, kIidCompiler3, dxc_pp(compiler)));
     if (!made) return internal("DXC không tạo được trình dịch");
     Includes includes{.utils = utils.Get()};
-    Handler handler(includes);
+    IncludeObject handler{.vptr = &kIncludeVtable, .includes = &includes};
     const std::vector<std::wstring> args = arguments(path, options);
     std::vector<LPCWSTR> raw(args.size());
     std::ranges::transform(args, raw.begin(), &std::wstring::c_str);
@@ -449,7 +506,7 @@ Result<Compiled> Compiler::compile(const MemorySource& source, CompileRef option
     ComPtr<IDxcResult> result;
     const auto count = static_cast<UINT32>(raw.size());
     const HRESULT called =
-        compiler->Compile(&buffer, raw.data(), count, &handler, IID_PPV_ARGS(&result));
+        compiler->Compile(&buffer, raw.data(), count, include_as(handler), kIidResult, dxc_pp(result));
     if (FAILED(called) || result == nullptr) {
         const auto code = static_cast<std::uint32_t>(called);
         return fail(ErrorCode::kInternal, "DXC từ chối lời gọi dịch", "HRESULT {:#010x}", code);

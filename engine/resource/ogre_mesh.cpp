@@ -2,15 +2,22 @@
 // để nhảy qua edge list, pose, animation và extremes. Gán xương là bản ghi 16 byte xếp khít.
 #include "resource/ogre_mesh.hpp"
 
+#include "core/text.hpp"
+#include "core/win32.hpp"
 #include "fs/disk.hpp"
 #include "fs/file.hpp"
 #include "fs/path.hpp"
 #include "resource/dds.hpp"
 #include "resource/image.hpp"
 
+#if defined(_WIN32)
+#include <windows.h>
+#endif
+
 #include <meshoptimizer.h>
 
 #include <array>
+#include <charconv>
 #include <cstdint>
 #include <cstring>
 #include <limits>
@@ -474,14 +481,26 @@ struct MaterialRule {
     std::string cull;
     std::string rejection;
     std::string lighting;
+    float scroll_u = 0.0F;
+    float scroll_v = 0.0F;
+    float offset_u = 0.0F;
+    float offset_v = 0.0F;
+    bool has_scroll = false;
+    bool has_offset = false;
 };
 
 struct MaterialLook {
     std::string texture;
     Alpha alpha = Alpha::kOpaque;
     float cutoff = 0.5F;
+    float scroll_u = 0.0F;
+    float scroll_v = 0.0F;
+    float offset_u = 0.0F;
+    float offset_v = 0.0F;
     bool double_sided = false;
     bool unlit = false;
+    bool has_scroll = false;
+    bool has_offset = false;
 };
 
 using MaterialRules = std::vector<std::pair<std::string, MaterialRule>>;
@@ -495,6 +514,15 @@ using MaterialRules = std::vector<std::pair<std::string, MaterialRule>>;
     const std::size_t cut = line.find_first_of(" \t");
     if (cut == std::string_view::npos) return line;
     return line.substr(0, cut);
+}
+
+[[nodiscard]] float number_of(std::string_view text) noexcept {
+    float value = 0.0F;
+    const char* first = text.data();
+    const char* last = first + text.size();
+    const std::from_chars_result read = std::from_chars(first, last, value);
+    if (read.ec != std::errc{}) return 0.0F;
+    return value;
 }
 
 [[nodiscard]] std::string_view last_token(std::string_view line) noexcept {
@@ -547,6 +575,22 @@ void set_field(std::string& field, std::string value) {
             continue;
         } else if (line.starts_with("set_texture_alias") && line.find("<baseTexture>") != std::string_view::npos) {
             rules.back().second.texture = std::string(last_token(line));
+        } else if (line.starts_with("scroll_anim ")) {
+            const std::string_view rest = trim_left(line.substr(12));
+            const std::string_view across = first_token(rest);
+            const std::string_view down = first_token(trim_left(rest.substr(across.size())));
+            MaterialRule& rule = rules.back().second;
+            rule.scroll_u = number_of(across);
+            rule.scroll_v = number_of(down);
+            rule.has_scroll = true;
+        } else if (line.starts_with("scroll ")) {
+            const std::string_view rest = trim_left(line.substr(7));
+            const std::string_view across = first_token(rest);
+            const std::string_view down = first_token(trim_left(rest.substr(across.size())));
+            MaterialRule& rule = rules.back().second;
+            rule.offset_u = number_of(across);
+            rule.offset_v = number_of(down);
+            rule.has_offset = true;
         } else if (line.starts_with("texture ")) {
             set_field(rules.back().second.texture, std::string(first_token(trim_left(line.substr(8)))));
         } else if (line.starts_with("scene_blend ")) {
@@ -599,6 +643,16 @@ void apply_rejection(MaterialLook& look, std::string_view text) {
 
 void paint_rule(MaterialLook& look, const MaterialRule& rule) {
     if (!rule.texture.empty()) look.texture = rule.texture;
+    if (rule.has_scroll) {
+        look.scroll_u = rule.scroll_u;
+        look.scroll_v = rule.scroll_v;
+        look.has_scroll = true;
+    }
+    if (rule.has_offset) {
+        look.offset_u = rule.offset_u;
+        look.offset_v = rule.offset_v;
+        look.has_offset = true;
+    }
     if (!rule.blend.empty()) look.alpha = is_plain_blend(rule.blend) ? Alpha::kOpaque : Alpha::kBlend;
     if (rule.blend.empty() && !rule.rejection.empty()) apply_rejection(look, rule.rejection);
     if (!rule.cull.empty()) look.double_sided = rule.cull == "none";
@@ -625,15 +679,36 @@ void paint_rule(MaterialLook& look, const MaterialRule& rule) {
             name = rule->parent;
         }
         for (int index = count - 1; index >= 0; --index) paint_rule(look, *chain[index]);
+        // Mẫu như Mtl_Model_Transperant_NoLight không có thân trong all.material. Tên nói
+        // chất liệu trong suốt và không thắp sáng: suối pubu dùng mẫu này.
+        if (!name.empty() && name.find("NoLight") != std::string::npos) look.unlit = true;
+        const bool is_clear = name.find("Transperant") != std::string::npos || name.find("Transparent") != std::string::npos;
+        if (!name.empty() && is_clear) look.alpha = Alpha::kBlend;
     }
     if (!alias.empty()) look.texture = alias;
     return look;
 }
 
+// all.material của client gốc ghi đường dẫn bằng GBK. fs mở tệp bằng UTF-8. Để nguyên thì
+// CreateFileW trượt và shader nhận ảnh trắng thay cho vỏ cây, đá, lá.
+[[nodiscard]] std::string utf8_path(std::string_view stored) {
+    if (stored.empty() || core::is_valid_utf8(stored)) return std::string(stored);
+#if defined(_WIN32)
+    const int bytes = static_cast<int>(stored.size());
+    const int wide_count = MultiByteToWideChar(936, MB_ERR_INVALID_CHARS, stored.data(), bytes, nullptr, 0);
+    if (wide_count <= 0) return std::string(stored);
+    std::wstring wide(static_cast<std::size_t>(wide_count), L'\0');
+    MultiByteToWideChar(936, MB_ERR_INVALID_CHARS, stored.data(), bytes, wide.data(), wide_count);
+    return core::narrow(wide);
+#else
+    return std::string(stored);
+#endif
+}
+
 [[nodiscard]] bool attach_texture(Model& model, Material& material, std::string_view root, const std::string& texture,
     TextureTier tier) {
     if (texture.empty() || root.empty()) return true;
-    std::string relative = texture;
+    std::string relative = utf8_path(texture);
     for (char& item : relative) {
         if (item == '\\') item = '/';
     }
@@ -646,6 +721,13 @@ void paint_rule(MaterialLook& look, const MaterialRule& rule) {
     material.color.image = static_cast<std::uint32_t>(model.images.size());
     model.images.push_back(std::move(*image));
     return true;
+}
+
+void shift_uv(std::vector<Vertex>& vertices, float along_u, float along_v) {
+    for (Vertex& vertex : vertices) {
+        vertex.uv.x += along_u;
+        vertex.uv.y += along_v;
+    }
 }
 
 [[nodiscard]] core::Result<Model> build_model(const RawMesh& raw, std::string_view root, TextureTier tier) {
@@ -669,10 +751,12 @@ void paint_rule(MaterialLook& look, const MaterialRule& rule) {
         material.metallic = 0.0F;
         material.roughness = 1.0F;
         const MaterialLook look = look_of(root, submesh.material, submesh.texture);
+        if (look.has_offset) shift_uv(primitive.vertices, look.offset_u, look.offset_v);
         material.alpha = look.alpha;
         material.alpha_cutoff = look.cutoff;
         material.double_sided = look.double_sided;
         material.unlit = look.unlit;
+        if (look.has_scroll) material.emissive = math::Float3{look.scroll_u, look.scroll_v, 0.0F};
         if (!attach_texture(model, material, root, look.texture, tier)) return corrupt("ảnh mesh hỏng");
         primitive.material = static_cast<std::uint32_t>(model.materials.size());
         model.materials.push_back(std::move(material));

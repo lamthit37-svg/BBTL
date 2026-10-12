@@ -1,5 +1,5 @@
 #pragma once
-// Tạo SERVER/data/gate/identity.key bằng thienlong_gate --gen-key nếu chưa có.
+// Tạo dev/server/data/gate/identity.key bằng thienlong_gate --gen-key nếu chưa có.
 // Tệp khoá không vào git. Test boot cần nó trước khi gate chịu in ready.
 
 #include "core/error.hpp"

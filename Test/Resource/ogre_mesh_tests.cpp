@@ -136,7 +136,8 @@ void child_inherits_blend_and_cull(Context& context) {
     static_cast<void>(fs::create_directories(root + "/Material"));
     const char* script = "material Cha\n{\ntechnique\n{\npass\n{\nscene_blend src_alpha one_minus_src_alpha\n"
                          "cull_hardware none\nlighting off\ntexture_unit\n{\ntexture goc.dds\n}\n}\n}\n}\n"
-                         "material Con : Cha\n{\nset_texture_alias <baseTexture> khac.dds\n}\n";
+                         "material Con : Cha\n{\nset_texture_alias <baseTexture> khac.dds\n"
+                         "scroll 1.5 -2\nscroll_anim 0.25 0.3\n}\n";
     const auto* bytes = reinterpret_cast<const std::byte*>(script);
     const core::Status written = fs::write_file(root + "/Material/all.material", std::span<const std::byte>(bytes, std::strlen(script)));
     context.expect(static_cast<bool>(written), "ghi material thử");
@@ -167,6 +168,9 @@ void child_inherits_blend_and_cull(Context& context) {
     context.expect(material.color.image.has_value(), "alias đè texture cha");
     if (!material.color.image) return;
     context.expect(model->images[*material.color.image].name == "khac.dds", "texture là bản alias");
+    context.expect(material.emissive.x == 0.25F && material.emissive.y == 0.3F, "scroll_anim là tốc độ cuộn");
+    context.expect(model->meshes[0].primitives[0].vertices[0].uv.x == 1.5F, "scroll tĩnh cộng vào UV");
+    context.expect(model->meshes[0].primitives[0].vertices[0].uv.y == -2.0F, "scroll tĩnh theo V");
     std::filesystem::remove_all(root);
 }
 

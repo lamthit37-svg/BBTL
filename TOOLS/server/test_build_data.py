@@ -106,10 +106,10 @@ class BuildDataContractTest(unittest.TestCase):
         self.assertEqual(layout.server_columns, dest / "columns" / "server")
         self.assertEqual(layout.scene_columns, dest / "columns" / "scenes")
         self.assertEqual(layout.census, dest / "table_census.tsv")
-        default = build_data._layout(PROJECT / "SERVER")
+        default = build_data._layout(PROJECT / "dev" / "server")
         self.assertIsNone(default.shared_columns)
         self.assertIsNone(default.census)
-        self.assertEqual(default.tables, PROJECT / "SERVER" / "tables")
+        self.assertEqual(default.tables, PROJECT / "dev" / "server" / "tables")
 
     def test_digest_changes_when_bytes_change(self) -> None:
         tree = self.root / "SERVER" / "tables"

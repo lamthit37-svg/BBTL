@@ -1,5 +1,5 @@
 // Ca B của nợ (a): chạy trọn bộ test `server_boot` (cụm thật, bảy exe thật) rồi so thư mục
-// SERVER/data/gate của cây nguồn trước và sau. Test chạy exe thật không được ghi gì vào cây nguồn:
+// dev/server/data/gate của cây nguồn trước và sau. Test chạy exe thật không được ghi gì vào cây nguồn:
 // khoá danh tính của gate, log và dữ liệu đều phải nằm trong cây dựng.
 // Phép so dùng tên, cỡ và thời điểm ghi cuối của từng tệp, không đọc nội dung: thư mục ấy ở cây
 // chính chứa khoá danh tính thật, và tạo mới, xoá hay ghi lại một tệp đều làm ba số ấy đổi.
@@ -33,7 +33,7 @@ using Path = std::filesystem::path;
 constexpr std::string_view kConfigDir = GAME_SERVER_CONFIG;
 #else
 // check.py dịch tệp này không có định nghĩa của CMake; đường dẫn từ gốc dự án để tệp tự đứng được.
-constexpr std::string_view kConfigDir = "SERVER/config";
+constexpr std::string_view kConfigDir = "dev/server/config";
 #endif
 
 // Hạn cho cả bộ server_boot; bản ASan chạy cụm bảy tiến trình bốn lượt mất hơn một phút.
@@ -116,7 +116,7 @@ void server_boot_leaves_source_tree_alone(Context& context) {
     const std::vector<Mark> before = snapshot(watched);
     context.expect(run_server_boot() == 0, "bộ server_boot chạy xong và xanh");
     const std::vector<Mark> after = snapshot(watched);
-    context.expect(after == before, "SERVER/data/gate của cây nguồn không đổi sau server_boot");
+    context.expect(after == before, "dev/server/data/gate của cây nguồn không đổi sau server_boot");
 }
 
 constexpr std::array kCases{

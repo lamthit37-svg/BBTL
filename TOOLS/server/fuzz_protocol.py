@@ -26,8 +26,8 @@ PROJECT = Path(__file__).resolve().parents[2]
 BUILD = PROJECT / "build" / "p2-fuzz"
 SO_DO = PROJECT / "docs" / "giao-viec" / "P2-DOT-2" / "so-do"
 SAMPLES = PROJECT / "Test" / "Protocol" / "protocol_samples.hpp"
-PROTOCOL = PROJECT / "SRC" / "protocol"
-HARNESSES = PROJECT / "tests" / "fuzz"
+PROTOCOL = PROJECT / "src" / "shared" / "protocol"
+HARNESSES = PROJECT / "Test" / "fuzz"
 MAX_BODY = 65536
 CLIENT_BODY = 4096
 SLACK = 64
@@ -122,7 +122,7 @@ def _exe(target: Target) -> Path:
 
 def build_command(cxx: str, target: Target) -> list[str]:
     harness = HARNESSES / f"fuzz_{target.name}.cpp"
-    includes = ["-I", str(PROJECT / "SRC"), "-I", str(PROJECT / "tests")]
+    includes = ["-I", str(PROJECT / "src" / "shared"), "-I", str(PROJECT / "engine"), "-I", str(PROJECT / "Test")]
     sources = [str(path) for path in (harness, *_sources(target))]
     defines = WINDOWS_DEFINES if os.name == "nt" else ()
     return [cxx, *FLAGS, *defines, *includes, *sources, "-o", str(_exe(target))]

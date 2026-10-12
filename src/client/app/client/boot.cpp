@@ -105,6 +105,7 @@ NamedScene load_named_scene(const std::filesystem::path& data_root, std::string_
     add_ground(named, *shown, path.parent_path(), *file);
     fill_shown(*shown, std::move(*file), name, scene_id);
     world::attach_sky_file(shown->stage, path.parent_path(), shown->scene.sky_file);
+    world::attach_height_fog(shown->stage, path.parent_path(), shown->scene_file);
     world::attach_models(shown->stage, data_root);
     world::attach_buildings(shown->buildings, path.parent_path(), shown->scene_file);
     named.shown = std::move(shown);

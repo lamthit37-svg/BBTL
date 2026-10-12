@@ -26,10 +26,10 @@
 
 namespace game::fx {
 
-// Cách một material hạt trộn vào khung, theo hai hệ số của scene_blend. Pipeline hạt của client vẽ
-// được hai kiểu cộng sáng: "one one" (kAdd, alpha không tham gia) và "src_alpha one" (kAlphaAdd,
-// màu nhân alpha). Mọi cặp hệ số khác là kOther.
-enum class Blend : std::uint8_t { kAdd, kAlphaAdd, kOther };
+// Cách một material hạt trộn vào khung, theo hai hệ số của scene_blend. "one one" (kAdd) và
+// "src_alpha one" (kAlphaAdd) đi pipeline cộng sáng. "src_alpha one_minus_src_alpha" (kAlpha) đi
+// pipeline trộn alpha. Mọi cặp hệ số khác là kOther.
+enum class Blend : std::uint8_t { kAdd, kAlphaAdd, kAlpha, kOther };
 
 // Một dòng của bảng material: material hạt sau kế thừa.
 struct Paint {
@@ -38,6 +38,11 @@ struct Paint {
     Blend blend = Blend::kOther;
     // Hệ số nhân màu ảnh của shader ColorX2 và ColorX4.
     float gain = 1.0F;
+    // Ảnh thứ hai (mặt nạ) và tốc độ cuộn UV. Billboad thường bỏ qua khi có hai ảnh;
+    // hạt mesh vẫn vẽ, mặt nạ nhân lên ảnh nền.
+    std::string second;
+    float scroll_u = 0.0F;
+    float scroll_v = 0.0F;
     // Màu ra chỉ là ảnh nhân hệ số nhân màu đỉnh: một ảnh đứng yên qua shader thường. Sai khi
     // material cần ảnh thứ hai, cuộn hay xoay UV, hoặc shader riêng.
     bool is_plain = false;
@@ -106,6 +111,8 @@ public:
     [[nodiscard]] std::optional<Skip> refuse_system(std::string_view name);
     // Lý do pipeline cộng sáng không vẽ đúng material; rỗng khi vẽ được.
     [[nodiscard]] std::optional<Skip> refuse_material(std::string_view material) const;
+    // Hạt mesh: nhận khi có ảnh và trộn alpha. Cộng sáng vẫn bỏ, vì model không có PSO One+One.
+    [[nodiscard]] std::optional<Skip> refuse_mesh(std::string_view material) const;
     // Loại affector của hệ name mà bộ đọc không dựng được, theo thứ tự trong script.
     [[nodiscard]] std::span<const std::string> lost_affectors(std::string_view name);
     // Số element của effect name mà bộ đọc không dựng được.

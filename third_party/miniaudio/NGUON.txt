@@ -2,4 +2,4 @@ miniaudio.h 0.11.22 (public domain).
 Tải từ https://raw.githubusercontent.com/mackron/miniaudio/0.11.22/miniaudio.h
 Chỉ dùng để giải mã WAV/MP3 và mở thiết bị (WASAPI, AAudio, CoreAudio).
 Bộ trộn, cache, fade, 3D và thứ tự tắt là mã của game::audio.
-Biên dịch ở game_audio_native, tắt cảnh báo, không include từ header công khai.
+Biên dịch ở game_audio_native. Header là include SYSTEM, không include từ header công khai.

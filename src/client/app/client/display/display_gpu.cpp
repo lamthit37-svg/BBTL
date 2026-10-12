@@ -33,6 +33,7 @@
 #include "client/map/terrain.hpp"
 #include "client/world/world.hpp"
 #include "control/char_camera.hpp"
+#include "fx/cast.hpp"
 #include "fx/field.hpp"
 #include "fx/mesh.hpp"
 #include "fx/system.hpp"
@@ -88,6 +89,7 @@
 #include "render/catalog.hpp"
 #include "render/forward.hpp"
 #include "render/screen.hpp"
+#include "render/shade.hpp"
 #include "render/ui.hpp"
 #include "render/view_size.hpp"
 #include "classic/bake.hpp"
@@ -332,6 +334,9 @@ struct Arrival {
     bool is_stalled = false;
     bool ground_done = false;
     bool revealed = false;
+    // Nạp vào nhớ mà không đổi cảnh đang vẽ. Bảng tài khoản hiện erengu, cảnh chọn được đọc
+    // song song để lúc bấm vào game chỉ còn đặt ma trận.
+    bool prefetch = false;
 };
 
 // Kế hoạch đọc ngược một khung: buffer nhận bản chép và các số dựng FrameView sau khi GPU xong.
@@ -1393,7 +1398,9 @@ struct Display::State {
     void adopt();
     void clear_shown();
     void clear_if_shown();
-    void begin_load(std::shared_ptr<const world::ShownScene> next);
+    void begin_load(std::shared_ptr<const world::ShownScene> next, bool prefetch = false);
+    // Cảnh nạp trước trở thành cảnh đang vẽ: đặt những mesh đã vào nhớ, phần còn lại chảy tiếp.
+    void promote_prefetch(Arrival& loading);
     // Tầng 2 khi đã có cảnh, kể cả cảnh đưa thẳng qua stage, không chỉ cảnh đổi bằng begin_load.
     void warm_scene();
     // Mở bộ vẽ hiệu ứng sau khi tầng 2 đã tạo PSO. Chưa có cảnh thì chưa gọi prepare, không báo lỗi.
@@ -1434,6 +1441,9 @@ struct Display::State {
     void bind_ground(const KeptGround* slot);
     [[nodiscard]] KeptGround* make_ground(int scene_id);
     [[nodiscard]] std::size_t load_mesh(const std::string& mesh);
+    // Mesh của hạt, tô bằng material hạt. Khoá nhớ là tên mesh và tên material, không dùng chung BaseWhite.
+    [[nodiscard]] std::size_t load_painted_mesh(const std::string& mesh, std::string_view material,
+        const fx::Paint& paint);
     [[nodiscard]] std::size_t keep_model(const std::string& mesh, ReadMesh read);
     bool keep_ground(int scene_id, ReadMesh read);
     void grow_world(const math::Aabb& local, const math::Matrix4& placed);
@@ -2023,7 +2033,12 @@ void Display::State::adopt() {
         clear_if_shown();
         return;
     }
-    if (arrival.has_value() && arrival->scene == next) return;
+    if (arrival.has_value() && arrival->scene == next) {
+        if (arrival->prefetch) promote_prefetch(*arrival);
+        return;
+    }
+    // Cảnh đang hiện vẫn là bảng tài khoản: để lần nạp trước của cảnh chọn chạy hết.
+    if (arrival.has_value() && arrival->prefetch && next == held) return;
     if (!arrival.has_value() && next == held) return;
     begin_load(std::move(next));
 }
@@ -2150,6 +2165,8 @@ void Display::State::append_water() {
 
 void Display::State::ensure_sky() {
     if (stage == nullptr || forward == nullptr || device == nullptr) return;
+    // Không có .skysphere thì không dựng vỏ. erengu_DL không có tệp trời: điểm trống là màu sương
+    // của cảnh (clear). Một cầu trắng tự thêm nằm gần camera thành tấm xám sáng, không phải trời gốc.
     const std::string key = sky_key(*stage);
     if (key == sky_stamp) return;
     sky_stamp = key;
@@ -2203,7 +2220,8 @@ void Display::State::open_fx() {
     if (fx_view || catalog == nullptr || device == nullptr) return;
     const gpu::PipelineHandle pipeline = catalog->get(render::Pso::kFx);
     if (!pipeline) return say_fx_fault();
-    fx_view = FxView::open(*device, pipeline);
+    const gpu::PipelineHandle blend = catalog->get(render::Pso::kFxBlend);
+    fx_view = FxView::open(*device, pipeline, blend);
     if (!fx_view) return;
     fx_view->load(data_root);
     if (stage != nullptr) fx_view->adopt(*stage);
@@ -2216,15 +2234,26 @@ void Display::State::warm_scene() {
     open_fx();
 }
 
-void Display::State::begin_load(std::shared_ptr<const world::ShownScene> next) {
+void Display::State::promote_prefetch(Arrival& loading) {
+    loading.prefetch = false;
+    if (!loading.ground_done) return;
+    reveal(loading);
+    const std::size_t placed = loading.cursor;
+    for (std::size_t index = 0; index < placed; ++index) {
+        publish_mesh(loading, index);
+    }
+}
+
+void Display::State::begin_load(std::shared_ptr<const world::ShownScene> next, bool prefetch) {
     // Tầng 2: hiệu ứng và pipeline theo cảnh, prefetch trước khi cảnh xuất hiện.
-    warm_scene();
+    if (!prefetch) warm_scene();
     if (!next) {
         clear_shown();
         return;
     }
     Arrival loading;
     loading.scene = std::move(next);
+    loading.prefetch = prefetch;
     loading.started = core::Clock::now();
     if (!data_root.empty()) loading.table = table_of(loading.scene->stage);
     loading.loaded.assign(loading.table.meshes.size(), kMissing);
@@ -2239,7 +2268,8 @@ void Display::State::begin_load(std::shared_ptr<const world::ShownScene> next) {
     loading.epoch = feeder->post(std::move(job));
     if (!loading.table.meshes.empty()) {
         const std::size_t count = loading.table.meshes.size();
-        std::println("Đang nạp {} mesh cho resid {}, {} đọc đĩa", count, loading.scene->id, fresh);
+        const std::string_view verb = prefetch ? "Nạp trước" : "Đang nạp";
+        std::println("{} {} mesh cho resid {}, {} đọc đĩa", verb, count, loading.scene->id, fresh);
     }
     arrival = std::move(loading);
 }
@@ -2293,6 +2323,7 @@ void Display::State::stream_ground(Arrival& loading) {
     // Địa hình phải xong trước mesh đầu tiên: đọc tệp, nướng ảnh mặt và tải lên GPU đều nằm ở đây.
     loading.ground_ms = millis_between(loading.started, core::Clock::now());
     loading.ground_done = true;
+    if (loading.prefetch) return;
     reveal(loading);
 }
 
@@ -2344,7 +2375,12 @@ void Display::State::finish_stream() {
     const std::string built = " ms, dựng GPU " + place_ms + " ms, đặt vật thể " + show_ms;
     const std::string timing_tail = built + " ms, " + frames_text + " khung";
     std::println("{}", timing + timing_tail);
+    const bool was_prefetch = arrival->prefetch;
+    const bool login_holds = procedure == Procedure::kLogin && held != nullptr;
+    const bool role_waits = role_scene != nullptr && held != nullptr && role_scene->id != held->id;
     arrival.reset();
+    if (was_prefetch || !login_holds || !role_waits) return;
+    begin_load(role_scene, true);
 }
 
 void Display::State::open_ground(Arrival& loading) {
@@ -2476,6 +2512,79 @@ void Display::State::attach_cached_ground() {
     bind_ground(find_ground(grounds, scene_id));
 }
 
+namespace {
+
+[[nodiscard]] std::optional<resource::Image> read_paint_image(const std::filesystem::path& root,
+    std::string_view file) {
+    if (file.empty()) return std::nullopt;
+    const std::filesystem::path path = root / io::path_from_utf8(std::string(file));
+    core::Result<resource::Image> image = resource::load_image_file(io::utf8_of(path));
+    if (!image) return std::nullopt;
+    image->name = std::string(file);
+    return std::move(*image);
+}
+
+// Material của tệp mesh (BaseWhite) không phải mặt hạt. Ảnh hạt, mặt nạ, hệ số và cuộn UV thay vào.
+// Không tắt sương cảnh: tấm sương xa nằm ngoài 2 km, tắt sương thì chúng thành mảng trắng trên trời.
+void assign_paint(resource::Material& material, const fx::Paint& paint, std::uint32_t sampler,
+    bool has_mask) {
+    material.extras.clear();
+    material.pass.reset();
+    material.unlit = true;
+    material.double_sided = true;
+    material.alpha = resource::Alpha::kBlend;
+    material.shading = resource::Shading::kMetallic;
+    material.base_color = {.x = paint.gain, .y = paint.gain, .z = paint.gain, .w = 1.0F};
+    material.emissive = {.x = paint.scroll_u, .y = paint.scroll_v, .z = 0.0F};
+    material.color.image = 0;
+    material.color.sampler = sampler;
+    resource::Material::Pass pass;
+    pass.lit = false;
+    pass.color_scale = 1.0F;
+    pass.flags = render::kUnlit;
+    if (has_mask) {
+        material.surface.image = 1;
+        material.surface.sampler = sampler;
+        pass.flags |= render::kMaskTex;
+    }
+    material.pass = pass;
+}
+
+void bind_primitive(resource::Primitive& primitive) {
+    if (!primitive.material) primitive.material = 0;
+}
+
+void bind_mesh_material(resource::Mesh& mesh) {
+    for (resource::Primitive& primitive : mesh.primitives)
+        bind_primitive(primitive);
+}
+
+// Sai khi ảnh nền không đọc được: vẽ BaseWhite là một tấm trắng. Thiếu mặt nạ thì vẫn vẽ ảnh nền.
+[[nodiscard]] bool paint_particle(resource::Model& model, const fx::Paint& paint,
+    const std::filesystem::path& root) {
+    std::optional<resource::Image> color = read_paint_image(root, paint.image);
+    if (!color) return false;
+    std::optional<resource::Image> mask = read_paint_image(root, paint.second);
+    if (!paint.second.empty() && !mask) std::println(stderr, "Hạt mesh: thiếu mặt nạ {}", paint.second);
+    resource::Sampler sampler;
+    sampler.wrap_u = resource::Wrap::kRepeat;
+    sampler.wrap_v = resource::Wrap::kRepeat;
+    const auto sampler_index = static_cast<std::uint32_t>(model.samplers.size());
+    model.samplers.push_back(sampler);
+    model.images.clear();
+    model.images.push_back(std::move(*color));
+    const bool has_mask = mask.has_value();
+    if (has_mask) model.images.push_back(std::move(*mask));
+    if (model.materials.empty()) model.materials.emplace_back();
+    for (resource::Material& material : model.materials)
+        assign_paint(material, paint, sampler_index, has_mask);
+    for (resource::Mesh& mesh : model.meshes)
+        bind_mesh_material(mesh);
+    return true;
+}
+
+} // namespace
+
 std::size_t Display::State::load_mesh(const std::string& mesh) {
     const auto found = kept_by_name.find(mesh);
     if (found != kept_by_name.end()) return found->second;
@@ -2485,6 +2594,23 @@ std::size_t Display::State::load_mesh(const std::string& mesh) {
         return kMissing;
     }
     return keep_model(mesh, baked_mesh(std::move(*model)));
+}
+
+std::size_t Display::State::load_painted_mesh(const std::string& mesh, std::string_view material,
+    const fx::Paint& paint) {
+    const std::string key = std::format("{}\n{}", mesh, material);
+    const auto found = kept_by_name.find(key);
+    if (found != kept_by_name.end()) return found->second;
+    auto model = resource::load_named_model(mesh, io::utf8_of(data_root), texture_tier);
+    if (!model) {
+        std::println(stderr, "Bỏ mesh {}: {}", mesh, model.error());
+        return kMissing;
+    }
+    if (!paint_particle(*model, paint, data_root)) {
+        std::println(stderr, "Bỏ hạt mesh {}: thiếu ảnh {}", mesh, paint.image);
+        return kMissing;
+    }
+    return keep_model(key, baked_mesh(std::move(*model)));
 }
 
 std::size_t Display::State::keep_model(const std::string& mesh, ReadMesh read) {
@@ -3435,8 +3561,10 @@ namespace {
 
 std::size_t Display::State::fx_mesh_slot(const fx::Field& field) {
     if (field.definition().renderer != fx::RendererKind::kMesh) return kMissing;
-    if (field.definition().mesh_name.empty()) return kMissing;
-    return load_mesh(field.definition().mesh_name);
+    if (field.definition().mesh_name.empty() || fx_view == nullptr) return kMissing;
+    const fx::Paint* paint = fx_view->paint(field.definition().material);
+    if (paint == nullptr || paint->blend != fx::Blend::kAlpha) return kMissing;
+    return load_painted_mesh(field.definition().mesh_name, field.definition().material, *paint);
 }
 
 void Display::State::push_fx_field(const fx::Field& field, std::size_t slot) {
@@ -3533,7 +3661,8 @@ core::Status Display::State::draw_world(gpu::CommandList& list, std::uint32_t sl
     ensure_water();
     append_water();
     append_fx_meshes();
-    const render::Lighting lighting = light.view();
+    render::Lighting lighting = light.view();
+    lighting.seconds = elapsed;
     const core::Status drawn = forward->draw(list, slot, camera, lighting, frame_instances);
     if (!drawn) return drawn;
     const FxAsk effects{.list = &list, .camera = &camera, .slot = slot, .elapsed = elapsed};

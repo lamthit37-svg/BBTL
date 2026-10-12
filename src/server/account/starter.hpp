@@ -1,5 +1,5 @@
 #pragma once
-// Hồ sơ nhân vật mới, chép từ SERVER/config/rules/new_character.toml schema 1.
+// Hồ sơ nhân vật mới, chép từ dev/server/config/rules/new_character.toml schema 1.
 // Giới tính, tên, mặt và tóc do client gửi. sex = 0 trong tệp toml không phải giới tính trên dây
 // (protocol: nữ = 1, nam = 2). Môn 9 là Vô Phái của client 2026.
 

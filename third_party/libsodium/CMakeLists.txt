@@ -18,6 +18,8 @@ file(GLOB_RECURSE sodium_sources CONFIGURE_DEPENDS "${sodium_root}/src/libsodium
 add_library(game_sodium STATIC ${sodium_sources})
 target_compile_features(game_sodium PRIVATE c_std_11)
 
+# Nguồn .c của upstream: kho cấm sửa các file ấy. Cảnh báo của chúng không xử lý được
+# trong mã của mình. Header đi ra ngoài qua SYSTEM; tệp C++ bọc libsodium dịch đủ cảnh báo.
 if(MSVC)
     target_compile_options(game_sodium PRIVATE /W0)
 else()

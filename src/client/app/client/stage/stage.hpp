@@ -13,6 +13,7 @@
 #include "scene/scene_file.hpp"
 
 #include <cstdint>
+#include <optional>
 #include <string>
 #include <vector>
 
@@ -60,6 +61,28 @@ struct Lamp {
 
 // Kiểu sương, đúng thứ tự Ogre::FogMode: shader gốc dùng số này chọn công thức.
 enum class FogMode : std::uint8_t { kNone, kExp, kExp2, kLinear };
+
+// Sương chiều cao của Scene/<cảnh>.hfog. Thứ tự trường là thứ tự DataStream::read trong
+// Render.dll FUN_1801c0c90; FUN_1801c1440 đưa chúng vào HFogParams, DFogParams, FogColorParams
+// và DirectionalInscatteringColor. Mũ tán xạ là InscatteringFactor, không phải alpha của màu.
+struct HeightFog {
+    float color_r = 0.0F;
+    float color_g = 0.0F;
+    float color_b = 0.0F;
+    float color_a = 1.0F;
+    float density = 0.0F;
+    float height = 0.0F;
+    float height_falloff = 0.0F;
+    float pow_factor = 1.0F;
+    float depth_density = 0.0F;
+    float depth_falloff = 0.0F;
+    float depth_start = 0.0F;
+    float inscatter = 1.0F;
+    float scatter_r = 0.0F;
+    float scatter_g = 0.0F;
+    float scatter_b = 0.0F;
+    float scatter_a = 1.0F;
+};
 
 // Sương của Enviroment. Mặc định là bộ số Render.dll đặt lại khi cảnh không có Enviroment.
 struct Fog {
@@ -131,6 +154,8 @@ struct Stage {
     std::vector<FxPlace> effects;
     Rgb ambient;
     Fog fog;
+    // Có khi cạnh cảnh có tệp .hfog đủ 64 byte. Không có thì hậu kỳ sương chiều cao không chạy.
+    std::optional<HeightFog> height_fog;
     // Màu nền khi cảnh không có sương; có sương thì nền là màu sương (Render.dll 0xE1150).
     Rgb background;
     // Bảng môi trường theo giờ của bầu trời, xếp theo time. Khác rỗng thì ambient, sương và màu

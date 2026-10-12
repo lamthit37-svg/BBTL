@@ -41,6 +41,13 @@ void take_gltf(Shade& shade, const resource::Material& material) noexcept {
     if (material.unlit && !material.pass) shade.flags |= kUnlit;
 }
 
+// Thác OGRE không đèn: emissive.xy là tốc độ scroll_anim, shader cộng vào UV theo giây của khung.
+void take_scroll(Shade& shade, const resource::Material& material) noexcept {
+    if ((shade.flags & kUnlit) == 0) return;
+    shade.specular.x = material.emissive.x;
+    shade.specular.y = material.emissive.y;
+}
+
 void take_pass(Shade& shade, const resource::Material::Pass& pass, const Lighting& lighting,
     const math::Vector3& ambient) noexcept {
     const math::Vector3 glow = math::mul(ambient, math::load(pass.ambient));
@@ -94,6 +101,7 @@ Shade shade_of(const ShadeAsk& ask) noexcept {
     if (has_pass) take_pass(shade, *material->pass, lighting, ambient);
     if (!has_pass) shade.glow = rgb_and(ambient, 0.0F);
     if (!has_pass) shade.flags |= kVertexColor;
+    if (material != nullptr) take_scroll(shade, *material);
     if (ask.is_actor) shade.flags |= kActor;
     return shade;
 }

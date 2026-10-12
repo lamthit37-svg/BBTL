@@ -103,6 +103,7 @@ struct Row {
 [[nodiscard]] Blend blend_of(std::string_view text) noexcept {
     if (text == kAddBlend) return Blend::kAdd;
     if (text == kAlphaAddBlend) return Blend::kAlphaAdd;
+    if (text == "src_alpha one_minus_src_alpha") return Blend::kAlpha;
     return Blend::kOther;
 }
 
@@ -130,6 +131,11 @@ void take_paint(Paints& paints, const Row& row) {
     paint.image = std::string(row.cell(kImageColumn));
     paint.blend = blend_of(row.cell(kBlendColumn));
     paint.gain = *gain;
+    paint.second = std::string(row.cell(kSecondColumn));
+    if (const std::optional<float> along_u = parse_float(row.cell(kScrollUColumn)))
+        paint.scroll_u = *along_u;
+    if (const std::optional<float> along_v = parse_float(row.cell(kScrollVColumn)))
+        paint.scroll_v = *along_v;
     paint.is_plain = is_plain(row);
     paints.try_emplace(std::string(name), std::move(paint));
 }
@@ -267,11 +273,20 @@ std::optional<Skip> Library::refuse_material(std::string_view material) const {
     return std::nullopt;
 }
 
+std::optional<Skip> Library::refuse_mesh(std::string_view material) const {
+    const Paint* found = palette_.find(material);
+    if (found == nullptr || found->image.empty()) return Skip::kNoMaterial;
+    if (found->blend == Blend::kOther) return Skip::kBlend;
+    // Model chỉ trộn src_alpha. Hạt mesh cộng sáng không có pipeline One+One.
+    if (found->blend != Blend::kAlpha) return Skip::kMeshRenderer;
+    return std::nullopt;
+}
+
 std::optional<Skip> Library::refuse_system(std::string_view name) {
     const KeptSystem* kept = kept_system(name);
     if (kept == nullptr) return Skip::kUnknownName;
     if (!kept->lost.empty()) return Skip::kUnknownAffector;
-    if (kept->definition.renderer == RendererKind::kMesh) return Skip::kMeshRenderer;
+    if (kept->definition.renderer == RendererKind::kMesh) return refuse_mesh(kept->definition.material);
     return refuse_material(kept->definition.material);
 }
 

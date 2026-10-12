@@ -7,7 +7,7 @@ giữa hay đáy như bản PC. Hệ số 1.4 đưa nút 36 điểm ảnh lên 5
 trên điện thoại nằm ngang. Sau này thay từng tệp trong Interface/phone.
 
   python -B TOOLS/content/phone_layout.py
-  python -B TOOLS/content/phone_layout.py "F:/tl 2026/_goc/Interface" assets/client/Interface/phone
+  python -B TOOLS/content/phone_layout.py "F:/tl 2026/_goc/Interface" dev/client/assets/Interface/phone
 """
 
 from __future__ import annotations
@@ -119,7 +119,7 @@ def write_one(source: Path, dest: Path) -> tuple[int, int]:
 
 def main() -> int:
     source_root = Path(sys.argv[1]) if len(sys.argv) > 1 else Path(r"F:\tl 2026\_goc\Interface")
-    dest_root = Path(sys.argv[2]) if len(sys.argv) > 2 else Path("assets/client/Interface/phone")
+    dest_root = Path(sys.argv[2]) if len(sys.argv) > 2 else Path("dev/client/assets/Interface/phone")
     written = 0
     missing: list[str] = []
     windows = 0

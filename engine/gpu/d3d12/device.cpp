@@ -3,7 +3,7 @@
 // Nguồn: Forge2 src/gpu/d3d12/device.cpp@d7fcd76. Khác gốc: enumerator mang tiền tố k; if trong
 // for hoặc if tách hàm hoặc đưa lên điều kiện lặp; submit tách vì dài quá 40 dòng; thứ tự lời gọi
 // D3D12 và phép kiểm HRESULT giữ nguyên; const HANDLE thành auto* const; include đúng header của
-// từng tên; Clang bỏ qua __uuidof của IID_PPV_ARGS; NOLINT kèm lý do và mã quy tắc.
+// từng tên; IID lấy từ hằng của SDK; NOLINT kèm lý do và mã quy tắc.
 #include "gpu/d3d12/device.hpp"
 
 #include "core/error.hpp"
@@ -39,6 +39,8 @@
 #include <winuser.h>
 #include <wrl/client.h>
 
+#include "gpu/com.hpp"
+
 #include <algorithm>
 #include <array>
 #include <cstddef>
@@ -53,11 +55,6 @@
 #include <string_view>
 #include <utility>
 #include <vector>
-
-#if defined(__clang__)
-// __uuidof của IID_PPV_ARGS không có dạng chuẩn.
-#pragma clang diagnostic ignored "-Wlanguage-extension-token"
-#endif
 
 namespace game::gpu::d3d12 {
 
@@ -89,7 +86,7 @@ struct Candidate {
 
 [[nodiscard]] bool has_barriers(IDXGIAdapter1* adapter) noexcept {
     ComPtr<ID3D12Device> device;
-    const HRESULT created = D3D12CreateDevice(adapter, D3D_FEATURE_LEVEL_12_0, IID_PPV_ARGS(&device));
+    const HRESULT created = D3D12CreateDevice(adapter, D3D_FEATURE_LEVEL_12_0, com_iid(device), com_pp(device));
     if (FAILED(created)) return false;
     D3D12_FEATURE_DATA_D3D12_OPTIONS12 options{};
     const HRESULT checked = device->CheckFeatureSupport(D3D12_FEATURE_D3D12_OPTIONS12, &options, sizeof(options));
@@ -127,8 +124,8 @@ void keep_adapter(std::vector<Candidate>& found, ComPtr<IDXGIAdapter1>& adapter)
 [[nodiscard]] ComPtr<IDXGIFactory4> make_factory(bool debug) {
     const UINT flags = debug ? DXGI_CREATE_FACTORY_DEBUG : 0;
     ComPtr<IDXGIFactory4> factory;
-    HRESULT created = CreateDXGIFactory2(flags, IID_PPV_ARGS(&factory));
-    if (FAILED(created) && flags != 0) created = CreateDXGIFactory2(0, IID_PPV_ARGS(&factory));
+    HRESULT created = CreateDXGIFactory2(flags, com_iid(factory), com_pp(factory));
+    if (FAILED(created) && flags != 0) created = CreateDXGIFactory2(0, com_iid(factory), com_pp(factory));
     if (FAILED(created)) return {};
     return factory;
 }
@@ -141,7 +138,7 @@ void keep_adapter(std::vector<Candidate>& found, ComPtr<IDXGIAdapter1>& adapter)
     }
     const ComPtr<IDXGIFactory4> warp_factory = factory;
     ComPtr<IDXGIAdapter1> warp;
-    const HRESULT warped = warp_factory->EnumWarpAdapter(IID_PPV_ARGS(&warp));
+    const HRESULT warped = warp_factory->EnumWarpAdapter(com_iid(warp), com_pp(warp));
     if (FAILED(warped)) return found;
     IDXGIAdapter1* const raw = warp.Get();
     if (!has_barriers(raw)) return found;
@@ -225,14 +222,14 @@ using CommandPointers = std::vector<Commands*>;
 void enable_debug() {
     ComPtr<ID3D12Debug> debug;
     // Khác gốc: if lồng của open tách ra đây.
-    const HRESULT found = D3D12GetDebugInterface(IID_PPV_ARGS(&debug));
+    const HRESULT found = D3D12GetDebugInterface(com_iid(debug), com_pp(debug));
     if (SUCCEEDED(found)) debug->EnableDebugLayer();
     if (FAILED(found)) core::warn("D3D12: không có lớp kiểm tra, chạy tiếp");
 }
 
 // Khác gốc: if lồng của start tách ra đây.
 void attach_info(ID3D12Device* device, ComPtr<ID3D12InfoQueue>& info) {
-    const HRESULT queried = device->QueryInterface(IID_PPV_ARGS(&info));
+    const HRESULT queried = device->QueryInterface(com_iid(info), com_pp(info));
     if (SUCCEEDED(queried)) info->SetMessageCountLimit(1024);
     // Ngắt khi gặp lỗi (cấu hình hệ thống) ném 0x87D và giết tiến trình trước khi log kịp ghi.
     if (SUCCEEDED(queried)) {
@@ -241,9 +238,9 @@ void attach_info(ID3D12Device* device, ComPtr<ID3D12InfoQueue>& info) {
         static_cast<void>(info->SetBreakOnSeverity(D3D12_MESSAGE_SEVERITY_WARNING, FALSE));
     }
     Microsoft::WRL::ComPtr<IDXGIInfoQueue> dxgi_info;
-    if (SUCCEEDED(DXGIGetDebugInterface1(0, IID_PPV_ARGS(&dxgi_info)))) {
-        static_cast<void>(
-            dxgi_info->SetBreakOnSeverity(DXGI_DEBUG_ALL, DXGI_INFO_QUEUE_MESSAGE_SEVERITY_CORRUPTION, FALSE));
+    if (SUCCEEDED(DXGIGetDebugInterface1(0, com_iid(dxgi_info), com_pp(dxgi_info)))) {
+        static_cast<void>(dxgi_info->SetBreakOnSeverity(DXGI_DEBUG_ALL, DXGI_INFO_QUEUE_MESSAGE_SEVERITY_CORRUPTION,
+            FALSE));
         static_cast<void>(dxgi_info->SetBreakOnSeverity(DXGI_DEBUG_ALL, DXGI_INFO_QUEUE_MESSAGE_SEVERITY_ERROR, FALSE));
     }
     // pSeverityList nhận con trỏ không hằng, nên mảng không const.
@@ -280,7 +277,7 @@ void load_cache(ID3D12Device2* device, PipelineLibrary& library, std::vector<std
     std::span<const std::byte> cache) {
     if (cache.empty()) return;
     kept.assign(cache.begin(), cache.end());
-    const HRESULT loaded = device->CreatePipelineLibrary(kept.data(), kept.size(), IID_PPV_ARGS(&library));
+    const HRESULT loaded = device->CreatePipelineLibrary(kept.data(), kept.size(), com_iid(library), com_pp(library));
     if (FAILED(loaded)) library.Reset();
     if (FAILED(loaded)) kept.clear();
 }
@@ -424,7 +421,7 @@ Status DescriptorArena::create(IDevice* device, HeapType type, UINT count, bool 
     desc.Type = type;
     desc.NumDescriptors = count;
     desc.Flags = is_shader_visible ? D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE : D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
-    const HRESULT created = device->CreateDescriptorHeap(&desc, IID_PPV_ARGS(&heap_));
+    const HRESULT created = device->CreateDescriptorHeap(&desc, com_iid(heap_), com_pp(heap_));
     if (FAILED(created)) return fail(ErrorCode::kOutOfMemory, "hết descriptor D3D12");
     cpu_ = heap_->GetCPUDescriptorHandleForHeapStart();
     if (is_shader_visible) gpu_ = heap_->GetGPUDescriptorHandleForHeapStart();
@@ -565,7 +562,7 @@ Status D3d12Device::start(const AdapterInfo& info, IDXGIAdapter1* adapter, const
     adapter_ = info;
     adapter_com_ = adapter;
     IDXGIAdapter1* const hardware = adapter_com_.Get();
-    const HRESULT created = D3D12CreateDevice(hardware, D3D_FEATURE_LEVEL_12_0, IID_PPV_ARGS(&device_));
+    const HRESULT created = D3D12CreateDevice(hardware, D3D_FEATURE_LEVEL_12_0, com_iid(device_), com_pp(device_));
     if (FAILED(created)) return failed(created, "không tạo được thiết bị D3D12");
     ID3D12Device* const device = device_.Get();
     if (debug_) attach_info(device, info_);
@@ -583,8 +580,8 @@ bool D3d12Device::add_queue(QueueType kind) {
     D3D12_COMMAND_QUEUE_DESC info{};
     info.Type = to_list(kind);
     Queue& slot = queues_.at(queue_count_);
-    const HRESULT created = device_->CreateCommandQueue(&info, IID_PPV_ARGS(&slot.queue));
-    const HRESULT fence = device_->CreateFence(0, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&slot.fence));
+    const HRESULT created = device_->CreateCommandQueue(&info, com_iid(slot.queue), com_pp(slot.queue));
+    const HRESULT fence = device_->CreateFence(0, D3D12_FENCE_FLAG_NONE, com_iid(slot.fence), com_pp(slot.fence));
     const bool is_ok = SUCCEEDED(created) && SUCCEEDED(fence);
     if (!is_ok) slot.queue.Reset();
     if (!is_ok) slot.fence.Reset();
@@ -679,7 +676,7 @@ void D3d12Device::create_library(std::span<const std::byte> cache) {
     ID3D12Device2* const device = device_.Get();
     load_cache(device, library_, library_bytes_, cache);
     if (library_ != nullptr) return;
-    const HRESULT created = device->CreatePipelineLibrary(nullptr, 0, IID_PPV_ARGS(&library_));
+    const HRESULT created = device->CreatePipelineLibrary(nullptr, 0, com_iid(library_), com_pp(library_));
     if (FAILED(created)) library_.Reset();
 }
 
@@ -797,11 +794,11 @@ void D3d12Device::recycle(const QueueMarks& done) {
 
 Result<std::unique_ptr<Commands>> D3d12Device::make_commands(QueueType queue) {
     ComPtr<ID3D12CommandAllocator> allocator;
-    const HRESULT allocated = device_->CreateCommandAllocator(to_list(queue), IID_PPV_ARGS(&allocator));
+    const HRESULT allocated = device_->CreateCommandAllocator(to_list(queue), com_iid(allocator), com_pp(allocator));
     if (FAILED(allocated)) return failed(allocated, "không tạo được command allocator");
     ComPtr<ID3D12GraphicsCommandList7> list;
     const HRESULT created =
-        device_->CreateCommandList(0, to_list(queue), allocator.Get(), nullptr, IID_PPV_ARGS(&list));
+        device_->CreateCommandList(0, to_list(queue), allocator.Get(), nullptr, com_iid(list), com_pp(list));
     if (FAILED(created)) return failed(created, "không tạo được command list");
     const HRESULT closed = list->Close();
     if (FAILED(closed)) return failed(closed, "không đóng được command list mới");
@@ -925,7 +922,7 @@ ID3D12CommandSignature* D3d12Device::signature(IndirectKind kind, UINT stride) {
     desc.NumArgumentDescs = 1;
     desc.pArgumentDescs = &argument;
     ComPtr<ID3D12CommandSignature> signature;
-    const HRESULT created = device_->CreateCommandSignature(&desc, nullptr, IID_PPV_ARGS(&signature));
+    const HRESULT created = device_->CreateCommandSignature(&desc, nullptr, com_iid(signature), com_pp(signature));
     if (FAILED(created)) return nullptr;
     signatures_.emplace_back(key, signature);
     return signature.Get();
@@ -942,7 +939,7 @@ Result<HeapBlock> D3d12Device::make_heap(PoolKind kind, bool is_msaa, std::uint6
     desc.Alignment = align;
     desc.Flags = heap_flags(kind);
     HeapBlock block;
-    const HRESULT created = device_->CreateHeap(&desc, IID_PPV_ARGS(&block.heap));
+    const HRESULT created = device_->CreateHeap(&desc, com_iid(block.heap), com_pp(block.heap));
     if (FAILED(created)) return failed(created, "không tạo được heap D3D12");
     return block;
 }
