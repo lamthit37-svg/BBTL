@@ -1,5 +1,5 @@
 # Đóng APK native (NativeActivity, không Gradle) từ libthienlong.so.
-# --data là thư mục CLIENT/data: đóng Config, cảnh Config/startup.id, hai cảnh của thủ tục
+# --data là thư mục assets/client: đóng Config, cảnh Config/startup.id, hai cảnh của thủ tục
 # đăng nhập (erengu_DL, tl3chuangjian — tên đọc từ header C++), giao diện Interface/ui.files.tsv
 # và Web/coming_soon.html khi tệp đó có.
 # Cả cây data vượt 4 GB, zipalign không mở được ZIP64.
@@ -132,8 +132,9 @@ def quoted_constant(path: Path, symbol: str) -> str:
 
 
 def login_scene_stems() -> list[str]:
-    root = Path(__file__).resolve().parents[2]
-    control = root / "SRC" / "control"
+    # Tệp này nằm ở android/, một cấp dưới gốc repo.
+    root = Path(__file__).resolve().parents[1]
+    control = root / "src" / "client" / "figure" / "control"
     login = quoted_constant(control / "login_view.hpp", "kLoginScene")
     role = quoted_constant(control / "char_camera.hpp", "kRoleScene")
     return [login, role]
@@ -198,7 +199,7 @@ def scene_paths(data: Path, has_cooked_sound: bool) -> list[str]:
 def add_asset(archive: zipfile.ZipFile, source: Path, folder: str, group: str,
               relative: str) -> str:
     # Đưa một tệp vào assets/<folder>/ và trả dòng sổ "<nhóm> <dấu> <đường dẫn>". Dấu là CRC và
-    # cỡ tệp: vỏ Android chỉ chép lại tệp có dấu khác sổ nó đã giữ (SRC/client/assets.hpp).
+    # cỡ tệp: vỏ Android chỉ chép lại tệp có dấu khác sổ nó đã giữ (client/assets.hpp).
     name = f"assets/{folder}/{relative}"
     read_inputs.append(source)
     archive.write(source, name, compress_type=zipfile.ZIP_STORED)

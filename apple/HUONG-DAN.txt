@@ -1,0 +1,14 @@
+Vỏ iOS của cùng client với APK. Điểm vào là ios_main.mm, không phải một mã game
+khác. Máy Windows này không có Apple Clang và không ký được. Preset ios-arm64
+chỉ hiện trên Darwin.
+
+Trên macOS:
+
+  cmake --preset ios-arm64
+  cmake --build --preset ios-arm64 --target thienlong_client
+
+Bundle ra release/IOS. Mã vn.thienlong.client. Cửa sổ là toàn màn, nằm ngang.
+Layout dùng chung với Android ở Interface/phone. Texture ưu tiên mobile/astc.
+apple/Info.plist khai mạng nội bộ và màn mở LaunchScreen. PrivacyInfo không
+theo dõi và chưa khai API bắt buộc lý do: chưa có lượt dịch trên máy Apple để
+đối chiếu. Bundle đọc data/ tại chỗ. Sổ nhân vật ghi ở Documents.

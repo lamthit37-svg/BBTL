@@ -1,0 +1,12 @@
+Vỏ Android của một client. Game nằm trong libthienlong.so. Activity là
+android.app.NativeActivity, không có mã Java.
+
+Dựng preset android-arm64 (máy thật) hoặc android-x86_64 (giả lập). CMake gọi
+android/package_apk.py và chép APK ra <prefix>/APK/thienlong.apk. Prefix của
+android-arm64 là release, của android-x86_64 là Dev.
+
+Cửa sổ là toàn màn, nằm ngang. Layout điện thoại nằm ở Interface/phone, dùng chung
+với iOS; thiếu tệp thì dùng layout PC. Texture nấu ở mobile/astc, không có ASTC thì
+mobile/etc2, thiếu thì DDS. Danh sách tệp đóng vào APK là cảnh của
+Config/startup.id, hai cảnh đăng nhập, giao diện và âm thanh. Cả cây
+assets/client không vào gói.
