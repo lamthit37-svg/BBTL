@@ -723,6 +723,18 @@ void put_u32(std::vector<std::byte>& out, std::uint32_t value) {
     return fs::join(fs::join(root, "cache/mesh"), relative + ".tlms");
 }
 
+// Mesh OGRE tĩnh không có nút. Bộ vẽ chỉ đi theo nút, nên thiếu nút thì mesh nạp xong mà không
+// thành vật thể (hộp bao rỗng). Một nút gốc đơn vị trỏ vào lưới 0.
+void ensure_static_root(Model& model) {
+    if (model.meshes.empty() || !model.nodes.empty()) return;
+    Node node;
+    node.name = "mesh";
+    node.local = math::Matrix4::identity();
+    node.mesh = 0;
+    model.nodes.push_back(std::move(node));
+    model.roots.push_back(0);
+}
+
 [[nodiscard]] bool cache_fresh(std::string_view source, std::string_view cache) {
     if (!fs::is_file(cache)) return false;
     const auto source_time = fs::last_write(source);
@@ -876,13 +888,17 @@ core::Result<Model> load_named_model(std::string_view name, std::string_view dat
             auto stored = fs::read_file(cache);
             if (stored) {
                 auto decoded = decode_model(stored->span(), data_root, tier);
-                if (decoded) return decoded;
+                if (decoded) {
+                    ensure_static_root(*decoded);
+                    return decoded;
+                }
             }
         }
         auto bytes = fs::read_file(direct);
         if (!bytes) return std::unexpected(bytes.error());
         auto model = load_ogre_mesh(bytes->span(), data_root, tier);
         if (!model) return model;
+        ensure_static_root(*model);
         store_cache(cache, *model);
         return model;
     }
