@@ -111,6 +111,11 @@ def declare() -> None:
     user32.GetDC.restype = HANDLE
     user32.ReleaseDC.argtypes = [HANDLE, HANDLE]
     user32.SetProcessDpiAwarenessContext.argtypes = [HANDLE]
+    user32.PrintWindow.argtypes = [HANDLE, HANDLE, wintypes.UINT]
+    user32.GetClientRect.argtypes = [HANDLE, rect_out]
+    user32.GetWindowRect.argtypes = [HANDLE, rect_out]
+    user32.SetWindowPos.argtypes = [
+        HANDLE, HANDLE, ctypes.c_int, ctypes.c_int, ctypes.c_int, ctypes.c_int, wintypes.UINT]
     gdi32.CreateCompatibleDC.argtypes = [HANDLE]
     gdi32.CreateCompatibleDC.restype = HANDLE
     bits_out = ctypes.POINTER(ctypes.c_void_p)
