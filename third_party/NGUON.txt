@@ -1,0 +1,4 @@
+Thư viện tải về không nằm trong dự án.
+Danh sách gói: vcpkg.json ở gốc dự án.
+Chỗ chứa chung: C:\dev\third_party
+Toolchain: C:\dev\third_party\vcpkg.cmake

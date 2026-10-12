@@ -50,7 +50,7 @@
     {
       "name": "vcpkg",
       "hidden": true,
-      "toolchainFile": "$env{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake",
+      "toolchainFile": "C:/dev/third_party/vcpkg.cmake",
       "cacheVariables": {
         "VCPKG_TARGET_TRIPLET": "x64-windows-static-md",
         "VCPKG_INSTALLED_DIR": "${sourceDir}/vcpkg_installed",
@@ -60,7 +60,7 @@
     {
       "name": "android",
       "hidden": true,
-      "toolchainFile": "$env{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake",
+      "toolchainFile": "C:/dev/third_party/vcpkg.cmake",
       "cacheVariables": {
         "VCPKG_CHAINLOAD_TOOLCHAIN_FILE": "$env{ANDROID_NDK_HOME}/build/cmake/android.toolchain.cmake",
         "ANDROID_NDK_HOME": "$env{ANDROID_NDK_HOME}",
