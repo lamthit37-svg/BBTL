@@ -395,8 +395,8 @@ if(NOT CMAKE_CROSSCOMPILING)
     game_module(link src/shared/link/link.cpp)
     target_link_libraries(game_link PUBLIC game_core game_net game_protocol game_secure)
     if(TARGET game_config)
-        game_module(gate src/server/gate/table.cpp src/server/gate/front.cpp)
-        target_link_libraries(game_gate PUBLIC game_core game_net game_protocol game_secure game_config
+        game_module(gate src/server/gate/table.cpp src/server/gate/front.cpp src/server/gate/motion.cpp)
+        target_link_libraries(game_gate PUBLIC game_core game_net game_protocol game_secure game_config game_guard
             PRIVATE game_io game_process)
         target_link_libraries(game_service PUBLIC game_gate)
         game_module(account
@@ -1415,6 +1415,7 @@ if(TARGET game_net)
     game_test(secure game_secure)
     if(TARGET game_gate)
         game_test(gate game_gate)
+        game_test(gate_motion game_gate)
         game_test(gate_loop game_gate game_supervise game_process game_io)
         target_compile_definitions(gate_loop_tests PRIVATE
             "GAME_SERVER_CONFIG=\"${PROJECT_SOURCE_DIR}/SERVER/config\"")

@@ -12,6 +12,7 @@ record	CharacterSummary			Tóm tắt một nhân vật trong danh sách chọn n
 0x0201	CreateCharacter	game	1	Tạo nhân vật mới với tên, giới tính, khuôn mặt và kiểu tóc.
 0x0202	DeleteCharacter	game	1	Xoá một nhân vật của tài khoản.
 0x0203	EnterGame	game	1	Vào game bằng nhân vật đã chọn.
+0x0301	Move	game	1	Client xin một bước trên mặt phẳng ngang; server đo bằng guard::Pace theo tick của server, không tin vị trí client.
 0x0501	CreateAccount	auth	1	Tạo tài khoản mới ở cổng xác thực.
 0x0502	SignIn	auth	1	Đăng nhập bằng mật khẩu ở cổng xác thực để nhận vé.
 0x8101	Welcome	both	1	Server đáp Hello: phiên bản giao thức, giờ server và chu kỳ nhịp tim.
@@ -22,4 +23,5 @@ record	CharacterSummary			Tóm tắt một nhân vật trong danh sách chọn n
 0x8107	Goodbye	both	1	Server báo sắp đóng kết nối và nêu lý do.
 0x8108	ContentStamp	game	1	Dấu băm của gói nội dung để client đối chiếu với bản đang có.
 0x8201	CharacterList	game	1	Danh sách nhân vật của tài khoản để chọn vào game.
+0x8301	Position	game	1	Vị trí server làm chủ: gửi khi vào game (mốc đầu), khi dịch chuyển hợp lệ, và khi bước của client bị từ chối (kéo về).
 0x8501	Ticket	auth	1	Vé vào cổng game do cổng xác thực cấp sau khi đăng nhập đúng.

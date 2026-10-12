@@ -1,7 +1,7 @@
-// Tệp sinh bởi TOOLS/server/gen_protocol.py từ SRC/protocol/catalog/*.tsv; không sửa tay.
+// Tệp sinh bởi TOOLS/server/gen_protocol.py từ src/shared/protocol/catalog/*.tsv; không sửa tay.
 // Sửa bảng rồi chạy lại: python -B TOOLS/server/gen_protocol.py
-// Mã hoá và giải mã của danh mục tin: mỗi tin một hàm ghi và một hàm đọc từng trường theo order.
-// Mọi byte đi qua Writer và Reader của wire.hpp, nên trần, UTF-8 và byte thừa chỉ kiểm ở một chỗ.
+// Mã hoá và giải mã của danh mục tin: mỗi tin một hàm ghi và một hàm đọc từng trường theo order. Mọi byte đi qua Writer
+// và Reader của wire.hpp, nên trần, UTF-8 và byte thừa chỉ kiểm ở một chỗ.
 #include "protocol/messages.hpp"
 
 #include "protocol/wire.hpp"
@@ -198,6 +198,20 @@ void put_enter_game(Writer& writer, const EnterGame& message) {
     return message;
 }
 
+void put_move(Writer& writer, const Move& message) {
+    writer.f32(message.x_cm);
+    writer.f32(message.z_cm);
+    writer.u32(message.tick);
+}
+
+[[nodiscard]] Move get_move(Reader& reader) {
+    Move message;
+    message.x_cm = reader.f32();
+    message.z_cm = reader.f32();
+    message.tick = reader.u32();
+    return message;
+}
+
 void put_create_account(Writer& writer, const CreateAccount& message) {
     writer.text(message.account, kCreateAccountAccountBytes);
     writer.text(message.password, kCreateAccountPasswordBytes);
@@ -303,16 +317,18 @@ void put_content_stamp(Writer& writer, const ContentStamp& message) {
 // list:record:CharacterSummary, tối đa kCharacterListCharactersCount phần tử.
 void put_list_1(Writer& writer, const std::vector<CharacterSummary>& values) {
     writer.count(values.size(), kCharacterListCharactersCount);
-    for (const auto& value : values)
+    for (const auto& value : values) {
         put_character_summary(writer, value);
+    }
 }
 
 [[nodiscard]] std::vector<CharacterSummary> get_list_1(Reader& reader) {
     const std::size_t count = reader.count(kCharacterListCharactersCount);
     std::vector<CharacterSummary> values;
     values.reserve(count);
-    for (std::size_t i = 0; i < count && reader.is_ok(); ++i)
+    for (std::size_t i = 0; i < count && reader.is_ok(); ++i) {
         values.push_back(get_character_summary(reader));
+    }
     return values;
 }
 
@@ -323,6 +339,20 @@ void put_character_list(Writer& writer, const CharacterList& message) {
 [[nodiscard]] CharacterList get_character_list(Reader& reader) {
     CharacterList message;
     message.characters = get_list_1(reader);
+    return message;
+}
+
+void put_position(Writer& writer, const Position& message) {
+    writer.f32(message.x_cm);
+    writer.f32(message.z_cm);
+    writer.u32(message.tick);
+}
+
+[[nodiscard]] Position get_position(Reader& reader) {
+    Position message;
+    message.x_cm = reader.f32();
+    message.z_cm = reader.f32();
+    message.tick = reader.u32();
     return message;
 }
 
@@ -413,6 +443,12 @@ WireStatus encode(std::vector<std::byte>& out, const EnterGame& message) {
     return writer.finish(EnterGame::kKind);
 }
 
+WireStatus encode(std::vector<std::byte>& out, const Move& message) {
+    Writer writer{out};
+    put_move(writer, message);
+    return writer.finish(Move::kKind);
+}
+
 WireStatus encode(std::vector<std::byte>& out, const CreateAccount& message) {
     Writer writer{out};
     put_create_account(writer, message);
@@ -473,6 +509,12 @@ WireStatus encode(std::vector<std::byte>& out, const CharacterList& message) {
     return writer.finish(CharacterList::kKind);
 }
 
+WireStatus encode(std::vector<std::byte>& out, const Position& message) {
+    Writer writer{out};
+    put_position(writer, message);
+    return writer.finish(Position::kKind);
+}
+
 WireStatus encode(std::vector<std::byte>& out, const Ticket& message) {
     Writer writer{out};
     put_ticket(writer, message);
@@ -490,6 +532,7 @@ GameClientResult decode_game_client(const Frame& frame, ByteView body) {
     case CreateCharacter::kKind: return checked(reader, get_create_character(reader));
     case DeleteCharacter::kKind: return checked(reader, get_delete_character(reader));
     case EnterGame::kKind: return checked(reader, get_enter_game(reader));
+    case Move::kKind: return checked(reader, get_move(reader));
     default: return std::unexpected(WireError::kUnknownKind);
     }
 }
@@ -505,6 +548,7 @@ GameServerResult decode_game_server(const Frame& frame, ByteView body) {
     case Goodbye::kKind: return checked(reader, get_goodbye(reader));
     case ContentStamp::kKind: return checked(reader, get_content_stamp(reader));
     case CharacterList::kKind: return checked(reader, get_character_list(reader));
+    case Position::kKind: return checked(reader, get_position(reader));
     default: return std::unexpected(WireError::kUnknownKind);
     }
 }

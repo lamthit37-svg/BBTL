@@ -23,6 +23,9 @@ CreateCharacter	3	face	u16		0 là mặt mặc định (kDefaultLook của Dev).
 CreateCharacter	4	hair	u16		0 là tóc mặc định (kDefaultLook của Dev).
 DeleteCharacter	1	character	u64		CharacterId của Dev.
 EnterGame	1	character	u64		CharacterId của Dev.
+Move	1	x_cm	f32		Toạ độ X muốn tới, centimet. NaN/vô cực bị Pace từ chối.
+Move	2	z_cm	f32		Toạ độ Z muốn tới, centimet.
+Move	3	tick	u32		Tick client (30/giây) đếm từ tick trong Position gần nhất; chỉ làm trần dưới của thời gian, server cắt theo đồng hồ của mình.
 CreateAccount	1	account	text	64	Tên tài khoản (kAccountBytes của Dev).
 CreateAccount	2	password	text	128	Mật khẩu, chỉ đi qua cổng xác thực.
 SignIn	1	account	text	64	Tên tài khoản (kAccountBytes của Dev).
@@ -40,3 +43,6 @@ Goodbye	1	reason	enum:DisconnectReason
 ContentStamp	1	stamp	bytes	32	Dấu băm của gói nội dung.
 CharacterList	1	characters	list:record:CharacterSummary	8	Tối đa 8 nhân vật mỗi tài khoản (kCharacterSlots của Dev).
 Ticket	1	token	bytes	204	Vé vào cổng game (kConnectTokenBytes của Dev).
+Position	1	x_cm	f32		Toạ độ X server chấp nhận, centimet.
+Position	2	z_cm	f32		Toạ độ Z server chấp nhận, centimet.
+Position	3	tick	u32		Tick client mới làm gốc: client đặt bộ đếm tick về giá trị này rồi đếm tiếp.

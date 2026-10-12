@@ -1,4 +1,4 @@
-// Tệp sinh bởi TOOLS/server/gen_protocol.py từ SRC/protocol/catalog/*.tsv; không sửa tay.
+// Tệp sinh bởi TOOLS/server/gen_protocol.py từ src/shared/protocol/catalog/*.tsv; không sửa tay.
 // Sửa bảng rồi chạy lại: python -B TOOLS/server/gen_protocol.py
 // Danh mục tin của protocol (DE-BAI P2 đợt 2 §3): enum, hằng trần, struct của từng tin, encode và bốn bộ giải mã theo
 // cổng (game, auth) và chiều (client gửi, server gửi).
@@ -197,6 +197,20 @@ struct EnterGame {
     friend bool operator==(const EnterGame&, const EnterGame&) = default;
 };
 
+// 0x0301, client gửi, cổng game, từ bản 1: Client xin một bước trên mặt phẳng ngang; server đo bằng guard::Pace theo
+// tick của server, không tin vị trí client.
+struct Move {
+    static constexpr std::uint16_t kKind = 0x0301;
+    // Toạ độ X muốn tới, centimet. NaN/vô cực bị Pace từ chối.
+    float x_cm = 0.0F;
+    // Toạ độ Z muốn tới, centimet.
+    float z_cm = 0.0F;
+    // Tick client (30/giây) đếm từ tick trong Position gần nhất; chỉ làm trần dưới của thời gian, server cắt theo đồng
+    // hồ của mình.
+    std::uint32_t tick = 0;
+    friend bool operator==(const Move&, const Move&) = default;
+};
+
 // 0x0501, client gửi, cổng auth, từ bản 1: Tạo tài khoản mới ở cổng xác thực.
 struct CreateAccount {
     static constexpr std::uint16_t kKind = 0x0501;
@@ -292,6 +306,19 @@ struct CharacterList {
     friend bool operator==(const CharacterList&, const CharacterList&) = default;
 };
 
+// 0x8301, server gửi, cổng game, từ bản 1: Vị trí server làm chủ: gửi khi vào game (mốc đầu), khi dịch chuyển hợp lệ,
+// và khi bước của client bị từ chối (kéo về).
+struct Position {
+    static constexpr std::uint16_t kKind = 0x8301;
+    // Toạ độ X server chấp nhận, centimet.
+    float x_cm = 0.0F;
+    // Toạ độ Z server chấp nhận, centimet.
+    float z_cm = 0.0F;
+    // Tick client mới làm gốc: client đặt bộ đếm tick về giá trị này rồi đếm tiếp.
+    std::uint32_t tick = 0;
+    friend bool operator==(const Position&, const Position&) = default;
+};
+
 // 0x8501, server gửi, cổng auth, từ bản 1: Vé vào cổng game do cổng xác thực cấp sau khi đăng nhập đúng.
 struct Ticket {
     static constexpr std::uint16_t kKind = 0x8501;
@@ -300,10 +327,11 @@ struct Ticket {
     friend bool operator==(const Ticket&, const Ticket&) = default;
 };
 
-using GameClientMessage = std::variant<Hello, Login, Resume, Ping, Logout, CreateCharacter, DeleteCharacter, EnterGame>;
+using GameClientMessage =
+    std::variant<Hello, Login, Resume, Ping, Logout, CreateCharacter, DeleteCharacter, EnterGame, Move>;
 using GameClientResult = std::expected<GameClientMessage, WireError>;
 using GameServerMessage =
-    std::variant<Welcome, SessionStart, ContentKey, Pong, Reject, Goodbye, ContentStamp, CharacterList>;
+    std::variant<Welcome, SessionStart, ContentKey, Pong, Reject, Goodbye, ContentStamp, CharacterList, Position>;
 using GameServerResult = std::expected<GameServerMessage, WireError>;
 using AuthClientMessage = std::variant<Hello, CreateAccount, SignIn>;
 using AuthClientResult = std::expected<AuthClientMessage, WireError>;
@@ -319,6 +347,7 @@ using AuthServerResult = std::expected<AuthServerMessage, WireError>;
 [[nodiscard]] WireStatus encode(std::vector<std::byte>& out, const CreateCharacter& message);
 [[nodiscard]] WireStatus encode(std::vector<std::byte>& out, const DeleteCharacter& message);
 [[nodiscard]] WireStatus encode(std::vector<std::byte>& out, const EnterGame& message);
+[[nodiscard]] WireStatus encode(std::vector<std::byte>& out, const Move& message);
 [[nodiscard]] WireStatus encode(std::vector<std::byte>& out, const CreateAccount& message);
 [[nodiscard]] WireStatus encode(std::vector<std::byte>& out, const SignIn& message);
 [[nodiscard]] WireStatus encode(std::vector<std::byte>& out, const Welcome& message);
@@ -329,10 +358,11 @@ using AuthServerResult = std::expected<AuthServerMessage, WireError>;
 [[nodiscard]] WireStatus encode(std::vector<std::byte>& out, const Goodbye& message);
 [[nodiscard]] WireStatus encode(std::vector<std::byte>& out, const ContentStamp& message);
 [[nodiscard]] WireStatus encode(std::vector<std::byte>& out, const CharacterList& message);
+[[nodiscard]] WireStatus encode(std::vector<std::byte>& out, const Position& message);
 [[nodiscard]] WireStatus encode(std::vector<std::byte>& out, const Ticket& message);
 
-// Giải mã thân của một khung đã tách bằng peek_frame. Kind không thuộc cổng hoặc chiều của bộ giải
-// mã là kUnknownKind; còn byte sau trường cuối là kTrailingBytes.
+// Giải mã thân của một khung đã tách bằng peek_frame. Kind không thuộc cổng hoặc chiều của bộ giải mã là kUnknownKind;
+// còn byte sau trường cuối là kTrailingBytes.
 [[nodiscard]] GameClientResult decode_game_client(const Frame& frame, ByteView body);
 [[nodiscard]] GameServerResult decode_game_server(const Frame& frame, ByteView body);
 [[nodiscard]] AuthClientResult decode_auth_client(const Frame& frame, ByteView body);

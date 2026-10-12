@@ -1,6 +1,8 @@
 // Bảng kết nối của gate. Mọi số lấy từ byte nhận được đều kiểm trước khi dùng.
 #include "gate/table.hpp"
 
+#include "gate/motion.hpp"
+
 #include "account/realm.hpp"
 #include "net/net.hpp"
 #include "net/shard.hpp"
@@ -53,6 +55,8 @@ struct Slot {
     // Đã vào nhân vật: giữ khoá phiên để Resume tìm lại sau khi rớt mạng.
     bool has_session = false;
     std::uint64_t session_key = 0;
+    // Vị trí server làm chủ; chỉ có mốc sau khi vào game (docs/SERVER-DI-CHUYEN.md).
+    Motion motion;
     Drop drain_as = Drop::kLogout;
     Door door = Door::kGame;
     bool has_account = false;
@@ -309,6 +313,7 @@ void release(Engine& state, Slot& slot, std::uint32_t index, Drop reason) {
     slot.has_cap = false;
     slot.account_id = 0;
     slot.cap = {};
+    slot.motion.clear();
     slot.door = Door::kGame;
     slot.draining = false;
     slot.handshake.reset();
@@ -464,6 +469,12 @@ void send_reject(Engine& state, Slot& slot, std::uint32_t index, std::uint16_t r
     message.request = request;
     message.code = code;
     const bool encoded = protocol::encode(slot.scratch, message).has_value();
+    if (!encoded || !seal_to(state, slot, index, slot.scratch)) release(state, slot, index, Drop::kSlow);
+}
+
+void send_position(Engine& state, Slot& slot, std::uint32_t index, const protocol::Position& position) {
+    slot.scratch.clear();
+    const bool encoded = protocol::encode(slot.scratch, position).has_value();
     if (!encoded || !seal_to(state, slot, index, slot.scratch)) release(state, slot, index, Drop::kSlow);
 }
 
@@ -766,7 +777,27 @@ void finish_enter(Engine& state, Slot& slot, std::uint32_t index, std::uint16_t 
     const bool sent = opened && protocol::encode(slot.scratch, session).has_value() &&
                       seal_to(state, slot, index, slot.scratch);
     secure::wipe_bytes(session.token);
-    if (!sent) release(state, slot, index, Drop::kSlow);
+    if (!sent) {
+        release(state, slot, index, Drop::kSlow);
+        return;
+    }
+    // Mốc đầu do server đặt. Chưa có toạ độ sinh từ store nên tạm (0,0); xem docs/SERVER-DI-CHUYEN.md.
+    send_position(state, slot, index, slot.motion.place(guard::Anchor{}, slot.seen_ns));
+}
+
+// Mọi Move đi qua guard::Pace với đồng hồ của gate. Không nhận thì kéo về mốc; lặp lại thì đóng phiên.
+void on_move(Engine& state, Slot& slot, std::uint32_t index, const protocol::Move& move, std::int64_t now) {
+    const MotionOutcome outcome = slot.motion.judge(move, now);
+    switch (outcome.act) {
+    case MotionAct::kAccept: return;
+    case MotionAct::kCorrect: send_position(state, slot, index, outcome.position); return;
+    case MotionAct::kKick:
+        send_goodbye(state, slot, index, protocol::DisconnectReason::kKicked, Drop::kProtocol);
+        return;
+    case MotionAct::kOutOfOrder:
+        send_reject(state, slot, index, protocol::Move::kKind, protocol::ErrorCode::kOutOfOrder);
+        return;
+    }
 }
 
 void send_ticket(Engine& state, Slot& slot, std::uint32_t index, std::uint16_t request, const account::TicketReply& ticket) {
@@ -921,7 +952,9 @@ void dispatch_game(SlotNow in, protocol::Frame frame, secure::ByteView body) {
     const bool is_create = frame.kind == protocol::CreateCharacter::kKind;
     const bool is_remove = frame.kind == protocol::DeleteCharacter::kKind;
     const bool is_enter = frame.kind == protocol::EnterGame::kKind;
-    const bool known = is_hello || is_ping || is_logout || is_login || is_resume || is_create || is_remove || is_enter;
+    const bool is_move = frame.kind == protocol::Move::kKind;
+    const bool known =
+        is_hello || is_ping || is_logout || is_login || is_resume || is_create || is_remove || is_enter || is_move;
     if (!known) {
         send_goodbye(in.state, in.slot, in.index, protocol::DisconnectReason::kProtocolViolation, Drop::kForeign);
         return;
@@ -947,6 +980,7 @@ void dispatch_game(SlotNow in, protocol::Frame frame, secure::ByteView body) {
         on_delete_character(in.state, in.slot, in.index, *remove);
     }
     if (const auto* enter = std::get_if<protocol::EnterGame>(&*decoded)) on_enter(in.state, in.slot, in.index, *enter);
+    if (const auto* move = std::get_if<protocol::Move>(&*decoded)) on_move(in.state, in.slot, in.index, *move, in.now);
 }
 
 void dispatch(SlotNow in, protocol::Frame frame, secure::ByteView body) {
@@ -1263,6 +1297,7 @@ Admit Table::admit(net::Ipv4 address, std::int64_t now, Door door) {
     slot.has_cap = false;
     slot.account_id = 0;
     slot.cap = {};
+    slot.motion.clear();
     slot.draining = false;
     slot.address = address;
     slot.born_ns = now;
