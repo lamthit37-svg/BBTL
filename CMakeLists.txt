@@ -1,7 +1,7 @@
 # THIENLONG — client tự viết nạp tài nguyên Thiên Long Bát Bộ. Khung theo bộ quy cách C++23
 # (refs/14 BD-01..BD-17): cờ theo target, cảnh báo từ config/warnings-*.txt, preset cho từng trình
 # dịch và nền tảng, sanitizer, cứng hoá, tách symbol. Mã nguồn ở engine/ và src/, test ở Test/<domain>/, công
-# cụ Python ở TOOLS/, bản chạy và dữ liệu ở CLIENT/.
+# cụ Python ở TOOLS/, tài nguyên ở assets/, bản chạy dev ở Dev/, bản phát hành ở release/.
 cmake_minimum_required(VERSION 3.28)
 project(thienlong VERSION 0.1.0 LANGUAGES CXX)
 
@@ -53,13 +53,72 @@ add_library(game_all_modules INTERFACE)
 # Module: engine/<m>/ hoặc src/<client|server|shared>/<m>/, x.hpp cạnh x.cpp. Include vẫn
 # "<m>/x.hpp". Gốc include là engine/, src/client/, src/server/ và src/shared/. Module mới: một dòng
 # game_module ở dưới và một dòng trong bảng tầng cmake/GameLayers.cmake.
+# Cây include là ranh giới thật. Engine chỉ thấy engine/. Shared thấy thêm src/shared.
+# Client thấy engine, shared và src/client. Server thấy engine, shared và src/server.
+# Một tệp engine không thể include header game: đường đó không có trên dòng biên dịch.
 function(game_module name)
     add_library(game_${name} STATIC ${ARGN})
-    target_include_directories(game_${name} PUBLIC ${PROJECT_SOURCE_DIR}/engine ${PROJECT_SOURCE_DIR}/src/client ${PROJECT_SOURCE_DIR}/src/server ${PROJECT_SOURCE_DIR}/src/shared)
+    set(game_homes "${PROJECT_SOURCE_DIR}/engine")
+    set(game_sees_client FALSE)
+    set(game_sees_server FALSE)
+    set(game_sees_shared FALSE)
+    foreach(source IN LISTS ARGN)
+        if(source MATCHES "^src/client/")
+            set(game_sees_client TRUE)
+        elseif(source MATCHES "^src/server/")
+            set(game_sees_server TRUE)
+        elseif(source MATCHES "^src/shared/")
+            set(game_sees_shared TRUE)
+        endif()
+    endforeach()
+    if(game_sees_client AND game_sees_server)
+        message(FATAL_ERROR "game_${name} trộn nguồn client và server")
+    endif()
+    if(game_sees_client OR game_sees_server)
+        set(game_sees_shared TRUE)
+    endif()
+    if(game_sees_shared)
+        list(APPEND game_homes "${PROJECT_SOURCE_DIR}/src/shared")
+    endif()
+    if(game_sees_client)
+        list(APPEND game_homes "${PROJECT_SOURCE_DIR}/src/client")
+    endif()
+    if(game_sees_server)
+        list(APPEND game_homes "${PROJECT_SOURCE_DIR}/src/server")
+    endif()
+    target_include_directories(game_${name} PUBLIC ${game_homes})
     target_compile_features(game_${name} PUBLIC cxx_std_23)
     target_link_libraries(game_${name} PUBLIC game::options PRIVATE game::warnings)
     target_link_libraries(game_all_modules INTERFACE game_${name})
 endfunction()
+
+# Configure dừng nếu một cây include module của cây khác. Đây là ranh giới, không phải quy ước thư mục.
+function(game_reject_foreign tree)
+    file(GLOB_RECURSE sources "${tree}/*.hpp" "${tree}/*.cpp" "${tree}/*.mm")
+    foreach(source IN LISTS sources)
+        file(STRINGS "${source}" lines REGEX "^[ \t]*#[ \t]*include[ \t]*\"[a-z0-9_]+/")
+        foreach(line IN LISTS lines)
+            string(REGEX MATCH "\"([a-z0-9_]+)/" _hit "${line}")
+            if(NOT CMAKE_MATCH_1 IN_LIST ARGN)
+                file(RELATIVE_PATH where "${PROJECT_SOURCE_DIR}" "${source}")
+                message(FATAL_ERROR "ranh giới: ${where} include \"${CMAKE_MATCH_1}/\" ngoài cây của nó")
+            endif()
+        endforeach()
+    endforeach()
+endfunction()
+set(game_engine_names audio audiotool capture core fs gpu io jobs math net render resource shader
+    shadertool window xml)
+set(game_shared_names protocol secure table)
+set(game_client_names anim avatar classic client collision control fx gui hero look motion nav ogre
+    quest scene seal sealtool skill ui)
+set(game_server_names authd billingd config content gate gated linttool metrics process service stored
+    supervise supervisor worldd zoned)
+game_reject_foreign("${PROJECT_SOURCE_DIR}/engine" ${game_engine_names})
+game_reject_foreign("${PROJECT_SOURCE_DIR}/src/shared" ${game_engine_names} ${game_shared_names})
+game_reject_foreign("${PROJECT_SOURCE_DIR}/src/client" ${game_engine_names} ${game_shared_names}
+    ${game_client_names})
+game_reject_foreign("${PROJECT_SOURCE_DIR}/src/server" ${game_engine_names} ${game_shared_names}
+    ${game_server_names})
 
 # core: đồng hồ, lỗi, log, luồng. Cùng API C++ trên mọi nền tảng (Result, template park), không
 # thêm biên C. Win32: WaitOnAddress và ntdll. POSIX: futex 4 byte (Android, nhân 4.9 không có
@@ -110,7 +169,7 @@ target_link_libraries(game_xml PUBLIC game_core)
 
 # miniaudio chỉ giải mã và mở thiết bị. Cảnh báo của header đó không vào game::warnings.
 add_library(game_audio_native STATIC engine/audio/detail/native.cpp)
-target_include_directories(game_audio_native PUBLIC ${PROJECT_SOURCE_DIR}/SRC
+target_include_directories(game_audio_native PUBLIC ${PROJECT_SOURCE_DIR}/engine
     ${PROJECT_SOURCE_DIR}/third_party/miniaudio)
 target_compile_features(game_audio_native PUBLIC cxx_std_23)
 target_link_libraries(game_audio_native PUBLIC game_core game::options)
@@ -152,7 +211,7 @@ if(NOT ANDROID AND NOT IOS)
     # Cook cây sound của client ra build/cooked/sound, chung cho mọi preset. Chạy lại chỉ cook
     # tệp đổi. Gọi tay (cmake --build ... --target cook_sound) trước khi đóng APK.
     add_custom_target(cook_sound
-        COMMAND thienlong_audio cook "${PROJECT_SOURCE_DIR}/CLIENT/data/sound"
+        COMMAND thienlong_audio cook "${PROJECT_SOURCE_DIR}/assets/client/sound"
             "${PROJECT_SOURCE_DIR}/build/cooked/sound"
         COMMENT "Cook âm thanh ra build/cooked/sound"
         VERBATIM)
@@ -167,7 +226,8 @@ if(NOT CMAKE_CROSSCOMPILING)
         src/client/seal/tree.cpp
         src/client/seal/detail/format.cpp)
     add_library(game_seal_native STATIC src/client/seal/detail/sodium.cpp)
-    target_include_directories(game_seal_native PUBLIC ${PROJECT_SOURCE_DIR}/SRC)
+    target_include_directories(game_seal_native PUBLIC ${PROJECT_SOURCE_DIR}/engine
+        ${PROJECT_SOURCE_DIR}/src/client)
     target_compile_features(game_seal_native PUBLIC cxx_std_23)
     target_link_libraries(game_seal_native PUBLIC game_sodium game::options)
     if(MSVC)
@@ -315,7 +375,8 @@ if(NOT CMAKE_CROSSCOMPILING)
     # dưới -Werror; các tệp còn lại của module thì bật.
     game_module(secure src/shared/secure/identity.cpp src/shared/secure/handshake.cpp src/shared/secure/record.cpp)
     add_library(game_secure_sodium STATIC src/shared/secure/detail/sodium.cpp)
-    target_include_directories(game_secure_sodium PUBLIC ${PROJECT_SOURCE_DIR}/SRC)
+    target_include_directories(game_secure_sodium PUBLIC ${PROJECT_SOURCE_DIR}/engine
+        ${PROJECT_SOURCE_DIR}/src/shared)
     target_compile_features(game_secure_sodium PUBLIC cxx_std_23)
     target_link_libraries(game_secure_sodium PUBLIC game_sodium PRIVATE game::options)
     if(MSVC)
@@ -338,6 +399,8 @@ if(NOT CMAKE_CROSSCOMPILING)
         message(STATUS "Thiếu Test/bench/collision_bench.cpp, bỏ collision_bench")
     endif()
 endif()
+game_module(classic src/client/classic/classic.cpp)
+target_link_libraries(game_classic PUBLIC game_core game_math)
 game_module(look src/client/look/appearance.cpp src/client/look/look.cpp src/client/look/head.cpp src/client/look/sect.cpp)
 target_link_libraries(game_look PUBLIC game_table game_core)
 
@@ -665,7 +728,7 @@ if(GAME_HAS_GPU)
         find_package(Stb REQUIRED)
         find_package(meshoptimizer CONFIG REQUIRED)
         game_module(resource
-            engine/resource/classic.cpp
+            engine/resource/dds.cpp
             engine/resource/image.cpp
             engine/resource/model.cpp
             engine/resource/upload.cpp)
@@ -679,7 +742,8 @@ if(GAME_HAS_GPU)
         target_link_libraries(game_render PUBLIC game_math game_resource PRIVATE game_shader)
         # Nạp người chơi từ GLB và ra ma trận skin mỗi khung (cần resource, look, io).
         target_sources(game_avatar PRIVATE src/client/avatar/avatar.cpp src/client/avatar/rig.cpp)
-        target_link_libraries(game_avatar PUBLIC game_look game_math game_io game_resource game_anim game_ogre)
+        target_link_libraries(game_avatar PUBLIC game_look game_math game_io game_resource game_anim game_ogre
+            game_classic)
         # ui: HUD của game: bộ vẽ quad của giao diện gốc lên lượt vẽ 2D (render/ui), gom bộ nạp, dàn trang
         # và bảng chuỗi (cần gui, render, resource).
         game_module(ui src/client/ui/painter.cpp src/client/ui/hud.cpp src/client/ui/pace.cpp src/client/ui/text.cpp
@@ -696,7 +760,7 @@ if(GAME_HAS_GPU AND WIN32)
     target_link_libraries(thienlong_shader PRIVATE game_shader game_jobs game_io game::warnings)
     game_split_debug(thienlong_shader)
     set(game_shader_dir "${CMAKE_BINARY_DIR}/shaders")
-    set(game_shader_src "${PROJECT_SOURCE_DIR}/engine/render/shaders")
+    set(game_shader_src "${PROJECT_SOURCE_DIR}/src/client/render/shaders")
     # Danh sách gói lấy thẳng từ shaders.list (mỗi dòng "shader <tên> <tệp>" là một gói <tên>.f2s):
     # công cụ dịch mọi dòng của danh sách, nên gói nào nó sinh ra cũng được theo dõi và được cài.
     # Chép tên gói ra đây lần nữa thì thêm một dòng vào danh sách mà quên ở đây là gói đó không
@@ -708,7 +772,7 @@ if(GAME_HAS_GPU AND WIN32)
         list(APPEND game_shader_packages "${game_shader_dir}/${game_shader_name}.f2s")
     endforeach()
     if(NOT game_shader_packages)
-        message(FATAL_ERROR "engine/render/shaders/shaders.list không có dòng shader nào")
+        message(FATAL_ERROR "src/client/render/shaders/shaders.list không có dòng shader nào")
     endif()
     # Mọi tệp nguồn shader của thư mục: sửa tệp nào thì dịch lại.
     file(GLOB game_shader_sources CONFIGURE_DEPENDS
@@ -720,8 +784,7 @@ if(GAME_HAS_GPU AND WIN32)
         DEPENDS thienlong_shader "${game_shader_src}/shaders.list" ${game_shader_sources}
         COMMENT "Dịch shader của render thành gói .f2s"
         VERBATIM)
-    add_custom_target(game_render_shaders DEPENDS ${game_shader_packages})
-    add_dependencies(game_render game_render_shaders)
+    add_custom_target(game_client_shaders DEPENDS ${game_shader_packages})
     install(FILES ${game_shader_packages} DESTINATION bin/shaders)
 endif()
 
@@ -756,7 +819,7 @@ target_link_libraries(game_client_display PUBLIC game_core game_client_stage gam
     game_client_world game_control)
 if(GAME_HAS_GPU)
     target_link_libraries(game_client_display PRIVATE game_gpu game_render game_capture
-        game_avatar game_look game_motion game_ui game_fx)
+        game_avatar game_look game_motion game_ui game_fx game_classic)
 endif()
 game_module(client_viewer ${game_client_loop})
 target_link_libraries(game_client_viewer PUBLIC game_core game_client_stage
@@ -784,12 +847,15 @@ if(WIN32)
 endif()
 target_link_libraries(thienlong_client PRIVATE game_client game_client_viewer game_client_stage
     game_io game_scene game::warnings)
+if(TARGET game_client_shaders)
+    add_dependencies(thienlong_client game_client_shaders)
+endif()
 if(IOS)
     target_link_libraries(thienlong_client PRIVATE "-framework UIKit" "-framework Foundation"
         "-framework WebKit" game_audio)
 endif()
 game_split_debug(thienlong_client)
-# Bản chạy: cmake --install build/<preset> chép exe vào CLIENT/bin (CMAKE_INSTALL_PREFIX ở preset).
+# Bản chạy: cmake --install chép exe vào Dev/bin hoặc release/bin (CMAKE_INSTALL_PREFIX của preset).
 install(TARGETS thienlong_client RUNTIME DESTINATION bin BUNDLE DESTINATION bin)
 # Bản địa hoá (chữ, tên cảnh, ảnh thay) dựng cùng client từ assets/i18n.
 include(cmake/GameI18n.cmake)
@@ -813,7 +879,7 @@ if(IOS)
         COMMAND ${CMAKE_COMMAND} -E env PYTHONUTF8=1
             python "${PROJECT_SOURCE_DIR}/TOOLS/android/package_apk.py"
             --stage "$<TARGET_BUNDLE_CONTENT_DIR:thienlong_client>/data"
-            --data "${PROJECT_SOURCE_DIR}/CLIENT/data"
+            --data "${PROJECT_SOURCE_DIR}/assets/client"
         COMMAND ${CMAKE_COMMAND} -E copy_directory
             "${GAME_IOS_SHADERS}"
             "$<TARGET_BUNDLE_CONTENT_DIR:thienlong_client>/data/shaders"
@@ -823,7 +889,7 @@ endif()
 # APK NativeActivity: cùng Display với bản PC (Vulkan 1.3, rồi GLES). Glue của NDK là C,
 # không qua cổng cảnh báo của dự án. Exe thienlong_client vẫn để ctest đẩy qua adb.
 # Gói shader lấy từ preset PC (cache GAME_ANDROID_SHADERS, mặc định clang-asan).
-# --data trỏ cả CLIENT/data; package_apk.py chỉ đóng cảnh của Config/startup.id.
+# --data trỏ cả assets/client; package_apk.py chỉ đóng cảnh của Config/startup.id.
 if(ANDROID)
     enable_language(C)
     set(game_glue "${ANDROID_NDK}/sources/android/native_app_glue")
@@ -851,7 +917,7 @@ if(ANDROID)
             FORCE)
     endif()
     set(game_apk_assets
-        --data "${PROJECT_SOURCE_DIR}/CLIENT/data"
+        --data "${PROJECT_SOURCE_DIR}/assets/client"
         --shaders "${GAME_ANDROID_SHADERS}")
     # Có cây sound đã cook thì APK mang bản .tla (48 kHz, Opus) thay cho WAV và MP3 gốc: nhẹ hơn
     # một nửa và thiết bị không phải đổi tần số. Chưa cook thì đóng tệp gốc như cũ.
@@ -876,7 +942,7 @@ if(ANDROID)
             "${GAME_ANDROID_SHADERS}/model.vs.f2s"
             "${GAME_ANDROID_SHADERS}/model.ps.f2s"
             # Mốc của bước i18n (cmake/GameI18n.cmake; rỗng khi không có Python): APK đóng sau khi
-            # chữ và ảnh của ngôn ngữ đã chọn nằm trong CLIENT/data, và đóng lại khi chúng đổi.
+            # chữ và ảnh của ngôn ngữ đã chọn nằm trong assets/client, và đóng lại khi chúng đổi.
             ${GAME_I18N_STAMP}
         # Dữ liệu đóng vào APK (danh sách cảnh, từng tệp, thư mục đã quét) do package_apk.py tự kê:
         # tệp nào đổi thì APK đóng lại.
@@ -966,17 +1032,17 @@ if(TARGET game_seal)
     game_test(seal game_seal)
 endif()
 # Đường dẫn dữ liệu là của máy dựng: test chạy trên thiết bị Android không thấy nó, và bản checkout
-# mới chưa có CLIENT/data (thư mục không vào git). Ở cả hai nơi các ca đọc tệp thật tự bỏ qua
+# mới chưa có assets/client (thư mục không vào git). Ở cả hai nơi các ca đọc tệp thật tự bỏ qua
 # (audio, map) hoặc test không được đăng ký (giao diện, phông).
-if(NOT ANDROID AND EXISTS "${PROJECT_SOURCE_DIR}/CLIENT/data/sound/sound_table.xml")
+if(NOT ANDROID AND EXISTS "${PROJECT_SOURCE_DIR}/assets/client/sound/sound_table.xml")
     target_compile_definitions(audio_tests PRIVATE
-        "GAME_CLIENT_DATA=\"${PROJECT_SOURCE_DIR}/CLIENT/data\"")
+        "GAME_CLIENT_DATA=\"${PROJECT_SOURCE_DIR}/assets/client\"")
 endif()
 game_test(scene game_scene)
 game_test(map game_client_map)
-if(NOT ANDROID AND EXISTS "${PROJECT_SOURCE_DIR}/CLIENT/data/Config/ScenePosDefineEx.txt")
+if(NOT ANDROID AND EXISTS "${PROJECT_SOURCE_DIR}/assets/client/Config/ScenePosDefineEx.txt")
     target_compile_definitions(map_tests PRIVATE
-        "GAME_CLIENT_DATA=\"${PROJECT_SOURCE_DIR}/CLIENT/data\"")
+        "GAME_CLIENT_DATA=\"${PROJECT_SOURCE_DIR}/assets/client\"")
 endif()
 game_test(world game_client_world)
 game_test(transform game_scene)
@@ -1025,17 +1091,18 @@ if(GAME_HAS_GPU AND NOT ANDROID)
     endif()
     if(TARGET game_resource)
         game_test(resource game_resource)
+        game_test(dds game_resource)
         game_test(resource_upload game_resource)
-        game_test(classic game_resource)
-        game_test(shade game_render)
-        game_test(rig game_resource)
+        game_test(classic game_classic)
+        game_test(shade game_render game_classic)
+        game_test(rig game_avatar)
         target_compile_definitions(rig_tests PRIVATE
-            GAME_CLIENT_DATA="${PROJECT_SOURCE_DIR}/CLIENT/data")
+            GAME_CLIENT_DATA="${PROJECT_SOURCE_DIR}/assets/client")
         # Kiểm trên dữ liệu thật của người chơi: chỉ đăng ký khi đã gom bằng TOOLS/content.
-        if(EXISTS "${PROJECT_SOURCE_DIR}/CLIENT/data/Table/player_bodies.tsv")
+        if(EXISTS "${PROJECT_SOURCE_DIR}/assets/client/Table/player_bodies.tsv")
             game_test(avatar_data game_avatar game_look game_io game_ui_panel)
             target_compile_definitions(avatar_data_tests PRIVATE
-                GAME_CLIENT_DATA="${PROJECT_SOURCE_DIR}/CLIENT/data")
+                GAME_CLIENT_DATA="${PROJECT_SOURCE_DIR}/assets/client")
         endif()
     endif()
 endif()
@@ -1047,8 +1114,8 @@ game_test(motion game_motion)
 game_test(nav game_nav game_io)
 if(NOT ANDROID)
     target_compile_definitions(nav_tests PRIVATE GAME_NAV_GOLDEN="${PROJECT_SOURCE_DIR}/Test/golden")
-    if(EXISTS "${PROJECT_SOURCE_DIR}/CLIENT/data/Scene/huoyangu.path")
-        target_compile_definitions(nav_tests PRIVATE GAME_CLIENT_DATA="${PROJECT_SOURCE_DIR}/CLIENT/data")
+    if(EXISTS "${PROJECT_SOURCE_DIR}/assets/client/Scene/huoyangu.path")
+        target_compile_definitions(nav_tests PRIVATE GAME_CLIENT_DATA="${PROJECT_SOURCE_DIR}/assets/client")
     endif()
 endif()
 # collision (DE-BAI DH đợt 1, mục 4 và 5): collision_tests là bộ đọc trên byte tự dựng, số vàng của PathLib.dll gốc
@@ -1073,8 +1140,8 @@ endif()
 set(GAME_RAW_SCENE "${game_raw_scene_default}" CACHE PATH "Thư mục .WCollision thật cho collision_tests")
 if(TARGET collision_tests AND NOT ANDROID)
     target_compile_definitions(collision_tests PRIVATE GAME_COLLISION_GOLDEN="${PROJECT_SOURCE_DIR}/Test/golden")
-    if(EXISTS "${PROJECT_SOURCE_DIR}/CLIENT/data/Scene/huoyangu.path")
-        target_compile_definitions(collision_tests PRIVATE GAME_CLIENT_DATA="${PROJECT_SOURCE_DIR}/CLIENT/data")
+    if(EXISTS "${PROJECT_SOURCE_DIR}/assets/client/Scene/huoyangu.path")
+        target_compile_definitions(collision_tests PRIVATE GAME_CLIENT_DATA="${PROJECT_SOURCE_DIR}/assets/client")
     endif()
 endif()
 if(TARGET collision_tests AND NOT ANDROID AND IS_DIRECTORY "${GAME_RAW_SCENE}")
@@ -1113,18 +1180,18 @@ game_test(touch game_control)
 game_test(hero game_hero)
 # Bộ lọc nhiệm vụ nhận được; ca trên bảng thật chỉ dịch khi đã xuất bảng bằng export_config.py.
 game_test(quest game_quest game_io)
-if(NOT ANDROID AND EXISTS "${PROJECT_SOURCE_DIR}/CLIENT/data/Table/mission_outline.tsv")
+if(NOT ANDROID AND EXISTS "${PROJECT_SOURCE_DIR}/assets/client/Table/mission_outline.tsv")
     target_compile_definitions(quest_tests PRIVATE
-        GAME_CLIENT_DATA="${PROJECT_SOURCE_DIR}/CLIENT/data")
+        GAME_CLIENT_DATA="${PROJECT_SOURCE_DIR}/assets/client")
 endif()
 # Bảng, sách kỹ năng và hệ action của sách võ công; ca trên bảng thật chỉ dịch khi đã xuất đủ tám
 # bảng bằng export_config.py (bảy bảng, formation_levels.tsv là bảng mới nhất) và export_icons.py.
 game_test(skill game_skill game_io)
-if(NOT ANDROID AND EXISTS "${PROJECT_SOURCE_DIR}/CLIENT/data/Table/life_skill_levels.tsv"
-        AND EXISTS "${PROJECT_SOURCE_DIR}/CLIENT/data/Table/formation_levels.tsv"
-        AND EXISTS "${PROJECT_SOURCE_DIR}/CLIENT/data/Table/icons.tsv")
+if(NOT ANDROID AND EXISTS "${PROJECT_SOURCE_DIR}/assets/client/Table/life_skill_levels.tsv"
+        AND EXISTS "${PROJECT_SOURCE_DIR}/assets/client/Table/formation_levels.tsv"
+        AND EXISTS "${PROJECT_SOURCE_DIR}/assets/client/Table/icons.tsv")
     target_compile_definitions(skill_tests PRIVATE
-        GAME_CLIENT_DATA="${PROJECT_SOURCE_DIR}/CLIENT/data")
+        GAME_CLIENT_DATA="${PROJECT_SOURCE_DIR}/assets/client")
 endif()
 game_test(gui_value game_gui)
 game_test(gui_loader game_gui)
@@ -1134,9 +1201,9 @@ game_test(gui_softkey game_gui)
 # Nội dung các bảng của ui/panel: logic thuần chạy ở mọi nơi; ca đối chiếu tên cửa sổ với layout
 # thật chỉ dịch khi đã gom dữ liệu giao diện.
 game_test(ui_board game_ui_panel)
-if(NOT ANDROID AND EXISTS "${PROJECT_SOURCE_DIR}/CLIENT/data/Interface/Schema/WoWLookSkin.scheme.xml")
+if(NOT ANDROID AND EXISTS "${PROJECT_SOURCE_DIR}/assets/client/Interface/Schema/WoWLookSkin.scheme.xml")
     target_compile_definitions(ui_board_tests PRIVATE
-        GAME_CLIENT_DATA="${PROJECT_SOURCE_DIR}/CLIENT/data")
+        GAME_CLIENT_DATA="${PROJECT_SOURCE_DIR}/assets/client")
 endif()
 # Trạng thái giữ lại của cửa sổ một bảng (bảng port từ script lái bằng sự kiện).
 game_test(ui_widgets game_ui_panel)
@@ -1149,14 +1216,14 @@ if(NOT ANDROID)
 endif()
 # Bảng nhập tài khoản của thủ tục đăng nhập; ca đối chiếu layout thật chỉ dịch khi đã gom layout đó.
 game_test(ui_logon game_ui_panel)
-if(NOT ANDROID AND EXISTS "${PROJECT_SOURCE_DIR}/CLIENT/data/Interface/Logon/LogOn.layout.xml")
+if(NOT ANDROID AND EXISTS "${PROJECT_SOURCE_DIR}/assets/client/Interface/Logon/LogOn.layout.xml")
     target_compile_definitions(ui_logon_tests PRIVATE
-        GAME_CLIENT_DATA="${PROJECT_SOURCE_DIR}/CLIENT/data")
+        GAME_CLIENT_DATA="${PROJECT_SOURCE_DIR}/assets/client")
 endif()
 game_test(ui_role game_ui_panel)
 game_test(ui_select game_ui_panel)
 # Bảng tạo nhân vật: so với trạng thái mà CreateRole.lua gốc để lại trên LuaPlus.dll của client 2026
-# với bảng thật của CLIENT/data/Table (số vàng do TOOLS/port/lua_oracle.py sinh); ca đó chỉ chạy khi
+# với bảng thật của assets/client/Table (số vàng do TOOLS/port/lua_oracle.py sinh); ca đó chỉ chạy khi
 # bản dựng thấy cả thư mục số vàng lẫn dữ liệu client.
 game_test(ui_create game_ui_panel game_io)
 if(NOT ANDROID)
@@ -1164,32 +1231,32 @@ if(NOT ANDROID)
         GAME_PANEL_GOLDEN="${PROJECT_SOURCE_DIR}/Test/golden/panel")
 endif()
 game_test(ui_flow game_ui_panel)
-if(NOT ANDROID AND EXISTS "${PROJECT_SOURCE_DIR}/CLIENT/data/Interface/SelectRole/SelectRole.layout.xml")
+if(NOT ANDROID AND EXISTS "${PROJECT_SOURCE_DIR}/assets/client/Interface/SelectRole/SelectRole.layout.xml")
     target_compile_definitions(ui_select_tests PRIVATE
-        GAME_CLIENT_DATA="${PROJECT_SOURCE_DIR}/CLIENT/data")
+        GAME_CLIENT_DATA="${PROJECT_SOURCE_DIR}/assets/client")
 endif()
-if(NOT ANDROID AND EXISTS "${PROJECT_SOURCE_DIR}/CLIENT/data/Interface/CreateRole/CreateRole.layout.xml")
+if(NOT ANDROID AND EXISTS "${PROJECT_SOURCE_DIR}/assets/client/Interface/CreateRole/CreateRole.layout.xml")
     target_compile_definitions(ui_create_tests PRIVATE
-        GAME_CLIENT_DATA="${PROJECT_SOURCE_DIR}/CLIENT/data")
+        GAME_CLIENT_DATA="${PROJECT_SOURCE_DIR}/assets/client")
 endif()
 # Bàn phím ảo của thủ tục đăng nhập; ca đối chiếu layout thật chỉ dịch khi đã gom layout đó.
 game_test(ui_softkey game_ui_panel)
-if(NOT ANDROID AND EXISTS "${PROJECT_SOURCE_DIR}/CLIENT/data/Interface/SoftKeyBoard/SoftKeyBoard.layout.xml")
+if(NOT ANDROID AND EXISTS "${PROJECT_SOURCE_DIR}/assets/client/Interface/SoftKeyBoard/SoftKeyBoard.layout.xml")
     target_compile_definitions(ui_softkey_tests PRIVATE
-        GAME_CLIENT_DATA="${PROJECT_SOURCE_DIR}/CLIENT/data")
+        GAME_CLIENT_DATA="${PROJECT_SOURCE_DIR}/assets/client")
 endif()
 # Kiểm trên dữ liệu giao diện thật: chỉ đăng ký khi đã gom bằng TOOLS/content/collect_ui.py.
-if(NOT ANDROID AND EXISTS "${PROJECT_SOURCE_DIR}/CLIENT/data/Interface/Schema/WoWLookSkin.scheme.xml")
+if(NOT ANDROID AND EXISTS "${PROJECT_SOURCE_DIR}/assets/client/Interface/Schema/WoWLookSkin.scheme.xml")
     game_test(gui_real game_gui)
     # Danh sách, thanh cuộn, cửa sổ phức hợp trên layout thật của bảng nhiệm vụ.
     game_test(gui_widgets game_gui)
     target_compile_definitions(gui_widgets_tests PRIVATE
-        GAME_CLIENT_DATA="${PROJECT_SOURCE_DIR}/CLIENT/data")
+        GAME_CLIENT_DATA="${PROJECT_SOURCE_DIR}/assets/client")
     game_test(ui_panel game_ui_panel game_io)
     target_compile_definitions(ui_panel_tests PRIVATE
-        GAME_CLIENT_DATA="${PROJECT_SOURCE_DIR}/CLIENT/data")
+        GAME_CLIENT_DATA="${PROJECT_SOURCE_DIR}/assets/client")
     target_compile_definitions(gui_real_tests PRIVATE
-        GAME_CLIENT_DATA="${PROJECT_SOURCE_DIR}/CLIENT/data"
+        GAME_CLIENT_DATA="${PROJECT_SOURCE_DIR}/assets/client"
         GAME_UI_GOLDEN="${PROJECT_SOURCE_DIR}/Test/golden")
 endif()
 # Camera dựng ma trận bằng math và render/camera.cpp; chỉ cần module render, không cần GPU thật.
@@ -1198,13 +1265,13 @@ if(TARGET game_render)
     game_test(catalog game_render)
 endif()
 if(TARGET game_ui AND NOT ANDROID
-        AND EXISTS "${PROJECT_SOURCE_DIR}/CLIENT/data/Interface/Schema/VTNAM14.bin")
+        AND EXISTS "${PROJECT_SOURCE_DIR}/assets/client/Interface/Schema/VTNAM14.bin")
     game_test(ui_text game_ui)
     target_compile_definitions(ui_text_tests PRIVATE
-        GAME_CLIENT_DATA="${PROJECT_SOURCE_DIR}/CLIENT/data")
+        GAME_CLIENT_DATA="${PROJECT_SOURCE_DIR}/assets/client")
     game_test(pace game_ui)
     target_compile_definitions(pace_tests PRIVATE
-        GAME_CLIENT_DATA="${PROJECT_SOURCE_DIR}/CLIENT/data")
+        GAME_CLIENT_DATA="${PROJECT_SOURCE_DIR}/assets/client")
 endif()
 # Include ngược tầng: bảng ở cmake/GameLayers.cmake (KTR-15).
 add_test(NAME layers COMMAND ${CMAKE_COMMAND} -DGAME_SOURCE_DIR=${PROJECT_SOURCE_DIR}
@@ -1290,7 +1357,7 @@ if(TARGET game_net)
         target_compile_definitions(gate_loop_tests PRIVATE
             "GAME_SERVER_CONFIG=\"${PROJECT_SOURCE_DIR}/SERVER/config\"")
         add_dependencies(gate_loop_tests thienlong_gate)
-        if(WIN32)
+        if(WIN32 AND EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/TOOLS/server/gate_load.cpp")
             add_executable(thienlong_gate_load TOOLS/server/gate_load.cpp)
             target_link_libraries(thienlong_gate_load PRIVATE game_gate game_supervise game_process game_io
                 psapi game::warnings)

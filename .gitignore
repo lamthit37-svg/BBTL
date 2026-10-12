@@ -11,9 +11,11 @@
 /compile_commands.json
 CMakeUserPresets.json
 
-# Sản phẩm: exe do bước install chép vào; dữ liệu do TOOLS/content gom từ kho gốc.
-/CLIENT/bin/
-/CLIENT/data/
+# Sản phẩm: exe cài vào Dev (bản dev) hoặc release (bản phát hành).
+# Dữ liệu client gom từ kho gốc nằm ở assets/client, không vào git.
+/Dev/
+/release/
+/assets/client/
 
 # Runtime của máy chủ: exe do bước install chép vào; nhị phân PostgreSQL do TOOLS/server/setup_db.py
 # tải; dữ liệu, khoá và log sinh lúc chạy; bảng xuất từ client và lưới đã nấu do TOOLS/server sinh.

@@ -1,5 +1,5 @@
 // Đọc GLB bằng cgltf: JSON, buffer, accessor (kể cả sparse) đã được kiểm. Ảnh nhúng, data-URI
-// và file cạnh giải ở image.cpp. Biến đổi nút lấy ma trận cục bộ đã gồm tịnh tiến, xoay và tỉ lệ.
+// và file cạnh: PNG/JPEG giải ở image.cpp, DDS giữ khối ở dds.cpp. Biến đổi nút lấy ma trận cục bộ.
 // Chỉ số sparse đọc nguyên. Float32 không giữ 16777217, nên không giải chỉ số bằng float.
 // Buffer view nén EXT_meshopt_compression giải bằng meshoptimizer SAU cgltf_validate: bộ giải mã
 // assert tiền điều kiện chứ không báo lỗi, nên mô tả phải qua kiểm trước (Wicked bản orio giải
@@ -10,6 +10,8 @@
 // Bản dịch thật vẫn bật CGLTF_IMPLEMENTATION.
 #include "resource/model.hpp"
 
+#include "resource/dds.hpp"
+
 #include "core/error.hpp"
 #include "fs/file.hpp"
 #include "fs/path.hpp"
@@ -17,7 +19,7 @@
 #include "math/matrix.hpp"
 #include "math/types.hpp"
 #include "math/vector.hpp"
-#include "resource/classic.hpp"
+
 #include "resource/image.hpp"
 
 #include <algorithm>
@@ -852,12 +854,17 @@ void read_extensions(const cgltf_material& source, const Gltf& data, Material& m
         read_metallic(source.pbr_metallic_roughness, data, material);
     }
     read_extensions(source, data, material);
-    if (source.extras.data != nullptr) material.classic = read_classic(source.extras.data);
+    if (source.extras.data != nullptr) material.extras = source.extras.data;
     return material;
 }
 
+[[nodiscard]] bool is_dds(Encoded encoded) noexcept {
+    return encoded.size() >= 4 && encoded[0] == std::byte{'D'} && encoded[1] == std::byte{'D'} &&
+        encoded[2] == std::byte{'S'} && encoded[3] == std::byte{' '};
+}
+
 [[nodiscard]] ImageResult finish_image(const cgltf_image& source, Encoded encoded) {
-    auto image = decode_image(encoded);
+    auto image = is_dds(encoded) ? read_dds(encoded) : decode_image(encoded);
     if (!image) return failure_of(image);
     image->name = text_of(source.name);
     return image;

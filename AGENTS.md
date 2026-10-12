@@ -11,7 +11,7 @@
     này ghép lại từ nhật ký của các công cụ và nằm ở `D:\THIENLONG`, chưa có `.git`, chưa dựng và
     chưa chạy test lần nào sau khôi phục. 56 tệp `SRC` và 31 tệp test là bản cũ hơn bản cuối, 12
     tệp `CMakeLists.txt` nêu còn thiếu, `CMakeLists.txt` chưa có target của gói P2-2; client gốc,
-    `_raw`, `_glb`, `CLIENT/data`, `SERVER/tables`, `SERVER/scenes`, `Test/golden`, ảnh
+    `_raw`, `_glb`, `assets/client`, `SERVER/tables`, `SERVER/scenes`, `Test/golden`, ảnh
     `assets/i18n` và `third_party/libsodium` phải cài, sinh hoặc tải lại. Danh sách từng tệp và
     lịch sử git 25 commit đầu ở `docs/KHOI-PHUC-2026-10-09/`. Các dòng dưới tả mã trước lúc mất.
   - Hình: vẽ được map (địa hình, vật thể tĩnh, hạt và hiệu ứng cộng sáng của bản 2026) và người
@@ -43,7 +43,7 @@
     án thử tay ngày 2026-10-09): hiệu ứng tuyệt chiêu và hào quang vũ khí của người mẫu môn phái;
     bảng chọn mới vẽ một nhân vật. Ảnh có chữ Hán của các bảng khác chưa thay (`docs/TIEN-DO.md`).
     Sổ nhân vật là tệp cục bộ
-    `CLIENT/data/Save/roles.tsv`. Các nút web mở trang "Coming soon", bàn phím
+    `assets/client/Save/roles.tsv`. Các nút web mở trang "Coming soon", bàn phím
     ảo gõ vào ô đang ngắm. Cảnh nền có lửa và quầng đèn từ hiệu ứng bản 2026, còn thiếu nước,
     sương, nến và quạ.
   - Chữ và ảnh tiếng Việt dựng cùng client từ `assets/i18n`; một phần chữ giao diện còn viết thẳng
@@ -150,11 +150,13 @@
   `docs/giao-viec/` (hồ sơ từng đợt giao việc cho phiên AI phụ; `KD-DOT-1/GHI-CHU.md` giữ các ý
   tối ưu đã hoãn), `docs/BAY-DA-BIET.md` (bẫy đã đo của từng vùng; chỉ mục ở mục 11).
 - Lệch quy định chung bên dưới (mỗi dòng: mục nào — dự án làm gì thay — vì sao):
-  - Mục 3, bố cục — chủ dự án chốt 2026-10-12: `engine/` là hạ tầng tái sử dụng, không include
-    module game. Phần game ở `src/client/`, `src/server/`, `src/shared/`. Include vẫn `"<m>/x.hpp"`;
-    gốc include là `engine/`, `src/client/`, `src/server/`, `src/shared/`. Bản chạy ở `CLIENT/bin`,
-    dữ liệu ở `CLIENT/data`, runtime máy chủ ở `SERVER/`, công cụ Python ở `TOOLS/`, thư viện chép
-    nguồn ở `third_party/`. Bốn thứ `engine`, `src`, `TOOLS`, `third_party` nằm ngang hàng.
+  - Mục 3, bố cục — chủ dự án chốt 2026-10-12: `engine/` là hạ tầng tái sử dụng. Target engine
+    chỉ nhận `engine/` trên dòng include; client không thấy `src/server`, server không thấy
+    `src/client`. Configure dừng nếu một tệp include module ngoài cây của nó
+    (`game_reject_foreign`). Phần game ở `src/client/`, `src/server/`, `src/shared/`. Include vẫn
+    `"<m>/x.hpp"`. Tài nguyên của dự án ở `assets/` (`assets/i18n`, `assets/client`).
+    Đầu ra cuối cùng là `Dev/` (bản dev) và `release/` (bản phát hành), hai thư mục ngang nhau.
+    Runtime máy chủ ở `SERVER/`, công cụ Python ở `TOOLS/`, thư viện chép nguồn ở `third_party/`.
   - Mục 2 bước 3, mục 6 và mục 8, test — chủ dự án chốt 2026-10-12: test nằm ở
     `Test/<Domain>/<tên>_tests.cpp`, một domain một thư mục, tên domain trùng module
     (`Test/Gpu/gpu_tests.cpp`, `Test/Protocol/protocol_tests.cpp`). Không dàn phẳng ở `tests/`.
@@ -171,7 +173,7 @@
     vào `.worktrees/<tên>` (đã ignore), không vào `build/<tên>`. Agent dùng `build/` làm chỗ nháp
     thì trước khi báo xong phải dời thứ đáng giữ ra đúng chỗ và xoá phần còn lại — chủ dự án nhắc
     ngày 2026-10-08 ("tools phải ở tools, build sau này tôi xoá là mất code").
-  - Mục 3, máy chủ: `SERVER/` nằm ngang `CLIENT/` và chứa trọn runtime của máy chủ (exe ở
+  - Mục 3, máy chủ: `SERVER/` chứa trọn runtime của máy chủ (exe ở
     `SERVER/bin`, cấu hình, bảng, cảnh, SQL, cả PostgreSQL và dữ liệu của nó); bố cục ở
     `SERVER/README.md`. Database của máy chủ thử: `python TOOLS/server/setup_db.py
     fetch|init|start|stop|status`. Kiểm cấu hình: `python TOOLS/server/lint_config.py` (chạy trong
@@ -179,7 +181,8 @@
   - Mục 3, preset: thêm `msvc-debug`, `msvc-release` (chạy trong `dev.bat`), `android-arm64`,
     `android-x86_64` (test chạy trên thiết bị qua adb, `cmake/GameAndroidRun.cmake`), `ios-arm64`,
     `ios-sim-arm64` (chỉ hiện trên macOS). Mọi preset bật cảnh báo thành lỗi.
-  - Mục 3, cài bản chạy: `cmake --install build/msvc-release` chép exe vào `CLIENT/bin`. Exe máy
+  - Mục 3, cài bản chạy: `cmake --install build/msvc-release` chép exe vào `release/bin`.
+    Preset dev (`msvc-debug` và các preset không ghi đè prefix) cài vào `Dev/bin`. Exe máy
     chủ là component riêng: `cmake --install build/msvc-release --component server --prefix SERVER`
     chép tám exe vào `SERVER/bin`. Kiểm đầu cuối trình giám sát: `python -B
     docs/giao-viec/P2-DOT-1/kiem-claude/boot_check.py <thư mục exe> SERVER/config`.
@@ -196,18 +199,18 @@
     thì ở preset GCC CMake in "không thấy toml++/toml.hpp" và bỏ mọi target máy chủ. Trên Linux
     (`gcc-asan`, `clang-tsan` không kế thừa `vcpkg`) header ấy phải có sẵn trong đường tìm của hệ
     thống.
-  - Dữ liệu người chơi: `python TOOLS/content/export_look.py <_raw> <_glb> CLIENT/data` (bảng
+  - Dữ liệu người chơi: `python TOOLS/content/export_look.py <_raw> <_glb> assets/client` (bảng
     `Table/*.tsv` từ Config nhị phân của client; `faces.tsv`, `hairs.tsv` giữ mọi dòng theo thứ tự
     tệp gốc kèm `name`, `choice` cho màn tạo nhân vật), `export_config.py` (dòng dưới, cho
-    `newbie_outfits.tsv`), rồi `python TOOLS/content/collect_avatar.py <_raw> <_glb> CLIENT/data`
+    `newbie_outfits.tsv`), rồi `python TOOLS/content/collect_avatar.py <_raw> <_glb> assets/client`
     (GLB và ảnh của bộ mặc định, mọi mặt, tóc, bộ đồ chọn được lúc tạo và 30 người mẫu xem trước
     môn phái của `Table/sect_models.tsv` do `export_look.py` sinh; danh sách
     `Table/avatar.files.tsv`; APK đóng theo danh sách đó). `Table/portraits.tsv` (ảnh chân dung kèm
     `choice`, `order`) do `collect_ui.py` sinh.
   - Bảng nhiệm vụ và võ công: `python -B TOOLS/content/export_config.py "F:/tl 2026/_raw"
-    CLIENT/data` (bảng `Table/*.tsv` xuất từ Config nhị phân, công cụ tự đối chiếu từng ô với bảng
+    assets/client` (bảng `Table/*.tsv` xuất từ Config nhị phân, công cụ tự đối chiếu từng ô với bảng
     gốc; `--check` chỉ kiểm) và `python -B TOOLS/content/export_icons.py "F:/tl 2026/_raw"
-    CLIENT/data` (`Table/icons.tsv`: tên icon sang bộ ảnh). `quest_tests`, `skill_tests` chỉ chạy
+    assets/client` (`Table/icons.tsv`: tên icon sang bộ ảnh). `quest_tests`, `skill_tests` chỉ chạy
     ca bảng thật khi các tệp đó có lúc cấu hình CMake.
   - Bảng port từ script Lua (`ui/panel/quest_log`...): số vàng ở `Test/golden/panel/` do trọng
     tài sinh, tức script gốc chạy trên `LuaPlus.dll` của client: `python -B TOOLS/port/lua_oracle.py
@@ -219,7 +222,7 @@
   - Check của một tệp có math: `CPP23_G14="g++ -msse4.1" CPP23_G15="g++ -msse4.1"
     CPP23_C20="clang++ -msse4.1" python ~/.claude/cpp23/tools/check.py <tệp>` (CMake thêm cờ này cho
     game_math; check.py dịch từng tệp riêng nên phải tự thêm).
-  - Dữ liệu của một map gom bằng `python TOOLS/content/collect_map.py <_raw> <_glb> CLIENT/data <map>`;
+  - Dữ liệu của một map gom bằng `python TOOLS/content/collect_map.py <_raw> <_glb> assets/client <map>`;
     cây `_raw` và `_glb` nằm ở `F:\tl 2026`, ngoài dự án, chỉ là nguồn để gom. Cây `_glb` sinh từ
     `_raw` bằng `python TOOLS/glb/export_glb.py <_raw> <_glb>` và kiểm lại bằng
     `TOOLS/glb/verify_glb.py`.
@@ -232,16 +235,16 @@
     `scene/<tên cảnh>`, `image/<bộ ảnh>/<tên ảnh>`, `file/<đường dẫn trong dữ liệu>`) kèm tệp ở
     `assets/i18n/<mã>/`. Target
     `thienlong_i18n` (`cmake/GameI18n.cmake`) chạy `TOOLS/content/build_i18n.py` ở mỗi lượt dựng
-    client và đưa ngôn ngữ của `-DGAME_LANGUAGE=<mã>` (mặc định `vi`) vào `CLIENT/data`. Chạy tay:
-    `python -B TOOLS/content/build_i18n.py assets/i18n/vi.tsv CLIENT/data --state build/i18n`.
-    `CLIENT/data` dùng chung cho mọi preset nên các preset dựng cùng một `GAME_LANGUAGE`. Làm ảnh
+    client và đưa ngôn ngữ của `-DGAME_LANGUAGE=<mã>` (mặc định `vi`) vào `assets/client`. Chạy tay:
+    `python -B TOOLS/content/build_i18n.py assets/i18n/vi.tsv assets/client --state build/i18n`.
+    `assets/client` dùng chung cho mọi preset nên các preset dựng cùng một `GAME_LANGUAGE`. Làm ảnh
     thay: `python -B TOOLS/content/export_layout_images.py` xuất ảnh gốc của một layout kèm cỡ ô;
     ảnh nút có chữ thì đặt chữ lên nền nút gốc, không thay cả nút. Ba thẻ và nút vào game của bảng
     đăng nhập lấy chữ từ tấm nút chủ dự án vẽ: `python -B TOOLS/content/letter_buttons.py
     assets/i18n/vi/source/button_sheet.png build/i18n/base assets/i18n/vi`. Mọi ảnh có chữ khác
     (nút, tiêu đề, nhãn, câu đối) dựng chữ bằng phông Merienda Bold theo bảng
     `assets/i18n/vi/source/labels.tsv`: sửa bảng rồi chạy `python -B TOOLS/content/letter_labels.py
-    assets/i18n/vi/source/labels.tsv CLIENT/data build/i18n assets/i18n/vi --sync` (ghi
+    assets/i18n/vi/source/labels.tsv assets/client build/i18n assets/i18n/vi --sync` (ghi
     `assets/i18n/vi/labels/` và khối dòng `image/...` của `vi.tsv`; `--sheet <tệp.png>` ra tấm so
     trước sau). Chữ dài thì dùng từ Hán Việt ngắn, không thu cỡ chữ — chủ dự án dặn ngày 2026-10-09.
   - Mục 6, `ctest` xanh: `window_modal_tests` (sáu ca vào vòng kéo thật của Windows) luôn dựng
@@ -422,7 +425,7 @@ nằm một nơi.
   `<filesystem>`, vì `libstdc++-6.dll` cũ trong `mingw64/bin` của Git đứng trước bản của WinLibs
   trong PATH (đo 2026-10-08 ở `quest_tests`). Chạy với `PATH="<thư mục bin của WinLibs>:$PATH"`.
   Macro của test đưa qua biến trình dịch, đường dẫn tương đối: `CPP23_G14='g++
-  -DGAME_CLIENT_DATA=\"CLIENT/data\"'` (cả `CPP23_G15`, `CPP23_C20`).
+  -DGAME_CLIENT_DATA=\"assets/client\"'` (cả `CPP23_G15`, `CPP23_C20`).
 - Hai phiên agent trên cùng repo (đo 2026-10-08, 21:37 tới 21:54): phiên ở cây chính commit hộ, gộp
   rồi xoá worktree của phiên kia trong lúc phiên kia còn agent đang sửa tệp. Ba commit chụp trạng
   thái giữa chừng (`108a504`, `5934a9a`, `386607b`: commit trung gian có thể không dựng được), và
@@ -480,10 +483,10 @@ Chỉ mục `docs/BAY-DA-BIET.md`: sắp làm một việc kể dưới đây th
   script dựa vào phải mô phỏng, `math.random` phải đưa sẵn số); đụng tệp `_iv` của nhân vật; port
   animation của node OGRE (camera chạy track); đặt tên kiểu mới trong một module.
 - **Giao diện và bản địa hoá:** thêm chuỗi `#{khoá}` trong `SRC/ui/panel`; gom thêm một layout;
-  đụng ảnh của `CLIENT/data/Interface` hay xoá `build/i18n`; làm ảnh nút tiếng Việt; tính ô cửa sổ
+  đụng ảnh của `assets/client/Interface` hay xoá `build/i18n`; làm ảnh nút tiếng Việt; tính ô cửa sổ
   có cỡ lẻ trong `SRC/gui`.
 - **Dữ liệu, hình và bản dựng client:** đọc kết quả `collision_tests` (Skipped, thư mục `_raw`);
-  cảnh thiếu hiệu ứng hay gom lại `CLIENT/data/effect`; nạp texture và mip; thêm gói shader; dựng
+  cảnh thiếu hiệu ứng hay gom lại `assets/client/effect`; nạp texture và mip; thêm gói shader; dựng
   `thienlong_client` (cần Pillow).
 
 ## 12. Sổ tay

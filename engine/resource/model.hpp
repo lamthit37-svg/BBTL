@@ -1,8 +1,8 @@
 // Mô hình glTF, dạng nhị phân GLB là tệp người dùng đưa vào. Một tệp chứa lưới, morph, chất liệu
 // PBR (kể cả extension Khronos mà cgltf đã tách), sampler, ảnh PNG hoặc JPEG, nút, xương, clip,
 // camera, đèn và biến thể chất liệu. Ảnh giải ra RGBA8. Đầu ra của gltfpack nạp được: lưới lượng
-// tử (KHR_mesh_quantization) và buffer view nén (EXT_meshopt_compression). Không nạp DDS, KTX2,
-// Draco; tệp ĐÒI một extension lớp này không đọc trọn thì bị từ chối (Unsupported).
+// tử (KHR_mesh_quantization) và buffer view nén (EXT_meshopt_compression). Ảnh DDS ngoài (DXT1,
+// DXT3, DXT5, A8R8G8B8) nạp thẳng. Không nạp KTX2, Draco; tệp đòi extension lớp này thì từ chối.
 // Nguồn: Forge2 src/resource/model.hpp@d7fcd76. Khác gốc: thêm ImageScope, image_path và tham số
 // root của load_glb_file, để ảnh ngoài được nằm ngoài thư mục của tệp GLB miễn là vẫn trong thư mục
 // gốc dữ liệu (THIENLONG đặt GLB ở Model/, ảnh ở Material/; gốc chỉ nhận ảnh trong thư mục của tệp
@@ -15,7 +15,6 @@
 #include "core/error.hpp"
 #include "math/matrix.hpp"
 #include "math/types.hpp"
-#include "resource/classic.hpp"
 #include "resource/image.hpp"
 
 #include <array>
@@ -218,8 +217,20 @@ struct Material {
     std::optional<Volume> volume;
     std::optional<Iridescence> iridescence;
     std::optional<Scatter> scatter;
-    // Chất liệu OGRE trong extras.ogre. Không có thì luật glTF (kể cả unlit) được giữ.
-    std::optional<Classic> classic;
+    // JSON extras của glTF, nguyên văn. Engine không đọc. Người gọi diễn giải nếu cần.
+    std::string extras;
+    // Khi có: shade_of dùng các hệ số này thay cho luật glTF mặc định. Cờ là bit của render::Shade.
+    struct Pass {
+        math::Float3 ambient{.x = 1.0F, .y = 1.0F, .z = 1.0F};
+        math::Float4 diffuse{.x = 1.0F, .y = 1.0F, .z = 1.0F, .w = 1.0F};
+        math::Float3 specular{};
+        float shininess = 0.0F;
+        math::Float3 emissive{};
+        float color_scale = 1.0F;
+        std::uint32_t flags = 0;
+        bool lit = true;
+    };
+    std::optional<Pass> pass;
 };
 
 // Tịnh tiến, xoay, tỉ lệ đúng như tệp khai. Mặc định là đơn vị của glTF.

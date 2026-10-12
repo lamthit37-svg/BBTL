@@ -593,7 +593,35 @@ void collect_copy_barriers(std::span<const ImageCopy> copies, std::vector<gpu::T
     return submit(device, *commands, wait);
 }
 
+[[nodiscard]] bool is_blocked(const Image& image) noexcept {
+    return image.blocks != gpu::Format::kUnknown;
+}
+
+[[nodiscard]] core::Status check_level(const Image& image, std::uint32_t level) {
+    const std::uint32_t width = gpu::mip_size(image.width, level);
+    const std::uint32_t height = gpu::mip_size(image.height, level);
+    const std::uint64_t rows = gpu::row_count(image.blocks, height);
+    const std::uint64_t row = gpu::row_bytes(image.blocks, width);
+    if (row != 0 && rows > std::numeric_limits<std::uint64_t>::max() / row) return overflow("mip quá lớn");
+    const bool matches = image.levels[level].size() == rows * row;
+    if (!matches) return core::fail(core::ErrorCode::kCorrupt, "mip lệch số byte");
+    return core::ok();
+}
+
+[[nodiscard]] core::Status check_blocks(const Image& image) {
+    if (image.width == 0 || image.height == 0) return core::fail(core::ErrorCode::kInvalidArgument, "ảnh rỗng");
+    if (image.levels.empty()) return core::fail(core::ErrorCode::kCorrupt, "ảnh nén không có mip");
+    const std::uint32_t limit = gpu::full_mip_count(image.width, image.height);
+    if (image.levels.size() > limit) return core::fail(core::ErrorCode::kCorrupt, "quá nhiều mip");
+    for (std::uint32_t level = 0; level < image.levels.size(); ++level) {
+        const core::Status checked = check_level(image, level);
+        if (!checked) return checked;
+    }
+    return core::ok();
+}
+
 [[nodiscard]] core::Status check_image(const Image& image) {
+    if (is_blocked(image)) return check_blocks(image);
     if (image.width == 0 || image.height == 0) {
         return core::fail(core::ErrorCode::kInvalidArgument, "ảnh rỗng");
     }
@@ -605,6 +633,55 @@ void collect_copy_barriers(std::span<const ImageCopy> copies, std::vector<gpu::T
     const bool matches = image.rgba.size() == pixels * 4;
     if (!matches) return core::fail(core::ErrorCode::kCorrupt, "ảnh lệch số byte");
     return core::ok();
+}
+
+[[nodiscard]] std::uint64_t align_offset(std::uint64_t value) noexcept {
+    constexpr std::uint64_t step = gpu::kTextureOffsetAlignment;
+    return (value + step - 1) / step * step;
+}
+
+void write_blocked_row(std::byte* dest, std::span<const std::byte> source, std::uint64_t pitch, bool pad) {
+    std::memcpy(dest, source.data(), source.size());
+    if (!pad) return;
+    std::memset(dest + source.size(), 0, static_cast<std::size_t>(pitch - source.size()));
+}
+
+[[nodiscard]] core::Status append_blocked(StagedImage& staged, gpu::Format format, std::uint32_t width,
+    std::uint32_t height, std::span<const std::byte> tight) {
+    const std::uint64_t bytes = gpu::staged_bytes(format, width, height);
+    const std::uint64_t offset = align_offset(staged.bytes.size());
+    if (offset > std::numeric_limits<std::size_t>::max() - bytes) return overflow("chuỗi mip quá lớn");
+    staged.bytes.resize(static_cast<std::size_t>(offset + bytes));
+    const std::uint64_t row = gpu::row_bytes(format, width);
+    const std::uint64_t pitch = gpu::padded_row_bytes(format, width);
+    const std::uint32_t rows = gpu::row_count(format, height);
+    for (std::uint32_t index = 0; index < rows; ++index) {
+        const bool last = index + 1 == rows;
+        const std::uint64_t cursor = pitch * index;
+        const std::span<const std::byte> source = tight.subspan(static_cast<std::size_t>(row * index),
+            static_cast<std::size_t>(row));
+        write_blocked_row(staged.bytes.data() + offset + cursor, source, pitch, !last);
+    }
+    StagedMip mip;
+    mip.offset = offset;
+    mip.width = width;
+    mip.height = height;
+    staged.mips.push_back(mip);
+    return core::ok();
+}
+
+[[nodiscard]] core::Result<StagedImage> stage_blocks(const Image& image) {
+    const core::Status checked = check_blocks(image);
+    if (!checked) return std::unexpected(checked.error());
+    StagedImage staged;
+    for (std::uint32_t level = 0; level < image.levels.size(); ++level) {
+        const std::uint32_t width = gpu::mip_size(image.width, level);
+        const std::uint32_t height = gpu::mip_size(image.height, level);
+        const std::span<const std::byte> tight = image.levels[level];
+        const core::Status appended = append_blocked(staged, image.blocks, width, height, tight);
+        if (!appended) return std::unexpected(appended.error());
+    }
+    return staged;
 }
 
 // Một mức nguồn để hạ nửa. Mức 0 trỏ thẳng vào ảnh đã giải mã, mức sau trỏ vào đệm của mức trước,
@@ -642,11 +719,6 @@ constexpr std::uint64_t kSizeLimit = std::numeric_limits<std::size_t>::max();
         std::memcpy(out.data() + (row * row_step), pixels + (row * row_size), row_size);
     }
     return out;
-}
-
-[[nodiscard]] constexpr std::uint64_t align_offset(std::uint64_t value) noexcept {
-    constexpr std::uint64_t step = gpu::kTextureOffsetAlignment;
-    return (value + step - 1) / step * step;
 }
 
 // Nướng mip là phần đắt nhất của việc nạp cảnh: ảnh 2048x2048 có hơn bốn triệu texel nguồn ở mức
@@ -889,6 +961,7 @@ core::Result<std::vector<std::byte>> stage_rgba(const Image& image) {
 }
 
 core::Result<StagedImage> stage_image(const Image& image, ColorSpace space) {
+    if (is_blocked(image)) return stage_blocks(image);
     const core::Status checked = check_image(image);
     if (!checked) return std::unexpected(checked.error());
     const bool as_srgb = space == ColorSpace::kSrgb;
@@ -908,7 +981,18 @@ core::Result<StagedImage> stage_image(const Image& image, ColorSpace space) {
     return staged;
 }
 
+[[nodiscard]] gpu::Format color_view(gpu::Format format) noexcept {
+    if (format == gpu::Format::kBc1Unorm) return gpu::Format::kBc1UnormSrgb;
+    if (format == gpu::Format::kBc2Unorm) return gpu::Format::kBc2UnormSrgb;
+    if (format == gpu::Format::kBc3Unorm) return gpu::Format::kBc3UnormSrgb;
+    if (format == gpu::Format::kBc7Unorm) return gpu::Format::kBc7UnormSrgb;
+    return format;
+}
+
 gpu::Format image_format(const Model& model, std::uint32_t index) noexcept {
+    const gpu::Format blocks = model.images[index].blocks;
+    if (blocks != gpu::Format::kUnknown && is_color_only(model, index)) return color_view(blocks);
+    if (blocks != gpu::Format::kUnknown) return blocks;
     if (is_color_only(model, index)) return gpu::Format::kRgba8UnormSrgb;
     return gpu::Format::kRgba8Unorm;
 }
