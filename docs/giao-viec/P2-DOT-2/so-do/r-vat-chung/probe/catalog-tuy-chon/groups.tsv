@@ -1,0 +1,7 @@
+# schema 1
+# source: TLBB Dev src/protocol/protocol.hpp @e0d89a6 (bản 2026-10-05, nhóm 01, 02, 05)
+# types: hex8	ident	text
+id	name	summary
+01	session	Phiên kết nối: chào, đăng nhập, nối lại, nhịp tim và rời phiên.
+02	character	Nhân vật: danh sách, tạo, xoá và vào game.
+05	auth	Cổng xác thực: tạo tài khoản, đăng nhập bằng mật khẩu và cấp vé vào cổng game.

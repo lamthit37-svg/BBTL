@@ -1,0 +1,9 @@
+# schema 1
+# source: Public/Scene/yanzi_area.ini
+# tool: TOOLS/server/export_scene.py; sửa tay sẽ mất ở lượt xuất sau
+# types: int	int	float	float	float	float
+guid	script_id	left	top	right	bottom
+0	37004	73.0000	96.0000	92.0000	101.0000
+1	37004	82.0000	79.0000	89.0000	99.0000
+2	37004	54.0000	59.0000	67.0000	64.0000
+3	37004	46.0000	89.0000	53.0000	103.0000

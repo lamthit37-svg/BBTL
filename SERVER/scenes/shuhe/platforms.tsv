@@ -1,0 +1,9 @@
+# schema 1
+# source: Public/Scene/shuhe_platform.ini
+# tool: TOOLS/server/export_scene.py; sửa tay sẽ mất ở lượt xuất sau
+# types: int	int	float	float	int	int	text
+type_id	class_id	position_x	position_z	direction	script_id	tip
+1	1	190	153	27		炼丹炉。在附近使用制药技能。
+6	5	132	201	27	-1	工艺台。在附近使用工艺技能。
+2	2	84	166	27	-1	打造台。在附近使用铸造技能。
+5	4	84	124	27	-1	缝纫台。在附近使用缝纫技能。

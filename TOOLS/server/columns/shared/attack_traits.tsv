@@ -1,0 +1,15 @@
+# schema 1
+# source: client_2026/AttackTraits.txt
+# tool: TOOLS/server/export_tables.py; sửa tay sẽ mất ở lượt xuất sau
+# types: int	text	text	text	text
+index	original	name	type	note
+0	ID	id	int	neo: cột gốc 0, khớp 100.0% (14/14 id); luật: M1
+1	特性名称$1$	trait_name	text	neo: cột gốc 1, khớp 100.0% (14/14 id); luật: nguyên văn
+2	图标	icon	text	neo: cột gốc 2, khớp 100.0% (14/14 id); luật: nguyên văn
+3	C-phy	physical_factor	int	neo: cột gốc 3, khớp 100.0% (14/14 id); luật: nguyên văn
+4	C-magic	magic_factor	int	neo: cột gốc 4, khớp 100.0% (14/14 id); luật: nguyên văn
+5	C-cold	cold_factor	int	neo: cột gốc 5, khớp 100.0% (14/14 id); luật: nguyên văn
+6	C-fire	fire_factor	int	neo: cột gốc 6, khớp 100.0% (14/14 id); luật: nguyên văn
+7	C-light	lightning_factor	int	neo: cột gốc 7, khớp 100.0% (14/14 id); luật: nguyên văn
+8	C-poison	poison_factor	int	neo: cột gốc 8, khớp 100.0% (14/14 id); luật: nguyên văn
+9		column_9	int	mới ở 2026

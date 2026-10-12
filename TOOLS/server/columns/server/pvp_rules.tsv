@@ -1,0 +1,14 @@
+# schema 1
+# source: server_config/PvpRuler.txt
+# tool: TOOLS/server/import_legacy.py; sửa tay sẽ mất ở lượt xuất sau
+# types: int	text	text	text	text
+index	original	name	type	note
+0	ID	id	int	luật: M1
+1	说明， 内部使用	internal_note	text	luật: nguyên văn
+2	允许Pk最小级别	min_pk_level	int	luật: nguyên văn
+3	"允许决斗, 1为允许,0为禁止"	allow_duel	int	luật: nguyên văn
+4	"允许自由PK, 1为允许,0为禁止"	allow_free_pk	int	luật: nguyên văn
+5	"允许Pvp竞技, 1为允许,0为禁止"	allow_arena	int	luật: nguyên văn
+6	"允许宣战, 1为允许,0为禁止"	allow_war_declare	int	luật: nguyên văn
+7	"允许杀气值减退, 1为允许,0为禁止"	allow_pk_value_decay	int	luật: nguyên văn
+8	"允许杀气值增加, 1为允许,0为禁止"	allow_pk_value_gain	int	luật: nguyên văn

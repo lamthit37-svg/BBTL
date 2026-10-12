@@ -1,0 +1,19 @@
+# schema 1
+# source: docs/SERVER-TEP-CAU-HINH.md mục thuật ngữ thuộc tính và chiến đấu
+# types: text	text	text	text
+chinese	name	banned	basis
+力量	strength	str, power	CATTR_LEVEL1_STR, chú thích 力量
+灵气	spirit	spr	CATTR_LEVEL1_SPR, chú thích 灵气
+体质	constitution	con, stamina	CATTR_LEVEL1_CON, chú thích 体制
+定力	intellect	int, concentration	CATTR_LEVEL1_INT, chú thích 定力 智力
+身法	dexterity	dex, agility	CATTR_LEVEL1_DEX, chú thích 身法 敏捷
+防御	defence	defense	CATTR_LEVEL2_DEFENCE_P; giữ chính tả của bản gốc
+冰	cold	ice	CATTR_LEVEL2_ATTACKCOLD
+玄, 电	lightning	light, electric	bản gốc viết LIGHT; hệ này là điện
+闪避	dodge	miss	bản gốc viết MISS, sai nghĩa
+命中	hit	accuracy	CATTR_LEVEL2_HIT
+会心	critical	crit	CATTR_LEVEL2_CRITRATE
+抵抗, 抗性	resist	resistance	tên cột đang dùng thống nhất
+几率, 概率	chance	odds, probability	xác suất một việc xảy ra; rate để cho tỉ lệ và hệ số (率)
+内力	mp	mana	bảng gốc viết MP
+回复	restore	regen	CATTR_LEVEL2_RESTOREHP

@@ -1,0 +1,607 @@
+module	file	line	name	type	value
+anim	SRC/anim/asset.hpp	49	kKeyRotation	std::uint8_t	1
+anim	SRC/anim/asset.hpp	50	kKeyTranslate	std::uint8_t	2
+anim	SRC/anim/asset.hpp	51	kKeyScale	std::uint8_t	4
+anim	SRC/anim/asset.hpp	52	kKeyAll	std::uint8_t	kKeyRotation | kKeyTranslate | kKeyScale
+anim	SRC/anim/pose.cpp	26	kUnitScale	Vec3	.x = 1.0F, .y = 1.0F, .z = 1.0F
+anim	SRC/anim/rig.cpp	42	kUnitScale	Vec3	.x = 1.0F, .y = 1.0F, .z = 1.0F
+anim	SRC/anim/rig.hpp	112	kUnknownBone	std::uint16_t	0xFFFF
+audio	SRC/audio/detail/native.cpp	26	kMaxFrames	std::uint32_t	kSampleRate * 30
+audio	SRC/audio/detail/native.cpp	27	kChunkFrames	std::uint32_t	4096
+audio	SRC/audio/engine.cpp	42	kPcmBudget	std::uint64_t	32ULL * 1024ULL * 1024ULL
+audio	SRC/audio/engine.cpp	43	kMaxFileBytes	std::uint64_t	16ULL * 1024ULL * 1024ULL
+audio	SRC/audio/engine.cpp	44	kPcmScale	float	1.F / 32768.F
+audio	SRC/audio/engine.cpp	45	kWorldLimit	float	10000000.F
+audio	SRC/audio/engine.cpp	46	kFlagLoop	std::uint8_t	1
+audio	SRC/audio/engine.cpp	47	kFlagSpatial	std::uint8_t	2
+audio	SRC/audio/engine.cpp	48	kFlagAmbience	std::uint8_t	4
+audio	SRC/audio/engine.cpp	49	kSlotFree	std::uint8_t	0
+audio	SRC/audio/engine.cpp	50	kSlotReady	std::uint8_t	1
+audio	SRC/audio/engine.cpp	51	kSlotBusy	std::uint8_t	2
+audio	SRC/audio/engine.cpp	52	kRetireFree	std::uint8_t	1
+audio	SRC/audio/engine.cpp	53	kRetireBusy	std::uint8_t	2
+audio	SRC/audio/gain.cpp	11	kMinRate	float	0.25F
+audio	SRC/audio/gain.cpp	12	kMaxRate	float	4.F
+audio	SRC/audio/gain.cpp	13	kMinDenominator	float	1000.F
+audio	SRC/audio/limits.hpp	8	kSampleRate	std::uint32_t	48000
+audio	SRC/audio/limits.hpp	9	kVoiceCap	std::uint32_t	32
+audio	SRC/audio/limits.hpp	10	kBlockFrames	std::uint32_t	256
+audio	SRC/audio/limits.hpp	11	kRingFrames	std::uint32_t	4096
+audio	SRC/audio/limits.hpp	12	kOrderCap	std::uint32_t	128
+audio	SRC/audio/limits.hpp	13	kClipCap	std::uint32_t	64
+audio	SRC/audio/limits.hpp	14	kRampFrames	std::uint32_t	64
+audio	SRC/audio/limits.hpp	15	kMusicSlots	std::uint32_t	2
+audio	SRC/audio/limits.hpp	16	kAmbienceCap	std::uint32_t	8
+audio	SRC/audio/limits.hpp	18	kSoundSpeed	float	34300.F
+audio	SRC/audio/limits.hpp	19	kPriorityMusic	std::int32_t	0
+audio	SRC/audio/limits.hpp	20	kPrioritySpatial	std::int32_t	32
+audio	SRC/audio/limits.hpp	21	kPriorityFlat	std::int32_t	64
+audio	SRC/audio/limits.hpp	22	kPriorityAmbience	std::int32_t	128
+audio	SRC/audio/limits.hpp	23	kNoSound	std::uint32_t	0
+avatar	SRC/avatar/gait.hpp	26	kIdleInterval	std::chrono::milliseconds	10000
+avatar	SRC/avatar/turning.cpp	18	kFullTurn	float	2.0F * std::numbers::pi_v<float>
+avatar	SRC/avatar/turning.hpp	23	kTurnTime	std::chrono::milliseconds	35
+camera	SRC/camera/follow.cpp	16	kPi	double	3.1415926535
+camera	SRC/camera/follow.cpp	23	kMinAngle	float	degrees_to_radians(0.1)
+camera	SRC/camera/follow.cpp	24	kStepAngle	float	degrees_to_radians(1.0)
+camera	SRC/camera/follow.cpp	26	kZoomSpeed	float	0.05F
+camera	SRC/camera/follow.cpp	28	kNearScale	float	0.25F
+camera	SRC/camera/follow.cpp	29	kFarScale	float	150.0F
+camera	SRC/camera/follow.cpp	31	kKeyTurn	float	0.04F
+camera	SRC/camera/follow.cpp	32	kZoomMultiple	int	2
+camera	SRC/camera/follow.cpp	33	kDragDivisor	float	300.0F
+camera	SRC/camera/lens.cpp	22	kAxisEpsilon	float	std::numeric_limits<float>::epsilon()
+camera	SRC/camera/motion.cpp	15	kSpring	float	4.6F
+camera	SRC/camera/motion.cpp	16	kRest	float	20.0F
+camera	SRC/camera/motion.cpp	17	kStop	float	0.05F
+camera	SRC/camera/motion.cpp	18	kStep	float	1000.0F
+camera	SRC/camera/motion.cpp	19	kEpsilon	float	std::numeric_limits<float>::epsilon()
+camera	SRC/camera/rig.cpp	22	kMinDistance	float	200.0F
+camera	SRC/camera/rig.cpp	23	kMinExpect	float	220.0F
+camera	SRC/camera/rig.cpp	24	kMaxExpect	float	1800.0F
+camera	SRC/camera/rig.cpp	25	kYawRate	float	0.6F * 0.006545F
+camera	SRC/camera/rig.cpp	26	kPitchRate	float	0.006545F
+camera	SRC/camera/rig.cpp	27	kFlyStep	float	40.0F
+camera	SRC/camera/rig.cpp	28	kEyeHeight	float	130.0F
+camera	SRC/camera/rig.cpp	29	kWaterGap	float	10.0F
+camera	SRC/camera/rig.cpp	30	kMarchGap	float	30.0F
+camera	SRC/camera/rig.cpp	31	kEyeGap	float	10.0F
+camera	SRC/camera/rig.cpp	32	kSceneGap	float	80.0F
+camera	SRC/camera/rig.cpp	33	kSpringSpeed	float	1000.0F
+camera	SRC/camera/rig.cpp	34	kMarchStep	float	10.0F
+camera	SRC/camera/rig.cpp	35	kRaiseCap	float	140.0F
+camera	SRC/camera/rig.cpp	36	kNearPlane	float	20.0F
+camera	SRC/camera/rig.cpp	37	kPitchMin	float	-math::kPi * 0.45F
+camera	SRC/camera/rig.cpp	38	kPitchMax	float	math::radians(80.0F)
+camera	SRC/camera/rig.cpp	39	kOpacitySpeed	float	4.0F
+camera	SRC/camera/rig.cpp	40	kDefaultYaw	float	0.39793599F
+camera	SRC/camera/rig.cpp	41	kDefaultPitch	float	-0.18762225F
+camera	SRC/camera/rig.cpp	42	kDefaultDistance	float	660.0F
+camera	SRC/camera/rig.cpp	43	kSpringSlack	float	1.0F
+camera	SRC/camera/rig.cpp	44	kStoredFar	float	25600.0F
+camera	SRC/camera/rig.cpp	45	kEpsilon	float	std::numeric_limits<float>::epsilon()
+camera	SRC/camera/rig.cpp	46	kQuakeMs	std::uint32_t	300
+camera	SRC/camera/rig.cpp	47	kQuakeFrames	std::uint32_t	10
+capture	SRC/capture/png.cpp	31	kSignature	std::string_view	"\x89PNG\r\n\x1A\n"
+capture	SRC/capture/png.cpp	33	kColorRgb	std::uint8_t	2
+capture	SRC/capture/png.cpp	34	kColorRgba	std::uint8_t	6
+capture	SRC/capture/png.cpp	36	kMaxSide	std::uint32_t	0x7FFFFFFFU
+capture	SRC/capture/png.cpp	38	kMaxBand	std::size_t	std::size_t{64} << 20U
+capture	SRC/capture/png.cpp	39	kFilters	std::size_t	5
+client	SRC/client/android_main.cpp	39	kTag	const char*	"THIENLONG"
+client	SRC/client/android_main.cpp	41	kFallback	std::uint8_t	{0x1B, 0x4B, 0x6E
+client	SRC/client/android_main.cpp	43	kExtractMark	std::string_view	"da-giai-nen-5"
+client	SRC/client/android_main.cpp	45	kBaseDensity	float	160.0F
+client	SRC/client/display/display_gpu.cpp	115	kBackdrop	gpu::ClearColor	.red = 0.05F, .green = 0.06F, .blue = 0.08F, .alpha = 1.0F
+client	SRC/client/display/display_gpu.cpp	117	kIdleNap	std::chrono::milliseconds	16
+client	SRC/client/display/display_gpu.cpp	131	kSamples	std::uint32_t	4
+client	SRC/client/display/display_gpu.cpp	136	kLoadSlice	std::chrono::milliseconds	10
+client	SRC/client/display/display_gpu.cpp	138	kKeptGrounds	std::size_t	4
+client	SRC/client/display/display_gpu.cpp	142	kYawStart	float	0.6F
+client	SRC/client/display/display_gpu.cpp	143	kYawPerSecond	float	0.24F
+client	SRC/client/display/display_gpu.cpp	146	kMobileZoom	float	0.45F
+client	SRC/client/display/display_gpu.cpp	148	kIsMobile	bool	true
+client	SRC/client/display/display_gpu.cpp	150	kIsMobile	bool	false
+client	SRC/client/display/display_gpu.cpp	153	kMaxQueued	std::size_t	4096
+client	SRC/client/display/display_gpu.cpp	155	kMaxStep	float	0.1F
+client	SRC/client/display/display_gpu.cpp	158	kRunSpeed	float	400.0F
+client	SRC/client/display/display_gpu.cpp	160	kMissing	std::size_t	std::numeric_limits<std::size_t>::max()
+client	SRC/client/display/display_gpu.cpp	2238	kPaceWindow	std::size_t	90
+client	SRC/client/display/display_none.cpp	22	kFramePause	std::chrono::milliseconds	16
+client	SRC/client/display/player.cpp	29	kSeed	std::uint32_t	7
+client	SRC/client/display/player.cpp	31	kPlayerId	std::uint32_t	1
+client	SRC/client/display_gpu.cpp	69	kBackdrop	gpu::ClearColor	.red = 0.05F, .green = 0.06F, .blue = 0.08F, .alpha = 1.0F
+client	SRC/client/display_gpu.cpp	71	kIdleNap	std::chrono::milliseconds	16
+client	SRC/client/display_gpu.cpp	80	kSamples	std::uint32_t	4
+client	SRC/client/display_gpu.cpp	84	kYawStart	float	0.6F
+client	SRC/client/display_gpu.cpp	85	kPitch	float	0.32F
+client	SRC/client/display_gpu.cpp	86	kYawPerSecond	float	0.24F
+client	SRC/client/display_gpu.cpp	87	kMargin	float	1.2F
+client	SRC/client/display_gpu.cpp	89	kMissing	std::size_t	std::numeric_limits<std::size_t>::max()
+client	SRC/client/display_gpu.cpp	142	kRows	std::size_t	3
+client	SRC/client/display_none.cpp	16	kFramePause	std::chrono::milliseconds	16
+client	SRC/client/main.cpp	47	kValidatedByBuild	bool	true
+client	SRC/client/main.cpp	49	kValidatedByBuild	bool	false
+client	SRC/client/main.cpp	52	kStaticEntity	std::string_view	"StaticEntity"
+client	SRC/client/main.cpp	53	kShownPlacements	int	3
+client	SRC/client/map/liquid.cpp	18	kVertexLimit	int	32768
+client	SRC/client/map/liquid.cpp	19	kMissing	std::uint32_t	0xFFFFFFFFU
+client	SRC/client/map/picture.cpp	15	kFromRight	float	156.5F
+client	SRC/client/map/picture.cpp	16	kFromTop	float	42.0F
+client	SRC/client/map/picture.cpp	17	kAreaWidth	float	119.0F
+client	SRC/client/map/picture.cpp	18	kAreaHeight	float	121.0F
+client	SRC/client/map/picture.cpp	20	kLowRed	float	0.36F
+client	SRC/client/map/picture.cpp	21	kLowGreen	float	0.16F
+client	SRC/client/map/picture.cpp	22	kLowBlue	float	0.05F
+client	SRC/client/map/picture.cpp	23	kHighRed	float	0.78F
+client	SRC/client/map/picture.cpp	24	kHighGreen	float	0.48F
+client	SRC/client/map/picture.cpp	25	kHighBlue	float	0.22F
+client	SRC/client/map/samples.cpp	19	kHeightMagic	std::uint32_t	0x4645484DU
+client	SRC/client/map/samples.cpp	20	kHeightVersion	std::uint32_t	0x00100000U
+client	SRC/client/map/samples.cpp	21	kGridMagic	std::uint32_t	0x46454749U
+client	SRC/client/map/samples.cpp	22	kGridVersionMin	std::uint32_t	0x00100000U
+client	SRC/client/map/samples.cpp	23	kGridVersionFlags	std::uint32_t	0x00100001U
+client	SRC/client/map/samples.cpp	24	kGridVersionWide	std::uint32_t	0x00100002U
+client	SRC/client/map/samples.cpp	25	kGridVersionMax	std::uint32_t	0x00100002U
+client	SRC/client/map/samples.hpp	19	kFlipDiagonal	std::uint8_t	1U
+client	SRC/client/map/surface.cpp	13	kTexelsPerCell	int	8
+client	SRC/client/map/surface.cpp	14	kMaxBake	int	2048
+client	SRC/client/map/surface.cpp	15	kCornerCount	int	4
+client	SRC/client/map/surface.cpp	16	kTurnCount	int	16
+client	SRC/client/map/terrain.hpp	19	kMaxGrids	int	2048
+client	SRC/client/stage/sky.cpp	17	kYawSteps	int	32
+client	SRC/client/stage/sky.cpp	18	kPitchSteps	int	8
+client	SRC/client/stage/sky.cpp	19	kTurn	float	6.2831853F
+client	SRC/client/viewer/client_size.hpp	20	kDefaultClientSize	ClientSize	.width = 1280, .height = 720
+client	SRC/client/viewer/client_size.hpp	24	kMinClientSize	ClientSize	.width = 800, .height = 600
+client	SRC/client/viewer/client_size.hpp	27	kMaxClientSide	std::uint32_t	16384
+client	SRC/client/viewer/viewer_win32.cpp	37	kFramePause	std::chrono::milliseconds	16
+client	SRC/client/viewer/viewer_win32.cpp	103	kKillFocus	std::uint32_t	0x0008
+client	SRC/client/viewer/viewer_win32.cpp	104	kKeyDown	std::uint32_t	0x0100
+client	SRC/client/viewer/viewer_win32.cpp	105	kKeyUp	std::uint32_t	0x0101
+client	SRC/client/viewer/viewer_win32.cpp	106	kMouseMove	std::uint32_t	0x0200
+client	SRC/client/viewer/viewer_win32.cpp	107	kLeftDown	std::uint32_t	0x0201
+client	SRC/client/viewer/viewer_win32.cpp	108	kLeftUp	std::uint32_t	0x0202
+client	SRC/client/viewer/viewer_win32.cpp	109	kRightDown	std::uint32_t	0x0204
+client	SRC/client/viewer/viewer_win32.cpp	110	kRightUp	std::uint32_t	0x0205
+client	SRC/client/viewer/viewer_win32.cpp	111	kMouseWheel	std::uint32_t	0x020A
+client	SRC/client/viewer/viewer_win32.cpp	112	kLeftButtonFlag	std::uintptr_t	0x0001
+client	SRC/client/viewer/viewer_win32.cpp	113	kRightButtonFlag	std::uintptr_t	0x0002
+client	SRC/client/viewer/viewer_win32.cpp	114	kWheelDelta	int	120
+client	SRC/client/viewer/viewer_win32.cpp	115	kKeyLeft	std::uintptr_t	0x25
+client	SRC/client/viewer/viewer_win32.cpp	116	kKeyUpArrow	std::uintptr_t	0x26
+client	SRC/client/viewer/viewer_win32.cpp	117	kKeyRight	std::uintptr_t	0x27
+client	SRC/client/viewer/viewer_win32.cpp	118	kKeyDownArrow	std::uintptr_t	0x28
+client	SRC/client/viewer/viewer_win32.cpp	119	kKeyPageUp	std::uintptr_t	0x21
+client	SRC/client/viewer/viewer_win32.cpp	120	kKeyPageDown	std::uintptr_t	0x22
+client	SRC/client/viewer/viewer_win32.cpp	121	kKeyV	std::uintptr_t	0x56
+client	SRC/client/viewer/viewer_win32.cpp	122	kKeyW	std::uintptr_t	0x57
+client	SRC/client/viewer/viewer_win32.cpp	123	kKeyA	std::uintptr_t	0x41
+client	SRC/client/viewer/viewer_win32.cpp	124	kKeyS	std::uintptr_t	0x53
+client	SRC/client/viewer/viewer_win32.cpp	125	kKeyD	std::uintptr_t	0x44
+client	SRC/client/viewer/viewer_win32.cpp	126	kKeyWasDown	std::intptr_t	std::intptr_t{1} << 30
+client	SRC/client/viewer_win32.cpp	24	kDefaultSize	window::Size	.width = 1280, .height = 720
+client	SRC/client/viewer_win32.cpp	26	kFramePause	std::chrono::milliseconds	16
+client	SRC/client/world/world.hpp	33	kRemembered	std::size_t	4
+control	SRC/control/cursor_rules.hpp	42	kCursorKinds	std::size_t	23
+control	SRC/control/follow_camera.cpp	16	kPi	double	3.1415926535
+control	SRC/control/follow_camera.cpp	23	kMinAngle	float	degrees_to_radians(0.1)
+control	SRC/control/follow_camera.cpp	24	kStepAngle	float	degrees_to_radians(1.0)
+control	SRC/control/follow_camera.cpp	26	kZoomSpeed	float	0.05F
+control	SRC/control/follow_camera.cpp	28	kNearScale	float	0.25F
+control	SRC/control/follow_camera.cpp	29	kFarScale	float	150.0F
+control	SRC/control/ground.cpp	22	kEpsilon	float	std::numeric_limits<float>::epsilon()
+control	SRC/control/ground.cpp	24	kTriangleTolerance	float	1e-3F
+control	SRC/control/ground.cpp	28	kCorners	std::array<std::array<std::size_t, 4>, 2>	{{{0, 1, 2, 3}, {2, 0, 3, 1}}
+control	SRC/control/ground.cpp	441	kOffsets	std::array<int, 3>	{0, -1, +1
+control	SRC/control/player_input.cpp	15	kRepeatDown	auto	std::chrono::milliseconds(1000)
+control	SRC/control/player_input.cpp	17	kOrderInterval	auto	std::chrono::milliseconds(250)
+control	SRC/control/player_input.cpp	18	kOrderDistance	float	0.5F
+control	SRC/control/player_input.cpp	20	kKeyTurn	float	0.04F
+control	SRC/control/player_input.cpp	21	kZoomMultiple	int	2
+control	SRC/control/player_input.cpp	22	kDragDivisor	float	300.0F
+control	SRC/control/stick.hpp	24	kStickDeadZone	float	0.2F
+control	SRC/control/stick.hpp	25	kStickReach	float	4.0F
+control	SRC/control/stick.hpp	26	kStickTurnDegrees	float	10.0F
+control	SRC/control/stick.hpp	27	kStickGap	std::chrono::milliseconds	100
+control	SRC/control/stick.hpp	28	kStickRepeat	std::chrono::milliseconds	250
+control	SRC/control/stick.hpp	29	kStickSlide	float	0.5F
+control	SRC/control/touch.hpp	30	kPinchStep	float	48.0F
+control	SRC/control/touch.hpp	35	kHoldTime	TouchTime	std::chrono::milliseconds{1000
+control	SRC/control/touch.hpp	37	kDragSlop	float	16.0F
+control	SRC/control/touch.hpp	40	kStickZoneWidth	float	0.4F
+control	SRC/control/touch.hpp	41	kStickZoneTop	float	0.4F
+control	SRC/control/touch.hpp	43	kStickRadius	float	60.0F
+core	SRC/core/check.hpp	18	kDebugChecks	bool	true
+core	SRC/core/check.hpp	20	kDebugChecks	bool	false
+core	SRC/core/clock.cpp	49	kNanosPerSecond	std::uint64_t	1'000'000'000
+core	SRC/core/clock.cpp	52	kBelowOne	float	0x1.fffffep-1F
+core	SRC/core/clock.cpp	53	kPerBillion	float	1e-9F
+core	SRC/core/clock.hpp	26	kHistory	std::size_t	60
+core	SRC/core/clock.hpp	70	kSpinMargin	Clock::duration	std::chrono::milliseconds(1)
+core	SRC/core/clock.hpp	92	kMaxHz	std::uint32_t	1'000'000'000
+core	SRC/core/function.hpp	29	kIsFallback	bool	false
+core	SRC/core/function.hpp	67	kIsFallback	bool	false
+core	SRC/core/function.hpp	166	kIsFallback	bool	true
+core	SRC/core/function.hpp	211	kIsFallback	bool	true
+core	SRC/core/hash.hpp	17	kFnvOffsetBasis	std::uint64_t	0xcbf29ce484222325ULL
+core	SRC/core/hash.hpp	18	kFnvPrime	std::uint64_t	0x100000001b3ULL
+core	SRC/core/log.cpp	72	kWordBytes	std::size_t	sizeof(Word)
+core	SRC/core/log.cpp	73	kRingBytes	std::size_t	std::size_t{4} << 20U
+core	SRC/core/log.cpp	74	kRingWords	std::size_t	kRingBytes / kWordBytes
+core	SRC/core/log.cpp	76	kMaxLine	std::size_t	std::size_t{64} << 10U
+core	SRC/core/log.cpp	77	kCutMarker	std::string_view	"…[cắt]\n"
+core	SRC/core/log.cpp	128	kCacheLine	std::size_t	64
+core	SRC/core/log_sink.cpp	49	kFileBuffer	std::size_t	std::size_t{256} << 10U
+core	SRC/core/log_sink.cpp	50	kColorReset	std::string_view	"\x1b[0m"
+core	SRC/core/log_sink_posix.cpp	42	kFileBuffer	std::size_t	std::size_t{256} << 10U
+core	SRC/core/log_sink_posix.cpp	43	kColorReset	std::string_view	"\x1b[0m"
+core	SRC/core/log_sink_posix.cpp	44	kLogMode	mode_t	S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH
+core	SRC/core/range.cpp	27	kMantissaBits	std::uint32_t	3
+core	SRC/core/range.cpp	28	kMantissaValue	std::uint32_t	1U << kMantissaBits
+core	SRC/core/range.cpp	29	kMantissaMask	std::uint32_t	kMantissaValue - 1
+core	SRC/core/range.hpp	38	kDefaultNodes	std::uint32_t	128 * 1024
+core	SRC/core/range.hpp	63	kUnused	std::uint32_t	0xFFFF'FFFF
+core	SRC/core/range.hpp	64	kLeafShift	std::uint32_t	3
+core	SRC/core/range.hpp	65	kLeafBins	std::uint32_t	1U << kLeafShift
+core	SRC/core/range.hpp	66	kTopBins	std::uint32_t	32
+core	SRC/core/range.hpp	67	kBins	std::uint32_t	kTopBins * kLeafBins
+core	SRC/core/range.hpp	128	kPageBytes	PageBytes	64 * 1024
+core	SRC/core/system.cpp	58	kEax	std::size_t	0
+core	SRC/core/system.cpp	59	kEbx	std::size_t	1
+core	SRC/core/system.cpp	60	kEcx	std::size_t	2
+core	SRC/core/system.cpp	61	kEdx	std::size_t	3
+core	SRC/core/system_posix.cpp	35	kPathLimit	std::size_t	32768
+core	SRC/core/thread_posix.cpp	66	kNice	auto	std::to_array<int>({19, 10, 0, -10, -20})
+core	SRC/core/thread_posix.cpp	279	kUlock32	std::uint32_t	1
+core	SRC/core/thread_posix.cpp	280	kUlock64	std::uint32_t	5
+core	SRC/core/thread_posix.cpp	281	kUlockWakeAll	std::uint32_t	0x100
+core	SRC/core/uarch.cpp	18	kIntel	std::string_view	"GenuineIntel"
+core	SRC/core/uarch.cpp	19	kAmd	std::string_view	"AuthenticAMD"
+core	SRC/core/uarch.cpp	20	kHygon	std::string_view	"HygonGenuine"
+core	SRC/core/uarch.cpp	21	kCentaur	std::string_view	"CentaurHauls"
+core	SRC/core/uarch.cpp	22	kShanghai	std::string_view	" Shanghai "
+core	SRC/core/uarch.cpp	24	kAnyStepping	std::uint32_t	0xF
+fs	SRC/fs/buny.cpp	33	kSaltFlag	std::uint64_t	std::uint64_t{1} << 63U
+fs	SRC/fs/buny.cpp	34	kMurmurM	std::uint64_t	0xc6a4a7935bd1e995ULL
+fs	SRC/fs/buny.cpp	35	kMurmurR	unsigned	47
+fs	SRC/fs/buny.cpp	37	kSlotsPerNode	std::uint64_t	2
+fs	SRC/fs/buny.cpp	39	kHeadWords	std::uint64_t	3
+fs	SRC/fs/buny.cpp	41	kPatience	std::uint64_t	256
+fs	SRC/fs/buny.cpp	334	kLimit	std::size_t	std::numeric_limits<std::uint32_t>::max() / kSlotsPerNode
+fs	SRC/fs/buny.cpp	336	kLastSeed	std::uint64_t	std::numeric_limits<std::uint64_t>::max()
+fs	SRC/fs/buny.cpp	351	kHead	std::size_t	sizeof(HashHeader)
+fs	SRC/fs/buny.hpp	35	kMagic	std::array<std::byte, 16>	magic_of("BunyArchTheForge")
+fs	SRC/fs/buny.hpp	37	kNameMax	std::size_t	511
+fs	SRC/fs/buny.hpp	39	kBlockMax	std::uint64_t	std::uint64_t{1} << 23U
+fs	SRC/fs/buny.hpp	40	kOffsetMax	std::uint64_t	(std::uint64_t{1} << 40U) - 1
+fs	SRC/fs/buny.hpp	112	kExtension	std::uint64_t	1
+fs	SRC/fs/buny.hpp	113	kExtensionMagic	std::array<std::byte, 8>	magic_of("Forge2X1")
+fs	SRC/fs/buny.hpp	143	kSizeMask	std::uint64_t	(std::uint64_t{1} << 23U) - 1
+fs	SRC/fs/codec.cpp	34	kLz4AccelerationMax	int	65537
+fs	SRC/fs/file.cpp	56	kMaxTransfer	std::size_t	std::size_t{1} << 30U
+fs	SRC/fs/file.cpp	58	kShortPath	std::size_t	MAX_PATH - 12
+fs	SRC/fs/file.cpp	60	kEndOfFile	std::uint64_t	0xFFFF'FFFF'FFFF'FFFF
+fs	SRC/fs/file.cpp	211	kLimit	std::uint64_t	std::numeric_limits<std::size_t>::max()
+fs	SRC/fs/file.cpp	449	kLargest	std::uint64_t	std::numeric_limits<LONGLONG>::max()
+fs	SRC/fs/path.hpp	21	kSeparator	char	'/'
+fs	SRC/fs/stream.cpp	33	kScanChunk	std::size_t	std::size_t{64} * 1024
+fs	SRC/fs/watcher.cpp	57	kNotifyBuffer	std::size_t	std::size_t{64} * 1024
+fs	SRC/fs/watcher.cpp	60	kRecordHead	std::size_t	3 * sizeof(DWORD)
+gpu	SRC/gpu/check.cpp	40	kBad	ErrorCode	ErrorCode::kInvalidArgument
+gpu	SRC/gpu/check.cpp	41	kMissing	ErrorCode	ErrorCode::kUnsupported
+gpu	SRC/gpu/check.cpp	42	kOutside	ErrorCode	ErrorCode::kOutOfRange
+gpu	SRC/gpu/d3d11/binding_map.hpp	12	kPushRegister	std::uint32_t	1
+gpu	SRC/gpu/d3d11/binding_map.hpp	15	kSpace2ResourceBase	std::uint32_t	8
+gpu	SRC/gpu/d3d11/binding_map.hpp	17	kConstantBytes	std::uint32_t	256
+gpu	SRC/gpu/d3d11/commands.cpp	65	kBad	core::ErrorCode	core::ErrorCode::kInvalidArgument
+gpu	SRC/gpu/d3d11/commands.cpp	66	kState	core::ErrorCode	core::ErrorCode::kInvalidState
+gpu	SRC/gpu/d3d11/commands.cpp	67	kUintMax	std::uint64_t	0xFFFFFFFFULL
+gpu	SRC/gpu/d3d11/commands.cpp	68	kLongMax	std::int64_t	0x7FFFFFFFLL
+gpu	SRC/gpu/d3d11/device.cpp	68	kDiscreteBytes	std::uint64_t	std::uint64_t{512} << 20U
+gpu	SRC/gpu/d3d11/device.cpp	69	kLevels	std::array<D3D_FEATURE_LEVEL, 2>	D3D_FEATURE_LEVEL_11_1, D3D_FEATURE_LEVEL_11_0
+gpu	SRC/gpu/d3d11/programs.cpp	62	kBad	ErrorCode	ErrorCode::kInvalidArgument
+gpu	SRC/gpu/d3d11/programs.cpp	63	kMissing	ErrorCode	ErrorCode::kUnsupported
+gpu	SRC/gpu/d3d11/programs.cpp	64	kFull	ErrorCode	ErrorCode::kExhausted
+gpu	SRC/gpu/d3d11/programs.cpp	65	kOutside	ErrorCode	ErrorCode::kOutOfRange
+gpu	SRC/gpu/d3d11/resources.cpp	51	kBad	ErrorCode	ErrorCode::kInvalidArgument
+gpu	SRC/gpu/d3d11/resources.cpp	52	kMissing	ErrorCode	ErrorCode::kUnsupported
+gpu	SRC/gpu/d3d11/resources.cpp	53	kOverflow	ErrorCode	ErrorCode::kOverflow
+gpu	SRC/gpu/d3d11/resources.cpp	54	kExhausted	ErrorCode	ErrorCode::kExhausted
+gpu	SRC/gpu/d3d11/resources.cpp	55	kBlock	ErrorCode	ErrorCode::kWouldBlock
+gpu	SRC/gpu/d3d11/resources.cpp	56	kState	ErrorCode	ErrorCode::kInvalidState
+gpu	SRC/gpu/d3d11/swapchain.cpp	50	kBad	ErrorCode	ErrorCode::kInvalidArgument
+gpu	SRC/gpu/d3d11/swapchain.cpp	51	kState	ErrorCode	ErrorCode::kInvalidState
+gpu	SRC/gpu/d3d12/device.hpp	29	kResourceDescriptors	UINT	65'536
+gpu	SRC/gpu/d3d12/device.hpp	30	kSamplerDescriptors	UINT	2'048
+gpu	SRC/gpu/d3d12/device.hpp	31	kRtvDescriptors	UINT	1'024
+gpu	SRC/gpu/d3d12/device.hpp	32	kDsvDescriptors	UINT	256
+gpu	SRC/gpu/d3d12/device.hpp	33	kNoDescriptor	UINT	~UINT{0
+gpu	SRC/gpu/d3d12/programs.cpp	87	kBad	ErrorCode	ErrorCode::kInvalidArgument
+gpu	SRC/gpu/d3d12/programs.cpp	88	kCbufferMax	UINT	65'536
+gpu	SRC/gpu/d3d12/swapchain.cpp	54	kBad	ErrorCode	ErrorCode::kInvalidArgument
+gpu	SRC/gpu/d3d12/swapchain.cpp	55	kState	ErrorCode	ErrorCode::kInvalidState
+gpu	SRC/gpu/device.cpp	43	kBackends	std::array	Backend::kD3D12, Backend::kVulkan, Backend::kD3D11, Backend::kGles
+gpu	SRC/gpu/device.cpp	45	kBackends	std::array	Backend::kD3D12, Backend::kVulkan, Backend::kD3D11
+gpu	SRC/gpu/device.cpp	47	kBackends	std::array	Backend::kD3D12, Backend::kVulkan
+gpu	SRC/gpu/device.cpp	49	kBackends	std::array	Backend::kVulkan, Backend::kD3D11, Backend::kGles
+gpu	SRC/gpu/device.cpp	51	kBackends	std::array	Backend::kVulkan, Backend::kD3D11
+gpu	SRC/gpu/device.cpp	53	kBackends	std::array	Backend::kVulkan, Backend::kGles
+gpu	SRC/gpu/device.cpp	55	kBackends	std::array	Backend::kVulkan
+gpu	SRC/gpu/format.hpp	117	kFormatCount	std::size_t	std::to_underlying(Format::kAstc12x12UnormSrgb) + 1
+gpu	SRC/gpu/gles/commands.cpp	25	kBad	ErrorCode	ErrorCode::kInvalidArgument
+gpu	SRC/gpu/gles/commands.cpp	26	kState	ErrorCode	ErrorCode::kInvalidState
+gpu	SRC/gpu/gles/commands.cpp	27	kPushAlign	std::uint32_t	256
+gpu	SRC/gpu/gles/commands.cpp	29	kPushWords	std::size_t	16
+gpu	SRC/gpu/gles/context_egl.cpp	25	kTries	Version	{2}, {1}
+gpu	SRC/gpu/gles/context_egl.cpp	28	kColorspace	EGLint	0x309D
+gpu	SRC/gpu/gles/context_egl.cpp	29	kColorspaceSrgb	EGLint	0x3089
+gpu	SRC/gpu/gles/context_wgl.cpp	43	kMajorAttrib	int	0x2091
+gpu	SRC/gpu/gles/context_wgl.cpp	44	kMinorAttrib	int	0x2092
+gpu	SRC/gpu/gles/context_wgl.cpp	45	kFlagsAttrib	int	0x2094
+gpu	SRC/gpu/gles/context_wgl.cpp	46	kProfileAttrib	int	0x9126
+gpu	SRC/gpu/gles/context_wgl.cpp	47	kCoreProfile	int	0x1
+gpu	SRC/gpu/gles/context_wgl.cpp	48	kDebugFlag	int	0x1
+gpu	SRC/gpu/gles/context_wgl.cpp	49	kDrawWindow	int	0x2001
+gpu	SRC/gpu/gles/context_wgl.cpp	50	kAcceleration	int	0x2003
+gpu	SRC/gpu/gles/context_wgl.cpp	51	kSupportGl	int	0x2010
+gpu	SRC/gpu/gles/context_wgl.cpp	52	kDoubleBuffer	int	0x2011
+gpu	SRC/gpu/gles/context_wgl.cpp	53	kPixelType	int	0x2013
+gpu	SRC/gpu/gles/context_wgl.cpp	54	kColorBits	int	0x2014
+gpu	SRC/gpu/gles/context_wgl.cpp	55	kAlphaBits	int	0x201B
+gpu	SRC/gpu/gles/context_wgl.cpp	56	kDepthBits	int	0x2022
+gpu	SRC/gpu/gles/context_wgl.cpp	57	kFullAcceleration	int	0x2027
+gpu	SRC/gpu/gles/context_wgl.cpp	58	kTypeRgba	int	0x202B
+gpu	SRC/gpu/gles/context_wgl.cpp	59	kSrgb	int	0x20A9
+gpu	SRC/gpu/gles/context_wgl.cpp	61	kClassName	wchar_t	L"THIENLONG_GL"
+gpu	SRC/gpu/gles/context_wgl.cpp	68	kTries	Version	{4, 6}, {4, 5}, {4, 3}
+gpu	SRC/gpu/gles/device.cpp	20	kBad	ErrorCode	ErrorCode::kInvalidArgument
+gpu	SRC/gpu/gles/device.cpp	21	kPushBytes	std::uint32_t	256U * 512U
+gpu	SRC/gpu/gles/device.hpp	23	kPushBuffers	std::uint32_t	16
+gpu	SRC/gpu/gles/programs.cpp	17	kFnvOffset	std::uint64_t	14695981039346656037ULL
+gpu	SRC/gpu/gles/programs.cpp	18	kFnvPrime	std::uint64_t	1099511628211ULL
+gpu	SRC/gpu/handle.hpp	13	kInvalidIndex	std::uint32_t	~std::uint32_t{0
+gpu	SRC/gpu/memory.hpp	36	kNoBlock	std::uint32_t	~std::uint32_t{0
+gpu	SRC/gpu/slots.hpp	100	kChunkSlots	std::uint32_t	1024
+gpu	SRC/gpu/slots.hpp	101	kChunks	std::uint32_t	4096
+gpu	SRC/gpu/slots.hpp	102	kCapacity	std::uint32_t	kChunkSlots * kChunks
+gpu	SRC/gpu/types.hpp	41	kIsFlags	bool	false
+gpu	SRC/gpu/types.hpp	82	kQueueCount	std::size_t	3
+gpu	SRC/gpu/types.hpp	213	kMaxColorTargets	std::uint32_t	8
+gpu	SRC/gpu/types.hpp	214	kMaxVertexBuffers	std::uint32_t	8
+gpu	SRC/gpu/types.hpp	215	kMaxVertexAttributes	std::uint32_t	16
+gpu	SRC/gpu/types.hpp	217	kMaxBindGroups	std::uint32_t	8
+gpu	SRC/gpu/types.hpp	221	kMaxUnboundedArrays	std::uint32_t	3
+gpu	SRC/gpu/types.hpp	223	kMaxPushBytes	std::uint32_t	128
+gpu	SRC/gpu/types.hpp	228	kTextureRowAlignment	std::uint32_t	256
+gpu	SRC/gpu/types.hpp	229	kTextureOffsetAlignment	std::uint32_t	512
+gpu	SRC/gpu/types.hpp	234	kUniformAlignment	std::uint32_t	256
+gpu	SRC/gpu/types.hpp	236	kWholeSize	std::uint64_t	~std::uint64_t{0
+gpu	SRC/gpu/types.hpp	237	kAllMips	std::uint32_t	~std::uint32_t{0
+gpu	SRC/gpu/types.hpp	238	kAllLayers	std::uint32_t	~std::uint32_t{0
+gpu	SRC/gpu/vulkan/api.hpp	19	kApiVersion	std::uint32_t	VK_API_VERSION_1_3
+gpu	SRC/gpu/vulkan/device.cpp	695	kMostResources	std::uint32_t	1U << 18U
+gpu	SRC/gpu/vulkan/device.cpp	696	kMostSamplers	std::uint32_t	1024
+gpu	SRC/gpu/vulkan/instance.cpp	34	kValidationLayer	const char*	"VK_LAYER_KHRONOS_validation"
+gpu	SRC/gpu/vulkan/instance.cpp	37	kSurface	const char*	"VK_KHR_surface"
+gpu	SRC/gpu/vulkan/instance.cpp	39	kPlatformSurface	const char*	"VK_KHR_android_surface"
+gpu	SRC/gpu/vulkan/instance.cpp	41	kPlatformSurface	const char*	"VK_KHR_win32_surface"
+gpu	SRC/gpu/vulkan/programs.cpp	46	kBad	ErrorCode	ErrorCode::kInvalidArgument
+gpu	SRC/gpu/vulkan/programs.cpp	47	kMissing	ErrorCode	ErrorCode::kUnsupported
+gpu	SRC/gpu/vulkan/programs.cpp	50	kPoolSets	std::uint32_t	1024
+gpu	SRC/gpu/vulkan/swapchain.cpp	44	kState	ErrorCode	ErrorCode::kInvalidState
+gpu	SRC/gpu/vulkan/swapchain.cpp	366	kForever	std::uint64_t	std::numeric_limits<std::uint64_t>::max()
+gui	SRC/gui/asset.hpp	28	kGuiWhite	GuiColours	{0xFFFFFFFFU, 0xFFFFFFFFU, 0xFFFFFFFFU, 0xFFFFFFFFU
+gui	SRC/gui/hub.cpp	68	kNoButton	int	-1
+gui	SRC/gui/layout.cpp	33	kDimLinks	std::size_t	9
+gui	SRC/gui/layout.cpp	84	kPosition	UDimSlot	.across = &Metrics::x, .down = &Metrics::y
+gui	SRC/gui/layout.cpp	85	kSize	UDimSlot	.across = &Metrics::w, .down = &Metrics::h
+gui	SRC/gui/loader_look.cpp	42	kMetrics	std::array<std::string_view, 3>	{"LineSpacing", "Baseline", "HorzExtent"
+gui	SRC/gui/paint.cpp	27	kMarker	float	8.0F
+gui	SRC/gui/paint.cpp	28	kWhiteColour	std::uint32_t	0xFFFFFFFFU
+gui	SRC/gui/paint.cpp	29	kMarkerColour	std::uint32_t	0xFFFFFF00U
+gui	SRC/gui/paint.cpp	30	kLeftPart	std::size_t	5
+gui	SRC/gui/paint.cpp	31	kRightPart	std::size_t	6
+gui	SRC/gui/paint.cpp	32	kTopPart	std::size_t	7
+gui	SRC/gui/paint.cpp	33	kBottomPart	std::size_t	8
+gui	SRC/gui/radar.cpp	16	kRadarZoom	float	4.0F
+gui	SRC/gui/radar.cpp	17	kCos22	float	0.92387953251128675612818318939679F
+gui	SRC/gui/radar.cpp	18	kSin22	float	0.3826834323650897717284599840304F
+gui	SRC/gui/radar.cpp	19	kSin45	float	0.70710678118654752440084436210485F
+gui	SRC/gui/radar.cpp	20	kHuge	float	16777216.0F
+gui	SRC/gui/radar.cpp	21	kRimPairs	std::size_t	16
+gui	SRC/gui/sheet.hpp	42	kSolid	std::int32_t	-1
+gui	SRC/gui/sheet.hpp	43	kSceneMap	std::int32_t	-2
+gui	SRC/gui/sheet.hpp	44	kFont	std::int32_t	-3
+gui	SRC/gui/sheet.hpp	138	kRoundCount	std::size_t	48
+gui	SRC/gui/sheet.hpp	141	kRadarTile	int	64
+gui	SRC/gui/text.cpp	22	kWhiteColour	std::uint32_t	0xFFFFFFFFU
+gui	SRC/gui/text.cpp	23	kCentredVert	std::uint8_t	1
+gui	SRC/gui/value.cpp	15	kNumberStart	std::string_view	"-+.0123456789"
+gui	SRC/gui/value.cpp	17	kHexDigits	std::size_t	8
+io	SRC/io/file.cpp	18	kMaxFileBytes	std::uintmax_t	std::uintmax_t{256} * 1024 * 1024
+io	SRC/io/platform_win32.cpp	15	kMaxPathChars	DWORD	32768
+jobs	SRC/jobs/jobs.cpp	72	kRelaxed	auto	std::memory_order_relaxed
+jobs	SRC/jobs/jobs.cpp	73	kAcquire	auto	std::memory_order_acquire
+jobs	SRC/jobs/jobs.cpp	74	kRelease	auto	std::memory_order_release
+jobs	SRC/jobs/jobs.cpp	75	kAcqRel	auto	std::memory_order_acq_rel
+jobs	SRC/jobs/jobs.cpp	76	kSeqCst	auto	std::memory_order_seq_cst
+jobs	SRC/jobs/jobs.cpp	79	kMaxThreads	std::uint32_t	1024
+jobs	SRC/jobs/jobs.cpp	82	kMaxBatch	std::size_t	std::numeric_limits<std::size_t>::max() / (kMaxThreads + 2U)
+jobs	SRC/jobs/jobs.cpp	85	kSpinRounds	int	32
+jobs	SRC/jobs/jobs.cpp	87	kStealRetries	int	4
+jobs	SRC/jobs/jobs.cpp	88	kWarmInterval	std::chrono::milliseconds	2
+jobs	SRC/jobs/jobs.cpp	90	kGrab	std::size_t	8
+jobs	SRC/jobs/jobs.cpp	93	kGuidedPieces	std::size_t	4
+jobs	SRC/jobs/jobs.cpp	94	kGuidedFloor	std::size_t	16
+jobs	SRC/jobs/jobs.cpp	97	kWaitSpins	int	256
+jobs	SRC/jobs/jobs.cpp	98	kForever	std::chrono::nanoseconds	std::chrono::nanoseconds::max()
+jobs	SRC/jobs/jobs.hpp	65	kOutside	std::uint32_t	std::uint32_t{1} << 31U
+jobs	SRC/jobs/jobs.hpp	66	kInside	std::uint32_t	std::uint32_t{1} << 30U
+jobs	SRC/jobs/jobs.hpp	67	kCount	std::uint32_t	kInside - 1U
+jobs	SRC/jobs/jobs.hpp	84	kAuto	std::uint32_t	~0U
+jobs	SRC/jobs/jobs.hpp	125	kLine	std::size_t	128
+jobs	SRC/jobs/jobs.hpp	141	kPadFor	std::size_t	(kLine - (sizeof(T) % kLine)) % kLine
+jobs	SRC/jobs/jobs.hpp	146	kPayload	std::size_t	48
+jobs	SRC/jobs/queue.cpp	32	kRelaxed	auto	std::memory_order_relaxed
+jobs	SRC/jobs/queue.cpp	33	kAcquire	auto	std::memory_order_acquire
+jobs	SRC/jobs/queue.cpp	34	kRelease	auto	std::memory_order_release
+jobs	SRC/jobs/queue.cpp	35	kSeqCst	auto	std::memory_order_seq_cst
+jobs	SRC/jobs/queue.cpp	37	kCellSize	std::size_t	64
+jobs	SRC/jobs/queue.cpp	38	kJobWords	std::size_t	sizeof(Job) / sizeof(std::uint64_t)
+jobs	SRC/jobs/queue.cpp	39	kMinCapacity	std::uint32_t	2
+jobs	SRC/jobs/queue.cpp	40	kMaxCapacity	std::uint32_t	std::uint32_t{1} << 31
+look	SRC/look/appearance.cpp	25	kMaxShort	std::uint32_t	0xFFFFU
+look	SRC/look/appearance.cpp	26	kMaxLong	std::uint32_t	0xFFFFFFFFU
+map	SRC/map/picture.cpp	12	kFromRight	float	156.5F
+map	SRC/map/picture.cpp	13	kFromTop	float	42.0F
+map	SRC/map/picture.cpp	14	kAreaWidth	float	119.0F
+map	SRC/map/picture.cpp	15	kAreaHeight	float	121.0F
+map	SRC/map/picture.cpp	17	kLowRed	float	0.36F
+map	SRC/map/picture.cpp	18	kLowGreen	float	0.16F
+map	SRC/map/picture.cpp	19	kLowBlue	float	0.05F
+map	SRC/map/picture.cpp	20	kHighRed	float	0.78F
+map	SRC/map/picture.cpp	21	kHighGreen	float	0.48F
+map	SRC/map/picture.cpp	22	kHighBlue	float	0.22F
+map	SRC/map/samples.cpp	16	kHeightMagic	std::uint32_t	0x4645484DU
+map	SRC/map/samples.cpp	17	kHeightVersion	std::uint32_t	0x00100000U
+map	SRC/map/samples.cpp	18	kGridMagic	std::uint32_t	0x46454749U
+map	SRC/map/samples.cpp	19	kGridVersionMin	std::uint32_t	0x00100000U
+map	SRC/map/samples.cpp	20	kGridVersionFlags	std::uint32_t	0x00100001U
+map	SRC/map/samples.cpp	21	kGridVersionWide	std::uint32_t	0x00100002U
+map	SRC/map/samples.cpp	22	kGridVersionMax	std::uint32_t	0x00100002U
+map	SRC/map/samples.hpp	19	kFlipDiagonal	std::uint8_t	1U
+map	SRC/map/terrain.hpp	19	kMaxGrids	int	2048
+math	SRC/math/cofactor.hpp	37	kMinorCount	std::size_t	18
+math	SRC/math/quat.hpp	248	kTolerance	float	1e-6F
+math	SRC/math/scalar.hpp	32	kPi	float	std::numbers::pi_v<float>
+math	SRC/math/scalar.hpp	33	kTwoPi	float	2.0F * kPi
+math	SRC/math/scalar.hpp	34	kHalfPi	float	0.5F * kPi
+math	SRC/math/scalar.hpp	139	kFnvBasis	Hash32	2166136261U
+math	SRC/math/simd.hpp	28	kSlerpTolerance	float	0.999F
+math	SRC/math/soa.hpp	165	kNormalizedTolerance	float	1e-6F
+math	SRC/math/soa.hpp	166	kNormalizedEstimateTolerance	float	2e-3F
+math	SRC/math/types.hpp	127	kMembers	std::array<T Plain2::*, 2>	&Plain2::x, &Plain2::y
+math	SRC/math/types.hpp	179	kMembers	std::array<T Plain3::*, 3>	&Plain3::x, &Plain3::y, &Plain3::z
+render	SRC/render/camera.cpp	37	kNoParent	std::uint32_t	std::numeric_limits<std::uint32_t>::max()
+render	SRC/render/camera.cpp	39	kFieldOfView	float	60.0F
+render	SRC/render/camera.cpp	40	kEyeDistance	float	3.2F
+render	SRC/render/camera.cpp	41	kNearRatio	float	0.05F
+render	SRC/render/camera.cpp	42	kFarRatio	float	8.0F
+render	SRC/render/camera.cpp	44	kOrbitX	float	0.55F
+render	SRC/render/camera.cpp	45	kOrbitY	float	0.45F
+render	SRC/render/camera.cpp	46	kOrbitZ	float	-1.0F
+render	SRC/render/screen.cpp	71	kNone	ColourImage	
+render	SRC/render/ui.cpp	41	kMaxQuadCount	std::uint32_t	1U << 15
+render	SRC/render/ui.cpp	42	kStartQuads	std::uint32_t	2048
+render	SRC/render/ui.cpp	43	kVerticesPerQuad	std::uint32_t	4
+render	SRC/render/ui.cpp	44	kIndicesPerQuad	std::uint32_t	6
+render	SRC/render/ui.cpp	45	kTextureSpace	std::uint32_t	1
+render	SRC/render/ui.hpp	37	kUiWhite	std::uint32_t	0
+scene	SRC/scene/placement.cpp	14	kDelimiters	std::string_view	"\t\n "
+scene	SRC/scene/placement.cpp	16	kLeadingSpaces	std::string_view	" \t\n\v\f\r"
+scene	SRC/scene/transform.cpp	72	kCorners	std::size_t	8
+shader	SRC/shader/builtin.hpp	15	kBuiltinName	std::string_view	"f2/shader.hlsli"
+shader	SRC/shader/library.hpp	26	kSettle	std::chrono::milliseconds	100
+shader	SRC/shader/manifest.cpp	22	kMaxPermuted	std::size_t	6
+shader	SRC/shader/manifest.hpp	27	kMaxVariants	std::size_t	64
+shader	SRC/shader/package.hpp	28	kDefaultVariant	std::uint64_t	0
+shader	SRC/shader/package.hpp	31	kPackageExtension	std::string_view	"f2s"
+shader	SRC/shader/reflection.cpp	35	kBad	ErrorCode	ErrorCode::kInvalidArgument
+shader	SRC/shader/reflection.cpp	37	kFormatVersion	std::uint8_t	1
+shader	SRC/shader/reflection.cpp	40	kLeastResource	std::size_t	38
+shader	SRC/shader/reflection.cpp	41	kLeastVariable	std::size_t	20
+shader	SRC/shader/reflection.cpp	42	kLeastBlock	std::size_t	12
+shader	SRC/shader/reflection.cpp	43	kLeastAttribute	std::size_t	15
+shader	SRC/shader/reflection.cpp	45	kArrayBit	std::uint8_t	1U << 0U
+shader	SRC/shader/reflection.cpp	46	kMultisampleBit	std::uint8_t	1U << 1U
+shader	SRC/shader/reflection.cpp	47	kComparisonBit	std::uint8_t	1U << 2U
+shader	SRC/shader/reflection.cpp	48	kRawBit	std::uint8_t	1U << 3U
+shader	SRC/shader/reflection.hpp	59	kShiftRange	std::uint32_t	1000
+shader	SRC/shader/reflection.hpp	66	kPushSpace	std::uint32_t	127
+shader	SRC/shader/reflection.hpp	68	kNoBlock	std::uint32_t	~std::uint32_t{0
+shader	SRC/shader/types.hpp	43	kStageCount	std::size_t	9
+shader	SRC/shader/types.hpp	61	kTargetCount	std::size_t	4
+shader	SRC/shader/types.hpp	76	kOldestModel	ShaderModel	.major = 6, .minor = 0
+shader	SRC/shader/types.hpp	77	kNewestModel	ShaderModel	.major = 6, .minor = 8
+shader	SRC/shader/types.hpp	106	kAllBits	std::uint16_t	(std::uint16_t{1} << kStageCount) - 1U
+shadertool	SRC/shadertool/main.cpp	48	kValued	std::array<std::string_view, 4>	"--out", "--target", "--vulkan", "--dxc"
+table	SRC/table/tsv.cpp	21	kTab	char	'\t'
+ui	SRC/ui/hud.cpp	124	kNoUi	const char*	"không mở được giao diện"
+ui	SRC/ui/hud.cpp	131	kNoLayout	const char*	"không nạp được layout"
+ui	SRC/ui/pace.cpp	26	kHeaderBytes	std::uint32_t	0xA4
+ui	SRC/ui/pace.cpp	27	kIndexEntries	std::uint32_t	65536
+ui	SRC/ui/pace.cpp	28	kNoGlyph	std::uint32_t	0xFFFFFFFFU
+ui	SRC/ui/pace.cpp	29	kMagic	std::uint32_t	0x54465841U
+ui	SRC/ui/pace.cpp	30	kAtlasColumns	int	32
+ui	SRC/ui/pace.cpp	31	kPanel	std::uint32_t	0xF0101418U
+ui	SRC/ui/pace.cpp	32	kInk	std::uint32_t	0xFFFFFFFFU
+ui	SRC/ui/pace.cpp	33	kValueColumn	float	168.0F
+ui	SRC/ui/pace.cpp	34	kPad	float	10.0F
+window	SRC/window/monitor.cpp	39	kDisplayFraction	double	0.75
+window	SRC/window/monitor.cpp	40	kMinDesiredFraction	double	0.75
+window	SRC/window/monitor.cpp	41	kSizeFactor	std::uint32_t	8
+window	SRC/window/monitor.cpp	42	kMillimetersPerInch	double	25.4
+xml	SRC/xml/document.cpp	19	kMaxDepth	std::size_t	256
+xml	SRC/xml/document.cpp	20	kMaxCodePoint	std::uint32_t	0x10FFFF
+xml	SRC/xml/document.cpp	21	kSpaces	std::string_view	" \t\r\n"
+xml	SRC/xml/document.cpp	22	kNameEnd	std::string_view	" \t\r\n=/><"
+tests	tests/anim_tests.cpp	103	kZero	Vec3	
+tests	tests/anim_tests.cpp	104	kUnit	Vec3	.x = 1.0F, .y = 1.0F, .z = 1.0F
+tests	tests/avatar_data_tests.cpp	29	kClientData	std::string_view	GAME_CLIENT_DATA
+tests	tests/avatar_tests.cpp	31	kHalfPi	float	std::numbers::pi_v<float> / 2.0F
+tests	tests/camera_tests.cpp	37	kWindow	ViewSize	.width = 800, .height = 600
+tests	tests/control_tests.cpp	262	kCorners	std::size_t	441
+tests	tests/follow_tests.cpp	19	kCells	int	64
+tests	tests/follow_tests.cpp	20	kTolerance	float	0.01F
+tests	tests/gpu_tests.cpp	25	kBytes	std::size_t	256
+tests	tests/gui_real_tests.cpp	36	kClientData	std::string_view	GAME_CLIENT_DATA
+tests	tests/gui_real_tests.cpp	43	kGoldenFolder	std::string_view	GAME_UI_GOLDEN
+tests	tests/gui_real_tests.cpp	170	kGoldenColumns	std::size_t	9
+tests	tests/gui_real_tests.cpp	171	kBoxTolerance	float	0.001F
+tests	tests/gui_real_tests.cpp	173	kShownMisses	std::size_t	12
+tests	tests/log_tests.cpp	146	kProducers	int	8
+tests	tests/log_tests.cpp	147	kLinesEach	int	200
+tests	tests/log_tests.cpp	148	kExpectedLines	int	kProducers * kLinesEach
+tests	tests/log_tests.cpp	149	kCodeMark	std::string_view	"dòng-"
+tests	tests/ogre_tests.cpp	23	kLoose	float	1e-5F
+tests	tests/props_tests.cpp	27	kHalf	float	0.70710678F
+tests	tests/props_tests.cpp	29	kLoose	double	1e-5
+tests	tests/rig_tests.cpp	32	kTight	float	1e-5F
+tests	tests/rig_tests.cpp	176	kClientData	std::string_view	GAME_CLIENT_DATA
+tests	tests/shader_tests.cpp	60	kSampleText	std::string_view	"Thiên Long Bát Bộ"
+tests	tests/shader_tests.cpp	61	kOptionsHash	std::uint64_t	0x0123'4567'89AB'CDEFULL
+tests	tests/shader_tests.cpp	62	kTempFile	std::string_view	"shader_tests_goi_tam.f2s"
+tests	tests/shader_tests.cpp	66	kHeaderSize	std::size_t	64
+tests	tests/shader_tests.cpp	67	kChecksumAt	std::size_t	48
+tests	tests/shader_tests.cpp	68	kVariantsAt	std::size_t	kHeaderSize
+tests	tests/shader_tests.cpp	69	kVariantSize	std::size_t	48
+tests	tests/shader_tests.cpp	70	kDependenciesAt	std::size_t	kVariantsAt + (2 * kVariantSize)
+tests	tests/shader_tests.cpp	72	kKeyInVariant	std::size_t	16
+tests	tests/shader_tests.cpp	73	kCodeInVariant	std::size_t	32
+tests	tests/shader_tests.cpp	77	kChunk	std::size_t	std::size_t{64} * 1024
+tests	tests/shader_tests.cpp	78	kHaystackSize	std::size_t	200'000
+tests	tests/shader_tests.cpp	79	kNeedle	std::string_view	"NEEDLE"
+tests	tests/shader_tests.cpp	80	kForwardHit	std::uint64_t	kChunk - 3
+tests	tests/shader_tests.cpp	81	kBackwardHit	std::uint64_t	kHaystackSize - kChunk - 3
+tests	tests/shader_tests.cpp	407	kOutcomeCount	std::size_t	3
+tests	tests/shader_tests.cpp	446	kBadKind	std::string_view	"gói shader sai magic hoặc phiên bản"
+tests	tests/shader_tests.cpp	447	kBadVariants	std::string_view	"gói shader sai bảng bản dịch"
+tests	tests/shader_tests.cpp	448	kBadDependencies	std::string_view	"gói shader sai bảng phụ thuộc"
+tests	tests/shader_tests.cpp	449	kBadName	std::string_view	"gói shader có tên sai vị trí"
+tests	tests/shader_tests.cpp	450	kBadPlace	std::string_view	"gói shader có bản dịch sai vị trí"
+tests	tests/shader_tests.cpp	451	kBadPath	std::string_view	"gói shader có đường dẫn phụ thuộc sai vị trí"
+tests	tests/shader_tests.cpp	452	kBadReflection	std::string_view	"phản chiếu shader cụt hoặc sai miền"
+tests	tests/shader_tests.cpp	453	kFar	std::uint32_t	0xFFFF'FFF0U
+tests	tests/shader_tests.cpp	454	kHuge	std::uint32_t	0xFFFF'FFFFU
+tests	tests/shader_tests.cpp	704	kModel60	shader::ShaderModel	.major = 6, .minor = 0
+tests	tests/shader_tests.cpp	705	kModel65	shader::ShaderModel	.major = 6, .minor = 5
+tests	tests/shader_tests.cpp	706	kModel68	shader::ShaderModel	.major = 6, .minor = 8
+tests	tests/touch_tests.cpp	28	kTolerance	float	1e-4F
+tests	tests/touch_tests.cpp	29	kStart	TouchTime	std::chrono::seconds{5}
+tests	tests/transform_tests.cpp	22	kHalf	float	0.70710678F
+tests	tests/transform_tests.cpp	24	kLoose	double	1e-5
+tests	tests/window_tests.cpp	35	kBox	Rect	Rect::from({.x = 10, .y = 20}, {.width = 30, .height = 40})
+tests	tests/window_tests.cpp	82	kSmall	Size	.width = 640, .height = 360
+tests	tests/window_tests.cpp	83	kLarge	Size	.width = 800, .height = 450
+tests	tests/world_tests.cpp	48	kSceneText	std::string_view	"<Scene name=\"a\"></Scene>\n"

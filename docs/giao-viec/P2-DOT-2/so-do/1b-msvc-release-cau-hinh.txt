@@ -1,0 +1,94 @@
+# 2026-10-08 09:42:20 -> 2026-10-08 09:42:23  Lệnh: cmake --preset msvc-release  (giữ NANG.lock, không có bản dựng nào khác đang chạy)
+-- Running vcpkg install
+Detecting compiler hash for triplet x64-windows-static-md...
+Compiler found: C:/Program Files/Microsoft Visual Studio/18/Community/VC/Tools/MSVC/14.51.36231/bin/Hostx64/x64/cl.exe
+Detecting compiler hash for triplet x64-windows...
+Compiler found: C:/Program Files/Microsoft Visual Studio/18/Community/VC/Tools/MSVC/14.51.36231/bin/Hostx64/x64/cl.exe
+The following packages are already installed:
+    cgltf:x64-windows-static-md@1.15
+    lz4:x64-windows-static-md@1.10.0
+    meshoptimizer:x64-windows-static-md@1.2
+    opus:x64-windows-static-md@1.6.1
+    sse2neon:x64-windows-static-md@1.9.1
+    stb:x64-windows-static-md@2024-07-29#1
+    tomlplusplus:x64-windows-static-md@3.4.0#1
+  * vcpkg-cmake:x64-windows@2025-08-07
+  * vcpkg-cmake-config:x64-windows@2026-07-21
+  * vcpkg-cmake-get-vars:x64-windows@2025-05-29
+  * vcpkg-tool-meson:x64-windows@1.9.0#10
+    xxhash:x64-windows-static-md@0.8.3
+    zstd:x64-windows-static-md@1.5.7
+cgltf is header-only and can be used from CMake via:
+
+  find_path(CGLTF_INCLUDE_DIRS "cgltf.h")
+  target_include_directories(main PRIVATE ${CGLTF_INCLUDE_DIRS})
+
+lz4 provides CMake targets:
+
+  find_package(lz4 CONFIG REQUIRED)
+  target_link_libraries(main PRIVATE lz4::lz4)
+
+lz4 provides pkg-config modules:
+
+  liblz4
+
+meshoptimizer provides CMake targets:
+
+  # this is heuristically generated, and may not be correct
+  find_package(meshoptimizer CONFIG REQUIRED)
+  target_link_libraries(main PRIVATE meshoptimizer::meshoptimizer)
+
+opus provides CMake targets:
+
+  # this is heuristically generated, and may not be correct
+  find_package(Opus CONFIG REQUIRED)
+  target_link_libraries(main PRIVATE Opus::opus)
+
+opus provides pkg-config modules:
+
+  # Opus IETF audio codec ( build)
+  opus
+
+sse2neon is header-only and can be used from CMake via:
+
+  find_path(SSE2NEON_INCLUDE_DIRS "sse2neon/sse2neon.h")
+  target_include_directories(main PRIVATE ${SSE2NEON_INCLUDE_DIRS})
+
+The package stb provides CMake targets:
+
+    find_package(Stb REQUIRED)
+    target_include_directories(main PRIVATE ${Stb_INCLUDE_DIR})
+tomlplusplus provides CMake targets:
+
+  # this is heuristically generated, and may not be correct
+  find_package(tomlplusplus CONFIG REQUIRED)
+  target_link_libraries(main PRIVATE tomlplusplus::tomlplusplus)
+
+tomlplusplus provides pkg-config modules:
+
+  # TOML config file parser and serializer for C++
+  tomlplusplus
+
+xxhash provides CMake targets:
+
+  # this is heuristically generated, and may not be correct
+  find_package(xxHash CONFIG REQUIRED)
+  target_link_libraries(main PRIVATE xxHash::xxhash)
+
+xxhash provides pkg-config modules:
+
+  # extremely fast hash algorithm
+  libxxhash
+
+zstd provides CMake targets:
+
+  find_package(zstd CONFIG REQUIRED)
+  target_link_libraries(main PRIVATE zstd::libzstd)
+
+All requested installations completed successfully in: 169 us
+-- Running vcpkg install - done
+-- ch╞░a c├│ SERVER/tables/shared: bß╗Å test server_data_lint, sinh bß║▒ng build_data.py
+-- Configuring done (2.5s)
+-- Generating done (0.1s)
+-- Build files have been written to: F:/tl 2026/THIENLONG/build/p2-dot-2/build/msvc-release
+exit=0

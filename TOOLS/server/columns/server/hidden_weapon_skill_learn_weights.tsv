@@ -1,0 +1,12 @@
+# schema 1
+# source: server_config/DarkSkillStudy.txt
+# tool: TOOLS/server/import_legacy.py; sửa tay sẽ mất ở lượt xuất sau
+# types: int	text	text	text	text
+index	original	name	type	note
+0	index	index	int	luật: M1
+1	40级技能	level_40_skill	int	luật: nguyên văn
+2	40级技能权重	level_40_skill_weight	int	luật: nguyên văn
+3	70级技能	level_70_skill	int	luật: nguyên văn
+4	70级技能权重	level_70_skill_weight	int	luật: nguyên văn
+5	90级技能	level_90_skill	int	luật: nguyên văn
+6	90级技能权重	level_90_skill_weight	int	luật: nguyên văn

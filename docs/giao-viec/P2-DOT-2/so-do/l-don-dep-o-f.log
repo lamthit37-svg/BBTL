@@ -1,0 +1,5 @@
+# 2026-10-08 11:02:06 bổ sung cho l-don-dep.log: dòng 'ổ F trống sau khi dọn' của lượt 11:01:53 không in ra vì lỗi định dạng chuỗi PowerShell (chỉ dòng đó, việc xoá đã xong); log đó giữ nguyên
+> (Get-PSDrive F).Free
+ổ F trống bây giờ: 167128547328 byte (155.7 GiB)
+ổ F trống trước khi dọn (theo l-don-dep.log): 166377521152 byte
+chênh: 751026176 byte; tổng kích thước tệp sáu thư mục đã xoá: 748570779 byte (0.697 GiB)

@@ -1,0 +1,10 @@
+# schema 1
+# source: Public/Scene/songshan_area.ini
+# tool: TOOLS/server/export_scene.py; sửa tay sẽ mất ở lượt xuất sau
+# types: int	int	float	float	float	float
+guid	script_id	left	top	right	bottom
+0	400009	12.0000	48.0000	35.0000	65.0000
+0	400901	285.0000	129.0000	290.0000	142.0000
+0	400010	286.0000	241.0000	293.0000	254.0000
+311	-1	274.0000	77.0000	283.0000	96.0000
+312	-1	234.0000	44.0000	246.0000	63.0000

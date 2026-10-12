@@ -1,0 +1,41 @@
+# 2026-10-08 09:52:56  T16: số dòng (đếm byte xuống dòng, như wc -l) của tệp .cpp/.hpp/.py viết tay mới
+
+35	SRC/net/detail/native.hpp
+81	SRC/net/net.cpp
+228	SRC/net/net.hpp
+402	SRC/net/socket_posix.cpp
+393	SRC/net/socket_win32.cpp
+110	SRC/protocol/channel.cpp
+115	SRC/protocol/channel.hpp
+359	SRC/protocol/wire.cpp
+124	SRC/protocol/wire.hpp
+241	TOOLS/server/fuzz_protocol.py
+112	TOOLS/server/gen_protocol.py
+145	TOOLS/server/protocol_cpp_hpp.py
+322	TOOLS/server/protocol_cpp_src.py
+150	TOOLS/server/protocol_cxx.py
+87	TOOLS/server/protocol_doc.py
+194	TOOLS/server/protocol_model.py
+389	TOOLS/server/protocol_rules.py
+225	TOOLS/server/protocol_samples.py
+149	TOOLS/server/protocol_tsv.py
+150	TOOLS/server/protocol_wire.py
+330	TOOLS/server/test_gen_protocol.py
+59	tests/bench/bench.hpp
+283	tests/bench/net_bench.cpp
+187	tests/bench/protocol_bench.cpp
+19	tests/fuzz/fuzz_auth_client.cpp
+19	tests/fuzz/fuzz_auth_server.cpp
+18	tests/fuzz/fuzz_frame.cpp
+19	tests/fuzz/fuzz_game_client.cpp
+19	tests/fuzz/fuzz_game_server.cpp
+149	tests/fuzz/mutator.hpp
+162	tests/fuzz/targets.hpp
+468	tests/net_tests.cpp
+189	tests/protocol_catalog_tests.cpp
+205	tests/protocol_fuzz_tests.cpp
+500	tests/protocol_tests.cpp
+272	tests/wire_loop_tests.cpp
+
+tệp .cpp hay .py quá 500 dòng: không có
+

@@ -1,0 +1,9 @@
+A CMake collision 2026-10-08 15:10:04 (UTC+7)
+# numstat ca tep so voi 30172db (CMakeLists.txt GameLayers.cmake):
+22	0	CMakeLists.txt
+# numstat moi tep cmake so voi 30172db:
+22	0	CMakeLists.txt
+1	0	cmake/GameLayers.cmake
+# numstat phan A (truoc -> sau lan ghi cua A):
+11	5	build/dh-a/CMakeLists.before.txt => CMakeLists.txt
+# CMakeLists truoc khi A ghi: sha 81982e68042839bc3c47f57a3fa281bc49988ece998ea5c421fa60c3df104c89

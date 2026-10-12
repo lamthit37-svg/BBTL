@@ -1,0 +1,8 @@
+# schema 1
+# source: Public/Scene/yannan_platform.ini
+# tool: TOOLS/server/export_scene.py; sửa tay sẽ mất ở lượt xuất sau
+# types: int	int	float	float	int	int	text
+type_id	class_id	position_x	position_z	direction	script_id	tip
+17	10	260	276	27		通往洛阳
+17	10	38	62	27		通往草原
+17	10	246	42	27		通往雁北

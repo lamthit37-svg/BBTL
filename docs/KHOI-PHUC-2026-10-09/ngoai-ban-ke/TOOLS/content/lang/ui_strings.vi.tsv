@@ -1,0 +1,147 @@
+# Bản dịch tiếng Việt của chuỗi giao diện. Khoá là khoá #{...} của Config/StrDictionary.txt;
+# khoá mở đầu bằng dấu = là nguyên văn chữ viết thẳng trong layout (thuộc tính Text, Tooltip).
+# Giữ nguyên thẻ # của bản gốc (#cRRGGBB, #Y, #G, #r...) và chỗ điền %d, %s.
+# TOOLS/content/collect_ui.py chép tệp này thành Table/ui_strings.vi.tsv; client nạp đè lên
+# Table/ui_strings.tsv. Khoá chưa có ở đây thì client hiện chữ gốc.
+key	text
+=帮助	Trợ giúp
+=门派手册	Sổ tay môn phái
+=门派简介	Giới thiệu môn phái
+AQZX_130812_01	Nhấn để vào Trung tâm An toàn Thiên Long Bát Bộ, bảo vệ toàn diện tài khoản và tài sản của bạn.
+BHXX_160531_1	#cfff263Bang hội:
+BHXX_160531_3	#cfff263Điểm:
+BHXZ_081103_158	#cfff263Khi bang hội chinh phạt, nhấn nút này để xem điểm chinh phạt hiện tại của bang.
+BHXZ_150831_02	Nhấn để mở bảng xếp hạng chiến tích bang hội
+BUGFK_XML_1	Báo lỗi trò chơi
+CTPK_251016_1	#cC8B88ECấp %s0
+FJWJ_081106_01	#YDanh sách người chơi lân cận#rPhím tắt ALT+R
+FJYX_110426_142	Nhắc nhận phi điêu truyền thư
+FWNQ_141013_05	#gFF0FA0Trung tâm hỗ trợ Thiên Long Bát Bộ
+GDWPBH_090507_4	#cff0000Quý
+GJYLK_120517_147	#c00ccffCấp mang giảm còn %d (Bách Binh Tinh Thông)
+GMDP_Struct_Relation_1	Chưa rõ
+GMGameInterface_Script_DataPool_Info_ERenGu	Ác Nhân Cốc
+GXGG_010119_4	Nhấn để xem thông báo cập nhật và bảng xếp hạng.
+IMXZ_20100813_61	Ẩn hình tượng
+INTERFACE_XML_1038	Nhấn để mở bảng soạn Loa nhỏ#rGửi tin cần tiêu hao vật phẩm Loa nhỏ.#r#G(Mua tại Tiệm Nguyên Bảo)
+INTERFACE_XML_104	90 giờ
+INTERFACE_XML_1040	Nhắc xác thực danh tính#rNút nhấp nháy khi vào thời gian chống nghiện
+INTERFACE_XML_105	91 giờ
+INTERFACE_XML_1051	Nhấn để nới rộng khung trò chuyện
+INTERFACE_XML_1052	Nhấn để thu hẹp khung trò chuyện
+INTERFACE_XML_106	92 giờ
+INTERFACE_XML_107	93 giờ
+INTERFACE_XML_108	94 giờ
+INTERFACE_XML_109	95 giờ
+INTERFACE_XML_110	96 giờ
+INTERFACE_XML_111	97 giờ
+INTERFACE_XML_112	98 giờ
+INTERFACE_XML_113	99 giờ
+INTERFACE_XML_125	Bang hội  Phím tắt Alt+O
+INTERFACE_XML_128	Tên bang: Cái Bang
+INTERFACE_XML_140	Nhấn để lưu nội dung trò chuyện của kênh hiện tại vào thư mục trò chơi
+INTERFACE_XML_144	Biểu cảm
+INTERFACE_XML_149	Loại thử nghiệm
+INTERFACE_XML_174	Danh hiệu:
+INTERFACE_XML_198	Giang hồ chỉ nam
+INTERFACE_XML_201	Mở thanh phím tắt ẩn
+INTERFACE_XML_233	Bản đồ khu vực  Tab
+INTERFACE_XML_254	Động tác
+INTERFACE_XML_280	Cá nhân
+INTERFACE_XML_304	Đóng thanh phím tắt ẩn
+INTERFACE_XML_313	Hảo hữu  Phím tắt Alt+F
+INTERFACE_XML_331	Hoa Sơn Luận Kiếm
+INTERFACE_XML_332	Khôi phục
+INTERFACE_XML_345	Cấp: 99
+INTERFACE_XML_346	Kỹ năng  Phím tắt Alt+S
+INTERFACE_XML_356	Kết hảo hữu
+INTERFACE_XML_368	Giao dịch  Phím tắt Alt+E
+INTERFACE_XML_416	Nhấn để tăng chiều cao khung trò chuyện
+INTERFACE_XML_450	Môn phái: Cái Bang
+INTERFACE_XML_488	Nhấn để chọn loại tin hiển thị ở kênh hiện tại
+INTERFACE_XML_491	Đổi kênh  Phím tắt Alt+,
+INTERFACE_XML_543	Thôi đi theo
+INTERFACE_XML_566	Nhân vật  Phím tắt Alt+C
+INTERFACE_XML_572	Nhiệm vụ  Phím tắt Alt+Q
+INTERFACE_XML_607	Trò chuyện riêng
+INTERFACE_XML_645	Bản đồ thế giới  Phím tắt Alt+M
+INTERFACE_XML_656	Nhập
+INTERFACE_XML_66	#gFF0FA0Thông tin người chơi
+INTERFACE_XML_670	Nhấn để giảm chiều cao khung trò chuyện
+INTERFACE_XML_714	Màu chữ
+INTERFACE_XML_725	Vật phẩm  Phím tắt Alt+A
+INTERFACE_XML_734	Hệ thống
+INTERFACE_XML_764	Tâm trạng: Suy sụp
+INTERFACE_XML_773	Tên:
+INTERFACE_XML_785	Phí sửa chữa
+INTERFACE_XML_821	Một hai ba bốn năm sáu
+INTERFACE_XML_855	Trân thú  Phím tắt Alt+X
+INTERFACE_XML_869	Chỉ Bắc  Phím tắt Alt+V
+INTERFACE_XML_884	Nhấn để tạo thẻ kênh trò chuyện mới
+INTERFACE_XML_889	Tự tạo 1
+INTERFACE_XML_890	Tự tạo 2
+INTERFACE_XML_893	Tổng
+INTERFACE_XML_896	Đi theo tổ đội
+INTERFACE_XML_904	Giá trị lớn nhất
+INTERFACE_XML_906	Thu nhỏ
+INTERFACE_XML_FY_001	Xin vào đội
+INTERFACE_XML_FY_002	Mời vào đội
+INTERFACE_XML_MINI_01	Nhấn chuột để tự đặt thời gian an toàn
+INTERFACE_XML_MINI_02	Thời gian an toàn còn lại
+JSXL_140821_3	#YKim Ti hiến lễ phúc cùng đến, nâng cấp điêu văn cũng trong tầm tay
+JXSQ_170814_179	#HKhí linh:
+KCJXL_130417_1	#GGiữ chuột phải để kéo bản đồ, nhấp chuột trái lên bản đồ để tự tìm đường
+KCJXL_130417_3	#GGiữ chuột phải để kéo bản đồ, nhấp chuột trái lên bản đồ để tự tìm đường xuyên cảnh
+KHD_220826_52	Chế độ chụp ảnh
+LTFP_091016_1	Thiết lập hiển thị chia màn
+LTQH_XML_106	#cfff263Có thể nhấn #GCtrl+Enter#cfff263 để gửi nhanh
+LTQH_XML_28	Tố cáo
+LTQH_XML_29	Xem thông tin
+LTQH_XML_30	Lịch sử trò chuyện
+LTQH_XML_31	Xoá màn hình
+LTQH_XML_32	Gửi
+LTQH_XML_33	Chặn
+LTQH_XML_34	Mời tham gia
+LTQH_XML_35	Thông báo nhóm
+LTQH_XML_89	#gFF0FA0Trò chuyện hảo hữu
+NGGZ_230511_1	Tự chiến đấu
+NGGZ_230511_2	Đang tự chiến đấu
+NQLT_141118_01	Nhấn để vào diễn đàn chính thức, chia sẻ mọi chủ đề và nắm tin mới nhất của Tân Thiên Long Bát Bộ.
+PKPK_20251021_3	#YNhấn để mở bảng thông tin máy chủ PK.
+QXFJYXG_260618_5	#YNhấn để xem giải thích cấp máy chủ Khinh Hưởng.
+RWZZ_090601_01	Nhiệm vụ đã nhận
+RWZZ_090601_02	Nhiệm vụ có thể nhận
+RWZZ_090601_03	Khôi phục giao diện mặc định
+RWZZ_090601_04	Khoá giao diện
+RWZZ_090601_05	Mở khoá giao diện
+RWZZ_090601_10	Nhấn để tăng chiều cao giao diện
+RWZZ_090601_11	Nhấn để giảm chiều cao giao diện
+RWZZ_090601_12	Nhấn để tăng chiều rộng giao diện
+RWZZ_090601_13	Nhấn để giảm chiều rộng giao diện
+SQSX_120806_48	#HĐộ khế hợp:
+TDGZ_XML_01	Chuyển thành đoàn
+THDXG_190705_03	#cfff263Đào Hoa Đảo
+TLDC_110512_02	Nhấn để vào Khảo sát Thiên Long
+TLTJ_110215_15	Nhấn để nhận đồ giám mục tiêu.
+TLZL_231107_67	#YĐây là #Gthời gian nhân đôi kinh nghiệm Huyền Linh Đan#Y còn lại, có thể dùng #GCàn Linh Chân Kinh#Y trong phúc lợi điểm danh #GTu Võ Chi Ước#Y để rã đông và đóng băng thời gian nhân đôi.
+TM_20080311_30	Tên đồng minh:
+XMPHM_210604_01	Tuyệt Tình Cốc
+XSHLY_150522_99	#YNhấn để xem hoạt động đặc sắc Tháng Vui Tân Thủ
+XSJNH_180111_01	#YNhấn để xem hoạt động đặc sắc Lễ Hội Tân Thủ!
+XSYH_XML_44	Tổ đội/Đoàn  Phím tắt Alt+T
+XSYH_XML_45	Hệ thống  Phím tắt Esc
+XZGJ_090507_1	Chuyển sang mục tiêu của đối phương
+XZLT_240829_1	Giang hồ
+YLK_120307_25	Nhấn vào đây để vào khu dịch vụ tiện ích mà Thẻ Du Long kích hoạt cho bạn.
+YXDY_081027_01	#YPhiếu khảo sát Thiên Long Bát Bộ
+ZDGS_Tips_90602_01	Phím tắt Alt+I
+ZDGS_Tips_90602_02	Phím tắt Alt+K
+ZDJB_161013_04	Nhấn để xem danh sách người chơi bạn đang chặn. Sau khi chặn sẽ không nhận được tin trò chuyện và lời mời tổ đội của người đó.
+ZDZD_200724_02	#YPhím tắt: %s0
+ZDZT_20250109_1	#YTrạng thái PK: khi tấn công hiệp sĩ khác hoặc bị hiệp sĩ khác tấn công sẽ lập tức vào trạng thái PK. Trong lúc đó, tự tìm đường sẽ không tự cưỡi thú.#rGiải trừ trạng thái PK: sau khi vào trạng thái PK, nếu trong mười giây không giao chiến với ai thì trạng thái PK tự giải trừ.
+ZNHK_151201_04	#cfff263Điển tịch tử nữ siêu ưu đãi, tặng chú giải và nghiên tập điển tịch
+ZSAN_90311_1	Nhấn chuột trái để chọn trân thú của đồng đội; nhấn chuột phải để xem thông tin trân thú của đồng đội.
+ZSGN_101129_02	#cfff263Tặng thời trang cho hảo hữu
+ZXCZ_120717_03	Nhấn để mở cổng nạp thẻ Thiên Long Bát Bộ và nạp cho trò chơi của bạn.
+ZXCZ_120717_06	Đổi điểm nạp thành Nguyên Bảo.
+ZZDY_130131_85	Chiêu

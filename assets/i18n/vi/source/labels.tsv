@@ -1,0 +1,84 @@
+# Bảng việc của TOOLS/content/letter_labels.py: bộ ảnh, tên ảnh, loại (KINDS của công cụ), chữ.
+# Chữ "@<khoá>" lấy câu đầu của chuỗi <khoá> trong assets/i18n/vi.tsv. Sửa xong thì chạy lại công cụ
+# (lệnh ở đầu tệp công cụ) rồi dựng lại i18n.
+# Nút môn phái (vệt mực): ảnh thường và ảnh đang chọn. Cs_Tianlong_Normal nằm ở MainFrameLuo03,
+# các trạng thái khác của nó ở MainFrameLuo04. Ảnh _Hover và _Disabled không cửa sổ nào dùng.
+MainFrameLuo03	Cs_Shaolin_Normal	ink	Thiếu Lâm
+MainFrameLuo03	Cs_Shaolin_Pushed	ink	Thiếu Lâm
+MainFrameLuo03	Cs_Mingjiao_Normal	ink	Minh Giáo
+MainFrameLuo03	Cs_Mingjiao_Pushed	ink	Minh Giáo
+MainFrameLuo03	Cs_Gaibang_Normal	ink	Cái Bang
+MainFrameLuo03	Cs_Gaibang_Pushed	ink	Cái Bang
+MainFrameLuo05	Cs_Wudang_Normal	ink	Võ Đang
+MainFrameLuo05	Cs_Wudang_Pushed	ink	Võ Đang
+MainFrameLuo03	Cs_Emei_Normal	ink	Nga Mi
+MainFrameLuo03	Cs_Emei_Pushed	ink	Nga Mi
+MainFrameLuo05	Cs_Xingxiu_Normal	ink	Tinh Túc
+MainFrameLuo05	Cs_Xingxiu_Pushed	ink	Tinh Túc
+MainFrameLuo03	Cs_Tianlong_Normal	ink	Thiên Long
+MainFrameLuo04	Cs_Tianlong_Pushed	ink	Thiên Long
+MainFrameLuo04	Cs_Tianshan_Normal	ink	Thiên Sơn
+MainFrameLuo04	Cs_Tianshan_Pushed	ink	Thiên Sơn
+MainFrameLuo05	Cs_Xiaoyao_Normal	ink	Tiêu Dao
+MainFrameLuo05	Cs_Xiaoyao_Pushed	ink	Tiêu Dao
+MainFrameLuo03	Cs_Murong_Normal	ink	Mộ Dung
+MainFrameLuo03	Cs_Murong_Pushed	ink	Mộ Dung
+MainFrameLuo05	Cs_Tangmen_Normal	ink	Đường Môn
+MainFrameLuo05	Cs_Tangmen_Pushed	ink	Đường Môn
+MainFrameLuo05	Cs_Guigu_Normal	ink	Quỷ Cốc
+MainFrameLuo05	Cs_Guigu_Pushed	ink	Quỷ Cốc
+MainFrameLuo05	Cs_Kunlun_Normal	ink	Đào Hoa Đảo
+MainFrameLuo05	Cs_Kunlun_Pushed	ink	Đào Hoa Đảo
+MainFrameLuo06	Cs_Congren_Normal	ink	Tuyệt Tình Cốc
+MainFrameLuo06	Cs_Congren_Pushed	ink	Tuyệt Tình Cốc
+MainFrameLuo06	Cs_ERenGu_Normal	ink	Ác Nhân Cốc
+MainFrameLuo06	Cs_ERenGu_Pushed	ink	Ác Nhân Cốc
+# Nút khung vàng. CreateRole_Hover của MainFrameLuo04 chung ô với _Pushed và _Disabled.
+MainFrameLuo04	CreateRole_Normal	big	Tạo Nhân Vật
+MainFrameLuo04	CreateRole_Hover	big	Tạo Nhân Vật
+MainFrameLuo03	Last_Normal	big	Quay Lại
+MainFrameLuo03	Last_Hover	big	Quay Lại
+MainFrameLuo03	Last_Pushed	big	Quay Lại
+MainFrameLuo03	Last_Disabled	big	Quay Lại
+CreateRole2	BtnCancel_Normal	big	Huỷ Xem Trước
+CreateRole2	BtnCancel_Hover	big	Huỷ Xem Trước
+CreateRole2	BtnCancel_Pushed	big	Huỷ Xem Trước
+CreateRole2	BtnCancel_Disable	big	Huỷ Xem Trước
+# Nút dẹt. Last_Create_Pushed và Next_Create_Pushed chung ô với _Disabled.
+CreateRole1	BtnRandom_Normal	random	Ngẫu Nhiên
+CreateRole1	BtnRandom_Hover	random	Ngẫu Nhiên
+CreateRole1	BtnRandom_Pushed	random	Ngẫu Nhiên
+CreateRole1	BtnRandom_Disable	random	Ngẫu Nhiên
+MainFrameLuo04	Last_Create_Normal	page	Trước
+MainFrameLuo04	Next_Create_Normal	page	Sau
+MainFrameLuo04	Last_Create_Hover	page	Trước
+MainFrameLuo04	Next_Create_Hover	page	Sau
+MainFrameLuo04	Last_Create_Pushed	page	Trước
+MainFrameLuo04	Next_Create_Pushed	page	Sau
+# Dải tiêu đề và nhãn.
+MainFrameLuo05	MenpaiShow	ribbon	Xem Môn Phái
+MainFrameLuo05	CreateBkg	ribbon	Tạo Nhân Vật
+CreateRole1	Icon_Menpai	ribbon_wide	Giới Thiệu Môn Phái
+CreateRole2	CreateRole_Name2	name	Tên Nhân Vật
+MainFrameLuo04	SelectSex	label	Giới tính
+MainFrameLuo04	SelectHair	label	Kiểu tóc
+MainFrameLuo04	SelectFace	label	Khuôn mặt
+MainFrameLuo04	SelectHead	label	Chân dung
+MainFrameLuo04	SelectCloth	label	Trang phục
+CreateRole1	Icon_Sex	label_wide	Chọn giới tính
+# Câu đối của từng môn phái: hai vế lấy từ câu đầu của chuỗi giới thiệu ngắn trong vi.tsv.
+CreateRole3	Icon_Shaolin	verse	@XZRW_XML_1
+CreateRole4	Icon_Mingjiao	verse	@XZRW_XML_2
+CreateRole3	Icon_Gaibang	verse	@XZRW_XML_3
+CreateRole4	Icon_Wudang	verse	@XZRW_XML_4
+CreateRole4	Icon_Emei	verse	@XZRW_XML_5
+CreateRole3	Icon_Xingxiu	verse	@XZRW_XML_6
+CreateRole4	Icon_Tianlong	verse	@XZRW_XML_7
+CreateRole3	Icon_Tianshan	verse	@XZRW_XML_8
+CreateRole4	Icon_Xiaoyao	verse	@XZRW_XML_9
+CreateRole3	Icon_Murong	verse	@XZRW_XML_10
+CreateRole5	Icon_Tangmen	verse	@XMPTM_130823_4
+CreateRole5	Icon_Guigu	verse	@XMPGG_160615_34
+CreateRole5	Icon_Kunlun	verse	@THDBQ_190809_08
+CreateRole5	Icon_Hongming	verse	@XMPHM_210604_06
+CreateRole5	Icon_ERenGu	verse	@XMPHM_210604_29

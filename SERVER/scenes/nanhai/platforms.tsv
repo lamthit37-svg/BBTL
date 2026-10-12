@@ -1,0 +1,7 @@
+# schema 1
+# source: Public/Scene/nanhai_platform.ini
+# tool: TOOLS/server/export_scene.py; sửa tay sẽ mất ở lượt xuất sau
+# types: int	int	float	float	int	int	text
+type_id	class_id	position_x	position_z	direction	script_id	tip
+17	10	40	39	27		通往武夷山
+17	10	277	168	27		通往琼州

@@ -1,0 +1,10 @@
+# A đếm dòng (T16) 2026-10-08 01:54:26
+# lệnh: (Get-Content <tệp> -Encoding UTF8).Count
+SRC/protocol/wire.hpp	123
+SRC/protocol/wire.cpp	357
+SRC/protocol/channel.hpp	115
+SRC/protocol/channel.cpp	110
+tests/protocol_tests.cpp	500
+# đếm lại sau comment G6 2026-10-08 02:22:30
+SRC/protocol/wire.hpp	124
+SRC/protocol/wire.cpp	359

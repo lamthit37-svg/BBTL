@@ -1,0 +1,14 @@
+Merienda-Bold.ttf: phông Merienda, kiểu Bold (wght 700), bản v22 của Google Fonts.
+Tác giả: The Merienda Project Authors (https://github.com/etunni/merienda), © 2017.
+Giấy phép: SIL Open Font License 1.1, văn bản ở Merienda-OFL.txt (chép từ
+https://github.com/google/fonts/raw/main/ofl/merienda/OFL.txt).
+Tải ngày 2026-10-09 từ
+https://fonts.gstatic.com/s/merienda/v22/gNMaW3x8Qoy5_mf8uUkJGHtiYXjmKFy5nX9oSQ.ttf
+SHA-256: d59bbacca5e81b87950e47f6072a8e376656b839bb8397ea3b7aa475b64928cb
+Không sửa byte nào của phông.
+Dùng ở đâu: TOOLS/content/letter_labels.py vẽ chữ Việt của labels.tsv bằng phông này lên nền nút,
+tiêu đề và nhãn gốc của client, ghi ra assets/i18n/vi/labels/. Client không mang tệp phông, chỉ mang
+ảnh đã vẽ. Chọn phông này vì nét của nó trùng với chữ trên tấm nút chủ dự án vẽ (button_sheet.png:
+"Vào Game", "Nhập Tài Khoản"), để mọi nút có chữ cùng một kiểu.
+
+button_sheet.png: tấm nút tiếng Việt chủ dự án vẽ cho bảng đăng nhập (TOOLS/content/letter_buttons.py).

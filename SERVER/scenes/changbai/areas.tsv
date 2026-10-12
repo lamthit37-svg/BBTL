@@ -1,0 +1,8 @@
+# schema 1
+# source: Public/Scene/changbai_area.ini
+# tool: TOOLS/server/export_scene.py; sửa tay sẽ mất ở lượt xuất sau
+# types: int	int	float	float	float	float
+guid	script_id	left	top	right	bottom
+0	400041	30.0000	265.0000	34.0000	275.0000
+0	400042	286.0000	67.0000	290.0000	77.0000
+2211	-1	221.0000	53.0000	241.0000	79.0000

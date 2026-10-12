@@ -1,0 +1,33 @@
+# schema 1
+# source: client_2026/CommonItem.txt
+# tool: TOOLS/server/export_tables.py; sửa tay sẽ mất ở lượt xuất sau
+# types: int	text	text	text	text
+index	original	name	type	note
+0	index	index	int	neo: cột gốc 0, khớp 100.0% (4839/4839 id); luật: M1
+1	class	class	int	neo: cột gốc 1, khớp 100.0% (4839/4839 id); luật: M1
+2	quality	quality	int	neo: cột gốc 2, khớp 100.0% (4839/4839 id); luật: M1
+3	type	type	int	neo: cột gốc 3, khớp 100.0% (4838/4839 id); luật: M1
+4	Medindex	medindex	int	neo: cột gốc 4, khớp 100.0% (4837/4839 id); luật: M1
+5	资源	resource_id	text	neo: cột gốc 5, khớp 99.3% (4804/4839 id); luật: nguyên văn
+6	name$1$	name	text	neo: cột gốc 6, khớp 98.1% (4746/4839 id); luật: M1
+7		column_7	text	mới ở 2026
+8	等级	level	int	neo: cột gốc 8, khớp 99.9% (4832/4839 id); luật: nguyên văn
+9	基本价格	base_price	int	neo: cột gốc 9, khớp 99.0% (4789/4839 id); luật: nguyên văn
+10	出售价格	sale_price	int	neo: cột gốc 10, khớp 98.9% (4788/4839 id); luật: nguyên văn
+11	适应规则	fit_rules	int	neo: cột gốc 11, khớp 96.4% (4665/4839 id); luật: nguyên văn
+12		column_12	int	mới ở 2026
+13		column_13	int	mới ở 2026
+14		column_14	int	mới ở 2026
+15	需求技能	required_skill	int	neo: cột gốc 16, khớp 99.3% (4806/4839 id); luật: nguyên văn
+16	需求技能等级	required_skill_level	int	neo: cột gốc 17, khớp 100.0% (4838/4839 id); luật: nguyên văn
+17	最大持有数量	max_owned	int	neo: cột gốc 18, khớp 99.9% (4833/4839 id); luật: nguyên văn
+18	选择对象类型	target_object_type	int	neo: cột gốc 19, khớp 99.3% (4806/4839 id); luật: nguyên văn
+19	类型描述$1$	type_description	text	neo: cột gốc 20, khớp 98.0% (4743/4839 id); luật: nguyên văn
+20	档次等级	grade	int	neo: cột gốc 21, khớp 99.9% (4834/4839 id); luật: nguyên văn
+21	配方id	recipe_id	int	neo: cột gốc 22, khớp 99.3% (4807/4839 id); luật: nguyên văn
+22	颜色	color	int	nội suy: cột gốc 23, khớp 99.8% (4830/4839 id); luật: nguyên văn
+23	SubClass	sub_class	int	neo: cột gốc 24, khớp 100.0% (4839/4839 id); luật: M1
+24		column_24	int	mới ở 2026
+25		column_25	int	mới ở 2026
+26		column_26	int	mới ở 2026
+27	是否消耗	is_consumed	int	chéo: cột gốc 15, khớp 100.0% (4839/4839 id); luật: nguyên văn

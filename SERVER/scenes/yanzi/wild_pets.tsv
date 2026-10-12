@@ -1,0 +1,5 @@
+# schema 1
+# source: Public/Scene/yanzi_pet.ini
+# tool: TOOLS/server/export_scene.py; sửa tay sẽ mất ở lượt xuất sau
+# types: int	int	text	float	float	int	int
+guid	type	name	position_x	position_z	respawn_time	ai_file

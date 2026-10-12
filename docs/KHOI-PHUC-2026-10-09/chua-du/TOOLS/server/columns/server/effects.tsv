@@ -1,0 +1,81 @@
+# schema 1
+# source: server_config/StandardImpact.txt
+# tool: TOOLS/server/import_legacy.py; sửa tay sẽ mất ở lượt xuất sau
+# types: int	text	text	text	text
+index	original	name	type	note
+0	Data_Index	data_index	int	luật: M1
+1	效果名称$1$	effect_name	text	luật: nguyên văn
+2	逻辑ID	logic_id	int	luật: nguyên văn
+3	逻辑ID的说明	logic_description	text	luật: nguyên văn
+4	是否是持续性效果	is_persistent	int	luật: nguyên văn
+5	瞬发效果ID/驻留效果ID	effect_id	int	luật: nguyên văn
+6	分类ID（专门用于识别某一类BUFF）	category_id	int	luật: nguyên văn
+7	互斥ID(效果互相替换用)	mutex_id	int	luật: nguyên văn
+8	互斥优先级	mutex_priority	int	luật: nguyên văn
+9	影响性质	effect_nature	int	luật: nguyên văn
+10	死后是否保留	keep_after_death	int	luật: nguyên văn
+11	是否可以被技能驱散	can_dispel	int	luật: nguyên văn
+12	是否可以被手动取消	can_cancel	int	luật: nguyên văn
+13	是否需要引导支持	needs_channel	int	luật: nguyên văn
+14	是否是直通效果	is_passthrough	int	luật: nguyên văn
+15	受到伤害时是否消失	fade_on_damage	int	luật: nguyên văn
+16	开始动作时是否消失	fade_on_action	int	luật: nguyên văn
+17	开始移动时是否消失	fade_on_move	int	luật: nguyên văn
+18	下线就消失否	fade_on_logout	int	luật: nguyên văn
+19	下线仍然计时否	keeps_timing_offline	int	luật: nguyên văn
+20	总持续时间(毫秒)	duration_ms	int	luật: nguyên văn
+21	发作时间间隔(毫秒)	activate_interval_ms	int	luật: nguyên văn
+22	互斥规则是否参考制造者ID	mutex_checks_caster	int	luật: nguyên văn
+23	是否需要装备支持	needs_equipment	int	luật: nguyên văn
+24	装备的ItemIndex	required_item_index	int	luật: nguyên văn
+25	禁止反射	block_reflect	int	luật: nguyên văn
+26	禁止吸收	block_absorb	int	luật: nguyên văn
+27	参数1说明	parameter_1_description	text	luật: nguyên văn
+28	参数值	parameter_value_1	text	luật: nguyên văn
+29	修正步长	modifier_step_1	text	luật: nguyên văn
+30	参数2说明	parameter_2_description	text	luật: nguyên văn
+31	参数值	parameter_value_2	text	luật: nguyên văn
+32	修正步长	modifier_step_2	text	luật: nguyên văn
+33	参数3说明	parameter_3_description	text	luật: nguyên văn
+34	参数值	parameter_value_3	text	luật: nguyên văn
+⟪thiếu dòng này⟫
+⟪thiếu dòng này⟫
+⟪thiếu dòng này⟫
+⟪thiếu dòng này⟫
+⟪thiếu dòng này⟫
+⟪thiếu dòng này⟫
+⟪thiếu dòng này⟫
+⟪thiếu dòng này⟫
+⟪thiếu dòng này⟫
+⟪thiếu dòng này⟫
+⟪thiếu dòng này⟫
+⟪thiếu dòng này⟫
+⟪thiếu dòng này⟫
+⟪thiếu dòng này⟫
+⟪thiếu dòng này⟫
+⟪thiếu dòng này⟫
+⟪thiếu dòng này⟫
+⟪thiếu dòng này⟫
+⟪thiếu dòng này⟫
+⟪thiếu dòng này⟫
+⟪thiếu dòng này⟫
+⟪thiếu dòng này⟫
+⟪thiếu dòng này⟫
+⟪thiếu dòng này⟫
+⟪thiếu dòng này⟫
+⟪thiếu dòng này⟫
+⟪thiếu dòng này⟫
+⟪thiếu dòng này⟫
+⟪thiếu dòng này⟫
+⟪thiếu dòng này⟫
+⟪thiếu dòng này⟫
+⟪thiếu dòng này⟫
+⟪thiếu dòng này⟫
+⟪thiếu dòng này⟫
+⟪thiếu dòng này⟫
+⟪thiếu dòng này⟫
+⟪thiếu dòng này⟫
+⟪thiếu dòng này⟫
+⟪thiếu dòng này⟫
+⟪thiếu dòng này⟫
+⟪thiếu dòng này⟫

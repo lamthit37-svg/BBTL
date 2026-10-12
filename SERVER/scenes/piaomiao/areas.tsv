@@ -1,0 +1,12 @@
+# schema 1
+# source: Public/Scene/piaomiao_area.ini
+# tool: TOOLS/server/export_scene.py; sửa tay sẽ mất ở lượt xuất sau
+# types: int	int	float	float	float	float
+guid	script_id	left	top	right	bottom
+0	402046	123.0000	170.0000	127.0000	173.0000
+1	-1	112.0000	27.0000	116.0000	31.0000
+2	-1	134.0000	27.0000	138.0000	31.0000
+3	-1	145.0000	46.0000	149.0000	50.0000
+4	-1	134.0000	65.0000	138.0000	69.0000
+5	-1	112.0000	65.0000	116.0000	69.0000
+6	-1	101.0000	46.0000	105.0000	50.0000

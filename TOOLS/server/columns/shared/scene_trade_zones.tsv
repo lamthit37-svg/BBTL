@@ -1,0 +1,9 @@
+# schema 1
+# source: client_2026/LogicSceneAttr.txt
+# tool: TOOLS/server/export_tables.py; sửa tay sẽ mất ở lượt xuất sau
+# types: int	text	text	text	text
+index	original	name	type	note
+0	场景ID	scene_id_1	int	luật: nguyên văn; khớp 100.0% (219/219 id)
+1	Name$1$	name	text	luật: M1; khớp 100.0% (219/219 id)
+2	场景ID	scene_id_2	int	luật: nguyên văn; khớp 100.0% (219/219 id)
+3	所属商区	trade_zone	int	luật: nguyên văn; khớp 100.0% (219/219 id)

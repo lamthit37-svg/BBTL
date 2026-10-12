@@ -1,0 +1,83 @@
+---
+F:\tl 2026\THIENLONG\SRC\gpu\d3d12\commands.cpp:77:6: error: function 'copy_one' exceeds recommended size/complexity thresholds [readability-function-size,-warnings-as-errors]
+   77 | void copy_one(ID3D12GraphicsCommandList7* list, const Buffer& buffer, const Texture& texture,
+      |      ^
+F:\tl 2026\THIENLONG\SRC\gpu\d3d12\commands.cpp:77:6: note: 6 parameters (threshold 5)
+F:\tl 2026\THIENLONG\SRC\gpu\d3d12\commands.cpp:77:55: error: no header providing "game::gpu::d3d12::Buffer" is directly included [misc-include-cleaner,-warnings-as-errors]
+   77 | void copy_one(ID3D12GraphicsCommandList7* list, const Buffer& buffer, const Texture& texture,
+      |                                                       ^
+F:\tl 2026\THIENLONG\SRC\gpu\d3d12\commands.cpp:79:16: error: no header providing "std::uint64_t" is directly included [misc-include-cleaner,-warnings-as-errors]
+   79 |     const std::uint64_t slice = std::uint64_t{region.rows} * region.row_bytes;
+      |                ^
+F:\tl 2026\THIENLONG\SRC\gpu\d3d12\commands.cpp:80:5: error: no header providing "D3D12_TEXTURE_COPY_LOCATION" is directly included [misc-include-cleaner,-warnings-as-errors]
+   80 |     D3D12_TEXTURE_COPY_LOCATION footprint{};
+---
+F:\tl 2026\THIENLONG\SRC\gpu\d3d12\commands.cpp:125:6: error: function 'texture_barrier' exceeds recommended size/complexity thresholds [readability-function-size,-warnings-as-errors]
+  125 | void texture_barrier(ID3D12GraphicsCommandList7* list, ID3D12Resource* resource, UINT mip,
+      |      ^
+F:\tl 2026\THIENLONG\SRC\gpu\d3d12\commands.cpp:125:6: note: 10 parameters (threshold 5)
+F:\tl 2026\THIENLONG\SRC\gpu\d3d12\commands.cpp:125:56: error: no header providing "ID3D12Resource" is directly included [misc-include-cleaner,-warnings-as-errors]
+  125 | void texture_barrier(ID3D12GraphicsCommandList7* list, ID3D12Resource* resource, UINT mip,
+      |                                                        ^
+F:\tl 2026\THIENLONG\SRC\gpu\d3d12\commands.cpp:126:17: error: 2 adjacent parameters of 'texture_barrier' of similar type ('D3D12_BARRIER_SYNC') are easily swapped by mistake [bugprone-easily-swappable-parameters,-warnings-as-errors]
+  126 |     UINT layer, D3D12_BARRIER_SYNC sync_before, D3D12_BARRIER_SYNC sync_after,
+      |                 ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+F:\tl 2026\THIENLONG\SRC\gpu\d3d12\commands.cpp:126:36: note: the first parameter in the range is 'sync_before'
+  126 |     UINT layer, D3D12_BARRIER_SYNC sync_before, D3D12_BARRIER_SYNC sync_after,
+---
+F:\tl 2026\THIENLONG\SRC\gpu\d3d12\commands.cpp:144:29: error: function 'make_resolve' exceeds recommended size/complexity thresholds [readability-function-size,-warnings-as-errors]
+  144 | Commands::Resolve Commands::make_resolve(const View& view, const View& resolved,
+      |                             ^
+F:\tl 2026\THIENLONG\SRC\gpu\d3d12\commands.cpp:144:29: note: 6 parameters (threshold 5)
+F:\tl 2026\THIENLONG\SRC\gpu\d3d12\commands.cpp:144:48: error: no header providing "game::gpu::d3d12::View" is directly included [misc-include-cleaner,-warnings-as-errors]
+  144 | Commands::Resolve Commands::make_resolve(const View& view, const View& resolved,
+      |                                                ^
+F:\tl 2026\THIENLONG\SRC\gpu\d3d12\commands.cpp:163:9: error: no header providing "D3D12_BARRIER_SYNC_RENDER_TARGET" is directly included [misc-include-cleaner,-warnings-as-errors]
+  163 |         D3D12_BARRIER_SYNC_RENDER_TARGET, D3D12_BARRIER_SYNC_RESOLVE,
+      |         ^
+F:\tl 2026\THIENLONG\SRC\gpu\d3d12\commands.cpp:163:43: error: no header providing "D3D12_BARRIER_SYNC_RESOLVE" is directly included [misc-include-cleaner,-warnings-as-errors]
+  163 |         D3D12_BARRIER_SYNC_RENDER_TARGET, D3D12_BARRIER_SYNC_RESOLVE,
+---
+F:\tl 2026\THIENLONG\SRC\gpu\d3d12\commands.cpp:423:16: error: function 'fill_color' has cognitive complexity of 15 (threshold 10) [readability-function-cognitive-complexity,-warnings-as-errors]
+  423 | bool Commands::fill_color(const ColorTarget& target, UINT slot) {
+      |                ^
+F:\tl 2026\THIENLONG\SRC\gpu\d3d12\commands.cpp:424:5: note: +1, including nesting penalty of 0, nesting level increased to 1
+  424 |     if (!target.view) reject(fail(kBad, "begin_rendering: attachment m├áu trß╗æng"));
+      |     ^
+F:\tl 2026\THIENLONG\SRC\gpu\d3d12\commands.cpp:425:5: note: +1, including nesting penalty of 0, nesting level increased to 1
+  425 |     if (!target.view) return false;
+      |     ^
+F:\tl 2026\THIENLONG\SRC\gpu\d3d12\commands.cpp:427:5: note: +1, including nesting penalty of 0, nesting level increased to 1
+  427 |     if (view == nullptr) return false;
+      |     ^
+---
+F:\tl 2026\THIENLONG\SRC\gpu\d3d12\commands.cpp:464:16: error: function 'begin_rendering' exceeds recommended size/complexity thresholds [readability-function-size,-warnings-as-errors]
+  464 | void Commands::begin_rendering(const RenderingDesc& desc) {
+      |                ^
+F:\tl 2026\THIENLONG\SRC\gpu\d3d12\commands.cpp:464:16: note: 43 lines including whitespace and comments (threshold 40)
+---
+F:\tl 2026\THIENLONG\SRC\gpu\d3d12\commands.cpp:464:16: error: function 'begin_rendering' has cognitive complexity of 25 (threshold 10) [readability-function-cognitive-complexity,-warnings-as-errors]
+  464 | void Commands::begin_rendering(const RenderingDesc& desc) {
+      |                ^
+F:\tl 2026\THIENLONG\SRC\gpu\d3d12\commands.cpp:465:5: note: +1, including nesting penalty of 0, nesting level increased to 1
+  465 |     if (!live()) return;
+      |     ^
+F:\tl 2026\THIENLONG\SRC\gpu\d3d12\commands.cpp:466:41: note: +1
+  466 |     const bool is_free = !is_rendering_ && queue_ == QueueType::kGraphics;
+      |                                         ^
+F:\tl 2026\THIENLONG\SRC\gpu\d3d12\commands.cpp:467:5: note: +1, including nesting penalty of 0, nesting level increased to 1
+  467 |     if (!is_free) return reject(fail(kState, "begin_rendering lß╗ông nhau hoß║╖c ngo├ái h├áng Graphics"));
+      |     ^
+---
+F:\tl 2026\THIENLONG\SRC\gpu\d3d12\commands.cpp:574:16: error: function 'bind_group' has cognitive complexity of 14 (threshold 10) [readability-function-cognitive-complexity,-warnings-as-errors]
+  574 | void Commands::bind_group(std::uint32_t space, BindGroupHandle group) {
+      |                ^
+F:\tl 2026\THIENLONG\SRC\gpu\d3d12\commands.cpp:575:5: note: +1, including nesting penalty of 0, nesting level increased to 1
+  575 |     if (!live()) return;
+      |     ^
+F:\tl 2026\THIENLONG\SRC\gpu\d3d12\commands.cpp:576:5: note: +1, including nesting penalty of 0, nesting level increased to 1
+  576 |     if (pipeline_.state == nullptr) return reject(fail(kState, "bind_group: ch╞░a gß║»n pipeline"));
+      |     ^
+F:\tl 2026\THIENLONG\SRC\gpu\d3d12\commands.cpp:579:63: note: +1
+  579 |         found != nullptr && found->layout == pipeline_.layout && found->space == space;
+      |                                                               ^

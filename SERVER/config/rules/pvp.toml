@@ -1,0 +1,56 @@
+#==================================================
+# LUẬT ĐỐI KHÁNG
+#==================================================
+# Thách đấu, tuyên chiến, cờ PK, phản kích, điểm thiện ác và điểm cốt truyện.
+
+#==================================================
+# Chung
+#==================================================
+schema = 1   # Phiên bản bố cục của tệp; bộ đọc từ chối số nó không hiểu
+
+#==================================================
+# Thiện ác
+#==================================================
+[morality]
+minimum          = 0         # Điểm thiện ác nhỏ nhất.
+maximum          = 1000000   # Điểm thiện ác lớn nhất.
+min_level        = 20        # Cấp tối thiểu để nhận điểm thiện ác.
+ally_min_level   = 10        # Cấp đồng đội thấp nhất còn tính.
+ally_max_level   = 40        # Cấp đồng đội cao nhất còn tính.
+ally_level_gap   = 8         # Chênh cấp tối thiểu của đồng đội.
+radius           = 15        # Bán kính nhận điểm thiện ác.
+apprentice_bonus = 3         # Điểm thêm cho mỗi đồ đệ hợp lệ.
+death_penalty    = 100       # Điểm mất khi đồng đội chết.
+
+#==================================================
+# Điểm cốt truyện
+#==================================================
+[story]
+minimum = 0      # Điểm cốt truyện nhỏ nhất.
+maximum = 9999   # Điểm cốt truyện lớn nhất.
+
+#==================================================
+# Thách đấu
+#==================================================
+[duel]
+duration_seconds = 600   # Thời lượng một trận thách đấu, giây.
+min_level        = 10    # Cấp tối thiểu để thách đấu.
+vigor_cost       = 100   # Hoạt lực cần để thách đấu.
+
+#==================================================
+# Tuyên chiến
+#==================================================
+[warfare]
+personal_duration = 600   # Thời lượng tuyên chiến cá nhân.
+
+#==================================================
+# Cờ PK
+#==================================================
+[pk]
+hostile_warning = 30   # Thời gian cảnh báo người chơi thù địch.
+
+#==================================================
+# Phản kích
+#==================================================
+[fight_back]
+legal_duration = 600   # Thời lượng phản kích hợp lệ.

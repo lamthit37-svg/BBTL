@@ -1,0 +1,3 @@
+# b-or-chan-dem-tu-kiem.log — chạy XANH 2026-10-08 15:07:54, Hoon; building_oracle.py sha A82AFED94A1EBF7FCEE3402E4388A9FA8E4C5F275895B7DB3B4909C11AF8A24A (sau vá)
+$ python -B -W error TOOLS/port/building_oracle.py self-test   (mã thoát 0)
+tß╗▒ kiß╗âm: ─æß╗ïnh dß║íng hex, chß║╖n ├┤ ch╞░a c├│ chß╗» k├╜, chß║╖n ─æß╗çm lß╗¢p new, tiß║┐n tr├¼nh con, 4 tß╗çp tß╗▒ vß║╜ ─æß╗ìc ─æ╞░ß╗úc, 2 hß╗Öp x 2000 truy vß║Ñn o3 (tß║Ñt ─æß╗ïnh theo hß║ít): 0 lß╗ùi

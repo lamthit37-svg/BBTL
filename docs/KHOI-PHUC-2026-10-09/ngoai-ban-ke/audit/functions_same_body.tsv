@@ -1,0 +1,78 @@
+module	file	line	name	body_lines	body_hash	params
+client	SRC/client/map/picture.cpp	67	write_pixel	6	0dbe5cf8dcf0	Picture& picture, std::size_t pixel, Rgb color, bool is_hole
+map	SRC/map/picture.cpp	57	write_pixel	6	0dbe5cf8dcf0	Picture& picture, std::size_t pixel, Rgb color, bool is_hole
+gpu	SRC/gpu/d3d11/convert.cpp	339	to_index	5	11ec8995d7d4	IndexType value
+gpu	SRC/gpu/d3d12/convert.cpp	416	to_index	5	11ec8995d7d4	IndexType value
+client	SRC/client/map/ground.cpp	65	load_scene_ground	6	13cdbd3511e6	const std::filesystem::path& scene_file
+map	SRC/map/ground.cpp	62	load_scene_ground	6	13cdbd3511e6	const std::filesystem::path& scene_file
+client	SRC/client/viewer/viewer_win32.cpp	65	note_event	3	18c2db0674b7	const Frame& frame, const window::Event& event
+client	SRC/client/viewer_win32.cpp	54	note_event	3	18c2db0674b7	const Frame& frame, const window::Event& event
+gpu	SRC/gpu/d3d11/convert.cpp	224	to_dxgi	3	1fe0412f665d	Format format
+gpu	SRC/gpu/d3d12/convert.cpp	289	to_dxgi	3	1fe0412f665d	Format format
+core	SRC/core/clock.cpp	214	this_tid	5	2ea090fdc030	
+core	SRC/core/thread_posix.cpp	100	this_tid	5	2ea090fdc030	
+client	SRC/client/map/terrain.cpp	234	describe	9	36079ce06905	MapError error
+map	SRC/map/terrain.cpp	206	describe	9	36079ce06905	MapError error
+client	SRC/client/map/picture.cpp	44	range_of	9	4826f9b6f6c9	const HeightField& heights
+map	SRC/map/picture.cpp	36	range_of	9	4826f9b6f6c9	const HeightField& heights
+client	SRC/client/viewer/viewer_win32.cpp	518	report	11	4ad5156ed7e4	const Session& session
+client	SRC/client/viewer_win32.cpp	109	report	11	4ad5156ed7e4	const Session& session
+client	SRC/client/display/display_gpu.cpp	925	shot_format	8	4bd4602b9644	gpu::Format colour
+client	SRC/client/display_gpu.cpp	236	shot_format	8	4bd4602b9644	gpu::Format colour
+client	SRC/client/display/display_gpu.cpp	937	shot_barrier	9	4be5005d914f	gpu::CommandList& list, const gpu::TextureHandle& texture, bool to_copy
+client	SRC/client/display_gpu.cpp	248	shot_barrier	9	4be5005d914f	gpu::CommandList& list, const gpu::TextureHandle& texture, bool to_copy
+gpu	SRC/gpu/gles/context_egl.cpp	53	copy_string	3	51a3434e57ad	const GlFunctions& api, std::uint32_t name
+gpu	SRC/gpu/gles/context_wgl.cpp	148	copy_string	3	51a3434e57ad	const GlFunctions& api, std::uint32_t name
+client	SRC/client/map/picture.cpp	124	minimap_area	6	554ff0c3c49e	float root_width
+map	SRC/map/picture.cpp	105	minimap_area	6	554ff0c3c49e	float root_width
+client	SRC/client/stage.cpp	20	take_prop	6	58c8398ebf42	Stage& stage, const scene::Object& object
+client	SRC/client/stage/stage.cpp	20	take_prop	6	58c8398ebf42	Stage& stage, const scene::Object& object
+gpu	SRC/gpu/gles/context_egl.cpp	59	integer_of	3	5d19fb374ff6	const GlFunctions& api, std::uint32_t name
+gpu	SRC/gpu/gles/context_wgl.cpp	166	integer_of	3	5d19fb374ff6	const GlFunctions& api, std::uint32_t name
+client	SRC/client/map/sheet.cpp	87	span_of	9	64f9382f20c7	const HeightField& heights
+map	SRC/map/sheet.cpp	65	span_of	9	64f9382f20c7	const HeightField& heights
+client	SRC/client/stage.cpp	58	stage_of	4	662c2df3ed65	const scene::SceneFile& file
+client	SRC/client/stage/stage.cpp	71	stage_of	4	662c2df3ed65	const scene::SceneFile& file
+client	SRC/client/stage.cpp	41	take_ambient	3	796c8736be1e	Stage& stage, const scene::Object& object
+client	SRC/client/stage/stage.cpp	41	take_ambient	3	796c8736be1e	Stage& stage, const scene::Object& object
+client	SRC/client/display/player.cpp	33	read_table	3	7e46a751f56d	const std::string& path
+tests	tests/avatar_data_tests.cpp	34	read_table	3	7e46a751f56d	const std::string& path
+shader	SRC/shader/compiler.cpp	65	stage_define	3	861710144d86	Stage stage
+shader	SRC/shader/dxbc.cpp	69	stage_define	3	861710144d86	Stage stage
+gpu	SRC/gpu/gles/context_egl.cpp	95	on_debug	7	8efc4c6bdaca	U32, U32 type, U32, U32 severity, I32, CString message, UserData user
+gpu	SRC/gpu/gles/context_wgl.cpp	207	on_debug	7	8efc4c6bdaca	U32, U32 type, U32, U32 severity, I32, CString message, UserData user
+client	SRC/client/stage.cpp	30	take_sun	8	93962fbb5293	Stage& stage, const scene::Object& object
+client	SRC/client/stage/stage.cpp	30	take_sun	8	93962fbb5293	Stage& stage, const scene::Object& object
+shader	SRC/shader/compiler.cpp	146	is_builtin	3	9baca57be42e	std::string_view path
+shader	SRC/shader/dxbc.cpp	132	is_builtin	3	9baca57be42e	std::string_view path
+client	SRC/client/map/terrain.cpp	46	place_from_scale	3	a1d48af9caf7	TerrainFile& file
+map	SRC/map/terrain.cpp	39	place_from_scale	3	a1d48af9caf7	TerrainFile& file
+client	SRC/client/map/ground.cpp	57	load_ground	5	ab13be53639e	FolderPath folder, std::string_view terrain_file
+map	SRC/map/ground.cpp	54	load_ground	5	ab13be53639e	const std::filesystem::path& folder, std::string_view terrain_file
+tests	tests/props_tests.cpp	46	is_near	3	ac13d3f48484	const Point& left, const Point& right, double tolerance
+tests	tests/transform_tests.cpp	26	is_near	3	ac13d3f48484	const Point& left, const Point& right, double tolerance
+core	SRC/core/thread.cpp	113	all_cpus	6	b981451ae683	
+core	SRC/core/thread_posix.cpp	108	all_cpus	6	b981451ae683	
+client	SRC/client/map/terrain.cpp	151	add_pixmap	16	bad4fc206f9e	TerrainFile& file, const xml::Element& element
+map	SRC/map/terrain.cpp	132	add_pixmap	16	bad4fc206f9e	TerrainFile& file, const xml::Element& element
+gpu	SRC/gpu/d3d11/convert.cpp	243	depth_srv_format	6	c3afa7a128b9	Format format, ViewAspect aspect
+gpu	SRC/gpu/d3d12/convert.cpp	308	depth_srv_format	6	c3afa7a128b9	Format format, ViewAspect aspect
+gpu	SRC/gpu/d3d11/convert.cpp	230	from_dxgi	3	cfcc4a8fad29	DXGI_FORMAT format
+gpu	SRC/gpu/d3d12/convert.cpp	295	from_dxgi	3	cfcc4a8fad29	DXGI_FORMAT format
+gpu	SRC/gpu/vulkan/convert.cpp	204	from_vk	3	cfcc4a8fad29	VkFormat format
+client	SRC/client/viewer/viewer_win32.cpp	72	step	5	d81faa786257	window::Window& opened, Display& display, LoopStats& stats
+client	SRC/client/viewer_win32.cpp	61	step	5	d81faa786257	window::Window& opened, Display& display, LoopStats& stats
+gpu	SRC/gpu/d3d11/convert.cpp	327	to_topology	9	dc9ff456f9ef	Topology value
+gpu	SRC/gpu/d3d12/convert.cpp	392	to_topology	9	dc9ff456f9ef	Topology value
+gpu	SRC/gpu/d3d11/convert.cpp	236	typeless_format	4	e085ae9543c7	DXGI_FORMAT format
+gpu	SRC/gpu/d3d12/convert.cpp	301	typeless_format	4	e085ae9543c7	DXGI_FORMAT format
+client	SRC/client/display/display_gpu.cpp	286	world_of	8	e5280779f2bf	const scene::Transform& placed
+client	SRC/client/display_gpu.cpp	148	world_of	8	e5280779f2bf	const scene::Transform& placed
+gpu	SRC/gpu/vulkan/device.cpp	90	has_extension	4	fb2ffef19a17	ExtensionList list, std::string_view name
+gpu	SRC/gpu/vulkan/instance.cpp	71	has_extension	4	fb2ffef19a17	ExtensionList list, std::string_view name
+client	SRC/client/display/display_gpu.cpp	300	light_of	10	fb85db75dd6e	const Stage& stage
+client	SRC/client/display_gpu.cpp	162	light_of	10	fb85db75dd6e	const Stage& stage
+client	SRC/client/viewer/viewer_win32.cpp	503	pump_until_done	11	fccd219cd877	Session& session
+client	SRC/client/viewer_win32.cpp	94	pump_until_done	11	fccd219cd877	Session& session
+client	SRC/client/map/picture.cpp	98	shade_of	7	fe5ec53c1853	float height, float low, float high
+map	SRC/map/picture.cpp	68	shade_of	7	fe5ec53c1853	float height, float low, float high

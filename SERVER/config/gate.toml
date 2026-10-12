@@ -1,0 +1,48 @@
+#==================================================
+# CẤU HÌNH CỔNG CÔNG KHAI (GATE)
+#==================================================
+# Tệp: gate.toml. Chỉ tiến trình gate đọc tệp này.
+# Gate là cổng công khai duy nhất: client nối vào đây, mọi tiến trình khác nằm phía sau. Máy này
+# là máy chủ thử online nên gate nghe mọi giao diện mạng, để máy khác trong LAN nối được.
+# "Số tạm" là số chưa có phép đo.
+
+#==================================================
+# Chung
+#==================================================
+schema            = 1                             # Phiên bản bố cục của tệp; bộ đọc từ chối số nó không hiểu
+identity_key_file = "../data/gate/identity.key"   # Khoá danh tính của máy chủ; mất là client phải cài lại
+trusted_proxies   = []                            # Proxy được tin để đọc IP thật của client; rỗng là không có
+
+#==================================================
+# Cổng nghe
+#==================================================
+# "0.0.0.0" là nghe mọi giao diện mạng.
+[listen]
+game = "0.0.0.0:7000"   # Cổng chơi game: client đã có vé nối vào đây
+auth = "0.0.0.0:7001"   # Cổng xác thực: đăng ký, đăng nhập lấy vé; mật khẩu chỉ đi qua đây
+
+#==================================================
+# Trần chống lạm dụng
+#==================================================
+# Kết nối vượt trần bị từ chối hoặc bị ngắt.
+[limits]
+max_connections      = 2000   # Tổng số kết nối client cùng lúc (số tạm)
+per_ip_connections   = 8      # Số kết nối cùng lúc từ một địa chỉ IP (số tạm)
+handshake_timeout_ms = 5000   # Hạn xong bắt tay bảo mật, mili giây; quá hạn thì ngắt (số tạm)
+idle_timeout_ms      = 10000  # Hạn im lặng sau bắt tay, mili giây; quá hạn thì ngắt (số tạm)
+client_frame_bytes   = 4096   # Số byte tối đa của thân một tin từ client
+messages_per_second  = 60     # Số tin tối đa mỗi giây của một client; vượt thì ngắt (số tạm)
+
+#==================================================
+# Bản client
+#==================================================
+[client]
+min_version = 1   # Phiên bản protocol thấp nhất được vào; thấp hơn bị từ chối
+
+#==================================================
+# Lọc địa chỉ IP
+#==================================================
+# Dải địa chỉ viết dạng CIDR, ví dụ "192.168.1.0/24".
+[ip_filter]
+allow = []   # Dải được nối; rỗng là mọi địa chỉ đều được nối
+deny  = []   # Dải bị từ chối; xét trước allow

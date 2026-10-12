@@ -1,0 +1,10 @@
+# schema 1
+# source: Public/Scene/bashu_3_growpoint.txt
+# tool: TOOLS/server/export_scene.py; sửa tay sẽ mất ở lượt xuất sau
+# types: int	int	float	float
+point_id	grow_point_type	position_x	position_y
+1	620	50.9267	93.1680
+2	620	30.0347	66.4726
+3	620	59.5394	19.9691
+4	620	88.0700	46.0768
+5	620	15.3585	95.8298

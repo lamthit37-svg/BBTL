@@ -1,0 +1,13 @@
+# schema 1
+# source: server_config/boxdroplist*.txt (35 tệp)
+# tool: TOOLS/server/import_legacy.py; sửa tay sẽ mất ở lượt xuất sau
+# types: int	text	text	text	text
+index	original	name	type	note
+0		box_key	text	cột gộp
+1	index	index	int	luật: M1
+2	ItemID	item_id	int	luật: M1
+3	Rate	rate	int	luật: M1
+4	Notice	notice	int	luật: M1
+5	Reserve1	reserve_1	int	luật: M1
+6	Reserve2	reserve_2	int	luật: M1
+7	Reserve3	reserve_3	int	luật: M1

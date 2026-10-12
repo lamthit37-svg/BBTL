@@ -1,0 +1,10 @@
+# schema 1
+# source: Public/Scene/huanglong_area.ini
+# tool: TOOLS/server/export_scene.py; sửa tay sẽ mất ở lượt xuất sau
+# types: int	int	float	float	float	float
+guid	script_id	left	top	right	bottom
+0	400043	45.0000	286.0000	52.0000	293.0000
+0	400146	199.0000	254.0000	202.0000	258.0000
+2312	-1	17.0000	96.0000	52.0000	128.0000
+2311	-1	98.0000	65.0000	118.0000	86.0000
+2313	-1	283.0000	66.0000	292.0000	74.0000

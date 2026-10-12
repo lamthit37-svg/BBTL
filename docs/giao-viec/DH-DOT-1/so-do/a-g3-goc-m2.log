@@ -1,0 +1,8 @@
+lệnh: python -B TOOLS/port/make_building_file.py write build/dh-a/g3-vao/m2.WCollision --version 2 --empty
+thư mục: F:\tl 2026\THIENLONG\build\dh-dot-1
+bắt đầu: 2026-10-08 14:08:39
+---
+m2.WCollision: 32 byte, mã 0xFF000002, đọc 32, ô 0, tam giác 0, khối 0, bản đặt 0
+---
+mã thoát: 0
+kết thúc: 2026-10-08 14:08:39

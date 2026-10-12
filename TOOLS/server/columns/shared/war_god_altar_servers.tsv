@@ -1,0 +1,6 @@
+# schema 1
+# source: client_2026/WuShenTanSvr.txt
+# tool: TOOLS/server/export_tables.py; sửa tay sẽ mất ở lượt xuất sau
+# types: int	text	text	text	text
+index	original	name	type	note
+0		column_0	int	không có bản đối chiếu

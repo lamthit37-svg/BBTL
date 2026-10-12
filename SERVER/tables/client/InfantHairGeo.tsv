@@ -1,0 +1,23 @@
+# schema 1
+# source: client_2026/InfantHairGeo.txt
+# tool: TOOLS/server/export_client_rest.py; sửa tay sẽ mất ở lượt xuất sau
+# types: int	int	text	int	int	int	text
+column_0	column_1	column_2	column_3	column_4	column_5	column_6
+0	0	童趣发	2000000	-1	50000	Girl_hair1_2
+1	1	童趣发	2000000	-1	50000	Boy_hair1_2
+2	0	华贵发	2000001	38001021	50000	Girl_hair1_3
+3	1	华贵发	2000001	38001021	50000	Boy_hair1_3
+4	0	岚云发	2000002	38001021	50000	Girl_hair1_4
+5	1	岚云发	2000002	38001021	50000	Boy_hair1_4
+6	0	仙侣发	2000003	38001021	50000	Girl_hair1_5
+7	1	仙侣发	2000003	38001021	50000	Boy_hair1_5
+8	0	唯我发	2000004	38001021	50000	Girl_hair1_6
+9	1	唯我发	2000004	38001021	50000	Boy_hair1_6
+10	0	逸轻发	2000005	38001021	50000	Girl_hair1_7
+11	1	逸轻发	2000005	38001021	50000	Boy_hair1_7
+12	0	伶俐发	2000006	38001021	50000	Girl_hair1_11
+13	1	伶俐发	2000006	38001021	50000	Boy_hair1_11
+14	0	文雅发	2000007	38001021	50000	Girl_hair1_8
+15	1	文雅发	2000007	38001021	50000	Boy_hair1_8
+16	0	熊仔帽	2000008	38001021	50000	Girl_hair1_9
+17	1	熊仔帽	2000008	38001021	50000	Boy_hair1_9

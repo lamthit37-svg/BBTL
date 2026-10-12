@@ -1,0 +1,24 @@
+# 2026-10-08 09:20:44  Lệnh: python -B check.py tests/bench/protocol_bench.cpp tests/bench/net_bench.cpp (2 tệp, không cần khoá), lượt 2 sau khi đổi sang fprintf và chạy clang-format
+Trình dịch g14: C:\Users\myhea\AppData\Local\Microsoft\WinGet\Packages\BrechtSanders.WinLibs.POSIX.UCRT_Microsoft.Winget.Source_8wekyb3d8bbwe\mingw64\bin\g++.EXE (gcc 16.2.0)
+Trình dịch c20: C:\Program Files\LLVM\bin\clang++.EXE (clang 23.1.2)
+clang-format: C:\Program Files\LLVM\bin\clang-format.EXE (23.1.2)
+clang-tidy: C:\Program Files\LLVM\bin\clang-tidy.EXE (LLVM (http://llvm.org/):)
+
+tests\bench\protocol_bench.cpp
+  ✓ clang-format
+  ✓ độ lồng <= 1 (PH-01)
+  ✓ biên dịch g14
+  ✓ biên dịch c20
+  ✗ clang-tidy
+      F:\tl 2026\THIENLONG\build\p2-dot-2\tests\bench\protocol_bench.cpp:184:5: error: an exception may be thrown in function 'main' which should not throw exceptions [bugprone-exception-escape,-warnings-as-errors]
+
+tests\bench\net_bench.cpp
+  ✓ clang-format
+  ✓ độ lồng <= 1 (PH-01)
+  ✓ biên dịch g14
+  ✓ biên dịch c20
+  ✗ clang-tidy
+      F:\tl 2026\THIENLONG\build\p2-dot-2\tests\bench\net_bench.cpp:282:5: error: an exception may be thrown in function 'main' which should not throw exceptions [bugprone-exception-escape,-warnings-as-errors]
+
+2 tệp, 2 lỗi.
+exit=1

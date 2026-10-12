@@ -1,0 +1,7 @@
+# schema 1
+# source: server_config/CreateQualityOfVaryPetTbl.txt
+# tool: TOOLS/server/import_legacy.py; sửa tay sẽ mất ở lượt xuất sau
+# types: int	text	text	text	text
+index	original	name	type	note
+0	质量	quality	int	luật: nguyên văn
+1	几率(10w)	chance_per_100000	int	luật: nguyên văn

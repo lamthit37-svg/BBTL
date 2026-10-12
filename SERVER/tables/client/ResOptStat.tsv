@@ -1,0 +1,16 @@
+# schema 1
+# source: client_2026/ResOptStat.txt
+# tool: TOOLS/server/export_client_rest.py; sửa tay sẽ mất ở lượt xuất sau
+# types: int	int	int
+column_0	column_1	column_2
+0	868	9139
+1	431	13613
+2	318	25009
+3	521	30607
+4	327	31680
+5	89	66189066
+6	373	10623
+7	38	6011
+8	243	10916
+9	663	7359
+10	216	15470

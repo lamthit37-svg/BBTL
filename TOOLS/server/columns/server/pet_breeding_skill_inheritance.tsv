@@ -1,0 +1,11 @@
+# schema 1
+# source: server_config/CreateSkillOfVaryPetTbl.txt
+# tool: TOOLS/server/import_legacy.py; sửa tay sẽ mất ở lượt xuất sau
+# types: int	text	text	text	text
+index	original	name	type	note
+0	父宠技能数	father_skill_count	int	luật: nguyên văn
+1	继承父宠技能数0(10W)	inherit_father_skill_0	int	luật: nguyên văn
+2	继承父宠技能数1	inherit_father_skill_1	int	luật: nguyên văn
+3	继承父宠技能数2	inherit_father_skill_2	int	luật: nguyên văn
+4	继承母宠技能数0	inherit_mother_skill_0	int	luật: nguyên văn
+5	继承母宠技能数1	inherit_mother_skill_1	int	luật: nguyên văn

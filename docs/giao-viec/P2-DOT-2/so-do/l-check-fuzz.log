@@ -1,0 +1,72 @@
+# 2026-10-08 02:20:39 -> 2026-10-08 02:20:53 check.py đủ bộ (có tidy) trên 9 tệp fuzz và bench của L, giữ NANG.lock; lần 1 ở l-check-fuzz-lan1.log
+> python -B ~/.claude/cpp23/tools/check.py tests/fuzz/targets.hpp tests/fuzz/mutator.hpp tests/bench/bench.hpp tests/protocol_fuzz_tests.cpp tests/fuzz/fuzz_frame.cpp tests/fuzz/fuzz_game_client.cpp tests/fuzz/fuzz_game_server.cpp tests/fuzz/fuzz_auth_client.cpp tests/fuzz/fuzz_auth_server.cpp
+Trình dịch g14: C:\Users\myhea\AppData\Local\Microsoft\WinGet\Packages\BrechtSanders.WinLibs.POSIX.UCRT_Microsoft.Winget.Source_8wekyb3d8bbwe\mingw64\bin\g++.EXE (gcc 16.2.0)
+Trình dịch c20: C:\Program Files\LLVM\bin\clang++.EXE (clang 23.1.2)
+clang-format: C:\Program Files\LLVM\bin\clang-format.EXE (23.1.2)
+clang-tidy: C:\Program Files\LLVM\bin\clang-tidy.EXE (LLVM (http://llvm.org/):)
+
+tests\fuzz\targets.hpp
+  ✓ clang-format
+  ✓ độ lồng <= 1 (PH-01)
+  ✓ biên dịch g14
+  ✓ biên dịch c20
+  ✓ clang-tidy
+
+tests\fuzz\mutator.hpp
+  ✓ clang-format
+  ✓ độ lồng <= 1 (PH-01)
+  ✓ biên dịch g14
+  ✓ biên dịch c20
+  ✓ clang-tidy
+
+tests\bench\bench.hpp
+  ✓ clang-format
+  ✓ độ lồng <= 1 (PH-01)
+  ✓ biên dịch g14
+  ✓ biên dịch c20
+  ✓ clang-tidy
+
+tests\protocol_fuzz_tests.cpp
+  ✓ clang-format
+  ✓ độ lồng <= 1 (PH-01)
+  ✓ biên dịch g14
+  ✓ biên dịch c20
+  ✓ clang-tidy
+
+tests\fuzz\fuzz_frame.cpp
+  ✓ clang-format
+  ✓ độ lồng <= 1 (PH-01)
+  ✓ biên dịch g14
+  ✓ biên dịch c20
+  ✓ clang-tidy
+
+tests\fuzz\fuzz_game_client.cpp
+  ✓ clang-format
+  ✓ độ lồng <= 1 (PH-01)
+  ✓ biên dịch g14
+  ✓ biên dịch c20
+  ✓ clang-tidy
+
+tests\fuzz\fuzz_game_server.cpp
+  ✓ clang-format
+  ✓ độ lồng <= 1 (PH-01)
+  ✓ biên dịch g14
+  ✓ biên dịch c20
+  ✓ clang-tidy
+
+tests\fuzz\fuzz_auth_client.cpp
+  ✓ clang-format
+  ✓ độ lồng <= 1 (PH-01)
+  ✓ biên dịch g14
+  ✓ biên dịch c20
+  ✓ clang-tidy
+
+tests\fuzz\fuzz_auth_server.cpp
+  ✓ clang-format
+  ✓ độ lồng <= 1 (PH-01)
+  ✓ biên dịch g14
+  ✓ biên dịch c20
+  ✓ clang-tidy
+
+9 tệp, 0 lỗi.
+exit 0

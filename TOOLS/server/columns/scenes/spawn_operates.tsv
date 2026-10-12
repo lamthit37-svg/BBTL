@@ -1,0 +1,10 @@
+# schema 1
+# source: Public/Scene
+# tool: TOOLS/server/export_scene.py; sửa tay sẽ mất ở lượt xuất sau
+# types: text	text	text	text	text
+index	original	name	type	note
+0		spawn_file	text	bảng quái mà luật áp vào
+1	selecttype	select_type	int	kiểu chọn quái
+2	selectvalue	select_value	text	giá trị chọn, giữ nguyên văn
+3	data_def	data_def	int	chỉ số vùng dữ liệu
+4	maxleft	max_left	int	số quái giữ lại

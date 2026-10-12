@@ -1,0 +1,8 @@
+libsodium 1.0.22 (ISC, © 2013-2026 Frank Denis). Văn bản giấy phép: upstream/LICENSE.
+Tập dịch được chép từ G:\TLBB\Dev\third_party\libsodium ngày 2026-10-06:
+upstream/src/libsodium, upstream/builds/msvc/version.h, upstream/LICENSE.
+Không chép cây autotools. Không sửa byte nguồn.
+Archive đầy đủ (jedisct1/libsodium 1.0.22-RELEASE) SHA-256:
+5838bb0c3da6148c24ebe531d1ed1297de9a87aea77d426bcd99f289e681631c
+Liên kết thư viện này (đo 2026-10-08): công cụ niêm asset (module seal, exe thienlong_seal) và
+module secure của máy chủ, qua gate và service tới bảy exe thienlong_*. Client game không liên kết.

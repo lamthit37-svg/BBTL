@@ -1,0 +1,13 @@
+# schema 1
+# source: Public/Scene/wushendong_2_monster_30.ini
+# tool: TOOLS/server/export_scene.py; sửa tay sẽ mất ở lượt xuất sau
+# types: text	int	int	int	text	text
+spawn_file	data_index	data_type	value_index	value	value_extra
+spawns.level_30.tsv	0	3	0	31	19
+spawns.level_30.tsv	0	3	1	40	21
+spawns.level_30.tsv	0	3	2	46	26
+spawns.level_30.tsv	0	3	3	48	27
+spawns.level_30.tsv	0	3	4	41	34
+spawns.level_30.tsv	0	3	5	39	37
+spawns.level_30.tsv	0	3	6	29	35
+spawns.level_30.tsv	0	3	7	23	40

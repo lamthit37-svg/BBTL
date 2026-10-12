@@ -1,0 +1,11 @@
+# schema 1
+# source: Public/Scene
+# tool: TOOLS/server/export_scene.py; sửa tay sẽ mất ở lượt xuất sau
+# types: text	text	text	text	text
+index	original	name	type	note
+0		spawn_file	text	bảng quái mà giá trị thuộc về
+1		data_index	int	chỉ số data_def
+2	datatype	data_type	int	kiểu dữ liệu của vùng
+3		value_index	int	chỉ số value
+4	value	value	text	mã 2008 đọc khoá value
+5	valueex	value_extra	text	mã 2008 không đọc; với toạ độ thì đây là trục còn lại

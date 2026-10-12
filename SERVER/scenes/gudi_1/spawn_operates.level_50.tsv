@@ -1,0 +1,6 @@
+# schema 1
+# source: Public/Scene/gudi_1_monster_50.ini
+# tool: TOOLS/server/export_scene.py; sửa tay sẽ mất ở lượt xuất sau
+# types: text	int	text	int	int
+spawn_file	select_type	select_value	data_def	max_left
+spawns.level_50.tsv	5	2	0	1

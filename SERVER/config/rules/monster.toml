@@ -1,0 +1,29 @@
+#==================================================
+# LUẬT QUÁI
+#==================================================
+# Tầm sinh lại, thời gian giữ xác, đổi mục tiêu, cấp tối đa và ngưỡng giảm thu nhập.
+
+#==================================================
+# Chung
+#==================================================
+schema = 1   # Phiên bản bố cục của tệp; bộ đọc từ chối số nó không hiểu
+
+#==================================================
+# Quái
+#==================================================
+[monster]
+default_position_range         = 10      # Phạm vi sinh lại mặc định.
+body_time_ms                   = 5000    # Thời gian giữ xác quái thường, mili giây.
+boss_body_time_ms              = 60000   # Thời gian giữ xác quái cao cấp, mili giây.
+change_target_odds             = 20      # Xác suất đổi mục tiêu tấn công.
+attack_assistant_odds          = 16      # Xác suất đánh kẻ hỗ trợ.
+change_target_cooldown_seconds = 3       # Hồi đổi mục tiêu, giây.
+max_level                      = 200     # Cấp tối đa của quái.
+
+#==================================================
+# Thu nhập khi cày quái
+#==================================================
+[income]
+reduced_income_count    = 30000   # Số quái thì thu nhập bị giảm.
+no_income_count         = 60000   # Số quái thì thu nhập về không.
+reduced_income_permille = 500     # Phần thu nhập còn lại khi bị giảm.

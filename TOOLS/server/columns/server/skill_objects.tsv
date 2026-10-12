@@ -1,0 +1,12 @@
+# schema 1
+# source: server_config/SkillObjData_V1.txt
+# tool: TOOLS/server/import_legacy.py; sửa tay sẽ mất ở lượt xuất sau
+# types: int	text	text	text	text
+index	original	name	type	note
+0	发招特效绑定点 	cast_anchor	int	luật: nguyên văn
+1	模型ID	model_id	int	luật: nguyên văn
+2	图标ID	icon_id	int	luật: nguyên văn
+3	友好度，=0为中性技能，>0为正面技能，<0为 负面技能	stance	int	luật: nguyên văn
+4	目标类型限制判断ID，参考相应子表格。	target_limit_id	int	luật: nguyên văn
+5	是否仅对队友有效。注：队友珍兽算作队友。1为只对队友有效，0为无此限制。	allies_only	int	luật: nguyên văn
+6	效果说明	effect_note	text	luật: nguyên văn

@@ -1,0 +1,17 @@
+-Wall
+-Wextra
+-Wpedantic
+-Wconversion
+-Wsign-conversion
+-Wshadow
+-Wnon-virtual-dtor
+-Wold-style-cast
+-Wcast-align
+-Wcast-qual
+-Woverloaded-virtual
+-Wnull-dereference
+-Wdouble-promotion
+-Wformat=2
+-Wimplicit-fallthrough
+-Wundef
+-Wsuggest-override

@@ -1,0 +1,396 @@
+# Lần chạy đỏ của vai C lúc 2026-10-08 01:42:07, trước khi viết gen_protocol.py (gen_protocol.py vẫn là khung 600 byte của bước 0).
+# Lệnh: python -B -W error -m unittest -v TOOLS/server/test_gen_protocol.py
+# Mã thoát: 1
+python : test_dev_hello_bytes (TOOLS.server.test_gen_protocol.EncoderTests.test_dev_hello_bytes) ... ERROR
+At C:\Users\myhea\AppData\Local\Temp\ps-script-80ffa92f-b124-4383-8e3b-70dec06d2e94.ps1:89 char:286
++ ... og'; $out = python -B -W error -m unittest -v TOOLS/server/test_gen_p ...
++                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (test_dev_hello_...ytes) ... ERROR:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+test_every_type_bytes (TOOLS.server.test_gen_protocol.EncoderTests.test_every_type_bytes) ... ERROR
+test_check_passes_on_repo (TOOLS.server.test_gen_protocol.OutputTests.test_check_passes_on_repo) ... ok
+test_check_reports_stale_files (TOOLS.server.test_gen_protocol.OutputTests.test_check_reports_stale_files) ... ERROR
+test_deterministic (TOOLS.server.test_gen_protocol.OutputTests.test_deterministic) ... ERROR
+test_generated_files_start_with_notice 
+(TOOLS.server.test_gen_protocol.OutputTests.test_generated_files_start_with_notice) ... ERROR
+test_generated_functions_fit_limits (TOOLS.server.test_gen_protocol.OutputTests.test_generated_functions_fit_limits) 
+... ERROR
+test_test_catalog_covers_every_type (TOOLS.server.test_gen_protocol.OutputTests.test_test_catalog_covers_every_type) 
+... ERROR
+test_base_catalog_is_valid (TOOLS.server.test_gen_protocol.RuleTests.test_base_catalog_is_valid) ... ERROR
+test_g10_unused (TOOLS.server.test_gen_protocol.RuleTests.test_g10_unused) ... ERROR
+test_g11_message_without_fields (TOOLS.server.test_gen_protocol.RuleTests.test_g11_message_without_fields) ... ERROR
+test_g11_owner_without_declaration (TOOLS.server.test_gen_protocol.RuleTests.test_g11_owner_without_declaration) ... 
+ERROR
+test_g1_header (TOOLS.server.test_gen_protocol.RuleTests.test_g1_header) ... ERROR
+test_g2_kind (TOOLS.server.test_gen_protocol.RuleTests.test_g2_kind) ... ERROR
+test_g3_names (TOOLS.server.test_gen_protocol.RuleTests.test_g3_names) ... ERROR
+test_g4_port_and_since (TOOLS.server.test_gen_protocol.RuleTests.test_g4_port_and_since) ... ERROR
+test_g5_order (TOOLS.server.test_gen_protocol.RuleTests.test_g5_order) ... ERROR
+test_g6_recursive_record (TOOLS.server.test_gen_protocol.RuleTests.test_g6_recursive_record) ... ERROR
+test_g6_types (TOOLS.server.test_gen_protocol.RuleTests.test_g6_types) ... ERROR
+test_g7_limits (TOOLS.server.test_gen_protocol.RuleTests.test_g7_limits) ... ERROR
+test_g8_enum_values (TOOLS.server.test_gen_protocol.RuleTests.test_g8_enum_values) ... ERROR
+test_g9_body_size (TOOLS.server.test_gen_protocol.RuleTests.test_g9_body_size) ... ERROR
+
+======================================================================
+ERROR: test_dev_hello_bytes (TOOLS.server.test_gen_protocol.EncoderTests.test_dev_hello_bytes)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "F:\tl 2026\THIENLONG\build\p2-dot-2\TOOLS\server\test_gen_protocol.py", line 271, in test_dev_hello_bytes
+    import protocol_wire
+ModuleNotFoundError: No module named 'protocol_wire'
+
+======================================================================
+ERROR: test_every_type_bytes (TOOLS.server.test_gen_protocol.EncoderTests.test_every_type_bytes)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "F:\tl 2026\THIENLONG\build\p2-dot-2\TOOLS\server\test_gen_protocol.py", line 278, in test_every_type_bytes
+    import protocol_wire
+ModuleNotFoundError: No module named 'protocol_wire'
+
+======================================================================
+ERROR: test_check_reports_stale_files (TOOLS.server.test_gen_protocol.OutputTests.test_check_reports_stale_files)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "F:\tl 2026\THIENLONG\build\p2-dot-2\TOOLS\server\test_gen_protocol.py", line 257, in 
+test_check_reports_stale_files
+    code, output = run_tool(["--catalog", str(copy), "--check"])
+                   ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "F:\tl 2026\THIENLONG\build\p2-dot-2\TOOLS\server\test_gen_protocol.py", line 85, in run_tool
+    code = gen_protocol.main(arguments)
+  File "F:\tl 2026\THIENLONG\build\p2-dot-2\TOOLS\server\gen_protocol.py", line 14, in main
+    sys.stderr.buffer.write("gen_protocol.py: khung rỗng của bước 0, chỉ nhận --check\n".encode())
+    ^^^^^^^^^^^^^^^^^
+AttributeError: '_io.StringIO' object has no attribute 'buffer'
+
+======================================================================
+ERROR: test_deterministic (TOOLS.server.test_gen_protocol.OutputTests.test_deterministic)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "F:\tl 2026\THIENLONG\build\p2-dot-2\TOOLS\server\test_gen_protocol.py", line 247, in test_deterministic
+    self.assertEqual(run_tool(["--out", str(first)])[0], 0)
+                     ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "F:\tl 2026\THIENLONG\build\p2-dot-2\TOOLS\server\test_gen_protocol.py", line 85, in run_tool
+    code = gen_protocol.main(arguments)
+  File "F:\tl 2026\THIENLONG\build\p2-dot-2\TOOLS\server\gen_protocol.py", line 14, in main
+    sys.stderr.buffer.write("gen_protocol.py: khung rỗng của bước 0, chỉ nhận --check\n".encode())
+    ^^^^^^^^^^^^^^^^^
+AttributeError: '_io.StringIO' object has no attribute 'buffer'
+
+======================================================================
+ERROR: test_generated_files_start_with_notice 
+(TOOLS.server.test_gen_protocol.OutputTests.test_generated_files_start_with_notice)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "F:\tl 2026\THIENLONG\build\p2-dot-2\TOOLS\server\test_gen_protocol.py", line 232, in 
+test_generated_files_start_with_notice
+    self.run_rows(copy_rows())
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "F:\tl 2026\THIENLONG\build\p2-dot-2\TOOLS\server\test_gen_protocol.py", line 105, in run_rows
+    return run_tool(["--catalog", str(self.folder / "catalog"), "--out", str(self.folder / "out")])
+  File "F:\tl 2026\THIENLONG\build\p2-dot-2\TOOLS\server\test_gen_protocol.py", line 85, in run_tool
+    code = gen_protocol.main(arguments)
+  File "F:\tl 2026\THIENLONG\build\p2-dot-2\TOOLS\server\gen_protocol.py", line 14, in main
+    sys.stderr.buffer.write("gen_protocol.py: khung rỗng của bước 0, chỉ nhận --check\n".encode())
+    ^^^^^^^^^^^^^^^^^
+AttributeError: '_io.StringIO' object has no attribute 'buffer'
+
+======================================================================
+ERROR: test_generated_functions_fit_limits 
+(TOOLS.server.test_gen_protocol.OutputTests.test_generated_functions_fit_limits)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "F:\tl 2026\THIENLONG\build\p2-dot-2\TOOLS\server\test_gen_protocol.py", line 239, in 
+test_generated_functions_fit_limits
+    self.run_rows(copy_rows())
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "F:\tl 2026\THIENLONG\build\p2-dot-2\TOOLS\server\test_gen_protocol.py", line 105, in run_rows
+    return run_tool(["--catalog", str(self.folder / "catalog"), "--out", str(self.folder / "out")])
+  File "F:\tl 2026\THIENLONG\build\p2-dot-2\TOOLS\server\test_gen_protocol.py", line 85, in run_tool
+    code = gen_protocol.main(arguments)
+  File "F:\tl 2026\THIENLONG\build\p2-dot-2\TOOLS\server\gen_protocol.py", line 14, in main
+    sys.stderr.buffer.write("gen_protocol.py: khung rỗng của bước 0, chỉ nhận --check\n".encode())
+    ^^^^^^^^^^^^^^^^^
+AttributeError: '_io.StringIO' object has no attribute 'buffer'
+
+======================================================================
+ERROR: test_test_catalog_covers_every_type 
+(TOOLS.server.test_gen_protocol.OutputTests.test_test_catalog_covers_every_type)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "F:\tl 2026\THIENLONG\build\p2-dot-2\TOOLS\server\test_gen_protocol.py", line 223, in 
+test_test_catalog_covers_every_type
+    code, output = self.run_rows(copy_rows())
+                   ~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "F:\tl 2026\THIENLONG\build\p2-dot-2\TOOLS\server\test_gen_protocol.py", line 105, in run_rows
+    return run_tool(["--catalog", str(self.folder / "catalog"), "--out", str(self.folder / "out")])
+  File "F:\tl 2026\THIENLONG\build\p2-dot-2\TOOLS\server\test_gen_protocol.py", line 85, in run_tool
+    code = gen_protocol.main(arguments)
+  File "F:\tl 2026\THIENLONG\build\p2-dot-2\TOOLS\server\gen_protocol.py", line 14, in main
+    sys.stderr.buffer.write("gen_protocol.py: khung rỗng của bước 0, chỉ nhận --check\n".encode())
+    ^^^^^^^^^^^^^^^^^
+AttributeError: '_io.StringIO' object has no attribute 'buffer'
+
+======================================================================
+ERROR: test_base_catalog_is_valid (TOOLS.server.test_gen_protocol.RuleTests.test_base_catalog_is_valid)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "F:\tl 2026\THIENLONG\build\p2-dot-2\TOOLS\server\test_gen_protocol.py", line 118, in test_base_catalog_is_valid
+    code, output = self.run_rows(copy_rows())
+                   ~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "F:\tl 2026\THIENLONG\build\p2-dot-2\TOOLS\server\test_gen_protocol.py", line 105, in run_rows
+    return run_tool(["--catalog", str(self.folder / "catalog"), "--out", str(self.folder / "out")])
+  File "F:\tl 2026\THIENLONG\build\p2-dot-2\TOOLS\server\test_gen_protocol.py", line 85, in run_tool
+    code = gen_protocol.main(arguments)
+  File "F:\tl 2026\THIENLONG\build\p2-dot-2\TOOLS\server\gen_protocol.py", line 14, in main
+    sys.stderr.buffer.write("gen_protocol.py: khung rỗng của bước 0, chỉ nhận --check\n".encode())
+    ^^^^^^^^^^^^^^^^^
+AttributeError: '_io.StringIO' object has no attribute 'buffer'
+
+======================================================================
+ERROR: test_g10_unused (TOOLS.server.test_gen_protocol.RuleTests.test_g10_unused)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "F:\tl 2026\THIENLONG\build\p2-dot-2\TOOLS\server\test_gen_protocol.py", line 204, in test_g10_unused
+    self.expect_rule(rows, "enums.tsv", 10, "G10")
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "F:\tl 2026\THIENLONG\build\p2-dot-2\TOOLS\server\test_gen_protocol.py", line 108, in expect_rule
+    code, output = self.run_rows(rows)
+                   ~~~~~~~~~~~~~^^^^^^
+  File "F:\tl 2026\THIENLONG\build\p2-dot-2\TOOLS\server\test_gen_protocol.py", line 105, in run_rows
+    return run_tool(["--catalog", str(self.folder / "catalog"), "--out", str(self.folder / "out")])
+  File "F:\tl 2026\THIENLONG\build\p2-dot-2\TOOLS\server\test_gen_protocol.py", line 85, in run_tool
+    code = gen_protocol.main(arguments)
+  File "F:\tl 2026\THIENLONG\build\p2-dot-2\TOOLS\server\gen_protocol.py", line 14, in main
+    sys.stderr.buffer.write("gen_protocol.py: khung rỗng của bước 0, chỉ nhận --check\n".encode())
+    ^^^^^^^^^^^^^^^^^
+AttributeError: '_io.StringIO' object has no attribute 'buffer'
+
+======================================================================
+ERROR: test_g11_message_without_fields (TOOLS.server.test_gen_protocol.RuleTests.test_g11_message_without_fields)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "F:\tl 2026\THIENLONG\build\p2-dot-2\TOOLS\server\test_gen_protocol.py", line 213, in 
+test_g11_message_without_fields
+    code, output = self.run_rows(copy_rows())
+                   ~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "F:\tl 2026\THIENLONG\build\p2-dot-2\TOOLS\server\test_gen_protocol.py", line 105, in run_rows
+    return run_tool(["--catalog", str(self.folder / "catalog"), "--out", str(self.folder / "out")])
+  File "F:\tl 2026\THIENLONG\build\p2-dot-2\TOOLS\server\test_gen_protocol.py", line 85, in run_tool
+    code = gen_protocol.main(arguments)
+  File "F:\tl 2026\THIENLONG\build\p2-dot-2\TOOLS\server\gen_protocol.py", line 14, in main
+    sys.stderr.buffer.write("gen_protocol.py: khung rỗng của bước 0, chỉ nhận --check\n".encode())
+    ^^^^^^^^^^^^^^^^^
+AttributeError: '_io.StringIO' object has no attribute 'buffer'
+
+======================================================================
+ERROR: test_g11_owner_without_declaration (TOOLS.server.test_gen_protocol.RuleTests.test_g11_owner_without_declaration)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "F:\tl 2026\THIENLONG\build\p2-dot-2\TOOLS\server\test_gen_protocol.py", line 210, in 
+test_g11_owner_without_declaration
+    self.expect_rule(rows, "fields.tsv", 31, "G11")
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "F:\tl 2026\THIENLONG\build\p2-dot-2\TOOLS\server\test_gen_protocol.py", line 108, in expect_rule
+    code, output = self.run_rows(rows)
+                   ~~~~~~~~~~~~~^^^^^^
+  File "F:\tl 2026\THIENLONG\build\p2-dot-2\TOOLS\server\test_gen_protocol.py", line 105, in run_rows
+    return run_tool(["--catalog", str(self.folder / "catalog"), "--out", str(self.folder / "out")])
+  File "F:\tl 2026\THIENLONG\build\p2-dot-2\TOOLS\server\test_gen_protocol.py", line 85, in run_tool
+    code = gen_protocol.main(arguments)
+  File "F:\tl 2026\THIENLONG\build\p2-dot-2\TOOLS\server\gen_protocol.py", line 14, in main
+    sys.stderr.buffer.write("gen_protocol.py: khung rỗng của bước 0, chỉ nhận --check\n".encode())
+    ^^^^^^^^^^^^^^^^^
+AttributeError: '_io.StringIO' object has no attribute 'buffer'
+
+======================================================================
+ERROR: test_g1_header (TOOLS.server.test_gen_protocol.RuleTests.test_g1_header)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "F:\tl 2026\THIENLONG\build\p2-dot-2\TOOLS\server\test_gen_protocol.py", line 126, in test_g1_header
+    code, output = run_tool(["--catalog", str(self.folder / "catalog"), "--out", str(self.folder / "out")])
+                   ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "F:\tl 2026\THIENLONG\build\p2-dot-2\TOOLS\server\test_gen_protocol.py", line 85, in run_tool
+    code = gen_protocol.main(arguments)
+  File "F:\tl 2026\THIENLONG\build\p2-dot-2\TOOLS\server\gen_protocol.py", line 14, in main
+    sys.stderr.buffer.write("gen_protocol.py: khung rỗng của bước 0, chỉ nhận --check\n".encode())
+    ^^^^^^^^^^^^^^^^^
+AttributeError: '_io.StringIO' object has no attribute 'buffer'
+
+======================================================================
+ERROR: test_g2_kind (TOOLS.server.test_gen_protocol.RuleTests.test_g2_kind)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "F:\tl 2026\THIENLONG\build\p2-dot-2\TOOLS\server\test_gen_protocol.py", line 134, in test_g2_kind
+    self.expect_rule(rows, "messages.tsv", 8, "G2")
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "F:\tl 2026\THIENLONG\build\p2-dot-2\TOOLS\server\test_gen_protocol.py", line 108, in expect_rule
+    code, output = self.run_rows(rows)
+                   ~~~~~~~~~~~~~^^^^^^
+  File "F:\tl 2026\THIENLONG\build\p2-dot-2\TOOLS\server\test_gen_protocol.py", line 105, in run_rows
+    return run_tool(["--catalog", str(self.folder / "catalog"), "--out", str(self.folder / "out")])
+  File "F:\tl 2026\THIENLONG\build\p2-dot-2\TOOLS\server\test_gen_protocol.py", line 85, in run_tool
+    code = gen_protocol.main(arguments)
+  File "F:\tl 2026\THIENLONG\build\p2-dot-2\TOOLS\server\gen_protocol.py", line 14, in main
+    sys.stderr.buffer.write("gen_protocol.py: khung rỗng của bước 0, chỉ nhận --check\n".encode())
+    ^^^^^^^^^^^^^^^^^
+AttributeError: '_io.StringIO' object has no attribute 'buffer'
+
+======================================================================
+ERROR: test_g3_names (TOOLS.server.test_gen_protocol.RuleTests.test_g3_names)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "F:\tl 2026\THIENLONG\build\p2-dot-2\TOOLS\server\test_gen_protocol.py", line 142, in test_g3_names
+    self.expect_rule(rows, "fields.tsv", 5, "G3")
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "F:\tl 2026\THIENLONG\build\p2-dot-2\TOOLS\server\test_gen_protocol.py", line 108, in expect_rule
+    code, output = self.run_rows(rows)
+                   ~~~~~~~~~~~~~^^^^^^
+  File "F:\tl 2026\THIENLONG\build\p2-dot-2\TOOLS\server\test_gen_protocol.py", line 105, in run_rows
+    return run_tool(["--catalog", str(self.folder / "catalog"), "--out", str(self.folder / "out")])
+  File "F:\tl 2026\THIENLONG\build\p2-dot-2\TOOLS\server\test_gen_protocol.py", line 85, in run_tool
+    code = gen_protocol.main(arguments)
+  File "F:\tl 2026\THIENLONG\build\p2-dot-2\TOOLS\server\gen_protocol.py", line 14, in main
+    sys.stderr.buffer.write("gen_protocol.py: khung rỗng của bước 0, chỉ nhận --check\n".encode())
+    ^^^^^^^^^^^^^^^^^
+AttributeError: '_io.StringIO' object has no attribute 'buffer'
+
+======================================================================
+ERROR: test_g4_port_and_since (TOOLS.server.test_gen_protocol.RuleTests.test_g4_port_and_since)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "F:\tl 2026\THIENLONG\build\p2-dot-2\TOOLS\server\test_gen_protocol.py", line 151, in test_g4_port_and_since
+    self.expect_rule(rows, "messages.tsv", 7, "G4")
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "F:\tl 2026\THIENLONG\build\p2-dot-2\TOOLS\server\test_gen_protocol.py", line 108, in expect_rule
+    code, output = self.run_rows(rows)
+                   ~~~~~~~~~~~~~^^^^^^
+  File "F:\tl 2026\THIENLONG\build\p2-dot-2\TOOLS\server\test_gen_protocol.py", line 105, in run_rows
+    return run_tool(["--catalog", str(self.folder / "catalog"), "--out", str(self.folder / "out")])
+  File "F:\tl 2026\THIENLONG\build\p2-dot-2\TOOLS\server\test_gen_protocol.py", line 85, in run_tool
+    code = gen_protocol.main(arguments)
+  File "F:\tl 2026\THIENLONG\build\p2-dot-2\TOOLS\server\gen_protocol.py", line 14, in main
+    sys.stderr.buffer.write("gen_protocol.py: khung rỗng của bước 0, chỉ nhận --check\n".encode())
+    ^^^^^^^^^^^^^^^^^
+AttributeError: '_io.StringIO' object has no attribute 'buffer'
+
+======================================================================
+ERROR: test_g5_order (TOOLS.server.test_gen_protocol.RuleTests.test_g5_order)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "F:\tl 2026\THIENLONG\build\p2-dot-2\TOOLS\server\test_gen_protocol.py", line 159, in test_g5_order
+    self.expect_rule(rows, "fields.tsv", 6, "G5")
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "F:\tl 2026\THIENLONG\build\p2-dot-2\TOOLS\server\test_gen_protocol.py", line 108, in expect_rule
+    code, output = self.run_rows(rows)
+                   ~~~~~~~~~~~~~^^^^^^
+  File "F:\tl 2026\THIENLONG\build\p2-dot-2\TOOLS\server\test_gen_protocol.py", line 105, in run_rows
+    return run_tool(["--catalog", str(self.folder / "catalog"), "--out", str(self.folder / "out")])
+  File "F:\tl 2026\THIENLONG\build\p2-dot-2\TOOLS\server\test_gen_protocol.py", line 85, in run_tool
+    code = gen_protocol.main(arguments)
+  File "F:\tl 2026\THIENLONG\build\p2-dot-2\TOOLS\server\gen_protocol.py", line 14, in main
+    sys.stderr.buffer.write("gen_protocol.py: khung rỗng của bước 0, chỉ nhận --check\n".encode())
+    ^^^^^^^^^^^^^^^^^
+AttributeError: '_io.StringIO' object has no attribute 'buffer'
+
+======================================================================
+ERROR: test_g6_recursive_record (TOOLS.server.test_gen_protocol.RuleTests.test_g6_recursive_record)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "F:\tl 2026\THIENLONG\build\p2-dot-2\TOOLS\server\test_gen_protocol.py", line 174, in test_g6_recursive_record
+    self.expect_rule(rows, "messages.tsv", 6, "G6")
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "F:\tl 2026\THIENLONG\build\p2-dot-2\TOOLS\server\test_gen_protocol.py", line 108, in expect_rule
+    code, output = self.run_rows(rows)
+                   ~~~~~~~~~~~~~^^^^^^
+  File "F:\tl 2026\THIENLONG\build\p2-dot-2\TOOLS\server\test_gen_protocol.py", line 105, in run_rows
+    return run_tool(["--catalog", str(self.folder / "catalog"), "--out", str(self.folder / "out")])
+  File "F:\tl 2026\THIENLONG\build\p2-dot-2\TOOLS\server\test_gen_protocol.py", line 85, in run_tool
+    code = gen_protocol.main(arguments)
+  File "F:\tl 2026\THIENLONG\build\p2-dot-2\TOOLS\server\gen_protocol.py", line 14, in main
+    sys.stderr.buffer.write("gen_protocol.py: khung rỗng của bước 0, chỉ nhận --check\n".encode())
+    ^^^^^^^^^^^^^^^^^
+AttributeError: '_io.StringIO' object has no attribute 'buffer'
+
+======================================================================
+ERROR: test_g6_types (TOOLS.server.test_gen_protocol.RuleTests.test_g6_types)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "F:\tl 2026\THIENLONG\build\p2-dot-2\TOOLS\server\test_gen_protocol.py", line 167, in test_g6_types
+    self.expect_rule(rows, "fields.tsv", 8, "G6")
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "F:\tl 2026\THIENLONG\build\p2-dot-2\TOOLS\server\test_gen_protocol.py", line 108, in expect_rule
+    code, output = self.run_rows(rows)
+                   ~~~~~~~~~~~~~^^^^^^
+  File "F:\tl 2026\THIENLONG\build\p2-dot-2\TOOLS\server\test_gen_protocol.py", line 105, in run_rows
+    return run_tool(["--catalog", str(self.folder / "catalog"), "--out", str(self.folder / "out")])
+  File "F:\tl 2026\THIENLONG\build\p2-dot-2\TOOLS\server\test_gen_protocol.py", line 85, in run_tool
+    code = gen_protocol.main(arguments)
+  File "F:\tl 2026\THIENLONG\build\p2-dot-2\TOOLS\server\gen_protocol.py", line 14, in main
+    sys.stderr.buffer.write("gen_protocol.py: khung rỗng của bước 0, chỉ nhận --check\n".encode())
+    ^^^^^^^^^^^^^^^^^
+AttributeError: '_io.StringIO' object has no attribute 'buffer'
+
+======================================================================
+ERROR: test_g7_limits (TOOLS.server.test_gen_protocol.RuleTests.test_g7_limits)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "F:\tl 2026\THIENLONG\build\p2-dot-2\TOOLS\server\test_gen_protocol.py", line 181, in test_g7_limits
+    self.expect_rule(rows, "fields.tsv", 6, "G7")
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "F:\tl 2026\THIENLONG\build\p2-dot-2\TOOLS\server\test_gen_protocol.py", line 108, in expect_rule
+    code, output = self.run_rows(rows)
+                   ~~~~~~~~~~~~~^^^^^^
+  File "F:\tl 2026\THIENLONG\build\p2-dot-2\TOOLS\server\test_gen_protocol.py", line 105, in run_rows
+    return run_tool(["--catalog", str(self.folder / "catalog"), "--out", str(self.folder / "out")])
+  File "F:\tl 2026\THIENLONG\build\p2-dot-2\TOOLS\server\test_gen_protocol.py", line 85, in run_tool
+    code = gen_protocol.main(arguments)
+  File "F:\tl 2026\THIENLONG\build\p2-dot-2\TOOLS\server\gen_protocol.py", line 14, in main
+    sys.stderr.buffer.write("gen_protocol.py: khung rỗng của bước 0, chỉ nhận --check\n".encode())
+    ^^^^^^^^^^^^^^^^^
+AttributeError: '_io.StringIO' object has no attribute 'buffer'
+
+======================================================================
+ERROR: test_g8_enum_values (TOOLS.server.test_gen_protocol.RuleTests.test_g8_enum_values)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "F:\tl 2026\THIENLONG\build\p2-dot-2\TOOLS\server\test_gen_protocol.py", line 190, in test_g8_enum_values
+    self.expect_rule(rows, "enums.tsv", 5, "G8")
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "F:\tl 2026\THIENLONG\build\p2-dot-2\TOOLS\server\test_gen_protocol.py", line 108, in expect_rule
+    code, output = self.run_rows(rows)
+                   ~~~~~~~~~~~~~^^^^^^
+  File "F:\tl 2026\THIENLONG\build\p2-dot-2\TOOLS\server\test_gen_protocol.py", line 105, in run_rows
+    return run_tool(["--catalog", str(self.folder / "catalog"), "--out", str(self.folder / "out")])
+  File "F:\tl 2026\THIENLONG\build\p2-dot-2\TOOLS\server\test_gen_protocol.py", line 85, in run_tool
+    code = gen_protocol.main(arguments)
+  File "F:\tl 2026\THIENLONG\build\p2-dot-2\TOOLS\server\gen_protocol.py", line 14, in main
+    sys.stderr.buffer.write("gen_protocol.py: khung rỗng của bước 0, chỉ nhận --check\n".encode())
+    ^^^^^^^^^^^^^^^^^
+AttributeError: '_io.StringIO' object has no attribute 'buffer'
+
+======================================================================
+ERROR: test_g9_body_size (TOOLS.server.test_gen_protocol.RuleTests.test_g9_body_size)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "F:\tl 2026\THIENLONG\build\p2-dot-2\TOOLS\server\test_gen_protocol.py", line 197, in test_g9_body_size
+    self.expect_rule(rows, "messages.tsv", 7, "G9")
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "F:\tl 2026\THIENLONG\build\p2-dot-2\TOOLS\server\test_gen_protocol.py", line 108, in expect_rule
+    code, output = self.run_rows(rows)
+                   ~~~~~~~~~~~~~^^^^^^
+  File "F:\tl 2026\THIENLONG\build\p2-dot-2\TOOLS\server\test_gen_protocol.py", line 105, in run_rows
+    return run_tool(["--catalog", str(self.folder / "catalog"), "--out", str(self.folder / "out")])
+  File "F:\tl 2026\THIENLONG\build\p2-dot-2\TOOLS\server\test_gen_protocol.py", line 85, in run_tool
+    code = gen_protocol.main(arguments)
+  File "F:\tl 2026\THIENLONG\build\p2-dot-2\TOOLS\server\gen_protocol.py", line 14, in main
+    sys.stderr.buffer.write("gen_protocol.py: khung rỗng của bước 0, chỉ nhận --check\n".encode())
+    ^^^^^^^^^^^^^^^^^
+AttributeError: '_io.StringIO' object has no attribute 'buffer'
+
+----------------------------------------------------------------------
+Ran 22 tests in 0.033s
+
+FAILED (errors=21)

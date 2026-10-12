@@ -1,0 +1,16 @@
+# schema 1
+# source: server_config/SceneInfo.ini
+# tool: TOOLS/server/import_legacy.py; sửa tay sẽ mất ở lượt xuất sau
+# types: int	text	text	text	text
+index	original	name	type	note
+0		scene_id	int	chỉ số section sceneN, mã 2008 gán m_SceneID = i
+1	clientres	clientres_1	text	mã 2008 không đọc khoá này
+2	name	name	text	
+3	file	file	text	
+4	type	type	int	
+5	PvpRuler	pvp_rules	text	mã 2008 không đọc khoá này
+6	IsReLive	is_re_live	text	mã 2008 không đọc khoá này
+7	BeginPlus	begin_plus	text	mã 2008 không đọc khoá này
+8	EndPlus	end_plus	text	mã 2008 không đọc khoá này
+9	_clientres	clientres_2	text	luật: M1
+10		within_declared_count	int	1 khi chỉ số scene nhỏ hơn scenenumber

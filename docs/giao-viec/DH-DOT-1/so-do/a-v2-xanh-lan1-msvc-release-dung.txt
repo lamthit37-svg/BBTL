@@ -1,0 +1,5 @@
+[0/2] Re-checking globbed directories...
+[1/5] Building CXX object CMakeFiles\game_collision.dir\SRC\collision\building_file.cpp.obj
+[2/5] Linking CXX static library game_collision.lib
+[3/5] Building CXX object CMakeFiles\collision_tests.dir\tests\collision_tests.cpp.obj
+[4/5] Linking CXX executable collision_tests.exe

@@ -1,0 +1,46 @@
+# Quy ước soạn thảo cho mọi trình soạn (VS, VS Code, CLion, Notepad++): cùng mã hoá, kiểu xuống
+# dòng và thụt lề với .clang-format và .gitattributes, kể cả ở tệp clang-format không đụng tới
+# (CMake, Markdown, JSON, script). Danh sách đuôi CRLF phải khớp nhóm "Windows" của .gitattributes.
+root = true
+
+[*]
+charset = utf-8
+end_of_line = lf
+insert_final_newline = true
+trim_trailing_whitespace = true
+indent_style = space
+indent_size = 4
+tab_width = 4
+max_line_length = 100
+
+[{*.bat,*.cmd,*.ps1,*.sln,*.vcxproj,*.props,*.targets,*.rc}]
+end_of_line = crlf
+
+[*.vcxproj.filters]
+end_of_line = crlf
+
+[*.vcxproj.user]
+end_of_line = crlf
+
+# Hai dấu cách cuối dòng là ngắt dòng của Markdown; bảng và liên kết dài không ngắt được.
+[*.md]
+trim_trailing_whitespace = false
+max_line_length = off
+
+# Bảng TSV: Tab là dấu ngăn ô và ô rỗng cuối dòng có nghĩa, nên phím Tab phải ra Tab thật và
+# không cắt khoảng trắng cuối dòng.
+[*.tsv]
+indent_style = tab
+trim_trailing_whitespace = false
+max_line_length = off
+
+# Mã bên thứ ba giữ đúng từng byte của upstream: trình soạn không được tự sửa gì khi lưu.
+[{vendor,third_party}/**]
+charset = unset
+end_of_line = unset
+insert_final_newline = unset
+trim_trailing_whitespace = unset
+indent_style = unset
+indent_size = unset
+tab_width = unset
+max_line_length = off

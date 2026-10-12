@@ -1,0 +1,31 @@
+# schema 1
+# source: Public/Scene
+# tool: TOOLS/server/export_scene.py; sửa tay sẽ mất ở lượt xuất sau
+# types: text	text	text	text	text
+index	original	name	type	note
+0	guid	guid	int	mã 2008 đọc bằng atoi
+1	type	type	int	mã loại quái, đọc bằng atoi
+2	name	name	text	tên, mã cắt còn 31 byte khi nạp
+3	title	title	text	danh hiệu, mã cắt còn 31 byte khi nạp
+4	pos_x	position_x	float	hoành độ, giữ nguyên văn
+5	pos_z	position_z	float	tung độ, giữ nguyên văn
+6	dir	direction	int	hướng nguyên văn; mã nhân pi/18 rồi cộng pi/2
+7	script_id	script_id	int	mã 2008 đọc bằng atoi
+8	respawn_time	respawn_time	int	thời gian sinh lại, mili giây
+9	group_id	group_id	int	nhóm quái
+10	team_id	team_id	int	tổ quái
+11	base_ai	base_ai	int	khi vắng thì lấy từ bảng quái
+12	ai_file	ai_file	int	kịch bản AI, khi vắng thì lấy từ bảng quái
+13	patrol_id	patrol_id	int	tuyến tuần
+14	shop0	shop_0	int	cửa hàng 0, khi vắng thì -1
+15	shop1	shop_1	int	cửa hàng 1, khi vắng thì -1
+16	shop2	shop_2	int	cửa hàng 2, khi vắng thì -1
+17	shop3	shop_3	int	cửa hàng 3, khi vắng thì -1
+18	level	level	int	cấp trong tệp quái, khi vắng thì 0; monster_level không áp vào
+19	ispet	is_pet	int	khi vắng thì 0
+20	scripttimer	script_timer	int	khi vắng thì 0
+21	ReputationID	reputation_id	int	mã 2008 không đọc
+22	cshop	cshop	text	mã 2008 không đọc ?
+23	leaderid	leader_id	int	mã 2008 đọc nếu có, mặc định -1
+24	npc	is_npc	int	mã 2008 đọc nếu có, mặc định 0
+25	camp	camp	int	mã 2008 đọc nếu có, khi vắng thì gán phe người chơi

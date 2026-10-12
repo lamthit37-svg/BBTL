@@ -1,0 +1,9 @@
+# 2026-10-08 14:05:22  A gcc-debug cau-hinh: CÓ tiến trình dựng khác lúc bắt đầu: GCC (pid 15556)
+> cmd /c cmake --preset gcc-debug
+
+-- chưa có SERVER/tables/shared: bỏ test server_data_lint, sinh bằng build_data.py
+-- Configuring done (0.3s)
+-- Generating done (0.2s)
+-- Build files have been written to: F:/tl 2026/THIENLONG/build/dh-dot-1/build/gcc-debug
+
+# 2026-10-08 14:05:23  exit=0, số dòng chứa 'warning': 0

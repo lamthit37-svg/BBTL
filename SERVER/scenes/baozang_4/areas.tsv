@@ -1,0 +1,7 @@
+# schema 1
+# source: Public/Scene/baozang_4_area.ini
+# tool: TOOLS/server/export_scene.py; sửa tay sẽ mất ở lượt xuất sau
+# types: int	int	float	float	float	float
+guid	script_id	left	top	right	bottom
+0	400092	24.0000	248.0000	28.0000	252.0000
+0	400093	245.0000	20.0000	249.0000	24.0000

@@ -1,0 +1,8 @@
+lệnh: python -B -W error TOOLS/port/make_hostile_files.py self-test
+thư mục: F:\tl 2026\THIENLONG\build\dh-dot-1
+bắt đầu: 2026-10-08 14:08:38
+---
+tự kiểm: 62 tệp, 0 lỗi
+---
+mã thoát: 0
+kết thúc: 2026-10-08 14:08:38

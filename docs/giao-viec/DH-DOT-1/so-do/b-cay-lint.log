@@ -1,0 +1,17 @@
+lệnh: python -B -W error TOOLS/server/lint_py.py docs/giao-viec/DH-DOT-1/so-do/b-cay-gen.py (mã thoát 0)
+bắt đầu: 2026-10-08 15:31:04
+---
+
+---
+lệnh: python -B -W error so-do/b-cay-gen.py --help (mã thoát 0; không nạp DLL)
+usage: b-cay-gen.py [-h] {gen,kiem,worker} ...
+
+Số vàng cây OPCODE của PathLib.dll (lớp get) trên ba cảnh của B4/H3, chép từ
+bộ nhớ DLL sau khi nạp (B, DH-DOT-1).
+
+positional arguments:
+  {gen,kiem,worker}
+
+options:
+  -h, --help         show this help message and exit
+kết thúc: 2026-10-08 15:31:05

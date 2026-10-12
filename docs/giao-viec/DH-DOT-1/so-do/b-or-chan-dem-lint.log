@@ -1,0 +1,4 @@
+# b-or-chan-dem-lint.log 2026-10-08 15:07:54, Hoon; building_oracle.py sha A82AFED94A1EBF7FCEE3402E4388A9FA8E4C5F275895B7DB3B4909C11AF8A24A
+$ python -B -W error TOOLS/server/lint_py.py TOOLS/port/building_oracle.py docs/giao-viec/DH-DOT-1/so-do/b-vang-gen.py   (mã thoát 1)
+docs/giao-viec/DH-DOT-1/so-do/b-vang-gen.py:295: d├▓ng d├ái 122 k├╜ tß╗▒, qu├í 120
+docs/giao-viec/DH-DOT-1/so-do/b-vang-gen.py:99: h├ám fire thiß║┐u kiß╗âu cß╗ºa tham sß╗æ call

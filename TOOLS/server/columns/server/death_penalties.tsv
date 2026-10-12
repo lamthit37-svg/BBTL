@@ -1,0 +1,17 @@
+# schema 1
+# source: server_config/DiePenalty.txt
+# tool: TOOLS/server/import_legacy.py; sửa tay sẽ mất ở lượt xuất sau
+# types: int	text	text	text	text
+index	original	name	type	note
+0	ID	id	int	luật: M1
+1	说明	description	text	luật: nguyên văn
+2	MoneyMin	money_min	text	luật: M1
+3	MoneyMax	money_max	text	luật: M1
+4	ExpMin	exp_min	text	luật: M1
+5	ExpMax	exp_max	text	luật: M1
+6	EquipDurMin	equip_dur_min	text	luật: M1
+7	EquipDurMax	equip_dur_max	text	luật: M1
+8	ItemMin	item_min	text	luật: M1
+9	ItemMax	item_max	text	luật: M1
+10	EquipMin	equip_min	text	luật: M1
+11	EquipMax	equip_max	text	luật: M1

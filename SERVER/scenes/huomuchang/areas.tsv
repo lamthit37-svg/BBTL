@@ -1,0 +1,6 @@
+# schema 1
+# source: Public/Scene/huomuchang_area.ini
+# tool: TOOLS/server/export_scene.py; sửa tay sẽ mất ở lượt xuất sau
+# types: int	int	float	float	float	float
+guid	script_id	left	top	right	bottom
+0	400955	214.0000	227.0000	223.0000	234.0000

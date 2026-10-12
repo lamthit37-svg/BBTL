@@ -1,0 +1,7 @@
+lệnh: python -B so-do/b-mxcsr-scan.py "F:\tl 2026\Bin64\PathLib.dll" (capstone quét tuyến tính .text, skipdata, chỉ đọc byte, không nạp DLL)
+bắt đầu: 2026-10-08 14:10:25
+---
+tong 0
+---
+mã thoát: 0
+kết thúc: 2026-10-08 14:10:25

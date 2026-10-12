@@ -1,0 +1,9 @@
+# schema 1
+# source: Public/Scene
+# tool: TOOLS/server/export_scene.py; sửa tay sẽ mất ở lượt xuất sau
+# types: text	text	text	text	text
+index	original	name	type	note
+0	guid	guid	int	mã 2008 không đọc
+1	dataId	data_id	int	loại xe, mã 2008 không đọc
+2	patrolPathID	patrol_id	int	tuyến tuần, mã 2008 không đọc
+3	athwart	reverse	int	chiều chạy, mã 2008 không đọc

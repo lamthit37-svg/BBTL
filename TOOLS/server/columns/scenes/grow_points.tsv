@@ -1,0 +1,9 @@
+# schema 1
+# source: Public/Scene
+# tool: TOOLS/server/export_scene.py; sửa tay sẽ mất ở lượt xuất sau
+# types: text	text	text	text	text
+index	original	name	type	note
+0		point_id	int	cột 0, mã lập chỉ mục, không lưu vào điểm
+1		grow_point_type	int	cột 1, mã lưu loại điểm
+2		position_x	float	cột 2, hoành độ, giữ nguyên văn
+3		position_y	float	cột 3, tung độ trong tệp; mã gán vào trục Z

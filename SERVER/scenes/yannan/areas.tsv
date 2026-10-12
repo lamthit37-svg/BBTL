@@ -1,0 +1,11 @@
+# schema 1
+# source: Public/Scene/yannan_area.ini
+# tool: TOOLS/server/export_scene.py; sửa tay sẽ mất ở lượt xuất sau
+# types: int	int	float	float	float	float
+guid	script_id	left	top	right	bottom
+0	400033	260.0000	286.0000	270.0000	295.0000
+0	400034	243.0000	30.0000	253.0000	38.0000
+0	400035	22.0000	52.0000	34.0000	65.0000
+0	400130	31.0000	37.0000	36.0000	40.0000
+1811	-1	143.0000	244.0000	155.0000	257.0000
+1812	-1	172.0000	35.0000	187.0000	47.0000

@@ -1,0 +1,462 @@
+{
+  "version": 6,
+  "cmakeMinimumRequired": {
+    "major": 3,
+    "minor": 28,
+    "patch": 0
+  },
+  "configurePresets": [
+    {
+      "name": "base",
+      "hidden": true,
+      "generator": "Ninja",
+      "binaryDir": "${sourceDir}/build/${presetName}",
+      "cacheVariables": {
+        "CMAKE_EXPORT_COMPILE_COMMANDS": "ON",
+        "CMAKE_COMPILE_WARNING_AS_ERROR": "ON",
+        "CMAKE_INSTALL_PREFIX": "${sourceDir}/CLIENT"
+      }
+    },
+    {
+      "name": "not-windows",
+      "hidden": true,
+      "condition": {
+        "type": "notEquals",
+        "lhs": "${hostSystemName}",
+        "rhs": "Windows"
+      }
+    },
+    {
+      "name": "gcc",
+      "hidden": true,
+      "cacheVariables": {
+        "CMAKE_CXX_COMPILER": "g++"
+      }
+    },
+    {
+      "name": "clang",
+      "hidden": true,
+      "cacheVariables": {
+        "CMAKE_CXX_COMPILER": "clang++"
+      }
+    },
+    {
+      "name": "msvc",
+      "hidden": true,
+      "cacheVariables": {
+        "CMAKE_CXX_COMPILER": "cl"
+      }
+    },
+    {
+      "name": "vcpkg",
+      "hidden": true,
+      "toolchainFile": "$env{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake",
+      "cacheVariables": {
+        "VCPKG_TARGET_TRIPLET": "x64-windows-static-md",
+        "VCPKG_INSTALLED_DIR": "${sourceDir}/vcpkg_installed",
+        "VCPKG_INSTALL_OPTIONS": "--clean-after-build"
+      }
+    },
+    {
+      "name": "android",
+      "hidden": true,
+      "toolchainFile": "$env{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake",
+      "cacheVariables": {
+        "VCPKG_CHAINLOAD_TOOLCHAIN_FILE": "$env{ANDROID_NDK_HOME}/build/cmake/android.toolchain.cmake",
+        "ANDROID_NDK_HOME": "$env{ANDROID_NDK_HOME}",
+        "VCPKG_TARGET_TRIPLET": "arm64-android",
+        "VCPKG_INSTALLED_DIR": "${sourceDir}/vcpkg_installed/arm64-android",
+        "ANDROID_PLATFORM": "android-29",
+        "ANDROID_STL": "c++_static",
+        "CMAKE_BUILD_TYPE": "Debug"
+      }
+    },
+    {
+      "name": "gcc-debug",
+      "inherits": [
+        "base",
+        "gcc"
+      ],
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug"
+      }
+    },
+    {
+      "name": "gcc-asan",
+      "inherits": [
+        "base",
+        "gcc",
+        "not-windows"
+      ],
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug",
+        "GAME_SANITIZE": "address,undefined"
+      }
+    },
+    {
+      "name": "clang-asan",
+      "inherits": [
+        "base",
+        "clang",
+        "vcpkg"
+      ],
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug",
+        "GAME_SANITIZE": "address,undefined"
+      }
+    },
+    {
+      "name": "clang-tsan",
+      "inherits": [
+        "base",
+        "clang",
+        "not-windows"
+      ],
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug",
+        "GAME_SANITIZE": "thread"
+      }
+    },
+    {
+      "name": "ci-gcc",
+      "inherits": [
+        "base",
+        "gcc"
+      ],
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "RelWithDebInfo",
+        "GAME_HARDEN": "ON"
+      }
+    },
+    {
+      "name": "msvc-debug",
+      "inherits": [
+        "base",
+        "msvc",
+        "vcpkg"
+      ],
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug"
+      }
+    },
+    {
+      "name": "msvc-release",
+      "inherits": [
+        "base",
+        "msvc",
+        "vcpkg"
+      ],
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "RelWithDebInfo",
+        "GAME_HARDEN": "ON"
+      }
+    },
+    {
+      "name": "android-arm64",
+      "inherits": [
+        "base",
+        "android"
+      ],
+      "cacheVariables": {
+        "ANDROID_ABI": "arm64-v8a",
+        "CMAKE_BUILD_TYPE": "RelWithDebInfo"
+      }
+    },
+    {
+      "name": "android-x86_64",
+      "inherits": [
+        "base",
+        "android"
+      ],
+      "cacheVariables": {
+        "ANDROID_ABI": "x86_64"
+      }
+    },
+    {
+      "name": "ios-arm64",
+      "displayName": "iOS thiết bị arm64 (Xcode, deployment 15.0) — chỉ build được trên macOS",
+      "generator": "Xcode",
+      "binaryDir": "${sourceDir}/build/${presetName}",
+      "condition": {
+        "type": "equals",
+        "lhs": "${hostSystemName}",
+        "rhs": "Darwin"
+      },
+      "cacheVariables": {
+        "CMAKE_SYSTEM_NAME": "iOS",
+        "CMAKE_OSX_ARCHITECTURES": "arm64",
+        "CMAKE_OSX_DEPLOYMENT_TARGET": "15.0",
+        "CMAKE_OSX_SYSROOT": "iphoneos",
+        "CMAKE_COMPILE_WARNING_AS_ERROR": "ON",
+        "BUILD_TESTING": "OFF"
+      }
+    },
+    {
+      "name": "ios-sim-arm64",
+      "inherits": "ios-arm64",
+      "displayName": "iOS Simulator arm64 (Xcode, deployment 15.0) — chỉ build được trên macOS",
+      "condition": {
+        "type": "equals",
+        "lhs": "${hostSystemName}",
+        "rhs": "Darwin"
+      },
+      "cacheVariables": {
+        "CMAKE_OSX_SYSROOT": "iphonesimulator"
+      }
+    }
+  ],
+  "buildPresets": [
+    {
+      "name": "gcc-debug",
+      "configurePreset": "gcc-debug"
+    },
+    {
+      "name": "gcc-asan",
+      "configurePreset": "gcc-asan"
+    },
+    {
+      "name": "clang-asan",
+      "configurePreset": "clang-asan"
+    },
+    {
+      "name": "clang-tsan",
+      "configurePreset": "clang-tsan"
+    },
+    {
+      "name": "ci-gcc",
+      "configurePreset": "ci-gcc"
+    },
+    {
+      "name": "msvc-debug",
+      "configurePreset": "msvc-debug"
+    },
+    {
+      "name": "msvc-release",
+      "configurePreset": "msvc-release"
+    },
+    {
+      "name": "android-arm64",
+      "configurePreset": "android-arm64"
+    },
+    {
+      "name": "android-x86_64",
+      "configurePreset": "android-x86_64"
+    },
+    {
+      "name": "ios-arm64",
+      "configurePreset": "ios-arm64",
+      "configuration": "Debug",
+      "condition": {
+        "type": "equals",
+        "lhs": "${hostSystemName}",
+        "rhs": "Darwin"
+      }
+    },
+    {
+      "name": "ios-sim-arm64",
+      "configurePreset": "ios-sim-arm64",
+      "configuration": "Debug",
+      "condition": {
+        "type": "equals",
+        "lhs": "${hostSystemName}",
+        "rhs": "Darwin"
+      }
+    }
+  ],
+  "testPresets": [
+    {
+      "name": "asan-env",
+      "hidden": true,
+      "output": {
+        "outputOnFailure": true
+      },
+      "environment": {
+        "ASAN_OPTIONS": "abort_on_error=1:detect_stack_use_after_return=1:strict_string_checks=1",
+        "UBSAN_OPTIONS": "print_stacktrace=1:halt_on_error=1"
+      }
+    },
+    {
+      "name": "gcc-debug",
+      "configurePreset": "gcc-debug",
+      "output": {
+        "outputOnFailure": true
+      }
+    },
+    {
+      "name": "gcc-asan",
+      "inherits": "asan-env",
+      "configurePreset": "gcc-asan"
+    },
+    {
+      "name": "clang-asan",
+      "inherits": "asan-env",
+      "configurePreset": "clang-asan"
+    },
+    {
+      "name": "clang-tsan",
+      "configurePreset": "clang-tsan",
+      "output": {
+        "outputOnFailure": true
+      },
+      "environment": {
+        "TSAN_OPTIONS": "halt_on_error=1:second_deadlock_stack=1"
+      }
+    },
+    {
+      "name": "ci-gcc",
+      "configurePreset": "ci-gcc",
+      "output": {
+        "outputOnFailure": true
+      }
+    },
+    {
+      "name": "msvc-debug",
+      "configurePreset": "msvc-debug",
+      "output": {
+        "outputOnFailure": true
+      }
+    },
+    {
+      "name": "msvc-release",
+      "configurePreset": "msvc-release",
+      "output": {
+        "outputOnFailure": true
+      }
+    },
+    {
+      "name": "android-arm64",
+      "configurePreset": "android-arm64",
+      "output": {
+        "outputOnFailure": true
+      }
+    },
+    {
+      "name": "android-x86_64",
+      "configurePreset": "android-x86_64",
+      "output": {
+        "outputOnFailure": true
+      }
+    }
+  ],
+  "workflowPresets": [
+    {
+      "name": "gcc-debug",
+      "steps": [
+        {
+          "type": "configure",
+          "name": "gcc-debug"
+        },
+        {
+          "type": "build",
+          "name": "gcc-debug"
+        },
+        {
+          "type": "test",
+          "name": "gcc-debug"
+        }
+      ]
+    },
+    {
+      "name": "clang-asan",
+      "steps": [
+        {
+          "type": "configure",
+          "name": "clang-asan"
+        },
+        {
+          "type": "build",
+          "name": "clang-asan"
+        },
+        {
+          "type": "test",
+          "name": "clang-asan"
+        }
+      ]
+    },
+    {
+      "name": "ci-gcc",
+      "steps": [
+        {
+          "type": "configure",
+          "name": "ci-gcc"
+        },
+        {
+          "type": "build",
+          "name": "ci-gcc"
+        },
+        {
+          "type": "test",
+          "name": "ci-gcc"
+        }
+      ]
+    },
+    {
+      "name": "msvc-debug",
+      "steps": [
+        {
+          "type": "configure",
+          "name": "msvc-debug"
+        },
+        {
+          "type": "build",
+          "name": "msvc-debug"
+        },
+        {
+          "type": "test",
+          "name": "msvc-debug"
+        }
+      ]
+    },
+    {
+      "name": "msvc-release",
+      "steps": [
+        {
+          "type": "configure",
+          "name": "msvc-release"
+        },
+        {
+          "type": "build",
+          "name": "msvc-release"
+        },
+        {
+          "type": "test",
+          "name": "msvc-release"
+        }
+      ]
+    },
+    {
+      "name": "android-arm64",
+      "steps": [
+        {
+          "type": "configure",
+          "name": "android-arm64"
+        },
+        {
+          "type": "build",
+          "name": "android-arm64"
+        },
+        {
+          "type": "test",
+          "name": "android-arm64"
+        }
+      ]
+    },
+    {
+      "name": "android-x86_64",
+      "steps": [
+        {
+          "type": "configure",
+          "name": "android-x86_64"
+        },
+        {
+          "type": "build",
+          "name": "android-x86_64"
+        },
+        {
+          "type": "test",
+          "name": "android-x86_64"
+        }
+      ]
+    }
+  ]
+}

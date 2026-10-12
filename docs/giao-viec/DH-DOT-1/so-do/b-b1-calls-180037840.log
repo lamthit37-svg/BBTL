@@ -1,0 +1,8 @@
+lệnh: python -B TOOLS/port/pe_refs.py "F:\tl 2026\Bin64\PathLib.dll" calls 0x180037840 (chỉ đọc tệp, không nạp DLL)
+bắt đầu: 2026-10-08 14:01:05
+---
+call từ 0x180003234 trong hàm 0x180003170..0x180003292
+call từ 0x180005fda trong hàm 0x180005f10..0x180006048
+---
+mã thoát: 0
+kết thúc: 2026-10-08 14:01:06

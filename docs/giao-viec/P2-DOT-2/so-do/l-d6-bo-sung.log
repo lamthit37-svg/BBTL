@@ -1,0 +1,17 @@
+# 2026-10-08 09:53:41  Đ6 bổ sung: l-d6.log đếm game::test::Case{ nên ra 0 ở bốn tệp; ở đây đếm Case{.name
+
+### ca test (đếm chuỗi 'Case{.name')
+tests/net_tests.cpp: 18 ca
+tests/protocol_catalog_tests.cpp: 9 ca
+tests/protocol_fuzz_tests.cpp: 12 ca
+tests/protocol_tests.cpp: 22 ca
+tests/wire_loop_tests.cpp: 4 ca
+
+### bảng tin (dòng dữ liệu, bỏ dòng tiêu đề và dòng chú thích #)
+SRC/protocol/catalog/groups.tsv: 4 dòng
+SRC/protocol/catalog/messages.tsv: 21 dòng
+SRC/protocol/catalog/fields.tsv: 39 dòng
+SRC/protocol/catalog/enums.tsv: 47 dòng
+
+tests/protocol_samples.hpp: 57 mẫu (đếm 'Frame{')
+

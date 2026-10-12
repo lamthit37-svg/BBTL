@@ -1,0 +1,99 @@
+# clang-tidy chuẩn của bộ quy cách C++23 (refs/14-build-toolchain.md, BD-*).
+# Hiệu chỉnh lại cho clang-tidy 23.1 (LLVM 23, Windows, STL của MSVC 14.51) ngày 2026-10-03. Bản
+# gốc hiệu chỉnh trên clang-tidy 20 + libstdc++: types.hpp và vector_int.hpp sạch (chỉ còn NOLINT
+# có lý do cho readability-identifier-length). Với libc++, bugprone-exception-escape báo
+# `kMembers.at(i)` trong hàm noexcept (member() của Plain4) — xem LH-07: `.at()` trên chỉ số nội bộ
+# là dừng sớm có chủ ý, ghi NOLINTNEXTLINE kèm lý do.
+# Mỗi check tắt có lý do ngay bên cạnh; bật lại một check khi dự án sẵn sàng sửa cả loạt.
+Checks: >
+  -*,
+  bugprone-*,
+  cert-*,
+  clang-analyzer-*,
+  concurrency-*,
+  cppcoreguidelines-*,
+  misc-*,
+  modernize-*,
+  performance-*,
+  portability-*,
+  readability-*,
+  -modernize-use-trailing-return-type,
+  -readability-magic-numbers,
+  -cppcoreguidelines-avoid-magic-numbers,
+  -misc-non-private-member-variables-in-classes,
+  -portability-simd-intrinsics,
+  -readability-braces-around-statements,
+  -readability-named-parameter,
+  -portability-avoid-pragma-once,
+  -readability-trailing-comma,
+  -cppcoreguidelines-pro-bounds-avoid-unchecked-container-access,
+  -bugprone-signed-bitwise,
+  -portability-no-assembler,
+  -readability-redundant-parentheses,
+  -readability-use-concise-preprocessor-directives,
+  -clang-analyzer-optin.core.EnumCastOutOfRange
+# Tắt và lý do:
+#   use-trailing-return-type   kiểu trả đứng trước là quy ước của bộ này (DD-*).
+#   magic-numbers (cả hai)     toán, mặt nạ bit, hằng giao thức đọc rõ hơn khi viết thẳng tại chỗ
+#                              kèm comment; hằng có nghĩa nghiệp vụ vẫn PHẢI đặt tên (KG-*).
+#   non-private-member-vars    aggregate có thành viên công khai là thiết kế chủ ý (KG-*, API-*).
+#   simd-intrinsics            intrinsic được phép trong lớp SIMD riêng (SV-*).
+#   braces-around-statements   câu bảo vệ một dòng `if (x) return y;` là nền của code phẳng (PH-*).
+#   named-parameter            `operator==(const T&, const T&) = default` không cần tên.
+# Check mới từ clang-tidy 21–23, tắt vì trái quy ước của bộ:
+#   avoid-pragma-once          header dùng `#pragma once` (DD-*), không include guard.
+#   trailing-comma             dấu phẩy cuối do clang-format quyết định (DD-01); check này đòi cả
+#                              thêm lẫn bớt trên cùng một mẫu đã định dạng.
+#   avoid-unchecked-container-access  báo mọi `operator[]`; bộ này kiểm biên TRƯỚC (HP-16, UB-04) và
+#                              dành `.at()` cho dừng sớm có chủ ý (LH-07).
+#   signed-bitwise             dịch bit số có dấu đã xác định từ C++20 (số cố định, toạ độ ô); tràn
+#                              và dịch quá độ rộng vẫn do UB-* cấm.
+#   no-assembler               `asm volatile` chặn tối ưu trong benchmark là chủ ý (KT-*).
+#   redundant-parentheses      báo nhầm ngoặc bắt buộc quanh lời gọi hàm trong mệnh đề `requires`.
+#   concise-preprocessor-directives  bộ này viết `#if defined(X)` thống nhất (DD-10, STD-16) để thêm
+#                              `&& __cpp_lib_x >= …` không phải đổi dạng chỉ thị.
+#   EnumCastOutOfRange         clang-tidy 23 báo nhầm bên trong <filesystem> của STL MSVC 14.51
+#                              (xfilesystem_abi.h) với mọi mã dùng <filesystem> (BD-19).
+# Đã bật lại: modernize-use-std-print (clang-tidy 20 sập với chuỗi printf UTF-8; bản 23 hết lỗi).
+# Bật nhưng cần đọc đúng: cert-msc50-cpp / cert-msc30-c bắt rand() là đúng, nhưng gợi ý "dùng
+# <random>" KHÔNG áp dụng cho gameplay: phân phối <random> khác nhau giữa thư viện (STD-14); dùng
+# PRNG và phân phối tự viết (MMO-17).
+WarningsAsErrors: '*'
+HeaderFilterRegex: '.*'
+FormatStyle: file
+CheckOptions:
+  readability-identifier-naming.NamespaceCase: lower_case
+  readability-identifier-naming.ClassCase: CamelCase
+  readability-identifier-naming.StructCase: CamelCase
+  readability-identifier-naming.EnumCase: CamelCase
+  readability-identifier-naming.UnionCase: CamelCase
+  readability-identifier-naming.TypeAliasCase: CamelCase
+  readability-identifier-naming.TypedefCase: CamelCase
+  readability-identifier-naming.ConceptCase: CamelCase
+  readability-identifier-naming.TemplateParameterCase: CamelCase
+  readability-identifier-naming.FunctionCase: lower_case
+  readability-identifier-naming.MethodCase: lower_case
+  readability-identifier-naming.VariableCase: lower_case
+  readability-identifier-naming.ParameterCase: lower_case
+  readability-identifier-naming.MemberCase: lower_case
+  readability-identifier-naming.PrivateMemberSuffix: _
+  readability-identifier-naming.ProtectedMemberSuffix: _
+  readability-identifier-naming.EnumConstantCase: CamelCase
+  readability-identifier-naming.EnumConstantPrefix: k
+  readability-identifier-naming.ConstexprVariableCase: CamelCase
+  readability-identifier-naming.ConstexprVariablePrefix: k
+  readability-identifier-naming.GlobalConstantCase: CamelCase
+  readability-identifier-naming.GlobalConstantPrefix: k
+  readability-identifier-naming.StaticConstantCase: CamelCase
+  readability-identifier-naming.StaticConstantPrefix: k
+  readability-identifier-naming.MacroDefinitionCase: UPPER_CASE
+  # Code phẳng (PH-01): NestingThreshold 2 = thân hàm là mức 1, mỗi khối điều khiển thêm 1.
+  readability-function-size.NestingThreshold: 2
+  readability-function-size.LineThreshold: 40
+  readability-function-size.ParameterThreshold: 5
+  readability-function-cognitive-complexity.Threshold: 10
+  readability-identifier-length.MinimumVariableNameLength: 3
+  readability-identifier-length.MinimumParameterNameLength: 3
+  readability-identifier-length.IgnoredVariableNames: '^(i|j|k|n|id|it|ok|ec|dt)$'
+  readability-identifier-length.IgnoredParameterNames: '^(i|j|k|n|id|it|ec|dt)$'
+  misc-include-cleaner.IgnoreHeaders: '.*intrin\.h;[Ww]indows\.h;[Mm]inwindef\.h;[Ww]in[Nn]ls\.h;[Ww]in[Cc]on\.h;[Cc]onsoleapi2\.h;version'

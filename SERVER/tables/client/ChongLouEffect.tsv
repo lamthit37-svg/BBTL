@@ -1,0 +1,50 @@
+# schema 1
+# source: client_2026/ChongLouEffect.txt
+# tool: TOOLS/server/export_client_rest.py; sửa tay sẽ mất ở lượt xuất sau
+# types: int	int	text	int	int	text	text	int	int	int
+column_0	column_1	column_2	column_3	column_4	column_5	column_6	column_7	column_8	column_9
+1	0	重楼甲	0	1	ChongLouEffect1_1	默认风格	-1	0	0
+2	1	重楼链	0	2	ChongLouEffect1_2	默认风格	-1	0	0
+3	2	重楼肩	0	3	ChongLouEffect1_3	默认风格	-1	0	0
+4	3	重楼戒	0	4	ChongLouEffect1_4	默认风格	-1	0	0
+5	4	重楼玉	0	5	ChongLouEffect1_5	默认风格	-1	0	0
+6	5	重楼·召	0	4	ChongLouEffect1_4	默认风格	-1	0	0
+7	6	重楼·返	0	2	ChongLouEffect1_2	默认风格	-1	0	0
+8	7	重楼·归	0	5	ChongLouEffect1_5	默认风格	-1	0	0
+9	8	真·重楼甲	0	1	ChongLouEffect1_1	默认风格	-1	0	0
+10	9	真·重楼链	0	2	ChongLouEffect1_2	默认风格	-1	0	0
+11	10	真·重楼肩	0	3	ChongLouEffect1_3	默认风格	-1	0	0
+12	11	真·重楼戒	0	4	ChongLouEffect1_4	默认风格	-1	0	0
+13	12	真·重楼玉	0	5	ChongLouEffect1_5	默认风格	-1	0	0
+14	0	重楼甲	1	6	ChongLouEffect1_6	星华风格	38007656	10	0
+15	1	重楼链	1	7	ChongLouEffect1_7	星华风格	38007656	10	0
+16	2	重楼肩	1	8	ChongLouEffect1_8	星华风格	38007656	10	0
+17	3	重楼戒	1	9	ChongLouEffect1_9	星华风格	38007656	10	0
+18	4	重楼玉	1	10	ChongLouEffect1_10	星华风格	38007656	10	0
+19	5	重楼·召	1	9	ChongLouEffect1_9	星华风格	38007656	10	0
+20	6	重楼·返	1	7	ChongLouEffect1_7	星华风格	38007656	10	0
+21	7	重楼·归	1	10	ChongLouEffect1_10	星华风格	38007656	10	0
+22	8	真·重楼甲	1	6	ChongLouEffect1_6	星华风格	38007656	10	0
+23	9	真·重楼链	1	7	ChongLouEffect1_7	星华风格	38007656	10	0
+24	10	真·重楼肩	1	8	ChongLouEffect1_8	星华风格	38007656	10	0
+25	11	真·重楼戒	1	9	ChongLouEffect1_9	星华风格	38007656	10	0
+26	12	真·重楼玉	1	10	ChongLouEffect1_10	星华风格	38007656	10	0
+27	13	重楼带	0	11	ChongLouEffect1_11	默认风格	-1	0	0
+28	14	真·重楼带	0	11	ChongLouEffect1_11	默认风格	-1	0	0
+29	13	重楼带	1	12	ChongLouEffect1_12	星华风格	38007656	10	0
+30	14	真·重楼带	1	12	ChongLouEffect1_12	星华风格	38007656	10	0
+31	0	重楼甲	2	13	ChongLouEffect1_13	龙曜风格	38008651	1	0
+32	1	重楼链	2	14	ChongLouEffect1_14	龙曜风格	38008651	1	0
+33	2	重楼肩	2	15	ChongLouEffect1_15	龙曜风格	38008651	1	0
+34	3	重楼戒	2	16	ChongLouEffect1_16	龙曜风格	38008651	1	0
+35	4	重楼玉	2	17	ChongLouEffect2_1	龙曜风格	38008651	1	0
+36	5	重楼·召	2	16	ChongLouEffect1_16	龙曜风格	38008651	1	0
+37	6	重楼·返	2	14	ChongLouEffect1_14	龙曜风格	38008651	1	0
+38	7	重楼·归	2	17	ChongLouEffect2_1	龙曜风格	38008651	1	0
+39	8	真·重楼甲	2	13	ChongLouEffect1_13	龙曜风格	38008651	1	0
+40	9	真·重楼链	2	14	ChongLouEffect1_14	龙曜风格	38008651	1	0
+41	10	真·重楼肩	2	15	ChongLouEffect1_15	龙曜风格	38008651	1	0
+42	11	真·重楼戒	2	16	ChongLouEffect1_16	龙曜风格	38008651	1	0
+43	12	真·重楼玉	2	17	ChongLouEffect2_1	龙曜风格	38008651	1	0
+44	13	重楼带	2	18	ChongLouEffect2_2	龙曜风格	38008651	1	0
+45	14	真·重楼带	2	18	ChongLouEffect2_2	龙曜风格	38008651	1	0

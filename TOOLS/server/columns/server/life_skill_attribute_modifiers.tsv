@@ -1,0 +1,10 @@
+# schema 1
+# source: server_config/AttrRefixTable.txt
+# tool: TOOLS/server/import_legacy.py; sửa tay sẽ mất ở lượt xuất sau
+# types: int	text	text	text	text
+index	original	name	type	note
+0	ID	id	int	luật: M1
+1	生活技能ID	life_skill_id	int	luật: nguyên văn
+2	乘法参数	multiply_parameter	text	luật: nguyên văn
+3	加法参数 	add_parameter	text	luật: nguyên văn
+4	注释（并不读入） 	unread_comment	text	luật: nguyên văn

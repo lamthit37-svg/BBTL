@@ -1,0 +1,9 @@
+Test project F:/tl 2026/THIENLONG/build/p2-dot-2/build/p2-c
+    Start 45: protocol_catalog_tests
+1/2 Test #45: protocol_catalog_tests ...........   Passed    0.09 sec
+    Start 49: protocol_catalog_fresh
+2/2 Test #49: protocol_catalog_fresh ...........   Passed    0.07 sec
+
+100% tests passed out of 2
+
+Total Test time (real) =   0.16 sec

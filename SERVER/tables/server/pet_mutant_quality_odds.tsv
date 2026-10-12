@@ -1,0 +1,13 @@
+# schema 1
+# source: server_config/CreateQualityOfVaryPetTbl.txt
+# tool: TOOLS/server/import_legacy.py; sửa tay sẽ mất ở lượt xuất sau
+# types: int	int
+quality	chance_per_100000
+1	60000
+2	30000
+3	4500
+4	4500
+5	900
+6	450
+7	450
+8	10

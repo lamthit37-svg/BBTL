@@ -1,0 +1,6 @@
+# schema 1
+# source: Public/Scene/wushendong_1_monster_100.ini
+# tool: TOOLS/server/export_scene.py; sửa tay sẽ mất ở lượt xuất sau
+# types: text	int	int	int	text	text
+spawn_file	data_index	data_type	value_index	value	value_extra
+spawns.level_100.tsv	0	3	0	17	20

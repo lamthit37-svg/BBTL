@@ -1,0 +1,7 @@
+# schema 1
+# source: Public/Scene
+# tool: TOOLS/server/export_scene.py; sửa tay sẽ mất ở lượt xuất sau
+# types: text	text	text	text	text
+index	original	name	type	note
+0		monster_index	int	chỉ số monster trong tệp level
+1	level	level	int	nguyên văn tệp monster_level; mã 2008 không đọc

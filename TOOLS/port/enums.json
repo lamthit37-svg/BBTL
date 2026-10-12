@@ -1,0 +1,634 @@
+{
+ "Access": [
+  "ColorRead",
+  "ColorWrite",
+  "CopyRead",
+  "CopyWrite",
+  "DepthRead",
+  "DepthWrite",
+  "IndexRead",
+  "IndirectRead",
+  "None",
+  "ResolveRead",
+  "ResolveWrite",
+  "ShaderRead",
+  "ShaderWrite",
+  "UniformRead",
+  "VertexRead"
+ ],
+ "Act": [
+  "Drop",
+  "Run"
+ ],
+ "AddressMode": [
+  "ClampToBorder",
+  "ClampToEdge",
+  "MirrorRepeat",
+  "Repeat"
+ ],
+ "Alpha": [
+  "Blend",
+  "Mask",
+  "Opaque"
+ ],
+ "Backend": [
+  "D3D12",
+  "Vulkan"
+ ],
+ "BlendFactor": [
+  "Constant",
+  "DstAlpha",
+  "DstColor",
+  "One",
+  "OneMinusConstant",
+  "OneMinusDstAlpha",
+  "OneMinusDstColor",
+  "OneMinusSrcAlpha",
+  "OneMinusSrcColor",
+  "SrcAlpha",
+  "SrcAlphaSaturate",
+  "SrcColor",
+  "Zero"
+ ],
+ "BlendOp": [
+  "Add",
+  "Max",
+  "Min",
+  "ReverseSubtract",
+  "Subtract"
+ ],
+ "BorderColor": [
+  "OpaqueBlack",
+  "OpaqueWhite",
+  "TransparentBlack"
+ ],
+ "BoundKind": [
+  "Buffer",
+  "Sampler",
+  "View"
+ ],
+ "BufferUsage": [
+  "Address",
+  "CopyDest",
+  "CopySource",
+  "Index",
+  "Indirect",
+  "None",
+  "Storage",
+  "Uniform",
+  "Vertex"
+ ],
+ "CameraKind": [
+  "Orthographic",
+  "Perspective"
+ ],
+ "Change": [
+  "Accessed",
+  "Created",
+  "Deleted",
+  "Modified",
+  "Overflow"
+ ],
+ "Claim": [
+  "Blocked",
+  "Retry",
+  "Won"
+ ],
+ "Color": [
+  "Auto",
+  "Off"
+ ],
+ "ColorSpace": [
+  "Linear",
+  "Srgb"
+ ],
+ "CompareOp": [
+  "Always",
+  "Equal",
+  "Greater",
+  "GreaterOrEqual",
+  "Less",
+  "LessOrEqual",
+  "Never",
+  "NotEqual"
+ ],
+ "CpuFeature": [
+  "Aes",
+  "Avx",
+  "Avx2",
+  "Avx512bw",
+  "Avx512dq",
+  "Avx512f",
+  "Avx512vl",
+  "Bmi1",
+  "Bmi2",
+  "Count",
+  "F16c",
+  "Fma",
+  "Lzcnt",
+  "Movbe",
+  "Pclmul",
+  "Popcnt",
+  "Sha",
+  "Sse3",
+  "Sse41",
+  "Sse42",
+  "Ssse3"
+ ],
+ "CubeFace": [
+  "NegativeX",
+  "NegativeY",
+  "NegativeZ",
+  "PositiveX",
+  "PositiveY",
+  "PositiveZ"
+ ],
+ "CullMode": [
+  "Back",
+  "Front",
+  "None"
+ ],
+ "DeviceLoss": [
+  "None",
+  "OutOfMemory",
+  "Removed",
+  "Reset"
+ ],
+ "Effort": [
+  "Balanced",
+  "Best",
+  "Fast"
+ ],
+ "ErrorCode": [
+  "AlreadyExists",
+  "Busy",
+  "Cancelled",
+  "Corrupt",
+  "DeviceLost",
+  "Exhausted",
+  "Internal",
+  "InvalidArgument",
+  "InvalidState",
+  "Io",
+  "IsADirectory",
+  "NoSpace",
+  "NotADirectory",
+  "NotFound",
+  "OutOfMemory",
+  "OutOfRange",
+  "Overflow",
+  "PermissionDenied",
+  "ReadOnly",
+  "Timeout",
+  "Unknown",
+  "Unsupported",
+  "WouldBlock"
+ ],
+ "EventKind": [
+  "CloseRequested",
+  "DisplayChanged",
+  "DpiChanged",
+  "FilesDropped",
+  "FocusGained",
+  "FocusLost",
+  "Minimized",
+  "Moved",
+  "Resized",
+  "Restored"
+ ],
+ "FileOpen": [
+  "Append",
+  "Truncate"
+ ],
+ "FillMode": [
+  "Solid",
+  "Wireframe"
+ ],
+ "Filter": [
+  "Average",
+  "Linear",
+  "Nearest",
+  "None",
+  "Paeth",
+  "Sub",
+  "Up"
+ ],
+ "Filtering": [
+  "Adaptive",
+  "Plain"
+ ],
+ "Flow": [
+  "Quit",
+  "Running"
+ ],
+ "Format": [
+  "Astc10x10Unorm",
+  "Astc10x10UnormSrgb",
+  "Astc12x12Unorm",
+  "Astc12x12UnormSrgb",
+  "Astc4x4Unorm",
+  "Astc4x4UnormSrgb",
+  "Astc5x5Unorm",
+  "Astc5x5UnormSrgb",
+  "Astc6x6Unorm",
+  "Astc6x6UnormSrgb",
+  "Astc8x8Unorm",
+  "Astc8x8UnormSrgb",
+  "Bc1Unorm",
+  "Bc1UnormSrgb",
+  "Bc2Unorm",
+  "Bc2UnormSrgb",
+  "Bc3Unorm",
+  "Bc3UnormSrgb",
+  "Bc4Snorm",
+  "Bc4Unorm",
+  "Bc5Snorm",
+  "Bc5Unorm",
+  "Bc6hSfloat",
+  "Bc6hUfloat",
+  "Bc7Unorm",
+  "Bc7UnormSrgb",
+  "Bgra8Unorm",
+  "Bgra8UnormSrgb",
+  "D16Unorm",
+  "D24UnormS8Uint",
+  "D32Float",
+  "D32FloatS8Uint",
+  "EacR11Snorm",
+  "EacR11Unorm",
+  "EacRg11Snorm",
+  "EacRg11Unorm",
+  "Etc2Rgb8A1Unorm",
+  "Etc2Rgb8A1UnormSrgb",
+  "Etc2Rgb8Unorm",
+  "Etc2Rgb8UnormSrgb",
+  "Etc2Rgba8Unorm",
+  "Etc2Rgba8UnormSrgb",
+  "Lz4Blocks",
+  "R16Float",
+  "R16Sint",
+  "R16Snorm",
+  "R16Uint",
+  "R16Unorm",
+  "R32Float",
+  "R32Sint",
+  "R32Uint",
+  "R8Sint",
+  "R8Snorm",
+  "R8Uint",
+  "R8Unorm",
+  "Raw",
+  "Rg11B10Float",
+  "Rg16Float",
+  "Rg16Sint",
+  "Rg16Snorm",
+  "Rg16Uint",
+  "Rg16Unorm",
+  "Rg32Float",
+  "Rg32Sint",
+  "Rg32Uint",
+  "Rg8Sint",
+  "Rg8Snorm",
+  "Rg8Uint",
+  "Rg8Unorm",
+  "Rgb10A2Uint",
+  "Rgb10A2Unorm",
+  "Rgb32Float",
+  "Rgb32Sint",
+  "Rgb32Uint",
+  "Rgb9E5Float",
+  "Rgba16Float",
+  "Rgba16Sint",
+  "Rgba16Snorm",
+  "Rgba16Uint",
+  "Rgba16Unorm",
+  "Rgba32Float",
+  "Rgba32Sint",
+  "Rgba32Uint",
+  "Rgba8Sint",
+  "Rgba8Snorm",
+  "Rgba8Uint",
+  "Rgba8Unorm",
+  "Rgba8UnormSrgb",
+  "Unknown",
+  "ZstdBlocks"
+ ],
+ "FormatAspect": [
+  "Color",
+  "Depth",
+  "DepthStencil"
+ ],
+ "FormatSupport": [
+  "Blendable",
+  "ColorTarget",
+  "DepthTarget",
+  "Filtered",
+  "None",
+  "Sampled",
+  "Storage"
+ ],
+ "FrontFace": [
+  "Clockwise",
+  "CounterClockwise"
+ ],
+ "FrustumTest": [
+  "PlanesOnly",
+  "WithCorners"
+ ],
+ "Full": [
+  "Drop",
+  "Wait"
+ ],
+ "IndexType": [
+  "Uint16",
+  "Uint32"
+ ],
+ "Interpolation": [
+  "Cubic",
+  "Linear",
+  "Step"
+ ],
+ "Kind": [
+  "Directory",
+  "Empty",
+  "File",
+  "Line",
+  "Missing",
+  "Skip"
+ ],
+ "Level": [
+  "Debug",
+  "Error",
+  "Info",
+  "Raw",
+  "Warning"
+ ],
+ "LightKind": [
+  "Directional",
+  "Point",
+  "Spot"
+ ],
+ "LoadOp": [
+  "Clear",
+  "Discard",
+  "Load"
+ ],
+ "MemoryDomain": [
+  "Device",
+  "Readback",
+  "Upload"
+ ],
+ "Miss": [
+  "Seed",
+  "Twins"
+ ],
+ "Mode": [
+  "AllowRead",
+  "Append",
+  "Borderless",
+  "Fullscreen",
+  "Inherit",
+  "Random",
+  "Read",
+  "Windowed",
+  "Write"
+ ],
+ "Outcome": [
+  "Built",
+  "Failed",
+  "Fresh"
+ ],
+ "PixelFormat": [
+  "Bgra8",
+  "Rgba16",
+  "Rgba32F",
+  "Rgba8"
+ ],
+ "PresentMode": [
+  "Fifo",
+  "Immediate",
+  "Mailbox"
+ ],
+ "QueryKind": [
+  "Occlusion",
+  "Timestamp"
+ ],
+ "QueueType": [
+  "Compute",
+  "Copy",
+  "Graphics"
+ ],
+ "RegisterType": [
+  "Constant",
+  "Resource",
+  "Sampler",
+  "Unordered"
+ ],
+ "ResourceKind": [
+  "AccelerationStructure",
+  "Buffer",
+  "InputAttachment",
+  "PushConstant",
+  "RwBuffer",
+  "RwTexelBuffer",
+  "RwTexture",
+  "Sampler",
+  "TexelBuffer",
+  "Texture",
+  "UniformBuffer"
+ ],
+ "Scalar": [
+  "Float",
+  "Int",
+  "None",
+  "Struct",
+  "UInt"
+ ],
+ "Seek": [
+  "Begin",
+  "Current",
+  "End"
+ ],
+ "Shading": [
+  "Metallic",
+  "Specular"
+ ],
+ "Simd": [
+  "Avx",
+  "Avx2",
+  "Avx512",
+  "None",
+  "Sse3",
+  "Sse41",
+  "Sse42"
+ ],
+ "Source": [
+  "Extended1Ecx",
+  "Leaf1Ecx",
+  "Leaf7Ebx"
+ ],
+ "Stage": [
+  "Amplification",
+  "Compute",
+  "Domain",
+  "Geometry",
+  "Hull",
+  "Library",
+  "Mesh",
+  "Pixel",
+  "Vertex"
+ ],
+ "State": [
+  "Closed",
+  "Idle",
+  "None",
+  "Pending",
+  "Recording",
+  "Ymm",
+  "Zmm"
+ ],
+ "Steal": [
+  "Empty",
+  "Lost",
+  "Won"
+ ],
+ "StencilOp": [
+  "DecrementClamp",
+  "DecrementWrap",
+  "IncrementClamp",
+  "IncrementWrap",
+  "Invert",
+  "Keep",
+  "Replace",
+  "Zero"
+ ],
+ "StoreOp": [
+  "Discard",
+  "Store"
+ ],
+ "SyncStage": [
+  "All",
+  "ColorOutput",
+  "ComputeShader",
+  "Copy",
+  "DrawIndirect",
+  "EarlyDepth",
+  "LateDepth",
+  "None",
+  "PixelShader",
+  "Resolve",
+  "VertexInput",
+  "VertexShader"
+ ],
+ "SystemCursor": [
+  "Arrow",
+  "Cross",
+  "Forbidden",
+  "Hand",
+  "Move",
+  "ResizeDiagonalDown",
+  "ResizeDiagonalUp",
+  "ResizeHorizontal",
+  "ResizeVertical",
+  "Text",
+  "Wait"
+ ],
+ "Target": [
+  "Dxil",
+  "SpirV"
+ ],
+ "TextureKind": [
+  "Cube",
+  "CubeArray",
+  "Tex1D",
+  "Tex2D",
+  "Tex2DArray",
+  "Tex3D"
+ ],
+ "TextureLayout": [
+  "ColorTarget",
+  "CopyDest",
+  "CopySource",
+  "DepthRead",
+  "DepthWrite",
+  "General",
+  "Present",
+  "ResolveDest",
+  "ResolveSource",
+  "ShaderRead",
+  "Undefined"
+ ],
+ "TextureShape": [
+  "Cube",
+  "None",
+  "Tex1D",
+  "Tex2D",
+  "Tex3D"
+ ],
+ "TextureUsage": [
+  "ColorTarget",
+  "CopyDest",
+  "CopySource",
+  "DepthStencilTarget",
+  "None",
+  "Reinterpret",
+  "Sampled",
+  "Storage",
+  "Transient"
+ ],
+ "ThermalStatus": [
+  "Critical",
+  "Emergency",
+  "Error",
+  "Light",
+  "Moderate",
+  "None",
+  "NotSupported",
+  "Severe",
+  "Shutdown"
+ ],
+ "ThreadPriority": [
+  "AboveNormal",
+  "BelowNormal",
+  "Highest",
+  "Lowest",
+  "Normal"
+ ],
+ "Topology": [
+  "LineList",
+  "LineLoop",
+  "LineStrip",
+  "Lines",
+  "PatchList",
+  "PointList",
+  "Points",
+  "TriangleFan",
+  "TriangleList",
+  "TriangleStrip",
+  "Triangles"
+ ],
+ "TrackKind": [
+  "Rotation",
+  "Scale",
+  "Translation",
+  "Weights"
+ ],
+ "ViewAspect": [
+  "All",
+  "Depth",
+  "Stencil"
+ ],
+ "Wait": [
+  "No",
+  "Yes"
+ ],
+ "Wake": [
+  "All",
+  "One"
+ ],
+ "Wrap": [
+  "Clamp",
+  "Mirror",
+  "Repeat"
+ ]
+}

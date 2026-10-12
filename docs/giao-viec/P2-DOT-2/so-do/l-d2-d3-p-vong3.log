@@ -1,0 +1,13 @@
+# 2026-10-08 09:47:17  D2-D3-P vòng 3: không có bản dựng nào khác đang chạy (giữ NANG.lock)
+> build/msvc-release/net_bench.exe (chạy 5 lần); affinity luồng logic 0..11 (nhân P), kiểm: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]
+
+luot	p50_us	p99_us	max_us	mib_moi_giay	ket_qua	exit
+1	19.5	32.0	626.7	2772.0	ok	0
+2	19.5	33.6	501.0	4918.0	ok	0
+3	19.5	29.4	309.0	2229.4	ok	0
+4	17.9	29.5	303.8	2479.2	ok	0
+5	17.9	36.8	741.0	1931.9	ok	0
+
+p50 µs: trung vị 19.5000, nhỏ nhất 17.9000, lớn nhất 19.5000, lớn/nhỏ 1.089 (đạt)
+p99 µs: trung vị 32.0000, nhỏ nhất 29.4000, lớn nhất 36.8000, lớn/nhỏ 1.252 (đạt)
+MiB/giây: trung vị 2479.2000, nhỏ nhất 1931.9000, lớn nhất 4918.0000, lớn/nhỏ 2.546 (quá 1,5: đo lại)

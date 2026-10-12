@@ -1,0 +1,9 @@
+# schema 1
+# source: client_2026/RepairRate.txt
+# tool: TOOLS/server/export_tables.py; sửa tay sẽ mất ở lượt xuất sau
+# types: int	text	text	text	text
+index	original	name	type	note
+0	ID	id	int	luật: M1; khớp 100.0% (15/15 id)
+1	装备级别	equip_level	int	luật: nguyên văn; khớp 100.0% (15/15 id)
+2	武器修理率	weapon_repair_rate	float	luật: nguyên văn; khớp 100.0% (15/15 id)
+3	防具修理率	armor_repair_rate	float	luật: nguyên văn; khớp 100.0% (15/15 id)

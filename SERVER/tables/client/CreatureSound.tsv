@@ -1,0 +1,9 @@
+# schema 1
+# source: client_2026/CreatureSound.txt
+# tool: TOOLS/server/export_client_rest.py; sửa tay sẽ mất ở lượt xuất sau
+# types: int	int	int	int
+column_0	column_1	column_2	column_3
+0	0	0	14
+1	0	0	15
+2	0	0	13
+3	0	0	16

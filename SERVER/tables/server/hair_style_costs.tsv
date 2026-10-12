@@ -1,0 +1,7 @@
+# schema 1
+# source: public_config/HairStyle.txt
+# tool: TOOLS/server/import_legacy.py; sửa tay sẽ mất ở lượt xuất sau
+# types: int	int	int	int
+index	race_id	cost_item_id	cost_item_count
+0	0	20307104	1
+1	0	20307105	1

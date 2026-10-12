@@ -1,0 +1,9 @@
+# schema 1
+# source: Public/Scene/taihu_platform.ini
+# tool: TOOLS/server/export_scene.py; sửa tay sẽ mất ở lượt xuất sau
+# types: int	int	float	float	int	int	text
+type_id	class_id	position_x	position_z	direction	script_id	tip
+17	10	283	230	27		通往光明殿
+17	10	218	277	27		通往苏州
+17	10	283	38	27		通往丐帮总舵
+17	10	94	26	27		通往嵩山

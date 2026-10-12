@@ -1,0 +1,8 @@
+# schema 1
+# source: server_config/ShimenRoundMultipleTable.txt
+# tool: TOOLS/server/import_legacy.py; sửa tay sẽ mất ở lượt xuất sau
+# types: int	text	text	text	text
+index	original	name	type	note
+0	环数	round_number	int	luật: nguyên văn
+1	金钱倍率	money_multiplier	float	luật: nguyên văn
+2	经验倍率	exp_multiplier	float	luật: nguyên văn

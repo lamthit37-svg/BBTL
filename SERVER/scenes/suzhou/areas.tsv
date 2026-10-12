@@ -1,0 +1,9 @@
+# schema 1
+# source: Public/Scene/suzhou_area.ini
+# tool: TOOLS/server/export_scene.py; sửa tay sẽ mất ở lượt xuất sau
+# types: int	int	float	float	float	float
+guid	script_id	left	top	right	bottom
+0	400004	178.0000	28.0000	188.0000	34.0000
+0	400003	28.0000	158.0000	34.0000	167.0000
+0	400005	177.0000	286.0000	188.0000	292.0000
+111	-1	55.0000	243.0000	71.0000	267.0000

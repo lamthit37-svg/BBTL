@@ -1,0 +1,26 @@
+# schema 1
+# source: client_2026/Ability.txt
+# tool: TOOLS/server/export_tables.py; sửa tay sẽ mất ở lượt xuất sau
+# types: int	text	text	text	text
+index	original	name	type	note
+0	ID	id	int	luật: M1; khớp 100.0% (51/51 id)
+1	名称$1$	name	text	luật: nguyên văn; khớp 100.0% (51/51 id)
+2	所需等级	required_level	int	luật: nguyên văn; khớp 100.0% (51/51 id)
+3	最高等级	max_level	int	luật: nguyên văn; khớp 100.0% (51/51 id)
+4	升级需求和消耗表	level_up_table	text	luật: nguyên văn; khớp 100.0% (51/51 id)
+5	操作时间基数	base_action_time	int	luật: nguyên văn; khớp 100.0% (51/51 id)
+6	工具ID	tool_id	int	luật: nguyên văn; khớp 100.0% (51/51 id)
+7	工具ID2	tool_id_2	int	luật: nguyên văn; khớp 100.0% (51/51 id)
+8	辅助平台的有效距离	platform_range	float	luật: nguyên văn; khớp 100.0% (51/51 id)
+9	辅助平台ID	platform_id	int	luật: nguyên văn; khớp 100.0% (51/51 id)
+10	操作动作ID	action_id	int	luật: nguyên văn; khớp 100.0% (51/51 id)
+11	图标	icon	text	luật: nguyên văn; khớp 100.0% (51/51 id)
+12	对应动作表现工具编号（Itemvisuallocator)	visual_tool_id	int	luật: nguyên văn; khớp 100.0% (51/51 id)
+13	技能说明$1$	skill_description	text	luật: nguyên văn; khớp 96.1% (49/51 id)
+14	是否有合成界面	has_compound_ui	int	luật: nguyên văn; khớp 100.0% (51/51 id)
+15	进度条显示的字$1$	progress_text	text	luật: nguyên văn; khớp 100.0% (51/51 id)
+16	消耗活力还是精力（0表示不消耗活力精力，1表示消耗活力，2表示消耗精力，3表示消耗活力和精力）	energy_cost_kind	int	luật: nguyên văn; khớp 100.0% (51/51 id)
+17	开始时播放的声音	start_sound_id	int	luật: nguyên văn; khớp 100.0% (51/51 id)
+18	是否循环 0：不循环 1：循环	is_looping	int	luật: nguyên văn; khớp 100.0% (51/51 id)
+19	成功时播放的声音	success_sound_id	int	luật: nguyên văn; khớp 100.0% (51/51 id)
+20	失败时播放的声音	failure_sound_id	int	luật: nguyên văn; khớp 100.0% (51/51 id)

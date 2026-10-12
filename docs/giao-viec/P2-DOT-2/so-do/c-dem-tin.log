@@ -1,0 +1,50 @@
+# lệnh: python -B docs/giao-viec/P2-DOT-2/so-do/c-do.py (cwd F:\tl 2026\THIENLONG\build\p2-dot-2)
+# giờ: 2026-10-08 02:06:27
+# commit: 0e6da48f366b0a1d58d55fe9f807adba2425b47a
+# ổ F còn trống: 167328153600 byte (155.84 GiB)
+# python: 3.13.15
+
+## Số tin, trường, enum, record; cỡ thân lớn nhất
+
+### Dev: G:\TLBB\Dev\src\protocol\protocol.hpp (chỉ đọc)
+cách đếm: tin là tên trong ClientKind/ServerKind có mã 0x01xx, 0x02xx, 0x05xx (cả 0x81, 0x82, 0x85);
+trường là số lời gọi io.<hàm>(self. trong struct; record là struct được tin dùng tới (đệ quy);
+enum là enum class có giá trị được dùng làm kiểu trường (không tính id rỗng kiểu EntityId).
+tin: 19 (Hello, Login, Resume, Ping, Logout, CreateCharacter, DeleteCharacter, EnterGame, CreateAccount, SignIn, Welcome, SessionStart, ContentKey, Pong, Reject, Goodbye, ContentStamp, CharacterList, Ticket)
+trường của tin và record: 38
+record: 1 (CharacterSummary)
+enum: 5 (ClientKind, DisconnectReason, ErrorCode, Gender, Platform)
+
+### Bảng của ta: SRC/protocol/catalog (gen_protocol.load_catalog)
+tin: 19
+trường của tin và record: 38
+record: 1 (CharacterSummary)
+enum: 4 (DisconnectReason, ErrorCode, Gender, Platform)
+tin client: 10, tin server: 9
+
+### Cỡ thân lớn nhất (protocol_model.body_max_bytes)
+kind	tin	cổng	trường	thân tối đa (byte)
+0x0101	Hello	both	3	7
+0x0102	Login	game	2	580
+0x0103	Resume	game	1	16
+0x0104	Ping	game	1	4
+0x0105	Logout	game	0	0
+0x0201	CreateCharacter	game	4	55
+0x0202	DeleteCharacter	game	1	8
+0x0203	EnterGame	game	1	8
+0x0501	CreateAccount	auth	2	196
+0x0502	SignIn	auth	2	196
+0x8101	Welcome	both	3	12
+0x8102	SessionStart	game	1	16
+0x8103	ContentKey	game	1	32
+0x8104	Pong	game	2	12
+0x8106	Reject	both	2	4
+0x8107	Goodbye	both	1	1
+0x8108	ContentStamp	game	1	32
+0x8201	CharacterList	game	1	546
+0x8501	Ticket	auth	1	204
+
+record	trường	thân tối đa (byte)
+CharacterSummary	8	68
+
+# xong: 2026-10-08 02:06:27

@@ -1,0 +1,24 @@
+#==================================================
+# CẤU HÌNH LOG
+#==================================================
+# Tệp: log.toml. Mọi tiến trình đều đọc tệp này.
+
+#==================================================
+# Chung
+#==================================================
+schema = 1      # Phiên bản bố cục của tệp; bộ đọc từ chối số nó không hiểu
+audit  = true   # true: ghi thêm log thống kê và kiểm toán
+
+#==================================================
+# Tệp log
+#==================================================
+[file]
+dir       = "../log"   # Thư mục chứa tệp log; mỗi tiến trình một tệp
+rotate_mb = 64         # Tệp log lớn quá số MB này thì mở tệp mới (số tạm)
+
+#==================================================
+# Mức log
+#==================================================
+# Từ ít tới nhiều: error, warn, info, debug.
+[level]
+default = "info"   # Mức log của mọi phần chưa có dòng riêng

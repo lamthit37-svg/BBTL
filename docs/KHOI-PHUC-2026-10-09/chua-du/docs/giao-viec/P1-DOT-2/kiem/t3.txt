@@ -1,0 +1,82 @@
+tệp: 1877
+chưa phân loại: 0
+client_only: 109
+deferred: 1132
+dropped: 1
+table: 635
+bảng: 745
+bản ghi: 1198441
+thư mục: 131
+thư mục chưa phân loại: 0
+đã ghi table_census.tsv
+thời gian: 0.8 giây
+ActivityNotice.txt:1: đối chiếu bỏ 98 dòng chú thích
+ActivityRuler.txt:1: đối chiếu bỏ 7 dòng chú thích
+CampaignTable.txt:1: đối chiếu bỏ 259 dòng chú thích
+CharFaceGeo.txt:1: đối chiếu bỏ 1 dòng chú thích
+EquipBase.txt:1: đối chiếu cắt 8 dòng thừa ô
+ImpactSEData_V1.txt:1: đối chiếu bỏ 1 dòng chú thích
+ImpactSEData_V1.txt:1: đối chiếu cắt 1 dòng thừa ô
+MissionItem_HashTable.txt:1: đối chiếu bỏ 1 dòng chú thích
+MissionNPC_HashTable.txt:1: đối chiếu bỏ 4 dòng chú thích
+MissionPet_HashTable.txt:1: đối chiếu bỏ 1 dòng chú thích
+Mission_Delivery.txt:1: đối chiếu bỏ 47 dòng chú thích
+Mission_EnterArea.txt:1: đối chiếu bỏ 6 dòng chú thích
+Mission_KillMonster.txt:1: đối chiếu bỏ 31 dòng chú thích
+Mission_LootItem.txt:1: đối chiếu bỏ 48 dòng chú thích
+Mission_NpcDefault.txt:1: đối chiếu bỏ 2 dòng chú thích
+Mission_NpcDefault.txt:1: đối chiếu đệm 4 dòng thiếu ô
+MonsterAttrExTable.txt:1: đối chiếu bỏ 32 dòng chú thích
+SkillData_V1.txt:1: đối chiếu bỏ 39 dòng chú thích
+SkillTemplate_V1.txt:1: đối chiếu bỏ 23 dòng chú thích
+tệp: 1877
+chưa phân loại: 0
+client_only: 109
+deferred: 1132
+dropped: 1
+table: 635
+thư mục: 131
+thư mục chưa phân loại: 0
+bảng sẽ ghi: 635
+bảng đã ghi: 635
+bản ghi: 994925
+cột: 17247
+cột có tên: 764
+cột còn ?: 2138
+⟪thiếu dòng này⟫
+⟪thiếu dòng này⟫
+⟪thiếu dòng này⟫
+⟪thiếu dòng này⟫
+⟪thiếu dòng này⟫
+⟪thiếu dòng này⟫
+⟪thiếu dòng này⟫
+⟪thiếu dòng này⟫
+⟪thiếu dòng này⟫
+⟪thiếu dòng này⟫
+⟪thiếu dòng này⟫
+⟪thiếu dòng này⟫
+⟪thiếu dòng này⟫
+⟪thiếu dòng này⟫
+⟪thiếu dòng này⟫
+⟪thiếu dòng này⟫
+⟪thiếu dòng này⟫
+⟪thiếu dòng này⟫
+⟪thiếu dòng này⟫
+⟪thiếu dòng này⟫
+⟪thiếu dòng này⟫
+⟪thiếu dòng này⟫
+⟪thiếu dòng này⟫
+⟪thiếu dòng này⟫
+⟪thiếu dòng này⟫
+⟪thiếu dòng này⟫
+⟪thiếu dòng này⟫
+⟪thiếu dòng này⟫
+⟪thiếu dòng này⟫
+⟪thiếu dòng này⟫
+⟪thiếu dòng này⟫
+⟪thiếu dòng này⟫
+⟪thiếu dòng này⟫
+⟪thiếu dòng này⟫
+⟪thiếu dòng này⟫
+⟪thiếu dòng này⟫
+⟪thiếu dòng này⟫

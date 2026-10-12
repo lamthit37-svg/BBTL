@@ -1,0 +1,6 @@
+# schema 1
+# source: Public/Scene/jiaofei_area.ini
+# tool: TOOLS/server/export_scene.py; sửa tay sẽ mất ở lượt xuất sau
+# types: int	int	float	float	float	float
+guid	script_id	left	top	right	bottom
+0	5115	30.0000	174.0000	34.0000	178.0000

@@ -1,0 +1,9 @@
+# schema 1
+# source: Public/Scene/wuliang_platform.ini
+# tool: TOOLS/server/export_scene.py; sửa tay sẽ mất ở lượt xuất sau
+# types: int	int	float	float	int	int	text
+type_id	class_id	position_x	position_z	direction	script_id	tip
+17	10	38	176	27		通往大理
+17	10	114	38	27		通往凌波洞
+17	10	93	276	27		通往天龙寺
+17	10	273	77	27		通往镜湖

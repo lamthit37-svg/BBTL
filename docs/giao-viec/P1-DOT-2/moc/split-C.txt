@@ -1,0 +1,26 @@
+Lệnh: python docs/giao-viec/P1-DOT-1/kiem-claude/treehash.py
+
+Mốc docs/giao-viec/P1-DOT-2/moc/treehash.txt:
+SERVER/tables/shared: 574 tệp, 91883385 byte, 132e9cbd4cb0b337
+SERVER/tables/variants: 61 tệp, 2024371 byte, a40769aad6d73f4e
+SERVER/tables/server: 69 tệp, 8662611 byte, bd80ac6dae62d187
+SERVER/scenes: 3787 tệp, 149595282 byte, 64181a8c2e16f7b9
+TOOLS/server/columns: 716 tệp, 1131907 byte, 2a1828a3b6f3920f
+
+Kết quả sau khi tách hàm:
+SERVER/tables/shared: 574 tệp, 91883385 byte, 132e9cbd4cb0b337
+SERVER/tables/variants: 61 tệp, 2024371 byte, a40769aad6d73f4e
+SERVER/tables/server: 69 tệp, 8662611 byte, bd80ac6dae62d187
+SERVER/scenes: 3787 tệp, 149595282 byte, 64181a8c2e16f7b9
+TOOLS/server/columns: 716 tệp, 1131907 byte, 2a1828a3b6f3920f
+
+Hai kết quả trùng từng dòng. Không sửa cây đầu ra.
+
+Hàm đã tách, chỉ C-03 phần vai C. Không đổi tên tệp đầu ra.
+
+TOOLS/server/export_scene.py
+- _value_rows, 45 dòng, lồng 4. Còn 11 dòng. Tách _value_section (26), _value_keys (9), _value_key (10), _value_extra (6).
+- _patrol_section, 74 dòng. Còn 19 dòng. Tách _patrol_total (14), _patrol_walk (13), _patrol_route (6), _patrol_point (19), _patrol_unread (6), _missing_patrol_pos (6), _patrol_row (18), _patrol_notes (11). Thêm _PatrolWalk để gom trạng thái đi qua các hàm.
+
+TOOLS/server/test_export_scene.py
+- test_level_override_and_patrol_unread, 62 dòng. Còn 26 dòng. Phần dựng dữ liệu chuyển sang _level_patrol_scene (33).

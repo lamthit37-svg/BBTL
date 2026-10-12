@@ -1,0 +1,8 @@
+# schema 1
+# source: client_2026/StrFilter.txt
+# tool: TOOLS/server/export_tables.py; sửa tay sẽ mất ở lượt xuất sau
+# types: int	text	text	text	text
+index	original	name	type	note
+0	INT	int	int	neo: cột gốc 0, khớp 100.0% (2663/2663 id); luật: M1
+1		column_1	text	mới ở 2026
+2		column_2	int	mới ở 2026

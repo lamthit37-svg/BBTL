@@ -1,0 +1,721 @@
+# Bản tiếng Việt của client: MỘT tệp cho mọi thứ được bản địa hoá. TOOLS/content/build_i18n.py đưa
+# nó vào CLIENT/data ở mỗi lượt dựng client (target thienlong_i18n của CMake); sửa ở đây rồi dựng
+# lại, không sửa tệp sinh. Mỗi dòng: khoá, một dấu tab, giá trị. Bốn loại khoá:
+# - khoá #{...} của Config/StrDictionary.txt, hoặc khoá mở đầu bằng dấu = là nguyên văn chữ viết
+#   thẳng trong layout: giá trị là chữ tiếng Việt. Giữ nguyên thẻ # của bản gốc (#cRRGGBB, #Y, #G,
+#   #r...) và chỗ điền %d, %s. Khoá chưa có ở đây thì client hiện chữ gốc.
+# - scene/<tên gốc>: tên cảnh của Config/SceneDefineEx.txt (cột 2, nguyên văn kể cả dấu cách).
+# - image/<bộ ảnh>/<tên ảnh>: giá trị là tệp PNG trong assets/i18n/vi/, đúng cỡ điểm ảnh của mảnh
+#   ảnh gốc; bộ dựng thay mảnh đó ngay trong atlas của bộ ảnh.
+# - file/<đường dẫn trong CLIENT/data>: giá trị là tệp trong assets/i18n/vi/, chép nguyên.
+# Ảnh. logo.png: logo tiếng Việt chủ dự án đưa ngày 2026-10-08, cắt về cỡ mảnh ảnh gốc.
+image/CommonFrame9/Logo	logo.png
+# Ba thẻ kiểu tài khoản và nút vào game của bảng nhập tài khoản: chữ lấy từ tấm nút tiếng Việt chủ
+# dự án đưa ngày 2026-10-08 (source/button_sheet.png), đặt lên đúng nền nút gốc bằng
+# TOOLS/content/letter_buttons.py; không sửa tay 12 tệp này. Thẻ truyền thống mang chữ "Đăng Nhập",
+# thẻ tự đặt "Nhập Tài Khoản", thẻ mã QR "Đăng Ký".
+image/CommonFrame28/Logon_Houzhui_Normal	Logon_Houzhui_Normal.png
+image/CommonFrame28/Logon_Houzhui_Hover	Logon_Houzhui_Hover.png
+image/CommonFrame28/Logon_Houzhui_Pushed	Logon_Houzhui_Pushed.png
+image/CommonFrame28/Logon_EnterHouzhui_Normal	Logon_EnterHouzhui_Normal.png
+image/CommonFrame28/Logon_EnterHouzhui_Hover	Logon_EnterHouzhui_Hover.png
+image/CommonFrame28/Logon_EnterHouzhui_Pushed	Logon_EnterHouzhui_Pushed.png
+image/CommonFrame28/Logon_Erweima_Normal	Logon_Erweima_Normal.png
+image/CommonFrame28/Logon_Erweima_Hover	Logon_Erweima_Hover.png
+image/CommonFrame28/Logon_Erweima_Pushed	Logon_Erweima_Pushed.png
+image/CommonFrame18/EnterGame_Normal	EnterGame_Normal.png
+image/CommonFrame18/EnterGame_Hover	EnterGame_Hover.png
+image/CommonFrame18/EnterGame_Pushed	EnterGame_Pushed.png
+# Trang mà các nút mở trang web của bảng đăng nhập hiện ra (nạp thẻ, đăng ký, quên mật khẩu, thẻ
+# bảo mật, trợ giúp) khi chưa có trang thật.
+file/Web/coming_soon.html	web/coming_soon.html
+# Chữ giao diện.
+# Bảng chuyển cảnh: hai mẫu chữ viết thẳng trong SceneTrans.lua (ui/panel/scene_trans), %s0 là tên
+# cảnh sẽ tới, %s1 là phần trăm đã nạp.
+=前往%s0	Đến %s0
+=前往%s0[%s1]	Đến %s0 [%s1]
+=帮助	Trợ giúp
+=门派手册	Sổ tay môn phái
+=门派简介	Giới thiệu môn phái
+AQZX_130812_01	Nhấn để vào Trung tâm An toàn Thiên Long Bát Bộ, bảo vệ toàn diện tài khoản và tài sản của bạn.
+AQZX_130812_02	An Toàn
+BDYB_090714_13	#YNguyên Bảo khoá: dùng để mua hàng ở Tiệm Nguyên Bảo khoá; hàng mua ở đó đều khoá khi nhặt.
+BHXX_160531_1	#cfff263Bang hội:
+BHXX_160531_3	#cfff263Điểm:
+BHXZ_081103_158	#cfff263Khi bang hội chinh phạt, nhấn nút này để xem điểm chinh phạt hiện tại của bang.
+BHXZ_150831_02	Nhấn để mở bảng xếp hạng chiến tích bang hội
+BHZB_140521_1	#YLệnh bài
+BUGFK_XML_1	Báo lỗi trò chơi
+BWDH_180804_143	Nhấn để xem chi tiết hạng bậc Thức Kiếm Thiên Hạ.
+BWDH_180804_170	#cfff263Thần#rKiếm
+CPSJ_260112_1	Danh
+CPSJ_260112_2	#YĐạt cấp #G30#Y là mở được giao diện Danh vật.
+CTPK_251016_1	#cC8B88ECấp %s0
+DECOW_160126_73	#YNhấn để mở giao diện #GNgoại hình#Y, xem và đổi #Gthời trang#Y, #Gvũ khí huyễn sức#Y, #Gkhuôn mặt#Y, #Gkiểu tóc#Y, #Gmàu tóc#Y, #Gphụ thể#Y, #Gthú cưỡi#Y, #Gảnh đại diện#Y, #Gkhung ảnh#Y, #Gtrang sức lưng#Y, #Gtrang sức đầu#Y; cũng xem và đổi được #Gthời trang tử nữ#Y, #Gkiểu tóc tử nữ#Y.
+FBSJ_081209_77	Ám khí
+FDH_90316_1	#cfff263Nhấn để vào giao diện khoá trang bị, vật phẩm.
+FJWJ_081106_01	#YDanh sách người chơi lân cận#rPhím tắt ALT+R
+FJYX_110426_142	Nhắc nhận phi điêu truyền thư
+FQ_101210_04	Phiếu hoàn: phiếu hoàn đổi được sẽ bị xoá vào cuối mỗi quý. Nạp qua thẻ ngân hàng, nạp lớn qua thẻ ngân hàng, Alipay, WeChat tại Trung tâm quản lý nạp Changyou thì mỗi 1 điểm nạp được tặng 4 điểm tích luỹ. Tới Tiền Trang (65, 40) gặp Tôn Tiến Bảo để đổi điểm tích luỹ thành phiếu hoàn theo tỉ lệ 1:1. Phiếu hoàn dùng để đổi đạo cụ hiếm ở Tiệm Phiếu hoàn.
+FWNQ_141013_05	#gFF0FA0Trung tâm hỗ trợ Thiên Long Bát Bộ
+GDWPBH_090507_4	#cff0000Quý
+GJYLK_120517_147	#c00ccffCấp mang giảm còn %d (Bách Binh Tinh Thông)
+GMDP_Struct_Relation_1	Chưa rõ
+GMGameInterface_Script_DataPool_Info_ERenGu	Ác Nhân Cốc
+GXGG_010119_4	Nhấn để xem thông báo cập nhật và bảng xếp hạng.
+IMXZ_20100813_61	Ẩn hình tượng
+INTERFACE_XML_1038	Nhấn để mở bảng soạn Loa nhỏ#rGửi tin cần tiêu hao vật phẩm Loa nhỏ.#r#G(Mua tại Tiệm Nguyên Bảo)
+INTERFACE_XML_104	90 giờ
+INTERFACE_XML_1040	Nhắc xác thực danh tính#rNút nhấp nháy khi vào thời gian chống nghiện
+INTERFACE_XML_105	91 giờ
+INTERFACE_XML_1051	Nhấn để nới rộng khung trò chuyện
+INTERFACE_XML_1052	Nhấn để thu hẹp khung trò chuyện
+INTERFACE_XML_106	92 giờ
+INTERFACE_XML_107	93 giờ
+INTERFACE_XML_108	94 giờ
+INTERFACE_XML_109	95 giờ
+INTERFACE_XML_110	96 giờ
+INTERFACE_XML_111	97 giờ
+INTERFACE_XML_112	98 giờ
+INTERFACE_XML_113	99 giờ
+INTERFACE_XML_114	Cấp XX
+INTERFACE_XML_1161	Lịch
+INTERFACE_XML_122	Sạp
+INTERFACE_XML_125	Bang hội  Phím tắt Alt+O
+INTERFACE_XML_128	Tên bang: Cái Bang
+INTERFACE_XML_140	Nhấn để lưu nội dung trò chuyện của kênh hiện tại vào thư mục trò chơi
+INTERFACE_XML_144	Biểu cảm
+INTERFACE_XML_146	Vật Tư
+INTERFACE_XML_149	Loại thử nghiệm
+INTERFACE_XML_167	Tách
+INTERFACE_XML_174	Danh hiệu:
+INTERFACE_XML_18	#gFF0FA0Hành Trang
+INTERFACE_XML_198	Giang hồ chỉ nam
+INTERFACE_XML_201	Mở thanh phím tắt ẩn
+INTERFACE_XML_220	Hiện Tại
+INTERFACE_XML_226	Đạo Cụ
+INTERFACE_XML_230	Cấp: 999
+INTERFACE_XML_233	Bản đồ khu vực  Tab
+INTERFACE_XML_250	Định Lực:
+INTERFACE_XML_252	Tăng Định lực ảnh hưởng tới phòng ngự nội công và giới hạn Khí
+INTERFACE_XML_254	Động tác
+INTERFACE_XML_269	Từ Bỏ
+INTERFACE_XML_280	Riêng
+INTERFACE_XML_301	Đóng
+INTERFACE_XML_304	Đóng thanh phím tắt ẩn
+INTERFACE_XML_313	Hảo hữu  Phím tắt Alt+F
+INTERFACE_XML_326	Hộ phù
+INTERFACE_XML_327	Hộ giáp
+INTERFACE_XML_328	Hộ kiên
+INTERFACE_XML_329	Hộ uyển
+INTERFACE_XML_331	Hoa Sơn Luận Kiếm
+INTERFACE_XML_332	Khôi phục
+INTERFACE_XML_337	Kháng Hội:
+INTERFACE_XML_338	Hội Tâm:
+INTERFACE_XML_342	Hoạt Lực:
+INTERFACE_XML_345	Cấp: 99
+INTERFACE_XML_346	Kỹ năng  Phím tắt Alt+S
+INTERFACE_XML_356	Kết Bạn
+INTERFACE_XML_368	Giao dịch  Phím tắt Alt+E
+INTERFACE_XML_372	Nhận
+INTERFACE_XML_378	Nhẫn
+INTERFACE_XML_383	Nhân Đôi Kinh Nghiệm
+INTERFACE_XML_384	Tinh Lực:
+INTERFACE_XML_407	Nhận Được
+INTERFACE_XML_416	Nhấn để tăng chiều cao khung trò chuyện
+INTERFACE_XML_429	Sức Mạnh:
+INTERFACE_XML_430	Tăng Sức mạnh ảnh hưởng tới công kích ngoại công
+INTERFACE_XML_437	Linh Khí:
+INTERFACE_XML_438	Tăng Linh khí ảnh hưởng tới công kích nội công
+INTERFACE_XML_450	Môn phái: Cái Bang
+INTERFACE_XML_451	Môn phái: Hồng Hưng Hội
+INTERFACE_XML_464	Tên: Nguyệt Quang Chiếu Đại Sàng
+INTERFACE_XML_468	Chính Xác:
+INTERFACE_XML_470	Nội Thủ:
+INTERFACE_XML_471	Nội Kích:
+INTERFACE_XML_481	Nộ:
+INTERFACE_XML_488	Nhấn để chọn loại tin hiển thị ở kênh hiện tại
+INTERFACE_XML_491	Đổi kênh  Phím tắt Alt+,
+INTERFACE_XML_496	Khác
+INTERFACE_XML_497	Cưỡi
+INTERFACE_XML_498	Khí:
+INTERFACE_XML_500	Điểm:
+INTERFACE_XML_52	#gFF0FA0Nhật Ký Nhiệm Vụ
+INTERFACE_XML_543	Thôi Theo
+INTERFACE_XML_557	Đồng ý
+INTERFACE_XML_566	Nhân vật  Phím tắt Alt+C
+INTERFACE_XML_570	N.Vụ
+INTERFACE_XML_572	Nhiệm vụ  Phím tắt Alt+Q
+INTERFACE_XML_574	Tên nhiệm vụ tên nhiệm vụ
+INTERFACE_XML_586	Né Tránh:
+INTERFACE_XML_607	Nói Riêng
+INTERFACE_XML_628	Thân Pháp:
+INTERFACE_XML_629	Tăng Thân pháp ảnh hưởng tới chính xác, né tránh và hội tâm
+INTERFACE_XML_634	Lên Cấp:
+INTERFACE_XML_645	Bản đồ thế giới  Phím tắt Alt+M
+INTERFACE_XML_652	Bao tay
+INTERFACE_XML_656	Nhập
+INTERFACE_XML_66	#gFF0FA0Thông tin người chơi
+INTERFACE_XML_670	Nhấn để giảm chiều cao khung trò chuyện
+INTERFACE_XML_675	Khoá
+INTERFACE_XML_685	Thể Lực:
+INTERFACE_XML_688	Tăng Thể lực ảnh hưởng tới phòng ngự ngoại công và giới hạn Máu
+INTERFACE_XML_689	Thiên Long
+INTERFACE_XML_701	Mũ
+INTERFACE_XML_706	Ngoại Thủ:
+INTERFACE_XML_707	Ngoại Kích:
+INTERFACE_XML_714	Màu chữ
+INTERFACE_XML_722	Vũ khí
+INTERFACE_XML_725	Vật phẩm  Phím tắt Alt+A
+INTERFACE_XML_734	Báo
+INTERFACE_XML_756	Dây chuyền
+INTERFACE_XML_762	Giày
+INTERFACE_XML_764	Tâm trạng: Suy sụp
+INTERFACE_XML_773	Tên:
+INTERFACE_XML_785	Phí sửa chữa
+INTERFACE_XML_805	Máu:
+INTERFACE_XML_813	Đai lưng
+INTERFACE_XML_821	Một hai ba bốn năm sáu
+INTERFACE_XML_835	Kinh Nghiệm:
+INTERFACE_XML_854	Thú
+INTERFACE_XML_855	Trân thú  Phím tắt Alt+X
+INTERFACE_XML_861	Xếp
+INTERFACE_XML_869	Chỉ Bắc  Phím tắt Alt+V
+INTERFACE_XML_877	Đồ
+INTERFACE_XML_884	Nhấn để tạo thẻ kênh trò chuyện mới
+INTERFACE_XML_889	Tự 1
+INTERFACE_XML_890	Tự 2
+INTERFACE_XML_893	Tổng
+INTERFACE_XML_896	Theo Đội
+INTERFACE_XML_904	Giá trị lớn nhất
+INTERFACE_XML_906	Thu nhỏ
+INTERFACE_XML_936	Điểm tặng nhận được khi tham gia các hoạt động
+INTERFACE_XML_937	Nguyên Bảo có được nhờ nạp thẻ
+INTERFACE_XML_FY_001	Xin Đội
+INTERFACE_XML_FY_002	Mời Đội
+INTERFACE_XML_MINI_01	Nhấn chuột để tự đặt thời gian an toàn
+INTERFACE_XML_MINI_02	Thời gian an toàn còn lại
+JSCJYH_121224_01	#GNhấn đúp để vào game
+JSCJYH_121224_04	    #cfff263Thiếu Lâm ngoại công cương mãnh, thông #Ghuyền#cfff263 học, giỏi #Gcận chiến#cfff263. Thủ đứng đầu các phái, hộ trợ đồng đội.#r    #GCấp 10#cfff263 tới #GNgũ Hoa Đàn Đại Lý#cfff263 gặp #GHuệ Dịch#cfff263 nhập môn, bái sư #GHuyền Tịch#cfff263.
+JSCJYH_121224_15	#cfff263Nhấn tên từng môn phái để xem trước
+JSSJ_220303_01	#YNhấn thì vào #Gtrạng thái khoá#Y, nhân vật sẽ không lên cấp được. Mở khoá trạng thái này phải chờ #G3#Y ngày mới có hiệu lực.
+JSSJ_220303_02	#YNhấn thì vào #Gtrạng thái đang mở khoá#Y, mở khoá xong nhân vật lên cấp được. Trạng thái đang mở khoá kéo dài #G3#Y ngày, sau #G3#Y ngày trạng thái khoá sẽ được #Ghuỷ#Y.
+JSXL_140821_3	#YKim Ti hiến lễ phúc cùng đến, nâng cấp điêu văn cũng trong tầm tay
+JXJW_140822_22	Ấn
+JXSQ_170814_179	#HLinh:
+JXSQ_170829_216	Thần
+JXSQ_170829_217	#YCó Thần khí thượng cổ #Gcấp 102#Y và hoàn thành nhiệm vụ #GKỳ duyên khám phá thần khí bí#Y thì mới mở được giao diện này.
+JZT_081211_1	Giao tử: vàng khoá, chết không rơi. Mọi chức năng cần trả Giao tử sẽ trừ Giao tử trước, thiếu Giao tử mới trừ vàng.
+KCJXL_130417_1	#GGiữ chuột phải để kéo bản đồ, nhấp chuột trái lên bản đồ để tự tìm đường
+KCJXL_130417_3	#GGiữ chuột phải để kéo bản đồ, nhấp chuột trái lên bản đồ để tự tìm đường xuyên cảnh
+KDJYD_250814_12	#YLên cấp #G120#Y cần tới #GĐại Lý (100, 102)#R Tiêu Phong#Y hoàn thành #Gnhiệm vụ: Tu võ thông đạt phá huyền quan#Y, sau đó có thể tiếp tục lên cấp ở đây.
+KHD_220826_52	Chế độ chụp ảnh
+LJSD_120508_02	#YHồng lợi: loại tiền không lưu thông giữa người chơi, do triều đình phát thưởng cho người chơi hoàn thành nhiệm vụ lương. Hồng lợi dùng để mua hàng ở Tiệm Hồng lợi; hàng mua ở đó đều khoá khi nhặt. Muốn biết cách kiếm Hồng lợi, hãy tới Đại Lý (149, 122) gặp Chúc Phú Quý.
+LTFP_091016_1	Thiết lập hiển thị chia màn
+LTQH_XML_106	#cfff263Có thể nhấn #GCtrl+Enter#cfff263 để gửi nhanh
+LTQH_XML_28	Tố cáo
+LTQH_XML_29	Xem thông tin
+LTQH_XML_30	Lịch sử trò chuyện
+LTQH_XML_31	Xoá màn hình
+LTQH_XML_32	Gửi
+LTQH_XML_33	Chặn
+LTQH_XML_34	Mời tham gia
+LTQH_XML_35	Thông báo nhóm
+LTQH_XML_89	#gFF0FA0Trò chuyện hảo hữu
+LW_KVK_XML_34	Long văn
+MPJJ_XT_XML_01	Mạch
+NGGZ_230511_1	Tự Đánh
+NGGZ_230511_2	Đang Tự Đánh
+NJBZ_220816_11	Tinh
+NJBZ_220816_12	#YĐạt #Gcấp 85#Y và hoàn thành #Gnhiệm vụ: Huỳnh lạc sơ thức Thiên Tinh Bàn#Y là mở được giao diện này.
+NQLT_141118_01	Nhấn để vào diễn đàn chính thức, chia sẻ mọi chủ đề và nắm tin mới nhất của Tân Thiên Long Bát Bộ.
+PFZY_140613_199	Nhấn để xem hướng dẫn tăng điểm trang bị.
+PKPK_20251021_3	#YNhấn để mở bảng thông tin máy chủ PK.
+QXFJYXG_260618_5	#YNhấn để xem giải thích cấp máy chủ Khinh Hưởng.
+RWYQ_150707_01	#cfff263Đạt #Gcấp 50#cfff263 và #Gcó con của riêng mình#cfff263 thì mới mở được giao diện này.
+RWYQ_150707_02	#cfff263Đạt #Gcấp 65#cfff263 thì mở được giao diện này.
+RWYQ_150707_03	#cfff263Đạt #Gcấp 70#cfff263 thì mở được giao diện này.
+RWYQ_150707_04	#cfff263Đạt #Gcấp 75#cfff263 và hoàn thành #Gnhiệm vụ: Tu Di sứ tiết tri bí tịch#cfff263 thì mở được giao diện này.
+RWYQ_150707_05	#cfff263Đạt #Gcấp 80#cfff263 và tới #GTô Châu (350, 229) gặp Trương Sĩ Tâm#cfff263 hoàn thành #Gcác nhiệm vụ về Chân nguyên#cfff263 thì mở được giao diện này.
+RWYQ_150707_06	#cfff263Đạt #Gcấp 90#cfff263 và hoàn thành #Gnhiệm vụ tiến giai môn phái#cfff263 thì mở được giao diện này.
+RWYQ_150707_07	#cfff263Người chơi đạt #Gcấp 15#cfff263 mới mở được giao diện này.
+RWYQ_150707_08	#cfff263Người chơi đạt #Gcấp 85#cfff263 mới mở được giao diện này.
+RWZZYH_120925_01	#GMẹo: chuột phải vào tên để bật/tắt theo dõi.
+RWZZ_090601_01	Nhiệm vụ đã nhận
+RWZZ_090601_02	Nhiệm vụ có thể nhận
+RWZZ_090601_03	Khôi phục giao diện mặc định
+RWZZ_090601_04	Khoá giao diện
+RWZZ_090601_05	Mở khoá giao diện
+RWZZ_090601_06	Nhiệm Vụ
+RWZZ_090601_07	Hoạt Động
+RWZZ_090601_08	Đóng/Mở theo dõi nhiệm vụ
+RWZZ_090601_09	Đóng/Mở theo dõi hoạt động
+RWZZ_090601_10	Nhấn để tăng chiều cao giao diện
+RWZZ_090601_11	Nhấn để giảm chiều cao giao diện
+RWZZ_090601_12	Nhấn để tăng chiều rộng giao diện
+RWZZ_090601_13	Nhấn để giảm chiều rộng giao diện
+SQSX_120806_48	#HĐộ Hợp:
+SSCK_180821_11	#YNhấn để mở hoặc đóng #GThiên Cơ Cẩm Nang#Y.#rĐạo cụ nhận được khi mở #Grương phó bản#Y sẽ được #Gưu tiên cất#Y vào #GThiên Cơ Cẩm Nang#Y. Bạn có thể kéo đạo cụ tuỳ ý sang #Ghành trang#Y hoặc #GThiên Cơ Cẩm Nang#Y.
+TCMZ_211027_1	#cfff263Ngẫu nhiên
+TDGZ_XML_01	Lập Đoàn
+THDXG_190705_03	#cfff263Đào Hoa Đảo
+TLDC_110512_02	Nhấn để vào Khảo sát Thiên Long
+TLTJ_110215_15	Nhấn để nhận đồ giám mục tiêu.
+TLZL_231107_67	#YĐây là #Gthời gian nhân đôi kinh nghiệm Huyền Linh Đan#Y còn lại, có thể dùng #GCàn Linh Chân Kinh#Y trong phúc lợi điểm danh #GTu Võ Chi Ước#Y để rã đông và đóng băng thời gian nhân đôi.
+TM_20080311_30	Tên đồng minh:
+TXYZ_230710_02	#YBậc võ học hiện tại: bậc #G%s0#Y.#rKhi bị người chơi có bậc võ học thấp hơn tấn công, mọi sát thương cuối cùng phải nhận đều giảm; mức giảm tuỳ chênh lệch bậc võ học của hai bên. Hiệu quả này không có tác dụng trong cảnh Tân Tranh Bá Tái.#rKinh nghiệm cộng thêm hiện tại: #G%s1%#Y.#rTrấn phái bí bảo cộng thêm: #G%s2%#Y.
+WGPF_191106_10	#YPhẩm giai của bạn là #G%s0#Y, nhấn để xem.
+WH_xml_XX(95)	Hồn
+WLMJ_130121_54	Sách
+WYXT_20170807_86	Võ Ý
+WYXT_20170907_302	#YĐạt #Gcấp 85#Y và hoàn thành nhiệm vụ #GThiên hiện Bắc Đẩu ý sinh võ#Y thì mở được giao diện này.
+XLDL_140606_04	Đỉnh
+XL_XML_35	Luyện
+XMPHM_210604_01	Tuyệt Tình Cốc
+XSHLY_150522_99	#YNhấn để xem hoạt động đặc sắc Tháng Vui Tân Thủ
+XSJNH_180111_01	#YNhấn để xem hoạt động đặc sắc Lễ Hội Tân Thủ!
+XSYH_XML_40	Ô trang bị túi hành nang: tăng sức chứa ngăn đạo cụ của bạn, tối đa thêm 40 ô.
+XSYH_XML_41	Ô trang bị hộp ngăn: tăng sức chứa ngăn nguyên liệu của bạn, tối đa thêm 40 ô.
+XSYH_XML_44	Tổ đội/Đoàn  Phím tắt Alt+T
+XSYH_XML_45	Hệ thống  Phím tắt Esc
+XZGJ_090507_1	Chuyển sang mục tiêu của đối phương
+XZLT_240829_1	G.Hồ
+XZRW_XML_12	#GCấp 10 mới vào môn phái
+XZXT_240517_12	#YNhấn để xem thông tin #GThiên huân#Y hiện tại của người chơi này.
+YLK_120307_25	Nhấn vào đây để vào khu dịch vụ tiện ích mà Thẻ Du Long kích hoạt cho bạn.
+YXDY_081027_01	#YPhiếu khảo sát Thiên Long Bát Bộ
+ZDGS_Tips_90602_01	Phím tắt Alt+I
+ZDGS_Tips_90602_02	Phím tắt Alt+K
+ZDJB_161013_04	Nhấn để xem danh sách người chơi bạn đang chặn. Sau khi chặn sẽ không nhận được tin trò chuyện và lời mời tổ đội của người đó.
+ZDPF_130115_01	Điểm Trang Bị:
+ZDPF_130115_02	Điểm trang bị chịu ảnh hưởng của thuộc tính trang bị toàn thân, bảo thạch, điêu văn, cường hoá, khắc minh, tư chất, chân nguyên, phụ thể, thuộc tính tinh thông, tử nữ, Thần Mộc Vương Đỉnh, hiệp ấn, bảo giám, võ ý, thần khí, Vô Tự Phổ, Thiên Tinh Bàn, trấn phái bí bảo, danh vật và cấp của người chơi.#rĐiểm trang bị cao nhất từng đạt: %s0
+ZDZD_200724_02	#YPhím tắt: %s0
+ZDZT_20250109_1	#YTrạng thái PK: khi tấn công hiệp sĩ khác hoặc bị hiệp sĩ khác tấn công sẽ lập tức vào trạng thái PK. Trong lúc đó, tự tìm đường sẽ không tự cưỡi thú.#rGiải trừ trạng thái PK: sau khi vào trạng thái PK, nếu trong mười giây không giao chiến với ai thì trạng thái PK tự giải trừ.
+ZMTF_230628_216	#YNhấn để mở giao diện Tuyệt học.
+ZNHK_151201_04	#cfff263Điển tịch tử nữ siêu ưu đãi, tặng chú giải và nghiên tập điển tịch
+ZNJCS_130825_7	Con
+ZSAN_90311_1	Nhấn chuột trái để chọn trân thú của đồng đội; nhấn chuột phải để xem thông tin trân thú của đồng đội.
+ZSGN_101129_02	#cfff263Tặng thời trang cho hảo hữu
+ZXCZ_120717_03	Nhấn để mở cổng nạp thẻ Thiên Long Bát Bộ và nạp cho trò chơi của bạn.
+ZXCZ_120717_06	Đổi điểm nạp thành Nguyên Bảo.
+ZYXT_120528_154	Chân
+ZZDY_130131_85	Chiêu
+ZZZB_150811_113	Giám
+ZZZB_150811_114	Bạn chưa đạt cấp 85, không thể kích hoạt Ngũ Hành Bảo Giám!
+CYEWM_140609_04	#YMở Changyou+ trên điện thoại rồi quét mã QR để đăng nhập.
+DHMB_0711_05	Người dùng thẻ bảo mật nhập tài khoản và mật khẩu xong phải xác thực theo số trên thẻ mới đăng nhập được.
+DHMB_90417_1	    #cffff01Trò chơi dành cho người đã #Gxác thực danh tính#cffff01 và đủ #G18 tuổi#cffff01 trở lên.
+DLJM_XML_15	#GNhấn đúp để tạo nhân vật
+DLYH_091208_2	Chọn đuôi
+DLYH_121213_01	#H#u[Bấm để chọn đuôi]#n
+DXTS_190221_01	#YCaps Lock bật
+FXDL_111216_08	#YTài khoản khác:
+INTERFACE_XML_1010	Xoá
+INTERFACE_XML_1011	Hoa
+INTERFACE_XML_1016	#e010101Dùng thẻ bảo mật
+INTERFACE_XML_1035	Gắn Thẻ
+INTERFACE_XML_1036	Bấm để mở trang bảo vệ tài khoản trên trang chủ Thiên Long Bát Bộ
+INTERFACE_XML_1037	#cccccccTruyện hư cấu
+INTERFACE_XML_135	Giúp
+INTERFACE_XML_600	Quay Lại
+INTERFACE_XML_658	Mật khẩu
+INTERFACE_XML_661	Tài khoản
+INTERFACE_XML_851	Nạp Thẻ
+INTERFACE_XML_852	Đăng Ký
+WEGAME_20220209_06	#cfff263Mã WeGame
+WJMM_090427_01	Quên MK
+WJMM_090427_03	Bấm để mở trang quản lý tài khoản trên trang chủ Thiên Long Bát Bộ.
+YXDL_111205_4	Tài khoản
+# Tên cảnh.
+scene/洛阳	Lạc Dương
+scene/苏州	Tô Châu
+scene/大理	Đại Lý
+scene/嵩山	Tung Sơn
+scene/太湖	Thái Hồ
+scene/镜湖	Kính Hồ
+scene/无量山	Vô Lượng Sơn
+scene/剑阁	Kiếm Các
+scene/敦煌	Đôn Hoàng
+scene/少林寺	Thiếu Lâm Tự
+scene/丐帮总舵	Tổng Đà Cái Bang
+scene/光明殿	Quang Minh Điện
+scene/武当山	Võ Đang Sơn
+scene/天龙寺	Thiên Long Tự
+scene/凌波洞	Lăng Ba Động
+scene/峨嵋山	Nga Mi Sơn
+scene/星宿海	Tinh Túc Hải
+scene/天山	Thiên Sơn
+scene/雁南	Nhạn Nam
+scene/雁北	Nhạn Bắc
+scene/草原	Thảo Nguyên
+scene/辽西	Liêu Tây
+scene/长白山	Trường Bạch Sơn
+scene/黄龙府	Hoàng Long Phủ
+scene/洱海	Nhĩ Hải
+scene/苍山	Thương Sơn
+scene/石林	Thạch Lâm
+scene/玉溪	Ngọc Khê
+scene/南诏	Nam Chiếu
+scene/苗疆	Miêu Cương
+scene/西湖	Tây Hồ
+scene/龙泉	Long Tuyền
+scene/武夷	Vũ Di
+scene/梅岭	Mai Lĩnh
+scene/南海	Nam Hải
+scene/琼州	Quỳnh Châu
+scene/聚贤庄	Tụ Hiền Trang
+scene/燕子坞	Yến Tử Ổ
+scene/一品堂	Nhất Phẩm Đường
+scene/预留1	Dự Phòng 1
+scene/预留2	Dự Phòng 2
+scene/预留3	Dự Phòng 3
+scene/叛军营地	Doanh Trại Phản Quân
+scene/木人巷	Mộc Nhân Hạng
+scene/珍珑棋局	Trân Lung Kỳ Cục
+scene/水牢	Thủy Lao
+scene/大理2	Đại Lý 2
+scene/大理3	Đại Lý 3
+scene/无量山2	Vô Lượng Sơn 2
+scene/无量山3	Vô Lượng Sơn 3
+scene/剑阁2	Kiếm Các 2
+scene/剑阁3	Kiếm Các 3
+scene/地府	Địa Phủ
+scene/沙漠要塞	Pháo Đài Sa Mạc
+scene/宋辽边境	Biên Giới Tống Liêu
+scene/野外匪寨	Sơn Trại Thổ Phỉ
+scene/竹林	Trúc Lâm
+scene/擂台	Lôi Đài
+scene/光明洞	Quang Minh Động
+scene/逍遥谷底	Đáy Tiêu Dao Cốc
+scene/灵性峰	Linh Tính Phong
+scene/丐帮酒窖	Hầm Rượu Cái Bang
+scene/桃花阵	Đào Hoa Trận
+scene/塔林	Tháp Lâm
+scene/五神洞	Ngũ Thần Động
+scene/折梅峰	Chiết Mai Phong
+scene/墓穴	Mộ Huyệt
+scene/塔底	Đáy Tháp
+scene/玄武岛	Huyền Vũ Đảo
+scene/擂鼓山	Lôi Cổ Sơn
+scene/万劫谷	Vạn Kiếp Cốc
+scene/苍茫山	Thương Mang Sơn
+scene/小木人巷	Tiểu Mộc Nhân Hạng
+scene/后花园	Hậu Hoa Viên
+scene/集市	Chợ
+scene/矿场	Mỏ Khoáng
+scene/牧场	Mục Trường
+scene/书房	Thư Phòng
+scene/市集	Chợ Phiên
+scene/雁南山洞	Nhạn Nam Sơn Động
+scene/雁北山洞	Nhạn Bắc Sơn Động
+scene/西湖山洞	Tây Hồ Sơn Động
+scene/苍山山洞	Thương Sơn Sơn Động
+scene/工地	Công Trường
+scene/校场	Giáo Trường
+scene/衙门	Nha Môn
+scene/三春幻境	Tam Xuân Ảo Cảnh
+scene/三夏幻境	Tam Hạ Ảo Cảnh
+scene/三秋幻境	Tam Thu Ảo Cảnh
+scene/三冬幻境	Tam Đông Ảo Cảnh
+scene/边关阵地山头	Đồi Trận Địa Biên Quan
+scene/夜西湖	Dạ Tây Hồ
+scene/藏经阁	Tàng Kinh Các
+scene/宝藏洞一层	Bảo Tàng Động Tầng 1
+scene/考场	Trường Thi
+scene/华山绝顶	Hoa Sơn Tuyệt Đỉnh
+scene/宝藏洞二层	Bảo Tàng Động Tầng 2
+scene/贼寇营地	Sào Huyệt Tặc Khấu
+scene/宝藏洞三层	Bảo Tàng Động Tầng 3
+scene/宝藏洞四层	Bảo Tàng Động Tầng 4
+scene/宝藏洞五层	Bảo Tàng Động Tầng 5
+scene/监狱	Nhà Lao
+scene/比武会场	Hội Trường Tỷ Võ
+scene/普通礼堂	Lễ Đường Phổ Thông
+scene/高级礼堂	Lễ Đường Cao Cấp
+scene/豪华礼堂	Lễ Đường Sang Trọng
+scene/大军草料场	Kho Cỏ Đại Quân
+scene/苗人洞	Miêu Nhân Động
+scene/圣兽山	Thánh Thú Sơn
+scene/燕王古墓一层	Yên Vương Cổ Mộ Tầng 1
+scene/燕王古墓二层	Yên Vương Cổ Mộ Tầng 2
+scene/燕王古墓三层	Yên Vương Cổ Mộ Tầng 3
+scene/燕王古墓四层	Yên Vương Cổ Mộ Tầng 4
+scene/燕王古墓五层	Yên Vương Cổ Mộ Tầng 5
+scene/燕王古墓六层	Yên Vương Cổ Mộ Tầng 6
+scene/燕王古墓七层	Yên Vương Cổ Mộ Tầng 7
+scene/燕王古墓八层	Yên Vương Cổ Mộ Tầng 8
+scene/燕王古墓九层	Yên Vương Cổ Mộ Tầng 9
+scene/山洞船坞	Bến Thuyền Sơn Động
+scene/剑冢	Kiếm Trủng
+scene/摩崖洞	Ma Nhai Động
+scene/野人沟	Dã Nhân Câu
+scene/温泉洞	Ôn Tuyền Động
+scene/黄龙洞	Hoàng Long Động
+scene/水晶湖	Thủy Tinh Hồ
+scene/先王坟	Tiên Vương Phần
+scene/天坑树洞	Thiên Khanh Thụ Động
+scene/桃花源	Đào Hoa Nguyên
+scene/海贼洞	Hải Tặc Động
+scene/雪狼湖	Tuyết Lang Hồ
+scene/凤凰古镇	Phượng Hoàng Cổ Trấn
+scene/钱庄	Tiền Trang
+scene/小木人巷2	Tiểu Mộc Nhân Hạng 2
+scene/小木人巷3	Tiểu Mộc Nhân Hạng 3
+scene/后花园2	Hậu Hoa Viên 2
+scene/后花园3	Hậu Hoa Viên 3
+scene/银皑雪原	Ngân Ngai Tuyết Nguyên
+scene/镜湖匪寨	Phỉ Trại Kính Hồ
+scene/野猪农场	Trại Lợn Rừng
+scene/圣兽山副本	Phó Bản Thánh Thú Sơn
+scene/牡丹碗	Cúp Mẫu Đơn
+scene/嵩山封禅台	Tung Sơn Phong Thiện Đài
+scene/盐湖	Diêm Hồ
+scene/白沙盐坑	Mỏ Muối Bạch Sa
+scene/洛阳第一休息室	Phòng Nghỉ Lạc Dương 1
+scene/洛阳第二休息室	Phòng Nghỉ Lạc Dương 2
+scene/大理休息室	Phòng Nghỉ Đại Lý
+scene/苏州休息室	Phòng Nghỉ Tô Châu
+scene/寒玉谷	Hàn Ngọc Cốc
+scene/火焰山	Hỏa Diệm Sơn
+scene/高昌	Cao Xương
+scene/楼兰	Lâu Lan
+scene/塔里木	Tháp Lý Mộc
+scene/昆仑山	Côn Lôn Sơn
+scene/大宛	Đại Uyển
+scene/撒马尔罕	Tát Mã Nhĩ Hãn
+scene/火焰谷	Hỏa Diệm Cốc
+scene/高昌迷宫	Mê Cung Cao Xương
+scene/塔克拉玛干	Tháp Khắc Lạp Mã Can
+scene/昆仑福地	Côn Lôn Phúc Địa
+scene/汗血岭	Hãn Huyết Lĩnh
+scene/圣火宫	Thánh Hỏa Cung
+scene/足球场	Sân Bóng Đá
+scene/篮球场	Sân Bóng Rổ
+scene/排球场	Sân Bóng Chuyền
+scene/束河古镇	Thúc Hà Cổ Trấn
+scene/缥缈峰	Phiêu Miểu Phong
+scene/秦皇地宫一层	Tần Hoàng Địa Cung Tầng 1
+scene/秦皇地宫二层	Tần Hoàng Địa Cung Tầng 2
+scene/秦皇地宫三层	Tần Hoàng Địa Cung Tầng 3
+scene/玄雷坡	Huyền Lôi Pha
+scene/毒障泽地	Độc Chướng Trạch Địa
+scene/熔岩之地	Vùng Dung Nham
+scene/楼兰藏宝洞	Lâu Lan Tàng Bảo Động
+scene/涿鹿	Trác Lộc
+scene/亮马驿	Lượng Mã Dịch
+scene/天劫楼一层	Thiên Kiếp Lâu Tầng 1
+scene/天劫楼二层	Thiên Kiếp Lâu Tầng 2
+scene/天劫楼三层	Thiên Kiếp Lâu Tầng 3
+scene/天劫楼四层	Thiên Kiếp Lâu Tầng 4
+scene/天劫楼五层	Thiên Kiếp Lâu Tầng 5
+scene/天劫楼六层	Thiên Kiếp Lâu Tầng 6
+scene/天劫楼七层	Thiên Kiếp Lâu Tầng 7
+scene/凤凰古城	Phượng Hoàng Cổ Thành
+scene/凤凰陵墓	Phượng Hoàng Lăng Mộ
+scene/清源	Thanh Nguyên
+scene/清源山洞	Thanh Nguyên Sơn Động
+scene/华山之巅	Đỉnh Hoa Sơn
+scene/秦皇地宫四层	Tần Hoàng Địa Cung Tầng 4
+scene/塞外 1	Tái Ngoại 1
+scene/塞外 2	Tái Ngoại 2
+scene/塞外 3	Tái Ngoại 3
+scene/塞外 4	Tái Ngoại 4
+scene/塞外 5	Tái Ngoại 5
+scene/岭南 1	Lĩnh Nam 1
+scene/岭南 2	Lĩnh Nam 2
+scene/岭南 3	Lĩnh Nam 3
+scene/岭南 4	Lĩnh Nam 4
+scene/岭南 5	Lĩnh Nam 5
+scene/杭州 1	Hàng Châu 1
+scene/杭州 2	Hàng Châu 2
+scene/杭州 3	Hàng Châu 3
+scene/杭州 4	Hàng Châu 4
+scene/杭州 5	Hàng Châu 5
+scene/海口 1	Hải Khẩu 1
+scene/海口 2	Hải Khẩu 2
+scene/海口 3	Hải Khẩu 3
+scene/海口 4	Hải Khẩu 4
+scene/海口 5	Hải Khẩu 5
+scene/滇 域1	Điền Vực 1
+scene/滇 域2	Điền Vực 2
+scene/滇 域3	Điền Vực 3
+scene/滇 域4	Điền Vực 4
+scene/滇 域5	Điền Vực 5
+scene/石城  1	Thạch Thành 1
+scene/石城  2	Thạch Thành 2
+scene/石城  3	Thạch Thành 3
+scene/石城  4	Thạch Thành 4
+scene/石城  5	Thạch Thành 5
+scene/苗域 1	Miêu Vực 1
+scene/苗域 2	Miêu Vực 2
+scene/苗域 3	Miêu Vực 3
+scene/苗域 4	Miêu Vực 4
+scene/苗域 5	Miêu Vực 5
+scene/辽地 1	Liêu Địa 1
+scene/辽地 2	Liêu Địa 2
+scene/辽地 3	Liêu Địa 3
+scene/辽地 4	Liêu Địa 4
+scene/辽地 5	Liêu Địa 5
+scene/雁门 1	Nhạn Môn 1
+scene/雁门 2	Nhạn Môn 2
+scene/雁门 3	Nhạn Môn 3
+scene/雁门 4	Nhạn Môn 4
+scene/雁门 5	Nhạn Môn 5
+scene/生死擂台	Sinh Tử Lôi Đài
+scene/测试	Thử Nghiệm
+scene/四象天门阵	Tứ Tượng Thiên Môn Trận
+scene/水月山庄	Thủy Nguyệt Sơn Trang
+scene/阵前休息室	Phòng Nghỉ Trước Trận
+scene/夜探水月山庄	Dạ Thám Thủy Nguyệt Sơn Trang
+scene/截杀残党	Truy Sát Tàn Đảng
+INTERFACE_XML_69	#gFF0FA0Tuỳ Chọn
+INTERFACE_XML_266	Trở Lại
+INTERFACE_XML_637	Âm Thanh
+INTERFACE_XML_705	Thoát
+INTERFACE_XML_837	Trò Chơi
+INTERFACE_XML_929	Về Đăng Nhập
+INTERFACE_XML_1053	Phím Tắt
+NQLT_141118_05	Diễn Đàn
+NQLT_141118_06	Cài Đặt
+YBSD_081225_003	Đại Sạp
+YBSD_081225_004	Bảo Thạch
+YBSD_081225_005	Trân Thú
+YBSD_081225_006	Tạp Hoá
+YBSD_081225_007	Ngoại Hình
+YBSD_081225_008	Hoa Vũ
+YBSD_081225_009	Võ Công
+YBSD_081225_010	Đồ Phổ
+YBSD_081225_019	Hàng Mới
+YBSD_081225_020	Bán Chạy
+YBSD_081225_021	Giảm Giá
+YBSD_081225_023	Bảo Thạch Cấp 3
+YBSDTZ_130503_01	Bảo Thạch Cấp 4
+YBSDTZ_130503_02	Bảo Thạch Cấp 5
+YBSD_081225_024	Bảo Thạch Cấp 6
+YBSD_081225_025	Tinh Hoa
+YBSD_081225_026	Gia Công
+YBSD_081225_027	Trân Thú Hiếm
+YBSD_081225_028	Kỹ Năng Thường
+YBSD_081225_029	Kỹ Năng Cao
+YBSD_081225_030	Linh Dược
+YBSD_081225_031	Kỳ Trân
+YBSD_081225_032	Tam Thanh
+YBSD_081225_034	Biến Thân
+YBSD_081225_035	Tóc
+YBSD_081225_036	Dung Mạo
+YBSD_081225_037	Tọa Kỵ
+YBSD_081225_038	Pháo Truyền Thống
+YBSD_081225_039	Pháo Riêng
+YBSD_081225_040	Pháo Toàn Cảnh
+YBSD_081225_041	Hoa
+YBSD_081225_042	Hoàn Thi Thuỷ Các
+YBSD_081225_046	Găng Và Giày
+YBSD_081225_047	Hộ Uyển
+YBSD_081225_048	Đai Và Dây
+YBSD_081225_049	Nhẫn Hộ Phù
+YBSD_081225_091	Tiên Đan
+YBSD_081225_096	Áo Và Mũ
+YBSD_081225_102	Đao Búa Thương
+YBSD_XML_1	Thời Trang Lâu
+YBSD_XML_2	Thời Trang Mới
+YBSD_XML_3	Thiên Công
+YBSD_XML_4	Lang Hoàn
+YBSD_XML_5	Pháo Riêng
+YBSD_XML_6	Tung Dương
+YBSD_XML_7	Nhạc Lộc
+YBSD_XML_8	Điêu Văn Phòng
+YBSD_XML_9	Điêu Văn Võ
+YBSD_XML_10	Gia Công Điêu Văn
+YBSD_90624_1	Kỵ Thuật
+YBSD_171026_102	Trang Viên
+SSXDW_140819_75	Xưởng Điêu Văn
+FFSDGZ_120615_07	Bảo Thạch Chí Tôn
+FFSDGZ_120615_08	Châu Ngọc Chí Tôn
+FFSDGZ_120615_72	VIP
+JBGXW_150526_215	Trận Pháp
+ZDZD_200724_08	Tự Động
+ZMTF_230628_20	Tông Môn
+BDYB_090714_16	Nguyên Bảo
+BDYB_090714_15	Nguyên Bảo Khoá
+YBFQ_XML_3	Phiếu Hoàn
+IMXZ_20100813_07	Huyễn Trang
+TBSD_130816_8	Thông Bảo
+# Bảng tạo nhân vật (CreateRole): dòng mô tả khi rê chuột, lời giới thiệu môn phái, lời nhắn, và tên
+# kiểu mặt, kiểu tóc, bộ đồ tân thủ của bảng Config (khoá nguyên văn). Tên viết ngắn cho vừa ô chữ.
+=男	Nam
+=女	Nữ
+=美艳型	Diễm Lệ
+=智慧型	Trí Tuệ
+=开朗型	Cởi Mở
+=高贵型	Cao Quý
+=淑女型	Thục Nữ
+=清雅型	Thanh Nhã
+=坚强型	Kiên Cường
+=勇敢型	Dũng Cảm
+=果断型	Quả Quyết
+=自信型	Tự Tin
+=忧郁型	Ưu Tư
+=游仙发	Du Tiên
+=鬓华发	Mấn Hoa
+=宝锦发	Bảo Cẩm
+=流云发	Lưu Vân
+=新手套装1	Tân Thủ 1
+=新手套装2	Tân Thủ 2
+=新手套装3	Tân Thủ 3
+DLJM_XML_16	Đặt tên cho nhân vật của bạn
+DLJM_XML_17	Chọn kiểu tóc cho nhân vật
+DLJM_XML_18	Chọn kiểu mặt cho nhân vật
+DLJM_XML_19	Chọn giới tính cho nhân vật
+DLJM_XML_20	Chọn ảnh chân dung cho nhân vật
+DLJM_XML_21	Chọn bộ trang phục cho nhân vật
+DLJM_XML_22	Tạo nhân vật
+DLJM_XML_23	Về bảng chọn nhân vật
+DLJM_XML_24	Thôi xem trước môn phái
+DLJM_XML_25	Xem trước môn phái Thiếu Lâm
+DLJM_XML_26	Xem trước môn phái Minh Giáo
+DLJM_XML_27	Xem trước môn phái Cái Bang
+DLJM_XML_28	Xem trước môn phái Võ Đang
+DLJM_XML_29	Xem trước môn phái Nga Mi
+DLJM_XML_30	Xem trước môn phái Tinh Túc
+DLJM_XML_31	Xem trước môn phái Thiên Long
+DLJM_XML_32	Xem trước môn phái Thiên Sơn
+DLJM_XML_33	Xem trước môn phái Tiêu Dao
+DLJM_XML_34	Xem trước môn phái Mộ Dung
+XMPTM_130823_3	#cfff263Xem trước môn phái Đường Môn
+XMPGG_160615_33	#cfff263Xem trước môn phái Quỷ Cốc
+THDBQ_190809_09	#cfff263Xem trước môn phái Đào Hoa Đảo
+XMPHM_210604_04	#cfff263Xem trước môn phái Tuyệt Tình Cốc
+XMPHM_210604_27	#cfff263Xem trước môn phái Ác Nhân Cốc
+DLXZ_090711_1	Chưa có ảnh chân dung, hãy chọn một ảnh phù hợp
+JSCJYH_121224_02	Nhấn để phối ngẫu nhiên kiểu tóc, kiểu mặt, trang phục.
+TCMZ_211027_2	#cfff263Nhấn nút ngẫu nhiên để lấy một tên cho nhân vật
+XZRW_XML_0	#cfff263Nhấn tên từng môn phái để xem trước
+XZRW_XML_1	#cfff263Võ lâm Bắc Đẩu xin ghi nhớ, xem ta vung giáo cưỡi hổ đi.#rĐệ tử Thiếu Lâm giỏi công kích #Gngoại công#cfff263 và hệ #Ghuyền#cfff263.
+XZRW_XML_2	#cfff263Thánh hoả quang minh rung chuyển đất, thiêu sạch nhân gian chuyện bất bình.#rĐệ tử Minh Giáo giỏi công kích #Gngoại công#cfff263 và hệ #Ghoả#cfff263.
+XZRW_XML_3	#cfff263Say nằm giang hồ xin chớ cười, dẫu chết còn thơm xương hiệp khách.#rĐệ tử Cái Bang giỏi công kích #Gngoại công#cfff263 và hệ #Gđộc, hoả#cfff263.
+XZRW_XML_4	#cfff263Chinh bào cuốn gió dưới Nam Nham, ba thước gươm xanh cười hồng trần.#rĐệ tử Võ Đang giỏi công kích #Gnội công#cfff263 và hệ #Ghuyền, băng#cfff263.
+XZRW_XML_5	#cfff263Chẳng thấy tóc xanh hồng nhan lão, chỉ lưu chính khí khắp càn khôn.#rĐệ tử Nga Mi giỏi công kích #Gnội công#cfff263 và hệ #Gbăng, huyền#cfff263.
+XZRW_XML_6	#cfff263Đi tới nơi mây độc thảm đạm, cười xem trời đất cùng thọ thời.#rĐệ tử Tinh Túc giỏi công kích #Gnội công#cfff263 và hệ #Gđộc#cfff263.
+XZRW_XML_7	#cfff263Ước có Thiên Long ba trăm vạn, vì người nói cười dẹp cát Hồ.#rĐệ tử Thiên Long giỏi công kích #Gnội, ngoại công#cfff263 và hệ #Gbăng, hoả, huyền, độc#cfff263.
+XZRW_XML_8	#cfff263Hỏi thăm hoa mai nơi nào có, gió thổi một đêm khắp Thiên Sơn.#rĐệ tử Thiên Sơn giỏi công kích #Gngoại công#cfff263 và hệ #Gbăng#cfff263.
+XZRW_XML_9	#cfff263Kiếp này tiêu dao trời chớ hỏi, xưa nay muôn sự nước về đông.#rĐệ tử Tiêu Dao giỏi công kích #Gnội công#cfff263 và hệ #Ghoả, độc#cfff263.
+XZRW_XML_10	#cfff263Phong thái Yên hoàng dường còn đó, máu nhuộm giáp bạc ngựa tung cương.#rĐệ tử Mộ Dung giỏi công kích #Gnội công#cfff263 và hệ #Ghuyền#cfff263.
+XMPTM_130823_4	#cfff263Du long lướt bóng đùa nhật nguyệt, Bạo Vũ Lê Hoa rụng tinh thần.#rĐệ tử Đường Môn giỏi công kích #Gnội công#cfff263 và hệ #Gđộc, huyền#cfff263.
+XMPGG_160615_34	#cfff263Cười bàn nghìn thu chuyện tung hoành, trở tay mây gió đế nghiệp thành.#rĐệ tử Quỷ Cốc giỏi công kích #Gnội công#cfff263 và hệ #Ghuyền, hoả#cfff263.
+THDBQ_190809_08	#cfff263Nhân gian hương tận nửa trời xanh, tiêu kiếm mây sinh bờ biển biếc.#rĐệ tử Đào Hoa Đảo giỏi công kích #Gngoại công#cfff263 và hệ #Gbăng#cfff263, #Gđộc#cfff263.
+XMPHM_210604_06	#cfff263Vung đao say chém chuyện bất bình, tựa vách nghe phong cười núi non.#rĐệ tử Tuyệt Tình Cốc giỏi công kích #Gngoại công#cfff263 và hệ #Ghoả#cfff263, #Ghuyền#cfff263.
+XMPHM_210604_29	#cfff263Khen chê nhiễu nhương đều cát bụi, phải trái rành rành tự trong tâm.#rĐệ tử Ác Nhân Cốc giỏi công kích #Gnội công#cfff263 và hệ #Gđộc#cfff263, #Gbăng#cfff263.
+JSCJYH_121224_05	    #cfff263Cái Bang sở trường #Gngoại công cận chiến#cfff263, thông hệ #Gđộc#cfff263 và #Ghoả#cfff263. Quen liên kích, giỏi né tránh, đánh nhóm kinh người.#r    #GCấp 10#cfff263 tới #GNgũ Hoa Đàn Đại Lý#cfff263 gặp #GGiản Ninh#cfff263 nhập môn, bái sư #GTrần Cô Nhạn#cfff263.
+JSCJYH_121224_06	    #cfff263Minh Giáo ngoại công đứng đầu thiên hạ, thông thuật #Ghoả diệm#cfff263, giỏi #Gcận chiến#cfff263. Bộc phát mạnh, càng đánh càng hăng.#r    #GCấp 10#cfff263 tới #GNgũ Hoa Đàn Đại Lý#cfff263 gặp #GThạch Bảo#cfff263 nhập môn, bái sư #GLữ Sư Tương#cfff263.
+JSCJYH_121224_07	    #cfff263Võ Đang nội công đứng đầu, thông hệ #Ghuyền, băng#cfff263, đánh #Gtầm xa#cfff263. Bộc phát kinh người, khống chế mạnh.#r    #GCấp 10#cfff263 tới #GNgũ Hoa Đàn Đại Lý#cfff263 gặp #GTrương Hoạch#cfff263 nhập môn, bái sư #GTrương Huyền Tố#cfff263.
+JSCJYH_121224_08	    #cfff263Thiên Long Tự #Gnội ngoại kiêm tu#cfff263, chế địch #Gtầm xa#cfff263, thông #Gmọi hệ#cfff263. Chính xác cực cao, Lục Mạch Thần Kiếm là tuyệt học.#r    #GCấp 10#cfff263 tới #GNgũ Hoa Đàn Đại Lý#cfff263 gặp #GPhá Tham#cfff263 nhập môn, bái sư #GBản Nhân#cfff263.
+JSCJYH_121224_09	    #cfff263Nga Mi tinh thông #Gnội công#cfff263, hệ #Gbăng, huyền#cfff263, chế địch #Gtầm xa#cfff263. Công thủ vẹn toàn, có thần lực cải tử hoàn sinh.#r    #GCấp 10#cfff263 tới #GNgũ Hoa Đàn Đại Lý#cfff263 gặp #GLộ Tam Nương#cfff263 nhập môn, bái sư #GLý Thập Nhị Nương#cfff263.
+JSCJYH_121224_10	    #cfff263Tiêu Dao tinh thông #Gnội công#cfff263, hệ #Ghoả, độc#cfff263, ra chiêu #Gtầm xa#cfff263. Giỏi bẫy kỳ môn, khống chế cực mạnh, biến hoá khôn lường.#r    #GCấp 10#cfff263 tới #GNgũ Hoa Đàn Đại Lý#cfff263 gặp #GĐạm Đài Tử Vũ#cfff263 nhập môn, bái sư #GTô Tinh Hà#cfff263.
+JSCJYH_121224_11	    #cfff263Tinh Túc #Gnội công#cfff263 tinh thâm, thông hệ #Gđộc#cfff263, hại địch #Gtầm xa#cfff263. Kịch độc gây trọng thương kéo dài, đánh nhóm xuất sắc.#r    #GCấp 10#cfff263 tới #GNgũ Hoa Đàn Đại Lý#cfff263 gặp #GHải Phong Tử#cfff263 nhập môn, bái sư #GHàn Thế Trung#cfff263.
+JSCJYH_121224_12	    #cfff263Thiên Sơn tinh thông #Gngoại công#cfff263, ưa #Gcận chiến#cfff263, thông hệ #Gbăng#cfff263. Ẩn thân độc nhất, thích khách bẩm sinh, bộc phát đoạt mạng.#r    #GCấp 10#cfff263 tới #GNgũ Hoa Đàn Đại Lý#cfff263 gặp #GTrình Thanh Sương#cfff263 nhập môn, bái sư #GMai Kiếm#cfff263.
+JSCJYH_121224_13	    #cfff263Mộ Dung #Gnội công#cfff263 tinh cường, #Gcận chiến#cfff263, nắm hệ #Ghuyền#cfff263. Chiêu thức tinh kỳ, thuật gậy ông đập lưng ông vô song.#r    #GCấp 10#cfff263 tới #GNgũ Hoa Đàn Đại Lý#cfff263 gặp #GMộ Dung Truyền#cfff263 nhập môn, bái sư #GMộ Dung Kiệt#cfff263.
+XMPTM_130123_06	    #cfff263Đường Môn #Gnội công#cfff263 tinh cường, đánh #Gtầm xa#cfff263, nắm hệ #Gđộc#cfff263, #Ghuyền#cfff263. Nỏ thép phối cơ quan độc pháp, bộc phát vô địch.#r    #GCấp 10#cfff263 tới #GNgũ Hoa Đàn Đại Lý#cfff263 gặp #GĐường Dục#cfff263 nhập môn, bái sư #GĐường Diệc Phong#cfff263.
+XMPGG_160615_35	    #cfff263Quỷ Cốc #Gnội công#cfff263 thâm hậu, chế địch #Gtầm xa#cfff263, nắm hệ #Ghuyền#cfff263, #Ghoả#cfff263. Mượn sức bùa chú và tinh tú, uy thế vô song.#r    #GCấp 10#cfff263 tới #GNgũ Hoa Đàn Đại Lý#cfff263 gặp #GDương Tiệm#cfff263 nhập môn, bái sư #GVương Thiền Nhất#cfff263.
+THDBQ_190809_07	    #cfff263Đào Hoa Đảo giỏi #Gngoại công#cfff263, tu hệ #Gbăng#cfff263, #Gđộc#cfff263. Điều khiển #Gnhân ngẫu#cfff263 trợ chiến, chớp mắt #Gđổi vị trí#cfff263 nhiều lần.#r    Đạt #Gcấp 10#cfff263 thì tới #GNgũ Hoa Đàn Đại Lý#cfff263 gặp #GHoàng Thời Vũ#cfff263 để vào môn, và bái sư #GQuân Hoàn Châu#cfff263.
+XMPHM_210604_05	    #cfff263Tuyệt Tình Cốc giỏi #Gngoại công#cfff263, tu hệ #Ghoả#cfff263, #Ghuyền#cfff263. Tinh thông #Gđiều khiển đao#cfff263, #Gba lưỡi đao#cfff263 xoay trong chớp mắt.#r    Đạt #Gcấp 10#cfff263 thì tới #GNgũ Hoa Đàn Đại Lý#cfff263 gặp #GCảnh Ngôn#cfff263 để vào môn, và bái sư #GHành Nghiêm#cfff263.
+XMPHM_210604_28	    #cfff263Ác Nhân Cốc giỏi #Gnội công#cfff263, tu hệ #Gđộc#cfff263, #Gbăng#cfff263. Tinh thông #Gđiều khiển liềm#cfff263, tuỳ tâm mà động, không câu nệ chiêu thức.#r    Đạt #Gcấp 10#cfff263 thì tới #GNgũ Hoa Đàn Đại Lý#cfff263 gặp #RSơn Phong#cfff263 để vào môn, và bái sư #GĐoàn Diên Khánh#cfff263.

@@ -1,0 +1,5 @@
+# schema 1
+# source: client_2026/VipMotionBlend.txt
+# tool: TOOLS/server/export_client_rest.py; sửa tay sẽ mất ở lượt xuất sau
+# types: int	text	float	text	text
+column_0	column_1	column_2	column_3	column_4

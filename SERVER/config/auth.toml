@@ -1,0 +1,65 @@
+#==================================================
+# CẤU HÌNH DỊCH VỤ TÀI KHOẢN (AUTH)
+#==================================================
+# Tệp: auth.toml. Chỉ tiến trình auth đọc tệp này.
+# Auth lo đăng ký, mật khẩu, vé đăng nhập và giới hạn phiên.
+
+#==================================================
+# Chung
+#==================================================
+schema = 1   # Phiên bản bố cục của tệp; bộ đọc từ chối số nó không hiểu
+
+#==================================================
+# Database
+#==================================================
+# Địa chỉ cụm PostgreSQL nằm ở cluster.toml, mật khẩu ở secrets.local.toml.
+[database]
+name = "thienlong_auth"   # Tên database
+user = "thienlong_auth"   # Role dùng để nối; chỉ có quyền trên database này
+pool = 2                  # Số kết nối giữ sẵn tới database (số tạm)
+
+#==================================================
+# Đăng ký
+#==================================================
+[register]
+auto_register = true   # true: đăng nhập bằng tên chưa có thì tạo luôn tài khoản
+gift_points   = 0      # Số điểm nạp tặng cho tài khoản mới
+
+#==================================================
+# Băm mật khẩu
+#==================================================
+# Tham số Argon2id của libsodium, mức INTERACTIVE. Tăng thì chống dò mật khẩu tốt hơn nhưng đăng
+# nhập tốn hơn.
+[password]
+ops_limit     = 2       # Số lượt tính của một lần băm
+mem_limit_kib = 65536   # Bộ nhớ của một lần băm, KiB; 65536 là 64 MiB
+
+#==================================================
+# Vé đăng nhập
+#==================================================
+# Auth cấp vé sau khi đúng mật khẩu; client đưa vé cho cổng game.
+[ticket]
+ttl_seconds = 300   # Vé hết hạn sau bao nhiêu giây (số tạm)
+
+#==================================================
+# Luật đăng nhập
+#==================================================
+[login]
+relogin_limit           = false    # true: cùng một IP phải cách 20 giây mới được đăng nhập lại
+relogin_block           = false    # true: đang online mà có đăng nhập từ IP khác thì đá phiên cũ và chặn
+relogin_block_ms        = 600000   # Thời gian chặn của relogin_block, mili giây; 600000 là 10 phút
+queue_turn_size         = 100      # Số người trong hàng chờ được vào mỗi lượt khi máy chủ đầy
+max_sessions_per_device = 30       # Số phiên cùng lúc cho một máy client
+
+#==================================================
+# Mã xác minh
+#==================================================
+[captcha]
+on_create = false   # true: hỏi mã xác minh khi tạo nhân vật
+on_enter  = false   # true: hỏi mã xác minh khi vào game
+
+#==================================================
+# Thẻ bảo mật
+#==================================================
+[security_card]
+enabled = false   # true: tài khoản có gắn thẻ phải trả lời ô thẻ khi đăng nhập

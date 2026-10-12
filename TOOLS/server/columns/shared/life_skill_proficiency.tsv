@@ -1,0 +1,12 @@
+# schema 1
+# source: client_2026/AbilityExpTable.txt
+# tool: TOOLS/server/export_tables.py; sửa tay sẽ mất ở lượt xuất sau
+# types: int	text	text	text	text
+index	original	name	type	note
+0		column_0	int	mới ở 2026
+1	对象名称$1$	column_1	text	neo: cột gốc 0, khớp 100.0% (20/20 id); ? chưa có tên tiếng Anh
+2	基础熟练度	column_2	int	neo: cột gốc 1, khớp 100.0% (20/20 id); ? chưa có tên tiếng Anh
+3	对应技能等级	column_3	int	neo: cột gốc 2, khớp 100.0% (20/20 id); ? chưa có tên tiếng Anh
+4	损耗比例	column_4	float	neo: cột gốc 3, khớp 100.0% (20/20 id); ? chưa có tên tiếng Anh
+5	AbilityId	life_skill_id	int	neo: cột gốc 4, khớp 100.0% (20/20 id); luật: M1
+6	编号（对象的编号）	column_6	int	neo: cột gốc 5, khớp 100.0% (20/20 id); ? chưa có tên tiếng Anh

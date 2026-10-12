@@ -1,0 +1,33 @@
+#==================================================
+# CẤU HÌNH DỊCH VỤ THẾ GIỚI (WORLD)
+#==================================================
+# Tệp: world.toml. Chỉ tiến trình world đọc tệp này.
+# World giữ thứ toàn cục của một thế giới game: nhân vật, tổ đội, bang, thư, chat.
+
+#==================================================
+# Chung
+#==================================================
+schema = 1   # Phiên bản bố cục của tệp; bộ đọc từ chối số nó không hiểu
+
+#==================================================
+# Sức chứa
+#==================================================
+# Cỡ các bảng trong bộ nhớ của world; vượt thì yêu cầu mới bị từ chối.
+[capacity]
+online_users   = 4300    # Số người chơi online cùng lúc
+mail_users     = 52000   # Số người chơi có thư đang giữ trong bộ nhớ
+offline_cache  = 50000   # Số người đã thoát còn giữ thông tin trong bộ nhớ
+speakers       = 128     # Số tin loa thế giới giữ trong hàng chờ phát
+pet_friend_ads = 1024    # Số tin tìm bạn cho trân thú giữ cùng lúc
+
+#==================================================
+# Báo cáo số người
+#==================================================
+[player_count_report]
+hours = [13, 15, 21]   # Các giờ trong ngày ghi log số người ở từng cảnh
+
+#==================================================
+# Thông báo hệ thống
+#==================================================
+[notice]
+join_guild = false   # true: báo lên kênh hệ thống khi có người vào bang

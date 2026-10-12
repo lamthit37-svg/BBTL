@@ -1,0 +1,18 @@
+lệnh: python -B TOOLS/port/pe_refs.py "F:\tl 2026\Bin64\PathLib.dll" func 0x180036eb0 (chỉ đọc tệp, không nạp DLL)
+bắt đầu: 2026-10-08 14:03:50
+---
+; hàm 0x180036eb0..0x180036eda (42 byte)
+0x180036eb0: push rbx
+0x180036eb2: sub rsp, 0x20
+0x180036eb6: mov rbx, rcx
+0x180036eb9: call 0x180036ee0  ; gọi 0x180036ee0
+0x180036ebe: dec qword ptr [rip + 0x1d323]  ; 0x1800541e8 .data
+0x180036ec5: mov rcx, rbx
+0x180036ec8: call 0x180036f30  ; gọi 0x180036f30
+0x180036ecd: sub qword ptr [rip + 0x1d31c], rax  ; 0x1800541f0 .data
+0x180036ed4: add rsp, 0x20
+0x180036ed8: pop rbx
+0x180036ed9: ret 
+---
+mã thoát: 0
+kết thúc: 2026-10-08 14:03:50

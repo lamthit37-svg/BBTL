@@ -1,0 +1,7 @@
+# schema 1
+# source: server_config/PetDomesticationMoney.txt
+# tool: TOOLS/server/import_legacy.py; sửa tay sẽ mất ở lượt xuất sau
+# types: int	text	text	text	text
+index	original	name	type	note
+0	珍兽等级	pet_level	int	luật: nguyên văn
+1	所需费用参数	cost_parameter	float	luật: nguyên văn

@@ -1,0 +1,64 @@
+#==================================================
+# CẤU HÌNH TIẾN TRÌNH CẢNH (ZONE)
+#==================================================
+# Tệp: zone.toml. Mọi tiến trình zone đọc tệp này.
+# Zone mô phỏng các cảnh: di chuyển, vùng nhìn, chiến đấu, quái.
+
+#==================================================
+# Chung
+#==================================================
+schema = 1   # Phiên bản bố cục của tệp; bộ đọc từ chối số nó không hiểu
+
+#==================================================
+# Nhịp mô phỏng
+#==================================================
+[tick]
+hz = 20   # Số bước mô phỏng mỗi giây; 20 là mỗi bước 50 mili giây
+
+#==================================================
+# Vùng nhìn
+#==================================================
+# Cảnh chia thành ô vuông; người chơi chỉ nhận tin của các ô quanh mình.
+[aoi]
+cell_size = 10   # Cạnh một ô, tính bằng đơn vị cảnh
+
+#==================================================
+# Sức chứa
+#==================================================
+# Số đối tượng tối đa cùng lúc.
+[capacity]
+monsters        = 49000   # Quái và NPC
+pets            = 3000    # Trân thú đang được gọi ra
+special_objects = 1024    # Bẫy và vùng hiệu ứng
+platforms       = 1024    # Bàn chế tác của kỹ năng sống
+buses           = 1024    # Xe chở khách
+player_shops    = 256     # Cửa hàng do người chơi mở
+scene_timers    = 64      # Bộ hẹn giờ của cảnh
+human_timers    = 3       # Bộ hẹn giờ mỗi người chơi được dùng
+
+#==================================================
+# Phiên người chơi
+#==================================================
+# Giữ nhân vật trong cảnh bao lâu khi mất kết nối. Đơn vị mili giây.
+[session]
+linger_after_disconnect_ms = 20000    # Nhân vật ở lại cảnh bao lâu sau khi rớt mạng
+linger_hidden_ms           = 20000    # Ở lại thêm bao lâu sau khi đã bị ẩn khỏi cảnh
+kick_idle_ms               = 300000   # Client không phản hồi quá lâu thì bị đá; 300000 là 5 phút
+
+#==================================================
+# Đồng hồ thế giới
+#==================================================
+[world_clock]
+period_change_ms = 150000   # Một canh giờ trong game dài bao nhiêu mili giây thật
+
+#==================================================
+# Rơi đồ
+#==================================================
+[drops]
+box_recycle_ms = 60000   # Gói đồ không ai nhặt biến mất sau bao nhiêu mili giây
+
+#==================================================
+# Thống kê tin
+#==================================================
+[audit]
+packet_stats_ms = 0   # Chu kỳ ghi thống kê tin mạng, mili giây; 0 là không thống kê

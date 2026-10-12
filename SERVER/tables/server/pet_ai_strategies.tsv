@@ -1,0 +1,10 @@
+# schema 1
+# source: server_config/PetAIStrategyTbl.txt
+# tool: TOOLS/server/import_legacy.py; sửa tay sẽ mất ở lượt xuất sau
+# types: int	text	float	float	float	float	float
+id	auto_skill_kind	timid	cautious	loyal	shrewd	brave
+0	物攻	0.50	0.80	1.00	1.30	2.00
+1	法攻	2.00	1.30	1.00	0.80	0.50
+2	护主	0.50	1.30	2.00	1.00	0.80
+3	防御	1.00	2.00	1.00	0.80	0.50
+4	报复	0.50	0.80	1.00	2.00	1.30

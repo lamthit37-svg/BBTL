@@ -1,0 +1,7 @@
+# schema 1
+# source: public_data/Script.dat
+# tool: TOOLS/server/import_legacy.py; sửa tay sẽ mất ở lượt xuất sau
+# types: int	text	text	text	text
+index	original	name	type	note
+0		script_id	int	id script, atoi theo CFileDataMgr::Init
+1		path	text	đường dẫn sau khi đổi gạch chéo và cắt tại dấu cách

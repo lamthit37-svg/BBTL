@@ -1,0 +1,7 @@
+# b-bao-chan-dem-va.log 2026-10-08 15:09:42, Hoon: thêm mục 'Chặn đệm lớp new trước DLL' + 2 dòng Lệch vào BAO-CAO-B.md
+# patch build\tam\patch_bao.py 2D823E7F5C7E21D510797D75692344027C718F74DD75ADE49CFC529D2A2A204C
+$ python -B build\tam\patch_bao.py docs\giao-viec\DH-DOT-1\BAO-CAO-B.md write   (mã thoát 0)
+dòng 753 byte 66360 sha 6cd59faa825e17c1e63c8299544ff091308723566f7a6d4efca2b43bc1e3a290
+đã ghi
+# sha trước 11A4BE8F7428136BF3A38D2CA38ACABB7731D7F4AC06BA58EABFF42E454BBF7D
+# sha sau   6CD59FAA825E17C1E63C8299544FF091308723566F7A6D4EFCA2B43BC1E3A290

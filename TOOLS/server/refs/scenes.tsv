@@ -1,0 +1,10 @@
+# schema 1
+# source: docs/giao-viec/P1-DOT-3/DE-BAI.md/muc-5.2
+# types: text	text	text	text	text	int	text	text
+child	child_column	parent	parent_column	absent	known_missing	basis	note
+scenes/*/spawns*.tsv	type	tables/shared/monsters.tsv	monster_id		1	code:Server/GameServer/Server/Obj/MonsterManager.cpp:311	GetExtAttr theo type; thiếu 3364 ở 10 dòng, không có trong MonsterAttrExTable bản 0859602
+scenes/*/spawns*.tsv	script_id	tables/server/script_index.tsv	script_id	-1	2	code:Server/GameServer/Server/Obj/Obj_Monster.cpp:1098	-1 là INVALID_ID nên không gọi script; thiếu 13021 và 13022
+scenes/*/areas*.tsv	script_id	tables/server/script_index.tsv	script_id	-1	0	code:Server/GameServer/Server/Obj/Obj_Human.cpp:924	(UINT)-1 bằng UINT_MAX nên không gọi script vùng
+scenes/*/portals.tsv	target_scene_id	tables/server/scenes.tsv	scene_id		0	data	8/8 ô trỏ có trong scene_id, tỉ lệ 100%; mã 2008 không đọc portal
+scenes/*/spawns*.tsv	base_ai	tables/server/monster_ai_types.tsv	ai_id		0	code:Server/GameServer/Server/AI/AI_Monster.cpp:1588	Get theo AIType gán từ base_ai
+scenes/*/spawns*.tsv	ai_file	tables/server/monster_ai_scripts.tsv	ai_id	-1	1	code:Server/GameServer/Server/AI/AI_Monster.cpp:1548	-1 là không có kịch bản; thiếu ai_id 97 một dòng

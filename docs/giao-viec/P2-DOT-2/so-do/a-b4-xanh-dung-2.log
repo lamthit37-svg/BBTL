@@ -1,0 +1,7 @@
+# lệnh: cmake --build build/p2-a --target protocol_tests protocol_catalog_tests wire_loop_tests protocol_fuzz_tests
+# bắt đầu: 2026-10-08 10:26:00
+[0/2] Re-checking globbed directories...
+[1/3] Building CXX object CMakeFiles/protocol_fuzz_tests.dir/tests/protocol_fuzz_tests.cpp.obj
+[2/3] Linking CXX executable protocol_fuzz_tests.exe
+# mã thoát: 0
+# xong: 2026-10-08 10:26:01

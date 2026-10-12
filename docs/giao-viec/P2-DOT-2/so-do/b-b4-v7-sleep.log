@@ -1,0 +1,5 @@
+# 2026-10-08 10:18:02  B bước 4, V7: tìm sleep (mọi dạng, không phân biệt hoa thường) trong tests/net_tests.cpp; Select-String là cmdlet đọc tệp, không chạy tiến trình; không giữ NANG.lock (lệnh nhẹ), không có NANG.lock lúc chạy
+# 2026-10-08 10:18:02 -> 2026-10-08 10:18:02
+$ Select-String -Pattern 'sleep' tests/net_tests.cpp
+# 2026-10-08 10:18:02 -> 2026-10-08 10:18:02
+# số dòng: 0

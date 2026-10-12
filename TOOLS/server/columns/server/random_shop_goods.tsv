@@ -1,0 +1,15 @@
+# schema 1
+# source: public_config/RandShop/*.ini (15 tệp)
+# tool: TOOLS/server/import_legacy.py; sửa tay sẽ mất ở lượt xuất sau
+# types: int	text	text	text	text
+index	original	name	type	note
+0		shop_key	text	cột gộp
+1		merchandise_id	int	chỉ số MerchandiseN
+2	ID	id	text	mã 2008 không có hàm nạp
+3	Count	count	text	mã 2008 không có hàm nạp
+4	CountPerUnit	count_per_unit	text	mã 2008 không có hàm nạp
+5	Odds	odds_1	text	mã 2008 không có hàm nạp
+6	odds	odds_2	text	mã 2008 không có hàm nạp
+7	Value	value	text	mã 2008 không có hàm nạp
+8	Rebate	rebate	text	mã 2008 không có hàm nạp
+9		within_declared_count	int	1 khi chỉ số Merchandise nhỏ hơn Total

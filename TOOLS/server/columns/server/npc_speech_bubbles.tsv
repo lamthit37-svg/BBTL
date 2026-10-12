@@ -1,0 +1,8 @@
+# schema 1
+# source: server_config/NPCPaoPaoIndexTable.txt
+# tool: TOOLS/server/import_legacy.py; sửa tay sẽ mất ở lượt xuất sau
+# types: int	text	text	text	text
+index	original	name	type	note
+0	NPCID	npcid	int	luật: M1
+1	PAOPAPBaseID	paopap_base_id	int	luật: M1
+2	IDStep	id_step	int	luật: M1

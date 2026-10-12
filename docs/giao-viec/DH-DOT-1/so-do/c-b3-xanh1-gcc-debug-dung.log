@@ -1,0 +1,7 @@
+# 2026-10-08 16:24:26 cmake --build --preset gcc-debug --target collision_model_tests (mã 0, 2 s)
+[0/2] Re-checking globbed directories...
+[1/6] Building CXX object CMakeFiles/game_collision.dir/SRC/collision/opcode_tree.cpp.obj
+[2/6] Building CXX object CMakeFiles/game_collision.dir/SRC/collision/mesh.cpp.obj
+[3/6] Linking CXX static library libgame_collision.a
+[4/6] Building CXX object CMakeFiles/collision_model_tests.dir/tests/collision_model_tests.cpp.obj
+[5/6] Linking CXX executable collision_model_tests.exe

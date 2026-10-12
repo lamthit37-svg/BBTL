@@ -1,0 +1,6 @@
+-Wduplicated-cond
+-Wduplicated-branches
+-Wlogical-op
+-Wuseless-cast
+-Wmissing-declarations
+-Wredundant-decls

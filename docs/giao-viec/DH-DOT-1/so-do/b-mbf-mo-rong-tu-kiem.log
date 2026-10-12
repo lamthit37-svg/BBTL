@@ -1,0 +1,8 @@
+lệnh: python -B TOOLS/port/make_building_file.py self-test; python -B TOOLS/port/building_oracle.py self-test
+bắt đầu: 2026-10-08 14:55:21
+---
+tự kiểm: 12 tệp tự vẽ, 0 lỗi
+tự kiểm: định dạng hex, chặn ô chưa có chữ ký, chặn n lớp new, tiến trình con, 4 tệp tự vẽ đọc được, 2 hộp x 2000 truy vấn o3 (tất định theo hạt): 0 lỗi
+---
+mã thoát: 0
+kết thúc: 2026-10-08 14:55:22

@@ -1,0 +1,13 @@
+# schema 1
+# source: Public/Scene/jiujiao_2_monster_190.ini
+# tool: TOOLS/server/export_scene.py; sửa tay sẽ mất ở lượt xuất sau
+# types: text	int	int	int	text	text
+spawn_file	data_index	data_type	value_index	value	value_extra
+spawns.level_190.tsv	0	3	0	15	29
+spawns.level_190.tsv	0	3	1	16	17
+spawns.level_190.tsv	0	3	2	25	16
+spawns.level_190.tsv	0	3	3	24	28
+spawns.level_190.tsv	0	3	4	28	30
+spawns.level_190.tsv	0	3	5	37	32
+spawns.level_190.tsv	0	3	6	37	37
+spawns.level_190.tsv	0	3	7	45	39

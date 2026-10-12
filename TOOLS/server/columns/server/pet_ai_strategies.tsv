@@ -1,0 +1,12 @@
+# schema 1
+# source: server_config/PetAIStrategyTbl.txt
+# tool: TOOLS/server/import_legacy.py; sửa tay sẽ mất ở lượt xuất sau
+# types: int	text	text	text	text
+index	original	name	type	note
+0	ID	id	int	luật: M1
+1	自动技类型$1$	auto_skill_kind	text	luật: nguyên văn
+2	胆小	timid	float	luật: nguyên văn
+3	警慎	cautious	float	luật: nguyên văn
+4	忠诚	loyal	float	luật: nguyên văn
+5	精明	shrewd	float	luật: nguyên văn
+6	勇猛	brave	float	luật: nguyên văn

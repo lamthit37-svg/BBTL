@@ -1,0 +1,6 @@
+# schema 1
+# source: Public/Scene/liaoxi_platform.ini
+# tool: TOOLS/server/export_scene.py; sửa tay sẽ mất ở lượt xuất sau
+# types: int	int	float	float	int	int	text
+type_id	class_id	position_x	position_z	direction	script_id	tip
+17	10	67	280	27		通往草原

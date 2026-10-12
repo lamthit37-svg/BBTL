@@ -1,0 +1,11 @@
+# schema 1
+# source: Public/Scene
+# tool: TOOLS/server/export_scene.py; sửa tay sẽ mất ở lượt xuất sau
+# types: text	text	text	text	text
+index	original	name	type	note
+0	guid	guid	int	mã vùng, đọc bằng atoi
+1	script_id	script_id	int	script của vùng
+2	left	left	float	cạnh trái, giữ nguyên văn
+3	top	top	float	cạnh trên, giữ nguyên văn
+4	right	right	float	cạnh phải, giữ nguyên văn
+5	bottom	bottom	float	cạnh dưới, giữ nguyên văn

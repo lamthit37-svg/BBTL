@@ -1,0 +1,7 @@
+# schema 1
+# source: Public/Scene/qijvxiuxi_3_monster.ini
+# tool: TOOLS/server/export_scene.py; sửa tay sẽ mất ở lượt xuất sau
+# types: int	int	text	text	float	float	int	int	int	int	int	int	int	int	int	int	int	int	int	int	int	int	text	int	int	int
+guid	type	name	title	position_x	position_z	direction	script_id	respawn_time	group_id	team_id	base_ai	ai_file	patrol_id	shop_0	shop_1	shop_2	shop_3	level	is_pet	script_timer	reputation_id	cshop	leader_id	is_npc	camp
+3073478	371	胡小仙	珍珑棋局招待	32.0192	12.5179	27	402001	1000	-1	-1	3	0	-1	-1	-1	-1	-1				-1				
+33896061	604	罗青云	珍珑棋局特使	32	45	117	311002	1000	-1	-1	3	0	-1	-1	-1	-1	-1	36			-1				

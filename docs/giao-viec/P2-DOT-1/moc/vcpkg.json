@@ -1,0 +1,15 @@
+{
+  "name": "thienlong",
+  "version": "0.1.0",
+  "builtin-baseline": "04a9d8e5212d01ee1dd9478eadd9caade4f8b0d4",
+  "dependencies": [
+    "cgltf",
+    "lz4",
+    "meshoptimizer",
+    "opus",
+    "stb",
+    "xxhash",
+    "zstd",
+    "sse2neon"
+  ]
+}

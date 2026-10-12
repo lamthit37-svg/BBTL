@@ -1,0 +1,43 @@
+# lệnh: python check.py -j 2 SRC/net/net.hpp SRC/net/detail/native.hpp SRC/net/net.cpp SRC/net/socket_win32.cpp tests/net_tests.cpp
+# bắt đầu 2026-10-08 01:43:13, xong 2026-10-08 01:43:25, 1 lần chạy, mã thoát 0
+Trình dịch g14: C:\Users\myhea\AppData\Local\Microsoft\WinGet\Packages\BrechtSanders.WinLibs.POSIX.UCRT_Microsoft.Winget.Source_8wekyb3d8bbwe\mingw64\bin\g++.EXE (gcc 16.2.0)
+Trình dịch c20: C:\Program Files\LLVM\bin\clang++.EXE (clang 23.1.2)
+clang-format: C:\Program Files\LLVM\bin\clang-format.EXE (23.1.2)
+clang-tidy: C:\Program Files\LLVM\bin\clang-tidy.EXE (LLVM (http://llvm.org/):)
+
+SRC\net\net.hpp
+  ✓ clang-format
+  ✓ độ lồng <= 1 (PH-01)
+  ✓ biên dịch g14
+  ✓ biên dịch c20
+  ✓ clang-tidy
+
+SRC\net\detail\native.hpp
+  ✓ clang-format
+  ✓ độ lồng <= 1 (PH-01)
+  ✓ biên dịch g14
+  ✓ biên dịch c20
+  ✓ clang-tidy
+
+SRC\net\net.cpp
+  ✓ clang-format
+  ✓ độ lồng <= 1 (PH-01)
+  ✓ biên dịch g14
+  ✓ biên dịch c20
+  ✓ clang-tidy
+
+SRC\net\socket_win32.cpp
+  ✓ clang-format
+  ✓ độ lồng <= 1 (PH-01)
+  ✓ biên dịch g14
+  ✓ biên dịch c20
+  ✓ clang-tidy
+
+tests\net_tests.cpp
+  ✓ clang-format
+  ✓ độ lồng <= 1 (PH-01)
+  ✓ biên dịch g14
+  ✓ biên dịch c20
+  ✓ clang-tidy
+
+5 tệp, 0 lỗi.

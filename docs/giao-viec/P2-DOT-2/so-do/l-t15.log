@@ -1,0 +1,11 @@
+# 2026-10-08 09:52:56  T15: tìm winsock2\.h|ws2tcpip\.h|sys/socket\.h|poll\.h|netinet/|arpa/ trong SRC/ và tests/ (*.cpp, *.hpp, *.h)
+
+SRC/net/socket_posix.cpp:27: #include <arpa/inet.h>
+SRC/net/socket_posix.cpp:29: #include <netinet/in.h>
+SRC/net/socket_posix.cpp:30: #include <netinet/tcp.h>
+SRC/net/socket_posix.cpp:31: #include <poll.h>
+SRC/net/socket_posix.cpp:32: #include <sys/socket.h>
+SRC/net/socket_win32.cpp:29: #include <winsock2.h>
+SRC/net/socket_win32.cpp:30: #include <ws2tcpip.h>
+SRC/process/process_posix.cpp:32: #include <poll.h>
+

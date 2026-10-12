@@ -1,0 +1,7 @@
+# schema 1
+# source: server_config/PetSkillIndexTable.txt
+# tool: TOOLS/server/import_legacy.py; sửa tay sẽ mất ở lượt xuất sau
+# types: int	text	text	text	text
+index	original	name	type	note
+0	技能索引号	skill_index	int	luật: nguyên văn
+1	技能ID	skill_id	int	luật: nguyên văn

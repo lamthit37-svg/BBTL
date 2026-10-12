@@ -1,0 +1,19 @@
+# schema 1
+# source: Public/Scene
+# tool: TOOLS/server/export_scene.py; sửa tay sẽ mất ở lượt xuất sau
+# types: text	text	text	text	text
+index	original	name	type	note
+0		patrol_index	int	chỉ số tuyến, section PATROL
+1		point_index	int	chỉ số điểm trong tuyến
+2	POSX	position_x	float	hoành độ, mã đọc
+3	POSY	position_y	float	tung độ, mã 2008 không đọc
+4	POSZ	position_z	float	trục còn lại, mã đọc
+5	settletime	settle_time	int	thời gian đứng, mã đọc nếu có
+6	scriptidN	point_script_id	text	mã 2008 đọc scriptid kèm chỉ số điểm
+7	scriptid	route_script_id	text	khoá scriptid trần, mã 2008 không đọc
+8	isturnback	turns_back	int	mã 2008 không đọc
+9	isTeleportToRespawnPos	teleport_to_respawn	int	mã 2008 không đọc
+10		speech_unread	text	giá trị paopao lặp, mã 2008 chỉ đọc giá trị đầu
+11	paopao<điểm>_1	speech_1	text	mã 2008 không đọc
+12	paopao<điểm>_2	speech_2	text	mã 2008 không đọc
+13	paopao<điểm>_3	speech_3	text	mã 2008 không đọc

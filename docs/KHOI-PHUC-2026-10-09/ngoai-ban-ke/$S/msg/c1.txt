@@ -1,0 +1,16 @@
+gui: anh em luôn-trên-cùng theo thứ tự khai và dò chuột theo nút trái, như CEGUI.
+
+Nút Hành trang và nút Giao dịch của thanh menu chính không bấm được: Hub::hit trả
+MainMenuBar_Center (khung ô kỹ năng) thay cho nút nằm trong ô của nó. visit_list xếp anh em
+AlwaysOnTop ngược thứ tự khai, chép từ TLBB Dev. CEGUI gắn cửa sổ vào cha rồi mới đặt thuộc tính
+(CEGUIGUILayout_xmlHandler.cpp) và setAlwaysOnTop thêm lại cửa sổ vào cuối danh sách vẽ của cha
+(Window::addWindowToDrawList), nên anh em luôn-trên-cùng khai sau nằm trên. 66 cặp anh em
+luôn-trên-cùng chồng nhau trong 24 layout đã gom đổi thứ tự theo; ảnh thanh menu không đổi.
+
+Hub::hit nhận loại dò (gui::Probe): nhấn trái bỏ qua thêm cửa sổ MouseLButtonHollow, như
+nEventType 1 của Window::getChildAtPosition. 36 cửa sổ của các layout đã gom chỉ thủng với nút
+trái. Hud::contains dò thường, lần nhấn của Hud dò theo nút trái.
+
+Test: top_siblings_keep_order và left_hollow của gui_sheet_tests, đỏ trước khi sửa.
+
+Co-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>

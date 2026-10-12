@@ -1,0 +1,130 @@
+#include "config/zone.hpp"
+
+#include "config/detail/node.hpp"
+#include "config/detail/read.hpp"
+#include "config/issue.hpp"
+
+#include <array>
+#include <string_view>
+#include <utility>
+
+namespace game::config {
+namespace {
+
+using detail::Bag;
+using detail::Cursor;
+using detail::finish;
+using detail::keep;
+using detail::Node;
+using detail::parse_text;
+
+constexpr std::string_view kRoot[] = {
+    "schema",
+    "tick",
+    "aoi",
+    "capacity",
+    "session",
+    "world_clock",
+    "drops",
+    "audit",
+};
+constexpr std::string_view kTick[] = {"hz"};
+constexpr std::string_view kAoi[] = {"cell_size"};
+constexpr std::string_view kCapacity[] = {
+    "monsters",
+    "pets",
+    "special_objects",
+    "platforms",
+    "buses",
+    "player_shops",
+    "scene_timers",
+    "human_timers",
+};
+constexpr std::string_view kSession[] = {"linger_after_disconnect_ms", "linger_hidden_ms", "kick_idle_ms"};
+constexpr std::string_view kClock[] = {"period_change_ms"};
+constexpr std::string_view kDrops[] = {"box_recycle_ms"};
+constexpr std::string_view kAudit[] = {"packet_stats_ms"};
+
+void read_capacity(Bag& bag, const Node* table, Zone& zone) {
+    if (table == nullptr) return;
+    Cursor cursor{bag, *table};
+    cursor.unknown(kCapacity);
+    keep(cursor.bounded("monsters", detail::kCount), zone.monsters);
+    keep(cursor.bounded("pets", detail::kCount), zone.pets);
+    keep(cursor.bounded("special_objects", detail::kCount), zone.special_objects);
+    keep(cursor.bounded("platforms", detail::kCount), zone.platforms);
+    keep(cursor.bounded("buses", detail::kCount), zone.buses);
+    keep(cursor.bounded("player_shops", detail::kCount), zone.player_shops);
+    keep(cursor.bounded("scene_timers", detail::kCount), zone.scene_timers);
+    keep(cursor.bounded("human_timers", detail::kCount), zone.human_timers);
+}
+
+void read_session(Bag& bag, const Node* table, Zone& zone) {
+    if (table == nullptr) return;
+    Cursor cursor{bag, *table};
+    cursor.unknown(kSession);
+    keep(cursor.millis("linger_after_disconnect_ms"), zone.linger_after_disconnect_ms);
+    keep(cursor.millis("linger_hidden_ms"), zone.linger_hidden_ms);
+    keep(cursor.millis("kick_idle_ms"), zone.kick_idle_ms);
+}
+
+void read_tick(Bag& bag, const Node* table, Zone& zone) {
+    if (table == nullptr) return;
+    Cursor cursor{bag, *table};
+    cursor.unknown(kTick);
+    keep(cursor.bounded("hz", detail::kCount), zone.hz);
+}
+
+void read_aoi(Bag& bag, const Node* table, Zone& zone) {
+    if (table == nullptr) return;
+    Cursor cursor{bag, *table};
+    cursor.unknown(kAoi);
+    keep(cursor.bounded("cell_size", detail::kCount), zone.cell_size);
+}
+
+void read_clock(Bag& bag, const Node* table, Zone& zone) {
+    if (table == nullptr) return;
+    Cursor cursor{bag, *table};
+    cursor.unknown(kClock);
+    keep(cursor.millis("period_change_ms"), zone.period_change_ms);
+}
+
+void read_drops(Bag& bag, const Node* table, Zone& zone) {
+    if (table == nullptr) return;
+    Cursor cursor{bag, *table};
+    cursor.unknown(kDrops);
+    keep(cursor.millis("box_recycle_ms"), zone.box_recycle_ms);
+}
+
+void read_audit(Bag& bag, const Node* table, Zone& zone) {
+    if (table == nullptr) return;
+    Cursor cursor{bag, *table};
+    cursor.unknown(kAudit);
+    keep(cursor.millis("packet_stats_ms"), zone.packet_stats_ms);
+}
+
+[[nodiscard]] Zone read_sections(Bag& bag, const Node& root) {
+    Cursor cursor{bag, root};
+    cursor.schema();
+    cursor.unknown(kRoot);
+    Zone zone;
+    read_tick(bag, cursor.child("tick"), zone);
+    read_aoi(bag, cursor.child("aoi"), zone);
+    read_capacity(bag, cursor.child("capacity"), zone);
+    read_session(bag, cursor.child("session"), zone);
+    read_clock(bag, cursor.child("world_clock"), zone);
+    read_drops(bag, cursor.child("drops"), zone);
+    read_audit(bag, cursor.child("audit"), zone);
+    return zone;
+}
+
+} // namespace
+
+ReadResult<Zone> read_zone(std::string_view text) {
+    const detail::Parsed parsed = parse_text(text);
+    if (!parsed.issues.empty()) return std::unexpected(std::move(parsed.issues));
+    Bag bag;
+    return finish(read_sections(bag, parsed.root), bag);
+}
+
+} // namespace game::config

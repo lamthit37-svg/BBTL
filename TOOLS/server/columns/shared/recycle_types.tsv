@@ -1,0 +1,9 @@
+# schema 1
+# source: client_2026/RecycleItemType.txt
+# tool: TOOLS/server/export_tables.py; sửa tay sẽ mất ở lượt xuất sau
+# types: int	text	text	text	text
+index	original	name	type	note
+0	index	index	int	luật: M1; khớp 100.0% (38/38 id)
+1	classID（和RecycleItemClass.txt里id对应）	class_id	int	luật: M2; khớp 100.0% (38/38 id)
+2	typeID（自己定）	type_id	int	luật: M2; khớp 100.0% (38/38 id)
+3	描述$1$	description	text	luật: nguyên văn; khớp 100.0% (38/38 id)

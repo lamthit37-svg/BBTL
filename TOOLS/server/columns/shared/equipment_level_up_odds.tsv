@@ -1,0 +1,8 @@
+# schema 1
+# source: client_2026/EquipLevelUp.txt
+# tool: TOOLS/server/export_tables.py; sửa tay sẽ mất ở lượt xuất sau
+# types: int	text	text	text	text
+index	original	name	type	note
+0	级别段	level_band	int	luật: nguyên văn; khớp 100.0% (7/7 id)
+1	几率	chance	int	luật: nguyên văn; khớp 100.0% (7/7 id)
+2	Item_ID	item_id	int	luật: M1; khớp 100.0% (7/7 id)

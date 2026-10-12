@@ -1,0 +1,8 @@
+# schema 1
+# source: server_config/GuildWarPoint.txt
+# tool: TOOLS/server/import_legacy.py; sửa tay sẽ mất ở lượt xuất sau
+# types: int	text	text	text	text
+index	original	name	type	note
+0	ID	id	int	luật: M1
+1	积分	points	int	luật: nguyên văn
+2	积分规则说明	points_rule_note	text	luật: nguyên văn

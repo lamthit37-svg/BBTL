@@ -1,0 +1,34 @@
+#==================================================
+# LUẬT XÃ HỘI
+#==================================================
+# Theo đội, độ thân thiết và mật khẩu cấp hai.
+
+#==================================================
+# Chung
+#==================================================
+schema = 1   # Phiên bản bố cục của tệp; bộ đọc từ chối số nó không hiểu
+
+#==================================================
+# Tổ đội
+#==================================================
+[team]
+follow_metres = 10   # Tầm theo đội còn hiệu lực, mét.
+drop_seconds  = 30   # Quá tầm bao lâu thì rời theo đội, giây.
+
+#==================================================
+# Quan hệ
+#==================================================
+[relation]
+password_intimacy = 500   # Độ thân thiết phải có mật khẩu cấp hai.
+presence_intimacy = 0     # Độ thân thiết thì báo lên xuống tuyến.
+exp_per_point     = 1     # Kinh nghiệm để tăng một điểm thân thiết.
+
+#==================================================
+# Mật khẩu cấp hai
+#==================================================
+[secondary_password]
+delete_delay_hours = 72   # Số giờ rồi bấm lại mới xoá mật khẩu.
+change_cost        = 20   # Hoạt lực để đổi mật khẩu.
+force_clear_cost   = 50   # Hoạt lực để buộc xoá mật khẩu.
+max_errors_per_day = 5    # Số lần nhập sai tối đa mỗi ngày.
+unlock_hours       = 24   # Số giờ đến khi mở khoá có hiệu lực.

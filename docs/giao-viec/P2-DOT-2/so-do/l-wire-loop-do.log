@@ -1,0 +1,7 @@
+# 2026-10-08 09:12:28  Lệnh: build/p2-l/red/wire_loop_red.exe (clang-asan, tests/wire_loop_tests.cpp nối với bản chép channel.cpp bị phá trong build/p2-l/red: receive bỏ byte cuối của mẩu 7 byte; next chờ quá 8 byte mới xét đầu khung). Mong đợi: đỏ ở pieces_of_7_bytes và oversized_body_fails_after_header.
+tests\wire_loop_tests.cpp:208: [pieces_of_7_bytes] kênh không báo lỗi
+tests\wire_loop_tests.cpp:209: [pieces_of_7_bytes] nhận đủ khung của mọi mẫu
+tests\wire_loop_tests.cpp:210: [pieces_of_7_bytes] mọi khung giải mã ra đúng giá trị gốc
+tests\wire_loop_tests.cpp:253: [oversized_body_fails_after_header] đủ 8 byte đầu: kênh báo kBodyTooLarge, không chờ thân
+tests\wire_loop_tests.cpp:270: check thất bại: wire_loop_tests
+exit=-1073740791 ms=596

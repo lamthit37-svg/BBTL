@@ -1,0 +1,5 @@
+SERVER/tables/shared: 574 tệp, 91883385 byte, 132e9cbd4cb0b337
+SERVER/tables/variants: 61 tệp, 2024371 byte, a40769aad6d73f4e
+SERVER/tables/server: 69 tệp, 8662611 byte, bd80ac6dae62d187
+SERVER/scenes: 3787 tệp, 149595282 byte, 64181a8c2e16f7b9
+TOOLS/server/columns: 716 tệp, 1131907 byte, 2a1828a3b6f3920f

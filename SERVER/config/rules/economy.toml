@@ -1,0 +1,68 @@
+#==================================================
+# LUẬT KINH TẾ
+#==================================================
+# Giá bán, phiếu ingot, ký gửi, cửa hàng người chơi và mốc đóng mở khi gộp máy.
+
+#==================================================
+# Chung
+#==================================================
+schema = 1   # Phiên bản bố cục của tệp; bộ đọc từ chối số nó không hiểu
+
+#==================================================
+# Cửa hàng người chơi
+#==================================================
+[player_shop]
+hourly_fee = 0   # Tiền trừ thêm mỗi giờ của cửa hàng.
+
+#==================================================
+# Giá bán
+#==================================================
+[price]
+identified_sale_permille   = 250    # Hệ số giá bán đồ thường và đồ đã giám định.
+unidentified_sale_permille = 100    # Hệ số giá bán đồ lam chưa giám định.
+new_server_permille        = 1000   # Hệ số giá hoạt động máy chủ mới.
+
+#==================================================
+# Phiếu ingot
+#==================================================
+[voucher]
+ingot_cap = 100000   # Trần ingot trong một phiếu quan.
+enabled   = true     # Bật đổi phiếu ingot.
+
+#==================================================
+# Giao dịch
+#==================================================
+[exchange]
+min_level = 14   # Cấp thấp nhất phải nhập mã khi giao dịch.
+max_level = 25   # Cấp cao nhất phải nhập mã khi giao dịch.
+
+#==================================================
+# Ký gửi
+#==================================================
+[consignment]
+return_minutes    = 360                         # Số phút không bán được thì trả lại.
+ingot_fee_percent = 2                           # Phí ký gửi ingot, phần trăm.
+coin_fee_percent  = 2                           # Phí ký gửi tiền vàng, phần trăm.
+ingot_option      = [50, 200, 500]              # Mệnh giá ingot đưa ra khi ký gửi.
+coin_option       = [100000, 500000, 1500000]   # Mệnh giá tiền vàng đưa ra khi ký gửi.
+close_ingot       = false                       # Đóng chức năng ký gửi ingot.
+close_coin        = false                       # Đóng chức năng ký gửi tiền vàng.
+
+#==================================================
+# Thẻ tài phú
+#==================================================
+[card]
+activate_588 = false   # Kích hoạt thẳng thẻ 588.
+activate_666 = false   # Kích hoạt thẳng thẻ 666.
+
+#==================================================
+# Đóng mở khi gộp máy
+#==================================================
+[closure]
+breed            = [7040400, 7040400]   # Mốc đóng rồi mở phối giống, dạng năm tháng ngày giờ.
+found_guild      = [0, 0]               # Mốc đóng rồi mở lập bang, dạng năm tháng ngày giờ.
+found_city       = [0, 0]               # Mốc đóng rồi mở lập thành, dạng năm tháng ngày giờ.
+player_shop      = [0, 0]               # Mốc đóng rồi mở cửa hàng, dạng năm tháng ngày giờ.
+consignment      = [0, 0]               # Mốc đóng rồi mở ký gửi, dạng năm tháng ngày giờ.
+voucher_exchange = [0, 0]               # Mốc đóng rồi mở đổi phiếu, dạng năm tháng ngày giờ.
+voucher_use      = [0, 0]               # Mốc đóng rồi mở dùng phiếu, dạng năm tháng ngày giờ.

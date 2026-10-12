@@ -1,0 +1,19 @@
+# lệnh: python -B docs/giao-viec/P2-DOT-2/so-do/c-do-b4.py (gọi c-do.py, log đuôi -b4) (cwd F:\tl 2026\THIENLONG\build\p2-dot-2)
+# giờ: 2026-10-08 10:15:35
+# commit: 0e6da48f366b0a1d58d55fe9f807adba2425b47a
+# ổ F còn trống: 166541316096 byte (155.10 GiB)
+# python: 3.13.15
+
+## T4
+
+chép SRC/protocol/catalog sang build/p2-c/do/t4-catalog
+sửa fields.tsv dòng 6, cột limit: 48 thành 49 (trường CharacterSummary.name)
+
+$ python -B TOOLS/server/gen_protocol.py --catalog build/p2-c/do/t4-catalog --check
+cũ: SRC/protocol/messages.hpp
+cũ: tests/protocol_samples.hpp
+cũ: docs/PROTOCOL-TIN.md
+Chạy lại: python -B TOOLS/server/gen_protocol.py (3 tệp cũ).
+mã thoát: 1
+
+# xong: 2026-10-08 10:15:35

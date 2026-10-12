@@ -1,0 +1,16 @@
+# schema 1
+# source: server_config/DarkSkillStudy.txt
+# tool: TOOLS/server/import_legacy.py; sửa tay sẽ mất ở lượt xuất sau
+# types: int	int	int	int	int	int	int
+index	level_40_skill	level_40_skill_weight	level_70_skill	level_70_skill_weight	level_90_skill	level_90_skill_weight
+0	32003	85	32150	300	32328	240
+1	32019	85	32166	300	32344	240
+2	32035	55	32182	150	32360	200
+3	32051	55	32198	30	32376	320
+4	32067	55	32214	30	32392	320
+5	32083	55	32230	30	32400	20
+6	32099	75	32262	23	32401	40
+7	32115	75	32278	23	32402	40
+8	-1	0	32294	30	32403	40
+9	-1	0	32310	30	32404	45
+10	-1	0	-1	0	32405	45

@@ -1,0 +1,29 @@
+# schema 1
+# source: docs/giao-viec/P1-DOT-3/DE-BAI.md/muc-5.2
+# types: text	text	text	text	text	int	text	text
+child	child_column	parent	parent_column	absent	known_missing	basis	note
+tables/shared/skills.tsv	inner_art_id	tables/shared/inner_arts.tsv	inner_art_id	-1	0	code:Common/Combat/DataRecords.cpp:196	đọc vào m_nSkillClass, chú thích based XinFa ID
+tables/shared/skills.tsv	bullet_id	tables/shared/bullets.tsv	id	-1;0	0	label	nhãn 子弹ID; mã bỏ qua cột ở DataRecords.cpp:266
+tables/shared/skills.tsv	skill_id_at_inner_art_level_1	tables/shared/skill_levels.tsv	id	-1	0	code:Common/Combat/DataRecords.cpp:275	m_aSkillInstance đọc id SkillData; 0 là id thật
+tables/shared/skills.tsv	skill_id_at_inner_art_level_2	tables/shared/skill_levels.tsv	id	-1	0	code:Common/Combat/DataRecords.cpp:275	m_aSkillInstance đọc id SkillData; 0 là id thật
+tables/shared/skills.tsv	skill_id_at_inner_art_level_3	tables/shared/skill_levels.tsv	id	-1	0	code:Common/Combat/DataRecords.cpp:275	m_aSkillInstance đọc id SkillData; 0 là id thật
+tables/shared/skills.tsv	skill_id_at_inner_art_level_4	tables/shared/skill_levels.tsv	id	-1	0	code:Common/Combat/DataRecords.cpp:275	m_aSkillInstance đọc id SkillData; 0 là id thật
+tables/shared/skills.tsv	skill_id_at_inner_art_level_5	tables/shared/skill_levels.tsv	id	-1	0	code:Common/Combat/DataRecords.cpp:275	m_aSkillInstance đọc id SkillData; 0 là id thật
+tables/shared/skills.tsv	skill_id_at_inner_art_level_6	tables/shared/skill_levels.tsv	id	-1	0	code:Common/Combat/DataRecords.cpp:275	m_aSkillInstance đọc id SkillData; 0 là id thật
+tables/shared/skills.tsv	skill_id_at_inner_art_level_7	tables/shared/skill_levels.tsv	id	-1	0	code:Common/Combat/DataRecords.cpp:275	m_aSkillInstance đọc id SkillData; 0 là id thật
+tables/shared/skills.tsv	skill_id_at_inner_art_level_8	tables/shared/skill_levels.tsv	id	-1	0	code:Common/Combat/DataRecords.cpp:275	m_aSkillInstance đọc id SkillData; 0 là id thật
+tables/shared/skills.tsv	skill_id_at_inner_art_level_9	tables/shared/skill_levels.tsv	id	-1	0	code:Common/Combat/DataRecords.cpp:275	m_aSkillInstance đọc id SkillData; 0 là id thật
+tables/shared/skills.tsv	skill_id_at_inner_art_level_10	tables/shared/skill_levels.tsv	id	-1	0	code:Common/Combat/DataRecords.cpp:275	m_aSkillInstance đọc id SkillData; 0 là id thật
+tables/shared/skills.tsv	skill_id_at_inner_art_level_11	tables/shared/skill_levels.tsv	id	-1	0	code:Common/Combat/DataRecords.cpp:275	m_aSkillInstance đọc id SkillData; 0 là id thật
+tables/shared/skills.tsv	skill_id_at_inner_art_level_12	tables/shared/skill_levels.tsv	id	-1	0	code:Common/Combat/DataRecords.cpp:275	m_aSkillInstance đọc id SkillData; 0 là id thật
+tables/shared/skills.tsv	skill_id_at_inner_art_level_13	tables/shared/skill_levels.tsv	id	-1	0	code:Common/Combat/DataRecords.cpp:275	m_aSkillInstance đọc id SkillData; 0 là id thật
+tables/shared/skills.tsv	skill_id_at_inner_art_level_14	tables/shared/skill_levels.tsv	id	-1	0	code:Common/Combat/DataRecords.cpp:275	m_aSkillInstance đọc id SkillData; 0 là id thật
+tables/shared/skills.tsv	skill_id_at_inner_art_level_15	tables/shared/skill_levels.tsv	id	-1	0	code:Common/Combat/DataRecords.cpp:275	m_aSkillInstance đọc id SkillData; 0 là id thật
+tables/shared/skills.tsv	skill_id_at_inner_art_level_16	tables/shared/skill_levels.tsv	id	-1	0	code:Common/Combat/DataRecords.cpp:275	m_aSkillInstance đọc id SkillData; 0 là id thật
+tables/shared/monsters.tsv	attack_trait_id	tables/shared/attack_traits.tsv	id	-1	1	label	nhãn 攻击特性ID; thiếu 31 ở 18 dòng, các id 4 và 10–13 đều có trong bảng cha
+tables/shared/items_common.tsv	required_skill	tables/shared/life_skills.tsv	id	-1;0	0	data	khớp 100% (30/30 giá trị, 2482 ô) với life_skills.id; 16 giá trị không có trong skills.skill_id
+tables/shared/grow_point_types.tsv	life_skill_id	tables/shared/life_skills.tsv	id	-1	0	label	nhãn 对应生活技能ID
+tables/shared/recycle_items.tsv	item_id	tables/shared/items_common.tsv	index	-1	0	label	nhãn nói id của bảng CommonItem
+tables/shared/pet_skill_books.tsv	item_id	tables/shared/items_common.tsv	index	-1	0	label	nhãn 珍兽技能书的物品ID
+tables/shared/face_models.tsv	cost_item_id	tables/shared/items_common.tsv	index	-1	0	label	nhãn 消耗物品ID
+tables/shared/gem_carving.tsv	required_item_id	tables/shared/items_common.tsv	index	-1	0	label	nhãn 需要物品ID

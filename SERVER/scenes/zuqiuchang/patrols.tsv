@@ -1,0 +1,5 @@
+# schema 1
+# source: Public/Scene/zuqiuchang_patrolpoint.ini
+# tool: TOOLS/server/export_scene.py; sửa tay sẽ mất ở lượt xuất sau
+# types: int	int	float	float	float	int	text	text	int	int	text	text	text	text
+patrol_index	point_index	position_x	position_y	position_z	settle_time	point_script_id	route_script_id	turns_back	teleport_to_respawn	speech_unread	speech_1	speech_2	speech_3

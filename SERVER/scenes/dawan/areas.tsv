@@ -1,0 +1,8 @@
+# schema 1
+# source: Public/Scene/dawan_area.ini
+# tool: TOOLS/server/export_scene.py; sửa tay sẽ mất ở lượt xuất sau
+# types: int	int	float	float	float	float
+guid	script_id	left	top	right	bottom
+0	400944	16.0000	207.0000	21.0000	211.0000
+0	400945	192.0000	232.0000	197.0000	237.0000
+0	400947	45.0000	20.0000	49.0000	23.0000

@@ -1,0 +1,42 @@
+#==================================================
+# LUẬT CHIẾN ĐẤU
+#==================================================
+# Dao động sát thương, hằng số trúng đích và chí mạng, giảm sát thương khi PK, trần thuộc tính.
+
+#==================================================
+# Chung
+#==================================================
+schema = 1   # Phiên bản bố cục của tệp; bộ đọc từ chối số nó không hiểu
+
+#==================================================
+# Sát thương
+#==================================================
+[damage]
+pk_modifier         = 100   # Chú thích gốc nói sát thương khi PK giảm một nửa. Đơn vị chưa xác lập.
+default_fluctuation = 8     # Dao động sát thương mặc định.
+
+#==================================================
+# Trúng đích
+#==================================================
+[hit]
+h0 = 10   # Tham số H0 của công thức trúng đích.
+
+#==================================================
+# Chí mạng
+#==================================================
+[critical]
+c0 = 100   # Tham số C0 của công thức chí mạng.
+c1 = 10    # Tham số C1 của công thức chí mạng.
+c2 = 25    # Tham số C2 của công thức chí mạng.
+
+#==================================================
+# Trần chiến đấu
+#==================================================
+[limit]
+raw_attribute        = 10000000000   # Trần điểm thuộc tính chiến đấu gốc.
+item_attribute       = 32767         # Trần trị tuyệt đối của một dòng thuộc tính vật phẩm.
+single_settlement    = 2147483647    # Trần lượng kết toán một lần, máu hoặc nội lực.
+critical_display     = 9999          # Trần điểm chí mạng hiển thị, không phải phần trăm.
+hit_formula          = 100000        # Trần điểm trúng và né trước khi vào công thức.
+resistance           = 4096          # Trần điểm kháng bốn hệ và giảm kháng.
+effective_resistance = 100           # Trần kháng hiệu dụng; mỗi điểm giảm một phần trăm.

@@ -1,0 +1,13 @@
+files	modules	text	module_list	file_list
+9	6	, 	client,control,core,gpu,gui,shadertool	SRC/client/display/player.cpp SRC/control/cursor_rules.hpp SRC/core/clock.cpp SRC/core/log_sink_posix.cpp SRC/gpu/vulkan/device.cpp SRC/gui/loader_look.cpp SRC/gui/paint.cpp SRC/gui/text.cpp SRC/shadertool/main.cpp
+4	2	shaders	client,render	SRC/client/android_main.cpp SRC/client/display/display_gpu.cpp SRC/client/display_gpu.cpp SRC/render/ui.cpp
+3	2	THIENLONG	client,window	SRC/client/android_main.cpp SRC/client/display/display_gpu.cpp SRC/window/window.hpp
+2	2	sse4.1	client,render	SRC/client/display/display_gpu.cpp SRC/render/camera.cpp
+2	2	type	gui,map	SRC/gui/loader_look.cpp SRC/map/terrain.cpp
+2	2	{}	client,core	SRC/client/display/display_gpu.cpp SRC/core/log.cpp
+3	1	thiết bị đã mất	gpu	SRC/gpu/d3d11/device.cpp SRC/gpu/d3d12/swapchain.cpp SRC/gpu/vulkan/device.cpp
+2	1	.glb	client	SRC/client/display/display_gpu.cpp SRC/client/display_gpu.cpp
+2	1	Bỏ mesh {}: {}	client	SRC/client/display/display_gpu.cpp SRC/client/display_gpu.cpp
+2	1	Lỗi chụp {}: {}	client	SRC/client/display/display_gpu.cpp SRC/client/display_gpu.cpp
+2	1	Model	client	SRC/client/display/display_gpu.cpp SRC/client/display_gpu.cpp
+2	1	view: texture đã chết	gpu	SRC/gpu/d3d11/resources.cpp SRC/gpu/gles/resources.cpp

@@ -1,0 +1,6 @@
+# schema 1
+# source: Public/Scene/mingjiao_2_area.ini
+# tool: TOOLS/server/export_scene.py; sửa tay sẽ mất ở lượt xuất sau
+# types: int	int	float	float	float	float
+guid	script_id	left	top	right	bottom
+0	400114	94.0000	159.0000	101.0000	165.0000

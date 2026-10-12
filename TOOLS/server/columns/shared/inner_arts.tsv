@@ -1,0 +1,42 @@
+# schema 1
+# source: client_2026/XinFa_V1.txt
+# tool: TOOLS/server/export_tables.py; sửa tay sẽ mất ở lượt xuất sau
+# types: int	text	text	text	text
+index	original	name	type	note
+0	心法ID	inner_art_id	int	neo: cột gốc 0, khớp 100.0% (63/63 id)
+1	门派ID	sect_id	int	neo: cột gốc 1, khớp 100.0% (63/63 id)
+2	心法名称$1$	inner_art_name	text	neo: cột gốc 2, khớp 100.0% (63/63 id)
+3	心法描述$1$	inner_art_description	text	nội suy: cột gốc 3, khớp 0.0% (0/63 id)
+4	心法图标	inner_art_icon	text	neo: cột gốc 4, khớp 100.0% (63/63 id)
+5	心法影响属性逻辑	attribute_logic	int	neo: cột gốc 5, khớp 100.0% (63/63 id)
+6	心法修正率(废)	inner_art_modifier_rate_unused	float	đổi kiểu: cột gốc 6, khớp 100.0% (63/63 id)
+7	是否直接学会	learned_directly	int	nội suy: cột gốc 7, khớp 100.0% (63/63 id)
+8	升级人物等级限制	upgrade_level_limit	int	neo: cột gốc 8, khớp 100.0% (63/63 id)
+9		column_9	int	mới ở 2026
+10	心法修正率1	inner_art_modifier_rate_1	float	đổi kiểu: cột gốc 10, khớp 100.0% (63/63 id)
+11		column_11	int	mới ở 2026
+12	心法修正率2	inner_art_modifier_rate_2	float	đổi kiểu: cột gốc 12, khớp 100.0% (63/63 id)
+13		column_13	int	mới ở 2026
+14	心法修正率3	inner_art_modifier_rate_3	float	đổi kiểu: cột gốc 14, khớp 100.0% (63/63 id)
+15		column_15	int	mới ở 2026
+16	心法修正率4	inner_art_modifier_rate_4	float	đổi kiểu: cột gốc 16, khớp 100.0% (63/63 id)
+17		column_17	int	mới ở 2026
+18	心法修正率5	inner_art_modifier_rate_5	float	đổi kiểu: cột gốc 18, khớp 100.0% (63/63 id)
+19		column_19	int	mới ở 2026
+20	心法修正率6	inner_art_modifier_rate_6	float	đổi kiểu: cột gốc 20, khớp 100.0% (63/63 id)
+21		column_21	int	mới ở 2026
+22	心法修正率7	inner_art_modifier_rate_7	float	đổi kiểu: cột gốc 22, khớp 100.0% (63/63 id)
+23		column_23	int	mới ở 2026
+24	心法修正率8	inner_art_modifier_rate_8	float	đổi kiểu: cột gốc 24, khớp 100.0% (63/63 id)
+25		column_25	int	mới ở 2026
+26	心法修正率9	inner_art_modifier_rate_9	float	đổi kiểu: cột gốc 26, khớp 100.0% (63/63 id)
+27		column_27	int	mới ở 2026
+28	心法修正率10	inner_art_modifier_rate_10	float	đổi kiểu: cột gốc 28, khớp 100.0% (63/63 id)
+29		column_29	int	mới ở 2026
+30		column_30	float	mới ở 2026
+31		column_31	int	mới ở 2026
+32		column_32	float	mới ở 2026
+33		column_33	int	mới ở 2026
+34		column_34	float	mới ở 2026
+35		column_35	int	mới ở 2026
+36		column_36	float	mới ở 2026

@@ -1,0 +1,5 @@
+2026-10-08 15:15:39 (UTC+7) A xoa tep tran cua chinh A (lenh chay tay a-tay-3, in 1.5 MB ra man hinh)
+C:\Users\myhea\agent-tools\27c76c58-c0d1-408d-811b-7912c21f49df.txt
+ B, tao 07:00:00, sha256 1FE7635A66A2470B9A97DF30E5427C6A742AF168C328ECEECEB35F5F6D37E8DA
+dau: log: F:\tl 2026\THIENLONG\build\dh-dot-1\docs\giao-viec\DH-DOT-1\so-do\a-tay-3.log | A chay tay 2026-10-08 15:15:08 -> 2026-10-08 15:15:15 (UTC+7), khoa trong; GAME_RAW_SCENE=GAME_COLLISION_SCENE=F:/tl 2026/_raw/Scene; khong co GAME_CLIENT_DATA; chua co Model cua C | == dich collision_tests
+da xoa: True

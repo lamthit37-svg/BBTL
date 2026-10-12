@@ -1,0 +1,11 @@
+# schema 1
+# source: Public/Scene/dali_bus.ini
+# tool: TOOLS/server/export_scene.py; sửa tay sẽ mất ở lượt xuất sau
+# types: int	int	int	int
+guid	data_id	patrol_id	reverse
+1000001	2	5	0
+1000002	2	5	1
+1000003	2	6	0
+1000004	2	6	1
+1000005	2	7	0
+1000006	2	7	1

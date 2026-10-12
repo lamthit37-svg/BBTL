@@ -1,0 +1,8 @@
+lệnh: clang-tidy --config-file=.clang-tidy --quiet tests/collision_alloc_tests.cpp -- -std=c++23 -I SRC -I tests -DGAME_COLLISION_HOSTILE=\"tests/data/collision/hostile\"
+thư mục: F:\tl 2026\THIENLONG\build\dh-dot-1
+bắt đầu: 2026-10-08 14:22:01
+---
+
+---
+mã thoát: 0
+kết thúc: 2026-10-08 14:22:04

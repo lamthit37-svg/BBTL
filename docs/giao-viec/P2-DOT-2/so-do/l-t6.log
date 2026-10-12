@@ -1,0 +1,224 @@
+# 2026-10-08 09:56:03  T6: check.py đủ bộ (clang-format, độ lồng, g14, c20, clang-tidy) trên 27 tệp; giữ NANG.lock, không có bản dựng nào khác đang chạy
+
+# 2026-10-08 09:56:03 -> 2026-10-08 09:56:22
+$ python -B ~/.claude/cpp23/tools/check.py SRC/net/detail/native.hpp SRC/net/net.cpp SRC/net/net.hpp SRC/net/socket_posix.cpp SRC/net/socket_win32.cpp SRC/protocol/channel.cpp SRC/protocol/channel.hpp SRC/protocol/messages.cpp SRC/protocol/messages.hpp SRC/protocol/wire.cpp SRC/protocol/wire.hpp tests/bench/bench.hpp tests/bench/net_bench.cpp tests/bench/protocol_bench.cpp tests/fuzz/fuzz_auth_client.cpp tests/fuzz/fuzz_auth_server.cpp tests/fuzz/fuzz_frame.cpp tests/fuzz/fuzz_game_client.cpp tests/fuzz/fuzz_game_server.cpp tests/fuzz/mutator.hpp tests/fuzz/targets.hpp tests/net_tests.cpp tests/protocol_catalog_tests.cpp tests/protocol_fuzz_tests.cpp tests/protocol_samples.hpp tests/protocol_tests.cpp tests/wire_loop_tests.cpp
+Trình dịch g14: C:\Users\myhea\AppData\Local\Microsoft\WinGet\Packages\BrechtSanders.WinLibs.POSIX.UCRT_Microsoft.Winget.Source_8wekyb3d8bbwe\mingw64\bin\g++.EXE (gcc 16.2.0)
+Trình dịch c20: C:\Program Files\LLVM\bin\clang++.EXE (clang 23.1.2)
+clang-format: C:\Program Files\LLVM\bin\clang-format.EXE (23.1.2)
+clang-tidy: C:\Program Files\LLVM\bin\clang-tidy.EXE (LLVM (http://llvm.org/):)
+
+SRC\net\detail\native.hpp
+  ✓ clang-format
+  ✓ độ lồng <= 1 (PH-01)
+  ✓ biên dịch g14
+  ✓ biên dịch c20
+  ✓ clang-tidy
+
+SRC\net\net.cpp
+  ✓ clang-format
+  ✓ độ lồng <= 1 (PH-01)
+  ✓ biên dịch g14
+  ✓ biên dịch c20
+  ✓ clang-tidy
+
+SRC\net\net.hpp
+  ✓ clang-format
+  ✓ độ lồng <= 1 (PH-01)
+  ✓ biên dịch g14
+  ✓ biên dịch c20
+  ✓ clang-tidy
+
+SRC\net\socket_posix.cpp
+  ✓ clang-format
+  ✓ độ lồng <= 1 (PH-01)
+  ✗ biên dịch g14
+      SRC\net\socket_posix.cpp:27:10: fatal error: arpa/inet.h: No such file or directory
+         27 | #include <arpa/inet.h>
+            |          ^~~~~~~~~~~~~
+      compilation terminated.
+  ✗ biên dịch c20
+      SRC\net\socket_posix.cpp:27:10: fatal error: 'arpa/inet.h' file not found
+         27 | #include <arpa/inet.h>
+            |          ^~~~~~~~~~~~~
+      1 error generated.
+  ✗ clang-tidy
+      F:\tl 2026\THIENLONG\build\p2-dot-2\SRC\net\socket_posix.cpp:22:1: error: included header span is not used directly [misc-include-cleaner,-warnings-as-errors]
+      F:\tl 2026\THIENLONG\build\p2-dot-2\SRC\net\socket_posix.cpp:23:1: error: included header unordered_map is not used directly [misc-include-cleaner,-warnings-as-errors]
+      F:\tl 2026\THIENLONG\build\p2-dot-2\SRC\net\socket_posix.cpp:25:1: error: included header vector is not used directly [misc-include-cleaner,-warnings-as-errors]
+      F:\tl 2026\THIENLONG\build\p2-dot-2\SRC\net\socket_posix.cpp:27:10: error: 'arpa/inet.h' file not found [clang-diagnostic-error]
+      F:\tl 2026\THIENLONG\build\p2-dot-2\SRC\net\socket_posix.cpp:28:1: error: included header fcntl.h is not used directly [misc-include-cleaner,-warnings-as-errors]
+      F:\tl 2026\THIENLONG\build\p2-dot-2\SRC\net\socket_posix.cpp:54:37: error: parameter name 'fd' is too short, expected at least 3 characters [readability-identifier-length,-warnings-as-errors]
+      F:\tl 2026\THIENLONG\build\p2-dot-2\SRC\net\socket_posix.cpp:76:37: error: variable 'address' of type 'int &' can be declared 'const' [misc-const-correctness,-warnings-as-errors]
+      F:\tl 2026\THIENLONG\build\p2-dot-2\SRC\net\socket_posix.cpp:82:35: error: parameter name 'fd' is too short, expected at least 3 characters [readability-identifier-length,-warnings-as-errors]
+      F:\tl 2026\THIENLONG\build\p2-dot-2\SRC\net\socket_posix.cpp:86:47: error: parameter name 'fd' is too short, expected at least 3 characters [readability-identifier-length,-warnings-as-errors]
+      F:\tl 2026\THIENLONG\build\p2-dot-2\SRC\net\socket_posix.cpp:94:32: error: parameter name 'fd' is too short, expected at least 3 characters [readability-identifier-length,-warnings-as-errors]
+      F:\tl 2026\THIENLONG\build\p2-dot-2\SRC\net\socket_posix.cpp:109:36: error: parameter name 'fd' is too short, expected at least 3 characters [readability-identifier-length,-warnings-as-errors]
+      F:\tl 2026\THIENLONG\build\p2-dot-2\SRC\net\socket_posix.cpp:115:15: error: variable name 'fd' is too short, expected at least 3 characters [readability-identifier-length,-warnings-as-errors]
+      F:\tl 2026\THIENLONG\build\p2-dot-2\SRC\net\socket_posix.cpp:145:49: error: parameter name 'fd' is too short, expected at least 3 characters [readability-identifier-length,-warnings-as-errors]
+      F:\tl 2026\THIENLONG\build\p2-dot-2\SRC\net\socket_posix.cpp:148:45: error: implicit conversion 'bool' -> 'int' [readability-implicit-bool-conversion,-warnings-as-errors]
+      F:\tl 2026\THIENLONG\build\p2-dot-2\SRC\net\socket_posix.cpp:152:47: error: implicit conversion 'bool' -> 'int' [readability-implicit-bool-conversion,-warnings-as-errors]
+
+SRC\net\socket_win32.cpp
+  ✓ clang-format
+  ✓ độ lồng <= 1 (PH-01)
+  ✓ biên dịch g14
+  ✓ biên dịch c20
+  ✓ clang-tidy
+
+SRC\protocol\channel.cpp
+  ✓ clang-format
+  ✓ độ lồng <= 1 (PH-01)
+  ✓ biên dịch g14
+  ✓ biên dịch c20
+  ✓ clang-tidy
+
+SRC\protocol\channel.hpp
+  ✓ clang-format
+  ✓ độ lồng <= 1 (PH-01)
+  ✓ biên dịch g14
+  ✓ biên dịch c20
+  ✓ clang-tidy
+
+SRC\protocol\messages.cpp
+  ✓ clang-format
+  ✓ độ lồng <= 1 (PH-01)
+  ✓ biên dịch g14
+  ✓ biên dịch c20
+  ✓ clang-tidy
+
+SRC\protocol\messages.hpp
+  ✓ clang-format
+  ✓ độ lồng <= 1 (PH-01)
+  ✓ biên dịch g14
+  ✓ biên dịch c20
+  ✓ clang-tidy
+
+SRC\protocol\wire.cpp
+  ✓ clang-format
+  ✓ độ lồng <= 1 (PH-01)
+  ✓ biên dịch g14
+  ✓ biên dịch c20
+  ✓ clang-tidy
+
+SRC\protocol\wire.hpp
+  ✓ clang-format
+  ✓ độ lồng <= 1 (PH-01)
+  ✓ biên dịch g14
+  ✓ biên dịch c20
+  ✓ clang-tidy
+
+tests\bench\bench.hpp
+  ✓ clang-format
+  ✓ độ lồng <= 1 (PH-01)
+  ✓ biên dịch g14
+  ✓ biên dịch c20
+  ✓ clang-tidy
+
+tests\bench\net_bench.cpp
+  ✓ clang-format
+  ✓ độ lồng <= 1 (PH-01)
+  ✓ biên dịch g14
+  ✓ biên dịch c20
+  ✓ clang-tidy
+
+tests\bench\protocol_bench.cpp
+  ✓ clang-format
+  ✓ độ lồng <= 1 (PH-01)
+  ✓ biên dịch g14
+  ✓ biên dịch c20
+  ✓ clang-tidy
+
+tests\fuzz\fuzz_auth_client.cpp
+  ✓ clang-format
+  ✓ độ lồng <= 1 (PH-01)
+  ✓ biên dịch g14
+  ✓ biên dịch c20
+  ✓ clang-tidy
+
+tests\fuzz\fuzz_auth_server.cpp
+  ✓ clang-format
+  ✓ độ lồng <= 1 (PH-01)
+  ✓ biên dịch g14
+  ✓ biên dịch c20
+  ✓ clang-tidy
+
+tests\fuzz\fuzz_frame.cpp
+  ✓ clang-format
+  ✓ độ lồng <= 1 (PH-01)
+  ✓ biên dịch g14
+  ✓ biên dịch c20
+  ✓ clang-tidy
+
+tests\fuzz\fuzz_game_client.cpp
+  ✓ clang-format
+  ✓ độ lồng <= 1 (PH-01)
+  ✓ biên dịch g14
+  ✓ biên dịch c20
+  ✓ clang-tidy
+
+tests\fuzz\fuzz_game_server.cpp
+  ✓ clang-format
+  ✓ độ lồng <= 1 (PH-01)
+  ✓ biên dịch g14
+  ✓ biên dịch c20
+  ✓ clang-tidy
+
+tests\fuzz\mutator.hpp
+  ✓ clang-format
+  ✓ độ lồng <= 1 (PH-01)
+  ✓ biên dịch g14
+  ✓ biên dịch c20
+  ✓ clang-tidy
+
+tests\fuzz\targets.hpp
+  ✓ clang-format
+  ✓ độ lồng <= 1 (PH-01)
+  ✓ biên dịch g14
+  ✓ biên dịch c20
+  ✓ clang-tidy
+
+tests\net_tests.cpp
+  ✓ clang-format
+  ✓ độ lồng <= 1 (PH-01)
+  ✓ biên dịch g14
+  ✓ biên dịch c20
+  ✓ clang-tidy
+
+tests\protocol_catalog_tests.cpp
+  ✓ clang-format
+  ✓ độ lồng <= 1 (PH-01)
+  ✓ biên dịch g14
+  ✓ biên dịch c20
+  ✓ clang-tidy
+
+tests\protocol_fuzz_tests.cpp
+  ✓ clang-format
+  ✓ độ lồng <= 1 (PH-01)
+  ✓ biên dịch g14
+  ✓ biên dịch c20
+  ✓ clang-tidy
+
+tests\protocol_samples.hpp
+  ✓ clang-format
+  ✓ độ lồng <= 1 (PH-01)
+  ✓ biên dịch g14
+  ✓ biên dịch c20
+  ✓ clang-tidy
+
+tests\protocol_tests.cpp
+  ✓ clang-format
+  ✓ độ lồng <= 1 (PH-01)
+  ✓ biên dịch g14
+  ✓ biên dịch c20
+  ✓ clang-tidy
+
+tests\wire_loop_tests.cpp
+  ✓ clang-format
+  ✓ độ lồng <= 1 (PH-01)
+  ✓ biên dịch g14
+  ✓ biên dịch c20
+  ✓ clang-tidy
+
+27 tệp, 3 lỗi.
+mã thoát: 1
+

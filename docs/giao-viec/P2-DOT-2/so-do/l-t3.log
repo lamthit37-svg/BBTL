@@ -1,0 +1,24 @@
+# 2026-10-08 09:52:07  T3 chạy bằng c-do.py t3() (thư mục làm việc build/p2-l/do)
+
+## T3
+
+$ python -B TOOLS/server/gen_protocol.py --check
+
+mã thoát: 0
+
+$ python -B TOOLS/server/gen_protocol.py --out build/p2-l/do/t3-a
+
+mã thoát: 0
+
+$ python -B TOOLS/server/gen_protocol.py --out build/p2-l/do/t3-b
+
+mã thoát: 0
+
+tệp	SHA-256 t3-a	SHA-256 t3-b	trùng a-b	trùng tệp trong cây
+SRC/protocol/messages.hpp	462f25759e21f313091b8f190fa322d665e5be364d78787f116f9bad5d36dbd0	462f25759e21f313091b8f190fa322d665e5be364d78787f116f9bad5d36dbd0	True	True
+SRC/protocol/messages.cpp	0450a6012ac68d0cbfb198ae5f8537896898773be183359d8e38f7758ac7a04d	0450a6012ac68d0cbfb198ae5f8537896898773be183359d8e38f7758ac7a04d	True	True
+tests/protocol_samples.hpp	35d22e9857b5591c3bb2d3210e04b7282016ef1396f2be84fcff6d6dcddd8ccb	35d22e9857b5591c3bb2d3210e04b7282016ef1396f2be84fcff6d6dcddd8ccb	True	True
+docs/PROTOCOL-TIN.md	bd7e2a17c937768475a93709d488899376d0e4a4a13643209f8c58d03453154a	bd7e2a17c937768475a93709d488899376d0e4a4a13643209f8c58d03453154a	True	True
+
+trùng cả ba: 4/4
+

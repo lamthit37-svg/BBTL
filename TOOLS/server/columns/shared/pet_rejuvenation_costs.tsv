@@ -1,0 +1,7 @@
+# schema 1
+# source: client_2026/PetHuanTongCost.txt
+# tool: TOOLS/server/export_tables.py; sửa tay sẽ mất ở lượt xuất sau
+# types: int	text	text	text	text
+index	original	name	type	note
+0	珍兽携带等级	pet_carry_level	int	luật: nguyên văn; khớp 100.0% (155/155 id)
+1	升级经验	level_up_exp	int	luật: nguyên văn; khớp 100.0% (155/155 id)

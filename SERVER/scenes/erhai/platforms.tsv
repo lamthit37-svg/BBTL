@@ -1,0 +1,8 @@
+# schema 1
+# source: Public/Scene/erhai_platform.ini
+# tool: TOOLS/server/export_scene.py; sửa tay sẽ mất ở lượt xuất sau
+# types: int	int	float	float	int	int	text
+type_id	class_id	position_x	position_z	direction	script_id	tip
+17	10	279	35	27		通往大理
+17	10	38	161	27		通往苍山
+17	10	38	278	27		通往石林

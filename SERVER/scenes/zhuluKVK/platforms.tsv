@@ -1,0 +1,7 @@
+# schema 1
+# source: Public/Scene/zhuluKVK_platform.ini
+# tool: TOOLS/server/export_scene.py; sửa tay sẽ mất ở lượt xuất sau
+# types: int	int	float	float	int	int	text
+type_id	class_id	position_x	position_z	direction	script_id	tip
+2	2	28	48.5	23	-1	
+2	2	227.5	203	33	-1	

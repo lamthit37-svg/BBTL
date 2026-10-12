@@ -1,0 +1,6 @@
+# schema 1
+# source: Public/Scene/songliao_area.ini
+# tool: TOOLS/server/export_scene.py; sửa tay sẽ mất ở lượt xuất sau
+# types: int	int	float	float	float	float
+guid	script_id	left	top	right	bottom
+0	50103	27.0000	9.0000	35.0000	17.0000

@@ -1,0 +1,105 @@
+# 2026-10-08 09:42:28 -> 2026-10-08 09:42:41  Lệnh: ctest --preset msvc-release  (giữ NANG.lock, không có bản dựng nào khác đang chạy)
+Test project F:/tl 2026/THIENLONG/build/p2-dot-2/build/msvc-release
+      Start  1: fx_tests
+ 1/49 Test  #1: fx_tests .........................   Passed    0.06 sec
+      Start  2: io_tests
+ 2/49 Test  #2: io_tests .........................   Passed    0.04 sec
+      Start  3: xml_tests
+ 3/49 Test  #3: xml_tests ........................   Passed    0.03 sec
+      Start  4: audio_tests
+ 4/49 Test  #4: audio_tests ......................   Passed    0.52 sec
+      Start  5: audio_dsp_tests
+ 5/49 Test  #5: audio_dsp_tests ..................   Passed    0.24 sec
+      Start  6: seal_tests
+ 6/49 Test  #6: seal_tests .......................   Passed    0.06 sec
+      Start  7: scene_tests
+ 7/49 Test  #7: scene_tests ......................   Passed    0.04 sec
+      Start  8: map_tests
+ 8/49 Test  #8: map_tests ........................   Passed    0.05 sec
+      Start  9: world_tests
+ 9/49 Test  #9: world_tests ......................   Passed    0.04 sec
+      Start 10: transform_tests
+10/49 Test #10: transform_tests ..................   Passed    0.02 sec
+      Start 11: client_tests
+11/49 Test #11: client_tests .....................   Passed    0.03 sec
+      Start 12: props_tests
+12/49 Test #12: props_tests ......................   Passed    0.02 sec
+      Start 13: stage_tests
+13/49 Test #13: stage_tests ......................   Passed    0.04 sec
+      Start 14: core_tests
+14/49 Test #14: core_tests .......................   Passed    0.03 sec
+      Start 15: log_tests
+15/49 Test #15: log_tests ........................   Passed    0.05 sec
+      Start 16: function_fallback_tests
+16/49 Test #16: function_fallback_tests ..........   Passed    0.03 sec
+      Start 17: window_tests
+17/49 Test #17: window_tests .....................   Passed    0.65 sec
+      Start 18: gpu_tests
+18/49 Test #18: gpu_tests ........................   Passed    1.46 sec
+      Start 19: resource_tests
+19/49 Test #19: resource_tests ...................   Passed    0.05 sec
+      Start 20: classic_tests
+20/49 Test #20: classic_tests ....................   Passed    0.03 sec
+      Start 21: shade_tests
+21/49 Test #21: shade_tests ......................   Passed    0.03 sec
+      Start 22: rig_tests
+22/49 Test #22: rig_tests ........................   Passed    0.05 sec
+      Start 23: ogre_tests
+23/49 Test #23: ogre_tests .......................   Passed    0.03 sec
+      Start 24: anim_tests
+24/49 Test #24: anim_tests .......................   Passed    0.03 sec
+      Start 25: motion_tests
+25/49 Test #25: motion_tests .....................   Passed    0.02 sec
+      Start 26: look_tests
+26/49 Test #26: look_tests .......................   Passed    0.10 sec
+      Start 27: head_tests
+27/49 Test #27: head_tests .......................   Passed    0.04 sec
+      Start 28: avatar_tests
+28/49 Test #28: avatar_tests .....................   Passed    0.02 sec
+      Start 29: control_tests
+29/49 Test #29: control_tests ....................   Passed    0.03 sec
+      Start 30: touch_tests
+30/49 Test #30: touch_tests ......................   Passed    0.02 sec
+      Start 31: hero_tests
+31/49 Test #31: hero_tests .......................   Passed    0.02 sec
+      Start 32: gui_value_tests
+32/49 Test #32: gui_value_tests ..................   Passed    0.03 sec
+      Start 33: gui_loader_tests
+33/49 Test #33: gui_loader_tests .................   Passed    0.17 sec
+      Start 34: gui_sheet_tests
+34/49 Test #34: gui_sheet_tests ..................   Passed    0.07 sec
+      Start 35: camera_tests
+35/49 Test #35: camera_tests .....................   Passed    0.02 sec
+      Start 36: loong_camera_tests
+36/49 Test #36: loong_camera_tests ...............   Passed    0.02 sec
+      Start 37: layers
+37/49 Test #37: layers ...........................   Passed    0.18 sec
+      Start 38: content_tests
+38/49 Test #38: content_tests ....................   Passed    0.12 sec
+      Start 39: config_tests
+39/49 Test #39: config_tests .....................   Passed    0.25 sec
+      Start 40: process_tests
+40/49 Test #40: process_tests ....................   Passed    1.20 sec
+      Start 41: supervise_tests
+41/49 Test #41: supervise_tests ..................   Passed    0.05 sec
+      Start 42: service_tests
+42/49 Test #42: service_tests ....................   Passed    0.35 sec
+      Start 43: server_boot
+43/49 Test #43: server_boot ......................   Passed    3.51 sec
+      Start 44: protocol_tests
+44/49 Test #44: protocol_tests ...................   Passed    0.05 sec
+      Start 45: protocol_catalog_tests
+45/49 Test #45: protocol_catalog_tests ...........   Passed    0.03 sec
+      Start 46: protocol_fuzz_tests
+46/49 Test #46: protocol_fuzz_tests ..............   Passed    0.51 sec
+      Start 47: net_tests
+47/49 Test #47: net_tests ........................   Passed    2.35 sec
+      Start 48: wire_loop_tests
+48/49 Test #48: wire_loop_tests ..................   Passed    0.08 sec
+      Start 49: protocol_catalog_fresh
+49/49 Test #49: protocol_catalog_fresh ...........   Passed    0.07 sec
+
+100% tests passed out of 49
+
+Total Test time (real) =  12.99 sec
+exit=0

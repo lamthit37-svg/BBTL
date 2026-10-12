@@ -1,0 +1,19 @@
+# Chạy lại sau sửa G6 và record rỗng, sau khi máy Hoon lên lại. 1 lượt mỗi lệnh. cwd gốc worktree
+# giờ: 2026-10-08 09:07:21
+$ python -B -W error -m unittest discover -s TOOLS/server -p "test_*.py"
+Ran 240 tests in 1.267s
+
+OK (skipped=8)
+mã thoát: 0
+$ python -B -W error TOOLS/server/lint_py.py
+mã thoát: 0
+$ python -B TOOLS/server/gen_protocol.py   (ghi lại tệp sinh của danh mục thật)
+mã thoát: 0
+$ python -B TOOLS/server/gen_protocol.py --check
+mã thoát: 0
+## SHA-256 sau khi ghi lại (Get-FileHash -Algorithm SHA256)
+462f25759e21f313091b8f190fa322d665e5be364d78787f116f9bad5d36dbd0  SRC/protocol/messages.hpp
+0450a6012ac68d0cbfb198ae5f8537896898773be183359d8e38f7758ac7a04d  SRC/protocol/messages.cpp
+35d22e9857b5591c3bb2d3210e04b7282016ef1396f2be84fcff6d6dcddd8ccb  tests/protocol_samples.hpp
+bd7e2a17c937768475a93709d488899376d0e4a4a13643209f8c58d03453154a  docs/PROTOCOL-TIN.md
+ổ F còn trống: 155.6 GB

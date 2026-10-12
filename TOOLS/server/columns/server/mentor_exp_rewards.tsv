@@ -1,0 +1,11 @@
+# schema 1
+# source: server_config/MasterExpBounty.txt
+# tool: TOOLS/server/import_legacy.py; sửa tay sẽ mất ở lượt xuất sau
+# types: int	text	text	text	text
+index	original	name	type	note
+0	徒弟级别达到	apprentice_level	int	luật: nguyên văn
+1	经验奖励（无帮派或者0级帮）	exp_reward_no_guild	int	luật: nguyên văn
+2	经验奖励（1级帮派）	exp_reward_guild_1	int	luật: nguyên văn
+3	评价1	rating_1	int	luật: nguyên văn
+4	评价2	rating_2	int	luật: nguyên văn
+5	评价3	rating_3	int	luật: nguyên văn

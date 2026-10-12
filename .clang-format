@@ -1,0 +1,84 @@
+# Cấu hình định dạng cho trình soạn, đi kèm bộ quy cách C++23. Từ 2026-10-08 không còn là luật:
+# không quy tắc, hook hay bước kiểm nào đọc tệp này; nó chỉ để clangd/IDE định dạng khi lưu.
+# Hiệu chỉnh trên mã thật: clang-format 20 và 23 tái tạo đúng từng byte types.hpp, vector.hpp,
+# vector_int.hpp, soa.hpp. clang-format 18 chỉ khác một chỗ: viết `T S::*m` thay vì `T S::* m`.
+# Nhóm "cấm căn cột", "dòng trống", PackConstructorInitializers và các mặc định viết tường minh
+# thêm ngày 2026-10-03: đo bằng clang-format 23.1.2, bốn tệp trên, 304 mẫu ✓ của refs/ và mã của
+# templates/ không đổi byte nào; chưa đo lại với clang-format 20.
+# Các phép đo trên làm ở ColumnLimit 100. Từ 2026-10-08 trần là 120 (người dùng chốt): bốn tệp ấy
+# chỉ còn khớp ở những dòng không bị bẻ. Đo bằng clang-format 23.1.2 trên THIENLONG (549 tệp) và
+# Crazy (185 tệp): clang-format không bẻ câu lệnh nào vừa cột — cả 2213 chỗ bẻ đều là câu lệnh
+# rộng hơn trần, 39% chỉ thừa 1–10 cột vì người viết không đếm được cột; rộng hơn 120 cột còn
+# 880 và 35 câu. ColumnLimit: 0 đã thử và loại: giữ nguyên mọi dòng khác nhưng bẻ mỗi enum một
+# dòng sau từng dấu phẩy (115 chỗ), không tuỳ chọn nào tắt được.
+BasedOnStyle: LLVM
+Language: Cpp
+Standard: Latest
+ColumnLimit: 120
+IndentWidth: 4
+TabWidth: 4
+UseTab: Never
+ContinuationIndentWidth: 4
+AccessModifierOffset: -4
+NamespaceIndentation: None
+FixNamespaceComments: true
+PointerAlignment: Left
+DerivePointerAlignment: false
+ReferenceAlignment: Pointer
+# Cấm căn thẳng cột ở mọi dạng: thêm một dòng dài hơn không được kéo theo diff của các dòng bên
+# cạnh. LLVM mặc định căn comment cuối dòng và dấu `\` của macro, nên hai dòng đầu phải tắt tường
+# minh; năm dòng sau trùng mặc định, viết ra để đổi BasedOnStyle hay bản clang-format không lén bật.
+AlignTrailingComments: false
+AlignEscapedNewlines: DontAlign
+AlignConsecutiveAssignments: false
+AlignConsecutiveDeclarations: false
+AlignConsecutiveMacros: false
+AlignConsecutiveBitFields: false
+AlignArrayOfStructures: None
+# Xuống dòng sau "(" thì thụt 4, không gióng theo ngoặc: sửa tên hàm không kéo theo cả khối.
+# DontAlign chứ không phải AlwaysBreak: cả hai đều bỏ căn cột, nhưng AlwaysBreak bắt xuống dòng
+# ngay sau "(" rồi mới thụt, nên một câu bảo vệ dài thành ba bậc thang (if → return fail( → tham
+# số). DontAlign giữ tham số đầu ngay sau dấu ngoặc và chỉ thụt một bậc cho phần tràn.
+AlignAfterOpenBracket: DontAlign
+AlignOperands: DontAlign
+# Không xuống dòng ngay sau "(" khi chưa cần: tham số đầu ở lại cạnh ngoặc, phần tràn thụt một
+# bậc — đúng ý của nhóm trên, mà điểm phạt mặc định 0 của LLVM làm trái. Thiếu dòng này, lambda
+# một dòng thừa vài cột bị bẻ GIỮA danh sách tham số (`[finger](` rồi tham số thụt 26 cột) thay vì
+# bung thân ra ba dòng, và cùng một loại chữ ký có hai hình dạng tuỳ độ dài. Đo 2026-10-08 trên
+# THIENLONG (552 tệp, trần 120): 50 và 200 cho cùng kết quả ở mọi tệp; so với 0 thì 106 tệp đổi
+# hình dạng chỗ bẻ, tổng số dòng tăng 3.
+PenaltyBreakOpenParenthesis: 200
+# Đi kèm dòng trên: khi tham số đầu không vừa dòng đầu, điểm phạt 60 mặc định rẻ hơn 200 nên
+# clang-format tách kiểu trả ra dòng riêng và tên hàm tụt về sát lề (`[[nodiscard]] T` rồi
+# `ten_ham(…) {`). Phạt nặng hơn để nó quay về bẻ sau "(". Đo 2026-10-08: Crazy và THIENLONG không
+# đổi dòng nào khi thêm dòng này; hình dạng ấy chỉ xuất hiện ở chữ ký có tên hàm rất dài.
+PenaltyReturnTypeOnItsOwnLine: 1000
+# Hàm một dòng chỉ trong thân lớp, và thân rỗng `{}`; hàm tự do luôn nhiều dòng.
+AllowShortFunctionsOnASingleLine: Inline
+# Câu bảo vệ `if (x) return y;` nằm một dòng: dấu hiệu nhận ra code phẳng.
+AllowShortIfStatementsOnASingleLine: WithoutElse
+AllowShortLoopsOnASingleLine: false
+AllowShortLambdasOnASingleLine: All
+AllowShortBlocksOnASingleLine: Never
+# `case X: return y;` nằm một dòng: switch ánh xạ đọc như bảng tra.
+AllowShortCaseLabelsOnASingleLine: true
+# Khai báo template giữ dòng riêng: gộp vào dòng hàm khi vừa chỗ làm hai hàm cạnh nhau khác hình
+# dạng chỉ vì tên dài ngắn khác nhau.
+AlwaysBreakTemplateDeclarations: Yes
+BreakConstructorInitializers: BeforeColon
+ConstructorInitializerIndentWidth: 4
+# Danh sách khởi tạo vừa một dòng thì nằm chung một dòng; không vừa thì mỗi thành viên một dòng,
+# không dồn lưng chừng vài thành viên một dòng.
+PackConstructorInitializers: NextLine
+BreakBeforeBinaryOperators: None
+Cpp11BracedListStyle: true
+LambdaBodyIndentation: Signature
+IncludeBlocks: Preserve
+SortIncludes: CaseSensitive
+SpaceAfterTemplateKeyword: true
+SpacesBeforeTrailingComments: 1
+# Dòng trống: không tự chèn giữa các định nghĩa (hàm một dòng trong lớp đứng liền nhau đọc nhanh
+# hơn, dòng trống để dành cho chỗ thật sự ngắt ý), không quá một dòng liền nhau, không ngay sau `{`.
+SeparateDefinitionBlocks: Leave
+MaxEmptyLinesToKeep: 1
+KeepEmptyLinesAtTheStartOfBlocks: false

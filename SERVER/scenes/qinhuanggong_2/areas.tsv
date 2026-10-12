@@ -1,0 +1,7 @@
+# schema 1
+# source: Public/Scene/qinhuanggong_2_area.ini
+# tool: TOOLS/server/export_scene.py; sửa tay sẽ mất ở lượt xuất sau
+# types: int	int	float	float	float	float
+guid	script_id	left	top	right	bottom
+1	400950	92.0000	161.0000	98.0000	168.0000
+2	400949	234.0000	222.0000	238.0000	229.0000

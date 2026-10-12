@@ -1,0 +1,48 @@
+# A chạy lặp protocol_tests 20 lần trên mã cuối, build/p2-a (clang-asan), bắt đầu 2026-10-08 01:53:09
+# lệnh: ctest --test-dir build/p2-a -R ^protocol_tests$ --repeat until-fail:20 --output-on-failure
+Test project F:/tl 2026/THIENLONG/build/p2-dot-2/build/p2-a
+    Start 44: protocol_tests
+    Test #44: protocol_tests ...................   Passed    0.01 sec
+    Start 44: protocol_tests
+    Test #44: protocol_tests ...................   Passed    0.02 sec
+    Start 44: protocol_tests
+    Test #44: protocol_tests ...................   Passed    0.01 sec
+    Start 44: protocol_tests
+    Test #44: protocol_tests ...................   Passed    0.01 sec
+    Start 44: protocol_tests
+    Test #44: protocol_tests ...................   Passed    0.01 sec
+    Start 44: protocol_tests
+    Test #44: protocol_tests ...................   Passed    0.01 sec
+    Start 44: protocol_tests
+    Test #44: protocol_tests ...................   Passed    0.01 sec
+    Start 44: protocol_tests
+    Test #44: protocol_tests ...................   Passed    0.01 sec
+    Start 44: protocol_tests
+    Test #44: protocol_tests ...................   Passed    0.01 sec
+    Start 44: protocol_tests
+    Test #44: protocol_tests ...................   Passed    0.01 sec
+    Start 44: protocol_tests
+    Test #44: protocol_tests ...................   Passed    0.01 sec
+    Start 44: protocol_tests
+    Test #44: protocol_tests ...................   Passed    0.01 sec
+    Start 44: protocol_tests
+    Test #44: protocol_tests ...................   Passed    0.01 sec
+    Start 44: protocol_tests
+    Test #44: protocol_tests ...................   Passed    0.01 sec
+    Start 44: protocol_tests
+    Test #44: protocol_tests ...................   Passed    0.01 sec
+    Start 44: protocol_tests
+    Test #44: protocol_tests ...................   Passed    0.01 sec
+    Start 44: protocol_tests
+    Test #44: protocol_tests ...................   Passed    0.01 sec
+    Start 44: protocol_tests
+    Test #44: protocol_tests ...................   Passed    0.01 sec
+    Start 44: protocol_tests
+    Test #44: protocol_tests ...................   Passed    0.01 sec
+    Start 44: protocol_tests
+1/1 Test #44: protocol_tests ...................   Passed    0.01 sec
+
+100% tests passed out of 1
+
+Total Test time (real) =   0.25 sec
+# kết thúc 2026-10-08 01:53:09, mã thoát 0

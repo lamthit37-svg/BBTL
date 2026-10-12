@@ -1,0 +1,7 @@
+tools/run: click_shot.py bấm thử giao diện trên client thật và chụp sau mỗi bước.
+
+Cửa sổ client mở không lấy focus, nằm ngoài màn hình ảo và được chụp bằng PrintWindow; thông điệp
+chuột gửi thẳng cho cửa sổ. --click bấm rồi nhả, --drop nhấn rồi để nút nhả ngoài cửa sổ. Bản để
+cửa sổ trên màn hình cho kết quả chập chờn khi con trỏ thật nằm trên vùng chơi.
+
+Co-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>

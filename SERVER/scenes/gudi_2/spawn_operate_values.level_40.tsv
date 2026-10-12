@@ -1,0 +1,13 @@
+# schema 1
+# source: Public/Scene/gudi_2_monster_40.ini
+# tool: TOOLS/server/export_scene.py; sửa tay sẽ mất ở lượt xuất sau
+# types: text	int	int	int	text	text
+spawn_file	data_index	data_type	value_index	value	value_extra
+spawns.level_40.tsv	0	3	0	43	40
+spawns.level_40.tsv	0	3	1	45	36
+spawns.level_40.tsv	0	3	2	47	33
+spawns.level_40.tsv	0	3	3	44	28
+spawns.level_40.tsv	0	3	4	37	26
+spawns.level_40.tsv	0	3	5	32	27
+spawns.level_40.tsv	0	3	6	26	28
+spawns.level_40.tsv	0	3	7	26	25

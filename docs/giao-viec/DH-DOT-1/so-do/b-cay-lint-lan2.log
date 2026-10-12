@@ -1,0 +1,5 @@
+lệnh: python -B -W error TOOLS/server/lint_py.py docs/giao-viec/DH-DOT-1/so-do/b-cay-gen.py (sau khi thêm phép kiểm lượng tử lại; sha 8999ba9b558fdf16b089efcc229879492d548b68a19d75c892c073a15ab2b176; mã thoát 0)
+bắt đầu: 2026-10-08 15:32:12
+---
+
+kết thúc: 2026-10-08 15:32:12

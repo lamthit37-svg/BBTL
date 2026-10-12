@@ -1,0 +1,6 @@
+# schema 1
+# source: Public/Scene/lingxingfeng_2_monster_90.ini
+# tool: TOOLS/server/export_scene.py; sửa tay sẽ mất ở lượt xuất sau
+# types: text	int	text	int	int
+spawn_file	select_type	select_value	data_def	max_left
+spawns.level_90.tsv	5	1	0	8

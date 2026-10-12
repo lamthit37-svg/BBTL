@@ -1,0 +1,6 @@
+# SHA-256 bốn tệp sinh trước bước 4, giờ 2026-10-08 10:15:31
+# ổ F còn trống: 166541336576 byte
+trước 462f25759e21f313091b8f190fa322d665e5be364d78787f116f9bad5d36dbd0  SRC/protocol/messages.hpp
+trước 0450a6012ac68d0cbfb198ae5f8537896898773be183359d8e38f7758ac7a04d  SRC/protocol/messages.cpp
+trước 35d22e9857b5591c3bb2d3210e04b7282016ef1396f2be84fcff6d6dcddd8ccb  tests/protocol_samples.hpp
+trước bd7e2a17c937768475a93709d488899376d0e4a4a13643209f8c58d03453154a  docs/PROTOCOL-TIN.md

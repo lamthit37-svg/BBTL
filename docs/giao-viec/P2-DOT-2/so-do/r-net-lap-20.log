@@ -1,0 +1,48 @@
+# bắt đầu 2026-10-08 09:45:11 (UTC+7); lệnh nhẹ, cây build/p2-r (preset clang-asan)
+# lệnh: ctest --test-dir build/p2-r -R "^net_tests$" --repeat until-fail:20 --output-on-failure
+# xong 09:46:01, mã thoát 0, số dòng Passed: 20, tổng thời gian đồng hồ tường 50 s
+Test project F:/tl 2026/THIENLONG/build/p2-dot-2/build/p2-r
+    Start 47: net_tests
+    Test #47: net_tests ........................   Passed    2.54 sec
+    Start 47: net_tests
+    Test #47: net_tests ........................   Passed    2.48 sec
+    Start 47: net_tests
+    Test #47: net_tests ........................   Passed    2.50 sec
+    Start 47: net_tests
+    Test #47: net_tests ........................   Passed    2.50 sec
+    Start 47: net_tests
+    Test #47: net_tests ........................   Passed    2.52 sec
+    Start 47: net_tests
+    Test #47: net_tests ........................   Passed    2.50 sec
+    Start 47: net_tests
+    Test #47: net_tests ........................   Passed    2.50 sec
+    Start 47: net_tests
+    Test #47: net_tests ........................   Passed    2.51 sec
+    Start 47: net_tests
+    Test #47: net_tests ........................   Passed    2.49 sec
+    Start 47: net_tests
+    Test #47: net_tests ........................   Passed    2.48 sec
+    Start 47: net_tests
+    Test #47: net_tests ........................   Passed    2.48 sec
+    Start 47: net_tests
+    Test #47: net_tests ........................   Passed    2.50 sec
+    Start 47: net_tests
+    Test #47: net_tests ........................   Passed    2.48 sec
+    Start 47: net_tests
+    Test #47: net_tests ........................   Passed    2.49 sec
+    Start 47: net_tests
+    Test #47: net_tests ........................   Passed    2.50 sec
+    Start 47: net_tests
+    Test #47: net_tests ........................   Passed    2.50 sec
+    Start 47: net_tests
+    Test #47: net_tests ........................   Passed    2.50 sec
+    Start 47: net_tests
+    Test #47: net_tests ........................   Passed    2.50 sec
+    Start 47: net_tests
+    Test #47: net_tests ........................   Passed    2.50 sec
+    Start 47: net_tests
+1/1 Test #47: net_tests ........................   Passed    2.49 sec
+
+100% tests passed out of 1
+
+Total Test time (real) =  49.98 sec

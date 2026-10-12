@@ -1,0 +1,12 @@
+# schema 1
+# source: Public/Scene/luoyang_area.ini
+# tool: TOOLS/server/export_scene.py; sửa tay sẽ mất ở lượt xuất sau
+# types: int	int	float	float	float	float
+guid	script_id	left	top	right	bottom
+0	400000	28.0000	124.0000	34.0000	135.0000
+0	400001	153.0000	285.0000	166.0000	291.0000
+0	400002	286.0000	121.0000	292.0000	134.0000
+0	806011	79.0000	168.0000	104.0000	197.0000
+1	113007	275.0000	127.0000	285.0000	141.0000
+11	-1	47.0000	214.0000	55.0000	242.0000
+12	-1	86.0000	25.0000	96.0000	41.0000

@@ -1,0 +1,6 @@
+# schema 1
+# source: Public/Scene/taohuazhen_1_monster_150.ini
+# tool: TOOLS/server/export_scene.py; sửa tay sẽ mất ở lượt xuất sau
+# types: text	int	text	int	int
+spawn_file	select_type	select_value	data_def	max_left
+spawns.level_150.tsv	5	2	0	1

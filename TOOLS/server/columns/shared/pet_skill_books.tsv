@@ -1,0 +1,7 @@
+# schema 1
+# source: client_2026/PetSkillBook.txt
+# tool: TOOLS/server/export_tables.py; sửa tay sẽ mất ở lượt xuất sau
+# types: int	text	text	text	text
+index	original	name	type	note
+0	珍兽技能书的物品ID	item_id	int	luật: nguyên văn; khớp 100.0% (99/99 id)
+1	珍兽技能书所对应的技能ID	pet_skill_id	int	luật: nguyên văn; khớp 100.0% (99/99 id)

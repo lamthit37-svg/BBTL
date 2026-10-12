@@ -1,0 +1,59 @@
+# schema 1
+# source: client_2026/SkillData_V1.txt
+# tool: TOOLS/server/export_tables.py; sửa tay sẽ mất ở lượt xuất sau
+# types: int	text	text	text	text
+index	original	name	type	note
+0	ID	id	int	neo: cột gốc 0, khớp 100.0% (7688/7688 id); luật: M1
+1		column_1	text	mới ở 2026
+2		column_2	text	mới ở 2026
+3	策划专用ID	designer_id	int	neo: cột gốc 1, khớp 100.0% (7688/7688 id); luật: nguyên văn
+4	效果的简要逻辑说明$1$	logic_summary	text	neo: cột gốc 2, khớp 99.8% (7670/7688 id); luật: nguyên văn
+5	技能逻辑ID	logic_id	int	neo: cột gốc 5, khớp 98.1% (7544/7688 id); luật: nguyên văn
+6	冷却时间	cooldown_time	int	neo: cột gốc 6, khớp 96.8% (7439/7688 id); luật: nguyên văn
+7	聚气时间(ms)	charge_time_ms	int	neo: cột gốc 7, khớp 99.1% (7622/7688 id); luật: nguyên văn
+8	引导时间(ms)	channel_time_ms	int	neo: cột gốc 8, khớp 99.6% (7655/7688 id); luật: nguyên văn
+9	条件或消耗参数说明	condition_parameter_description_1	text	neo: cột gốc 9, khớp 99.6% (7656/7688 id); luật: nguyên văn
+10	条件和消耗逻辑	condition_logic_1	int	neo: cột gốc 10, khớp 99.6% (7656/7688 id); luật: nguyên văn
+11	条件或消耗参数值	condition_parameter_value_1	int	nội suy: cột gốc 11, khớp 98.6% (7580/7688 id); luật: nguyên văn
+12	条件或消耗参数值	condition_parameter_value_2	int	đổi kiểu: cột gốc 12, khớp 100.0% (7688/7688 id); luật: nguyên văn
+13	条件或消耗参数说明	condition_parameter_description_2	text	neo: cột gốc 13, khớp 96.0% (7384/7688 id); luật: nguyên văn
+14	条件和消耗逻辑	condition_logic_2	int	neo: cột gốc 14, khớp 99.0% (7608/7688 id); luật: nguyên văn
+15	条件或消耗参数值	condition_parameter_value_3	int	nội suy: cột gốc 15, khớp 95.2% (7319/7688 id); luật: nguyên văn
+16	条件或消耗参数值	condition_parameter_value_4	int	đổi kiểu: cột gốc 16, khớp 100.0% (7688/7688 id); luật: nguyên văn
+17	条件或消耗参数说明	condition_parameter_description_3	text	neo: cột gốc 17, khớp 96.0% (7384/7688 id); luật: nguyên văn
+18	条件和消耗逻辑	condition_logic_3	int	nội suy: cột gốc 18, khớp 96.0% (7384/7688 id); luật: nguyên văn
+19	条件或消耗参数值	condition_parameter_value_5	int	nội suy: cột gốc 19, khớp 96.0% (7384/7688 id); luật: nguyên văn
+20	条件或消耗参数值	condition_parameter_value_6	int	đổi kiểu: cột gốc 20, khớp 100.0% (7688/7688 id); luật: nguyên văn
+21	目标级别	target_level	int	neo: cột gốc 21, khớp 100.0% (7688/7688 id); luật: nguyên văn
+22	预留	reserved_1	int	nội suy: cột gốc 22, khớp 100.0% (7688/7688 id); luật: nguyên văn
+23	预留	reserved_2	int	nội suy: cột gốc 23, khớp 100.0% (7688/7688 id); luật: nguyên văn
+24	参数说明	parameter_description_1	text	neo: cột gốc 24, khớp 98.8% (7592/7688 id); luật: nguyên văn
+25	参数值	parameter_value_1	int	nội suy: cột gốc 25, khớp 98.3% (7556/7688 id); luật: nguyên văn
+26	参数说明	parameter_description_2	text	neo: cột gốc 26, khớp 98.8% (7592/7688 id); luật: nguyên văn
+27	参数值	parameter_value_2	int	nội suy: cột gốc 27, khớp 98.7% (7588/7688 id); luật: nguyên văn
+28	参数说明	parameter_description_3	text	neo: cột gốc 28, khớp 98.8% (7592/7688 id); luật: nguyên văn
+29	参数值	parameter_value_3	int	nội suy: cột gốc 29, khớp 97.9% (7526/7688 id); luật: nguyên văn
+30	参数说明	parameter_description_4	text	neo: cột gốc 30, khớp 98.5% (7576/7688 id); luật: nguyên văn
+31	参数值	parameter_value_4	int	đổi kiểu: cột gốc 31, khớp 99.0% (7612/7688 id); luật: nguyên văn
+32	参数说明	parameter_description_5	text	neo: cột gốc 32, khớp 99.2% (7624/7688 id); luật: nguyên văn
+33	参数值	parameter_value_5	int	đổi kiểu: cột gốc 33, khớp 99.0% (7614/7688 id); luật: nguyên văn
+34	参数说明	parameter_description_6	text	neo: cột gốc 34, khớp 99.6% (7656/7688 id); luật: nguyên văn
+35	参数值	parameter_value_6	int	đổi kiểu: cột gốc 35, khớp 99.6% (7656/7688 id); luật: nguyên văn
+36	参数说明	parameter_description_7	text	neo: cột gốc 36, khớp 99.6% (7656/7688 id); luật: nguyên văn
+37	参数值	parameter_value_7	int	đổi kiểu: cột gốc 37, khớp 99.6% (7656/7688 id); luật: nguyên văn
+38		column_38	text	mới ở 2026
+39		column_39	int	mới ở 2026
+40		column_40	text	mới ở 2026
+41		column_41	int	mới ở 2026
+42		column_42	text	mới ở 2026
+43		column_43	int	mới ở 2026
+44		column_44	text	mới ở 2026
+45		column_45	int	mới ở 2026
+46		column_46	text	mới ở 2026
+47		column_47	int	mới ở 2026
+48		column_48	text	mới ở 2026
+49		column_49	int	mới ở 2026
+50		column_50	text	mới ở 2026
+51		column_51	int	mới ở 2026
+52		column_52	text	mới ở 2026
+53		column_53	int	mới ở 2026

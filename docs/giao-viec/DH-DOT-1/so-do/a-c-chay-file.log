@@ -1,0 +1,9 @@
+lệnh: build/dh-a/collision_file_tests.exe
+thư mục: F:\tl 2026\THIENLONG\build\dh-dot-1
+bắt đầu: 2026-10-08 14:21:20
+---
+tests/collision_file_tests.cpp:157: [short_buffers_are_rejected] mã bản 0xFF000001 đảo byte
+tests/collision_file_tests.cpp:449: check thất bại: collision_file_tests: mọi ca phải qua
+---
+mã thoát: -1073740791
+kết thúc: 2026-10-08 14:21:21

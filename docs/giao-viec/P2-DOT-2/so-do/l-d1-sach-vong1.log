@@ -1,0 +1,14 @@
+# 2026-10-08 09:49:40  D1 vòng 1: không có bản dựng nào khác đang chạy (giữ NANG.lock)
+> build/msvc-release/protocol_bench.exe (chạy 5 lần)
+
+tiến trình khác của dự án hay trình dựng trong vòng (psutil, mỗi 0,1 giây): không có
+
+luot	mau	tin_ma_hoa	giay_ma_hoa	ma_hoa_moi_giay	tin_giai_ma	giay_giai_ma	giai_ma_moi_giay	loi	exit
+1	57	5950173	1.000	5950134	6334581	1.000	6334544	0	0
+2	57	5859315	1.000	5859303	6450861	1.000	6450849	0	0
+3	57	5802315	1.000	5802260	6283053	1.000	6283049	0	0
+4	57	6044964	1.000	6044955	6415920	1.000	6415919	0	0
+5	57	5916714	1.000	5916680	6388275	1.000	6388248	0	0
+
+mã hoá/giây: trung vị 5916680.0000, nhỏ nhất 5802260.0000, lớn nhất 6044955.0000, lớn/nhỏ 1.042 (đạt)
+giải mã/giây: trung vị 6388248.0000, nhỏ nhất 6283049.0000, lớn nhất 6450849.0000, lớn/nhỏ 1.027 (đạt)

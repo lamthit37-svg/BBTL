@@ -1,0 +1,7 @@
+# schema 1
+# source: Public/Scene/bashu_5_area.ini
+# tool: TOOLS/server/export_scene.py; sửa tay sẽ mất ở lượt xuất sau
+# types: int	int	float	float	float	float
+guid	script_id	left	top	right	bottom
+0	400103	18.0000	17.0000	21.0000	20.0000
+0	400104	103.0000	9.0000	108.0000	12.0000

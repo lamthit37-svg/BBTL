@@ -1,0 +1,12 @@
+# schema 1
+# source: Public/Scene/suzhou_platform.ini
+# tool: TOOLS/server/export_scene.py; sửa tay sẽ mất ở lượt xuất sau
+# types: int	int	float	float	int	int	text
+type_id	class_id	position_x	position_z	direction	script_id	tip
+1	1	109	118	0		炼丹炉。在附近使用制药技能。
+2	2	251	152	27	-1	打造台。在附近使用铸造技能。
+5	4	217	83	27	-1	缝纫台。在附近使用缝纫技能。
+6	5	107	129	0	-1	工艺台。在附近使用工艺技能。
+17	10	186	280	27		通往西湖
+17	10	40	165	27		通往镜湖
+17	10	180	40	27		通往太湖

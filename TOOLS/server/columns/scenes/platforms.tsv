@@ -1,0 +1,12 @@
+# schema 1
+# source: Public/Scene
+# tool: TOOLS/server/export_scene.py; sửa tay sẽ mất ở lượt xuất sau
+# types: text	text	text	text	text
+index	original	name	type	note
+0	index	type_id	int	số hiệu loại bàn, khoá gốc index
+1	class	class_id	int	hạng bàn chế tác
+2	pos_X	position_x	float	hoành độ, giữ nguyên văn
+3	pos_Z	position_z	float	tung độ, giữ nguyên văn
+4	dir	direction	int	hướng nguyên văn; mã đổi sang radian
+5	script_id	script_id	int	khi vắng thì mã gán -1
+6	Tip	tip	text	mã 2008 không đọc

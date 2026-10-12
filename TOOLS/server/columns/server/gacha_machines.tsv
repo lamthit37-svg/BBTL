@@ -1,0 +1,16 @@
+# schema 1
+# source: server_config/ZhuandanBase.txt
+# tool: TOOLS/server/import_legacy.py; sửa tay sẽ mất ở lượt xuất sau
+# types: int	text	text	text	text
+index	original	name	type	note
+0	Index	index	int	luật: M1
+1	ZhuandanID	gacha_id	int	luật: M1
+2	CrossIndex	cross_index	int	luật: M1
+3	Candidate_Num	candidate_num	int	luật: M1
+4	Prop_Space	prop_space	int	luật: M1
+5	Mate_Space	mate_space	int	luật: M1
+6	Task_Space	task_space	int	luật: M1
+7	NoticeFormat1	notice_format_1	text	luật: M1
+8	NoticeFormat2	notice_format_2	text	luật: M1
+9	NoticeFormat3	notice_format_3	text	luật: M1
+10	Note	note	text	luật: M1

@@ -1,0 +1,32 @@
+# Chữ viết thẳng trong script Lua gốc (trong nháy kép) sang chữ tiếng Việt mà bản port C++ viết ở
+# đúng chỗ đó. TOOLS/port/lua_oracle.py thay các chuỗi này trong script trước khi chạy, để số vàng
+# mang đúng chữ của bản port. Mỗi dòng: nguyên văn, một dấu tab, bản dịch (giữ thẻ #). Dấu cách ở
+# đầu hay cuối viết bằng ký tự ␣ để trình soạn không cắt mất. Đổi chữ ở SRC/ui/panel thì đổi dòng
+# tương ứng ở đây rồi sinh lại số vàng.
+# QuestLog.lua
+任务所在地：	Nơi nhận:␣
+任务发布人：	Người giao:␣
+任务等级：	Cấp nhiệm vụ:␣
+完成	Xong
+失败	Hỏng
+#Y任务目标：#W	#YMục tiêu:#W
+#B多倍奖励	#BThưởng nhiều lần
+小时	␣giờ␣
+分	␣phút␣
+秒	␣giây
+0秒	0 giây
+#Y剩余时间：␣	#YCòn lại:␣
+#Y任务失败倒计时：	#YĐếm ngược thất bại:␣
+#cff0000任务已经失败，请放弃。#W	#cff0000Nhiệm vụ đã thất bại, hãy từ bỏ.#W
+#G任务已经完成。#W	#GNhiệm vụ đã hoàn thành.#W
+#r#Y任务当前环数：#W	#r#YVòng hiện tại:␣#W
+#Y完成情况：#W	#YTiến độ:#W
+已击败：	Đã hạ:
+已提交：	Đã nộp:
+已得到：	Đã có:
+#Y奖励：#W	#YPhần thưởng:#W
+随机奖励物品：	Vật phẩm thưởng ngẫu nhiên:
+在下列物品中选择一项作为奖励	Chọn một trong các vật phẩm sau làm phần thưởng
+取消追踪	Bỏ Dõi
+开始追踪	Theo Dõi
+不可追踪	Không Dõi

@@ -1,0 +1,711 @@
+# schema 1
+# source: docs/giao-viec/P1-DOT-3/DE-BAI.md/muc-5.1
+# types: text	text	text	text	text
+original	scope	name	basis	note
+门派		sect	glossary	bảng thuật ngữ phụ lục: 门派 là sect
+ID,(技能系的ID)	SkillTemplate_V1.txt	skill_id	code:Common/Combat/DataRecords.cpp:176	đọc vào m_nSkillID
+ID,(技能系的ID)		skill_id	direct	nhãn cùng nghĩa ở mọi bảng
+策划专用ID		designer_id	direct	nhãn: id dành cho người làm nội dung
+技能名字$1$	SkillTemplate_V1.txt	skill_name	code:Common/Combat/DataRecords.cpp:182	đọc vào m_szName
+技能名字$1$		skill_name	direct	nhãn cùng nghĩa ở mọi bảng
+图标名字	SkillTemplate_V1.txt	icon_name	code:Common/Combat/DataRecords.cpp:184	mã bỏ qua cột này, chú thích Skip Icon Name
+图标名字		icon_name	direct	nhãn cùng nghĩa ở mọi bảng
+技能的心法等级限制	SkillTemplate_V1.txt	inner_art_level_limit	code:Common/Combat/DataRecords.cpp:186	đọc vào m_nSkillMaxLevel; nhãn là giới hạn cấp tâm pháp
+技能的心法等级限制		inner_art_level_limit	direct	nhãn cùng nghĩa ở mọi bảng
+招式类型		move_type	direct	nhãn: loại chiêu thức
+需要拿武器	SkillTemplate_V1.txt	must_use_weapon	code:Common/Combat/DataRecords.cpp:190	đọc vào m_bMustUseWeapon
+需要拿武器		must_use_weapon	direct	nhãn cùng nghĩa ở mọi bảng
+受限于控制1	SkillTemplate_V1.txt	disabled_by_control_1	code:Common/Combat/DataRecords.cpp:192	đọc vào m_nDisableByFlag1
+受限于控制1		disabled_by_control_1	direct	nhãn cùng nghĩa ở mọi bảng
+受限于控制2	SkillTemplate_V1.txt	disabled_by_control_2	code:Common/Combat/DataRecords.cpp:193	đọc vào m_nDisableByFlag2
+受限于控制2		disabled_by_control_2	direct	nhãn cùng nghĩa ở mọi bảng
+受限于骑乘/变身	SkillTemplate_V1.txt	disabled_by_transform	code:Common/Combat/DataRecords.cpp:194	đọc vào m_nDisableByFlag3
+受限于骑乘/变身		disabled_by_transform	direct	nhãn cùng nghĩa ở mọi bảng
+心法ID	SkillTemplate_V1.txt	inner_art_id	code:Common/Combat/DataRecords.cpp:196	đọc vào m_nSkillClass; chú thích based XinFa ID
+心法ID		inner_art_id	direct	nhãn cùng nghĩa ở mọi bảng
+心法级数修正参数	SkillTemplate_V1.txt	inner_art_level_modifier_parameter	code:Common/Combat/DataRecords.cpp:198	đọc vào m_nXinFaParam_Nouse
+心法级数修正参数		inner_art_level_modifier_parameter	direct	nhãn cùng nghĩa ở mọi bảng
+是否是远程技能	SkillTemplate_V1.txt	is_ranged	code:Common/Combat/DataRecords.cpp:200	đọc vào m_nRangedSkillFlag
+是否是远程技能		is_ranged	direct	nhãn cùng nghĩa ở mọi bảng
+是否打断上一个正在执行的技能	SkillTemplate_V1.txt	force_break_previous_skill	code:Common/Combat/DataRecords.cpp:202	đọc vào m_bForceBreakPreSkill
+是否打断上一个正在执行的技能		force_break_previous_skill	direct	nhãn cùng nghĩa ở mọi bảng
+技能类型	SkillTemplate_V1.txt	skill_type	code:Common/Combat/DataRecords.cpp:204	đọc vào m_nSkillType
+技能类型		skill_type	direct	nhãn cùng nghĩa ở mọi bảng
+冷却ID	SkillTemplate_V1.txt	cooldown_id	code:Common/Combat/DataRecords.cpp:206	đọc vào m_nCooldownID
+冷却ID		cooldown_id	direct	nhãn cùng nghĩa ở mọi bảng
+起手特效		cast_effect	direct	nhãn: hiệu ứng lúc bắt đầu chiêu
+起手特效绑定点		cast_effect_anchor	direct	nhãn: điểm gắn hiệu ứng lúc bắt đầu chiêu
+引导/聚气动作组ID 序列		channel_action_ids	direct	nhãn: dãy id nhóm động tác dẫn chiêu hoặc tụ khí
+发招动作组ID序列		cast_action_ids	direct	nhãn: dãy id nhóm động tác phát chiêu
+环境特效ID		environment_effect_id	direct	nhãn: id hiệu ứng môi trường
+所选的目标必须是活的还是死的		target_life_state	direct	nhãn: mục tiêu phải còn sống hay đã chết
+技能类型按使用者划分		user_class	direct	nhãn: loại kỹ năng theo người dùng
+主动技能还是被动技能		is_passive	direct	nhãn: chủ động hay bị động
+鼠标点选操作类型		select_type	direct	nhãn: kiểu chọn mục tiêu bằng chuột
+珍兽技能发动类型 0:主人手动点选,1:AI自动执行,2:增强自身属性的被动技能		pet_skill_operate_mode	direct	nhãn: cách phát kỹ năng trân thú
+技能发动几率,只对珍兽技能有效		pet_skill_rate	direct	nhãn: xác suất phát, chỉ cho kỹ năng trân thú
+珍兽技能类型,0:物功,1:法功,2:护主,3:防御,4:复仇;		pet_skill_type	direct	nhãn: loại kỹ năng trân thú
+珍兽技能产生的效果ID		pet_skill_effect_id	direct	nhãn: id hiệu ứng do kỹ năng trân thú sinh ra
+技能组ID		skill_group_id	direct	nhãn: id nhóm kỹ năng
+技能组等级		skill_group_level	direct	nhãn: cấp nhóm kỹ năng
+是否直接学会		learned_directly	direct	nhãn: có học thẳng hay không
+使用前是否需要学会		must_learn_before_use	direct	nhãn: phải học trước khi dùng
+子弹ID		bullet_id	direct	nhãn: id đạn
+子弹发射点		bullet_spawn_point	direct	nhãn: điểm bắn đạn
+预留		reserved	direct	nhãn: cột để dành
+目标选择逻辑		targeting_logic	direct	nhãn: logic chọn mục tiêu
+动作时间(ms)		action_time_ms	direct	nhãn: thời gian động tác, mili giây
+最小射程(m)		min_range_m	direct	nhãn: tầm gần nhất, mét
+最大射程(m)		max_range_m	direct	nhãn: tầm xa nhất, mét
+技能友好度,=0为中性技能,>0为正面技能,<0为 负面技能		friendliness	direct	nhãn: độ thân thiện của kỹ năng
+目标和使用者阵营关系		target_stand	direct	nhãn: quan hệ phe giữa mục tiêu và người dùng
+目标类型		target_type	direct	nhãn: loại mục tiêu
+是否仅对队友有效。注:队友珍兽算作队友。1为只对队友有效,0为无此限制。 		party_only	direct	nhãn: chỉ có tác dụng với đồng đội
+连续攻击次数或引导的时间间隔(ms)		consecutive_hits_or_channel_interval_ms	direct	nhãn: số lần đánh liên tiếp hoặc khoảng dẫn chiêu, mili giây
+是否自动连续释放		auto_repeat	direct	nhãn: có tự phóng liên tiếp
+命中率		accuracy	direct	nhãn: tỉ lệ trúng
+会心率		critical_rate	direct	nhãn: tỉ lệ hội tâm
+角色的攻击速度是否影响技能的冷却时间。		attack_speed_affects_cooldown	direct	nhãn: tốc độ đánh có ảnh hưởng hồi chiêu
+激活时间		active_time	direct	nhãn: thời gian kích hoạt
+范围半径		radius	direct	nhãn: bán kính vùng
+角度参量		angle	direct	nhãn: tham số góc
+范围搜索的目标个数		max_target_count	direct	nhãn: số mục tiêu tìm trong vùng
+中断或激活珍兽攻击		interrupt_pet_attack	direct	nhãn: ngắt hoặc bật đòn của trân thú
+中断或激活自动释放技能		interrupt_auto_shot	direct	nhãn: ngắt hoặc bật tự phóng kỹ năng
+延迟时间		delay_time	direct	nhãn: thời gian trễ
+技能描述$1$		skill_description	direct	nhãn: mô tả kỹ năng
+是否显示打击名		show_hit_name	direct	nhãn: có hiện tên đòn đánh
+干扰时间百分比		disrupt_time_percent	direct	nhãn: phần trăm thời gian gây nhiễu
+干扰几率		disrupt_chance	direct	nhãn: xác suất gây nhiễu
+干扰时间浮动百分比		disrupt_time_variance_percent	direct	nhãn: phần trăm dao động thời gian nhiễu
+效果的简要逻辑说明$1$		logic_summary	direct	nhãn: giải thích logic ngắn của hiệu ứng
+技能描述(FOR TIP)$1$		tip_description	direct	nhãn: mô tả cho tooltip
+技能描述(FOR Interface)$1$		interface_description	direct	nhãn: mô tả cho giao diện
+技能逻辑ID		logic_id	direct	nhãn: id logic kỹ năng
+冷却时间		cooldown_time	direct	nhãn: thời gian hồi
+聚气时间(ms)		charge_time_ms	direct	nhãn: thời gian tụ khí, mili giây
+引导时间(ms)		channel_time_ms	direct	nhãn: thời gian dẫn chiêu, mili giây
+条件或消耗参数说明		condition_parameter_description	direct	nhãn: chú thích tham số điều kiện hoặc tiêu hao
+条件和消耗逻辑		condition_logic	direct	nhãn: logic điều kiện và tiêu hao
+条件或消耗参数值		condition_parameter_value	direct	nhãn: giá trị tham số điều kiện hoặc tiêu hao
+目标级别		target_level	direct	nhãn: cấp mục tiêu
+参数说明	SkillData_V1.txt	parameter_description	code:Common/Combat/DataRecords.cpp:27	Descriptor_T đọc chuỗi mô tả tham số
+参数说明	SpecialObjData.txt	parameter_description	code:Common/Combat/DataRecords.cpp:27	Descriptor_T đọc chuỗi mô tả tham số
+参数说明		parameter_description	direct	nhãn cùng nghĩa ở mọi bảng
+参数值	SkillData_V1.txt	parameter_value	code:Common/Combat/DataRecords.cpp:28	Descriptor_T đọc giá trị tham số
+参数值	SpecialObjData.txt	parameter_value	code:Common/Combat/DataRecords.cpp:28	Descriptor_T đọc giá trị tham số
+参数值		parameter_value	direct	nhãn cùng nghĩa ở mọi bảng
+门派ID	XinFa_V1.txt	sect_id	code:Common/Combat/DataRecords.cpp:106	XinFaData_T đọc vào m_nMenPai
+门派ID		sect_id	direct	nhãn cùng nghĩa ở mọi bảng
+心法名称$1$	XinFa_V1.txt	inner_art_name	code:Common/Combat/DataRecords.cpp:107	đọc vào m_szName
+心法名称$1$		inner_art_name	direct	nhãn cùng nghĩa ở mọi bảng
+心法描述$1$	XinFa_V1.txt	inner_art_description	code:Common/Combat/DataRecords.cpp:108	đọc vào m_szDescription
+心法描述$1$		inner_art_description	direct	nhãn cùng nghĩa ở mọi bảng
+心法图标	XinFa_V1.txt	inner_art_icon	code:Common/Combat/DataRecords.cpp:109	đọc vào m_szIcon
+心法图标		inner_art_icon	direct	nhãn cùng nghĩa ở mọi bảng
+心法影响属性逻辑		attribute_logic	direct	nhãn: logic thuộc tính mà tâm pháp ảnh hưởng
+心法修正率(废)		inner_art_modifier_rate_unused	direct	nhãn: hệ số sửa tâm pháp, ghi là bỏ
+升级人物等级限制		upgrade_level_limit	direct	nhãn: cấp nhân vật cần để tăng
+怪物编号	MonsterAttrExTable.txt	monster_id	code:Server/GameServer/Server/Main/GameTable.cpp:352	đọc vào m_Type
+怪物编号		monster_id	direct	nhãn cùng nghĩa ở mọi bảng
+名称$1$	MonsterAttrExTable.txt	name	code:Server/GameServer/Server/Main/GameTable.cpp:366	đọc vào m_Name
+名称$1$		name	direct	nhãn cùng nghĩa ở mọi bảng
+怪物性别		gender	direct	nhãn: giới tính quái
+等级	MonsterAttrExTable.txt	level	code:Server/GameServer/Server/Main/GameTable.cpp:368	đọc vào m_Level; CommonItem cũng gọi cột này là cấp
+等级		level	direct	nhãn cùng nghĩa ở mọi bảng
+基础经验获得	MonsterAttrExTable.txt	base_experience	code:Server/GameServer/Server/Main/GameTable.cpp:375	đọc vào m_BaseExp
+基础经验获得		base_experience	direct	nhãn cùng nghĩa ở mọi bảng
+友好值	MonsterAttrExTable.txt	friendliness_value	code:Server/GameServer/Server/Main/GameTable.cpp:402	đọc vào m_FriendValue
+友好值		friendliness_value	direct	nhãn cùng nghĩa ở mọi bảng
+休闲间隔时间		idle_interval	direct	nhãn: khoảng nghỉ
+基础AI	MonsterAttrExTable.txt	base_ai	code:Server/GameServer/Server/Main/GameTable.cpp:381	đọc vào m_BaseAI
+基础AI		base_ai	direct	nhãn cùng nghĩa ở mọi bảng
+扩展AI	MonsterAttrExTable.txt	extended_ai	code:Server/GameServer/Server/Main/GameTable.cpp:384	đọc vào m_ExtAI
+扩展AI		extended_ai	direct	nhãn cùng nghĩa ở mọi bảng
+阵营	MonsterAttrExTable.txt	camp	code:Server/GameServer/Server/Main/GameTable.cpp:387	đọc vào m_Camp
+阵营		camp	direct	nhãn cùng nghĩa ở mọi bảng
+掉落分配半径(米)	MonsterAttrExTable.txt	drop_search_range_m	code:Server/GameServer/Server/Main/GameTable.cpp:390	đọc vào m_DropSearchRange
+掉落分配半径(米)		drop_search_range_m	direct	nhãn cùng nghĩa ở mọi bảng
+掉落最大有效组	MonsterAttrExTable.txt	drop_team_count	code:Server/GameServer/Server/Main/GameTable.cpp:393	đọc vào m_SearchTeamCount
+掉落最大有效组		drop_team_count	direct	nhãn cùng nghĩa ở mọi bảng
+最小伤血百分比	MonsterAttrExTable.txt	min_damage_percent	code:Server/GameServer/Server/Main/GameTable.cpp:396	đọc vào m_MinDamagePercent
+最小伤血百分比		min_damage_percent	direct	nhãn cùng nghĩa ở mọi bảng
+是否可以交互	MonsterAttrExTable.txt	can_interact	code:Server/GameServer/Server/Main/GameTable.cpp:399	đọc vào m_CanHandle
+是否可以交互		can_interact	direct	nhãn cùng nghĩa ở mọi bảng
+BOSS标记	MonsterAttrExTable.txt	is_boss	code:Server/GameServer/Server/Main/GameTable.cpp:408	đọc vào m_BossFlag
+BOSS标记		is_boss	direct	nhãn cùng nghĩa ở mọi bảng
+物理攻击	MonsterAttrExTable.txt	physical_attack	code:Server/GameServer/Server/Main/GameTable.cpp:423	đọc vào tấn công vật lý
+物理攻击		physical_attack	direct	nhãn cùng nghĩa ở mọi bảng
+物理防御	MonsterAttrExTable.txt	physical_defence	code:Server/GameServer/Server/Main/GameTable.cpp:424	đọc vào phòng thủ vật lý
+物理防御		physical_defence	direct	nhãn cùng nghĩa ở mọi bảng
+魔法攻击	MonsterAttrExTable.txt	magic_attack	code:Server/GameServer/Server/Main/GameTable.cpp:425	đọc vào tấn công phép
+魔法攻击		magic_attack	direct	nhãn cùng nghĩa ở mọi bảng
+魔法防御	MonsterAttrExTable.txt	magic_defence	code:Server/GameServer/Server/Main/GameTable.cpp:426	đọc vào phòng thủ phép
+魔法防御		magic_defence	direct	nhãn cùng nghĩa ở mọi bảng
+HP上限	MonsterAttrExTable.txt	max_hp	code:Server/GameServer/Server/Main/GameTable.cpp:427	đọc vào HP tối đa
+HP上限		max_hp	direct	nhãn cùng nghĩa ở mọi bảng
+MP上限	MonsterAttrExTable.txt	max_mp	code:Server/GameServer/Server/Main/GameTable.cpp:428	đọc vào MP tối đa
+MP上限		max_mp	direct	nhãn cùng nghĩa ở mọi bảng
+HP回复	MonsterAttrExTable.txt	hp_restore	code:Server/GameServer/Server/Main/GameTable.cpp:429	đọc vào hồi HP
+HP回复		hp_restore	direct	nhãn cùng nghĩa ở mọi bảng
+MP回复	MonsterAttrExTable.txt	mp_restore	code:Server/GameServer/Server/Main/GameTable.cpp:430	đọc vào hồi MP
+MP回复		mp_restore	direct	nhãn cùng nghĩa ở mọi bảng
+闪避	MonsterAttrExTable.txt	miss	code:Server/GameServer/Server/Main/GameTable.cpp:432	đọc vào né
+闪避		miss	direct	nhãn cùng nghĩa ở mọi bảng
+会心防御		critical_defence	direct	nhãn: phòng thủ hội tâm
+移动速度		move_speed	direct	nhãn: tốc độ di chuyển
+步行速度		walk_speed	direct	nhãn: tốc độ đi bộ
+攻击速度		attack_speed	direct	nhãn: tốc độ đánh
+冰攻击		cold_attack	direct	nhãn: tấn công băng
+冰防御		cold_defence	direct	nhãn: phòng thủ băng
+降低目标冰抵抗		cold_resist_reduction	direct	nhãn: giảm kháng băng của mục tiêu
+火攻击		fire_attack	direct	nhãn: tấn công hoả
+火防御		fire_defence	direct	nhãn: phòng thủ hoả
+降低目标火抵抗		fire_resist_reduction	direct	nhãn: giảm kháng hoả của mục tiêu
+电攻击		lightning_attack	direct	nhãn: tấn công lôi
+电防御		lightning_defence	direct	nhãn: phòng thủ lôi
+降低目标玄抵抗		lightning_resist_reduction	direct	nhãn: giảm kháng huyền; huyền là hệ lôi trong bộ băng hoả huyền độc
+毒攻击		poison_attack	direct	nhãn: tấn công độc
+毒防御		poison_defence	direct	nhãn: phòng thủ độc
+降低目标毒抵抗		poison_resist_reduction	direct	nhãn: giảm kháng độc của mục tiêu
+瞬时效果免疫ID		instant_immunity_id	direct	nhãn: id miễn hiệu ứng tức thời
+持续效果免疫ID		duration_immunity_id	direct	nhãn: id miễn hiệu ứng kéo dài
+外型ID		model_id	direct	nhãn: id ngoại hình
+是否显示头顶信息板		show_overhead_plate	direct	nhãn: có hiện bảng trên đầu
+转向模式		turn_mode	direct	nhãn: kiểu quay người
+名字板高度		name_plate_height	direct	nhãn: chiều cao bảng tên
+选中环大小		selection_ring_size	direct	nhãn: cỡ vòng chọn
+阴影大小		shadow_size	direct	nhãn: cỡ bóng
+人物头像		portrait	direct	nhãn: chân dung
+攻击动作时间		attack_animation_time	direct	nhãn: thời gian động tác đánh
+攻击冷却时间		attack_cooldown_time	direct	nhãn: thời gian hồi đòn đánh
+是否在小地图上显示		show_on_minimap	direct	nhãn: có hiện trên bản đồ nhỏ
+势力ID		force_id	direct	nhãn: id thế lực
+攻击特性ID		attack_trait_id	direct	nhãn: id đặc tính tấn công
+是否攻击NPC		attacks_npc	direct	nhãn: có đánh NPC
+外观类型		appearance_type	direct	nhãn: loại ngoại hình
+强度类型		strength_type	direct	nhãn: loại cường độ
+交互方式		interaction_mode	direct	nhãn: cách tương tác
+战斗方式		combat_style	direct	nhãn: kiểu chiến đấu
+资源	CommonItem.txt	resource_id	code:Server/GameServer/Server/Item/ItemTable.cpp:912	enum TBResourceID
+资源		resource_id	direct	nhãn cùng nghĩa ở mọi bảng
+说明文字$1$	CommonItem.txt	description	code:Server/GameServer/Server/Item/ItemTable.cpp:914	enum TBDesc
+说明文字$1$		description	direct	nhãn cùng nghĩa ở mọi bảng
+基本价格	CommonItem.txt	base_price	code:Server/GameServer/Server/Item/ItemTable.cpp:916	enum TBBasePrice
+基本价格		base_price	direct	nhãn cùng nghĩa ở mọi bảng
+出售价格		sale_price	direct	nhãn: giá bán
+适应规则		fit_rules	direct	nhãn: quy tắc thích ứng; 规则 trong thuật ngữ là rules
+叠放数量		stack_count	direct	nhãn: số lượng xếp chồng
+脚本编号		script_id	direct	nhãn: số script
+技能编号		skill_id	direct	nhãn: số kỹ năng
+是否消耗		is_consumed	direct	nhãn: có bị tiêu hao khi dùng
+需求技能		required_skill	direct	nhãn: kỹ năng yêu cầu
+需求技能等级		required_skill_level	direct	nhãn: cấp kỹ năng yêu cầu
+最大持有数量		max_owned	direct	nhãn: số lượng giữ tối đa
+选择对象类型		target_object_type	direct	nhãn: loại đối tượng được chọn
+类型描述$1$		type_description	direct	nhãn: mô tả loại
+档次等级		grade	direct	nhãn: hạng
+配方id		recipe_id	direct	nhãn: id công thức
+颜色		color	direct	nhãn: màu
+分类 ID（互斥用）	ImpactSEData_V1.txt	mutex_id	code:Common/Combat/DataRecords.cpp:349	đọc vào m_nMutexID
+分类 ID（互斥用）		mutex_id	direct	nhãn cùng nghĩa ở mọi bảng
+PRI优先级	ImpactSEData_V1.txt	priority	code:Common/Combat/DataRecords.cpp:350	đọc vào m_nPriParam
+PRI优先级		priority	direct	nhãn cùng nghĩa ở mọi bảng
+图标文件名	ImpactSEData_V1.txt	icon_file	code:Common/Combat/DataRecords.cpp:351	mã bỏ qua, chú thích Skip Icon
+图标文件名		icon_file	direct	nhãn cùng nghĩa ở mọi bảng
+触发特效ID	ImpactSEData_V1.txt	trigger_effect_id	code:Common/Combat/DataRecords.cpp:352	mã bỏ qua cột hiệu ứng kích hoạt
+触发特效ID		trigger_effect_id	direct	nhãn cùng nghĩa ở mọi bảng
+触发特效的音效ID	ImpactSEData_V1.txt	trigger_sound_id	code:Common/Combat/DataRecords.cpp:353	mã bỏ qua cột âm thanh kích hoạt
+触发特效的音效ID		trigger_sound_id	direct	nhãn cùng nghĩa ở mọi bảng
+触发特效的绑定点	ImpactSEData_V1.txt	trigger_effect_anchor	code:Common/Combat/DataRecords.cpp:354	mã bỏ qua cột điểm gắn hiệu ứng kích hoạt
+触发特效的绑定点		trigger_effect_anchor	direct	nhãn cùng nghĩa ở mọi bảng
+持续性特效ID	ImpactSEData_V1.txt	continuous_effect_id	code:Common/Combat/DataRecords.cpp:355	mã bỏ qua cột hiệu ứng duy trì
+持续性特效ID		continuous_effect_id	direct	nhãn cùng nghĩa ở mọi bảng
+持续特效的音效ID	ImpactSEData_V1.txt	continuous_sound_id	code:Common/Combat/DataRecords.cpp:356	mã bỏ qua cột âm thanh duy trì
+持续特效的音效ID		continuous_sound_id	direct	nhãn cùng nghĩa ở mọi bảng
+持续性特效的绑定点	ImpactSEData_V1.txt	continuous_effect_anchor	code:Common/Combat/DataRecords.cpp:357	mã bỏ qua cột điểm gắn hiệu ứng duy trì
+持续性特效的绑定点		continuous_effect_anchor	direct	nhãn cùng nghĩa ở mọi bảng
+死后是否保留	ImpactSEData_V1.txt	kept_after_death	code:Common/Combat/DataRecords.cpp:358	đọc vào m_bStillOnWhenOwnerDead
+死后是否保留		kept_after_death	direct	nhãn cùng nghĩa ở mọi bảng
+是否可以被技能驱散	ImpactSEData_V1.txt	can_be_dispelled	code:Common/Combat/DataRecords.cpp:359	đọc vào m_bCanBeDispeled
+是否可以被技能驱散		can_be_dispelled	direct	nhãn cùng nghĩa ở mọi bảng
+是否是负面效果	ImpactSEData_V1.txt	is_hostile	code:Common/Combat/DataRecords.cpp:360	đọc vào m_bHostileFlag
+是否是负面效果		is_hostile	direct	nhãn cùng nghĩa ở mọi bảng
+是否可以被手动取消	ImpactSEData_V1.txt	can_cancel_manually	code:Common/Combat/DataRecords.cpp:361	đọc vào m_bCanBeManualCancel
+是否可以被手动取消		can_cancel_manually	direct	nhãn cùng nghĩa ở mọi bảng
+是否为线性特效		is_linear_effect	direct	nhãn: có phải hiệu ứng tuyến tính
+线性特效的绑定点		linear_effect_anchor	direct	nhãn: điểm gắn hiệu ứng tuyến tính
+效果说明$1$	ImpactSEData_V1.txt	effect_description	code:Common/Combat/DataRecords.cpp:364	đọc vào m_szDescription
+效果说明$1$		effect_description	direct	nhãn cùng nghĩa ở mọi bảng
+类别	SpecialObjData.txt	category	code:Common/Combat/DataRecords.cpp:491	SpecialObjData_T đọc vào m_nClass
+类别		category	direct	nhãn cùng nghĩa ở mọi bảng
+逻辑ID	SpecialObjData.txt	logic_id	code:Common/Combat/DataRecords.cpp:492	đọc vào m_nLogicID
+逻辑ID		logic_id	direct	nhãn cùng nghĩa ở mọi bảng
+隐形级别	SpecialObjData.txt	stealth_level	code:Common/Combat/DataRecords.cpp:493	đọc vào m_nStealthLevel
+隐形级别		stealth_level	direct	nhãn cùng nghĩa ở mọi bảng
+陷阱专用标记	SpecialObjData.txt	trap_flag	code:Common/Combat/DataRecords.cpp:494	đọc vào m_nTrapUsedFlags
+陷阱专用标记		trap_flag	direct	nhãn cùng nghĩa ở mọi bảng
+可激活次数	SpecialObjData.txt	activation_count	code:Common/Combat/DataRecords.cpp:495	đọc vào m_nActiveTimes
+可激活次数		activation_count	direct	nhãn cùng nghĩa ở mọi bảng
+生存期持续特效		lifetime_effect	direct	nhãn: hiệu ứng trong thời gian tồn tại
+生存期持续音效		lifetime_sound	direct	nhãn: âm thanh trong thời gian tồn tại
+激发特效		activate_effect	direct	nhãn: hiệu ứng lúc kích hoạt
+激发音效		activate_sound	direct	nhãn: âm thanh lúc kích hoạt
+死亡特效		death_effect	direct	nhãn: hiệu ứng lúc chết
+死亡音效		death_sound	direct	nhãn: âm thanh lúc chết
+ 子弹ID		bullet_id	direct	nhãn có dấu cách đầu: id đạn
+持续时间	SpecialObjData.txt	duration	code:Common/Combat/DataRecords.cpp:498	đọc vào m_nContinuance
+持续时间		duration	direct	nhãn cùng nghĩa ở mọi bảng
+激活或触发时间间隔	SpecialObjData.txt	trigger_interval	code:Common/Combat/DataRecords.cpp:499	đọc vào m_nInterval
+激活或触发时间间隔		trigger_interval	direct	nhãn cùng nghĩa ở mọi bảng
+触发半径	SpecialObjData.txt	trigger_radius	code:Common/Combat/DataRecords.cpp:501	đọc vào m_fTriggerRadius
+触发半径		trigger_radius	direct	nhãn cùng nghĩa ở mọi bảng
+影响半径	SpecialObjData.txt	effect_radius	code:Common/Combat/DataRecords.cpp:502	đọc vào m_fEffectRadius
+影响半径		effect_radius	direct	nhãn cùng nghĩa ở mọi bảng
+影响个体数目	SpecialObjData.txt	affected_count	code:Common/Combat/DataRecords.cpp:503	đọc vào m_nEffectedObjNumber
+影响个体数目		affected_count	direct	nhãn cùng nghĩa ở mọi bảng
+详细说明(内部使用)	SpecialObjData.txt	internal_description	code:Common/Combat/DataRecords.cpp:514	đọc vào m_szDescription
+详细说明(内部使用)		internal_description	direct	nhãn cùng nghĩa ở mọi bảng
+轨迹类型		trajectory_type	direct	nhãn: kiểu quỹ đạo đạn
+子弹飞行特效ID		flight_effect_id	direct	nhãn: id hiệu ứng đạn bay
+飞行音效ID		flight_sound_id	direct	nhãn: id âm thanh bay
+速度(m/s)		speed_m_per_s	direct	nhãn: tốc độ, mét mỗi giây
+子弹爆炸特效ID		explosion_effect_id	direct	nhãn: id hiệu ứng nổ
+爆炸音效ID		explosion_sound_id	direct	nhãn: id âm thanh nổ
+击中特效的绑定点		hit_effect_anchor	direct	nhãn: điểm gắn hiệu ứng trúng
+预留1		reserved_1	direct	nhãn: cột để dành số 1
+预留2		reserved_2	direct	nhãn: cột để dành số 2
+预留3		reserved_3	direct	nhãn: cột để dành số 3
+预留4		reserved_4	direct	nhãn: cột để dành số 4
+预留5		reserved_5	direct	nhãn: cột để dành số 5
+描述		description	direct	nhãn: mô tả
+特性名称$1$		trait_name	direct	nhãn: tên đặc tính
+图标		icon	direct	nhãn: biểu tượng
+C-phy		physical_factor	direct	nhãn ASCII không phải định danh: hệ số vật lý
+C-magic		magic_factor	direct	nhãn: hệ số phép
+C-cold		cold_factor	direct	nhãn: hệ số băng
+C-fire		fire_factor	direct	nhãn: hệ số hoả
+C-light		lightning_factor	direct	nhãn: hệ số lôi
+C-poison		poison_factor	direct	nhãn: hệ số độc
+类型		kind	direct	nhãn: loại
+安全级别		safety_level	direct	nhãn: mức an toàn
+可以站立的位置X		stand_x	direct	nhãn: hoành độ chỗ đứng được
+可以站立的位置Z		stand_z	direct	nhãn: tung độ chỗ đứng được
+是否可以产生挂机终结者		spawns_afk_terminator	direct	nhãn: cảnh có sinh quái kết thúc treo máy
+心法1级对应的实际技能ID		skill_id_at_inner_art_level_1	direct	nhãn: id kỹ năng thật ứng với cấp tâm pháp
+心法2级对应的实际技能ID		skill_id_at_inner_art_level_2	direct	nhãn: id kỹ năng thật ứng với cấp tâm pháp
+心法3级对应的实际技能ID		skill_id_at_inner_art_level_3	direct	nhãn: id kỹ năng thật ứng với cấp tâm pháp
+心法4级对应的实际技能ID		skill_id_at_inner_art_level_4	direct	nhãn: id kỹ năng thật ứng với cấp tâm pháp
+心法5级对应的实际技能ID		skill_id_at_inner_art_level_5	direct	nhãn: id kỹ năng thật ứng với cấp tâm pháp
+心法6级对应的实际技能ID		skill_id_at_inner_art_level_6	direct	nhãn: id kỹ năng thật ứng với cấp tâm pháp
+心法7级对应的实际技能ID		skill_id_at_inner_art_level_7	direct	nhãn: id kỹ năng thật ứng với cấp tâm pháp
+心法8级对应的实际技能ID		skill_id_at_inner_art_level_8	direct	nhãn: id kỹ năng thật ứng với cấp tâm pháp
+心法9级对应的实际技能ID		skill_id_at_inner_art_level_9	direct	nhãn: id kỹ năng thật ứng với cấp tâm pháp
+心法10级对应的实际技能ID		skill_id_at_inner_art_level_10	direct	nhãn: id kỹ năng thật ứng với cấp tâm pháp
+心法11级对应的实际技能ID		skill_id_at_inner_art_level_11	direct	nhãn: id kỹ năng thật ứng với cấp tâm pháp
+心法12级对应的实际技能ID		skill_id_at_inner_art_level_12	direct	nhãn: id kỹ năng thật ứng với cấp tâm pháp
+心法13级对应的实际技能ID		skill_id_at_inner_art_level_13	direct	nhãn: id kỹ năng thật ứng với cấp tâm pháp
+心法14级对应的实际技能ID		skill_id_at_inner_art_level_14	direct	nhãn: id kỹ năng thật ứng với cấp tâm pháp
+心法15级对应的实际技能ID		skill_id_at_inner_art_level_15	direct	nhãn: id kỹ năng thật ứng với cấp tâm pháp
+心法16级对应的实际技能ID		skill_id_at_inner_art_level_16	direct	nhãn: id kỹ năng thật ứng với cấp tâm pháp
+心法等级段1		inner_art_level_band_1	direct	nhãn: đoạn cấp tâm pháp
+心法修正率1		inner_art_modifier_rate_1	direct	nhãn: hệ số sửa tâm pháp
+心法等级段2		inner_art_level_band_2	direct	nhãn: đoạn cấp tâm pháp
+心法修正率2		inner_art_modifier_rate_2	direct	nhãn: hệ số sửa tâm pháp
+心法等级段3		inner_art_level_band_3	direct	nhãn: đoạn cấp tâm pháp
+心法修正率3		inner_art_modifier_rate_3	direct	nhãn: hệ số sửa tâm pháp
+心法等级段4		inner_art_level_band_4	direct	nhãn: đoạn cấp tâm pháp
+心法修正率4		inner_art_modifier_rate_4	direct	nhãn: hệ số sửa tâm pháp
+心法等级段5		inner_art_level_band_5	direct	nhãn: đoạn cấp tâm pháp
+心法修正率5		inner_art_modifier_rate_5	direct	nhãn: hệ số sửa tâm pháp
+心法等级段6		inner_art_level_band_6	direct	nhãn: đoạn cấp tâm pháp
+心法修正率6		inner_art_modifier_rate_6	direct	nhãn: hệ số sửa tâm pháp
+心法等级段7		inner_art_level_band_7	direct	nhãn: đoạn cấp tâm pháp
+心法修正率7		inner_art_modifier_rate_7	direct	nhãn: hệ số sửa tâm pháp
+心法等级段8		inner_art_level_band_8	direct	nhãn: đoạn cấp tâm pháp
+心法修正率8		inner_art_modifier_rate_8	direct	nhãn: hệ số sửa tâm pháp
+心法等级段9		inner_art_level_band_9	direct	nhãn: đoạn cấp tâm pháp
+心法修正率9		inner_art_modifier_rate_9	direct	nhãn: hệ số sửa tâm pháp
+心法等级段10		inner_art_level_band_10	direct	nhãn: đoạn cấp tâm pháp
+心法修正率10		inner_art_modifier_rate_10	direct	nhãn: hệ số sửa tâm pháp
+场景怪物0		scene_monster_0	direct	nhãn: quái của cảnh
+场景怪物1		scene_monster_1	direct	nhãn: quái của cảnh
+场景怪物2		scene_monster_2	direct	nhãn: quái của cảnh
+场景怪物3		scene_monster_3	direct	nhãn: quái của cảnh
+场景怪物4		scene_monster_4	direct	nhãn: quái của cảnh
+场景怪物5		scene_monster_5	direct	nhãn: quái của cảnh
+场景怪物6		scene_monster_6	direct	nhãn: quái của cảnh
+场景怪物7		scene_monster_7	direct	nhãn: quái của cảnh
+场景怪物8		scene_monster_8	direct	nhãn: quái của cảnh
+场景怪物9		scene_monster_9	direct	nhãn: quái của cảnh
+场景怪物10		scene_monster_10	direct	nhãn: quái của cảnh
+场景怪物11		scene_monster_11	direct	nhãn: quái của cảnh
+场景怪物12		scene_monster_12	direct	nhãn: quái của cảnh
+场景怪物13		scene_monster_13	direct	nhãn: quái của cảnh
+场景怪物14		scene_monster_14	direct	nhãn: quái của cảnh
+场景怪物15		scene_monster_15	direct	nhãn: quái của cảnh
+命中		hit	code:Common/GameDefine_Item.h:74	enum IATTRIBUTE_HIT, chú thích 命中
+冰抵抗		cold_resist	code:Common/GameDefine_Item.h:42	enum IATTRIBUTE_COLD_RESIST
+火抵抗		fire_resist	code:Common/GameDefine_Item.h:45	enum IATTRIBUTE_FIRE_RESIST
+玄攻击		lightning_attack	direct	玄 là hệ lôi; enum dòng 47 gọi là 电攻击
+玄抵抗		lightning_resist	direct	玄 là hệ lôi; enum dòng 48 gọi là 电抵抗
+毒抵抗		poison_resist	code:Common/GameDefine_Item.h:51	enum IATTRIBUTE_POISON_RESIST
+按百分比抵消所有属性攻击		all_element_resist_percent	code:Common/GameDefine_Item.h:53	enum IATTRIBUTE_RESIST_ALL
+力量		strength	direct	nhãn sức mạnh; enum dòng 84 là 增加力量
+灵气		spirit	direct	nhãn linh khí; enum dòng 85 là 增加灵气
+定力		concentration	direct	nhãn định lực; enum dòng 87 là 增加定力
+身法		dexterity	direct	nhãn thân pháp; enum dòng 88 là 增加身法
+体质		constitution	direct	nhãn thể chất; enum dòng 86 viết nhầm 体制
+体力		stamina	direct	nhãn thể lực, khác cột thể chất
+悟性		insight	code:Common/GameDefine_Item.h:89	enum IATTRIBUTE_LUK, chú thích 增加悟性
+增加所有的人物一级属性		all_primary_attributes	code:Common/GameDefine_Item.h:90	enum IATTRIBUTE_ALL
+按百分比增加物理攻击		physical_attack_percent	code:Common/GameDefine_Item.h:56	enum IATTRIBUTE_RATE_ATTACK_P
+按百分比增加物理防御		physical_defence_percent	code:Common/GameDefine_Item.h:59	enum IATTRIBUTE_RATE_DEFENCE_P
+按百分比增加魔法攻击		magic_attack_percent	code:Common/GameDefine_Item.h:64	enum IATTRIBUTE_RATE_ATTACK_M
+按百分比增加魔法防御		magic_defence_percent	code:Common/GameDefine_Item.h:67	enum IATTRIBUTE_RATE_DEFENCE_M
+对装备基础物理攻击百分比加成		equip_base_physical_attack_percent	code:Common/GameDefine_Item.h:57	enum IATTRIBUTE_RATE_ATTACK_EP
+对装备基础物理防御百分比加成		equip_base_physical_defence_percent	code:Common/GameDefine_Item.h:60	enum IATTRIBUTE_RATE_DEFENCE_EP
+对装备基础魔法攻击百分比加成		equip_base_magic_attack_percent	code:Common/GameDefine_Item.h:65	enum IATTRIBUTE_RATE_ATTACK_EM
+对装备基础魔法防御百分比加成		equip_base_magic_defence_percent	code:Common/GameDefine_Item.h:68	enum IATTRIBUTE_RATE_DEFENCE_EM
+按百分比抵消物理伤害		physical_damage_resist_percent	code:Common/GameDefine_Item.h:61	enum IATTRIBUTE_IMMUNITY_P
+按百分比抵消魔法伤害		magic_damage_resist_percent	code:Common/GameDefine_Item.h:69	enum IATTRIBUTE_IMMUNITY_M
+基础物理攻击		base_physical_attack	code:Common/GameDefine_Item.h:99	enum IATTRIBUTE_BASE_ATTACK_P
+基础物理防御		base_physical_defence	code:Common/GameDefine_Item.h:102	enum IATTRIBUTE_BASE_DEFENCE_P
+基础魔法攻击		base_magic_attack	code:Common/GameDefine_Item.h:100	enum IATTRIBUTE_BASE_ATTACK_M
+基础魔法防御		base_magic_defence	code:Common/GameDefine_Item.h:103	enum IATTRIBUTE_BASE_DEFENCE_M
+基础命中		base_hit	direct	nhãn: độ trúng cơ bản
+基础闪避		base_miss	code:Common/GameDefine_Item.h:104	enum IATTRIBUTE_BASE_MISS
+会心		critical_hit	direct	nhãn hội tâm, một cột riêng với hội tâm phòng thủ
+会心一击（双倍攻击）的百分比		double_attack_percent	code:Common/GameDefine_Item.h:76	enum IATTRIBUTE_2ATTACK_RATE
+无视对方防御比率		ignore_defence_rate	direct	nhãn tỉ lệ bỏ qua phòng thủ; enum dòng 77 nói xác suất
+移动速度百分比		move_speed_percent	code:Common/GameDefine_Item.h:79	enum IATTRIBUTE_SPEED_RATE
+伤害反射		damage_reflect	code:Common/GameDefine_Item.h:81	enum IATTRIBUTE_DAMAGE_RET
+伤害由内力抵消		damage_to_mana	code:Common/GameDefine_Item.h:82	enum IATTRIBUTE_DAMAGE2MANA
+生命偷取		hp_steal	direct	nhãn hút sinh mệnh; enum dòng 92 thêm từ trong sát thương
+内力偷取		mp_steal	direct	nhãn hút nội lực; enum dòng 93
+减少冰冻迟缓时间		cold_slow_reduction	code:Common/GameDefine_Item.h:43	enum IATTRIBUTE_COLD_TIME
+减少火烧持续时间		fire_burn_reduction	code:Common/GameDefine_Item.h:46	enum IATTRIBUTE_FIRE_TIME
+减少中毒时间		poison_time_reduction	code:Common/GameDefine_Item.h:52	enum IATTRIBUTE_POISON_TIME
+减少电击眩晕时间		shock_stun_reduction	code:Common/GameDefine_Item.h:49	enum IATTRIBUTE_LIGHT_TIME
+减少玄击眩晕时间		lightning_stun_reduction	direct	cùng nghĩa giảm choáng hệ lôi; nhãn dùng 玄
+攻击速度(两次攻击间隔时间)		attack_interval	direct	ngoặc nói đây là khoảng giữa hai đòn, không ghi đơn vị
+魔法冷却速度		magic_cooldown_speed	code:Common/GameDefine_Item.h:72	enum IATTRIBUTE_SKILL_TIME
+内攻冷却速度		magic_cooldown_speed	direct	内攻 là đòn phép, cùng đại lượng với tốc độ hồi phép
+增加HP的上限		max_hp_bonus	direct	nhãn tăng trần HP, không phải trần HP của quái
+增加MP的上限		max_mp_bonus	direct	nhãn tăng trần MP
+百分比增加HP的上限		max_hp_percent	direct	nhãn tăng trần HP theo phần trăm
+百分比增加MP的上限		max_mp_percent	direct	nhãn tăng trần MP theo phần trăm
+加快HP的回复速度		hp_restore_speed	code:Common/GameDefine_Item.h:35	enum IATTRIBUTE_RESTORE_HP
+加快MP的回复速度		mp_restore_speed	code:Common/GameDefine_Item.h:39	enum IATTRIBUTE_RESTORE_MP
+外攻攻击		physical_attack	direct	外攻 là đòn vật lý
+外攻防御		physical_defence	direct	外攻 là phòng thủ vật lý
+内攻攻击		magic_attack	direct	内攻 là đòn phép
+内攻防御		magic_defence	direct	内攻 là phòng thủ phép
+基础外攻攻击		base_physical_attack	direct	外攻 cơ bản là đòn vật lý cơ bản
+基础外攻防御		base_physical_defence	direct	phòng thủ vật lý cơ bản
+基础内攻攻击		base_magic_attack	direct	đòn phép cơ bản
+基础内攻防御		base_magic_defence	direct	phòng thủ phép cơ bản
+按百分比增加外攻攻击		physical_attack_percent	direct	tăng phần trăm đòn vật lý
+按百分比增加外攻防御		physical_defence_percent	direct	tăng phần trăm phòng thủ vật lý
+按百分比增加内攻攻击		magic_attack_percent	direct	tăng phần trăm đòn phép
+按百分比增加内攻防御		magic_defence_percent	direct	tăng phần trăm phòng thủ phép
+对装备基础外攻攻击百分比加成		equip_base_physical_attack_percent	direct	cộng phần trăm lên đòn vật lý gốc của trang bị
+对装备基础外攻防御百分比加成		equip_base_physical_defence_percent	direct	cộng phần trăm lên phòng thủ vật lý gốc
+对装备基础内攻攻击百分比加成		equip_base_magic_attack_percent	direct	cộng phần trăm lên đòn phép gốc
+对装备基础内攻防御百分比加成		equip_base_magic_defence_percent	direct	cộng phần trăm lên phòng thủ phép gốc
+按百分比抵消外攻伤害		physical_damage_resist_percent	direct	triết phần trăm sát thương vật lý
+按百分比抵消内攻伤害		magic_damage_resist_percent	direct	triết phần trăm sát thương phép
+增加某个技能等级		one_skill_level	direct	nhãn tăng cấp một kỹ năng
+增加所有技能等级		all_skill_levels	direct	nhãn tăng cấp mọi kỹ năng
+特殊技能发动概率		special_skill_rate	direct	nhãn xác suất phát kỹ năng đặc biệt
+增加某个魔法等级		one_magic_level	direct	nhãn tăng cấp một phép
+增加所有魔法等级		all_magic_levels	direct	nhãn tăng cấp mọi phép
+特殊魔法发动概率		special_magic_rate	direct	nhãn xác suất phát phép đặc biệt
+门派需求		required_sect	glossary	门派 là sect; nhãn là môn phái yêu cầu
+品质规则		quality_rules	glossary	规则 là rules
+起始数值段		value_band_start	direct	nhãn đoạn giá trị bắt đầu
+行囊		bag_slots	direct	nhãn túi đồ
+格箱		box_slots	direct	nhãn ô rương
+是否广播		is_broadcast	direct	nhãn có phát tin hay không
+浮动空间		roll_span	direct	nhãn khoảng dao động của chỉ số
+品阶		tier	direct	nhãn phẩm giai
+套装编号		set_id	direct	nhãn số bộ trang bị
+套装效果值		set_effect_value	direct	nhãn giá trị hiệu ứng bộ
+套装名字$1$		set_name	direct	nhãn tên bộ trang bị
+有效期(小时)		duration_hours	direct	nhãn thời hạn, đơn vị giờ
+有效期（小时，未实现）		duration_hours	direct	nhãn thời hạn theo giờ; chú thích chưa làm
+传输颜色		link_color	direct	nhãn màu khi gửi liên kết
+附加属性描述$1$		extra_attribute_description	direct	nhãn mô tả thuộc tính thêm
+级别段		level_band	direct	nhãn khoảng cấp
+几率		rate	direct	nhãn xác suất
+组件数		piece_count	direct	nhãn số mảnh của bộ
+特效		effect	glossary	效果 là effect
+绑定点		anchor	direct	nhãn điểm gắn
+效果值		effect_value	direct	nhãn giá trị hiệu ứng
+效果类型{n}		effect_kind_{n}	direct	nhãn loại hiệu ứng có số thứ tự
+资源编号		resource_id	direct	nhãn số tài nguyên
+特效索引		effect_index	direct	nhãn chỉ mục hiệu ứng
+Max耐久		max_durability	direct	Max là tối đa, 耐久 là độ bền
+升级后变成资源id		upgraded_resource_id	direct	nhãn id tài nguyên sau khi nâng cấp
+资质min		aptitude_min	direct	nhãn tư chất nhỏ nhất
+资质max		aptitude_max	direct	nhãn tư chất lớn nhất
+属性条数min		attribute_count_min	direct	nhãn số dòng thuộc tính nhỏ nhất
+属性条数max		attribute_count_max	direct	nhãn số dòng thuộc tính lớn nhất
+资质点		aptitude_point	direct	nhãn điểm tư chất
+装备外形ID		equip_visual_id	direct	nhãn id ngoại hình trang bị
+装备级别		equip_level	direct	nhãn cấp trang bị
+武器修理率		weapon_repair_rate	direct	nhãn tỉ lệ sửa vũ khí
+防具修理率		armor_repair_rate	direct	nhãn tỉ lệ sửa giáp
+B>A时的修正		modifier_when_b_above_a	glossary	修正 là modifier
+物品使用几率		item_use_rate	direct	nhãn xác suất dùng vật phẩm
+奖励几率		reward_rate	direct	nhãn xác suất thưởng
+物品编号		item_id	direct	nhãn số vật phẩm
+物品名称$1$		item_name	direct	nhãn tên vật phẩm
+广播类型0.普通说话消息1.队伍消息2.场景消息4.系统消息世界消息6.帮派消息10.门派消息		broadcast_kind	direct	nhãn loại phát tin; số trong nhãn là mã kênh, không phải số cột
+广播类型0.普通说话消息1.队伍消息2.场景消息4.系统消息世界消息6.帮派消息7.门派消息		broadcast_kind	direct	nhãn loại phát tin; số trong nhãn là mã kênh
+广播类型0.普通说话消息1.队伍消息2.场景消息4.系统消息世界消息6.帮派消息9.门派消息		broadcast_kind	direct	nhãn loại phát tin; số trong nhãn là mã kênh
+广播类型0.普通说话消息1.队伍消息2.场景消息4.系统消息世界消息6.帮派消息8.门派消息		broadcast_kind	direct	nhãn loại phát tin; số trong nhãn là mã kênh
+广播类型0.普通说话消息1.队伍消息2.场景消息4.系统消息世界消息6.帮派消息7.门派消息0.普通说话消息1.队伍消息2.场景消息4.系统消息世界消息6.帮派消息7.门派消息		broadcast_kind	direct	nhãn loại phát tin; chú thích kênh bị lặp trong nhãn gốc
+广播类型		broadcast_kind	direct	nhãn loại phát tin
+广播类型ID（顺序递增）		broadcast_kind_id	direct	nhãn nói đây là id loại phát tin, tăng dần
+商品折扣		goods_discount	direct	nhãn chiết khấu hàng
+商品颜色		goods_color	direct	nhãn màu hàng
+商品{n}价格		goods_price_{n}	direct	nhãn giá món hàng có số thứ tự
+修理等级		repair_level	direct	nhãn cấp sửa
+修理花费		repair_cost	direct	nhãn phí sửa
+修理成功几率		repair_success_rate	direct	nhãn xác suất sửa thành công
+收购等级		buy_level	direct	nhãn cấp thu mua
+收购类型		buy_kind	direct	nhãn loại thu mua
+能否回购		can_buy_back	direct	nhãn có mua lại hay không
+是否随机商店		is_random_shop	direct	nhãn có phải cửa hàng ngẫu nhiên
+随机商店配置文件路径		random_shop_config_path	direct	nhãn đường dẫn tệp cửa hàng ngẫu nhiên
+货币单位(1代表金币，2代表善恶值，4，帮贡，3代表师德点，5元宝，6赠点，7师门贡献度，8代表交子)		currency_kind	glossary	nhãn đơn vị tiền; 元宝 là ingot, 交子 là bound_coin, 善恶 là morality
+场景{n}		scene_{n}	direct	nhãn cảnh có số thứ tự
+允许摆放的场景1		allowed_scene_1	direct	nhãn cảnh được đặt
+名称		name	direct	nhãn tên
+级别		rank	direct	nhãn cấp bậc, khác 等级
+需求经验		required_exp	direct	nhãn kinh nghiệm yêu cầu
+需求金钱		required_money	direct	nhãn tiền yêu cầu
+需要金钱		required_money	direct	nhãn số tiền cần
+需要消耗的金钱		money_cost	direct	nhãn tiền phải tiêu
+技能熟练度限制		proficiency_limit	direct	nhãn trần độ thuần thục
+技能熟练度限制(客户端显示)		displayed_proficiency_limit	direct	nhãn trần độ thuần thục phía client
+本级熟练度的上限		proficiency_cap	direct	nhãn trần thuần thục của cấp này
+等级限制		level_limit	direct	nhãn giới hạn cấp
+所需等级		required_level	direct	nhãn cấp yêu cầu
+最高等级		max_level	direct	nhãn cấp cao nhất
+升级需求和消耗表		level_up_table	direct	nhãn bảng nhu cầu và tiêu hao khi lên cấp
+操作时间基数		base_action_time	direct	nhãn thời gian thao tác gốc; nhãn không ghi đơn vị
+工具ID		tool_id	direct	nhãn id dụng cụ
+工具ID2		tool_id_2	direct	nhãn id dụng cụ thứ hai
+辅助平台的有效距离		platform_range	direct	nhãn tầm bàn chế tác
+辅助平台ID		platform_id	glossary	平台 là platform
+操作动作ID		action_id	direct	nhãn id động tác thao tác
+对应动作表现工具编号（Itemvisuallocator)		visual_tool_id	direct	nhãn số dụng cụ minh hoạ động tác
+技能说明$1$		skill_description	direct	nhãn lời giải thích kỹ năng
+是否有合成界面		has_compound_ui	direct	nhãn có giao diện hợp thành hay không
+进度条显示的字$1$		progress_text	direct	nhãn chữ trên thanh tiến độ
+消耗活力还是精力（0表示不消耗活力精力，1表示消耗活力，2表示消耗精力，3表示消耗活力和精力）		energy_cost_kind	direct	nhãn tiêu hoạt lực hay tinh lực
+开始时播放的声音		start_sound_id	direct	nhãn tiếng lúc bắt đầu
+是否循环 0：不循环 1：循环		is_looping	direct	nhãn có lặp hay không
+成功时播放的声音		success_sound_id	direct	nhãn tiếng khi thành công
+失败时播放的声音		failure_sound_id	direct	nhãn tiếng khi thất bại
+描述$1$		description	direct	nhãn mô tả
+类型(策划分类用)		designer_kind	direct	nhãn loại để người làm nội dung phân nhóm
+逻辑类型(程序用)		logic_kind	direct	nhãn loại logic cho chương trình
+编号		serial	direct	nhãn số thứ tự
+索引		index	direct	nhãn chỉ mục
+索引（无具体含义）		unused_index	direct	nhãn nói chỉ mục không có nghĩa
+脚本ID		script_id	direct	nhãn id script
+场景ID		scene_id	direct	nhãn id cảnh
+场景名称$1$		scene_name	direct	nhãn tên cảnh
+商区ID		trade_zone_id	direct	nhãn id khu thương mại
+所属商区		trade_zone	direct	nhãn khu thương mại trực thuộc
+所属商区$1$		trade_zone	direct	nhãn khu thương mại trực thuộc
+准乘人数		passenger_capacity	direct	nhãn số chỗ
+停站时间(毫秒)		stop_time_ms	direct	nhãn thời gian dừng, mili giây
+模型高度		model_height	direct	nhãn chiều cao mô hình; không ghi đơn vị
+模型数据ID		model_id	direct	nhãn id dữ liệu mô hình
+行驶速度		travel_speed	direct	nhãn tốc độ chạy; không ghi đơn vị
+频道名称$1$		channel_name	direct	nhãn tên kênh
+前导字符$1$		leader_text	direct	nhãn ký tự đứng trước
+发送时间间隔（毫秒）		send_interval_ms	direct	nhãn khoảng gửi, mili giây
+频道类型：4-系统消息，6-帮派消息，7-门派消息		channel_kind	direct	nhãn loại kênh
+活动描述$1$		activity_description	direct	nhãn mô tả hoạt động
+效果说明		effect_description	glossary	效果 là effect
+快报内容$1$		bulletin_text	direct	nhãn nội dung tin nhanh
+进行中报内容$1$		running_bulletin_text	direct	nhãn nội dung tin khi đang diễn ra
+广播内容（消息限长256CHAR，严禁使用字符%）：&A-活动描述，&S-场景名称，&T-队长名称，&U-玩家名称，&I-物品名称$1$		broadcast_text	direct	nhãn nội dung phát tin và các chỗ giữ
+策划用		designer_note	direct	nhãn cột dành cho người làm nội dung
+珍兽出现几率		pet_spawn_rate	direct	nhãn xác suất trân thú xuất hiện
+珍兽类型		pet_kind	direct	nhãn loại trân thú
+珍兽编号		pet_id	direct	nhãn số trân thú
+珍兽名称$1$		pet_name	direct	nhãn tên trân thú
+珍兽描述$1$		pet_description	direct	nhãn mô tả trân thú
+珍兽等级		pet_level	direct	nhãn cấp trân thú
+珍兽携带等级		pet_carry_level	direct	nhãn cấp mang theo của trân thú
+可携带等级		carry_level	direct	nhãn cấp được mang theo
+珍兽繁殖时间(ms)		breed_time_ms	direct	nhãn thời gian sinh sản, mili giây
+是否变异		is_mutant	glossary	变异 là mutant
+是否宝宝		is_baby	glossary	宝宝 là baby
+食物类		food_category	direct	nhãn nhóm thức ăn
+成长率{n}		growth_rate_{n}	direct	nhãn tốc độ trưởng thành có số thứ tự
+被动技能{n}		passive_skill_{n}	direct	nhãn kỹ năng bị động có số thứ tự
+被动技能{n}生成几率（1/100W）		passive_skill_{n}_rate_ppm	direct	nhãn xác suất, đơn vị một phần triệu
+主动技能2		active_skill_2	direct	nhãn kỹ năng chủ động thứ hai
+主动技能生成几率（1/100w）		active_skill_rate_ppm	direct	nhãn xác suất, đơn vị một phần triệu
+主动技能2生成几率（1/100w）		active_skill_2_rate_ppm	direct	nhãn xác suất kỹ năng chủ động 2, một phần triệu
+勇猛(1/1000)		bravery_permille	direct	nhãn dũng mãnh, đơn vị phần nghìn
+忠诚(1/1000)		loyalty_permille	direct	nhãn trung thành, đơn vị phần nghìn
+精明(1/1000)		shrewdness_permille	direct	nhãn tinh ranh, đơn vị phần nghìn
+胆小(1/1000)		timidity_permille	direct	nhãn nhút nhát, đơn vị phần nghìn
+谨慎(1/1000)		caution_permille	direct	nhãn thận trọng, đơn vị phần nghìn
+标准力量资质		base_strength_aptitude	direct	nhãn tư chất sức mạnh chuẩn
+标准灵气资质		base_spirit_aptitude	direct	nhãn tư chất linh khí chuẩn
+标准定力资质		base_concentration_aptitude	direct	nhãn tư chất định lực chuẩn
+标准身法资质		base_dexterity_aptitude	direct	nhãn tư chất thân pháp chuẩn
+标准体质资质		base_constitution_aptitude	direct	nhãn tư chất thể chất chuẩn
+标准寿命		base_lifespan	direct	nhãn tuổi thọ chuẩn
+所能学的技能数		learnable_skill_count	direct	nhãn số kỹ năng học được
+同类参考珍兽类型		reference_pet_kind	direct	nhãn loại trân thú cùng nhóm để đối chiếu
+显示名称文本		display_name	direct	nhãn chữ tên hiển thị
+珍兽技能书所对应的技能ID		pet_skill_id	direct	nhãn nói id kỹ năng của sách kỹ năng trân thú
+珍兽技能书的物品ID		item_id	direct	nhãn nói id vật phẩm của sách kỹ năng
+需要升级的珍兽技能ID		pet_skill_id	direct	nhãn id kỹ năng trân thú cần nâng
+升级后的珍兽技能ID		upgraded_pet_skill_id	direct	nhãn id kỹ năng sau khi nâng
+需要消耗的物品ID		cost_item_id	direct	nhãn id vật phẩm tiêu hao
+需要合成的灵兽丹ID		pet_pill_id	direct	nhãn id đan linh thú cần hợp
+合成后的灵兽丹ID（暂不开放的填 -1）		compound_pet_pill_id	direct	nhãn id đan sau hợp thành; -1 là chưa mở
+升级经验		level_up_exp	direct	nhãn kinh nghiệm lên cấp
+宝石ID		gem_id	direct	nhãn id ngọc
+雕琢后宝石ID		carved_gem_id	direct	nhãn id ngọc sau điêu khắc
+熔炼后宝石ID		smelted_gem_id	direct	nhãn id ngọc sau nung
+可替代物品ID		substitute_item_id	direct	nhãn id vật phẩm thay thế
+需要物品ID		required_item_id	direct	nhãn id vật phẩm cần
+消耗物品ID		cost_item_id	direct	nhãn id vật phẩm tiêu hao
+消耗物品数量		cost_item_count	direct	nhãn số vật phẩm tiêu hao
+消耗金钱		money_cost	direct	nhãn tiền tiêu
+物品id(commonitem表的id)		item_id	direct	nhãn nói id của bảng CommonItem
+物品1		item_1	direct	nhãn vật phẩm thứ nhất
+贡献给师傅的经验比例		mentor_exp_share	direct	nhãn tỉ lệ kinh nghiệm đưa cho sư phụ
+徒弟级别		apprentice_rank	direct	nhãn cấp bậc đồ đệ
+学习等级		study_level	direct	nhãn cấp học
+任务名称$1$		mission_name	direct	nhãn tên nhiệm vụ; cột giữ mission
+任务类型（客户端）		client_mission_kind	direct	nhãn loại nhiệm vụ phía client
+是否精英（客户端）		client_is_elite	direct	nhãn có phải tinh anh, phía client
+是否显示完成（客户端）		client_shows_complete	direct	nhãn có hiện hoàn thành, phía client
+环数（客户端）		client_round_count	direct	nhãn số vòng phía client
+任务需求等级		required_level	direct	nhãn cấp yêu cầu của nhiệm vụ
+前续任务Id{n}		previous_mission_id_{n}	direct	nhãn id nhiệm vụ tiên quyết có số thứ tự
+后续任务INDEX		next_mission_index	direct	nhãn chỉ mục nhiệm vụ kế tiếp
+完成任务场景ID		complete_scene_id	direct	nhãn id cảnh trả nhiệm vụ
+接受任务场景ID		accept_scene_id	direct	nhãn id cảnh nhận nhiệm vụ
+接受任务NpcName$1$		accept_npc_name	direct	nhãn tên NPC giao nhiệm vụ
+完成任务NpcName$1$		complete_npc_name	direct	nhãn tên NPC trả nhiệm vụ
+接受任务NpcGuid		accept_npc_guid	direct	nhãn guid NPC giao nhiệm vụ
+完成任务NpcGuid		complete_npc_guid	direct	nhãn guid NPC trả nhiệm vụ
+NPC名称$1$		npc_name	direct	nhãn tên NPC
+NPC需求经验		npc_required_exp	direct	nhãn kinh nghiệm NPC yêu cầu
+NPC需求金钱		npc_required_money	direct	nhãn tiền NPC yêu cầu
+个数{n}		count_{n}	direct	nhãn số lượng có số thứ tự
+可选物品奖励{n}		optional_item_reward_{n}	direct	nhãn vật phẩm thưởng tuỳ chọn
+可选物品{n}奖励数量		optional_item_{n}_reward_count	direct	nhãn số lượng thưởng tuỳ chọn
+固定物品奖励{n}		fixed_item_reward_{n}	direct	nhãn vật phẩm thưởng cố định
+怪物名称{n}$1$		monster_name_{n}	direct	nhãn tên quái có số thứ tự
+怪物标志{n}		monster_mark_{n}	direct	nhãn cờ quái có số thứ tự
+击杀数量{n}		kill_count_{n}	direct	nhãn số lượng phải giết
+击杀种类数（最多{n}）		kill_kind_cap_{n}	direct	nhãn số loài phải giết; số trong nhãn là trần
+掉落物品{n}		drop_item_{n}	direct	nhãn vật phẩm rơi
+掉落概率{n}		drop_rate_{n}	direct	nhãn xác suất rơi
+掉落数量{n}		drop_count_{n}	direct	nhãn số lượng rơi
+任务描述{n}$1$		mission_description_{n}	direct	nhãn mô tả nhiệm vụ có số thứ tự
+任务目标$1$		mission_objective	direct	nhãn mục tiêu nhiệm vụ
+任务继续信息$1$		mission_continue_text	direct	nhãn lời thoại khi tiếp tục
+任务完成信息$1$		mission_complete_text	direct	nhãn lời thoại khi hoàn thành
+任务详细描述$1$		mission_detail	direct	nhãn mô tả chi tiết
+关系值存储位置		relation_value_slot	direct	nhãn chỗ lưu giá trị quan hệ
+关系值奖励		relation_reward	direct	nhãn thưởng giá trị quan hệ
+是否循环任务		is_repeatable_mission	direct	nhãn có phải nhiệm vụ lặp
+经验奖励		exp_reward	direct	nhãn thưởng kinh nghiệm
+放弃任务关系值惩罚		abandon_relation_penalty	direct	nhãn phạt quan hệ khi bỏ nhiệm vụ
+放弃任务后禁止接任务的时间存储位置		abandon_lock_slot	direct	nhãn chỗ lưu thời gian cấm nhận lại
+禁止的时间长度，秒		lock_seconds	direct	nhãn độ dài bị cấm, giây
+时间限制内接任务的提示$1$		lock_notice	direct	nhãn câu nhắc khi còn bị cấm nhận
+物品是否在接任务时由NPC给予		npc_gives_item_on_accept	direct	nhãn NPC có đưa vật phẩm lúc nhận
+MissionItem_HashTable列号		mission_item_pool_column	direct	nhãn nói số cột của MissionItem_HashTable
+是否寻找随机物品		seeks_random_item	direct	nhãn có tìm vật phẩm ngẫu nhiên
+送物种类数量（最多5）		delivery_kind_cap	direct	nhãn số loài vật giao, trần 5
+第一个物品ID		item_id_1	direct	nhãn id vật phẩm thứ nhất
+第一个物品数量		item_count_1	direct	nhãn số lượng vật phẩm thứ nhất
+第二个物品ID		item_id_2	direct	nhãn id vật phẩm thứ hai
+第二个物品数量		item_count_2	direct	nhãn số lượng vật phẩm thứ hai
+第三个物品ID		item_id_3	direct	nhãn id vật phẩm thứ ba
+第三个物品数量		item_count_3	direct	nhãn số lượng vật phẩm thứ ba
+第四个物品ID		item_id_4	direct	nhãn id vật phẩm thứ tư
+第四个物品数量		item_count_4	direct	nhãn số lượng vật phẩm thứ tư
+第五个物品数量		item_count_5	direct	nhãn số lượng vật phẩm thứ năm
+任务目标NPC对白$1$		objective_npc_dialogue	direct	nhãn lời thoại NPC mục tiêu
+任务目标NPC是否动态		objective_npc_is_dynamic	direct	nhãn NPC mục tiêu có động hay không
+任务目标场景ID		objective_scene_id	direct	nhãn id cảnh của mục tiêu
+是否有Continue		has_continue	direct	nhãn có bước tiếp tục
+完成任务的Npc的坐标(X)		complete_npc_position_x	direct	nhãn hoành độ NPC trả nhiệm vụ
+完成任务的Npc的坐标(Y)		complete_npc_position_y	direct	nhãn tung độ NPC trả nhiệm vụ
+护送目标的名字$1$		escort_target_name	glossary	护送 là escort
+护送目标的场景号		escort_target_scene_id	glossary	护送 là escort
+护送路线ID		escort_route_id	glossary	护送 là escort
+区域1		area_1	direct	nhãn vùng thứ nhất
+区域所在场景1		area_scene_1	direct	nhãn cảnh của vùng thứ nhất
+进入区域总数		area_count	direct	nhãn tổng số vùng phải vào
+进入区域是否有对白		area_has_dialogue	direct	nhãn vào vùng có thoại hay không
+进入区域的对白$1$		area_dialogue	direct	nhãn thoại khi vào vùng
+任务数		mission_count	direct	nhãn số nhiệm vụ
+性别		sex	direct	nhãn giới tính
+消耗类型{n}		cost_kind_{n}	direct	nhãn loại tiêu hao có số thứ tự
+消耗数值{n}		cost_amount_{n}	direct	nhãn lượng tiêu hao có số thứ tự
+"消耗类型1(MP:0,精力1,活力:2,不需要:-1)"		cost_kind_1	direct	nhãn loại tiêu hao thứ nhất; dấu nháy thuộc nhãn gốc
+{n}级城市		city_level_{n}	direct	nhãn thành theo cấp
+特产{n}		specialty_{n}	direct	nhãn đặc sản có số thứ tự
+入口X坐标		entrance_position_x	direct	nhãn hoành độ lối vào
+入口Y坐标		entrance_position_y	direct	nhãn tung độ lối vào
+入口场景ID		entrance_scene_id	direct	nhãn id cảnh lối vào
+入口组		entrance_group	direct	nhãn nhóm lối vào
+X坐标		position_x	direct	nhãn hoành độ
+Z坐标		position_z	direct	nhãn toạ độ Z
+音效ID{n}		sound_id_{n}	direct	nhãn id tiếng có số thứ tự
+特效ID{n}		effect_id_{n}	direct	nhãn id hiệu ứng có số thứ tự
+特效的绑定点{n}		effect_anchor_{n}	direct	nhãn điểm gắn hiệu ứng có số thứ tự
+主绑定点		primary_anchor	direct	nhãn điểm gắn chính
+副绑定点		secondary_anchor	direct	nhãn điểm gắn phụ
+头像的图标		portrait_icon	direct	nhãn biểu tượng chân dung
+是否在初始时可选(0表示游戏中，初始时都不可选，1表示只有初始时可选，2表示只有在游戏中可选，3表示游戏中，初始时都可选)		selection_phase	direct	nhãn lúc nào được chọn ngoại hình
+Tips默认$1$		default_tip	direct	nhãn tooltip mặc định
+打开时间默认		default_open_time	direct	nhãn thời gian mở mặc định; không ghi đơn vị
+对应模型		model_id	direct	nhãn mô hình tương ứng
+对应任务ID		mission_id	direct	nhãn id nhiệm vụ tương ứng
+对应生活技能ID		life_skill_id	glossary	生活技能 là life_skill
+对应技能ID		skill_id	direct	nhãn id kỹ năng tương ứng
+生长点类型		grow_point_kind	glossary	生长点 là grow_point
+最大金钱		max_money	direct	nhãn tiền tối đa
+功能分组		function_group	direct	nhãn nhóm chức năng
+增加熟练度		proficiency_gain	direct	nhãn độ thuần thục tăng
+失败时产品编号		failure_product_id	direct	nhãn số sản phẩm khi thất bại
+技能等级需求（此列最低填1）		required_skill_level	direct	nhãn cấp kỹ năng yêu cầu; nhãn nói tối thiểu là 1
+操作时间		action_time	direct	nhãn thời gian thao tác; không ghi đơn vị
+活力需求		vigor_cost	direct	nhãn hoạt lực yêu cầu
+随机配方的详细描述$1$		random_recipe_description	direct	nhãn mô tả công thức ngẫu nhiên
+特殊材料的物品子类（From CommonItem.txt），若填写则必须		material_subclass	direct	nhãn nói lớp con vật phẩm lấy từ CommonItem
+对话内容$1$		dialogue_text	direct	nhãn nội dung thoại
+对话序号		dialogue_index	direct	nhãn số thứ tự thoại
+势力名称$1$		faction_name	direct	nhãn tên thế lực
+是否显示		is_shown	direct	nhãn có hiển thị
+称号（限长20个CHAR）$1$		title_name	direct	nhãn danh hiệu, dài tối đa 20 ký tự
+槽位（未实现）		slot	direct	nhãn ô; chú thích chưa làm
+出生坐标数量		spawn_position_count	direct	nhãn số toạ độ sinh
+分类说明		category_note	direct	nhãn chú thích phân loại
+本类中的ID数量		id_count	direct	nhãn số id trong lớp
+本行中所有ID的类型(必须填)		row_id_kind	direct	nhãn loại của mọi id trên dòng
+标识ID的分类ID		category_id	direct	nhãn id phân loại của id
+结尾说明，测试用		test_trailer	direct	nhãn nói cột cuối để thử
+是否播放融合，闪避，搁挡动作		plays_blend_dodge_block	direct	nhãn có phát hoà trộn, né và đỡ; 搁挡 đọc là 格挡
+"颜色值(R,G,B,A) "		color_rgba	direct	nhãn giá trị màu R G B A; dấu nháy và dấu cách thuộc nhãn gốc
+"DESC,内部注释用"		internal_note	direct	nhãn DESC dùng để chú thích nội bộ; dấu nháy thuộc nhãn gốc

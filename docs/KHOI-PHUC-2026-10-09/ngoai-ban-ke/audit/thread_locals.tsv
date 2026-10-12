@@ -1,0 +1,5 @@
+module	file	line	text
+core	SRC/core/log_sink.cpp	321	thread_local std::string joined;
+gpu	SRC/gpu/gles/context_wgl.cpp	132	thread_local ThreadBind thread_bind;
+jobs	SRC/jobs/jobs.cpp	166	constinit thread_local Member t_member;
+jobs	SRC/jobs/jobs.cpp	171	constinit thread_local JobSystem::State* t_helping = nullptr;

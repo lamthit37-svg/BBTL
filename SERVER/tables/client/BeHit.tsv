@@ -1,0 +1,23 @@
+# schema 1
+# source: client_2026/BeHit.txt
+# tool: TOOLS/server/export_client_rest.py; sửa tay sẽ mất ở lượt xuất sau
+# types: int	text	int	int	int	int	int	int	int	int	text	text	text	text	float	float	float	float	int	int
+column_0	column_1	column_2	column_3	column_4	column_5	column_6	column_7	column_8	column_9	column_10	column_11	column_12	column_13	column_14	column_15	column_16	column_17	column_18	column_19
+0	玩家被治疗	-10	70	72	-10	-120	30	1000	1000	FF009f3c	ffffff	FFfa1004	140302	1	1	4	2	200	400
+1	玩家被伤害	-10	80	72	-10	-150	30	2000	200	ff00b4	f7bb04	FFfa1004	f7bb04	1	1	4	2	200	400
+2	玩家的怒气增加	0	0	-100	0	200	0	0	0	FFFFFF00	FFFFFF	FFFFFF00	FFFFFF	1	1	4	2	200	400
+3	玩家的怒气减少	0	0	-100	0	200	0	0	0	FFFFFF00	FFFFFF	FFFFFF00	FFFFFF	1	1	4	2	200	400
+4	玩家的mana增加	-10	80	72	10	-120	0	1000	1000	FF0629ff	FFFFFF	FF0000FF	FFFFFF	1	1	4	2	200	400
+5	玩家的mana减少	-10	80	72	10	-120	0	0	0	FF0629ff	FFFFFF	FF0000FF	FFFFFF	1	1	4	2	200	400
+6	宠物对object造成的伤	0	1	0	75	0	-150	800	1000	FFf8f400	0	FFf8f400	0	1	1	4	2	200	400
+7	玩家对object造成的伤害	0	1	0	75	0	-150	800	1000	FFfa1004	f7bb04	FFfa1004	f7bb04	1	1	4	2	200	400
+8	玩家攻击其他对象时免疫，闪避，	0	1	0	75	0	-150	0	1800	FFfefefd	0	FFfefefd	0	1	1	4	2	200	400
+9	玩家被其他对象攻击时免疫，闪避，	-10	60	60	15	-115	0	500	1500	FFFFFFFF	0	FFFFFFFF	0	1	1	4	2	200	400
+10	技能名称	0	1	0	75	0	-150	800	1000	FFfa1004	f7bb04	FFfa1004	f7bb04	1	1	4	2	200	400
+11	玩家的战车能量增加	-10	80	72	10	-120	0	1000	1000	c6ff00	FFFFFF	c6ff00	FFFFFF	1	1	4	2	200	400
+12	玩家的战车能量减少	-10	80	72	10	-120	0	0	0	c6ff00	FFFFFF	c6ff00	FFFFFF	1	1	4	2	200	400
+13	穿刺伤害分开显示(攻击)	0	1	-120	-25	200	-50	800	1000	b400ff	ffb400	b400ff	ffb400	1	1	4	2	200	400
+14	穿刺伤害分开显示(挨打)	-10	80	72	-4	-150	10	2000	200	b400ff	ffb400	b400ff	ffb400	1	1	4	2	200	400
+15	图腾对object造成的伤害	0	1	0	75	0	-150	800	1000	FFfa1004	f7bb04	FFfa1004	f7bb04	1	1	4	2	200	400
+16	图腾穿刺伤害分开显示(攻击)	0	1	-120	-25	200	-50	800	1000	b400ff	ffb400	b400ff	ffb400	1	1	4	2	200	400
+100	玩家被治疗2	-10	60	72	0	-120	0	1000	1000	FF009f3c	ffffff	FFfa1004	140302	1	1	4	2	200	400

@@ -1,0 +1,15 @@
+# schema 1
+# source: Public/Scene/petisland_1_growpoint.txt
+# tool: TOOLS/server/export_scene.py; sửa tay sẽ mất ở lượt xuất sau
+# types: int	int	float	float
+point_id	grow_point_type	position_x	position_y
+1	622	228	192
+2	622	131	195
+3	622	160	34
+4	622	61	190
+5	622	48	60
+6	622	16	30
+7	622	15	51
+8	622	117	125
+9	622	157	118
+10	622	154	82

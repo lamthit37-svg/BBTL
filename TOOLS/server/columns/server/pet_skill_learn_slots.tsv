@@ -1,0 +1,11 @@
+# schema 1
+# source: server_config/PetStudySkllTable.txt
+# tool: TOOLS/server/import_legacy.py; sửa tay sẽ mất ở lượt xuất sau
+# types: int	text	text	text	text
+index	original	name	type	note
+0	编号	serial	int	luật: nguyên văn
+1	被动技能最大数	passive_skill_max	int	luật: nguyên văn
+2	被动技能空位数	passive_free_slots	int	luật: nguyên văn
+3	打在新格的几率（分母1000）	new_slot_chance_permille	int	luật: nguyên văn
+4	保留	reserved_1	int	luật: nguyên văn
+5	保留	reserved_2	int	luật: nguyên văn

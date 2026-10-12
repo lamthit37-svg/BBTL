@@ -1,0 +1,11 @@
+# schema 1
+# source: server_config/PetAttrPointDistribute.txt
+# tool: TOOLS/server/import_legacy.py; sửa tay sẽ mất ở lượt xuất sau
+# types: int	text	text	text	text
+index	original	name	type	note
+0	方案号	plan_id	int	luật: nguyên văn
+1	属性1概率	attribute_1_chance	int	luật: nguyên văn
+2	属性2概率	attribute_2_chance	int	luật: nguyên văn
+3	属性3概率	attribute_3_chance	int	luật: nguyên văn
+4	属性4概率	attribute_4_chance	int	luật: nguyên văn
+5	属性5概率	attribute_5_chance	int	luật: nguyên văn

@@ -1,0 +1,9 @@
+lệnh: build/dh-a/collision_alloc_tests.exe
+thư mục: F:\tl 2026\THIENLONG\build\dh-dot-1
+bắt đầu: 2026-10-08 14:21:20
+---
+collision_alloc_tests: queries_allocate_nothing (H1): bỏ qua, chờ Model của C
+collision_alloc_tests: loading_allocates_a_fixed_count (H2): bỏ qua, chờ Model của C
+---
+mã thoát: 0
+kết thúc: 2026-10-08 14:21:20

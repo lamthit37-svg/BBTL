@@ -1,0 +1,6 @@
+# schema 1
+# source: Public/Scene/gudi_1_area.ini
+# tool: TOOLS/server/export_scene.py; sửa tay sẽ mất ở lượt xuất sau
+# types: int	int	float	float	float	float
+guid	script_id	left	top	right	bottom
+0	400125	41.0000	55.0000	45.0000	59.0000

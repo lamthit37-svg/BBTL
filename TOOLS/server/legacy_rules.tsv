@@ -1,0 +1,582 @@
+# schema 1
+# source: các tệp luật ở mục 3 của đề bài P1 đợt 2
+# types: text	text	text	text	text	text	text	text	text	text	text	text
+source	section	key	fate	target_file	target_table	target_key	index	convert	note_vi	basis	reason
+Server/Config/ConfigInfo.ini	Global	DropParam	rule	global.toml	drop	drop_factor_permille		permille	Hệ số sửa tỉ lệ rơi đồ toàn cục.	comment; code:Config.cpp:95	
+Server/Config/ConfigInfo.ini	Global	EquipmentDamagePoint	rule	global.toml	durability	equipment_damage_point		int	Điểm trừ độ bền trang bị.	comment; code:Config.cpp:100	
+Server/Config/ConfigInfo.ini	Global	RespawnParam	rule	global.toml	respawn	respawn_factor_permille		permille	Hệ số thời gian quái xuất hiện lại.	comment; code:Config.cpp:145	
+Server/Config/ConfigInfo.ini	Global	PkRefixOfDamage	rule	combat.toml	damage	pk_modifier		int	Chú thích gốc nói sát thương khi PK giảm một nửa. Đơn vị chưa xác lập.	comment	
+Server/Config/ConfigInfo.ini	Global	PrenticeProfferExp	dropped							comment	chú thích nói chỉ nạp, không nơi nào đọc
+Server/Config/ConfigInfo.ini	Global	GodReliveTopLevel	rule	global.toml	revive	max_level		int	Cấp tối đa được hồi sinh tại chỗ.	comment	
+Server/Config/ConfigInfo.ini	Global	AuditSwitch	process_config	log.toml		audit		bool		comment	phụ lục mục 3
+Server/Config/ConfigInfo.ini	Global	AutoRemoveBadPet	rule	global.toml	pet_guard	auto_remove_bad		bool	Bật thì tự gỡ trân thú lỗi.	comment	
+Server/Config/ConfigInfo.ini	Localization	Language	rule	global.toml	language	language		int	Mã ngôn ngữ: 0 Anh, 1 Trung giản thể, 2 Trung phồn thể, 3 Hàn, 4 Việt.	comment	
+Server/Config/ConfigInfo.ini	Zone	ZoneSize	process_config	zone.toml	aoi	cell_size		int		comment	phụ lục mục 3
+Server/Config/ConfigInfo.ini	TimeSetting	RecoverTime	dropped							comment	chú thích nói chỉ nạp, không nơi nào đọc
+Server/Config/ConfigInfo.ini	TimeSetting	DisconnectTime1	process_config	zone.toml	session	linger_after_disconnect_ms		int		comment	phụ lục mục 3
+Server/Config/ConfigInfo.ini	TimeSetting	DisconnectTime2	process_config	zone.toml	session	linger_hidden_ms		int		comment	phụ lục mục 3
+Server/Config/ConfigInfo.ini	TimeSetting	KickUserTime	process_config	zone.toml	session	kick_idle_ms		int		comment	phụ lục mục 3
+Server/Config/ConfigInfo.ini	TimeSetting	SMUKickUserTime	unknown								phụ lục mục 3: chưa đọc mã dùng khoá này, để mốc P3
+Server/Config/ConfigInfo.ini	TimeSetting	DropBoxRecycle	process_config	zone.toml	drops	box_recycle_ms		int		comment	phụ lục mục 3
+Server/Config/ConfigInfo.ini	TimeSetting	TimeChangeInterval	process_config	zone.toml	world_clock	period_change_ms		int		comment	phụ lục mục 3
+Server/Config/ConfigInfo.ini	TimeSetting	PacketAuditTime	process_config	zone.toml	audit	packet_stats_ms		int		comment	phụ lục mục 3
+Server/Config/ConfigInfo.ini	Monster	MaxCount	process_config	zone.toml	capacity	monsters		int		comment	phụ lục mục 3
+Server/Config/ConfigInfo.ini	Monster	DefaultRespawnTime	dropped							comment	chú thích nói chỉ nạp, không nơi nào đọc
+Server/Config/ConfigInfo.ini	Monster	DefaultPositionRange	rule	monster.toml	monster	default_position_range		int	Phạm vi sinh lại mặc định.	comment; code:Config.cpp:116	
+Server/Config/ConfigInfo.ini	Monster	DefaultAIType	dropped							comment	chú thích nói chỉ nạp, không nơi nào đọc
+Server/Config/ConfigInfo.ini	Monster	DefaultBodyTime	rule	monster.toml	monster	body_time_ms		int	Thời gian giữ xác quái thường, mili giây.	comment; code:Config.cpp:120	
+Server/Config/ConfigInfo.ini	Monster	DefaultBossBodyTime	rule	monster.toml	monster	boss_body_time_ms		int	Thời gian giữ xác quái cao cấp, mili giây.	comment	
+Server/Config/ConfigInfo.ini	Monster	DefaultRefuseScanTime	dropped							comment	chú thích nói chỉ nạp, không nơi nào đọc
+Server/Config/ConfigInfo.ini	Monster	OddsOfChangeTarget	rule	monster.toml	monster	change_target_odds		int	Xác suất đổi mục tiêu tấn công.	comment	
+Server/Config/ConfigInfo.ini	Monster	OddsOfAttackAssistant	rule	monster.toml	monster	attack_assistant_odds		int	Xác suất đánh kẻ hỗ trợ.	comment	
+Server/Config/ConfigInfo.ini	Monster	ChangeTargetCooldown	rule	monster.toml	monster	change_target_cooldown_seconds		int	Hồi đổi mục tiêu, giây.	comment	
+Server/Config/ConfigInfo.ini	Monster	MonsterMaxDefaultLevel	rule	monster.toml	monster	max_level		int	Cấp tối đa của quái.	comment	
+Server/Config/ConfigInfo.ini	Portal	MaxCount	dropped							comment	chú thích nói chỉ nạp, không nơi nào đọc
+Server/Config/ConfigInfo.ini	Platform	MaxCount	process_config	zone.toml	capacity	platforms		int		comment	phụ lục mục 3
+Server/Config/ConfigInfo.ini	SkillObj	MaxCount	dropped							comment	chú thích nói chỉ nạp, không nơi nào đọc
+Server/Config/ConfigInfo.ini	SpecialObj	MaxCount	process_config	zone.toml	capacity	special_objects		int		comment	phụ lục mục 3
+Server/Config/ConfigInfo.ini	BusObj	MaxCount	process_config	zone.toml	capacity	buses		int		comment	phụ lục mục 3
+Server/Config/ConfigInfo.ini	PlayerShop	MaxCount	process_config	zone.toml	capacity	player_shops		int		comment	phụ lục mục 3
+Server/Config/ConfigInfo.ini	PlayerShop	PaymentPerHour	rule	economy.toml	player_shop	hourly_fee		int	Tiền trừ thêm mỗi giờ của cửa hàng.	comment	
+Server/Config/ConfigInfo.ini	SceneTimer	MaxCount	process_config	zone.toml	capacity	scene_timers		int		comment	phụ lục mục 3
+Server/Config/ConfigInfo.ini	HumanTimer	MaxCount	process_config	zone.toml	capacity	human_timers		int		comment	phụ lục mục 3
+Server/Config/ConfigInfo.ini	Pet	MaxCount	process_config	zone.toml	capacity	pets		int		comment	phụ lục mục 3
+Server/Config/ConfigInfo.ini	Pet	PetBodyTime	dropped							comment	chú thích nói chỉ nạp, không nơi nào đọc
+Server/Config/ConfigInfo.ini	Pet	PetHappinessInterval	rule	pet.toml	life	happiness_interval_ms		int	Nhịp giảm vui vẻ một điểm, mili giây.	comment; code:Config.cpp:106	
+Server/Config/ConfigInfo.ini	Pet	PetLifeInterval	rule	pet.toml	life	life_interval_ms		int	Nhịp giảm tuổi thọ một lần, mili giây.	comment; code:Config.cpp:107	
+Server/Config/ConfigInfo.ini	Pet	PetDecLifeStep	rule	pet.toml	life	life_loss_step		int	Điểm tuổi thọ mất mỗi nhịp.	comment	
+Server/Config/ConfigInfo.ini	Pet	PetCallUpHappiness	rule	pet.toml	life	summon_happiness		int	Vui vẻ tối thiểu để gọi ra.	comment; code:Config.cpp:108	
+Server/Config/ConfigInfo.ini	Pet	PetPlacardTime	rule	pet.toml	friend_ad	duration_ms		int	Thời gian một tin tìm bạn, mili giây.	comment; code:Config.cpp:109	
+Server/Config/ConfigInfo.ini	Pet	PetPlacardNeedLevel	rule	pet.toml	friend_ad	min_level		int	Cấp tối thiểu để đăng tin tìm bạn.	comment; code:Config.cpp:110	
+Server/Config/ConfigInfo.ini	Pet	PetPlacardNeedHappiness	rule	pet.toml	friend_ad	min_happiness		int	Vui vẻ tối thiểu để đăng tin tìm bạn.	comment; code:Config.cpp:111	
+Server/Config/ConfigInfo.ini	Pet	PetPlacardNeedLife	rule	pet.toml	friend_ad	min_life		int	Tuổi thọ tối thiểu để đăng tin tìm bạn.	comment; code:Config.cpp:112	
+Server/Config/ConfigInfo.ini	Pet	PetCompoundGenGuFloat	dropped							comment	chú thích nói chỉ nạp, không nơi nào đọc
+Server/Config/ConfigInfo.ini	Pet	PetCompoundGrowFloat	dropped							comment	chú thích nói chỉ nạp, không nơi nào đọc
+Server/Config/ConfigInfo.ini	Pet	PetCompoundBabyPer_VV	dropped							comment	chú thích nói chỉ nạp, không nơi nào đọc
+Server/Config/ConfigInfo.ini	Pet	PetCompoundBabyPer_BB	dropped							comment	chú thích nói chỉ nạp, không nơi nào đọc
+Server/Config/ConfigInfo.ini	Pet	PetCompoundBabyPer_VB	dropped							comment	chú thích nói chỉ nạp, không nơi nào đọc
+Server/Config/ConfigInfo.ini	Pet	PetCompoundPerceptionPer	dropped							comment	chú thích nói chỉ nạp, không nơi nào đọc
+Server/Config/ConfigInfo.ini	Pet	PetMaxDefaultLevel	rule	pet.toml	level	max_level		int	Cấp tối đa trân thú lên bằng kinh nghiệm.	comment	
+Server/Config/ConfigInfo.ini	Pet	PetDieLReduceLife	rule	pet.toml	death	life_loss_permille		permille	Hệ số tuổi thọ mất khi quái giết.	comment	
+Server/Config/ConfigInfo.ini	Human	CanGetExpRange	rule	character.toml	human	can_get_exp_range		int	Phạm vi nhận kinh nghiệm. Đơn vị chưa xác lập.	comment; code:Config.cpp:123	
+Server/Config/ConfigInfo.ini	Human	OutGhostTime	rule	character.toml	human	out_ghost_time_ms		int	Thời gian ở dạng hồn; mã đưa vào bộ hẹn giờ.	comment; code:AI_Human.cpp:1757	
+Server/Config/ConfigInfo.ini	Human	DefaultMoveSpeed	rule	character.toml	human	default_move_speed		int	Tốc độ đi mặc định, mã chia cho 1000. Đơn vị chưa xác lập.	comment; code:Server/GameServer/Server/Obj/Obj_Human_Attributes.cpp:565	
+Server/Config/ConfigInfo.ini	Human	DefaultAttackSpeed	rule	character.toml	human	default_attack_speed		int	Chỉ được nạp, không chỗ nào đọc. Đơn vị chưa xác lập.	comment; code:Config.cpp:125	
+Server/Config/ConfigInfo.ini	Human	DefaultRefreshRate	dropped							comment	chú thích nói chỉ nạp, không nơi nào đọc
+Server/Config/ConfigInfo.ini	Human	HumanVERecoverInterval	rule	character.toml	human	vigor_recover_interval_ms		int	Nhịp hồi hoạt lực và tinh lực, mili giây.	comment; code:Config.cpp:126	
+Server/Config/ConfigInfo.ini	Human	HumanMaxDefaultLevel	rule	character.toml	human	max_level		int	Cấp tối đa theo kinh nghiệm; cấp thật bằng giá trị trừ 1.	comment	
+Server/Config/ConfigInfo.ini	Human	PKValueRefreshRate	rule	character.toml	human	pk_value_refresh_seconds		int	Nhịp giảm sát khí, giây.	comment	
+Server/Config/ConfigInfo.ini	Human	HumanDefPilferLockTime	rule	character.toml	human	pilfer_lock_time		int	Khoá an toàn, gốc ghi (毫少). Đơn vị chưa xác lập.	comment	
+Server/Config/ConfigInfo.ini	Human	XinfaMaxDefaultLevel	rule	character.toml	human	inner_art_max_level		int	Cấp tối đa của tâm pháp.	comment	
+Server/Config/ConfigInfo.ini	Human	LevelUpValidateMinLv	rule	character.toml	human	level_up_captcha_min		int	Cấp nhỏ nhất phải xác minh hình khi lên cấp.	comment	
+Server/Config/ConfigInfo.ini	Human	LevelUpValidateMaxLv	rule	character.toml	human	level_up_captcha_max		int	Cấp lớn nhất phải xác minh hình khi lên cấp.	comment	
+Server/Config/ConfigInfo.ini	Human	LevelMinGetPiao	rule	character.toml	human	min_level_ingot_voucher		int	Cấp nhỏ nhất để nhận ingot voucher.	comment	
+Server/Config/ConfigInfo.ini	Team	AvailableFollowDist	rule	social.toml	team	follow_metres		int	Tầm theo đội còn hiệu lực, mét.	comment; code:Config.cpp:131	
+Server/Config/ConfigInfo.ini	Team	TimeForLoseFollow	rule	social.toml	team	drop_seconds		int	Quá tầm bao lâu thì rời theo đội, giây.	comment; code:Config.cpp:132	
+Server/Config/ConfigInfo.ini	Guild	FoundDuration	dropped							comment	chú thích nói chỉ nạp, không nơi nào đọc
+Server/Config/ConfigInfo.ini	Guild	DefaultMaxMemberCount	rule	guild.toml	guild	initial_member_cap		int	Trần thành viên lúc mới lập bang.	comment; code:Config.cpp:134	
+Server/Config/ConfigInfo.ini	Guild	ResponseUserCount	dropped							comment	chú thích nói chỉ nạp, không nơi nào đọc
+Server/Config/ConfigInfo.ini	Guild	XianYaMaxUser_0	rule	guild.toml	county_office	max_user	0	int	Trần dân số nha môn, cấp 1 đến 5.	comment	
+Server/Config/ConfigInfo.ini	Guild	XianYaMaxUser_1	rule	guild.toml	county_office	max_user	1	int	Trần dân số nha môn, cấp 1 đến 5.	comment	
+Server/Config/ConfigInfo.ini	Guild	XianYaMaxUser_2	rule	guild.toml	county_office	max_user	2	int	Trần dân số nha môn, cấp 1 đến 5.	comment	
+Server/Config/ConfigInfo.ini	Guild	XianYaMaxUser_3	rule	guild.toml	county_office	max_user	3	int	Trần dân số nha môn, cấp 1 đến 5.	comment	
+Server/Config/ConfigInfo.ini	Guild	XianYaMaxUser_4	rule	guild.toml	county_office	max_user	4	int	Trần dân số nha môn, cấp 1 đến 5.	comment	
+Server/Config/ConfigInfo.ini	Guild	XianYaStdMoney_0	rule	guild.toml	county_office	standard_money	0	int	Quỹ chuẩn của nha môn, cấp 1 đến 5.	comment	
+Server/Config/ConfigInfo.ini	Guild	XianYaStdMoney_1	rule	guild.toml	county_office	standard_money	1	int	Quỹ chuẩn của nha môn, cấp 1 đến 5.	comment	
+Server/Config/ConfigInfo.ini	Guild	XianYaStdMoney_2	rule	guild.toml	county_office	standard_money	2	int	Quỹ chuẩn của nha môn, cấp 1 đến 5.	comment	
+Server/Config/ConfigInfo.ini	Guild	XianYaStdMoney_3	rule	guild.toml	county_office	standard_money	3	int	Quỹ chuẩn của nha môn, cấp 1 đến 5.	comment	
+Server/Config/ConfigInfo.ini	Guild	XianYaStdMoney_4	rule	guild.toml	county_office	standard_money	4	int	Quỹ chuẩn của nha môn, cấp 1 đến 5.	comment	
+Server/Config/ConfigInfo.ini	Guild	QianZhuangDeltaMoney_0	rule	guild.toml	bank	delta_money	0	int	Lệch quỹ tiền trang theo cấp nha môn.	comment	
+Server/Config/ConfigInfo.ini	Guild	QianZhuangDeltaMoney_1	rule	guild.toml	bank	delta_money	1	int	Lệch quỹ tiền trang theo cấp nha môn.	comment	
+Server/Config/ConfigInfo.ini	Guild	QianZhuangDeltaMoney_2	rule	guild.toml	bank	delta_money	2	int	Lệch quỹ tiền trang theo cấp nha môn.	comment	
+Server/Config/ConfigInfo.ini	Guild	QianZhuangDeltaMoney_3	rule	guild.toml	bank	delta_money	3	int	Lệch quỹ tiền trang theo cấp nha môn.	comment	
+Server/Config/ConfigInfo.ini	Guild	QianZhuangDeltaMoney_4	rule	guild.toml	bank	delta_money	4	int	Lệch quỹ tiền trang theo cấp nha môn.	comment	
+Server/Config/ConfigInfo.ini	Guild	XianYaMaxMoney_0	rule	guild.toml	county_office	max_money	0	int	Trần quỹ nha môn, cấp 1 đến 5.	comment	
+Server/Config/ConfigInfo.ini	Guild	XianYaMaxMoney_1	rule	guild.toml	county_office	max_money	1	int	Trần quỹ nha môn, cấp 1 đến 5.	comment	
+Server/Config/ConfigInfo.ini	Guild	XianYaMaxMoney_2	rule	guild.toml	county_office	max_money	2	int	Trần quỹ nha môn, cấp 1 đến 5.	comment	
+Server/Config/ConfigInfo.ini	Guild	XianYaMaxMoney_3	rule	guild.toml	county_office	max_money	3	int	Trần quỹ nha môn, cấp 1 đến 5.	comment	
+Server/Config/ConfigInfo.ini	Guild	XianYaMaxMoney_4	rule	guild.toml	county_office	max_money	4	int	Trần quỹ nha môn, cấp 1 đến 5.	comment	
+Server/Config/ConfigInfo.ini	Guild	XianYaMaxTrader_0	rule	guild.toml	county_office	max_trader	0	int	Trần thương nhân nha môn, cấp 1 đến 5.	comment	
+Server/Config/ConfigInfo.ini	Guild	XianYaMaxTrader_1	rule	guild.toml	county_office	max_trader	1	int	Trần thương nhân nha môn, cấp 1 đến 5.	comment	
+Server/Config/ConfigInfo.ini	Guild	XianYaMaxTrader_2	rule	guild.toml	county_office	max_trader	2	int	Trần thương nhân nha môn, cấp 1 đến 5.	comment	
+Server/Config/ConfigInfo.ini	Guild	XianYaMaxTrader_3	rule	guild.toml	county_office	max_trader	3	int	Trần thương nhân nha môn, cấp 1 đến 5.	comment	
+Server/Config/ConfigInfo.ini	Guild	XianYaMaxTrader_4	rule	guild.toml	county_office	max_trader	4	int	Trần thương nhân nha môn, cấp 1 đến 5.	comment	
+Server/Config/ConfigInfo.ini	Guild	XiangFangMaxUser_0	rule	guild.toml	guest_wing	max_user	0	int	Trần dân số sương phòng, cấp 1 đến 5.	comment	
+Server/Config/ConfigInfo.ini	Guild	XiangFangMaxUser_1	rule	guild.toml	guest_wing	max_user	1	int	Trần dân số sương phòng, cấp 1 đến 5.	comment	
+Server/Config/ConfigInfo.ini	Guild	XiangFangMaxUser_2	rule	guild.toml	guest_wing	max_user	2	int	Trần dân số sương phòng, cấp 1 đến 5.	comment	
+Server/Config/ConfigInfo.ini	Guild	XiangFangMaxUser_3	rule	guild.toml	guest_wing	max_user	3	int	Trần dân số sương phòng, cấp 1 đến 5.	comment	
+Server/Config/ConfigInfo.ini	Guild	XiangFangMaxUser_4	rule	guild.toml	guest_wing	max_user	4	int	Trần dân số sương phòng, cấp 1 đến 5.	comment	
+Server/Config/ConfigInfo.ini	Guild	CreateCityMoney	rule	guild.toml	guild	city_cost		int	Tiền lập thành.	comment	
+Server/Config/ConfigInfo.ini	Guild	LeaveWordCost	rule	guild.toml	guild	message_cost		int	Phí một lời nhắn bang.	comment	
+Server/Config/ConfigInfo.ini	Guild	BattleTime	rule	guild.toml	guild	battle_time		int	Thời lượng tuyên chiến bang.	comment	
+Server/Config/ConfigInfo.ini	Guild	LeftGuildBuffEnable	rule	guild.toml	guild	leave_buff		bool	Bật hiệu ứng khi rời bang.	comment	
+Server/Config/ConfigInfo.ini	Guild	BoomMaxValue	rule	guild.toml	prosperity	cap		int	Trần phồn vinh của bang.	comment	
+Server/Config/ConfigInfo.ini	Guild	BoomScaleAll	dropped							comment	chú thích nói chỉ nạp, không nơi nào đọc
+Server/Config/ConfigInfo.ini	Guild	BoomScaleOnLineCount	dropped							comment	chú thích nói chỉ nạp, không nơi nào đọc
+Server/Config/ConfigInfo.ini	Guild	BoomScaleAttrInc	dropped							comment	chú thích nói chỉ nạp, không nơi nào đọc
+Server/Config/ConfigInfo.ini	Guild	BoomScaleComMisson	dropped							comment	chú thích nói chỉ nạp, không nơi nào đọc
+Server/Config/ConfigInfo.ini	Guild	BoomScaleAvgBoom	dropped							comment	chú thích nói chỉ nạp, không nơi nào đọc
+Server/Config/ConfigInfo.ini	Guild	BoomScaleAmb	rule	guild.toml	prosperity	expand_permille		permille	Trọng số phồn vinh của mở rộng.	comment	
+Server/Config/ConfigInfo.ini	Guild	BoomScaleArg	rule	guild.toml	prosperity	agriculture_permille		permille	Trọng số phồn vinh của nông nghiệp.	comment	
+Server/Config/ConfigInfo.ini	Guild	BoomScaleCom	rule	guild.toml	prosperity	commerce_permille		permille	Trọng số phồn vinh của thương mại.	comment	
+Server/Config/ConfigInfo.ini	Guild	BoomScaleDef	rule	guild.toml	prosperity	defence_permille		permille	Trọng số phồn vinh của phòng thủ.	comment	
+Server/Config/ConfigInfo.ini	Guild	BoomScaleInd	rule	guild.toml	prosperity	industry_permille		permille	Trọng số phồn vinh của công nghiệp.	comment	
+Server/Config/ConfigInfo.ini	Guild	BoomScaleTec	rule	guild.toml	prosperity	technology_permille		permille	Trọng số phồn vinh của kỹ thuật.	comment	
+Server/Config/ConfigInfo.ini	Guild	TicketDecValue	rule	guild.toml	prosperity	ticket_decay		int	Độ giảm thương phiếu của bang mới.	comment	
+Server/Config/ConfigInfo.ini	Guild	GuildComMissonWaiGua	rule	guild.toml	guild	trade_guard		bool	Bật chống gian lận chạy thương.	comment	
+Server/Config/ConfigInfo.ini	Guild	ValidateXianYaLevel	rule	guild.toml	guild	fix_county_level		bool	Sửa cấp nha môn lúc nạp bang.	comment	
+Server/Config/ConfigInfo.ini	GuildLeague	MaxGuildLeagueNum	rule	guild.toml	league	max_count		int	Trần số liên minh một thế giới xin được.	comment	
+Server/Config/ConfigInfo.ini	GuildLeague	TimeAfterQuitLeague	rule	guild.toml	league	rejoin_hours		int	Số giờ sau khi rời liên minh mới xin lại.	comment	
+Server/Config/ConfigInfo.ini	GuildLeague	CreateLeagueMoney	rule	guild.toml	league	create_cost		int	Tiền lập liên minh.	comment	
+Server/Config/ConfigInfo.ini	Relation	PasswdPoint	rule	social.toml	relation	password_intimacy		int	Độ thân thiết phải có mật khẩu cấp hai.	comment; code:Config.cpp:136	
+Server/Config/ConfigInfo.ini	Relation	PromptPoint	rule	social.toml	relation	presence_intimacy		int	Độ thân thiết thì báo lên xuống tuyến.	comment; code:Config.cpp:137	
+Server/Config/ConfigInfo.ini	Relation	ExpPoint	rule	social.toml	relation	exp_per_point		int	Kinh nghiệm để tăng một điểm thân thiết.	comment; code:Config.cpp:140	
+Server/Config/ConfigInfo.ini	MinorPassword	DeleteDelayTime	rule	social.toml	secondary_password	delete_delay_hours		int	Số giờ rồi bấm lại mới xoá mật khẩu.	comment; code:Config.cpp:138	
+Server/Config/ConfigInfo.ini	MinorPassword	EnergySetCost	dropped							comment	chú thích nói chỉ nạp, không nơi nào đọc
+Server/Config/ConfigInfo.ini	MinorPassword	EnergyModifyCost	rule	social.toml	secondary_password	change_cost		int	Hoạt lực để đổi mật khẩu.	comment	
+Server/Config/ConfigInfo.ini	MinorPassword	EnergyDelCost	rule	social.toml	secondary_password	force_clear_cost		int	Hoạt lực để buộc xoá mật khẩu.	comment	
+Server/Config/ConfigInfo.ini	MinorPassword	MaxInputErrTimesPerDay	rule	social.toml	secondary_password	max_errors_per_day		int	Số lần nhập sai tối đa mỗi ngày.	comment	
+Server/Config/ConfigInfo.ini	MinorPassword	PWUnlockTime	rule	social.toml	secondary_password	unlock_hours		int	Số giờ đến khi mở khoá có hiệu lực.	comment	
+Server/Config/ConfigInfo.ini	World	PetFriendsArraySize	process_config	world.toml	capacity	pet_friend_ads		int		comment	phụ lục mục 3
+Server/Config/ConfigInfo.ini	World	HashOnlineUserCount	process_config	world.toml	capacity	online_users		int		comment	phụ lục mục 3
+Server/Config/ConfigInfo.ini	World	HashMailUserCount	process_config	world.toml	capacity	mail_users		int		comment	phụ lục mục 3
+Server/Config/ConfigInfo.ini	World	MaxOfflineUserCount	process_config	world.toml	capacity	offline_cache		int		comment	phụ lục mục 3
+Server/Config/ConfigInfo.ini	World	SpeakerPoolMax	process_config	world.toml	capacity	speakers		int		comment	phụ lục mục 3
+Server/Config/ConfigInfo.ini	Temp	UserPath	dropped							comment	phụ lục bỏ đường dẫn tạm của người chơi
+Server/Config/ConfigInfo.ini	Combat	DefaultDamageFluctuation	rule	combat.toml	damage	default_fluctuation		int	Dao động sát thương mặc định.	comment; code:Config.cpp:148	
+Server/Config/ConfigInfo.ini	Combat	H0ofHitCalculation	rule	combat.toml	hit	h0		int	Tham số H0 của công thức trúng đích.	comment	
+Server/Config/ConfigInfo.ini	Combat	C0ofCriticalCalculation	rule	combat.toml	critical	c0		int	Tham số C0 của công thức chí mạng.	comment	
+Server/Config/ConfigInfo.ini	Combat	C1ofCriticalCalculation	rule	combat.toml	critical	c1		int	Tham số C1 của công thức chí mạng.	comment	
+Server/Config/ConfigInfo.ini	Combat	C2ofCriticalCalculation	rule	combat.toml	critical	c2		int	Tham số C2 của công thức chí mạng.	comment	
+Server/Config/ConfigInfo.ini	GoodBad	MinGoodBadValue	rule	pvp.toml	morality	minimum		int	Điểm thiện ác nhỏ nhất.	comment; code:Config.cpp:150	
+Server/Config/ConfigInfo.ini	GoodBad	MaxGoodBadValue	rule	pvp.toml	morality	maximum		int	Điểm thiện ác lớn nhất.	comment; code:Config.cpp:151	
+Server/Config/ConfigInfo.ini	GoodBad	LevelNeeded	rule	pvp.toml	morality	min_level		int	Cấp tối thiểu để nhận điểm thiện ác.	comment; code:Config.cpp:152	
+Server/Config/ConfigInfo.ini	GoodBad	MemberLevel	rule	pvp.toml	morality	ally_min_level		int	Cấp đồng đội thấp nhất còn tính.	comment; code:Config.cpp:153	
+Server/Config/ConfigInfo.ini	GoodBad	MemberLevelLimit	rule	pvp.toml	morality	ally_max_level		int	Cấp đồng đội cao nhất còn tính.	comment	
+Server/Config/ConfigInfo.ini	GoodBad	LevelDis	rule	pvp.toml	morality	ally_level_gap		int	Chênh cấp tối thiểu của đồng đội.	comment	
+Server/Config/ConfigInfo.ini	GoodBad	GoodBadRadius	rule	pvp.toml	morality	radius		int	Bán kính nhận điểm thiện ác.	comment; code:Config.cpp:154	
+Server/Config/ConfigInfo.ini	GoodBad	BonusPerMember	dropped							comment	chú thích nói chỉ nạp, không nơi nào đọc
+Server/Config/ConfigInfo.ini	GoodBad	BonusPerPrentice	rule	pvp.toml	morality	apprentice_bonus		int	Điểm thêm cho mỗi đồ đệ hợp lệ.	comment	
+Server/Config/ConfigInfo.ini	GoodBad	MaxBonus	dropped							comment	chú thích nói chỉ nạp, không nơi nào đọc
+Server/Config/ConfigInfo.ini	GoodBad	PenaltyWhenMemberDie	rule	pvp.toml	morality	death_penalty		int	Điểm mất khi đồng đội chết.	comment; code:Config.cpp:157	
+Server/Config/ConfigInfo.ini	JuqingPoint	MinJuqingPoint	rule	pvp.toml	story	minimum		int	Điểm cốt truyện nhỏ nhất.	comment	
+Server/Config/ConfigInfo.ini	JuqingPoint	MaxJuqingPoint	rule	pvp.toml	story	maximum		int	Điểm cốt truyện lớn nhất.	comment	
+Server/Config/ConfigInfo.ini	Economic	RateA	rule	economy.toml	price	identified_sale_permille		permille	Hệ số giá bán đồ thường và đồ đã giám định.	comment	
+Server/Config/ConfigInfo.ini	Economic	RateB	rule	economy.toml	price	unidentified_sale_permille		permille	Hệ số giá bán đồ lam chưa giám định.	comment	
+Server/Config/ConfigInfo.ini	Economic	YuanBaoSceneID	dropped							comment	chú thích nói chỉ nạp, không nơi nào đọc
+Server/Config/ConfigInfo.ini	Economic	YuanBaoTicketMax	rule	economy.toml	voucher	ingot_cap		int	Trần ingot trong một phiếu quan.	comment	
+Server/Config/ConfigInfo.ini	Economic	NewServerSaleRate	rule	economy.toml	price	new_server_permille		permille	Hệ số giá hoạt động máy chủ mới.	comment	
+Server/Config/ConfigInfo.ini	Economic	MinExchangeCodeLevel	rule	economy.toml	exchange	min_level		int	Cấp thấp nhất phải nhập mã khi giao dịch.	comment	
+Server/Config/ConfigInfo.ini	Economic	MaxExchangeCodeLevel	rule	economy.toml	exchange	max_level		int	Cấp cao nhất phải nhập mã khi giao dịch.	comment	
+Server/Config/ConfigInfo.ini	Exp	ExpParam	rule	character.toml	exp	factor_permille		permille	Hệ số kinh nghiệm toàn cục.	comment	
+Server/Config/ConfigInfo.ini	Exp	ExpSpouseAddRate	rule	character.toml	exp	spouse_permille		permille	Cộng thêm khi trong đội có vợ hoặc chồng.	comment	
+Server/Config/ConfigInfo.ini	Exp	ExpBrotherAddRate	rule	character.toml	exp	brother_permille		permille	Cộng thêm khi trong đội có huynh đệ.	comment	
+Server/Config/ConfigInfo.ini	Exp	ExpMasterInTeamAddRate	rule	character.toml	exp	master_in_team_permille		permille	Cộng thêm khi sư phụ có trong đội.	comment	
+Server/Config/ConfigInfo.ini	Exp	ExpMasterNotInTeamAddRate	rule	character.toml	exp	master_absent_permille		permille	Cộng thêm khi có sư phụ nhưng không trong đội.	comment	
+Server/Config/ConfigInfo.ini	Exp	ExpPrenticeAddRate	rule	character.toml	exp	prentice_permille		permille	Cộng kinh nghiệm sau khi nhận đồ đệ.	comment	
+Server/Config/ConfigInfo.ini	Exp	ExpDarkAbsorbRate	rule	character.toml	exp	hidden_weapon_absorb_permille		permille	Tỉ lệ ám khí hút kinh nghiệm.	comment	
+Server/Config/ConfigInfo.ini	Duel	DuelTime	rule	pvp.toml	duel	duration_seconds		int	Thời lượng một trận thách đấu, giây.	comment	
+Server/Config/ConfigInfo.ini	Duel	DuelLevelRequire	rule	pvp.toml	duel	min_level		int	Cấp tối thiểu để thách đấu.	comment	
+Server/Config/ConfigInfo.ini	Duel	DuelEnergyRequire	rule	pvp.toml	duel	vigor_cost		int	Hoạt lực cần để thách đấu.	comment	
+Server/Config/ConfigInfo.ini	Warfare	PersonalWarfareTime	rule	pvp.toml	warfare	personal_duration		int	Thời lượng tuyên chiến cá nhân.	comment	
+Server/Config/ConfigInfo.ini	PK	PKFlagSwitchDelay	dropped							comment	chú thích nói chỉ nạp, không nơi nào đọc
+Server/Config/ConfigInfo.ini	PK	HostilePlayerWarning	rule	pvp.toml	pk	hostile_warning		int	Thời gian cảnh báo người chơi thù địch.	comment	
+Server/Config/ConfigInfo.ini	FightBack	LegalFightBackTime	rule	pvp.toml	fight_back	legal_duration		int	Thời lượng phản kích hợp lệ.	comment	
+Server/Config/ConfigInfo.ini	Ability	AssistantDemandFormulaParam0	rule	character.toml	life_skill	assistant_demand_param	0	permille	Bốn tham số giảm tiêu hao kỹ năng phụ, theo thứ tự.	comment	
+Server/Config/ConfigInfo.ini	Ability	AssistantDemandFormulaParam1	rule	character.toml	life_skill	assistant_demand_param	1	permille	Bốn tham số giảm tiêu hao kỹ năng phụ, theo thứ tự.	comment	
+Server/Config/ConfigInfo.ini	Ability	AssistantDemandFormulaParam2	rule	character.toml	life_skill	assistant_demand_param	2	permille	Bốn tham số giảm tiêu hao kỹ năng phụ, theo thứ tự.	comment	
+Server/Config/ConfigInfo.ini	Ability	AssistantDemandFormulaParam3	rule	character.toml	life_skill	assistant_demand_param	3	permille	Bốn tham số giảm tiêu hao kỹ năng phụ, theo thứ tự.	comment	
+Server/Config/ConfigInfo.ini	Fatigue	EnableFatigueState	rule	fatigue.toml	fatigue	enabled		bool	Bật trạng thái mệt.	comment	
+Server/Config/ConfigInfo.ini	Fatigue	LittleFatigueTime	rule	fatigue.toml	fatigue	mild_seconds		int	Số giây online thì vào mệt nhẹ.	comment	
+Server/Config/ConfigInfo.ini	Fatigue	ExceedingFatigueTime	rule	fatigue.toml	fatigue	severe_seconds		int	Số giây online thì vào mệt nặng.	comment	
+Server/Config/ConfigInfo.ini	Fatigue	ResetFatigueStateOfflineTime	dropped							comment	chú thích nói chỉ nạp, không nơi nào đọc
+Server/Config/ConfigInfo.ini	YuanBao	MaxDayCostYuanBao	process_config	billing.toml	spend	daily_ingot_cap		int		comment	phụ lục mục 3
+Server/Config/ConfigInfo.ini	MonsterIncome	LittleIncomeMonsterCount	rule	monster.toml	income	reduced_income_count		int	Số quái thì thu nhập bị giảm.	comment	
+Server/Config/ConfigInfo.ini	MonsterIncome	NilIncomeMonsterCount	rule	monster.toml	income	no_income_count		int	Số quái thì thu nhập về không.	comment	
+Server/Config/ConfigInfo.ini	MonsterIncome	LittleIncomePercent	rule	monster.toml	income	reduced_income_permille		permille	Phần thu nhập còn lại khi bị giảm.	comment	
+Server/Config/ConfigInfo.ini	CommisionShop	SendBackTime	rule	economy.toml	consignment	return_minutes		int	Số phút không bán được thì trả lại.	comment	
+Server/Config/ConfigInfo.ini	CommisionShop	YuanbaoFee	rule	economy.toml	consignment	ingot_fee_percent		int	Phí ký gửi ingot, phần trăm.	comment	
+Server/Config/ConfigInfo.ini	CommisionShop	GoldCoinFee	rule	economy.toml	consignment	coin_fee_percent		int	Phí ký gửi tiền vàng, phần trăm.	comment	
+Server/Config/ConfigInfo.ini	CommisionShop	Value0	rule	economy.toml	consignment	ingot_option	0	int	Mệnh giá ingot đưa ra khi ký gửi.	comment	
+Server/Config/ConfigInfo.ini	CommisionShop	Value1	rule	economy.toml	consignment	ingot_option	1	int	Mệnh giá ingot đưa ra khi ký gửi.	comment	
+Server/Config/ConfigInfo.ini	CommisionShop	Value2	rule	economy.toml	consignment	ingot_option	2	int	Mệnh giá ingot đưa ra khi ký gửi.	comment	
+Server/Config/ConfigInfo.ini	CommisionShop	Value3	rule	economy.toml	consignment	coin_option	0	int	Mệnh giá tiền vàng đưa ra khi ký gửi.	comment	
+Server/Config/ConfigInfo.ini	CommisionShop	Value4	rule	economy.toml	consignment	coin_option	1	int	Mệnh giá tiền vàng đưa ra khi ký gửi.	comment	
+Server/Config/ConfigInfo.ini	CommisionShop	Value5	rule	economy.toml	consignment	coin_option	2	int	Mệnh giá tiền vàng đưa ra khi ký gửi.	comment	
+Server/Config/ConfigInfo.ini	CommisionShop	IsCloseYuanBaoSell	rule	economy.toml	consignment	close_ingot		bool	Đóng chức năng ký gửi ingot.	comment	
+Server/Config/ConfigInfo.ini	CommisionShop	IsCloseGoldCoinSell	rule	economy.toml	consignment	close_coin		bool	Đóng chức năng ký gửi tiền vàng.	comment	
+Server/Config/ConfigInfo.ini	CacheLogTime	LogInCacheTime	unknown								phụ lục mục 3: chưa đọc mã dùng khoá này, để mốc P3
+Server/Config/ConfigInfo.ini	SystemNotice	IsJoinBangPaiNotice	process_config	world.toml	notice	join_guild		bool		comment	phụ lục mục 3
+Server/Config/ConfigInfo.ini	PlayerCountOfScene	HourPoint01	process_config	world.toml	player_count_report	hours	1	int		comment	phụ lục mục 3
+Server/Config/ConfigInfo.ini	PlayerCountOfScene	HourPoint02	process_config	world.toml	player_count_report	hours	2	int		comment	phụ lục mục 3
+Server/Config/ConfigInfo.ini	PlayerCountOfScene	HourPoint03	process_config	world.toml	player_count_report	hours	3	int		comment	phụ lục mục 3
+Server/Config/ConfigInfo.ini	ActiveRichesCard	IsActiveCard	rule	economy.toml	card	activate_588		bool	Kích hoạt thẳng thẻ 588.	comment	
+Server/Config/ConfigInfo.ini	ActiveRichesCard	IsActiveCard666	rule	economy.toml	card	activate_666		bool	Kích hoạt thẳng thẻ 666.	comment	
+Server/Config/ConfigInfo.ini	EnableYuanBaoPiao	IsEnableYuanBaoPiao	rule	economy.toml	voucher	enabled		bool	Bật đổi phiếu ingot.	comment	
+Server/Config/ConfigInfo.ini	AntiCheat	EnableGuajiQuestion	rule	fatigue.toml	captcha	enabled		bool	Bật câu hỏi chống treo máy.	comment	
+Server/Config/DefaultChar.ini	baseinfo	name	rule	new_character.toml	profile	name		text	Tên nhân vật mới.	comment	
+Server/Config/DefaultChar.ini	baseinfo	scene	rule	new_character.toml	profile	scene		int	Cảnh bắt đầu.	comment	
+Server/Config/DefaultChar.ini	baseinfo	pos_x	rule	new_character.toml	profile	position_x		decimal	Hoành độ lúc vào game.	comment	
+Server/Config/DefaultChar.ini	baseinfo	pos_z	rule	new_character.toml	profile	position_z		decimal	Tung độ lúc vào game.	comment	
+Server/Config/DefaultChar.ini	baseinfo	sex	rule	new_character.toml	profile	sex		int	Giới tính.	comment	
+Server/Config/DefaultChar.ini	baseinfo	hp	rule	new_character.toml	profile	hp		int	Máu ban đầu.	code:CharConfig.cpp:87	
+Server/Config/DefaultChar.ini	baseinfo	mp	rule	new_character.toml	profile	mp		int	Nội lực ban đầu.	code:CharConfig.cpp:88	
+Server/Config/DefaultChar.ini	baseinfo	level	rule	new_character.toml	profile	level		int	Cấp ban đầu.	code:CharConfig.cpp:89	
+Server/Config/DefaultChar.ini	baseinfo	exp	rule	new_character.toml	profile	exp		int	Kinh nghiệm ban đầu.	code:CharConfig.cpp:97	
+Server/Config/DefaultChar.ini	baseinfo	vigor	rule	new_character.toml	vigor	vigor		int	Hoạt lực ban đầu.	comment	
+Server/Config/DefaultChar.ini	baseinfo	max_vigor	rule	new_character.toml	vigor	max_vigor		int	Hoạt lực tối đa.	comment	
+Server/Config/DefaultChar.ini	baseinfo	vigor_regenerate	rule	new_character.toml	vigor	regenerate		int	Tốc độ hồi hoạt lực.	comment	
+Server/Config/DefaultChar.ini	baseinfo	energy	rule	new_character.toml	energy	energy		int	Tinh lực ban đầu.	comment	
+Server/Config/DefaultChar.ini	baseinfo	max_energy	rule	new_character.toml	energy	max_energy		int	Tinh lực tối đa.	comment	
+Server/Config/DefaultChar.ini	baseinfo	energy_regenerate	rule	new_character.toml	energy	regenerate		int	Tốc độ hồi tinh lực.	comment	
+Server/Config/DefaultChar.ini	baseinfo	camp	rule	new_character.toml	profile	camp		int	Giá trị camp.	name	
+Server/Config/DefaultChar.ini	baseinfo	menpai	rule	new_character.toml	profile	sect		int	Môn phái ban đầu.	code:CharConfig.cpp:98	
+Server/Config/DefaultChar.ini	baseinfo	money	rule	new_character.toml	profile	money		int	Tiền ban đầu.	code:CharConfig.cpp:99	
+Server/Config/DefaultChar.ini	baseinfo	actualAge	rule	new_character.toml	profile	actual_age		int	Tuổi thật, dùng cho chống nghiện.	comment	
+Server/Config/DefaultChar.ini	attribute	str	rule	new_character.toml	attribute	strength		int	Điểm thuộc tính ban đầu: sức mạnh. basis Common/GameDefine_Attr.h:10.	code:Common/GameDefine_Attr.h:10	
+Server/Config/DefaultChar.ini	attribute	spr	rule	new_character.toml	attribute	spirit		int	Điểm thuộc tính ban đầu: linh khí. basis Common/GameDefine_Attr.h:11.	code:Common/GameDefine_Attr.h:11	
+Server/Config/DefaultChar.ini	attribute	con	rule	new_character.toml	attribute	constitution		int	Điểm thuộc tính ban đầu: thể chất. basis Common/GameDefine_Attr.h:12.	code:Common/GameDefine_Attr.h:12	
+Server/Config/DefaultChar.ini	attribute	int	rule	new_character.toml	attribute	intellect		int	Điểm thuộc tính ban đầu: định lực. basis Common/GameDefine_Attr.h:13.	code:Common/GameDefine_Attr.h:13	
+Server/Config/DefaultChar.ini	attribute	dex	rule	new_character.toml	attribute	dexterity		int	Điểm thuộc tính ban đầu: thân pháp. basis Common/GameDefine_Attr.h:14.	code:Common/GameDefine_Attr.h:14	
+Server/Config/DefaultChar.ini	skill	number	rule	new_character.toml	skill	count		int	Số kỹ năng được dùng.	comment; code:CharConfig.cpp:104	
+Server/Config/DefaultChar.ini	skill	id0	rule	new_character.toml	skill	id	0	int	Id kỹ năng ban đầu.	code:CharConfig.cpp:113	
+Server/Config/DefaultChar.ini	skill	id1	rule	new_character.toml	skill	id	1	int	Id kỹ năng ban đầu.	code:CharConfig.cpp:113	
+Server/Config/DefaultChar.ini	skill	id2	rule	new_character.toml	skill	id	2	int	Id kỹ năng ban đầu.	code:CharConfig.cpp:113	
+Server/Config/DefaultChar.ini	skill	id3	rule	new_character.toml	skill	id	3	int	Id kỹ năng ban đầu.	code:CharConfig.cpp:113	
+Server/Config/DefaultChar.ini	skill	id4	rule	new_character.toml	skill	id	4	int	Id kỹ năng ban đầu.	code:CharConfig.cpp:113	
+Server/Config/DefaultChar.ini	skill	id5	rule	new_character.toml	skill	id	5	int	Id kỹ năng ban đầu.	code:CharConfig.cpp:113	
+Server/Config/DefaultChar.ini	xinfa	number	rule	new_character.toml	inner_art	count		int	Số tâm pháp ban đầu.	name	
+Server/Config/DefaultChar.ini	ability	count	rule	new_character.toml	life_skill	count		int	Số kỹ năng sống ban đầu.	code:CharConfig.cpp:121	
+Server/Config/DefaultChar.ini	ability	abilityskill0	rule	new_character.toml	life_skill	id	0	int	Id kỹ năng sống ban đầu.	code:CharConfig.cpp:126	
+Server/Config/DefaultChar.ini	ability	level0	rule	new_character.toml	life_skill	level	0	int	Cấp kỹ năng sống ban đầu.	code:CharConfig.cpp:130	
+Server/Config/DefaultChar.ini	ability	exp0	rule	new_character.toml	life_skill	exp	0	int	Kinh nghiệm kỹ năng sống ban đầu.	code:CharConfig.cpp:131	
+Server/Config/DefaultChar.ini	ability	abilityskill1	rule	new_character.toml	life_skill	id	1	int	Id kỹ năng sống ban đầu.	code:CharConfig.cpp:126	
+Server/Config/DefaultChar.ini	ability	level1	rule	new_character.toml	life_skill	level	1	int	Cấp kỹ năng sống ban đầu.	code:CharConfig.cpp:130	
+Server/Config/DefaultChar.ini	ability	exp1	rule	new_character.toml	life_skill	exp	1	int	Kinh nghiệm kỹ năng sống ban đầu.	code:CharConfig.cpp:131	
+Server/Config/DefaultChar.ini	ability	abilityskill2	rule	new_character.toml	life_skill	id	2	int	Id kỹ năng sống ban đầu.	code:CharConfig.cpp:126	
+Server/Config/DefaultChar.ini	ability	level2	rule	new_character.toml	life_skill	level	2	int	Cấp kỹ năng sống ban đầu.	code:CharConfig.cpp:130	
+Server/Config/DefaultChar.ini	ability	exp2	rule	new_character.toml	life_skill	exp	2	int	Kinh nghiệm kỹ năng sống ban đầu.	code:CharConfig.cpp:131	
+Server/Config/DefaultChar.ini	ability	abilityskill3	rule	new_character.toml	life_skill	id	3	int	Id kỹ năng sống ban đầu.	code:CharConfig.cpp:126	
+Server/Config/DefaultChar.ini	ability	level3	rule	new_character.toml	life_skill	level	3	int	Cấp kỹ năng sống ban đầu.	code:CharConfig.cpp:130	
+Server/Config/DefaultChar.ini	ability	exp3	rule	new_character.toml	life_skill	exp	3	int	Kinh nghiệm kỹ năng sống ban đầu.	code:CharConfig.cpp:131	
+Server/Config/DefaultChar.ini	ability	abilityskill4	rule	new_character.toml	life_skill	id	4	int	Id kỹ năng sống ban đầu.	code:CharConfig.cpp:126	
+Server/Config/DefaultChar.ini	ability	level4	rule	new_character.toml	life_skill	level	4	int	Cấp kỹ năng sống ban đầu.	code:CharConfig.cpp:130	
+Server/Config/DefaultChar.ini	ability	exp4	rule	new_character.toml	life_skill	exp	4	int	Kinh nghiệm kỹ năng sống ban đầu.	code:CharConfig.cpp:131	
+Server/Config/DefaultChar.ini	table	number	rule	new_character.toml	recipe	count		int	Số công thức đã học.	comment; code:CharConfig.cpp:135	
+Server/Config/DefaultChar.ini	table	peifang0	rule	new_character.toml	recipe	id	0	int	Id công thức ban đầu.	code:CharConfig.cpp:141	
+Server/Config/DefaultChar.ini	table	peifang1	rule	new_character.toml	recipe	id	1	int	Id công thức ban đầu.	code:CharConfig.cpp:141	
+Server/Config/DefaultChar.ini	table	peifang2	rule	new_character.toml	recipe	id	2	int	Id công thức ban đầu.	code:CharConfig.cpp:141	
+Server/Config/DefaultChar.ini	table	peifang3	rule	new_character.toml	recipe	id	3	int	Id công thức ban đầu.	code:CharConfig.cpp:141	
+Server/Config/DefaultChar.ini	setting	count	rule	new_character.toml	setting	count		int	Số thiết lập ban đầu.	code:CharConfig.cpp:150	
+Server/Config/DefaultChar.ini	setting	settingindex0	rule	new_character.toml	setting	index	0	int	Chỉ số thiết lập.	comment; code:CharConfig.cpp:158	
+Server/Config/DefaultChar.ini	setting	settingtype0	rule	new_character.toml	setting	type	0	int	Loại thiết lập.	comment; code:CharConfig.cpp:159	
+Server/Config/DefaultChar.ini	setting	settingdata0	rule	new_character.toml	setting	data	0	int	Giá trị thiết lập.	comment; code:CharConfig.cpp:160	
+Server/Config/DefaultChar.ini	setting	settingindex1	rule	new_character.toml	setting	index	1	int	Chỉ số thiết lập.	comment; code:CharConfig.cpp:158	
+Server/Config/DefaultChar.ini	setting	settingtype1	rule	new_character.toml	setting	type	1	int	Loại thiết lập.	comment; code:CharConfig.cpp:159	
+Server/Config/DefaultChar.ini	setting	settingdata1	rule	new_character.toml	setting	data	1	int	Giá trị thiết lập.	comment; code:CharConfig.cpp:160	
+Server/Config/DefaultChar.ini	setting	settingindex2	rule	new_character.toml	setting	index	2	int	Chỉ số thiết lập.	comment; code:CharConfig.cpp:158	
+Server/Config/DefaultChar.ini	setting	settingtype2	rule	new_character.toml	setting	type	2	int	Loại thiết lập.	comment; code:CharConfig.cpp:159	
+Server/Config/DefaultChar.ini	setting	settingdata2	rule	new_character.toml	setting	data	2	int	Giá trị thiết lập.	comment; code:CharConfig.cpp:160	
+Server/Config/DefaultChar.ini	setting	settingindex3	rule	new_character.toml	setting	index	3	int	Chỉ số thiết lập.	comment; code:CharConfig.cpp:158	
+Server/Config/DefaultChar.ini	setting	settingtype3	rule	new_character.toml	setting	type	3	int	Loại thiết lập.	comment; code:CharConfig.cpp:159	
+Server/Config/DefaultChar.ini	setting	settingdata3	rule	new_character.toml	setting	data	3	int	Giá trị thiết lập.	comment; code:CharConfig.cpp:160	
+Server/Config/DefaultChar.ini	setting	settingindex4	rule	new_character.toml	setting	index	4	int	Chỉ số thiết lập.	comment; code:CharConfig.cpp:158	
+Server/Config/DefaultChar.ini	setting	settingtype4	rule	new_character.toml	setting	type	4	int	Loại thiết lập.	comment; code:CharConfig.cpp:159	
+Server/Config/DefaultChar.ini	setting	settingdata4	rule	new_character.toml	setting	data	4	int	Giá trị thiết lập.	comment; code:CharConfig.cpp:160	
+Server/Config/DefaultChar.ini	setting	settingindex5	rule	new_character.toml	setting	index	5	int	Chỉ số thiết lập.	comment; code:CharConfig.cpp:158	
+Server/Config/DefaultChar.ini	setting	settingtype5	rule	new_character.toml	setting	type	5	int	Loại thiết lập.	comment; code:CharConfig.cpp:159	
+Server/Config/DefaultChar.ini	setting	settingdata5	rule	new_character.toml	setting	data	5	int	Giá trị thiết lập.	comment; code:CharConfig.cpp:160	
+Server/Config/DefaultChar.ini	startscene	scenecount	rule	new_character.toml	start_position	scene_count		int	Giá trị scenecount.	name	
+Server/Config/DefaultChar.ini	startscene	scene0	rule	new_character.toml	start_position	scene	0	int	Id cảnh của một điểm xuất phát.	name	
+Server/Config/DefaultChar.ini	startscene	pos_x0	rule	new_character.toml	start_position	position_x	0	decimal	Hoành độ của một điểm xuất phát.	comment	
+Server/Config/DefaultChar.ini	startscene	pos_z0	rule	new_character.toml	start_position	position_z	0	decimal	Tung độ của một điểm xuất phát.	comment	
+Server/Config/DefaultChar.ini	startscene	scene1	rule	new_character.toml	start_position	scene	1	int	Id cảnh của một điểm xuất phát.	name	
+Server/Config/DefaultChar.ini	startscene	pos_x1	rule	new_character.toml	start_position	position_x	1	decimal	Hoành độ của một điểm xuất phát.	comment	
+Server/Config/DefaultChar.ini	startscene	pos_z1	rule	new_character.toml	start_position	position_z	1	decimal	Tung độ của một điểm xuất phát.	comment	
+Server/Config/DefaultChar.ini	startscene	scene2	rule	new_character.toml	start_position	scene	2	int	Id cảnh của một điểm xuất phát.	name	
+Server/Config/DefaultChar.ini	startscene	pos_x2	rule	new_character.toml	start_position	position_x	2	decimal	Hoành độ của một điểm xuất phát.	comment	
+Server/Config/DefaultChar.ini	startscene	pos_z2	rule	new_character.toml	start_position	position_z	2	decimal	Tung độ của một điểm xuất phát.	comment	
+Server/Config/DefaultChar.ini	private	luckword	rule	new_character.toml	profile	motto		text	Câu chữ mặc định của nhân vật mới.	name	
+Server/Config/PetConfigTable.ini	System	BabyPetRate	rule	pet.toml	birth	baby_rate_permille		int	Xác suất ra thú non, mẫu số 1000.	comment; code:GameTable.cpp:644	
+Server/Config/PetConfigTable.ini	System	VariancePetRate	rule	pet.toml	birth	mutant_rate_permille		int	Xác suất ra thú đột biến, mẫu số 1000.	comment; code:GameTable.cpp:645	
+Server/Config/PetConfigTable.ini	System	WilenessPetRate_TakeLevel	rule	pet.toml	wild_level	take_level_weight		int	Trọng số giữ đúng cấp mang của thú dại.	comment; code:GameTable.cpp:647	
+Server/Config/PetConfigTable.ini	System	WilenessPetRate_Delta1	rule	pet.toml	wild_level	level_delta	1	int	Trọng số lệch cấp của thú dại, lệch 1 đến 3.	comment; code:GameTable.cpp:648	
+Server/Config/PetConfigTable.ini	System	WilenessPetRate_Delta2	rule	pet.toml	wild_level	level_delta	2	int	Trọng số lệch cấp của thú dại, lệch 1 đến 3.	comment; code:GameTable.cpp:649	
+Server/Config/PetConfigTable.ini	System	WilenessPetRate_Delta3	rule	pet.toml	wild_level	level_delta	3	int	Trọng số lệch cấp của thú dại, lệch 1 đến 3.	comment; code:GameTable.cpp:650	
+Server/Config/PetConfigTable.ini	System	Others_GrowRate0	rule	pet.toml	growth	other_grow_rate	0	int	Năm bậc tăng trưởng mặc định, mẫu số 1000.	comment	
+Server/Config/PetConfigTable.ini	System	Others_GrowRate1	rule	pet.toml	growth	other_grow_rate	1	int	Năm bậc tăng trưởng mặc định, mẫu số 1000.	comment	
+Server/Config/PetConfigTable.ini	System	Others_GrowRate2	rule	pet.toml	growth	other_grow_rate	2	int	Năm bậc tăng trưởng mặc định, mẫu số 1000.	comment	
+Server/Config/PetConfigTable.ini	System	Others_GrowRate3	rule	pet.toml	growth	other_grow_rate	3	int	Năm bậc tăng trưởng mặc định, mẫu số 1000.	comment	
+Server/Config/PetConfigTable.ini	System	Others_GrowRate4	rule	pet.toml	growth	other_grow_rate	4	int	Năm bậc tăng trưởng mặc định, mẫu số 1000.	comment	
+Server/Config/PetConfigTable.ini	System	Wileness_GrowRate0	rule	pet.toml	growth	wild_grow_rate	0	int	Năm bậc tăng trưởng thú dại trưởng thành, mẫu số 1000.	comment	
+Server/Config/PetConfigTable.ini	System	Wileness_GrowRate1	rule	pet.toml	growth	wild_grow_rate	1	int	Năm bậc tăng trưởng thú dại trưởng thành, mẫu số 1000.	comment	
+Server/Config/PetConfigTable.ini	System	Wileness_GrowRate2	rule	pet.toml	growth	wild_grow_rate	2	int	Năm bậc tăng trưởng thú dại trưởng thành, mẫu số 1000.	comment	
+Server/Config/PetConfigTable.ini	System	Wileness_GrowRate3	rule	pet.toml	growth	wild_grow_rate	3	int	Năm bậc tăng trưởng thú dại trưởng thành, mẫu số 1000.	comment	
+Server/Config/PetConfigTable.ini	System	Wileness_GrowRate4	rule	pet.toml	growth	wild_grow_rate	4	int	Năm bậc tăng trưởng thú dại trưởng thành, mẫu số 1000.	comment	
+Server/Config/PetConfigTable.ini	System	RMB_GrowRate0	rule	pet.toml	growth	paid_grow_rate	0	int	Năm bậc tăng trưởng thú trả phí thường, mẫu số 1000.	comment	
+Server/Config/PetConfigTable.ini	System	RMB_GrowRate1	rule	pet.toml	growth	paid_grow_rate	1	int	Năm bậc tăng trưởng thú trả phí thường, mẫu số 1000.	comment	
+Server/Config/PetConfigTable.ini	System	RMB_GrowRate2	rule	pet.toml	growth	paid_grow_rate	2	int	Năm bậc tăng trưởng thú trả phí thường, mẫu số 1000.	comment	
+Server/Config/PetConfigTable.ini	System	RMB_GrowRate3	rule	pet.toml	growth	paid_grow_rate	3	int	Năm bậc tăng trưởng thú trả phí thường, mẫu số 1000.	comment	
+Server/Config/PetConfigTable.ini	System	RMB_GrowRate4	rule	pet.toml	growth	paid_grow_rate	4	int	Năm bậc tăng trưởng thú trả phí thường, mẫu số 1000.	comment	
+Server/Config/PetConfigTable.ini	System	SuperRMB_GrowRate0	rule	pet.toml	growth	show_grow_rate	0	int	Năm bậc tăng trưởng thú trả phí khoe, mẫu số 1000.	comment	
+Server/Config/PetConfigTable.ini	System	SuperRMB_GrowRate1	rule	pet.toml	growth	show_grow_rate	1	int	Năm bậc tăng trưởng thú trả phí khoe, mẫu số 1000.	comment	
+Server/Config/PetConfigTable.ini	System	SuperRMB_GrowRate2	rule	pet.toml	growth	show_grow_rate	2	int	Năm bậc tăng trưởng thú trả phí khoe, mẫu số 1000.	comment	
+Server/Config/PetConfigTable.ini	System	SuperRMB_GrowRate3	rule	pet.toml	growth	show_grow_rate	3	int	Năm bậc tăng trưởng thú trả phí khoe, mẫu số 1000.	comment	
+Server/Config/PetConfigTable.ini	System	SuperRMB_GrowRate4	rule	pet.toml	growth	show_grow_rate	4	int	Năm bậc tăng trưởng thú trả phí khoe, mẫu số 1000.	comment	
+Server/Config/PetConfigTable.ini	System	GenGu0_Begin	rule	pet.toml	bone	span_begin	0	int	Đầu dải cốt cách, năm mức.	code:GameTable.cpp:663	
+Server/Config/PetConfigTable.ini	System	GenGu0_End	rule	pet.toml	bone	span_end	0	int	Cuối dải cốt cách, năm mức.	code:GameTable.cpp:666	
+Server/Config/PetConfigTable.ini	System	GenGu0_Rate	rule	pet.toml	bone	span_weight	0	int	Trọng số năm dải cốt cách, tổng 100.	code:GameTable.cpp:669	
+Server/Config/PetConfigTable.ini	System	GenGu1_Begin	rule	pet.toml	bone	span_begin	1	int	Đầu dải cốt cách, năm mức.	code:GameTable.cpp:663	
+Server/Config/PetConfigTable.ini	System	GenGu1_End	rule	pet.toml	bone	span_end	1	int	Cuối dải cốt cách, năm mức.	code:GameTable.cpp:666	
+Server/Config/PetConfigTable.ini	System	GenGu1_Rate	rule	pet.toml	bone	span_weight	1	int	Trọng số năm dải cốt cách, tổng 100.	code:GameTable.cpp:669	
+Server/Config/PetConfigTable.ini	System	GenGu2_Begin	rule	pet.toml	bone	span_begin	2	int	Đầu dải cốt cách, năm mức.	code:GameTable.cpp:663	
+Server/Config/PetConfigTable.ini	System	GenGu2_End	rule	pet.toml	bone	span_end	2	int	Cuối dải cốt cách, năm mức.	code:GameTable.cpp:666	
+Server/Config/PetConfigTable.ini	System	GenGu2_Rate	rule	pet.toml	bone	span_weight	2	int	Trọng số năm dải cốt cách, tổng 100.	code:GameTable.cpp:669	
+Server/Config/PetConfigTable.ini	System	GenGu3_Begin	rule	pet.toml	bone	span_begin	3	int	Đầu dải cốt cách, năm mức.	code:GameTable.cpp:663	
+Server/Config/PetConfigTable.ini	System	GenGu3_End	rule	pet.toml	bone	span_end	3	int	Cuối dải cốt cách, năm mức.	code:GameTable.cpp:666	
+Server/Config/PetConfigTable.ini	System	GenGu3_Rate	rule	pet.toml	bone	span_weight	3	int	Trọng số năm dải cốt cách, tổng 100.	code:GameTable.cpp:669	
+Server/Config/PetConfigTable.ini	System	GenGu4_Begin	rule	pet.toml	bone	span_begin	4	int	Đầu dải cốt cách, năm mức.	code:GameTable.cpp:663	
+Server/Config/PetConfigTable.ini	System	GenGu4_End	rule	pet.toml	bone	span_end	4	int	Cuối dải cốt cách, năm mức.	code:GameTable.cpp:666	
+Server/Config/PetConfigTable.ini	System	GenGu4_Rate	rule	pet.toml	bone	span_weight	4	int	Trọng số năm dải cốt cách, tổng 100.	code:GameTable.cpp:669	
+Server/Config/PetConfigTable.ini	System	rateoflevel1variancepet	rule	pet.toml	mutant_level	extra_weight	0	int	Trọng số, cấp 1 đến 8, mẫu 100000.	code:GameTable.cpp:681	
+Server/Config/PetConfigTable.ini	System	rateoflevel2variancepet	rule	pet.toml	mutant_level	extra_weight	1	int	Trọng số, cấp 1 đến 8, mẫu 100000.	code:GameTable.cpp:681	
+Server/Config/PetConfigTable.ini	System	rateoflevel3variancepet	rule	pet.toml	mutant_level	extra_weight	2	int	Trọng số, cấp 1 đến 8, mẫu 100000.	code:GameTable.cpp:681	
+Server/Config/PetConfigTable.ini	System	rateoflevel4variancepet	rule	pet.toml	mutant_level	extra_weight	3	int	Trọng số, cấp 1 đến 8, mẫu 100000.	code:GameTable.cpp:681	
+Server/Config/PetConfigTable.ini	System	rateoflevel5variancepet	rule	pet.toml	mutant_level	extra_weight	4	int	Trọng số, cấp 1 đến 8, mẫu 100000.	code:GameTable.cpp:681	
+Server/Config/PetConfigTable.ini	System	rateoflevel6variancepet	rule	pet.toml	mutant_level	extra_weight	5	int	Trọng số, cấp 1 đến 8, mẫu 100000.	code:GameTable.cpp:681	
+Server/Config/PetConfigTable.ini	System	rateoflevel7variancepet	rule	pet.toml	mutant_level	extra_weight	6	int	Trọng số, cấp 1 đến 8, mẫu 100000.	code:GameTable.cpp:681	
+Server/Config/PetConfigTable.ini	System	rateoflevel8variancepet	rule	pet.toml	mutant_level	extra_weight	7	int	Trọng số, cấp 1 đến 8, mẫu 100000.	code:GameTable.cpp:681	
+Server/Config/PetConfigTable.ini	System	IntelligenceRange	rule	pet.toml	aptitude_range	span		int	Biên độ tư chất lúc sinh.	comment; code:GameTable.cpp:685	
+Server/Config/PetConfigTable.ini	System	MoveSpeed	rule	pet.toml	speed	move_permille		int	Tốc độ đi, chú thích ghi mẫu số 1000.	comment; code:GameTable.cpp:687	
+Server/Config/PetConfigTable.ini	System	AttackSpeed	rule	pet.toml	speed	attack_permille		int	Tốc độ đánh, chú thích ghi mẫu số 1000.	comment; code:GameTable.cpp:688	
+Server/Config/PetConfigTable.ini	System	PetAI0_MagicRate	rule	pet.toml	ai	magic_rate	0	int	Tỉ lệ phép của bốn kiểu AI.	comment	
+Server/Config/PetConfigTable.ini	System	PetAI1_MagicRate	rule	pet.toml	ai	magic_rate	1	int	Tỉ lệ phép của bốn kiểu AI.	comment	
+Server/Config/PetConfigTable.ini	System	PetAI2_MagicRate	rule	pet.toml	ai	magic_rate	2	int	Tỉ lệ phép của bốn kiểu AI.	comment	
+Server/Config/PetConfigTable.ini	System	PetAI3_MagicRate	rule	pet.toml	ai	magic_rate	3	int	Tỉ lệ phép của bốn kiểu AI.	comment	
+Server/Config/PetConfigTable.ini	System	BaseHP	rule	pet.toml	base	hp		int	Máu gốc.	code:GameTable.cpp:691	
+Server/Config/PetConfigTable.ini	System	BasePhyAttack	rule	pet.toml	base	physical_attack		int	Vật công gốc.	code:GameTable.cpp:692	
+Server/Config/PetConfigTable.ini	System	BaseMgcAttack	rule	pet.toml	base	magic_attack		int	Phép công gốc.	code:GameTable.cpp:693	
+Server/Config/PetConfigTable.ini	System	BasePhyDefence	rule	pet.toml	base	physical_defence		int	Vật phòng gốc.	code:GameTable.cpp:694	
+Server/Config/PetConfigTable.ini	System	BaseMgcDefence	rule	pet.toml	base	magic_defence		int	Phép phòng gốc.	code:GameTable.cpp:695	
+Server/Config/PetConfigTable.ini	System	BaseHit	rule	pet.toml	base	hit		int	Độ trúng gốc.	code:GameTable.cpp:696	
+Server/Config/PetConfigTable.ini	System	BaseMiss	rule	pet.toml	base	dodge		int	Độ né gốc. Bản gốc ghi Miss.	code:GameTable.cpp:697	
+Server/Config/PetConfigTable.ini	System	BaseCriticalAttack	rule	pet.toml	base	critical_attack		int	Chí mạng tấn công gốc.	comment	
+Server/Config/PetConfigTable.ini	System	BaseCriticalDefence	rule	pet.toml	base	critical_defence		int	Chí mạng phòng thủ gốc.	comment	
+Server/Config/PetConfigTable.ini	System	Con_HP_Pram	rule	pet.toml	factor	constitution_hp_permille		int	Hệ số thể chất lên máu, mã chia 1000.	code:GameTable.cpp:702	
+Server/Config/PetConfigTable.ini	System	Str_PhyAttack_Pram	rule	pet.toml	factor	strength_physical_attack_permille		int	Hệ số sức mạnh lên vật công, mã chia 1000.	code:GameTable.cpp:703	
+Server/Config/PetConfigTable.ini	System	Spr_MgcAttack_Pram	rule	pet.toml	factor	spirit_magic_attack_permille		int	Hệ số linh khí lên phép công, mã chia 1000.	code:GameTable.cpp:704	
+Server/Config/PetConfigTable.ini	System	Con_PhyDefence_Pram	rule	pet.toml	factor	constitution_physical_defence_permille		int	Hệ số thể chất lên vật phòng, mã chia 1000.	code:GameTable.cpp:705	
+Server/Config/PetConfigTable.ini	System	Int_MgcDefence_Pram	rule	pet.toml	factor	intellect_magic_defence_permille		int	Hệ số định lực lên phép phòng, mã chia 1000.	code:GameTable.cpp:706	
+Server/Config/PetConfigTable.ini	System	Dex_Miss_Pram	rule	pet.toml	factor	dexterity_dodge_permille		int	Hệ số thân pháp lên né, mã chia 1000.	code:GameTable.cpp:707	
+Server/Config/PetConfigTable.ini	System	Dex_Hit_Pram	rule	pet.toml	factor	dexterity_hit_permille		int	Hệ số thân pháp lên trúng, mã chia 1000.	code:GameTable.cpp:709	
+Server/Config/PetConfigTable.ini	System	Dex_CriticalAttack_Pram	rule	pet.toml	factor	dexterity_critical_attack_permille		int	Hệ số thân pháp lên chí mạng tấn công, phần nghìn.	comment	
+Server/Config/PetConfigTable.ini	System	Dex_CriticalDefence_Pram	rule	pet.toml	factor	dexterity_critical_defence_permille		int	Hệ số thân pháp lên chí mạng phòng thủ, phần nghìn.	comment	
+Server/Config/PetConfigTable.ini	System	Level_HP_Pram	rule	pet.toml	level_factor	hp_permille		int	Hệ số cấp lên máu, mã chia 1000.	code:GameTable.cpp:712	
+Server/Config/PetConfigTable.ini	System	Level_PhyAttack_Pram	rule	pet.toml	level_factor	physical_attack_permille		int	Hệ số cấp lên vật công, mã chia 1000.	code:GameTable.cpp:713	
+Server/Config/PetConfigTable.ini	System	Level_MgcAttack_Pram	rule	pet.toml	level_factor	magic_attack_permille		int	Hệ số cấp lên phép công, mã chia 1000.	code:GameTable.cpp:714	
+Server/Config/PetConfigTable.ini	System	Level_PhyDefence_Pram	rule	pet.toml	level_factor	physical_defence_permille		int	Hệ số cấp lên vật phòng, mã chia 1000.	code:GameTable.cpp:715	
+Server/Config/PetConfigTable.ini	System	Level_MgcDefence_Pram	rule	pet.toml	level_factor	magic_defence_permille		int	Hệ số cấp lên phép phòng, mã chia 1000.	code:GameTable.cpp:716	
+Server/Config/PetConfigTable.ini	System	Level_Miss_Pram	rule	pet.toml	level_factor	dodge_permille		int	Hệ số cấp lên né, mã chia 1000.	code:GameTable.cpp:717	
+Server/Config/PetConfigTable.ini	System	Level_Hit_Pram	rule	pet.toml	level_factor	hit_permille		int	Hệ số cấp lên trúng, mã chia 1000.	code:GameTable.cpp:719	
+Server/Config/PetConfigTable.ini	System	Level_CriticalAttack_Pram	rule	pet.toml	level_factor	critical_attack_permille		int	Hệ số cấp lên chí mạng tấn công, phần nghìn.	comment	
+Server/Config/PetConfigTable.ini	System	Level_CriticalDefence_Pram	rule	pet.toml	level_factor	critical_defence_permille		int	Hệ số cấp lên chí mạng phòng thủ, phần nghìn.	comment	
+Server/Config/PetConfigTable.ini	System	MAXPET_NUM_LEVEL1	rule	pet.toml	carry	count_at_level_1		int	Số thú mang được ở cấp 1.	comment	
+Server/Config/PetConfigTable.ini	System	INCREACE_ONEPET_STEP	rule	pet.toml	carry	extra_slot_levels		int	Số cấp để thêm một chỗ mang thú.	comment	
+Server/Config/PetConfigTable.ini	System	cost_takelevel5	rule	pet.toml	study	cost_take_level_5		int	Tiền học kỹ năng khi cấp mang là 5.	comment	
+Server/Config/PetConfigTable.ini	System	cost_takelevel15	rule	pet.toml	study	cost_take_level_15		int	Tiền học kỹ năng khi cấp mang là 15.	comment	
+Server/Config/PetConfigTable.ini	System	cost_takelevel25	rule	pet.toml	study	cost_take_level_25		int	Tiền học kỹ năng khi cấp mang là 25.	comment	
+Server/Config/PetConfigTable.ini	System	cost_takelevel35	rule	pet.toml	study	cost_take_level_35		int	Tiền học kỹ năng khi cấp mang là 35.	comment	
+Server/Config/PetConfigTable.ini	System	cost_takelevel45	rule	pet.toml	study	cost_take_level_45		int	Tiền học kỹ năng khi cấp mang là 45.	comment	
+Server/Config/PetConfigTable.ini	System	cost_takelevel55	rule	pet.toml	study	cost_take_level_55		int	Tiền học kỹ năng khi cấp mang là 55.	comment	
+Server/Config/PetConfigTable.ini	System	cost_takelevel65	rule	pet.toml	study	cost_take_level_65		int	Tiền học kỹ năng khi cấp mang là 65.	comment	
+Server/Config/PetConfigTable.ini	System	cost_takelevel75	rule	pet.toml	study	cost_take_level_75		int	Tiền học kỹ năng khi cấp mang là 75.	comment	
+Server/Config/PetConfigTable.ini	System	cost_takelevel85	rule	pet.toml	study	cost_take_level_85		int	Tiền học kỹ năng khi cấp mang là 85.	comment	
+Server/Config/PetConfigTable.ini	System	cost_takelevel95	rule	pet.toml	study	cost_take_level_95		int	Tiền học kỹ năng khi cấp mang là 95.	comment	
+Server/Config/PetConfigTable.ini	System	cost_takelevel105	rule	pet.toml	study	cost_take_level_105		int	Tiền học kỹ năng khi cấp mang là 105.	comment	
+Server/Config/PetConfigTable.ini	System	cost_ExtendCortrolByPlayer	rule	pet.toml	study	extend_manual_cost		int	Tiền mở thêm kỹ năng điều khiển tay.	comment	
+Server/Config/PetConfigTable.ini	System	rate_gengu_level1	rule	pet.toml	bone_level	weight	0	int	Xác suất cốt cách theo cấp 1 đến 10, mẫu số 1000.	comment	
+Server/Config/PetConfigTable.ini	System	rate_gengu_level2	rule	pet.toml	bone_level	weight	1	int	Xác suất cốt cách theo cấp 1 đến 10, mẫu số 1000.	comment	
+Server/Config/PetConfigTable.ini	System	rate_gengu_level3	rule	pet.toml	bone_level	weight	2	int	Xác suất cốt cách theo cấp 1 đến 10, mẫu số 1000.	comment	
+Server/Config/PetConfigTable.ini	System	rate_gengu_level4	rule	pet.toml	bone_level	weight	3	int	Xác suất cốt cách theo cấp 1 đến 10, mẫu số 1000.	comment	
+Server/Config/PetConfigTable.ini	System	rate_gengu_level5	rule	pet.toml	bone_level	weight	4	int	Xác suất cốt cách theo cấp 1 đến 10, mẫu số 1000.	comment	
+Server/Config/PetConfigTable.ini	System	rate_gengu_level6	rule	pet.toml	bone_level	weight	5	int	Xác suất cốt cách theo cấp 1 đến 10, mẫu số 1000.	comment	
+Server/Config/PetConfigTable.ini	System	rate_gengu_level7	rule	pet.toml	bone_level	weight	6	int	Xác suất cốt cách theo cấp 1 đến 10, mẫu số 1000.	comment	
+Server/Config/PetConfigTable.ini	System	rate_gengu_level8	rule	pet.toml	bone_level	weight	7	int	Xác suất cốt cách theo cấp 1 đến 10, mẫu số 1000.	comment	
+Server/Config/PetConfigTable.ini	System	rate_gengu_level9	rule	pet.toml	bone_level	weight	8	int	Xác suất cốt cách theo cấp 1 đến 10, mẫu số 1000.	comment	
+Server/Config/PetConfigTable.ini	System	rate_gengu_level10	rule	pet.toml	bone_level	weight	9	int	Xác suất cốt cách theo cấp 1 đến 10, mẫu số 1000.	comment	
+Server/Config/PetConfigTable.ini	System	multiply_Intelligence_savvy1	rule	pet.toml	savvy	aptitude_bonus_permille	0	int	Cộng tư chất, mẫu số 1000.	comment	
+Server/Config/PetConfigTable.ini	System	multiply_Intelligence_savvy2	rule	pet.toml	savvy	aptitude_bonus_permille	1	int	Cộng tư chất, mẫu số 1000.	comment	
+Server/Config/PetConfigTable.ini	System	multiply_Intelligence_savvy3	rule	pet.toml	savvy	aptitude_bonus_permille	2	int	Cộng tư chất, mẫu số 1000.	comment	
+Server/Config/PetConfigTable.ini	System	multiply_Intelligence_savvy4	rule	pet.toml	savvy	aptitude_bonus_permille	3	int	Cộng tư chất, mẫu số 1000.	comment	
+Server/Config/PetConfigTable.ini	System	multiply_Intelligence_savvy5	rule	pet.toml	savvy	aptitude_bonus_permille	4	int	Cộng tư chất, mẫu số 1000.	comment	
+Server/Config/PetConfigTable.ini	System	multiply_Intelligence_savvy6	rule	pet.toml	savvy	aptitude_bonus_permille	5	int	Cộng tư chất, mẫu số 1000.	comment	
+Server/Config/PetConfigTable.ini	System	multiply_Intelligence_savvy7	rule	pet.toml	savvy	aptitude_bonus_permille	6	int	Cộng tư chất, mẫu số 1000.	comment	
+Server/Config/PetConfigTable.ini	System	multiply_Intelligence_savvy8	rule	pet.toml	savvy	aptitude_bonus_permille	7	int	Cộng tư chất, mẫu số 1000.	comment	
+Server/Config/PetConfigTable.ini	System	multiply_Intelligence_savvy9	rule	pet.toml	savvy	aptitude_bonus_permille	8	int	Cộng tư chất, mẫu số 1000.	comment	
+Server/Config/PetConfigTable.ini	System	multiply_Intelligence_savvy10	rule	pet.toml	savvy	aptitude_bonus_permille	9	int	Cộng tư chất, mẫu số 1000.	comment	
+Server/Config/PetConfigTable.ini	System	plus_maxlevel_savvy1	rule	pet.toml	savvy	max_level_bonus	0	int	Cấp trần thêm.	comment	
+Server/Config/PetConfigTable.ini	System	plus_maxlevel_savvy2	rule	pet.toml	savvy	max_level_bonus	1	int	Cấp trần thêm.	comment	
+Server/Config/PetConfigTable.ini	System	plus_maxlevel_savvy3	rule	pet.toml	savvy	max_level_bonus	2	int	Cấp trần thêm.	comment	
+Server/Config/PetConfigTable.ini	System	plus_maxlevel_savvy4	rule	pet.toml	savvy	max_level_bonus	3	int	Cấp trần thêm.	comment	
+Server/Config/PetConfigTable.ini	System	plus_maxlevel_savvy5	rule	pet.toml	savvy	max_level_bonus	4	int	Cấp trần thêm.	comment	
+Server/Config/PetConfigTable.ini	System	plus_maxlevel_savvy6	rule	pet.toml	savvy	max_level_bonus	5	int	Cấp trần thêm.	comment	
+Server/Config/PetConfigTable.ini	System	plus_maxlevel_savvy7	rule	pet.toml	savvy	max_level_bonus	6	int	Cấp trần thêm.	comment	
+Server/Config/PetConfigTable.ini	System	plus_maxlevel_savvy8	rule	pet.toml	savvy	max_level_bonus	7	int	Cấp trần thêm.	comment	
+Server/Config/PetConfigTable.ini	System	plus_maxlevel_savvy9	rule	pet.toml	savvy	max_level_bonus	8	int	Cấp trần thêm.	comment	
+Server/Config/PetConfigTable.ini	System	plus_maxlevel_savvy10	rule	pet.toml	savvy	max_level_bonus	9	int	Cấp trần thêm.	comment	
+Server/Config/PetConfigTable.ini	System	Compound_succrate_savvy0	rule	pet.toml	compound	success_permille	0	int	Tỉ lệ thành.	comment	
+Server/Config/PetConfigTable.ini	System	Compound_succrate_savvy1	rule	pet.toml	compound	success_permille	1	int	Tỉ lệ thành.	comment	
+Server/Config/PetConfigTable.ini	System	Compound_succrate_savvy2	rule	pet.toml	compound	success_permille	2	int	Tỉ lệ thành.	comment	
+Server/Config/PetConfigTable.ini	System	Compound_succrate_savvy3	rule	pet.toml	compound	success_permille	3	int	Tỉ lệ thành.	comment	
+Server/Config/PetConfigTable.ini	System	Compound_succrate_savvy4	rule	pet.toml	compound	success_permille	4	int	Tỉ lệ thành.	comment	
+Server/Config/PetConfigTable.ini	System	Compound_succrate_savvy5	rule	pet.toml	compound	success_permille	5	int	Tỉ lệ thành.	comment	
+Server/Config/PetConfigTable.ini	System	Compound_succrate_savvy6	rule	pet.toml	compound	success_permille	6	int	Tỉ lệ thành.	comment	
+Server/Config/PetConfigTable.ini	System	Compound_succrate_savvy7	rule	pet.toml	compound	success_permille	7	int	Tỉ lệ thành.	comment	
+Server/Config/PetConfigTable.ini	System	Compound_succrate_savvy8	rule	pet.toml	compound	success_permille	8	int	Tỉ lệ thành.	comment	
+Server/Config/PetConfigTable.ini	System	Compound_succrate_savvy9	rule	pet.toml	compound	success_permille	9	int	Tỉ lệ thành.	comment	
+Server/Config/PetConfigTable.ini	System	GenGu_success_savvy0	rule	pet.toml	bone_pill	success_permille	0	int	Tỉ lệ thành.	comment	
+Server/Config/PetConfigTable.ini	System	GenGu_success_savvy1	rule	pet.toml	bone_pill	success_permille	1	int	Tỉ lệ thành.	comment	
+Server/Config/PetConfigTable.ini	System	GenGu_success_savvy2	rule	pet.toml	bone_pill	success_permille	2	int	Tỉ lệ thành.	comment	
+Server/Config/PetConfigTable.ini	System	GenGu_success_savvy3	rule	pet.toml	bone_pill	success_permille	3	int	Tỉ lệ thành.	comment	
+Server/Config/PetConfigTable.ini	System	GenGu_success_savvy4	rule	pet.toml	bone_pill	success_permille	4	int	Tỉ lệ thành.	comment	
+Server/Config/PetConfigTable.ini	System	GenGu_success_savvy5	rule	pet.toml	bone_pill	success_permille	5	int	Tỉ lệ thành.	comment	
+Server/Config/PetConfigTable.ini	System	GenGu_success_savvy6	rule	pet.toml	bone_pill	success_permille	6	int	Tỉ lệ thành.	comment	
+Server/Config/PetConfigTable.ini	System	GenGu_success_savvy7	rule	pet.toml	bone_pill	success_permille	7	int	Tỉ lệ thành.	comment	
+Server/Config/PetConfigTable.ini	System	GenGu_success_savvy8	rule	pet.toml	bone_pill	success_permille	8	int	Tỉ lệ thành.	comment	
+Server/Config/PetConfigTable.ini	System	GenGu_success_savvy9	rule	pet.toml	bone_pill	success_permille	9	int	Tỉ lệ thành.	comment	
+Server/Config/PetConfigTable.ini	System	Compound_leveldown_savvy0	rule	pet.toml	compound	fail_level_loss	0	int	Cấp bị tụt.	comment	
+Server/Config/PetConfigTable.ini	System	Compound_leveldown_savvy1	rule	pet.toml	compound	fail_level_loss	1	int	Cấp bị tụt.	comment	
+Server/Config/PetConfigTable.ini	System	Compound_leveldown_savvy2	rule	pet.toml	compound	fail_level_loss	2	int	Cấp bị tụt.	comment	
+Server/Config/PetConfigTable.ini	System	Compound_leveldown_savvy3	rule	pet.toml	compound	fail_level_loss	3	int	Cấp bị tụt.	comment	
+Server/Config/PetConfigTable.ini	System	Compound_leveldown_savvy4	rule	pet.toml	compound	fail_level_loss	4	int	Cấp bị tụt.	comment	
+Server/Config/PetConfigTable.ini	System	Compound_leveldown_savvy5	rule	pet.toml	compound	fail_level_loss	5	int	Cấp bị tụt.	comment	
+Server/Config/PetConfigTable.ini	System	Compound_leveldown_savvy6	rule	pet.toml	compound	fail_level_loss	6	int	Cấp bị tụt.	comment	
+Server/Config/PetConfigTable.ini	System	Compound_leveldown_savvy7	rule	pet.toml	compound	fail_level_loss	7	int	Cấp bị tụt.	comment	
+Server/Config/PetConfigTable.ini	System	Compound_leveldown_savvy8	rule	pet.toml	compound	fail_level_loss	8	int	Cấp bị tụt.	comment	
+Server/Config/PetConfigTable.ini	System	Compound_leveldown_savvy9	rule	pet.toml	compound	fail_level_loss	9	int	Cấp bị tụt.	comment	
+Server/Config/PetConfigTable.ini	System	GenGu_cost_savvy0	rule	pet.toml	bone_pill	cost	0	int	Phí từng mức.	comment	
+Server/Config/PetConfigTable.ini	System	GenGu_cost_savvy1	rule	pet.toml	bone_pill	cost	1	int	Phí từng mức.	comment	
+Server/Config/PetConfigTable.ini	System	GenGu_cost_savvy2	rule	pet.toml	bone_pill	cost	2	int	Phí từng mức.	comment	
+Server/Config/PetConfigTable.ini	System	GenGu_cost_savvy3	rule	pet.toml	bone_pill	cost	3	int	Phí từng mức.	comment	
+Server/Config/PetConfigTable.ini	System	GenGu_cost_savvy4	rule	pet.toml	bone_pill	cost	4	int	Phí từng mức.	comment	
+Server/Config/PetConfigTable.ini	System	GenGu_cost_savvy5	rule	pet.toml	bone_pill	cost	5	int	Phí từng mức.	comment	
+Server/Config/PetConfigTable.ini	System	GenGu_cost_savvy6	rule	pet.toml	bone_pill	cost	6	int	Phí từng mức.	comment	
+Server/Config/PetConfigTable.ini	System	GenGu_cost_savvy7	rule	pet.toml	bone_pill	cost	7	int	Phí từng mức.	comment	
+Server/Config/PetConfigTable.ini	System	GenGu_cost_savvy8	rule	pet.toml	bone_pill	cost	8	int	Phí từng mức.	comment	
+Server/Config/PetConfigTable.ini	System	GenGu_cost_savvy9	rule	pet.toml	bone_pill	cost	9	int	Phí từng mức.	comment	
+Server/Config/PetConfigTable.ini	System	Compound_cost_savvy0	rule	pet.toml	compound	cost	0	int	Phí từng mức.	comment	
+Server/Config/PetConfigTable.ini	System	Compound_cost_savvy1	rule	pet.toml	compound	cost	1	int	Phí từng mức.	comment	
+Server/Config/PetConfigTable.ini	System	Compound_cost_savvy2	rule	pet.toml	compound	cost	2	int	Phí từng mức.	comment	
+Server/Config/PetConfigTable.ini	System	Compound_cost_savvy3	rule	pet.toml	compound	cost	3	int	Phí từng mức.	comment	
+Server/Config/PetConfigTable.ini	System	Compound_cost_savvy4	rule	pet.toml	compound	cost	4	int	Phí từng mức.	comment	
+Server/Config/PetConfigTable.ini	System	Compound_cost_savvy5	rule	pet.toml	compound	cost	5	int	Phí từng mức.	comment	
+Server/Config/PetConfigTable.ini	System	Compound_cost_savvy6	rule	pet.toml	compound	cost	6	int	Phí từng mức.	comment	
+Server/Config/PetConfigTable.ini	System	Compound_cost_savvy7	rule	pet.toml	compound	cost	7	int	Phí từng mức.	comment	
+Server/Config/PetConfigTable.ini	System	Compound_cost_savvy8	rule	pet.toml	compound	cost	8	int	Phí từng mức.	comment	
+Server/Config/PetConfigTable.ini	System	Compound_cost_savvy9	rule	pet.toml	compound	cost	9	int	Phí từng mức.	comment	
+Server/Config/PetConfigTable.ini	System	Wileness_Returntochild_rate_HoldIntelligence	rule	pet.toml	rejuvenation	wild_hold_permille		int	Xác suất thú dại giữ tư chất khi hoàn đồng, mẫu số 1000.	comment	
+Server/Config/PetConfigTable.ini	System	Baby_Returntochild_rate_HoldIntelligence	rule	pet.toml	rejuvenation	baby_hold_permille		int	Xác suất thú non giữ tư chất khi hoàn đồng, mẫu số 1000.	comment	
+Server/Config/PetConfigTable.ini	System	PerRate0	rule	pet.toml	aptitude	normal_weight	0	int	Xác suất thú thường, mẫu số 1000.	comment	
+Server/Config/PetConfigTable.ini	System	PerRate1	rule	pet.toml	aptitude	normal_weight	1	int	Xác suất thú thường, mẫu số 1000.	comment	
+Server/Config/PetConfigTable.ini	System	PerRate2	rule	pet.toml	aptitude	normal_weight	2	int	Xác suất thú thường, mẫu số 1000.	comment	
+Server/Config/PetConfigTable.ini	System	PerRate3	rule	pet.toml	aptitude	normal_weight	3	int	Xác suất thú thường, mẫu số 1000.	comment	
+Server/Config/PetConfigTable.ini	System	PerRate4	rule	pet.toml	aptitude	normal_weight	4	int	Xác suất thú thường, mẫu số 1000.	comment	
+Server/Config/PetConfigTable.ini	System	PerRate5	rule	pet.toml	aptitude	normal_weight	5	int	Xác suất thú thường, mẫu số 1000.	comment	
+Server/Config/PetConfigTable.ini	System	PerRate6	rule	pet.toml	aptitude	normal_weight	6	int	Xác suất thú thường, mẫu số 1000.	comment	
+Server/Config/PetConfigTable.ini	System	PerRate7	rule	pet.toml	aptitude	normal_weight	7	int	Xác suất thú thường, mẫu số 1000.	comment	
+Server/Config/PetConfigTable.ini	System	PerRate8	rule	pet.toml	aptitude	normal_weight	8	int	Xác suất thú thường, mẫu số 1000.	comment	
+Server/Config/PetConfigTable.ini	System	PerRate9	rule	pet.toml	aptitude	normal_weight	9	int	Xác suất thú thường, mẫu số 1000.	comment	
+Server/Config/PetConfigTable.ini	System	PerParam0	rule	pet.toml	aptitude_factor	normal_permille	0	permille	Hệ số thú thường.	comment	
+Server/Config/PetConfigTable.ini	System	PerParam1	rule	pet.toml	aptitude_factor	normal_permille	1	permille	Hệ số thú thường.	comment	
+Server/Config/PetConfigTable.ini	System	PerParam2	rule	pet.toml	aptitude_factor	normal_permille	2	permille	Hệ số thú thường.	comment	
+Server/Config/PetConfigTable.ini	System	PerParam3	rule	pet.toml	aptitude_factor	normal_permille	3	permille	Hệ số thú thường.	comment	
+Server/Config/PetConfigTable.ini	System	PerParam4	rule	pet.toml	aptitude_factor	normal_permille	4	permille	Hệ số thú thường.	comment	
+Server/Config/PetConfigTable.ini	System	PerParam5	rule	pet.toml	aptitude_factor	normal_permille	5	permille	Hệ số thú thường.	comment	
+Server/Config/PetConfigTable.ini	System	PerParam6	rule	pet.toml	aptitude_factor	normal_permille	6	permille	Hệ số thú thường.	comment	
+Server/Config/PetConfigTable.ini	System	PerParam7	rule	pet.toml	aptitude_factor	normal_permille	7	permille	Hệ số thú thường.	comment	
+Server/Config/PetConfigTable.ini	System	PerParam8	rule	pet.toml	aptitude_factor	normal_permille	8	permille	Hệ số thú thường.	comment	
+Server/Config/PetConfigTable.ini	System	PerParam9	rule	pet.toml	aptitude_factor	normal_permille	9	permille	Hệ số thú thường.	comment	
+Server/Config/PetConfigTable.ini	System	PerParam10	rule	pet.toml	aptitude_factor	normal_permille	10	permille	Hệ số thú thường.	comment	
+Server/Config/PetConfigTable.ini	System	RMBPerRate0	rule	pet.toml	aptitude	paid_weight	0	int	Xác suất thú trả phí, mẫu số 1000.	comment	
+Server/Config/PetConfigTable.ini	System	RMBPerRate1	rule	pet.toml	aptitude	paid_weight	1	int	Xác suất thú trả phí, mẫu số 1000.	comment	
+Server/Config/PetConfigTable.ini	System	RMBPerRate2	rule	pet.toml	aptitude	paid_weight	2	int	Xác suất thú trả phí, mẫu số 1000.	comment	
+Server/Config/PetConfigTable.ini	System	RMBPerRate3	rule	pet.toml	aptitude	paid_weight	3	int	Xác suất thú trả phí, mẫu số 1000.	comment	
+Server/Config/PetConfigTable.ini	System	RMBPerRate4	rule	pet.toml	aptitude	paid_weight	4	int	Xác suất thú trả phí, mẫu số 1000.	comment	
+Server/Config/PetConfigTable.ini	System	RMBPerRate5	rule	pet.toml	aptitude	paid_weight	5	int	Xác suất thú trả phí, mẫu số 1000.	comment	
+Server/Config/PetConfigTable.ini	System	RMBPerRate6	rule	pet.toml	aptitude	paid_weight	6	int	Xác suất thú trả phí, mẫu số 1000.	comment	
+Server/Config/PetConfigTable.ini	System	RMBPerRate7	rule	pet.toml	aptitude	paid_weight	7	int	Xác suất thú trả phí, mẫu số 1000.	comment	
+Server/Config/PetConfigTable.ini	System	RMBPerRate8	rule	pet.toml	aptitude	paid_weight	8	int	Xác suất thú trả phí, mẫu số 1000.	comment	
+Server/Config/PetConfigTable.ini	System	RMBPerRate9	rule	pet.toml	aptitude	paid_weight	9	int	Xác suất thú trả phí, mẫu số 1000.	comment	
+Server/Config/PetConfigTable.ini	System	RMBPerParam0	rule	pet.toml	aptitude_factor	paid_permille	0	permille	Hệ số thú trả phí.	comment	
+Server/Config/PetConfigTable.ini	System	RMBPerParam1	rule	pet.toml	aptitude_factor	paid_permille	1	permille	Hệ số thú trả phí.	comment	
+Server/Config/PetConfigTable.ini	System	RMBPerParam2	rule	pet.toml	aptitude_factor	paid_permille	2	permille	Hệ số thú trả phí.	comment	
+Server/Config/PetConfigTable.ini	System	RMBPerParam3	rule	pet.toml	aptitude_factor	paid_permille	3	permille	Hệ số thú trả phí.	comment	
+Server/Config/PetConfigTable.ini	System	RMBPerParam4	rule	pet.toml	aptitude_factor	paid_permille	4	permille	Hệ số thú trả phí.	comment	
+Server/Config/PetConfigTable.ini	System	RMBPerParam5	rule	pet.toml	aptitude_factor	paid_permille	5	permille	Hệ số thú trả phí.	comment	
+Server/Config/PetConfigTable.ini	System	RMBPerParam6	rule	pet.toml	aptitude_factor	paid_permille	6	permille	Hệ số thú trả phí.	comment	
+Server/Config/PetConfigTable.ini	System	RMBPerParam7	rule	pet.toml	aptitude_factor	paid_permille	7	permille	Hệ số thú trả phí.	comment	
+Server/Config/PetConfigTable.ini	System	RMBPerParam8	rule	pet.toml	aptitude_factor	paid_permille	8	permille	Hệ số thú trả phí.	comment	
+Server/Config/PetConfigTable.ini	System	RMBPerParam9	rule	pet.toml	aptitude_factor	paid_permille	9	permille	Hệ số thú trả phí.	comment	
+Server/Config/PetConfigTable.ini	System	RMBPerParam10	rule	pet.toml	aptitude_factor	paid_permille	10	permille	Hệ số thú trả phí.	comment	
+Server/Config/PetConfigTable.ini	System	SuperRMBPerRate0	rule	pet.toml	aptitude	show_weight	0	int	Xác suất thú khoe, mẫu số 1000.	comment	
+Server/Config/PetConfigTable.ini	System	SuperRMBPerRate1	rule	pet.toml	aptitude	show_weight	1	int	Xác suất thú khoe, mẫu số 1000.	comment	
+Server/Config/PetConfigTable.ini	System	SuperRMBPerRate2	rule	pet.toml	aptitude	show_weight	2	int	Xác suất thú khoe, mẫu số 1000.	comment	
+Server/Config/PetConfigTable.ini	System	SuperRMBPerRate3	rule	pet.toml	aptitude	show_weight	3	int	Xác suất thú khoe, mẫu số 1000.	comment	
+Server/Config/PetConfigTable.ini	System	SuperRMBPerRate4	rule	pet.toml	aptitude	show_weight	4	int	Xác suất thú khoe, mẫu số 1000.	comment	
+Server/Config/PetConfigTable.ini	System	SuperRMBPerRate5	rule	pet.toml	aptitude	show_weight	5	int	Xác suất thú khoe, mẫu số 1000.	comment	
+Server/Config/PetConfigTable.ini	System	SuperRMBPerRate6	rule	pet.toml	aptitude	show_weight	6	int	Xác suất thú khoe, mẫu số 1000.	comment	
+Server/Config/PetConfigTable.ini	System	SuperRMBPerRate7	rule	pet.toml	aptitude	show_weight	7	int	Xác suất thú khoe, mẫu số 1000.	comment	
+Server/Config/PetConfigTable.ini	System	SuperRMBPerRate8	rule	pet.toml	aptitude	show_weight	8	int	Xác suất thú khoe, mẫu số 1000.	comment	
+Server/Config/PetConfigTable.ini	System	SuperRMBPerRate9	rule	pet.toml	aptitude	show_weight	9	int	Xác suất thú khoe, mẫu số 1000.	comment	
+Server/Config/PetConfigTable.ini	System	SuperRMBPerParam0	rule	pet.toml	aptitude_factor	show_permille	0	permille	Hệ số thú khoe.	comment	
+Server/Config/PetConfigTable.ini	System	SuperRMBPerParam1	rule	pet.toml	aptitude_factor	show_permille	1	permille	Hệ số thú khoe.	comment	
+Server/Config/PetConfigTable.ini	System	SuperRMBPerParam2	rule	pet.toml	aptitude_factor	show_permille	2	permille	Hệ số thú khoe.	comment	
+Server/Config/PetConfigTable.ini	System	SuperRMBPerParam3	rule	pet.toml	aptitude_factor	show_permille	3	permille	Hệ số thú khoe.	comment	
+Server/Config/PetConfigTable.ini	System	SuperRMBPerParam4	rule	pet.toml	aptitude_factor	show_permille	4	permille	Hệ số thú khoe.	comment	
+Server/Config/PetConfigTable.ini	System	SuperRMBPerParam5	rule	pet.toml	aptitude_factor	show_permille	5	permille	Hệ số thú khoe.	comment	
+Server/Config/PetConfigTable.ini	System	SuperRMBPerParam6	rule	pet.toml	aptitude_factor	show_permille	6	permille	Hệ số thú khoe.	comment	
+Server/Config/PetConfigTable.ini	System	SuperRMBPerParam7	rule	pet.toml	aptitude_factor	show_permille	7	permille	Hệ số thú khoe.	comment	
+Server/Config/PetConfigTable.ini	System	SuperRMBPerParam8	rule	pet.toml	aptitude_factor	show_permille	8	permille	Hệ số thú khoe.	comment	
+Server/Config/PetConfigTable.ini	System	SuperRMBPerParam9	rule	pet.toml	aptitude_factor	show_permille	9	permille	Hệ số thú khoe.	comment	
+Server/Config/PetConfigTable.ini	System	SuperRMBPerParam10	rule	pet.toml	aptitude_factor	show_permille	10	permille	Hệ số thú khoe.	comment	
+Server/Config/PetConfigTable.ini	System	PerCalculateParamA	rule	pet.toml	aptitude_formula	factor_a_permille		permille	Hệ số A của bậc tư chất.	comment	
+Server/Config/PetConfigTable.ini	System	PerCalculateParamB	rule	pet.toml	aptitude_formula	factor_b_permille		permille	Hệ số B của bậc tư chất.	comment	
+Server/Config/PetConfigTable.ini	System	AllowManualSkill	rule	pet.toml	skill_slot	manual_count		int	Số kỹ năng điều khiển tay được mở.	comment	
+Server/Config/PetConfigTable.ini	System	AllowAutoSkill	rule	pet.toml	skill_slot	auto_count		int	Số kỹ năng tự động được mở.	comment	
+Server/Config/DarkConfigTable.ini	DarkQuality	DefaultDark_Quality_GrowRate0	rule	hidden_weapon.toml	quality	default_grow_rate	0	int	Năm bậc tăng trưởng hạng mặc định, mẫu số 1000.	name	
+Server/Config/DarkConfigTable.ini	DarkQuality	DefaultDark_Quality_GrowRate1	rule	hidden_weapon.toml	quality	default_grow_rate	1	int	Năm bậc tăng trưởng hạng mặc định, mẫu số 1000.	name	
+Server/Config/DarkConfigTable.ini	DarkQuality	DefaultDark_Quality_GrowRate2	rule	hidden_weapon.toml	quality	default_grow_rate	2	int	Năm bậc tăng trưởng hạng mặc định, mẫu số 1000.	name	
+Server/Config/DarkConfigTable.ini	DarkQuality	DefaultDark_Quality_GrowRate3	rule	hidden_weapon.toml	quality	default_grow_rate	3	int	Năm bậc tăng trưởng hạng mặc định, mẫu số 1000.	name	
+Server/Config/DarkConfigTable.ini	DarkQuality	DefaultDark_Quality_GrowRate4	rule	hidden_weapon.toml	quality	default_grow_rate	4	int	Năm bậc tăng trưởng hạng mặc định, mẫu số 1000.	name	
+Server/Config/DarkConfigTable.ini	DarkQuality	LowDark_Quality_GorwRate0	rule	hidden_weapon.toml	quality	low_grow_rate	0	int	Năm bậc tăng trưởng hạng thấp, mẫu số 1000.	name	
+Server/Config/DarkConfigTable.ini	DarkQuality	LowDark_Quality_GorwRate1	rule	hidden_weapon.toml	quality	low_grow_rate	1	int	Năm bậc tăng trưởng hạng thấp, mẫu số 1000.	name	
+Server/Config/DarkConfigTable.ini	DarkQuality	LowDark_Quality_GorwRate2	rule	hidden_weapon.toml	quality	low_grow_rate	2	int	Năm bậc tăng trưởng hạng thấp, mẫu số 1000.	name	
+Server/Config/DarkConfigTable.ini	DarkQuality	LowDark_Quality_GorwRate3	rule	hidden_weapon.toml	quality	low_grow_rate	3	int	Năm bậc tăng trưởng hạng thấp, mẫu số 1000.	name	
+Server/Config/DarkConfigTable.ini	DarkQuality	LowDark_Quality_GorwRate4	rule	hidden_weapon.toml	quality	low_grow_rate	4	int	Năm bậc tăng trưởng hạng thấp, mẫu số 1000.	name	
+Server/Config/DarkConfigTable.ini	DarkQuality	HighDark_Quality_GorwRate0	rule	hidden_weapon.toml	quality	high_grow_rate	0	int	Năm bậc tăng trưởng hạng cao, mẫu số 1000.	name	
+Server/Config/DarkConfigTable.ini	DarkQuality	HighDark_Quality_GorwRate1	rule	hidden_weapon.toml	quality	high_grow_rate	1	int	Năm bậc tăng trưởng hạng cao, mẫu số 1000.	name	
+Server/Config/DarkConfigTable.ini	DarkQuality	HighDark_Quality_GorwRate2	rule	hidden_weapon.toml	quality	high_grow_rate	2	int	Năm bậc tăng trưởng hạng cao, mẫu số 1000.	name	
+Server/Config/DarkConfigTable.ini	DarkQuality	HighDark_Quality_GorwRate3	rule	hidden_weapon.toml	quality	high_grow_rate	3	int	Năm bậc tăng trưởng hạng cao, mẫu số 1000.	name	
+Server/Config/DarkConfigTable.ini	DarkQuality	HighDark_Quality_GorwRate4	rule	hidden_weapon.toml	quality	high_grow_rate	4	int	Năm bậc tăng trưởng hạng cao, mẫu số 1000.	name	
+Server/Config/CopyScene.ini	sys	copyscenecount	rule	instances.toml	instance	group_count		int	Số nhóm phó bản trong hệ thống.	comment	
+Server/Config/CopyScene.ini	copy0	id	rule	instances.toml	instance	id	0	int	Số hiệu phó bản.	comment	
+Server/Config/CopyScene.ini	copy0	maxscenecount	rule	instances.toml	instance	max_scene_count	0	int	Số cảnh tối đa của nhóm phó bản.	comment	
+Server/Config/CopyScene.ini	copy1	id	rule	instances.toml	instance	id	1	int	Số hiệu phó bản.	comment	
+Server/Config/CopyScene.ini	copy1	maxscenecount	rule	instances.toml	instance	max_scene_count	1	int	Số cảnh tối đa của nhóm phó bản.	comment	
+Public/Config/CombatLimits.ini		RawAttribute	rule	combat.toml	limit	raw_attribute		int	Trần điểm thuộc tính chiến đấu gốc.	comment	
+Public/Config/CombatLimits.ini		ItemAttribute	rule	combat.toml	limit	item_attribute		int	Trần trị tuyệt đối của một dòng thuộc tính vật phẩm.	comment	
+Public/Config/CombatLimits.ini		SingleSettlement	rule	combat.toml	limit	single_settlement		int	Trần lượng kết toán một lần, máu hoặc nội lực.	comment	
+Public/Config/CombatLimits.ini		CriticalDisplay	rule	combat.toml	limit	critical_display		int	Trần điểm chí mạng hiển thị, không phải phần trăm.	comment	
+Public/Config/CombatLimits.ini		HitFormula	rule	combat.toml	limit	hit_formula		int	Trần điểm trúng và né trước khi vào công thức.	comment	
+Public/Config/CombatLimits.ini		Resistance	rule	combat.toml	limit	resistance		int	Trần điểm kháng bốn hệ và giảm kháng.	comment	
+Public/Config/CombatLimits.ini		EffectiveResistance	rule	combat.toml	limit	effective_resistance		int	Trần kháng hiệu dụng; mỗi điểm giảm một phần trăm.	comment	
+Server/Config/SystemInfo.ini	info	broadcount	rule	global.toml	rolling_notice	declared_count		int	Số lượng thông báo.	comment	
+Server/Config/SystemInfo.ini	info	broadtime	rule	global.toml	rolling_notice	interval		int	Khoảng cách giữa hai lần phát. Đơn vị chưa xác lập.	comment	
+Server/Config/SystemInfo.ini	info	huodongcount	rule	global.toml	scheduled_event	declared_count		int	Số lượng hoạt động.	comment	
+Server/Config/MergeConfig.txt		Procreate	rule	economy.toml	closure	breed		window	Mốc đóng rồi mở phối giống, dạng năm tháng ngày giờ.	name	
+Server/Config/MergeConfig.txt		Guild	rule	economy.toml	closure	found_guild		window	Mốc đóng rồi mở lập bang, dạng năm tháng ngày giờ.	name	
+Server/Config/MergeConfig.txt		City	rule	economy.toml	closure	found_city		window	Mốc đóng rồi mở lập thành, dạng năm tháng ngày giờ.	name	
+Server/Config/MergeConfig.txt		PShop	rule	economy.toml	closure	player_shop		window	Mốc đóng rồi mở cửa hàng, dạng năm tháng ngày giờ.	name	
+Server/Config/MergeConfig.txt		Commision	rule	economy.toml	closure	consignment		window	Mốc đóng rồi mở ký gửi, dạng năm tháng ngày giờ.	name	
+Server/Config/MergeConfig.txt		YBCash	rule	economy.toml	closure	voucher_exchange		window	Mốc đóng rồi mở đổi phiếu, dạng năm tháng ngày giờ.	name	
+Server/Config/MergeConfig.txt		YBUse	rule	economy.toml	closure	voucher_use		window	Mốc đóng rồi mở dùng phiếu, dạng năm tháng ngày giờ.	name	

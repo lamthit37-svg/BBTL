@@ -1,0 +1,8 @@
+lệnh: clang-format --dry-run --Werror tests/collision_alloc_tests.cpp
+thư mục: F:\tl 2026\THIENLONG\build\dh-dot-1
+bắt đầu: 2026-10-08 14:04:09
+---
+
+---
+mã thoát: 0
+kết thúc: 2026-10-08 14:04:09

@@ -1,0 +1,7 @@
+# schema 1
+# source: client_2026/GSPic.txt
+# tool: TOOLS/server/export_client_rest.py; sửa tay sẽ mất ở lượt xuất sau
+# types: int	text
+column_0	column_1
+1	set:CommonNPCHeader28 image:CommonNPCHeader28_21
+2	set:CommonNPCHeader28 image:CommonNPCHeader28_22

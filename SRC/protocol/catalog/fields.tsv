@@ -1,0 +1,42 @@
+# schema 1
+# source: TLBB Dev src/protocol/protocol.hpp (bản 2026-10, nhóm 01, 02, 05)
+# types: ident	int	ident	type	int	text
+owner	order	name	type	limit	note
+CharacterSummary	1	id	u64		CharacterId của Dev.
+CharacterSummary	2	name	text	48	Tên nhân vật, UTF-8, tối đa 48 byte (kNameBytes của Dev).
+CharacterSummary	3	level	u16		
+CharacterSummary	4	gender	enum:Gender		
+CharacterSummary	5	face	u16		Id mặt trong faces.tsv mà server đã lưu; server thay kDefaultLook bằng id thật lúc tạo nhân vật, nên ở đây không có nghĩa mặc định.
+CharacterSummary	6	hair	u16		Id tóc trong hairs.tsv mà server đã lưu (0 là id tóc hợp lệ); kDefaultLook chỉ có nghĩa trong CreateCharacter.
+CharacterSummary	7	school	u8		Môn phái; 0 là chưa vào môn phái, giữ giá trị canh của Dev thay cho optional.
+CharacterSummary	8	scene	u16		SceneId của Dev: cảnh nhân vật đang đứng.
+Hello	1	version	u16		Phiên bản giao thức của client.
+Hello	2	platform	enum:Platform		
+Hello	3	build	u32		Số bản dựng client.
+Login	1	account	text	64	Tên tài khoản (kAccountBytes của Dev).
+Login	2	ticket	text	512	Vé do cổng xác thực cấp.
+Resume	1	token	bytes	16	Token phiên nhận trong SessionStart.
+Ping	1	client_time	millis32		Giờ client lúc gửi, server trả lại nguyên trong Pong. Khác Dev (duration<uint32_t, milli>): ta dùng std::chrono::milliseconds có dấu để trừ hai mốc không bị quấn; trên dây vẫn u32 như Dev, ghi số âm hay trên 2^32 - 1 ra kOutOfRange.
+CreateCharacter	1	name	text	48	Tên nhân vật muốn tạo.
+CreateCharacter	2	gender	enum:Gender		
+CreateCharacter	3	face	u16		0 là mặt mặc định (kDefaultLook của Dev).
+CreateCharacter	4	hair	u16		0 là tóc mặc định (kDefaultLook của Dev).
+DeleteCharacter	1	character	u64		CharacterId của Dev.
+EnterGame	1	character	u64		CharacterId của Dev.
+CreateAccount	1	account	text	64	Tên tài khoản (kAccountBytes của Dev).
+CreateAccount	2	password	text	128	Mật khẩu, chỉ đi qua cổng xác thực.
+SignIn	1	account	text	64	Tên tài khoản (kAccountBytes của Dev).
+SignIn	2	password	text	128	Mật khẩu, chỉ đi qua cổng xác thực.
+Welcome	1	version	u16		Phiên bản giao thức của server.
+Welcome	2	server_time	millis64		Giờ server theo mili giây. Khác Dev (duration<uint64_t, milli>): ta dùng std::chrono::milliseconds nền int64 có dấu để trừ hai mốc không bị quấn; trên dây vẫn u64, nhưng số trên 2^63 - 1 (khoảng 292 triệu năm, chỉ có ở dữ liệu hỏng) đọc ra kOutOfRange, ghi số âm cũng ra kOutOfRange.
+Welcome	3	heartbeat	seconds16		Chu kỳ client phải gửi Ping. Khác Dev (duration<uint16_t>): ta dùng std::chrono::seconds có dấu cho cùng kiểu giờ với phần còn lại; trên dây vẫn u16 như Dev, ghi số âm hay trên 65535 ra kOutOfRange.
+SessionStart	1	token	bytes	16	Token phiên dùng cho Resume.
+ContentKey	1	key	bytes	32	Khoá giải mã gói nội dung.
+Pong	1	client_time	millis32		Giờ client lấy nguyên từ Ping. Khác Dev như Ping.client_time: std::chrono::milliseconds có dấu thay cho duration<uint32_t, milli>, trên dây vẫn u32.
+Pong	2	server_time	millis64		Giờ server lúc trả lời. Khác Dev như Welcome.server_time: nền int64 có dấu thay cho u64, số trên 2^63 - 1 đọc ra kOutOfRange.
+Reject	1	request	u16		Mã tin của client bị từ chối; để u16 thay vì enum để giữ nguyên byte của Dev và không chép mã tin vào enums.tsv.
+Reject	2	code	enum:ErrorCode		
+Goodbye	1	reason	enum:DisconnectReason		
+ContentStamp	1	stamp	bytes	32	Dấu băm của gói nội dung.
+CharacterList	1	characters	list:record:CharacterSummary	8	Tối đa 8 nhân vật mỗi tài khoản (kCharacterSlots của Dev).
+Ticket	1	token	bytes	204	Vé vào cổng game (kConnectTokenBytes của Dev).

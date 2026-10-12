@@ -1,0 +1,6 @@
+# schema 1
+# source: Public/Scene/gaibang_2_area.ini
+# tool: TOOLS/server/export_scene.py; sửa tay sẽ mất ở lượt xuất sau
+# types: int	int	float	float	float	float
+guid	script_id	left	top	right	bottom
+0	400112	88.0000	154.0000	96.0000	160.0000

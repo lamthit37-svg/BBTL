@@ -1,0 +1,23 @@
+# T15 và T16 vai B, 2026-10-08 01:48:46, một lần chạy
+# T15: Select-String '#include <(winsock2|ws2tcpip|sys/socket|poll.h|netinet/|arpa/)' trên SRC/ và tests/, mọi tệp .hpp/.cpp
+.\SRC\net\socket_posix.cpp:27: #include <arpa/inet.h>
+.\SRC\net\socket_posix.cpp:29: #include <netinet/in.h>
+.\SRC\net\socket_posix.cpp:30: #include <netinet/tcp.h>
+.\SRC\net\socket_posix.cpp:31: #include <poll.h>
+.\SRC\net\socket_posix.cpp:32: #include <sys/socket.h>
+.\SRC\net\socket_win32.cpp:29: #include <winsock2.h>
+.\SRC\net\socket_win32.cpp:30: #include <ws2tcpip.h>
+.\SRC\process\process_posix.cpp:32: #include <poll.h>
+# T16: (Get-Content).Count các tệp của B
+228	SRC/net/net.hpp
+35	SRC/net/detail/native.hpp
+81	SRC/net/net.cpp
+393	SRC/net/socket_win32.cpp
+402	SRC/net/socket_posix.cpp
+468	tests/net_tests.cpp
+# NDK T14 trên SRC/net/socket_posix.cpp
+aarch64-linux-android29-clang++ -std=c++23 -fsyntax-only -Wall -Wextra -Werror -I SRC SRC/net/socket_posix.cpp: thoát 0 
+x86_64-linux-android29-clang++ -std=c++23 -fsyntax-only -Wall -Wextra -Werror -I SRC SRC/net/socket_posix.cpp: thoát 0 
+# sleep trong tests/net_tests.cpp: Select-String 'sleep_for|Sleep\(|this_thread'
+3: // Nguồn: danh sách ca của TLBB Dev tests/platform/socket_test.cpp, viết lại không sleep_for.
+# ổ F trống: 156.0 GB (167495618560 byte)

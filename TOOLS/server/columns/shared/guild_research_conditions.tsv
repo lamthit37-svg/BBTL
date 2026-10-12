@@ -1,0 +1,13 @@
+# schema 1
+# source: client_2026/Condition.txt
+# tool: TOOLS/server/export_tables.py; sửa tay sẽ mất ở lượt xuất sau
+# types: int	text	text	text	text
+index	original	name	type	note
+0	ID	id	int	neo: cột gốc 0, khớp 100.0% (79/79 id); luật: M1
+1		column_1	int	mới ở 2026
+2	任务数	mission_count	int	neo: cột gốc 2, khớp 100.0% (79/79 id); luật: nguyên văn
+3		column_3	int	mới ở 2026
+4		column_4	int	mới ở 2026
+5		column_5	int	mới ở 2026
+6		column_6	int	mới ở 2026
+7		column_7	int	mới ở 2026

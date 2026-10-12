@@ -1,0 +1,49 @@
+# schema 1
+# 45 tệp Public/Scene không gắn được bằng thân tên cảnh.
+# types: text	text	text	text
+file	fate	scene	evidence
+_pingpan_40_monster.ini	scene_set	_pingpan_1	event/pingpan/ezhaochen.lua:324
+_pingpan_55_monster.ini	scene_set	_pingpan_1	event/pingpan/ezhaochen.lua:329
+_pingpan_70_monster.ini	scene_set	_pingpan_1	event/pingpan/ezhaochen.lua:334
+_pingpan_85_monster.ini	scene_set	_pingpan_1	event/pingpan/ezhaochen.lua:339
+chuangjian.nav	client_only		findstr /s /m /c:"chuangjian.nav" Public\Scene\*.scn Server\Config\SceneInfo.ini Public\Data\Script\*.lua
+chuangjian.path	client_only		findstr /s /m /c:"chuangjian.path" Public\Scene\*.scn Server\Config\SceneInfo.ini Public\Data\Script\*.lua
+chuangjian_StallInfo.stall	client_only		findstr /s /m /c:"chuangjian_StallInfo.stall" Public\Scene\*.scn Server\Config\SceneInfo.ini Public\Data\Script\*.lua
+chuangjian_area.ini	client_only		findstr /s /m /c:"chuangjian_area.ini" Public\Scene\*.scn Server\Config\SceneInfo.ini Public\Data\Script\*.lua
+chuangjian_growpoint.txt	client_only		findstr /s /m /c:"chuangjian_growpoint.txt" Public\Scene\*.scn Server\Config\SceneInfo.ini Public\Data\Script\*.lua
+chuangjian_monster.ini	client_only		findstr /s /m /c:"chuangjian_monster.ini" Public\Scene\*.scn Server\Config\SceneInfo.ini Public\Data\Script\*.lua
+chuangjian_patrolpoint.ini	client_only		findstr /s /m /c:"chuangjian_patrolpoint.ini" Public\Scene\*.scn Server\Config\SceneInfo.ini Public\Data\Script\*.lua
+gongdishaolinmis_area.ini	scene_set	gongdi	event/shaolin/eshaolin_skill_03.lua:142
+gongdishaolinmis_monster.ini	scene_set	gongdi	event/shaolin/eshaolin_skill_03.lua:143
+jishiemeimis_area.ini	scene_set	jishi	event/emei/emei_skill_01.lua:139
+jishiemeimis_monster.ini	scene_set	jishi	event/emei/emei_skill_01.lua:140
+xuanren.nav	client_only		findstr /s /m /c:"xuanren.nav" Public\Scene\*.scn Server\Config\SceneInfo.ini Public\Data\Script\*.lua
+xuanren.path	client_only		findstr /s /m /c:"xuanren.path" Public\Scene\*.scn Server\Config\SceneInfo.ini Public\Data\Script\*.lua
+xuanren_StallInfo.stall	client_only		findstr /s /m /c:"xuanren_StallInfo.stall" Public\Scene\*.scn Server\Config\SceneInfo.ini Public\Data\Script\*.lua
+xuanren_area.ini	client_only		findstr /s /m /c:"xuanren_area.ini" Public\Scene\*.scn Server\Config\SceneInfo.ini Public\Data\Script\*.lua
+xuanren_growpoint.txt	client_only		findstr /s /m /c:"xuanren_growpoint.txt" Public\Scene\*.scn Server\Config\SceneInfo.ini Public\Data\Script\*.lua
+xuanren_monster.ini	client_only		findstr /s /m /c:"xuanren_monster.ini" Public\Scene\*.scn Server\Config\SceneInfo.ini Public\Data\Script\*.lua
+xuanren_patrolpoint.ini	client_only		findstr /s /m /c:"xuanren_patrolpoint.ini" Public\Scene\*.scn Server\Config\SceneInfo.ini Public\Data\Script\*.lua
+yamentianshanmis_area.ini	scene_set	yamen	event/tianshan/tianshan_skill_02.lua:256
+yamentianshanmis_monster.ini	scene_set	yamen	event/tianshan/tianshan_skill_02.lua:257
+登陆.nav	client_only		findstr /s /m /c:"登陆.nav" Public\Scene\*.scn Server\Config\SceneInfo.ini Public\Data\Script\*.lua
+登陆.path	client_only		findstr /s /m /c:"登陆.path" Public\Scene\*.scn Server\Config\SceneInfo.ini Public\Data\Script\*.lua
+登陆_StallInfo.stall	client_only		findstr /s /m /c:"登陆_StallInfo.stall" Public\Scene\*.scn Server\Config\SceneInfo.ini Public\Data\Script\*.lua
+登陆_area.ini	client_only		findstr /s /m /c:"登陆_area.ini" Public\Scene\*.scn Server\Config\SceneInfo.ini Public\Data\Script\*.lua
+登陆_growpoint.txt	client_only		findstr /s /m /c:"登陆_growpoint.txt" Public\Scene\*.scn Server\Config\SceneInfo.ini Public\Data\Script\*.lua
+登陆_monster.ini	client_only		findstr /s /m /c:"登陆_monster.ini" Public\Scene\*.scn Server\Config\SceneInfo.ini Public\Data\Script\*.lua
+登陆_patrolpoint.ini	client_only		findstr /s /m /c:"登陆_patrolpoint.ini" Public\Scene\*.scn Server\Config\SceneInfo.ini Public\Data\Script\*.lua
+选人.nav	client_only		findstr /s /m /c:"选人.nav" Public\Scene\*.scn Server\Config\SceneInfo.ini Public\Data\Script\*.lua
+选人.path	client_only		findstr /s /m /c:"选人.path" Public\Scene\*.scn Server\Config\SceneInfo.ini Public\Data\Script\*.lua
+选人11.nav	client_only		findstr /s /m /c:"选人11.nav" Public\Scene\*.scn Server\Config\SceneInfo.ini Public\Data\Script\*.lua
+选人11.path	client_only		findstr /s /m /c:"选人11.path" Public\Scene\*.scn Server\Config\SceneInfo.ini Public\Data\Script\*.lua
+选人11_StallInfo.stall	client_only		findstr /s /m /c:"选人11_StallInfo.stall" Public\Scene\*.scn Server\Config\SceneInfo.ini Public\Data\Script\*.lua
+选人11_area.ini	client_only		findstr /s /m /c:"选人11_area.ini" Public\Scene\*.scn Server\Config\SceneInfo.ini Public\Data\Script\*.lua
+选人11_growpoint.txt	client_only		findstr /s /m /c:"选人11_growpoint.txt" Public\Scene\*.scn Server\Config\SceneInfo.ini Public\Data\Script\*.lua
+选人11_monster.ini	client_only		findstr /s /m /c:"选人11_monster.ini" Public\Scene\*.scn Server\Config\SceneInfo.ini Public\Data\Script\*.lua
+选人11_patrolpoint.ini	client_only		findstr /s /m /c:"选人11_patrolpoint.ini" Public\Scene\*.scn Server\Config\SceneInfo.ini Public\Data\Script\*.lua
+选人_StallInfo.stall	client_only		findstr /s /m /c:"选人_StallInfo.stall" Public\Scene\*.scn Server\Config\SceneInfo.ini Public\Data\Script\*.lua
+选人_area.ini	client_only		findstr /s /m /c:"选人_area.ini" Public\Scene\*.scn Server\Config\SceneInfo.ini Public\Data\Script\*.lua
+选人_growpoint.txt	client_only		findstr /s /m /c:"选人_growpoint.txt" Public\Scene\*.scn Server\Config\SceneInfo.ini Public\Data\Script\*.lua
+选人_monster.ini	client_only		findstr /s /m /c:"选人_monster.ini" Public\Scene\*.scn Server\Config\SceneInfo.ini Public\Data\Script\*.lua
+选人_patrolpoint.ini	client_only		findstr /s /m /c:"选人_patrolpoint.ini" Public\Scene\*.scn Server\Config\SceneInfo.ini Public\Data\Script\*.lua

@@ -1,0 +1,8 @@
+# schema 1
+# source: server_config/OnSaleLimit.txt
+# tool: TOOLS/server/import_legacy.py; sửa tay sẽ mất ở lượt xuất sau
+# types: int	text	text	text	text
+index	original	name	type	note
+0	物品ID	item_id	int	luật: nguyên văn
+1	是否限制摆摊上架	stall_list_limited	int	luật: nguyên văn
+2	是否限制玩家商店上架	player_shop_list_limited	int	luật: nguyên văn

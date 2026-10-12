@@ -1,0 +1,13 @@
+# schema 1
+# source: client_2026/LiWuDuiHuanShop.txt
+# tool: TOOLS/server/export_tables.py; sửa tay sẽ mất ở lượt xuất sau
+# types: int	text	text	text	text
+index	original	name	type	note
+0		column_0	int	không có bản đối chiếu
+1		column_1	int	không có bản đối chiếu
+2		column_2	int	không có bản đối chiếu
+3		column_3	int	không có bản đối chiếu
+4		column_4	int	không có bản đối chiếu
+5		column_5	int	không có bản đối chiếu
+6		column_6	int	không có bản đối chiếu
+7		column_7	text	không có bản đối chiếu

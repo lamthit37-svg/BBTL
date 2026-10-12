@@ -1,0 +1,30 @@
+# 2026-10-08 09:41:49 -> 2026-10-08 09:41:52  Lệnh: cmake --build --preset clang-asan --target all header_check  (giữ NANG.lock, không có bản dựng nào khác đang chạy)
+[0/2] Re-checking globbed directories...
+[1/28] Ch├⌐p compile_commands.json ra gß╗æc dß╗▒ ├ín cho clangd
+[2/28] Building CXX object CMakeFiles/header_check.dir/header_check/SRC_protocol_wire_hpp.cpp.obj
+[3/28] Building CXX object CMakeFiles/header_check.dir/header_check/SRC_protocol_channel_hpp.cpp.obj
+[4/28] Building CXX object CMakeFiles/game_protocol.dir/SRC/protocol/channel.cpp.obj
+[5/28] Building CXX object CMakeFiles/game_protocol.dir/SRC/protocol/wire.cpp.obj
+[6/28] Building CXX object CMakeFiles/header_check.dir/header_check/SRC_net_detail_native_hpp.cpp.obj
+[7/28] Building CXX object CMakeFiles/protocol_tests.dir/tests/protocol_tests.cpp.obj
+[8/28] Building CXX object CMakeFiles/header_check.dir/header_check/SRC_net_net_hpp.cpp.obj
+[9/28] Building CXX object CMakeFiles/header_check.dir/header_check/SRC_protocol_messages_hpp.cpp.obj
+[10/28] Building CXX object CMakeFiles/game_net.dir/SRC/net/net.cpp.obj
+[11/28] Building CXX object CMakeFiles/game_protocol.dir/SRC/protocol/messages.cpp.obj
+[12/28] Building CXX object CMakeFiles/protocol_catalog_tests.dir/tests/protocol_catalog_tests.cpp.obj
+[13/28] Linking CXX static library game_protocol.lib
+[14/28] Building CXX object CMakeFiles/game_net.dir/SRC/net/socket_win32.cpp.obj
+[15/28] Building CXX object CMakeFiles/wire_loop_tests.dir/tests/wire_loop_tests.cpp.obj
+[16/28] Building CXX object CMakeFiles/net_bench.dir/tests/bench/net_bench.cpp.obj
+[17/28] Linking CXX static library game_net.lib
+[18/28] Linking CXX executable protocol_tests.exe
+[19/28] Linking CXX executable protocol_catalog_tests.exe
+[20/28] Building CXX object CMakeFiles/net_tests.dir/tests/net_tests.cpp.obj
+[21/28] Linking CXX executable net_bench.exe
+[22/28] Linking CXX executable wire_loop_tests.exe
+[23/28] Linking CXX executable net_tests.exe
+[24/28] Building CXX object CMakeFiles/protocol_fuzz_tests.dir/tests/protocol_fuzz_tests.cpp.obj
+[25/28] Building CXX object CMakeFiles/protocol_bench.dir/tests/bench/protocol_bench.cpp.obj
+[26/28] Linking CXX executable protocol_fuzz_tests.exe
+[27/28] Linking CXX executable protocol_bench.exe
+exit=0

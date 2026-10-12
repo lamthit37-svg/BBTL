@@ -1,0 +1,350 @@
+hạt 20261008
+
+column_terms dòng dữ liệu 707, lấy 40
+
+column_terms_server dòng dữ liệu 969, lấy 40
+
+refs dòng dữ liệu 55, lấy 15
+
+
+
+===== column_terms =====
+
+column_terms.tsv:304: [] '心法10级对应的实际技能ID' -> skill_id_at_inner_art_level_10 | direct | nhãn: id kỹ năng thật ứng với cấp tâm pháp
+direct: chỉ có nhãn và câu note
+
+column_terms.tsv:51: [] '是否直接学会' -> learned_directly | direct | nhãn: có học thẳng hay không
+direct: chỉ có nhãn và câu note
+
+column_terms.tsv:454: [] '资质点' -> aptitude_point | direct | nhãn điểm tư chất
+direct: chỉ có nhãn và câu note
+
+column_terms.tsv:250: [] '生存期持续特效' -> lifetime_effect | direct | nhãn: hiệu ứng trong thời gian tồn tại
+direct: chỉ có nhãn và câu note
+
+column_terms.tsv:161: [] '降低目标冰抵抗' -> cold_resist_reduction | direct | nhãn: giảm kháng băng của mục tiêu
+direct: chỉ có nhãn và câu note
+
+column_terms.tsv:291: [] '安全级别' -> safety_level | direct | nhãn: mức an toàn
+direct: chỉ có nhãn và câu note
+
+column_terms.tsv:93: [SpecialObjData.txt] '参数说明' -> parameter_description | code:Common/Combat/DataRecords.cpp:27 | Descriptor_T đọc chuỗi mô tả tham số
+ 26: Assert(0<=nRow);
+>27: m_szDesc = pDB->Search_Posistion(nRow, nColumn++)->pString;
+ 28: m_nValue = pDB->Search_Posistion(nRow, nColumn++)->iValue;
+
+column_terms.tsv:224: [ImpactSEData_V1.txt] '持续特效的音效ID' -> continuous_sound_id | code:Common/Combat/DataRecords.cpp:356 | mã bỏ qua cột âm thanh duy trì
+ 355: ++column; //Skip 持续特效
+>356: ++column; //Skip 持续音效
+ 357: ++column; //Skip 持续特效绑定点
+
+column_terms.tsv:322: [] '心法修正率6' -> inner_art_modifier_rate_6 | direct | nhãn: hệ số sửa tâm pháp
+direct: chỉ có nhãn và câu note
+
+column_terms.tsv:696: [] '特殊材料的物品子类（From CommonItem.txt），若填写则必须' -> material_subclass | direct | nhãn nói lớp con vật phẩm lấy từ CommonItem
+direct: chỉ có nhãn và câu note
+
+column_terms.tsv:228: [ImpactSEData_V1.txt] '死后是否保留' -> kept_after_death | code:Common/Combat/DataRecords.cpp:358 | đọc vào m_bStillOnWhenOwnerDead
+ 357: ++column; //Skip 持续特效绑定点
+>358: m_bStillOnWhenOwnerDead = (0!=(pDB->Search_Posistion(nRow, column++)->iValue));
+ 359: m_bCanBeDispeled = (0!=(pDB->Search_Posistion(nRow, column++)->iValue));
+
+column_terms.tsv:424: [] '门派需求' -> required_sect | glossary | 门派 là sect; nhãn là môn phái yêu cầu
+không thấy dòng glossary
+
+column_terms.tsv:129: [MonsterAttrExTable.txt] '掉落最大有效组' -> drop_team_count | code:Server/GameServer/Server/Main/GameTable.cpp:393 | đọc vào m_SearchTeamCount
+ 392: iValue		=	ThirdFile.Search_Posistion(i,MonsterDropTeamCount)->iValue;
+>393: g_MonsterAttrExTbl.m_TableExt[iType].m_SearchTeamCount	=	iValue;
+ 394: 
+
+column_terms.tsv:585: [] '消耗物品ID' -> cost_item_id | direct | nhãn id vật phẩm tiêu hao
+direct: chỉ có nhãn và câu note
+
+column_terms.tsv:483: [] '场景{n}' -> scene_{n} | direct | nhãn cảnh có số thứ tự
+direct: chỉ có nhãn và câu note
+
+column_terms.tsv:33: [] '技能类型' -> skill_type | direct | nhãn cùng nghĩa ở mọi bảng
+direct: chỉ có nhãn và câu note
+
+column_terms.tsv:413: [] '对装备基础外攻防御百分比加成' -> equip_base_physical_defence_percent | direct | cộng phần trăm lên phòng thủ vật lý gốc
+direct: chỉ có nhãn và câu note
+
+column_terms.tsv:378: [] '会心' -> critical_hit | direct | nhãn hội tâm, một cột riêng với hội tâm phòng thủ
+direct: chỉ có nhãn và câu note
+
+column_terms.tsv:234: [ImpactSEData_V1.txt] '是否可以被手动取消' -> can_cancel_manually | code:Common/Combat/DataRecords.cpp:361 | đọc vào m_bCanBeManualCancel
+ 360: m_bHostileFlag = (0!=(pDB->Search_Posistion(nRow, column++)->iValue));
+>361: m_bCanBeManualCancel= (0!=(pDB->Search_Posistion(nRow, column++)->iValue));
+ 362: ++column; //Skipp 预留域
+
+column_terms.tsv:247: [] '陷阱专用标记' -> trap_flag | direct | nhãn cùng nghĩa ở mọi bảng
+direct: chỉ có nhãn và câu note
+
+column_terms.tsv:298: [] '心法4级对应的实际技能ID' -> skill_id_at_inner_art_level_4 | direct | nhãn: id kỹ năng thật ứng với cấp tâm pháp
+direct: chỉ có nhãn và câu note
+
+column_terms.tsv:466: [] '广播类型0.普通说话消息1.队伍消息2.场景消息4.系统消息世界消息6.帮派消息9.门派消息' -> broadcast_kind | direct | nhãn loại phát tin; số trong nhãn là mã kênh
+direct: chỉ có nhãn và câu note
+
+column_terms.tsv:66: [] '命中率' -> accuracy | direct | nhãn: tỉ lệ trúng
+direct: chỉ có nhãn và câu note
+
+column_terms.tsv:202: [] '需求技能' -> required_skill | direct | nhãn: kỹ năng yêu cầu
+direct: chỉ có nhãn và câu note
+
+column_terms.tsv:100: [XinFa_V1.txt] '心法名称$1$' -> inner_art_name | code:Common/Combat/DataRecords.cpp:107 | đọc vào m_szName
+ 106: m_nMenPai = pDB->Search_Posistion(nRow, column++)->iValue;
+>107: m_szName = pDB->Search_Posistion(nRow, column++)->pString;
+ 108: m_szDescription = pDB->Search_Posistion(nRow, column++)->pString;
+
+column_terms.tsv:571: [] '显示名称文本' -> display_name | direct | nhãn chữ tên hiển thị
+direct: chỉ có nhãn và câu note
+
+column_terms.tsv:302: [] '心法8级对应的实际技能ID' -> skill_id_at_inner_art_level_8 | direct | nhãn: id kỹ năng thật ứng với cấp tâm pháp
+direct: chỉ có nhãn và câu note
+
+column_terms.tsv:678: [] '副绑定点' -> secondary_anchor | direct | nhãn điểm gắn phụ
+direct: chỉ có nhãn và câu note
+
+column_terms.tsv:420: [] '特殊技能发动概率' -> special_skill_rate | direct | nhãn xác suất phát kỹ năng đặc biệt
+direct: chỉ có nhãn và câu note
+
+column_terms.tsv:510: [] '是否循环 0：不循环 1：循环' -> is_looping | direct | nhãn có lặp hay không
+direct: chỉ có nhãn và câu note
+
+column_terms.tsv:479: [] '能否回购' -> can_buy_back | direct | nhãn có mua lại hay không
+direct: chỉ có nhãn và câu note
+
+column_terms.tsv:478: [] '收购类型' -> buy_kind | direct | nhãn loại thu mua
+direct: chỉ có nhãn và câu note
+
+column_terms.tsv:64: [] '连续攻击次数或引导的时间间隔(ms)' -> consecutive_hits_or_channel_interval_ms | direct | nhãn: số lần đánh liên tiếp hoặc khoảng dẫn chiêu, mili giây
+direct: chỉ có nhãn và câu note
+
+column_terms.tsv:13: [SkillTemplate_V1.txt] '技能的心法等级限制' -> inner_art_level_limit | code:Common/Combat/DataRecords.cpp:186 | đọc vào m_nSkillMaxLevel; nhãn là giới hạn cấp tâm pháp
+ 185: // Read the level requirement
+>186: m_nSkillMaxLevel = pDB->Search_Posistion(nRow, column++)->iValue;
+ 187: // skip multi-strike flag
+
+column_terms.tsv:366: [] '对装备基础物理攻击百分比加成' -> equip_base_physical_attack_percent | code:Common/GameDefine_Item.h:57 | enum IATTRIBUTE_RATE_ATTACK_EP
+ 56: IATTRIBUTE_RATE_ATTACK_P	=20,	//按百分比增加物理攻击
+>57: IATTRIBUTE_RATE_ATTACK_EP	=21,	//对装备基础物理攻击百分比加成
+ 58: IATTRIBUTE_DEFENCE_P		=22,	//物理防御
+
+column_terms.tsv:84: [] '技能逻辑ID' -> logic_id | direct | nhãn: id logic kỹ năng
+direct: chỉ có nhãn và câu note
+
+column_terms.tsv:507: [] '进度条显示的字$1$' -> progress_text | direct | nhãn chữ trên thanh tiến độ
+direct: chỉ có nhãn và câu note
+
+column_terms.tsv:70: [] '范围半径' -> radius | direct | nhãn: bán kính vùng
+direct: chỉ có nhãn và câu note
+
+column_terms.tsv:341: [] '场景怪物10' -> scene_monster_10 | direct | nhãn: quái của cảnh
+direct: chỉ có nhãn và câu note
+
+column_terms.tsv:597: [] '环数（客户端）' -> client_round_count | direct | nhãn số vòng phía client
+direct: chỉ có nhãn và câu note
+
+
+
+===== column_terms_server =====
+
+column_terms_server.tsv:545: [ItemSegRate.txt] '按百分比增加魔法攻击' -> magic_attack_percent | direct | nhãn thuộc tính trang bị
+direct: chỉ có nhãn và câu note
+
+column_terms_server.tsv:627: [ItemQuality.txt] '武器Q9' -> weapon_quality_9 | direct | nhãn: xác suất phẩm chất
+direct: chỉ có nhãn và câu note
+
+column_terms_server.tsv:73: [DropBoxContent.txt] '149' -> item_149_id | direct | nhãn là số thứ tự cặp vật phẩm, đứng trước Level
+direct: chỉ có nhãn và câu note
+
+column_terms_server.tsv:330: [StandardImpact.txt] '参数2说明' -> parameter_2_description | direct | nhãn: chú thích tham số
+direct: chỉ có nhãn và câu note
+
+column_terms_server.tsv:137: [DropBoxContent.txt] '208' -> item_208_id | direct | nhãn là số thứ tự cặp vật phẩm, đứng trước Level
+direct: chỉ có nhãn và câu note
+
+column_terms_server.tsv:363: [AttrLevelUpTable.txt] '大理力量' -> dali_strength | direct | nhãn: chỉ số gốc của môn phái theo cấp
+direct: chỉ có nhãn và câu note
+
+column_terms_server.tsv:856: [Questions.txt] '选项4$1$' -> option_4 | direct | nhãn: phương án
+direct: chỉ có nhãn và câu note
+
+column_terms_server.tsv:58: [DropBoxContent.txt] '136' -> item_136_id | direct | nhãn là số thứ tự cặp vật phẩm, đứng trước Level
+direct: chỉ có nhãn và câu note
+
+column_terms_server.tsv:88: [DropBoxContent.txt] '161' -> item_161_id | direct | nhãn là số thứ tự cặp vật phẩm, đứng trước Level
+direct: chỉ có nhãn và câu note
+
+column_terms_server.tsv:758: [ImpactCollections.txt] '结尾说明，测试用' -> footer_note | direct | nhãn: chú thích cuối, ghi là dùng để thử
+direct: chỉ có nhãn và câu note
+
+column_terms_server.tsv:127: [CampAndStand.txt] '2' -> stand_with_camp_2 | code:Common/Combat/CampAndStand.cpp:38 | đọc vào m_aStands theo id phe
+ 37: {
+>38: m_aStands[nIdx]= pDB->Search_Posistion(nRow, column++)->iValue != 0;
+ 39: }
+
+column_terms_server.tsv:686: [ItemSegRate.txt] '毒攻击' -> poison_attack | direct | nhãn thuộc tính trang bị
+direct: chỉ có nhãn và câu note
+
+column_terms_server.tsv:823: [ItemValue.txt] '衣服小5' -> clothes_min_5 | direct | nhãn: cận của một bậc thuộc tính
+direct: chỉ có nhãn và câu note
+
+column_terms_server.tsv:305: [Impact.txt] '原子操作ID(8)' -> atom_8_id | direct | nhãn: id thao tác nguyên tử
+direct: chỉ có nhãn và câu note
+
+column_terms_server.tsv:210: [DarkSkillStudy.txt] '90级技能' -> level_90_skill | direct | nhãn: kỹ năng của một cấp
+direct: chỉ có nhãn và câu note
+
+column_terms_server.tsv:928: [ItemQuality.txt] '鞋子戒指Q13' -> shoe_ring_quality_13 | direct | nhãn: xác suất phẩm chất
+direct: chỉ có nhãn và câu note
+
+column_terms_server.tsv:262: [PvpRuler.txt] '允许Pk最小级别' -> min_pk_level | direct | nhãn luật PvP
+direct: chỉ có nhãn và câu note
+
+column_terms_server.tsv:815: [ItemValue.txt] '衣服小16' -> clothes_min_16 | direct | nhãn: cận của một bậc thuộc tính
+direct: chỉ có nhãn và câu note
+
+column_terms_server.tsv:717: [ItemSegValue.txt] '玄攻击' -> lightning_attack | direct | nhãn thuộc tính trang bị
+direct: chỉ có nhãn và câu note
+
+column_terms_server.tsv:179: [DropBoxContent.txt] '249' -> item_249_id | direct | nhãn là số thứ tự cặp vật phẩm, đứng trước Level
+direct: chỉ có nhãn và câu note
+
+column_terms_server.tsv:91: [DropBoxContent.txt] '164' -> item_164_id | direct | nhãn là số thứ tự cặp vật phẩm, đứng trước Level
+direct: chỉ có nhãn và câu note
+
+column_terms_server.tsv:284: [CreateQualityOfVaryPetTbl.txt] '几率(10w)' -> chance_per_100000 | direct | nhãn: xác suất, đơn vị một phần 10 vạn
+direct: chỉ có nhãn và câu note
+
+column_terms_server.tsv:830: [PunishByLevel.txt] '装备最大掉落数目' -> equipment_drop_max | direct | nhãn: số trang bị rơi nhiều nhất
+direct: chỉ có nhãn và câu note
+
+column_terms_server.tsv:10: [PvpRuler.txt] '"允许自由PK, 1为允许,0为禁止"' -> allow_free_pk | direct | nhãn luật PvP
+direct: chỉ có nhãn và câu note
+
+column_terms_server.tsv:202: [DarkSkillList.txt] '70级技能' -> level_70_skill | direct | nhãn: kỹ năng của một cấp
+direct: chỉ có nhãn và câu note
+
+column_terms_server.tsv:801: [ItemValue.txt] '衣服大3' -> clothes_max_3 | direct | nhãn: cận của một bậc thuộc tính
+direct: chỉ có nhãn và câu note
+
+column_terms_server.tsv:114: [DropBoxContent.txt] '187' -> item_187_id | direct | nhãn là số thứ tự cặp vật phẩm, đứng trước Level
+direct: chỉ có nhãn và câu note
+
+column_terms_server.tsv:22: [DropBoxContent.txt] '106' -> item_106_id | direct | nhãn là số thứ tự cặp vật phẩm, đứng trước Level
+direct: chỉ có nhãn và câu note
+
+column_terms_server.tsv:546: [ItemSegValue.txt] '按百分比增加魔法攻击' -> magic_attack_percent | direct | nhãn thuộc tính trang bị
+direct: chỉ có nhãn và câu note
+
+column_terms_server.tsv:443: [ItemValue.txt] '帽子小8' -> hat_min_8 | direct | nhãn: cận của một bậc thuộc tính
+direct: chỉ có nhãn và câu note
+
+column_terms_server.tsv:821: [ItemValue.txt] '衣服小3' -> clothes_min_3 | direct | nhãn: cận của một bậc thuộc tính
+direct: chỉ có nhãn và câu note
+
+column_terms_server.tsv:32: [DropBoxContent.txt] '113' -> item_113_id | direct | nhãn là số thứ tự cặp vật phẩm, đứng trước Level
+direct: chỉ có nhãn và câu note
+
+column_terms_server.tsv:77: [DropBoxContent.txt] '151' -> item_151_id | direct | nhãn là số thứ tự cặp vật phẩm, đứng trước Level
+direct: chỉ có nhãn và câu note
+
+column_terms_server.tsv:538: [ItemQuality.txt] '护腕项链Q9' -> wrist_necklace_quality_9 | direct | nhãn: xác suất phẩm chất
+direct: chỉ có nhãn và câu note
+
+column_terms_server.tsv:877: [Questions.txt] '问题内容$1$' -> question_text | direct | nhãn: nội dung câu hỏi
+direct: chỉ có nhãn và câu note
+
+column_terms_server.tsv:789: [ItemValue.txt] '衣服大10' -> clothes_max_10 | direct | nhãn: cận của một bậc thuộc tính
+direct: chỉ có nhãn và câu note
+
+column_terms_server.tsv:724: [ItemSegRate.txt] '生命偷取' -> life_steal | direct | nhãn thuộc tính trang bị
+direct: chỉ có nhãn và câu note
+
+column_terms_server.tsv:90: [DropBoxContent.txt] '163' -> item_163_id | direct | nhãn là số thứ tự cặp vật phẩm, đứng trước Level
+direct: chỉ có nhãn và câu note
+
+column_terms_server.tsv:445: [ItemQuality.txt] '帽子腰带Q1' -> hat_belt_quality_1 | direct | nhãn: xác suất phẩm chất
+direct: chỉ có nhãn và câu note
+
+column_terms_server.tsv:833: [PunishByLevel.txt] '装备最小掉落数目' -> equipment_drop_min | direct | nhãn: số trang bị rơi ít nhất
+direct: chỉ có nhãn và câu note
+
+
+
+===== refs =====
+
+refs/server.tsv:5: tables/server/monster_drops.tsv id -> tables/shared/monsters.tsv monster_id absent='' known_missing=30 | code:Server/GameServer/Server/Item/ItemTable.cpp:1202 | Mã đọc cột 0 vào m_MonsterId. Thiếu 30 id: 9621-9635 và 12300-12314, không có trong monsters.
+ 1201: {
+>1202: m_pMonsterDropTableData[i].m_MonsterId		=	ThirdFile.Search_Posistion(i,TBMonsterID)->iValue;
+ 1203: m_pMonsterDropTableData[i].m_MonsterValue	=	ThirdFile.Search_Posistion(i,TBMonsterValue)->iValue;
+
+refs/scenes.tsv:7: scenes/*/areas*.tsv script_id -> tables/server/script_index.tsv script_id absent='-1' known_missing=0 | code:Server/GameServer/Server/Obj/Obj_Human.cpp:924 | (UINT)-1 bằng UINT_MAX nên không gọi script vùng
+ 923: {
+>924: pLuaInterface->ExeScript_DDD(m_uAreaScript, DEF_ON_ENTER_AREA_FUNC_NAME, (INT)sceneid, (INT)GetID(), 0);
+ 925: }
+
+refs/server.tsv:26: tables/server/scene_hosting.tsv scene_id -> tables/server/scenes.tsv scene_id absent='' known_missing=0 | code:Server/GameServer/Server/Main/ThreadManager.cpp:55 | Cùng chỉ số scene của SceneInfo. Mã lấy m_SceneID để gắn luồng.
+ 54: //读取场景“i”
+>55: SceneID_t SceneID = (SceneID_t)(g_Config.m_SceneInfo.m_pScene[i].m_SceneID) ;
+ 56: Assert( SceneID<MAX_SCENE ) ;
+
+refs/server.tsv:8: tables/server/monster_drops.tsv did_3 -> tables/server/drop_packages.tsv id absent='-1' known_missing=0 | code:Server/GameServer/Server/Item/ItemTable.cpp:1212 | Mã đọc vào m_DropBox. -1 là không trỏ.
+ 1211: //if(iValue!=-1)
+>1212: m_pMonsterDropTableData[i].m_DropBoxs.m_DropBox[j] =	iValue;
+ 1213: }
+
+refs/shared.tsv:22: tables/shared/skills.tsv skill_id_at_inner_art_level_16 -> tables/shared/skill_levels.tsv id absent='-1' known_missing=0 | code:Common/Combat/DataRecords.cpp:275 | m_aSkillInstance đọc id SkillData; 0 là id thật
+ 274: {
+>275: m_aSkillInstance[i] = pDB->Search_Posistion(nRow, column++)->iValue;
+ 276: }
+
+refs/server.tsv:10: tables/server/monster_drops.tsv did_5 -> tables/server/drop_packages.tsv id absent='-1' known_missing=0 | code:Server/GameServer/Server/Item/ItemTable.cpp:1212 | Mã đọc vào m_DropBox. -1 là không trỏ.
+ 1211: //if(iValue!=-1)
+>1212: m_pMonsterDropTableData[i].m_DropBoxs.m_DropBox[j] =	iValue;
+ 1213: }
+
+refs/shared.tsv:19: tables/shared/skills.tsv skill_id_at_inner_art_level_13 -> tables/shared/skill_levels.tsv id absent='-1' known_missing=0 | code:Common/Combat/DataRecords.cpp:275 | m_aSkillInstance đọc id SkillData; 0 là id thật
+ 274: {
+>275: m_aSkillInstance[i] = pDB->Search_Posistion(nRow, column++)->iValue;
+ 276: }
+
+refs/server.tsv:19: tables/server/monster_drops.tsv did_14 -> tables/server/drop_packages.tsv id absent='-1' known_missing=0 | code:Server/GameServer/Server/Item/ItemTable.cpp:1212 | Mã đọc vào m_DropBox. -1 là không trỏ.
+ 1211: //if(iValue!=-1)
+>1212: m_pMonsterDropTableData[i].m_DropBoxs.m_DropBox[j] =	iValue;
+ 1213: }
+
+refs/shared.tsv:27: tables/shared/pet_skill_books.tsv item_id -> tables/shared/items_common.tsv index absent='-1' known_missing=0 | label | nhãn 珍兽技能书的物品ID
+label: nhãn cột phải tự nói bảng đích
+
+refs/shared.tsv:17: tables/shared/skills.tsv skill_id_at_inner_art_level_11 -> tables/shared/skill_levels.tsv id absent='-1' known_missing=0 | code:Common/Combat/DataRecords.cpp:275 | m_aSkillInstance đọc id SkillData; 0 là id thật
+ 274: {
+>275: m_aSkillInstance[i] = pDB->Search_Posistion(nRow, column++)->iValue;
+ 276: }
+
+refs/scenes.tsv:9: scenes/*/spawns*.tsv base_ai -> tables/server/monster_ai_types.tsv ai_id absent='' known_missing=0 | code:Server/GameServer/Server/AI/AI_Monster.cpp:1588 | Get theo AIType gán từ base_ai
+ 1587: Assert( GetCharacter() ) ;
+>1588: return g_MonsterAITbl.Get( GetCharacter()->GetAIType(), AIParam ) ;
+ 1589: __LEAVE_FUNCTION
+
+refs/server.tsv:18: tables/server/monster_drops.tsv did_13 -> tables/server/drop_packages.tsv id absent='-1' known_missing=0 | code:Server/GameServer/Server/Item/ItemTable.cpp:1212 | Mã đọc vào m_DropBox. -1 là không trỏ.
+ 1211: //if(iValue!=-1)
+>1212: m_pMonsterDropTableData[i].m_DropBoxs.m_DropBox[j] =	iValue;
+ 1213: }
+
+refs/server.tsv:17: tables/server/monster_drops.tsv did_12 -> tables/server/drop_packages.tsv id absent='-1' known_missing=0 | code:Server/GameServer/Server/Item/ItemTable.cpp:1212 | Mã đọc vào m_DropBox. -1 là không trỏ.
+ 1211: //if(iValue!=-1)
+>1212: m_pMonsterDropTableData[i].m_DropBoxs.m_DropBox[j] =	iValue;
+ 1213: }
+
+refs/server.tsv:21: tables/server/monster_drops.tsv did_16 -> tables/server/drop_packages.tsv id absent='-1' known_missing=0 | code:Server/GameServer/Server/Item/ItemTable.cpp:1212 | Mã đọc vào m_DropBox. -1 là không trỏ.
+ 1211: //if(iValue!=-1)
+>1212: m_pMonsterDropTableData[i].m_DropBoxs.m_DropBox[j] =	iValue;
+ 1213: }
+
+refs/server.tsv:6: tables/server/monster_drops.tsv did_1 -> tables/server/drop_packages.tsv id absent='-1' known_missing=0 | code:Server/GameServer/Server/Item/ItemTable.cpp:1212 | Mã đọc vào m_DropBox. -1 là không trỏ.
+ 1211: //if(iValue!=-1)
+>1212: m_pMonsterDropTableData[i].m_DropBoxs.m_DropBox[j] =	iValue;
+ 1213: }

@@ -1,0 +1,7 @@
+# schema 1
+# source: server_config/StringTable.txt
+# tool: TOOLS/server/import_legacy.py; sửa tay sẽ mất ở lượt xuất sau
+# types: int	text	text	text	text
+index	original	name	type	note
+0	ID	id	int	luật: M1
+1	字符串$1$	text	text	luật: nguyên văn

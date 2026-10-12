@@ -1,0 +1,25 @@
+# schema 1
+# source: TLBB Dev src/protocol/protocol.hpp @e0d89a6 (bản 2026-10-05, nhóm 01, 02, 05)
+# version 1
+# types: kind	ident	port	int	text
+kind	name	port	since	summary
+record	CharacterSummary			Tóm tắt một nhân vật trong danh sách chọn nhân vật.
+0x0101	Hello	both	1	Tin đầu tiên của mọi kết nối, báo phiên bản giao thức, nền tảng và bản dựng client.
+0x0102	Login	game	1	Đăng nhập cổng game bằng vé do cổng xác thực cấp, không bao giờ mang mật khẩu.
+0x0103	Resume	game	1	Nối lại phiên cũ bằng token phiên sau khi rớt mạng.
+0x0104	Ping	game	1	Nhịp tim của client, mang giờ client để đo độ trễ khứ hồi.
+0x0105	Logout	game	1	Client chủ động rời phiên; thân rỗng.
+0x0201	CreateCharacter	game	1	Tạo nhân vật mới với tên, giới tính, khuôn mặt và kiểu tóc.
+0x0202	DeleteCharacter	game	1	Xoá một nhân vật của tài khoản.
+0x0203	EnterGame	game	1	Vào game bằng nhân vật đã chọn.
+0x0501	CreateAccount	auth	1	Tạo tài khoản mới ở cổng xác thực.
+0x0502	SignIn	auth	1	Đăng nhập bằng mật khẩu ở cổng xác thực để nhận vé.
+0x8101	Welcome	both	1	Server đáp Hello: phiên bản giao thức, giờ server và chu kỳ nhịp tim.
+0x8102	SessionStart	game	1	Server mở phiên và cấp token để nối lại sau này.
+0x8103	ContentKey	game	1	Khoá giải mã gói nội dung của phiên.
+0x8104	Pong	game	1	Server đáp Ping, trả lại giờ client kèm giờ server.
+0x8106	Reject	both	1	Server từ chối một tin của client và nêu mã lỗi.
+0x8107	Goodbye	both	1	Server báo sắp đóng kết nối và nêu lý do.
+0x8108	ContentStamp	game	1	Dấu băm của gói nội dung để client đối chiếu với bản đang có.
+0x8201	CharacterList	game	1	Danh sách nhân vật của tài khoản để chọn vào game.
+0x8501	Ticket	auth	1	Vé vào cổng game do cổng xác thực cấp sau khi đăng nhập đúng.

@@ -1,0 +1,63 @@
+#==================================================
+# LUẬT BANG HỘI
+#==================================================
+# Thành viên, nha môn, tiền trang, sương phòng, phồn vinh và liên minh.
+
+#==================================================
+# Chung
+#==================================================
+schema = 1   # Phiên bản bố cục của tệp; bộ đọc từ chối số nó không hiểu
+
+#==================================================
+# Bang
+#==================================================
+[guild]
+initial_member_cap = 60         # Trần thành viên lúc mới lập bang.
+city_cost          = 10000000   # Tiền lập thành.
+message_cost       = 1000       # Phí một lời nhắn bang.
+battle_time        = 120        # Thời lượng tuyên chiến bang.
+leave_buff         = false      # Bật hiệu ứng khi rời bang.
+trade_guard        = true       # Bật chống gian lận chạy thương.
+fix_county_level   = true       # Sửa cấp nha môn lúc nạp bang.
+
+#==================================================
+# Nha môn
+#==================================================
+[county_office]
+max_user       = [70, 80, 90, 100, 110]                               # Trần dân số nha môn, cấp 1 đến 5.
+standard_money = [1666667, 3333333, 6666667, 13333333, 26666667]      # Quỹ chuẩn của nha môn, cấp 1 đến 5.
+max_money      = [10000000, 20000000, 40000000, 60000000, 80000000]   # Trần quỹ nha môn, cấp 1 đến 5.
+max_trader     = [8, 9, 10, 11, 12]                                   # Trần thương nhân nha môn, cấp 1 đến 5.
+
+#==================================================
+# Tiền trang
+#==================================================
+[bank]
+delta_money = [833333, 1666667, 3333333, 6666667, 13333333]   # Lệch quỹ tiền trang theo cấp nha môn.
+
+#==================================================
+# Sương phòng
+#==================================================
+[guest_wing]
+max_user = [30, 50, 80, 120, 150]   # Trần dân số sương phòng, cấp 1 đến 5.
+
+#==================================================
+# Phồn vinh
+#==================================================
+[prosperity]
+cap                  = 999    # Trần phồn vinh của bang.
+expand_permille      = 400    # Trọng số phồn vinh của mở rộng.
+agriculture_permille = 1600   # Trọng số phồn vinh của nông nghiệp.
+commerce_permille    = 1600   # Trọng số phồn vinh của thương mại.
+defence_permille     = 800    # Trọng số phồn vinh của phòng thủ.
+industry_permille    = 1600   # Trọng số phồn vinh của công nghiệp.
+technology_permille  = 800    # Trọng số phồn vinh của kỹ thuật.
+ticket_decay         = 136    # Độ giảm thương phiếu của bang mới.
+
+#==================================================
+# Liên minh
+#==================================================
+[league]
+max_count    = 255       # Trần số liên minh một thế giới xin được.
+rejoin_hours = 72        # Số giờ sau khi rời liên minh mới xin lại.
+create_cost  = 1000000   # Tiền lập liên minh.

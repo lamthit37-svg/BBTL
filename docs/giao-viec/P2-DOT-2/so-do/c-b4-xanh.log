@@ -1,0 +1,15 @@
+# lệnh: python -B -W error -m unittest test_gen_protocol.RuleTests.test_g3_generated_names test_gen_protocol.RuleTests.test_g8_bad_underlying_in_list -v
+# cwd: F:\tl 2026\THIENLONG\build\p2-dot-2
+# giờ: 2026-10-08 10:15:32
+# commit: 0e6da48f366b0a1d58d55fe9f807adba2425b47a
+
+test_g3_generated_names (test_gen_protocol.RuleTests.test_g3_generated_names) ... ok
+test_g8_bad_underlying_in_list (test_gen_protocol.RuleTests.test_g8_bad_underlying_in_list) ... ok
+
+----------------------------------------------------------------------
+Ran 2 tests in 0.010s
+
+OK
+
+mã thoát: 0
+# xong: 2026-10-08 10:15:32

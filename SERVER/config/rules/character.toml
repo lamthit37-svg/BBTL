@@ -1,0 +1,44 @@
+#==================================================
+# LUẬT NHÂN VẬT
+#==================================================
+# Tầm kinh nghiệm, hồn ma, tốc độ, cấp tối đa, hồi hoạt lực và hệ số kinh nghiệm.
+
+#==================================================
+# Chung
+#==================================================
+schema = 1   # Phiên bản bố cục của tệp; bộ đọc từ chối số nó không hiểu
+
+#==================================================
+# Nhân vật
+#==================================================
+[human]
+can_get_exp_range         = 60       # Phạm vi nhận kinh nghiệm. Đơn vị chưa xác lập.
+out_ghost_time_ms         = 300000   # Thời gian ở dạng hồn; mã đưa vào bộ hẹn giờ.
+default_move_speed        = 4000     # Tốc độ đi mặc định, mã chia cho 1000. Đơn vị chưa xác lập.
+default_attack_speed      = 2000     # Chỉ được nạp, không chỗ nào đọc. Đơn vị chưa xác lập.
+vigor_recover_interval_ms = 300000   # Nhịp hồi hoạt lực và tinh lực, mili giây.
+max_level                 = 120      # Cấp tối đa theo kinh nghiệm; cấp thật bằng giá trị trừ 1.
+pk_value_refresh_seconds  = 3600     # Nhịp giảm sát khí, giây.
+pilfer_lock_time          = 1000     # Khoá an toàn, gốc ghi (毫少). Đơn vị chưa xác lập.
+inner_art_max_level       = 120      # Cấp tối đa của tâm pháp.
+level_up_captcha_min      = 0        # Cấp nhỏ nhất phải xác minh hình khi lên cấp.
+level_up_captcha_max      = 0        # Cấp lớn nhất phải xác minh hình khi lên cấp.
+min_level_ingot_voucher   = 30       # Cấp nhỏ nhất để nhận ingot voucher.
+
+#==================================================
+# Kinh nghiệm
+#==================================================
+[exp]
+factor_permille               = 1000   # Hệ số kinh nghiệm toàn cục.
+spouse_permille               = 40     # Cộng thêm khi trong đội có vợ hoặc chồng.
+brother_permille              = 20     # Cộng thêm khi trong đội có huynh đệ.
+master_in_team_permille       = 200    # Cộng thêm khi sư phụ có trong đội.
+master_absent_permille        = 100    # Cộng thêm khi có sư phụ nhưng không trong đội.
+prentice_permille             = 50     # Cộng kinh nghiệm sau khi nhận đồ đệ.
+hidden_weapon_absorb_permille = 10     # Tỉ lệ ám khí hút kinh nghiệm.
+
+#==================================================
+# Kỹ năng sống
+#==================================================
+[life_skill]
+assistant_demand_param = [1514, 19000, 200, 37100]   # Bốn tham số giảm tiêu hao kỹ năng phụ, theo thứ tự.

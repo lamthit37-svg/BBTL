@@ -1,0 +1,21 @@
+# schema 1
+# source: client_2026/Mission_NpcDefault.txt
+# tool: TOOLS/server/export_tables.py; sửa tay sẽ mất ở lượt xuất sau
+# types: int	int	int	text	int	text	text	text	text	text
+column_0	script_id	scene_id	npc_name	column_4	column_5	column_6	column_7	column_8	column_9
+1	1040000	6	干光豪	1	我是干光豪，这是我填入表中的缺省对白，生效了哦！！				
+2	1040001	6	葛光佩	1					
+3	1040002	6	马五德	1					
+⟪thiếu dòng này⟫
+⟪thiếu dòng này⟫
+⟪thiếu dòng này⟫
+⟪thiếu dòng này⟫
+⟪thiếu dòng này⟫
+⟪thiếu dòng này⟫
+⟪thiếu dòng này⟫
+⟪thiếu dòng này⟫
+⟪thiếu dòng này⟫
+⟪thiếu dòng này⟫
+⟪thiếu dòng này⟫
+⟪thiếu dòng này⟫
+⟪thiếu dòng này⟫

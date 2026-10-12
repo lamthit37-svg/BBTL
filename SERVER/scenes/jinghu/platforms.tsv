@@ -1,0 +1,8 @@
+# schema 1
+# source: Public/Scene/jinghu_platform.ini
+# tool: TOOLS/server/export_scene.py; sửa tay sẽ mất ở lượt xuất sau
+# types: int	int	float	float	int	int	text
+type_id	class_id	position_x	position_z	direction	script_id	tip
+17	10	44	279	27		通往无量山
+17	10	37	265	27		通往武当山
+17	10	279	43	27		通往苏州

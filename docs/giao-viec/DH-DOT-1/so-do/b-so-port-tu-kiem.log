@@ -1,0 +1,5 @@
+# b-so-port-tu-kiem.log 2026-10-08 15:20:25, Hoon, B. build\tam trước khi chạy: False
+$ python -B -W error docs/giao-viec/DH-DOT-1/so-do/b-so-port.py --self-test   (mã thoát 0)
+khoá giả F:\tl 2026\THIENLONG\build\dh-dot-1\build\tam\b-so-port-tu-kiem\NANG.lock: từ chối True, giữ nguyên True, từ chối khoá ngoài True, lấy True, nhả True; xoá b-so-port-tu-kiem: True
+self-test: 12/12 đạt
+# Test-Path build\tam\b-so-port-tu-kiem = False; đã xoá build\tam rỗng (do self-test tạo); Test-Path build\tam = False

@@ -1,0 +1,14 @@
+# 2026-10-08 09:52:07  T4 chạy bằng c-do.py t4() (thư mục làm việc build/p2-l/do)
+
+## T4
+
+chép SRC/protocol/catalog sang build/p2-l/do/t4-catalog
+sửa fields.tsv dòng 6, cột limit: 48 thành 49 (trường CharacterSummary.name)
+
+$ python -B TOOLS/server/gen_protocol.py --catalog build/p2-l/do/t4-catalog --check
+cũ: SRC/protocol/messages.hpp
+cũ: tests/protocol_samples.hpp
+cũ: docs/PROTOCOL-TIN.md
+Chạy lại: python -B TOOLS/server/gen_protocol.py (3 tệp cũ).
+mã thoát: 1
+

@@ -1,0 +1,36 @@
+# schema 1
+# source: public_config/MonsterAITable.ini
+# tool: TOOLS/server/import_legacy.py; sửa tay sẽ mất ở lượt xuất sau
+# types: int	text	int	int	int	int	int	int	int	int	int	int	int
+ai_id	desc	aiparam0	aiparam1	aiparam2	aiparam3	aiparam4	aiparam5	aiparam6	aiparam7	aiparam8	aiparam9	aiparam10
+0	主动攻击，会随机移动，可以攻击（巡逻），会还击	2000	10000	0	30000	6000	10000	3000	10000	1	0	1
+⟪thiếu dòng này⟫
+⟪thiếu dòng này⟫
+⟪thiếu dòng này⟫
+⟪thiếu dòng này⟫
+⟪thiếu dòng này⟫
+⟪thiếu dòng này⟫
+⟪thiếu dòng này⟫
+⟪thiếu dòng này⟫
+⟪thiếu dòng này⟫
+⟪thiếu dòng này⟫
+⟪thiếu dòng này⟫
+⟪thiếu dòng này⟫
+⟪thiếu dòng này⟫
+⟪thiếu dòng này⟫
+⟪thiếu dòng này⟫
+⟪thiếu dòng này⟫
+⟪thiếu dòng này⟫
+⟪thiếu dòng này⟫
+⟪thiếu dòng này⟫
+⟪thiếu dòng này⟫
+⟪thiếu dòng này⟫
+⟪thiếu dòng này⟫
+⟪thiếu dòng này⟫
+⟪thiếu dòng này⟫
+⟪thiếu dòng này⟫
+⟪thiếu dòng này⟫
+⟪thiếu dòng này⟫
+⟪thiếu dòng này⟫
+⟪thiếu dòng này⟫
+⟪thiếu dòng này⟫

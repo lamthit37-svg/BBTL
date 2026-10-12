@@ -1,0 +1,7 @@
+docs: lát ba bảng của giao diện, ba chỗ hỏng đã sửa, bẫy bấm thử bằng thông điệp chuột.
+
+TIEN-DO thêm mục của lát; NGHI-NGO thêm mục 33 (vùng chữ của nút), 34 (một khung dài khi lần đầu
+mở bảng), 35 (ảnh con trỏ không có công cụ sinh) và nền thứ hai của mục 23; AGENTS mục 11 thêm
+bẫy con trỏ thật làm nhiễu phép bấm thử.
+
+Co-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>

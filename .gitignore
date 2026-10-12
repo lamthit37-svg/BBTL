@@ -1,0 +1,80 @@
+# Dự án C++23 theo bộ quy cách cpp23: mọi thứ build sinh ra nằm ngoài cây nguồn
+# (build/<preset>/), nên chỉ bỏ thư mục build, cấu hình cá nhân và rác hệ điều hành.
+# Không bỏ *.obj, *.lib theo đuôi: .obj còn là mô hình 3D, thư viện bên thứ ba có thể
+# cần commit. Tài nguyên nhị phân lớn đi qua Git LFS (.gitattributes).
+
+# Build
+/build/
+/out/
+/Testing/
+/cmake-build-*/
+/compile_commands.json
+CMakeUserPresets.json
+
+# Sản phẩm: exe do bước install chép vào; dữ liệu do TOOLS/content gom từ kho gốc.
+/CLIENT/bin/
+/CLIENT/data/
+
+# Runtime của máy chủ: exe do bước install chép vào; nhị phân PostgreSQL do TOOLS/server/setup_db.py
+# tải; dữ liệu, khoá và log sinh lúc chạy; bảng xuất từ client và lưới đã nấu do TOOLS/server sinh.
+# Cấu hình TOML, bảng chỉ máy chủ giữ, tệp cảnh dạng chữ và SQL thì vào git.
+/SERVER/bin/
+/SERVER/pgsql/
+/SERVER/data/
+/SERVER/log/
+/SERVER/tables/shared/
+/SERVER/tables/variants/
+/SERVER/scenes/**/*.nav
+/SERVER/scenes/**/*.bin
+
+# vcpkg
+/vcpkg_installed/
+
+# clangd
+/.cache/
+
+# VS
+/.vs/
+*.user
+*.suo
+
+# VS Code
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+
+# Rider
+/.idea/
+
+# Python
+__pycache__/
+
+# Blender
+*.blend[0-9]
+*.blend[0-9][0-9]
+
+# AI cá nhân
+CLAUDE.local.md
+AGENTS.override.md
+.claude/settings.local.json
+
+# Worktree của các phiên agent chạy song song (mỗi worktree có build/ riêng bên trong)
+/.worktrees/
+/.claude/worktrees/
+
+# Bí mật
+*.local.toml
+/.env
+
+# Rác OS
+Thumbs.db
+*.dmp
+desktop.ini
+.DS_Store
+$RECYCLE.BIN/
+~$*
+*.tmp
+*.swp
+*~

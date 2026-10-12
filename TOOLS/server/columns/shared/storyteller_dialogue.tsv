@@ -1,0 +1,7 @@
+# schema 1
+# source: client_2026/StorytellingDuologue.txt
+# tool: TOOLS/server/export_tables.py; sửa tay sẽ mất ở lượt xuất sau
+# types: int	text	text	text	text
+index	original	name	type	note
+0	对话序号	dialogue_index	int	luật: nguyên văn; khớp 100.0% (123/123 id)
+1	对话内容$1$	dialogue_text	text	luật: nguyên văn; khớp 100.0% (123/123 id)

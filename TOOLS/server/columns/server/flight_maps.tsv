@@ -1,0 +1,10 @@
+# schema 1
+# source: public_config/MountFlightMaps.txt
+# tool: TOOLS/server/import_legacy.py; sửa tay sẽ mất ở lượt xuất sau
+# types: int	text	text	text	text
+index	original	name	type	note
+0		column_0	text	? không có tên cột; dòng đầu tệp là MountFlightMaps và 1
+1		column_1	text	? không có tên cột
+2		column_2	text	? không có tên cột
+3		column_3	text	? không có tên cột
+4		column_4	text	? không có tên cột

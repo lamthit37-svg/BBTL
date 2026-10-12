@@ -1,0 +1,25 @@
+# 2026-10-08 02:16:43 fuzz tầng một xanh: 12 ca (6 ca bộ đột biến, 1 ca mẫu, 5 đích x 200000 lượt), clang-asan trong build/p2-l/tree
+> ctest --test-dir build/p2-l/tree -R "^protocol_fuzz_tests$" -V
+UpdateCTestConfiguration  from :F:/tl 2026/THIENLONG/build/p2-dot-2/build/p2-l/tree/DartConfiguration.tcl
+Test project F:/tl 2026/THIENLONG/build/p2-dot-2/build/p2-l/tree
+Constructing a list of tests
+Done constructing a list of tests
+Updating test list for fixtures
+Added 0 tests to meet fixture requirements
+Checking test dependency graph...
+Checking test dependency graph end
+test 46
+    Start 46: protocol_fuzz_tests
+
+46: Test command: "F:\tl 2026\THIENLONG\build\p2-dot-2\build\p2-l\tree\protocol_fuzz_tests.exe"
+46: Working Directory: F:/tl 2026/THIENLONG/build/p2-dot-2/build/p2-l/tree
+46: Test timeout computed to be: 10000000
+1/1 Test #46: protocol_fuzz_tests ..............   Passed   23.59 sec
+
+The following tests passed:
+	protocol_fuzz_tests
+
+100% tests passed out of 1
+
+Total Test time (real) =  23.60 sec
+exit 0

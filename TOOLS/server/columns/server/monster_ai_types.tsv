@@ -1,0 +1,18 @@
+# schema 1
+# source: public_config/MonsterAITable.ini
+# tool: TOOLS/server/import_legacy.py; sửa tay sẽ mất ở lượt xuất sau
+# types: int	text	text	text	text
+index	original	name	type	note
+0		ai_id	int	chỉ số AI
+1	DESC	desc	text	mã 2008 không đọc khoá này
+2	AIPARAM0	aiparam0	int	
+3	AIPARAM1	aiparam1	int	
+4	AIPARAM2	aiparam2	int	
+5	AIPARAM3	aiparam3	int	
+6	AIPARAM4	aiparam4	int	
+7	AIPARAM5	aiparam5	int	
+8	AIPARAM6	aiparam6	int	
+9	AIPARAM7	aiparam7	int	
+10	AIPARAM8	aiparam8	int	
+11	AIPARAM9	aiparam9	int	mã 2008 không đọc khoá này
+12	AIPARAM10	aiparam10	int	mã 2008 không đọc khoá này

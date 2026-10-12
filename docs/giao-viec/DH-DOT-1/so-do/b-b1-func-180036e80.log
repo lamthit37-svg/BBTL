@@ -1,0 +1,16 @@
+lệnh: python -B TOOLS/port/pe_refs.py "F:\tl 2026\Bin64\PathLib.dll" func 0x180036e80 (chỉ đọc tệp, không nạp DLL)
+bắt đầu: 2026-10-08 14:00:42
+---
+; hàm lá (không có trong .pdata) 0x180036e80..0x180036ea7 (39 byte)
+0x180036e80: xor eax, eax
+0x180036e82: mov dword ptr [rcx + 0x18], 0x40000000
+0x180036e89: mov qword ptr [rcx], rax
+0x180036e8c: mov qword ptr [rcx + 8], rax
+0x180036e90: mov qword ptr [rcx + 0x10], rax
+0x180036e94: inc qword ptr [rip + 0x1d34d]  ; 0x1800541e8 .data
+0x180036e9b: add qword ptr [rip + 0x1d34d], 0x20  ; 0x1800541f0 .data
+0x180036ea3: mov rax, rcx
+0x180036ea6: ret 
+---
+mã thoát: 0
+kết thúc: 2026-10-08 14:00:42

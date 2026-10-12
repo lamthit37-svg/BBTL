@@ -1,0 +1,117 @@
+-- chưa có SERVER/tables/shared: bỏ test server_data_lint, sinh bằng build_data.py
+-- Found Python3: C:/Users/myhea/AppData/Local/Programs/Python/Python313/python3.exe (found version "3.13.15") found components: Interpreter
+-- Configuring done (0.4s)
+-- Generating done (0.1s)
+-- Build files have been written to: F:/tl 2026/THIENLONG/build/p2-dot-2/build/gcc-debug
+[0/2] Re-checking globbed directories...
+[1/16] Chép compile_commands.json ra gốc dự án cho clangd
+[2/16] Building CXX object CMakeFiles/game_net.dir/SRC/net/socket_win32.cpp.obj
+[3/16] Building CXX object CMakeFiles/game_protocol.dir/SRC/protocol/wire.cpp.obj
+[4/16] Linking CXX static library libgame_protocol.a
+[5/16] Linking CXX static library libgame_net.a
+[6/16] Building CXX object CMakeFiles/protocol_tests.dir/tests/protocol_tests.cpp.obj
+[7/16] Building CXX object CMakeFiles/wire_loop_tests.dir/tests/wire_loop_tests.cpp.obj
+[8/16] Building CXX object CMakeFiles/net_tests.dir/tests/net_tests.cpp.obj
+[9/16] Building CXX object CMakeFiles/protocol_catalog_tests.dir/tests/protocol_catalog_tests.cpp.obj
+[10/16] Building CXX object CMakeFiles/protocol_fuzz_tests.dir/tests/protocol_fuzz_tests.cpp.obj
+[11/16] Linking CXX executable protocol_tests.exe
+[12/16] Linking CXX executable wire_loop_tests.exe
+[13/16] Linking CXX executable net_tests.exe
+[14/16] Linking CXX executable protocol_fuzz_tests.exe
+[15/16] Linking CXX executable protocol_catalog_tests.exe
+Test project F:/tl 2026/THIENLONG/build/p2-dot-2/build/gcc-debug
+      Start  1: fx_tests
+ 1/43 Test  #1: fx_tests .........................   Passed    0.01 sec
+      Start  2: io_tests
+ 2/43 Test  #2: io_tests .........................   Passed    0.01 sec
+      Start  3: xml_tests
+ 3/43 Test  #3: xml_tests ........................   Passed    0.00 sec
+      Start  4: audio_tests
+ 4/43 Test  #4: audio_tests ......................   Passed    0.48 sec
+      Start  5: audio_dsp_tests
+ 5/43 Test  #5: audio_dsp_tests ..................   Passed    0.21 sec
+      Start  6: seal_tests
+ 6/43 Test  #6: seal_tests .......................   Passed    0.01 sec
+      Start  7: scene_tests
+ 7/43 Test  #7: scene_tests ......................   Passed    0.00 sec
+      Start  8: map_tests
+ 8/43 Test  #8: map_tests ........................   Passed    0.01 sec
+      Start  9: world_tests
+ 9/43 Test  #9: world_tests ......................   Passed    0.01 sec
+      Start 10: transform_tests
+10/43 Test #10: transform_tests ..................   Passed    0.00 sec
+      Start 11: client_tests
+11/43 Test #11: client_tests .....................   Passed    0.00 sec
+      Start 12: props_tests
+12/43 Test #12: props_tests ......................   Passed    0.00 sec
+      Start 13: stage_tests
+13/43 Test #13: stage_tests ......................   Passed    0.01 sec
+      Start 14: core_tests
+14/43 Test #14: core_tests .......................   Passed    0.01 sec
+      Start 15: log_tests
+15/43 Test #15: log_tests ........................Exit code 0xc0000374***Exception:   0.65 sec
+
+      Start 16: function_fallback_tests
+16/43 Test #16: function_fallback_tests ..........   Passed    0.00 sec
+      Start 17: window_tests
+17/43 Test #17: window_tests .....................   Passed    0.64 sec
+      Start 18: ogre_tests
+18/43 Test #18: ogre_tests .......................   Passed    0.01 sec
+      Start 19: anim_tests
+19/43 Test #19: anim_tests .......................   Passed    0.00 sec
+      Start 20: motion_tests
+20/43 Test #20: motion_tests .....................   Passed    0.00 sec
+      Start 21: look_tests
+21/43 Test #21: look_tests .......................   Passed    0.02 sec
+      Start 22: head_tests
+22/43 Test #22: head_tests .......................   Passed    0.00 sec
+      Start 23: avatar_tests
+23/43 Test #23: avatar_tests .....................   Passed    0.01 sec
+      Start 24: control_tests
+24/43 Test #24: control_tests ....................   Passed    0.01 sec
+      Start 25: touch_tests
+25/43 Test #25: touch_tests ......................   Passed    0.00 sec
+      Start 26: hero_tests
+26/43 Test #26: hero_tests .......................   Passed    0.00 sec
+      Start 27: gui_value_tests
+27/43 Test #27: gui_value_tests ..................   Passed    0.00 sec
+      Start 28: gui_loader_tests
+28/43 Test #28: gui_loader_tests .................   Passed    0.01 sec
+      Start 29: gui_sheet_tests
+29/43 Test #29: gui_sheet_tests ..................   Passed    0.01 sec
+      Start 30: loong_camera_tests
+30/43 Test #30: loong_camera_tests ...............   Passed    0.00 sec
+      Start 31: layers
+31/43 Test #31: layers ...........................   Passed    0.19 sec
+      Start 32: content_tests
+32/43 Test #32: content_tests ....................   Passed    0.01 sec
+      Start 33: config_tests
+33/43 Test #33: config_tests .....................   Passed    0.01 sec
+      Start 34: process_tests
+34/43 Test #34: process_tests ....................   Passed    1.05 sec
+      Start 35: supervise_tests
+35/43 Test #35: supervise_tests ..................   Passed    0.01 sec
+      Start 36: service_tests
+36/43 Test #36: service_tests ....................   Passed    0.17 sec
+      Start 37: server_boot
+37/43 Test #37: server_boot ......................   Passed    3.36 sec
+      Start 38: protocol_tests
+38/43 Test #38: protocol_tests ...................   Passed    0.04 sec
+      Start 39: protocol_catalog_tests
+39/43 Test #39: protocol_catalog_tests ...........   Passed    0.04 sec
+      Start 40: protocol_fuzz_tests
+40/43 Test #40: protocol_fuzz_tests ..............   Passed    0.04 sec
+      Start 41: net_tests
+41/43 Test #41: net_tests ........................   Passed    0.04 sec
+      Start 42: wire_loop_tests
+42/43 Test #42: wire_loop_tests ..................   Passed    0.04 sec
+      Start 43: protocol_catalog_fresh
+43/43 Test #43: protocol_catalog_fresh ...........   Passed    0.02 sec
+
+98% tests passed, 1 tests failed out of 43
+
+Total Test time (real) =   7.16 sec
+
+The following tests FAILED:
+	 15 - log_tests (Exit code 0xc0000374)
+Errors while running CTest

@@ -1,0 +1,31 @@
+// Bản cho macOS và iOS. CHƯA BIÊN DỊCH: máy phát triển không có macOS; viết theo tài liệu dyld(3)
+// (int _NSGetExecutablePath(char* buf, uint32_t* bufsize), trả -1 và ghi cỡ cần khi bộ đệm thiếu).
+#include "io/platform.hpp"
+
+#include <mach-o/dyld.h>
+
+#include <cstdint>
+#include <string>
+
+namespace game::io {
+
+// Terminal của macOS và console của Xcode đã là UTF-8.
+void use_utf8_console() noexcept {}
+
+// Trên iOS exe nằm ở gốc gói ứng dụng, nên thư mục này cũng là gốc dữ liệu đóng kèm.
+std::filesystem::path executable_directory() {
+    std::uint32_t size = 0;
+    // Lần gọi đầu với bộ đệm cỡ 0 chỉ để hỏi cỡ cần.
+    static_cast<void>(_NSGetExecutablePath(nullptr, &size));
+    std::string name(size, '\0');
+    if (_NSGetExecutablePath(name.data(), &size) != 0) return {};
+    name.resize(std::char_traits<char>::length(name.c_str()));
+    return std::filesystem::path(name).parent_path();
+}
+
+// Chưa làm: macOS là NSWorkspace openURL, iOS là UIApplication openURL (docs/NGHI-NGO.md).
+bool open_in_browser(const std::filesystem::path& /*page*/) {
+    return false;
+}
+
+} // namespace game::io

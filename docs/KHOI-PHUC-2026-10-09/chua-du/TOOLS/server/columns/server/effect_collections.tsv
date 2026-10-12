@@ -1,0 +1,39 @@
+# schema 1
+# source: public_config/ImpactCollections.txt
+# tool: TOOLS/server/import_legacy.py; sửa tay sẽ mất ở lượt xuất sau
+# types: int	text	text	text	text
+index	original	name	type	note
+0	标识ID的分类ID	column_0	int	?
+1	分类说明$1$	column_1	text	?
+2	本类中的ID数量	column_2	int	?
+3	ID1	id_1	int	luật: M1
+4	ID2	id_2	int	luật: M1
+5	ID3	id_3	int	luật: M1
+6	ID4	id_4	int	luật: M1
+7	ID5	id_5	int	luật: M1
+8	ID6	id_6	int	luật: M1
+9	ID7	id_7	int	luật: M1
+⟪thiếu dòng này⟫
+⟪thiếu dòng này⟫
+⟪thiếu dòng này⟫
+⟪thiếu dòng này⟫
+⟪thiếu dòng này⟫
+⟪thiếu dòng này⟫
+⟪thiếu dòng này⟫
+⟪thiếu dòng này⟫
+⟪thiếu dòng này⟫
+⟪thiếu dòng này⟫
+⟪thiếu dòng này⟫
+⟪thiếu dòng này⟫
+⟪thiếu dòng này⟫
+⟪thiếu dòng này⟫
+⟪thiếu dòng này⟫
+⟪thiếu dòng này⟫
+⟪thiếu dòng này⟫
+⟪thiếu dòng này⟫
+⟪thiếu dòng này⟫
+⟪thiếu dòng này⟫
+⟪thiếu dòng này⟫
+⟪thiếu dòng này⟫
+⟪thiếu dòng này⟫
+⟪thiếu dòng này⟫

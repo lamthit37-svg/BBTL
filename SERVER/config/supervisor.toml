@@ -1,0 +1,80 @@
+#==================================================
+# CẤU HÌNH TRÌNH GIÁM SÁT (SUPERVISOR)
+#==================================================
+# Tệp: supervisor.toml. Chỉ thienlong_server đọc tệp này.
+# Trình giám sát chạy các tiến trình theo thứ tự dưới, chờ từng tiến trình báo sẵn sàng rồi mới
+# chạy tiến trình kế, và dừng theo thứ tự ngược.
+
+#==================================================
+# Chung
+#==================================================
+schema = 1   # Phiên bản bố cục của tệp; bộ đọc từ chối số nó không hiểu
+
+#==================================================
+# PostgreSQL
+#==================================================
+# Cụm PostgreSQL khai ở cluster.toml chạy đầu tiên.
+[postgres]
+managed               = true   # true: trình giám sát tự chạy và dừng cụm PostgreSQL
+ready_timeout_seconds = 60     # Chờ cụm sẵn sàng tối đa bao nhiêu giây (số tạm)
+
+#==================================================
+# Khởi động lại
+#==================================================
+[restart]
+max_per_hour = 3   # Số lần chạy lại tối đa mỗi giờ cho một tiến trình (số tạm)
+
+#==================================================
+# Dừng
+#==================================================
+# Dừng theo thứ tự ngược với lúc chạy. Store cần thời gian ép dữ liệu xuống đĩa.
+[stop]
+timeout_seconds = 30   # Chờ một tiến trình tự thoát tối đa bao nhiêu giây rồi mới buộc dừng (số tạm)
+
+#==================================================
+# Bước 1: store
+#==================================================
+# Store chạy đầu vì world và zone cần nó để nạp dữ liệu.
+[[start]]
+process               = "store"     # Tiến trình chạy ở bước này
+ready_timeout_seconds = 60          # Chờ sẵn sàng tối đa bao nhiêu giây (số tạm)
+
+#==================================================
+# Bước 2: auth
+#==================================================
+# Auth chạy trước world vì world hỏi auth để kiểm vé.
+[[start]]
+process               = "auth"      # Tiến trình chạy ở bước này
+ready_timeout_seconds = 120         # Chờ sẵn sàng tối đa bao nhiêu giây
+
+#==================================================
+# Bước 3: billing
+#==================================================
+# Billing chạy trước world vì world gọi billing.
+[[start]]
+process               = "billing"   # Tiến trình chạy ở bước này
+ready_timeout_seconds = 60          # Chờ sẵn sàng tối đa bao nhiêu giây
+
+#==================================================
+# Bước 4: world
+#==================================================
+# World nạp bang, thư, xếp hạng rồi mới nhận zone.
+[[start]]
+process               = "world"     # Tiến trình chạy ở bước này
+ready_timeout_seconds = 180         # Chờ sẵn sàng tối đa bao nhiêu giây
+
+#==================================================
+# Bước 5: zone
+#==================================================
+# Zone nạp bảng và cảnh; đây là bước lâu nhất.
+[[start]]
+process               = "zone"      # Tiến trình chạy ở bước này
+ready_timeout_seconds = 240         # Chờ sẵn sàng tối đa bao nhiêu giây
+
+#==================================================
+# Bước 6: gate
+#==================================================
+# Gate mở sau cùng, để cổng công khai chỉ nhận khách khi phía sau đã sẵn sàng.
+[[start]]
+process               = "gate"      # Tiến trình chạy ở bước này
+ready_timeout_seconds = 60          # Chờ sẵn sàng tối đa bao nhiêu giây (số tạm)

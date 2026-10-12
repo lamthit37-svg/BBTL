@@ -1,0 +1,101 @@
+#==================================================
+# NHÂN VẬT MỚI
+#==================================================
+# Cảnh, toạ độ, chỉ số, kỹ năng, công thức và thiết lập lúc tạo nhân vật.
+
+#==================================================
+# Chung
+#==================================================
+schema = 1   # Phiên bản bố cục của tệp; bộ đọc từ chối số nó không hiểu
+
+#==================================================
+# Hồ sơ ban đầu
+#==================================================
+[profile]
+name       = "天龙八部"            # Tên nhân vật mới.
+scene      = 2                 # Cảnh bắt đầu.
+position_x = 165.0             # Hoành độ lúc vào game.
+position_z = 169.0             # Tung độ lúc vào game.
+sex        = 0                 # Giới tính.
+hp         = 999               # Máu ban đầu.
+mp         = 999               # Nội lực ban đầu.
+level      = 1                 # Cấp ban đầu.
+exp        = 0                 # Kinh nghiệm ban đầu.
+camp       = 0                 # Giá trị camp.
+sect       = 9                 # Môn phái ban đầu.
+money      = 0                 # Tiền ban đầu.
+actual_age = 18                # Tuổi thật, dùng cho chống nghiện.
+motto      = "这家伙很懒，什么都没留下！"   # Câu chữ mặc định của nhân vật mới.
+
+#==================================================
+# Hoạt lực
+#==================================================
+[vigor]
+vigor      = 10   # Hoạt lực ban đầu.
+max_vigor  = 50   # Hoạt lực tối đa.
+regenerate = 0    # Tốc độ hồi hoạt lực.
+
+#==================================================
+# Tinh lực
+#==================================================
+[energy]
+energy     = 10   # Tinh lực ban đầu.
+max_energy = 50   # Tinh lực tối đa.
+regenerate = 0    # Tốc độ hồi tinh lực.
+
+#==================================================
+# Chỉ số gốc
+#==================================================
+[attribute]
+strength     = 7   # Điểm thuộc tính ban đầu: sức mạnh. basis Common/GameDefine_Attr.h:10.
+spirit       = 6   # Điểm thuộc tính ban đầu: linh khí. basis Common/GameDefine_Attr.h:11.
+constitution = 5   # Điểm thuộc tính ban đầu: thể chất. basis Common/GameDefine_Attr.h:12.
+intellect    = 5   # Điểm thuộc tính ban đầu: định lực. basis Common/GameDefine_Attr.h:13.
+dexterity    = 2   # Điểm thuộc tính ban đầu: thân pháp. basis Common/GameDefine_Attr.h:14.
+
+#==================================================
+# Kỹ năng
+#==================================================
+[skill]
+count = 6                        # Số kỹ năng được dùng.
+id    = [0, 1, 21, 22, 34, 35]   # Id kỹ năng ban đầu.
+
+#==================================================
+# Tâm pháp
+#==================================================
+[inner_art]
+count = 0   # Số tâm pháp ban đầu.
+
+#==================================================
+# Kỹ năng sống
+#==================================================
+[life_skill]
+count = 5                     # Số kỹ năng sống ban đầu.
+id    = [1, 26, 38, 50, 51]   # Id kỹ năng sống ban đầu.
+level = [1, 1, 1, 1, 1]       # Cấp kỹ năng sống ban đầu.
+exp   = [0, 0, 0, 0, 0]       # Kinh nghiệm kỹ năng sống ban đầu.
+
+#==================================================
+# Công thức
+#==================================================
+[recipe]
+count = 4                      # Số công thức đã học.
+id    = [398, 558, 559, 560]   # Id công thức ban đầu.
+
+#==================================================
+# Thiết lập
+#==================================================
+[setting]
+count = 6                      # Số thiết lập ban đầu.
+index = [2, 8, 9, 10, 11, 1]   # Chỉ số thiết lập.
+type  = [1, 1, 1, 2, 1, 0]     # Loại thiết lập.
+data  = [0, 22, 35, 1, 1, 4]   # Giá trị thiết lập.
+
+#==================================================
+# Vị trí xuất phát thêm
+#==================================================
+[start_position]
+scene_count = 3                       # Giá trị scenecount.
+scene       = [2, 71, 72]             # Id cảnh của một điểm xuất phát.
+position_x  = [165.0, 165.0, 165.0]   # Hoành độ của một điểm xuất phát.
+position_z  = [169.0, 169.0, 169.0]   # Tung độ của một điểm xuất phát.

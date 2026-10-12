@@ -1,0 +1,12 @@
+# schema 1
+# source: Public/Scene/luoyang_platform.ini
+# tool: TOOLS/server/export_scene.py; sửa tay sẽ mất ở lượt xuất sau
+# types: int	int	float	float	int	int	text
+type_id	class_id	position_x	position_z	direction	script_id	tip
+2	2	214	161	27	-1	打造台。在附近使用铸造技能。
+1	1	140	164	27		炼丹炉。在附近使用制药技能。
+5	4	180	180	27	-1	缝纫台。在附近使用缝纫技能。
+6	5	59	148	27	-1	工艺台。在附近使用工艺技能。
+17	10	162	280	27		通往嵩山
+17	10	40	130	27		通往敦煌
+17	10	280	127	27		通往雁南

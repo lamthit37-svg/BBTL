@@ -1,0 +1,9 @@
+lệnh: python -B -W error TOOLS/port/make_building_file.py self-test
+thư mục chạy: F:\tl 2026\THIENLONG\build\dh-dot-1
+tệp: TOOLS/port/make_building_file.py, 22037 byte, 494 dòng, sha256 7ffb8981a24eac2e96c8d0f0138b774c5c94009d6f841d6c9704aae25651188d, byte đầu 34 (không BOM: True), số byte CR: 0
+bắt đầu: 2026-10-08 13:44:52
+---
+tự kiểm: 12 tệp tự vẽ, 0 lỗi
+---
+mã thoát: 0
+kết thúc: 2026-10-08 13:44:53

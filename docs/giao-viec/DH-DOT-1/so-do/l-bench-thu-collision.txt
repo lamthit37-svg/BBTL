@@ -1,0 +1,6 @@
+# 2026-10-08 14:32:48  chạy thử một lượt, bản gcc-debug, KHÔNG phải số đo (chưa ghim lõi, không năm lượt)
+> build\l-bench\collision_bench.exe "F:\tl 2026\_raw\Scene\fenghuang.WCollision"
+
+9523328	0xFF000001	14828	259594	0	0	0	0	17	1.050	61209.6	71203.2	71203.2	74211.9	7.78197e+07
+
+# exit=0

@@ -1,0 +1,12 @@
+# schema 1
+# source: client_2026/CaiDengMi.txt
+# tool: TOOLS/server/export_tables.py; sửa tay sẽ mất ở lượt xuất sau
+# types: int	text	text	text	text
+index	original	name	type	note
+0		column_0	int	không có bản đối chiếu
+1		column_1	text	không có bản đối chiếu
+2		column_2	text	không có bản đối chiếu
+3		column_3	text	không có bản đối chiếu
+4		column_4	text	không có bản đối chiếu
+5		column_5	int	không có bản đối chiếu
+6		column_6	text	không có bản đối chiếu

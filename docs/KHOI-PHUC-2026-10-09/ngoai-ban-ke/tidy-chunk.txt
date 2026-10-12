@@ -1,0 +1,18 @@
+F:\tl 2026\THIENLONG\SRC\gpu\d3d12\commands.cpp:275:61: error: 2 adjacent parameters of 'need_arguments' of convertible types are easily swapped by mistake [bugprone-easily-swappable-parameters,-warnings-as-errors]
+  275 | const Buffer* Commands::need_arguments(BufferHandle handle, std::uint64_t offset,
+      |                                                             ^~~~~~~~~~~~~~~~~~~~~
+  276 |     std::uint32_t count, std::uint32_t stride, std::uint32_t size) {
+      |     ~~~~~~~~~~~~~~~~~~~
+F:\tl 2026\THIENLONG\SRC\gpu\d3d12\commands.cpp:275:75: note: the first parameter in the range is 'offset'
+  275 | const Buffer* Commands::need_arguments(BufferHandle handle, std::uint64_t offset,
+      |                                                                           ^~~~~~
+F:\tl 2026\THIENLONG\SRC\gpu\d3d12\commands.cpp:276:19: note: the last parameter in the range is 'count'
+  276 |     std::uint32_t count, std::uint32_t stride, std::uint32_t size) {
+      |                   ^~~~~
+F:\tl 2026\THIENLONG\SRC\gpu\d3d12\commands.cpp:275:61: note: 
+  275 | const Buffer* Commands::need_arguments(BufferHandle handle, std::uint64_t offset,
+      |                                                             ^
+F:\tl 2026\THIENLONG\SRC\gpu\d3d12\commands.cpp:276:5: note: 'std::uint64_t' and 'std::uint32_t' may be implicitly converted: 'std::uint64_t' (as 'unsigned long long') -> 'std::uint32_t' (as 'unsigned int'), 'std::uint32_t' (as 'unsigned int') -> 'std::uint64_t' (as 'unsigned long long')
+  276 |     std::uint32_t count, std::uint32_t stride, std::uint32_t size) {
+      |     ^
+F:\tl 2026\THIENLONG\SRC\gpu\d3d12\commands.cpp:311:33: error: no header providing "std::string_view" is directly included [misc-include-cleaner,-warnings-as-errors]

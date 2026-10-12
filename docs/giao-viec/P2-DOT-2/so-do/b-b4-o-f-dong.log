@@ -1,0 +1,16 @@
+# 2026-10-08 10:18:21  B bước 4: ổ F còn trống, số dòng các tệp net, số ca net_tests (cmdlet đọc, không chạy tiến trình); không giữ NANG.lock (lệnh nhẹ), không có NANG.lock lúc chạy
+# 2026-10-08 10:18:21 -> 2026-10-08 10:18:21
+$ (Get-PSDrive F).Free; [math]::Round((Get-PSDrive F).Free/1GB,2)
+166540890112
+155.1
+
+$ (Get-Content -Encoding UTF8 <tệp>).Count
+SRC/net/net.hpp	234
+SRC/net/net.cpp	81
+SRC/net/detail/native.hpp	35
+SRC/net/socket_win32.cpp	404
+SRC/net/socket_posix.cpp	431
+tests/net_tests.cpp	496
+
+$ Select-String 'Case\{\.name' tests/net_tests.cpp | Measure-Object
+20

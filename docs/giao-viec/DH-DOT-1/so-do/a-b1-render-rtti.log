@@ -1,0 +1,9 @@
+vtable của CBuildingCollision ở 0x1802c02c0
+  [  0] +0x0000 0x18001d040
+  [  1] +0x0008 0x18001d990
+  [  2] +0x0010 0x18001d7e0
+  [  3] +0x0018 0x18001d680
+0x18039a930 .rdata ?getBuildingCollsion@PathLibRoot@PathLib@@QEAAPEAVBuildingCollision@2@XZ
+0x18039aa04 .rdata ?destroyBuildingCollision@PathLibRoot@PathLib@@QEAAXPEAVBuildingCollision@2@@Z
+0x1803b0d40 .data .?AVTBuildingCollision@@
+0x1803b0e00 .data .?AVCBuildingCollision@@

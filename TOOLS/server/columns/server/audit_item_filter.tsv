@@ -1,0 +1,7 @@
+# schema 1
+# source: server_config/ItemAuditFilter.txt
+# tool: TOOLS/server/import_legacy.py; sửa tay sẽ mất ở lượt xuất sau
+# types: int	text	text	text	text
+index	original	name	type	note
+0	ID	id	int	luật: M1
+1	物品模板ID	item_template_id	int	luật: nguyên văn

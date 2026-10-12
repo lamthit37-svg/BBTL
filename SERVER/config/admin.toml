@@ -1,0 +1,13 @@
+#==================================================
+# CẤU HÌNH CỔNG QUẢN TRỊ
+#==================================================
+# Tệp: admin.toml. Trình giám sát và công cụ quản trị đọc tệp này.
+# Cổng quản trị chỉ nghe loopback: phải ngồi ở máy chủ mới nối được. Danh sách GM nằm ở bảng
+# gm_grant của database game.
+
+#==================================================
+# Chung
+#==================================================
+schema     = 1                       # Phiên bản bố cục của tệp; bộ đọc từ chối số nó không hiểu
+listen     = "127.0.0.1:7002"        # Địa chỉ và cổng của cổng quản trị
+token_file = "../data/admin/token"   # Tệp mã bí mật mà công cụ quản trị phải trình khi nối

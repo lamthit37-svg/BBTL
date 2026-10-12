@@ -1,0 +1,6 @@
+# schema 1
+# source: Public/Scene/tianshan_area.ini
+# tool: TOOLS/server/export_scene.py; sửa tay sẽ mất ở lượt xuất sau
+# types: int	int	float	float	float	float
+guid	script_id	left	top	right	bottom
+0	400032	91.0000	158.0000	99.0000	165.0000

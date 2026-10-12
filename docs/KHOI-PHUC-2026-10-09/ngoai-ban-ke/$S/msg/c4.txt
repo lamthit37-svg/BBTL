@@ -1,0 +1,11 @@
+tools/content: bản dịch ba bảng mới, nhãn nút viết ngắn và bộ đo chữ vừa ô.
+
+Thêm 119 khoá của SelfEquip, Packet, QuestLog. Nhãn của nút, thẻ và chỉ số viết ngắn, hoa đầu mỗi
+chữ ("Thú", "Thể Lực", "Sạp") theo chỉ định của chủ dự án ngày 2026-10-08: layout gốc vẽ ô cho
+hai chữ Hán nên chữ Việt dài bị cắt. 18 nhãn cũ được rút ngắn theo (thẻ kênh trò chuyện, nút tổ
+đội, nút tự đánh).
+
+ui_text_fit.py đo chữ bằng độ tiến của phông VTNAM14 mà client đang vẽ và so với ô ở 1280x720:
+trước khi rút 37 nút tràn ô, sau còn 0.
+
+Co-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>

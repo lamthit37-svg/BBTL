@@ -1,0 +1,21 @@
+# schema 1
+# source: client_2026/Bullet.txt
+# tool: TOOLS/server/export_tables.py; sửa tay sẽ mất ở lượt xuất sau
+# types: int	text	text	text	text
+index	original	name	type	note
+0	ID	id	int	neo: cột gốc 0, khớp 100.0% (76/76 id); luật: M1
+1	轨迹类型	trajectory_type	int	neo: cột gốc 1, khớp 100.0% (76/76 id); luật: nguyên văn
+2	预留	reserved	int	nội suy: cột gốc 2, khớp 100.0% (76/76 id); luật: nguyên văn
+3	子弹飞行特效ID	flight_effect_id	text	neo: cột gốc 3, khớp 100.0% (76/76 id); luật: nguyên văn
+4	飞行音效ID	flight_sound_id	text	neo: cột gốc 4, khớp 100.0% (76/76 id); luật: nguyên văn
+5	速度(m/s)	speed_m_per_s	float	neo: cột gốc 5, khớp 100.0% (76/76 id); luật: nguyên văn
+6	子弹爆炸特效ID	explosion_effect_id	text	neo: cột gốc 6, khớp 98.7% (75/76 id); luật: nguyên văn
+7	爆炸音效ID	explosion_sound_id	text	neo: cột gốc 7, khớp 100.0% (76/76 id); luật: nguyên văn
+8	击中特效的绑定点	hit_effect_anchor	text	neo: cột gốc 8, khớp 100.0% (76/76 id); luật: nguyên văn
+9		column_9	int	mới ở 2026
+10		column_10	int	mới ở 2026
+11		column_11	int	mới ở 2026
+12		column_12	int	mới ở 2026
+13	描述	description	text	neo: cột gốc 14, khớp 100.0% (76/76 id); luật: nguyên văn
+14		column_14	int	mới ở 2026
+15		column_15	text	mới ở 2026

@@ -1,0 +1,73 @@
+# lệnh: python -B docs/giao-viec/P2-DOT-2/so-do/c-do.py (cwd F:\tl 2026\THIENLONG\build\p2-dot-2)
+# giờ: 2026-10-08 02:06:27
+# commit: 0e6da48f366b0a1d58d55fe9f807adba2425b47a
+# ổ F còn trống: 167328153600 byte (155.84 GiB)
+# python: 3.13.15
+
+## T8: số ca cắt và ca thêm byte
+
+mẫu	byte khung	byte thân	thân khai ở đầu khung	ca cắt
+HelloMin	15	7	7	7
+HelloMax	15	7	7	7
+HelloTypical	15	7	7	7
+LoginMin	12	4	4	4
+LoginMax	588	580	580	580
+LoginTypical	54	46	46	46
+ResumeMin	24	16	16	16
+ResumeMax	24	16	16	16
+ResumeTypical	24	16	16	16
+PingMin	12	4	4	4
+PingMax	12	4	4	4
+PingTypical	12	4	4	4
+LogoutMin	8	0	0	0
+LogoutMax	8	0	0	0
+LogoutTypical	8	0	0	0
+CreateCharacterMin	15	7	7	7
+CreateCharacterMax	63	55	55	55
+CreateCharacterTypical	36	28	28	28
+DeleteCharacterMin	16	8	8	8
+DeleteCharacterMax	16	8	8	8
+DeleteCharacterTypical	16	8	8	8
+EnterGameMin	16	8	8	8
+EnterGameMax	16	8	8	8
+EnterGameTypical	16	8	8	8
+CreateAccountMin	12	4	4	4
+CreateAccountMax	204	196	196	196
+CreateAccountTypical	54	46	46	46
+SignInMin	12	4	4	4
+SignInMax	204	196	196	196
+SignInTypical	54	46	46	46
+WelcomeMin	20	12	12	12
+WelcomeMax	20	12	12	12
+WelcomeTypical	20	12	12	12
+SessionStartMin	24	16	16	16
+SessionStartMax	24	16	16	16
+SessionStartTypical	24	16	16	16
+ContentKeyMin	40	32	32	32
+ContentKeyMax	40	32	32	32
+ContentKeyTypical	40	32	32	32
+PongMin	20	12	12	12
+PongMax	20	12	12	12
+PongTypical	20	12	12	12
+RejectMin	12	4	4	4
+RejectMax	12	4	4	4
+RejectTypical	12	4	4	4
+GoodbyeMin	9	1	1	1
+GoodbyeMax	9	1	1	1
+GoodbyeTypical	9	1	1	1
+ContentStampMin	40	32	32	32
+ContentStampMax	40	32	32	32
+ContentStampTypical	40	32	32	32
+CharacterListMin	10	2	2	2
+CharacterListMax	554	546	546	546
+CharacterListTypical	92	84	84	84
+TicketMin	212	204	204	204
+TicketMax	212	204	204	204
+TicketTypical	212	204	204	204
+
+số mẫu: 57
+tổng ca cắt (mỗi mẫu cắt ở 0..thân-1 byte): 2912
+tổng ca thêm một byte: 57
+tổng hai loại: 2969
+
+# xong: 2026-10-08 02:06:27

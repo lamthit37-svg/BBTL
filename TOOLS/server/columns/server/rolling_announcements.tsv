@@ -1,0 +1,8 @@
+# schema 1
+# source: server_config/SystemInfo.ini
+# tool: TOOLS/server/import_legacy.py; sửa tay sẽ mất ở lượt xuất sau
+# types: int	text	text	text	text
+index	original	name	type	note
+0		announcement_id	int	chỉ số section broadN
+1	contex	contex	text	mã 2008 không có hàm nạp
+2		within_declared_count	int	1 khi chỉ số broad nhỏ hơn broadcount

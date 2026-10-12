@@ -1,0 +1,7 @@
+# schema 1
+# source: client_2026/DarkExpLevel.txt
+# tool: TOOLS/server/export_tables.py; sửa tay sẽ mất ở lượt xuất sau
+# types: int	text	text	text	text
+index	original	name	type	note
+0	Level	level	int	luật: M1; khớp 100.0% (150/150 id)
+1	Exp	exp	int	luật: M1; khớp 100.0% (150/150 id)

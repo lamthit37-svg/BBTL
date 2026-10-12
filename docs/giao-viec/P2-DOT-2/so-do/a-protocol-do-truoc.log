@@ -1,0 +1,165 @@
+# A bước đỏ 2026-10-08 01:39:22, wire.cpp và channel.cpp là bản rỗng trả giá trị không
+# lệnh: ctest --test-dir build/p2-a -R ^protocol_tests$ --output-on-failure (1 lần)
+Test project F:/tl 2026/THIENLONG/build/p2-dot-2/build/p2-a
+    Start 44: protocol_tests
+1/1 Test #44: protocol_tests ...................Exit code 0xc0000409***Exception:   0.60 sec
+tests\protocol_tests.cpp:94: [header_golden] đầu khung
+tests\protocol_tests.cpp:97: [header_golden] thân 0 byte
+tests\protocol_tests.cpp:115: [unsigned_golden] byte của u8, u16, u32, u64
+tests\protocol_tests.cpp:117: [unsigned_golden] đọc u8
+tests\protocol_tests.cpp:118: [unsigned_golden] đọc u16
+tests\protocol_tests.cpp:119: [unsigned_golden] đọc u32
+tests\protocol_tests.cpp:120: [unsigned_golden] đọc u64
+tests\protocol_tests.cpp:121: [unsigned_golden] đọc u64 lớn nhất
+tests\protocol_tests.cpp:140: [signed_golden] byte của i8, i16, i32, i64
+tests\protocol_tests.cpp:142: [signed_golden] đọc i8
+tests\protocol_tests.cpp:143: [signed_golden] đọc i16 nhỏ nhất
+tests\protocol_tests.cpp:144: [signed_golden] đọc i16 -1
+tests\protocol_tests.cpp:145: [signed_golden] đọc i32 nhỏ nhất
+tests\protocol_tests.cpp:147: [signed_golden] đọc i64 nhỏ nhất
+tests\protocol_tests.cpp:148: [signed_golden] đọc i64 -1
+tests\protocol_tests.cpp:163: [float_bool_golden] byte của f32 và bool
+tests\protocol_tests.cpp:166: [float_bool_golden] đọc -0 giữ dấu
+tests\protocol_tests.cpp:167: [float_bool_golden] đọc 1
+tests\protocol_tests.cpp:168: [float_bool_golden] đọc lớn nhất
+tests\protocol_tests.cpp:169: [float_bool_golden] đọc nhỏ nhất
+tests\protocol_tests.cpp:170: [float_bool_golden] đọc bool
+tests\protocol_tests.cpp:190: [text_bytes_count_golden] byte của text, bytes, count
+tests\protocol_tests.cpp:193: [text_bytes_count_golden] đọc text ngắn
+tests\protocol_tests.cpp:194: [text_bytes_count_golden] đọc text dài đúng trần
+tests\protocol_tests.cpp:197: [text_bytes_count_golden] đọc bytes
+tests\protocol_tests.cpp:203: [too_long_both_ways] ghi text quá trần
+tests\protocol_tests.cpp:205: [too_long_both_ways] ghi text quá 65535 byte
+tests\protocol_tests.cpp:207: [too_long_both_ways] ghi count quá trần
+tests\protocol_tests.cpp:210: [too_long_both_ways] đọc text quá trần
+tests\protocol_tests.cpp:213: [too_long_both_ways] đọc count quá trần
+tests\protocol_tests.cpp:222: [count_beyond_body_is_truncated] count vượt thân
+tests\protocol_tests.cpp:225: [count_beyond_body_is_truncated] vừa thân
+tests\protocol_tests.cpp:231: [truncated_is_sticky] u16 trên 1 byte
+tests\protocol_tests.cpp:233: [truncated_is_sticky] finish trả kTruncated
+tests\protocol_tests.cpp:236: [truncated_is_sticky] text khai 5 byte, thân có 1
+tests\protocol_tests.cpp:239: [truncated_is_sticky] thân rỗng
+tests\protocol_tests.cpp:245: [trailing_bytes] thừa
+tests\protocol_tests.cpp:251: [non_finite_both_ways] ghi NaN
+tests\protocol_tests.cpp:253: [non_finite_both_ways] ghi âm vô cực
+tests\protocol_tests.cpp:259: [non_finite_both_ways] đọc NaN hay vô cực
+tests\protocol_tests.cpp:259: [non_finite_both_ways] đọc NaN hay vô cực
+tests\protocol_tests.cpp:259: [non_finite_both_ways] đọc NaN hay vô cực
+tests\protocol_tests.cpp:259: [non_finite_both_ways] đọc NaN hay vô cực
+tests\protocol_tests.cpp:266: [bad_bool_is_bad_enum] bool 2
+tests\protocol_tests.cpp:269: [bad_bool_is_bad_enum] bool FF
+tests\protocol_tests.cpp:284: [utf8_rejected_both_ways] ghi UTF-8 sai
+tests\protocol_tests.cpp:288: [utf8_rejected_both_ways] đọc UTF-8 sai
+tests\protocol_tests.cpp:284: [utf8_rejected_both_ways] ghi UTF-8 sai
+tests\protocol_tests.cpp:288: [utf8_rejected_both_ways] đọc UTF-8 sai
+tests\protocol_tests.cpp:284: [utf8_rejected_both_ways] ghi UTF-8 sai
+tests\protocol_tests.cpp:288: [utf8_rejected_both_ways] đọc UTF-8 sai
+tests\protocol_tests.cpp:284: [utf8_rejected_both_ways] ghi UTF-8 sai
+tests\protocol_tests.cpp:288: [utf8_rejected_both_ways] đọc UTF-8 sai
+tests\protocol_tests.cpp:284: [utf8_rejected_both_ways] ghi UTF-8 sai
+tests\protocol_tests.cpp:288: [utf8_rejected_both_ways] đọc UTF-8 sai
+tests\protocol_tests.cpp:284: [utf8_rejected_both_ways] ghi UTF-8 sai
+tests\protocol_tests.cpp:288: [utf8_rejected_both_ways] đọc UTF-8 sai
+tests\protocol_tests.cpp:284: [utf8_rejected_both_ways] ghi UTF-8 sai
+tests\protocol_tests.cpp:288: [utf8_rejected_both_ways] đọc UTF-8 sai
+tests\protocol_tests.cpp:284: [utf8_rejected_both_ways] ghi UTF-8 sai
+tests\protocol_tests.cpp:288: [utf8_rejected_both_ways] đọc UTF-8 sai
+tests\protocol_tests.cpp:284: [utf8_rejected_both_ways] ghi UTF-8 sai
+tests\protocol_tests.cpp:288: [utf8_rejected_both_ways] đọc UTF-8 sai
+tests\protocol_tests.cpp:284: [utf8_rejected_both_ways] ghi UTF-8 sai
+tests\protocol_tests.cpp:288: [utf8_rejected_both_ways] đọc UTF-8 sai
+tests\protocol_tests.cpp:284: [utf8_rejected_both_ways] ghi UTF-8 sai
+tests\protocol_tests.cpp:288: [utf8_rejected_both_ways] đọc UTF-8 sai
+tests\protocol_tests.cpp:284: [utf8_rejected_both_ways] ghi UTF-8 sai
+tests\protocol_tests.cpp:288: [utf8_rejected_both_ways] đọc UTF-8 sai
+tests\protocol_tests.cpp:284: [utf8_rejected_both_ways] ghi UTF-8 sai
+tests\protocol_tests.cpp:288: [utf8_rejected_both_ways] đọc UTF-8 sai
+tests\protocol_tests.cpp:284: [utf8_rejected_both_ways] ghi UTF-8 sai
+tests\protocol_tests.cpp:288: [utf8_rejected_both_ways] đọc UTF-8 sai
+tests\protocol_tests.cpp:284: [utf8_rejected_both_ways] ghi UTF-8 sai
+tests\protocol_tests.cpp:288: [utf8_rejected_both_ways] đọc UTF-8 sai
+tests\protocol_tests.cpp:284: [utf8_rejected_both_ways] ghi UTF-8 sai
+tests\protocol_tests.cpp:288: [utf8_rejected_both_ways] đọc UTF-8 sai
+tests\protocol_tests.cpp:295: [utf8_accepted_both_ways] ghi UTF-8 đúng
+tests\protocol_tests.cpp:298: [utf8_accepted_both_ways] đọc UTF-8 đúng
+tests\protocol_tests.cpp:295: [utf8_accepted_both_ways] ghi UTF-8 đúng
+tests\protocol_tests.cpp:298: [utf8_accepted_both_ways] đọc UTF-8 đúng
+tests\protocol_tests.cpp:295: [utf8_accepted_both_ways] ghi UTF-8 đúng
+tests\protocol_tests.cpp:298: [utf8_accepted_both_ways] đọc UTF-8 đúng
+tests\protocol_tests.cpp:295: [utf8_accepted_both_ways] ghi UTF-8 đúng
+tests\protocol_tests.cpp:298: [utf8_accepted_both_ways] đọc UTF-8 đúng
+tests\protocol_tests.cpp:295: [utf8_accepted_both_ways] ghi UTF-8 đúng
+tests\protocol_tests.cpp:298: [utf8_accepted_both_ways] đọc UTF-8 đúng
+tests\protocol_tests.cpp:295: [utf8_accepted_both_ways] ghi UTF-8 đúng
+tests\protocol_tests.cpp:298: [utf8_accepted_both_ways] đọc UTF-8 đúng
+tests\protocol_tests.cpp:295: [utf8_accepted_both_ways] ghi UTF-8 đúng
+tests\protocol_tests.cpp:298: [utf8_accepted_both_ways] đọc UTF-8 đúng
+tests\protocol_tests.cpp:295: [utf8_accepted_both_ways] ghi UTF-8 đúng
+tests\protocol_tests.cpp:298: [utf8_accepted_both_ways] đọc UTF-8 đúng
+tests\protocol_tests.cpp:295: [utf8_accepted_both_ways] ghi UTF-8 đúng
+tests\protocol_tests.cpp:298: [utf8_accepted_both_ways] đọc UTF-8 đúng
+tests\protocol_tests.cpp:295: [utf8_accepted_both_ways] ghi UTF-8 đúng
+tests\protocol_tests.cpp:298: [utf8_accepted_both_ways] đọc UTF-8 đúng
+tests\protocol_tests.cpp:295: [utf8_accepted_both_ways] ghi UTF-8 đúng
+tests\protocol_tests.cpp:298: [utf8_accepted_both_ways] đọc UTF-8 đúng
+tests\protocol_tests.cpp:295: [utf8_accepted_both_ways] ghi UTF-8 đúng
+tests\protocol_tests.cpp:298: [utf8_accepted_both_ways] đọc UTF-8 đúng
+tests\protocol_tests.cpp:311: [writer_failure_is_sticky] sau lỗi không ghi thêm
+tests\protocol_tests.cpp:313: [writer_failure_is_sticky] giữ lỗi đầu tiên
+tests\protocol_tests.cpp:316: [writer_failure_is_sticky] fail kUnknownKind qua finish
+tests\protocol_tests.cpp:320: [writer_failure_is_sticky] Reader giữ lỗi do bên gọi báo
+tests\protocol_tests.cpp:327: [body_too_large_both_ways] thân đúng 65536 byte
+tests\protocol_tests.cpp:332: [body_too_large_both_ways] ghi thân 65537 byte
+tests\protocol_tests.cpp:335: [body_too_large_both_ways] 4097 với trần 4096
+tests\protocol_tests.cpp:338: [body_too_large_both_ways] trần không quá 65536
+tests\protocol_tests.cpp:341: [body_too_large_both_ways] thân khai 0xFFFFFFFF
+tests\protocol_tests.cpp:362: [peek_every_header_length] cờ 1
+tests\protocol_tests.cpp:363: [peek_every_header_length] 4097
+tests\protocol_tests.cpp:366: [peek_every_header_length] khung đủ
+tests\protocol_tests.cpp:368: [peek_every_header_length] cờ 0x8000
+tests\protocol_tests.cpp:378: [dev_hello_sample] đầu khung
+tests\protocol_tests.cpp:380: [dev_hello_sample] thân
+tests\protocol_tests.cpp:387: [dev_hello_sample] mã hoá lại
+tests\protocol_tests.cpp:424: [channel_byte_by_byte] ba khung
+tests\protocol_tests.cpp:425: [channel_byte_by_byte] thân đúng thứ tự
+tests\protocol_tests.cpp:434: [channel_inbox_limit] giữ 24 byte
+tests\protocol_tests.cpp:436: [channel_inbox_limit] vượt một byte
+tests\protocol_tests.cpp:437: [channel_inbox_limit] không giữ thêm
+tests\protocol_tests.cpp:439: [channel_inbox_limit] kênh hỏng
+tests\protocol_tests.cpp:442: [channel_inbox_limit] một mẩu quá trần không giữ byte nào
+tests\protocol_tests.cpp:450: [channel_outbox_limit] vượt trần
+tests\protocol_tests.cpp:451: [channel_outbox_limit] hộp gửi giữ nguyên
+tests\protocol_tests.cpp:463: [channel_broken_frame_is_final] cờ 1
+tests\protocol_tests.cpp:465: [channel_broken_frame_is_final] lần hai
+tests\protocol_tests.cpp:467: [channel_broken_frame_is_final] nhận sau hỏng
+tests\protocol_tests.cpp:471: [channel_broken_frame_is_final] 4097
+tests\protocol_tests.cpp:477: [channel_error_wraps_wire] bọc rồi mở
+tests\protocol_tests.cpp:479: [channel_error_wraps_wire] câu của WireError
+tests\protocol_tests.cpp:477: [channel_error_wraps_wire] bọc rồi mở
+tests\protocol_tests.cpp:479: [channel_error_wraps_wire] câu của WireError
+tests\protocol_tests.cpp:477: [channel_error_wraps_wire] bọc rồi mở
+tests\protocol_tests.cpp:479: [channel_error_wraps_wire] câu của WireError
+tests\protocol_tests.cpp:477: [channel_error_wraps_wire] bọc rồi mở
+tests\protocol_tests.cpp:479: [channel_error_wraps_wire] câu của WireError
+tests\protocol_tests.cpp:477: [channel_error_wraps_wire] bọc rồi mở
+tests\protocol_tests.cpp:479: [channel_error_wraps_wire] câu của WireError
+tests\protocol_tests.cpp:477: [channel_error_wraps_wire] bọc rồi mở
+tests\protocol_tests.cpp:479: [channel_error_wraps_wire] câu của WireError
+tests\protocol_tests.cpp:477: [channel_error_wraps_wire] bọc rồi mở
+tests\protocol_tests.cpp:479: [channel_error_wraps_wire] câu của WireError
+tests\protocol_tests.cpp:477: [channel_error_wraps_wire] bọc rồi mở
+tests\protocol_tests.cpp:479: [channel_error_wraps_wire] câu của WireError
+tests\protocol_tests.cpp:477: [channel_error_wraps_wire] bọc rồi mở
+tests\protocol_tests.cpp:479: [channel_error_wraps_wire] câu của WireError
+tests\protocol_tests.cpp:477: [channel_error_wraps_wire] bọc rồi mở
+tests\protocol_tests.cpp:479: [channel_error_wraps_wire] câu của WireError
+tests\protocol_tests.cpp:514: check thất bại: protocol_tests: mọi ca phải qua
+
+
+0% tests passed, 1 tests failed out of 1
+
+Total Test time (real) =   0.60 sec
+
+The following tests FAILED:
+	 44 - protocol_tests (Exit code 0xc0000409)
+Errors while running CTest

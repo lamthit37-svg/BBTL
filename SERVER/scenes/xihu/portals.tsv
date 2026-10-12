@@ -1,0 +1,9 @@
+# schema 1
+# source: Public/Scene/xihu_portal.ini
+# tool: TOOLS/server/export_scene.py; sửa tay sẽ mất ở lượt xuất sau
+# types: int	int	float	float	int	float	float	int
+type	scene_id	position_x	position_z	target_scene_id	target_position_x	target_position_z	target_direction
+0	5	22.6	27.4	4	151.1	224.7	9
+0	5	237.2	35.2	1	17.3	54	9
+0	5	227.1	235.7	0	113.1	57.1	9
+0	5	27.9	108.6	3	87	13.7	9

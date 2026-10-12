@@ -1,0 +1,9 @@
+# schema 1
+# source: Public/Scene/dunhuang_platform.ini
+# tool: TOOLS/server/export_scene.py; sửa tay sẽ mất ở lượt xuất sau
+# types: int	int	float	float	int	int	text
+type_id	class_id	position_x	position_z	direction	script_id	tip
+17	10	224	265	27		通往剑阁
+17	10	41	279	27		通往星宿海
+17	10	277	148	27		通往洛阳
+17	10	64	42	27		通往天山

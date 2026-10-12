@@ -1,0 +1,9 @@
+# schema 1
+# source: Public/Scene/jiange_platform.ini
+# tool: TOOLS/server/export_scene.py; sửa tay sẽ mất ở lượt xuất sau
+# types: int	int	float	float	int	int	text
+type_id	class_id	position_x	position_z	direction	script_id	tip
+17	10	102	47	27		通往敦煌
+17	10	43	281	9		通往大理
+17	10	230	163	27		通往峨嵋山
+17	10	48	235	27		通往黑猿滩

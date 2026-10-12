@@ -1,0 +1,5 @@
+# 2026-10-08 14:55:33  noi: giữ NANG.lock
+> C:\Users\myhea\AppData\Local\Microsoft\WinGet\Packages\BrechtSanders.WinLibs.POSIX.UCRT_Microsoft.Winget.Source_8wekyb3d8bbwe\mingw64\bin\g++.exe "F:\tl 2026\THIENLONG\build\dh-dot-1\build\l-fuzz1\collision_fuzz_tests.o" "F:\tl 2026\THIENLONG\build\dh-dot-1\build\l-fuzz1\building_file.o" "F:\tl 2026\THIENLONG\build\dh-dot-1\build\gcc-debug\libgame_core.a" -o "F:\tl 2026\THIENLONG\build\dh-dot-1\build\l-fuzz1\collision_fuzz_tests.exe"
+
+
+# 2026-10-08 14:55:33  exit=0

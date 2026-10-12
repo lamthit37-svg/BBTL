@@ -1,0 +1,8 @@
+# schema 1
+# source: Public/Scene/loulangucheng_area.ini
+# tool: TOOLS/server/export_scene.py; sửa tay sẽ mất ở lượt xuất sau
+# types: int	int	float	float	float	float
+guid	script_id	left	top	right	bottom
+1	400941	20.0000	141.0000	24.0000	145.0000
+2	400942	297.0000	141.0000	301.0000	145.0000
+3	400943	159.0000	305.0000	163.0000	309.0000

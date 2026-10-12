@@ -1,0 +1,7 @@
+# schema 1
+# source: client_2026/PetLevelUpTable.txt
+# tool: TOOLS/server/export_tables.py; sửa tay sẽ mất ở lượt xuất sau
+# types: int	text	text	text	text
+index	original	name	type	note
+0	珍兽等级	pet_level	int	neo: cột gốc 0, khớp 100.0% (155/155 id); luật: nguyên văn
+1		column_1	int	mới ở 2026

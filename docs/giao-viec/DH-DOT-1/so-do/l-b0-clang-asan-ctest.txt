@@ -1,0 +1,7 @@
+# 2026-10-08 13:53:27  B0 clang-asan ctest: không có bản dựng nào khác đang chạy (giữ NANG.lock)
+> ctest --preset clang-asan
+
+Test project F:/tl 2026/THIENLONG/build/dh-dot-1
+No tests were found!!!
+
+# 2026-10-08 13:53:27  exit=0, số dòng chứa 'warning': 0

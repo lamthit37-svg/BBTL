@@ -1,0 +1,8 @@
+# schema 1
+# source: Public/Scene/longquan_area.ini
+# tool: TOOLS/server/export_scene.py; sửa tay sẽ mất ở lượt xuất sau
+# types: int	int	float	float	float	float
+guid	script_id	left	top	right	bottom
+0	400058	27.0000	274.0000	35.0000	283.0000
+0	400128	169.0000	279.0000	175.0000	284.0000
+3111	-1	269.0000	275.0000	285.0000	290.0000

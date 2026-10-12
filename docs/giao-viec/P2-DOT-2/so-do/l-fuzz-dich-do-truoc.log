@@ -1,0 +1,17 @@
+# 2026-10-08 02:15:42 bằng chứng đỏ cho năm đích fuzz tầng một (tests/fuzz/targets.hpp, tests/protocol_fuzz_tests.cpp)
+# Cách làm: chép nguyên tệp test vào build/p2-l/red, kèm bản targets.hpp bị cấy lỗi: reencode() thêm một byte 0 vào cuối khung mã hoá lại.
+# Mong đợi: samples_pass_every_target và bốn đích giải mã đỏ vì mã hoá lại không khớp; đích frame không dùng reencode nên vẫn xanh.
+> clang++ -std=c++23 -g -O1 -I SRC -I tests build/p2-l/red/protocol_fuzz_tests.cpp SRC/protocol/wire.cpp SRC/protocol/channel.cpp SRC/protocol/messages.cpp -o build/p2-l/red/red.exe
+dựng: exit 0
+> build/p2-l/red/red.exe
+build/p2-l/red/protocol_fuzz_tests.cpp:128: [samples_pass_every_target] mẫu thật phải giải mã và mã hoá lại khớp ở mọi đích nhận nó
+build/p2-l/red/protocol_fuzz_tests.cpp:148: [fuzz_game_client] game_client
+build/p2-l/red/protocol_fuzz_tests.cpp:149: [fuzz_game_client] game_client
+build/p2-l/red/protocol_fuzz_tests.cpp:148: [fuzz_game_server] game_server
+build/p2-l/red/protocol_fuzz_tests.cpp:149: [fuzz_game_server] game_server
+build/p2-l/red/protocol_fuzz_tests.cpp:148: [fuzz_auth_client] auth_client
+build/p2-l/red/protocol_fuzz_tests.cpp:149: [fuzz_auth_client] auth_client
+build/p2-l/red/protocol_fuzz_tests.cpp:148: [fuzz_auth_server] auth_server
+build/p2-l/red/protocol_fuzz_tests.cpp:149: [fuzz_auth_server] auth_server
+build/p2-l/red/protocol_fuzz_tests.cpp:193: check thất bại: protocol_fuzz_tests
+chạy: exit -1073740791

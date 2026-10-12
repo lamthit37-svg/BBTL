@@ -1,0 +1,28 @@
+# schema 1
+# source: server_config/MonsterDropBoxs.txt
+# tool: TOOLS/server/import_legacy.py; sửa tay sẽ mất ở lượt xuất sau
+# types: int	text	text	text	text
+index	original	name	type	note
+0	ID(怪物编号)	id	int	luật: M2
+1	Mvalue(怪物价值)	mvalue	int	luật: M2
+2	怪物掉落类型	drop_type	int	luật: nguyên văn
+3	DID1(掉落包编号)	did_1	int	luật: M2
+4	DID2	did_2	int	luật: M1
+5	DID3	did_3	int	luật: M1
+6	DID4	did_4	int	luật: M1
+7	DID5	did_5	int	luật: M1
+8	DID6	did_6	int	luật: M1
+9	DID7	did_7	int	luật: M1
+10	DID8	did_8	int	luật: M1
+11	DID9	did_9	int	luật: M1
+12	DID10	did_10	int	luật: M1
+13	DID11	did_11	int	luật: M1
+14	DID12	did_12	int	luật: M1
+15	DID13	did_13	int	luật: M1
+16	DID14	did_14	int	luật: M1
+17	DID15	did_15	int	luật: M1
+18	DID16	did_16	int	luật: M1
+19	DID17	did_17	int	luật: M1
+20	DID18	did_18	int	luật: M1
+21	DID19	did_19	int	luật: M1
+22	DID20	did_20	int	luật: M1

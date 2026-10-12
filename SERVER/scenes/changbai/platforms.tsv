@@ -1,0 +1,7 @@
+# schema 1
+# source: Public/Scene/changbai_platform.ini
+# tool: TOOLS/server/export_scene.py; sửa tay sẽ mất ở lượt xuất sau
+# types: int	int	float	float	int	int	text
+type_id	class_id	position_x	position_z	direction	script_id	tip
+17	10	46	274	27		通往草原
+17	10	278	71	27		通往黄龙府

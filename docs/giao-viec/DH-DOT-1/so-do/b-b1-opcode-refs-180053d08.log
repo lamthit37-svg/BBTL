@@ -1,0 +1,16 @@
+lệnh 1: python -B TOOLS/port/pe_refs.py "F:\tl 2026\Bin64\PathLib.dll" refs 0x180053d08 (chỉ đọc tệp)
+lệnh 2: python -B -c (import pe_refs; Image.bytes_at(0x53d00,16); chỉ đọc tệp, không nạp DLL)
+bắt đầu: 2026-10-08 14:25:32
+---
+đích 0x180053d08: 4 chỗ trỏ tới
+  0x18003d0e8 trong hàm 0x18003ce50..0x18003d4d5
+  0x18003d3ea trong hàm 0x18003ce50..0x18003d4d5
+  0x18003d778 trong hàm 0x18003d4e0..0x18003db25
+  0x18003daaf trong hàm 0x18003d4e0..0x18003db25
+---
+mã thoát 1: 0
+---
+byte tại 0x180053d00..0x180053d0f: d0 6a 04 80 01 00 00 00 01 00 00 00 00 00 00 00 section .data
+---
+mã thoát 2: 0
+kết thúc: 2026-10-08 14:25:33

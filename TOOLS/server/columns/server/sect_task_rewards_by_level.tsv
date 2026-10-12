@@ -1,0 +1,8 @@
+# schema 1
+# source: server_config/ShimenLevelMoneyBonusTable.txt
+# tool: TOOLS/server/import_legacy.py; sửa tay sẽ mất ở lượt xuất sau
+# types: int	text	text	text	text
+index	original	name	type	note
+0	等级	level	int	luật: nguyên văn
+1	金钱获得	money_gain	int	luật: nguyên văn
+2	经验获得	exp_gain	text	luật: nguyên văn

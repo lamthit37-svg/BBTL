@@ -1,0 +1,69 @@
+// Cửa sổ xem cảnh của client. Mỗi nền tảng một tệp cài đặt, CMake chọn một: viewer_win32.cpp dùng
+// module window, viewer_none.cpp cho nền tảng chưa có cửa sổ.
+#pragma once
+
+#include "client/display/display.hpp"
+#include "client/map/ground.hpp"
+#include "client/stage/stage.hpp"
+#include "client/viewer/client_size.hpp"
+#include "client/world/world.hpp"
+
+#include <cstdint>
+#include <filesystem>
+#include <memory>
+#include <optional>
+#include <string>
+#include <string_view>
+
+namespace game::client {
+
+// Tên trên thanh tiêu đề, đúng chữ trong assets/icon1.png và assets/icon2.png.
+inline constexpr std::string_view kGameTitle = "Thiên Long Bát Bộ";
+
+struct ViewerDesc {
+    // Tiêu đề cửa sổ, UTF-8.
+    std::string title;
+    // Số vòng lặp rồi tự thoát; không có thì chạy tới khi người dùng đóng cửa sổ.
+    std::optional<std::uint32_t> frames;
+    // Nội dung sẽ vẽ; null thì khung chỉ là màu nền. Mượn: phải sống lâu hơn run_viewer.
+    const Stage* stage = nullptr;
+    // Cảnh đang chơi. Mũi tên trái/phải và Page Up/Page Down gọi enter(resid) trên con trỏ này.
+    world::World* playing = nullptr;
+    // Địa hình đã nạp; null khi cảnh không có. Mượn cùng đời với stage.
+    const game::client::map::Ground* ground = nullptr;
+    // Cảnh nền không qua bảng cảnh (màn đăng nhập): phần hiển thị nạp dần nó như một cảnh chơi, tới
+    // khi rời thủ tục đăng nhập.
+    std::shared_ptr<const world::ShownScene> backdrop;
+    // tl3chuangjian. Phần hiển thị đổi sang cảnh này khi bảng chọn hoặc bảng tạo đang mở.
+    std::shared_ptr<const world::ShownScene> role_scene;
+    // Resid của cảnh vào khi rời màn đăng nhập (nút vào game); cần playing. Không có thì nút vào
+    // game chỉ báo một dòng.
+    std::optional<int> first_scene;
+    // Thư mục gốc dữ liệu (chứa Model/ và Material/); rỗng thì không nạp mesh nào.
+    std::filesystem::path data_folder;
+    // Ảnh chụp khung đầu tiên vẽ được; rỗng thì không chụp.
+    std::filesystem::path shot;
+    // Không vẽ lớp giao diện: khung hình chỉ còn cảnh 3D và hiệu ứng (để chụp cảnh nền).
+    bool is_bare = false;
+    // Bật lớp kiểm tra của API đồ hoạ: bản dựng phát hành tắt mặc định cho đỡ hao CPU mỗi khung.
+    bool is_validated = true;
+    // Rỗng: tự chọn. Có thì ép backend.
+    std::optional<std::string> backend;
+    // Cỡ vùng chơi của cửa sổ PC; rỗng thì kDefaultClientSize (View_Resoution của client 2026).
+    std::optional<ClientSize> client_size;
+    // Thủ tục sẽ chạy lúc mở. kLogin vẽ backdrop và chưa vào cảnh nào của playing; nó sang màn chơi
+    // khi giao diện nhờ vào game.
+    Procedure procedure = Procedure::kPlay;
+};
+
+// Cỡ vùng chơi của cửa sổ sẽ mở: thủ tục đăng nhập luôn là kLoginClientSize, kể cả khi đã chọn cỡ
+// khác; màn chơi lấy cỡ đã chọn, không chọn thì kDefaultClientSize.
+[[nodiscard]] inline ClientSize client_size_of(const ViewerDesc& desc) noexcept {
+    if (desc.procedure == Procedure::kLogin) return kLoginClientSize;
+    return desc.client_size.value_or(kDefaultClientSize);
+}
+
+// Mở cửa sổ và chạy tới khi nó đóng hoặc đủ số vòng lặp; trả mã thoát của tiến trình (0 là xong).
+[[nodiscard]] int run_viewer(const ViewerDesc& desc);
+
+} // namespace game::client

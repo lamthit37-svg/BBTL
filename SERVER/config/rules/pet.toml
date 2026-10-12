@@ -1,0 +1,226 @@
+#==================================================
+# LUẬT TRÂN THÚ
+#==================================================
+# Xác suất sinh, tăng trưởng, cốt cách, tư chất, tốc độ và phí của trân thú.
+
+#==================================================
+# Chung
+#==================================================
+schema = 1   # Phiên bản bố cục của tệp; bộ đọc từ chối số nó không hiểu
+
+#==================================================
+# Tuổi thọ và vui vẻ
+#==================================================
+[life]
+happiness_interval_ms = 600000   # Nhịp giảm vui vẻ một điểm, mili giây.
+life_interval_ms      = 600000   # Nhịp giảm tuổi thọ một lần, mili giây.
+life_loss_step        = 7        # Điểm tuổi thọ mất mỗi nhịp.
+summon_happiness      = 60       # Vui vẻ tối thiểu để gọi ra.
+
+#==================================================
+# Tin tìm bạn
+#==================================================
+[friend_ad]
+duration_ms   = 1800000   # Thời gian một tin tìm bạn, mili giây.
+min_level     = 30        # Cấp tối thiểu để đăng tin tìm bạn.
+min_happiness = 100       # Vui vẻ tối thiểu để đăng tin tìm bạn.
+min_life      = 3000      # Tuổi thọ tối thiểu để đăng tin tìm bạn.
+
+#==================================================
+# Cấp
+#==================================================
+[level]
+max_level = 125   # Cấp tối đa trân thú lên bằng kinh nghiệm.
+
+#==================================================
+# Chết
+#==================================================
+[death]
+life_loss_permille = 400   # Hệ số tuổi thọ mất khi quái giết.
+
+#==================================================
+# Sinh ra
+#==================================================
+[birth]
+baby_rate_permille   = 30   # Xác suất ra thú non, mẫu số 1000.
+mutant_rate_permille = 7    # Xác suất ra thú đột biến, mẫu số 1000.
+
+#==================================================
+# Cấp thú dại
+#==================================================
+[wild_level]
+take_level_weight = 60           # Trọng số giữ đúng cấp mang của thú dại.
+level_delta       = [10, 5, 5]   # Trọng số lệch cấp của thú dại, lệch 1 đến 3.
+
+#==================================================
+# Tăng trưởng
+#==================================================
+[growth]
+other_grow_rate = [887, 100, 10, 2, 1]    # Năm bậc tăng trưởng mặc định, mẫu số 1000.
+wild_grow_rate  = [832, 100, 50, 13, 5]   # Năm bậc tăng trưởng thú dại trưởng thành, mẫu số 1000.
+paid_grow_rate  = [0, 598, 359, 36, 7]    # Năm bậc tăng trưởng thú trả phí thường, mẫu số 1000.
+show_grow_rate  = [0, 0, 906, 75, 19]     # Năm bậc tăng trưởng thú trả phí khoe, mẫu số 1000.
+
+#==================================================
+# Cốt cách
+#==================================================
+[bone]
+span_begin  = [700, 800, 900, 1000, 1100]    # Đầu dải cốt cách, năm mức.
+span_end    = [800, 900, 1000, 1100, 1200]   # Cuối dải cốt cách, năm mức.
+span_weight = [10, 25, 35, 25, 5]            # Trọng số năm dải cốt cách, tổng 100.
+
+#==================================================
+# Cấp đột biến
+#==================================================
+[mutant_level]
+extra_weight = [19255, 27068, 18668, 12874, 8878, 6123, 4222, 2912]   # Trọng số, cấp 1 đến 8, mẫu 100000.
+
+#==================================================
+# Biên độ tư chất
+#==================================================
+[aptitude_range]
+span = 50   # Biên độ tư chất lúc sinh.
+
+#==================================================
+# Tốc độ
+#==================================================
+[speed]
+move_permille   = 3500   # Tốc độ đi, chú thích ghi mẫu số 1000.
+attack_permille = 2000   # Tốc độ đánh, chú thích ghi mẫu số 1000.
+
+#==================================================
+# Phép của AI
+#==================================================
+[ai]
+magic_rate = [15, 75, 30, 40]   # Tỉ lệ phép của bốn kiểu AI.
+
+#==================================================
+# Chỉ số gốc
+#==================================================
+[base]
+hp               = 44   # Máu gốc.
+physical_attack  = 50   # Vật công gốc.
+magic_attack     = 50   # Phép công gốc.
+physical_defence = 12   # Vật phòng gốc.
+magic_defence    = 12   # Phép phòng gốc.
+hit              = 16   # Độ trúng gốc.
+dodge            = 5    # Độ né gốc. Bản gốc ghi Miss.
+critical_attack  = 6    # Chí mạng tấn công gốc.
+critical_defence = 6    # Chí mạng phòng thủ gốc.
+
+#==================================================
+# Hệ số chỉ số
+#==================================================
+[factor]
+constitution_hp_permille               = 18000   # Hệ số thể chất lên máu, mã chia 1000.
+strength_physical_attack_permille      = 11000   # Hệ số sức mạnh lên vật công, mã chia 1000.
+spirit_magic_attack_permille           = 11000   # Hệ số linh khí lên phép công, mã chia 1000.
+constitution_physical_defence_permille = 10800   # Hệ số thể chất lên vật phòng, mã chia 1000.
+intellect_magic_defence_permille       = 10800   # Hệ số định lực lên phép phòng, mã chia 1000.
+dexterity_dodge_permille               = 863     # Hệ số thân pháp lên né, mã chia 1000.
+dexterity_hit_permille                 = 2600    # Hệ số thân pháp lên trúng, mã chia 1000.
+dexterity_critical_attack_permille     = 20      # Hệ số thân pháp lên chí mạng tấn công, phần nghìn.
+dexterity_critical_defence_permille    = 20      # Hệ số thân pháp lên chí mạng phòng thủ, phần nghìn.
+
+#==================================================
+# Hệ số theo cấp
+#==================================================
+[level_factor]
+hp_permille               = 60000   # Hệ số cấp lên máu, mã chia 1000.
+physical_attack_permille  = 29000   # Hệ số cấp lên vật công, mã chia 1000.
+magic_attack_permille     = 29000   # Hệ số cấp lên phép công, mã chia 1000.
+physical_defence_permille = 28800   # Hệ số cấp lên vật phòng, mã chia 1000.
+magic_defence_permille    = 28800   # Hệ số cấp lên phép phòng, mã chia 1000.
+dodge_permille            = 2600    # Hệ số cấp lên né, mã chia 1000.
+hit_permille              = 7800    # Hệ số cấp lên trúng, mã chia 1000.
+critical_attack_permille  = 60      # Hệ số cấp lên chí mạng tấn công, phần nghìn.
+critical_defence_permille = 60      # Hệ số cấp lên chí mạng phòng thủ, phần nghìn.
+
+#==================================================
+# Số lượng mang
+#==================================================
+[carry]
+count_at_level_1  = 2    # Số thú mang được ở cấp 1.
+extra_slot_levels = 20   # Số cấp để thêm một chỗ mang thú.
+
+#==================================================
+# Học kỹ năng
+#==================================================
+[study]
+cost_take_level_5   = 1000     # Tiền học kỹ năng khi cấp mang là 5.
+cost_take_level_15  = 3000     # Tiền học kỹ năng khi cấp mang là 15.
+cost_take_level_25  = 5000     # Tiền học kỹ năng khi cấp mang là 25.
+cost_take_level_35  = 7000     # Tiền học kỹ năng khi cấp mang là 35.
+cost_take_level_45  = 9000     # Tiền học kỹ năng khi cấp mang là 45.
+cost_take_level_55  = 11000    # Tiền học kỹ năng khi cấp mang là 55.
+cost_take_level_65  = 13000    # Tiền học kỹ năng khi cấp mang là 65.
+cost_take_level_75  = 15000    # Tiền học kỹ năng khi cấp mang là 75.
+cost_take_level_85  = 17000    # Tiền học kỹ năng khi cấp mang là 85.
+cost_take_level_95  = 19000    # Tiền học kỹ năng khi cấp mang là 95.
+cost_take_level_105 = 21000    # Tiền học kỹ năng khi cấp mang là 105.
+extend_manual_cost  = 990000   # Tiền mở thêm kỹ năng điều khiển tay.
+
+#==================================================
+# Cốt cách theo cấp
+#==================================================
+[bone_level]
+weight = [168, 153, 138, 123, 108, 92, 77, 62, 47, 32]   # Xác suất cốt cách theo cấp 1 đến 10, mẫu số 1000.
+
+#==================================================
+# Ngộ tính
+#==================================================
+[savvy]
+aptitude_bonus_permille = [10, 15, 21, 30, 80, 110, 145, 235, 300, 393]   # Cộng tư chất, mẫu số 1000.
+max_level_bonus         = [1, 1, 2, 2, 3, 3, 4, 4, 5, 5]                  # Cấp trần thêm.
+
+#==================================================
+# Ghép thú
+#==================================================
+[compound]
+success_permille = [1000, 850, 750, 600, 200, 310, 310, 30, 70, 60]                         # Tỉ lệ thành.
+fail_level_loss  = [0, 1, 1, 2, 0, 1, 2, 0, 1, 0]                                           # Cấp bị tụt.
+cost             = [10000, 11000, 12100, 13310, 14641, 16105, 17716, 19487, 21436, 23579]   # Phí từng mức.
+
+#==================================================
+# Đan cốt cách
+#==================================================
+[bone_pill]
+success_permille = [1000, 850, 750, 600, 200, 310, 310, 30, 70, 100]    # Tỉ lệ thành.
+cost             = [100, 110, 121, 133, 146, 161, 177, 194, 214, 235]   # Phí từng mức.
+
+#==================================================
+# Hoàn đồng
+#==================================================
+[rejuvenation]
+wild_hold_permille = 200   # Xác suất thú dại giữ tư chất khi hoàn đồng, mẫu số 1000.
+baby_hold_permille = 0     # Xác suất thú non giữ tư chất khi hoàn đồng, mẫu số 1000.
+
+#==================================================
+# Tư chất
+#==================================================
+[aptitude]
+normal_weight = [500, 250, 125, 63, 31, 16, 8, 4, 2, 1]    # Xác suất thú thường, mẫu số 1000.
+paid_weight   = [0, 0, 272, 340, 204, 68, 48, 34, 27, 7]   # Xác suất thú trả phí, mẫu số 1000.
+show_weight   = [0, 0, 0, 0, 615, 220, 88, 44, 22, 11]     # Xác suất thú khoe, mẫu số 1000.
+
+#==================================================
+# Hệ số tư chất
+#==================================================
+[aptitude_factor]
+normal_permille = [1000, 1035, 1070, 1107, 1145, 1185, 1226, 1268, 1312, 1357, 1404]   # Hệ số thú thường.
+paid_permille   = [1000, 1035, 1070, 1107, 1145, 1185, 1226, 1268, 1312, 1357, 1404]   # Hệ số thú trả phí.
+show_permille   = [1000, 1035, 1070, 1107, 1145, 1185, 1226, 1268, 1312, 1357, 1404]   # Hệ số thú khoe.
+
+#==================================================
+# Công thức bậc tư chất
+#==================================================
+[aptitude_formula]
+factor_a_permille = 1010   # Hệ số A của bậc tư chất.
+factor_b_permille = -20    # Hệ số B của bậc tư chất.
+
+#==================================================
+# Ô kỹ năng
+#==================================================
+[skill_slot]
+manual_count = 2   # Số kỹ năng điều khiển tay được mở.
+auto_count   = 5   # Số kỹ năng tự động được mở.

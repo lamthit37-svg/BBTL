@@ -1,0 +1,13 @@
+# schema 1
+# source: Public/Scene/lingxingfeng_2_monster_90.ini
+# tool: TOOLS/server/export_scene.py; sửa tay sẽ mất ở lượt xuất sau
+# types: text	int	int	int	text	text
+spawn_file	data_index	data_type	value_index	value	value_extra
+spawns.level_90.tsv	0	3	0	31	12
+spawns.level_90.tsv	0	3	1	34	17
+spawns.level_90.tsv	0	3	2	33	23
+spawns.level_90.tsv	0	3	3	34	30
+spawns.level_90.tsv	0	3	4	31	33
+spawns.level_90.tsv	0	3	5	34	38
+spawns.level_90.tsv	0	3	6	32	41
+spawns.level_90.tsv	0	3	7	36	31

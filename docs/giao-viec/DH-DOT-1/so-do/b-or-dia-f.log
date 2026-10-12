@@ -1,0 +1,7 @@
+lệnh: (Get-PSDrive F).Free; (Get-Process python).Count
+bắt đầu: 2026-10-08 13:51:56
+---
+ổ F trống: 170802823168 byte (159.07 GiB)
+số tiến trình python đang chạy: 4
+---
+kết thúc: 2026-10-08 13:51:56

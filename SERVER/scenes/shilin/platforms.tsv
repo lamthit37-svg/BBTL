@@ -1,0 +1,8 @@
+# schema 1
+# source: Public/Scene/shilin_platform.ini
+# tool: TOOLS/server/export_scene.py; sửa tay sẽ mất ở lượt xuất sau
+# types: int	int	float	float	int	int	text
+type_id	class_id	position_x	position_z	direction	script_id	tip
+17	10	109	39	27		通往玉溪
+17	10	40	251	27		通往南诏
+17	10	249	127	27		通往洱海

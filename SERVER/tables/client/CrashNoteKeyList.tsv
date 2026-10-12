@@ -1,0 +1,18 @@
+# schema 1
+# source: client_2026/CrashNoteKeyList.txt
+# tool: TOOLS/server/export_client_rest.py; sửa tay sẽ mất ở lượt xuất sau
+# types: int	text	text	text	text	text	text
+column_0	column_1	column_2	column_3	column_4	column_5	column_6
+1	4F505245	0x4F505245	Windows Vista Service Pack 1	Mobile Intel(R) 965 Express Chipset Family (Microsoft Corporation - WDDM 1.1)	"igdumd32.dll, Version: 1749"	请重新装载最新版的显卡驱动
+2	Error clearing frame buffer : Invalid call			AMD Radeon HD 6570	"aticfx32.dll, Version: 1124"	请重新装载最新版的显卡驱动
+3	errorID:2058	onAnimaLoadedHandler				小提示：您可通过手动清理IE缓存来解决该问题。如果仍然出现该错误，请与客服进行联系！感谢您对《天龙八部》的支持！
+4	errorID:1000	Flash Error				小提示：系统内存不足，您可通过关闭部分应用程序来解决该问题。如果仍然出现该错误，请与客服进行联系！感谢您对《天龙八部》的支持！
+5	errorID:2134	Flash Error				小提示：Flash Player插件本地存储数据量设置过小，请重新设置：在Flash Player中点击右键-->设置-->本地存储-->将滑块拖动至100K或更大-->点击关闭。
+6	invalid zip StackTrace	onAnimaLoadedHandler				小提示：您可通过在Launch中点击“修复”来解决该问题。如果仍然出现该错误，请与客服进行联系！感谢您对《天龙八部》的支持！
+7	Error #2030	onLoadCompleteHandler				小提示：您可通过在Launch中点击“修复”来解决该问题。如果仍然出现该错误，请与客服进行联系！感谢您对《天龙八部》的支持！
+8	unknown token value	onTmpLoadHandler				小提示：您可通过在Launch中点击“修复”来解决该问题。如果仍然出现该错误，请与客服进行联系！感谢您对《天龙八部》的支持！
+9	#1009	Text Parse Error				小提示：您可通过在Launch中点击“修复”来解决该问题。如果仍然出现该错误，请与客服进行联系！感谢您对《天龙八部》的支持！
+10	Error #1023	[object ZhenfaData] Result end				小提示：您可通过手动清理IE缓存来解决该问题。如果仍然出现该错误，请与客服进行联系！感谢您对《天龙八部》的支持！
+11	ntdll.dll	Address:   0x00000014		AMD Radeon HD	aticfx32.dll	小提示：请重新装载最新版的显卡驱动。如果仍然出现该错误，请与客服进行联系！感谢您对《天龙八部》的支持！
+12	"@:         00000000"	"Address:   0x00000000"				小提示：您可能使用了外挂或第三方程序，导致系统异常。感谢您对《天龙八部》的支持！
+13	TL_6x.dll					小提示：您可能使用了外挂或第三方程序，导致系统异常。感谢您对《天龙八部》的支持！

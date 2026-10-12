@@ -1,0 +1,91 @@
+#==================================================
+# CẤU HÌNH CỤM MÁY CHỦ
+#==================================================
+# Tệp: cluster.toml. Mọi tiến trình đều đọc tệp này.
+# Cho biết cụm phục vụ thế giới nào, database ở đâu, tiến trình nào nghe cổng nội bộ nào.
+# Đường dẫn tương đối tính từ thư mục của tệp này.
+
+#==================================================
+# Chung
+#==================================================
+schema = 1   # Phiên bản bố cục của tệp; bộ đọc từ chối số nó không hiểu
+
+#==================================================
+# Thế giới game
+#==================================================
+[world]
+id            = 1                  # Số của thế giới, từ 1; database game mang tên thienlong_game_<id>
+zone_group    = 0                  # Nhóm máy chủ; các thế giới cùng nhóm chung một danh sách chọn máy chủ
+name          = "thienlong-test"   # Tên cụm trong log và công cụ quản trị; không gửi cho client
+table_variant = ""                 # Bộ bảng thay thế theo loại máy chủ; rỗng là dùng bảng gốc
+
+#==================================================
+# Cụm PostgreSQL
+#==================================================
+# Database nằm ngay trong SERVER. TOOLS/server/setup_db.py dựng nó; supervisor chạy và dừng nó.
+[postgres]
+host     = "127.0.0.1"             # Địa chỉ cụm nghe; chỉ loopback, không mở ra mạng
+port     = 5432                    # Cổng TCP của cụm
+bin_dir  = "../pgsql/bin"          # Thư mục chứa postgres.exe, pg_ctl.exe, psql.exe
+data_dir = "../data/pg"            # Thư mục dữ liệu; xoá là mất mọi tài khoản và nhân vật
+log_file = "../log/postgres.log"   # Tệp log của tiến trình postgres
+
+#==================================================
+# Máy vật lý
+#==================================================
+# Bản thử chỉ có một máy; thêm máy thì thêm một khối [[machine]].
+[[machine]]
+id = 0   # Số của máy; khoá machine của [[process]] trỏ tới số này
+
+#==================================================
+# Tiến trình store
+#==================================================
+# Mỗi khối [[process]] là một tiến trình có cổng ipc nội bộ. Gate không có khối: nó chỉ quay số
+# tới auth, world và zone; cổng công khai của nó khai ở gate.toml.
+[[process]]
+kind    = "store"       # Loại tiến trình: store, auth, billing, world hoặc zone
+id      = 0             # Số thứ tự trong cùng loại, từ 0
+machine = 0             # Máy chạy tiến trình, theo id của [[machine]]
+host    = "127.0.0.1"   # Địa chỉ mà cổng ipc nghe
+port    = 7010          # Cổng ipc: world và zone nối tới đây để nạp và ghi dữ liệu
+
+#==================================================
+# Tiến trình auth
+#==================================================
+[[process]]
+kind    = "auth"        # Loại tiến trình: store, auth, billing, world hoặc zone
+id      = 0             # Số thứ tự trong cùng loại, từ 0
+machine = 0             # Máy chạy tiến trình, theo id của [[machine]]
+host    = "127.0.0.1"   # Địa chỉ mà cổng ipc nghe
+port    = 7011          # Cổng ipc: gate và world nối tới đây
+
+#==================================================
+# Tiến trình billing
+#==================================================
+[[process]]
+kind    = "billing"     # Loại tiến trình: store, auth, billing, world hoặc zone
+id      = 0             # Số thứ tự trong cùng loại, từ 0
+machine = 0             # Máy chạy tiến trình, theo id của [[machine]]
+host    = "127.0.0.1"   # Địa chỉ mà cổng ipc nghe
+port    = 7012          # Cổng ipc: chỉ world được nối tới đây
+
+#==================================================
+# Tiến trình world
+#==================================================
+[[process]]
+kind    = "world"       # Loại tiến trình: store, auth, billing, world hoặc zone
+id      = 0             # Số thứ tự trong cùng loại, từ 0
+machine = 0             # Máy chạy tiến trình, theo id của [[machine]]
+host    = "127.0.0.1"   # Địa chỉ mà cổng ipc nghe
+port    = 7013          # Cổng ipc: gate và zone nối tới đây
+
+#==================================================
+# Tiến trình zone số 0
+#==================================================
+# Thêm zone thì chép khối này, tăng id lên 1, 2 và đổi cổng thành 7021, 7022.
+[[process]]
+kind    = "zone"        # Loại tiến trình: store, auth, billing, world hoặc zone
+id      = 0             # Số thứ tự trong cùng loại, từ 0
+machine = 0             # Máy chạy tiến trình, theo id của [[machine]]
+host    = "127.0.0.1"   # Địa chỉ mà cổng ipc nghe
+port    = 7020          # Cổng ipc: gate nối tới đây để chuyển tin của người chơi

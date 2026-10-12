@@ -1,0 +1,13 @@
+# schema 1
+# source: Public/Scene/jinghu_growpointsetup.txt
+# tool: TOOLS/server/export_scene.py; sửa tay sẽ mất ở lượt xuất sau
+# types: int	int	int	text	int	int
+grow_point_type	max_count	column_2	column_3	column_4	column_5
+1	20	1		60000	0
+101	10	1		60000	0
+102	10	1		60000	0
+201	6	1		5000	0
+213	6	1		5000	0
+599	20	20		1800000	1200000
+776	3	1		10000	0
+792	100	1		15000	0

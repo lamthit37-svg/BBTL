@@ -1,0 +1,10 @@
+# schema 1
+# source: server_config/SceneInfo.ini
+# tool: TOOLS/server/import_legacy.py; sửa tay sẽ mất ở lượt xuất sau
+# types: int	text	text	text	text
+index	original	name	type	note
+0		scene_id	int	chỉ số section sceneN
+1	active	active	int	
+2	serverid	serverid	int	tệp ghi serverid, mã 2008 đọc serverId
+3	threadindex	threadindex	int	
+4		within_declared_count	int	1 khi chỉ số scene nhỏ hơn scenenumber

@@ -1,0 +1,4 @@
+# b-ca-mo-ham-18003fee4.log — PathLib.dll (693ec0e4…) 0x18003fee4 (hàm cấp phát dùng ở 0x180002572), B, 2026-10-08 16:19:28 UTC+7, chỉ đọc byte
+; hàm lá (không có trong .pdata) 0x18003fee4..0x18003fef0 (12 byte)
+0x18003fee4: jmp qword ptr [rip + 0x352e]  ; 0x180043418 MSVCR110.dll!??2@YAPEAX_K@Z
+0x18003feea: jmp qword ptr [rip + 0x3530]  ; 0x180043420 MSVCR110.dll!??3@YAXPEAX@Z

@@ -1,0 +1,13 @@
+# schema 1
+# source: server_config/ZhuandanOutput.txt
+# tool: TOOLS/server/import_legacy.py; sửa tay sẽ mất ở lượt xuất sau
+# types: int	text	text	text	text
+index	original	name	type	note
+0	Index	index	int	luật: M1
+1	CrossIndex	cross_index	int	luật: M1
+2	ProductID	product_id	int	luật: M1
+3	ProductNum	product_num	int	luật: M1
+4	Rate	rate	int	luật: M1
+5	Bind	bind	int	luật: M1
+6	BroadCast	broad_cast	int	luật: M1
+7	NOTE	note	text	luật: M1

@@ -1,0 +1,7 @@
+# schema 1
+# source: server_config/DropAttenuation.txt
+# tool: TOOLS/server/import_legacy.py; sửa tay sẽ mất ở lượt xuất sau
+# types: int	text	text	text	text
+index	original	name	type	note
+0	Delta LvlNpc -LvlPlayer	level_delta	int	luật: nguyên văn
+1	Rate	rate	float	luật: M1

@@ -1,0 +1,9 @@
+# schema 1
+# source: Public/Scene/suzhou_portal.ini
+# tool: TOOLS/server/export_scene.py; sửa tay sẽ mất ở lượt xuất sau
+# types: int	int	float	float	int	float	float	int
+type	scene_id	position_x	position_z	target_scene_id	target_position_x	target_position_z	target_direction
+0	1	128	40	4	180	210	9
+0	1	40	128.2	5	210.2	40.9	9
+0	1	128.2	230.2	24	40.2	40.9	9
+0	1	228.2	30.2	39	20.2	20.9	9

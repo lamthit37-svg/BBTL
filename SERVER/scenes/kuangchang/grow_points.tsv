@@ -1,0 +1,5 @@
+# schema 1
+# source: Public/Scene/kuangchang_growpoint.txt
+# tool: TOOLS/server/export_scene.py; sửa tay sẽ mất ở lượt xuất sau
+# types: int	int	float	float
+point_id	grow_point_type	position_x	position_y

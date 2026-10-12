@@ -1,0 +1,7 @@
+# b-bien-doi-thu-tu.log 2026-10-08 15:20:00, Hoon — mô phỏng f32 thuần theo thứ tự lệnh máy của PathLib.dll (693ec0e4…) đối chiếu số vàng biến đổi
+# so-do/b-bien-doi-thu-tu-sim.py 2887027F21904D53B3899435EC271E12EA7726F6627A218787BA6DB5B15EF4A3; tests/golden/collision_get_bien_doi.tsv CC58F2294A4BF064637142703B5104B1191501D7EEC3E2726E51D47879C04492
+$ python -B -W error docs/giao-viec/DH-DOT-1/so-do/b-bien-doi-thu-tu-sim.py tests\golden\collision_get_bien_doi.tsv   (mã thoát 0, 851 ms)
+
+tổng 20000 dòng, trùng bit 20000, lệch 0
+
+$ python -B -W error TOOLS/server/lint_py.py docs/giao-viec/DH-DOT-1/so-do/b-bien-doi-thu-tu-sim.py   (mã thoát 0)

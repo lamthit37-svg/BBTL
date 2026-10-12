@@ -1,0 +1,9 @@
+# schema 1
+# source: server_config/NotifyOnline.txt
+# tool: TOOLS/server/import_legacy.py; sửa tay sẽ mất ở lượt xuất sau
+# types: int	text	text	text	text
+index	original	name	type	note
+0	index	index	int	luật: M1
+1	isShow	is_show	int	luật: M1
+2	mode	mode	int	luật: M1
+3	info$1$	info	text	luật: M1

@@ -1,0 +1,12 @@
+# schema 1
+# source: Public/Scene
+# tool: TOOLS/server/export_scene.py; sửa tay sẽ mất ở lượt xuất sau
+# types: text	text	text	text	text
+index	original	name	type	note
+0	guid	guid	int	cùng khoá với quái; mã 2008 không nạp tệp pet
+1	type	type	int	mã 2008 không nạp tệp pet
+2	name	name	text	mã 2008 không nạp tệp pet
+3	pos_x	position_x	float	mã 2008 không nạp tệp pet
+4	pos_z	position_z	float	mã 2008 không nạp tệp pet
+5	respawn_time	respawn_time	int	mã 2008 không nạp tệp pet
+6	ai_file	ai_file	int	mã 2008 không nạp tệp pet

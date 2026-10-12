@@ -1,0 +1,40 @@
+# lệnh (gốc worktree): python -B build/p2-c/probe/make_probe.py; python -B TOOLS/server/gen_protocol.py --catalog build/p2-c/probe/catalog --out build/p2-c/probe/out; clang-format qua fmtcheck.ps1; clang-tidy --quiet <tệp> -- -x c++ -std=c++23 -I out/SRC -I out/tests -I SRC -I tests; g++ -std=c++23 -Wall -Wextra -Wpedantic -Wconversion -Wsign-conversion -Wshadow -Werror -O1 -D_GLIBCXX_ASSERTIONS -ftrapv ... -lntdll -lsynchronization
+# giờ: 2026-10-08 02:25:20; 1 lượt; danh mục thử nay có record Blank (không trường) làm trường đơn Report.blank
+gen thử: mã thoát 0
+messages.hpp:48: struct Blank {
+messages.hpp:49: friend bool operator==(const Blank&, const Blank&) = default;
+messages.hpp:104: Blank blank;
+messages.cpp:214: put_blank(writer, message.blank);
+messages.cpp:221: message.blank = get_blank(reader);
+protocol_samples.hpp:75: [[nodiscard]] inline protocol::Blank blank_min() {
+protocol_samples.hpp:79: [[nodiscard]] inline protocol::Blank blank_max() {
+protocol_samples.hpp:83: [[nodiscard]] inline protocol::Blank blank_typical() {
+protocol_samples.hpp:213: value.blank = blank_min();
+protocol_samples.hpp:221: value.blank = blank_max();
+protocol_samples.hpp:229: value.blank = blank_typical();
+build/p2-c/probe/out/SRC/protocol/messages.hpp OK
+build/p2-c/probe/out/SRC/protocol/messages.cpp OK
+build/p2-c/probe/out/tests/protocol_samples.hpp OK
+fmtcheck: mã thoát 0
+clang-tidy build/p2-c/probe/out/SRC/protocol/messages.hpp : mã thoát 0, 0 dòng cảnh báo/lỗi
+Error while processing F:\tl 2026\THIENLONG\build\p2-dot-2\build\p2-c\probe\out\SRC\protocol\messages.cpp.
+F:\tl 2026\THIENLONG\build\p2-dot-2\build\p2-c\probe\out\SRC\protocol\messages.cpp:214:5: error: use of undeclared identifier 'put_blank' [clang-diagnostic-error]
+  214 |     put_blank(writer, message.blank);
+      |     ^~~~~~~~~
+F:\tl 2026\THIENLONG\build\p2-dot-2\build\p2-c\probe\out\SRC\protocol\messages.cpp:221:21: error: use of undeclared identifier 'get_blank' [clang-diagnostic-error]
+  221 |     message.blank = get_blank(reader);
+      |                     ^~~~~~~~~
+clang-tidy build/p2-c/probe/out/SRC/protocol/messages.cpp : mã thoát 1, 2 dòng cảnh báo/lỗi
+clang-tidy build/p2-c/probe/out/tests/protocol_samples.hpp : mã thoát 0, 0 dòng cảnh báo/lỗi
+build/p2-c/probe/out/SRC/protocol/messages.cpp: In function 'void game::protocol::{anonymous}::put_report(game::protocol::Writer&, const game::protocol::Report&)':
+build/p2-c/probe/out/SRC/protocol/messages.cpp:214:5: error: 'put_blank' was not declared in this scope
+  214 |     put_blank(writer, message.blank);
+      |     ^~~~~~~~~
+build/p2-c/probe/out/SRC/protocol/messages.cpp: In function 'game::protocol::Report game::protocol::{anonymous}::get_report(game::protocol::Reader&)':
+build/p2-c/probe/out/SRC/protocol/messages.cpp:221:21: error: 'get_blank' was not declared in this scope
+  221 |     message.blank = get_blank(reader);
+      |                     ^~~~~~~~~
+g++: mã thoát 1
+probe.exe: mã thoát 0
+số mẫu của danh mục thử: 13
+ghi chú (02:28): đây là lượt ĐỎ, trước khi sửa protocol_cpp_src.py. g++ hỏng nên dòng 'probe.exe: mã thoát 0' là của probe.exe cũ lúc 02:06, không tính.

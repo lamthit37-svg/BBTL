@@ -1,0 +1,4 @@
+# 2026-10-08 09:12:29  Lệnh: build/p2-l/tree/wire_loop_tests.exe (clang-asan, cây nháp của L, mã thật). Mong đợi: xanh cả 4 ca.
+exit=0 ms=54
+# 2026-10-08 09:13:13  Lượt 2 sau khi thêm #include <expected>, dựng lại cùng cây.
+exit=0 ms=789

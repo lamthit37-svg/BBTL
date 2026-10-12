@@ -1,0 +1,10 @@
+# schema 1
+# source: client_2026/GemMelting.txt
+# tool: TOOLS/server/export_tables.py; sửa tay sẽ mất ở lượt xuất sau
+# types: int	text	text	text	text
+index	original	name	type	note
+0	宝石ID	gem_id	int	luật: nguyên văn; khớp 100.0% (36/36 id)
+1	熔炼后宝石ID	smelted_gem_id	int	luật: nguyên văn; khớp 100.0% (36/36 id)
+2	需要物品ID	required_item_id	int	luật: nguyên văn; khớp 100.0% (36/36 id)
+3	需要金钱	required_money	int	luật: nguyên văn; khớp 100.0% (36/36 id)
+4	可替代物品ID	substitute_item_id	int	luật: nguyên văn; khớp 100.0% (36/36 id)

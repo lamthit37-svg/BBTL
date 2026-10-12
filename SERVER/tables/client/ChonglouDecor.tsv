@@ -1,0 +1,23 @@
+# schema 1
+# source: client_2026/ChonglouDecor.txt
+# tool: TOOLS/server/export_client_rest.py; sửa tay sẽ mất ở lượt xuất sau
+# types: int	text	text	int	text	text
+column_0	column_1	column_2	column_3	column_4	column_5
+1	身体中心点	buff_重楼遁甲	1	buff_重楼遁甲	重楼甲
+2	身体中心点	buff_重楼项链	1	buff_重楼项链	重楼链、重楼·返
+3	身体中心点	buff_重楼霸体	1	buff_重楼霸体	重楼肩
+4	身体中心点	buff_重楼望月	1	buff_重楼望月	重楼戒、重楼·召
+5	身体中心点	buff_重楼逆天	1	buff_重楼逆天	重楼玉、重楼·归
+6	身体中心点	buff_1001新重楼_甲	1	buff_重楼遁甲	重楼甲星华风格
+7	身体中心点	buff_1001新重楼_链	1	buff_重楼项链	重楼链、重楼·返星华风格
+8	身体中心点	buff_1001新重楼_体	1	buff_重楼霸体	重楼肩星华风格
+9	身体中心点	buff_1001新重楼_月	1	buff_重楼望月	重楼戒、重楼·召星华风格
+10	身体中心点	buff_1001新重楼_天	1	buff_重楼逆天	重楼玉、重楼·归星华风格
+11	身体中心点	buff_重楼腰	1	buff_重楼腰	重楼腰
+12	身体中心点	buff_1001新重楼_腰	1	buff_重楼腰	重楼腰星华风格
+13	身体中心点	buff_新重楼龙头_遁甲	1	buff_重楼遁甲	重楼甲龙曜风格
+14	身体中心点	buff_新重楼龙头_项链	1	buff_重楼项链	重楼链、重楼·返龙曜风格
+15	身体中心点	buff_新重楼龙头_霸体	1	buff_重楼霸体	重楼肩龙曜风格
+16	身体中心点	buff_新重楼龙头_望月	1	buff_重楼望月	重楼戒、重楼·召龙曜风格
+17	身体中心点	buff_新重楼龙头_逆天	1	buff_重楼逆天	重楼玉、重楼·归龙曜风格
+18	身体中心点	buff_新重楼龙头_腰带	1	buff_重楼腰	重楼腰龙曜风格

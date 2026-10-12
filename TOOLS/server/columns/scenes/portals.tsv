@@ -1,0 +1,13 @@
+# schema 1
+# source: Public/Scene
+# tool: TOOLS/server/export_scene.py; sửa tay sẽ mất ở lượt xuất sau
+# types: text	text	text	text	text
+index	original	name	type	note
+0	type	type	int	mã 2008 không đọc
+1	sceneid	scene_id	int	mã 2008 không đọc
+2	pos_X	position_x	float	mã 2008 không đọc
+3	pos_Z	position_z	float	mã 2008 không đọc
+4	targetsceneid	target_scene_id	int	mã 2008 không đọc
+5	targetpos_X	target_position_x	float	mã 2008 không đọc
+6	targetpos_Z	target_position_z	float	mã 2008 không đọc
+7	targetdir	target_direction	int	mã 2008 không đọc

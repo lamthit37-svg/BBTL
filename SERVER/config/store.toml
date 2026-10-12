@@ -1,0 +1,36 @@
+#==================================================
+# CẤU HÌNH TIẾN TRÌNH LƯU TRỮ (STORE)
+#==================================================
+# Tệp: store.toml. Chỉ tiến trình store đọc tệp này.
+# Store là người ghi duy nhất của database game: nhận thay đổi từ world và zone, ghi nhật ký, rồi
+# gom lô xuống PostgreSQL.
+
+#==================================================
+# Chung
+#==================================================
+schema = 1   # Phiên bản bố cục của tệp; bộ đọc từ chối số nó không hiểu
+
+#==================================================
+# Database
+#==================================================
+# Địa chỉ cụm PostgreSQL nằm ở cluster.toml, mật khẩu ở secrets.local.toml.
+[database]
+name = "thienlong_game_1"   # Tên database: thienlong_game_<world.id của cluster.toml>
+user = "thienlong_store"    # Role dùng để nối; chỉ store có mật khẩu của role này
+pool = 4                    # Số kết nối giữ sẵn tới database (số tạm)
+
+#==================================================
+# Nhịp ghi
+#==================================================
+# Thay đổi nằm trong bộ nhớ tối đa bao lâu trước khi xuống đĩa. Đơn vị mili giây; hai số dưới chưa
+# đo.
+[flush]
+character_ms = 30000   # Thay đổi thường của nhân vật: vị trí, kinh nghiệm
+world_ms     = 60000   # Thay đổi của dữ liệu world: bang, thư, xếp hạng
+
+#==================================================
+# Nhật ký ghi
+#==================================================
+# Store ghi thay đổi vào nhật ký trước khi xuống database, để sập giữa chừng không mất.
+[journal]
+dir = "../data/store/journal"   # Thư mục chứa nhật ký

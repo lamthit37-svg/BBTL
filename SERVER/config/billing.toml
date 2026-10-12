@@ -1,0 +1,61 @@
+#==================================================
+# CẤU HÌNH DỊCH VỤ NẠP TIỀN (BILLING)
+#==================================================
+# Tệp: billing.toml. Chỉ tiến trình billing đọc tệp này.
+# Billing giữ điểm nạp của tài khoản, đơn nạp, việc đổi điểm lấy ingot, quà và mã đổi. Billing
+# dừng thì chỉ cửa hàng ingot đóng; đăng nhập không phụ thuộc nó.
+# Chưa có nhà cung cấp thanh toán: thêm một khối [[provider]] cho mỗi nhà cung cấp.
+
+#==================================================
+# Chung
+#==================================================
+schema = 1   # Phiên bản bố cục của tệp; bộ đọc từ chối số nó không hiểu
+
+#==================================================
+# Database
+#==================================================
+# Địa chỉ cụm PostgreSQL nằm ở cluster.toml, mật khẩu ở secrets.local.toml.
+[database]
+name = "thienlong_billing"   # Tên database
+user = "thienlong_billing"   # Role dùng để nối; chỉ có quyền trên database này
+pool = 2                     # Số kết nối giữ sẵn tới database (số tạm)
+
+#==================================================
+# Quyền gọi
+#==================================================
+[access]
+allow = ["127.0.0.1"]   # Địa chỉ được gọi billing; địa chỉ khác bị từ chối
+
+#==================================================
+# Trần kết nối
+#==================================================
+[limits]
+max_clients = 500   # Số kết nối cùng lúc tới billing
+
+#==================================================
+# Điểm nạp
+#==================================================
+# Điểm nạp là số dư của tài khoản ở billing; ingot là tiền nạp trong game.
+[points]
+ingot_per_point = 1   # Một điểm nạp đổi được bao nhiêu ingot (số tạm, chưa chốt tỉ giá)
+register_gift   = 0   # Số điểm nạp tặng khi tài khoản được tạo
+
+#==================================================
+# Hạn mức tiêu
+#==================================================
+[spend]
+daily_ingot_cap = 120000   # Số ingot tối đa một nhân vật được tiêu mỗi ngày
+
+#==================================================
+# Đơn hàng
+#==================================================
+# Đổi điểm lấy ingot đi hai pha: billing trừ điểm, game cộng ingot, rồi billing chốt.
+[orders]
+pending_timeout_seconds    = 600   # Đơn chờ game xác nhận quá số giây này thì sang đối soát (số tạm)
+reconcile_interval_seconds = 60    # Chu kỳ đối soát các đơn còn chờ, giây (số tạm)
+
+#==================================================
+# Mã đổi
+#==================================================
+[redeem]
+attempts_per_hour = 10   # Số lần nhập mã tối đa mỗi giờ cho một tài khoản (số tạm)

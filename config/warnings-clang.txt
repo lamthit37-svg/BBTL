@@ -1,0 +1,6 @@
+-Wmissing-prototypes
+-Wextra-semi
+-Wcomma
+-Wshadow-all
+-Wimplicit-int-float-conversion
+-Winvalid-constexpr

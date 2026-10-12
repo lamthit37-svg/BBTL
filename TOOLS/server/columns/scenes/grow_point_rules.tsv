@@ -1,0 +1,11 @@
+# schema 1
+# source: Public/Scene
+# tool: TOOLS/server/export_scene.py; sửa tay sẽ mất ở lượt xuất sau
+# types: text	text	text	text	text
+index	original	name	type	note
+0	类型	grow_point_type	int	cột 0, mã đọc là loại
+1	数量	max_count	int	cột 1, mã đọc là số lượng tối đa
+2	每次生成数量	column_2	int	mã 2008 không đọc ?
+3	生成函数	column_3	text	mã đọc bằng atoi vào khoảng bổ sung; tên gốc là hàm sinh ?
+4	种子补充的间隔时间	column_4	int	mã 2008 không đọc ?
+5	补充时间随机增量	column_5	int	mã 2008 không đọc ?

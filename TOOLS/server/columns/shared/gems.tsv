@@ -1,0 +1,89 @@
+# schema 1
+# source: client_2026/GemInfo.txt
+# tool: TOOLS/server/export_tables.py; sửa tay sẽ mất ở lượt xuất sau
+# types: int	text	text	text	text
+index	original	name	type	note
+0	index	index	int	neo: cột gốc 0, khớp 100.0% (297/297 id); luật: M1
+1	class	class	int	nội suy: cột gốc 1, khớp 100.0% (297/297 id); luật: M1
+2	quality	quality	int	neo: cột gốc 2, khớp 100.0% (297/297 id); luật: M1
+3	Type	type	int	neo: cột gốc 3, khớp 100.0% (297/297 id); luật: M1
+4	GemIndex	gem_index	int	neo: cột gốc 4, khớp 100.0% (297/297 id); luật: M1
+5	资源编号	resource_id	text	neo: cột gốc 5, khớp 100.0% (297/297 id); luật: nguyên văn
+6	适应规则	fit_rules	int	nội suy: cột gốc 6, khớp 0.0% (0/297 id); luật: nguyên văn
+7	名称$1$	name	text	neo: cột gốc 7, khớp 100.0% (297/297 id); luật: nguyên văn
+8		column_8	text	mới ở 2026
+9	基本价格	base_price	int	neo: cột gốc 9, khớp 100.0% (297/297 id); luật: nguyên văn
+10	出售价格	sale_price	int	nội suy: cột gốc 10, khớp 100.0% (297/297 id); luật: nguyên văn
+11	增加HP的上限	max_hp_bonus	int	đổi kiểu: cột gốc 11, khớp 100.0% (297/297 id); luật: nguyên văn
+12	百分比增加HP的上限	max_hp_percent	int	đổi kiểu: cột gốc 12, khớp 100.0% (297/297 id); luật: nguyên văn
+13	加快HP的回复速度	hp_restore_speed	int	đổi kiểu: cột gốc 13, khớp 100.0% (297/297 id); luật: nguyên văn
+14	增加MP的上限	max_mp_bonus	int	đổi kiểu: cột gốc 14, khớp 100.0% (297/297 id); luật: nguyên văn
+15	百分比增加MP的上限	max_mp_percent	int	đổi kiểu: cột gốc 15, khớp 100.0% (297/297 id); luật: nguyên văn
+16	加快MP的回复速度	mp_restore_speed	int	đổi kiểu: cột gốc 16, khớp 100.0% (297/297 id); luật: nguyên văn
+17	冰攻击	cold_attack	int	đổi kiểu: cột gốc 17, khớp 99.7% (296/297 id); luật: nguyên văn
+18	冰抵抗	cold_resist	int	đổi kiểu: cột gốc 18, khớp 100.0% (297/297 id); luật: nguyên văn
+19	减少冰冻迟缓时间	cold_slow_reduction	int	đổi kiểu: cột gốc 19, khớp 100.0% (297/297 id); luật: nguyên văn
+20	火攻击	fire_attack	int	đổi kiểu: cột gốc 20, khớp 99.7% (296/297 id); luật: nguyên văn
+21	火抵抗	fire_resist	int	đổi kiểu: cột gốc 21, khớp 100.0% (297/297 id); luật: nguyên văn
+22	减少火烧持续时间	fire_burn_reduction	int	đổi kiểu: cột gốc 22, khớp 100.0% (297/297 id); luật: nguyên văn
+23	玄攻击	lightning_attack	int	đổi kiểu: cột gốc 23, khớp 99.7% (296/297 id); luật: nguyên văn
+24	玄抵抗	lightning_resist	int	đổi kiểu: cột gốc 24, khớp 100.0% (297/297 id); luật: nguyên văn
+25	减少电击眩晕时间	shock_stun_reduction	int	đổi kiểu: cột gốc 25, khớp 100.0% (297/297 id); luật: nguyên văn
+26	毒攻击	poison_attack	int	đổi kiểu: cột gốc 26, khớp 99.7% (296/297 id); luật: nguyên văn
+27	毒抵抗	poison_resist	int	đổi kiểu: cột gốc 27, khớp 100.0% (297/297 id); luật: nguyên văn
+28	减少中毒时间	poison_time_reduction	int	đổi kiểu: cột gốc 28, khớp 100.0% (297/297 id); luật: nguyên văn
+29	按百分比抵消所有属性攻击	all_element_resist_percent	int	đổi kiểu: cột gốc 29, khớp 100.0% (297/297 id); luật: nguyên văn
+30	物理攻击	physical_attack	int	đổi kiểu: cột gốc 30, khớp 100.0% (297/297 id); luật: nguyên văn
+31	按百分比增加物理攻击	physical_attack_percent	int	đổi kiểu: cột gốc 31, khớp 100.0% (297/297 id); luật: nguyên văn
+32	对装备基础物理攻击百分比加成	equip_base_physical_attack_percent	int	đổi kiểu: cột gốc 32, khớp 100.0% (297/297 id); luật: nguyên văn
+33	物理防御	physical_defence	int	đổi kiểu: cột gốc 33, khớp 100.0% (297/297 id); luật: nguyên văn
+34	按百分比增加物理防御	physical_defence_percent	int	đổi kiểu: cột gốc 34, khớp 100.0% (297/297 id); luật: nguyên văn
+35	对装备基础物理防御百分比加成	equip_base_physical_defence_percent	int	đổi kiểu: cột gốc 35, khớp 100.0% (297/297 id); luật: nguyên văn
+36	按百分比抵消物理伤害	physical_damage_resist_percent	int	đổi kiểu: cột gốc 36, khớp 100.0% (297/297 id); luật: nguyên văn
+37	魔法攻击	magic_attack	int	đổi kiểu: cột gốc 37, khớp 100.0% (297/297 id); luật: nguyên văn
+38	按百分比增加魔法攻击	magic_attack_percent	int	đổi kiểu: cột gốc 38, khớp 100.0% (297/297 id); luật: nguyên văn
+39	对装备基础魔法攻击百分比加成	equip_base_magic_attack_percent	int	đổi kiểu: cột gốc 39, khớp 100.0% (297/297 id); luật: nguyên văn
+40	魔法防御	magic_defence	int	đổi kiểu: cột gốc 40, khớp 100.0% (297/297 id); luật: nguyên văn
+41	按百分比增加魔法防御	magic_defence_percent	int	đổi kiểu: cột gốc 41, khớp 100.0% (297/297 id); luật: nguyên văn
+42	对装备基础魔法防御百分比加成	equip_base_magic_defence_percent	int	đổi kiểu: cột gốc 42, khớp 100.0% (297/297 id); luật: nguyên văn
+43	按百分比抵消魔法伤害	magic_damage_resist_percent	int	đổi kiểu: cột gốc 43, khớp 100.0% (297/297 id); luật: nguyên văn
+44	攻击速度(两次攻击间隔时间)	attack_interval	int	đổi kiểu: cột gốc 44, khớp 100.0% (297/297 id); luật: nguyên văn
+45	魔法冷却速度	magic_cooldown_speed	int	đổi kiểu: cột gốc 45, khớp 100.0% (297/297 id); luật: nguyên văn
+46	命中	hit	int	đổi kiểu: cột gốc 46, khớp 100.0% (297/297 id); luật: nguyên văn
+47	闪避	miss	int	đổi kiểu: cột gốc 47, khớp 100.0% (297/297 id); luật: nguyên văn
+48	会心一击（双倍攻击）的百分比	double_attack_percent	int	đổi kiểu: cột gốc 48, khớp 100.0% (297/297 id); luật: nguyên văn
+49	无视对方防御比率	ignore_defence_rate	int	đổi kiểu: cột gốc 49, khớp 100.0% (297/297 id); luật: nguyên văn
+50	移动速度百分比	move_speed_percent	int	đổi kiểu: cột gốc 50, khớp 100.0% (297/297 id); luật: nguyên văn
+51	伤害反射	damage_reflect	int	đổi kiểu: cột gốc 51, khớp 100.0% (297/297 id); luật: nguyên văn
+52	伤害由内力抵消	damage_to_mana	int	đổi kiểu: cột gốc 52, khớp 100.0% (297/297 id); luật: nguyên văn
+53	力量	strength	int	đổi kiểu: cột gốc 53, khớp 100.0% (297/297 id); luật: nguyên văn
+54	灵气	spirit	int	đổi kiểu: cột gốc 54, khớp 100.0% (297/297 id); luật: nguyên văn
+55	体质	constitution	int	đổi kiểu: cột gốc 55, khớp 100.0% (297/297 id); luật: nguyên văn
+56	定力	concentration	int	đổi kiểu: cột gốc 56, khớp 100.0% (297/297 id); luật: nguyên văn
+57	身法	dexterity	int	đổi kiểu: cột gốc 57, khớp 100.0% (297/297 id); luật: nguyên văn
+58	悟性	insight	int	đổi kiểu: cột gốc 58, khớp 100.0% (297/297 id); luật: nguyên văn
+59	增加所有的人物一级属性	all_primary_attributes	int	đổi kiểu: cột gốc 59, khớp 100.0% (297/297 id); luật: nguyên văn
+60	生命偷取	hp_steal	int	đổi kiểu: cột gốc 60, khớp 100.0% (297/297 id); luật: nguyên văn
+61	内力偷取	mp_steal	int	đổi kiểu: cột gốc 61, khớp 100.0% (297/297 id); luật: nguyên văn
+62	增加某个魔法等级	one_magic_level	int	đổi kiểu: cột gốc 62, khớp 100.0% (297/297 id); luật: nguyên văn
+63	增加所有魔法等级	all_magic_levels	int	đổi kiểu: cột gốc 63, khớp 100.0% (297/297 id); luật: nguyên văn
+64	特殊魔法发动概率	special_magic_rate	int	đổi kiểu: cột gốc 64, khớp 100.0% (297/297 id); luật: nguyên văn
+65	降低目标冰抵抗	cold_resist_reduction	int	đổi kiểu: cột gốc 65, khớp 100.0% (297/297 id); luật: nguyên văn
+66	降低目标火抵抗	fire_resist_reduction	int	đổi kiểu: cột gốc 66, khớp 100.0% (297/297 id); luật: nguyên văn
+67	降低目标玄抵抗	lightning_resist_reduction	int	đổi kiểu: cột gốc 67, khớp 100.0% (297/297 id); luật: nguyên văn
+68	降低目标毒抵抗	poison_resist_reduction	int	đổi kiểu: cột gốc 68, khớp 100.0% (297/297 id); luật: nguyên văn
+69	基础物理攻击	base_physical_attack	int	đổi kiểu: cột gốc 69, khớp 100.0% (297/297 id); luật: nguyên văn
+70	基础魔法攻击	base_magic_attack	int	đổi kiểu: cột gốc 70, khớp 100.0% (297/297 id); luật: nguyên văn
+71	基础命中	base_hit	int	đổi kiểu: cột gốc 71, khớp 100.0% (297/297 id); luật: nguyên văn
+72	基础物理防御	base_physical_defence	int	đổi kiểu: cột gốc 72, khớp 100.0% (297/297 id); luật: nguyên văn
+73	基础魔法防御	base_magic_defence	int	đổi kiểu: cột gốc 73, khớp 100.0% (297/297 id); luật: nguyên văn
+74	基础闪避	base_miss	int	đổi kiểu: cột gốc 74, khớp 100.0% (297/297 id); luật: nguyên văn
+75	"颜色值(R,G,B,A) "	color_rgba	text	neo: cột gốc 75, khớp 100.0% (297/297 id); luật: nguyên văn
+76	类型描述$1$	type_description	text	neo: cột gốc 76, khớp 100.0% (297/297 id); luật: nguyên văn
+77	特效索引	effect_index	int	neo: cột gốc 77, khớp 100.0% (297/297 id); luật: nguyên văn
+78		column_78	int	mới ở 2026
+79		column_79	int	mới ở 2026
+80		column_80	int	mới ở 2026
+81		column_81	int	mới ở 2026
+82		column_82	int	mới ở 2026
+83		column_83	int	mới ở 2026

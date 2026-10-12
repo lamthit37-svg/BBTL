@@ -1,0 +1,33 @@
+# schema 1
+# source: client_2026/ImpactSEData_V1.txt
+# tool: TOOLS/server/export_tables.py; sửa tay sẽ mất ở lượt xuất sau
+# types: int	text	text	text	text
+index	original	name	type	note
+0	ID	id	int	neo: cột gốc 0, khớp 100.0% (805/805 id); luật: M1
+1	分类 ID（互斥用）	mutex_id	int	neo: cột gốc 1, khớp 98.4% (792/805 id); luật: nguyên văn
+2		column_2	int	mới ở 2026
+3	图标文件名	icon_file	text	neo: cột gốc 3, khớp 98.1% (790/805 id); luật: nguyên văn
+4	触发特效ID	trigger_effect_id	text	neo: cột gốc 4, khớp 99.9% (804/805 id); luật: nguyên văn
+5	触发特效的音效ID	trigger_sound_id	text	neo: cột gốc 5, khớp 100.0% (805/805 id); luật: nguyên văn
+6	触发特效的绑定点	trigger_effect_anchor	text	neo: cột gốc 6, khớp 99.9% (804/805 id); luật: nguyên văn
+7	持续性特效ID	continuous_effect_id	text	neo: cột gốc 7, khớp 97.8% (787/805 id); luật: nguyên văn
+8	持续特效的音效ID	continuous_sound_id	text	nội suy: cột gốc 8, khớp 100.0% (805/805 id); luật: nguyên văn
+9	持续性特效的绑定点	continuous_effect_anchor	text	neo: cột gốc 9, khớp 97.9% (788/805 id); luật: nguyên văn
+10	死后是否保留	kept_after_death	int	nội suy: cột gốc 10, khớp 97.0% (781/805 id); luật: nguyên văn
+11	是否可以被技能驱散	can_be_dispelled	int	neo: cột gốc 11, khớp 100.0% (805/805 id); luật: nguyên văn
+12	是否是负面效果	is_hostile	int	neo: cột gốc 12, khớp 100.0% (805/805 id); luật: nguyên văn
+13	是否可以被手动取消	can_cancel_manually	int	neo: cột gốc 13, khớp 98.9% (796/805 id); luật: nguyên văn
+14	是否为线性特效	is_linear_effect	int	nội suy: cột gốc 14, khớp 100.0% (805/805 id); luật: nguyên văn
+15	线性特效的绑定点	linear_effect_anchor	text	neo: cột gốc 15, khớp 100.0% (805/805 id); luật: nguyên văn
+16		column_16	text	mới ở 2026
+17		column_17	int	mới ở 2026
+18		column_18	int	mới ở 2026
+19		column_19	int	mới ở 2026
+20		column_20	int	mới ở 2026
+21		column_21	int	mới ở 2026
+22		column_22	int	mới ở 2026
+23		column_23	text	mới ở 2026
+24		column_24	int	mới ở 2026
+25		column_25	text	mới ở 2026
+26		column_26	int	mới ở 2026
+27		column_27	int	mới ở 2026

@@ -1,0 +1,8 @@
+# schema 1
+# source: Public/Scene/caoyuan_platform.ini
+# tool: TOOLS/server/export_scene.py; sửa tay sẽ mất ở lượt xuất sau
+# types: int	int	float	float	int	int	text
+type_id	class_id	position_x	position_z	direction	script_id	tip
+17	10	116	38	27		通往辽西
+17	10	277	45	27		通往长白山
+17	10	268	250	27		通往雁南

@@ -1,0 +1,8 @@
+# schema 1
+# source: Public/Scene/talimu_area.ini
+# tool: TOOLS/server/export_scene.py; sửa tay sẽ mất ở lượt xuất sau
+# types: int	int	float	float	float	float
+guid	script_id	left	top	right	bottom
+0	400937	29.0000	21.0000	33.0000	25.0000
+0	400938	100.0000	211.0000	106.0000	217.0000
+0	400939	234.0000	221.0000	240.0000	228.0000

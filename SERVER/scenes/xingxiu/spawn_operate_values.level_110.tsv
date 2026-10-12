@@ -1,0 +1,17 @@
+# schema 1
+# source: Public/Scene/xingxiu_monster_110.ini
+# tool: TOOLS/server/export_scene.py; sửa tay sẽ mất ở lượt xuất sau
+# types: text	int	int	int	text	text
+spawn_file	data_index	data_type	value_index	value	value_extra
+spawns.level_110.tsv	0	3	0	54	54
+spawns.level_110.tsv	0	3	1	54	62
+spawns.level_110.tsv	0	3	2	54	70
+spawns.level_110.tsv	0	3	3	54	78
+spawns.level_110.tsv	0	3	4	62	54
+spawns.level_110.tsv	0	3	5	62	78
+spawns.level_110.tsv	0	3	6	70	54
+spawns.level_110.tsv	0	3	7	70	78
+spawns.level_110.tsv	0	3	8	78	54
+spawns.level_110.tsv	0	3	9	78	62
+spawns.level_110.tsv	0	3	10	78	70
+spawns.level_110.tsv	0	3	11	78	78

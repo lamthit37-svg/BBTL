@@ -1,0 +1,108 @@
+=== G TLBB Dev render ===
+847`tG:\TLBB\Dev\src\render\app_log.cpp
+821`tG:\TLBB\Dev\src\render\app_log.hpp
+15916`tG:\TLBB\Dev\src\render\asset_file.cpp
+4053`tG:\TLBB\Dev\src\render\asset_file.hpp
+23505`tG:\TLBB\Dev\src\render\backend_pick.cpp
+4661`tG:\TLBB\Dev\src\render\backend_pick.hpp
+7572`tG:\TLBB\Dev\src\render\camera.cpp
+3250`tG:\TLBB\Dev\src\render\camera.hpp
+6660`tG:\TLBB\Dev\src\render\CMakeLists.txt
+6591`tG:\TLBB\Dev\src\render\cursor_set.cpp
+2902`tG:\TLBB\Dev\src\render\cursor_set.hpp
+12805`tG:\TLBB\Dev\src\render\device.cpp
+6179`tG:\TLBB\Dev\src\render\device.hpp
+2055`tG:\TLBB\Dev\src\render\frame_stats.cpp
+1488`tG:\TLBB\Dev\src\render\frame_stats.hpp
+23784`tG:\TLBB\Dev\src\render\fx_draw.cpp
+1401`tG:\TLBB\Dev\src\render\fx_draw.hpp
+1242`tG:\TLBB\Dev\src\render\gpu_handle.hpp
+2294`tG:\TLBB\Dev\src\render\input.hpp
+3061`tG:\TLBB\Dev\src\render\launch_args.cpp
+972`tG:\TLBB\Dev\src\render\launch_args.hpp
+27418`tG:\TLBB\Dev\src\render\material_book.cpp
+9424`tG:\TLBB\Dev\src\render\material_book.hpp
+12901`tG:\TLBB\Dev\src\render\mesh_data.cpp
+4322`tG:\TLBB\Dev\src\render\mesh_data.hpp
+25241`tG:\TLBB\Dev\src\render\mesh_gpu.cpp
+13125`tG:\TLBB\Dev\src\render\mesh_gpu.hpp
+3413`tG:\TLBB\Dev\src\render\parallel.hpp
+6336`tG:\TLBB\Dev\src\render\placement.cpp
+3106`tG:\TLBB\Dev\src\render\placement.hpp
+6476`tG:\TLBB\Dev\src\render\post_chain.cpp
+2485`tG:\TLBB\Dev\src\render\post_chain.hpp
+4938`tG:\TLBB\Dev\src\render\render_target.cpp
+2043`tG:\TLBB\Dev\src\render\render_target.hpp
+5904`tG:\TLBB\Dev\src\render\sample.cpp
+1007`tG:\TLBB\Dev\src\render\sample.hpp
+8583`tG:\TLBB\Dev\src\render\scene_draw.cpp
+6480`tG:\TLBB\Dev\src\render\scene_draw.hpp
+4850`tG:\TLBB\Dev\src\render\scene_light.cpp
+1820`tG:\TLBB\Dev\src\render\scene_light.hpp
+1244`tG:\TLBB\Dev\src\render\scene_property.cpp
+877`tG:\TLBB\Dev\src\render\scene_property.hpp
+3779`tG:\TLBB\Dev\src\render\scene_statics.cpp
+2614`tG:\TLBB\Dev\src\render\scene_statics.hpp
+3422`tG:\TLBB\Dev\src\render\shaders.cpp
+1659`tG:\TLBB\Dev\src\render\shaders.hpp
+839`tG:\TLBB\Dev\src\render\surface.cpp
+1872`tG:\TLBB\Dev\src\render\surface.hpp
+7898`tG:\TLBB\Dev\src\render\surface_draw.cpp
+2767`tG:\TLBB\Dev\src\render\surface_draw.hpp
+22002`tG:\TLBB\Dev\src\render\terrain_data.cpp
+3946`tG:\TLBB\Dev\src\render\terrain_data.hpp
+21039`tG:\TLBB\Dev\src\render\terrain_draw.cpp
+9119`tG:\TLBB\Dev\src\render\terrain_draw.hpp
+10947`tG:\TLBB\Dev\src\render\terrain_texture.cpp
+3492`tG:\TLBB\Dev\src\render\terrain_texture.hpp
+7048`tG:\TLBB\Dev\src\render\texture_decode.cpp
+930`tG:\TLBB\Dev\src\render\texture_decode.hpp
+3187`tG:\TLBB\Dev\src\render\texture_shelf.cpp
+3939`tG:\TLBB\Dev\src\render\texture_shelf.hpp
+7817`tG:\TLBB\Dev\src\render\touch.cpp
+5268`tG:\TLBB\Dev\src\render\touch.hpp
+699`tG:\TLBB\Dev\src\render\view_size.hpp
+16983`tG:\TLBB\Dev\src\render\window.cpp
+3454`tG:\TLBB\Dev\src\render\window.hpp
+2905`tG:\TLBB\Dev\src\render\shaders\fs_fxaa.sc
+3952`tG:\TLBB\Dev\src\render\shaders\fs_mesh.sc
+1266`tG:\TLBB\Dev\src\render\shaders\fs_particle.sc
+694`tG:\TLBB\Dev\src\render\shaders\fs_probe.sc
+1659`tG:\TLBB\Dev\src\render\shaders\fs_terrain.sc
+393`tG:\TLBB\Dev\src\render\shaders\fs_ui.sc
+1446`tG:\TLBB\Dev\src\render\shaders\model.sh
+2640`tG:\TLBB\Dev\src\render\shaders\varying.def.sc
+921`tG:\TLBB\Dev\src\render\shaders\vs_instanced.sc
+1001`tG:\TLBB\Dev\src\render\shaders\vs_mesh.sc
+344`tG:\TLBB\Dev\src\render\shaders\vs_particle.sc
+369`tG:\TLBB\Dev\src\render\shaders\vs_post.sc
+472`tG:\TLBB\Dev\src\render\shaders\vs_probe.sc
+2855`tG:\TLBB\Dev\src\render\shaders\vs_skinned.sc
+⟪thiếu dòng này⟫
+⟪thiếu dòng này⟫
+⟪thiếu dòng này⟫
+⟪thiếu dòng này⟫
+⟪thiếu dòng này⟫
+⟪thiếu dòng này⟫
+⟪thiếu dòng này⟫
+⟪thiếu dòng này⟫
+⟪thiếu dòng này⟫
+⟪thiếu dòng này⟫
+⟪thiếu dòng này⟫
+⟪thiếu dòng này⟫
+⟪thiếu dòng này⟫
+⟪thiếu dòng này⟫
+⟪thiếu dòng này⟫
+⟪thiếu dòng này⟫
+⟪thiếu dòng này⟫
+⟪thiếu dòng này⟫
+⟪thiếu dòng này⟫
+⟪thiếu dòng này⟫
+⟪thiếu dòng này⟫
+⟪thiếu dòng này⟫
+⟪thiếu dòng này⟫
+⟪thiếu dòng này⟫
+⟪thiếu dòng này⟫
+⟪thiếu dòng này⟫
+⟪thiếu dòng này⟫
+⟪thiếu dòng này⟫

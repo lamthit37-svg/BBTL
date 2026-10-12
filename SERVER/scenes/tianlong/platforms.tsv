@@ -1,0 +1,10 @@
+# schema 1
+# source: Public/Scene/tianlong_platform.ini
+# tool: TOOLS/server/export_scene.py; sửa tay sẽ mất ở lượt xuất sau
+# types: int	int	float	float	int	int	text
+type_id	class_id	position_x	position_z	direction	script_id	tip
+11	9	63	90	27	714006	手太阴肺经铜人
+12	9	85	85	27	714007	手阳明大肠经铜人
+13	9	107	85	27	714008	足阳明胃经铜人
+14	9	128	90	27	714009	足太阴脾经铜人
+17	10	97	134	27		通往无量山

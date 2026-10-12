@@ -1,0 +1,11 @@
+# schema 1
+# source: Public/Scene/wuyi_area.ini
+# tool: TOOLS/server/export_scene.py; sửa tay sẽ mất ở lượt xuất sau
+# types: int	int	float	float	float	float
+guid	script_id	left	top	right	bottom
+0	400059	27.0000	23.0000	38.0000	34.0000
+0	400060	282.0000	176.0000	289.0000	186.0000
+0	400061	243.0000	286.0000	253.0000	292.0000
+0	400138	94.0000	42.0000	98.0000	46.0000
+3211	-1	47.0000	173.0000	57.0000	187.0000
+3212	-1	85.0000	257.0000	96.0000	274.0000

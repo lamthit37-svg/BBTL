@@ -1,0 +1,107 @@
+# schema 1
+# source: client_2026/SkillTemplate_V1.txt
+# tool: TOOLS/server/export_tables.py; sửa tay sẽ mất ở lượt xuất sau
+# types: int	text	text	text	text
+index	original	name	type	note
+0	ID,(技能系的ID)	skill_id	int	neo: cột gốc 0, khớp 100.0% (810/810 id); luật: nguyên văn
+1	门派	sect	int	neo: cột gốc 2, khớp 100.0% (810/810 id); luật: nguyên văn
+2	技能名字$1$	skill_name	text	neo: cột gốc 3, khớp 98.8% (800/810 id); luật: nguyên văn
+3	图标名字	icon_name	text	neo: cột gốc 4, khớp 99.3% (804/810 id); luật: nguyên văn
+4	技能的心法等级限制	inner_art_level_limit	int	neo: cột gốc 5, khớp 100.0% (810/810 id); luật: nguyên văn
+5	招式类型	move_type	int	neo: cột gốc 6, khớp 100.0% (810/810 id); luật: nguyên văn
+6	需要拿武器	must_use_weapon	int	nội suy: cột gốc 7, khớp 100.0% (810/810 id); luật: nguyên văn
+7	受限于控制1	disabled_by_control_1	int	nội suy: cột gốc 8, khớp 99.8% (808/810 id); luật: nguyên văn
+8	受限于控制2	disabled_by_control_2	int	nội suy: cột gốc 9, khớp 99.9% (809/810 id); luật: nguyên văn
+9	受限于骑乘/变身	disabled_by_transform	int	nội suy: cột gốc 10, khớp 100.0% (810/810 id); luật: nguyên văn
+10	心法ID	inner_art_id	int	neo: cột gốc 11, khớp 100.0% (810/810 id); luật: nguyên văn
+11		column_11	int	mới ở 2026
+12	技能类型	skill_type	int	neo: cột gốc 15, khớp 99.4% (805/810 id); luật: nguyên văn
+13	冷却ID	cooldown_id	int	neo: cột gốc 16, khớp 99.8% (808/810 id); luật: nguyên văn
+14	起手特效	cast_effect	text	neo: cột gốc 17, khớp 99.6% (807/810 id); luật: nguyên văn
+15	起手特效绑定点	cast_effect_anchor	text	nội suy: cột gốc 18, khớp 99.6% (807/810 id); luật: nguyên văn
+16	起手音xiao	column_16	text	nội suy: cột gốc 19, khớp 100.0% (810/810 id); ? chưa có tên tiếng Anh
+17	引导/聚气动作组ID 序列	channel_action_ids	text	neo: cột gốc 20, khớp 98.9% (801/810 id); luật: nguyên văn
+18	发招动作组ID序列	cast_action_ids	text	neo: cột gốc 21, khớp 97.0% (786/810 id); luật: nguyên văn
+19		column_19	int	mới ở 2026
+20	技能类型按使用者划分	user_class	int	neo: cột gốc 24, khớp 99.9% (809/810 id); luật: nguyên văn
+21	主动技能还是被动技能	is_passive	int	nội suy: cột gốc 25, khớp 100.0% (810/810 id); luật: nguyên văn
+22	鼠标点选操作类型	select_type	int	neo: cột gốc 26, khớp 99.3% (804/810 id); luật: nguyên văn
+23	珍兽技能发动类型 0:主人手动点选,1:AI自动执行,2:增强自身属性的被动技能	pet_skill_operate_mode	int	neo: cột gốc 27, khớp 100.0% (810/810 id); luật: nguyên văn
+24	技能发动几率,只对珍兽技能有效	pet_skill_rate	int	neo: cột gốc 28, khớp 100.0% (810/810 id); luật: nguyên văn
+25	珍兽技能类型,0:物功,1:法功,2:护主,3:防御,4:复仇;	pet_skill_type	int	neo: cột gốc 29, khớp 100.0% (810/810 id); luật: nguyên văn
+26	珍兽技能产生的效果ID	pet_skill_effect_id	int	nội suy: cột gốc 30, khớp 100.0% (810/810 id); luật: nguyên văn
+27	技能组ID	skill_group_id	int	neo: cột gốc 31, khớp 100.0% (810/810 id); luật: nguyên văn
+28	技能组等级	skill_group_level	int	neo: cột gốc 32, khớp 100.0% (810/810 id); luật: nguyên văn
+29	是否直接学会	learned_directly	int	neo: cột gốc 33, khớp 100.0% (810/810 id); luật: nguyên văn
+30	使用前是否需要学会	must_learn_before_use	int	neo: cột gốc 34, khớp 100.0% (810/810 id); luật: nguyên văn
+31	子弹ID	bullet_id	int	neo: cột gốc 35, khớp 98.5% (798/810 id); luật: nguyên văn
+32	子弹发射点	bullet_spawn_point	text	neo: cột gốc 36, khớp 99.5% (806/810 id); luật: nguyên văn
+33	目标选择逻辑	targeting_logic	int	neo: cột gốc 38, khớp 98.9% (801/810 id); luật: nguyên văn
+34	动作时间(ms)	action_time_ms	int	neo: cột gốc 39, khớp 98.8% (800/810 id); luật: nguyên văn
+⟪thiếu dòng này⟫
+⟪thiếu dòng này⟫
+⟪thiếu dòng này⟫
+⟪thiếu dòng này⟫
+⟪thiếu dòng này⟫
+⟪thiếu dòng này⟫
+⟪thiếu dòng này⟫
+⟪thiếu dòng này⟫
+⟪thiếu dòng này⟫
+⟪thiếu dòng này⟫
+⟪thiếu dòng này⟫
+⟪thiếu dòng này⟫
+⟪thiếu dòng này⟫
+⟪thiếu dòng này⟫
+⟪thiếu dòng này⟫
+⟪thiếu dòng này⟫
+⟪thiếu dòng này⟫
+⟪thiếu dòng này⟫
+⟪thiếu dòng này⟫
+⟪thiếu dòng này⟫
+⟪thiếu dòng này⟫
+⟪thiếu dòng này⟫
+⟪thiếu dòng này⟫
+⟪thiếu dòng này⟫
+⟪thiếu dòng này⟫
+⟪thiếu dòng này⟫
+⟪thiếu dòng này⟫
+⟪thiếu dòng này⟫
+⟪thiếu dòng này⟫
+⟪thiếu dòng này⟫
+⟪thiếu dòng này⟫
+⟪thiếu dòng này⟫
+⟪thiếu dòng này⟫
+⟪thiếu dòng này⟫
+⟪thiếu dòng này⟫
+⟪thiếu dòng này⟫
+⟪thiếu dòng này⟫
+⟪thiếu dòng này⟫
+⟪thiếu dòng này⟫
+⟪thiếu dòng này⟫
+⟪thiếu dòng này⟫
+⟪thiếu dòng này⟫
+⟪thiếu dòng này⟫
+⟪thiếu dòng này⟫
+⟪thiếu dòng này⟫
+⟪thiếu dòng này⟫
+⟪thiếu dòng này⟫
+⟪thiếu dòng này⟫
+⟪thiếu dòng này⟫
+⟪thiếu dòng này⟫
+⟪thiếu dòng này⟫
+⟪thiếu dòng này⟫
+⟪thiếu dòng này⟫
+⟪thiếu dòng này⟫
+⟪thiếu dòng này⟫
+⟪thiếu dòng này⟫
+⟪thiếu dòng này⟫
+⟪thiếu dòng này⟫
+⟪thiếu dòng này⟫
+⟪thiếu dòng này⟫
+⟪thiếu dòng này⟫
+⟪thiếu dòng này⟫
+⟪thiếu dòng này⟫
+⟪thiếu dòng này⟫
+⟪thiếu dòng này⟫
+⟪thiếu dòng này⟫
+⟪thiếu dòng này⟫
