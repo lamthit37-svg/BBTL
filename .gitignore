@@ -79,3 +79,11 @@ $RECYCLE.BIN/
 *.tmp
 *.swp
 *~
+
+# Bộ nhớ đệm pipeline Vulkan do client ghi lúc chạy; xoá đi là dựng lại.
+/assets/client/cache/
+# Bản nén trùng từng byte với ảnh đã theo dõi cạnh nó (đã kiểm 2026-10-13).
+/assets/ui/localization/**/*.zip
+# Tệp autotools của libsodium: CMake của dự án không dùng.
+/third_party/libsodium/upstream/**/Makefile.am
+/third_party/libsodium/upstream/**/Makefile.in

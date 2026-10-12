@@ -667,23 +667,6 @@ Login_Create_Role_Name_Exist	Tên này đã có.
 ROLE_LIST_FULL	Đã đủ 3 nhân vật.
 CHAR_SEL_DELETE_HEAD	Xoá nhân vật cấp 
 CHAR_SEL_DELETE_TAIL	? Nhấn Xoá lần nữa.
-scene/宝藏洞一层	Bảo Tàng Động Tầng 1
-scene/宝藏洞二层	Bảo Tàng Động Tầng 2
-scene/宝藏洞三层	Bảo Tàng Động Tầng 3
-scene/宝藏洞四层	Bảo Tàng Động Tầng 4
-scene/宝藏洞五层	Bảo Tàng Động Tầng 5
-scene/燕王古墓一层	Yên Vương Cổ Mộ Tầng 1
-scene/燕王古墓二层	Yên Vương Cổ Mộ Tầng 2
-scene/燕王古墓三层	Yên Vương Cổ Mộ Tầng 3
-scene/燕王古墓四层	Yên Vương Cổ Mộ Tầng 4
-scene/燕王古墓五层	Yên Vương Cổ Mộ Tầng 5
-scene/燕王古墓六层	Yên Vương Cổ Mộ Tầng 6
-scene/燕王古墓七层	Yên Vương Cổ Mộ Tầng 7
-scene/燕王古墓八层	Yên Vương Cổ Mộ Tầng 8
-scene/燕王古墓九层	Yên Vương Cổ Mộ Tầng 9
-scene/秦皇地宫一层	Tần Hoàng Địa Cung Tầng 1
-scene/秦皇地宫二层	Tần Hoàng Địa Cung Tầng 2
-scene/秦皇地宫三层	Tần Hoàng Địa Cung Tầng 3
 scene/通天塔地宫	Thông Thiên Tháp Địa Cung
 scene/通天塔一层	Thông Thiên Tháp Tầng 1
 scene/通天塔二层	Thông Thiên Tháp Tầng 2
