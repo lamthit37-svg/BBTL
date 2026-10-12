@@ -1,6 +1,6 @@
 -- Nhân vật và đồ của một thế giới. Cột tra cứu là cột; kỹ năng, công thức và vật phẩm là dòng
 -- con với id bigint vì client 2026 có nhiều id hơn bản 0.85 (bảng gốc nhồi blob t_char, t_iteminfo).
--- Tiền là bigint, không âm. Toạ độ là centimet của OGRE, số thực chỉ cho vị trí.
+-- Tiền là bigint, không âm. Toạ độ position_x/position_z là mét (cùng đơn vị bảng cảnh spawns.tsv), số thực; gate đổi sang centimet.
 BEGIN;
 
 CREATE TABLE IF NOT EXISTS schema_version (
