@@ -15,9 +15,9 @@
 #include "render/camera.hpp"
 #include "render/detail/shaders.hpp"
 #include "render/forward.hpp"
+#include "classic/bake.hpp"
 #include "render/shade.hpp"
 #include "render/view_size.hpp"
-#include "resource/classic.hpp"
 #include "resource/model.hpp"
 #include "shader/reflection.hpp"
 #include "test.hpp"
@@ -71,13 +71,13 @@ void bare_primitive_gets_scene_ambient(Context& context) {
 void classic_material_adds_emissive_and_specular(Context& context) {
     const Lighting lighting = valley_light();
     resource::Material material;
-    resource::Classic classic;
+    classic::Classic classic;
     classic.ambient = {.x = 0.5F, .y = 0.5F, .z = 0.5F};
     classic.emissive = {.x = 0.15F, .y = 0.15F, .z = 0.15F};
     classic.specular = {.x = 0.5F, .y = 0.5F, .z = 0.5F};
     classic.shininess = 12.8F;
     classic.diffuse = {.x = 0.9F, .y = 0.8F, .z = 0.7F, .w = 0.5F};
-    material.classic = classic;
+    material.pass = classic::pass_of(classic);
     material.alpha = resource::Alpha::kMask;
     material.alpha_cutoff = 0.5F;
     const Shade made = shade(&material, lighting);
@@ -94,7 +94,7 @@ void classic_material_adds_emissive_and_specular(Context& context) {
 void actor_uses_actor_ambient(Context& context) {
     const Lighting lighting = valley_light();
     resource::Material material;
-    material.classic = resource::Classic{};
+    material.pass = classic::pass_of(classic::Classic{});
     const ShadeAsk ask{.material = &material, .lighting = &lighting, .is_actor = true};
     const Shade made = render::shade_of(ask);
     context.expect(is_rgb(made.glow, {.x = 0.5F, .y = 0.5F, .z = 0.5F}), "nhân vật nhận ambient riêng");
@@ -105,15 +105,15 @@ void texture_op_scales_or_adds(Context& context) {
     const Lighting lighting = valley_light();
     resource::Material material;
     material.base_color = {.x = 0.5F, .y = 1.0F, .z = 1.0F, .w = 1.0F};
-    resource::Classic classic;
-    classic.combine = resource::TexOp::kModulate2;
-    material.classic = classic;
+    classic::Classic classic;
+    classic.combine = classic::TexOp::kModulate2;
+    material.pass = classic::pass_of(classic);
     context.expect(is_rgb(shade(&material, lighting).base_color, {.x = 1.0F, .y = 2.0F, .z = 2.0F}), "nhân 2");
-    classic.combine = resource::TexOp::kModulate4;
-    material.classic = classic;
+    classic.combine = classic::TexOp::kModulate4;
+    material.pass = classic::pass_of(classic);
     context.expect(is_rgb(shade(&material, lighting).base_color, {.x = 2.0F, .y = 4.0F, .z = 4.0F}), "nhân 4");
-    classic.combine = resource::TexOp::kAdd;
-    material.classic = classic;
+    classic.combine = classic::TexOp::kAdd;
+    material.pass = classic::pass_of(classic);
     const Shade added = shade(&material, lighting);
     context.expect(is_rgb(added.base_color, {.x = 0.5F, .y = 1.0F, .z = 1.0F}), "cộng thì không nhân hệ số");
     context.expect(added.flags == render::kAddLight, "bật cờ cộng ánh sáng");
@@ -122,20 +122,20 @@ void texture_op_scales_or_adds(Context& context) {
 void lit_kinds_and_fog_set_their_bits(Context& context) {
     const Lighting lighting = valley_light();
     resource::Material material;
-    resource::Classic classic;
+    classic::Classic classic;
     classic.specular = {.x = 1.0F, .y = 1.0F, .z = 1.0F};
-    classic.lit = resource::Lit::kPixel;
-    material.classic = classic;
+    classic.lit = classic::Lit::kPixel;
+    material.pass = classic::pass_of(classic);
     const std::uint32_t pixel = render::kPixelLit | render::kSpecular;
     context.expect(shade(&material, lighting).flags == pixel, "pslit tính ở điểm ảnh, có specular");
-    classic.lit = resource::Lit::kTerrain;
-    material.classic = classic;
+    classic.lit = classic::Lit::kTerrain;
+    material.pass = classic::pass_of(classic);
     const std::uint32_t terrain = render::kPixelLit | render::kRawSum | render::kSpecular;
     context.expect(shade(&material, lighting).flags == terrain, "địa hình không kẹp từng đèn");
-    classic.lit = resource::Lit::kOff;
+    classic.lit = classic::Lit::kOff;
     classic.has_fog = false;
     classic.tracks_vertex = true;
-    material.classic = classic;
+    material.pass = classic::pass_of(classic);
     const std::uint32_t off = render::kNoFog | render::kVertexColor;
     context.expect(shade(&material, lighting).flags == off, "lighting off bỏ specular; không sương");
 }
@@ -147,7 +147,7 @@ void gltf_unlit_only_without_classic(Context& context) {
     material.unlit = true;
     const std::uint32_t plain = render::kUnlit | render::kVertexColor;
     context.expect(shade(&material, lighting).flags == plain, "unlit của glTF");
-    material.classic = resource::Classic{};
+    material.pass = classic::pass_of(classic::Classic{});
     context.expect(shade(&material, lighting).flags == 0, "có Classic thì vẫn nhận ánh sáng");
 }
 

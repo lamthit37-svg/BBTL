@@ -1,11 +1,10 @@
 // Phần thuần CPU của ánh sáng một lệnh vẽ, tách khỏi forward.cpp để kiểm được bằng test không cần
-// GPU: đổi chất liệu (trường chuẩn của glTF và resource::Classic của client gốc) cùng ánh sáng của
+// GPU: đổi chất liệu glTF, hoặc Pass mà người gọi đã điền, cùng ánh sáng của
 // khung thành phần màu của khối hằng Draw mà model.hlsli đọc, chọn đèn điểm cho một vật thể, và
 // chọn những bản sao instanced còn trong khung nhìn kèm đèn của từng bản.
-// Luật lấy từ client 2026: ánh sáng nền là ambient (của cảnh, hoặc của nhân vật) nhân ambient chất
-// liệu rồi cộng emissive (AutoParamDataSource::getDerivedSceneColour và getActDerivedSceneColour
-// của OgreMain); đèn điểm là đèn gần gốc vật thể nhất mà tầm cộng bán kính bao còn với tới
-// (SceneManager::_populateLightList của Ogre, sau hai đèn directional).
+// Không có Pass: ánh sáng nền là ambient của cảnh hoặc của nhân vật, cờ nhân màu đỉnh.
+// Có Pass: ambient nhân hệ số của Pass rồi cộng emissive; đèn điểm là đèn gần gốc vật thể nhất
+// mà tầm cộng bán kính bao còn với tới.
 #pragma once
 
 #include "math/matrix.hpp"

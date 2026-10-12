@@ -3,7 +3,7 @@
 // mỗi đỉnh, màu nền (hệ số, texture, màu đỉnh), cắt và trộn theo alpha, chất liệu hai mặt và unlit.
 // Ánh sáng và sương theo shader của client 2026 (MaterialTemplates/Model_vs.hlsl, Model_ps.hlsl,
 // FairyTerrain.hlsl): hai đèn chính, một đèn điểm gần nhất cho mỗi vật thể, ambient có màu, màu
-// ambient, diffuse, specular, emissive của chất liệu (resource::Classic), ánh sáng riêng của nhân
+// ambient, diffuse, specular, emissive của Pass do người gọi điền, ánh sáng riêng của nhân
 // vật, sương theo độ sâu. Mọi màu trong Lighting là số của tệp cảnh (không gian gamma).
 // CHƯA có (lộ trình 3.13): PBR, normal map, bóng đổ, hậu xử lý, morph target,
 // KHR_texture_transform, bộ UV thứ hai, lọc khuất, topology ngoài danh sách tam giác.
@@ -11,7 +11,7 @@
 // (Instance::copies), mỗi bản mang đèn điểm của riêng nó. Loại theo khung nhìn bằng hình cầu bao:
 // bản sao, và vật thể đứng yên ở tư thế nghỉ (không skin, Instance::nodes rỗng), nằm hẳn ngoài một
 // mặt của khung thì không vẽ.
-// Shader là HLSL ở src/render/shaders, f2-shader dịch lúc build thành gói .f2s; bố cục gắn tài
+// Nguồn shader ở src/client/render/shaders, dịch lúc build thành gói .f2s; bố cục gắn tài
 // nguyên lấy từ phản chiếu của gói, không khai lại ở C++.
 // Dữ liệu mỗi khung (hằng của khung, bảng khớp) nằm ở buffer Upload chia theo slot: nơi gọi trao
 // chỉ số ảnh swapchain vừa acquire làm slot. Ảnh ấy chỉ được acquire lại khi GPU đã vẽ xong khung

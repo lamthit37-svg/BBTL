@@ -5,7 +5,7 @@
 // resource::upload_queued ở dạng sRGB; màu đỉnh sRGB của CEGUI được shader đổi sang tuyến tính
 // (ui.vs.hlsl) nên pha màu cho cùng kết quả với client gốc chạy trong không gian gamma, trừ chỗ
 // trộn alpha (client gốc trộn trong gamma, ở đây trộn tuyến tính).
-// Shader là HLSL và GLSL ở src/render/shaders, f2-shader dịch lúc build thành gói ui.vs.f2s và
+// Nguồn shader ở src/client/render/shaders, dịch lúc build thành gói ui.vs.f2s và
 // ui.ps.f2s cho mọi backend (Vulkan, D3D12, D3D11, GLES).
 // Nguồn: bản mới của dự án, theo mẫu render/forward (gói shader, nhóm gắn, slot); tương ứng
 // ui_painter.cpp của TLBB Dev (bgfx).

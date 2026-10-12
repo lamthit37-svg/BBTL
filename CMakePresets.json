@@ -191,7 +191,8 @@
         "CMAKE_OSX_DEPLOYMENT_TARGET": "15.0",
         "CMAKE_OSX_SYSROOT": "iphoneos",
         "CMAKE_COMPILE_WARNING_AS_ERROR": "ON",
-        "BUILD_TESTING": "OFF"
+        "BUILD_TESTING": "OFF",
+        "CMAKE_INSTALL_PREFIX": "${sourceDir}/release"
       }
     },
     {

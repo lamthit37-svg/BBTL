@@ -13,7 +13,6 @@
 #include "math/vector.hpp"
 #include "render/camera.hpp"
 #include "render/forward.hpp"
-#include "resource/classic.hpp"
 #include "resource/model.hpp"
 
 #include <algorithm>
@@ -29,37 +28,35 @@ namespace {
     return math::store(math::Vector4(color, last));
 }
 
-// Hệ số nhân màu texture của BLEND_OP_0 (Diffuse.inc của bản gốc).
-[[nodiscard]] float scale_of(resource::TexOp combine) noexcept {
-    if (combine == resource::TexOp::kModulate2) return 2.0F;
-    if (combine == resource::TexOp::kModulate4) return 4.0F;
-    return 1.0F;
-}
-
 [[nodiscard]] bool has_color(const math::Vector3& color) noexcept {
     return color.x() > 0.0F || color.y() > 0.0F || color.z() > 0.0F;
 }
 
-// Bit của chất liệu OGRE; chất liệu không mang Classic giữ cách vẽ cũ (nhân màu đỉnh).
-[[nodiscard]] std::uint32_t classic_flags(const resource::Classic& classic) noexcept {
-    std::uint32_t flags = 0;
-    const bool is_terrain = classic.lit == resource::Lit::kTerrain;
-    if (classic.lit == resource::Lit::kPixel || is_terrain) flags |= kPixelLit;
-    if (is_terrain) flags |= kRawSum;
-    if (!classic.has_fog) flags |= kNoFog;
-    if (classic.combine == resource::TexOp::kAdd) flags |= kAddLight;
-    if (classic.tracks_vertex) flags |= kVertexColor;
-    return flags;
-}
-
-// Màu nền, ngưỡng alpha và cờ unlit của glTF. Chất liệu mang Classic thì theo luật của OGRE: bộ
-// chuyển ghi "lighting off" thành unlit, nhưng shader gốc vẫn nhân ánh sáng ở đỉnh cho pass ấy.
+// Màu nền và ngưỡng alpha của glTF. Pass do người gọi điền thì unlit của glTF không áp.
 void take_gltf(Shade& shade, const resource::Material& material) noexcept {
     const bool is_specular = material.shading == resource::Shading::kSpecular;
     const bool is_masked = material.alpha == resource::Alpha::kMask;
     shade.base_color = is_specular ? material.diffuse : material.base_color;
     shade.diffuse.w = is_masked ? material.alpha_cutoff : 0.0F;
-    if (material.unlit && !material.classic) shade.flags |= kUnlit;
+    if (material.unlit && !material.pass) shade.flags |= kUnlit;
+}
+
+void take_pass(Shade& shade, const resource::Material::Pass& pass, const Lighting& lighting,
+    const math::Vector3& ambient) noexcept {
+    const math::Vector3 glow = math::mul(ambient, math::load(pass.ambient));
+    const math::Vector3 shine = math::mul(math::load(pass.specular), lighting.specular);
+    const bool is_shiny = pass.lit && has_color(shine);
+    shade.glow = rgb_and(glow + math::load(pass.emissive), pass.shininess);
+    shade.diffuse.x = pass.diffuse.x;
+    shade.diffuse.y = pass.diffuse.y;
+    shade.diffuse.z = pass.diffuse.z;
+    shade.specular = rgb_and(shine, 0.0F);
+    shade.base_color.x *= pass.color_scale;
+    shade.base_color.y *= pass.color_scale;
+    shade.base_color.z *= pass.color_scale;
+    shade.base_color.w *= pass.diffuse.w;
+    shade.flags |= pass.flags;
+    if (is_shiny) shade.flags |= kSpecular;
 }
 
 struct Nearest {
@@ -88,29 +85,15 @@ void consider_lamp(Nearest& nearest, Candidate candidate, const Reach& reach) no
 
 Shade shade_of(const ShadeAsk& ask) noexcept {
     core::check(ask.lighting != nullptr, "shade_of cần ánh sáng của khung");
-    const resource::Classic plain;
     const resource::Material* material = ask.material;
-    const bool has_classic = material != nullptr && material->classic.has_value();
-    const resource::Classic& classic = has_classic ? *material->classic : plain;
     const Lighting& lighting = *ask.lighting;
     Shade shade;
     if (material != nullptr) take_gltf(shade, *material);
     const math::Vector3 ambient = ask.is_actor ? lighting.actor_ambient : lighting.ambient;
-    const math::Vector3 glow = math::mul(ambient, math::load(classic.ambient));
-    const math::Vector3 shine = math::mul(math::load(classic.specular), lighting.specular);
-    const bool is_shiny = classic.lit != resource::Lit::kOff && has_color(shine);
-    const float scale = scale_of(classic.combine);
-    shade.glow = rgb_and(glow + math::load(classic.emissive), classic.shininess);
-    shade.diffuse.x = classic.diffuse.x;
-    shade.diffuse.y = classic.diffuse.y;
-    shade.diffuse.z = classic.diffuse.z;
-    shade.specular = rgb_and(shine, 0.0F);
-    shade.base_color.x *= scale;
-    shade.base_color.y *= scale;
-    shade.base_color.z *= scale;
-    shade.base_color.w *= classic.diffuse.w;
-    shade.flags |= has_classic ? classic_flags(classic) : kVertexColor;
-    if (is_shiny) shade.flags |= kSpecular;
+    const bool has_pass = material != nullptr && material->pass.has_value();
+    if (has_pass) take_pass(shade, *material->pass, lighting, ambient);
+    if (!has_pass) shade.glow = rgb_and(ambient, 0.0F);
+    if (!has_pass) shade.flags |= kVertexColor;
     if (ask.is_actor) shade.flags |= kActor;
     return shade;
 }

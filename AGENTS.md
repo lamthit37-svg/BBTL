@@ -46,8 +46,8 @@
     `assets/client/Save/roles.tsv`. Các nút web mở trang "Coming soon", bàn phím
     ảo gõ vào ô đang ngắm. Cảnh nền có lửa và quầng đèn từ hiệu ứng bản 2026, còn thiếu nước,
     sương, nến và quạ.
-  - Chữ và ảnh tiếng Việt dựng cùng client từ `assets/i18n`; một phần chữ giao diện còn viết thẳng
-    trong C++ (nhãn thẻ của `ui/panel/desk.cpp`, tên môn phái của `sect.hpp`, tên nhân vật mẫu).
+  - Chữ và ảnh tiếng Việt dựng cùng client từ `assets/i18n`. Chữ người chơi thấy là khoá
+    `#{...}` hoặc tên gốc của cảnh; bản dịch nằm trong `assets/i18n/vi.tsv`.
   - Client chưa mở socket nào và chưa có module nối máy chủ.
   - `WEB/` là trang giới thiệu tĩnh (Vite, React, three.js), không có backend, không nối client
     hay máy chủ, không nằm trong CMake.
@@ -123,6 +123,12 @@
   - Bản địa hoá dựng cùng client từ một tệp nguồn cho mỗi ngôn ngữ; ngôn ngữ chọn lúc dựng, bản
     triển khai chỉ mang chữ và ảnh của ngôn ngữ đó (không giữ hai bộ ảnh), client không chọn ngôn
     ngữ lúc chạy — chủ dự án chốt ngày 2026-10-08.
+  - Một client cho PC, APK và iOS. Tách vỏ và gói cài, không tách mã game và không đưa game
+    sang Java. APK và iOS là cùng phía mobile. `world.toml` `[platform] pc_meets_mobile` mặc định
+    tắt: PC chỉ gặp mobile khi cờ bật. Engine không biết luật này — chủ dự án chốt ngày 2026-10-12.
+  - Layout điện thoại là `Interface/phone/`, Android và iOS dùng chung; thiếu tệp thì layout PC.
+    Texture PC là DDS. Bản điện thoại là `mobile/astc/` rồi `mobile/etc2/`, cùng đường tương đối,
+    định dạng TLTX. GPU có ASTC thì chọn ASTC, không thì ETC2 — chủ dự án chốt ngày 2026-10-12.
 - Thư viện ngoài (tên — nguồn): cgltf, stb, meshoptimizer, sse2neon (Android), lz4, zstd, xxhash
   (ba gói của `fs` và gói shader), opus (tải Opus của tệp âm thanh `.tla`), tomlplusplus 3.4.0
   (module `config`) — vcpkg manifest (`vcpkg.json`, `C:\dev\vcpkg`); libsodium 1.0.22 (`seal`,
@@ -156,7 +162,10 @@
     (`game_reject_foreign`). Phần game ở `src/client/`, `src/server/`, `src/shared/`. Include vẫn
     `"<m>/x.hpp"`. Tài nguyên của dự án ở `assets/` (`assets/i18n`, `assets/client`).
     Đầu ra cuối cùng là `Dev/` (bản dev) và `release/` (bản phát hành), hai thư mục ngang nhau.
-    Runtime máy chủ ở `SERVER/`, công cụ Python ở `TOOLS/`, thư viện chép nguồn ở `third_party/`.
+    Exe PC ở `<prefix>/bin`, APK ở `<prefix>/APK`, bundle iOS ở `<prefix>/IOS`.
+    Vỏ Android ở `android/` (NativeActivity, `package_apk.py`). Vỏ Apple ở `apple/`
+    (plist, màn mở). Một mã client cho cả ba. Runtime máy chủ ở `SERVER/`, công cụ
+    Python ở `TOOLS/`, thư viện chép nguồn ở `third_party/`.
   - Mục 2 bước 3, mục 6 và mục 8, test — chủ dự án chốt 2026-10-12: test nằm ở
     `Test/<Domain>/<tên>_tests.cpp`, một domain một thư mục, tên domain trùng module
     (`Test/Gpu/gpu_tests.cpp`, `Test/Protocol/protocol_tests.cpp`). Không dàn phẳng ở `tests/`.
@@ -182,7 +191,8 @@
     `android-x86_64` (test chạy trên thiết bị qua adb, `cmake/GameAndroidRun.cmake`), `ios-arm64`,
     `ios-sim-arm64` (chỉ hiện trên macOS). Mọi preset bật cảnh báo thành lỗi.
   - Mục 3, cài bản chạy: `cmake --install build/msvc-release` chép exe vào `release/bin`.
-    Preset dev (`msvc-debug` và các preset không ghi đè prefix) cài vào `Dev/bin`. Exe máy
+    Preset dev (`msvc-debug` và các preset không ghi đè prefix) cài vào `Dev/bin`. APK do
+    preset Android chép vào `<prefix>/APK`. Bundle iOS cài vào `<prefix>/IOS`. Exe máy
     chủ là component riêng: `cmake --install build/msvc-release --component server --prefix SERVER`
     chép tám exe vào `SERVER/bin`. Kiểm đầu cuối trình giám sát: `python -B
     docs/giao-viec/P2-DOT-1/kiem-claude/boot_check.py <thư mục exe> SERVER/config`.

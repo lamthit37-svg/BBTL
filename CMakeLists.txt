@@ -50,9 +50,10 @@ endif()
 # Gom mọi module để header_check thấy header của chúng.
 add_library(game_all_modules INTERFACE)
 
-# Module: engine/<m>/ hoặc src/<client|server|shared>/<m>/, x.hpp cạnh x.cpp. Include vẫn
-# "<m>/x.hpp". Gốc include là engine/, src/client/, src/server/ và src/shared/. Module mới: một dòng
-# game_module ở dưới và một dòng trong bảng tầng cmake/GameLayers.cmake.
+# Module: engine/<m>/ hoặc src/<client|server|shared>/<m>/, x.hpp cạnh x.cpp. Client xếp module
+# vào app, figure, place, face, book, pack. Include vẫn "<m>/x.hpp". Gốc include là engine/,
+# các nhóm của src/client/, src/server/ và src/shared/. Module mới: một dòng game_module ở dưới
+# và một dòng trong bảng tầng cmake/GameLayers.cmake.
 # Cây include là ranh giới thật. Engine chỉ thấy engine/. Shared thấy thêm src/shared.
 # Client thấy engine, shared và src/client. Server thấy engine, shared và src/server.
 # Một tệp engine không thể include header game: đường đó không có trên dòng biên dịch.
@@ -81,7 +82,10 @@ function(game_module name)
         list(APPEND game_homes "${PROJECT_SOURCE_DIR}/src/shared")
     endif()
     if(game_sees_client)
-        list(APPEND game_homes "${PROJECT_SOURCE_DIR}/src/client")
+        # Sáu nhóm chỉ để xếp thư mục. Include vẫn là "avatar/x.hpp", "client/boot.hpp".
+        foreach(game_group IN ITEMS app figure place face book pack)
+            list(APPEND game_homes "${PROJECT_SOURCE_DIR}/src/client/${game_group}")
+        endforeach()
     endif()
     if(game_sees_server)
         list(APPEND game_homes "${PROJECT_SOURCE_DIR}/src/server")
@@ -108,11 +112,11 @@ function(game_reject_foreign tree)
 endfunction()
 set(game_engine_names audio audiotool capture core fs gpu io jobs math net render resource shader
     shadertool window xml)
-set(game_shared_names protocol secure table)
+set(game_shared_names protocol secure table link)
 set(game_client_names anim avatar classic client collision control fx gui hero look motion nav ogre
     quest scene seal sealtool skill ui)
-set(game_server_names authd billingd config content gate gated linttool metrics process service stored
-    supervise supervisor worldd zoned)
+set(game_server_names authd billingd config content gate gated guard linttool metrics process service
+    stored supervise supervisor worldd zoned)
 game_reject_foreign("${PROJECT_SOURCE_DIR}/engine" ${game_engine_names})
 game_reject_foreign("${PROJECT_SOURCE_DIR}/src/shared" ${game_engine_names} ${game_shared_names})
 game_reject_foreign("${PROJECT_SOURCE_DIR}/src/client" ${game_engine_names} ${game_shared_names}
@@ -221,13 +225,13 @@ endif()
 if(NOT CMAKE_CROSSCOMPILING)
     add_subdirectory(third_party/libsodium)
     game_module(seal
-        src/client/seal/key.cpp
-        src/client/seal/package.cpp
-        src/client/seal/tree.cpp
-        src/client/seal/detail/format.cpp)
-    add_library(game_seal_native STATIC src/client/seal/detail/sodium.cpp)
+        src/client/pack/seal/key.cpp
+        src/client/pack/seal/package.cpp
+        src/client/pack/seal/tree.cpp
+        src/client/pack/seal/detail/format.cpp)
+    add_library(game_seal_native STATIC src/client/pack/seal/detail/sodium.cpp)
     target_include_directories(game_seal_native PUBLIC ${PROJECT_SOURCE_DIR}/engine
-        ${PROJECT_SOURCE_DIR}/src/client)
+        ${PROJECT_SOURCE_DIR}/src/client/pack)
     target_compile_features(game_seal_native PUBLIC cxx_std_23)
     target_link_libraries(game_seal_native PUBLIC game_sodium game::options)
     if(MSVC)
@@ -236,7 +240,7 @@ if(NOT CMAKE_CROSSCOMPILING)
         target_compile_options(game_seal_native PRIVATE -w)
     endif()
     target_link_libraries(game_seal PUBLIC game_io game_seal_native)
-    add_executable(thienlong_seal src/client/sealtool/main.cpp)
+    add_executable(thienlong_seal src/client/pack/sealtool/main.cpp)
     target_link_libraries(thienlong_seal PRIVATE game_seal game::warnings)
     if(WIN32)
         target_link_libraries(thienlong_seal PRIVATE shell32)
@@ -244,21 +248,21 @@ if(NOT CMAKE_CROSSCOMPILING)
     game_split_debug(thienlong_seal)
 endif()
 
-game_module(scene src/client/scene/placement.cpp src/client/scene/scene_file.cpp src/client/scene/transform.cpp)
+game_module(scene src/client/place/scene/placement.cpp src/client/place/scene/scene_file.cpp src/client/place/scene/transform.cpp)
 
 # ogre: toán vô hướng đúng thứ tự phép tính của OGRE 1.2.5 (vec3, quaternion); anim: xương và
 # animation theo OGRE, ra ma trận skin. Hai module thuần C++, port từ TLBB Dev, không cần math SIMD.
-game_module(ogre src/client/ogre/quat.cpp)
+game_module(ogre src/client/place/ogre/quat.cpp)
 game_module(fx
-    src/client/fx/script.cpp
-    src/client/fx/system.cpp
-    src/client/fx/field.cpp
-    src/client/fx/billboard.cpp
-    src/client/fx/mesh.cpp
-    src/client/fx/strip.cpp
-    src/client/fx/cast.cpp)
+    src/client/place/fx/script.cpp
+    src/client/place/fx/system.cpp
+    src/client/place/fx/field.cpp
+    src/client/place/fx/billboard.cpp
+    src/client/place/fx/mesh.cpp
+    src/client/place/fx/strip.cpp
+    src/client/place/fx/cast.cpp)
 target_link_libraries(game_fx PUBLIC game_ogre)
-game_module(anim src/client/anim/pose.cpp src/client/anim/rig.cpp)
+game_module(anim src/client/figure/anim/pose.cpp src/client/figure/anim/rig.cpp)
 target_link_libraries(game_anim PUBLIC game_ogre)
 
 # table: đọc bảng TSV của client; look: giải ngoại hình người chơi từ các bảng đó (port từ TLBB Dev).
@@ -369,6 +373,8 @@ if(NOT CMAKE_CROSSCOMPILING)
     endif()
     # metrics: bộ đếm, mức đo, biểu đồ thời gian từng pha và ảnh chụp văn bản có trần; chỉ cần core,
     # nên đứng ngoài khối cần tomlplusplus. Cổng đọc qua loopback là module con metrics/serve.
+    game_module(guard src/server/guard/pace.cpp)
+    target_link_libraries(game_guard PUBLIC game_core)
     game_module(metrics src/server/metrics/metrics.cpp)
     target_link_libraries(game_metrics PUBLIC game_core)
     # secure: bắt tay và bản ghi. sodium.cpp tắt cảnh báo vì header C của libsodium không sạch
@@ -385,6 +391,8 @@ if(NOT CMAKE_CROSSCOMPILING)
         target_compile_options(game_secure_sodium PRIVATE -w)
     endif()
     target_link_libraries(game_secure PUBLIC game_core PRIVATE game_secure_sodium)
+    game_module(link src/shared/link/link.cpp)
+    target_link_libraries(game_link PUBLIC game_core game_net game_protocol game_secure)
     if(TARGET game_config)
         game_module(gate src/server/gate/table.cpp src/server/gate/front.cpp)
         target_link_libraries(game_gate PUBLIC game_core game_net game_protocol game_secure game_config
@@ -399,41 +407,41 @@ if(NOT CMAKE_CROSSCOMPILING)
         message(STATUS "Thiếu Test/bench/collision_bench.cpp, bỏ collision_bench")
     endif()
 endif()
-game_module(classic src/client/classic/classic.cpp)
+game_module(classic src/client/place/classic/classic.cpp)
 target_link_libraries(game_classic PUBLIC game_core game_math)
-game_module(look src/client/look/appearance.cpp src/client/look/look.cpp src/client/look/head.cpp src/client/look/sect.cpp)
+game_module(look src/client/figure/look/appearance.cpp src/client/figure/look/look.cpp src/client/figure/look/head.cpp src/client/figure/look/sect.cpp)
 target_link_libraries(game_look PUBLIC game_table game_core)
 
 # avatar: chọn clip theo trạng thái (gait) và làm mượt hướng mặt (turning), port từ TLBB Dev.
-game_module(avatar src/client/avatar/gait.cpp src/client/avatar/turning.cpp)
+game_module(avatar src/client/figure/avatar/gait.cpp src/client/figure/avatar/turning.cpp)
 target_link_libraries(game_avatar PUBLIC game_anim game_core)
 
 # control: mặt đất của cảnh (độ cao, tia chạm đất, va chạm của mắt camera), tia từ màn hình, camera
 # bám theo, lệnh đi bằng chuột, chọn thứ dưới chuột, cử chỉ chạm và cần gạt ảo; port từ TLBB Dev.
 game_module(control
-    src/client/control/char_camera.cpp
-    src/client/control/cursor_rules.cpp
-    src/client/control/follow_camera.cpp
-    src/client/control/ground.cpp
-    src/client/control/hover.cpp
-    src/client/control/player_input.cpp
-    src/client/control/stick.cpp
-    src/client/control/touch.cpp
-    src/client/control/view_ray.cpp)
+    src/client/figure/control/char_camera.cpp
+    src/client/figure/control/cursor_rules.cpp
+    src/client/figure/control/follow_camera.cpp
+    src/client/figure/control/ground.cpp
+    src/client/figure/control/hover.cpp
+    src/client/figure/control/player_input.cpp
+    src/client/figure/control/stick.cpp
+    src/client/figure/control/touch.cpp
+    src/client/figure/control/view_ray.cpp)
 target_link_libraries(game_control PUBLIC game_ogre game_core)
 
 # motion: luật đi dọc đường (vị trí là hàm đóng của điểm xuất phát, đường, tốc độ, thời gian).
-game_module(motion src/client/motion/motion.cpp)
+game_module(motion src/client/figure/motion/motion.cpp)
 target_link_libraries(game_motion PUBLIC game_core)
 
 # nav: lưới đi của cảnh (tệp .path) và luật đi của người chơi, port PathLib.dll và CPath của client
 # 2026. Kết quả phải trùng từng bit với bản gốc, nên GCC và Clang không được gộp nhân với cộng
 # thành FMA (arm64 có sẵn FMA; MSVC x64 mặc định không gộp).
-game_module(nav src/client/nav/mesh.cpp src/client/nav/finder.cpp src/client/nav/route.cpp)
+game_module(nav src/client/place/nav/mesh.cpp src/client/place/nav/finder.cpp src/client/place/nav/route.cpp)
 target_link_libraries(game_nav PUBLIC game_core)
 target_compile_options(game_nav PRIVATE "$<$<CXX_COMPILER_ID:GNU,Clang>:-ffp-contract=off>")
 # collision: va chạm công trình (.WCollision), port BuildingCollision của PathLib.dll. A: bộ đọc; C thêm Model.
-game_module(collision src/client/collision/building_file.cpp src/client/collision/mesh.cpp src/client/collision/opcode_tree.cpp)
+game_module(collision src/client/place/collision/building_file.cpp src/client/place/collision/mesh.cpp src/client/place/collision/opcode_tree.cpp)
 target_link_libraries(game_collision PUBLIC game_core)
 target_compile_options(game_collision PRIVATE "$<$<CXX_COMPILER_ID:GNU,Clang>:-ffp-contract=off>" "$<$<CXX_COMPILER_ID:MSVC>:/fp:precise>")
 
@@ -441,62 +449,62 @@ target_compile_options(game_collision PRIVATE "$<$<CXX_COMPILER_ID:GNU,Clang>:-f
 # lúc chạy, dàn trang rồi ra lệnh vẽ ảnh và chữ; port từ TLBB Dev. Không vẽ thật: bộ vẽ 2D nằm ở
 # module ui.
 game_module(gui
-    src/client/gui/value.cpp
-    src/client/gui/strings.cpp
-    src/client/gui/loader.cpp
-    src/client/gui/loader_look.cpp
-    src/client/gui/layout.cpp
-    src/client/gui/paint.cpp
-    src/client/gui/text.cpp
-    src/client/gui/softkey.cpp
-    src/client/gui/widgets.cpp
-    src/client/gui/radar.cpp
-    src/client/gui/hub.cpp)
+    src/client/face/gui/value.cpp
+    src/client/face/gui/strings.cpp
+    src/client/face/gui/loader.cpp
+    src/client/face/gui/loader_look.cpp
+    src/client/face/gui/layout.cpp
+    src/client/face/gui/paint.cpp
+    src/client/face/gui/text.cpp
+    src/client/face/gui/softkey.cpp
+    src/client/face/gui/widgets.cpp
+    src/client/face/gui/radar.cpp
+    src/client/face/gui/hub.cpp)
 target_link_libraries(game_gui PUBLIC game_core game_io game_xml game_table)
 # hero: trạng thái của nhân vật người chơi mà giao diện hiển thị (tên, cấp, máu, khí, nộ, kinh
 # nghiệm). Giá trị thuần: mạng ghi vào, ui/panel đọc.
-game_module(hero src/client/hero/hero.cpp)
+game_module(hero src/client/figure/hero/hero.cpp)
 target_link_libraries(game_hero PUBLIC game_core)
 # quest: sổ nhiệm vụ của người chơi và bảng nhiệm vụ nhận được, bộ lọc port từ mã máy client 2026.
-game_module(quest src/client/quest/outline.cpp)
+game_module(quest src/client/book/quest/outline.cpp)
 target_link_libraries(game_quest PUBLIC game_table game_core)
 # skill: bảng của sách võ công, sách kỹ năng của người chơi và hệ action, port từ mã máy client 2026.
-game_module(skill src/client/skill/tables.cpp src/client/skill/book.cpp src/client/skill/actions.cpp)
+game_module(skill src/client/book/skill/tables.cpp src/client/book/skill/book.cpp src/client/book/skill/actions.cpp)
 target_link_libraries(game_skill PUBLIC game_table game_core)
 # ui/panel: logic của từng cửa sổ HUD, thay script Lua của client gốc (hiện, giấu, điền chữ, đặt
 # thanh). Thuần logic trên gui, không cần GPU; module ui (bộ vẽ) dùng nó.
 game_module(ui_panel
-    src/client/ui/panel/deck.cpp
-    src/client/ui/panel/desk.cpp
-    src/client/ui/panel/logon.cpp
-    src/client/ui/panel/softkey.cpp
-    src/client/ui/panel/scene_trans.cpp
-    src/client/ui/panel/start.cpp
-    src/client/ui/panel/player_frame.cpp
-    src/client/ui/panel/minimap.cpp
-    src/client/ui/panel/maps.cpp
-    src/client/ui/panel/menubar.cpp
-    src/client/ui/panel/self_equip.cpp
-    src/client/ui/panel/quest_log.cpp
-    src/client/ui/panel/wording.cpp
-    src/client/ui/panel/widgets.cpp
-    src/client/ui/panel/portraits.cpp
-    src/client/ui/panel/role_cast.cpp
-    src/client/ui/panel/roles.cpp
-    src/client/ui/panel/select_role.cpp
-    src/client/ui/panel/create_role.cpp
-    src/client/ui/panel/login_flow.cpp)
+    src/client/face/ui/panel/deck.cpp
+    src/client/face/ui/panel/desk.cpp
+    src/client/face/ui/panel/logon.cpp
+    src/client/face/ui/panel/softkey.cpp
+    src/client/face/ui/panel/scene_trans.cpp
+    src/client/face/ui/panel/start.cpp
+    src/client/face/ui/panel/player_frame.cpp
+    src/client/face/ui/panel/minimap.cpp
+    src/client/face/ui/panel/maps.cpp
+    src/client/face/ui/panel/menubar.cpp
+    src/client/face/ui/panel/self_equip.cpp
+    src/client/face/ui/panel/quest_log.cpp
+    src/client/face/ui/panel/wording.cpp
+    src/client/face/ui/panel/widgets.cpp
+    src/client/face/ui/panel/portraits.cpp
+    src/client/face/ui/panel/role_cast.cpp
+    src/client/face/ui/panel/roles.cpp
+    src/client/face/ui/panel/select_role.cpp
+    src/client/face/ui/panel/create_role.cpp
+    src/client/face/ui/panel/login_flow.cpp)
 target_link_libraries(game_ui_panel PUBLIC game_gui game_hero game_quest game_table game_core)
 game_module(client_map
-    src/client/client/map/terrain.cpp
-    src/client/client/map/samples.cpp
-    src/client/client/map/picture.cpp
-    src/client/client/map/surface.cpp
-    src/client/client/map/liquid.cpp
-    src/client/client/map/sheet.cpp
-    src/client/client/map/ground.cpp
-    src/client/client/map/book.cpp
-    src/client/client/map/gates.cpp)
+    src/client/app/client/map/terrain.cpp
+    src/client/app/client/map/samples.cpp
+    src/client/app/client/map/picture.cpp
+    src/client/app/client/map/surface.cpp
+    src/client/app/client/map/liquid.cpp
+    src/client/app/client/map/sheet.cpp
+    src/client/app/client/map/ground.cpp
+    src/client/app/client/map/book.cpp
+    src/client/app/client/map/gates.cpp)
 target_link_libraries(game_client_map PUBLIC game_core game_io game_xml game_scene)
 target_link_libraries(game_scene PUBLIC game_core game_xml)
 
@@ -729,6 +737,8 @@ if(GAME_HAS_GPU)
         find_package(meshoptimizer CONFIG REQUIRED)
         game_module(resource
             engine/resource/dds.cpp
+            engine/resource/tier.cpp
+            engine/resource/ogre_mesh.cpp
             engine/resource/image.cpp
             engine/resource/model.cpp
             engine/resource/upload.cpp)
@@ -741,13 +751,13 @@ if(GAME_HAS_GPU)
             engine/render/forward.cpp engine/render/shade.cpp engine/render/ui.cpp engine/render/canvas.cpp)
         target_link_libraries(game_render PUBLIC game_math game_resource PRIVATE game_shader)
         # Nạp người chơi từ GLB và ra ma trận skin mỗi khung (cần resource, look, io).
-        target_sources(game_avatar PRIVATE src/client/avatar/avatar.cpp src/client/avatar/rig.cpp)
+        target_sources(game_avatar PRIVATE src/client/figure/avatar/avatar.cpp src/client/figure/avatar/rig.cpp)
         target_link_libraries(game_avatar PUBLIC game_look game_math game_io game_resource game_anim game_ogre
             game_classic)
         # ui: HUD của game: bộ vẽ quad của giao diện gốc lên lượt vẽ 2D (render/ui), gom bộ nạp, dàn trang
         # và bảng chuỗi (cần gui, render, resource).
-        game_module(ui src/client/ui/painter.cpp src/client/ui/hud.cpp src/client/ui/pace.cpp src/client/ui/text.cpp
-            src/client/ui/radar.cpp)
+        game_module(ui src/client/face/ui/painter.cpp src/client/face/ui/hud.cpp src/client/face/ui/pace.cpp src/client/face/ui/text.cpp
+            src/client/face/ui/radar.cpp)
         target_link_libraries(game_ui PUBLIC game_gui game_ui_panel game_render game_resource
             game_gpu game_io game_table game_core)
     endif()
@@ -795,24 +805,24 @@ endif()
 # display (phần đồ hoạ, bản có chuỗi đồ hoạ hoặc bản không vẽ), viewer (vòng lặp cửa sổ). Gốc
 # client giữ tuỳ chọn dòng lệnh và các điểm vào (main, android_main, ios_main).
 if(GAME_HAS_GPU)
-    set(game_client_screen src/client/client/display/display_gpu.cpp src/client/client/display/player.cpp
-        src/client/client/display/portrait.cpp src/client/client/display/role_preview.cpp src/client/client/display/fx_view.cpp
-        src/client/client/display/role_stage.cpp
-        src/client/client/display/lighting.cpp src/client/client/display/login_data.cpp)
+    set(game_client_screen src/client/app/client/display/display_gpu.cpp src/client/app/client/display/player.cpp
+        src/client/app/client/display/portrait.cpp src/client/app/client/display/role_preview.cpp src/client/app/client/display/fx_view.cpp
+        src/client/app/client/display/role_stage.cpp
+        src/client/app/client/display/lighting.cpp src/client/app/client/display/login_data.cpp)
 else()
-    set(game_client_screen src/client/client/display/display_none.cpp)
+    set(game_client_screen src/client/app/client/display/display_none.cpp)
 endif()
 if(WIN32)
-    set(game_client_loop src/client/client/viewer/viewer_win32.cpp src/client/client/viewer/cursors.cpp)
+    set(game_client_loop src/client/app/client/viewer/viewer_win32.cpp src/client/app/client/viewer/cursors.cpp)
 else()
-    set(game_client_loop src/client/client/viewer/viewer_none.cpp)
+    set(game_client_loop src/client/app/client/viewer/viewer_none.cpp)
 endif()
 game_module(client_stage
-    src/client/client/stage/stage.cpp
-    src/client/client/stage/sky.cpp
-    src/client/client/stage/props.cpp)
+    src/client/app/client/stage/stage.cpp
+    src/client/app/client/stage/sky.cpp
+    src/client/app/client/stage/props.cpp)
 target_link_libraries(game_client_stage PUBLIC game_core game_xml game_scene)
-game_module(client_world src/client/client/world/world.cpp)
+game_module(client_world src/client/app/client/world/world.cpp)
 target_link_libraries(game_client_world PUBLIC game_client_stage game_client_map game_io game_nav)
 game_module(client_display ${game_client_screen})
 target_link_libraries(game_client_display PUBLIC game_core game_client_stage game_client_map
@@ -828,21 +838,21 @@ if(WIN32)
     target_link_libraries(game_client_viewer PRIVATE game_window)
     target_link_libraries(game_client_viewer PUBLIC game_audio)
 endif()
-game_module(client src/client/client/options.cpp src/client/client/assets.cpp src/client/client/boot.cpp)
+game_module(client src/client/app/client/options.cpp src/client/app/client/assets.cpp src/client/app/client/boot.cpp)
 target_link_libraries(game_client PUBLIC game_core game_io game_client_map game_client_world)
 
 # iOS: điểm vào UIKit. Chưa build trên máy này (không có macOS). Android giữ main.cpp cho exe adb;
 # APK là thư viện riêng bên dưới.
 if(IOS)
-    add_executable(thienlong_client src/client/client/ios_main.mm src/client/client/mobile_probe.cpp)
+    add_executable(thienlong_client src/client/app/client/ios_main.mm src/client/app/client/mobile_probe.cpp)
 else()
-    add_executable(thienlong_client src/client/client/main.cpp)
+    add_executable(thienlong_client src/client/app/client/main.cpp)
 endif()
 if(WIN32)
     # Icon của exe, dịch trong một target riêng không có thư mục include nào. windres của MinGW đưa
     # -I cho bộ tiền xử lý mà không bọc nháy, nên thư mục có dấu cách (chính đường dẫn dự án) làm
     # nó dừng. app.rc không include gì; đường dẫn icon trong đó tính từ chỗ tệp .rc.
-    add_library(thienlong_client_icon OBJECT src/client/client/app.rc)
+    add_library(thienlong_client_icon OBJECT src/client/app/client/app.rc)
     target_sources(thienlong_client PRIVATE $<TARGET_OBJECTS:thienlong_client_icon>)
 endif()
 target_link_libraries(thienlong_client PRIVATE game_client game_client_viewer game_client_stage
@@ -853,10 +863,17 @@ endif()
 if(IOS)
     target_link_libraries(thienlong_client PRIVATE "-framework UIKit" "-framework Foundation"
         "-framework WebKit" game_audio)
+    target_sources(thienlong_client PRIVATE
+        "${PROJECT_SOURCE_DIR}/apple/LaunchScreen.storyboard"
+        "${PROJECT_SOURCE_DIR}/apple/PrivacyInfo.xcprivacy")
+    set_source_files_properties(
+        "${PROJECT_SOURCE_DIR}/apple/LaunchScreen.storyboard"
+        "${PROJECT_SOURCE_DIR}/apple/PrivacyInfo.xcprivacy"
+        PROPERTIES MACOSX_PACKAGE_LOCATION Resources)
 endif()
 game_split_debug(thienlong_client)
-# Bản chạy: cmake --install chép exe vào Dev/bin hoặc release/bin (CMAKE_INSTALL_PREFIX của preset).
-install(TARGETS thienlong_client RUNTIME DESTINATION bin BUNDLE DESTINATION bin)
+# PC vào <prefix>/bin. Bundle iOS vào <prefix>/IOS. APK do bước Android chép vào <prefix>/APK.
+install(TARGETS thienlong_client RUNTIME DESTINATION bin BUNDLE DESTINATION IOS)
 # Bản địa hoá (chữ, tên cảnh, ảnh thay) dựng cùng client từ assets/i18n.
 include(cmake/GameI18n.cmake)
 # iOS chỉ chạy được exe nằm trong gói ứng dụng. Chưa build trên macOS (máy phát triển là Windows).
@@ -867,7 +884,7 @@ if(IOS)
         MACOSX_BUNDLE_BUNDLE_NAME "Thiên Long Bát Bộ"
         MACOSX_BUNDLE_BUNDLE_VERSION ${PROJECT_VERSION}
         MACOSX_BUNDLE_SHORT_VERSION_STRING ${PROJECT_VERSION}
-        MACOSX_BUNDLE_INFO_PLIST "${PROJECT_SOURCE_DIR}/TOOLS/ios/Info.plist.in")
+        MACOSX_BUNDLE_INFO_PLIST "${PROJECT_SOURCE_DIR}/apple/Info.plist.in")
     # Cùng dữ liệu và gói .f2s với preset PC clang-asan. resourcePath/data là chỗ ios_main đọc.
     set(GAME_IOS_SHADERS "${PROJECT_SOURCE_DIR}/build/clang-asan/shaders" CACHE PATH
         "Gói .f2s đóng vào bundle iOS. Mặc định là build/clang-asan/shaders của bản PC.")
@@ -877,7 +894,7 @@ if(IOS)
     endif()
     add_custom_command(TARGET thienlong_client POST_BUILD
         COMMAND ${CMAKE_COMMAND} -E env PYTHONUTF8=1
-            python "${PROJECT_SOURCE_DIR}/TOOLS/android/package_apk.py"
+            python "${PROJECT_SOURCE_DIR}/android/package_apk.py"
             --stage "$<TARGET_BUNDLE_CONTENT_DIR:thienlong_client>/data"
             --data "${PROJECT_SOURCE_DIR}/assets/client"
         COMMAND ${CMAKE_COMMAND} -E copy_directory
@@ -897,8 +914,8 @@ if(ANDROID)
     target_include_directories(android_native_app_glue PUBLIC "${game_glue}")
     set_property(TARGET android_native_app_glue PROPERTY COMPILE_WARNING_AS_ERROR OFF)
     add_library(thienlong_activity SHARED
-        src/client/client/android_main.cpp
-        src/client/client/mobile_probe.cpp)
+        src/client/app/client/android_main.cpp
+        src/client/app/client/mobile_probe.cpp)
     target_include_directories(thienlong_activity PRIVATE "${game_glue}")
     target_compile_features(thienlong_activity PRIVATE cxx_std_23)
     target_link_libraries(thienlong_activity PRIVATE
@@ -929,16 +946,18 @@ if(ANDROID)
     add_custom_command(
         OUTPUT "${game_apk}"
         COMMAND ${CMAKE_COMMAND} -E env PYTHONUTF8=1
-            python "${PROJECT_SOURCE_DIR}/TOOLS/android/package_apk.py"
+            python "${PROJECT_SOURCE_DIR}/android/package_apk.py"
             --library "$<TARGET_FILE:thienlong_activity>"
             --abi "${ANDROID_ABI}"
-            --manifest "${PROJECT_SOURCE_DIR}/TOOLS/android/AndroidManifest.xml"
+            --manifest "${PROJECT_SOURCE_DIR}/android/AndroidManifest.xml"
             --out "${game_apk}"
             --depfile "${game_apk}.d"
             ${game_apk_assets}
+        COMMAND ${CMAKE_COMMAND} -E make_directory "${CMAKE_INSTALL_PREFIX}/APK"
+        COMMAND ${CMAKE_COMMAND} -E copy "${game_apk}" "${CMAKE_INSTALL_PREFIX}/APK/thienlong.apk"
         DEPENDS thienlong_activity
-            "${PROJECT_SOURCE_DIR}/TOOLS/android/package_apk.py"
-            "${PROJECT_SOURCE_DIR}/TOOLS/android/AndroidManifest.xml"
+            "${PROJECT_SOURCE_DIR}/android/package_apk.py"
+            "${PROJECT_SOURCE_DIR}/android/AndroidManifest.xml"
             "${GAME_ANDROID_SHADERS}/model.vs.f2s"
             "${GAME_ANDROID_SHADERS}/model.ps.f2s"
             # Mốc của bước i18n (cmake/GameI18n.cmake; rỗng khi không có Python): APK đóng sau khi
@@ -1092,6 +1111,11 @@ if(GAME_HAS_GPU AND NOT ANDROID)
     if(TARGET game_resource)
         game_test(resource game_resource)
         game_test(dds game_resource)
+        game_test(ogre_mesh game_resource)
+        if(EXISTS "${PROJECT_SOURCE_DIR}/assets/client/Model")
+            target_compile_definitions(ogre_mesh_tests PRIVATE
+                GAME_CLIENT_DATA="${PROJECT_SOURCE_DIR}/assets/client")
+        endif()
         game_test(resource_upload game_resource)
         game_test(classic game_classic)
         game_test(shade game_render game_classic)
@@ -1325,6 +1349,8 @@ endif()
 # loopback thật; protocol_catalog_fresh báo khi tệp sinh cũ hơn bảng danh mục.
 if(TARGET game_net)
     game_test(protocol game_protocol)
+    game_test(link game_link)
+    game_test(guard game_guard)
     if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/Test/Protocol/protocol_channel_tests.cpp")
         game_test(protocol_channel game_protocol)
     endif()

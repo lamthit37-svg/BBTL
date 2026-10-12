@@ -76,6 +76,19 @@ void sleep_for(Clock::duration span) noexcept;
 // ưu tiên TIME_CRITICAL để luồng thợ phủ kín lõi không làm trễ. Hạn đã qua thì trả về ngay.
 void sleep_until(Clock::time_point deadline) noexcept;
 
+// Nhịp mô phỏng và nhịp vẽ theo số CPU logic. Máy yếu mô phỏng 30 Hz và vẽ tới 60.
+// Máy vừa mô phỏng 60 và vẽ 60. Máy từ 8 luồng mô phỏng 60 và vẽ tới 120.
+struct LoopPlan {
+    std::uint32_t sim_hz = 60;
+    std::uint32_t render_hz = 120;
+};
+
+[[nodiscard]] constexpr LoopPlan loop_plan(std::uint32_t logical_cpus) noexcept {
+    if (logical_cpus >= 8) return {.sim_hz = 60, .render_hz = 120};
+    if (logical_cpus >= 4) return {.sim_hz = 60, .render_hz = 60};
+    return {.sim_hz = 30, .render_hz = 60};
+}
+
 struct TickConfig {
     std::uint32_t hz = 60;
     // Số bước tối đa mỗi lần advance: 10 bước ở 60 Hz bù được 166 ms trong một vòng; nhiều hơn thì
