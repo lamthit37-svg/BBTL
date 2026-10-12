@@ -1,0 +1,181 @@
+// Nạp người chơi từ tệp GLB và ra ma trận skin mỗi khung (xem avatar.hpp).
+#include "avatar/avatar.hpp"
+
+#include "anim/asset.hpp"
+#include "anim/pose.hpp"
+#include "anim/rig.hpp"
+#include "avatar/gait.hpp"
+#include "core/error.hpp"
+#include "io/file.hpp"
+#include "look/look.hpp"
+#include "math/matrix.hpp"
+#include "math/vector.hpp"
+#include "ogre/quat.hpp"
+#include "ogre/vec3.hpp"
+#include "resource/model.hpp"
+#include "avatar/rig.hpp"
+
+#include <algorithm>
+#include <cstddef>
+#include <expected>
+#include <filesystem>
+#include <iterator>
+#include <map>
+#include <memory>
+#include <optional>
+#include <ranges>
+#include <string>
+#include <utility>
+#include <vector>
+
+namespace game::avatar {
+namespace {
+
+// Một tệp .skeleton đã nạp: xương của chính tệp, và model để lấy clip.
+struct File {
+    resource::Model model;
+    anim::SourceSkeleton bones;
+};
+
+// Tệp đã nạp theo tên, để hai clip chung một tệp chỉ nạp một lần.
+using Files = std::map<std::string, std::unique_ptr<File>>;
+
+// Nơi nạp: thư mục dữ liệu client và các tệp đã có.
+struct Loader {
+    std::filesystem::path root;
+    Files files;
+};
+
+[[nodiscard]] core::Result<const File*> file_of(Loader& loader, const std::string& name) {
+    const auto found = loader.files.find(name);
+    if (found != loader.files.end()) return found->second.get();
+    const std::filesystem::path path = loader.root / "Model" / io::path_from_utf8(name + ".glb");
+    auto model = resource::load_glb_file(io::utf8_of(path));
+    if (!model) return std::unexpected(model.error());
+    auto bones = resource::bones_of(*model);
+    if (!bones) return std::unexpected(bones.error());
+    auto kept = std::make_unique<File>(File{.model = std::move(*model), .bones = std::move(*bones)});
+    const File* made = kept.get();
+    loader.files.emplace(name, std::move(kept));
+    return made;
+}
+
+// Clip và skeleton chính phải cùng handle và tên xương, vì animation đánh số xương theo handle.
+[[nodiscard]] core::Status check_same_bones(const anim::SourceSkeleton& own, const anim::SourceSkeleton& main) {
+    const std::size_t shared = std::min(own.bones.size(), main.bones.size());
+    const auto differs = [&](std::size_t handle) { return own.bones.at(handle).name != main.bones.at(handle).name; };
+    const auto handles = std::views::iota(std::size_t{0}, shared);
+    const auto first = std::ranges::find_if(handles, differs);
+    if (first == handles.end()) return core::ok();
+    return core::fail(core::ErrorCode::kCorrupt, "skeleton của clip lệch skeleton chính", "xương {}", *first);
+}
+
+[[nodiscard]] core::Result<anim::Animation> clip_of(Loader& loader, const look::Clip& clip,
+    const anim::SourceSkeleton& main) {
+    const auto file = file_of(loader, clip.anim);
+    if (!file) return std::unexpected(file.error());
+    const resource::Model& model = (*file)->model;
+    const auto found = std::ranges::find(model.clips, clip.name, &resource::Clip::name);
+    if (found == model.clips.end()) {
+        return core::fail(core::ErrorCode::kNotFound, "tệp không có clip", "{} / {}", clip.anim, clip.name);
+    }
+    const core::Status same = check_same_bones((*file)->bones, main);
+    if (!same) return std::unexpected(same.error());
+    const auto index = static_cast<std::size_t>(found - model.clips.begin());
+    return resource::animation_of(model, index, (*file)->bones);
+}
+
+[[nodiscard]] core::Result<std::optional<anim::Animation>> optional_clip_of(Loader& loader,
+    const std::optional<look::Clip>& clip, const anim::SourceSkeleton& main) {
+    if (!clip) return std::optional<anim::Animation>{};
+    auto loaded = clip_of(loader, *clip, main);
+    if (!loaded) return std::unexpected(loaded.error());
+    return {std::move(*loaded)};
+}
+
+[[nodiscard]] core::Failure rig_failure(anim::RigError error) {
+    static_cast<void>(error);
+    return core::fail(core::ErrorCode::kCorrupt, "skeleton chính không dựng được rig");
+}
+
+// Affine 3x4 theo hàng của OGRE sang Matrix4 theo cột, hàng cuối (0, 0, 0, 1).
+[[nodiscard]] math::Matrix4 matrix_of(const anim::Affine& rows) {
+    const math::Vector4 col0(rows.at(0), rows.at(4), rows.at(8), 0.0F);
+    const math::Vector4 col1(rows.at(1), rows.at(5), rows.at(9), 0.0F);
+    const math::Vector4 col2(rows.at(2), rows.at(6), rows.at(10), 0.0F);
+    const math::Vector4 col3(rows.at(3), rows.at(7), rows.at(11), 1.0F);
+    return {col0, col1, col2, col3};
+}
+
+} // namespace
+
+core::Result<Avatar> Avatar::load(const look::Figure& figure, const std::filesystem::path& data_root) {
+    Loader loader{.root = data_root, .files = {}};
+    const auto main = file_of(loader, figure.skeleton);
+    if (!main) return std::unexpected(main.error());
+    const anim::SourceSkeleton& bones = (*main)->bones;
+    auto rig = anim::Rig::create(bones);
+    if (!rig) return rig_failure(rig.error());
+    auto idle = clip_of(loader, figure.idle, bones);
+    if (!idle) return std::unexpected(idle.error());
+    auto run = clip_of(loader, figure.run, bones);
+    if (!run) return std::unexpected(run.error());
+    auto alt = optional_clip_of(loader, figure.idle_alt, bones);
+    if (!alt) return std::unexpected(alt.error());
+    auto alt2 = optional_clip_of(loader, figure.idle_alt2, bones);
+    if (!alt2) return std::unexpected(alt2.error());
+    Avatar avatar(figure, std::move(*rig));
+    avatar.idle_ = std::move(*idle);
+    avatar.run_ = std::move(*run);
+    avatar.idle_alt_ = std::move(*alt);
+    avatar.idle_alt2_ = std::move(*alt2);
+    if (figure.idle_trim) {
+        const auto found = std::ranges::find(bones.bones, figure.idle_trim->bone, &anim::Bone::name);
+        if (found == bones.bones.end()) {
+            return core::fail(core::ErrorCode::kCorrupt, "skeleton không có xương cần chỉnh", "{}", figure.idle_trim->bone);
+        }
+        const ogre::Vec3 own_z{.x = 0.0F, .y = 0.0F, .z = 1.0F};
+        avatar.trim_ = Trim{.handle = found->handle, .turn = ogre::quat_from_angle_axis(figure.idle_trim->turn, own_z)};
+    }
+    return avatar;
+}
+
+void Avatar::trim_idle(anim::Pose& pose) const noexcept {
+    if (!trim_ || trim_->handle >= pose.size()) return;
+    anim::Transform& bone = pose[trim_->handle];
+    bone.orientation = ogre::quat_multiply(bone.orientation, trim_->turn);
+}
+
+ClipLengths Avatar::lengths() const noexcept {
+    ClipLengths lengths;
+    lengths.idle = idle_.length;
+    lengths.run = run_.length;
+    if (idle_alt_) lengths.idle_alt = idle_alt_->length;
+    if (idle_alt2_) lengths.idle_alt2 = idle_alt2_->length;
+    return lengths;
+}
+
+const anim::Animation& Avatar::animation(Stance stance) const noexcept {
+    switch (stance) {
+    case Stance::kIdle: return idle_;
+    case Stance::kIdleAlt: return idle_alt_ ? *idle_alt_ : idle_;
+    case Stance::kIdleAlt2: return idle_alt2_ ? *idle_alt2_ : idle_;
+    case Stance::kRun: return run_;
+    }
+    return idle_;
+}
+
+core::Status Skinner::update(const Avatar& avatar, const Playing& playing) {
+    anim::bind_pose(avatar.rig(), pose_);
+    const anim::Blend blend{.time = playing.time, .weight = 1.0F, .scale = 1.0F};
+    const auto applied = anim::apply(avatar.animation(playing.stance), blend, pose_);
+    if (!applied) return core::fail(core::ErrorCode::kCorrupt, "clip trỏ xương không có trong rig");
+    if (playing.stance == Stance::kIdle) avatar.trim_idle(pose_);
+    avatar.rig().skin(pose_, skin_, derived_);
+    joints_.clear();
+    joints_.reserve(skin_.size());
+    std::ranges::transform(skin_, std::back_inserter(joints_), matrix_of);
+    return core::ok();
+}
+
+} // namespace game::avatar
