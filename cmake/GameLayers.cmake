@@ -52,7 +52,7 @@ set(game_layer_shader "core io fs jobs shader")
 set(game_layer_shadertool "core io fs jobs shader shadertool")
 set(game_layer_capture "core jobs capture")
 set(game_layer_gpu "core shader gpu")
-set(game_layer_resource "core io math fs gpu ogre anim resource")
+set(game_layer_resource "core io math fs gpu resource")
 set(game_layer_render "core math shader gpu resource capture render")
 set(game_layer_client/stage "core xml scene client/stage")
 set(game_layer_client/map "core io xml scene client/map")
@@ -64,33 +64,39 @@ set(game_layer_client/viewer
 set(game_layer_client
     "core io xml scene control audio client/display client/stage client/map client/world client/viewer client")
 
-# Khác mẫu: mã nguồn của dự án nằm ở SRC/.
-set(src "${GAME_SOURCE_DIR}/SRC")
+# Engine không biết game. Phần game nằm ở src/client, src/server, src/shared.
+set(game_source_roots
+    "${GAME_SOURCE_DIR}/engine"
+    "${GAME_SOURCE_DIR}/src/client"
+    "${GAME_SOURCE_DIR}/src/server"
+    "${GAME_SOURCE_DIR}/src/shared")
 set(include_re "^[ \t]*#[ \t]*include[ \t]*\"[a-z0-9_]+/")
 
 # Khám phá module: thư mục có nguồn trực tiếp là module; thư mục con có nguồn trực tiếp là module
 # con "cha/con". detail/ không là module (header nội bộ của cha) nên cha quét trọn cây của mình.
-file(GLOB game_roots LIST_DIRECTORIES true RELATIVE "${src}" "${src}/*")
 set(modules "")
-foreach(root IN LISTS game_roots)
-    if(NOT IS_DIRECTORY "${src}/${root}")
-        continue()
-    endif()
-    list(APPEND modules "${root}")
-    file(GLOB game_subs LIST_DIRECTORIES true RELATIVE "${src}/${root}" "${src}/${root}/*")
-    foreach(sub IN LISTS game_subs)
-        if(NOT IS_DIRECTORY "${src}/${root}/${sub}")
+foreach(tree IN LISTS game_source_roots)
+    file(GLOB game_roots LIST_DIRECTORIES true RELATIVE "${tree}" "${tree}/*")
+    foreach(root IN LISTS game_roots)
+        if(NOT IS_DIRECTORY "${tree}/${root}")
             continue()
         endif()
-        if(sub STREQUAL "detail" OR sub STREQUAL "vulkan" OR sub STREQUAL "d3d12" OR sub STREQUAL
-            "d3d11" OR sub STREQUAL "gles")
-            # detail là header nội bộ; vulkan/d3d12/d3d11/gles là backend của gpu, quét chung gpu.
-            continue()
-        endif()
-        file(GLOB sub_sources "${src}/${root}/${sub}/*.cpp")
-        if(sub_sources)
-            list(APPEND modules "${root}/${sub}")
-        endif()
+        list(APPEND modules "${root}")
+        file(GLOB game_subs LIST_DIRECTORIES true RELATIVE "${tree}/${root}" "${tree}/${root}/*")
+        foreach(sub IN LISTS game_subs)
+            if(NOT IS_DIRECTORY "${tree}/${root}/${sub}")
+                continue()
+            endif()
+            if(sub STREQUAL "detail" OR sub STREQUAL "vulkan" OR sub STREQUAL "d3d12" OR sub STREQUAL
+                "d3d11" OR sub STREQUAL "gles")
+                # detail là header nội bộ; vulkan/d3d12/d3d11/gles là backend của gpu, quét chung gpu.
+                continue()
+            endif()
+            file(GLOB sub_sources "${tree}/${root}/${sub}/*.cpp")
+            if(sub_sources)
+                list(APPEND modules "${root}/${sub}")
+            endif()
+        endforeach()
     endforeach()
 endforeach()
 
@@ -123,19 +129,34 @@ endfunction()
 
 # Quét .hpp/.cpp của module: nguồn trực tiếp, header nội bộ detail/, và các thư mục con KHÔNG
 # phải module con (backend vulkan/d3d của gpu); module con có bảng riêng nên cha không quét lại.
+function(game_module_home module out_home)
+    foreach(tree IN LISTS game_source_roots)
+        if(IS_DIRECTORY "${tree}/${module}")
+            set(${out_home} "${tree}/${module}" PARENT_SCOPE)
+            return()
+        endif()
+    endforeach()
+    set(${out_home} "" PARENT_SCOPE)
+endfunction()
+
 function(game_check_module module)
-    file(GLOB sources "${src}/${module}/*.hpp" "${src}/${module}/*.cpp")
-    file(GLOB_RECURSE deep "${src}/${module}/detail/*.hpp" "${src}/${module}/detail/*.cpp")
+    game_module_home(${module} home)
+    if(home STREQUAL "")
+        message(SEND_ERROR "tầng: không thấy thư mục của ${module}")
+        return()
+    endif()
+    file(GLOB sources "${home}/*.hpp" "${home}/*.cpp")
+    file(GLOB_RECURSE deep "${home}/detail/*.hpp" "${home}/detail/*.cpp")
     list(APPEND sources ${deep})
-    file(GLOB subs LIST_DIRECTORIES true RELATIVE "${src}/${module}" "${src}/${module}/*")
+    file(GLOB subs LIST_DIRECTORIES true RELATIVE "${home}" "${home}/*")
     foreach(sub IN LISTS subs)
-        if(NOT IS_DIRECTORY "${src}/${module}/${sub}")
+        if(NOT IS_DIRECTORY "${home}/${sub}")
             continue()
         endif()
         if("${module}/${sub}" IN_LIST modules)
             continue()
         endif()
-        file(GLOB_RECURSE sub_sources "${src}/${module}/${sub}/*.hpp" "${src}/${module}/${sub}/*.cpp")
+        file(GLOB_RECURSE sub_sources "${home}/${sub}/*.hpp" "${home}/${sub}/*.cpp")
         list(APPEND sources ${sub_sources})
     endforeach()
     foreach(source IN LISTS sources)

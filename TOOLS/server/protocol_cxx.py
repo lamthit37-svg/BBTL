@@ -23,7 +23,7 @@ def column_limit() -> int:
 COLUMNS = column_limit()
 COMMAND = "python -B TOOLS/server/gen_protocol.py"
 NOTICE = (
-    "// Tệp sinh bởi TOOLS/server/gen_protocol.py từ SRC/protocol/catalog/*.tsv; không sửa tay.",
+    "// Tệp sinh bởi TOOLS/server/gen_protocol.py từ src/shared/protocol/catalog/*.tsv; không sửa tay.",
     f"// Sửa bảng rồi chạy lại: {COMMAND}",
 )
 CPP_SCALARS = {

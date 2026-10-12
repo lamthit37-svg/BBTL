@@ -66,7 +66,7 @@ def enum_sections(catalog: Catalog) -> list[str]:
 def render_doc(catalog: Catalog) -> str:
     """Nội dung docs/PROTOCOL-TIN.md."""
     lines = [
-        f"<!-- Tệp sinh bởi TOOLS/server/gen_protocol.py từ SRC/protocol/catalog/*.tsv; không sửa tay."
+        f"<!-- Tệp sinh bởi TOOLS/server/gen_protocol.py từ src/shared/protocol/catalog/*.tsv; không sửa tay."
         f" Sửa bảng rồi chạy lại: {COMMAND} -->",
         "", "# Danh mục tin của giao thức", "",
         f"Bản danh mục {catalog.version}: {len(catalog.messages)} tin, {len(catalog.records)} record,"
