@@ -313,11 +313,11 @@ NameFault admit_name(const Book& book, std::string_view account, std::string_vie
 }
 
 std::string_view name_fault_text(NameFault fault) noexcept {
-    if (fault == NameFault::kEmpty) return "Hãy nhập tên nhân vật.";
-    if (fault == NameFault::kLong) return "Tên không quá 12 chữ.";
-    if (fault == NameFault::kBad) return "Tên có ký tự không dùng được.";
-    if (fault == NameFault::kTaken) return "Tên này đã có.";
-    if (fault == NameFault::kFull) return "Đã đủ 3 nhân vật.";
+    if (fault == NameFault::kEmpty) return "#{Login_Create_Role_Info_Name_Is_Empty}";
+    if (fault == NameFault::kLong) return "#{Login_Create_Role_Info_Name_Too_Len}";
+    if (fault == NameFault::kBad) return "#{INVALID_CHARACTER_IN_NAME}";
+    if (fault == NameFault::kTaken) return "#{Login_Create_Role_Name_Exist}";
+    if (fault == NameFault::kFull) return "#{ROLE_LIST_FULL}";
     return {};
 }
 

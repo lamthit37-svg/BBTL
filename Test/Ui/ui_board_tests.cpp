@@ -117,7 +117,7 @@ void sheet_of_newcomer(Context& context) {
     const hero::Hero hero = hero::newcomer();
     Deck deck;
     ui::panel::fill_self_equip(deck, hero, book);
-    context.expect(text_of(deck, "SelfEquip_PageHeader") == "#gFF0FA0Thiếu Hiệp", "tên có màu");
+    context.expect(text_of(deck, "SelfEquip_PageHeader") == "#gFF0FA0#{GMGameInterface_Script_Talk_Info_R_Man}", "tên có màu");
     context.expect(text_of(deck, "SelfEquip_HP") == "#cFAFFA4585/585", "máu");
     context.expect(text_of(deck, "SelfEquip_MP") == "#cFAFFA4310/310", "khí");
     context.expect(text_of(deck, "SelfEquip_SP") == "#cFAFFA40/1000", "nộ");
@@ -134,7 +134,7 @@ void sheet_of_newcomer(Context& context) {
     context.expect(text_of(deck, "SelfEquip_Perporty1_Plus") == "", "chưa tu luyện");
     context.expect(text_of(deck, "SelfEquip_Vigor") == "10/50", "hoạt lực");
     context.expect(text_of(deck, "SelfEquip_Energy") == "10/50", "tinh lực");
-    context.expect(text_of(deck, "SelfEquip_MenPai") == "Vô Phái", "chưa môn phái");
+    context.expect(text_of(deck, "SelfEquip_MenPai") == "#{GMGameInterface_Script_DataPool_Info_WuMenPai}", "chưa môn phái");
     const auto score = text_of(deck, "SelfEquip_FightScore_Text");
     context.expect(score == "#{ZDPF_130115_01}0", "điểm trang bị nối sau nhãn");
     context.expect(is_off(deck, "Equip_Addition_Button1"), "hết điểm thì nút cộng khoá");

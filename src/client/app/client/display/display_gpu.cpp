@@ -53,6 +53,7 @@
 #include "control/view_ray.hpp"
 #include "core/bits.hpp"
 #include "core/clock.hpp"
+#include "core/thread.hpp"
 #include "core/error.hpp"
 #include "core/ground_point.hpp"
 #include "core/hash.hpp"
@@ -86,14 +87,17 @@
 #include "render/screen.hpp"
 #include "render/ui.hpp"
 #include "render/view_size.hpp"
-#include "resource/classic.hpp"
+#include "classic/bake.hpp"
 #include "resource/image.hpp"
 #include "resource/model.hpp"
+#include "resource/ogre_mesh.hpp"
+#include "resource/tier.hpp"
 #include "resource/upload.hpp"
 #include "scene/placement.hpp"
 #include "scene/transform.hpp"
 #include "shader/package.hpp"
 #include "ui/hud.hpp"
+#include "ui/phone.hpp"
 #include "ui/pace.hpp"
 #include "ui/panel/role_pose.hpp"
 #include "ui/panel/roles.hpp"
@@ -152,9 +156,8 @@ namespace {
 constexpr gpu::ClearColor kBackdrop{.red = 0.05F, .green = 0.06F, .blue = 0.08F, .alpha = 1.0F};
 // Nghỉ giữa hai khung khi cửa sổ đang thu nhỏ, hoặc khi bề mặt chưa sẵn cỡ.
 constexpr std::chrono::milliseconds kIdleNap{16};
-// Trần nhịp vẽ trên PC: 120 Hz. Màn 60 Hz vẫn quét 60 lần, nhưng mailbox giữ khung mới nhất
+// Trần nhịp vẽ trên PC khi máy đủ mạnh: 120 Hz. Màn 60 Hz vẫn quét 60 lần, mailbox giữ khung mới nhất
 // nên trễ tối đa một nửa nhịp quét. Vượt trần thì bỏ tick, không vẽ bù.
-constexpr std::uint32_t kPaceHz = 120;
 
 // Nghỉ một nhịp rồi đặt lại mốc đo: lượt sau không phải chịu thời gian ngủ.
 void nap(core::Clock::time_point& previous) noexcept {
@@ -260,14 +263,7 @@ constexpr std::size_t kKeptGrounds = 4;
 constexpr float kYawStart = 0.6F;
 constexpr float kYawPerSecond = 0.24F;
 // Android và iOS trình Fifo theo Hz của tấm nền (60, 90 hay 120). Ngủ thêm 120 Hz sau Fifo làm
-// khung trễ mất nhịp quét. PC mới dùng mailbox và trần 120 Hz.
-#if defined(__ANDROID__)
-constexpr bool kIsMobile = true;
-#elif defined(__APPLE__)
-constexpr bool kIsMobile = TARGET_OS_IPHONE != 0;
-#else
-constexpr bool kIsMobile = false;
-#endif
+// khung trễ mất nhịp quét. PC mới dùng mailbox và trần 120 Hz. Cờ nền là ui::kPhone.
 // Số sự kiện chuột hay chạm chờ tối đa giữa hai khung; quá thì bỏ sự kiện mới.
 constexpr std::size_t kMaxQueued = 4096;
 // Bước thời gian dài nhất của một khung, giây: máy khựng không làm điểm nhìn nhảy xa.
@@ -709,7 +705,7 @@ void attach_paint(resource::Model& model, const MapPicture& paint) {
     image.rgba = paint.rgba;
     model.images.push_back(std::move(image));
     model.materials.front().color.image = 0;
-    model.materials.front().classic = resource::Classic{.lit = resource::Lit::kTerrain};
+    model.materials.front().pass = classic::pass_of(classic::Classic{.lit = classic::Lit::kTerrain});
 }
 
 void push_height_vertex(resource::Primitive& primitive, const game::client::map::Corner& corner, bool has_paint) {
@@ -818,6 +814,7 @@ struct ReadMesh {
 };
 
 [[nodiscard]] ReadMesh baked_mesh(resource::Model model) {
+    classic::note(model);
     ReadMesh read;
     auto baked = resource::stage_images(model);
     if (baked) read.baked = std::move(*baked);
@@ -848,6 +845,7 @@ struct FeedJob {
     std::shared_ptr<const world::ShownScene> scene;
     bool bake_ground = false;
     std::vector<Need> needs;
+    resource::TextureTier tier = resource::TextureTier::kBc;
 };
 
 struct Feed {
@@ -910,8 +908,7 @@ void bake_job(const FeedJob& job, Feed& feed) {
 }
 
 void store_read(Feed& feed, const FeedJob& job, const Need& need) {
-    const std::filesystem::path path = job.root / io::path_from_utf8("Model") / io::path_from_utf8(need.name + ".glb");
-    auto loaded = resource::load_glb_file(io::utf8_of(path), io::utf8_of(job.root));
+    auto loaded = resource::load_named_model(need.name, io::utf8_of(job.root), job.tier);
     if (!loaded) std::println(stderr, "Bỏ mesh {}: {}", need.name, loaded.error());
     std::optional<ReadMesh> read;
     if (loaded) read = baked_mesh(std::move(*loaded));
@@ -1277,6 +1274,8 @@ struct Display::State {
     [[nodiscard]] Refit refit();
     // Vẽ một khung: camera và đèn, rồi mọi instance; nộp và trình bày.
     [[nodiscard]] float step_clock(float elapsed) noexcept;
+    void ensure_sim();
+    void simulate_motion(const Steering& keys, core::Clock::time_point now);
     // Điều khiển đã gom của một khung: phím và các sự kiện chuột, chạm theo thứ tự tới.
     struct Taken {
         Steering keys;
@@ -1515,6 +1514,7 @@ struct Display::State {
     control::StickMove stick;
     PhaseSums phase_ms;
     std::filesystem::path data_root;
+    resource::TextureTier texture_tier = resource::TextureTier::kBc;
     std::filesystem::path save_root;
     std::filesystem::path shot_path;
     std::string reported_description;
@@ -1524,6 +1524,13 @@ struct Display::State {
     std::deque<Crowd> crowds;
     ui::PaceOverlay pace_board;
     std::optional<core::FixedStep> frame_clock;
+    std::optional<core::FixedStep> sim_clock;
+    std::uint32_t render_hz = 120;
+    float prev_x = 0.0F;
+    float prev_z = 0.0F;
+    float shown_x = 0.0F;
+    float shown_z = 0.0F;
+    bool has_shown = false;
     std::unordered_map<std::string, std::size_t> kept_by_name;
     std::mutex steer_guard;
     std::mutex pending_guard;
@@ -1749,7 +1756,10 @@ core::Status Display::State::open_gpu(const DisplayDesc& desc) {
     screen_desc.samples = kSamples;
     screen_desc.clear = kBackdrop;
     // PC: mailbox, trần 120 Hz. Android và iOS: Fifo bám Hz của tấm nền, không ngủ thêm.
-    screen_desc.present_mode = kIsMobile ? gpu::PresentMode::kFifo : gpu::PresentMode::kMailbox;
+    screen_desc.present_mode = ui::kPhone ? gpu::PresentMode::kFifo : gpu::PresentMode::kMailbox;
+    const gpu::FormatSupport astc = device->format_support(gpu::Format::kAstc4x4Unorm);
+    const bool has_astc = gpu::has(astc, gpu::FormatSupport::kSampled);
+    if (ui::kPhone) texture_tier = has_astc ? resource::TextureTier::kAstc : resource::TextureTier::kEtc2;
     core::Result<render::Screen> shown = render::Screen::create(*device, screen_desc);
     if (!shown) return std::unexpected(shown.error());
     screen = std::make_unique<render::Screen>(std::move(*shown));
@@ -2065,6 +2075,7 @@ void Display::State::begin_load(std::shared_ptr<const world::ShownScene> next) {
     index_users(loading);
     FeedJob job;
     job.root = data_root;
+    job.tier = texture_tier;
     job.scene = loading.scene;
     job.bake_ground = needs_fresh_ground(loading);
     remember_meshes(loading, job);
@@ -2312,8 +2323,7 @@ void Display::State::attach_cached_ground() {
 std::size_t Display::State::load_mesh(const std::string& mesh) {
     const auto found = kept_by_name.find(mesh);
     if (found != kept_by_name.end()) return found->second;
-    const std::filesystem::path path = data_root / io::path_from_utf8("Model") / io::path_from_utf8(mesh + ".glb");
-    auto model = resource::load_glb_file(io::utf8_of(path), io::utf8_of(data_root));
+    auto model = resource::load_named_model(mesh, io::utf8_of(data_root), texture_tier);
     if (!model) {
         std::println(stderr, "Bỏ mesh {}: {}", mesh, model.error());
         return kMissing;
@@ -2520,7 +2530,7 @@ render::Camera Display::State::frame_camera(FrameAsk ask) {
     pilot_frame(now, delta_seconds);
     hold_stick_frame(now);
     publish_cursor();
-    move_player(taken.keys, delta_seconds);
+    simulate_motion(taken.keys, now);
     // NOLINTNEXTLINE(bugprone-unchecked-optional-access): terrain đã kiểm ở đầu hàm
     follow.set_look_at(*terrain, foot());
     const control::CameraPose& pose = follow.pose();
@@ -2758,8 +2768,42 @@ std::optional<core::GroundPoint> Display::State::pick_at(control::ScreenPoint po
 
 // Chân nhân vật trên mặt đất, cùng tam giác với lưới đã vẽ.
 ogre::Vec3 Display::State::foot() const {
-    const float height = terrain ? terrain->height_at(walk.x, walk.z) : 0.0F;
-    return ogre::Vec3{.x = walk.x, .y = height, .z = walk.z};
+    const float x = has_shown ? shown_x : walk.x;
+    const float z = has_shown ? shown_z : walk.z;
+    const float height = terrain ? terrain->height_at(x, z) : 0.0F;
+    return ogre::Vec3{.x = x, .y = height, .z = z};
+}
+
+void Display::State::ensure_sim() {
+    if (sim_clock) return;
+    const core::LoopPlan plan = core::loop_plan(core::cpu_count());
+    render_hz = plan.render_hz;
+    core::TickConfig config;
+    config.hz = plan.sim_hz;
+    config.max_steps = 4;
+    core::Result<core::FixedStep> made = core::FixedStep::create(config);
+    if (!made) return;
+    sim_clock = *made;
+    prev_x = walk.x;
+    prev_z = walk.z;
+}
+
+void Display::State::simulate_motion(const Steering& keys, core::Clock::time_point now) {
+    ensure_sim();
+    if (!sim_clock) return;
+    const std::uint32_t due = sim_clock->advance(now);
+    const float step = static_cast<float>(sim_clock->step_seconds());
+    std::uint32_t index = 0;
+    while (index < due) {
+        prev_x = walk.x;
+        prev_z = walk.z;
+        move_player(keys, step);
+        ++index;
+    }
+    const float alpha = sim_clock->alpha();
+    shown_x = prev_x + ((walk.x - prev_x) * alpha);
+    shown_z = prev_z + ((walk.z - prev_z) * alpha);
+    has_shown = true;
 }
 
 // Phím đi bộ thắng lệnh nhấp chuột; không có phím thì đi tiếp theo lệnh (nếu có).
@@ -3135,7 +3179,7 @@ void Display::State::stamp_phases(const FrameMarks& marks) {
 void Display::State::ensure_clock() {
     if (frame_clock) return;
     core::TickConfig config;
-    config.hz = kPaceHz;
+    config.hz = render_hz;
     config.max_steps = 1;
     core::Result<core::FixedStep> made = core::FixedStep::create(config);
     if (!made) return;
@@ -3143,10 +3187,10 @@ void Display::State::ensure_clock() {
 }
 
 void Display::State::hold_pace(double spent_ms) {
-    if constexpr (kIsMobile) return;
+    if constexpr (ui::kPhone) return;
     // Việc của khung đã nuốt hết một nhịp 120 Hz thì trình ngay. Ngủ thêm biến khung nạp thành
     // hai nhịp (đo: đưa đất 15 ms rồi ngủ 8 ms thành khung 26 ms).
-    if (spent_ms >= 1000.0 / static_cast<double>(kPaceHz)) return;
+    if (spent_ms >= 1000.0 / static_cast<double>(render_hz)) return;
     ensure_clock();
     if (!frame_clock) return;
     static_cast<void>(frame_clock->advance(core::Clock::now()));

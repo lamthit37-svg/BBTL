@@ -81,10 +81,10 @@ constexpr std::string_view kZoomIn = "CreateRole_ModelZoomIn";
 
 constexpr std::string_view kWoman = "CreateRole_Woman";
 constexpr std::string_view kMan = "CreateRole_Man";
-// Chữ script viết thẳng: "女", "男", "请选择头像!".
-constexpr std::string_view kFemaleText = "Nữ";
-constexpr std::string_view kMaleText = "Nam";
-constexpr std::string_view kPickPortrait = "Hãy chọn ảnh chân dung!";
+// "女" và "男" là chữ gốc; bảng dịch có dòng =女 và =男. Lời chọn ảnh là khoá từ điển.
+constexpr std::string_view kFemaleText = "女";
+constexpr std::string_view kMaleText = "男";
+constexpr std::string_view kPickPortrait = "#{DLJM_XML_20}";
 constexpr std::string_view kNoPortrait = "#{DLXZ_090711_1}";
 constexpr std::string_view kRandomTip = "#{JSCJYH_121224_02}";
 constexpr std::string_view kRandomNameTip = "#{TCMZ_211027_2}";

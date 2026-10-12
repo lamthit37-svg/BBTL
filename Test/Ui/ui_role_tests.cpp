@@ -73,7 +73,7 @@ void names_follow_the_rules(Context& context) {
     context.expect(ui::panel::admit_name(book, "acc", "ten#") == NameFault::kBad, "dấu thăng");
     context.expect(ui::panel::admit_name(book, "acc", "1234567890123") == NameFault::kLong, "quá 12 chữ");
     context.expect(ui::panel::admit_name(book, "acc", "Huyền") == NameFault::kOk, "chữ Việt");
-    context.expect(ui::panel::name_fault_text(NameFault::kTaken) == "Tên này đã có.", "câu trùng tên");
+    context.expect(ui::panel::name_fault_text(NameFault::kTaken) == "#{Login_Create_Role_Name_Exist}", "câu trùng tên");
 }
 
 void round_trip_keeps_text(Context& context) {

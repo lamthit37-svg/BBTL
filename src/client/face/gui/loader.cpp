@@ -35,12 +35,26 @@ using detail::Cook;
 using detail::Mapping;
 using detail::Node;
 
+namespace {
+
+std::optional<std::string> read_at(const std::filesystem::path& root, std::string_view clean) {
+    io::TextResult text = io::read_text(root / io::path_from_utf8(std::string(clean)));
+    if (!text) return std::nullopt;
+    return std::move(*text);
+}
+
+} // namespace
+
 std::optional<std::string> DiskSource::read(std::string_view path) const {
     std::string clean(path);
     std::ranges::replace(clean, '\\', '/');
-    io::TextResult text = io::read_text(root_ / io::path_from_utf8(clean));
-    if (!text) return std::nullopt;
-    return std::move(*text);
+    const bool is_layout = phone_ && clean.ends_with(".layout.xml") && !clean.starts_with("phone/");
+    if (is_layout) {
+        const std::string over = std::string("phone/") + clean;
+        std::optional<std::string> found = read_at(root_, over);
+        if (found) return found;
+    }
+    return read_at(root_, clean);
 }
 
 namespace detail {

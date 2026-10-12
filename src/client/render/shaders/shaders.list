@@ -1,0 +1,8 @@
+# Shader của client. thienlong_shader dịch danh sách này lúc build ra các gói .f2s
+# nằm cạnh exe, trong thư mục shaders. Engine chỉ nạp gói theo tên, không giữ nguồn.
+shader model.vs model.vs.hlsl
+shader model.ps model.ps.hlsl
+shader ui.vs ui.vs.hlsl
+shader ui.ps ui.ps.hlsl
+shader fx.vs fx.vs.hlsl
+shader fx.ps fx.ps.hlsl

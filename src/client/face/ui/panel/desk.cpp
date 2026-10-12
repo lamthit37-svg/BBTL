@@ -169,24 +169,18 @@ constexpr std::array<SkillFace, 6> kSkillFaces{{
             "ZongMenSkill_ZhenfaSkill", "ZongMenSkill_AutoAttack", "ZongMenSkill_ZongMenSkill"}},
 }};
 
-// Nhãn thẻ, như CommonSkill_SetTabColor: đang chọn có #Y. Ba tên cuối là trang trận pháp,
-// tự động và tông môn; từ điển không có ba khoá nên dùng tên trang, không phải câu gốc.
-constexpr std::array<std::string_view, 6> kSkillOn = {
-    "#e010101#YPhổ Thông",
-    "#e010101#YMôn Phái",
-    "#e010101#YSinh Hoạt",
-    "#e010101#YTrận Pháp",
-    "#e010101#YTự Động",
-    "#e010101#YTông Môn",
+// Nhãn thẻ, như ZhenfaSkill_SetTabColor: màu rồi khoá từ điển. Đang chọn thêm #Y.
+// Thứ tự theo cửa sổ Commonly, Action, Life, Zhenfa, Auto, ZongMen.
+constexpr std::array<std::string_view, 6> kSkillKeys = {
+    "#{INTERFACE_XML_494}",
+    "#{INTERFACE_XML_448}",
+    "#{INTERFACE_XML_635}",
+    "#{JBGXW_150526_215}",
+    "#{ZDZD_200724_08}",
+    "#{ZMTF_230628_20}",
 };
-constexpr std::array<std::string_view, 6> kSkillOff = {
-    "#e010101Phổ Thông",
-    "#e010101Môn Phái",
-    "#e010101Sinh Hoạt",
-    "#e010101Trận Pháp",
-    "#e010101Tự Động",
-    "#e010101Tông Môn",
-};
+constexpr std::string_view kSkillOn = "#e010101#Y";
+constexpr std::string_view kSkillOff = "#e010101";
 
 // Thẻ tiền của thương thành, cùng số với ShopTabIdx.
 struct MoneyButton {
@@ -711,7 +705,9 @@ void paint_shop(Deck& deck, const Desk& desk) {
 
 void paint_skill_tab(Deck& deck, std::string_view window, std::size_t slot, std::size_t chosen) {
     const bool is_on = slot == chosen;
-    put(deck, window, "Text", is_on ? kSkillOn[slot] : kSkillOff[slot]);
+    std::string text(is_on ? kSkillOn : kSkillOff);
+    text.append(kSkillKeys[slot]);
+    put(deck, window, "Text", text);
     paint_one_check(deck, window, is_on);
 }
 
@@ -739,14 +735,13 @@ void paint_team(Deck& deck, const Desk& desk) {
     for (const std::string_view name : kTeamNames)
         put(deck, name, "Text", "");
     deck.reveal("Team_Button_Frame6");
-    put(deck, "Team_Button_Frame6", "Text", "Tự Lập Đội");
-    put(deck, "Team_Name", "Text", "#gFF0FA0Tự Lập Đội");
+    put(deck, "Team_Button_Frame6", "Text", "#{INTERFACE_XML_892}");
+    put(deck, "Team_Name", "Text", "#{INTERFACE_XML_914}");
 }
 
 [[nodiscard]] std::string_view notice_text(Notice notice) noexcept {
-    constexpr std::string_view kNoGuild =
-        "#c00FFFF#e010101Chưa vào bang hội. Tới Lạc Dương (237, 236) gặp Phạm Thuần Nhân để xin vào bang.";
-    constexpr std::string_view kNoSect = "#c00FFFF#e010101Chưa bái nhập môn phái.";
+    constexpr std::string_view kNoGuild = "#{GMGameInterface_Script_Guild_Not_Guild_Member}";
+    constexpr std::string_view kNoSect = "#{YD_20080421_222}";
     if (notice == Notice::kNoGuild) return kNoGuild;
     if (notice == Notice::kNoSect) return kNoSect;
     return {};

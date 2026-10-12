@@ -1,9 +1,0 @@
-# Nguồn: Forge2 src/render/shaders/shaders.list@d7fcd76. Khác gốc: không.
-# Shader của module render. thienlong_shader dịch danh sách này lúc build (CMakeLists.txt) ra
-# các gói .f2s nằm cạnh exe, trong thư mục shaders.
-shader model.vs model.vs.hlsl
-shader model.ps model.ps.hlsl
-shader ui.vs ui.vs.hlsl
-shader ui.ps ui.ps.hlsl
-shader fx.vs fx.vs.hlsl
-shader fx.ps fx.ps.hlsl

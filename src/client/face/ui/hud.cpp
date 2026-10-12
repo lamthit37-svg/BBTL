@@ -11,6 +11,7 @@
 #include "table/tsv.hpp"
 #include "ui/pace.hpp"
 #include "ui/painter.hpp"
+#include "ui/phone.hpp"
 #include "ui/panel/create_role.hpp"
 #include "ui/panel/deck.hpp"
 #include "ui/panel/desk.hpp"
@@ -527,7 +528,9 @@ void Hud::State::fill_play(const HudView& view) {
     panel::follow_here(maps, view.scene.id);
     panel::show_start(deck);
     panel::MapSeen seen;
-    seen.title = scene_names.find(view.scene.name).value_or(view.scene.name);
+    const std::string_view floor = panel::floor_key(maps);
+    const std::string_view scene_key = floor.empty() ? view.scene.name : floor;
+    seen.title = scene_names.find(scene_key).value_or(scene_key);
     const panel::PlaceText place = place_under(view);
     seen.player_x = place.across;
     seen.player_z = place.down;
@@ -609,7 +612,7 @@ Hud::~Hud() = default;
 
 core::Result<Hud> Hud::open(render::UiPass& pass, const HudDesc& desc) {
     const std::filesystem::path root = desc.data_root / "Interface";
-    const gui::DiskSource files(root);
+    const gui::DiskSource files(root, kPhone);
     gui::GuiSources sources;
     sources.files = &files;
     auto opened = gui::GuiLoader::open(sources);

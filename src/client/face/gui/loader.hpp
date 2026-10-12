@@ -40,15 +40,17 @@ public:
     [[nodiscard]] virtual std::optional<std::string> read(std::string_view path) const = 0;
 };
 
-// Đọc từ một thư mục trên đĩa (CLIENT/data/Interface).
+// Đọc từ một thư mục trên đĩa (assets/client/Interface).
+// phone: layout .xml có bản trong phone/ thì dùng bản đó, Android và iOS chung một thư mục.
 class DiskSource final : public FileSource {
 public:
-    explicit DiskSource(std::filesystem::path root) : root_(std::move(root)) {}
+    explicit DiskSource(std::filesystem::path root, bool phone = false) : root_(std::move(root)), phone_(phone) {}
 
     [[nodiscard]] std::optional<std::string> read(std::string_view path) const override;
 
 private:
     std::filesystem::path root_;
+    bool phone_ = false;
 };
 
 struct GuiSources {

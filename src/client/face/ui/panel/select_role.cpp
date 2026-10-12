@@ -24,11 +24,11 @@ constexpr std::string_view kPlay = "SelectRole_Play";
 constexpr std::string_view kCreate = "SelectRole_Create";
 constexpr std::string_view kDelete = "SelectRole_Delete";
 constexpr std::string_view kBack = "SelectRole_Last";
-constexpr std::string_view kCreateHint = "Tạo nhân vật";
-constexpr std::string_view kNoneChosen = "Chưa chọn nhân vật.";
-constexpr std::string_view kDeleteAsk = "Xoá nhân vật cấp {} #c00ff00{}#cffffff? Nhấn Xoá lần nữa.";
-constexpr std::string_view kSectLine = "#c00ff00Môn phái:#cffffff {}";
-constexpr std::string_view kLevelLine = "#c00ff00Cấp:#cffffff {}";
+constexpr std::string_view kCreateHint = "#{DLJM_XML_22}";
+constexpr std::string_view kNoneChosen = "#{produce_char_sel_Info_Please_Sel_Role}";
+constexpr std::string_view kDeleteAsk = "#{{CHAR_SEL_DELETE_HEAD}}{} #c00ff00{}#cffffff#{{CHAR_SEL_DELETE_TAIL}}";
+constexpr std::string_view kSectLine = "#c00ff00#{{INTERFACE_XML_1143}}#cffffff {}";
+constexpr std::string_view kLevelLine = "#c00ff00#{{INTERFACE_XML_1144}}#cffffff {}";
 
 // Ô nhân vật: nút chọn, tên, môn phái, cấp, lời tạo, ảnh, viền, dòng bán và dòng xoá trễ.
 struct SlotView {

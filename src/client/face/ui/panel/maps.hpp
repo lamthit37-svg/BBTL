@@ -60,6 +60,9 @@ void show_here(Maps& maps) noexcept;
 // Nút bấm của layout. Không phải nút bản đồ thì không đổi trạng thái.
 void press_map(Maps& maps, std::string_view window) noexcept;
 
+// Tên gốc của tầng đang chọn; rỗng khi cảnh không thuộc một nhóm tầng. Bảng dịch tra tên này.
+[[nodiscard]] std::string_view floor_key(const Maps& maps) noexcept;
+
 // Hiện đúng một trong hai bảng, hoặc giấu cả hai. Tiêu đề là tên cảnh đã dịch.
 // resolution là chuỗi View_Resoution, để đặt chữ SceneMap_Text3.
 void paint_maps(Deck& deck, const Maps& maps, std::string_view title, std::string_view resolution);

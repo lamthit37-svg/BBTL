@@ -11,6 +11,8 @@
 #include "test.hpp"
 
 #include <algorithm>
+#include <filesystem>
+#include <fstream>
 #include <array>
 #include <cstddef>
 #include <cstdint>
@@ -390,6 +392,32 @@ void missing_scheme(Context& context) {
     context.expect(!gui::GuiLoader::open(sources).has_value(), "thiếu nguồn tệp là lỗi");
 }
 
+void phone_layout_overrides_pc(Context& context) {
+    namespace files = std::filesystem;
+    std::filesystem::path root = files::temp_directory_path() / "tl_phone_layout";
+    files::create_directories(root / "PlayerFrame");
+    files::create_directories(root / "phone" / "PlayerFrame");
+    files::create_directories(root / "MiniMap");
+    std::ofstream pc(root / "PlayerFrame" / "PlayerFrame.layout.xml");
+    pc << "pc";
+    pc.close();
+    std::ofstream phone(root / "phone" / "PlayerFrame" / "PlayerFrame.layout.xml");
+    phone << "phone";
+    phone.close();
+    std::ofstream only_pc(root / "MiniMap" / "MiniMap.layout.xml");
+    only_pc << "map";
+    only_pc.close();
+    const gui::DiskSource mobile(root, true);
+    const gui::DiskSource desk(root, false);
+    const auto over = mobile.read("PlayerFrame/PlayerFrame.layout.xml");
+    const auto kept = desk.read("PlayerFrame/PlayerFrame.layout.xml");
+    const auto fallback = mobile.read("MiniMap/MiniMap.layout.xml");
+    context.expect(over.has_value() && *over == "phone", "điện thoại lấy bản phone/");
+    context.expect(kept.has_value() && *kept == "pc", "PC giữ layout gốc");
+    context.expect(fallback.has_value() && *fallback == "map", "thiếu bản phone thì dùng PC");
+    files::remove_all(root);
+}
+
 constexpr std::array kCases{
     Case{.name = "windows_and_types", .body = &windows_and_types},
     Case{.name = "images_and_textures", .body = &images_and_textures},
@@ -401,6 +429,7 @@ constexpr std::array kCases{
     Case{.name = "animates_of_windows", .body = &animates_of_windows},
     Case{.name = "animates_optional", .body = &animates_optional},
     Case{.name = "missing_scheme", .body = &missing_scheme},
+    Case{.name = "phone_layout_overrides_pc", .body = &phone_layout_overrides_pc},
 };
 
 } // namespace

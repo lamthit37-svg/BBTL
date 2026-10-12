@@ -28,35 +28,36 @@ constexpr Floor floor_of(int scene_id, std::string_view name) noexcept {
     return floor;
 }
 
+// Tên gốc của cảnh, cùng khoá scene/ trong bảng dịch. Không viết tiếng Việt ở đây.
 constexpr std::array<Floor, 5> kBaoTang{{
-    floor_of(166, "Bảo Tàng Động Tầng 1"),
-    floor_of(169, "Bảo Tàng Động Tầng 2"),
-    floor_of(191, "Bảo Tàng Động Tầng 3"),
-    floor_of(192, "Bảo Tàng Động Tầng 4"),
-    floor_of(193, "Bảo Tàng Động Tầng 5"),
+    floor_of(166, "宝藏洞一层"),
+    floor_of(169, "宝藏洞二层"),
+    floor_of(191, "宝藏洞三层"),
+    floor_of(192, "宝藏洞四层"),
+    floor_of(193, "宝藏洞五层"),
 }};
 constexpr std::array<Floor, 9> kYenVuong{{
-    floor_of(202, "Yên Vương Cổ Mộ Tầng 1"),
-    floor_of(203, "Yên Vương Cổ Mộ Tầng 2"),
-    floor_of(204, "Yên Vương Cổ Mộ Tầng 3"),
-    floor_of(205, "Yên Vương Cổ Mộ Tầng 4"),
-    floor_of(206, "Yên Vương Cổ Mộ Tầng 5"),
-    floor_of(207, "Yên Vương Cổ Mộ Tầng 6"),
-    floor_of(208, "Yên Vương Cổ Mộ Tầng 7"),
-    floor_of(209, "Yên Vương Cổ Mộ Tầng 8"),
-    floor_of(210, "Yên Vương Cổ Mộ Tầng 9"),
+    floor_of(202, "燕王古墓一层"),
+    floor_of(203, "燕王古墓二层"),
+    floor_of(204, "燕王古墓三层"),
+    floor_of(205, "燕王古墓四层"),
+    floor_of(206, "燕王古墓五层"),
+    floor_of(207, "燕王古墓六层"),
+    floor_of(208, "燕王古墓七层"),
+    floor_of(209, "燕王古墓八层"),
+    floor_of(210, "燕王古墓九层"),
 }};
 constexpr std::array<Floor, 3> kTanHoang{{
-    floor_of(262, "Tần Hoàng Địa Cung Tầng 1"),
-    floor_of(263, "Tần Hoàng Địa Cung Tầng 2"),
-    floor_of(264, "Tần Hoàng Địa Cung Tầng 3"),
+    floor_of(262, "秦皇地宫一层"),
+    floor_of(263, "秦皇地宫二层"),
+    floor_of(264, "秦皇地宫三层"),
 }};
 constexpr std::array<Floor, 5> kThongThien{{
-    floor_of(295, "Thông Thiên Tháp Địa Cung"),
-    floor_of(296, "Thông Thiên Tháp Tầng 1"),
-    floor_of(297, "Thông Thiên Tháp Tầng 2"),
-    floor_of(298, "Thông Thiên Tháp Tầng 3"),
-    floor_of(299, "Thông Thiên Tháp Tầng Đỉnh"),
+    floor_of(295, "通天塔地宫"),
+    floor_of(296, "通天塔一层"),
+    floor_of(297, "通天塔二层"),
+    floor_of(298, "通天塔三层"),
+    floor_of(299, "通天塔顶层"),
 }};
 
 constexpr std::string_view kHereBanner = "#{KCJXL_130417_1}";
@@ -99,7 +100,7 @@ void bind_group(Maps& maps, int scene_id) noexcept {
     maps.floor = index_in(group->floors, scene_id);
 }
 
-[[nodiscard]] std::string_view floor_name(const Maps& maps) noexcept {
+std::string_view chosen_floor_key(const Maps& maps) noexcept {
     const std::optional<Group> group = group_of(maps.chosen);
     if (!group) return {};
     const int count = static_cast<int>(group->floors.size());
@@ -167,7 +168,7 @@ void paint_open(Deck& deck, const Maps& maps, Caption caption) {
     if (maps.is_world_open) deck.show("LargeMapFrame");
     if (!maps.is_scene_open) return;
     deck.show("SceneMap_Frame");
-    const std::string_view caption_text = maps.group < 0 ? caption.title : floor_name(maps);
+    const std::string_view caption_text = caption.title;
     std::string& name = deck.compose(kSceneTitle);
     name.append(kTitleTint).append(caption_text);
     std::string& banner = deck.compose(kBanner);
@@ -188,6 +189,10 @@ void paint_shown(Deck& deck, const Maps& maps, std::string_view title, std::stri
 }
 
 } // namespace
+
+std::string_view floor_key(const Maps& maps) noexcept {
+    return chosen_floor_key(maps);
+}
 
 void follow_here(Maps& maps, int here) noexcept {
     if (maps.here < 0) {

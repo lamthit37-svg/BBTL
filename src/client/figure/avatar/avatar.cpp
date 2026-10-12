@@ -12,6 +12,7 @@
 #include "math/vector.hpp"
 #include "ogre/quat.hpp"
 #include "ogre/vec3.hpp"
+#include "classic/bake.hpp"
 #include "resource/model.hpp"
 #include "avatar/rig.hpp"
 
@@ -52,6 +53,7 @@ struct Loader {
     const std::filesystem::path path = loader.root / "Model" / io::path_from_utf8(name + ".glb");
     auto model = resource::load_glb_file(io::utf8_of(path));
     if (!model) return std::unexpected(model.error());
+    classic::note(*model);
     auto bones = resource::bones_of(*model);
     if (!bones) return std::unexpected(bones.error());
     auto kept = std::make_unique<File>(File{.model = std::move(*model), .bones = std::move(*bones)});

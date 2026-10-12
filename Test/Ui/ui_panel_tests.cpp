@@ -131,7 +131,7 @@ void player_frame_of_newcomer(Context& context) {
     context.expect(bar_of(deck, "PlayerFrame_HP") == 1.0F, "máu đầy");
     context.expect(bar_of(deck, "PlayerFrame_MP") == 1.0F, "khí đầy");
     context.expect(bar_of(deck, "PlayerFrame_SP") == 0.0F, "nộ rỗng");
-    context.expect(said(deck, kName) == "#cDED784Thiếu Hiệp", "tên màu vàng");
+    context.expect(said(deck, kName) == "#cDED784#{GMGameInterface_Script_Talk_Info_R_Man}", "tên màu vàng");
     context.expect(said(deck, kLevel) == "#cDED7841", "cấp màu vàng");
     context.expect(is_hidden(deck, "PlayerFrame_DoubleHit1"), "chưa có điểm liên kích");
     context.expect(is_hidden(deck, "PlayerFrame_DoubleHit9"), "ô liên kích cuối");

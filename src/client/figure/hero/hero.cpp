@@ -67,7 +67,7 @@ constexpr Combat first_combat() noexcept {
 
 Hero newcomer() {
     Hero hero;
-    hero.name = "Thiếu Hiệp";
+    hero.name = "#{GMGameInterface_Script_Talk_Info_R_Man}";
     hero.level = 1;
     hero.health = Gauge{.now = kHealthTop, .top = kHealthTop};
     hero.mana = Gauge{.now = kManaTop, .top = kManaTop};

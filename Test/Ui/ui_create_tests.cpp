@@ -578,7 +578,7 @@ void create_without_a_head_asks_to_pick(Context& context) {
     Run run = sample_run({});
     run.panel.is_shown = true;
     run.press("CreateRole_Author");
-    context.expect(last_call(run.calls, Ask::kShowSystemInfo) == "Hãy chọn ảnh chân dung!", "chưa chọn ô thì nhắc");
+    context.expect(last_call(run.calls, Ask::kShowSystemInfo) == "#{DLJM_XML_20}", "chưa chọn ô thì nhắc");
     context.expect(run.calls.size() == 1, "không gọi gì khác");
 }
 

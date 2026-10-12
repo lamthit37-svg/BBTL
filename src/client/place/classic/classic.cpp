@@ -3,7 +3,7 @@
 // dừng ở chỗ hỏng và trả phần đã đọc được hoặc không có gì, không bao giờ đọc ra ngoài chuỗi.
 // Chuỗi cần dùng (từ khoá, số, tên template) đều là ASCII không có ký tự thoát; chuỗi khác (bản
 // chép script, có chữ Hán) chỉ được nhảy qua.
-#include "resource/classic.hpp"
+#include "classic/classic.hpp"
 
 #include "core/number.hpp"
 #include "math/types.hpp"
@@ -13,7 +13,7 @@
 #include <optional>
 #include <string_view>
 
-namespace game::resource {
+namespace game::classic {
 namespace {
 
 using OptionalText = std::optional<std::string_view>;
@@ -299,4 +299,4 @@ std::optional<Classic> read_classic(std::string_view extras) {
     return classic;
 }
 
-} // namespace game::resource
+} // namespace game::classic

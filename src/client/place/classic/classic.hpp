@@ -17,7 +17,7 @@
 #include <optional>
 #include <string_view>
 
-namespace game::resource {
+namespace game::classic {
 
 // kOff: "lighting off". kVertex: tính ở đỉnh (Model_vs.hlsl). kPixel: "lighting on pslit".
 // kTerrain: FairyTerrain, tính ở điểm ảnh và cộng đèn không kẹp từng đèn (shade đặt kRawSum).
@@ -45,4 +45,4 @@ struct Classic {
 // khoá "ogre" hoặc JSON hỏng.
 [[nodiscard]] std::optional<Classic> read_classic(std::string_view extras);
 
-} // namespace game::resource
+} // namespace game::classic

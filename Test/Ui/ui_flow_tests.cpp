@@ -173,7 +173,7 @@ void name_faults_stay_on_create(Context& context) {
     ui::panel::press_flow(flow, "CreateRole_Author", facts);
     const ui::panel::Key info{.window = "CreateRole_Info", .name = "Text"};
     context.expect(flow.step == FlowStep::kCreate && !flow.dirty, "tên trống thì ở lại, chưa ghi sổ");
-    context.expect(flow.create.widgets.value(info) == "Hãy nhập tên nhân vật.", "lời nhắn tên trống");
+    context.expect(flow.create.widgets.value(info) == "#{Login_Create_Role_Info_Name_Is_Empty}", "lời nhắn tên trống");
     type_text(flow, U"Mai", facts);
     ui::panel::press_flow(flow, "CreateRole_Author", facts);
     context.expect(flow.step == FlowStep::kRoles && flow.select.count == 1, "tên hợp lệ thì tạo");
@@ -181,7 +181,7 @@ void name_faults_stay_on_create(Context& context) {
     type_text(flow, U"Mai", facts);
     ui::panel::press_flow(flow, "CreateRole_Author", facts);
     context.expect(flow.step == FlowStep::kCreate, "tên trùng thì ở lại");
-    context.expect(flow.create.widgets.value(info) == "Tên này đã có.", "lời nhắn tên trùng");
+    context.expect(flow.create.widgets.value(info) == "#{Login_Create_Role_Name_Exist}", "lời nhắn tên trùng");
     ui::panel::press_flow(flow, "CreateRole_Last", facts);
     context.expect(flow.step == FlowStep::kRoles && flow.select.count == 1, "quay lại không tạo thêm");
 }

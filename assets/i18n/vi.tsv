@@ -635,6 +635,60 @@ FFSDGZ_120615_72	VIP
 JBGXW_150526_215	Trận Pháp
 ZDZD_200724_08	Tự Động
 ZMTF_230628_20	Tông Môn
+INTERFACE_XML_494	Phổ Thông
+INTERFACE_XML_448	Môn Phái
+INTERFACE_XML_635	Sinh Hoạt
+INTERFACE_XML_892	Tự Lập Đội
+INTERFACE_XML_914	#gFF0FA0Tự Lập Đội
+INTERFACE_XML_1143	Môn phái:
+INTERFACE_XML_1144	Cấp:
+GMGameInterface_Script_DataPool_Info_ShaoLin	Thiếu Lâm
+GMGameInterface_Script_DataPool_Info_Mingjiao	Minh Giáo
+GMGameInterface_Script_DataPool_Info_GaiBang	Cái Bang
+GMGameInterface_Script_DataPool_Info_WuDang	Võ Đang
+GMGameInterface_Script_DataPool_Info_EMei	Nga Mi
+GMGameInterface_Script_DataPool_Info_XingXiu	Tinh Túc
+GMGameInterface_Script_DataPool_Info_DaLi	Thiên Long
+GMGameInterface_Script_DataPool_Info_TianShan	Thiên Sơn
+GMGameInterface_Script_DataPool_Info_XiaoYao	Tiêu Dao
+GMGameInterface_Script_DataPool_Info_WuMenPai	Vô Phái
+GMGameInterface_Script_DataPool_Info_GuSu	Mộ Dung
+XQ_MP_13	Đường Môn
+XQ_MP_14	Quỷ Cốc
+XQ_MP_15	Đào Hoa Đảo
+GMGameInterface_Script_Guild_Not_Guild_Member	Bạn chưa vào bang hội.
+YD_20080421_222	Bạn chưa vào môn phái, hãy mau tìm chưởng môn để bái sư.
+GMGameInterface_Script_Talk_Info_R_Man	Thiếu Hiệp
+produce_char_sel_Info_Please_Sel_Role	Hãy chọn một nhân vật!
+Login_Create_Role_Info_Name_Is_Empty	Hãy nhập tên nhân vật.
+Login_Create_Role_Info_Name_Too_Len	Tên không quá 12 chữ.
+INVALID_CHARACTER_IN_NAME	Tên có ký tự không dùng được.
+Login_Create_Role_Name_Exist	Tên này đã có.
+ROLE_LIST_FULL	Đã đủ 3 nhân vật.
+CHAR_SEL_DELETE_HEAD	Xoá nhân vật cấp 
+CHAR_SEL_DELETE_TAIL	? Nhấn Xoá lần nữa.
+scene/宝藏洞一层	Bảo Tàng Động Tầng 1
+scene/宝藏洞二层	Bảo Tàng Động Tầng 2
+scene/宝藏洞三层	Bảo Tàng Động Tầng 3
+scene/宝藏洞四层	Bảo Tàng Động Tầng 4
+scene/宝藏洞五层	Bảo Tàng Động Tầng 5
+scene/燕王古墓一层	Yên Vương Cổ Mộ Tầng 1
+scene/燕王古墓二层	Yên Vương Cổ Mộ Tầng 2
+scene/燕王古墓三层	Yên Vương Cổ Mộ Tầng 3
+scene/燕王古墓四层	Yên Vương Cổ Mộ Tầng 4
+scene/燕王古墓五层	Yên Vương Cổ Mộ Tầng 5
+scene/燕王古墓六层	Yên Vương Cổ Mộ Tầng 6
+scene/燕王古墓七层	Yên Vương Cổ Mộ Tầng 7
+scene/燕王古墓八层	Yên Vương Cổ Mộ Tầng 8
+scene/燕王古墓九层	Yên Vương Cổ Mộ Tầng 9
+scene/秦皇地宫一层	Tần Hoàng Địa Cung Tầng 1
+scene/秦皇地宫二层	Tần Hoàng Địa Cung Tầng 2
+scene/秦皇地宫三层	Tần Hoàng Địa Cung Tầng 3
+scene/通天塔地宫	Thông Thiên Tháp Địa Cung
+scene/通天塔一层	Thông Thiên Tháp Tầng 1
+scene/通天塔二层	Thông Thiên Tháp Tầng 2
+scene/通天塔三层	Thông Thiên Tháp Tầng 3
+scene/通天塔顶层	Thông Thiên Tháp Tầng Đỉnh
 BDYB_090714_16	Nguyên Bảo
 BDYB_090714_15	Nguyên Bảo Khoá
 YBFQ_XML_3	Phiếu Hoàn

@@ -75,7 +75,7 @@ void play_enters_and_empty_explains(Context& context) {
     ui::panel::open_select(empty, {}, 0);
     ui::panel::press_select(empty, "SelectRole_Play");
     context.expect(!ui::panel::take_select(empty), "chưa có ai thì không vào");
-    context.expect(empty.info == "Chưa chọn nhân vật.", "nói vì sao");
+    context.expect(empty.info == "#{produce_char_sel_Info_Please_Sel_Role}", "nói vì sao");
 }
 
 void empty_slot_asks_to_create(Context& context) {
@@ -94,7 +94,7 @@ void full_list_refuses_create(Context& context) {
     ui::panel::open_select(select, roster, 0);
     ui::panel::press_select(select, "SelectRole_Create");
     context.expect(!ui::panel::take_select(select), "đủ ba thì không tạo");
-    context.expect(select.info == "Đã đủ 3 nhân vật.", "nói đã đủ");
+    context.expect(select.info == "#{ROLE_LIST_FULL}", "nói đã đủ");
 }
 
 void delete_asks_twice_and_other_keys_cancel(Context& context) {
