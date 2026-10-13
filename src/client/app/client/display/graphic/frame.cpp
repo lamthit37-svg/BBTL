@@ -87,6 +87,7 @@ void Display::steer(const Steering& input) noexcept {
     kept.zoom_keys += input.zoom_keys;
     kept.is_home = kept.is_home || input.is_home;
     kept.toggles_pace = kept.toggles_pace != input.toggles_pace;
+    kept.wants_jump = kept.wants_jump || input.wants_jump;
     if (!input.has_walk) return;
     kept.walk_forward = input.walk_forward;
     kept.walk_right = input.walk_right;
@@ -360,6 +361,7 @@ Display::State::Taken Display::State::take_steering() {
     steering.is_home = false;
     if (steering.toggles_pace) shows_pace = !shows_pace;
     steering.toggles_pace = false;
+    steering.wants_jump = false;
     return taken;
 }
 

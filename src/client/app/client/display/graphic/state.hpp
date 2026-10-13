@@ -1,6 +1,9 @@
 // Trạng thái của luồng vẽ. Nằm ở header nội bộ để mỗi domain một tệp dịch.
 #pragma once
 #include "client/display/graphic/prelude.hpp"
+#include "motion/jump.hpp"
+
+#include <random>
 namespace game::client {
 
 // Toàn bộ trạng thái của luồng vẽ. Luồng thông điệp chỉ đọc các ô atomic cuối tệp; mọi thứ khác
@@ -72,6 +75,8 @@ struct Display::State {
     [[nodiscard]] ogre::Vec3 foot() const;
     void move_player(const Steering& keys, float dt);
     void walk_free(const Steering& keys, float dt);
+    void step_jump(bool wants_jump, float dt);
+    [[nodiscard]] float jump_lift(float surface) const noexcept;
     void walk_order(float dt);
     // Một khung Tick_Move rồi kéo điểm vào trong map (VerifyPos).
     void apply_tick(motion::MoveAsk ask);
@@ -393,6 +398,11 @@ struct Display::State {
     // Giá trị >= control::kCursorKinds là ẩn. Luồng vẽ ghi, luồng cửa sổ đọc.
     std::atomic<std::uint8_t> cursor_bits{static_cast<std::uint8_t>(control::CursorKind::kNormal)};
     bool is_player_running = false;
+    // Cú nhảy của người chơi (đơn vị game), đồng hồ mô phỏng (ms, cộng theo bước cố định) làm
+    // mốc cho CObject_Phy::Tick, và số lăn thay cho rand() của gốc.
+    motion::Jump jump;
+    std::uint32_t sim_ms = 0;
+    std::minstd_rand jump_dice{std::random_device{}()};
     bool has_lens = false;
     // Ba nút chuột đang giữ theo sự kiện đã nhận, theo thứ tự của control::MouseButton, và nút
     // nào đã đổi trạng thái trong khung này.

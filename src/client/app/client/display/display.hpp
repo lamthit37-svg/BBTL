@@ -120,6 +120,8 @@ struct Steering {
     // Có nhấn F11: bật hay tắt bảng đo khung hình. Bảng là công cụ của dự án, client gốc không có,
     // nên mặc định ẩn; hai lần nhấn giữa hai khung thì huỷ nhau.
     bool toggles_pace = false;
+    // Có nhấn phím nhảy (Space) từ khung trước; nhảy lặp do giữ phím không tính.
+    bool wants_jump = false;
     // Hướng đi đang giữ so với hướng nhìn, trong [-1, 1]; ghi đè chứ không cộng dồn, và chỉ khi
     // has_walk (để phím mũi tên không xoá hướng đi đang giữ).
     bool has_walk = false;

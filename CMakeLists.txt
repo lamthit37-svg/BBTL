@@ -445,7 +445,7 @@ game_module(control
 target_link_libraries(game_control PUBLIC game_ogre game_core)
 
 # motion: luật đi dọc đường (vị trí là hàm đóng của điểm xuất phát, đường, tốc độ, thời gian).
-game_module(motion src/client/figure/motion/motion.cpp)
+game_module(motion src/client/figure/motion/motion.cpp src/client/figure/motion/jump.cpp)
 target_link_libraries(game_motion PUBLIC game_core)
 
 # nav: lưới đi của cảnh (tệp .path) và luật đi của người chơi, port PathLib.dll và CPath của client
@@ -1164,6 +1164,7 @@ endif()
 game_test(ogre game_ogre)
 game_test(anim game_anim)
 game_test(motion game_motion)
+game_test(jump game_motion)
 # Số vàng của nav do PathLib.dll gốc trả lời (TOOLS/port/pathlib_oracle.py). Đường dẫn là của máy
 # dựng: test chạy trên thiết bị Android không thấy nó nên tự bỏ qua phần so số vàng.
 game_test(nav game_nav game_io)

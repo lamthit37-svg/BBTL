@@ -330,6 +330,7 @@ void on_key_down(Controls& controls, SdlKey key, bool is_repeat) {
     }
     Steering input = camera_key_steering(key);
     input.toggles_pace = key == SdlKey::kF11 && !is_repeat;
+    input.wants_jump = key == SdlKey::kSpace && !is_repeat;
     controls.display->steer(input);
     const int step = direction_of(key);
     const bool has_world = controls.desc->playing != nullptr && controls.is_playing->load(std::memory_order_relaxed);

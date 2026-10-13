@@ -75,6 +75,7 @@ struct Utf8 {
     if (code == SDLK_PAGEDOWN) return SdlKey::kPageDown;
     if (code == SDLK_V) return SdlKey::kV;
     if (code == SDLK_F11) return SdlKey::kF11;
+    if (code == SDLK_SPACE) return SdlKey::kSpace;
     if (code == SDLK_BACKSPACE) return SdlKey::kBackspace;
     if (code == SDLK_TAB) return SdlKey::kTab;
     if (code == SDLK_RETURN || code == SDLK_KP_ENTER) return SdlKey::kEnter;

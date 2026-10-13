@@ -315,7 +315,7 @@ ogre::Vec3 Display::State::foot() const {
     const float z = has_shown ? shown_z : walk.z;
     const float terrain_y = terrain ? terrain->height_at(x, z) : 0.0F;
     const float height = surface_y(held.get(), ground, x, z, terrain_y);
-    return ogre::Vec3{.x = x, .y = height, .z = z};
+    return ogre::Vec3{.x = x, .y = jump_lift(height), .z = z};
 }
 
 void Display::State::ensure_sim() {
@@ -342,12 +342,39 @@ void Display::State::simulate_motion(const Steering& keys, core::Clock::time_poi
         prev_x = walk.x;
         prev_z = walk.z;
         move_player(keys, step);
+        step_jump(keys.wants_jump && index == 0, step);
         ++index;
     }
     const float alpha = sim_clock->alpha();
     shown_x = prev_x + ((walk.x - prev_x) * alpha);
     shown_z = prev_z + ((walk.z - prev_z) * alpha);
     has_shown = true;
+}
+
+// Một bước mô phỏng của cú nhảy: phím nhảy thành CAI_MySelf::Jump (CObject_Character::Jump), rồi
+// CObject_Phy::Tick với mặt đất (đơn vị game) dưới chỗ đứng. Đang chạy là logic MOVE. Chưa có máy chủ
+// nên không gửi CGCharJump; chưa có clip nhảy (hành động 9/12) nên thân bay mà tư thế vẫn là chạy/đứng.
+void Display::State::step_jump(bool wants_jump, float dt) {
+    sim_ms += static_cast<std::uint32_t>(std::lround(dt * 1000.0F));
+    if (ground == nullptr || !scale_ok(ground->file) || !(ground->file.scale.y > 0.0F)) return;
+    const map::TerrainFile& file = ground->file;
+    const float terrain_y = terrain ? terrain->height_at(walk.x, walk.z) : 0.0F;
+    const float surface = surface_y(held.get(), ground, walk.x, walk.z, terrain_y);
+    const float ground_game = (surface - file.origin.y) / file.scale.y;
+    if (wants_jump) {
+        motion::JumpGate gate;
+        gate.is_moving = is_player_running;
+        static_cast<void>(motion::start_jump(jump, gate, ground_game, static_cast<std::uint32_t>(jump_dice())));
+    }
+    static_cast<void>(motion::tick_jump(jump, sim_ms, ground_game));
+}
+
+// Độ cao thế giới của chân: mặt đất, hay thân đang bay khi cao hơn (Axis_Trans GAME sang GFX theo Y).
+float Display::State::jump_lift(float surface) const noexcept {
+    if (!jump.is_jumping || ground == nullptr) return surface;
+    const map::TerrainFile& file = ground->file;
+    const float flying = file.origin.y + (jump.height * file.scale.y);
+    return flying > surface ? flying : surface;
 }
 
 // Phím đi bộ thắng lệnh nhấp chuột; không có phím thì đi tiếp theo lệnh (nếu có).
