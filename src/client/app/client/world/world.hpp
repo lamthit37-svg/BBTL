@@ -49,6 +49,8 @@ struct ShownScene {
     // Mặt cắt xa và gần của camera cảnh, đơn vị thế giới (cột 16 và 17 của bảng cảnh).
     int far_clip = map::kDefaultFarClip;
     int near_clip = map::kDefaultNearClip;
+    // Id nhạc nền của cảnh (cột 9 của bảng cảnh), 0 khi không có.
+    int music = 0;
     scene::SceneFile scene;
     Stage stage;
     // Mặt công trình của cảnh, đơn vị game. Rỗng khi không có tệp .WCollision hoặc tệp hỏng.

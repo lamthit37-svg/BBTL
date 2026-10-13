@@ -278,6 +278,28 @@ void book_reads_clip_planes(Context& context) {
     context.expect(minus->far_clip == 15000 && minus->near_clip == 10, "số âm: mặc định");
 }
 
+// Cột thứ 9 là id nhạc nền trong SoundInfo.txt; thiếu, không phải số hay không dương thì 0.
+void book_reads_scene_music(Context& context) {
+    constexpr std::string_view kTable =
+        "2\tDai Ly\t320\t320\tdali.Scene\tdali.path\tdali.col\tdali.jpg\t2106\t60000\tdali\n"
+        "3\tNgan\t64\t64\tb.Scene\tb.path\tb.col\n"
+        "4\tChu\t64\t64\tc.Scene\tc.path\tc.col\tc.jpg\tabc\t1\tc\n"
+        "5\tAm\t64\t64\td.Scene\td.path\td.col\td.jpg\t-7\t1\td\n";
+    const client::map::BookResult book = client::map::read_book(kTable);
+    context.expect(book.has_value() && book->rows.size() == 4, "bốn dòng dùng được");
+    if (!book || book->rows.size() != 4) return;
+    const client::map::SceneRef* dali = client::map::find_id(*book, 2);
+    const client::map::SceneRef* brief = client::map::find_id(*book, 3);
+    const client::map::SceneRef* word = client::map::find_id(*book, 4);
+    const client::map::SceneRef* minus = client::map::find_id(*book, 5);
+    if (dali == nullptr || brief == nullptr || word == nullptr || minus == nullptr) return;
+    context.expect(dali->music == 2106, "Đại Lý là nhạc 2106 như SoundInfo.txt");
+    context.expect(client::map::radar_of(*book, *dali) == "dali", "token minimap vẫn ở cột 11");
+    context.expect(brief->music == 0, "dòng thiếu cột: không có nhạc");
+    context.expect(word->music == 0, "chữ: không có nhạc");
+    context.expect(minus->music == 0, "số âm: không có nhạc");
+}
+
 // Số 16 bit từ hai kênh (cao, thấp) của một texel, đúng như word16 của terrain.ps.hlsl.
 [[nodiscard]] float word16(std::uint8_t high, std::uint8_t low) noexcept {
     return static_cast<float>((static_cast<std::uint32_t>(high) << 8U) | low) / 65535.0F;
@@ -813,6 +835,7 @@ void real_gate_file_matches_the_client(Context& context) {
 }
 
 constexpr std::array kCases{
+    Case{.name = "book_reads_scene_music", .body = &book_reads_scene_music},
     Case{.name = "terrain_origin_matches_original", .body = &terrain_origin_matches_original},
     Case{.name = "terrain_rejects_bad_documents", .body = &terrain_rejects_bad_documents},
     Case{.name = "terrain_height_type_defaults_to_standard",

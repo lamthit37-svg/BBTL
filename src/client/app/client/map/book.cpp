@@ -27,6 +27,8 @@ struct Cells {
     std::string_view five;
     // Cột thứ 6: tệp lưới đi (.path); rỗng khi dòng ngắn hơn.
     std::string_view six;
+    // Cột thứ 9: id nhạc nền; rỗng khi dòng ngắn hơn.
+    std::string_view music;
     // Cột thứ 11 (szSceneMap); rỗng khi dòng ngắn hơn.
     std::string_view radar;
     // Cột thứ 16 và 17: mặt cắt xa và gần của camera; rỗng khi dòng ngắn hơn.
@@ -37,7 +39,8 @@ struct Cells {
 
 // Số cột nằm giữa tệp lưới đi (cột thứ 6) và token minimap (cột thứ 11), rồi giữa token đó và
 // mặt cắt xa (cột thứ 16).
-constexpr int kCellsBeforeRadar = 4;
+constexpr int kCellsBeforeMusic = 2;
+constexpr int kCellsBeforeRadar = 1;
 constexpr int kCellsBeforeClip = 4;
 
 struct Seen {
@@ -103,6 +106,9 @@ struct Cursor {
     cells.four = next_cell(cursor);
     cells.five = next_cell(cursor);
     cells.six = next_cell(cursor);
+    for (int skipped = 0; skipped < kCellsBeforeMusic; ++skipped)
+        static_cast<void>(next_cell(cursor));
+    cells.music = next_cell(cursor);
     for (int skipped = 0; skipped < kCellsBeforeRadar; ++skipped)
         static_cast<void>(next_cell(cursor));
     cells.radar = next_cell(cursor);
@@ -128,6 +134,12 @@ void take_clip(SceneRef& row, const Cells& cells) {
     if (*near_clip <= 0 || *far_clip <= *near_clip) return;
     row.far_clip = *far_clip;
     row.near_clip = *near_clip;
+}
+
+// Cột 9. Thiếu, không phải số hay không dương thì cảnh không có nhạc riêng.
+void take_music(SceneRef& row, const Cells& cells) {
+    const std::optional<int> music = core::parse_whole_int(cells.music);
+    if (music && *music > 0) row.music = *music;
 }
 
 [[nodiscard]] bool keep_row(const Cells& cells) noexcept {
@@ -161,6 +173,7 @@ void add_row(Book& book, const Cells& cells) {
     row.path_at = has_path ? offset_of(book.text, cells.six) : 0U;
     row.path_len = has_path ? static_cast<std::uint16_t>(cells.six.size()) : std::uint16_t{0};
     take_clip(row, cells);
+    take_music(row, cells);
     book.rows.push_back(row);
 }
 

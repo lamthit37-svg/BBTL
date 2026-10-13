@@ -71,6 +71,7 @@ void load_walk(ShownScene& shown, const std::filesystem::path& scene_folder, std
     shown->z_size = row.z_size;
     shown->far_clip = row.far_clip;
     shown->near_clip = row.near_clip;
+    shown->music = row.music;
     shown->scene = std::move(*scene);
     shown->stage = stage_of(shown->scene);
     attach_sky_file(shown->stage, scene_folder, shown->scene.sky_file);

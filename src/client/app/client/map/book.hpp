@@ -32,6 +32,9 @@ struct SceneRef {
     int z_size = 0;
     int far_clip = kDefaultFarClip;
     int near_clip = kDefaultNearClip;
+    // Cột thứ 9: id nhạc nền trong Config/SoundInfo.txt (2106 Đại Lý là music\\newdali.mp3); 0 khi
+    // dòng thiếu cột hay ô không phải số dương: cảnh không có nhạc riêng.
+    int music = 0;
     std::uint32_t name_at = 0;
     std::uint32_t file_at = 0;
     std::uint32_t radar_at = 0;

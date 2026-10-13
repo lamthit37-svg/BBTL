@@ -108,6 +108,8 @@ struct Session {
     // Đang ở màn chơi: cảnh của playing được đưa cho phần hiển thị mỗi vòng. Màn đăng nhập thì chưa.
     std::atomic<bool>* is_playing = nullptr;
     int shown_id = -1;
+    // Loa của lần chạy: vào cảnh mới thì đổi sang nhạc nền của cảnh. nullptr khi chưa mở.
+    audio::Engine* speaker = nullptr;
     // Tra tên cảnh theo ngôn ngữ của bản dựng, cho tiêu đề cửa sổ.
     SceneTitle scene_title;
     LoopStats stats;
@@ -433,6 +435,22 @@ void drain_input(SdlInput& input, Controls& controls, std::vector<SdlAction>& ac
     for (const SdlAction& action : actions) apply_action(controls, action);
 }
 
+// Thời gian chuyển nhạc khi đổi cảnh, giây: nhạc cũ nhỏ dần trong lúc nhạc mới lên.
+constexpr float kSceneMusicFade = 1.0F;
+
+// Nhạc nền của cảnh theo cột 9 của bảng cảnh, id tra trong sound_table.xml. Cảnh không có nhạc
+// riêng thì giữ bài đang phát. Lỗi (thiếu id, thiếu tệp) chỉ ghi log: không chặn việc vào cảnh.
+void play_scene_music(audio::Engine* speaker, const world::ShownScene& scene) {
+    if (speaker == nullptr || !speaker->device_is_open() || scene.music <= 0) return;
+    const std::string id = std::to_string(scene.music);
+    const core::Status played = speaker->play_music(id, kSceneMusicFade);
+    if (played) {
+        std::println("Âm thanh: nhạc nền cảnh {} là id {}", scene.id, id);
+        return;
+    }
+    std::println(stderr, "Âm thanh: nhạc nền cảnh {} (id {}): {}", scene.id, id, played.error());
+}
+
 // Cảnh đang chơi đổi thì in một dòng và đặt lại tiêu đề cửa sổ, tên cảnh theo ngôn ngữ của bản dựng.
 void note_scene(Session& session) {
     const std::shared_ptr<const world::ShownScene> scene = world::current_scene(*session.desc->playing);
@@ -440,6 +458,7 @@ void note_scene(Session& session) {
     session.shown_id = scene->id;
     std::println("Vào cảnh resid {} ({})", scene->id, scene->scene_file);
     session.opened->set_title(std::string(kGameTitle) + " — " + session.scene_title(scene->name));
+    play_scene_music(session.speaker, *scene);
 }
 
 // Ảnh lấy từ Interface/cursor. Ô trống thì mũi tên hệ thống.
@@ -622,6 +641,7 @@ void begin_speaker(audio::Engine& speaker, const std::filesystem::path& data_roo
     session.cursors = load_game_cursors(desc.data_folder);
     audio::Engine speaker;
     begin_speaker(speaker, desc.data_folder);
+    session.speaker = &speaker;
     pump_until_done(session);
     const audio::Stats heard = speaker.stats();
     std::println("Âm thanh: {}", audio::describe(heard));
