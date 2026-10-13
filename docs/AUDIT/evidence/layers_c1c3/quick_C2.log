@@ -1,0 +1,11 @@
+# sha=cb0c6d01e1fde807be6c819ae34b6a18ec971b3e thay đổi chưa commit (cmake/src/engine/CMakeLists)=0
+# lệnh: cmake -DGAME_SOURCE_DIR=D:\THIENLONG_wt\layers -P cmake\GameLayers.cmake
+CMake Error at cmake/GameLayers.cmake:206 (message):
+  tầng: module metrics chưa có trong bảng
+
+
+CMake Error at cmake/GameLayers.cmake:206 (message):
+  tầng: module metrics/serve chưa có trong bảng
+
+
+exit=1

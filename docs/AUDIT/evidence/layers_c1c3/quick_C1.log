@@ -1,0 +1,41 @@
+# sha=54e9fdc548e5f5464e3e51a3b4248a8064d181a2 thay đổi chưa commit=0
+# lệnh: cmake -DGAME_SOURCE_DIR=D:\THIENLONG_wt\layers -P cmake\GameLayers.cmake
+cmake : CMake Error at cmake/GameLayers.cmake:134 (message):
+At C:\Users\myhea\AppData\Local\Temp\ps-script-d1718778-e492-4f98-a1ce-7eb243747640.ps1:85 char:54
++ ... yers'; $o = cmake "-DGAME_SOURCE_DIR=$d" -P "$d\cmake\GameLayers.cmak ...
++                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (CMake Error at ...:134 (message)::String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+  tß║ºng: classic ΓåÆ render (src/client/place/classic/bake.hpp)
+Call Stack (most recent call first):
+  cmake/GameLayers.cmake:152 (game_layer_violation)
+  cmake/GameLayers.cmake:199 (game_check_include)
+  cmake/GameLayers.cmake:210 (game_check_module)
+
+
+CMake Error at cmake/GameLayers.cmake:134 (message):
+  tß║ºng: classic ΓåÆ resource (src/client/place/classic/bake.hpp)
+Call Stack (most recent call first):
+  cmake/GameLayers.cmake:152 (game_layer_violation)
+  cmake/GameLayers.cmake:199 (game_check_include)
+  cmake/GameLayers.cmake:210 (game_check_module)
+
+
+CMake Error at cmake/GameLayers.cmake:134 (message):
+  tß║ºng: gate ΓåÆ guard (src/server/gate/motion.hpp)
+Call Stack (most recent call first):
+  cmake/GameLayers.cmake:152 (game_layer_violation)
+  cmake/GameLayers.cmake:199 (game_check_include)
+  cmake/GameLayers.cmake:210 (game_check_module)
+
+
+CMake Error at cmake/GameLayers.cmake:206 (message):
+  tß║ºng: module metrics ch╞░a c├│ trong bß║úng
+
+
+CMake Error at cmake/GameLayers.cmake:206 (message):
+  tß║ºng: module metrics/serve ch╞░a c├│ trong bß║úng
+
+
+exit=1
