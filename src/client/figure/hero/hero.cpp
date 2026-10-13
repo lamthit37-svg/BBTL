@@ -1,7 +1,10 @@
 #include "hero/hero.hpp"
 
 #include <algorithm>
+#include <charconv>
+#include <cstddef>
 #include <cstdint>
+#include <limits>
 
 namespace game::hero {
 namespace {
@@ -63,7 +66,66 @@ constexpr Combat first_combat() noexcept {
     return combat;
 }
 
+// Bảng DBC của client gốc: dấu, số cột, số dòng, cỡ khối chuỗi; rồi kiểu từng cột, các dòng, khối chuỗi.
+constexpr std::uint32_t kDbcMagic = 0xDDBBCC00U;
+constexpr std::size_t kDbcHead = 16;
+constexpr std::uint32_t kExpColumns = 2;
+constexpr std::uint32_t kIntType = 0;
+constexpr std::uint32_t kStringType = 2;
+
+[[nodiscard]] std::uint32_t le32(std::string_view bytes, std::size_t at) noexcept {
+    std::uint32_t value = 0;
+    for (std::size_t index = 0; index < 4; ++index) {
+        const auto byte = static_cast<std::uint32_t>(static_cast<unsigned char>(bytes[at + index]));
+        value |= byte << (8U * index);
+    }
+    return value;
+}
+
+[[nodiscard]] std::optional<std::int64_t> need_at(std::string_view strings, std::uint32_t offset) noexcept {
+    if (offset >= strings.size()) return std::nullopt;
+    const std::string_view rest = strings.substr(offset);
+    const std::size_t end = rest.find('\0');
+    if (end == std::string_view::npos || end == 0) return std::nullopt;
+    std::int64_t value = 0;
+    const char* const first = rest.data();
+    const char* const last = first + end;
+    const auto [stop, fault] = std::from_chars(first, last, value);
+    if (fault != std::errc{} || stop != last || value <= 0) return std::nullopt;
+    return value;
+}
+
 } // namespace
+
+std::expected<ExpTable, std::string_view> read_exp_table(std::string_view bytes) {
+    if (bytes.size() < kDbcHead || le32(bytes, 0) != kDbcMagic) return std::unexpected("không phải bảng DBC");
+    const std::uint32_t columns = le32(bytes, 4);
+    const std::uint32_t rows = le32(bytes, 8);
+    const std::uint32_t text_size = le32(bytes, 12);
+    if (columns != kExpColumns) return std::unexpected("bảng kinh nghiệm phải có hai cột");
+    const std::uint64_t body = (static_cast<std::uint64_t>(rows) + 1U) * columns * 4U + text_size;
+    if (body > bytes.size() - kDbcHead) return std::unexpected("bảng kinh nghiệm cụt");
+    if (le32(bytes, kDbcHead) != kIntType || le32(bytes, kDbcHead + 4) != kStringType)
+        return std::unexpected("kiểu cột của bảng kinh nghiệm phải là INT, STRING");
+    const std::size_t rows_at = kDbcHead + (columns * 4U);
+    const std::size_t text_at = rows_at + (static_cast<std::size_t>(rows) * columns * 4U);
+    const std::string_view strings = bytes.substr(text_at, text_size);
+    ExpTable table;
+    table.reserve(rows);
+    for (std::uint32_t row = 0; row < rows; ++row) {
+        const std::size_t at = rows_at + (static_cast<std::size_t>(row) * columns * 4U);
+        if (le32(bytes, at) != row + 1U) return std::unexpected("cấp của bảng kinh nghiệm không liền từ 1");
+        const std::optional<std::int64_t> need = need_at(strings, le32(bytes, at + 4));
+        if (!need) return std::unexpected("số kinh nghiệm cần không hợp lệ");
+        table.push_back(*need);
+    }
+    return table;
+}
+
+std::optional<std::int64_t> exp_need(std::span<const std::int64_t> table, std::int32_t level) noexcept {
+    if (level < 1 || static_cast<std::size_t>(level) > table.size()) return std::nullopt;
+    return table[static_cast<std::size_t>(level) - 1];
+}
 
 Hero newcomer() {
     Hero hero;

@@ -9,8 +9,12 @@
 
 #include <algorithm>
 #include <cstdint>
+#include <expected>
 #include <optional>
+#include <span>
 #include <string>
+#include <string_view>
+#include <vector>
 
 namespace game::hero {
 
@@ -163,5 +167,16 @@ struct Hero {
 // Nhân vật vừa tạo, chưa nhập môn phái: cấp 1, máu và khí đầy, nộ 0, kinh nghiệm 0, chỉ số gốc
 // và chỉ số chiến đấu theo cấu hình của máy chủ gốc.
 [[nodiscard]] Hero newcomer();
+
+// Kinh nghiệm cần để lên cấp kế, theo Config/PlayerExpLevel.txt của client 2026: bảng DBC hai cột
+// (INT cấp, STRING số cần, vì cấp cao vượt int32 của cột INT). Phần tử i là số cần ở cấp i + 1.
+using ExpTable = std::vector<std::int64_t>;
+
+// Đọc cả tệp DBC. Lỗi là câu tiếng Việt ngắn: sai dấu bảng, sai kiểu cột, cấp không liền từ 1, số
+// cần không phải số nguyên dương, hoặc tham chiếu chuỗi ra ngoài khối chuỗi.
+[[nodiscard]] std::expected<ExpTable, std::string_view> read_exp_table(std::string_view bytes);
+
+// Số cần ở một cấp; cấp ngoài bảng thì nullopt (giữ trần cũ, không bịa số).
+[[nodiscard]] std::optional<std::int64_t> exp_need(std::span<const std::int64_t> table, std::int32_t level) noexcept;
 
 } // namespace game::hero

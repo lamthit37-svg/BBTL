@@ -141,6 +141,13 @@ void Display::State::apply_role() {
     hero.level = role->level;
     hero.portrait = hero::PortraitId{role->portrait};
     hero.sect = static_cast<hero::Sect>(role->sect);
+    // Trần kinh nghiệm theo cấp thật của nhân vật (Config/PlayerExpLevel.txt), không giữ số của cấp 1.
+    const std::filesystem::path levels = data_root / "Config" / "PlayerExpLevel.txt";
+    const auto table = hero::read_exp_table(read_save_text(levels));
+    if (!table) std::println(stderr, "Nhân vật: {}: {}", io::utf8_of(levels), table.error());
+    const std::optional<std::int64_t> need = table ? hero::exp_need(*table, hero.level) : std::nullopt;
+    if (table && !need) std::println(stderr, "Nhân vật: cấp {} không có trong bảng kinh nghiệm", hero.level);
+    if (need) hero.experience.top = *need;
     role_look = {};
     role_look.face = role->face;
     role_look.hair = role->hair;

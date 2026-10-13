@@ -6,6 +6,9 @@
 #include "test.hpp"
 
 #include <array>
+#include <cstdint>
+#include <string>
+#include <string_view>
 
 namespace game::test {
 namespace {
@@ -79,7 +82,49 @@ void level_up_needs_full_experience(Context& context) {
     context.expect(marks.covers(child), "thêm mốc rồi thì đủ");
 }
 
+// Bảng DBC hai cột dựng tay theo đúng bố cục của Config/PlayerExpLevel.txt.
+std::string exp_dbc(std::uint32_t second_level, std::string_view texts, std::uint32_t second_offset) {
+    std::string bytes;
+    const auto put = [&bytes](std::uint32_t value) {
+        for (int shift = 0; shift < 32; shift += 8) bytes.push_back(static_cast<char>((value >> shift) & 0xFFU));
+    };
+    put(0xDDBBCC00U);
+    put(2);
+    put(2);
+    put(static_cast<std::uint32_t>(texts.size()));
+    put(0);
+    put(2);
+    put(1);
+    put(0);
+    put(second_level);
+    put(second_offset);
+    bytes.append(texts);
+    return bytes;
+}
+
+void exp_table_reads_client_layout(Context& context) {
+    using namespace std::string_view_literals;
+    const std::string good = exp_dbc(2, "90\0"
+                                        "1707414660\0"sv, 3);
+    const auto table = hero::read_exp_table(good);
+    context.expect(table.has_value(), "bảng đúng thì đọc được");
+    if (!table) return;
+    context.expect(table->size() == 2, "hai cấp");
+    context.expect(hero::exp_need(*table, 1) == 90, "cấp 1 cần 90 như client 2026");
+    context.expect(hero::exp_need(*table, 2) == 1707414660, "số vượt int32 vẫn đúng");
+    context.expect(!hero::exp_need(*table, 0) && !hero::exp_need(*table, 3), "ngoài bảng thì không có");
+    context.expect(!hero::read_exp_table(exp_dbc(3, "90\0"
+                                                    "5\0"sv, 3)), "cấp nhảy thì từ chối");
+    context.expect(!hero::read_exp_table(exp_dbc(2, "90\0"
+                                                    "x\0"sv, 3)), "chữ không phải số thì từ chối");
+    context.expect(!hero::read_exp_table(exp_dbc(2, "90\0"
+                                                    "5\0"sv, 99)), "chuỗi ngoài khối thì từ chối");
+    context.expect(!hero::read_exp_table(good.substr(0, good.size() - 4)), "tệp cụt thì từ chối");
+    context.expect(!hero::read_exp_table(""), "tệp rỗng thì từ chối");
+}
+
 constexpr std::array kCases{
+    Case{.name = "exp_table_reads_client_layout", .body = &exp_table_reads_client_layout},
     Case{.name = "fill_keeps_precision", .body = &fill_keeps_precision},
     Case{.name = "newcomer_matches_server", .body = &newcomer_matches_server},
     Case{.name = "newcomer_sheet_matches_server", .body = &newcomer_sheet_matches_server},
