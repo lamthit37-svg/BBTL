@@ -754,7 +754,7 @@ kết luận ngay dưới mục đó chứ không xoá.
     (nút giữ 1 giây quay 0,15 vòng). Cần: tháo hàm ở slot `0x498` của lớp mà `0x14103e688` trỏ tới, đọc cách nó đổi số này ra góc mỗi khung.
     (b) `SequenceFrame` của hệ hạt: chỉ đọc `stacks`, `slices`, `repeat_times`, `loop`, `pingpang`, `start_range`; `play_mode`, `head_and_tail`,
     `play_times`, `baned_frames` chưa biết nghĩa (mọi giá trị coi như `normal`, `none`). Cần: tháo `SequenceFrameAffector` trong `Plugin_ParticleFX2.dll`.
-    (c) Mặt đất nướng một ảnh (8 điểm ảnh mỗi ô, trần 4096) lọc đúng nhưng chi tiết đá chạm lớn (sân Lạc Dương, bậc thềm) thấp hơn bản gốc vẽ từng
+    (c) Mặt đất nướng một ảnh (16 điểm ảnh mỗi ô, trần 8192 trên PC; 8 điểm ở bản đầu quá mờ theo chủ dự án) lọc đúng nhưng chi tiết đá chạm lớn (sân Lạc Dương, bậc thềm) thấp hơn bản gốc vẽ từng
     ô theo độ phân giải màn hình; làm cho đủ cần shader mặt đất nhiều lớp (lớp cọ, lớp phủ, lightmap) thay cho ảnh nướng. (d) Bản đồ thế giới
     chưa có tooltip, bạn bè, đối địch, cờ chỉ huy, thông tin bang chiếm; ảnh nhãn thành phố đang là chữ Hán (ảnh dựng sẵn). (e) Bốn tham chiếu mà
     chính dữ liệu gốc cũng thiếu: ảnh `MainMenuBar/EXPBar_3`, `Chat/CommonEditBoxBK`, hoạt ảnh `CoolDownEnd2`, bộ ảnh `BaseInterface` (không có trong

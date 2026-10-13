@@ -22,7 +22,7 @@ struct SurfaceInputs {
     // Đúng thứ tự texture trong .Terrain. Thiếu phần tử thì lớp trỏ tới nó bị bỏ.
     std::span<const SurfaceImage> brushes;
     const SurfaceImage* light = nullptr;
-    // Trần cạnh dài của ảnh nướng (điểm ảnh): tám điểm ảnh mỗi ô khi bản đồ đủ nhỏ, giảm một nửa tới khi vừa. PC dùng 4096, điện
+    // Trần cạnh dài của ảnh nướng (điểm ảnh): 16 điểm ảnh mỗi ô khi bản đồ đủ nhỏ, giảm một nửa tới khi vừa. PC dùng 8192, điện
     // thoại 2048 (cỡ texture tối thiểu của GLES 3 là 2048).
     std::uint32_t max_edge = 2048;
 };

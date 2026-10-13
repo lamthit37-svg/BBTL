@@ -189,7 +189,7 @@ struct Pyramid {
     Pyramid pyramid;
     if (!image_ok(base)) return pyramid;
     pyramid.levels.push_back(base);
-    // Mỗi mức nhỏ một nửa tới 1 x 1: tối đa 12 mức cho ảnh 4096 cạnh; reserve để địa chỉ vùng nhớ không đổi.
+    // Mỗi mức nhỏ một nửa tới 1 x 1: tối đa 14 mức cho ảnh 8192 cạnh; reserve để địa chỉ vùng nhớ không đổi.
     pyramid.storage.reserve(16);
     while (pyramid.levels.back().width > 1U || pyramid.levels.back().height > 1U) {
         const SurfaceImage& from = pyramid.levels.back();

@@ -657,7 +657,7 @@ struct DecodeOne {
     return view;
 }
 
-// Cạnh dài tối đa của ảnh mặt đất nướng: PC 4096 (tám điểm ảnh mỗi ô của bản đồ 512 x 512), điện thoại 2048 vì GLES 3 chỉ
+// Cạnh dài tối đa của ảnh mặt đất nướng: PC 8192 (16 điểm ảnh mỗi ô của bản đồ 512 x 512; đo 2026-10-13: bake 2,7 s, ~340 MB VRAM kể cả mip), điện thoại 2048 vì GLES 3 chỉ
 // bảo đảm texture 2048.
 #if defined(__ANDROID__) || defined(__APPLE__)
 inline constexpr std::uint32_t kSurfaceEdge = 2048;

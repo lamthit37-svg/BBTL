@@ -132,7 +132,7 @@
   - Màn chơi, chủ dự án giao ngày 2026-10-13 ("hoàn tất toàn bộ giao diện chính xác", "fix triệt để mọi thứ làm mất texture"): bản
     đồ lớn (SceneMap) và bản đồ thế giới (LargeMap, widget WorldMap) port từ mã máy, hòm đồ và ô tiền, xoay người mẫu bảng nhân vật,
     con trỏ chuột của game (22 con trỏ đọc từ tài nguyên của `Game.exe`, `TOOLS/content/export_cursors.py`), phông Việt cho chữ có dấu
-    (GBK12 cho chữ gốc, VTNAM14 khi cả run có chữ Việt), mặt đất nướng lọc tam tuyến 8 điểm ảnh mỗi ô (trần 4096 trên PC, 2048 trên điện
+    (GBK12 cho chữ gốc, VTNAM14 khi cả run có chữ Việt), mặt đất nướng lọc tam tuyến 16 điểm ảnh mỗi ô (trần 8192 trên PC, 2048 trên điện
     thoại), hệ hạt thêm `SequenceFrame`, `DirectionRandomiser` và kiểu trộn `zero one_minus_src_colour`. Dữ liệu cần chạy theo thứ tự:
     `collect_map.py` rồi `collect_fx.py` (thiếu bước sau thì tên hệ hạt của cảnh "không có trong thư viện" và hiệu ứng biến mất), rồi
     `export_worldmap.py` (ghép `jpg_WorldMap00..19.dds` thành `Interface/LargeMap/WorldMap.png`). Tài liệu đo ở `TAILIEU/MAN-CHOI-GIAO-DIEN-2026.md`.

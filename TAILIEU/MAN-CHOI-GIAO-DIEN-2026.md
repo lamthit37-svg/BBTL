@@ -72,7 +72,7 @@
 ## 7. Mặt đất của cảnh (nướng ảnh cọ)
 
 - Bản gốc vẽ từng ô địa hình bằng GPU: hai lớp cọ (pixmap con của ảnh cọ), lớp phủ hòa theo alpha, nhân lightmap; ảnh cọ lọc có mip.
-  Bản port nướng cả mặt đất thành MỘT ảnh (`client/map/surface.cpp`): tám điểm ảnh mỗi ô khi cạnh nướng tối đa là 4096 (PC; điện thoại 2048 thì bốn),
+  Bản port nướng cả mặt đất thành MỘT ảnh (`client/map/surface.cpp`): 16 điểm ảnh mỗi ô khi cạnh nướng tối đa là 8192 (PC; điện thoại 2048 thì bốn),
   lấy mẫu tam tuyến từ chuỗi mip của cọ (mức = log2 số điểm ảnh cọ mà một điểm ảnh nướng phủ). Lấy mẫu "điểm gần nhất" cũ biến hoạ tiết mịn (hoa văn
   rồng giữa sân Lạc Dương) thành nhiễu màu. Chi tiết của đá chạm lớn vẫn thấp hơn bản gốc (vẽ theo ô ở độ phân giải màn hình): cách làm đủ là shader mặt
   đất nhiều lớp (`docs/NGHI-NGO.md`).
