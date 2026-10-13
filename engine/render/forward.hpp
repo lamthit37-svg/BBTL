@@ -130,6 +130,11 @@ public:
     // Ma trận không gian mô hình của mọi nút ở tư thế nghỉ, theo chỉ số nút.
     [[nodiscard]] std::span<const math::Matrix4> rest() const noexcept { return rest_; }
 
+    // Mọi skin của model, ở tư thế nghỉ, cho ma trận khớp bằng đơn vị: lưới skin vẽ ra y như lưới không
+    // skin đặt ở không gian của instance. Model như vậy vẽ được bằng bản sao instanced (Instance::copies)
+    // khi instance không đặt tư thế (nodes và joints rỗng). Model không skin cũng đúng.
+    [[nodiscard]] bool is_rest_neutral() const noexcept { return is_rest_neutral_; }
+
 private:
     friend class Forward;
 
@@ -141,6 +146,7 @@ private:
     // Một nhóm cho mỗi chất liệu của model, rồi một nhóm cho primitive không khai chất liệu.
     std::vector<gpu::BindGroupHandle> materials_;
     std::vector<math::Matrix4> rest_;
+    bool is_rest_neutral_ = false;
     // Khoảng cách xa nhất từ gốc model tới một đỉnh ở tư thế nghỉ (bán kính bao của Ogre::Mesh),
     // để biết đèn điểm nào còn với tới vật thể và vật thể còn chạm khung nhìn hay không.
     float radius_ = 0.0F;
@@ -157,7 +163,8 @@ struct Instance {
     // Ma trận không gian mô hình của mọi nút, theo chỉ số nút (từ anim, qua resource::Rig); rỗng
     // thì vẽ ở tư thế nghỉ.
     std::span<const math::Matrix4> nodes;
-    // Rỗng: một bản ở world. Khác rỗng: mỗi ma trận là một bản sao không skin; world bị bỏ.
+    // Rỗng: một bản ở world. Khác rỗng: mỗi ma trận là một bản sao; world bị bỏ. Model có skin chỉ được
+    // vẽ bằng bản sao khi Drawable::is_rest_neutral và instance không đặt tư thế (nodes, joints rỗng).
     std::span<const math::Matrix4> copies;
     // Ma trận skin dựng sẵn theo thứ tự khớp của skin: khác rỗng thì thay phép nodes * inverse_bind
     // khi dựng bảng khớp, để nơi gọi dùng đúng công thức skin của OGRE (Bone::_getOffsetTransform),

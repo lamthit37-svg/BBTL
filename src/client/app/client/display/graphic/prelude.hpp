@@ -779,9 +779,11 @@ inline void push_height_vertex(resource::Primitive& primitive, const game::clien
     return material.alpha != resource::Alpha::kBlend;
 }
 
-// Model không skin và không trộn alpha: mọi bản sao vẽ bằng một lệnh.
-[[nodiscard]] inline bool can_batch(const resource::Model& model) noexcept {
-    if (!model.skins.empty()) return false;
+// Model đặc (không trộn alpha) mà vẽ ở tư thế nghỉ như lưới không skin (không skin, hoặc skin trung tính
+// ở tư thế nghỉ: Drawable::is_rest_neutral): mọi bản sao vẽ bằng một lệnh. Cảnh tĩnh không đặt tư thế cho
+// vật thể, nên skin của chúng chỉ là bộ xương dự phòng.
+[[nodiscard]] inline bool can_batch(const resource::Model& model, const render::Drawable& drawable) noexcept {
+    if (!model.skins.empty() && !drawable.is_rest_neutral()) return false;
     return std::ranges::all_of(model.materials, is_opaque);
 }
 

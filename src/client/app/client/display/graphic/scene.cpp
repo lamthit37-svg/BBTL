@@ -296,7 +296,7 @@ void Display::State::place_prop(PropPlace place) {
     if (!has_points(local)) return;
     const math::Matrix4 placed = world_of(place.prop->world);
     grow_world(local, placed);
-    if (!can_batch(kept.at(index).loaded.model)) {
+    if (!can_batch(kept.at(index).loaded.model, kept.at(index).loaded.drawable)) {
         push_matrix(kept.at(index).loaded.drawable, placed);
         return;
     }

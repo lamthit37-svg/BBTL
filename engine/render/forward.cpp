@@ -233,7 +233,9 @@ struct Slot {
     bool models_dirty = false;
 };
 
-// Khoảng của một skin trong bảng khớp của khung; count 0 là lưới không skin.
+// Khoảng của một skin trong bảng khớp của khung; count 0 là lưới không skin. is_flat: lưới có skin mà
+// ở tư thế nghỉ skin là phép đơn vị, nên vẽ như lưới không skin ở không gian của instance (bỏ qua
+// biến đổi của nút mang nó, đúng như skin làm).
 struct Skinning {
     std::uint32_t base = 0;
     std::uint32_t count = 0;
@@ -242,6 +244,7 @@ struct Skinning {
 // Một lệnh vẽ đã gom.
 struct Item {
     const resource::GpuPrimitive* primitive = nullptr;
+    bool is_flat = false;
     gpu::BindGroupHandle material{};
     DrawBlock block{};
     std::uint32_t pipeline = 0;
@@ -343,6 +346,39 @@ void scan_node(RadiusScan& scan, std::size_t index) noexcept {
     centers.reserve(mesh.primitives.size());
     for (const resource::Primitive& primitive : mesh.primitives) {
         centers.push_back(center_of(primitive));
+// Sai số chấp nhận khi coi một ma trận khớp là đơn vị. Đơn vị dài của model là centimet, nên 2e-3 là
+// vài chục micromet: dưới ngưỡng nhìn thấy.
+constexpr float kNeutralEpsilon = 2.0e-3F;
+
+[[nodiscard]] bool is_identity(const math::Matrix4& matrix) noexcept {
+    const std::array<math::Float4, 4> columns = math::store(matrix);
+    for (std::size_t column = 0; column < columns.size(); ++column) {
+        const math::Float4& at = columns.at(column);
+        const std::array<float, 4> values{at.x, at.y, at.z, at.w};
+        for (std::size_t row = 0; row < values.size(); ++row) {
+            const float wanted = row == column ? 1.0F : 0.0F;
+            if (!(std::abs(values.at(row) - wanted) <= kNeutralEpsilon)) return false;
+        }
+    }
+    return true;
+}
+
+// Mọi khớp của mọi skin có rest[nút] * inverse_bind bằng đơn vị, tính đúng như add_joint khi instance
+// không đặt tư thế: nút ngoài model hay thiếu inverse_bind thì thành phép đơn vị. Skin do loader dựng
+// cho lưới OGRE có bộ xương mà không có nút nào (nodes = 1, inverse_bind rỗng) thuộc loại ấy.
+[[nodiscard]] bool skins_are_neutral(const resource::Model& model, std::span<const math::Matrix4> rest) noexcept {
+    for (const resource::Skin& skin : model.skins) {
+        for (std::size_t joint = 0; joint < skin.joints.size(); ++joint) {
+            const std::uint32_t node = skin.joints.at(joint);
+            const math::Matrix4 placed = node < rest.size() ? core::at(rest, node) : math::Matrix4::identity();
+            const math::Matrix4 bind =
+                joint < skin.inverse_bind.size() ? skin.inverse_bind.at(joint) : math::Matrix4::identity();
+            if (!is_identity(placed * bind)) return false;
+        }
+    }
+    return true;
+}
+
     }
     return centers;
 }
@@ -399,6 +435,7 @@ struct Forward::State {
     [[nodiscard]] core::Status write_palette(const Slot& slot) const;
     [[nodiscard]] core::Status write_worlds(const Slot& slot) const;
     struct Emit {
+    [[nodiscard]] static bool is_flat_copy(const Pass& pass) noexcept;
         gpu::CommandList* list = nullptr;
         const Slot* slot = nullptr;
         std::uint32_t* bound = nullptr;
@@ -651,6 +688,7 @@ bool Forward::State::enters_frame(Pass& pass) {
     const Instance& instance = *pass.instance;
     const std::span<const Lamp> lamps = frame_lamps(*pass.lighting);
     if (!instance.copies.empty()) {
+    if (is_flat_copy(pass)) return {.is_flat = true};
         see_copies({.copies = instance.copies, .lamps = lamps, .radius = pass.radius}, frustum, seen);
         return !seen.empty();
     }
@@ -676,7 +714,15 @@ void Forward::State::append_copies(Pass& pass, const math::Matrix4& node) {
 }
 
 void Forward::State::place_world(Pass& pass, std::size_t index, Skinning skinning, Placed& placed) {
-    const math::Matrix4 node = core::at(pass.nodes, index);
+// Bản sao instanced của model có skin: đúng khi skin là phép đơn vị ở tư thế nghỉ và instance không đặt
+// tư thế nào (nodes và joints rỗng, tức pass.nodes là tư thế nghỉ của chính Drawable).
+bool Forward::State::is_flat_copy(const Pass& pass) noexcept {
+    const Instance& instance = *pass.instance;
+    return !instance.copies.empty() && instance.nodes.empty() && instance.joints.empty() &&
+        instance.drawable->is_rest_neutral_;
+}
+
+    const math::Matrix4 node = skinning.is_flat ? math::Matrix4::identity() : core::at(pass.nodes, index);
     pass.is_copied = !pass.instance->copies.empty() && skinning.count == 0;
     if (!pass.is_copied) {
         const math::Matrix4& own = pass.instance->world;
@@ -776,8 +822,8 @@ core::Status Forward::State::collect(const Take& take) {
     pass.lighting = take.lighting;
     pass.radius = drawable->radius_;
     if (pass.nodes.size() != model.nodes.size()) return bad("số ma trận nút lệch số nút của model");
-    const bool is_skinned = !instance.copies.empty() && !model.skins.empty();
-    if (is_skinned) return bad("bản sao instanced không dùng cho model có skin");
+    const bool is_skinned = !instance.copies.empty() && !model.skins.empty() && !is_flat_copy(pass);
+    if (is_skinned) return bad("bản sao instanced chỉ dùng cho model có skin khi skin trung tính ở tư thế nghỉ");
     if (!enters_frame(pass)) return core::ok();
     skin_bases.assign(model.skins.size(), kNone);
     for (std::size_t index = 0; index < model.nodes.size(); ++index) {
@@ -944,6 +990,7 @@ Forward& Forward::operator=(Forward&&) noexcept = default;
 Forward::~Forward() = default;
 
 core::Result<Forward> Forward::create(gpu::Device& device, const ForwardDesc& desc,
+      is_rest_neutral_(other.is_rest_neutral_),
     std::array<gpu::PipelineHandle, 4> pipelines) {
     if (desc.slots == 0) return bad("renderer cần ít nhất một slot");
     for (const gpu::PipelineHandle pipeline : pipelines) {
@@ -955,6 +1002,7 @@ core::Result<Forward> Forward::create(gpu::Device& device, const ForwardDesc& de
     state->pipelines = pipelines;
     state->slots.resize(desc.slots);
     core::Status filled = core::ok();
+    is_rest_neutral_ = other.is_rest_neutral_;
     for (Slot& slot : state->slots) {
         state->fill_slot(slot, filled);
     }
@@ -1015,6 +1063,7 @@ core::Status Forward::draw(gpu::CommandList& list, std::uint32_t slot, const Cam
     std::span<const Instance> instances) {
     State& state = *state_;
     if (slot >= state.slots.size()) return bad("slot ngoài số đã khai lúc tạo renderer");
+    drawable.is_rest_neutral_ = skins_are_neutral(model, drawable.rest_);
     state.items.clear();
     state.palette.clear();
     state.world_words.clear();

@@ -324,6 +324,17 @@ mục ở mục 11.
   của `ogre_mesh_tests`. Thấy một phần model trắng trơn thì kiểm trước `material.color.image` của nó (có ảnh hay không),
   đừng sửa ánh sáng. Còn chất liệu tóc nhận `ColourChangable` (cộng ánh sáng, ambient và diffuse 0) mà đường lưới OGRE
   chưa mang (`Material::pass` rỗng với mọi lưới `.mesh`); màu tóc người chơi chọn (`SelectHairColor`) chưa có đường nào.
+- Số lệnh vẽ của cảnh (đo 2026-10-13, Đại Lý resid 2, bảng đo `--pace`): 753 lệnh xuống 110 khi cho mô hình có skin
+  trung tính gom bản sao (`Drawable::is_rest_neutral`, `Forward::State::is_flat_copy`). Nguyên nhân: 559 trong 586 vật
+  thể không gom được là lưới OGRE mang một skin dự phòng mà loader dựng ra không có nút nào (`nodes = 1`,
+  `inverse_bind` rỗng, mọi khớp rơi về phép đơn vị trong `add_joint`), và `can_batch` từng từ chối mọi model có skin. Tìm
+  kiểu này bằng cách đếm item theo (primitive, vật liệu, số instance) trước khi nghĩ tới kỹ thuật lớn: 143 primitive
+  khác nhau vẽ thành 753 lệnh nghĩa là gom instance đang hỏng, không phải thiếu multi-draw. Hai lệnh `Drawable` có
+  danh sách thành viên viết tay trong hàm khởi tạo di chuyển và phép gán di chuyển: thành viên mới (như
+  `is_rest_neutral_`) không chép thì về `false` âm thầm ở bản dựng mà vẫn biên dịch sạch. Còn 110 lệnh: lưới trộn alpha
+  (27) vẫn không gom vì thứ tự xa tới gần của từng bản; gom thêm cần multi-draw indirect cộng bindless (lớp `gpu` có `draw_indexed_indirect` ở
+  `engine/gpu/command.hpp` và `max_unbounded` ở `DeviceCaps`, client chưa dùng cái nào; chưa đo backend nào hỗ trợ đủ). Dự án `F:\tl 2026\2027` gom cùng kiểu (một lệnh mỗi
+  primitive có instance): log `DEV/TLBBClient/log/gpu.txt` ghi `cảnh erengu_DL lệnh 312` và `đất 14 lệnh`, không phải 1–2.
 - Nạp cảnh: chuỗi mip của texture phải nướng ở luồng nạp (`resource::stage_images` rồi
   `upload_queued(device, model, baked)`); gọi `upload_queued(device, model)` trên luồng vẽ cho
   model có ảnh lớn là nướng mip tuần tự ngay trên luồng vẽ (đo 2026-10-08: 2,5 giây cho 153 ảnh
