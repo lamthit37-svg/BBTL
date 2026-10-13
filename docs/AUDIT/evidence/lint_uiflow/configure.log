@@ -1,0 +1,129 @@
+﻿CMD: "C:\Program Files\Microsoft Visual Studio\18\Community\VC\Auxiliary\Build\vcvars64.bat" >nul && cmake --preset msvc-release
+SHA: 4434818d294dfb9801a4946745237bec46d54a29 (worktree có diff chưa commit: main.cpp, ui_flow_tests.cpp)
+JOBS: n/a
+START: 2026-10-13 22:19:19 UTC+7
+-- Running vcpkg install
+Detecting compiler hash for triplet x64-windows-static-md...
+Compiler found: C:/Program Files/Microsoft Visual Studio/18/Community/VC/Tools/MSVC/14.51.36231/bin/Hostx64/x64/cl.exe
+Detecting compiler hash for triplet x64-windows...
+Compiler found: C:/Program Files/Microsoft Visual Studio/18/Community/VC/Tools/MSVC/14.51.36231/bin/Hostx64/x64/cl.exe
+The following packages are already installed:
+    cgltf:x64-windows-static-md@1.15
+    libpq:x64-windows-static-md@18.4
+    lz4:x64-windows-static-md@1.10.0
+    meshoptimizer:x64-windows-static-md@1.2
+    opus:x64-windows-static-md@1.6.1
+    sdl3:x64-windows-static-md@3.4.16
+    sse2neon:x64-windows-static-md@1.9.1
+    stb:x64-windows-static-md@2024-07-29#1
+    tomlplusplus:x64-windows-static-md@3.4.0#1
+  * vcpkg-cmake:x64-windows@2025-08-07
+  * vcpkg-cmake-config:x64-windows@2026-07-21
+  * vcpkg-cmake-get-vars:x64-windows@2025-05-29
+  * vcpkg-tool-meson:x64-windows@1.9.0#10
+    xxhash:x64-windows-static-md@0.8.3
+    zstd:x64-windows-static-md@1.5.7
+cgltf is header-only and can be used from CMake via:
+
+  find_path(CGLTF_INCLUDE_DIRS "cgltf.h")
+  target_include_directories(main PRIVATE ${CGLTF_INCLUDE_DIRS})
+
+libpq provides CMake integration:
+
+  find_package(PostgreSQL REQUIRED)
+  target_link_libraries(main PRIVATE PostgreSQL::PostgreSQL)
+
+lz4 provides CMake targets:
+
+  find_package(lz4 CONFIG REQUIRED)
+  target_link_libraries(main PRIVATE lz4::lz4)
+
+lz4 provides pkg-config modules:
+
+  liblz4
+
+meshoptimizer provides CMake targets:
+
+  # this is heuristically generated, and may not be correct
+  find_package(meshoptimizer CONFIG REQUIRED)
+  target_link_libraries(main PRIVATE meshoptimizer::meshoptimizer)
+
+opus provides CMake targets:
+
+  # this is heuristically generated, and may not be correct
+  find_package(Opus CONFIG REQUIRED)
+  target_link_libraries(main PRIVATE Opus::opus)
+
+opus provides pkg-config modules:
+
+  # Opus IETF audio codec ( build)
+  opus
+
+sdl3 provides CMake targets:
+
+  find_package(SDL3 CONFIG REQUIRED)
+  target_link_libraries(main PRIVATE SDL3::SDL3)
+
+sse2neon is header-only and can be used from CMake via:
+
+  find_path(SSE2NEON_INCLUDE_DIRS "sse2neon/sse2neon.h")
+  target_include_directories(main PRIVATE ${SSE2NEON_INCLUDE_DIRS})
+
+The package stb provides CMake targets:
+
+    find_package(Stb REQUIRED)
+    target_include_directories(main PRIVATE ${Stb_INCLUDE_DIR})
+tomlplusplus provides CMake targets:
+
+  # this is heuristically generated, and may not be correct
+  find_package(tomlplusplus CONFIG REQUIRED)
+  target_link_libraries(main PRIVATE tomlplusplus::tomlplusplus)
+
+tomlplusplus provides pkg-config modules:
+
+  # TOML config file parser and serializer for C++
+  tomlplusplus
+
+xxhash provides CMake targets:
+
+  # this is heuristically generated, and may not be correct
+  find_package(xxHash CONFIG REQUIRED)
+  target_link_libraries(main PRIVATE xxHash::xxhash)
+
+xxhash provides pkg-config modules:
+
+  # extremely fast hash algorithm
+  libxxhash
+
+zstd provides CMake targets:
+
+  find_package(zstd CONFIG REQUIRED)
+  target_link_libraries(main PRIVATE zstd::libzstd)
+
+All requested installations completed successfully in: 292 us
+-- Running vcpkg install - done
+-- The CXX compiler identification is MSVC 19.51.36260.0
+-- Detecting CXX compiler ABI info
+-- Detecting CXX compiler ABI info - done
+-- Check for working CXX compiler: C:/Program Files/Microsoft Visual Studio/18/Community/VC/Tools/MSVC/14.51.36231/bin/Hostx64/x64/cl.exe - skipped
+-- Detecting CXX compile features
+-- Detecting CXX compile features - done
+-- The C compiler identification is MSVC 19.51.36260.0
+-- Detecting C compiler ABI info
+-- Detecting C compiler ABI info - done
+-- Check for working C compiler: C:/Program Files/Microsoft Visual Studio/18/Community/VC/Tools/MSVC/14.51.36231/bin/Hostx64/x64/cl.exe - skipped
+-- Detecting C compile features
+-- Detecting C compile features - done
+-- Found PostgreSQL: optimized;C:/dev/third_party/installed/x64-windows-static-md/lib/pq.lib;debug;C:/dev/third_party/installed/x64-windows-static-md/debug/lib/pq.lib (found version "18.4")
+-- Thiếu Test/bench/collision_bench.cpp, bỏ collision_bench
+-- Found Vulkan: C:/VulkanSDK/1.4.363.0/Lib/vulkan-1.lib (found version "1.4.363") found components: glslc glslangValidator
+-- Found Stb: C:/dev/third_party/installed/x64-windows-static-md/include
+-- Found Python3: C:/Users/myhea/AppData/Local/Programs/Python/Python313/python3.exe (found version "3.13.15") found components: Interpreter
+-- chưa có dev/server/tables/shared: bỏ test server_data_lint, sinh bằng build_data.py
+-- Thiếu Test/bench/protocol_bench.cpp, bỏ protocol_bench
+-- Thiếu Test/bench/net_bench.cpp, bỏ net_bench
+-- Configuring done (6.3s)
+-- Generating done (0.4s)
+-- Build files have been written to: D:/THIENLONG_wt/lint_uiflow/build/msvc-release
+END: 2026-10-13 22:19:27 UTC+7
+EXIT: 0

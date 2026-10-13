@@ -1,0 +1,62 @@
+﻿CMD: build\msvc-release\thienlong_lint.exe --root dev\server --refs TOOLS\server\refs
+SHA: 4434818d294dfb9801a4946745237bec46d54a29 (worktree có diff chưa commit: main.cpp, ui_flow_tests.cpp)
+JOBS: n/a
+START: 2026-10-13 22:20:02 UTC+7
+scenes.tsv:5: mẫu không khớp tệp nào
+scenes.tsv:5: số giá trị thiếu 18 khác known_missing 1
+scenes.tsv:6: mẫu không khớp tệp nào
+scenes.tsv:6: số giá trị thiếu 16 khác known_missing 2
+scenes.tsv:7: mẫu không khớp tệp nào
+scenes.tsv:7: số giá trị thiếu 239 khác known_missing 0
+scenes.tsv:9: mẫu không khớp tệp nào
+scenes.tsv:9: số giá trị thiếu 2 khác known_missing 0
+scenes.tsv:10: mẫu không khớp tệp nào
+server.tsv:5: mẫu không khớp tệp nào
+server.tsv:5: mẫu không khớp tệp nào
+server.tsv:5: số giá trị thiếu 0 khác known_missing 30
+server.tsv:6: mẫu không khớp tệp nào
+server.tsv:6: mẫu không khớp tệp nào
+server.tsv:7: mẫu không khớp tệp nào
+server.tsv:7: mẫu không khớp tệp nào
+server.tsv:8: mẫu không khớp tệp nào
+server.tsv:8: mẫu không khớp tệp nào
+server.tsv:9: mẫu không khớp tệp nào
+server.tsv:9: mẫu không khớp tệp nào
+server.tsv:10: mẫu không khớp tệp nào
+server.tsv:10: mẫu không khớp tệp nào
+server.tsv:11: mẫu không khớp tệp nào
+server.tsv:11: mẫu không khớp tệp nào
+server.tsv:12: mẫu không khớp tệp nào
+server.tsv:12: mẫu không khớp tệp nào
+server.tsv:13: mẫu không khớp tệp nào
+server.tsv:13: mẫu không khớp tệp nào
+server.tsv:14: mẫu không khớp tệp nào
+server.tsv:1: còn 29 lỗi
+shared.tsv:5: mẫu không khớp tệp nào
+shared.tsv:5: mẫu không khớp tệp nào
+shared.tsv:6: mẫu không khớp tệp nào
+shared.tsv:6: mẫu không khớp tệp nào
+shared.tsv:7: mẫu không khớp tệp nào
+shared.tsv:7: mẫu không khớp tệp nào
+shared.tsv:8: mẫu không khớp tệp nào
+shared.tsv:8: mẫu không khớp tệp nào
+shared.tsv:9: mẫu không khớp tệp nào
+shared.tsv:9: mẫu không khớp tệp nào
+shared.tsv:10: mẫu không khớp tệp nào
+shared.tsv:10: mẫu không khớp tệp nào
+shared.tsv:11: mẫu không khớp tệp nào
+shared.tsv:11: mẫu không khớp tệp nào
+shared.tsv:12: mẫu không khớp tệp nào
+shared.tsv:12: mẫu không khớp tệp nào
+shared.tsv:13: mẫu không khớp tệp nào
+shared.tsv:13: mẫu không khớp tệp nào
+shared.tsv:14: mẫu không khớp tệp nào
+shared.tsv:14: mẫu không khớp tệp nào
+shared.tsv:1: còn 31 lỗi
+tệp: 1837
+bản ghi: 207988
+ô: 1039340
+dòng tham chiếu: 55
+lỗi: 109
+END: 2026-10-13 22:20:03 UTC+7
+EXIT: 1
