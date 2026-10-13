@@ -1,0 +1,166 @@
+# Bảng thuật ngữ dùng chung cho assets/i18n/{zh,en,vi}.tsv (2026-10-13). Cột: zh, en, vi, ghi chú.
+# Dịch mới phải theo bảng này; đổi một thuật ngữ thì đổi ở mọi tệp ngôn ngữ cùng lượt.
+# Nguyên tắc: tên riêng (môn phái, cảnh, NPC, đan dược) tiếng Việt dùng Hán Việt, tiếng Anh dùng pinyin
+# hoặc tên dịch quen của cộng đồng; thuật ngữ hệ thống dịch nghĩa.
+zh	en	vi	ghi chú
+天龙八部	Tianlong Babu	Thiên Long Bát Bộ	tên game
+新天龙八部	New Tianlong Babu	Tân Thiên Long Bát Bộ	
+江湖	jianghu	giang hồ	
+门派	sect	môn phái	
+帮会	guild	bang hội	
+少林	Shaolin	Thiếu Lâm	
+明教	Ming Cult	Minh Giáo	
+丐帮	Beggars' Sect	Cái Bang	
+武当	Wudang	Võ Đang	
+峨嵋	Emei	Nga Mi	
+星宿	Xingxiu	Tinh Túc	
+天龙	Tianlong	Thiên Long	môn phái Đại Lý/Thiên Long Tự
+天山	Tianshan	Thiên Sơn	
+逍遥	Xiaoyao	Tiêu Dao	
+慕容	Murong	Mộ Dung	
+唐门	Tang Clan	Đường Môn	
+鬼谷	Ghost Valley	Quỷ Cốc	
+桃花岛	Peach Blossom Island	Đào Hoa Đảo	
+绝情谷	Heartless Valley	Tuyệt Tình Cốc	
+恶人谷	Villains Valley	Ác Nhân Cốc	
+无门派	No Sect	Vô Phái	
+珍兽	Treasure Beast	trân thú	
+坐骑	mount	thú cưỡi	
+元宝	Ingot	Nguyên Bảo	tiền nạp
+绑定元宝	Bound Ingot	Nguyên Bảo khoá	
+交子	Jiaozi	Giao tử	vàng khoá
+红利	Dividend	Hồng lợi	
+返券	Voucher	Phiếu hoàn	
+赠点	Gift Points	điểm tặng	
+绑定	bound	khoá	vật phẩm không giao dịch
+血	HP	máu	
+气	Qi	khí	
+怒	Rage	nộ	
+力量	Strength	lực lượng	thuộc tính
+灵气	Spirit	linh khí	
+体力	Stamina	thể lực	
+定力	Willpower	định lực	
+身法	Agility	thân pháp	
+资质	aptitude	tư chất	trân thú
+悟性	Savvy	ngộ tính	trân thú
+根骨	Bone	căn cốt	trân thú
+灵性	Spirituality	linh tính	trân thú
+成长率	growth rate	tỉ lệ trưởng thành	
+潜能	Potential	tiềm năng	
+外功	Outer (kung fu)	ngoại công	
+内功	Inner (kung fu)	nội công	
+玄	Mystic	huyền	thuộc tính
+冰	Ice	băng	
+火	Fire	hoả	
+毒	Poison	độc	
+会心	Critical	hội tâm	
+命中	Accuracy	mệnh trung	
+闪避	Dodge	né tránh	
+心法	manual (mental method)	tâm pháp	
+绝学	Ultimate Arts	Tuyệt Học	
+镇派秘宝	Sect Treasure	Trấn Phái Bí Bảo	
+真元	True Essence	Chân Nguyên	
+武魂	Martial Soul	Võ Hồn	
+武意	Martial Intent	Võ Ý	
+宝鉴	Treasure Mirror	Bảo Giám	
+神器	Artifact	Thần Khí	
+附体	possession	phụ thể	
+副本	dungeon	phó bản	
+自动战斗	auto battle	tự động chiến đấu	
+自动寻路	auto-pathing	tự tìm đường	
+快捷栏	hotbar	thanh phím tắt	
+快捷键	hotkey	phím tắt	
+任务	quest	nhiệm vụ	
+经验	EXP	kinh nghiệm	
+宝石	gem	bảo thạch	
+雕纹	engraving	điêu văn	
+强化	enhancement	cường hoá	
+刻铭	inscription	khắc minh	
+时装	fashion	thời trang	
+配偶	spouse	phối ngẫu	
+结拜	sworn siblings	kết bái	
+金兰阵法	Sworn Formation	Kim Lan Trận Pháp	
+天灵丹	Tianling Pill	Thiên Linh Đan	
+玄灵丹	Xuanling Pill	Huyền Linh Đan	
+华山论剑	Mount Hua Sword Contest	Hoa Sơn Luận Kiếm	
+大理五华坛	Wuhua Altar in Dali	Ngũ Hoa Đàn Đại Lý	
+钱庄	Bank	Tiền Trang	
+层	F (floor), e.g. F1	Tầng	tên cảnh nhiều tầng
+战队	squad	chiến đội	đội thi đấu PvP
+团队	raid	đoàn đội	
+同盟	alliance	đồng minh	
+段位	rank tier	đoạn vị	
+宝珠	orb	bảo châu	
+星石	star stone	tinh thạch	
+星阵	star formation	tinh trận	
+幻灵	Spirit Form	Huyễn Linh	trân thú
+出窍	release spirit	xuất hồn	khi chết
+传功丹	Transmission Pill	Truyền Công Đan	
+心意币	Token of Affection	Tâm Ý Tệ	
+名物	Treasures	Danh vật	
+乾坤移	transfer	Càn Khôn Di	chuyển thuộc tính trang bị
+裁剪	tailoring	cắt may	thời trang
+染色	dye	nhuộm	
+庄园	manor	trang viên	
+观看点	viewpoint	điểm quan sát	
+元丹	Core Pill	Nguyên Đan	đợt 3
+段位	tier	đoạn vị	đợt 3
+战队	squad	chiến đội	đợt 3
+名剑币	Famed Sword Coin	Danh Kiếm Tệ	đợt 3
+庄园家具	manor furniture	nội thất trang viên	đợt 3 (庄园=trang viên đã có)
+升灵	Ascension	Thăng Linh	đợt 3
+暗器	hidden weapon	ám khí	đợt 3
+金翅翎羽	Golden Wing Plume	Kim Sí Linh Vũ	đợt 3
+万象令	Myriad Token	Vạn Tượng Lệnh	đợt 3
+阅历	experience (title)	duyệt lịch	đợt 3
+星石	star stone	tinh thạch	đợt 3
+萌宠	cute pet	thú cưng	đợt 3
+家具	furniture	nội thất	đợt 3
+星阵	star array	tinh trận	đợt 3
+帮众	guild member	bang chúng	đợt 3
+雕纹	engraving	Điêu Văn	đợt 3
+凤武	Fengwu	Phượng Vũ	đợt 3
+重楼	Chonglou	Trùng Lâu	đợt 3
+精淬	fine tempering	tinh tôi	đợt 3
+武意	Martial Intent	Võ Ý	đợt 3
+龙纹	Dragon Pattern	Long Văn	đợt 3
+助战	support	trợ chiến	đợt 3
+战团	battle corps	chiến đoàn	đợt 3
+珍兽	beast	trân thú	đợt 3
+附体	possession	phụ thể	đợt 3
+武魂	War Soul	Võ Hồn	đợt 3
+真元	True Essence	Chân Nguyên	đợt 3
+神器	artifact	thần khí	đợt 3
+心诀	mantra	tâm quyết	đợt 3
+秘技	secret art	bí kỹ	đợt 3
+兵符	Military Tally	binh phù	đợt 3
+炫装	flashy outfit	huyễn trang	đợt 3
+扫荡	sweep	càn quét	đợt 3
+义行令	Nghĩa Hành Lệnh	Nghĩa Hành Lệnh	đợt 3
+福星币	Fortune Star Coin	Phúc Tinh Tệ	đợt 3
+润魂石	Nhuận Hồn Thạch	Nhuận Hồn Thạch	đợt 3
+勇侠令	Dũng Hiệp Lệnh	Dũng Hiệp Lệnh	đợt 3
+开运石	Fortune Stone	Khai Vận Thạch	đợt 3
+金铢	Kim Thù	Kim Thù	đợt 3
+束竹令	Bamboo Bundle Token	Thúc Trúc Lệnh	đợt 3
+天机筹	Heavenly Secret Tally	Thiên Cơ Trù	đợt 3
+金蚕丝	Kim Tàm Ti	Kim Tàm Ti	đợt 3
+典籍注解	Classic Annotation	Điển Tịch Chú Giải	đợt 3
+至尊强化精华	Supreme Enhancement Essence	Chí Tôn Cường Hoá Tinh Hoa	đợt 3
+秘银	Mithril	Bí Ngân	đợt 3
+元晶	Origin Crystal	Nguyên Tinh	đợt 3
+帮贡	guild contribution	bang cống	đợt 3
+培元	Nurture Origin	bồi nguyên	đợt 3
+龙纹玉灵	Long Văn Ngọc Linh	Long Văn Ngọc Linh	đợt 3
+如意笺	Wish Note	Như Ý Tiên	đợt 3
+随心币	Free Will Coin	Tuỳ Tâm Tệ	đợt 3
+玉莲子	Jade Lotus Seed	Ngọc Liên Tử	đợt 3
+红莲子	Red Lotus Seed	Hồng Liên Tử	đợt 3
+寒云缎	Cold Cloud Satin	Hàn Vân Đoạn	đợt 3
+倩心玉	Charming Heart Jade	Thiến Tâm Ngọc	đợt 3
+名物灵屑	Famous Item Spirit Dust	Danh Vật Linh Tiết	đợt 3
+战盟	war alliance	chiến minh	đợt 3
+鸿福宝玉	Great Fortune Jade	Hồng Phúc Bảo Ngọc	đợt 3
+将令	General's Order	Tướng Lệnh	đợt 3
+金玉环	Gold Jade Ring	Kim Ngọc Hoàn	đợt 3
+乌江玦	Wujiang Jade	Ô Giang Quyết	đợt 3
