@@ -383,10 +383,10 @@ void disarm_modal_timer(WindowState& state) noexcept {
 
 using StatePtr = std::unique_ptr<WindowState>;
 
+// unique_ptr có destructor nên đi qua core::thread_slot, không khai thread_local thẳng: GCC MinGW trả
+// bộ nhớ TLS trước khi destructor chạy (docs/BAY-DA-BIET.md, nhóm "Trình dịch, cờ và cổng kiểm").
 [[nodiscard]] StatePtr& deferred_head() noexcept {
-    // NOLINTNEXTLINE(cppcoreguidelines-avoid-non-const-global-variables)
-    thread_local StatePtr head;
-    return head;
+    return core::thread_slot([] { return StatePtr{}; });
 }
 
 [[nodiscard]] bool post_quit_after_modal(WindowState& state) noexcept {
@@ -796,10 +796,14 @@ void apply_brand(HWND handle, const BrandIcons& icons) noexcept {
     return Rect::from(origin, size);
 }
 
-// Khung của cửa sổ lúc tạo, đẩy vào trong vùng làm việc khi thanh tiêu đề hay mép trái lọt ra ngoài
-// màn hình (vùng vẽ đặt sát góc màn hình thì khung nằm ngoài, không kéo được).
-[[nodiscard]] Rect initial_frame(const WindowState& state, const Monitor& monitor) noexcept {
-    const Rect frame = frame_for(state.client, style_of(state), state.dpi);
+// Khung của cửa sổ lúc tạo. Không đòi vị trí (is_placed sai): CẢ KHUNG nằm giữa vùng làm việc của
+// màn hình, trừ thanh tác vụ — như thủ tục đăng nhập của Game.exe (0x140631940: AdjustWindowRect
+// rồi căn giữa trong SPI_GETWORKAREA, cỡ tối thiểu 800 x 600). Đòi vị trí thì giữ đúng chỗ đó. Cả hai
+// đường đẩy khung vào trong vùng làm việc khi thanh tiêu đề hay mép trái lọt ra ngoài màn hình
+// (vùng vẽ đặt sát góc màn hình thì khung nằm ngoài, không kéo được).
+[[nodiscard]] Rect initial_frame(const WindowState& state, const Monitor& monitor, bool is_placed) noexcept {
+    const Rect wanted = frame_for(state.client, style_of(state), state.dpi);
+    const Rect frame = is_placed ? wanted : centered(monitor.work_rect, wanted.size());
     const std::int32_t shift_x = std::max(monitor.work_rect.left - frame.left, 0);
     const std::int32_t shift_y = std::max(monitor.work_rect.top - frame.top, 0);
     const Rect shifted{.left = frame.left + shift_x,
@@ -866,7 +870,7 @@ core::Result<Window> Window::create(const WindowConfig& config) {
     if (list.empty()) return core::fail(core::ErrorCode::kNotFound, "không có màn hình nào");
     const Monitor& monitor = list.at(config.monitor < list.size() ? config.monitor : 0);
     std::unique_ptr<detail::WindowState> state = make_state(config, monitor);
-    const Rect frame = initial_frame(*state, monitor);
+    const Rect frame = initial_frame(*state, monitor, config.position.has_value());
     const std::wstring title = core::widen(config.title);
     const auto width = static_cast<int>(frame.width());
     const auto height = static_cast<int>(frame.height());

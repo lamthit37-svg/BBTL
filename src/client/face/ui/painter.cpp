@@ -5,6 +5,7 @@
 #include "gui/sheet.hpp"
 #include "io/file.hpp"
 #include "render/ui.hpp"
+#include "resource/image.hpp"
 #include "resource/tier.hpp"
 #include "ui/text.hpp"
 #include "ui/view.hpp"
@@ -246,6 +247,14 @@ void Painter::add_quad(const Job& job, const gui::Quad& quad) {
         add_view(job, quad);
         return;
     }
+    if (quad.texture == gui::kSceneBoard) {
+        if (job.kit->board) add_map(quad, *job.kit->board);
+        return;
+    }
+    if (quad.texture == gui::kWorldBoard) {
+        if (job.kit->world) add_map(quad, *job.kit->world);
+        return;
+    }
     if (quad.texture != gui::kSceneMap) {
         add_image(*job.asset, quad);
         return;
@@ -255,9 +264,15 @@ void Painter::add_quad(const Job& job, const gui::Quad& quad) {
 
 void Painter::add_text(const Job& job, const gui::TextRun& run) {
     if (job.kit->writer == nullptr) return;
+    // Phông Hán trước; run có chữ tiếng Việt có dấu mà phông Việt vẽ trọn được thì đổi phông cho cả run.
+    bool is_alt = false;
+    if (job.kit->alt_writer != nullptr) {
+        is_alt = job.kit->writer->fit_of(run).has_vietnamese && job.kit->alt_writer->fit_of(run).unknown == 0;
+    }
+    TextWriter& writer = is_alt ? *job.kit->alt_writer : *job.kit->writer;
     const std::size_t first = vertices_.size();
-    const std::optional<gui::Box> caret = job.kit->writer->write(run, vertices_);
-    close_batch({.texture = job.kit->font_texture, .first_vertex = first});
+    const std::optional<gui::Box> caret = writer.write(run, vertices_);
+    close_batch({.texture = is_alt ? job.kit->alt_font_texture : job.kit->font_texture, .first_vertex = first});
     if (!caret) return;
     const std::size_t caret_first = vertices_.size();
     push_box(vertices_, *caret, UvBox{}, run.colour);

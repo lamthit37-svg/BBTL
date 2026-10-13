@@ -101,6 +101,18 @@ void drop_alpha(resource::Image& image) noexcept {
     }
 }
 
+// Kiểu trộn "zero one_minus_src_colour" (khói) nhân đích với (1 - màu ảnh). Pipeline trộn alpha thẳng có sẵn cho cùng
+// kết quả khi màu là đen và alpha là độ sáng của ảnh: đúng với ảnh xám, gần đúng với ảnh có màu.
+void darken_from_brightness(resource::Image& image) noexcept {
+    for (std::size_t index = 0; index + 3 < image.rgba.size(); index += 4) {
+        const std::uint8_t brightest = std::max({image.rgba[index], image.rgba[index + 1], image.rgba[index + 2]});
+        image.rgba[index] = 0;
+        image.rgba[index + 1] = 0;
+        image.rgba[index + 2] = 0;
+        image.rgba[index + 3] = brightest;
+    }
+}
+
 // Tấm sương của cảnh đăng nhập. Không dựng: chúng phủ trời thành một lớp xám.
 [[nodiscard]] bool is_mist(std::string_view name) noexcept {
     const bool directional = name.find("方向雾") != std::string_view::npos;
@@ -312,6 +324,7 @@ core::Result<std::uint32_t> FxView::Body::load_texture(const fx::Paint& paint) {
     if (!image) return std::unexpected(image.error());
     image->name = paint.image;
     if (paint.blend == fx::Blend::kAdd) drop_alpha(*image);
+    if (paint.blend == fx::Blend::kDarken) darken_from_brightness(*image);
     const bool repeats =
         paint.scroll_u != 0.0F || paint.scroll_v != 0.0F || paint.scale_u != 1.0F || paint.scale_v != 1.0F;
     return add_image(*image, repeats);
@@ -322,7 +335,7 @@ std::optional<std::uint32_t> FxView::Body::texture_of(const fx::Paint& paint) {
     const bool is_opaque = paint.blend == fx::Blend::kAdd;
     const bool repeats =
         paint.scroll_u != 0.0F || paint.scroll_v != 0.0F || paint.scale_u != 1.0F || paint.scale_v != 1.0F;
-    const std::string key = std::format("{}|{}|{}", paint.image, is_opaque, repeats);
+    const std::string key = std::format("{}|{}|{}|{}", paint.image, is_opaque, repeats, paint.blend == fx::Blend::kDarken);
     const auto found = by_image.find(key);
     if (found != by_image.end()) return found->second;
     const core::Clock::time_point began = core::Clock::now();
@@ -338,7 +351,7 @@ std::optional<std::uint32_t> FxView::Body::texture_of(const fx::Paint& paint) {
 void FxView::Body::take_batch(Frame& frame, const fx::BillboardBatch& batch) {
     const fx::Paint* paint = library->palette().find(batch.material);
     if (paint == nullptr || paint->blend == fx::Blend::kOther) return;
-    const bool is_straight = paint->blend == fx::Blend::kAlpha;
+    const bool is_straight = paint->blend == fx::Blend::kAlpha || paint->blend == fx::Blend::kDarken;
     if (is_straight && !blend_pipeline) return;
     const std::optional<std::uint32_t> texture = texture_of(*paint);
     const std::size_t quads = batch.vertices.size() / 4U;
@@ -402,6 +415,8 @@ core::Status FxView::Body::grow_vertices(SlotBuffer& buffer, std::uint32_t quads
     return core::ok();
 }
 
+namespace {
+
 struct FxGpuPush {
     std::array<math::Float4, 4> view_proj{};
     math::Float4 mode{};
@@ -414,6 +429,8 @@ void bind_fx(gpu::CommandList& list, const render::Camera& camera, gpu::Pipeline
     list.bind_pipeline(pipeline);
     list.push_constants(std::as_bytes(std::span(&push, 1)), 0);
 }
+
+} // namespace
 
 void FxView::Body::draw_batch(gpu::CommandList& list, const BatchDraw& draw) const {
     list.bind_group(kTextureSpace, textures.at(draw.texture).group);

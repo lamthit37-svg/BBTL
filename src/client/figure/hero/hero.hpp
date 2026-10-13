@@ -109,6 +109,19 @@ struct Milestones {
 // Khoá lên cấp của nhân vật (SelfEquip_CheckLevelupLock): chưa khoá, đang khoá, đang chờ mở.
 enum class LevelLock : std::uint8_t { kOpen, kLocked, kOpening };
 
+// Tiền và điểm nằm ở hòm đồ (Player:GetData "MONEY", "MONEY_JZ", "YUANBAO", "BIND_YUANBAO", "GIFTTOKEN",
+// "ZENGDIAN", "LIJIN"). Đơn vị đồng; ô tiền của client gốc chỉ nhận int (FalagardMoney::setMoneyNumber).
+// Mọi số do máy chủ gửi; nhân vật mới là 0.
+struct Purse {
+    std::int32_t money = 0;
+    std::int32_t money_voucher = 0;
+    std::int32_t yuanbao = 0;
+    std::int32_t bind_yuanbao = 0;
+    std::int32_t gift_token = 0;
+    std::int32_t bonus_point = 0;
+    std::int32_t cash_gift = 0;
+};
+
 struct Hero {
     std::string name;
     std::int32_t level = 1;
@@ -138,6 +151,7 @@ struct Hero {
     std::int32_t level_cap = 129;
     Milestones milestones;
     LevelLock level_lock = LevelLock::kOpen;
+    Purse purse;
 };
 
 // Lên cấp được chưa, như Player:IsCanLevelup của Game.exe 2026 (0x1403954d0): kinh nghiệm đang có

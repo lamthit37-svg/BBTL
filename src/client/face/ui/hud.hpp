@@ -87,6 +87,13 @@ struct HudView {
 // Việc một nút của giao diện nhờ client làm ngoài giao diện (vào game, mở trang web, rời bảng).
 using Action = panel::LogonAction;
 
+// Nhấp trái lên bản đồ lớn: đi tự động tới điểm đó của cảnh người chơi đang đứng (AutoRunToTarget của
+// SceneMap_GotoDirectly), đơn vị cảnh.
+struct RunTo {
+    float x = 0.0F;
+    float z = 0.0F;
+};
+
 // Bảng tên cảnh của ngôn ngữ đang dựng. Thiếu tệp thì bảng rỗng và tên trả nguyên.
 [[nodiscard]] gui::StringBook scene_names(const std::filesystem::path& data_root);
 
@@ -120,6 +127,18 @@ public:
     [[nodiscard]] bool takes_wheel(float across, float down) const;
     // Việc lần nhấn hay phím gần nhất nhờ client làm (theo lần prepare gần nhất); lấy rồi thì hết.
     [[nodiscard]] std::optional<Action> take_action() noexcept;
+    // Điểm mà lần nhấp gần nhất trên bản đồ lớn nhờ đi tới; lấy rồi thì hết.
+    [[nodiscard]] std::optional<RunTo> take_run_to() noexcept;
+    // Tốc độ xoay người mẫu của bảng nhân vật theo đối số RotateBeginEx của script (âm là sang trái, 0 là
+    // không giữ nút xoay): client đổi ra góc cho ảnh toàn thân.
+    [[nodiscard]] float equip_spin() const noexcept;
+    // Nạp máy chủ của lần vào game trước từ chữ tệp đã đọc (chuỗi rỗng là chưa có); chữ sai dạng hay
+    // máy chủ không còn trong danh sách thì bỏ. Gọi sau khi mở Hud.
+    bool recall_last_server(std::string_view text);
+    // Chữ tệp khi máy chủ lần vào game trước đổi; không có khi chưa cần ghi.
+    [[nodiscard]] std::optional<std::string> last_server_text() const;
+    // Ghi đĩa xong.
+    void mark_last_server_saved() noexcept;
     // Nạp sổ nhân vật từ chữ TSV đã đọc. Chuỗi rỗng là sổ trống.
     [[nodiscard]] bool recall_roles(std::string_view text);
     // Chữ TSV khi sổ đổi; không có khi chưa cần ghi.

@@ -84,6 +84,11 @@ bool same_box(const Box& box, const Box& want) {
     return is_same_place && near_value(box.w, want.w) && near_value(box.h, want.h);
 }
 
+// Ô cắt của một dòng chữ có đúng là want không (dòng không có ô cắt thì không).
+bool is_box(const std::optional<Box>& got, const Box& want) {
+    return got.has_value() && same_box(*got, want);
+}
+
 std::string box_text(const Box& box) {
     return std::format("({}, {}, {}, {})", box.x, box.y, box.w, box.h);
 }

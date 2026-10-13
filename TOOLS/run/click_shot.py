@@ -1,26 +1,36 @@
 # Chạy thienlong_client, làm từng thao tác chuột được nêu trên vùng chơi, và sau mỗi bước chụp vùng
 # chơi ra một tệp PNG. Dùng để nhìn giao diện và camera sau một chuỗi thao tác mà không cần người
 # bấm: nút mở bảng, nút đóng, thẻ; kéo phải xoay camera, kéo nút giữa ngẩng cúi, lăn chuột zoom.
-# Cửa sổ của client được dời ra ngoài màn hình ảo và chụp bằng PrintWindow, thông điệp chuột gửi
-# thẳng cho cửa sổ (PostMessage). Lý do, đã đo ngày 2026-10-08 với bản để cửa sổ trên màn hình và
-# chụp từ màn hình: con trỏ thật nằm trên vùng chơi thì thông điệp di chuyển của nó (kể cả thông
-# điệp Windows tự sinh khi một cửa sổ khác hiện lên gần đó) chen vào giữa lúc nhấn và lúc nhả,
-# client dời điểm bấm theo nên lần bấm trượt; ảnh chụp còn dính cửa sổ của chương trình khác.
+# Cửa sổ của client chụp bằng PrintWindow, thông điệp chuột gửi thẳng cho cửa sổ (PostMessage), nên
+# ảnh không dính cửa sổ của chương trình khác. Cửa sổ nằm nguyên ở chỗ client mở nó: giữa màn hình
+# chính (chủ dự án dặn 2026-10-13: không đẩy cửa sổ ra màn phụ hay ngoài màn hình).
+# Đã đo ngày 2026-10-13 (log DBG ở sdl_input.cpp): ngay trước mỗi lần nhấn, SDL phát thêm hai sự kiện
+# di chuyển lấy từ vị trí CON TRỎ THẬT chứ không từ thông điệp của công cụ này, nên lần nhấn rơi vào
+# chỗ con trỏ thật đang đứng (cả khi cửa sổ bị khoá EnableWindow, cả khi cửa sổ nằm ngoài màn hình).
+# Vì vậy công cụ đặt con trỏ thật lên đúng điểm sắp bấm (SetCursorPos) trước mỗi thông điệp và trả con
+# trỏ về chỗ cũ khi xong; trong lúc chạy tay người dùng không nên chạm chuột.
+# CẢNH BÁO: công cụ này đặt con trỏ thật và gửi nút chuột thật, tức cướp chuột của người đang dùng máy. Chủ dự án cấm agent chạy nó
+# với bước chuột (2026-10-13); chỉ người dùng tự chạy khi muốn.
 # Chạy ở gốc dự án (chỉ Windows):
 #   python TOOLS/run/click_shot.py <exe> --out <thư mục> [--click X,Y | --drop X,Y |
-#       --turn X,Y,DX,DY | --tilt X,Y,DX,DY | --wheel X,Y,N]... [--settle giây] [--pause giây]
-#       [-- đối số của exe]
+#       --hold X,Y,MS | --turn X,Y,DX,DY | --tilt X,Y,DX,DY | --wheel X,Y,N | --type X,Y,CHỮ]...
+#       [--settle giây] [--pause giây] [-- đối số của exe]
 # --click bấm rồi nhả tại chỗ. --drop nhấn rồi gửi một thông điệp di chuyển không mang cờ nút và
 # không nhả, như khi nút được nhả ngoài cửa sổ: client phải coi lần nhấn là đã huỷ, và lần bấm kế
-# tiếp vẫn phải ăn. --turn nhấn phải ở X,Y, kéo đi DX,DY điểm ảnh qua nhiều thông điệp rồi nhả;
-# --tilt làm vậy với nút giữa. --wheel lăn N nấc ở X,Y, dương là lăn ra trước. Cửa sổ không có focus
-# nên client không giữ con trỏ thật khi kéo. Các bước chạy theo thứ tự viết trên dòng lệnh.
+# tiếp vẫn phải ăn. --turn nhấn phải ở X,Y, kéo đi DX,DY điểm ảnh rồi nhả; --tilt làm vậy với
+# nút giữa. --hold giữ nút trái ở X,Y trong MS mili giây rồi nhả (nút xoay người mẫu, nút cuộn bản
+# đồ). --wheel lăn N nấc ở X,Y, dương là lăn ra trước. Ba lệnh giữ và kéo dùng nút THẬT
+# (mouse_event): SDL gặp thông điệp di chuyển thì hỏi GetAsyncKeyState, thấy nút không giữ là tự
+# phát lệnh nhả (đo 2026-10-13: kéo bằng PostMessage bị nhả ngay sau lần di chuyển đầu). Trong
+# lúc kéo cửa sổ được mở khoá và đưa lên trên cùng để nút thật rơi vào nó, xong thì trả lại. Các
+# bước chạy theo thứ tự viết trên dòng lệnh.
 # Ảnh: 00-start.png trước bước đầu, rồi NN-X-Y.png sau bước thứ NN. Mã thoát: mã thoát của exe; 100
-# khi không thấy cửa sổ; 101 khi exe không tự thoát sau WM_CLOSE; 102 khi cửa sổ không ra được
-# ngoài màn hình; 103 khi một lần chụp hỏng.
+# khi không thấy cửa sổ; 101 khi exe không tự thoát sau WM_CLOSE; 103 khi một lần chụp hỏng.
 import argparse
+import contextlib
 import ctypes
 import ctypes.wintypes as wintypes
+import os
 import pathlib
 import struct
 import subprocess
@@ -30,33 +40,21 @@ import zlib
 
 HANDLE = ctypes.c_void_p
 WM_CLOSE = 0x0010
+WM_KEYDOWN = 0x0100
+WM_KEYUP = 0x0101
+WM_CHAR = 0x0102
 WM_MOUSEMOVE = 0x0200
 WM_LBUTTONDOWN = 0x0201
 WM_LBUTTONUP = 0x0202
-WM_RBUTTONDOWN = 0x0204
-WM_RBUTTONUP = 0x0205
-WM_MBUTTONDOWN = 0x0207
-WM_MBUTTONUP = 0x0208
 WM_MOUSEWHEEL = 0x020A
 MK_LBUTTON = 0x0001
-MK_RBUTTON = 0x0002
-MK_MBUTTON = 0x0010
 WHEEL_DELTA = 120
 # Số thông điệp di chuyển của một lần kéo, và giây nghỉ giữa hai thông điệp: dài hơn một khung của
 # client để mỗi thông điệp rơi vào một khung riêng.
 DRAG_MOVES = 8
 DRAG_PAUSE_SECONDS = 0.04
-# SWP_NOSIZE | SWP_NOZORDER | SWP_NOACTIVATE
-MOVE_ONLY = 0x0001 | 0x0004 | 0x0010
 # PW_CLIENTONLY | PW_RENDERFULLCONTENT: lấy cả nội dung do GPU vẽ, không cần cửa sổ lộ ra.
 PRINT_CLIENT = 0x0001 | 0x0002
-# SM_XVIRTUALSCREEN, SM_YVIRTUALSCREEN, SM_CXVIRTUALSCREEN, SM_CYVIRTUALSCREEN
-VIRTUAL_SCREEN = (76, 77, 78, 79)
-# Khoảng hở giữa mép màn hình ảo và cửa sổ đã dời.
-OFFSCREEN_GAP = 64
-# Số lần chụp tối đa cho một ảnh và giây chờ giữa hai lần. Đã đo ngày 2026-10-08: PrintWindow đôi
-# lúc báo thành công mà ảnh toàn đen, hoặc vùng chơi đọc ra cỡ 0x0, rồi lần chụp sau lại đúng.
-SHOT_TRIES = 5
 # Số lần chụp tối đa cho một ảnh và giây chờ giữa hai lần. Đã đo ngày 2026-10-08: PrintWindow đôi
 # lúc báo thành công mà ảnh toàn đen, hoặc vùng chơi đọc ra cỡ 0x0, rồi lần chụp sau lại đúng.
 SHOT_TRIES = 5
@@ -66,17 +64,31 @@ CREATE_NO_WINDOW = 0x08000000
 SHOW_NO_ACTIVATE = 4
 CLICK = "bấm"
 DROP = "nhấn rồi bỏ"
+HOLD = "giữ trái"
 TURN = "kéo phải"
 TILT = "kéo giữa"
 WHEEL = "lăn"
 TYPE = "gõ"
-# Cách viết phím điều khiển trong CHỮ của --type.
-TYPED_KEYS = {"\\t": "\t", "\\r": "\r", "\\b": "\b"}
-# Thông điệp nhấn, nhả và cờ nút của hai kiểu kéo.
+# Cách viết phím điều khiển trong CHỮ của --type, và mã phím ảo Win32 của chúng.
+TYPED_KEYS = {"\\t": "\t", "\\r": "\r", "\\b": "\b", "\\e": "\x1b"}
+CONTROL_KEYS = {"\t": 0x09, "\r": 0x0D, "\b": 0x08, "\x1b": 0x1B}
+MAPVK_VK_TO_VSC = 0
+SPI_GETWORKAREA = 0x0030
+# Cờ mouse_event nhấn và nhả của hai kiểu kéo.
+MOUSEEVENTF_LEFTDOWN = 0x0002
+MOUSEEVENTF_LEFTUP = 0x0004
+MOUSEEVENTF_RIGHTDOWN = 0x0008
+MOUSEEVENTF_RIGHTUP = 0x0010
+MOUSEEVENTF_MIDDLEDOWN = 0x0020
+MOUSEEVENTF_MIDDLEUP = 0x0040
 DRAG_BUTTONS = {
-    TURN: (WM_RBUTTONDOWN, WM_RBUTTONUP, MK_RBUTTON),
-    TILT: (WM_MBUTTONDOWN, WM_MBUTTONUP, MK_MBUTTON),
+    TURN: (MOUSEEVENTF_RIGHTDOWN, MOUSEEVENTF_RIGHTUP),
+    TILT: (MOUSEEVENTF_MIDDLEDOWN, MOUSEEVENTF_MIDDLEUP),
 }
+# Đưa cửa sổ lên trên cùng / trả lại: SetWindowPos không đổi chỗ, cỡ, focus.
+HWND_TOPMOST = -1
+HWND_NOTOPMOST = -2
+SWP_NOSIZE_NOMOVE_NOACTIVATE = 0x0001 | 0x0002 | 0x0010
 # Một bước: loại thao tác, điểm của vùng chơi, và các số thêm (độ dời của kéo, số nấc của lăn, mã
 # từng ký tự của gõ).
 Step = tuple[str, int, int, tuple[int, ...]]
@@ -114,6 +126,11 @@ def declare() -> None:
     user32.PrintWindow.argtypes = [HANDLE, HANDLE, wintypes.UINT]
     user32.GetClientRect.argtypes = [HANDLE, rect_out]
     user32.GetWindowRect.argtypes = [HANDLE, rect_out]
+    user32.EnableWindow.argtypes = [HANDLE, wintypes.BOOL]
+    user32.ClientToScreen.argtypes = [HANDLE, ctypes.POINTER(wintypes.POINT)]
+    user32.GetCursorPos.argtypes = [ctypes.POINTER(wintypes.POINT)]
+    user32.SetCursorPos.argtypes = [ctypes.c_int, ctypes.c_int]
+    user32.mouse_event.argtypes = [wintypes.DWORD, wintypes.DWORD, wintypes.DWORD, wintypes.DWORD, ctypes.c_size_t]
     user32.SetWindowPos.argtypes = [
         HANDLE, HANDLE, ctypes.c_int, ctypes.c_int, ctypes.c_int, ctypes.c_int, wintypes.UINT]
     gdi32.CreateCompatibleDC.argtypes = [HANDLE]
@@ -154,14 +171,29 @@ def wait_for_window(process: subprocess.Popen, seconds: float) -> int | None:
     return None
 
 
-def move_off_screen(window: int) -> bool:
-    """Dời cửa sổ sang phải mép màn hình ảo; trả True khi nó đã nằm hẳn ngoài mọi màn hình."""
-    left, top, width, _ = (user32.GetSystemMetrics(index) for index in VIRTUAL_SCREEN)
-    edge = left + width
-    user32.SetWindowPos(window, None, edge + OFFSCREEN_GAP, top, 0, 0, MOVE_ONLY)
+def ignore_hardware_input(window: int) -> None:
+    """Khoá cửa sổ khỏi chuột và bàn phím thật. Cửa sổ nằm giữa màn hình chính nên con trỏ của người
+    đang dùng máy lướt qua nó: thông điệp di chuyển thật chen vào giữa lúc nhấn và lúc nhả, SDL dời
+    điểm bấm theo và lần bấm giả trượt sang nút khác (đo 2026-10-13). Cửa sổ bị khoá (EnableWindow)
+    không nhận thông điệp phần cứng, còn thông điệp PostMessage của công cụ này vẫn tới nơi."""
+    user32.EnableWindow(window, False)
+
+
+def aim(window: int, across: int, down: int) -> None:
+    """Đặt con trỏ thật lên điểm (across, down) của vùng chơi: SDL lấy vị trí nhấn từ con trỏ thật."""
+    spot = wintypes.POINT(across, down)
+    user32.ClientToScreen(window, ctypes.byref(spot))
+    user32.SetCursorPos(spot.x, spot.y)
+
+
+def report_placement(window: int) -> None:
+    """In khung cửa sổ và vùng làm việc của màn hình chính (SPI_GETWORKAREA) để so cách căn giữa."""
     frame = wintypes.RECT()
+    work = wintypes.RECT()
     user32.GetWindowRect(window, ctypes.byref(frame))
-    return frame.left >= edge
+    user32.SystemParametersInfoW(SPI_GETWORKAREA, 0, ctypes.byref(work), 0)
+    print(f"khung cửa sổ {frame.left},{frame.top}-{frame.right},{frame.bottom}; "
+          f"vùng làm việc {work.left},{work.top}-{work.right},{work.bottom}")
 
 
 def png_of(width: int, height: int, pixels: bytes) -> bytes:
@@ -247,6 +279,7 @@ def place_of(across: int, down: int) -> int:
 def press(window: int, step: Step) -> None:
     kind, across, down, _ = step
     place = place_of(across, down)
+    aim(window, across, down)
     user32.PostMessageW(window, WM_MOUSEMOVE, 0, place)
     time.sleep(0.05)
     user32.PostMessageW(window, WM_LBUTTONDOWN, MK_LBUTTON, place)
@@ -255,30 +288,78 @@ def press(window: int, step: Step) -> None:
     user32.PostMessageW(window, ending, 0, place)
 
 
+@contextlib.contextmanager
+def real_input(window: int):
+    """Cho nút chuột THẬT rơi vào cửa sổ: mở khoá và đưa lên trên cùng trong lúc dùng, xong thì trả lại."""
+    user32.EnableWindow(window, True)
+    user32.SetWindowPos(window, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOSIZE_NOMOVE_NOACTIVATE)
+    try:
+        yield
+    finally:
+        user32.SetWindowPos(window, HWND_NOTOPMOST, 0, 0, 0, 0, SWP_NOSIZE_NOMOVE_NOACTIVATE)
+        ignore_hardware_input(window)
+
+
+def hold(window: int, step: Step) -> None:
+    _, across, down, (millis,) = step
+    with real_input(window):
+        aim(window, across, down)
+        time.sleep(DRAG_PAUSE_SECONDS)
+        user32.mouse_event(MOUSEEVENTF_LEFTDOWN, 0, 0, 0, 0)
+        time.sleep(millis / 1000)
+        user32.mouse_event(MOUSEEVENTF_LEFTUP, 0, 0, 0, 0)
+        time.sleep(DRAG_PAUSE_SECONDS)
+
+
 def drag(window: int, step: Step) -> None:
     kind, across, down, (shift_x, shift_y) = step
-    pressing, releasing, flag = DRAG_BUTTONS[kind]
-    start = place_of(across, down)
-    user32.PostMessageW(window, WM_MOUSEMOVE, 0, start)
-    time.sleep(0.05)
-    user32.PostMessageW(window, pressing, flag, start)
-    time.sleep(0.08)
-    for move in range(1, DRAG_MOVES + 1):
-        here = place_of(across + shift_x * move // DRAG_MOVES, down + shift_y * move // DRAG_MOVES)
-        user32.PostMessageW(window, WM_MOUSEMOVE, flag, here)
+    pressing, releasing = DRAG_BUTTONS[kind]
+    with real_input(window):
+        aim(window, across, down)
         time.sleep(DRAG_PAUSE_SECONDS)
-    user32.PostMessageW(window, releasing, 0, place_of(across + shift_x, down + shift_y))
+        user32.mouse_event(pressing, 0, 0, 0, 0)
+        time.sleep(DRAG_PAUSE_SECONDS)
+        for move in range(1, DRAG_MOVES + 1):
+            aim(window, across + shift_x * move // DRAG_MOVES, down + shift_y * move // DRAG_MOVES)
+            time.sleep(DRAG_PAUSE_SECONDS)
+        user32.mouse_event(releasing, 0, 0, 0, 0)
+        time.sleep(DRAG_PAUSE_SECONDS)
 
 
 def roll(window: int, step: Step) -> None:
     _, across, down, (notches,) = step
     turn = WHEEL_DELTA if notches > 0 else -WHEEL_DELTA
+    aim(window, across, down)
     for _ in range(abs(notches)):
         user32.PostMessageW(window, WM_MOUSEWHEEL, (turn & 0xFFFF) << 16, place_of(across, down))
         time.sleep(DRAG_PAUSE_SECONDS)
 
 
-ACTIONS = {CLICK: press, DROP: press, TURN: drag, TILT: drag, WHEEL: roll}
+def tap_key(window: int, virtual_key: int) -> None:
+    """Nhấn rồi nhả một phím điều khiển; SDL suy ra phím vật lý từ mã quét trong lParam."""
+    scan = user32.MapVirtualKeyW(virtual_key, MAPVK_VK_TO_VSC)
+    down = 1 | (scan << 16)
+    up = down | (1 << 30) | (1 << 31)
+    user32.PostMessageW(window, WM_KEYDOWN, virtual_key, down)
+    time.sleep(0.03)
+    user32.PostMessageW(window, WM_KEYUP, virtual_key, up)
+
+
+def type_in(window: int, step: Step) -> None:
+    """Bấm vào ô ở X,Y để lấy focus rồi gõ từng ký tự; Tab, Enter, Backspace đi như phím."""
+    _, across, down, codes = step
+    press(window, (CLICK, across, down, ()))
+    time.sleep(0.2)
+    for code in codes:
+        key = CONTROL_KEYS.get(chr(code))
+        if key is None:
+            user32.PostMessageW(window, WM_CHAR, code, 1)
+        else:
+            tap_key(window, key)
+        time.sleep(0.04)
+
+
+ACTIONS = {CLICK: press, DROP: press, HOLD: hold, TURN: drag, TILT: drag, WHEEL: roll, TYPE: type_in}
 
 
 def numbers_of(text: str, count: int) -> list[int]:
@@ -300,6 +381,20 @@ def step_of(kind: str, extras: int = 0):
     return parse
 
 
+def typed_step(text: str) -> Step:
+    """X,Y,CHỮ: điểm bấm lấy focus và chữ gõ vào (\\t, \\r, \\b là Tab, Enter, Backspace)."""
+    parts = text.split(",", 2)
+    if len(parts) != 3 or not parts[2]:
+        raise argparse.ArgumentTypeError(f"cần X,Y,CHỮ: {text}")
+    numbers = numbers_of(",".join(parts[:2]), 2)
+    typed = parts[2]
+    for escape, key in TYPED_KEYS.items():
+        typed = typed.replace(escape, key)
+    if any(ord(letter) > 0xFFFF for letter in typed):
+        raise argparse.ArgumentTypeError(f"chỉ nhận ký tự trong mặt phẳng cơ bản: {text}")
+    return TYPE, numbers[0], numbers[1], tuple(ord(letter) for letter in typed)
+
+
 def parse_args(argv: list[str]) -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Bấm vào vùng chơi của client rồi chụp ảnh")
     parser.add_argument("exe")
@@ -307,33 +402,7 @@ def parse_args(argv: list[str]) -> argparse.Namespace:
     steps = {"dest": "steps", "action": "append", "default": []}
     parser.add_argument("--click", type=step_of(CLICK), help="bấm trái ở điểm X,Y", **steps)
     parser.add_argument("--drop", type=step_of(DROP), help="nhấn ở X,Y rồi bỏ, không nhả", **steps)
-    parser.add_argument("--turn", type=step_of(TURN, 2), help="kéo phải từ X,Y đi DX,DY", **steps)
-    parser.add_argument("--tilt", type=step_of(TILT, 2), help="kéo nút giữa từ X,Y đi DX,DY", **steps)
-    parser.add_argument("--wheel", type=step_of(WHEEL, 1), help="lăn N nấc ở X,Y", **steps)
-    parser.add_argument("--settle", type=float, default=2.5, help="giây chờ cảnh hiện rồi mới bấm")
-    parser.add_argument("--pause", type=float, default=0.6, help="giây chờ sau mỗi bước")
-    parser.add_argument("rest", nargs="*", help="đối số chuyển cho exe")
-    return parser.parse_args(argv)
-
-
-def play(window: int, chosen: argparse.Namespace, out: pathlib.Path) -> bool:
-    """Chụp lúc đầu rồi làm từng bước; trả False khi có lần chụp hỏng."""
-    time.sleep(chosen.settle)
-    size = shoot(window, out / "00-start.png")
-    if size is None:
-        return False
-    print(f"vùng chơi {size[0]}x{size[1]}; 00-start.png")
-    for index, step in enumerate(chosen.steps, 1):
-        kind, across, down, _ = step
-        ACTIONS[kind](window, step)
-        time.sleep(chosen.pause)
-        name = f"{index:02d}-{across}-{down}.png"
-        if shoot(window, out / name) is None:
-            return False
-        print(f"{kind} {across},{down}; {name}")
-    return True
-    parser.add_argument("--click", type=step_of(CLICK), help="bấm trái ở điểm X,Y", **steps)
-    parser.add_argument("--drop", type=step_of(DROP), help="nhấn ở X,Y rồi bỏ, không nhả", **steps)
+    parser.add_argument("--hold", type=step_of(HOLD, 1), help="giữ nút trái ở X,Y trong MS mili giây", **steps)
     parser.add_argument("--turn", type=step_of(TURN, 2), help="kéo phải từ X,Y đi DX,DY", **steps)
     parser.add_argument("--tilt", type=step_of(TILT, 2), help="kéo nút giữa từ X,Y đi DX,DY", **steps)
     parser.add_argument("--wheel", type=step_of(WHEEL, 1), help="lăn N nấc ở X,Y", **steps)
@@ -372,18 +441,22 @@ def run(chosen: argparse.Namespace) -> int:
         # Cửa sổ hiện mà không lấy focus: người đang dùng máy không bị cướp bàn phím.
         quiet = subprocess.STARTUPINFO(
             dwFlags=subprocess.STARTF_USESHOWWINDOW, wShowWindow=SHOW_NO_ACTIVATE)
-        process = subprocess.Popen(command, stdout=log, stderr=subprocess.STDOUT,
+        # Cửa sổ không có focus: không có biến này SDL coi cú nhấn thật đầu tiên chỉ là cú kích hoạt cửa sổ
+        # và bỏ nó (SDL_HINT_MOUSE_FOCUS_CLICKTHROUGH), nên lần kéo bằng nút thật mất đúng lần nhấn.
+        environment = {**os.environ, "SDL_MOUSE_FOCUS_CLICKTHROUGH": "1"}
+        process = subprocess.Popen(command, stdout=log, stderr=subprocess.STDOUT, env=environment,
                                    creationflags=CREATE_NO_WINDOW, startupinfo=quiet)
         window = wait_for_window(process, 20.0)
         if window is None:
             process.kill()
             print("không thấy cửa sổ của client")
             return 100
-        if not move_off_screen(window):
-            process.kill()
-            print("cửa sổ của client không ra được ngoài màn hình")
-            return 102
+        report_placement(window)
+        ignore_hardware_input(window)
+        home = wintypes.POINT()
+        user32.GetCursorPos(ctypes.byref(home))
         is_shot = play(window, chosen, out)
+        user32.SetCursorPos(home.x, home.y)
         user32.PostMessageW(window, WM_CLOSE, 0, 0)
         try:
             code = process.wait(timeout=20)

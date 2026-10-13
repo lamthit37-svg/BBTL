@@ -1,0 +1,2643 @@
+
+######## 0x18008b200
+
+==== createBackground @ 0x18008b200
+
+/* WARNING: Function: __security_check_cookie replaced with injection: security_check_cookie */
+/* public: virtual void __cdecl CEGUI::FalagardWorldMap::createBackground(void) __ptr64 */
+
+void __thiscall CEGUI::FalagardWorldMap::createBackground(FalagardWorldMap *this)
+
+{
+  longlong lVar1;
+  int iVar2;
+  bool bVar3;
+  WindowManager *pWVar4;
+  Window *pWVar5;
+  Imageset *this_00;
+  ImagesetManager *this_01;
+  Image *pIVar6;
+  StringBaseT<char> *pSVar7;
+  undefined8 uVar8;
+  undefined8 *puVar9;
+  FalagardWorldMap *pFVar10;
+  FalagardWorldMap *pFVar11;
+  longlong lVar12;
+  undefined8 *puVar13;
+  FalagardWorldMap *pFVar14;
+  undefined8 *puVar15;
+  int iVar16;
+  undefined1 auStackY_448 [32];
+  FalagardWorldMap *local_418;
+  int local_410;
+  undefined8 *local_408;
+  int local_400 [4];
+  int local_3f0;
+  float local_3e8;
+  float local_3e4;
+  float local_3e0;
+  float local_3dc;
+  Image *local_3d8;
+  Imageset *local_3d0;
+  undefined8 local_3c0;
+  StringBaseT<char> local_3b8;
+  undefined7 uStack_3b7;
+  undefined8 local_3a8;
+  ulonglong local_3a0;
+  StringBaseT<char> local_398;
+  undefined7 uStack_397;
+  undefined8 local_388;
+  ulonglong local_380;
+  StringBaseT<char> local_378;
+  undefined7 uStack_377;
+  undefined8 local_368;
+  ulonglong local_360;
+  StringBaseT<char> local_358;
+  undefined7 uStack_357;
+  undefined8 local_348;
+  ulonglong local_340;
+  StringBaseT<char> local_338;
+  undefined7 uStack_337;
+  undefined4 local_330;
+  undefined4 uStack_32c;
+  undefined8 local_328;
+  ulonglong local_320;
+  StringBaseT<char> local_318;
+  undefined7 uStack_317;
+  undefined8 local_308;
+  ulonglong local_300;
+  StringBaseT<char> local_2f8;
+  undefined7 uStack_2f7;
+  undefined8 local_2e8;
+  ulonglong local_2e0;
+  StringBaseT<char> local_2d8;
+  undefined7 uStack_2d7;
+  undefined8 local_2c8;
+  ulonglong local_2c0;
+  StringBaseT<char> local_2b8;
+  undefined7 uStack_2b7;
+  undefined8 local_2a8;
+  ulonglong local_2a0;
+  StringBaseT<char> local_298;
+  undefined7 uStack_297;
+  undefined8 local_288;
+  ulonglong local_280;
+  undefined1 local_278;
+  undefined7 uStack_277;
+  undefined8 local_268;
+  ulonglong local_260;
+  char local_258 [128];
+  char local_1d8 [128];
+  char local_158 [128];
+  char local_d8 [128];
+  ulonglong local_58;
+  
+                    /* 0x8b200  1710  ?createBackground@FalagardWorldMap@CEGUI@@UEAAXXZ */
+  local_3c0 = 0xfffffffffffffffe;
+  local_58 = DAT_1801e9900 ^ (ulonglong)auStackY_448;
+  local_400[3] = (int)*(float *)(this + 0xf0);
+  local_3f0 = (int)*(float *)(this + 0xf4);
+  pFVar10 = this + 0xd0;
+  pFVar14 = pFVar10;
+  if (0xf < *(ulonglong *)(this + 0xe8)) {
+    pFVar14 = *(FalagardWorldMap **)pFVar10;
+  }
+  pFVar11 = this + -0x188;
+  if (0xf < *(ulonglong *)(this + -0x170)) {
+    pFVar11 = *(FalagardWorldMap **)pFVar11;
+  }
+  local_418 = this;
+  sprintf(local_1d8,"%s_auto_background_%s",pFVar11,pFVar14);
+  local_380 = 0xf;
+  puVar9 = (undefined8 *)0x0;
+  local_388 = 0;
+  local_398 = (StringBaseT<char>)0x0;
+  if (local_1d8[0] != '\0') {
+    lVar12 = -1;
+    do {
+      lVar1 = lVar12 + 1;
+      lVar12 = lVar12 + 1;
+    } while (local_1d8[lVar1] != '\0');
+  }
+  FUN_180002450(&local_398,local_1d8);
+  pWVar4 = CEGUI::WindowManager::getSingleton();
+  bVar3 = CEGUI::WindowManager::isWindowPresent(pWVar4,&local_398);
+  if (0xf < local_380) {
+    operator_delete((void *)CONCAT71(uStack_397,local_398));
+  }
+  local_380 = 0xf;
+  local_388 = 0;
+  local_398 = (StringBaseT<char>)0x0;
+  if (bVar3) {
+    puVar13 = puVar9;
+    if (local_1d8[0] != '\0') {
+      puVar13 = (undefined8 *)0xffffffffffffffff;
+      do {
+        puVar13 = (undefined8 *)((longlong)puVar13 + 1);
+      } while (local_1d8[(longlong)puVar13] != '\0');
+    }
+    FUN_180002450(&local_398,local_1d8,puVar13);
+    pWVar4 = CEGUI::WindowManager::getSingleton();
+    pWVar5 = CEGUI::WindowManager::getWindow(pWVar4,&local_398);
+    *(Window **)(this + 0xf8) = pWVar5;
+  }
+  else {
+    puVar13 = puVar9;
+    if (local_1d8[0] != '\0') {
+      puVar13 = (undefined8 *)0xffffffffffffffff;
+      do {
+        puVar13 = (undefined8 *)((longlong)puVar13 + 1);
+      } while (local_1d8[(longlong)puVar13] != '\0');
+    }
+    FUN_180002450(&local_398,local_1d8,puVar13);
+    local_320 = 0xf;
+    local_328 = 0;
+    local_338 = (StringBaseT<char>)0x0;
+    FUN_180002450(&local_338,"DefaultWindow",0xd);
+    pWVar4 = CEGUI::WindowManager::getSingleton();
+    pWVar5 = CEGUI::WindowManager::createWindow(pWVar4,&local_338,&local_398);
+    *(Window **)(this + 0xf8) = pWVar5;
+    if (0xf < local_320) {
+      operator_delete((void *)CONCAT71(uStack_337,local_338));
+    }
+    local_320 = 0xf;
+    local_328 = 0;
+    local_338 = (StringBaseT<char>)0x0;
+  }
+  if (0xf < local_380) {
+    operator_delete((void *)CONCAT71(uStack_397,local_398));
+  }
+  local_400[0] = 0x42c80000;
+  local_400[1] = 0x42c80000;
+  CEGUI::Window::setMaximumSize(*(Window **)(this + 0xf8),(Size *)local_400);
+  CEGUI::Window::addChildWindow((Window *)(this + -0x400),*(Window **)(this + 0xf8));
+  if (0xf < *(ulonglong *)(this + 0xe8)) {
+    pFVar10 = *(FalagardWorldMap **)pFVar10;
+  }
+  sprintf(local_d8,"%s",pFVar10);
+  iVar2 = DAT_18013a820;
+  local_400[2] = 0;
+  puVar13 = puVar9;
+  pIVar6 = local_3d8;
+  puVar15 = puVar9;
+  do {
+    local_410 = (int)puVar13;
+    puVar13 = puVar9;
+    if (local_3f0 <= local_410) {
+      local_330 = 0;
+      puVar13 = operator_new(0x20);
+      local_408 = puVar9;
+      if (puVar13 != (undefined8 *)0x0) {
+        *puVar13 = _memberBinder<CEGUI::FalagardWorldMap,bool,CEGUI::EventArgs_const&___ptr64>::
+                   vftable;
+        puVar13[1] = onDrapMove;
+        puVar13[2] = CONCAT44(uStack_32c,local_330);
+        puVar13[3] = this + -0x400;
+        local_408 = puVar13;
+      }
+      (**(code **)(*(longlong *)(*(longlong *)(this + 0xf8) + 8) + 0x10))
+                ((longlong *)(*(longlong *)(this + 0xf8) + 8),&local_418,EventMouseMove_exref,
+                 &local_408);
+      if (local_418 != (FalagardWorldMap *)0x0) {
+        CEGUI::Referenced::release((Referenced *)local_418);
+      }
+      local_330 = 0;
+      puVar13 = operator_new(0x20);
+      local_408 = puVar9;
+      if (puVar13 != (undefined8 *)0x0) {
+        *puVar13 = _memberBinder<CEGUI::FalagardWorldMap,bool,CEGUI::EventArgs_const&___ptr64>::
+                   vftable;
+        puVar13[1] = onDrapStart;
+        puVar13[2] = CONCAT44(uStack_32c,local_330);
+        puVar13[3] = this + -0x400;
+        local_408 = puVar13;
+      }
+      (**(code **)(*(longlong *)(*(longlong *)(this + 0xf8) + 8) + 0x10))
+                ((longlong *)(*(longlong *)(this + 0xf8) + 8),&local_418,EventMouseRButtonDown_exref
+                 ,&local_408);
+      if (local_418 != (FalagardWorldMap *)0x0) {
+        CEGUI::Referenced::release((Referenced *)local_418);
+      }
+      local_330 = 0;
+      puVar13 = operator_new(0x20);
+      if (puVar13 != (undefined8 *)0x0) {
+        *puVar13 = _memberBinder<CEGUI::FalagardWorldMap,bool,CEGUI::EventArgs_const&___ptr64>::
+                   vftable;
+        puVar13[1] = onDrapEnd;
+        puVar13[2] = CONCAT44(uStack_32c,local_330);
+        puVar13[3] = this + -0x400;
+        puVar9 = puVar13;
+      }
+      local_408 = puVar9;
+      (**(code **)(*(longlong *)(*(longlong *)(this + 0xf8) + 8) + 0x10))
+                ((longlong *)(*(longlong *)(this + 0xf8) + 8),&local_418,EventMouseButtonUp_exref,
+                 &local_408);
+      if (local_418 != (FalagardWorldMap *)0x0) {
+        CEGUI::Referenced::release((Referenced *)local_418);
+      }
+      return;
+    }
+    while (iVar16 = (int)puVar13, local_400[0] = iVar16, iVar16 < local_400[3]) {
+      sprintf(local_258,"%s%02d_auto_imageset",local_d8,puVar15);
+      pFVar10 = this + -0x188;
+      if (0xf < *(ulonglong *)(this + -0x170)) {
+        pFVar10 = *(FalagardWorldMap **)pFVar10;
+      }
+      sprintf(local_1d8,"%s_auto_background_%s_item%d",pFVar10,local_d8);
+      local_3d0 = (Imageset *)0x0;
+      sprintf(local_158,"LargeMap/jpg_%s%02d.dds",local_d8,puVar15);
+      local_360 = 0xf;
+      local_368 = 0;
+      local_378 = (StringBaseT<char>)0x0;
+      if (local_258[0] != '\0') {
+        lVar12 = -1;
+        do {
+          lVar1 = lVar12 + 1;
+          lVar12 = lVar12 + 1;
+        } while (local_258[lVar1] != '\0');
+      }
+      FUN_180002450(&local_378,local_258);
+      bVar3 = CEGUI::NamedXMLResourceManager<CEGUI::Imageset,CEGUI::Imageset_xmlHandler>::isDefined
+                        (*(NamedXMLResourceManager<CEGUI::Imageset,CEGUI::Imageset_xmlHandler> **)
+                          ms_Singleton_exref,&local_378);
+      if (0xf < local_360) {
+        operator_delete((void *)CONCAT71(uStack_377,local_378));
+      }
+      if (bVar3) {
+        local_300 = 0xf;
+        local_308 = 0;
+        local_318 = (StringBaseT<char>)0x0;
+        puVar13 = puVar9;
+        if (local_258[0] != '\0') {
+          puVar13 = (undefined8 *)0xffffffffffffffff;
+          do {
+            puVar13 = (undefined8 *)((longlong)puVar13 + 1);
+          } while (local_258[(longlong)puVar13] != '\0');
+        }
+        FUN_180002450(&local_318,local_258,puVar13);
+        this_00 = CEGUI::NamedXMLResourceManager<CEGUI::Imageset,CEGUI::Imageset_xmlHandler>::get
+                            (*(NamedXMLResourceManager<CEGUI::Imageset,CEGUI::Imageset_xmlHandler>
+                               **)ms_Singleton_exref,&local_318);
+        if (0xf < local_300) {
+          operator_delete((void *)CONCAT71(uStack_317,local_318));
+        }
+        local_300 = 0xf;
+        local_308 = 0;
+        local_318 = (StringBaseT<char>)0x0;
+      }
+      else {
+        local_3a0 = 0xf;
+        local_3a8 = 0;
+        local_3b8 = (StringBaseT<char>)0x0;
+        FUN_180002450(&local_3b8,&DAT_1801172b0);
+        local_360 = 0xf;
+        local_368 = 0;
+        local_378 = (StringBaseT<char>)0x0;
+        if (local_158[0] != '\0') {
+          lVar12 = -1;
+          do {
+            lVar1 = lVar12 + 1;
+            lVar12 = lVar12 + 1;
+          } while (local_158[lVar1] != '\0');
+        }
+        FUN_180002450(&local_378,local_158);
+        local_340 = 0xf;
+        local_348 = 0;
+        local_358 = (StringBaseT<char>)0x0;
+        puVar13 = puVar9;
+        if (local_258[0] != '\0') {
+          puVar13 = (undefined8 *)0xffffffffffffffff;
+          do {
+            puVar13 = (undefined8 *)((longlong)puVar13 + 1);
+          } while (local_258[(longlong)puVar13] != '\0');
+        }
+        FUN_180002450(&local_358,local_258,puVar13);
+        CEGUI::ImagesetManager::createFromImageFile
+                  (*(ImagesetManager **)ms_Singleton_exref,&local_358,&local_378,&local_3b8,0);
+        if (0xf < local_340) {
+          operator_delete((void *)CONCAT71(uStack_357,local_358));
+        }
+        local_340 = 0xf;
+        local_348 = 0;
+        local_358 = (StringBaseT<char>)0x0;
+        if (0xf < local_360) {
+          operator_delete((void *)CONCAT71(uStack_377,local_378));
+        }
+        local_360 = 0xf;
+        local_368 = 0;
+        local_378 = (StringBaseT<char>)0x0;
+        if (0xf < local_3a0) {
+          operator_delete((void *)CONCAT71(uStack_3b7,local_3b8));
+        }
+        local_2e0 = 0xf;
+        local_2e8 = 0;
+        local_2f8 = (StringBaseT<char>)0x0;
+        puVar13 = puVar9;
+        if (local_258[0] != '\0') {
+          puVar13 = (undefined8 *)0xffffffffffffffff;
+          do {
+            puVar13 = (undefined8 *)((longlong)puVar13 + 1);
+          } while (local_258[(longlong)puVar13] != '\0');
+        }
+        FUN_180002450(&local_2f8,local_258,puVar13);
+        this_00 = CEGUI::NamedXMLResourceManager<CEGUI::Imageset,CEGUI::Imageset_xmlHandler>::get
+                            (*(NamedXMLResourceManager<CEGUI::Imageset,CEGUI::Imageset_xmlHandler>
+                               **)ms_Singleton_exref,&local_2f8);
+        local_3d0 = this_00;
+        if (0xf < local_2e0) {
+          operator_delete((void *)CONCAT71(uStack_2f7,local_2f8));
+        }
+        local_2e0 = 0xf;
+        local_2e8 = 0;
+        local_2f8 = (StringBaseT<char>)0x0;
+      }
+      if (this_00 == (Imageset *)0x0) {
+        sprintf(local_158,"LargeMap/%s%02d.jpg",local_d8,puVar15);
+        local_3a0 = 0xf;
+        local_3a8 = 0;
+        local_3b8 = (StringBaseT<char>)0x0;
+        if (local_258[0] != '\0') {
+          lVar12 = -1;
+          do {
+            lVar1 = lVar12 + 1;
+            lVar12 = lVar12 + 1;
+          } while (local_258[lVar1] != '\0');
+        }
+        FUN_180002450(&local_3b8,local_258);
+        bVar3 = CEGUI::NamedXMLResourceManager<CEGUI::Imageset,CEGUI::Imageset_xmlHandler>::
+                isDefined(*(NamedXMLResourceManager<CEGUI::Imageset,CEGUI::Imageset_xmlHandler> **)
+                           ms_Singleton_exref,&local_3b8);
+        if (0xf < local_3a0) {
+          operator_delete((void *)CONCAT71(uStack_3b7,local_3b8));
+        }
+        if (!bVar3) {
+          local_3a0 = 0xf;
+          local_3a8 = 0;
+          local_3b8 = (StringBaseT<char>)0x0;
+          FUN_180002450(&local_3b8,&DAT_1801172b0);
+          local_340 = 0xf;
+          local_348 = 0;
+          local_358 = (StringBaseT<char>)0x0;
+          if (local_158[0] != '\0') {
+            lVar12 = -1;
+            do {
+              lVar1 = lVar12 + 1;
+              lVar12 = lVar12 + 1;
+            } while (local_158[lVar1] != '\0');
+          }
+          FUN_180002450(&local_358,local_158);
+          local_360 = 0xf;
+          local_368 = 0;
+          local_378 = (StringBaseT<char>)0x0;
+          puVar13 = puVar9;
+          if (local_258[0] != '\0') {
+            puVar13 = (undefined8 *)0xffffffffffffffff;
+            do {
+              puVar13 = (undefined8 *)((longlong)puVar13 + 1);
+            } while (local_258[(longlong)puVar13] != '\0');
+          }
+          FUN_180002450(&local_378,local_258,puVar13);
+          CEGUI::ImagesetManager::createFromImageFile
+                    (*(ImagesetManager **)ms_Singleton_exref,&local_378,&local_358,&local_3b8,0);
+          if (0xf < local_360) {
+            operator_delete((void *)CONCAT71(uStack_377,local_378));
+          }
+          local_360 = 0xf;
+          local_368 = 0;
+          local_378 = (StringBaseT<char>)0x0;
+          if (0xf < local_340) {
+            operator_delete((void *)CONCAT71(uStack_357,local_358));
+          }
+          local_340 = 0xf;
+          local_348 = 0;
+          local_358 = (StringBaseT<char>)0x0;
+          if (0xf < local_3a0) {
+            operator_delete((void *)CONCAT71(uStack_3b7,local_3b8));
+          }
+        }
+        local_2a0 = 0xf;
+        local_2a8 = 0;
+        local_2b8 = (StringBaseT<char>)0x0;
+        if (local_258[0] != '\0') {
+          lVar12 = -1;
+          do {
+            lVar1 = lVar12 + 1;
+            lVar12 = lVar12 + 1;
+          } while (local_258[lVar1] != '\0');
+        }
+        FUN_180002450(&local_2b8,local_258);
+        this_01 = CEGUI::Singleton<CEGUI::ImagesetManager>::getSingleton();
+        this_00 = CEGUI::NamedXMLResourceManager<CEGUI::Imageset,CEGUI::Imageset_xmlHandler>::get
+                            ((NamedXMLResourceManager<CEGUI::Imageset,CEGUI::Imageset_xmlHandler> *)
+                             this_01,&local_2b8);
+        if (0xf < local_2a0) {
+          operator_delete((void *)CONCAT71(uStack_2b7,local_2b8));
+        }
+        local_2a0 = 0xf;
+        local_2a8 = 0;
+        local_2b8 = (StringBaseT<char>)0x0;
+        if (this_00 != (Imageset *)0x0) goto LAB_18008bc6b;
+      }
+      else {
+LAB_18008bc6b:
+        CEGUI::Rect::Rect((Rect *)&local_338,0.0,0.0,(float)iVar2,(float)iVar2);
+        CEGUI::Vector2::Vector2((Vector2 *)&local_408,0.0,0.0);
+        local_3a0 = 0xf;
+        local_3a8 = 0;
+        local_3b8 = (StringBaseT<char>)0x0;
+        FUN_180002450(&local_3b8,&DAT_18013a7f4,4);
+        bVar3 = CEGUI::Imageset::isImageDefined(this_00,&local_3b8);
+        if (0xf < local_3a0) {
+          operator_delete((void *)CONCAT71(uStack_3b7,local_3b8));
+        }
+        if (!bVar3) {
+          local_3a0 = 0xf;
+          local_3a8 = 0;
+          local_3b8 = (StringBaseT<char>)0x0;
+          FUN_180002450(&local_3b8,&DAT_18013a7f4,4);
+          CEGUI::Imageset::defineImage(this_00,&local_3b8,(Rect *)&local_338,(Vector2 *)&local_408);
+          if (0xf < local_3a0) {
+            operator_delete((void *)CONCAT71(uStack_3b7,local_3b8));
+          }
+        }
+        local_2c0 = 0xf;
+        local_2c8 = 0;
+        local_2d8 = (StringBaseT<char>)0x0;
+        FUN_180002450(&local_2d8,&DAT_18013a7f4);
+        pIVar6 = CEGUI::Imageset::getImage(this_00,&local_2d8);
+        local_3d8 = pIVar6;
+        if (0xf < local_2c0) {
+          operator_delete((void *)CONCAT71(uStack_2d7,local_2d8));
+        }
+        local_2c0 = 0xf;
+        local_2c8 = 0;
+        local_2d8 = (StringBaseT<char>)0x0;
+      }
+      if ((pIVar6 != (Image *)0x0) && (this_00 != (Imageset *)0x0)) {
+        local_3a0 = 0xf;
+        local_3a8 = 0;
+        local_3b8 = (StringBaseT<char>)0x0;
+        if (local_1d8[0] != '\0') {
+          lVar12 = -1;
+          do {
+            lVar1 = lVar12 + 1;
+            lVar12 = lVar12 + 1;
+          } while (local_1d8[lVar1] != '\0');
+        }
+        FUN_180002450(&local_3b8,local_1d8);
+        pWVar4 = CEGUI::WindowManager::getSingleton();
+        bVar3 = CEGUI::WindowManager::isWindowPresent(pWVar4,&local_3b8);
+        if (0xf < local_3a0) {
+          operator_delete((void *)CONCAT71(uStack_3b7,local_3b8));
+        }
+        if (bVar3) {
+          local_380 = 0xf;
+          local_388 = 0;
+          local_398 = (StringBaseT<char>)0x0;
+          puVar13 = puVar9;
+          if (local_1d8[0] != '\0') {
+            puVar13 = (undefined8 *)0xffffffffffffffff;
+            do {
+              puVar13 = (undefined8 *)((longlong)puVar13 + 1);
+            } while (local_1d8[(longlong)puVar13] != '\0');
+          }
+          FUN_180002450(&local_398,local_1d8,puVar13);
+          pWVar4 = CEGUI::WindowManager::getSingleton();
+          pWVar5 = CEGUI::WindowManager::getWindow(pWVar4,&local_398);
+          if (0xf < local_380) {
+            operator_delete((void *)CONCAT71(uStack_397,local_398));
+          }
+          local_380 = 0xf;
+          local_388 = 0;
+          local_398 = (StringBaseT<char>)0x0;
+        }
+        else {
+          local_280 = 0xf;
+          local_288 = 0;
+          local_298 = (StringBaseT<char>)0x0;
+          puVar13 = puVar9;
+          if (local_1d8[0] != '\0') {
+            puVar13 = (undefined8 *)0xffffffffffffffff;
+            do {
+              puVar13 = (undefined8 *)((longlong)puVar13 + 1);
+            } while (local_1d8[(longlong)puVar13] != '\0');
+          }
+          FUN_180002450(&local_298,local_1d8,puVar13);
+          local_260 = 0xf;
+          local_268 = 0;
+          local_278 = 0;
+          FUN_180002450(&local_278,"Image",5);
+          pSVar7 = (StringBaseT<char> *)FUN_180051fa0(this + -0x10,&local_278);
+          pWVar4 = CEGUI::WindowManager::getSingleton();
+          pWVar5 = CEGUI::WindowManager::createWindow(pWVar4,pSVar7,&local_298);
+          if (0xf < local_260) {
+            operator_delete((void *)CONCAT71(uStack_277,local_278));
+          }
+          local_260 = 0xf;
+          local_268 = 0;
+          local_278 = 0;
+          if (0xf < local_280) {
+            operator_delete((void *)CONCAT71(uStack_297,local_298));
+          }
+          local_280 = 0xf;
+          local_288 = 0;
+          local_298 = (StringBaseT<char>)0x0;
+        }
+        CEGUI::Window::setRiseOnClickEnabled(pWVar5,false);
+        CEGUI::Window::setAlwaysOnTop(pWVar5,false);
+        CEGUI::Window::setMouseRButtonHollow(pWVar5,true);
+        CEGUI::Window::setMouseLButtonHollow(pWVar5,true);
+        CEGUI::Window::setMouseHollow(pWVar5,true);
+        CEGUI::Window::addChildWindow(*(Window **)(this + 0xf8),pWVar5);
+        CEGUI::Rect::Rect((Rect *)&local_3e8);
+        local_3e0 = (float)iVar16 / *(float *)(this + 0xf0);
+        local_3dc = (float)(iVar16 + 1) / *(float *)(this + 0xf0);
+        local_3e8 = (float)local_410 / *(float *)(this + 0xf4);
+        local_3e4 = (float)(local_410 + 1) / *(float *)(this + 0xf4);
+        CEGUI::Window::setRect(pWVar5,0,(Rect *)&local_3e8);
+        lVar12 = *(longlong *)pWVar5;
+        uVar8 = CEGUI::Rect::getSize((Rect *)&local_3e8);
+        (**(code **)(lVar12 + 0x50))(pWVar5,0,uVar8);
+        CEGUI::StaticImage::setImage((StaticImage *)pWVar5,pIVar6);
+      }
+      local_400[2] = (int)puVar15 + 1;
+      puVar15 = (undefined8 *)(ulonglong)(uint)local_400[2];
+      puVar13 = (undefined8 *)(ulonglong)(iVar16 + 1);
+    }
+    puVar13 = (undefined8 *)(ulonglong)(local_410 + 1);
+  } while( true );
+}
+
+// gọi: FUN_180002450@180002450, FUN_180051fa0@180051fa0, Rect@33c, Rect@4, Vector2@33b, __security_check_cookie@1800edfa0, addChildWindow@2ae, createFromImageFile@347, createWindow@12b, defineImage@345, get@141, getImage@140, getSingleton@346, getSingleton@96, getSize@33d, getWindow@97, isDefined@320, isImageDefined@344, isWindowPresent@2b2, operator_delete@1800ed89a, operator_new@1800ed894, release@2ac, setAlwaysOnTop@2a4, setImage@2df, setMaximumSize@33f, setMouseHollow@298, setMouseLButtonHollow@29a, setMouseRButtonHollow@29b, setRect@2af, setRiseOnClickEnabled@341, sprintf@3b3
+
+######## 0x18008ea20
+
+==== updataBackground @ 0x18008ea20
+
+/* public: void __cdecl CEGUI::FalagardWorldMap::updataBackground(void) __ptr64 */
+
+void __thiscall CEGUI::FalagardWorldMap::updataBackground(FalagardWorldMap *this)
+
+{
+  Vector2 *pVVar1;
+  longlong *plVar2;
+  float fVar3;
+  float fVar4;
+  float fVar5;
+  float fVar6;
+  float local_res8;
+  float local_resc;
+  
+                    /* 0x8ea20  3192  ?updataBackground@FalagardWorldMap@CEGUI@@QEAAXXZ */
+  fVar3 = DAT_18011787c;
+  plVar2 = *(longlong **)(this + 0x4f8);
+  if (plVar2 != (longlong *)0x0) {
+    pVVar1 = (Vector2 *)(this + 0x500);
+    local_res8 = (*(float *)(this + 0x4f0) * DAT_18013a820) / *(float *)(this + 0x110);
+    local_resc = (*(float *)(this + 0x4f4) * DAT_18013a820) / *(float *)(this + 0x114);
+    fVar6 = DAT_18011787c - local_res8;
+    if (*(float *)pVVar1 <= fVar6 && fVar6 != *(float *)pVVar1) {
+      *(float *)pVVar1 = fVar6;
+    }
+    fVar5 = fVar3 - local_resc;
+    if (*(float *)(this + 0x504) <= fVar5 && fVar5 != *(float *)(this + 0x504)) {
+      *(float *)(this + 0x504) = fVar5;
+    }
+    if (0.0 < *(float *)pVVar1) {
+      *(undefined4 *)pVVar1 = 0;
+    }
+    if (0.0 < *(float *)(this + 0x504)) {
+      *(undefined4 *)(this + 0x504) = 0;
+    }
+    fVar4 = DAT_1801189cc;
+    if (local_res8 < fVar3) {
+      *(float *)pVVar1 = fVar6 * DAT_1801189cc;
+    }
+    if (local_resc < fVar3) {
+      *(float *)(this + 0x504) = fVar5 * fVar4;
+    }
+    (**(code **)(*plVar2 + 0x50))(plVar2,0,&local_res8);
+    CEGUI::Window::setPosition(*(Window **)(this + 0x4f8),0,pVVar1);
+    CEGUI::Window::setVisible(*(Window **)(this + 0x4f8),true);
+    CEGUI::Window::requestRedraw((Window *)this,false);
+  }
+  return;
+}
+
+// gọi: requestRedraw@19, setPosition@2a6, setVisible@2a5
+
+######## 0x18008c320
+
+==== createNewCity @ 0x18008c320
+
+/* WARNING: Function: __security_check_cookie replaced with injection: security_check_cookie */
+/* private: void __cdecl CEGUI::FalagardWorldMap::createNewCity(int,struct
+   CEGUI::FalagardWorldMap::CITY_DATA * __ptr64) __ptr64 */
+
+void __thiscall
+CEGUI::FalagardWorldMap::createNewCity(FalagardWorldMap *this,int param_1,CITY_DATA *param_2)
+
+{
+  ulonglong uVar1;
+  bool bVar2;
+  WindowManager *pWVar3;
+  StringBaseT<char> *pSVar4;
+  Window *pWVar5;
+  basic_string<char,std::char_traits<char>,std::allocator<char>_> *pbVar6;
+  Referenced *pRVar7;
+  StringBaseT<char> *pSVar8;
+  undefined8 uVar9;
+  String32 *pSVar10;
+  Referenced *pRVar11;
+  undefined1 auStack_158 [32];
+  Referenced *local_138;
+  Referenced *local_130;
+  undefined1 local_128 [8];
+  undefined8 local_120;
+  StringBaseT<char> local_118;
+  undefined7 uStack_117;
+  undefined8 local_108;
+  ulonglong local_100;
+  String32 local_f8;
+  undefined7 uStack_f7;
+  undefined4 local_f0;
+  undefined4 uStack_ec;
+  undefined8 local_e8;
+  ulonglong local_e0;
+  Referenced local_c8 [128];
+  ulonglong local_48;
+  
+                    /* 0x8c320  1729
+                       ?createNewCity@FalagardWorldMap@CEGUI@@AEAAXHPEAUCITY_DATA@12@@Z */
+  local_120 = 0xfffffffffffffffe;
+  local_48 = DAT_1801e9900 ^ (ulonglong)auStack_158;
+  pRVar11 = (Referenced *)0x0;
+  *(undefined8 *)(param_2 + 0x110) = 0;
+  sprintf((char *)local_c8,"city_%d_Name_Window",(ulonglong)(uint)param_1);
+  local_100 = 0xf;
+  local_108 = 0;
+  local_118 = (StringBaseT<char>)0x0;
+  pRVar7 = pRVar11;
+  if (local_c8[0] != (Referenced)0x0) {
+    pRVar7 = (Referenced *)0xffffffffffffffff;
+    do {
+      pRVar7 = pRVar7 + 1;
+    } while (local_c8[(longlong)pRVar7] != (Referenced)0x0);
+  }
+  FUN_180002450(&local_118,local_c8,pRVar7);
+  pWVar3 = CEGUI::WindowManager::getSingleton();
+  bVar2 = CEGUI::WindowManager::isWindowPresent(pWVar3,&local_118);
+  if (0xf < local_100) {
+    operator_delete((void *)CONCAT71(uStack_117,local_118));
+  }
+  local_100 = 0xf;
+  local_108 = 0;
+  local_118 = (StringBaseT<char>)0x0;
+  if (bVar2) {
+    pRVar7 = pRVar11;
+    if (local_c8[0] != (Referenced)0x0) {
+      pRVar7 = (Referenced *)0xffffffffffffffff;
+      do {
+        pRVar7 = pRVar7 + 1;
+      } while (local_c8[(longlong)pRVar7] != (Referenced)0x0);
+    }
+    FUN_180002450(&local_118,local_c8,pRVar7);
+    pWVar3 = CEGUI::WindowManager::getSingleton();
+    pWVar5 = CEGUI::WindowManager::getWindow(pWVar3,&local_118);
+    *(Window **)(param_2 + 8) = pWVar5;
+  }
+  else {
+    pRVar7 = pRVar11;
+    if (local_c8[0] != (Referenced)0x0) {
+      pRVar7 = (Referenced *)0xffffffffffffffff;
+      do {
+        pRVar7 = pRVar7 + 1;
+      } while (local_c8[(longlong)pRVar7] != (Referenced)0x0);
+    }
+    FUN_180002450(&local_118,local_c8,pRVar7);
+    local_e0 = 0xf;
+    local_e8 = 0;
+    local_f8 = (String32)0x0;
+    FUN_180002450(&local_f8,"Image",5);
+    pSVar4 = (StringBaseT<char> *)FUN_180051fa0(this + 0x3f0,&local_f8);
+    pWVar3 = CEGUI::WindowManager::getSingleton();
+    pWVar5 = CEGUI::WindowManager::createWindow(pWVar3,pSVar4,&local_118);
+    *(Window **)(param_2 + 8) = pWVar5;
+    if (0xf < local_e0) {
+      operator_delete((void *)CONCAT71(uStack_f7,local_f8));
+    }
+    local_e0 = 0xf;
+    local_e8 = 0;
+    local_f8 = (String32)0x0;
+  }
+  if (0xf < local_100) {
+    operator_delete((void *)CONCAT71(uStack_117,local_118));
+  }
+  local_100 = 0xf;
+  local_108 = 0;
+  local_118 = (StringBaseT<char>)0x0;
+  pRVar7 = pRVar11;
+  if (local_c8[0] != (Referenced)0x0) {
+    pRVar7 = (Referenced *)0xffffffffffffffff;
+    do {
+      pRVar7 = pRVar7 + 1;
+    } while (local_c8[(longlong)pRVar7] != (Referenced)0x0);
+  }
+  FUN_180002450(&local_118,local_c8,pRVar7);
+  pSVar4 = (StringBaseT<char> *)(param_2 + 0xb0);
+  if (pSVar4 != &local_118) {
+    FUN_180002300(pSVar4,&local_118,0,0xffffffffffffffff);
+  }
+  if (0xf < local_100) {
+    operator_delete((void *)CONCAT71(uStack_117,local_118));
+  }
+  CEGUI::Window::setMouseHollow(*(Window **)(param_2 + 8),false);
+  CEGUI::Window::setMouseRButtonHollow(*(Window **)(param_2 + 8),true);
+  *(undefined1 *)(*(longlong *)(param_2 + 8) + 0x177) = 0;
+  *(undefined4 *)(*(longlong *)(param_2 + 8) + 0x2dc) = 9;
+  *(undefined4 *)(*(longlong *)(param_2 + 8) + 0x2d0) = 3;
+  CEGUI::Window::setAlwaysOnTop(*(Window **)(param_2 + 8),true);
+  pbVar6 = (basic_string<char,std::char_traits<char>,std::allocator<char>_> *)
+           CEGUI::PropertyHelper::intToString((int)&local_118);
+  CEGUI::String32::String32(&local_f8,pbVar6);
+  (**(code **)(**(longlong **)(param_2 + 8) + 0x48))(*(longlong **)(param_2 + 8),&local_f8);
+  CEGUI::String32::~String32(&local_f8);
+  if (0xf < local_100) {
+    operator_delete((void *)CONCAT71(uStack_117,local_118));
+  }
+  local_f0 = 0;
+  pRVar7 = operator_new(0x20);
+  local_138 = pRVar11;
+  if (pRVar7 != (Referenced *)0x0) {
+    *(undefined ***)pRVar7 =
+         _memberBinder<CEGUI::FalagardWorldMap,bool,CEGUI::EventArgs_const&___ptr64>::vftable;
+    *(code **)(pRVar7 + 8) = cityHover;
+    *(ulonglong *)(pRVar7 + 0x10) = CONCAT44(uStack_ec,local_f0);
+    *(FalagardWorldMap **)(pRVar7 + 0x18) = this;
+    local_138 = pRVar7;
+  }
+  (**(code **)(*(longlong *)(*(longlong *)(param_2 + 8) + 8) + 0x10))
+            ((longlong *)(*(longlong *)(param_2 + 8) + 8),&local_130,EventMouseEnters_exref,
+             &local_138);
+  if (local_130 != (Referenced *)0x0) {
+    CEGUI::Referenced::release(local_130);
+  }
+  local_f0 = 0;
+  pRVar7 = operator_new(0x20);
+  local_130 = pRVar11;
+  if (pRVar7 != (Referenced *)0x0) {
+    *(undefined ***)pRVar7 =
+         _memberBinder<CEGUI::FalagardWorldMap,bool,CEGUI::EventArgs_const&___ptr64>::vftable;
+    *(code **)(pRVar7 + 8) = cityNormal;
+    *(ulonglong *)(pRVar7 + 0x10) = CONCAT44(uStack_ec,local_f0);
+    *(FalagardWorldMap **)(pRVar7 + 0x18) = this;
+    local_130 = pRVar7;
+  }
+  (**(code **)(*(longlong *)(*(longlong *)(param_2 + 8) + 8) + 0x10))
+            ((longlong *)(*(longlong *)(param_2 + 8) + 8),&local_138,EventMouseLeaves_exref,
+             &local_130);
+  if (local_138 != (Referenced *)0x0) {
+    CEGUI::Referenced::release(local_138);
+  }
+  local_f0 = 0;
+  pRVar7 = operator_new(0x20);
+  local_130 = pRVar11;
+  if (pRVar7 != (Referenced *)0x0) {
+    *(undefined ***)pRVar7 =
+         _memberBinder<CEGUI::FalagardWorldMap,bool,CEGUI::EventArgs_const&___ptr64>::vftable;
+    *(code **)(pRVar7 + 8) = onClick;
+    *(ulonglong *)(pRVar7 + 0x10) = CONCAT44(uStack_ec,local_f0);
+    *(FalagardWorldMap **)(pRVar7 + 0x18) = this;
+    local_130 = pRVar7;
+  }
+  (**(code **)(*(longlong *)(*(longlong *)(param_2 + 8) + 8) + 0x10))
+            ((longlong *)(*(longlong *)(param_2 + 8) + 8),&local_138,EventMouseClick_exref,
+             &local_130);
+  if (local_138 != (Referenced *)0x0) {
+    CEGUI::Referenced::release(local_138);
+  }
+  CEGUI::Window::setVisible(*(Window **)(param_2 + 8),false);
+  CEGUI::Window::addChildWindow(*(Window **)(this + 0x4f8),*(Window **)(param_2 + 8));
+  sprintf((char *)local_c8,"city_%d_Flag_Window",(ulonglong)(uint)param_1);
+  local_100 = 0xf;
+  local_108 = 0;
+  local_118 = (StringBaseT<char>)0x0;
+  pRVar7 = pRVar11;
+  if (local_c8[0] != (Referenced)0x0) {
+    pRVar7 = (Referenced *)0xffffffffffffffff;
+    do {
+      pRVar7 = pRVar7 + 1;
+    } while (local_c8[(longlong)pRVar7] != (Referenced)0x0);
+  }
+  FUN_180002450(&local_118,local_c8,pRVar7);
+  pWVar3 = CEGUI::WindowManager::getSingleton();
+  bVar2 = CEGUI::WindowManager::isWindowPresent(pWVar3,&local_118);
+  if (0xf < local_100) {
+    operator_delete((void *)CONCAT71(uStack_117,local_118));
+  }
+  local_100 = 0xf;
+  local_108 = 0;
+  local_118 = (StringBaseT<char>)0x0;
+  if (bVar2) {
+    pRVar7 = pRVar11;
+    if (local_c8[0] != (Referenced)0x0) {
+      pRVar7 = (Referenced *)0xffffffffffffffff;
+      do {
+        pRVar7 = pRVar7 + 1;
+      } while (local_c8[(longlong)pRVar7] != (Referenced)0x0);
+    }
+    FUN_180002450(&local_118,local_c8,pRVar7);
+    pWVar3 = CEGUI::WindowManager::getSingleton();
+    pWVar5 = CEGUI::WindowManager::getWindow(pWVar3,&local_118);
+    *(Window **)param_2 = pWVar5;
+  }
+  else {
+    pRVar7 = pRVar11;
+    if (local_c8[0] != (Referenced)0x0) {
+      pRVar7 = (Referenced *)0xffffffffffffffff;
+      do {
+        pRVar7 = pRVar7 + 1;
+      } while (local_c8[(longlong)pRVar7] != (Referenced)0x0);
+    }
+    FUN_180002450(&local_118,local_c8,pRVar7);
+    local_e0 = 0xf;
+    local_e8 = 0;
+    local_f8 = (String32)0x0;
+    FUN_180002450(&local_f8,"Image",5);
+    pSVar8 = (StringBaseT<char> *)FUN_180051fa0(this + 0x3f0,&local_f8);
+    pWVar3 = CEGUI::WindowManager::getSingleton();
+    pWVar5 = CEGUI::WindowManager::createWindow(pWVar3,pSVar8,&local_118);
+    *(Window **)param_2 = pWVar5;
+    if (0xf < local_e0) {
+      operator_delete((void *)CONCAT71(uStack_f7,local_f8));
+    }
+    local_e0 = 0xf;
+    local_e8 = 0;
+    local_f8 = (String32)0x0;
+  }
+  if (0xf < local_100) {
+    operator_delete((void *)CONCAT71(uStack_117,local_118));
+  }
+  local_100 = 0xf;
+  local_108 = 0;
+  local_118 = (StringBaseT<char>)0x0;
+  pRVar7 = pRVar11;
+  if (local_c8[0] != (Referenced)0x0) {
+    pRVar7 = (Referenced *)0xffffffffffffffff;
+    do {
+      pRVar7 = pRVar7 + 1;
+    } while (local_c8[(longlong)pRVar7] != (Referenced)0x0);
+  }
+  FUN_180002450(&local_118,local_c8,pRVar7);
+  if ((StringBaseT<char> *)(param_2 + 0x70) != &local_118) {
+    FUN_180002300((StringBaseT<char> *)(param_2 + 0x70),&local_118,0,0xffffffffffffffff);
+  }
+  if (0xf < local_100) {
+    operator_delete((void *)CONCAT71(uStack_117,local_118));
+  }
+  CEGUI::Window::setMouseHollow(*(Window **)param_2,false);
+  CEGUI::Window::setMouseRButtonHollow(*(Window **)param_2,true);
+  *(undefined1 *)(*(longlong *)param_2 + 0x177) = 0;
+  *(undefined4 *)(*(longlong *)param_2 + 0x2dc) = 9;
+  *(undefined4 *)(*(longlong *)param_2 + 0x2d0) = 3;
+  CEGUI::Window::setAlwaysOnTop(*(Window **)param_2,true);
+  pbVar6 = (basic_string<char,std::char_traits<char>,std::allocator<char>_> *)
+           CEGUI::PropertyHelper::intToString((int)&local_118);
+  CEGUI::String32::String32(&local_f8,pbVar6);
+  (**(code **)(**(longlong **)param_2 + 0x48))(*(longlong **)param_2,&local_f8);
+  CEGUI::String32::~String32(&local_f8);
+  if (0xf < local_100) {
+    operator_delete((void *)CONCAT71(uStack_117,local_118));
+  }
+  local_f0 = 0;
+  pRVar7 = operator_new(0x20);
+  local_130 = pRVar11;
+  if (pRVar7 != (Referenced *)0x0) {
+    *(undefined ***)pRVar7 =
+         _memberBinder<CEGUI::FalagardWorldMap,bool,CEGUI::EventArgs_const&___ptr64>::vftable;
+    *(code **)(pRVar7 + 8) = cityHover;
+    *(ulonglong *)(pRVar7 + 0x10) = CONCAT44(uStack_ec,local_f0);
+    *(FalagardWorldMap **)(pRVar7 + 0x18) = this;
+    local_130 = pRVar7;
+  }
+  (**(code **)(*(longlong *)(*(longlong *)param_2 + 8) + 0x10))
+            ((longlong *)(*(longlong *)param_2 + 8),&local_138,EventMouseEnters_exref,&local_130);
+  if (local_138 != (Referenced *)0x0) {
+    CEGUI::Referenced::release(local_138);
+  }
+  local_f0 = 0;
+  pRVar7 = operator_new(0x20);
+  local_130 = pRVar11;
+  if (pRVar7 != (Referenced *)0x0) {
+    *(undefined ***)pRVar7 =
+         _memberBinder<CEGUI::FalagardWorldMap,bool,CEGUI::EventArgs_const&___ptr64>::vftable;
+    *(code **)(pRVar7 + 8) = cityNormal;
+    *(ulonglong *)(pRVar7 + 0x10) = CONCAT44(uStack_ec,local_f0);
+    *(FalagardWorldMap **)(pRVar7 + 0x18) = this;
+    local_130 = pRVar7;
+  }
+  (**(code **)(*(longlong *)(*(longlong *)param_2 + 8) + 0x10))
+            ((longlong *)(*(longlong *)param_2 + 8),&local_138,EventMouseLeaves_exref,&local_130);
+  if (local_138 != (Referenced *)0x0) {
+    CEGUI::Referenced::release(local_138);
+  }
+  local_f0 = 0;
+  pRVar7 = operator_new(0x20);
+  local_130 = pRVar11;
+  if (pRVar7 != (Referenced *)0x0) {
+    *(undefined ***)pRVar7 =
+         _memberBinder<CEGUI::FalagardWorldMap,bool,CEGUI::EventArgs_const&___ptr64>::vftable;
+    *(code **)(pRVar7 + 8) = onClick;
+    *(ulonglong *)(pRVar7 + 0x10) = CONCAT44(uStack_ec,local_f0);
+    *(FalagardWorldMap **)(pRVar7 + 0x18) = this;
+    local_130 = pRVar7;
+  }
+  (**(code **)(*(longlong *)(*(longlong *)param_2 + 8) + 0x10))
+            ((longlong *)(*(longlong *)param_2 + 8),&local_138,EventMouseClick_exref,&local_130);
+  if (local_138 != (Referenced *)0x0) {
+    CEGUI::Referenced::release(local_138);
+  }
+  CEGUI::Window::hide(*(Window **)param_2);
+  CEGUI::Window::addChildWindow(*(Window **)(this + 0x4f8),*(Window **)param_2);
+  sprintf((char *)local_c8,"Worldmap_city_%d_Friend_Window",(ulonglong)(uint)param_1);
+  local_100 = 0xf;
+  local_108 = 0;
+  local_118 = (StringBaseT<char>)0x0;
+  pRVar7 = pRVar11;
+  if (local_c8[0] != (Referenced)0x0) {
+    pRVar7 = (Referenced *)0xffffffffffffffff;
+    do {
+      pRVar7 = pRVar7 + 1;
+    } while (local_c8[(longlong)pRVar7] != (Referenced)0x0);
+  }
+  FUN_180002450(&local_118,local_c8,pRVar7);
+  pWVar3 = CEGUI::WindowManager::getSingleton();
+  bVar2 = CEGUI::WindowManager::isWindowPresent(pWVar3,&local_118);
+  if (0xf < local_100) {
+    operator_delete((void *)CONCAT71(uStack_117,local_118));
+  }
+  local_100 = 0xf;
+  local_108 = 0;
+  local_118 = (StringBaseT<char>)0x0;
+  if (bVar2) {
+    pRVar7 = pRVar11;
+    if (local_c8[0] != (Referenced)0x0) {
+      pRVar7 = (Referenced *)0xffffffffffffffff;
+      do {
+        pRVar7 = pRVar7 + 1;
+      } while (local_c8[(longlong)pRVar7] != (Referenced)0x0);
+    }
+    FUN_180002450(&local_118,local_c8,pRVar7);
+    pWVar3 = CEGUI::WindowManager::getSingleton();
+    pWVar5 = CEGUI::WindowManager::getWindow(pWVar3,&local_118);
+    *(Window **)(param_2 + 0x10) = pWVar5;
+  }
+  else {
+    pRVar7 = pRVar11;
+    if (local_c8[0] != (Referenced)0x0) {
+      pRVar7 = (Referenced *)0xffffffffffffffff;
+      do {
+        pRVar7 = pRVar7 + 1;
+      } while (local_c8[(longlong)pRVar7] != (Referenced)0x0);
+    }
+    FUN_180002450(&local_118,local_c8,pRVar7);
+    local_e0 = 0xf;
+    local_e8 = 0;
+    local_f8 = (String32)0x0;
+    FUN_180002450(&local_f8,"Image",5);
+    pSVar8 = (StringBaseT<char> *)FUN_180051fa0(this + 0x3f0,&local_f8);
+    pWVar3 = CEGUI::WindowManager::getSingleton();
+    pWVar5 = CEGUI::WindowManager::createWindow(pWVar3,pSVar8,&local_118);
+    *(Window **)(param_2 + 0x10) = pWVar5;
+    if (0xf < local_e0) {
+      operator_delete((void *)CONCAT71(uStack_f7,local_f8));
+    }
+    local_e0 = 0xf;
+    local_e8 = 0;
+    local_f8 = (String32)0x0;
+  }
+  if (0xf < local_100) {
+    operator_delete((void *)CONCAT71(uStack_117,local_118));
+  }
+  CEGUI::Window::hide(*(Window **)(param_2 + 0x10));
+  CEGUI::Window::setHookMode(*(Window **)(param_2 + 0x10),9);
+  CEGUI::Window::setZoomMode(*(Window **)(param_2 + 0x10),3);
+  CEGUI::Window::setAlwaysOnTop(*(Window **)(param_2 + 0x10),true);
+  local_100 = 0xf;
+  local_108 = 0;
+  local_118 = (StringBaseT<char>)0x0;
+  pRVar7 = pRVar11;
+  if (local_c8[0] != (Referenced)0x0) {
+    pRVar7 = (Referenced *)0xffffffffffffffff;
+    do {
+      pRVar7 = pRVar7 + 1;
+    } while (local_c8[(longlong)pRVar7] != (Referenced)0x0);
+  }
+  FUN_180002450(&local_118,local_c8,pRVar7);
+  if (pSVar4 != &local_118) {
+    FUN_180002300(pSVar4,&local_118,0,0xffffffffffffffff);
+  }
+  if (0xf < local_100) {
+    operator_delete((void *)CONCAT71(uStack_117,local_118));
+  }
+  CEGUI::Window::setMouseRButtonHollow(*(Window **)(param_2 + 0x10),true);
+  CEGUI::Window::addChildWindow(*(Window **)(this + 0x4f8),*(Window **)(param_2 + 0x10));
+  sprintf((char *)local_c8,"Worldmap_city_%d_MySelf_Window",(ulonglong)(uint)param_1);
+  local_100 = 0xf;
+  local_108 = 0;
+  local_118 = (StringBaseT<char>)0x0;
+  pRVar7 = pRVar11;
+  if (local_c8[0] != (Referenced)0x0) {
+    pRVar7 = (Referenced *)0xffffffffffffffff;
+    do {
+      pRVar7 = pRVar7 + 1;
+    } while (local_c8[(longlong)pRVar7] != (Referenced)0x0);
+  }
+  FUN_180002450(&local_118,local_c8,pRVar7);
+  pWVar3 = CEGUI::WindowManager::getSingleton();
+  bVar2 = CEGUI::WindowManager::isWindowPresent(pWVar3,&local_118);
+  if (0xf < local_100) {
+    operator_delete((void *)CONCAT71(uStack_117,local_118));
+  }
+  local_100 = 0xf;
+  local_108 = 0;
+  local_118 = (StringBaseT<char>)0x0;
+  if (bVar2) {
+    pRVar7 = pRVar11;
+    if (local_c8[0] != (Referenced)0x0) {
+      pRVar7 = (Referenced *)0xffffffffffffffff;
+      do {
+        pRVar7 = pRVar7 + 1;
+      } while (local_c8[(longlong)pRVar7] != (Referenced)0x0);
+    }
+    FUN_180002450(&local_118,local_c8,pRVar7);
+    pWVar3 = CEGUI::WindowManager::getSingleton();
+    pWVar5 = CEGUI::WindowManager::getWindow(pWVar3,&local_118);
+    *(Window **)(param_2 + 0x18) = pWVar5;
+  }
+  else {
+    pRVar7 = pRVar11;
+    if (local_c8[0] != (Referenced)0x0) {
+      pRVar7 = (Referenced *)0xffffffffffffffff;
+      do {
+        pRVar7 = pRVar7 + 1;
+      } while (local_c8[(longlong)pRVar7] != (Referenced)0x0);
+    }
+    FUN_180002450(&local_118,local_c8,pRVar7);
+    local_e0 = 0xf;
+    local_e8 = 0;
+    local_f8 = (String32)0x0;
+    FUN_180002450(&local_f8,"Image",5);
+    pSVar4 = (StringBaseT<char> *)FUN_180051fa0(this + 0x3f0,&local_f8);
+    pWVar3 = CEGUI::WindowManager::getSingleton();
+    pWVar5 = CEGUI::WindowManager::createWindow(pWVar3,pSVar4,&local_118);
+    *(Window **)(param_2 + 0x18) = pWVar5;
+    if (0xf < local_e0) {
+      operator_delete((void *)CONCAT71(uStack_f7,local_f8));
+    }
+    local_e0 = 0xf;
+    local_e8 = 0;
+    local_f8 = (String32)0x0;
+  }
+  if (0xf < local_100) {
+    operator_delete((void *)CONCAT71(uStack_117,local_118));
+  }
+  CEGUI::Window::hide(*(Window **)(param_2 + 0x18));
+  CEGUI::Window::setMouseRButtonHollow(*(Window **)(param_2 + 0x18),true);
+  CEGUI::Window::setHookMode(*(Window **)(param_2 + 0x18),9);
+  CEGUI::Window::setZoomMode(*(Window **)(param_2 + 0x18),3);
+  CEGUI::Window::setAlwaysOnTop(*(Window **)(param_2 + 0x18),true);
+  local_100 = 0xf;
+  local_108 = 0;
+  local_118 = (StringBaseT<char>)0x0;
+  pRVar7 = pRVar11;
+  if (local_c8[0] != (Referenced)0x0) {
+    pRVar7 = (Referenced *)0xffffffffffffffff;
+    do {
+      pRVar7 = pRVar7 + 1;
+    } while (local_c8[(longlong)pRVar7] != (Referenced)0x0);
+  }
+  FUN_180002450(&local_118,local_c8,pRVar7);
+  if ((StringBaseT<char> *)(param_2 + 0xd0) != &local_118) {
+    FUN_180002300((StringBaseT<char> *)(param_2 + 0xd0),&local_118,0,0xffffffffffffffff);
+  }
+  if (0xf < local_100) {
+    operator_delete((void *)CONCAT71(uStack_117,local_118));
+  }
+  CEGUI::Window::addChildWindow(*(Window **)(this + 0x4f8),*(Window **)(param_2 + 0x18));
+  sprintf((char *)local_c8,"Worldmap_city_%d_TextBK_Window",(ulonglong)(uint)param_1);
+  local_100 = 0xf;
+  local_108 = 0;
+  local_118 = (StringBaseT<char>)0x0;
+  pRVar7 = pRVar11;
+  if (local_c8[0] != (Referenced)0x0) {
+    pRVar7 = (Referenced *)0xffffffffffffffff;
+    do {
+      pRVar7 = pRVar7 + 1;
+    } while (local_c8[(longlong)pRVar7] != (Referenced)0x0);
+  }
+  FUN_180002450(&local_118,local_c8,pRVar7);
+  pWVar3 = CEGUI::WindowManager::getSingleton();
+  bVar2 = CEGUI::WindowManager::isWindowPresent(pWVar3,&local_118);
+  if (0xf < local_100) {
+    operator_delete((void *)CONCAT71(uStack_117,local_118));
+  }
+  if (bVar2) {
+    FUN_1800010b0(&local_118,local_c8);
+    pWVar3 = CEGUI::WindowManager::getSingleton();
+    pWVar5 = CEGUI::WindowManager::getWindow(pWVar3,&local_118);
+    *(Window **)(param_2 + 0x28) = pWVar5;
+    FUN_180001a10(&local_118);
+  }
+  else {
+    local_100 = 0xf;
+    local_108 = 0;
+    local_118 = (StringBaseT<char>)0x0;
+    if (local_c8[0] != (Referenced)0x0) {
+      pRVar11 = (Referenced *)0xffffffffffffffff;
+      do {
+        pRVar11 = pRVar11 + 1;
+      } while (local_c8[(longlong)pRVar11] != (Referenced)0x0);
+    }
+    FUN_180002450(&local_118,local_c8,pRVar11);
+    local_e0 = 0xf;
+    local_e8 = 0;
+    local_f8 = (String32)0x0;
+    FUN_180002450(&local_f8,"TextBK",6);
+    pSVar4 = (StringBaseT<char> *)FUN_180051fa0(this + 0x3f0,&local_f8);
+    pWVar3 = CEGUI::WindowManager::getSingleton();
+    pWVar5 = CEGUI::WindowManager::createWindow(pWVar3,pSVar4,&local_118);
+    *(Window **)(param_2 + 0x28) = pWVar5;
+    if (0xf < local_e0) {
+      operator_delete((void *)CONCAT71(uStack_f7,local_f8));
+    }
+    uVar1 = local_100;
+    local_e0 = 0xf;
+    local_e8 = 0;
+    local_f8 = (String32)0x0;
+    if (0xf < local_100) {
+      uVar9 = FUN_1800020c0(&local_118,local_128);
+      FUN_180002620(uVar9,CONCAT71(uStack_117,local_118),uVar1 + 1);
+    }
+    local_100 = 0xf;
+    FUN_1800020a0(&local_118,0);
+  }
+  CEGUI::Window::hide(*(Window **)(param_2 + 0x28));
+  CEGUI::Window::setMouseRButtonHollow(*(Window **)(param_2 + 0x28),true);
+  CEGUI::Window::setHookMode(*(Window **)(param_2 + 0x28),9);
+  CEGUI::Window::setZoomMode(*(Window **)(param_2 + 0x28),3);
+  FUN_1800010b0(&local_f8,"WordWrapCentred");
+  FUN_1800010b0(&local_118,"HorzFormatting");
+  CEGUI::Window::setProperty(*(Window **)(param_2 + 0x28),&local_118,(StringBaseT<char> *)&local_f8)
+  ;
+  FUN_180001a10(&local_118);
+  FUN_180001a10(&local_f8);
+  CEGUI::Window::setAlwaysOnTop(*(Window **)(param_2 + 0x28),true);
+  CEGUI::Window::addChildWindow(*(Window **)(this + 0x4f8),*(Window **)(param_2 + 0x28));
+  sprintf((char *)local_c8,"Worldmap_city_%d_Hostile_Window",(ulonglong)(uint)param_1);
+  FUN_1800010b0(&local_118,local_c8);
+  pWVar3 = CEGUI::WindowManager::getSingleton();
+  bVar2 = CEGUI::WindowManager::isWindowPresent(pWVar3,&local_118);
+  FUN_180001a10(&local_118);
+  if (bVar2) {
+    FUN_1800010b0(&local_118,local_c8);
+    pWVar3 = CEGUI::WindowManager::getSingleton();
+    pWVar5 = CEGUI::WindowManager::getWindow(pWVar3,&local_118);
+    *(Window **)(param_2 + 0x20) = pWVar5;
+    pSVar10 = (String32 *)&local_118;
+  }
+  else {
+    FUN_1800010b0(&local_f8,local_c8);
+    FUN_1800010b0(&local_118,&DAT_18013a260);
+    pSVar4 = (StringBaseT<char> *)FUN_180051fa0(this + 0x3f0,&local_118);
+    pWVar3 = CEGUI::WindowManager::getSingleton();
+    pWVar5 = CEGUI::WindowManager::createWindow(pWVar3,pSVar4,(StringBaseT<char> *)&local_f8);
+    *(Window **)(param_2 + 0x20) = pWVar5;
+    FUN_180001a10(&local_118);
+    pSVar10 = &local_f8;
+  }
+  FUN_180001a10(pSVar10);
+  CEGUI::Window::hide(*(Window **)(param_2 + 0x20));
+  CEGUI::Window::setMouseRButtonHollow(*(Window **)(param_2 + 0x20),true);
+  CEGUI::Window::setHookMode(*(Window **)(param_2 + 0x20),9);
+  CEGUI::Window::setZoomMode(*(Window **)(param_2 + 0x20),3);
+  FUN_1800010b0(&local_f8,"WordWrapCentred");
+  FUN_1800010b0(&local_118,"HorzFormatting");
+  CEGUI::Window::setProperty(*(Window **)(param_2 + 0x20),&local_118,(StringBaseT<char> *)&local_f8)
+  ;
+  FUN_180001a10(&local_118);
+  FUN_180001a10(&local_f8);
+  CEGUI::Window::setAlwaysOnTop(*(Window **)(param_2 + 0x20),true);
+  CEGUI::Window::addChildWindow(*(Window **)(this + 0x4f8),*(Window **)(param_2 + 0x20));
+  sprintf((char *)local_c8,"Worldmap_city_%d_CommanderFlag_Window",(ulonglong)(uint)param_1);
+  FUN_1800010b0(&local_118,local_c8);
+  pWVar3 = CEGUI::WindowManager::getSingleton();
+  bVar2 = CEGUI::WindowManager::isWindowPresent(pWVar3,&local_118);
+  FUN_180001a10(&local_118);
+  if (bVar2) {
+    FUN_1800010b0(&local_118,local_c8);
+    pWVar3 = CEGUI::WindowManager::getSingleton();
+    pWVar5 = CEGUI::WindowManager::getWindow(pWVar3,&local_118);
+    *(Window **)(param_2 + 0x30) = pWVar5;
+    pSVar10 = (String32 *)&local_118;
+  }
+  else {
+    FUN_1800010b0(&local_f8,local_c8);
+    FUN_1800010b0(&local_118,"Image");
+    pSVar4 = (StringBaseT<char> *)FUN_180051fa0(this + 0x3f0,&local_118);
+    pWVar3 = CEGUI::WindowManager::getSingleton();
+    pWVar5 = CEGUI::WindowManager::createWindow(pWVar3,pSVar4,(StringBaseT<char> *)&local_f8);
+    *(Window **)(param_2 + 0x30) = pWVar5;
+    FUN_180001a10(&local_118);
+    pSVar10 = &local_f8;
+  }
+  FUN_180001a10(pSVar10);
+  CEGUI::Window::hide(*(Window **)(param_2 + 0x30));
+  CEGUI::Window::setHookMode(*(Window **)(param_2 + 0x30),7);
+  CEGUI::Window::setZoomMode(*(Window **)(param_2 + 0x30),3);
+  CEGUI::Window::setAlwaysOnTop(*(Window **)(param_2 + 0x30),true);
+  FUN_1800010b0(&local_118,local_c8);
+  FUN_1800071d0(param_2 + 0xf0,&local_118);
+  FUN_180001a10(&local_118);
+  CEGUI::Window::setMouseRButtonHollow(*(Window **)(param_2 + 0x30),true);
+  CEGUI::Window::addChildWindow(*(Window **)(this + 0x4f8),*(Window **)(param_2 + 0x30));
+  return;
+}
+
+// gọi: FUN_1800010b0@1800010b0, FUN_180001a10@180001a10, FUN_1800020a0@1800020a0, FUN_1800020c0@1800020c0, FUN_180002300@180002300, FUN_180002450@180002450, FUN_180002620@180002620, FUN_1800071d0@1800071d0, FUN_180051fa0@180051fa0, String32@2f5, __security_check_cookie@1800edfa0, addChildWindow@2ae, createWindow@12b, getSingleton@96, getWindow@97, hide@33e, intToString@2d, isWindowPresent@2b2, operator_delete@1800ed89a, operator_new@1800ed894, release@2ac, setAlwaysOnTop@2a4, setHookMode@343, setMouseHollow@298, setMouseRButtonHollow@29b, setProperty@2fd, setVisible@2a5, setZoomMode@342, sprintf@3b3, ~String32@cf
+
+######## 0x18008dc00
+
+==== onDrapEnd @ 0x18008dc00
+
+/* public: bool __cdecl CEGUI::FalagardWorldMap::onDrapEnd(class CEGUI::EventArgs const & __ptr64)
+   __ptr64 */
+
+bool __thiscall CEGUI::FalagardWorldMap::onDrapEnd(FalagardWorldMap *this,EventArgs *param_1)
+
+{
+                    /* 0x8dc00  2641  ?onDrapEnd@FalagardWorldMap@CEGUI@@QEAA_NAEBVEventArgs@2@@Z */
+  this[0x508] = (FalagardWorldMap)0x0;
+  return true;
+}
+
+// gọi: 
+
+######## 0x18008dc10
+
+==== onDrapMove @ 0x18008dc10
+
+/* public: bool __cdecl CEGUI::FalagardWorldMap::onDrapMove(class CEGUI::EventArgs const & __ptr64)
+   __ptr64 */
+
+bool __thiscall CEGUI::FalagardWorldMap::onDrapMove(FalagardWorldMap *this,EventArgs *param_1)
+
+{
+  float fVar1;
+  float fVar2;
+  float fVar3;
+  float fVar4;
+  float fVar5;
+  float fVar6;
+  float fVar7;
+  longlong lVar8;
+  float *pfVar9;
+  undefined1 local_28 [32];
+  
+                    /* 0x8dc10  2642  ?onDrapMove@FalagardWorldMap@CEGUI@@QEAA_NAEBVEventArgs@2@@Z
+                        */
+  if (this[0x508] != (FalagardWorldMap)0x0) {
+    lVar8 = (**(code **)(*(longlong *)this + 0x20))(this,local_28);
+    fVar1 = *(float *)(this + 0x50c);
+    fVar2 = *(float *)(param_1 + 0x18);
+    fVar3 = *(float *)(lVar8 + 0xc);
+    fVar4 = *(float *)(lVar8 + 8);
+    pfVar9 = (float *)(**(code **)(*(longlong *)this + 0x20))(this,local_28);
+    fVar5 = *(float *)(param_1 + 0x1c);
+    fVar6 = pfVar9[1];
+    fVar7 = *pfVar9;
+    *(float *)(this + 0x500) = *(float *)(this + 0x514) - (fVar1 - fVar2) / (fVar3 - fVar4);
+    *(float *)(this + 0x504) =
+         *(float *)(this + 0x518) - (*(float *)(this + 0x510) - fVar5) / (fVar6 - fVar7);
+    updataBackground(this);
+  }
+  return true;
+}
+
+// gọi: updataBackground@18008ea20
+
+######## 0x18008dcd0
+
+==== onDrapStart @ 0x18008dcd0
+
+/* public: bool __cdecl CEGUI::FalagardWorldMap::onDrapStart(class CEGUI::EventArgs const & __ptr64)
+   __ptr64 */
+
+bool __thiscall CEGUI::FalagardWorldMap::onDrapStart(FalagardWorldMap *this,EventArgs *param_1)
+
+{
+  undefined4 uVar1;
+  
+                    /* 0x8dcd0  2643  ?onDrapStart@FalagardWorldMap@CEGUI@@QEAA_NAEBVEventArgs@2@@Z
+                        */
+  *(undefined4 *)(this + 0x50c) = *(undefined4 *)(param_1 + 0x18);
+  uVar1 = *(undefined4 *)(param_1 + 0x1c);
+  this[0x508] = (FalagardWorldMap)0x1;
+  *(undefined4 *)(this + 0x510) = uVar1;
+  *(undefined8 *)(this + 0x514) = *(undefined8 *)(this + 0x500);
+  return true;
+}
+
+// gọi: 
+
+######## 0x18008dd00
+
+==== onParentSized @ 0x18008dd00
+
+/* protected: virtual void __cdecl CEGUI::FalagardWorldMap::onParentSized(class
+   CEGUI::WindowEventArgs & __ptr64) __ptr64 */
+
+void __thiscall
+CEGUI::FalagardWorldMap::onParentSized(FalagardWorldMap *this,WindowEventArgs *param_1)
+
+{
+                    /* 0x8dd00  2745
+                       ?onParentSized@FalagardWorldMap@CEGUI@@MEAAXAEAVWindowEventArgs@2@@Z */
+  CEGUI::Window::onParentSized((Window *)this,param_1);
+                    /* WARNING: Could not recover jumptable at 0x00018008dd1e. Too many branches */
+                    /* WARNING: Treating indirect jump as call */
+  (**(code **)(*(longlong *)(this + 0x400) + 0x48))();
+  return;
+}
+
+// gọi: onParentSized@70
+
+######## 0x18008dd50
+
+==== resetWorldMap @ 0x18008dd50
+
+/* WARNING: Function: __security_check_cookie replaced with injection: security_check_cookie */
+/* public: virtual void __cdecl CEGUI::FalagardWorldMap::resetWorldMap(void) __ptr64 */
+
+void __thiscall CEGUI::FalagardWorldMap::resetWorldMap(FalagardWorldMap *this)
+
+{
+  char cVar1;
+  longlong *plVar2;
+  Image *pIVar3;
+  undefined8 *puVar4;
+  float fVar5;
+  float fVar6;
+  float fVar7;
+  float fVar8;
+  longlong *plVar9;
+  int iVar10;
+  undefined8 *puVar11;
+  Rect *pRVar12;
+  Font *this_00;
+  StringBaseT<char> *pSVar13;
+  undefined8 *puVar14;
+  undefined8 **ppuVar15;
+  Window *pWVar16;
+  undefined8 *puVar17;
+  bool bVar18;
+  uint uVar19;
+  longlong *plVar20;
+  int *piVar21;
+  uint uVar22;
+  float fVar23;
+  undefined1 auStack_178 [32];
+  undefined8 local_158;
+  undefined8 local_150;
+  undefined8 *local_148;
+  undefined8 *local_140;
+  undefined4 local_138;
+  undefined4 uStack_134;
+  undefined4 local_130;
+  undefined4 uStack_12c;
+  float local_128;
+  float fStack_124;
+  float local_120;
+  float fStack_11c;
+  undefined4 local_118;
+  undefined4 uStack_114;
+  undefined4 local_110;
+  float fStack_10c;
+  float local_108;
+  float fStack_104;
+  float local_100;
+  float fStack_fc;
+  undefined4 local_f8;
+  undefined4 uStack_f4;
+  undefined4 local_f0;
+  float fStack_ec;
+  undefined4 local_e8;
+  undefined4 uStack_e4;
+  undefined8 local_e0;
+  colour local_d8 [8];
+  undefined8 local_d0;
+  StringBaseT<char> local_c0;
+  undefined7 uStack_bf;
+  undefined8 local_b0;
+  ulonglong local_a8;
+  colour local_a0;
+  undefined7 uStack_9f;
+  undefined8 local_90;
+  ulonglong local_88;
+  ulonglong local_80;
+  
+                    /* 0x8dd50  2850  ?resetWorldMap@FalagardWorldMap@CEGUI@@UEAAXXZ */
+  local_e0 = 0xfffffffffffffffe;
+  local_80 = DAT_1801e9900 ^ (ulonglong)auStack_178;
+  if (*(longlong *)(this + 0xf8) != 0) {
+    updataBackground(this + -0x400);
+    fVar8 = DAT_18013a81c;
+    fVar7 = DAT_18013a818;
+    fVar6 = DAT_18011788c;
+    fVar5 = DAT_18011787c;
+    plVar20 = (longlong *)**(longlong **)(this + 0xb8);
+    uVar22 = 0;
+    if (plVar20 != *(longlong **)(this + 0xb8)) {
+      do {
+        plVar2 = (longlong *)plVar20[5];
+        puVar11 = (undefined8 *)FUN_18008acf0(this + 0xa8);
+        if ((puVar11 == *(undefined8 **)(this + 0xa8)) ||
+           (iVar10 = FUN_18003b490(plVar2 + 10), iVar10 < 0)) {
+          local_148 = *(undefined8 **)(this + 0xa8);
+          ppuVar15 = &local_148;
+        }
+        else {
+          local_140 = puVar11;
+          ppuVar15 = &local_140;
+        }
+        puVar11 = *ppuVar15;
+        if (puVar11 != *(undefined8 **)(this + 0xa8)) {
+          pIVar3 = (Image *)puVar11[8];
+          local_d0 = puVar11[9];
+          CEGUI::StaticImage::setImage((StaticImage *)*plVar2,pIVar3);
+          local_f8 = (undefined4)plVar2[7];
+          uStack_f4 = *(undefined4 *)((longlong)plVar2 + 0x3c);
+          *(longlong *)(*plVar2 + 0x2d4) = plVar2[7];
+          pRVar12 = CEGUI::Image::getSourceTextureArea(pIVar3);
+          local_150 = CONCAT44(*(float *)(pRVar12 + 4) - *(float *)pRVar12,
+                               *(float *)(pRVar12 + 0xc) - *(float *)(pRVar12 + 8));
+          (**(code **)(*(longlong *)*plVar2 + 0x50))((longlong *)*plVar2,1,&local_150);
+          CEGUI::Window::setVisible((Window *)*plVar2,true);
+          CEGUI::StaticImage::setImage((StaticImage *)plVar2[1],(Image *)plVar2[0x24]);
+          local_118 = (undefined4)plVar2[8];
+          uStack_114 = *(undefined4 *)((longlong)plVar2 + 0x44);
+          *(longlong *)(plVar2[1] + 0x2d4) = plVar2[8];
+          pRVar12 = CEGUI::Image::getSourceTextureArea((Image *)plVar2[0x24]);
+          fStack_104 = *(float *)(pRVar12 + 4) - *(float *)pRVar12;
+          local_108 = *(float *)(pRVar12 + 0xc) - *(float *)(pRVar12 + 8);
+          local_150 = CONCAT44(fStack_104,local_108);
+          (**(code **)(*(longlong *)plVar2[1] + 0x50))((longlong *)plVar2[1],1,&local_150);
+          CEGUI::Window::setVisible((Window *)plVar2[1],true);
+          CEGUI::Window::setTooltipText((Window *)plVar2[1],(String32 *)(plVar2 + 0x2b));
+          CEGUI::Window::setTooltipText((Window *)*plVar2,(String32 *)(plVar2 + 0x2b));
+        }
+        if (*(int *)((longlong)plVar2 + 0x114) == 0) {
+          bVar18 = false;
+LAB_18008e022:
+          CEGUI::Window::setVisible((Window *)plVar2[3],bVar18);
+        }
+        else if (*(longlong *)(this + 0x30) != 0) {
+          local_e8 = (undefined4)plVar2[7];
+          uStack_e4 = *(undefined4 *)((longlong)plVar2 + 0x3c);
+          *(longlong *)(plVar2[3] + 0x2d4) = plVar2[7];
+          pRVar12 = CEGUI::Image::getSourceTextureArea(*(Image **)(this + 0x30));
+          fStack_11c = *(float *)(pRVar12 + 4) - *(float *)pRVar12;
+          local_120 = *(float *)(pRVar12 + 0xc) - *(float *)(pRVar12 + 8);
+          local_158 = CONCAT44(fStack_11c,local_120);
+          CEGUI::StaticImage::setImage((StaticImage *)plVar2[3],*(Image **)(this + 0x30));
+          (**(code **)(*(longlong *)plVar2[3] + 0x50))((longlong *)plVar2[3],1,&local_158);
+          bVar18 = true;
+          goto LAB_18008e022;
+        }
+        if (plVar2[0x30] == 0) {
+          CEGUI::Window::setVisible((Window *)plVar2[5],false);
+          CEGUI::Window::setVisible((Window *)plVar2[4],false);
+        }
+        else {
+          fStack_ec = *(float *)((longlong)plVar2 + 0x3c) - fVar7;
+          local_f0 = (undefined4)plVar2[7];
+          *(ulonglong *)(plVar2[4] + 0x2d4) = CONCAT44(fStack_ec,local_f0);
+          CEGUI::Window::setVisible((Window *)plVar2[4],true);
+          fStack_10c = *(float *)((longlong)plVar2 + 0x3c) - fVar7;
+          local_110 = (undefined4)plVar2[7];
+          *(ulonglong *)(plVar2[5] + 0x2d4) = CONCAT44(fStack_10c,local_110);
+          CEGUI::Window::setVisible((Window *)plVar2[5],true);
+          this_00 = CEGUI::Window::getFont((Window *)plVar2[4],true);
+          if (this_00 != (Font *)0x0) {
+            CEGUI::colour::colour(local_d8,0xffffff00);
+            local_a8 = 0xf;
+            local_b0 = 0;
+            local_c0 = (StringBaseT<char>)0x0;
+            FUN_180002450(&local_c0,"TextColor",9);
+            pSVar13 = (StringBaseT<char> *)CEGUI::PropertyHelper::colourToString(&local_a0);
+            CEGUI::Window::setProperty((Window *)plVar2[4],&local_c0,pSVar13);
+            if (0xf < local_88) {
+              operator_delete((void *)CONCAT71(uStack_9f,local_a0));
+            }
+            local_88 = 0xf;
+            local_90 = 0;
+            local_a0 = (colour)0x0;
+            if (0xf < local_a8) {
+              operator_delete((void *)CONCAT71(uStack_bf,local_c0));
+            }
+            (**(code **)(*(longlong *)plVar2[4] + 0x48))((longlong *)plVar2[4],plVar2 + 0x30);
+            fVar23 = CEGUI::Font::getTextExtent(this_00,(String32 *)(plVar2 + 0x30),fVar5);
+            CEGUI::Window::setHeight((Window *)plVar2[4],1,fVar6);
+            CEGUI::Window::setWidth((Window *)plVar2[4],1,fVar23);
+            CEGUI::Window::setHeight((Window *)plVar2[5],1,fVar6);
+            CEGUI::Window::setWidth((Window *)plVar2[5],1,fVar23 + fVar8);
+          }
+        }
+        pWVar16 = (Window *)plVar2[2];
+        if ((int)plVar2[0x22] < 1) {
+          bVar18 = false;
+LAB_18008e288:
+          CEGUI::Window::setVisible(pWVar16,bVar18);
+        }
+        else {
+          CEGUI::Window::setTooltipText(pWVar16,(String32 *)(plVar2 + 0x26));
+          pIVar3 = *(Image **)(this + (longlong)(int)plVar2[0x22] * 8);
+          if (pIVar3 != (Image *)0x0) {
+            local_138 = (undefined4)plVar2[7];
+            uStack_134 = *(undefined4 *)((longlong)plVar2 + 0x3c);
+            *(longlong *)(plVar2[2] + 0x2d4) = plVar2[7];
+            pRVar12 = CEGUI::Image::getSourceTextureArea(pIVar3);
+            local_100 = *(float *)(pRVar12 + 0xc) - *(float *)(pRVar12 + 8);
+            fStack_fc = *(float *)(pRVar12 + 4) - *(float *)pRVar12;
+            local_158 = CONCAT44(fStack_fc,local_100);
+            CEGUI::StaticImage::setImage((StaticImage *)plVar2[2],pIVar3);
+            (**(code **)(*(longlong *)plVar2[2] + 0x50))((longlong *)plVar2[2],1,&local_158);
+            bVar18 = true;
+            pWVar16 = (Window *)plVar2[2];
+            goto LAB_18008e288;
+          }
+        }
+        pWVar16 = (Window *)plVar2[6];
+        if (*(uint *)((longlong)plVar2 + 0x11c) < 8) {
+          CEGUI::Window::setTooltipText(pWVar16,(String32 *)(plVar2 + 0x26));
+          pIVar3 = *(Image **)(this + (longlong)*(int *)((longlong)plVar2 + 0x11c) * 8 + 0x38);
+          if (pIVar3 != (Image *)0x0) {
+            local_130 = (undefined4)plVar2[7];
+            uStack_12c = *(undefined4 *)((longlong)plVar2 + 0x3c);
+            *(longlong *)(plVar2[6] + 0x2d4) = plVar2[7];
+            pRVar12 = CEGUI::Image::getSourceTextureArea(pIVar3);
+            local_128 = *(float *)(pRVar12 + 0xc) - *(float *)(pRVar12 + 8);
+            fStack_124 = *(float *)(pRVar12 + 4) - *(float *)pRVar12;
+            local_158 = CONCAT44(fStack_124,local_128);
+            CEGUI::StaticImage::setImage((StaticImage *)plVar2[6],pIVar3);
+            (**(code **)(*(longlong *)plVar2[6] + 0x50))((longlong *)plVar2[6],1,&local_158);
+            bVar18 = true;
+            pWVar16 = (Window *)plVar2[6];
+            goto LAB_18008e344;
+          }
+        }
+        else {
+          bVar18 = false;
+LAB_18008e344:
+          CEGUI::Window::setVisible(pWVar16,bVar18);
+        }
+        if (*(char *)((longlong)plVar20 + 0x19) == '\0') {
+          plVar2 = (longlong *)plVar20[2];
+          if (*(char *)((longlong)plVar2 + 0x19) == '\0') {
+            cVar1 = *(char *)(*plVar2 + 0x19);
+            plVar20 = plVar2;
+            plVar2 = (longlong *)*plVar2;
+            while (cVar1 == '\0') {
+              cVar1 = *(char *)(*plVar2 + 0x19);
+              plVar20 = plVar2;
+              plVar2 = (longlong *)*plVar2;
+            }
+          }
+          else {
+            cVar1 = *(char *)(plVar20[1] + 0x19);
+            plVar9 = (longlong *)plVar20[1];
+            plVar2 = plVar20;
+            while ((plVar20 = plVar9, cVar1 == '\0' && (plVar2 == (longlong *)plVar20[2]))) {
+              cVar1 = *(char *)(plVar20[1] + 0x19);
+              plVar9 = (longlong *)plVar20[1];
+              plVar2 = plVar20;
+            }
+          }
+        }
+      } while (plVar20 != *(longlong **)(this + 0xb8));
+    }
+    if (this[0x11c] != (FalagardWorldMap)0x0) {
+      piVar21 = &DAT_180139cb8;
+      uVar19 = uVar22;
+      do {
+        hideCity(this + -0x400,*piVar21);
+        uVar19 = uVar19 + 1;
+        piVar21 = piVar21 + 1;
+      } while (uVar19 < 6);
+    }
+    if (this[0x11d] != (FalagardWorldMap)0x0) {
+      piVar21 = &DAT_180139cd0;
+      do {
+        puVar11 = *(undefined8 **)(this + 0xb8);
+        cVar1 = *(char *)((longlong)puVar11[1] + 0x19);
+        puVar4 = puVar11;
+        puVar17 = (undefined8 *)puVar11[1];
+        while (cVar1 == '\0') {
+          if (*(int *)(puVar17 + 4) < *piVar21) {
+            puVar14 = (undefined8 *)puVar17[2];
+            puVar17 = puVar4;
+          }
+          else {
+            puVar14 = (undefined8 *)*puVar17;
+          }
+          puVar4 = puVar17;
+          puVar17 = puVar14;
+          cVar1 = *(char *)((longlong)puVar14 + 0x19);
+        }
+        if ((puVar4 == puVar11) || (*piVar21 < *(int *)(puVar4 + 4))) {
+          local_140 = puVar11;
+          ppuVar15 = &local_140;
+        }
+        else {
+          local_148 = puVar4;
+          ppuVar15 = &local_148;
+        }
+        if ((*ppuVar15 != puVar11) &&
+           (puVar11 = (undefined8 *)(*ppuVar15)[5], puVar11 != (undefined8 *)0x0)) {
+          if ((Window *)*puVar11 != (Window *)0x0) {
+            CEGUI::Window::setVisible((Window *)*puVar11,false);
+          }
+          if ((Window *)puVar11[1] != (Window *)0x0) {
+            CEGUI::Window::setVisible((Window *)puVar11[1],false);
+          }
+        }
+        uVar22 = uVar22 + 1;
+        piVar21 = piVar21 + 1;
+      } while (uVar22 < 5);
+    }
+  }
+  return;
+}
+
+// gọi: FUN_180002450@180002450, FUN_18003b490@18003b490, FUN_18008acf0@18008acf0, __security_check_cookie@1800edfa0, colour@2b9, colourToString@348, getFont@15, getSourceTextureArea@2de, getTextExtent@d8, hideCity@18008d860, operator_delete@1800ed89a, setHeight@2a7, setImage@2df, setProperty@2fd, setTooltipText@2b0, setVisible@2a5, setWidth@340, updataBackground@18008ea20
+
+######## 0x18008db00
+
+==== onClick @ 0x18008db00
+
+/* WARNING: Function: __security_check_cookie replaced with injection: security_check_cookie */
+/* public: bool __cdecl CEGUI::FalagardWorldMap::onClick(class CEGUI::EventArgs const & __ptr64)
+   __ptr64 */
+
+bool __thiscall CEGUI::FalagardWorldMap::onClick(FalagardWorldMap *this,EventArgs *param_1)
+
+{
+  int iVar1;
+  uchar *puVar2;
+  longlong lVar3;
+  undefined1 auStack_58 [32];
+  undefined8 local_38;
+  code *local_30;
+  undefined1 local_28;
+  undefined8 local_20;
+  ulonglong local_18;
+  ulonglong local_10;
+  
+                    /* 0x8db00  2634  ?onClick@FalagardWorldMap@CEGUI@@QEAA_NAEBVEventArgs@2@@Z */
+  local_38 = 0xfffffffffffffffe;
+  local_10 = DAT_1801e9900 ^ (ulonglong)auStack_58;
+  puVar2 = CEGUI::String32::build_utf8_buff((String32 *)(*(longlong *)(param_1 + 0x10) + 0xc0));
+  local_18 = 0xf;
+  local_20 = 0;
+  local_30 = (code *)((ulonglong)local_30 & 0xffffffffffffff00);
+  if (*puVar2 != '\0') {
+    lVar3 = -1;
+    do {
+      lVar3 = lVar3 + 1;
+    } while (puVar2[lVar3] != '\0');
+  }
+  FUN_180002450(&local_30,puVar2);
+  iVar1 = CEGUI::PropertyHelper::stringToInt((StringBaseT<char> *)&local_30);
+  if (0xf < local_18) {
+    operator_delete(local_30);
+  }
+  local_28 = isCopyScene(this,iVar1);
+  if (!(bool)local_28) {
+    local_20 = *(undefined8 *)(param_1 + 0x10);
+    local_30 = _vftable__exref;
+    (**(code **)(*(longlong *)(this + 8) + 0x18))
+              (this + 8,&EventNormalSceneClicked,&local_30,&EventNamespace);
+  }
+  return true;
+}
+
+// gọi: FUN_180002450@180002450, __security_check_cookie@1800edfa0, build_utf8_buff@179, isCopyScene@18008d900, operator_delete@1800ed89a, stringToInt@2c
+
+######## 0x18008aab0
+
+==== SetCityHover @ 0x18008aab0
+
+/* public: void __cdecl CEGUI::FalagardWorldMap::SetCityHover(int,bool) __ptr64 */
+
+void __thiscall
+CEGUI::FalagardWorldMap::SetCityHover(FalagardWorldMap *this,int param_1,bool param_2)
+
+{
+  FalagardWorldMap *pFVar1;
+  char cVar2;
+  undefined8 *puVar3;
+  int iVar4;
+  undefined8 *puVar5;
+  Image *pIVar6;
+  undefined8 *puVar7;
+  undefined8 *local_res20;
+  
+                    /* 0x8aab0  1456  ?SetCityHover@FalagardWorldMap@CEGUI@@QEAAXH_N@Z */
+  if (param_1 != -1) {
+    puVar3 = *(undefined8 **)(this + 0x4b8);
+    cVar2 = *(char *)((longlong)puVar3[1] + 0x19);
+    local_res20 = puVar3;
+    puVar7 = (undefined8 *)puVar3[1];
+    while (cVar2 == '\0') {
+      if (*(int *)(puVar7 + 4) < param_1) {
+        puVar5 = (undefined8 *)puVar7[2];
+        puVar7 = local_res20;
+      }
+      else {
+        puVar5 = (undefined8 *)*puVar7;
+      }
+      local_res20 = puVar7;
+      puVar7 = puVar5;
+      cVar2 = *(char *)((longlong)puVar5 + 0x19);
+    }
+    if ((local_res20 == puVar3) || (param_1 < *(int *)(local_res20 + 4))) {
+      local_res20 = puVar3;
+    }
+    if (local_res20 != puVar3) {
+      pFVar1 = this + 0x4a8;
+      puVar3 = (undefined8 *)local_res20[5];
+      local_res20 = (undefined8 *)FUN_18008acf0(pFVar1,puVar3 + 10);
+      if ((local_res20 == (undefined8 *)*(longlong *)pFVar1) ||
+         (iVar4 = FUN_18003b490(puVar3 + 10,(longlong)local_res20 + 0x20), iVar4 < 0)) {
+        local_res20 = *(undefined8 **)pFVar1;
+      }
+      if (local_res20 != (undefined8 *)*(longlong *)pFVar1) {
+        pIVar6 = *(Image **)((longlong)local_res20 + 0x40);
+        if (param_2) {
+          pIVar6 = *(Image **)((longlong)local_res20 + 0x48);
+        }
+        CEGUI::StaticImage::setImage((StaticImage *)*puVar3,pIVar6);
+        CEGUI::StaticImage::setImage((StaticImage *)puVar3[1],(Image *)puVar3[0x24]);
+      }
+    }
+  }
+  return;
+}
+
+// gọi: FUN_18003b490@18003b490, FUN_18008acf0@18008acf0, setImage@2df
+
+######## 0x18008ae40
+
+==== cityHover @ 0x18008ae40
+
+/* WARNING: Function: __security_check_cookie replaced with injection: security_check_cookie */
+/* public: bool __cdecl CEGUI::FalagardWorldMap::cityHover(class CEGUI::EventArgs const & __ptr64)
+   __ptr64 */
+
+bool __thiscall CEGUI::FalagardWorldMap::cityHover(FalagardWorldMap *this,EventArgs *param_1)
+
+{
+  int iVar1;
+  uchar *puVar2;
+  longlong lVar3;
+  undefined1 auStack_58 [32];
+  undefined8 local_38;
+  StringBaseT<char> local_30;
+  undefined7 uStack_2f;
+  undefined8 local_20;
+  ulonglong local_18;
+  ulonglong local_10;
+  
+                    /* 0x8ae40  1686  ?cityHover@FalagardWorldMap@CEGUI@@QEAA_NAEBVEventArgs@2@@Z */
+  local_38 = 0xfffffffffffffffe;
+  local_10 = DAT_1801e9900 ^ (ulonglong)auStack_58;
+  puVar2 = CEGUI::String32::build_utf8_buff((String32 *)(*(longlong *)(param_1 + 0x10) + 0xc0));
+  local_18 = 0xf;
+  local_20 = 0;
+  local_30 = (StringBaseT<char>)0x0;
+  if (*puVar2 != '\0') {
+    lVar3 = -1;
+    do {
+      lVar3 = lVar3 + 1;
+    } while (puVar2[lVar3] != '\0');
+  }
+  FUN_180002450(&local_30,puVar2);
+  iVar1 = CEGUI::PropertyHelper::stringToInt(&local_30);
+  if (0xf < local_18) {
+    operator_delete((void *)CONCAT71(uStack_2f,local_30));
+  }
+  SetCityHover(this,iVar1,true);
+  *(int *)(this + 0x4c8) = iVar1;
+  return true;
+}
+
+// gọi: FUN_180002450@180002450, SetCityHover@18008aab0, __security_check_cookie@1800edfa0, build_utf8_buff@179, operator_delete@1800ed89a, stringToInt@2c
+
+######## 0x18008af00
+
+==== cityNormal @ 0x18008af00
+
+/* WARNING: Function: __security_check_cookie replaced with injection: security_check_cookie */
+/* public: bool __cdecl CEGUI::FalagardWorldMap::cityNormal(class CEGUI::EventArgs const & __ptr64)
+   __ptr64 */
+
+bool __thiscall CEGUI::FalagardWorldMap::cityNormal(FalagardWorldMap *this,EventArgs *param_1)
+
+{
+  int iVar1;
+  uchar *puVar2;
+  longlong lVar3;
+  undefined1 auStack_58 [32];
+  undefined8 local_38;
+  StringBaseT<char> local_30;
+  undefined7 uStack_2f;
+  undefined8 local_20;
+  ulonglong local_18;
+  ulonglong local_10;
+  
+                    /* 0x8af00  1687  ?cityNormal@FalagardWorldMap@CEGUI@@QEAA_NAEBVEventArgs@2@@Z
+                        */
+  local_38 = 0xfffffffffffffffe;
+  local_10 = DAT_1801e9900 ^ (ulonglong)auStack_58;
+  puVar2 = CEGUI::String32::build_utf8_buff((String32 *)(*(longlong *)(param_1 + 0x10) + 0xc0));
+  local_18 = 0xf;
+  local_20 = 0;
+  local_30 = (StringBaseT<char>)0x0;
+  if (*puVar2 != '\0') {
+    lVar3 = -1;
+    do {
+      lVar3 = lVar3 + 1;
+    } while (puVar2[lVar3] != '\0');
+  }
+  FUN_180002450(&local_30,puVar2);
+  iVar1 = CEGUI::PropertyHelper::stringToInt(&local_30);
+  if (0xf < local_18) {
+    operator_delete((void *)CONCAT71(uStack_2f,local_30));
+  }
+  SetCityHover(this,iVar1,false);
+  *(undefined4 *)(this + 0x4c8) = 0xffffffff;
+  return true;
+}
+
+// gọi: FUN_180002450@180002450, SetCityHover@18008aab0, __security_check_cookie@1800edfa0, build_utf8_buff@179, operator_delete@1800ed89a, stringToInt@2c
+
+######## 0x18008e4e0
+
+==== setBackgroundName @ 0x18008e4e0
+
+/* public: void __cdecl CEGUI::FalagardWorldMap::setBackgroundName(class CEGUI::StringBaseT<char>
+   const & __ptr64) __ptr64 */
+
+void __thiscall
+CEGUI::FalagardWorldMap::setBackgroundName(FalagardWorldMap *this,StringBaseT<char> *param_1)
+
+{
+  FalagardWorldMap *pFVar1;
+  int iVar2;
+  
+                    /* 0x8e4e0  2873
+                       ?setBackgroundName@FalagardWorldMap@CEGUI@@QEAAXAEBV?$StringBaseT@D@2@@Z */
+  pFVar1 = this + 0x4d0;
+  iVar2 = FUN_18003b490(pFVar1);
+  if ((iVar2 != 0) && (*(Window **)(this + 0x4f8) != (Window *)0x0)) {
+    CEGUI::Window::setVisible(*(Window **)(this + 0x4f8),false);
+  }
+  if (pFVar1 != (FalagardWorldMap *)param_1) {
+    FUN_180002300(pFVar1,param_1,0,0xffffffffffffffff);
+  }
+  return;
+}
+
+// gọi: FUN_180002300@180002300, FUN_18003b490@18003b490, setVisible@2a5
+
+######## 0x18008e550
+
+==== setBackgroundSize @ 0x18008e550
+
+/* public: void __cdecl CEGUI::FalagardWorldMap::setBackgroundSize(class CEGUI::Size const &
+   __ptr64) __ptr64 */
+
+void __thiscall CEGUI::FalagardWorldMap::setBackgroundSize(FalagardWorldMap *this,Size *param_1)
+
+{
+                    /* 0x8e550  2874  ?setBackgroundSize@FalagardWorldMap@CEGUI@@QEAAXAEBVSize@2@@Z
+                        */
+  *(undefined8 *)(this + 0x4f0) = *(undefined8 *)param_1;
+  return;
+}
+
+// gọi: 
+
+######## 0x18008aa00
+
+==== AbsoluteToRelativeX2 @ 0x18008aa00
+
+/* private: float __cdecl CEGUI::FalagardWorldMap::AbsoluteToRelativeX2(float) __ptr64 */
+
+float __thiscall CEGUI::FalagardWorldMap::AbsoluteToRelativeX2(FalagardWorldMap *this,float param_1)
+
+{
+  System *pSVar1;
+  float *pfVar2;
+  
+                    /* 0x8aa00  1026  ?AbsoluteToRelativeX2@FalagardWorldMap@CEGUI@@AEAAMM@Z */
+  pSVar1 = CEGUI::System::getSingleton();
+  pfVar2 = (float *)(**(code **)(**(longlong **)(pSVar1 + 0x28) + 0x88))();
+  return param_1 / *pfVar2;
+}
+
+// gọi: getSingleton@d
+
+######## 0x18008aa30
+
+==== AbsoluteToRelativeX @ 0x18008aa30
+
+/* private: float __cdecl CEGUI::FalagardWorldMap::AbsoluteToRelativeX(float) __ptr64 */
+
+float __thiscall CEGUI::FalagardWorldMap::AbsoluteToRelativeX(FalagardWorldMap *this,float param_1)
+
+{
+                    /* 0x8aa30  1027  ?AbsoluteToRelativeX@FalagardWorldMap@CEGUI@@AEAAMM@Z */
+  return param_1 / (*(float *)(this + 0x4f0) * DAT_18013a820);
+}
+
+// gọi: 
+
+######## 0x18008aa50
+
+==== AbsoluteToRelativeY2 @ 0x18008aa50
+
+/* private: float __cdecl CEGUI::FalagardWorldMap::AbsoluteToRelativeY2(float) __ptr64 */
+
+float __thiscall CEGUI::FalagardWorldMap::AbsoluteToRelativeY2(FalagardWorldMap *this,float param_1)
+
+{
+  System *pSVar1;
+  longlong lVar2;
+  
+                    /* 0x8aa50  1028  ?AbsoluteToRelativeY2@FalagardWorldMap@CEGUI@@AEAAMM@Z */
+  pSVar1 = CEGUI::System::getSingleton();
+  lVar2 = (**(code **)(**(longlong **)(pSVar1 + 0x28) + 0x88))();
+  return param_1 / *(float *)(lVar2 + 4);
+}
+
+// gọi: getSingleton@d
+
+######## 0x18008aa90
+
+==== AbsoluteToRelativeY @ 0x18008aa90
+
+/* private: float __cdecl CEGUI::FalagardWorldMap::AbsoluteToRelativeY(float) __ptr64 */
+
+float __thiscall CEGUI::FalagardWorldMap::AbsoluteToRelativeY(FalagardWorldMap *this,float param_1)
+
+{
+                    /* 0x8aa90  1029  ?AbsoluteToRelativeY@FalagardWorldMap@CEGUI@@AEAAMM@Z */
+  return param_1 / (*(float *)(this + 0x4f4) * DAT_18013a820);
+}
+
+// gọi: 
+
+######## 0x18008e5c0
+
+==== setCityCurrentScene @ 0x18008e5c0
+
+/* public: virtual void __cdecl CEGUI::FalagardWorldMap::setCityCurrentScene(int,int) __ptr64 */
+
+void __thiscall
+CEGUI::FalagardWorldMap::setCityCurrentScene(FalagardWorldMap *this,int param_1,int param_2)
+
+{
+  char cVar1;
+  undefined8 *puVar2;
+  undefined8 *puVar3;
+  undefined8 *puVar4;
+  undefined8 *local_res8;
+  
+                    /* 0x8e5c0  2900  ?setCityCurrentScene@FalagardWorldMap@CEGUI@@UEAAXHH@Z */
+  puVar2 = *(undefined8 **)(this + 0xb8);
+  cVar1 = *(char *)((longlong)puVar2[1] + 0x19);
+  local_res8 = puVar2;
+  puVar4 = (undefined8 *)puVar2[1];
+  while (cVar1 == '\0') {
+    if (*(int *)(puVar4 + 4) < param_1) {
+      puVar3 = (undefined8 *)puVar4[2];
+      puVar4 = local_res8;
+    }
+    else {
+      puVar3 = (undefined8 *)*puVar4;
+    }
+    local_res8 = puVar4;
+    puVar4 = puVar3;
+    cVar1 = *(char *)((longlong)puVar3 + 0x19);
+  }
+  if ((local_res8 == puVar2) || (param_1 < *(int *)(local_res8 + 4))) {
+    local_res8 = puVar2;
+  }
+  if (local_res8 != puVar2) {
+    *(int *)(local_res8[5] + 0x114) = param_2;
+  }
+  return;
+}
+
+// gọi: 
+
+######## 0x18008d6e0
+
+==== getCity @ 0x18008d6e0
+
+/* private: struct CEGUI::FalagardWorldMap::CITY_DATA * __ptr64 __cdecl
+   CEGUI::FalagardWorldMap::getCity(int) __ptr64 */
+
+CITY_DATA * __thiscall CEGUI::FalagardWorldMap::getCity(FalagardWorldMap *this,int param_1)
+
+{
+  FalagardWorldMap *pFVar1;
+  char cVar2;
+  undefined8 *puVar3;
+  CITY_DATA *pCVar4;
+  undefined8 *puVar5;
+  longlong lVar6;
+  undefined8 *puVar7;
+  undefined8 *puVar8;
+  undefined8 *local_res8;
+  int local_20 [2];
+  undefined8 local_18;
+  
+                    /* 0x8d6e0  2222  ?getCity@FalagardWorldMap@CEGUI@@AEAAPEAUCITY_DATA@12@H@Z */
+  pFVar1 = this + 0x4b8;
+  puVar3 = *(undefined8 **)pFVar1;
+  cVar2 = *(char *)((longlong)puVar3[1] + 0x19);
+  local_res8 = puVar3;
+  puVar8 = (undefined8 *)puVar3[1];
+  while (cVar2 == '\0') {
+    if (*(int *)(puVar8 + 4) < param_1) {
+      puVar7 = (undefined8 *)puVar8[2];
+      puVar8 = local_res8;
+    }
+    else {
+      puVar7 = (undefined8 *)*puVar8;
+    }
+    local_res8 = puVar8;
+    puVar8 = puVar7;
+    cVar2 = *(char *)((longlong)puVar7 + 0x19);
+  }
+  if ((local_res8 == puVar3) || (param_1 < *(int *)(local_res8 + 4))) {
+    local_res8 = puVar3;
+  }
+  if (local_res8 == puVar3) {
+    local_res8 = operator_new(0x1a8);
+    if (local_res8 == (undefined8 *)0x0) {
+      pCVar4 = (CITY_DATA *)0x0;
+    }
+    else {
+      pCVar4 = (CITY_DATA *)FUN_1800884e0(local_res8);
+    }
+    createNewCity(this,param_1,pCVar4);
+    puVar3 = *(undefined8 **)pFVar1;
+    cVar2 = *(char *)((longlong)puVar3[1] + 0x19);
+    puVar8 = puVar3;
+    puVar7 = (undefined8 *)puVar3[1];
+    while (cVar2 == '\0') {
+      if (*(int *)(puVar7 + 4) < param_1) {
+        puVar5 = (undefined8 *)puVar7[2];
+        puVar7 = puVar8;
+      }
+      else {
+        puVar5 = (undefined8 *)*puVar7;
+      }
+      puVar8 = puVar7;
+      puVar7 = puVar5;
+      cVar2 = *(char *)((longlong)puVar5 + 0x19);
+    }
+    if ((puVar8 == puVar3) || (param_1 < *(int *)(puVar8 + 4))) {
+      local_18 = 0;
+      local_20[0] = param_1;
+      lVar6 = FUN_180086d20(pFVar1,local_20);
+      FUN_180087390(pFVar1,&local_res8,puVar8,lVar6 + 0x20,lVar6);
+      puVar8 = local_res8;
+    }
+    puVar8[5] = pCVar4;
+    puVar3 = *(undefined8 **)pFVar1;
+    cVar2 = *(char *)((longlong)puVar3[1] + 0x19);
+    local_res8 = puVar3;
+    puVar8 = (undefined8 *)puVar3[1];
+    while (cVar2 == '\0') {
+      if (*(int *)(puVar8 + 4) < param_1) {
+        puVar7 = (undefined8 *)puVar8[2];
+        puVar8 = local_res8;
+      }
+      else {
+        puVar7 = (undefined8 *)*puVar8;
+      }
+      local_res8 = puVar8;
+      puVar8 = puVar7;
+      cVar2 = *(char *)((longlong)puVar7 + 0x19);
+    }
+    if ((local_res8 == puVar3) || (param_1 < *(int *)(local_res8 + 4))) {
+      local_res8 = puVar3;
+    }
+    pCVar4 = (CITY_DATA *)local_res8[5];
+  }
+  else {
+    pCVar4 = (CITY_DATA *)local_res8[5];
+  }
+  return pCVar4;
+}
+
+// gọi: FUN_180086d20@180086d20, FUN_180087390@180087390, FUN_1800884e0@1800884e0, createNewCity@18008c320, operator_new@1800ed894
+
+######## 0x18008d860
+
+==== hideCity @ 0x18008d860
+
+/* public: void __cdecl CEGUI::FalagardWorldMap::hideCity(int) __ptr64 */
+
+void __thiscall CEGUI::FalagardWorldMap::hideCity(FalagardWorldMap *this,int param_1)
+
+{
+  char cVar1;
+  undefined8 *puVar2;
+  undefined8 *puVar3;
+  undefined8 *puVar4;
+  undefined8 *local_res8;
+  
+                    /* 0x8d860  2549  ?hideCity@FalagardWorldMap@CEGUI@@QEAAXH@Z */
+  puVar2 = *(undefined8 **)(this + 0x4b8);
+  cVar1 = *(char *)((longlong)puVar2[1] + 0x19);
+  local_res8 = puVar2;
+  puVar4 = (undefined8 *)puVar2[1];
+  while (cVar1 == '\0') {
+    if (*(int *)(puVar4 + 4) < param_1) {
+      puVar3 = (undefined8 *)puVar4[2];
+      puVar4 = local_res8;
+    }
+    else {
+      puVar3 = (undefined8 *)*puVar4;
+    }
+    local_res8 = puVar4;
+    puVar4 = puVar3;
+    cVar1 = *(char *)((longlong)puVar3 + 0x19);
+  }
+  if ((local_res8 == puVar2) || (param_1 < *(int *)(local_res8 + 4))) {
+    local_res8 = puVar2;
+  }
+  if ((local_res8 != puVar2) && (puVar2 = (undefined8 *)local_res8[5], puVar2 != (undefined8 *)0x0))
+  {
+    if ((Window *)*puVar2 != (Window *)0x0) {
+      CEGUI::Window::setVisible((Window *)*puVar2,false);
+    }
+    if ((Window *)puVar2[1] != (Window *)0x0) {
+                    /* WARNING: Could not recover jumptable at 0x00018008d8e2. Too many branches */
+                    /* WARNING: Treating indirect jump as call */
+      CEGUI::Window::setVisible((Window *)puVar2[1],false);
+      return;
+    }
+  }
+  return;
+}
+
+// gọi: setVisible@2a5
+
+######## 0x18008abc0
+
+==== SetCityInHostile @ 0x18008abc0
+
+/* public: virtual void __cdecl CEGUI::FalagardWorldMap::SetCityInHostile(int,int) __ptr64 */
+
+void __thiscall
+CEGUI::FalagardWorldMap::SetCityInHostile(FalagardWorldMap *this,int param_1,int param_2)
+
+{
+  char cVar1;
+  undefined8 *puVar2;
+  undefined8 *puVar3;
+  undefined8 *puVar4;
+  undefined8 *local_res8;
+  
+                    /* 0x8abc0  1457  ?SetCityInHostile@FalagardWorldMap@CEGUI@@UEAAXHH@Z */
+  puVar2 = *(undefined8 **)(this + 0xb8);
+  cVar1 = *(char *)((longlong)puVar2[1] + 0x19);
+  local_res8 = puVar2;
+  puVar4 = (undefined8 *)puVar2[1];
+  while (cVar1 == '\0') {
+    if (*(int *)(puVar4 + 4) < param_1) {
+      puVar3 = (undefined8 *)puVar4[2];
+      puVar4 = local_res8;
+    }
+    else {
+      puVar3 = (undefined8 *)*puVar4;
+    }
+    local_res8 = puVar4;
+    puVar4 = puVar3;
+    cVar1 = *(char *)((longlong)puVar3 + 0x19);
+  }
+  if ((local_res8 == puVar2) || (param_1 < *(int *)(local_res8 + 4))) {
+    local_res8 = puVar2;
+  }
+  if (local_res8 != puVar2) {
+    *(int *)(local_res8[5] + 0x118) = param_2;
+  }
+  return;
+}
+
+// gọi: 
+
+######## 0x18008ada0
+
+==== addPlayerToCity @ 0x18008ada0
+
+/* public: virtual void __cdecl CEGUI::FalagardWorldMap::addPlayerToCity(int,class CEGUI::String32
+   const & __ptr64) __ptr64 */
+
+void __thiscall
+CEGUI::FalagardWorldMap::addPlayerToCity(FalagardWorldMap *this,int param_1,String32 *param_2)
+
+{
+  int *piVar1;
+  String32 *this_00;
+  char cVar2;
+  undefined8 *puVar3;
+  longlong lVar4;
+  undefined8 *puVar5;
+  undefined8 *puVar6;
+  undefined8 *local_res8;
+  
+                    /* 0x8ada0  1660
+                       ?addPlayerToCity@FalagardWorldMap@CEGUI@@UEAAXHAEBVString32@2@@Z */
+  puVar3 = *(undefined8 **)(this + 0xb8);
+  cVar2 = *(char *)((longlong)puVar3[1] + 0x19);
+  local_res8 = puVar3;
+  puVar6 = (undefined8 *)puVar3[1];
+  while (cVar2 == '\0') {
+    if (*(int *)(puVar6 + 4) < param_1) {
+      puVar5 = (undefined8 *)puVar6[2];
+      puVar6 = local_res8;
+    }
+    else {
+      puVar5 = (undefined8 *)*puVar6;
+    }
+    local_res8 = puVar6;
+    puVar6 = puVar5;
+    cVar2 = *(char *)((longlong)puVar5 + 0x19);
+  }
+  if ((local_res8 == puVar3) || (param_1 < *(int *)(local_res8 + 4))) {
+    local_res8 = puVar3;
+  }
+  if (local_res8 != puVar3) {
+    lVar4 = local_res8[5];
+    piVar1 = (int *)(lVar4 + 0x110);
+    *piVar1 = *piVar1 + 1;
+    this_00 = (String32 *)(lVar4 + 0x130);
+    if (*(longlong *)this_00 != 0) {
+      CEGUI::String32::operator+=(this_00,"\n");
+    }
+    CEGUI::String32::operator+=(this_00,param_2);
+  }
+  return;
+}
+
+// gọi: operator+=@329, operator+=@339
+
+######## 0x18008afe0
+
+==== clearCity @ 0x18008afe0
+
+/* public: virtual void __cdecl CEGUI::FalagardWorldMap::clearCity(void) __ptr64 */
+
+void __thiscall CEGUI::FalagardWorldMap::clearCity(FalagardWorldMap *this)
+
+{
+  FalagardWorldMap *pFVar1;
+  char cVar2;
+  void *pvVar3;
+  longlong *plVar4;
+  longlong *plVar5;
+  longlong *plVar6;
+  
+                    /* 0x8afe0  1695  ?clearCity@FalagardWorldMap@CEGUI@@UEAAXXZ */
+  pFVar1 = this + 0xb8;
+  plVar6 = (longlong *)**(longlong **)pFVar1;
+  if (plVar6 != *(longlong **)pFVar1) {
+    do {
+      pvVar3 = (void *)plVar6[5];
+      if (pvVar3 != (void *)0x0) {
+        FUN_180089eb0(pvVar3);
+        operator_delete(pvVar3);
+      }
+      if (*(char *)((longlong)plVar6 + 0x19) == '\0') {
+        plVar4 = (longlong *)plVar6[2];
+        if (*(char *)((longlong)plVar4 + 0x19) == '\0') {
+          cVar2 = *(char *)(*plVar4 + 0x19);
+          plVar6 = plVar4;
+          plVar4 = (longlong *)*plVar4;
+          while (cVar2 == '\0') {
+            cVar2 = *(char *)(*plVar4 + 0x19);
+            plVar6 = plVar4;
+            plVar4 = (longlong *)*plVar4;
+          }
+        }
+        else {
+          cVar2 = *(char *)(plVar6[1] + 0x19);
+          plVar5 = (longlong *)plVar6[1];
+          plVar4 = plVar6;
+          while ((plVar6 = plVar5, cVar2 == '\0' && (plVar4 == (longlong *)plVar6[2]))) {
+            cVar2 = *(char *)(plVar6[1] + 0x19);
+            plVar5 = (longlong *)plVar6[1];
+            plVar4 = plVar6;
+          }
+        }
+      }
+    } while (plVar6 != *(longlong **)pFVar1);
+  }
+  cVar2 = *(char *)((longlong)*(longlong **)(*(longlong *)pFVar1 + 8) + 0x19);
+  plVar6 = *(longlong **)(*(longlong *)pFVar1 + 8);
+  while (cVar2 == '\0') {
+    FUN_180035e20(pFVar1,plVar6[2]);
+    plVar4 = (longlong *)*plVar6;
+    operator_delete(plVar6);
+    plVar6 = plVar4;
+    cVar2 = *(char *)((longlong)plVar4 + 0x19);
+  }
+  *(longlong *)(*(longlong *)pFVar1 + 8) = *(longlong *)pFVar1;
+  *(longlong *)*(longlong *)pFVar1 = *(longlong *)pFVar1;
+  *(longlong *)(*(longlong *)pFVar1 + 0x10) = *(longlong *)pFVar1;
+  *(undefined8 *)(this + 0xc0) = 0;
+  return;
+}
+
+// gọi: FUN_180035e20@180035e20, FUN_180089eb0@180089eb0, operator_delete@1800ed89a
+
+######## 0x18008e890
+
+==== setCityPos @ 0x18008e890
+
+/* public: virtual void __cdecl CEGUI::FalagardWorldMap::setCityPos(int,class CEGUI::Vector2 const &
+   __ptr64) __ptr64 */
+
+void __thiscall
+CEGUI::FalagardWorldMap::setCityPos(FalagardWorldMap *this,int param_1,Vector2 *param_2)
+
+{
+  CITY_DATA *pCVar1;
+  
+                    /* 0x8e890  2907  ?setCityPos@FalagardWorldMap@CEGUI@@UEAAXHAEBVVector2@2@@Z */
+  pCVar1 = getCity(this + -0x400,param_1);
+  *(undefined8 *)(pCVar1 + 0x38) = *(undefined8 *)param_2;
+  return;
+}
+
+// gọi: getCity@18008d6e0
+
+######## 0x18008e7c0
+
+==== setCityNamePos @ 0x18008e7c0
+
+/* public: virtual void __cdecl CEGUI::FalagardWorldMap::setCityNamePos(int,class CEGUI::Vector2
+   const & __ptr64) __ptr64 */
+
+void __thiscall
+CEGUI::FalagardWorldMap::setCityNamePos(FalagardWorldMap *this,int param_1,Vector2 *param_2)
+
+{
+  CITY_DATA *pCVar1;
+  
+                    /* 0x8e7c0  2905  ?setCityNamePos@FalagardWorldMap@CEGUI@@UEAAXHAEBVVector2@2@@Z
+                        */
+  pCVar1 = getCity(this + -0x400,param_1);
+  *(undefined8 *)(pCVar1 + 0x40) = *(undefined8 *)param_2;
+  return;
+}
+
+// gọi: getCity@18008d6e0
+
+######## 0x18008e8c0
+
+==== setCityType @ 0x18008e8c0
+
+/* public: virtual void __cdecl CEGUI::FalagardWorldMap::setCityType(int,class
+   CEGUI::StringBaseT<char> const & __ptr64) __ptr64 */
+
+void __thiscall
+CEGUI::FalagardWorldMap::setCityType(FalagardWorldMap *this,int param_1,StringBaseT<char> *param_2)
+
+{
+  CITY_DATA *pCVar1;
+  
+                    /* 0x8e8c0  2908
+                       ?setCityType@FalagardWorldMap@CEGUI@@UEAAXHAEBV?$StringBaseT@D@2@@Z */
+  pCVar1 = getCity(this + -0x400,param_1);
+  if (pCVar1 + 0x50 != (CITY_DATA *)param_2) {
+    FUN_180002300(pCVar1 + 0x50,param_2,0,0xffffffffffffffff);
+    return;
+  }
+  return;
+}
+
+// gọi: FUN_180002300@180002300, getCity@18008d6e0
+
+######## 0x18008e750
+
+==== setCityNameNormalImage @ 0x18008e750
+
+/* public: virtual void __cdecl CEGUI::FalagardWorldMap::setCityNameNormalImage(int,class
+   CEGUI::StringBaseT<char> const & __ptr64,class CEGUI::StringBaseT<char> const & __ptr64) __ptr64
+    */
+
+void __thiscall
+CEGUI::FalagardWorldMap::setCityNameNormalImage
+          (FalagardWorldMap *this,int param_1,StringBaseT<char> *param_2,StringBaseT<char> *param_3)
+
+{
+  Imageset *this_00;
+  CITY_DATA *pCVar1;
+  Image *pIVar2;
+  
+                    /* 0x8e750  2904
+                       ?setCityNameNormalImage@FalagardWorldMap@CEGUI@@UEAAXHAEBV?$StringBaseT@D@2@0@Z
+                        */
+  this_00 = CEGUI::NamedXMLResourceManager<CEGUI::Imageset,CEGUI::Imageset_xmlHandler>::get
+                      (*(NamedXMLResourceManager<CEGUI::Imageset,CEGUI::Imageset_xmlHandler> **)
+                        ms_Singleton_exref,param_2);
+  pCVar1 = getCity(this + -0x400,param_1);
+  pIVar2 = CEGUI::Imageset::getImage(this_00,param_3);
+  *(Image **)(pCVar1 + 0x128) = pIVar2;
+  return;
+}
+
+// gọi: get@141, getCity@18008d6e0, getImage@140
+
+######## 0x18008e6e0
+
+==== setCityNameHoverImage @ 0x18008e6e0
+
+/* public: virtual void __cdecl CEGUI::FalagardWorldMap::setCityNameHoverImage(int,class
+   CEGUI::StringBaseT<char> const & __ptr64,class CEGUI::StringBaseT<char> const & __ptr64) __ptr64
+    */
+
+void __thiscall
+CEGUI::FalagardWorldMap::setCityNameHoverImage
+          (FalagardWorldMap *this,int param_1,StringBaseT<char> *param_2,StringBaseT<char> *param_3)
+
+{
+  Imageset *this_00;
+  CITY_DATA *pCVar1;
+  Image *pIVar2;
+  
+                    /* 0x8e6e0  2903
+                       ?setCityNameHoverImage@FalagardWorldMap@CEGUI@@UEAAXHAEBV?$StringBaseT@D@2@0@Z
+                        */
+  this_00 = CEGUI::NamedXMLResourceManager<CEGUI::Imageset,CEGUI::Imageset_xmlHandler>::get
+                      (*(NamedXMLResourceManager<CEGUI::Imageset,CEGUI::Imageset_xmlHandler> **)
+                        ms_Singleton_exref,param_2);
+  pCVar1 = getCity(this + -0x400,param_1);
+  pIVar2 = CEGUI::Imageset::getImage(this_00,param_3);
+  *(Image **)(pCVar1 + 0x120) = pIVar2;
+  return;
+}
+
+// gọi: get@141, getCity@18008d6e0, getImage@140
+
+######## 0x18008e890
+
+==== setCityPos @ 0x18008e890
+
+/* public: virtual void __cdecl CEGUI::FalagardWorldMap::setCityPos(int,class CEGUI::Vector2 const &
+   __ptr64) __ptr64 */
+
+void __thiscall
+CEGUI::FalagardWorldMap::setCityPos(FalagardWorldMap *this,int param_1,Vector2 *param_2)
+
+{
+  CITY_DATA *pCVar1;
+  
+                    /* 0x8e890  2907  ?setCityPos@FalagardWorldMap@CEGUI@@UEAAXHAEBVVector2@2@@Z */
+  pCVar1 = getCity(this + -0x400,param_1);
+  *(undefined8 *)(pCVar1 + 0x38) = *(undefined8 *)param_2;
+  return;
+}
+
+// gọi: getCity@18008d6e0
+
+######## 0x18008e7c0
+
+==== setCityNamePos @ 0x18008e7c0
+
+/* public: virtual void __cdecl CEGUI::FalagardWorldMap::setCityNamePos(int,class CEGUI::Vector2
+   const & __ptr64) __ptr64 */
+
+void __thiscall
+CEGUI::FalagardWorldMap::setCityNamePos(FalagardWorldMap *this,int param_1,Vector2 *param_2)
+
+{
+  CITY_DATA *pCVar1;
+  
+                    /* 0x8e7c0  2905  ?setCityNamePos@FalagardWorldMap@CEGUI@@UEAAXHAEBVVector2@2@@Z
+                        */
+  pCVar1 = getCity(this + -0x400,param_1);
+  *(undefined8 *)(pCVar1 + 0x40) = *(undefined8 *)param_2;
+  return;
+}
+
+// gọi: getCity@18008d6e0
+
+######## 0x18008e8c0
+
+==== setCityType @ 0x18008e8c0
+
+/* public: virtual void __cdecl CEGUI::FalagardWorldMap::setCityType(int,class
+   CEGUI::StringBaseT<char> const & __ptr64) __ptr64 */
+
+void __thiscall
+CEGUI::FalagardWorldMap::setCityType(FalagardWorldMap *this,int param_1,StringBaseT<char> *param_2)
+
+{
+  CITY_DATA *pCVar1;
+  
+                    /* 0x8e8c0  2908
+                       ?setCityType@FalagardWorldMap@CEGUI@@UEAAXHAEBV?$StringBaseT@D@2@@Z */
+  pCVar1 = getCity(this + -0x400,param_1);
+  if (pCVar1 + 0x50 != (CITY_DATA *)param_2) {
+    FUN_180002300(pCVar1 + 0x50,param_2,0,0xffffffffffffffff);
+    return;
+  }
+  return;
+}
+
+// gọi: FUN_180002300@180002300, getCity@18008d6e0
+
+######## 0x18008e6b0
+
+==== setCityInfo @ 0x18008e6b0
+
+/* public: virtual void __cdecl CEGUI::FalagardWorldMap::setCityInfo(int,class CEGUI::String32 const
+   & __ptr64) __ptr64 */
+
+void __thiscall
+CEGUI::FalagardWorldMap::setCityInfo(FalagardWorldMap *this,int param_1,String32 *param_2)
+
+{
+  CITY_DATA *pCVar1;
+  
+                    /* 0x8e6b0  2902  ?setCityInfo@FalagardWorldMap@CEGUI@@UEAAXHAEBVString32@2@@Z
+                        */
+  pCVar1 = getCity(this + -0x400,param_1);
+                    /* WARNING: Could not recover jumptable at 0x00018008e6d4. Too many branches */
+                    /* WARNING: Treating indirect jump as call */
+  CEGUI::String32::operator=((String32 *)(pCVar1 + 0x158),param_2);
+  return;
+}
+
+// gọi: getCity@18008d6e0
+
+######## 0x18008d900
+
+==== isCopyScene @ 0x18008d900
+
+/* public: bool __cdecl CEGUI::FalagardWorldMap::isCopyScene(int) __ptr64 */
+
+bool __thiscall CEGUI::FalagardWorldMap::isCopyScene(FalagardWorldMap *this,int param_1)
+
+{
+                    /* 0x8d900  2598  ?isCopyScene@FalagardWorldMap@CEGUI@@QEAA_NH@Z */
+  switch(param_1) {
+  case 0x24:
+  case 0x25:
+  case 0x26:
+  case 0x3d:
+  case 0x42:
+  case 0xa8:
+  case 0xea:
+  case 0x118:
+    return true;
+  default:
+    return false;
+  }
+}
+
+// gọi: 
+
+######## 0x18003fca0
+
+==== getCurrentSelectScene @ 0x18003fca0
+
+/* public: virtual int __cdecl CEGUI::FalagardWorldMap::getCurrentSelectScene(void) __ptr64 */
+
+int __thiscall CEGUI::FalagardWorldMap::getCurrentSelectScene(FalagardWorldMap *this)
+
+{
+                    /* 0x3fca0  2244  ?getCurrentSelectScene@FalagardWorldMap@CEGUI@@UEAAHXZ */
+  return *(int *)(this + 200);
+}
+
+// gọi: 

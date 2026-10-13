@@ -95,17 +95,20 @@ void Display::State::open_login() {
     roles_loaded = true;
     const std::filesystem::path root = save_root.empty() ? data_root : save_root;
     const std::filesystem::path file = root / "Save" / "roles.tsv";
-    const std::string text = read_role_book(file);
+    const std::string text = read_save_text(file);
     if (!hud->recall_roles(text)) std::println(stderr, "Nhân vật: sổ hỏng phiên bản, bắt đầu sổ trống");
+    static_cast<void>(hud->recall_last_server(read_save_text(root / "Save" / "last_server.tsv")));
 }
 
 void Display::State::store_roles() const {
     if (!hud) return;
-    const std::optional<std::string> text = hud->roles_text();
-    if (!text) return;
     const std::filesystem::path root = save_root.empty() ? data_root : save_root;
-    const std::filesystem::path file = root / "Save" / "roles.tsv";
-    if (write_role_book(file, *text)) hud->mark_roles_saved();
+    if (const std::optional<std::string> text = hud->roles_text()) {
+        if (write_save_text(root / "Save" / "roles.tsv", *text)) hud->mark_roles_saved();
+    }
+    if (const std::optional<std::string> text = hud->last_server_text()) {
+        if (write_save_text(root / "Save" / "last_server.tsv", *text)) hud->mark_last_server_saved();
+    }
 }
 
 void Display::State::apply_role() {
@@ -158,6 +161,8 @@ void Display::State::prepare_hud() {
     hud_wheel = 0;
     const std::optional<ui::Action> action = hud->take_action();
     if (action) post_request(*action);
+    if (const std::optional<ui::RunTo> run = hud->take_run_to()) run_to_scene_point(*run);
+    if (body) body->set_spin(hud->equip_spin());
     store_roles();
 }
 
@@ -184,6 +189,7 @@ ui::HudView Display::State::hud_view() const {
     view.pointer->x = pointer.x * width;
     view.pointer->y = pointer.y * height;
     view.pointer->is_down = is_button_down[static_cast<std::size_t>(control::MouseButton::kLeft)];
+    view.pointer->is_right_down = is_button_down[static_cast<std::size_t>(control::MouseButton::kRight)];
     view.typed = typed;
     view.wheel = hud_wheel;
     view.loading = scene_load();
@@ -201,10 +207,13 @@ ui::HudView Display::State::hud_view() const {
 }
 
 // Việc nạp cảnh mà bảng chuyển cảnh của giao diện báo cho người chơi: cảnh của màn chơi đang được
-// nạp, kèm phần mesh đã đặt xong. Thủ tục đăng nhập đổi cảnh nền thì không báo (bản gốc chỉ phát
-// PLAYER_LEAVE_WORLD khi rời một cảnh của thế giới). Trước khi mặt đất sẵn thì phần trăm là 0.
+// nạp, kèm phần mesh đã đặt xong. Chỉ báo khi RỜI một cảnh của thế giới: bản gốc phát
+// PLAYER_LEAVE_WORLD ở GCNotifyChangeScene (Game.exe 0x1405493da), còn lần vào đầu từ bảng chọn
+// (LCRetCharLogin -> ChangeScene -> Enter) và thủ tục đăng nhập đổi cảnh nền không phát. Trước khi
+// mặt đất sẵn thì phần trăm là 0.
 std::optional<ui::SceneLoad> Display::State::scene_load() const {
-    if (procedure != Procedure::kPlay || !arrival.has_value() || !arrival->scene) return std::nullopt;
+    if (procedure != Procedure::kPlay || !has_entered_world) return std::nullopt;
+    if (!arrival.has_value() || !arrival->scene) return std::nullopt;
     ui::SceneLoad load;
     load.name = arrival->scene->name;
     const std::size_t total = arrival->table.meshes.size();

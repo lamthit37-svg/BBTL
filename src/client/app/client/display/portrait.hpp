@@ -28,6 +28,9 @@ namespace game::client {
 // Camera của ảnh đầu theo bộ số của mô hình: FOV dọc 20 độ, mặt cắt gần 10, khung vuông.
 [[nodiscard]] render::Camera head_camera(const look::HeadPose& pose) noexcept;
 
+// Camera của ảnh toàn thân vừa khít FOV 20 độ, cho mô hình cao height.
+[[nodiscard]] render::Camera body_camera(float height) noexcept;
+
 struct HeadShotDesc {
     PlayerDesc player;
     // Lượt vẽ mô hình của màn hình; ảnh đầu vẽ bằng chính nó. Phải sống lâu hơn HeadShot.
@@ -60,6 +63,12 @@ public:
     // Ghi lượt vẽ ảnh đầu vào list. Gọi ngoài mọi begin_rendering. slot là bộ buffer của forward
     // dành riêng cho lượt này trong khung, không trùng lượt màn hình.
     [[nodiscard]] core::Status record(gpu::CommandList& list, std::uint32_t slot);
+
+    // Quay mô hình quanh trục đứng khi người dùng giữ nút xoay (RotateBeginEx / RotateEndEx của bảng
+    // nhân vật): speed là số mà UI_CEGUI.dll đưa cho engine, 0 thì dừng, dương quay sang phải. Tốc độ thực là
+    // speed vòng mỗi giây, cùng thang với ModelRotBegin của màn tạo nhân vật; đơn vị của engine chưa đọc
+    // được (docs/NGHI-NGO.md).
+    void set_spin(float speed) noexcept;
 
     // Ảnh màu để giao diện lấy mẫu; nội dung là của lần record gần nhất.
     [[nodiscard]] gpu::TextureViewHandle view() const noexcept;

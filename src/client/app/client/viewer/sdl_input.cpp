@@ -78,6 +78,7 @@ struct Utf8 {
     if (code == SDLK_BACKSPACE) return SdlKey::kBackspace;
     if (code == SDLK_TAB) return SdlKey::kTab;
     if (code == SDLK_RETURN || code == SDLK_KP_ENTER) return SdlKey::kEnter;
+    if (code == SDLK_ESCAPE) return SdlKey::kEscape;
     return SdlKey::kNone;
 }
 

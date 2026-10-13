@@ -193,6 +193,7 @@ void Display::State::finish_stream() {
     const bool was_prefetch = arrival->prefetch;
     const bool login_holds = procedure == Procedure::kLogin && held != nullptr;
     const bool role_waits = role_scene != nullptr && held != nullptr && role_scene->id != held->id;
+    if (!was_prefetch && procedure == Procedure::kPlay) has_entered_world = true;
     arrival.reset();
     if (was_prefetch || !login_holds || !role_waits) return;
     begin_load(role_scene, true);

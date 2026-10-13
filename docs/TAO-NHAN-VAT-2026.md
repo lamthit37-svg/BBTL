@@ -220,7 +220,7 @@ cách 645 đến 675 cm; FOV dọc 65 độ (`0x1800027a0`).
 - Nội suy: `NodeAnimationTrack::getInterpolatedKeyFrame`; spline là `SimpleSpline` (Catmull-Rom) cho
   mắt và `RotationalSpline` (squad) cho hướng. `Quaternion::Slerp` của bản OGRE này là bản có ngưỡng
   1 − 1e-3 và `atan2` (`0x18014a670`).
-- Bảng chọn (`0x14063bb70`): đổi ô thì chạy track nối hai ô (0 sang 1 xuôi `Role0To1`, 0 sang 2 ngược
+- Bảng chọn (`0x14063c480`): đổi ô thì chạy track nối hai ô (0 sang 1 xuôi `Role0To1`, 0 sang 2 ngược
   `Role2To0`, 1 sang 2 xuôi `Role1To2`, 1 sang 0 ngược `Role0To1`, 2 sang 0 xuôi `Role2To0`, 2 sang 1
   ngược `Role1To2`). Đang chạy (`0x180001ce0`) mà đòi ô thứ ba thì ghi ô chờ, nhịp `0x14063cfa0` cho
   đi tiếp khi tới nơi; đòi quay lại ô vừa rời thì đảo chiều ngay.

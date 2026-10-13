@@ -479,7 +479,67 @@ RadarAsk radar_ask(const Place& input, const Box& screen) noexcept {
     return ask;
 }
 
+// Hai số "a b" của một thuộc tính bản đồ lớn (SceneMapSize, SceneMapCenter); thiếu hay hỏng thì nullopt.
+struct FloatPair {
+    float first = 0.0F;
+    float second = 0.0F;
+};
+
+std::optional<FloatPair> pair_of(std::optional<std::string_view> text) {
+    if (!text) return std::nullopt;
+    const std::size_t space = text->find(' ');
+    if (space == std::string_view::npos) return std::nullopt;
+    const std::optional<float> first = parse_float(text->substr(0, space));
+    const std::optional<float> second = parse_float(text->substr(space + 1));
+    if (!first || !second) return std::nullopt;
+    return FloatPair{.first = *first, .second = *second};
+}
+
+// Bản đồ lớn (cửa sổ radar mang SceneMapZoom): chế độ phóng, cỡ cảnh đang vẽ và tâm do bảng đặt qua Override,
+// vì cảnh đang xem có thể không phải cảnh người chơi đứng. SceneMapSelf bật thì có mũi tên người chơi.
+// Ảnh nền vẽ ở trang tĩnh để các nút con (SceneMap_Move nằm trên bản đồ) đè lên được; mũi tên và số liệu
+// cho bảng nằm ở trang động vì chúng đi theo người chơi.
+void draw_board(const Ctx& ctx, const Placed& self, std::string_view zoom) {
+    if (ctx.is_live_pass) ctx.sheet->board = self.screen;
+    const std::optional<float> mode = parse_float(zoom);
+    const std::optional<FloatPair> size = pair_of(effective(ctx, self, "SceneMapSize"));
+    if (!mode || !size) return;
+    const std::optional<FloatPair> centre = pair_of(effective(ctx, self, "SceneMapCenter"));
+    BoardAsk ask;
+    ask.scene_width = size->first;
+    ask.scene_depth = size->second;
+    ask.window_width = self.screen.w;
+    ask.window_height = self.screen.h;
+    ask.mode = static_cast<std::int32_t>(*mode);
+    ask.centre_x = centre ? centre->first : size->first * 0.5F;
+    ask.centre_z = centre ? centre->second : size->second * 0.5F;
+    const BoardView view = board_view(ask);
+    if (view.pixels <= 0.0F) return;
+    const Box dest{.x = self.screen.x + view.dest.x, .y = self.screen.y + view.dest.y, .w = view.dest.w, .h = view.dest.h};
+    if (ctx.is_live_pass) {
+        ctx.sheet->board_dest = dest;
+        ctx.sheet->board_uv = view.uv;
+        if (!flag(ctx, self, "SceneMapSelf")) return;
+        const Mark mark = radar_mark(dest, view.uv, *ctx.input);
+        if (draw_arrow(ctx, self, mark)) return;
+        push_source(*ctx.sheet, kSolid, centred_box(mark, kMarker, kMarker), {}, kMarkerColour);
+        return;
+    }
+    Quad map;
+    map.texture = kSceneBoard;
+    map.dest = dest;
+    map.u0 = view.uv.u0;
+    map.v0 = view.uv.v0;
+    map.u1 = view.uv.u1;
+    map.v1 = view.uv.v1;
+    ctx.sheet->quads.push_back(map);
+}
+
 void draw_radar(const Ctx& ctx, const Placed& self) {
+    if (const auto zoom = effective(ctx, self, "SceneMapZoom")) {
+        draw_board(ctx, self, *zoom);
+        return;
+    }
     ctx.sheet->radar = self.screen;
     const Place& input = *ctx.input;
     if (input.scene_width <= 0.0F || input.scene_depth <= 0.0F) return;
@@ -677,8 +737,205 @@ const GuiState* state_named(const GuiAsset& asset, const GuiLook& look, std::str
     return found == items.end() ? nullptr : &*found;
 }
 
+namespace {
+
+// Một thành phố của WorldMapCities: id, chỗ nút, chỗ nhãn, loại nút và ảnh nhãn.
+struct WorldCity {
+    int id = 0;
+    FloatPair icon;
+    FloatPair label;
+    std::string_view sign;
+    ImageName name;
+    // Tên đã dịch (rỗng thì vẽ ảnh nhãn của bản gốc) và sắc của nhãn.
+    std::string_view title;
+    bool is_red = false;
+};
+
+// Ô thứ index của dòng tách bằng dấu tab; rỗng khi dòng ngắn hơn.
+std::string_view tab_field(std::string_view line, std::size_t index) noexcept {
+    for (std::size_t skipped = 0; skipped < index; ++skipped) {
+        const std::size_t tab = line.find('\t');
+        if (tab == std::string_view::npos) return {};
+        line.remove_prefix(tab + 1);
+    }
+    return line.substr(0, line.find('\t'));
+}
+
+std::optional<WorldCity> parse_city(std::string_view line) {
+    const std::optional<float> id = parse_float(tab_field(line, 0));
+    const std::optional<float> icon_x = parse_float(tab_field(line, 1));
+    const std::optional<float> icon_y = parse_float(tab_field(line, 2));
+    const std::optional<float> label_x = parse_float(tab_field(line, 3));
+    const std::optional<float> label_y = parse_float(tab_field(line, 4));
+    if (!id || !icon_x || !icon_y || !label_x || !label_y) return std::nullopt;
+    WorldCity city;
+    city.id = static_cast<int>(*id);
+    city.icon = FloatPair{.first = *icon_x, .second = *icon_y};
+    city.label = FloatPair{.first = *label_x, .second = *label_y};
+    city.sign = tab_field(line, 5);
+    city.name = ImageName{.set = tab_field(line, 6), .image = tab_field(line, 7)};
+    city.title = tab_field(line, 8);
+    city.is_red = tab_field(line, 9) == "red";
+    return city;
+}
+
+// Ảnh CityImageNormal hay CityImageHover của loại nút sign ("type:Sign5 set:... image:...").
+const GuiImage* sign_image(const Ctx& ctx, const Placed& self, std::string_view property, std::string_view sign) {
+    const auto is_sign = [property, sign](const GuiProperty& item) {
+        return item.name == property && tagged_value(item.value, "type:") == sign;
+    };
+    const std::span<const GuiProperty> properties = window_properties(*ctx.asset, self);
+    const auto found = std::ranges::find_if(properties, is_sign);
+    if (found == properties.end()) return nullptr;
+    const std::optional<ImageName> parsed = tagged_image(found->value);
+    return parsed ? named_image(ctx, *parsed) : nullptr;
+}
+
+// Ô của ảnh có tâm ở point (HookMode Center của FalagardWorldMap::createNewCity), cỡ gốc của ảnh.
+Box centred_image_box(const GuiImage& image, FloatPair point) noexcept {
+    return Box{.x = point.first - (image.width * 0.5F), .y = point.second - (image.height * 0.5F), .w = image.width, .h = image.height};
+}
+
+Box overlap(const Box& first, const Box& second) noexcept {
+    const float left = std::max(first.x, second.x);
+    const float top = std::max(first.y, second.y);
+    const float right = std::min(first.x + first.w, second.x + second.w);
+    const float bottom = std::min(first.y + first.h, second.y + second.h);
+    return Box{.x = left, .y = top, .w = std::max(right - left, 0.0F), .h = std::max(bottom - top, 0.0F)};
+}
+
+// Ước lượng bề rộng nhãn chữ (số ký tự UTF-8 nhân bề rộng trung bình của chữ 14 điểm ảnh) và cao một dòng của phông Việt.
+constexpr float kLabelGlyph = 8.0F;
+constexpr float kLabelPad = 6.0F;
+constexpr float kLabelHeight = 18.0F;
+// Màu thẻ #e (viền sáng) và #c (chữ đen, đỏ của phó bản) của nhãn chữ; GuiTextHorz và GuiTextVert canh giữa.
+constexpr std::string_view kLabelHalo = "F4EBC8";
+constexpr std::string_view kLabelInk = "201810";
+constexpr std::string_view kLabelRed = "C01818";
+constexpr std::uint8_t kLabelHorz = 2;
+constexpr std::uint8_t kLabelVert = 1;
+
+[[nodiscard]] float utf8_length(std::string_view text) noexcept {
+    return static_cast<float>(std::ranges::count_if(text, [](char byte) { return (static_cast<unsigned char>(byte) & 0xC0U) != 0x80U; }));
+}
+
+// Ô của nhãn chữ: tâm ở chỗ nhãn của thành phố (HookMode Center như ảnh nhãn), bề rộng theo số ký tự.
+[[nodiscard]] Box label_box(const WorldCity& city, FloatPair origin) noexcept {
+    const float width = (utf8_length(city.title) * kLabelGlyph) + (2.0F * kLabelPad);
+    return Box{.x = origin.first + city.label.first - (width * 0.5F),
+        .y = origin.second + city.label.second - (kLabelHeight * 0.5F),
+        .w = width,
+        .h = kLabelHeight};
+}
+
+// Một thành phố theo createNewCity và resetWorldMap (CEGUIFalagard.dll 0x18008c320, 0x18008dd50): ảnh
+// nhãn (bản gốc luôn đặt ảnh "khi trỏ" lên cửa sổ nhãn, cả khi không trỏ), ảnh nút (thường hay khi trỏ),
+// rồi dấu MySelf ở chỗ nút nếu đây là cảnh người chơi đang đứng. Nút và nhãn đều bấm được.
+void draw_city(const Ctx& ctx, const Placed& self, const WorldCity& city, FloatPair origin) {
+    Sheet& sheet = *ctx.sheet;
+    const auto shift = [origin](FloatPair point) { return FloatPair{.first = origin.first + point.first, .second = origin.second + point.second}; };
+    const std::optional<float> hovered = parse_float(effective(ctx, self, "WorldMapHover").value_or(std::string_view{}));
+    const std::optional<float> mine = parse_float(effective(ctx, self, "WorldMapSelf").value_or(std::string_view{}));
+    const bool is_hovered = hovered && static_cast<int>(*hovered) == city.id;
+    const auto hit = [&](const GuiImage& image, FloatPair at) {
+        const Box box = centred_image_box(image, shift(at));
+        push_whole(sheet, image, box, kWhiteArgb);
+        const Box seen = overlap(box, self.screen);
+        if (seen.w > 0.0F && seen.h > 0.0F) sheet.world_hits.push_back(WorldHit{.city = city.id, .box = seen});
+    };
+    if (!city.title.empty()) {
+        const Box box = label_box(city, origin);
+        const Box seen = overlap(box, self.screen);
+        if (seen.w > 0.0F && seen.h > 0.0F) sheet.world_hits.push_back(WorldHit{.city = city.id, .box = seen});
+    } else if (const GuiImage* label = named_image(ctx, city.name)) {
+        hit(*label, city.label);
+    }
+    if (const GuiImage* icon = sign_image(ctx, self, is_hovered ? "CityImageHover" : "CityImageNormal", city.sign)) hit(*icon, city.icon);
+    if (!mine || static_cast<int>(*mine) != city.id) return;
+    const auto text = effective(ctx, self, "MySelfImage");
+    const std::optional<ImageName> name = text ? parse_image(*text) : std::nullopt;
+    const GuiImage* marker = name ? named_image(ctx, *name) : nullptr;
+    if (marker != nullptr) push_whole(sheet, *marker, centred_image_box(*marker, shift(city.icon)), kWhiteArgb);
+}
+
+} // namespace
+
+// Falagard/WorldMap (CEGUIFalagard.dll 0x18008b200 createBackground, 0x18008ea20 updataBackground):
+// ảnh nền ghép từ lưới ô, đặt trong cửa sổ theo độ lệch WorldMapView (điểm ảnh, đã kẹp), kèm các thành phố
+// ở WorldMapCities (mỗi dòng: id, nút x y, nhãn x y, loại nút, bộ ảnh và ảnh của nhãn, cách nhau bằng tab).
+// Khác gốc: cuộn và kẹp làm ở ui/panel/world_map; chưa có tooltip, bạn bè, đối địch, cờ chỉ huy.
+void draw_world(const Ctx& ctx, const Placed& self) {
+    draw_plain(ctx, self);
+    if (ctx.is_live_pass) return;
+    Sheet& sheet = *ctx.sheet;
+    sheet.world = self.screen;
+    const std::optional<FloatPair> size = pair_of(effective(ctx, self, "WorldMapSize"));
+    const std::optional<FloatPair> offset = pair_of(effective(ctx, self, "WorldMapView"));
+    if (!size || !offset || size->first <= 0.0F || size->second <= 0.0F) return;
+    const Box whole{.x = self.screen.x + offset->first, .y = self.screen.y + offset->second, .w = size->first, .h = size->second};
+    const Box shown = overlap(whole, self.screen);
+    if (shown.w > 0.0F && shown.h > 0.0F) {
+        Quad map;
+        map.texture = kWorldBoard;
+        map.dest = shown;
+        map.u0 = (shown.x - whole.x) / whole.w;
+        map.v0 = (shown.y - whole.y) / whole.h;
+        map.u1 = (shown.x + shown.w - whole.x) / whole.w;
+        map.v1 = (shown.y + shown.h - whole.y) / whole.h;
+        sheet.quads.push_back(map);
+    }
+    const std::size_t first = sheet.quads.size();
+    std::string_view rest = effective(ctx, self, "WorldMapCities").value_or(std::string_view{});
+    while (!rest.empty()) {
+        const std::size_t end = rest.find('\n');
+        const std::string_view line = rest.substr(0, end);
+        rest.remove_prefix(end == std::string_view::npos ? rest.size() : end + 1);
+        if (const std::optional<WorldCity> city = parse_city(line)) draw_city(ctx, self, *city, FloatPair{.first = whole.x, .second = whole.y});
+    }
+    clip_quads(sheet, first, self.screen);
+}
+
+namespace {
+
+// Gốc ảnh nền của bản đồ thế giới trên màn hình (WorldMapView là độ lệch so với góc cửa sổ).
+std::optional<FloatPair> world_origin(const Ctx& ctx, const Placed& self) {
+    const std::optional<FloatPair> offset = pair_of(effective(ctx, self, "WorldMapView"));
+    if (!offset) return std::nullopt;
+    return FloatPair{.first = self.screen.x + offset->first, .second = self.screen.y + offset->second};
+}
+
+} // namespace
+
+// Tên đã dịch của các thành phố, chữ đen (đỏ với phó bản) viền sáng như nhãn gốc, canh giữa quanh chỗ nhãn.
+// Chuỗi dựng lúc chạy nằm ở Sheet::made để TextRun mượn.
+void world_texts(const Ctx& ctx, const Placed& self) {
+    const std::optional<FloatPair> origin = world_origin(ctx, self);
+    if (!origin) return;
+    std::string_view rest = effective(ctx, self, "WorldMapCities").value_or(std::string_view{});
+    while (!rest.empty()) {
+        const std::size_t end = rest.find('\n');
+        const std::string_view line = rest.substr(0, end);
+        rest.remove_prefix(end == std::string_view::npos ? rest.size() : end + 1);
+        const std::optional<WorldCity> city = parse_city(line);
+        if (!city || city->title.empty()) continue;
+        const Box box = label_box(*city, *origin);
+        if (overlap(box, self.screen).w <= 0.0F) continue;
+        ctx.sheet->made.push_back(std::format("#e{}#c{}{}", kLabelHalo, city->is_red ? kLabelRed : kLabelInk, city->title));
+        TextRun run;
+        run.text = ctx.sheet->made.back();
+        run.box = box;
+        run.clip = self.screen;
+        run.rule = TextRule::kSimpleText;
+        run.horz = kLabelHorz;
+        run.vert = kLabelVert;
+        ctx.sheet->texts.push_back(run);
+    }
+}
+
 void draw_images(const Ctx& ctx, const Placed& self) {
-    if (self.kind == Kind::kRadar) {
+    if (self.kind == Kind::kWorld) {
+        draw_world(ctx, self);
+    } else if (self.kind == Kind::kRadar) {
         draw_radar(ctx, self);
     } else if (self.kind == Kind::kProgress) {
         draw_progress(ctx, self);
@@ -688,6 +945,11 @@ void draw_images(const Ctx& ctx, const Placed& self) {
         draw_list(ctx, self);
     } else if (self.kind == Kind::kComplex) {
         draw_complex(ctx, self);
+    } else if (self.kind == Kind::kCatalog) {
+        draw_catalog(ctx, self);
+    } else if (self.kind == Kind::kMoney) {
+        draw_plain(ctx, self);
+        draw_money(ctx, self);
     } else if (is_pressable(self.kind)) {
         draw_button(ctx, self);
     } else if (self.kind == Kind::kEdit) {

@@ -26,6 +26,7 @@ constexpr std::string_view kCustomEdit = "LogOn_MailID";
 constexpr std::string_view kPasswordEdit = "LogOn_PassWord";
 constexpr std::string_view kSuffixList = "LogOn_Region";
 constexpr std::string_view kEnterButton = "LogOn_LogOnGame";
+constexpr std::string_view kSituation = "SeverSituation_InfoWindow";
 // TailName[0] của script: LoginLogOn_OnLoad chọn dòng 0 khi Account_MailIndex chưa lưu.
 constexpr std::string_view kFirstSuffix = "@changyou.com";
 
@@ -197,6 +198,7 @@ void paint_logon(Deck& deck, const Logon& logon) {
     deck.set(gui::Override{.window = kCustomEdit, .name = "Text", .value = logon.mail});
     deck.set(gui::Override{.window = kPasswordEdit, .name = "Text", .value = masked});
     deck.set(gui::Override{.window = kSuffixList, .name = "Text", .value = kFirstSuffix});
+    deck.set(gui::Override{.window = kSituation, .name = "Text", .value = logon.situation});
 }
 
 } // namespace game::ui::panel

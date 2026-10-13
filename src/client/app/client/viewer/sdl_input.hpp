@@ -29,6 +29,7 @@ enum class SdlKey : std::uint8_t {
     kBackspace,
     kTab,
     kEnter,
+    kEscape,
 };
 
 // Một việc SDL vừa báo, theo thứ tự PollEvent.

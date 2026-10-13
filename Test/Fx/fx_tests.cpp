@@ -291,7 +291,7 @@ emitter Point
 {
 emission_rate 100
 }
-affector SequenceFrame
+affector NoSuchAffector
 {
 stacks 7
 slices 7
@@ -754,7 +754,7 @@ void cast_skips_by_reason(Context& context) {
     context.expect(tally.count(fx::Skip::kUnknownName) == 2, "ghost và nope: tên lạ");
     context.expect(tally.count(fx::Skip::kUnknownElement) == 1, "PointLight: element lạ");
     context.expect(tally.total_skipped() == 7, "tổng bảy thứ bị bỏ");
-    const auto kind = tally.affectors.find("SequenceFrame");
+    const auto kind = tally.affectors.find("NoSuchAffector");
     const bool named = tally.affectors.size() == 1 && kind != tally.affectors.end() && kind->second == 1;
     context.expect(named, "nêu tên loại affector làm hệ bị bỏ");
 }

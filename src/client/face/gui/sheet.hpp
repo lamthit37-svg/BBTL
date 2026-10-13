@@ -24,6 +24,7 @@
 #include <chrono>
 #include <cstddef>
 #include <cstdint>
+#include <deque>
 #include <memory>
 #include <optional>
 #include <span>
@@ -43,11 +44,15 @@ struct Box {
 
 // texture -1 là màu đặc (source bỏ qua). -2 là ảnh bản đồ cảnh, uv là phần đang thấy. -3 là atlas
 // chữ. -4 là ảnh của một fake object (mô hình 3D vẽ ra texture, tên ở Quad::view), phủ cả texture.
+// -5 là ảnh bản đồ lớn (SceneMap_Board), uv như -2 nhưng theo atlas riêng của bản đồ lớn.
+// -6 là ảnh nền của bản đồ thế giới (WorldMap), uv là phần của ảnh nguyên.
 // Từ 0 trở đi là chỉ số texture của GuiAsset; source là ô điểm ảnh trong texture đó.
 inline constexpr std::int32_t kSolid = -1;
 inline constexpr std::int32_t kSceneMap = -2;
 inline constexpr std::int32_t kFont = -3;
 inline constexpr std::int32_t kMeshView = -4;
+inline constexpr std::int32_t kSceneBoard = -5;
+inline constexpr std::int32_t kWorldBoard = -6;
 
 struct Quad {
     std::int32_t texture = kSolid;
@@ -155,6 +160,8 @@ struct Pointer {
     float x = 0.0F;
     float y = 0.0F;
     bool is_down = false;
+    // Nút phải đang giữ: kéo bản đồ lớn (FalagardSceneMap::onMouseButtonDown nhận nút phải).
+    bool is_right_down = false;
 };
 
 // Phần ảnh bản đồ đang thấy trong radar, toạ độ 0..1 của cả ảnh cảnh.
@@ -200,11 +207,28 @@ struct Place {
     const TextMeter* meter = nullptr;
 };
 
+// Một chỗ bấm được trên bản đồ thế giới: thành phố và ô của nút hay nhãn của nó, đã cắt theo cửa sổ.
+struct WorldHit {
+    std::int32_t city = -1;
+    Box box;
+};
+
+// NOLINTNEXTLINE(bugprone-exception-escape): giả dương của STL MSVC (HP-07)
 struct Sheet {
     std::vector<Quad> quads;
     std::vector<TextRun> texts;
+    // Chuỗi do bộ vẽ dựng (số trong ô tiền) mà texts mượn. Deque để địa chỉ phần tử không đổi khi thêm
+    // và khi di chuyển cả Sheet: chỉ di chuyển, không chép (bản chép trỏ TextRun vào bản gốc).
+    std::deque<std::string> made;
     std::optional<Box> radar;
     Radar uv;
+    // Bản đồ lớn: ô của cửa sổ, ô vẽ ảnh và phần ảnh cả cảnh đang thấy (board_view).
+    std::optional<Box> board;
+    Box board_dest;
+    Radar board_uv;
+    // Bản đồ thế giới (trang tĩnh): ô cửa sổ và các chỗ bấm, cái vẽ sau nằm cuối.
+    std::optional<Box> world;
+    std::vector<WorldHit> world_hits;
     // Bản chép Override (window, name, value) mà texts mượn chuỗi: sống cùng Sheet.
     std::vector<std::array<std::string, 3>> kept;
 };
@@ -248,6 +272,35 @@ struct RadarAsk {
 // window/4 đơn vị cảnh, kẹp sát mép ảnh khi người chơi đứng gần biên.
 [[nodiscard]] Radar radar_uv(const RadarAsk& ask) noexcept;
 
+// Bản đồ lớn (Falagard/SceneMap của SceneMap_Board). Cỡ một đơn vị cảnh theo điểm ảnh của từng chế độ
+// SceneMapZoom (FalagardSceneMap::UpdateAllWindow, CEGUIFalagard.dll 0x1800c73b0): 1 là 4 x 0,8; 2 là 4;
+// 3 là 4 x 2; 4 là 4 x 0,9; 0 là vừa khít cả cảnh (cạnh dài của cảnh bằng chiều cao cửa sổ) khi cảnh ở
+// mức 4 điểm ảnh một đơn vị còn lớn hơn cửa sổ, không thì như 2.
+struct BoardAsk {
+    float scene_width = 0.0F;
+    float scene_depth = 0.0F;
+    float window_width = 0.0F;
+    float window_height = 0.0F;
+    std::int32_t mode = 2;
+    // Tâm vùng thấy theo đơn vị cảnh; board_view kẹp lại.
+    float centre_x = 0.0F;
+    float centre_z = 0.0F;
+};
+
+struct BoardView {
+    // Phần ảnh cả cảnh (0..1) hiện ra, và ô vẽ nó trong cửa sổ (nhỏ hơn cửa sổ khi ảnh nhỏ hơn).
+    Radar uv;
+    Box dest;
+    // Tâm sau khi kẹp (ảnh nhỏ hơn cửa sổ thì là tâm cảnh) và điểm ảnh một đơn vị cảnh.
+    float centre_x = 0.0F;
+    float centre_z = 0.0F;
+    float pixels = 0.0F;
+};
+
+// SetViewByCenter rồi UpdateAllWindow: tâm vào giữa cửa sổ, kẹp sát mép ảnh; ảnh nhỏ hơn cửa sổ thì nằm
+// giữa cửa sổ. Cảnh hay cửa sổ không có cỡ thì trả BoardView rỗng.
+[[nodiscard]] BoardView board_view(const BoardAsk& ask) noexcept;
+
 // Điểm chuột trong cửa sổ radar, gốc ở góc trái trên của cửa sổ.
 struct SceneCursor {
     float local_x = 0.0F;
@@ -263,6 +316,9 @@ struct SceneHit {
 
 // ScreenPosToScenePos rồi chia cho m_fZoomValue, như onMouseMove của FalagardSceneMap.
 [[nodiscard]] SceneHit scene_at(const RadarAsk& ask, SceneCursor cursor) noexcept;
+
+// Toạ độ cảnh dưới chuột trên bản đồ lớn; is_on_scene sai khi chuột ngoài ô vẽ ảnh.
+[[nodiscard]] SceneHit board_scene_at(const BoardAsk& ask, const BoardView& view, SceneCursor cursor) noexcept;
 
 // Số ô một cạnh: trunc(scene) / kRadarTile, có dư thì cộng một. Scene không dương thì 0.
 // Khác gốc: scene >= 2^24 trả 0 để khỏi ép int tràn; DLL không trần.
@@ -341,6 +397,10 @@ public:
     // gần nhất; nullopt khi cửa sổ không có, đang ẩn, không phải danh sách, hay điểm nằm ngoài vùng
     // mục hoặc trên chỗ trống.
     [[nodiscard]] std::optional<std::size_t> list_item(std::string_view window, Pointer pointer) const;
+    // Chỉ số bản ghi (trong thuộc tính Elements, tính cả bản ghi ẩn) của nút phần tử dưới điểm pointer
+    // trong cửa sổ thành tích window (Falagard/AchievementWindow) theo lần update gần nhất; nullopt
+    // khi cửa sổ không có, đang ẩn, không phải kiểu ấy, hay điểm nằm trên chỗ trống.
+    [[nodiscard]] std::optional<std::size_t> element_at(std::string_view window, Pointer pointer) const;
     // Vùng nội dung trên màn hình của danh sách hay cửa sổ phức hợp name theo lần update gần nhất,
     // kể cả khi nó đang ẩn (kho trạng thái của bảng cần cỡ vùng để tính cuộn trước khi bảng mở);
     // nullopt khi không có cửa sổ ấy hay nó thuộc kiểu khác.
@@ -348,6 +408,14 @@ public:
     // Rãnh con chạy của thanh cuộn name (toạ độ màn hình) theo lần update gần nhất; nullopt khi cửa
     // sổ không có, đang ẩn hay không phải thanh cuộn.
     [[nodiscard]] std::optional<ThumbTrack> track(std::string_view name) const;
+    // Bản đồ lớn theo lần update gần nhất: ô cửa sổ, ô vẽ ảnh và phần ảnh cả cảnh đang thấy. nullopt khi
+    // không có cửa sổ bản đồ lớn nào đang hiện.
+    [[nodiscard]] std::optional<Box> board() const noexcept;
+    [[nodiscard]] Box board_dest() const noexcept;
+    [[nodiscard]] Radar board_uv() const noexcept;
+    // Bản đồ thế giới theo lần dàn trang tĩnh gần nhất: ô cửa sổ và các chỗ bấm (cái vẽ sau nằm cuối).
+    [[nodiscard]] std::optional<Box> world() const noexcept;
+    [[nodiscard]] std::span<const WorldHit> world_hits() const noexcept;
 
 private:
     struct Body;

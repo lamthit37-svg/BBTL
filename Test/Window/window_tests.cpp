@@ -12,16 +12,14 @@
 #include "window/system.hpp"
 #include "window/types.hpp"
 #include "window/window.hpp"
-#include "window_support.hpp"
 
 #include <algorithm>
 #include <array>
-#include <chrono>
 #include <span>
-#include <thread>
 #include <vector>
 
 #include <windef.h>
+#include <winnt.h>
 #include <winuser.h>
 
 namespace game::test {
@@ -145,28 +143,23 @@ void window_destructor_destroys_native_window(Context& context) {
     context.expect(IsWindow(handle) == FALSE, "huỷ Window thì HWND cũng bị huỷ");
 }
 
-// Lệnh vào vòng kéo của Windows theo kiểu kéo bằng chuột (thanh tiêu đề), đúng đường người dùng
-// kéo cửa sổ. Không dùng SC_MOVE trần: đó là kéo bằng bàn phím, Windows dời con trỏ chuột của cả
-// phiên về giữa thanh tiêu đề rồi trả lại, kể cả khi cửa sổ nằm trên desktop khác (đo 2026-10-08:
-// con trỏ của người dùng nhảy 6 lần mỗi lượt chạy).
-constexpr WPARAM kDragMove = SC_MOVE | HTCAPTION;
-constexpr BYTE kKeyHeld = 0x80;
-// Một điểm trong vùng vẽ, xa góc trên trái hơn ngưỡng nhận biết kéo của Windows.
-constexpr LPARAM kDraggedTo = MAKELPARAM(320, 240);
-
-// Gửi lệnh vào vòng kéo cho cửa sổ ẩn. Vòng kéo bằng chuột chỉ sống khi nút trái đang giữ, nên
-// trước đó đánh dấu nút trái đang giữ trong trạng thái phím của hàng đợi luồng này; trạng thái ấy
-// là của riêng luồng, không đụng chuột thật. WM_MOUSEMOVE gửi kèm cho Windows thấy chuột đã
-// kéo đi: thiếu nó thì Windows chờ hết thời gian nhận biết kéo (bằng thời gian double-click, 500
-// ms) rồi mới vào vòng, mỗi ca dài thêm nửa giây (đo: 555 ms so với 65 ms).
-[[nodiscard]] bool start_drag(HWND handle) noexcept {
-    std::array<BYTE, 256> keys{};
-    GetKeyboardState(keys.data());
-    keys.at(VK_LBUTTON) |= kKeyHeld;
-    SetKeyboardState(keys.data());
-    const bool is_sent = PostMessageW(handle, WM_SYSCOMMAND, kDragMove, 0) != FALSE;
-    PostMessageW(handle, WM_MOUSEMOVE, MK_LBUTTON, kDraggedTo);
-    return is_sent;
+// Không đòi vị trí thì CẢ KHUNG nằm giữa vùng làm việc của màn hình chính, như Game.exe 0x140631940
+// (căn giữa trong SPI_GETWORKAREA). Sai số một điểm ảnh do chia nguyên.
+void window_opens_centered_in_primary_work_area(Context& context) {
+    const core::Result<window::Window> opened = hidden_window();
+    context.expect(opened.has_value(), "tạo được cửa sổ ẩn");
+    if (!opened) return;
+    const std::vector<window::Monitor> list = window::monitors();
+    context.expect(!list.empty(), "có màn hình");
+    if (list.empty()) return;
+    const Rect work = list.front().work_rect;
+    RECT frame{};
+    context.expect(GetWindowRect(static_cast<HWND>(opened->native_handle()), &frame) != FALSE, "đọc được khung");
+    const LONG slack_x = static_cast<LONG>(work.width()) - (frame.right - frame.left);
+    const LONG slack_y = static_cast<LONG>(work.height()) - (frame.bottom - frame.top);
+    context.expect(slack_x >= 0 && slack_y >= 0, "khung 640x360 vừa vùng làm việc");
+    context.expect(frame.left == work.left + slack_x / 2, "khung căn giữa theo chiều ngang");
+    context.expect(frame.top == work.top + slack_y / 2, "khung căn giữa theo chiều dọc");
 }
 
 constexpr std::array kCases{
@@ -178,9 +171,8 @@ constexpr std::array kCases{
     Case{.name = "window_reports_resize_as_event", .body = &window_reports_resize_as_event},
     Case{.name = "window_close_request_does_not_destroy", .body = &window_close_request_does_not_destroy},
     Case{.name = "window_destructor_destroys_native_window", .body = &window_destructor_destroys_native_window},
-    Case{.name = "size_move_flag_clears_when_pump_returns", .body = &size_move_flag_clears_when_pump_returns},
-    Case{.name = "quit_during_stuck_size_move_is_reported_once", .body = &quit_during_stuck_size_move_is_reported_once},
-    Case{.name = "request_quit_ends_message_loop_once", .body = &request_quit_ends_message_loop_once},
+    Case{.name = "window_opens_centered_in_primary_work_area",
+        .body = &window_opens_centered_in_primary_work_area},
 };
 
 } // namespace

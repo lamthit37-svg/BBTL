@@ -699,6 +699,16 @@ constexpr std::array<Nudge, 8> kEdgeNudges = {{
     return code < 0x10000U && code != U'\r' && code != U'\n';
 }
 
+// Chữ cái chỉ có ở tiếng Việt (cùng chữ Latin có dấu của Latin-1 mà văn bản Hán dùng cho bính âm thì
+// phông Hán vẽ được, nhưng cả run đã là tiếng Việt thì vẽ chung một phông): Ă ă Đ đ Ĩ ĩ Ũ ũ Ơ ơ Ư ư, các chữ
+// Latin-1 có dấu (trừ × và ÷) và cả khối Latin mở rộng bổ sung U+1EA0..U+1EF9.
+[[nodiscard]] constexpr bool is_vietnamese_letter(Code code) noexcept {
+    constexpr std::array<Code, 12> kSingles{0x102, 0x103, 0x110, 0x111, 0x128, 0x129, 0x168, 0x169, 0x1A0, 0x1A1, 0x1AF, 0x1B0};
+    if (code >= 0x1EA0U && code <= 0x1EF9U) return true;
+    if (code >= 0xC0U && code <= 0xFFU) return code != 0xD7U && code != 0xF7U;
+    return std::ranges::find(kSingles, code) != kSingles.end();
+}
+
 // Đoạn của text từ first tới trước dấu xuống dòng kế, như vòng tìm '\n' của drawText (0x18004ae11).
 // is_last sai khi sau đoạn còn một dấu xuống dòng: đoạn kế bắt đầu ở first + codes.size() + 1 (có
 // thể rỗng, khi dấu xuống dòng đứng cuối chuỗi).
@@ -1209,6 +1219,18 @@ std::optional<gui::Box> TextWriter::write(const gui::TextRun& run, Vertices& out
     codes_.clear();
     scan_markup(MarkupAsk{.text = run.text, .strings = strings_, .is_plain = run.is_plain}, codes_);
     return Typesetter(*this).write(run, codes_, out);
+}
+
+RunFit TextWriter::fit_of(const gui::TextRun& run) const {
+    codes_.clear();
+    scan_markup(MarkupAsk{.text = run.text, .strings = strings_, .is_plain = run.is_plain}, codes_);
+    RunFit fit;
+    for (const Code code : codes_) {
+        if (!is_glyph(code)) continue;
+        if (!font_->has_code(static_cast<char32_t>(code))) ++fit.unknown;
+        if (is_vietnamese_letter(code)) fit.has_vietnamese = true;
+    }
+    return fit;
 }
 
 float TextWriter::font_height() const {

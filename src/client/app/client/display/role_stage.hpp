@@ -4,12 +4,13 @@
 // - Màn tạo (Init 0x1406413e0, nhịp 0x1406414b0, con lăn 0x1406418be, ChangeNewRoleEquipSet
 //   0x140641210): vào màn thì camera đứng ở tư thế của giới thủ tục còn nhớ; mỗi lần đặt bộ đồ thì
 //   chạy xuôi (nữ) hay ngược (nam) trên CameraTrack.
-// - Bảng chọn (đổi ô 0x14063bb70, nhịp 0x14063cfa0, con lăn 0x14063d41e): đổi ô thì chạy track nối
+// - Bảng chọn (đổi ô 0x14063c480, nhịp 0x14063cfa0, con lăn 0x14063d41e): đổi ô thì chạy track nối
 //   hai ô; đang chạy mà đòi ô thứ ba thì chờ tới nơi rồi mới đi tiếp, đòi quay lại ô vừa rời thì
 //   đảo chiều ngay.
 // Một nấc lăn đặt tốc độ phóng ±1 và cộng ±5 vào bộ đếm; mỗi nhịp bộ đếm lùi 1 về 0, tới 0 thì thôi
 // phóng. Hai thủ tục giữ bộ đếm riêng.
-// Lần đầu vào bảng chọn chạy track vào ô (khoá giữa lùi ra rồi tiến vào), không đứng sẵn.
+// Vào bảng chọn (Init 0x14063d620) camera chạy NGƯỢC track của ô từ thời điểm 1,1 giây: lướt chừng một
+// giây vào mắt của ô, không đứng sẵn.
 // Khác gốc: không kiểm hai ô đều có nhân vật trước khi chạy (giao diện chỉ cho chọn ô có nhân vật);
 // con lăn phóng ở mọi chỗ trên màn hình (bản gốc bỏ sự kiện mà giao diện đã nhận).
 #pragma once

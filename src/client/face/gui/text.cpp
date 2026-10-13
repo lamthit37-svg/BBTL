@@ -33,11 +33,14 @@ std::string_view translated(const Ctx& ctx, std::string_view text) noexcept {
     return ctx.input->strings->find_literal(text).value_or(text);
 }
 
-// Chữ viết #{ID} tra bảng chuỗi; không có bảng hay không có ID thì rỗng.
+// Chữ viết đúng một #{ID} tra bảng chuỗi; không có bảng hay không có ID thì rỗng. Chữ có nhiều thẻ hay
+// chữ nối sau thẻ ("#{BDYB_090714_01}0" của hòm đồ: script nối số sau thẻ) giữ nguyên: bộ viết chữ dịch
+// từng #{ID} khi vẽ, như SetText của client gốc dịch thẻ ở bất cứ chỗ nào trong chuỗi.
 std::string_view resolved(const Ctx& ctx, std::string_view text) noexcept {
     if (!text.starts_with("#{")) return translated(ctx, text);
-    const bool is_closed = text.ends_with('}') && ctx.input->strings != nullptr;
-    if (!is_closed) return {};
+    const bool is_whole = text.find('}') == text.size() - 1;
+    if (!is_whole) return text;
+    if (ctx.input->strings == nullptr) return {};
     const std::string_view id = text.substr(2, text.size() - 3);
     return ctx.input->strings->find(id).value_or(std::string_view{});
 }
@@ -132,6 +135,38 @@ void simple_text(const Ctx& ctx, const Placed& self) {
     ctx.sheet->texts.push_back(run);
 }
 
+// Cửa sổ con tên của look nút phần tử (__auto_AchievementCatalogName__, __auto_AchievementTextName__):
+// nơi SetAchievementCatalogName và SetAchievementTextName đặt chữ.
+const GuiChild* name_child(const GuiAsset& asset, const Placed& button) {
+    if (button.look == nullptr || !in_range(asset.children.size(), button.look->children)) return nullptr;
+    const auto children = std::span(asset.children).subspan(button.look->children.first, button.look->children.count);
+    const auto is_name = [](const GuiChild& child) { return child.suffix.ends_with("Name__"); };
+    const auto found = std::ranges::find_if(children, is_name);
+    return found == children.end() ? nullptr : &*found;
+}
+
+// Chữ của các nút trong cửa sổ thành tích: một dòng của cửa sổ con tên trong ô của nó, canh theo
+// HorzFormatting của <Child> (trái khi vắng) và giữa theo chiều dọc như FalagardSimpleText, cắt theo
+// ô cửa sổ.
+void catalog_texts(const Ctx& ctx, const Placed& self) {
+    for (const CatalogItem& item : catalog_items(ctx, self)) {
+        const Placed button = catalog_button(ctx, self, item);
+        const GuiChild* name = name_child(*ctx.asset, button);
+        if (name == nullptr || item.text.empty()) continue;
+        const Box area = shift(area_box(ctx, button, name->area, button.screen), button.screen);
+        const FormatValue horz{.name = last_prop(*ctx.asset, name->properties, "HorzFormatting"), .fixed = 0};
+        const FormatValue vert{.name = last_prop(*ctx.asset, name->properties, "VertFormatting"), .fixed = kCentredVert};
+        TextRun run;
+        run.text = item.text;
+        run.box = area;
+        run.clip = self.screen;
+        run.rule = TextRule::kSimpleText;
+        run.horz = horz.index_in(kSimpleHorz);
+        run.vert = vert.index_in(kSimpleVert);
+        ctx.sheet->texts.push_back(run);
+    }
+}
+
 const GuiNamedArea* area_named(const GuiAsset& asset, const GuiLook& look, std::string_view name) {
     if (!in_range(asset.areas.size(), look.areas)) return nullptr;
     const auto items = std::span(asset.areas).subspan(look.areas.first, look.areas.count);
@@ -157,13 +192,15 @@ Box edit_box(const Ctx& ctx, const Placed& self) {
 // tròn về điểm ảnh, cao đúng một dòng, và con nháy vẽ trong đúng ô đó. Ở đây ô chữ trải cả chiều
 // cao cửa sổ và canh giữa: bộ vẽ chữ tính ra cùng mép trên. Che mật khẩu là việc của người gọi
 // (đưa sẵn chuỗi dấu sao). Chữ là thứ người chơi gõ nên là nguyên văn: "#c" trong ô tài khoản không
-// thành thẻ màu. Khác gốc: chưa cuộn ngang khi chữ dài hơn ô, chưa có vùng chọn.
+// thành thẻ màu. Ô chỉ đọc (ReadOnly của look, như ô nhập của Combobox) không có người gõ: chữ của nó
+// do chương trình đặt nên "#{khoá}" được dịch như chữ của cửa sổ thường. Khác gốc: chưa cuộn ngang khi
+// chữ dài hơn ô, chưa có vùng chọn.
 void edit_text(const Ctx& ctx, const Placed& self) {
     const auto prop = effective(ctx, self, "Text");
     TextRun run;
     run.text = prop.value_or(std::string_view{});
     run.has_caret = flag(ctx, self, "Caret");
-    run.is_plain = true;
+    run.is_plain = !flag(ctx, self, "ReadOnly");
     run.rule = TextRule::kEdit;
     if (run.text.empty() && !run.has_caret) return;
     run.box = edit_box(ctx, self);
@@ -188,6 +225,12 @@ void texts_of(const Ctx& ctx, const Placed& self) {
         list_texts(ctx, self);
     } else if (self.kind == Kind::kComplex) {
         complex_texts(ctx, self);
+    } else if (self.kind == Kind::kCatalog) {
+        catalog_texts(ctx, self);
+    } else if (self.kind == Kind::kMoney) {
+        money_texts(ctx, self);
+    } else if (self.kind == Kind::kWorld) {
+        world_texts(ctx, self);
     } else if (self.kind == Kind::kEdit) {
         edit_text(ctx, self);
     } else if (self.kind == Kind::kSoftKeys) {

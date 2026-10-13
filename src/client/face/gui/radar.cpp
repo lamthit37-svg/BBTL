@@ -149,6 +149,83 @@ SceneHit scene_at(const RadarAsk& ask, SceneCursor cursor) noexcept {
     return SceneHit{.x = scene_x, .z = scene_z, .is_on_scene = true};
 }
 
+namespace {
+
+// Điểm ảnh một đơn vị cảnh của từng chế độ phóng (FalagardSceneMap::UpdateAllWindow).
+constexpr float kBoardBase = 4.0F;
+constexpr float kBoardMode1 = 0.8F;
+constexpr float kBoardMode3 = 2.0F;
+constexpr float kBoardMode4 = 0.9F;
+
+float board_pixels(const BoardAsk& ask) noexcept {
+    const bool is_big = ask.scene_width * kBoardBase >= ask.window_width || ask.scene_depth * kBoardBase >= ask.window_height;
+    if (ask.mode == 0 && is_big) return ask.window_height / std::max(ask.scene_width, ask.scene_depth);
+    if (ask.mode == 1) return kBoardBase * kBoardMode1;
+    if (ask.mode == 3) return kBoardBase * kBoardMode3;
+    if (ask.mode == 4) return kBoardBase * kBoardMode4;
+    return kBoardBase;
+}
+
+// Một trục của bản đồ lớn: đoạn ảnh (0..1) hiện ra, đoạn của cửa sổ chứa nó và tâm đã kẹp.
+struct BoardAxis {
+    float low = 0.0F;
+    float high = 1.0F;
+    float start = 0.0F;
+    float length = 0.0F;
+    float centre = 0.0F;
+};
+
+struct BoardAxisAsk {
+    float scene = 0.0F;
+    float window = 0.0F;
+    float pixels = 0.0F;
+    float centre = 0.0F;
+};
+
+BoardAxis board_axis(const BoardAxisAsk& ask) noexcept {
+    BoardAxis axis;
+    const float content = ask.scene * ask.pixels;
+    if (content < ask.window) {
+        axis.start = (ask.window - content) * 0.5F;
+        axis.length = content;
+        axis.centre = ask.scene * 0.5F;
+        return axis;
+    }
+    const float fraction = ask.window / content;
+    axis.low = std::clamp((ask.centre / ask.scene) - (fraction * 0.5F), 0.0F, 1.0F - fraction);
+    axis.high = axis.low + fraction;
+    axis.length = ask.window;
+    axis.centre = (axis.low + (fraction * 0.5F)) * ask.scene;
+    return axis;
+}
+
+} // namespace
+
+BoardView board_view(const BoardAsk& ask) noexcept {
+    BoardView view;
+    const bool is_sized = ask.scene_width > 0.0F && ask.scene_depth > 0.0F && ask.window_width > 0.0F && ask.window_height > 0.0F;
+    if (!is_sized) return view;
+    view.pixels = board_pixels(ask);
+    const BoardAxis across = board_axis({.scene = ask.scene_width, .window = ask.window_width, .pixels = view.pixels, .centre = ask.centre_x});
+    const BoardAxis down = board_axis({.scene = ask.scene_depth, .window = ask.window_height, .pixels = view.pixels, .centre = ask.centre_z});
+    view.uv = Radar{.u0 = across.low, .v0 = down.low, .u1 = across.high, .v1 = down.high};
+    view.dest = Box{.x = across.start, .y = down.start, .w = across.length, .h = down.length};
+    view.centre_x = across.centre;
+    view.centre_z = down.centre;
+    return view;
+}
+
+SceneHit board_scene_at(const BoardAsk& ask, const BoardView& view, SceneCursor cursor) noexcept {
+    const bool is_inside = view.dest.w > 0.0F && view.dest.h > 0.0F && cursor.local_x >= view.dest.x &&
+        cursor.local_x < view.dest.x + view.dest.w && cursor.local_y >= view.dest.y && cursor.local_y < view.dest.y + view.dest.h;
+    if (!is_inside) return {};
+    const float across = (cursor.local_x - view.dest.x) / view.dest.w;
+    const float down = (cursor.local_y - view.dest.y) / view.dest.h;
+    const float u = view.uv.u0 + (across * (view.uv.u1 - view.uv.u0));
+    const float v = view.uv.v0 + (down * (view.uv.v1 - view.uv.v0));
+    return SceneHit{.x = u * ask.scene_width, .z = v * ask.scene_depth, .is_on_scene = true};
+}
+
 int radar_tiles(float scene) noexcept {
     if (!(scene >= 1.0F) || scene >= kHuge) return 0;
     const int whole = static_cast<int>(scene);

@@ -6,7 +6,7 @@
 // - "CameraTrack" (0,5 giây, tuyến tính): khoá đầu là mắt của người mẫu nam, khoá cuối của nữ. Màn
 //   tạo chạy xuôi khi chọn nữ, chạy ngược khi chọn nam (Game.exe 0x140641210).
 // - Role0To1 (2 giây), Role1To2 (2,5 giây), Role2To0 (2 giây), spline ba khoá: đoạn chạy giữa ba ô
-//   của bảng chọn (Game.exe 0x14063bb70).
+//   của bảng chọn (Game.exe 0x14063c480).
 // OGRE của client áp animation cảnh từng state một, state nào cũng đặt lại node trước khi áp
 // (SceneManager::_applySceneAnimations, OgreMain.dll 0x18016e340), và setEnabled(true) đưa state về
 // cuối danh sách: tư thế đang vẽ là của track được bật gần nhất. Lớp gốc không tắt state nào.

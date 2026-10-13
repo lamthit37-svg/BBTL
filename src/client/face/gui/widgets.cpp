@@ -7,6 +7,7 @@
 // dùng); cửa sổ phức hợp mới có phần tử chữ, tiền, giao tử và nút action (Option, Item, ChatBoard,
 // HyperLink chưa có script nào trong phạm vi gọi); ô tiền mới giữ chỗ, chưa vẽ; nút action chưa có
 // chữ góc, hoạt ảnh hồi chiêu và nháy.
+#include "core/number.hpp"
 #include "gui/asset.hpp"
 #include "gui/content.hpp"
 #include "gui/detail/draw.hpp"
@@ -17,6 +18,7 @@
 #include <algorithm>
 #include <cstddef>
 #include <cstdint>
+#include <format>
 #include <optional>
 #include <ranges>
 #include <span>
@@ -401,6 +403,142 @@ void draw_part_button(const Ctx& ctx, const Placed& self, const Part& part, cons
     if (icon != nullptr) push_whole(*ctx.sheet, *icon, named_area(ctx, button, "ActionArea").value_or(box), kWhiteArgb);
 }
 
+
+// Cửa sổ thành tích
+
+// Phần còn lại của bản ghi sau count trường đầu; rỗng khi bản ghi không đủ trường.
+std::string_view after_fields(std::string_view record, std::size_t count) noexcept {
+    for (std::size_t passed = 0; passed < count; ++passed) {
+        const std::size_t mark = record.find(kFieldMark);
+        if (mark == std::string_view::npos) return {};
+        record.remove_prefix(mark + 1);
+    }
+    return record;
+}
+
+// Cửa sổ giả đứng cho nút của phần tử: look của kiểu ChildItem, ô đã xếp. Look vắng thì look
+// nullptr và mọi lệnh vẽ trên nó không làm gì.
+Placed button_of(const Ctx& ctx, const Placed& self, std::string_view key, const Box& box) {
+    Placed button;
+    button.window = self.window;
+    button.screen = box;
+    button.is_visible = true;
+    const GuiType* type = child_item_type(ctx, self, key);
+    const bool has_look = type != nullptr && type->look >= 0 && std::cmp_less(type->look, ctx.asset->looks.size());
+    if (!has_look) return button;
+    button.type = type;
+    button.look = &ctx.asset->looks.at(static_cast<std::size_t>(type->look));
+    return button;
+}
+
+// Nhãn cờ của bản ghi: có ký tự flag không.
+bool has_flag(std::string_view flags, char flag_mark) noexcept {
+    return flags.find(flag_mark) != std::string_view::npos;
+}
+
+// Ô của nút phần tử: vùng tên khoá của look cửa sổ cho vị trí ngang, cao và rộng; mép trên của vùng
+// cộng với chỗ đã đi qua (updateItemPos của FalagardAchievementWindow, Fal 0x1800d7e60).
+struct CatalogSlot {
+    Box area;
+    float top = 0.0F;
+};
+
+std::optional<CatalogSlot> slot_of(const Ctx& ctx, const Placed& self, std::string_view key) {
+    const std::optional<Box> area = named_area(ctx, self, key);
+    if (!area) return std::nullopt;
+    return CatalogSlot{.area = *area, .top = area->y - self.screen.y};
+}
+
+// Ô tiền (FalagardMoney::populateRenderCache, Fal 0x180082510)
+
+// Lề phải khi canh phải (.rdata 0x1801319c0).
+constexpr float kMoneyEdge = 4.0F;
+// Vàng = số / 10000, bạc = (số % 10000) / 100, đồng = số % 100.
+constexpr std::int32_t kCopperPerGold = 10000;
+constexpr std::int32_t kCopperPerSilver = 100;
+// HorzFormatting của CEGUI: 1 là RightAligned.
+constexpr std::string_view kRightAligned = "RightAligned";
+
+// Một phần của số tiền: số và icon đứng ngay sau nó, đều chạm đáy cửa sổ.
+struct MoneyPiece {
+    std::string text;
+    Box text_box;
+    const GuiImage* icon = nullptr;
+    Box icon_box;
+};
+
+struct MoneyPlan {
+    std::vector<MoneyPiece> pieces;
+    std::uint32_t colour = kWhiteArgb;
+};
+
+// Một phần chưa đặt chỗ: giá trị đã đổi thành chữ và icon của nó.
+struct MoneyShare {
+    std::int32_t value = 0;
+    bool is_padded = false;
+    std::string_view icon_property;
+};
+
+// Phần vàng chỉ hiện khi dương, bạc khi bạc hay vàng dương, đồng luôn hiện. AlignFix đệm bạc và đồng
+// cho rộng hai chữ số ("%2d"), vàng thì không.
+std::vector<MoneyShare> money_shares(std::int32_t money, bool is_aligned) {
+    const std::int32_t gold = money / kCopperPerGold;
+    const std::int32_t silver = (money % kCopperPerGold) / kCopperPerSilver;
+    const std::int32_t copper = money % kCopperPerSilver;
+    std::vector<MoneyShare> shares;
+    if (gold > 0) shares.push_back(MoneyShare{.value = gold, .is_padded = false, .icon_property = "GoldIcon"});
+    if (gold > 0 || silver > 0)
+        shares.push_back(MoneyShare{.value = silver, .is_padded = is_aligned, .icon_property = "SilverIcon"});
+    shares.push_back(MoneyShare{.value = copper, .is_padded = is_aligned, .icon_property = "CopperIcon"});
+    return shares;
+}
+
+// Màu số: MoneyColor, hay MoneyMaxColour khi MoneyMaxNumber không âm mà nhỏ hơn số tiền (modifyFinalColor).
+std::uint32_t money_colour(const Ctx& ctx, const Placed& self, std::int32_t money) {
+    const auto max_text = effective(ctx, self, "MoneyMaxNumber");
+    const std::optional<int> most = max_text ? core::parse_whole_int(*max_text) : std::nullopt;
+    const bool is_over = most && *most >= 0 && *most < money;
+    const auto tint = effective(ctx, self, is_over ? "MoneyMaxColour" : "MoneyColor");
+    return tint ? parse_colour(*tint).value_or(kWhiteArgb) : kWhiteArgb;
+}
+
+// Xếp các phần từ trái sang phải trong cửa sổ, chạm đáy. Không có số đo chữ thì không xếp gì.
+MoneyPlan plan_money(const Ctx& ctx, const Placed& self) {
+    MoneyPlan plan;
+    const TextMeter* meter = ctx.input->meter;
+    if (meter == nullptr) return plan;
+    const auto number = effective(ctx, self, "MoneyNumber");
+    const std::int32_t money = number ? core::parse_whole_int(*number).value_or(0) : 0;
+    plan.colour = money_colour(ctx, self, money);
+    const std::vector<MoneyShare> shares = money_shares(money, flag(ctx, self, "AlignFix"));
+    const float window_height = self.screen.h;
+    float total = 0.0F;
+    plan.pieces.reserve(shares.size());
+    for (const MoneyShare& share : shares) {
+        MoneyPiece piece;
+        piece.text = share.is_padded ? std::format("{:2}", share.value) : std::format("{}", share.value);
+        piece.icon = property_image(ctx, self, share.icon_property);
+        const TextSize size = meter->formatted_size(piece.text, self.screen.w, 0);
+        const float icon_w = piece.icon != nullptr ? piece.icon->width : 0.0F;
+        const float icon_h = piece.icon != nullptr ? piece.icon->height : 0.0F;
+        piece.text_box = Box{.x = total, .y = window_height - size.height, .w = size.width, .h = size.height};
+        piece.icon_box = Box{.x = total + size.width, .y = window_height - icon_h, .w = icon_w, .h = icon_h};
+        total += size.width + icon_w;
+        plan.pieces.push_back(std::move(piece));
+    }
+    const auto horz = effective(ctx, self, "HorzFormatting");
+    const float start = (horz && *horz == kRightAligned) ? self.screen.w - total - kMoneyEdge : 0.0F;
+    const auto place = [&self, start](Box& box) {
+        box.x += self.screen.x + start;
+        box.y += self.screen.y;
+    };
+    for (MoneyPiece& piece : plan.pieces) {
+        place(piece.text_box);
+        place(piece.icon_box);
+    }
+    return plan;
+}
+
 } // namespace
 
 ScrollView scroll_view(const Ctx& ctx, const Placed& self) {
@@ -537,6 +675,85 @@ void draw_action(const Ctx& ctx, const Placed& self) {
     flags.is_pushed = is_hot && ctx.is_down;
     flags.is_hovering = is_hot && !ctx.is_down;
     paint_action(ctx, self, flags);
+}
+
+
+std::vector<CatalogItem> catalog_items(const Ctx& ctx, const Placed& self) {
+    std::vector<CatalogItem> items;
+    const std::vector<std::string_view> records = content_of(ctx, self, kElementsProperty);
+    float down = 0.0F;
+    for (std::size_t index = 0; index < records.size(); ++index) {
+        const std::string_view record = records[index];
+        const std::string_view flags = field_of(record, 1);
+        if (has_flag(flags, kHiddenFlag)) continue;
+        const std::string_view key = field_of(record, 0);
+        const std::optional<CatalogSlot> slot = slot_of(ctx, self, key);
+        if (!slot) continue;
+        CatalogItem item;
+        item.index = index;
+        item.key = key;
+        item.hover = field_of(record, 2);
+        item.text = after_fields(record, 3);
+        item.is_selected = has_flag(flags, kSelectedFlag);
+        item.box = Box{.x = slot->area.x, .y = self.screen.y + slot->top + down, .w = slot->area.w, .h = slot->area.h};
+        items.push_back(item);
+        down += slot->top + slot->area.h;
+    }
+    return items;
+}
+
+Placed catalog_button(const Ctx& ctx, const Placed& self, const CatalogItem& item) {
+    return button_of(ctx, self, item.key, item.box);
+}
+
+std::optional<std::size_t> catalog_item_under(const Ctx& ctx, const Placed& self, Pointer pointer) {
+    if (!contains(self.screen, pointer)) return std::nullopt;
+    const std::vector<CatalogItem> items = catalog_items(ctx, self);
+    const auto found = std::ranges::find_if(items, [pointer](const CatalogItem& item) { return contains(item.box, pointer); });
+    if (found == items.end()) return std::nullopt;
+    return found->index;
+}
+
+// Ảnh của các nút: section "background" của look nút (state EnabledBackground) rồi section sáng khi
+// trỏ vào hay đang chọn (FalagardAchievementWindowCatalogButton::populateRenderCache, Fal
+// 0x1800e1bb0; TextButton tương tự ở 0x18004fa90). Cắt theo ô cửa sổ vì phần tử dài hơn ô thì chỉ
+// thấy phần trong ô.
+void draw_catalog(const Ctx& ctx, const Placed& self) {
+    const std::vector<CatalogItem> items = catalog_items(ctx, self);
+    const std::optional<std::size_t> under =
+        ctx.input->pointer ? catalog_item_under(ctx, self, *ctx.input->pointer) : std::nullopt;
+    const std::size_t first = ctx.sheet->quads.size();
+    for (const CatalogItem& item : items) {
+        const Placed button = catalog_button(ctx, self, item);
+        render_state(ctx, button, "EnabledBackground", item.box);
+        const bool is_lit = item.is_selected || (under && *under == item.index);
+        if (is_lit && !item.hover.empty()) render_state(ctx, button, item.hover, item.box);
+    }
+    clip_quads(*ctx.sheet, first, self.screen);
+}
+
+// Icon vàng, bạc, đồng đứng sau từng số, ở kích cỡ gốc của ảnh.
+void draw_money(const Ctx& ctx, const Placed& self) {
+    const MoneyPlan plan = plan_money(ctx, self);
+    for (const MoneyPiece& piece : plan.pieces) {
+        if (piece.icon != nullptr) push_whole(*ctx.sheet, *piece.icon, piece.icon_box, kWhiteArgb);
+    }
+}
+
+// Các số của ô tiền, mỗi số một ô vừa khít chữ, thẳng vào Font::drawText không canh dọc.
+void money_texts(const Ctx& ctx, const Placed& self) {
+    const MoneyPlan plan = plan_money(ctx, self);
+    for (const MoneyPiece& piece : plan.pieces) {
+        ctx.sheet->made.push_back(piece.text);
+        TextRun run;
+        run.text = ctx.sheet->made.back();
+        run.box = piece.text_box;
+        run.rule = TextRule::kRaw;
+        run.colour = plan.colour;
+        run.is_plain = true;
+        run.font = window_font(ctx, self);
+        ctx.sheet->texts.push_back(run);
+    }
 }
 
 } // namespace game::gui::detail

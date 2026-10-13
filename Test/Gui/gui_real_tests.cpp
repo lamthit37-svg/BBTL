@@ -273,6 +273,13 @@ void compare_row(const gui::Hub& hub, const GoldenRow& row, Tally& tally) {
         screen + " " + row.window + ": golden " + box_text(row.box) + ", Hub " + found);
 }
 
+// Một lượt so golden: asset, mọi dòng golden và cỡ màn hình đang so.
+struct GoldenPass {
+    const gui::GuiAsset* asset = nullptr;
+    const std::vector<GoldenRow>& rows;
+    ScreenSize size;
+};
+
 // Buộc mọi cửa sổ hiện để Hub::box trả ô của cả cửa sổ mà layout khai Visible=False.
 std::vector<gui::Override> show_all(const gui::GuiAsset& asset) {
     std::vector<gui::Override> shown;
@@ -281,8 +288,6 @@ std::vector<gui::Override> show_all(const gui::GuiAsset& asset) {
         shown.push_back(gui::Override{.window = window.name, .name = "Visible", .value = "True"});
     return shown;
 }
-
-};
 
 void compare_screen(const GoldenPass& pass, Tally& tally) {
     const std::vector<gui::Override> shown = show_all(*pass.asset);
@@ -334,11 +339,5 @@ constexpr std::array kCases{
 
 int main() {
     game::core::check(game::test::run_all(game::test::kCases) == 0, "gui_real_tests: mọi ca phải qua");
-    return 0;
-}
-
-int main() {
-    game::core::check(
-        game::test::run_all(game::test::kCases) == 0, "gui_real_tests: mọi ca phải qua");
     return 0;
 }

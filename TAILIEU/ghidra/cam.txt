@@ -1,0 +1,254 @@
+
+######## 0x1800025e0
+
+==== FUN_1800025e0 @ 0x1800025e0
+
+void FUN_1800025e0(longlong param_1,char param_2,char param_3,uint param_4,float param_5)
+
+{
+  longlong lVar1;
+  AnimationState *this;
+  ulonglong uVar2;
+  ulonglong uVar3;
+  ulonglong uVar4;
+  ulonglong uVar5;
+  ulonglong uVar6;
+  longlong lVar7;
+  float fVar8;
+  
+  if (*(char *)(param_1 + 0x48) != '\0') {
+    uVar4 = 0;
+    if (param_4 == 0) {
+      *(undefined1 *)(param_1 + 0x71) = 0;
+    }
+    else {
+      *(undefined1 *)(param_1 + 0x71) = 1;
+      if (param_4 == 1) {
+        *(undefined4 *)(param_1 + 0x6c) = 0;
+      }
+      else if (param_4 == 2) {
+        *(undefined4 *)(param_1 + 0x6c) = 1;
+      }
+      else if (param_4 == 3) {
+        *(undefined4 *)(param_1 + 0x6c) = 2;
+      }
+    }
+    *(char *)(param_1 + 0x4a) = param_3;
+    uVar6 = *(longlong *)(param_1 + 0x58) - *(longlong *)(param_1 + 0x50) >> 6;
+    uVar2 = uVar4;
+    uVar5 = uVar4;
+    if (uVar6 != 0) {
+      do {
+        uVar3 = uVar2 + 1;
+        *(bool *)(uVar5 + *(longlong *)(param_1 + 0x50)) = uVar2 == param_4;
+        uVar2 = uVar3;
+        uVar5 = uVar5 + 0x40;
+      } while (uVar3 < uVar6);
+    }
+    for (lVar7 = *(longlong *)(param_1 + 0x58) - *(longlong *)(param_1 + 0x50) >> 6; lVar7 != 0;
+        lVar7 = lVar7 + -1) {
+      lVar1 = *(longlong *)(param_1 + 0x50);
+      if (*(char *)(uVar4 + lVar1) != '\0') {
+        *(char *)(param_1 + 0x49) = param_2;
+        Ogre::AnimationState::setEnabled(*(AnimationState **)(uVar4 + 0x38 + lVar1),true);
+        *(undefined1 *)(*(longlong *)(uVar4 + 0x38 + lVar1) + 0x6d) = 0;
+        if (param_3 == '\0') {
+          if (0.0 <= param_5) {
+            this = *(AnimationState **)(uVar4 + 0x38 + lVar1);
+            fVar8 = *(float *)(this + 100);
+            if (fVar8 < param_5) {
+              param_5 = fVar8;
+            }
+            if (param_4 != *(uint *)(param_1 + 0x90)) {
+              if (param_2 == '\0') {
+                fVar8 = fVar8 - param_5;
+              }
+              else {
+                fVar8 = param_5 + 0.0;
+              }
+              goto LAB_18000275f;
+            }
+          }
+          else if (param_4 != *(uint *)(param_1 + 0x90)) {
+            if (param_2 == '\0') {
+              this = *(AnimationState **)(uVar4 + 0x38 + lVar1);
+              fVar8 = *(float *)(this + 100);
+            }
+            else {
+              this = *(AnimationState **)(uVar4 + 0x38 + lVar1);
+              fVar8 = 0.0;
+            }
+LAB_18000275f:
+            Ogre::AnimationState::setTimePosition(this,fVar8);
+            *(uint *)(param_1 + 0x90) = param_4;
+          }
+        }
+        else {
+          if (param_2 == '\0') {
+            fVar8 = 0.0;
+          }
+          else {
+            fVar8 = *(float *)(*(longlong *)(uVar4 + 0x38 + lVar1) + 100);
+          }
+          Ogre::AnimationState::setTimePosition(*(AnimationState **)(uVar4 + 0x38 + lVar1),fVar8);
+          *(undefined4 *)(param_1 + 0x90) = 0xffffffff;
+        }
+      }
+      uVar4 = uVar4 + 0x40;
+    }
+  }
+  return;
+}
+
+// gọi: setEnabled@15e, setTimePosition@160
+
+######## 0x180001ce0
+
+==== FUN_180001ce0 @ 0x180001ce0
+
+undefined1 FUN_180001ce0(longlong param_1)
+
+{
+  return *(undefined1 *)(param_1 + 0x7c);
+}
+
+// gọi: 
+
+######## 0x180003410
+
+==== FUN_180003410 @ 0x180003410
+
+undefined8 FUN_180003410(longlong param_1,longlong param_2)
+
+{
+  uint uVar1;
+  char *pcVar2;
+  ulonglong uVar3;
+  ulonglong uVar4;
+  float fVar5;
+  
+  uVar1 = DAT_1802bbb50;
+  uVar4 = 0;
+  uVar3 = *(longlong *)(param_1 + 0x20) - *(longlong *)(param_1 + 0x18) >> 6;
+  if (uVar3 != 0) {
+    do {
+      if (((*(char *)(param_1 + 0x10) != '\0') && (*(char *)(param_1 + 0x12) == '\0')) &&
+         (pcVar2 = (char *)(uVar4 * 0x40 + *(longlong *)(param_1 + 0x18)), *pcVar2 != '\0')) {
+        fVar5 = *(float *)(param_2 + 4);
+        if (*(char *)(param_1 + 0x11) == '\0') {
+          fVar5 = (float)((uint)fVar5 ^ uVar1);
+        }
+        Ogre::AnimationState::addTime(*(AnimationState **)(pcVar2 + 0x38),fVar5);
+      }
+      uVar4 = (ulonglong)((int)uVar4 + 1);
+    } while (uVar4 < uVar3);
+  }
+  return 1;
+}
+
+// gọi: addTime@15f
+
+######## 0x1800027a0
+
+==== FUN_1800027a0 @ 0x1800027a0
+
+/* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
+
+void FUN_1800027a0(longlong param_1,int param_2)
+
+{
+  longlong lVar1;
+  AnimationState *this;
+  ulonglong uVar2;
+  ulonglong uVar3;
+  ulonglong uVar4;
+  longlong lVar5;
+  ulonglong uVar6;
+  bool bVar7;
+  float local_res10 [2];
+  
+  local_res10[0] = *(float *)fDeg2Rad_exref * _DAT_1802bbda0;
+  (**(code **)(**(longlong **)(param_1 + 0x28) + 0x240))(*(longlong **)(param_1 + 0x28),local_res10)
+  ;
+  if (param_2 == 1) {
+    (**(code **)(**(longlong **)(param_1 + 0x40) + 0x2b8))
+              (*(longlong **)(param_1 + 0x40),*(undefined8 *)(param_1 + 0x28));
+    Ogre::Camera::setPosition(*(Camera **)(param_1 + 0x28),(Vector3 *)ZERO_exref);
+    Ogre::Camera::setOrientation(*(Camera **)(param_1 + 0x28),(Quaternion *)IDENTITY_exref);
+    (**(code **)(**(longlong **)(param_1 + 0x40) + 0x290))
+              (*(longlong **)(param_1 + 0x40),*(undefined8 *)(param_1 + 0x28));
+    if (*(char *)(param_1 + 0x48) != '\0') {
+      *(undefined1 *)(param_1 + 0x4a) = 1;
+      *(undefined1 *)(param_1 + 0x71) = 0;
+      uVar4 = 0;
+      uVar6 = *(longlong *)(param_1 + 0x58) - *(longlong *)(param_1 + 0x50) >> 6;
+      uVar3 = uVar4;
+      if (uVar6 != 0) {
+        do {
+          uVar2 = uVar3 + 1;
+          *(bool *)(uVar3 * 0x40 + *(longlong *)(param_1 + 0x50)) = uVar3 == 0;
+          uVar3 = uVar2;
+        } while (uVar2 < uVar6);
+      }
+      for (lVar5 = *(longlong *)(param_1 + 0x58) - *(longlong *)(param_1 + 0x50) >> 6; lVar5 != 0;
+          lVar5 = lVar5 + -1) {
+        lVar1 = *(longlong *)(param_1 + 0x50);
+        if (*(char *)(uVar4 + lVar1) != '\0') {
+          *(undefined1 *)(param_1 + 0x49) = 1;
+          Ogre::AnimationState::setEnabled(*(AnimationState **)(uVar4 + 0x38 + lVar1),true);
+          *(undefined1 *)(*(longlong *)(uVar4 + 0x38 + lVar1) + 0x6d) = 0;
+          this = *(AnimationState **)(uVar4 + 0x38 + lVar1);
+          Ogre::AnimationState::setTimePosition(this,*(float *)(this + 100));
+          *(undefined4 *)(param_1 + 0x90) = 0xffffffff;
+        }
+        uVar4 = uVar4 + 0x40;
+      }
+    }
+  }
+  else if (param_2 == 2) {
+    (**(code **)(**(longlong **)(param_1 + 0x40) + 0x2b8))
+              (*(longlong **)(param_1 + 0x40),*(undefined8 *)(param_1 + 0x28));
+    Ogre::Camera::setPosition(*(Camera **)(param_1 + 0x28),(Vector3 *)ZERO_exref);
+    Ogre::Camera::setOrientation(*(Camera **)(param_1 + 0x28),(Quaternion *)IDENTITY_exref);
+    (**(code **)(**(longlong **)(param_1 + 0x40) + 0x290))
+              (*(longlong **)(param_1 + 0x40),*(undefined8 *)(param_1 + 0x28));
+    if (*(char *)(param_1 + 0x48) != '\0') {
+      *(undefined1 *)(param_1 + 0x71) = 0;
+      *(undefined1 *)(param_1 + 0x4a) = 1;
+      uVar4 = 0;
+      uVar6 = *(longlong *)(param_1 + 0x58) - *(longlong *)(param_1 + 0x50) >> 6;
+      uVar3 = uVar4;
+      if (uVar6 != 0) {
+        do {
+          lVar5 = uVar3 * 0x40;
+          bVar7 = uVar3 == 0;
+          uVar3 = uVar3 + 1;
+          *(bool *)(lVar5 + *(longlong *)(param_1 + 0x50)) = bVar7;
+        } while (uVar3 < uVar6);
+      }
+      for (lVar5 = *(longlong *)(param_1 + 0x58) - *(longlong *)(param_1 + 0x50) >> 6; lVar5 != 0;
+          lVar5 = lVar5 + -1) {
+        lVar1 = *(longlong *)(param_1 + 0x50);
+        if (*(char *)(uVar4 + lVar1) != '\0') {
+          *(undefined1 *)(param_1 + 0x49) = 0;
+          Ogre::AnimationState::setEnabled(*(AnimationState **)(uVar4 + 0x38 + lVar1),true);
+          *(undefined1 *)(*(longlong *)(uVar4 + 0x38 + lVar1) + 0x6d) = 0;
+          Ogre::AnimationState::setTimePosition(*(AnimationState **)(uVar4 + 0x38 + lVar1),0.0);
+          *(undefined4 *)(param_1 + 0x90) = 0xffffffff;
+        }
+        uVar4 = uVar4 + 0x40;
+      }
+    }
+  }
+  else if (param_2 == 3) {
+    (**(code **)(**(longlong **)(param_1 + 0x40) + 0x2b8))
+              (*(longlong **)(param_1 + 0x40),*(undefined8 *)(param_1 + 0x28));
+    Ogre::Camera::setPosition(*(Camera **)(param_1 + 0x28),(Vector3 *)ZERO_exref);
+    Ogre::Camera::setOrientation(*(Camera **)(param_1 + 0x28),(Quaternion *)IDENTITY_exref);
+    (**(code **)(**(longlong **)(param_1 + 0x40) + 0x290))
+              (*(longlong **)(param_1 + 0x40),*(undefined8 *)(param_1 + 0x28));
+  }
+  return;
+}
+
+// gọi: setEnabled@15e, setOrientation@15c, setPosition@580, setTimePosition@160

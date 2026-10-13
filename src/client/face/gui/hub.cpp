@@ -23,6 +23,7 @@
 #include <chrono>
 #include <cstddef>
 #include <cstdint>
+#include <deque>
 #include <format>
 #include <iterator>
 #include <memory>
@@ -77,8 +78,15 @@ struct Hub::Body {
     std::vector<Quad> still;
     std::vector<Quad> live;
     std::vector<TextRun> texts;
+    // Chuỗi mà texts mượn và do bộ vẽ dựng (số trong ô tiền); đổi cùng texts.
+    std::deque<std::string> made;
     std::optional<Box> radar;
     Radar uv;
+    std::optional<Box> board;
+    Box board_dest;
+    Radar board_uv;
+    std::optional<Box> world;
+    std::vector<WorldHit> world_hits;
     std::uint64_t still_stamp = 0;
     std::uint64_t live_stamp = 0;
     std::uint64_t text_stamp = 0;
@@ -170,9 +178,10 @@ bool is_locked(const GuiAsset& asset, const Placed& window, const Place& input) 
     return text && parse_bool(*text);
 }
 
-// Kiểu cửa sổ đổi hình theo chuột: nút, và bàn phím ảo (phím dưới chuột sáng lên).
+// Kiểu cửa sổ đổi hình theo chuột: nút, bàn phím ảo (phím dưới chuột sáng lên) và cửa sổ thành tích
+// (nút dưới chuột sáng lên).
 bool is_hot_kind(detail::Kind kind) noexcept {
-    return detail::is_pressable(kind) || kind == detail::Kind::kSoftKeys;
+    return detail::is_pressable(kind) || kind == detail::Kind::kSoftKeys || kind == detail::Kind::kCatalog;
 }
 
 // Cửa sổ window có đang nằm dưới con trỏ của input và nhận nó không.
@@ -379,9 +388,18 @@ bool is_live_window(const Ctx& ctx, const Placed& self) noexcept {
     return ctx.hot == &self;
 }
 
+// Bản đồ lớn (radar mang SceneMapZoom) vẽ ở cả hai trang: ảnh nền ở trang tĩnh, mũi tên ở trang động.
+bool is_board_window(const Ctx& ctx, const Placed& self) {
+    return self.kind == detail::Kind::kRadar && detail::effective(ctx, self, "SceneMapZoom").has_value();
+}
+
 void draw_window(const Ctx& ctx, const Placed& self) {
     if (!self.is_visible) return;
     if (!ctx.is_live_pass) detail::texts_of(ctx, self);
+    if (is_board_window(ctx, self)) {
+        detail::draw_images(ctx, self);
+        return;
+    }
     if (ctx.is_live_pass != is_live_window(ctx, self)) return;
     detail::draw_images(ctx, self);
 }
@@ -492,6 +510,9 @@ struct HubOps {
     // Vector đổi chủ nhưng từng chuỗi nằm yên trong bộ đệm của nó, nên dòng chữ vẫn đúng.
     static std::vector<std::array<std::string, 3>> take_forced(Hub& hub) { return std::move(hub.body_->forced); }
 
+    // Deque đổi chủ nhưng từng phần tử nằm yên, nên chữ mượn của texts vẫn đúng.
+    static std::deque<std::string> take_made(Hub& hub) { return std::move(hub.body_->made); }
+
     static bool layout_same(const Hub::Body& body, const Place& input) {
         if (body.width != input.width || body.height != input.height) return false;
         if (body.has_meter != (input.meter != nullptr)) return false;
@@ -576,9 +597,13 @@ struct HubOps {
         return *found;
     }
 
-    // Ô phím dưới chuột khi cửa sổ nóng button là bàn phím ảo.
+    // Ô phím dưới chuột khi cửa sổ nóng button là bàn phím ảo, nút phần tử dưới chuột khi nó là cửa
+    // sổ thành tích.
     static std::optional<std::size_t> hot_key(const Hub::Body& body, const Place& input, const Placed* button) {
         if (!input.pointer || button == nullptr) return std::nullopt;
+        if (button->kind == detail::Kind::kCatalog) {
+            return detail::catalog_item_under(query(body, input), *button, *input.pointer);
+        }
         if (button->kind != detail::Kind::kSoftKeys) return std::nullopt;
         return detail::soft_key_under(*body.asset, *button, *input.pointer);
     }
@@ -597,6 +622,9 @@ struct HubOps {
         Sheet sheet = paint(body, input, false, hot.button);
         body.still = std::move(sheet.quads);
         body.texts = std::move(sheet.texts);
+        body.made = std::move(sheet.made);
+        body.world = sheet.world;
+        body.world_hits = std::move(sheet.world_hits);
         body.hot = hot.index;
         body.is_down = hot.is_down;
         ++body.still_stamp;
@@ -626,6 +654,9 @@ struct HubOps {
         body.hot_key = hot.key;
         body.radar = sheet.radar;
         body.uv = sheet.uv;
+        body.board = sheet.board;
+        body.board_dest = sheet.board_dest;
+        body.board_uv = sheet.board_uv;
         body.scene_width = input.scene_width;
         body.scene_depth = input.scene_depth;
         body.player_x = input.player_x;
@@ -705,6 +736,26 @@ std::optional<Box> Hub::radar() const noexcept {
     return body_->radar;
 }
 
+std::optional<Box> Hub::board() const noexcept {
+    return body_->board;
+}
+
+Box Hub::board_dest() const noexcept {
+    return body_->board_dest;
+}
+
+Radar Hub::board_uv() const noexcept {
+    return body_->board_uv;
+}
+
+std::optional<Box> Hub::world() const noexcept {
+    return body_->world;
+}
+
+std::span<const WorldHit> Hub::world_hits() const noexcept {
+    return body_->world_hits;
+}
+
 Radar Hub::uv() const noexcept {
     return body_->uv;
 }
@@ -754,6 +805,13 @@ std::optional<std::size_t> Hub::list_item(std::string_view window, Pointer point
     return detail::list_item_under(HubOps::query(*body_, input), *found, pointer);
 }
 
+std::optional<std::size_t> Hub::element_at(std::string_view window, Pointer pointer) const {
+    const Placed* found = shown_window(body_->placed, window);
+    if (found == nullptr || found->kind != detail::Kind::kCatalog) return std::nullopt;
+    const Place input = HubOps::kept_input(*body_);
+    return detail::catalog_item_under(HubOps::query(*body_, input), *found, pointer);
+}
+
 std::optional<Box> Hub::content(std::string_view name) const {
     const auto is_named = [name](const Placed& window) { return window.window->name == name; };
     const auto found = std::ranges::find_if(body_->placed, is_named);
@@ -792,7 +850,11 @@ Sheet place(const GuiAsset& asset, const Place& input) {
     sheet.texts.assign(texts.begin(), texts.end());
     sheet.radar = hub.radar();
     sheet.uv = hub.uv();
+    sheet.board = hub.board();
+    sheet.board_dest = hub.board_dest();
+    sheet.board_uv = hub.board_uv();
     sheet.kept = HubOps::take_forced(hub);
+    sheet.made = HubOps::take_made(hub);
     return sheet;
 }
 

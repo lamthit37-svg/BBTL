@@ -85,6 +85,7 @@ struct Display::State {
     void close_mouse_frame() noexcept;
     void prepare_hud();
     void post_request(ui::Action action);
+    void run_to_scene_point(ui::RunTo target);
     void open_login();
     void store_roles() const;
     void apply_role();
@@ -343,6 +344,9 @@ struct Display::State {
     std::optional<control::Ground> terrain;
     core::Status outcome{core::ok()};
     std::optional<Arrival> arrival;
+    // Một cảnh của màn chơi đã nạp xong. Từ đó mỗi lần đổi cảnh là rời thế giới (PLAYER_LEAVE_WORLD, do
+    // GCNotifyChangeScene của máy chủ phát, Game.exe 0x1405493da); lần vào đầu từ đăng nhập thì không.
+    bool has_entered_world = false;
     float fx_stamp = -1.0F;
     std::uint32_t head_turns = 0;
     std::uint32_t scene_draws = 0;

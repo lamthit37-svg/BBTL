@@ -20,11 +20,22 @@
 
 namespace game::ui {
 
-// Cạnh một ô ảnh và số ô mỗi chiều của atlas.
+// Cạnh một ô ảnh và số ô mỗi chiều của atlas minimap.
 inline constexpr int kRadarTilePixels = 256;
 inline constexpr int kRadarAtlasTiles = 2;
 // Số ô đã giải mã giữ lại: đủ cho atlas đang dùng và atlas vừa rời.
 inline constexpr std::size_t kRadarKeptTiles = 8;
+
+// Hình dạng một atlas: số ô mỗi chiều, và độ thu nhỏ (1, 2 hay 4: mỗi ô còn 256/shrink điểm ảnh, vùng phủ
+// không đổi). Atlas minimap là 2x2 ô nguyên; bản đồ lớn cần nhiều ô hơn và thu nhỏ khi xem cả cảnh.
+struct AtlasShape {
+    int across = kRadarAtlasTiles;
+    int down = kRadarAtlasTiles;
+    int shrink = 1;
+    std::size_t kept = kRadarKeptTiles;
+
+    friend constexpr bool operator==(const AtlasShape&, const AtlasShape&) = default;
+};
 
 // Vùng đang thấy của một cảnh: token szSceneMap, cỡ cảnh theo đơn vị cảnh, và phần ảnh cả cảnh
 // (0..1) mà cửa sổ radar hiện.
@@ -38,7 +49,9 @@ struct RadarAim {
 class RadarAtlas {
 public:
     // data_root là thư mục dữ liệu client; ô ảnh nằm theo gui::radar_tile_path dưới đó.
-    explicit RadarAtlas(std::filesystem::path data_root);
+    explicit RadarAtlas(std::filesystem::path data_root, AtlasShape shape = {});
+
+    [[nodiscard]] const AtlasShape& shape() const noexcept { return shape_; }
 
     // Ngắm vùng thấy. true khi ảnh atlas đổi và phải đẩy lại lên GPU.
     [[nodiscard]] bool aim(const RadarAim& seen);
@@ -82,6 +95,7 @@ private:
     [[nodiscard]] Tile load(int column, int row);
 
     std::filesystem::path root_;
+    AtlasShape shape_;
     std::string token_;
     float scene_width_ = 0.0F;
     float scene_depth_ = 0.0F;

@@ -261,14 +261,10 @@ void book_reads_radar_token(Context& context) {
 // Cột thứ 16 và 17 là mặt cắt xa và gần của camera cảnh; thiếu hay sai thì 15000 và 10.
 void book_reads_clip_planes(Context& context) {
     constexpr std::string_view kTable =
-        "3	Nui	320	320	a.Scene	a.path	a.col	a.jpg	1	6	nui	1	2	3	4	25000	20	Sign
-"
-        "4	Ngan	64	64	b.Scene	a.path	a.col	a.jpg	1	6	ngan	1	2	3	4
-"
-        "5	Sai	64	64	c.Scene	a.path	a.col	a.jpg	1	6	sai	1	2	3	4	10	10
-"
-        "6	Am	64	64	d.Scene	a.path	a.col	a.jpg	1	6	am	1	2	3	4	9000	-1
-";
+        "3\tNui\t320\t320\ta.Scene\ta.path\ta.col\ta.jpg\t1\t6\tnui\t1\t2\t3\t4\t25000\t20\tSign\n"
+        "4\tNgan\t64\t64\tb.Scene\ta.path\ta.col\ta.jpg\t1\t6\tngan\t1\t2\t3\t4\n"
+        "5\tSai\t64\t64\tc.Scene\ta.path\ta.col\ta.jpg\t1\t6\tsai\t1\t2\t3\t4\t10\t10\n"
+        "6\tAm\t64\t64\td.Scene\ta.path\ta.col\ta.jpg\t1\t6\tam\t1\t2\t3\t4\t9000\t-1\n";
     const client::map::BookResult book = client::map::read_book(kTable);
     context.expect(book.has_value() && book->rows.size() == 4, "bốn dòng dùng được");
     if (!book || book->rows.size() != 4) return;

@@ -29,7 +29,9 @@ namespace game::fx {
 // Cách một material hạt trộn vào khung, theo hai hệ số của scene_blend. "one one" (kAdd) và
 // "src_alpha one" (kAlphaAdd) đi pipeline cộng sáng. "src_alpha one_minus_src_alpha" (kAlpha) đi
 // pipeline trộn alpha. Mọi cặp hệ số khác là kOther.
-enum class Blend : std::uint8_t { kAdd, kAlphaAdd, kAlpha, kOther };
+// kDarken là "zero one_minus_src_colour" (khói, bóng): đích nhân (1 - màu ảnh). Vẽ thành trộn alpha thẳng của màu
+// đen với alpha là độ sáng ảnh, đúng với ảnh xám (khói) và gần đúng với ảnh có màu.
+enum class Blend : std::uint8_t { kAdd, kAlphaAdd, kAlpha, kDarken, kOther };
 
 // Một dòng của bảng material: material hạt sau kế thừa.
 struct Paint {

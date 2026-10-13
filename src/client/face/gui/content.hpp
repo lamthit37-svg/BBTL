@@ -31,4 +31,12 @@ inline constexpr std::string_view kMoneyElement = "money";
 inline constexpr std::string_view kJiaoZiElement = "jiaozi";
 inline constexpr std::string_view kActionElement = "action";
 
+// Falagard/AchievementWindow: "Elements" là các nút theo thứ tự thêm (AddItemElement). Bản ghi gồm
+// bốn trường: khoá ChildItem của look ("SelectServerCatalog", "SelectServerText"), cờ ('h' là ẩn,
+// 's' là đang chọn, SetCatalogButtonSelect hay SetTextCatalogSelected; rỗng là bình thường), tên
+// section sáng lên khi trỏ vào hay đang chọn (thuộc tính ...ButtonHover của script) và chữ. Cờ ẩn
+// thay Hide/Show của script; cờ chọn thay SetCatalogButtonSelect và SetTextCatalogSelected.
+inline constexpr char kHiddenFlag = 'h';
+inline constexpr char kSelectedFlag = 's';
+
 } // namespace game::gui

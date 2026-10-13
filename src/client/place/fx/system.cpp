@@ -282,6 +282,30 @@ void set_mesh(MeshRotator& spin, const ScriptProperty& property) {
         }
         return clip;
     }
+    if (kind == "SequenceFrame") {
+        SequenceFrame frames;
+        for (const ScriptProperty& property : block.properties) {
+            if (property.key == "stacks") frames.stacks = std::max(1, static_cast<int>(number_of(property, 1.0F, 0)));
+            if (property.key == "slices") frames.slices = std::max(1, static_cast<int>(number_of(property, 1.0F, 0)));
+            if (property.key == "repeat_times") frames.repeat_times = number_of(property, 1.0F, 0);
+            if (property.key == "loop") frames.loop = parse_bool(property.args.empty() ? "" : property.args.front());
+            if (property.key == "pingpang") frames.pingpang = parse_bool(property.args.empty() ? "" : property.args.front());
+            if (property.key == "start_range") {
+                frames.start_min = number_of(property, 0.0F, 0);
+                frames.start_max = number_of(property, 0.0F, 1);
+            }
+        }
+        return frames;
+    }
+    if (kind == "DirectionRandomiser") {
+        DirectionRandomiser jitter;
+        for (const ScriptProperty& property : block.properties) {
+            if (property.key == "randomness") jitter.randomness = number_of(property, 1.0F, 0);
+            if (property.key == "scope") jitter.scope = number_of(property, 100.0F, 0);
+            if (property.key == "keep_velocity") jitter.keep_velocity = parse_bool(property.args.empty() ? "" : property.args.front());
+        }
+        return jitter;
+    }
     if (kind != "ScaleInterpolator") return std::nullopt;
     ScaleInterpolator scale;
     scale.width_start = system.width;

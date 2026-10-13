@@ -393,6 +393,20 @@ void affect_one(Field& field, Grain& grain, const Affector& affector, float dt) 
         grain.direction = add(grain.direction, scaled(jitter, dt));
     }
     if (std::holds_alternative<MeshRotator>(affector)) grain.angles = add(grain.angles, scaled(grain.angle_speeds, dt));
+    if (const auto* jitter = std::get_if<DirectionRandomiser>(&affector)) {
+        // scope là phần trăm hạt bị rung mỗi nhịp.
+        if (field.unit() * 100.0F >= jitter->scope) return;
+        const float length = std::sqrt((grain.direction.x * grain.direction.x) + (grain.direction.y * grain.direction.y) +
+            (grain.direction.z * grain.direction.z));
+        const Vec3 kick{.x = field.range(-jitter->randomness, jitter->randomness),
+            .y = field.range(-jitter->randomness, jitter->randomness),
+            .z = field.range(-jitter->randomness, jitter->randomness)};
+        grain.direction = add(grain.direction, scaled(kick, dt));
+        if (!jitter->keep_velocity) return;
+        const float rotated = std::sqrt((grain.direction.x * grain.direction.x) + (grain.direction.y * grain.direction.y) +
+            (grain.direction.z * grain.direction.z));
+        if (rotated > 0.0F) grain.direction = scaled(grain.direction, length / rotated);
+    }
 }
 
 void init_one(Field& field, Grain& grain, const Affector& affector) {
@@ -414,6 +428,9 @@ void init_one(Field& field, Grain& grain, const Affector& affector) {
         grain.direction = Vec3{.x = field.range(movement->start_min.x, movement->start_max.x),
             .y = field.range(movement->start_min.y, movement->start_max.y),
             .z = field.range(movement->start_min.z, movement->start_max.z)};
+    }
+    if (const auto* frames = std::get_if<SequenceFrame>(&affector)) {
+        grain.frame_start = field.range(frames->start_min, frames->start_max);
     }
     if (const auto* mesh = std::get_if<MeshRotator>(&affector)) {
         grain.angle_speeds.x = field.range(mesh->speed_start.x, mesh->speed_end.x);

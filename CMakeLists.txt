@@ -508,6 +508,13 @@ game_module(ui_panel
     src/client/face/ui/panel/roles.cpp
     src/client/face/ui/panel/select_role.cpp
     src/client/face/ui/panel/create_role.cpp
+    src/client/face/ui/panel/packet.cpp
+    src/client/face/ui/panel/scene_board.cpp
+    src/client/face/ui/panel/world_map.cpp
+    src/client/face/ui/panel/scene_table.cpp
+    src/client/face/ui/panel/system_info.cpp
+    src/client/face/ui/panel/servers.cpp
+    src/client/face/ui/panel/select_server.cpp
     src/client/face/ui/panel/login_flow.cpp)
 target_link_libraries(game_ui_panel PUBLIC game_gui game_hero game_quest game_table game_core)
 game_module(client_map

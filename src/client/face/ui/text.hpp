@@ -73,6 +73,12 @@ struct GlyphCell {
     bool has_ink = false;
 };
 
+// Kết quả của TextWriter::fit_of.
+struct RunFit {
+    std::size_t unknown = 0;
+    bool has_vietnamese = false;
+};
+
 class Typesetter;
 
 // Viết chữ bằng một phông, và là số đo chữ (gui::TextMeter) của chính phông và bộ đọc thẻ đó. Giữ
@@ -102,6 +108,11 @@ public:
 
     // Bằng font_height; giữ cho nơi gọi cũ.
     [[nodiscard]] float line_height() const noexcept;
+    // Run này hợp phông ra sao: số ký tự phông không có bản ghi, và có chữ tiếng Việt có dấu không. Để chọn
+    // phông cho cả run: GBK12 có bản ghi cho các mã tiếng Việt nhưng đó là ô giữ chỗ chứ không phải chữ,
+    // nên tiếng Việt có dấu ra ô vuông ở phông Hán và đủ chữ ở phông Việt (VTNAM14).
+    [[nodiscard]] RunFit fit_of(const gui::TextRun& run) const;
+
     // getTextExtent: tổng bước ngang của text trên một dòng, đã đọc thẻ; khoá {…} của liên kết
     // không tính.
     [[nodiscard]] float width_of(std::string_view text) const;

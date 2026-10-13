@@ -6,6 +6,7 @@
 #include "gui/sheet.hpp"
 #include "gui/strings.hpp"
 #include "ui/panel/call.hpp"
+#include "ui/panel/code_text.hpp"
 #include "ui/panel/deck.hpp"
 #include "ui/panel/role_cast.hpp"
 #include "ui/panel/roles.hpp"
@@ -723,40 +724,10 @@ void click_check(CreateRole& panel, std::string_view window, const CreateFacts& 
     }
 }
 
-[[nodiscard]] bool starts_point(unsigned char byte) noexcept {
-    return (byte & 0xC0U) != 0x80U;
-}
-
-[[nodiscard]] std::size_t code_points(std::string_view text) noexcept {
-    return static_cast<std::size_t>(
-        std::ranges::count_if(text, [](char byte) { return starts_point(static_cast<unsigned char>(byte)); }));
-}
-
 [[nodiscard]] bool is_name_char(char32_t code) noexcept {
     if (code < 0x20 || code == kHash || code == kDelete) return false;
     if (code >= kSurrogateFirst && code <= kSurrogateLast) return false;
     return code <= kLastBmp;
-}
-
-void pop_code_point(std::string& text) noexcept {
-    while (!text.empty() && !starts_point(static_cast<unsigned char>(text.back()))) text.pop_back();
-    if (!text.empty()) text.pop_back();
-}
-
-// Thêm một mã của mặt phẳng cơ bản (is_name_char đã lọc) dưới dạng UTF-8.
-void append_utf8(std::string& text, char32_t code) {
-    if (code < 0x80) {
-        text.push_back(static_cast<char>(code));
-        return;
-    }
-    if (code < 0x800) {
-        text.push_back(static_cast<char>(0xC0U | (code >> 6U)));
-        text.push_back(static_cast<char>(0x80U | (code & 0x3FU)));
-        return;
-    }
-    text.push_back(static_cast<char>(0xE0U | (code >> 12U)));
-    text.push_back(static_cast<char>(0x80U | ((code >> 6U) & 0x3FU)));
-    text.push_back(static_cast<char>(0x80U | (code & 0x3FU)));
 }
 
 // Ô tên đang nhận phím: đang hiện và là ô nhập mặc định (DefaultEditBox của sự kiện mở bảng).

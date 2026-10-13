@@ -129,6 +129,18 @@
   - Layout điện thoại là `Interface/phone/`, Android và iOS dùng chung; thiếu tệp thì layout PC.
     Texture PC là DDS. Bản điện thoại là `mobile/astc/` rồi `mobile/etc2/`, cùng đường tương đối,
     định dạng TLTX. GPU có ASTC thì chọn ASTC, không thì ETC2 — chủ dự án chốt ngày 2026-10-12.
+  - Màn chơi, chủ dự án giao ngày 2026-10-13 ("hoàn tất toàn bộ giao diện chính xác", "fix triệt để mọi thứ làm mất texture"): bản
+    đồ lớn (SceneMap) và bản đồ thế giới (LargeMap, widget WorldMap) port từ mã máy, hòm đồ và ô tiền, xoay người mẫu bảng nhân vật,
+    con trỏ chuột của game (22 con trỏ đọc từ tài nguyên của `Game.exe`, `TOOLS/content/export_cursors.py`), phông Việt cho chữ có dấu
+    (GBK12 cho chữ gốc, VTNAM14 khi cả run có chữ Việt), mặt đất nướng lọc tam tuyến 8 điểm ảnh mỗi ô (trần 4096 trên PC, 2048 trên điện
+    thoại), hệ hạt thêm `SequenceFrame`, `DirectionRandomiser` và kiểu trộn `zero one_minus_src_colour`. Dữ liệu cần chạy theo thứ tự:
+    `collect_map.py` rồi `collect_fx.py` (thiếu bước sau thì tên hệ hạt của cảnh "không có trong thư viện" và hiệu ứng biến mất), rồi
+    `export_worldmap.py` (ghép `jpg_WorldMap00..19.dds` thành `Interface/LargeMap/WorldMap.png`). Tài liệu đo ở `TAILIEU/MAN-CHOI-GIAO-DIEN-2026.md`.
+  - `TOOLS/run/click_shot.py` (chụp giao diện sau thao tác, chỉ Windows): SDL lấy vị trí nhấn từ CON TRỎ THẬT nên công cụ đặt con trỏ thật lên
+    điểm bấm và trả lại khi xong; kéo (`--turn`, `--tilt`) và giữ (`--hold`) dùng nút thật `mouse_event` vì SDL hỏi `GetAsyncKeyState` khi gặp
+    thông điệp di chuyển và tự nhả nút giả; cửa sổ được mở khoá và đưa lên trên cùng trong lúc dùng nút thật, client chạy với
+    `SDL_MOUSE_FOCUS_CLICKTHROUGH=1`. CHỦ DỰ ÁN CẤM agent chạy công cụ này với bước chuột (2026-10-13: "ngừng ngay việc chiếm chuột tự
+    test"): nó cướp con trỏ thật của người đang dùng máy. Agent dựng bản mới rồi chạy cho người chơi tự test, và nói rõ phần nào chưa kiểm.
 - Thư viện ngoài (tên — nguồn): cgltf, stb, meshoptimizer, sse2neon (Android), lz4, zstd, xxhash
   (ba gói của `fs` và gói shader), opus (tải Opus của tệp âm thanh `.tla`), tomlplusplus 3.4.0
   (module `config`) — vcpkg manifest (`vcpkg.json`, `C:\dev\vcpkg`); libsodium 1.0.22 (`seal`,

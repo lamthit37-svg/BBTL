@@ -1,0 +1,463 @@
+
+######## 0x1406508f0
+
+==== FUN_1406508f0 @ 0x1406508f0
+
+/* WARNING: Function: __security_check_cookie replaced with injection: security_check_cookie */
+/* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
+
+void FUN_1406508f0(longlong param_1)
+
+{
+  undefined4 uVar1;
+  undefined8 uVar2;
+  longlong lVar3;
+  undefined1 *puVar4;
+  undefined1 auStack_98 [32];
+  undefined4 local_78;
+  char *local_70;
+  undefined1 local_68 [8];
+  undefined8 local_60;
+  undefined1 local_58;
+  undefined7 uStack_57;
+  undefined8 local_48;
+  ulonglong local_40;
+  undefined1 local_38 [32];
+  ulonglong local_18;
+  
+  local_60 = 0xfffffffffffffffe;
+  local_18 = DAT_141032290 ^ (ulonglong)auStack_98;
+  local_40 = 0xf;
+  local_48 = 0;
+  local_58 = 0;
+  FUN_140001aa0(&local_58,&DAT_140fb2b28,0,0xffffffffffffffff);
+  uVar1 = _DAT_14103e808;
+  FUN_1405109c0(DAT_14103d490,2);
+  puVar4 = &local_58;
+  if (0xf < local_40) {
+    puVar4 = (undefined1 *)CONCAT71(uStack_57,local_58);
+  }
+  FUN_14050f120(DAT_14103d490,puVar4,uVar1,-(uint)(*(int *)(param_1 + 0xc) != 0) & 15000);
+  if (*(int *)(DAT_14103f8b0 + 0x488) == 3) {
+    *(undefined4 *)(DAT_14103f8b0 + 0x488) = 4;
+    uVar2 = (**(code **)(**(longlong **)(DAT_14103db40 + 0xb8) + 0x88))
+                      (*(longlong **)(DAT_14103db40 + 0xb8),local_68);
+    lVar3 = FUN_140060f10(local_38,uVar2);
+    local_78 = *(undefined4 *)(lVar3 + 4);
+    _snprintf((char *)(lVar3 + 8),0x14,"0X%08X%08X");
+    puVar4 = &local_58;
+    if (0xf < local_40) {
+      puVar4 = (undefined1 *)CONCAT71(uStack_57,local_58);
+    }
+    local_78 = uVar1;
+    local_70 = (char *)(lVar3 + 8);
+    FUN_140653fe0(DAT_14103f8b0,0,"ConnectToGameServer,IP=%s,port=%d(%s)",puVar4);
+  }
+  *(undefined4 *)(param_1 + 8) = 1;
+  *(int *)(param_1 + 0xc) = *(int *)(param_1 + 0xc) + 1;
+  if (0xf < local_40) {
+    operator_delete((void *)CONCAT71(uStack_57,local_58));
+  }
+  return;
+}
+
+// gọi: FUN_140001aa0@140001aa0, FUN_140060f10@140060f10, FUN_14050f120@14050f120, FUN_1405109c0@1405109c0, FUN_140653fe0@140653fe0, __security_check_cookie@1408870d0, _snprintf@28f, operator_delete@140887020
+
+######## 0x140650a80
+
+==== FUN_140650a80 @ 0x140650a80
+
+/* WARNING: Function: __security_check_cookie replaced with injection: security_check_cookie */
+
+void FUN_140650a80(longlong param_1)
+
+{
+  int iVar1;
+  undefined4 uVar2;
+  char *pcVar3;
+  undefined8 uVar4;
+  longlong lVar5;
+  longlong lVar6;
+  undefined1 auStack_168 [32];
+  char *local_148;
+  char *local_140;
+  char *local_138;
+  undefined1 local_128 [8];
+  undefined8 local_120;
+  undefined **local_118 [3];
+  undefined4 local_100;
+  undefined4 local_fc;
+  undefined4 local_f8;
+  undefined2 local_f4;
+  char local_f2 [50];
+  undefined1 local_c0;
+  undefined4 local_bc;
+  undefined8 local_b8;
+  undefined4 local_b0;
+  undefined4 local_ac;
+  undefined4 local_a8;
+  undefined8 local_a4;
+  undefined4 local_9c;
+  char local_98 [32];
+  undefined4 local_78;
+  undefined4 local_74;
+  undefined1 local_68 [32];
+  undefined1 local_48 [32];
+  ulonglong local_28;
+  
+  local_120 = 0xfffffffffffffffe;
+  local_28 = DAT_141032290 ^ (ulonglong)auStack_168;
+  FUN_1406e7990(local_118);
+  local_118[0] = Packets::CGConnect::vftable;
+  local_fc = 0;
+  local_f8 = 0xffffffff;
+  local_b8 = 0x37197;
+  local_a4 = 0;
+  local_9c = 0;
+  local_78 = 0xffffffff;
+  local_98[0] = '\0';
+  local_98[1] = '\0';
+  local_98[2] = '\0';
+  local_98[3] = '\0';
+  local_98[4] = '\0';
+  local_98[5] = '\0';
+  local_98[6] = '\0';
+  local_98[7] = '\0';
+  local_98[8] = '\0';
+  local_98[9] = '\0';
+  local_98[10] = '\0';
+  local_98[0xb] = '\0';
+  local_98[0xc] = '\0';
+  local_98[0xd] = '\0';
+  local_98[0xe] = '\0';
+  local_98[0xf] = '\0';
+  local_98[0x10] = '\0';
+  local_98[0x11] = '\0';
+  local_98[0x12] = '\0';
+  local_98[0x13] = '\0';
+  local_98[0x14] = '\0';
+  local_98[0x15] = '\0';
+  local_98[0x16] = '\0';
+  local_98[0x17] = '\0';
+  local_98[0x18] = '\0';
+  local_98[0x19] = '\0';
+  local_98[0x1a] = '\0';
+  local_98[0x1b] = '\0';
+  local_98[0x1c] = '\0';
+  local_98[0x1d] = '\0';
+  local_98[0x1e] = '\0';
+  local_98[0x1f] = '\0';
+  local_74 = 0;
+  local_100 = DAT_14103e80c;
+  local_f4 = (**(code **)(*DAT_14103e6b0 + 0xb8))(DAT_14103e6b0,"WorldID",0);
+  local_fc = DAT_140fb2b48;
+  local_f8 = DAT_140fb2b4c;
+  if (DAT_140fb2b68 < 0x10) {
+    pcVar3 = (char *)&DAT_140fb2b50;
+  }
+  else {
+    pcVar3 = DAT_140fb2b50;
+    if (DAT_140fb2b50 == (char *)0x0) goto LAB_140650b80;
+  }
+  strncpy(local_f2,pcVar3,0x32);
+  local_c0 = 0;
+LAB_140650b80:
+  local_bc = DAT_140fb2880;
+  local_b8 = CONCAT44(DAT_140fb2884,(undefined4)local_b8);
+  DAT_140fb2884 = 0;
+  iVar1 = FUN_140510800(DAT_14103d490);
+  if (iVar1 == 0) {
+    local_b0 = 0;
+  }
+  else {
+    local_b0 = 1;
+    FUN_1405107f0(DAT_14103d490,0);
+  }
+  local_ac = FUN_140510820(DAT_14103d490);
+  local_a8 = FUN_140510840(DAT_14103d490);
+  FUN_140510810(DAT_14103d490,0);
+  FUN_140510830(DAT_14103d490,0);
+  uVar2 = FUN_1400fc2b0(DAT_141034c40);
+  local_a4 = CONCAT44(local_a4._4_4_,uVar2);
+  uVar2 = FUN_1400fc2c0(DAT_141034c40);
+  local_a4 = CONCAT44(uVar2,(undefined4)local_a4);
+  pcVar3 = (char *)FUN_1400fc2d0(DAT_141034c40);
+  strncpy(local_98,pcVar3,0x20);
+  local_78 = (**(code **)(*DAT_14103e6b0 + 0xb0))(DAT_14103e6b0,"View_InsteadModel",0);
+  local_9c = 0;
+  local_74 = 1;
+  FUN_14050f290(DAT_14103d490,local_118);
+  *(undefined4 *)(param_1 + 8) = 3;
+  TDU_Log("Send CGConnect...");
+  if (*(int *)(DAT_14103f8b0 + 0x488) == 4) {
+    *(undefined4 *)(DAT_14103f8b0 + 0x488) = 5;
+    uVar4 = (**(code **)(**(longlong **)(DAT_14103db40 + 0xb8) + 0x88))
+                      (*(longlong **)(DAT_14103db40 + 0xb8),local_128);
+    lVar5 = FUN_140060f10(local_68,uVar4);
+    local_148._0_4_ = *(undefined4 *)(lVar5 + 4);
+    _snprintf((char *)(lVar5 + 8),0x14,"0X%08X%08X");
+    local_140 = (char *)&DAT_140fb2b50;
+    if (0xf < DAT_140fb2b68) {
+      local_140 = DAT_140fb2b50;
+    }
+    lVar6 = FUN_140060f10(local_48,&DAT_140fb2b48);
+    local_148 = (char *)CONCAT44(local_148._4_4_,*(undefined4 *)(lVar6 + 4));
+    _snprintf((char *)(lVar6 + 8),0x14,"0X%08X%08X");
+    local_148 = (char *)(lVar6 + 8);
+    local_138 = (char *)(lVar5 + 8);
+    FUN_140653fe0(DAT_14103f8b0,0,"SendCGConnectMsg,key=%u,GUID=%s,Account=%s(%s)",DAT_14103e80c);
+  }
+  *(undefined4 *)(DAT_141034c40 + 0x58d084) = 0;
+  local_118[0] = Packets::CGConnect::vftable;
+  FUN_1406e79c0(local_118);
+  return;
+}
+
+// gọi: FUN_140060f10@140060f10, FUN_1400fc2b0@1400fc2b0, FUN_1400fc2c0@1400fc2c0, FUN_1400fc2d0@1400fc2d0, FUN_14050f290@14050f290, FUN_1405107f0@1405107f0, FUN_140510800@140510800, FUN_140510810@140510810, FUN_140510820@140510820, FUN_140510830@140510830, FUN_140510840@140510840, FUN_140653fe0@140653fe0, FUN_1406e7990@1406e7990, FUN_1406e79c0@1406e79c0, TDU_Log@8d, __security_check_cookie@1408870d0, _snprintf@28f, strncpy@290
+
+######## 0x140650db0
+
+==== FUN_140650db0 @ 0x140650db0
+
+void FUN_140650db0(void)
+
+{
+  (**(code **)(*DAT_141035fd8 + 0xd8))(DAT_141035fd8,0x19f,"EnterScene");
+  FUN_140621570(DAT_14103e630);
+  *(undefined4 *)(DAT_14103e630 + 0x68) = 1;
+  return;
+}
+
+// gọi: FUN_140621570@140621570
+
+######## 0x140644700
+
+==== FUN_140644700 @ 0x140644700
+
+/* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
+
+undefined8 FUN_140644700(longlong param_1)
+
+{
+  uint uVar1;
+  undefined4 uVar2;
+  uint uVar3;
+  
+  uVar1 = *(uint *)(param_1 + 0x60);
+  if (uVar1 == 0xffffffff) {
+    uVar2 = *(undefined4 *)(DAT_14103e698 + 0x28);
+    *(undefined4 *)(param_1 + 0x60) = uVar2;
+    (**(code **)(*DAT_14103e688 + 1000))
+              (DAT_14103e688,CONCAT71((uint7)(uint3)((uint)uVar2 >> 8),1),0,0);
+    return 0;
+  }
+  uVar3 = *(uint *)(DAT_14103e698 + 0x28) - uVar1;
+  if ((uVar3 < 0x9c5) && (uVar1 <= *(uint *)(DAT_14103e698 + 0x28))) {
+    (**(code **)(*DAT_14103e688 + 1000))
+              (DAT_14103e688,CONCAT71((uint7)(uint3)(uVar1 >> 8),1),
+               ((float)uVar3 / _DAT_140c2d350) * DAT_140b0ec44);
+    return 0;
+  }
+  *(undefined4 *)(param_1 + 0x60) = 0;
+  (**(code **)(*DAT_14103e688 + 1000))(DAT_14103e688,0,0,0);
+  return 1;
+}
+
+// gọi: 
+
+######## 0x1406441b0
+
+==== FUN_1406441b0 @ 0x1406441b0
+
+/* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
+
+void FUN_1406441b0(longlong param_1)
+
+{
+  longlong lVar1;
+  longlong *plVar2;
+  int iVar3;
+  undefined4 uVar4;
+  undefined4 uVar5;
+  undefined8 *puVar6;
+  undefined8 *puVar7;
+  longlong *plVar8;
+  undefined4 local_res8;
+  undefined4 local_resc;
+  undefined4 local_res10;
+  undefined4 local_res14;
+  undefined8 in_stack_ffffffffffffff58;
+  undefined8 local_90;
+  undefined4 local_88;
+  undefined4 local_80;
+  undefined4 local_7c;
+  undefined4 local_78;
+  undefined **local_70;
+  undefined4 local_68;
+  undefined4 local_64;
+  undefined4 local_60;
+  undefined4 local_5c;
+  undefined4 local_58;
+  undefined4 local_54;
+  undefined **local_50 [3];
+  undefined2 local_38;
+  
+  uVar4 = (undefined4)((ulonglong)in_stack_ffffffffffffff58 >> 0x20);
+  puVar7 = (undefined8 *)0x0;
+  if (*(int *)(DAT_141034c40 + 0x5c0cfc) == 1) {
+    *(undefined4 *)(DAT_141034c40 + 0x5c0cfc) = 0;
+    (**(code **)(*DAT_14103e6e0 + 0xe0))(DAT_14103e6e0,0x1a1,0);
+    (**(code **)(*DAT_14103e6e0 + 0x110))();
+    (**(code **)(*DAT_14103e688 + 0x88))();
+    puVar6 = operator_new(0x10);
+    if (puVar6 != (undefined8 *)0x0) {
+      *puVar6 = GenericWork<<lambda_2c25c3c9538697cc09d262684b8d1710>_>::vftable;
+      puVar7 = puVar6;
+    }
+    FUN_140622f70(puVar7);
+  }
+  iVar3 = (**(code **)(*DAT_14103e670 + 0x78))
+                    (DAT_14103e670,*(undefined4 *)(param_1 + 0x4c),*(undefined4 *)(param_1 + 0x54),
+                     *(int *)(param_1 + 0x58) == 1,CONCAT44(uVar4,*(undefined4 *)(param_1 + 0x5c)));
+  if (iVar3 != 0) {
+    *(undefined4 *)(param_1 + 0x60) = 0;
+    (**(code **)(*DAT_14103e688 + 1000))(DAT_14103e688,0,0,0);
+    uVar4 = (**(code **)(*DAT_14103e6b0 + 0xb0))(DAT_14103e6b0,"MySelf_ID",0);
+    plVar8 = (longlong *)DAT_14103db40[0x17];
+    if (plVar8 == (longlong *)0x0) {
+      plVar8 = (longlong *)
+               (**(code **)(*DAT_14103db40 + 0x78))(DAT_14103db40,"CObject_PlayerMySelf",uVar4,0);
+    }
+    plVar2 = DAT_14103db40;
+    lVar1 = *DAT_14103db40;
+    uVar5 = (**(code **)(*plVar8 + 0x78))(plVar8);
+    (**(code **)(lVar1 + 0x108))(plVar2,uVar5,uVar4);
+    local_res10 = DAT_140fb2b48;
+    local_res14 = DAT_140fb2b4c;
+    (**(code **)(*plVar8 + 0x740))(plVar8,&local_res10);
+    (**(code **)(*DAT_14103e6b0 + 200))(DAT_14103e6b0,&local_res8,"MySelf_Pos",0);
+    local_90 = 0;
+    local_88 = 0;
+    local_80 = local_res8;
+    local_7c = 0;
+    local_78 = local_resc;
+    (**(code **)(*DAT_14103e688 + 0x150))(DAT_14103e688,1,&local_80,0,&local_90);
+    local_70 = SObjectInit::vftable;
+    local_5c = 0xbf800000;
+    local_58 = 0xbf800000;
+    local_54 = 0xbf800000;
+    local_68 = (undefined4)local_90;
+    local_64 = local_90._4_4_;
+    local_60 = local_88;
+    (**(code **)(*plVar8 + 0x20))(plVar8,&local_70);
+    if (plVar8[0x45] != 0) {
+      local_res10 = DAT_140fb2b48;
+      local_res14 = DAT_140fb2b4c;
+      FUN_14016b450(plVar8[0x45],&local_res10);
+      FUN_1401a3cd0(plVar8[0x45],DAT_140fb2890);
+      FUN_14011de30(DAT_141034c40);
+    }
+    FUN_1405fee20(plVar8,0);
+    *(undefined4 *)(DAT_141040c98 + 0x168) = 0;
+    *(undefined4 *)(DAT_141040c98 + 0x2ac) = 0;
+    FUN_1405fafd0(plVar8,1);
+    (**(code **)(*(longlong *)DAT_14103db40[0x17] + 0x200))
+              ((longlong *)DAT_14103db40[0x17],&local_res8);
+    (**(code **)(*DAT_14103e688 + 0x160))(DAT_14103e688,DAT_14103db40[0x17] + 0x4c);
+    (**(code **)(*DAT_14103e6e0 + 0xe8))(DAT_14103e6e0,0x11d);
+    (**(code **)(*DAT_14103e6e0 + 0xe8))(DAT_14103e6e0,0x121);
+    if (DAT_14103e750 != 0) {
+      FUN_14064e7d0();
+    }
+    FUN_140621570(DAT_14103e638);
+    FUN_1406e7990(local_50);
+    local_50[0] = Packets::CGAskDynamicRegion::vftable;
+    local_38 = 0xa12;
+    FUN_14050f290(DAT_14103d490,local_50);
+    TDU_Log("Send CGAskDynamicRegion packet.");
+    (**(code **)(*DAT_14103e6e0 + 0xe0))(DAT_14103e6e0,0x321,*(int *)(DAT_141034c10 + 0x204) == 1);
+    _DAT_140fb7380 = 0;
+    _DAT_140fb7388 = 0;
+    _DAT_140fb738c = DAT_140a41fcc;
+    DAT_140fb7390 = 0;
+    local_50[0] = Packets::CGAskDynamicRegion::vftable;
+    FUN_1406e79c0(local_50);
+  }
+  return;
+}
+
+// gọi: FUN_14011de30@14011de30, FUN_14016b450@14016b450, FUN_1401a3cd0@1401a3cd0, FUN_14050f290@14050f290, FUN_1405fafd0@1405fafd0, FUN_1405fee20@1405fee20, FUN_140621570@140621570, FUN_140622f70@140622f70, FUN_14064e7d0@14064e7d0, FUN_1406e7990@1406e7990, FUN_1406e79c0@1406e79c0, TDU_Log@8d, operator_new@14088715a
+
+######## 0x1406445e0
+
+==== FUN_1406445e0 @ 0x1406445e0
+
+void FUN_1406445e0(void)
+
+{
+  longlong *plVar1;
+  longlong lVar2;
+  longlong *plVar3;
+  
+  lVar2 = DAT_14103e670;
+  *(undefined8 *)(DAT_14103e670 + 0x1a648) = 0;
+  *(undefined4 *)(lVar2 + 0x1a650) = 0;
+  lVar2 = DAT_14103e670;
+  if (*(int *)(DAT_14103e670 + 0x1a644) == 2) {
+    plVar1 = *(longlong **)(DAT_14103e670 + 0x1a5c8);
+    plVar3 = (longlong *)*plVar1;
+    *plVar1 = (longlong)plVar1;
+    *(longlong *)(*(longlong *)(lVar2 + 0x1a5c8) + 8) = *(longlong *)(lVar2 + 0x1a5c8);
+    *(undefined8 *)(lVar2 + 0x1a5d0) = 0;
+    if (plVar3 != *(longlong **)(lVar2 + 0x1a5c8)) {
+      do {
+        plVar1 = (longlong *)*plVar3;
+        operator_delete(plVar3);
+        plVar3 = plVar1;
+      } while (plVar1 != (longlong *)*(longlong *)(lVar2 + 0x1a5c8));
+    }
+    *(undefined4 *)(lVar2 + 0x1a5d8) = 0xbf800000;
+    *(undefined8 *)(lVar2 + 0x1a5dc) = 0xffffffffbf800000;
+  }
+  else {
+    *(undefined4 *)(DAT_14103e670 + 0x1a644) = 0;
+  }
+  if (DAT_14103e740 == 0) {
+    return;
+  }
+  FUN_1400787b0();
+  return;
+}
+
+// gọi: FUN_1400787b0@1400787b0, operator_delete@140887020
+
+######## 0x14063a000
+
+==== FUN_14063a000 @ 0x14063a000
+
+void FUN_14063a000(longlong param_1)
+
+{
+  longlong *plVar1;
+  
+  (**(code **)(*DAT_14103e6e0 + 0xe8))(DAT_14103e6e0,0x117);
+  (**(code **)(*DAT_14103e6e0 + 0xe8))(DAT_14103e6e0,0x11a);
+  plVar1 = (longlong *)thunk_FUN_140001340();
+  if (plVar1 != (longlong *)0x0) {
+    (**(code **)(*plVar1 + 0x18))(plVar1,6,0);
+  }
+  (**(code **)(*DAT_14103e6e0 + 0xe8))(DAT_14103e6e0,0x11d);
+  (**(code **)(*DAT_14103e6e0 + 0xe8))(DAT_14103e6e0,0x31d);
+  FUN_140621570(DAT_14103e618);
+  if (DAT_14103e618 != 0) {
+    *(undefined4 *)(DAT_14103e618 + 0x2c0) = 9;
+  }
+  *(undefined4 *)(param_1 + 0x30) = 0;
+  FUN_14050f240(DAT_14103d490);
+  (**(code **)(*DAT_14103e688 + 0x280))();
+  FUN_14063b780(param_1);
+  *(undefined4 *)(DAT_14103d490 + 0x3a9c4) = 0;
+  return;
+}
+
+// gọi: FUN_14050f240@14050f240, FUN_140621570@140621570, FUN_14063b780@14063b780, thunk_FUN_140001340@1400017f0

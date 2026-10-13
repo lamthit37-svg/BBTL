@@ -48,7 +48,14 @@ struct MapPaint {
 struct PaintKit {
     TextWriter* writer = nullptr;
     std::uint32_t font_texture = render::kUiWhite;
+    // Phông thứ hai (Việt, có dấu): run có chữ tiếng Việt có dấu mà phông này vẽ trọn được thì vẽ bằng nó.
+    TextWriter* alt_writer = nullptr;
+    std::uint32_t alt_font_texture = render::kUiWhite;
     std::optional<MapPaint> map;
+    // Ảnh bản đồ lớn (quad kSceneBoard): atlas riêng, cùng cách đổi toạ độ như map.
+    std::optional<MapPaint> board;
+    // Ảnh nền bản đồ thế giới (quad kWorldBoard): texture riêng, uv là phần của ảnh nguyên.
+    std::optional<MapPaint> world;
     std::span<const ViewPaint> views;
 };
 

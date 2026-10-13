@@ -6,6 +6,7 @@
 #include "resource/image.hpp"
 
 #include <algorithm>
+#include <array>
 #include <cmath>
 #include <cstddef>
 #include <cstdint>
@@ -19,11 +20,9 @@ namespace game::ui {
 namespace {
 
 constexpr float kPixelsPerUnit = 4.0F;
-constexpr int kAtlasPixels = kRadarTilePixels * kRadarAtlasTiles;
 constexpr std::size_t kTileRow = static_cast<std::size_t>(kRadarTilePixels) * 4;
 constexpr std::size_t kTileBytes = kTileRow * static_cast<std::size_t>(kRadarTilePixels);
-constexpr std::size_t kAtlasRow = static_cast<std::size_t>(kAtlasPixels) * 4;
-constexpr std::size_t kAtlasBytes = kAtlasRow * static_cast<std::size_t>(kAtlasPixels);
+constexpr std::size_t kBytesPerPixel = 4;
 
 // Đoạn điểm ảnh của vùng thấy trên một trục của ảnh cả cảnh.
 struct PixelSpan {
@@ -42,33 +41,34 @@ struct PixelSpan {
     return PixelSpan{.low = seen.view.v0 * pixels, .high = seen.view.v1 * pixels};
 }
 
-// Atlas bắt đầu ở ô first có phủ trọn đoạn span không.
-[[nodiscard]] bool holds(int first, PixelSpan span) noexcept {
+// Atlas rộng tiles ô, bắt đầu ở ô first, có phủ trọn đoạn span không.
+[[nodiscard]] bool holds(int first, int tiles, PixelSpan span) noexcept {
     const auto start = static_cast<float>(first * kRadarTilePixels);
-    return span.low >= start && span.high <= start + static_cast<float>(kAtlasPixels);
+    return span.low >= start && span.high <= start + static_cast<float>(tiles * kRadarTilePixels);
 }
 
-// Ô đầu của atlas để tâm đoạn span nằm gần tâm atlas, kẹp trong số ô count của cảnh.
-[[nodiscard]] int first_tile(PixelSpan span, int count) noexcept {
+// Ô đầu của atlas rộng tiles ô để tâm đoạn span nằm gần tâm atlas, kẹp trong số ô count của cảnh.
+[[nodiscard]] int first_tile(PixelSpan span, int count, int tiles) noexcept {
     const float centre = (span.low + span.high) * 0.5F;
     const auto nearest = static_cast<int>(std::floor((centre / kRadarTilePixels) + 0.5F));
-    const int last_first = std::max(count - kRadarAtlasTiles, 0);
-    return std::clamp(nearest - 1, 0, last_first);
+    const int last_first = std::max(count - tiles, 0);
+    return std::clamp(nearest - (tiles / 2), 0, last_first);
 }
 
-[[nodiscard]] float atlas_part(float whole_part, float scene, int first) noexcept {
+[[nodiscard]] float atlas_part(float whole_part, float scene, int first, int tiles) noexcept {
     const float pixel = whole_part * scene * kPixelsPerUnit;
     const auto start = static_cast<float>(first * kRadarTilePixels);
-    return (pixel - start) / static_cast<float>(kAtlasPixels);
+    return (pixel - start) / static_cast<float>(tiles * kRadarTilePixels);
 }
 
 } // namespace
 
-RadarAtlas::RadarAtlas(std::filesystem::path data_root) : root_(std::move(data_root)) {
+RadarAtlas::RadarAtlas(std::filesystem::path data_root, AtlasShape shape) : root_(std::move(data_root)), shape_(shape) {
+    const int tile = kRadarTilePixels / shape_.shrink;
     atlas_.name = "ui.radar";
-    atlas_.width = static_cast<std::uint32_t>(kAtlasPixels);
-    atlas_.height = static_cast<std::uint32_t>(kAtlasPixels);
-    atlas_.rgba.assign(kAtlasBytes, 0);
+    atlas_.width = static_cast<std::uint32_t>(shape_.across * tile);
+    atlas_.height = static_cast<std::uint32_t>(shape_.down * tile);
+    atlas_.rgba.assign(static_cast<std::size_t>(atlas_.width) * atlas_.height * kBytesPerPixel, 0);
 }
 
 void RadarAtlas::reset(const RadarAim& seen) {
@@ -84,12 +84,12 @@ void RadarAtlas::reset(const RadarAim& seen) {
 
 bool RadarAtlas::covers(const RadarAim& seen) const noexcept {
     if (!origin_) return false;
-    return holds(origin_->column, across_span(seen)) && holds(origin_->row, down_span(seen));
+    return holds(origin_->column, shape_.across, across_span(seen)) && holds(origin_->row, shape_.down, down_span(seen));
 }
 
 RadarAtlas::Origin RadarAtlas::origin_for(const RadarAim& seen) const noexcept {
-    const int column = first_tile(across_span(seen), columns_);
-    return Origin{.column = column, .row = first_tile(down_span(seen), rows_)};
+    const int column = first_tile(across_span(seen), columns_, shape_.across);
+    return Origin{.column = column, .row = first_tile(down_span(seen), rows_, shape_.down)};
 }
 
 bool RadarAtlas::aim(const RadarAim& seen) {
@@ -127,7 +127,7 @@ RadarAtlas::Tile RadarAtlas::load(int column, int row) {
 const RadarAtlas::Tile& RadarAtlas::tile_at(int column, int row) {
     const auto is_wanted = [column, row](const Tile& tile) { return tile.column == column && tile.row == row; };
     auto found = std::ranges::find_if(tiles_, is_wanted);
-    if (found == tiles_.end() && tiles_.size() >= kRadarKeptTiles) {
+    if (found == tiles_.end() && tiles_.size() >= shape_.kept) {
         found = std::ranges::min_element(tiles_, {}, &Tile::used);
         *found = load(column, row);
     }
@@ -139,8 +139,35 @@ const RadarAtlas::Tile& RadarAtlas::tile_at(int column, int row) {
     return *found;
 }
 
-// Chép ô (cột across, hàng down của atlas) vào ảnh atlas; ô ngoài cảnh hay thiếu tệp thì trong
-// suốt.
+namespace {
+
+// Một điểm ảnh của ô thu nhỏ: trung bình hộp shrink x shrink điểm ảnh gốc, cộng từng kênh (alpha thẳng).
+struct ShrinkAt {
+    std::size_t line = 0;
+    std::size_t column = 0;
+    std::size_t shrink = 1;
+};
+
+[[nodiscard]] std::array<std::uint8_t, kBytesPerPixel> shrunk_pixel(std::span<const std::uint8_t> source, ShrinkAt at) noexcept {
+    std::array<std::size_t, kBytesPerPixel> sum{};
+    for (std::size_t dy = 0; dy < at.shrink; ++dy) {
+        for (std::size_t dx = 0; dx < at.shrink; ++dx) {
+            const std::size_t row = (at.line * at.shrink) + dy;
+            const std::size_t first = ((row * static_cast<std::size_t>(kRadarTilePixels)) + (at.column * at.shrink) + dx) * kBytesPerPixel;
+            for (std::size_t channel = 0; channel < kBytesPerPixel; ++channel) sum.at(channel) += source[first + channel];
+        }
+    }
+    std::array<std::uint8_t, kBytesPerPixel> out{};
+    for (std::size_t channel = 0; channel < kBytesPerPixel; ++channel) {
+        out.at(channel) = static_cast<std::uint8_t>(sum.at(channel) / (at.shrink * at.shrink));
+    }
+    return out;
+}
+
+} // namespace
+
+// Chép ô (cột across, hàng down của atlas) vào ảnh atlas, thu nhỏ khi atlas thu nhỏ; ô ngoài cảnh hay
+// thiếu tệp thì trong suốt.
 void RadarAtlas::place(Origin origin, Slot slot) {
     const int column = origin.column + slot.across;
     const int row = origin.row + slot.down;
@@ -148,13 +175,23 @@ void RadarAtlas::place(Origin origin, Slot slot) {
     const Tile& tile = tile_at(column, row);
     if (tile.rgba.empty()) return;
     ++filled_;
-    const std::size_t left = static_cast<std::size_t>(slot.across) * kTileRow;
-    const std::size_t top = static_cast<std::size_t>(slot.down) * kRadarTilePixels;
+    const auto shrink = static_cast<std::size_t>(shape_.shrink);
+    const std::size_t edge = static_cast<std::size_t>(kRadarTilePixels) / shrink;
+    const std::size_t atlas_row = static_cast<std::size_t>(atlas_.width) * kBytesPerPixel;
+    const std::size_t left = static_cast<std::size_t>(slot.across) * edge * kBytesPerPixel;
+    const std::size_t top = static_cast<std::size_t>(slot.down) * edge;
     const std::span<const std::uint8_t> source(tile.rgba);
     const std::span<std::uint8_t> target(atlas_.rgba);
-    for (std::size_t line = 0; line < static_cast<std::size_t>(kRadarTilePixels); ++line) {
-        const std::span<const std::uint8_t> row_bytes = source.subspan(line * kTileRow, kTileRow);
-        std::ranges::copy(row_bytes, target.subspan(((top + line) * kAtlasRow) + left).begin());
+    for (std::size_t line = 0; line < edge; ++line) {
+        const std::size_t to = ((top + line) * atlas_row) + left;
+        if (shrink == 1) {
+            std::ranges::copy(source.subspan(line * kTileRow, kTileRow), target.subspan(to).begin());
+            continue;
+        }
+        for (std::size_t across = 0; across < edge; ++across) {
+            const auto pixel = shrunk_pixel(source, ShrinkAt{.line = line, .column = across, .shrink = shrink});
+            std::ranges::copy(pixel, target.subspan(to + (across * kBytesPerPixel)).begin());
+        }
     }
 }
 
@@ -162,8 +199,8 @@ void RadarAtlas::stitch() {
     std::ranges::fill(atlas_.rgba, std::uint8_t{0});
     filled_ = 0;
     const Origin origin = origin_.value_or(Origin{});
-    for (int index = 0; index < kRadarAtlasTiles * kRadarAtlasTiles; ++index) {
-        const Slot slot{.across = index % kRadarAtlasTiles, .down = index / kRadarAtlasTiles};
+    for (int index = 0; index < shape_.across * shape_.down; ++index) {
+        const Slot slot{.across = index % shape_.across, .down = index / shape_.across};
         place(origin, slot);
     }
 }
@@ -171,10 +208,10 @@ void RadarAtlas::stitch() {
 gui::Radar RadarAtlas::to_atlas(const gui::Radar& whole) const noexcept {
     if (!origin_) return whole;
     gui::Radar part;
-    part.u0 = atlas_part(whole.u0, scene_width_, origin_->column);
-    part.u1 = atlas_part(whole.u1, scene_width_, origin_->column);
-    part.v0 = atlas_part(whole.v0, scene_depth_, origin_->row);
-    part.v1 = atlas_part(whole.v1, scene_depth_, origin_->row);
+    part.u0 = atlas_part(whole.u0, scene_width_, origin_->column, shape_.across);
+    part.u1 = atlas_part(whole.u1, scene_width_, origin_->column, shape_.across);
+    part.v0 = atlas_part(whole.v0, scene_depth_, origin_->row, shape_.down);
+    part.v1 = atlas_part(whole.v1, scene_depth_, origin_->row, shape_.down);
     return part;
 }
 

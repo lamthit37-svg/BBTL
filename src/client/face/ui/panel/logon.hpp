@@ -15,8 +15,8 @@
 // Active 665, 679, 721).
 // SystemSetup:IsClassic luôn trả 1 (Game.exe 0x14045fbb0), nên ba nhãn đổi theo kiểu tài khoản.
 // Khác gốc: đi nhánh không phải client WeGame (IsWeGameClient bằng 0); ô nhập chỉ nhận ASCII in
-// được (chưa có IME, chọn vùng, dán, cuộn ngang); chưa có danh sách đuôi tài khoản, tên máy chủ
-// đang chọn, lời nhắc Caps Lock, tooltip và mã QR; kiểu tài khoản và
+// được (chưa có IME, chọn vùng, dán, cuộn ngang); chưa có danh sách đuôi tài khoản,
+// lời nhắc Caps Lock, tooltip và mã QR; kiểu tài khoản và
 // ô thẻ bảo mật chưa lưu giữa hai lần chạy (Account_LogonType, Game_MiBao), nên lần nào cũng mở ở
 // kiểu truyền thống. Dòng chữ LogOn_Info không port: khung chứa nó ẩn trong layout và script không
 // bao giờ hiện.
@@ -71,6 +71,9 @@ struct Logon {
     std::string account;
     std::string mail;
     std::string password;
+    // Dòng "sắp đăng nhập: <máy chủ>" (SeverSituation_InfoWindow): chuỗi thủ tục đăng nhập dựng khi
+    // chọn xong máy chủ; rỗng thì dòng ấy trống.
+    std::string situation;
     // Việc lần nhấn hay phím gần nhất nhờ client làm, chờ take_request lấy.
     std::optional<LogonAction> request;
 };

@@ -360,6 +360,7 @@ void apply_event(Controls& controls, const control::InputEvent& event) {
     if (key == SdlKey::kBackspace) return 8;
     if (key == SdlKey::kTab) return 9;
     if (key == SdlKey::kEnter) return 13;
+    if (key == SdlKey::kEscape) return 27;
     return 0;
 }
 

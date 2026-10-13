@@ -151,8 +151,30 @@ struct MeshAnimation {
     float speed = 1.0F;
 };
 
+// SequenceFrame (Plugin_ParticleFX2.dll): phát lần lượt các ô stacks x slices của ảnh hạt theo tuổi hạt, repeat_times
+// vòng trong một đời. Thuộc tính loop, pingpang, start_range đọc như tên gọi; play_mode, head_and_tail, play_times và
+// baned_frames chưa đọc từ mã máy (docs/NGHI-NGO.md) nên mọi giá trị đều phát như "normal", "none".
+struct SequenceFrame {
+    int stacks = 1;
+    int slices = 1;
+    float repeat_times = 1.0F;
+    bool loop = true;
+    bool pingpang = false;
+    // Ô bắt đầu của mỗi hạt, ngẫu nhiên trong [start_min, start_max] (tỉ lệ của số ô).
+    float start_min = 0.0F;
+    float start_max = 0.0F;
+};
+
+// DirectionRandomiserAffector của Ogre: mỗi nhịp, hạt nằm trong scope (phần trăm số hạt) được cộng vào vận tốc một vectơ
+// ngẫu nhiên mỗi trục trong [-randomness, randomness] nhân số giây của nhịp; keep_velocity giữ độ dài vận tốc.
+struct DirectionRandomiser {
+    float randomness = 1.0F;
+    float scope = 100.0F;
+    bool keep_velocity = false;
+};
+
 using Affector = std::variant<LinearForce, Scaler, Rotator, ColourFading, ScaleInterpolator, Movement, Revolution,
-    MeshRotator, MeshAnimation>;
+    MeshRotator, MeshAnimation, SequenceFrame, DirectionRandomiser>;
 
 enum class RendererKind : std::uint8_t { kBillboard, kTexcoord, kMesh, kRibbon };
 

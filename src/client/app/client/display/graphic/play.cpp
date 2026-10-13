@@ -40,6 +40,7 @@ render::Camera Display::State::idle_view(FrameAsk ask) {
     const Taken taken = take_steering();
     view_size = ask.size;
     take_events(taken.events);
+    publish_cursor();
     if (procedure == Procedure::kLogin) step_role_stage();
     close_mouse_frame();
     if (procedure == Procedure::kLogin && shows_role_scene()) {
@@ -252,12 +253,13 @@ void Display::State::release_stick() {
 }
 
 // Hover để trống: chưa có danh sách NPC. Cửa sổ đọc loại này rồi gắn ảnh Interface/cursor; nullopt
-// là đang kéo camera, cửa sổ ẩn và giữ con trỏ.
+// là đang kéo camera, cửa sổ ẩn và giữ con trỏ. Chạy cả ở thủ tục đăng nhập (idle_view). Con trỏ thường
+// đổi sang con trỏ đang nhấn mỗi khi nút chính đang giữ, trên giao diện cũng vậy: CCursorMng::GetCursor
+// (Game.exe 0x14007b550) chỉ xét chỉ số con trỏ và GetAsyncKeyState, không xét có đang trên cửa sổ không.
 void Display::State::publish_cursor() noexcept {
-    const bool is_left_down = is_button_down[static_cast<std::size_t>(control::MouseButton::kLeft)];
     control::CursorState state;
     state.auto_run = pilot.auto_run();
-    state.primary_down = is_left_down && !is_hud_press;
+    state.primary_down = is_button_down[static_cast<std::size_t>(control::MouseButton::kLeft)];
     state.camera_held = pilot.holds_cursor();
     const std::optional<control::CursorKind> kind = control::choose_cursor(state);
     const auto hidden = static_cast<std::uint8_t>(control::kCursorKinds);
@@ -278,6 +280,12 @@ void Display::State::hold_stick_frame(core::Clock::time_point now) {
 void Display::State::apply_stick_step(const control::StickStep& step) {
     if (step.order == control::StickOrder::kMove) order_move(step.target, nav::MoveMode::kStraight);
     if (step.order == control::StickOrder::kStop) order.reset();
+}
+
+// Nhấp trái lên bản đồ lớn (SceneMap_GotoDirectly gọi AutoRunToTarget): đi tới điểm đó như nhấp chuột lên mặt
+// đất, tìm đường vòng qua vật cản. Điểm của bản đồ lớn tính theo đơn vị cảnh, cũng là đơn vị game.
+void Display::State::run_to_scene_point(ui::RunTo target) {
+    order_move(core::GroundPoint{.x = target.x, .z = target.z}, nav::MoveMode::kFind);
 }
 
 // Lệnh đi tới một điểm, đơn vị game, theo luật của client 2026 (nav::Field::plan_move): nhấp chuột

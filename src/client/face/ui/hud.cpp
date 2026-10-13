@@ -16,8 +16,13 @@
 #include "ui/panel/deck.hpp"
 #include "ui/panel/desk.hpp"
 #include "ui/panel/login_flow.hpp"
+#include "ui/panel/select_server.hpp"
+#include "ui/panel/system_info.hpp"
 #include "ui/panel/logon.hpp"
 #include "ui/panel/maps.hpp"
+#include "ui/panel/packet.hpp"
+#include "ui/panel/scene_board.hpp"
+#include "ui/panel/scene_table.hpp"
 #include "ui/panel/menubar.hpp"
 #include "ui/panel/minimap.hpp"
 #include "ui/panel/player_frame.hpp"
@@ -30,13 +35,16 @@
 #include "ui/panel/self_equip.hpp"
 #include "ui/panel/softkey.hpp"
 #include "ui/panel/start.hpp"
+#include "ui/panel/world_map.hpp"
+#include "resource/image.hpp"
 #include "ui/radar.hpp"
 #include "ui/text.hpp"
 #include "ui/view.hpp"
 
 #include <algorithm>
-#include <chrono>
 #include <array>
+#include <chrono>
+#include <cmath>
 #include <cstddef>
 #include <cstdint>
 #include <cstdio>
@@ -46,6 +54,7 @@
 #include <memory>
 #include <optional>
 #include <print>
+#include <set>
 #include <span>
 #include <string>
 #include <string_view>
@@ -55,9 +64,10 @@
 namespace game::ui {
 namespace {
 
-// Layout của HUD, của ba bảng mở từ thanh menu chính, của bảng nhập tài khoản và bàn phím ảo của nó
+// Layout của HUD, của ba bảng mở từ thanh menu chính, của các bảng đăng nhập (chọn máy chủ, tài khoản,
+// chọn và tạo nhân vật) và bàn phím ảo của chúng
 // (đường dẫn tương đối với Interface).
-constexpr std::array<std::string_view, 36> kLayouts = {
+constexpr std::array<std::string_view, 40> kLayouts = {
     "PlayerFrame/PlayerFrame.layout.xml",
     "MiniMap/MiniMap.layout.xml",
     "MainMenuBar/MainMenuBar.layout.xml",
@@ -89,6 +99,10 @@ constexpr std::array<std::string_view, 36> kLayouts = {
     "Friend/Friend.layout.xml",
     "TeamFrame/TeamFrame.layout.xml",
     "DebugListBox/DebugListBox.layout.xml",
+    "SceneMap/SceneMap.layout.xml",
+    "LargeMap/LargeMap.layout.xml",
+    panel::kServerLayout,
+    panel::kSystemInfoLayout,
     panel::kLogonLayout,
     panel::kSelectLayout,
     panel::kCreateLayout,
@@ -99,8 +113,33 @@ constexpr std::array<std::string_view, 36> kLayouts = {
 // Bảng chuyển cảnh đã hiện thì ở lại ít nhất chừng này (xem Hud::State::note_loading).
 constexpr std::chrono::milliseconds kTransShown{900};
 
+// Nhấn đúp (MouseDoubleClick của CEGUI): lần nhấn thứ hai trên cùng cửa sổ trong chừng này và trong
+// ô vuông 12 điểm ảnh quanh lần nhấn trước (System::DefaultMultiClickTimeout 0,33 giây và
+// DefaultMultiClickAreaSize 12x12 của CEGUI 0.4.1; chưa đối chiếu với mã máy 2026).
+// Khác gốc: chưa đo hằng của client 2026.
+constexpr std::chrono::milliseconds kDoubleClick{330};
+
+// Hai nút xoay người mẫu của bảng nhân vật và tốc độ xoay: SelfEquip_Modle_TurnLeft và TurnRight gọi
+// RotateBeginEx("Player", ∓0,3), bản thân RotateBeginEx của UI_CEGUI.dll nhân đối số với 0,5 (0x180032e51)
+// trước khi đưa cho engine.
+constexpr std::string_view kEquipTurnLeft = "SelfEquip_Model_TurnLeft";
+constexpr std::string_view kEquipTurnRight = "SelfEquip_Model_TurnRight";
+constexpr float kEquipSpin = 0.3F * 0.5F;
+
+// Một cú nhấp trái lên bản đồ lớn không được kéo chuột đi xa hơn chừng này (điểm ảnh).
+constexpr float kClickReach = 5.0F;
+// Atlas bản đồ lớn: texture 2048 x 2048 (8 ô nguyên), thu nhỏ tối đa 4 lần; ảnh gốc 4 điểm ảnh một đơn vị cảnh;
+// số ô giữ lại trong bộ đệm giải mã.
+constexpr int kBoardAtlasTiles = 8;
+constexpr int kBoardMaxShrink = 4;
+constexpr float kRadarSourcePixels = 4.0F;
+constexpr std::size_t kBoardKeptTiles = 8;
+constexpr float kDoubleReach = 6.0F;
+
 // Phông bitmap đầu của SongTiBmp12 trong scheme gốc: GBK12, trang 936. VTNAM14 để khi làm tiếng Việt.
 constexpr std::string_view kFontFile = "Schema/GBK12.bin";
+// Phông Việt (Tahoma 14 của dòng CodePage 1258): chữ có dấu mà GBK12 không có (tên cảnh, chuỗi i18n).
+constexpr std::string_view kViFontFile = "Schema/VTNAM14.bin";
 
 // Nạp mọi layout của HUD; lỗi đầu tiên được giữ lại.
 std::expected<void, std::string> add_layouts(gui::GuiLoader& loader) {
@@ -194,7 +233,9 @@ gui::StringBook scene_names(const std::filesystem::path& data_root) {
 
 struct Hud::State {
     State(gui::GuiLoader opened, render::UiPass& target, const std::filesystem::path& data_root)
-        : loader(std::move(opened)), pass(&target), painter(target, data_root / "Interface"), atlas(data_root) {}
+        : loader(std::move(opened)), pass(&target), painter(target, data_root / "Interface"), atlas(data_root) {
+        client_root = data_root;
+    }
 
     gui::GuiLoader loader;
     render::UiPass* pass;
@@ -207,12 +248,40 @@ struct Hud::State {
     panel::Deck deck;
     panel::Maps maps;
     panel::Desk desk;
+    panel::Packet packet;
+    // Thư mục dữ liệu client (atlas bản đồ lớn đọc ô ảnh từ đây).
+    std::filesystem::path client_root;
+    // Bảng cảnh (Config/SceneDefineEx.txt) và bản đồ lớn: trạng thái, cảnh đang vẽ, atlas và texture riêng.
+    panel::SceneTable scenes;
+    panel::SceneBoard board;
+    int board_scene = -1;
+    bool is_board_open = false;
+    std::optional<RadarAtlas> board_atlas;
+    std::optional<std::uint32_t> board_texture;
+    std::optional<MapPaint> board_map;
+    // Nhấp trái bắt đầu trên bản đồ lớn (điểm chuột) và việc đi tới sau khi nhả.
+    std::optional<gui::Pointer> board_press;
+    std::optional<RunTo> run_to;
+    // Tốc độ xoay đang giữ ở hai nút mũi tên dưới người mẫu của bảng nhân vật.
+    float equip_spin = 0.0F;
+    // Bản đồ thế giới: độ lệch và thành đang trỏ, các dòng thành phố dựng từ bảng cảnh, ảnh nền (nạp lần
+    // đầu bản đồ mở) và điểm bắt đầu một cú nhấp trái.
+    panel::WorldBoard world;
+    std::string world_cities;
+    std::optional<std::uint32_t> world_texture;
+    bool has_world_image_failed = false;
+    std::optional<MapPaint> world_paint;
+    std::optional<gui::Pointer> world_press;
     panel::LoginFlow flow;
     panel::SoftKeys keys;
     // Bảng chuyển cảnh, phần trăm đã đưa cho nó ở khung trước và lúc nó hiện ra.
     panel::SceneTrans trans;
     std::int32_t trans_percent = -1;
     std::chrono::milliseconds trans_since{0};
+    // Lần nhấn trước trong thủ tục đăng nhập (cửa sổ, lúc nhấn, điểm nhấn: press_x, press_y đứng cạnh
+    // held_x), để nhận ra nhấn đúp.
+    std::string press_window;
+    std::chrono::milliseconds press_clock{0};
     // Thủ tục của khung trước; rỗng trước khung đầu, để lần đầu vào thủ tục đăng nhập mở bảng.
     std::optional<Phase> phase;
     bool was_down = false;
@@ -223,6 +292,9 @@ struct Hud::State {
     std::optional<BitmapFont> font;
     std::optional<TextWriter> writer;
     std::uint32_t font_texture = render::kUiWhite;
+    std::optional<BitmapFont> vi_font;
+    std::optional<TextWriter> vi_writer;
+    std::uint32_t vi_font_texture = render::kUiWhite;
     // Ảnh minimap: atlas quanh người chơi, texture của nó và cách vẽ ở khung này.
     RadarAtlas atlas;
     std::optional<std::uint32_t> map_texture;
@@ -232,6 +304,8 @@ struct Hud::State {
     bool cursor_inside = false;
     float held_x = 0.0F;
     float held_z = 0.0F;
+    float press_x = 0.0F;
+    float press_y = 0.0F;
     // Ảnh fake object của khung này; mượn của HudView, chỉ dùng trong prepare.
     std::span<const ViewPaint> views;
     float width = 0.0F;
@@ -258,7 +332,11 @@ struct Hud::State {
     }
 
     void open_font(const std::filesystem::path& interface_root);
+    void open_vi_font(const std::filesystem::path& interface_root);
     void open_portraits(const std::filesystem::path& data_root);
+    void open_servers(const std::filesystem::path& data_root);
+    void open_scenes(const std::filesystem::path& data_root);
+    [[nodiscard]] bool note_double(std::string_view window, const HudView& view);
     [[nodiscard]] panel::PlaceText place_under(const HudView& view);
     void enter(Phase next) noexcept;
     void note_press(const HudView& view);
@@ -277,6 +355,16 @@ struct Hud::State {
     [[nodiscard]] core::Status add_map();
     void upload_map();
     [[nodiscard]] std::optional<MapPaint> map_of(const HudScene& scene);
+    [[nodiscard]] const panel::SceneRow* board_scene_row() const noexcept;
+    void fill_board(const HudView& view);
+    void note_board_press(std::string_view window, const HudView& view);
+    void note_board_release(const HudView& view);
+    void fill_world(const HudView& view);
+    void note_world_release(const HudView& view);
+    [[nodiscard]] std::optional<MapPaint> world_of();
+    void load_world_image();
+    [[nodiscard]] std::optional<MapPaint> board_of();
+    void upload_board(const resource::Image& image);
     [[nodiscard]] bool is_current() const noexcept;
     void rebuild();
 };
@@ -296,11 +384,29 @@ void Hud::State::open_font(const std::filesystem::path& interface_root) {
     font.emplace(std::move(*opened));
     font_texture = *texture;
     writer.emplace(*font, &strings);
+    open_vi_font(interface_root);
+}
+
+// Phông Việt là thứ thêm: thiếu thì chữ có dấu ra ô vuông như trước, HUD vẫn chạy.
+void Hud::State::open_vi_font(const std::filesystem::path& interface_root) {
+    core::Result<BitmapFont> opened = BitmapFont::open(interface_root / io::path_from_utf8(kViFontFile));
+    if (!opened) {
+        std::println(stderr, "Giao diện: không có phông Việt: {}", opened.error());
+        return;
+    }
+    const core::Result<std::uint32_t> texture = pass->add_texture(opened->atlas());
+    if (!texture) {
+        std::println(stderr, "Giao diện: không tải được phông Việt lên GPU: {}", texture.error());
+        return;
+    }
+    vi_font.emplace(std::move(*opened));
+    vi_font_texture = *texture;
+    vi_writer.emplace(*vi_font, &strings);
 }
 
 // Nạp bảng chân dung (Table/portraits.tsv; không đọc được thì khung nhân vật không có mặt) và dữ
-// liệu của màn tạo nhân vật, rồi đưa các bộ ảnh chân dung vào giao diện (layout không nhắc tới
-// chúng). Gọi trước khi dựng Hub vì asset đổi.
+// liệu của màn tạo nhân vật, rồi đưa các bộ ảnh mà bảng chỉ đặt lúc chạy vào giao diện (chân dung, màn
+// tạo nhân vật, ô khoá của hòm đồ: layout không nhắc tới chúng). Gọi trước khi dựng Hub vì asset đổi.
 void Hud::State::open_portraits(const std::filesystem::path& data_root) {
     const std::optional<table::Tsv> table = read_table(data_root / "Table" / "portraits.tsv");
     portraits = table ? panel::Portraits::from_table(*table) : panel::Portraits{};
@@ -311,6 +417,37 @@ void Hud::State::open_portraits(const std::filesystem::path& data_root) {
     for (const std::string_view imageset : panel::create_imagesets()) {
         loader.add_imageset(imageset);
     }
+    loader.add_imageset(panel::kBagLockImageset);
+}
+
+// Nạp bảng cảnh của các bảng bản đồ (Config/SceneDefineEx.txt). Thiếu hay hỏng thì bảng rỗng và bản đồ lớn
+// không mở được cảnh nào.
+void Hud::State::open_scenes(const std::filesystem::path& data_root) {
+    const io::TextResult text = io::read_text(data_root / "Config" / "SceneDefineEx.txt");
+    if (!text) {
+        std::println(stderr, "Giao diện: không có bảng cảnh, bản đồ lớn không mở được");
+        return;
+    }
+    scenes = panel::SceneTable::from_text(*text);
+    if (scenes.is_empty()) std::println(stderr, "Giao diện: bảng cảnh không đọc được dòng nào");
+    world_cities = panel::world_cities(scenes, scene_names);
+    // Ảnh nhãn của các thành phố do bảng cảnh chỉ tên lúc chạy, layout không nhắc tới: đưa trọn bộ ảnh vào.
+    std::set<std::string_view> label_sets;
+    for (const panel::SceneRow& row : scenes.rows()) {
+        if (row.world == panel::kNormalWorld && !row.hover_set.empty()) label_sets.insert(row.hover_set);
+    }
+    for (const std::string_view set : label_sets) loader.add_imageset(set);
+}
+
+// Nạp danh sách máy chủ của bảng chọn máy chủ (Table/login_servers.tsv). Thiếu hay hỏng thì thủ tục
+// đăng nhập bỏ bước chọn máy chủ và mở ở bảng tài khoản.
+void Hud::State::open_servers(const std::filesystem::path& data_root) {
+    const io::TextResult text = io::read_text(data_root / "Table" / "login_servers.tsv");
+    if (!text) {
+        std::println(stderr, "Giao diện: không có danh sách máy chủ, bỏ bước chọn máy chủ");
+        return;
+    }
+    if (!panel::recall_directory(flow, *text)) std::println(stderr, "Giao diện: danh sách máy chủ sai dạng");
 }
 
 // Chuột trên MiniMap_MapArea thì GetMouseScenePos; rời ô thì chỗ đứng. Hộp là của khung trước
@@ -361,7 +498,7 @@ panel::PlaceText Hud::State::place_under(const HudView& view) {
 void Hud::State::enter(Phase next) noexcept {
     if (phase == next) return;
     phase = next;
-    if (next == Phase::kLogin) panel::reset_account(flow);
+    if (next == Phase::kLogin) panel::start_login(flow);
     if (next != Phase::kLogin) panel::close_soft_keys(keys);
 }
 
@@ -428,7 +565,11 @@ void Hud::State::note_hover(const HudView& view) {
     if (view.phase != Phase::kLogin || !hub) return;
     std::optional<std::string_view> window;
     if (view.pointer) window = hub->hit(view.pointer->x, view.pointer->y, gui::Probe::kAny);
-    panel::hover_flow(flow, window.value_or(std::string_view{}));
+    std::optional<std::size_t> element;
+    if (window == panel::kServerAreaList && view.pointer.has_value()) {
+        element = hub->element_at(panel::kServerAreaList, *view.pointer);
+    }
+    panel::hover_flow(flow, window.value_or(std::string_view{}), element);
 }
 
 void Hud::State::note_press(const HudView& view) {
@@ -437,6 +578,11 @@ void Hud::State::note_press(const HudView& view) {
     const bool is_release = !is_down && was_down;
     was_down = is_down;
     if (is_release && view.phase == Phase::kLogin) panel::release_flow(flow);
+    if (is_release && view.phase == Phase::kPlay) {
+        note_board_release(view);
+        note_world_release(view);
+        equip_spin = 0.0F;
+    }
     if (!is_press || !hub || !view.pointer) return;
     const gui::Pointer spot = *view.pointer;
     const auto window = hub->hit(spot.x, spot.y, gui::Probe::kLeftButton);
@@ -453,13 +599,37 @@ void Hud::State::note_press(const HudView& view) {
     panel::PlayFacts facts;
     if (view.hero != nullptr) facts.sect = view.hero->sect;
     panel::press_desk(desk, *window, facts);
+    panel::press_packet(packet, *window);
+    note_board_press(*window, view);
+    if (window == panel::kWorldWindow && view.pointer) world_press = view.pointer;
+    if (window == kEquipTurnLeft) equip_spin = -kEquipSpin;
+    if (window == kEquipTurnRight) equip_spin = kEquipSpin;
+}
+
+// Lần nhấn này có phải lần thứ hai của một cú nhấn đúp không. Nhấn đúp xong thì lần nhấn kế bắt đầu
+// chuỗi mới (CEGUI không phát nhấn ba).
+bool Hud::State::note_double(std::string_view window, const HudView& view) {
+    const gui::Pointer spot = view.pointer.value_or(gui::Pointer{});
+    const bool is_near = std::abs(spot.x - press_x) <= kDoubleReach && std::abs(spot.y - press_y) <= kDoubleReach;
+    const bool is_soon = view.clock >= press_clock && view.clock - press_clock <= kDoubleClick;
+    const bool is_double = window == press_window && is_near && is_soon;
+    press_window = is_double ? std::string{} : std::string(window);
+    press_x = spot.x;
+    press_y = spot.y;
+    press_clock = view.clock;
+    return is_double;
 }
 
 // Một lần nhấn trong thủ tục đăng nhập: bảng nhập tài khoản nghe trước, rồi tới bàn phím ảo. Nút bàn
 // phím ảo của bảng là ToggleWindow("SoftKeyBoard") của LogOn_KeyBoard; ký tự một phím gõ ra đi vào ô
 // mà bảng đang ngắm. Đồng hồ khung làm muối cho lần xoay vòng phím.
 void Hud::State::press_login(std::string_view window, const HudView& view) {
-    panel::press_flow(flow, window, login_facts(view));
+    panel::LoginFacts facts = login_facts(view);
+    facts.is_double = note_double(window, view);
+    if (window == panel::kServerAreaList && view.pointer.has_value()) {
+        facts.element = hub->element_at(panel::kServerAreaList, *view.pointer);
+    }
+    panel::press_flow(flow, window, facts);
     if (!panel::on_account(flow)) {
         panel::close_soft_keys(keys);
         return;
@@ -509,7 +679,7 @@ void Hud::State::note_loading(const HudView& view) {
 void Hud::State::fill_panels(const HudView& view) {
     deck.clear();
     if (view.phase == Phase::kLogin) {
-        panel::paint_flow(deck, flow);
+        panel::paint_flow(deck, flow, writer ? &*writer : nullptr);
         shown = panel::shown_model(flow, login_facts(view));
         if (panel::on_account(flow)) panel::paint_soft_keys(deck, keys);
     } else {
@@ -538,6 +708,13 @@ void Hud::State::fill_play(const HudView& view) {
     const std::string resolution = std::format("{},{}", across, down);
     panel::paint_maps(deck, maps, seen.title, resolution);
     panel::paint_desk(deck, desk);
+    fill_board(view);
+    fill_world(view);
+    if (panel::is_open(desk, panel::Board::kBag)) {
+        panel::paint_packet(deck, packet, view.hero != nullptr ? view.hero->purse : hero::Purse{});
+    } else {
+        packet = panel::Packet{};
+    }
     if (view.hero == nullptr) return;
     panel::Face face;
     face.image = portraits.image_of(view.hero->portrait);
@@ -545,7 +722,10 @@ void Hud::State::fill_play(const HudView& view) {
     panel::fill_player(deck, *view.hero, face);
     panel::fill_menubar(deck, *view.hero);
     const bool is_sheet_open = panel::is_open(desk, panel::Board::kCharacter);
-    if (!is_sheet_open) return;
+    if (!is_sheet_open) {
+        equip_spin = 0.0F;
+        return;
+    }
     panel::fill_self_equip(deck, *view.hero, strings);
     const auto is_body = [](const ViewPaint& paint) { return paint.name == panel::kEquipModel; };
     if (!std::ranges::any_of(view.views, is_body)) return;
@@ -587,6 +767,171 @@ std::optional<MapPaint> Hud::State::map_of(const HudScene& scene) {
     return paint;
 }
 
+// Cảnh mà bản đồ lớn đang vẽ; nullptr khi bản đồ đóng hay cảnh không có trong bảng.
+const panel::SceneRow* Hud::State::board_scene_row() const noexcept {
+    return maps.is_scene_open ? scenes.find(maps.chosen) : nullptr;
+}
+
+// Bản đồ lớn một khung: mở thì dựng lại tâm (SceneMap_Show), rồi cuộn, kéo, theo người chơi và đưa chỉ thị.
+void Hud::State::fill_board(const HudView& view) {
+    const panel::SceneRow* scene = board_scene_row();
+    if (scene == nullptr) {
+        is_board_open = false;
+        board_scene = -1;
+        return;
+    }
+    const panel::Where player{.x = view.scene.player_x, .z = view.scene.player_z};
+    if (!is_board_open || board_scene != maps.chosen) {
+        panel::open_board(board, *scene, player, maps.shows_here);
+        is_board_open = true;
+        board_scene = maps.chosen;
+    }
+    const std::optional<gui::Box> window = hub->box(panel::kBoardWindow);
+    if (window) {
+        const panel::BoardStep step{.window = *window, .pointer = view.pointer, .seconds = frame_seconds(view.clock), .player = player};
+        panel::step_board(board, *scene, step);
+    }
+    panel::paint_board(deck, board, *scene);
+}
+
+// Bản đồ thế giới một khung: kéo, kẹp, thành đang trỏ, rồi đưa chỉ thị. Đóng thì quên trạng thái kéo và trỏ.
+void Hud::State::fill_world(const HudView& view) {
+    if (!maps.is_world_open) {
+        world.is_dragging = false;
+        world.hover = -1;
+        world_press.reset();
+        return;
+    }
+    const std::optional<gui::Box> window = hub->world();
+    if (window) panel::step_world(world, panel::WorldStep{.window = *window, .pointer = view.pointer, .hits = hub->world_hits()});
+    panel::paint_world(deck, world, world_cities, maps.here);
+}
+
+// Nhả chuột: một cú nhấp trái bắt đầu và kết thúc ở cùng một thành (nút hay nhãn) mà không kéo đi quá vài điểm ảnh
+// thì mở bản đồ cảnh của thành đó, trừ phó bản (onClick rồi LargeMap_Click_NormalScene).
+void Hud::State::note_world_release(const HudView& view) {
+    const std::optional<gui::Pointer> began = world_press;
+    world_press.reset();
+    if (!began || !view.pointer || !maps.is_world_open) return;
+    const float moved = std::max(std::abs(view.pointer->x - began->x), std::abs(view.pointer->y - began->y));
+    if (moved > kClickReach) return;
+    const int city = panel::city_under(hub->world_hits(), began->x, began->y);
+    if (city < 0 || city != panel::city_under(hub->world_hits(), view.pointer->x, view.pointer->y)) return;
+    if (!panel::is_copy_scene(city)) panel::choose_city(maps, static_cast<std::uint32_t>(city));
+}
+
+// Ảnh nền của bản đồ thế giới: texture nạp lần đầu bản đồ mở, và còn lại trong suốt phiên. Chưa mở hay thiếu ảnh
+// thì không vẽ nền.
+std::optional<MapPaint> Hud::State::world_of() {
+    if (!maps.is_world_open) return std::nullopt;
+    if (!world_texture) load_world_image();
+    if (!world_texture) return std::nullopt;
+    MapPaint paint;
+    paint.texture = *world_texture;
+    return paint;
+}
+
+void Hud::State::load_world_image() {
+    if (has_world_image_failed) return;
+    has_world_image_failed = true;
+    const std::filesystem::path file = client_root / "Interface" / "LargeMap" / "WorldMap.png";
+    const io::TextResult bytes = io::read_text(file);
+    if (!bytes) {
+        std::println(stderr, "Giao diện: không có ảnh bản đồ thế giới {} (TOOLS/content/export_worldmap.py)", io::utf8_of(file));
+        return;
+    }
+    const core::Result<resource::Image> image = resource::decode_image(std::as_bytes(std::span(*bytes)));
+    if (!image) {
+        std::println(stderr, "Giao diện: ảnh bản đồ thế giới hỏng: {}", image.error());
+        return;
+    }
+    const core::Result<std::uint32_t> added = pass->add_texture(*image);
+    if (!added) {
+        std::println(stderr, "Giao diện: không đưa được bản đồ thế giới lên GPU: {}", added.error());
+        return;
+    }
+    world_texture = *added;
+}
+
+// Nhấn trái trong màn chơi: nút cuộn, nút phóng của bản đồ lớn, và điểm bắt đầu một cú nhấp lên bản đồ.
+void Hud::State::note_board_press(std::string_view window, const HudView& view) {
+    const panel::SceneRow* scene = board_scene_row();
+    if (scene == nullptr) return;
+    panel::press_board(board, window, *scene);
+    if (window == panel::kBoardWindow && view.pointer) board_press = view.pointer;
+}
+
+// Nhả chuột: nút cuộn thôi giữ; cú nhấp trái không kéo đi quá vài điểm ảnh trên bản đồ thì thành lệnh đi tới.
+void Hud::State::note_board_release(const HudView& view) {
+    panel::release_board(board);
+    const std::optional<gui::Pointer> began = board_press;
+    board_press.reset();
+    const panel::SceneRow* scene = board_scene_row();
+    if (!began || !view.pointer || scene == nullptr || !maps.shows_here) return;
+    const float moved = std::max(std::abs(view.pointer->x - began->x), std::abs(view.pointer->y - began->y));
+    if (moved > kClickReach) return;
+    const std::optional<gui::Box> window = hub->box(panel::kBoardWindow);
+    if (!window) return;
+    const gui::BoardAsk ask = panel::board_ask(board, *scene, *window);
+    const gui::BoardView seen = gui::board_view(ask);
+    const gui::SceneCursor cursor{.local_x = view.pointer->x - window->x, .local_y = view.pointer->y - window->y};
+    const gui::SceneHit hit = gui::board_scene_at(ask, seen, cursor);
+    if (hit.is_on_scene) run_to = RunTo{.x = hit.x, .z = hit.z};
+}
+
+// Hình dạng atlas của bản đồ lớn: texture cố định 2048 x 2048, ô thu nhỏ khi mức phóng nhỏ hơn mức mà
+// ảnh gốc (4 điểm ảnh một đơn vị) cần để vẫn đủ nét.
+namespace {
+AtlasShape board_shape(float pixels) noexcept {
+    int shrink = 1;
+    while (shrink < kBoardMaxShrink && kRadarSourcePixels / static_cast<float>(shrink * 2) >= pixels) shrink *= 2;
+    const int tiles = kBoardAtlasTiles * shrink;
+    return AtlasShape{.across = tiles, .down = tiles, .shrink = shrink, .kept = kBoardKeptTiles};
+}
+} // namespace
+
+// Ngắm atlas vào vùng bản đồ lớn đang thấy và trả cách vẽ ảnh; nullopt khi bản đồ không hiện hay chưa ô nào nạp.
+std::optional<MapPaint> Hud::State::board_of() {
+    const panel::SceneRow* scene = board_scene_row();
+    const std::optional<gui::Box> window = hub->board();
+    if (scene == nullptr || !window || scene->token.empty()) return std::nullopt;
+    const gui::BoardView seen = gui::board_view(panel::board_ask(board, *scene, *window));
+    if (seen.pixels <= 0.0F) return std::nullopt;
+    const AtlasShape shape = board_shape(seen.pixels);
+    RadarAtlas& wide = (board_atlas && board_atlas->shape() == shape) ? *board_atlas : board_atlas.emplace(client_root, shape);
+    RadarAim aim;
+    aim.token = scene->token;
+    aim.scene_width = scene->width;
+    aim.scene_depth = scene->depth;
+    aim.view = hub->board_uv();
+    if (wide.aim(aim)) upload_board(wide.image());
+    if (!wide.has_image() || !board_texture) return std::nullopt;
+    const gui::Radar part = wide.to_atlas(gui::Radar{});
+    MapPaint paint;
+    paint.texture = *board_texture;
+    paint.origin_u = part.u0;
+    paint.origin_v = part.v0;
+    paint.scale_u = part.u1 - part.u0;
+    paint.scale_v = part.v1 - part.v0;
+    return paint;
+}
+
+void Hud::State::upload_board(const resource::Image& image) {
+    const std::optional<std::uint32_t> known = board_texture;
+    const bool is_first = !known.has_value();
+    const core::Result<std::uint32_t> added = known ? core::Result<std::uint32_t>(*known) : pass->add_texture(image);
+    if (!added) {
+        std::println(stderr, "Giao diện: không đưa được bản đồ lớn lên GPU: {}", added.error());
+        return;
+    }
+    if (!is_first) {
+        const core::Status replaced = pass->replace_texture(*added, image);
+        if (!replaced) std::println(stderr, "Giao diện: không thay được ảnh bản đồ lớn: {}", replaced.error());
+        return;
+    }
+    board_texture = *added;
+}
+
 bool Hud::State::is_current() const noexcept {
     const bool is_same_quads = still_stamp == hub->still_stamp() && live_stamp == hub->live_stamp();
     return is_built && is_same_quads && text_stamp == hub->text_stamp();
@@ -597,7 +942,11 @@ void Hud::State::rebuild() {
     PaintKit kit;
     kit.writer = writer ? &*writer : nullptr;
     kit.font_texture = font_texture;
+    kit.alt_writer = vi_writer ? &*vi_writer : nullptr;
+    kit.alt_font_texture = vi_font_texture;
     kit.map = map;
+    kit.board = board_map;
+    kit.world = world_paint;
     kit.views = views;
     painter.build(loader.asset(), parts, kit);
     still_stamp = hub->still_stamp();
@@ -632,6 +981,8 @@ core::Result<Hud> Hud::open(render::UiPass& pass, const HudDesc& desc) {
     state->strings = strings_of(desc.data_root);
     state->scene_names = scene_names(desc.data_root);
     state->open_portraits(desc.data_root);
+    state->open_servers(desc.data_root);
+    state->open_scenes(desc.data_root);
     state->open_font(root);
     state->hub = std::make_unique<gui::Hub>(state->loader.asset());
     for (const std::string& note : state->loader.notes()) {
@@ -675,7 +1026,13 @@ void Hud::prepare(const HudView& view) {
     const std::optional<MapPaint> map = state.map_of(view.scene);
     const bool is_same_map = same_map(state.map, map);
     state.map = map;
-    if (state.is_current() && is_same_map) return;
+    const std::optional<MapPaint> board = state.board_of();
+    const bool is_same_board = same_map(state.board_map, board);
+    state.board_map = board;
+    const std::optional<MapPaint> world = state.world_of();
+    const bool is_same_world = same_map(state.world_paint, world);
+    state.world_paint = world;
+    if (state.is_current() && is_same_map && is_same_board && is_same_world) return;
     state.rebuild();
 }
 
@@ -705,6 +1062,16 @@ bool Hud::takes_wheel(float across, float down) const {
     return state_->is_on_scroll(across, down);
 }
 
+float Hud::equip_spin() const noexcept {
+    return state_->equip_spin;
+}
+
+std::optional<RunTo> Hud::take_run_to() noexcept {
+    const std::optional<RunTo> run = state_->run_to;
+    state_->run_to.reset();
+    return run;
+}
+
 std::optional<Action> Hud::take_action() noexcept {
     if (state_->asked) {
         const Action asked = *state_->asked;
@@ -712,6 +1079,19 @@ std::optional<Action> Hud::take_action() noexcept {
         return asked;
     }
     return panel::take_flow(state_->flow);
+}
+
+bool Hud::recall_last_server(std::string_view text) {
+    panel::recall_last(state_->flow, text);
+    return true;
+}
+
+std::optional<std::string> Hud::last_server_text() const {
+    return panel::last_text(state_->flow);
+}
+
+void Hud::mark_last_server_saved() noexcept {
+    panel::mark_last_saved(state_->flow);
 }
 
 bool Hud::recall_roles(std::string_view text) {

@@ -89,7 +89,7 @@ void type_text(LoginFlow& flow, std::u32string_view text, const LoginFacts& fact
 }
 
 void sign_in(LoginFlow& flow) {
-    ui::panel::reset_account(flow);
+    ui::panel::start_login(flow);
     type_text(flow, U"a\tb", {});
     ui::panel::press_flow(flow, "LogOn_LogOnGame", {});
 }
@@ -106,7 +106,7 @@ void logon_enter_opens_roles(Context& context) {
 
 void web_and_leave_pass_through(Context& context) {
     LoginFlow flow;
-    ui::panel::reset_account(flow);
+    ui::panel::start_login(flow);
     ui::panel::press_flow(flow, "LogOn_payment", {});
     context.expect(ui::panel::take_flow(flow) == LogonAction::kOpenTopUp, "nút nạp thẻ đi ra");
     ui::panel::press_flow(flow, "LogOn_Last", {});
@@ -284,10 +284,10 @@ void hover_reaches_the_create_panel(Context& context) {
     const LoginFacts facts = world.facts();
     LoginFlow flow;
     sign_in(flow);
-    ui::panel::hover_flow(flow, "CreateRole_Author");
+    ui::panel::hover_flow(flow, "CreateRole_Author", std::nullopt);
     ui::panel::release_flow(flow);
     ui::panel::press_flow(flow, "SelectRole_Create", facts);
-    ui::panel::hover_flow(flow, "CreateRole_Author");
+    ui::panel::hover_flow(flow, "CreateRole_Author", std::nullopt);
     const ui::panel::Key info{.window = "CreateRole_Info", .name = "Text"};
     context.expect(flow.create.widgets.value(info) == "#{DLJM_XML_22}", "rê vào nút tạo thì hiện mô tả");
     ui::panel::Deck deck;

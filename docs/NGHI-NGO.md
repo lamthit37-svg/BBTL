@@ -747,3 +747,19 @@ kết luận ngay dưới mục đó chứ không xoá.
     `early_wakes_keep_deadline`; 400 kết nối im lặng: bắt tay thật p99 6187 → 33 ms). CÒN MỞ: (k)
     `gate_tests` không dịch được (thiếu `metrics::Registry`, `gate::Backing`) và test `layers` đỏ
     (`metrics/serve` chưa có trong bảng tầng) từ trước lượt này.
+
+48. **Giao diện màn chơi 2026-10-13: các chỗ chưa đọc được từ mã máy hay chưa làm** (`TAILIEU/MAN-CHOI-GIAO-DIEN-2026.md`).
+    (a) Đơn vị tốc độ xoay người mẫu của bảng nhân vật: `RotateBeginEx` nhân đối số với 0,5 rồi đưa cho engine qua
+    `[vtable + 0x498]` của đối tượng toàn cục `0x14103e688` trong `Game.exe`; chưa tìm ra lớp chứa hàm đó. Bản port coi là vòng mỗi giây
+    (nút giữ 1 giây quay 0,15 vòng). Cần: tháo hàm ở slot `0x498` của lớp mà `0x14103e688` trỏ tới, đọc cách nó đổi số này ra góc mỗi khung.
+    (b) `SequenceFrame` của hệ hạt: chỉ đọc `stacks`, `slices`, `repeat_times`, `loop`, `pingpang`, `start_range`; `play_mode`, `head_and_tail`,
+    `play_times`, `baned_frames` chưa biết nghĩa (mọi giá trị coi như `normal`, `none`). Cần: tháo `SequenceFrameAffector` trong `Plugin_ParticleFX2.dll`.
+    (c) Mặt đất nướng một ảnh (8 điểm ảnh mỗi ô, trần 4096) lọc đúng nhưng chi tiết đá chạm lớn (sân Lạc Dương, bậc thềm) thấp hơn bản gốc vẽ từng
+    ô theo độ phân giải màn hình; làm cho đủ cần shader mặt đất nhiều lớp (lớp cọ, lớp phủ, lightmap) thay cho ảnh nướng. (d) Bản đồ thế giới
+    chưa có tooltip, bạn bè, đối địch, cờ chỉ huy, thông tin bang chiếm; ảnh nhãn thành phố đang là chữ Hán (ảnh dựng sẵn). (e) Bốn tham chiếu mà
+    chính dữ liệu gốc cũng thiếu: ảnh `MainMenuBar/EXPBar_3`, `Chat/CommonEditBoxBK`, hoạt ảnh `CoolDownEnd2`, bộ ảnh `BaseInterface` (không có trong
+    `_goc`); client gốc cũng không vẽ chúng. (f) Số ô hòm đồ (20 và 60) và nhiệm vụ (20 và 20) lấy theo giả định, chưa có số liệu từ máy chủ. (g) Bảng
+    tầng ngoài đầu tiên: ô combo `sceneMap_ComboList` chưa mở xổ danh sách. (h) `Test/Client/map_tests.cpp` không dịch được từ trước lượt này vì gọi
+    `WaterCover`, `water_cover`, `pour_liquid`, `water_at`, `ray_water` không còn trong `src` (cây bị khôi phục ngày 2026-10-09 thiếu chúng); chuỗi
+    `kTable` của ca `book_reads_clip_planes` còn bị hỏng dấu tab và xuống dòng, đã sửa 2026-10-13. Các test đỏ từ trước: `ui_panel`
+    (`desk_paints_notice`), `ui_quest` (thiếu số vàng), `gui_sheet_tests` (không dịch được).

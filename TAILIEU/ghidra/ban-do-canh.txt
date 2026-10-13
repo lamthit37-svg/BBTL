@@ -1,0 +1,2559 @@
+
+######## 0x1800ca900
+
+==== setZoomMode @ 0x1800ca900
+
+/* public: virtual void __cdecl CEGUI::FalagardSceneMap::setZoomMode(int) __ptr64 */
+
+void __thiscall CEGUI::FalagardSceneMap::setZoomMode(FalagardSceneMap *this,int param_1)
+
+{
+                    /* 0xca900  3117  ?setZoomMode@FalagardSceneMap@CEGUI@@UEAAXH@Z */
+  *(int *)(this + 0x68) = param_1;
+  UpdateAllWindow(this + -0x400);
+  SetViewByCenter(this + -0x400,(Vector2 *)(this + 8));
+  return;
+}
+
+// gọi: SetViewByCenter@1800c70f0, UpdateAllWindow@1800c73b0
+
+######## 0x1800ca080
+
+==== setSceneFileName @ 0x1800ca080
+
+/* WARNING: Function: __security_check_cookie replaced with injection: security_check_cookie */
+/* public: virtual void __cdecl CEGUI::FalagardSceneMap::setSceneFileName(class
+   CEGUI::StringBaseT<char> const & __ptr64) __ptr64 */
+
+void __thiscall
+CEGUI::FalagardSceneMap::setSceneFileName(FalagardSceneMap *this,StringBaseT<char> *param_1)
+
+{
+  longlong lVar1;
+  undefined1 auStack_58 [32];
+  undefined8 local_38;
+  undefined1 local_30;
+  undefined7 uStack_2f;
+  undefined8 local_20;
+  ulonglong local_18;
+  ulonglong local_10;
+  
+                    /* 0xca080  3058
+                       ?setSceneFileName@FalagardSceneMap@CEGUI@@UEAAXAEBV?$StringBaseT@D@2@@Z */
+  local_38 = 0xfffffffffffffffe;
+  local_10 = DAT_1801e9900 ^ (ulonglong)auStack_58;
+  if (this + 0x240 != (FalagardSceneMap *)param_1) {
+    FUN_180002300();
+  }
+  if (0xf < *(ulonglong *)(param_1 + 0x18)) {
+    param_1 = *(StringBaseT<char> **)param_1;
+  }
+  local_18 = 0xf;
+  local_20 = 0;
+  local_30 = 0;
+  if (*param_1 != (StringBaseT<char>)0x0) {
+    lVar1 = -1;
+    do {
+      lVar1 = lVar1 + 1;
+    } while (param_1[lVar1] != (StringBaseT<char>)0x0);
+  }
+  FUN_180002450(&local_30,param_1);
+  (**(code **)(*(longlong *)(this + -0x400) + 0x268))(this + -0x400,&local_30);
+  if (0xf < local_18) {
+    operator_delete((void *)CONCAT71(uStack_2f,local_30));
+  }
+  return;
+}
+
+// gọi: FUN_180002300@180002300, FUN_180002450@180002450, __security_check_cookie@1800edfa0, operator_delete@1800ed89a
+
+######## 0x1800c58c0
+
+==== CreateSceneMap @ 0x1800c58c0
+
+/* WARNING: Function: __security_check_cookie replaced with injection: security_check_cookie */
+/* protected: virtual void __cdecl CEGUI::FalagardSceneMap::CreateSceneMap(class
+   CEGUI::StringBaseT<char> const & __ptr64) __ptr64 */
+
+void __thiscall
+CEGUI::FalagardSceneMap::CreateSceneMap(FalagardSceneMap *this,StringBaseT<char> *param_1)
+
+{
+  longlong lVar1;
+  bool bVar2;
+  WindowManager *pWVar3;
+  StringBaseT<char> *pSVar4;
+  Window *pWVar5;
+  FalagardSceneMap *pFVar6;
+  int iVar7;
+  ulonglong uVar8;
+  ulonglong uVar9;
+  FalagardSceneMap *pFVar10;
+  ulonglong uVar11;
+  undefined1 auStack_128 [32];
+  undefined4 local_108;
+  undefined4 local_104;
+  undefined8 local_100;
+  StringBaseT<char> local_f8;
+  undefined7 uStack_f7;
+  undefined8 local_e8;
+  ulonglong local_e0;
+  StringBaseT<char> local_d8;
+  undefined7 uStack_d7;
+  undefined8 local_c8;
+  ulonglong local_c0;
+  char local_b8 [128];
+  ulonglong local_38;
+  
+                    /* 0xc58c0  1062
+                       ?CreateSceneMap@FalagardSceneMap@CEGUI@@MEAAXAEBV?$StringBaseT@D@2@@Z */
+  local_100 = 0xfffffffffffffffe;
+  local_38 = DAT_1801e9900 ^ (ulonglong)auStack_128;
+  this[0x63a] = (FalagardSceneMap)0x1;
+  createBackground(this,param_1);
+  pFVar10 = this + 0x278;
+  pFVar6 = pFVar10;
+  if (0xf < *(ulonglong *)(this + 0x290)) {
+    pFVar6 = *(FalagardSceneMap **)pFVar10;
+  }
+  sprintf(local_b8,"%s_MySelf",pFVar6);
+  local_c0 = 0xf;
+  uVar8 = 0;
+  local_c8 = 0;
+  local_d8 = (StringBaseT<char>)0x0;
+  uVar11 = uVar8;
+  if (local_b8[0] != '\0') {
+    uVar9 = 0xffffffffffffffff;
+    do {
+      lVar1 = uVar9 + 1;
+      uVar11 = uVar9 + 1;
+      uVar9 = uVar9 + 1;
+    } while (local_b8[lVar1] != '\0');
+  }
+  FUN_180002450(&local_d8,local_b8,uVar11);
+  pWVar3 = CEGUI::WindowManager::getSingleton();
+  bVar2 = CEGUI::WindowManager::isWindowPresent(pWVar3,&local_d8);
+  if (0xf < local_c0) {
+    operator_delete((void *)CONCAT71(uStack_d7,local_d8));
+  }
+  local_e0 = 0xf;
+  local_e8 = 0;
+  local_f8 = (StringBaseT<char>)0x0;
+  if (bVar2) {
+    uVar11 = uVar8;
+    if (local_b8[0] != '\0') {
+      uVar9 = 0xffffffffffffffff;
+      do {
+        lVar1 = uVar9 + 1;
+        uVar11 = uVar9 + 1;
+        uVar9 = uVar9 + 1;
+      } while (local_b8[lVar1] != '\0');
+    }
+    FUN_180002450(&local_f8,local_b8,uVar11);
+    pWVar3 = CEGUI::WindowManager::getSingleton();
+    pWVar5 = CEGUI::WindowManager::getWindow(pWVar3,&local_f8);
+    *(Window **)(this + 0x4e0) = pWVar5;
+    if (0xf < local_e0) {
+      operator_delete((void *)CONCAT71(uStack_f7,local_f8));
+    }
+  }
+  else {
+    uVar11 = uVar8;
+    if (local_b8[0] != '\0') {
+      uVar9 = 0xffffffffffffffff;
+      do {
+        lVar1 = uVar9 + 1;
+        uVar11 = uVar9 + 1;
+        uVar9 = uVar9 + 1;
+      } while (local_b8[lVar1] != '\0');
+    }
+    FUN_180002450(&local_f8,local_b8,uVar11);
+    local_c0 = 0xf;
+    local_c8 = 0;
+    local_d8 = (StringBaseT<char>)0x0;
+    FUN_180002450(&local_d8,"Image",5);
+    pSVar4 = (StringBaseT<char> *)FUN_180051fa0(this + 0x3f0,&local_d8);
+    pWVar3 = CEGUI::WindowManager::getSingleton();
+    pWVar5 = CEGUI::WindowManager::createWindow(pWVar3,pSVar4,&local_f8);
+    *(Window **)(this + 0x4e0) = pWVar5;
+    if (0xf < local_c0) {
+      operator_delete((void *)CONCAT71(uStack_d7,local_d8));
+    }
+    local_c0 = 0xf;
+    local_c8 = 0;
+    local_d8 = (StringBaseT<char>)0x0;
+    if (0xf < local_e0) {
+      operator_delete((void *)CONCAT71(uStack_f7,local_f8));
+    }
+    CEGUI::Window::addChildWindow(*(Window **)(this + 0x418),*(Window **)(this + 0x4e0));
+  }
+  *(undefined4 *)(*(longlong *)(this + 0x4e0) + 0x2dc) = 9;
+  *(undefined4 *)(*(longlong *)(this + 0x4e0) + 0x2d0) = 0;
+  local_108 = 0x42c80000;
+  local_104 = 0x42c80000;
+  CEGUI::Window::setMaximumSize(*(Window **)(this + 0x4e0),(Size *)&local_108);
+  CEGUI::Window::setMouseHollow(*(Window **)(this + 0x4e0),true);
+  CEGUI::Window::setMouseMoveHollow(*(Window **)(this + 0x4e0),true);
+  CEGUI::Window::setMouseLButtonHollow(*(Window **)(this + 0x4e0),true);
+  CEGUI::Window::setMouseRButtonHollow(*(Window **)(this + 0x4e0),true);
+  if (0xf < *(ulonglong *)(this + 0x290)) {
+    pFVar10 = *(FalagardSceneMap **)pFVar10;
+  }
+  _snprintf(local_b8,0x80,"%s_Auto_MapLight",pFVar10);
+  local_e0 = 0xf;
+  local_e8 = 0;
+  local_f8 = (StringBaseT<char>)0x0;
+  uVar11 = uVar8;
+  if (local_b8[0] != '\0') {
+    uVar9 = 0xffffffffffffffff;
+    do {
+      lVar1 = uVar9 + 1;
+      uVar11 = uVar9 + 1;
+      uVar9 = uVar9 + 1;
+    } while (local_b8[lVar1] != '\0');
+  }
+  FUN_180002450(&local_f8,local_b8,uVar11);
+  pWVar3 = CEGUI::WindowManager::getSingleton();
+  bVar2 = CEGUI::WindowManager::isWindowPresent(pWVar3,&local_f8);
+  if (0xf < local_e0) {
+    operator_delete((void *)CONCAT71(uStack_f7,local_f8));
+  }
+  if (!bVar2) {
+    local_e0 = 0xf;
+    local_e8 = 0;
+    local_f8 = (StringBaseT<char>)0x0;
+    uVar11 = uVar8;
+    if (local_b8[0] != '\0') {
+      uVar9 = 0xffffffffffffffff;
+      do {
+        lVar1 = uVar9 + 1;
+        uVar11 = uVar9 + 1;
+        uVar9 = uVar9 + 1;
+      } while (local_b8[lVar1] != '\0');
+    }
+    FUN_180002450(&local_f8,local_b8,uVar11);
+    local_c0 = 0xf;
+    local_c8 = 0;
+    local_d8 = (StringBaseT<char>)0x0;
+    FUN_180002450(&local_d8,"Image",5);
+    pSVar4 = (StringBaseT<char> *)FUN_180051fa0(this + 0x3f0,&local_d8);
+    pWVar3 = CEGUI::WindowManager::getSingleton();
+    CEGUI::WindowManager::createWindow(pWVar3,pSVar4,&local_f8);
+    if (0xf < local_c0) {
+      operator_delete((void *)CONCAT71(uStack_d7,local_d8));
+    }
+    local_c0 = 0xf;
+    local_c8 = 0;
+    local_d8 = (StringBaseT<char>)0x0;
+    if (0xf < local_e0) {
+      operator_delete((void *)CONCAT71(uStack_f7,local_f8));
+    }
+  }
+  local_e0 = 0xf;
+  local_e8 = 0;
+  local_f8 = (StringBaseT<char>)0x0;
+  uVar11 = 0xffffffffffffffff;
+  uVar9 = uVar8;
+  while (local_b8[0] != '\0') {
+    uVar9 = uVar11 + 1;
+    local_b8[0] = local_b8[uVar11 + 1];
+    uVar11 = uVar9;
+  }
+  FUN_180002450(&local_f8,local_b8,uVar9);
+  pWVar3 = CEGUI::WindowManager::getSingleton();
+  pWVar5 = CEGUI::WindowManager::getWindow(pWVar3,&local_f8);
+  *(Window **)(this + 0x4d8) = pWVar5;
+  if (0xf < local_e0) {
+    operator_delete((void *)CONCAT71(uStack_f7,local_f8));
+  }
+  CEGUI::Window::addChildWindow(*(Window **)(this + 0x418),*(Window **)(this + 0x4d8));
+  CEGUI::Window::setVisible(*(Window **)(this + 0x4d8),true);
+  CEGUI::Window::setMouseHollow(*(Window **)(this + 0x4d8),true);
+  CEGUI::Window::setMouseMoveHollow(*(Window **)(this + 0x4d8),true);
+  CEGUI::Window::setMouseLButtonHollow(*(Window **)(this + 0x4d8),true);
+  CEGUI::Window::setMouseRButtonHollow(*(Window **)(this + 0x4d8),true);
+  local_e0 = 0xf;
+  local_e8 = 0;
+  local_f8 = (StringBaseT<char>)0x0;
+  FUN_180002450(&local_f8,"set:MapLight_RenderTexture image:View",0x25);
+  local_c0 = 0xf;
+  local_c8 = 0;
+  local_d8 = (StringBaseT<char>)0x0;
+  FUN_180002450(&local_d8,"Image",5);
+  CEGUI::Window::setProperty(*(Window **)(this + 0x4d8),&local_d8,&local_f8);
+  if (0xf < local_c0) {
+    operator_delete((void *)CONCAT71(uStack_d7,local_d8));
+  }
+  local_c0 = 0xf;
+  local_c8 = 0;
+  local_d8 = (StringBaseT<char>)0x0;
+  if (0xf < local_e0) {
+    operator_delete((void *)CONCAT71(uStack_f7,local_f8));
+  }
+  *(undefined4 *)(*(longlong *)(this + 0x4d8) + 0x2dc) = 9;
+  *(undefined4 *)(*(longlong *)(this + 0x4d8) + 0x2d0) = 0;
+  CEGUI::Window::setAlwaysOnTop(*(Window **)(this + 0x4d8),true);
+  CEGUI::Window::setAlwaysOnTop(*(Window **)(this + 0x4e0),true);
+  UpdateAllWindow(this);
+  pFVar10 = this + 0x4c8;
+  do {
+    iVar7 = (int)uVar8;
+    if (iVar7 == 0) {
+      pFVar6 = this + 0x480;
+LAB_1800c5e88:
+      FUN_18003aac0(pFVar6);
+    }
+    else {
+      if (iVar7 == 1) {
+        pFVar6 = this + 0x490;
+        goto LAB_1800c5e88;
+      }
+      if (iVar7 == 2) {
+        pFVar6 = this + 0x4a0;
+        goto LAB_1800c5e88;
+      }
+    }
+    *(undefined4 *)pFVar10 = 0;
+    uVar8 = (ulonglong)(iVar7 + 1U);
+    pFVar10 = pFVar10 + 4;
+    if (3 < (int)(iVar7 + 1U)) {
+      return;
+    }
+  } while( true );
+}
+
+// gọi: FUN_180002450@180002450, FUN_18003aac0@18003aac0, FUN_180051fa0@180051fa0, UpdateAllWindow@1800c73b0, __security_check_cookie@1800edfa0, _snprintf@3b2, addChildWindow@2ae, createBackground@1800c7e60, createWindow@12b, getSingleton@96, getWindow@97, isWindowPresent@2b2, operator_delete@1800ed89a, setAlwaysOnTop@2a4, setMaximumSize@33f, setMouseHollow@298, setMouseLButtonHollow@29a, setMouseMoveHollow@299, setMouseRButtonHollow@29b, setProperty@2fd, setVisible@2a5, sprintf@3b3
+
+######## 0x1800c7e60
+
+==== createBackground @ 0x1800c7e60
+
+/* WARNING: Function: __security_check_cookie replaced with injection: security_check_cookie */
+/* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
+/* protected: void __cdecl CEGUI::FalagardSceneMap::createBackground(class CEGUI::StringBaseT<char>
+   const & __ptr64) __ptr64 */
+
+void __thiscall
+CEGUI::FalagardSceneMap::createBackground(FalagardSceneMap *this,StringBaseT<char> *param_1)
+
+{
+  float fVar1;
+  longlong lVar2;
+  float fVar3;
+  StringBaseT<char> *pSVar4;
+  bool bVar5;
+  int iVar6;
+  uint uVar7;
+  WindowManager *pWVar8;
+  Window *pWVar9;
+  Imageset *pIVar10;
+  undefined8 uVar11;
+  StringBaseT<char> *pSVar12;
+  Image *pIVar13;
+  FalagardSceneMap *pFVar14;
+  uint uVar15;
+  int iVar16;
+  longlong lVar17;
+  longlong lVar18;
+  float fVar20;
+  float fVar21;
+  float fVar22;
+  float fVar23;
+  undefined1 auStackY_2c8 [32];
+  int local_298 [2];
+  float local_290;
+  float local_28c;
+  float local_288;
+  float local_284;
+  undefined4 local_280;
+  undefined4 local_27c;
+  float local_278;
+  float local_274;
+  uint local_268;
+  float fStack_264;
+  undefined4 uStack_260;
+  float fStack_25c;
+  StringBaseT<char> *local_258;
+  undefined8 local_250;
+  StringBaseT<char> local_248;
+  undefined7 uStack_247;
+  undefined8 local_238;
+  ulonglong local_230;
+  undefined1 local_228;
+  undefined7 uStack_227;
+  undefined8 local_218;
+  ulonglong local_210;
+  uint local_208;
+  float fStack_204;
+  undefined4 uStack_200;
+  float fStack_1fc;
+  undefined8 local_1f8;
+  ulonglong local_1f0;
+  char local_1e8 [128];
+  char local_168 [128];
+  ulonglong local_e8;
+  longlong lVar19;
+  
+                    /* 0xc7e60  1709
+                       ?createBackground@FalagardSceneMap@CEGUI@@IEAAXAEBV?$StringBaseT@D@2@@Z */
+  local_250 = 0xfffffffffffffffe;
+  local_e8 = DAT_1801e9900 ^ (ulonglong)auStackY_2c8;
+  local_258 = param_1;
+  sprintf(local_1e8,"%s_auto_background");
+  local_230 = 0xf;
+  lVar18 = 0;
+  local_238 = 0;
+  local_248 = (StringBaseT<char>)0x0;
+  if (local_1e8[0] != '\0') {
+    lVar19 = -1;
+    do {
+      lVar17 = lVar19 + 1;
+      lVar19 = lVar19 + 1;
+    } while (local_1e8[lVar17] != '\0');
+  }
+  FUN_180002450(&local_248,local_1e8);
+  pWVar8 = CEGUI::WindowManager::getSingleton();
+  bVar5 = CEGUI::WindowManager::isWindowPresent(pWVar8,&local_248);
+  if (0xf < local_230) {
+    operator_delete((void *)CONCAT71(uStack_247,local_248));
+  }
+  if (bVar5) {
+    local_230 = 0xf;
+    local_238 = 0;
+    local_248 = (StringBaseT<char>)0x0;
+    if (local_1e8[0] != '\0') {
+      lVar19 = -1;
+      do {
+        lVar17 = lVar19 + 1;
+        lVar19 = lVar19 + 1;
+      } while (local_1e8[lVar17] != '\0');
+    }
+    FUN_180002450(&local_248,local_1e8);
+    pWVar8 = CEGUI::WindowManager::getSingleton();
+    CEGUI::WindowManager::destroyWindow(pWVar8,&local_248);
+    if (0xf < local_230) {
+      operator_delete((void *)CONCAT71(uStack_247,local_248));
+    }
+    *(undefined8 *)(this + 0x500) = 0;
+    *(undefined8 *)(this + 0x4f8) = 0;
+    *(undefined8 *)(this + 0x4f0) = 0;
+    *(undefined8 *)(this + 0x4e8) = 0;
+  }
+  local_230 = 0xf;
+  local_238 = 0;
+  local_248 = (StringBaseT<char>)0x0;
+  lVar19 = lVar18;
+  if (local_1e8[0] != '\0') {
+    lVar17 = -1;
+    do {
+      lVar2 = lVar17 + 1;
+      lVar19 = lVar17 + 1;
+      lVar17 = lVar17 + 1;
+    } while (local_1e8[lVar2] != '\0');
+  }
+  FUN_180002450(&local_248,local_1e8,lVar19);
+  local_1f0 = 0xf;
+  local_1f8 = 0;
+  local_208 = local_208 & 0xffffff00;
+  FUN_180002450(&local_208,"Falagard/SceneMap/ParentWindow",0x1e);
+  pWVar8 = CEGUI::WindowManager::getSingleton();
+  CEGUI::WindowManager::createWindow(pWVar8,(StringBaseT<char> *)&local_208,&local_248);
+  if (0xf < local_1f0) {
+    operator_delete((void *)CONCAT44(fStack_204,local_208));
+  }
+  local_1f0 = 0xf;
+  local_1f8 = 0;
+  local_208 = local_208 & 0xffffff00;
+  if (0xf < local_230) {
+    operator_delete((void *)CONCAT71(uStack_247,local_248));
+  }
+  local_230 = 0xf;
+  local_238 = 0;
+  local_248 = (StringBaseT<char>)0x0;
+  if (local_1e8[0] != '\0') {
+    lVar19 = -1;
+    do {
+      lVar18 = lVar19 + 1;
+      lVar17 = lVar19 + 1;
+      lVar19 = lVar18;
+    } while (local_1e8[lVar17] != '\0');
+  }
+  FUN_180002450(&local_248,local_1e8,lVar18);
+  pWVar8 = CEGUI::WindowManager::getSingleton();
+  pWVar9 = CEGUI::WindowManager::getWindow(pWVar8,&local_248);
+  *(Window **)(this + 0x418) = pWVar9;
+  if (0xf < local_230) {
+    operator_delete((void *)CONCAT71(uStack_247,local_248));
+  }
+  CEGUI::Window::addChildWindow((Window *)this,*(Window **)(this + 0x418));
+  *(FalagardSceneMap *)(*(longlong *)(this + 0x418) + 0x3f8) = this[0x470];
+  local_230 = 0xf;
+  local_238 = 0;
+  local_248 = (StringBaseT<char>)0x0;
+  FUN_180002450(&local_248,"RoundRegion",0xb);
+  lVar18 = *(longlong *)(this + 0x418);
+  pIVar10 = CEGUI::NamedXMLResourceManager<CEGUI::Imageset,CEGUI::Imageset_xmlHandler>::get
+                      (*(NamedXMLResourceManager<CEGUI::Imageset,CEGUI::Imageset_xmlHandler> **)
+                        ms_Singleton_exref,&local_248);
+  *(Imageset **)(lVar18 + 0x400) = pIVar10;
+  if (0xf < local_230) {
+    operator_delete((void *)CONCAT71(uStack_247,local_248));
+  }
+  local_298[0] = 0x42c80000;
+  local_298[1] = 0x42c80000;
+  CEGUI::Window::setMaximumSize(*(Window **)(this + 0x418),(Size *)local_298);
+  *(undefined1 *)(*(longlong *)(this + 0x418) + 0x177) = 0;
+  CEGUI::Window::setMouseHollow(*(Window **)(this + 0x418),true);
+  CEGUI::Window::setMouseMoveHollow(*(Window **)(this + 0x418),true);
+  CEGUI::Window::setMouseLButtonHollow(*(Window **)(this + 0x418),true);
+  CEGUI::Window::setMouseRButtonHollow(*(Window **)(this + 0x418),true);
+  fVar22 = DAT_18013a820;
+  pFVar14 = this + 0x640;
+  if (0xf < *(ulonglong *)(this + 0x658)) {
+    pFVar14 = *(FalagardSceneMap **)pFVar14;
+  }
+  iVar6 = strncmp((char *)pFVar14,"jiayuan",7);
+  if (iVar6 == 0) {
+    fVar22 = DAT_180141e40;
+  }
+  uVar15 = (int)*(float *)(this + 0x448) >> 0x1f & 0x3f;
+  uVar7 = (int)*(float *)(this + 0x448) + uVar15;
+  iVar6 = (int)uVar7 >> 6;
+  fVar21 = (float)(int)((uVar7 & 0x3f) - uVar15) * _DAT_180141e1c;
+  uVar15 = (int)*(float *)(this + 0x44c) >> 0x1f & 0x3f;
+  uVar7 = (int)*(float *)(this + 0x44c) + uVar15;
+  iVar16 = (int)uVar7 >> 6;
+  fVar20 = (float)(int)((uVar7 & 0x3f) - uVar15) * _DAT_180141e1c;
+  *(int *)(this + 0x420) = iVar6;
+  *(int *)(this + 0x424) = iVar16;
+  fVar3 = DAT_18011787c;
+  fVar1 = DAT_18011787c;
+  if (fVar21 != 0.0) {
+    *(int *)(this + 0x420) = iVar6 + 1;
+    fVar1 = fVar21;
+  }
+  fVar21 = fVar3;
+  if (fVar20 != 0.0) {
+    *(int *)(this + 0x424) = iVar16 + 1;
+    fVar21 = fVar20;
+  }
+  fVar20 = DAT_180141e2c;
+  uVar7 = 0;
+  if (0 < *(int *)(this + 0x420)) {
+    local_298[0] = 0;
+    do {
+      pSVar4 = local_258;
+      iVar6 = 0;
+      if (0 < *(int *)(this + 0x424)) {
+        fVar23 = (float)local_298[0];
+        iVar16 = 0;
+        do {
+          uVar11 = FUN_18003a6f0(pSVar4);
+          sprintf(local_168,"%s_%d_%d",uVar11,(ulonglong)uVar7);
+          CEGUI::Rect::Rect((Rect *)&local_268,0.0,0.0,fVar22,fVar22);
+          if ((uVar7 == *(int *)(this + 0x420) - 1U) && (fVar1 != fVar3)) {
+            fStack_25c = fVar1 * fVar22;
+          }
+          if ((iVar6 == *(int *)(this + 0x424) + -1) && (fVar21 != fVar3)) {
+            fStack_264 = fVar21 * fVar22;
+          }
+          pFVar14 = this + 0x278;
+          if (0xf < *(ulonglong *)(this + 0x290)) {
+            pFVar14 = *(FalagardSceneMap **)(this + 0x278);
+          }
+          sprintf(local_1e8,"%s_map_%d_%d",pFVar14,(ulonglong)uVar7);
+          local_230 = 0xf;
+          local_238 = 0;
+          local_248 = (StringBaseT<char>)0x0;
+          if (local_1e8[0] != '\0') {
+            lVar18 = -1;
+            do {
+              lVar19 = lVar18 + 1;
+              lVar18 = lVar18 + 1;
+            } while (local_1e8[lVar19] != '\0');
+          }
+          FUN_180002450(&local_248,local_1e8);
+          pWVar8 = CEGUI::WindowManager::getSingleton();
+          bVar5 = CEGUI::WindowManager::isWindowPresent(pWVar8,&local_248);
+          if (0xf < local_230) {
+            operator_delete((void *)CONCAT71(uStack_247,local_248));
+          }
+          if (!bVar5) {
+            local_230 = 0xf;
+            lVar18 = 0;
+            local_238 = 0;
+            local_248 = (StringBaseT<char>)0x0;
+            if (local_1e8[0] != '\0') {
+              lVar19 = -1;
+              do {
+                lVar18 = lVar19 + 1;
+                lVar17 = lVar19 + 1;
+                lVar19 = lVar18;
+              } while (local_1e8[lVar17] != '\0');
+            }
+            FUN_180002450(&local_248,local_1e8,lVar18);
+            local_210 = 0xf;
+            local_218 = 0;
+            local_228 = 0;
+            FUN_180002450(&local_228,"Image",5);
+            pSVar12 = (StringBaseT<char> *)FUN_180051fa0(this + 0x3f0,&local_228);
+            pWVar8 = CEGUI::WindowManager::getSingleton();
+            pWVar9 = CEGUI::WindowManager::createWindow(pWVar8,pSVar12,&local_248);
+            if (0xf < local_210) {
+              operator_delete((void *)CONCAT71(uStack_227,local_228));
+            }
+            local_210 = 0xf;
+            local_218 = 0;
+            local_228 = 0;
+            if (0xf < local_230) {
+              operator_delete((void *)CONCAT71(uStack_247,local_248));
+            }
+            local_230 = 0xf;
+            local_238 = 0;
+            local_248 = (StringBaseT<char>)0x0;
+            CEGUI::Window::addChildWindow(*(Window **)(this + 0x418),pWVar9);
+          }
+          local_230 = 0xf;
+          local_238 = 0;
+          local_248 = (StringBaseT<char>)0x0;
+          if (local_1e8[0] != '\0') {
+            lVar18 = -1;
+            do {
+              lVar19 = lVar18 + 1;
+              lVar18 = lVar18 + 1;
+            } while (local_1e8[lVar19] != '\0');
+          }
+          FUN_180002450(&local_248,local_1e8);
+          pWVar8 = CEGUI::WindowManager::getSingleton();
+          pWVar9 = CEGUI::WindowManager::getWindow(pWVar8,&local_248);
+          if (0xf < local_230) {
+            operator_delete((void *)CONCAT71(uStack_247,local_248));
+          }
+          local_230 = 0xf;
+          lVar18 = 0;
+          local_238 = 0;
+          local_248 = (StringBaseT<char>)0x0;
+          if (pWVar9 != (Window *)0x0) {
+            local_210 = 0xf;
+            local_218 = 0;
+            local_228 = 0;
+            if (local_168[0] != '\0') {
+              lVar19 = -1;
+              do {
+                lVar18 = lVar19 + 1;
+                lVar17 = lVar19 + 1;
+                lVar19 = lVar18;
+              } while (local_168[lVar17] != '\0');
+            }
+            FUN_180002450(&local_228,local_168,lVar18);
+            local_208 = local_268;
+            fStack_204 = fStack_264;
+            uStack_200 = uStack_260;
+            fStack_1fc = fStack_25c;
+            pIVar13 = getImageByName(this,&local_228,&local_208);
+            CEGUI::StaticImage::setImage((StaticImage *)pWVar9,pIVar13);
+            if (0xf < local_210) {
+              operator_delete((void *)CONCAT71(uStack_227,local_228));
+            }
+            pWVar9[0x177] = (Window)0x0;
+            CEGUI::Window::setMouseHollow(pWVar9,true);
+          }
+          local_288 = fVar23 / *(float *)(this + 0x448);
+          local_290 = (float)iVar16 / *(float *)(this + 0x44c);
+          local_284 = (fVar1 * fVar20) / *(float *)(this + 0x448) + local_288;
+          local_28c = (fVar21 * fVar20) / *(float *)(this + 0x44c) + local_290;
+          CEGUI::Window::setRect(pWVar9,0,(Rect *)&local_290);
+          local_278 = local_284 - local_288;
+          local_274 = local_28c - local_290;
+          (**(code **)(*(longlong *)pWVar9 + 0x50))(pWVar9,0,&local_278);
+          CEGUI::Window::setVisible(pWVar9,true);
+          CEGUI::Window::setMouseHollow(pWVar9,true);
+          CEGUI::Window::setMouseMoveHollow(pWVar9,true);
+          CEGUI::Window::setMouseLButtonHollow(pWVar9,true);
+          CEGUI::Window::setMouseRButtonHollow(pWVar9,true);
+          local_280 = 0x42c80000;
+          local_27c = 0x42c80000;
+          CEGUI::Window::setMaximumSize(pWVar9,(Size *)&local_280);
+          pWVar9[0x177] = (Window)0x0;
+          iVar6 = iVar6 + 1;
+          iVar16 = iVar16 + 0x40;
+        } while (iVar6 < *(int *)(this + 0x424));
+      }
+      uVar7 = uVar7 + 1;
+      local_298[0] = local_298[0] + 0x40;
+    } while ((int)uVar7 < *(int *)(this + 0x420));
+  }
+  return;
+}
+
+// gọi: FUN_180002450@180002450, FUN_18003a6f0@18003a6f0, FUN_180051fa0@180051fa0, Rect@4, __security_check_cookie@1800edfa0, addChildWindow@2ae, createWindow@12b, destroyWindow@356, get@141, getImageByName@1800c8c40, getSingleton@96, getWindow@97, isWindowPresent@2b2, operator_delete@1800ed89a, setImage@2df, setMaximumSize@33f, setMouseHollow@298, setMouseLButtonHollow@29a, setMouseMoveHollow@299, setMouseRButtonHollow@29b, setRect@2af, setVisible@2a5, sprintf@3b3, strncmp@396
+
+######## 0x1800c73b0
+
+==== UpdateAllWindow @ 0x1800c73b0
+
+/* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
+/* protected: void __cdecl CEGUI::FalagardSceneMap::UpdateAllWindow(void) __ptr64 */
+
+void __thiscall CEGUI::FalagardSceneMap::UpdateAllWindow(FalagardSceneMap *this)
+
+{
+  Vector2 *pVVar1;
+  int iVar2;
+  Rect *pRVar3;
+  float fVar4;
+  float fVar5;
+  float fVar6;
+  float fVar7;
+  float local_res8;
+  float local_resc;
+  float local_38;
+  float local_34;
+  float local_30;
+  float local_2c;
+  Rect local_28 [32];
+  
+                    /* 0xc73b0  1543  ?UpdateAllWindow@FalagardSceneMap@CEGUI@@IEAAXXZ */
+  if (*(longlong *)(this + 0x418) == 0) {
+    return;
+  }
+  fVar7 = *(float *)(this + 0x448);
+  fVar6 = *(float *)(this + 0x44c);
+  fVar5 = fVar6;
+  if (fVar6 < fVar7) {
+    fVar5 = fVar7;
+  }
+  iVar2 = *(int *)(this + 0x468);
+  if ((iVar2 == 0) && (this[0x450] != (FalagardSceneMap)0x0)) {
+    fVar6 = fVar6 / fVar5;
+    *(float *)(this + 0x454) =
+         ((*(float *)(this + 0x114) / *(float *)(this + 0x110)) * fVar7) / fVar5;
+    goto LAB_1800c74ce;
+  }
+  if (iVar2 == 1) {
+    fVar7 = fVar7 * DAT_1801319c0 * _DAT_180141e24;
+    fVar6 = fVar6 * DAT_1801319c0 * _DAT_180141e24;
+  }
+  else if (iVar2 == 2) {
+LAB_1800c74a6:
+    fVar7 = fVar7 * DAT_1801319c0;
+    fVar6 = fVar6 * DAT_1801319c0;
+  }
+  else if (iVar2 == 3) {
+    fVar7 = fVar7 * DAT_1801319c0 * _DAT_18012fb5c;
+    fVar6 = fVar6 * DAT_1801319c0 * _DAT_18012fb5c;
+  }
+  else {
+    if (iVar2 != 4) goto LAB_1800c74a6;
+    fVar7 = fVar7 * DAT_1801319c0 * _DAT_180141e28;
+    fVar6 = fVar6 * DAT_1801319c0 * _DAT_180141e28;
+  }
+  fVar6 = fVar6 / *(float *)(this + 0x114);
+  *(float *)(this + 0x454) = fVar7 / *(float *)(this + 0x110);
+LAB_1800c74ce:
+  *(float *)(this + 0x458) = fVar6;
+  pRVar3 = (Rect *)CEGUI::Rect::Rect(local_28,0.0,0.0,*(float *)(this + 0x454),fVar6);
+  CEGUI::Rect::operator=((Rect *)&local_38,pRVar3);
+  fVar5 = DAT_1801189cc;
+  fVar6 = DAT_18011787c;
+  pVVar1 = (Vector2 *)(this + 0x440);
+  fVar7 = *(float *)(this + 0x454);
+  fVar4 = DAT_18011787c - fVar7;
+  if (DAT_18011787c <= fVar7) {
+    if (*(float *)pVVar1 <= fVar4 && fVar4 != *(float *)pVVar1) {
+      *(float *)pVVar1 = fVar4;
+    }
+    if (0.0 < *(float *)pVVar1) {
+      *(undefined4 *)pVVar1 = 0;
+    }
+  }
+  else {
+    local_30 = fVar4 * DAT_1801189cc;
+    local_2c = fVar7 + local_30;
+    *(float *)pVVar1 = local_30;
+  }
+  fVar7 = *(float *)(this + 0x458);
+  fVar4 = fVar6 - fVar7;
+  if (fVar6 <= fVar7) {
+    if (*(float *)(this + 0x444) <= fVar4 && fVar4 != *(float *)(this + 0x444)) {
+      *(float *)(this + 0x444) = fVar4;
+    }
+    if (0.0 < *(float *)(this + 0x444)) {
+      *(undefined4 *)(this + 0x444) = 0;
+    }
+  }
+  else {
+    local_38 = fVar4 * fVar5;
+    local_34 = fVar7 + local_38;
+    *(float *)(this + 0x444) = local_38;
+  }
+  CEGUI::Window::setRect(*(Window **)(this + 0x418),0,(Rect *)&local_38);
+  local_res8 = local_2c - local_30;
+  local_resc = local_34 - local_38;
+  (**(code **)(**(longlong **)(this + 0x418) + 0x50))(*(longlong **)(this + 0x418),0,&local_res8);
+  CEGUI::Window::setPosition(*(Window **)(this + 0x418),0,pVVar1);
+  CEGUI::Window::setVisible(*(Window **)(this + 0x418),true);
+  UpdateBackgroundItem(this);
+  CEGUI::Window::requestRedraw((Window *)this,false);
+  this[0x411] = (FalagardSceneMap)0x1;
+  return;
+}
+
+// gọi: Rect@4, UpdateBackgroundItem@1800c7650, operator=@5, requestRedraw@19, setPosition@2a6, setRect@2af, setVisible@2a5
+
+######## 0x1800c7650
+
+==== UpdateBackgroundItem @ 0x1800c7650
+
+/* WARNING: Function: __security_check_cookie replaced with injection: security_check_cookie */
+/* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
+/* protected: void __cdecl CEGUI::FalagardSceneMap::UpdateBackgroundItem(void) __ptr64 */
+
+void __thiscall CEGUI::FalagardSceneMap::UpdateBackgroundItem(FalagardSceneMap *this)
+
+{
+  float fVar1;
+  longlong lVar2;
+  float fVar3;
+  uint uVar4;
+  WindowManager *this_00;
+  Window *this_01;
+  int iVar5;
+  uint uVar6;
+  ulonglong uVar7;
+  int iVar8;
+  FalagardSceneMap *pFVar9;
+  ulonglong uVar10;
+  ulonglong uVar11;
+  ulonglong uVar12;
+  float fVar13;
+  float fVar14;
+  float fVar15;
+  float fVar16;
+  undefined1 auStack_198 [32];
+  int local_178;
+  float local_168;
+  float local_164;
+  float local_160;
+  float local_15c;
+  undefined8 local_158;
+  StringBaseT<char> local_150;
+  undefined7 uStack_14f;
+  undefined8 local_140;
+  ulonglong local_138;
+  char local_128 [128];
+  ulonglong local_a8;
+  
+                    /* 0xc7650  1544  ?UpdateBackgroundItem@FalagardSceneMap@CEGUI@@IEAAXXZ */
+  local_158 = 0xfffffffffffffffe;
+  local_a8 = DAT_1801e9900 ^ (ulonglong)auStack_198;
+  fVar13 = *(float *)(this + 0x448);
+  uVar6 = (int)fVar13 >> 0x1f & 0x3f;
+  uVar4 = (int)fVar13 + uVar6;
+  iVar8 = (int)uVar4 >> 6;
+  fVar16 = (float)(int)((uVar4 & 0x3f) - uVar6) * _DAT_180141e1c;
+  fVar14 = *(float *)(this + 0x44c);
+  uVar6 = (int)fVar14 >> 0x1f & 0x3f;
+  uVar4 = (int)fVar14 + uVar6;
+  iVar5 = (int)uVar4 >> 6;
+  fVar15 = (float)(int)((uVar4 & 0x3f) - uVar6) * _DAT_180141e1c;
+  *(int *)(this + 0x420) = iVar8;
+  *(int *)(this + 0x424) = iVar5;
+  fVar3 = DAT_18011787c;
+  fVar1 = DAT_18011787c;
+  if (fVar16 != 0.0) {
+    *(int *)(this + 0x420) = iVar8 + 1;
+    fVar1 = fVar16;
+  }
+  fVar16 = fVar3;
+  if (fVar15 != 0.0) {
+    *(int *)(this + 0x424) = iVar5 + 1;
+    fVar16 = fVar15;
+  }
+  iVar5 = *(int *)(this + 0x468);
+  if ((iVar5 == 0) && (this[0x450] != (FalagardSceneMap)0x0)) {
+    if (fVar13 <= fVar14) {
+      fVar13 = fVar14;
+    }
+    fVar14 = ((*(float *)(this + 0x110) * (*(float *)(this + 0x114) / *(float *)(this + 0x110))) /
+             (fVar13 * DAT_1801319c0)) * DAT_18013a820;
+    fVar15 = (*(float *)(this + 0x114) / (fVar13 * DAT_1801319c0)) * DAT_18013a820;
+  }
+  else {
+    fVar13 = DAT_180141e34;
+    if ((iVar5 == 1) ||
+       ((fVar13 = DAT_180141e40, iVar5 == 3 ||
+        (fVar13 = DAT_180141e38, fVar14 = DAT_18013a820, fVar15 = DAT_18013a820, iVar5 == 4)))) {
+      fVar14 = fVar13;
+      fVar15 = fVar13;
+    }
+  }
+  fVar13 = floorf(fVar14 + DAT_1801189cc);
+  fVar14 = floorf(fVar15 + DAT_1801189cc);
+  local_168 = 0.0;
+  uVar11 = 0;
+  uVar12 = uVar11;
+  if (0 < *(int *)(this + 0x420)) {
+    do {
+      local_164 = 0.0;
+      local_160 = fVar13;
+      if (((int)uVar12 == *(int *)(this + 0x420) + -1) && (fVar1 != fVar3)) {
+        local_160 = fVar13 * fVar1;
+      }
+      uVar7 = uVar11;
+      if (0 < *(int *)(this + 0x424)) {
+        do {
+          iVar5 = (int)uVar7;
+          local_15c = fVar14;
+          if ((iVar5 == *(int *)(this + 0x424) + -1) && (fVar16 != fVar3)) {
+            local_15c = fVar14 * fVar16;
+          }
+          if (*(ulonglong *)(this + 0x290) < 0x10) {
+            pFVar9 = this + 0x278;
+          }
+          else {
+            pFVar9 = *(FalagardSceneMap **)(this + 0x278);
+          }
+          local_178 = iVar5;
+          sprintf(local_128,"%s_map_%d_%d",pFVar9,uVar12);
+          local_138 = 0xf;
+          local_140 = 0;
+          local_150 = (StringBaseT<char>)0x0;
+          uVar7 = uVar11;
+          if (local_128[0] != '\0') {
+            uVar10 = 0xffffffffffffffff;
+            do {
+              lVar2 = uVar10 + 1;
+              uVar7 = uVar10 + 1;
+              uVar10 = uVar10 + 1;
+            } while (local_128[lVar2] != '\0');
+          }
+          FUN_180002450(&local_150,local_128,uVar7);
+          this_00 = CEGUI::WindowManager::getSingleton();
+          this_01 = CEGUI::WindowManager::getWindow(this_00,&local_150);
+          if (0xf < local_138) {
+            operator_delete((void *)CONCAT71(uStack_14f,local_150));
+          }
+          local_138 = 0xf;
+          local_140 = 0;
+          local_150 = (StringBaseT<char>)0x0;
+          if (this_01 != (Window *)0x0) {
+            CEGUI::Window::setPosition(this_01,1,(Vector2 *)&local_168);
+            (**(code **)(*(longlong *)this_01 + 0x50))(this_01,1,&local_160);
+          }
+          local_164 = local_164 + local_15c;
+          uVar7 = (ulonglong)(iVar5 + 1U);
+        } while ((int)(iVar5 + 1U) < *(int *)(this + 0x424));
+      }
+      local_168 = local_168 + local_160;
+      uVar4 = (int)uVar12 + 1;
+      uVar12 = (ulonglong)uVar4;
+    } while ((int)uVar4 < *(int *)(this + 0x420));
+  }
+  return;
+}
+
+// gọi: FUN_180002450@180002450, __security_check_cookie@1800edfa0, floorf@1800ee0f8, getSingleton@96, getWindow@97, operator_delete@1800ed89a, setPosition@2a6, sprintf@3b3
+
+######## 0x1800c70f0
+
+==== SetViewByCenter @ 0x1800c70f0
+
+/* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
+/* protected: void __cdecl CEGUI::FalagardSceneMap::SetViewByCenter(class CEGUI::Vector2 const &
+   __ptr64) __ptr64 */
+
+void __thiscall CEGUI::FalagardSceneMap::SetViewByCenter(FalagardSceneMap *this,Vector2 *param_1)
+
+{
+  longlong lVar1;
+  float fVar2;
+  float fVar3;
+  float fVar4;
+  
+                    /* 0xc70f0  1527  ?SetViewByCenter@FalagardSceneMap@CEGUI@@IEAAXAEBVVector2@2@@Z
+                        */
+  lVar1 = *(longlong *)(this + 0x418);
+  if ((lVar1 != 0) && (this[0x660] == (FalagardSceneMap)0x0)) {
+    fVar3 = *(float *)(this + 0x110) / *(float *)(lVar1 + 0x110);
+    fVar4 = *(float *)(this + 0x114) / *(float *)(lVar1 + 0x114);
+    fVar2 = fVar4 * DAT_1801189cc;
+    *(uint *)(this + 0x440) =
+         (uint)((*(float *)param_1 - fVar3 * DAT_1801189cc) / fVar3) ^ _DAT_1801189d0;
+    *(uint *)(this + 0x444) = (uint)((*(float *)(param_1 + 4) - fVar2) / fVar4) ^ _DAT_1801189d0;
+    UpdateAllWindow(this);
+    return;
+  }
+  return;
+}
+
+// gọi: UpdateAllWindow@1800c73b0
+
+######## 0x1800c7a30
+
+==== UpdateViewRect @ 0x1800c7a30
+
+/* protected: void __cdecl CEGUI::FalagardSceneMap::UpdateViewRect(void) __ptr64 */
+
+void __thiscall CEGUI::FalagardSceneMap::UpdateViewRect(FalagardSceneMap *this)
+
+{
+                    /* 0xc7a30  1545  ?UpdateViewRect@FalagardSceneMap@CEGUI@@IEAAXXZ */
+  if ((this[0x410] != (FalagardSceneMap)0x0) || (0 < *(int *)(this + 0x46c))) {
+    SetViewByCenter(this,(Vector2 *)(this + 0x408));
+    this[0x410] = (FalagardSceneMap)0x0;
+  }
+  return;
+}
+
+// gọi: SetViewByCenter@1800c70f0
+
+######## 0x1800c6b00
+
+==== ScenePosToWindowPos @ 0x1800c6b00
+
+/* protected: class CEGUI::Vector2 __cdecl CEGUI::FalagardSceneMap::ScenePosToWindowPos(class
+   CEGUI::Vector2 const & __ptr64) __ptr64 */
+
+Vector2 * __thiscall
+CEGUI::FalagardSceneMap::ScenePosToWindowPos(FalagardSceneMap *this,Vector2 *param_1)
+
+{
+  float fVar1;
+  float fVar2;
+  float *in_R8;
+  
+                    /* 0xc6b00  1278
+                       ?ScenePosToWindowPos@FalagardSceneMap@CEGUI@@IEAA?AVVector2@2@AEBV32@@Z */
+  fVar1 = in_R8[1];
+  fVar2 = *(float *)(this + 0x44c);
+  *(float *)param_1 = *in_R8 / *(float *)(this + 0x448);
+  *(float *)(param_1 + 4) = fVar1 / fVar2;
+  return param_1;
+}
+
+// gọi: 
+
+######## 0x1800c6b30
+
+==== ScreenPosToScenePos @ 0x1800c6b30
+
+/* protected: class CEGUI::Vector2 __cdecl CEGUI::FalagardSceneMap::ScreenPosToScenePos(class
+   CEGUI::Vector2 const & __ptr64) __ptr64 */
+
+Vector2 * __thiscall
+CEGUI::FalagardSceneMap::ScreenPosToScenePos(FalagardSceneMap *this,Vector2 *param_1)
+
+{
+  float fVar1;
+  float fVar2;
+  longlong lVar3;
+  float *pfVar4;
+  longlong lVar5;
+  float *in_R8;
+  float fVar6;
+  undefined1 local_38 [48];
+  
+                    /* 0xc6b30  1279
+                       ?ScreenPosToScenePos@FalagardSceneMap@CEGUI@@IEAA?AVVector2@2@AEBV32@@Z */
+  lVar3 = (**(code **)(*(longlong *)this + 0x20))(this,local_38);
+  fVar1 = *(float *)(lVar3 + 0xc);
+  fVar2 = *(float *)(lVar3 + 8);
+  pfVar4 = (float *)(**(code **)(*(longlong *)this + 0x20))(this,local_38);
+  fVar6 = pfVar4[1] - *pfVar4;
+  if (this[0x660] == (FalagardSceneMap)0x0) {
+    lVar5 = (**(code **)(*(longlong *)this + 0x20))(this,local_38);
+    lVar3 = *(longlong *)this;
+    *(float *)param_1 =
+         (*in_R8 - *(float *)(lVar5 + 8)) / (fVar1 - fVar2) - *(float *)(this + 0x440);
+    pfVar4 = (float *)(**(code **)(lVar3 + 0x20))(this,local_38);
+  }
+  else {
+    fVar1 = *(float *)(this + 0x110);
+    fVar6 = *(float *)(this + 0x114);
+    lVar3 = CEGUI::Window::getUnclippedPixelRect((Window *)this);
+    *(float *)param_1 = (*in_R8 - *(float *)(lVar3 + 8)) / fVar1 - *(float *)(this + 0x440);
+    pfVar4 = (float *)CEGUI::Window::getUnclippedPixelRect((Window *)this);
+  }
+  fVar1 = *(float *)(this + 0x44c);
+  *(float *)(param_1 + 4) = (in_R8[1] - *pfVar4) / fVar6 - *(float *)(this + 0x444);
+  fVar2 = *(float *)(this + 0x448);
+  *(float *)(param_1 + 4) = fVar1 * *(float *)(param_1 + 4);
+  *(float *)param_1 = fVar2 * *(float *)param_1;
+  return param_1;
+}
+
+// gọi: getUnclippedPixelRect@109
+
+######## 0x1800c6c60
+
+==== ScreenPosToScenePosRelative @ 0x1800c6c60
+
+/* protected: class CEGUI::Vector2 __cdecl
+   CEGUI::FalagardSceneMap::ScreenPosToScenePosRelative(class CEGUI::Vector2 const & __ptr64)
+   __ptr64 */
+
+Vector2 * __thiscall
+CEGUI::FalagardSceneMap::ScreenPosToScenePosRelative(FalagardSceneMap *this,Vector2 *param_1)
+
+{
+  float fVar1;
+  float fVar2;
+  float fVar3;
+  float fVar4;
+  longlong lVar5;
+  float *pfVar6;
+  longlong lVar7;
+  float *in_R8;
+  undefined1 local_38 [48];
+  
+                    /* 0xc6c60  1280
+                       ?ScreenPosToScenePosRelative@FalagardSceneMap@CEGUI@@IEAA?AVVector2@2@AEBV32@@Z
+                        */
+  lVar5 = (**(code **)(*(longlong *)this + 0x20))(this,local_38);
+  fVar1 = *(float *)(lVar5 + 0xc);
+  fVar2 = *(float *)(lVar5 + 8);
+  pfVar6 = (float *)(**(code **)(*(longlong *)this + 0x20))(this,local_38);
+  fVar3 = pfVar6[1];
+  fVar4 = *pfVar6;
+  lVar7 = (**(code **)(*(longlong *)this + 0x20))(this,local_38);
+  lVar5 = *(longlong *)this;
+  *(float *)param_1 = (*in_R8 - *(float *)(lVar7 + 8)) / (fVar1 - fVar2) - *(float *)(this + 0x440);
+  pfVar6 = (float *)(**(code **)(lVar5 + 0x20))(this,local_38);
+  *(float *)(param_1 + 4) = (in_R8[1] - *pfVar6) / (fVar3 - fVar4) - *(float *)(this + 0x444);
+  return param_1;
+}
+
+// gọi: 
+
+######## 0x1800c6d20
+
+==== ScreenPosToWindowPosRelative @ 0x1800c6d20
+
+/* protected: class CEGUI::Vector2 __cdecl
+   CEGUI::FalagardSceneMap::ScreenPosToWindowPosRelative(class CEGUI::Vector2 const & __ptr64)
+   __ptr64 */
+
+Vector2 * __thiscall
+CEGUI::FalagardSceneMap::ScreenPosToWindowPosRelative(FalagardSceneMap *this,Vector2 *param_1)
+
+{
+  float fVar1;
+  float fVar2;
+  float fVar3;
+  float fVar4;
+  longlong lVar5;
+  float *pfVar6;
+  longlong lVar7;
+  float *in_R8;
+  undefined1 local_38 [48];
+  
+                    /* 0xc6d20  1281
+                       ?ScreenPosToWindowPosRelative@FalagardSceneMap@CEGUI@@IEAA?AVVector2@2@AEBV32@@Z
+                        */
+  lVar5 = (**(code **)(*(longlong *)this + 0x20))(this,local_38);
+  fVar1 = *(float *)(lVar5 + 0xc);
+  fVar2 = *(float *)(lVar5 + 8);
+  pfVar6 = (float *)(**(code **)(*(longlong *)this + 0x20))(this,local_38);
+  fVar3 = pfVar6[1];
+  fVar4 = *pfVar6;
+  lVar7 = (**(code **)(*(longlong *)this + 0x20))(this,local_38);
+  lVar5 = *(longlong *)this;
+  *(float *)param_1 = (*in_R8 - *(float *)(lVar7 + 8)) / (fVar1 - fVar2);
+  pfVar6 = (float *)(**(code **)(lVar5 + 0x20))(this,local_38);
+  *(float *)(param_1 + 4) = (in_R8[1] - *pfVar6) / (fVar3 - fVar4);
+  return param_1;
+}
+
+// gọi: 
+
+######## 0x180033e30
+
+==== DoScroll @ 0x180033e30
+
+/* public: virtual void __cdecl CEGUI::FalagardSceneMap::DoScroll(int) __ptr64 */
+
+void __thiscall CEGUI::FalagardSceneMap::DoScroll(FalagardSceneMap *this,int param_1)
+
+{
+                    /* 0x33e30  1067  ?DoScroll@FalagardSceneMap@CEGUI@@UEAAXH@Z */
+  *(int *)(this + 0x6c) = param_1;
+  return;
+}
+
+// gọi: 
+
+######## 0x1800c6dd0
+
+==== ScrollDown @ 0x1800c6dd0
+
+/* protected: void __cdecl CEGUI::FalagardSceneMap::ScrollDown(void) __ptr64 */
+
+void __thiscall CEGUI::FalagardSceneMap::ScrollDown(FalagardSceneMap *this)
+
+{
+                    /* 0xc6dd0  1282  ?ScrollDown@FalagardSceneMap@CEGUI@@IEAAXXZ */
+  if (this[0x660] == (FalagardSceneMap)0x0) {
+    *(float *)(this + 0x444) = *(float *)(this + 0x444) - DAT_18012fe04;
+    UpdateAllWindow(this);
+    return;
+  }
+  return;
+}
+
+// gọi: UpdateAllWindow@1800c73b0
+
+######## 0x1800c6e90
+
+==== SetBaseOffset @ 0x1800c6e90
+
+/* public: virtual void __cdecl CEGUI::FalagardSceneMap::SetBaseOffset(class CEGUI::Vector2 const &
+   __ptr64) __ptr64 */
+
+void __thiscall CEGUI::FalagardSceneMap::SetBaseOffset(FalagardSceneMap *this,Vector2 *param_1)
+
+{
+  float fVar1;
+  float fVar2;
+  float fVar3;
+  
+  fVar3 = DAT_18013059c;
+  fVar2 = DAT_18011787c;
+                    /* 0xc6e90  1408  ?SetBaseOffset@FalagardSceneMap@CEGUI@@UEAAXAEBVVector2@2@@Z
+                        */
+  fVar1 = *(float *)param_1;
+  if ((DAT_18013059c <= fVar1) && (fVar1 < DAT_18011787c)) {
+    *(float *)(this + 0x40) = fVar1;
+  }
+  fVar1 = *(float *)(param_1 + 4);
+  if ((fVar3 <= fVar1) && (fVar1 < fVar2)) {
+    *(float *)(this + 0x44) = fVar1;
+  }
+  return;
+}
+
+// gọi: 
+
+######## 0x1800c6ef0
+
+==== SetFixMode @ 0x1800c6ef0
+
+/* public: virtual void __cdecl CEGUI::FalagardSceneMap::SetFixMode(bool,float,float) __ptr64 */
+
+void __thiscall
+CEGUI::FalagardSceneMap::SetFixMode(FalagardSceneMap *this,bool param_1,float param_2,float param_3)
+
+{
+                    /* 0xc6ef0  1462  ?SetFixMode@FalagardSceneMap@CEGUI@@UEAAX_NMM@Z */
+  this[0x260] = (FalagardSceneMap)param_1;
+  if (param_1) {
+    *(float *)(this + 0x40) = param_2;
+    *(float *)(this + 0x44) = param_3;
+  }
+  UpdateAllWindow(this + -0x400);
+  return;
+}
+
+// gọi: UpdateAllWindow@1800c73b0
+
+######## 0x1800ca160
+
+==== setSceneSize @ 0x1800ca160
+
+/* public: virtual void __cdecl CEGUI::FalagardSceneMap::setSceneSize(class CEGUI::Size) __ptr64 */
+
+void __thiscall CEGUI::FalagardSceneMap::setSceneSize(FalagardSceneMap *this,undefined8 *param_2)
+
+{
+  float fVar1;
+  
+  fVar1 = DAT_1801319c0;
+                    /* 0xca160  3060  ?setSceneSize@FalagardSceneMap@CEGUI@@UEAAXVSize@2@@Z */
+  *(undefined8 *)(this + 0x48) = *param_2;
+  if ((*(float *)(this + 0x48) * fVar1 < *(float *)(this + -0x2f0)) &&
+     (*(float *)(this + 0x4c) * fVar1 < *(float *)(this + -0x2ec))) {
+    this[0x50] = (FalagardSceneMap)0x0;
+    return;
+  }
+  this[0x50] = (FalagardSceneMap)0x1;
+  return;
+}
+
+// gọi: 
+
+######## 0x1800ca150
+
+==== setSceneMapCenter @ 0x1800ca150
+
+/* protected: virtual void __cdecl CEGUI::FalagardSceneMap::setSceneMapCenter(void) __ptr64 */
+
+void __thiscall CEGUI::FalagardSceneMap::setSceneMapCenter(FalagardSceneMap *this)
+
+{
+                    /* 0xca150  3059  ?setSceneMapCenter@FalagardSceneMap@CEGUI@@MEAAXXZ */
+  SetViewByCenter(this + -0x400,(Vector2 *)(this + 8));
+  return;
+}
+
+// gọi: SetViewByCenter@1800c70f0
+
+######## 0x1800c9db0
+
+==== setMinimapData @ 0x1800c9db0
+
+/* public: virtual void __cdecl CEGUI::FalagardSceneMap::setMinimapData(int,int,float,float,class
+   CEGUI::String32 & __ptr64) __ptr64 */
+
+void __thiscall
+CEGUI::FalagardSceneMap::setMinimapData
+          (FalagardSceneMap *this,int param_1,int param_2,float param_3,float param_4,
+          String32 *param_5)
+
+{
+  FalagardSceneMap *pFVar1;
+  char cVar2;
+  undefined8 *puVar3;
+  undefined8 *puVar4;
+  undefined8 *puVar5;
+  float fVar6;
+  float fVar7;
+  undefined8 local_res8;
+  float fVar8;
+  float local_90;
+  float local_8c;
+  undefined8 local_88;
+  undefined8 local_78;
+  int local_70;
+  int local_6c;
+  String32 local_68 [40];
+  Window *local_40;
+  
+                    /* 0xc9db0  3027
+                       ?setMinimapData@FalagardSceneMap@CEGUI@@UEAAXHHMMAEAVString32@2@@Z */
+  local_88 = 0xfffffffffffffffe;
+  puVar3 = *(undefined8 **)(this + 0x1f8);
+  cVar2 = *(char *)((longlong)puVar3[1] + 0x19);
+  local_res8 = puVar3;
+  puVar4 = (undefined8 *)puVar3[1];
+  while (cVar2 == '\0') {
+    if (*(int *)((longlong)puVar4 + 0x1c) < param_2) {
+      puVar5 = (undefined8 *)puVar4[2];
+      puVar4 = local_res8;
+    }
+    else {
+      puVar5 = (undefined8 *)*puVar4;
+    }
+    local_res8 = puVar4;
+    puVar4 = puVar5;
+    cVar2 = *(char *)((longlong)puVar5 + 0x19);
+  }
+  if ((local_res8 == puVar3) || (param_2 < *(int *)((longlong)local_res8 + 0x1c))) {
+    local_res8 = puVar3;
+  }
+  if (local_res8 == puVar3) {
+    return;
+  }
+  pFVar1 = this + -0x400;
+  fVar7 = param_3 / *(float *)(this + 0x48);
+  fVar6 = param_4 / *(float *)(this + 0x4c);
+  if (param_1 == 0) {
+LAB_1800c9f3d:
+    local_res8 = (undefined8 *)CONCAT44(fVar6,fVar7);
+    setWindowByImage(pFVar1,param_2,&local_res8,param_5);
+  }
+  else {
+    fVar8 = fVar7;
+    if (param_1 == 1) {
+      local_res8 = (undefined8 *)CONCAT44(fVar6,fVar7);
+      setWindowByFlashAnimate(pFVar1,param_2,&local_res8,param_5,fVar7);
+      local_res8 = (undefined8 *)CONCAT44(fVar6,fVar7);
+      setWindowByImage(pFVar1,param_2,&local_res8,param_5);
+    }
+    else if (param_1 != 2) {
+      if (param_1 != 3) {
+        return;
+      }
+      local_res8 = (undefined8 *)CONCAT44(fVar6,fVar7);
+      setWindowByFlashAnimate(pFVar1,param_2,&local_res8,param_5,fVar7);
+      goto LAB_1800c9f3d;
+    }
+    CEGUI::String32::String32(local_68);
+    local_78 = CONCAT44(fVar6,fVar8);
+    local_70 = param_2;
+    CEGUI::String32::operator=(local_68,param_5);
+    local_90 = fVar7;
+    local_8c = fVar6;
+    local_6c = param_1;
+    local_40 = setWindowByAnimate(pFVar1,param_2,&local_90,param_5);
+    FUN_1800c9c70(this + 0xb0,&local_78);
+    CEGUI::String32::~String32(local_68);
+  }
+  return;
+}
+
+// gọi: FUN_1800c9c70@1800c9c70, String32@ce, operator=@d1, setWindowByAnimate@1800ca2b0, setWindowByFlashAnimate@1800ca610, setWindowByImage@1800ca7f0, ~String32@cf
+
+######## 0x1800cac80
+
+==== updateSelf @ 0x1800cac80
+
+/* public: virtual void __cdecl CEGUI::FalagardSceneMap::updateSelf(float) __ptr64 */
+
+void __thiscall CEGUI::FalagardSceneMap::updateSelf(FalagardSceneMap *this,float param_1)
+
+{
+  bool bVar1;
+  int iVar2;
+  float fVar3;
+  
+                    /* 0xcac80  3223  ?updateSelf@FalagardSceneMap@CEGUI@@UEAAXM@Z */
+  if (this[0x638] == (FalagardSceneMap)0x0) {
+    *(undefined8 *)(this + 0x428) = *(undefined8 *)(this + 0x438);
+  }
+  bVar1 = CEGUI::Window::isVisible((Window *)this,false);
+  if (bVar1) {
+    iVar2 = *(int *)(this + 0x46c);
+    if (0 < iVar2) {
+      if (iVar2 == 1) {
+        ScrollUp(this);
+      }
+      else if (iVar2 == 2) {
+        ScrollDown(this);
+      }
+      else if (iVar2 == 3) {
+        ScrollLeft(this);
+      }
+      else if (iVar2 == 4) {
+        ScrollRight(this);
+      }
+    }
+    iVar2 = 0;
+    if ((this[0x639] != (FalagardSceneMap)0x0) || (this[0x63a] != (FalagardSceneMap)0x0)) {
+      if ((this[0x45c] == (FalagardSceneMap)0x0) && (*(int *)(this + 0x46c) < 1)) {
+        if (*(float *)(this + 0x608) <= 0.0) {
+          UpdateViewRect(this);
+        }
+        else if ((this[0x639] != (FalagardSceneMap)0x0) &&
+                (fVar3 = *(float *)(this + 0x608) - param_1, *(float *)(this + 0x608) = fVar3,
+                fVar3 < 0.0)) {
+          *(undefined4 *)(this + 0x608) = 0;
+          UpdateViewRect(this);
+          this[0x411] = (FalagardSceneMap)0x1;
+        }
+      }
+      else {
+        *(undefined4 *)(this + 0x608) = 0x40a00000;
+        this[0x411] = (FalagardSceneMap)0x1;
+      }
+    }
+    if (this[0x411] != (FalagardSceneMap)0x0) {
+      if (0 < *(int *)(this + 0x4d0)) {
+        do {
+          updateWindowByAnimate
+                    (this,(Data_Save *)((longlong)iVar2 * 0x40 + *(longlong *)(this + 0x4b0)));
+          iVar2 = iVar2 + 1;
+        } while (iVar2 < *(int *)(this + 0x4d0));
+      }
+      this[0x411] = (FalagardSceneMap)0x0;
+    }
+  }
+  return;
+}
+
+// gọi: ScrollDown@1800c6dd0, ScrollLeft@1800c6e00, ScrollRight@1800c6e30, ScrollUp@1800c6e60, UpdateViewRect@1800c7a30, isVisible@14, updateWindowByAnimate@1800cadd0
+
+######## 0x1800c9db0
+
+==== setMinimapData @ 0x1800c9db0
+
+/* public: virtual void __cdecl CEGUI::FalagardSceneMap::setMinimapData(int,int,float,float,class
+   CEGUI::String32 & __ptr64) __ptr64 */
+
+void __thiscall
+CEGUI::FalagardSceneMap::setMinimapData
+          (FalagardSceneMap *this,int param_1,int param_2,float param_3,float param_4,
+          String32 *param_5)
+
+{
+  FalagardSceneMap *pFVar1;
+  char cVar2;
+  undefined8 *puVar3;
+  undefined8 *puVar4;
+  undefined8 *puVar5;
+  float fVar6;
+  float fVar7;
+  undefined8 local_res8;
+  float fVar8;
+  float local_90;
+  float local_8c;
+  undefined8 local_88;
+  undefined8 local_78;
+  int local_70;
+  int local_6c;
+  String32 local_68 [40];
+  Window *local_40;
+  
+                    /* 0xc9db0  3027
+                       ?setMinimapData@FalagardSceneMap@CEGUI@@UEAAXHHMMAEAVString32@2@@Z */
+  local_88 = 0xfffffffffffffffe;
+  puVar3 = *(undefined8 **)(this + 0x1f8);
+  cVar2 = *(char *)((longlong)puVar3[1] + 0x19);
+  local_res8 = puVar3;
+  puVar4 = (undefined8 *)puVar3[1];
+  while (cVar2 == '\0') {
+    if (*(int *)((longlong)puVar4 + 0x1c) < param_2) {
+      puVar5 = (undefined8 *)puVar4[2];
+      puVar4 = local_res8;
+    }
+    else {
+      puVar5 = (undefined8 *)*puVar4;
+    }
+    local_res8 = puVar4;
+    puVar4 = puVar5;
+    cVar2 = *(char *)((longlong)puVar5 + 0x19);
+  }
+  if ((local_res8 == puVar3) || (param_2 < *(int *)((longlong)local_res8 + 0x1c))) {
+    local_res8 = puVar3;
+  }
+  if (local_res8 == puVar3) {
+    return;
+  }
+  pFVar1 = this + -0x400;
+  fVar7 = param_3 / *(float *)(this + 0x48);
+  fVar6 = param_4 / *(float *)(this + 0x4c);
+  if (param_1 == 0) {
+LAB_1800c9f3d:
+    local_res8 = (undefined8 *)CONCAT44(fVar6,fVar7);
+    setWindowByImage(pFVar1,param_2,&local_res8,param_5);
+  }
+  else {
+    fVar8 = fVar7;
+    if (param_1 == 1) {
+      local_res8 = (undefined8 *)CONCAT44(fVar6,fVar7);
+      setWindowByFlashAnimate(pFVar1,param_2,&local_res8,param_5,fVar7);
+      local_res8 = (undefined8 *)CONCAT44(fVar6,fVar7);
+      setWindowByImage(pFVar1,param_2,&local_res8,param_5);
+    }
+    else if (param_1 != 2) {
+      if (param_1 != 3) {
+        return;
+      }
+      local_res8 = (undefined8 *)CONCAT44(fVar6,fVar7);
+      setWindowByFlashAnimate(pFVar1,param_2,&local_res8,param_5,fVar7);
+      goto LAB_1800c9f3d;
+    }
+    CEGUI::String32::String32(local_68);
+    local_78 = CONCAT44(fVar6,fVar8);
+    local_70 = param_2;
+    CEGUI::String32::operator=(local_68,param_5);
+    local_90 = fVar7;
+    local_8c = fVar6;
+    local_6c = param_1;
+    local_40 = setWindowByAnimate(pFVar1,param_2,&local_90,param_5);
+    FUN_1800c9c70(this + 0xb0,&local_78);
+    CEGUI::String32::~String32(local_68);
+  }
+  return;
+}
+
+// gọi: FUN_1800c9c70@1800c9c70, String32@ce, operator=@d1, setWindowByAnimate@1800ca2b0, setWindowByFlashAnimate@1800ca610, setWindowByImage@1800ca7f0, ~String32@cf
+
+######## 0x1800c99e0
+
+==== onMouseMove @ 0x1800c99e0
+
+/* protected: virtual void __cdecl CEGUI::FalagardSceneMap::onMouseMove(class CEGUI::MouseEventArgs
+   & __ptr64) __ptr64 */
+
+void __thiscall CEGUI::FalagardSceneMap::onMouseMove(FalagardSceneMap *this,MouseEventArgs *param_1)
+
+{
+  longlong *plVar1;
+  longlong *plVar2;
+  bool bVar3;
+  char cVar4;
+  undefined8 *puVar5;
+  longlong lVar6;
+  Tooltip *pTVar7;
+  longlong *plVar8;
+  float fVar9;
+  float fVar10;
+  float local_res8;
+  float local_resc;
+  
+                    /* 0xc99e0  2724
+                       ?onMouseMove@FalagardSceneMap@CEGUI@@MEAAXAEAVMouseEventArgs@2@@Z */
+  *(undefined8 *)(this + 0x430) = *(undefined8 *)(param_1 + 0x18);
+  if (this[0x45c] == (FalagardSceneMap)0x0) {
+    puVar5 = (undefined8 *)ScreenPosToScenePos(this,(Vector2 *)&local_res8);
+    *(undefined8 *)(this + 0x428) = *puVar5;
+    fVar10 = *(float *)(this + 0x428) / *(float *)(this + 0x454);
+    fVar9 = *(float *)(this + 0x42c) / *(float *)(this + 0x458);
+    *(float *)(this + 0x428) = fVar10;
+    *(float *)(this + 0x42c) = fVar9;
+    if (fVar10 < 0.0) {
+      return;
+    }
+    if (*(float *)(this + 0x448) <= fVar10 && fVar10 != *(float *)(this + 0x448)) {
+      return;
+    }
+    if (fVar9 < 0.0) {
+      return;
+    }
+    if (*(float *)(this + 0x44c) <= fVar9 && fVar9 != *(float *)(this + 0x44c)) {
+      return;
+    }
+  }
+  else {
+    ScreenPosToWindowPosRelative(this,(Vector2 *)&local_res8);
+    *(float *)(this + 0x440) = local_res8 - *(float *)(this + 0x460);
+    *(float *)(this + 0x444) = local_resc - *(float *)(this + 0x464);
+    UpdateAllWindow(this);
+  }
+  CEGUI::Window::onMouseMove((Window *)this,param_1);
+  if (*(longlong *)(this + 0x418) != 0) {
+    plVar2 = *(longlong **)(*(longlong *)(this + 0x418) + 0x40);
+    CEGUI::String32::clear((String32 *)(this + 0x610));
+    plVar8 = *(longlong **)(*(longlong *)(this + 0x418) + 0x48);
+    while (plVar8 != plVar2) {
+      plVar1 = plVar8 + -1;
+      plVar8 = plVar8 + -1;
+      bVar3 = CEGUI::Window::isVisible((Window *)*plVar1,false);
+      if ((((bVar3) && (cVar4 = (**(code **)(*(longlong *)*plVar8 + 0x30))(), cVar4 != '\0')) &&
+          ((*(char *)(*plVar8 + 0x90) == '\0' ||
+           (lVar6 = FUN_180093df0(*plVar8 + 0x278,"_Window_Pool",0,0xc), lVar6 != -1)))) &&
+         (*(longlong *)(*plVar8 + 0xc0) != 0)) {
+        if (*(longlong *)(this + 0x610) != 0) {
+          CEGUI::String32::operator+=((String32 *)(this + 0x610),"\n");
+        }
+        CEGUI::String32::operator+=((String32 *)(this + 0x610),(String32 *)(*plVar8 + 0xc0));
+      }
+    }
+    lVar6 = (**(code **)(*(longlong *)this + 0x38))(this);
+    if (lVar6 != 0) {
+      pTVar7 = (Tooltip *)(**(code **)(*(longlong *)this + 0x38))(this);
+      CEGUI::Tooltip::setTargetWindow(pTVar7,(Window *)this);
+      CEGUI::Window::setTooltipText((Window *)this,(String32 *)(this + 0x610));
+      pTVar7 = (Tooltip *)(**(code **)(*(longlong *)this + 0x38))(this);
+      CEGUI::Tooltip::positionSelf(pTVar7);
+    }
+  }
+  return;
+}
+
+// gọi: FUN_180093df0@180093df0, ScreenPosToScenePos@1800c6b30, ScreenPosToWindowPosRelative@1800c6d20, UpdateAllWindow@1800c73b0, clear@33a, isVisible@14, onMouseMove@aa, operator+=@329, operator+=@36b, positionSelf@2e3, setTargetWindow@370, setTooltipText@2b0
+
+######## 0x1800c97a0
+
+==== onMouseButtonDown @ 0x1800c97a0
+
+/* protected: virtual void __cdecl CEGUI::FalagardSceneMap::onMouseButtonDown(class
+   CEGUI::MouseEventArgs & __ptr64) __ptr64 */
+
+void __thiscall
+CEGUI::FalagardSceneMap::onMouseButtonDown(FalagardSceneMap *this,MouseEventArgs *param_1)
+
+{
+  undefined8 *puVar1;
+  ushort uVar2;
+  Vector2 local_res8 [8];
+  
+                    /* 0xc97a0  2666
+                       ?onMouseButtonDown@FalagardSceneMap@CEGUI@@MEAAXAEAVMouseEventArgs@2@@Z */
+  puVar1 = (undefined8 *)ScreenPosToScenePosRelative(this,local_res8);
+  *(undefined8 *)(this + 0x460) = *puVar1;
+  if (*(int *)(param_1 + 0x28) == 1) {
+    if (*(int *)(param_1 + 0x2c) != 0) {
+      uVar2 = GetKeyState(0xa2);
+      if ((uVar2 & 0xff00) != 0) {
+        return;
+      }
+      uVar2 = GetKeyState(0xa3);
+      if ((uVar2 & 0xff00) != 0) {
+        return;
+      }
+    }
+    if (this[0x660] == (FalagardSceneMap)0x0) {
+      this[0x45c] = (FalagardSceneMap)0x1;
+    }
+    param_1[8] = (MouseEventArgs)0x1;
+  }
+  CEGUI::Window::onMouseButtonDown((Window *)this,param_1);
+  return;
+}
+
+// gọi: GetKeyState@3d7, ScreenPosToScenePosRelative@1800c6c60, onMouseButtonDown@a7
+
+######## 0x1800c9830
+
+==== onMouseButtonUp @ 0x1800c9830
+
+/* protected: virtual void __cdecl CEGUI::FalagardSceneMap::onMouseButtonUp(class
+   CEGUI::MouseEventArgs & __ptr64) __ptr64 */
+
+void __thiscall
+CEGUI::FalagardSceneMap::onMouseButtonUp(FalagardSceneMap *this,MouseEventArgs *param_1)
+
+{
+  ushort uVar1;
+  undefined8 uVar2;
+  code *local_20;
+  undefined1 local_18;
+  FalagardSceneMap *local_10;
+  
+                    /* 0xc9830  2679
+                       ?onMouseButtonUp@FalagardSceneMap@CEGUI@@MEAAXAEAVMouseEventArgs@2@@Z */
+  uVar2 = 0xfffffffffffffffe;
+  local_10 = this;
+  if (*(int *)(param_1 + 0x28) == 1) {
+    uVar1 = GetKeyState(0xa2);
+    if ((uVar1 & 0xff00) == 0) {
+      uVar1 = GetKeyState(0xa3);
+      if ((uVar1 & 0xff00) == 0) goto LAB_1800c98b0;
+    }
+    local_18 = 0;
+    local_20 = _vftable__exref;
+    (**(code **)(*(longlong *)(this + 8) + 0x18))
+              (this + 8,&MouseRButtonDownCtrl,&local_20,&EventNamespace);
+  }
+  else {
+LAB_1800c98b0:
+    if (*(int *)(param_1 + 0x28) == 0) {
+      local_18 = 0;
+      local_20 = _vftable__exref;
+      (**(code **)(*(longlong *)(this + 8) + 0x18))
+                (this + 8,&MouseLButtonClick,&local_20,&EventNamespace,uVar2);
+    }
+    else {
+      this[0x45c] = (FalagardSceneMap)0x0;
+      CEGUI::Window::onMouseButtonUp((Window *)this,param_1);
+    }
+  }
+  return;
+}
+
+// gọi: GetKeyState@3d7, onMouseButtonUp@a8
+
+######## 0x1800ca7f0
+
+==== setWindowByImage @ 0x1800ca7f0
+
+/* protected: class CEGUI::Window * __ptr64 __cdecl
+   CEGUI::FalagardSceneMap::setWindowByImage(int,class CEGUI::Vector2,class CEGUI::String32 &
+   __ptr64) __ptr64 */
+
+Window * __thiscall
+CEGUI::FalagardSceneMap::setWindowByImage
+          (FalagardSceneMap *this,int param_1,undefined8 *param_3,undefined8 param_4)
+
+{
+  Image *this_00;
+  Window *this_01;
+  Rect *pRVar1;
+  float local_10;
+  float local_c;
+  
+                    /* 0xca7f0  3116
+                       ?setWindowByImage@FalagardSceneMap@CEGUI@@IEAAPEAVWindow@2@HVVector2@2@AEAVString32@2@@Z
+                        */
+  this_00 = getTypeImage(this,param_1);
+  if ((this_00 != (Image *)0x0) &&
+     ((((*(int *)(this + 0x474) == 1 || (param_1 == 0x1d)) || (param_1 - 0x67U < 2)) ||
+      (param_1 - 0x106U < 8)))) {
+    this_01 = GetFreeWindow(this,0);
+    CEGUI::StaticImage::setImage((StaticImage *)this_01,this_00);
+    *(undefined8 *)(this_01 + 0x2d4) = *param_3;
+    (**(code **)(*(longlong *)this_01 + 0x48))(this_01,param_4);
+    pRVar1 = CEGUI::Image::getSourceTextureArea(this_00);
+    local_c = *(float *)(pRVar1 + 4) - *(float *)pRVar1;
+    local_10 = *(float *)(pRVar1 + 0xc) - *(float *)(pRVar1 + 8);
+    (**(code **)(*(longlong *)this_01 + 0x50))(this_01,1,&local_10);
+    CEGUI::Window::setVisible(this_01,true);
+  }
+  return (Window *)0x0;
+}
+
+// gọi: GetFreeWindow@1800c64e0, getSourceTextureArea@2de, getTypeImage@1800c94d0, setImage@2df, setVisible@2a5
+
+######## 0x1800c64e0
+
+==== GetFreeWindow @ 0x1800c64e0
+
+/* WARNING: Function: __security_check_cookie replaced with injection: security_check_cookie */
+/* protected: class CEGUI::Window * __ptr64 __cdecl CEGUI::FalagardSceneMap::GetFreeWindow(int)
+   __ptr64 */
+
+Window * __thiscall CEGUI::FalagardSceneMap::GetFreeWindow(FalagardSceneMap *this,int param_1)
+
+{
+  bool bVar1;
+  longlong *plVar2;
+  WindowManager *pWVar3;
+  Window *pWVar4;
+  StringBaseT<char> *pSVar5;
+  FalagardSceneMap *pFVar6;
+  Window *pWVar7;
+  undefined1 auStack_288 [32];
+  int local_268;
+  undefined4 local_260;
+  undefined4 local_258;
+  undefined8 local_250;
+  StringBaseT<char> local_248;
+  undefined7 uStack_247;
+  undefined8 local_238;
+  ulonglong local_230;
+  StringBaseT<char> local_228;
+  undefined7 uStack_227;
+  undefined8 local_218;
+  ulonglong local_210;
+  StringBaseT<char> local_208;
+  undefined7 uStack_207;
+  undefined8 local_1f8;
+  ulonglong local_1f0;
+  undefined1 local_1e8;
+  undefined7 uStack_1e7;
+  undefined8 local_1d8;
+  ulonglong local_1d0;
+  undefined1 local_1c8;
+  undefined7 uStack_1c7;
+  undefined8 local_1b8;
+  ulonglong local_1b0;
+  StringBaseT<char> local_1a8;
+  undefined7 uStack_1a7;
+  undefined8 local_198;
+  ulonglong local_190;
+  StringBaseT<char> local_188;
+  undefined7 uStack_187;
+  undefined8 local_178;
+  ulonglong local_170;
+  StringBaseT<char> local_168;
+  undefined7 uStack_167;
+  undefined8 local_158;
+  ulonglong local_150;
+  Window local_148 [272];
+  ulonglong local_38;
+  
+                    /* 0xc64e0  1232  ?GetFreeWindow@FalagardSceneMap@CEGUI@@IEAAPEAVWindow@2@H@Z */
+  local_250 = 0xfffffffffffffffe;
+  local_38 = DAT_1801e9900 ^ (ulonglong)auStack_288;
+  local_258 = *(undefined4 *)(this + (longlong)param_1 * 4 + 0x4c8);
+  pWVar7 = (Window *)0x0;
+  if (param_1 == 0) {
+    pFVar6 = this + 0x480;
+LAB_1800c6560:
+    plVar2 = (longlong *)FUN_1800c4320(pFVar6);
+    pWVar4 = (Window *)*plVar2;
+    if (pWVar4 != (Window *)0x0) goto LAB_1800c6986;
+  }
+  else {
+    if (param_1 == 1) {
+      pFVar6 = this + 0x490;
+      goto LAB_1800c6560;
+    }
+    pWVar4 = pWVar7;
+    if (param_1 == 2) {
+      pFVar6 = this + 0x4a0;
+      goto LAB_1800c6560;
+    }
+  }
+  pFVar6 = this + 0x278;
+  if (0xf < *(ulonglong *)(this + 0x290)) {
+    pFVar6 = *(FalagardSceneMap **)pFVar6;
+  }
+  local_260 = *(undefined4 *)(this + (longlong)param_1 * 4 + 0x4c8);
+  local_268 = param_1;
+  _snprintf((char *)local_148,0x104,"%s_Window_Pool%d_%d",pFVar6);
+  if (param_1 == 0) {
+LAB_1800c6799:
+    local_210 = 0xf;
+    local_218 = 0;
+    local_228 = (StringBaseT<char>)0x0;
+    pWVar4 = pWVar7;
+    if (local_148[0] != (Window)0x0) {
+      pWVar4 = (Window *)0xffffffffffffffff;
+      do {
+        pWVar4 = pWVar4 + 1;
+      } while (local_148[(longlong)pWVar4] != (Window)0x0);
+    }
+    FUN_180002450(&local_228,local_148,pWVar4);
+    pWVar3 = CEGUI::WindowManager::getSingleton();
+    bVar1 = CEGUI::WindowManager::isWindowPresent(pWVar3,&local_228);
+    if (0xf < local_210) {
+      operator_delete((void *)CONCAT71(uStack_227,local_228));
+    }
+    local_210 = 0xf;
+    local_218 = 0;
+    local_228 = (StringBaseT<char>)0x0;
+    if (bVar1) {
+      local_1f0 = 0xf;
+      local_1f8 = 0;
+      local_208 = (StringBaseT<char>)0x0;
+      if (local_148[0] != (Window)0x0) {
+        pWVar7 = (Window *)0xffffffffffffffff;
+        do {
+          pWVar7 = pWVar7 + 1;
+        } while (local_148[(longlong)pWVar7] != (Window)0x0);
+      }
+      FUN_180002450(&local_208,local_148,pWVar7);
+      pWVar3 = CEGUI::WindowManager::getSingleton();
+      pWVar4 = CEGUI::WindowManager::getWindow(pWVar3,&local_208);
+      if (0xf < local_1f0) {
+        operator_delete((void *)CONCAT71(uStack_207,local_208));
+      }
+      local_1f0 = 0xf;
+      local_1f8 = 0;
+      local_208 = (StringBaseT<char>)0x0;
+    }
+    else {
+      local_170 = 0xf;
+      local_178 = 0;
+      local_188 = (StringBaseT<char>)0x0;
+      if (local_148[0] != (Window)0x0) {
+        pWVar7 = (Window *)0xffffffffffffffff;
+        do {
+          pWVar7 = pWVar7 + 1;
+        } while (local_148[(longlong)pWVar7] != (Window)0x0);
+      }
+      FUN_180002450(&local_188,local_148,pWVar7);
+      local_1b0 = 0xf;
+      local_1b8 = 0;
+      local_1c8 = 0;
+      FUN_180002450(&local_1c8,"Image",5);
+      pSVar5 = (StringBaseT<char> *)FUN_180051fa0(this + 0x3f0,&local_1c8);
+      pWVar3 = CEGUI::WindowManager::getSingleton();
+      pWVar4 = CEGUI::WindowManager::createWindow(pWVar3,pSVar5,&local_188);
+      if (0xf < local_1b0) {
+        operator_delete((void *)CONCAT71(uStack_1c7,local_1c8));
+      }
+      local_1b0 = 0xf;
+      local_1b8 = 0;
+      local_1c8 = 0;
+      if (0xf < local_170) {
+        operator_delete((void *)CONCAT71(uStack_187,local_188));
+      }
+      local_170 = 0xf;
+      local_178 = 0;
+      local_188 = (StringBaseT<char>)0x0;
+LAB_1800c6961:
+      CEGUI::Window::addChildWindow(*(Window **)(this + 0x418),pWVar4);
+    }
+  }
+  else if (param_1 == 1) {
+    local_150 = 0xf;
+    local_158 = 0;
+    local_168 = (StringBaseT<char>)0x0;
+    pWVar4 = pWVar7;
+    if (local_148[0] != (Window)0x0) {
+      pWVar4 = (Window *)0xffffffffffffffff;
+      do {
+        pWVar4 = pWVar4 + 1;
+      } while (local_148[(longlong)pWVar4] != (Window)0x0);
+    }
+    FUN_180002450(&local_168,local_148,pWVar4);
+    pWVar3 = CEGUI::WindowManager::getSingleton();
+    bVar1 = CEGUI::WindowManager::isWindowPresent(pWVar3,&local_168);
+    if (0xf < local_150) {
+      operator_delete((void *)CONCAT71(uStack_167,local_168));
+    }
+    local_150 = 0xf;
+    local_158 = 0;
+    local_168 = (StringBaseT<char>)0x0;
+    if (!bVar1) {
+      local_230 = 0xf;
+      local_238 = 0;
+      local_248 = (StringBaseT<char>)0x0;
+      if (local_148[0] != (Window)0x0) {
+        pWVar7 = (Window *)0xffffffffffffffff;
+        do {
+          pWVar7 = pWVar7 + 1;
+        } while (local_148[(longlong)pWVar7] != (Window)0x0);
+      }
+      FUN_180002450(&local_248,local_148,pWVar7);
+      local_1d0 = 0xf;
+      local_1d8 = 0;
+      local_1e8 = 0;
+      FUN_180002450(&local_1e8,"Animate",7);
+      pSVar5 = (StringBaseT<char> *)FUN_180051fa0(this + 0x3f0,&local_1e8);
+      pWVar3 = CEGUI::WindowManager::getSingleton();
+      pWVar4 = CEGUI::WindowManager::createWindow(pWVar3,pSVar5,&local_248);
+      if (0xf < local_1d0) {
+        operator_delete((void *)CONCAT71(uStack_1e7,local_1e8));
+      }
+      local_1d0 = 0xf;
+      local_1d8 = 0;
+      local_1e8 = 0;
+      if (0xf < local_230) {
+        operator_delete((void *)CONCAT71(uStack_247,local_248));
+      }
+      local_230 = 0xf;
+      local_238 = 0;
+      local_248 = (StringBaseT<char>)0x0;
+      goto LAB_1800c6961;
+    }
+    local_190 = 0xf;
+    local_198 = 0;
+    local_1a8 = (StringBaseT<char>)0x0;
+    if (local_148[0] != (Window)0x0) {
+      pWVar7 = (Window *)0xffffffffffffffff;
+      do {
+        pWVar7 = pWVar7 + 1;
+      } while (local_148[(longlong)pWVar7] != (Window)0x0);
+    }
+    FUN_180002450(&local_1a8,local_148,pWVar7);
+    pWVar3 = CEGUI::WindowManager::getSingleton();
+    pWVar4 = CEGUI::WindowManager::getWindow(pWVar3,&local_1a8);
+    if (0xf < local_190) {
+      operator_delete((void *)CONCAT71(uStack_1a7,local_1a8));
+    }
+    local_190 = 0xf;
+    local_198 = 0;
+    local_1a8 = (StringBaseT<char>)0x0;
+  }
+  else if (param_1 == 2) goto LAB_1800c6799;
+  SetPool(this,param_1,*(int *)(this + (longlong)param_1 * 4 + 0x4c8),pWVar4);
+LAB_1800c6986:
+  *(undefined4 *)(pWVar4 + 0x2dc) = 9;
+  *(undefined4 *)(pWVar4 + 0x2d0) = 0;
+  CEGUI::Window::setAlwaysOnTop(pWVar4,false);
+  CEGUI::Window::setMouseHollow(pWVar4,true);
+  CEGUI::Window::setMouseMoveHollow(pWVar4,true);
+  CEGUI::Window::setVisible(pWVar4,true);
+  *(int *)(this + (longlong)param_1 * 4 + 0x4c8) =
+       *(int *)(this + (longlong)param_1 * 4 + 0x4c8) + 1;
+  return pWVar4;
+}
+
+// gọi: FUN_180002450@180002450, FUN_180051fa0@180051fa0, FUN_1800c4320@1800c4320, SetPool@1800c6f30, __security_check_cookie@1800edfa0, _snprintf@3b2, addChildWindow@2ae, createWindow@12b, getSingleton@96, getWindow@97, isWindowPresent@2b2, operator_delete@1800ed89a, setAlwaysOnTop@2a4, setMouseHollow@298, setMouseMoveHollow@299, setVisible@2a5
+
+######## 0x1800ca960
+
+==== updateMyselfDir @ 0x1800ca960
+
+/* WARNING: Function: __security_check_cookie replaced with injection: security_check_cookie */
+/* protected: void __cdecl CEGUI::FalagardSceneMap::updateMyselfDir(int,int) __ptr64 */
+
+void __thiscall
+CEGUI::FalagardSceneMap::updateMyselfDir(FalagardSceneMap *this,int param_1,int param_2)
+
+{
+  int iVar1;
+  uchar *puVar2;
+  AnimateManager *this_00;
+  Animate *this_01;
+  Image *this_02;
+  Rect *pRVar3;
+  int iVar4;
+  longlong lVar5;
+  undefined1 auStack_a8 [32];
+  float local_88;
+  float local_84;
+  undefined4 local_80;
+  undefined4 local_7c;
+  undefined8 local_78;
+  longlong local_70 [5];
+  StringBaseT<char> local_48;
+  undefined7 uStack_47;
+  undefined8 local_38;
+  ulonglong local_30;
+  ulonglong local_28;
+  
+                    /* 0xca960  3206  ?updateMyselfDir@FalagardSceneMap@CEGUI@@IEAAXHH@Z */
+  local_78 = 0xfffffffffffffffe;
+  local_28 = DAT_1801e9900 ^ (ulonglong)auStack_a8;
+  iVar4 = (int)((ulonglong)((longlong)param_2 * 0x49f49f49) >> 0x20) - param_2;
+  iVar4 = param_2 + ((iVar4 >> 8) - (iVar4 >> 0x1f)) * 0x168;
+  if (iVar4 < 0) {
+    iVar4 = iVar4 + 0x168;
+  }
+  getTypeAnimate(this,(int)local_70);
+  if (local_70[0] != 0) {
+    puVar2 = CEGUI::String32::build_utf8_buff((String32 *)local_70);
+    local_30 = 0xf;
+    local_38 = 0;
+    local_48 = (StringBaseT<char>)0x0;
+    if (*puVar2 == '\0') {
+      lVar5 = 0;
+    }
+    else {
+      lVar5 = -1;
+      do {
+        lVar5 = lVar5 + 1;
+      } while (puVar2[lVar5] != '\0');
+    }
+    FUN_180002450(&local_48,puVar2,lVar5);
+    this_00 = CEGUI::AnimateManager::getSingleton();
+    this_01 = CEGUI::AnimateManager::getAnimate(this_00,&local_48);
+    if (0xf < local_30) {
+      operator_delete((void *)CONCAT71(uStack_47,local_48));
+    }
+    local_30 = 0xf;
+    local_38 = 0;
+    local_48 = (StringBaseT<char>)0x0;
+    if (this_01 != (Animate *)0x0) {
+      iVar1 = CEGUI::Animate::getFrameNumber(this_01);
+      this_02 = CEGUI::Animate::getFrame(this_01,(iVar1 * iVar4) / 0x168);
+      if ((this_02 != (Image *)0x0) && (*(int *)(this + 0x474) == 1)) {
+        pRVar3 = CEGUI::Image::getSourceTextureArea(this_02);
+        local_88 = *(float *)(pRVar3 + 0xc) - *(float *)(pRVar3 + 8);
+        pRVar3 = CEGUI::Image::getSourceTextureArea(this_02);
+        local_84 = *(float *)(pRVar3 + 4) - *(float *)pRVar3;
+        CEGUI::StaticImage::setImage(*(StaticImage **)(this + 0x4e0),this_02);
+        lVar5 = *(longlong *)(this + 0x4e0);
+        *(undefined4 *)(lVar5 + 0x2e0) = 0xbf800000;
+        *(undefined4 *)(lVar5 + 0x2e4) = 0xbf800000;
+        (**(code **)(**(longlong **)(this + 0x4e0) + 0x50))
+                  (*(longlong **)(this + 0x4e0),1,&local_88);
+        lVar5 = *(longlong *)(this + 0x4d8);
+        *(undefined4 *)(lVar5 + 0x2e0) = 0xbf800000;
+        *(undefined4 *)(lVar5 + 0x2e4) = 0xbf800000;
+        local_80 = 0x42800000;
+        local_7c = 0x42800000;
+        (**(code **)(**(longlong **)(this + 0x4d8) + 0x50))
+                  (*(longlong **)(this + 0x4d8),1,&local_80);
+      }
+    }
+  }
+  CEGUI::String32::~String32((String32 *)local_70);
+  return;
+}
+
+// gọi: FUN_180002450@180002450, __security_check_cookie@1800edfa0, build_utf8_buff@179, getAnimate@34, getFrame@2f, getFrameNumber@36f, getSingleton@31, getSourceTextureArea@2de, getTypeAnimate@1800c9370, operator_delete@1800ed89a, setImage@2df, ~String32@cf
+
+######## 0x1800cab80
+
+==== updateMyselfPos @ 0x1800cab80
+
+/* protected: void __cdecl CEGUI::FalagardSceneMap::updateMyselfPos(void) __ptr64 */
+
+void __thiscall CEGUI::FalagardSceneMap::updateMyselfPos(FalagardSceneMap *this)
+
+{
+  Vector2 *pVVar1;
+  undefined8 *puVar2;
+  undefined4 local_res8;
+  undefined4 uStackX_c;
+  
+                    /* 0xcab80  3207  ?updateMyselfPos@FalagardSceneMap@CEGUI@@IEAAXXZ */
+  if (this[0x638] != (FalagardSceneMap)0x0) {
+    puVar2 = (undefined8 *)ScreenPosToScenePos(this,(Vector2 *)&local_res8);
+    *(undefined8 *)(this + 0x428) = *puVar2;
+    *(float *)(this + 0x428) = *(float *)(this + 0x428) / *(float *)(this + 0x454);
+    *(float *)(this + 0x42c) = *(float *)(this + 0x42c) / *(float *)(this + 0x458);
+  }
+  if ((*(longlong *)(this + 0x4e0) != 0) && (*(longlong *)(this + 0x4d8) != 0)) {
+    pVVar1 = (Vector2 *)(this + 0x408);
+    *(undefined8 *)(*(longlong *)(this + 0x4e0) + 0x2d4) = *(undefined8 *)pVVar1;
+    local_res8 = *(undefined4 *)pVVar1;
+    uStackX_c = *(undefined4 *)(this + 0x40c);
+    *(undefined8 *)(*(longlong *)(this + 0x4d8) + 0x2d4) = *(undefined8 *)pVVar1;
+    if ((this[0x63a] != (FalagardSceneMap)0x0) &&
+       ((this[0x410] != (FalagardSceneMap)0x0 || (0 < *(int *)(this + 0x46c))))) {
+      SetViewByCenter(this,pVVar1);
+      this[0x410] = (FalagardSceneMap)0x0;
+    }
+  }
+  return;
+}
+
+// gọi: ScreenPosToScenePos@1800c6b30, SetViewByCenter@1800c70f0
+
+######## 0x1800c6dd0
+
+==== ScrollDown @ 0x1800c6dd0
+
+/* protected: void __cdecl CEGUI::FalagardSceneMap::ScrollDown(void) __ptr64 */
+
+void __thiscall CEGUI::FalagardSceneMap::ScrollDown(FalagardSceneMap *this)
+
+{
+                    /* 0xc6dd0  1282  ?ScrollDown@FalagardSceneMap@CEGUI@@IEAAXXZ */
+  if (this[0x660] == (FalagardSceneMap)0x0) {
+    *(float *)(this + 0x444) = *(float *)(this + 0x444) - DAT_18012fe04;
+    UpdateAllWindow(this);
+    return;
+  }
+  return;
+}
+
+// gọi: UpdateAllWindow@1800c73b0
+
+######## 0x1800c6e00
+
+==== ScrollLeft @ 0x1800c6e00
+
+/* protected: void __cdecl CEGUI::FalagardSceneMap::ScrollLeft(void) __ptr64 */
+
+void __thiscall CEGUI::FalagardSceneMap::ScrollLeft(FalagardSceneMap *this)
+
+{
+                    /* 0xc6e00  1283  ?ScrollLeft@FalagardSceneMap@CEGUI@@IEAAXXZ */
+  if (this[0x660] == (FalagardSceneMap)0x0) {
+    *(float *)(this + 0x440) = *(float *)(this + 0x440) + DAT_18012fe04;
+    UpdateAllWindow(this);
+    return;
+  }
+  return;
+}
+
+// gọi: UpdateAllWindow@1800c73b0
+
+######## 0x1800c6e30
+
+==== ScrollRight @ 0x1800c6e30
+
+/* protected: void __cdecl CEGUI::FalagardSceneMap::ScrollRight(void) __ptr64 */
+
+void __thiscall CEGUI::FalagardSceneMap::ScrollRight(FalagardSceneMap *this)
+
+{
+                    /* 0xc6e30  1284  ?ScrollRight@FalagardSceneMap@CEGUI@@IEAAXXZ */
+  if (this[0x660] == (FalagardSceneMap)0x0) {
+    *(float *)(this + 0x440) = *(float *)(this + 0x440) - DAT_18012fe04;
+    UpdateAllWindow(this);
+    return;
+  }
+  return;
+}
+
+// gọi: UpdateAllWindow@1800c73b0
+
+######## 0x1800c6e60
+
+==== ScrollUp @ 0x1800c6e60
+
+/* protected: void __cdecl CEGUI::FalagardSceneMap::ScrollUp(void) __ptr64 */
+
+void __thiscall CEGUI::FalagardSceneMap::ScrollUp(FalagardSceneMap *this)
+
+{
+                    /* 0xc6e60  1285  ?ScrollUp@FalagardSceneMap@CEGUI@@IEAAXXZ */
+  if (this[0x660] == (FalagardSceneMap)0x0) {
+    *(float *)(this + 0x444) = *(float *)(this + 0x444) + DAT_18012fe04;
+    UpdateAllWindow(this);
+    return;
+  }
+  return;
+}
+
+// gọi: UpdateAllWindow@1800c73b0
+
+######## 0x1800c9c10
+
+==== onParentSized @ 0x1800c9c10
+
+/* protected: virtual void __cdecl CEGUI::FalagardSceneMap::onParentSized(class
+   CEGUI::WindowEventArgs & __ptr64) __ptr64 */
+
+void __thiscall
+CEGUI::FalagardSceneMap::onParentSized(FalagardSceneMap *this,WindowEventArgs *param_1)
+
+{
+                    /* 0xc9c10  2743
+                       ?onParentSized@FalagardSceneMap@CEGUI@@MEAAXAEAVWindowEventArgs@2@@Z */
+  CEGUI::Window::onParentSized((Window *)this,param_1);
+  UpdateAllWindow(this);
+  return;
+}
+
+// gọi: UpdateAllWindow@1800c73b0, onParentSized@70
+
+######## 0x1800c3550
+
+==== FalagardSceneMap @ 0x1800c3550
+
+/* WARNING: Function: __security_check_cookie replaced with injection: security_check_cookie */
+/* public: __cdecl CEGUI::FalagardSceneMap::FalagardSceneMap(class CEGUI::StringBaseT<char> const &
+   __ptr64,class CEGUI::StringBaseT<char> const & __ptr64) __ptr64 */
+
+FalagardSceneMap * __thiscall
+CEGUI::FalagardSceneMap::FalagardSceneMap
+          (FalagardSceneMap *this,StringBaseT<char> *param_1,StringBaseT<char> *param_2)
+
+{
+  bool bVar1;
+  undefined8 uVar2;
+  FalagardSceneMap *pFVar3;
+  FalagardSceneMap *pFVar4;
+  longlong lVar5;
+  int iVar6;
+  int iVar7;
+  undefined1 auStack_78 [32];
+  ulonglong local_58;
+  undefined8 local_50;
+  FalagardSceneMap *local_48;
+  StringBaseT<char> local_40;
+  undefined7 uStack_3f;
+  undefined8 local_30;
+  ulonglong local_28;
+  ulonglong local_20;
+  
+                    /* 0xc3550  238  ??0FalagardSceneMap@CEGUI@@QEAA@AEBV?$StringBaseT@D@1@0@Z */
+  local_50 = 0xfffffffffffffffe;
+  local_20 = DAT_1801e9900 ^ (ulonglong)auStack_78;
+  iVar6 = 0;
+  local_58 = local_58 & 0xffffffff00000000;
+  local_48 = this;
+  IExpProperty::IExpProperty((IExpProperty *)this,param_1,param_2);
+  *(undefined ***)this = vftable_for_CEGUI__PropertyReceiver_;
+  *(undefined ***)(this + 8) = vftable_for_CEGUI__EventSet_;
+  *(undefined ***)(this + 0x400) = vftable;
+  *(undefined8 *)(this + 0x480) = 0;
+  *(undefined8 *)(this + 0x488) = 0;
+  uVar2 = FUN_180034d10(this + 0x480);
+  *(undefined8 *)(this + 0x480) = uVar2;
+  *(undefined8 *)(this + 0x490) = 0;
+  *(undefined8 *)(this + 0x498) = 0;
+  uVar2 = FUN_180034d10(this + 0x490);
+  *(undefined8 *)(this + 0x490) = uVar2;
+  *(undefined8 *)(this + 0x4a0) = 0;
+  *(undefined8 *)(this + 0x4a8) = 0;
+  uVar2 = FUN_180034d10(this + 0x4a0);
+  *(undefined8 *)(this + 0x4a0) = uVar2;
+  *(undefined8 *)(this + 0x4b0) = 0;
+  *(undefined8 *)(this + 0x4b8) = 0;
+  *(undefined8 *)(this + 0x4c0) = 0;
+  *(undefined8 *)(this + 0x508) = 0;
+  *(undefined8 *)(this + 0x510) = 0;
+  uVar2 = FUN_180034db0(this + 0x508);
+  *(undefined8 *)(this + 0x508) = uVar2;
+  *(undefined8 *)(this + 0x518) = 0;
+  *(undefined8 *)(this + 0x520) = 0;
+  uVar2 = FUN_180034db0(this + 0x518);
+  *(undefined8 *)(this + 0x518) = uVar2;
+  *(undefined8 *)(this + 0x528) = 0;
+  *(undefined8 *)(this + 0x530) = 0;
+  uVar2 = FUN_180034cc0(this + 0x528);
+  *(undefined8 *)(this + 0x528) = uVar2;
+  pFVar4 = this + 0x5f8;
+  *(undefined8 *)pFVar4 = 0;
+  *(undefined8 *)(this + 0x600) = 0;
+  uVar2 = FUN_180034e00(pFVar4);
+  *(undefined8 *)pFVar4 = uVar2;
+  CEGUI::String32::String32((String32 *)(this + 0x610));
+  *(undefined8 *)(this + 0x658) = 0xf;
+  *(undefined8 *)(this + 0x650) = 0;
+  this[0x640] = (FalagardSceneMap)0x0;
+  iVar7 = iVar6;
+  if (*(longlong *)(this + 0x2b8) != 0) {
+    local_28 = 0xf;
+    local_30 = 0;
+    local_40 = (StringBaseT<char>)0x0;
+    FUN_180002450(&local_40,"FalagardSceneMap");
+    iVar7 = 1;
+    local_58 = CONCAT44(local_58._4_4_,1);
+    bVar1 = CEGUI::WindowFactory::addStaticProperty(*(WindowFactory **)(this + 0x2b8),&local_40);
+    if (bVar1) {
+      bVar1 = true;
+      goto LAB_1800c3725;
+    }
+  }
+  bVar1 = false;
+LAB_1800c3725:
+  if ((iVar7 != 0) && (0xf < local_28)) {
+    operator_delete((void *)CONCAT71(uStack_3f,local_40));
+  }
+  if (bVar1) {
+    CEGUI::PropertySet::addProperty
+              (*(PropertySet **)(this + 0x2b8),(Property *)&d_IconImageProperty);
+    CEGUI::PropertySet::addProperty
+              (*(PropertySet **)(this + 0x2b8),(Property *)&d_AnimateImageProperty);
+    CEGUI::PropertySet::addProperty
+              (*(PropertySet **)(this + 0x2b8),(Property *)&d_FlashAnimateImageProperty);
+    CEGUI::PropertySet::addProperty(*(PropertySet **)(this + 0x2b8),(Property *)&d_AutoRestProperty)
+    ;
+    CEGUI::PropertySet::addProperty(*(PropertySet **)(this + 0x2b8),(Property *)&d_RoundProperty);
+    CEGUI::PropertySet::addProperty
+              (*(PropertySet **)(this + 0x2b8),(Property *)&d_BlueCircleImageProperty);
+  }
+  *(undefined2 *)(this + 0x410) = 1;
+  *(undefined8 *)(this + 0x420) = 0;
+  this[0x450] = (FalagardSceneMap)0x1;
+  *(undefined8 *)(this + 0x428) = 0;
+  *(undefined8 *)(this + 0x430) = 0;
+  *(undefined8 *)(this + 0x448) = 0x4300000043000000;
+  *(undefined8 *)(this + 0x418) = 0;
+  local_58 = 0;
+  *(undefined8 *)(this + 0x440) = 0;
+  *(undefined4 *)(this + 0x454) = 0x3f800000;
+  *(undefined4 *)(this + 0x458) = 0x3f800000;
+  this[0x45c] = (FalagardSceneMap)0x0;
+  *(undefined8 *)(this + 0x468) = 1;
+  *(undefined4 *)(this + 0x474) = 1;
+  CEGUI::Window::setMouseHollow((Window *)this,true);
+  *(undefined2 *)(this + 0x638) = 0x100;
+  pFVar4 = this + 0x4c8;
+  do {
+    *(undefined4 *)pFVar4 = 0;
+    ClearPool(this,iVar6,false);
+    iVar6 = iVar6 + 1;
+    pFVar4 = pFVar4 + 4;
+  } while (iVar6 < 4);
+  this[0x470] = (FalagardSceneMap)0x0;
+  this[0x660] = (FalagardSceneMap)0x0;
+  this[0x478] = (FalagardSceneMap)0x0;
+  *(undefined8 *)(this + 0x500) = 0;
+  *(undefined8 *)(this + 0x4f8) = 0;
+  *(undefined8 *)(this + 0x4f0) = 0;
+  *(undefined8 *)(this + 0x4e8) = 0;
+  pFVar3 = this + 0x5b8;
+  pFVar4 = this + 0x598;
+  lVar5 = 8;
+  do {
+    *(undefined4 *)(pFVar4 + -0x60) = 0xffffffff;
+    *(undefined8 *)(pFVar3 + -0x60) = 0;
+    *(undefined4 *)pFVar4 = 0xffffffff;
+    *(undefined8 *)pFVar3 = 0;
+    pFVar4 = pFVar4 + 4;
+    pFVar3 = pFVar3 + 8;
+    lVar5 = lVar5 + -1;
+  } while (lVar5 != 0);
+  return this;
+}
+
+// gọi: ClearPool@1800c4b50, FUN_180002450@180002450, FUN_180034cc0@180034cc0, FUN_180034d10@180034d10, FUN_180034db0@180034db0, FUN_180034e00@180034e00, IExpProperty@1800e4f80, String32@ce, __security_check_cookie@1800edfa0, addProperty@3, addStaticProperty@f, operator_delete@1800ed89a, setMouseHollow@298
+
+######## 0x1800c9c10
+
+==== onParentSized @ 0x1800c9c10
+
+/* protected: virtual void __cdecl CEGUI::FalagardSceneMap::onParentSized(class
+   CEGUI::WindowEventArgs & __ptr64) __ptr64 */
+
+void __thiscall
+CEGUI::FalagardSceneMap::onParentSized(FalagardSceneMap *this,WindowEventArgs *param_1)
+
+{
+                    /* 0xc9c10  2743
+                       ?onParentSized@FalagardSceneMap@CEGUI@@MEAAXAEAVWindowEventArgs@2@@Z */
+  CEGUI::Window::onParentSized((Window *)this,param_1);
+  UpdateAllWindow(this);
+  return;
+}
+
+// gọi: UpdateAllWindow@1800c73b0, onParentSized@70
+
+######## 0x1800c97a0
+
+==== onMouseButtonDown @ 0x1800c97a0
+
+/* protected: virtual void __cdecl CEGUI::FalagardSceneMap::onMouseButtonDown(class
+   CEGUI::MouseEventArgs & __ptr64) __ptr64 */
+
+void __thiscall
+CEGUI::FalagardSceneMap::onMouseButtonDown(FalagardSceneMap *this,MouseEventArgs *param_1)
+
+{
+  undefined8 *puVar1;
+  ushort uVar2;
+  Vector2 local_res8 [8];
+  
+                    /* 0xc97a0  2666
+                       ?onMouseButtonDown@FalagardSceneMap@CEGUI@@MEAAXAEAVMouseEventArgs@2@@Z */
+  puVar1 = (undefined8 *)ScreenPosToScenePosRelative(this,local_res8);
+  *(undefined8 *)(this + 0x460) = *puVar1;
+  if (*(int *)(param_1 + 0x28) == 1) {
+    if (*(int *)(param_1 + 0x2c) != 0) {
+      uVar2 = GetKeyState(0xa2);
+      if ((uVar2 & 0xff00) != 0) {
+        return;
+      }
+      uVar2 = GetKeyState(0xa3);
+      if ((uVar2 & 0xff00) != 0) {
+        return;
+      }
+    }
+    if (this[0x660] == (FalagardSceneMap)0x0) {
+      this[0x45c] = (FalagardSceneMap)0x1;
+    }
+    param_1[8] = (MouseEventArgs)0x1;
+  }
+  CEGUI::Window::onMouseButtonDown((Window *)this,param_1);
+  return;
+}
+
+// gọi: GetKeyState@3d7, ScreenPosToScenePosRelative@1800c6c60, onMouseButtonDown@a7
+
+######## 0x1800c99e0
+
+==== onMouseMove @ 0x1800c99e0
+
+/* protected: virtual void __cdecl CEGUI::FalagardSceneMap::onMouseMove(class CEGUI::MouseEventArgs
+   & __ptr64) __ptr64 */
+
+void __thiscall CEGUI::FalagardSceneMap::onMouseMove(FalagardSceneMap *this,MouseEventArgs *param_1)
+
+{
+  longlong *plVar1;
+  longlong *plVar2;
+  bool bVar3;
+  char cVar4;
+  undefined8 *puVar5;
+  longlong lVar6;
+  Tooltip *pTVar7;
+  longlong *plVar8;
+  float fVar9;
+  float fVar10;
+  float local_res8;
+  float local_resc;
+  
+                    /* 0xc99e0  2724
+                       ?onMouseMove@FalagardSceneMap@CEGUI@@MEAAXAEAVMouseEventArgs@2@@Z */
+  *(undefined8 *)(this + 0x430) = *(undefined8 *)(param_1 + 0x18);
+  if (this[0x45c] == (FalagardSceneMap)0x0) {
+    puVar5 = (undefined8 *)ScreenPosToScenePos(this,(Vector2 *)&local_res8);
+    *(undefined8 *)(this + 0x428) = *puVar5;
+    fVar10 = *(float *)(this + 0x428) / *(float *)(this + 0x454);
+    fVar9 = *(float *)(this + 0x42c) / *(float *)(this + 0x458);
+    *(float *)(this + 0x428) = fVar10;
+    *(float *)(this + 0x42c) = fVar9;
+    if (fVar10 < 0.0) {
+      return;
+    }
+    if (*(float *)(this + 0x448) <= fVar10 && fVar10 != *(float *)(this + 0x448)) {
+      return;
+    }
+    if (fVar9 < 0.0) {
+      return;
+    }
+    if (*(float *)(this + 0x44c) <= fVar9 && fVar9 != *(float *)(this + 0x44c)) {
+      return;
+    }
+  }
+  else {
+    ScreenPosToWindowPosRelative(this,(Vector2 *)&local_res8);
+    *(float *)(this + 0x440) = local_res8 - *(float *)(this + 0x460);
+    *(float *)(this + 0x444) = local_resc - *(float *)(this + 0x464);
+    UpdateAllWindow(this);
+  }
+  CEGUI::Window::onMouseMove((Window *)this,param_1);
+  if (*(longlong *)(this + 0x418) != 0) {
+    plVar2 = *(longlong **)(*(longlong *)(this + 0x418) + 0x40);
+    CEGUI::String32::clear((String32 *)(this + 0x610));
+    plVar8 = *(longlong **)(*(longlong *)(this + 0x418) + 0x48);
+    while (plVar8 != plVar2) {
+      plVar1 = plVar8 + -1;
+      plVar8 = plVar8 + -1;
+      bVar3 = CEGUI::Window::isVisible((Window *)*plVar1,false);
+      if ((((bVar3) && (cVar4 = (**(code **)(*(longlong *)*plVar8 + 0x30))(), cVar4 != '\0')) &&
+          ((*(char *)(*plVar8 + 0x90) == '\0' ||
+           (lVar6 = FUN_180093df0(*plVar8 + 0x278,"_Window_Pool",0,0xc), lVar6 != -1)))) &&
+         (*(longlong *)(*plVar8 + 0xc0) != 0)) {
+        if (*(longlong *)(this + 0x610) != 0) {
+          CEGUI::String32::operator+=((String32 *)(this + 0x610),"\n");
+        }
+        CEGUI::String32::operator+=((String32 *)(this + 0x610),(String32 *)(*plVar8 + 0xc0));
+      }
+    }
+    lVar6 = (**(code **)(*(longlong *)this + 0x38))(this);
+    if (lVar6 != 0) {
+      pTVar7 = (Tooltip *)(**(code **)(*(longlong *)this + 0x38))(this);
+      CEGUI::Tooltip::setTargetWindow(pTVar7,(Window *)this);
+      CEGUI::Window::setTooltipText((Window *)this,(String32 *)(this + 0x610));
+      pTVar7 = (Tooltip *)(**(code **)(*(longlong *)this + 0x38))(this);
+      CEGUI::Tooltip::positionSelf(pTVar7);
+    }
+  }
+  return;
+}
+
+// gọi: FUN_180093df0@180093df0, ScreenPosToScenePos@1800c6b30, ScreenPosToWindowPosRelative@1800c6d20, UpdateAllWindow@1800c73b0, clear@33a, isVisible@14, onMouseMove@aa, operator+=@329, operator+=@36b, positionSelf@2e3, setTargetWindow@370, setTooltipText@2b0

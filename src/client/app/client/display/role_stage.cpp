@@ -14,8 +14,10 @@ namespace {
 constexpr std::int32_t kWheelTicks = 5;
 constexpr float kZoomIn = 1.0F;
 constexpr float kZoomOut = -1.0F;
+// Hằng 1,1 giây (Game.exe 0x140b0cfd4) mà Init đưa làm thời điểm cho đoạn lướt vào ô.
+constexpr float kEnterGlideSeconds = 1.1F;
 
-// Track và chiều chạy khi rời ô from sang ô khác (bảng nhánh của 0x14063bb70).
+// Track và chiều chạy khi rời ô from sang ô khác (bảng nhánh của 0x14063c480).
 // NOLINTNEXTLINE(bugprone-easily-swappable-parameters): from rồi to, hai ô của bảng chọn
 [[nodiscard]] control::TrackPlay leg(std::uint8_t from, std::uint8_t to) noexcept {
     control::TrackPlay play;
@@ -36,11 +38,12 @@ constexpr float kZoomOut = -1.0F;
     return play;
 }
 
-// Track kết thúc ở ô slot khi chạy xuôi: tư thế nghỉ của ô là khoá cuối của nó.
-[[nodiscard]] control::CameraTrack track_into(std::uint8_t slot) noexcept {
-    if (slot == 1) return control::CameraTrack::kRole0To1;
-    if (slot == 2) return control::CameraTrack::kRole1To2;
-    return control::CameraTrack::kRole2To0;
+// Track BẮT ĐẦU ở ô slot: RoleAToB mở bằng mắt của ô A, nên chạy ngược về thời điểm 0 là tới mắt của
+// ô đó. Ô ngoài 0..2 dùng track 1 như nhánh r9 = 1 của Init.
+[[nodiscard]] control::CameraTrack track_to(std::uint8_t slot) noexcept {
+    if (slot == 1) return control::CameraTrack::kRole1To2;
+    if (slot == 2) return control::CameraTrack::kRole2To0;
+    return control::CameraTrack::kRole0To1;
 }
 
 } // namespace
@@ -88,12 +91,15 @@ void RoleStage::drive_zoom(std::int8_t zoom, Wheel& wheel) noexcept {
 }
 
 void RoleStage::rest_at(std::uint8_t slot) noexcept {
-    // Chạy từ đầu track: khoá giữa lùi ra, khoá cuối tiến vào ô. Không đứng sẵn ở tư thế nghỉ.
+    // CGamePro_CharSel::Init (Game.exe 0x14063d620): 0x1800025e0(ngược, không giữ, track = ô + 1,
+    // thời điểm 1,1 giây từ hằng 0x140b0cfd4). Chạy ngược từ chỗ cách đầu track 1,1 giây (track dài
+    // 2 giây thì bắt đầu ở 0,9 giây, ngay trước khoá giữa lùi ra) về mắt của ô: camera lướt vào ô
+    // trong chừng một giây, không đứng sẵn ở tư thế nghỉ và không chạy trọn đoạn giữa hai ô.
     control::TrackPlay play;
-    play.is_forward = true;
+    play.is_forward = false;
     play.is_held = false;
-    play.time = 0.0F;
-    play.track = track_into(slot);
+    play.time = kEnterGlideSeconds;
+    play.track = track_to(slot);
     camera_.play(play);
     slot_ = slot;
     previous_ = slot;

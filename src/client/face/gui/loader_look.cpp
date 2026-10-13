@@ -438,7 +438,24 @@ void take_look_value(Cook& cook, const GuiProperty& property) {
     if (type) [[maybe_unused]] const std::int32_t index = type_of(cook, *type);
 }
 
+// Section sáng lên khi trỏ vào mà nút của cửa sổ thành tích gọi theo tên (SetHoverSection: Fal
+// 0x1800420b0, 0x180042110): nó không nằm trong StateImagery nào, nên đưa vào look như một state
+// cùng tên với một layer một section để bộ vẽ vẽ được bằng render_state.
+void hover_state(Cook& cook, std::string_view look, LookDraft& draft, const Node& element) {
+    const std::string_view name = element.attr("name", "");
+    if (element.name() != "ImagerySection" || !name.ends_with("HoverSection")) return;
+    LayerDraft layer;
+    GuiSpec spec;
+    spec.section = section_of(cook, look, name);
+    layer.specs.push_back(spec);
+    StateDraft state;
+    state.state.name = std::string(name);
+    state.layers.push_back(std::move(layer));
+    draft.states.push_back(std::move(state));
+}
+
 void look_part(Cook& cook, std::string_view name, LookDraft& draft, const Node& child) {
+    hover_state(cook, name, draft, child);
     if (child.name() == "StateImagery") draft.states.push_back(state_of(cook, name, child));
     if (child.name() == "NamedArea") named_area(cook, draft, child);
     const bool is_property = child.name() == "Property" || child.name() == "PropertyDefinition";

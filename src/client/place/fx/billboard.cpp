@@ -1,5 +1,9 @@
 #include "fx/billboard.hpp"
 
+#include "fx/field.hpp"
+#include "fx/system.hpp"
+#include "ogre/vec3.hpp"
+
 #include <algorithm>
 #include <cmath>
 
@@ -86,12 +90,37 @@ struct TexFrame {
     float bottom = 1.0F;
 };
 
+// Affector SequenceFrame của hệ, nếu có: nó quyết ô nào của ảnh hạt đang hiện thay cho stacks, slices và repeat_times
+// của chính hệ.
+[[nodiscard]] const SequenceFrame* sequence_of(const SystemDef& definition) noexcept {
+    for (const Affector& affector : definition.affectors) {
+        if (const auto* frames = std::get_if<SequenceFrame>(&affector)) return frames;
+    }
+    return nullptr;
+}
+
+// Vị trí trong dãy ô, 0..1: hết một vòng thì quay lại (loop), đi tới rồi lùi lại (pingpang), không thì dừng ở ô cuối.
+[[nodiscard]] float sequence_phase(const SequenceFrame& frames, const Grain& grain) noexcept {
+    float phase = grain.frame_start + (grain.life() * frames.repeat_times);
+    if (frames.pingpang) {
+        const float wave = std::fmod(phase, 2.0F);
+        phase = wave > 1.0F ? 2.0F - wave : wave;
+    } else if (frames.loop) {
+        phase = std::fmod(phase, 1.0F);
+    } else {
+        phase = std::min(phase, 1.0F);
+    }
+    return std::max(phase, 0.0F);
+}
+
 [[nodiscard]] TexFrame frame_of(const SystemDef& definition, const Grain& grain) {
     if (definition.renderer != RendererKind::kTexcoord) return {};
-    const int slice_count = std::max(1, definition.slices);
-    const int stack_count = std::max(1, definition.stacks);
+    const SequenceFrame* sequence = sequence_of(definition);
+    const int slice_count = std::max(1, sequence != nullptr ? sequence->slices : definition.slices);
+    const int stack_count = std::max(1, sequence != nullptr ? sequence->stacks : definition.stacks);
     const int frames = slice_count * stack_count;
-    const float wrapped = std::fmod(grain.life() * definition.repeat_times, 1.0F);
+    const float wrapped = sequence != nullptr ? sequence_phase(*sequence, grain)
+                                              : std::fmod(grain.life() * definition.repeat_times, 1.0F);
     int index = static_cast<int>(wrapped * static_cast<float>(frames));
     if (index == frames) index = frames - 1;
     if (index < 0) index = 0;

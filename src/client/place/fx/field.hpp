@@ -26,6 +26,8 @@ struct Grain {
     float total = 1.0F;
     float rotation = 0.0F;
     float rotation_speed = 0.0F;
+    // Ô đầu của SequenceFrame (tỉ lệ 0..1 của số ô), chọn lúc sinh hạt.
+    float frame_start = 0.0F;
     bool own = false;
     float width = 0.0F;
     float height = 0.0F;

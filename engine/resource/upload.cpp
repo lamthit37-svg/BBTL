@@ -502,6 +502,9 @@ void collect_copy_barriers(std::span<const ImageCopy> copies, std::vector<gpu::T
     return gpu::Filter::kLinear;
 }
 
+// Mức lọc bất đẳng hướng của sampler model (16 là trần của mọi backend).
+constexpr std::uint32_t kModelAnisotropy = 16;
+
 [[nodiscard]] gpu::AddressMode to_address(Wrap wrap) noexcept {
     switch (wrap) {
     case Wrap::kRepeat: return gpu::AddressMode::kRepeat;
@@ -522,6 +525,10 @@ void collect_copy_barriers(std::span<const ImageCopy> copies, std::vector<gpu::T
     desc.address_v = to_address(source.wrap_v);
     desc.address_w = desc.address_v;
     desc.max_lod = source.has_mip ? 1000.0F : 0.0F;
+    // Lọc bất đẳng hướng: mặt đất và tường nhìn xiên (camera game nghiêng) không nhoè đi như lọc tam tuyến thường. Thiết bị
+    // kẹp theo DeviceCaps::max_anisotropy; điểm gần nhất thì không áp dụng.
+    const bool is_smooth = source.min == Filter::kLinear && source.mag == Filter::kLinear && source.has_mip;
+    desc.max_anisotropy = is_smooth ? kModelAnisotropy : 1U;
     return device.create_sampler(desc);
 }
 

@@ -159,7 +159,7 @@ inline void nap(core::Clock::time_point& previous) noexcept {
 }
 
 // Khoảng giữa hai mốc đồng hồ đơn điệu, tính bằng mili giây, cho số đo của một lần nạp cảnh.
-inline [[nodiscard]] double millis_between(TimePoint from, TimePoint stop) noexcept {
+[[nodiscard]] inline double millis_between(TimePoint from, TimePoint stop) noexcept {
     return std::chrono::duration<double, std::milli>(stop - from).count();
 }
 
@@ -201,7 +201,7 @@ struct FrameRank {
     std::size_t over = 0;
 };
 
-inline [[nodiscard]] double rank_at(std::span<const double> sorted, double part) noexcept {
+[[nodiscard]] inline double rank_at(std::span<const double> sorted, double part) noexcept {
     const auto index = static_cast<std::size_t>(part * static_cast<double>(sorted.size() - 1));
     return sorted[index];
 }
@@ -212,7 +212,7 @@ inline void count_band(FrameRank& rank, double millis) noexcept {
     if (millis > 20.0) ++rank.over;
 }
 
-inline [[nodiscard]] FrameRank rank_frames(std::span<const double> sorted) noexcept {
+[[nodiscard]] inline FrameRank rank_frames(std::span<const double> sorted) noexcept {
     FrameRank rank;
     if (sorted.empty()) return rank;
     rank.median = rank_at(sorted, 0.5);
@@ -349,11 +349,11 @@ struct PhaseSums {
 // Cỡ vùng vẽ gói trong một số nguyên để luồng thông điệp trao cho luồng vẽ không khoá.
 using PackedSize = std::uint64_t;
 
-inline [[nodiscard]] PackedSize pack(PixelSize size) noexcept {
+[[nodiscard]] inline PackedSize pack(PixelSize size) noexcept {
     return (static_cast<PackedSize>(size.width) << 32U) | size.height;
 }
 
-inline [[nodiscard]] PixelSize unpack(PackedSize packed) noexcept {
+[[nodiscard]] inline PixelSize unpack(PackedSize packed) noexcept {
     const auto width = static_cast<std::uint32_t>(packed >> 32U);
     const auto height = static_cast<std::uint32_t>(packed & 0xFFFF'FFFFU);
     return {.width = width, .height = height};
@@ -361,13 +361,13 @@ inline [[nodiscard]] PixelSize unpack(PackedSize packed) noexcept {
 
 // Thư mục gói shader của một thư mục dữ liệu: data/shaders (Android giải nén từ APK); không có thì
 // rỗng và bộ vẽ dùng mặc định cạnh exe (bố cục CLIENT/bin với CLIENT/data của Windows).
-inline [[nodiscard]] std::string shader_dir_of(const std::filesystem::path& data_root) {
+[[nodiscard]] inline std::string shader_dir_of(const std::filesystem::path& data_root) {
     const std::filesystem::path packaged = data_root / "shaders";
     std::error_code ignored;
     return std::filesystem::exists(packaged, ignored) ? packaged.string() : std::string{};
 }
 
-inline [[nodiscard]] ForwardResult make_forward(gpu::Device& device, const render::Screen& screen, std::string shaders,
+[[nodiscard]] inline ForwardResult make_forward(gpu::Device& device, const render::Screen& screen, std::string shaders,
     std::array<gpu::PipelineHandle, render::kModelVariants> models) {
     render::ForwardDesc pass;
     pass.color_format = screen.color_format();
@@ -382,7 +382,7 @@ inline [[nodiscard]] ForwardResult make_forward(gpu::Device& device, const rende
 }
 
 // Lượt vẽ 2D của giao diện: cùng đích vẽ và thư mục shader với Forward.
-inline [[nodiscard]] UiResult make_ui(gpu::Device& device, const render::Screen& screen, std::string shaders,
+[[nodiscard]] inline UiResult make_ui(gpu::Device& device, const render::Screen& screen, std::string shaders,
     gpu::PipelineHandle pipeline) {
     render::UiDesc pass;
     pass.color_format = screen.color_format();
@@ -394,14 +394,14 @@ inline [[nodiscard]] UiResult make_ui(gpu::Device& device, const render::Screen&
 }
 
 // Một hàng của phép đặt như vùng nhìn bốn số, có kiểm biên ở mọi cấu hình.
-inline [[nodiscard]] MatrixRow row_of(const scene::Transform& placed, std::size_t row) noexcept {
+[[nodiscard]] inline MatrixRow row_of(const scene::Transform& placed, std::size_t row) noexcept {
     constexpr std::size_t kRows = 3;
     return core::at(std::span<const std::array<double, 4>, kRows>(placed.rows), row);
 }
 
 // Ma trận float cho GPU từ phép đặt double của cảnh: phần tử (hàng i, cột j) của [R * S | T] thành
 // cột j của Matrix4, làm tròn về float đúng như scene/transform.hpp đã hứa.
-inline [[nodiscard]] math::Matrix4 world_of(const scene::Transform& placed) noexcept {
+[[nodiscard]] inline math::Matrix4 world_of(const scene::Transform& placed) noexcept {
     math::Matrix4 world = math::Matrix4::identity();
     for (std::size_t cell = 0; cell < 12; ++cell) {
         const std::size_t column = cell % 4;
@@ -414,7 +414,7 @@ inline [[nodiscard]] math::Matrix4 world_of(const scene::Transform& placed) noex
 
 // Camera quay quanh hộp bao thế giới, ở góc quay sau elapsed giây kể từ lúc tạo. Hộp rỗng thì quay
 // quanh gốc với bán kính 1.
-inline [[nodiscard]] render::Camera orbit_view(float elapsed, const math::Aabb& bounds,
+[[nodiscard]] inline render::Camera orbit_view(float elapsed, const math::Aabb& bounds,
     render::ViewSize size) noexcept {
     const math::Vector3 extent = bounds.max - bounds.min;
     const bool is_empty = extent.x() < 0.0F || extent.y() < 0.0F || extent.z() < 0.0F;
@@ -449,18 +449,18 @@ struct FrameAsk {
 
 using MapGround = game::client::map::Ground;
 
-inline [[nodiscard]] bool scale_ok(const map::TerrainFile& file) noexcept {
+[[nodiscard]] inline bool scale_ok(const map::TerrainFile& file) noexcept {
     if (file.x_size <= 0 || file.z_size <= 0) return false;
     return file.scale.x > 0.0F && file.scale.z > 0.0F;
 }
 
 // Chỗ đứng hiện tại, đơn vị game. Axis_Trans GFX sang GAME, chỉ X và Z.
-inline [[nodiscard]] core::GroundPoint game_of(const map::TerrainFile& file, const WalkPose& pose) noexcept {
+[[nodiscard]] inline core::GroundPoint game_of(const map::TerrainFile& file, const WalkPose& pose) noexcept {
     return {.x = (pose.x - file.origin.x) / file.scale.x, .z = (pose.z - file.origin.z) / file.scale.z};
 }
 
 // Mặt công trình chỉ nâng chân lên trên địa hình. height là mặt trên cùng, đơn vị game.
-inline [[nodiscard]] float surface_y(const world::ShownScene* shown, const map::Ground* ground, float x, float z,
+[[nodiscard]] inline float surface_y(const world::ShownScene* shown, const map::Ground* ground, float x, float z,
     float terrain_y) noexcept {
     if (shown == nullptr || !shown->buildings || ground == nullptr) return terrain_y;
     const map::TerrainFile& file = ground->file;
@@ -474,14 +474,14 @@ inline [[nodiscard]] float surface_y(const world::ShownScene* shown, const map::
     return world_y;
 }
 
-inline [[nodiscard]] bool cell_open_index(const MapGround& ground, int index) noexcept {
+[[nodiscard]] inline bool cell_open_index(const MapGround& ground, int index) noexcept {
     if (index < 0) return false;
     const auto slot = static_cast<std::size_t>(index);
     if (slot >= ground.grid.cells.size()) return false;
     return ground.grid.cells[slot].base.pixmap != 0;
 }
 
-inline [[nodiscard]] int find_open(const MapGround& ground) noexcept {
+[[nodiscard]] inline int find_open(const MapGround& ground) noexcept {
     const int columns = std::max(ground.file.x_size, 1);
     const int count = columns * std::max(ground.file.z_size, 0);
     int index = 0;
@@ -526,19 +526,19 @@ inline void place_walk(WalkPose& pose, const MapGround& ground, int scene_id, ma
 }
 
 // Đổi giữa kiểu vô hướng của ogre (control) và kiểu SIMD của math (render).
-inline [[nodiscard]] math::Point3 point_of(ogre::Vec3 value) noexcept {
+[[nodiscard]] inline math::Point3 point_of(ogre::Vec3 value) noexcept {
     return {value.x, value.y, value.z};
 }
 
 // Tỉ lệ rộng trên cao của vùng vẽ; chiều cao 0 thì coi như khung vuông.
-inline [[nodiscard]] float aspect_of(render::ViewSize size) noexcept {
+[[nodiscard]] inline float aspect_of(render::ViewSize size) noexcept {
     if (size.height == 0) return 1.0F;
     return static_cast<float>(size.width) / static_cast<float>(size.height);
 }
 
 // Thông số nhìn của tư thế camera: mắt, hướng nhìn đơn vị và góc dọc, để đổi điểm màn hình thành
 // tia và để cần gạt biết hướng nhìn.
-inline [[nodiscard]] control::Lens lens_of(const control::CameraPose& pose, float aspect) noexcept {
+[[nodiscard]] inline control::Lens lens_of(const control::CameraPose& pose, float aspect) noexcept {
     const ogre::Vec3 toward = ogre::sub_vec3(pose.target, pose.eye);
     control::Lens lens;
     lens.eye = pose.eye;
@@ -549,7 +549,7 @@ inline [[nodiscard]] control::Lens lens_of(const control::CameraPose& pose, floa
 }
 
 // Như CCamera_Scene::Update đặt Ogre::Camera: setPosition, lookAt, rồi mặt cắt và góc nhìn.
-inline [[nodiscard]] render::Camera camera_of(const control::CameraPose& pose, render::ViewSize size) {
+[[nodiscard]] inline render::Camera camera_of(const control::CameraPose& pose, render::ViewSize size) {
     render::Lens optics;
     optics.fov_degrees = pose.fov_degrees;
     optics.near_plane = pose.near_plane;
@@ -565,7 +565,7 @@ struct ActionRequest {
     Request request;
 };
 
-inline [[nodiscard]] constexpr Request web_request(WebLink link) noexcept {
+[[nodiscard]] inline constexpr Request web_request(WebLink link) noexcept {
     return {.kind = RequestKind::kOpenWeb, .link = link};
 }
 
@@ -582,7 +582,7 @@ inline constexpr std::array<ActionRequest, 8> kActionRequests = {{
 
 // Camera của màn đăng nhập: tư thế cố định mà client 2026 đặt thẳng lên Ogre::Camera sau khi nạp
 // cảnh nền (control/login_view).
-inline [[nodiscard]] render::Camera login_camera(render::ViewSize size) noexcept {
+[[nodiscard]] inline render::Camera login_camera(render::ViewSize size) noexcept {
     const control::FixedView& fixed = control::kLoginView;
     render::Lens optics;
     optics.fov_degrees = fixed.fov_degrees;
@@ -594,7 +594,7 @@ inline [[nodiscard]] render::Camera login_camera(render::ViewSize size) noexcept
 }
 
 // Camera chọn nhân vật ở tư thế mà track đang cho. FOV 65, mặt xa 100000.
-inline [[nodiscard]] render::Camera role_pose_camera(ogre::Vec3 eye, ogre::Quat turn, render::ViewSize size) noexcept {
+[[nodiscard]] inline render::Camera role_pose_camera(ogre::Vec3 eye, ogre::Quat turn, render::ViewSize size) noexcept {
     render::Lens optics;
     optics.fov_degrees = control::kRoleFov;
     optics.near_plane = control::kRoleNear;
@@ -604,7 +604,7 @@ inline [[nodiscard]] render::Camera role_pose_camera(ogre::Vec3 eye, ogre::Quat 
 }
 
 // Luật camera của một cảnh thường: số của System.cfg, cộng hai mặt cắt của bảng cảnh.
-inline [[nodiscard]] control::CameraRules rules_of(const world::ShownScene* scene) noexcept {
+[[nodiscard]] inline control::CameraRules rules_of(const world::ShownScene* scene) noexcept {
     control::CameraRules rules;
     if (scene == nullptr) return rules;
     rules.near_plane = static_cast<float>(scene->near_clip);
@@ -612,7 +612,7 @@ inline [[nodiscard]] control::CameraRules rules_of(const world::ShownScene* scen
     return rules;
 }
 
-inline [[nodiscard]] resource::Image image_at(const std::filesystem::path& path) {
+[[nodiscard]] inline resource::Image image_at(const std::filesystem::path& path) {
     resource::Image image;
     const io::TextResult text = io::read_text(path);
     if (!text) return image;
@@ -637,7 +637,7 @@ struct DecodeOne {
 // Giải mã mọi ảnh cùng lúc, mỗi ảnh một luồng. Giải mã PNG lần lượt là phần chờ dài nhất của việc
 // nướng mặt đất, nhất là lúc các luồng đọc mesh đang chiếm các lõi (đo 2026-10-08, erengu_DL: 11
 // ảnh cọ và ảnh sáng 2048 x 2048).
-inline [[nodiscard]] std::vector<resource::Image> decoded_all(const Paths& paths) {
+[[nodiscard]] inline std::vector<resource::Image> decoded_all(const Paths& paths) {
     std::vector<resource::Image> images(paths.size());
     std::vector<std::jthread> pool;
     pool.reserve(paths.size());
@@ -649,7 +649,7 @@ inline [[nodiscard]] std::vector<resource::Image> decoded_all(const Paths& paths
     return images;
 }
 
-inline [[nodiscard]] game::client::map::SurfaceImage view_of(const resource::Image& image) noexcept {
+[[nodiscard]] inline game::client::map::SurfaceImage view_of(const resource::Image& image) noexcept {
     game::client::map::SurfaceImage view;
     view.width = image.width;
     view.height = image.height;
@@ -657,8 +657,16 @@ inline [[nodiscard]] game::client::map::SurfaceImage view_of(const resource::Ima
     return view;
 }
 
+// Cạnh dài tối đa của ảnh mặt đất nướng: PC 4096 (tám điểm ảnh mỗi ô của bản đồ 512 x 512), điện thoại 2048 vì GLES 3 chỉ
+// bảo đảm texture 2048.
+#if defined(__ANDROID__) || defined(__APPLE__)
+inline constexpr std::uint32_t kSurfaceEdge = 2048;
+#else
+inline constexpr std::uint32_t kSurfaceEdge = 8192;
+#endif
+
 // Ảnh mặt đất của cảnh: các ảnh cọ của địa hình, rồi ảnh sáng (nếu cảnh có) ở cuối danh sách.
-inline [[nodiscard]] MapPicture baked_surface(const MapGround& ground, const std::filesystem::path& root) {
+[[nodiscard]] inline MapPicture baked_surface(const MapGround& ground, const std::filesystem::path& root) {
     const std::size_t brush_count = ground.file.textures.size();
     const bool has_light = !ground.file.lightmap.empty();
     Paths paths;
@@ -674,6 +682,7 @@ inline [[nodiscard]] MapPicture baked_surface(const MapGround& ground, const std
     if (has_light) light_view = view_of(stored.back());
     game::client::map::SurfaceInputs inputs;
     inputs.brushes = views;
+    inputs.max_edge = kSurfaceEdge;
     if (has_light) inputs.light = &light_view;
     return game::client::map::paint_surface(ground.file, ground.grid, inputs);
 }
@@ -730,7 +739,7 @@ inline void push_height_vertex(resource::Primitive& primitive, const game::clien
 }
 
 // Lưới địa hình thành một model một nút. Không có cọ thì màu đỉnh theo độ cao.
-inline [[nodiscard]] resource::Model model_of(const MapGround& ground, const MapPicture& paint) {
+[[nodiscard]] inline resource::Model model_of(const MapGround& ground, const MapPicture& paint) {
     resource::Model model;
     resource::Mesh mesh;
     mesh.name = "dia-hinh";
@@ -761,22 +770,22 @@ inline [[nodiscard]] resource::Model model_of(const MapGround& ground, const Map
 }
 
 // Hộp có ít nhất một điểm (min không vượt max ở trục nào).
-inline [[nodiscard]] bool has_points(const math::Aabb& box) noexcept {
+[[nodiscard]] inline bool has_points(const math::Aabb& box) noexcept {
     const math::Vector3 size = box.max - box.min;
     return size.x() >= 0.0F && size.y() >= 0.0F && size.z() >= 0.0F;
 }
 
-inline [[nodiscard]] bool is_opaque(const resource::Material& material) noexcept {
+[[nodiscard]] inline bool is_opaque(const resource::Material& material) noexcept {
     return material.alpha != resource::Alpha::kBlend;
 }
 
 // Model không skin và không trộn alpha: mọi bản sao vẽ bằng một lệnh.
-inline [[nodiscard]] bool can_batch(const resource::Model& model) noexcept {
+[[nodiscard]] inline bool can_batch(const resource::Model& model) noexcept {
     if (!model.skins.empty()) return false;
     return std::ranges::all_of(model.materials, is_opaque);
 }
 
-inline [[nodiscard]] const KeptGround* find_ground(const std::deque<KeptGround>& grounds, int scene_id) {
+[[nodiscard]] inline const KeptGround* find_ground(const std::deque<KeptGround>& grounds, int scene_id) {
     using Kept = const KeptGround&;
     const auto same = [scene_id](Kept item) noexcept { return item.scene_id == scene_id; };
     const auto found = std::ranges::find_if(grounds, same);
@@ -784,13 +793,13 @@ inline [[nodiscard]] const KeptGround* find_ground(const std::deque<KeptGround>&
     return &*found;
 }
 
-inline [[nodiscard]] bool mesh_waiting(const Arrival& arrival, core::Clock::time_point deadline) noexcept {
+[[nodiscard]] inline bool mesh_waiting(const Arrival& arrival, core::Clock::time_point deadline) noexcept {
     if (core::Clock::now() >= deadline) return false;
     return arrival.cursor < arrival.table.meshes.size();
 }
 
 // Luồng đọc chưa xong mesh đang chờ: ghi mốc để đo quãng bị đói dữ liệu (không phải công việc).
-inline [[nodiscard]] bool note_waiting(Arrival& loading) noexcept {
+[[nodiscard]] inline bool note_waiting(Arrival& loading) noexcept {
     if (!loading.is_stalled) loading.stall_started = core::Clock::now();
     loading.is_stalled = true;
     return false;
@@ -826,7 +835,7 @@ struct ReadMesh {
     std::vector<resource::StagedImage> baked;
 };
 
-inline [[nodiscard]] ReadMesh baked_mesh(resource::Model model) {
+[[nodiscard]] inline ReadMesh baked_mesh(resource::Model model) {
     classic::note(model);
     ReadMesh read;
     auto baked = resource::stage_images(model);
@@ -907,7 +916,7 @@ inline void bake_job(const FeedJob& job, Feed& feed) {
     std::println("Địa hình resid {} đã nướng trong {} ms (tô ảnh mặt {} ms)", scene_id, millis, painted);
 }
 
-inline [[nodiscard]] std::size_t slot_span(const std::vector<Need>& needs) {
+[[nodiscard]] inline std::size_t slot_span(const std::vector<Need>& needs) {
     std::size_t count = 0;
     for (const Need& need : needs) {
         count = std::max(count, need.slot + 1);
@@ -915,7 +924,7 @@ inline [[nodiscard]] std::size_t slot_span(const std::vector<Need>& needs) {
     return count;
 }
 
-inline [[nodiscard]] bool epoch_matches(Feed& feed, std::uint64_t epoch) {
+[[nodiscard]] inline bool epoch_matches(Feed& feed, std::uint64_t epoch) {
     const std::scoped_lock<std::mutex> lock(feed.mu);
     return feed.epoch == epoch;
 }
@@ -940,7 +949,7 @@ struct ReadCursor {
     std::atomic<std::size_t> next{0};
 };
 
-inline [[nodiscard]] bool next_need(ReadCursor& cursor, std::size_t& index) {
+[[nodiscard]] inline bool next_need(ReadCursor& cursor, std::size_t& index) {
     if (cursor.stop.stop_requested()) return false;
     if (!epoch_matches(*cursor.feed, cursor.job->epoch)) return false;
     index = cursor.next.fetch_add(1, std::memory_order_relaxed);
@@ -955,7 +964,7 @@ inline void read_need(ReadCursor& cursor) {
 }
 
 // Để lại một lõi cho luồng vẽ. Nhiều hơn Dev (mẻ 16, xong cả mẻ mới giao): file xong là giao ngay.
-inline [[nodiscard]] std::size_t reader_count(std::size_t files) noexcept {
+[[nodiscard]] inline std::size_t reader_count(std::size_t files) noexcept {
     const unsigned cores = std::max(2U, std::thread::hardware_concurrency());
     const std::size_t readers = static_cast<std::size_t>(cores) - 1;
     return std::max(std::size_t{1}, std::min(readers, files));
@@ -1066,7 +1075,7 @@ inline void Feed::run(const std::stop_token& stop) {
 }
 
 // Định dạng điểm ảnh của capture theo định dạng màu mà bề mặt đã chốt.
-inline [[nodiscard]] core::Result<capture::PixelFormat> shot_format(gpu::Format colour) noexcept {
+[[nodiscard]] inline core::Result<capture::PixelFormat> shot_format(gpu::Format colour) noexcept {
     switch (colour) {
     case gpu::Format::kRgba8Unorm:
     case gpu::Format::kRgba8UnormSrgb: return capture::PixelFormat::kRgba8;
@@ -1098,7 +1107,7 @@ inline void discard_shot(gpu::Device& device, const std::optional<ShotPlan>& sho
 // ofstream nhận char; std::byte và char được phép trỏ cùng vùng nhớ.
 // NOLINTBEGIN(cppcoreguidelines-pro-type-reinterpret-cast)
 // Ghi nội dung nhị phân ra tệp; false khi mở tệp hoặc ghi hỏng.
-inline [[nodiscard]] bool write_bytes(const std::filesystem::path& path, ByteSpan bytes) {
+[[nodiscard]] inline bool write_bytes(const std::filesystem::path& path, ByteSpan bytes) {
     std::ofstream file(path, std::ios::binary | std::ios::trunc);
     if (!file.is_open()) return false;
     const auto* const raw = reinterpret_cast<const char*>(bytes.data());
@@ -1141,7 +1150,7 @@ struct SeatTarget {
 };
 
 // Nộp vào phần tử đã nằm trong deque. prepare giữ con trỏ vào model của chính phần tử đó.
-inline [[nodiscard]] bool seat_model(SeatTarget target, ReadMesh mesh) {
+[[nodiscard]] inline bool seat_model(SeatTarget target, ReadMesh mesh) {
     target.slot->loaded.model = std::move(mesh.model);
     LoadedMesh& loaded = target.slot->loaded;
     auto uploaded = resource::upload_queued(*target.device, loaded.model, mesh.baked);
@@ -1160,7 +1169,7 @@ inline [[nodiscard]] bool seat_model(SeatTarget target, ReadMesh mesh) {
     return true;
 }
 
-inline [[nodiscard]] bool upload_ground(GroundUpload upload) {
+[[nodiscard]] inline bool upload_ground(GroundUpload upload) {
     MapPicture paint;
     if (upload.data_root != nullptr) paint = baked_surface(*upload.ground, *upload.data_root);
     ReadMesh mesh = baked_mesh(model_of(*upload.ground, paint));
@@ -1179,7 +1188,7 @@ struct CacheId {
     std::uint64_t shaders = 0;
 };
 
-inline [[nodiscard]] bool has_hardware(gpu::Backend backend) {
+[[nodiscard]] inline bool has_hardware(gpu::Backend backend) {
     const gpu::Result<std::vector<gpu::AdapterInfo>> list = gpu::enumerate_adapters(backend);
     if (!list) return false;
     for (const gpu::AdapterInfo& info : *list) {
@@ -1188,7 +1197,7 @@ inline [[nodiscard]] bool has_hardware(gpu::Backend backend) {
     return false;
 }
 
-inline [[nodiscard]] CacheId identity_of(gpu::Backend backend, std::uint32_t index, std::uint64_t shaders) {
+[[nodiscard]] inline CacheId identity_of(gpu::Backend backend, std::uint32_t index, std::uint64_t shaders) {
     CacheId id;
     id.backend = backend;
     id.shaders = shaders;
@@ -1201,7 +1210,7 @@ inline [[nodiscard]] CacheId identity_of(gpu::Backend backend, std::uint32_t ind
 
 // Cùng thứ tự create_present_device: Vulkan phần cứng, rồi D3D12, D3D11, GLES. Backend ép thì
 // lấy đúng backend ấy.
-inline [[nodiscard]] CacheId predict_cache(const gpu::DeviceDesc& desc, std::uint64_t shaders) {
+[[nodiscard]] inline CacheId predict_cache(const gpu::DeviceDesc& desc, std::uint64_t shaders) {
     const bool is_automatic = desc.backend == gpu::Backend::kVulkan && !desc.adapter;
     if (!is_automatic) return identity_of(desc.backend, desc.adapter.value_or(0), shaders);
     constexpr std::array<gpu::Backend, 4> order{
@@ -1213,7 +1222,7 @@ inline [[nodiscard]] CacheId predict_cache(const gpu::DeviceDesc& desc, std::uin
     return identity_of(gpu::Backend::kVulkan, 0, shaders);
 }
 
-inline [[nodiscard]] std::uint64_t hash_packages(const std::string& folder) {
+[[nodiscard]] inline std::uint64_t hash_packages(const std::string& folder) {
     std::uint64_t hash = core::kFnvOffsetBasis;
     for (const std::string_view name : render::kPackageNames) {
         hash = core::fnv1a(name, hash);
@@ -1227,18 +1236,18 @@ inline [[nodiscard]] std::uint64_t hash_packages(const std::string& folder) {
     return hash;
 }
 
-inline [[nodiscard]] std::filesystem::path cache_file(const std::filesystem::path& root, const CacheId& id) {
+[[nodiscard]] inline std::filesystem::path cache_file(const std::filesystem::path& root, const CacheId& id) {
     const std::string name =
         std::format("pipeline-{}-{:08x}-{:08x}-{:016x}.bin", gpu::name(id.backend), id.vendor, id.device, id.shaders);
     return root / "cache" / name;
 }
 
-inline [[nodiscard]] std::filesystem::path writable_root(const DisplayDesc& desc) {
+[[nodiscard]] inline std::filesystem::path writable_root(const DisplayDesc& desc) {
     if (!desc.save_root.empty()) return desc.save_root;
     return desc.data_root;
 }
 
-inline [[nodiscard]] std::vector<std::byte> read_cache(const std::filesystem::path& path) {
+[[nodiscard]] inline std::vector<std::byte> read_cache(const std::filesystem::path& path) {
     const io::TextResult text = io::read_text(path);
     if (!text) return {};
     std::vector<std::byte> bytes(text->size());
@@ -1246,7 +1255,7 @@ inline [[nodiscard]] std::vector<std::byte> read_cache(const std::filesystem::pa
     return bytes;
 }
 
-inline [[nodiscard]] core::Status apply_backend(gpu::DeviceDesc& device_desc, const DisplayDesc& desc) {
+[[nodiscard]] inline core::Status apply_backend(gpu::DeviceDesc& device_desc, const DisplayDesc& desc) {
     if (!desc.backend) return core::ok();
     const std::optional<gpu::Backend> parsed = gpu::parse_backend(*desc.backend);
     if (!parsed) return core::fail(core::ErrorCode::kInvalidArgument, "backend không có");

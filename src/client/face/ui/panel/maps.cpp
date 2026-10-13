@@ -165,7 +165,11 @@ struct Caption {
 };
 
 void paint_open(Deck& deck, const Maps& maps, Caption caption) {
-    if (maps.is_world_open) deck.show("LargeMapFrame");
+    if (maps.is_world_open) {
+        deck.show("LargeMapFrame");
+        // LargeMap_OpenNormalWorld_Map đặt Visible False cho nút này: nó chỉ hiện ở máy chủ Phụng Minh.
+        deck.hide("LargeMap_QiehuanKVK");
+    }
     if (!maps.is_scene_open) return;
     deck.show("SceneMap_Frame");
     const std::string_view caption_text = caption.title;

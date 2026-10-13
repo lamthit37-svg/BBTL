@@ -52,16 +52,23 @@ constexpr std::array<std::pair<std::string_view, Kind>, 11> kKinds = {{
 }};
 
 // TargetType nhận theo đúng tên, xét trước bảng chuỗi con: nhiều tên họ hàng chứa nhau
-// (ActionButtonWindow, ComplexWindow/ParentWindow, ListBoxEx) mà bộ vẽ khác hẳn. DragTitle kế thừa
-// FalagardSimpleText nên vẽ chữ như nó.
-constexpr std::array<std::pair<std::string_view, Kind>, 7> kExactKinds = {{
+// (ActionButtonWindow, ComplexWindow/ParentWindow, ListBoxEx) mà bộ vẽ khác hẳn. DragTitle và
+// SelfFitWindow kế thừa FalagardSimpleText nên vẽ chữ như nó (cỡ của SelfFitWindow do người gọi đặt:
+// gốc tự co theo chữ bằng FalagardSelfFitWindow::getRenderSize, bản này để bảng tính và đưa qua Override).
+// Falagard/Editbox (chữ b thường) là ô nhập của Combobox, vẽ như EditBox của bản TLBB.
+constexpr std::array<std::pair<std::string_view, Kind>, 12> kExactKinds = {{
     {"Falagard/ActionButton", Kind::kAction},
     {"Falagard/Listbox", Kind::kList},
     {"Falagard/ComplexWindow", Kind::kComplex},
     {"Falagard/ComplexWindow/ParentWindow", Kind::kPlain},
+    {"Falagard/AchievementWindow", Kind::kCatalog},
+    {"Falagard/SelfFitWindow", Kind::kText},
     {"Falagard/Scrollbar", Kind::kScrollbar},
     {"Falagard/Thumb", Kind::kThumb},
     {"Falagard/DragTitle", Kind::kText},
+    {"Falagard/Editbox", Kind::kEdit},
+    {"Falagard/Money", Kind::kMoney},
+    {"Falagard/WorldMap", Kind::kWorld},
 }};
 
 // Bộ vẽ theo tên TargetType: đúng tên trong kExactKinds, không thì tên đầu tiên trong kKinds mà
@@ -216,6 +223,16 @@ void set_vertical(Metrics& metrics, std::string_view text) noexcept {
     metrics.down = anchor_of(text, "Bottom");
 }
 
+// AbsoluteWidth và AbsoluteHeight: script đổi cỡ một chiều bằng điểm ảnh (Window::setWidth, setHeight
+// với Absolute); chiều kia giữ nguyên. Không đọc được số thì bỏ.
+void set_absolute_width(Metrics& metrics, std::string_view text) noexcept {
+    if (const std::optional<float> value = parse_float(text)) metrics.w = GuiUDim{.scale = 0.0F, .offset = *value};
+}
+
+void set_absolute_height(Metrics& metrics, std::string_view text) noexcept {
+    if (const std::optional<float> value = parse_float(text)) metrics.h = GuiUDim{.scale = 0.0F, .offset = *value};
+}
+
 using Apply = void (*)(Metrics&, std::string_view) noexcept;
 
 // Một thuộc tính hình học của Window và hàm ghi nó vào Metrics.
@@ -224,9 +241,10 @@ struct Rule {
     Apply apply = nullptr;
 };
 
-// Mọi thuộc tính hình học có trong 2.034 layout gốc. Position và Size đọc theo MetricsMode mặc
+// Mọi thuộc tính hình học có trong 2.034 layout gốc, cộng AbsoluteWidth và AbsoluteHeight mà script gọi
+// SetProperty (không layout nào ghi). Position và Size đọc theo MetricsMode mặc
 // định Relative (không layout nào đổi). Min/MaxSize vắng mặt có chủ đích: bản 2026 không kẹp cỡ.
-constexpr std::array<Rule, 13> kRules = {{
+constexpr std::array<Rule, 15> kRules = {{
     {.name = "UnifiedPosition", .apply = &set_position},
     {.name = "UnifiedSize", .apply = &set_size},
     {.name = "UnifiedXPosition", .apply = &set_across},
@@ -240,6 +258,8 @@ constexpr std::array<Rule, 13> kRules = {{
     {.name = "RelativeSize", .apply = &set_ratio_size},
     {.name = "HorizontalAlignment", .apply = &set_horizontal},
     {.name = "VerticalAlignment", .apply = &set_vertical},
+    {.name = "AbsoluteWidth", .apply = &set_absolute_width},
+    {.name = "AbsoluteHeight", .apply = &set_absolute_height},
 }};
 
 void apply_one(Metrics& metrics, const Setting& setting) noexcept {
@@ -372,7 +392,8 @@ void settle_thumb(const Ctx& ctx, const Placed& bar, Placed& thumb) {
 
 // Cửa sổ con mà look của cha tự dựng (WidgetComponent::layout): ô theo <Area> của <Child> trong cha
 // rồi dời theo căn lề. Thanh cuộn của danh sách và cửa sổ phức hợp chỉ hiện khi nội dung dài hơn
-// vùng; con chạy đứng theo vị trí cuộn.
+// vùng; con chạy đứng theo vị trí cuộn. Panel giấu được một con theo tên (danh sách thả của
+// Combobox: "<tên cha>__auto_droplist__").
 Placed place_child(const Ctx& ctx, std::size_t index) {
     const GuiWindow& window = ctx.asset->windows.at(index);
     Placed placed = typed_window(*ctx.asset, window);
@@ -382,11 +403,12 @@ Placed place_child(const Ctx& ctx, std::size_t index) {
     local.x += child_shift(child.horz_align, Reach{.parent = parent.screen.w, .own = local.w});
     local.y += child_shift(child.vert_align, Reach{.parent = parent.screen.h, .own = local.h});
     placed.screen = Box{.x = parent.screen.x + local.x, .y = parent.screen.y + local.y, .w = local.w, .h = local.h};
-    placed.is_visible = parent.is_visible;
+    const bool is_shown = parent.is_visible && !is_listed(ctx.input->hidden, window.name);
+    placed.is_visible = is_shown;
     if (placed.kind == Kind::kScrollbar) {
         placed.span = parent.span;
         placed.scroll = parent.scroll;
-        placed.is_visible = parent.is_visible && is_scrollable(parent.span);
+        placed.is_visible = is_shown && is_scrollable(parent.span);
     }
     if (placed.kind == Kind::kThumb && parent.kind == Kind::kScrollbar) settle_thumb(ctx, parent, placed);
     return placed;

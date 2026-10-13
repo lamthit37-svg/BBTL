@@ -22,6 +22,9 @@ struct SurfaceInputs {
     // Đúng thứ tự texture trong .Terrain. Thiếu phần tử thì lớp trỏ tới nó bị bỏ.
     std::span<const SurfaceImage> brushes;
     const SurfaceImage* light = nullptr;
+    // Trần cạnh dài của ảnh nướng (điểm ảnh): tám điểm ảnh mỗi ô khi bản đồ đủ nhỏ, giảm một nửa tới khi vừa. PC dùng 4096, điện
+    // thoại 2048 (cỡ texture tối thiểu của GLES 3 là 2048).
+    std::uint32_t max_edge = 2048;
 };
 
 struct PixmapPoint {
@@ -39,7 +42,9 @@ struct CornerQuery {
 // Ngoài corner 0..3 thì trả (0, 0). orientation từ 16 trở lên coi như 0.
 [[nodiscard]] PixmapPoint pixmap_corner(const Pixmap& pixmap, CornerQuery query) noexcept;
 
-// Rỗng khi không có cọ nào. Lỗ (pixmap nền 0) để alpha 0. Cạnh dài không quá 2048.
+// Rỗng khi không có cọ nào. Lỗ (pixmap nền 0) để alpha 0. Cạnh dài không quá max_edge. Mỗi điểm ảnh nướng lấy
+// mẫu tam tuyến từ chuỗi mip của cọ ở mức bằng số điểm ảnh cọ nó phủ (GPU của bản gốc lọc cọ theo cách đó khi
+// vẽ từng ô); lấy mẫu điểm gần nhất như trước làm hoạ tiết mịn (rồng, hoa văn) thành nhiễu màu.
 [[nodiscard]] Picture paint_surface(const TerrainFile& file, const GridField& grid, SurfaceInputs inputs);
 
 } // namespace game::client::map

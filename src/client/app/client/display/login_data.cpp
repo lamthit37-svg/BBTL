@@ -12,13 +12,13 @@
 
 namespace game::client {
 
-std::string read_role_book(const std::filesystem::path& file) {
+std::string read_save_text(const std::filesystem::path& file) {
     const io::TextResult text = io::read_text(file);
     if (!text) return {};
     return *text;
 }
 
-bool write_role_book(const std::filesystem::path& file, std::string_view text) {
+bool write_save_text(const std::filesystem::path& file, std::string_view text) {
     std::error_code error;
     std::filesystem::create_directories(file.parent_path(), error);
     if (error) return false;

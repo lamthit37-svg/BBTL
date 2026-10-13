@@ -28,7 +28,16 @@ template <std::invocable Make>
 [[nodiscard]] std::invoke_result_t<Make>& thread_slot(Make make) {
     using Value = std::invoke_result_t<Make>;
     if constexpr (kThreadExitDestroys) {
+        // Huỷ giá trị khi luồng kết thúc là hợp đồng của nhánh này (đầu tệp), nên -Wexit-time-destructors
+        // báo nhầm ở đây. Tái hiện: clang++ 23.1.2 -Werror -Wexit-time-destructors dịch clock.cpp.
+#if defined(__clang__)
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wexit-time-destructors"
+#endif
         thread_local Value value = make();
+#if defined(__clang__)
+#pragma clang diagnostic pop
+#endif
         return value;
     } else {
         // NOLINTNEXTLINE(cppcoreguidelines-owning-memory): cố ý không trả, lý do ở đầu tệp (SH-01).

@@ -16,6 +16,9 @@
 #include "render/forward.hpp"
 #include "render/view_size.hpp"
 
+#include <algorithm>
+#include <chrono>
+#include <cmath>
 #include <cstdint>
 #include <cstdio>
 #include <expected>
@@ -59,6 +62,10 @@ look::HeadPose pose_of(const std::filesystem::path& data_root, std::string_view 
 // sáng thêm phần đã đủ sáng. Ở đây chỉ giữ phần môi trường nên màu ra đúng màu texture.
 constexpr float kAmbient = 1.0F;
 
+constexpr float kTwoPi = 6.28318548F;
+// Khoảng thời gian tối đa một khung được tính vào góc quay (giây).
+constexpr float kLongestStep = 0.1F;
+
 } // namespace
 
 render::Camera head_camera(const look::HeadPose& pose) noexcept {
@@ -86,8 +93,11 @@ struct HeadShot::State {
     render::Forward* forward = nullptr;
     render::Camera camera;
     render::Lighting light;
-    // Hướng mặt của mô hình trước camera (cột turn của bảng).
+    // Hướng mặt của mô hình trước camera (cột turn của bảng), radian.
     float turn = 0.0F;
+    // Số vòng mỗi giây đang quay và lúc cập nhật hướng lần trước.
+    float spin = 0.0F;
+    core::Clock::time_point last;
     std::vector<render::Instance> instances;
 };
 
@@ -127,13 +137,24 @@ core::Result<HeadShot> HeadShot::create(gpu::Device& device, const HeadShotDesc&
     return HeadShot(std::move(state));
 }
 
+void HeadShot::set_spin(float speed) noexcept {
+    state_->spin = speed;
+}
+
 core::Status HeadShot::record(gpu::CommandList& list, std::uint32_t slot) {
     State& state = *state_;
+    const core::Clock::time_point now = core::Clock::now();
+    if (state.spin != 0.0F) {
+        // Một khung dừng lâu (kéo cửa sổ) không làm người mẫu nhảy một đoạn dài.
+        const float seconds = std::min(std::chrono::duration<float>(now - state.last).count(), kLongestStep);
+        state.turn = std::fmod(state.turn + (state.spin * kTwoPi * seconds), kTwoPi);
+    }
+    state.last = now;
     // Đứng yên ở gốc, hướng mặt đúng góc của bảng như SetFaceDir(turn) của bản gốc (0 là nhìn thẳng
     // vào camera ở phía +z); bộ dáng tự phát động tác nghỉ.
     Stand stand;
     stand.facing = state.turn;
-    const core::Status posed = state.actor.update(core::Clock::now(), stand);
+    const core::Status posed = state.actor.update(now, stand);
     if (!posed) return posed;
     state.instances.clear();
     state.actor.append(state.instances);

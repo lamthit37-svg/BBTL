@@ -44,6 +44,13 @@ enum class Kind : std::uint8_t {
     // Falagard/Scrollbar và Falagard/Thumb: thanh cuộn (con của look) và con chạy của nó.
     kScrollbar,
     kThumb,
+    // Falagard/AchievementWindow: các nút xếp dọc (nút nhóm, nút chữ) mà script thêm bằng
+    // AddItemElement; bản này dùng cho cột vùng của bảng chọn máy chủ.
+    kCatalog,
+    // Falagard/Money: số tiền MoneyNumber chia vàng, bạc, đồng, mỗi phần một số và một icon.
+    kMoney,
+    // Falagard/WorldMap: ảnh nền cuộn được, nút và nhãn các thành phố.
+    kWorld,
 };
 
 // Chỉ số ảnh theo "imageset/tên".
@@ -179,9 +186,38 @@ void draw_complex(const Ctx& ctx, const Placed& self);
 void complex_texts(const Ctx& ctx, const Placed& self);
 void draw_action(const Ctx& ctx, const Placed& self);
 
+// Một phần tử của cửa sổ thành tích đã xếp: chỉ số bản ghi trong Elements, khoá ChildItem, tên
+// section sáng lên khi trỏ vào hay đang chọn, chữ, cờ chọn và ô trên màn hình. Phần tử ẩn không có
+// mặt (performWindowLayout bỏ qua cửa sổ con không hiện).
+struct CatalogItem {
+    std::size_t index = 0;
+    std::string_view key;
+    std::string_view hover;
+    std::string_view text;
+    bool is_selected = false;
+    Box box;
+};
+// Các phần tử đang hiện, xếp dọc từ mép trên của cửa sổ. Không có phần tử nào khi khoá ChildItem
+// của bản ghi lạ hay look của cửa sổ không khai vùng của khoá ấy.
+[[nodiscard]] std::vector<CatalogItem> catalog_items(const Ctx& ctx, const Placed& self);
+// Cửa sổ giả đại diện nút của phần tử: dùng look của nút để vẽ các section và đọc cửa sổ con tên.
+[[nodiscard]] Placed catalog_button(const Ctx& ctx, const Placed& self, const CatalogItem& item);
+// Chỉ số bản ghi của phần tử đang hiện dưới điểm pointer; nullopt khi điểm nằm trên chỗ trống.
+[[nodiscard]] std::optional<std::size_t> catalog_item_under(const Ctx& ctx, const Placed& self, Pointer pointer);
+void draw_catalog(const Ctx& ctx, const Placed& self);
+// Bản đồ thế giới (Falagard/WorldMap, hiện thực ở paint.cpp): ảnh nền và các thành phố ở trang tĩnh.
+void draw_world(const Ctx& ctx, const Placed& self);
+// Nhãn chữ (tên đã dịch) của các thành phố trên bản đồ thế giới; hiện thực ở paint.cpp cạnh draw_world.
+void world_texts(const Ctx& ctx, const Placed& self);
+
+// Ô tiền (Falagard/Money): icon vàng, bạc, đồng của số MoneyNumber; chữ của nó ở money_texts.
+void draw_money(const Ctx& ctx, const Placed& self);
+
 // text.cpp
 
 // Ra các dòng chữ của cửa sổ.
 void texts_of(const Ctx& ctx, const Placed& self);
+// Các số của ô tiền (hiện thực ở widgets.cpp, cạnh phần xếp ô tiền dùng chung với draw_money).
+void money_texts(const Ctx& ctx, const Placed& self);
 
 } // namespace game::gui::detail

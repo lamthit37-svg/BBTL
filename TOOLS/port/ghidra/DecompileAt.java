@@ -3,6 +3,12 @@
 //   0x140641210          hàm chứa địa chỉ ảo đó (gốc ảnh 0x140000000 với Game.exe)
 //   s:chuỗi              mọi hàm tham chiếu chuỗi ASCII chứa "chuỗi"
 //   x:địa chỉ            mọi hàm gọi hay trỏ tới địa chỉ (callers, kèm tên hàm gọi)
+//   l:tên                chỉ tên symbol chứa "tên", mỗi tên một dòng kèm địa chỉ (không dump vtable)
+//   v:lớp                decompile mọi hàm ảo của "<lớp>::vftable" (ví dụ v:Packets::LCRetLogin)
+//   n:tên                symbol có tên chứa "tên"; vtable kèm các hàm ảo của nó (không decompile)
+//   i:chuỗi              14 lệnh máy tại mỗi nơi tham chiếu chuỗi (khi hàm chứa quá lớn để decompile)
+//   a:địa chỉ            16 lệnh máy quanh địa chỉ (lùi 4 lệnh), khi chỉ cần xem cách nạp đối số
+//   e:địa chỉ            bảng đăng ký sự kiện trong hàm chứa địa chỉ: "0xid tên" (Game.exe 0x140a10f2d)
 // Kết quả: tên hàm, địa chỉ, decompile, danh sách hàm được gọi. Chương trình chỉ đọc, không lưu.
 // Chạy bằng decompile.bat <chương trình> <tệp xuất> <khoá>...
 
@@ -15,6 +21,8 @@ import ghidra.program.model.listing.FunctionManager;
 import ghidra.program.model.mem.Memory;
 import ghidra.program.model.symbol.Reference;
 import ghidra.program.model.symbol.ReferenceIterator;
+import ghidra.program.model.symbol.Symbol;
+import ghidra.program.model.symbol.SymbolIterator;
 
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -24,7 +32,7 @@ import java.util.Set;
 import java.util.TreeSet;
 
 public class DecompileAt extends GhidraScript {
-    private static final int DECOMPILE_SECONDS = 120;
+    private static final int DECOMPILE_SECONDS = 600;
 
     @Override
     public void run() throws Exception {
@@ -41,7 +49,24 @@ public class DecompileAt extends GhidraScript {
             String key = args[i];
             text.append("\n######## ").append(key).append('\n');
             Set<Long> entries = new TreeSet<>();
-            if (key.startsWith("s:")) {
+            if (key.startsWith("l:")) {
+                listNames(key.substring(2), text);
+                continue;
+            } else if (key.startsWith("v:")) {
+                entries.addAll(vtableFunctions(key.substring(2), functions));
+            } else if (key.startsWith("n:")) {
+                listSymbols(key.substring(2), text);
+                continue;
+            } else if (key.startsWith("i:")) {
+                listAround(key.substring(2), text);
+                continue;
+            } else if (key.startsWith("a:")) {
+                listInstructions(address(key.substring(2)), text);
+                continue;
+            } else if (key.startsWith("e:")) {
+                listEvents(address(key.substring(2)), text);
+                continue;
+            } else if (key.startsWith("s:")) {
                 entries.addAll(byString(key.substring(2), functions));
             } else if (key.startsWith("x:")) {
                 entries.addAll(callersOf(address(key.substring(2)), functions, text));
@@ -64,6 +89,165 @@ public class DecompileAt extends GhidraScript {
         decomp.dispose();
         Files.writeString(Path.of(args[0]), text.toString(), StandardCharsets.UTF_8);
         println("xuất " + args[0]);
+    }
+
+    // Hàm của vtable có tên đúng "<lớp>::vftable" (tối đa 24 ô); dừng ở ô không phải hàm. Dùng để đọc
+    // hàm Read/Write/Execute của một gói tin (Packets::LCRetCharList).
+    private Set<Long> vtableFunctions(String className, FunctionManager functions) throws Exception {
+        Set<Long> entries = new TreeSet<>();
+        Memory memory = currentProgram.getMemory();
+        SymbolIterator symbols = currentProgram.getSymbolTable().getAllSymbols(false);
+        while (symbols.hasNext()) {
+            Symbol symbol = symbols.next();
+            if (!symbol.getName(true).equals(className + "::vftable")) {
+                continue;
+            }
+            Address slot = symbol.getAddress();
+            for (int index = 0; index < 24; index++) {
+                Function function = functions.getFunctionAt(toAddr(memory.getLong(slot)));
+                if (function == null) {
+                    break;
+                }
+                entries.add(function.getEntryPoint().getOffset());
+                slot = slot.add(8);
+            }
+        }
+        return entries;
+    }
+
+    // Chỉ tên của symbol có tên chứa needle (không dump vtable), mỗi tên một dòng kèm địa chỉ.
+    private void listNames(String needle, StringBuilder text) {
+        SymbolIterator symbols = currentProgram.getSymbolTable().getAllSymbols(false);
+        Set<String> seen = new TreeSet<>();
+        while (symbols.hasNext()) {
+            Symbol symbol = symbols.next();
+            String name = symbol.getName(true);
+            if (name.contains(needle)) {
+                seen.add(name + " @ " + symbol.getAddress());
+            }
+        }
+        for (String line : seen) {
+            text.append(line).append('\n');
+        }
+    }
+
+    // Mỗi nơi tham chiếu tới chuỗi ASCII chứa needle: in 14 lệnh máy bắt đầu từ lệnh tham chiếu. Dùng
+    // khi hàm chứa quá lớn để decompile (bảng đăng ký sự kiện): id đứng ngay sau tham chiếu chuỗi.
+    private void listAround(String needle, StringBuilder text) throws Exception {
+        Memory memory = currentProgram.getMemory();
+        byte[] pattern = needle.getBytes(StandardCharsets.UTF_8);
+        Address from = memory.getMinAddress();
+        while (from != null) {
+            Address hit = memory.findBytes(from, pattern, null, true, monitor);
+            if (hit == null) {
+                break;
+            }
+            ReferenceIterator refs = currentProgram.getReferenceManager().getReferencesTo(hit);
+            while (refs.hasNext()) {
+                Address site = refs.next().getFromAddress();
+                text.append("-- tham chiếu từ ").append(site).append(" chuỗi ").append(cstring(hit)).append('\n');
+                ghidra.program.model.listing.Instruction instruction = currentProgram.getListing().getInstructionAt(site);
+                // Lùi 3 lệnh: bảng sự kiện ghi id (hằng số) ngay TRƯỚC khi nạp con trỏ tên.
+                for (int back = 0; instruction != null && back < 3 && instruction.getPrevious() != null; back++) {
+                    instruction = instruction.getPrevious();
+                }
+                for (int count = 0; instruction != null && count < 14; count++) {
+                    text.append(instruction.getAddress()).append(": ").append(instruction).append('\n');
+                    instruction = instruction.getNext();
+                }
+            }
+            from = hit.add(1);
+        }
+    }
+
+    // 12 lệnh máy bắt đầu từ địa chỉ (lùi 4 lệnh trước để thấy cách nạp đối số).
+    private void listInstructions(Address start, StringBuilder text) {
+        ghidra.program.model.listing.Instruction instruction = currentProgram.getListing().getInstructionAt(start);
+        text.append("-- từ ").append(start).append('\n');
+        for (int back = 0; instruction != null && back < 4 && instruction.getPrevious() != null; back++) {
+            instruction = instruction.getPrevious();
+        }
+        for (int count = 0; instruction != null && count < 16; count++) {
+            text.append(instruction.getAddress()).append(": ").append(instruction).append('\n');
+            instruction = instruction.getNext();
+        }
+    }
+
+    // Bảng đăng ký sự kiện của client: trong hàm chứa địa chỉ, mỗi `MOV dword [..], imm` ngay trước một
+    // `LEA reg,[chuỗi]` là id của sự kiện mang tên chuỗi đó. In "0xid tên" theo thứ tự lệnh.
+    private void listEvents(Address inside, StringBuilder text) throws Exception {
+        Function function = currentProgram.getFunctionManager().getFunctionContaining(inside);
+        if (function == null) {
+            text.append("không có hàm chứa ").append(inside).append('\n');
+            return;
+        }
+        Long lastId = null;
+        for (ghidra.program.model.listing.Instruction instruction
+            : currentProgram.getListing().getInstructions(function.getBody(), true)) {
+            String mnemonic = instruction.getMnemonicString();
+            if ("MOV".equals(mnemonic) && instruction.getNumOperands() == 2
+                && instruction.getScalar(1) != null && instruction.toString().contains("dword ptr")) {
+                lastId = instruction.getScalar(1).getUnsignedValue();
+            } else if ("LEA".equals(mnemonic) && lastId != null) {
+                Address target = null;
+                for (Reference reference : instruction.getReferencesFrom()) {
+                    target = reference.getToAddress();
+                }
+                if (target != null) {
+                    String name = cstring(target);
+                    if (name.length() > 3) {
+                        text.append("0x").append(Long.toHexString(lastId)).append(' ').append(name).append('\n');
+                        lastId = null;
+                    }
+                }
+            }
+        }
+    }
+
+    // Chuỗi C (tối đa 120 byte, ASCII) bắt đầu tại địa chỉ.
+    private String cstring(Address start) throws Exception {
+        StringBuilder out = new StringBuilder();
+        Memory memory = currentProgram.getMemory();
+        for (int index = 0; index < 120; index++) {
+            int value = memory.getByte(start.add(index)) & 0xFF;
+            if (value == 0) {
+                break;
+            }
+            out.append(value >= 32 && value < 127 ? (char) value : '?');
+        }
+        return out.toString();
+    }
+
+    // Symbol có tên chứa needle; vtable (tên chứa "vftable") kèm các ô con trỏ hàm của nó.
+    private void listSymbols(String needle, StringBuilder text) throws Exception {
+        Memory memory = currentProgram.getMemory();
+        FunctionManager functions = currentProgram.getFunctionManager();
+        SymbolIterator symbols = currentProgram.getSymbolTable().getAllSymbols(false);
+        int shown = 0;
+        while (symbols.hasNext() && shown < 400) {
+            Symbol symbol = symbols.next();
+            String name = symbol.getName(true);
+            if (!name.contains(needle)) {
+                continue;
+            }
+            shown++;
+            text.append(symbol.getAddress()).append(' ').append(symbol.getSymbolType()).append(' ').append(name)
+                .append('\n');
+            if (!name.contains("vftable")) {
+                continue;
+            }
+            Address slot = symbol.getAddress();
+            for (int index = 0; index < 64; index++) {
+                long target = memory.getLong(slot);
+                Function function = functions.getFunctionAt(toAddr(target));
+                if (function == null) {
+                    break;
+                }
+                text.append("  [").append(Integer.toHexString(index * 8)).append("] ").append(function.getName())
+                    .append(" @ ").append(function.getEntryPoint()).append('\n');
+                slot = slot.add(8);
+            }
+        }
     }
 
     private Address address(String text) {

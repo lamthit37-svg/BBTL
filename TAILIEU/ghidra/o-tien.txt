@@ -1,0 +1,297 @@
+
+######## 0x180082510
+
+==== populateRenderCache @ 0x180082510
+
+/* WARNING: Function: __security_check_cookie replaced with injection: security_check_cookie */
+/* protected: virtual void __cdecl CEGUI::FalagardMoney::populateRenderCache(void) __ptr64 */
+
+void __thiscall CEGUI::FalagardMoney::populateRenderCache(FalagardMoney *this)
+
+{
+  float fVar1;
+  uint uVar2;
+  uint uVar3;
+  uint uVar4;
+  uint uVar5;
+  float *pfVar6;
+  longlong lVar7;
+  Font *this_00;
+  colour *pcVar8;
+  undefined8 *puVar9;
+  GeometryBuffer *pGVar10;
+  Size *this_01;
+  int iVar11;
+  char *_Format;
+  float fVar12;
+  undefined1 auStackY_258 [32];
+  undefined4 in_stack_fffffffffffffddc;
+  bool bVar13;
+  uint in_stack_fffffffffffffde8;
+  bool bVar14;
+  float local_1f8;
+  float fStack_1f4;
+  float fStack_1f0;
+  float fStack_1ec;
+  float local_1e8;
+  float local_1e4;
+  float local_1e0;
+  float local_1dc;
+  undefined8 local_1d8;
+  undefined8 uStack_1d0;
+  String32 local_1c8 [8];
+  uint local_1c0;
+  colour local_1b8 [40];
+  String32 local_190 [40];
+  undefined8 local_168;
+  ColourRect local_158 [96];
+  ColourRect local_f8 [96];
+  undefined8 local_98;
+  undefined8 local_90;
+  undefined8 local_88;
+  uchar local_80 [32];
+  ulonglong local_60;
+  
+                    /* 0x82510  2804  ?populateRenderCache@FalagardMoney@CEGUI@@MEAAXXZ */
+  local_168 = 0xfffffffffffffffe;
+  local_60 = DAT_1801e9900 ^ (ulonglong)auStackY_258;
+  iVar11 = *(int *)(this + 0x3f0);
+  local_1c0 = iVar11 % 100;
+  uVar2 = iVar11 / 10000;
+  uVar3 = (iVar11 % 10000) / 100;
+  _Format = "%d";
+  if (this[0x414] != (FalagardMoney)0x0) {
+    _Format = "%2d";
+  }
+  pfVar6 = (float *)CEGUI::Window::getUnclippedPixelRect((Window *)this);
+  fVar12 = pfVar6[1];
+  fVar1 = *pfVar6;
+  lVar7 = CEGUI::Window::getAbsoluteRect((Window *)this);
+  CEGUI::Rect::Rect((Rect *)&local_1e8,0.0,0.0,*(float *)(lVar7 + 0xc) - *(float *)(lVar7 + 8),
+                    fVar12 - fVar1);
+  CEGUI::Rect::Rect((Rect *)&local_1f8,0.0,0.0,0.0,0.0);
+  this_00 = CEGUI::Window::getFont((Window *)this,true);
+  uVar4 = DAT_18011787c;
+  if (this_00 == (Font *)0x0) {
+    return;
+  }
+  pcVar8 = (colour *)
+           CEGUI::colour::colour
+                     (local_1b8,(float)DAT_18011787c,(float)DAT_18011787c,(float)DAT_18011787c,
+                      (float)DAT_18011787c);
+  CEGUI::ColourRect::ColourRect(local_f8,pcVar8);
+  this_01 = (Size *)&local_98;
+  iVar11 = 2;
+  do {
+    CEGUI::Size::Size(this_01);
+    this_01 = this_01 + 8;
+    iVar11 = iVar11 + -1;
+  } while (-1 < iVar11);
+  if ((int)uVar2 < 1) {
+    if ((int)uVar3 < 1) goto LAB_180082874;
+  }
+  else {
+    _snprintf((char *)local_80,0x20,"%d",(ulonglong)uVar2);
+    CEGUI::String32::String32((String32 *)local_1b8,local_80);
+    puVar9 = (undefined8 *)
+             CEGUI::Font::getFormattedSize
+                       (this_00,local_1c8,(Rect *)local_1b8,(TextFormatting)&local_1e8,
+                        *(float *)(this + 0x410),(float)uVar4,
+                        (float *)CONCAT44(in_stack_fffffffffffffddc,uVar4));
+    local_98 = *puVar9;
+    CEGUI::String32::~String32((String32 *)local_1b8);
+    if (fStack_1f4 - local_1f8 < local_98._4_4_) {
+      fStack_1f4 = local_98._4_4_;
+    }
+    fVar12 = *(float *)(*(longlong *)(this + 0x418) + 0x24);
+    if (fStack_1f4 - local_1f8 < fVar12) {
+      fStack_1f4 = fVar12;
+    }
+    fStack_1ec = fStack_1ec + (float)local_98 + *(float *)(*(longlong *)(this + 0x418) + 0x20) + 0.0
+    ;
+  }
+  _snprintf((char *)local_80,0x20,_Format,(ulonglong)uVar3);
+  CEGUI::String32::String32((String32 *)local_1b8,local_80);
+  puVar9 = (undefined8 *)
+           CEGUI::Font::getFormattedSize
+                     (this_00,local_1c8,(Rect *)local_1b8,(TextFormatting)&local_1e8,
+                      *(float *)(this + 0x410),(float)uVar4,
+                      (float *)CONCAT44(in_stack_fffffffffffffddc,uVar4));
+  local_90 = *puVar9;
+  CEGUI::String32::~String32((String32 *)local_1b8);
+  if (fStack_1f4 - local_1f8 < local_90._4_4_) {
+    fStack_1f4 = local_90._4_4_;
+  }
+  fVar12 = *(float *)(*(longlong *)(this + 0x420) + 0x24);
+  if (fStack_1f4 - local_1f8 < fVar12) {
+    fStack_1f4 = fVar12;
+  }
+  fStack_1ec = fStack_1ec + (float)local_90 + *(float *)(*(longlong *)(this + 0x420) + 0x20) + 0.0;
+LAB_180082874:
+  uVar5 = local_1c0;
+  _snprintf((char *)local_80,0x20,_Format,(ulonglong)local_1c0);
+  CEGUI::String32::String32((String32 *)local_1b8,local_80);
+  puVar9 = (undefined8 *)
+           CEGUI::Font::getFormattedSize
+                     (this_00,local_1c8,(Rect *)local_1b8,(TextFormatting)&local_1e8,
+                      *(float *)(this + 0x410),(float)uVar4,
+                      (float *)CONCAT44(in_stack_fffffffffffffddc,uVar4));
+  local_88 = *puVar9;
+  CEGUI::String32::~String32((String32 *)local_1b8);
+  if (fStack_1f4 - local_1f8 < local_88._4_4_) {
+    fStack_1f4 = local_88._4_4_;
+  }
+  fVar12 = *(float *)(*(longlong *)(this + 0x428) + 0x24);
+  if (fStack_1f4 - local_1f8 < fVar12) {
+    fStack_1f4 = fVar12;
+  }
+  fStack_1ec = fStack_1ec + (float)local_88 + *(float *)(*(longlong *)(this + 0x428) + 0x20) + 0.0;
+  local_1d8 = CONCAT44(fStack_1f4,local_1f8);
+  uStack_1d0 = CONCAT44(fStack_1ec,fStack_1f0);
+  fVar12 = fStack_1f0;
+  if (*(int *)(this + 0x410) == 1) {
+    fVar12 = (((local_1dc - local_1e0) - (fStack_1ec - fStack_1f0)) - DAT_1801319c0) + fStack_1f0;
+  }
+  CEGUI::ColourRect::ColourRect(local_158,(colour *)(this + 0x430));
+  if ((-1 < *(int *)(this + 0x3f4)) && (*(int *)(this + 0x3f4) < *(int *)(this + 0x3f0))) {
+    CEGUI::ColourRect::setColours(local_158,(colour *)(this + 0x3f8));
+  }
+  bVar13 = SUB81(local_158,0);
+  bVar14 = SUB41(uVar4,0);
+  if (0 < (int)uVar2) {
+    _snprintf((char *)local_80,0x20,"%d",(ulonglong)uVar2);
+    CEGUI::Rect::Rect((Rect *)&local_1d8,fVar12,(local_1e4 - local_1e8) - local_98._4_4_,
+                      (float)local_98 + fVar12,local_1e4 - local_1e8);
+    fVar12 = (float)local_98 + fVar12;
+    CEGUI::Rect::Rect((Rect *)local_1b8,fVar12,
+                      (local_1e4 - local_1e8) - *(float *)(*(longlong *)(this + 0x418) + 0x24),
+                      *(float *)(*(longlong *)(this + 0x418) + 0x20) + uStack_1d0._4_4_,
+                      local_1e4 - local_1e8);
+    fVar12 = fVar12 + *(float *)(*(longlong *)(this + 0x418) + 0x20);
+    CEGUI::String32::String32(local_190,local_80);
+    CEGUI::Font::drawText
+              (this_00,(Window *)local_1c8,(String32 *)this,(Rect *)local_190,(Rect *)&local_1d8,
+               (TextFormatting)&local_1d8,(ColourRect *)CONCAT44(in_stack_fffffffffffffddc,1),bVar13
+               ,(float)(in_stack_fffffffffffffde8 & 0xffffff00),(float)uVar4,bVar14);
+    CEGUI::String32::~String32(local_190);
+    pGVar10 = CEGUI::Window::getGeometryBuffer((Window *)this,false,true);
+    in_stack_fffffffffffffde8 = 0;
+    CEGUI::Image::draw(*(Image **)(this + 0x418),pGVar10,(Window *)this,(Rect *)local_1b8,
+                       (Rect *)0x0,local_f8,false,false,0,(uint *)0x0,(uint *)0x0);
+    fStack_1ec = fStack_1ec + 0.0;
+  }
+  if ((0 < (int)uVar3) || (0 < (int)uVar2)) {
+    _snprintf((char *)local_80,0x20,_Format,(ulonglong)uVar3);
+    CEGUI::Rect::Rect((Rect *)&local_1d8,fVar12,(local_1e4 - local_1e8) - local_90._4_4_,
+                      (float)local_90 + fVar12,local_1e4 - local_1e8);
+    fVar12 = fVar12 + (float)local_90;
+    CEGUI::Rect::Rect((Rect *)local_1b8,fVar12,
+                      (local_1e4 - local_1e8) - *(float *)(*(longlong *)(this + 0x418) + 0x24),
+                      *(float *)(*(longlong *)(this + 0x420) + 0x20) + uStack_1d0._4_4_,
+                      local_1e4 - local_1e8);
+    fVar12 = fVar12 + *(float *)(*(longlong *)(this + 0x420) + 0x20);
+    CEGUI::String32::String32(local_190,local_80);
+    CEGUI::Font::drawText
+              (this_00,(Window *)local_1c8,(String32 *)this,(Rect *)local_190,(Rect *)&local_1d8,
+               (TextFormatting)&local_1d8,(ColourRect *)CONCAT44(in_stack_fffffffffffffddc,1),bVar13
+               ,(float)(in_stack_fffffffffffffde8 & 0xffffff00),(float)uVar4,bVar14);
+    CEGUI::String32::~String32(local_190);
+    pGVar10 = CEGUI::Window::getGeometryBuffer((Window *)this,false,true);
+    in_stack_fffffffffffffde8 = 0;
+    CEGUI::Image::draw(*(Image **)(this + 0x420),pGVar10,(Window *)this,(Rect *)local_1b8,
+                       (Rect *)0x0,local_f8,false,false,0,(uint *)0x0,(uint *)0x0);
+    fStack_1ec = fStack_1ec + 0.0;
+  }
+  _snprintf((char *)local_80,0x20,_Format,(ulonglong)uVar5);
+  CEGUI::Rect::Rect((Rect *)&local_1d8,fVar12,(local_1e4 - local_1e8) - local_88._4_4_,
+                    (float)local_88 + fVar12,local_1e4 - local_1e8);
+  CEGUI::Rect::Rect((Rect *)local_1b8,fVar12 + (float)local_88,
+                    (local_1e4 - local_1e8) - *(float *)(*(longlong *)(this + 0x418) + 0x24),
+                    *(float *)(*(longlong *)(this + 0x428) + 0x20) + uStack_1d0._4_4_,
+                    local_1e4 - local_1e8);
+  CEGUI::String32::String32(local_190,local_80);
+  CEGUI::Font::drawText
+            (this_00,(Window *)local_1c8,(String32 *)this,(Rect *)local_190,(Rect *)&local_1d8,
+             (TextFormatting)&local_1d8,(ColourRect *)CONCAT44(in_stack_fffffffffffffddc,1),bVar13,
+             (float)(in_stack_fffffffffffffde8 & 0xffffff00),(float)uVar4,bVar14);
+  CEGUI::String32::~String32(local_190);
+  pGVar10 = CEGUI::Window::getGeometryBuffer((Window *)this,false,true);
+  CEGUI::Image::draw(*(Image **)(this + 0x428),pGVar10,(Window *)this,(Rect *)local_1b8,(Rect *)0x0,
+                     local_f8,false,false,0,(uint *)0x0,(uint *)0x0);
+  return;
+}
+
+// gọi: ColourRect@7, Rect@4, Size@325, String32@29f, __security_check_cookie@1800edfa0, _snprintf@3b2, colour@6, draw@b, drawText@d7, getAbsoluteRect@158, getFont@15, getFormattedSize@c, getGeometryBuffer@17, getUnclippedPixelRect@109, setColours@d5, ~String32@cf
+
+######## 0x1800824e0
+
+==== modifyFinalColor @ 0x1800824e0
+
+/* private: void __cdecl CEGUI::FalagardMoney::modifyFinalColor(class CEGUI::ColourRect & __ptr64)
+   __ptr64 */
+
+void __thiscall CEGUI::FalagardMoney::modifyFinalColor(FalagardMoney *this,ColourRect *param_1)
+
+{
+                    /* 0x824e0  2620
+                       ?modifyFinalColor@FalagardMoney@CEGUI@@AEAAXAEAVColourRect@2@@Z */
+  if ((-1 < *(int *)(this + 0x3f4)) && (*(int *)(this + 0x3f4) < *(int *)(this + 0x3f0))) {
+                    /* WARNING: Could not recover jumptable at 0x0001800824ff. Too many branches */
+                    /* WARNING: Treating indirect jump as call */
+    CEGUI::ColourRect::setColours(param_1,(colour *)(this + 0x3f8));
+    return;
+  }
+  return;
+}
+
+// gọi: 
+
+######## 0x180082f20
+
+==== setMoneyNumber @ 0x180082f20
+
+/* public: void __cdecl CEGUI::FalagardMoney::setMoneyNumber(int) __ptr64 */
+
+void __thiscall CEGUI::FalagardMoney::setMoneyNumber(FalagardMoney *this,int param_1)
+
+{
+                    /* 0x82f20  3032  ?setMoneyNumber@FalagardMoney@CEGUI@@QEAAXH@Z */
+  *(int *)(this + 0x3f0) = param_1;
+                    /* WARNING: Could not recover jumptable at 0x000180082f28. Too many branches */
+                    /* WARNING: Treating indirect jump as call */
+  CEGUI::Window::requestRedraw((Window *)this,false);
+  return;
+}
+
+// gọi: 
+
+######## 0x1800812b0
+
+==== FalagardMoney @ 0x1800812b0
+
+/* public: __cdecl CEGUI::FalagardMoney::FalagardMoney(class CEGUI::StringBaseT<char> const &
+   __ptr64,class CEGUI::StringBaseT<char> const & __ptr64) __ptr64 */
+
+FalagardMoney * __thiscall
+CEGUI::FalagardMoney::FalagardMoney
+          (FalagardMoney *this,StringBaseT<char> *param_1,StringBaseT<char> *param_2)
+
+{
+                    /* 0x812b0  178  ??0FalagardMoney@CEGUI@@QEAA@AEBV?$StringBaseT@D@1@0@Z */
+  CEGUI::Window::Window((Window *)this,param_1,param_2,0);
+  *(undefined ***)this = vftable_for_CEGUI__PropertyReceiver_;
+  *(undefined ***)(this + 8) = vftable_for_CEGUI__EventSet_;
+  *(undefined4 *)(this + 0x3f0) = 0;
+  *(undefined4 *)(this + 0x3f4) = 0xffffffff;
+  CEGUI::colour::colour((colour *)(this + 0x3f8),0xffffffff);
+  *(undefined4 *)(this + 0x410) = 0;
+  this[0x414] = (FalagardMoney)0x0;
+  *(undefined8 *)(this + 0x418) = 0;
+  *(undefined8 *)(this + 0x420) = 0;
+  *(undefined8 *)(this + 0x428) = 0;
+  CEGUI::colour::colour((colour *)(this + 0x430),0xffffffff);
+  addMoneyProperties(this);
+  return this;
+}
+
+// gọi: Window@2aa, addMoneyProperties@1800822e0, colour@2b9
