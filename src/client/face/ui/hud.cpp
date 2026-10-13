@@ -27,6 +27,7 @@
 #include "ui/panel/minimap.hpp"
 #include "ui/panel/player_frame.hpp"
 #include "ui/panel/portraits.hpp"
+#include "ui/panel/quest_book.hpp"
 #include "ui/panel/role_cast.hpp"
 #include "ui/panel/role_pose.hpp"
 #include "ui/panel/roles.hpp"
@@ -247,6 +248,7 @@ struct Prepared {
     panel::SceneTable scenes;
     std::string world_cities;
     panel::LoginFlow flow;
+    panel::QuestBook quests;
     // Dữ liệu hai phông chưa lên GPU; thiếu phông thì HUD không có chữ (GBK12) hay chữ có dấu ra ô vuông (VTNAM14).
     std::optional<BitmapFont> font;
     std::optional<BitmapFont> vi_font;
@@ -254,6 +256,7 @@ struct Prepared {
     void open_portraits(const std::filesystem::path& data_root);
     void open_servers(const std::filesystem::path& data_root);
     void open_scenes(const std::filesystem::path& data_root);
+    void open_quests(const std::filesystem::path& data_root);
 };
 
 // Đọc một phông bitmap; thiếu hay hỏng thì ghi một dòng (what là tên gọi trong dòng đó) và trả nullopt.
@@ -310,6 +313,17 @@ void Prepared::open_servers(const std::filesystem::path& data_root) {
     if (!panel::recall_directory(flow, *text)) std::println(stderr, "Giao diện: danh sách máy chủ sai dạng");
 }
 
+// Nạp hai bảng của sổ nhiệm vụ (Table/mission_outline.tsv, Table/mission_kinds.tsv, do
+// TOOLS/content/export_config.py xuất); thiếu hay hỏng thì ghi một dòng và sổ không có nhiệm vụ nhận được.
+void Prepared::open_quests(const std::filesystem::path& data_root) {
+    const std::optional<table::Tsv> outline = read_table(data_root / "Table" / "mission_outline.tsv");
+    const std::optional<table::Tsv> kinds = read_table(data_root / "Table" / "mission_kinds.tsv");
+    if (!outline || !kinds) return;
+    if (const std::optional<std::string> failed = panel::load_quest_tables(quests, *outline, *kinds)) {
+        std::println(stderr, "Giao diện: bảng nhiệm vụ hỏng: {}", *failed);
+    }
+}
+
 // Việc đọc đĩa của Hud::open, chạy được ở luồng nào cũng được (không đụng GPU, không đụng trạng thái chung).
 // Ba việc độc lập với bộ nạp giao diện (chuỗi, tên cảnh, hai phông) chạy ở luồng riêng cùng lúc với nó: đường dài
 // nhất còn lại là bộ nạp và 40 layout (đo 2026-10-13: 96 + 24 ms trên tổng 286 ms khi nối đuôi).
@@ -337,6 +351,7 @@ core::Result<Prepared> prepare_hud(const std::filesystem::path& data_root) {
     }
     ready.open_portraits(data_root);
     ready.open_servers(data_root);
+    ready.open_quests(data_root);
     // Bảng tên cảnh phải có trước open_scenes (danh sách thành phố của bản đồ thế giới dựng từ nó).
     ready.scene_names = names.get();
     ready.open_scenes(data_root);
@@ -365,6 +380,7 @@ struct Hud::State {
           scenes(std::move(ready.scenes)),
           world_cities(std::move(ready.world_cities)),
           flow(std::move(ready.flow)),
+          quests(std::move(ready.quests)),
           atlas(data_root) {}
 
     gui::GuiLoader loader;
@@ -403,6 +419,9 @@ struct Hud::State {
     std::optional<MapPaint> world_paint;
     std::optional<gui::Pointer> world_press;
     panel::LoginFlow flow;
+    // Sổ nhiệm vụ (QuestLog_Frame) và việc nó nhờ ở lần nhấn gần nhất.
+    panel::QuestBook quests;
+    std::vector<panel::Call> quest_calls;
     panel::SoftKeys keys;
     // Bảng chuyển cảnh, phần trăm đã đưa cho nó ở khung trước và lúc nó hiện ra.
     panel::SceneTrans trans;
@@ -666,6 +685,11 @@ void Hud::State::note_press(const HudView& view) {
     panel::PlayFacts facts;
     if (view.hero != nullptr) facts.sect = view.hero->sect;
     panel::press_desk(desk, *window, facts);
+    quest_calls.clear();
+    panel::press_quest_book(quests, desk, *window, view.hero, &scene_names, quest_calls);
+    for (const panel::Call& call : quest_calls) {
+        std::println(stderr, "Sổ nhiệm vụ: việc nhờ {} chưa có ở HUD", static_cast<int>(call.ask));
+    }
     panel::press_packet(packet, *window);
     note_board_press(*window, view);
     if (window == panel::kWorldWindow && view.pointer) world_press = view.pointer;
@@ -775,6 +799,7 @@ void Hud::State::fill_play(const HudView& view) {
     const std::string resolution = std::format("{},{}", across, down);
     panel::paint_maps(deck, maps, seen.title, resolution);
     panel::paint_desk(deck, desk);
+    panel::paint_quest_book(deck, quests);
     fill_board(view);
     fill_world(view);
     if (panel::is_open(desk, panel::Board::kBag)) {

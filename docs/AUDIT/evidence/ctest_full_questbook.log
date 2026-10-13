@@ -1,0 +1,197 @@
+Test project D:/THIENLONG/build/msvc-release
+      Start 56: ui_quest_book_tests
+      Start 24: gpu_tests
+      Start 77: server_boot_source_clean
+      Start 78: server_data_lint
+      Start 84: net_tests
+      Start 91: gate_loop_tests
+      Start 73: process_tests
+      Start 65: ui_panel_tests
+ 1/93 Test #56: ui_quest_book_tests ..............   Passed    0.03 sec
+      Start 64: gui_widgets_tests
+ 2/93 Test #65: ui_panel_tests ...................   Passed    0.66 sec
+      Start  5: audio_tests
+ 3/93 Test #64: gui_widgets_tests ................   Passed    1.02 sec
+      Start 75: service_tests
+ 4/93 Test #73: process_tests ....................   Passed    1.15 sec
+      Start 70: layers
+ 5/93 Test  #5: audio_tests ......................   Passed    0.55 sec
+      Start 86: metrics_serve_tests
+ 6/93 Test #75: service_tests ....................   Passed    0.28 sec
+      Start 21: fs_tests
+ 7/93 Test #86: metrics_serve_tests ..............   Passed    0.17 sec
+      Start 60: ui_create_tests
+ 8/93 Test #70: layers ...........................   Passed    0.29 sec
+      Start  1: i18n_tool_tests
+ 9/93 Test #21: fs_tests .........................   Passed    0.16 sec
+      Start 79: protocol_tests
+10/93 Test #79: protocol_tests ...................   Passed    0.03 sec
+      Start 53: ui_board_tests
+11/93 Test #60: ui_create_tests ..................   Passed    0.15 sec
+      Start 27: ogre_mesh_tests
+12/93 Test  #1: i18n_tool_tests ..................   Passed    0.22 sec
+      Start 18: thread_slot_tests
+13/93 Test #53: ui_board_tests ...................   Passed    0.16 sec
+      Start 59: ui_select_tests
+14/93 Test #18: thread_slot_tests ................   Passed    0.04 sec
+      Start 62: ui_softkey_tests
+15/93 Test #27: ogre_mesh_tests ..................   Passed    0.17 sec
+      Start 57: ui_logon_tests
+16/93 Test #59: ui_select_tests ..................   Passed    0.17 sec
+      Start 87: wire_loop_tests
+17/93 Test #78: server_data_lint .................   Passed    1.85 sec
+      Start 58: ui_role_tests
+18/93 Test #62: ui_softkey_tests .................   Passed    0.14 sec
+      Start 39: look_tests
+19/93 Test #57: ui_logon_tests ...................   Passed    0.16 sec
+      Start 11: transform_tests
+20/93 Test #58: ui_role_tests ....................   Passed    0.04 sec
+      Start 23: window_tests
+21/93 Test #87: wire_loop_tests ..................   Passed    0.05 sec
+      Start  6: audio_dsp_tests
+22/93 Test #39: look_tests .......................   Passed    0.04 sec
+      Start 92: protocol_catalog_fresh
+23/93 Test #11: transform_tests ..................   Passed    0.03 sec
+      Start 93: server_config_lint
+24/93 Test #93: server_config_lint ...............   Passed    0.05 sec
+      Start 85: metrics_tests
+25/93 Test #92: protocol_catalog_fresh ...........   Passed    0.08 sec
+      Start 28: resource_upload_tests
+26/93 Test  #6: audio_dsp_tests ..................   Passed    0.12 sec
+      Start 69: pace_tests
+27/93 Test #23: window_tests .....................   Passed    0.13 sec
+      Start 81: guard_tests
+28/93 Test #85: metrics_tests ....................   Passed    0.06 sec
+      Start 32: avatar_data_tests
+29/93 Test #28: resource_upload_tests ............   Passed    0.07 sec
+      Start 29: classic_tests
+30/93 Test #81: guard_tests ......................   Passed    0.05 sec
+      Start  7: seal_tests
+31/93 Test #69: pace_tests .......................   Passed    0.07 sec
+      Start 17: log_tests
+32/93 Test #32: avatar_data_tests ................   Passed    0.07 sec
+      Start 68: ui_text_tests
+33/93 Test #29: classic_tests ....................   Passed    0.05 sec
+      Start 47: skill_tests
+34/93 Test  #7: seal_tests .......................   Passed    0.07 sec
+      Start 89: gate_tests
+35/93 Test #17: log_tests ........................   Passed    0.08 sec
+36/93 Test #47: skill_tests ......................   Passed    0.07 sec
+37/93 Test #68: ui_text_tests ....................   Passed    0.08 sec
+      Start 34: anim_tests
+      Start 71: content_tests
+      Start 35: motion_tests
+38/93 Test #91: gate_loop_tests ..................   Passed    2.17 sec
+      Start 80: link_tests
+39/93 Test #89: gate_tests .......................   Passed    0.09 sec
+40/93 Test #34: anim_tests .......................   Passed    0.05 sec
+41/93 Test #71: content_tests ....................   Passed    0.05 sec
+      Start 30: shade_tests
+      Start  8: scene_tests
+      Start 13: boot_tests
+42/93 Test #35: motion_tests .....................   Passed    0.05 sec
+      Start 55: ui_quest_tests
+43/93 Test #80: link_tests .......................   Passed    0.08 sec
+      Start 25: resource_tests
+44/93 Test #30: shade_tests ......................   Passed    0.06 sec
+      Start 54: ui_widgets_tests
+45/93 Test  #8: scene_tests ......................   Passed    0.06 sec
+      Start 15: stage_tests
+46/93 Test #55: ui_quest_tests ...................   Passed    0.07 sec
+      Start 82: account_tests
+47/93 Test #13: boot_tests .......................   Passed    0.08 sec
+      Start  3: io_tests
+48/93 Test #25: resource_tests ...................   Passed    0.05 sec
+      Start 88: secure_tests
+49/93 Test #54: ui_widgets_tests .................   Passed    0.04 sec
+      Start 38: table_localize_tests
+50/93 Test #15: stage_tests ......................   Passed    0.04 sec
+      Start 90: gate_motion_tests
+51/93 Test #82: account_tests ....................   Passed    0.05 sec
+      Start 52: gui_softkey_tests
+52/93 Test  #3: io_tests .........................   Passed    0.04 sec
+      Start 16: core_tests
+53/93 Test #90: gate_motion_tests ................   Passed    0.04 sec
+      Start 61: ui_flow_tests
+54/93 Test #88: secure_tests .....................   Passed    0.05 sec
+      Start 31: rig_tests
+55/93 Test #52: gui_softkey_tests ................   Passed    0.04 sec
+      Start 43: pilot_tests
+56/93 Test #16: core_tests .......................   Passed    0.04 sec
+      Start 50: gui_sheet_tests
+57/93 Test #38: table_localize_tests .............   Passed    0.08 sec
+      Start 74: supervise_tests
+58/93 Test #61: ui_flow_tests ....................   Passed    0.04 sec
+      Start 49: gui_loader_tests
+59/93 Test #31: rig_tests ........................   Passed    0.04 sec
+      Start 46: quest_tests
+60/93 Test #50: gui_sheet_tests ..................   Passed    0.04 sec
+      Start 40: head_tests
+61/93 Test #43: pilot_tests ......................   Passed    0.04 sec
+      Start 66: camera_tests
+62/93 Test #74: supervise_tests ..................   Passed    0.04 sec
+      Start 22: shader_tests
+63/93 Test #84: net_tests ........................   Passed    2.44 sec
+      Start 51: gui_scroll_tests
+64/93 Test #49: gui_loader_tests .................   Passed    0.05 sec
+      Start 26: dds_tests
+65/93 Test #46: quest_tests ......................   Passed    0.04 sec
+      Start 42: control_tests
+66/93 Test #40: head_tests .......................   Passed    0.04 sec
+      Start 67: catalog_tests
+67/93 Test #66: camera_tests .....................   Passed    0.04 sec
+      Start 41: avatar_tests
+68/93 Test #22: shader_tests .....................   Passed    0.05 sec
+      Start 44: touch_tests
+69/93 Test #51: gui_scroll_tests .................   Passed    0.05 sec
+      Start 48: gui_value_tests
+70/93 Test #42: control_tests ....................   Passed    0.05 sec
+      Start 45: hero_tests
+71/93 Test #67: catalog_tests ....................   Passed    0.03 sec
+      Start 83: protocol_catalog_tests
+72/93 Test #26: dds_tests ........................   Passed    0.06 sec
+      Start  2: fx_tests
+73/93 Test #44: touch_tests ......................   Passed    0.04 sec
+      Start 20: math_tests
+74/93 Test #41: avatar_tests .....................   Passed    0.05 sec
+      Start 14: props_tests
+75/93 Test #48: gui_value_tests ..................   Passed    0.04 sec
+      Start  4: xml_tests
+76/93 Test #45: hero_tests .......................   Passed    0.04 sec
+      Start 10: world_tests
+77/93 Test #83: protocol_catalog_tests ...........   Passed    0.04 sec
+      Start 12: client_tests
+78/93 Test  #2: fx_tests .........................   Passed    0.04 sec
+      Start 33: ogre_tests
+79/93 Test #20: math_tests .......................   Passed    0.04 sec
+      Start 19: function_fallback_tests
+80/93 Test #14: props_tests ......................   Passed    0.04 sec
+      Start 72: config_tests
+81/93 Test  #4: xml_tests ........................   Passed    0.04 sec
+      Start  9: map_tests
+82/93 Test #12: client_tests .....................   Passed    0.04 sec
+      Start 36: nav_tests
+83/93 Test #10: world_tests ......................   Passed    0.05 sec
+84/93 Test #33: ogre_tests .......................   Passed    0.04 sec
+      Start 37: building_height_tests
+      Start 63: gui_real_tests
+85/93 Test #19: function_fallback_tests ..........   Passed    0.05 sec
+86/93 Test #72: config_tests .....................   Passed    0.05 sec
+87/93 Test  #9: map_tests ........................   Passed    0.03 sec
+88/93 Test #36: nav_tests ........................   Passed    0.05 sec
+89/93 Test #37: building_height_tests ............   Passed    0.04 sec
+90/93 Test #24: gpu_tests ........................   Passed    3.19 sec
+91/93 Test #77: server_boot_source_clean .........   Passed    3.40 sec
+      Start 76: server_boot
+92/93 Test #76: server_boot ......................   Passed    3.42 sec
+93/93 Test #63: gui_real_tests ...................***Timeout 300.03 sec
+
+99% tests passed, 1 tests failed out of 93
+
+Total Test time (real) = 302.64 sec
+
+The following tests FAILED:
+	 63 - gui_real_tests (Timeout)
+Errors while running CTest
+Output from these tests are in: D:/THIENLONG/build/msvc-release/Testing/Temporary/LastTest.log
+Use "--rerun-failed --output-on-failure" to re-run the failed cases verbosely.

@@ -500,6 +500,7 @@ game_module(ui_panel
     src/client/face/ui/panel/maps.cpp
     src/client/face/ui/panel/menubar.cpp
     src/client/face/ui/panel/self_equip.cpp
+    src/client/face/ui/panel/quest_book.cpp
     src/client/face/ui/panel/quest_log.cpp
     src/client/face/ui/panel/wording.cpp
     src/client/face/ui/panel/widgets.cpp
@@ -1265,6 +1266,7 @@ game_test(ui_widgets game_ui_panel)
 # Bảng nhiệm vụ: so với trạng thái mà script gốc để lại trên LuaPlus.dll của client 2026 (số vàng do
 # TOOLS/port/lua_oracle.py sinh). Thiết bị Android không thấy cây nguồn nên ở đó ca số vàng tự bỏ qua.
 game_test(ui_quest game_ui_panel game_io)
+game_test(ui_quest_book game_ui_panel game_io)
 if(NOT ANDROID)
     target_compile_definitions(ui_quest_tests PRIVATE
         GAME_PANEL_GOLDEN="${PROJECT_SOURCE_DIR}/Test/golden/panel")

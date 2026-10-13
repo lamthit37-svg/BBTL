@@ -1,0 +1,17 @@
+﻿# Pha gia y: bo dong dong bo ban->bang trong press_quest_book
+exit -1073740791
+ui_quest_book_tests.exe : D:\THIENLONG\Test\Ui\ui_quest_book_tests.cpp:91: [desk_close_hides_book] b├án ─æ├│ng th├¼ 
+bß║úng th├┤i hiß╗çn
+At C:\Users\myhea\AppData\Local\Temp\ps-script-f87456c4-62b2-499d-bce0-fa8fe4b0284e.ps1:86 char:6
++ $o = & build\msvc-release\ui_quest_book_tests.exe 2>&1; $e=$LASTEXITC ...
++      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (D:\THIENLONG\Te...ng th├┤i hiß╗çn:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+[ca] tables_load_or_report: ─æß║ít (0 kß╗│ vß╗ìng sai)
+[ca] opener_toggles_book_and_desk: ─æß║ít (0 kß╗│ vß╗ìng sai)
+[ca] close_button_closes_both: ─æß║ít (0 kß╗│ vß╗ìng sai)
+[ca] desk_close_hides_book: ─Éß╗Ä (1 kß╗│ vß╗ìng sai)
+[ca] seeker_follows_hero: ─æß║ít (0 kß╗│ vß╗ìng sai)
+[ca] paints_only_when_shown: ─æß║ít (0 kß╗│ vß╗ìng sai)
+D:\THIENLONG\Test\Ui\ui_quest_book_tests.cpp:130: check thß║Ñt bß║íi: ui_quest_book_tests: mß╗ìi ca phß║úi qua
