@@ -296,6 +296,9 @@ void Display::State::ensure_clock() {
 
 void Display::State::hold_pace(double spent_ms) {
     if constexpr (ui::kPhone) return;
+    // Fifo đã chờ nhịp quét trong lúc xin ảnh và trình: ngủ thêm theo đồng hồ riêng chỉ làm khung trượt
+    // khỏi nhịp quét. Đồng hồ trần chỉ còn cho bề mặt không có Fifo (driver từ chối, trình ngay).
+    if (screen->swapchain()->present_mode() == gpu::PresentMode::kFifo) return;
     // Việc của khung đã nuốt hết một nhịp 120 Hz thì trình ngay. Ngủ thêm biến khung nạp thành
     // hai nhịp (đo: đưa đất 15 ms rồi ngủ 8 ms thành khung 26 ms).
     if (spent_ms >= 1000.0 / static_cast<double>(render_hz)) return;

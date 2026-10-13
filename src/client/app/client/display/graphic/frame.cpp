@@ -180,8 +180,10 @@ core::Status Display::State::open_gpu(const DisplayDesc& desc) {
     screen_desc.height = desc.size.height;
     screen_desc.samples = kSamples;
     screen_desc.clear = kBackdrop;
-    // PC: mailbox, trần 120 Hz. Android và iOS: Fifo bám Hz của tấm nền, không ngủ thêm.
-    screen_desc.present_mode = ui::kPhone ? gpu::PresentMode::kFifo : gpu::PresentMode::kMailbox;
+    // Mọi nền trình Fifo: khung khoá vào nhịp quét của màn. Đo 2026-10-13 trên màn 60 Hz: mailbox với
+    // trần 120 Hz vẽ 893 khung 8,3 ms mà màn chỉ hiện một nửa, khung được hiện lệch pha so với nhịp
+    // quét nên bước di chuyển mỗi lần quét lúc một lúc hai nhịp mô phỏng: nhân vật chạy bị run.
+    screen_desc.present_mode = gpu::PresentMode::kFifo;
     const gpu::FormatSupport astc = device->format_support(gpu::Format::kAstc4x4Unorm);
     const bool has_astc = gpu::has(astc, gpu::FormatSupport::kSampled);
     if (ui::kPhone) texture_tier = has_astc ? resource::TextureTier::kAstc : resource::TextureTier::kEtc2;
