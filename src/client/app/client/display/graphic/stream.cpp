@@ -183,7 +183,7 @@ void Display::State::finish_stream() {
     const std::string loaded = "Nạp cảnh resid " + std::to_string(id) + " xong trong " + millis_text;
     const std::string loaded_tail = " ms, " + meshes_text + " mesh nhớ, " + props_text + " vật thể";
     std::println("{}", loaded + loaded_tail);
-    mark("cảnh nạp xong (mọi mesh đã đặt)");
+    core::mark("cảnh nạp xong (mọi mesh đã đặt)");
     const std::string ground_ms = std::format("{:.1f}", arrival->ground_ms);
     const std::string seat_ms = std::format("{:.1f}", arrival->seat_ms);
     const std::string stall_ms = std::format("{:.1f}", arrival->stall_ms);
