@@ -25,7 +25,7 @@ Bằng chứng sau sửa (18:10, cùng lệnh, bản dựng mới):
 - Trình `fifo`, 458 khung sau khi cảnh hiện, trung vị 16,7 ms, p95 17,3 ms, 444 khung 12-20 ms, 6 dưới 12 ms,
   8 khung quá 20 ms (max 35,5 ms; phần lớn là "xin ảnh" 18-32 ms, tức trượt một nhịp quét). Trong lúc đo, một
   tiến trình `msvc-asan\gui_real_tests.exe` của agent khác treo từ 17:00 vẫn ăn CPU.
-- ctest msvc-release: 88/92 đạt (trước 86/91). Đỏ: ui_quest_tests, config_tests, server_data_lint (thiếu dữ liệu,
+- ctest msvc-release: 88/92 đạt (trước 86/91). **Đính chính 2026-10-13:** con số 86/91 (và 88/92) không tái hiện được; lần chạy lại trên mã đã commit (HEAD `7e1c6a4`, worktree sạch, msvc-release và msvc-asan) cho **69/84**, 15 bài đỏ trùng nhau, xem `docs/AUDIT/evidence/xreview_head_msvc-release_build_ctest.log`, `9d2b4c5_msvc-asan_build_ctest.log` và `asan_15_red.md`. Đỏ: ui_quest_tests, config_tests, server_data_lint (thiếu dữ liệu,
   đã biết), gui_real_tests timeout 300 s.
 - Commit `2953249` (chỉ frame.cpp, face.cpp). Phần chú thích prelude.hpp đã bị commit `ff730cd` của agent khác
   gom vào. Dòng tiêu đề commit có ký tự BOM ở đầu, không amend được theo luật.
