@@ -1,0 +1,53 @@
+# 2026-10-13T18:52:50.457420+07:00
+tệp cột hiện tại == bản backup D:\THIENLONG\build\backup-c893cce-evidence-20261013-185120\columns_server (trước mọi lượt xuất): True
+backup mã: D:\THIENLONG\build\backup-c893cce-evidence-20261013-185120\import_legacy.py; SHA256 gốc 2cb39954efd06fba6f3ebe61c3965af97973f043af13aa7895fdc9eada071ebf
+## 1. nguyên bản: > cd TOOLS/server && python -B -m pytest test_import_legacy.py -q -k "not real_tree"
+............................                                             [100%]
+28 passed, 1 deselected in 0.35s
+exit=0
+## 2. cố ý phá (diff):
+diff --git a/TOOLS/server/import_legacy.py b/TOOLS/server/import_legacy.py
+index bc3128c..978c44b 100644
+--- a/TOOLS/server/import_legacy.py
++++ b/TOOLS/server/import_legacy.py
+@@ -1493,7 +1493,7 @@ def _keep_curated(columns_root: Path, table: BuiltTable) -> BuiltTable:
+     )
+ 
+ def _write_built(output_dir: Path, columns_root: Path, built: list[BuiltTable]) -> None:
+-    built = [_keep_curated(columns_root, table) for table in built]
++    built = list(built)  # PHA: bo _keep_curated
+     tsv_file.prepare_directory(output_dir, TOOL, keep_tools=KEEP_TABLE_TOOLS)
+     tsv_file.prepare_directory(columns_root, TOOL)
+     for table in built:
+## 2. bỏ _keep_curated: > cd TOOLS/server && python -B -m pytest test_import_legacy.py -q -k "not real_tree"
+self = <test_import_legacy.ExportLegacyTest testMethod=test_reexport_keeps_curated_names_and_is_stable>
+
+    def test_reexport_keeps_curated_names_and_is_stable(self) -> None:
+        source = self.legacy / "Server" / "Config" / "sample.txt"
+        source.parent.mkdir(parents=True, exist_ok=True)
+        source.write_bytes("INT\tINT\nid\t道具空间需求\n1\t5\n".encode("utf-8"))
+        rows = (_row("sample.txt", "tables/server/sample.tsv"),)
+        self.assertEqual(self._export(rows)[0], [])
+        mapping = self.columns / "sample.tsv"
+        first = tsv_file.read_table(mapping)
+        self.assertEqual(first.rows[1][2], "column_1")
+        curated = [list(row) for row in first.rows]
+        curated[1][2] = "space_need"
+        tsv_file.write_table(mapping, first.source, import_legacy.TOOL, list(first.types),
+                             list(first.columns), [tuple(row) for row in curated])
+        self.assertEqual(self._export(rows)[0], [])
+>       self.assertEqual(tsv_file.read_table(mapping).rows[1][2], "space_need")
+E       AssertionError: 'column_1' != 'space_need'
+E       - column_1
+E       + space_need
+
+test_import_legacy.py:85: AssertionError
+=========================== short test summary info ===========================
+FAILED test_import_legacy.py::ExportLegacyTest::test_reexport_keeps_curated_names_and_is_stable
+1 failed, 27 passed, 1 deselected in 0.31s
+exit=1
+## 3. khôi phục: SHA256 khớp gốc True; git diff rỗng: True
+## 3. sau khôi phục: > cd TOOLS/server && python -B -m pytest test_import_legacy.py -q -k "not real_tree"
+............................                                             [100%]
+28 passed, 1 deselected in 2.46s
+exit=0

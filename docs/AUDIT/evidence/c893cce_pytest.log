@@ -1,0 +1,77 @@
+﻿# 2026-10-13T18:51:44.0858919+07:00 HEAD fb21453; THIENLONG_LEGACY_ROOT=D:\TÀI LIỆU TLBB\TLBB_0859602_Win10_11\tlbb
+> git diff --stat c893cce -- TOOLS/server/import_legacy.py TOOLS/server/test_import_legacy.py TOOLS/server/column_terms.tsv  (rỗng = mã giống c893cce)
+<hết diff>
+> cd TOOLS/server && python -B -m pytest test_import_legacy.py -v -p no:cacheprovider
+============================= test session starts =============================
+platform win32 -- Python 3.13.15, pytest-9.1.1, pluggy-1.6.0 -- C:\Users\myhea\AppData\Local\Programs\Python\Python313\python.exe
+PySide6 6.12.0 -- Qt runtime 6.12.0 -- Qt compiled 6.12.0
+rootdir: D:\THIENLONG\TOOLS\server
+plugins: anyio-4.15.1, qt-4.5.0
+collecting ... collected 29 items
+
+test_import_legacy.py::ExportLegacyTest::test_box_merge PASSED           [  3%]
+test_import_legacy.py::ExportLegacyTest::test_check_writes_nothing PASSED [  6%]
+test_import_legacy.py::ExportLegacyTest::test_decimal_text_column_is_listed PASSED [ 10%]
+test_import_legacy.py::ExportLegacyTest::test_drop_box_note_names_code_index PASSED [ 13%]
+test_import_legacy.py::ExportLegacyTest::test_drop_comment_blank_and_empty_id PASSED [ 17%]
+test_import_legacy.py::ExportLegacyTest::test_float_strips_ends_only PASSED [ 20%]
+test_import_legacy.py::ExportLegacyTest::test_foreign_blocks_delete PASSED [ 24%]
+test_import_legacy.py::ExportLegacyTest::test_hash_ini_key_is_not_swallowed PASSED [ 27%]
+test_import_legacy.py::ExportLegacyTest::test_help_and_missing_args PASSED [ 31%]
+test_import_legacy.py::ExportLegacyTest::test_ini_line_without_equals PASSED [ 34%]
+test_import_legacy.py::ExportLegacyTest::test_int_float_string_and_padding PASSED [ 37%]
+test_import_legacy.py::ExportLegacyTest::test_keep_value_under_blank_type PASSED [ 41%]
+test_import_legacy.py::ExportLegacyTest::test_keeps_scene_refs_table PASSED [ 44%]
+test_import_legacy.py::ExportLegacyTest::test_middle_empty_type_reads_first_fields PASSED [ 48%]
+test_import_legacy.py::ExportLegacyTest::test_reexport_keeps_curated_names_and_is_stable PASSED [ 51%]
+test_import_legacy.py::ExportLegacyTest::test_reject_bad_utf8 PASSED     [ 55%]
+test_import_legacy.py::ExportLegacyTest::test_reject_duplicate_id PASSED [ 58%]
+test_import_legacy.py::ExportLegacyTest::test_reject_extra_cell PASSED   [ 62%]
+test_import_legacy.py::ExportLegacyTest::test_reject_magic PASSED        [ 65%]
+test_import_legacy.py::ExportLegacyTest::test_reject_shop_total PASSED   [ 68%]
+test_import_legacy.py::ExportLegacyTest::test_reject_tab_inside_ini_value PASSED [ 72%]
+test_import_legacy.py::ExportLegacyTest::test_reject_truncated PASSED    [ 75%]
+test_import_legacy.py::ExportLegacyTest::test_scene_pvp_column_uses_rules PASSED [ 79%]
+test_import_legacy.py::ExportLegacyTest::test_scene_split_and_comment_cut PASSED [ 82%]
+test_import_legacy.py::ExportLegacyTest::test_script_index PASSED        [ 86%]
+test_import_legacy.py::ExportLegacyTest::test_shop_merge_and_total PASSED [ 89%]
+test_import_legacy.py::ExportLegacyTest::test_unknown_ini_key PASSED     [ 93%]
+test_import_legacy.py::ExportLegacyTest::test_within_declared_count PASSED [ 96%]
+test_import_legacy.py::RealLegacyTest::test_real_tree FAILED             [100%]
+
+================================== FAILURES ===================================
+________________________ RealLegacyTest.test_real_tree ________________________
+
+self = <test_import_legacy.RealLegacyTest testMethod=test_real_tree>
+
+    def test_real_tree(self) -> None:
+        if not LEGACY:
+            self.skipTest("thiếu THIENLONG_LEGACY_ROOT")
+        root = Path(LEGACY)
+        if not (root / "Server" / "Config").is_dir():
+            self.fail(f"không thấy {root}")
+        scratch = _scratch("real_tree")
+        output = scratch / "out"
+        columns = scratch / "columns"
+        try:
+            errors, summary = import_legacy.export_legacy(
+                root,
+                output,
+                tsv_file.read_name_map(),
+                column_dir=columns,
+                include_script_index=True,
+            )
+            self.assertEqual(errors, [], errors[:5])
+            _assert_outputs(self, output, columns)
+            _assert_scripts(self, root, output, summary)
+>           _assert_samples(self, root, output, columns, summary)
+
+test_import_legacy.py:612: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+test_import_legacy.py:577: in _assert_samples
+    test.assertIn("tên thật 76", effect_line)
+E   AssertionError: 'tên thật 76' not found in 'effects.tsv: bản ghi 9860, cột 76, tên thật 21, cột ? 55, dòng bỏ vì # 44, ô thừa rỗng bỏ 17, cột text toàn số: parameter_value_1, column_29, parameter_value_2, column_32, parameter_value_3, column_35, parameter_value_4, column_38, parameter_value_5, column_41, parameter_value_6, column_44, parameter_value_7, column_47, parameter_value_8, column_50, parameter_value_9, column_53, parameter_value_10, column_56, parameter_value_11, column_59, parameter_value_12, column_62, parameter_value_13, column_65, parameter_value_14, column_68, parameter_value_15, column_71, parameter_value_16, column_74'
+=========================== short test summary info ===========================
+FAILED test_import_legacy.py::RealLegacyTest::test_real_tree - AssertionError...
+======================== 1 failed, 28 passed in 3.72s =========================
+exit=1
