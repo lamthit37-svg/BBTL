@@ -291,7 +291,7 @@ void hover_reaches_the_create_panel(Context& context) {
     const ui::panel::Key info{.window = "CreateRole_Info", .name = "Text"};
     context.expect(flow.create.widgets.value(info) == "#{DLJM_XML_22}", "rê vào nút tạo thì hiện mô tả");
     ui::panel::Deck deck;
-    ui::panel::paint_flow(deck, flow);
+    ui::panel::paint_flow(deck, flow, nullptr);
     context.expect(deck.is_shown("CreateRole_Frame"), "bước tạo vẽ bảng tạo");
 }
 
