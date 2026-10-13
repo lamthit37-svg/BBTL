@@ -1,0 +1,2394 @@
+# Sinh bằng TOOLS/port/lua_oracle.py từ CreateRole.lua và create_role_newcomer.lua; không sửa tay
+# mở bảng
+this	Visible	True
+CreateRole_MenpaiModel01	NormalImage	set:MainFrameLuo03 image:Cs_Shaolin_Normal
+CreateRole_MenpaiModel01	Disabled	False
+CreateRole_MenpaiModel02	NormalImage	set:MainFrameLuo03 image:Cs_Mingjiao_Normal
+CreateRole_MenpaiModel02	Disabled	False
+CreateRole_MenpaiModel03	NormalImage	set:MainFrameLuo03 image:Cs_Gaibang_Normal
+CreateRole_MenpaiModel03	Disabled	False
+CreateRole_MenpaiModel04	NormalImage	set:MainFrameLuo05 image:Cs_Wudang_Normal
+CreateRole_MenpaiModel04	Disabled	False
+CreateRole_MenpaiModel05	NormalImage	set:MainFrameLuo03 image:Cs_Emei_Normal
+CreateRole_MenpaiModel05	Disabled	False
+CreateRole_MenpaiModel06	NormalImage	set:MainFrameLuo05 image:Cs_Xingxiu_Normal
+CreateRole_MenpaiModel06	Disabled	False
+CreateRole_MenpaiModel07	NormalImage	set:MainFrameLuo03 image:Cs_Tianlong_Normal
+CreateRole_MenpaiModel07	Disabled	False
+CreateRole_MenpaiModel08	NormalImage	set:MainFrameLuo04 image:Cs_Tianshan_Normal
+CreateRole_MenpaiModel08	Disabled	False
+CreateRole_MenpaiModel09	NormalImage	set:MainFrameLuo05 image:Cs_Xiaoyao_Normal
+CreateRole_MenpaiModel09	Disabled	False
+CreateRole_MenpaiModel10	NormalImage	set:MainFrameLuo03 image:Cs_Murong_Normal
+CreateRole_MenpaiModel10	Disabled	False
+CreateRole_MenpaiModel11	NormalImage	set:MainFrameLuo05 image:Cs_Tangmen_Normal
+CreateRole_MenpaiModel11	Disabled	False
+CreateRole_MenpaiModel12	NormalImage	set:MainFrameLuo05 image:Cs_Guigu_Normal
+CreateRole_MenpaiModel12	Disabled	False
+CreateRole_MenpaiModel13	NormalImage	set:MainFrameLuo05 image:Cs_Kunlun_Normal
+CreateRole_MenpaiModel13	Disabled	False
+CreateRole_MenpaiModel14	NormalImage	set:MainFrameLuo06 image:Cs_Congren_Normal
+CreateRole_MenpaiModel14	Disabled	False
+CreateRole_MenpaiModel15	NormalImage	set:MainFrameLuo06 image:Cs_ERenGu_Normal
+CreateRole_MenpaiModel15	Disabled	False
+Createshow_Info	Text	#{XZRW_XML_0}
+CreateRole_Info_Frame	Visible	True
+CreateRole_Info_Frame	Disabled	False
+CreateRole_SelectSex_Girl	CheckMode	1
+CreateRole_SelectSex_Girl	Text	女
+CreateRole_SelectSex_Girl	Selected	True
+CreateRole_SelectSex_Boy	CheckMode	1
+CreateRole_SelectSex_Boy	Text	男
+CreateRole_SelectSex_Boy	Selected	False
+CreateRole_SelectHair_Text2	Text	游仙发
+CreateRole_SelectFace_Text2	Text	美艳型
+CreateRole_SelectClothing_Text2	Text	新手套装3
+CreateRole_Select_HeadImage1	Image	set:GirlProtagonist image:GirlProtagonist_25
+CreateRole_Select_HeadImage2	Image	set:GirlProtagonist1 image:GirlProtagonist1_1
+CreateRole_Select_HeadImage3	Image	set:GirlProtagonist1 image:GirlProtagonist1_2
+CreateRole_Select_HeadImage4	Image	set:GirlProtagonist image:GirlProtagonist_1
+CreateRole_Select_HeadImage5	Image	set:GirlProtagonist image:GirlProtagonist_2
+CreateRole_Select_HeadImage6	Image	set:GirlProtagonist image:GirlProtagonist_3
+CreateRole_Select_HeadImage7	Image	set:GirlProtagonist image:GirlProtagonist_4
+CreateRole_Select_HeadImage8	Image	set:GirlProtagonist image:GirlProtagonist_5
+CreateRole_Select_HeadImage9	Image	set:GirlProtagonist image:GirlProtagonist_6
+CreateRole_Select_Head1	Selected	True
+CreateRole_Select_Head2	Selected	False
+CreateRole_Select_Head3	Selected	False
+CreateRole_Select_Head4	Selected	False
+CreateRole_Select_Head5	Selected	False
+CreateRole_Select_Head6	Selected	False
+CreateRole_Select_Head7	Selected	False
+CreateRole_Select_Head8	Selected	False
+CreateRole_Select_Head9	Selected	False
+CreateRole_PageUp	Disabled	True
+CreateRole_PageDown	Disabled	False
+CreateRole_Info2_Frame	Visible	False
+Createshow_Info2	Text	
+CreateRole_MenpaiModel00	NormalImage	set:CreateRole2 image:BtnCancel_Disable
+CreateRole_MenpaiModel00	Visible	False
+CreateRole_MenpaiModel00	Disabled	False
+CreateRole_Model	FakeObject	CreateRole_Woman
+CreateRole_Info3_Frame	Visible	True
+CreateRole_Name	DefaultEditBox	True
+CreateRole_Name	Text	
+CreateRole_Name	Visible	True
+CreateRole_RandomName	Visible	False
+!call1	ShowModel	-1
+!call2	ShowModel	-1
+!call3	SetHairModelId	0	0	1
+!call4	SetFaceModelId	0	0	1
+!call5	ChangeNewRoleEquipSet	0	2	2
+# chọn ảnh thứ năm
+this	Visible	True
+CreateRole_MenpaiModel01	NormalImage	set:MainFrameLuo03 image:Cs_Shaolin_Normal
+CreateRole_MenpaiModel01	Disabled	False
+CreateRole_MenpaiModel02	NormalImage	set:MainFrameLuo03 image:Cs_Mingjiao_Normal
+CreateRole_MenpaiModel02	Disabled	False
+CreateRole_MenpaiModel03	NormalImage	set:MainFrameLuo03 image:Cs_Gaibang_Normal
+CreateRole_MenpaiModel03	Disabled	False
+CreateRole_MenpaiModel04	NormalImage	set:MainFrameLuo05 image:Cs_Wudang_Normal
+CreateRole_MenpaiModel04	Disabled	False
+CreateRole_MenpaiModel05	NormalImage	set:MainFrameLuo03 image:Cs_Emei_Normal
+CreateRole_MenpaiModel05	Disabled	False
+CreateRole_MenpaiModel06	NormalImage	set:MainFrameLuo05 image:Cs_Xingxiu_Normal
+CreateRole_MenpaiModel06	Disabled	False
+CreateRole_MenpaiModel07	NormalImage	set:MainFrameLuo03 image:Cs_Tianlong_Normal
+CreateRole_MenpaiModel07	Disabled	False
+CreateRole_MenpaiModel08	NormalImage	set:MainFrameLuo04 image:Cs_Tianshan_Normal
+CreateRole_MenpaiModel08	Disabled	False
+CreateRole_MenpaiModel09	NormalImage	set:MainFrameLuo05 image:Cs_Xiaoyao_Normal
+CreateRole_MenpaiModel09	Disabled	False
+CreateRole_MenpaiModel10	NormalImage	set:MainFrameLuo03 image:Cs_Murong_Normal
+CreateRole_MenpaiModel10	Disabled	False
+CreateRole_MenpaiModel11	NormalImage	set:MainFrameLuo05 image:Cs_Tangmen_Normal
+CreateRole_MenpaiModel11	Disabled	False
+CreateRole_MenpaiModel12	NormalImage	set:MainFrameLuo05 image:Cs_Guigu_Normal
+CreateRole_MenpaiModel12	Disabled	False
+CreateRole_MenpaiModel13	NormalImage	set:MainFrameLuo05 image:Cs_Kunlun_Normal
+CreateRole_MenpaiModel13	Disabled	False
+CreateRole_MenpaiModel14	NormalImage	set:MainFrameLuo06 image:Cs_Congren_Normal
+CreateRole_MenpaiModel14	Disabled	False
+CreateRole_MenpaiModel15	NormalImage	set:MainFrameLuo06 image:Cs_ERenGu_Normal
+CreateRole_MenpaiModel15	Disabled	False
+Createshow_Info	Text	#{XZRW_XML_0}
+CreateRole_Info_Frame	Visible	True
+CreateRole_Info_Frame	Disabled	False
+CreateRole_SelectSex_Girl	CheckMode	1
+CreateRole_SelectSex_Girl	Text	女
+CreateRole_SelectSex_Girl	Selected	True
+CreateRole_SelectSex_Boy	CheckMode	1
+CreateRole_SelectSex_Boy	Text	男
+CreateRole_SelectSex_Boy	Selected	False
+CreateRole_SelectHair_Text2	Text	游仙发
+CreateRole_SelectFace_Text2	Text	美艳型
+CreateRole_SelectClothing_Text2	Text	新手套装3
+CreateRole_Select_HeadImage1	Image	set:GirlProtagonist image:GirlProtagonist_25
+CreateRole_Select_HeadImage2	Image	set:GirlProtagonist1 image:GirlProtagonist1_1
+CreateRole_Select_HeadImage3	Image	set:GirlProtagonist1 image:GirlProtagonist1_2
+CreateRole_Select_HeadImage4	Image	set:GirlProtagonist image:GirlProtagonist_1
+CreateRole_Select_HeadImage5	Image	set:GirlProtagonist image:GirlProtagonist_2
+CreateRole_Select_HeadImage6	Image	set:GirlProtagonist image:GirlProtagonist_3
+CreateRole_Select_HeadImage7	Image	set:GirlProtagonist image:GirlProtagonist_4
+CreateRole_Select_HeadImage8	Image	set:GirlProtagonist image:GirlProtagonist_5
+CreateRole_Select_HeadImage9	Image	set:GirlProtagonist image:GirlProtagonist_6
+CreateRole_Select_Head1	Selected	False
+CreateRole_Select_Head2	Selected	False
+CreateRole_Select_Head3	Selected	False
+CreateRole_Select_Head4	Selected	False
+CreateRole_Select_Head5	Selected	True
+CreateRole_Select_Head6	Selected	False
+CreateRole_Select_Head7	Selected	False
+CreateRole_Select_Head8	Selected	False
+CreateRole_Select_Head9	Selected	False
+CreateRole_PageUp	Disabled	True
+CreateRole_PageDown	Disabled	False
+CreateRole_Info2_Frame	Visible	False
+Createshow_Info2	Text	
+CreateRole_MenpaiModel00	NormalImage	set:CreateRole2 image:BtnCancel_Disable
+CreateRole_MenpaiModel00	Visible	False
+CreateRole_MenpaiModel00	Disabled	False
+CreateRole_Model	FakeObject	CreateRole_Woman
+CreateRole_Info3_Frame	Visible	True
+CreateRole_Name	DefaultEditBox	True
+CreateRole_Name	Text	
+CreateRole_Name	Visible	True
+CreateRole_RandomName	Visible	False
+# sang trang hai
+this	Visible	True
+CreateRole_MenpaiModel01	NormalImage	set:MainFrameLuo03 image:Cs_Shaolin_Normal
+CreateRole_MenpaiModel01	Disabled	False
+CreateRole_MenpaiModel02	NormalImage	set:MainFrameLuo03 image:Cs_Mingjiao_Normal
+CreateRole_MenpaiModel02	Disabled	False
+CreateRole_MenpaiModel03	NormalImage	set:MainFrameLuo03 image:Cs_Gaibang_Normal
+CreateRole_MenpaiModel03	Disabled	False
+CreateRole_MenpaiModel04	NormalImage	set:MainFrameLuo05 image:Cs_Wudang_Normal
+CreateRole_MenpaiModel04	Disabled	False
+CreateRole_MenpaiModel05	NormalImage	set:MainFrameLuo03 image:Cs_Emei_Normal
+CreateRole_MenpaiModel05	Disabled	False
+CreateRole_MenpaiModel06	NormalImage	set:MainFrameLuo05 image:Cs_Xingxiu_Normal
+CreateRole_MenpaiModel06	Disabled	False
+CreateRole_MenpaiModel07	NormalImage	set:MainFrameLuo03 image:Cs_Tianlong_Normal
+CreateRole_MenpaiModel07	Disabled	False
+CreateRole_MenpaiModel08	NormalImage	set:MainFrameLuo04 image:Cs_Tianshan_Normal
+CreateRole_MenpaiModel08	Disabled	False
+CreateRole_MenpaiModel09	NormalImage	set:MainFrameLuo05 image:Cs_Xiaoyao_Normal
+CreateRole_MenpaiModel09	Disabled	False
+CreateRole_MenpaiModel10	NormalImage	set:MainFrameLuo03 image:Cs_Murong_Normal
+CreateRole_MenpaiModel10	Disabled	False
+CreateRole_MenpaiModel11	NormalImage	set:MainFrameLuo05 image:Cs_Tangmen_Normal
+CreateRole_MenpaiModel11	Disabled	False
+CreateRole_MenpaiModel12	NormalImage	set:MainFrameLuo05 image:Cs_Guigu_Normal
+CreateRole_MenpaiModel12	Disabled	False
+CreateRole_MenpaiModel13	NormalImage	set:MainFrameLuo05 image:Cs_Kunlun_Normal
+CreateRole_MenpaiModel13	Disabled	False
+CreateRole_MenpaiModel14	NormalImage	set:MainFrameLuo06 image:Cs_Congren_Normal
+CreateRole_MenpaiModel14	Disabled	False
+CreateRole_MenpaiModel15	NormalImage	set:MainFrameLuo06 image:Cs_ERenGu_Normal
+CreateRole_MenpaiModel15	Disabled	False
+Createshow_Info	Text	#{XZRW_XML_0}
+CreateRole_Info_Frame	Visible	True
+CreateRole_Info_Frame	Disabled	False
+CreateRole_SelectSex_Girl	CheckMode	1
+CreateRole_SelectSex_Girl	Text	女
+CreateRole_SelectSex_Girl	Selected	True
+CreateRole_SelectSex_Boy	CheckMode	1
+CreateRole_SelectSex_Boy	Text	男
+CreateRole_SelectSex_Boy	Selected	False
+CreateRole_SelectHair_Text2	Text	游仙发
+CreateRole_SelectFace_Text2	Text	美艳型
+CreateRole_SelectClothing_Text2	Text	新手套装3
+CreateRole_Select_HeadImage1	Image	set:GirlProtagonist image:GirlProtagonist_7
+CreateRole_Select_HeadImage2	Image	set:GirlProtagonist image:GirlProtagonist_8
+CreateRole_Select_HeadImage3	Image	set:GirlProtagonist image:GirlProtagonist_9
+CreateRole_Select_HeadImage4	Image	set:GirlProtagonist image:GirlProtagonist_10
+CreateRole_Select_HeadImage5	Image	set:GirlProtagonist image:GirlProtagonist_11
+CreateRole_Select_HeadImage6	Image	set:GirlProtagonist image:GirlProtagonist_12
+CreateRole_Select_HeadImage7	Image	
+CreateRole_Select_HeadImage8	Image	
+CreateRole_Select_HeadImage9	Image	
+CreateRole_Select_Head1	Selected	False
+CreateRole_Select_Head2	Selected	False
+CreateRole_Select_Head3	Selected	False
+CreateRole_Select_Head4	Selected	False
+CreateRole_Select_Head5	Selected	True
+CreateRole_Select_Head6	Selected	False
+CreateRole_Select_Head7	Selected	False
+CreateRole_Select_Head8	Selected	False
+CreateRole_Select_Head9	Selected	False
+CreateRole_PageUp	Disabled	False
+CreateRole_PageDown	Disabled	True
+CreateRole_Info2_Frame	Visible	False
+Createshow_Info2	Text	
+CreateRole_MenpaiModel00	NormalImage	set:CreateRole2 image:BtnCancel_Disable
+CreateRole_MenpaiModel00	Visible	False
+CreateRole_MenpaiModel00	Disabled	False
+CreateRole_Model	FakeObject	CreateRole_Woman
+CreateRole_Info3_Frame	Visible	True
+CreateRole_Name	DefaultEditBox	True
+CreateRole_Name	Text	
+CreateRole_Name	Visible	True
+CreateRole_RandomName	Visible	False
+# chọn ảnh thứ hai của trang hai
+this	Visible	True
+CreateRole_MenpaiModel01	NormalImage	set:MainFrameLuo03 image:Cs_Shaolin_Normal
+CreateRole_MenpaiModel01	Disabled	False
+CreateRole_MenpaiModel02	NormalImage	set:MainFrameLuo03 image:Cs_Mingjiao_Normal
+CreateRole_MenpaiModel02	Disabled	False
+CreateRole_MenpaiModel03	NormalImage	set:MainFrameLuo03 image:Cs_Gaibang_Normal
+CreateRole_MenpaiModel03	Disabled	False
+CreateRole_MenpaiModel04	NormalImage	set:MainFrameLuo05 image:Cs_Wudang_Normal
+CreateRole_MenpaiModel04	Disabled	False
+CreateRole_MenpaiModel05	NormalImage	set:MainFrameLuo03 image:Cs_Emei_Normal
+CreateRole_MenpaiModel05	Disabled	False
+CreateRole_MenpaiModel06	NormalImage	set:MainFrameLuo05 image:Cs_Xingxiu_Normal
+CreateRole_MenpaiModel06	Disabled	False
+CreateRole_MenpaiModel07	NormalImage	set:MainFrameLuo03 image:Cs_Tianlong_Normal
+CreateRole_MenpaiModel07	Disabled	False
+CreateRole_MenpaiModel08	NormalImage	set:MainFrameLuo04 image:Cs_Tianshan_Normal
+CreateRole_MenpaiModel08	Disabled	False
+CreateRole_MenpaiModel09	NormalImage	set:MainFrameLuo05 image:Cs_Xiaoyao_Normal
+CreateRole_MenpaiModel09	Disabled	False
+CreateRole_MenpaiModel10	NormalImage	set:MainFrameLuo03 image:Cs_Murong_Normal
+CreateRole_MenpaiModel10	Disabled	False
+CreateRole_MenpaiModel11	NormalImage	set:MainFrameLuo05 image:Cs_Tangmen_Normal
+CreateRole_MenpaiModel11	Disabled	False
+CreateRole_MenpaiModel12	NormalImage	set:MainFrameLuo05 image:Cs_Guigu_Normal
+CreateRole_MenpaiModel12	Disabled	False
+CreateRole_MenpaiModel13	NormalImage	set:MainFrameLuo05 image:Cs_Kunlun_Normal
+CreateRole_MenpaiModel13	Disabled	False
+CreateRole_MenpaiModel14	NormalImage	set:MainFrameLuo06 image:Cs_Congren_Normal
+CreateRole_MenpaiModel14	Disabled	False
+CreateRole_MenpaiModel15	NormalImage	set:MainFrameLuo06 image:Cs_ERenGu_Normal
+CreateRole_MenpaiModel15	Disabled	False
+Createshow_Info	Text	#{XZRW_XML_0}
+CreateRole_Info_Frame	Visible	True
+CreateRole_Info_Frame	Disabled	False
+CreateRole_SelectSex_Girl	CheckMode	1
+CreateRole_SelectSex_Girl	Text	女
+CreateRole_SelectSex_Girl	Selected	True
+CreateRole_SelectSex_Boy	CheckMode	1
+CreateRole_SelectSex_Boy	Text	男
+CreateRole_SelectSex_Boy	Selected	False
+CreateRole_SelectHair_Text2	Text	游仙发
+CreateRole_SelectFace_Text2	Text	美艳型
+CreateRole_SelectClothing_Text2	Text	新手套装3
+CreateRole_Select_HeadImage1	Image	set:GirlProtagonist image:GirlProtagonist_7
+CreateRole_Select_HeadImage2	Image	set:GirlProtagonist image:GirlProtagonist_8
+CreateRole_Select_HeadImage3	Image	set:GirlProtagonist image:GirlProtagonist_9
+CreateRole_Select_HeadImage4	Image	set:GirlProtagonist image:GirlProtagonist_10
+CreateRole_Select_HeadImage5	Image	set:GirlProtagonist image:GirlProtagonist_11
+CreateRole_Select_HeadImage6	Image	set:GirlProtagonist image:GirlProtagonist_12
+CreateRole_Select_HeadImage7	Image	
+CreateRole_Select_HeadImage8	Image	
+CreateRole_Select_HeadImage9	Image	
+CreateRole_Select_Head1	Selected	False
+CreateRole_Select_Head2	Selected	True
+CreateRole_Select_Head3	Selected	False
+CreateRole_Select_Head4	Selected	False
+CreateRole_Select_Head5	Selected	False
+CreateRole_Select_Head6	Selected	False
+CreateRole_Select_Head7	Selected	False
+CreateRole_Select_Head8	Selected	False
+CreateRole_Select_Head9	Selected	False
+CreateRole_PageUp	Disabled	False
+CreateRole_PageDown	Disabled	True
+CreateRole_Info2_Frame	Visible	False
+Createshow_Info2	Text	
+CreateRole_MenpaiModel00	NormalImage	set:CreateRole2 image:BtnCancel_Disable
+CreateRole_MenpaiModel00	Visible	False
+CreateRole_MenpaiModel00	Disabled	False
+CreateRole_Model	FakeObject	CreateRole_Woman
+CreateRole_Info3_Frame	Visible	True
+CreateRole_Name	DefaultEditBox	True
+CreateRole_Name	Text	
+CreateRole_Name	Visible	True
+CreateRole_RandomName	Visible	False
+# về trang một
+this	Visible	True
+CreateRole_MenpaiModel01	NormalImage	set:MainFrameLuo03 image:Cs_Shaolin_Normal
+CreateRole_MenpaiModel01	Disabled	False
+CreateRole_MenpaiModel02	NormalImage	set:MainFrameLuo03 image:Cs_Mingjiao_Normal
+CreateRole_MenpaiModel02	Disabled	False
+CreateRole_MenpaiModel03	NormalImage	set:MainFrameLuo03 image:Cs_Gaibang_Normal
+CreateRole_MenpaiModel03	Disabled	False
+CreateRole_MenpaiModel04	NormalImage	set:MainFrameLuo05 image:Cs_Wudang_Normal
+CreateRole_MenpaiModel04	Disabled	False
+CreateRole_MenpaiModel05	NormalImage	set:MainFrameLuo03 image:Cs_Emei_Normal
+CreateRole_MenpaiModel05	Disabled	False
+CreateRole_MenpaiModel06	NormalImage	set:MainFrameLuo05 image:Cs_Xingxiu_Normal
+CreateRole_MenpaiModel06	Disabled	False
+CreateRole_MenpaiModel07	NormalImage	set:MainFrameLuo03 image:Cs_Tianlong_Normal
+CreateRole_MenpaiModel07	Disabled	False
+CreateRole_MenpaiModel08	NormalImage	set:MainFrameLuo04 image:Cs_Tianshan_Normal
+CreateRole_MenpaiModel08	Disabled	False
+CreateRole_MenpaiModel09	NormalImage	set:MainFrameLuo05 image:Cs_Xiaoyao_Normal
+CreateRole_MenpaiModel09	Disabled	False
+CreateRole_MenpaiModel10	NormalImage	set:MainFrameLuo03 image:Cs_Murong_Normal
+CreateRole_MenpaiModel10	Disabled	False
+CreateRole_MenpaiModel11	NormalImage	set:MainFrameLuo05 image:Cs_Tangmen_Normal
+CreateRole_MenpaiModel11	Disabled	False
+CreateRole_MenpaiModel12	NormalImage	set:MainFrameLuo05 image:Cs_Guigu_Normal
+CreateRole_MenpaiModel12	Disabled	False
+CreateRole_MenpaiModel13	NormalImage	set:MainFrameLuo05 image:Cs_Kunlun_Normal
+CreateRole_MenpaiModel13	Disabled	False
+CreateRole_MenpaiModel14	NormalImage	set:MainFrameLuo06 image:Cs_Congren_Normal
+CreateRole_MenpaiModel14	Disabled	False
+CreateRole_MenpaiModel15	NormalImage	set:MainFrameLuo06 image:Cs_ERenGu_Normal
+CreateRole_MenpaiModel15	Disabled	False
+Createshow_Info	Text	#{XZRW_XML_0}
+CreateRole_Info_Frame	Visible	True
+CreateRole_Info_Frame	Disabled	False
+CreateRole_SelectSex_Girl	CheckMode	1
+CreateRole_SelectSex_Girl	Text	女
+CreateRole_SelectSex_Girl	Selected	True
+CreateRole_SelectSex_Boy	CheckMode	1
+CreateRole_SelectSex_Boy	Text	男
+CreateRole_SelectSex_Boy	Selected	False
+CreateRole_SelectHair_Text2	Text	游仙发
+CreateRole_SelectFace_Text2	Text	美艳型
+CreateRole_SelectClothing_Text2	Text	新手套装3
+CreateRole_Select_HeadImage1	Image	set:GirlProtagonist image:GirlProtagonist_25
+CreateRole_Select_HeadImage2	Image	set:GirlProtagonist1 image:GirlProtagonist1_1
+CreateRole_Select_HeadImage3	Image	set:GirlProtagonist1 image:GirlProtagonist1_2
+CreateRole_Select_HeadImage4	Image	set:GirlProtagonist image:GirlProtagonist_1
+CreateRole_Select_HeadImage5	Image	set:GirlProtagonist image:GirlProtagonist_2
+CreateRole_Select_HeadImage6	Image	set:GirlProtagonist image:GirlProtagonist_3
+CreateRole_Select_HeadImage7	Image	set:GirlProtagonist image:GirlProtagonist_4
+CreateRole_Select_HeadImage8	Image	set:GirlProtagonist image:GirlProtagonist_5
+CreateRole_Select_HeadImage9	Image	set:GirlProtagonist image:GirlProtagonist_6
+CreateRole_Select_Head1	Selected	False
+CreateRole_Select_Head2	Selected	True
+CreateRole_Select_Head3	Selected	False
+CreateRole_Select_Head4	Selected	False
+CreateRole_Select_Head5	Selected	False
+CreateRole_Select_Head6	Selected	False
+CreateRole_Select_Head7	Selected	False
+CreateRole_Select_Head8	Selected	False
+CreateRole_Select_Head9	Selected	False
+CreateRole_PageUp	Disabled	True
+CreateRole_PageDown	Disabled	False
+CreateRole_Info2_Frame	Visible	False
+Createshow_Info2	Text	
+CreateRole_MenpaiModel00	NormalImage	set:CreateRole2 image:BtnCancel_Disable
+CreateRole_MenpaiModel00	Visible	False
+CreateRole_MenpaiModel00	Disabled	False
+CreateRole_Model	FakeObject	CreateRole_Woman
+CreateRole_Info3_Frame	Visible	True
+CreateRole_Name	DefaultEditBox	True
+CreateRole_Name	Text	
+CreateRole_Name	Visible	True
+CreateRole_RandomName	Visible	False
+# tóc kế
+this	Visible	True
+CreateRole_MenpaiModel01	NormalImage	set:MainFrameLuo03 image:Cs_Shaolin_Normal
+CreateRole_MenpaiModel01	Disabled	False
+CreateRole_MenpaiModel02	NormalImage	set:MainFrameLuo03 image:Cs_Mingjiao_Normal
+CreateRole_MenpaiModel02	Disabled	False
+CreateRole_MenpaiModel03	NormalImage	set:MainFrameLuo03 image:Cs_Gaibang_Normal
+CreateRole_MenpaiModel03	Disabled	False
+CreateRole_MenpaiModel04	NormalImage	set:MainFrameLuo05 image:Cs_Wudang_Normal
+CreateRole_MenpaiModel04	Disabled	False
+CreateRole_MenpaiModel05	NormalImage	set:MainFrameLuo03 image:Cs_Emei_Normal
+CreateRole_MenpaiModel05	Disabled	False
+CreateRole_MenpaiModel06	NormalImage	set:MainFrameLuo05 image:Cs_Xingxiu_Normal
+CreateRole_MenpaiModel06	Disabled	False
+CreateRole_MenpaiModel07	NormalImage	set:MainFrameLuo03 image:Cs_Tianlong_Normal
+CreateRole_MenpaiModel07	Disabled	False
+CreateRole_MenpaiModel08	NormalImage	set:MainFrameLuo04 image:Cs_Tianshan_Normal
+CreateRole_MenpaiModel08	Disabled	False
+CreateRole_MenpaiModel09	NormalImage	set:MainFrameLuo05 image:Cs_Xiaoyao_Normal
+CreateRole_MenpaiModel09	Disabled	False
+CreateRole_MenpaiModel10	NormalImage	set:MainFrameLuo03 image:Cs_Murong_Normal
+CreateRole_MenpaiModel10	Disabled	False
+CreateRole_MenpaiModel11	NormalImage	set:MainFrameLuo05 image:Cs_Tangmen_Normal
+CreateRole_MenpaiModel11	Disabled	False
+CreateRole_MenpaiModel12	NormalImage	set:MainFrameLuo05 image:Cs_Guigu_Normal
+CreateRole_MenpaiModel12	Disabled	False
+CreateRole_MenpaiModel13	NormalImage	set:MainFrameLuo05 image:Cs_Kunlun_Normal
+CreateRole_MenpaiModel13	Disabled	False
+CreateRole_MenpaiModel14	NormalImage	set:MainFrameLuo06 image:Cs_Congren_Normal
+CreateRole_MenpaiModel14	Disabled	False
+CreateRole_MenpaiModel15	NormalImage	set:MainFrameLuo06 image:Cs_ERenGu_Normal
+CreateRole_MenpaiModel15	Disabled	False
+Createshow_Info	Text	#{XZRW_XML_0}
+CreateRole_Info_Frame	Visible	True
+CreateRole_Info_Frame	Disabled	False
+CreateRole_SelectSex_Girl	CheckMode	1
+CreateRole_SelectSex_Girl	Text	女
+CreateRole_SelectSex_Girl	Selected	True
+CreateRole_SelectSex_Boy	CheckMode	1
+CreateRole_SelectSex_Boy	Text	男
+CreateRole_SelectSex_Boy	Selected	False
+CreateRole_SelectHair_Text2	Text	鬓华发
+CreateRole_SelectFace_Text2	Text	美艳型
+CreateRole_SelectClothing_Text2	Text	新手套装3
+CreateRole_Select_HeadImage1	Image	set:GirlProtagonist image:GirlProtagonist_25
+CreateRole_Select_HeadImage2	Image	set:GirlProtagonist1 image:GirlProtagonist1_1
+CreateRole_Select_HeadImage3	Image	set:GirlProtagonist1 image:GirlProtagonist1_2
+CreateRole_Select_HeadImage4	Image	set:GirlProtagonist image:GirlProtagonist_1
+CreateRole_Select_HeadImage5	Image	set:GirlProtagonist image:GirlProtagonist_2
+CreateRole_Select_HeadImage6	Image	set:GirlProtagonist image:GirlProtagonist_3
+CreateRole_Select_HeadImage7	Image	set:GirlProtagonist image:GirlProtagonist_4
+CreateRole_Select_HeadImage8	Image	set:GirlProtagonist image:GirlProtagonist_5
+CreateRole_Select_HeadImage9	Image	set:GirlProtagonist image:GirlProtagonist_6
+CreateRole_Select_Head1	Selected	False
+CreateRole_Select_Head2	Selected	True
+CreateRole_Select_Head3	Selected	False
+CreateRole_Select_Head4	Selected	False
+CreateRole_Select_Head5	Selected	False
+CreateRole_Select_Head6	Selected	False
+CreateRole_Select_Head7	Selected	False
+CreateRole_Select_Head8	Selected	False
+CreateRole_Select_Head9	Selected	False
+CreateRole_PageUp	Disabled	True
+CreateRole_PageDown	Disabled	False
+CreateRole_Info2_Frame	Visible	False
+Createshow_Info2	Text	
+CreateRole_MenpaiModel00	NormalImage	set:CreateRole2 image:BtnCancel_Disable
+CreateRole_MenpaiModel00	Visible	False
+CreateRole_MenpaiModel00	Disabled	False
+CreateRole_Model	FakeObject	CreateRole_Woman
+CreateRole_Info3_Frame	Visible	True
+CreateRole_Name	DefaultEditBox	True
+CreateRole_Name	Text	
+CreateRole_Name	Visible	True
+CreateRole_RandomName	Visible	False
+!call1	ShowModel	-1
+!call2	ShowModel	-1
+!call3	SetHairModelId	0	1	17
+# tóc quay vòng về đầu
+this	Visible	True
+CreateRole_MenpaiModel01	NormalImage	set:MainFrameLuo03 image:Cs_Shaolin_Normal
+CreateRole_MenpaiModel01	Disabled	False
+CreateRole_MenpaiModel02	NormalImage	set:MainFrameLuo03 image:Cs_Mingjiao_Normal
+CreateRole_MenpaiModel02	Disabled	False
+CreateRole_MenpaiModel03	NormalImage	set:MainFrameLuo03 image:Cs_Gaibang_Normal
+CreateRole_MenpaiModel03	Disabled	False
+CreateRole_MenpaiModel04	NormalImage	set:MainFrameLuo05 image:Cs_Wudang_Normal
+CreateRole_MenpaiModel04	Disabled	False
+CreateRole_MenpaiModel05	NormalImage	set:MainFrameLuo03 image:Cs_Emei_Normal
+CreateRole_MenpaiModel05	Disabled	False
+CreateRole_MenpaiModel06	NormalImage	set:MainFrameLuo05 image:Cs_Xingxiu_Normal
+CreateRole_MenpaiModel06	Disabled	False
+CreateRole_MenpaiModel07	NormalImage	set:MainFrameLuo03 image:Cs_Tianlong_Normal
+CreateRole_MenpaiModel07	Disabled	False
+CreateRole_MenpaiModel08	NormalImage	set:MainFrameLuo04 image:Cs_Tianshan_Normal
+CreateRole_MenpaiModel08	Disabled	False
+CreateRole_MenpaiModel09	NormalImage	set:MainFrameLuo05 image:Cs_Xiaoyao_Normal
+CreateRole_MenpaiModel09	Disabled	False
+CreateRole_MenpaiModel10	NormalImage	set:MainFrameLuo03 image:Cs_Murong_Normal
+CreateRole_MenpaiModel10	Disabled	False
+CreateRole_MenpaiModel11	NormalImage	set:MainFrameLuo05 image:Cs_Tangmen_Normal
+CreateRole_MenpaiModel11	Disabled	False
+CreateRole_MenpaiModel12	NormalImage	set:MainFrameLuo05 image:Cs_Guigu_Normal
+CreateRole_MenpaiModel12	Disabled	False
+CreateRole_MenpaiModel13	NormalImage	set:MainFrameLuo05 image:Cs_Kunlun_Normal
+CreateRole_MenpaiModel13	Disabled	False
+CreateRole_MenpaiModel14	NormalImage	set:MainFrameLuo06 image:Cs_Congren_Normal
+CreateRole_MenpaiModel14	Disabled	False
+CreateRole_MenpaiModel15	NormalImage	set:MainFrameLuo06 image:Cs_ERenGu_Normal
+CreateRole_MenpaiModel15	Disabled	False
+Createshow_Info	Text	#{XZRW_XML_0}
+CreateRole_Info_Frame	Visible	True
+CreateRole_Info_Frame	Disabled	False
+CreateRole_SelectSex_Girl	CheckMode	1
+CreateRole_SelectSex_Girl	Text	女
+CreateRole_SelectSex_Girl	Selected	True
+CreateRole_SelectSex_Boy	CheckMode	1
+CreateRole_SelectSex_Boy	Text	男
+CreateRole_SelectSex_Boy	Selected	False
+CreateRole_SelectHair_Text2	Text	游仙发
+CreateRole_SelectFace_Text2	Text	美艳型
+CreateRole_SelectClothing_Text2	Text	新手套装3
+CreateRole_Select_HeadImage1	Image	set:GirlProtagonist image:GirlProtagonist_25
+CreateRole_Select_HeadImage2	Image	set:GirlProtagonist1 image:GirlProtagonist1_1
+CreateRole_Select_HeadImage3	Image	set:GirlProtagonist1 image:GirlProtagonist1_2
+CreateRole_Select_HeadImage4	Image	set:GirlProtagonist image:GirlProtagonist_1
+CreateRole_Select_HeadImage5	Image	set:GirlProtagonist image:GirlProtagonist_2
+CreateRole_Select_HeadImage6	Image	set:GirlProtagonist image:GirlProtagonist_3
+CreateRole_Select_HeadImage7	Image	set:GirlProtagonist image:GirlProtagonist_4
+CreateRole_Select_HeadImage8	Image	set:GirlProtagonist image:GirlProtagonist_5
+CreateRole_Select_HeadImage9	Image	set:GirlProtagonist image:GirlProtagonist_6
+CreateRole_Select_Head1	Selected	False
+CreateRole_Select_Head2	Selected	True
+CreateRole_Select_Head3	Selected	False
+CreateRole_Select_Head4	Selected	False
+CreateRole_Select_Head5	Selected	False
+CreateRole_Select_Head6	Selected	False
+CreateRole_Select_Head7	Selected	False
+CreateRole_Select_Head8	Selected	False
+CreateRole_Select_Head9	Selected	False
+CreateRole_PageUp	Disabled	True
+CreateRole_PageDown	Disabled	False
+CreateRole_Info2_Frame	Visible	False
+Createshow_Info2	Text	
+CreateRole_MenpaiModel00	NormalImage	set:CreateRole2 image:BtnCancel_Disable
+CreateRole_MenpaiModel00	Visible	False
+CreateRole_MenpaiModel00	Disabled	False
+CreateRole_Model	FakeObject	CreateRole_Woman
+CreateRole_Info3_Frame	Visible	True
+CreateRole_Name	DefaultEditBox	True
+CreateRole_Name	Text	
+CreateRole_Name	Visible	True
+CreateRole_RandomName	Visible	False
+!call1	ShowModel	-1
+!call2	ShowModel	-1
+!call3	SetHairModelId	0	2	19
+!call4	ShowModel	-1
+!call5	ShowModel	-1
+!call6	SetHairModelId	0	0	1
+# tóc lùi về cuối
+this	Visible	True
+CreateRole_MenpaiModel01	NormalImage	set:MainFrameLuo03 image:Cs_Shaolin_Normal
+CreateRole_MenpaiModel01	Disabled	False
+CreateRole_MenpaiModel02	NormalImage	set:MainFrameLuo03 image:Cs_Mingjiao_Normal
+CreateRole_MenpaiModel02	Disabled	False
+CreateRole_MenpaiModel03	NormalImage	set:MainFrameLuo03 image:Cs_Gaibang_Normal
+CreateRole_MenpaiModel03	Disabled	False
+CreateRole_MenpaiModel04	NormalImage	set:MainFrameLuo05 image:Cs_Wudang_Normal
+CreateRole_MenpaiModel04	Disabled	False
+CreateRole_MenpaiModel05	NormalImage	set:MainFrameLuo03 image:Cs_Emei_Normal
+CreateRole_MenpaiModel05	Disabled	False
+CreateRole_MenpaiModel06	NormalImage	set:MainFrameLuo05 image:Cs_Xingxiu_Normal
+CreateRole_MenpaiModel06	Disabled	False
+CreateRole_MenpaiModel07	NormalImage	set:MainFrameLuo03 image:Cs_Tianlong_Normal
+CreateRole_MenpaiModel07	Disabled	False
+CreateRole_MenpaiModel08	NormalImage	set:MainFrameLuo04 image:Cs_Tianshan_Normal
+CreateRole_MenpaiModel08	Disabled	False
+CreateRole_MenpaiModel09	NormalImage	set:MainFrameLuo05 image:Cs_Xiaoyao_Normal
+CreateRole_MenpaiModel09	Disabled	False
+CreateRole_MenpaiModel10	NormalImage	set:MainFrameLuo03 image:Cs_Murong_Normal
+CreateRole_MenpaiModel10	Disabled	False
+CreateRole_MenpaiModel11	NormalImage	set:MainFrameLuo05 image:Cs_Tangmen_Normal
+CreateRole_MenpaiModel11	Disabled	False
+CreateRole_MenpaiModel12	NormalImage	set:MainFrameLuo05 image:Cs_Guigu_Normal
+CreateRole_MenpaiModel12	Disabled	False
+CreateRole_MenpaiModel13	NormalImage	set:MainFrameLuo05 image:Cs_Kunlun_Normal
+CreateRole_MenpaiModel13	Disabled	False
+CreateRole_MenpaiModel14	NormalImage	set:MainFrameLuo06 image:Cs_Congren_Normal
+CreateRole_MenpaiModel14	Disabled	False
+CreateRole_MenpaiModel15	NormalImage	set:MainFrameLuo06 image:Cs_ERenGu_Normal
+CreateRole_MenpaiModel15	Disabled	False
+Createshow_Info	Text	#{XZRW_XML_0}
+CreateRole_Info_Frame	Visible	True
+CreateRole_Info_Frame	Disabled	False
+CreateRole_SelectSex_Girl	CheckMode	1
+CreateRole_SelectSex_Girl	Text	女
+CreateRole_SelectSex_Girl	Selected	True
+CreateRole_SelectSex_Boy	CheckMode	1
+CreateRole_SelectSex_Boy	Text	男
+CreateRole_SelectSex_Boy	Selected	False
+CreateRole_SelectHair_Text2	Text	宝锦发
+CreateRole_SelectFace_Text2	Text	美艳型
+CreateRole_SelectClothing_Text2	Text	新手套装3
+CreateRole_Select_HeadImage1	Image	set:GirlProtagonist image:GirlProtagonist_25
+CreateRole_Select_HeadImage2	Image	set:GirlProtagonist1 image:GirlProtagonist1_1
+CreateRole_Select_HeadImage3	Image	set:GirlProtagonist1 image:GirlProtagonist1_2
+CreateRole_Select_HeadImage4	Image	set:GirlProtagonist image:GirlProtagonist_1
+CreateRole_Select_HeadImage5	Image	set:GirlProtagonist image:GirlProtagonist_2
+CreateRole_Select_HeadImage6	Image	set:GirlProtagonist image:GirlProtagonist_3
+CreateRole_Select_HeadImage7	Image	set:GirlProtagonist image:GirlProtagonist_4
+CreateRole_Select_HeadImage8	Image	set:GirlProtagonist image:GirlProtagonist_5
+CreateRole_Select_HeadImage9	Image	set:GirlProtagonist image:GirlProtagonist_6
+CreateRole_Select_Head1	Selected	False
+CreateRole_Select_Head2	Selected	True
+CreateRole_Select_Head3	Selected	False
+CreateRole_Select_Head4	Selected	False
+CreateRole_Select_Head5	Selected	False
+CreateRole_Select_Head6	Selected	False
+CreateRole_Select_Head7	Selected	False
+CreateRole_Select_Head8	Selected	False
+CreateRole_Select_Head9	Selected	False
+CreateRole_PageUp	Disabled	True
+CreateRole_PageDown	Disabled	False
+CreateRole_Info2_Frame	Visible	False
+Createshow_Info2	Text	
+CreateRole_MenpaiModel00	NormalImage	set:CreateRole2 image:BtnCancel_Disable
+CreateRole_MenpaiModel00	Visible	False
+CreateRole_MenpaiModel00	Disabled	False
+CreateRole_Model	FakeObject	CreateRole_Woman
+CreateRole_Info3_Frame	Visible	True
+CreateRole_Name	DefaultEditBox	True
+CreateRole_Name	Text	
+CreateRole_Name	Visible	True
+CreateRole_RandomName	Visible	False
+!call1	ShowModel	-1
+!call2	ShowModel	-1
+!call3	SetHairModelId	0	2	19
+# mặt kế
+this	Visible	True
+CreateRole_MenpaiModel01	NormalImage	set:MainFrameLuo03 image:Cs_Shaolin_Normal
+CreateRole_MenpaiModel01	Disabled	False
+CreateRole_MenpaiModel02	NormalImage	set:MainFrameLuo03 image:Cs_Mingjiao_Normal
+CreateRole_MenpaiModel02	Disabled	False
+CreateRole_MenpaiModel03	NormalImage	set:MainFrameLuo03 image:Cs_Gaibang_Normal
+CreateRole_MenpaiModel03	Disabled	False
+CreateRole_MenpaiModel04	NormalImage	set:MainFrameLuo05 image:Cs_Wudang_Normal
+CreateRole_MenpaiModel04	Disabled	False
+CreateRole_MenpaiModel05	NormalImage	set:MainFrameLuo03 image:Cs_Emei_Normal
+CreateRole_MenpaiModel05	Disabled	False
+CreateRole_MenpaiModel06	NormalImage	set:MainFrameLuo05 image:Cs_Xingxiu_Normal
+CreateRole_MenpaiModel06	Disabled	False
+CreateRole_MenpaiModel07	NormalImage	set:MainFrameLuo03 image:Cs_Tianlong_Normal
+CreateRole_MenpaiModel07	Disabled	False
+CreateRole_MenpaiModel08	NormalImage	set:MainFrameLuo04 image:Cs_Tianshan_Normal
+CreateRole_MenpaiModel08	Disabled	False
+CreateRole_MenpaiModel09	NormalImage	set:MainFrameLuo05 image:Cs_Xiaoyao_Normal
+CreateRole_MenpaiModel09	Disabled	False
+CreateRole_MenpaiModel10	NormalImage	set:MainFrameLuo03 image:Cs_Murong_Normal
+CreateRole_MenpaiModel10	Disabled	False
+CreateRole_MenpaiModel11	NormalImage	set:MainFrameLuo05 image:Cs_Tangmen_Normal
+CreateRole_MenpaiModel11	Disabled	False
+CreateRole_MenpaiModel12	NormalImage	set:MainFrameLuo05 image:Cs_Guigu_Normal
+CreateRole_MenpaiModel12	Disabled	False
+CreateRole_MenpaiModel13	NormalImage	set:MainFrameLuo05 image:Cs_Kunlun_Normal
+CreateRole_MenpaiModel13	Disabled	False
+CreateRole_MenpaiModel14	NormalImage	set:MainFrameLuo06 image:Cs_Congren_Normal
+CreateRole_MenpaiModel14	Disabled	False
+CreateRole_MenpaiModel15	NormalImage	set:MainFrameLuo06 image:Cs_ERenGu_Normal
+CreateRole_MenpaiModel15	Disabled	False
+Createshow_Info	Text	#{XZRW_XML_0}
+CreateRole_Info_Frame	Visible	True
+CreateRole_Info_Frame	Disabled	False
+CreateRole_SelectSex_Girl	CheckMode	1
+CreateRole_SelectSex_Girl	Text	女
+CreateRole_SelectSex_Girl	Selected	True
+CreateRole_SelectSex_Boy	CheckMode	1
+CreateRole_SelectSex_Boy	Text	男
+CreateRole_SelectSex_Boy	Selected	False
+CreateRole_SelectHair_Text2	Text	宝锦发
+CreateRole_SelectFace_Text2	Text	智慧型
+CreateRole_SelectClothing_Text2	Text	新手套装3
+CreateRole_Select_HeadImage1	Image	set:GirlProtagonist image:GirlProtagonist_25
+CreateRole_Select_HeadImage2	Image	set:GirlProtagonist1 image:GirlProtagonist1_1
+CreateRole_Select_HeadImage3	Image	set:GirlProtagonist1 image:GirlProtagonist1_2
+CreateRole_Select_HeadImage4	Image	set:GirlProtagonist image:GirlProtagonist_1
+CreateRole_Select_HeadImage5	Image	set:GirlProtagonist image:GirlProtagonist_2
+CreateRole_Select_HeadImage6	Image	set:GirlProtagonist image:GirlProtagonist_3
+CreateRole_Select_HeadImage7	Image	set:GirlProtagonist image:GirlProtagonist_4
+CreateRole_Select_HeadImage8	Image	set:GirlProtagonist image:GirlProtagonist_5
+CreateRole_Select_HeadImage9	Image	set:GirlProtagonist image:GirlProtagonist_6
+CreateRole_Select_Head1	Selected	False
+CreateRole_Select_Head2	Selected	True
+CreateRole_Select_Head3	Selected	False
+CreateRole_Select_Head4	Selected	False
+CreateRole_Select_Head5	Selected	False
+CreateRole_Select_Head6	Selected	False
+CreateRole_Select_Head7	Selected	False
+CreateRole_Select_Head8	Selected	False
+CreateRole_Select_Head9	Selected	False
+CreateRole_PageUp	Disabled	True
+CreateRole_PageDown	Disabled	False
+CreateRole_Info2_Frame	Visible	False
+Createshow_Info2	Text	
+CreateRole_MenpaiModel00	NormalImage	set:CreateRole2 image:BtnCancel_Disable
+CreateRole_MenpaiModel00	Visible	False
+CreateRole_MenpaiModel00	Disabled	False
+CreateRole_Model	FakeObject	CreateRole_Woman
+CreateRole_Info3_Frame	Visible	True
+CreateRole_Name	DefaultEditBox	True
+CreateRole_Name	Text	
+CreateRole_Name	Visible	True
+CreateRole_RandomName	Visible	False
+!call1	ShowModel	-1
+!call2	ShowModel	-1
+!call3	SetFaceModelId	0	1	2
+# mặt quay vòng về đầu
+this	Visible	True
+CreateRole_MenpaiModel01	NormalImage	set:MainFrameLuo03 image:Cs_Shaolin_Normal
+CreateRole_MenpaiModel01	Disabled	False
+CreateRole_MenpaiModel02	NormalImage	set:MainFrameLuo03 image:Cs_Mingjiao_Normal
+CreateRole_MenpaiModel02	Disabled	False
+CreateRole_MenpaiModel03	NormalImage	set:MainFrameLuo03 image:Cs_Gaibang_Normal
+CreateRole_MenpaiModel03	Disabled	False
+CreateRole_MenpaiModel04	NormalImage	set:MainFrameLuo05 image:Cs_Wudang_Normal
+CreateRole_MenpaiModel04	Disabled	False
+CreateRole_MenpaiModel05	NormalImage	set:MainFrameLuo03 image:Cs_Emei_Normal
+CreateRole_MenpaiModel05	Disabled	False
+CreateRole_MenpaiModel06	NormalImage	set:MainFrameLuo05 image:Cs_Xingxiu_Normal
+CreateRole_MenpaiModel06	Disabled	False
+CreateRole_MenpaiModel07	NormalImage	set:MainFrameLuo03 image:Cs_Tianlong_Normal
+CreateRole_MenpaiModel07	Disabled	False
+CreateRole_MenpaiModel08	NormalImage	set:MainFrameLuo04 image:Cs_Tianshan_Normal
+CreateRole_MenpaiModel08	Disabled	False
+CreateRole_MenpaiModel09	NormalImage	set:MainFrameLuo05 image:Cs_Xiaoyao_Normal
+CreateRole_MenpaiModel09	Disabled	False
+CreateRole_MenpaiModel10	NormalImage	set:MainFrameLuo03 image:Cs_Murong_Normal
+CreateRole_MenpaiModel10	Disabled	False
+CreateRole_MenpaiModel11	NormalImage	set:MainFrameLuo05 image:Cs_Tangmen_Normal
+CreateRole_MenpaiModel11	Disabled	False
+CreateRole_MenpaiModel12	NormalImage	set:MainFrameLuo05 image:Cs_Guigu_Normal
+CreateRole_MenpaiModel12	Disabled	False
+CreateRole_MenpaiModel13	NormalImage	set:MainFrameLuo05 image:Cs_Kunlun_Normal
+CreateRole_MenpaiModel13	Disabled	False
+CreateRole_MenpaiModel14	NormalImage	set:MainFrameLuo06 image:Cs_Congren_Normal
+CreateRole_MenpaiModel14	Disabled	False
+CreateRole_MenpaiModel15	NormalImage	set:MainFrameLuo06 image:Cs_ERenGu_Normal
+CreateRole_MenpaiModel15	Disabled	False
+Createshow_Info	Text	#{XZRW_XML_0}
+CreateRole_Info_Frame	Visible	True
+CreateRole_Info_Frame	Disabled	False
+CreateRole_SelectSex_Girl	CheckMode	1
+CreateRole_SelectSex_Girl	Text	女
+CreateRole_SelectSex_Girl	Selected	True
+CreateRole_SelectSex_Boy	CheckMode	1
+CreateRole_SelectSex_Boy	Text	男
+CreateRole_SelectSex_Boy	Selected	False
+CreateRole_SelectHair_Text2	Text	宝锦发
+CreateRole_SelectFace_Text2	Text	美艳型
+CreateRole_SelectClothing_Text2	Text	新手套装3
+CreateRole_Select_HeadImage1	Image	set:GirlProtagonist image:GirlProtagonist_25
+CreateRole_Select_HeadImage2	Image	set:GirlProtagonist1 image:GirlProtagonist1_1
+CreateRole_Select_HeadImage3	Image	set:GirlProtagonist1 image:GirlProtagonist1_2
+CreateRole_Select_HeadImage4	Image	set:GirlProtagonist image:GirlProtagonist_1
+CreateRole_Select_HeadImage5	Image	set:GirlProtagonist image:GirlProtagonist_2
+CreateRole_Select_HeadImage6	Image	set:GirlProtagonist image:GirlProtagonist_3
+CreateRole_Select_HeadImage7	Image	set:GirlProtagonist image:GirlProtagonist_4
+CreateRole_Select_HeadImage8	Image	set:GirlProtagonist image:GirlProtagonist_5
+CreateRole_Select_HeadImage9	Image	set:GirlProtagonist image:GirlProtagonist_6
+CreateRole_Select_Head1	Selected	False
+CreateRole_Select_Head2	Selected	True
+CreateRole_Select_Head3	Selected	False
+CreateRole_Select_Head4	Selected	False
+CreateRole_Select_Head5	Selected	False
+CreateRole_Select_Head6	Selected	False
+CreateRole_Select_Head7	Selected	False
+CreateRole_Select_Head8	Selected	False
+CreateRole_Select_Head9	Selected	False
+CreateRole_PageUp	Disabled	True
+CreateRole_PageDown	Disabled	False
+CreateRole_Info2_Frame	Visible	False
+Createshow_Info2	Text	
+CreateRole_MenpaiModel00	NormalImage	set:CreateRole2 image:BtnCancel_Disable
+CreateRole_MenpaiModel00	Visible	False
+CreateRole_MenpaiModel00	Disabled	False
+CreateRole_Model	FakeObject	CreateRole_Woman
+CreateRole_Info3_Frame	Visible	True
+CreateRole_Name	DefaultEditBox	True
+CreateRole_Name	Text	
+CreateRole_Name	Visible	True
+CreateRole_RandomName	Visible	False
+!call1	ShowModel	-1
+!call2	ShowModel	-1
+!call3	SetFaceModelId	0	2	3
+!call4	ShowModel	-1
+!call5	ShowModel	-1
+!call6	SetFaceModelId	0	0	1
+# mặt lùi về cuối
+this	Visible	True
+CreateRole_MenpaiModel01	NormalImage	set:MainFrameLuo03 image:Cs_Shaolin_Normal
+CreateRole_MenpaiModel01	Disabled	False
+CreateRole_MenpaiModel02	NormalImage	set:MainFrameLuo03 image:Cs_Mingjiao_Normal
+CreateRole_MenpaiModel02	Disabled	False
+CreateRole_MenpaiModel03	NormalImage	set:MainFrameLuo03 image:Cs_Gaibang_Normal
+CreateRole_MenpaiModel03	Disabled	False
+CreateRole_MenpaiModel04	NormalImage	set:MainFrameLuo05 image:Cs_Wudang_Normal
+CreateRole_MenpaiModel04	Disabled	False
+CreateRole_MenpaiModel05	NormalImage	set:MainFrameLuo03 image:Cs_Emei_Normal
+CreateRole_MenpaiModel05	Disabled	False
+CreateRole_MenpaiModel06	NormalImage	set:MainFrameLuo05 image:Cs_Xingxiu_Normal
+CreateRole_MenpaiModel06	Disabled	False
+CreateRole_MenpaiModel07	NormalImage	set:MainFrameLuo03 image:Cs_Tianlong_Normal
+CreateRole_MenpaiModel07	Disabled	False
+CreateRole_MenpaiModel08	NormalImage	set:MainFrameLuo04 image:Cs_Tianshan_Normal
+CreateRole_MenpaiModel08	Disabled	False
+CreateRole_MenpaiModel09	NormalImage	set:MainFrameLuo05 image:Cs_Xiaoyao_Normal
+CreateRole_MenpaiModel09	Disabled	False
+CreateRole_MenpaiModel10	NormalImage	set:MainFrameLuo03 image:Cs_Murong_Normal
+CreateRole_MenpaiModel10	Disabled	False
+CreateRole_MenpaiModel11	NormalImage	set:MainFrameLuo05 image:Cs_Tangmen_Normal
+CreateRole_MenpaiModel11	Disabled	False
+CreateRole_MenpaiModel12	NormalImage	set:MainFrameLuo05 image:Cs_Guigu_Normal
+CreateRole_MenpaiModel12	Disabled	False
+CreateRole_MenpaiModel13	NormalImage	set:MainFrameLuo05 image:Cs_Kunlun_Normal
+CreateRole_MenpaiModel13	Disabled	False
+CreateRole_MenpaiModel14	NormalImage	set:MainFrameLuo06 image:Cs_Congren_Normal
+CreateRole_MenpaiModel14	Disabled	False
+CreateRole_MenpaiModel15	NormalImage	set:MainFrameLuo06 image:Cs_ERenGu_Normal
+CreateRole_MenpaiModel15	Disabled	False
+Createshow_Info	Text	#{XZRW_XML_0}
+CreateRole_Info_Frame	Visible	True
+CreateRole_Info_Frame	Disabled	False
+CreateRole_SelectSex_Girl	CheckMode	1
+CreateRole_SelectSex_Girl	Text	女
+CreateRole_SelectSex_Girl	Selected	True
+CreateRole_SelectSex_Boy	CheckMode	1
+CreateRole_SelectSex_Boy	Text	男
+CreateRole_SelectSex_Boy	Selected	False
+CreateRole_SelectHair_Text2	Text	宝锦发
+CreateRole_SelectFace_Text2	Text	开朗型
+CreateRole_SelectClothing_Text2	Text	新手套装3
+CreateRole_Select_HeadImage1	Image	set:GirlProtagonist image:GirlProtagonist_25
+CreateRole_Select_HeadImage2	Image	set:GirlProtagonist1 image:GirlProtagonist1_1
+CreateRole_Select_HeadImage3	Image	set:GirlProtagonist1 image:GirlProtagonist1_2
+CreateRole_Select_HeadImage4	Image	set:GirlProtagonist image:GirlProtagonist_1
+CreateRole_Select_HeadImage5	Image	set:GirlProtagonist image:GirlProtagonist_2
+CreateRole_Select_HeadImage6	Image	set:GirlProtagonist image:GirlProtagonist_3
+CreateRole_Select_HeadImage7	Image	set:GirlProtagonist image:GirlProtagonist_4
+CreateRole_Select_HeadImage8	Image	set:GirlProtagonist image:GirlProtagonist_5
+CreateRole_Select_HeadImage9	Image	set:GirlProtagonist image:GirlProtagonist_6
+CreateRole_Select_Head1	Selected	False
+CreateRole_Select_Head2	Selected	True
+CreateRole_Select_Head3	Selected	False
+CreateRole_Select_Head4	Selected	False
+CreateRole_Select_Head5	Selected	False
+CreateRole_Select_Head6	Selected	False
+CreateRole_Select_Head7	Selected	False
+CreateRole_Select_Head8	Selected	False
+CreateRole_Select_Head9	Selected	False
+CreateRole_PageUp	Disabled	True
+CreateRole_PageDown	Disabled	False
+CreateRole_Info2_Frame	Visible	False
+Createshow_Info2	Text	
+CreateRole_MenpaiModel00	NormalImage	set:CreateRole2 image:BtnCancel_Disable
+CreateRole_MenpaiModel00	Visible	False
+CreateRole_MenpaiModel00	Disabled	False
+CreateRole_Model	FakeObject	CreateRole_Woman
+CreateRole_Info3_Frame	Visible	True
+CreateRole_Name	DefaultEditBox	True
+CreateRole_Name	Text	
+CreateRole_Name	Visible	True
+CreateRole_RandomName	Visible	False
+!call1	ShowModel	-1
+!call2	ShowModel	-1
+!call3	SetFaceModelId	0	2	3
+# bộ đồ kế
+this	Visible	True
+CreateRole_MenpaiModel01	NormalImage	set:MainFrameLuo03 image:Cs_Shaolin_Normal
+CreateRole_MenpaiModel01	Disabled	False
+CreateRole_MenpaiModel02	NormalImage	set:MainFrameLuo03 image:Cs_Mingjiao_Normal
+CreateRole_MenpaiModel02	Disabled	False
+CreateRole_MenpaiModel03	NormalImage	set:MainFrameLuo03 image:Cs_Gaibang_Normal
+CreateRole_MenpaiModel03	Disabled	False
+CreateRole_MenpaiModel04	NormalImage	set:MainFrameLuo05 image:Cs_Wudang_Normal
+CreateRole_MenpaiModel04	Disabled	False
+CreateRole_MenpaiModel05	NormalImage	set:MainFrameLuo03 image:Cs_Emei_Normal
+CreateRole_MenpaiModel05	Disabled	False
+CreateRole_MenpaiModel06	NormalImage	set:MainFrameLuo05 image:Cs_Xingxiu_Normal
+CreateRole_MenpaiModel06	Disabled	False
+CreateRole_MenpaiModel07	NormalImage	set:MainFrameLuo03 image:Cs_Tianlong_Normal
+CreateRole_MenpaiModel07	Disabled	False
+CreateRole_MenpaiModel08	NormalImage	set:MainFrameLuo04 image:Cs_Tianshan_Normal
+CreateRole_MenpaiModel08	Disabled	False
+CreateRole_MenpaiModel09	NormalImage	set:MainFrameLuo05 image:Cs_Xiaoyao_Normal
+CreateRole_MenpaiModel09	Disabled	False
+CreateRole_MenpaiModel10	NormalImage	set:MainFrameLuo03 image:Cs_Murong_Normal
+CreateRole_MenpaiModel10	Disabled	False
+CreateRole_MenpaiModel11	NormalImage	set:MainFrameLuo05 image:Cs_Tangmen_Normal
+CreateRole_MenpaiModel11	Disabled	False
+CreateRole_MenpaiModel12	NormalImage	set:MainFrameLuo05 image:Cs_Guigu_Normal
+CreateRole_MenpaiModel12	Disabled	False
+CreateRole_MenpaiModel13	NormalImage	set:MainFrameLuo05 image:Cs_Kunlun_Normal
+CreateRole_MenpaiModel13	Disabled	False
+CreateRole_MenpaiModel14	NormalImage	set:MainFrameLuo06 image:Cs_Congren_Normal
+CreateRole_MenpaiModel14	Disabled	False
+CreateRole_MenpaiModel15	NormalImage	set:MainFrameLuo06 image:Cs_ERenGu_Normal
+CreateRole_MenpaiModel15	Disabled	False
+Createshow_Info	Text	#{XZRW_XML_0}
+CreateRole_Info_Frame	Visible	True
+CreateRole_Info_Frame	Disabled	False
+CreateRole_SelectSex_Girl	CheckMode	1
+CreateRole_SelectSex_Girl	Text	女
+CreateRole_SelectSex_Girl	Selected	True
+CreateRole_SelectSex_Boy	CheckMode	1
+CreateRole_SelectSex_Boy	Text	男
+CreateRole_SelectSex_Boy	Selected	False
+CreateRole_SelectHair_Text2	Text	宝锦发
+CreateRole_SelectFace_Text2	Text	开朗型
+CreateRole_SelectClothing_Text2	Text	新手套装1
+CreateRole_Select_HeadImage1	Image	set:GirlProtagonist image:GirlProtagonist_25
+CreateRole_Select_HeadImage2	Image	set:GirlProtagonist1 image:GirlProtagonist1_1
+CreateRole_Select_HeadImage3	Image	set:GirlProtagonist1 image:GirlProtagonist1_2
+CreateRole_Select_HeadImage4	Image	set:GirlProtagonist image:GirlProtagonist_1
+CreateRole_Select_HeadImage5	Image	set:GirlProtagonist image:GirlProtagonist_2
+CreateRole_Select_HeadImage6	Image	set:GirlProtagonist image:GirlProtagonist_3
+CreateRole_Select_HeadImage7	Image	set:GirlProtagonist image:GirlProtagonist_4
+CreateRole_Select_HeadImage8	Image	set:GirlProtagonist image:GirlProtagonist_5
+CreateRole_Select_HeadImage9	Image	set:GirlProtagonist image:GirlProtagonist_6
+CreateRole_Select_Head1	Selected	False
+CreateRole_Select_Head2	Selected	True
+CreateRole_Select_Head3	Selected	False
+CreateRole_Select_Head4	Selected	False
+CreateRole_Select_Head5	Selected	False
+CreateRole_Select_Head6	Selected	False
+CreateRole_Select_Head7	Selected	False
+CreateRole_Select_Head8	Selected	False
+CreateRole_Select_Head9	Selected	False
+CreateRole_PageUp	Disabled	True
+CreateRole_PageDown	Disabled	False
+CreateRole_Info2_Frame	Visible	False
+Createshow_Info2	Text	
+CreateRole_MenpaiModel00	NormalImage	set:CreateRole2 image:BtnCancel_Disable
+CreateRole_MenpaiModel00	Visible	False
+CreateRole_MenpaiModel00	Disabled	False
+CreateRole_Model	FakeObject	CreateRole_Woman
+CreateRole_Info3_Frame	Visible	True
+CreateRole_Name	DefaultEditBox	True
+CreateRole_Name	Text	
+CreateRole_Name	Visible	True
+CreateRole_RandomName	Visible	False
+!call1	ShowModel	-1
+!call2	ShowModel	-1
+!call3	ChangeNewRoleEquipSet	0	0	0
+# bộ đồ lùi hai lần
+this	Visible	True
+CreateRole_MenpaiModel01	NormalImage	set:MainFrameLuo03 image:Cs_Shaolin_Normal
+CreateRole_MenpaiModel01	Disabled	False
+CreateRole_MenpaiModel02	NormalImage	set:MainFrameLuo03 image:Cs_Mingjiao_Normal
+CreateRole_MenpaiModel02	Disabled	False
+CreateRole_MenpaiModel03	NormalImage	set:MainFrameLuo03 image:Cs_Gaibang_Normal
+CreateRole_MenpaiModel03	Disabled	False
+CreateRole_MenpaiModel04	NormalImage	set:MainFrameLuo05 image:Cs_Wudang_Normal
+CreateRole_MenpaiModel04	Disabled	False
+CreateRole_MenpaiModel05	NormalImage	set:MainFrameLuo03 image:Cs_Emei_Normal
+CreateRole_MenpaiModel05	Disabled	False
+CreateRole_MenpaiModel06	NormalImage	set:MainFrameLuo05 image:Cs_Xingxiu_Normal
+CreateRole_MenpaiModel06	Disabled	False
+CreateRole_MenpaiModel07	NormalImage	set:MainFrameLuo03 image:Cs_Tianlong_Normal
+CreateRole_MenpaiModel07	Disabled	False
+CreateRole_MenpaiModel08	NormalImage	set:MainFrameLuo04 image:Cs_Tianshan_Normal
+CreateRole_MenpaiModel08	Disabled	False
+CreateRole_MenpaiModel09	NormalImage	set:MainFrameLuo05 image:Cs_Xiaoyao_Normal
+CreateRole_MenpaiModel09	Disabled	False
+CreateRole_MenpaiModel10	NormalImage	set:MainFrameLuo03 image:Cs_Murong_Normal
+CreateRole_MenpaiModel10	Disabled	False
+CreateRole_MenpaiModel11	NormalImage	set:MainFrameLuo05 image:Cs_Tangmen_Normal
+CreateRole_MenpaiModel11	Disabled	False
+CreateRole_MenpaiModel12	NormalImage	set:MainFrameLuo05 image:Cs_Guigu_Normal
+CreateRole_MenpaiModel12	Disabled	False
+CreateRole_MenpaiModel13	NormalImage	set:MainFrameLuo05 image:Cs_Kunlun_Normal
+CreateRole_MenpaiModel13	Disabled	False
+CreateRole_MenpaiModel14	NormalImage	set:MainFrameLuo06 image:Cs_Congren_Normal
+CreateRole_MenpaiModel14	Disabled	False
+CreateRole_MenpaiModel15	NormalImage	set:MainFrameLuo06 image:Cs_ERenGu_Normal
+CreateRole_MenpaiModel15	Disabled	False
+Createshow_Info	Text	#{XZRW_XML_0}
+CreateRole_Info_Frame	Visible	True
+CreateRole_Info_Frame	Disabled	False
+CreateRole_SelectSex_Girl	CheckMode	1
+CreateRole_SelectSex_Girl	Text	女
+CreateRole_SelectSex_Girl	Selected	True
+CreateRole_SelectSex_Boy	CheckMode	1
+CreateRole_SelectSex_Boy	Text	男
+CreateRole_SelectSex_Boy	Selected	False
+CreateRole_SelectHair_Text2	Text	宝锦发
+CreateRole_SelectFace_Text2	Text	开朗型
+CreateRole_SelectClothing_Text2	Text	新手套装2
+CreateRole_Select_HeadImage1	Image	set:GirlProtagonist image:GirlProtagonist_25
+CreateRole_Select_HeadImage2	Image	set:GirlProtagonist1 image:GirlProtagonist1_1
+CreateRole_Select_HeadImage3	Image	set:GirlProtagonist1 image:GirlProtagonist1_2
+CreateRole_Select_HeadImage4	Image	set:GirlProtagonist image:GirlProtagonist_1
+CreateRole_Select_HeadImage5	Image	set:GirlProtagonist image:GirlProtagonist_2
+CreateRole_Select_HeadImage6	Image	set:GirlProtagonist image:GirlProtagonist_3
+CreateRole_Select_HeadImage7	Image	set:GirlProtagonist image:GirlProtagonist_4
+CreateRole_Select_HeadImage8	Image	set:GirlProtagonist image:GirlProtagonist_5
+CreateRole_Select_HeadImage9	Image	set:GirlProtagonist image:GirlProtagonist_6
+CreateRole_Select_Head1	Selected	False
+CreateRole_Select_Head2	Selected	True
+CreateRole_Select_Head3	Selected	False
+CreateRole_Select_Head4	Selected	False
+CreateRole_Select_Head5	Selected	False
+CreateRole_Select_Head6	Selected	False
+CreateRole_Select_Head7	Selected	False
+CreateRole_Select_Head8	Selected	False
+CreateRole_Select_Head9	Selected	False
+CreateRole_PageUp	Disabled	True
+CreateRole_PageDown	Disabled	False
+CreateRole_Info2_Frame	Visible	False
+Createshow_Info2	Text	
+CreateRole_MenpaiModel00	NormalImage	set:CreateRole2 image:BtnCancel_Disable
+CreateRole_MenpaiModel00	Visible	False
+CreateRole_MenpaiModel00	Disabled	False
+CreateRole_Model	FakeObject	CreateRole_Woman
+CreateRole_Info3_Frame	Visible	True
+CreateRole_Name	DefaultEditBox	True
+CreateRole_Name	Text	
+CreateRole_Name	Visible	True
+CreateRole_RandomName	Visible	False
+!call1	ShowModel	-1
+!call2	ShowModel	-1
+!call3	ChangeNewRoleEquipSet	0	2	2
+!call4	ShowModel	-1
+!call5	ShowModel	-1
+!call6	ChangeNewRoleEquipSet	0	1	1
+# chọn nam
+this	Visible	True
+CreateRole_MenpaiModel01	NormalImage	set:MainFrameLuo03 image:Cs_Shaolin_Normal
+CreateRole_MenpaiModel01	Disabled	False
+CreateRole_MenpaiModel02	NormalImage	set:MainFrameLuo03 image:Cs_Mingjiao_Normal
+CreateRole_MenpaiModel02	Disabled	False
+CreateRole_MenpaiModel03	NormalImage	set:MainFrameLuo03 image:Cs_Gaibang_Normal
+CreateRole_MenpaiModel03	Disabled	False
+CreateRole_MenpaiModel04	NormalImage	set:MainFrameLuo05 image:Cs_Wudang_Normal
+CreateRole_MenpaiModel04	Disabled	False
+CreateRole_MenpaiModel05	NormalImage	set:MainFrameLuo03 image:Cs_Emei_Normal
+CreateRole_MenpaiModel05	Disabled	False
+CreateRole_MenpaiModel06	NormalImage	set:MainFrameLuo05 image:Cs_Xingxiu_Normal
+CreateRole_MenpaiModel06	Disabled	False
+CreateRole_MenpaiModel07	NormalImage	set:MainFrameLuo03 image:Cs_Tianlong_Normal
+CreateRole_MenpaiModel07	Disabled	False
+CreateRole_MenpaiModel08	NormalImage	set:MainFrameLuo04 image:Cs_Tianshan_Normal
+CreateRole_MenpaiModel08	Disabled	False
+CreateRole_MenpaiModel09	NormalImage	set:MainFrameLuo05 image:Cs_Xiaoyao_Normal
+CreateRole_MenpaiModel09	Disabled	False
+CreateRole_MenpaiModel10	NormalImage	set:MainFrameLuo03 image:Cs_Murong_Normal
+CreateRole_MenpaiModel10	Disabled	False
+CreateRole_MenpaiModel11	NormalImage	set:MainFrameLuo05 image:Cs_Tangmen_Normal
+CreateRole_MenpaiModel11	Disabled	False
+CreateRole_MenpaiModel12	NormalImage	set:MainFrameLuo05 image:Cs_Guigu_Normal
+CreateRole_MenpaiModel12	Disabled	False
+CreateRole_MenpaiModel13	NormalImage	set:MainFrameLuo05 image:Cs_Kunlun_Normal
+CreateRole_MenpaiModel13	Disabled	False
+CreateRole_MenpaiModel14	NormalImage	set:MainFrameLuo06 image:Cs_Congren_Normal
+CreateRole_MenpaiModel14	Disabled	False
+CreateRole_MenpaiModel15	NormalImage	set:MainFrameLuo06 image:Cs_ERenGu_Normal
+CreateRole_MenpaiModel15	Disabled	False
+Createshow_Info	Text	#{XZRW_XML_0}
+CreateRole_Info_Frame	Visible	True
+CreateRole_Info_Frame	Disabled	False
+CreateRole_SelectSex_Girl	CheckMode	1
+CreateRole_SelectSex_Girl	Text	女
+CreateRole_SelectSex_Girl	Selected	False
+CreateRole_SelectSex_Boy	CheckMode	1
+CreateRole_SelectSex_Boy	Text	男
+CreateRole_SelectSex_Boy	Selected	True
+CreateRole_SelectHair_Text2	Text	流云发
+CreateRole_SelectFace_Text2	Text	坚强型
+CreateRole_SelectClothing_Text2	Text	新手套装1
+CreateRole_Select_HeadImage1	Image	set:ManProtagonist image:ManProtagonist_25
+CreateRole_Select_HeadImage2	Image	set:ManProtagonist1 image:ManProtagonist1_1
+CreateRole_Select_HeadImage3	Image	set:ManProtagonist1 image:ManProtagonist1_2
+CreateRole_Select_HeadImage4	Image	set:ManProtagonist image:ManProtagonist_1
+CreateRole_Select_HeadImage5	Image	set:ManProtagonist image:ManProtagonist_2
+CreateRole_Select_HeadImage6	Image	set:ManProtagonist image:ManProtagonist_3
+CreateRole_Select_HeadImage7	Image	set:ManProtagonist image:ManProtagonist_4
+CreateRole_Select_HeadImage8	Image	set:ManProtagonist image:ManProtagonist_5
+CreateRole_Select_HeadImage9	Image	set:ManProtagonist image:ManProtagonist_6
+CreateRole_Select_Head1	Selected	False
+CreateRole_Select_Head2	Selected	True
+CreateRole_Select_Head3	Selected	False
+CreateRole_Select_Head4	Selected	False
+CreateRole_Select_Head5	Selected	False
+CreateRole_Select_Head6	Selected	False
+CreateRole_Select_Head7	Selected	False
+CreateRole_Select_Head8	Selected	False
+CreateRole_Select_Head9	Selected	False
+CreateRole_PageUp	Disabled	True
+CreateRole_PageDown	Disabled	False
+CreateRole_Info2_Frame	Visible	False
+Createshow_Info2	Text	
+CreateRole_MenpaiModel00	NormalImage	set:CreateRole2 image:BtnCancel_Disable
+CreateRole_MenpaiModel00	Visible	False
+CreateRole_MenpaiModel00	Disabled	False
+CreateRole_Model	FakeObject	CreateRole_Man
+CreateRole_Info3_Frame	Visible	True
+CreateRole_Name	DefaultEditBox	True
+CreateRole_Name	Text	
+CreateRole_Name	Visible	True
+CreateRole_RandomName	Visible	False
+!call1	SetHairModelId	1	0	5
+!call2	SetFaceModelId	1	0	100
+!call3	ChangeNewRoleEquipSet	1	0	0
+# nam sang trang hai
+this	Visible	True
+CreateRole_MenpaiModel01	NormalImage	set:MainFrameLuo03 image:Cs_Shaolin_Normal
+CreateRole_MenpaiModel01	Disabled	False
+CreateRole_MenpaiModel02	NormalImage	set:MainFrameLuo03 image:Cs_Mingjiao_Normal
+CreateRole_MenpaiModel02	Disabled	False
+CreateRole_MenpaiModel03	NormalImage	set:MainFrameLuo03 image:Cs_Gaibang_Normal
+CreateRole_MenpaiModel03	Disabled	False
+CreateRole_MenpaiModel04	NormalImage	set:MainFrameLuo05 image:Cs_Wudang_Normal
+CreateRole_MenpaiModel04	Disabled	False
+CreateRole_MenpaiModel05	NormalImage	set:MainFrameLuo03 image:Cs_Emei_Normal
+CreateRole_MenpaiModel05	Disabled	False
+CreateRole_MenpaiModel06	NormalImage	set:MainFrameLuo05 image:Cs_Xingxiu_Normal
+CreateRole_MenpaiModel06	Disabled	False
+CreateRole_MenpaiModel07	NormalImage	set:MainFrameLuo03 image:Cs_Tianlong_Normal
+CreateRole_MenpaiModel07	Disabled	False
+CreateRole_MenpaiModel08	NormalImage	set:MainFrameLuo04 image:Cs_Tianshan_Normal
+CreateRole_MenpaiModel08	Disabled	False
+CreateRole_MenpaiModel09	NormalImage	set:MainFrameLuo05 image:Cs_Xiaoyao_Normal
+CreateRole_MenpaiModel09	Disabled	False
+CreateRole_MenpaiModel10	NormalImage	set:MainFrameLuo03 image:Cs_Murong_Normal
+CreateRole_MenpaiModel10	Disabled	False
+CreateRole_MenpaiModel11	NormalImage	set:MainFrameLuo05 image:Cs_Tangmen_Normal
+CreateRole_MenpaiModel11	Disabled	False
+CreateRole_MenpaiModel12	NormalImage	set:MainFrameLuo05 image:Cs_Guigu_Normal
+CreateRole_MenpaiModel12	Disabled	False
+CreateRole_MenpaiModel13	NormalImage	set:MainFrameLuo05 image:Cs_Kunlun_Normal
+CreateRole_MenpaiModel13	Disabled	False
+CreateRole_MenpaiModel14	NormalImage	set:MainFrameLuo06 image:Cs_Congren_Normal
+CreateRole_MenpaiModel14	Disabled	False
+CreateRole_MenpaiModel15	NormalImage	set:MainFrameLuo06 image:Cs_ERenGu_Normal
+CreateRole_MenpaiModel15	Disabled	False
+Createshow_Info	Text	#{XZRW_XML_0}
+CreateRole_Info_Frame	Visible	True
+CreateRole_Info_Frame	Disabled	False
+CreateRole_SelectSex_Girl	CheckMode	1
+CreateRole_SelectSex_Girl	Text	女
+CreateRole_SelectSex_Girl	Selected	False
+CreateRole_SelectSex_Boy	CheckMode	1
+CreateRole_SelectSex_Boy	Text	男
+CreateRole_SelectSex_Boy	Selected	True
+CreateRole_SelectHair_Text2	Text	流云发
+CreateRole_SelectFace_Text2	Text	坚强型
+CreateRole_SelectClothing_Text2	Text	新手套装1
+CreateRole_Select_HeadImage1	Image	set:ManProtagonist image:ManProtagonist_7
+CreateRole_Select_HeadImage2	Image	set:ManProtagonist image:ManProtagonist_8
+CreateRole_Select_HeadImage3	Image	set:ManProtagonist image:ManProtagonist_9
+CreateRole_Select_HeadImage4	Image	set:ManProtagonist image:ManProtagonist_10
+CreateRole_Select_HeadImage5	Image	set:ManProtagonist image:ManProtagonist_11
+CreateRole_Select_HeadImage6	Image	set:ManProtagonist image:ManProtagonist_12
+CreateRole_Select_HeadImage7	Image	
+CreateRole_Select_HeadImage8	Image	
+CreateRole_Select_HeadImage9	Image	
+CreateRole_Select_Head1	Selected	False
+CreateRole_Select_Head2	Selected	True
+CreateRole_Select_Head3	Selected	False
+CreateRole_Select_Head4	Selected	False
+CreateRole_Select_Head5	Selected	False
+CreateRole_Select_Head6	Selected	False
+CreateRole_Select_Head7	Selected	False
+CreateRole_Select_Head8	Selected	False
+CreateRole_Select_Head9	Selected	False
+CreateRole_PageUp	Disabled	False
+CreateRole_PageDown	Disabled	True
+CreateRole_Info2_Frame	Visible	False
+Createshow_Info2	Text	
+CreateRole_MenpaiModel00	NormalImage	set:CreateRole2 image:BtnCancel_Disable
+CreateRole_MenpaiModel00	Visible	False
+CreateRole_MenpaiModel00	Disabled	False
+CreateRole_Model	FakeObject	CreateRole_Man
+CreateRole_Info3_Frame	Visible	True
+CreateRole_Name	DefaultEditBox	True
+CreateRole_Name	Text	
+CreateRole_Name	Visible	True
+CreateRole_RandomName	Visible	False
+# ngẫu nhiên
+this	Visible	True
+CreateRole_MenpaiModel01	NormalImage	set:MainFrameLuo03 image:Cs_Shaolin_Normal
+CreateRole_MenpaiModel01	Disabled	False
+CreateRole_MenpaiModel02	NormalImage	set:MainFrameLuo03 image:Cs_Mingjiao_Normal
+CreateRole_MenpaiModel02	Disabled	False
+CreateRole_MenpaiModel03	NormalImage	set:MainFrameLuo03 image:Cs_Gaibang_Normal
+CreateRole_MenpaiModel03	Disabled	False
+CreateRole_MenpaiModel04	NormalImage	set:MainFrameLuo05 image:Cs_Wudang_Normal
+CreateRole_MenpaiModel04	Disabled	False
+CreateRole_MenpaiModel05	NormalImage	set:MainFrameLuo03 image:Cs_Emei_Normal
+CreateRole_MenpaiModel05	Disabled	False
+CreateRole_MenpaiModel06	NormalImage	set:MainFrameLuo05 image:Cs_Xingxiu_Normal
+CreateRole_MenpaiModel06	Disabled	False
+CreateRole_MenpaiModel07	NormalImage	set:MainFrameLuo03 image:Cs_Tianlong_Normal
+CreateRole_MenpaiModel07	Disabled	False
+CreateRole_MenpaiModel08	NormalImage	set:MainFrameLuo04 image:Cs_Tianshan_Normal
+CreateRole_MenpaiModel08	Disabled	False
+CreateRole_MenpaiModel09	NormalImage	set:MainFrameLuo05 image:Cs_Xiaoyao_Normal
+CreateRole_MenpaiModel09	Disabled	False
+CreateRole_MenpaiModel10	NormalImage	set:MainFrameLuo03 image:Cs_Murong_Normal
+CreateRole_MenpaiModel10	Disabled	False
+CreateRole_MenpaiModel11	NormalImage	set:MainFrameLuo05 image:Cs_Tangmen_Normal
+CreateRole_MenpaiModel11	Disabled	False
+CreateRole_MenpaiModel12	NormalImage	set:MainFrameLuo05 image:Cs_Guigu_Normal
+CreateRole_MenpaiModel12	Disabled	False
+CreateRole_MenpaiModel13	NormalImage	set:MainFrameLuo05 image:Cs_Kunlun_Normal
+CreateRole_MenpaiModel13	Disabled	False
+CreateRole_MenpaiModel14	NormalImage	set:MainFrameLuo06 image:Cs_Congren_Normal
+CreateRole_MenpaiModel14	Disabled	False
+CreateRole_MenpaiModel15	NormalImage	set:MainFrameLuo06 image:Cs_ERenGu_Normal
+CreateRole_MenpaiModel15	Disabled	False
+Createshow_Info	Text	#{XZRW_XML_0}
+CreateRole_Info_Frame	Visible	True
+CreateRole_Info_Frame	Disabled	False
+CreateRole_SelectSex_Girl	CheckMode	1
+CreateRole_SelectSex_Girl	Text	女
+CreateRole_SelectSex_Girl	Selected	False
+CreateRole_SelectSex_Boy	CheckMode	1
+CreateRole_SelectSex_Boy	Text	男
+CreateRole_SelectSex_Boy	Selected	True
+CreateRole_SelectHair_Text2	Text	宝锦发
+CreateRole_SelectFace_Text2	Text	勇敢型
+CreateRole_SelectClothing_Text2	Text	新手套装2
+CreateRole_Select_HeadImage1	Image	set:ManProtagonist image:ManProtagonist_7
+CreateRole_Select_HeadImage2	Image	set:ManProtagonist image:ManProtagonist_8
+CreateRole_Select_HeadImage3	Image	set:ManProtagonist image:ManProtagonist_9
+CreateRole_Select_HeadImage4	Image	set:ManProtagonist image:ManProtagonist_10
+CreateRole_Select_HeadImage5	Image	set:ManProtagonist image:ManProtagonist_11
+CreateRole_Select_HeadImage6	Image	set:ManProtagonist image:ManProtagonist_12
+CreateRole_Select_HeadImage7	Image	
+CreateRole_Select_HeadImage8	Image	
+CreateRole_Select_HeadImage9	Image	
+CreateRole_Select_Head1	Selected	False
+CreateRole_Select_Head2	Selected	True
+CreateRole_Select_Head3	Selected	False
+CreateRole_Select_Head4	Selected	False
+CreateRole_Select_Head5	Selected	False
+CreateRole_Select_Head6	Selected	False
+CreateRole_Select_Head7	Selected	False
+CreateRole_Select_Head8	Selected	False
+CreateRole_Select_Head9	Selected	False
+CreateRole_PageUp	Disabled	False
+CreateRole_PageDown	Disabled	True
+CreateRole_Info2_Frame	Visible	False
+Createshow_Info2	Text	
+CreateRole_MenpaiModel00	NormalImage	set:CreateRole2 image:BtnCancel_Disable
+CreateRole_MenpaiModel00	Visible	False
+CreateRole_MenpaiModel00	Disabled	False
+CreateRole_Model	FakeObject	CreateRole_Man
+CreateRole_Info3_Frame	Visible	True
+CreateRole_Name	DefaultEditBox	True
+CreateRole_Name	Text	
+CreateRole_Name	Visible	True
+CreateRole_RandomName	Visible	False
+!call1	ShowModel	-1
+!call2	ShowModel	-1
+!call3	ChangeNewRoleEquipSet	1	1	1
+!call4	SetFaceModelId	1	1	101
+!call5	SetHairModelId	1	2	14
+# xem trước môn thứ ba
+this	Visible	True
+CreateRole_MenpaiModel01	NormalImage	set:MainFrameLuo03 image:Cs_Shaolin_Normal
+CreateRole_MenpaiModel01	Disabled	False
+CreateRole_MenpaiModel02	NormalImage	set:MainFrameLuo03 image:Cs_Mingjiao_Normal
+CreateRole_MenpaiModel02	Disabled	False
+CreateRole_MenpaiModel03	NormalImage	set:MainFrameLuo03 image:Cs_Gaibang_Pushed
+CreateRole_MenpaiModel03	Disabled	False
+CreateRole_MenpaiModel04	NormalImage	set:MainFrameLuo05 image:Cs_Wudang_Normal
+CreateRole_MenpaiModel04	Disabled	False
+CreateRole_MenpaiModel05	NormalImage	set:MainFrameLuo03 image:Cs_Emei_Normal
+CreateRole_MenpaiModel05	Disabled	False
+CreateRole_MenpaiModel06	NormalImage	set:MainFrameLuo05 image:Cs_Xingxiu_Normal
+CreateRole_MenpaiModel06	Disabled	False
+CreateRole_MenpaiModel07	NormalImage	set:MainFrameLuo03 image:Cs_Tianlong_Normal
+CreateRole_MenpaiModel07	Disabled	False
+CreateRole_MenpaiModel08	NormalImage	set:MainFrameLuo04 image:Cs_Tianshan_Normal
+CreateRole_MenpaiModel08	Disabled	False
+CreateRole_MenpaiModel09	NormalImage	set:MainFrameLuo05 image:Cs_Xiaoyao_Normal
+CreateRole_MenpaiModel09	Disabled	False
+CreateRole_MenpaiModel10	NormalImage	set:MainFrameLuo03 image:Cs_Murong_Normal
+CreateRole_MenpaiModel10	Disabled	False
+CreateRole_MenpaiModel11	NormalImage	set:MainFrameLuo05 image:Cs_Tangmen_Normal
+CreateRole_MenpaiModel11	Disabled	False
+CreateRole_MenpaiModel12	NormalImage	set:MainFrameLuo05 image:Cs_Guigu_Normal
+CreateRole_MenpaiModel12	Disabled	False
+CreateRole_MenpaiModel13	NormalImage	set:MainFrameLuo05 image:Cs_Kunlun_Normal
+CreateRole_MenpaiModel13	Disabled	False
+CreateRole_MenpaiModel14	NormalImage	set:MainFrameLuo06 image:Cs_Congren_Normal
+CreateRole_MenpaiModel14	Disabled	False
+CreateRole_MenpaiModel15	NormalImage	set:MainFrameLuo06 image:Cs_ERenGu_Normal
+CreateRole_MenpaiModel15	Disabled	False
+Createshow_Info	Text	#{XZRW_XML_3}
+CreateRole_Info_Frame	Alpha	0
+CreateRole_Info_Frame	Visible	True
+CreateRole_Info_Frame	Disabled	True
+CreateRole_SelectSex_Girl	CheckMode	1
+CreateRole_SelectSex_Girl	Text	女
+CreateRole_SelectSex_Girl	Selected	False
+CreateRole_SelectSex_Boy	CheckMode	1
+CreateRole_SelectSex_Boy	Text	男
+CreateRole_SelectSex_Boy	Selected	True
+CreateRole_SelectHair_Text2	Text	宝锦发
+CreateRole_SelectFace_Text2	Text	勇敢型
+CreateRole_SelectClothing_Text2	Text	新手套装2
+CreateRole_Select_HeadImage1	Image	set:ManProtagonist image:ManProtagonist_7
+CreateRole_Select_HeadImage2	Image	set:ManProtagonist image:ManProtagonist_8
+CreateRole_Select_HeadImage3	Image	set:ManProtagonist image:ManProtagonist_9
+CreateRole_Select_HeadImage4	Image	set:ManProtagonist image:ManProtagonist_10
+CreateRole_Select_HeadImage5	Image	set:ManProtagonist image:ManProtagonist_11
+CreateRole_Select_HeadImage6	Image	set:ManProtagonist image:ManProtagonist_12
+CreateRole_Select_HeadImage7	Image	
+CreateRole_Select_HeadImage8	Image	
+CreateRole_Select_HeadImage9	Image	
+CreateRole_Select_Head1	Selected	False
+CreateRole_Select_Head2	Selected	True
+CreateRole_Select_Head3	Selected	False
+CreateRole_Select_Head4	Selected	False
+CreateRole_Select_Head5	Selected	False
+CreateRole_Select_Head6	Selected	False
+CreateRole_Select_Head7	Selected	False
+CreateRole_Select_Head8	Selected	False
+CreateRole_Select_Head9	Selected	False
+CreateRole_PageUp	Disabled	False
+CreateRole_PageDown	Disabled	True
+CreateRole_Info2_Frame	Visible	True
+Createshow_Info2	Text	#{JSCJYH_121224_05}
+CreateRole_Info2_Frame_Back2	Image	set:CreateRole3 image:Icon_Gaibang
+CreateRole_Info2_Frame_Back4	Selected	True
+CreateRole_Info2_Frame_Back5	Selected	False
+CreateRole_MenpaiModel00	NormalImage	set:CreateRole2 image:BtnCancel_Normal
+CreateRole_MenpaiModel00	Visible	True
+CreateRole_MenpaiModel00	Disabled	False
+CreateRole_Model	FakeObject	CreateRole_Man
+CreateRole_Info3_Frame	Visible	False
+CreateRole_Name	DefaultEditBox	True
+CreateRole_Name	Text	
+CreateRole_Name	Visible	False
+CreateRole_RandomName	Visible	False
+!call1	ShowModel	-1
+!call2	ShowModel	2
+# xem trước bằng nữ
+this	Visible	True
+CreateRole_MenpaiModel01	NormalImage	set:MainFrameLuo03 image:Cs_Shaolin_Normal
+CreateRole_MenpaiModel01	Disabled	False
+CreateRole_MenpaiModel02	NormalImage	set:MainFrameLuo03 image:Cs_Mingjiao_Normal
+CreateRole_MenpaiModel02	Disabled	False
+CreateRole_MenpaiModel03	NormalImage	set:MainFrameLuo03 image:Cs_Gaibang_Pushed
+CreateRole_MenpaiModel03	Disabled	False
+CreateRole_MenpaiModel04	NormalImage	set:MainFrameLuo05 image:Cs_Wudang_Normal
+CreateRole_MenpaiModel04	Disabled	False
+CreateRole_MenpaiModel05	NormalImage	set:MainFrameLuo03 image:Cs_Emei_Normal
+CreateRole_MenpaiModel05	Disabled	False
+CreateRole_MenpaiModel06	NormalImage	set:MainFrameLuo05 image:Cs_Xingxiu_Normal
+CreateRole_MenpaiModel06	Disabled	False
+CreateRole_MenpaiModel07	NormalImage	set:MainFrameLuo03 image:Cs_Tianlong_Normal
+CreateRole_MenpaiModel07	Disabled	False
+CreateRole_MenpaiModel08	NormalImage	set:MainFrameLuo04 image:Cs_Tianshan_Normal
+CreateRole_MenpaiModel08	Disabled	False
+CreateRole_MenpaiModel09	NormalImage	set:MainFrameLuo05 image:Cs_Xiaoyao_Normal
+CreateRole_MenpaiModel09	Disabled	False
+CreateRole_MenpaiModel10	NormalImage	set:MainFrameLuo03 image:Cs_Murong_Normal
+CreateRole_MenpaiModel10	Disabled	False
+CreateRole_MenpaiModel11	NormalImage	set:MainFrameLuo05 image:Cs_Tangmen_Normal
+CreateRole_MenpaiModel11	Disabled	False
+CreateRole_MenpaiModel12	NormalImage	set:MainFrameLuo05 image:Cs_Guigu_Normal
+CreateRole_MenpaiModel12	Disabled	False
+CreateRole_MenpaiModel13	NormalImage	set:MainFrameLuo05 image:Cs_Kunlun_Normal
+CreateRole_MenpaiModel13	Disabled	False
+CreateRole_MenpaiModel14	NormalImage	set:MainFrameLuo06 image:Cs_Congren_Normal
+CreateRole_MenpaiModel14	Disabled	False
+CreateRole_MenpaiModel15	NormalImage	set:MainFrameLuo06 image:Cs_ERenGu_Normal
+CreateRole_MenpaiModel15	Disabled	False
+Createshow_Info	Text	#{XZRW_XML_3}
+CreateRole_Info_Frame	Alpha	0
+CreateRole_Info_Frame	Visible	False
+CreateRole_Info_Frame	Disabled	True
+CreateRole_SelectSex_Girl	CheckMode	1
+CreateRole_SelectSex_Girl	Text	女
+CreateRole_SelectSex_Girl	Selected	True
+CreateRole_SelectSex_Boy	CheckMode	1
+CreateRole_SelectSex_Boy	Text	男
+CreateRole_SelectSex_Boy	Selected	False
+CreateRole_SelectHair_Text2	Text	游仙发
+CreateRole_SelectFace_Text2	Text	美艳型
+CreateRole_SelectClothing_Text2	Text	新手套装2
+CreateRole_Select_HeadImage1	Image	set:GirlProtagonist image:GirlProtagonist_25
+CreateRole_Select_HeadImage2	Image	set:GirlProtagonist1 image:GirlProtagonist1_1
+CreateRole_Select_HeadImage3	Image	set:GirlProtagonist1 image:GirlProtagonist1_2
+CreateRole_Select_HeadImage4	Image	set:GirlProtagonist image:GirlProtagonist_1
+CreateRole_Select_HeadImage5	Image	set:GirlProtagonist image:GirlProtagonist_2
+CreateRole_Select_HeadImage6	Image	set:GirlProtagonist image:GirlProtagonist_3
+CreateRole_Select_HeadImage7	Image	set:GirlProtagonist image:GirlProtagonist_4
+CreateRole_Select_HeadImage8	Image	set:GirlProtagonist image:GirlProtagonist_5
+CreateRole_Select_HeadImage9	Image	set:GirlProtagonist image:GirlProtagonist_6
+CreateRole_Select_Head1	Selected	False
+CreateRole_Select_Head2	Selected	True
+CreateRole_Select_Head3	Selected	False
+CreateRole_Select_Head4	Selected	False
+CreateRole_Select_Head5	Selected	False
+CreateRole_Select_Head6	Selected	False
+CreateRole_Select_Head7	Selected	False
+CreateRole_Select_Head8	Selected	False
+CreateRole_Select_Head9	Selected	False
+CreateRole_PageUp	Disabled	True
+CreateRole_PageDown	Disabled	False
+CreateRole_Info2_Frame	Visible	True
+Createshow_Info2	Text	#{JSCJYH_121224_05}
+CreateRole_Info2_Frame_Back2	Image	set:CreateRole3 image:Icon_Gaibang
+CreateRole_Info2_Frame_Back4	Selected	False
+CreateRole_Info2_Frame_Back5	Selected	True
+CreateRole_MenpaiModel00	NormalImage	set:CreateRole2 image:BtnCancel_Normal
+CreateRole_MenpaiModel00	Visible	True
+CreateRole_MenpaiModel00	Disabled	False
+CreateRole_Model	FakeObject	CreateRole_Woman
+CreateRole_Info3_Frame	Visible	False
+CreateRole_Name	DefaultEditBox	True
+CreateRole_Name	Text	
+CreateRole_Name	Visible	False
+CreateRole_RandomName	Visible	False
+!call1	ShowModel	-1
+!call2	SetHairModelId	0	0	1
+!call3	SetFaceModelId	0	0	1
+!call4	ChangeNewRoleEquipSet	0	1	1
+!call5	ShowModel	2
+# xem trước môn thứ mười một
+this	Visible	True
+CreateRole_MenpaiModel01	NormalImage	set:MainFrameLuo03 image:Cs_Shaolin_Normal
+CreateRole_MenpaiModel01	Disabled	False
+CreateRole_MenpaiModel02	NormalImage	set:MainFrameLuo03 image:Cs_Mingjiao_Normal
+CreateRole_MenpaiModel02	Disabled	False
+CreateRole_MenpaiModel03	NormalImage	set:MainFrameLuo03 image:Cs_Gaibang_Normal
+CreateRole_MenpaiModel03	Disabled	False
+CreateRole_MenpaiModel04	NormalImage	set:MainFrameLuo05 image:Cs_Wudang_Normal
+CreateRole_MenpaiModel04	Disabled	False
+CreateRole_MenpaiModel05	NormalImage	set:MainFrameLuo03 image:Cs_Emei_Normal
+CreateRole_MenpaiModel05	Disabled	False
+CreateRole_MenpaiModel06	NormalImage	set:MainFrameLuo05 image:Cs_Xingxiu_Normal
+CreateRole_MenpaiModel06	Disabled	False
+CreateRole_MenpaiModel07	NormalImage	set:MainFrameLuo03 image:Cs_Tianlong_Normal
+CreateRole_MenpaiModel07	Disabled	False
+CreateRole_MenpaiModel08	NormalImage	set:MainFrameLuo04 image:Cs_Tianshan_Normal
+CreateRole_MenpaiModel08	Disabled	False
+CreateRole_MenpaiModel09	NormalImage	set:MainFrameLuo05 image:Cs_Xiaoyao_Normal
+CreateRole_MenpaiModel09	Disabled	False
+CreateRole_MenpaiModel10	NormalImage	set:MainFrameLuo03 image:Cs_Murong_Normal
+CreateRole_MenpaiModel10	Disabled	False
+CreateRole_MenpaiModel11	NormalImage	set:MainFrameLuo05 image:Cs_Tangmen_Pushed
+CreateRole_MenpaiModel11	Disabled	False
+CreateRole_MenpaiModel12	NormalImage	set:MainFrameLuo05 image:Cs_Guigu_Normal
+CreateRole_MenpaiModel12	Disabled	False
+CreateRole_MenpaiModel13	NormalImage	set:MainFrameLuo05 image:Cs_Kunlun_Normal
+CreateRole_MenpaiModel13	Disabled	False
+CreateRole_MenpaiModel14	NormalImage	set:MainFrameLuo06 image:Cs_Congren_Normal
+CreateRole_MenpaiModel14	Disabled	False
+CreateRole_MenpaiModel15	NormalImage	set:MainFrameLuo06 image:Cs_ERenGu_Normal
+CreateRole_MenpaiModel15	Disabled	False
+Createshow_Info	Text	#{XMPTM_130823_4}
+CreateRole_Info_Frame	Alpha	0
+CreateRole_Info_Frame	Visible	False
+CreateRole_Info_Frame	Disabled	True
+CreateRole_SelectSex_Girl	CheckMode	1
+CreateRole_SelectSex_Girl	Text	女
+CreateRole_SelectSex_Girl	Selected	True
+CreateRole_SelectSex_Boy	CheckMode	1
+CreateRole_SelectSex_Boy	Text	男
+CreateRole_SelectSex_Boy	Selected	False
+CreateRole_SelectHair_Text2	Text	游仙发
+CreateRole_SelectFace_Text2	Text	美艳型
+CreateRole_SelectClothing_Text2	Text	新手套装2
+CreateRole_Select_HeadImage1	Image	set:GirlProtagonist image:GirlProtagonist_25
+CreateRole_Select_HeadImage2	Image	set:GirlProtagonist1 image:GirlProtagonist1_1
+CreateRole_Select_HeadImage3	Image	set:GirlProtagonist1 image:GirlProtagonist1_2
+CreateRole_Select_HeadImage4	Image	set:GirlProtagonist image:GirlProtagonist_1
+CreateRole_Select_HeadImage5	Image	set:GirlProtagonist image:GirlProtagonist_2
+CreateRole_Select_HeadImage6	Image	set:GirlProtagonist image:GirlProtagonist_3
+CreateRole_Select_HeadImage7	Image	set:GirlProtagonist image:GirlProtagonist_4
+CreateRole_Select_HeadImage8	Image	set:GirlProtagonist image:GirlProtagonist_5
+CreateRole_Select_HeadImage9	Image	set:GirlProtagonist image:GirlProtagonist_6
+CreateRole_Select_Head1	Selected	False
+CreateRole_Select_Head2	Selected	True
+CreateRole_Select_Head3	Selected	False
+CreateRole_Select_Head4	Selected	False
+CreateRole_Select_Head5	Selected	False
+CreateRole_Select_Head6	Selected	False
+CreateRole_Select_Head7	Selected	False
+CreateRole_Select_Head8	Selected	False
+CreateRole_Select_Head9	Selected	False
+CreateRole_PageUp	Disabled	True
+CreateRole_PageDown	Disabled	False
+CreateRole_Info2_Frame	Visible	True
+Createshow_Info2	Text	#{XMPTM_130123_06}
+CreateRole_Info2_Frame_Back2	Image	set:CreateRole5 image:Icon_Tangmen
+CreateRole_Info2_Frame_Back4	Selected	False
+CreateRole_Info2_Frame_Back5	Selected	True
+CreateRole_MenpaiModel00	NormalImage	set:CreateRole2 image:BtnCancel_Normal
+CreateRole_MenpaiModel00	Visible	True
+CreateRole_MenpaiModel00	Disabled	False
+CreateRole_Model	FakeObject	CreateRole_Woman
+CreateRole_Info3_Frame	Visible	False
+CreateRole_Name	DefaultEditBox	True
+CreateRole_Name	Text	
+CreateRole_Name	Visible	False
+CreateRole_RandomName	Visible	False
+!call1	ShowModel	-1
+!call2	ShowModel	10
+# thôi xem trước
+this	Visible	True
+CreateRole_MenpaiModel01	NormalImage	set:MainFrameLuo03 image:Cs_Shaolin_Normal
+CreateRole_MenpaiModel01	Disabled	False
+CreateRole_MenpaiModel02	NormalImage	set:MainFrameLuo03 image:Cs_Mingjiao_Normal
+CreateRole_MenpaiModel02	Disabled	False
+CreateRole_MenpaiModel03	NormalImage	set:MainFrameLuo03 image:Cs_Gaibang_Normal
+CreateRole_MenpaiModel03	Disabled	False
+CreateRole_MenpaiModel04	NormalImage	set:MainFrameLuo05 image:Cs_Wudang_Normal
+CreateRole_MenpaiModel04	Disabled	False
+CreateRole_MenpaiModel05	NormalImage	set:MainFrameLuo03 image:Cs_Emei_Normal
+CreateRole_MenpaiModel05	Disabled	False
+CreateRole_MenpaiModel06	NormalImage	set:MainFrameLuo05 image:Cs_Xingxiu_Normal
+CreateRole_MenpaiModel06	Disabled	False
+CreateRole_MenpaiModel07	NormalImage	set:MainFrameLuo03 image:Cs_Tianlong_Normal
+CreateRole_MenpaiModel07	Disabled	False
+CreateRole_MenpaiModel08	NormalImage	set:MainFrameLuo04 image:Cs_Tianshan_Normal
+CreateRole_MenpaiModel08	Disabled	False
+CreateRole_MenpaiModel09	NormalImage	set:MainFrameLuo05 image:Cs_Xiaoyao_Normal
+CreateRole_MenpaiModel09	Disabled	False
+CreateRole_MenpaiModel10	NormalImage	set:MainFrameLuo03 image:Cs_Murong_Normal
+CreateRole_MenpaiModel10	Disabled	False
+CreateRole_MenpaiModel11	NormalImage	set:MainFrameLuo05 image:Cs_Tangmen_Normal
+CreateRole_MenpaiModel11	Disabled	False
+CreateRole_MenpaiModel12	NormalImage	set:MainFrameLuo05 image:Cs_Guigu_Normal
+CreateRole_MenpaiModel12	Disabled	False
+CreateRole_MenpaiModel13	NormalImage	set:MainFrameLuo05 image:Cs_Kunlun_Normal
+CreateRole_MenpaiModel13	Disabled	False
+CreateRole_MenpaiModel14	NormalImage	set:MainFrameLuo06 image:Cs_Congren_Normal
+CreateRole_MenpaiModel14	Disabled	False
+CreateRole_MenpaiModel15	NormalImage	set:MainFrameLuo06 image:Cs_ERenGu_Normal
+CreateRole_MenpaiModel15	Disabled	False
+Createshow_Info	Text	#{XZRW_XML_0}
+CreateRole_Info_Frame	Alpha	1
+CreateRole_Info_Frame	Visible	True
+CreateRole_Info_Frame	Disabled	False
+CreateRole_SelectSex_Girl	CheckMode	1
+CreateRole_SelectSex_Girl	Text	女
+CreateRole_SelectSex_Girl	Selected	True
+CreateRole_SelectSex_Boy	CheckMode	1
+CreateRole_SelectSex_Boy	Text	男
+CreateRole_SelectSex_Boy	Selected	False
+CreateRole_SelectHair_Text2	Text	游仙发
+CreateRole_SelectFace_Text2	Text	美艳型
+CreateRole_SelectClothing_Text2	Text	新手套装2
+CreateRole_Select_HeadImage1	Image	set:GirlProtagonist image:GirlProtagonist_25
+CreateRole_Select_HeadImage2	Image	set:GirlProtagonist1 image:GirlProtagonist1_1
+CreateRole_Select_HeadImage3	Image	set:GirlProtagonist1 image:GirlProtagonist1_2
+CreateRole_Select_HeadImage4	Image	set:GirlProtagonist image:GirlProtagonist_1
+CreateRole_Select_HeadImage5	Image	set:GirlProtagonist image:GirlProtagonist_2
+CreateRole_Select_HeadImage6	Image	set:GirlProtagonist image:GirlProtagonist_3
+CreateRole_Select_HeadImage7	Image	set:GirlProtagonist image:GirlProtagonist_4
+CreateRole_Select_HeadImage8	Image	set:GirlProtagonist image:GirlProtagonist_5
+CreateRole_Select_HeadImage9	Image	set:GirlProtagonist image:GirlProtagonist_6
+CreateRole_Select_Head1	Selected	False
+CreateRole_Select_Head2	Selected	True
+CreateRole_Select_Head3	Selected	False
+CreateRole_Select_Head4	Selected	False
+CreateRole_Select_Head5	Selected	False
+CreateRole_Select_Head6	Selected	False
+CreateRole_Select_Head7	Selected	False
+CreateRole_Select_Head8	Selected	False
+CreateRole_Select_Head9	Selected	False
+CreateRole_PageUp	Disabled	True
+CreateRole_PageDown	Disabled	False
+CreateRole_Info2_Frame	Visible	False
+Createshow_Info2	Text	
+CreateRole_Info2_Frame_Back2	Image	set:CreateRole5 image:Icon_Tangmen
+CreateRole_Info2_Frame_Back4	Selected	False
+CreateRole_Info2_Frame_Back5	Selected	True
+CreateRole_MenpaiModel00	NormalImage	set:CreateRole2 image:BtnCancel_Disable
+CreateRole_MenpaiModel00	Visible	False
+CreateRole_MenpaiModel00	Disabled	False
+CreateRole_Model	FakeObject	CreateRole_Woman
+CreateRole_Info3_Frame	Visible	True
+CreateRole_Name	DefaultEditBox	True
+CreateRole_Name	Text	
+CreateRole_Name	Visible	True
+CreateRole_RandomName	Visible	False
+!call1	ShowModel	-1
+!call2	ShowModel	-1
+# rê vào nút ngẫu nhiên
+this	Visible	True
+CreateRole_MenpaiModel01	NormalImage	set:MainFrameLuo03 image:Cs_Shaolin_Normal
+CreateRole_MenpaiModel01	Disabled	False
+CreateRole_MenpaiModel02	NormalImage	set:MainFrameLuo03 image:Cs_Mingjiao_Normal
+CreateRole_MenpaiModel02	Disabled	False
+CreateRole_MenpaiModel03	NormalImage	set:MainFrameLuo03 image:Cs_Gaibang_Normal
+CreateRole_MenpaiModel03	Disabled	False
+CreateRole_MenpaiModel04	NormalImage	set:MainFrameLuo05 image:Cs_Wudang_Normal
+CreateRole_MenpaiModel04	Disabled	False
+CreateRole_MenpaiModel05	NormalImage	set:MainFrameLuo03 image:Cs_Emei_Normal
+CreateRole_MenpaiModel05	Disabled	False
+CreateRole_MenpaiModel06	NormalImage	set:MainFrameLuo05 image:Cs_Xingxiu_Normal
+CreateRole_MenpaiModel06	Disabled	False
+CreateRole_MenpaiModel07	NormalImage	set:MainFrameLuo03 image:Cs_Tianlong_Normal
+CreateRole_MenpaiModel07	Disabled	False
+CreateRole_MenpaiModel08	NormalImage	set:MainFrameLuo04 image:Cs_Tianshan_Normal
+CreateRole_MenpaiModel08	Disabled	False
+CreateRole_MenpaiModel09	NormalImage	set:MainFrameLuo05 image:Cs_Xiaoyao_Normal
+CreateRole_MenpaiModel09	Disabled	False
+CreateRole_MenpaiModel10	NormalImage	set:MainFrameLuo03 image:Cs_Murong_Normal
+CreateRole_MenpaiModel10	Disabled	False
+CreateRole_MenpaiModel11	NormalImage	set:MainFrameLuo05 image:Cs_Tangmen_Normal
+CreateRole_MenpaiModel11	Disabled	False
+CreateRole_MenpaiModel12	NormalImage	set:MainFrameLuo05 image:Cs_Guigu_Normal
+CreateRole_MenpaiModel12	Disabled	False
+CreateRole_MenpaiModel13	NormalImage	set:MainFrameLuo05 image:Cs_Kunlun_Normal
+CreateRole_MenpaiModel13	Disabled	False
+CreateRole_MenpaiModel14	NormalImage	set:MainFrameLuo06 image:Cs_Congren_Normal
+CreateRole_MenpaiModel14	Disabled	False
+CreateRole_MenpaiModel15	NormalImage	set:MainFrameLuo06 image:Cs_ERenGu_Normal
+CreateRole_MenpaiModel15	Disabled	False
+Createshow_Info	Text	#{XZRW_XML_0}
+CreateRole_Info_Frame	Alpha	1
+CreateRole_Info_Frame	Visible	True
+CreateRole_Info_Frame	Disabled	False
+CreateRole_SelectSex_Girl	CheckMode	1
+CreateRole_SelectSex_Girl	Text	女
+CreateRole_SelectSex_Girl	Selected	True
+CreateRole_SelectSex_Boy	CheckMode	1
+CreateRole_SelectSex_Boy	Text	男
+CreateRole_SelectSex_Boy	Selected	False
+CreateRole_SelectHair_Text2	Text	游仙发
+CreateRole_SelectFace_Text2	Text	美艳型
+CreateRole_SelectClothing_Text2	Text	新手套装2
+CreateRole_Select_HeadImage1	Image	set:GirlProtagonist image:GirlProtagonist_25
+CreateRole_Select_HeadImage2	Image	set:GirlProtagonist1 image:GirlProtagonist1_1
+CreateRole_Select_HeadImage3	Image	set:GirlProtagonist1 image:GirlProtagonist1_2
+CreateRole_Select_HeadImage4	Image	set:GirlProtagonist image:GirlProtagonist_1
+CreateRole_Select_HeadImage5	Image	set:GirlProtagonist image:GirlProtagonist_2
+CreateRole_Select_HeadImage6	Image	set:GirlProtagonist image:GirlProtagonist_3
+CreateRole_Select_HeadImage7	Image	set:GirlProtagonist image:GirlProtagonist_4
+CreateRole_Select_HeadImage8	Image	set:GirlProtagonist image:GirlProtagonist_5
+CreateRole_Select_HeadImage9	Image	set:GirlProtagonist image:GirlProtagonist_6
+CreateRole_Select_Head1	Selected	False
+CreateRole_Select_Head2	Selected	True
+CreateRole_Select_Head3	Selected	False
+CreateRole_Select_Head4	Selected	False
+CreateRole_Select_Head5	Selected	False
+CreateRole_Select_Head6	Selected	False
+CreateRole_Select_Head7	Selected	False
+CreateRole_Select_Head8	Selected	False
+CreateRole_Select_Head9	Selected	False
+CreateRole_PageUp	Disabled	True
+CreateRole_PageDown	Disabled	False
+CreateRole_Info2_Frame	Visible	False
+Createshow_Info2	Text	
+CreateRole_Info2_Frame_Back2	Image	set:CreateRole5 image:Icon_Tangmen
+CreateRole_Info2_Frame_Back4	Selected	False
+CreateRole_Info2_Frame_Back5	Selected	True
+CreateRole_MenpaiModel00	NormalImage	set:CreateRole2 image:BtnCancel_Disable
+CreateRole_MenpaiModel00	Visible	False
+CreateRole_MenpaiModel00	Disabled	False
+CreateRole_Model	FakeObject	CreateRole_Woman
+CreateRole_Info3_Frame	Visible	True
+CreateRole_Name	DefaultEditBox	True
+CreateRole_Name	Text	
+CreateRole_Name	Visible	True
+CreateRole_RandomName	Visible	False
+CreateRole_Info	Text	#{JSCJYH_121224_02}
+# rê vào môn thứ mười hai
+this	Visible	True
+CreateRole_MenpaiModel01	NormalImage	set:MainFrameLuo03 image:Cs_Shaolin_Normal
+CreateRole_MenpaiModel01	Disabled	False
+CreateRole_MenpaiModel02	NormalImage	set:MainFrameLuo03 image:Cs_Mingjiao_Normal
+CreateRole_MenpaiModel02	Disabled	False
+CreateRole_MenpaiModel03	NormalImage	set:MainFrameLuo03 image:Cs_Gaibang_Normal
+CreateRole_MenpaiModel03	Disabled	False
+CreateRole_MenpaiModel04	NormalImage	set:MainFrameLuo05 image:Cs_Wudang_Normal
+CreateRole_MenpaiModel04	Disabled	False
+CreateRole_MenpaiModel05	NormalImage	set:MainFrameLuo03 image:Cs_Emei_Normal
+CreateRole_MenpaiModel05	Disabled	False
+CreateRole_MenpaiModel06	NormalImage	set:MainFrameLuo05 image:Cs_Xingxiu_Normal
+CreateRole_MenpaiModel06	Disabled	False
+CreateRole_MenpaiModel07	NormalImage	set:MainFrameLuo03 image:Cs_Tianlong_Normal
+CreateRole_MenpaiModel07	Disabled	False
+CreateRole_MenpaiModel08	NormalImage	set:MainFrameLuo04 image:Cs_Tianshan_Normal
+CreateRole_MenpaiModel08	Disabled	False
+CreateRole_MenpaiModel09	NormalImage	set:MainFrameLuo05 image:Cs_Xiaoyao_Normal
+CreateRole_MenpaiModel09	Disabled	False
+CreateRole_MenpaiModel10	NormalImage	set:MainFrameLuo03 image:Cs_Murong_Normal
+CreateRole_MenpaiModel10	Disabled	False
+CreateRole_MenpaiModel11	NormalImage	set:MainFrameLuo05 image:Cs_Tangmen_Normal
+CreateRole_MenpaiModel11	Disabled	False
+CreateRole_MenpaiModel12	NormalImage	set:MainFrameLuo05 image:Cs_Guigu_Normal
+CreateRole_MenpaiModel12	Disabled	False
+CreateRole_MenpaiModel13	NormalImage	set:MainFrameLuo05 image:Cs_Kunlun_Normal
+CreateRole_MenpaiModel13	Disabled	False
+CreateRole_MenpaiModel14	NormalImage	set:MainFrameLuo06 image:Cs_Congren_Normal
+CreateRole_MenpaiModel14	Disabled	False
+CreateRole_MenpaiModel15	NormalImage	set:MainFrameLuo06 image:Cs_ERenGu_Normal
+CreateRole_MenpaiModel15	Disabled	False
+Createshow_Info	Text	#{XZRW_XML_0}
+CreateRole_Info_Frame	Alpha	1
+CreateRole_Info_Frame	Visible	True
+CreateRole_Info_Frame	Disabled	False
+CreateRole_SelectSex_Girl	CheckMode	1
+CreateRole_SelectSex_Girl	Text	女
+CreateRole_SelectSex_Girl	Selected	True
+CreateRole_SelectSex_Boy	CheckMode	1
+CreateRole_SelectSex_Boy	Text	男
+CreateRole_SelectSex_Boy	Selected	False
+CreateRole_SelectHair_Text2	Text	游仙发
+CreateRole_SelectFace_Text2	Text	美艳型
+CreateRole_SelectClothing_Text2	Text	新手套装2
+CreateRole_Select_HeadImage1	Image	set:GirlProtagonist image:GirlProtagonist_25
+CreateRole_Select_HeadImage2	Image	set:GirlProtagonist1 image:GirlProtagonist1_1
+CreateRole_Select_HeadImage3	Image	set:GirlProtagonist1 image:GirlProtagonist1_2
+CreateRole_Select_HeadImage4	Image	set:GirlProtagonist image:GirlProtagonist_1
+CreateRole_Select_HeadImage5	Image	set:GirlProtagonist image:GirlProtagonist_2
+CreateRole_Select_HeadImage6	Image	set:GirlProtagonist image:GirlProtagonist_3
+CreateRole_Select_HeadImage7	Image	set:GirlProtagonist image:GirlProtagonist_4
+CreateRole_Select_HeadImage8	Image	set:GirlProtagonist image:GirlProtagonist_5
+CreateRole_Select_HeadImage9	Image	set:GirlProtagonist image:GirlProtagonist_6
+CreateRole_Select_Head1	Selected	False
+CreateRole_Select_Head2	Selected	True
+CreateRole_Select_Head3	Selected	False
+CreateRole_Select_Head4	Selected	False
+CreateRole_Select_Head5	Selected	False
+CreateRole_Select_Head6	Selected	False
+CreateRole_Select_Head7	Selected	False
+CreateRole_Select_Head8	Selected	False
+CreateRole_Select_Head9	Selected	False
+CreateRole_PageUp	Disabled	True
+CreateRole_PageDown	Disabled	False
+CreateRole_Info2_Frame	Visible	False
+Createshow_Info2	Text	
+CreateRole_Info2_Frame_Back2	Image	set:CreateRole5 image:Icon_Tangmen
+CreateRole_Info2_Frame_Back4	Selected	False
+CreateRole_Info2_Frame_Back5	Selected	True
+CreateRole_MenpaiModel00	NormalImage	set:CreateRole2 image:BtnCancel_Disable
+CreateRole_MenpaiModel00	Visible	False
+CreateRole_MenpaiModel00	Disabled	False
+CreateRole_Model	FakeObject	CreateRole_Woman
+CreateRole_Info3_Frame	Visible	True
+CreateRole_Name	DefaultEditBox	True
+CreateRole_Name	Text	
+CreateRole_Name	Visible	True
+CreateRole_RandomName	Visible	False
+CreateRole_Info	Text	#{XMPGG_160615_33}
+# rê ra
+this	Visible	True
+CreateRole_MenpaiModel01	NormalImage	set:MainFrameLuo03 image:Cs_Shaolin_Normal
+CreateRole_MenpaiModel01	Disabled	False
+CreateRole_MenpaiModel02	NormalImage	set:MainFrameLuo03 image:Cs_Mingjiao_Normal
+CreateRole_MenpaiModel02	Disabled	False
+CreateRole_MenpaiModel03	NormalImage	set:MainFrameLuo03 image:Cs_Gaibang_Normal
+CreateRole_MenpaiModel03	Disabled	False
+CreateRole_MenpaiModel04	NormalImage	set:MainFrameLuo05 image:Cs_Wudang_Normal
+CreateRole_MenpaiModel04	Disabled	False
+CreateRole_MenpaiModel05	NormalImage	set:MainFrameLuo03 image:Cs_Emei_Normal
+CreateRole_MenpaiModel05	Disabled	False
+CreateRole_MenpaiModel06	NormalImage	set:MainFrameLuo05 image:Cs_Xingxiu_Normal
+CreateRole_MenpaiModel06	Disabled	False
+CreateRole_MenpaiModel07	NormalImage	set:MainFrameLuo03 image:Cs_Tianlong_Normal
+CreateRole_MenpaiModel07	Disabled	False
+CreateRole_MenpaiModel08	NormalImage	set:MainFrameLuo04 image:Cs_Tianshan_Normal
+CreateRole_MenpaiModel08	Disabled	False
+CreateRole_MenpaiModel09	NormalImage	set:MainFrameLuo05 image:Cs_Xiaoyao_Normal
+CreateRole_MenpaiModel09	Disabled	False
+CreateRole_MenpaiModel10	NormalImage	set:MainFrameLuo03 image:Cs_Murong_Normal
+CreateRole_MenpaiModel10	Disabled	False
+CreateRole_MenpaiModel11	NormalImage	set:MainFrameLuo05 image:Cs_Tangmen_Normal
+CreateRole_MenpaiModel11	Disabled	False
+CreateRole_MenpaiModel12	NormalImage	set:MainFrameLuo05 image:Cs_Guigu_Normal
+CreateRole_MenpaiModel12	Disabled	False
+CreateRole_MenpaiModel13	NormalImage	set:MainFrameLuo05 image:Cs_Kunlun_Normal
+CreateRole_MenpaiModel13	Disabled	False
+CreateRole_MenpaiModel14	NormalImage	set:MainFrameLuo06 image:Cs_Congren_Normal
+CreateRole_MenpaiModel14	Disabled	False
+CreateRole_MenpaiModel15	NormalImage	set:MainFrameLuo06 image:Cs_ERenGu_Normal
+CreateRole_MenpaiModel15	Disabled	False
+Createshow_Info	Text	#{XZRW_XML_0}
+CreateRole_Info_Frame	Alpha	1
+CreateRole_Info_Frame	Visible	True
+CreateRole_Info_Frame	Disabled	False
+CreateRole_SelectSex_Girl	CheckMode	1
+CreateRole_SelectSex_Girl	Text	女
+CreateRole_SelectSex_Girl	Selected	True
+CreateRole_SelectSex_Boy	CheckMode	1
+CreateRole_SelectSex_Boy	Text	男
+CreateRole_SelectSex_Boy	Selected	False
+CreateRole_SelectHair_Text2	Text	游仙发
+CreateRole_SelectFace_Text2	Text	美艳型
+CreateRole_SelectClothing_Text2	Text	新手套装2
+CreateRole_Select_HeadImage1	Image	set:GirlProtagonist image:GirlProtagonist_25
+CreateRole_Select_HeadImage2	Image	set:GirlProtagonist1 image:GirlProtagonist1_1
+CreateRole_Select_HeadImage3	Image	set:GirlProtagonist1 image:GirlProtagonist1_2
+CreateRole_Select_HeadImage4	Image	set:GirlProtagonist image:GirlProtagonist_1
+CreateRole_Select_HeadImage5	Image	set:GirlProtagonist image:GirlProtagonist_2
+CreateRole_Select_HeadImage6	Image	set:GirlProtagonist image:GirlProtagonist_3
+CreateRole_Select_HeadImage7	Image	set:GirlProtagonist image:GirlProtagonist_4
+CreateRole_Select_HeadImage8	Image	set:GirlProtagonist image:GirlProtagonist_5
+CreateRole_Select_HeadImage9	Image	set:GirlProtagonist image:GirlProtagonist_6
+CreateRole_Select_Head1	Selected	False
+CreateRole_Select_Head2	Selected	True
+CreateRole_Select_Head3	Selected	False
+CreateRole_Select_Head4	Selected	False
+CreateRole_Select_Head5	Selected	False
+CreateRole_Select_Head6	Selected	False
+CreateRole_Select_Head7	Selected	False
+CreateRole_Select_Head8	Selected	False
+CreateRole_Select_Head9	Selected	False
+CreateRole_PageUp	Disabled	True
+CreateRole_PageDown	Disabled	False
+CreateRole_Info2_Frame	Visible	False
+Createshow_Info2	Text	
+CreateRole_Info2_Frame_Back2	Image	set:CreateRole5 image:Icon_Tangmen
+CreateRole_Info2_Frame_Back4	Selected	False
+CreateRole_Info2_Frame_Back5	Selected	True
+CreateRole_MenpaiModel00	NormalImage	set:CreateRole2 image:BtnCancel_Disable
+CreateRole_MenpaiModel00	Visible	False
+CreateRole_MenpaiModel00	Disabled	False
+CreateRole_Model	FakeObject	CreateRole_Woman
+CreateRole_Info3_Frame	Visible	True
+CreateRole_Name	DefaultEditBox	True
+CreateRole_Name	Text	
+CreateRole_Name	Visible	True
+CreateRole_RandomName	Visible	False
+CreateRole_Info	Text	
+# xoay và phóng
+this	Visible	True
+CreateRole_MenpaiModel01	NormalImage	set:MainFrameLuo03 image:Cs_Shaolin_Normal
+CreateRole_MenpaiModel01	Disabled	False
+CreateRole_MenpaiModel02	NormalImage	set:MainFrameLuo03 image:Cs_Mingjiao_Normal
+CreateRole_MenpaiModel02	Disabled	False
+CreateRole_MenpaiModel03	NormalImage	set:MainFrameLuo03 image:Cs_Gaibang_Normal
+CreateRole_MenpaiModel03	Disabled	False
+CreateRole_MenpaiModel04	NormalImage	set:MainFrameLuo05 image:Cs_Wudang_Normal
+CreateRole_MenpaiModel04	Disabled	False
+CreateRole_MenpaiModel05	NormalImage	set:MainFrameLuo03 image:Cs_Emei_Normal
+CreateRole_MenpaiModel05	Disabled	False
+CreateRole_MenpaiModel06	NormalImage	set:MainFrameLuo05 image:Cs_Xingxiu_Normal
+CreateRole_MenpaiModel06	Disabled	False
+CreateRole_MenpaiModel07	NormalImage	set:MainFrameLuo03 image:Cs_Tianlong_Normal
+CreateRole_MenpaiModel07	Disabled	False
+CreateRole_MenpaiModel08	NormalImage	set:MainFrameLuo04 image:Cs_Tianshan_Normal
+CreateRole_MenpaiModel08	Disabled	False
+CreateRole_MenpaiModel09	NormalImage	set:MainFrameLuo05 image:Cs_Xiaoyao_Normal
+CreateRole_MenpaiModel09	Disabled	False
+CreateRole_MenpaiModel10	NormalImage	set:MainFrameLuo03 image:Cs_Murong_Normal
+CreateRole_MenpaiModel10	Disabled	False
+CreateRole_MenpaiModel11	NormalImage	set:MainFrameLuo05 image:Cs_Tangmen_Normal
+CreateRole_MenpaiModel11	Disabled	False
+CreateRole_MenpaiModel12	NormalImage	set:MainFrameLuo05 image:Cs_Guigu_Normal
+CreateRole_MenpaiModel12	Disabled	False
+CreateRole_MenpaiModel13	NormalImage	set:MainFrameLuo05 image:Cs_Kunlun_Normal
+CreateRole_MenpaiModel13	Disabled	False
+CreateRole_MenpaiModel14	NormalImage	set:MainFrameLuo06 image:Cs_Congren_Normal
+CreateRole_MenpaiModel14	Disabled	False
+CreateRole_MenpaiModel15	NormalImage	set:MainFrameLuo06 image:Cs_ERenGu_Normal
+CreateRole_MenpaiModel15	Disabled	False
+Createshow_Info	Text	#{XZRW_XML_0}
+CreateRole_Info_Frame	Alpha	1
+CreateRole_Info_Frame	Visible	True
+CreateRole_Info_Frame	Disabled	False
+CreateRole_SelectSex_Girl	CheckMode	1
+CreateRole_SelectSex_Girl	Text	女
+CreateRole_SelectSex_Girl	Selected	True
+CreateRole_SelectSex_Boy	CheckMode	1
+CreateRole_SelectSex_Boy	Text	男
+CreateRole_SelectSex_Boy	Selected	False
+CreateRole_SelectHair_Text2	Text	游仙发
+CreateRole_SelectFace_Text2	Text	美艳型
+CreateRole_SelectClothing_Text2	Text	新手套装2
+CreateRole_Select_HeadImage1	Image	set:GirlProtagonist image:GirlProtagonist_25
+CreateRole_Select_HeadImage2	Image	set:GirlProtagonist1 image:GirlProtagonist1_1
+CreateRole_Select_HeadImage3	Image	set:GirlProtagonist1 image:GirlProtagonist1_2
+CreateRole_Select_HeadImage4	Image	set:GirlProtagonist image:GirlProtagonist_1
+CreateRole_Select_HeadImage5	Image	set:GirlProtagonist image:GirlProtagonist_2
+CreateRole_Select_HeadImage6	Image	set:GirlProtagonist image:GirlProtagonist_3
+CreateRole_Select_HeadImage7	Image	set:GirlProtagonist image:GirlProtagonist_4
+CreateRole_Select_HeadImage8	Image	set:GirlProtagonist image:GirlProtagonist_5
+CreateRole_Select_HeadImage9	Image	set:GirlProtagonist image:GirlProtagonist_6
+CreateRole_Select_Head1	Selected	False
+CreateRole_Select_Head2	Selected	True
+CreateRole_Select_Head3	Selected	False
+CreateRole_Select_Head4	Selected	False
+CreateRole_Select_Head5	Selected	False
+CreateRole_Select_Head6	Selected	False
+CreateRole_Select_Head7	Selected	False
+CreateRole_Select_Head8	Selected	False
+CreateRole_Select_Head9	Selected	False
+CreateRole_PageUp	Disabled	True
+CreateRole_PageDown	Disabled	False
+CreateRole_Info2_Frame	Visible	False
+Createshow_Info2	Text	
+CreateRole_Info2_Frame_Back2	Image	set:CreateRole5 image:Icon_Tangmen
+CreateRole_Info2_Frame_Back4	Selected	False
+CreateRole_Info2_Frame_Back5	Selected	True
+CreateRole_MenpaiModel00	NormalImage	set:CreateRole2 image:BtnCancel_Disable
+CreateRole_MenpaiModel00	Visible	False
+CreateRole_MenpaiModel00	Disabled	False
+CreateRole_Model	FakeObject	CreateRole_Woman
+CreateRole_Info3_Frame	Visible	True
+CreateRole_Name	DefaultEditBox	True
+CreateRole_Name	Text	
+CreateRole_Name	Visible	True
+CreateRole_RandomName	Visible	False
+CreateRole_Info	Text	
+!call1	ModelRotBegin	-1
+!call2	ModelRotEnd	0
+!call3	ModelRotBegin	1
+!call4	ModelRotEnd	0
+!call5	ModelZoom	1
+!call6	ModelZoom	0
+!call7	ModelZoom	-1
+!call8	ModelZoom	0
+# tạo với ảnh thứ ba
+this	Visible	True
+CreateRole_MenpaiModel01	NormalImage	set:MainFrameLuo03 image:Cs_Shaolin_Normal
+CreateRole_MenpaiModel01	Disabled	False
+CreateRole_MenpaiModel02	NormalImage	set:MainFrameLuo03 image:Cs_Mingjiao_Normal
+CreateRole_MenpaiModel02	Disabled	False
+CreateRole_MenpaiModel03	NormalImage	set:MainFrameLuo03 image:Cs_Gaibang_Normal
+CreateRole_MenpaiModel03	Disabled	False
+CreateRole_MenpaiModel04	NormalImage	set:MainFrameLuo05 image:Cs_Wudang_Normal
+CreateRole_MenpaiModel04	Disabled	False
+CreateRole_MenpaiModel05	NormalImage	set:MainFrameLuo03 image:Cs_Emei_Normal
+CreateRole_MenpaiModel05	Disabled	False
+CreateRole_MenpaiModel06	NormalImage	set:MainFrameLuo05 image:Cs_Xingxiu_Normal
+CreateRole_MenpaiModel06	Disabled	False
+CreateRole_MenpaiModel07	NormalImage	set:MainFrameLuo03 image:Cs_Tianlong_Normal
+CreateRole_MenpaiModel07	Disabled	False
+CreateRole_MenpaiModel08	NormalImage	set:MainFrameLuo04 image:Cs_Tianshan_Normal
+CreateRole_MenpaiModel08	Disabled	False
+CreateRole_MenpaiModel09	NormalImage	set:MainFrameLuo05 image:Cs_Xiaoyao_Normal
+CreateRole_MenpaiModel09	Disabled	False
+CreateRole_MenpaiModel10	NormalImage	set:MainFrameLuo03 image:Cs_Murong_Normal
+CreateRole_MenpaiModel10	Disabled	False
+CreateRole_MenpaiModel11	NormalImage	set:MainFrameLuo05 image:Cs_Tangmen_Normal
+CreateRole_MenpaiModel11	Disabled	False
+CreateRole_MenpaiModel12	NormalImage	set:MainFrameLuo05 image:Cs_Guigu_Normal
+CreateRole_MenpaiModel12	Disabled	False
+CreateRole_MenpaiModel13	NormalImage	set:MainFrameLuo05 image:Cs_Kunlun_Normal
+CreateRole_MenpaiModel13	Disabled	False
+CreateRole_MenpaiModel14	NormalImage	set:MainFrameLuo06 image:Cs_Congren_Normal
+CreateRole_MenpaiModel14	Disabled	False
+CreateRole_MenpaiModel15	NormalImage	set:MainFrameLuo06 image:Cs_ERenGu_Normal
+CreateRole_MenpaiModel15	Disabled	False
+Createshow_Info	Text	#{XZRW_XML_0}
+CreateRole_Info_Frame	Alpha	1
+CreateRole_Info_Frame	Visible	True
+CreateRole_Info_Frame	Disabled	False
+CreateRole_SelectSex_Girl	CheckMode	1
+CreateRole_SelectSex_Girl	Text	女
+CreateRole_SelectSex_Girl	Selected	True
+CreateRole_SelectSex_Boy	CheckMode	1
+CreateRole_SelectSex_Boy	Text	男
+CreateRole_SelectSex_Boy	Selected	False
+CreateRole_SelectHair_Text2	Text	游仙发
+CreateRole_SelectFace_Text2	Text	美艳型
+CreateRole_SelectClothing_Text2	Text	新手套装2
+CreateRole_Select_HeadImage1	Image	set:GirlProtagonist image:GirlProtagonist_25
+CreateRole_Select_HeadImage2	Image	set:GirlProtagonist1 image:GirlProtagonist1_1
+CreateRole_Select_HeadImage3	Image	set:GirlProtagonist1 image:GirlProtagonist1_2
+CreateRole_Select_HeadImage4	Image	set:GirlProtagonist image:GirlProtagonist_1
+CreateRole_Select_HeadImage5	Image	set:GirlProtagonist image:GirlProtagonist_2
+CreateRole_Select_HeadImage6	Image	set:GirlProtagonist image:GirlProtagonist_3
+CreateRole_Select_HeadImage7	Image	set:GirlProtagonist image:GirlProtagonist_4
+CreateRole_Select_HeadImage8	Image	set:GirlProtagonist image:GirlProtagonist_5
+CreateRole_Select_HeadImage9	Image	set:GirlProtagonist image:GirlProtagonist_6
+CreateRole_Select_Head1	Selected	False
+CreateRole_Select_Head2	Selected	False
+CreateRole_Select_Head3	Selected	True
+CreateRole_Select_Head4	Selected	False
+CreateRole_Select_Head5	Selected	False
+CreateRole_Select_Head6	Selected	False
+CreateRole_Select_Head7	Selected	False
+CreateRole_Select_Head8	Selected	False
+CreateRole_Select_Head9	Selected	False
+CreateRole_PageUp	Disabled	True
+CreateRole_PageDown	Disabled	False
+CreateRole_Info2_Frame	Visible	False
+Createshow_Info2	Text	
+CreateRole_Info2_Frame_Back2	Image	set:CreateRole5 image:Icon_Tangmen
+CreateRole_Info2_Frame_Back4	Selected	False
+CreateRole_Info2_Frame_Back5	Selected	True
+CreateRole_MenpaiModel00	NormalImage	set:CreateRole2 image:BtnCancel_Disable
+CreateRole_MenpaiModel00	Visible	False
+CreateRole_MenpaiModel00	Disabled	False
+CreateRole_Model	FakeObject	CreateRole_Woman
+CreateRole_Info3_Frame	Visible	True
+CreateRole_Name	DefaultEditBox	True
+CreateRole_Name	Text	Lang
+CreateRole_Name	Visible	True
+CreateRole_RandomName	Visible	False
+CreateRole_Info	Text	
+!call1	SetFaceId	0	2	51
+!call2	CreateRole	Lang	0	-1	-1
+# tạo khi ô đang chọn không có ảnh
+this	Visible	True
+CreateRole_MenpaiModel01	NormalImage	set:MainFrameLuo03 image:Cs_Shaolin_Normal
+CreateRole_MenpaiModel01	Disabled	False
+CreateRole_MenpaiModel02	NormalImage	set:MainFrameLuo03 image:Cs_Mingjiao_Normal
+CreateRole_MenpaiModel02	Disabled	False
+CreateRole_MenpaiModel03	NormalImage	set:MainFrameLuo03 image:Cs_Gaibang_Normal
+CreateRole_MenpaiModel03	Disabled	False
+CreateRole_MenpaiModel04	NormalImage	set:MainFrameLuo05 image:Cs_Wudang_Normal
+CreateRole_MenpaiModel04	Disabled	False
+CreateRole_MenpaiModel05	NormalImage	set:MainFrameLuo03 image:Cs_Emei_Normal
+CreateRole_MenpaiModel05	Disabled	False
+CreateRole_MenpaiModel06	NormalImage	set:MainFrameLuo05 image:Cs_Xingxiu_Normal
+CreateRole_MenpaiModel06	Disabled	False
+CreateRole_MenpaiModel07	NormalImage	set:MainFrameLuo03 image:Cs_Tianlong_Normal
+CreateRole_MenpaiModel07	Disabled	False
+CreateRole_MenpaiModel08	NormalImage	set:MainFrameLuo04 image:Cs_Tianshan_Normal
+CreateRole_MenpaiModel08	Disabled	False
+CreateRole_MenpaiModel09	NormalImage	set:MainFrameLuo05 image:Cs_Xiaoyao_Normal
+CreateRole_MenpaiModel09	Disabled	False
+CreateRole_MenpaiModel10	NormalImage	set:MainFrameLuo03 image:Cs_Murong_Normal
+CreateRole_MenpaiModel10	Disabled	False
+CreateRole_MenpaiModel11	NormalImage	set:MainFrameLuo05 image:Cs_Tangmen_Normal
+CreateRole_MenpaiModel11	Disabled	False
+CreateRole_MenpaiModel12	NormalImage	set:MainFrameLuo05 image:Cs_Guigu_Normal
+CreateRole_MenpaiModel12	Disabled	False
+CreateRole_MenpaiModel13	NormalImage	set:MainFrameLuo05 image:Cs_Kunlun_Normal
+CreateRole_MenpaiModel13	Disabled	False
+CreateRole_MenpaiModel14	NormalImage	set:MainFrameLuo06 image:Cs_Congren_Normal
+CreateRole_MenpaiModel14	Disabled	False
+CreateRole_MenpaiModel15	NormalImage	set:MainFrameLuo06 image:Cs_ERenGu_Normal
+CreateRole_MenpaiModel15	Disabled	False
+Createshow_Info	Text	#{XZRW_XML_0}
+CreateRole_Info_Frame	Alpha	1
+CreateRole_Info_Frame	Visible	True
+CreateRole_Info_Frame	Disabled	False
+CreateRole_SelectSex_Girl	CheckMode	1
+CreateRole_SelectSex_Girl	Text	女
+CreateRole_SelectSex_Girl	Selected	True
+CreateRole_SelectSex_Boy	CheckMode	1
+CreateRole_SelectSex_Boy	Text	男
+CreateRole_SelectSex_Boy	Selected	False
+CreateRole_SelectHair_Text2	Text	游仙发
+CreateRole_SelectFace_Text2	Text	美艳型
+CreateRole_SelectClothing_Text2	Text	新手套装2
+CreateRole_Select_HeadImage1	Image	set:GirlProtagonist image:GirlProtagonist_7
+CreateRole_Select_HeadImage2	Image	set:GirlProtagonist image:GirlProtagonist_8
+CreateRole_Select_HeadImage3	Image	set:GirlProtagonist image:GirlProtagonist_9
+CreateRole_Select_HeadImage4	Image	set:GirlProtagonist image:GirlProtagonist_10
+CreateRole_Select_HeadImage5	Image	set:GirlProtagonist image:GirlProtagonist_11
+CreateRole_Select_HeadImage6	Image	set:GirlProtagonist image:GirlProtagonist_12
+CreateRole_Select_HeadImage7	Image	
+CreateRole_Select_HeadImage8	Image	
+CreateRole_Select_HeadImage9	Image	
+CreateRole_Select_Head1	Selected	False
+CreateRole_Select_Head2	Selected	False
+CreateRole_Select_Head3	Selected	False
+CreateRole_Select_Head4	Selected	False
+CreateRole_Select_Head5	Selected	False
+CreateRole_Select_Head6	Selected	False
+CreateRole_Select_Head7	Selected	False
+CreateRole_Select_Head8	Selected	True
+CreateRole_Select_Head9	Selected	False
+CreateRole_PageUp	Disabled	False
+CreateRole_PageDown	Disabled	True
+CreateRole_Info2_Frame	Visible	False
+Createshow_Info2	Text	
+CreateRole_Info2_Frame_Back2	Image	set:CreateRole5 image:Icon_Tangmen
+CreateRole_Info2_Frame_Back4	Selected	False
+CreateRole_Info2_Frame_Back5	Selected	True
+CreateRole_MenpaiModel00	NormalImage	set:CreateRole2 image:BtnCancel_Disable
+CreateRole_MenpaiModel00	Visible	False
+CreateRole_MenpaiModel00	Disabled	False
+CreateRole_Model	FakeObject	CreateRole_Woman
+CreateRole_Info3_Frame	Visible	True
+CreateRole_Name	DefaultEditBox	True
+CreateRole_Name	Text	Lang
+CreateRole_Name	Visible	True
+CreateRole_RandomName	Visible	False
+CreateRole_Info	Text	
+!call1	GameLoginShowSystemInfo	#{DLXZ_090711_1}
+# quay lại bảng chọn
+this	Visible	True
+CreateRole_MenpaiModel01	NormalImage	set:MainFrameLuo03 image:Cs_Shaolin_Normal
+CreateRole_MenpaiModel01	Disabled	False
+CreateRole_MenpaiModel02	NormalImage	set:MainFrameLuo03 image:Cs_Mingjiao_Normal
+CreateRole_MenpaiModel02	Disabled	False
+CreateRole_MenpaiModel03	NormalImage	set:MainFrameLuo03 image:Cs_Gaibang_Normal
+CreateRole_MenpaiModel03	Disabled	False
+CreateRole_MenpaiModel04	NormalImage	set:MainFrameLuo05 image:Cs_Wudang_Normal
+CreateRole_MenpaiModel04	Disabled	False
+CreateRole_MenpaiModel05	NormalImage	set:MainFrameLuo03 image:Cs_Emei_Normal
+CreateRole_MenpaiModel05	Disabled	False
+CreateRole_MenpaiModel06	NormalImage	set:MainFrameLuo05 image:Cs_Xingxiu_Normal
+CreateRole_MenpaiModel06	Disabled	False
+CreateRole_MenpaiModel07	NormalImage	set:MainFrameLuo03 image:Cs_Tianlong_Normal
+CreateRole_MenpaiModel07	Disabled	False
+CreateRole_MenpaiModel08	NormalImage	set:MainFrameLuo04 image:Cs_Tianshan_Normal
+CreateRole_MenpaiModel08	Disabled	False
+CreateRole_MenpaiModel09	NormalImage	set:MainFrameLuo05 image:Cs_Xiaoyao_Normal
+CreateRole_MenpaiModel09	Disabled	False
+CreateRole_MenpaiModel10	NormalImage	set:MainFrameLuo03 image:Cs_Murong_Normal
+CreateRole_MenpaiModel10	Disabled	False
+CreateRole_MenpaiModel11	NormalImage	set:MainFrameLuo05 image:Cs_Tangmen_Normal
+CreateRole_MenpaiModel11	Disabled	False
+CreateRole_MenpaiModel12	NormalImage	set:MainFrameLuo05 image:Cs_Guigu_Normal
+CreateRole_MenpaiModel12	Disabled	False
+CreateRole_MenpaiModel13	NormalImage	set:MainFrameLuo05 image:Cs_Kunlun_Normal
+CreateRole_MenpaiModel13	Disabled	False
+CreateRole_MenpaiModel14	NormalImage	set:MainFrameLuo06 image:Cs_Congren_Normal
+CreateRole_MenpaiModel14	Disabled	False
+CreateRole_MenpaiModel15	NormalImage	set:MainFrameLuo06 image:Cs_ERenGu_Normal
+CreateRole_MenpaiModel15	Disabled	False
+Createshow_Info	Text	#{XZRW_XML_0}
+CreateRole_Info_Frame	Alpha	1
+CreateRole_Info_Frame	Visible	True
+CreateRole_Info_Frame	Disabled	False
+CreateRole_SelectSex_Girl	CheckMode	1
+CreateRole_SelectSex_Girl	Text	女
+CreateRole_SelectSex_Girl	Selected	True
+CreateRole_SelectSex_Boy	CheckMode	1
+CreateRole_SelectSex_Boy	Text	男
+CreateRole_SelectSex_Boy	Selected	False
+CreateRole_SelectHair_Text2	Text	游仙发
+CreateRole_SelectFace_Text2	Text	美艳型
+CreateRole_SelectClothing_Text2	Text	新手套装2
+CreateRole_Select_HeadImage1	Image	set:GirlProtagonist image:GirlProtagonist_7
+CreateRole_Select_HeadImage2	Image	set:GirlProtagonist image:GirlProtagonist_8
+CreateRole_Select_HeadImage3	Image	set:GirlProtagonist image:GirlProtagonist_9
+CreateRole_Select_HeadImage4	Image	set:GirlProtagonist image:GirlProtagonist_10
+CreateRole_Select_HeadImage5	Image	set:GirlProtagonist image:GirlProtagonist_11
+CreateRole_Select_HeadImage6	Image	set:GirlProtagonist image:GirlProtagonist_12
+CreateRole_Select_HeadImage7	Image	
+CreateRole_Select_HeadImage8	Image	
+CreateRole_Select_HeadImage9	Image	
+CreateRole_Select_Head1	Selected	False
+CreateRole_Select_Head2	Selected	False
+CreateRole_Select_Head3	Selected	False
+CreateRole_Select_Head4	Selected	False
+CreateRole_Select_Head5	Selected	False
+CreateRole_Select_Head6	Selected	False
+CreateRole_Select_Head7	Selected	False
+CreateRole_Select_Head8	Selected	True
+CreateRole_Select_Head9	Selected	False
+CreateRole_PageUp	Disabled	False
+CreateRole_PageDown	Disabled	True
+CreateRole_Info2_Frame	Visible	False
+Createshow_Info2	Text	
+CreateRole_Info2_Frame_Back2	Image	set:CreateRole5 image:Icon_Tangmen
+CreateRole_Info2_Frame_Back4	Selected	False
+CreateRole_Info2_Frame_Back5	Selected	True
+CreateRole_MenpaiModel00	NormalImage	set:CreateRole2 image:BtnCancel_Disable
+CreateRole_MenpaiModel00	Visible	False
+CreateRole_MenpaiModel00	Disabled	False
+CreateRole_Model	FakeObject	CreateRole_Woman
+CreateRole_Info3_Frame	Visible	True
+CreateRole_Name	DefaultEditBox	True
+CreateRole_Name	Text	Lang
+CreateRole_Name	Visible	True
+CreateRole_RandomName	Visible	False
+CreateRole_Info	Text	
+!call1	ChangeToSelectRoleDlgFromCreateRole
+# đóng bảng
+this	Visible	False
+CreateRole_MenpaiModel01	NormalImage	set:MainFrameLuo03 image:Cs_Shaolin_Normal
+CreateRole_MenpaiModel01	Disabled	False
+CreateRole_MenpaiModel02	NormalImage	set:MainFrameLuo03 image:Cs_Mingjiao_Normal
+CreateRole_MenpaiModel02	Disabled	False
+CreateRole_MenpaiModel03	NormalImage	set:MainFrameLuo03 image:Cs_Gaibang_Normal
+CreateRole_MenpaiModel03	Disabled	False
+CreateRole_MenpaiModel04	NormalImage	set:MainFrameLuo05 image:Cs_Wudang_Normal
+CreateRole_MenpaiModel04	Disabled	False
+CreateRole_MenpaiModel05	NormalImage	set:MainFrameLuo03 image:Cs_Emei_Normal
+CreateRole_MenpaiModel05	Disabled	False
+CreateRole_MenpaiModel06	NormalImage	set:MainFrameLuo05 image:Cs_Xingxiu_Normal
+CreateRole_MenpaiModel06	Disabled	False
+CreateRole_MenpaiModel07	NormalImage	set:MainFrameLuo03 image:Cs_Tianlong_Normal
+CreateRole_MenpaiModel07	Disabled	False
+CreateRole_MenpaiModel08	NormalImage	set:MainFrameLuo04 image:Cs_Tianshan_Normal
+CreateRole_MenpaiModel08	Disabled	False
+CreateRole_MenpaiModel09	NormalImage	set:MainFrameLuo05 image:Cs_Xiaoyao_Normal
+CreateRole_MenpaiModel09	Disabled	False
+CreateRole_MenpaiModel10	NormalImage	set:MainFrameLuo03 image:Cs_Murong_Normal
+CreateRole_MenpaiModel10	Disabled	False
+CreateRole_MenpaiModel11	NormalImage	set:MainFrameLuo05 image:Cs_Tangmen_Normal
+CreateRole_MenpaiModel11	Disabled	False
+CreateRole_MenpaiModel12	NormalImage	set:MainFrameLuo05 image:Cs_Guigu_Normal
+CreateRole_MenpaiModel12	Disabled	False
+CreateRole_MenpaiModel13	NormalImage	set:MainFrameLuo05 image:Cs_Kunlun_Normal
+CreateRole_MenpaiModel13	Disabled	False
+CreateRole_MenpaiModel14	NormalImage	set:MainFrameLuo06 image:Cs_Congren_Normal
+CreateRole_MenpaiModel14	Disabled	False
+CreateRole_MenpaiModel15	NormalImage	set:MainFrameLuo06 image:Cs_ERenGu_Normal
+CreateRole_MenpaiModel15	Disabled	False
+Createshow_Info	Text	#{XZRW_XML_0}
+CreateRole_Info_Frame	Alpha	1
+CreateRole_Info_Frame	Visible	True
+CreateRole_Info_Frame	Disabled	False
+CreateRole_SelectSex_Girl	CheckMode	1
+CreateRole_SelectSex_Girl	Text	女
+CreateRole_SelectSex_Girl	Selected	True
+CreateRole_SelectSex_Boy	CheckMode	1
+CreateRole_SelectSex_Boy	Text	男
+CreateRole_SelectSex_Boy	Selected	False
+CreateRole_SelectHair_Text2	Text	游仙发
+CreateRole_SelectFace_Text2	Text	美艳型
+CreateRole_SelectClothing_Text2	Text	新手套装2
+CreateRole_Select_HeadImage1	Image	set:GirlProtagonist image:GirlProtagonist_7
+CreateRole_Select_HeadImage2	Image	set:GirlProtagonist image:GirlProtagonist_8
+CreateRole_Select_HeadImage3	Image	set:GirlProtagonist image:GirlProtagonist_9
+CreateRole_Select_HeadImage4	Image	set:GirlProtagonist image:GirlProtagonist_10
+CreateRole_Select_HeadImage5	Image	set:GirlProtagonist image:GirlProtagonist_11
+CreateRole_Select_HeadImage6	Image	set:GirlProtagonist image:GirlProtagonist_12
+CreateRole_Select_HeadImage7	Image	
+CreateRole_Select_HeadImage8	Image	
+CreateRole_Select_HeadImage9	Image	
+CreateRole_Select_Head1	Selected	False
+CreateRole_Select_Head2	Selected	False
+CreateRole_Select_Head3	Selected	False
+CreateRole_Select_Head4	Selected	False
+CreateRole_Select_Head5	Selected	False
+CreateRole_Select_Head6	Selected	False
+CreateRole_Select_Head7	Selected	False
+CreateRole_Select_Head8	Selected	True
+CreateRole_Select_Head9	Selected	False
+CreateRole_PageUp	Disabled	False
+CreateRole_PageDown	Disabled	True
+CreateRole_Info2_Frame	Visible	False
+Createshow_Info2	Text	
+CreateRole_Info2_Frame_Back2	Image	set:CreateRole5 image:Icon_Tangmen
+CreateRole_Info2_Frame_Back4	Selected	False
+CreateRole_Info2_Frame_Back5	Selected	True
+CreateRole_MenpaiModel00	NormalImage	set:CreateRole2 image:BtnCancel_Disable
+CreateRole_MenpaiModel00	Visible	False
+CreateRole_MenpaiModel00	Disabled	False
+CreateRole_Model	FakeObject	CreateRole_Woman
+CreateRole_Info3_Frame	Visible	True
+CreateRole_Name	DefaultEditBox	False
+CreateRole_Name	Text	Lang
+CreateRole_Name	Visible	True
+CreateRole_RandomName	Visible	False
+CreateRole_Info	Text	
+# mở lại bảng
+this	Visible	True
+CreateRole_MenpaiModel01	NormalImage	set:MainFrameLuo03 image:Cs_Shaolin_Normal
+CreateRole_MenpaiModel01	Disabled	False
+CreateRole_MenpaiModel02	NormalImage	set:MainFrameLuo03 image:Cs_Mingjiao_Normal
+CreateRole_MenpaiModel02	Disabled	False
+CreateRole_MenpaiModel03	NormalImage	set:MainFrameLuo03 image:Cs_Gaibang_Normal
+CreateRole_MenpaiModel03	Disabled	False
+CreateRole_MenpaiModel04	NormalImage	set:MainFrameLuo05 image:Cs_Wudang_Normal
+CreateRole_MenpaiModel04	Disabled	False
+CreateRole_MenpaiModel05	NormalImage	set:MainFrameLuo03 image:Cs_Emei_Normal
+CreateRole_MenpaiModel05	Disabled	False
+CreateRole_MenpaiModel06	NormalImage	set:MainFrameLuo05 image:Cs_Xingxiu_Normal
+CreateRole_MenpaiModel06	Disabled	False
+CreateRole_MenpaiModel07	NormalImage	set:MainFrameLuo03 image:Cs_Tianlong_Normal
+CreateRole_MenpaiModel07	Disabled	False
+CreateRole_MenpaiModel08	NormalImage	set:MainFrameLuo04 image:Cs_Tianshan_Normal
+CreateRole_MenpaiModel08	Disabled	False
+CreateRole_MenpaiModel09	NormalImage	set:MainFrameLuo05 image:Cs_Xiaoyao_Normal
+CreateRole_MenpaiModel09	Disabled	False
+CreateRole_MenpaiModel10	NormalImage	set:MainFrameLuo03 image:Cs_Murong_Normal
+CreateRole_MenpaiModel10	Disabled	False
+CreateRole_MenpaiModel11	NormalImage	set:MainFrameLuo05 image:Cs_Tangmen_Normal
+CreateRole_MenpaiModel11	Disabled	False
+CreateRole_MenpaiModel12	NormalImage	set:MainFrameLuo05 image:Cs_Guigu_Normal
+CreateRole_MenpaiModel12	Disabled	False
+CreateRole_MenpaiModel13	NormalImage	set:MainFrameLuo05 image:Cs_Kunlun_Normal
+CreateRole_MenpaiModel13	Disabled	False
+CreateRole_MenpaiModel14	NormalImage	set:MainFrameLuo06 image:Cs_Congren_Normal
+CreateRole_MenpaiModel14	Disabled	False
+CreateRole_MenpaiModel15	NormalImage	set:MainFrameLuo06 image:Cs_ERenGu_Normal
+CreateRole_MenpaiModel15	Disabled	False
+Createshow_Info	Text	#{XZRW_XML_0}
+CreateRole_Info_Frame	Alpha	1
+CreateRole_Info_Frame	Visible	True
+CreateRole_Info_Frame	Disabled	False
+CreateRole_SelectSex_Girl	CheckMode	1
+CreateRole_SelectSex_Girl	Text	女
+CreateRole_SelectSex_Girl	Selected	True
+CreateRole_SelectSex_Boy	CheckMode	1
+CreateRole_SelectSex_Boy	Text	男
+CreateRole_SelectSex_Boy	Selected	False
+CreateRole_SelectHair_Text2	Text	游仙发
+CreateRole_SelectFace_Text2	Text	美艳型
+CreateRole_SelectClothing_Text2	Text	新手套装1
+CreateRole_Select_HeadImage1	Image	set:GirlProtagonist image:GirlProtagonist_25
+CreateRole_Select_HeadImage2	Image	set:GirlProtagonist1 image:GirlProtagonist1_1
+CreateRole_Select_HeadImage3	Image	set:GirlProtagonist1 image:GirlProtagonist1_2
+CreateRole_Select_HeadImage4	Image	set:GirlProtagonist image:GirlProtagonist_1
+CreateRole_Select_HeadImage5	Image	set:GirlProtagonist image:GirlProtagonist_2
+CreateRole_Select_HeadImage6	Image	set:GirlProtagonist image:GirlProtagonist_3
+CreateRole_Select_HeadImage7	Image	set:GirlProtagonist image:GirlProtagonist_4
+CreateRole_Select_HeadImage8	Image	set:GirlProtagonist image:GirlProtagonist_5
+CreateRole_Select_HeadImage9	Image	set:GirlProtagonist image:GirlProtagonist_6
+CreateRole_Select_Head1	Selected	True
+CreateRole_Select_Head2	Selected	False
+CreateRole_Select_Head3	Selected	False
+CreateRole_Select_Head4	Selected	False
+CreateRole_Select_Head5	Selected	False
+CreateRole_Select_Head6	Selected	False
+CreateRole_Select_Head7	Selected	False
+CreateRole_Select_Head8	Selected	False
+CreateRole_Select_Head9	Selected	False
+CreateRole_PageUp	Disabled	True
+CreateRole_PageDown	Disabled	False
+CreateRole_Info2_Frame	Visible	False
+Createshow_Info2	Text	
+CreateRole_Info2_Frame_Back2	Image	set:CreateRole5 image:Icon_Tangmen
+CreateRole_Info2_Frame_Back4	Selected	False
+CreateRole_Info2_Frame_Back5	Selected	True
+CreateRole_MenpaiModel00	NormalImage	set:CreateRole2 image:BtnCancel_Disable
+CreateRole_MenpaiModel00	Visible	False
+CreateRole_MenpaiModel00	Disabled	False
+CreateRole_Model	FakeObject	CreateRole_Woman
+CreateRole_Info3_Frame	Visible	True
+CreateRole_Name	DefaultEditBox	True
+CreateRole_Name	Text	
+CreateRole_Name	Visible	True
+CreateRole_RandomName	Visible	False
+CreateRole_Info	Text	
+!call1	ShowModel	-1
+!call2	ShowModel	-1
+!call3	SetHairModelId	0	0	1
+!call4	SetFaceModelId	0	0	1
+!call5	ChangeNewRoleEquipSet	0	0	0
+# mặt kế sau khi mở lại
+this	Visible	True
+CreateRole_MenpaiModel01	NormalImage	set:MainFrameLuo03 image:Cs_Shaolin_Normal
+CreateRole_MenpaiModel01	Disabled	False
+CreateRole_MenpaiModel02	NormalImage	set:MainFrameLuo03 image:Cs_Mingjiao_Normal
+CreateRole_MenpaiModel02	Disabled	False
+CreateRole_MenpaiModel03	NormalImage	set:MainFrameLuo03 image:Cs_Gaibang_Normal
+CreateRole_MenpaiModel03	Disabled	False
+CreateRole_MenpaiModel04	NormalImage	set:MainFrameLuo05 image:Cs_Wudang_Normal
+CreateRole_MenpaiModel04	Disabled	False
+CreateRole_MenpaiModel05	NormalImage	set:MainFrameLuo03 image:Cs_Emei_Normal
+CreateRole_MenpaiModel05	Disabled	False
+CreateRole_MenpaiModel06	NormalImage	set:MainFrameLuo05 image:Cs_Xingxiu_Normal
+CreateRole_MenpaiModel06	Disabled	False
+CreateRole_MenpaiModel07	NormalImage	set:MainFrameLuo03 image:Cs_Tianlong_Normal
+CreateRole_MenpaiModel07	Disabled	False
+CreateRole_MenpaiModel08	NormalImage	set:MainFrameLuo04 image:Cs_Tianshan_Normal
+CreateRole_MenpaiModel08	Disabled	False
+CreateRole_MenpaiModel09	NormalImage	set:MainFrameLuo05 image:Cs_Xiaoyao_Normal
+CreateRole_MenpaiModel09	Disabled	False
+CreateRole_MenpaiModel10	NormalImage	set:MainFrameLuo03 image:Cs_Murong_Normal
+CreateRole_MenpaiModel10	Disabled	False
+CreateRole_MenpaiModel11	NormalImage	set:MainFrameLuo05 image:Cs_Tangmen_Normal
+CreateRole_MenpaiModel11	Disabled	False
+CreateRole_MenpaiModel12	NormalImage	set:MainFrameLuo05 image:Cs_Guigu_Normal
+CreateRole_MenpaiModel12	Disabled	False
+CreateRole_MenpaiModel13	NormalImage	set:MainFrameLuo05 image:Cs_Kunlun_Normal
+CreateRole_MenpaiModel13	Disabled	False
+CreateRole_MenpaiModel14	NormalImage	set:MainFrameLuo06 image:Cs_Congren_Normal
+CreateRole_MenpaiModel14	Disabled	False
+CreateRole_MenpaiModel15	NormalImage	set:MainFrameLuo06 image:Cs_ERenGu_Normal
+CreateRole_MenpaiModel15	Disabled	False
+Createshow_Info	Text	#{XZRW_XML_0}
+CreateRole_Info_Frame	Alpha	1
+CreateRole_Info_Frame	Visible	True
+CreateRole_Info_Frame	Disabled	False
+CreateRole_SelectSex_Girl	CheckMode	1
+CreateRole_SelectSex_Girl	Text	女
+CreateRole_SelectSex_Girl	Selected	True
+CreateRole_SelectSex_Boy	CheckMode	1
+CreateRole_SelectSex_Boy	Text	男
+CreateRole_SelectSex_Boy	Selected	False
+CreateRole_SelectHair_Text2	Text	游仙发
+CreateRole_SelectFace_Text2	Text	开朗型
+CreateRole_SelectClothing_Text2	Text	新手套装1
+CreateRole_Select_HeadImage1	Image	set:GirlProtagonist image:GirlProtagonist_25
+CreateRole_Select_HeadImage2	Image	set:GirlProtagonist1 image:GirlProtagonist1_1
+CreateRole_Select_HeadImage3	Image	set:GirlProtagonist1 image:GirlProtagonist1_2
+CreateRole_Select_HeadImage4	Image	set:GirlProtagonist image:GirlProtagonist_1
+CreateRole_Select_HeadImage5	Image	set:GirlProtagonist image:GirlProtagonist_2
+CreateRole_Select_HeadImage6	Image	set:GirlProtagonist image:GirlProtagonist_3
+CreateRole_Select_HeadImage7	Image	set:GirlProtagonist image:GirlProtagonist_4
+CreateRole_Select_HeadImage8	Image	set:GirlProtagonist image:GirlProtagonist_5
+CreateRole_Select_HeadImage9	Image	set:GirlProtagonist image:GirlProtagonist_6
+CreateRole_Select_Head1	Selected	True
+CreateRole_Select_Head2	Selected	False
+CreateRole_Select_Head3	Selected	False
+CreateRole_Select_Head4	Selected	False
+CreateRole_Select_Head5	Selected	False
+CreateRole_Select_Head6	Selected	False
+CreateRole_Select_Head7	Selected	False
+CreateRole_Select_Head8	Selected	False
+CreateRole_Select_Head9	Selected	False
+CreateRole_PageUp	Disabled	True
+CreateRole_PageDown	Disabled	False
+CreateRole_Info2_Frame	Visible	False
+Createshow_Info2	Text	
+CreateRole_Info2_Frame_Back2	Image	set:CreateRole5 image:Icon_Tangmen
+CreateRole_Info2_Frame_Back4	Selected	False
+CreateRole_Info2_Frame_Back5	Selected	True
+CreateRole_MenpaiModel00	NormalImage	set:CreateRole2 image:BtnCancel_Disable
+CreateRole_MenpaiModel00	Visible	False
+CreateRole_MenpaiModel00	Disabled	False
+CreateRole_Model	FakeObject	CreateRole_Woman
+CreateRole_Info3_Frame	Visible	True
+CreateRole_Name	DefaultEditBox	True
+CreateRole_Name	Text	
+CreateRole_Name	Visible	True
+CreateRole_RandomName	Visible	False
+CreateRole_Info	Text	
+!call1	ShowModel	-1
+!call2	ShowModel	-1
+!call3	SetFaceModelId	0	2	3

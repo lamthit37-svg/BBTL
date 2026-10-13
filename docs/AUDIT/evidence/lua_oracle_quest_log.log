@@ -1,0 +1,7 @@
+﻿# 2026-10-13T18:50:21.4926884+07:00  HEAD fb21453
+> python -B TOOLS/port/lua_oracle.py "F:/tl 2026/2026/Bin64" build/lua-2026/Interface/QuestLog/QuestLog.lua dev/client/assets/Interface/QuestLog/QuestLog.layout.xml TOOLS/port/oracle/quest_log_newcomer.lua build\scratch\quest_log_newcomer.oracle.tsv --words TOOLS/port/oracle/words.vi.tsv --lib TOOLS/port/oracle/quest_api.lua
+─æ├ú ghi 150 d├▓ng v├áo build\scratch\quest_log_newcomer.oracle.tsv
+exit=0
+oracle_out  24EE8110EB664A73AE1EED16C55A13025EDAB75B6B2E906F6ABC53E8AE8DB5A9 5133 B
+golden      24EE8110EB664A73AE1EED16C55A13025EDAB75B6B2E906F6ABC53E8AE8DB5A9 5133 B
+identical=True

@@ -1,0 +1,151 @@
+# Sinh bằng TOOLS/port/lua_oracle.py từ QuestLog.lua và quest_log_newcomer.lua; không sửa tay
+# mở bảng
+this	Visible	True
+QuestLog_Amount	Text	0/20
+QuestLog_Mode1	Selected	True
+QuestLog_Mode2	Selected	False
+QuestLog_CurrentMission	Selected	True
+QuestLog_AcceptMission	Selected	False
+QuestLog_Listbox	Items	0
+QuestLog_TargetMission	Text	
+QuestLog_Desc	Elements	0
+QuestLog_Refuse	Text	不可追踪
+QuestLog_Refuse	Disabled	True
+!call1	PushEvent	ON_SHOWQUESTLOGWINDOW
+# sang thẻ nhận được
+this	Visible	True
+QuestLog_Amount	Text	0/20
+QuestLog_Mode1	Selected	True
+QuestLog_Mode2	Selected	False
+QuestLog_CurrentMission	Selected	False
+QuestLog_AcceptMission	Selected	True
+QuestLog_Listbox	FirstItem	0
+QuestLog_Listbox	Items	2
+QuestLog_Listbox	Item1	170000		#gFE7E82- Vô Lượng Sơn
+QuestLog_Listbox	Item2	170001	FFD9F80A	    1 Duyên Khởi Vô Lượng
+QuestLog_TargetMission	Text	
+QuestLog_Desc	Elements	0
+QuestLog_AcceptMission_Button	Visible	False
+QuestLog_Stop	Visible	False
+QuestLog_Refuse	Text	#{INTERFACE_XML_301}
+QuestLog_Refuse	Disabled	False
+# chọn nhiệm vụ
+this	Visible	True
+QuestLog_Amount	Text	0/20
+QuestLog_Mode1	Selected	True
+QuestLog_Mode2	Selected	False
+QuestLog_CurrentMission	Selected	False
+QuestLog_AcceptMission	Selected	True
+QuestLog_Listbox	FirstItem	0
+QuestLog_Listbox	Items	2
+QuestLog_Listbox	Item1	170000		#gFE7E82- Vô Lượng Sơn
+QuestLog_Listbox	Item2	170001	FFD9F80A	    1 Duyên Khởi Vô Lượng
+QuestLog_Listbox	SelectedItem	170001
+QuestLog_TargetMission	Text	
+QuestLog_Desc	Elements	4
+QuestLog_Desc	Element1	text	#YDuyên Khởi Vô Lượng#W
+QuestLog_Desc	Element2	text	任务所在地：Vô Lượng Sơn  #{_INFOAIM187,205,6,Sơn Dân Bị Thương}
+QuestLog_Desc	Element3	text	任务发布人：Sơn Dân Bị Thương
+QuestLog_Desc	Element4	text	任务等级：1
+QuestLog_AcceptMission_Button	Visible	False
+QuestLog_Stop	Visible	False
+QuestLog_Refuse	Text	#{INTERFACE_XML_301}
+QuestLog_Refuse	Disabled	False
+# gập loại
+this	Visible	True
+QuestLog_Amount	Text	0/20
+QuestLog_Mode1	Selected	True
+QuestLog_Mode2	Selected	False
+QuestLog_CurrentMission	Selected	False
+QuestLog_AcceptMission	Selected	True
+QuestLog_Listbox	FirstItem	0
+QuestLog_Listbox	Items	1
+QuestLog_Listbox	Item1	170000		#gFE7E82+ Vô Lượng Sơn
+QuestLog_TargetMission	Text	
+QuestLog_Desc	Elements	0
+QuestLog_AcceptMission_Button	Visible	False
+QuestLog_Stop	Visible	False
+QuestLog_Refuse	Text	#{INTERFACE_XML_301}
+QuestLog_Refuse	Disabled	False
+# mở lại loại
+this	Visible	True
+QuestLog_Amount	Text	0/20
+QuestLog_Mode1	Selected	True
+QuestLog_Mode2	Selected	False
+QuestLog_CurrentMission	Selected	False
+QuestLog_AcceptMission	Selected	True
+QuestLog_Listbox	FirstItem	0
+QuestLog_Listbox	Items	2
+QuestLog_Listbox	Item1	170000		#gFE7E82- Vô Lượng Sơn
+QuestLog_Listbox	Item2	170001	FFD9F80A	    1 Duyên Khởi Vô Lượng
+QuestLog_TargetMission	Text	
+QuestLog_Desc	Elements	0
+QuestLog_AcceptMission_Button	Visible	False
+QuestLog_Stop	Visible	False
+QuestLog_Refuse	Text	#{INTERFACE_XML_301}
+QuestLog_Refuse	Disabled	False
+# nút đóng của thẻ nhận được
+this	Visible	False
+QuestLog_Amount	Text	0/20
+QuestLog_Mode1	Selected	True
+QuestLog_Mode2	Selected	False
+QuestLog_CurrentMission	Selected	False
+QuestLog_AcceptMission	Selected	True
+QuestLog_Listbox	FirstItem	0
+QuestLog_Listbox	Items	2
+QuestLog_Listbox	Item1	170000		#gFE7E82- Vô Lượng Sơn
+QuestLog_Listbox	Item2	170001	FFD9F80A	    1 Duyên Khởi Vô Lượng
+QuestLog_TargetMission	Text	
+QuestLog_Desc	Elements	0
+QuestLog_AcceptMission_Button	Visible	False
+QuestLog_Stop	Visible	False
+QuestLog_Refuse	Text	#{INTERFACE_XML_301}
+QuestLog_Refuse	Disabled	False
+# mở lại bảng
+this	Visible	True
+QuestLog_Amount	Text	0/20
+QuestLog_Mode1	Selected	True
+QuestLog_Mode2	Selected	False
+QuestLog_CurrentMission	Selected	True
+QuestLog_AcceptMission	Selected	False
+QuestLog_Listbox	FirstItem	0
+QuestLog_Listbox	Items	0
+QuestLog_TargetMission	Text	
+QuestLog_Desc	Elements	0
+QuestLog_AcceptMission_Button	Visible	False
+QuestLog_Stop	Visible	True
+QuestLog_Refuse	Text	不可追踪
+QuestLog_Refuse	Disabled	True
+!call1	PushEvent	ON_SHOWQUESTLOGWINDOW
+# đảo hai ô theo dõi
+this	Visible	True
+QuestLog_Amount	Text	0/20
+QuestLog_Mode1	Selected	False
+QuestLog_Mode2	Selected	True
+QuestLog_CurrentMission	Selected	True
+QuestLog_AcceptMission	Selected	False
+QuestLog_Listbox	FirstItem	0
+QuestLog_Listbox	Items	0
+QuestLog_TargetMission	Text	
+QuestLog_Desc	Elements	0
+QuestLog_AcceptMission_Button	Visible	False
+QuestLog_Stop	Visible	True
+QuestLog_Refuse	Text	不可追踪
+QuestLog_Refuse	Disabled	True
+!call1	CloseWindow	MissionTrack
+!call2	OpenWindow	CampaignTrack
+# từ bỏ, theo dõi, đóng khi sổ rỗng
+this	Visible	False
+QuestLog_Amount	Text	0/20
+QuestLog_Mode1	Selected	False
+QuestLog_Mode2	Selected	True
+QuestLog_CurrentMission	Selected	True
+QuestLog_AcceptMission	Selected	False
+QuestLog_Listbox	FirstItem	0
+QuestLog_Listbox	Items	0
+QuestLog_TargetMission	Text	
+QuestLog_Desc	Elements	0
+QuestLog_AcceptMission_Button	Visible	False
+QuestLog_Stop	Visible	True
+QuestLog_Refuse	Text	不可追踪
+QuestLog_Refuse	Disabled	True
