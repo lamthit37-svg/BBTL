@@ -68,6 +68,25 @@ class ExportLegacyTest(unittest.TestCase):
         self.assertNotIn("column_9", columns)
         self.assertNotIn("?", notes[9])
 
+    def test_reexport_keeps_curated_names_and_is_stable(self) -> None:
+        source = self.legacy / "Server" / "Config" / "sample.txt"
+        source.parent.mkdir(parents=True, exist_ok=True)
+        source.write_bytes("INT\tINT\nid\t道具空间需求\n1\t5\n".encode("utf-8"))
+        rows = (_row("sample.txt", "tables/server/sample.tsv"),)
+        self.assertEqual(self._export(rows)[0], [])
+        mapping = self.columns / "sample.tsv"
+        first = tsv_file.read_table(mapping)
+        self.assertEqual(first.rows[1][2], "column_1")
+        curated = [list(row) for row in first.rows]
+        curated[1][2] = "space_need"
+        tsv_file.write_table(mapping, first.source, import_legacy.TOOL, list(first.types),
+                             list(first.columns), [tuple(row) for row in curated])
+        self.assertEqual(self._export(rows)[0], [])
+        self.assertEqual(tsv_file.read_table(mapping).rows[1][2], "space_need")
+        self.assertEqual(tsv_file.read_table(self.output / "sample.tsv").columns[1], "space_need")
+        once = mapping.read_bytes()
+        self.assertEqual(self._export(rows)[0], [])
+        self.assertEqual(mapping.read_bytes(), once)
     def test_float_strips_ends_only(self) -> None:
         source = self.legacy / "Server" / "Config" / "sample.txt"
         _write(source, "FLOAT\tFLOAT\na\tb\n 0.50 \t1.25\n")

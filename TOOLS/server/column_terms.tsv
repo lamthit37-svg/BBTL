@@ -709,3 +709,4 @@ Tips默认$1$		default_tip	direct	nhãn tooltip mặc định
 是否播放融合，闪避，搁挡动作		plays_blend_dodge_block	direct	nhãn có phát hoà trộn, né và đỡ; 搁挡 đọc là 格挡
 "颜色值(R,G,B,A) "		color_rgba	direct	nhãn giá trị màu R G B A; dấu nháy và dấu cách thuộc nhãn gốc
 "DESC,内部注释用"		internal_note	direct	nhãn DESC dùng để chú thích nội bộ; dấu nháy thuộc nhãn gốc
+ZhuanDan_ID	ZhuandanConfig.txt	gacha_id	glossary	ZhuanDan là 转蛋 = gacha theo bảng thuật ngữ; cùng khoá ZhuandanID của ZhuandanBase.txt (gacha_machines.gacha_id); refs/server.tsv nối hai cột này

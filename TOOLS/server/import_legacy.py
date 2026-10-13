@@ -1443,7 +1443,57 @@ def _column_rows(table: BuiltTable) -> list[tuple[str, ...]]:
     return rows
 
 
+_GENERIC_COLUMN = re.compile(r"column_\d+")
+
+
+def _curated_names(path: Path) -> dict[int, tuple[str, str, str]]:
+    """(nhãn gốc, tên, ghi chú) đã đặt (tên không phải column_N) của tệp cột cũ, theo chỉ số; tệp
+    thiếu hay hỏng thì rỗng."""
+    if not path.is_file():
+        return {}
+    try:
+        table = tsv_file.read_table(path)
+    except (tsv_file.TsvError, OSError, UnicodeDecodeError):
+        return {}
+    if table.columns != ("index", "original", "name", "type", "note"):
+        return {}
+    names: dict[int, tuple[str, str, str]] = {}
+    for row in table.rows:
+        if row[0].isdigit() and not _GENERIC_COLUMN.fullmatch(row[2]):
+            names[int(row[0])] = (row[1], row[2], row[4])
+    return names
+
+
+def _keep_curated(columns_root: Path, table: BuiltTable) -> BuiltTable:
+    """Xuất lại không được làm mất tên cột đã đặt: cột cùng chỉ số và cùng nhãn gốc với tệp cột cũ
+    giữ tên và ghi chú cũ (trừ khi tên đó trùng một cột khác). Cột mới vẫn theo luật đặt tên."""
+    curated = _curated_names(columns_root / table.filename)
+    if not curated:
+        return table
+    columns = list(table.columns)
+    notes = list(table.notes)
+    for index, (original, name, note) in sorted(curated.items()):
+        if index >= len(columns) or table.originals[index] != original or columns[index] == name:
+            continue
+        if name in columns:
+            continue
+        columns[index] = name
+        notes[index] = note
+    if tuple(columns) == table.columns and tuple(notes) == table.notes:
+        return table
+    return BuiltTable(
+        filename=table.filename,
+        source=table.source,
+        columns=tuple(columns),
+        types=table.types,
+        rows=table.rows,
+        originals=table.originals,
+        notes=tuple(notes),
+        changes=table.changes,
+    )
+
 def _write_built(output_dir: Path, columns_root: Path, built: list[BuiltTable]) -> None:
+    built = [_keep_curated(columns_root, table) for table in built]
     tsv_file.prepare_directory(output_dir, TOOL, keep_tools=KEEP_TABLE_TOOLS)
     tsv_file.prepare_directory(columns_root, TOOL)
     for table in built:
