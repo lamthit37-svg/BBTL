@@ -176,6 +176,18 @@ def ui_paths(data: Path) -> list[str]:
     return paths
 
 
+def config_paths(data: Path) -> list[str]:
+    # Bảng của client 2026 mà client đọc lúc chạy ngoài bảng cảnh: trần kinh nghiệm theo cấp (HUD).
+    # Do TOOLS/content/collect_sound.py chép vào. Thiếu thì client giữ trần cấp 1 và in lỗi.
+    found = []
+    for relative in ("Config/PlayerExpLevel.txt",):
+        path = data / relative
+        if path.is_file():
+            read_inputs.append(path)
+            found.append(relative)
+    return found
+
+
 def scene_paths(data: Path, has_cooked_sound: bool) -> list[str]:
     # Cả thư mục data là mọi map (hàng GB). APK và bundle mang cảnh startup.id cộng hai cảnh
     # thủ tục đăng nhập. Danh sách mỗi cảnh là Scene/<tên>.files.tsv do collect_map ghi.
@@ -193,6 +205,7 @@ def scene_paths(data: Path, has_cooked_sound: bool) -> list[str]:
     extend_unique(paths, seen, audio_paths(data, has_cooked_sound))
     extend_unique(paths, seen, ui_paths(data))
     extend_unique(paths, seen, web_paths(data))
+    extend_unique(paths, seen, config_paths(data))
     return paths
 
 

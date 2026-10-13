@@ -1,0 +1,6 @@
+--- truoc (ban sao luu D:\THIENLONG\build\backup-gameplay-apk-20261013-183657)
+Config: ['Config/startup.id', 'Config/SceneDefineEx.txt']
+sound/ files: 2033 | sound_table.xml: True
+--- sau (android/package_apk.py)
+Config: ['Config/startup.id', 'Config/SceneDefineEx.txt', 'Config/PlayerExpLevel.txt']
+sound/ files: 2033 | sound_table.xml: True
