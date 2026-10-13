@@ -369,6 +369,8 @@ if(NOT CMAKE_CROSSCOMPILING)
     target_link_libraries(game_guard PUBLIC game_core)
     game_module(metrics src/server/metrics/metrics.cpp)
     target_link_libraries(game_metrics PUBLIC game_core)
+    game_module(metrics_serve src/server/metrics/serve/serve.cpp)
+    target_link_libraries(game_metrics_serve PUBLIC game_core game_metrics game_net)
     # secure: bắt tay và bản ghi. Header C của libsodium đi qua include SYSTEM của
     # game_sodium, nên cảnh báo của thư viện không vào sodium.cpp.
     game_module(secure src/shared/secure/identity.cpp src/shared/secure/handshake.cpp src/shared/secure/record.cpp
