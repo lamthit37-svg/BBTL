@@ -23,6 +23,9 @@ struct Image {
     // kUnknown: rgba là RGBA8. Khác: từng mức trong levels là khối nén xếp khít, mức 0 ở đầu.
     gpu::Format blocks = gpu::Format::kUnknown;
     std::vector<std::vector<std::byte>> levels;
+    // false: nơi dùng chỉ lấy mức 0 (giao diện 2D: sampler không mip), nên bộ tải không nướng và không tải chuỗi mip.
+    // Phông 384 x 9192 của HUD tốn 48 ms nướng mip trên luồng vẽ trước khi có cờ này (đo 2026-10-13).
+    bool has_mips = true;
 };
 
 // `encoded` là một tệp PNG hoặc JPEG đủ. Kênh nào thiếu thì alpha = 255.

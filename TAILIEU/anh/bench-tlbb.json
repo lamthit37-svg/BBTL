@@ -1,0 +1,90 @@
+{
+  "nhãn": "G:\\TLBB tlbb_client.prev (d3d11, chụp mỗi ~30 ms)",
+  "lệnh": [
+    "G:\\TLBB\\CLIENT\\pc\\bin\\tlbb_client.prev.exe",
+    "--account",
+    "botest01",
+    "--server-key",
+    "7a11a108a39910694e1a2289c538219d43e493ddac36b893020c43041c5f3319",
+    "--server",
+    "127.0.0.1:7000",
+    "--pack",
+    "data/content.tlpak",
+    "--tables",
+    "data/tables",
+    "--cooked",
+    "data/cooked",
+    "--character",
+    "data/cooked/model/tieu_phong_body.tlmesh",
+    "data/cooked/material/jpg_tieu_phong_body.ttex",
+    "--backend",
+    "d3d11",
+    "--no-vsync",
+    "--script",
+    "C:/Users/myhea/AppData/Local/Temp/claude/d--THIENLONG/6b4e87cf-2e18-4a10-8578-fe5a47100208/scratchpad/ref_script2.txt",
+    "--shots",
+    "C:/Users/myhea/AppData/Local/Temp/claude/d--THIENLONG/6b4e87cf-2e18-4a10-8578-fe5a47100208/scratchpad/refshots3"
+  ],
+  "từng lượt": [
+    {
+      "tệp đầu tiên": 741.2254,
+      "thế giới hiện": 983.8938,
+      "khung ổn định": 1104.3491
+    },
+    {
+      "tệp đầu tiên": 663.6358,
+      "thế giới hiện": 893.8545,
+      "khung ổn định": 1008.992
+    },
+    {
+      "tệp đầu tiên": 731.5226,
+      "thế giới hiện": 976.8346,
+      "khung ổn định": 1204.1877
+    },
+    {
+      "tệp đầu tiên": 674.8729,
+      "thế giới hiện": 899.0457,
+      "khung ổn định": 1019.1735
+    },
+    {
+      "tệp đầu tiên": 757.3653,
+      "thế giới hiện": 1024.3951,
+      "khung ổn định": 1274.3186
+    },
+    {
+      "tệp đầu tiên": 1157.1623,
+      "thế giới hiện": 1373.7566,
+      "khung ổn định": 1793.8959
+    },
+    {
+      "tệp đầu tiên": 1124.1899,
+      "thế giới hiện": 1362.855,
+      "khung ổn định": 1725.2823
+    },
+    {
+      "tệp đầu tiên": 1108.6346,
+      "thế giới hiện": 1328.9946,
+      "khung ổn định": 1668.7912
+    }
+  ],
+  "tóm tắt": {
+    "khung ổn định": {
+      "n": 8,
+      "trung vị": 1239.25315,
+      "nhỏ nhất": 1008.992,
+      "lớn nhất": 1793.8959
+    },
+    "thế giới hiện": {
+      "n": 8,
+      "trung vị": 1004.14445,
+      "nhỏ nhất": 893.8545,
+      "lớn nhất": 1373.7566
+    },
+    "tệp đầu tiên": {
+      "n": 8,
+      "trung vị": 749.2953500000001,
+      "nhỏ nhất": 663.6358,
+      "lớn nhất": 1157.1623
+    }
+  }
+}

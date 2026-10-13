@@ -38,6 +38,7 @@
 #include "client/map/samples.hpp"
 #include "client/stage/props.hpp"
 #include "client/stage/stage.hpp"
+#include "client/timeline.hpp"
 #include "control/cursor_rules.hpp"
 #include "control/follow_camera.hpp"
 #include "control/ground.hpp"
@@ -129,6 +130,7 @@
 #include <print>
 #include <ranges>
 #include <ratio>
+#include <future>
 #include <span>
 #include <stop_token>
 #include <string>
@@ -1228,13 +1230,16 @@ struct CacheId {
     std::uint64_t shaders = 0;
 };
 
-[[nodiscard]] inline bool has_hardware(gpu::Backend backend) {
-    const gpu::Result<std::vector<gpu::AdapterInfo>> list = gpu::enumerate_adapters(backend);
-    if (!list) return false;
-    for (const gpu::AdapterInfo& info : *list) {
-        if (!info.is_software) return true;
-    }
-    return false;
+[[nodiscard]] inline bool has_hardware(std::span<const gpu::AdapterInfo> list) noexcept {
+    return std::ranges::any_of(list, [](const gpu::AdapterInfo& info) { return !info.is_software; });
+}
+
+// id (backend và hash shader đã điền) cùng vendor và device của adapter thứ index trong list; index ngoài list thì giữ id.
+[[nodiscard]] inline CacheId identity_in(std::span<const gpu::AdapterInfo> list, std::size_t index, CacheId id) noexcept {
+    if (index >= list.size()) return id;
+    id.vendor = list[index].vendor_id;
+    id.device = list[index].device_id;
+    return id;
 }
 
 [[nodiscard]] inline CacheId identity_of(gpu::Backend backend, std::uint32_t index, std::uint64_t shaders) {
@@ -1242,10 +1247,8 @@ struct CacheId {
     id.backend = backend;
     id.shaders = shaders;
     const gpu::Result<std::vector<gpu::AdapterInfo>> list = gpu::enumerate_adapters(backend);
-    if (!list || index >= list->size()) return id;
-    id.vendor = list->at(index).vendor_id;
-    id.device = list->at(index).device_id;
-    return id;
+    if (!list) return id;
+    return identity_in(*list, index, id);
 }
 
 // Cùng thứ tự create_present_device: Vulkan phần cứng, rồi D3D12, D3D11, GLES. Backend ép thì
@@ -1255,9 +1258,14 @@ struct CacheId {
     if (!is_automatic) return identity_of(desc.backend, desc.adapter.value_or(0), shaders);
     constexpr std::array<gpu::Backend, 4> order{
         gpu::Backend::kVulkan, gpu::Backend::kD3D12, gpu::Backend::kD3D11, gpu::Backend::kGles};
+    // Mỗi backend liệt kê một lần: dựng instance của driver là phần đắt, không làm hai lần cho cùng một danh sách.
     for (const gpu::Backend backend : order) {
-        if (!has_hardware(backend)) continue;
-        return identity_of(backend, 0, shaders);
+        const gpu::Result<std::vector<gpu::AdapterInfo>> list = gpu::enumerate_adapters(backend);
+        if (!list || !has_hardware(*list)) continue;
+        CacheId id;
+        id.backend = backend;
+        id.shaders = shaders;
+        return identity_in(*list, 0, id);
     }
     return identity_of(gpu::Backend::kVulkan, 0, shaders);
 }

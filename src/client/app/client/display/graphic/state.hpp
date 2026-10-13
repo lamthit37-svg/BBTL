@@ -18,6 +18,12 @@ struct Display::State {
     [[nodiscard]] core::Status launch(const DisplayDesc& desc);
     [[nodiscard]] core::Status open_gpu(const DisplayDesc& desc);
     void open_hud(const DisplayDesc& desc);
+    // Việc đọc đĩa không cần thiết bị GPU, bắt đầu trước khi tạo thiết bị để chạy trùng với nó: phần đọc của
+    // giao diện (ui::HudPrep) và lượt nạp của cảnh đầu (đọc mesh, nướng địa hình). Gọi một lần; lần sau bỏ qua.
+    // Trên điện thoại cấp texture (ASTC hay ETC2) chỉ biết sau khi có thiết bị nên open_gpu gọi lại ở đó.
+    void kick_loading(const DisplayDesc& desc);
+    // Phần đọc đĩa của giao diện do DisplayPreload bắt đầu, nếu có và cùng data_root; lấy đi nên chỉ lấy được một lần.
+    [[nodiscard]] static std::optional<ui::HudPrep> take_early_hud(const DisplayDesc& desc);
     void arm_scene(const DisplayDesc& desc);
     // Thân của luồng vẽ: khởi tạo qua bàn tay bắt tay, báo kết quả, rồi quay tới khi dừng.
     void run(Launch& handshake, const DisplayDesc& desc, const std::stop_token& stop);
@@ -137,6 +143,8 @@ struct Display::State {
     void clear_shown();
     void clear_if_shown();
     void begin_load(std::shared_ptr<const world::ShownScene> next, bool prefetch = false);
+    // Phần begin_load không cần GPU: lập bảng mesh của cảnh và giao việc đọc cho luồng đọc.
+    void post_load(std::shared_ptr<const world::ShownScene> next, bool prefetch);
     // Cảnh nạp trước trở thành cảnh đang vẽ: đặt những mesh đã vào nhớ, phần còn lại chảy tiếp.
     void promote_prefetch(Arrival& loading);
     // Tầng 2 khi đã có cảnh, kể cả cảnh đưa thẳng qua stage, không chỉ cảnh đổi bằng begin_load.
@@ -153,6 +161,9 @@ struct Display::State {
     void remember_meshes(Arrival& loading, FeedJob& job);
     [[nodiscard]] bool needs_fresh_ground(const Arrival& loading) const;
     void pump_load();
+    // Nạp đồng bộ cảnh đầu tiên: chạy hết phần nạp (mặt đất, mọi mesh, trời, nước) trước khi trình khung đầu,
+    // để khung đầu hiện đủ cảnh lẫn giao diện thay vì hiện giao diện rồi cảnh lấp dần.
+    void settle_first_scene(const std::stop_token& stop);
     void open_ground(Arrival& loading);
     [[nodiscard]] bool pull_mesh(Arrival& loading);
     [[nodiscard]] bool step_mesh(Arrival& loading);
@@ -249,6 +260,8 @@ struct Display::State {
     bool fx_fault_noted = false;
     // Giao diện 2D. Rỗng khi thiếu shader hay dữ liệu; game vẫn chạy.
     std::unique_ptr<render::UiPass> ui_pass;
+    // Phần đọc đĩa của giao diện đang chạy ở luồng riêng (kick_loading); open_hud lấy đi.
+    std::optional<ui::HudPrep> hud_prep;
     std::unique_ptr<ui::Hud> hud;
     const Stage* stage = nullptr;
     // Vòm trời của cảnh đang vẽ. Drawable trỏ vào model và uploaded của chính optional này.
@@ -399,6 +412,8 @@ struct Display::State {
     bool wait_flag = false;
     // Ảnh chụp (--shot): chụp đúng một lần ở khung đầu vẽ được.
     bool shot_taken = false;
+    // Mốc khung đầu trình đã in (timeline.hpp).
+    bool has_marked_first = false;
     // Đã thử đọc bảng cổng. Không thử lại mỗi khung khi tệp thiếu hoặc hỏng.
     bool gates_ready = false;
     std::atomic<bool> is_resize_pending{false};

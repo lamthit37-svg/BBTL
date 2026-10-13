@@ -24,6 +24,36 @@ Display::~Display() {
     }
 }
 
+struct DisplayPreload::Work {
+    std::filesystem::path data_root;
+    std::optional<ui::HudPrep> hud;
+    // Chỉ để giữ luồng nạp driver sống tới khi xong; kết quả của nó không ai cần.
+    std::future<void> driver;
+};
+
+DisplayPreload::DisplayPreload(const std::filesystem::path& data_root, const std::optional<std::string>& backend)
+    : work_(std::make_unique<Work>()) {
+    work_->driver = std::async(std::launch::async, [backend] {
+        const std::optional<gpu::Backend> parsed = backend ? gpu::parse_backend(*backend) : std::nullopt;
+        static_cast<void>(gpu::enumerate_adapters(parsed.value_or(gpu::Backend::kVulkan)));
+    });
+    if (data_root.empty()) return;
+    ui::HudDesc hud_desc;
+    hud_desc.data_root = data_root;
+    work_->data_root = data_root;
+    work_->hud.emplace(ui::HudPrep::start(hud_desc));
+}
+DisplayPreload::DisplayPreload(DisplayPreload&&) noexcept = default;
+DisplayPreload& DisplayPreload::operator=(DisplayPreload&&) noexcept = default;
+DisplayPreload::~DisplayPreload() = default;
+
+std::optional<ui::HudPrep> Display::State::take_early_hud(const DisplayDesc& desc) {
+    if (!desc.preload || !desc.preload->work_) return std::nullopt;
+    DisplayPreload::Work& early = *desc.preload->work_;
+    if (!early.hud || early.data_root != desc.data_root) return std::nullopt;
+    return std::exchange(early.hud, std::nullopt);
+}
+
 core::Result<Display> Display::create(const DisplayDesc& desc) {
     if (desc.window == nullptr) {
         return core::fail(core::ErrorCode::kInvalidArgument, "phần hiển thị thiếu cửa sổ");
@@ -134,6 +164,7 @@ core::Status Display::State::open_gpu(const DisplayDesc& desc) {
     auto made = is_forced ? gpu::create_device(device_desc) : gpu::create_present_device(device_desc);
     if (!made) return std::unexpected(made.error());
     device = std::move(*made);
+    mark("GPU: thiết bị tạo xong");
     const gpu::AdapterInfo& adapter = device->adapter();
     if (!root.empty()) {
         CacheId actual;
@@ -154,9 +185,11 @@ core::Status Display::State::open_gpu(const DisplayDesc& desc) {
     const gpu::FormatSupport astc = device->format_support(gpu::Format::kAstc4x4Unorm);
     const bool has_astc = gpu::has(astc, gpu::FormatSupport::kSampled);
     if (ui::kPhone) texture_tier = has_astc ? resource::TextureTier::kAstc : resource::TextureTier::kEtc2;
+    if (ui::kPhone) kick_loading(desc);
     core::Result<render::Screen> shown = render::Screen::create(*device, screen_desc);
     if (!shown) return std::unexpected(shown.error());
     screen = std::make_unique<render::Screen>(std::move(*shown));
+    mark("GPU: swapchain tạo xong");
     render::CatalogDesc catalog_desc;
     catalog_desc.color = screen->color_format();
     catalog_desc.depth = screen->depth_format();
@@ -181,14 +214,19 @@ core::Status Display::State::open_gpu(const DisplayDesc& desc) {
     core::Result<render::Forward> pass = make_forward(*device, *screen, shaders, *catalog);
     if (!pass) return std::unexpected(pass.error());
     forward = std::make_unique<render::Forward>(std::move(*pass));
+    mark("GPU: lượt vẽ và pipeline xong");
     open_hud(desc);
+    mark("HUD: Hud::open xong");
     return core::ok();
 }
 
 core::Status Display::State::launch(const DisplayDesc& desc) {
+    // PC: texture luôn BC, nên việc đọc đĩa không phải chờ thiết bị.
+    if (!ui::kPhone) kick_loading(desc);
     const core::Status opened = open_gpu(desc);
     if (!opened) return opened;
     arm_scene(desc);
+    mark("arm_scene xong");
     const std::string gap = closed_port_line();
     if (!gap.empty()) std::println("{}", gap);
     // Cache ghi sau tầng 0, tầng 1 và cảnh đầu. Tầng 2 tạo trong warm_scene.
@@ -208,6 +246,7 @@ void Display::State::run(Launch& handshake, const DisplayDesc& desc, const std::
     if (!made) return;
     is_spinning.store(true, std::memory_order_relaxed);
     frame_ms.reserve(8192);
+    settle_first_scene(stop);
     spin(stop);
     is_spinning.store(false, std::memory_order_relaxed);
     wrap_up();
@@ -364,6 +403,10 @@ core::Status Display::State::render() {
     const PresentAsk present{.list = *list, .shot = shot};
     const core::Status submitted = present_drawn(present);
     if (!submitted) return submitted;
+    if (!has_marked_first) {
+        has_marked_first = true;
+        mark("khung đầu đã trình");
+    }
     const core::Status ended = device->end_frame();
     // Chia thời gian khung vào ba chặng để biết chặng nào chặn: xin ảnh (chờ GPU nhả ảnh cũ), ghi
     // lệnh vẽ, và nộp + trình bày (chờ vblank hoặc chờ GPU). Số in ra là trung bình mỗi khung.
@@ -444,6 +487,7 @@ std::optional<ShotPlan> Display::State::record_shot(gpu::CommandList& list, std:
 }
 
 void Display::State::finish_shot(const ShotPlan& plan) const {
+    mark("chụp ảnh (trước khi mã hoá PNG)");
     const core::Status waited = device->wait_idle();
     if (!waited) {
         std::println(stderr, "Lỗi chụp {}: {}", io::utf8_of(shot_path), waited.error());

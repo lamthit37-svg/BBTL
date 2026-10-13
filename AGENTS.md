@@ -89,7 +89,10 @@
   thẳng từ TLBB Dev (`docs/NGUON-TLBB.md`); camera và chuột của `control` port từ mã máy của
   client 2026 (`docs/CAMERA-2026.md`); `nav` (lưới đi, tìm đường, luật đi) port từ mã máy của
   `PathLib.dll` và `Game.exe` 2026 (`docs/DUONG-DI-2026.md`).
-- Ngân sách (ghi bằng số, hoặc "chưa có"): chưa có.
+- Ngân sách (ghi bằng số, hoặc "chưa có"): nạp đầu của cảnh Đại Lý (resid 2) trên PC, tính từ lúc chạy lệnh tới khung đầu
+  đã có đủ cảnh lẫn HUD: trung vị ≤ 450 ms (đo 2026-10-13: 387 ms, 15 lượt, i5-14600KF, RTX 5060, Vulkan; G:\TLBB cùng máy:
+  khung ổn định trung vị 1239 ms). Đo lại bằng `TOOLS/run/bench_load.py`, số liệu và điều kiện hai bên ở
+  `TAILIEU/TOC-DO-NAP-SO-VOI-TLBB.md`. Các ngân sách khác (khung hình, bộ nhớ, dung lượng): chưa có.
 - Quyết định đã chốt (mỗi dòng: quyết định — lý do):
   - Mã nguồn client là C++23, C11 chỉ khi một thư viện C buộc phải thế; công cụ xử lý dữ liệu ở
     `TOOLS/` viết bằng Python — chủ dự án chốt ngày 2026-10-05.
@@ -134,6 +137,12 @@
   - Layout điện thoại là `Interface/phone/`, Android và iOS dùng chung; thiếu tệp thì layout PC.
     Texture PC là DDS. Bản điện thoại là `mobile/astc/` rồi `mobile/etc2/`, cùng đường tương đối,
     định dạng TLTX. GPU có ASTC thì chọn ASTC, không thì ETC2 — chủ dự án chốt ngày 2026-10-12.
+  - Nạp đầu: khung đầu phải có đủ cảnh lẫn HUD (nạp đồng bộ, `settle_first_scene`), và phải nhanh hơn G:\TLBB có số đo —
+    chủ dự án chốt ngày 2026-10-13 ("load full giao diện game phải vượt qua G:\TLBB, có số làm dẫn chứng"; "load đồng bộ map
+    cũng hiện luôn nhanh vẫn nhanh hơn"). Mọi việc không cần thiết bị GPU (đọc giao diện, bảng chuỗi, phông, mesh, địa hình,
+    nạp driver) chạy ở luồng riêng từ đầu tiến trình (`Display::preload`, `ui::HudPrep`, `Display::State::kick_loading`);
+    luồng vẽ chỉ làm việc cần thiết bị. Việc mới thêm vào đường nạp phải giữ ngân sách ở mục "Ngân sách" và đo bằng
+    `TOOLS/run/bench_load.py`; mốc `Mốc <ms> ms` của `client/timeline.hpp` là bảng đo của đường nạp.
   - Màn chơi, chủ dự án giao ngày 2026-10-13 ("hoàn tất toàn bộ giao diện chính xác", "fix triệt để mọi thứ làm mất texture"): bản
     đồ lớn (SceneMap) và bản đồ thế giới (LargeMap, widget WorldMap) port từ mã máy, hòm đồ và ô tiền, xoay người mẫu bảng nhân vật,
     con trỏ chuột của game (22 con trỏ đọc từ tài nguyên của `Game.exe`, `TOOLS/content/export_cursors.py`), phông Việt cho chữ có dấu
@@ -518,7 +527,7 @@ Chỉ mục `docs/BAY-DA-BIET.md`: sắp làm một việc kể dưới đây th
   có cỡ lẻ trong `SRC/gui`.
 - **Dữ liệu, hình và bản dựng client:** đọc kết quả `collision_tests` (Skipped, thư mục `_raw`);
   cảnh thiếu hiệu ứng hay gom lại `dev/client/assets/effect`; nạp texture và mip; thêm gói shader; dựng
-  `thienlong_client` (cần Pillow).
+  `thienlong_client` (cần Pillow); sửa đường nạp cảnh hay giao diện (đo bằng `bench_load.py`, ba bẫy đã đo).
 
 ## 12. Sổ tay
 

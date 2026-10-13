@@ -11,6 +11,7 @@
 #include "client/viewer/client_size.hpp"
 #include "client/viewer/cursors.hpp"
 #include "client/viewer/sdl_input.hpp"
+#include "client/timeline.hpp"
 #include "control/cursor_rules.hpp"
 #include "control/input.hpp"
 #include "core/clock.hpp"
@@ -647,6 +648,7 @@ int run_viewer(const ViewerDesc& desc) {
         std::println(stderr, "Lỗi: không mở được cửa sổ: {}", opened.error());
         return 1;
     }
+    client::mark("cửa sổ mở");
     const window::Size initial = opened->client_size();
     DisplayDesc shown;
     shown.window = opened->native_handle();
@@ -662,11 +664,13 @@ int run_viewer(const ViewerDesc& desc) {
     shown.is_validated = desc.is_validated;
     shown.backend = desc.backend;
     shown.procedure = desc.procedure;
+    shown.preload = desc.preload;
     core::Result<Display> display = Display::create(shown);
     if (!display) {
         std::println(stderr, "Lỗi: không khởi tạo được phần hiển thị: {}", display.error());
         return 1;
     }
+    client::mark("Display::create xong");
     return present(*opened, *display, desc);
 }
 

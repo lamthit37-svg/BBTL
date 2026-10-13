@@ -681,7 +681,8 @@ void write_blocked_row(std::byte* dest, std::span<const std::byte> source, std::
     const core::Status checked = check_blocks(image);
     if (!checked) return std::unexpected(checked.error());
     StagedImage staged;
-    for (std::uint32_t level = 0; level < image.levels.size(); ++level) {
+    const std::size_t kept = image.has_mips ? image.levels.size() : 1U;
+    for (std::uint32_t level = 0; level < kept; ++level) {
         const std::uint32_t width = gpu::mip_size(image.width, level);
         const std::uint32_t height = gpu::mip_size(image.height, level);
         const std::span<const std::byte> tight = image.levels[level];
@@ -961,6 +962,7 @@ core::Result<StagedImage> stage_image(const Image& image, ColorSpace space) {
     Source current = whole_image(image);
     const core::Status first = append_level(staged, current);
     if (!first) return std::unexpected(first.error());
+    if (!image.has_mips) return staged;
     Level front;
     Level back;
     bool running = current.width > 1 || current.height > 1;

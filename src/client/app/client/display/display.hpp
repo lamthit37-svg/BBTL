@@ -68,6 +68,8 @@ struct KeptRole {
     std::uint16_t foot = 0;
 };
 
+class DisplayPreload;
+
 struct DisplayDesc {
     // HWND của cửa sổ (window::Window::native_handle).
     void* window = nullptr;
@@ -99,6 +101,8 @@ struct DisplayDesc {
     std::optional<std::string> backend;
     // Có has thì màn chơi dùng ngoại hình này thay cho nhân vật mặc định.
     KeptRole restored;
+    // Việc đã bắt đầu sớm (DisplayPreload); nullptr thì Display::create tự bắt đầu.
+    std::shared_ptr<DisplayPreload> preload;
 };
 
 // Điều khiển bằng phím, cộng dồn giữa hai khung. Mũi tên lên xuống là lệnh phím zoom của client
@@ -127,6 +131,29 @@ struct Steering {
 // hàm trả về chỉ đọc bảng bất biến đó nên luồng nào gọi cũng được.
 using SceneTitle = std::function<std::string(std::string_view)>;
 [[nodiscard]] SceneTitle scene_title_lookup(const std::filesystem::path& data_root);
+
+class Display;
+
+// Việc không cần cửa sổ, bắt đầu ngay khi dựng (mỗi việc một luồng riêng) để trùng với việc đọc cảnh và mở cửa sổ thay
+// vì nằm trước khung đầu: nạp driver đồ hoạ (lần liệt kê adapter đầu của tiến trình nạp loader và mọi ICD, 100 tới
+// 150 ms) và đọc dữ liệu giao diện (bộ nạp, layout, bảng chuỗi, phông: 280 ms nối đuôi). Dựng ngay đầu tiến trình, giữ
+// tới khi Display::create nhận qua DisplayDesc::preload; data_root và backend phải khớp DisplayDesc::data_root và
+// DisplayDesc::backend, khác thì Display::create tự bắt đầu lại. Không chặn, không báo lỗi (lỗi thật hiện lại ở
+// Display::create). Huỷ khi chưa dùng thì chờ các luồng ấy xong. Bản không có đồ hoạ không làm gì.
+class DisplayPreload {
+public:
+    DisplayPreload(const std::filesystem::path& data_root, const std::optional<std::string>& backend);
+    DisplayPreload(DisplayPreload&&) noexcept;
+    DisplayPreload& operator=(DisplayPreload&&) noexcept;
+    DisplayPreload(const DisplayPreload&) = delete;
+    DisplayPreload& operator=(const DisplayPreload&) = delete;
+    ~DisplayPreload();
+
+private:
+    struct Work;
+    std::unique_ptr<Work> work_;
+    friend class Display;
+};
 
 class Display {
 public:

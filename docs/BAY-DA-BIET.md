@@ -317,6 +317,16 @@ mục ở mục 11.
   hay shader riêng, material không cộng sáng; muốn biết một cảnh thiếu hiệu ứng gì thì đọc dòng đó
   trong log, đừng nhìn ảnh mà đoán. Dòng đó không kể những thứ vẫn vẽ nhưng vẽ thiếu (xoay hạt của
   Rotator, thời lượng và lặp của emitter): xem `docs/NGHI-NGO.md` mục 40.
+- Đường nạp đo bằng mốc, không đoán (2026-10-13). Ba bẫy đã đo ở đợt đưa nạp đầu Đại Lý từ 1,06 s xuống 0,39 s:
+  (1) `look_of` của `engine/resource/ogre_mesh.cpp` từng quét tuần tự hàng nghìn luật của `all.material` dưới một khoá chung:
+  19 luồng đọc mesh xếp hàng, 310 mesh tốn 10,4 giây CPU cộng dồn; nay bảng băm bất biến (`table_of`) tra không khoá, 2,3 giây.
+  Nghi nạp chậm thì cộng thời gian từng luồng đọc trước khi tối ưu chỗ khác. (2) Texture giao diện không dùng mip, nhưng
+  `upload_queued` từng nướng cả chuỗi mip cho mọi ảnh RGBA8: phông GBK12 384 x 9192 tốn 48 ms; ảnh nào chỉ dùng mức 0 thì đặt
+  `resource::Image::has_mips = false` (`render/ui.cpp` đã đặt cho mọi texture của `UiPass`). (3) Lần liệt kê adapter Vulkan
+  đầu tiên của tiến trình tốn 100 tới 150 ms (nạp loader và mọi ICD); gọi nó ở luồng riêng sớm nhất (`Display::preload`)
+  và đừng liệt kê cùng một backend hai lần. Thước đo: `TOOLS/run/bench_load.py` (số từng lượt, trung vị) và các dòng `Mốc` trong log.
+  Hai việc ở luồng khác phải không đụng trạng thái chung: `ui::HudPrep` chạy `gui::GuiLoader` và bảng TSV ở luồng riêng
+  — thêm `static` có thể đổi vào mã `gui` hay `table` là thêm cuộc đua dữ liệu (đã rà ngày 2026-10-13: không có).
 - Tóc nhân vật trắng toát (đo 2026-10-13): `all.material` có 1313 dòng `set_texture_alias <baseTexture> x.dds` kết thúc bằng
   khoảng trắng (cả tóc `女主角头发01..`), và `last_token` của `engine/resource/ogre_mesh.cpp` lấy phần sau dấu cách cuối
   nên trả chuỗi rỗng: chất liệu mất ảnh, `attach_texture` im lặng bỏ qua, shader nhân ánh sáng với ảnh trắng dự phòng.

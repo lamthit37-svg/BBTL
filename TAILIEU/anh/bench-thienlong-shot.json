@@ -1,0 +1,68 @@
+{
+  "nhãn": "THIENLONG dev, đo bằng mtime ảnh --shot (gồm cả mã hoá PNG)",
+  "lệnh": [
+    "D:\\THIENLONG\\dev\\client\\bin\\thienlong_client.exe",
+    "--scene-id",
+    "2",
+    "--size",
+    "1280x720",
+    "--shot",
+    "C:/Users/myhea/AppData/Local/Temp/claude/d--THIENLONG/6b4e87cf-2e18-4a10-8578-fe5a47100208/scratchpad/oursshots2/dali.png"
+  ],
+  "từng lượt": [
+    {
+      "tệp đầu tiên": 444.2529,
+      "thế giới hiện": 444.2529
+    },
+    {
+      "tệp đầu tiên": 444.1928,
+      "thế giới hiện": 444.1928
+    },
+    {
+      "tệp đầu tiên": 428.0855,
+      "thế giới hiện": 428.0855
+    },
+    {
+      "tệp đầu tiên": 431.7642,
+      "thế giới hiện": 431.7642
+    },
+    {
+      "tệp đầu tiên": 436.3693,
+      "thế giới hiện": 436.3693
+    },
+    {
+      "tệp đầu tiên": 435.389,
+      "thế giới hiện": 435.389
+    },
+    {
+      "tệp đầu tiên": 434.4463,
+      "thế giới hiện": 434.4463
+    },
+    {
+      "tệp đầu tiên": 438.6459,
+      "thế giới hiện": 438.6459
+    },
+    {
+      "tệp đầu tiên": 489.0583,
+      "thế giới hiện": 489.0583
+    },
+    {
+      "tệp đầu tiên": 429.2323,
+      "thế giới hiện": 429.2323
+    }
+  ],
+  "tóm tắt": {
+    "thế giới hiện": {
+      "n": 10,
+      "trung vị": 435.87915,
+      "nhỏ nhất": 428.0855,
+      "lớn nhất": 489.0583
+    },
+    "tệp đầu tiên": {
+      "n": 10,
+      "trung vị": 435.87915,
+      "nhỏ nhất": 428.0855,
+      "lớn nhất": 489.0583
+    }
+  }
+}

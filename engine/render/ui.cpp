@@ -70,6 +70,7 @@ std::vector<std::uint32_t> quad_indices() {
 resource::Model model_of(const resource::Image& image) {
     resource::Model model;
     model.images.push_back(image);
+    model.images.back().has_mips = false;
     resource::Sampler sampler;
     sampler.name = "render.ui";
     sampler.wrap_u = resource::Wrap::kClamp;

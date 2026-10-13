@@ -51,6 +51,8 @@ struct ViewerDesc {
     std::optional<std::string> backend;
     // Cỡ vùng chơi của cửa sổ PC; rỗng thì kDefaultClientSize (View_Resoution của client 2026).
     std::optional<ClientSize> client_size;
+    // Việc đã bắt đầu sớm (DisplayPreload, cùng data_folder và backend); nullptr thì Display tự bắt đầu.
+    std::shared_ptr<DisplayPreload> preload;
     // Thủ tục sẽ chạy lúc mở. kLogin vẽ backdrop và chưa vào cảnh nào của playing; nó sang màn chơi
     // khi giao diện nhờ vào game.
     Procedure procedure = Procedure::kPlay;

@@ -423,12 +423,38 @@ LiquidSheet build_liquid(const LiquidField& field) {
     return pack(work);
 }
 
+namespace {
+
+// Dòng chứa vị trí spot, không gồm ký tự xuống dòng.
+[[nodiscard]] std::string_view line_around(std::string_view script, std::size_t spot) noexcept {
+    const std::size_t before = script.rfind('\n', spot);
+    const std::size_t begin = before == std::string_view::npos ? 0 : before + 1;
+    const std::size_t end = script.find('\n', spot);
+    return script.substr(begin, end == std::string_view::npos ? std::string_view::npos : end - begin);
+}
+
+} // namespace
+
+// Tệp script thật dài 21 MB (all.material) và một cảnh có hàng chục mặt nước: đọc từng dòng cả tệp cho mỗi mặt
+// tốn ~40 ms một lần (đo 2026-10-13, 11 mặt nước của Đại Lý: 454 ms). Tìm chuỗi tên bằng tìm kiếm nhanh của thư
+// viện rồi chỉ đọc dòng chứa nó; kết quả y hệt đọc từ đầu vì vẫn là lần mở material khớp đầu tiên.
 LiquidLookResult find_liquid_look(std::string_view script, std::string_view name) {
     LookScan scan;
     scan.name = name;
-    while (!script.empty() && !scan.stopped) {
-        const std::string_view line = next_line(script);
-        take_look_line(scan, trim(line));
+    std::size_t spot = 0;
+    while (!name.empty() && !scan.inside) {
+        spot = script.find(name, spot);
+        if (spot == std::string_view::npos) break;
+        const std::string_view line = line_around(script, spot);
+        if (opens_material(trim(line), name)) {
+            // Đọc tiếp từ dòng mở material tới hết khối của nó.
+            std::string_view rest = script.substr(static_cast<std::size_t>(line.data() - script.data()));
+            while (!rest.empty() && !scan.stopped) {
+                take_look_line(scan, trim(next_line(rest)));
+            }
+            break;
+        }
+        spot += name.size();
     }
     if (!scan.inside || scan.look.texture.empty()) return std::nullopt;
     return scan.look;

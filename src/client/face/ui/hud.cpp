@@ -51,12 +51,14 @@
 #include <expected>
 #include <filesystem>
 #include <format>
+#include <future>
 #include <memory>
 #include <optional>
 #include <print>
 #include <set>
 #include <span>
 #include <string>
+#include <system_error>
 #include <string_view>
 #include <utility>
 #include <vector>
@@ -231,11 +233,139 @@ gui::StringBook scene_names(const std::filesystem::path& data_root) {
     return book;
 }
 
-struct Hud::State {
-    State(gui::GuiLoader opened, render::UiPass& target, const std::filesystem::path& data_root)
-        : loader(std::move(opened)), pass(&target), painter(target, data_root / "Interface"), atlas(data_root) {
-        client_root = data_root;
+namespace {
+
+// Mọi thứ Hud::open đọc từ đĩa mà không cần thiết bị GPU. Dựng ở luồng riêng (HudPrep), State nhận bằng move.
+struct Prepared {
+    explicit Prepared(gui::GuiLoader opened) : loader(std::move(opened)) {}
+
+    gui::GuiLoader loader;
+    gui::StringBook strings;
+    gui::StringBook scene_names;
+    panel::Portraits portraits;
+    panel::RoleCast cast;
+    panel::SceneTable scenes;
+    std::string world_cities;
+    panel::LoginFlow flow;
+    // Dữ liệu hai phông chưa lên GPU; thiếu phông thì HUD không có chữ (GBK12) hay chữ có dấu ra ô vuông (VTNAM14).
+    std::optional<BitmapFont> font;
+    std::optional<BitmapFont> vi_font;
+
+    void open_portraits(const std::filesystem::path& data_root);
+    void open_servers(const std::filesystem::path& data_root);
+    void open_scenes(const std::filesystem::path& data_root);
+};
+
+// Đọc một phông bitmap; thiếu hay hỏng thì ghi một dòng (what là tên gọi trong dòng đó) và trả nullopt.
+std::optional<BitmapFont> read_font(const std::filesystem::path& file, std::string_view what) {
+    core::Result<BitmapFont> opened = BitmapFont::open(file);
+    if (opened) return std::move(*opened);
+    std::println(stderr, "Giao diện: không có {}: {}", what, opened.error());
+    return std::nullopt;
+}
+
+// Nạp bảng chân dung (Table/portraits.tsv; không đọc được thì khung nhân vật không có mặt) và dữ
+// liệu của màn tạo nhân vật, rồi đưa các bộ ảnh mà bảng chỉ đặt lúc chạy vào giao diện (chân dung, màn
+// tạo nhân vật, ô khoá của hòm đồ: layout không nhắc tới chúng). Gọi trước khi dựng Hub vì asset đổi.
+void Prepared::open_portraits(const std::filesystem::path& data_root) {
+    const std::optional<table::Tsv> table = read_table(data_root / "Table" / "portraits.tsv");
+    portraits = table ? panel::Portraits::from_table(*table) : panel::Portraits{};
+    cast = cast_of(data_root, table);
+    for (const std::string& imageset : portraits.imagesets()) {
+        loader.add_imageset(imageset);
     }
+    for (const std::string_view imageset : panel::create_imagesets()) {
+        loader.add_imageset(imageset);
+    }
+    loader.add_imageset(panel::kBagLockImageset);
+}
+
+// Nạp bảng cảnh của các bảng bản đồ (Config/SceneDefineEx.txt). Thiếu hay hỏng thì bảng rỗng và bản đồ lớn
+// không mở được cảnh nào.
+void Prepared::open_scenes(const std::filesystem::path& data_root) {
+    const io::TextResult text = io::read_text(data_root / "Config" / "SceneDefineEx.txt");
+    if (!text) {
+        std::println(stderr, "Giao diện: không có bảng cảnh, bản đồ lớn không mở được");
+        return;
+    }
+    scenes = panel::SceneTable::from_text(*text);
+    if (scenes.is_empty()) std::println(stderr, "Giao diện: bảng cảnh không đọc được dòng nào");
+    world_cities = panel::world_cities(scenes, scene_names);
+    // Ảnh nhãn của các thành phố do bảng cảnh chỉ tên lúc chạy, layout không nhắc tới: đưa trọn bộ ảnh vào.
+    std::set<std::string_view> label_sets;
+    for (const panel::SceneRow& row : scenes.rows()) {
+        if (row.world == panel::kNormalWorld && !row.hover_set.empty()) label_sets.insert(row.hover_set);
+    }
+    for (const std::string_view set : label_sets) loader.add_imageset(set);
+}
+
+// Nạp danh sách máy chủ của bảng chọn máy chủ (Table/login_servers.tsv). Thiếu hay hỏng thì thủ tục
+// đăng nhập bỏ bước chọn máy chủ và mở ở bảng tài khoản.
+void Prepared::open_servers(const std::filesystem::path& data_root) {
+    const io::TextResult text = io::read_text(data_root / "Table" / "login_servers.tsv");
+    if (!text) {
+        std::println(stderr, "Giao diện: không có danh sách máy chủ, bỏ bước chọn máy chủ");
+        return;
+    }
+    if (!panel::recall_directory(flow, *text)) std::println(stderr, "Giao diện: danh sách máy chủ sai dạng");
+}
+
+// Việc đọc đĩa của Hud::open, chạy được ở luồng nào cũng được (không đụng GPU, không đụng trạng thái chung).
+// Ba việc độc lập với bộ nạp giao diện (chuỗi, tên cảnh, hai phông) chạy ở luồng riêng cùng lúc với nó: đường dài
+// nhất còn lại là bộ nạp và 40 layout (đo 2026-10-13: 96 + 24 ms trên tổng 286 ms khi nối đuôi).
+core::Result<Prepared> prepare_hud(const std::filesystem::path& data_root) {
+    const std::filesystem::path root = data_root / "Interface";
+    auto strings = std::async(std::launch::async, [&data_root] { return strings_of(data_root); });
+    auto names = std::async(std::launch::async, [&data_root] { return scene_names(data_root); });
+    auto font = std::async(std::launch::async, [&root] { return read_font(root / io::path_from_utf8(kFontFile), "phông chữ"); });
+    auto vi_font = std::async(std::launch::async, [&root] { return read_font(root / io::path_from_utf8(kViFontFile), "phông Việt"); });
+    const gui::DiskSource files(root, kPhone);
+    gui::GuiSources sources;
+    sources.files = &files;
+    auto opened = gui::GuiLoader::open(sources);
+    if (!opened) {
+        constexpr const char* kNoUi = "không mở được giao diện";
+        const auto& reason = opened.error();
+        return core::fail(core::ErrorCode::kInvalidArgument, kNoUi, reason);
+    }
+    Prepared ready(std::move(*opened));
+    const auto added = add_layouts(ready.loader);
+    if (!added) {
+        constexpr const char* kNoLayout = "không nạp được layout";
+        const auto& reason = added.error();
+        return core::fail(core::ErrorCode::kInvalidArgument, kNoLayout, reason);
+    }
+    ready.open_portraits(data_root);
+    ready.open_servers(data_root);
+    // Bảng tên cảnh phải có trước open_scenes (danh sách thành phố của bản đồ thế giới dựng từ nó).
+    ready.scene_names = names.get();
+    ready.open_scenes(data_root);
+    ready.strings = strings.get();
+    ready.font = font.get();
+    ready.vi_font = vi_font.get();
+    return ready;
+}
+
+} // namespace
+
+// Mỗi Hud một State duy nhất trên heap: 50 byte đệm giữa các trường không đáng đảo thứ tự các trường đang xếp theo
+// nhóm ý nghĩa (bảng, bản đồ, thủ tục đăng nhập, phông).
+// NOLINTNEXTLINE(clang-analyzer-optin.performance.Padding)
+struct Hud::State {
+    // Lấy đi mọi phần của ready trừ hai phông: chúng chờ seat_fonts đưa lên GPU.
+    State(Prepared& ready, render::UiPass& target, const std::filesystem::path& data_root)
+        : loader(std::move(ready.loader)),
+          pass(&target),
+          painter(target, data_root / "Interface"),
+          strings(std::move(ready.strings)),
+          scene_names(std::move(ready.scene_names)),
+          portraits(std::move(ready.portraits)),
+          cast(std::move(ready.cast)),
+          client_root(data_root),
+          scenes(std::move(ready.scenes)),
+          world_cities(std::move(ready.world_cities)),
+          flow(std::move(ready.flow)),
+          atlas(data_root) {}
 
     gui::GuiLoader loader;
     render::UiPass* pass;
@@ -331,11 +461,7 @@ struct Hud::State {
         }
     }
 
-    void open_font(const std::filesystem::path& interface_root);
-    void open_vi_font(const std::filesystem::path& interface_root);
-    void open_portraits(const std::filesystem::path& data_root);
-    void open_servers(const std::filesystem::path& data_root);
-    void open_scenes(const std::filesystem::path& data_root);
+    void seat_fonts(Prepared& ready);
     [[nodiscard]] bool note_double(std::string_view window, const HudView& view);
     [[nodiscard]] panel::PlaceText place_under(const HudView& view);
     void enter(Phase next) noexcept;
@@ -369,85 +495,26 @@ struct Hud::State {
     void rebuild();
 };
 
-void Hud::State::open_font(const std::filesystem::path& interface_root) {
-    const std::filesystem::path file = interface_root / io::path_from_utf8(kFontFile);
-    core::Result<BitmapFont> opened = BitmapFont::open(file);
-    if (!opened) {
-        std::println(stderr, "Giao diện: không có phông chữ: {}", opened.error());
-        return;
-    }
-    const core::Result<std::uint32_t> texture = pass->add_texture(opened->atlas());
+// Đưa hai phông đã đọc lên GPU. Không lên được thì phông đó coi như thiếu (HUD không có chữ, hay chữ có dấu ra ô vuông).
+void Hud::State::seat_fonts(Prepared& ready) {
+    if (!ready.font) return;
+    const core::Result<std::uint32_t> texture = pass->add_texture(ready.font->atlas());
     if (!texture) {
         std::println(stderr, "Giao diện: không tải được phông lên GPU: {}", texture.error());
         return;
     }
-    font.emplace(std::move(*opened));
+    font = std::move(ready.font);
     font_texture = *texture;
     writer.emplace(*font, &strings);
-    open_vi_font(interface_root);
-}
-
-// Phông Việt là thứ thêm: thiếu thì chữ có dấu ra ô vuông như trước, HUD vẫn chạy.
-void Hud::State::open_vi_font(const std::filesystem::path& interface_root) {
-    core::Result<BitmapFont> opened = BitmapFont::open(interface_root / io::path_from_utf8(kViFontFile));
-    if (!opened) {
-        std::println(stderr, "Giao diện: không có phông Việt: {}", opened.error());
+    if (!ready.vi_font) return;
+    const core::Result<std::uint32_t> vi_texture = pass->add_texture(ready.vi_font->atlas());
+    if (!vi_texture) {
+        std::println(stderr, "Giao diện: không tải được phông Việt lên GPU: {}", vi_texture.error());
         return;
     }
-    const core::Result<std::uint32_t> texture = pass->add_texture(opened->atlas());
-    if (!texture) {
-        std::println(stderr, "Giao diện: không tải được phông Việt lên GPU: {}", texture.error());
-        return;
-    }
-    vi_font.emplace(std::move(*opened));
-    vi_font_texture = *texture;
+    vi_font = std::move(ready.vi_font);
+    vi_font_texture = *vi_texture;
     vi_writer.emplace(*vi_font, &strings);
-}
-
-// Nạp bảng chân dung (Table/portraits.tsv; không đọc được thì khung nhân vật không có mặt) và dữ
-// liệu của màn tạo nhân vật, rồi đưa các bộ ảnh mà bảng chỉ đặt lúc chạy vào giao diện (chân dung, màn
-// tạo nhân vật, ô khoá của hòm đồ: layout không nhắc tới chúng). Gọi trước khi dựng Hub vì asset đổi.
-void Hud::State::open_portraits(const std::filesystem::path& data_root) {
-    const std::optional<table::Tsv> table = read_table(data_root / "Table" / "portraits.tsv");
-    portraits = table ? panel::Portraits::from_table(*table) : panel::Portraits{};
-    cast = cast_of(data_root, table);
-    for (const std::string& imageset : portraits.imagesets()) {
-        loader.add_imageset(imageset);
-    }
-    for (const std::string_view imageset : panel::create_imagesets()) {
-        loader.add_imageset(imageset);
-    }
-    loader.add_imageset(panel::kBagLockImageset);
-}
-
-// Nạp bảng cảnh của các bảng bản đồ (Config/SceneDefineEx.txt). Thiếu hay hỏng thì bảng rỗng và bản đồ lớn
-// không mở được cảnh nào.
-void Hud::State::open_scenes(const std::filesystem::path& data_root) {
-    const io::TextResult text = io::read_text(data_root / "Config" / "SceneDefineEx.txt");
-    if (!text) {
-        std::println(stderr, "Giao diện: không có bảng cảnh, bản đồ lớn không mở được");
-        return;
-    }
-    scenes = panel::SceneTable::from_text(*text);
-    if (scenes.is_empty()) std::println(stderr, "Giao diện: bảng cảnh không đọc được dòng nào");
-    world_cities = panel::world_cities(scenes, scene_names);
-    // Ảnh nhãn của các thành phố do bảng cảnh chỉ tên lúc chạy, layout không nhắc tới: đưa trọn bộ ảnh vào.
-    std::set<std::string_view> label_sets;
-    for (const panel::SceneRow& row : scenes.rows()) {
-        if (row.world == panel::kNormalWorld && !row.hover_set.empty()) label_sets.insert(row.hover_set);
-    }
-    for (const std::string_view set : label_sets) loader.add_imageset(set);
-}
-
-// Nạp danh sách máy chủ của bảng chọn máy chủ (Table/login_servers.tsv). Thiếu hay hỏng thì thủ tục
-// đăng nhập bỏ bước chọn máy chủ và mở ở bảng tài khoản.
-void Hud::State::open_servers(const std::filesystem::path& data_root) {
-    const io::TextResult text = io::read_text(data_root / "Table" / "login_servers.tsv");
-    if (!text) {
-        std::println(stderr, "Giao diện: không có danh sách máy chủ, bỏ bước chọn máy chủ");
-        return;
-    }
-    if (!panel::recall_directory(flow, *text)) std::println(stderr, "Giao diện: danh sách máy chủ sai dạng");
 }
 
 // Chuột trên MiniMap_MapArea thì GetMouseScenePos; rời ô thì chỗ đứng. Hộp là của khung trước
@@ -960,30 +1027,30 @@ Hud::Hud(Hud&&) noexcept = default;
 Hud& Hud::operator=(Hud&&) noexcept = default;
 Hud::~Hud() = default;
 
+struct HudPrep::Work {
+    std::future<core::Result<Prepared>> done;
+};
+
+HudPrep::HudPrep(std::unique_ptr<Work> work) noexcept : work_(std::move(work)) {}
+HudPrep::HudPrep(HudPrep&&) noexcept = default;
+HudPrep& HudPrep::operator=(HudPrep&&) noexcept = default;
+HudPrep::~HudPrep() = default;
+
+HudPrep HudPrep::start(const HudDesc& desc) {
+    auto work = std::make_unique<Work>();
+    work->done = std::async(std::launch::async, [root = desc.data_root] { return prepare_hud(root); });
+    return HudPrep(std::move(work));
+}
+
 core::Result<Hud> Hud::open(render::UiPass& pass, const HudDesc& desc) {
-    const std::filesystem::path root = desc.data_root / "Interface";
-    const gui::DiskSource files(root, kPhone);
-    gui::GuiSources sources;
-    sources.files = &files;
-    auto opened = gui::GuiLoader::open(sources);
-    if (!opened) {
-        constexpr const char* kNoUi = "không mở được giao diện";
-        const auto& reason = opened.error();
-        return core::fail(core::ErrorCode::kInvalidArgument, kNoUi, reason);
-    }
-    auto state = std::make_unique<State>(std::move(*opened), pass, desc.data_root);
-    const auto added = add_layouts(state->loader);
-    if (!added) {
-        constexpr const char* kNoLayout = "không nạp được layout";
-        const auto& reason = added.error();
-        return core::fail(core::ErrorCode::kInvalidArgument, kNoLayout, reason);
-    }
-    state->strings = strings_of(desc.data_root);
-    state->scene_names = scene_names(desc.data_root);
-    state->open_portraits(desc.data_root);
-    state->open_servers(desc.data_root);
-    state->open_scenes(desc.data_root);
-    state->open_font(root);
+    return open(pass, desc, HudPrep::start(desc));
+}
+
+core::Result<Hud> Hud::open(render::UiPass& pass, const HudDesc& desc, HudPrep prep) {
+    core::Result<Prepared> ready = prep.work_->done.get();
+    if (!ready) return std::unexpected(ready.error());
+    auto state = std::make_unique<State>(*ready, pass, desc.data_root);
+    state->seat_fonts(*ready);
     state->hub = std::make_unique<gui::Hub>(state->loader.asset());
     for (const std::string& note : state->loader.notes()) {
         std::println(stderr, "Giao diện: {}", note);

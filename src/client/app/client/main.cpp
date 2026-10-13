@@ -14,6 +14,7 @@
 #include "client/stage/stage.hpp"
 #include "client/viewer/viewer.hpp"
 #include "client/world/world.hpp"
+#include "client/timeline.hpp"
 #include "control/char_camera.hpp"
 #include "control/login_view.hpp"
 #include "io/file.hpp"
@@ -200,8 +201,10 @@ void print_visit(const world::ShownScene& shown) {
 
 // Phần của ViewerDesc lấy từ tuỳ chọn dòng lệnh, chung cho mọi cách mở cửa sổ; tiêu đề là tên
 // game, nơi gọi nối thêm tên cảnh.
-[[nodiscard]] client::ViewerDesc viewer_of(const client::Options& options) {
+[[nodiscard]] client::ViewerDesc viewer_of(const client::Options& options,
+    std::shared_ptr<client::DisplayPreload> preload) {
     client::ViewerDesc viewer;
+    viewer.preload = std::move(preload);
     viewer.title = std::string(client::kGameTitle);
     viewer.frames = options.frames;
     viewer.data_folder = data_folder_of(options);
@@ -256,7 +259,7 @@ void report_named(const client::NamedScene& named, std::string_view label) {
 // Thủ tục đăng nhập: bảng nhập tài khoản trên cảnh nền của client 2026 (control::kLoginScene), nhìn
 // bằng camera cố định của màn đăng nhập. Thiếu dữ liệu cảnh thì báo một dòng, bảng hiện trên nền
 // trống. Nút vào game đưa sang màn chơi ở cảnh mà --scene, --scene-id hay Config/startup.id nêu.
-[[nodiscard]] int run_login(const client::Options& options) {
+[[nodiscard]] int run_login(const client::Options& options, std::shared_ptr<client::DisplayPreload> preload) {
     const Path data_root = data_folder_of(options);
     // Nạp dần ở luồng vẽ, cùng đường với Android và iOS (client/boot). Đưa thẳng stage thì khung
     // đầu đứng yên đến khi hết mesh (đo 2026-10-08: 2,2 giây).
@@ -267,7 +270,7 @@ void report_named(const client::NamedScene& named, std::string_view label) {
         client::load_named_scene(data_root, game::control::kRoleScene, client::kRoleSceneId);
     report_named(roles, "Nền chọn nhân vật: ");
     std::optional<world::World> playing = book_world(data_root);
-    client::ViewerDesc viewer = viewer_of(options);
+    client::ViewerDesc viewer = viewer_of(options, std::move(preload));
     viewer.procedure = client::Procedure::kLogin;
     viewer.backdrop = backdrop.shown;
     viewer.role_scene = roles.shown;
@@ -277,7 +280,8 @@ void report_named(const client::NamedScene& named, std::string_view label) {
     return client::run_viewer(viewer);
 }
 
-[[nodiscard]] int run_book(const client::Options& options, std::string_view table) {
+[[nodiscard]] int run_book(const client::Options& options, std::string_view table,
+    std::shared_ptr<client::DisplayPreload> preload) {
     const std::filesystem::path data_root = data_folder_of(options);
     const std::filesystem::path folder = data_root / "Scene";
     std::expected<world::World, game::client::map::BookError> opened = world::open_world(table);
@@ -304,7 +308,8 @@ void report_named(const client::NamedScene& named, std::string_view label) {
     const world::ShownScene& shown = *playing.current;
     print_visit(shown);
     std::println("Vào cảnh resid {} ({})", shown.id, shown.scene_file);
-    client::ViewerDesc viewer = viewer_of(options);
+    client::mark("cảnh đã đọc (world::enter)");
+    client::ViewerDesc viewer = viewer_of(options, std::move(preload));
     viewer.title += " — " + shown.name;
     viewer.stage = &shown.stage;
     viewer.ground = shown.ground ? &*shown.ground : nullptr;
@@ -318,10 +323,11 @@ void report_named(const client::NamedScene& named, std::string_view label) {
 }
 
 [[nodiscard]] int run(const client::Options& options) {
-    if (options.is_login || !asked_scene(options)) return run_login(options);
     const std::filesystem::path data_root = data_folder_of(options);
+    auto preload = std::make_shared<client::DisplayPreload>(data_root, options.backend);
+    if (options.is_login || !asked_scene(options)) return run_login(options, std::move(preload));
     const io::TextResult table = io::read_text(data_root / "Config" / "SceneDefineEx.txt");
-    if (table) return run_book(options, *table);
+    if (table) return run_book(options, *table, std::move(preload));
     const std::filesystem::path folder = data_root / "Scene";
     const SceneNames available = scene_names(folder);
     const std::optional<std::string> chosen = client::choose_scene(options.scene_name, available);
@@ -342,7 +348,7 @@ void report_named(const client::NamedScene& named, std::string_view label) {
     shown->ground = std::move(opened->ground);
     shown->scene = std::move(opened->file);
     world::attach_buildings(shown->buildings, folder, shown->scene_file);
-    client::ViewerDesc viewer = viewer_of(options);
+    client::ViewerDesc viewer = viewer_of(options, std::move(preload));
     viewer.title += " — " + *chosen;
     viewer.backdrop = std::move(shown);
     viewer.stage = &viewer.backdrop->stage;
@@ -352,6 +358,7 @@ void report_named(const client::NamedScene& named, std::string_view label) {
 
 [[nodiscard]] int start(std::span<char* const> arguments) {
     io::use_utf8_console();
+    client::mark("main bắt đầu");
     // Bỏ tên exe ở đầu; hệ điều hành được phép chạy một tiến trình không có đối số nào.
     const std::span<char* const> rest = arguments.subspan(arguments.empty() ? 0 : 1);
     const std::vector<std::string_view> texts(rest.begin(), rest.end());

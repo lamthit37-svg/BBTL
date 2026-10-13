@@ -59,6 +59,11 @@ private:
     std::size_t count_ = 0;
 };
 
+// Thời gian từ lúc hệ điều hành tạo tiến trình tới giờ. Mốc nạp ghi bằng đồng hồ này so thẳng được với số đo từ
+// ngoài (TOOLS/run/launch_timeline.py) và với client khác. Windows: GetProcessTimes; nền tảng khác: tính từ
+// lúc thư viện core nạp, vài ms sau exec.
+[[nodiscard]] std::chrono::microseconds process_age() noexcept;
+
 // Giây dạng float cho vòng lặp khung hình (getHiresTimerSeconds của _Ref).
 [[nodiscard]] inline float seconds(Clock::duration span) noexcept {
     return std::chrono::duration<float>(span).count();

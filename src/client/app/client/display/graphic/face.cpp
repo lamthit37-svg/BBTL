@@ -20,7 +20,10 @@ void Display::State::open_hud(const DisplayDesc& desc) {
     ui_pass = std::make_unique<render::UiPass>(std::move(*made));
     ui::HudDesc hud_desc;
     hud_desc.data_root = desc.data_root;
-    core::Result<ui::Hud> opened = ui::Hud::open(*ui_pass, hud_desc);
+    // Phần đọc đĩa đã chạy từ trước thiết bị (kick_loading); chưa có thì Hud::open tự bắt đầu.
+    core::Result<ui::Hud> opened = hud_prep ? ui::Hud::open(*ui_pass, hud_desc, std::move(*hud_prep))
+                                            : ui::Hud::open(*ui_pass, hud_desc);
+    hud_prep.reset();
     if (!opened) {
         std::println(stderr, "Giao diện: bỏ qua, không mở được dữ liệu: {}", opened.error());
         return;
@@ -41,6 +44,22 @@ void Display::State::open_hud(const DisplayDesc& desc) {
     pace_texture = *texture;
 }
 
+void Display::State::kick_loading(const DisplayDesc& desc) {
+    if (feeder || desc.data_root.empty()) return;
+    hud_prep = take_early_hud(desc);
+    if (!hud_prep) {
+        ui::HudDesc hud_desc;
+        hud_desc.data_root = desc.data_root;
+        hud_prep.emplace(ui::HudPrep::start(hud_desc));
+    }
+    // Cảnh đầu: lập bảng mesh rồi giao luồng đọc ngay. arm_scene chỉ còn dựng pipeline của cảnh (warm_scene) và
+    // phần dựng GPU; mesh đọc xong trong lúc thiết bị còn đang tạo.
+    held = desc.scene;
+    data_root = desc.data_root;
+    feeder = std::make_unique<Feed>();
+    if (held) post_load(held, false);
+}
+
 void Display::State::arm_scene(const DisplayDesc& desc) {
     held = desc.scene;
     role_scene = desc.role_scene;
@@ -53,7 +72,7 @@ void Display::State::arm_scene(const DisplayDesc& desc) {
     shot_path = desc.shot_path;
     is_bare = desc.is_bare;
     procedure = desc.procedure;
-    feeder = std::make_unique<Feed>();
+    if (!feeder) feeder = std::make_unique<Feed>();
     if (!held) {
         stage = desc.stage;
         ground = desc.ground;
@@ -65,7 +84,9 @@ void Display::State::arm_scene(const DisplayDesc& desc) {
     // mốc tụt về 0 ở khung thật đầu tiên.
     started = core::Clock::now();
     // Nướng địa hình bắt đầu trước khi dựng giao diện và người chơi, để ba việc chạy cùng lúc.
-    if (held) begin_load(held);
+    // Lượt đọc của cảnh đầu đã giao ở kick_loading: ở đây chỉ còn pipeline và hiệu ứng của cảnh.
+    if (held && arrival.has_value()) warm_scene();
+    if (held && !arrival.has_value()) begin_load(held);
     if (!held && stage != nullptr) warm_scene();
     // Màn đăng nhập chưa có nhân vật nào: không nạp mô hình. Sổ và danh sách tạo đọc trước khung đầu.
     if (desc.restored.has) apply_kept(desc.restored);

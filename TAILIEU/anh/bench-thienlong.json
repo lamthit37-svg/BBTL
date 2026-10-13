@@ -1,0 +1,88 @@
+{
+  "nhãn": "THIENLONG dev (PC, Vulkan, Đại Lý resid 2)",
+  "lệnh": [
+    "D:\\THIENLONG\\dev\\client\\bin\\thienlong_client.exe",
+    "--scene-id",
+    "2",
+    "--size",
+    "1280x720",
+    "--frames",
+    "60"
+  ],
+  "từng lượt": [
+    {
+      "mốc: cảnh nạp xong": 362.1,
+      "mốc: khung đầu đã trình": 397.6
+    },
+    {
+      "mốc: cảnh nạp xong": 356.4,
+      "mốc: khung đầu đã trình": 392.4
+    },
+    {
+      "mốc: cảnh nạp xong": 361.1,
+      "mốc: khung đầu đã trình": 398.2
+    },
+    {
+      "mốc: cảnh nạp xong": 348.1,
+      "mốc: khung đầu đã trình": 383.8
+    },
+    {
+      "mốc: cảnh nạp xong": 345.1,
+      "mốc: khung đầu đã trình": 379.6
+    },
+    {
+      "mốc: cảnh nạp xong": 349.3,
+      "mốc: khung đầu đã trình": 385.5
+    },
+    {
+      "mốc: cảnh nạp xong": 352.3,
+      "mốc: khung đầu đã trình": 387.8
+    },
+    {
+      "mốc: cảnh nạp xong": 384.1,
+      "mốc: khung đầu đã trình": 420.0
+    },
+    {
+      "mốc: cảnh nạp xong": 351.3,
+      "mốc: khung đầu đã trình": 386.1
+    },
+    {
+      "mốc: cảnh nạp xong": 355.4,
+      "mốc: khung đầu đã trình": 392.1
+    },
+    {
+      "mốc: cảnh nạp xong": 350.8,
+      "mốc: khung đầu đã trình": 385.3
+    },
+    {
+      "mốc: cảnh nạp xong": 351.5,
+      "mốc: khung đầu đã trình": 387.5
+    },
+    {
+      "mốc: cảnh nạp xong": 341.4,
+      "mốc: khung đầu đã trình": 377.5
+    },
+    {
+      "mốc: cảnh nạp xong": 352.4,
+      "mốc: khung đầu đã trình": 387.3
+    },
+    {
+      "mốc: cảnh nạp xong": 353.3,
+      "mốc: khung đầu đã trình": 387.4
+    }
+  ],
+  "tóm tắt": {
+    "mốc: cảnh nạp xong": {
+      "n": 15,
+      "trung vị": 352.3,
+      "nhỏ nhất": 341.4,
+      "lớn nhất": 384.1
+    },
+    "mốc: khung đầu đã trình": {
+      "n": 15,
+      "trung vị": 387.4,
+      "nhỏ nhất": 377.5,
+      "lớn nhất": 420.0
+    }
+  }
+}

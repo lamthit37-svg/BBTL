@@ -97,10 +97,33 @@ struct RunTo {
 // Bảng tên cảnh của ngôn ngữ đang dựng. Thiếu tệp thì bảng rỗng và tên trả nguyên.
 [[nodiscard]] gui::StringBook scene_names(const std::filesystem::path& data_root);
 
+// Phần của Hud::open không cần thiết bị GPU: đọc đĩa và phân tích (bộ nạp giao diện, 40 layout, bảng chuỗi,
+// bảng cảnh, bảng chân dung, dữ liệu hai phông). Chạy ở luồng riêng ngay khi start gọi, để trùng với việc tạo thiết bị
+// GPU và nạp cảnh thay vì nối đuôi chúng; Hud::open nhận kết quả (chờ nếu chưa xong) rồi chỉ còn đưa phông lên GPU.
+// Huỷ HudPrep khi chưa dùng thì chờ luồng đọc xong.
+class HudPrep {
+public:
+    [[nodiscard]] static HudPrep start(const HudDesc& desc);
+
+    HudPrep(HudPrep&&) noexcept;
+    HudPrep& operator=(HudPrep&&) noexcept;
+    HudPrep(const HudPrep&) = delete;
+    HudPrep& operator=(const HudPrep&) = delete;
+    ~HudPrep();
+
+private:
+    struct Work;
+    explicit HudPrep(std::unique_ptr<Work> work) noexcept;
+    std::unique_ptr<Work> work_;
+    friend class Hud;
+};
+
 class Hud {
 public:
     // Lỗi khi thiếu scheme, looknfeel, imageset hay layout của HUD. pass phải sống lâu hơn Hud.
     [[nodiscard]] static core::Result<Hud> open(render::UiPass& pass, const HudDesc& desc);
+    // Như trên, nhưng dùng phần đọc đĩa đã bắt đầu từ trước (HudPrep::start với cùng desc).
+    [[nodiscard]] static core::Result<Hud> open(render::UiPass& pass, const HudDesc& desc, HudPrep prep);
 
     Hud(Hud&&) noexcept;
     Hud& operator=(Hud&&) noexcept;

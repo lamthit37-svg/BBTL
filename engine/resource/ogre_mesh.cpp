@@ -21,8 +21,10 @@
 #include <cstdint>
 #include <cstring>
 #include <limits>
+#include <memory>
 #include <mutex>
 #include <string>
+#include <unordered_map>
 #include <utility>
 #include <vector>
 
@@ -547,13 +549,9 @@ void set_field(std::string& field, std::string value) {
     return lower || upper;
 }
 
-[[nodiscard]] const MaterialRules& rules_of(std::string_view root) {
-    static MaterialRules rules;
-    static std::string loaded;
-    const std::string key(root);
-    if (loaded == key) return rules;
-    loaded = key;
-    rules.clear();
+// Đọc all.material của root thành danh sách luật theo thứ tự khai báo. Thiếu tệp thì danh sách rỗng.
+[[nodiscard]] MaterialRules parse_rules(std::string_view root) {
+    MaterialRules rules;
     const std::string path = fs::join(fs::join(root, "Material"), "all.material");
     auto bytes = fs::read_file(path);
     if (!bytes) return rules;
@@ -616,6 +614,33 @@ void set_field(std::string& field, std::string value) {
     return rules;
 }
 
+// Bảng luật của một root đã phân tích, bất biến sau khi dựng nên nhiều luồng đọc mesh tra cùng lúc không cần khoá.
+// index trỏ tên chất liệu tới luật khai sau cùng cùng tên (đúng ý của vòng quét tuần tự trước đây: khai sau thắng).
+struct MaterialTable {
+    MaterialRules rules;
+    std::unordered_map<std::string, std::size_t> index;
+};
+
+// Bảng của root; dựng một lần cho mỗi root (đổi root thì dựng lại). Khoá chỉ bao việc dựng và lấy con trỏ, không
+// bao việc tra: all.material có hàng nghìn luật, và tra tuần tự dưới một khoá chung đã làm 19 luồng đọc mesh đứng
+// xếp hàng (đo 2026-10-13: 310 mesh của Đại Lý tốn 10 giây CPU cộng dồn trong load_named_model).
+[[nodiscard]] std::shared_ptr<const MaterialTable> table_of(std::string_view root) {
+    static std::mutex gate;
+    static std::string loaded;
+    static std::shared_ptr<const MaterialTable> table;
+    const std::scoped_lock<std::mutex> lock(gate);
+    if (table && loaded == root) return table;
+    auto built = std::make_shared<MaterialTable>();
+    built->rules = parse_rules(root);
+    built->index.reserve(built->rules.size());
+    for (std::size_t position = 0; position < built->rules.size(); ++position) {
+        built->index.insert_or_assign(built->rules[position].first, position);
+    }
+    loaded = std::string(root);
+    table = std::move(built);
+    return table;
+}
+
 [[nodiscard]] bool is_plain_blend(std::string_view blend) noexcept {
     return blend.empty() || blend == "replace" || blend == "one zero";
 }
@@ -672,18 +697,14 @@ void paint_rule(MaterialLook& look, const MaterialRule& rule) {
 [[nodiscard]] MaterialLook look_of(std::string_view root, const std::string& material, const std::string& alias) {
     MaterialLook look;
     if (!root.empty() && !material.empty()) {
-        static std::mutex gate;
-        const std::lock_guard<std::mutex> lock(gate);
-        const MaterialRules& rules = rules_of(root);
+        const std::shared_ptr<const MaterialTable> table = table_of(root);
         const MaterialRule* chain[8] = {};
         int count = 0;
         std::string name = material;
         while (count < 8 && !name.empty()) {
-            const MaterialRule* rule = nullptr;
-            for (const auto& item : rules) {
-                if (item.first == name) rule = &item.second;
-            }
-            if (rule == nullptr) break;
+            const auto found = table->index.find(name);
+            if (found == table->index.end()) break;
+            const MaterialRule* rule = &table->rules[found->second].second;
             chain[count] = rule;
             ++count;
             name = rule->parent;

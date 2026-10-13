@@ -23,6 +23,7 @@ thư mục này. Tài liệu cũ ở `docs/` giữ nguyên chỗ (xem chỉ mụ
 | `DANG-NHAP-GOC.md` | Máy trạng thái thủ tục Login → CharSel → CharCreate → ChangeScene → Enter → Main, đo từ mã máy; việc đã nối vào client và việc còn thiếu |
 | `MAY-CHU-SUY-RA.md` | Suy ra cho máy chủ: chuỗi gói tin đăng nhập gốc, mã kết quả, dữ liệu mỗi bước cần, đối chiếu với protocol của dự án |
 | `GOI-TIN-DANG-NHAP.md` | Trường của từng gói tin đăng nhập (sinh bằng `TOOLS\port\ghidra\packet_fields.py`) |
+| `TOC-DO-NAP-SO-VOI-TLBB.md` | Tốc độ nạp cảnh Đại Lý cùng giao diện: THIENLONG so với client G:\TLBB, cách đo, số từng lượt, ảnh bằng chứng (`anh/`), đường nạp mới và đo trước sau |
 | `MAN-CHOI-GIAO-DIEN-2026.md` | Giao diện màn chơi: con trỏ trong exe, bản đồ lớn và bản đồ thế giới (FalagardSceneMap, FalagardWorldMap), hòm đồ và ô tiền, xoay người mẫu, phông có dấu Việt, nướng mặt đất, thư viện hiệu ứng |
 | `SU-KIEN-GAME.tsv` | Bảng id sự kiện giao diện (651 dòng): `PushEvent(id)` trong Game.exe ↔ tên mà script Lua đăng ký |
 | `ghidra\*.txt` | Bản decompile thô làm bằng chứng (đọc kèm địa chỉ trong các tài liệu) |

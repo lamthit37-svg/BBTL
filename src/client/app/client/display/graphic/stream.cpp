@@ -61,6 +61,10 @@ void Display::State::promote_prefetch(Arrival& loading) {
 void Display::State::begin_load(std::shared_ptr<const world::ShownScene> next, bool prefetch) {
     // Tầng 2: hiệu ứng và pipeline theo cảnh, prefetch trước khi cảnh xuất hiện.
     if (!prefetch) warm_scene();
+    post_load(std::move(next), prefetch);
+}
+
+void Display::State::post_load(std::shared_ptr<const world::ShownScene> next, bool prefetch) {
     if (!next) {
         clear_shown();
         return;
@@ -179,6 +183,7 @@ void Display::State::finish_stream() {
     const std::string loaded = "Nạp cảnh resid " + std::to_string(id) + " xong trong " + millis_text;
     const std::string loaded_tail = " ms, " + meshes_text + " mesh nhớ, " + props_text + " vật thể";
     std::println("{}", loaded + loaded_tail);
+    mark("cảnh nạp xong (mọi mesh đã đặt)");
     const std::string ground_ms = std::format("{:.1f}", arrival->ground_ms);
     const std::string seat_ms = std::format("{:.1f}", arrival->seat_ms);
     const std::string stall_ms = std::format("{:.1f}", arrival->stall_ms);
@@ -261,6 +266,26 @@ void Display::State::pump_load() {
     }
     if (loading.cursor < loading.table.meshes.size()) return;
     finish_stream();
+}
+
+void Display::State::settle_first_scene(const std::stop_token& stop) {
+    constexpr std::chrono::microseconds kWaitPause{100};
+    // Chỉ lượt nạp thật; lượt prefetch cảnh chọn nhân vật (finish_stream đặt sau cảnh nền) chạy dần như cũ.
+    while (arrival.has_value() && !arrival->prefetch && !stop.stop_requested()) {
+        Arrival& loading = arrival.value();
+        open_ground(loading);
+        if (!loading.ground_done) {
+            core::sleep_for(kWaitPause);
+            continue;
+        }
+        while (loading.cursor < loading.table.meshes.size() && !stop.stop_requested()) {
+            if (!step_mesh(loading)) core::sleep_for(kWaitPause);
+        }
+        if (loading.cursor >= loading.table.meshes.size()) finish_stream();
+    }
+    // Trời và nước dựng ở khung đầu cũng là việc nạp: để chúng sau khung đầu là một cú khựng hơn nửa giây.
+    ensure_sky();
+    ensure_water();
 }
 
 std::vector<std::size_t> Display::State::load_listed(const PropTable& table) {

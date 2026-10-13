@@ -9,6 +9,7 @@
 
 #include <chrono>
 #include <cstdint>
+#include <filesystem>
 #include <memory>
 #include <optional>
 #include <span>
@@ -32,6 +33,13 @@ Display::Display(std::unique_ptr<State> state) noexcept : state_(std::move(state
 Display::Display(Display&&) noexcept = default;
 Display& Display::operator=(Display&&) noexcept = default;
 Display::~Display() = default;
+
+struct DisplayPreload::Work {};
+
+DisplayPreload::DisplayPreload(const std::filesystem::path& /*data_root*/, const std::optional<std::string>& /*backend*/) {}
+DisplayPreload::DisplayPreload(DisplayPreload&&) noexcept = default;
+DisplayPreload& DisplayPreload::operator=(DisplayPreload&&) noexcept = default;
+DisplayPreload::~DisplayPreload() = default;
 
 core::Result<Display> Display::create(const DisplayDesc& /*desc*/) {
     return Display(std::make_unique<State>());

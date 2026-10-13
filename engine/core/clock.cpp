@@ -302,4 +302,35 @@ std::uint32_t FixedStep::start(Clock::time_point now) noexcept {
     return 0;
 }
 
+namespace {
+
+#if !defined(_WIN32)
+// Ngoài Windows không có API rẻ đọc mốc tạo tiến trình: lấy lúc thư viện core nạp, vài ms sau exec.
+const Clock::time_point kLoadedAt = Clock::now();
+#endif
+
+} // namespace
+
+std::chrono::microseconds process_age() noexcept {
+#if defined(_WIN32)
+    FILETIME created{};
+    FILETIME exited{};
+    FILETIME kernel{};
+    FILETIME user{};
+    FILETIME now{};
+    if (GetProcessTimes(GetCurrentProcess(), &created, &exited, &kernel, &user) == 0) return std::chrono::microseconds::zero();
+    GetSystemTimePreciseAsFileTime(&now);
+    const auto ticks_of = [](const FILETIME& stamp) {
+        return (static_cast<std::uint64_t>(stamp.dwHighDateTime) << 32U) | stamp.dwLowDateTime;
+    };
+    const std::uint64_t born = ticks_of(created);
+    const std::uint64_t seen = ticks_of(now);
+    // FILETIME đếm bước 100 ns.
+    if (seen < born) return std::chrono::microseconds::zero();
+    return std::chrono::microseconds((seen - born) / 10U);
+#else
+    return std::chrono::duration_cast<std::chrono::microseconds>(Clock::now() - kLoadedAt);
+#endif
+}
+
 } // namespace game::core
