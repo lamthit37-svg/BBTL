@@ -4,8 +4,17 @@ if(GAME_SANITIZE STREQUAL "")
     return()
 endif()
 # Khác mẫu: sanitizer của dự án chạy bằng Clang hoặc GCC; cl của MSVC không dùng các cờ dưới.
+# cl of MSVC supports AddressSanitizer only (/fsanitize=address); UBSan/TSan need Clang or GCC.
+# /Zi gives ASan symbolized stacks; /RTC* and incremental linking are incompatible with ASan.
 if(CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
-    message(FATAL_ERROR "GAME_SANITIZE cần Clang hoặc GCC (preset clang-asan)")
+    if(NOT GAME_SANITIZE STREQUAL "address")
+        message(FATAL_ERROR "cl only supports GAME_SANITIZE=address; use preset clang-asan for UBSan/TSan")
+    endif()
+    string(REGEX REPLACE "/RTC[1csu]+" "" CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG}")
+    string(REGEX REPLACE "/RTC[1csu]+" "" CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG}")
+    add_compile_options(/fsanitize=address /Zi)
+    add_link_options(/INCREMENTAL:NO /DEBUG)
+    return()
 endif()
 if(GAME_SANITIZE MATCHES "thread" AND GAME_SANITIZE MATCHES "address")
     message(FATAL_ERROR "TSan và ASan không dùng chung một bản build")

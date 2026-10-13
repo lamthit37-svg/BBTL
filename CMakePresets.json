@@ -141,6 +141,18 @@
       }
     },
     {
+      "name": "msvc-asan",
+      "inherits": [
+        "base",
+        "msvc",
+        "vcpkg"
+      ],
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "RelWithDebInfo",
+        "GAME_SANITIZE": "address"
+      }
+    },
+    {
       "name": "msvc-release",
       "inherits": [
         "base",
@@ -235,6 +247,10 @@
       "configurePreset": "msvc-debug"
     },
     {
+      "name": "msvc-asan",
+      "configurePreset": "msvc-asan"
+    },
+    {
       "name": "msvc-release",
       "configurePreset": "msvc-release"
     },
@@ -318,6 +334,17 @@
       "configurePreset": "msvc-debug",
       "output": {
         "outputOnFailure": true
+      }
+    },
+    {
+      "name": "msvc-asan",
+      "configurePreset": "msvc-asan",
+      "output": {
+        "outputOnFailure": true
+      },
+      "environment": {
+        "PATH": "$env{VCToolsInstallDir}bin/Hostx64/x64;$penv{PATH}",
+        "ASAN_OPTIONS": "halt_on_error=1:detect_leaks=0:windows_hook_rtl_allocators=true"
       }
     },
     {
