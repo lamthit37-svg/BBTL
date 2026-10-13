@@ -3,7 +3,7 @@
 Nguồn: `xreview_head_msvc-release_build_ctest.log` (19:11, 69/84) và `9d2b4c5_msvc-asan_build_ctest.log`
 (19:18, 69/84, `ctest --preset msvc-asan -E ^audio_tests$ -V`). Hai lần chạy có **đúng cùng 15 bài đỏ**.
 Không có báo cáo `ERROR: AddressSanitizer` nào, nhưng điều đó chỉ đúng cho **69 bài đã chạy xong**: 6 bài Not Run
-không được ASan kiểm, và 8 bài 0xc0000409 dừng giữa chừng sau ca đỏ đầu tiên của `main`.
+không được ASan kiểm, và 8 bài 0xc0000409 abort ở cuối main sau khi đã chạy hết các ca (`core::check` abort ở cuối `main`).
 
 Lưu ý: cây `build/xr` là worktree sạch, **không có thư mục `dev/`** (dữ liệu không theo dõi bởi git), nên các bài
 cần dữ liệu thật được đánh dấu "nghi thiếu dữ liệu"; chưa chạy lại với `dev/` đủ.
