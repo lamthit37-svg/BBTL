@@ -1,0 +1,23 @@
+UpdateCTestConfiguration  from :D:/THIENLONG/build/msvc-release/DartConfiguration.tcl
+Test project D:/THIENLONG/build/msvc-release
+Constructing a list of tests
+Done constructing a list of tests
+Updating test list for fixtures
+Added 0 tests to meet fixture requirements
+Checking test dependency graph...
+Checking test dependency graph end
+test 71
+    Start 71: config_tests
+
+71: Test command: D:\THIENLONG\build\msvc-release\config_tests.exe
+71: Working Directory: D:/THIENLONG/build/msvc-release
+71: Test timeout computed to be: 10000000
+1/1 Test #71: config_tests .....................   Passed    0.01 sec
+
+The following tests passed:
+	config_tests
+
+100% tests passed out of 1
+
+Total Test time (real) =   0.01 sec
+CTEST_EXIT 0 

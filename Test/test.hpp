@@ -42,8 +42,15 @@ struct Case {
     Context context;
     for (const Case& one : cases) {
         context.begin(one.name);
+        const std::int32_t before = context.failures();
         one.body(context);
+        const std::int32_t failed = context.failures() - before;
+        // Một dòng mỗi ca để ctest và người kiểm thấy ca nào đã chạy, kể cả khi đạt.
+        // NOLINTNEXTLINE(cppcoreguidelines-pro-type-vararg)
+        static_cast<void>(std::fprintf(stdout, "[ca] %.*s: %s (%ld kỳ vọng sai)\n", static_cast<int>(one.name.size()),
+            one.name.data(), failed == 0 ? "đạt" : "ĐỎ", static_cast<long>(failed)));
     }
+    static_cast<void>(std::fflush(stdout));
     return context.failures();
 }
 
