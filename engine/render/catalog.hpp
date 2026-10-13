@@ -51,8 +51,9 @@ enum class Tier : std::uint8_t { kBootstrap, kEssential, kScene, kOptional };
     return caps.mesh_shader || caps.ray_query;
 }
 
-// Bảy PSO đang có. Bốn ô model trùng bit chất liệu: bit 0 hai mặt, bit 1 trộn alpha.
+// Tám PSO đang có. Bốn ô model trùng bit chất liệu: bit 0 hai mặt, bit 1 trộn alpha.
 // kFxBlend dùng cùng shader với kFx; khác ở hệ số trộn src_alpha / one_minus_src_alpha.
+// kTerrain là mặt đất lớp cọ: đỉnh của model, điểm ảnh của terrain.ps; đục, hai mặt.
 enum class Pso : std::uint8_t {
     kModelOpaque = 0,
     kModelTwoSided = 1,
@@ -61,6 +62,7 @@ enum class Pso : std::uint8_t {
     kUi = 4,
     kFx = 5,
     kFxBlend = 6,
+    kTerrain = 7,
 };
 
 inline constexpr std::uint32_t kModelTwoSided = 1;
@@ -69,8 +71,8 @@ inline constexpr std::uint32_t kModelBlended = 2;
 inline constexpr std::uint32_t kModelFrameBytes = 1344;
 inline constexpr std::uint32_t kModelDrawBytes = gpu::kMaxPushBytes;
 inline constexpr std::size_t kModelVariants = 4;
-inline constexpr std::size_t kPackageCount = 6;
-inline constexpr std::size_t kSlotCount = 7;
+inline constexpr std::size_t kPackageCount = 7;
+inline constexpr std::size_t kSlotCount = 8;
 
 // Bố cục đỉnh hạt. fx_view giữ struct cùng các số này; catalog dựng pipeline theo chúng.
 inline constexpr std::uint32_t kFxStride = 36;
@@ -79,11 +81,11 @@ inline constexpr std::uint32_t kFxColour = 20;
 
 // Mọi gói .f2s catalog có thể nạp. Hash cache đĩa đi theo danh sách này, mỗi tên một lần.
 inline constexpr std::array<std::string_view, kPackageCount> kPackageNames{
-    "model.vs", "model.ps", "ui.vs", "ui.ps", "fx.vs", "fx.ps"};
+    "model.vs", "model.ps", "ui.vs", "ui.ps", "fx.vs", "fx.ps", "terrain.ps"};
 
 // Một dòng của bảng. is_required: thiếu PSO ấy thì prepare của tầng trả lỗi.
 // frame_bytes và draw_bytes là cỡ khối hằng mà mã ghi. 0 nghĩa là không kiểm khối đó.
-// Mọi dòng cùng vertex dùng một lần nạp, nên phải cùng pixel và cùng hai cỡ.
+// Mọi dòng cùng cặp (vertex, pixel) dùng một lần nạp, nên phải cùng hai cỡ.
 struct Entry {
     std::string_view name;
     Group group = Group::kWorld;
@@ -155,19 +157,28 @@ inline constexpr std::array<Entry, kSlotCount> kEntries{{
         .vertex = "fx.vs",
         .pixel = "fx.ps",
         .is_required = false},
+    {.name = "render.terrain",
+        .group = Group::kWorld,
+        .tier = Tier::kEssential,
+        .pso = Pso::kTerrain,
+        .vertex = "model.vs",
+        .pixel = "terrain.ps",
+        .is_required = false,
+        .frame_bytes = kModelFrameBytes,
+        .draw_bytes = kModelDrawBytes},
 }};
 
 static_assert(std::to_underlying(Pso::kModelTwoSided) == kModelTwoSided);
 static_assert(std::to_underlying(Pso::kModelBlend) == kModelBlended);
 static_assert(std::to_underlying(Pso::kModelBlendTwoSided) == (kModelTwoSided | kModelBlended));
 
-// Cùng tên vertex là một lần nạp. Lệch pixel hoặc cỡ khối thì gói sau bị kiểm bằng cỡ của dòng đầu.
+// Cùng cặp (vertex, pixel) là một lần nạp, nên hai cỡ khối hằng phải trùng nhau.
 [[nodiscard]] constexpr bool same_family(const Entry& left, const Entry& right) noexcept {
-    if (left.vertex != right.vertex) return true;
-    const bool same_pixel = left.pixel == right.pixel;
+    const bool is_same_pair = left.vertex == right.vertex && left.pixel == right.pixel;
+    if (!is_same_pair) return true;
     const bool same_frame = left.frame_bytes == right.frame_bytes;
     const bool same_draw = left.draw_bytes == right.draw_bytes;
-    return same_pixel && same_frame && same_draw;
+    return same_frame && same_draw;
 }
 
 [[nodiscard]] constexpr bool row_family_agrees(const Entry& left) noexcept {
@@ -232,10 +243,9 @@ private:
     [[nodiscard]] SlotState& state_of(Pso pso) noexcept;
     [[nodiscard]] const SlotState& state_of(Pso pso) const noexcept;
     [[nodiscard]] bool tier_pending(Tier tier) const noexcept;
-    [[nodiscard]] bool tier_has(Tier tier, std::string_view vertex) const noexcept;
+    [[nodiscard]] bool tier_has(Tier tier, const Entry& pair) const noexcept;
     void warm_tier(Tier tier, std::uint32_t& created, std::optional<core::Error>& required);
-    void warm_family(Tier tier, std::string_view vertex, std::string_view pixel, std::uint32_t frame_bytes,
-        std::uint32_t draw_bytes, std::uint32_t& created, std::optional<core::Error>& required);
+    void warm_family(Tier tier, const Entry& pair, std::uint32_t& created, std::optional<core::Error>& required);
     void take_loaded(const Entry& entry, std::span<const gpu::ShaderHandle> shaders, const core::Status& loaded,
         std::uint32_t& created, std::optional<core::Error>& required);
     [[nodiscard]] core::Result<gpu::PipelineHandle> build(const Entry& entry,

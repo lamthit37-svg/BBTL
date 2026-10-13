@@ -15,6 +15,7 @@
 #include <ranges>
 #include <span>
 #include <utility>
+#include <variant>
 #include <vector>
 
 namespace game::gpu::gles {
@@ -463,6 +464,12 @@ void GlCommands::bind_entry(
     const BindSlot* slot = find_slot(pipeline.bindings, space, binding.type, binding.slot);
     if (slot == nullptr) return;
     bind_slot(*slot, binding.resource);
+    // Texture chỉ đọc bằng Load (D3D) hay texelFetch (GL) không có sampler trong shader. Sampler của lượt vẽ trước
+    // còn gắn ở unit này; nếu nó lọc theo mip mà texture chỉ có mức 0 hoặc khác kích cỡ thì texture thành "không
+    // hoàn chỉnh" và đọc ra số 0. Nhả sampler để unit dùng tham số của chính texture.
+    const bool is_texture = std::holds_alternative<TextureViewHandle>(binding.resource);
+    const bool has_sampler = find_slot(pipeline.bindings, space, shader::RegisterType::kSampler, binding.slot) != nullptr;
+    if (is_texture && !has_sampler) bind_sampler_once(*device_, slot->index, 0);
 }
 
 void GlCommands::bind_slot(const BindSlot& slot, const Bound& resource) {

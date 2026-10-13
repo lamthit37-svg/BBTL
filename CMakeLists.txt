@@ -521,7 +521,7 @@ game_module(client_map
     src/client/app/client/map/terrain.cpp
     src/client/app/client/map/samples.cpp
     src/client/app/client/map/picture.cpp
-    src/client/app/client/map/surface.cpp
+    src/client/app/client/map/splat.cpp
     src/client/app/client/map/liquid.cpp
     src/client/app/client/map/sheet.cpp
     src/client/app/client/map/ground.cpp

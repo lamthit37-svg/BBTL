@@ -75,9 +75,15 @@ void note_required(const Entry& entry, const core::Error& error, std::optional<c
     required = error;
 }
 
+// Bit chất liệu của PSO model; địa hình là đục hai mặt (như chất liệu "dia-hinh" của nó).
+[[nodiscard]] constexpr std::uint32_t model_kind(Pso pso) noexcept {
+    if (pso == Pso::kTerrain) return kModelTwoSided;
+    return static_cast<std::uint32_t>(pso);
+}
+
 [[nodiscard]] core::Result<gpu::PipelineHandle> make_model(gpu::Device& device, const CatalogDesc& desc,
     const Entry& entry, std::span<const gpu::ShaderHandle> shaders) {
-    const auto kind = static_cast<std::uint32_t>(entry.pso);
+    const std::uint32_t kind = model_kind(entry.pso);
     const bool is_blended = (kind & kModelBlended) != 0;
     const bool is_two_sided = (kind & kModelTwoSided) != 0;
     const gpu::VertexBufferLayout layout{.stride = sizeof(resource::Vertex)};
@@ -199,9 +205,18 @@ bool Catalog::tier_pending(Tier tier) const noexcept {
     return false;
 }
 
-bool Catalog::tier_has(Tier tier, std::string_view vertex) const noexcept {
+namespace {
+
+// Entry cùng cặp (vertex, pixel) với pair, cùng tầng.
+[[nodiscard]] bool shares_pair(const Entry& entry, Tier tier, const Entry& pair) noexcept {
+    return entry.tier == tier && entry.vertex == pair.vertex && entry.pixel == pair.pixel;
+}
+
+} // namespace
+
+bool Catalog::tier_has(Tier tier, const Entry& pair) const noexcept {
     for (const Entry& entry : entries()) {
-        const bool pending = entry.tier == tier && entry.vertex == vertex && !state_of(entry.pso).tried;
+        const bool pending = shares_pair(entry, tier, pair) && !state_of(entry.pso).tried;
         if (pending) return true;
     }
     return false;
@@ -227,17 +242,16 @@ void Catalog::take_loaded(const Entry& entry, std::span<const gpu::ShaderHandle>
     ++created;
 }
 
-// NOLINTNEXTLINE(bugprone-easily-swappable-parameters): vertex rồi pixel, đúng thứ tự cặp shader
-void Catalog::warm_family(Tier tier, std::string_view vertex, std::string_view pixel, std::uint32_t frame_bytes,
-    std::uint32_t draw_bytes, std::uint32_t& created, std::optional<core::Error>& required) {
-    if (!tier_has(tier, vertex)) return;
+void Catalog::warm_family(Tier tier, const Entry& pair, std::uint32_t& created,
+    std::optional<core::Error>& required) {
+    if (!tier_has(tier, pair)) return;
     const std::string folder = detail::shader_folder(desc_.shader_dir);
     ShaderPair shaders(*device_);
-    shaders.sizes = {.frame = frame_bytes, .draw = draw_bytes};
-    core::Status loaded = shaders.load(0, folder, vertex);
-    if (loaded) loaded = shaders.load(1, folder, pixel);
+    shaders.sizes = {.frame = pair.frame_bytes, .draw = pair.draw_bytes};
+    core::Status loaded = shaders.load(0, folder, pair.vertex);
+    if (loaded) loaded = shaders.load(1, folder, pair.pixel);
     for (const Entry& entry : entries()) {
-        if (entry.tier != tier || entry.vertex != vertex) continue;
+        if (!shares_pair(entry, tier, pair)) continue;
         take_loaded(entry, shaders.handles, loaded, created, required);
     }
 }
@@ -247,7 +261,8 @@ core::Result<gpu::PipelineHandle> Catalog::build(const Entry& entry, std::span<c
     case Pso::kModelOpaque:
     case Pso::kModelTwoSided:
     case Pso::kModelBlend:
-    case Pso::kModelBlendTwoSided: return make_model(*device_, desc_, entry, shaders);
+    case Pso::kModelBlendTwoSided:
+    case Pso::kTerrain: return make_model(*device_, desc_, entry, shaders);
     case Pso::kUi: return make_ui(*device_, desc_, shaders);
     case Pso::kFx: return make_fx(*device_, desc_, shaders, add_blend(), entry.name);
     case Pso::kFxBlend: return make_fx(*device_, desc_, shaders, alpha_blend(), entry.name);
@@ -258,7 +273,7 @@ core::Result<gpu::PipelineHandle> Catalog::build(const Entry& entry, std::span<c
 void Catalog::warm_tier(Tier tier, std::uint32_t& created, std::optional<core::Error>& required) {
     for (const Entry& entry : entries()) {
         if (entry.tier != tier) continue;
-        warm_family(tier, entry.vertex, entry.pixel, entry.frame_bytes, entry.draw_bytes, created, required);
+        warm_family(tier, entry, created, required);
     }
 }
 

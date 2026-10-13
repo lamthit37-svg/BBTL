@@ -16,6 +16,10 @@ layout(std140, binding = 0) uniform FrameBlock {
     vec4 fog_color;
     vec4 rules;
     Lamp lamps[32];
+    vec4 hfog;
+    vec4 dfog;
+    vec4 hfog_color;
+    vec4 hfog_scatter;
 } frame;
 
 struct Joint {

@@ -2,6 +2,7 @@
 # nằm cạnh exe, trong thư mục shaders. Engine chỉ nạp gói theo tên, không giữ nguồn.
 shader model.vs model.vs.hlsl
 shader model.ps model.ps.hlsl
+shader terrain.ps terrain.ps.hlsl
 shader ui.vs ui.vs.hlsl
 shader ui.ps ui.ps.hlsl
 shader fx.vs fx.vs.hlsl

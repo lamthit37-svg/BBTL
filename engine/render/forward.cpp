@@ -6,8 +6,10 @@
 #pragma GCC target("sse4.1")
 #endif
 // Bốn pipeline cùng shader, cùng bố cục gắn, do Catalog tạo: bit 0 của chỉ số là chất liệu hai mặt
-// (không loại mặt sau), bit 1 là trộn alpha (không ghi độ sâu). Register space của shader: 0 là hằng của khung, 1
-// là chất liệu, 2 là bảng khớp và ma trận instanced; hằng của lệnh vẽ đi bằng push constant.
+// (không loại mặt sau), bit 1 là trộn alpha (không ghi độ sâu). Pipeline thứ năm (tuỳ chọn) là mặt đất lớp cọ
+// (Pso::kTerrain, terrain.ps): chất liệu có Material::splat dùng nó, với bốn ảnh của chất liệu thay ảnh màu.
+// Register space của shader: 0 là hằng của khung, 1 là chất liệu, 2 là bảng khớp và ma trận instanced; hằng của
+// lệnh vẽ đi bằng push constant.
 // Một khung: gom lệnh vẽ của mọi instance (dựng bảng khớp của từng skin một lần), ghi buffer của
 // slot, xếp lệnh (đục trước, trộn alpha sau và xa trước), rồi mới ghi lệnh.
 // Đèn điểm chọn như Ogre chọn cho shader ba đèn của bản gốc: sau hai đèn chính là đèn điểm gần gốc
@@ -57,7 +59,9 @@ namespace game::render {
 namespace {
 
 constexpr std::uint32_t kNone = std::numeric_limits<std::uint32_t>::max();
-constexpr std::size_t kPipelines = kModelVariants;
+// Bốn biến thể model rồi pipeline địa hình lớp cọ (ô cuối, đục một mặt).
+constexpr std::size_t kPipelines = kModelVariants + 1;
+constexpr std::uint32_t kTerrainPipeline = static_cast<std::uint32_t>(kModelVariants);
 // Cùng bit với Pso của catalog: 0 đục một mặt, 1 đục hai mặt, 2 trộn một mặt, 3 trộn hai mặt.
 constexpr std::uint32_t kTwoSided = kModelTwoSided;
 constexpr std::uint32_t kBlended = kModelBlended;
@@ -173,6 +177,7 @@ static_assert(sizeof(JointRows) == 48);
 
 [[nodiscard]] std::uint32_t pipeline_of(const resource::Material* material) noexcept {
     if (material == nullptr) return 0;
+    if (material->splat) return kTerrainPipeline;
     const std::uint32_t sides = material->double_sided ? kTwoSided : 0;
     return material->alpha == resource::Alpha::kBlend ? sides | kBlended : sides;
 }
@@ -239,12 +244,12 @@ struct Slot {
 struct Skinning {
     std::uint32_t base = 0;
     std::uint32_t count = 0;
+    bool is_flat = false;
 };
 
 // Một lệnh vẽ đã gom.
 struct Item {
     const resource::GpuPrimitive* primitive = nullptr;
-    bool is_flat = false;
     gpu::BindGroupHandle material{};
     DrawBlock block{};
     std::uint32_t pipeline = 0;
@@ -341,11 +346,6 @@ void scan_node(RadiusScan& scan, std::size_t index) noexcept {
     return std::sqrt(scan.squared);
 }
 
-[[nodiscard]] std::vector<math::Vector3> centers_of(const resource::Mesh& mesh) {
-    std::vector<math::Vector3> centers;
-    centers.reserve(mesh.primitives.size());
-    for (const resource::Primitive& primitive : mesh.primitives) {
-        centers.push_back(center_of(primitive));
 // Sai số chấp nhận khi coi một ma trận khớp là đơn vị. Đơn vị dài của model là centimet, nên 2e-3 là
 // vài chục micromet: dưới ngưỡng nhìn thấy.
 constexpr float kNeutralEpsilon = 2.0e-3F;
@@ -379,6 +379,11 @@ constexpr float kNeutralEpsilon = 2.0e-3F;
     return true;
 }
 
+[[nodiscard]] std::vector<math::Vector3> centers_of(const resource::Mesh& mesh) {
+    std::vector<math::Vector3> centers;
+    centers.reserve(mesh.primitives.size());
+    for (const resource::Primitive& primitive : mesh.primitives) {
+        centers.push_back(center_of(primitive));
     }
     return centers;
 }
@@ -404,6 +409,8 @@ struct Forward::State {
     [[nodiscard]] core::Status make_fallback();
     [[nodiscard]] core::Result<gpu::BindGroupHandle> buffer_group(std::uint32_t space, shader::RegisterType type,
         gpu::BufferHandle buffer);
+    [[nodiscard]] core::Result<gpu::BindGroupHandle> splat_group(const resource::Uploaded& uploaded,
+        const resource::Splat& splat);
     [[nodiscard]] core::Result<gpu::BindGroupHandle> material_group(const resource::Uploaded& uploaded,
         const resource::Material* material);
     struct MaterialPass {
@@ -428,6 +435,7 @@ struct Forward::State {
     void append_copies(Pass& pass, const math::Matrix4& node);
     void add_parts(const Pass& pass, const Placed& placed);
     [[nodiscard]] Skinning skin_of(const Pass& pass, const resource::Node& node);
+    [[nodiscard]] static bool is_flat_copy(const Pass& pass) noexcept;
     void add_joint(const Pass& pass, const resource::Skin& skin, std::size_t joint);
     void add_item(const Pass& pass, const Placed& placed, std::size_t part);
     void take_instance(Take take);
@@ -435,7 +443,6 @@ struct Forward::State {
     [[nodiscard]] core::Status write_palette(const Slot& slot) const;
     [[nodiscard]] core::Status write_worlds(const Slot& slot) const;
     struct Emit {
-    [[nodiscard]] static bool is_flat_copy(const Pass& pass) noexcept;
         gpu::CommandList* list = nullptr;
         const Slot* slot = nullptr;
         std::uint32_t* bound = nullptr;
@@ -617,8 +624,34 @@ core::Status Forward::State::make_fallback() {
     return core::ok();
 }
 
+// Bốn ảnh của mặt đất lớp cọ ở space 1 của pipeline địa hình: atlas t0 + s0, bảng ô t1, lightmap t2 + s2
+// (sampler theo slot của ảnh để GLES dùng chung texture unit), bảng tra t3. Bảng ô và bảng tra đọc bằng
+// Load nên không có sampler. Thiếu lightmap thì ảnh trắng: nhân với 1.
+core::Result<gpu::BindGroupHandle> Forward::State::splat_group(const resource::Uploaded& uploaded,
+    const resource::Splat& splat) {
+    const TexBind atlas = tex_bind(uploaded, splat.atlas, fallback);
+    const TexBind cells = tex_bind(uploaded, splat.cells, fallback);
+    const TexBind light = tex_bind(uploaded, splat.light, fallback);
+    const TexBind table = tex_bind(uploaded, splat.table, fallback);
+    std::array<gpu::BindEntry, 6> entries{};
+    write_bind(entries[0], shader::RegisterType::kResource, 0, atlas.view);
+    write_bind(entries[1], shader::RegisterType::kSampler, 0, atlas.sampler);
+    write_bind(entries[2], shader::RegisterType::kResource, 1, cells.view);
+    write_bind(entries[3], shader::RegisterType::kResource, 2, light.view);
+    write_bind(entries[4], shader::RegisterType::kSampler, 2, light.sampler);
+    write_bind(entries[5], shader::RegisterType::kResource, 3, table.view);
+    gpu::BindGroupDesc group;
+    group.name = "render.forward.terrain";
+    group.pipeline = pipelines.at(kTerrainPipeline);
+    group.space = 1;
+    group.entries = entries;
+    return device->create_bind_group(group);
+}
+
 core::Result<gpu::BindGroupHandle> Forward::State::material_group(const resource::Uploaded& uploaded,
     const resource::Material* material) {
+    const bool is_splat = material != nullptr && material->splat && pipelines.at(kTerrainPipeline);
+    if (is_splat) return splat_group(uploaded, *material->splat);
     const resource::TexSlot none;
     const resource::TexSlot& color = material != nullptr ? base_slot(*material) : none;
     const resource::TexSlot& mask = material != nullptr ? material->surface : none;
@@ -655,6 +688,7 @@ void Forward::State::add_joint(const Pass& pass, const resource::Skin& skin, std
 Skinning Forward::State::skin_of(const Pass& pass, const resource::Node& node) {
     const resource::Model& model = *pass.instance->drawable->model_;
     if (!node.skin || *node.skin >= model.skins.size()) return {};
+    if (is_flat_copy(pass)) return {.is_flat = true};
     const resource::Skin& skin = model.skins.at(*node.skin);
     const auto count = static_cast<std::uint32_t>(skin.joints.size());
     std::uint32_t& base = skin_bases.at(*node.skin);
@@ -680,6 +714,14 @@ namespace {
 
 } // namespace
 
+// Bản sao instanced của model có skin: đúng khi skin là phép đơn vị ở tư thế nghỉ và instance không đặt
+// tư thế nào (nodes và joints rỗng, tức pass.nodes là tư thế nghỉ của chính Drawable).
+bool Forward::State::is_flat_copy(const Pass& pass) noexcept {
+    const Instance& instance = *pass.instance;
+    return !instance.copies.empty() && instance.nodes.empty() && instance.joints.empty() &&
+        instance.drawable->is_rest_neutral_;
+}
+
 // Chọn đèn cho instance và cho biết nó còn gì để vẽ trong khung. Có bản sao: seen nhận những bản
 // còn chạm khung nhìn, mỗi bản kèm đèn của nó. Một bản: vật thể đứng yên ở tư thế nghỉ mà hình cầu
 // bao nằm hẳn ngoài khung thì bỏ; model có skin hay đang được đặt tư thế thì không loại, vì bán
@@ -688,7 +730,6 @@ bool Forward::State::enters_frame(Pass& pass) {
     const Instance& instance = *pass.instance;
     const std::span<const Lamp> lamps = frame_lamps(*pass.lighting);
     if (!instance.copies.empty()) {
-    if (is_flat_copy(pass)) return {.is_flat = true};
         see_copies({.copies = instance.copies, .lamps = lamps, .radius = pass.radius}, frustum, seen);
         return !seen.empty();
     }
@@ -714,14 +755,6 @@ void Forward::State::append_copies(Pass& pass, const math::Matrix4& node) {
 }
 
 void Forward::State::place_world(Pass& pass, std::size_t index, Skinning skinning, Placed& placed) {
-// Bản sao instanced của model có skin: đúng khi skin là phép đơn vị ở tư thế nghỉ và instance không đặt
-// tư thế nào (nodes và joints rỗng, tức pass.nodes là tư thế nghỉ của chính Drawable).
-bool Forward::State::is_flat_copy(const Pass& pass) noexcept {
-    const Instance& instance = *pass.instance;
-    return !instance.copies.empty() && instance.nodes.empty() && instance.joints.empty() &&
-        instance.drawable->is_rest_neutral_;
-}
-
     const math::Matrix4 node = skinning.is_flat ? math::Matrix4::identity() : core::at(pass.nodes, index);
     pass.is_copied = !pass.instance->copies.empty() && skinning.count == 0;
     if (!pass.is_copied) {
@@ -751,6 +784,8 @@ void Forward::State::add_item(const Pass& pass, const Placed& placed, std::size_
     item.primitive = &buffers;
     item.material = drawable.materials_.at(slot);
     item.pipeline = pipeline_of(material);
+    // Không có pipeline địa hình (gói shader cũ): vẽ như chất liệu thường để mặt đất không biến mất.
+    if (item.pipeline == kTerrainPipeline && !pipelines.at(kTerrainPipeline)) item.pipeline = kTwoSided;
     // Tay phải: phía trước camera là z âm.
     item.distance = -(pass.camera->view * placed_center).z();
     const ShadeAsk ask{.material = material, .lighting = pass.lighting, .is_actor = pass.instance->is_actor};
@@ -955,6 +990,7 @@ Drawable::Drawable(Drawable&& other) noexcept
       uploaded_(std::exchange(other.uploaded_, nullptr)),
       materials_(std::move(other.materials_)),
       rest_(std::move(other.rest_)),
+      is_rest_neutral_(other.is_rest_neutral_),
       radius_(other.radius_),
       centers_(std::move(other.centers_)) {}
 
@@ -966,6 +1002,7 @@ Drawable& Drawable::operator=(Drawable&& other) noexcept {
     uploaded_ = std::exchange(other.uploaded_, nullptr);
     materials_ = std::move(other.materials_);
     rest_ = std::move(other.rest_);
+    is_rest_neutral_ = other.is_rest_neutral_;
     radius_ = other.radius_;
     centers_ = std::move(other.centers_);
     return *this;
@@ -990,8 +1027,7 @@ Forward& Forward::operator=(Forward&&) noexcept = default;
 Forward::~Forward() = default;
 
 core::Result<Forward> Forward::create(gpu::Device& device, const ForwardDesc& desc,
-      is_rest_neutral_(other.is_rest_neutral_),
-    std::array<gpu::PipelineHandle, 4> pipelines) {
+    std::array<gpu::PipelineHandle, 4> pipelines, gpu::PipelineHandle terrain) {
     if (desc.slots == 0) return bad("renderer cần ít nhất một slot");
     for (const gpu::PipelineHandle pipeline : pipelines) {
         if (!pipeline) return bad("pipeline model chưa chuẩn bị");
@@ -999,10 +1035,10 @@ core::Result<Forward> Forward::create(gpu::Device& device, const ForwardDesc& de
     auto state = std::make_unique<State>();
     state->device = &device;
     state->desc = desc;
-    state->pipelines = pipelines;
+    std::ranges::copy(pipelines, state->pipelines.begin());
+    state->pipelines.at(kTerrainPipeline) = terrain;
     state->slots.resize(desc.slots);
     core::Status filled = core::ok();
-    is_rest_neutral_ = other.is_rest_neutral_;
     for (Slot& slot : state->slots) {
         state->fill_slot(slot, filled);
     }
@@ -1027,6 +1063,7 @@ core::Result<Drawable> Forward::prepare(const resource::Model& model, const reso
     drawable.model_ = &model;
     drawable.uploaded_ = &uploaded;
     drawable.rest_ = rest_nodes(model);
+    drawable.is_rest_neutral_ = skins_are_neutral(model, drawable.rest_);
     drawable.radius_ = radius_of(model, drawable.rest_);
     drawable.centers_.reserve(model.meshes.size());
     for (const resource::Mesh& mesh : model.meshes) {
@@ -1063,7 +1100,6 @@ core::Status Forward::draw(gpu::CommandList& list, std::uint32_t slot, const Cam
     std::span<const Instance> instances) {
     State& state = *state_;
     if (slot >= state.slots.size()) return bad("slot ngoài số đã khai lúc tạo renderer");
-    drawable.is_rest_neutral_ = skins_are_neutral(model, drawable.rest_);
     state.items.clear();
     state.palette.clear();
     state.world_words.clear();

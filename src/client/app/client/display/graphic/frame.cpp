@@ -174,7 +174,11 @@ core::Status Display::State::open_gpu(const DisplayDesc& desc) {
         const core::Status optional = catalog->prepare(render::Tier::kOptional);
         if (!optional) std::println(stderr, "Pipeline: tầng 3: {}", optional.error());
     }
-    core::Result<render::Forward> pass = make_forward(*device, *screen, shaders, catalog->models());
+    // Gói shader cũ không có terrain.ps: mặt đất vẽ như chất liệu thường (xem Forward::create).
+    if (const core::Error* fault = catalog->fault(render::Pso::kTerrain)) {
+        std::println(stderr, "Pipeline địa hình: {}", *fault);
+    }
+    core::Result<render::Forward> pass = make_forward(*device, *screen, shaders, *catalog);
     if (!pass) return std::unexpected(pass.error());
     forward = std::make_unique<render::Forward>(std::move(*pass));
     open_hud(desc);

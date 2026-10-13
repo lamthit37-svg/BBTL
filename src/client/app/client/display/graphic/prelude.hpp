@@ -19,7 +19,7 @@
 #include "client/map/ground.hpp"
 #include "client/map/picture.hpp"
 #include "client/map/sheet.hpp"
-#include "client/map/surface.hpp"
+#include "client/map/splat.hpp"
 #include "client/map/terrain.hpp"
 #include "client/world/world.hpp"
 #include "control/char_camera.hpp"
@@ -368,7 +368,7 @@ using PackedSize = std::uint64_t;
 }
 
 [[nodiscard]] inline ForwardResult make_forward(gpu::Device& device, const render::Screen& screen, std::string shaders,
-    std::array<gpu::PipelineHandle, render::kModelVariants> models) {
+    const render::Catalog& catalog) {
     render::ForwardDesc pass;
     pass.color_format = screen.color_format();
     pass.depth_format = screen.depth_format();
@@ -378,7 +378,7 @@ using PackedSize = std::uint64_t;
     // Backend GLES là chế độ di động (tablet PowerVR): ánh sáng tính ở đỉnh để giữ nhịp khung.
     pass.lights_at_vertices = device.adapter().backend == gpu::Backend::kGles;
     pass.shader_dir = std::move(shaders);
-    return render::Forward::create(device, pass, models);
+    return render::Forward::create(device, pass, catalog.models(), catalog.get(render::Pso::kTerrain));
 }
 
 // Lượt vẽ 2D của giao diện: cùng đích vẽ và thư mục shader với Forward.
@@ -623,7 +623,6 @@ inline constexpr std::array<ActionRequest, 8> kActionRequests = {{
     return std::move(*decoded);
 }
 
-using MapPicture = game::client::map::Picture;
 using Paths = std::vector<std::filesystem::path>;
 
 // Giải mã một ảnh của danh sách vào đúng ô của nó; mỗi luồng một ô nên không cần khoá.
@@ -634,14 +633,15 @@ struct DecodeOne {
     void operator()() const { (*images)[index] = image_at((*paths)[index]); }
 };
 
-// Giải mã mọi ảnh cùng lúc, mỗi ảnh một luồng. Giải mã PNG lần lượt là phần chờ dài nhất của việc
-// nướng mặt đất, nhất là lúc các luồng đọc mesh đang chiếm các lõi (đo 2026-10-08, erengu_DL: 11
-// ảnh cọ và ảnh sáng 2048 x 2048).
+// Giải mã mọi ảnh cùng lúc, mỗi ảnh một luồng; đường dẫn rỗng là ảnh không cần, ô của nó để trống. Giải mã PNG
+// lần lượt là phần chờ dài nhất của việc nạp mặt đất, nhất là lúc các luồng đọc mesh đang chiếm các lõi (đo
+// 2026-10-08, erengu_DL: 11 ảnh cọ và ảnh sáng 2048 x 2048).
 [[nodiscard]] inline std::vector<resource::Image> decoded_all(const Paths& paths) {
     std::vector<resource::Image> images(paths.size());
     std::vector<std::jthread> pool;
     pool.reserve(paths.size());
     for (std::size_t index = 0; index < paths.size(); ++index) {
+        if (paths[index].empty()) continue;
         pool.emplace_back(DecodeOne{.images = &images, .paths = &paths, .index = index});
     }
     // Chờ mọi luồng xong trước khi trả: chúng ghi thẳng vào images.
@@ -649,42 +649,51 @@ struct DecodeOne {
     return images;
 }
 
-[[nodiscard]] inline game::client::map::SurfaceImage view_of(const resource::Image& image) noexcept {
-    game::client::map::SurfaceImage view;
+[[nodiscard]] inline game::client::map::BrushImage view_of(const resource::Image& image) noexcept {
+    game::client::map::BrushImage view;
     view.width = image.width;
     view.height = image.height;
     view.rgba = image.rgba;
     return view;
 }
 
-// Cạnh dài tối đa của ảnh mặt đất nướng: PC 8192 (16 điểm ảnh mỗi ô của bản đồ 512 x 512; đo 2026-10-13: bake 2,7 s, ~340 MB VRAM kể cả mip), điện thoại 2048 vì GLES 3 chỉ
-// bảo đảm texture 2048.
+// Cạnh dài tối đa của atlas cọ: PC 4096, điện thoại 2048 vì GLES 3 chỉ bảo đảm texture 2048. Bản đồ thật cần ~1024
+// (11 ảnh cọ 128 tới 512 cạnh, mỗi ảnh đệm 16 điểm ảnh).
 #if defined(__ANDROID__) || defined(__APPLE__)
-inline constexpr std::uint32_t kSurfaceEdge = 2048;
+inline constexpr std::uint32_t kAtlasEdge = 2048;
 #else
-inline constexpr std::uint32_t kSurfaceEdge = 8192;
+inline constexpr std::uint32_t kAtlasEdge = 4096;
 #endif
 
-// Ảnh mặt đất của cảnh: các ảnh cọ của địa hình, rồi ảnh sáng (nếu cảnh có) ở cuối danh sách.
-[[nodiscard]] inline MapPicture baked_surface(const MapGround& ground, const std::filesystem::path& root) {
+// Mức mip lớn nhất mà sampler atlas được dùng: atlas đệm 16 điểm ảnh và đặt ở bội của 16, nên tới mức 4 mip không
+// trộn ảnh cọ kề nhau (map/splat.hpp).
+inline constexpr float kAtlasMaxLod = 4.0F;
+
+// Ảnh của mặt đất lớp cọ: atlas, bảng ô, bảng tra do cọ dựng ra, và lightmap đọc nguyên. Không có cọ nào dùng được
+// thì splat rỗng và địa hình tô màu theo độ cao.
+struct GroundPaint {
+    game::client::map::SplatImages splat;
+    resource::Image light;
+};
+
+// Đọc đĩa và dựng. Chỉ giải mã những cọ có ô dùng tới (brushes_in_use): bản đồ thật dùng 3 tới 11 trong số cọ
+// của file.
+[[nodiscard]] inline GroundPaint ground_paint(const MapGround& ground, const std::filesystem::path& root) {
     const std::size_t brush_count = ground.file.textures.size();
+    const std::vector<std::uint8_t> used = game::client::map::brushes_in_use(ground.file, ground.grid);
     const bool has_light = !ground.file.lightmap.empty();
-    Paths paths;
-    paths.reserve(brush_count + 1);
-    for (const std::string& name : ground.file.textures) {
-        paths.push_back(root / "Brushes" / io::path_from_utf8(name));
+    Paths paths(brush_count + 1);
+    for (std::size_t index = 0; index < brush_count; ++index) {
+        if (used[index] != 0) paths[index] = root / "Brushes" / io::path_from_utf8(ground.file.textures[index]);
     }
-    if (has_light) paths.push_back(root / "Scene" / io::path_from_utf8(ground.file.lightmap));
-    const std::vector<resource::Image> stored = decoded_all(paths);
-    std::vector<game::client::map::SurfaceImage> views(brush_count);
+    if (has_light) paths[brush_count] = root / "Scene" / io::path_from_utf8(ground.file.lightmap);
+    std::vector<resource::Image> stored = decoded_all(paths);
+    std::vector<game::client::map::BrushImage> views(brush_count);
     std::ranges::transform(std::span(stored).first(brush_count), views.begin(), view_of);
-    game::client::map::SurfaceImage light_view;
-    if (has_light) light_view = view_of(stored.back());
-    game::client::map::SurfaceInputs inputs;
-    inputs.brushes = views;
-    inputs.max_edge = kSurfaceEdge;
-    if (has_light) inputs.light = &light_view;
-    return game::client::map::paint_surface(ground.file, ground.grid, inputs);
+    GroundPaint paint;
+    paint.splat = game::client::map::build_splat(ground.file, ground.grid, views, kAtlasEdge);
+    if (has_light) paint.light = std::move(stored.back());
+    return paint;
 }
 
 struct LayJob {
@@ -715,18 +724,47 @@ inline void lay_paint(resource::Primitive& primitive, const MapGround& ground) {
     }
 }
 
-// Ảnh nướng là các lớp cọ nhân lightmap; đèn và sương tính lúc vẽ như FairyTerrain.hlsl của bản
-// gốc.
-inline void attach_paint(resource::Model& model, const MapPicture& paint) {
-    if (paint.rgba.empty() || model.materials.empty()) return;
+// Ảnh của một Picture vào model; trả chỉ số ảnh.
+[[nodiscard]] inline std::uint32_t add_picture(resource::Model& model, std::string name,
+    game::client::map::Picture& picture) {
     resource::Image image;
-    image.name = "dia-hinh";
-    image.width = paint.width;
-    image.height = paint.height;
-    image.rgba = paint.rgba;
+    image.name = std::move(name);
+    image.width = picture.width;
+    image.height = picture.height;
+    image.rgba = std::move(picture.rgba);
     model.images.push_back(std::move(image));
-    model.materials.front().color.image = 0;
-    model.materials.front().pass = classic::pass_of(classic::Classic{.lit = classic::Lit::kTerrain});
+    return static_cast<std::uint32_t>(model.images.size() - 1U);
+}
+
+[[nodiscard]] inline resource::Sampler clamped_sampler(std::string name, float max_lod) {
+    resource::Sampler sampler;
+    sampler.name = std::move(name);
+    sampler.wrap_u = resource::Wrap::kClamp;
+    sampler.wrap_v = resource::Wrap::kClamp;
+    sampler.max_lod = max_lod;
+    return sampler;
+}
+
+// Mặt đất lớp cọ (terrain.ps): ghép các lớp cọ và nhân lightmap ở từng điểm ảnh; đèn và sương tính lúc vẽ như
+// FairyTerrain.hlsl của bản gốc. Ảnh cọ giữ nguyên giá trị (không sRGB): bản gốc tính thẳng trên số của texture.
+inline void attach_paint(resource::Model& model, GroundPaint& paint) {
+    if (paint.splat.empty() || model.materials.empty()) return;
+    resource::Splat splat;
+    model.samplers.push_back(clamped_sampler("dia-hinh-coc", kAtlasMaxLod));
+    splat.atlas.sampler = static_cast<std::uint32_t>(model.samplers.size() - 1U);
+    splat.atlas.image = add_picture(model, "dia-hinh-coc", paint.splat.atlas);
+    splat.cells.image = add_picture(model, "dia-hinh-o", paint.splat.cells);
+    splat.table.image = add_picture(model, "dia-hinh-bang", paint.splat.table);
+    if (!paint.light.rgba.empty()) {
+        paint.light.name = "dia-hinh-sang";
+        model.images.push_back(std::move(paint.light));
+        model.samplers.push_back(clamped_sampler("dia-hinh-sang", 1000.0F));
+        splat.light.image = static_cast<std::uint32_t>(model.images.size() - 1U);
+        splat.light.sampler = static_cast<std::uint32_t>(model.samplers.size() - 1U);
+    }
+    resource::Material& material = model.materials.front();
+    material.splat = splat;
+    material.pass = classic::pass_of(classic::Classic{.lit = classic::Lit::kTerrain});
 }
 
 inline void push_height_vertex(resource::Primitive& primitive, const game::client::map::Corner& corner,
@@ -739,7 +777,7 @@ inline void push_height_vertex(resource::Primitive& primitive, const game::clien
 }
 
 // Lưới địa hình thành một model một nút. Không có cọ thì màu đỉnh theo độ cao.
-[[nodiscard]] inline resource::Model model_of(const MapGround& ground, const MapPicture& paint) {
+[[nodiscard]] inline resource::Model model_of(const MapGround& ground, GroundPaint paint) {
     resource::Model model;
     resource::Mesh mesh;
     mesh.name = "dia-hinh";
@@ -747,7 +785,7 @@ inline void push_height_vertex(resource::Primitive& primitive, const game::clien
     primitive.topology = resource::Topology::kTriangles;
     primitive.material = 0;
     primitive.vertices.reserve(ground.sheet.corners.size());
-    const bool has_paint = !paint.rgba.empty();
+    const bool has_paint = !paint.splat.empty();
     for (const game::client::map::Corner& corner : ground.sheet.corners) {
         push_height_vertex(primitive, corner, has_paint);
     }
@@ -902,9 +940,9 @@ struct Feed {
 inline void bake_job(const FeedJob& job, Feed& feed) {
     if (!job.bake_ground || !job.scene || !job.scene->ground) return;
     const TimePoint began = core::Clock::now();
-    const MapPicture paint = baked_surface(*job.scene->ground, job.root);
+    GroundPaint paint = ground_paint(*job.scene->ground, job.root);
     const double painted_ms = millis_between(began, core::Clock::now());
-    ReadMesh model = baked_mesh(model_of(*job.scene->ground, paint));
+    ReadMesh model = baked_mesh(model_of(*job.scene->ground, std::move(paint)));
     const double baked_ms = millis_between(began, core::Clock::now());
     const int scene_id = job.scene->id;
     {
@@ -915,7 +953,7 @@ inline void bake_job(const FeedJob& job, Feed& feed) {
     }
     const std::string millis = std::format("{:.1f}", baked_ms);
     const std::string painted = std::format("{:.1f}", painted_ms);
-    std::println("Địa hình resid {} đã nướng trong {} ms (tô ảnh mặt {} ms)", scene_id, millis, painted);
+    std::println("Địa hình resid {} đã dựng trong {} ms (ảnh cọ {} ms)", scene_id, millis, painted);
 }
 
 [[nodiscard]] inline std::size_t slot_span(const std::vector<Need>& needs) {
@@ -1172,9 +1210,9 @@ struct SeatTarget {
 }
 
 [[nodiscard]] inline bool upload_ground(GroundUpload upload) {
-    MapPicture paint;
-    if (upload.data_root != nullptr) paint = baked_surface(*upload.ground, *upload.data_root);
-    ReadMesh mesh = baked_mesh(model_of(*upload.ground, paint));
+    GroundPaint paint;
+    if (upload.data_root != nullptr) paint = ground_paint(*upload.ground, *upload.data_root);
+    ReadMesh mesh = baked_mesh(model_of(*upload.ground, std::move(paint)));
     SeatTarget target;
     target.slot = upload.slot;
     target.device = upload.device;

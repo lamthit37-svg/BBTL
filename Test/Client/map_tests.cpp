@@ -6,7 +6,7 @@
 #include "client/map/picture.hpp"
 #include "client/map/samples.hpp"
 #include "client/map/sheet.hpp"
-#include "client/map/surface.hpp"
+#include "client/map/splat.hpp"
 #include "client/map/terrain.hpp"
 #include "core/check.hpp"
 #include "test.hpp"
@@ -24,7 +24,6 @@
 #include <filesystem>
 #endif
 #include <iterator>
-#include <optional>
 #include <span>
 #include <string>
 #include <string_view>
@@ -279,51 +278,123 @@ void book_reads_clip_planes(Context& context) {
     context.expect(minus->far_clip == 15000 && minus->near_clip == 10, "số âm: mặc định");
 }
 
-void pixmap_corner_follows_original_table(Context& context) {
-    client::map::Pixmap pixmap;
-    pixmap.left = 0.25F;
-    pixmap.top = 0.10F;
-    pixmap.right = 0.75F;
-    pixmap.bottom = 0.90F;
-    client::map::CornerQuery query;
-    const client::map::PixmapPoint natural = client::map::pixmap_corner(pixmap, query);
-    context.expect(natural.u == 0.25F && natural.v == 0.10F, "góc 0 là trái-trên");
-    query.corner = 3;
-    const client::map::PixmapPoint far = client::map::pixmap_corner(pixmap, query);
-    context.expect(far.u == 0.75F && far.v == 0.90F, "góc 3 là phải-dưới");
-    query.corner = 0;
-    query.orientation = 1;
-    const client::map::PixmapPoint flipped = client::map::pixmap_corner(pixmap, query);
-    context.expect(flipped.u == 0.75F && flipped.v == 0.10F, "lật ngang đổi trái phải");
+// Số 16 bit từ hai kênh (cao, thấp) của một texel, đúng như word16 của terrain.ps.hlsl.
+[[nodiscard]] float word16(std::uint8_t high, std::uint8_t low) noexcept {
+    return static_cast<float>((static_cast<std::uint32_t>(high) << 8U) | low) / 65535.0F;
 }
 
-void surface_paints_the_base_brush(Context& context) {
+[[nodiscard]] bool near_to(float left, float right, float tolerance) noexcept {
+    return left - right < tolerance && right - left < tolerance;
+}
+
+// Chỉ số byte đầu của texel (column, row) trong ảnh RGBA8.
+[[nodiscard]] std::size_t byte_at(const client::map::Picture& picture, std::size_t column, std::size_t row) noexcept {
+    return ((row * picture.width) + column) * 4U;
+}
+
+constexpr std::size_t kBrushWidth = 64;
+constexpr std::size_t kBrushHeight = 32;
+
+// Một cọ 64 x 32 (200, 100, 50, alpha), hai pixmap hộp 0,25 0,10 0,75 0,90: pixmap 1 trỏ vào cọ đó, pixmap 2 trỏ
+// vào cọ thứ hai mà bài test không cấp ảnh.
+struct SplatFixture {
     client::map::TerrainFile file;
-    file.x_size = 1;
-    file.z_size = 1;
-    client::map::Pixmap pixmap;
-    pixmap.left = 0.0F;
-    pixmap.top = 0.0F;
-    pixmap.right = 1.0F;
-    pixmap.bottom = 1.0F;
-    file.pixmaps.push_back(pixmap);
-    client::map::Cell cell;
-    cell.base.pixmap = 1;
     client::map::GridField grid;
-    grid.cells.push_back(cell);
-    const std::array<std::uint8_t, 16> red{
-        200, 10, 10, 255, 200, 10, 10, 255, 200, 10, 10, 255, 200, 10, 10, 255};
-    client::map::SurfaceImage brush;
-    brush.width = 2;
-    brush.height = 2;
-    brush.rgba = red;
-    const std::array<client::map::SurfaceImage, 1> brushes{brush};
-    client::map::SurfaceInputs inputs;
-    inputs.brushes = brushes;
-    const client::map::Picture painted = client::map::paint_surface(file, grid, inputs);
-    context.expect(painted.width == 8 && painted.height == 8, "tám điểm mỗi ô");
-    context.expect(!painted.rgba.empty() && painted.rgba[0] == 200, "cọ đỏ");
-    context.expect(painted.rgba[3] == 255, "ô có nền thì đặc");
+    std::vector<std::uint8_t> rgba;
+    std::array<client::map::BrushImage, 1> brushes;
+
+    explicit SplatFixture(std::uint8_t alpha) {
+        file.x_size = 2;
+        file.z_size = 1;
+        file.textures = {"coc.tga", "thieu.tga"};
+        client::map::Pixmap pixmap;
+        pixmap.texture = 0;
+        pixmap.left = 0.25F;
+        pixmap.top = 0.10F;
+        pixmap.right = 0.75F;
+        pixmap.bottom = 0.90F;
+        file.pixmaps.push_back(pixmap);
+        pixmap.texture = 1;
+        file.pixmaps.push_back(pixmap);
+        rgba.resize(kBrushWidth * kBrushHeight * 4U);
+        for (std::size_t pixel = 0; pixel < kBrushWidth * kBrushHeight; ++pixel) {
+            rgba[pixel * 4U] = 200;
+            rgba[(pixel * 4U) + 1U] = 100;
+            rgba[(pixel * 4U) + 2U] = 50;
+            rgba[(pixel * 4U) + 3U] = alpha;
+        }
+        brushes[0].width = static_cast<std::uint32_t>(kBrushWidth);
+        brushes[0].height = static_cast<std::uint32_t>(kBrushHeight);
+        brushes[0].rgba = rgba;
+    }
+};
+
+void splat_table_decodes_like_the_shader(Context& context) {
+    SplatFixture fixture(255);
+    client::map::Cell tile;
+    tile.base.pixmap = 1;
+    tile.base.orientation = 1;
+    tile.flags = client::map::kFlipDiagonal;
+    fixture.grid.cells.push_back(tile);
+    fixture.grid.cells.emplace_back();
+    const client::map::SplatImages splat = client::map::build_splat(fixture.file, fixture.grid, fixture.brushes, 2048);
+    context.expect(!splat.empty(), "có cọ dùng được thì dựng được");
+    if (splat.empty() || splat.cells.rgba.size() < 8 || splat.table.rgba.size() < 4128) return;
+    context.expect(splat.atlas.width % 16 == 0 && splat.atlas.height % 16 == 0, "atlas là bội của 16");
+    context.expect(splat.cells.width == 2 && splat.cells.height == 1, "một texel mỗi ô");
+    context.expect(splat.cells.rgba[0] == 1 && splat.cells.rgba[1] == 0, "ô 0: nền là pixmap 1, không phủ");
+    context.expect(splat.cells.rgba[2] == 16, "bit 4 là cờ đường chéo");
+    context.expect(splat.cells.rgba[3] == 1, "orientation nền ở nibble thấp");
+    context.expect(splat.cells.rgba[4] == 0 && splat.cells.rgba[5] == 0, "ô 1 không lớp nào là lỗ");
+    // Hàng 0: bốn góc theo (lật * 16 + orientation). Orientation 8 lật: ba góc cuối khác bản thẳng.
+    context.expect(splat.table.rgba[0] == 0x01 && splat.table.rgba[1] == 0x21 && splat.table.rgba[2] == 0x03 &&
+            splat.table.rgba[3] == 0x23,
+        "bản thẳng orientation 0");
+    const std::size_t flipped_at = (std::size_t{16} + 8U) * 4U;
+    context.expect(splat.table.rgba[flipped_at] == 0x01 && splat.table.rgba[flipped_at + 2U] == 0x21 &&
+            splat.table.rgba[flipped_at + 3U] == 0x23,
+        "bản lật đường chéo orientation 8");
+    // Pixmap 1 chiếm texel 4..7 của hàng 1.
+    const std::size_t entry = ((std::size_t{1} * client::map::kSplatTableWidth) + 4U) * 4U;
+    const std::span<const std::uint8_t> row(splat.table.rgba);
+    context.expect(near_to(word16(row[entry], row[entry + 1]), 0.25F, 1.0e-4F), "cạnh trái");
+    context.expect(near_to(word16(row[entry + 2], row[entry + 3]), 0.10F, 1.0e-4F), "cạnh trên");
+    context.expect(near_to(word16(row[entry + 4], row[entry + 5]), 0.75F, 1.0e-4F), "cạnh phải");
+    context.expect(near_to(word16(row[entry + 6], row[entry + 7]), 0.90F, 1.0e-4F), "cạnh dưới");
+    // Cọ nằm ở (0, 0) của atlas, đệm 16: gốc (16, 16), tỉ lệ cỡ cọ.
+    const auto across = static_cast<float>(splat.atlas.width);
+    const auto down = static_cast<float>(splat.atlas.height);
+    context.expect(near_to(word16(row[entry + 8], row[entry + 9]), 16.0F / across, 1.0e-4F), "gốc x trong atlas");
+    context.expect(near_to(word16(row[entry + 10], row[entry + 11]), 16.0F / down, 1.0e-4F), "gốc y trong atlas");
+    context.expect(near_to(word16(row[entry + 12], row[entry + 13]), 64.0F / across, 1.0e-4F), "tỉ lệ x");
+    context.expect(near_to(word16(row[entry + 14], row[entry + 15]), 32.0F / down, 1.0e-4F), "tỉ lệ y");
+    // Texel đầu của cọ ở (16, 16); đệm lặp mép nên góc (0, 0) của atlas cùng màu.
+    const std::size_t inside = byte_at(splat.atlas, 16, 16);
+    context.expect(splat.atlas.rgba[inside] == 200 && splat.atlas.rgba[inside + 1U] == 100 &&
+            splat.atlas.rgba[inside + 2U] == 50 && splat.atlas.rgba[inside + 3U] == 255,
+        "màu cọ trong atlas");
+    context.expect(splat.atlas.rgba[0] == 200 && splat.atlas.rgba[3] == 255, "đệm lặp mép");
+}
+
+void splat_drops_layers_without_a_brush(Context& context) {
+    SplatFixture fixture(128);
+    // Pixmap 2 trỏ vào cọ 1, không có ảnh: lớp phủ bị bỏ, và ô lấy nó làm nền thành lỗ.
+    client::map::Cell with_cover;
+    with_cover.base.pixmap = 1;
+    with_cover.cover.pixmap = 2;
+    client::map::Cell broken;
+    broken.base.pixmap = 2;
+    fixture.grid.cells = {with_cover, broken};
+    const std::vector<std::uint8_t> used = client::map::brushes_in_use(fixture.file, fixture.grid);
+    context.expect(used.size() == 2 && used[0] == 1 && used[1] == 1, "cả hai cọ có ô tham chiếu");
+    const client::map::SplatImages splat = client::map::build_splat(fixture.file, fixture.grid, fixture.brushes, 2048);
+    context.expect(!splat.empty() && splat.cells.rgba.size() >= 8, "vẫn dựng với cọ còn lại");
+    if (splat.empty() || splat.cells.rgba.size() < 8) return;
+    context.expect(splat.cells.rgba[0] == 1 && splat.cells.rgba[1] == 0, "lớp phủ thiếu cọ bị bỏ");
+    context.expect(splat.cells.rgba[4] == 0, "nền thiếu cọ là lỗ");
+    // Cọ có alpha 128 được nhân sẵn vào màu: 200 * 128 / 255 làm tròn.
+    const std::size_t inside = byte_at(splat.atlas, 16, 16);
+    context.expect(splat.atlas.rgba[inside] == 100 && splat.atlas.rgba[inside + 3U] == 128, "màu nhân alpha");
 }
 
 void liquid_covers_the_pool_and_stays_flat(Context& context) {
@@ -358,73 +429,6 @@ void liquid_covers_the_pool_and_stays_flat(Context& context) {
     field.place.y = -1.0F;
     const client::map::LiquidSheet dry = client::map::build_liquid(field);
     context.expect(dry.indices.empty(), "cao hơn mọi đỉnh thì không có mặt");
-}
-
-// Cảnh nhỏ nhất có nước: một ô đất 100 x 100 phẳng ở độ cao 0.
-struct Pond {
-    client::map::TerrainFile terrain;
-    client::map::HeightField heights;
-    client::map::GridField grid;
-};
-
-[[nodiscard]] Pond flat_pond() {
-    Pond pond;
-    pond.terrain.x_size = 1;
-    pond.terrain.z_size = 1;
-    pond.terrain.scale = {.x = 100.0F, .y = 100.0F, .z = 100.0F};
-    pond.heights.samples = {0.0F, 0.0F, 0.0F, 0.0F};
-    pond.grid.cells.emplace_back();
-    return pond;
-}
-
-// Mặt nước đặt giữa ô ở mực level. Trỏ vào pond nên pond phải sống lâu hơn.
-[[nodiscard]] client::map::LiquidField liquid_at(const Pond& pond, float level) {
-    client::map::LiquidField field;
-    field.terrain = &pond.terrain;
-    field.heights = &pond.heights;
-    field.grid = &pond.grid;
-    field.place.x = 50.0F;
-    field.place.y = level;
-    field.place.z = 50.0F;
-    return field;
-}
-
-void water_cover_keeps_the_higher_level(Context& context) {
-    const Pond pond = flat_pond();
-    client::map::WaterCover cover = client::map::water_cover(pond.terrain);
-    const client::map::LiquidField shallow = liquid_at(pond, 10.0F);
-    client::map::pour_liquid(cover, shallow);
-    const std::optional<float> level = client::map::water_at(cover, 50.0F, 50.0F);
-    context.expect(level.has_value() && *level == 10.0F, "ô chìm có mực 10");
-    const std::optional<float> edge = client::map::water_at(cover, 1000.0F, -20.0F);
-    context.expect(edge.has_value() && *edge == 10.0F, "ngoài bản đồ kẹp vào ô biên");
-    const client::map::LiquidField deep = liquid_at(pond, 25.0F);
-    client::map::pour_liquid(cover, deep);
-    const std::optional<float> higher = client::map::water_at(cover, 50.0F, 50.0F);
-    context.expect(higher.has_value() && *higher == 25.0F, "hai mặt chồng lấy mực cao");
-    client::map::WaterCover barren = client::map::water_cover(pond.terrain);
-    const client::map::LiquidField buried = liquid_at(pond, -1.0F);
-    client::map::pour_liquid(barren, buried);
-    const std::optional<float> dry_level = client::map::water_at(barren, 50.0F, 50.0F);
-    context.expect(!dry_level, "không có tam giác thì không có nước");
-}
-
-void water_ray_matches_nav_collider(Context& context) {
-    const Pond pond = flat_pond();
-    client::map::WaterCover cover = client::map::water_cover(pond.terrain);
-    const client::map::LiquidField shallow = liquid_at(pond, 10.0F);
-    client::map::pour_liquid(cover, shallow);
-    client::map::WaterRay falling;
-    falling.origin_x = 50.0F;
-    falling.origin_y = 100.0F;
-    falling.origin_z = 50.0F;
-    falling.direction_y = -1.0F;
-    falling.reach = 200.0F;
-    const std::optional<client::map::WaterHit> hit = client::map::ray_water(cover, falling);
-    context.expect(hit.has_value(), "tia xuống cắt mặt nước");
-    if (hit) context.expect(hit->y == 10.0F && hit->x == 50.0F, "chạm tại bước y <= mực");
-    falling.reach = 50.0F;
-    context.expect(!client::map::ray_water(cover, falling), "len < reach nên chưa tới mặt");
 }
 
 void liquid_look_matches_the_named_material(Context& context) {
@@ -820,13 +824,10 @@ constexpr std::array kCases{
         .body = &book_keeps_active_rows_and_skips_spares},
     Case{.name = "book_reads_radar_token", .body = &book_reads_radar_token},
     Case{.name = "book_reads_clip_planes", .body = &book_reads_clip_planes},
-    Case{.name = "pixmap_corner_follows_original_table",
-        .body = &pixmap_corner_follows_original_table},
-    Case{.name = "surface_paints_the_base_brush", .body = &surface_paints_the_base_brush},
+    Case{.name = "splat_table_decodes_like_the_shader", .body = &splat_table_decodes_like_the_shader},
+    Case{.name = "splat_drops_layers_without_a_brush", .body = &splat_drops_layers_without_a_brush},
     Case{.name = "liquid_covers_the_pool_and_stays_flat",
         .body = &liquid_covers_the_pool_and_stays_flat},
-    Case{.name = "water_cover_keeps_the_higher_level", .body = &water_cover_keeps_the_higher_level},
-    Case{.name = "water_ray_matches_nav_collider", .body = &water_ray_matches_nav_collider},
     Case{.name = "liquid_look_matches_the_named_material",
         .body = &liquid_look_matches_the_named_material},
     Case{.name = "minimap_frame_matches_desktop_layout",

@@ -107,6 +107,8 @@ struct Sampler {
     Wrap wrap_u = Wrap::kRepeat;
     Wrap wrap_v = Wrap::kRepeat;
     bool has_mip = true;
+    // Mức mip lớn nhất được lấy mẫu (glTF không có; client đặt cho atlas mặt đất, nơi mip sâu hơn trộn ảnh kề nhau).
+    float max_lod = 1000.0F;
 };
 
 // Một khe texture. scale là normalScale hoặc strength; khe khác giữ 1.
@@ -186,6 +188,21 @@ struct Scatter {
     TexSlot color_map{};
 };
 
+// Mặt đất lớp cọ (FairyTerrain của bản gốc): màu mỗi điểm là cọ nền và cọ phủ chọn theo ô của lưới
+// địa hình, nhân lightmap; shader tự lấy mẫu từ ảnh cọ gốc nên không có ảnh nướng nào. Cả bốn ảnh là
+// dữ liệu thô (RGBA8, không giải mã sRGB): bản gốc lọc và nhân màu thẳng trên số của texture.
+// uv của đỉnh là toạ độ thế giới chuẩn hoá trên cả địa hình, (0, 0) ở ô đầu tiên.
+struct Splat {
+    // Mọi ảnh cọ ghép một tấm, màu đã nhân alpha, mỗi ảnh có viền đệm lặp mép để lọc không rỉ sang ảnh kề.
+    TexSlot atlas{};
+    // Một texel mỗi ô: pixmap nền và phủ (10 bit mỗi cái), orientation (4 bit mỗi lớp), cờ đường chéo.
+    TexSlot cells{};
+    // Lightmap phủ cả địa hình, hàng trên cùng là biên z lớn. Không có thì trắng.
+    TexSlot light{};
+    // Hàng 0: bốn góc theo orientation và cờ đường chéo. Từ hàng 1: hộp pixmap và phép đổi sang atlas.
+    TexSlot table{};
+};
+
 struct Material {
     std::string name;
     math::Float4 base_color{.x = 1.0F, .y = 1.0F, .z = 1.0F, .w = 1.0F};
@@ -232,6 +249,8 @@ struct Material {
         bool lit = true;
     };
     std::optional<Pass> pass;
+    // Có thì vẽ bằng pipeline địa hình và bỏ qua mọi khe ảnh ở trên.
+    std::optional<Splat> splat;
 };
 
 // Tịnh tiến, xoay, tỉ lệ đúng như tệp khai. Mặc định là đơn vị của glTF.

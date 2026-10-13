@@ -15,6 +15,10 @@ layout(std140, binding = 0) uniform FrameBlock {
     vec4 fog_color;
     vec4 rules;
     Lamp lamps[32];
+    vec4 hfog;
+    vec4 dfog;
+    vec4 hfog_color;
+    vec4 hfog_scatter;
 } frame;
 
 // Khối hằng đẩy của từng lệnh vẽ, cùng bố cục 128 byte với Draw của model.hlsli (xem model.vs.glsl).
@@ -41,6 +45,22 @@ float fog_share(float depth) {
     if (frame.fog_kind.y > 0.5) return exp(-thick);
     if (frame.fog_kind.z > 0.5) return exp(-(thick * thick));
     return 1.0;
+}
+
+// HeightFog_ps.hlsl, như height_fog của model_ps.hlsli.
+vec3 height_fog(vec3 color, vec3 place) {
+    if (frame.hfog_color.a < 0.5) return color;
+    vec3 to_point = place - frame.eye.xyz;
+    float ray_length = sqrt(max(dot(to_point, to_point), 1.0e-12));
+    float above = max(0.0, place.y - frame.hfog.y);
+    float by_height = frame.hfog.x * exp((-frame.hfog.z / 1000.0) * above);
+    by_height = pow(max(by_height, 0.0), frame.hfog.w);
+    float span = max(0.0, ray_length - frame.dfog.z);
+    float by_depth = 1.0 - (frame.dfog.x * exp((-frame.dfog.y / 1000.0) * span));
+    float facing = clamp(dot(to_point / ray_length, frame.sun_toward[0].xyz), 0.0, 1.0);
+    float scattered = pow(facing, frame.hfog_scatter.w);
+    vec3 tint = clamp(mix(frame.hfog_color.rgb, frame.hfog_scatter.rgb, scattered), 0.0, 1.0);
+    return mix(color, tint, by_height * by_depth);
 }
 
 vec3 lamp_light(vec3 facing, vec3 place, uint which) {
@@ -95,5 +115,5 @@ void main() {
         float depth = dot(frame.depth_row, vec4(varying_place, 1.0));
         color = mix(frame.fog_color.rgb, color, fog_share(depth));
     }
-    out_color = vec4(color, alpha);
+    out_color = vec4(height_fog(color, varying_place), alpha);
 }

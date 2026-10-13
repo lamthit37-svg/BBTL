@@ -1,5 +1,5 @@
-// Bảng catalog không cần GPU: ui ở tầng 0, bốn biến thể model ở nhóm Character tầng 1, fx ở
-// tầng 2. Tên không trùng. Thêm dòng mà quên nhóm hoặc tầng thì ca nhóm trống hoặc ca tầng đỏ.
+// Bảng catalog không cần GPU: ui ở tầng 0, bốn biến thể model ở nhóm Character tầng 1, mặt đất lớp cọ ở nhóm
+// World tầng 1, fx ở tầng 2. Tên không trùng. Thêm dòng mà quên nhóm hoặc tầng thì ca nhóm trống hoặc ca tầng đỏ.
 #include "core/check.hpp"
 #include "gpu/device.hpp"
 #include "render/catalog.hpp"
@@ -99,21 +99,39 @@ void optional_tier_follows_the_gpu(Context& context) {
     context.expect(!render::optional_tier_allowed(adapter, caps), "GPU phần mềm không mở tầng 3");
 }
 
+// Mặt đất lớp cọ là dòng duy nhất của nhóm World: đỉnh của model, điểm ảnh riêng, cùng hai khối hằng với model.
+void terrain_is_the_world_group(Context& context) {
+    std::size_t terrain = 0;
+    for (const Entry& entry : render::entries()) {
+        if (entry.group != Group::kWorld) continue;
+        ++terrain;
+        context.expect(entry.pso == Pso::kTerrain, "nhóm World chỉ có mặt đất");
+        context.expect(entry.tier == Tier::kEssential, "mặt đất thuộc tầng 1 (vẽ ngay khung đầu)");
+        context.expect(same(entry.vertex, "model.vs"), "mặt đất dùng đỉnh của model");
+        context.expect(same(entry.pixel, "terrain.ps"), "mặt đất có điểm ảnh riêng");
+        context.expect(!entry.is_required, "thiếu terrain.ps thì mặt đất vẽ như chất liệu thường");
+        context.expect(entry.frame_bytes == render::kModelFrameBytes, "khối khung của mặt đất là của model");
+        context.expect(entry.draw_bytes == render::kModelDrawBytes, "khối lệnh vẽ của mặt đất là của model");
+    }
+    context.expect(terrain == 1, "đúng một dòng nhóm World");
+}
+
 void idle_groups_stay_empty(Context& context) {
     for (const Entry& entry : render::entries()) {
-        const bool is_idle = entry.group == Group::kCore || entry.group == Group::kWorld ||
-            entry.group == Group::kLight || entry.group == Group::kPost || entry.group == Group::kCompute;
+        const bool is_idle = entry.group == Group::kCore || entry.group == Group::kLight ||
+            entry.group == Group::kPost || entry.group == Group::kCompute;
         context.expect(!is_idle, "nhóm chưa có shader thì không có dòng");
         context.expect(entry.tier != Tier::kOptional, "tầng 3 đang trống");
     }
 }
 
-constexpr std::array<Case, 6> kCases{{
+constexpr std::array<Case, 7> kCases{{
     {.name = "ui_opens_with_the_client", .body = &ui_opens_with_the_client},
     {.name = "names_are_unique", .body = &names_are_unique},
     {.name = "model_variants_are_character", .body = &model_variants_are_character},
     {.name = "fx_waits_for_the_scene", .body = &fx_waits_for_the_scene},
     {.name = "optional_tier_follows_the_gpu", .body = &optional_tier_follows_the_gpu},
+    {.name = "terrain_is_the_world_group", .body = &terrain_is_the_world_group},
     {.name = "idle_groups_stay_empty", .body = &idle_groups_stay_empty},
 }};
 

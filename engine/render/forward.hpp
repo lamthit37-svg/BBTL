@@ -176,11 +176,12 @@ struct Instance {
 
 class Forward {
 public:
-    // pipelines là bốn biến thể model của Catalog, theo Pso 0..3. Forward không huỷ chúng:
-    // Catalog phải sống lâu hơn Forward. InvalidArgument khi thiếu slot hoặc một handle rỗng.
-    // Mượn device: Forward và mọi Drawable của nó phải bị huỷ trước device.
+    // pipelines là bốn biến thể model của Catalog, theo Pso 0..3. terrain là pipeline địa hình lớp cọ
+    // (Pso::kTerrain), được phép rỗng: chất liệu có resource::Splat khi ấy vẽ như chất liệu thường.
+    // Forward không huỷ chúng: Catalog phải sống lâu hơn Forward. InvalidArgument khi thiếu slot hoặc
+    // một handle model rỗng. Mượn device: Forward và mọi Drawable của nó phải bị huỷ trước device.
     [[nodiscard]] static core::Result<Forward> create(gpu::Device& device, const ForwardDesc& desc,
-        std::array<gpu::PipelineHandle, 4> pipelines);
+        std::array<gpu::PipelineHandle, 4> pipelines, gpu::PipelineHandle terrain = {});
 
     Forward(Forward&&) noexcept;
     Forward& operator=(Forward&&) noexcept;

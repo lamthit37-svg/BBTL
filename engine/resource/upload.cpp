@@ -524,7 +524,7 @@ constexpr std::uint32_t kModelAnisotropy = 16;
     desc.address_u = to_address(source.wrap_u);
     desc.address_v = to_address(source.wrap_v);
     desc.address_w = desc.address_v;
-    desc.max_lod = source.has_mip ? 1000.0F : 0.0F;
+    desc.max_lod = source.has_mip ? source.max_lod : 0.0F;
     // Lọc bất đẳng hướng: mặt đất và tường nhìn xiên (camera game nghiêng) không nhoè đi như lọc tam tuyến thường. Thiết bị
     // kẹp theo DeviceCaps::max_anisotropy; điểm gần nhất thì không áp dụng.
     const bool is_smooth = source.min == Filter::kLinear && source.mag == Filter::kLinear && source.has_mip;
