@@ -564,9 +564,14 @@ void set_field(std::string& field, std::string value) {
         const std::string_view raw = std::string_view(text).substr(at, (end == std::string::npos ? text.size() : end) - at);
         at = end == std::string::npos ? text.size() : end + 1;
         std::string_view line = trim_left(raw);
-        if (!line.empty() && line.back() == '\r') line.remove_suffix(1);
         const std::size_t comment = line.find("//");
-        if (comment != std::string_view::npos) line = trim_left(line.substr(0, comment));
+        if (comment != std::string_view::npos) line = line.substr(0, comment);
+        // Bỏ khoảng trắng cuối dòng (kể cả '\r' và chỗ trước chú thích): 1313 dòng set_texture_alias của
+        // all.material có chúng (đo 2026-10-13), mà last_token lấy phần sau dấu cách cuối nên trả chuỗi rỗng và
+        // chất liệu mất ảnh (tóc nhân vật trắng toát). scene_blend và alpha_rejection cũng so cả đuôi.
+        while (!line.empty() && (line.back() == '\r' || line.back() == ' ' || line.back() == '\t')) {
+            line.remove_suffix(1);
+        }
         if (line.empty()) continue;
         if (line.starts_with("material ")) {
             std::string_view rest = trim_left(line.substr(9));

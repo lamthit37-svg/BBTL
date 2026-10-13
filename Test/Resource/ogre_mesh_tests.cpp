@@ -206,12 +206,49 @@ void capital_alias_is_the_diffuse_map(Context& context) {
     std::filesystem::remove_all(root);
 }
 
+// all.material của client gốc có 1313 dòng set_texture_alias kết thúc bằng khoảng trắng (tóc nhân vật nữ,
+// đo 2026-10-13): phần sau dấu cách cuối là chuỗi rỗng nên chất liệu từng mất ảnh. Dòng scene_blend cũng
+// có đuôi trắng và phải vẫn đọc ra "replace" là đặc.
+void trailing_spaces_keep_the_texture(Context& context) {
+    const std::string root = "ogre_mesh_trail_out";
+    static_cast<void>(fs::create_directories(root + "/Material"));
+    const char* script = "material Toc : Mau\r\n{\r\n    set_texture_alias <baseTexture> toc.dds    \r\n"
+                         "scene_blend replace \t \r\n}\r\n";
+    const auto* bytes = reinterpret_cast<const std::byte*>(script);
+    const core::Status written = fs::write_file(root + "/Material/all.material", std::span<const std::byte>(bytes, std::strlen(script)));
+    context.expect(static_cast<bool>(written), "ghi material có đuôi trắng");
+    if (!written) return;
+    std::vector<std::byte> dds;
+    put_u32(dds, 0x20534444U);
+    put_u32(dds, 124);
+    for (int index = 0; index < 30; ++index) put_u32(dds, 0);
+    dds.resize(128 + 8);
+    dds[12] = std::byte{4};
+    dds[16] = std::byte{4};
+    dds[80] = std::byte{4};
+    dds[84] = std::byte{'D'};
+    dds[85] = std::byte{'X'};
+    dds[86] = std::byte{'T'};
+    dds[87] = std::byte{'1'};
+    const core::Status texture = fs::write_file(root + "/Material/toc.dds", dds);
+    context.expect(static_cast<bool>(texture), "ghi dds tóc");
+    if (!texture) return;
+    std::vector<std::byte> file = triangle_mesh("Toc");
+    const auto model = resource::load_ogre_mesh(file, root);
+    context.expect(model.has_value(), "mesh đọc material có đuôi trắng");
+    if (!model) return;
+    context.expect(model->materials[0].color.image.has_value(), "ảnh không mất vì đuôi trắng");
+    context.expect(model->materials[0].alpha == resource::Alpha::kOpaque, "scene_blend replace có đuôi trắng là đặc");
+    std::filesystem::remove_all(root);
+}
+
 constexpr std::array kCases{
     Case{.name = "reads_triangle_positions", .body = &reads_triangle_positions},
     Case{.name = "named_load_uses_mesh_suffix", .body = &named_load_uses_mesh_suffix},
     Case{.name = "reads_shipped_mesh_when_present", .body = &reads_shipped_mesh_when_present},
     Case{.name = "child_inherits_blend_and_cull", .body = &child_inherits_blend_and_cull},
     Case{.name = "capital_alias_is_the_diffuse_map", .body = &capital_alias_is_the_diffuse_map},
+    Case{.name = "trailing_spaces_keep_the_texture", .body = &trailing_spaces_keep_the_texture},
 };
 
 } // namespace

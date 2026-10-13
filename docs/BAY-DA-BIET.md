@@ -317,6 +317,13 @@ mục ở mục 11.
   hay shader riêng, material không cộng sáng; muốn biết một cảnh thiếu hiệu ứng gì thì đọc dòng đó
   trong log, đừng nhìn ảnh mà đoán. Dòng đó không kể những thứ vẫn vẽ nhưng vẽ thiếu (xoay hạt của
   Rotator, thời lượng và lặp của emitter): xem `docs/NGHI-NGO.md` mục 40.
+- Tóc nhân vật trắng toát (đo 2026-10-13): `all.material` có 1313 dòng `set_texture_alias <baseTexture> x.dds` kết thúc bằng
+  khoảng trắng (cả tóc `女主角头发01..`), và `last_token` của `engine/resource/ogre_mesh.cpp` lấy phần sau dấu cách cuối
+  nên trả chuỗi rỗng: chất liệu mất ảnh, `attach_texture` im lặng bỏ qua, shader nhân ánh sáng với ảnh trắng dự phòng.
+  Sửa ở `parse_rules` (cắt khoảng trắng cuối dòng sau khi bỏ chú thích); ca hồi quy `trailing_spaces_keep_the_texture`
+  của `ogre_mesh_tests`. Thấy một phần model trắng trơn thì kiểm trước `material.color.image` của nó (có ảnh hay không),
+  đừng sửa ánh sáng. Còn chất liệu tóc nhận `ColourChangable` (cộng ánh sáng, ambient và diffuse 0) mà đường lưới OGRE
+  chưa mang (`Material::pass` rỗng với mọi lưới `.mesh`); màu tóc người chơi chọn (`SelectHairColor`) chưa có đường nào.
 - Nạp cảnh: chuỗi mip của texture phải nướng ở luồng nạp (`resource::stage_images` rồi
   `upload_queued(device, model, baked)`); gọi `upload_queued(device, model)` trên luồng vẽ cho
   model có ảnh lớn là nướng mip tuần tự ngay trên luồng vẽ (đo 2026-10-08: 2,5 giây cho 153 ảnh
