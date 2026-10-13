@@ -16,7 +16,7 @@ namespace game::account {
 inline constexpr std::size_t kCapBytes = 52;
 // Ban không chờ cap hết hạn: mỗi lệnh store hỏi lại auth (kStanding, nhớ tối đa kStandingTtl).
 // Gate chưa có đường làm mới cap giữa phiên nên TTL giữ bằng một phiên chơi dài.
-inline constexpr std::uint64_t kCapTtlSeconds = 8 * 60 * 60;
+inline constexpr std::uint64_t kCapTtlSeconds = std::uint64_t{8} * 60 * 60;
 
 struct Cap {
     std::uint64_t account = 0;

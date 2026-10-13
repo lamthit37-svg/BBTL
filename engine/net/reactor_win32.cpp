@@ -51,7 +51,7 @@ struct Op {
 struct AcceptOp {
     Op op{};
     SOCKET sock = kInvalid;
-    std::array<char, kAddrLen * 2> buf{};
+    std::array<char, std::size_t{kAddrLen} * 2> buf{};
 };
 
 struct Slot {
