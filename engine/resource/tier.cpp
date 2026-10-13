@@ -27,11 +27,6 @@ struct Kind {
     std::uint32_t block_bytes = 0;
 };
 
-[[nodiscard]] bool is_tltx(std::span<const std::byte> bytes) noexcept {
-    return bytes.size() >= 4 && bytes[0] == std::byte{'T'} && bytes[1] == std::byte{'L'} &&
-        bytes[2] == std::byte{'T'} && bytes[3] == std::byte{'X'};
-}
-
 [[nodiscard]] std::uint16_t read_u16(std::span<const std::byte> bytes, std::size_t offset) noexcept {
     std::uint16_t value = 0;
     std::memcpy(&value, bytes.data() + offset, sizeof(value));
@@ -42,6 +37,11 @@ struct Kind {
     std::uint32_t value = 0;
     std::memcpy(&value, bytes.data() + offset, sizeof(value));
     return value;
+}
+
+// Bốn byte đầu "TLTX" đọc theo thứ tự byte nhỏ trước, như mọi trường số của tệp.
+[[nodiscard]] bool is_tltx(std::span<const std::byte> bytes) noexcept {
+    return bytes.size() >= sizeof(std::uint32_t) && read_u32(bytes, 0) == kMagic;
 }
 
 [[nodiscard]] Kind kind_of(std::uint16_t kind) noexcept {

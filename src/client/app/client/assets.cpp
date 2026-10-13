@@ -71,12 +71,12 @@ std::vector<AssetEntry> read_asset_book(std::string_view text) {
     return entries;
 }
 
-std::vector<AssetEntry> assets_to_copy(std::string_view installed, std::string_view packed) {
-    std::vector<AssetEntry> kept = read_asset_book(installed);
+std::vector<AssetEntry> assets_to_copy(const AssetBooks& books) {
+    std::vector<AssetEntry> kept = read_asset_book(books.installed);
     std::ranges::sort(kept, is_before);
     std::vector<AssetEntry> stale;
     const Sieve sieve{.kept = &kept, .stale = &stale};
-    for (const AssetEntry& entry : read_asset_book(packed)) {
+    for (const AssetEntry& entry : read_asset_book(books.packed)) {
         sift(sieve, entry);
     }
     return stale;

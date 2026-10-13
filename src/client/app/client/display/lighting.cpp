@@ -31,13 +31,6 @@ namespace {
     return {-ray.x, -ray.y, -ray.z};
 }
 
-[[nodiscard]] render::FogKind kind_of(FogMode mode) noexcept {
-    if (mode == FogMode::kExp) return render::FogKind::kExp;
-    if (mode == FogMode::kExp2) return render::FogKind::kExp2;
-    if (mode == FogMode::kLinear) return render::FogKind::kLinear;
-    return render::FogKind::kNone;
-}
-
 [[nodiscard]] render::Lamp lamp_of(const Lamp& lamp) noexcept {
     render::Lamp made;
     made.position = math::Vector3(lamp.position.x, lamp.position.y, lamp.position.z);

@@ -786,11 +786,6 @@ struct Level {
     std::vector<std::uint8_t> rgba;
 };
 
-// Cả một mức đã hạ, làm nguồn cho mức kế.
-[[nodiscard]] Source view_of(const Level& level) noexcept {
-    return {.pixels = level.rgba.data(), .width = level.width, .height = level.height};
-}
-
 using Texel = std::span<const std::uint8_t, 4>;
 using Pixels = std::span<const std::uint8_t>;
 
@@ -948,16 +943,6 @@ void downsample_into(Source source, Level& dest, bool as_srgb) noexcept {
     return core::ok();
 }
 
-// Chuỗi mip của ảnh index vào cuối baked, trong không gian màu mà lần tải dùng cho ảnh đó.
-[[nodiscard]] core::Status bake_image(const Model& model, std::uint32_t index, std::vector<StagedImage>& baked) {
-    const gpu::Format format = image_format(model, index);
-    const ColorSpace space = space_of(format);
-    auto staged = stage_image(model.images[index], space);
-    if (!staged) return std::unexpected(staged.error());
-    baked.push_back(std::move(*staged));
-    return core::ok();
-}
-
 } // namespace
 
 core::Result<std::vector<std::byte>> stage_rgba(const Image& image) {
@@ -988,6 +973,8 @@ core::Result<StagedImage> stage_image(const Image& image, ColorSpace space) {
     return staged;
 }
 
+namespace {
+
 [[nodiscard]] gpu::Format color_view(gpu::Format format) noexcept {
     if (format == gpu::Format::kBc1Unorm) return gpu::Format::kBc1UnormSrgb;
     if (format == gpu::Format::kBc2Unorm) return gpu::Format::kBc2UnormSrgb;
@@ -998,6 +985,8 @@ core::Result<StagedImage> stage_image(const Image& image, ColorSpace space) {
     if (format == gpu::Format::kEtc2Rgba8Unorm) return gpu::Format::kEtc2Rgba8UnormSrgb;
     return format;
 }
+
+} // namespace
 
 gpu::Format image_format(const Model& model, std::uint32_t index) noexcept {
     const gpu::Format blocks = model.images[index].blocks;

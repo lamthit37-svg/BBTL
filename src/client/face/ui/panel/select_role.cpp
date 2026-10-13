@@ -223,10 +223,14 @@ const Role* chosen_role(const SelectRole& select) noexcept {
     return role_at(select, select.selected);
 }
 
+namespace {
+
 // Script gốc không gọi Disable. Mở bảng mà còn cờ Disabled thì nút vẽ lớp xám.
 void clear_disabled(Deck& deck, std::string_view window) {
     put(deck, window, "Disabled", "False");
 }
+
+} // namespace
 
 void paint_select(Deck& deck, const SelectRole& select) {
     deck.show(kRoot);

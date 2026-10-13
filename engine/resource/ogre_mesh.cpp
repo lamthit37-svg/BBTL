@@ -58,8 +58,6 @@ constexpr std::uint32_t kCacheVersion = 1;
 constexpr char kCacheMagic[4] = {'T', 'L', 'M', 'S'};
 
 constexpr std::uint16_t kPosition = 1;
-constexpr std::uint16_t kBlendWeights = 2;
-constexpr std::uint16_t kBlendIndices = 3;
 constexpr std::uint16_t kNormal = 4;
 constexpr std::uint16_t kDiffuse = 5;
 constexpr std::uint16_t kTexcoord = 7;

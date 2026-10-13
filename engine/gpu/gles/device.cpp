@@ -530,12 +530,16 @@ Result<CommandList*> GlDevice::begin_commands(QueueType queue) {
     return list;
 }
 
+namespace {
+
 [[nodiscard]] bool seen_before(std::span<CommandList* const> lists, std::size_t index) noexcept {
     for (std::size_t earlier = 0; earlier < index; ++earlier) {
         if (lists[earlier] == lists[index]) return true;
     }
     return false;
 }
+
+} // namespace
 
 Status GlDevice::submit(QueueType queue, const SubmitDesc& desc) {
     if (queue != QueueType::kGraphics) return fail(ErrorCode::kUnsupported, "GLES chỉ có hàng graphics");

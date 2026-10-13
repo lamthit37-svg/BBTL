@@ -596,12 +596,13 @@ if(GAME_HAS_GPU)
     find_package(xxHash CONFIG REQUIRED)
     find_package(zstd CONFIG REQUIRED)
     if(ANDROID OR IOS)
-        # fs của thiết bị chỉ cần mã hoá (giải gói shader) và luồng byte; disk/file/watcher của
-        # Forge2 là Win32 (shader/package.cpp đọc tệp qua io đã có bản POSIX).
+        # fs của thiết bị: mã hoá (giải gói shader), luồng byte và posix.cpp (đọc cả tệp, ghi nguyên
+        # tử, hỏi tệp, tạo thư mục); disk/file/watcher của Forge2 là Win32.
         game_module(fs
             engine/fs/buny.cpp
             engine/fs/codec.cpp
             engine/fs/path.cpp
+            engine/fs/posix.cpp
             engine/fs/stream.cpp)
     else()
         game_module(fs
@@ -1010,9 +1011,10 @@ file(GLOB_RECURSE game_headers CONFIGURE_DEPENDS
 if(NOT GAME_HAS_GPU)
     list(FILTER game_headers EXCLUDE REGEX "/engine/(fs|shader|gpu|render|resource)/")
 endif()
-# Backend D3D chỉ có trên Windows: header của nó đòi d3d11.h/d3d12.h của Windows SDK.
+# Backend D3D chỉ có trên Windows: header của nó đòi d3d11.h/d3d12.h và wrl/client.h của Windows SDK.
 if(NOT WIN32)
     list(FILTER game_headers EXCLUDE REGEX "/engine/gpu/d3d1[12]/")
+    list(FILTER game_headers EXCLUDE REGEX "/engine/gpu/com\\.hpp$")
 endif()
 if(NOT GAME_HAS_MATH)
     list(FILTER game_headers EXCLUDE REGEX "/engine/math/")

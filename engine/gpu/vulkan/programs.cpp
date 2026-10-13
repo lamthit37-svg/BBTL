@@ -460,6 +460,8 @@ Result<VkDescriptorSetLayout> VulkanDevice::create_set_layout(const SpaceLayout&
     return layout;
 }
 
+namespace {
+
 [[nodiscard]] std::uint32_t highest_set(const ProgramLayout& program) noexcept {
     std::uint32_t count = 0;
     for (std::uint32_t space = 0; space < kMaxBindGroups; ++space) {
@@ -468,6 +470,8 @@ Result<VkDescriptorSetLayout> VulkanDevice::create_set_layout(const SpaceLayout&
     }
     return count;
 }
+
+} // namespace
 
 Status VulkanDevice::fill_layout(Layout& layout, const ProgramLayout& program) {
     const std::uint32_t set_count = highest_set(program);

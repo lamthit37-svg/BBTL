@@ -164,6 +164,8 @@ void attach_sky_file(Stage& stage, const std::filesystem::path& scene_folder, st
     apply_sky(stage, *text);
 }
 
+namespace {
+
 [[nodiscard]] bool escapes_model(const std::filesystem::path& relative) noexcept {
     if (relative.empty() || relative.is_absolute()) return true;
     for (const std::filesystem::path& part : relative) {
@@ -193,6 +195,8 @@ void add_figure(Stage& stage, const std::filesystem::path& data_root, const Figu
     for (const std::string& mesh : meshes)
         add_figure_mesh(stage, model_root, model_file, figure, mesh);
 }
+
+} // namespace
 
 void attach_models(Stage& stage, const std::filesystem::path& data_root) {
     for (const Figure& figure : stage.figures)

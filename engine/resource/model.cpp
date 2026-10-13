@@ -859,11 +859,6 @@ void read_extensions(const cgltf_material& source, const Gltf& data, Material& m
     return material;
 }
 
-[[nodiscard]] bool is_dds(Encoded encoded) noexcept {
-    return encoded.size() >= 4 && encoded[0] == std::byte{'D'} && encoded[1] == std::byte{'D'} &&
-        encoded[2] == std::byte{'S'} && encoded[3] == std::byte{' '};
-}
-
 [[nodiscard]] ImageResult finish_image(const cgltf_image& source, Encoded encoded) {
     auto image = read_stored(encoded);
     if (!image) return failure_of(image);
