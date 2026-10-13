@@ -144,7 +144,7 @@ void add_row(ServerDirectory& directory, Row row) {
 } // namespace
 
 std::optional<BigArea> big_area_of(std::string_view area_name) noexcept {
-    if (area_name.find(kDash) == std::string_view::npos) return BigArea::kTelecom;
+    if (!area_name.contains(kDash)) return BigArea::kTelecom;
     const std::string_view prefix = prefix_of(area_name);
     const auto found = std::ranges::find(kPrefixes, prefix, &PrefixRow::prefix);
     if (found == kPrefixes.end()) return std::nullopt;
@@ -152,7 +152,7 @@ std::optional<BigArea> big_area_of(std::string_view area_name) noexcept {
 }
 
 std::string_view area_title(std::string_view area_name) noexcept {
-    if (!big_area_of(area_name) || area_name.find(kDash) == std::string_view::npos) return area_name;
+    if (!big_area_of(area_name) || !area_name.contains(kDash)) return area_name;
     return area_name.substr(area_name.find(kDash) + 1);
 }
 

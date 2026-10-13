@@ -101,7 +101,7 @@ void delete_asks_twice_and_other_keys_cancel(Context& context) {
     SelectRole select = opened(0);
     ui::panel::press_select(select, "SelectRole_Delete");
     context.expect(select.confirming && !ui::panel::take_select(select), "lần xoá đầu chỉ hỏi");
-    context.expect(select.info.find("Mot") != std::string::npos, "hỏi đúng tên");
+    context.expect(select.info.contains("Mot"), "hỏi đúng tên");
     ui::panel::press_select(select, "SelectRole_Play");
     context.expect(!select.confirming && !ui::panel::take_select(select), "nút khác chỉ huỷ câu hỏi");
     ui::panel::press_select(select, "SelectRole_Delete");

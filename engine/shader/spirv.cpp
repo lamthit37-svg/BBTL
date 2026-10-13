@@ -760,7 +760,7 @@ void add_attribute(const Module& module, std::uint32_t id, StageReflection& refl
 struct Entry {
     std::uint32_t model = 0;
     std::uint32_t function = 0;
-    Words interface{};
+    Words interface;
 };
 
 [[nodiscard]] Entry entry_at(const Module& module, std::uint32_t start) noexcept {

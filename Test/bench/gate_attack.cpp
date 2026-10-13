@@ -657,9 +657,9 @@ struct Held {
     std::optional<secure::RecordPipe> pipe;
     Bytes in;
     int stage = 0;  // 0 nối, 1 chờ lời đáp, 2 chờ Welcome, 3 sống, 9 chết
-    Clock::time_point sent_at{};
+    Clock::time_point sent_at;
     bool waiting = false;
-    Clock::time_point next_ping{};
+    Clock::time_point next_ping;
 };
 
 void seal_send(Held& held, const auto& message) {

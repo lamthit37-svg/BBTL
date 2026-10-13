@@ -185,7 +185,7 @@ void registry_round_trips_through_text(Context& context) {
     const std::string text = text_of(*before);
     context.expect(text.starts_with("metrics 1\ncounter gate.drop.handshake 0\n"), "dòng đầu và dòng bộ đếm đầu");
     context.expect(text.ends_with(" over=1\nend\n"), "pha cuối ghi cột tràn rồi dòng end");
-    context.expect(text.find(" b166=1 over=1\n") != std::string::npos, "chỉ ghi cột khác 0");
+    context.expect(text.contains(" b166=1 over=1\n"), "chỉ ghi cột khác 0");
     const auto after = std::make_unique<Snapshot>();
     const std::expected<void, SnapshotError> parsed = metrics::parse_snapshot(text, *after);
     context.expect(parsed.has_value(), "đọc lại được ảnh chụp vừa ghi");

@@ -34,50 +34,50 @@ namespace game::control {
 
 // Quỹ đạo trong thành viên CCamera. Không phải tư thế Ogre lúc đang chọn nhân vật.
 inline constexpr float kCharLookX = 0.0F;
-inline constexpr float kCharLookY = bits(0x42A00000u);
+inline constexpr float kCharLookY = bits(0x42A00000U);
 inline constexpr float kCharLookZ = 0.0F;
-inline constexpr float kCharPitch = bits(0xBE32B8C2u);
-inline constexpr float kCharDistance = bits(0x43FA0000u);
-inline constexpr float kCharDirection = bits(0x40490FDBu);
-inline constexpr float kCharFar = bits(0x47C35000u);
+inline constexpr float kCharPitch = bits(0xBE32B8C2U);
+inline constexpr float kCharDistance = bits(0x43FA0000U);
+inline constexpr float kCharDirection = bits(0x40490FDBU);
+inline constexpr float kCharFar = bits(0x47C35000U);
 
 // Cảnh của bảng chọn và bảng tạo (Scene_Load -2, "tl3chuangjian.Scene").
 inline constexpr std::string_view kRoleScene = "tl3chuangjian";
 
 // Góc nhìn dọc do 0x1800027a0 đặt trước khi tua track. Mặt xa do CharSel::Update.
-inline constexpr float kRoleFov = bits(0x42820000u);
+inline constexpr float kRoleFov = bits(0x42820000U);
 inline constexpr float kRoleNear = 5.0F;
 inline constexpr float kRoleFar = kCharFar;
 
 // Hướng nghỉ của ba ô: cùng một quaternion (w x y z trên đĩa, đây xếp x y z w).
 inline constexpr ogre::Quat kRoleLook{
-    .x = bits(0xBD24CF8Du),
-    .y = bits(0x399FFDBFu),
-    .z = bits(0x37565DA8u),
-    .w = bits(0x3F7FCEFBu),
+    .x = bits(0xBD24CF8DU),
+    .y = bits(0x399FFDBFU),
+    .z = bits(0x37565DA8U),
+    .w = bits(0x3F7FCEFBU),
 };
 
 // Khoá cuối của CameraTrack (0,5 giây): mắt và hướng nhìn người mẫu nữ ở màn tạo.
 inline constexpr ogre::Vec3 kCreateEye{
-    .x = bits(0x444D83C7u),
-    .y = bits(0x44A36C29u),
-    .z = bits(0x4567C4A4u),
+    .x = bits(0x444D83C7U),
+    .y = bits(0x44A36C29U),
+    .z = bits(0x4567C4A4U),
 };
 inline constexpr ogre::Quat kCreateLook{
-    .x = bits(0xBD349DB1u),
-    .y = bits(0x3B779F33u),
-    .z = bits(0x392EE45Au),
-    .w = bits(0x3F7FC07Fu),
+    .x = bits(0xBD349DB1U),
+    .y = bits(0x3B779F33U),
+    .z = bits(0x392EE45AU),
+    .w = bits(0x3F7FC07FU),
 };
 
 // Người mẫu của màn tạo (Game.exe 0x140641bd0 ghi chỗ đứng, 0x140641e60 dựng): hai giới đứng cùng
 // một chỗ, hướng 0, tỉ lệ 1,5.
 inline constexpr ogre::Vec3 kCreateFeet{
-    .x = bits(0x444C8000u),
-    .y = bits(0x44850000u),
-    .z = bits(0x453D9000u),
+    .x = bits(0x444C8000U),
+    .y = bits(0x44850000U),
+    .z = bits(0x453D9000U),
 };
-inline constexpr float kCreateScale = bits(0x3FC00000u);
+inline constexpr float kCreateScale = bits(0x3FC00000U);
 
 // Mắt ở tư thế nghỉ của track và chân nhân vật của cùng ô, centimet.
 struct RolePlace {
@@ -87,16 +87,16 @@ struct RolePlace {
 
 inline constexpr std::array<RolePlace, 3> kRolePlaces{{
     {
-        .eye = {.x = bits(0x4447470Au), .y = bits(0x44A42BD7u), .z = bits(0x44B018F6u)},
-        .feet = {.x = bits(0x4447224Eu), .y = bits(0x448F4000u), .z = bits(0x448475C3u)},
+        .eye = {.x = bits(0x4447470AU), .y = bits(0x44A42BD7U), .z = bits(0x44B018F6U)},
+        .feet = {.x = bits(0x4447224EU), .y = bits(0x448F4000U), .z = bits(0x448475C3U)},
     },
     {
-        .eye = {.x = bits(0xC3908646u), .y = bits(0x44A42BD7u), .z = bits(0x44B00BD7u)},
-        .feet = {.x = bits(0xC390B2F2u), .y = bits(0x448E6000u), .z = bits(0x4484847Bu)},
+        .eye = {.x = bits(0xC3908646U), .y = bits(0x44A42BD7U), .z = bits(0x44B00BD7U)},
+        .feet = {.x = bits(0xC390B2F2U), .y = bits(0x448E6000U), .z = bits(0x4484847BU)},
     },
     {
-        .eye = {.x = bits(0x44EC5B85u), .y = bits(0x44A42BD7u), .z = bits(0x44B00BD7u)},
-        .feet = {.x = bits(0x44EC6429u), .y = bits(0x448E6000u), .z = bits(0x4484FEB8u)},
+        .eye = {.x = bits(0x44EC5B85U), .y = bits(0x44A42BD7U), .z = bits(0x44B00BD7U)},
+        .feet = {.x = bits(0x44EC6429U), .y = bits(0x448E6000U), .z = bits(0x4484FEB8U)},
     },
 }};
 

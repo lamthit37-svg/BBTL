@@ -201,8 +201,8 @@ struct Engine {
     // Khoá là 8 byte đầu của digest; so khớp cả 32 byte bằng phép so thời gian hằng.
     std::unordered_map<std::uint64_t, Session> sessions;
     // Luồng tick đẩy asks và lấy answers; luồng thư ký làm ngược lại. Mỗi hàng đúng một bên đẩy.
-    net::SpscMail<Ask, kAskRoom> asks{};
-    net::SpscMail<Answer, kAskRoom> answers{};
+    net::SpscMail<Ask, kAskRoom> asks;
+    net::SpscMail<Answer, kAskRoom> answers;
     std::atomic<bool> clerk_stop{false};
     std::jthread clerk;
 

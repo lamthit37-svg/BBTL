@@ -197,8 +197,8 @@ void astc_sibling_is_chosen(Context& context) {
     cooked.close();
     const std::string astc = resource::texture_file(root, "Material/a.dds", resource::TextureTier::kAstc);
     const std::string bc = resource::texture_file(root, "Material/a.dds", resource::TextureTier::kBc);
-    context.expect(astc.find("mobile/astc/") != std::string::npos, "ASTC thắng khi có tệp");
-    context.expect(bc.find("mobile/") == std::string::npos, "PC giữ DDS");
+    context.expect(astc.contains("mobile/astc/"), "ASTC thắng khi có tệp");
+    context.expect(!bc.contains("mobile/"), "PC giữ DDS");
     files::remove_all(root);
 }
 

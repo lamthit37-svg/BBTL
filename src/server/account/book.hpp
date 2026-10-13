@@ -100,7 +100,7 @@ private:
     struct TicketRow {
         std::uint64_t account = 0;
         std::string hex;
-        std::chrono::system_clock::time_point expires{};
+        std::chrono::system_clock::time_point expires;
         bool used = false;
     };
 

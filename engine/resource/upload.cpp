@@ -217,22 +217,22 @@ public:
 
 private:
     gpu::Device* device_ = nullptr;
-    std::vector<gpu::BufferHandle> handles_{};
+    std::vector<gpu::BufferHandle> handles_;
     Baked baked_;
     StagedImage fresh_;
 };
 
 struct Owned {
-    std::vector<GpuMesh> meshes{};
-    std::vector<GpuImage> images{};
-    std::vector<gpu::SamplerHandle> samplers{};
+    std::vector<GpuMesh> meshes;
+    std::vector<GpuImage> images;
+    std::vector<gpu::SamplerHandle> samplers;
     gpu::SamplerHandle fallback{};
 };
 
 struct ImageCopy {
     gpu::BufferHandle source{};
     gpu::TextureHandle target{};
-    std::vector<gpu::BufferTextureCopy> regions{};
+    std::vector<gpu::BufferTextureCopy> regions;
 };
 
 [[nodiscard]] core::Status stage_buffer(gpu::Device& device, gpu::CommandList& commands, Scratch& scratch,

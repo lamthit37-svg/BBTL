@@ -41,7 +41,7 @@ constexpr std::string_view kClientData;
 #endif
 
 bool has_text(const std::string& error, std::string_view part) {
-    return error.find(part) != std::string::npos;
+    return error.contains(part);
 }
 
 void skills_read_and_sorted(Context& context) {

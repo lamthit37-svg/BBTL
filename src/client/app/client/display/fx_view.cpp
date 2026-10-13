@@ -115,8 +115,8 @@ void darken_from_brightness(resource::Image& image) noexcept {
 
 // Tấm sương của cảnh đăng nhập. Không dựng: chúng phủ trời thành một lớp xám.
 [[nodiscard]] bool is_mist(std::string_view name) noexcept {
-    const bool directional = name.find("方向雾") != std::string_view::npos;
-    const bool sheets = name.find("远景雾片") != std::string_view::npos;
+    const bool directional = name.contains("方向雾");
+    const bool sheets = name.contains("远景雾片");
     return directional || sheets;
 }
 

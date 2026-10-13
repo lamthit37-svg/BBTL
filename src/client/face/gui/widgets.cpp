@@ -433,7 +433,7 @@ Placed button_of(const Ctx& ctx, const Placed& self, std::string_view key, const
 
 // Nhãn cờ của bản ghi: có ký tự flag không.
 bool has_flag(std::string_view flags, char flag_mark) noexcept {
-    return flags.find(flag_mark) != std::string_view::npos;
+    return flags.contains(flag_mark);
 }
 
 // Ô của nút phần tử: vùng tên khoá của look cửa sổ cho vị trí ngang, cao và rộng; mép trên của vùng

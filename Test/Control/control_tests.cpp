@@ -437,7 +437,7 @@ void role_track_faces_the_feet(Context& context) {
     const float rise = slot.feet.y - slot.eye.y;
     const float depth = slot.feet.z - slot.eye.z;
     const float toward = (across * forward.x) + (rise * forward.y) + (depth * forward.z);
-    context.expect(slot.feet.y == control::bits(0x448F4000u), "chân ô 0 cao 1146");
+    context.expect(slot.feet.y == control::bits(0x448F4000U), "chân ô 0 cao 1146");
     context.expect(control::role_place(1).eye.x < 0.0F, "ô 1 nằm bên âm x");
     context.expect(control::role_place(2).eye.x > slot.eye.x, "ô 2 nằm bên phải ô 0");
     context.expect(toward > 200.0F, "camera nghỉ nhìn về phía chân");

@@ -892,7 +892,7 @@ void fill_handshake(Measure& measure, const Load& load, std::uint32_t pid, Clock
 
 struct RunAt {
     std::uint32_t pid = 0;
-    Clock::time_point began{};
+    Clock::time_point began;
 };
 
 [[nodiscard]] Measure sample_run(Load& load, Progress& progress, const Plan& plan, RunAt at) {
