@@ -449,6 +449,9 @@ core::Status Display::State::submit_frame(gpu::CommandList& list) const {
 
 std::optional<ShotPlan> Display::State::record_shot(gpu::CommandList& list, std::uint32_t slot) {
     if (shot_taken || shot_path.empty() || arrival.has_value()) return std::nullopt;
+    // Bảng đo đang hiện thì chờ đủ mẫu: khung đầu chưa có số nào để chụp.
+    constexpr std::size_t kSamplesForShot = 30;
+    if (shows_pace && pace_filled < kSamplesForShot) return std::nullopt;
     shot_taken = true;
     const gpu::Format colour = screen->color_format();
     const std::uint32_t width = screen->width();

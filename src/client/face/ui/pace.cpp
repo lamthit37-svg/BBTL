@@ -16,6 +16,7 @@
 #include <expected>
 #include <filesystem>
 #include <format>
+#include <functional>
 #include <span>
 #include <string>
 #include <string_view>
@@ -29,10 +30,22 @@ constexpr std::uint32_t kIndexEntries = 65536;
 constexpr std::uint32_t kNoGlyph = 0xFFFFFFFFU;
 constexpr std::uint32_t kMagic = 0x54465841U;
 constexpr int kAtlasColumns = 32;
-constexpr std::uint32_t kPanel = 0xF0101418U;
+// Đặc hẳn: pha màu của lớp giao diện chạy trong không gian tuyến tính, nên nền 94% vẫn để cảnh sáng lộ qua và
+// chữ khó đọc.
+constexpr std::uint32_t kPanel = 0xFF101418U;
 constexpr std::uint32_t kInk = 0xFFFFFFFFU;
-constexpr float kValueColumn = 168.0F;
+constexpr std::uint32_t kLabelInk = 0xFFA8B8C8U;
+constexpr std::uint32_t kUnitInk = 0xFF7F8C99U;
+constexpr std::uint32_t kGoodInk = 0xFF6FE08CU;
+constexpr std::uint32_t kWarnInk = 0xFFF2C94CU;
+constexpr std::uint32_t kBadInk = 0xFFFF6B6BU;
 constexpr float kPad = 10.0F;
+constexpr float kColumnGap = 16.0F;
+constexpr float kUnitGap = 5.0F;
+constexpr float kGroupGap = 6.0F;
+constexpr float kRowGap = 4.0F;
+// Mẫu bề rộng tối thiểu của cột giá trị: bảng không co giãn khi số đổi độ dài.
+constexpr std::string_view kWidestValue = "2560x1440";
 
 struct Layout {
     int pixel_size = 0;
@@ -198,20 +211,25 @@ constexpr int kBoxBottom = 9;
 
 // Mẫu bit của một hàng ô vuông rỗng: hàng trên và dưới kín từ cột trái tới cột phải, hàng giữa chỉ
 // có hai cột biên.
-[[nodiscard]] constexpr std::uint32_t box_row(int pixel_size, int line) noexcept {
-    const std::uint32_t sides = column_bit(pixel_size, kBoxLeft) | column_bit(pixel_size, kBoxRight);
-    if (line != kBoxTop && line != kBoxBottom) return sides;
+struct BoxLine {
+    int pixel_size = 0;
+    int line = 0;
+};
+
+[[nodiscard]] constexpr std::uint32_t box_row(BoxLine at) noexcept {
+    const std::uint32_t sides = column_bit(at.pixel_size, kBoxLeft) | column_bit(at.pixel_size, kBoxRight);
+    if (at.line != kBoxTop && at.line != kBoxBottom) return sides;
     std::uint32_t bar = 0;
-    for (int column = kBoxLeft; column <= kBoxRight; ++column) bar |= column_bit(pixel_size, column);
+    for (int column = kBoxLeft; column <= kBoxRight; ++column) bar |= column_bit(at.pixel_size, column);
     return bar;
 }
-static_assert(box_row(14, kBoxTop) == 0x0FE0U && box_row(14, 5) == 0x0820U);
-static_assert(box_row(12, kBoxBottom) == 0x03F8U && box_row(12, 3) == 0x0208U);
+static_assert(box_row({.pixel_size = 14, .line = kBoxTop}) == 0x0FE0U && box_row({.pixel_size = 14, .line = 5}) == 0x0820U);
+static_assert(box_row({.pixel_size = 12, .line = kBoxBottom}) == 0x03F8U && box_row({.pixel_size = 12, .line = 3}) == 0x0208U);
 
 void paint_missing(resource::Image& atlas, int pixel_size, GlyphCell cell) {
     for (int line = kBoxTop; line <= kBoxBottom; ++line) {
         const RowPlace place{.pixel_size = pixel_size, .column = cell.column, .pixel_y = (cell.row * pixel_size) + line};
-        paint_row(atlas, place, box_row(pixel_size, line));
+        paint_row(atlas, place, box_row({.pixel_size = pixel_size, .line = line}));
     }
 }
 
@@ -313,24 +331,120 @@ void push_quad(std::vector<render::UiVertex>& out, const QuadBox& box) {
     out.push_back({.x = box.left, .y = box.bottom, .u = box.u_left, .v = box.v_bottom, .colour = box.colour});
 }
 
-[[nodiscard]] std::string millis_text(float millis) {
-    return std::format("{:.1f} ms", millis);
-}
-
+// Một hàng của bảng. opens_group: hàng đầu một nhóm mới, cách hàng trên một khoảng.
 struct PaceLine {
     std::string_view label;
     std::string value;
+    std::string_view unit;
+    std::uint32_t colour = kInk;
+    bool opens_group = false;
 };
 
-void append_lines(const BitmapFont& font, std::span<const PaceLine> lines, float origin_x, float origin_y,
-    std::vector<render::UiVertex>& out) {
-    const float step = static_cast<float>(font.pixel_size()) + 4.0F;
+// Xanh khi trong ngân sách, vàng khi tới gấp đôi, đỏ khi hơn; chưa có ngân sách hay chưa có số thì
+// trắng.
+[[nodiscard]] std::uint32_t colour_of(float millis, float budget_ms) noexcept {
+    if (budget_ms <= 0.0F || millis <= 0.0F) return kInk;
+    if (millis <= budget_ms * kBudgetSlack) return kGoodInk;
+    return millis <= budget_ms * 2.0F ? kWarnInk : kBadInk;
+}
+
+[[nodiscard]] std::string one_decimal(float value) {
+    return std::format("{:.1f}", value);
+}
+
+[[nodiscard]] std::string extent_text(std::uint32_t width, std::uint32_t height) {
+    if (width == 0 || height == 0) return "-";
+    return std::format("{}x{}", width, height);
+}
+
+// Mười sáu hàng trong bốn nhóm: nhịp, chặng của khung, tải, đích vẽ. Chưa có mẫu nào thì phán quyết
+// và các số nhịp là gạch.
+[[nodiscard]] std::array<PaceLine, 16> lines_of(const PaceNumbers& pace) {
+    const bool is_measured = pace.fps > 0.0F;
+    const float budget = pace.budget_ms;
+    const auto timing = [&](float millis) { return is_measured ? one_decimal(millis) : std::string("-"); };
+    const std::string target = budget > 0.0F ? std::format("{:.0f}", 1000.0F / budget) : std::string("-");
+    std::string verdict = "-";
+    std::uint32_t verdict_ink = kInk;
+    if (is_measured && budget > 0.0F) {
+        const bool is_met = meets_budget(pace);
+        verdict = is_met ? "ĐẠT" : "TRƯỢT";
+        verdict_ink = is_met ? kGoodInk : kBadInk;
+    }
+    return {
+        PaceLine{.label = "Mục tiêu", .value = target, .unit = "Hz", .colour = kInk},
+        PaceLine{.label = "Kết luận", .value = verdict, .unit = "", .colour = verdict_ink},
+        PaceLine{.label = "FPS", .value = timing(pace.fps), .unit = "", .colour = kInk},
+        PaceLine{.label = "Khung", .value = timing(pace.average_ms), .unit = "ms",
+            .colour = colour_of(pace.average_ms, budget)},
+        PaceLine{.label = "Trung vị", .value = timing(pace.median_ms), .unit = "ms",
+            .colour = colour_of(pace.median_ms, budget)},
+        PaceLine{.label = "p95", .value = timing(pace.p95_ms), .unit = "ms", .colour = colour_of(pace.p95_ms, budget)},
+        PaceLine{.label = "Chậm nhất", .value = timing(pace.worst_ms), .unit = "ms",
+            .colour = colour_of(pace.worst_ms, budget)},
+        PaceLine{.label = "Vượt ngân sách", .value = timing(pace.over_percent), .unit = "%",
+            .colour = pace.over_percent > kMaxOverPercent ? kBadInk : kInk},
+        PaceLine{.label = "Ngân sách", .value = budget > 0.0F ? one_decimal(budget) : std::string("-"), .unit = "ms",
+            .colour = kInk},
+        PaceLine{.label = "Xin ảnh", .value = one_decimal(pace.acquire_ms), .unit = "ms", .colour = kInk,
+            .opens_group = true},
+        PaceLine{.label = "Ghi lệnh", .value = one_decimal(pace.draw_ms), .unit = "ms", .colour = kInk},
+        PaceLine{.label = "Nộp", .value = one_decimal(pace.submit_ms), .unit = "ms", .colour = kInk},
+        PaceLine{.label = "Dựng UI", .value = one_decimal(pace.prepare_ms), .unit = "ms", .colour = kInk},
+        PaceLine{.label = "Lệnh vẽ", .value = std::to_string(pace.draws), .unit = "", .colour = kInk,
+            .opens_group = true},
+        PaceLine{.label = "Quad UI", .value = std::to_string(pace.ui_quads), .unit = "", .colour = kInk},
+        PaceLine{.label = "Màn hình", .value = extent_text(pace.output_width, pace.output_height), .unit = "",
+            .colour = kInk, .opens_group = true},
+    };
+}
+
+// Cột của bảng tính bằng điểm ảnh: bề rộng nhãn, giá trị, đơn vị.
+struct Columns {
+    float label = 0.0F;
+    float value = 0.0F;
+    float unit = 0.0F;
+};
+
+[[nodiscard]] Columns columns_of(const BitmapFont& font, std::span<const PaceLine> lines) noexcept {
+    Columns columns;
+    columns.value = font.width_of(kWidestValue);
+    for (const PaceLine& line : lines) {
+        columns.label = std::max(columns.label, font.width_of(line.label));
+        columns.value = std::max(columns.value, font.width_of(line.value));
+        columns.unit = std::max(columns.unit, font.width_of(line.unit));
+    }
+    return columns;
+}
+
+struct Frame {
+    float width = 0.0F;
+    float height = 0.0F;
+};
+
+[[nodiscard]] Frame frame_of(const BitmapFont& font, std::span<const PaceLine> lines, const Columns& columns) noexcept {
+    const float step = static_cast<float>(font.pixel_size()) + kRowGap;
+    const float tail = columns.unit > 0.0F ? kUnitGap + columns.unit : 0.0F;
+    float height = 0.0F;
+    for (const PaceLine& line : lines) {
+        height += step + (line.opens_group ? kGroupGap : 0.0F);
+    }
+    return {.width = (kPad * 2.0F) + columns.label + kColumnGap + columns.value + tail,
+        .height = (kPad * 2.0F) + height};
+}
+
+void append_lines(const BitmapFont& font, std::span<const PaceLine> lines, const Columns& columns, float origin_x,
+    float origin_y, std::vector<render::UiVertex>& out) {
+    const float step = static_cast<float>(font.pixel_size()) + kRowGap;
     const float label_x = origin_x + kPad;
-    const float value_x = label_x + kValueColumn;
-    for (std::size_t index = 0; index < lines.size(); ++index) {
-        const float pen_y = origin_y + kPad + (step * static_cast<float>(index));
-        font.append_text(lines[index].label, label_x, pen_y, kInk, out);
-        font.append_text(lines[index].value, value_x, pen_y, kInk, out);
+    const float value_right = label_x + columns.label + kColumnGap + columns.value;
+    float pen_y = origin_y + kPad;
+    for (const PaceLine& line : lines) {
+        if (line.opens_group) pen_y += kGroupGap;
+        font.append_text(line.label, label_x, pen_y, kLabelInk, out);
+        font.append_text(line.value, value_right - font.width_of(line.value), pen_y, line.colour, out);
+        font.append_text(line.unit, value_right + kUnitGap, pen_y, kUnitInk, out);
+        pen_y += step;
     }
 }
 
@@ -342,6 +456,18 @@ PaceNumbers pace_of(std::span<const float> samples, const PaceNumbers& phases) {
     pace.last_ms = samples.back();
     std::vector<float> sorted(samples.begin(), samples.end());
     std::ranges::sort(sorted);
+    pace.worst_ms = sorted.at(sorted.size() - 1);
+    // Cộng ở double: 90 mẫu cỡ ms cộng ở float vẫn đủ, nhưng chia lấy fps nhạy với sai số nhỏ.
+    const double total = std::ranges::fold_left(sorted, 0.0, std::plus<>{});
+    if (total > 0.0) {
+        pace.average_ms = static_cast<float>(total / static_cast<double>(sorted.size()));
+        pace.fps = static_cast<float>(1000.0 * static_cast<double>(sorted.size()) / total);
+    }
+    if (pace.budget_ms > 0.0F) {
+        const float limit = pace.budget_ms * kBudgetSlack;
+        const auto over = std::ranges::count_if(sorted, [limit](float millis) { return millis > limit; });
+        pace.over_percent = 100.0F * static_cast<float>(over) / static_cast<float>(sorted.size());
+    }
     const auto pick = [&sorted](double part) {
         const auto index = static_cast<std::size_t>(part * static_cast<double>(sorted.size() - 1));
         return sorted.at(index);
@@ -349,6 +475,10 @@ PaceNumbers pace_of(std::span<const float> samples, const PaceNumbers& phases) {
     pace.median_ms = pick(0.5);
     pace.p95_ms = pick(0.95);
     return pace;
+}
+
+bool meets_budget(const PaceNumbers& pace) noexcept {
+    return pace.budget_ms > 0.0F && pace.fps > 0.0F && pace.over_percent <= kMaxOverPercent;
 }
 
 const BitmapFont::Glyph* BitmapFont::find(char32_t code) const noexcept {
@@ -366,6 +496,17 @@ int BitmapFont::advance_of(char32_t code) const noexcept {
     const Glyph* glyph = find(code);
     if (glyph == nullptr) return 0;
     return glyph->advance;
+}
+
+float BitmapFont::width_of(std::string_view text) const noexcept {
+    float width = 0.0F;
+    std::string_view rest = text;
+    while (!rest.empty()) {
+        const Decoded decoded = decode_utf8(rest);
+        rest.remove_prefix(decoded.bytes);
+        width += static_cast<float>(advance_of(decoded.code));
+    }
+    return width;
 }
 
 void BitmapFont::append_cell(const Placed& placed, std::vector<render::UiVertex>& out) const {
@@ -455,30 +596,22 @@ void write_pace(const PacePlace& place, const PaceNumbers& pace, PaceOverlay& ov
     overlay.batches.clear();
     if (place.font == nullptr) return;
     const BitmapFont& font = *place.font;
-    const std::array<PaceLine, 8> lines = {
-        PaceLine{.label = "Last", .value = millis_text(pace.last_ms)},
-        PaceLine{.label = "Median", .value = millis_text(pace.median_ms)},
-        PaceLine{.label = "p95", .value = millis_text(pace.p95_ms)},
-        PaceLine{.label = "Acquire", .value = millis_text(pace.acquire_ms)},
-        PaceLine{.label = "Record", .value = millis_text(pace.draw_ms)},
-        PaceLine{.label = "Submit", .value = millis_text(pace.submit_ms)},
-        PaceLine{.label = "Draws", .value = std::to_string(pace.draws)},
-        PaceLine{.label = "Quad UI", .value = std::to_string(pace.ui_quads)},
-    };
-    const float step = static_cast<float>(font.pixel_size()) + 4.0F;
-    const float width = kPad + kValueColumn + 96.0F;
-    const float height = (kPad * 2.0F) + (step * static_cast<float>(lines.size()));
+    const std::array<PaceLine, 16> lines = lines_of(pace);
+    const Columns columns = columns_of(font, lines);
+    const Frame frame = frame_of(font, lines, columns);
+    const float left = place.screen_width > 0.0F ? std::max(0.0F, place.screen_width - frame.width - place.origin_x)
+                                                  : place.origin_x;
     const std::size_t panel = overlay.vertices.size();
-    const QuadBox board{.left = place.origin_x,
+    const QuadBox board{.left = left,
         .top = place.origin_y,
-        .right = place.origin_x + width,
-        .bottom = place.origin_y + height,
+        .right = left + frame.width,
+        .bottom = place.origin_y + frame.height,
         .colour = kPanel};
     push_quad(overlay.vertices, board);
     const auto panel_quads = static_cast<std::uint32_t>((overlay.vertices.size() - panel) / 4);
     overlay.batches.push_back({.texture = render::kUiWhite, .first_quad = 0, .quad_count = panel_quads});
     const std::size_t text = overlay.vertices.size();
-    append_lines(font, lines, place.origin_x, place.origin_y, overlay.vertices);
+    append_lines(font, lines, columns, left, place.origin_y, overlay.vertices);
     const auto text_quads = static_cast<std::uint32_t>((overlay.vertices.size() - text) / 4);
     const auto first = static_cast<std::uint32_t>(text / 4);
     overlay.batches.push_back({.texture = place.texture, .first_quad = first, .quad_count = text_quads});

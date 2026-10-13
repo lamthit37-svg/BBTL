@@ -143,6 +143,12 @@
     nạp driver) chạy ở luồng riêng từ đầu tiến trình (`Display::preload`, `ui::HudPrep`, `Display::State::kick_loading`);
     luồng vẽ chỉ làm việc cần thiết bị. Việc mới thêm vào đường nạp phải giữ ngân sách ở mục "Ngân sách" và đo bằng
     `TOOLS/run/bench_load.py`; mốc `Mốc <ms> ms` của `client/timeline.hpp` là bảng đo của đường nạp.
+  - Bảng đo nhịp khung để dev giao diện đạt 120 fps, theo bảng thông số dev của Crazy — chủ dự án giao ngày 2026-10-13 ("thêm bảng
+    đo giống crazy", "dịch sang tiếng Việt"): `ui/pace` (F11 hoặc `--pace`; `--pace --shot` chờ đủ 30 mẫu rồi mới chụp). Ba cột nhãn /
+    giá trị căn phải / đơn vị, bốn nhóm (nhịp, chặng của khung, tải, đích vẽ), nhãn tiếng Việt vì là công cụ dev, không phải chữ
+    người chơi. Kết luận ĐẠT khi không quá 5% khung vượt ngân sách `1000 / render_hz` cộng dung sai 10% (`meets_budget`). Số là
+    cửa sổ 90 khung gần nhất. Chưa có mili-giây GPU thật: lớp `gpu` đã có `write_timestamp`/`read_queries` (`engine/gpu/command.hpp`)
+    nhưng client chưa dùng lần nào và chưa đo trên backend nào; "Xin ảnh" cao là dấu hiệu GPU chưa kịp.
   - Màn chơi, chủ dự án giao ngày 2026-10-13 ("hoàn tất toàn bộ giao diện chính xác", "fix triệt để mọi thứ làm mất texture"): bản
     đồ lớn (SceneMap) và bản đồ thế giới (LargeMap, widget WorldMap) port từ mã máy, hòm đồ và ô tiền, xoay người mẫu bảng nhân vật,
     con trỏ chuột của game (22 con trỏ đọc từ tài nguyên của `Game.exe`, `TOOLS/content/export_cursors.py`), phông Việt cho chữ có dấu

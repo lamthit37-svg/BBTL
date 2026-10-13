@@ -210,6 +210,7 @@ void print_visit(const world::ShownScene& shown) {
     viewer.data_folder = data_folder_of(options);
     viewer.shot = options.shot_path;
     viewer.is_bare = options.is_bare;
+    viewer.shows_pace = options.shows_pace;
     viewer.is_validated = options.validate.value_or(kValidatedByBuild);
     viewer.backend = options.backend;
     viewer.client_size = options.client_size;

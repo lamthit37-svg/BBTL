@@ -16,7 +16,7 @@ namespace game::client {
 inline constexpr std::string_view kUsage =
     "Cách dùng: thienlong_client [--scene-id <resid>] [--scene <tên map>] [--data <thư mục>]\n"
     "                         [--frames <số vòng>] [--shot <tệp.png>] [--validate]\n"
-    "                         [--backend <tên>] [--size <rộng>x<cao>] [--login] [--bare]\n"
+    "                         [--backend <tên>] [--size <rộng>x<cao>] [--login] [--bare] [--pace]\n"
     "--scene-id là resid trong Config/SceneDefineEx.txt. --scene tìm tên file .Scene trong bảng "
     "đó.\n"
     "Không nêu --scene và --scene-id: mở đăng nhập, như bấm đúp exe. Nút vào game đọc "
@@ -27,7 +27,8 @@ inline constexpr std::string_view kUsage =
     "--backend: vulkan, gles, d3d12 hoặc d3d11. Không nêu thì tự chọn.\n"
     "--validate: bật lớp kiểm tra của API đồ hoạ (bản debug bật sẵn, bản phát hành tắt cho nhanh).\n"
     "--login: mở thủ tục đăng nhập (bảng nhập tài khoản) thay vì vào thẳng một cảnh.\n"
-    "--bare: không vẽ lớp giao diện, chỉ cảnh 3D và hiệu ứng; dùng với --shot để chụp cảnh nền.";
+    "--bare: không vẽ lớp giao diện, chỉ cảnh 3D và hiệu ứng; dùng với --shot để chụp cảnh nền.\n"
+    "--pace: mở bảng đo nhịp khung ngay từ đầu (F11 bật tắt), so với ngân sách khung của 120 Hz.";
 
 struct Options {
     // Rỗng: không chọn theo tên file. resid được ưu tiên hơn tên này.
@@ -51,6 +52,8 @@ struct Options {
     bool is_login = false;
     // Không vẽ lớp giao diện (khung, nút, chữ, bảng đo): khung hình chỉ còn cảnh 3D và hiệu ứng.
     bool is_bare = false;
+    // Mở bảng đo nhịp khung ngay từ khung đầu; F11 vẫn bật tắt như thường.
+    bool shows_pace = false;
 };
 
 using Arguments = std::span<const std::string_view>;

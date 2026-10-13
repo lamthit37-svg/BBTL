@@ -97,6 +97,8 @@ struct DisplayDesc {
     // Không vẽ lớp giao diện (HUD, bảng đăng nhập, bảng đo): khung hình chỉ còn cảnh 3D và hiệu
     // ứng. Giao diện vẫn chạy và nhận chuột, phím như thường, chỉ không ra hình.
     bool is_bare = false;
+    // Bảng đo nhịp khung hiện ngay từ khung đầu; F11 bật tắt tiếp.
+    bool shows_pace = false;
     // Rỗng: tự chọn backend. Có thì ép đúng tên đó.
     std::optional<std::string> backend;
     // Có has thì màn chơi dùng ngoại hình này thay cho nhân vật mặc định.

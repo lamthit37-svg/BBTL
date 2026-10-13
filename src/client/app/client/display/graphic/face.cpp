@@ -71,6 +71,7 @@ void Display::State::arm_scene(const DisplayDesc& desc) {
     save_root = desc.save_root;
     shot_path = desc.shot_path;
     is_bare = desc.is_bare;
+    shows_pace = desc.shows_pace;
     procedure = desc.procedure;
     if (!feeder) feeder = std::make_unique<Feed>();
     if (!held) {
@@ -258,8 +259,10 @@ void Display::State::fill_pace_board() {
     ui::PacePlace place;
     place.font = &*pace_font;
     place.texture = pace_texture;
+    // Góc phải, dưới bản đồ nhỏ: bên trái là khung chat, bên trên là khung nhân vật.
     place.origin_x = 16.0F;
-    place.origin_y = 210.0F;
+    place.origin_y = 240.0F;
+    place.screen_width = static_cast<float>(screen->width());
     ui::write_pace(place, pace_shown, pace_board);
 }
 
@@ -330,6 +333,11 @@ void Display::State::note_pace(double interval) {
     phases.submit_ms = pace_last.submit_ms;
     phases.draws = pace_last.draws;
     phases.ui_quads = pace_last.quads;
+    phases.prepare_ms = static_cast<float>(last_prepare_ms);
+    if (render_hz > 0) phases.budget_ms = 1000.0F / static_cast<float>(render_hz);
+    phases.output_width = screen->width();
+    phases.output_height = screen->height();
+    phases.samples = screen->samples();
     const std::span<const float> samples(pace_ring.data(), pace_filled);
     pace_shown = ui::pace_of(samples, phases);
     pace_shown.last_ms = static_cast<float>(interval);

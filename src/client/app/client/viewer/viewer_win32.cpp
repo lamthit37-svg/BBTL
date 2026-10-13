@@ -38,6 +38,7 @@
 #include <string>
 #include <string_view>
 #include <thread>
+#include <vector>
 
 namespace game::client {
 namespace {
@@ -406,7 +407,7 @@ void apply_blur(Controls& controls) {
     controls.opened->capture_cursor(false);
 }
 
-void apply_stick(Controls& controls, const SdlAction& action) {
+void apply_stick(const Controls& controls, const SdlAction& action) {
     if (!action.stick_active) {
         send_walk(controls);
         return;
@@ -661,6 +662,7 @@ int run_viewer(const ViewerDesc& desc) {
     shown.data_root = desc.data_folder;
     shown.shot_path = desc.shot;
     shown.is_bare = desc.is_bare;
+    shown.shows_pace = desc.shows_pace;
     shown.is_validated = desc.is_validated;
     shown.backend = desc.backend;
     shown.procedure = desc.procedure;
