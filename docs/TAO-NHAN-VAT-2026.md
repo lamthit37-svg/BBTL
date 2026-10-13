@@ -38,7 +38,7 @@ khởi tạo `0x1406413e0`) giữ ba bộ quản và bảng bộ đồ:
 `((choice - 1) & ~2) == 0`. Cột `choice`: cột 4 của `CharacterFace`, cột 8 của `CharFaceGeo`, cột 10
 của `CharHairGeo` (đếm từ 1).
 
-Phân bố của bản 2026 (test `client_data_has_the_2026_spread` của `tests/ui_create_tests.cpp` canh):
+Phân bố của bản 2026 (test `client_data_has_the_2026_spread` của `Test/Ui/ui_create_tests.cpp` canh):
 
 - Ảnh chân dung: mỗi giới 15 ảnh, hai trang (9 và 6). Nữ: id 49, 50, 51 (`order` 0) rồi 1..12
   (`order` 1). Nam: id 52, 53, 54 rồi 13..24. Ảnh là `set:GirlProtagonist image:GirlProtagonist_N`,
@@ -119,22 +119,22 @@ bấm thẻ "nhận được" và đã sinh lại.
 ## 6. Số vàng và lệnh tái hiện
 
 ```
-python -B TOOLS/content/export_look.py "F:/tl 2026/_raw" "F:/tl 2026/_glb" CLIENT/data
-python -B TOOLS/content/export_config.py "F:/tl 2026/_raw" CLIENT/data
-python -B TOOLS/content/collect_avatar.py "F:/tl 2026/_raw" "F:/tl 2026/_glb" CLIENT/data
-python -B TOOLS/content/collect_ui.py "F:/tl 2026/_raw" CLIENT/data
+python -B TOOLS/content/export_look.py "F:/tl 2026/_goc" "F:/tl 2026/_glb" dev/client/assets
+python -B TOOLS/content/export_config.py "F:/tl 2026/_goc" dev/client/assets
+python -B TOOLS/content/collect_avatar.py "F:/tl 2026/_goc" "F:/tl 2026/_glb" dev/client/assets
+python -B TOOLS/content/collect_ui.py "F:/tl 2026/_goc" dev/client/assets
 python -B TOOLS/content/lua_plain.py ...   (giải CreateRole.lua vào build/lua-2026)
-python -B TOOLS/port/lua_oracle.py "F:/tl 2026/Bin64" build/lua-2026/Interface/CreateRole/CreateRole.lua
-    CLIENT/data/Interface/CreateRole/CreateRole.layout.xml TOOLS/port/oracle/create_role_newcomer.lua
-    tests/golden/panel/create_role_newcomer.tsv --name LoginCreateRole
+python -B TOOLS/port/lua_oracle.py "F:/tl 2026/2026/Bin64" build/lua-2026/Interface/CreateRole/CreateRole.lua
+    dev/client/assets/Interface/CreateRole/CreateRole.layout.xml TOOLS/port/oracle/create_role_newcomer.lua
+    Test/golden/panel/create_role_newcomer.tsv --name LoginCreateRole
     --words TOOLS/port/oracle/words.vi.tsv --lib TOOLS/port/oracle/create_role_api.lua
-    --table portraits=CLIENT/data/Table/portraits.tsv --table faces=CLIENT/data/Table/faces.tsv
-    --table hairs=CLIENT/data/Table/hairs.tsv --table outfits=CLIENT/data/Table/newbie_outfits.tsv
+    --table portraits=dev/client/assets/Table/portraits.tsv --table faces=dev/client/assets/Table/faces.tsv
+    --table hairs=dev/client/assets/Table/hairs.tsv --table outfits=dev/client/assets/Table/newbie_outfits.tsv
 ```
 
 (lệnh trọng tài viết trên một dòng). Kịch bản `create_role_newcomer.lua` có 30 bước và đưa sẵn tám
 số cho `math.random`; `TOOLS/port/oracle/create_role_api.lua` là các hàm `GameProduceLogin` viết lại
-bằng Lua trên bảng thật. `port_matches_original_script` của `tests/ui_create_tests.cpp` chạy cùng 30
+bằng Lua trên bảng thật. `port_matches_original_script` của `Test/Ui/ui_create_tests.cpp` chạy cùng 30
 bước trên bản port và so 2393 dòng trạng thái. Thử đột biến ngày 2026-10-09: cho mũi tên mặt đếm theo
 số kiểu mặt thay vì số kiểu tóc thì test đỏ ở bước "mặt quay vòng về đầu".
 
@@ -142,7 +142,7 @@ số kiểu mặt thay vì số kiểu tóc thì test đỏ ở bước "mặt q
 
 - Chưa có máy chủ: `GetIsForbidName` luôn 0 (nút tên ngẫu nhiên luôn ẩn, `RandomCharName` và sự kiện
   `RESHOW_CREATE_PLAYERNAME` không có), `LoginCreateRole_DingZhiMenPai` không khoá môn phái nào,
-  `CreateRole` lưu vào sổ cục bộ `CLIENT/data/Save/roles.tsv` (phiên bản 2: thêm áo, bao tay, giày).
+  `CreateRole` lưu vào sổ cục bộ `dev/client/assets/Save/roles.tsv` (phiên bản 2: thêm áo, bao tay, giày).
 - Tên: luật của `ui/panel/roles` (12 mã Unicode, không `#`, không trùng trong tài khoản) thay cho
   luật 12 byte GBK và hai bộ lọc ký tự, chuỗi cấm của bản gốc; ô tên lọc ngay lúc gõ.
 - Lời nhắn của `GameLoginShowSystemInfo` và lỗi tên hiện ở dòng mô tả `CreateRole_Info` cho tới lần

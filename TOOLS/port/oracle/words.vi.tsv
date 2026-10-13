@@ -4,9 +4,6 @@
 # đầu hay cuối viết bằng ký tự ␣ để trình soạn không cắt mất. Đổi chữ ở SRC/ui/panel thì đổi dòng
 # tương ứng ở đây rồi sinh lại số vàng.
 # QuestLog.lua
-任务所在地：	Nơi nhận:␣
-任务发布人：	Người giao:␣
-任务等级：	Cấp nhiệm vụ:␣
 完成	Xong
 失败	Hỏng
 #Y任务目标：#W	#YMục tiêu:#W
@@ -29,4 +26,3 @@
 在下列物品中选择一项作为奖励	Chọn một trong các vật phẩm sau làm phần thưởng
 取消追踪	Bỏ Dõi
 开始追踪	Theo Dõi
-不可追踪	Không Dõi
