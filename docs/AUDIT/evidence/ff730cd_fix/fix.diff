@@ -1,0 +1,72 @@
+﻿diff --git a/src/client/app/client/display/graphic/effect.cpp b/src/client/app/client/display/graphic/effect.cpp
+index 08d2474..aefdbb2 100644
+--- a/src/client/app/client/display/graphic/effect.cpp
++++ b/src/client/app/client/display/graphic/effect.cpp
+@@ -86,7 +86,3 @@ void Display::State::draw_fx(const FxAsk& ask) const {
+     fx_view->draw(*ask.list, ask.slot, *ask.camera);
+ }
+ } // namespace game::client
+-
+-#if defined(__clang__) && defined(__x86_64__)
+-#pragma clang attribute pop
+-#endif
+diff --git a/src/client/app/client/display/graphic/face.cpp b/src/client/app/client/display/graphic/face.cpp
+index 8024d1a..d9812b3 100644
+--- a/src/client/app/client/display/graphic/face.cpp
++++ b/src/client/app/client/display/graphic/face.cpp
+@@ -361,7 +361,3 @@ core::Status Display::State::paint_hud(gpu::CommandList& list, std::uint32_t slo
+     return hud->draw(list, slot, extra);
+ }
+ } // namespace game::client
+-
+-#if defined(__clang__) && defined(__x86_64__)
+-#pragma clang attribute pop
+-#endif
+diff --git a/src/client/app/client/display/graphic/frame.cpp b/src/client/app/client/display/graphic/frame.cpp
+index 8ecb924..474ecd6 100644
+--- a/src/client/app/client/display/graphic/frame.cpp
++++ b/src/client/app/client/display/graphic/frame.cpp
+@@ -603,7 +603,3 @@ void Display::State::settle() {
+ }
+ 
+ } // namespace game::client
+-
+-#if defined(__clang__) && defined(__x86_64__)
+-#pragma clang attribute pop
+-#endif
+diff --git a/src/client/app/client/display/graphic/play.cpp b/src/client/app/client/display/graphic/play.cpp
+index 449783d..1832cbb 100644
+--- a/src/client/app/client/display/graphic/play.cpp
++++ b/src/client/app/client/display/graphic/play.cpp
+@@ -649,7 +649,3 @@ void Display::State::append_login_role() {
+     shot.append(frame_instances);
+ }
+ } // namespace game::client
+-
+-#if defined(__clang__) && defined(__x86_64__)
+-#pragma clang attribute pop
+-#endif
+diff --git a/src/client/app/client/display/graphic/scene.cpp b/src/client/app/client/display/graphic/scene.cpp
+index 7f76c01..6226631 100644
+--- a/src/client/app/client/display/graphic/scene.cpp
++++ b/src/client/app/client/display/graphic/scene.cpp
+@@ -336,7 +336,3 @@ void Display::State::compose_frame() {
+     player->append(frame_instances);
+ }
+ } // namespace game::client
+-
+-#if defined(__clang__) && defined(__x86_64__)
+-#pragma clang attribute pop
+-#endif
+diff --git a/src/client/app/client/display/graphic/stream.cpp b/src/client/app/client/display/graphic/stream.cpp
+index 75c4e16..31d53a3 100644
+--- a/src/client/app/client/display/graphic/stream.cpp
++++ b/src/client/app/client/display/graphic/stream.cpp
+@@ -334,7 +334,3 @@ std::size_t Display::State::keep_model(const std::string& mesh, ReadMesh read) {
+     return index;
+ }
+ } // namespace game::client
+-
+-#if defined(__clang__) && defined(__x86_64__)
+-#pragma clang attribute pop
+-#endif

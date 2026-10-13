@@ -1,0 +1,506 @@
+Test project D:/THIENLONG_wt/ff730cd-fix/build/msvc-release
+      Start  1: i18n_tool_tests
+ 1/85 Test  #1: i18n_tool_tests ..................   Passed    0.48 sec
+      Start  2: fx_tests
+ 2/85 Test  #2: fx_tests .........................   Passed    0.02 sec
+      Start  3: io_tests
+ 3/85 Test  #3: io_tests .........................   Passed    0.03 sec
+      Start  4: xml_tests
+ 4/85 Test  #4: xml_tests ........................   Passed    0.02 sec
+      Start  5: audio_tests
+ 5/85 Test  #5: audio_tests ......................   Passed    0.58 sec
+      Start  6: audio_dsp_tests
+ 6/85 Test  #6: audio_dsp_tests ..................   Passed    0.19 sec
+      Start  7: seal_tests
+ 7/85 Test  #7: seal_tests .......................   Passed    0.06 sec
+      Start  8: scene_tests
+ 8/85 Test  #8: scene_tests ......................   Passed    0.03 sec
+      Start  9: map_tests
+ 9/85 Test  #9: map_tests ........................   Passed    0.03 sec
+      Start 10: world_tests
+Could not find executable D:/THIENLONG_wt/ff730cd-fix/build/msvc-release/world_tests.exe
+Looked in the following places:
+D:/THIENLONG_wt/ff730cd-fix/build/msvc-release/world_tests.exe
+D:/THIENLONG_wt/ff730cd-fix/build/msvc-release/world_tests.exe.exe
+D:/THIENLONG_wt/ff730cd-fix/build/msvc-release/Release/world_tests.exe
+D:/THIENLONG_wt/ff730cd-fix/build/msvc-release/Release/world_tests.exe.exe
+D:/THIENLONG_wt/ff730cd-fix/build/msvc-release/Debug/world_tests.exe
+D:/THIENLONG_wt/ff730cd-fix/build/msvc-release/Debug/world_tests.exe.exe
+D:/THIENLONG_wt/ff730cd-fix/build/msvc-release/MinSizeRel/world_tests.exe
+D:/THIENLONG_wt/ff730cd-fix/build/msvc-release/MinSizeRel/world_tests.exe.exe
+D:/THIENLONG_wt/ff730cd-fix/build/msvc-release/RelWithDebInfo/world_tests.exe
+D:/THIENLONG_wt/ff730cd-fix/build/msvc-release/RelWithDebInfo/world_tests.exe.exe
+D:/THIENLONG_wt/ff730cd-fix/build/msvc-release/Deployment/world_tests.exe
+D:/THIENLONG_wt/ff730cd-fix/build/msvc-release/Deployment/world_tests.exe.exe
+D:/THIENLONG_wt/ff730cd-fix/build/msvc-release/Development/world_tests.exe
+D:/THIENLONG_wt/ff730cd-fix/build/msvc-release/Development/world_tests.exe.exe
+Unable to find executable: D:/THIENLONG_wt/ff730cd-fix/build/msvc-release/world_tests.exe
+10/85 Test #10: world_tests ......................***Not Run   0.00 sec
+      Start 11: transform_tests
+11/85 Test #11: transform_tests ..................   Passed    0.02 sec
+      Start 12: client_tests
+12/85 Test #12: client_tests .....................   Passed    0.02 sec
+      Start 13: boot_tests
+13/85 Test #13: boot_tests .......................   Passed    0.07 sec
+      Start 14: props_tests
+14/85 Test #14: props_tests ......................   Passed    0.02 sec
+      Start 15: stage_tests
+15/85 Test #15: stage_tests ......................   Passed    0.02 sec
+      Start 16: core_tests
+16/85 Test #16: core_tests .......................Exit code 0xc0000409***Exception:   3.98 sec
+D:\THIENLONG_wt\ff730cd-fix\Test\Core\core_tests.cpp:144: [error_maps_and_prints_system_codes] đường dẫn in ra dùng dấu /
+[ca] text_round_trips_utf8_and_utf16: đạt (0 kỳ vọng sai)
+[ca] utf8_cut_keeps_whole_characters: đạt (0 kỳ vọng sai)
+[ca] utf8_validation_follows_rfc_3629: đạt (0 kỳ vọng sai)
+[ca] utf8_step_reads_one_character: đạt (0 kỳ vọng sai)
+[ca] error_keeps_code_message_and_place: đạt (0 kỳ vọng sai)
+[ca] error_detail_outgrows_inline: đạt (0 kỳ vọng sai)
+[ca] error_maps_and_prints_system_codes: ĐỎ (1 kỳ vọng sai)
+[ca] const_move_only_calls: đạt (0 kỳ vọng sai)
+[ca] whole_int_takes_the_entire_text: đạt (0 kỳ vọng sai)
+D:\THIENLONG_wt\ff730cd-fix\Test\Core\core_tests.cpp:197: check thất bại: core_tests: mọi ca phải qua
+
+      Start 17: log_tests
+17/85 Test #17: log_tests ........................   Passed    0.05 sec
+      Start 18: thread_slot_tests
+18/85 Test #18: thread_slot_tests ................   Passed    0.06 sec
+      Start 19: function_fallback_tests
+19/85 Test #19: function_fallback_tests ..........   Passed    0.02 sec
+      Start 20: math_tests
+20/85 Test #20: math_tests .......................   Passed    0.02 sec
+      Start 21: fs_tests
+21/85 Test #21: fs_tests .........................   Passed    0.19 sec
+      Start 22: shader_tests
+22/85 Test #22: shader_tests .....................   Passed    0.05 sec
+      Start 23: window_tests
+23/85 Test #23: window_tests .....................   Passed    0.20 sec
+      Start 24: gpu_tests
+24/85 Test #24: gpu_tests ........................Exit code 0xc0000409***Exception:  14.90 sec
+2026-10-13 19:55:13.670 [chính] LỖI D:\THIENLONG_wt\ff730cd-fix\engine\gpu\d3d12\device.cpp:197 D3D12: ID3D12Resource3::ID3D12Resource::GetGPUVirtualAddress: GetGPUVirtualAddress returns NULL for non-buffer resources.
+D:\THIENLONG_wt\ff730cd-fix\Test\Gpu\gpu_tests.cpp:393: [d3d12_depth_view_keeps_device] lớp kiểm tra không báo lỗi
+2026-10-13 19:55:16.910 [chính] CẢNH-BÁO D:\THIENLONG_wt\ff730cd-fix\engine\gpu\gles\probe.cpp:106 gles: lỗi thử của gpu_tests
+2026-10-13 19:55:16.910 [chính] CẢNH-BÁO D:\THIENLONG_wt\ff730cd-fix\engine\gpu\gles\probe.cpp:106 gles: 
+D:\THIENLONG_wt\ff730cd-fix\Test\Gpu\gpu_tests.cpp:441: [d3d11_swapchain_accepts_srgb] swapchain sRGB tạo được
+[ca] vulkan_device_starts: đạt (0 kỳ vọng sai)
+[ca] vulkan_buffer_round_trip: đạt (0 kỳ vọng sai)
+[ca] vulkan_rejects_duplicate_list: đạt (0 kỳ vọng sai)
+[ca] d3d12_device_starts: đạt (0 kỳ vọng sai)
+[ca] d3d12_buffer_round_trip: đạt (0 kỳ vọng sai)
+[ca] d3d12_depth_view_keeps_device: ĐỎ (1 kỳ vọng sai)
+[ca] d3d12_rejects_duplicate_list: đạt (0 kỳ vọng sai)
+[ca] d3d11_device_starts: đạt (0 kỳ vọng sai)
+[ca] d3d11_buffer_round_trip: đạt (0 kỳ vọng sai)
+[ca] d3d11_depth_view_keeps_device: đạt (0 kỳ vọng sai)
+[ca] d3d11_rejects_duplicate_list: đạt (0 kỳ vọng sai)
+[ca] gles_device_starts: đạt (0 kỳ vọng sai)
+[ca] gles_buffer_round_trip: đạt (0 kỳ vọng sai)
+[ca] gles_rejects_duplicate_list: đạt (0 kỳ vọng sai)
+[ca] gles_rejects_pass_without_attachment: đạt (0 kỳ vọng sai)
+[ca] gles_names_are_not_ranked_by_unused_features: đạt (0 kỳ vọng sai)
+[ca] gles_probe_follows_the_api_flavor: đạt (0 kỳ vọng sai)
+[ca] gles_probe_copies_driver_strings: đạt (0 kỳ vọng sai)
+[ca] gles_debug_sink_counts_only_errors: đạt (0 kỳ vọng sai)
+[ca] d3d12_swapchain_accepts_srgb: đạt (0 kỳ vọng sai)
+[ca] d3d11_swapchain_accepts_srgb: ĐỎ (1 kỳ vọng sai)
+D:\THIENLONG_wt\ff730cd-fix\Test\Gpu\gpu_tests.cpp:557: check thất bại: gpu_tests: mọi ca phải qua
+
+      Start 25: resource_tests
+25/85 Test #25: resource_tests ...................   Passed    0.03 sec
+      Start 26: dds_tests
+26/85 Test #26: dds_tests ........................   Passed    0.03 sec
+      Start 27: ogre_mesh_tests
+27/85 Test #27: ogre_mesh_tests ..................   Passed    0.04 sec
+      Start 28: resource_upload_tests
+28/85 Test #28: resource_upload_tests ............   Passed    0.08 sec
+      Start 29: classic_tests
+Could not find executable D:/THIENLONG_wt/ff730cd-fix/build/msvc-release/classic_tests.exe
+Looked in the following places:
+D:/THIENLONG_wt/ff730cd-fix/build/msvc-release/classic_tests.exe
+D:/THIENLONG_wt/ff730cd-fix/build/msvc-release/classic_tests.exe.exe
+D:/THIENLONG_wt/ff730cd-fix/build/msvc-release/Release/classic_tests.exe
+D:/THIENLONG_wt/ff730cd-fix/build/msvc-release/Release/classic_tests.exe.exe
+D:/THIENLONG_wt/ff730cd-fix/build/msvc-release/Debug/classic_tests.exe
+D:/THIENLONG_wt/ff730cd-fix/build/msvc-release/Debug/classic_tests.exe.exe
+D:/THIENLONG_wt/ff730cd-fix/build/msvc-release/MinSizeRel/classic_tests.exe
+D:/THIENLONG_wt/ff730cd-fix/build/msvc-release/MinSizeRel/classic_tests.exe.exe
+D:/THIENLONG_wt/ff730cd-fix/build/msvc-release/RelWithDebInfo/classic_tests.exe
+D:/THIENLONG_wt/ff730cd-fix/build/msvc-release/RelWithDebInfo/classic_tests.exe.exe
+D:/THIENLONG_wt/ff730cd-fix/build/msvc-release/Deployment/classic_tests.exe
+D:/THIENLONG_wt/ff730cd-fix/build/msvc-release/Deployment/classic_tests.exe.exe
+D:/THIENLONG_wt/ff730cd-fix/build/msvc-release/Development/classic_tests.exe
+D:/THIENLONG_wt/ff730cd-fix/build/msvc-release/Development/classic_tests.exe.exe
+Unable to find executable: D:/THIENLONG_wt/ff730cd-fix/build/msvc-release/classic_tests.exe
+29/85 Test #29: classic_tests ....................***Not Run   0.00 sec
+      Start 30: shade_tests
+30/85 Test #30: shade_tests ......................   Passed    0.03 sec
+      Start 31: rig_tests
+31/85 Test #31: rig_tests ........................   Passed    0.03 sec
+      Start 32: ogre_tests
+32/85 Test #32: ogre_tests .......................   Passed    0.02 sec
+      Start 33: anim_tests
+33/85 Test #33: anim_tests .......................   Passed    0.03 sec
+      Start 34: motion_tests
+34/85 Test #34: motion_tests .....................   Passed    0.03 sec
+      Start 35: jump_tests
+35/85 Test #35: jump_tests .......................   Passed    0.03 sec
+      Start 36: nav_tests
+36/85 Test #36: nav_tests ........................   Passed    0.03 sec
+      Start 37: building_height_tests
+37/85 Test #37: building_height_tests ............   Passed    0.02 sec
+      Start 38: look_tests
+38/85 Test #38: look_tests .......................   Passed    0.02 sec
+      Start 39: head_tests
+39/85 Test #39: head_tests .......................   Passed    0.02 sec
+      Start 40: avatar_tests
+40/85 Test #40: avatar_tests .....................   Passed    0.02 sec
+      Start 41: control_tests
+41/85 Test #41: control_tests ....................   Passed    0.02 sec
+      Start 42: pilot_tests
+42/85 Test #42: pilot_tests ......................   Passed    0.03 sec
+      Start 43: touch_tests
+43/85 Test #43: touch_tests ......................   Passed    0.02 sec
+      Start 44: hero_tests
+44/85 Test #44: hero_tests .......................   Passed    0.02 sec
+      Start 45: quest_tests
+45/85 Test #45: quest_tests ......................   Passed    0.02 sec
+      Start 46: skill_tests
+46/85 Test #46: skill_tests ......................Exit code 0xc0000409***Exception:   4.07 sec
+D:\THIENLONG_wt\ff730cd-fix\Test\Skill\skill_tests.cpp:328: [actions_start_with_pets] sau Initial: bốn action thú cưng, id kế là 21
+D:\THIENLONG_wt\ff730cd-fix\Test\Skill\skill_tests.cpp:343: [actions_are_made_in_original_order] tâm pháp tới trước nhận id trước
+D:\THIENLONG_wt\ff730cd-fix\Test\Skill\skill_tests.cpp:344: [actions_are_made_in_original_order] tâm pháp thứ hai
+D:\THIENLONG_wt\ff730cd-fix\Test\Skill\skill_tests.cpp:347: [actions_are_made_in_original_order] PosIndex 0 là kỹ năng 20, id theo id kỹ năng
+D:\THIENLONG_wt\ff730cd-fix\Test\Skill\skill_tests.cpp:349: [actions_are_made_in_original_order] kỹ năng 0 có id nhỏ nhất
+D:\THIENLONG_wt\ff730cd-fix\Test\Skill\skill_tests.cpp:355: [actions_are_made_in_original_order] kỹ năng sống tới trước nhận id trước
+D:\THIENLONG_wt\ff730cd-fix\Test\Skill\skill_tests.cpp:367: [sync_drops_gone_and_keeps_ids] action cũ giữ id
+D:\THIENLONG_wt\ff730cd-fix\Test\Skill\skill_tests.cpp:369: [sync_drops_gone_and_keeps_ids] action mới nhận id kế tiếp
+[ca] skills_read_and_sorted: đạt (0 kỳ vọng sai)
+[ca] readers_report_bad_tables: đạt (0 kỳ vọng sai)
+[ca] small_tables_read: đạt (0 kỳ vọng sai)
+[ca] rows_are_found_by_id: đạt (0 kỳ vọng sai)
+[ca] learn_cost_scans_by_level: đạt (0 kỳ vọng sai)
+[ca] life_limit_follows_level_table: đạt (0 kỳ vọng sai)
+[ca] icon_names_are_resolved: đạt (0 kỳ vọng sai)
+[ca] cap_fills_first_mark_only: đạt (0 kỳ vọng sai)
+[ca] inner_arts_keep_arrival_order: đạt (0 kỳ vọng sai)
+[ca] skills_follow_sect_rule: đạt (0 kỳ vọng sai)
+[ca] life_skills_scale_exp: đạt (0 kỳ vọng sai)
+[ca] free_skills_are_always_known: đạt (0 kỳ vọng sai)
+[ca] skill_data_follows_inner_art_tier: đạt (0 kỳ vọng sai)
+[ca] requirement_needs_inner_art_level: đạt (0 kỳ vọng sai)
+[ca] cap_is_same_at_run_time: đạt (0 kỳ vọng sai)
+[ca] actions_start_with_pets: ĐỎ (1 kỳ vọng sai)
+[ca] actions_are_made_in_original_order: ĐỎ (5 kỳ vọng sai)
+[ca] sync_drops_gone_and_keeps_ids: ĐỎ (2 kỳ vọng sai)
+[ca] id_counter_wraps_without_overflow: đạt (0 kỳ vọng sai)
+[ca] define_and_owner_follow_book: đạt (0 kỳ vọng sai)
+[ca] action_icons_come_from_rows: đạt (0 kỳ vọng sai)
+[ca] newcomer_book_matches_default_char: đạt (0 kỳ vọng sai)
+[ca] real_tables_match_document: đạt (0 kỳ vọng sai)
+D:\THIENLONG_wt\ff730cd-fix\Test\Skill\skill_tests.cpp:608: check thất bại: skill_tests: mọi ca phải qua
+
+      Start 47: gui_value_tests
+47/85 Test #47: gui_value_tests ..................   Passed    0.03 sec
+      Start 48: gui_loader_tests
+48/85 Test #48: gui_loader_tests .................   Passed    0.03 sec
+      Start 49: gui_sheet_tests
+Could not find executable D:/THIENLONG_wt/ff730cd-fix/build/msvc-release/gui_sheet_tests.exe
+Looked in the following places:
+D:/THIENLONG_wt/ff730cd-fix/build/msvc-release/gui_sheet_tests.exe
+D:/THIENLONG_wt/ff730cd-fix/build/msvc-release/gui_sheet_tests.exe.exe
+D:/THIENLONG_wt/ff730cd-fix/build/msvc-release/Release/gui_sheet_tests.exe
+D:/THIENLONG_wt/ff730cd-fix/build/msvc-release/Release/gui_sheet_tests.exe.exe
+D:/THIENLONG_wt/ff730cd-fix/build/msvc-release/Debug/gui_sheet_tests.exe
+D:/THIENLONG_wt/ff730cd-fix/build/msvc-release/Debug/gui_sheet_tests.exe.exe
+D:/THIENLONG_wt/ff730cd-fix/build/msvc-release/MinSizeRel/gui_sheet_tests.exe
+D:/THIENLONG_wt/ff730cd-fix/build/msvc-release/MinSizeRel/gui_sheet_tests.exe.exe
+D:/THIENLONG_wt/ff730cd-fix/build/msvc-release/RelWithDebInfo/gui_sheet_tests.exe
+D:/THIENLONG_wt/ff730cd-fix/build/msvc-release/RelWithDebInfo/gui_sheet_tests.exe.exe
+D:/THIENLONG_wt/ff730cd-fix/build/msvc-release/Deployment/gui_sheet_tests.exe
+D:/THIENLONG_wt/ff730cd-fix/build/msvc-release/Deployment/gui_sheet_tests.exe.exe
+D:/THIENLONG_wt/ff730cd-fix/build/msvc-release/Development/gui_sheet_tests.exe
+D:/THIENLONG_wt/ff730cd-fix/build/msvc-release/Development/gui_sheet_tests.exe.exe
+Unable to find executable: D:/THIENLONG_wt/ff730cd-fix/build/msvc-release/gui_sheet_tests.exe
+49/85 Test #49: gui_sheet_tests ..................***Not Run   0.00 sec
+      Start 50: gui_scroll_tests
+50/85 Test #50: gui_scroll_tests .................   Passed    0.02 sec
+      Start 51: gui_softkey_tests
+51/85 Test #51: gui_softkey_tests ................   Passed    0.03 sec
+      Start 52: ui_board_tests
+52/85 Test #52: ui_board_tests ...................   Passed    0.02 sec
+      Start 53: ui_widgets_tests
+53/85 Test #53: ui_widgets_tests .................   Passed    0.02 sec
+      Start 54: ui_quest_tests
+54/85 Test #54: ui_quest_tests ...................   Passed    0.03 sec
+      Start 55: ui_quest_book_tests
+55/85 Test #55: ui_quest_book_tests ..............   Passed    0.02 sec
+      Start 56: ui_logon_tests
+56/85 Test #56: ui_logon_tests ...................   Passed    0.02 sec
+      Start 57: ui_role_tests
+57/85 Test #57: ui_role_tests ....................   Passed    0.02 sec
+      Start 58: ui_select_tests
+58/85 Test #58: ui_select_tests ..................   Passed    0.03 sec
+      Start 59: ui_create_tests
+59/85 Test #59: ui_create_tests ..................   Passed    0.03 sec
+      Start 60: ui_flow_tests
+Could not find executable D:/THIENLONG_wt/ff730cd-fix/build/msvc-release/ui_flow_tests.exe
+Looked in the following places:
+D:/THIENLONG_wt/ff730cd-fix/build/msvc-release/ui_flow_tests.exe
+D:/THIENLONG_wt/ff730cd-fix/build/msvc-release/ui_flow_tests.exe.exe
+D:/THIENLONG_wt/ff730cd-fix/build/msvc-release/Release/ui_flow_tests.exe
+D:/THIENLONG_wt/ff730cd-fix/build/msvc-release/Release/ui_flow_tests.exe.exe
+D:/THIENLONG_wt/ff730cd-fix/build/msvc-release/Debug/ui_flow_tests.exe
+D:/THIENLONG_wt/ff730cd-fix/build/msvc-release/Debug/ui_flow_tests.exe.exe
+D:/THIENLONG_wt/ff730cd-fix/build/msvc-release/MinSizeRel/ui_flow_tests.exe
+D:/THIENLONG_wt/ff730cd-fix/build/msvc-release/MinSizeRel/ui_flow_tests.exe.exe
+D:/THIENLONG_wt/ff730cd-fix/build/msvc-release/RelWithDebInfo/ui_flow_tests.exe
+D:/THIENLONG_wt/ff730cd-fix/build/msvc-release/RelWithDebInfo/ui_flow_tests.exe.exe
+D:/THIENLONG_wt/ff730cd-fix/build/msvc-release/Deployment/ui_flow_tests.exe
+D:/THIENLONG_wt/ff730cd-fix/build/msvc-release/Deployment/ui_flow_tests.exe.exe
+D:/THIENLONG_wt/ff730cd-fix/build/msvc-release/Development/ui_flow_tests.exe
+D:/THIENLONG_wt/ff730cd-fix/build/msvc-release/Development/ui_flow_tests.exe.exe
+Unable to find executable: D:/THIENLONG_wt/ff730cd-fix/build/msvc-release/ui_flow_tests.exe
+60/85 Test #60: ui_flow_tests ....................***Not Run   0.00 sec
+      Start 61: ui_softkey_tests
+61/85 Test #61: ui_softkey_tests .................   Passed    0.02 sec
+      Start 62: camera_tests
+62/85 Test #62: camera_tests .....................   Passed    0.02 sec
+      Start 63: catalog_tests
+63/85 Test #63: catalog_tests ....................   Passed    0.02 sec
+      Start 64: layers
+64/85 Test #64: layers ...........................***Failed    0.58 sec
+CMake Error at D:/THIENLONG_wt/ff730cd-fix/cmake/GameLayers.cmake:134 (message):
+  tầng: client/display → client
+  (src/client/app/client/display/graphic/prelude.hpp)
+Call Stack (most recent call first):
+  D:/THIENLONG_wt/ff730cd-fix/cmake/GameLayers.cmake:152 (game_layer_violation)
+  D:/THIENLONG_wt/ff730cd-fix/cmake/GameLayers.cmake:199 (game_check_include)
+  D:/THIENLONG_wt/ff730cd-fix/cmake/GameLayers.cmake:210 (game_check_module)
+
+
+CMake Error at D:/THIENLONG_wt/ff730cd-fix/cmake/GameLayers.cmake:134 (message):
+  tầng: client/viewer → client
+  (src/client/app/client/viewer/viewer_win32.cpp)
+Call Stack (most recent call first):
+  D:/THIENLONG_wt/ff730cd-fix/cmake/GameLayers.cmake:152 (game_layer_violation)
+  D:/THIENLONG_wt/ff730cd-fix/cmake/GameLayers.cmake:199 (game_check_include)
+  D:/THIENLONG_wt/ff730cd-fix/cmake/GameLayers.cmake:210 (game_check_module)
+
+
+CMake Error at D:/THIENLONG_wt/ff730cd-fix/cmake/GameLayers.cmake:134 (message):
+  tầng: classic → render (src/client/place/classic/bake.hpp)
+Call Stack (most recent call first):
+  D:/THIENLONG_wt/ff730cd-fix/cmake/GameLayers.cmake:152 (game_layer_violation)
+  D:/THIENLONG_wt/ff730cd-fix/cmake/GameLayers.cmake:199 (game_check_include)
+  D:/THIENLONG_wt/ff730cd-fix/cmake/GameLayers.cmake:210 (game_check_module)
+
+
+CMake Error at D:/THIENLONG_wt/ff730cd-fix/cmake/GameLayers.cmake:134 (message):
+  tầng: classic → resource (src/client/place/classic/bake.hpp)
+Call Stack (most recent call first):
+  D:/THIENLONG_wt/ff730cd-fix/cmake/GameLayers.cmake:152 (game_layer_violation)
+  D:/THIENLONG_wt/ff730cd-fix/cmake/GameLayers.cmake:199 (game_check_include)
+  D:/THIENLONG_wt/ff730cd-fix/cmake/GameLayers.cmake:210 (game_check_module)
+
+
+CMake Error at D:/THIENLONG_wt/ff730cd-fix/cmake/GameLayers.cmake:134 (message):
+  tầng: gate → guard (src/server/gate/motion.hpp)
+Call Stack (most recent call first):
+  D:/THIENLONG_wt/ff730cd-fix/cmake/GameLayers.cmake:152 (game_layer_violation)
+  D:/THIENLONG_wt/ff730cd-fix/cmake/GameLayers.cmake:199 (game_check_include)
+  D:/THIENLONG_wt/ff730cd-fix/cmake/GameLayers.cmake:210 (game_check_module)
+
+
+CMake Error at D:/THIENLONG_wt/ff730cd-fix/cmake/GameLayers.cmake:206 (message):
+  tầng: module metrics chưa có trong bảng
+
+
+CMake Error at D:/THIENLONG_wt/ff730cd-fix/cmake/GameLayers.cmake:206 (message):
+  tầng: module metrics/serve chưa có trong bảng
+
+
+
+      Start 65: content_tests
+65/85 Test #65: content_tests ....................   Passed    0.03 sec
+      Start 66: config_tests
+66/85 Test #66: config_tests .....................Exit code 0xc0000409***Exception:   4.25 sec
+D:\THIENLONG_wt\ff730cd-fix\Test\Config\config_tests.cpp:229: [real_rules_and_scene_have_schema] ../scenes/huoyangu/scene.toml
+D:\THIENLONG_wt\ff730cd-fix\Test\Config\config_tests.cpp:240: [real_rules_and_scene_have_schema] ../scenes/huoyangu/scene.toml
+D:\THIENLONG_wt\ff730cd-fix\Test\Config\config_tests.cpp:250: [real_rules_and_scene_have_schema] scene.toml của một cảnh
+[ca] bad_samples_are_reported_with_line: đạt (0 kỳ vọng sai)
+[ca] every_reader_rejects_common_errors: đạt (0 kỳ vọng sai)
+[ca] every_error_is_reported_sorted_by_line: đạt (0 kỳ vọng sai)
+[ca] long_text_is_out_of_domain: đạt (0 kỳ vọng sai)
+[ca] oversized_document_is_refused: đạt (0 kỳ vọng sai)
+[ca] duplicate_process_pair_is_an_error: đạt (0 kỳ vọng sai)
+[ca] loopback_listeners_may_ask_for_any_port: đạt (0 kỳ vọng sai)
+[ca] startup_needs_a_process_for_every_step: đạt (0 kỳ vọng sai)
+[ca] repeated_start_step_is_an_error: đạt (0 kỳ vọng sai)
+[ca] loose_document_allows_unknown_keys: đạt (0 kỳ vọng sai)
+[ca] real_rules_and_scene_have_schema: ĐỎ (3 kỳ vọng sai)
+[ca] real_cluster: đạt (0 kỳ vọng sai)
+[ca] real_supervisor: đạt (0 kỳ vọng sai)
+[ca] real_log: đạt (0 kỳ vọng sai)
+[ca] real_gate: đạt (0 kỳ vọng sai)
+[ca] real_auth: đạt (0 kỳ vọng sai)
+[ca] real_billing: đạt (0 kỳ vọng sai)
+[ca] real_world: đạt (0 kỳ vọng sai)
+[ca] same_side_meets_until_the_flag_opens: đạt (0 kỳ vọng sai)
+[ca] real_zone: đạt (0 kỳ vọng sai)
+[ca] real_store: đạt (0 kỳ vọng sai)
+[ca] store_security_is_optional_and_bounded: đạt (0 kỳ vọng sai)
+[ca] gate_resume_and_prefix_are_bounded: đạt (0 kỳ vọng sai)
+[ca] real_admin: đạt (0 kỳ vọng sai)
+[ca] secrets_shape: đạt (0 kỳ vọng sai)
+[ca] real_startup: đạt (0 kỳ vọng sai)
+D:\THIENLONG_wt\ff730cd-fix\Test\Config\config_tests.cpp:536: check thất bại: config_tests
+
+      Start 67: process_tests
+67/85 Test #67: process_tests ....................Exit code 0xc0000409***Exception:   5.55 sec
+D:\THIENLONG_wt\ff730cd-fix\Test\Process\process_tests.cpp:83: [spawn_path_with_space_prints_ready] đường dẫn exe có dấu cách
+[ca] split_keeps_spaces_quotes_slashes: đạt (0 kỳ vọng sai)
+[ca] spawn_path_with_space_prints_ready: ĐỎ (1 kỳ vọng sai)
+[ca] arguments_arrive_unchanged: đạt (0 kỳ vọng sai)
+[ca] bad_argument_is_refused: đạt (0 kỳ vọng sai)
+[ca] line_at_ceiling_is_kept: đạt (0 kỳ vọng sai)
+[ca] line_over_ceiling_is_error: đạt (0 kỳ vọng sai)
+[ca] read_times_out_then_gets_delayed_ready: đạt (0 kỳ vọng sai)
+[ca] last_line_before_exit_is_returned: đạt (0 kỳ vọng sai)
+[ca] closing_input_stops_child: đạt (0 kỳ vọng sai)
+[ca] command_sees_empty_input: đạt (0 kỳ vọng sai)
+[ca] command_merges_error_stream: đạt (0 kỳ vọng sai)
+[ca] ignore_stdin_is_forced_within_deadline: đạt (0 kỳ vọng sai)
+[ca] destructor_leaves_no_process: đạt (0 kỳ vọng sai)
+[ca] moved_child_keeps_process: đạt (0 kỳ vọng sai)
+D:\THIENLONG_wt\ff730cd-fix\Test\Process\process_tests.cpp:254: check thất bại: process_tests
+
+      Start 68: supervise_tests
+68/85 Test #68: supervise_tests ..................   Passed    0.02 sec
+      Start 69: service_tests
+69/85 Test #69: service_tests ....................Exit code 0xc0000409***Exception:   5.99 sec
+D:\THIENLONG_wt\ff730cd-fix\Test\Service\service_tests.cpp:118: [relaunch_replaces_live_process] gate in ready kèm hai cổng thật
+D:\THIENLONG_wt\ff730cd-fix\Test\Service\service_tests.cpp:120: [relaunch_replaces_live_process] gate mới in ready kèm hai cổng thật
+D:\THIENLONG_wt\ff730cd-fix\Test\Service\service_tests.cpp:122: [relaunch_replaces_live_process] gate mới dừng êm
+cluster.toml:1: không có khối [[process]] kind = "zone", id = 7
+[ca] slot_runs_until_input_closes: đạt (0 kỳ vọng sai)
+[ca] relaunch_replaces_dead_process: đạt (0 kỳ vọng sai)
+[ca] relaunch_replaces_live_process: ĐỎ (3 kỳ vọng sai)
+[ca] unknown_slot_reads_as_exited: đạt (0 kỳ vọng sai)
+[ca] missing_program_is_an_error: đạt (0 kỳ vọng sai)
+[ca] child_refuses_unknown_number: đạt (0 kỳ vọng sai)
+D:\THIENLONG_wt\ff730cd-fix\Test\Service\service_tests.cpp:165: check thất bại: service_tests
+
+      Start 70: server_boot
+70/85 Test #70: server_boot ......................Exit code 0xc0000409***Exception:   7.39 sec
+store: chưa có secrets.local.toml, bỏ qua database
+auth: chưa có secrets.local.toml, bỏ qua database
+gate thoát mã 2 trước khi sẵn sàng
+D:\THIENLONG_wt\ff730cd-fix\Test\Service\server_boot_tests.cpp:157: [closed_input_runs_full_cycle] giám sát thoát 0
+D:\THIENLONG_wt\ff730cd-fix\Test\Service\server_boot_tests.cpp:159: [closed_input_runs_full_cycle] đủ 13 dòng
+D:\THIENLONG_wt\ff730cd-fix\Test\Service\server_boot_tests.cpp:157: [empty_input_runs_full_cycle] giám sát thoát 0
+D:\THIENLONG_wt\ff730cd-fix\Test\Service\server_boot_tests.cpp:159: [empty_input_runs_full_cycle] đủ 13 dòng
+store: chưa có secrets.local.toml, bỏ qua database
+auth: chưa có secrets.local.toml, bỏ qua database
+gate thoát mã 2 trước khi sẵn sàng
+D:\THIENLONG_wt\ff730cd-fix\Test\Service\server_boot_tests.cpp:207: [cluster_stays_up_until_input_closes] rồi in ready kèm hai cổng thật của gate
+D:\THIENLONG_wt\ff730cd-fix\Test\Service\server_boot_tests.cpp:209: [cluster_stays_up_until_input_closes] ống còn mở thì cụm còn chạy
+D:\THIENLONG_wt\ff730cd-fix\Test\Service\server_boot_tests.cpp:212: [cluster_stays_up_until_input_closes] đóng ống thì dừng ngược thứ tự
+D:\THIENLONG_wt\ff730cd-fix\Test\Service\server_boot_tests.cpp:213: [cluster_stays_up_until_input_closes] giám sát thoát 0
+[ca] closed_input_runs_full_cycle: ĐỎ (2 kỳ vọng sai)
+[ca] empty_input_runs_full_cycle: ĐỎ (2 kỳ vọng sai)
+[ca] cluster_stays_up_until_input_closes: ĐỎ (4 kỳ vọng sai)
+[ca] bad_config_is_refused_before_any_start: đạt (0 kỳ vọng sai)
+[ca] oversized_cluster_is_refused_before_any_start: đạt (0 kỳ vọng sai)
+[ca] bad_command_line_exits_two: đạt (0 kỳ vọng sai)
+D:\THIENLONG_wt\ff730cd-fix\Test\Service\server_boot_tests.cpp:294: check thất bại: server_boot
+
+      Start 71: server_boot_source_clean
+71/85 Test #71: server_boot_source_clean .........Exit code 0xc0000409***Exception:  11.32 sec
+D:\THIENLONG_wt\ff730cd-fix\Test\Service\server_boot_source_tests.cpp:117: [server_boot_leaves_source_tree_alone] bộ server_boot chạy xong và xanh
+[ca] snapshot_sees_new_changed_and_removed_files: đạt (0 kỳ vọng sai)
+[ca] server_boot_leaves_source_tree_alone: ĐỎ (1 kỳ vọng sai)
+D:\THIENLONG_wt\ff730cd-fix\Test\Service\server_boot_source_tests.cpp:132: check thất bại: server_boot_source_clean
+
+      Start 72: protocol_tests
+72/85 Test #72: protocol_tests ...................   Passed    0.02 sec
+      Start 73: link_tests
+73/85 Test #73: link_tests .......................   Passed    0.03 sec
+      Start 74: guard_tests
+74/85 Test #74: guard_tests ......................   Passed    0.02 sec
+      Start 75: account_tests
+75/85 Test #75: account_tests ....................   Passed    0.03 sec
+      Start 76: protocol_catalog_tests
+76/85 Test #76: protocol_catalog_tests ...........   Passed    0.03 sec
+      Start 77: net_tests
+77/85 Test #77: net_tests ........................   Passed    2.51 sec
+      Start 78: metrics_tests
+78/85 Test #78: metrics_tests ....................   Passed    0.08 sec
+      Start 79: wire_loop_tests
+Could not find executable D:/THIENLONG_wt/ff730cd-fix/build/msvc-release/wire_loop_tests.exe
+Looked in the following places:
+D:/THIENLONG_wt/ff730cd-fix/build/msvc-release/wire_loop_tests.exe
+D:/THIENLONG_wt/ff730cd-fix/build/msvc-release/wire_loop_tests.exe.exe
+D:/THIENLONG_wt/ff730cd-fix/build/msvc-release/Release/wire_loop_tests.exe
+D:/THIENLONG_wt/ff730cd-fix/build/msvc-release/Release/wire_loop_tests.exe.exe
+D:/THIENLONG_wt/ff730cd-fix/build/msvc-release/Debug/wire_loop_tests.exe
+D:/THIENLONG_wt/ff730cd-fix/build/msvc-release/Debug/wire_loop_tests.exe.exe
+D:/THIENLONG_wt/ff730cd-fix/build/msvc-release/MinSizeRel/wire_loop_tests.exe
+D:/THIENLONG_wt/ff730cd-fix/build/msvc-release/MinSizeRel/wire_loop_tests.exe.exe
+D:/THIENLONG_wt/ff730cd-fix/build/msvc-release/RelWithDebInfo/wire_loop_tests.exe
+D:/THIENLONG_wt/ff730cd-fix/build/msvc-release/RelWithDebInfo/wire_loop_tests.exe.exe
+D:/THIENLONG_wt/ff730cd-fix/build/msvc-release/Deployment/wire_loop_tests.exe
+D:/THIENLONG_wt/ff730cd-fix/build/msvc-release/Deployment/wire_loop_tests.exe.exe
+D:/THIENLONG_wt/ff730cd-fix/build/msvc-release/Development/wire_loop_tests.exe
+D:/THIENLONG_wt/ff730cd-fix/build/msvc-release/Development/wire_loop_tests.exe.exe
+Unable to find executable: D:/THIENLONG_wt/ff730cd-fix/build/msvc-release/wire_loop_tests.exe
+79/85 Test #79: wire_loop_tests ..................***Not Run   0.00 sec
+      Start 80: secure_tests
+80/85 Test #80: secure_tests .....................   Passed    0.05 sec
+      Start 81: gate_tests
+Could not find executable D:/THIENLONG_wt/ff730cd-fix/build/msvc-release/gate_tests.exe
+Looked in the following places:
+D:/THIENLONG_wt/ff730cd-fix/build/msvc-release/gate_tests.exe
+D:/THIENLONG_wt/ff730cd-fix/build/msvc-release/gate_tests.exe.exe
+D:/THIENLONG_wt/ff730cd-fix/build/msvc-release/Release/gate_tests.exe
+D:/THIENLONG_wt/ff730cd-fix/build/msvc-release/Release/gate_tests.exe.exe
+D:/THIENLONG_wt/ff730cd-fix/build/msvc-release/Debug/gate_tests.exe
+D:/THIENLONG_wt/ff730cd-fix/build/msvc-release/Debug/gate_tests.exe.exe
+D:/THIENLONG_wt/ff730cd-fix/build/msvc-release/MinSizeRel/gate_tests.exe
+D:/THIENLONG_wt/ff730cd-fix/build/msvc-release/MinSizeRel/gate_tests.exe.exe
+D:/THIENLONG_wt/ff730cd-fix/build/msvc-release/RelWithDebInfo/gate_tests.exe
+D:/THIENLONG_wt/ff730cd-fix/build/msvc-release/RelWithDebInfo/gate_tests.exe.exe
+D:/THIENLONG_wt/ff730cd-fix/build/msvc-release/Deployment/gate_tests.exe
+D:/THIENLONG_wt/ff730cd-fix/build/msvc-release/Deployment/gate_tests.exe.exe
+D:/THIENLONG_wt/ff730cd-fix/build/msvc-release/Development/gate_tests.exe
+D:/THIENLONG_wt/ff730cd-fix/build/msvc-release/Development/gate_tests.exe.exe
+Unable to find executable: D:/THIENLONG_wt/ff730cd-fix/build/msvc-release/gate_tests.exe
+81/85 Test #81: gate_tests .......................***Not Run   0.00 sec
+      Start 82: gate_motion_tests
+82/85 Test #82: gate_motion_tests ................   Passed    0.02 sec
+      Start 83: gate_loop_tests
+83/85 Test #83: gate_loop_tests ..................   Passed    2.13 sec
+      Start 84: protocol_catalog_fresh
+84/85 Test #84: protocol_catalog_fresh ...........   Passed    0.25 sec
+      Start 85: server_config_lint
+85/85 Test #85: server_config_lint ...............   Passed    0.15 sec
+
+82% tests passed, 15 tests failed out of 85
+
+Total Test time (real) =  66.69 sec
+
+The following tests FAILED:
+	 10 - world_tests (Not Run)
+	 16 - core_tests (Exit code 0xc0000409)
+	 24 - gpu_tests (Exit code 0xc0000409)
+	 29 - classic_tests (Not Run)
+	 46 - skill_tests (Exit code 0xc0000409)
+	 49 - gui_sheet_tests (Not Run)
+	 60 - ui_flow_tests (Not Run)
+	 64 - layers (Failed)
+	 66 - config_tests (Exit code 0xc0000409)
+	 67 - process_tests (Exit code 0xc0000409)
+	 69 - service_tests (Exit code 0xc0000409)
+	 70 - server_boot (Exit code 0xc0000409)
+	 71 - server_boot_source_clean (Exit code 0xc0000409)
+	 79 - wire_loop_tests (Not Run)
+	 81 - gate_tests (Not Run)
+Errors while running CTest
