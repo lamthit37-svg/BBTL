@@ -456,13 +456,13 @@ void write_pace(const PacePlace& place, const PaceNumbers& pace, PaceOverlay& ov
     if (place.font == nullptr) return;
     const BitmapFont& font = *place.font;
     const std::array<PaceLine, 8> lines = {
-        PaceLine{.label = "Vừa rồi", .value = millis_text(pace.last_ms)},
-        PaceLine{.label = "Trung vị", .value = millis_text(pace.median_ms)},
+        PaceLine{.label = "Last", .value = millis_text(pace.last_ms)},
+        PaceLine{.label = "Median", .value = millis_text(pace.median_ms)},
         PaceLine{.label = "p95", .value = millis_text(pace.p95_ms)},
-        PaceLine{.label = "Xin ảnh", .value = millis_text(pace.acquire_ms)},
-        PaceLine{.label = "Ghi lệnh", .value = millis_text(pace.draw_ms)},
-        PaceLine{.label = "Nộp", .value = millis_text(pace.submit_ms)},
-        PaceLine{.label = "Lệnh vẽ", .value = std::to_string(pace.draws)},
+        PaceLine{.label = "Acquire", .value = millis_text(pace.acquire_ms)},
+        PaceLine{.label = "Record", .value = millis_text(pace.draw_ms)},
+        PaceLine{.label = "Submit", .value = millis_text(pace.submit_ms)},
+        PaceLine{.label = "Draws", .value = std::to_string(pace.draws)},
         PaceLine{.label = "Quad UI", .value = std::to_string(pace.ui_quads)},
     };
     const float step = static_cast<float>(font.pixel_size()) + 4.0F;

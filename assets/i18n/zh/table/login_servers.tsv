@@ -1,0 +1,7 @@
+# 登录服务器列表，选服界面显示（ui/panel/servers.hpp）。原版客户端从 ..\Patch\loginserver.txt 读取（由启动器下载）；
+# 本版读取此 TSV：每行一个服务器，同名区域的相邻行合并为一个区域。区域名中 '-' 之前的部分决定左侧大区
+# （电信、网通、双线、争霸赛、轻享、特色服、至尊帮派邀请赛、天下会武、巅峰赛、WG独立大区；无 '-' 的归电信）。
+# status：0 爆满，1 繁忙，2 良好，3 流畅，4 维护，10 隐藏。recommend 大于 0 进入推荐栏（小者在前）。prize 为奖励等级 0 至 18。
+# 开发测试服目前只有一个服务器。
+area	tip	area_recommend	server	status	recommend	is_new	prize	has_arena
+电信-开发区	开发用测试服务器	1	开发一服	3	1	0	0	0

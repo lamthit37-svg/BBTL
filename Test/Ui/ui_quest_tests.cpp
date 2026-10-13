@@ -249,9 +249,9 @@ void names_are_translated(Context& context) {
     context.expect(has_line(lines, "QuestLog_Listbox\tItem1\t170000\t\t#gFE7E82- Vô Lượng Sơn"), "tên loại đã dịch");
     context.expect(has_line(lines, "QuestLog_Listbox\tItem2\t170001\tFFD9F80A\t    1 Duyên Khởi"), "tên nhiệm vụ đã dịch");
     context.expect(has_line(lines, "QuestLog_Desc\tElement1\ttext\t#YDuyên Khởi#W"), "tên trong ô mô tả");
-    const std::string_view place = "QuestLog_Desc\tElement2\ttext\tNơi nhận: Núi Vô Lượng  #{_INFOAIM187,205,6,Sơn Dân}";
+    const std::string_view place = "QuestLog_Desc\tElement2\ttext\t任务所在地：Núi Vô Lượng  #{_INFOAIM187,205,6,Sơn Dân}";
     context.expect(has_line(lines, place), "tên cảnh lấy ở bảng tên cảnh, NPC đã dịch trong liên kết");
-    context.expect(has_line(lines, "QuestLog_Desc\tElement3\ttext\tNgười giao: Sơn Dân"), "người giao đã dịch");
+    context.expect(has_line(lines, "QuestLog_Desc\tElement3\ttext\t任务发布人：Sơn Dân"), "người giao đã dịch");
 }
 
 void scene_without_name_drops_place_line(Context& context) {
@@ -264,7 +264,7 @@ void scene_without_name_drops_place_line(Context& context) {
     ui::panel::pick_quest_item(panel, 170001, world.facts());
     const std::vector<std::string> lines = lines_of(panel, calls);
     context.expect(has_line(lines, "QuestLog_Desc\tElements\t3"), "cảnh không tên thì chỉ còn ba dòng");
-    context.expect(has_line(lines, "QuestLog_Desc\tElement2\ttext\tNgười giao: Sơn Dân Bị Thương"), "dòng hai là người giao");
+    context.expect(has_line(lines, "QuestLog_Desc\tElement2\ttext\t任务发布人：Sơn Dân Bị Thương"), "dòng hai là người giao");
 }
 
 void stray_picks_only_clear_description(Context& context) {

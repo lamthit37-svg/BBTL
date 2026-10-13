@@ -10,7 +10,7 @@
 # GAME_I18N_STAMP là tệp mốc công cụ chỉ ghi lại khi bản thử đổi: bước đóng gói (APK) khai nó
 # làm đầu vào để đóng lại ngay trong lượt dựng vừa đổi chữ hay ảnh. Thiếu mốc thì Ninja chỉ biết
 # tệp trong dev/client/assets đổi ở lượt dựng SAU, vì nó xét ngày tệp trước khi bước i18n chạy.
-set(GAME_LANGUAGE "vi" CACHE STRING "Ngôn ngữ của bản dựng: tên tệp assets/i18n/<mã>.tsv")
+set(GAME_LANGUAGE "zh" CACHE STRING "Ngôn ngữ của bản dựng: tên tệp assets/i18n/<mã>.tsv")
 set(game_i18n_source "${PROJECT_SOURCE_DIR}/assets/i18n/${GAME_LANGUAGE}.tsv")
 if(NOT EXISTS "${game_i18n_source}")
     message(FATAL_ERROR "GAME_LANGUAGE=${GAME_LANGUAGE}: không có tệp ${game_i18n_source}")

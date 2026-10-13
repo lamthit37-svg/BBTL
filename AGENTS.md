@@ -46,8 +46,11 @@
     `dev/client/assets/Save/roles.tsv`. Các nút web mở trang "Coming soon", bàn phím
     ảo gõ vào ô đang ngắm. Cảnh nền có lửa và quầng đèn từ hiệu ứng bản 2026, còn thiếu nước,
     sương, nến và quạ.
-  - Chữ và ảnh tiếng Việt dựng cùng client từ `assets/i18n`. Chữ người chơi thấy là khoá
-    `#{...}` hoặc tên gốc của cảnh; bản dịch nằm trong `assets/i18n/vi.tsv`.
+  - Chữ và ảnh dựng cùng client từ `assets/i18n`. Từ 2026-10-13 bản dựng mặc định là `zh`: chỉ tiếng
+    Trung gốc của client 2026, không trộn Việt hay Anh. `vi` và `en` giữ nguyên làm nguồn, dựng lại
+    bằng `-DGAME_LANGUAGE=vi|en` khi chủ dự án cho phép. Chữ người chơi thấy là khoá `#{...}` hoặc tên
+    gốc của cảnh; chữ nằm trong `assets/i18n/<mã>.tsv`, tệp riêng của ngôn ngữ (danh sách máy chủ
+    đăng nhập, trang "Coming soon") ở `assets/i18n/<mã>/` và khai bằng dòng `file/` của tệp nguồn.
   - Client chưa mở socket nào và chưa có module nối máy chủ.
   - `WEB/` là trang giới thiệu tĩnh (Vite, React, three.js), không có backend, không nối client
     hay máy chủ, không nằm trong CMake.
@@ -122,7 +125,9 @@
     chốt ngày 2026-10-06.
   - Bản địa hoá dựng cùng client từ một tệp nguồn cho mỗi ngôn ngữ; ngôn ngữ chọn lúc dựng, bản
     triển khai chỉ mang chữ và ảnh của ngôn ngữ đó (không giữ hai bộ ảnh), client không chọn ngôn
-    ngữ lúc chạy — chủ dự án chốt ngày 2026-10-08.
+    ngữ lúc chạy — chủ dự án chốt ngày 2026-10-08. Chủ dự án chốt ngày 2026-10-13 ("chỉ tiếng Trung
+    bản gốc, không lẫn chữ Việt chữ Trung; ba ngôn ngữ để sau"): mặc định `zh`; chữ cứng trong mã mà
+    người chơi thấy cũng là chữ Trung gốc (không còn câu tiếng Việt nào trong `src/client/face`).
   - Một client cho PC, APK và iOS. Tách vỏ và gói cài, không tách mã game và không đưa game
     sang Java. APK và iOS là cùng phía mobile. `world.toml` `[platform] pc_meets_mobile` mặc định
     tắt: PC chỉ gặp mobile khi cờ bật. Engine không biết luật này — chủ dự án chốt ngày 2026-10-12.
