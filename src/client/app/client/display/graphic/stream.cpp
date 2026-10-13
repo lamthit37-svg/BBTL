@@ -334,7 +334,3 @@ std::size_t Display::State::keep_model(const std::string& mesh, ReadMesh read) {
     return index;
 }
 } // namespace game::client
-
-#if defined(__clang__) && defined(__x86_64__)
-#pragma clang attribute pop
-#endif
