@@ -1,0 +1,456 @@
+commit ff730cd
+TUs ['engine/net/reactor_win32.cpp', 'src/server/account/cap.cpp']
+
+### C:\Program Files\LLVM\bin\clang-tidy.exe -p D:\THIENLONG\build\xt-db --quiet --header-filter=(engine[/\\]net[/\\]reactor_win32\.cpp|src[/\\]server[/\\]account[/\\]cap\.hpp)$ D:\THIENLONG\build\xt\engine/net/reactor_win32.cpp
+error: argument unused during compilation: '/Zc:preprocessor' [clang-diagnostic-unused-command-line-argument]
+D:\THIENLONG\build\xt\engine\net\reactor_win32.cpp:27:1: error: included header ws2tcpip.h is not used directly [misc-include-cleaner,-warnings-as-errors]
+   27 | #include <ws2tcpip.h>
+      | ^~~~~~~~~~~~~~~~~~~~~
+   28 | #include <mswsock.h>
+D:\THIENLONG\build\xt\engine\net\reactor_win32.cpp:45:5: error: no header providing "OVERLAPPED" is directly included [misc-include-cleaner,-warnings-as-errors]
+   19 |     OVERLAPPED ov{};
+      |     ^
+D:\THIENLONG\build\xt\engine\net\reactor_win32.cpp:54:22: error: performing an implicit widening conversion to type 'size_t' (aka 'unsigned long long') of a multiplication performed in type 'DWORD' (aka 'unsigned long') [bugprone-implicit-widening-of-multiplication-result,-warnings-as-errors]
+   54 |     std::array<char, kAddrLen * 2> buf{};
+      |                      ^
+D:\THIENLONG\build\xt\engine\net\reactor_win32.cpp:54:22: note: make conversion explicit to silence this warning
+   54 |     std::array<char, kAddrLen * 2> buf{};
+      |                      ^~~~~~~~~~~~
+      |                      static_cast<size_t>( )
+D:\THIENLONG\build\xt\engine\net\reactor_win32.cpp:54:22: note: perform multiplication in a wider type
+   54 |     std::array<char, kAddrLen * 2> buf{};
+      |                      ^~~~~~~~
+      |                      static_cast<size_t>( )
+D:\THIENLONG\build\xt\engine\net\reactor_win32.cpp:77:29: error: no header providing "game::net::SocketHandle" is directly included [misc-include-cleaner,-warnings-as-errors]
+    6 | [[nodiscard]] SOCKET raw_of(SocketHandle handle) noexcept {
+      |                             ^
+D:\THIENLONG\build\xt\engine\net\reactor_win32.cpp:85:15: error: no header providing "game::net::Endpoint" is directly included [misc-include-cleaner,-warnings-as-errors]
+   85 | [[nodiscard]] Endpoint endpoint_of(const sockaddr_in& address) noexcept {
+      |               ^
+D:\THIENLONG\build\xt\engine\net\reactor_win32.cpp:86:73: error: no header providing "s_addr" is directly included [misc-include-cleaner,-warnings-as-errors]
+   18 |     const auto host = static_cast<std::uint32_t>(ntohl(address.sin_addr.s_addr));
+      |                                                                         ^
+D:\THIENLONG\build\xt\engine\net\reactor_win32.cpp:113:30: error: no header providing "game::net::Milliseconds" is directly included [misc-include-cleaner,-warnings-as-errors]
+  113 | [[nodiscard]] DWORD clamp_ms(Milliseconds limit) noexcept {
+      |                              ^
+D:\THIENLONG\build\xt\engine\net\reactor_win32.cpp:123:5: error: no header providing "HANDLE" is directly included [misc-include-cleaner,-warnings-as-errors]
+   26 |     HANDLE port = nullptr;
+      |     ^
+D:\THIENLONG\build\xt\engine\net\reactor_win32.cpp:133:9: error: 'port' should be initialized in a member initializer of the constructor [cppcoreguidelines-prefer-member-initializer,-warnings-as-errors]
+  132 |     ReactorNative() {
+      |                     : port(CreateIoCompletionPort(INVALID_HANDLE_VALUE, nullptr, 0, 1))
+  133 |         port = CreateIoCompletionPort(INVALID_HANDLE_VALUE, nullptr, 0, 1);
+      |         ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+D:\THIENLONG\build\xt\engine\net\reactor_win32.cpp:133:16: error: no header providing "CreateIoCompletionPort" is directly included [misc-include-cleaner,-warnings-as-errors]
+   18 |         port = CreateIoCompletionPort(INVALID_HANDLE_VALUE, nullptr, 0, 1);
+      |                ^
+D:\THIENLONG\build\xt\engine\net\reactor_win32.cpp:133:39: error: no header providing "INVALID_HANDLE_VALUE" is directly included [misc-include-cleaner,-warnings-as-errors]
+  133 |         port = CreateIoCompletionPort(INVALID_HANDLE_VALUE, nullptr, 0, 1);
+      |                                       ^
+D:\THIENLONG\build\xt\engine\net\reactor_win32.cpp:158:36: error: variable 'slot' of type 'Slot &' can be declared 'const' [misc-const-correctness,-warnings-as-errors]
+  158 | void retire(ReactorNative& native, Slot& slot) {
+      |                                    ^   
+      |                                         const
+D:\THIENLONG\build\xt\engine\net\reactor_win32.cpp:163:30: error: variable 'native' of type 'ReactorNative &' can be declared 'const' [misc-const-correctness,-warnings-as-errors]
+  163 | [[nodiscard]] bool join_port(ReactorNative& native, SOCKET socket) noexcept {
+      |                              ^            
+      |                                            const
+D:\THIENLONG\build\xt\engine\net\reactor_win32.cpp:165:18: error: 'joined' declared with a const-qualified typedef; results in the type being 'void *const' instead of 'const void *' [misc-misplaced-const,-warnings-as-errors]
+  165 |     const HANDLE joined = CreateIoCompletionPort(reinterpret_cast<HANDLE>(socket), native.port, 0, 1);
+      |                  ^
+C:\Program Files (x86)\Windows Kits\10\Include\10.0.26100.0\um\winnt.h:712:15: note: typedef declared here
+  712 | typedef void *HANDLE;
+      |               ^
+D:\THIENLONG\build\xt\engine\net\reactor_win32.cpp:165:50: error: integer to pointer cast pessimizes optimization opportunities [performance-no-int-to-ptr,-warnings-as-errors]
+  165 |     const HANDLE joined = CreateIoCompletionPort(reinterpret_cast<HANDLE>(socket), native.port, 0, 1);
+      |                                                  ^
+D:\THIENLONG\build\xt\engine\net\reactor_win32.cpp:171:5: error: no header providing "GUID" is directly included [misc-include-cleaner,-warnings-as-errors]
+  171 |     GUID accept_id = WSAID_ACCEPTEX;
+      |     ^
+D:\THIENLONG\build\xt\engine\net\reactor_win32.cpp:175:9: error: multilevel pointer conversion from 'LPFN_ACCEPTEX *' (aka 'int (**)(unsigned long long, unsigned long long, void *, unsigned long, unsigned long, unsigned long, unsigned long *, struct _OVERLAPPED *)') to 'void *', please use explicit cast [bugprone-multi-level-implicit-pointer-conversion,-warnings-as-errors]
+  175 |         &native.accept_ex, sizeof(native.accept_ex), &bytes, nullptr, nullptr);
+      |         ^
+D:\THIENLONG\build\xt\engine\net\reactor_win32.cpp:178:9: error: multilevel pointer conversion from 'LPFN_GETACCEPTEXSOCKADDRS *' (aka 'void (**)(void *, unsigned long, unsigned long, unsigned long, struct sockaddr **, int *, struct sockaddr **, int *)') to 'void *', please use explicit cast [bugprone-multi-level-implicit-pointer-conversion,-warnings-as-errors]
+  178 |         &native.accept_addrs, sizeof(native.accept_addrs), &bytes, nullptr, nullptr);
+      |         ^
+D:\THIENLONG\build\xt\engine\net\reactor_win32.cpp:182:43: error: parameter name 'op' is too short, expected at least 3 characters [readability-identifier-length,-warnings-as-errors]
+  182 | void finish_op(ReactorNative& native, Op& op) noexcept {
+      |                                           ^
+D:\THIENLONG\build\xt\engine\net\reactor_win32.cpp:209:20: error: an exception may be thrown in function 'post_read' which should not throw exceptions [bugprone-exception-escape,-warnings-as-errors]
+  209 | [[nodiscard]] bool post_read(ReactorNative& native, Slot& slot) noexcept {
+      |                    ^
+C:\Program Files\Microsoft Visual Studio\18\Community\VC\Tools\MSVC\14.51.36231\include\xmemory:108:5: note: frame #0: unhandled exception of type 'bad_array_new_length' may be thrown in function '_Throw_bad_array_new_length' here
+  108 |     _THROW(bad_array_new_length{});
+      |     ^
+C:\Program Files\Microsoft Visual Studio\18\Community\VC\Tools\MSVC\14.51.36231\include\yvals.h:484:21: note: expanded from macro '_THROW'
+  484 | #define _THROW(...) throw(__VA_ARGS__)
+      |                     ^
+C:\Program Files\Microsoft Visual Studio\18\Community\VC\Tools\MSVC\14.51.36231\include\xmemory:118:13: note: frame #1: function '_Get_size_of_n<8ULL>' calls function '_Throw_bad_array_new_length' here
+  118 |             _Throw_bad_array_new_length(); // multiply overflow
+      |             ^
+C:\Program Files\Microsoft Visual Studio\18\Community\VC\Tools\MSVC\14.51.36231\include\xmemory:994:68: note: frame #2: function 'allocate' calls function '_Get_size_of_n<8ULL>' here
+  994 |         return static_cast<_Ty*>(_STD _Allocate<_New_alignof<_Ty>>(_Get_size_of_n<sizeof(_Ty)>(_Count)));
+      |                                                                    ^
+C:\Program Files\Microsoft Visual Studio\18\Community\VC\Tools\MSVC\14.51.36231\include\xmemory:2335:16: note: frame #3: function '_Allocate_at_least_helper<std::allocator<unsigned long long>>' calls function 'allocate' here
+ 2335 |         return _Al.allocate(_Count);
+      |                ^
+C:\Program Files\Microsoft Visual Studio\18\Community\VC\Tools\MSVC\14.51.36231\include\vector:896:43: note: frame #4: function '_Emplace_reallocate<const unsigned long long &>' calls function '_Allocate_at_least_helper<std::allocator<unsigned long long>>' here
+  896 |         const pointer _Newvec           = _STD _Allocate_at_least_helper(_Al, _Newcapacity);
+      |                                           ^
+C:\Program Files\Microsoft Visual Studio\18\Community\VC\Tools\MSVC\14.51.36231\include\yvals_core.h:1906:17: note: expanded from macro '_STD'
+ 1906 | #define _STD    ::std::
+      |                 ^
+C:\Program Files\Microsoft Visual Studio\18\Community\VC\Tools\MSVC\14.51.36231\include\vector:850:17: note: frame #5: function '_Emplace_one_at_back<const unsigned long long &>' calls function '_Emplace_reallocate<const unsigned long long &>' here
+  850 |         return *_Emplace_reallocate(_Mylast, _STD forward<_Valty>(_Val)...);
+      |                 ^
+C:\Program Files\Microsoft Visual Studio\18\Community\VC\Tools\MSVC\14.51.36231\include\vector:936:9: note: frame #6: function 'push_back' calls function '_Emplace_one_at_back<const unsigned long long &>' here
+  936 |         _Emplace_one_at_back(_Val);
+      |         ^
+D:\THIENLONG\build\xt\engine\net\reactor_win32.cpp:155:5: note: frame #7: function 'mark' calls function 'push_back' here
+  155 |     native.dirty.push_back(slot.tag);
+      |     ^
+D:\THIENLONG\build\xt\engine\net\reactor_win32.cpp:220:9: note: frame #8: function 'post_read' calls function 'mark' here
+  220 |         mark(native, slot);
+      |         ^
+D:\THIENLONG\build\xt\engine\net\reactor_win32.cpp:214:15: error: use designated initializer list to initialize 'WSABUF' (aka 'struct _WSABUF') [modernize-use-designated-initializers,-warnings-as-errors]
+  214 |     WSABUF buf{0, nullptr};
+      |               ^~~~~~~~~~~~
+      |                .len= .buf=
+C:\Program Files (x86)\Windows Kits\10\Include\10.0.26100.0\shared\ws2def.h:695:9: note: aggregate type is defined here
+  695 | typedef struct _WSABUF {
+      |         ^
+D:\THIENLONG\build\xt\engine\net\reactor_win32.cpp:217:15: error: variable name 'rc' is too short, expected at least 3 characters [readability-identifier-length,-warnings-as-errors]
+  217 |     const int rc = WSARecv(slot.fd, &buf, 1, &got, &flags, &slot.read.ov, nullptr);
+      |               ^
+D:\THIENLONG\build\xt\engine\net\reactor_win32.cpp:229:57: error: parameter name 'ok' is too short, expected at least 3 characters [readability-identifier-length,-warnings-as-errors]
+  229 | void apply_read(ReactorNative& native, Slot& slot, bool ok, int error) {
+      |                                                         ^
+D:\THIENLONG\build\xt\engine\net\reactor_win32.cpp:231:22: error: comparison between 'signed' and 'unsigned' integers [modernize-use-integer-sign-comparison,-warnings-as-errors]
+  231 |     if (slot.dead || error == static_cast<int>(kCancelled)) return;
+      |                      ^     ~~~~~~~~~~~~~~~~~~~~          ~
+      |                      std::cmp_equal( ,                   )
+D:\THIENLONG\build\xt\engine\net\reactor_win32.cpp:237:58: error: parameter name 'ok' is too short, expected at least 3 characters [readability-identifier-length,-warnings-as-errors]
+  237 | void apply_write(ReactorNative& native, Slot& slot, bool ok, int error, DWORD bytes) {
+      |                                                          ^
+D:\THIENLONG\build\xt\engine\net\reactor_win32.cpp:237:62: error: 2 adjacent parameters of 'apply_write' of convertible types are easily swapped by mistake [bugprone-easily-swappable-parameters,-warnings-as-errors]
+  237 | void apply_write(ReactorNative& native, Slot& slot, bool ok, int error, DWORD bytes) {
+      |                                                              ^~~~~~~~~~~~~~~~~~~~~~
+D:\THIENLONG\build\xt\engine\net\reactor_win32.cpp:237:66: note: the first parameter in the range is 'error'
+  237 | void apply_write(ReactorNative& native, Slot& slot, bool ok, int error, DWORD bytes) {
+      |                                                                  ^~~~~
+D:\THIENLONG\build\xt\engine\net\reactor_win32.cpp:237:79: note: the last parameter in the range is 'bytes'
+  237 | void apply_write(ReactorNative& native, Slot& slot, bool ok, int error, DWORD bytes) {
+      |                                                                               ^~~~~
+D:\THIENLONG\build\xt\engine\net\reactor_win32.cpp:237:62: note: 
+  237 | void apply_write(ReactorNative& native, Slot& slot, bool ok, int error, DWORD bytes) {
+      |                                                              ^
+D:\THIENLONG\build\xt\engine\net\reactor_win32.cpp:237:73: note: 'int' and 'DWORD' may be implicitly converted: 'int' -> 'DWORD' (as 'unsigned long'), 'DWORD' (as 'unsigned long') -> 'int'
+  237 | void apply_write(ReactorNative& native, Slot& slot, bool ok, int error, DWORD bytes) {
+      |                                                                         ^
+D:\THIENLONG\build\xt\engine\net\reactor_win32.cpp:239:22: error: comparison between 'signed' and 'unsigned' integers [modernize-use-integer-sign-comparison,-warnings-as-errors]
+  239 |     if (slot.dead || error == static_cast<int>(kCancelled)) return;
+      |                      ^     ~~~~~~~~~~~~~~~~~~~~          ~
+      |                      std::cmp_equal( ,                   )
+D:\THIENLONG\build\xt\engine\net\reactor_win32.cpp:245:77: error: parameter name 'ok' is too short, expected at least 3 characters [readability-identifier-length,-warnings-as-errors]
+  245 | void apply_accept(ReactorNative& native, Slot& slot, AcceptOp& accept, bool ok, int error) {
+      |                                                                             ^
+D:\THIENLONG\build\xt\engine\net\reactor_win32.cpp:246:22: error: comparison between 'signed' and 'unsigned' integers [modernize-use-integer-sign-comparison,-warnings-as-errors]
+  246 |     if (slot.dead || error == static_cast<int>(kCancelled) || !ok) {
+      |                      ^     ~~~~~~~~~~~~~~~~~~~~          ~
+      |                      std::cmp_equal( ,                   )
+D:\THIENLONG\build\xt\engine\net\reactor_win32.cpp:255:41: error: no header providing "OVERLAPPED_ENTRY" is directly included [misc-include-cleaner,-warnings-as-errors]
+  255 | void apply(ReactorNative& native, const OVERLAPPED_ENTRY& entry) {
+      |                                         ^
+D:\THIENLONG\build\xt\engine\net\reactor_win32.cpp:256:17: error: variable name 'ov' is too short, expected at least 3 characters [readability-identifier-length,-warnings-as-errors]
+  256 |     OVERLAPPED* ov = entry.lpOverlapped;
+      |                 ^
+D:\THIENLONG\build\xt\engine\net\reactor_win32.cpp:264:9: error: variable name 'op' is too short, expected at least 3 characters [readability-identifier-length,-warnings-as-errors]
+  264 |     Op* op = reinterpret_cast<Op*>(ov);
+      |         ^
+D:\THIENLONG\build\xt\engine\net\reactor_win32.cpp:269:23: error: no header providing "GetOverlappedResult" is directly included [misc-include-cleaner,-warnings-as-errors]
+  269 |     const BOOL done = GetOverlappedResult(reinterpret_cast<HANDLE>(slot->fd), ov, &bytes, FALSE);
+      |                       ^
+D:\THIENLONG\build\xt\engine\net\reactor_win32.cpp:269:43: error: integer to pointer cast pessimizes optimization opportunities [performance-no-int-to-ptr,-warnings-as-errors]
+  269 |     const BOOL done = GetOverlappedResult(reinterpret_cast<HANDLE>(slot->fd), ov, &bytes, FALSE);
+      |                                           ^
+D:\THIENLONG\build\xt\engine\net\reactor_win32.cpp:270:59: error: no header providing "GetLastError" is directly included [misc-include-cleaner,-warnings-as-errors]
+   18 |     const int error = done == TRUE ? 0 : static_cast<int>(GetLastError());
+      |                                                           ^
+D:\THIENLONG\build\xt\engine\net\reactor_win32.cpp:297:21: error: no header providing "GetQueuedCompletionStatusEx" is directly included [misc-include-cleaner,-warnings-as-errors]
+  297 |     const BOOL ok = GetQueuedCompletionStatusEx(
+      |                     ^
+D:\THIENLONG\build\xt\engine\net\reactor_win32.cpp:304:63: error: do not use array subscript when the index is not an integer constant expression [cppcoreguidelines-pro-bounds-constant-array-index,-warnings-as-errors]
+  304 |     for (ULONG index = 0; index < got; ++index) apply(native, entries[index]);
+      |                                                               ^
+D:\THIENLONG\build\xt\engine\net\reactor_win32.cpp:318:6: error: function 'emit' exceeds recommended size/complexity thresholds [readability-function-size,-warnings-as-errors]
+  318 | void emit(ReactorNative& native, PollEvents& events) {
+      |      ^
+D:\THIENLONG\build\xt\engine\net\reactor_win32.cpp:325:29: note: nesting level 3 starts here (threshold 2)
+  325 |         if (slot->read_hot) {
+      |                             ^
+D:\THIENLONG\build\xt\engine\net\reactor_win32.cpp:329:30: note: nesting level 3 starts here (threshold 2)
+  329 |         if (slot->write_hot) {
+      |                              ^
+D:\THIENLONG\build\xt\engine\net\reactor_win32.cpp:333:39: note: nesting level 3 starts here (threshold 2)
+  333 |         if (slot->completed_send > 0) {
+      |                                       ^
+D:\THIENLONG\build\xt\engine\net\reactor_win32.cpp:337:27: note: nesting level 3 starts here (threshold 2)
+  337 |         if (slot->failed) {
+      |                           ^
+D:\THIENLONG\build\xt\engine\net\reactor_win32.cpp:318:6: error: function 'emit' has cognitive complexity of 17 (threshold 10) [readability-function-cognitive-complexity,-warnings-as-errors]
+  318 | void emit(ReactorNative& native, PollEvents& events) {
+      |      ^
+D:\THIENLONG\build\xt\engine\net\reactor_win32.cpp:319:5: note: +1, including nesting penalty of 0, nesting level increased to 1
+  319 |     for (const std::uint64_t tag : native.dirty) {
+      |     ^
+D:\THIENLONG\build\xt\engine\net\reactor_win32.cpp:321:9: note: +2, including nesting penalty of 1, nesting level increased to 2
+  321 |         if (slot == nullptr) continue;
+      |         ^
+D:\THIENLONG\build\xt\engine\net\reactor_win32.cpp:325:9: note: +2, including nesting penalty of 1, nesting level increased to 2
+  325 |         if (slot->read_hot) {
+      |         ^
+D:\THIENLONG\build\xt\engine\net\reactor_win32.cpp:329:9: note: +2, including nesting penalty of 1, nesting level increased to 2
+  329 |         if (slot->write_hot) {
+      |         ^
+D:\THIENLONG\build\xt\engine\net\reactor_win32.cpp:333:9: note: +2, including nesting penalty of 1, nesting level increased to 2
+  333 |         if (slot->completed_send > 0) {
+      |         ^
+D:\THIENLONG\build\xt\engine\net\reactor_win32.cpp:337:9: note: +2, including nesting penalty of 1, nesting level increased to 2
+  337 |         if (slot->failed) {
+      |         ^
+D:\THIENLONG\build\xt\engine\net\reactor_win32.cpp:341:9: note: +2, including nesting penalty of 1, nesting level increased to 2
+  341 |         if (slot->listener && !slot->ready.empty()) event.readable = true;
+      |         ^
+D:\THIENLONG\build\xt\engine\net\reactor_win32.cpp:341:28: note: +1
+  341 |         if (slot->listener && !slot->ready.empty()) event.readable = true;
+      |                            ^
+D:\THIENLONG\build\xt\engine\net\reactor_win32.cpp:342:75: note: +1
+  342 |         const bool any = event.readable || event.writable || event.failed || event.sent > 0;
+      |                                                                           ^
+D:\THIENLONG\build\xt\engine\net\reactor_win32.cpp:343:9: note: +2, including nesting penalty of 1, nesting level increased to 2
+  343 |         if (!any) continue;
+      |         ^
+D:\THIENLONG\build\xt\engine\net\reactor_win32.cpp:318:34: error: no header providing "game::net::PollEvents" is directly included [misc-include-cleaner,-warnings-as-errors]
+  318 | void emit(ReactorNative& native, PollEvents& events) {
+      |                                  ^
+D:\THIENLONG\build\xt\engine\net\reactor_win32.cpp:323:9: error: no header providing "game::net::PollEvent" is directly included [misc-include-cleaner,-warnings-as-errors]
+  323 |         PollEvent event{};
+      |         ^
+D:\THIENLONG\build\xt\engine\net\reactor_win32.cpp:349:29: error: no header providing "game::net::Accepted" is directly included [misc-include-cleaner,-warnings-as-errors]
+  349 | [[nodiscard]] std::optional<Accepted> adopt(ReactorNative& native, Slot& slot, AcceptOp& accept) {
+      |                             ^
+D:\THIENLONG\build\xt\engine\net\reactor_win32.cpp:358:30: error: comparison between 'signed' and 'unsigned' integers [modernize-use-integer-sign-comparison,-warnings-as-errors]
+  358 |     if (remote != nullptr && remote_len >= static_cast<int>(sizeof(sockaddr_in))) {
+      |                              ^          ~~~~~~~~~~~~~~~~~~~~                   ~
+      |                              std::cmp_greater_equal( ,                         )
+D:\THIENLONG\build\xt\engine\net\reactor_win32.cpp:368:5: error: no header providing "game::net::Socket" is directly included [misc-include-cleaner,-warnings-as-errors]
+  368 |     Socket owned{wrap(raw)};
+      |     ^
+D:\THIENLONG\build\xt\engine\net\reactor_win32.cpp:372:31: error: no header providing "game::net::TcpStream" is directly included [misc-include-cleaner,-warnings-as-errors]
+  372 |     return Accepted{.stream = TcpStream::from_socket(std::move(owned)), .peer = peer};
+      |                               ^
+D:\THIENLONG\build\xt\engine\net\reactor_win32.cpp:395:16: error: an exception may be thrown in function '~ReactorNative' which should not throw exceptions [bugprone-exception-escape,-warnings-as-errors]
+  395 | ReactorNative::~ReactorNative() {
+      |                ^
+C:\Program Files\Microsoft Visual Studio\18\Community\VC\Tools\MSVC\14.51.36231\include\xmemory:108:5: note: frame #0: unhandled exception of type 'bad_array_new_length' may be thrown in function '_Throw_bad_array_new_length' here
+  108 |     _THROW(bad_array_new_length{});
+      |     ^
+C:\Program Files\Microsoft Visual Studio\18\Community\VC\Tools\MSVC\14.51.36231\include\yvals.h:484:21: note: expanded from macro '_THROW'
+  484 | #define _THROW(...) throw(__VA_ARGS__)
+      |                     ^
+C:\Program Files\Microsoft Visual Studio\18\Community\VC\Tools\MSVC\14.51.36231\include\xmemory:118:13: note: frame #1: function '_Get_size_of_n<8ULL>' calls function '_Throw_bad_array_new_length' here
+  118 |             _Throw_bad_array_new_length(); // multiply overflow
+      |             ^
+C:\Program Files\Microsoft Visual Studio\18\Community\VC\Tools\MSVC\14.51.36231\include\xmemory:994:68: note: frame #2: function 'allocate' calls function '_Get_size_of_n<8ULL>' here
+  994 |         return static_cast<_Ty*>(_STD _Allocate<_New_alignof<_Ty>>(_Get_size_of_n<sizeof(_Ty)>(_Count)));
+      |                                                                    ^
+C:\Program Files\Microsoft Visual Studio\18\Community\VC\Tools\MSVC\14.51.36231\include\xmemory:2335:16: note: frame #3: function '_Allocate_at_least_helper<std::allocator<game::net::(anonymous namespace)::AcceptOp *>>' calls function 'allocate' here
+ 2335 |         return _Al.allocate(_Count);
+      |                ^
+C:\Program Files\Microsoft Visual Studio\18\Community\VC\Tools\MSVC\14.51.36231\include\vector:896:43: note: frame #4: function '_Emplace_reallocate<game::net::(anonymous namespace)::AcceptOp *>' calls function '_Allocate_at_least_helper<std::allocator<game::net::(anonymous namespace)::AcceptOp *>>' here
+  896 |         const pointer _Newvec           = _STD _Allocate_at_least_helper(_Al, _Newcapacity);
+      |                                           ^
+C:\Program Files\Microsoft Visual Studio\18\Community\VC\Tools\MSVC\14.51.36231\include\yvals_core.h:1906:17: note: expanded from macro '_STD'
+ 1906 | #define _STD    ::std::
+      |                 ^
+C:\Program Files\Microsoft Visual Studio\18\Community\VC\Tools\MSVC\14.51.36231\include\vector:850:17: note: frame #5: function '_Emplace_one_at_back<game::net::(anonymous namespace)::AcceptOp *>' calls function '_Emplace_reallocate<game::net::(anonymous namespace)::AcceptOp *>' here
+  850 |         return *_Emplace_reallocate(_Mylast, _STD forward<_Valty>(_Val)...);
+      |                 ^
+C:\Program Files\Microsoft Visual Studio\18\Community\VC\Tools\MSVC\14.51.36231\include\vector:941:9: note: frame #6: function 'push_back' calls function '_Emplace_one_at_back<game::net::(anonymous namespace)::AcceptOp *>' here
+  941 |         _Emplace_one_at_back(_STD move(_Val));
+      |         ^
+D:\THIENLONG\build\xt\engine\net\reactor_win32.cpp:251:5: note: frame #7: function 'apply_accept' calls function 'push_back' here
+  251 |     slot.ready.push_back(&accept);
+      |     ^
+D:\THIENLONG\build\xt\engine\net\reactor_win32.cpp:275:9: note: frame #8: function 'apply' calls function 'apply_accept' here
+  275 |         apply_accept(native, *slot, *reinterpret_cast<AcceptOp*>(op), done == TRUE, error);
+      |         ^
+D:\THIENLONG\build\xt\engine\net\reactor_win32.cpp:304:49: note: frame #9: function 'harvest' calls function 'apply' here
+  304 |     for (ULONG index = 0; index < got; ++index) apply(native, entries[index]);
+      |                                                 ^
+D:\THIENLONG\build\xt\engine\net\reactor_win32.cpp:404:77: note: frame #10: function '~ReactorNative' calls function 'harvest' here
+  404 |     for (int spin = 0; spin < 100 && pending > 0; ++spin) static_cast<void>(harvest(*this, 20));
+      |                                                                             ^
+D:\THIENLONG\build\xt\engine\net\reactor_win32.cpp:396:10: error: variable 'item' of type 'value_type &' (aka 'std::pair<const unsigned long long, std::unique_ptr<game::net::(anonymous namespace)::Slot>> &') can be declared 'const' [misc-const-correctness,-warnings-as-errors]
+  396 |     for (auto& item : slots) {
+      |          ^   
+      |               const
+D:\THIENLONG\build\xt\engine\net\reactor_win32.cpp:402:27: error: no header providing "CancelIoEx" is directly included [misc-include-cleaner,-warnings-as-errors]
+  402 |         static_cast<void>(CancelIoEx(reinterpret_cast<HANDLE>(slot.fd), nullptr));
+      |                           ^
+D:\THIENLONG\build\xt\engine\net\reactor_win32.cpp:402:38: error: integer to pointer cast pessimizes optimization opportunities [performance-no-int-to-ptr,-warnings-as-errors]
+  402 |         static_cast<void>(CancelIoEx(reinterpret_cast<HANDLE>(slot.fd), nullptr));
+      |                                      ^
+D:\THIENLONG\build\xt\engine\net\reactor_win32.cpp:406:52: error: the value returned by this function should not be disregarded; neglecting it may lead to errors [bugprone-unused-return-value,-warnings-as-errors]
+  406 |         for (auto& item : slots) static_cast<void>(item.second.release());
+      |                                                    ^~~~~~~~~~~~~~~~~~~~~
+D:\THIENLONG\build\xt\engine\net\reactor_win32.cpp:409:26: error: no header providing "CloseHandle" is directly included [misc-include-cleaner,-warnings-as-errors]
+   18 |     if (port != nullptr) CloseHandle(port);
+      |                          ^
+D:\THIENLONG\build\xt\engine\net\reactor_win32.cpp:427:19: error: no header providing "game::net::kNoSocket" is directly included [misc-include-cleaner,-warnings-as-errors]
+  427 |     if (socket == kNoSocket) return false;
+      |                   ^
+D:\THIENLONG\build\xt\engine\net\reactor_win32.cpp:441:15: error: function 'unwatch' exceeds recommended size/complexity thresholds [readability-function-size,-warnings-as-errors]
+  441 | void Reactor::unwatch(std::uint64_t tag) {
+      |               ^
+D:\THIENLONG\build\xt\engine\net\reactor_win32.cpp:455:47: note: nesting level 3 starts here (threshold 2)
+  455 |         for (int spin = 0; spin < 50; ++spin) {
+      |                                               ^
+D:\THIENLONG\build\xt\engine\net\reactor_win32.cpp:452:38: error: integer to pointer cast pessimizes optimization opportunities [performance-no-int-to-ptr,-warnings-as-errors]
+  452 |         static_cast<void>(CancelIoEx(reinterpret_cast<HANDLE>(slot->fd), nullptr));
+      |                                      ^
+D:\THIENLONG\build\xt\engine\net\reactor_win32.cpp:473:15: error: function 'note_read' exceeds recommended size/complexity thresholds [readability-function-size,-warnings-as-errors]
+  473 | void Reactor::note_read(std::uint64_t tag, std::size_t got) {
+      |               ^
+D:\THIENLONG\build\xt\engine\net\reactor_win32.cpp:479:72: note: nesting level 3 starts here (threshold 2)
+  479 |         if (ioctlsocket(slot->fd, FIONREAD, &avail) == 0 && avail > 0) {
+      |                                                                        ^
+D:\THIENLONG\build\xt\engine\net\reactor_win32.cpp:473:25: error: 2 adjacent parameters of 'note_read' of similar type are easily swapped by mistake [bugprone-easily-swappable-parameters,-warnings-as-errors]
+  473 | void Reactor::note_read(std::uint64_t tag, std::size_t got) {
+      |                         ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+D:\THIENLONG\build\xt\engine\net\reactor_win32.cpp:473:39: note: the first parameter in the range is 'tag'
+  473 | void Reactor::note_read(std::uint64_t tag, std::size_t got) {
+      |                                       ^~~
+D:\THIENLONG\build\xt\engine\net\reactor_win32.cpp:473:56: note: the last parameter in the range is 'got'
+  473 | void Reactor::note_read(std::uint64_t tag, std::size_t got) {
+      |                                                        ^~~
+D:\THIENLONG\build\xt\engine\net\reactor_win32.cpp:473:25: note: after resolving type aliases, the common type of 'std::uint64_t' and 'std::size_t' is 'unsigned long long'
+  473 | void Reactor::note_read(std::uint64_t tag, std::size_t got) {
+      |                         ^
+D:\THIENLONG\build\xt\engine\net\reactor_win32.cpp:488:30: error: no header providing "game::net::TcpListener" is directly included [misc-include-cleaner,-warnings-as-errors]
+  488 | bool Reactor::watch_listener(TcpListener& listener, std::uint64_t tag) {
+      |                              ^
+D:\THIENLONG\build\xt\engine\net\reactor_win32.cpp:502:19: error: variable name 'op' is too short, expected at least 3 characters [readability-identifier-length,-warnings-as-errors]
+  502 |         AcceptOp* op = accept.get();
+      |                   ^
+D:\THIENLONG\build\xt\engine\net\reactor_win32.cpp:511:1: error: no header providing "game::net::NetResult" is directly included [misc-include-cleaner,-warnings-as-errors]
+  511 | NetResult<std::optional<Accepted>> Reactor::take_accept(std::uint64_t tag) {
+      | ^
+D:\THIENLONG\build\xt\engine\net\reactor_win32.cpp:533:32: error: no header providing "CHAR" is directly included [misc-include-cleaner,-warnings-as-errors]
+  533 |     buf.buf = reinterpret_cast<CHAR*>(slot->send_buf.data());
+      |                                ^
+D:\THIENLONG\build\xt\engine\net\reactor_win32.cpp:535:15: error: variable name 'rc' is too short, expected at least 3 characters [readability-identifier-length,-warnings-as-errors]
+  535 |     const int rc = WSASend(slot->fd, &buf, 1, &sent, 0, &slot->write.ov, nullptr);
+      |               ^
+D:\THIENLONG\build\xt\engine\net\reactor_win32.cpp:548:48: error: no header providing "std::unexpected" is directly included [misc-include-cleaner,-warnings-as-errors]
+   18 |     if (!pump_io(native, timeout)) return std::unexpected(NetError::kPoll);
+      |                                                ^
+D:\THIENLONG\build\xt\engine\net\reactor_win32.cpp:548:59: error: no header providing "game::net::NetError" is directly included [misc-include-cleaner,-warnings-as-errors]
+  548 |     if (!pump_io(native, timeout)) return std::unexpected(NetError::kPoll);
+      |                                                           ^
+D:\THIENLONG\build\xt\engine\net\reactor_win32.cpp:557:9: error: no header providing "PostQueuedCompletionStatus" is directly included [misc-include-cleaner,-warnings-as-errors]
+  557 |     if (PostQueuedCompletionStatus(native.port, 0, 0, &native.wake_ov) != 0) return;
+      |         ^
+Error while processing D:\THIENLONG\build\xt\engine\net\reactor_win32.cpp.
+
+### C:\Program Files\LLVM\bin\clang-tidy.exe -p D:\THIENLONG\build\xt-db --quiet --header-filter=(engine[/\\]net[/\\]reactor_win32\.cpp|src[/\\]server[/\\]account[/\\]cap\.hpp)$ D:\THIENLONG\build\xt\src/server/account/cap.cpp
+error: argument unused during compilation: '/Zc:preprocessor' [clang-diagnostic-unused-command-line-argument]
+D:\THIENLONG\build\xt\src\server\account/cap.hpp:19:49: error: performing an implicit widening conversion to type 'const std::uint64_t' (aka 'const unsigned long long') of a multiplication performed in type 'int' [bugprone-implicit-widening-of-multiplication-result,-warnings-as-errors]
+   19 | inline constexpr std::uint64_t kCapTtlSeconds = 8 * 60 * 60;
+      |                                                 ^
+D:\THIENLONG\build\xt\src\server\account/cap.hpp:19:49: note: make conversion explicit to silence this warning
+   11 | #include <cstdint>
+   12 | #include <span>
+   13 | 
+   14 | namespace game::account {
+   15 | 
+   16 | inline constexpr std::size_t kCapBytes = 52;
+   17 | // Ban không chờ cap hết hạn: mỗi lệnh store hỏi lại auth (kStanding, nhớ tối đa kStandingTtl).
+   18 | // Gate chưa có đường làm mới cap giữa phiên nên TTL giữ bằng một phiên chơi dài.
+   19 | inline constexpr std::uint64_t kCapTtlSeconds = 8 * 60 * 60;
+      |                                                 ^~~~~~~~~~~
+      |                                                 static_cast<const std::uint64_t>( )
+D:\THIENLONG\build\xt\src\server\account/cap.hpp:19:49: note: perform multiplication in a wider type
+   19 | inline constexpr std::uint64_t kCapTtlSeconds = 8 * 60 * 60;
+      |                                                 ^~~~~~
+      |                                                 static_cast<long long>( )
+D:\THIENLONG\build\xt\src\server\account/cap.hpp:34:94: error: parameter name 'in' is too short, expected at least 3 characters [readability-identifier-length,-warnings-as-errors]
+   34 | [[nodiscard]] CapStatus open_cap(secure::ByteView key, std::span<const std::byte, kCapBytes> in, std::uint64_t now,
+      |                                                                                              ^
+D:\THIENLONG\build\xt\src\server\account\cap.cpp:10:16: error: no header providing "std::size_t" is directly included [misc-include-cleaner,-warnings-as-errors]
+    4 | #include <limits>
+    5 | #include <string_view>
+    6 | 
+    7 | namespace game::account {
+    8 | namespace {
+    9 | 
+   10 | constexpr std::size_t kSignedBytes = 20;
+      |                ^
+D:\THIENLONG\build\xt\src\server\account\cap.cpp:12:19: error: no header providing "std::span" is directly included [misc-include-cleaner,-warnings-as-errors]
+    5 | #include <string_view>
+    6 | 
+    7 | namespace game::account {
+    8 | namespace {
+    9 | 
+   10 | constexpr std::size_t kSignedBytes = 20;
+   11 | 
+   12 | void put_u64(std::span<std::byte> out, std::uint64_t value) {
+      |                   ^
+D:\THIENLONG\build\xt\src\server\account\cap.cpp:12:29: error: no header providing "std::byte" is directly included [misc-include-cleaner,-warnings-as-errors]
+   12 | void put_u64(std::span<std::byte> out, std::uint64_t value) {
+      |                             ^
+D:\THIENLONG\build\xt\src\server\account\cap.cpp:12:45: error: no header providing "std::uint64_t" is directly included [misc-include-cleaner,-warnings-as-errors]
+    4 | #include <limits>
+    5 | #include <string_view>
+    6 | 
+    7 | namespace game::account {
+    8 | namespace {
+    9 | 
+   10 | constexpr std::size_t kSignedBytes = 20;
+   11 | 
+   12 | void put_u64(std::span<std::byte> out, std::uint64_t value) {
+      |                                             ^
+D:\THIENLONG\build\xt\src\server\account\cap.cpp:19:64: error: parameter name 'in' is too short, expected at least 3 characters [readability-identifier-length,-warnings-as-errors]
+   19 | [[nodiscard]] std::uint64_t get_u64(std::span<const std::byte> in) {
+      |                                                                ^
+D:\THIENLONG\build\xt\src\server\account\cap.cpp:27:45: error: no header providing "std::uint32_t" is directly included [misc-include-cleaner,-warnings-as-errors]
+   27 | void put_u32(std::span<std::byte> out, std::uint32_t value) {
+      |                                             ^
+D:\THIENLONG\build\xt\src\server\account\cap.cpp:34:64: error: parameter name 'in' is too short, expected at least 3 characters [readability-identifier-length,-warnings-as-errors]
+   34 | [[nodiscard]] std::uint32_t get_u32(std::span<const std::byte> in) {
+      |                                                                ^
+D:\THIENLONG\build\xt\src\server\account\cap.cpp:43:35: error: no header providing "game::secure::ByteView" is directly included [misc-include-cleaner,-warnings-as-errors]
+    2 | [[nodiscard]] bool subkey(secure::ByteView key, std::string_view label, std::span<std::byte, 32> out) {
+      |                                   ^
+D:\THIENLONG\build\xt\src\server\account\cap.cpp:44:20: error: no header providing "game::secure::mac32" is directly included [misc-include-cleaner,-warnings-as-errors]
+   44 |     return secure::mac32(key, std::as_bytes(std::span{label.data(), label.size()}), out);
+      |                    ^
+D:\THIENLONG\build\xt\src\server\account\cap.cpp:44:36: error: no header providing "std::as_bytes" is directly included [misc-include-cleaner,-warnings-as-errors]
+   44 |     return secure::mac32(key, std::as_bytes(std::span{label.data(), label.size()}), out);
+      |                                    ^
+D:\THIENLONG\build\xt\src\server\account\cap.cpp:44:50: error: no header providing "std::span" is directly included [misc-include-cleaner,-warnings-as-errors]
+   44 |     return secure::mac32(key, std::as_bytes(std::span{label.data(), label.size()}), out);
+      |                                                  ^
+D:\THIENLONG\build\xt\src\server\account\cap.cpp:53:13: error: no header providing "game::secure::wipe_bytes" is directly included [misc-include-cleaner,-warnings-as-errors]
+   53 |     secure::wipe_bytes(id);
+      |             ^
+D:\THIENLONG\build\xt\src\server\account\cap.cpp:58:87: error: no header providing "std::int64_t" is directly included [misc-include-cleaner,-warnings-as-errors]
+   58 |     if (account == 0 || account > static_cast<std::uint64_t>(std::numeric_limits<std::int64_t>::max())) return false;
+      |                                                                                       ^
+D:\THIENLONG\build\xt\src\server\account\cap.cpp:70:80: error: parameter name 'in' is too short, expected at least 3 characters [readability-identifier-length,-warnings-as-errors]
+   70 | CapStatus open_cap(secure::ByteView key, std::span<const std::byte, kCapBytes> in, std::uint64_t now, Cap& cap) {
+      |                                                                                ^
+D:\THIENLONG\build\xt\src\server\account\cap.cpp:75:34: error: no header providing "game::secure::mac32_verify" is directly included [misc-include-cleaner,-warnings-as-errors]
+   75 |     const bool genuine = secure::mac32_verify(mac_key, in.first(kSignedBytes), in.subspan(kSignedBytes));
+      |                                  ^
+Error while processing D:\THIENLONG\build\xt\src\server\account\cap.cpp.

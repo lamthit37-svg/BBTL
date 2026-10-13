@@ -483,6 +483,37 @@ void gles_rejects_duplicate_list(Context& context) {
     submit_rejects_the_same_list_twice(context, gpu::Backend::kGles);
 }
 
+// Pass GLES không có attachment nào (không màu, không độ sâu) phải bị từ chối có lỗi ở submit,
+// không được lặng lẽ bỏ qua cả pass vẽ. Pass có view màu đã chết cũng vậy.
+void gles_rejects_pass_without_attachment(Context& context) {
+    const DeviceResult made = validated_device(gpu::Backend::kGles);
+    context.expect(made.has_value(), "tạo được thiết bị GLES");
+    if (!made) return;
+    gpu::Device& device = **made;
+    const core::Result<gpu::CommandList*> empty = device.begin_commands(gpu::QueueType::kGraphics);
+    context.expect(empty.has_value(), "mở được list cho pass rỗng");
+    if (!empty) return;
+    const gpu::RenderingDesc bare{};
+    (*empty)->begin_rendering(bare);
+    (*empty)->end_rendering();
+    gpu::SubmitDesc submit;
+    submit.lists = std::span(&*empty, 1);
+    const core::Status refused = device.submit(gpu::QueueType::kGraphics, submit);
+    context.expect(!refused.has_value(), "submit từ chối pass không có attachment");
+    const core::Result<gpu::CommandList*> dead = device.begin_commands(gpu::QueueType::kGraphics);
+    context.expect(dead.has_value(), "mở được list cho pass có view chết");
+    if (!dead) return;
+    gpu::ColorTarget color;
+    color.view = gpu::TextureViewHandle{};
+    gpu::RenderingDesc pass;
+    pass.colors = std::span(&color, 1);
+    (*dead)->begin_rendering(pass);
+    (*dead)->end_rendering();
+    submit.lists = std::span(&*dead, 1);
+    const core::Status dropped = device.submit(gpu::QueueType::kGraphics, submit);
+    context.expect(!dropped.has_value(), "submit từ chối pass có view màu đã chết");
+}
+
 #if defined(_WIN32)
 void d3d12_swapchain_accepts_srgb(Context& context) {
     swapchain_accepts_srgb(context, gpu::Backend::kD3D12);
@@ -508,6 +539,7 @@ constexpr std::array kCases{
     Case{.name = "gles_device_starts", .body = &gles_device_starts},
     Case{.name = "gles_buffer_round_trip", .body = &gles_buffer_round_trip},
     Case{.name = "gles_rejects_duplicate_list", .body = &gles_rejects_duplicate_list},
+    Case{.name = "gles_rejects_pass_without_attachment", .body = &gles_rejects_pass_without_attachment},
     Case{.name = "gles_names_are_not_ranked_by_unused_features", .body = &gles_names_are_not_ranked_by_unused_features},
     Case{.name = "gles_probe_follows_the_api_flavor", .body = &gles_probe_follows_the_api_flavor},
     Case{.name = "gles_probe_copies_driver_strings", .body = &gles_probe_copies_driver_strings},

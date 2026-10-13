@@ -1,0 +1,21 @@
+﻿HEAD=7e1c6a4 (cay da build: build/xr tai 7e1c6a4 + test moi)
+
+== git diff --stat 97ed65b..7e1c6a4 -- <tep cua 97ed65b>
+ TOOLS/server/gate_load.cpp |  2 +-
+ engine/resource/upload.cpp | 10 +++++-----
+ src/server/gate/table.cpp  |  4 ++--
+ 3 files changed, 8 insertions(+), 8 deletions(-)
+-- commit cham vao cac tep do sau 97ed65b:
+5ee414f Sß╗¡a tß╗▒ ─æß╗Öng clang-tidy: readability-uppercase-literal-suffix, readability-container-contains, readability-redundant-member-init
+
+== git diff --stat 9d2b4c5..7e1c6a4 -- <tep cua 9d2b4c5>
+-- commit cham vao cac tep do sau 9d2b4c5:
+
+== git diff --stat ff730cd..7e1c6a4 -- <tep cua ff730cd>
+-- commit cham vao cac tep do sau ff730cd:
+
+== git diff --stat b28ab83..7e1c6a4 -- <tep cua b28ab83>
+-- commit cham vao cac tep do sau b28ab83:
+
+== git diff --stat 5ee414f..7e1c6a4 -- <tep cua 5ee414f>
+-- commit cham vao cac tep do sau 5ee414f:

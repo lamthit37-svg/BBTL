@@ -1,0 +1,33 @@
+=== 19:13:39.92 solo
+ Test/Gpu/gpu_tests.cpp | 32 ++++++++++++++++++++++++++++++++
+ 1 file changed, 32 insertions(+)
+[0/2] Re-checking globbed directories...
+ninja: no work to do.
+2026-10-13 19:13:41.152 [chính] LỖI D:\THIENLONG\build\xr\engine\gpu\d3d12\device.cpp:197 D3D12: ID3D12Resource3::ID3D12Resource::GetGPUVirtualAddress: GetGPUVirtualAddress returns NULL for non-buffer resources.
+D:\THIENLONG\build\xr\Test\Gpu\gpu_tests.cpp:393: [d3d12_depth_view_keeps_device] lớp kiểm tra không báo lỗi
+2026-10-13 19:13:42.292 [chính] CẢNH-BÁO D:\THIENLONG\build\xr\engine\gpu\gles\probe.cpp:106 gles: lỗi thử của gpu_tests
+2026-10-13 19:13:42.292 [chính] CẢNH-BÁO D:\THIENLONG\build\xr\engine\gpu\gles\probe.cpp:106 gles: 
+D:\THIENLONG\build\xr\Test\Gpu\gpu_tests.cpp:441: [d3d11_swapchain_accepts_srgb] swapchain sRGB tạo được
+[ca] vulkan_device_starts: đạt (0 kỳ vọng sai)
+[ca] vulkan_buffer_round_trip: đạt (0 kỳ vọng sai)
+[ca] vulkan_rejects_duplicate_list: đạt (0 kỳ vọng sai)
+[ca] d3d12_device_starts: đạt (0 kỳ vọng sai)
+[ca] d3d12_buffer_round_trip: đạt (0 kỳ vọng sai)
+[ca] d3d12_depth_view_keeps_device: ĐỎ (1 kỳ vọng sai)
+[ca] d3d12_rejects_duplicate_list: đạt (0 kỳ vọng sai)
+[ca] d3d11_device_starts: đạt (0 kỳ vọng sai)
+[ca] d3d11_buffer_round_trip: đạt (0 kỳ vọng sai)
+[ca] d3d11_depth_view_keeps_device: đạt (0 kỳ vọng sai)
+[ca] d3d11_rejects_duplicate_list: đạt (0 kỳ vọng sai)
+[ca] gles_device_starts: đạt (0 kỳ vọng sai)
+[ca] gles_buffer_round_trip: đạt (0 kỳ vọng sai)
+[ca] gles_rejects_duplicate_list: đạt (0 kỳ vọng sai)
+[ca] gles_rejects_pass_without_attachment: đạt (0 kỳ vọng sai)
+[ca] gles_names_are_not_ranked_by_unused_features: đạt (0 kỳ vọng sai)
+[ca] gles_probe_follows_the_api_flavor: đạt (0 kỳ vọng sai)
+[ca] gles_probe_copies_driver_strings: đạt (0 kỳ vọng sai)
+[ca] gles_debug_sink_counts_only_errors: đạt (0 kỳ vọng sai)
+[ca] d3d12_swapchain_accepts_srgb: đạt (0 kỳ vọng sai)
+[ca] d3d11_swapchain_accepts_srgb: ĐỎ (1 kỳ vọng sai)
+D:\THIENLONG\build\xr\Test\Gpu\gpu_tests.cpp:557: check thất bại: gpu_tests: mọi ca phải qua
+=== gpu_tests exit -1073740791

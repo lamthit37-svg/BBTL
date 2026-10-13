@@ -1,0 +1,48 @@
+### [ff730cd] graphic/effect.cpp
+$ "C:\Program Files\LLVM\bin\clang-cl.exe" -fsyntax-only -Werror=pragma-clang-attribute -Wno-unused-command-line-argument   /nologo /TP -D_GLIBCXX_ASSERTIONS -D_LIBCPP_HARDENING_MODE=_LIBCPP_HARDENING_MODE_FAST -D_MSVC_STL_HARDENING=1 -ID:\THIENLONG\build\xt\engine -ID:\THIENLONG\build\xt\src\shared -ID:\THIENLONG\build\xt\src\client\app -ID:\THIENLONG\build\xt\src\client\figure -ID:\THIENLONG\build\xt\src\client\place -ID:\THIENLONG\build\xt\src\client\face -ID:\THIENLONG\build\xt\src\client\book -ID:\THIENLONG\build\xt\src\client\pack /DWIN32 /D_WINDOWS /EHsc /O2 /Ob1 /DNDEBUG -std:c++23preview -MD -Zi /guard:cf /sdl /W4 /permissive- /Zc:__cplusplus /Zc:preprocessor /utf-8 -WX     D:\THIENLONG\build\xt\src\client\app\client\display\graphic\effect.cpp
+exit=1
+D:\THIENLONG\build\xt\src\client\app\client\display\graphic\effect.cpp(91,15): error: '#pragma clang attribute pop' with no matching '#pragma clang attribute push'
+   91 | #pragma clang attribute pop
+      |               ^
+1 error generated.
+
+### [ff730cd] graphic/face.cpp
+$ "C:\Program Files\LLVM\bin\clang-cl.exe" -fsyntax-only -Werror=pragma-clang-attribute -Wno-unused-command-line-argument   /nologo /TP -D_GLIBCXX_ASSERTIONS -D_LIBCPP_HARDENING_MODE=_LIBCPP_HARDENING_MODE_FAST -D_MSVC_STL_HARDENING=1 -ID:\THIENLONG\build\xt\engine -ID:\THIENLONG\build\xt\src\shared -ID:\THIENLONG\build\xt\src\client\app -ID:\THIENLONG\build\xt\src\client\figure -ID:\THIENLONG\build\xt\src\client\place -ID:\THIENLONG\build\xt\src\client\face -ID:\THIENLONG\build\xt\src\client\book -ID:\THIENLONG\build\xt\src\client\pack /DWIN32 /D_WINDOWS /EHsc /O2 /Ob1 /DNDEBUG -std:c++23preview -MD -Zi /guard:cf /sdl /W4 /permissive- /Zc:__cplusplus /Zc:preprocessor /utf-8 -WX     D:\THIENLONG\build\xt\src\client\app\client\display\graphic\face.cpp
+exit=1
+D:\THIENLONG\build\xt\src\client\app\client\display\graphic\face.cpp(356,15): error: '#pragma clang attribute pop' with no matching '#pragma clang attribute push'
+  356 | #pragma clang attribute pop
+      |               ^
+1 error generated.
+
+### [ff730cd] graphic/frame.cpp
+$ "C:\Program Files\LLVM\bin\clang-cl.exe" -fsyntax-only -Werror=pragma-clang-attribute -Wno-unused-command-line-argument   /nologo /TP -D_GLIBCXX_ASSERTIONS -D_LIBCPP_HARDENING_MODE=_LIBCPP_HARDENING_MODE_FAST -D_MSVC_STL_HARDENING=1 -ID:\THIENLONG\build\xt\engine -ID:\THIENLONG\build\xt\src\shared -ID:\THIENLONG\build\xt\src\client\app -ID:\THIENLONG\build\xt\src\client\figure -ID:\THIENLONG\build\xt\src\client\place -ID:\THIENLONG\build\xt\src\client\face -ID:\THIENLONG\build\xt\src\client\book -ID:\THIENLONG\build\xt\src\client\pack /DWIN32 /D_WINDOWS /EHsc /O2 /Ob1 /DNDEBUG -std:c++23preview -MD -Zi /guard:cf /sdl /W4 /permissive- /Zc:__cplusplus /Zc:preprocessor /utf-8 -WX     D:\THIENLONG\build\xt\src\client\app\client\display\graphic\frame.cpp
+exit=1
+D:\THIENLONG\build\xt\src\client\app\client\display\graphic\frame.cpp(604,15): error: '#pragma clang attribute pop' with no matching '#pragma clang attribute push'
+  604 | #pragma clang attribute pop
+      |               ^
+1 error generated.
+
+### [ff730cd] graphic/play.cpp
+$ "C:\Program Files\LLVM\bin\clang-cl.exe" -fsyntax-only -Werror=pragma-clang-attribute -Wno-unused-command-line-argument   /nologo /TP -D_GLIBCXX_ASSERTIONS -D_LIBCPP_HARDENING_MODE=_LIBCPP_HARDENING_MODE_FAST -D_MSVC_STL_HARDENING=1 -ID:\THIENLONG\build\xt\engine -ID:\THIENLONG\build\xt\src\shared -ID:\THIENLONG\build\xt\src\client\app -ID:\THIENLONG\build\xt\src\client\figure -ID:\THIENLONG\build\xt\src\client\place -ID:\THIENLONG\build\xt\src\client\face -ID:\THIENLONG\build\xt\src\client\book -ID:\THIENLONG\build\xt\src\client\pack /DWIN32 /D_WINDOWS /EHsc /O2 /Ob1 /DNDEBUG -std:c++23preview -MD -Zi /guard:cf /sdl /W4 /permissive- /Zc:__cplusplus /Zc:preprocessor /utf-8 -WX     D:\THIENLONG\build\xt\src\client\app\client\display\graphic\play.cpp
+exit=1
+D:\THIENLONG\build\xt\src\client\app\client\display\graphic\play.cpp(627,15): error: '#pragma clang attribute pop' with no matching '#pragma clang attribute push'
+  627 | #pragma clang attribute pop
+      |               ^
+1 error generated.
+
+### [ff730cd] graphic/scene.cpp
+$ "C:\Program Files\LLVM\bin\clang-cl.exe" -fsyntax-only -Werror=pragma-clang-attribute -Wno-unused-command-line-argument   /nologo /TP -D_GLIBCXX_ASSERTIONS -D_LIBCPP_HARDENING_MODE=_LIBCPP_HARDENING_MODE_FAST -D_MSVC_STL_HARDENING=1 -ID:\THIENLONG\build\xt\engine -ID:\THIENLONG\build\xt\src\shared -ID:\THIENLONG\build\xt\src\client\app -ID:\THIENLONG\build\xt\src\client\figure -ID:\THIENLONG\build\xt\src\client\place -ID:\THIENLONG\build\xt\src\client\face -ID:\THIENLONG\build\xt\src\client\book -ID:\THIENLONG\build\xt\src\client\pack /DWIN32 /D_WINDOWS /EHsc /O2 /Ob1 /DNDEBUG -std:c++23preview -MD -Zi /guard:cf /sdl /W4 /permissive- /Zc:__cplusplus /Zc:preprocessor /utf-8 -WX     D:\THIENLONG\build\xt\src\client\app\client\display\graphic\scene.cpp
+exit=1
+D:\THIENLONG\build\xt\src\client\app\client\display\graphic\scene.cpp(341,15): error: '#pragma clang attribute pop' with no matching '#pragma clang attribute push'
+  341 | #pragma clang attribute pop
+      |               ^
+1 error generated.
+
+### [ff730cd] graphic/stream.cpp
+$ "C:\Program Files\LLVM\bin\clang-cl.exe" -fsyntax-only -Werror=pragma-clang-attribute -Wno-unused-command-line-argument   /nologo /TP -D_GLIBCXX_ASSERTIONS -D_LIBCPP_HARDENING_MODE=_LIBCPP_HARDENING_MODE_FAST -D_MSVC_STL_HARDENING=1 -ID:\THIENLONG\build\xt\engine -ID:\THIENLONG\build\xt\src\shared -ID:\THIENLONG\build\xt\src\client\app -ID:\THIENLONG\build\xt\src\client\figure -ID:\THIENLONG\build\xt\src\client\place -ID:\THIENLONG\build\xt\src\client\face -ID:\THIENLONG\build\xt\src\client\book -ID:\THIENLONG\build\xt\src\client\pack /DWIN32 /D_WINDOWS /EHsc /O2 /Ob1 /DNDEBUG -std:c++23preview -MD -Zi /guard:cf /sdl /W4 /permissive- /Zc:__cplusplus /Zc:preprocessor /utf-8 -WX     D:\THIENLONG\build\xt\src\client\app\client\display\graphic\stream.cpp
+exit=1
+D:\THIENLONG\build\xt\src\client\app\client\display\graphic\stream.cpp(339,15): error: '#pragma clang attribute pop' with no matching '#pragma clang attribute push'
+  339 | #pragma clang attribute pop
+      |               ^
+1 error generated.
+

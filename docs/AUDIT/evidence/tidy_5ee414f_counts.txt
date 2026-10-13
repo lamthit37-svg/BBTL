@@ -1,0 +1,44 @@
+commit 5ee414f (cha b28ab83); clang-tidy: LLVM (http://llvm.org/):
+  LLVM version 23.1.2
+  Optimized build.
+db: D:\THIENLONG\build\msvc-release\compile_commands.json (duong dan nguon doi sang build/xt); lenh: python docs/AUDIT/evidence/tidy_count.py 5ee414f
+tep: ['TOOLS/server/gate_load.cpp', 'Test/Control/control_tests.cpp', 'Test/Metrics/metrics_tests.cpp', 'Test/Resource/dds_tests.cpp', 'Test/Skill/skill_tests.cpp', 'Test/Ui/ui_select_tests.cpp', 'Test/bench/gate_attack.cpp', 'engine/resource/upload.cpp', 'engine/shader/builder.cpp', 'engine/shader/spirv.cpp', 'src/client/app/client/display/fx_view.cpp', 'src/client/face/gui/widgets.cpp', 'src/client/face/ui/panel/servers.cpp', 'src/client/figure/control/char_camera.hpp', 'src/server/account/book.hpp', 'src/server/gate/table.cpp']
+
+check                                                        truoc  sau
+bugprone-easily-swappable-parameters                            12   12
+bugprone-exception-escape                                        4    4
+bugprone-invalid-enum-default-initialization                     7    7
+bugprone-unchecked-optional-access                               4    4
+cert-err33-c                                                     3    3
+concurrency-mt-unsafe                                            8    8
+cppcoreguidelines-avoid-non-const-global-variables              10   10
+cppcoreguidelines-pro-bounds-constant-array-index               14   14
+cppcoreguidelines-pro-bounds-pointer-arithmetic                 20   20
+cppcoreguidelines-pro-type-reinterpret-cast                     13   13
+cppcoreguidelines-special-member-functions                       2    2
+misc-const-correctness                                          13   13
+misc-include-cleaner                                           134  134
+misc-no-recursion                                                4    4
+modernize-use-auto                                               2    2
+modernize-use-designated-initializers                            3    3
+modernize-use-integer-sign-comparison                            6    6
+performance-inefficient-vector-operation                         3    3
+performance-move-const-arg                                       1    1
+performance-unnecessary-copy-initialization                      1    1
+performance-unnecessary-value-param                              1    1
+readability-container-contains                                  10    0
+readability-function-cognitive-complexity                       19   19
+readability-function-size                                       36   36
+readability-identifier-length                                   34   34
+readability-identifier-naming                                    2    2
+readability-implicit-bool-conversion                             1    1
+readability-isolate-declaration                                  1    1
+readability-make-member-function-const                           2    2
+readability-math-missing-parentheses                             9    9
+readability-qualified-auto                                       2    2
+readability-redundant-member-init                               14    0
+readability-uppercase-literal-suffix                            40    0
+readability-use-std-min-max                                      2    2
+TONG                                                           437  373
+
+check tang sau commit: khong co

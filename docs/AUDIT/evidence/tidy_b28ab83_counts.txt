@@ -1,0 +1,26 @@
+commit b28ab83 (cha ff730cd); clang-tidy: LLVM (http://llvm.org/):
+  LLVM version 23.1.2
+  Optimized build.
+db: D:\THIENLONG\build\msvc-release\compile_commands.json (duong dan nguon doi sang build/xt); lenh: python docs/AUDIT/evidence/tidy_count.py b28ab83
+tep: ['engine/net/reactor_win32.cpp', 'src/server/account/cap.hpp']
+
+check                                                        truoc  sau
+bugprone-easily-swappable-parameters                             2    2
+bugprone-exception-escape                                        2    2
+bugprone-implicit-widening-of-multiplication-result              2    0
+bugprone-multi-level-implicit-pointer-conversion                 2    2
+bugprone-unused-return-value                                     1    1
+cppcoreguidelines-prefer-member-initializer                      1    1
+cppcoreguidelines-pro-bounds-constant-array-index                1    1
+misc-const-correctness                                           3    3
+misc-include-cleaner                                            28   28
+misc-misplaced-const                                             1    1
+modernize-use-designated-initializers                            1    1
+modernize-use-integer-sign-comparison                            4    4
+performance-no-int-to-ptr                                        4    4
+readability-function-cognitive-complexity                        1    1
+readability-function-size                                        3    3
+readability-identifier-length                                   10   10
+TONG                                                            66   64
+
+check tang sau commit: khong co

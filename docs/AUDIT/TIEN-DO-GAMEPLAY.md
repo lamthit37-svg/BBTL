@@ -86,3 +86,16 @@ chưa nối), chưa nghe thử bằng tai.
 
 ## Chưa bắt đầu
 Nhảy, nối module skill, quest_log vào desk.cpp, NPC/quái/vật phẩm, socket client tới gate, máy chủ P2.
+
+## Ghi nhận lỗi lịch sử của ff730cd (không sửa lịch sử, không rebase)
+
+- Message của `ff730cd` ghi chỉ thêm `#pragma clang attribute pop` cuối `prelude.hpp`, nhưng diff còn viết lại
+  hai chú thích (quanh `kIdleNap` và `kYawPerSecond`) thành "mọi nền trình Fifo". Hành vi Fifo trên mọi nền
+  tới `2953249` mới có, nên tại `ff730cd` hai chú thích này mô tả sai mã. Từ `2953249` trở đi chú thích khớp mã.
+- `ff730cd` làm gãy bản dựng clang trên x86-64 (clang-cl, clang Linux x64): sáu tệp `graphic/effect.cpp`,
+  `face.cpp`, `frame.cpp`, `play.cpp`, `scene.cpp`, `stream.cpp` vốn có `#pragma clang attribute pop` riêng ở
+  cuối để đóng `push` của `prelude.hpp`; nay `prelude.hpp` tự `pop` nên `pop` của sáu tệp thừa, clang báo
+  `'#pragma clang attribute pop' with no matching '#pragma clang attribute push'`. Bằng chứng:
+  `docs/AUDIT/evidence/ff730cd_clangcl_syntax_<hash>.log` (cha `9d2b4c5` qua 6/6, `ff730cd` lỗi 6/6, HEAD
+  `7e1c6a4` vẫn lỗi 6/6). MSVC và GCC không vào nhánh này nên không lộ. Cần một commit mới bỏ sáu `pop` thừa.
+- BOM trong message của `2953249`: giữ nguyên, không rebase (đã chốt).
