@@ -35,7 +35,9 @@
 #include <chrono>
 #include <cstddef>
 #include <cstdint>
+#include <cstdio>
 #include <cstring>
+#include <exception>
 #include <expected>
 #include <filesystem>
 #include <fstream>
@@ -1034,7 +1036,13 @@ void arm_load(Load& load, const Started& started, const Plan& plan, int cap) {
 int main(int argc, char* const* argv) {
     try {
         return run(argc, argv);
+    } catch (const std::exception& error) {
+        static_cast<void>(std::fputs("gate_load: unhandled exception: ", stderr));
+        static_cast<void>(std::fputs(error.what(), stderr));
+        static_cast<void>(std::fputc('\n', stderr));
+        return 1;
     } catch (...) {
+        static_cast<void>(std::fputs("gate_load: unhandled non-standard exception\n", stderr));
         return 1;
     }
 }

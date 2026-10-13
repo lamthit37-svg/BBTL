@@ -908,7 +908,7 @@ void finish(Engine& state, Slot& slot, std::uint32_t index, const Answer& answer
     case AskKind::kLogin: answer.roster = realm.login(ask.account, ask.secret); break;
     case AskKind::kCreateCharacter: answer.roster = realm.create_character(ask.cap, ask.create); break;
     case AskKind::kDeleteCharacter: answer.roster = realm.remove_character(ask.cap, ask.character); break;
-    case AskKind::kEnter: answer.enter = realm.enter(ask.cap, ask.character); break;
+    case AskKind::kEnter:
     case AskKind::kResume: answer.enter = realm.enter(ask.cap, ask.character); break;
     }
     return answer;

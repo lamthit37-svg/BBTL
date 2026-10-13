@@ -778,7 +778,7 @@ struct SrgbTable {
 [[nodiscard]] std::uint8_t encode_srgb(float linear) noexcept {
     const float clamped = std::clamp(linear, 0.0F, 1.0F);
     const auto last = static_cast<float>(kEncodeSteps - 1);
-    return srgb_table().encode.at(static_cast<std::size_t>(clamped * last + 0.5F));
+    return srgb_table().encode.at(static_cast<std::size_t>(std::lround(clamped * last)));
 }
 
 struct Level {

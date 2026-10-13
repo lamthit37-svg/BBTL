@@ -255,6 +255,10 @@ void GlCommands::begin_rendering(const RenderingDesc& desc) {
         api.framebuffer_texture(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, depth->target, depth->name, 0);
         if (first == nullptr) first = depth;
     }
+    if (first == nullptr) {
+        reject(fail(kBad, "begin_rendering: pass has no color or depth attachment"));
+        return;
+    }
     if (api.check_framebuffer(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
         reject(fail(kState, "framebuffer GL không hoàn chỉnh"));
         return;
