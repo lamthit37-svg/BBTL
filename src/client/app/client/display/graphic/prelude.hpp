@@ -151,8 +151,8 @@ using ByteSpan = std::span<const std::byte>;
 inline constexpr gpu::ClearColor kBackdrop{.red = 0.05F, .green = 0.06F, .blue = 0.08F, .alpha = 1.0F};
 // Nghỉ giữa hai khung khi cửa sổ đang thu nhỏ, hoặc khi bề mặt chưa sẵn cỡ.
 constexpr std::chrono::milliseconds kIdleNap{16};
-// Trần nhịp vẽ trên PC khi máy đủ mạnh: 120 Hz. Màn 60 Hz vẫn quét 60 lần, mailbox giữ khung mới nhất
-// nên trễ tối đa một nửa nhịp quét. Vượt trần thì bỏ tick, không vẽ bù.
+// Trần nhịp vẽ khi bề mặt không trình được Fifo: 120 Hz. Vượt trần thì bỏ tick, không vẽ bù. Bình
+// thường mọi nền trình Fifo và nhịp vẽ là nhịp quét của màn (xem open_gpu).
 
 // Nghỉ một nhịp rồi đặt lại mốc đo: lượt sau không phải chịu thời gian ngủ.
 inline void nap(core::Clock::time_point& previous) noexcept {
@@ -257,8 +257,8 @@ constexpr std::size_t kKeptGrounds = 4;
 // bỏ (đang kéo cửa sổ, máy bận) không để lại cú giật bù.
 constexpr float kYawStart = 0.6F;
 constexpr float kYawPerSecond = 0.24F;
-// Android và iOS trình Fifo theo Hz của tấm nền (60, 90 hay 120). Ngủ thêm 120 Hz sau Fifo làm
-// khung trễ mất nhịp quét. PC mới dùng mailbox và trần 120 Hz. Cờ nền là ui::kPhone.
+// Mọi nền trình Fifo theo Hz của màn (60, 90, 120 hay 144). Ngủ thêm sau Fifo làm khung trễ mất
+// nhịp quét, nên hold_pace chỉ ngủ khi bề mặt thật sự không phải Fifo.
 // Số sự kiện chuột hay chạm chờ tối đa giữa hai khung; quá thì bỏ sự kiện mới.
 constexpr std::size_t kMaxQueued = 4096;
 // Bước thời gian dài nhất của một khung, giây: máy khựng không làm điểm nhìn nhảy xa.
@@ -1312,3 +1312,7 @@ struct CacheId {
 }
 
 } // namespace game::client
+
+#if defined(__clang__) && defined(__x86_64__)
+#pragma clang attribute pop
+#endif
