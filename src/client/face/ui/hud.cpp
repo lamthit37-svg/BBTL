@@ -14,11 +14,13 @@
 #include "ui/pace.hpp"
 #include "ui/painter.hpp"
 #include "ui/panel/call.hpp"
+#include "ui/panel/can_do.hpp"
 #include "ui/panel/create_role.hpp"
 #include "ui/panel/deck.hpp"
 #include "ui/panel/desk.hpp"
 #include "ui/panel/login_flow.hpp"
 #include "ui/panel/logon.hpp"
+#include "ui/panel/main_menu_bar_3.hpp"
 #include "ui/panel/maps.hpp"
 #include "ui/panel/menubar.hpp"
 #include "ui/panel/minimap.hpp"
@@ -454,6 +456,10 @@ struct Hud::State {
     // Sổ nhiệm vụ (QuestLog_Frame) và việc nó nhờ ở lần nhấn gần nhất.
     panel::QuestBook quests;
     std::vector<panel::Call> quest_calls;
+    // Thanh kỹ năng thú cưng (MainMenuBar_3) và việc nó nhờ ở lần nhấn gần nhất. Danh sách action của
+    // thanh do hệ thú cưng giữ, client chưa có hệ đó nên thanh chưa hiện (xem main_menu_bar_3.hpp).
+    panel::MainMenuBar3 pet_bar;
+    std::vector<panel::Call> pet_bar_calls;
     panel::SoftKeys keys;
     // Bảng chuyển cảnh, phần trăm đã đưa cho nó ở khung trước và lúc nó hiện ra.
     panel::SceneTrans trans;
@@ -523,6 +529,7 @@ struct Hud::State {
     [[nodiscard]] bool is_on_scroll(float across, float down) const;
     void note_scroll(const HudView& view, float seconds);
     void press_login(std::string_view window, const HudView& view);
+    void press_pet_bar(std::string_view window);
     [[nodiscard]] panel::LoginFacts login_facts(const HudView& view) const noexcept;
     void note_hover(const HudView& view);
     void note_text(const HudView& view);
@@ -727,10 +734,25 @@ void Hud::State::note_press(const HudView& view) {
         std::println(stderr, "Sổ nhiệm vụ: việc nhờ {} chưa có ở HUD", static_cast<int>(call.ask));
     }
     panel::press_packet(packet, *window);
+    press_pet_bar(*window);
     note_board_press(*window, view);
     if (window == panel::kWorldWindow && view.pointer) world_press = view.pointer;
     if (window == kEquipTurnLeft) equip_spin = -kEquipSpin;
     if (window == kEquipTurnRight) equip_spin = kEquipSpin;
+}
+
+// Nhấn trái lên một ô của thanh kỹ năng thú cưng: MainMenuBar_3_Clicked(index). Khác gốc: nhấn phải
+// (RBClicked) chưa tới được HUD; IsWindowShow là cửa sổ có ô trên màn hình ở lần dàn trang trước.
+void Hud::State::press_pet_bar(std::string_view window) {
+    const auto found = std::ranges::find(panel::kPetButtons, window);
+    if (found == panel::kPetButtons.end()) return;
+    const auto index = static_cast<std::int32_t>(found - panel::kPetButtons.begin()) + 1;
+    const bool can_do = panel::can_do_action([this](std::string_view name) { return hub->box(name).has_value(); });
+    pet_bar_calls.clear();
+    panel::press_pet_skill_button(pet_bar, index, can_do, pet_bar_calls);
+    for (const panel::Call& call : pet_bar_calls) {
+        std::println(stderr, "Thanh kỹ năng thú cưng: việc nhờ {} chưa có ở HUD", static_cast<int>(call.ask));
+    }
 }
 
 // Lần nhấn này có phải lần thứ hai của một cú nhấn đúp không. Nhấn đúp xong thì lần nhấn kế bắt đầu
@@ -837,6 +859,7 @@ void Hud::State::fill_play(const HudView& view) {
     panel::paint_maps(deck, maps, seen.title, resolution);
     panel::paint_desk(deck, desk);
     panel::paint_quest_book(deck, quests);
+    panel::paint_main_menu_bar_3(deck, pet_bar);
     fill_board(view);
     fill_world(view);
     if (panel::is_open(desk, panel::Board::kBag)) {

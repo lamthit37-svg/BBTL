@@ -104,8 +104,23 @@ end
 function methods.SetActionItem(self, id) put(self, "action", id) end
 function methods.SetPushed(self, state) put(self, "pushed", state == 1) end
 function methods.SetNewFlash(self) put(self, "flash", true) end
-function methods.DoAction(self) __note("DoAction", self.__name, record(self).action) end
+-- DoAction (UI_CEGUI 3.71.9509 0x180028c00): ô trống (không có action) thì không làm gì.
+function methods.DoAction(self)
+    local action = record(self).action
+    if action ~= nil and action ~= -1 then __note("DoAction", self.__name, action) end
+end
 function methods.PlayWarning(self, state) put(self, "warning", state) end
+-- Gloom() và Bright() đặt thuộc tính Gloom True và False (docs/GIAO-DIEN-2026.md 2.7).
+function methods.Gloom(self) put_prop(self, "Gloom", "True") end
+function methods.Bright(self) put_prop(self, "Gloom", "False") end
+-- GetActionItem (UI_CEGUI 3.71.9509 0x180028f00): id action đang giữ, -1 khi ô trống.
+function methods.GetActionItem(self)
+    local action = record(self).action
+    if action == nil then return -1 end
+    return action
+end
+-- Play(loop) của cửa sổ hoạt ảnh TLBB_Animate (UI_CEGUI 0x180029530: gọi ô ảo 0 của giao diện hoạt ảnh).
+function methods.Play(self, loop) put(self, "playing", loop) end
 
 -- Danh sách: mỗi mục giữ chữ, id và màu; mục được chọn tra theo id.
 function methods.ClearListBox(self)
@@ -248,7 +263,8 @@ function this:RegisterEvent(name) table.insert(__this.events, name) end
 -- Biến toàn cục chưa định nghĩa: báo ngay tên, thay vì để script chạy tiếp với nil. Kịch bản kê
 -- vào __optional những tên mà chính script gốc đọc khi chưa gán (lỗi của script gốc, giá trị nil là
 -- hành vi thật), kèm lý do.
-__optional = { arg0 = true, arg1 = true, arg2 = true, arg3 = true }
+__optional = { arg0 = true, arg1 = true, arg2 = true, arg3 = true, arg4 = true, arg5 = true, arg6 = true,
+    arg7 = true, arg8 = true, arg9 = true }
 setmetatable(_G, {
     __index = function(_, key)
         if __optional[key] then return nil end
@@ -285,6 +301,7 @@ local function emit_window(name)
     if touched.pushed then __emit(name .. "\tPushed\t" .. truth(own.pushed)) end
     if touched.action then __emit(name .. "\tActionItem\t" .. tostring(own.action)) end
     if touched.flash then __emit(name .. "\tNewFlash\tTrue") end
+    if touched.playing then __emit(name .. "\tPlaying\t" .. truth(own.playing)) end
     if touched.first then __emit(name .. "\tFirstItem\t" .. tostring(own.first)) end
     if touched.scroll then __emit(name .. "\tScroll\t" .. own.scroll) end
     if touched.items then __emit(name .. "\tItems\t" .. table.getn(own.items)) end

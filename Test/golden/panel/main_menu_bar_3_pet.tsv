@@ -1,0 +1,104 @@
+# Sinh bằng TOOLS/port/lua_oracle.py từ MainMenuBar_3.lua và main_menu_bar_3_pet.lua; không sửa tay
+# thanh rỗng
+this	Visible	False
+# một action
+this	Visible	True
+MainMenuBar_3_Button_Action1_Mask	Visible	True
+MainMenuBar_3_Button_Action1_Mask	Playing	True
+MainMenuBar_3_Button_Action1	Visible	True
+MainMenuBar_3_Button_Action1	ActionItem	301
+MainMenuBar_3_Button_Action2_Mask	Visible	False
+MainMenuBar_3_Button_Action2	Visible	False
+# hai action
+this	Visible	True
+MainMenuBar_3_Button_Action1_Mask	Visible	True
+MainMenuBar_3_Button_Action1_Mask	Playing	True
+MainMenuBar_3_Button_Action1	Visible	True
+MainMenuBar_3_Button_Action1	ActionItem	301
+MainMenuBar_3_Button_Action2_Mask	Visible	True
+MainMenuBar_3_Button_Action2_Mask	Playing	True
+MainMenuBar_3_Button_Action2	Visible	True
+MainMenuBar_3_Button_Action2	ActionItem	305
+# action rỗng đứng đầu, ba mục
+this	Visible	True
+MainMenuBar_3_Button_Action1_Mask	Visible	True
+MainMenuBar_3_Button_Action1_Mask	Playing	True
+MainMenuBar_3_Button_Action1	Visible	True
+MainMenuBar_3_Button_Action1	ActionItem	305
+MainMenuBar_3_Button_Action2_Mask	Visible	False
+MainMenuBar_3_Button_Action2_Mask	Playing	True
+MainMenuBar_3_Button_Action2	Visible	False
+MainMenuBar_3_Button_Action2	ActionItem	305
+# mọi action rỗng
+this	Visible	False
+MainMenuBar_3_Button_Action1_Mask	Visible	True
+MainMenuBar_3_Button_Action1_Mask	Playing	True
+MainMenuBar_3_Button_Action1	Visible	True
+MainMenuBar_3_Button_Action1	ActionItem	305
+MainMenuBar_3_Button_Action2_Mask	Visible	False
+MainMenuBar_3_Button_Action2_Mask	Playing	True
+MainMenuBar_3_Button_Action2	Visible	False
+MainMenuBar_3_Button_Action2	ActionItem	305
+# ba action, chỉ nhận hai
+this	Visible	True
+MainMenuBar_3_Button_Action1_Mask	Visible	True
+MainMenuBar_3_Button_Action1_Mask	Playing	True
+MainMenuBar_3_Button_Action1	Visible	True
+MainMenuBar_3_Button_Action1	ActionItem	311
+MainMenuBar_3_Button_Action2_Mask	Visible	True
+MainMenuBar_3_Button_Action2_Mask	Playing	True
+MainMenuBar_3_Button_Action2	Visible	True
+MainMenuBar_3_Button_Action2	ActionItem	312
+# điều chỉnh vị trí theo khung chat
+this	Visible	True
+MainMenuBar_3_Button_Action1_Mask	Visible	True
+MainMenuBar_3_Button_Action1_Mask	Playing	True
+MainMenuBar_3_Button_Action1	Visible	True
+MainMenuBar_3_Button_Action1	ActionItem	311
+MainMenuBar_3_Button_Action2_Mask	Visible	True
+MainMenuBar_3_Button_Action2_Mask	Playing	True
+MainMenuBar_3_Button_Action2	Visible	True
+MainMenuBar_3_Button_Action2	ActionItem	312
+# bấm hai nút
+this	Visible	True
+MainMenuBar_3_Button_Action1_Mask	Visible	True
+MainMenuBar_3_Button_Action1_Mask	Playing	True
+MainMenuBar_3_Button_Action1	Visible	True
+MainMenuBar_3_Button_Action1	ActionItem	311
+MainMenuBar_3_Button_Action2_Mask	Visible	True
+MainMenuBar_3_Button_Action2_Mask	Playing	True
+MainMenuBar_3_Button_Action2	Visible	True
+MainMenuBar_3_Button_Action2	ActionItem	312
+!call1	DoAction	MainMenuBar_3_Button_Action1	311
+!call2	DoAction	MainMenuBar_3_Button_Action2	312
+# bấm nút khi bảng ngân hàng hiện
+this	Visible	True
+MainMenuBar_3_Button_Action1_Mask	Visible	True
+MainMenuBar_3_Button_Action1_Mask	Playing	True
+MainMenuBar_3_Button_Action1	Visible	True
+MainMenuBar_3_Button_Action1	ActionItem	311
+MainMenuBar_3_Button_Action2_Mask	Visible	True
+MainMenuBar_3_Button_Action2_Mask	Playing	True
+MainMenuBar_3_Button_Action2	Visible	True
+MainMenuBar_3_Button_Action2	ActionItem	312
+!call1	PushDebugMessage	你不能这么做。
+# ẩn bằng HIDE_THIS_UI
+this	Visible	False
+MainMenuBar_3_Button_Action1_Mask	Visible	True
+MainMenuBar_3_Button_Action1_Mask	Playing	True
+MainMenuBar_3_Button_Action1	Visible	True
+MainMenuBar_3_Button_Action1	ActionItem	311
+MainMenuBar_3_Button_Action2_Mask	Visible	True
+MainMenuBar_3_Button_Action2_Mask	Playing	True
+MainMenuBar_3_Button_Action2	Visible	True
+MainMenuBar_3_Button_Action2	ActionItem	312
+# hiện lại bằng HIDE_THIS_UI
+this	Visible	True
+MainMenuBar_3_Button_Action1_Mask	Visible	True
+MainMenuBar_3_Button_Action1_Mask	Playing	True
+MainMenuBar_3_Button_Action1	Visible	True
+MainMenuBar_3_Button_Action1	ActionItem	311
+MainMenuBar_3_Button_Action2_Mask	Visible	True
+MainMenuBar_3_Button_Action2_Mask	Playing	True
+MainMenuBar_3_Button_Action2	Visible	True
+MainMenuBar_3_Button_Action2	ActionItem	312
