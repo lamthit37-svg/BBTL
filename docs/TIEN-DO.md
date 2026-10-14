@@ -5,6 +5,38 @@ hiện tại của cả dự án đọc ở ba chỗ: mục "Khảo sát theo m�
 tệp này, và dòng "Trạng thái" ở mục 0 của `AGENTS.md`. Tên cũ của tệp là "cửa sổ, Vulkan và 57 vật
 thể tĩnh của map huoyangu": đó là đích của sáu bước B1 tới B6 đầu tiên, tả ngay dưới.
 
+## Máy chủ: gameplay đợt 2 — vật phẩm, chiến đấu, xã hội, nhiệm vụ (2026-10-15)
+
+Bốn phiên con làm song song trong các thư mục riêng (một phiên mỗi vai); phiên điều phối chỉ nghiệm thu rồi commit từng phase. Chủ dự án
+ra lệnh dừng giữa chừng ("commit dừng lại nào"), nên mỗi phase ghi rõ phần chưa nghiệm thu. Mỗi phase được dựng trong worktree sạch
+(`msvc-release`, 0 warning), chạy `ctest` phần của phase, rồi dựng và chạy lại dưới `clang-asan` (ASan + UBSan).
+
+| Phase | Commit | Nội dung | Đã kiểm |
+|---|---|---|---|
+| vật phẩm | `28327b34` | `item` (danh mục 47 148 mẫu, `Inventory`/`Planner`/`Plan` kế hoạch rồi áp dụng nguyên tử, sinh thuộc tính, giá, codec 4 khối kind `0x7001..0x7004`), `loot` (xác suất số nguyên phần triệu, hộp rơi nhặt hai pha), `shop` (tồn kho, mua, bán, mua lại, sửa), `forge` (nung, chạm, nâng cấp siêu vũ khí); `import_item.py`; `docs/SERVER-ITEM.md` | 13 test (item 5, loot 3, shop 3, forge 2) và `layers` xanh ở MSVC và ASan/UBSan; bảo toàn vật phẩm và tiền qua 3000–4000 bước ngẫu nhiên; chạy mọi công thức forge của bảng thật (64 nung, 128 chạm, 312 nâng cấp) |
+| ghi chú cột | `2bbaba8b` | ghi chú cột `drop_packages` do `import_legacy.py` sinh nói "cặp bắt đầu ở cột 2" của tệp 2008, sai với tệp đang dùng (cặp bắt đầu ở cột 4) | `test_import_legacy` 29 ca |
+| chiến đấu | `797c914c` | `actor` (thuộc tính, HP/MP/nộ khí, kinh nghiệm, chết và hồi sinh, bản ghi kind `0x5201`), `combat` (`Arena` theo cảnh, kỹ năng, buff, chuỗi sát thương, hồi chiêu, gom khí, kind `0x5202`); `import_combat.py`, `skill_coverage.py`, `golden_combat.py`; `docs/SERVER-COMBAT.md` | `actor_tests` 17 ca, `combat_tests` 22 ca ở MSVC và ASan/UBSan; số vàng tính độc lập bằng Python; `check.py --no-tidy` GCC 16 và Clang 23 sạch trên hai test |
+| xã hội | `824748e7` | `social` (tổ đội, quan hệ, bang, thành, thư, chat và lọc chữ 340 từ, xếp hạng, thông báo; kind `0x5101..0x5107`); `import_social.py`; `docs/SERVER-SOCIAL.md` | 11 test (gồm mô phỏng 200 người, 30000 bước, kiểm đột biến) ở MSVC và ASan/UBSan; `test_import_social` 8 ca |
+| nhiệm vụ | `9e0cc4d0`, `docs: SERVER-MISSION.md` | `ops`, `bus`, `ledger`, `mission` (kind `0x7101`), `talk`, `handlers` (rỗng) và bộ rút Lua tĩnh `lua_extract.py` (19 tệp `lua_*.py`); `docs/SERVER-MISSION.md` | 11 test ở MSVC và ASan/UBSan; `test_lua_extract` 35 ca; trên bảng thật: 1349 nhiệm vụ (1063 chạy được, 260 chưa hỗ trợ), 1029/1029 đi hết nhận–tiến độ–nộp, 3916 điểm vào hội thoại (2398 trích được, 1330 chưa) |
+| cmake | `9105fc20` | gom tầng gameplay một chỗ, giữ chú thích của nhóm nhiệm vụ | `cmake --preset msvc-release` và `layers` xanh |
+
+Không có xung đột kind giữa các bản ghi bền (đo bằng đọc mã): xã hội `0x5101..0x5107` (`0x5102` bỏ trống), thân thể `0x5201`, chiến đấu `0x5202`,
+vật phẩm `0x7001..0x7004`, nhiệm vụ `0x7101`.
+
+Chưa làm / biết rõ (chi tiết ở tài liệu của từng module):
+- Chưa module nào của đợt này được zone, world, gate hay store dùng; `protocol` chưa có nhóm tin cho chiến đấu, vật phẩm, nhiệm vụ, hội thoại, xã hội
+  (27 tin version 3); bản ghi bền chưa có cột trong migration nào của database (chưa có migration nào).
+- Số tự đặt chờ chủ dự án duyệt: `item_limits.tsv` (dòng `made_up`), 30 khoá `made_up` của `social_limits.tsv`, các số `basis=made_up` của
+  `docs/SERVER-COMBAT.md` mục 10–11, `shop::kMaxBuyGroups`, `shop::kMaxPool`, `loot::kMaxDropParamPpm`, trần `material_count` của forge.
+- Chiến đấu: phái 11..15 phủ 91,67..94,23% dữ liệu (dưới 95%) vì bí pháp tiến giai (logic 700..707, 734, 735) giữ `unsupported`; 59/138 bí pháp chỉ nối
+  với kỹ năng gốc bằng tên.
+- Vật phẩm: chưa có khảm/tháo ngọc, nâng cấp ngọc, `ItemEnhance`, `EquipUpstage*`, `EquipLevelUp`, bộ trang bị, kiểm giới tính khi mặc.
+- Nhiệm vụ: không có handler viết tay; theo phiên làm việc, 827 id nhiệm vụ của client không có script cũng không có bảng, trong đó chuỗi tân thủ 1400–1424 (chưa tự đo lại).
+- Xã hội: lời mời có nhớ và có hạn, không làm giai đoạn chuẩn bị lập bang và đột kích, `battle_time` đơn vị phút theo giả định.
+- `check.py` đầy đủ (kể cả clang-tidy) chưa xanh trên các tệp test của talk, combat, actor (nhiễu hình thức: include-cleaner, designated initializer,
+  const-correctness) và chưa chạy lại trên mã nguồn sau các sửa cuối của combat, social, talk; biên dịch `-Werror` bằng GCC 16 và Clang 23 thì sạch cho các
+  test đó. `TOOLS/server/table_names.tsv` chưa biết các bảng mới (cần dữ liệu `--legacy` 2008 không có trên máy này). Chưa TSan (Windows không có).
+
 ## Máy chủ: gameplay đợt 1 — zone thật, dữ liệu cảnh, billing, luật đi (2026-10-14)
 
 Chủ dự án giao ("triển khai hoàn thành hết toàn bộ các phần của server, dựa source gốc và bản 14 môn phái; đặt cao nhất và đáng tin nhất là

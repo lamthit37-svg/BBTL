@@ -731,8 +731,12 @@ Gameplay đợt 1 (2026-10-14; nhật ký và số đo ở `docs/TIEN-DO.md`, m�
 - P9 có mã đủ lớp: sổ điểm chỉ-thêm, webhook ký HMAC, đổi điểm hai pha, mã đổi, tiến trình `thienlong_billing`, nhà cung
   cấp giả; `docs/SERVER-BILLING.md`. Chưa nối world (world còn là bản `ready` rồi chờ), nên hai pha mới chạy tới ranh
   giới ipc của billing; chưa đo tiêu chí "đối soát ngày khớp sau một nghìn đơn có chèn lỗi".
-- P5 tới P8 do bốn phiên con làm song song (combat, vật phẩm, nhiệm vụ, xã hội); mỗi phiên là một phase riêng khi được
-  nghiệm thu, trạng thái ghi ở `docs/TIEN-DO.md`.
+- P5 tới P8 (2026-10-15): lõi thuần của bốn mảng đã có và đã commit từng phase — chiến đấu (`actor`, `combat`, `797c914c`), vật phẩm
+  và kinh tế (`item`, `loot`, `shop`, `forge`, `28327b34`; chưa có module nào cho giao dịch tay đôi, bày bán, ký gửi), nhiệm vụ (`ops`, `bus`,
+  `ledger`, `mission`, `talk`, `handlers`, `9e0cc4d0`), xã hội (`social`, `824748e7`; có cả thư và chat lọc chữ). Cả bốn mới là thư viện
+  có test: chưa nối zone, world, gate hay store, chưa có tin mạng. Tiêu chí "xong" của từng mốc (chín môn đánh quái ở ba cảnh, mười nghìn
+  giao dịch bảo toàn qua khởi động lại zone, chuỗi tân thủ chạy trên client thật, hai trăm bot lập đội) chưa đạt. Chi tiết, số đo và
+  phần chưa làm ở `docs/TIEN-DO.md` mục "gameplay đợt 2" và `docs/SERVER-{COMBAT,ITEM,MISSION,SOCIAL}.md`.
 
 ## 11. Vận hành
 
