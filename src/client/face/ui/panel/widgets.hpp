@@ -32,6 +32,8 @@ struct ListItem {
 
 // id của ListBox:GetFirstSelectItem và GetClickItem khi không có mục nào.
 inline constexpr std::int32_t kNoItem = -1;
+// id action của ô nút trống (SetActionItem(-1), GetActionItem khi ô chưa giữ action).
+inline constexpr std::int32_t kEmptyAction = -1;
 
 // Action nằm trong một ô nút (ActionButton:SetActionItem): id của action trong hệ action, -1 là ô
 // trống, và tên đầy đủ của icon ("set:<bộ ảnh> image:<tên ảnh>", như IconManager của Game.exe đổi
@@ -65,6 +67,10 @@ public:
     void push(std::string_view window, bool is_on);
     // SetActionItem(face.id); id -1 là ô trống.
     void set_action(std::string_view window, ActionFace face);
+    // SetNewFlash() của nút action: bật cờ nháy theo action đang giữ (UI_CEGUI, docs/GIAO-DIEN-2026.md 2.7).
+    void flash(std::string_view window);
+    // Play(is_looping) của cửa sổ hoạt ảnh TLBB_Animate.
+    void play(std::string_view window, bool is_looping);
 
     // ClearListBox: bỏ mọi mục, bỏ mục đang chọn, về đầu danh sách.
     void clear_list(std::string_view window);
@@ -108,6 +114,15 @@ public:
     [[nodiscard]] std::optional<std::string_view> value(const Key& key) const noexcept;
     // id của action đang nằm trong ô của một nút; nullopt khi chưa đặt.
     [[nodiscard]] std::optional<std::int32_t> action(std::string_view window) const noexcept;
+    // GetActionItem() của nút action: id action đang giữ, -1 khi ô trống hay chưa đặt (UI_CEGUI 3.71.9509
+    // 0x180028f00 đẩy -1 khi con trỏ action null).
+    [[nodiscard]] std::int32_t action_item(std::string_view window) const noexcept;
+    // Layout khai cửa sổ là Visible=False: trạng thái nền cho IsVisible() tới khi script gọi Show hay
+    // Hide. Không vào describe (trọng tài chỉ ghi cờ hiện khi script đã gọi) và không vẽ (layout đã giấu).
+    void seed_hidden(std::string_view window);
+    // IsVisible() của một cửa sổ con: cờ Show/Hide đã đặt, chưa đặt thì theo layout (hiện, trừ cửa sổ đã
+    // seed_hidden).
+    [[nodiscard]] bool is_shown(std::string_view window) const noexcept;
 
     // Chép trạng thái đang giữ sang deck của khung: thuộc tính đã đặt, cờ hiện, khoá, dấu chọn,
     // dấu nhấn (thuộc tính Disabled, Selected, Pushed của bộ dàn trang) và icon của ô action
@@ -133,6 +148,10 @@ private:
         std::optional<bool> is_checked;
         std::optional<bool> is_pushed;
         std::optional<ActionFace> action;
+        bool is_flashing = false;
+        // Layout khai Visible=False (xem seed_hidden).
+        bool is_layout_hidden = false;
+        std::optional<bool> is_playing;
         std::optional<std::vector<ListItem>> items;
         // Chỉ số trong items của mục đang chọn.
         std::optional<std::size_t> selected;

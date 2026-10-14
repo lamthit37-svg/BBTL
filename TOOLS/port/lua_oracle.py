@@ -235,9 +235,17 @@ def run(args: argparse.Namespace) -> list[str]:
     machine.run(before, args.scenario.name + " (hàm)")
     machine.run(script_code(args.script, read_words(args.words)), args.script.name)
     machine.run(f"{name}_PreLoad()\n{name}_OnLoad()", name + " (nạp)")
+    # Như UI_CEGUI.dll 3.71.9509 0x18007b8e0: mỗi đối số thứ k của sự kiện thành chuỗi vào biến toàn cục
+    # arg<k> và eventTable[k + 1]; đối số không có thì để nguyên giá trị của lần sự kiện trước, rồi gọi
+    # <Tên>_OnEvent("<sự kiện>").
     event = (
-        "function __event(name, a0, a1, a2, a3)\n"
-        "    rawset(_G, 'arg0', a0) rawset(_G, 'arg1', a1) rawset(_G, 'arg2', a2) rawset(_G, 'arg3', a3)\n"
+        "eventTable = {}\n"
+        "function __event(name, ...)\n"
+        "    for index = 1, arg.n do\n"
+        "        local text = tostring(arg[index])\n"
+        "        rawset(_G, 'arg' .. (index - 1), text)\n"
+        "        eventTable[index] = text\n"
+        "    end\n"
         f"    {name}_OnEvent(name)\n"
         "end"
     )

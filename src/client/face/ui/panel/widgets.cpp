@@ -161,6 +161,14 @@ void Widgets::set_action(std::string_view window, ActionFace face) {
     entry_of(window).action = std::move(face);
 }
 
+void Widgets::flash(std::string_view window) {
+    entry_of(window).is_flashing = true;
+}
+
+void Widgets::play(std::string_view window, bool is_looping) {
+    entry_of(window).is_playing = is_looping;
+}
+
 void Widgets::clear_list(std::string_view window) {
     Entry& entry = entry_of(window);
     entry.items.emplace();
@@ -265,6 +273,21 @@ std::optional<std::int32_t> Widgets::action(std::string_view window) const noexc
     return entry->action->id;
 }
 
+std::int32_t Widgets::action_item(std::string_view window) const noexcept {
+    const Entry* entry = find(window);
+    if (entry == nullptr || !entry->action) return kEmptyAction;
+    return entry->action->id;
+}
+
+void Widgets::seed_hidden(std::string_view window) {
+    entry_of(window).is_layout_hidden = true;
+}
+
+bool Widgets::is_shown(std::string_view window) const noexcept {
+    const Entry* entry = find(window);
+    return entry == nullptr || entry->is_visible.value_or(!entry->is_layout_hidden);
+}
+
 void Widgets::paint_entry(const Entry& entry, Deck& deck) {
     const std::string_view window = entry.window;
     for (const Property& property : entry.properties) {
@@ -309,6 +332,8 @@ void Widgets::describe_entry(const Entry& entry, std::vector<std::string>& lines
     describe_flag(lines, Key{.window = window, .name = "Selected"}, entry.is_checked);
     describe_flag(lines, Key{.window = window, .name = "Pushed"}, entry.is_pushed);
     if (entry.action) add_line(lines, Key{.window = window, .name = "ActionItem"}, std::to_string(entry.action->id));
+    if (entry.is_flashing) add_line(lines, Key{.window = window, .name = "NewFlash"}, truth(true));
+    describe_flag(lines, Key{.window = window, .name = "Playing"}, entry.is_playing);
     describe_number(lines, Key{.window = window, .name = "FirstItem"}, entry.first);
     const std::string_view scroll = entry.keeps_scroll.value_or(false) ? "Keep" : "Reset";
     if (entry.keeps_scroll) add_line(lines, Key{.window = window, .name = "Scroll"}, scroll);
