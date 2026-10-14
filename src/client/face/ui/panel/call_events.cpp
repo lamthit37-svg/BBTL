@@ -12,8 +12,10 @@
 #include <format>
 #include <limits>
 #include <optional>
+#include <span>
 #include <string>
 #include <string_view>
+#include <utility>
 #include <vector>
 
 namespace game::ui::panel {
@@ -22,6 +24,8 @@ namespace {
 constexpr double kInt32Min = static_cast<double>(std::numeric_limits<std::int32_t>::min());
 constexpr double kInt32Max = static_cast<double>(std::numeric_limits<std::int32_t>::max());
 constexpr std::string_view kClearEvent = "CLEAR_CHAT_ACTION_BAR";
+// Sự kiện id 0x85: Tick không bỏ nút lặp của nó (hai dòng thông báo giống nhau đều hiện).
+constexpr std::string_view kNeverRepeated = "NEW_DEBUGMESSAGE";
 
 // Các phần của text cách nhau bằng tab (Call::text).
 [[nodiscard]] std::vector<std::string_view> fields_of(std::string_view text) {
@@ -74,6 +78,12 @@ constexpr std::string_view kClearEvent = "CLEAR_CHAT_ACTION_BAR";
     return posted;
 }
 
+// Một nút trước nó trong hàng đợi cùng sự kiện và cùng mọi đối số (0x140207180).
+[[nodiscard]] bool is_repeat(std::span<const PostedEvent> earlier, const PostedEvent& event) {
+    if (event.name == kNeverRepeated) return false;
+    return std::ranges::any_of(earlier, [&event](const PostedEvent& other) { return other == event; });
+}
+
 } // namespace
 
 std::int32_t game_int(double value) noexcept {
@@ -89,6 +99,22 @@ std::optional<PostedEvent> event_of(const Call& call) {
     case Ask::kClearChatActionBar: return clear_event(fields);
     default: return std::nullopt;
     }
+}
+
+EventQueue::EventQueue(std::span<const PostedEvent> first, std::size_t limit)
+    : events_(first.begin(), first.end()), limit_(limit) {}
+
+std::optional<PostedEvent> EventQueue::next() {
+    while (at_ < events_.size() && at_ < limit_) {
+        const std::size_t index = at_++;
+        const std::span<const PostedEvent> earlier(events_.data(), index);
+        if (!is_repeat(earlier, events_.at(index))) return events_.at(index);
+    }
+    return std::nullopt;
+}
+
+void EventQueue::push(PostedEvent event) {
+    events_.push_back(std::move(event));
 }
 
 } // namespace game::ui::panel

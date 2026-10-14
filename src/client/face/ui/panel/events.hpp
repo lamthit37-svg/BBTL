@@ -72,6 +72,9 @@ struct PostedEvent {
     std::string name;
     std::vector<std::string> args;
 
+    // Cùng tên và cùng mọi đối số (EventQueue bỏ sự kiện lặp trong một khung).
+    [[nodiscard]] bool operator==(const PostedEvent&) const = default;
+
     // "TÊN|arg0|arg1|...": số đối số tuỳ ý, mỗi đối số là chuỗi (đối số rỗng là chuỗi rỗng như bộ gửi gốc).
     // Tên rỗng thì không có kết quả.
     [[nodiscard]] static std::optional<PostedEvent> parse(std::string_view text);
