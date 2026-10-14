@@ -74,6 +74,8 @@ struct BarSpec {
     std::int32_t uninstall_level = 0;
     // Thanh kế nhận Clear_ChatAction_Bar; rỗng thì thanh này là cuối chuỗi và gọi Set_RMB_ChatAction.
     std::string_view forward;
+    // true: mỗi ô có cửa sổ hoạt ảnh <ô>_Mask mà <Tên>_PlayAnimate hiện và chạy (MainMenuBar_2).
+    bool has_masks = false;
 };
 
 // Gói hành động chat cài ở một ô của kho (DataPool:Get_RMB_ChatActionInfo rồi Get_RMB_ChatActionRealID): ba cột
@@ -99,6 +101,27 @@ struct ChatBook {
     std::vector<std::int32_t> double_moods;
 };
 
+// Hình học của một cửa sổ mà nhánh hướng dẫn tân thủ của MainMenuBar_2 hỏi. Khung dùng x, y là vị trí tuyệt đối
+// (GetProperty "AbsoluteXPosition", "AbsoluteYPosition"); ô dùng x, y là độ lệch so với khung (this:GetChildOffset) và
+// rộng, cao là AbsoluteWidth, AbsoluteHeight.
+struct BarBox {
+    double x = 0.0;
+    double y = 0.0;
+    double width = 0.0;
+    double height = 0.0;
+};
+
+// Điều mà nhánh UI_COMMAND 20130527 của MainMenuBar_2 hỏi hệ hướng dẫn tân thủ, kho đồ và cửa sổ CEGUI. Nơi dùng tính
+// trước khi phát sự kiện: put_* là hai giá trị PutItemToMainmenuBar2(Get_XParam_INT(0)) trả (nó đặt vật phẩm lên thanh,
+// việc của kho đồ), owner là GetFreshManGuideOwner().
+struct GuideFacts {
+    std::int32_t put_is_show = 0;
+    std::int32_t put_index = -1;
+    BarBox frame;
+    std::array<BarBox, 10> buttons{};
+    std::string_view owner;
+};
+
 // Những điều của game mà script hỏi lúc xử lý sự kiện.
 struct BarFacts {
     // Pet:IsPresent(n) và Pet:GetIsFighting(n) cùng đúng, n = 0..5.
@@ -113,6 +136,7 @@ struct BarFacts {
     // DataPool:LuaFnGetGMVisibleType() và ZBS:IsViewerWatching().
     std::int32_t gm_visible_type = 0;
     std::int32_t viewer_watching = 0;
+    GuideFacts guide;
 };
 
 // Trạng thái của một thanh: các cửa sổ con script đã đụng tới, cờ hiện của chính nó (this:IsVisible()) và tên
@@ -125,6 +149,10 @@ struct ActionBar {
     std::vector<std::string> buttons;
     std::vector<std::string> juniors;
     std::vector<std::string> seniors;
+    // Cửa sổ hoạt ảnh <ô>_Mask của từng ô (chỉ khi spec.has_masks).
+    std::vector<std::string> masks;
+    // g_IsShowDrawing của MainMenuBar_2: lớp hướng dẫn đang mở quanh một ô của thanh.
+    bool is_drawing = false;
 };
 
 // Dựng thanh: đặt tên cửa sổ theo spec và ghi nhận hai dãy cửa sổ nháy là Visible=False của layout.

@@ -6,6 +6,7 @@
 #include "ui/panel/events.hpp"
 #include "ui/panel/function_bar_right.hpp"
 #include "ui/panel/function_bar_right_2.hpp"
+#include "ui/panel/main_menu_bar_2.hpp"
 #include "ui/panel/main_menu_bar_4.hpp"
 
 #include <algorithm>
@@ -17,6 +18,10 @@
 namespace game::ui::panel {
 
 ActionBars::ActionBars() {
+    windows_.push_back(BarWindow{.bar = make_main_menu_bar_2(),
+        .events = kMainMenuBar2Events,
+        .on_event = &on_main_menu_bar_2_event,
+        .on_press = &press_main_menu_bar_2});
     windows_.push_back(BarWindow{
         .bar = make_main_menu_bar_4(), .events = kMainMenuBar4Events, .on_event = &on_main_menu_bar_4_event});
     windows_.push_back(BarWindow{
@@ -32,10 +37,14 @@ void ActionBars::raise(const UiEvent& event, const BarFacts& facts, std::vector<
     }
 }
 
-void ActionBars::press(std::string_view window, bool can_do, std::vector<Call>& calls) const {
-    for (const BarWindow& item : windows_) {
+void ActionBars::press(std::string_view window, bool can_do, const BarFacts& facts, std::vector<Call>& calls) {
+    for (BarWindow& item : windows_) {
         if (const std::optional<std::int32_t> id = bar_button_id(item.bar, window)) {
-            press_bar_button(item.bar, *id, can_do, calls);
+            if (item.on_press != nullptr) {
+                item.on_press(item.bar, *id, can_do, facts, calls);
+            } else {
+                press_bar_button(item.bar, *id, can_do, calls);
+            }
             return;
         }
     }

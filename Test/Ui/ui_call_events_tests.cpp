@@ -139,19 +139,20 @@ void clear_pushes_event_for_next_bar(Context& context) {
     return false;
 }
 
-// FunctionBarRight (cấp 4), FunctionBarRight_2 (cấp 5) rồi MainMenuBar_4 (cấp 6, gửi gói tin): các thanh nối nhau chỉ
-// bằng sự kiện.
+// MainMenuBar_2 (cấp 3), FunctionBarRight (cấp 4), FunctionBarRight_2 (cấp 5) rồi MainMenuBar_4 (cấp 6, gửi gói tin): bốn
+// thanh nối nhau chỉ bằng sự kiện. MainMenuBar (cấp 2) là cửa sổ khác, nó đẩy sự kiện đầu chuỗi.
 void uninstall_chain_runs_through_the_bars(Context& context) {
     ui::panel::ActionBars bars;
     const ui::panel::BarFacts facts = chat_facts();
     const std::vector<Call> rest =
-        drain(bars, facts, {PostedEvent{.name = "UNINSTALL_CHAT_ACTION_BAR3", .args = {"2"}}});
+        drain(bars, facts, {PostedEvent{.name = "UNINSTALL_CHAT_ACTION_BAR2", .args = {"2"}}});
     context.expect(has_call(rest, Ask::kUninstallChatAction, "2\t6"), "thanh cuối gửi gói tin xoá (cấp 6)");
+    context.expect(!has_call(rest, Ask::kUninstallChatAction, "2\t3"), "cấp 3 đã thành sự kiện cho FunctionBarRight");
     context.expect(!has_call(rest, Ask::kUninstallChatAction, "2\t4"), "cấp 4 đã thành sự kiện cho FunctionBarRight_2");
     context.expect(!has_call(rest, Ask::kUninstallChatAction, "2\t5"), "cấp 5 đã thành sự kiện cho MainMenuBar_4");
 }
 
-void uninstall_chain_can_start_at_the_second_bar(Context& context) {
+void uninstall_chain_can_start_mid_chain(Context& context) {
     ui::panel::ActionBars bars;
     const ui::panel::BarFacts facts = chat_facts();
     const std::vector<Call> rest =
@@ -164,7 +165,7 @@ void clear_chain_ends_in_the_store(Context& context) {
     ui::panel::ActionBars bars;
     const ui::panel::BarFacts facts = chat_facts();
     const std::vector<Call> rest = drain(bars, facts,
-        {PostedEvent{.name = "CLEAR_CHAT_ACTION_BAR", .args = {"FunctionBarRight", "2", "5", "6"}}});
+        {PostedEvent{.name = "CLEAR_CHAT_ACTION_BAR", .args = {"MainMenuBar_2", "2", "5", "6"}}});
     context.expect(has_call(rest, Ask::kSetChatAction, "2\t5\t6"), "thanh cuối ghi gói mới vào kho");
 }
 
@@ -221,7 +222,7 @@ constexpr std::array kCases{
     Case{.name = "uninstall_levels_map_to_events", .body = &uninstall_levels_map_to_events},
     Case{.name = "clear_pushes_event_for_next_bar", .body = &clear_pushes_event_for_next_bar},
     Case{.name = "uninstall_chain_runs_through_the_bars", .body = &uninstall_chain_runs_through_the_bars},
-    Case{.name = "uninstall_chain_can_start_at_the_second_bar", .body = &uninstall_chain_can_start_at_the_second_bar},
+    Case{.name = "uninstall_chain_can_start_mid_chain", .body = &uninstall_chain_can_start_mid_chain},
     Case{.name = "clear_chain_ends_in_the_store", .body = &clear_chain_ends_in_the_store},
     Case{.name = "queue_drops_repeated_events", .body = &queue_drops_repeated_events},
     Case{.name = "queue_keeps_repeated_debug_messages", .body = &queue_keeps_repeated_debug_messages},

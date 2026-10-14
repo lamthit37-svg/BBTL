@@ -793,7 +793,7 @@ bool Hud::State::can_do_action_now() const {
 // Nhấn trái lên một ô của nhóm thanh action: <Thanh>_Clicked(id). Khác gốc: nhấn phải (RBClicked) chưa tới được HUD.
 void Hud::State::press_action_bars(std::string_view window) {
     bar_calls.clear();
-    action_bars.press(window, can_do_action_now(), bar_calls);
+    action_bars.press(window, can_do_action_now(), bar_facts, bar_calls);
     for (const panel::Call& call : bar_calls) {
         std::println(stderr, "Thanh action: việc nhờ {} chưa có ở HUD", panel::name_of(call.ask));
     }
