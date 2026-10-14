@@ -71,6 +71,10 @@ struct Placed {
     float scroll = 0.0F;
     // Cao một mục của danh sách (0 khi lần dàn trang không có số đo chữ).
     float row = 0.0F;
+    // Mô phỏng onParentSized của CEGUI lúc layout gắn vào tấm nền (layout.cpp, place_window): cửa sổ
+    // có bị tính lại cỡ từ vùng max - min không, và nó có truyền việc đó xuống con không.
+    bool is_resized = false;
+    bool is_resizing_children = false;
 };
 
 // Mọi thứ một lượt vẽ cần: asset, đầu vào, các cửa sổ đã đặt, nơi ghi lệnh, và trạng thái chuột.

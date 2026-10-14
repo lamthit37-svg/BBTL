@@ -52,6 +52,19 @@ std::string_view trimmed(std::string_view text) noexcept {
     return text.substr(first, last - first + 1);
 }
 
+// Khoảng trắng của isspace, mà %s của sscanf bỏ qua và dừng ở đó.
+constexpr std::string_view kSpace = " \t\n\v\f\r";
+
+std::string_view after_spaces(std::string_view text) noexcept {
+    const std::size_t first = text.find_first_not_of(kSpace);
+    return first == std::string_view::npos ? std::string_view{} : text.substr(first);
+}
+
+// Từ đầu của text (text đã bỏ khoảng trắng đầu).
+std::string_view word_of(std::string_view text) noexcept {
+    return text.substr(0, text.find_first_of(kSpace));
+}
+
 bool is_blank(char letter) noexcept {
     return letter == ' ' || letter == '\t';
 }
@@ -111,14 +124,18 @@ std::optional<float> parse_float(std::string_view text) noexcept {
     return values->at(0);
 }
 
+// sscanf(" set:%127s image:%127s") của PropertyHelper::stringToImage: mỗi nửa là một từ, khoảng trắng nào
+// (kể cả xuống dòng mà vài layout gốc ngắt giữa hai nửa) cũng ngăn cách. Không giữ trần 127 ký tự.
 std::optional<ImageName> parse_image(std::string_view text) noexcept {
-    const std::string_view value = trimmed(text);
-    const std::size_t image_at = value.find(" image:");
-    const bool is_shaped = value.starts_with("set:") && image_at != std::string_view::npos;
-    if (!is_shaped) return std::nullopt;
-    const std::string_view set = trimmed(value.substr(4, image_at - 4));
-    const std::string_view image = trimmed(value.substr(image_at + 7));
-    if (set.empty() || image.empty()) return std::nullopt;
+    std::string_view rest = after_spaces(text);
+    if (!rest.starts_with("set:")) return std::nullopt;
+    rest = after_spaces(rest.substr(4));
+    const std::string_view set = word_of(rest);
+    rest = after_spaces(rest.substr(set.size()));
+    if (set.empty() || !rest.starts_with("image:")) return std::nullopt;
+    rest = after_spaces(rest.substr(6));
+    const std::string_view image = word_of(rest);
+    if (image.empty()) return std::nullopt;
     return ImageName{.set = set, .image = image};
 }
 
@@ -153,12 +170,16 @@ std::optional<GuiColours> parse_colours(std::string_view text) noexcept {
     return GuiColours{*single, *single, *single, *single};
 }
 
+namespace {
+
 // Kênh 8 bit thành số trên 255, nhân, rồi cắt phần thập phân.
-[[nodiscard]] static std::uint32_t scaled_channel(std::uint32_t first, std::uint32_t second, unsigned shift) noexcept {
+[[nodiscard]] std::uint32_t scaled_channel(std::uint32_t first, std::uint32_t second, unsigned shift) noexcept {
     const float left = static_cast<float>((first >> shift) & 0xFFU) / 255.0F;
     const float right = static_cast<float>((second >> shift) & 0xFFU) / 255.0F;
     return static_cast<std::uint32_t>(left * right * 255.0F) << shift;
 }
+
+} // namespace
 
 std::uint32_t modulate(std::uint32_t first, std::uint32_t second) noexcept {
     const std::uint32_t alpha = scaled_channel(first, second, 24);

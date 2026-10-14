@@ -46,6 +46,14 @@ void plain_values(Context& context) {
     const bool is_named = image && image->set == "Button12" && image->image == "MainMenuBar_LeftBlock";
     context.expect(is_named, "ảnh set:image");
     context.expect(!gui::parse_image("Button12/MainMenuBar"), "ảnh sai dạng");
+    // NewExterior_PetPossJian.layout.xml ngắt dòng (CR LF rồi thụt lề) giữa hai nửa; sscanf vẫn tách đúng.
+    const auto broken = gui::parse_image("set:NewExterior5\r\n             image:TouShi_Img_Normal");
+    const bool is_split = broken && broken->set == "NewExterior5" && broken->image == "TouShi_Img_Normal";
+    context.expect(is_split, "xuống dòng giữa set: và image: vẫn là một ảnh");
+    const auto padded = gui::parse_image("  set:A \t image:B  ");
+    context.expect(padded && padded->set == "A" && padded->image == "B", "khoảng trắng thừa hai đầu và giữa");
+    context.expect(!gui::parse_image("set:A image:"), "thiếu tên ảnh");
+    context.expect(!gui::parse_image("set:A B image:C"), "tên bộ có dấu cách thì không khớp mẫu");
 }
 
 void colour_values(Context& context) {

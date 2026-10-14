@@ -18,6 +18,7 @@
 #include <cstddef>
 #include <cstdint>
 #include <expected>
+#include <filesystem>
 #include <format>
 #include <iterator>
 #include <memory>
@@ -38,7 +39,7 @@ using detail::Node;
 namespace {
 
 std::optional<std::string> read_at(const std::filesystem::path& root, std::string_view clean) {
-    io::TextResult text = io::read_text(root / io::path_from_utf8(std::string(clean)));
+    io::TextResult text = io::read_text(root / io::path_from_utf8(clean));
     if (!text) return std::nullopt;
     return std::move(*text);
 }

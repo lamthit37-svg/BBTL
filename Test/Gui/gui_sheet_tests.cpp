@@ -210,6 +210,53 @@ void placed_windows(Context& context) {
     context.expect(same_box(sheet.quads.at(1).dest, child), "khung con theo cha");
 }
 
+// Cửa sổ con rộng 0,15 của cha 430 (cha rộng 0,42 màn 1024, có thành phần scale nên onParentSized tính
+// lại cỡ con): vùng cửa sổ là URect (min, max = min + cỡ), cỡ đọc lại là max - min trong float32. Vị trí
+// 0,5 rồi cỡ 0,15 cho max = 0,65 và cỡ 0,14999998, nhân 430 được 64,49999 nên làm tròn xuống 64; vị trí
+// 0,35 rồi cỡ 0,15 cho max = 0,5 đúng nên giữ 0,15, nhân 430 được 64,5 nên làm tròn lên 65. Số 64 và 65
+// của hai con này là ô getUnclippedPixelRect của BieYePersonnelManage_List1_Text_3 và _Text_2 (golden).
+GuiAsset area_asset(bool is_parent_fixed) {
+    GuiAsset asset;
+    add_window(asset, "Row", Slot{.type = -1, .parent = -1});
+    add_property(asset, "UnifiedSize", is_parent_fixed ? "{{0,430},{0,28}}" : "{{0.42,0},{0,28}}");
+    add_window(asset, "Row_Early", Slot{.type = -1, .parent = 0});
+    add_property(asset, "UnifiedPosition", "{{0.35,0},{0,0}}");
+    add_property(asset, "UnifiedSize", "{{0.15,0},{0,28}}");
+    add_window(asset, "Row_Late", Slot{.type = -1, .parent = 0});
+    add_property(asset, "UnifiedPosition", "{{0.5,0},{0,0}}");
+    add_property(asset, "UnifiedSize", "{{0.15,0},{0,28}}");
+    add_window(asset, "Row_SizeFirst", Slot{.type = -1, .parent = 0});
+    add_property(asset, "UnifiedSize", "{{0.15,0},{0,28}}");
+    add_property(asset, "UnifiedPosition", "{{0.5,0},{0,0}}");
+    return asset;
+}
+
+float width_of(const Hub& hub, std::string_view window) {
+    const std::optional<Box> box = hub.box(window);
+    return box ? box->w : -1.0F;
+}
+
+void area_size_is_max_minus_min(Context& context) {
+    const GuiAsset asset = area_asset(false);
+    Hub hub(asset);
+    hub.update(screen_of(1024.0F, 768.0F));
+    context.expect(width_of(hub, "Row") == 430.0F, "cha rộng 430");
+    context.expect(width_of(hub, "Row_Early") == 65.0F, "max = 0,5 đúng nên 0,15 x 430 = 64,5 làm tròn lên");
+    context.expect(width_of(hub, "Row_Late") == 64.0F, "max = 0,65 lệch 1 ulp nên cỡ đọc lại là 64,49999");
+    context.expect(width_of(hub, "Row_SizeFirst") == 64.0F, "đặt cỡ rồi vị trí cũng ra cùng max");
+}
+
+// Cha cỡ tuyệt đối (không scale ở cạnh max) thì onParentSized không lan xuống con: con giữ cỡ của lần
+// setWindowArea_impl cuối, vẫn là 0,15 nguyên (lần đặt vị trí truyền lại cỡ đọc từ vùng lúc đó, chưa lệch),
+// nên cả hai con đều 65.
+void fixed_parent_does_not_resize_children(Context& context) {
+    const GuiAsset asset = area_asset(true);
+    Hub hub(asset);
+    hub.update(screen_of(1024.0F, 768.0F));
+    context.expect(width_of(hub, "Row_Late") == 65.0F, "cha cố định: con giữ cỡ vừa đặt, 65");
+    context.expect(width_of(hub, "Row_SizeFirst") == 65.0F, "cha cố định: cỡ đặt trước vị trí cũng giữ 0,15, 65");
+}
+
 void half_bar(Context& context) {
     const GuiAsset asset = bar_asset();
     const Sheet half = gui::place(asset, screen_of(200.0F, 200.0F));
@@ -1253,6 +1300,8 @@ void window_geometry(Context& context) {
 
 constexpr std::array kCases{
     Case{.name = "placed_windows", .body = &placed_windows},
+    Case{.name = "area_size_is_max_minus_min", .body = &area_size_is_max_minus_min},
+    Case{.name = "fixed_parent_does_not_resize_children", .body = &fixed_parent_does_not_resize_children},
     Case{.name = "half_bar", .body = &half_bar},
     Case{.name = "radar_center", .body = &radar_center},
     Case{.name = "radar_grid", .body = &radar_grid},

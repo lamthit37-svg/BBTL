@@ -16,6 +16,7 @@
 #include <algorithm>
 #include <array>
 #include <fstream>
+#include <ios>
 #include <cmath>
 #include <cstddef>
 #include <cstdint>
@@ -110,27 +111,53 @@ void loads_every_layout(Context& context) {
     context.expect(std::ranges::count_if(asset.windows, is_root) >= 15, "mỗi layout có cửa sổ gốc");
 }
 
-// Ghi chú chỉ được là chỗ hỏng có sẵn trong dữ liệu gốc: vài tên ảnh không tồn tại trong imageset,
-// và bảy hoạt ảnh (CoolDownEnd2 của ô kỹ năng thanh phụ, cùng sáu cái khác) layout gốc nhắc tới mà
-// dữ liệu Interface của client 2026 không khai.
+// Ghi chú chỉ được là chỗ hỏng có sẵn trong dữ liệu gốc, kê đủ từng cái: 52 ảnh và 7 hoạt ảnh mà layout
+// gốc nhắc tới nhưng client 2026 không nạp được (F:\tl 2026\_goc, đối chiếu 2026-10-14). Thêm một chỗ
+// hỏng mới (loader bỏ sót tệp, đổi tên khoá ảnh) làm ca đỏ, không bị trần số lượng nuốt mất.
+constexpr auto kMissingImages = std::to_array<std::string_view>({
+    // Hai mươi ảnh của bộ ảnh không có tệp imageset nào (scheme không kê, all.imageset.xml không khai).
+    "Announce6/Bhsc_Title_Monster", "BaseInterface/Red_Dot", "Chat/CommonEditBoxBK", "DaHuaQiXi_Shop/YuanYe_Mid",
+    "HSLJ_01/HSLJ_One", "LongZhengHandBook3/HandBook_Title11", "MainMenuBar/EXPBar_3",
+    "MenPaiWar_TopList/MenPaiWar_TopListBK1", "Peak_Second/Peak_Second_MainBK", "PlayerFrame/10PX_Bar_Blue",
+    "PlayerFrame/10PX_Bar_Yellow", "Redenvelope/History_BK", "SeventhFestivalTopList/SeventhFestivalTopList_1",
+    "ShaXing_TopList/ShaXing_TopListTop1", "SongLiao02/Down_Disabled", "SongLiao02/Down_Hover",
+    "SongLiao02/Down_Normal", "SongLiao02/Down_Pushed", "Thanksgiving_FeedBack/Thanksgiving_FeedBack_Line",
+    "ZhengTaoPVP/ZhengTaoPVP_MenPaiLine",
+    // Hai mươi ba ảnh của ba bộ (chunfen, chunfen1, WeixinHongbaoPaisong) có tệp riêng ở Common/ nhưng
+    // WoWLookSkin.scheme.xml gốc kê chúng trong chú thích XML (hoạt động đã ngừng), nên client gốc không nạp.
+    "chunfen/chunfen_bk", "chunfen/chunfenbutton1_Disabled", "chunfen/chunfenbutton1_Hover",
+    "chunfen/chunfenbutton1_Normal", "chunfen/chunfenbutton1_Pushed", "chunfen/chunfenclose_Disabled",
+    "chunfen/chunfenclose_Hover", "chunfen/chunfenclose_Normal", "chunfen/chunfenclose_Pushed",
+    "chunfen/chunfenget1_Disabled", "chunfen/chunfenget1_Hover", "chunfen/chunfenget1_Normal",
+    "chunfen/chunfenget1_Pushed", "chunfen1/chunfen1_bk", "chunfen1/chunfenbutton2_Disabled",
+    "chunfen1/chunfenbutton2_Hover", "chunfen1/chunfenbutton2_Normal", "chunfen1/chunfenbutton2_Pushed",
+    "chunfen1/chunfenget2_Disabled", "chunfen1/chunfenget2_Hover", "chunfen1/chunfenget2_Normal",
+    "chunfen1/chunfenget2_Pushed", "WeixinHongbaoPaisong/WeixinHongbaoPaisong",
+    // Chín ảnh thiếu trong bộ ảnh có tệp.
+    "Anniversary2/Anniversary_Left_Pic", "Pretty01/MbuySmall_Pushed.png",
+    "QiXi_StoryLetter_2/QiXi_StoryLetter_QZ_2", "QiXi_StoryLetter_2/QiXi_StoryLetter_QZ_4",
+    "QiXi_StoryLetter_2/QiXi_StoryLetter_QZ_5", "XSYNew02/HXL_Disabled", "XSYNew02/HXL_Hover",
+    "XSYNew02/HXL_Normal", "XSYNew02/HXL_Pushed"});
+
+// Bảy hoạt ảnh layout gốc nhắc tới mà không tệp XML nào của Interface 2026 khai `<Animate Name=...>`:
+// đếm lại 2026-10-13, wowanimate.xml giống từng byte bản đã gom.
+constexpr auto kMissingAnimates = std::to_array<std::string_view>({"CoolDownEnd2", "ChatSignMini_MPMJ_1", "HZJYR_Luck",
+    "HZJYR_Success", "ShuangDan_Huoguo_Counting_Light", "BaoJian1", "XinShouNew_SheJiaoDaRen_RewardFrame_Flash"});
+
+bool is_known_gap(std::string_view note) {
+    constexpr std::string_view kNoImage = "không có ảnh ";
+    constexpr std::string_view kNoAnimate = "không có hoạt ảnh ";
+    if (note.starts_with(kNoImage)) return std::ranges::contains(kMissingImages, note.substr(kNoImage.size()));
+    if (note.starts_with(kNoAnimate)) return std::ranges::contains(kMissingAnimates, note.substr(kNoAnimate.size()));
+    return false;
+}
+
 void notes_are_known_gaps(Context& context) {
     const gui::DiskSource files(interface_root());
     const Loaded loaded = load_all(files);
     if (!loaded.loader) return;
-    const auto is_known = [](std::string_view note) {
-        // Bảy hoạt ảnh layout gốc nhắc tới mà không tệp XML nào của Interface 2026 (F:\tl 2026\_goc)
-        // khai `<Animate Name=...>`: đếm lại 2026-10-13, wowanimate.xml giống từng byte bản đã gom.
-        constexpr std::array<std::string_view, 7> kMissingInOriginal = {"CoolDownEnd2", "ChatSignMini_MPMJ_1",
-            "HZJYR_Luck", "HZJYR_Success", "ShuangDan_Huoguo_Counting_Light", "BaoJian1",
-            "XinShouNew_SheJiaoDaRen_RewardFrame_Flash"};
-        constexpr std::string_view kNoAnimate = "không có hoạt ảnh ";
-        if (note.starts_with("không có ảnh ")) return true;
-        if (!note.starts_with(kNoAnimate)) return false;
-        return std::ranges::find(kMissingInOriginal, note.substr(kNoAnimate.size())) != kMissingInOriginal.end();
-    };
     for (const std::string_view note : loaded.loader->notes())
-        context.expect(is_known(note), note);
-    context.expect(loaded.loader->notes().size() < 20, "ít tham chiếu hỏng");
+        context.expect(is_known_gap(note), note);
 }
 
 // Bảng hoạt ảnh đã gom đủ cho radar: mũi tên người chơi có đủ 30 khung như tệp gốc.
@@ -217,6 +244,8 @@ struct GoldenRow {
     std::string layout;
     std::string window;
     gui::Box box;
+    // Tên cửa sổ xuất hiện nhiều lần trong các layout (cột is_duplicate của ui_rects.tsv).
+    bool is_duplicate = false;
 };
 
 std::vector<std::string_view> split(std::string_view text, char mark) {
@@ -242,6 +271,7 @@ std::optional<GoldenRow> golden_row(std::string_view line) {
     row.box.y = number_of(cells.at(5));
     row.box.w = number_of(cells.at(6));
     row.box.h = number_of(cells.at(7));
+    row.is_duplicate = cells.at(8) == "1";
     return row;
 }
 
@@ -275,40 +305,78 @@ std::string box_text(const gui::Box& box) {
     return place + " " + std::to_string(box.w) + "x" + std::to_string(box.h);
 }
 
-// Số dòng đã so và mô tả từng dòng lệch.
+// Số dòng đã so, số dòng không tra được theo tên, và mô tả từng dòng lệch.
 struct Tally {
     std::size_t compared = 0;
+    // Cửa sổ không có Name (Hub::box tra theo tên nên không chỉ tới được).
+    std::size_t unnamed = 0;
     std::vector<std::string> misses;
 };
 
-void compare_row(const gui::Hub& hub, const GoldenRow& row, Tally& tally) {
-    const std::optional<gui::Box> got = hub.box(row.window);
-    ++tally.compared;
-    if (got && is_same_box(*got, row.box)) return;
+void add_miss(Tally& tally, const GoldenRow& row, const std::optional<gui::Box>& got) {
     const std::string screen = std::to_string(static_cast<int>(row.screen.width));
     const std::string found = got ? box_text(*got) : std::string("không có");
     tally.misses.push_back(
         screen + "\t" + row.layout + "\t" + row.window + "\tgolden " + box_text(row.box) + "\tHub " + found);
 }
 
+void compare_row(const gui::Hub& hub, const GoldenRow& row, Tally& tally) {
+    ++tally.compared;
+    if (row.window.empty()) {
+        ++tally.unnamed;
+        return;
+    }
+    const std::optional<gui::Box> got = hub.box(row.window);
+    if (!got || !is_same_box(*got, row.box)) add_miss(tally, row, got);
+}
+
+// Tên khai ở nhiều layout: Hub::box tra theo tên nên chỉ trả một cửa sổ trong số đó. Ô của nó phải
+// trùng ô golden của một cửa sổ cùng tên; so từng dòng thì dòng của layout kia luôn lệch.
+void compare_duplicates(const gui::Hub& hub, std::span<const GoldenRow* const> rows, Tally& tally) {
+    for (const GoldenRow* row : rows) {
+        const std::string_view name = row->window;
+        const std::optional<gui::Box> got = hub.box(name);
+        const auto is_same_name = [name](const GoldenRow* other) { return other->window == name; };
+        const auto is_match = [&got](const GoldenRow* other) { return got && is_same_box(*got, other->box); };
+        ++tally.compared;
+        if (std::ranges::any_of(rows | std::views::filter(is_same_name), is_match)) continue;
+        add_miss(tally, *row, got);
+    }
+}
+
 // Một lượt so golden: asset, mọi dòng golden và cỡ màn hình đang so.
 struct GoldenPass {
     const gui::GuiAsset* asset = nullptr;
-    const std::vector<GoldenRow>& rows;
+    std::span<const GoldenRow> rows;
     ScreenSize size;
 };
 
-// Buộc mọi cửa sổ hiện để Hub::box trả ô của cả cửa sổ mà layout khai Visible=False.
-std::vector<gui::Override> show_all(const gui::GuiAsset& asset) {
+// Layout khai cửa sổ này Visible=False (thuộc tính khai sau cùng thắng, như Hub).
+bool is_hidden_by_layout(const gui::GuiAsset& asset, const gui::GuiWindow& window) {
+    const gui::GuiRange range = window.properties;
+    const std::size_t total = asset.properties.size();
+    if (range.first > total || range.count > total - range.first) return false;
+    const auto own = std::span(asset.properties).subspan(range.first, range.count);
+    const auto is_visible_prop = [](const gui::GuiProperty& prop) { return prop.name == "Visible"; };
+    const auto backwards = own | std::views::reverse;
+    const auto last = std::ranges::find_if(backwards, is_visible_prop);
+    return last != backwards.end() && !gui::parse_bool((*last).value);
+}
+
+// Buộc hiện các cửa sổ mà layout khai Visible=False để Hub::box trả ô của cả chúng. Chỉ ép những cái
+// ấy: layout quét cả danh sách Override cho từng cửa sổ, nên ép hết hàng chục nghìn cửa sổ thì
+// Hub::update thành bậc hai và mất hơn một phút mỗi cỡ màn hình (đo 2026-10-14).
+std::vector<gui::Override> show_hidden(const gui::GuiAsset& asset) {
     std::vector<gui::Override> shown;
-    shown.reserve(asset.windows.size());
-    for (const gui::GuiWindow& window : asset.windows)
-        shown.push_back(gui::Override{.window = window.name, .name = "Visible", .value = "True"});
+    for (const gui::GuiWindow& window : asset.windows) {
+        if (is_hidden_by_layout(asset, window))
+            shown.push_back(gui::Override{.window = window.name, .name = "Visible", .value = "True"});
+    }
     return shown;
 }
 
 void compare_screen(const GoldenPass& pass, Tally& tally) {
-    const std::vector<gui::Override> shown = show_all(*pass.asset);
+    const std::vector<gui::Override> shown = show_hidden(*pass.asset);
     gui::Hub hub(*pass.asset);
     gui::Place place;
     place.width = pass.size.width;
@@ -317,8 +385,14 @@ void compare_screen(const GoldenPass& pass, Tally& tally) {
     hub.update(place);
     const ScreenSize size = pass.size;
     const auto is_on_screen = [size](const GoldenRow& row) { return row.screen == size; };
-    for (const GoldenRow& row : pass.rows | std::views::filter(is_on_screen))
-        compare_row(hub, row, tally);
+    std::vector<const GoldenRow*> duplicates;
+    for (const GoldenRow& row : pass.rows | std::views::filter(is_on_screen)) {
+        if (row.is_duplicate && !row.window.empty())
+            duplicates.push_back(&row);
+        else
+            compare_row(hub, row, tally);
+    }
+    compare_duplicates(hub, duplicates, tally);
 }
 
 void window_boxes_match_golden(Context& context) {
@@ -338,7 +412,8 @@ void window_boxes_match_golden(Context& context) {
     for (const ScreenSize& size : kGoldenScreens)
         compare_screen(GoldenPass{.asset = &asset, .rows = rows, .size = size}, tally);
     context.expect(tally.compared == rows.size(), "mọi dòng golden thuộc bốn cỡ màn hình");
-    const std::string total = std::to_string(tally.misses.size()) + " ô lệch golden";
+    const std::string total = std::to_string(tally.misses.size()) + " ô lệch golden (bỏ qua " +
+                              std::to_string(tally.unnamed) + " dòng của cửa sổ không có tên)";
     if (!tally.misses.empty()) {
         // Ghi đủ mọi dòng lệch (cỡ màn hình, layout, cửa sổ, golden, Hub) để soát theo layout.
         std::ofstream dump(fs::current_path() / "gui_real_misses.tsv", std::ios::binary);

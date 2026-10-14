@@ -5,10 +5,15 @@
 // 0xa7e10, windowToScreen 0xa9090, GUISheet::initialise 0x8a840, các hàm set của WindowProperties);
 // ba chỗ bản 2026 khác mã 2008: không kẹp cỡ theo Min/MaxSize, bỏ qua Size và AbsoluteSize âm, và
 // ô nhớ của setSize (không đổi kết quả của layout gốc nên không dựng lại).
-// tests/golden/ui_rects.tsv là ô của mọi cửa sổ HUD tính độc lập theo các hàm đó. Nguồn: TLBB Dev
-// src/gui/sheet.cpp@e0d89a6 (phần đặt cửa sổ và đo kích thước). Khác gốc: vòng lặp tìm thuộc tính
-// viết bằng thuật toán thay cho `if` trong vòng; bảng tra kind_of thay chuỗi if; dim_value gấp
-// chuỗi DimOperator bằng vòng lặp thay cho đệ quy (cùng trần 9 mức).
+// tests/golden/ui_rects.tsv là ô của mọi cửa sổ trong layout gốc tính độc lập theo các hàm đó. Nguồn:
+// TLBB Dev src/gui/sheet.cpp@e0d89a6 (phần đặt cửa sổ và đo kích thước). Khác gốc: vòng lặp tìm
+// thuộc tính viết bằng thuật toán thay cho `if` trong vòng; bảng tra kind_of thay chuỗi if;
+// dim_value gấp chuỗi DimOperator bằng vòng lặp thay cho đệ quy (cùng trần 9 mức). Khác gốc nữa:
+// vùng cửa sổ giữ như URect của CEGUI (min, max) chứ không phải bốn UDim rời. setWindowArea_impl
+// đặt max = min + cỡ qua phép cộng trừ float32 nên cỡ đọc lại là max - min có thể lệch 1 ulp; khi
+// layout gắn vào tấm nền, onParentSized tính lại cỡ điểm ảnh từ giá trị lệch đó (ví dụ vị trí 0,5
+// rồi cỡ 0,15 của cha 430 cho 64 chứ không phải 65). Layout gốc luôn đặt thuộc tính trước cửa sổ
+// con (đếm 2.035 layout gốc), nên đủ mô phỏng một lượt onParentSized từ gốc xuống.
 #include "gui/asset.hpp"
 #include "gui/detail/draw.hpp"
 #include "gui/scroll.hpp"
@@ -19,6 +24,8 @@
 #include <array>
 #include <cstddef>
 #include <cstdint>
+#include <functional>
+#include <iterator>
 #include <optional>
 #include <ranges>
 #include <span>
@@ -88,10 +95,14 @@ bool is_listed(std::span<const std::string_view> names, std::string_view name) n
 // Neo của cửa sổ trong cha: trái hay trên, giữa, phải hay dưới (HA_* và VA_* của CEGUI).
 enum class Anchor : std::uint8_t { kStart, kCentre, kEnd };
 
-// Vị trí, kích thước và căn lề của cửa sổ cùng các cờ hiện, khung, nền, luôn trên cùng.
+// Vùng, căn lề của cửa sổ cùng các cờ hiện, khung, nền, luôn trên cùng. Vùng là d_area của CEGUI:
+// (x, y) là góc min, (far_x, far_y) là góc max; (w, h) là cỡ của lần setWindowArea_impl gần nhất,
+// tức giá trị mà d_pixelSize được tính từ đó cho tới khi onParentSized tính lại.
 struct Metrics {
     GuiUDim x;
     GuiUDim y;
+    GuiUDim far_x;
+    GuiUDim far_y;
     GuiUDim w;
     GuiUDim h;
     Anchor across = Anchor::kStart;
@@ -108,48 +119,68 @@ struct Setting {
     std::string_view value;
 };
 
-// Hai thành viên UDim của Metrics đi cùng nhau: vị trí (x, y) hay kích thước (w, h).
-struct UDimSlot {
-    GuiUDim Metrics::* across;
-    GuiUDim Metrics::* down;
-};
-
-constexpr UDimSlot kPosition{.across = &Metrics::x, .down = &Metrics::y};
-constexpr UDimSlot kSize{.across = &Metrics::w, .down = &Metrics::h};
-
 std::span<const GuiProperty> properties_in(const GuiAsset& asset, GuiRange range) noexcept {
     if (!in_range(asset.properties.size(), range)) return {};
     return std::span(asset.properties).subspan(range.first, range.count);
 }
 
-// Gán cặp từ chuỗi "{{s,o},{s,o}}"; hỏng thì giữ nguyên.
-void set_vector(Metrics& metrics, UDimSlot slot, const std::optional<UVector>& vector) noexcept {
-    if (!vector) return;
-    metrics.*slot.across = vector->x;
-    metrics.*slot.down = vector->y;
+// UDim::operator+ và operator- của CEGUI: scale và offset cộng trừ riêng, mỗi phép làm tròn float32.
+GuiUDim udim_plus(GuiUDim left, GuiUDim right) noexcept {
+    return GuiUDim{.scale = left.scale + right.scale, .offset = left.offset + right.offset};
 }
 
+GuiUDim udim_minus(GuiUDim left, GuiUDim right) noexcept {
+    return GuiUDim{.scale = left.scale - right.scale, .offset = left.offset - right.offset};
+}
+
+UVector position_of(const Metrics& metrics) noexcept {
+    return UVector{.x = metrics.x, .y = metrics.y};
+}
+
+// URect::getSize: max - min. Sau setWindowArea_impl nó có thể lệch 1 ulp so với cỡ đã đặt.
+UVector area_size_of(const Metrics& metrics) noexcept {
+    return UVector{.x = udim_minus(metrics.far_x, metrics.x), .y = udim_minus(metrics.far_y, metrics.y)};
+}
+
+// Window::setWindowArea_impl: d_area.setSize(size) rồi d_area.setPosition(position). setSize đặt
+// max = min + size; setPosition đặt min = position và max = position + (max - min); cả hai đi qua
+// cộng trừ float32 nên max không nhất thiết bằng position + size.
+void set_window_area(Metrics& metrics, const UVector& position, const UVector& size) noexcept {
+    metrics.w = size.x;
+    metrics.h = size.y;
+    const UVector corner{.x = udim_plus(metrics.x, size.x), .y = udim_plus(metrics.y, size.y)};
+    const UVector extent{.x = udim_minus(corner.x, metrics.x), .y = udim_minus(corner.y, metrics.y)};
+    metrics.x = position.x;
+    metrics.y = position.y;
+    metrics.far_x = udim_plus(position.x, extent.x);
+    metrics.far_y = udim_plus(position.y, extent.y);
+}
+
+void set_position_to(Metrics& metrics, const std::optional<UVector>& position) noexcept {
+    if (position) set_window_area(metrics, *position, area_size_of(metrics));
+}
+
+void set_size_to(Metrics& metrics, const std::optional<UVector>& size) noexcept {
+    if (size) set_window_area(metrics, position_of(metrics), *size);
+}
+
+// UnifiedAreaRect: setWindowArea(area.min, area.max - area.min).
 void set_area_rect(Metrics& metrics, const std::optional<URect>& rect) noexcept {
     if (!rect) return;
-    metrics.x = rect->min.x;
-    metrics.y = rect->min.y;
-    metrics.w.scale = rect->max.x.scale - rect->min.x.scale;
-    metrics.w.offset = rect->max.x.offset - rect->min.x.offset;
-    metrics.h.scale = rect->max.y.scale - rect->min.y.scale;
-    metrics.h.offset = rect->max.y.offset - rect->min.y.offset;
+    const UVector size{.x = udim_minus(rect->max.x, rect->min.x), .y = udim_minus(rect->max.y, rect->min.y)};
+    set_window_area(metrics, rect->min, size);
 }
 
-// AbsolutePosition, AbsoluteSize ghi điểm ảnh; Position, Size ghi tỉ lệ 0..1 của cha.
-void set_pair(Metrics& metrics, UDimSlot slot, std::string_view text, bool is_absolute) noexcept {
+// Cặp số của chuỗi "x y" thành vector: AbsolutePosition, AbsoluteSize ghi điểm ảnh; Position, Size
+// ghi tỉ lệ 0..1 của cha. Chuỗi hỏng thì không có vector.
+std::optional<UVector> pair_vector(std::string_view text, bool is_absolute) noexcept {
     const std::optional<GuiUDim> pair = parse_udim(text);
-    if (!pair) return;
+    if (!pair) return std::nullopt;
     if (is_absolute) {
-        metrics.*slot.across = GuiUDim{.scale = 0.0F, .offset = pixel_align(pair->scale)};
-        metrics.*slot.down = GuiUDim{.scale = 0.0F, .offset = pixel_align(pair->offset)};
-        return;
+        return UVector{.x = GuiUDim{.scale = 0.0F, .offset = pixel_align(pair->scale)},
+            .y = GuiUDim{.scale = 0.0F, .offset = pixel_align(pair->offset)}};
     }
-    metrics.*slot.across = GuiUDim{.scale = pair->scale, .offset = 0.0F};
-    metrics.*slot.down = GuiUDim{.scale = pair->offset, .offset = 0.0F};
+    return UVector{.x = GuiUDim{.scale = pair->scale, .offset = 0.0F}, .y = GuiUDim{.scale = pair->offset, .offset = 0.0F}};
 }
 
 void apply_flag(Metrics& metrics, const Setting& setting) noexcept {
@@ -159,21 +190,24 @@ void apply_flag(Metrics& metrics, const Setting& setting) noexcept {
     if (setting.name == "AlwaysOnTop") metrics.is_on_top = parse_bool(setting.value);
 }
 
+// UnifiedPosition, UnifiedSize: chuỗi "{{s,o},{s,o}}"; hỏng thì giữ nguyên.
 void set_position(Metrics& metrics, std::string_view text) noexcept {
-    set_vector(metrics, kPosition, parse_uvector(text));
+    set_position_to(metrics, parse_uvector(text));
 }
 
 void set_size(Metrics& metrics, std::string_view text) noexcept {
-    set_vector(metrics, kSize, parse_uvector(text));
+    set_size_to(metrics, parse_uvector(text));
 }
 
 // UnifiedXPosition, UnifiedYPosition: một UDim "{s,o}"; hỏng thì giữ nguyên.
 void set_across(Metrics& metrics, std::string_view text) noexcept {
-    metrics.x = parse_udim(text).value_or(metrics.x);
+    const std::optional<GuiUDim> across = parse_udim(text);
+    if (across) set_position_to(metrics, UVector{.x = *across, .y = metrics.y});
 }
 
 void set_down(Metrics& metrics, std::string_view text) noexcept {
-    metrics.y = parse_udim(text).value_or(metrics.y);
+    const std::optional<GuiUDim> down = parse_udim(text);
+    if (down) set_position_to(metrics, UVector{.x = metrics.x, .y = *down});
 }
 
 void set_area(Metrics& metrics, std::string_view text) noexcept {
@@ -181,15 +215,15 @@ void set_area(Metrics& metrics, std::string_view text) noexcept {
 }
 
 void set_pixel_position(Metrics& metrics, std::string_view text) noexcept {
-    set_pair(metrics, kPosition, text, true);
+    set_position_to(metrics, pair_vector(text, true));
 }
 
 void set_ratio_position(Metrics& metrics, std::string_view text) noexcept {
-    set_pair(metrics, kPosition, text, false);
+    set_position_to(metrics, pair_vector(text, false));
 }
 
 void set_ratio_size(Metrics& metrics, std::string_view text) noexcept {
-    set_pair(metrics, kSize, text, false);
+    set_size_to(metrics, pair_vector(text, false));
 }
 
 // Size và AbsoluteSize của CEGUIBase.dll 2026 (RVA 0xb4c90, 0xb4270) bỏ qua khi rộng hay cao âm;
@@ -201,12 +235,12 @@ bool is_negative_pair(std::string_view text) noexcept {
 
 void set_pixel_size(Metrics& metrics, std::string_view text) noexcept {
     if (is_negative_pair(text)) return;
-    set_pair(metrics, kSize, text, true);
+    set_size_to(metrics, pair_vector(text, true));
 }
 
 void set_plain_size(Metrics& metrics, std::string_view text) noexcept {
     if (is_negative_pair(text)) return;
-    set_pair(metrics, kSize, text, false);
+    set_size_to(metrics, pair_vector(text, false));
 }
 
 // "Centre" là giữa, last ("Right" hay "Bottom") là cuối, chuỗi khác là đầu.
@@ -226,11 +260,15 @@ void set_vertical(Metrics& metrics, std::string_view text) noexcept {
 // AbsoluteWidth và AbsoluteHeight: script đổi cỡ một chiều bằng điểm ảnh (Window::setWidth, setHeight
 // với Absolute); chiều kia giữ nguyên. Không đọc được số thì bỏ.
 void set_absolute_width(Metrics& metrics, std::string_view text) noexcept {
-    if (const std::optional<float> value = parse_float(text)) metrics.w = GuiUDim{.scale = 0.0F, .offset = *value};
+    const std::optional<float> value = parse_float(text);
+    if (!value) return;
+    set_size_to(metrics, UVector{.x = GuiUDim{.scale = 0.0F, .offset = *value}, .y = area_size_of(metrics).y});
 }
 
 void set_absolute_height(Metrics& metrics, std::string_view text) noexcept {
-    if (const std::optional<float> value = parse_float(text)) metrics.h = GuiUDim{.scale = 0.0F, .offset = *value};
+    const std::optional<float> value = parse_float(text);
+    if (!value) return;
+    set_size_to(metrics, UVector{.x = area_size_of(metrics).x, .y = GuiUDim{.scale = 0.0F, .offset = *value}});
 }
 
 using Apply = void (*)(Metrics&, std::string_view) noexcept;
@@ -294,9 +332,10 @@ bool is_sheet(const GuiType* type) noexcept {
 // look.
 Metrics metrics_of(const GuiAsset& asset, const Placed& placed, const Place& input) {
     Metrics metrics;
-    const float whole = is_sheet(placed.type) ? 1.0F : 0.0F;
-    metrics.w.scale = whole;
-    metrics.h.scale = whole;
+    if (is_sheet(placed.type)) {
+        const GuiUDim whole{.scale = 1.0F, .offset = 0.0F};
+        set_size_to(metrics, UVector{.x = whole, .y = whole});
+    }
     if (placed.look != nullptr) apply_range(asset, placed.look->properties, metrics);
     apply_range(asset, placed.window->properties, metrics);
     apply_forced(input, placed.window->name, metrics);
@@ -318,10 +357,17 @@ float anchor_shift(const Reach& reach) noexcept {
     return reach.anchor == Anchor::kCentre ? gap * 0.5F : gap;
 }
 
-Box box_of(Box parent, const Metrics& metrics) noexcept {
+// Cỡ UDim mà d_pixelSize của cửa sổ được tính từ đó: sau onParentSized (is_resized) là max - min của
+// vùng, trước đó là cỡ của lần setWindowArea_impl gần nhất.
+UVector pixel_size_of(const Metrics& metrics, bool is_resized) noexcept {
+    return is_resized ? area_size_of(metrics) : UVector{.x = metrics.w, .y = metrics.h};
+}
+
+Box box_of(Box parent, const Metrics& metrics, bool is_resized) noexcept {
     Box box;
-    box.w = abs_of(metrics.w, parent.w);
-    box.h = abs_of(metrics.h, parent.h);
+    const UVector size = pixel_size_of(metrics, is_resized);
+    box.w = abs_of(size.x, parent.w);
+    box.h = abs_of(size.y, parent.h);
     const Reach across{.parent = parent.w, .own = box.w, .anchor = metrics.across};
     const Reach down{.parent = parent.h, .own = box.h, .anchor = metrics.down};
     const float left = abs_of(metrics.x, parent.w) + anchor_shift(across);
@@ -356,6 +402,25 @@ Placed typed_window(const GuiAsset& asset, const GuiWindow& window) {
     return placed;
 }
 
+// Layout có nhiều cửa sổ gốc thì client chỉ gắn cửa sổ gốc cuối vào tấm nền (GUILayout), nên chỉ
+// nó nhận onParentSized. Cửa sổ index là gốc.
+bool is_last_root(const GuiAsset& asset, std::size_t index) noexcept {
+    const auto first_of = [](const GuiLayout& layout) { return static_cast<std::size_t>(layout.windows.first); };
+    const auto next = std::ranges::upper_bound(asset.layouts, index, std::ranges::less{}, first_of);
+    if (next == asset.layouts.begin()) return true;
+    const GuiRange range = std::prev(next)->windows;
+    const std::size_t end = std::min(static_cast<std::size_t>(range.first) + range.count, asset.windows.size());
+    const auto later = asset.windows | std::views::take(end) | std::views::drop(index + 1);
+    return std::ranges::none_of(later, [](const GuiWindow& window) { return window.parent < 0; });
+}
+
+// onParentSized chạy lại cỡ của con khi cha có thành phần scale ở cạnh max (CEGUI Window::
+// onParentSized: d_area.d_max có scale khác 0).
+bool has_far_scale(const Metrics& metrics) noexcept {
+    return metrics.far_x.scale < 0.0F || metrics.far_x.scale > 0.0F || metrics.far_y.scale < 0.0F ||
+           metrics.far_y.scale > 0.0F;
+}
+
 // Cửa sổ ở chỉ số index khi các cửa sổ đứng trước (before) đã đặt.
 Placed place_window(const GuiAsset& asset, const Place& input, std::span<const Placed> before, std::size_t index) {
     const GuiWindow& window = asset.windows.at(index);
@@ -364,7 +429,10 @@ Placed place_window(const GuiAsset& asset, const Place& input, std::span<const P
     const bool is_root = window.parent < 0;
     const Box screen{.x = 0.0F, .y = 0.0F, .w = input.width, .h = input.height};
     const Placed* parent = is_root ? nullptr : &before[static_cast<std::size_t>(window.parent)];
-    placed.screen = box_of(is_root ? screen : parent->screen, metrics);
+    // Gốc cuối của layout được gắn vào tấm nền; con chỉ bị tính lại khi cha bị tính lại và truyền xuống.
+    placed.is_resized = is_root ? is_last_root(asset, index) : (parent->is_resized && parent->is_resizing_children);
+    placed.is_resizing_children = has_far_scale(metrics);
+    placed.screen = box_of(is_root ? screen : parent->screen, metrics, placed.is_resized);
     const bool is_parent_on = is_root || parent->is_visible;
     const bool is_opened = !is_root || is_root_open(input, window.name);
     const bool is_hidden = is_listed(input.hidden, window.name);
