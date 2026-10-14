@@ -70,10 +70,17 @@
     hay máy chủ, không nằm trong CMake.
   - Máy chủ: bảy exe khởi động và dừng theo thứ tự dưới trình giám sát, gate nghe hai cổng và giữ
     phiên đã bắt tay (`gate.toml` `[listen]` game 7000/auth 7001; sau `SessionStart` gửi `UiConfig`
-    rồi `Position`). Đã có logic tài khoản/nhân vật dùng chung (`src/server/account/`: sổ, luật,
-    vé, RPC loopback, bản SQL) và `serve_auth`/`serve_game` qua ipc; `store`/`auth`/`billing`/
-    `world`/`zone` mới in `ready` rồi chờ. Chưa có migration nào của database, client chưa nối
-    máy chủ — P2 còn dở, mốc và số đo ở `docs/KE-HOACH-SERVER.md` mục 10.
+    rồi `Position`; gate kiểm tốc độ đi bằng `guard`). Đã có logic tài khoản/nhân vật dùng chung
+    (`src/server/account/`: sổ, luật, vé, RPC loopback, bản SQL) và `serve_auth`/`serve_game` qua ipc.
+    `zone` chạy thật (tick 20 Hz, lưới AOI, quái và NPC đặt từ dữ liệu cảnh `src/server/scenedata`
+    với 325 thư mục cảnh, luật đi từ lưới `.path` của client 2026 và kéo người chơi về bằng
+    `Relay::kPlace`, lưu điểm đứng; kênh bền gate ↔ zone ở `src/server/ipc`; `docs/SERVER-DI-CHUYEN.md`,
+    `docs/SERVER-SCENEDATA.md`); `billing` chạy thật (sổ điểm chỉ-thêm, webhook ký HMAC, đổi điểm hai
+    pha; `docs/SERVER-BILLING.md`); `world` còn in `ready` rồi chờ. Lõi gameplay thuần đã có và có test
+    nhưng chưa nối vào zone, world, gate hay protocol: `actor`, `combat`, `item`, `loot`, `shop`, `forge`,
+    `ops`, `bus`, `ledger`, `mission`, `talk`, `handlers`, `social` (`docs/SERVER-COMBAT.md`,
+    `SERVER-ITEM.md`, `SERVER-MISSION.md`, `SERVER-SOCIAL.md`). Chưa có migration nào của database,
+    client chưa nối máy chủ — mốc và số đo ở `docs/KE-HOACH-SERVER.md` mục 10 và `docs/TIEN-DO.md`.
 - Nền tảng đích: Windows x64 (MSVC 19.51 là bản phát hành; GCC 16 MinGW và Clang 23 để kiểm chéo;
   GCC MinGW không dựng `fs`, `shader`, `gpu`, `resource`, `render`, module `ui` và phần hiển thị
   có GPU của client, còn `gui` và `ui/panel` thì có, nên `gcc-debug` chỉ kiểm chéo phần không có
@@ -93,8 +100,8 @@
   control, audio,
   audiotool, seal, sealtool, gui, hero, quest (nhiệm vụ nhận được, sổ 20 ô, theo dõi), skill (bảng
   và sách kỹ năng, action), ui (panel), client (stage, map, world, display, viewer);
-  dùng chung ở `src/shared/`: protocol (tầng byte, khung, kênh, danh mục tin sinh từ bảng: 22 tin
-  version 2 của bốn nhóm phiên, nhân vật, di chuyển, xác thực), secure (bắt tay
+  dùng chung ở `src/shared/`: protocol (tầng byte, khung, kênh, danh mục tin sinh từ bảng: 27 tin
+  version 3 của năm nhóm phiên, nhân vật, di chuyển, thế giới, xác thực), secure (bắt tay
   và bản ghi mã hoá nằm dưới khung, gọi libsodium; `docs/SERVER-BAO-MAT.md`), table (TSV),
   link (nối net + protocol + secure); mạng ở `engine/net` (socket TCP không chặn, tập chờ);
   của máy chủ: content (kiểm bảng TSV và tham chiếu chéo), linttool (exe
@@ -103,8 +110,11 @@
   `supervisor`, `stored`, `authd`, `billingd`, `worldd`, `zoned`, `gated`; giao kèo ở mục 3.1 của
   `docs/KE-HOACH-SERVER.md`), gate (bảng kết nối
   và vòng tick 60 Hz của `thienlong_gate`: exe duy nhất đã mở cổng, sau bắt tay mới xử lý `Hello`,
-  `Ping`, `Logout`; năm exe `store`, `auth`, `billing`, `world`, `zone` mới in `ready` rồi chờ
-  dừng) — bảng tầng ở `cmake/GameLayers.cmake`, nguồn sự thật về ai include ai.
+  `Ping`, `Logout`, rồi chuyển tin di chuyển cho zone), ipc (kênh bền niêm phong giữa các tiến
+  trình), zone, scenedata (dữ liệu cảnh), ids (kiểu ID mạnh), dice (xúc xắc tất định), billing, và
+  lõi gameplay thuần actor, combat, item, loot, shop, forge, ops, bus, ledger, mission, talk,
+  handlers, social (mục "Máy chủ" ở trên); `world` mới in `ready` rồi chờ dừng) — bảng tầng ở
+  `cmake/GameLayers.cmake`, nguồn sự thật về ai include ai.
   Hạ tầng (core, window, math, fs, jobs, capture, shader, gpu, resource, render) chép từ Forge2;
   logic game (ogre, anim, motion, table, look, avatar, control gồm cử chỉ chạm, cần gạt) port
   thẳng từ TLBB Dev (`docs/NGUON-TLBB.md`); camera và chuột của `control` port từ mã máy của
@@ -176,7 +186,7 @@
     tệp ini cạnh exe thì người chơi sửa được. `dev/server/config/client.toml` (`[hud] avatar_frame = "round"` hoặc
     `"square"`, bộ đọc `config::read_client`, lint bằng `lint_config.py`) do gate đọc lúc khởi động (thiếu hay
     sai thì gate không chạy). Sau `SessionStart` gate gửi tin `UiConfig` (0x8109, `since` 2, `protocol::kVersion`
-    thành 2) cho client có `Hello.version >= 2`; client khai phiên bản 1 không nhận vì coi tin lạ là vi phạm.
+    thành 2, nay là 3 vì có thêm nhóm thế giới) cho client có `Hello.version >= 2`; client khai phiên bản 1 không nhận vì coi tin lạ là vi phạm.
     Client CHƯA nhận: chưa mở socket nào, nên exe vẫn dùng giá trị gắn lúc dựng ở `client.build.toml`; khi có module
     nối máy chủ thì `UiConfig` đè lên giá trị gắn. Đã chạy thật bằng một probe tạm, không vào repo (`Table` thật với
     auth và store giả): Hello 2, Login, EnterGame cho ra `SessionStart`, `UiConfig`, `Position` với khung đúng như
@@ -570,9 +580,13 @@ Chỉ mục `docs/BAY-DA-BIET.md`: sắp làm một việc kể dưới đây th
   `thread_local` cho kiểu có destructor; viết `if constexpr` không có `else`; gắn `target("sse4.1")`
   bằng pragma; thêm tệp `.rc`; chạy `check.py` trên tệp include header của Vulkan SDK (`dxcapi.h`,
   `slang.h`); đổi cách trình dịch shader ghép phản chiếu (`kPipeline`); ép con trỏ hàm lấy từ DLL; dựng
-  `gcc-debug` trên Windows (SDL3, test `Not Run` vì thư viện vcpkg dựng bằng MSVC).
+  `gcc-debug` trên Windows (SDL3, test `Not Run` vì thư viện vcpkg dựng bằng MSVC); đặt tên biến
+  `far`/`near` trong tệp include `core/win32.hpp`; chạy phần clang-tidy của `check.py` (cần
+  `CPP23_TIDY_ARGS`, không lấy -I từ `CPP23_G14`).
 - **Công cụ Python và git:** đưa chữ vào stdin của tiến trình con (`git apply`); tách cây làm việc
-  thành nhiều commit; gõ tên nhánh `server` trong lệnh git.
+  thành nhiều commit; gõ tên nhánh `server` trong lệnh git; nghiệm thu trong worktree sạch (thiếu
+  thư mục gitignore như `dev/server/tables/shared`); giao việc cho phiên con (chúng xoá scratchpad
+  dùng chung).
 - **Test và công cụ đụng máy người dùng:** sửa `SRC/window/window.cpp`; viết hay chạy test, công cụ
   đụng cửa sổ, con trỏ chuột hay bàn phím thật; bấm thử, gõ thử giao diện (`click_shot.py`,
   `desk_watch.py`).

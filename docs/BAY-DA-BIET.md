@@ -85,6 +85,9 @@ mục ở mục 11.
   `undefined reference`): ctest báo `Not Run`, không phải lỗi mã. Hai test đó vẫn chạy được ở MSVC và `clang-asan`. Đo
   2026-10-14: 70/74 test qua, 0 lỗi biên dịch. Libpq cũng vắng ở bản này, nên `auth` và `store` không in hai dòng
   "bỏ qua database" mà `server_boot_tests.cpp` chờ ở MSVC và Clang (test nhận 0 hoặc 1 lần mỗi dòng).
+- Phần clang-tidy của `check.py` chỉ nhận thư mục include qua `CPP23_TIDY_ARGS`, không lấy từ `CPP23_G14`/`CPP23_C20`: đặt hai biến
+  trình dịch mà quên biến này thì phần biên dịch xanh còn clang-tidy báo `'bus/bus.hpp' file not found` cho mọi tệp test cùng hàng chục
+  lỗi giả đi theo (đo 2026-10-15). Đặt cả ba cùng một chuỗi, ví dụ `-Iengine -Isrc/shared -Isrc/server -ITest`, rồi chạy.
 
 ## Công cụ Python và git
 
@@ -100,6 +103,13 @@ mục ở mục 11.
   2026-10-09): `git log --oneline -1 server` dừng với `fatal: ambiguous argument 'server': both
   revision and filename`. Thêm `--` sau tên nhánh: `git log --oneline -1 server --`; lệnh nhận cả
   nhánh lẫn đường dẫn (`log`, `diff`, `show`, `checkout`) đều thế.
+- Worktree sạch để nghiệm thu một phase không có thư mục bị gitignore, nên `dev/server/tables/shared` vắng: CMake chỉ in "chưa có
+  dev/server/tables/shared" và các test đọc bảng thật bỏ ca đó lặng lẽ, ra kết quả xanh mà chưa kiểm bảng thật (đo 2026-10-15 ở các test
+  của item, loot, shop, mission, talk). Chép sang trước khi chạy: `robocopy dev\server\tables\shared <worktree>\dev\server\tables\shared
+  /E` (574 tệp, 88 MB), và đọc đầu ra của `mission_data_tests`/`talk_data_tests` để thấy dòng `[độ phủ]` thật.
+- Giao việc cho phiên con: ba phiên con xoá CẢ scratchpad dùng chung của phiên khi "dọn" (đo 2026-10-15), mất luôn công cụ của phiên điều
+  phối (`stage_mod.py`, wrapper dựng, script dọn DB). Dặn rõ "chỉ xoá tệp do chính bạn tạo" và để công cụ dùng lại vào `TOOLS/`, không
+  để ở scratchpad.
 
 ## Test và công cụ đụng máy người dùng
 
