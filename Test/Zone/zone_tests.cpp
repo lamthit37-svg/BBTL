@@ -5,6 +5,7 @@
 #include "protocol/wire.hpp"
 #include "test.hpp"
 #include "zone/aoi.hpp"
+#include "zone/content.hpp"
 #include "zone/host.hpp"
 #include "zone/outbox.hpp"
 #include "zone/saver.hpp"
@@ -16,6 +17,7 @@
 #include <cmath>
 #include <cstddef>
 #include <cstdint>
+#include <filesystem>
 #include <numbers>
 #include <optional>
 #include <mutex>
@@ -127,7 +129,7 @@ void direction_math(Context& context) {
     context.expect(zone::direction_of({.x_cm = 0.0F, .z_cm = -100.0F}, 7) == 49152, "-Z là ba phần tư vòng");
     context.expect(zone::direction_of({.x_cm = 0.2F, .z_cm = 0.2F}, 7) == 7, "bước dưới 1 cm giữ hướng cũ");
     context.expect(zone::direction_of({.x_cm = std::nanf(""), .z_cm = 1.0F}, 9) == 9, "NaN giữ hướng cũ");
-    context.expect(zone::direction_of({.x_cm = 100.0F, .z_cm = -0.0001F}, 7) <= 65535, "sát 2π không tràn u16");
+    context.expect(zone::direction_of({.x_cm = 100.0F, .z_cm = -0.0001F}, 7) == 65535, "sát 2π kẹp ở 65535, không quấn về 0");
 }
 
 // --- scene ---
@@ -262,7 +264,11 @@ void spawned_entities_are_seen(Context& context) {
     Outbox out;
     static_cast<void>(scene.attach(11, arrival(1, 0.0F, 0.0F), out));
     out.clear();
-    zone::Spawn wolf{.kind = protocol::EntityKind::kMonster, .template_id = 42, .level = 9, .x_cm = 300.0F, .z_cm = 0.0F};
+    zone::Spawn wolf;
+    wolf.kind = protocol::EntityKind::kMonster;
+    wolf.template_id = 42;
+    wolf.level = 9;
+    wolf.x_cm = 300.0F;
     const std::optional<std::uint32_t> wolf_id = scene.spawn(wolf, out);
     context.expect(wolf_id.has_value(), "đặt được quái");
     auto seen = seen_in(out);
@@ -283,8 +289,9 @@ void spawned_entities_are_seen(Context& context) {
     out.clear();
     scene.despawn(*wolf_id, out);
     context.expect(!scene.where(*wolf_id).has_value(), "quái đã gỡ");
-    context.expect(!scene.spawn(zone::Spawn{.kind = protocol::EntityKind::kPlayer}, out).has_value(),
-        "spawn không tạo người chơi");
+    zone::Spawn not_a_player;
+    not_a_player.kind = protocol::EntityKind::kPlayer;
+    context.expect(!scene.spawn(not_a_player, out).has_value(), "spawn không tạo người chơi");
     scene.despawn(*scene.entity_of(11), out);
     context.expect(scene.has_session(11), "despawn không gỡ được người chơi");
 }
@@ -471,6 +478,203 @@ void saver_gives_up_when_store_is_dead(Context& context) {
     context.expect(took < std::chrono::seconds{3}, "store chết không giữ zone dừng quá hạn flush");
 }
 
+// --- quái và NPC đặt sẵn ---
+
+[[nodiscard]] scenedata::Spawn row_at(std::uint32_t type, float x_unit, float z_unit, bool is_npc = false) {
+    scenedata::Spawn row;
+    row.type = ids::MonsterTemplateId{type};
+    row.position = core::GroundPoint{.x = x_unit, .z = z_unit};
+    row.position_given = true;
+    row.is_npc = is_npc;
+    return row;
+}
+
+void seeds_convert_units_and_skip_unplaced(Context& context) {
+    scenedata::Scene scene;
+    scene.spawns.push_back(row_at(101, 12.5F, 30.0F));
+    scene.spawns.back().direction = 9; // 9 * 10 + 90 = 180 độ
+    scene.spawns.back().level = 40;
+    scene.spawns.back().respawn_ms = 15000;
+    scene.spawns.push_back(row_at(202, 1.0F, 2.0F, true));
+    scene.spawns.back().name = "Tiêu Phong";
+    scenedata::Spawn blank = row_at(303, 0.0F, 0.0F);
+    blank.position_given = false;
+    scene.spawns.push_back(blank);
+    scenedata::Spawn pet = row_at(404, 3.0F, 4.0F);
+    pet.is_pet = true;
+    scene.spawns.push_back(pet);
+    scene.spawns.push_back(row_at(505, 5.0F, 5.0F));
+
+    const zone::Seeding all = zone::seeds_of(scene, 100, zone::TemplateTable{});
+    context.expect(all.seeds.size() == 4 && all.unplaced == 1 && all.over_cap == 0, "bốn dòng có vị trí, một dòng bỏ trống");
+    const zone::Seed& monster = all.seeds[0];
+    context.expect(monster.what.kind == protocol::EntityKind::kMonster && monster.what.template_id == 101 &&
+            monster.what.level == 40 && monster.respawn_ms == 15000,
+        "quái giữ mẫu, cấp và thời gian hồi sinh");
+    context.expect(monster.what.x_cm == 1250.0F && monster.what.z_cm == 3000.0F, "đơn vị game nhân 100 ra centimet");
+    context.expect(monster.what.direction == 32768, "180 độ là nửa vòng");
+    context.expect(all.seeds[1].what.kind == protocol::EntityKind::kNpc && all.seeds[1].what.name == "Tiêu Phong" &&
+            all.seeds[1].what.level == 0,
+        "NPC giữ tên, cấp 0 nghĩa là lấy theo mẫu");
+    context.expect(all.seeds[2].what.kind == protocol::EntityKind::kPet, "trân thú hoang");
+
+    const zone::Seeding capped = zone::seeds_of(scene, 2, zone::TemplateTable{});
+    context.expect(capped.seeds.size() == 2 && capped.over_cap == 2 && capped.unplaced == 1,
+        "trần chặn từ dòng thứ ba, dòng thừa được đếm");
+    context.expect(zone::seeds_of(scene, 0, zone::TemplateTable{}).seeds.empty(), "trần 0 không đặt gì");
+
+    // Bảng mẫu làm giàu: can_interact = 1 thành NPC, cấp mẫu thay cấp 0 của bảng cảnh, cấp bảng cảnh vẫn thắng.
+    const auto templates = zone::TemplateTable::parse(
+        "# schema 1\nmonster_id\tname\tlevel\tcan_interact\n101\tNhện\t30\t0\n202\tThợ rèn\t60\t1\n505\tChó\t5\t-1\n");
+    context.expect(templates.has_value() && templates->size() == 3, "bảng mẫu đọc được ba dòng");
+    if (!templates) return;
+    const zone::Seeding enriched = zone::seeds_of(scene, 100, *templates);
+    context.expect(enriched.seeds[0].what.level == 40 && enriched.seeds[0].what.kind == protocol::EntityKind::kMonster,
+        "cấp trong bảng cảnh thắng cấp của mẫu");
+    context.expect(enriched.seeds[1].what.kind == protocol::EntityKind::kNpc && enriched.seeds[1].what.level == 60,
+        "mẫu tương tác được là NPC, cấp lấy theo mẫu");
+    context.expect(enriched.seeds[3].what.kind == protocol::EntityKind::kMonster && enriched.seeds[3].what.level == 5,
+        "can_interact = -1 là quái");
+}
+
+void template_table_rejects_bad_text(Context& context) {
+    const auto head = [](std::string_view rows) { return std::string{"monster_id\tlevel\tcan_interact\n"}.append(rows); };
+    context.expect(zone::TemplateTable::parse(head("1\t10\t1\n")).has_value(), "bảng tối thiểu hợp lệ");
+    context.expect(zone::TemplateTable::parse(head("1\t10\t1\r\n2\t11\t0\r\n")).has_value(), "xuống dòng CRLF");
+    context.expect(!zone::TemplateTable::parse(""), "rỗng không có dòng tên cột");
+    context.expect(!zone::TemplateTable::parse("monster_id\tlevel\n1\t2\n"), "thiếu cột can_interact");
+    context.expect(!zone::TemplateTable::parse(head("1\t10\n")), "dòng thiếu ô");
+    context.expect(!zone::TemplateTable::parse(head("x\t10\t1\n")), "id không phải số");
+    context.expect(!zone::TemplateTable::parse(head("1\t70000\t1\n")), "cấp ngoài u16");
+    context.expect(!zone::TemplateTable::parse(head("-5\t1\t1\n")), "id âm");
+    context.expect(!zone::TemplateTable::parse(head("1\t10\t1\n1\t11\t0\n")), "id trùng");
+    context.expect(!zone::TemplateTable::parse(std::string(300, '\t')), "dòng tên cột quá nhiều cột");
+}
+
+void scene_directory_lookup_and_hostile_tables(Context& context) {
+    constexpr std::string_view kText =
+        "# schema 1\n"
+        "client_id_first\tclient_id_last\tscene_dir\tclient_res_id\tmatch\n"
+        "0\t0\tluoyang\t0\tid\n"
+        "2\t2\tdali\t2\tid\n"
+        "61\t62\tleitai_1\t82\tid\n"
+        "65535\t65535\tlast\t1\tid\n";
+    const auto directory = zone::SceneDirectory::parse(kText);
+    context.expect(directory.has_value() && directory->range_count() == 4, "bốn khoảng đọc được");
+    if (!directory) return;
+    context.expect(directory->dir_of(0) == "luoyang" && directory->dir_of(2) == "dali", "id đơn");
+    context.expect(directory->dir_of(61) == "leitai_1" && directory->dir_of(62) == "leitai_1", "khoảng gồm cả hai đầu");
+    context.expect(directory->dir_of(1).empty() && directory->dir_of(63).empty() && directory->dir_of(5000).empty(),
+        "id nằm giữa các khoảng không có thư mục");
+    context.expect(directory->dir_of(65535) == "last", "id lớn nhất của u16");
+
+    const auto header = [](std::string_view rows) {
+        return std::string{"client_id_first\tclient_id_last\tscene_dir\tclient_res_id\tmatch\n"}.append(rows);
+    };
+    context.expect(!zone::SceneDirectory::parse(header("5\t9\ta\t0\tid\n7\t7\tb\t0\tid\n")), "khoảng chồng nhau bị từ chối");
+    context.expect(!zone::SceneDirectory::parse(header("5\t9\ta\t0\tid\n5\t5\tb\t0\tid\n")), "trùng id đầu bị từ chối");
+    context.expect(!zone::SceneDirectory::parse(header("1\t9\ta\t0\tid\n9\t12\tb\t0\tid\n")), "chạm đầu mút bị từ chối");
+    context.expect(!zone::SceneDirectory::parse(header("9\t5\ta\t0\tid\n")), "đầu lớn hơn cuối");
+    context.expect(!zone::SceneDirectory::parse(header("1\t1\t../etc\t0\tid\n")), "tên thư mục dẫn ra ngoài");
+    context.expect(!zone::SceneDirectory::parse(header("1\t1\ta/b\t0\tid\n")), "tên thư mục có dấu gạch");
+    context.expect(!zone::SceneDirectory::parse(header("1\t1\t\t0\tid\n")), "tên thư mục rỗng");
+    context.expect(!zone::SceneDirectory::parse(header("1\t70000\ta\t0\tid\n")), "id ngoài u16");
+    context.expect(!zone::SceneDirectory::parse(header("x\t1\ta\t0\tid\n")), "id không phải số");
+    context.expect(zone::SceneDirectory::parse(header("")).has_value(), "bảng không dòng nào là hợp lệ, không có cảnh");
+}
+
+void host_seeds_scene_once_on_creation(Context& context) {
+    int calls = 0;
+    Host::Config config;
+    config.seeder = [&calls](std::uint16_t scene) {
+        ++calls;
+        std::vector<zone::Seed> seeds;
+        if (scene != 1) return seeds;
+        for (const float x : {500.0F, 1500.0F, 90000.0F}) {
+            zone::Spawn what;
+            what.kind = protocol::EntityKind::kNpc;
+            what.template_id = 7000 + static_cast<std::uint32_t>(x / 1000.0F);
+            what.x_cm = x;
+            what.z_cm = 500.0F;
+            seeds.push_back(zone::Seed{.what = what});
+        }
+        return seeds;
+    };
+    Host host{config};
+    Outbox out;
+    host.handle(frame_of(ipc::Relay::kAttach, 11, ipc::encode_body(arrival(1, 600.0F, 500.0F, 1))), out);
+    const auto first = seen_in(out);
+    const auto shown = of_kind<protocol::EntityAppear>(first, 11);
+    context.expect(calls == 1, "seeder chỉ được hỏi khi cảnh được tạo");
+    context.expect(shown.size() == 2 && shown[0].kind == protocol::EntityKind::kNpc, "người vào thấy hai NPC trong cửa sổ, không thấy NPC ở xa");
+    const Scene* scene = host.find(1);
+    context.expect(scene != nullptr && scene->entity_count() == 4 && scene->player_count() == 1,
+        "cảnh có 3 NPC đặt sẵn và 1 người, kể cả NPC ngoài cửa sổ");
+    out.clear();
+    host.handle(frame_of(ipc::Relay::kAttach, 22, ipc::encode_body(arrival(2, 700.0F, 500.0F, 1))), out);
+    context.expect(calls == 1, "người thứ hai vào cảnh cũ không đặt lại");
+    host.handle(frame_of(ipc::Relay::kAttach, 33, ipc::encode_body(arrival(3, 100.0F, 100.0F, 2))), out);
+    context.expect(calls == 2 && host.find(2) != nullptr && host.find(2)->entity_count() == 1, "cảnh khác có seeder riêng, trống");
+}
+
+void host_seeding_leaves_room_for_players(Context& context) {
+    Host::Config config;
+    config.player_max = zone::kEntityMax - 3;
+    config.seeder = [](std::uint16_t) {
+        std::vector<zone::Seed> seeds;
+        for (int at = 0; at < 10; ++at) {
+            zone::Spawn what;
+            what.template_id = 1;
+            what.x_cm = static_cast<float>(at) * 10.0F;
+            seeds.push_back(zone::Seed{.what = what});
+        }
+        return seeds;
+    };
+    Host host{config};
+    Outbox out;
+    host.handle(frame_of(ipc::Relay::kAttach, 11, ipc::encode_body(arrival(1, 0.0F, 0.0F, 1))), out);
+    const Scene* scene = host.find(1);
+    context.expect(scene != nullptr && scene->entity_count() == 3 + 1, "đặt tối đa kEntityMax - player_max, còn chỗ cho người");
+}
+
+// Dữ liệu thật: id 2 của client là Đại Lý. Tự bỏ qua khi bản dựng không có thư mục dữ liệu máy chủ.
+void real_scene_seeds(Context& context) {
+#ifdef GAME_SERVER_DATA
+    const std::filesystem::path root{GAME_SERVER_DATA};
+    std::error_code error;
+    if (!std::filesystem::is_directory(root / "scenes" / "dali", error)) return;
+    const zone::Seeder seeder = zone::disk_seeder(
+        zone::DiskPaths{.scenes = root / "scenes",
+            .ids_table = root / "tables" / "server" / "scene_ids.tsv",
+            .templates = root / "tables" / "shared" / "monsters.tsv"},
+        49000);
+    const std::vector<zone::Seed> seeds = seeder(2);
+    context.expect(!seeds.empty(), "Đại Lý có quái và NPC đặt sẵn");
+    std::size_t npcs = 0;
+    bool inside = true;
+    for (const zone::Seed& one : seeds) {
+        if (one.what.kind == protocol::EntityKind::kNpc) ++npcs;
+        inside = inside && std::isfinite(one.what.x_cm) && std::isfinite(one.what.z_cm) && one.what.x_cm >= 0.0F &&
+            one.what.z_cm >= 0.0F && one.what.x_cm < 100000.0F && one.what.z_cm < 100000.0F;
+    }
+    // NPC chỉ nhận ra được khi có bảng mẫu của client (tables/shared bị git bỏ qua, sinh bởi build_data.py).
+    if (std::filesystem::exists(root / "tables" / "shared" / "monsters.tsv", error)) {
+        context.expect(npcs > 0, "có NPC trong số đó");
+    }
+    context.expect(inside, "toạ độ đổi ra centimet nằm trong khoảng hợp lý (0..1000 m)");
+    context.expect(seeder(65534).empty(), "id lạ không có cảnh nào");
+    Host::Config config;
+    config.seeder = seeder;
+    Host host{config};
+    Outbox out;
+    host.handle(frame_of(ipc::Relay::kAttach, 11, ipc::encode_body(arrival(1, 0.0F, 0.0F, 2))), out);
+    const Scene* scene = host.find(2);
+    context.expect(scene != nullptr && scene->entity_count() == seeds.size() + 1, "cảnh thật đặt đủ số thực thể rồi thêm người");
+#else
+    static_cast<void>(context);
+#endif
+}
+
 // --- relay codec ---
 
 void relay_codec_round_trip(Context& context) {
@@ -514,6 +718,12 @@ constexpr std::array kCases{
     Case{"host_routes_frames", host_routes_frames},
     Case{"host_refuses_bad_attach", host_refuses_bad_attach},
     Case{"relay_codec_round_trip", relay_codec_round_trip},
+    Case{"seeds_convert_units_and_skip_unplaced", seeds_convert_units_and_skip_unplaced},
+    Case{"scene_directory_lookup_and_hostile_tables", scene_directory_lookup_and_hostile_tables},
+    Case{"template_table_rejects_bad_text", template_table_rejects_bad_text},
+    Case{"host_seeds_scene_once_on_creation", host_seeds_scene_once_on_creation},
+    Case{"host_seeding_leaves_room_for_players", host_seeding_leaves_room_for_players},
+    Case{"real_scene_seeds", real_scene_seeds},
     Case{"detach_saves_final_spot", detach_saves_final_spot},
     Case{"autosave_writes_only_walkers", autosave_writes_only_walkers},
     Case{"host_autosaves_each_period", host_autosaves_each_period},

@@ -1,11 +1,12 @@
 #include "zone/host.hpp"
 
+#include <algorithm>
 #include <utility>
 #include <vector>
 
 namespace game::zone {
 
-Host::Host(Config config) : config_(config) {}
+Host::Host(Config config) : config_(std::move(config)) {}
 
 const Scene* Host::find(std::uint16_t scene) const noexcept {
     const auto found = scenes_.find(scene);
@@ -21,7 +22,21 @@ Scene* Host::scene_for(std::uint16_t id) {
     if (Scene* existing = find(id)) return existing;
     if (scenes_.size() >= config_.scene_max) return nullptr;
     const Scene::Config made{.id = id, .grid = config_.grid, .player_max = config_.player_max};
-    return &scenes_.try_emplace(id, made).first->second;
+    Scene& created = scenes_.try_emplace(id, made).first->second;
+    seed(created);
+    return &created;
+}
+
+void Host::seed(Scene& scene) const {
+    if (!config_.seeder) return;
+    // Chưa có ai trong cảnh mới, nên thư báo hiện của spawn() không có người nhận: bỏ.
+    Outbox nobody;
+    const std::size_t room = kEntityMax - std::min<std::size_t>(config_.player_max, kEntityMax);
+    std::size_t placed = 0;
+    for (const Seed& entry : config_.seeder(scene.id())) {
+        if (placed >= room) break;
+        if (scene.spawn(entry.what, nobody)) ++placed;
+    }
 }
 
 void Host::attach(std::uint64_t session, const ipc::Frame& frame, Outbox& out) {

@@ -51,7 +51,10 @@ struct Options {
 
 struct Tally {
     std::atomic<int> entered{0};
+    // EntityAppear của người chơi khác; NPC và quái đếm riêng để bài kiểm "thấy đủ khách" không bị số quái làm mờ.
     std::atomic<int> appear{0};
+    std::atomic<int> npcs{0};
+    std::atomic<int> monsters{0};
     std::atomic<int> disappear{0};
     std::atomic<int> position{0};
     std::atomic<int> failed{0};
@@ -143,7 +146,15 @@ void note(const protocol::GameServerMessage& message, Seen& seen, Tally& tally) 
         seen.refused = true;
     }
     if (std::holds_alternative<protocol::SceneEnter>(message)) ++tally.entered;
-    if (std::holds_alternative<protocol::EntityAppear>(message)) ++tally.appear;
+    if (const auto* shown = std::get_if<protocol::EntityAppear>(&message)) {
+        if (shown->kind == protocol::EntityKind::kPlayer) {
+            ++tally.appear;
+        } else if (shown->kind == protocol::EntityKind::kNpc) {
+            ++tally.npcs;
+        } else {
+            ++tally.monsters;
+        }
+    }
     if (std::holds_alternative<protocol::EntityDisappear>(message)) ++tally.disappear;
     if (std::holds_alternative<protocol::EntityPos>(message)) ++tally.position;
 }
@@ -285,8 +296,9 @@ int main(int argc, char** argv) {
         }
     }
     const int want_seen = options->count - 1;
-    std::println("khách={} vào cảnh={} hiện={} biến mất={} vị trí={} lỗi={}", options->count, tally.entered.load(),
-        tally.appear.load(), tally.disappear.load(), tally.position.load(), tally.failed.load());
+    std::println("khách={} vào cảnh={} hiện={} biến mất={} vị trí={} npc={} quái={} lỗi={}", options->count,
+        tally.entered.load(), tally.appear.load(), tally.disappear.load(), tally.position.load(), tally.npcs.load(),
+        tally.monsters.load(), tally.failed.load());
     if (tally.failed.load() != 0) return 1;
     if (tally.entered.load() != options->count) return 1;
     // Mỗi khách phải thấy mọi khách khác hiện ra ít nhất một lần.

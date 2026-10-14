@@ -3,11 +3,13 @@
 // logic và đổ kết quả vào Outbox. Không biết socket nên test được bằng cách đưa thẳng ipc::Frame.
 //
 // Cảnh tạo lười khi người chơi đầu tiên vào, tới trần scene_max (id cảnh là u16, nên trần chặn kẻ gửi
-// Attach với hàng nghìn id lạ làm phình bộ nhớ). Cảnh đã tạo được giữ lại: quái và NPC sống ở đó.
+// Attach với hàng nghìn id lạ làm phình bộ nhớ). Cảnh đã tạo được giữ lại: quái và NPC sống ở đó. Lúc tạo,
+// Seeder (nếu có) đưa quái và NPC đặt sẵn vào cảnh; số đặt được bị chặn để còn chỗ cho player_max người chơi.
 //
 // Khung hỏng hay phiên lạ không làm hỏng Host: Attach hỏng bị từ chối (kRefuse), khung khác bị bỏ và đếm.
 
 #include "ipc/link.hpp"
+#include "zone/content.hpp"
 #include "zone/scene.hpp"
 
 #include <cstddef>
@@ -23,6 +25,8 @@ public:
         Grid::Spec grid{.cell_cm = 1000.0F, .radius = 2};
         std::size_t player_max = 4000;
         std::size_t scene_max = 256;
+        // Quái và NPC đặt sẵn khi cảnh được tạo; rỗng thì cảnh chỉ có người chơi.
+        Seeder seeder{};
     };
 
     explicit Host(Config config);
@@ -46,6 +50,7 @@ private:
     void attach(std::uint64_t session, const ipc::Frame& frame, Outbox& out);
     void detach(std::uint64_t session, Outbox& out);
     [[nodiscard]] Scene* scene_for(std::uint16_t id);
+    void seed(Scene& scene) const;
 
     Config config_;
     // map để thứ tự chạy các cảnh cố định (logic tất định).

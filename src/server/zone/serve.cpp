@@ -85,6 +85,13 @@ struct Settings {
     }
     Settings settings;
     if (!tune(*zone, settings, error)) return std::nullopt;
+    // Bố cục dev/server và release/server: config, scenes và tables là anh em.
+    const Path data_root = (config_dir.has_filename() ? config_dir : config_dir.parent_path()).parent_path();
+    settings.host.seeder = disk_seeder(
+        DiskPaths{.scenes = data_root / "scenes",
+            .ids_table = data_root / "tables" / "server" / "scene_ids.tsv",
+            .templates = data_root / "tables" / "shared" / "monsters.tsv"},
+        static_cast<std::size_t>(zone->monsters));
     bool found = false;
     for (const config::ProcessBlock& block : cluster->processes) {
         if (block.id.value() != 0) continue;
