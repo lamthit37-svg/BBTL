@@ -22,9 +22,11 @@
 
 #include <algorithm>
 #include <array>
+#include <chrono>
 #include <cstddef>
 #include <cstdint>
 #include <expected>
+#include <limits>
 #include <memory>
 #include <mutex>
 #include <span>
@@ -242,6 +244,7 @@ Status SwapchainVk::build() {
     // Swapchain cũ không còn dùng được kể cả khi lần tạo mới thất bại.
     if (swapchain_ != VK_NULL_HANDLE) vkDestroySwapchainKHR(device, swapchain_, nullptr);
     swapchain_ = created;
+    presents_ = 0;
     extent_ = is_hidden ? VkExtent2D{} : extent;
     format_ = format;
     mode_ = mode;
@@ -384,6 +387,14 @@ Status SwapchainVk::present() {
     info.swapchainCount = 1;
     info.pSwapchains = &swapchain_;
     info.pImageIndices = &current_;
+    // presentId tăng ngặt theo swapchain: số thứ tự của lần present này.
+    const std::uint64_t id = presents_ + 1;
+    VkPresentIdKHR numbered{};
+    numbered.sType = VK_STRUCTURE_TYPE_PRESENT_ID_KHR;
+    numbered.swapchainCount = 1;
+    numbered.pPresentIds = &id;
+    if (reports_shown()) info.pNext = &numbered;
+    presents_ = id;
     const VkResult presented = present_locked(device_->queue(QueueType::kGraphics), info);
     is_acquired_ = false;
     // Bề mặt đổi ngay lúc present: khung này coi như đã trình bày, lần acquire kế báo cần resize.
@@ -391,6 +402,22 @@ Status SwapchainVk::present() {
     if (is_changed) is_stale_ = true;
     if (is_changed || presented == VK_SUCCESS) return ok();
     return device_->failed(presented, "present thất bại");
+}
+
+// vkWaitForPresentKHR đòi đồng bộ ngoài trên swapchain như present: chỉ gọi từ luồng vẽ (lớp này không an
+// toàn đa luồng, xem gpu::Swapchain).
+Status SwapchainVk::wait_shown(std::uint64_t count, std::chrono::nanoseconds timeout) {
+    if (!reports_shown()) return fail(ErrorCode::kUnsupported, "thiết bị không có VK_KHR_present_wait");
+    if (swapchain_ == VK_NULL_HANDLE || is_stale_) return fail(kState, "bề mặt đã đổi, cần resize");
+    if (count == 0 || count > presents_) return fail(ErrorCode::kInvalidArgument, "lần present chưa nộp");
+    const auto nanoseconds = static_cast<std::uint64_t>(std::max<std::int64_t>(timeout.count(), 0));
+    const VkResult waited = device_->wait_for_present()(device_->handle(), swapchain_, count, nanoseconds);
+    if (waited == VK_TIMEOUT) return fail(ErrorCode::kTimeout, "hết hạn chờ ảnh lên màn");
+    const bool is_changed = waited == VK_ERROR_OUT_OF_DATE_KHR || waited == VK_SUBOPTIMAL_KHR;
+    if (is_changed) is_stale_ = true;
+    if (waited == VK_SUCCESS || waited == VK_SUBOPTIMAL_KHR) return ok();
+    if (waited == VK_ERROR_OUT_OF_DATE_KHR) return fail(kState, "bề mặt đã đổi cỡ, cần resize");
+    return device_->failed(waited, "không chờ được ảnh lên màn");
 }
 
 // Rộng rồi cao là thứ tự quen của mọi API cỡ ảnh; chữ ký do gpu::Swapchain định (lệch API-03).

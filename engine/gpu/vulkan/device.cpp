@@ -23,6 +23,7 @@
 
 #include <algorithm>
 #include <array>
+#include <atomic>
 #include <chrono>
 #include <cstddef>
 #include <cstdint>
@@ -414,12 +415,31 @@ using Names = std::vector<const char*>;
     traits.swapchain = has_extension(known, VK_KHR_SWAPCHAIN_EXTENSION_NAME);
     traits.memory_budget = has_extension(known, VK_EXT_MEMORY_BUDGET_EXTENSION_NAME);
     caps.conservative_raster = has_extension(known, conservative);
+    traits.present_wait = traits.swapchain && has_extension(known, VK_KHR_PRESENT_ID_EXTENSION_NAME) &&
+        has_extension(known, VK_KHR_PRESENT_WAIT_EXTENSION_NAME);
     std::vector<const char*> extensions;
     if (traits.swapchain) extensions.push_back(VK_KHR_SWAPCHAIN_EXTENSION_NAME);
     if (traits.memory_budget) extensions.push_back(VK_EXT_MEMORY_BUDGET_EXTENSION_NAME);
     if (caps.conservative_raster) extensions.push_back(conservative);
     return extensions;
 }
+
+// Hai tính năng của VK_KHR_present_id và VK_KHR_present_wait, nối nhau qua pNext.
+struct PresentWaitFeatures {
+    VkPhysicalDevicePresentIdFeaturesKHR id{};
+    VkPhysicalDevicePresentWaitFeaturesKHR wait{};
+
+    PresentWaitFeatures() noexcept {
+        id.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PRESENT_ID_FEATURES_KHR;
+        wait.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PRESENT_WAIT_FEATURES_KHR;
+        id.pNext = &wait;
+    }
+    // pNext trỏ vào chính đối tượng: chép hay dời là trỏ sai.
+    PresentWaitFeatures(const PresentWaitFeatures&) = delete;
+    PresentWaitFeatures& operator=(const PresentWaitFeatures&) = delete;
+    PresentWaitFeatures(PresentWaitFeatures&&) = delete;
+    PresentWaitFeatures& operator=(PresentWaitFeatures&&) = delete;
+};
 
 // Khác gốc: thân vòng lặp của create_queues tách ra đây:
 // lấy hàng đợi rồi tạo timeline nội bộ của nó.
@@ -583,7 +603,21 @@ Status VulkanDevice::create_device() {
     enable_v13(wanted.v13, has.v13);
     read_features(caps_, traits_, has);
 
-    const std::vector<const char*> extensions = pick_extensions(caps_, traits_, physical_);
+    std::vector<const char*> extensions = pick_extensions(caps_, traits_, physical_);
+    // Phần mở rộng có mà tính năng tắt thì không bật: chỉ hỏi tính năng khi thiết bị có phần mở rộng.
+    PresentWaitFeatures present_wait;
+    if (traits_.present_wait) {
+        VkPhysicalDeviceFeatures2 asked{};
+        asked.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FEATURES_2;
+        asked.pNext = &present_wait.id;
+        vkGetPhysicalDeviceFeatures2(physical_, &asked);
+        traits_.present_wait = present_wait.id.presentId != VK_FALSE && present_wait.wait.presentWait != VK_FALSE;
+    }
+    if (traits_.present_wait) {
+        extensions.push_back(VK_KHR_PRESENT_ID_EXTENSION_NAME);
+        extensions.push_back(VK_KHR_PRESENT_WAIT_EXTENSION_NAME);
+        wanted.v13.pNext = &present_wait.id;
+    }
 
     const float priority = 1.0F;
     std::array<VkDeviceQueueCreateInfo, kQueueCount> queue_infos{};
@@ -612,6 +646,10 @@ Status VulkanDevice::create_queues() {
         started = start_queue(device_, queues_.at(index));
     }
     if (!started) return started;
+    if (traits_.present_wait) {
+        wait_for_present_ = device_function<PFN_vkWaitForPresentKHR>(device_, "vkWaitForPresentKHR");
+        traits_.present_wait = wait_for_present_ != nullptr;
+    }
     if (!instance_->has_debug_utils()) return ok();
     using SetName = PFN_vkSetDebugUtilsObjectNameEXT;
     using Begin = PFN_vkCmdBeginDebugUtilsLabelEXT;

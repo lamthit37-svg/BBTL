@@ -140,6 +140,9 @@ struct Traits {
     // Nhiều lệnh vẽ gián tiếp trong một lời gọi; thiếu thì backend lặp từng lệnh.
     bool multi_draw = false;
     bool bias_clamp = false;
+    // VK_KHR_present_id và VK_KHR_present_wait cùng bật (cả phần mở rộng lẫn tính năng): swapchain gắn số cho
+    // mỗi lần present và chờ được tới lúc nó lên màn.
+    bool present_wait = false;
 };
 
 // Một hàng đợi vật lý. Hàng đợi thiếu trên thiết bị dùng chung hàng Graphics.
@@ -217,6 +220,8 @@ public:
     [[nodiscard]] VkPhysicalDevice physical() const noexcept { return physical_; }
     [[nodiscard]] const Instance& instance() const noexcept { return *instance_; }
     [[nodiscard]] const DebugApi& debug() const noexcept { return debug_; }
+    // vkWaitForPresentKHR; nullptr khi traits().present_wait sai.
+    [[nodiscard]] PFN_vkWaitForPresentKHR wait_for_present() const noexcept { return wait_for_present_; }
     [[nodiscard]] Queue& queue(QueueType type) noexcept {
         return queues_.at(queue_index_.at(std::to_underlying(type)));
     }
@@ -307,6 +312,7 @@ private:
     AdapterInfo adapter_{};
     DeviceCaps caps_{};
     DebugApi debug_{};
+    PFN_vkWaitForPresentKHR wait_for_present_ = nullptr;
     VkPhysicalDeviceMemoryProperties memory_{};
     VkPhysicalDeviceLimits limits_{};
     Traits traits_{};

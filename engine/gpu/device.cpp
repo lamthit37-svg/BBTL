@@ -23,10 +23,13 @@
 
 #include <algorithm>
 #include <array>
+#include <chrono>
+#include <cstdint>
 #include <memory>
 #include <optional>
 #include <span>
 #include <string_view>
+#include <utility>
 #include <vector>
 
 namespace game::gpu {
@@ -97,6 +100,12 @@ std::string_view name(DeviceLoss loss) noexcept {
     case DeviceLoss::kOutOfMemory: return "out_of_memory";
     }
     return {};
+}
+
+Status Swapchain::wait_shown(std::uint64_t count, std::chrono::nanoseconds timeout) {
+    static_cast<void>(count);
+    static_cast<void>(timeout);
+    return core::fail(ErrorCode::kUnsupported, "bề mặt không báo lúc ảnh lên màn");
 }
 
 std::string_view name(PresentMode mode) noexcept {

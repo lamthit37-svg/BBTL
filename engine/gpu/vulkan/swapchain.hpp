@@ -11,6 +11,8 @@
 
 #include "gpu/vulkan/device.hpp"
 
+#include <chrono>
+#include <cstdint>
 #include <vector>
 
 namespace game::gpu::vulkan {
@@ -40,6 +42,9 @@ public:
     [[nodiscard]] PresentMode present_mode() const noexcept override { return mode_; }
     [[nodiscard]] std::uint32_t width() const noexcept override { return extent_.width; }
     [[nodiscard]] std::uint32_t height() const noexcept override { return extent_.height; }
+    [[nodiscard]] bool reports_shown() const noexcept override { return device_->traits().present_wait; }
+    [[nodiscard]] std::uint64_t presents() const noexcept override { return presents_; }
+    [[nodiscard]] Status wait_shown(std::uint64_t count, std::chrono::nanoseconds timeout) override;
 
     // Phần dưới do VulkanDevice::submit gọi khi lần nộp đặt present_target là swapchain này.
     // Đã acquire một ảnh mà chưa lần nộp nào nhận nó.
@@ -86,6 +91,8 @@ private:
     bool is_submitted_ = false;
     // Bề mặt đã đổi (cỡ, xoay): phải resize trước lần acquire kế.
     bool is_stale_ = false;
+    // Số present đã nộp với swapchain_ hiện tại; cũng là presentId (VkPresentIdKHR) của lần cuối.
+    std::uint64_t presents_ = 0;
 };
 
 } // namespace game::gpu::vulkan

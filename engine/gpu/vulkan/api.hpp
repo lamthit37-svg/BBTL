@@ -11,6 +11,7 @@
 
 #include <vulkan/vulkan.h>
 
+#include <bit>
 #include <cstdint>
 #include <string_view>
 
@@ -147,14 +148,15 @@ inline void cmd_write_timestamp2(VkCommandBuffer buffer, VkPipelineStageFlags2 s
 // kiểu, ép về chữ ký của đúng tên đã hỏi là hợp đồng của API.
 template <class Function>
 [[nodiscard]] Function instance_function(VkInstance instance, const char* name) noexcept {
-    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
-    return reinterpret_cast<Function>(vkGetInstanceProcAddr(instance, name));
+    // bit_cast chứ không reinterpret_cast: Clang -Wcast-function-type-strict chặn ép giữa hai chữ ký hàm (BAY-DA-BIET).
+    // NOLINTNEXTLINE(bugprone-bitwise-pointer-cast): con trỏ hàm do trình nạp Vulkan trả đúng chữ ký đã hỏi theo tên.
+    return std::bit_cast<Function>(vkGetInstanceProcAddr(instance, name));
 }
 
 template <class Function>
 [[nodiscard]] Function device_function(VkDevice device, const char* name) noexcept {
-    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
-    return reinterpret_cast<Function>(vkGetDeviceProcAddr(device, name));
+    // NOLINTNEXTLINE(bugprone-bitwise-pointer-cast): xem instance_function.
+    return std::bit_cast<Function>(vkGetDeviceProcAddr(device, name));
 }
 
 // Hàm của VK_EXT_debug_utils trên một thiết bị; null khi phần mở rộng không bật.

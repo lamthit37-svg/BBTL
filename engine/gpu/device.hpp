@@ -222,6 +222,16 @@ public:
     [[nodiscard]] virtual PresentMode present_mode() const noexcept = 0;
     [[nodiscard]] virtual std::uint32_t width() const noexcept = 0;
     [[nodiscard]] virtual std::uint32_t height() const noexcept = 0;
+
+    // Bề mặt báo được lúc một lần present đã lên màn (Vulkan: VK_KHR_present_id và VK_KHR_present_wait).
+    // Sai thì wait_shown luôn báo kUnsupported: chỗ gọi đo nhịp bằng đồng hồ CPU.
+    [[nodiscard]] virtual bool reports_shown() const noexcept { return false; }
+    // Số lần present đã nộp từ lần dựng swapchain gần nhất; resize đếm lại từ 0.
+    [[nodiscard]] virtual std::uint64_t presents() const noexcept { return 0; }
+    // Chờ tối đa timeout tới khi lần present thứ count (1 là lần đầu sau khi dựng, không quá presents())
+    // đã lên màn. kTimeout khi hết hạn, kInvalidState khi bề mặt đã đổi (phải resize), kInvalidArgument
+    // khi count ngoài [1, presents()], kUnsupported khi không reports_shown().
+    [[nodiscard]] virtual Status wait_shown(std::uint64_t count, std::chrono::nanoseconds timeout);
 };
 
 enum class QueryKind : std::uint8_t {
