@@ -10,6 +10,7 @@
 #include <cstdint>
 #include <expected>
 #include <span>
+#include <stop_token>
 #include <vector>
 
 namespace game::link {
@@ -35,6 +36,9 @@ public:
         std::uint32_t build = 0;
         protocol::Platform platform = protocol::Platform::kWindows;
         net::Milliseconds timeout{3000};
+        // Huỷ giữa chừng: yêu cầu dừng thì open trả LinkError::kTimeout trong vòng khoảng 50 ms thay vì chờ hết
+        // timeout. Mặc định không huỷ được.
+        std::stop_token stop;
     };
 
     [[nodiscard]] static LinkResult<Link> open(const HelloDesc& desc);
@@ -45,8 +49,6 @@ public:
     Link& operator=(Link&& other) noexcept;
 
     [[nodiscard]] const protocol::Welcome& welcome() const noexcept { return welcome_; }
-
-    [[nodiscard]] LinkResult<protocol::Pong> ping(std::chrono::milliseconds client_time, net::Milliseconds timeout);
 
     // Gửi một khung đã mã hoá (protocol::encode). Hết hạn hay mạng hỏng thì lỗi; Link không dùng được nữa.
     [[nodiscard]] LinkResult<void> send_frame(std::span<const std::byte> frame, net::Milliseconds timeout);
