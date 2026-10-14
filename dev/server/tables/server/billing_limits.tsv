@@ -1,0 +1,16 @@
+# schema 1
+# source: dev/server/tables/server/billing_limits.tsv tự soạn; nguồn từng số ở cột basis
+# tool: sửa tay (số basis=made_up là số tự đặt chờ chủ dự án duyệt)
+# types: text	int	text	text	text
+key	value	unit	basis	note
+min_ingot_per_order	1	ingot	client_2026	YuanbaoExchange.lua chặn ô nhập dưới 1
+max_ingot_per_order	500000	ingot	client_2026	YuanbaoExchange.lua chặn ô nhập trên 500000
+webhook_max_skew_seconds	300	giây	made_up	độ lệch cho phép giữa X-Timestamp của nhà cung cấp và đồng hồ billing; bản chặn được chỉ phát lại trong cửa sổ này
+max_points_per_topup	10000000	phần mười điểm	made_up	một đơn nạp quá trần này bị từ chối (1.000.000 điểm); chặn webhook bị làm giả số
+max_admin_adjust	100000	phần mười điểm	made_up	một lần chỉnh tay của GM không quá 10.000 điểm; lớn hơn thì chia nhiều lần để có nhiều dòng kiểm toán
+max_balance	2000000000	phần mười điểm	made_up	trần số dư tài khoản; cộng quá thì từ chối thay vì tràn số
+redeem_ip_attempts_per_hour	60	lượt	made_up	một IP nhập mã tối đa mỗi giờ; cổng NAT dùng chung nên cao hơn trần theo tài khoản của billing.toml
+max_codes_per_batch	5000	mã	made_up	số mã tối đa của một đợt; sinh thêm bằng nhiều lượt gọi
+max_grant_quantity	1000000	cái	made_up	số lượng tối đa của một khoản quà
+throttle_max_keys	65536	khoá	made_up	số khoá tài khoản/IP bộ đếm tốc độ nhớ cùng lúc; đầy thì khoá mới bị từ chối (chặn kẻ đổi IP ăn bộ nhớ)
+ledger_check_interval_seconds	21600	giây	made_up	chu kỳ đối soát toàn sổ của billingd (6 giờ; thêm một lần lúc khởi động và lúc sang ngày UTC); quét cả sổ nên thưa hơn chu kỳ quét đơn quá hạn của billing.toml

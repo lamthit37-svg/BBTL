@@ -6,6 +6,7 @@
 
 #include <array>
 #include <cstddef>
+#include <cstdint>
 #include <optional>
 #include <string>
 #include <string_view>
@@ -22,14 +23,17 @@ using detail::ListKind;
 using detail::Node;
 using detail::Presence;
 
-constexpr std::array<std::string_view, 9> kRoot{
-    "schema", "database", "access", "limits", "points", "spend", "orders", "redeem", "provider"};
+constexpr std::array<std::string_view, 10> kRoot{
+    "schema", "database", "access", "limits", "points", "spend", "orders", "redeem", "webhook", "provider"};
 constexpr std::array<std::string_view, 1> kAccess{"allow"};
 constexpr std::array<std::string_view, 1> kLimits{"max_clients"};
 constexpr std::array<std::string_view, 2> kPoints{"ingot_per_point", "register_gift"};
 constexpr std::array<std::string_view, 1> kSpend{"daily_ingot_cap"};
 constexpr std::array<std::string_view, 2> kOrders{"pending_timeout_seconds", "reconcile_interval_seconds"};
 constexpr std::array<std::string_view, 1> kRedeem{"attempts_per_hour"};
+constexpr std::array<std::string_view, 1> kWebhook{"port"};
+// 0 là hệ điều hành chọn cổng; bên nghe luôn là 127.0.0.1 nên 0 hợp lệ.
+constexpr detail::Bound kWebhookPort{.least = 0, .most = 65535};
 constexpr std::array<std::string_view, 4> kProvider{"key", "webhook_path", "secret_file", "enabled"};
 constexpr std::size_t kProviderMost = 32;
 
@@ -77,6 +81,14 @@ void read_redeem(Bag& bag, const Node* table, Billing& billing) {
     keep(cursor.bounded("attempts_per_hour", detail::kAmount), billing.attempts_per_hour);
 }
 
+void read_webhook(Bag& bag, const Node* table, Billing& billing) {
+    if (table == nullptr) return;
+    Cursor cursor{bag, *table};
+    cursor.only(kWebhook);
+    const std::optional<std::int64_t> port = cursor.bounded("port", kWebhookPort);
+    if (port) billing.webhook_port = static_cast<std::uint16_t>(*port);
+}
+
 void read_provider(Bag& bag, const Node& table, std::vector<Provider>& out) {
     Cursor cursor{bag, table};
     cursor.only(kProvider);
@@ -107,6 +119,7 @@ void read_provider(Bag& bag, const Node& table, std::vector<Provider>& out) {
     read_spend(bag, cursor.child("spend"), billing);
     read_orders(bag, cursor.child("orders"), billing);
     read_redeem(bag, cursor.child("redeem"), billing);
+    read_webhook(bag, cursor.child("webhook"), billing);
     for (const Node* block : cursor.rows("provider", Presence::kOptional, kProviderMost)) {
         read_provider(bag, *block, billing.providers);
     }

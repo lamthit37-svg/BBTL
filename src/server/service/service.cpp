@@ -3,6 +3,7 @@
 #include "service/service.hpp"
 
 #include "account/serve.hpp"
+#include "billing/serve/serve.hpp"
 #include "config/cluster.hpp"
 #include "config/supervisor.hpp"
 #include "config/types.hpp"
@@ -163,6 +164,7 @@ void print_event(const supervise::Event& event) {
 #if defined(GAME_HAS_LIBPQ)
     if (kind == Kind::kAuth) return account::serve_auth(request.config_dir);
     if (kind == Kind::kStore) return account::serve_game(request.config_dir);
+    if (kind == Kind::kBilling) return billing::serve_billing(request.config_dir);
 #endif
     std::println("ready");
     static_cast<void>(std::fflush(stdout));

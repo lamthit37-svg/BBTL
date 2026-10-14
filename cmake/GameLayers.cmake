@@ -39,10 +39,15 @@ set(game_layer_metrics "core metrics")
 set(game_layer_metrics/serve "core net metrics metrics/serve")
 set(game_layer_store "core io store")
 set(game_layer_account "core config io net protocol secure process store account")
+# billing: lõi thuần (sổ điểm, luật, giao thức ipc, webhook), không net và không store. billing/db là PgBook trên libpq,
+# billing/serve là tiến trình billingd (nghe ipc bằng khung của account, nghe webhook).
+set(game_layer_billing "core ids table secure billing")
+set(game_layer_billing/db "core ids table secure store billing billing/db")
+set(game_layer_billing/serve "core io net config process protocol secure store account ids billing billing/db billing/serve")
 # gate ghi bộ đếm/mức đo vào metrics::Registry (gate::Backing). metrics chỉ phụ thuộc core nên phụ thuộc vẫn đi xuống;
 # gate không được dùng metrics/serve (net + HTTP), chỉ phần lõi metrics.
 set(game_layer_gate "core config io net protocol secure process account ipc guard metrics gate")
-set(game_layer_service "core io config process supervise gate account zone service")
+set(game_layer_service "core io config process supervise gate account zone billing/serve service")
 set(game_layer_supervisor "service supervisor")
 set(game_layer_stored "service stored")
 set(game_layer_authd "service authd")

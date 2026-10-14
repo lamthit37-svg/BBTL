@@ -8,6 +8,7 @@
 #include <chrono>
 #include <cstddef>
 #include <cstdint>
+#include <optional>
 #include <string>
 #include <string_view>
 #include <vector>
@@ -32,6 +33,9 @@ struct Billing {
     std::chrono::seconds pending_timeout_seconds{0};
     std::chrono::seconds reconcile_interval_seconds{0};
     std::int64_t attempts_per_hour = 0;
+    // Cổng HTTP của webhook thanh toán (chỉ nghe 127.0.0.1, sau reverse proxy có TLS). Không khai là không nghe;
+    // 0 là hệ điều hành chọn cổng (test). Chỉ có nghĩa khi có ít nhất một [[provider]] bật.
+    std::optional<std::uint16_t> webhook_port;
     std::vector<Provider> providers;
 };
 

@@ -23,6 +23,7 @@ bản duy nhất nằm ở `D:\CLAUDE\cpp23` (`~/.claude/cpp23` trỏ vào đó)
   `src/shared/protocol/catalog/*.tsv` rồi chạy `TOOLS/server/gen_protocol.py`).
 - `SERVER-BAO-MAT.md` — bắt tay, bản ghi mã hoá, mặt trước của gate.
 - `SERVER-DI-CHUYEN.md` — nguyên tắc di chuyển do server làm chủ.
+- `SERVER-BILLING.md` — billing: sổ điểm, webhook, đổi điểm hai pha, ipc, mô hình lỗi, phần chưa làm.
 - `CAMERA-2026.md` — camera và chuột từ mã máy client 2026.
 - `DUONG-DI-2026.md` — lưới đi `.path`, tìm đường, luật đi.
 - `VA-CHAM-2026.md` — mặt công trình `.WCollision`, `Model::height`/`raycast`.

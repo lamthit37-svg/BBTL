@@ -59,3 +59,11 @@ reconcile_interval_seconds = 60    # Chu kỳ đối soát các đơn còn chờ
 #==================================================
 [redeem]
 attempts_per_hour = 10   # Số lần nhập mã tối đa mỗi giờ cho một tài khoản (số tạm)
+
+#==================================================
+# Webhook thanh toán
+#==================================================
+# Nhà cung cấp gọi vào đây khi khách trả tiền. Chỉ nghe 127.0.0.1: nhà cung cấp đi qua reverse proxy có TLS.
+# Chỉ nghe khi có ít nhất một [[provider]] bật; không có thì khoá port bị bỏ qua.
+[webhook]
+port = 7014   # Cổng HTTP nghe trên 127.0.0.1 (số tạm); 0 là hệ điều hành chọn cổng, dùng cho test
