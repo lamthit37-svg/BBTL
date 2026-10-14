@@ -26,6 +26,7 @@ bản duy nhất nằm ở `D:\CLAUDE\cpp23` (`~/.claude/cpp23` trỏ vào đó)
 - `SERVER-BILLING.md` — billing: sổ điểm, webhook, đổi điểm hai pha, ipc, mô hình lỗi, phần chưa làm.
 - `SERVER-ITEM.md` — vật phẩm, rơi đồ, cửa hàng NPC, lò rèn: kế hoạch rồi áp dụng, bảng đọc, giá, giả định, số tự đặt, phần chưa làm.
 - `SERVER-COMBAT.md` — thân thể (`actor`) và chiến đấu (`combat`): thuộc tính, kỹ năng, buff, chuỗi sát thương, phủ dữ liệu 14 môn, số tự đặt, phần chưa làm.
+- `SERVER-MISSION.md` — nhiệm vụ, hội thoại, NPC (`ops`, `bus`, `ledger`, `mission`, `talk`, `handlers`) và bộ rút Lua: số đo độ phủ, phần chưa hỗ trợ.
 - `SERVER-SOCIAL.md` — xã hội (`social`): tổ đội, quan hệ, bang, thành, thư, chat và lọc chữ, xếp hạng, thông báo; API, khác gốc, số tự đặt.
 - `CAMERA-2026.md` — camera và chuột từ mã máy client 2026.
 - `DUONG-DI-2026.md` — lưới đi `.path`, tìm đường, luật đi.
