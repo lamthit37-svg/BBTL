@@ -9,6 +9,7 @@ OpenFromMemoryImpl_Text, lưới đi theo PathFinder::ReadNavMap. Khoá mã 2008
 from __future__ import annotations
 
 import os
+import re
 import struct
 import sys
 import tempfile
@@ -34,7 +35,9 @@ _ATTACH_FATES = frozenset({"scene_set", "client_only"})
 _ATTACH_HEADER = ("file", "fate", "scene", "evidence")
 
 TOOL = "export_scene.py"
-TOOL_LINE = "# tool: TOOLS/server/export_scene.py; sửa tay sẽ mất ở lượt xuất sau"
+PEER_TOOLS = frozenset({"TOOLS/server/import_scene_xjl.py"})
+OWNED_BINARIES = ("walk.nav", "walk.path")
+INTRO_0859602 = "Dữ liệu cảnh bản 0859602 do công cụ sinh, sửa tay sẽ mất khi xuất lại."
 HELP = """\
 Xuất dữ liệu cảnh từ Public/Scene của bản 0859602.
 
@@ -201,7 +204,47 @@ COMMENTS = {
     "pet_file": "không có tệp trên đĩa, mã 2008 không đọc",
     "portal_file": "không có tệp trên đĩa, mã 2008 không đọc",
     "bus_file": "không có tệp trên đĩa, mã 2008 không đọc",
+    "nav_file": "scn khai tệp lưới đi nhưng tệp không có trên đĩa hoặc đầu tệp không khớp cỡ tệp",
+    "monster_file": "scn khai tệp quái nhưng tệp không có trên đĩa",
+    "area_file": "scn khai tệp vùng nhưng tệp không có trên đĩa",
+    "patrol_file": "scn khai tệp tuyến tuần nhưng tệp không có trên đĩa",
+    "platform_file": "scn khai tệp bàn chế tác nhưng tệp không có trên đĩa",
+    "grow_point_file": "scn khai tệp điểm thu thập nhưng tệp không có trên đĩa",
+    "grow_point_setup_file": "scn khai tệp nhịp bổ sung nhưng tệp không có trên đĩa",
+    "stall_info_file": "scn khai tệp sạp nhưng tệp không có trên đĩa",
 }
+
+
+MISSING_KEYS = {
+    "navmapname": "nav_file",
+    "monsterfile": "monster_file",
+    "eventfile": "area_file",
+    "patrolpoint": "patrol_file",
+    "platformfile": "platform_file",
+    "growpointdata": "grow_point_file",
+    "growpointsetup": "grow_point_setup_file",
+    "stallinfodata": "stall_info_file",
+    "petfile": "pet_file",
+    "portalfile": "portal_file",
+    "busfile": "bus_file",
+}
+
+
+@dataclass(frozen=True)
+class Profile:
+    """Cách ghi của một nguồn: công cụ ghi, tiền tố source, lời dẫn của scene.toml.
+
+    tolerant: nguồn có scn trỏ tới tệp không tồn tại (bản private) thì khoá đó vào "Khoá scn không
+    có tệp" thay vì làm hỏng cả cảnh.
+    """
+
+    tool: str = TOOL
+    source_prefix: str = "Public/Scene/"
+    intro: str = INTRO_0859602
+    tolerant: bool = False
+
+
+_PROFILE = Profile()
 
 
 @dataclass
@@ -280,11 +323,11 @@ class Exporter:
 
 
 def _source(path: Path) -> str:
-    return "Public/Scene/" + path.name
+    return _PROFILE.source_prefix + path.name
 
 
 def _show(path: Path) -> str:
-    return _source(path)
+    return "Public/Scene/" + path.name
 
 
 def case_conflict(names: set[str]) -> str | None:
@@ -368,6 +411,23 @@ def _named(section: scene_read.IniSection | None) -> dict[str, str]:
     return values
 
 
+def _repeat_ok(book: Exporter, path: Path, section: scene_read.IniSection) -> bool:
+    """Section lặp: bản đọc dung sai bỏ bản sau (True), bản chặt báo lỗi (False)."""
+    if _PROFILE.tolerant:
+        book.changes["duplicate_section_ignored"] += 1
+        return True
+    book.fail(f"{_show(path)}:{section.line}: section {section.name} lặp")
+    return False
+
+
+def _section_owner(name: str, ordered: tuple[str, ...]) -> str:
+    """Tiền tố dài nhất mà tên section là tiền tố cộng một số, hoặc chuỗi rỗng."""
+    for prefix in ordered:
+        if name.startswith(prefix) and name[len(prefix) :].isdigit():
+            return prefix
+    return ""
+
+
 def _claim(
     book: Exporter,
     path: Path,
@@ -380,25 +440,20 @@ def _claim(
     ordered = tuple(sorted(prefixes, key=len, reverse=True))
     for section in parsed.sections:
         if section.name in named:
-            if section.name in info:
-                book.fail(f"{_show(path)}:{section.line}: section {section.name} lặp")
+            if section.name not in info:
+                info[section.name] = section
+            elif not _repeat_ok(book, path, section):
                 return None
-            info[section.name] = section
             continue
-        owner = ""
-        for prefix in ordered:
-            tail = section.name[len(prefix) :]
-            if section.name.startswith(prefix) and tail.isdigit():
-                owner = prefix
-                break
+        owner = _section_owner(section.name, ordered)
         if not owner:
             book.fail(f"{_show(path)}:{section.line}: section lạ {section.name}")
             return None
         index = int(section.name[len(owner) :])
-        if index in groups[owner]:
-            book.fail(f"{_show(path)}:{section.line}: section {section.name} lặp")
+        if index not in groups[owner]:
+            groups[owner][index] = section
+        elif not _repeat_ok(book, path, section):
             return None
-        groups[owner][index] = section
     book.changes["same_key_repeats"] += parsed.same_key_repeats
     book.changes["distinct_duplicate_key"] += parsed.distinct_repeats
     book.changes["trailing_lf"] += parsed.trailing_lf
@@ -447,6 +502,18 @@ def _only_keys(book: Exporter, path: Path, section: scene_read.IniSection, allow
     return values
 
 
+def _section_indexes(book: Exporter, path: Path, sections: IniSections, count: int, label: str) -> list[int] | None:
+    """Chỉ số section được đọc. Mã 2008 đọc đúng `count` mục đầu: ở chế độ khoan dung, mục thừa bị bỏ
+    và mục thiếu không được bịa ra, cả hai được đếm."""
+    if set(sections) == set(range(count)):
+        return list(range(count))
+    if not _PROFILE.tolerant:
+        book.fail(f"{_show(path)}:1: {label}={count} nhưng có {len(sections)} mục")
+        return None
+    book.changes["count_mismatch"] += 1
+    return [index for index in range(count) if index in sections]
+
+
 def _rows_from_fields(
     book: Exporter,
     path: Path,
@@ -455,14 +522,14 @@ def _rows_from_fields(
     fields: tuple[FieldRow, ...],
     label: str,
 ) -> tuple[list[tuple[str, ...]], list[tuple[int, ...]]] | None:
-    if set(sections) != set(range(count)):
-        book.fail(f"{_show(path)}:1: {label}={count} nhưng có {len(sections)} mục")
+    indexes = _section_indexes(book, path, sections, count, label)
+    if indexes is None:
         return None
     allowed = {field[0] for field in fields}
     required = {field[0] for field in fields if field[4]}
     rows: list[tuple[str, ...]] = []
     row_lines: list[tuple[int, ...]] = []
-    for index in range(count):
+    for index in indexes:
         section = sections[index]
         values = _only_keys(book, path, section, allowed)
         if values is None:
@@ -518,17 +585,24 @@ def _record_bucket(relative: str) -> str:
     return relative.replace(".tsv", "").replace(".", "_")
 
 
-def _read_nav(book: Exporter, path: Path) -> tuple[int, int] | None:
+def _nav_grid(path: Path) -> tuple[int, int] | str:
+    """Cỡ lưới đi, hoặc câu lỗi khi tệp nav cụt hay đầu tệp không khớp cỡ tệp."""
     data = path.read_bytes()
     if len(data) < 4:
-        book.fail(f"{_show(path)}:1: tệp nav cụt")
-        return None
+        return f"{_show(path)}:1: tệp nav cụt"
     width, height = struct.unpack_from("<HH", data, 0)
     expect = 4 + width * height * 4
     if expect != len(data):
-        book.fail(f"{_show(path)}:1: cỡ tệp không khớp đầu tệp")
-        return None
+        return f"{_show(path)}:1: cỡ tệp không khớp đầu tệp"
     return width, height
+
+
+def _read_nav(book: Exporter, path: Path) -> tuple[int, int] | None:
+    grid = _nav_grid(path)
+    if isinstance(grid, str):
+        book.fail(grid)
+        return None
+    return grid
 
 
 def _monster_tables(book: Exporter, path: Path, relative: str) -> tuple[Table | None, Table | None, Table | None]:
@@ -776,11 +850,11 @@ def _patrol(book: Exporter, path: Path) -> list[dict[str, str]] | None:
         return None
     if _only_keys(book, path, info["INFO"], {"PATROLNUMBER"}) is None:
         return None
-    if set(groups["PATROL"]) != set(range(count)):
-        book.fail(f"{_show(path)}:1: PATROLNUMBER={count} nhưng có {len(groups['PATROL'])} mục")
+    indexes = _section_indexes(book, path, groups["PATROL"], count, "PATROLNUMBER")
+    if indexes is None:
         return None
     points = []
-    for index in range(count):
+    for index in indexes:
         section = groups["PATROL"][index]
         built = _patrol_section(book, path, index, section)
         if built is None:
@@ -884,6 +958,9 @@ def _patrol_point(book: Exporter, path: Path, section: IniSection, walk: _Patrol
 # Khoá lặp với giá trị khác: lần hai vào speech_unread, lần ba là lỗi.
 def _patrol_unread(book: Exporter, path: Path, line: int, slots: dict[str, str], name: str, text: str) -> bool:
     if slots.get("speech_unread") not in (None, ""):
+        if _PROFILE.tolerant:
+            book.changes["patrol_key_repeat_ignored"] += 1
+            return True
         book.fail(f"{_show(path)}:{line}: khoá {name} lặp quá hai lần")
         return False
     slots["speech_unread"] = text
@@ -1069,16 +1146,29 @@ def _assign_sets(book: Exporter, scene: Scene) -> None:
             _assign_one_set(book, scene, item)
 
 
+def _fill_nav(book: Exporter, scene: Scene) -> bool:
+    """Nạp lưới đi cũ của cảnh. False khi bản chặt gặp .nav hỏng (đã báo lỗi); bản dung sai bỏ lưới hỏng."""
+    nav = _one(book, scene, kinds.NAV)
+    if nav is None:
+        return True
+    grid = _nav_grid(nav.path)
+    if not isinstance(grid, str):
+        scene.nav = nav.path
+        scene.grid = grid
+        return True
+    if _PROFILE.tolerant:
+        book.changes["nav_invalid_dropped"] += 1
+        scene.missing["navmapname"] = nav.path.name
+        return True
+    book.fail(grid)
+    return False
+
+
 def _fill_scene(book: Exporter, scene: Scene) -> None:
     _assign_monsters(book, scene)
     _assign_sets(book, scene)
-    nav = _one(book, scene, kinds.NAV)
-    if nav is not None:
-        grid = _read_nav(book, nav.path)
-        if grid is None:
-            return
-        scene.nav = nav.path
-        scene.grid = grid
+    if not _fill_nav(book, scene):
+        return
     area = _one(book, scene, kinds.AREA)
     if area is not None:
         table = _simple_table(book, area.path, "areas.tsv", "area_info", "area_count", "area", AREA_FIELDS)
@@ -1178,26 +1268,19 @@ def _render_toml(scene: Scene) -> str:
         files.append((key, _quote(table.relative), _comment(key)))
     files.sort(key=lambda item: item[0])
     if files:
-        sections.append(("Tệp đã xuất", None, ["Sinh lại bằng export_scene.py, không sửa tay."], files))
+        sections.append(("Tệp đã xuất", None, [f"Sinh lại bằng {_PROFILE.tool}, không sửa tay."], files))
     if scene.sidecars:
         side = [(key, _quote(name), _comment(key)) for key, name in sorted(scene.sidecars.items())]
         sections.append(("Chỉ phân loại", None, ["Ba định dạng này chưa đọc, không chép byte."], side))
     if scene.missing:
         missing = []
         for key, name in sorted(scene.missing.items()):
-            toml_key = key.replace("file", "_file") if not key.endswith("_file") else key
-            if key == "petfile":
-                toml_key = "pet_file"
-            elif key == "portalfile":
-                toml_key = "portal_file"
-            elif key == "busfile":
-                toml_key = "bus_file"
+            toml_key = MISSING_KEYS[key]
             missing.append((toml_key, _quote(name), COMMENTS[toml_key]))
         sections.append(("Khoá scn không có tệp", None, ["Mã 2008 không đọc các khoá này."], missing))
-    intro = ["Dữ liệu cảnh bản 0859602 do công cụ sinh, sửa tay sẽ mất khi xuất lại."]
-    text = config_style.render(f"CẢNH {scene.name.upper()}", intro, sections)
+    text = config_style.render(f"CẢNH {scene.name.upper()}", [_PROFILE.intro], sections)
     lines = text.splitlines()
-    lines.insert(3, TOOL_LINE)
+    lines.insert(3, f"# tool: {tsv_file.canonical_tool(_PROFILE.tool)}{tsv_file.TOOL_SUFFIX}")
     return _fit_toml(lines)
 
 
@@ -1409,13 +1492,24 @@ def _collect(legacy_root: Path, book: Exporter, attach: AttachMap) -> tuple[dict
             continue
         owner = kinds.longest_stem(item.path.name, stems)
         if owner is not None:
-            _add_item(scenes[owner], item)
+            _add_item(scenes[owner], _glued_area_as_set(item))
             continue
         _place_loose(book, scenes, item, attach)
     conflict = case_conflict(set(scenes))
     if conflict is not None:
         book.fail(conflict)
     return dict(counts), [scenes[name] for name in sorted(scenes)]
+
+
+_GLUED_AREA = re.compile(r"_\d+monster_area\.ini$", re.IGNORECASE)
+
+
+def _glued_area_as_set(item: Item) -> Item:
+    """`<cảnh>_<nhóm>monster_area.ini` là vùng của nhóm quái, không phải vùng của cảnh: xuất thành
+    areas.set_<cảnh>_<nhóm>monster.tsv như tệp vùng do script nạp thêm."""
+    if item.kind != kinds.AREA or not _GLUED_AREA.search(item.path.name):
+        return item
+    return Item(item.path, item.kind, kinds.stem_of(item.path.name) or "")
 
 
 def _add_item(scene: Scene, item: Item) -> None:
@@ -1447,17 +1541,17 @@ def _read_scn(book: Exporter, path: Path, scene: Scene, by_name: Items, referenc
             book.fail(f"{_show(path)}:{system.line}: khoá lạ: {name}")
             return
     for key in REQUIRED_SCN:
-        if key not in values:
+        if key not in values and not _PROFILE.tolerant:
             book.fail(f"{_show(path)}:{system.line}: thiếu khoá {key}")
             return
-    if "growpointdata" in values and "growpointsetup" not in values:
+    if "growpointdata" in values and "growpointsetup" not in values and not _PROFILE.tolerant:
         book.fail(f"{_show(path)}:{system.line}: thiếu growpointsetup")
         return
     for key, filename in values.items():
         item = by_name.get(filename)
         expected = SCN_KEYS[key]
         if item is None:
-            if key in OPTIONAL_MISSING:
+            if key in OPTIONAL_MISSING or _PROFILE.tolerant:
                 scene.missing[key] = filename
                 continue
             book.fail(f"{_show(path)}:{system.line}: không thấy tệp {filename}")
@@ -1591,10 +1685,17 @@ def _column_dir(columns: Path | None) -> Path:
     return here / "columns" / "scenes"
 
 
-def _scene_binaries(scene: Scene) -> tuple[str, ...]:
-    if scene.nav is None:
-        return ()
-    return ("walk.nav",)
+def _scene_binaries(scene: Scene | None) -> tuple[str, ...]:
+    """Tệp nhị phân của công cụ trong thư mục cảnh. walk.path do scene_walk.py chép vào nên luôn
+    được nhận là của cảnh (xoá và chép lại ở lượt xuất sau), còn walk.nav chỉ khi cảnh có nav."""
+    if scene is None or scene.nav is not None:
+        return OWNED_BINARIES
+    return OWNED_BINARIES[1:]
+
+
+def _peer_dir(folder: Path) -> bool:
+    """Thư mục cảnh do công cụ anh em ghi (import_scene_xjl.py): xuất 0859602 không đụng tới."""
+    return tsv_file.owned_tool(folder / "scene.toml") in PEER_TOOLS
 
 
 def _owned_file(path: Path, folder: Path, claimed: set[str], tool_id: str) -> bool:
@@ -1610,7 +1711,7 @@ def _foreign_file(folder: Path, binaries: tuple[str, ...]) -> str | None:
         return None
     if not folder.is_dir():
         return f"{folder}:1: tệp lạ, không xoá"
-    tool_id = tsv_file.canonical_tool(TOOL)
+    tool_id = tsv_file.canonical_tool(_PROFILE.tool)
     claimed = {tsv_file._relative_name(name) for name in binaries}
     paths = [item for item in folder.rglob("*") if item.is_file()]
     for path in sorted(paths):
@@ -1624,7 +1725,7 @@ def _check_child(child: Path, scene: Scene | None) -> str | None:
     if scene is None and child.is_file():
         return f"{child}:1: tệp lạ, không xoá"
     if scene is None:
-        return _foreign_file(child, ("walk.nav",))
+        return None if _peer_dir(child) else _foreign_file(child, _scene_binaries(None))
     return _foreign_file(child, _scene_binaries(scene))
 
 
@@ -1670,26 +1771,28 @@ def _write_scenes(destination: Path, columns: Path, scenes: list[Scene], speech:
                 continue
             if child.is_file():
                 raise tsv_file.TsvError(f"{child.name}:1: tệp lạ, không xoá")
-            tsv_file.prepare_directory(child, TOOL, ["walk.nav"])
+            if _peer_dir(child):
+                continue
+            tsv_file.prepare_directory(child, _PROFILE.tool, list(_scene_binaries(None)))
             if not any(child.iterdir()):
                 child.rmdir()
     for scene in scenes:
         folder = destination / scene.name
-        tsv_file.prepare_directory(folder, TOOL, ["walk.nav"] if scene.nav is not None else [])
+        tsv_file.prepare_directory(folder, _PROFILE.tool, list(_scene_binaries(scene)))
         if scene.nav is not None:
             _write_bytes(folder / "walk.nav", scene.nav.read_bytes())
         for table in scene.tables:
             target = folder / table.relative
             column_types = list(table.types)
             column_names = list(table.columns)
-            tsv_file.write_table(target, table.source, TOOL, column_types, column_names, table.rows)
+            tsv_file.write_table(target, table.source, _PROFILE.tool, column_types, column_names, table.rows)
         _write_text(folder / "scene.toml", _render_toml(scene))
     used = {_column_name(table.relative) for scene in scenes for table in scene.tables}
     specs = _column_specs(speech)
-    tsv_file.prepare_directory(columns, TOOL)
+    tsv_file.prepare_directory(columns, _PROFILE.tool)
     for name in sorted(used):
         columns_of, types, rows = specs[name]
-        tsv_file.write_table(columns / name, "Public/Scene", TOOL, list(types), list(columns_of), rows)
+        tsv_file.write_table(columns / name, "Public/Scene", _PROFILE.tool, list(types), list(columns_of), rows)
 
 
 def _column_name(relative: str) -> str:
@@ -1710,8 +1813,28 @@ def export_scenes(
     columns: Path | None = None,
     check_only: bool = False,
     attach_path: Path | None = None,
+    profile: Profile | None = None,
 ) -> Report:
-    """Đọc cả cây. Có lỗi, kể cả tệp không gắn được, thì không ghi tệp nào."""
+    """Đọc cả cây. Có lỗi, kể cả tệp không gắn được, thì không ghi tệp nào.
+
+    profile đổi công cụ ghi, tiền tố source và chế độ khoan dung; mặc định là bản 0859602.
+    """
+    global _PROFILE
+    previous = _PROFILE
+    _PROFILE = profile or Profile()
+    try:
+        return _export(legacy_root, destination, columns, check_only, attach_path)
+    finally:
+        _PROFILE = previous
+
+
+def _export(
+    legacy_root: Path,
+    destination: Path,
+    columns: Path | None,
+    check_only: bool,
+    attach_path: Path | None,
+) -> Report:
     book = Exporter()
     try:
         attach = _read_attach(_attach_file(attach_path))

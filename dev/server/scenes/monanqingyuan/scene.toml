@@ -1,0 +1,43 @@
+#==================================================
+# CẢNH MONANQINGYUAN
+#==================================================
+# tool: TOOLS/server/import_scene_xjl.py; sửa tay sẽ mất ở lượt xuất sau
+# Dữ liệu cảnh bản 14 môn phái (XJL7457) do công cụ sinh, sửa tay sẽ mất khi nhập lại.
+
+#==================================================
+# Phiên bản
+#==================================================
+# Mỗi cảnh một thư mục, tên giữ nguyên thân tệp scn.
+schema           = 1                        # phiên bản dữ liệu của cảnh
+
+#==================================================
+# Tệp đã xuất
+#==================================================
+# Sinh lại bằng import_scene_xjl.py, không sửa tay.
+areas            = "areas.tsv"              # vùng sự kiện hình chữ nhật
+grow_point_rules = "grow_point_rules.tsv"   # nhịp bổ sung điểm thu thập
+grow_points      = "grow_points.tsv"        # điểm thu thập trên mặt đất
+patrols          = "patrols.tsv"            # tuyến tuần và các điểm
+platforms        = "platforms.tsv"          # bàn chế tác trong cảnh
+spawns           = "spawns.tsv"             # quái và NPC của cảnh
+
+#==================================================
+# Chỉ phân loại
+#==================================================
+# Ba định dạng này chưa đọc, không chép byte.
+path_file        = "monanqingyuan.path"     # chưa đọc định dạng, không chép
+
+#==================================================
+# Khoá scn không có tệp
+#==================================================
+# Mã 2008 không đọc các khoá này.
+# scn khai tệp lưới đi nhưng tệp không có trên đĩa hoặc đầu tệp không khớp cỡ tệp
+nav_file         = "monanqingyuan.nav"
+
+#==================================================
+# Nguồn lưới đi
+#==================================================
+# Lưới đi chạy thật: .path của client 2026 nếu cảnh có, không thì walk.nav.
+walk_source      = "client_2026_path"       # nguồn lưới đi dùng khi chạy
+walk_path        = "walk.path"              # tệp .path của client 2026 đã chép vào
+walk_client_file = "monanqingyuan.path"     # tên tệp gốc trong thư mục Scene của client 2026

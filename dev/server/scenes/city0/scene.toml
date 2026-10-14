@@ -39,3 +39,10 @@ stall_file  = "city0_StallInfo.stall"   # chưa đọc định dạng, không ch
 #==================================================
 # Mã 2008 không đọc các khoá này.
 pet_file    = "city0_pet.ini"           # không có tệp trên đĩa, mã 2008 không đọc
+
+#==================================================
+# Nguồn lưới đi
+#==================================================
+# Lưới đi chạy thật: .path của client 2026 nếu cảnh có, không thì walk.nav.
+walk_source = "legacy_nav_0859602"      # nguồn lưới đi dùng khi chạy
+walk_nav    = "walk.nav"                # lưới ô của máy chủ 2008, dự phòng

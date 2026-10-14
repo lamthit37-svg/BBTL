@@ -66,3 +66,8 @@ CMakeLists.txt text
 *.zip filter=lfs diff=lfs merge=lfs -text
 *.7z filter=lfs diff=lfs merge=lfs -text
 *.rar filter=lfs diff=lfs merge=lfs -text
+# Lưới đi tam giác .path của client 2026, chép vào từng cảnh máy chủ bởi TOOLS/server/scene_walk.py (273 tệp, ~48 MiB).
+/dev/server/scenes/**/walk.path filter=lfs diff=lfs merge=lfs -text
+# Lưới ô walk.nav của máy chủ 2008: nguồn Public/Scene không còn trên máy nên đây là bản duy nhất. .gitignore bỏ cả 310 tệp
+# (245 MiB); chỉ 52 tệp mà scene.toml chọn làm nguồn lưới đi (24,5 MiB) được ép vào git (git add -f) để checkout sạch chạy được.
+/dev/server/scenes/**/walk.nav filter=lfs diff=lfs merge=lfs -text

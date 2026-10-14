@@ -36,3 +36,12 @@ walk               = "walk.nav"                        # lưới đi, chép nguy
 object_region_file = "loulangucheng.ObjRegion"         # chưa đọc định dạng, không chép
 path_file          = "loulangucheng.path"              # chưa đọc định dạng, không chép
 stall_file         = "loulangucheng_StallInfo.stall"   # chưa đọc định dạng, không chép
+
+#==================================================
+# Nguồn lưới đi
+#==================================================
+# Lưới đi chạy thật: .path của client 2026 nếu cảnh có, không thì walk.nav.
+walk_source        = "client_2026_path"                # nguồn lưới đi dùng khi chạy
+walk_path          = "walk.path"                       # tệp .path của client 2026 đã chép vào
+walk_client_file   = "loulangucheng.path"              # tên tệp gốc trong thư mục Scene của client 2026
+walk_nav           = "walk.nav"                        # lưới ô của máy chủ 2008, dự phòng

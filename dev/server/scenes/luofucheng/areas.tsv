@@ -1,0 +1,8 @@
+# schema 1
+# source: XJL7457/Public/Scene/luofucheng_area.ini
+# tool: TOOLS/server/import_scene_xjl.py; sửa tay sẽ mất ở lượt xuất sau
+# types: int	int	float	float	float	float
+guid	script_id	left	top	right	bottom
+0	900093	224.0000	222.0000	232.0000	228.0000
+0	900091	25.0000	36.0000	33.0000	42.0000
+0	900092	25.0000	66.0000	34.0000	74.0000

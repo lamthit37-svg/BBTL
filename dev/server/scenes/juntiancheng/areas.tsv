@@ -1,0 +1,7 @@
+# schema 1
+# source: XJL7457/Public/Scene/juntiancheng_area.ini
+# tool: TOOLS/server/import_scene_xjl.py; sửa tay sẽ mất ở lượt xuất sau
+# types: int	int	float	float	float	float
+guid	script_id	left	top	right	bottom
+0	966710	228.0000	30.0000	230.0000	35.0000
+0	966711	31.0000	215.0000	33.0000	220.0000

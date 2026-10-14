@@ -1,0 +1,15 @@
+# schema 1
+# source: XJL7457/Public/Scene/tangmen_20monster_80.ini
+# tool: TOOLS/server/import_scene_xjl.py; sửa tay sẽ mất ở lượt xuất sau
+# types: int	int	text	text	float	float	int	int	int	int	int	int	int	int	int	int	int	int	int	int	int	int	text	int	int	int
+guid	type	name	title	position_x	position_z	direction	script_id	respawn_time	group_id	team_id	base_ai	ai_file	patrol_id	shop_0	shop_1	shop_2	shop_3	level	is_pet	script_timer	reputation_id	cshop	leader_id	is_npc	camp
+8622766	5307			39.3680	26.2067	27	-1	-1	-1	-1	0	-1	-1	-1	-1	-1	-1								
+8622772	5307			46.4697	28.8575	27	-1	-1	-1	-1	0	-1	-1	-1	-1	-1	-1								
+8622773	5307			46.6685	32.9249	27	-1	-1	-1	-1	0	-1	-1	-1	-1	-1	-1								
+8622779	5307			46.2827	41.4885	27	-1	-1	-1	-1	0	-1	-1	-1	-1	-1	-1								
+8622786	5307			41.3126	47.9731	27	-1	-1	-1	-1	0	-1	-1	-1	-1	-1	-1								
+8622787	5307			32.2329	53.4063	27	-1	-1	-1	-1	0	-1	-1	-1	-1	-1	-1								
+8622806	5307			28.5992	47.0713	27	-1	-1	-1	-1	0	-1	-1	-1	-1	-1	-1								
+8622817	5307			23.4202	43.8612	27	-1	-1	-1	-1	0	-1	-1	-1	-1	-1	-1								
+4717427	5307			25.7003	33.8098	27	-1	-1	-1	-1	0	0	-1	-1	-1	-1	-1								
+4717677	5307			34.3933	34.5439	27	-1	-1	-1	-1	0	0	-1	-1	-1	-1	-1								

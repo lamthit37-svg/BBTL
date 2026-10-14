@@ -1,0 +1,6 @@
+# schema 1
+# source: XJL7457/Public/Scene/gusu_1_area.ini
+# tool: TOOLS/server/import_scene_xjl.py; sửa tay sẽ mất ở lượt xuất sau
+# types: int	int	float	float	float	float
+guid	script_id	left	top	right	bottom
+0	2135	160.0000	166.0000	164.0000	171.0000

@@ -35,3 +35,12 @@ wild_pets        = "wild_pets.tsv"          # trân thú hoang, mã 2008 không 
 #==================================================
 # Ba định dạng này chưa đọc, không chép byte.
 path_file        = "emei.path"              # chưa đọc định dạng, không chép
+
+#==================================================
+# Nguồn lưới đi
+#==================================================
+# Lưới đi chạy thật: .path của client 2026 nếu cảnh có, không thì walk.nav.
+walk_source      = "client_2026_path"       # nguồn lưới đi dùng khi chạy
+walk_path        = "walk.path"              # tệp .path của client 2026 đã chép vào
+walk_client_file = "emei.path"              # tên tệp gốc trong thư mục Scene của client 2026
+walk_nav         = "walk.nav"               # lưới ô của máy chủ 2008, dự phòng

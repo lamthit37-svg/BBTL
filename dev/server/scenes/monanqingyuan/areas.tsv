@@ -1,0 +1,10 @@
+# schema 1
+# source: XJL7457/Public/Scene/monanqingyuan_area.ini
+# tool: TOOLS/server/import_scene_xjl.py; sửa tay sẽ mất ở lượt xuất sau
+# types: int	int	float	float	float	float
+guid	script_id	left	top	right	bottom
+0	400986	145.0000	221.0000	147.0000	224.0000
+0	400991	224.0000	216.0000	228.0000	220.0000
+0	400993	215.0000	30.0000	222.0000	35.0000
+0	400992	45.0000	218.0000	47.0000	223.0000
+0	966707	142.0000	37.0000	144.0000	42.0000

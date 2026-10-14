@@ -25,3 +25,10 @@ areas              = "areas.tsv"                # vùng sự kiện hình chữ 
 patrols            = "patrols.tsv"              # tuyến tuần và các điểm
 spawns_wuyizhengxi = "spawns.wuyizhengxi.tsv"   # quái theo lối vào
 walk               = "walk.nav"                 # lưới đi, chép nguyên byte
+
+#==================================================
+# Nguồn lưới đi
+#==================================================
+# Lưới đi chạy thật: .path của client 2026 nếu cảnh có, không thì walk.nav.
+walk_source        = "legacy_nav_0859602"       # nguồn lưới đi dùng khi chạy
+walk_nav           = "walk.nav"                 # lưới ô của máy chủ 2008, dự phòng

@@ -58,3 +58,12 @@ path_file        = "gaibang_1.path"         # chưa đọc định dạng, khôn
 #==================================================
 # Mã 2008 không đọc các khoá này.
 pet_file         = "gaibang_1_pet.ini"      # không có tệp trên đĩa, mã 2008 không đọc
+
+#==================================================
+# Nguồn lưới đi
+#==================================================
+# Lưới đi chạy thật: .path của client 2026 nếu cảnh có, không thì walk.nav.
+walk_source      = "client_2026_path"       # nguồn lưới đi dùng khi chạy
+walk_path        = "walk.path"              # tệp .path của client 2026 đã chép vào
+walk_client_file = "gaibang.path"           # tên tệp gốc trong thư mục Scene của client 2026
+walk_nav         = "walk.nav"               # lưới ô của máy chủ 2008, dự phòng

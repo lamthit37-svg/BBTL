@@ -1,0 +1,7 @@
+# schema 1
+# source: XJL7457/Public/Scene/Songliao_Xiuxi_monster.ini
+# tool: TOOLS/server/import_scene_xjl.py; sửa tay sẽ mất ở lượt xuất sau
+# types: int	int	text	text	float	float	int	int	int	int	int	int	int	int	int	int	int	int	int	int	int	int	text	int	int	int
+guid	type	name	title	position_x	position_z	direction	script_id	respawn_time	group_id	team_id	base_ai	ai_file	patrol_id	shop_0	shop_1	shop_2	shop_3	level	is_pet	script_timer	reputation_id	cshop	leader_id	is_npc	camp
+3073478	14678	刘博	宋辽战场特使	32.0192	12.5179	27	502019	1000	-1	-1	3	0	-1	-1	-1	-1	-1			10000	-1				
+33896061	604	罗青云	宋辽大战特使	32	45	117	311002	1000	-1	-1	3	0	-1	-1	-1	-1	-1	36			-1				

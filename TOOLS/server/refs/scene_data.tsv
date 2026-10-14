@@ -1,0 +1,8 @@
+# schema 1
+# source: docs/giao-viec/GAMEPLAY-DOT-1/DE-BAI-CHUNG.md/scene-data
+# types: text	text	text	text	text	int	text	text
+child	child_column	parent	parent_column	absent	known_missing	basis	note
+tables/server/scene_ids.tsv	scene_dir	tables/server/scene_xref.tsv	scene_dir		0	data	id cảnh client trỏ tới thư mục cảnh; scene_xref.tsv là danh sách thư mục cảnh đầy đủ
+tables/server/scene_xjl_diff.tsv	scene_dir	tables/server/scene_xref.tsv	scene_dir		0	data	bảng so sánh chỉ có cảnh dùng chung hai nguồn
+tables/server/monster_ai_rules.tsv	ai_id	tables/server/monster_ai_rule_files.tsv	ai_id		0	data	mỗi luật thuộc một tệp .ai đã liệt kê
+tables/server/monster_ai_rules.tsv	skill_id	tables/shared/skills.tsv	skill_id	-1	47	code:Server/GameServer/Server/AI/AIScriptFunction.cpp:AIS_ToSkill	Đo 237 id kỹ năng trong 307 tệp .ai; thiếu 47: 309, 520 và 1790-1869 (kỹ năng riêng của bản private, SkillTemplate_V1 của client 2026 không có). -1 là hàm không mang id kỹ năng.

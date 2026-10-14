@@ -1,0 +1,15 @@
+# schema 1
+# source: XJL7457/Public/Scene/dakuiyihai_monster.ini
+# tool: TOOLS/server/import_scene_xjl.py; sửa tay sẽ mất ở lượt xuất sau
+# types: int	int	text	text	float	float	int	int	int	int	int	int	int	int	int	int	int	int	int	int	int	int	text	int	int	int
+guid	type	name	title	position_x	position_z	direction	script_id	respawn_time	group_id	team_id	base_ai	ai_file	patrol_id	shop_0	shop_1	shop_2	shop_3	level	is_pet	script_timer	reputation_id	cshop	leader_id	is_npc	camp
+19910011	15721			97	28	27	-1	120000	-1	-1	0	259	-1	-1	-1	-1	-1	-1			-1				
+19910011	15722			102	60	27	-1	120000	-1	-1	0	259	-1	-1	-1	-1	-1	-1			-1				
+19910011	15723			78	45	27	-1	120000	-1	-1	0	259	-1	-1	-1	-1	-1	-1			-1				
+19910011	15721			62	40	27	-1	120000	-1	-1	0	259	-1	-1	-1	-1	-1	-1			-1				
+19910011	15722			43	51	27	-1	120000	-1	-1	0	259	-1	-1	-1	-1	-1	-1			-1				
+19910011	15723			48	43	27	-1	120000	-1	-1	0	259	-1	-1	-1	-1	-1	-1			-1				
+19910011	15721			45	64	27	-1	120000	-1	-1	0	259	-1	-1	-1	-1	-1	-1			-1				
+19910011	15722			63	71	27	-1	120000	-1	-1	0	259	-1	-1	-1	-1	-1	-1			-1				
+19910011	15723			83	69	27	-1	120000	-1	-1	0	259	-1	-1	-1	-1	-1	-1			-1				
+9913082	0			0	0	27	900047	1800000	-1	-1	3		-1	-1	-1	-1	-1			60000	-1				

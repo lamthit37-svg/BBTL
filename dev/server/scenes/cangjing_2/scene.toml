@@ -8,27 +8,36 @@
 # Phiên bản
 #==================================================
 # Mỗi cảnh một thư mục, tên giữ nguyên thân tệp scn.
-schema      = 1                   # phiên bản dữ liệu của cảnh
+schema           = 1                    # phiên bản dữ liệu của cảnh
 
 #==================================================
 # Lưới đi
 #==================================================
 # Hai số u16 đầu tệp nav, mỗi ô bốn byte.
-grid_width  = 128                 # số ô ngang của lưới đi
-grid_height = 128                 # số ô dọc của lưới đi
+grid_width       = 128                  # số ô ngang của lưới đi
+grid_height      = 128                  # số ô dọc của lưới đi
 
 #==================================================
 # Tệp đã xuất
 #==================================================
 # Sinh lại bằng export_scene.py, không sửa tay.
-areas       = "areas.tsv"         # vùng sự kiện hình chữ nhật
-grow_points = "grow_points.tsv"   # điểm thu thập trên mặt đất
-patrols     = "patrols.tsv"       # tuyến tuần và các điểm
-spawns      = "spawns.tsv"        # quái và NPC của cảnh
-walk        = "walk.nav"          # lưới đi, chép nguyên byte
+areas            = "areas.tsv"          # vùng sự kiện hình chữ nhật
+grow_points      = "grow_points.tsv"    # điểm thu thập trên mặt đất
+patrols          = "patrols.tsv"        # tuyến tuần và các điểm
+spawns           = "spawns.tsv"         # quái và NPC của cảnh
+walk             = "walk.nav"           # lưới đi, chép nguyên byte
 
 #==================================================
 # Chỉ phân loại
 #==================================================
 # Ba định dạng này chưa đọc, không chép byte.
-path_file   = "cangjing_2.path"   # chưa đọc định dạng, không chép
+path_file        = "cangjing_2.path"    # chưa đọc định dạng, không chép
+
+#==================================================
+# Nguồn lưới đi
+#==================================================
+# Lưới đi chạy thật: .path của client 2026 nếu cảnh có, không thì walk.nav.
+walk_source      = "client_2026_path"   # nguồn lưới đi dùng khi chạy
+walk_path        = "walk.path"          # tệp .path của client 2026 đã chép vào
+walk_client_file = "shuge.path"         # tên tệp gốc trong thư mục Scene của client 2026
+walk_nav         = "walk.nav"           # lưới ô của máy chủ 2008, dự phòng

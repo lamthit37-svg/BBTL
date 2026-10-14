@@ -1,0 +1,43 @@
+#==================================================
+# CẢNH TANGMENJJ
+#==================================================
+# tool: TOOLS/server/import_scene_xjl.py; sửa tay sẽ mất ở lượt xuất sau
+# Dữ liệu cảnh bản 14 môn phái (XJL7457) do công cụ sinh, sửa tay sẽ mất khi nhập lại.
+
+#==================================================
+# Phiên bản
+#==================================================
+# Mỗi cảnh một thư mục, tên giữ nguyên thân tệp scn.
+schema      = 1                      # phiên bản dữ liệu của cảnh
+
+#==================================================
+# Lưới đi
+#==================================================
+# Hai số u16 đầu tệp nav, mỗi ô bốn byte.
+grid_width  = 640                    # số ô ngang của lưới đi
+grid_height = 640                    # số ô dọc của lưới đi
+
+#==================================================
+# Tệp đã xuất
+#==================================================
+# Sinh lại bằng import_scene_xjl.py, không sửa tay.
+areas       = "areas.tsv"            # vùng sự kiện hình chữ nhật
+patrols     = "patrols.tsv"          # tuyến tuần và các điểm
+platforms   = "platforms.tsv"        # bàn chế tác trong cảnh
+spawns      = "spawns.tsv"           # quái và NPC của cảnh
+walk        = "walk.nav"             # lưới đi, chép nguyên byte
+
+#==================================================
+# Chỉ phân loại
+#==================================================
+# Ba định dạng này chưa đọc, không chép byte.
+path_file   = "tangmenjj.path"       # chưa đọc định dạng, không chép
+
+#==================================================
+# Nguồn lưới đi
+#==================================================
+# Lưới đi chạy thật: .path của client 2026 nếu cảnh có, không thì walk.nav.
+# Đã bỏ tangmenjj.path: 26/122 quái đứng ngoài hộp bao .path x 0.00632813..191.997 z
+# 0.00871094..191.999
+walk_source = "legacy_nav_xjl7457"   # nguồn lưới đi dùng khi chạy
+walk_nav    = "walk.nav"             # lưới ô của máy chủ 2008, dự phòng

@@ -1,0 +1,8 @@
+# schema 1
+# source: XJL7457/Public/Scene/linhaixigu_area.ini
+# tool: TOOLS/server/import_scene_xjl.py; sửa tay sẽ mất ở lượt xuất sau
+# types: int	int	float	float	float	float
+guid	script_id	left	top	right	bottom
+0	400200	36.0000	230.0000	39.0000	234.0000
+0	400201	226.0000	200.0000	229.0000	203.0000
+0	400202	107.0000	24.0000	110.0000	28.0000

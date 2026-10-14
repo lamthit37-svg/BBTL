@@ -1,0 +1,63 @@
+#==================================================
+# CẢNH GUSU_1
+#==================================================
+# tool: TOOLS/server/import_scene_xjl.py; sửa tay sẽ mất ở lượt xuất sau
+# Dữ liệu cảnh bản 14 môn phái (XJL7457) do công cụ sinh, sửa tay sẽ mất khi nhập lại.
+
+#==================================================
+# Phiên bản
+#==================================================
+# Mỗi cảnh một thư mục, tên giữ nguyên thân tệp scn.
+schema           = 1                        # phiên bản dữ liệu của cảnh
+
+#==================================================
+# Lưới đi
+#==================================================
+# Hai số u16 đầu tệp nav, mỗi ô bốn byte.
+grid_width       = 640                      # số ô ngang của lưới đi
+grid_height      = 640                      # số ô dọc của lưới đi
+
+#==================================================
+# Tệp đã xuất
+#==================================================
+# Sinh lại bằng import_scene_xjl.py, không sửa tay.
+areas            = "areas.tsv"              # vùng sự kiện hình chữ nhật
+patrols          = "patrols.tsv"            # tuyến tuần và các điểm
+platforms        = "platforms.tsv"          # bàn chế tác trong cảnh
+spawns           = "spawns.tsv"             # quái và NPC của cảnh
+spawns_level_10  = "spawns.level_10.tsv"    # quái theo mốc cấp người chơi
+spawns_level_100 = "spawns.level_100.tsv"   # quái theo mốc cấp người chơi
+spawns_level_110 = "spawns.level_110.tsv"   # quái theo mốc cấp người chơi
+spawns_level_120 = "spawns.level_120.tsv"   # quái theo mốc cấp người chơi
+spawns_level_130 = "spawns.level_130.tsv"   # quái theo mốc cấp người chơi
+spawns_level_140 = "spawns.level_140.tsv"   # quái theo mốc cấp người chơi
+spawns_level_150 = "spawns.level_150.tsv"   # quái theo mốc cấp người chơi
+spawns_level_160 = "spawns.level_160.tsv"   # quái theo mốc cấp người chơi
+spawns_level_170 = "spawns.level_170.tsv"   # quái theo mốc cấp người chơi
+spawns_level_180 = "spawns.level_180.tsv"   # quái theo mốc cấp người chơi
+spawns_level_190 = "spawns.level_190.tsv"   # quái theo mốc cấp người chơi
+spawns_level_20  = "spawns.level_20.tsv"    # quái theo mốc cấp người chơi
+spawns_level_200 = "spawns.level_200.tsv"   # quái theo mốc cấp người chơi
+spawns_level_30  = "spawns.level_30.tsv"    # quái theo mốc cấp người chơi
+spawns_level_40  = "spawns.level_40.tsv"    # quái theo mốc cấp người chơi
+spawns_level_50  = "spawns.level_50.tsv"    # quái theo mốc cấp người chơi
+spawns_level_60  = "spawns.level_60.tsv"    # quái theo mốc cấp người chơi
+spawns_level_70  = "spawns.level_70.tsv"    # quái theo mốc cấp người chơi
+spawns_level_80  = "spawns.level_80.tsv"    # quái theo mốc cấp người chơi
+spawns_level_90  = "spawns.level_90.tsv"    # quái theo mốc cấp người chơi
+walk             = "walk.nav"               # lưới đi, chép nguyên byte
+
+#==================================================
+# Chỉ phân loại
+#==================================================
+# Ba định dạng này chưa đọc, không chép byte.
+path_file        = "gusu_1.path"            # chưa đọc định dạng, không chép
+
+#==================================================
+# Nguồn lưới đi
+#==================================================
+# Lưới đi chạy thật: .path của client 2026 nếu cảnh có, không thì walk.nav.
+walk_source      = "client_2026_path"       # nguồn lưới đi dùng khi chạy
+walk_path        = "walk.path"              # tệp .path của client 2026 đã chép vào
+walk_client_file = "gusu_1.path"            # tên tệp gốc trong thư mục Scene của client 2026
+walk_nav         = "walk.nav"               # lưới ô của máy chủ 2008, dự phòng

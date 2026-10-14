@@ -1,0 +1,5 @@
+# schema 1
+# source: XJL7457/Public/Scene/sulingyuan_growpointsetup.txt
+# tool: TOOLS/server/import_scene_xjl.py; sửa tay sẽ mất ở lượt xuất sau
+# types: int	int	int	text	int	int
+grow_point_type	max_count	column_2	column_3	column_4	column_5

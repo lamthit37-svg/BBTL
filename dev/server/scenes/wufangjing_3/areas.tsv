@@ -1,0 +1,7 @@
+# schema 1
+# source: XJL7457/Public/Scene/wufangjing_3_area.ini
+# tool: TOOLS/server/import_scene_xjl.py; sửa tay sẽ mất ở lượt xuất sau
+# types: int	int	float	float	float	float
+guid	script_id	left	top	right	bottom
+0	893092	36.0000	90.0000	39.0000	93.0000
+0	893093	63.0000	25.0000	65.0000	28.0000

@@ -1,0 +1,13 @@
+# schema 1
+# source: XJL7457/Public/Scene/xuanhai_monster.ini
+# tool: TOOLS/server/import_scene_xjl.py; sửa tay sẽ mất ở lượt xuất sau
+# types: int	int	text	text	float	float	int	int	int	int	int	int	int	int	int	int	int	int	int	int	int	int	text	int	int	int
+guid	type	name	title	position_x	position_z	direction	script_id	respawn_time	group_id	team_id	base_ai	ai_file	patrol_id	shop_0	shop_1	shop_2	shop_3	level	is_pet	script_timer	reputation_id	cshop	leader_id	is_npc	camp
+199000001	15700	太坤九黎祭坛		206	157	27	196047	1000	-1	-1	3	0	-1	-1	-1	-1	-1	-1			-1				
+199000002	15700	古月九黎祭坛		182	87	27	196047	1000	-1	-1	3	0	-1	-1	-1	-1	-1	-1			-1				
+199000003	15700	荒日九黎祭坛		153	50	27	196047	1000	-1	-1	3	0	-1	-1	-1	-1	-1	-1			-1				
+199000004	15700	乾元九黎祭坛		114	159	27	196047	1000	-1	-1	3	0	-1	-1	-1	-1	-1	-1			-1				
+199000005	15700	绝星九黎祭坛		74	193	27	196047	1000	-1	-1	3	0	-1	-1	-1	-1	-1	-1			-1				
+199000006	15700	苍云九黎祭坛		30	98	27	196047	1000	-1	-1	3	0	-1	-1	-1	-1	-1	-1			-1				
+199000007	15701	九黎上古祭坛		67	32	27	196047	1000	-1	-1	3	0	-1	-1	-1	-1	-1	-1			-1				
+9913082	0			0	0	27	900047	1800000	-1	-1	3		-1	-1	-1	-1	-1			60000	-1				

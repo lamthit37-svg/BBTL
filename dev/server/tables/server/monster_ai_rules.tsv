@@ -1,0 +1,3545 @@
+# schema 1
+# source: XJL7457/Public/Data/AIScript/*.ai
+# tool: TOOLS/server/ai_convert.py; sửa tay sẽ mất ở lượt xuất sau
+# types: int	int	text	int	int	text	int	text	text	int	int	int	int	int	text
+ai_id	rule_index	section	priority	times	part	seq	function	op	value	arg_0	arg_1	arg_2	skill_id	value_name
+0	0	skill	30	-1	if	0	is_can_skill	eq	1	0	-1	-1	0	
+0	0	skill	30	-1	do	0	to_skill		0	0	-1	-1	0	
+1	0	skill	30	-1	if	0	is_can_skill	eq	1	0	-1	-1	0	
+1	0	skill	30	-1	do	0	to_skill		0	0	-1	-1	0	
+1	1	skill	32	2	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+1	1	skill	32	2	if	1	rand	lt	20	-1	-1	-1	-1	
+1	1	skill	32	2	if	2	is_can_skill	eq	1	581	-1	-1	581	
+1	1	skill	32	2	do	0	to_skill		0	581	-1	-1	581	
+2	0	skill	30	-1	if	0	is_can_skill	eq	1	0	-1	-1	0	
+2	0	skill	30	-1	do	0	to_skill		0	0	-1	-1	0	
+2	1	skill	34	1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+2	1	skill	34	1	if	1	get_hp	lt	80	-1	-1	-1	-1	
+2	1	skill	34	1	if	2	is_can_skill	eq	1	584	-1	-1	584	
+2	1	skill	34	1	do	0	to_skill		0	584	-1	-1	584	
+3	0	common	37	1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+3	0	common	37	1	if	1	get_hp	lt	20	-1	-1	-1	-1	
+3	0	common	37	1	do	0	to_flee		0	1	-1	-1	-1	
+3	1	skill	30	-1	if	0	is_can_skill	eq	1	552	-1	-1	552	
+3	1	skill	30	-1	do	0	to_skill		0	552	-1	-1	552	
+3	2	skill	32	1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+3	2	skill	32	1	if	1	get_hp	lt	50	-1	-1	-1	-1	
+3	2	skill	32	1	if	2	is_can_skill	eq	1	582	-1	-1	582	
+3	2	skill	32	1	do	0	to_skill		0	582	-1	-1	582	
+3	3	skill	31	-1	if	0	is_can_skill	eq	1	0	-1	-1	0	
+3	3	skill	31	-1	do	0	to_skill		0	0	-1	-1	0	
+4	0	common	34	1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+4	0	common	34	1	if	1	get_hp	lt	20	-1	-1	-1	-1	
+4	0	common	34	1	do	0	to_flee		0	1	-1	-1	-1	
+4	1	skill	30	-1	if	0	is_can_skill	eq	1	0	-1	-1	0	
+4	1	skill	30	-1	do	0	to_skill		0	0	-1	-1	0	
+5	0	common	36	1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+5	0	common	36	1	if	1	get_hp	lt	20	-1	-1	-1	-1	
+5	0	common	36	1	do	0	to_flee		0	1	-1	-1	-1	
+5	1	skill	30	-1	if	0	is_can_skill	eq	1	0	-1	-1	0	
+5	1	skill	30	-1	do	0	to_skill		0	0	-1	-1	0	
+5	2	skill	34	1	if	0	get_hp	lt	50	-1	-1	-1	-1	
+5	2	skill	34	1	if	1	is_can_skill	eq	1	582	-1	-1	582	
+5	2	skill	34	1	do	0	to_skill		0	582	-1	-1	582	
+6	0	skill	30	-1	if	0	is_can_skill	eq	1	0	-1	-1	0	
+6	0	skill	30	-1	do	0	to_skill		0	0	-1	-1	0	
+6	1	skill	40	1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+6	1	skill	40	1	if	1	rand	lt	20	-1	-1	-1	-1	
+6	1	skill	40	1	if	2	is_can_skill	eq	1	580	-1	-1	580	
+6	1	skill	40	1	do	0	to_skill		0	580	-1	-1	580	
+7	0	skill	30	-1	if	0	is_can_skill	eq	1	0	-1	-1	0	
+7	0	skill	30	-1	do	0	to_skill		0	0	-1	-1	0	
+7	1	skill	40	1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+7	1	skill	40	1	if	1	rand	lt	20	-1	-1	-1	-1	
+7	1	skill	40	1	if	2	is_can_skill	eq	1	580	-1	-1	580	
+7	1	skill	40	1	do	0	to_skill		0	580	-1	-1	580	
+8	0	skill	30	-1	if	0	is_can_skill	eq	1	0	-1	-1	0	
+8	0	skill	30	-1	do	0	to_skill		0	0	-1	-1	0	
+8	1	skill	34	1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+8	1	skill	34	1	if	1	rand	lt	20	-1	-1	-1	-1	
+8	1	skill	34	1	if	2	is_can_skill	eq	1	574	-1	-1	574	
+8	1	skill	34	1	do	0	to_skill		0	574	-1	-1	574	
+9	0	skill	30	-1	if	0	is_can_skill	eq	1	0	-1	-1	0	
+9	0	skill	30	-1	do	0	to_skill		0	0	-1	-1	0	
+9	1	skill	40	1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+9	1	skill	40	1	if	1	rand	lt	20	-1	-1	-1	-1	
+9	1	skill	40	1	if	2	is_can_skill	eq	1	580	-1	-1	580	
+9	1	skill	40	1	do	0	to_skill		0	580	-1	-1	580	
+10	0	skill	30	-1	if	0	is_can_skill	eq	1	0	-1	-1	0	
+10	0	skill	30	-1	do	0	to_skill		0	0	-1	-1	0	
+10	1	skill	34	1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+10	1	skill	34	1	if	1	rand	lt	20	-1	-1	-1	-1	
+10	1	skill	34	1	if	2	is_can_skill	eq	1	574	-1	-1	574	
+10	1	skill	34	1	do	0	to_skill		0	574	-1	-1	574	
+11	0	common	34	1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+11	0	common	34	1	if	1	rand	lt	20	-1	-1	-1	-1	
+11	0	common	34	1	if	2	is_can_skill	eq	1	578	-1	-1	578	
+11	0	common	34	1	do	0	to_skill		0	578	-1	-1	578	
+11	1	skill	30	-1	if	0	is_can_skill	eq	1	0	-1	-1	0	
+11	1	skill	30	-1	do	0	to_skill		0	0	-1	-1	0	
+11	2	skill	34	1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+11	2	skill	34	1	if	1	rand	lt	20	-1	-1	-1	-1	
+11	2	skill	34	1	if	2	is_can_skill	eq	1	578	-1	-1	578	
+11	2	skill	34	1	do	0	to_skill		0	578	-1	-1	578	
+12	0	common	34	1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+12	0	common	34	1	if	1	get_hp	lt	20	-1	-1	-1	-1	
+12	0	common	34	1	do	0	to_flee		0	1	-1	-1	-1	
+12	1	skill	30	-1	if	0	is_can_skill	eq	1	0	-1	-1	0	
+12	1	skill	30	-1	do	0	to_skill		0	0	-1	-1	0	
+12	2	skill	34	3	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+12	2	skill	34	3	if	1	is_can_skill	eq	1	555	-1	-1	555	
+12	2	skill	34	3	if	2	rand	lt	20	-1	-1	-1	-1	
+12	2	skill	34	3	do	0	to_skill		0	555	-1	-1	555	
+13	0	common	37	1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+13	0	common	37	1	if	1	get_hp	lt	20	-1	-1	-1	-1	
+13	0	common	37	1	do	0	to_flee		0	1	-1	-1	-1	
+13	1	skill	30	-1	if	0	is_can_skill	eq	1	552	-1	-1	552	
+13	1	skill	30	-1	do	0	to_skill		0	552	-1	-1	552	
+13	2	skill	32	1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+13	2	skill	32	1	if	1	get_hp	lt	50	-1	-1	-1	-1	
+13	2	skill	32	1	if	2	is_can_skill	eq	1	582	-1	-1	582	
+13	2	skill	32	1	do	0	to_skill		0	582	-1	-1	582	
+13	3	skill	31	-1	if	0	is_can_skill	eq	1	0	-1	-1	0	
+13	3	skill	31	-1	do	0	to_skill		0	0	-1	-1	0	
+13	4	skill	34	1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+13	4	skill	34	1	if	1	rand	lt	20	-1	-1	-1	-1	
+13	4	skill	34	1	if	2	is_can_skill	eq	1	575	-1	-1	575	
+13	4	skill	34	1	do	0	to_skill		0	575	-1	-1	575	
+14	0	common	37	1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+14	0	common	37	1	if	1	get_hp	lt	20	-1	-1	-1	-1	
+14	0	common	37	1	do	0	to_flee		0	1	-1	-1	-1	
+14	1	skill	30	-1	if	0	is_can_skill	eq	1	552	-1	-1	552	
+14	1	skill	30	-1	do	0	to_skill		0	552	-1	-1	552	
+14	2	skill	32	1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+14	2	skill	32	1	if	1	get_hp	lt	50	-1	-1	-1	-1	
+14	2	skill	32	1	if	2	is_can_skill	eq	1	582	-1	-1	582	
+14	2	skill	32	1	do	0	to_skill		0	582	-1	-1	582	
+14	3	skill	31	-1	if	0	is_can_skill	eq	1	0	-1	-1	0	
+14	3	skill	31	-1	do	0	to_skill		0	0	-1	-1	0	
+14	4	skill	34	1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+14	4	skill	34	1	if	1	rand	lt	20	-1	-1	-1	-1	
+14	4	skill	34	1	if	2	is_can_skill	eq	1	575	-1	-1	575	
+14	4	skill	34	1	do	0	to_skill		0	575	-1	-1	575	
+15	0	skill	30	-1	if	0	is_can_skill	eq	1	0	-1	-1	0	
+15	0	skill	30	-1	do	0	to_skill		0	0	-1	-1	0	
+15	1	skill	34	1	if	0	get_hp	lt	50	-1	-1	-1	-1	
+15	1	skill	34	1	if	1	is_can_skill	eq	1	582	-1	-1	582	
+15	1	skill	34	1	do	0	to_skill		0	582	-1	-1	582	
+16	0	common	36	1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+16	0	common	36	1	if	1	get_hp	lt	20	-1	-1	-1	-1	
+16	0	common	36	1	do	0	to_flee		0	1	-1	-1	-1	
+16	1	skill	30	-1	if	0	is_can_skill	eq	1	0	-1	-1	0	
+16	1	skill	30	-1	do	0	to_skill		0	0	-1	-1	0	
+16	2	skill	34	1	if	0	get_hp	lt	50	-1	-1	-1	-1	
+16	2	skill	34	1	if	1	is_can_skill	eq	1	582	-1	-1	582	
+16	2	skill	34	1	do	0	to_skill		0	582	-1	-1	582	
+16	3	skill	33	1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+16	3	skill	33	1	if	1	rand	lt	30	-1	-1	-1	-1	
+16	3	skill	33	1	if	2	is_can_skill	eq	1	572	-1	-1	572	
+16	3	skill	33	1	do	0	to_skill		0	572	-1	-1	572	
+17	0	skill	30	-1	if	0	is_can_skill	eq	1	0	-1	-1	0	
+17	0	skill	30	-1	do	0	to_skill		0	0	-1	-1	0	
+17	1	skill	37	1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+17	1	skill	37	1	if	1	get_enemy_hp	lt	20	-1	-1	-1	-1	
+17	1	skill	37	1	if	2	is_can_skill	eq	1	571	-1	-1	571	
+17	1	skill	37	1	do	0	to_skill		0	571	-1	-1	571	
+18	0	skill	30	-1	if	0	is_can_skill	eq	1	0	-1	-1	0	
+18	0	skill	30	-1	do	0	to_skill		0	0	-1	-1	0	
+18	1	skill	32	1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+18	1	skill	32	1	if	1	rand	lt	20	-1	-1	-1	-1	
+18	1	skill	32	1	if	2	is_can_skill	eq	1	580	-1	-1	580	
+18	1	skill	32	1	do	0	to_skill		0	580	-1	-1	580	
+18	2	skill	34	1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+18	2	skill	34	1	if	1	is_can_skill	eq	1	578	-1	-1	578	
+18	2	skill	34	1	if	2	rand	lt	20	-1	-1	-1	-1	
+18	2	skill	34	1	do	0	to_skill		0	578	-1	-1	578	
+19	0	skill	30	-1	if	0	is_can_skill	eq	1	0	-1	-1	0	
+19	0	skill	30	-1	do	0	to_skill		0	0	-1	-1	0	
+19	1	skill	40	1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+19	1	skill	40	1	if	1	is_can_skill	eq	1	585	-1	-1	585	
+19	1	skill	40	1	do	0	to_skill		0	585	-1	-1	585	
+20	0	skill	30	-1	if	0	is_can_skill	eq	1	552	-1	-1	552	
+20	0	skill	30	-1	do	0	to_skill		0	552	-1	-1	552	
+20	1	skill	32	1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+20	1	skill	32	1	if	1	get_hp	lt	50	-1	-1	-1	-1	
+20	1	skill	32	1	if	2	is_can_skill	eq	1	582	-1	-1	582	
+20	1	skill	32	1	do	0	to_skill		0	582	-1	-1	582	
+20	2	skill	31	-1	if	0	is_can_skill	eq	1	0	-1	-1	0	
+20	2	skill	31	-1	do	0	to_skill		0	0	-1	-1	0	
+20	3	skill	37	1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+20	3	skill	37	1	if	1	get_hp	lt	20	-1	-1	-1	-1	
+20	3	skill	37	1	if	2	is_can_skill	eq	1	570	-1	-1	570	
+20	3	skill	37	1	do	0	to_skill		0	570	-1	-1	570	
+20	3	skill	37	1	do	1	to_flee		0	1	-1	-1	-1	
+21	0	common	37	1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+21	0	common	37	1	if	1	get_hp	lt	20	-1	-1	-1	-1	
+21	0	common	37	1	do	0	to_flee		0	1	-1	-1	-1	
+21	1	skill	31	-1	if	0	is_can_skill	eq	1	554	-1	-1	554	
+21	1	skill	31	-1	if	1	rand	lt	20	-1	-1	-1	-1	
+21	1	skill	31	-1	do	0	to_skill		0	554	-1	-1	554	
+21	2	skill	32	1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+21	2	skill	32	1	if	1	get_hp	lt	50	-1	-1	-1	-1	
+21	2	skill	32	1	if	2	is_can_skill	eq	1	582	-1	-1	582	
+21	2	skill	32	1	do	0	to_skill		0	582	-1	-1	582	
+21	3	skill	30	-1	if	0	is_can_skill	eq	1	0	-1	-1	0	
+21	3	skill	30	-1	do	0	to_skill		0	0	-1	-1	0	
+22	0	skill	30	-1	if	0	is_can_skill	eq	1	552	-1	-1	552	
+22	0	skill	30	-1	do	0	to_skill		0	552	-1	-1	552	
+22	1	skill	32	1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+22	1	skill	32	1	if	1	get_hp	lt	50	-1	-1	-1	-1	
+22	1	skill	32	1	if	2	is_can_skill	eq	1	582	-1	-1	582	
+22	1	skill	32	1	do	0	to_skill		0	582	-1	-1	582	
+22	2	skill	31	-1	if	0	is_can_skill	eq	1	0	-1	-1	0	
+22	2	skill	31	-1	do	0	to_skill		0	0	-1	-1	0	
+22	3	skill	37	1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+22	3	skill	37	1	if	1	get_hp	lt	20	-1	-1	-1	-1	
+22	3	skill	37	1	if	2	is_can_skill	eq	1	571	-1	-1	571	
+22	3	skill	37	1	do	0	to_skill		0	571	-1	-1	571	
+22	3	skill	37	1	do	1	to_flee		0	1	-1	-1	-1	
+22	4	skill	34	3	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+22	4	skill	34	3	if	1	rand	lt	10	-1	-1	-1	-1	
+22	4	skill	34	3	if	2	is_can_skill	eq	1	591	-1	-1	591	
+22	4	skill	34	3	do	0	to_skill		0	591	-1	-1	591	
+23	0	skill	30	-1	if	0	is_can_skill	eq	1	552	-1	-1	552	
+23	0	skill	30	-1	do	0	to_skill		0	552	-1	-1	552	
+23	1	skill	32	1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+23	1	skill	32	1	if	1	get_hp	lt	50	-1	-1	-1	-1	
+23	1	skill	32	1	if	2	is_can_skill	eq	1	582	-1	-1	582	
+23	1	skill	32	1	do	0	to_skill		0	582	-1	-1	582	
+23	2	skill	31	-1	if	0	is_can_skill	eq	1	0	-1	-1	0	
+23	2	skill	31	-1	do	0	to_skill		0	0	-1	-1	0	
+23	3	skill	37	1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+23	3	skill	37	1	if	1	get_hp	lt	20	-1	-1	-1	-1	
+23	3	skill	37	1	if	2	is_can_skill	eq	1	573	-1	-1	573	
+23	3	skill	37	1	do	0	to_skill		0	573	-1	-1	573	
+23	3	skill	37	1	do	1	to_flee		0	1	-1	-1	-1	
+24	0	common	38	1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+24	0	common	38	1	if	1	get_hp	lt	50	-1	-1	-1	-1	
+24	0	common	38	1	do	0	to_summon		0	0	3	-1	-1	
+24	1	skill	30	-1	if	0	is_can_skill	eq	1	0	-1	-1	0	
+24	1	skill	30	-1	do	0	to_skill		0	0	-1	-1	0	
+24	2	skill	34	1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+24	2	skill	34	1	if	1	rand	lt	10	-1	-1	-1	-1	
+24	2	skill	34	1	if	2	is_can_skill	eq	1	576	-1	-1	576	
+24	2	skill	34	1	do	0	to_skill		0	576	-1	-1	576	
+25	0	skill	30	-1	if	0	is_can_skill	eq	1	0	-1	-1	0	
+25	0	skill	30	-1	do	0	to_skill		0	0	-1	-1	0	
+25	1	skill	34	1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+25	1	skill	34	1	if	1	get_hp	lt	80	-1	-1	-1	-1	
+25	1	skill	34	1	if	2	is_can_skill	eq	1	584	-1	-1	584	
+25	1	skill	34	1	do	0	to_skill		0	584	-1	-1	584	
+25	2	skill	40	1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+25	2	skill	40	1	if	1	rand	lt	20	-1	-1	-1	-1	
+25	2	skill	40	1	if	2	is_can_skill	eq	1	579	-1	-1	579	
+25	2	skill	40	1	do	0	to_skill		0	579	-1	-1	579	
+26	0	skill	30	-1	if	0	is_can_skill	eq	1	0	-1	-1	0	
+26	0	skill	30	-1	do	0	to_skill		0	0	-1	-1	0	
+26	1	skill	40	1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+26	1	skill	40	1	if	1	is_can_skill	eq	1	585	-1	-1	585	
+26	1	skill	40	1	do	0	to_skill		0	585	-1	-1	585	
+27	0	common	34	1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+27	0	common	34	1	if	1	get_hp	lt	50	-1	-1	-1	-1	
+27	0	common	34	1	do	0	to_flee		0	1	-1	-1	-1	
+27	1	skill	30	-1	if	0	is_can_skill	eq	1	0	-1	-1	0	
+27	1	skill	30	-1	do	0	to_skill		0	0	-1	-1	0	
+27	2	skill	32	1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+27	2	skill	32	1	if	1	rand	lt	20	-1	-1	-1	-1	
+27	2	skill	32	1	if	2	is_can_skill	eq	1	573	-1	-1	573	
+27	2	skill	32	1	do	0	to_skill		0	573	-1	-1	573	
+28	0	skill	35	-1	if	0	is_can_skill	eq	1	0	-1	-1	0	
+28	0	skill	35	-1	do	0	to_skill		0	0	-1	-1	0	
+28	1	skill	30	-1	if	0	is_can_skill	eq	1	552	-1	-1	552	
+28	1	skill	30	-1	do	0	to_skill		0	552	-1	-1	552	
+29	0	skill	30	-1	if	0	is_can_skill	eq	1	0	-1	-1	0	
+29	0	skill	30	-1	do	0	to_skill		0	0	-1	-1	0	
+29	1	skill	32	3	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+29	1	skill	32	3	if	1	rand	lt	20	-1	-1	-1	-1	
+29	1	skill	32	3	if	2	is_can_skill	eq	1	551	-1	-1	551	
+29	1	skill	32	3	do	0	to_skill		0	551	-1	-1	551	
+30	0	skill	30	-1	if	0	is_can_skill	eq	1	0	-1	-1	0	
+30	0	skill	30	-1	do	0	to_skill		0	0	-1	-1	0	
+30	1	skill	32	2	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+30	1	skill	32	2	if	1	rand	lt	10	-1	-1	-1	-1	
+30	1	skill	32	2	if	2	is_can_skill	eq	1	581	-1	-1	581	
+30	1	skill	32	2	do	0	to_skill		0	581	-1	-1	581	
+31	0	skill	30	-1	if	0	is_can_skill	eq	1	0	-1	-1	0	
+31	0	skill	30	-1	do	0	to_skill		0	0	-1	-1	0	
+31	1	skill	32	1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+31	1	skill	32	1	if	1	rand	lt	30	-1	-1	-1	-1	
+31	1	skill	32	1	if	2	is_can_skill	eq	1	563	-1	-1	563	
+31	1	skill	32	1	do	0	to_skill		0	563	-1	-1	563	
+32	0	common	36	1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+32	0	common	36	1	if	1	get_hp	lt	50	-1	-1	-1	-1	
+32	0	common	36	1	do	0	to_flee		0	1	-1	-1	-1	
+32	1	skill	30	-1	if	0	is_can_skill	eq	1	0	-1	-1	0	
+32	1	skill	30	-1	do	0	to_skill		0	0	-1	-1	0	
+32	2	skill	40	1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+32	2	skill	40	1	if	1	rand	lt	10	-1	-1	-1	-1	
+32	2	skill	40	1	if	2	is_can_skill	eq	1	551	-1	-1	551	
+32	2	skill	40	1	do	0	to_skill		0	551	-1	-1	551	
+33	0	common	34	1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+33	0	common	34	1	if	1	get_hp	lt	20	-1	-1	-1	-1	
+33	0	common	34	1	do	0	to_flee		0	1	-1	-1	-1	
+33	1	skill	30	-1	if	0	is_can_skill	eq	1	0	-1	-1	0	
+33	1	skill	30	-1	do	0	to_skill		0	0	-1	-1	0	
+33	2	skill	34	3	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+33	2	skill	34	3	if	1	is_can_skill	eq	1	555	-1	-1	555	
+33	2	skill	34	3	if	2	rand	lt	10	-1	-1	-1	-1	
+33	2	skill	34	3	do	0	to_skill		0	555	-1	-1	555	
+34	0	common	34	1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+34	0	common	34	1	if	1	get_hp	lt	20	-1	-1	-1	-1	
+34	0	common	34	1	do	0	to_flee		0	1	-1	-1	-1	
+34	1	skill	30	-1	if	0	is_can_skill	eq	1	0	-1	-1	0	
+34	1	skill	30	-1	do	0	to_skill		0	0	-1	-1	0	
+34	2	skill	34	3	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+34	2	skill	34	3	if	1	is_can_skill	eq	1	555	-1	-1	555	
+34	2	skill	34	3	if	2	rand	lt	10	-1	-1	-1	-1	
+34	2	skill	34	3	do	0	to_skill		0	555	-1	-1	555	
+34	3	skill	35	1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+34	3	skill	35	1	if	1	rand	lt	10	-1	-1	-1	-1	
+34	3	skill	35	1	if	2	is_can_skill	eq	1	579	-1	-1	579	
+34	3	skill	35	1	do	0	to_skill		0	579	-1	-1	579	
+35	0	skill	30	-1	if	0	is_can_skill	eq	1	0	-1	-1	0	
+35	0	skill	30	-1	do	0	to_skill		0	0	-1	-1	0	
+35	1	skill	40	1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+35	1	skill	40	1	if	1	rand	lt	10	-1	-1	-1	-1	
+35	1	skill	40	1	if	2	is_can_skill	eq	1	580	-1	-1	580	
+35	1	skill	40	1	do	0	to_skill		0	580	-1	-1	580	
+36	0	skill	30	-1	if	0	is_can_skill	eq	1	0	-1	-1	0	
+36	0	skill	30	-1	do	0	to_skill		0	0	-1	-1	0	
+36	1	skill	40	3	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+36	1	skill	40	3	if	1	rand	lt	10	-1	-1	-1	-1	
+36	1	skill	40	3	if	2	is_can_skill	eq	1	551	-1	-1	551	
+36	1	skill	40	3	do	0	to_skill		0	551	-1	-1	551	
+36	2	skill	32	3	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+36	2	skill	32	3	if	1	get_enemy_num	gt	2	-1	-1	-1	-1	
+36	2	skill	32	3	if	2	is_can_skill	eq	1	561	-1	-1	561	
+36	2	skill	32	3	if	3	rand	lt	10	-1	-1	-1	-1	
+36	2	skill	32	3	do	0	to_skill		0	561	-1	-1	561	
+37	0	skill	30	-1	if	0	is_can_skill	eq	1	0	-1	-1	0	
+37	0	skill	30	-1	do	0	to_skill		0	0	-1	-1	0	
+37	1	skill	34	1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+37	1	skill	34	1	if	1	get_hp	lt	80	-1	-1	-1	-1	
+37	1	skill	34	1	if	2	is_can_skill	eq	1	584	-1	-1	584	
+37	1	skill	34	1	do	0	to_skill		0	584	-1	-1	584	
+37	2	skill	40	1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+37	2	skill	40	1	if	1	rand	lt	10	-1	-1	-1	-1	
+37	2	skill	40	1	if	2	is_can_skill	eq	1	579	-1	-1	579	
+37	2	skill	40	1	do	0	to_skill		0	579	-1	-1	579	
+38	0	skill	30	-1	if	0	is_can_skill	eq	1	0	-1	-1	0	
+38	0	skill	30	-1	do	0	to_skill		0	0	-1	-1	0	
+38	1	skill	40	1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+38	1	skill	40	1	if	1	rand	lt	10	-1	-1	-1	-1	
+38	1	skill	40	1	if	2	is_can_skill	eq	1	580	-1	-1	580	
+38	1	skill	40	1	do	0	to_skill		0	580	-1	-1	580	
+39	0	skill	30	-1	if	0	is_can_skill	eq	1	0	-1	-1	0	
+39	0	skill	30	-1	do	0	to_skill		0	0	-1	-1	0	
+39	1	skill	40	3	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+39	1	skill	40	3	if	1	rand	lt	10	-1	-1	-1	-1	
+39	1	skill	40	3	if	2	is_can_skill	eq	1	551	-1	-1	551	
+39	1	skill	40	3	do	0	to_skill		0	551	-1	-1	551	
+40	0	skill	30	-1	if	0	is_can_skill	eq	1	0	-1	-1	0	
+40	0	skill	30	-1	do	0	to_skill		0	0	-1	-1	0	
+40	1	skill	33	1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+40	1	skill	33	1	if	1	rand	lt	10	-1	-1	-1	-1	
+40	1	skill	33	1	if	2	is_can_skill	eq	1	580	-1	-1	580	
+40	1	skill	33	1	do	0	to_skill		0	580	-1	-1	580	
+40	2	skill	38	1	if	0	get_hp	lt	50	-1	-1	-1	-1	
+40	2	skill	38	1	if	1	is_can_skill	eq	1	582	-1	-1	582	
+40	2	skill	38	1	do	0	to_skill		0	582	-1	-1	582	
+41	0	skill	30	-1	if	0	is_can_skill	eq	1	0	-1	-1	0	
+41	0	skill	30	-1	do	0	to_skill		0	0	-1	-1	0	
+41	1	skill	33	1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+41	1	skill	33	1	if	1	rand	lt	10	-1	-1	-1	-1	
+41	1	skill	33	1	if	2	is_can_skill	eq	1	580	-1	-1	580	
+41	1	skill	33	1	do	0	to_skill		0	580	-1	-1	580	
+41	2	skill	38	1	if	0	get_hp	lt	50	-1	-1	-1	-1	
+41	2	skill	38	1	if	1	is_can_skill	eq	1	582	-1	-1	582	
+41	2	skill	38	1	do	0	to_skill		0	582	-1	-1	582	
+42	0	skill	32	1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+42	0	skill	32	1	if	1	get_hp	lt	50	-1	-1	-1	-1	
+42	0	skill	32	1	if	2	is_can_skill	eq	1	582	-1	-1	582	
+42	0	skill	32	1	do	0	to_skill		0	582	-1	-1	582	
+42	1	skill	31	-1	if	0	is_can_skill	eq	1	0	-1	-1	0	
+42	1	skill	31	-1	do	0	to_skill		0	0	-1	-1	0	
+43	0	skill	30	-1	if	0	is_can_skill	eq	1	0	-1	-1	0	
+43	0	skill	30	-1	do	0	to_skill		0	0	-1	-1	0	
+43	1	skill	32	2	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+43	1	skill	32	2	if	1	rand	lt	10	-1	-1	-1	-1	
+43	1	skill	32	2	if	2	is_can_skill	eq	1	581	-1	-1	581	
+43	1	skill	32	2	do	0	to_skill		0	581	-1	-1	581	
+44	0	skill	30	-1	if	0	is_can_skill	eq	1	0	-1	-1	0	
+44	0	skill	30	-1	do	0	to_skill		0	0	-1	-1	0	
+44	1	skill	40	1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+44	1	skill	40	1	if	1	rand	lt	30	-1	-1	-1	-1	
+44	1	skill	40	1	if	2	is_can_skill	eq	1	568	-1	-1	568	
+44	1	skill	40	1	do	0	to_skill		0	568	-1	-1	568	
+45	0	skill	30	-1	if	0	is_can_skill	eq	1	0	-1	-1	0	
+45	0	skill	30	-1	do	0	to_skill		0	0	-1	-1	0	
+45	1	skill	40	1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+45	1	skill	40	1	if	1	rand	lt	30	-1	-1	-1	-1	
+45	1	skill	40	1	if	2	is_can_skill	eq	1	568	-1	-1	568	
+45	1	skill	40	1	do	0	to_skill		0	568	-1	-1	568	
+46	0	skill	30	-1	if	0	is_can_skill	eq	1	0	-1	-1	0	
+46	0	skill	30	-1	do	0	to_skill		0	0	-1	-1	0	
+46	1	skill	37	1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+46	1	skill	37	1	if	1	is_can_skill	eq	1	579	-1	-1	579	
+46	1	skill	37	1	if	2	rand	lt	10	-1	-1	-1	-1	
+46	1	skill	37	1	do	0	to_skill		0	579	-1	-1	579	
+46	2	skill	39	1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+46	2	skill	39	1	if	1	get_enemy_hp	lt	20	-1	-1	-1	-1	
+46	2	skill	39	1	if	2	is_can_skill	eq	1	571	-1	-1	571	
+46	2	skill	39	1	do	0	to_skill		0	571	-1	-1	571	
+47	0	skill	30	-1	if	0	is_can_skill	eq	1	0	-1	-1	0	
+47	0	skill	30	-1	do	0	to_skill		0	0	-1	-1	0	
+47	1	skill	32	1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+47	1	skill	32	1	if	1	rand	lt	10	-1	-1	-1	-1	
+47	1	skill	32	1	if	2	is_can_skill	eq	1	581	-1	-1	581	
+47	1	skill	32	1	do	0	to_skill		0	581	-1	-1	581	
+48	0	common	34	1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+48	0	common	34	1	if	1	get_hp	lt	20	-1	-1	-1	-1	
+48	0	common	34	1	do	0	to_flee		0	1	-1	-1	-1	
+48	1	skill	30	-1	if	0	is_can_skill	eq	1	0	-1	-1	0	
+48	1	skill	30	-1	do	0	to_skill		0	0	-1	-1	0	
+48	2	skill	34	3	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+48	2	skill	34	3	if	1	is_can_skill	eq	1	555	-1	-1	555	
+48	2	skill	34	3	if	2	rand	lt	20	-1	-1	-1	-1	
+48	2	skill	34	3	do	0	to_skill		0	555	-1	-1	555	
+48	3	skill	35	1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+48	3	skill	35	1	if	1	rand	lt	10	-1	-1	-1	-1	
+48	3	skill	35	1	if	2	is_can_skill	eq	1	579	-1	-1	579	
+48	3	skill	35	1	do	0	to_skill		0	579	-1	-1	579	
+48	4	skill	38	1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+48	4	skill	38	1	if	1	get_enemy_hp	lt	20	-1	-1	-1	-1	
+48	4	skill	38	1	if	2	is_can_skill	eq	1	573	-1	-1	573	
+48	4	skill	38	1	do	0	to_skill		0	573	-1	-1	573	
+49	0	skill	30	-1	if	0	is_can_skill	eq	1	0	-1	-1	0	
+49	0	skill	30	-1	do	0	to_skill		0	0	-1	-1	0	
+49	1	skill	34	1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+49	1	skill	34	1	if	1	get_enemy_num	gt	1	-1	-1	-1	-1	
+49	1	skill	34	1	if	2	is_can_skill	eq	1	567	-1	-1	567	
+49	1	skill	34	1	do	0	to_skill		0	567	-1	-1	567	
+49	2	skill	35	1	if	0	get_hp	lt	50	-1	-1	-1	-1	
+49	2	skill	35	1	if	1	is_can_skill	eq	1	582	-1	-1	582	
+49	2	skill	35	1	do	0	to_skill		0	582	-1	-1	582	
+49	3	skill	32	3	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+49	3	skill	32	3	if	1	rand	lt	10	-1	-1	-1	-1	
+49	3	skill	32	3	if	2	is_can_skill	eq	1	583	-1	-1	583	
+49	3	skill	32	3	do	0	to_skill		0	583	-1	-1	583	
+49	4	damage	30	1	if	0	get_single_damage	gt	20	-1	-1	-1	-1	
+49	4	damage	30	1	do	0	to_summon		0	0	3	-1	-1	
+50	0	skill	30	-1	if	0	is_can_skill	eq	1	0	-1	-1	0	
+50	0	skill	30	-1	do	0	to_skill		0	0	-1	-1	0	
+50	1	skill	40	1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+50	1	skill	40	1	if	1	rand	lt	30	-1	-1	-1	-1	
+50	1	skill	40	1	if	2	is_can_skill	eq	1	568	-1	-1	568	
+50	1	skill	40	1	do	0	to_skill		0	568	-1	-1	568	
+51	0	skill	30	-1	if	0	is_can_skill	eq	1	0	-1	-1	0	
+51	0	skill	30	-1	do	0	to_skill		0	0	-1	-1	0	
+51	1	skill	34	1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+51	1	skill	34	1	if	1	get_enemy_num	gt	1	-1	-1	-1	-1	
+51	1	skill	34	1	if	2	is_can_skill	eq	1	567	-1	-1	567	
+51	1	skill	34	1	do	0	to_skill		0	567	-1	-1	567	
+51	2	skill	35	2	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+51	2	skill	35	2	if	1	rand	lt	30	-1	-1	-1	-1	
+51	2	skill	35	2	if	2	is_can_skill	eq	1	572	-1	-1	572	
+51	2	skill	35	2	do	0	to_skill		0	572	-1	-1	572	
+51	3	damage	30	1	if	0	get_single_damage	gt	20	-1	-1	-1	-1	
+51	3	damage	30	1	do	0	to_summon		0	0	3	-1	-1	
+52	0	common	38	1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+52	0	common	38	1	if	1	get_hp	lt	50	-1	-1	-1	-1	
+52	0	common	38	1	do	0	to_summon		0	0	3	-1	-1	
+52	1	skill	30	-1	if	0	is_can_skill	eq	1	0	-1	-1	0	
+52	1	skill	30	-1	do	0	to_skill		0	0	-1	-1	0	
+52	2	skill	34	1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+52	2	skill	34	1	if	1	rand	lt	10	-1	-1	-1	-1	
+52	2	skill	34	1	if	2	is_can_skill	eq	1	576	-1	-1	576	
+52	2	skill	34	1	do	0	to_skill		0	576	-1	-1	576	
+52	3	skill	35	1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+52	3	skill	35	1	if	1	rand	lt	50	-1	-1	-1	-1	
+52	3	skill	35	1	if	2	is_can_skill	eq	1	580	-1	-1	580	
+52	3	skill	35	1	do	0	to_skill		0	580	-1	-1	580	
+53	0	common	36	1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+53	0	common	36	1	if	1	get_hp	lt	20	-1	-1	-1	-1	
+53	0	common	36	1	do	0	to_flee		0	1	-1	-1	-1	
+53	1	skill	30	-1	if	0	is_can_skill	eq	1	0	-1	-1	0	
+53	1	skill	30	-1	do	0	to_skill		0	0	-1	-1	0	
+53	2	skill	35	5	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+53	2	skill	35	5	if	1	rand	lt	20	-1	-1	-1	-1	
+53	2	skill	35	5	if	2	is_can_skill	eq	1	551	-1	-1	551	
+53	2	skill	35	5	do	0	to_skill		0	551	-1	-1	551	
+54	0	skill	30	-1	if	0	is_can_skill	eq	1	0	-1	-1	0	
+54	0	skill	30	-1	do	0	to_skill		0	0	-1	-1	0	
+54	1	skill	32	2	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+54	1	skill	32	2	if	1	rand	lt	10	-1	-1	-1	-1	
+54	1	skill	32	2	if	2	is_can_skill	eq	1	581	-1	-1	581	
+54	1	skill	32	2	do	0	to_skill		0	581	-1	-1	581	
+55	0	common	36	1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+55	0	common	36	1	if	1	get_hp	lt	20	-1	-1	-1	-1	
+55	0	common	36	1	do	0	to_flee		0	1	-1	-1	-1	
+55	1	skill	30	-1	if	0	is_can_skill	eq	1	0	-1	-1	0	
+55	1	skill	30	-1	do	0	to_skill		0	0	-1	-1	0	
+55	2	skill	35	3	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+55	2	skill	35	3	if	1	rand	lt	10	-1	-1	-1	-1	
+55	2	skill	35	3	if	2	is_can_skill	eq	1	551	-1	-1	551	
+55	2	skill	35	3	do	0	to_skill		0	551	-1	-1	551	
+55	3	skill	40	3	if	0	is_can_skill	eq	1	555	-1	-1	555	
+55	3	skill	40	3	if	1	rand	lt	10	-1	-1	-1	-1	
+55	3	skill	40	3	do	0	to_skill		0	555	-1	-1	555	
+56	0	skill	30	-1	if	0	is_can_skill	eq	1	0	-1	-1	0	
+56	0	skill	30	-1	do	0	to_skill		0	0	-1	-1	0	
+56	1	skill	38	1	if	0	get_hp	lt	50	-1	-1	-1	-1	
+56	1	skill	38	1	if	1	is_can_skill	eq	1	582	-1	-1	582	
+56	1	skill	38	1	do	0	to_skill		0	582	-1	-1	582	
+56	2	skill	32	1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+56	2	skill	32	1	if	1	rand	lt	10	-1	-1	-1	-1	
+56	2	skill	32	1	if	2	is_can_skill	eq	1	576	-1	-1	576	
+56	2	skill	32	1	do	0	to_skill		0	576	-1	-1	576	
+56	3	skill	35	1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+56	3	skill	35	1	if	1	rand	lt	10	-1	-1	-1	-1	
+56	3	skill	35	1	if	2	is_can_skill	eq	1	580	-1	-1	580	
+56	3	skill	35	1	do	0	to_skill		0	580	-1	-1	580	
+57	0	common	36	1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+57	0	common	36	1	if	1	get_hp	lt	20	-1	-1	-1	-1	
+57	0	common	36	1	do	0	to_flee		0	1	-1	-1	-1	
+57	1	skill	30	-1	if	0	is_can_skill	eq	1	0	-1	-1	0	
+57	1	skill	30	-1	do	0	to_skill		0	0	-1	-1	0	
+57	2	skill	35	3	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+57	2	skill	35	3	if	1	rand	lt	10	-1	-1	-1	-1	
+57	2	skill	35	3	if	2	is_can_skill	eq	1	551	-1	-1	551	
+57	2	skill	35	3	do	0	to_skill		0	551	-1	-1	551	
+57	3	skill	40	3	if	0	is_can_skill	eq	1	553	-1	-1	553	
+57	3	skill	40	3	if	1	rand	lt	10	-1	-1	-1	-1	
+57	3	skill	40	3	do	0	to_skill		0	553	-1	-1	553	
+58	0	skill	30	-1	if	0	is_can_skill	eq	1	0	-1	-1	0	
+58	0	skill	30	-1	do	0	to_skill		0	0	-1	-1	0	
+58	1	skill	32	2	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+58	1	skill	32	2	if	1	rand	lt	10	-1	-1	-1	-1	
+58	1	skill	32	2	if	2	is_can_skill	eq	1	581	-1	-1	581	
+58	1	skill	32	2	do	0	to_skill		0	581	-1	-1	581	
+59	0	common	36	1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+59	0	common	36	1	if	1	get_hp	lt	20	-1	-1	-1	-1	
+59	0	common	36	1	do	0	to_flee		0	1	-1	-1	-1	
+59	1	skill	30	-1	if	0	is_can_skill	eq	1	0	-1	-1	0	
+59	1	skill	30	-1	do	0	to_skill		0	0	-1	-1	0	
+59	2	skill	35	3	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+59	2	skill	35	3	if	1	rand	lt	10	-1	-1	-1	-1	
+59	2	skill	35	3	if	2	is_can_skill	eq	1	551	-1	-1	551	
+59	2	skill	35	3	do	0	to_skill		0	551	-1	-1	551	
+59	3	skill	40	3	if	0	is_can_skill	eq	1	554	-1	-1	554	
+59	3	skill	40	3	if	1	rand	lt	10	-1	-1	-1	-1	
+59	3	skill	40	3	do	0	to_skill		0	554	-1	-1	554	
+60	0	common	36	1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+60	0	common	36	1	if	1	get_hp	lt	20	-1	-1	-1	-1	
+60	0	common	36	1	do	0	to_flee		0	1	-1	-1	-1	
+60	1	skill	30	-1	if	0	is_can_skill	eq	1	0	-1	-1	0	
+60	1	skill	30	-1	do	0	to_skill		0	0	-1	-1	0	
+60	2	skill	35	3	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+60	2	skill	35	3	if	1	rand	lt	10	-1	-1	-1	-1	
+60	2	skill	35	3	if	2	is_can_skill	eq	1	551	-1	-1	551	
+60	2	skill	35	3	do	0	to_skill		0	551	-1	-1	551	
+60	3	skill	40	3	if	0	is_can_skill	eq	1	556	-1	-1	556	
+60	3	skill	40	3	if	1	rand	lt	10	-1	-1	-1	-1	
+60	3	skill	40	3	do	0	to_skill		0	556	-1	-1	556	
+61	0	skill	30	-1	if	0	is_can_skill	eq	1	0	-1	-1	0	
+61	0	skill	30	-1	do	0	to_skill		0	0	-1	-1	0	
+61	1	skill	32	3	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+61	1	skill	32	3	if	1	rand	lt	10	-1	-1	-1	-1	
+61	1	skill	32	3	if	2	is_can_skill	eq	1	556	-1	-1	556	
+61	1	skill	32	3	do	0	to_skill		0	556	-1	-1	556	
+62	0	skill	30	-1	if	0	is_can_skill	eq	1	0	-1	-1	0	
+62	0	skill	30	-1	do	0	to_skill		0	0	-1	-1	0	
+62	1	skill	40	1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+62	1	skill	40	1	if	1	is_can_skill	eq	1	585	-1	-1	585	
+62	1	skill	40	1	do	0	to_skill		0	585	-1	-1	585	
+63	0	skill	30	-1	if	0	is_can_skill	eq	1	0	-1	-1	0	
+63	0	skill	30	-1	do	0	to_skill		0	0	-1	-1	0	
+63	1	skill	32	2	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+63	1	skill	32	2	if	1	rand	lt	10	-1	-1	-1	-1	
+63	1	skill	32	2	if	2	is_can_skill	eq	1	581	-1	-1	581	
+63	1	skill	32	2	do	0	to_skill		0	581	-1	-1	581	
+64	0	skill	30	-1	if	0	is_can_skill	eq	1	0	-1	-1	0	
+64	0	skill	30	-1	do	0	to_skill		0	0	-1	-1	0	
+64	1	skill	34	1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+64	1	skill	34	1	if	1	get_enemy_num	gt	1	-1	-1	-1	-1	
+64	1	skill	34	1	if	2	is_can_skill	eq	1	567	-1	-1	567	
+64	1	skill	34	1	do	0	to_skill		0	567	-1	-1	567	
+64	2	skill	40	1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+64	2	skill	40	1	if	1	is_can_skill	eq	1	585	-1	-1	585	
+64	2	skill	40	1	do	0	to_skill		0	585	-1	-1	585	
+65	0	skill	30	-1	if	0	is_can_skill	eq	1	0	-1	-1	0	
+65	0	skill	30	-1	do	0	to_skill		0	0	-1	-1	0	
+65	1	skill	34	1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+65	1	skill	34	1	if	1	get_enemy_num	gt	1	-1	-1	-1	-1	
+65	1	skill	34	1	if	2	is_can_skill	eq	1	567	-1	-1	567	
+65	1	skill	34	1	do	0	to_skill		0	567	-1	-1	567	
+65	2	skill	40	1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+65	2	skill	40	1	if	1	is_can_skill	eq	1	585	-1	-1	585	
+65	2	skill	40	1	do	0	to_skill		0	585	-1	-1	585	
+66	0	skill	30	-1	if	0	is_can_skill	eq	1	0	-1	-1	0	
+66	0	skill	30	-1	do	0	to_skill		0	0	-1	-1	0	
+66	1	skill	34	1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+66	1	skill	34	1	if	1	get_enemy_num	gt	1	-1	-1	-1	-1	
+66	1	skill	34	1	if	2	is_can_skill	eq	1	567	-1	-1	567	
+66	1	skill	34	1	do	0	to_skill		0	567	-1	-1	567	
+66	2	skill	40	1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+66	2	skill	40	1	if	1	is_can_skill	eq	1	585	-1	-1	585	
+66	2	skill	40	1	do	0	to_skill		0	585	-1	-1	585	
+67	0	common	34	1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+67	0	common	34	1	if	1	get_hp	lt	20	-1	-1	-1	-1	
+67	0	common	34	1	do	0	to_flee		0	1	-1	-1	-1	
+67	1	skill	31	-1	if	0	is_can_skill	eq	1	0	-1	-1	0	
+67	1	skill	31	-1	do	0	to_skill		0	0	-1	-1	0	
+67	2	skill	32	1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+67	2	skill	32	1	if	1	get_hp	lt	50	-1	-1	-1	-1	
+67	2	skill	32	1	if	2	is_can_skill	eq	1	582	-1	-1	582	
+67	2	skill	32	1	do	0	to_skill		0	582	-1	-1	582	
+67	3	skill	33	1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+67	3	skill	33	1	if	1	rand	lt	30	-1	-1	-1	-1	
+67	3	skill	33	1	if	2	is_can_skill	eq	1	572	-1	-1	572	
+67	3	skill	33	1	do	0	to_skill		0	572	-1	-1	572	
+68	0	skill	30	-1	if	0	is_can_skill	eq	1	0	-1	-1	0	
+68	0	skill	30	-1	do	0	to_skill		0	0	-1	-1	0	
+68	1	skill	32	1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+68	1	skill	32	1	if	1	rand	lt	10	-1	-1	-1	-1	
+68	1	skill	32	1	if	2	is_can_skill	eq	1	581	-1	-1	581	
+68	1	skill	32	1	do	0	to_skill		0	581	-1	-1	581	
+69	0	skill	30	-1	if	0	is_can_skill	eq	1	0	-1	-1	0	
+69	0	skill	30	-1	do	0	to_skill		0	0	-1	-1	0	
+69	1	skill	34	1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+69	1	skill	34	1	if	1	get_enemy_num	gt	1	-1	-1	-1	-1	
+69	1	skill	34	1	if	2	is_can_skill	eq	1	567	-1	-1	567	
+69	1	skill	34	1	do	0	to_skill		0	567	-1	-1	567	
+69	2	skill	40	1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+69	2	skill	40	1	if	1	is_can_skill	eq	1	585	-1	-1	585	
+69	2	skill	40	1	do	0	to_skill		0	585	-1	-1	585	
+70	0	common	34	1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+70	0	common	34	1	if	1	get_hp	lt	20	-1	-1	-1	-1	
+70	0	common	34	1	do	0	to_flee		0	1	-1	-1	-1	
+70	1	skill	31	-1	if	0	is_can_skill	eq	1	0	-1	-1	0	
+70	1	skill	31	-1	do	0	to_skill		0	0	-1	-1	0	
+70	2	skill	32	1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+70	2	skill	32	1	if	1	get_hp	lt	50	-1	-1	-1	-1	
+70	2	skill	32	1	if	2	is_can_skill	eq	1	582	-1	-1	582	
+70	2	skill	32	1	do	0	to_skill		0	582	-1	-1	582	
+70	3	skill	33	1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+70	3	skill	33	1	if	1	rand	lt	30	-1	-1	-1	-1	
+70	3	skill	33	1	if	2	is_can_skill	eq	1	563	-1	-1	563	
+70	3	skill	33	1	do	0	to_skill		0	563	-1	-1	563	
+71	0	skill	30	-1	if	0	is_can_skill	eq	1	0	-1	-1	0	
+71	0	skill	30	-1	do	0	to_skill		0	0	-1	-1	0	
+71	1	skill	32	1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+71	1	skill	32	1	if	1	rand	lt	10	-1	-1	-1	-1	
+71	1	skill	32	1	if	2	is_can_skill	eq	1	580	-1	-1	580	
+71	1	skill	32	1	do	0	to_skill		0	580	-1	-1	580	
+71	2	skill	34	1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+71	2	skill	34	1	if	1	is_can_skill	eq	1	578	-1	-1	578	
+71	2	skill	34	1	if	2	rand	lt	10	-1	-1	-1	-1	
+71	2	skill	34	1	do	0	to_skill		0	578	-1	-1	578	
+72	0	skill	30	-1	if	0	is_can_skill	eq	1	0	-1	-1	0	
+72	0	skill	30	-1	do	0	to_skill		0	0	-1	-1	0	
+72	1	skill	32	1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+72	1	skill	32	1	if	1	rand	lt	10	-1	-1	-1	-1	
+72	1	skill	32	1	if	2	is_can_skill	eq	1	580	-1	-1	580	
+72	1	skill	32	1	do	0	to_skill		0	580	-1	-1	580	
+72	2	skill	34	1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+72	2	skill	34	1	if	1	is_can_skill	eq	1	584	-1	-1	584	
+72	2	skill	34	1	do	0	to_skill		0	584	-1	-1	584	
+73	0	skill	30	-1	if	0	is_can_skill	eq	1	0	-1	-1	0	
+73	0	skill	30	-1	do	0	to_skill		0	0	-1	-1	0	
+73	1	skill	34	1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+73	1	skill	34	1	if	1	get_enemy_num	gt	1	-1	-1	-1	-1	
+73	1	skill	34	1	if	2	is_can_skill	eq	1	566	-1	-1	566	
+73	1	skill	34	1	do	0	to_skill		0	566	-1	-1	566	
+74	0	skill	30	-1	if	0	is_can_skill	eq	1	0	-1	-1	0	
+74	0	skill	30	-1	do	0	to_skill		0	0	-1	-1	0	
+74	1	skill	34	1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+74	1	skill	34	1	if	1	get_enemy_hp	lt	20	-1	-1	-1	-1	
+74	1	skill	34	1	if	2	is_can_skill	eq	1	570	-1	-1	570	
+74	1	skill	34	1	do	0	to_skill		0	570	-1	-1	570	
+74	2	skill	40	1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+74	2	skill	40	1	if	1	is_can_skill	eq	1	584	-1	-1	584	
+74	2	skill	40	1	do	0	to_skill		0	584	-1	-1	584	
+75	0	skill	30	-1	if	0	is_can_skill	eq	1	0	-1	-1	0	
+75	0	skill	30	-1	do	0	to_skill		0	0	-1	-1	0	
+75	1	skill	34	1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+75	1	skill	34	1	if	1	get_enemy_hp	lt	20	-1	-1	-1	-1	
+75	1	skill	34	1	if	2	is_can_skill	eq	1	570	-1	-1	570	
+75	1	skill	34	1	do	0	to_skill		0	570	-1	-1	570	
+75	2	skill	40	1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+75	2	skill	40	1	if	1	is_can_skill	eq	1	584	-1	-1	584	
+75	2	skill	40	1	do	0	to_skill		0	584	-1	-1	584	
+75	3	skill	35	1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+75	3	skill	35	1	if	1	rand	lt	10	-1	-1	-1	-1	
+75	3	skill	35	1	if	2	is_can_skill	eq	1	580	-1	-1	580	
+75	3	skill	35	1	do	0	to_skill		0	580	-1	-1	580	
+76	0	skill	30	-1	if	0	is_can_skill	eq	1	0	-1	-1	0	
+76	0	skill	30	-1	do	0	to_skill		0	0	-1	-1	0	
+76	1	skill	50	3	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+76	1	skill	50	3	if	1	get_enemy_hp	lt	20	-1	-1	-1	-1	
+76	1	skill	50	3	if	2	is_can_skill	eq	1	570	-1	-1	570	
+76	1	skill	50	3	do	0	to_skill		0	570	-1	-1	570	
+76	2	skill	40	1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+76	2	skill	40	1	if	1	is_can_skill	eq	1	584	-1	-1	584	
+76	2	skill	40	1	do	0	to_skill		0	584	-1	-1	584	
+76	3	skill	38	-1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+76	3	skill	38	-1	if	1	rand	lt	20	-1	-1	-1	-1	
+76	3	skill	38	-1	if	2	is_can_skill	eq	1	551	-1	-1	551	
+76	3	skill	38	-1	do	0	to_skill		0	551	-1	-1	551	
+76	4	skill	35	3	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+76	4	skill	35	3	if	1	get_hp	lt	50	-1	-1	-1	-1	
+76	4	skill	35	3	if	2	is_can_skill	eq	1	582	-1	-1	582	
+76	4	skill	35	3	do	0	to_skill		0	582	-1	-1	582	
+76	5	skill	39	-1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+76	5	skill	39	-1	if	1	rand	lt	10	-1	-1	-1	-1	
+76	5	skill	39	-1	if	2	is_can_skill	eq	1	561	-1	-1	561	
+76	5	skill	39	-1	do	0	to_skill		0	561	-1	-1	561	
+77	0	skill	30	-1	if	0	is_can_skill	eq	1	0	-1	-1	0	
+77	0	skill	30	-1	do	0	to_skill		0	0	-1	-1	0	
+77	1	skill	40	1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+77	1	skill	40	1	if	1	is_can_skill	eq	1	585	-1	-1	585	
+77	1	skill	40	1	do	0	to_skill		0	585	-1	-1	585	
+78	0	skill	30	-1	if	0	is_can_skill	eq	1	0	-1	-1	0	
+78	0	skill	30	-1	do	0	to_skill		0	0	-1	-1	0	
+78	1	skill	32	3	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+78	1	skill	32	3	if	1	rand	lt	20	-1	-1	-1	-1	
+78	1	skill	32	3	if	2	is_can_skill	eq	1	553	-1	-1	553	
+78	1	skill	32	3	do	0	to_skill		0	553	-1	-1	553	
+79	0	skill	30	-1	if	0	is_can_skill	eq	1	0	-1	-1	0	
+79	0	skill	30	-1	do	0	to_skill		0	0	-1	-1	0	
+79	1	skill	40	1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+79	1	skill	40	1	if	1	rand	lt	10	-1	-1	-1	-1	
+79	1	skill	40	1	if	2	is_can_skill	eq	1	580	-1	-1	580	
+79	1	skill	40	1	do	0	to_skill		0	580	-1	-1	580	
+80	0	skill	30	-1	if	0	is_can_skill	eq	1	0	-1	-1	0	
+80	0	skill	30	-1	do	0	to_skill		0	0	-1	-1	0	
+80	1	skill	32	3	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+80	1	skill	32	3	if	1	rand	lt	20	-1	-1	-1	-1	
+80	1	skill	32	3	if	2	is_can_skill	eq	1	553	-1	-1	553	
+80	1	skill	32	3	do	0	to_skill		0	553	-1	-1	553	
+80	2	skill	34	2	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+80	2	skill	34	2	if	1	get_enemy_num	gt	2	-1	-1	-1	-1	
+80	2	skill	34	2	if	2	is_can_skill	eq	1	557	-1	-1	557	
+80	2	skill	34	2	do	0	to_skill		0	557	-1	-1	557	
+81	0	skill	30	-1	if	0	is_can_skill	eq	1	0	-1	-1	0	
+81	0	skill	30	-1	do	0	to_skill		0	0	-1	-1	0	
+81	1	skill	32	3	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+81	1	skill	32	3	if	1	rand	lt	20	-1	-1	-1	-1	
+81	1	skill	32	3	if	2	is_can_skill	eq	1	556	-1	-1	556	
+81	1	skill	32	3	do	0	to_skill		0	556	-1	-1	556	
+82	0	skill	30	-1	if	0	is_can_skill	eq	1	552	-1	-1	552	
+82	0	skill	30	-1	do	0	to_skill		0	552	-1	-1	552	
+82	1	skill	40	1	if	0	is_can_skill	eq	1	570	-1	-1	570	
+82	1	skill	40	1	do	0	to_skill		0	570	-1	-1	570	
+83	0	skill	30	-1	if	0	is_can_skill	eq	1	611	-1	-1	611	
+83	0	skill	30	-1	do	0	to_skill		0	611	-1	-1	611	
+83	1	skill	40	1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+83	1	skill	40	1	if	1	is_can_skill	eq	1	585	-1	-1	585	
+83	1	skill	40	1	do	0	to_skill		0	585	-1	-1	585	
+83	2	skill	41	-1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+83	2	skill	41	-1	if	1	get_enemy_num	gt	1	-1	-1	-1	-1	
+83	2	skill	41	-1	if	2	is_can_skill	eq	1	590	-1	-1	590	
+83	2	skill	41	-1	if	3	get_hp	lt	50	-1	-1	-1	-1	
+83	2	skill	41	-1	if	4	rand	lt	10	-1	-1	-1	-1	
+83	2	skill	41	-1	do	0	to_skill		0	590	-1	-1	590	
+83	3	skill	32	-1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+83	3	skill	32	-1	if	1	is_can_skill	eq	1	588	-1	-1	588	
+83	3	skill	32	-1	if	2	rand	lt	20	-1	-1	-1	-1	
+83	3	skill	32	-1	do	0	to_skill		0	588	-1	-1	588	
+84	0	skill	30	-1	if	0	is_can_skill	eq	1	611	-1	-1	611	
+84	0	skill	30	-1	do	0	to_skill		0	611	-1	-1	611	
+84	1	skill	40	1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+84	1	skill	40	1	if	1	is_can_skill	eq	1	584	-1	-1	584	
+84	1	skill	40	1	do	0	to_skill		0	584	-1	-1	584	
+84	2	skill	41	5	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+84	2	skill	41	5	if	1	get_enemy_num	gt	1	-1	-1	-1	-1	
+84	2	skill	41	5	if	2	is_can_skill	eq	1	562	-1	-1	562	
+84	2	skill	41	5	if	3	get_hp	lt	50	-1	-1	-1	-1	
+84	2	skill	41	5	if	4	rand	lt	10	-1	-1	-1	-1	
+84	2	skill	41	5	do	0	to_skill		0	562	-1	-1	562	
+84	3	skill	32	-1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+84	3	skill	32	-1	if	1	is_can_skill	eq	1	588	-1	-1	588	
+84	3	skill	32	-1	if	2	rand	lt	20	-1	-1	-1	-1	
+84	3	skill	32	-1	do	0	to_skill		0	588	-1	-1	588	
+85	0	skill	30	-1	if	0	is_can_skill	eq	1	613	-1	-1	613	
+85	0	skill	30	-1	do	0	to_skill		0	613	-1	-1	613	
+85	1	skill	40	-1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+85	1	skill	40	-1	if	1	is_can_skill	eq	1	551	-1	-1	551	
+85	1	skill	40	-1	if	2	rand	lt	10	-1	-1	-1	-1	
+85	1	skill	40	-1	do	0	to_skill		0	551	-1	-1	551	
+85	2	skill	41	-1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+85	2	skill	41	-1	if	1	is_can_skill	eq	1	554	-1	-1	554	
+85	2	skill	41	-1	if	2	rand	lt	10	-1	-1	-1	-1	
+85	2	skill	41	-1	do	0	to_skill		0	554	-1	-1	554	
+85	3	skill	50	1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+85	3	skill	50	1	if	1	is_can_skill	eq	1	610	-1	-1	610	
+85	3	skill	50	1	if	2	get_hp	lt	10	-1	-1	-1	-1	
+85	3	skill	50	1	do	0	to_skill		0	610	-1	-1	610	
+86	0	skill	30	-1	if	0	is_can_skill	eq	1	0	-1	-1	0	
+86	0	skill	30	-1	do	0	to_skill		0	0	-1	-1	0	
+86	1	skill	34	1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+86	1	skill	34	1	if	1	get_hp	lt	80	-1	-1	-1	-1	
+86	1	skill	34	1	if	2	is_can_skill	eq	1	584	-1	-1	584	
+86	1	skill	34	1	do	0	to_skill		0	584	-1	-1	584	
+86	2	skill	40	1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+86	2	skill	40	1	if	1	rand	lt	10	-1	-1	-1	-1	
+86	2	skill	40	1	if	2	is_can_skill	eq	1	579	-1	-1	579	
+86	2	skill	40	1	do	0	to_skill		0	579	-1	-1	579	
+87	0	skill	30	-1	if	0	is_can_skill	eq	1	0	-1	-1	0	
+87	0	skill	30	-1	do	0	to_skill		0	0	-1	-1	0	
+87	1	skill	32	1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+87	1	skill	32	1	if	1	rand	lt	10	-1	-1	-1	-1	
+87	1	skill	32	1	if	2	is_can_skill	eq	1	580	-1	-1	580	
+87	1	skill	32	1	do	0	to_skill		0	580	-1	-1	580	
+87	2	skill	34	1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+87	2	skill	34	1	if	1	get_enemy_hp	lt	20	-1	-1	-1	-1	
+87	2	skill	34	1	if	2	is_can_skill	eq	1	573	-1	-1	573	
+87	2	skill	34	1	do	0	to_skill		0	573	-1	-1	573	
+88	0	skill	30	-1	if	0	is_can_skill	eq	1	0	-1	-1	0	
+88	0	skill	30	-1	do	0	to_skill		0	0	-1	-1	0	
+88	1	skill	32	2	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+88	1	skill	32	2	if	1	rand	lt	20	-1	-1	-1	-1	
+88	1	skill	32	2	if	2	is_can_skill	eq	1	551	-1	-1	551	
+88	1	skill	32	2	do	0	to_skill		0	551	-1	-1	551	
+88	2	skill	40	1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+88	2	skill	40	1	if	1	is_can_skill	eq	1	574	-1	-1	574	
+88	2	skill	40	1	if	2	rand	lt	10	-1	-1	-1	-1	
+88	2	skill	40	1	do	0	to_skill		0	574	-1	-1	574	
+89	0	skill	30	-1	if	0	is_can_skill	eq	1	0	-1	-1	0	
+89	0	skill	30	-1	do	0	to_skill		0	0	-1	-1	0	
+89	1	skill	32	2	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+89	1	skill	32	2	if	1	rand	lt	20	-1	-1	-1	-1	
+89	1	skill	32	2	if	2	is_can_skill	eq	1	551	-1	-1	551	
+89	1	skill	32	2	do	0	to_skill		0	551	-1	-1	551	
+89	2	skill	40	1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+89	2	skill	40	1	if	1	is_can_skill	eq	1	574	-1	-1	574	
+89	2	skill	40	1	do	0	to_skill		0	574	-1	-1	574	
+89	3	skill	50	1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+89	3	skill	50	1	if	1	get_hp	lt	30	-1	-1	-1	-1	
+89	3	skill	50	1	if	2	is_can_skill	eq	1	568	-1	-1	568	
+89	3	skill	50	1	do	0	to_skill		0	568	-1	-1	568	
+89	3	skill	50	1	do	1	to_summon		0	0	2	-1	-1	
+90	0	skill	30	-1	if	0	is_can_skill	eq	1	0	-1	-1	0	
+90	0	skill	30	-1	do	0	to_skill		0	0	-1	-1	0	
+90	1	skill	33	1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+90	1	skill	33	1	if	1	is_can_skill	eq	1	584	-1	-1	584	
+90	1	skill	33	1	do	0	to_skill		0	584	-1	-1	584	
+90	2	skill	36	5	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+90	2	skill	36	5	if	1	rand	lt	20	-1	-1	-1	-1	
+90	2	skill	36	5	if	2	is_can_skill	eq	1	591	-1	-1	591	
+90	2	skill	36	5	do	0	to_skill		0	591	-1	-1	591	
+91	0	skill	30	-1	if	0	is_can_skill	eq	1	0	-1	-1	0	
+91	0	skill	30	-1	do	0	to_skill		0	0	-1	-1	0	
+91	1	skill	33	1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+91	1	skill	33	1	if	1	is_can_skill	eq	1	584	-1	-1	584	
+91	1	skill	33	1	do	0	to_skill		0	584	-1	-1	584	
+91	2	skill	36	5	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+91	2	skill	36	5	if	1	rand	lt	20	-1	-1	-1	-1	
+91	2	skill	36	5	if	2	is_can_skill	eq	1	591	-1	-1	591	
+91	2	skill	36	5	do	0	to_skill		0	591	-1	-1	591	
+92	0	skill	30	-1	if	0	is_can_skill	eq	1	0	-1	-1	0	
+92	0	skill	30	-1	do	0	to_skill		0	0	-1	-1	0	
+92	1	skill	33	1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+92	1	skill	33	1	if	1	is_can_skill	eq	1	584	-1	-1	584	
+92	1	skill	33	1	do	0	to_skill		0	584	-1	-1	584	
+92	2	skill	36	5	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+92	2	skill	36	5	if	1	get_enemy_num	gt	2	-1	-1	-1	-1	
+92	2	skill	36	5	if	2	is_can_skill	eq	1	560	-1	-1	560	
+92	2	skill	36	5	if	3	rand	lt	20	-1	-1	-1	-1	
+92	2	skill	36	5	do	0	to_skill		0	560	-1	-1	560	
+92	3	skill	38	5	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+92	3	skill	38	5	if	1	rand	lt	20	-1	-1	-1	-1	
+92	3	skill	38	5	if	2	is_can_skill	eq	1	591	-1	-1	591	
+92	3	skill	38	5	do	0	to_skill		0	591	-1	-1	591	
+93	0	skill	30	-1	if	0	is_can_skill	eq	1	0	-1	-1	0	
+93	0	skill	30	-1	do	0	to_skill		0	0	-1	-1	0	
+93	1	skill	32	3	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+93	1	skill	32	3	if	1	get_enemy_num	gt	2	-1	-1	-1	-1	
+93	1	skill	32	3	if	2	is_can_skill	eq	1	561	-1	-1	561	
+93	1	skill	32	3	if	3	rand	lt	10	-1	-1	-1	-1	
+93	1	skill	32	3	do	0	to_skill		0	561	-1	-1	561	
+93	2	skill	31	2	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+93	2	skill	31	2	if	1	rand	lt	30	-1	-1	-1	-1	
+93	2	skill	31	2	if	2	is_can_skill	eq	1	572	-1	-1	572	
+93	2	skill	31	2	do	0	to_skill		0	572	-1	-1	572	
+94	0	skill	30	-1	if	0	is_can_skill	eq	1	0	-1	-1	0	
+94	0	skill	30	-1	do	0	to_skill		0	0	-1	-1	0	
+94	1	skill	32	2	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+94	1	skill	32	2	if	1	rand	lt	10	-1	-1	-1	-1	
+94	1	skill	32	2	if	2	is_can_skill	eq	1	581	-1	-1	581	
+94	1	skill	32	2	do	0	to_skill		0	581	-1	-1	581	
+95	0	skill	80	-1	if	0	is_can_skill	eq	1	0	-1	-1	0	
+95	0	skill	80	-1	do	0	to_skill		0	0	-1	-1	0	
+95	1	skill	70	-1	if	0	is_can_skill	eq	1	552	-1	-1	552	
+95	1	skill	70	-1	do	0	to_skill		0	552	-1	-1	552	
+95	2	skill	84	1	if	0	is_can_skill	eq	1	620	-1	-1	620	
+95	2	skill	84	1	if	1	rand	lt	30	-1	-1	-1	-1	
+95	2	skill	84	1	do	0	to_skill		0	620	-1	-1	620	
+96	0	common	34	-1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+96	0	common	34	-1	if	1	get_hp	lt	90	-1	-1	-1	-1	
+96	0	common	34	-1	do	0	to_speak		0	161	1	-1	-1	
+96	0	common	34	-1	do	1	to_flee		0	1	-1	-1	-1	
+96	1	common	37	-1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+96	1	common	37	-1	if	1	get_hp	lt	5	-1	-1	-1	-1	
+96	1	common	37	-1	do	0	to_speak		0	162	1	-1	-1	
+96	1	common	37	-1	do	1	to_flee		0	1	-1	-1	-1	
+96	2	skill	30	1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+96	2	skill	30	1	do	0	to_speak		0	160	1	-1	-1	
+99	0	skill	30	-1	if	0	is_can_skill	eq	1	0	-1	-1	0	
+99	0	skill	30	-1	do	0	to_skill		0	0	-1	-1	0	
+99	1	skill	34	1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+99	1	skill	34	1	if	1	rand	lt	20	-1	-1	-1	-1	
+99	1	skill	34	1	if	2	is_can_skill	eq	1	574	-1	-1	574	
+99	1	skill	34	1	do	0	to_skill		0	574	-1	-1	574	
+100	0	common	35	1	if	0	get_ai_state	eq	3	-1	-1	-1	-1	SAPPROACH
+100	0	common	35	1	do	0	to_summon		0	0	3	-1	-1	
+100	1	skill	30	-1	if	0	is_can_skill	eq	1	0	-1	-1	0	
+100	1	skill	30	-1	do	0	to_skill		0	0	-1	-1	0	
+100	2	skill	32	3	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+100	2	skill	32	3	if	1	rand	lt	20	-1	-1	-1	-1	
+100	2	skill	32	3	if	2	is_can_skill	eq	1	576	-1	-1	576	
+100	2	skill	32	3	do	0	to_skill		0	576	-1	-1	576	
+100	3	beskill	35	1	if	0	const	eq	1	1	-1	-1	-1	
+100	3	beskill	35	1	do	0	to_summon		0	0	3	-1	-1	
+101	0	skill	30	-1	if	0	is_can_skill	eq	1	0	-1	-1	0	
+101	0	skill	30	-1	do	0	to_skill		0	0	-1	-1	0	
+101	1	skill	33	1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+101	1	skill	33	1	if	1	is_can_skill	eq	1	584	-1	-1	584	
+101	1	skill	33	1	do	0	to_skill		0	584	-1	-1	584	
+101	2	skill	36	5	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+101	2	skill	36	5	if	1	rand	lt	20	-1	-1	-1	-1	
+101	2	skill	36	5	if	2	is_can_skill	eq	1	591	-1	-1	591	
+101	2	skill	36	5	do	0	to_skill		0	591	-1	-1	591	
+102	0	skill	30	-1	if	0	is_can_skill	eq	1	0	-1	-1	0	
+102	0	skill	30	-1	do	0	to_skill		0	0	-1	-1	0	
+102	1	skill	32	7	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+102	1	skill	32	7	if	1	rand	lt	15	-1	-1	-1	-1	
+102	1	skill	32	7	if	2	is_can_skill	eq	1	551	-1	-1	551	
+102	1	skill	32	7	do	0	to_skill		0	551	-1	-1	551	
+102	2	skill	31	5	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+102	2	skill	31	5	if	1	get_hp	lt	30	-1	-1	-1	-1	
+102	2	skill	31	5	if	2	is_can_skill	eq	1	568	-1	-1	568	
+102	2	skill	31	5	do	0	to_skill		0	568	-1	-1	568	
+103	0	skill	30	-1	if	0	is_can_skill	eq	1	0	-1	-1	0	
+103	0	skill	30	-1	do	0	to_skill		0	0	-1	-1	0	
+103	1	skill	34	5	if	0	get_hp	lt	50	-1	-1	-1	-1	
+103	1	skill	34	5	if	1	is_can_skill	eq	1	582	-1	-1	582	
+103	1	skill	34	5	do	0	to_skill		0	582	-1	-1	582	
+103	2	skill	40	3	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+103	2	skill	40	3	if	1	rand	lt	20	-1	-1	-1	-1	
+103	2	skill	40	3	if	2	is_can_skill	eq	1	572	-1	-1	572	
+103	2	skill	40	3	do	0	to_skill		0	572	-1	-1	572	
+104	0	skill	30	-1	if	0	is_can_skill	eq	1	0	-1	-1	0	
+104	0	skill	30	-1	do	0	to_skill		0	0	-1	-1	0	
+104	1	skill	32	3	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+104	1	skill	32	3	if	1	get_enemy_num	gt	2	-1	-1	-1	-1	
+104	1	skill	32	3	if	2	is_can_skill	eq	1	567	-1	-1	567	
+104	1	skill	32	3	do	0	to_skill		0	567	-1	-1	567	
+104	2	skill	40	5	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+104	2	skill	40	5	if	1	rand	lt	10	-1	-1	-1	-1	
+104	2	skill	40	5	if	2	is_can_skill	eq	1	561	-1	-1	561	
+104	2	skill	40	5	do	0	to_skill		0	561	-1	-1	561	
+105	0	skill	30	-1	if	0	is_can_skill	eq	1	0	-1	-1	0	
+105	0	skill	30	-1	do	0	to_skill		0	0	-1	-1	0	
+105	1	skill	34	1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+105	1	skill	34	1	if	1	rand	lt	10	-1	-1	-1	-1	
+105	1	skill	34	1	if	2	is_can_skill	eq	1	578	-1	-1	578	
+105	1	skill	34	1	do	0	to_skill		0	578	-1	-1	578	
+106	0	skill	30	-1	if	0	is_can_skill	eq	1	0	-1	-1	0	
+106	0	skill	30	-1	do	0	to_skill		0	0	-1	-1	0	
+106	1	skill	34	1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+106	1	skill	34	1	if	1	rand	lt	10	-1	-1	-1	-1	
+106	1	skill	34	1	if	2	is_can_skill	eq	1	577	-1	-1	577	
+106	1	skill	34	1	do	0	to_skill		0	577	-1	-1	577	
+107	0	skill	30	-1	if	0	is_can_skill	eq	1	0	-1	-1	0	
+107	0	skill	30	-1	do	0	to_skill		0	0	-1	-1	0	
+107	1	skill	40	1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+107	1	skill	40	1	if	1	rand	lt	10	-1	-1	-1	-1	
+107	1	skill	40	1	if	2	is_can_skill	eq	1	580	-1	-1	580	
+107	1	skill	40	1	do	0	to_skill		0	580	-1	-1	580	
+108	0	skill	40	-1	if	0	is_can_skill	eq	1	553	-1	-1	553	
+108	0	skill	40	-1	if	1	rand	lt	15	-1	-1	-1	-1	
+108	0	skill	40	-1	do	0	to_skill		0	553	-1	-1	553	
+108	1	skill	35	-1	if	0	is_can_skill	eq	1	0	-1	-1	0	
+108	1	skill	35	-1	do	0	to_skill		0	0	-1	-1	0	
+109	0	skill	40	-1	if	0	is_can_skill	eq	1	554	-1	-1	554	
+109	0	skill	40	-1	if	1	rand	lt	15	-1	-1	-1	-1	
+109	0	skill	40	-1	do	0	to_skill		0	554	-1	-1	554	
+109	1	skill	35	-1	if	0	is_can_skill	eq	1	0	-1	-1	0	
+109	1	skill	35	-1	do	0	to_skill		0	0	-1	-1	0	
+110	0	skill	40	-1	if	0	is_can_skill	eq	1	555	-1	-1	555	
+110	0	skill	40	-1	if	1	rand	lt	15	-1	-1	-1	-1	
+110	0	skill	40	-1	do	0	to_skill		0	555	-1	-1	555	
+110	1	skill	35	-1	if	0	is_can_skill	eq	1	0	-1	-1	0	
+110	1	skill	35	-1	do	0	to_skill		0	0	-1	-1	0	
+111	0	skill	40	-1	if	0	is_can_skill	eq	1	556	-1	-1	556	
+111	0	skill	40	-1	if	1	rand	lt	15	-1	-1	-1	-1	
+111	0	skill	40	-1	do	0	to_skill		0	556	-1	-1	556	
+111	1	skill	35	-1	if	0	is_can_skill	eq	1	0	-1	-1	0	
+111	1	skill	35	-1	do	0	to_skill		0	0	-1	-1	0	
+112	0	skill	40	-1	if	0	is_can_skill	eq	1	588	-1	-1	588	
+112	0	skill	40	-1	if	1	rand	lt	20	-1	-1	-1	-1	
+112	0	skill	40	-1	do	0	to_skill		0	588	-1	-1	588	
+112	1	skill	34	3	if	0	get_hp	lt	50	-1	-1	-1	-1	
+112	1	skill	34	3	if	1	is_can_skill	eq	1	589	-1	-1	589	
+112	1	skill	34	3	do	0	to_skill		0	589	-1	-1	589	
+112	2	skill	35	-1	if	0	is_can_skill	eq	1	0	-1	-1	0	
+112	2	skill	35	-1	do	0	to_skill		0	0	-1	-1	0	
+113	0	skill	38	-1	if	0	is_can_skill	eq	1	588	-1	-1	588	
+113	0	skill	38	-1	if	1	rand	lt	20	-1	-1	-1	-1	
+113	0	skill	38	-1	do	0	to_skill		0	588	-1	-1	588	
+113	1	skill	40	-1	if	0	is_can_skill	eq	1	590	-1	-1	590	
+113	1	skill	40	-1	if	1	rand	lt	15	-1	-1	-1	-1	
+113	1	skill	40	-1	do	0	to_skill		0	590	-1	-1	590	
+113	2	skill	35	-1	if	0	is_can_skill	eq	1	0	-1	-1	0	
+113	2	skill	35	-1	do	0	to_skill		0	0	-1	-1	0	
+114	0	skill	38	-1	if	0	is_can_skill	eq	1	600	-1	-1	600	
+114	0	skill	38	-1	if	1	rand	lt	20	-1	-1	-1	-1	
+114	0	skill	38	-1	do	0	to_skill		0	600	-1	-1	600	
+114	1	skill	40	-1	if	0	is_can_skill	eq	1	601	-1	-1	601	
+114	1	skill	40	-1	if	1	rand	lt	15	-1	-1	-1	-1	
+114	1	skill	40	-1	do	0	to_skill		0	601	-1	-1	601	
+114	2	skill	35	-1	if	0	is_can_skill	eq	1	0	-1	-1	0	
+114	2	skill	35	-1	do	0	to_skill		0	0	-1	-1	0	
+115	0	skill	38	-1	if	0	is_can_skill	eq	1	600	-1	-1	600	
+115	0	skill	38	-1	if	1	rand	lt	20	-1	-1	-1	-1	
+115	0	skill	38	-1	do	0	to_skill		0	600	-1	-1	600	
+115	1	skill	40	3	if	0	get_hp	lt	30	-1	-1	-1	-1	
+115	1	skill	40	3	if	1	is_can_skill	eq	1	594	-1	-1	594	
+115	1	skill	40	3	do	0	to_skill		0	594	-1	-1	594	
+115	2	skill	35	-1	if	0	is_can_skill	eq	1	0	-1	-1	0	
+115	2	skill	35	-1	do	0	to_skill		0	0	-1	-1	0	
+116	0	skill	38	-1	if	0	is_can_skill	eq	1	595	-1	-1	595	
+116	0	skill	38	-1	if	1	rand	lt	20	-1	-1	-1	-1	
+116	0	skill	38	-1	do	0	to_skill		0	595	-1	-1	595	
+116	1	skill	40	-1	if	0	is_can_skill	eq	1	596	-1	-1	596	
+116	1	skill	40	-1	if	1	rand	lt	15	-1	-1	-1	-1	
+116	1	skill	40	-1	do	0	to_skill		0	596	-1	-1	596	
+116	2	skill	35	-1	if	0	is_can_skill	eq	1	0	-1	-1	0	
+116	2	skill	35	-1	do	0	to_skill		0	0	-1	-1	0	
+117	0	skill	38	-1	if	0	is_can_skill	eq	1	597	-1	-1	597	
+117	0	skill	38	-1	if	1	rand	lt	20	-1	-1	-1	-1	
+117	0	skill	38	-1	do	0	to_skill		0	597	-1	-1	597	
+117	1	skill	40	-1	if	0	is_can_skill	eq	1	602	-1	-1	602	
+117	1	skill	40	-1	if	1	rand	lt	10	-1	-1	-1	-1	
+117	1	skill	40	-1	do	0	to_skill		0	602	-1	-1	602	
+117	2	skill	35	-1	if	0	is_can_skill	eq	1	0	-1	-1	0	
+117	2	skill	35	-1	do	0	to_skill		0	0	-1	-1	0	
+118	0	skill	40	-1	if	0	is_can_skill	eq	1	598	-1	-1	598	
+118	0	skill	40	-1	if	1	rand	lt	10	-1	-1	-1	-1	
+118	0	skill	40	-1	do	0	to_skill		0	598	-1	-1	598	
+118	1	skill	39	-1	if	0	is_can_skill	eq	1	599	-1	-1	599	
+118	1	skill	39	-1	if	1	rand	lt	20	-1	-1	-1	-1	
+118	1	skill	39	-1	do	0	to_skill		0	599	-1	-1	599	
+118	2	skill	35	-1	if	0	is_can_skill	eq	1	0	-1	-1	0	
+118	2	skill	35	-1	do	0	to_skill		0	0	-1	-1	0	
+119	0	skill	38	-1	if	0	is_can_skill	eq	1	600	-1	-1	600	
+119	0	skill	38	-1	if	1	rand	lt	20	-1	-1	-1	-1	
+119	0	skill	38	-1	do	0	to_skill		0	600	-1	-1	600	
+119	1	skill	40	-1	if	0	is_can_skill	eq	1	601	-1	-1	601	
+119	1	skill	40	-1	if	1	rand	lt	15	-1	-1	-1	-1	
+119	1	skill	40	-1	do	0	to_skill		0	601	-1	-1	601	
+119	2	skill	35	-1	if	0	is_can_skill	eq	1	0	-1	-1	0	
+119	2	skill	35	-1	do	0	to_skill		0	0	-1	-1	0	
+120	0	skill	38	-1	if	0	is_can_skill	eq	1	600	-1	-1	600	
+120	0	skill	38	-1	if	1	rand	lt	20	-1	-1	-1	-1	
+120	0	skill	38	-1	do	0	to_skill		0	600	-1	-1	600	
+120	1	skill	40	2	if	0	get_hp	lt	20	-1	-1	-1	-1	
+120	1	skill	40	2	if	1	is_can_skill	eq	1	594	-1	-1	594	
+120	1	skill	40	2	do	0	to_skill		0	594	-1	-1	594	
+120	2	skill	35	-1	if	0	is_can_skill	eq	1	0	-1	-1	0	
+120	2	skill	35	-1	do	0	to_skill		0	0	-1	-1	0	
+121	0	skill	38	-1	if	0	is_can_skill	eq	1	591	-1	-1	591	
+121	0	skill	38	-1	if	1	rand	lt	20	-1	-1	-1	-1	
+121	0	skill	38	-1	do	0	to_skill		0	591	-1	-1	591	
+121	1	skill	39	-1	if	0	is_can_skill	eq	1	592	-1	-1	592	
+121	1	skill	39	-1	if	1	rand	lt	20	-1	-1	-1	-1	
+121	1	skill	39	-1	if	2	get_enemy_num	gt	1	-1	-1	-1	-1	
+121	1	skill	39	-1	do	0	to_skill		0	592	-1	-1	592	
+121	2	skill	40	5	if	0	get_hp	lt	50	-1	-1	-1	-1	
+121	2	skill	40	5	if	1	is_can_skill	eq	1	589	-1	-1	589	
+121	2	skill	40	5	do	0	to_skill		0	589	-1	-1	589	
+121	3	skill	41	5	if	0	get_hp	lt	50	-1	-1	-1	-1	
+121	3	skill	41	5	if	1	is_can_skill	eq	1	599	-1	-1	599	
+121	3	skill	41	5	do	0	to_skill		0	599	-1	-1	599	
+121	4	skill	43	1	if	0	get_hp	lt	30	-1	-1	-1	-1	
+121	4	skill	43	1	if	1	is_can_skill	eq	1	589	-1	-1	589	
+121	4	skill	43	1	do	0	to_skill		0	589	-1	-1	589	
+121	5	skill	44	1	if	0	get_hp	lt	50	-1	-1	-1	-1	
+121	5	skill	44	1	if	1	is_can_skill	eq	1	599	-1	-1	599	
+121	5	skill	44	1	do	0	to_skill		0	599	-1	-1	599	
+121	6	skill	36	1	if	0	get_hp	lt	20	-1	-1	-1	-1	
+121	6	skill	36	1	if	1	is_can_skill	eq	1	585	-1	-1	585	
+121	6	skill	36	1	do	0	to_skill		0	585	-1	-1	585	
+121	7	skill	37	1	if	0	get_hp	lt	10	-1	-1	-1	-1	
+121	7	skill	37	1	if	1	is_can_skill	eq	1	584	-1	-1	584	
+121	7	skill	37	1	do	0	to_skill		0	584	-1	-1	584	
+121	8	skill	35	-1	if	0	is_can_skill	eq	1	0	-1	-1	0	
+121	8	skill	35	-1	do	0	to_skill		0	0	-1	-1	0	
+122	0	skill	31	-1	if	0	is_can_skill	eq	1	0	-1	-1	0	
+122	0	skill	31	-1	do	0	to_skill		0	0	-1	-1	0	
+122	1	skill	30	-1	if	0	is_can_skill	eq	1	552	-1	-1	552	
+122	1	skill	30	-1	do	0	to_skill		0	552	-1	-1	552	
+122	2	skill	34	3	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+122	2	skill	34	3	if	1	rand	lt	10	-1	-1	-1	-1	
+122	2	skill	34	3	if	2	is_can_skill	eq	1	572	-1	-1	572	
+122	2	skill	34	3	do	0	to_skill		0	572	-1	-1	572	
+122	3	skill	37	1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+122	3	skill	37	1	if	1	get_enemy_hp	lt	20	-1	-1	-1	-1	
+122	3	skill	37	1	if	2	is_can_skill	eq	1	571	-1	-1	571	
+122	3	skill	37	1	do	0	to_skill		0	571	-1	-1	571	
+123	0	common	31	1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+123	0	common	31	1	if	1	is_has_enemy	eq	1	-1	-1	-1	-1	
+123	0	common	31	1	do	0	to_speak		0	58	1	-1	-1	
+123	1	skill	30	-1	if	0	is_can_skill	eq	1	614	-1	-1	614	
+123	1	skill	30	-1	do	0	to_skill		0	614	-1	-1	614	
+123	2	skill	33	-1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+123	2	skill	33	-1	if	1	rand	lt	20	-1	-1	-1	-1	
+123	2	skill	33	-1	if	2	is_can_skill	eq	1	555	-1	-1	555	
+123	2	skill	33	-1	do	0	to_skill		0	555	-1	-1	555	
+123	3	skill	34	3	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+123	3	skill	34	3	if	1	get_hp	lt	70	-1	-1	-1	-1	
+123	3	skill	34	3	if	2	is_can_skill	eq	1	559	-1	-1	559	
+123	3	skill	34	3	do	0	to_skill		0	559	-1	-1	559	
+123	4	skill	38	1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+123	4	skill	38	1	if	1	get_hp	lt	30	-1	-1	-1	-1	
+123	4	skill	38	1	if	2	is_can_skill	eq	1	615	-1	-1	615	
+123	4	skill	38	1	do	0	to_skill		0	615	-1	-1	615	
+123	5	skill	31	1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+123	5	skill	31	1	if	1	get_hp	lt	70	-1	-1	-1	-1	
+123	5	skill	31	1	do	0	to_speak		0	59	1	-1	-1	
+123	6	skill	31	1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+123	6	skill	31	1	if	1	get_hp	lt	30	-1	-1	-1	-1	
+123	6	skill	31	1	do	0	to_speak		0	60	1	-1	-1	
+123	7	skill	31	1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+123	7	skill	31	1	if	1	get_hp	lt	1	-1	-1	-1	-1	
+123	7	skill	31	1	do	0	to_speak		0	61	1	-1	-1	
+124	0	common	36	1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+124	0	common	36	1	if	1	get_hp	lt	20	-1	-1	-1	-1	
+124	0	common	36	1	do	0	to_flee		0	1	-1	-1	-1	
+124	1	skill	30	-1	if	0	is_can_skill	eq	1	0	-1	-1	0	
+124	1	skill	30	-1	do	0	to_skill		0	0	-1	-1	0	
+124	2	skill	32	-1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+124	2	skill	32	-1	if	1	rand	lt	20	-1	-1	-1	-1	
+124	2	skill	32	-1	if	2	is_can_skill	eq	1	579	-1	-1	579	
+124	2	skill	32	-1	do	0	to_skill		0	579	-1	-1	579	
+124	3	skill	33	-1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+124	3	skill	33	-1	if	1	rand	lt	20	-1	-1	-1	-1	
+124	3	skill	33	-1	if	2	is_can_skill	eq	1	574	-1	-1	574	
+124	3	skill	33	-1	do	0	to_skill		0	574	-1	-1	574	
+125	0	common	31	1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+125	0	common	31	1	if	1	is_has_enemy	ge	1	-1	-1	-1	-1	
+125	0	common	31	1	do	0	to_speak		0	62	1	-1	-1	
+125	1	common	31	1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+125	1	common	31	1	if	1	get_hp	lt	1	-1	-1	-1	-1	
+125	1	common	31	1	do	0	to_speak		0	63	1	-1	-1	
+125	2	skill	30	-1	if	0	is_can_skill	eq	1	0	-1	-1	0	
+125	2	skill	30	-1	do	0	to_skill		0	0	-1	-1	0	
+125	3	skill	32	3	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+125	3	skill	32	3	if	1	get_enemy_num	gt	2	-1	-1	-1	-1	
+125	3	skill	32	3	if	2	is_can_skill	eq	1	567	-1	-1	567	
+125	3	skill	32	3	do	0	to_skill		0	567	-1	-1	567	
+125	4	skill	40	10	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+125	4	skill	40	10	if	1	rand	lt	20	-1	-1	-1	-1	
+125	4	skill	40	10	if	2	is_can_skill	eq	1	561	-1	-1	561	
+125	4	skill	40	10	do	0	to_skill		0	561	-1	-1	561	
+126	0	common	31	1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+126	0	common	31	1	if	1	is_has_enemy	ge	1	-1	-1	-1	-1	
+126	0	common	31	1	do	0	to_speak		0	64	1	-1	-1	
+126	1	common	31	1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+126	1	common	31	1	if	1	get_hp	lt	1	-1	-1	-1	-1	
+126	1	common	31	1	do	0	to_speak		0	65	1	-1	-1	
+126	2	skill	30	-1	if	0	is_can_skill	eq	1	0	-1	-1	0	
+126	2	skill	30	-1	do	0	to_skill		0	0	-1	-1	0	
+126	3	skill	32	-1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+126	3	skill	32	-1	if	1	rand	lt	20	-1	-1	-1	-1	
+126	3	skill	32	-1	if	2	is_can_skill	eq	1	581	-1	-1	581	
+126	3	skill	32	-1	do	0	to_skill		0	581	-1	-1	581	
+126	4	skill	33	-1	if	0	is_can_skill	eq	1	556	-1	-1	556	
+126	4	skill	33	-1	if	1	rand	lt	20	-1	-1	-1	-1	
+126	4	skill	33	-1	do	0	to_skill		0	556	-1	-1	556	
+126	5	skill	40	1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+126	5	skill	40	1	if	1	is_can_skill	eq	1	584	-1	-1	584	
+126	5	skill	40	1	if	2	get_hp	lt	30	-1	-1	-1	-1	
+126	5	skill	40	1	do	0	to_skill		0	584	-1	-1	584	
+127	0	skill	30	-1	if	0	is_can_skill	eq	1	0	-1	-1	0	
+127	0	skill	30	-1	do	0	to_skill		0	0	-1	-1	0	
+127	1	skill	32	1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+127	1	skill	32	1	if	1	is_can_skill	eq	1	585	-1	-1	585	
+127	1	skill	32	1	do	0	to_skill		0	585	-1	-1	585	
+127	2	skill	33	1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+127	2	skill	33	1	if	1	is_can_skill	eq	1	580	-1	-1	580	
+127	2	skill	33	1	if	2	rand	lt	20	-1	-1	-1	-1	
+127	2	skill	33	1	do	0	to_skill		0	580	-1	-1	580	
+127	3	skill	34	1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+127	3	skill	34	1	if	1	is_can_skill	eq	1	573	-1	-1	573	
+127	3	skill	34	1	if	2	rand	lt	20	-1	-1	-1	-1	
+127	3	skill	34	1	do	0	to_skill		0	573	-1	-1	573	
+128	0	skill	30	-1	if	0	is_can_skill	eq	1	0	-1	-1	0	
+128	0	skill	30	-1	do	0	to_skill		0	0	-1	-1	0	
+128	1	skill	32	-1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+128	1	skill	32	-1	if	1	rand	lt	30	-1	-1	-1	-1	
+128	1	skill	32	-1	if	2	is_can_skill	eq	1	588	-1	-1	588	
+128	1	skill	32	-1	do	0	to_skill		0	588	-1	-1	588	
+128	2	skill	33	5	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+128	2	skill	33	5	if	1	rand	lt	20	-1	-1	-1	-1	
+128	2	skill	33	5	if	2	is_can_skill	eq	1	562	-1	-1	562	
+128	2	skill	33	5	do	0	to_skill		0	562	-1	-1	562	
+128	3	skill	39	1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+128	3	skill	39	1	if	1	get_hp	lt	50	-1	-1	-1	-1	
+128	3	skill	39	1	if	2	is_can_skill	eq	1	603	-1	-1	603	
+128	3	skill	39	1	do	0	to_skill		0	603	-1	-1	603	
+128	4	skill	37	1	if	0	get_hp	lt	50	-1	-1	-1	-1	
+128	4	skill	37	1	do	0	to_speak		0	66	2	-1	-1	
+128	4	skill	37	1	do	1	set_base_ai_type		0	1	2	15	-1	
+128	4	skill	37	1	do	2	set_patrol_id		0	0	-1	-1	-1	
+128	4	skill	37	1	do	3	start_patrol		0	-1	-1	-1	-1	
+129	0	skill	30	-1	if	0	is_can_skill	eq	1	0	-1	-1	0	
+129	0	skill	30	-1	do	0	to_skill		0	0	-1	-1	0	
+129	1	skill	32	-1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+129	1	skill	32	-1	if	1	rand	lt	30	-1	-1	-1	-1	
+129	1	skill	32	-1	if	2	is_can_skill	eq	1	588	-1	-1	588	
+129	1	skill	32	-1	do	0	to_skill		0	588	-1	-1	588	
+129	2	skill	33	5	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+129	2	skill	33	5	if	1	rand	lt	20	-1	-1	-1	-1	
+129	2	skill	33	5	if	2	is_can_skill	eq	1	562	-1	-1	562	
+129	2	skill	33	5	do	0	to_skill		0	562	-1	-1	562	
+129	3	skill	36	5	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+129	3	skill	36	5	if	1	get_hp	lt	50	-1	-1	-1	-1	
+129	3	skill	36	5	if	2	is_can_skill	eq	1	603	-1	-1	603	
+129	3	skill	36	5	if	3	rand	lt	30	-1	-1	-1	-1	
+129	3	skill	36	5	do	0	to_skill		0	603	-1	-1	603	
+129	4	skill	35	2	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+129	4	skill	35	2	if	1	get_hp	lt	30	-1	-1	-1	-1	
+129	4	skill	35	2	if	2	is_can_skill	eq	1	582	-1	-1	582	
+129	4	skill	35	2	do	0	to_skill		0	582	-1	-1	582	
+130	0	common	31	1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+130	0	common	31	1	if	1	is_has_enemy	ge	1	-1	-1	-1	-1	
+130	0	common	31	1	do	0	to_speak		0	70	1	-1	-1	
+130	1	common	31	1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+130	1	common	31	1	if	1	get_hp	lt	20	-1	-1	-1	-1	
+130	1	common	31	1	do	0	to_speak		0	71	1	-1	-1	
+130	1	common	31	1	do	1	to_flee		0	1	-1	-1	-1	
+130	2	skill	31	-1	if	0	is_can_skill	eq	1	0	-1	-1	0	
+130	2	skill	31	-1	do	0	to_skill		0	0	-1	-1	0	
+131	0	skill	31	-1	if	0	is_can_skill	eq	1	552	-1	-1	552	
+131	0	skill	31	-1	do	0	to_skill		0	552	-1	-1	552	
+131	1	skill	40	10	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+131	1	skill	40	10	if	1	rand	lt	20	-1	-1	-1	-1	
+131	1	skill	40	10	if	2	is_can_skill	eq	1	553	-1	-1	553	
+131	1	skill	40	10	do	0	to_skill		0	553	-1	-1	553	
+131	2	skill	50	1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+131	2	skill	50	1	do	0	call_other_monster_by_group		0	-1	-1	-1	-1	
+132	0	skill	31	-1	if	0	is_can_skill	eq	1	0	-1	-1	0	
+132	0	skill	31	-1	do	0	to_skill		0	0	-1	-1	0	
+132	1	skill	40	3	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+132	1	skill	40	3	if	1	rand	lt	20	-1	-1	-1	-1	
+132	1	skill	40	3	if	2	is_can_skill	eq	1	568	-1	-1	568	
+132	1	skill	40	3	do	0	to_skill		0	568	-1	-1	568	
+132	2	skill	50	1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+132	2	skill	50	1	do	0	call_other_monster_by_group		0	-1	-1	-1	-1	
+133	0	common	46	1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+133	0	common	46	1	if	1	is_has_enemy	ge	1	-1	-1	-1	-1	
+133	0	common	46	1	do	0	to_speak		0	72	1	-1	-1	
+133	1	skill	31	-1	if	0	is_can_skill	eq	1	0	-1	-1	0	
+133	1	skill	31	-1	do	0	to_skill		0	0	-1	-1	0	
+133	2	skill	40	5	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+133	2	skill	40	5	if	1	rand	lt	10	-1	-1	-1	-1	
+133	2	skill	40	5	if	2	is_can_skill	eq	1	561	-1	-1	561	
+133	2	skill	40	5	do	0	to_skill		0	561	-1	-1	561	
+133	3	skill	35	-1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+133	3	skill	35	-1	if	1	rand	lt	20	-1	-1	-1	-1	
+133	3	skill	35	-1	if	2	is_can_skill	eq	1	554	-1	-1	554	
+133	3	skill	35	-1	do	0	to_skill		0	554	-1	-1	554	
+133	4	skill	50	1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+133	4	skill	50	1	do	0	call_other_monster_by_team		0	-1	-1	-1	-1	
+133	5	skill	52	1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+133	5	skill	52	1	if	1	is_can_skill	eq	1	585	-1	-1	585	
+133	5	skill	52	1	do	0	to_skill		0	585	-1	-1	585	
+133	6	skill	36	2	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+133	6	skill	36	2	if	1	rand	lt	10	-1	-1	-1	-1	
+133	6	skill	36	2	if	2	is_can_skill	eq	1	608	-1	-1	608	
+133	6	skill	36	2	do	0	to_skill		0	608	-1	-1	608	
+134	0	skill	31	-1	if	0	is_can_skill	eq	1	0	-1	-1	0	
+134	0	skill	31	-1	do	0	to_skill		0	0	-1	-1	0	
+134	1	skill	50	1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+134	1	skill	50	1	do	0	call_other_monster_by_group		0	-1	-1	-1	-1	
+135	0	skill	30	-1	if	0	is_can_skill	eq	1	612	-1	-1	612	
+135	0	skill	30	-1	do	0	to_skill		0	612	-1	-1	612	
+135	1	skill	31	-1	if	0	is_can_skill	eq	1	551	-1	-1	551	
+135	1	skill	31	-1	if	1	rand	lt	20	-1	-1	-1	-1	
+135	1	skill	31	-1	do	0	to_skill		0	551	-1	-1	551	
+135	2	skill	34	3	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+135	2	skill	34	3	if	1	get_hp	lt	50	-1	-1	-1	-1	
+135	2	skill	34	3	if	2	rand	lt	10	-1	-1	-1	-1	
+135	2	skill	34	3	if	3	is_can_skill	eq	1	592	-1	-1	592	
+135	2	skill	34	3	do	0	to_skill		0	592	-1	-1	592	
+136	0	skill	30	-1	if	0	is_can_skill	eq	1	611	-1	-1	611	
+136	0	skill	30	-1	do	0	to_skill		0	611	-1	-1	611	
+136	1	skill	31	-1	if	0	is_can_skill	eq	1	588	-1	-1	588	
+136	1	skill	31	-1	if	1	rand	lt	20	-1	-1	-1	-1	
+136	1	skill	31	-1	do	0	to_skill		0	588	-1	-1	588	
+136	2	skill	34	-1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+136	2	skill	34	-1	if	1	get_hp	lt	50	-1	-1	-1	-1	
+136	2	skill	34	-1	if	2	rand	lt	10	-1	-1	-1	-1	
+136	2	skill	34	-1	if	3	is_can_skill	eq	1	603	-1	-1	603	
+136	2	skill	34	-1	do	0	to_skill		0	603	-1	-1	603	
+137	0	skill	30	-1	if	0	is_can_skill	eq	1	0	-1	-1	0	
+137	0	skill	30	-1	do	0	to_skill		0	0	-1	-1	0	
+137	1	skill	31	-1	if	0	is_can_skill	eq	1	595	-1	-1	595	
+137	1	skill	31	-1	if	1	rand	lt	20	-1	-1	-1	-1	
+137	1	skill	31	-1	do	0	to_skill		0	595	-1	-1	595	
+137	2	skill	34	-1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+137	2	skill	34	-1	if	1	get_hp	lt	50	-1	-1	-1	-1	
+137	2	skill	34	-1	if	2	rand	lt	10	-1	-1	-1	-1	
+137	2	skill	34	-1	if	3	is_can_skill	eq	1	560	-1	-1	560	
+137	2	skill	34	-1	do	0	to_skill		0	560	-1	-1	560	
+137	3	skill	35	3	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+137	3	skill	35	3	if	1	get_hp	lt	10	-1	-1	-1	-1	
+137	3	skill	35	3	if	2	is_can_skill	eq	1	589	-1	-1	589	
+137	3	skill	35	3	do	0	to_skill		0	589	-1	-1	589	
+138	0	skill	30	-1	if	0	is_can_skill	eq	1	612	-1	-1	612	
+138	0	skill	30	-1	do	0	to_skill		0	612	-1	-1	612	
+138	1	skill	31	-1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+138	1	skill	31	-1	if	1	rand	lt	20	-1	-1	-1	-1	
+138	1	skill	31	-1	if	2	is_can_skill	eq	1	551	-1	-1	551	
+138	1	skill	31	-1	do	0	to_skill		0	551	-1	-1	551	
+138	2	skill	33	5	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+138	2	skill	33	5	if	1	get_hp	lt	50	-1	-1	-1	-1	
+138	2	skill	33	5	if	2	is_can_skill	eq	1	592	-1	-1	592	
+138	2	skill	33	5	if	3	rand	lt	10	-1	-1	-1	-1	
+138	2	skill	33	5	do	0	to_skill		0	592	-1	-1	592	
+138	3	skill	32	-1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+138	3	skill	32	-1	if	1	rand	lt	10	-1	-1	-1	-1	
+138	3	skill	32	-1	if	2	is_can_skill	eq	1	609	-1	-1	609	
+138	3	skill	32	-1	do	0	to_skill		0	609	-1	-1	609	
+138	4	skill	34	3	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+138	4	skill	34	3	if	1	get_hp	lt	30	-1	-1	-1	-1	
+138	4	skill	34	3	if	2	is_can_skill	eq	1	582	-1	-1	582	
+138	4	skill	34	3	do	0	to_skill		0	582	-1	-1	582	
+139	0	skill	30	-1	if	0	is_can_skill	eq	1	612	-1	-1	612	
+139	0	skill	30	-1	do	0	to_skill		0	612	-1	-1	612	
+139	1	skill	31	-1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+139	1	skill	31	-1	if	1	rand	lt	20	-1	-1	-1	-1	
+139	1	skill	31	-1	if	2	is_can_skill	eq	1	551	-1	-1	551	
+139	1	skill	31	-1	do	0	to_skill		0	551	-1	-1	551	
+139	2	skill	33	5	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+139	2	skill	33	5	if	1	get_hp	lt	50	-1	-1	-1	-1	
+139	2	skill	33	5	if	2	is_can_skill	eq	1	561	-1	-1	561	
+139	2	skill	33	5	if	3	rand	lt	10	-1	-1	-1	-1	
+139	2	skill	33	5	do	0	to_skill		0	561	-1	-1	561	
+139	3	skill	35	-1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+139	3	skill	35	-1	if	1	rand	lt	30	-1	-1	-1	-1	
+139	3	skill	35	-1	if	2	is_can_skill	eq	1	563	-1	-1	563	
+139	3	skill	35	-1	do	0	to_skill		0	563	-1	-1	563	
+139	4	skill	34	3	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+139	4	skill	34	3	if	1	get_hp	lt	30	-1	-1	-1	-1	
+139	4	skill	34	3	if	2	is_can_skill	eq	1	582	-1	-1	582	
+139	4	skill	34	3	do	0	to_skill		0	582	-1	-1	582	
+140	0	skill	30	-1	if	0	is_can_skill	eq	1	0	-1	-1	0	
+140	0	skill	30	-1	do	0	to_skill		0	0	-1	-1	0	
+140	1	skill	32	-1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+140	1	skill	32	-1	if	1	rand	lt	20	-1	-1	-1	-1	
+140	1	skill	32	-1	if	2	is_can_skill	eq	1	551	-1	-1	551	
+140	1	skill	32	-1	do	0	to_skill		0	551	-1	-1	551	
+141	0	skill	30	-1	if	0	is_can_skill	eq	1	0	-1	-1	0	
+141	0	skill	30	-1	do	0	to_skill		0	0	-1	-1	0	
+141	1	skill	32	-1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+141	1	skill	32	-1	if	1	rand	lt	20	-1	-1	-1	-1	
+141	1	skill	32	-1	if	2	is_can_skill	eq	1	591	-1	-1	591	
+141	1	skill	32	-1	do	0	to_skill		0	591	-1	-1	591	
+141	2	skill	33	-1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+141	2	skill	33	-1	if	1	rand	lt	20	-1	-1	-1	-1	
+141	2	skill	33	-1	if	2	is_can_skill	eq	1	608	-1	-1	608	
+141	2	skill	33	-1	do	0	to_skill		0	608	-1	-1	608	
+142	0	skill	30	-1	if	0	is_can_skill	eq	1	0	-1	-1	0	
+142	0	skill	30	-1	do	0	to_skill		0	0	-1	-1	0	
+142	1	skill	32	-1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+142	1	skill	32	-1	if	1	rand	lt	20	-1	-1	-1	-1	
+142	1	skill	32	-1	if	2	is_can_skill	eq	1	580	-1	-1	580	
+142	1	skill	32	-1	do	0	to_skill		0	580	-1	-1	580	
+142	2	skill	34	1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+142	2	skill	34	1	if	1	is_can_skill	eq	1	584	-1	-1	584	
+142	2	skill	34	1	do	0	to_skill		0	584	-1	-1	584	
+143	0	skill	30	-1	if	0	is_can_skill	eq	1	0	-1	-1	0	
+143	0	skill	30	-1	do	0	to_skill		0	0	-1	-1	0	
+143	1	skill	32	-1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+143	1	skill	32	-1	if	1	rand	lt	20	-1	-1	-1	-1	
+143	1	skill	32	-1	if	2	is_can_skill	eq	1	563	-1	-1	563	
+143	1	skill	32	-1	do	0	to_skill		0	563	-1	-1	563	
+143	2	skill	34	-1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+143	2	skill	34	-1	if	1	is_can_skill	eq	1	573	-1	-1	573	
+143	2	skill	34	-1	if	2	rand	lt	20	-1	-1	-1	-1	
+143	2	skill	34	-1	do	0	to_skill		0	573	-1	-1	573	
+144	0	skill	30	-1	if	0	is_can_skill	eq	1	0	-1	-1	0	
+144	0	skill	30	-1	do	0	to_skill		0	0	-1	-1	0	
+144	1	skill	32	-1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+144	1	skill	32	-1	if	1	rand	lt	20	-1	-1	-1	-1	
+144	1	skill	32	-1	if	2	is_can_skill	eq	1	581	-1	-1	581	
+144	1	skill	32	-1	do	0	to_skill		0	581	-1	-1	581	
+144	2	skill	34	3	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+144	2	skill	34	3	if	1	is_can_skill	eq	1	582	-1	-1	582	
+144	2	skill	34	3	if	2	get_hp	lt	30	-1	-1	-1	-1	
+144	2	skill	34	3	do	0	to_skill		0	582	-1	-1	582	
+145	0	skill	30	-1	if	0	is_can_skill	eq	1	0	-1	-1	0	
+145	0	skill	30	-1	do	0	to_skill		0	0	-1	-1	0	
+145	1	skill	32	-1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+145	1	skill	32	-1	if	1	rand	lt	20	-1	-1	-1	-1	
+145	1	skill	32	-1	if	2	is_can_skill	eq	1	551	-1	-1	551	
+145	1	skill	32	-1	do	0	to_skill		0	551	-1	-1	551	
+145	2	skill	34	1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+145	2	skill	34	1	if	1	is_can_skill	eq	1	585	-1	-1	585	
+145	2	skill	34	1	do	0	to_skill		0	585	-1	-1	585	
+146	0	skill	30	-1	if	0	is_can_skill	eq	1	0	-1	-1	0	
+146	0	skill	30	-1	do	0	to_skill		0	0	-1	-1	0	
+146	1	skill	32	-1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+146	1	skill	32	-1	if	1	rand	lt	20	-1	-1	-1	-1	
+146	1	skill	32	-1	if	2	is_can_skill	eq	1	600	-1	-1	600	
+146	1	skill	32	-1	do	0	to_skill		0	600	-1	-1	600	
+146	2	skill	34	-1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+146	2	skill	34	-1	if	1	is_can_skill	eq	1	601	-1	-1	601	
+146	2	skill	34	-1	if	2	rand	lt	10	-1	-1	-1	-1	
+146	2	skill	34	-1	do	0	to_skill		0	601	-1	-1	601	
+147	0	skill	30	-1	if	0	is_can_skill	eq	1	0	-1	-1	0	
+147	0	skill	30	-1	do	0	to_skill		0	0	-1	-1	0	
+147	1	skill	32	-1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+147	1	skill	32	-1	if	1	rand	lt	20	-1	-1	-1	-1	
+147	1	skill	32	-1	if	2	is_can_skill	eq	1	551	-1	-1	551	
+147	1	skill	32	-1	do	0	to_skill		0	551	-1	-1	551	
+147	2	skill	34	-1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+147	2	skill	34	-1	if	1	is_can_skill	eq	1	609	-1	-1	609	
+147	2	skill	34	-1	if	2	rand	lt	10	-1	-1	-1	-1	
+147	2	skill	34	-1	do	0	to_skill		0	609	-1	-1	609	
+148	0	skill	30	-1	if	0	is_can_skill	eq	1	0	-1	-1	0	
+148	0	skill	30	-1	do	0	to_skill		0	0	-1	-1	0	
+148	1	skill	32	-1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+148	1	skill	32	-1	if	1	rand	lt	20	-1	-1	-1	-1	
+148	1	skill	32	-1	if	2	is_can_skill	eq	1	592	-1	-1	592	
+148	1	skill	32	-1	do	0	to_skill		0	592	-1	-1	592	
+148	2	skill	34	-1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+148	2	skill	34	-1	if	1	is_can_skill	eq	1	607	-1	-1	607	
+148	2	skill	34	-1	if	2	rand	lt	10	-1	-1	-1	-1	
+148	2	skill	34	-1	do	0	to_skill		0	607	-1	-1	607	
+149	0	skill	30	-1	if	0	is_can_skill	eq	1	0	-1	-1	0	
+149	0	skill	30	-1	do	0	to_skill		0	0	-1	-1	0	
+149	1	skill	32	-1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+149	1	skill	32	-1	if	1	rand	lt	20	-1	-1	-1	-1	
+149	1	skill	32	-1	if	2	is_can_skill	eq	1	563	-1	-1	563	
+149	1	skill	32	-1	do	0	to_skill		0	563	-1	-1	563	
+149	2	skill	34	-1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+149	2	skill	34	-1	if	1	is_can_skill	eq	1	572	-1	-1	572	
+149	2	skill	34	-1	if	2	rand	lt	20	-1	-1	-1	-1	
+149	2	skill	34	-1	do	0	to_skill		0	572	-1	-1	572	
+150	0	skill	30	-1	if	0	is_can_skill	eq	1	0	-1	-1	0	
+150	0	skill	30	-1	do	0	to_skill		0	0	-1	-1	0	
+150	1	skill	32	-1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+150	1	skill	32	-1	if	1	rand	lt	20	-1	-1	-1	-1	
+150	1	skill	32	-1	if	2	is_can_skill	eq	1	619	-1	-1	619	
+150	1	skill	32	-1	do	0	to_skill		0	619	-1	-1	619	
+150	2	skill	34	-1	if	0	is_can_skill	eq	1	586	-1	-1	586	
+150	2	skill	34	-1	do	0	to_skill		0	586	-1	-1	586	
+151	0	skill	30	-1	if	0	is_can_skill	eq	1	0	-1	-1	0	
+151	0	skill	30	-1	do	0	to_skill		0	0	-1	-1	0	
+151	1	skill	32	-1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+151	1	skill	32	-1	if	1	rand	lt	20	-1	-1	-1	-1	
+151	1	skill	32	-1	if	2	is_can_skill	eq	1	551	-1	-1	551	
+151	1	skill	32	-1	do	0	to_skill		0	551	-1	-1	551	
+151	2	skill	34	-1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+151	2	skill	34	-1	if	1	is_can_skill	eq	1	563	-1	-1	563	
+151	2	skill	34	-1	if	2	rand	lt	20	-1	-1	-1	-1	
+151	2	skill	34	-1	do	0	to_skill		0	563	-1	-1	563	
+156	0	skill	30	-1	if	0	is_can_skill	eq	1	0	-1	-1	0	
+156	0	skill	30	-1	do	0	to_skill		0	0	-1	-1	0	
+156	1	skill	32	-1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+156	1	skill	32	-1	if	1	rand	lt	40	-1	-1	-1	-1	
+156	1	skill	32	-1	if	2	is_can_skill	eq	1	600	-1	-1	600	
+156	1	skill	32	-1	do	0	to_skill		0	600	-1	-1	600	
+156	2	skill	34	-1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+156	2	skill	34	-1	if	1	is_can_skill	eq	1	601	-1	-1	601	
+156	2	skill	34	-1	if	2	rand	lt	30	-1	-1	-1	-1	
+156	2	skill	34	-1	do	0	to_skill		0	601	-1	-1	601	
+157	0	skill	30	-1	if	0	is_can_skill	eq	1	0	-1	-1	0	
+157	0	skill	30	-1	do	0	to_skill		0	0	-1	-1	0	
+157	1	skill	32	-1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+157	1	skill	32	-1	if	1	rand	lt	40	-1	-1	-1	-1	
+157	1	skill	32	-1	if	2	is_can_skill	eq	1	551	-1	-1	551	
+157	1	skill	32	-1	do	0	to_skill		0	551	-1	-1	551	
+157	2	skill	34	1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+157	2	skill	34	1	if	1	is_can_skill	eq	1	585	-1	-1	585	
+157	2	skill	34	1	do	0	to_skill		0	585	-1	-1	585	
+158	0	skill	30	-1	if	0	is_can_skill	eq	1	0	-1	-1	0	
+158	0	skill	30	-1	do	0	to_skill		0	0	-1	-1	0	
+158	1	skill	31	-1	if	0	is_can_skill	eq	1	595	-1	-1	595	
+158	1	skill	31	-1	if	1	rand	lt	40	-1	-1	-1	-1	
+158	1	skill	31	-1	do	0	to_skill		0	595	-1	-1	595	
+158	2	skill	34	-1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+158	2	skill	34	-1	if	1	get_hp	lt	50	-1	-1	-1	-1	
+158	2	skill	34	-1	if	2	rand	lt	20	-1	-1	-1	-1	
+158	2	skill	34	-1	if	3	is_can_skill	eq	1	596	-1	-1	596	
+158	2	skill	34	-1	do	0	to_skill		0	596	-1	-1	596	
+158	3	skill	35	1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+158	3	skill	35	1	if	1	get_hp	lt	10	-1	-1	-1	-1	
+158	3	skill	35	1	if	2	is_can_skill	eq	1	589	-1	-1	589	
+158	3	skill	35	1	do	0	to_skill		0	589	-1	-1	589	
+159	0	skill	30	-1	if	0	is_can_skill	eq	1	0	-1	-1	0	
+159	0	skill	30	-1	do	0	to_skill		0	0	-1	-1	0	
+159	1	skill	31	-1	if	0	is_can_skill	eq	1	555	-1	-1	555	
+159	1	skill	31	-1	if	1	rand	lt	40	-1	-1	-1	-1	
+159	1	skill	31	-1	do	0	to_skill		0	555	-1	-1	555	
+159	2	skill	34	-1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+159	2	skill	34	-1	if	1	rand	lt	20	-1	-1	-1	-1	
+159	2	skill	34	-1	if	2	is_can_skill	eq	1	599	-1	-1	599	
+159	2	skill	34	-1	do	0	to_skill		0	599	-1	-1	599	
+159	3	skill	35	1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+159	3	skill	35	1	if	1	get_hp	lt	30	-1	-1	-1	-1	
+159	3	skill	35	1	if	2	is_can_skill	eq	1	582	-1	-1	582	
+159	3	skill	35	1	do	0	to_skill		0	582	-1	-1	582	
+160	0	skill	30	-1	if	0	is_can_skill	eq	1	0	-1	-1	0	
+160	0	skill	30	-1	do	0	to_skill		0	0	-1	-1	0	
+160	1	skill	31	-1	if	0	is_can_skill	eq	1	597	-1	-1	597	
+160	1	skill	31	-1	if	1	rand	lt	40	-1	-1	-1	-1	
+160	1	skill	31	-1	do	0	to_skill		0	597	-1	-1	597	
+160	2	skill	34	-1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+160	2	skill	34	-1	if	1	rand	lt	20	-1	-1	-1	-1	
+160	2	skill	34	-1	if	2	is_can_skill	eq	1	557	-1	-1	557	
+160	2	skill	34	-1	do	0	to_skill		0	557	-1	-1	557	
+160	3	skill	35	1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+160	3	skill	35	1	if	1	get_hp	lt	30	-1	-1	-1	-1	
+160	3	skill	35	1	if	2	is_can_skill	eq	1	582	-1	-1	582	
+160	3	skill	35	1	do	0	to_skill		0	582	-1	-1	582	
+161	0	skill	30	-1	if	0	is_can_skill	eq	1	614	-1	-1	614	
+161	0	skill	30	-1	do	0	to_skill		0	614	-1	-1	614	
+161	1	skill	31	-1	if	0	is_can_skill	eq	1	553	-1	-1	553	
+161	1	skill	31	-1	if	1	rand	lt	40	-1	-1	-1	-1	
+161	1	skill	31	-1	do	0	to_skill		0	553	-1	-1	553	
+161	2	skill	34	4	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+161	2	skill	34	4	if	1	get_hp	lt	50	-1	-1	-1	-1	
+161	2	skill	34	4	if	2	rand	lt	20	-1	-1	-1	-1	
+161	2	skill	34	4	if	3	is_can_skill	eq	1	602	-1	-1	602	
+161	2	skill	34	4	do	0	to_skill		0	602	-1	-1	602	
+161	3	skill	35	1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+161	3	skill	35	1	if	1	get_hp	lt	30	-1	-1	-1	-1	
+161	3	skill	35	1	if	2	is_can_skill	eq	1	582	-1	-1	582	
+161	3	skill	35	1	do	0	to_skill		0	582	-1	-1	582	
+162	0	skill	30	-1	if	0	is_can_skill	eq	1	612	-1	-1	612	
+162	0	skill	30	-1	do	0	to_skill		0	612	-1	-1	612	
+162	1	skill	31	-1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+162	1	skill	31	-1	if	1	rand	lt	40	-1	-1	-1	-1	
+162	1	skill	31	-1	if	2	is_can_skill	eq	1	551	-1	-1	551	
+162	1	skill	31	-1	do	0	to_skill		0	551	-1	-1	551	
+162	2	skill	33	5	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+162	2	skill	33	5	if	1	get_hp	lt	50	-1	-1	-1	-1	
+162	2	skill	33	5	if	2	is_can_skill	eq	1	592	-1	-1	592	
+162	2	skill	33	5	if	3	rand	lt	20	-1	-1	-1	-1	
+162	2	skill	33	5	do	0	to_skill		0	592	-1	-1	592	
+162	3	skill	32	-1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+162	3	skill	32	-1	if	1	rand	lt	20	-1	-1	-1	-1	
+162	3	skill	32	-1	if	2	is_can_skill	eq	1	609	-1	-1	609	
+162	3	skill	32	-1	do	0	to_skill		0	609	-1	-1	609	
+162	4	skill	34	3	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+162	4	skill	34	3	if	1	get_hp	lt	30	-1	-1	-1	-1	
+162	4	skill	34	3	if	2	is_can_skill	eq	1	582	-1	-1	582	
+162	4	skill	34	3	do	0	to_skill		0	582	-1	-1	582	
+163	0	skill	30	-1	if	0	is_can_skill	eq	1	614	-1	-1	614	
+163	0	skill	30	-1	do	0	to_skill		0	614	-1	-1	614	
+163	1	skill	31	-1	if	0	is_can_skill	eq	1	577	-1	-1	577	
+163	1	skill	31	-1	if	1	rand	lt	50	-1	-1	-1	-1	
+163	1	skill	31	-1	do	0	to_skill		0	577	-1	-1	577	
+163	2	skill	34	-1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+163	2	skill	34	-1	if	1	rand	lt	30	-1	-1	-1	-1	
+163	2	skill	34	-1	if	2	is_can_skill	eq	1	551	-1	-1	551	
+163	2	skill	34	-1	do	0	to_skill		0	551	-1	-1	551	
+163	3	skill	35	1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+163	3	skill	35	1	if	1	get_hp	lt	30	-1	-1	-1	-1	
+163	3	skill	35	1	if	2	is_can_skill	eq	1	582	-1	-1	582	
+163	3	skill	35	1	do	0	to_skill		0	582	-1	-1	582	
+164	0	skill	30	-1	if	0	is_can_skill	eq	1	614	-1	-1	614	
+164	0	skill	30	-1	do	0	to_skill		0	614	-1	-1	614	
+164	1	skill	31	-1	if	0	is_can_skill	eq	1	554	-1	-1	554	
+164	1	skill	31	-1	if	1	rand	lt	50	-1	-1	-1	-1	
+164	1	skill	31	-1	do	0	to_skill		0	554	-1	-1	554	
+164	2	skill	34	4	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+164	2	skill	34	4	if	1	rand	lt	20	-1	-1	-1	-1	
+164	2	skill	34	4	if	2	is_can_skill	eq	1	610	-1	-1	610	
+164	2	skill	34	4	do	0	to_skill		0	610	-1	-1	610	
+164	3	skill	35	1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+164	3	skill	35	1	if	1	get_hp	lt	30	-1	-1	-1	-1	
+164	3	skill	35	1	if	2	is_can_skill	eq	1	589	-1	-1	589	
+164	3	skill	35	1	do	0	to_skill		0	589	-1	-1	589	
+165	0	skill	30	-1	if	0	is_can_skill	eq	1	614	-1	-1	614	
+165	0	skill	30	-1	do	0	to_skill		0	614	-1	-1	614	
+165	1	skill	33	-1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+165	1	skill	33	-1	if	1	rand	lt	10	-1	-1	-1	-1	
+165	1	skill	33	-1	if	2	is_can_skill	eq	1	555	-1	-1	555	
+165	1	skill	33	-1	do	0	to_skill		0	555	-1	-1	555	
+165	2	skill	34	3	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+165	2	skill	34	3	if	1	get_hp	lt	70	-1	-1	-1	-1	
+165	2	skill	34	3	if	2	is_can_skill	eq	1	559	-1	-1	559	
+165	2	skill	34	3	do	0	to_skill		0	559	-1	-1	559	
+165	3	skill	38	1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+165	3	skill	38	1	if	1	get_hp	lt	30	-1	-1	-1	-1	
+165	3	skill	38	1	if	2	is_can_skill	eq	1	615	-1	-1	615	
+165	3	skill	38	1	do	0	to_skill		0	615	-1	-1	615	
+166	0	skill	30	-1	if	0	is_can_skill	eq	1	614	-1	-1	614	
+166	0	skill	30	-1	do	0	to_skill		0	614	-1	-1	614	
+166	1	skill	33	-1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+166	1	skill	33	-1	if	1	rand	lt	10	-1	-1	-1	-1	
+166	1	skill	33	-1	if	2	is_can_skill	eq	1	553	-1	-1	553	
+166	1	skill	33	-1	do	0	to_skill		0	553	-1	-1	553	
+166	2	skill	34	3	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+166	2	skill	34	3	if	1	get_hp	lt	70	-1	-1	-1	-1	
+166	2	skill	34	3	if	2	is_can_skill	eq	1	557	-1	-1	557	
+166	2	skill	34	3	do	0	to_skill		0	557	-1	-1	557	
+166	3	skill	38	1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+166	3	skill	38	1	if	1	get_hp	lt	30	-1	-1	-1	-1	
+166	3	skill	38	1	if	2	is_can_skill	eq	1	602	-1	-1	602	
+166	3	skill	38	1	do	0	to_skill		0	602	-1	-1	602	
+167	0	skill	30	-1	if	0	is_can_skill	eq	1	0	-1	-1	0	
+167	0	skill	30	-1	do	0	to_skill		0	0	-1	-1	0	
+167	1	skill	32	3	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+167	1	skill	32	3	if	1	is_can_skill	eq	1	570	-1	-1	570	
+167	1	skill	32	3	if	2	rand	lt	10	-1	-1	-1	-1	
+167	1	skill	32	3	do	0	to_skill		0	570	-1	-1	570	
+168	0	skill	30	-1	if	0	is_can_skill	eq	1	0	-1	-1	0	
+168	0	skill	30	-1	do	0	to_skill		0	0	-1	-1	0	
+168	1	skill	32	2	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+168	1	skill	32	2	if	1	is_can_skill	eq	1	573	-1	-1	573	
+168	1	skill	32	2	if	2	rand	lt	10	-1	-1	-1	-1	
+168	1	skill	32	2	do	0	to_skill		0	573	-1	-1	573	
+168	2	skill	34	2	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+168	2	skill	34	2	if	1	is_can_skill	eq	1	616	-1	-1	616	
+168	2	skill	34	2	if	2	rand	lt	10	-1	-1	-1	-1	
+168	2	skill	34	2	if	3	get_hp	lt	50	-1	-1	-1	-1	
+168	2	skill	34	2	do	0	to_skill		0	616	-1	-1	616	
+169	0	skill	30	-1	if	0	is_can_skill	eq	1	0	-1	-1	0	
+169	0	skill	30	-1	do	0	to_skill		0	0	-1	-1	0	
+169	1	skill	32	30	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+169	1	skill	32	30	if	1	is_can_skill	eq	1	551	-1	-1	551	
+169	1	skill	32	30	if	2	rand	lt	30	-1	-1	-1	-1	
+169	1	skill	32	30	do	0	to_skill		0	551	-1	-1	551	
+169	2	skill	34	3	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+169	2	skill	34	3	if	1	is_can_skill	eq	1	617	-1	-1	617	
+169	2	skill	34	3	if	2	rand	lt	20	-1	-1	-1	-1	
+169	2	skill	34	3	if	3	get_hp	lt	50	-1	-1	-1	-1	
+169	2	skill	34	3	do	0	to_skill		0	617	-1	-1	617	
+169	3	skill	35	1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+169	3	skill	35	1	if	1	get_hp	lt	10	-1	-1	-1	-1	
+169	3	skill	35	1	if	2	is_can_skill	eq	1	582	-1	-1	582	
+169	3	skill	35	1	do	0	to_skill		0	582	-1	-1	582	
+170	0	skill	30	-1	if	0	is_can_skill	eq	1	0	-1	-1	0	
+170	0	skill	30	-1	do	0	to_skill		0	0	-1	-1	0	
+170	1	skill	38	1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+170	1	skill	38	1	if	1	is_can_skill	eq	1	585	-1	-1	585	
+170	1	skill	38	1	do	0	to_skill		0	585	-1	-1	585	
+170	2	skill	34	2	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+170	2	skill	34	2	if	1	is_can_skill	eq	1	573	-1	-1	573	
+170	2	skill	34	2	if	2	rand	lt	10	-1	-1	-1	-1	
+170	2	skill	34	2	do	0	to_skill		0	573	-1	-1	573	
+171	0	skill	30	-1	if	0	is_can_skill	eq	1	0	-1	-1	0	
+171	0	skill	30	-1	do	0	to_skill		0	0	-1	-1	0	
+171	1	skill	32	2	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+171	1	skill	32	2	if	1	is_can_skill	eq	1	571	-1	-1	571	
+171	1	skill	32	2	if	2	rand	lt	20	-1	-1	-1	-1	
+171	1	skill	32	2	do	0	to_skill		0	571	-1	-1	571	
+171	2	skill	34	2	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+171	2	skill	34	2	if	1	is_can_skill	eq	1	574	-1	-1	574	
+171	2	skill	34	2	if	2	rand	lt	10	-1	-1	-1	-1	
+171	2	skill	34	2	if	3	get_hp	lt	50	-1	-1	-1	-1	
+171	2	skill	34	2	do	0	to_skill		0	574	-1	-1	574	
+172	0	skill	30	-1	if	0	is_can_skill	eq	1	0	-1	-1	0	
+172	0	skill	30	-1	do	0	to_skill		0	0	-1	-1	0	
+172	1	skill	42	1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+172	1	skill	42	1	if	1	is_can_skill	eq	1	585	-1	-1	585	
+172	1	skill	42	1	do	0	to_skill		0	585	-1	-1	585	
+172	2	skill	35	5	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+172	2	skill	35	5	if	1	is_can_skill	eq	1	592	-1	-1	592	
+172	2	skill	35	5	if	2	rand	lt	10	-1	-1	-1	-1	
+172	2	skill	35	5	if	3	get_hp	lt	50	-1	-1	-1	-1	
+172	2	skill	35	5	do	0	to_skill		0	592	-1	-1	592	
+172	3	skill	36	5	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+172	3	skill	36	5	if	1	get_enemy_num	gt	2	-1	-1	-1	-1	
+172	3	skill	36	5	if	2	is_can_skill	eq	1	567	-1	-1	567	
+172	3	skill	36	5	if	3	rand	lt	20	-1	-1	-1	-1	
+172	3	skill	36	5	do	0	to_skill		0	567	-1	-1	567	
+172	4	skill	40	1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+172	4	skill	40	1	if	1	get_hp	lt	10	-1	-1	-1	-1	
+172	4	skill	40	1	if	2	is_can_skill	eq	1	582	-1	-1	582	
+172	4	skill	40	1	do	0	to_skill		0	582	-1	-1	582	
+173	0	skill	30	-1	if	0	is_can_skill	eq	1	0	-1	-1	0	
+173	0	skill	30	-1	do	0	to_skill		0	0	-1	-1	0	
+173	1	skill	34	2	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+173	1	skill	34	2	if	1	is_can_skill	eq	1	570	-1	-1	570	
+173	1	skill	34	2	if	2	rand	lt	10	-1	-1	-1	-1	
+173	1	skill	34	2	do	0	to_skill		0	570	-1	-1	570	
+173	2	skill	32	10	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+173	2	skill	32	10	if	1	is_can_skill	eq	1	581	-1	-1	581	
+173	2	skill	32	10	if	2	rand	lt	10	-1	-1	-1	-1	
+173	2	skill	32	10	if	3	get_hp	lt	50	-1	-1	-1	-1	
+173	2	skill	32	10	do	0	to_skill		0	581	-1	-1	581	
+174	0	skill	30	-1	if	0	is_can_skill	eq	1	0	-1	-1	0	
+174	0	skill	30	-1	do	0	to_skill		0	0	-1	-1	0	
+174	1	skill	32	1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+174	1	skill	32	1	if	1	is_can_skill	eq	1	564	-1	-1	564	
+174	1	skill	32	1	if	2	rand	lt	10	-1	-1	-1	-1	
+174	1	skill	32	1	do	0	to_skill		0	564	-1	-1	564	
+174	2	skill	34	2	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+174	2	skill	34	2	if	1	is_can_skill	eq	1	581	-1	-1	581	
+174	2	skill	34	2	if	2	rand	lt	20	-1	-1	-1	-1	
+174	2	skill	34	2	if	3	get_hp	lt	50	-1	-1	-1	-1	
+174	2	skill	34	2	do	0	to_skill		0	581	-1	-1	581	
+175	0	skill	30	-1	if	0	is_can_skill	eq	1	0	-1	-1	0	
+175	0	skill	30	-1	do	0	to_skill		0	0	-1	-1	0	
+175	1	skill	32	20	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+175	1	skill	32	20	if	1	rand	lt	20	-1	-1	-1	-1	
+175	1	skill	32	20	if	2	is_can_skill	eq	1	595	-1	-1	595	
+175	1	skill	32	20	do	0	to_skill		0	595	-1	-1	595	
+175	2	skill	34	5	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+175	2	skill	34	5	if	1	is_can_skill	eq	1	560	-1	-1	560	
+175	2	skill	34	5	if	2	rand	lt	10	-1	-1	-1	-1	
+175	2	skill	34	5	if	3	get_hp	lt	70	-1	-1	-1	-1	
+175	2	skill	34	5	do	0	to_skill		0	560	-1	-1	560	
+175	3	skill	36	3	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+175	3	skill	36	3	if	1	rand	lt	10	-1	-1	-1	-1	
+175	3	skill	36	3	if	2	is_can_skill	eq	1	596	-1	-1	596	
+175	3	skill	36	3	if	3	get_hp	lt	40	-1	-1	-1	-1	
+175	3	skill	36	3	do	0	to_skill		0	596	-1	-1	596	
+175	4	skill	38	10	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+175	4	skill	38	10	if	1	is_can_skill	eq	1	564	-1	-1	564	
+175	4	skill	38	10	if	2	rand	lt	10	-1	-1	-1	-1	
+175	4	skill	38	10	if	3	get_hp	lt	50	-1	-1	-1	-1	
+175	4	skill	38	10	do	0	to_skill		0	564	-1	-1	564	
+176	0	skill	30	-1	if	0	is_can_skill	eq	1	0	-1	-1	0	
+176	0	skill	30	-1	do	0	to_skill		0	0	-1	-1	0	
+176	1	skill	32	2	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+176	1	skill	32	2	if	1	rand	lt	30	-1	-1	-1	-1	
+176	1	skill	32	2	if	2	is_can_skill	eq	1	579	-1	-1	579	
+176	1	skill	32	2	do	0	to_skill		0	579	-1	-1	579	
+176	2	skill	34	2	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+176	2	skill	34	2	if	1	is_can_skill	eq	1	581	-1	-1	581	
+176	2	skill	34	2	if	2	rand	lt	10	-1	-1	-1	-1	
+176	2	skill	34	2	if	3	get_hp	lt	50	-1	-1	-1	-1	
+176	2	skill	34	2	do	0	to_skill		0	581	-1	-1	581	
+177	0	skill	30	-1	if	0	is_can_skill	eq	1	0	-1	-1	0	
+177	0	skill	30	-1	do	0	to_skill		0	0	-1	-1	0	
+177	1	skill	32	2	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+177	1	skill	32	2	if	1	rand	lt	3	-1	-1	-1	-1	
+177	1	skill	32	2	if	2	is_can_skill	eq	1	568	-1	-1	568	
+177	1	skill	32	2	if	3	get_hp	lt	50	-1	-1	-1	-1	
+177	1	skill	32	2	do	0	to_skill		0	568	-1	-1	568	
+177	2	skill	34	2	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+177	2	skill	34	2	if	1	is_can_skill	eq	1	573	-1	-1	573	
+177	2	skill	34	2	if	2	rand	lt	10	-1	-1	-1	-1	
+177	2	skill	34	2	do	0	to_skill		0	573	-1	-1	573	
+178	0	skill	30	-1	if	0	is_can_skill	eq	1	0	-1	-1	0	
+178	0	skill	30	-1	do	0	to_skill		0	0	-1	-1	0	
+178	1	skill	38	2	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+178	1	skill	38	2	if	1	rand	lt	10	-1	-1	-1	-1	
+178	1	skill	38	2	if	2	is_can_skill	eq	1	599	-1	-1	599	
+178	1	skill	38	2	if	3	get_hp	lt	60	-1	-1	-1	-1	
+178	1	skill	38	2	do	0	to_skill		0	599	-1	-1	599	
+178	2	skill	34	20	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+178	2	skill	34	20	if	1	is_can_skill	eq	1	600	-1	-1	600	
+178	2	skill	34	20	if	2	rand	lt	10	-1	-1	-1	-1	
+178	2	skill	34	20	do	0	to_skill		0	600	-1	-1	600	
+178	3	skill	36	10	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+178	3	skill	36	10	if	1	rand	lt	20	-1	-1	-1	-1	
+178	3	skill	36	10	if	2	is_can_skill	eq	1	601	-1	-1	601	
+178	3	skill	36	10	if	3	get_hp	lt	50	-1	-1	-1	-1	
+178	3	skill	36	10	do	0	to_skill		0	601	-1	-1	601	
+178	4	skill	40	1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+178	4	skill	40	1	if	1	get_hp	lt	10	-1	-1	-1	-1	
+178	4	skill	40	1	if	2	is_can_skill	eq	1	582	-1	-1	582	
+178	4	skill	40	1	do	0	to_skill		0	582	-1	-1	582	
+179	0	skill	30	-1	if	0	is_can_skill	eq	1	0	-1	-1	0	
+179	0	skill	30	-1	do	0	to_skill		0	0	-1	-1	0	
+179	1	skill	34	2	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+179	1	skill	34	2	if	1	is_can_skill	eq	1	575	-1	-1	575	
+179	1	skill	34	2	if	2	rand	lt	10	-1	-1	-1	-1	
+179	1	skill	34	2	do	0	to_skill		0	575	-1	-1	575	
+179	2	skill	32	2	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+179	2	skill	32	2	if	1	is_can_skill	eq	1	581	-1	-1	581	
+179	2	skill	32	2	if	2	rand	lt	10	-1	-1	-1	-1	
+179	2	skill	32	2	if	3	get_hp	lt	50	-1	-1	-1	-1	
+179	2	skill	32	2	do	0	to_skill		0	581	-1	-1	581	
+180	0	skill	30	-1	if	0	is_can_skill	eq	1	0	-1	-1	0	
+180	0	skill	30	-1	do	0	to_skill		0	0	-1	-1	0	
+180	1	skill	34	2	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+180	1	skill	34	2	if	1	is_can_skill	eq	1	551	-1	-1	551	
+180	1	skill	34	2	if	2	rand	lt	10	-1	-1	-1	-1	
+180	1	skill	34	2	do	0	to_skill		0	551	-1	-1	551	
+180	2	skill	32	2	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+180	2	skill	32	2	if	1	is_can_skill	eq	1	609	-1	-1	609	
+180	2	skill	32	2	if	2	rand	lt	10	-1	-1	-1	-1	
+180	2	skill	32	2	if	3	get_hp	lt	50	-1	-1	-1	-1	
+180	2	skill	32	2	do	0	to_skill		0	609	-1	-1	609	
+181	0	skill	30	-1	if	0	is_can_skill	eq	1	0	-1	-1	0	
+181	0	skill	30	-1	do	0	to_skill		0	0	-1	-1	0	
+181	1	skill	34	1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+181	1	skill	34	1	if	1	is_can_skill	eq	1	598	-1	-1	598	
+181	1	skill	34	1	if	2	rand	lt	10	-1	-1	-1	-1	
+181	1	skill	34	1	do	0	to_skill		0	598	-1	-1	598	
+181	2	skill	32	1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+181	2	skill	32	1	if	1	is_can_skill	eq	1	592	-1	-1	592	
+181	2	skill	32	1	if	2	rand	lt	10	-1	-1	-1	-1	
+181	2	skill	32	1	if	3	get_hp	lt	50	-1	-1	-1	-1	
+181	2	skill	32	1	do	0	to_skill		0	592	-1	-1	592	
+182	0	skill	30	-1	if	0	is_can_skill	eq	1	0	-1	-1	0	
+182	0	skill	30	-1	do	0	to_skill		0	0	-1	-1	0	
+182	1	skill	34	1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+182	1	skill	34	1	if	1	is_can_skill	eq	1	573	-1	-1	573	
+182	1	skill	34	1	if	2	rand	lt	10	-1	-1	-1	-1	
+182	1	skill	34	1	do	0	to_skill		0	573	-1	-1	573	
+182	2	skill	32	1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+182	2	skill	32	1	if	1	is_can_skill	eq	1	580	-1	-1	580	
+182	2	skill	32	1	if	2	rand	lt	10	-1	-1	-1	-1	
+182	2	skill	32	1	if	3	get_hp	lt	50	-1	-1	-1	-1	
+182	2	skill	32	1	do	0	to_skill		0	580	-1	-1	580	
+183	0	skill	30	-1	if	0	is_can_skill	eq	1	0	-1	-1	0	
+183	0	skill	30	-1	do	0	to_skill		0	0	-1	-1	0	
+183	1	skill	34	2	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+183	1	skill	34	2	if	1	is_can_skill	eq	1	616	-1	-1	616	
+183	1	skill	34	2	if	2	rand	lt	10	-1	-1	-1	-1	
+183	1	skill	34	2	do	0	to_skill		0	616	-1	-1	616	
+184	0	skill	30	-1	if	0	is_can_skill	eq	1	0	-1	-1	0	
+184	0	skill	30	-1	do	0	to_skill		0	0	-1	-1	0	
+184	1	skill	34	30	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+184	1	skill	34	30	if	1	is_can_skill	eq	1	597	-1	-1	597	
+184	1	skill	34	30	if	2	rand	lt	10	-1	-1	-1	-1	
+184	1	skill	34	30	do	0	to_skill		0	597	-1	-1	597	
+184	2	skill	36	5	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+184	2	skill	36	5	if	1	rand	lt	10	-1	-1	-1	-1	
+184	2	skill	36	5	if	2	is_can_skill	eq	1	557	-1	-1	557	
+184	2	skill	36	5	if	3	get_hp	lt	50	-1	-1	-1	-1	
+184	2	skill	36	5	do	0	to_skill		0	557	-1	-1	557	
+184	3	skill	40	1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+184	3	skill	40	1	if	1	get_hp	lt	10	-1	-1	-1	-1	
+184	3	skill	40	1	if	2	is_can_skill	eq	1	582	-1	-1	582	
+184	3	skill	40	1	do	0	to_skill		0	582	-1	-1	582	
+185	0	skill	30	-1	if	0	is_can_skill	eq	1	0	-1	-1	0	
+185	0	skill	30	-1	do	0	to_skill		0	0	-1	-1	0	
+185	1	skill	34	10	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+185	1	skill	34	10	if	1	is_can_skill	eq	1	551	-1	-1	551	
+185	1	skill	34	10	if	2	rand	lt	10	-1	-1	-1	-1	
+185	1	skill	34	10	if	3	get_hp	lt	80	-1	-1	-1	-1	
+185	1	skill	34	10	do	0	to_skill		0	551	-1	-1	551	
+185	2	skill	32	2	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+185	2	skill	32	2	if	1	is_can_skill	eq	1	573	-1	-1	573	
+185	2	skill	32	2	if	2	rand	lt	10	-1	-1	-1	-1	
+185	2	skill	32	2	if	3	get_hp	lt	50	-1	-1	-1	-1	
+185	2	skill	32	2	do	0	to_skill		0	573	-1	-1	573	
+186	0	skill	30	-1	if	0	is_can_skill	eq	1	0	-1	-1	0	
+186	0	skill	30	-1	do	0	to_skill		0	0	-1	-1	0	
+186	1	skill	34	2	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+186	1	skill	34	2	if	1	is_can_skill	eq	1	616	-1	-1	616	
+186	1	skill	34	2	if	2	rand	lt	10	-1	-1	-1	-1	
+186	1	skill	34	2	if	3	get_hp	lt	80	-1	-1	-1	-1	
+186	1	skill	34	2	do	0	to_skill		0	616	-1	-1	616	
+187	0	skill	30	-1	if	0	is_can_skill	eq	1	0	-1	-1	0	
+187	0	skill	30	-1	do	0	to_skill		0	0	-1	-1	0	
+187	1	skill	32	20	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+187	1	skill	32	20	if	1	rand	lt	20	-1	-1	-1	-1	
+187	1	skill	32	20	if	2	is_can_skill	eq	1	551	-1	-1	551	
+187	1	skill	32	20	if	3	get_hp	lt	80	-1	-1	-1	-1	
+187	1	skill	32	20	do	0	to_skill		0	551	-1	-1	551	
+187	2	skill	36	5	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+187	2	skill	36	5	if	1	rand	lt	10	-1	-1	-1	-1	
+187	2	skill	36	5	if	2	is_can_skill	eq	1	561	-1	-1	561	
+187	2	skill	36	5	if	3	get_hp	lt	50	-1	-1	-1	-1	
+187	2	skill	36	5	do	0	to_skill		0	561	-1	-1	561	
+187	3	skill	40	1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+187	3	skill	40	1	if	1	get_hp	lt	10	-1	-1	-1	-1	
+187	3	skill	40	1	if	2	is_can_skill	eq	1	582	-1	-1	582	
+187	3	skill	40	1	do	0	to_skill		0	582	-1	-1	582	
+188	0	skill	30	-1	if	0	is_can_skill	eq	1	0	-1	-1	0	
+188	0	skill	30	-1	do	0	to_skill		0	0	-1	-1	0	
+188	1	skill	34	2	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+188	1	skill	34	2	if	1	is_can_skill	eq	1	554	-1	-1	554	
+188	1	skill	34	2	if	2	rand	lt	10	-1	-1	-1	-1	
+188	1	skill	34	2	if	3	get_hp	lt	80	-1	-1	-1	-1	
+188	1	skill	34	2	do	0	to_skill		0	554	-1	-1	554	
+188	2	skill	32	2	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+188	2	skill	32	2	if	1	is_can_skill	eq	1	617	-1	-1	617	
+188	2	skill	32	2	if	2	rand	lt	10	-1	-1	-1	-1	
+188	2	skill	32	2	if	3	get_hp	lt	50	-1	-1	-1	-1	
+188	2	skill	32	2	do	0	to_skill		0	617	-1	-1	617	
+189	0	skill	30	-1	if	0	is_can_skill	eq	1	0	-1	-1	0	
+189	0	skill	30	-1	do	0	to_skill		0	0	-1	-1	0	
+189	1	skill	34	2	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+189	1	skill	34	2	if	1	is_can_skill	eq	1	573	-1	-1	573	
+189	1	skill	34	2	if	2	rand	lt	10	-1	-1	-1	-1	
+189	1	skill	34	2	if	3	get_hp	lt	80	-1	-1	-1	-1	
+189	1	skill	34	2	do	0	to_skill		0	573	-1	-1	573	
+189	2	skill	32	2	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+189	2	skill	32	2	if	1	is_can_skill	eq	1	618	-1	-1	618	
+189	2	skill	32	2	if	2	rand	lt	10	-1	-1	-1	-1	
+189	2	skill	32	2	if	3	get_hp	lt	50	-1	-1	-1	-1	
+189	2	skill	32	2	do	0	to_skill		0	618	-1	-1	618	
+190	0	skill	30	-1	if	0	is_can_skill	eq	1	0	-1	-1	0	
+190	0	skill	30	-1	do	0	to_skill		0	0	-1	-1	0	
+190	1	skill	32	20	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+190	1	skill	32	20	if	1	rand	lt	20	-1	-1	-1	-1	
+190	1	skill	32	20	if	2	is_can_skill	eq	1	551	-1	-1	551	
+190	1	skill	32	20	if	3	get_hp	lt	80	-1	-1	-1	-1	
+190	1	skill	32	20	do	0	to_skill		0	551	-1	-1	551	
+190	2	skill	36	10	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+190	2	skill	36	10	if	1	is_can_skill	eq	1	561	-1	-1	561	
+190	2	skill	36	10	if	2	rand	lt	10	-1	-1	-1	-1	
+190	2	skill	36	10	if	3	get_hp	lt	50	-1	-1	-1	-1	
+190	2	skill	36	10	do	0	to_skill		0	561	-1	-1	561	
+190	3	skill	40	1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+190	3	skill	40	1	if	1	get_hp	lt	10	-1	-1	-1	-1	
+190	3	skill	40	1	if	2	is_can_skill	eq	1	582	-1	-1	582	
+190	3	skill	40	1	do	0	to_skill		0	582	-1	-1	582	
+190	4	skill	38	10	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+190	4	skill	38	10	if	1	rand	lt	30	-1	-1	-1	-1	
+190	4	skill	38	10	if	2	is_can_skill	eq	1	609	-1	-1	609	
+190	4	skill	38	10	if	3	get_hp	lt	60	-1	-1	-1	-1	
+190	4	skill	38	10	do	0	to_skill		0	609	-1	-1	609	
+191	0	skill	30	-1	if	0	is_can_skill	eq	1	0	-1	-1	0	
+191	0	skill	30	-1	do	0	to_skill		0	0	-1	-1	0	
+191	1	skill	34	2	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+191	1	skill	34	2	if	1	is_can_skill	eq	1	563	-1	-1	563	
+191	1	skill	34	2	if	2	rand	lt	5	-1	-1	-1	-1	
+191	1	skill	34	2	if	3	get_hp	lt	30	-1	-1	-1	-1	
+191	1	skill	34	2	do	0	to_skill		0	563	-1	-1	563	
+191	2	skill	32	2	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+191	2	skill	32	2	if	1	is_can_skill	eq	1	609	-1	-1	609	
+191	2	skill	32	2	if	2	rand	lt	10	-1	-1	-1	-1	
+191	2	skill	32	2	if	3	get_hp	lt	80	-1	-1	-1	-1	
+191	2	skill	32	2	do	0	to_skill		0	609	-1	-1	609	
+192	0	skill	30	-1	if	0	is_can_skill	eq	1	0	-1	-1	0	
+192	0	skill	30	-1	do	0	to_skill		0	0	-1	-1	0	
+192	1	skill	34	1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+192	1	skill	34	1	if	1	is_can_skill	eq	1	585	-1	-1	585	
+192	1	skill	34	1	do	0	to_skill		0	585	-1	-1	585	
+192	2	skill	32	2	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+192	2	skill	32	2	if	1	is_can_skill	eq	1	617	-1	-1	617	
+192	2	skill	32	2	if	2	rand	lt	10	-1	-1	-1	-1	
+192	2	skill	32	2	if	3	get_hp	lt	80	-1	-1	-1	-1	
+192	2	skill	32	2	do	0	to_skill		0	617	-1	-1	617	
+193	0	skill	30	-1	if	0	is_can_skill	eq	1	0	-1	-1	0	
+193	0	skill	30	-1	do	0	to_skill		0	0	-1	-1	0	
+193	1	skill	32	30	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+193	1	skill	32	30	if	1	is_can_skill	eq	1	554	-1	-1	554	
+193	1	skill	32	30	if	2	rand	lt	10	-1	-1	-1	-1	
+193	1	skill	32	30	if	3	get_hp	lt	90	-1	-1	-1	-1	
+193	1	skill	32	30	do	0	to_skill		0	554	-1	-1	554	
+193	2	skill	34	30	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+193	2	skill	34	30	if	1	is_can_skill	eq	1	617	-1	-1	617	
+193	2	skill	34	30	if	2	rand	lt	10	-1	-1	-1	-1	
+193	2	skill	34	30	if	3	get_hp	lt	60	-1	-1	-1	-1	
+193	2	skill	34	30	do	0	to_skill		0	617	-1	-1	617	
+193	3	skill	36	20	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+193	3	skill	36	20	if	1	is_can_skill	eq	1	558	-1	-1	558	
+193	3	skill	36	20	if	2	rand	lt	10	-1	-1	-1	-1	
+193	3	skill	36	20	if	3	get_hp	lt	50	-1	-1	-1	-1	
+193	3	skill	36	20	do	0	to_skill		0	558	-1	-1	558	
+194	0	skill	30	-1	if	0	is_can_skill	eq	1	0	-1	-1	0	
+194	0	skill	30	-1	do	0	to_skill		0	0	-1	-1	0	
+194	1	skill	32	30	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+194	1	skill	32	30	if	1	is_can_skill	eq	1	595	-1	-1	595	
+194	1	skill	32	30	if	2	rand	lt	10	-1	-1	-1	-1	
+194	1	skill	32	30	if	3	get_hp	lt	80	-1	-1	-1	-1	
+194	1	skill	32	30	do	0	to_skill		0	595	-1	-1	595	
+194	2	skill	34	30	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+194	2	skill	34	30	if	1	is_can_skill	eq	1	560	-1	-1	560	
+194	2	skill	34	30	if	2	rand	lt	10	-1	-1	-1	-1	
+194	2	skill	34	30	if	3	get_hp	lt	60	-1	-1	-1	-1	
+194	2	skill	34	30	do	0	to_skill		0	560	-1	-1	560	
+194	3	skill	36	30	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+194	3	skill	36	30	if	1	is_can_skill	eq	1	596	-1	-1	596	
+194	3	skill	36	30	if	2	rand	lt	10	-1	-1	-1	-1	
+194	3	skill	36	30	if	3	get_hp	lt	50	-1	-1	-1	-1	
+194	3	skill	36	30	do	0	to_skill		0	596	-1	-1	596	
+195	0	skill	30	-1	if	0	is_can_skill	eq	1	0	-1	-1	0	
+195	0	skill	30	-1	do	0	to_skill		0	0	-1	-1	0	
+195	1	skill	31	30	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+195	1	skill	31	30	if	1	is_can_skill	eq	1	553	-1	-1	553	
+195	1	skill	31	30	if	2	rand	lt	10	-1	-1	-1	-1	
+195	1	skill	31	30	if	3	get_hp	lt	90	-1	-1	-1	-1	
+195	1	skill	31	30	do	0	to_skill		0	553	-1	-1	553	
+195	2	skill	34	8	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+195	2	skill	34	8	if	1	get_hp	lt	50	-1	-1	-1	-1	
+195	2	skill	34	8	if	2	is_can_skill	eq	1	623	-1	-1	623	
+195	2	skill	34	8	if	3	rand	lt	20	-1	-1	-1	-1	
+195	2	skill	34	8	do	0	to_skill		0	623	-1	-1	623	
+195	3	skill	35	20	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+195	3	skill	35	20	if	1	rand	lt	10	-1	-1	-1	-1	
+195	3	skill	35	20	if	2	is_can_skill	eq	1	607	-1	-1	607	
+195	3	skill	35	20	if	3	get_hp	lt	80	-1	-1	-1	-1	
+195	3	skill	35	20	do	0	to_skill		0	607	-1	-1	607	
+195	4	skill	32	20	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+195	4	skill	32	20	if	1	is_can_skill	eq	1	557	-1	-1	557	
+195	4	skill	32	20	if	2	rand	lt	10	-1	-1	-1	-1	
+195	4	skill	32	20	if	3	get_hp	lt	70	-1	-1	-1	-1	
+195	4	skill	32	20	do	0	to_skill		0	557	-1	-1	557	
+196	0	skill	30	-1	if	0	is_can_skill	eq	1	0	-1	-1	0	
+196	0	skill	30	-1	do	0	to_skill		0	0	-1	-1	0	
+196	1	skill	31	30	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+196	1	skill	31	30	if	1	is_can_skill	eq	1	554	-1	-1	554	
+196	1	skill	31	30	if	2	rand	lt	10	-1	-1	-1	-1	
+196	1	skill	31	30	if	3	get_hp	lt	80	-1	-1	-1	-1	
+196	1	skill	31	30	do	0	to_skill		0	554	-1	-1	554	
+196	2	skill	34	10	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+196	2	skill	34	10	if	1	get_hp	lt	50	-1	-1	-1	-1	
+196	2	skill	34	10	if	2	is_can_skill	eq	1	624	-1	-1	624	
+196	2	skill	34	10	if	3	rand	lt	10	-1	-1	-1	-1	
+196	2	skill	34	10	do	0	to_skill		0	624	-1	-1	624	
+196	3	skill	35	10	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+196	3	skill	35	10	if	1	rand	lt	10	-1	-1	-1	-1	
+196	3	skill	35	10	if	2	is_can_skill	eq	1	599	-1	-1	599	
+196	3	skill	35	10	if	3	get_hp	lt	40	-1	-1	-1	-1	
+196	3	skill	35	10	do	0	to_skill		0	599	-1	-1	599	
+196	4	skill	32	20	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+196	4	skill	32	20	if	1	is_can_skill	eq	1	558	-1	-1	558	
+196	4	skill	32	20	if	2	rand	lt	10	-1	-1	-1	-1	
+196	4	skill	32	20	if	3	get_hp	lt	60	-1	-1	-1	-1	
+196	4	skill	32	20	do	0	to_skill		0	558	-1	-1	558	
+197	0	skill	31	-1	if	0	is_can_skill	eq	1	1001	-1	-1	1001	
+197	0	skill	31	-1	do	0	to_skill		0	1001	-1	-1	1001	
+197	1	skill	35	40	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+197	1	skill	35	40	if	1	rand	lt	10	-1	-1	-1	-1	
+197	1	skill	35	40	if	2	is_can_skill	eq	1	1003	-1	-1	1003	
+197	1	skill	35	40	do	0	to_skill		0	1003	-1	-1	1003	
+197	2	skill	46	1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+197	2	skill	46	1	do	0	call_other_monster_by_group		0	-1	-1	-1	-1	
+197	3	skill	48	1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+197	3	skill	48	1	if	1	get_hp	lt	50	-1	-1	-1	-1	
+197	3	skill	48	1	do	0	to_speak		0	59	1	-1	-1	
+197	4	skill	47	1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+197	4	skill	47	1	if	1	get_hp	lt	50	-1	-1	-1	-1	
+197	4	skill	47	1	do	0	call_other_monster_by_group		0	-1	-1	-1	-1	
+197	5	skill	51	1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+197	5	skill	51	1	if	1	get_hp	lt	25	-1	-1	-1	-1	
+197	5	skill	51	1	do	0	to_speak		0	60	1	-1	-1	
+197	6	skill	49	1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+197	6	skill	49	1	if	1	get_hp	lt	25	-1	-1	-1	-1	
+197	6	skill	49	1	do	0	call_other_monster_by_group		0	-1	-1	-1	-1	
+198	0	skill	31	-1	if	0	is_can_skill	eq	1	0	-1	-1	0	
+198	0	skill	31	-1	do	0	to_skill		0	0	-1	-1	0	
+198	1	skill	40	40	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+198	1	skill	40	40	if	1	rand	lt	50	-1	-1	-1	-1	
+198	1	skill	40	40	if	2	is_can_skill	eq	1	1005	-1	-1	1005	
+198	1	skill	40	40	do	0	to_skill		0	1005	-1	-1	1005	
+198	2	skill	46	1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+198	2	skill	46	1	do	0	call_other_monster_by_group		0	-1	-1	-1	-1	
+198	3	skill	48	1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+198	3	skill	48	1	if	1	get_hp	lt	50	-1	-1	-1	-1	
+198	3	skill	48	1	do	0	to_speak		0	59	1	-1	-1	
+198	4	skill	47	1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+198	4	skill	47	1	if	1	get_hp	lt	50	-1	-1	-1	-1	
+198	4	skill	47	1	do	0	call_other_monster_by_group		0	-1	-1	-1	-1	
+198	5	skill	51	1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+198	5	skill	51	1	if	1	get_hp	lt	25	-1	-1	-1	-1	
+198	5	skill	51	1	do	0	to_speak		0	60	1	-1	-1	
+198	6	skill	49	1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+198	6	skill	49	1	if	1	get_hp	lt	25	-1	-1	-1	-1	
+198	6	skill	49	1	do	0	call_other_monster_by_group		0	-1	-1	-1	-1	
+199	0	skill	31	-1	if	0	is_can_skill	eq	1	0	-1	-1	0	
+199	0	skill	31	-1	do	0	to_skill		0	0	-1	-1	0	
+199	1	skill	40	40	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+199	1	skill	40	40	if	1	rand	lt	50	-1	-1	-1	-1	
+199	1	skill	40	40	if	2	is_can_skill	eq	1	1007	-1	-1	1007	
+199	1	skill	40	40	do	0	to_skill		0	1007	-1	-1	1007	
+199	2	skill	46	1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+199	2	skill	46	1	do	0	call_other_monster_by_group		0	-1	-1	-1	-1	
+199	3	skill	48	1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+199	3	skill	48	1	if	1	get_hp	lt	50	-1	-1	-1	-1	
+199	3	skill	48	1	do	0	to_speak		0	59	1	-1	-1	
+199	4	skill	47	1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+199	4	skill	47	1	if	1	get_hp	lt	50	-1	-1	-1	-1	
+199	4	skill	47	1	do	0	call_other_monster_by_group		0	-1	-1	-1	-1	
+199	5	skill	51	1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+199	5	skill	51	1	if	1	get_hp	lt	25	-1	-1	-1	-1	
+199	5	skill	51	1	do	0	to_speak		0	60	1	-1	-1	
+199	6	skill	49	1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+199	6	skill	49	1	if	1	get_hp	lt	25	-1	-1	-1	-1	
+199	6	skill	49	1	do	0	call_other_monster_by_group		0	-1	-1	-1	-1	
+200	0	skill	29	-1	if	0	is_can_skill	eq	1	614	-1	-1	614	
+200	0	skill	29	-1	do	0	to_skill		0	614	-1	-1	614	
+200	1	skill	31	-1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+200	1	skill	31	-1	if	1	rand	lt	20	-1	-1	-1	-1	
+200	1	skill	31	-1	if	2	is_can_skill	eq	1	630	-1	-1	630	
+200	1	skill	31	-1	do	0	to_skill		0	630	-1	-1	630	
+200	2	skill	32	-1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+200	2	skill	32	-1	if	1	get_hp	lt	70	-1	-1	-1	-1	
+200	2	skill	32	-1	if	2	rand	lt	30	-1	-1	-1	-1	
+200	2	skill	32	-1	if	3	is_can_skill	eq	1	610	-1	-1	610	
+200	2	skill	32	-1	do	0	to_skill		0	610	-1	-1	610	
+200	3	skill	33	-1	if	0	is_can_skill	eq	1	554	-1	-1	554	
+200	3	skill	33	-1	do	0	to_skill		0	554	-1	-1	554	
+201	0	skill	29	-1	if	0	is_can_skill	eq	1	614	-1	-1	614	
+201	0	skill	29	-1	do	0	to_skill		0	614	-1	-1	614	
+201	1	skill	31	-1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+201	1	skill	31	-1	if	1	rand	lt	40	-1	-1	-1	-1	
+201	1	skill	31	-1	if	2	is_can_skill	eq	1	630	-1	-1	630	
+201	1	skill	31	-1	do	0	to_skill		0	630	-1	-1	630	
+201	2	skill	32	-1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+201	2	skill	32	-1	if	1	get_hp	lt	70	-1	-1	-1	-1	
+201	2	skill	32	-1	if	2	rand	lt	50	-1	-1	-1	-1	
+201	2	skill	32	-1	if	3	is_can_skill	eq	1	631	-1	-1	631	
+201	2	skill	32	-1	do	0	to_skill		0	631	-1	-1	631	
+201	3	skill	33	-1	if	0	is_can_skill	eq	1	555	-1	-1	555	
+201	3	skill	33	-1	do	0	to_skill		0	555	-1	-1	555	
+202	0	skill	29	-1	if	0	is_can_skill	eq	1	614	-1	-1	614	
+202	0	skill	29	-1	do	0	to_skill		0	614	-1	-1	614	
+202	1	skill	31	-1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+202	1	skill	31	-1	if	1	rand	lt	50	-1	-1	-1	-1	
+202	1	skill	31	-1	if	2	is_can_skill	eq	1	630	-1	-1	630	
+202	1	skill	31	-1	do	0	to_skill		0	630	-1	-1	630	
+202	2	skill	32	1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+202	2	skill	32	1	if	1	get_hp	lt	50	-1	-1	-1	-1	
+202	2	skill	32	1	if	2	is_can_skill	eq	1	589	-1	-1	589	
+202	2	skill	32	1	do	0	to_skill		0	589	-1	-1	589	
+202	3	skill	32	1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+202	3	skill	32	1	if	1	get_hp	lt	30	-1	-1	-1	-1	
+202	3	skill	32	1	if	2	is_can_skill	eq	1	589	-1	-1	589	
+202	3	skill	32	1	do	0	to_skill		0	589	-1	-1	589	
+202	4	skill	33	-1	if	0	is_can_skill	eq	1	585	-1	-1	585	
+202	4	skill	33	-1	do	0	to_skill		0	585	-1	-1	585	
+203	0	skill	29	-1	if	0	is_can_skill	eq	1	614	-1	-1	614	
+203	0	skill	29	-1	do	0	to_skill		0	614	-1	-1	614	
+203	1	skill	31	-1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+203	1	skill	31	-1	if	1	rand	lt	50	-1	-1	-1	-1	
+203	1	skill	31	-1	if	2	is_can_skill	eq	1	630	-1	-1	630	
+203	1	skill	31	-1	do	0	to_skill		0	630	-1	-1	630	
+203	2	skill	32	-1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+203	2	skill	32	-1	if	1	get_hp	lt	70	-1	-1	-1	-1	
+203	2	skill	32	-1	if	2	rand	lt	70	-1	-1	-1	-1	
+203	2	skill	32	-1	if	3	is_can_skill	eq	1	632	-1	-1	632	
+203	2	skill	32	-1	do	0	to_skill		0	632	-1	-1	632	
+203	3	skill	33	-1	if	0	is_can_skill	eq	1	593	-1	-1	593	
+203	3	skill	33	-1	do	0	to_skill		0	593	-1	-1	593	
+204	0	skill	29	-1	if	0	is_can_skill	eq	1	614	-1	-1	614	
+204	0	skill	29	-1	do	0	to_skill		0	614	-1	-1	614	
+204	1	skill	31	-1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+204	1	skill	31	-1	if	1	rand	lt	30	-1	-1	-1	-1	
+204	1	skill	31	-1	if	2	is_can_skill	eq	1	630	-1	-1	630	
+204	1	skill	31	-1	do	0	to_skill		0	630	-1	-1	630	
+204	2	skill	32	-1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+204	2	skill	32	-1	if	1	get_hp	lt	70	-1	-1	-1	-1	
+204	2	skill	32	-1	if	2	rand	lt	50	-1	-1	-1	-1	
+204	2	skill	32	-1	if	3	is_can_skill	eq	1	599	-1	-1	599	
+204	2	skill	32	-1	do	0	to_skill		0	599	-1	-1	599	
+204	3	skill	33	-1	if	0	is_can_skill	eq	1	553	-1	-1	553	
+204	3	skill	33	-1	do	0	to_skill		0	553	-1	-1	553	
+205	0	skill	30	-1	if	0	is_can_skill	eq	1	0	-1	-1	0	
+205	0	skill	30	-1	do	0	to_skill		0	0	-1	-1	0	
+205	1	skill	31	1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+205	1	skill	31	1	if	1	is_can_skill	eq	1	1022	-1	-1	1022	
+205	1	skill	31	1	do	0	to_skill		0	1022	-1	-1	1022	
+206	0	skill	30	-1	if	0	is_can_skill	eq	1	0	-1	-1	0	
+206	0	skill	30	-1	do	0	to_skill		0	0	-1	-1	0	
+206	1	skill	31	-1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+206	1	skill	31	-1	if	1	rand	lt	30	-1	-1	-1	-1	
+206	1	skill	31	-1	if	2	is_can_skill	eq	1	573	-1	-1	573	
+206	1	skill	31	-1	do	0	to_skill		0	573	-1	-1	573	
+207	0	skill	30	-1	if	0	is_can_skill	eq	1	0	-1	-1	0	
+207	0	skill	30	-1	do	0	to_skill		0	0	-1	-1	0	
+207	1	skill	31	1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+207	1	skill	31	1	if	1	get_hp	lt	50	-1	-1	-1	-1	
+207	1	skill	31	1	if	2	is_can_skill	eq	1	585	-1	-1	585	
+207	1	skill	31	1	do	0	to_skill		0	585	-1	-1	585	
+208	0	skill	30	-1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+208	0	skill	30	-1	if	1	is_can_skill	eq	1	0	-1	-1	0	
+208	0	skill	30	-1	do	0	to_skill		0	0	-1	-1	0	
+208	1	skill	31	-1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+208	1	skill	31	-1	if	1	rand	lt	30	-1	-1	-1	-1	
+208	1	skill	31	-1	if	2	is_can_skill	eq	1	573	-1	-1	573	
+208	1	skill	31	-1	do	0	to_skill		0	573	-1	-1	573	
+208	2	skill	32	1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+208	2	skill	32	1	if	1	get_hp	lt	50	-1	-1	-1	-1	
+208	2	skill	32	1	if	2	is_can_skill	eq	1	585	-1	-1	585	
+208	2	skill	32	1	do	0	to_skill		0	585	-1	-1	585	
+208	3	skill	33	1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+208	3	skill	33	1	if	1	get_hp	lt	20	-1	-1	-1	-1	
+208	3	skill	33	1	if	2	is_can_skill	eq	1	628	-1	-1	628	
+208	3	skill	33	1	do	0	to_skill		0	628	-1	-1	628	
+208	4	skill	34	-1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+208	4	skill	34	-1	if	1	is_can_skill	eq	1	590	-1	-1	590	
+208	4	skill	34	-1	if	2	rand	lt	50	-1	-1	-1	-1	
+208	4	skill	34	-1	do	0	to_skill		0	590	-1	-1	590	
+209	0	skill	30	-1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+209	0	skill	30	-1	if	1	is_can_skill	eq	1	0	-1	-1	0	
+209	0	skill	30	-1	do	0	to_skill		0	0	-1	-1	0	
+209	1	skill	31	5	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+209	1	skill	31	5	if	1	rand	lt	20	-1	-1	-1	-1	
+209	1	skill	31	5	if	2	is_can_skill	eq	1	633	-1	-1	633	
+209	1	skill	31	5	do	0	to_skill		0	633	-1	-1	633	
+209	2	skill	32	5	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+209	2	skill	32	5	if	1	rand	lt	20	-1	-1	-1	-1	
+209	2	skill	32	5	if	2	is_can_skill	eq	1	634	-1	-1	634	
+209	2	skill	32	5	do	0	to_skill		0	634	-1	-1	634	
+209	3	skill	33	3	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+209	3	skill	33	3	if	1	get_hp	lt	30	-1	-1	-1	-1	
+209	3	skill	33	3	if	2	is_can_skill	eq	1	603	-1	-1	603	
+209	3	skill	33	3	do	0	to_skill		0	603	-1	-1	603	
+209	4	skill	34	1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+209	4	skill	34	1	if	1	get_hp	lt	20	-1	-1	-1	-1	
+209	4	skill	34	1	if	2	is_can_skill	eq	1	628	-1	-1	628	
+209	4	skill	34	1	do	0	to_skill		0	628	-1	-1	628	
+209	5	skill	35	-1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+209	5	skill	35	-1	if	1	is_can_skill	eq	1	588	-1	-1	588	
+209	5	skill	35	-1	do	0	to_skill		0	588	-1	-1	588	
+210	0	skill	30	-1	if	0	is_can_skill	eq	1	0	-1	-1	0	
+210	0	skill	30	-1	do	0	to_skill		0	0	-1	-1	0	
+210	1	skill	34	-1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+210	1	skill	34	-1	if	1	is_can_skill	eq	1	626	-1	-1	626	
+210	1	skill	34	-1	if	2	get_hp	lt	98	-1	-1	-1	-1	
+210	1	skill	34	-1	if	3	rand	lt	50	-1	-1	-1	-1	
+210	1	skill	34	-1	do	0	to_skill		0	626	-1	-1	626	
+211	0	skill	30	-1	if	0	is_can_skill	eq	1	0	-1	-1	0	
+211	0	skill	30	-1	do	0	to_skill		0	0	-1	-1	0	
+211	1	skill	40	1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+211	1	skill	40	1	if	1	is_can_skill	eq	1	637	-1	-1	637	
+211	1	skill	40	1	do	0	to_skill		0	637	-1	-1	637	
+211	2	skill	32	-1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+211	2	skill	32	-1	if	1	rand	lt	30	-1	-1	-1	-1	
+211	2	skill	32	-1	if	2	is_can_skill	eq	1	638	-1	-1	638	
+211	2	skill	32	-1	do	0	to_skill		0	638	-1	-1	638	
+211	3	skill	35	-1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+211	3	skill	35	-1	if	1	rand	lt	30	-1	-1	-1	-1	
+211	3	skill	35	-1	if	2	is_can_skill	eq	1	644	-1	-1	644	
+211	3	skill	35	-1	do	0	to_skill		0	644	-1	-1	644	
+211	4	skill	34	5	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+211	4	skill	34	5	if	1	get_hp	lt	70	-1	-1	-1	-1	
+211	4	skill	34	5	if	2	is_can_skill	eq	1	636	-1	-1	636	
+211	4	skill	34	5	do	0	to_skill		0	636	-1	-1	636	
+211	5	skill	49	1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+211	5	skill	49	1	do	0	call_other_monster_by_group		0	-1	-1	-1	-1	
+212	0	skill	30	-1	if	0	is_can_skill	eq	1	0	-1	-1	0	
+212	0	skill	30	-1	do	0	to_skill		0	0	-1	-1	0	
+212	1	skill	34	-1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+212	1	skill	34	-1	if	1	is_can_skill	eq	1	643	-1	-1	643	
+212	1	skill	34	-1	if	2	rand	lt	30	-1	-1	-1	-1	
+212	1	skill	34	-1	do	0	to_skill		0	643	-1	-1	643	
+212	2	skill	49	1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+212	2	skill	49	1	do	0	call_other_monster_by_group		0	-1	-1	-1	-1	
+213	0	skill	30	-1	if	0	is_can_skill	eq	1	0	-1	-1	0	
+213	0	skill	30	-1	do	0	to_skill		0	0	-1	-1	0	
+213	1	skill	34	5	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+213	1	skill	34	5	if	1	is_can_skill	eq	1	640	-1	-1	640	
+213	1	skill	34	5	if	2	rand	lt	30	-1	-1	-1	-1	
+213	1	skill	34	5	do	0	to_skill		0	640	-1	-1	640	
+213	2	skill	49	1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+213	2	skill	49	1	do	0	call_other_monster_by_group		0	-1	-1	-1	-1	
+214	0	skill	30	-1	if	0	is_can_skill	eq	1	0	-1	-1	0	
+214	0	skill	30	-1	do	0	to_skill		0	0	-1	-1	0	
+214	1	skill	34	5	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+214	1	skill	34	5	if	1	is_can_skill	eq	1	641	-1	-1	641	
+214	1	skill	34	5	if	2	rand	lt	30	-1	-1	-1	-1	
+214	1	skill	34	5	do	0	to_skill		0	641	-1	-1	641	
+214	2	skill	49	1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+214	2	skill	49	1	do	0	call_other_monster_by_group		0	-1	-1	-1	-1	
+215	0	skill	30	-1	if	0	is_can_skill	eq	1	0	-1	-1	0	
+215	0	skill	30	-1	do	0	to_skill		0	0	-1	-1	0	
+215	1	skill	34	-1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+215	1	skill	34	-1	if	1	is_can_skill	eq	1	642	-1	-1	642	
+215	1	skill	34	-1	if	2	rand	lt	30	-1	-1	-1	-1	
+215	1	skill	34	-1	do	0	to_skill		0	642	-1	-1	642	
+215	2	skill	49	1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+215	2	skill	49	1	do	0	call_other_monster_by_group		0	-1	-1	-1	-1	
+216	0	skill	30	-1	if	0	is_can_skill	eq	1	614	-1	-1	614	
+216	0	skill	30	-1	do	0	to_skill		0	614	-1	-1	614	
+216	1	skill	33	-1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+216	1	skill	33	-1	if	1	rand	lt	20	-1	-1	-1	-1	
+216	1	skill	33	-1	if	2	is_can_skill	eq	1	555	-1	-1	555	
+216	1	skill	33	-1	do	0	to_skill		0	555	-1	-1	555	
+216	2	skill	34	8	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+216	2	skill	34	8	if	1	get_hp	lt	70	-1	-1	-1	-1	
+216	2	skill	34	8	if	2	is_can_skill	eq	1	559	-1	-1	559	
+216	2	skill	34	8	do	0	to_skill		0	559	-1	-1	559	
+216	3	skill	38	2	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+216	3	skill	38	2	if	1	get_hp	lt	30	-1	-1	-1	-1	
+216	3	skill	38	2	if	2	is_can_skill	eq	1	625	-1	-1	625	
+216	3	skill	38	2	do	0	to_skill		0	625	-1	-1	625	
+216	4	skill	31	1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+216	4	skill	31	1	if	1	get_hp	lt	75	-1	-1	-1	-1	
+216	4	skill	31	1	do	0	to_speak		0	165	1	-1	-1	
+216	5	skill	31	1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+216	5	skill	31	1	if	1	get_hp	lt	50	-1	-1	-1	-1	
+216	5	skill	31	1	do	0	to_speak		0	166	1	-1	-1	
+216	6	skill	31	1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+216	6	skill	31	1	if	1	get_hp	lt	25	-1	-1	-1	-1	
+216	6	skill	31	1	do	0	to_speak		0	167	1	-1	-1	
+216	7	skill	31	1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+216	7	skill	31	1	if	1	get_hp	lt	1	-1	-1	-1	-1	
+216	7	skill	31	1	do	0	to_speak		0	168	1	-1	-1	
+220	0	skill	35	-1	if	0	is_can_skill	eq	1	0	-1	-1	0	
+220	0	skill	35	-1	do	0	to_skill		0	0	-1	-1	0	
+220	1	skill	40	-1	if	0	is_can_skill	eq	1	551	-1	-1	551	
+220	1	skill	40	-1	if	1	rand	lt	15	-1	-1	-1	-1	
+220	1	skill	40	-1	if	2	get_hp	lt	80	-1	-1	-1	-1	
+220	1	skill	40	-1	do	0	to_skill		0	551	-1	-1	551	
+220	2	skill	45	1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+220	2	skill	45	1	if	1	get_hp	lt	20	-1	-1	-1	-1	
+220	2	skill	45	1	do	0	to_speak		0	183	1	-1	-1	
+221	0	skill	35	-1	if	0	is_can_skill	eq	1	552	-1	-1	552	
+221	0	skill	35	-1	do	0	to_skill		0	552	-1	-1	552	
+221	1	skill	40	-1	if	0	is_can_skill	eq	1	600	-1	-1	600	
+221	1	skill	40	-1	if	1	rand	lt	20	-1	-1	-1	-1	
+221	1	skill	40	-1	if	2	get_hp	lt	80	-1	-1	-1	-1	
+221	1	skill	40	-1	do	0	to_skill		0	600	-1	-1	600	
+221	2	skill	45	1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+221	2	skill	45	1	if	1	get_hp	lt	20	-1	-1	-1	-1	
+221	2	skill	45	1	do	0	to_speak		0	183	1	-1	-1	
+222	0	skill	35	-1	if	0	is_can_skill	eq	1	0	-1	-1	0	
+222	0	skill	35	-1	do	0	to_skill		0	0	-1	-1	0	
+222	1	skill	40	-1	if	0	is_can_skill	eq	1	551	-1	-1	551	
+222	1	skill	40	-1	if	1	rand	lt	5	-1	-1	-1	-1	
+222	1	skill	40	-1	if	2	get_hp	lt	80	-1	-1	-1	-1	
+222	1	skill	40	-1	do	0	to_skill		0	551	-1	-1	551	
+223	0	skill	38	-1	if	0	is_can_skill	eq	1	1008	-1	-1	1008	
+223	0	skill	38	-1	do	0	to_skill		0	1008	-1	-1	1008	
+224	0	skill	38	-1	if	0	is_can_skill	eq	1	1009	-1	-1	1009	
+224	0	skill	38	-1	do	0	to_skill		0	1009	-1	-1	1009	
+225	0	skill	38	-1	if	0	is_can_skill	eq	1	1010	-1	-1	1010	
+225	0	skill	38	-1	do	0	to_skill		0	1010	-1	-1	1010	
+226	0	skill	35	-1	if	0	is_can_skill	eq	1	0	-1	-1	0	
+226	0	skill	35	-1	do	0	to_skill		0	0	-1	-1	0	
+226	1	skill	40	-1	if	0	is_can_skill	eq	1	591	-1	-1	591	
+226	1	skill	40	-1	if	1	rand	lt	15	-1	-1	-1	-1	
+226	1	skill	40	-1	if	2	get_hp	lt	80	-1	-1	-1	-1	
+226	1	skill	40	-1	do	0	to_skill		0	591	-1	-1	591	
+227	0	skill	35	-1	if	0	is_can_skill	eq	1	0	-1	-1	0	
+227	0	skill	35	-1	do	0	to_skill		0	0	-1	-1	0	
+227	1	skill	40	-1	if	0	is_can_skill	eq	1	551	-1	-1	551	
+227	1	skill	40	-1	if	1	rand	lt	50	-1	-1	-1	-1	
+227	1	skill	40	-1	if	2	get_hp	lt	90	-1	-1	-1	-1	
+227	1	skill	40	-1	do	0	to_skill		0	551	-1	-1	551	
+227	2	skill	50	-1	if	0	is_can_skill	eq	1	621	-1	-1	621	
+227	2	skill	50	-1	if	1	rand	lt	40	-1	-1	-1	-1	
+227	2	skill	50	-1	if	2	get_hp	lt	50	-1	-1	-1	-1	
+227	2	skill	50	-1	do	0	to_skill		0	621	-1	-1	621	
+227	3	skill	60	1	if	0	is_can_skill	eq	1	584	-1	-1	584	
+227	3	skill	60	1	if	1	rand	lt	30	-1	-1	-1	-1	
+227	3	skill	60	1	if	2	get_hp	lt	30	-1	-1	-1	-1	
+227	3	skill	60	1	do	0	to_skill		0	584	-1	-1	584	
+228	0	skill	30	-1	if	0	is_can_skill	eq	1	0	-1	-1	0	
+228	0	skill	30	-1	do	0	to_skill		0	0	-1	-1	0	
+228	1	skill	32	-1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+228	1	skill	32	-1	if	1	rand	lt	60	-1	-1	-1	-1	
+228	1	skill	32	-1	if	2	is_can_skill	eq	1	631	-1	-1	631	
+228	1	skill	32	-1	if	3	get_hp	lt	95	-1	-1	-1	-1	
+228	1	skill	32	-1	do	0	to_skill		0	631	-1	-1	631	
+228	2	skill	33	-1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+228	2	skill	33	-1	if	1	rand	lt	50	-1	-1	-1	-1	
+228	2	skill	33	-1	if	2	is_can_skill	eq	1	632	-1	-1	632	
+228	2	skill	33	-1	if	3	get_hp	lt	90	-1	-1	-1	-1	
+228	2	skill	33	-1	do	0	to_skill		0	632	-1	-1	632	
+228	3	skill	34	-1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+228	3	skill	34	-1	if	1	rand	lt	40	-1	-1	-1	-1	
+228	3	skill	34	-1	if	2	is_can_skill	eq	1	1011	-1	-1	1011	
+228	3	skill	34	-1	if	3	get_hp	lt	85	-1	-1	-1	-1	
+228	3	skill	34	-1	do	0	to_skill		0	1011	-1	-1	1011	
+228	4	skill	35	-1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+228	4	skill	35	-1	if	1	rand	lt	30	-1	-1	-1	-1	
+228	4	skill	35	-1	if	2	is_can_skill	eq	1	573	-1	-1	573	
+228	4	skill	35	-1	if	3	get_hp	lt	80	-1	-1	-1	-1	
+228	4	skill	35	-1	do	0	to_skill		0	573	-1	-1	573	
+229	0	skill	30	-1	if	0	is_can_skill	eq	1	0	-1	-1	0	
+229	0	skill	30	-1	do	0	to_skill		0	0	-1	-1	0	
+229	1	skill	32	-1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+229	1	skill	32	-1	if	1	rand	lt	40	-1	-1	-1	-1	
+229	1	skill	32	-1	if	2	is_can_skill	eq	1	609	-1	-1	609	
+229	1	skill	32	-1	if	3	get_hp	lt	90	-1	-1	-1	-1	
+229	1	skill	32	-1	do	0	to_skill		0	609	-1	-1	609	
+229	2	skill	34	-1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+229	2	skill	34	-1	if	1	rand	lt	20	-1	-1	-1	-1	
+229	2	skill	34	-1	if	2	is_can_skill	eq	1	593	-1	-1	593	
+229	2	skill	34	-1	if	3	get_hp	lt	80	-1	-1	-1	-1	
+229	2	skill	34	-1	do	0	to_skill		0	593	-1	-1	593	
+229	3	skill	36	-1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+229	3	skill	36	-1	if	1	rand	lt	10	-1	-1	-1	-1	
+229	3	skill	36	-1	if	2	is_can_skill	eq	1	560	-1	-1	560	
+229	3	skill	36	-1	if	3	get_hp	lt	70	-1	-1	-1	-1	
+229	3	skill	36	-1	do	0	to_skill		0	560	-1	-1	560	
+230	0	skill	35	-1	if	0	is_can_skill	eq	1	0	-1	-1	0	
+230	0	skill	35	-1	do	0	to_skill		0	0	-1	-1	0	
+230	1	skill	38	-1	if	0	is_can_skill	eq	1	563	-1	-1	563	
+230	1	skill	38	-1	if	1	rand	lt	50	-1	-1	-1	-1	
+230	1	skill	38	-1	if	2	get_hp	lt	90	-1	-1	-1	-1	
+230	1	skill	38	-1	do	0	to_skill		0	563	-1	-1	563	
+230	2	skill	40	-1	if	0	is_can_skill	eq	1	1012	-1	-1	1012	
+230	2	skill	40	-1	if	1	rand	lt	30	-1	-1	-1	-1	
+230	2	skill	40	-1	if	2	get_hp	lt	85	-1	-1	-1	-1	
+230	2	skill	40	-1	do	0	to_skill		0	1012	-1	-1	1012	
+230	3	skill	50	3	if	0	is_can_skill	eq	1	625	-1	-1	625	
+230	3	skill	50	3	if	1	rand	lt	10	-1	-1	-1	-1	
+230	3	skill	50	3	if	2	get_hp	lt	50	-1	-1	-1	-1	
+230	3	skill	50	3	do	0	to_skill		0	625	-1	-1	625	
+231	0	skill	35	-1	if	0	is_can_skill	eq	1	0	-1	-1	0	
+231	0	skill	35	-1	do	0	to_skill		0	0	-1	-1	0	
+231	1	skill	40	-1	if	0	is_can_skill	eq	1	551	-1	-1	551	
+231	1	skill	40	-1	if	1	rand	lt	5	-1	-1	-1	-1	
+231	1	skill	40	-1	if	2	get_hp	lt	80	-1	-1	-1	-1	
+231	1	skill	40	-1	do	0	to_skill		0	551	-1	-1	551	
+232	0	skill	35	-1	if	0	is_can_skill	eq	1	0	-1	-1	0	
+232	0	skill	35	-1	do	0	to_skill		0	0	-1	-1	0	
+232	1	skill	40	-1	if	0	is_can_skill	eq	1	600	-1	-1	600	
+232	1	skill	40	-1	if	1	rand	lt	5	-1	-1	-1	-1	
+232	1	skill	40	-1	if	2	get_hp	lt	80	-1	-1	-1	-1	
+232	1	skill	40	-1	do	0	to_skill		0	600	-1	-1	600	
+233	0	skill	35	-1	if	0	is_can_skill	eq	1	0	-1	-1	0	
+233	0	skill	35	-1	do	0	to_skill		0	0	-1	-1	0	
+233	1	skill	40	-1	if	0	is_can_skill	eq	1	554	-1	-1	554	
+233	1	skill	40	-1	if	1	rand	lt	5	-1	-1	-1	-1	
+233	1	skill	40	-1	if	2	get_hp	lt	80	-1	-1	-1	-1	
+233	1	skill	40	-1	do	0	to_skill		0	554	-1	-1	554	
+234	0	skill	35	-1	if	0	is_can_skill	eq	1	0	-1	-1	0	
+234	0	skill	35	-1	do	0	to_skill		0	0	-1	-1	0	
+234	1	skill	40	-1	if	0	is_can_skill	eq	1	554	-1	-1	554	
+234	1	skill	40	-1	if	1	rand	lt	25	-1	-1	-1	-1	
+234	1	skill	40	-1	if	2	get_hp	lt	80	-1	-1	-1	-1	
+234	1	skill	40	-1	do	0	to_skill		0	554	-1	-1	554	
+234	2	skill	50	1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+234	2	skill	50	1	if	1	is_can_skill	eq	1	585	-1	-1	585	
+234	2	skill	50	1	do	0	to_skill		0	585	-1	-1	585	
+235	0	skill	35	-1	if	0	is_can_skill	eq	1	0	-1	-1	0	
+235	0	skill	35	-1	do	0	to_skill		0	0	-1	-1	0	
+235	1	skill	40	-1	if	0	is_can_skill	eq	1	551	-1	-1	551	
+235	1	skill	40	-1	if	1	rand	lt	50	-1	-1	-1	-1	
+235	1	skill	40	-1	if	2	get_hp	lt	90	-1	-1	-1	-1	
+235	1	skill	40	-1	do	0	to_skill		0	551	-1	-1	551	
+235	2	skill	50	-1	if	0	is_can_skill	eq	1	592	-1	-1	592	
+235	2	skill	50	-1	if	1	rand	lt	30	-1	-1	-1	-1	
+235	2	skill	50	-1	if	2	get_hp	lt	50	-1	-1	-1	-1	
+235	2	skill	50	-1	do	0	to_skill		0	592	-1	-1	592	
+236	0	skill	35	-1	if	0	is_can_skill	eq	1	552	-1	-1	552	
+236	0	skill	35	-1	do	0	to_skill		0	552	-1	-1	552	
+236	1	skill	40	-1	if	0	is_can_skill	eq	1	600	-1	-1	600	
+236	1	skill	40	-1	if	1	rand	lt	80	-1	-1	-1	-1	
+236	1	skill	40	-1	if	2	get_hp	lt	95	-1	-1	-1	-1	
+236	1	skill	40	-1	do	0	to_skill		0	600	-1	-1	600	
+236	2	skill	45	10	if	0	is_can_skill	eq	1	601	-1	-1	601	
+236	2	skill	45	10	if	1	rand	lt	40	-1	-1	-1	-1	
+236	2	skill	45	10	if	2	get_hp	lt	85	-1	-1	-1	-1	
+236	2	skill	45	10	do	0	to_skill		0	601	-1	-1	601	
+236	3	skill	50	8	if	0	is_can_skill	eq	1	563	-1	-1	563	
+236	3	skill	50	8	if	1	rand	lt	30	-1	-1	-1	-1	
+236	3	skill	50	8	if	2	get_hp	lt	80	-1	-1	-1	-1	
+236	3	skill	50	8	do	0	to_skill		0	563	-1	-1	563	
+237	0	skill	35	-1	if	0	is_can_skill	eq	1	0	-1	-1	0	
+237	0	skill	35	-1	do	0	to_skill		0	0	-1	-1	0	
+237	1	skill	40	-1	if	0	is_can_skill	eq	1	1013	-1	-1	1013	
+237	1	skill	40	-1	if	1	rand	lt	25	-1	-1	-1	-1	
+237	1	skill	40	-1	if	2	get_hp	lt	90	-1	-1	-1	-1	
+237	1	skill	40	-1	do	0	to_skill		0	1013	-1	-1	1013	
+237	2	skill	45	-1	if	0	is_can_skill	eq	1	624	-1	-1	624	
+237	2	skill	45	-1	if	1	rand	lt	15	-1	-1	-1	-1	
+237	2	skill	45	-1	if	2	get_hp	lt	60	-1	-1	-1	-1	
+237	2	skill	45	-1	do	0	to_skill		0	624	-1	-1	624	
+237	3	skill	50	-1	if	0	is_can_skill	eq	1	563	-1	-1	563	
+237	3	skill	50	-1	if	1	rand	lt	30	-1	-1	-1	-1	
+237	3	skill	50	-1	if	2	get_hp	lt	80	-1	-1	-1	-1	
+237	3	skill	50	-1	do	0	to_skill		0	563	-1	-1	563	
+238	0	skill	38	-1	if	0	is_can_skill	eq	1	1008	-1	-1	1008	
+238	0	skill	38	-1	do	0	to_skill		0	1008	-1	-1	1008	
+239	0	skill	35	-1	if	0	is_can_skill	eq	1	0	-1	-1	0	
+239	0	skill	35	-1	do	0	to_skill		0	0	-1	-1	0	
+239	1	skill	40	-1	if	0	is_can_skill	eq	1	553	-1	-1	553	
+239	1	skill	40	-1	if	1	rand	lt	5	-1	-1	-1	-1	
+239	1	skill	40	-1	if	2	get_hp	lt	80	-1	-1	-1	-1	
+239	1	skill	40	-1	do	0	to_skill		0	553	-1	-1	553	
+240	0	skill	35	-1	if	0	is_can_skill	eq	1	0	-1	-1	0	
+240	0	skill	35	-1	do	0	to_skill		0	0	-1	-1	0	
+240	1	skill	40	-1	if	0	is_can_skill	eq	1	551	-1	-1	551	
+240	1	skill	40	-1	if	1	rand	lt	50	-1	-1	-1	-1	
+240	1	skill	40	-1	if	2	get_hp	lt	90	-1	-1	-1	-1	
+240	1	skill	40	-1	do	0	to_skill		0	551	-1	-1	551	
+240	2	skill	50	-1	if	0	is_can_skill	eq	1	592	-1	-1	592	
+240	2	skill	50	-1	if	1	rand	lt	20	-1	-1	-1	-1	
+240	2	skill	50	-1	if	2	get_hp	lt	80	-1	-1	-1	-1	
+240	2	skill	50	-1	do	0	to_skill		0	592	-1	-1	592	
+240	3	skill	60	3	if	0	get_hp	lt	50	-1	-1	-1	-1	
+240	3	skill	60	3	if	1	is_can_skill	eq	1	621	-1	-1	621	
+240	3	skill	60	3	if	2	rand	lt	10	-1	-1	-1	-1	
+240	3	skill	60	3	do	0	to_skill		0	621	-1	-1	621	
+240	4	skill	65	1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+240	4	skill	65	1	do	0	call_other_monster_by_group		0	-1	-1	-1	-1	
+241	0	skill	35	-1	if	0	is_can_skill	eq	1	0	-1	-1	0	
+241	0	skill	35	-1	do	0	to_skill		0	0	-1	-1	0	
+241	1	skill	40	-1	if	0	is_can_skill	eq	1	600	-1	-1	600	
+241	1	skill	40	-1	if	1	rand	lt	25	-1	-1	-1	-1	
+241	1	skill	40	-1	if	2	get_hp	lt	90	-1	-1	-1	-1	
+241	1	skill	40	-1	do	0	to_skill		0	600	-1	-1	600	
+241	2	skill	45	-1	if	0	is_can_skill	eq	1	601	-1	-1	601	
+241	2	skill	45	-1	if	1	rand	lt	20	-1	-1	-1	-1	
+241	2	skill	45	-1	if	2	get_hp	lt	80	-1	-1	-1	-1	
+241	2	skill	45	-1	do	0	to_skill		0	601	-1	-1	601	
+241	3	skill	50	-1	if	0	is_can_skill	eq	1	557	-1	-1	557	
+241	3	skill	50	-1	if	1	rand	lt	15	-1	-1	-1	-1	
+241	3	skill	50	-1	if	2	get_hp	lt	70	-1	-1	-1	-1	
+241	3	skill	50	-1	do	0	to_skill		0	557	-1	-1	557	
+241	4	skill	60	1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+241	4	skill	60	1	do	0	call_other_monster_by_group		0	-1	-1	-1	-1	
+242	0	skill	35	-1	if	0	is_can_skill	eq	1	0	-1	-1	0	
+242	0	skill	35	-1	do	0	to_skill		0	0	-1	-1	0	
+242	1	skill	40	-1	if	0	is_can_skill	eq	1	631	-1	-1	631	
+242	1	skill	40	-1	if	1	rand	lt	40	-1	-1	-1	-1	
+242	1	skill	40	-1	if	2	get_hp	lt	95	-1	-1	-1	-1	
+242	1	skill	40	-1	do	0	to_skill		0	631	-1	-1	631	
+242	2	skill	45	-1	if	0	is_can_skill	eq	1	632	-1	-1	632	
+242	2	skill	45	-1	if	1	rand	lt	35	-1	-1	-1	-1	
+242	2	skill	45	-1	if	2	get_hp	lt	90	-1	-1	-1	-1	
+242	2	skill	45	-1	do	0	to_skill		0	632	-1	-1	632	
+242	3	skill	50	-1	if	0	is_can_skill	eq	1	1011	-1	-1	1011	
+242	3	skill	50	-1	if	1	rand	lt	30	-1	-1	-1	-1	
+242	3	skill	50	-1	if	2	get_hp	lt	80	-1	-1	-1	-1	
+242	3	skill	50	-1	do	0	to_skill		0	1011	-1	-1	1011	
+242	4	skill	55	1	if	0	is_can_skill	eq	1	604	-1	-1	604	
+242	4	skill	55	1	if	1	get_hp	lt	10	-1	-1	-1	-1	
+242	4	skill	55	1	if	2	rand	lt	80	-1	-1	-1	-1	
+242	4	skill	55	1	do	0	to_skill		0	604	-1	-1	604	
+242	5	skill	60	1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+242	5	skill	60	1	do	0	call_other_monster_by_group		0	-1	-1	-1	-1	
+243	0	skill	35	-1	if	0	is_can_skill	eq	1	0	-1	-1	0	
+243	0	skill	35	-1	do	0	to_skill		0	0	-1	-1	0	
+243	1	skill	40	-1	if	0	is_can_skill	eq	1	551	-1	-1	551	
+243	1	skill	40	-1	if	1	get_hp	lt	95	-1	-1	-1	-1	
+243	1	skill	40	-1	if	2	rand	lt	40	-1	-1	-1	-1	
+243	1	skill	40	-1	do	0	to_skill		0	551	-1	-1	551	
+243	2	skill	50	-1	if	0	is_can_skill	eq	1	573	-1	-1	573	
+243	2	skill	50	-1	if	1	get_hp	lt	90	-1	-1	-1	-1	
+243	2	skill	50	-1	if	2	rand	lt	35	-1	-1	-1	-1	
+243	2	skill	50	-1	do	0	to_skill		0	573	-1	-1	573	
+243	3	skill	55	-1	if	0	is_can_skill	eq	1	591	-1	-1	591	
+243	3	skill	55	-1	if	1	get_hp	lt	80	-1	-1	-1	-1	
+243	3	skill	55	-1	if	2	rand	lt	30	-1	-1	-1	-1	
+243	3	skill	55	-1	do	0	to_skill		0	591	-1	-1	591	
+243	4	skill	60	3	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+243	4	skill	60	3	if	1	get_hp	lt	30	-1	-1	-1	-1	
+243	4	skill	60	3	if	2	is_can_skill	eq	1	621	-1	-1	621	
+243	4	skill	60	3	if	3	rand	lt	50	-1	-1	-1	-1	
+243	4	skill	60	3	do	0	to_skill		0	621	-1	-1	621	
+243	5	skill	65	1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+243	5	skill	65	1	do	0	call_other_monster_by_group		0	-1	-1	-1	-1	
+244	0	skill	35	-1	if	0	is_can_skill	eq	1	0	-1	-1	0	
+244	0	skill	35	-1	do	0	to_skill		0	0	-1	-1	0	
+244	1	skill	40	-1	if	0	is_can_skill	eq	1	1016	-1	-1	1016	
+244	1	skill	40	-1	if	1	get_hp	lt	98	-1	-1	-1	-1	
+244	1	skill	40	-1	if	2	rand	lt	30	-1	-1	-1	-1	
+244	1	skill	40	-1	do	0	to_skill		0	1016	-1	-1	1016	
+244	2	skill	70	3	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+244	2	skill	70	3	if	1	is_can_skill	eq	1	1017	-1	-1	1017	
+244	2	skill	70	3	if	2	get_hp	lt	30	-1	-1	-1	-1	
+244	2	skill	70	3	if	3	rand	lt	40	-1	-1	-1	-1	
+244	2	skill	70	3	do	0	to_skill		0	1017	-1	-1	1017	
+244	3	skill	60	-1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+244	3	skill	60	-1	if	1	is_can_skill	eq	1	627	-1	-1	627	
+244	3	skill	60	-1	if	2	get_hp	lt	40	-1	-1	-1	-1	
+244	3	skill	60	-1	if	3	rand	lt	20	-1	-1	-1	-1	
+244	3	skill	60	-1	do	0	to_skill		0	627	-1	-1	627	
+244	4	skill	50	-1	if	0	is_can_skill	eq	1	1023	-1	-1	1023	
+244	4	skill	50	-1	if	1	get_hp	lt	90	-1	-1	-1	-1	
+244	4	skill	50	-1	if	2	rand	lt	50	-1	-1	-1	-1	
+244	4	skill	50	-1	do	0	to_skill		0	1023	-1	-1	1023	
+245	0	skill	35	-1	if	0	is_can_skill	eq	1	1014	-1	-1	1014	
+245	0	skill	35	-1	do	0	to_skill		0	1014	-1	-1	1014	
+246	0	skill	35	-1	if	0	is_can_skill	eq	1	1015	-1	-1	1015	
+246	0	skill	35	-1	do	0	to_skill		0	1015	-1	-1	1015	
+247	0	skill	35	-1	if	0	is_can_skill	eq	1	552	-1	-1	552	
+247	0	skill	35	-1	do	0	to_skill		0	552	-1	-1	552	
+247	1	skill	40	-1	if	0	is_can_skill	eq	1	600	-1	-1	600	
+247	1	skill	40	-1	if	1	rand	lt	25	-1	-1	-1	-1	
+247	1	skill	40	-1	if	2	get_hp	lt	90	-1	-1	-1	-1	
+247	1	skill	40	-1	do	0	to_skill		0	600	-1	-1	600	
+247	2	skill	45	-1	if	0	is_can_skill	eq	1	601	-1	-1	601	
+247	2	skill	45	-1	if	1	rand	lt	15	-1	-1	-1	-1	
+247	2	skill	45	-1	if	2	get_hp	lt	80	-1	-1	-1	-1	
+247	2	skill	45	-1	do	0	to_skill		0	601	-1	-1	601	
+247	3	skill	50	-1	if	0	is_can_skill	eq	1	563	-1	-1	563	
+247	3	skill	50	-1	if	1	rand	lt	10	-1	-1	-1	-1	
+247	3	skill	50	-1	if	2	get_hp	lt	70	-1	-1	-1	-1	
+247	3	skill	50	-1	do	0	to_skill		0	563	-1	-1	563	
+248	0	skill	35	-1	if	0	is_can_skill	eq	1	552	-1	-1	552	
+248	0	skill	35	-1	do	0	to_skill		0	552	-1	-1	552	
+248	1	skill	40	-1	if	0	is_can_skill	eq	1	600	-1	-1	600	
+248	1	skill	40	-1	if	1	rand	lt	25	-1	-1	-1	-1	
+248	1	skill	40	-1	if	2	get_hp	lt	90	-1	-1	-1	-1	
+248	1	skill	40	-1	do	0	to_skill		0	600	-1	-1	600	
+248	2	skill	45	-1	if	0	is_can_skill	eq	1	601	-1	-1	601	
+248	2	skill	45	-1	if	1	rand	lt	15	-1	-1	-1	-1	
+248	2	skill	45	-1	if	2	get_hp	lt	80	-1	-1	-1	-1	
+248	2	skill	45	-1	do	0	to_skill		0	601	-1	-1	601	
+248	3	skill	50	-1	if	0	is_can_skill	eq	1	563	-1	-1	563	
+248	3	skill	50	-1	if	1	rand	lt	10	-1	-1	-1	-1	
+248	3	skill	50	-1	if	2	get_hp	lt	70	-1	-1	-1	-1	
+248	3	skill	50	-1	do	0	to_skill		0	563	-1	-1	563	
+249	0	skill	35	-1	if	0	is_can_skill	eq	1	0	-1	-1	0	
+249	0	skill	35	-1	do	0	to_skill		0	0	-1	-1	0	
+249	1	skill	40	-1	if	0	is_can_skill	eq	1	551	-1	-1	551	
+249	1	skill	40	-1	if	1	rand	lt	50	-1	-1	-1	-1	
+249	1	skill	40	-1	if	2	get_hp	lt	90	-1	-1	-1	-1	
+249	1	skill	40	-1	do	0	to_skill		0	551	-1	-1	551	
+249	2	skill	50	-1	if	0	is_can_skill	eq	1	592	-1	-1	592	
+249	2	skill	50	-1	if	1	rand	lt	20	-1	-1	-1	-1	
+249	2	skill	50	-1	if	2	get_hp	lt	50	-1	-1	-1	-1	
+249	2	skill	50	-1	do	0	to_skill		0	592	-1	-1	592	
+250	0	skill	35	-1	if	0	is_can_skill	eq	1	0	-1	-1	0	
+250	0	skill	35	-1	do	0	to_skill		0	0	-1	-1	0	
+250	1	skill	40	-1	if	0	is_can_skill	eq	1	553	-1	-1	553	
+250	1	skill	40	-1	if	1	rand	lt	50	-1	-1	-1	-1	
+250	1	skill	40	-1	if	2	get_hp	lt	90	-1	-1	-1	-1	
+250	1	skill	40	-1	do	0	to_skill		0	553	-1	-1	553	
+250	2	skill	50	-1	if	0	is_can_skill	eq	1	573	-1	-1	573	
+250	2	skill	50	-1	if	1	rand	lt	40	-1	-1	-1	-1	
+250	2	skill	50	-1	if	2	get_hp	lt	80	-1	-1	-1	-1	
+250	2	skill	50	-1	do	0	to_skill		0	573	-1	-1	573	
+251	0	skill	35	-1	if	0	is_can_skill	eq	1	0	-1	-1	0	
+251	0	skill	35	-1	do	0	to_skill		0	0	-1	-1	0	
+251	1	skill	40	-1	if	0	is_can_skill	eq	1	554	-1	-1	554	
+251	1	skill	40	-1	if	1	rand	lt	50	-1	-1	-1	-1	
+251	1	skill	40	-1	if	2	get_hp	lt	90	-1	-1	-1	-1	
+251	1	skill	40	-1	do	0	to_skill		0	554	-1	-1	554	
+251	2	skill	50	-1	if	0	is_can_skill	eq	1	572	-1	-1	572	
+251	2	skill	50	-1	if	1	rand	lt	40	-1	-1	-1	-1	
+251	2	skill	50	-1	if	2	get_hp	lt	80	-1	-1	-1	-1	
+251	2	skill	50	-1	do	0	to_skill		0	572	-1	-1	572	
+252	0	skill	35	-1	if	0	is_can_skill	eq	1	0	-1	-1	0	
+252	0	skill	35	-1	do	0	to_skill		0	0	-1	-1	0	
+252	1	skill	40	-1	if	0	is_can_skill	eq	1	555	-1	-1	555	
+252	1	skill	40	-1	if	1	rand	lt	50	-1	-1	-1	-1	
+252	1	skill	40	-1	if	2	get_hp	lt	90	-1	-1	-1	-1	
+252	1	skill	40	-1	do	0	to_skill		0	555	-1	-1	555	
+252	2	skill	50	-1	if	0	is_can_skill	eq	1	563	-1	-1	563	
+252	2	skill	50	-1	if	1	rand	lt	40	-1	-1	-1	-1	
+252	2	skill	50	-1	if	2	get_hp	lt	80	-1	-1	-1	-1	
+252	2	skill	50	-1	do	0	to_skill		0	563	-1	-1	563	
+253	0	skill	35	-1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+253	0	skill	35	-1	if	1	is_can_skill	eq	1	0	-1	-1	0	
+253	0	skill	35	-1	do	0	to_skill		0	0	-1	-1	0	
+253	1	skill	36	-1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+253	1	skill	36	-1	if	1	is_can_skill	eq	1	556	-1	-1	556	
+253	1	skill	36	-1	if	2	rand	lt	20	-1	-1	-1	-1	
+253	1	skill	36	-1	do	0	to_skill		0	556	-1	-1	556	
+253	2	skill	37	-1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+253	2	skill	37	-1	if	1	is_can_skill	eq	1	574	-1	-1	574	
+253	2	skill	37	-1	if	2	rand	lt	20	-1	-1	-1	-1	
+253	2	skill	37	-1	do	0	to_skill		0	574	-1	-1	574	
+253	3	skill	38	-1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+253	3	skill	38	-1	if	1	is_can_skill	eq	1	560	-1	-1	560	
+253	3	skill	38	-1	if	2	rand	lt	20	-1	-1	-1	-1	
+253	3	skill	38	-1	do	0	to_skill		0	560	-1	-1	560	
+254	0	skill	35	-1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+254	0	skill	35	-1	if	1	is_can_skill	eq	1	0	-1	-1	0	
+254	0	skill	35	-1	do	0	to_skill		0	0	-1	-1	0	
+254	1	skill	36	-1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+254	1	skill	36	-1	if	1	is_can_skill	eq	1	575	-1	-1	575	
+254	1	skill	36	-1	if	2	rand	lt	40	-1	-1	-1	-1	
+254	1	skill	36	-1	do	0	to_skill		0	575	-1	-1	575	
+254	2	skill	37	-1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+254	2	skill	37	-1	if	1	is_can_skill	eq	1	551	-1	-1	551	
+254	2	skill	37	-1	if	2	rand	lt	20	-1	-1	-1	-1	
+254	2	skill	37	-1	do	0	to_skill		0	551	-1	-1	551	
+254	3	skill	38	-1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+254	3	skill	38	-1	if	1	is_can_skill	eq	1	559	-1	-1	559	
+254	3	skill	38	-1	if	2	rand	lt	70	-1	-1	-1	-1	
+254	3	skill	38	-1	do	0	to_skill		0	559	-1	-1	559	
+254	4	skill	45	1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+254	4	skill	45	1	if	1	is_can_skill	eq	1	589	-1	-1	589	
+254	4	skill	45	1	if	2	get_hp	lt	50	-1	-1	-1	-1	
+254	4	skill	45	1	do	0	to_speak		0	169	1	-1	-1	
+254	4	skill	45	1	do	1	to_skill		0	589	-1	-1	589	
+255	0	skill	35	3	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+255	0	skill	35	3	if	1	is_can_skill	eq	1	0	-1	-1	0	
+255	0	skill	35	3	do	0	to_skill		0	0	-1	-1	0	
+255	1	skill	36	-1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+255	1	skill	36	-1	if	1	is_can_skill	eq	1	627	-1	-1	627	
+255	1	skill	36	-1	if	2	rand	lt	20	-1	-1	-1	-1	
+255	1	skill	36	-1	if	3	get_hp	gt	90	-1	-1	-1	-1	
+255	1	skill	36	-1	do	0	to_skill		0	627	-1	-1	627	
+255	2	skill	37	-1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+255	2	skill	37	-1	if	1	is_can_skill	eq	1	557	-1	-1	557	
+255	2	skill	37	-1	if	2	rand	lt	20	-1	-1	-1	-1	
+255	2	skill	37	-1	do	0	to_skill		0	557	-1	-1	557	
+255	3	skill	38	-1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+255	3	skill	38	-1	if	1	is_can_skill	eq	1	566	-1	-1	566	
+255	3	skill	38	-1	if	2	rand	lt	50	-1	-1	-1	-1	
+255	3	skill	38	-1	if	3	get_enemy_num	gt	1	-1	-1	-1	-1	
+255	3	skill	38	-1	do	0	to_skill		0	566	-1	-1	566	
+256	0	skill	35	-1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+256	0	skill	35	-1	if	1	is_can_skill	eq	1	0	-1	-1	0	
+256	0	skill	35	-1	do	0	to_skill		0	0	-1	-1	0	
+256	1	skill	36	4	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+256	1	skill	36	4	if	1	is_can_skill	eq	1	610	-1	-1	610	
+256	1	skill	36	4	if	2	rand	lt	20	-1	-1	-1	-1	
+256	1	skill	36	4	if	3	get_hp	lt	50	-1	-1	-1	-1	
+256	1	skill	36	4	do	0	to_skill		0	610	-1	-1	610	
+256	2	skill	37	4	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+256	2	skill	37	4	if	1	is_can_skill	eq	1	610	-1	-1	610	
+256	2	skill	37	4	if	2	rand	lt	20	-1	-1	-1	-1	
+256	2	skill	37	4	if	3	get_hp	lt	25	-1	-1	-1	-1	
+256	2	skill	37	4	do	0	to_skill		0	610	-1	-1	610	
+256	3	skill	38	4	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+256	3	skill	38	4	if	1	is_can_skill	eq	1	610	-1	-1	610	
+256	3	skill	38	4	if	2	rand	lt	20	-1	-1	-1	-1	
+256	3	skill	38	4	if	3	get_hp	lt	10	-1	-1	-1	-1	
+256	3	skill	38	4	do	0	to_skill		0	610	-1	-1	610	
+256	4	skill	37	1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+256	4	skill	37	1	if	1	get_hp	lt	30	-1	-1	-1	-1	
+256	4	skill	37	1	do	0	to_speak		0	171	1	-1	-1	
+256	5	skill	38	-1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+256	5	skill	38	-1	if	1	is_can_skill	eq	1	591	-1	-1	591	
+256	5	skill	38	-1	if	2	rand	lt	50	-1	-1	-1	-1	
+256	5	skill	38	-1	if	3	get_hp	lt	30	-1	-1	-1	-1	
+256	5	skill	38	-1	do	0	to_skill		0	591	-1	-1	591	
+256	6	skill	39	-1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+256	6	skill	39	-1	if	1	is_can_skill	eq	1	572	-1	-1	572	
+256	6	skill	39	-1	if	2	rand	lt	20	-1	-1	-1	-1	
+256	6	skill	39	-1	do	0	to_skill		0	572	-1	-1	572	
+257	0	skill	30	-1	if	0	is_can_skill	eq	1	0	-1	-1	0	
+257	0	skill	30	-1	do	0	to_skill		0	0	-1	-1	0	
+257	1	skill	31	1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+257	1	skill	31	1	if	1	is_can_skill	eq	1	1020	-1	-1	1020	
+257	1	skill	31	1	do	0	to_skill		0	1020	-1	-1	1020	
+258	0	skill	30	-1	if	0	is_can_skill	eq	1	0	-1	-1	0	
+258	0	skill	30	-1	do	0	to_skill		0	0	-1	-1	0	
+258	1	skill	31	1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+258	1	skill	31	1	if	1	is_can_skill	eq	1	1021	-1	-1	1021	
+258	1	skill	31	1	do	0	to_skill		0	1021	-1	-1	1021	
+258	2	skill	32	-1	if	0	is_can_skill	eq	1	588	-1	-1	588	
+258	2	skill	32	-1	do	0	to_skill		0	588	-1	-1	588	
+259	0	skill	30	-1	if	0	is_can_skill	eq	1	0	-1	-1	0	
+259	0	skill	30	-1	do	0	to_skill		0	0	-1	-1	0	
+259	1	skill	33	-1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+259	1	skill	33	-1	if	1	rand	lt	30	-1	-1	-1	-1	
+259	1	skill	33	-1	if	2	is_can_skill	eq	1	625	-1	-1	625	
+259	1	skill	33	-1	do	0	to_skill		0	625	-1	-1	625	
+259	2	skill	34	-1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+259	2	skill	34	-1	if	1	rand	lt	25	-1	-1	-1	-1	
+259	2	skill	34	-1	if	2	is_can_skill	eq	1	626	-1	-1	626	
+259	2	skill	34	-1	do	0	to_skill		0	626	-1	-1	626	
+259	3	skill	35	-1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+259	3	skill	35	-1	if	1	rand	lt	100	-1	-1	-1	-1	
+259	3	skill	35	-1	if	2	is_can_skill	eq	1	751	-1	-1	751	
+259	3	skill	35	-1	do	0	to_skill		0	751	-1	-1	751	
+259	4	skill	36	-1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+259	4	skill	36	-1	if	1	rand	lt	100	-1	-1	-1	-1	
+259	4	skill	36	-1	if	2	is_can_skill	eq	1	750	-1	-1	750	
+259	4	skill	36	-1	do	0	to_skill		0	750	-1	-1	750	
+259	5	skill	37	-1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+259	5	skill	37	-1	if	1	rand	lt	100	-1	-1	-1	-1	
+259	5	skill	37	-1	if	2	is_can_skill	eq	1	748	-1	-1	748	
+259	5	skill	37	-1	do	0	to_skill		0	748	-1	-1	748	
+260	0	skill	29	-1	if	0	is_can_skill	eq	1	614	-1	-1	614	
+260	0	skill	29	-1	do	0	to_skill		0	614	-1	-1	614	
+260	1	skill	31	-1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+260	1	skill	31	-1	if	1	rand	lt	15	-1	-1	-1	-1	
+260	1	skill	31	-1	if	2	is_can_skill	eq	1	645	-1	-1	645	
+260	1	skill	31	-1	do	0	to_skill		0	645	-1	-1	645	
+260	2	skill	31	-1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+260	2	skill	31	-1	if	1	rand	lt	10	-1	-1	-1	-1	
+260	2	skill	31	-1	if	2	is_can_skill	eq	1	1094	-1	-1	1094	
+260	2	skill	31	-1	do	0	to_skill		0	1094	-1	-1	1094	
+260	2	skill	31	-1	do	1	to_speak		0	329	1	-1	-1	
+260	3	skill	31	-1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+260	3	skill	31	-1	if	1	rand	gt	20	-1	-1	-1	-1	
+260	3	skill	31	-1	if	2	rand	lt	30	-1	-1	-1	-1	
+260	3	skill	31	-1	if	3	is_can_skill	eq	1	1094	-1	-1	1094	
+260	3	skill	31	-1	do	0	to_skill		0	1094	-1	-1	1094	
+260	3	skill	31	-1	do	1	to_speak		0	330	1	-1	-1	
+260	4	skill	31	-1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+260	4	skill	31	-1	if	1	rand	gt	70	-1	-1	-1	-1	
+260	4	skill	31	-1	if	2	rand	lt	80	-1	-1	-1	-1	
+260	4	skill	31	-1	if	3	is_can_skill	eq	1	1094	-1	-1	1094	
+260	4	skill	31	-1	do	0	to_skill		0	1094	-1	-1	1094	
+260	4	skill	31	-1	do	1	to_speak		0	331	1	-1	-1	
+260	5	skill	32	-1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+260	5	skill	32	-1	if	1	rand	lt	30	-1	-1	-1	-1	
+260	5	skill	32	-1	if	2	is_can_skill	eq	1	1095	-1	-1	1095	
+260	5	skill	32	-1	do	0	to_skill		0	1095	-1	-1	1095	
+260	6	skill	32	-1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+260	6	skill	32	-1	if	1	rand	gt	50	-1	-1	-1	-1	
+260	6	skill	32	-1	if	2	rand	lt	80	-1	-1	-1	-1	
+260	6	skill	32	-1	if	3	is_can_skill	eq	1	1095	-1	-1	1095	
+260	6	skill	32	-1	do	0	to_skill		0	1096	-1	-1	1096	
+261	0	skill	30	-1	if	0	is_can_skill	eq	1	1039	-1	-1	1039	
+261	0	skill	30	-1	do	0	to_skill		0	1039	-1	-1	1039	
+262	0	common	31	1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+262	0	common	31	1	if	1	is_has_enemy	eq	1	-1	-1	-1	-1	
+262	0	common	31	1	do	0	to_speak		0	342	1	-1	-1	
+262	1	skill	30	-1	if	0	is_can_skill	eq	1	0	-1	-1	0	
+262	1	skill	30	-1	do	0	to_skill		0	0	-1	-1	0	
+262	2	skill	40	-1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+262	2	skill	40	-1	if	1	rand	lt	30	-1	-1	-1	-1	
+262	2	skill	40	-1	if	2	is_can_skill	eq	1	1051	-1	-1	1051	
+262	2	skill	40	-1	do	0	to_skill		0	1051	-1	-1	1051	
+262	3	skill	42	-1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+262	3	skill	42	-1	if	1	get_hp	lt	20	-1	-1	-1	-1	
+262	3	skill	42	-1	if	2	is_can_skill	eq	1	1052	-1	-1	1052	
+262	3	skill	42	-1	do	0	to_skill		0	1052	-1	-1	1052	
+262	4	skill	48	1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+262	4	skill	48	1	if	1	get_hp	lt	20	-1	-1	-1	-1	
+262	4	skill	48	1	do	0	to_speak		0	343	1	-1	-1	
+263	0	common	31	1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+263	0	common	31	1	if	1	is_has_enemy	eq	1	-1	-1	-1	-1	
+263	0	common	31	1	do	0	to_speak		0	344	1	-1	-1	
+263	1	skill	30	-1	if	0	is_can_skill	eq	1	0	-1	-1	0	
+263	1	skill	30	-1	do	0	to_skill		0	0	-1	-1	0	
+264	0	common	31	1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+264	0	common	31	1	if	1	is_has_enemy	eq	1	-1	-1	-1	-1	
+264	0	common	31	1	do	0	to_speak		0	345	1	-1	-1	
+264	1	skill	30	-1	if	0	is_can_skill	eq	1	0	-1	-1	0	
+264	1	skill	30	-1	do	0	to_skill		0	0	-1	-1	0	
+265	0	common	31	1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+265	0	common	31	1	if	1	is_has_enemy	eq	1	-1	-1	-1	-1	
+265	0	common	31	1	do	0	to_speak		0	346	1	-1	-1	
+265	1	skill	30	-1	if	0	is_can_skill	eq	1	0	-1	-1	0	
+265	1	skill	30	-1	do	0	to_skill		0	0	-1	-1	0	
+266	0	common	31	1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+266	0	common	31	1	if	1	is_has_enemy	eq	1	-1	-1	-1	-1	
+266	0	common	31	1	do	0	to_speak		0	347	1	-1	-1	
+266	1	skill	30	-1	if	0	is_can_skill	eq	1	0	-1	-1	0	
+266	1	skill	30	-1	do	0	to_skill		0	0	-1	-1	0	
+267	0	common	31	1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+267	0	common	31	1	if	1	is_has_enemy	eq	1	-1	-1	-1	-1	
+267	0	common	31	1	do	0	to_speak		0	348	1	-1	-1	
+267	1	skill	30	-1	if	0	is_can_skill	eq	1	0	-1	-1	0	
+267	1	skill	30	-1	do	0	to_skill		0	0	-1	-1	0	
+268	0	common	31	1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+268	0	common	31	1	if	1	is_has_enemy	eq	1	-1	-1	-1	-1	
+268	0	common	31	1	do	0	to_speak		0	349	1	-1	-1	
+268	1	skill	30	-1	if	0	is_can_skill	eq	1	0	-1	-1	0	
+268	1	skill	30	-1	do	0	to_skill		0	0	-1	-1	0	
+268	2	skill	48	1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+268	2	skill	48	1	if	1	get_hp	lt	25	-1	-1	-1	-1	
+268	2	skill	48	1	do	0	to_speak		0	350	1	-1	-1	
+268	3	skill	40	-1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+268	3	skill	40	-1	if	1	rand	lt	30	-1	-1	-1	-1	
+268	3	skill	40	-1	if	2	is_can_skill	eq	1	1053	-1	-1	1053	
+268	3	skill	40	-1	do	0	to_skill		0	1053	-1	-1	1053	
+269	0	common	31	1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+269	0	common	31	1	if	1	is_has_enemy	eq	1	-1	-1	-1	-1	
+269	0	common	31	1	do	0	to_speak		0	351	1	-1	-1	
+269	1	skill	30	-1	if	0	is_can_skill	eq	1	0	-1	-1	0	
+269	1	skill	30	-1	do	0	to_skill		0	0	-1	-1	0	
+269	2	skill	48	1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+269	2	skill	48	1	if	1	get_hp	lt	20	-1	-1	-1	-1	
+269	2	skill	48	1	do	0	to_speak		0	352	1	-1	-1	
+269	3	skill	40	-1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+269	3	skill	40	-1	if	1	rand	lt	30	-1	-1	-1	-1	
+269	3	skill	40	-1	if	2	is_can_skill	eq	1	1054	-1	-1	1054	
+269	3	skill	40	-1	do	0	to_skill		0	1054	-1	-1	1054	
+270	0	skill	30	-1	if	0	is_can_skill	eq	1	0	-1	-1	0	
+270	0	skill	30	-1	do	0	to_skill		0	0	-1	-1	0	
+270	1	skill	40	1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+270	1	skill	40	1	if	1	is_can_skill	eq	1	637	-1	-1	637	
+270	1	skill	40	1	do	0	to_skill		0	637	-1	-1	637	
+270	2	skill	32	-1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+270	2	skill	32	-1	if	1	rand	lt	30	-1	-1	-1	-1	
+270	2	skill	32	-1	if	2	is_can_skill	eq	1	1056	-1	-1	1056	
+270	2	skill	32	-1	do	0	to_skill		0	1056	-1	-1	1056	
+270	3	skill	35	-1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+270	3	skill	35	-1	if	1	rand	lt	30	-1	-1	-1	-1	
+270	3	skill	35	-1	if	2	is_can_skill	eq	1	1057	-1	-1	1057	
+270	3	skill	35	-1	do	0	to_skill		0	1057	-1	-1	1057	
+270	4	skill	34	5	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+270	4	skill	34	5	if	1	get_hp	lt	70	-1	-1	-1	-1	
+270	4	skill	34	5	if	2	is_can_skill	eq	1	636	-1	-1	636	
+270	4	skill	34	5	do	0	to_skill		0	636	-1	-1	636	
+270	5	skill	49	1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+270	5	skill	49	1	do	0	call_other_monster_by_group		0	-1	-1	-1	-1	
+271	0	skill	29	-1	if	0	is_can_skill	eq	1	0	-1	-1	0	
+271	0	skill	29	-1	do	0	to_skill		0	0	-1	-1	0	
+271	1	skill	30	4	if	0	is_can_skill	eq	1	614	-1	-1	614	
+271	1	skill	30	4	do	0	to_skill		0	614	-1	-1	614	
+271	2	skill	33	-1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+271	2	skill	33	-1	if	1	rand	lt	20	-1	-1	-1	-1	
+271	2	skill	33	-1	if	2	is_can_skill	eq	1	555	-1	-1	555	
+271	2	skill	33	-1	do	0	to_skill		0	555	-1	-1	555	
+271	3	skill	34	3	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+271	3	skill	34	3	if	1	get_hp	lt	70	-1	-1	-1	-1	
+271	3	skill	34	3	if	2	is_can_skill	eq	1	646	-1	-1	646	
+271	3	skill	34	3	do	0	to_skill		0	646	-1	-1	646	
+271	4	skill	38	1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+271	4	skill	38	1	if	1	get_hp	lt	30	-1	-1	-1	-1	
+271	4	skill	38	1	if	2	is_can_skill	eq	1	615	-1	-1	615	
+271	4	skill	38	1	do	0	to_skill		0	615	-1	-1	615	
+271	5	skill	31	1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+271	5	skill	31	1	if	1	get_hp	lt	70	-1	-1	-1	-1	
+271	5	skill	31	1	do	0	to_speak		0	354	1	-1	-1	
+271	6	skill	31	1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+271	6	skill	31	1	if	1	get_hp	lt	30	-1	-1	-1	-1	
+271	6	skill	31	1	do	0	to_speak		0	355	1	-1	-1	
+271	7	skill	31	1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+271	7	skill	31	1	if	1	get_hp	lt	1	-1	-1	-1	-1	
+271	7	skill	31	1	do	0	to_speak		0	356	1	-1	-1	
+272	0	skill	33	-1	if	0	is_can_skill	eq	1	1094	-1	-1	1094	
+272	0	skill	33	-1	if	1	rand	lt	33	-1	-1	-1	-1	
+272	0	skill	33	-1	do	0	to_skill		0	1094	-1	-1	1094	
+272	0	skill	33	-1	do	1	to_speak		0	357	1	-1	-1	
+272	1	skill	33	-1	if	0	is_can_skill	eq	1	1094	-1	-1	1094	
+272	1	skill	33	-1	if	1	rand	lt	33	-1	-1	-1	-1	
+272	1	skill	33	-1	do	0	to_skill		0	1094	-1	-1	1094	
+272	1	skill	33	-1	do	1	to_speak		0	358	1	-1	-1	
+272	2	skill	33	-1	if	0	is_can_skill	eq	1	1094	-1	-1	1094	
+272	2	skill	33	-1	if	1	rand	lt	33	-1	-1	-1	-1	
+272	2	skill	33	-1	do	0	to_skill		0	1094	-1	-1	1094	
+272	2	skill	33	-1	do	1	to_speak		0	359	1	-1	-1	
+285	0	common	31	1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+285	0	common	31	1	if	1	is_has_enemy	eq	1	-1	-1	-1	-1	
+285	0	common	31	1	do	0	to_speak		0	351	1	-1	-1	
+285	1	skill	30	-1	if	0	is_can_skill	eq	1	0	-1	-1	0	
+285	1	skill	30	-1	do	0	to_skill		0	0	-1	-1	0	
+285	2	skill	40	3	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+285	2	skill	40	3	if	1	rand	lt	20	-1	-1	-1	-1	
+285	2	skill	40	3	if	2	is_can_skill	eq	1	647	-1	-1	647	
+285	2	skill	40	3	do	0	to_skill		0	647	-1	-1	647	
+285	3	skill	32	3	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+285	3	skill	32	3	if	1	get_enemy_num	gt	2	-1	-1	-1	-1	
+285	3	skill	32	3	if	2	is_can_skill	eq	1	648	-1	-1	648	
+285	3	skill	32	3	if	3	rand	lt	10	-1	-1	-1	-1	
+285	3	skill	32	3	do	0	to_skill		0	648	-1	-1	648	
+286	0	skill	29	-1	if	0	is_can_skill	eq	1	0	-1	-1	0	
+286	0	skill	29	-1	do	0	to_skill		0	0	-1	-1	0	
+286	1	skill	31	1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+286	1	skill	31	1	if	1	get_hp	lt	66	-1	-1	-1	-1	
+286	1	skill	31	1	do	0	to_speak		0	374	1	-1	-1	
+286	2	skill	34	1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+286	2	skill	34	1	if	1	get_hp	lt	66	-1	-1	-1	-1	
+286	2	skill	34	1	if	2	is_can_skill	eq	1	650	-1	-1	650	
+286	2	skill	34	1	do	0	to_skill		0	650	-1	-1	650	
+286	3	skill	34	1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+286	3	skill	34	1	if	1	get_hp	lt	50	-1	-1	-1	-1	
+286	3	skill	34	1	if	2	is_can_skill	eq	1	649	-1	-1	649	
+286	3	skill	34	1	do	0	to_skill		0	649	-1	-1	649	
+287	0	skill	29	-1	if	0	is_can_skill	eq	1	0	-1	-1	0	
+287	0	skill	29	-1	do	0	to_skill		0	0	-1	-1	0	
+287	1	skill	31	1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+287	1	skill	31	1	if	1	get_hp	lt	66	-1	-1	-1	-1	
+287	1	skill	31	1	do	0	to_speak		0	374	1	-1	-1	
+287	2	skill	34	1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+287	2	skill	34	1	if	1	get_hp	lt	66	-1	-1	-1	-1	
+287	2	skill	34	1	if	2	is_can_skill	eq	1	651	-1	-1	651	
+287	2	skill	34	1	do	0	to_skill		0	651	-1	-1	651	
+287	3	skill	34	1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+287	3	skill	34	1	if	1	get_hp	lt	50	-1	-1	-1	-1	
+287	3	skill	34	1	if	2	is_can_skill	eq	1	649	-1	-1	649	
+287	3	skill	34	1	do	0	to_skill		0	649	-1	-1	649	
+288	0	skill	29	-1	if	0	is_can_skill	eq	1	0	-1	-1	0	
+288	0	skill	29	-1	do	0	to_skill		0	0	-1	-1	0	
+288	1	skill	31	1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+288	1	skill	31	1	if	1	get_hp	lt	66	-1	-1	-1	-1	
+288	1	skill	31	1	do	0	to_speak		0	374	1	-1	-1	
+288	2	skill	34	1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+288	2	skill	34	1	if	1	get_hp	lt	66	-1	-1	-1	-1	
+288	2	skill	34	1	if	2	is_can_skill	eq	1	549	-1	-1	549	
+288	2	skill	34	1	do	0	to_skill		0	549	-1	-1	549	
+288	3	skill	34	1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+288	3	skill	34	1	if	1	get_hp	lt	50	-1	-1	-1	-1	
+288	3	skill	34	1	if	2	is_can_skill	eq	1	649	-1	-1	649	
+288	3	skill	34	1	do	0	to_skill		0	649	-1	-1	649	
+289	0	skill	29	-1	if	0	is_can_skill	eq	1	0	-1	-1	0	
+289	0	skill	29	-1	do	0	to_skill		0	0	-1	-1	0	
+289	1	skill	31	1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+289	1	skill	31	1	if	1	get_hp	lt	66	-1	-1	-1	-1	
+289	1	skill	31	1	do	0	to_speak		0	374	1	-1	-1	
+289	2	skill	34	1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+289	2	skill	34	1	if	1	get_hp	lt	66	-1	-1	-1	-1	
+289	2	skill	34	1	if	2	is_can_skill	eq	1	550	-1	-1	550	
+289	2	skill	34	1	do	0	to_skill		0	550	-1	-1	550	
+289	3	skill	34	1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+289	3	skill	34	1	if	1	get_hp	lt	50	-1	-1	-1	-1	
+289	3	skill	34	1	if	2	is_can_skill	eq	1	649	-1	-1	649	
+289	3	skill	34	1	do	0	to_skill		0	649	-1	-1	649	
+290	0	skill	30	-1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+290	0	skill	30	-1	if	1	is_can_skill	eq	1	0	-1	-1	0	
+290	0	skill	30	-1	do	0	to_skill		0	0	-1	-1	0	
+290	1	skill	33	3	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+290	1	skill	33	3	if	1	get_hp	lt	30	-1	-1	-1	-1	
+290	1	skill	33	3	if	2	is_can_skill	eq	1	603	-1	-1	603	
+290	1	skill	33	3	do	0	to_skill		0	603	-1	-1	603	
+290	2	skill	34	1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+290	2	skill	34	1	if	1	get_hp	lt	20	-1	-1	-1	-1	
+290	2	skill	34	1	if	2	is_can_skill	eq	1	628	-1	-1	628	
+290	2	skill	34	1	do	0	to_skill		0	628	-1	-1	628	
+290	3	skill	35	-1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+290	3	skill	35	-1	if	1	rand	lt	100	-1	-1	-1	-1	
+290	3	skill	35	-1	if	2	is_can_skill	eq	1	751	-1	-1	751	
+290	3	skill	35	-1	do	0	to_skill		0	751	-1	-1	751	
+290	4	skill	36	-1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+290	4	skill	36	-1	if	1	rand	lt	100	-1	-1	-1	-1	
+290	4	skill	36	-1	if	2	is_can_skill	eq	1	750	-1	-1	750	
+290	4	skill	36	-1	do	0	to_skill		0	750	-1	-1	750	
+290	5	skill	37	-1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+290	5	skill	37	-1	if	1	rand	lt	100	-1	-1	-1	-1	
+290	5	skill	37	-1	if	2	is_can_skill	eq	1	748	-1	-1	748	
+290	5	skill	37	-1	do	0	to_skill		0	748	-1	-1	748	
+290	6	skill	40	-1	if	0	is_can_skill	eq	1	1016	-1	-1	1016	
+290	6	skill	40	-1	if	1	get_hp	lt	98	-1	-1	-1	-1	
+290	6	skill	40	-1	if	2	rand	lt	30	-1	-1	-1	-1	
+290	6	skill	40	-1	do	0	to_skill		0	1016	-1	-1	1016	
+290	7	skill	70	3	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+290	7	skill	70	3	if	1	is_can_skill	eq	1	1017	-1	-1	1017	
+290	7	skill	70	3	if	2	get_hp	lt	30	-1	-1	-1	-1	
+290	7	skill	70	3	if	3	rand	lt	40	-1	-1	-1	-1	
+290	7	skill	70	3	do	0	to_skill		0	1017	-1	-1	1017	
+290	8	skill	60	-1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+290	8	skill	60	-1	if	1	is_can_skill	eq	1	627	-1	-1	627	
+290	8	skill	60	-1	if	2	get_hp	lt	40	-1	-1	-1	-1	
+290	8	skill	60	-1	if	3	rand	lt	20	-1	-1	-1	-1	
+290	8	skill	60	-1	do	0	to_skill		0	627	-1	-1	627	
+290	9	skill	50	-1	if	0	is_can_skill	eq	1	1023	-1	-1	1023	
+290	9	skill	50	-1	if	1	get_hp	lt	90	-1	-1	-1	-1	
+290	9	skill	50	-1	if	2	rand	lt	50	-1	-1	-1	-1	
+290	9	skill	50	-1	do	0	to_skill		0	1023	-1	-1	1023	
+290	10	skill	35	40	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+290	10	skill	35	40	if	1	rand	lt	10	-1	-1	-1	-1	
+290	10	skill	35	40	if	2	is_can_skill	eq	1	1003	-1	-1	1003	
+290	10	skill	35	40	do	0	to_skill		0	1003	-1	-1	1003	
+291	0	skill	35	-1	if	0	is_can_skill	eq	1	1862	-1	-1	1862	
+291	0	skill	35	-1	do	0	to_skill		0	1862	-1	-1	1862	
+291	1	skill	40	-1	if	0	is_can_skill	eq	1	1863	-1	-1	1863	
+291	1	skill	40	-1	if	1	rand	lt	25	-1	-1	-1	-1	
+291	1	skill	40	-1	if	2	get_hp	lt	99	-1	-1	-1	-1	
+291	1	skill	40	-1	do	0	to_skill		0	1863	-1	-1	1863	
+291	2	skill	45	-1	if	0	is_can_skill	eq	1	1864	-1	-1	1864	
+291	2	skill	45	-1	if	1	rand	lt	10	-1	-1	-1	-1	
+291	2	skill	45	-1	if	2	get_hp	lt	99	-1	-1	-1	-1	
+291	2	skill	45	-1	do	0	to_skill		0	1864	-1	-1	1864	
+291	3	skill	50	-1	if	0	is_can_skill	eq	1	1865	-1	-1	1865	
+291	3	skill	50	-1	if	1	rand	lt	25	-1	-1	-1	-1	
+291	3	skill	50	-1	if	2	get_hp	lt	99	-1	-1	-1	-1	
+291	3	skill	50	-1	do	0	to_skill		0	1865	-1	-1	1865	
+291	4	skill	40	-1	if	0	is_can_skill	eq	1	1866	-1	-1	1866	
+291	4	skill	40	-1	if	1	rand	lt	10	-1	-1	-1	-1	
+291	4	skill	40	-1	if	2	get_hp	lt	99	-1	-1	-1	-1	
+291	4	skill	40	-1	do	0	to_skill		0	1866	-1	-1	1866	
+291	5	skill	45	-1	if	0	is_can_skill	eq	1	1867	-1	-1	1867	
+291	5	skill	45	-1	if	1	rand	lt	10	-1	-1	-1	-1	
+291	5	skill	45	-1	if	2	get_hp	lt	99	-1	-1	-1	-1	
+291	5	skill	45	-1	do	0	to_skill		0	1867	-1	-1	1867	
+291	6	skill	50	-1	if	0	is_can_skill	eq	1	1868	-1	-1	1868	
+291	6	skill	50	-1	if	1	rand	lt	25	-1	-1	-1	-1	
+291	6	skill	50	-1	if	2	get_hp	lt	99	-1	-1	-1	-1	
+291	6	skill	50	-1	do	0	to_skill		0	1868	-1	-1	1868	
+291	7	skill	50	-1	if	0	is_can_skill	eq	1	1869	-1	-1	1869	
+291	7	skill	50	-1	if	1	rand	lt	10	-1	-1	-1	-1	
+291	7	skill	50	-1	if	2	get_hp	lt	99	-1	-1	-1	-1	
+291	7	skill	50	-1	do	0	to_skill		0	1869	-1	-1	1869	
+292	0	skill	35	-1	if	0	is_can_skill	eq	1	1822	-1	-1	1822	
+292	0	skill	35	-1	do	0	to_skill		0	1822	-1	-1	1822	
+292	1	skill	40	-1	if	0	is_can_skill	eq	1	1823	-1	-1	1823	
+292	1	skill	40	-1	if	1	rand	lt	10	-1	-1	-1	-1	
+292	1	skill	40	-1	if	2	get_hp	lt	99	-1	-1	-1	-1	
+292	1	skill	40	-1	do	0	to_skill		0	1823	-1	-1	1823	
+292	2	skill	45	-1	if	0	is_can_skill	eq	1	1824	-1	-1	1824	
+292	2	skill	45	-1	if	1	rand	lt	15	-1	-1	-1	-1	
+292	2	skill	45	-1	if	2	get_hp	lt	99	-1	-1	-1	-1	
+292	2	skill	45	-1	do	0	to_skill		0	1824	-1	-1	1824	
+292	3	skill	50	-1	if	0	is_can_skill	eq	1	1825	-1	-1	1825	
+292	3	skill	50	-1	if	1	rand	lt	25	-1	-1	-1	-1	
+292	3	skill	50	-1	if	2	get_hp	lt	99	-1	-1	-1	-1	
+292	3	skill	50	-1	do	0	to_skill		0	1825	-1	-1	1825	
+292	4	skill	34	1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+292	4	skill	34	1	if	1	get_hp	lt	110	-1	-1	-1	-1	
+292	4	skill	34	1	if	2	is_can_skill	eq	1	1826	-1	-1	1826	
+292	4	skill	34	1	do	0	to_skill		0	1826	-1	-1	1826	
+292	5	skill	40	-1	if	0	is_can_skill	eq	1	1827	-1	-1	1827	
+292	5	skill	40	-1	if	1	rand	lt	10	-1	-1	-1	-1	
+292	5	skill	40	-1	if	2	get_hp	lt	99	-1	-1	-1	-1	
+292	5	skill	40	-1	do	0	to_skill		0	1827	-1	-1	1827	
+292	6	skill	45	-1	if	0	is_can_skill	eq	1	1828	-1	-1	1828	
+292	6	skill	45	-1	if	1	rand	lt	15	-1	-1	-1	-1	
+292	6	skill	45	-1	if	2	get_hp	lt	99	-1	-1	-1	-1	
+292	6	skill	45	-1	do	0	to_skill		0	1828	-1	-1	1828	
+292	7	skill	50	-1	if	0	is_can_skill	eq	1	1829	-1	-1	1829	
+292	7	skill	50	-1	if	1	rand	lt	10	-1	-1	-1	-1	
+292	7	skill	50	-1	if	2	get_hp	lt	99	-1	-1	-1	-1	
+292	7	skill	50	-1	do	0	to_skill		0	1829	-1	-1	1829	
+293	0	skill	35	-1	if	0	is_can_skill	eq	1	1790	-1	-1	1790	
+293	0	skill	35	-1	do	0	to_skill		0	1790	-1	-1	1790	
+293	1	skill	40	-1	if	0	is_can_skill	eq	1	1791	-1	-1	1791	
+293	1	skill	40	-1	if	1	rand	lt	25	-1	-1	-1	-1	
+293	1	skill	40	-1	if	2	get_hp	lt	99	-1	-1	-1	-1	
+293	1	skill	40	-1	do	0	to_skill		0	1791	-1	-1	1791	
+293	2	skill	45	-1	if	0	is_can_skill	eq	1	1792	-1	-1	1792	
+293	2	skill	45	-1	if	1	rand	lt	15	-1	-1	-1	-1	
+293	2	skill	45	-1	if	2	get_hp	lt	99	-1	-1	-1	-1	
+293	2	skill	45	-1	do	0	to_skill		0	1792	-1	-1	1792	
+293	3	skill	50	-1	if	0	is_can_skill	eq	1	1793	-1	-1	1793	
+293	3	skill	50	-1	if	1	rand	lt	10	-1	-1	-1	-1	
+293	3	skill	50	-1	if	2	get_hp	lt	99	-1	-1	-1	-1	
+293	3	skill	50	-1	do	0	to_skill		0	1793	-1	-1	1793	
+293	4	skill	40	-1	if	0	is_can_skill	eq	1	1794	-1	-1	1794	
+293	4	skill	40	-1	if	1	rand	lt	25	-1	-1	-1	-1	
+293	4	skill	40	-1	if	2	get_hp	lt	99	-1	-1	-1	-1	
+293	4	skill	40	-1	do	0	to_skill		0	1794	-1	-1	1794	
+293	5	skill	45	-1	if	0	is_can_skill	eq	1	1795	-1	-1	1795	
+293	5	skill	45	-1	if	1	rand	lt	15	-1	-1	-1	-1	
+293	5	skill	45	-1	if	2	get_hp	lt	99	-1	-1	-1	-1	
+293	5	skill	45	-1	do	0	to_skill		0	1795	-1	-1	1795	
+293	6	skill	50	-1	if	0	is_can_skill	eq	1	1796	-1	-1	1796	
+293	6	skill	50	-1	if	1	rand	lt	15	-1	-1	-1	-1	
+293	6	skill	50	-1	if	2	get_hp	lt	99	-1	-1	-1	-1	
+293	6	skill	50	-1	do	0	to_skill		0	1796	-1	-1	1796	
+293	7	skill	50	-1	if	0	is_can_skill	eq	1	1797	-1	-1	1797	
+293	7	skill	50	-1	if	1	rand	lt	5	-1	-1	-1	-1	
+293	7	skill	50	-1	if	2	get_hp	lt	99	-1	-1	-1	-1	
+293	7	skill	50	-1	do	0	to_skill		0	1797	-1	-1	1797	
+294	0	skill	35	-1	if	0	is_can_skill	eq	1	1838	-1	-1	1838	
+294	0	skill	35	-1	do	0	to_skill		0	1838	-1	-1	1838	
+294	1	skill	40	-1	if	0	is_can_skill	eq	1	1839	-1	-1	1839	
+294	1	skill	40	-1	if	1	rand	lt	25	-1	-1	-1	-1	
+294	1	skill	40	-1	if	2	get_hp	lt	99	-1	-1	-1	-1	
+294	1	skill	40	-1	do	0	to_skill		0	1839	-1	-1	1839	
+294	2	skill	45	-1	if	0	is_can_skill	eq	1	1840	-1	-1	1840	
+294	2	skill	45	-1	if	1	rand	lt	15	-1	-1	-1	-1	
+294	2	skill	45	-1	if	2	get_hp	lt	99	-1	-1	-1	-1	
+294	2	skill	45	-1	do	0	to_skill		0	1840	-1	-1	1840	
+294	3	skill	50	-1	if	0	is_can_skill	eq	1	1841	-1	-1	1841	
+294	3	skill	50	-1	if	1	rand	lt	10	-1	-1	-1	-1	
+294	3	skill	50	-1	if	2	get_hp	lt	99	-1	-1	-1	-1	
+294	3	skill	50	-1	do	0	to_skill		0	1841	-1	-1	1841	
+294	4	skill	40	-1	if	0	is_can_skill	eq	1	1842	-1	-1	1842	
+294	4	skill	40	-1	if	1	rand	lt	25	-1	-1	-1	-1	
+294	4	skill	40	-1	if	2	get_hp	lt	99	-1	-1	-1	-1	
+294	4	skill	40	-1	do	0	to_skill		0	1842	-1	-1	1842	
+294	5	skill	45	-1	if	0	is_can_skill	eq	1	1843	-1	-1	1843	
+294	5	skill	45	-1	if	1	rand	lt	15	-1	-1	-1	-1	
+294	5	skill	45	-1	if	2	get_hp	lt	99	-1	-1	-1	-1	
+294	5	skill	45	-1	do	0	to_skill		0	1843	-1	-1	1843	
+294	6	skill	50	-1	if	0	is_can_skill	eq	1	1844	-1	-1	1844	
+294	6	skill	50	-1	if	1	rand	lt	15	-1	-1	-1	-1	
+294	6	skill	50	-1	if	2	get_hp	lt	99	-1	-1	-1	-1	
+294	6	skill	50	-1	do	0	to_skill		0	1844	-1	-1	1844	
+294	7	skill	50	-1	if	0	is_can_skill	eq	1	1845	-1	-1	1845	
+294	7	skill	50	-1	if	1	rand	lt	5	-1	-1	-1	-1	
+294	7	skill	50	-1	if	2	get_hp	lt	99	-1	-1	-1	-1	
+294	7	skill	50	-1	do	0	to_skill		0	1845	-1	-1	1845	
+295	0	skill	35	-1	if	0	is_can_skill	eq	1	1806	-1	-1	1806	
+295	0	skill	35	-1	do	0	to_skill		0	1806	-1	-1	1806	
+295	1	skill	40	-1	if	0	is_can_skill	eq	1	1807	-1	-1	1807	
+295	1	skill	40	-1	if	1	rand	lt	25	-1	-1	-1	-1	
+295	1	skill	40	-1	if	2	get_hp	lt	99	-1	-1	-1	-1	
+295	1	skill	40	-1	do	0	to_skill		0	1807	-1	-1	1807	
+295	2	skill	45	-1	if	0	is_can_skill	eq	1	1808	-1	-1	1808	
+295	2	skill	45	-1	if	1	rand	lt	10	-1	-1	-1	-1	
+295	2	skill	45	-1	if	2	get_hp	lt	99	-1	-1	-1	-1	
+295	2	skill	45	-1	do	0	to_skill		0	1808	-1	-1	1808	
+295	3	skill	50	-1	if	0	is_can_skill	eq	1	1809	-1	-1	1809	
+295	3	skill	50	-1	if	1	rand	lt	10	-1	-1	-1	-1	
+295	3	skill	50	-1	if	2	get_hp	lt	99	-1	-1	-1	-1	
+295	3	skill	50	-1	do	0	to_skill		0	1809	-1	-1	1809	
+295	4	skill	40	-1	if	0	is_can_skill	eq	1	1810	-1	-1	1810	
+295	4	skill	40	-1	if	1	rand	lt	25	-1	-1	-1	-1	
+295	4	skill	40	-1	if	2	get_hp	lt	99	-1	-1	-1	-1	
+295	4	skill	40	-1	do	0	to_skill		0	1810	-1	-1	1810	
+295	5	skill	45	-1	if	0	is_can_skill	eq	1	1811	-1	-1	1811	
+295	5	skill	45	-1	if	1	rand	lt	10	-1	-1	-1	-1	
+295	5	skill	45	-1	if	2	get_hp	lt	99	-1	-1	-1	-1	
+295	5	skill	45	-1	do	0	to_skill		0	1811	-1	-1	1811	
+295	6	skill	50	-1	if	0	is_can_skill	eq	1	1812	-1	-1	1812	
+295	6	skill	50	-1	if	1	rand	lt	5	-1	-1	-1	-1	
+295	6	skill	50	-1	if	2	get_hp	lt	99	-1	-1	-1	-1	
+295	6	skill	50	-1	do	0	to_skill		0	1812	-1	-1	1812	
+295	7	skill	50	-1	if	0	is_can_skill	eq	1	1813	-1	-1	1813	
+295	7	skill	50	-1	if	1	rand	lt	10	-1	-1	-1	-1	
+295	7	skill	50	-1	if	2	get_hp	lt	99	-1	-1	-1	-1	
+295	7	skill	50	-1	do	0	to_skill		0	1813	-1	-1	1813	
+296	0	skill	35	-1	if	0	is_can_skill	eq	1	1814	-1	-1	1814	
+296	0	skill	35	-1	do	0	to_skill		0	1814	-1	-1	1814	
+296	1	skill	40	-1	if	0	is_can_skill	eq	1	1815	-1	-1	1815	
+296	1	skill	40	-1	if	1	rand	lt	25	-1	-1	-1	-1	
+296	1	skill	40	-1	if	2	get_hp	lt	99	-1	-1	-1	-1	
+296	1	skill	40	-1	do	0	to_skill		0	1815	-1	-1	1815	
+296	2	skill	45	-1	if	0	is_can_skill	eq	1	1816	-1	-1	1816	
+296	2	skill	45	-1	if	1	rand	lt	25	-1	-1	-1	-1	
+296	2	skill	45	-1	if	2	get_hp	lt	99	-1	-1	-1	-1	
+296	2	skill	45	-1	do	0	to_skill		0	1816	-1	-1	1816	
+296	3	skill	50	-1	if	0	is_can_skill	eq	1	1817	-1	-1	1817	
+296	3	skill	50	-1	if	1	rand	lt	10	-1	-1	-1	-1	
+296	3	skill	50	-1	if	2	get_hp	lt	99	-1	-1	-1	-1	
+296	3	skill	50	-1	do	0	to_skill		0	1817	-1	-1	1817	
+296	4	skill	40	-1	if	0	is_can_skill	eq	1	1818	-1	-1	1818	
+296	4	skill	40	-1	if	1	rand	lt	25	-1	-1	-1	-1	
+296	4	skill	40	-1	if	2	get_hp	lt	99	-1	-1	-1	-1	
+296	4	skill	40	-1	do	0	to_skill		0	1818	-1	-1	1818	
+296	5	skill	45	-1	if	0	is_can_skill	eq	1	1819	-1	-1	1819	
+296	5	skill	45	-1	if	1	rand	lt	10	-1	-1	-1	-1	
+296	5	skill	45	-1	if	2	get_hp	lt	99	-1	-1	-1	-1	
+296	5	skill	45	-1	do	0	to_skill		0	1819	-1	-1	1819	
+296	6	skill	50	-1	if	0	is_can_skill	eq	1	1820	-1	-1	1820	
+296	6	skill	50	-1	if	1	rand	lt	10	-1	-1	-1	-1	
+296	6	skill	50	-1	if	2	get_hp	lt	99	-1	-1	-1	-1	
+296	6	skill	50	-1	do	0	to_skill		0	1820	-1	-1	1820	
+296	7	skill	50	-1	if	0	is_can_skill	eq	1	1821	-1	-1	1821	
+296	7	skill	50	-1	if	1	rand	lt	10	-1	-1	-1	-1	
+296	7	skill	50	-1	if	2	get_hp	lt	99	-1	-1	-1	-1	
+296	7	skill	50	-1	do	0	to_skill		0	1821	-1	-1	1821	
+297	0	skill	35	-1	if	0	is_can_skill	eq	1	1854	-1	-1	1854	
+297	0	skill	35	-1	do	0	to_skill		0	1854	-1	-1	1854	
+297	1	skill	40	-1	if	0	is_can_skill	eq	1	1855	-1	-1	1855	
+297	1	skill	40	-1	if	1	rand	lt	25	-1	-1	-1	-1	
+297	1	skill	40	-1	if	2	get_hp	lt	99	-1	-1	-1	-1	
+297	1	skill	40	-1	do	0	to_skill		0	1855	-1	-1	1855	
+297	2	skill	45	-1	if	0	is_can_skill	eq	1	1856	-1	-1	1856	
+297	2	skill	45	-1	if	1	rand	lt	10	-1	-1	-1	-1	
+297	2	skill	45	-1	if	2	get_hp	lt	99	-1	-1	-1	-1	
+297	2	skill	45	-1	do	0	to_skill		0	1856	-1	-1	1856	
+297	3	skill	50	-1	if	0	is_can_skill	eq	1	1857	-1	-1	1857	
+297	3	skill	50	-1	if	1	rand	lt	10	-1	-1	-1	-1	
+297	3	skill	50	-1	if	2	get_hp	lt	99	-1	-1	-1	-1	
+297	3	skill	50	-1	do	0	to_skill		0	1857	-1	-1	1857	
+297	4	skill	40	-1	if	0	is_can_skill	eq	1	1858	-1	-1	1858	
+297	4	skill	40	-1	if	1	rand	lt	25	-1	-1	-1	-1	
+297	4	skill	40	-1	if	2	get_hp	lt	99	-1	-1	-1	-1	
+297	4	skill	40	-1	do	0	to_skill		0	1858	-1	-1	1858	
+297	5	skill	45	-1	if	0	is_can_skill	eq	1	1859	-1	-1	1859	
+297	5	skill	45	-1	if	1	rand	lt	15	-1	-1	-1	-1	
+297	5	skill	45	-1	if	2	get_hp	lt	99	-1	-1	-1	-1	
+297	5	skill	45	-1	do	0	to_skill		0	1859	-1	-1	1859	
+297	6	skill	50	-1	if	0	is_can_skill	eq	1	1860	-1	-1	1860	
+297	6	skill	50	-1	if	1	rand	lt	10	-1	-1	-1	-1	
+297	6	skill	50	-1	if	2	get_hp	lt	99	-1	-1	-1	-1	
+297	6	skill	50	-1	do	0	to_skill		0	1860	-1	-1	1860	
+297	7	skill	50	-1	if	0	is_can_skill	eq	1	1861	-1	-1	1861	
+297	7	skill	50	-1	if	1	rand	lt	10	-1	-1	-1	-1	
+297	7	skill	50	-1	if	2	get_hp	lt	99	-1	-1	-1	-1	
+297	7	skill	50	-1	do	0	to_skill		0	1861	-1	-1	1861	
+298	0	skill	35	-1	if	0	is_can_skill	eq	1	1830	-1	-1	1830	
+298	0	skill	35	-1	do	0	to_skill		0	1830	-1	-1	1830	
+298	1	skill	40	-1	if	0	is_can_skill	eq	1	1831	-1	-1	1831	
+298	1	skill	40	-1	if	1	rand	lt	25	-1	-1	-1	-1	
+298	1	skill	40	-1	if	2	get_hp	lt	99	-1	-1	-1	-1	
+298	1	skill	40	-1	do	0	to_skill		0	1831	-1	-1	1831	
+298	2	skill	45	-1	if	0	is_can_skill	eq	1	1832	-1	-1	1832	
+298	2	skill	45	-1	if	1	rand	lt	15	-1	-1	-1	-1	
+298	2	skill	45	-1	if	2	get_hp	lt	99	-1	-1	-1	-1	
+298	2	skill	45	-1	do	0	to_skill		0	1832	-1	-1	1832	
+298	3	skill	50	-1	if	0	is_can_skill	eq	1	1833	-1	-1	1833	
+298	3	skill	50	-1	if	1	rand	lt	10	-1	-1	-1	-1	
+298	3	skill	50	-1	if	2	get_hp	lt	99	-1	-1	-1	-1	
+298	3	skill	50	-1	do	0	to_skill		0	1833	-1	-1	1833	
+298	4	skill	40	-1	if	0	is_can_skill	eq	1	1834	-1	-1	1834	
+298	4	skill	40	-1	if	1	rand	lt	25	-1	-1	-1	-1	
+298	4	skill	40	-1	if	2	get_hp	lt	99	-1	-1	-1	-1	
+298	4	skill	40	-1	do	0	to_skill		0	1834	-1	-1	1834	
+298	5	skill	45	-1	if	0	is_can_skill	eq	1	1835	-1	-1	1835	
+298	5	skill	45	-1	if	1	rand	lt	25	-1	-1	-1	-1	
+298	5	skill	45	-1	if	2	get_hp	lt	99	-1	-1	-1	-1	
+298	5	skill	45	-1	do	0	to_skill		0	1835	-1	-1	1835	
+298	6	skill	50	-1	if	0	is_can_skill	eq	1	1836	-1	-1	1836	
+298	6	skill	50	-1	if	1	rand	lt	10	-1	-1	-1	-1	
+298	6	skill	50	-1	if	2	get_hp	lt	99	-1	-1	-1	-1	
+298	6	skill	50	-1	do	0	to_skill		0	1836	-1	-1	1836	
+298	7	skill	50	-1	if	0	is_can_skill	eq	1	1837	-1	-1	1837	
+298	7	skill	50	-1	if	1	rand	lt	10	-1	-1	-1	-1	
+298	7	skill	50	-1	if	2	get_hp	lt	99	-1	-1	-1	-1	
+298	7	skill	50	-1	do	0	to_skill		0	1837	-1	-1	1837	
+299	0	skill	35	-1	if	0	is_can_skill	eq	1	1846	-1	-1	1846	
+299	0	skill	35	-1	do	0	to_skill		0	1846	-1	-1	1846	
+299	1	skill	40	-1	if	0	is_can_skill	eq	1	1847	-1	-1	1847	
+299	1	skill	40	-1	if	1	rand	lt	25	-1	-1	-1	-1	
+299	1	skill	40	-1	if	2	get_hp	lt	99	-1	-1	-1	-1	
+299	1	skill	40	-1	do	0	to_skill		0	1847	-1	-1	1847	
+299	2	skill	45	-1	if	0	is_can_skill	eq	1	1848	-1	-1	1848	
+299	2	skill	45	-1	if	1	rand	lt	15	-1	-1	-1	-1	
+299	2	skill	45	-1	if	2	get_hp	lt	99	-1	-1	-1	-1	
+299	2	skill	45	-1	do	0	to_skill		0	1848	-1	-1	1848	
+299	3	skill	50	-1	if	0	is_can_skill	eq	1	1849	-1	-1	1849	
+299	3	skill	50	-1	if	1	rand	lt	25	-1	-1	-1	-1	
+299	3	skill	50	-1	if	2	get_hp	lt	99	-1	-1	-1	-1	
+299	3	skill	50	-1	do	0	to_skill		0	1849	-1	-1	1849	
+299	4	skill	40	-1	if	0	is_can_skill	eq	1	1850	-1	-1	1850	
+299	4	skill	40	-1	if	1	rand	lt	10	-1	-1	-1	-1	
+299	4	skill	40	-1	if	2	get_hp	lt	99	-1	-1	-1	-1	
+299	4	skill	40	-1	do	0	to_skill		0	1850	-1	-1	1850	
+299	5	skill	45	-1	if	0	is_can_skill	eq	1	1851	-1	-1	1851	
+299	5	skill	45	-1	if	1	rand	lt	25	-1	-1	-1	-1	
+299	5	skill	45	-1	if	2	get_hp	lt	99	-1	-1	-1	-1	
+299	5	skill	45	-1	do	0	to_skill		0	1851	-1	-1	1851	
+299	6	skill	50	-1	if	0	is_can_skill	eq	1	1852	-1	-1	1852	
+299	6	skill	50	-1	if	1	rand	lt	25	-1	-1	-1	-1	
+299	6	skill	50	-1	if	2	get_hp	lt	99	-1	-1	-1	-1	
+299	6	skill	50	-1	do	0	to_skill		0	1852	-1	-1	1852	
+299	7	skill	50	-1	if	0	is_can_skill	eq	1	1853	-1	-1	1853	
+299	7	skill	50	-1	if	1	rand	lt	10	-1	-1	-1	-1	
+299	7	skill	50	-1	if	2	get_hp	lt	99	-1	-1	-1	-1	
+299	7	skill	50	-1	do	0	to_skill		0	1853	-1	-1	1853	
+300	0	skill	40	-1	if	0	get_hp	lt	98	-1	-1	-1	-1	
+300	0	skill	40	-1	if	1	rand	lt	30	-1	-1	-1	-1	
+300	0	skill	40	-1	do	0	to_skill		0	1016	-1	-1	1016	
+301	0	skill	35	-1	if	0	is_can_skill	eq	1	281	-1	-1	281	
+301	0	skill	35	-1	do	0	to_skill		0	281	-1	-1	281	
+301	1	skill	40	-1	if	0	is_can_skill	eq	1	287	-1	-1	287	
+301	1	skill	40	-1	if	1	rand	lt	50	-1	-1	-1	-1	
+301	1	skill	40	-1	if	2	get_hp	lt	99	-1	-1	-1	-1	
+301	1	skill	40	-1	do	0	to_skill		0	287	-1	-1	287	
+301	2	skill	45	-1	if	0	is_can_skill	eq	1	282	-1	-1	282	
+301	2	skill	45	-1	if	1	rand	lt	30	-1	-1	-1	-1	
+301	2	skill	45	-1	if	2	get_hp	lt	99	-1	-1	-1	-1	
+301	2	skill	45	-1	do	0	to_skill		0	282	-1	-1	282	
+301	3	skill	50	-1	if	0	is_can_skill	eq	1	283	-1	-1	283	
+301	3	skill	50	-1	if	1	rand	lt	30	-1	-1	-1	-1	
+301	3	skill	50	-1	if	2	get_hp	lt	99	-1	-1	-1	-1	
+301	3	skill	50	-1	do	0	to_skill		0	283	-1	-1	283	
+301	4	skill	40	-1	if	0	is_can_skill	eq	1	285	-1	-1	285	
+301	4	skill	40	-1	if	1	rand	lt	10	-1	-1	-1	-1	
+301	4	skill	40	-1	if	2	get_hp	lt	99	-1	-1	-1	-1	
+301	4	skill	40	-1	do	0	to_skill		0	285	-1	-1	285	
+301	5	skill	45	-1	if	0	is_can_skill	eq	1	291	-1	-1	291	
+301	5	skill	45	-1	if	1	rand	lt	30	-1	-1	-1	-1	
+301	5	skill	45	-1	if	2	get_hp	lt	99	-1	-1	-1	-1	
+301	5	skill	45	-1	do	0	to_skill		0	291	-1	-1	291	
+301	6	skill	50	-1	if	0	is_can_skill	eq	1	295	-1	-1	295	
+301	6	skill	50	-1	if	1	rand	lt	30	-1	-1	-1	-1	
+301	6	skill	50	-1	if	2	get_hp	lt	99	-1	-1	-1	-1	
+301	6	skill	50	-1	do	0	to_skill		0	295	-1	-1	295	
+301	7	skill	50	-1	if	0	is_can_skill	eq	1	309	-1	-1	309	
+301	7	skill	50	-1	if	1	rand	lt	10	-1	-1	-1	-1	
+301	7	skill	50	-1	if	2	get_hp	lt	99	-1	-1	-1	-1	
+301	7	skill	50	-1	do	0	to_skill		0	309	-1	-1	309	
+316	0	skill	30	-1	if	0	is_can_skill	eq	1	0	-1	-1	0	
+316	0	skill	30	-1	do	0	to_skill		0	0	-1	-1	0	
+316	1	skill	34	30	if	0	get_hp	lt	95	-1	-1	-1	-1	
+316	1	skill	34	30	if	1	is_can_skill	eq	1	2024	-1	-1	2024	
+316	1	skill	34	30	do	0	to_speak		0	608	1	-1	-1	
+316	1	skill	34	30	do	1	to_skill		0	2024	-1	-1	2024	
+316	2	skill	40	30	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+316	2	skill	40	30	if	1	rand	lt	30	-1	-1	-1	-1	
+316	2	skill	40	30	if	2	is_can_skill	eq	1	2025	-1	-1	2025	
+316	2	skill	40	30	do	0	to_skill		0	2025	-1	-1	2025	
+317	0	skill	30	-1	if	0	is_can_skill	eq	1	0	-1	-1	0	
+317	0	skill	30	-1	do	0	to_skill		0	0	-1	-1	0	
+317	1	skill	34	30	if	0	get_hp	lt	95	-1	-1	-1	-1	
+317	1	skill	34	30	if	1	is_can_skill	eq	1	2026	-1	-1	2026	
+317	1	skill	34	30	do	0	to_speak		0	609	1	-1	-1	
+317	1	skill	34	30	do	1	to_skill		0	2026	-1	-1	2026	
+317	2	skill	40	30	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+317	2	skill	40	30	if	1	rand	lt	30	-1	-1	-1	-1	
+317	2	skill	40	30	if	2	is_can_skill	eq	1	2027	-1	-1	2027	
+317	2	skill	40	30	do	0	to_skill		0	2027	-1	-1	2027	
+318	0	skill	30	-1	if	0	is_can_skill	eq	1	0	-1	-1	0	
+318	0	skill	30	-1	do	0	to_skill		0	0	-1	-1	0	
+318	1	skill	34	30	if	0	get_hp	lt	95	-1	-1	-1	-1	
+318	1	skill	34	30	if	1	is_can_skill	eq	1	2039	-1	-1	2039	
+318	1	skill	34	30	do	0	to_speak		0	610	1	-1	-1	
+318	1	skill	34	30	do	1	to_skill		0	2039	-1	-1	2039	
+318	2	skill	40	30	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+318	2	skill	40	30	if	1	rand	lt	30	-1	-1	-1	-1	
+318	2	skill	40	30	if	2	is_can_skill	eq	1	750	-1	-1	750	
+318	2	skill	40	30	do	0	to_skill		0	750	-1	-1	750	
+319	0	skill	30	-1	if	0	is_can_skill	eq	1	0	-1	-1	0	
+319	0	skill	30	-1	do	0	to_skill		0	0	-1	-1	0	
+319	1	skill	31	1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+319	1	skill	31	1	if	1	get_hp	lt	100	-1	-1	-1	-1	
+319	1	skill	31	1	do	0	to_speak		0	622	1	-1	-1	
+319	2	skill	32	1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+319	2	skill	32	1	if	1	get_hp	lt	90	-1	-1	-1	-1	
+319	2	skill	32	1	do	0	to_speak		0	623	1	-1	-1	
+319	3	skill	33	1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+319	3	skill	33	1	if	1	get_hp	lt	80	-1	-1	-1	-1	
+319	3	skill	33	1	do	0	to_speak		0	624	1	-1	-1	
+319	4	skill	34	1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+319	4	skill	34	1	if	1	get_hp	lt	70	-1	-1	-1	-1	
+319	4	skill	34	1	do	0	to_speak		0	625	1	-1	-1	
+319	5	skill	35	1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+319	5	skill	35	1	if	1	get_hp	lt	60	-1	-1	-1	-1	
+319	5	skill	35	1	do	0	to_speak		0	626	1	-1	-1	
+319	6	skill	36	1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+319	6	skill	36	1	if	1	get_hp	lt	50	-1	-1	-1	-1	
+319	6	skill	36	1	do	0	to_speak		0	627	1	-1	-1	
+319	7	skill	37	1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+319	7	skill	37	1	if	1	get_hp	lt	40	-1	-1	-1	-1	
+319	7	skill	37	1	do	0	to_speak		0	628	1	-1	-1	
+319	8	skill	38	1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+319	8	skill	38	1	if	1	get_hp	lt	30	-1	-1	-1	-1	
+319	8	skill	38	1	do	0	to_speak		0	629	1	-1	-1	
+319	9	skill	39	1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+319	9	skill	39	1	if	1	get_hp	lt	20	-1	-1	-1	-1	
+319	9	skill	39	1	do	0	to_speak		0	630	1	-1	-1	
+319	10	skill	40	1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+319	10	skill	40	1	if	1	get_hp	lt	10	-1	-1	-1	-1	
+319	10	skill	40	1	do	0	to_speak		0	631	1	-1	-1	
+320	0	skill	30	-1	if	0	is_can_skill	eq	1	0	-1	-1	0	
+320	0	skill	30	-1	do	0	to_skill		0	0	-1	-1	0	
+320	1	skill	40	130	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+320	1	skill	40	130	if	1	rand	lt	20	-1	-1	-1	-1	
+320	1	skill	40	130	if	2	is_can_skill	eq	1	2040	-1	-1	2040	
+320	1	skill	40	130	do	0	to_skill		0	2040	-1	-1	2040	
+320	2	skill	40	130	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+320	2	skill	40	130	if	1	rand	lt	40	-1	-1	-1	-1	
+320	2	skill	40	130	if	2	is_can_skill	eq	1	2041	-1	-1	2041	
+320	2	skill	40	130	do	0	to_skill		0	2041	-1	-1	2041	
+320	3	skill	40	130	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+320	3	skill	40	130	if	1	rand	lt	30	-1	-1	-1	-1	
+320	3	skill	40	130	if	2	is_can_skill	eq	1	2042	-1	-1	2042	
+320	3	skill	40	130	do	0	to_skill		0	2042	-1	-1	2042	
+321	0	skill	30	-1	if	0	is_can_skill	eq	1	1436	-1	-1	1436	
+321	0	skill	30	-1	do	0	to_skill		0	1843	-1	-1	1843	
+321	1	skill	34	1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+321	1	skill	34	1	if	1	get_hp	lt	80	-1	-1	-1	-1	
+321	1	skill	34	1	if	2	is_can_skill	eq	1	584	-1	-1	584	
+321	1	skill	34	1	do	0	to_skill		0	584	-1	-1	584	
+322	0	common	37	1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+322	0	common	37	1	if	1	get_hp	lt	20	-1	-1	-1	-1	
+322	0	common	37	1	do	0	to_flee		0	1	-1	-1	-1	
+322	1	skill	30	-1	if	0	is_can_skill	eq	1	552	-1	-1	552	
+322	1	skill	30	-1	do	0	to_skill		0	552	-1	-1	552	
+322	2	skill	32	1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+322	2	skill	32	1	if	1	get_hp	lt	50	-1	-1	-1	-1	
+322	2	skill	32	1	if	2	is_can_skill	eq	1	582	-1	-1	582	
+322	2	skill	32	1	do	0	to_skill		0	582	-1	-1	582	
+322	3	skill	31	-1	if	0	is_can_skill	eq	1	1844	-1	-1	1844	
+322	3	skill	31	-1	do	0	to_skill		0	1844	-1	-1	1844	
+323	0	common	34	1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+323	0	common	34	1	if	1	get_hp	lt	20	-1	-1	-1	-1	
+323	0	common	34	1	do	0	to_flee		0	1	-1	-1	-1	
+323	1	skill	30	-1	if	0	is_can_skill	eq	1	1845	-1	-1	1845	
+323	1	skill	30	-1	do	0	to_skill		0	1845	-1	-1	1845	
+323	2	skill	31	-1	if	0	is_can_skill	eq	1	0	-1	-1	0	
+323	2	skill	31	-1	do	0	to_skill		0	0	-1	-1	0	
+324	0	skill	30	-1	if	0	is_can_skill	eq	1	1846	-1	-1	1846	
+324	0	skill	30	-1	do	0	to_skill		0	1846	-1	-1	1846	
+324	1	skill	34	1	if	0	get_hp	lt	50	-1	-1	-1	-1	
+324	1	skill	34	1	if	1	is_can_skill	eq	1	582	-1	-1	582	
+324	1	skill	34	1	do	0	to_skill		0	582	-1	-1	582	
+325	0	skill	30	-1	if	0	is_can_skill	eq	1	1847	-1	-1	1847	
+325	0	skill	30	-1	do	0	to_skill		0	1847	-1	-1	1847	
+325	1	skill	40	1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+325	1	skill	40	1	if	1	rand	lt	20	-1	-1	-1	-1	
+325	1	skill	40	1	if	2	is_can_skill	eq	1	580	-1	-1	580	
+325	1	skill	40	1	do	0	to_skill		0	580	-1	-1	580	
+326	0	skill	30	-1	if	0	is_can_skill	eq	1	1848	-1	-1	1848	
+326	0	skill	30	-1	do	0	to_skill		0	1848	-1	-1	1848	
+326	1	skill	40	1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+326	1	skill	40	1	if	1	rand	lt	20	-1	-1	-1	-1	
+326	1	skill	40	1	if	2	is_can_skill	eq	1	580	-1	-1	580	
+326	1	skill	40	1	do	0	to_skill		0	580	-1	-1	580	
+351	0	skill	30	-1	if	0	is_can_skill	eq	1	0	-1	-1	0	
+351	0	skill	30	-1	do	0	to_skill		0	0	-1	-1	0	
+351	1	skill	40	-1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+351	1	skill	40	-1	if	1	rand	lt	5	-1	-1	-1	-1	
+351	1	skill	40	-1	if	2	is_can_skill	eq	1	520	-1	-1	520	
+351	1	skill	40	-1	do	0	to_skill		0	520	-1	-1	520	
+351	1	skill	40	-1	do	1	to_speak		0	802	1	-1	-1	
+351	2	skill	41	-1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+351	2	skill	41	-1	if	1	rand	lt	10	-1	-1	-1	-1	
+351	2	skill	41	-1	if	2	is_can_skill	eq	1	521	-1	-1	521	
+351	2	skill	41	-1	do	0	to_skill		0	521	-1	-1	521	
+351	2	skill	41	-1	do	1	to_speak		0	801	1	-1	-1	
+351	3	skill	42	-1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+351	3	skill	42	-1	if	1	rand	lt	5	-1	-1	-1	-1	
+351	3	skill	42	-1	if	2	is_can_skill	eq	1	522	-1	-1	522	
+351	3	skill	42	-1	do	0	to_skill		0	522	-1	-1	522	
+352	0	skill	30	-1	if	0	is_can_skill	eq	1	0	-1	-1	0	
+352	0	skill	30	-1	do	0	to_skill		0	0	-1	-1	0	
+352	1	skill	40	-1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+352	1	skill	40	-1	if	1	rand	lt	7	-1	-1	-1	-1	
+352	1	skill	40	-1	if	2	is_can_skill	eq	1	523	-1	-1	523	
+352	1	skill	40	-1	do	0	to_skill		0	523	-1	-1	523	
+352	2	skill	41	-1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+352	2	skill	41	-1	if	1	rand	lt	7	-1	-1	-1	-1	
+352	2	skill	41	-1	if	2	is_can_skill	eq	1	524	-1	-1	524	
+352	2	skill	41	-1	do	0	to_skill		0	524	-1	-1	524	
+352	2	skill	41	-1	do	1	to_speak		0	807	1	-1	-1	
+352	3	skill	42	-1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+352	3	skill	42	-1	if	1	rand	lt	7	-1	-1	-1	-1	
+352	3	skill	42	-1	if	2	is_can_skill	eq	1	525	-1	-1	525	
+352	3	skill	42	-1	do	0	to_skill		0	525	-1	-1	525	
+352	3	skill	42	-1	do	1	to_speak		0	805	1	-1	-1	
+353	0	skill	30	-1	if	0	is_can_skill	eq	1	0	-1	-1	0	
+353	0	skill	30	-1	do	0	to_skill		0	0	-1	-1	0	
+354	0	skill	30	-1	if	0	is_can_skill	eq	1	0	-1	-1	0	
+354	0	skill	30	-1	do	0	to_skill		0	0	-1	-1	0	
+390	0	skill	30	-1	if	0	is_can_skill	eq	1	0	-1	-1	0	
+390	0	skill	30	-1	do	0	to_skill		0	0	-1	-1	0	
+390	1	skill	34	-1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+390	1	skill	34	-1	if	1	rand	lt	35	-1	-1	-1	-1	
+390	1	skill	34	-1	if	2	is_can_skill	eq	1	1480	-1	-1	1480	
+390	1	skill	34	-1	do	0	to_skill		0	1480	-1	-1	1480	
+390	2	skill	34	-1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+390	2	skill	34	-1	if	1	rand	lt	35	-1	-1	-1	-1	
+390	2	skill	34	-1	if	2	is_can_skill	eq	1	1481	-1	-1	1481	
+390	2	skill	34	-1	do	0	to_skill		0	1481	-1	-1	1481	
+391	0	skill	30	-1	if	0	is_can_skill	eq	1	0	-1	-1	0	
+391	0	skill	30	-1	do	0	to_skill		0	0	-1	-1	0	
+391	1	skill	34	-1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+391	1	skill	34	-1	if	1	rand	lt	35	-1	-1	-1	-1	
+391	1	skill	34	-1	if	2	is_can_skill	eq	1	1482	-1	-1	1482	
+391	1	skill	34	-1	do	0	to_skill		0	1482	-1	-1	1482	
+391	2	skill	34	-1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+391	2	skill	34	-1	if	1	rand	lt	35	-1	-1	-1	-1	
+391	2	skill	34	-1	if	2	is_can_skill	eq	1	1483	-1	-1	1483	
+391	2	skill	34	-1	do	0	to_skill		0	1483	-1	-1	1483	
+392	0	skill	30	-1	if	0	is_can_skill	eq	1	0	-1	-1	0	
+392	0	skill	30	-1	do	0	to_skill		0	0	-1	-1	0	
+392	1	skill	34	-1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+392	1	skill	34	-1	if	1	rand	lt	35	-1	-1	-1	-1	
+392	1	skill	34	-1	if	2	is_can_skill	eq	1	1484	-1	-1	1484	
+392	1	skill	34	-1	do	0	to_skill		0	1484	-1	-1	1484	
+392	2	skill	34	-1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+392	2	skill	34	-1	if	1	rand	lt	35	-1	-1	-1	-1	
+392	2	skill	34	-1	if	2	is_can_skill	eq	1	1485	-1	-1	1485	
+392	2	skill	34	-1	do	0	to_skill		0	1485	-1	-1	1485	
+392	3	skill	34	-1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+392	3	skill	34	-1	if	1	rand	lt	35	-1	-1	-1	-1	
+392	3	skill	34	-1	if	2	is_can_skill	eq	1	1486	-1	-1	1486	
+392	3	skill	34	-1	do	0	to_skill		0	1486	-1	-1	1486	
+393	0	skill	30	-1	if	0	is_can_skill	eq	1	0	-1	-1	0	
+393	0	skill	30	-1	do	0	to_skill		0	0	-1	-1	0	
+393	1	skill	34	-1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+393	1	skill	34	-1	if	1	rand	lt	35	-1	-1	-1	-1	
+393	1	skill	34	-1	if	2	is_can_skill	eq	1	1487	-1	-1	1487	
+393	1	skill	34	-1	do	0	to_skill		0	1487	-1	-1	1487	
+394	0	skill	30	-1	if	0	is_can_skill	eq	1	0	-1	-1	0	
+394	0	skill	30	-1	do	0	to_skill		0	0	-1	-1	0	
+394	1	skill	34	-1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+394	1	skill	34	-1	if	1	rand	lt	35	-1	-1	-1	-1	
+394	1	skill	34	-1	if	2	is_can_skill	eq	1	1488	-1	-1	1488	
+394	1	skill	34	-1	do	0	to_skill		0	1488	-1	-1	1488	
+394	2	skill	34	-1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+394	2	skill	34	-1	if	1	rand	lt	35	-1	-1	-1	-1	
+394	2	skill	34	-1	if	2	is_can_skill	eq	1	1489	-1	-1	1489	
+394	2	skill	34	-1	do	0	to_skill		0	1489	-1	-1	1489	
+395	0	skill	30	-1	if	0	is_can_skill	eq	1	0	-1	-1	0	
+395	0	skill	30	-1	do	0	to_skill		0	0	-1	-1	0	
+395	1	skill	34	-1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+395	1	skill	34	-1	if	1	rand	lt	35	-1	-1	-1	-1	
+395	1	skill	34	-1	if	2	is_can_skill	eq	1	1478	-1	-1	1478	
+395	1	skill	34	-1	do	0	to_skill		0	1478	-1	-1	1478	
+396	0	skill	30	-1	if	0	is_can_skill	eq	1	0	-1	-1	0	
+396	0	skill	30	-1	do	0	to_skill		0	0	-1	-1	0	
+396	1	skill	34	-1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+396	1	skill	34	-1	if	1	rand	lt	35	-1	-1	-1	-1	
+396	1	skill	34	-1	if	2	is_can_skill	eq	1	1479	-1	-1	1479	
+396	1	skill	34	-1	do	0	to_skill		0	1479	-1	-1	1479	
+400	0	skill	30	-1	if	0	is_can_skill	eq	1	0	-1	-1	0	
+400	0	skill	30	-1	do	0	to_skill		0	0	-1	-1	0	
+400	1	skill	34	-1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+400	1	skill	34	-1	if	1	rand	lt	35	-1	-1	-1	-1	
+400	1	skill	34	-1	if	2	is_can_skill	eq	1	1477	-1	-1	1477	
+400	1	skill	34	-1	do	0	to_skill		0	1477	-1	-1	1477	
+400	2	skill	36	-1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+400	2	skill	36	-1	if	1	is_can_skill	eq	1	627	-1	-1	627	
+400	2	skill	36	-1	if	2	rand	lt	20	-1	-1	-1	-1	
+400	2	skill	36	-1	if	3	get_hp	gt	90	-1	-1	-1	-1	
+400	2	skill	36	-1	do	0	to_skill		0	627	-1	-1	627	
+400	3	skill	37	-1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+400	3	skill	37	-1	if	1	is_can_skill	eq	1	557	-1	-1	557	
+400	3	skill	37	-1	if	2	rand	lt	20	-1	-1	-1	-1	
+400	3	skill	37	-1	do	0	to_skill		0	557	-1	-1	557	
+401	0	skill	30	-1	if	0	is_can_skill	eq	1	0	-1	-1	0	
+401	0	skill	30	-1	do	0	to_skill		0	0	-1	-1	0	
+401	1	skill	34	-1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+401	1	skill	34	-1	if	1	rand	lt	35	-1	-1	-1	-1	
+401	1	skill	34	-1	if	2	is_can_skill	eq	1	2036	-1	-1	2036	
+401	1	skill	34	-1	do	0	to_skill		0	2036	-1	-1	2036	
+401	2	skill	34	-1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+401	2	skill	34	-1	if	1	rand	lt	35	-1	-1	-1	-1	
+401	2	skill	34	-1	if	2	is_can_skill	eq	1	2036	-1	-1	2036	
+401	2	skill	34	-1	do	0	to_skill		0	2036	-1	-1	2036	
+402	0	skill	30	-1	if	0	is_can_skill	eq	1	0	-1	-1	0	
+402	0	skill	30	-1	do	0	to_skill		0	0	-1	-1	0	
+402	1	skill	34	-1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+402	1	skill	34	-1	if	1	rand	lt	35	-1	-1	-1	-1	
+402	1	skill	34	-1	if	2	is_can_skill	eq	1	1496	-1	-1	1496	
+402	1	skill	34	-1	do	0	to_skill		0	1496	-1	-1	1496	
+403	0	skill	30	-1	if	0	is_can_skill	eq	1	0	-1	-1	0	
+403	0	skill	30	-1	do	0	to_skill		0	0	-1	-1	0	
+403	1	skill	34	-1	if	0	get_ai_state	eq	6	-1	-1	-1	-1	SATTACK
+403	1	skill	34	-1	if	1	rand	lt	35	-1	-1	-1	-1	
+403	1	skill	34	-1	if	2	is_can_skill	eq	1	1498	-1	-1	1498	
+403	1	skill	34	-1	do	0	to_skill		0	1498	-1	-1	1498	

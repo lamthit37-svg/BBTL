@@ -1,0 +1,13 @@
+# schema 1
+# source: XJL7457/Public/Scene/quanzhou_platform.ini
+# tool: TOOLS/server/import_scene_xjl.py; sửa tay sẽ mất ở lượt xuất sau
+# types: int	int	float	float	int	int	text
+type_id	class_id	position_x	position_z	direction	script_id	tip
+15	9	148	40	18	714014	公告牌
+1	1	106	132	9		煉丹爐。在附近使用制藥技能。
+2	2	216	110	27	-1	打造臺。在附近使用鑄造技能。
+5	4	240	172	27	-1	縫紉臺。在附近使用縫紉技能。
+6	5	207	193	27	-1	工藝臺。在附近使用工藝技能。
+17	10	155	280	27		通往洱海
+17	10	35	155	27		通往劍閣
+17	10	285	148	27		通往無量山

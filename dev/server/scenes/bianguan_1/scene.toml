@@ -52,3 +52,10 @@ walk             = "walk.nav"               # lưới đi, chép nguyên byte
 #==================================================
 # Ba định dạng này chưa đọc, không chép byte.
 path_file        = "bianguan_1.path"        # chưa đọc định dạng, không chép
+
+#==================================================
+# Nguồn lưới đi
+#==================================================
+# Lưới đi chạy thật: .path của client 2026 nếu cảnh có, không thì walk.nav.
+walk_source      = "legacy_nav_0859602"     # nguồn lưới đi dùng khi chạy
+walk_nav         = "walk.nav"               # lưới ô của máy chủ 2008, dự phòng

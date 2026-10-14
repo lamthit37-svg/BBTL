@@ -1,0 +1,7 @@
+# schema 1
+# source: XJL7457/Public/Scene/tongtianta3_area.ini
+# tool: TOOLS/server/import_scene_xjl.py; sửa tay sẽ mất ở lượt xuất sau
+# types: int	int	float	float	float	float
+guid	script_id	left	top	right	bottom
+0	400228	248.0000	365.0000	262.0000	372.0000
+0	400229	251.0000	174.0000	264.0000	180.0000
