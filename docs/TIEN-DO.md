@@ -2259,6 +2259,11 @@ gộp, rồi dọn". Làm trong worktree `.worktrees/merge_all` từ `192f181`, 
      sanitizer (cần thêm nguồn `core`, `io`, `xml` và cờ liên kết Windows; `loader.cpp` chỉ đổi một dòng
      `path_from_utf8`) và nhánh khung tròn của `ui_panel_tests` (chưa dựng bản `round`). Ảnh `--shot` của bản cài
      ở `dev/client/bin` (màn chọn máy chủ và màn chơi cảnh Đại Lý): không mất texture, chữ không chồng nhau.
+     Nạp đầu (`bench_load.py`, cảnh Đại Lý 1280x720, 15 lượt): trung vị 528,7 ms, vượt ngân sách 450 ms của
+     2026-10-13 (387 ms). A/B xen kẽ hai vòng x 10 lượt, cùng cây, chỉ khác `layout.cpp` (bản `ca33733` và bản mới):
+     585 / 506 ms (cũ) và 608 / 487 ms (mới), lẫn nhau theo từng vòng, nên `layout.cpp` mới không làm chậm nạp. Nguyên
+     nhân thật của phần vượt chưa tìm ra: lúc đo có một cửa sổ client khác đang chạy, số tăng dần trong một lượt chạy
+     (482 lên 646 ms), và HUD đã đổi nhiều từ 2026-10-13. Cần đo lại lúc máy rảnh trước khi kết luận ngân sách đã vỡ.
      Cảnh báo `ninja: premature end of file` ở cây này do
      `.ninja_deps` bị cụt (nhiều lượt dựng chồng nhau); `ninja -t recompact` xoá được, và dựng lại toàn bộ một lần.
    - Bẫy đã đo: ghi ở `docs/BAY-DA-BIET.md` nhóm "Giao diện và bản địa hoá" (cỡ con là `max - min`; `grep` thấy

@@ -433,3 +433,12 @@ mục ở mục 11.
   `.path` của cột 5 bảng cảnh và tên cảnh đổi đuôi `.WCollision`. Map gom từ trước chạy lại công cụ là đủ (idempotent);
   cảnh không có hai tệp ở kho gốc (như `tl3chuangjian`) chỉ để lại ghi chú. Kết quả sau khi gom lại: Đại Lý 11.669 đỉnh,
   23.324 tam giác, 11.665 cạnh vật cản; Lạc Dương 10.546 đỉnh, 21.080 tam giác, 10.543 cạnh vật cản.
+- Bảng F3 (`ui/pace`) báo TRƯỢT với FPS đúng 60,0 trong cửa sổ thật không có nghĩa giao diện chậm: client trình Fifo
+  (`frame.cpp`, commit `2953249`) nên khung khoá vào nhịp quét của màn, mà Windows đang đặt màn 1920x1080 ở 60 Hz
+  (đo 2026-10-14 bằng `Win32_VideoController.CurrentRefreshRate` = 60, `MaxRefreshRate` = 200). Ngân sách 120 Hz là
+  8,3 ms nên mọi khung 16,7 ms đều "vượt". Số CPU của khung (ghi lệnh, nộp, dựng UI) cộng lại chỉ khoảng 0,4 ms, còn
+  "Xin ảnh" 15–16 ms là chờ nhịp quét. Chạy `--pace --shot ... --frames 150` (không qua cửa sổ thật, "Xin ảnh" 0,0 ms)
+  thì màn chơi Đại Lý đứng im ra 1119 FPS, trung vị 0,3 ms, ĐẠT; màn đăng nhập 178 FPS, một khung đột biến 117,8 ms,
+  vượt ngân sách 6,7% nên TRƯỢT. Muốn thấy trên cửa sổ thật số lớn hơn 60 thì đặt tần số quét của Windows lên 120 Hz
+  trở lên (nếu màn hỗ trợ). Đường `--shot` không cùng đường trình với cửa sổ thật và bảng chưa có mili-giây GPU, nên
+  đây là chặn trên của phía CPU; chưa đo lúc nhân vật di chuyển vì client chưa có cờ tự đi.
