@@ -170,6 +170,11 @@ struct Radar {
     float v0 = 0.0F;
     float u1 = 1.0F;
     float v1 = 1.0F;
+    // Vùng thấy theo trục đó đang canh giữa người chơi (chưa bị kẹp sát mép ảnh): người chơi nằm đúng tâm cửa
+    // sổ. Chỗ vẽ đặt mũi tên vào tâm luôn, không suy lại từ u0, u1: phép suy có sai số số thực, quanh nửa điểm
+    // ảnh nó làm phép làm tròn lật qua lại mỗi khung.
+    bool is_centred_u = false;
+    bool is_centred_v = false;
 };
 
 // Mức muốn tới của một thanh, như SetProgress của script gốc. Hub trượt mức đang vẽ tới đó theo

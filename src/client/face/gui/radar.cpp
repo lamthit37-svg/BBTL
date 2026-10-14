@@ -91,6 +91,8 @@ struct AxisAsk {
 struct ZoomAxis {
     float zoom = 0.0F;
     float zero = 0.0F;
+    // Vùng thấy bị kẹp sát mép ảnh, không còn canh giữa người chơi.
+    bool is_pinned = false;
 };
 
 ZoomAxis zoom_axis(const AxisAsk& ask) noexcept {
@@ -99,9 +101,12 @@ ZoomAxis zoom_axis(const AxisAsk& ask) noexcept {
     axis.zoom = ask.scene * kRadarZoom / ask.window;
     const float fraction = ask.window / (ask.scene * kRadarZoom);
     float origin = -((ask.player / ask.scene) - (fraction * 0.5F)) / fraction;
-    if (axis.zoom >= 1.0F && origin < 1.0F - axis.zoom) origin = 1.0F - axis.zoom;
-    if (axis.zoom >= 1.0F && origin > 0.0F) origin = 0.0F;
+    const bool is_low = axis.zoom >= 1.0F && origin < 1.0F - axis.zoom;
+    const bool is_high = axis.zoom >= 1.0F && origin > 0.0F;
+    if (is_low) origin = 1.0F - axis.zoom;
+    if (is_high) origin = 0.0F;
     axis.zero = origin;
+    axis.is_pinned = is_low || is_high;
     return axis;
 }
 
@@ -110,6 +115,12 @@ float axis_uv(const AxisAsk& ask) noexcept {
     const ZoomAxis axis = zoom_axis(ask);
     if (axis.zoom == 0.0F) return 0.0F;
     return -axis.zero / axis.zoom;
+}
+
+// Vùng thấy theo trục canh giữa người chơi: có cỡ và chưa bị kẹp sát mép.
+bool is_centred(const AxisAsk& ask) noexcept {
+    const ZoomAxis axis = zoom_axis(ask);
+    return axis.zoom != 0.0F && !axis.is_pinned;
 }
 
 } // namespace
@@ -126,8 +137,12 @@ void round_fan(const FanView& view, std::span<Fan, kRoundCount> out) noexcept {
 
 Radar radar_uv(const RadarAsk& ask) noexcept {
     Radar view;
-    view.u0 = axis_uv({.scene = ask.scene_width, .window = ask.window_width, .player = ask.player_x});
-    view.v0 = axis_uv({.scene = ask.scene_depth, .window = ask.window_height, .player = ask.player_z});
+    const AxisAsk across{.scene = ask.scene_width, .window = ask.window_width, .player = ask.player_x};
+    const AxisAsk down{.scene = ask.scene_depth, .window = ask.window_height, .player = ask.player_z};
+    view.u0 = axis_uv(across);
+    view.v0 = axis_uv(down);
+    view.is_centred_u = is_centred(across);
+    view.is_centred_v = is_centred(down);
     const bool has_width = ask.scene_width > 0.0F && ask.window_width > 0.0F;
     const bool has_depth = ask.scene_depth > 0.0F && ask.window_height > 0.0F;
     if (has_width) view.u1 = view.u0 + (ask.window_width / (ask.scene_width * kRadarZoom));

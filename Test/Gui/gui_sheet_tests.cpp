@@ -288,6 +288,8 @@ void radar_center(Context& context) {
     const gui::Radar edge = gui::radar_uv(corner);
     context.expect(near_value(edge.u0, 0.0F), "sát mép thì kẹp");
     context.expect(near_value(edge.u1, 140.0F / (320.0F * 4.0F)), "mép phải của vùng thấy");
+    context.expect(view.is_centred_u && view.is_centred_v, "giữa cảnh: vùng thấy canh giữa người chơi");
+    context.expect(!edge.is_centred_u && !edge.is_centred_v, "sát mép: vùng thấy bị kẹp");
     const gui::BarMove move{.shown = 1.0F, .target = 0.5F, .speed = 1.0F, .seconds = 0.25F};
     context.expect(near_value(gui::bar_step(move), 0.75F), "thanh trượt 0,25 mỗi nhịp");
     const gui::SceneCursor centre{.local_x = 70.0F, .local_y = 70.0F};
@@ -508,8 +510,9 @@ void arrow_frames(Context& context) {
     context.expect(gui::arrow_frame(empty) == 0, "hoạt ảnh rỗng");
 }
 
-// Radar 140 x 140 giữa cảnh 320, mũi tên hai khung 32 x 32 (khung 0 hướng +z, khung 1 hướng -z).
-GuiAsset arrow_asset() {
+// Radar size (mặc định 140 x 140) giữa cảnh 320, mũi tên hai khung 32 x 32 (khung 0 hướng +z, khung 1
+// hướng -z).
+GuiAsset arrow_asset(std::string_view size = "w:140 h:140") {
     GuiAsset asset;
     GuiImage down = image_of("MiniMap_Arrow", "Arrow_00015", 32.0F);
     down.texture = 0;
@@ -526,7 +529,7 @@ GuiAsset arrow_asset() {
     asset.animate_frames = {0, 1};
     asset.types.push_back(gui::GuiType{.name = "TLBB_SceneMap", .renderer = "Falagard/SceneMap", .look = -1});
     add_window(asset, "MiniMap_MapArea", Slot{.type = 0, .parent = -1});
-    add_property(asset, "AbsoluteSize", "w:140 h:140");
+    add_property(asset, "AbsoluteSize", std::string(size));
     add_property(asset, "AnimateImage", "type:Animate9 animate:Minimap_Direction");
     add_property(asset, "AnimateImage", "type:Animate10 animate:Minimap_arrow");
     return asset;
@@ -562,6 +565,35 @@ void radar_arrow(Context& context) {
     const auto turned = std::ranges::find_if(hub.live(), is_arrow);
     const bool is_back = turned != hub.live().end() && turned->source.x == 32.0F;
     context.expect(is_back, "quay 180 độ sang khung hai");
+}
+
+// Radar cạnh lẻ (MiniMap của bản 2026 rộng 119): tâm rơi vào nửa điểm ảnh. Người chơi đi giữa cảnh thì vùng thấy
+// trôi theo, mũi tên đứng yên đúng một ô; trước đây sai số số thực quanh .5 (86,49994 rồi 86,50003) làm phép làm tròn
+// lật nó qua lại 1 px mỗi khung, mũi tên rung khi chạy.
+void radar_arrow_steady(Context& context) {
+    const GuiAsset asset = arrow_asset("w:119 h:119");
+    const auto is_arrow = [](const Quad& quad) { return quad.texture == 0; };
+    std::optional<Box> first;
+    int moved = 0;
+    for (const float scene : {320.0F, 448.0F, 512.0F}) {
+        Place input = radar_input();
+        input.scene_width = scene;
+        input.scene_depth = scene;
+        for (int step = 0; step < 1000; ++step) {
+            input.player_x = 100.0F + (static_cast<float>(step) * 0.0693F);
+            input.player_z = 200.0F - (static_cast<float>(step) * 0.0517F);
+            const Sheet sheet = gui::place(asset, input);
+            const auto arrow = std::ranges::find_if(sheet.quads, is_arrow);
+            if (arrow == sheet.quads.end()) {
+                ++moved;
+                continue;
+            }
+            if (!first) first = arrow->dest;
+            if (!same_box(arrow->dest, *first)) ++moved;
+        }
+    }
+    context.expect(first.has_value(), "có mũi tên");
+    context.expect(moved == 0, "đi giữa cảnh: mũi tên không lệch điểm ảnh nào");
 }
 
 // Người chơi ở góc cảnh: tâm mũi tên nằm sát mép radar nên ảnh bị cắt theo ô radar.
@@ -1312,6 +1344,7 @@ constexpr std::array kCases{
     Case{.name = "bar_glides", .body = &bar_glides},
     Case{.name = "arrow_frames", .body = &arrow_frames},
     Case{.name = "radar_arrow", .body = &radar_arrow},
+    Case{.name = "radar_arrow_steady", .body = &radar_arrow_steady},
     Case{.name = "radar_arrow_clipped", .body = &radar_arrow_clipped},
     Case{.name = "radar_dot_fallback", .body = &radar_dot_fallback},
     Case{.name = "map_image", .body = &map_image},

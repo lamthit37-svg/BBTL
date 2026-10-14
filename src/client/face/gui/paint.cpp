@@ -379,7 +379,8 @@ float bar_amount(const Ctx& ctx, const Placed& self) {
     return std::clamp(parsed.value_or(1.0F), 0.0F, 1.0F);
 }
 
-// Điểm trên màn hình của người chơi trong radar, kẹp trong ô radar.
+// Điểm trên màn hình của người chơi trong radar, kẹp trong ô radar. Trục đang canh giữa người chơi thì đúng
+// tâm ô (Radar::is_centred_u): cùng một điểm mọi khung, mũi tên không rung khi chạy.
 struct Mark {
     float x = 0.0F;
     float y = 0.0F;
@@ -391,8 +392,8 @@ Mark radar_mark(const Box& screen, const Radar& view, const Place& input) noexce
     const float span_u = view.u1 - view.u0;
     const float span_v = view.v1 - view.v0;
     Mark mark{.x = screen.x + (screen.w * 0.5F), .y = screen.y + (screen.h * 0.5F)};
-    if (span_u != 0.0F) mark.x = screen.x + ((across - view.u0) / span_u * screen.w);
-    if (span_v != 0.0F) mark.y = screen.y + ((down - view.v0) / span_v * screen.h);
+    if (span_u != 0.0F && !view.is_centred_u) mark.x = screen.x + ((across - view.u0) / span_u * screen.w);
+    if (span_v != 0.0F && !view.is_centred_v) mark.y = screen.y + ((down - view.v0) / span_v * screen.h);
     mark.x = std::clamp(mark.x, screen.x, screen.x + screen.w);
     mark.y = std::clamp(mark.y, screen.y, screen.y + screen.h);
     return mark;
