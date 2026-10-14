@@ -382,7 +382,9 @@ core::Status FxView::Body::grow_indices(std::uint32_t quads) {
     pattern.reserve(std::size_t{room} * 6U);
     for (std::uint32_t quad = 0; quad < room; ++quad) {
         const std::uint32_t base = quad * 4U;
-        const std::array<std::uint32_t, 6> corner{base, base + 1U, base + 2U, base, base + 2U, base + 3U};
+        // Đỉnh theo thứ tự chữ Z như fx/billboard.cpp đẩy (trên-trái, trên-phải, dưới-trái, dưới-phải). Mẫu
+        // 0 1 2, 0 2 3 của quad giao diện (đỉnh xoay vòng) chỉ phủ 75% ô: mất cái nêm bên phải của mọi sprite.
+        const std::array<std::uint32_t, 6> corner{base, base + 1U, base + 2U, base + 2U, base + 1U, base + 3U};
         pattern.insert(pattern.end(), corner.begin(), corner.end());
     }
     gpu::BufferDesc description;
