@@ -44,6 +44,7 @@
 namespace {
 
 namespace client = game::client;
+namespace core = game::core;
 namespace io = game::io;
 namespace scene = game::scene;
 namespace world = game::client::world;

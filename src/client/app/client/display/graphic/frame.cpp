@@ -93,6 +93,13 @@ void Display::steer(const Steering& input) noexcept {
     kept.walk_right = input.walk_right;
 }
 
+void Display::act(PlayAct what) noexcept {
+    const std::scoped_lock<std::mutex> locked(state_->steer_guard);
+    switch (what) {
+    case PlayAct::kJump: state_->steering.wants_jump = true; return;
+    }
+}
+
 void Display::input(std::span<const control::InputEvent> events) {
     const std::scoped_lock<std::mutex> locked(state_->steer_guard);
     std::vector<control::InputEvent>& queued = state_->queued;

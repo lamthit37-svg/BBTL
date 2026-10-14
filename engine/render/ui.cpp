@@ -45,7 +45,7 @@ constexpr std::uint32_t kTextureSpace = 1;
 constexpr std::uint32_t kImageSlot = 0;
 constexpr std::uint32_t kMaskSlot = 1;
 
-// Khớp struct Screen của ui.hlsli.
+// Khớp struct Screen của ui.inc.slang.
 struct ScreenBlock {
     // Rộng, cao của vùng vẽ; thành phần z là 1 khi ảnh của lô chứa màu đã nhân alpha, 0 khi là ảnh
     // thẳng (UiTexture::is_premultiplied).

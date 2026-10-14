@@ -1,0 +1,15 @@
+# schema 1
+# source: Public/Scene/shiji_2_monster_180.ini
+# tool: TOOLS/server/export_scene.py; sửa tay sẽ mất ở lượt xuất sau
+# types: int	int	text	text	float	float	int	int	int	int	int	int	int	int	int	int	int	int	int	int	int	int	text	int	int	int
+guid	type	name	title	position_x	position_z	direction	script_id	respawn_time	group_id	team_id	base_ai	ai_file	patrol_id	shop_0	shop_1	shop_2	shop_3	level	is_pet	script_timer	reputation_id	cshop	leader_id	is_npc	camp
+4807254	32357			22.4958	27.1706	18	-1	-1	1	-1	5	0	-1	-1	-1	-1	-1				-1				
+4807256	32357			28.9911	33.9641	27	-1	-1	1	-1	5	0	-1	-1	-1	-1	-1				-1				
+4807258	32357			36.3223	27.3700	0	-1	-1	1	-1	5	0	-1	-1	-1	-1	-1				-1				
+4807260	32357			29.1434	20.1430	9	-1	-1	1	-1	5	0	-1	-1	-1	-1	-1				-1				
+4807375	32367			29.4080	26.9331	27	-1	-1	2	-1	14	148	-1	-1	-1	-1	-1				-1				
+4807399	32357			38.9130	37.4744	27	-1	-1	1	-1	0	0	-1	-1	-1	-1	-1				-1				
+4807402	32357			33.0361	43.9056	27	-1	-1	1	-1	0	0	-1	-1	-1	-1	-1				-1				
+4807406	32357			18.3888	36.2261	27	-1	-1	1	-1	0	0	-1	-1	-1	-1	-1				-1				
+4807408	32357			22.5396	43.3798	27	-1	-1	1	-1	0	0	-1	-1	-1	-1	-1				-1				
+4807415	32357			18.7367	20.7557	27	-1	-1	1	-1	0	0	-1	-1	-1	-1	-1				-1				

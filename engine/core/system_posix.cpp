@@ -1,6 +1,7 @@
 // CPU, tải, đường dẫn exe và hệ điều hành trên POSIX. x86 không có ở đây: cờ SSE/AVX để trống,
-// require_cpu báo thiếu đúng như hợp đồng. Android đọc /proc và thuộc tính hệ thống; Apple đọc
-// sysctl và Mach. Không biên C: CpuInfo và Status là kiểu C++ dùng chung với bản Win32.
+// require_cpu báo thiếu đúng như hợp đồng. Android đọc /proc và thuộc tính hệ thống; Linux khác
+// (máy chủ) đọc /proc và uname; Apple đọc sysctl và Mach. Không biên C: CpuInfo và Status là kiểu C++ dùng chung với
+// bản Win32.
 #if !defined(_WIN32)
 
 #include "core/system.hpp"
@@ -13,7 +14,7 @@
 #include <mach-o/dyld.h>
 #include <mach/mach.h>
 #include <sys/sysctl.h>
-#else
+#elif defined(__ANDROID__)
 #include <sys/system_properties.h>
 #endif
 
@@ -118,12 +119,14 @@ struct CpuTimes {
 
 #else
 
+#if defined(__ANDROID__)
 [[nodiscard]] std::string property_of(const char* key) {
     std::array<char, PROP_VALUE_MAX> text{};
     const int length = __system_property_get(key, text.data());
     if (length <= 0) return {};
     return std::string(text.data(), static_cast<std::size_t>(length));
 }
+#endif
 
 [[nodiscard]] bool grew_link(std::string& buffer) {
     const auto room = static_cast<ssize_t>(buffer.size());
@@ -239,13 +242,19 @@ OsInfo os_info() {
         .version = version.empty() ? std::string(system.release) : version,
         .device = sysctl_text("hw.machine"),
     };
-#else
+#elif defined(__ANDROID__)
     const std::string release = property_of("ro.build.version.release");
     const std::string shown = release.empty() ? std::string(system.release) : release;
     return OsInfo{
         .name = std::string("Android ") + shown,
         .version = shown,
         .device = property_of("ro.product.model"),
+    };
+#else
+    return OsInfo{
+        .name = std::string(system.sysname) + " " + system.release,
+        .version = std::string(system.release),
+        .device = std::string(system.machine),
     };
 #endif
 }

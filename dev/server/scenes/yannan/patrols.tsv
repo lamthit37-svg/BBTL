@@ -1,0 +1,22 @@
+# schema 1
+# source: Public/Scene/yannan_patrolpoint.ini
+# tool: TOOLS/server/export_scene.py; sửa tay sẽ mất ở lượt xuất sau
+# types: int	int	float	float	float	int	text	text	int	int	text	text	text	text
+patrol_index	point_index	position_x	position_y	position_z	settle_time	point_script_id	route_script_id	turns_back	teleport_to_respawn	speech_unread	speech_1	speech_2	speech_3
+0	0	259.0374	0.0000	99.4455									
+0	1	259.0500	-17.5203	110.6431									
+0	2	251.0237	-17.6954	118.7326									
+0	3	236.4803	-17.6973	122.0435									
+0	4	220.6047	-17.6973	119.0248									
+0	5	207.6405	-17.6973	119.0857									
+0	6	199.7419	-17.6973	124.1757									
+0	7	195.9144	-17.6973	141.1679									
+0	8	194.1079	-17.6973	155.0894									
+0	9	198.1677	-17.6973	166.8880									
+0	10	189.7126	-17.6973	173.5704									
+0	11	173.5018	-17.6973	177.1862									
+0	12	156.7763	-17.6973	187.1506									
+0	13	141.2457	-17.6973	179.6416									
+0	14	125.5615	-17.6973	184.7681									
+0	15	114.8525	-17.6973	187.0513									
+0	16	99.2253	-17.6973	202.5658									

@@ -3,7 +3,7 @@
 // buffer Upload chia theo slot (cùng quy ước với Forward: slot là chỉ số ảnh swapchain vừa
 // acquire), chỉ số quad cố định dùng chung. Texture là ảnh RGBA8 đã giải mã, tải lên bằng
 // resource::upload_queued ở dạng sRGB; màu đỉnh sRGB của CEGUI được shader đổi sang tuyến tính
-// (ui.vs.hlsl) nên pha màu cho cùng kết quả với client gốc chạy trong không gian gamma, trừ chỗ
+// (ui.vs.slang) nên pha màu cho cùng kết quả với client gốc chạy trong không gian gamma, trừ chỗ
 // trộn alpha (client gốc trộn trong gamma, ở đây trộn tuyến tính).
 // Nguồn shader ở src/client/render/shaders, dịch lúc build thành gói ui.vs.f2s và
 // ui.ps.f2s cho mọi backend (Vulkan, D3D12, D3D11, GLES).

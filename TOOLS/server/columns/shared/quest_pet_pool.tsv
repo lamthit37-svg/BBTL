@@ -1,0 +1,28 @@
+# schema 1
+# source: client_2026/MissionPet_HashTable.txt
+# tool: TOOLS/server/export_tables.py; sửa tay sẽ mất ở lượt xuất sau
+# types: int	text	text	text	text
+index	original	name	type	note
+0	珍兽编号	pet_id	int	neo: cột gốc 0, khớp 100.0% (262/262 id); luật: nguyên văn
+1	珍兽名称$1$	pet_name	text	neo: cột gốc 1, khớp 100.0% (262/262 id); luật: nguyên văn
+2	珍兽描述$1$	pet_description	text	neo: cột gốc 2, khớp 100.0% (262/262 id); luật: nguyên văn
+3	珍兽出现几率	pet_spawn_rate_1	int	neo: cột gốc 3, khớp 100.0% (262/262 id); luật: nguyên văn
+4	珍兽出现几率	pet_spawn_rate_2	int	nội suy: cột gốc 4, khớp 100.0% (262/262 id); luật: nguyên văn
+5	珍兽出现几率	pet_spawn_rate_3	int	nội suy: cột gốc 5, khớp 100.0% (262/262 id); luật: nguyên văn
+6	珍兽出现几率	pet_spawn_rate_4	int	nội suy: cột gốc 6, khớp 100.0% (262/262 id); luật: nguyên văn
+7	珍兽出现几率	pet_spawn_rate_5	int	nội suy: cột gốc 7, khớp 100.0% (262/262 id); luật: nguyên văn
+8	珍兽出现几率	pet_spawn_rate_6	int	neo: cột gốc 8, khớp 100.0% (262/262 id); luật: nguyên văn
+9	珍兽出现几率	pet_spawn_rate_7	int	nội suy: cột gốc 9, khớp 100.0% (262/262 id); luật: nguyên văn
+10	珍兽出现几率	pet_spawn_rate_8	int	nội suy: cột gốc 10, khớp 100.0% (262/262 id); luật: nguyên văn
+11	珍兽出现几率	pet_spawn_rate_9	int	nội suy: cột gốc 11, khớp 100.0% (262/262 id); luật: nguyên văn
+12	珍兽出现几率	pet_spawn_rate_10	int	nội suy: cột gốc 12, khớp 100.0% (262/262 id); luật: nguyên văn
+13	珍兽出现几率	pet_spawn_rate_11	int	nội suy: cột gốc 13, khớp 100.0% (262/262 id); luật: nguyên văn
+14	珍兽出现几率	pet_spawn_rate_12	int	nội suy: cột gốc 14, khớp 100.0% (262/262 id); luật: nguyên văn
+15	珍兽出现几率	pet_spawn_rate_13	int	nội suy: cột gốc 15, khớp 100.0% (262/262 id); luật: nguyên văn
+16	珍兽出现几率	pet_spawn_rate_14	int	neo: cột gốc 16, khớp 100.0% (262/262 id); luật: nguyên văn
+17		column_17	int	mới ở 2026
+18		column_18	int	mới ở 2026
+19		column_19	int	mới ở 2026
+20		column_20	int	mới ở 2026
+21		column_21	int	mới ở 2026
+22		column_22	int	mới ở 2026

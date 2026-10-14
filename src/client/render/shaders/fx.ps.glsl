@@ -1,4 +1,4 @@
-// Cùng công thức với fx.ps.hlsl. Cộng sáng: rgb đã nhân alpha.
+// Cùng công thức với fx.ps.slang. Cộng sáng: rgb đã nhân alpha.
 layout(binding = 0) uniform sampler2D fx_map;
 
 layout(location = 0) in vec2 varying_uv;

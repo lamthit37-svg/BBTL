@@ -1,0 +1,15 @@
+# schema 1
+# source: Public/Scene/wushendong_monster_100.ini
+# tool: TOOLS/server/export_scene.py; sửa tay sẽ mất ở lượt xuất sau
+# types: int	int	text	text	float	float	int	int	int	int	int	int	int	int	int	int	int	int	int	int	int	int	text	int	int	int
+guid	type	name	title	position_x	position_z	direction	script_id	respawn_time	group_id	team_id	base_ai	ai_file	patrol_id	shop_0	shop_1	shop_2	shop_3	level	is_pet	script_timer	reputation_id	cshop	leader_id	is_npc	camp
+8623294	1559			16.4296	19.4812	27	-1	-1	-1	-1	0	-1	-1	-1	-1	-1	-1								
+8623296	1559			20.1245	23.2240	27	-1	-1	-1	-1	0	-1	-1	-1	-1	-1	-1								
+8624909	1559			30.9382	16.3479	27	-1	-1	-1	-1	0	-1	-1	-1	-1	-1	-1								
+8624915	1559			47.0075	18.3551	27	-1	-1	-1	-1	0	-1	-1	-1	-1	-1	-1								
+8624921	1559			41.9260	21.8645	27	-1	-1	-1	-1	0	-1	-1	-1	-1	-1	-1								
+8624952	1559			44.1299	47.4477	27	-1	-1	-1	-1	0	-1	-1	-1	-1	-1	-1								
+8625005	1559			45.2287	31.8207	27	-1	-1	-1	-1	0	-1	-1	-1	-1	-1	-1								
+8625008	1559			47.1197	44.1038	27	-1	-1	-1	-1	0	-1	-1	-1	-1	-1	-1								
+8625025	1559			36.7616	37.9333	27	-1	-1	-1	-1	0	-1	-1	-1	-1	-1	-1								
+4718243	1559			27.4880	34.9280	27	-1	-1	-1	-1	0	0	-1	-1	-1	-1	-1								

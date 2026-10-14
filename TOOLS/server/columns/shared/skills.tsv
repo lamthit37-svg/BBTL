@@ -1,0 +1,107 @@
+# schema 1
+# source: client_2026/SkillTemplate_V1.txt
+# tool: TOOLS/server/export_tables.py; sửa tay sẽ mất ở lượt xuất sau
+# types: int	text	text	text	text
+index	original	name	type	note
+0	ID,(技能系的ID)	skill_id	int	neo: cột gốc 0, khớp 100.0% (810/810 id); luật: nguyên văn
+1	门派	sect	int	neo: cột gốc 2, khớp 100.0% (810/810 id); luật: nguyên văn
+2	技能名字$1$	skill_name	text	neo: cột gốc 3, khớp 98.8% (800/810 id); luật: nguyên văn
+3	图标名字	icon_name	text	neo: cột gốc 4, khớp 99.3% (804/810 id); luật: nguyên văn
+4	技能的心法等级限制	inner_art_level_limit	int	neo: cột gốc 5, khớp 100.0% (810/810 id); luật: nguyên văn
+5	招式类型	move_type	int	neo: cột gốc 6, khớp 100.0% (810/810 id); luật: nguyên văn
+6	需要拿武器	must_use_weapon	int	nội suy: cột gốc 7, khớp 100.0% (810/810 id); luật: nguyên văn
+7	受限于控制1	disabled_by_control_1	int	nội suy: cột gốc 8, khớp 99.8% (808/810 id); luật: nguyên văn
+8	受限于控制2	disabled_by_control_2	int	nội suy: cột gốc 9, khớp 99.9% (809/810 id); luật: nguyên văn
+9	受限于骑乘/变身	disabled_by_transform	int	nội suy: cột gốc 10, khớp 100.0% (810/810 id); luật: nguyên văn
+10	心法ID	inner_art_id	int	neo: cột gốc 11, khớp 100.0% (810/810 id); luật: nguyên văn
+11		column_11	int	mới ở 2026
+12	技能类型	skill_type	int	neo: cột gốc 15, khớp 99.4% (805/810 id); luật: nguyên văn
+13	冷却ID	cooldown_id	int	neo: cột gốc 16, khớp 99.8% (808/810 id); luật: nguyên văn
+14	起手特效	cast_effect	text	neo: cột gốc 17, khớp 99.6% (807/810 id); luật: nguyên văn
+15	起手特效绑定点	cast_effect_anchor	text	nội suy: cột gốc 18, khớp 99.6% (807/810 id); luật: nguyên văn
+16	起手音xiao	column_16	text	nội suy: cột gốc 19, khớp 100.0% (810/810 id); ? chưa có tên tiếng Anh
+17	引导/聚气动作组ID 序列	channel_action_ids	text	neo: cột gốc 20, khớp 98.9% (801/810 id); luật: nguyên văn
+18	发招动作组ID序列	cast_action_ids	text	neo: cột gốc 21, khớp 97.0% (786/810 id); luật: nguyên văn
+19		column_19	int	mới ở 2026
+20	技能类型按使用者划分	user_class	int	neo: cột gốc 24, khớp 99.9% (809/810 id); luật: nguyên văn
+21	主动技能还是被动技能	is_passive	int	nội suy: cột gốc 25, khớp 100.0% (810/810 id); luật: nguyên văn
+22	鼠标点选操作类型	select_type	int	neo: cột gốc 26, khớp 99.3% (804/810 id); luật: nguyên văn
+23	珍兽技能发动类型 0:主人手动点选,1:AI自动执行,2:增强自身属性的被动技能	pet_skill_operate_mode	int	neo: cột gốc 27, khớp 100.0% (810/810 id); luật: nguyên văn
+24	技能发动几率,只对珍兽技能有效	pet_skill_rate	int	neo: cột gốc 28, khớp 100.0% (810/810 id); luật: nguyên văn
+25	珍兽技能类型,0:物功,1:法功,2:护主,3:防御,4:复仇;	pet_skill_type	int	neo: cột gốc 29, khớp 100.0% (810/810 id); luật: nguyên văn
+26	珍兽技能产生的效果ID	pet_skill_effect_id	int	nội suy: cột gốc 30, khớp 100.0% (810/810 id); luật: nguyên văn
+27	技能组ID	skill_group_id	int	neo: cột gốc 31, khớp 100.0% (810/810 id); luật: nguyên văn
+28	技能组等级	skill_group_level	int	neo: cột gốc 32, khớp 100.0% (810/810 id); luật: nguyên văn
+29	是否直接学会	learned_directly	int	neo: cột gốc 33, khớp 100.0% (810/810 id); luật: nguyên văn
+30	使用前是否需要学会	must_learn_before_use	int	neo: cột gốc 34, khớp 100.0% (810/810 id); luật: nguyên văn
+31	子弹ID	bullet_id	int	neo: cột gốc 35, khớp 98.5% (798/810 id); luật: nguyên văn
+32	子弹发射点	bullet_spawn_point	text	neo: cột gốc 36, khớp 99.5% (806/810 id); luật: nguyên văn
+33	目标选择逻辑	targeting_logic	int	neo: cột gốc 38, khớp 98.9% (801/810 id); luật: nguyên văn
+34	动作时间(ms)	action_time_ms	int	neo: cột gốc 39, khớp 98.8% (800/810 id); luật: nguyên văn
+35	最大射程(m)	max_range_m	float	neo: cột gốc 41, khớp 99.0% (802/810 id); luật: nguyên văn
+36	技能友好度,=0为中性技能,>0为正面技能,<0为 负面技能	friendliness	int	neo: cột gốc 42, khớp 99.4% (805/810 id); luật: nguyên văn
+37	目标和使用者阵营关系	target_stand	int	neo: cột gốc 43, khớp 99.4% (805/810 id); luật: nguyên văn
+38	目标类型	target_type	int	neo: cột gốc 44, khớp 98.9% (801/810 id); luật: nguyên văn
+39		column_39	int	mới ở 2026
+40		column_40	int	mới ở 2026
+41		column_41	int	mới ở 2026
+42		column_42	int	mới ở 2026
+43	范围半径	radius	float	neo: cột gốc 52, khớp 99.4% (805/810 id); luật: nguyên văn
+44	范围搜索的目标个数	max_target_count	int	neo: cột gốc 54, khớp 99.3% (804/810 id); luật: nguyên văn
+45	中断或激活珍兽攻击	interrupt_pet_attack	int	neo: cột gốc 55, khớp 99.6% (807/810 id); luật: nguyên văn
+46	中断或激活自动释放技能	interrupt_auto_shot	int	neo: cột gốc 56, khớp 99.9% (809/810 id); luật: nguyên văn
+47	延迟时间	delay_time	int	neo: cột gốc 57, khớp 97.3% (788/810 id); luật: nguyên văn
+48	心法1级对应的实际技能ID	skill_id_at_inner_art_level_1	int	neo: cột gốc 58, khớp 97.9% (793/810 id); luật: nguyên văn
+49	心法2级对应的实际技能ID	skill_id_at_inner_art_level_2	int	neo: cột gốc 59, khớp 97.9% (793/810 id); luật: nguyên văn
+50	心法3级对应的实际技能ID	skill_id_at_inner_art_level_3	int	neo: cột gốc 60, khớp 97.9% (793/810 id); luật: nguyên văn
+51	心法4级对应的实际技能ID	skill_id_at_inner_art_level_4	int	neo: cột gốc 61, khớp 97.9% (793/810 id); luật: nguyên văn
+52	心法5级对应的实际技能ID	skill_id_at_inner_art_level_5	int	neo: cột gốc 62, khớp 97.9% (793/810 id); luật: nguyên văn
+53	心法6级对应的实际技能ID	skill_id_at_inner_art_level_6	int	neo: cột gốc 63, khớp 97.9% (793/810 id); luật: nguyên văn
+54	心法7级对应的实际技能ID	skill_id_at_inner_art_level_7	int	neo: cột gốc 64, khớp 97.9% (793/810 id); luật: nguyên văn
+55	心法8级对应的实际技能ID	skill_id_at_inner_art_level_8	int	neo: cột gốc 65, khớp 97.9% (793/810 id); luật: nguyên văn
+56	心法9级对应的实际技能ID	skill_id_at_inner_art_level_9	int	neo: cột gốc 66, khớp 97.9% (793/810 id); luật: nguyên văn
+57	心法10级对应的实际技能ID	skill_id_at_inner_art_level_10	int	neo: cột gốc 67, khớp 97.9% (793/810 id); luật: nguyên văn
+58	心法11级对应的实际技能ID	skill_id_at_inner_art_level_11	int	neo: cột gốc 68, khớp 97.9% (793/810 id); luật: nguyên văn
+59	心法12级对应的实际技能ID	skill_id_at_inner_art_level_12	int	neo: cột gốc 69, khớp 97.9% (793/810 id); luật: nguyên văn
+60	心法13级对应的实际技能ID	skill_id_at_inner_art_level_13	int	neo: cột gốc 70, khớp 97.9% (793/810 id); luật: nguyên văn
+61	心法14级对应的实际技能ID	skill_id_at_inner_art_level_14	int	neo: cột gốc 71, khớp 97.9% (793/810 id); luật: nguyên văn
+62	心法15级对应的实际技能ID	skill_id_at_inner_art_level_15	int	neo: cột gốc 72, khớp 97.9% (793/810 id); luật: nguyên văn
+63	心法16级对应的实际技能ID	skill_id_at_inner_art_level_16	int	neo: cột gốc 73, khớp 97.9% (793/810 id); luật: nguyên văn
+64		column_64	int	mới ở 2026
+65		column_65	int	mới ở 2026
+66		column_66	int	mới ở 2026
+67		column_67	int	mới ở 2026
+68		column_68	int	mới ở 2026
+69		column_69	int	mới ở 2026
+70		column_70	int	mới ở 2026
+71		column_71	int	mới ở 2026
+72		column_72	int	mới ở 2026
+73		column_73	int	mới ở 2026
+74		column_74	int	mới ở 2026
+75		column_75	int	mới ở 2026
+76		column_76	int	mới ở 2026
+77		column_77	int	mới ở 2026
+78		column_78	int	mới ở 2026
+79	技能描述$1$	skill_description	text	neo: cột gốc 74, khớp 95.1% (770/810 id); luật: nguyên văn
+80	是否显示打击名	show_hit_name	int	nội suy: cột gốc 75, khớp 100.0% (810/810 id); luật: nguyên văn
+81	干扰时间百分比	disrupt_time_percent	float	neo: cột gốc 76, khớp 99.4% (805/810 id); luật: nguyên văn
+82		column_82	int	mới ở 2026
+83		column_83	int	mới ở 2026
+84		column_84	int	mới ở 2026
+85		column_85	int	mới ở 2026
+86		column_86	int	mới ở 2026
+87		column_87	int	mới ở 2026
+88		column_88	int	mới ở 2026
+89	策划专用ID	designer_id	int	chéo: cột gốc 1, khớp 100.0% (810/810 id); luật: nguyên văn
+90	是否是远程技能	is_ranged	int	chéo: cột gốc 13, khớp 100.0% (810/810 id); luật: nguyên văn
+91		column_91	int	mới ở 2026
+92		column_92	int	mới ở 2026
+93		column_93	int	mới ở 2026
+94		column_94	float	mới ở 2026
+95		column_95	int	mới ở 2026
+96		column_96	int	mới ở 2026
+97	命中率	accuracy	int	chéo: cột gốc 48, khớp 100.0% (810/810 id); luật: nguyên văn
+98		column_98	float	mới ở 2026
+99	干扰几率	disrupt_chance	int	neo: cột gốc 77, khớp 99.5% (806/810 id); luật: nguyên văn
+100		column_100	int	mới ở 2026
+101		column_101	int	mới ở 2026

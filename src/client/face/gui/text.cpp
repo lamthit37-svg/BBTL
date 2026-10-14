@@ -155,7 +155,8 @@ void catalog_texts(const Ctx& ctx, const Placed& self) {
         if (name == nullptr || item.text.empty()) continue;
         const Box area = shift(area_box(ctx, button, name->area, button.screen), button.screen);
         const FormatValue horz{.name = last_prop(*ctx.asset, name->properties, "HorzFormatting"), .fixed = 0};
-        const FormatValue vert{.name = last_prop(*ctx.asset, name->properties, "VertFormatting"), .fixed = kCentredVert};
+        const FormatValue vert{
+            .name = last_prop(*ctx.asset, name->properties, "VertFormatting"), .fixed = kCentredVert};
         TextRun run;
         run.text = item.text;
         run.box = area;
@@ -241,4 +242,3 @@ void texts_of(const Ctx& ctx, const Placed& self) {
 }
 
 } // namespace game::gui::detail
-

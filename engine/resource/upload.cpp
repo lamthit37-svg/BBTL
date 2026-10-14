@@ -525,8 +525,8 @@ constexpr std::uint32_t kModelAnisotropy = 16;
     desc.address_v = to_address(source.wrap_v);
     desc.address_w = desc.address_v;
     desc.max_lod = source.has_mip ? source.max_lod : 0.0F;
-    // Lọc bất đẳng hướng: mặt đất và tường nhìn xiên (camera game nghiêng) không nhoè đi như lọc tam tuyến thường. Thiết bị
-    // kẹp theo DeviceCaps::max_anisotropy; điểm gần nhất thì không áp dụng.
+    // Lọc bất đẳng hướng: mặt đất và tường nhìn xiên (camera game nghiêng) không nhoè đi như lọc tam tuyến thường.
+    // Thiết bị kẹp theo DeviceCaps::max_anisotropy; điểm gần nhất thì không áp dụng.
     const bool is_smooth = source.min == Filter::kLinear && source.mag == Filter::kLinear && source.has_mip;
     desc.max_anisotropy = is_smooth ? kModelAnisotropy : 1U;
     return device.create_sampler(desc);
@@ -665,8 +665,8 @@ void write_blocked_row(std::byte* dest, std::span<const std::byte> source, std::
     for (std::uint32_t index = 0; index < rows; ++index) {
         const bool last = index + 1 == rows;
         const std::uint64_t cursor = pitch * index;
-        const std::span<const std::byte> source = tight.subspan(static_cast<std::size_t>(row * index),
-            static_cast<std::size_t>(row));
+        const std::span<const std::byte> source =
+            tight.subspan(static_cast<std::size_t>(row * index), static_cast<std::size_t>(row));
         write_blocked_row(staged.bytes.data() + offset + cursor, source, pitch, !last);
     }
     StagedMip mip;
@@ -901,8 +901,9 @@ void build_level(const MipJob& job) noexcept {
     }
 }
 
-// Hạ mức một nửa; đệm của mức đích được giữ lại giữa các vòng nên chỉ cấp phát một lần.
-void downsample_into(Source source, Level& dest, bool as_srgb) noexcept {
+// Hạ mức một nửa; đệm của mức đích được giữ lại giữa các vòng nên chỉ cấp phát một lần. Không
+// noexcept: resize có thể ném std::bad_alloc, để nó lan lên như append_level thay vì std::terminate.
+void downsample_into(Source source, Level& dest, bool as_srgb) {
     dest.width = std::max(source.width / 2, 1U);
     dest.height = std::max(source.height / 2, 1U);
     dest.rgba.resize(static_cast<std::size_t>(dest.width) * dest.height * 4);
@@ -1085,4 +1086,3 @@ core::Result<Uploaded> upload_queued(gpu::Device& device, const Model& model, Ba
 }
 
 } // namespace game::resource
-

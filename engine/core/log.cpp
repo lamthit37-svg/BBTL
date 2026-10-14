@@ -323,8 +323,7 @@ void append_time(std::string& line) {
 
 void append_number(std::string& line, std::uint32_t value) {
     std::array<char, 10> digits{};
-    const auto result =
-        std::to_chars(std::to_address(digits.begin()), std::to_address(digits.end()), value);
+    const auto result = std::to_chars(std::to_address(digits.begin()), std::to_address(digits.end()), value);
     line.append(digits.data(), result.ptr);
 }
 
@@ -350,8 +349,8 @@ void cut_long(std::string& line) {
     line.append(kCutMarker);
 }
 
-void compose(std::string& line, Level level, const std::source_location& where,
-    std::string_view format, std::format_args args) {
+void compose(std::string& line, Level level, const std::source_location& where, std::string_view format,
+    std::format_args args) {
     line.clear();
     const bool plain = level == Level::kRaw;
     if (!plain) append_prefix(line, level, where);
@@ -437,8 +436,7 @@ struct Attempt {
     // dòng bị bỏ oan. head cũ thì CAS hỏng và nạp head mới.
     const bool full = head >= tail && head - tail + total > kRingBytes;
     if (full && !keep) return {.claim = Claim::kDropped};
-    const bool claimed = !full &&
-        shared_ring.head.compare_exchange_weak(head, head + total, std::memory_order_relaxed);
+    const bool claimed = !full && shared_ring.head.compare_exchange_weak(head, head + total, std::memory_order_relaxed);
     const bool wraps = claimed && total > need;
     if (wraps) return {.claim = Claim::kTaken, .position = skip_to_start(head, total - need)};
     if (claimed) return {.claim = Claim::kTaken, .position = head};
@@ -551,8 +549,7 @@ void report_dropped(Hub& shared) {
     if (count == 0) return;
     std::string line;
     const auto here = std::source_location::current();
-    compose(line, Level::kWarning, here, "đã bỏ {} dòng log vì vòng đệm đầy",
-        std::make_format_args(count));
+    compose(line, Level::kWarning, here, "đã bỏ {} dòng log vì vòng đệm đầy", std::make_format_args(count));
     deliver(shared, Level::kWarning, line);
 }
 
@@ -771,8 +768,7 @@ LevelMask log_levels() noexcept {
 
 // noexcept chủ ý (xem log.hpp): formatter ném hay hết bộ nhớ thì std::terminate (LH-07).
 // NOLINTNEXTLINE(bugprone-exception-escape)
-void emit(Level level, std::source_location where, std::string_view format,
-    std::format_args args) noexcept {
+void emit(Level level, std::source_location where, std::string_view format, std::format_args args) noexcept {
     Hub& shared = hub();
     if ((shared.levels.load() & mask(level)) == 0) return;
     if (writing()) {

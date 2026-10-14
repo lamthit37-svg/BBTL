@@ -3,7 +3,8 @@
 # .GridInfo, lightmap...), Brushes/<ảnh nền địa hình>, Model/<mesh>.mesh.glb và Material/<ảnh>.
 # Đi theo chuỗi phụ thuộc: .Scene -> tên mesh của StaticEntity và TerrainLiquid, .model của Model
 # -> GLB -> URI ảnh; .Scene -> .Terrain -> heightmap, gridInfo, lightmap, colorMap, ảnh nền;
-# .Scene -> tệp .skysphere của phần tử SkySphere (ánh sáng theo giờ).
+# .Scene -> tệp .skysphere của phần tử SkySphere (ánh sáng theo giờ); bảng cảnh -> lưới đi .path và
+# mặt công trình .WCollision (tùy chọn: nhiều cảnh không có).
 # Quyết định:
 # - Tên mesh tra đúng đường dẫn dưới Model/ trước; không thấy thì tra theo tên tệp trong cả cây và
 #   chỉ nhận khi đúng một tệp khớp. Thứ không tìm được ghi vào danh sách thiếu, không dừng.
@@ -32,6 +33,7 @@ CONFIG_FOLDER = "Config"
 SCENE_TABLE = "SceneDefineEx.txt"
 # Cột của bảng cảnh: tên tệp .Scene và token ảnh minimap.
 SCENE_FILE_COLUMN = 4
+PATH_COLUMN = 5
 RADAR_COLUMN = 10
 MESH_OWNERS = {"StaticEntity": "mesh name", "TerrainLiquid": "mesh name"}
 JSON_CHUNK = 0x4E4F534A
@@ -57,6 +59,14 @@ class Collector:
             return True
         self.missing.append((kind, relative))
         return False
+
+    # Như want nhưng thiếu tệp không phải lỗi: dành cho tệp mà nhiều cảnh không có.
+    def want_if_present(self, kind: str, source_root: str, relative: str) -> bool:
+        relative = os.path.normpath(relative)
+        if not os.path.isfile(os.path.join(source_root, relative)):
+            return False
+        self.files[relative] = (kind, source_root)
+        return True
 
     def index_models(self) -> dict:
         if self.model_index is None:
@@ -154,8 +164,8 @@ def collect_scene(collector: Collector, scene: str) -> Counter:
     return types
 
 
-# Token ảnh minimap của cảnh có tệp <scene>.Scene, đọc từ bảng cảnh đã gom; None khi không có.
-def radar_token(target: str, scene: str) -> str | None:
+# Các ô của dòng bảng cảnh có tệp <scene>.Scene, đọc từ bảng đã gom; None khi bảng hay dòng không có.
+def scene_cells(target: str, scene: str) -> list[str] | None:
     table = os.path.join(target, CONFIG_FOLDER, SCENE_TABLE)
     if not os.path.isfile(table):
         return None
@@ -164,8 +174,31 @@ def radar_token(target: str, scene: str) -> str | None:
         for line in stream:
             cells = line.rstrip("\r\n").split("\t")
             if len(cells) > RADAR_COLUMN and cells[SCENE_FILE_COLUMN].lower() == wanted:
-                return cells[RADAR_COLUMN] or None
+                return cells
     return None
+
+
+# Token ảnh minimap của cảnh có tệp <scene>.Scene; None khi không có.
+def radar_token(target: str, scene: str) -> str | None:
+    cells = scene_cells(target, scene)
+    if cells is None:
+        return None
+    return cells[RADAR_COLUMN] or None
+
+
+# Lưới đi (.path) và mặt công trình (.WCollision) của cảnh: client mở đúng hai tên này cạnh tệp cảnh
+# (world.cpp: tên .path ghi ở bảng cảnh, tên .WCollision là tên cảnh đổi đuôi). Nhiều cảnh không có
+# hai tệp ấy ở kho gốc, nên thiếu chỉ là ghi chú; thiếu lưới đi thì nhân vật đi xuyên mọi vật cản.
+def collect_walk(collector: Collector, scene: str) -> None:
+    cells = scene_cells(collector.target, scene)
+    path_name = cells[PATH_COLUMN] if cells is not None and len(cells) > PATH_COLUMN else ""
+    if not path_name:
+        collector.notes.append(f"bảng cảnh không nêu tên tệp .path của {scene}: không gom lưới đi")
+    wanted = [("walk", os.path.join(SCENE_FOLDER, path_name))] if path_name else []
+    wanted.append(("collision", os.path.join(SCENE_FOLDER, scene + ".WCollision")))
+    for kind, relative in wanted:
+        if not collector.want_if_present(kind, collector.raw_root, relative):
+            collector.notes.append(f"kho gốc không có {relative.replace(os.sep, '/')}")
 
 
 # Đổi một ô ảnh DDS sang PNG; ô đích mới hơn nguồn thì giữ.
@@ -230,6 +263,7 @@ def main() -> int:
     scene = sys.argv[4]
     collector = Collector(raw_root, glb_root, target)
     types = collect_scene(collector, scene)
+    collect_walk(collector, scene)
     collect_radar(collector, scene)
     sizes = copy_files(collector)
     write_list(collector, scene)

@@ -1,0 +1,15 @@
+# schema 1
+# source: Public/Scene/lingxingfeng_2_patrolpoint.ini
+# tool: TOOLS/server/export_scene.py; sửa tay sẽ mất ở lượt xuất sau
+# types: int	int	float	float	float	int	text	text	int	int	text	text	text	text
+patrol_index	point_index	position_x	position_y	position_z	settle_time	point_script_id	route_script_id	turns_back	teleport_to_respawn	speech_unread	speech_1	speech_2	speech_3
+0	0	21.1561	2796.3162	11.1964									
+0	1	28.4240	2655.2981	12.3634									
+0	2	33.3928	2541.4912	16.4843									
+0	3	34.9742	2285.9041	22.3836									
+0	4	33.9459	2102.7412	27.1990									
+0	5	33.1121	1984.1459	31.9935									
+0	6	32.9476	1940.2075	35.0615									
+0	7	33.1057	1931.3276	38.8094									
+0	8	35.0950	1836.7970	47.2867									
+0	9	40.6514	1855.4934	51.5778	10000								

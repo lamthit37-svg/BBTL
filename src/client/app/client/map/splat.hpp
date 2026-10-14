@@ -1,9 +1,9 @@
-// Ba ảnh nhỏ mà GPU ráp thành mặt đất lớp cọ (terrain.ps.hlsl), thay ảnh mặt đất nướng sẵn trên CPU: mọi ảnh
+// Ba ảnh nhỏ mà GPU ráp thành mặt đất lớp cọ (terrain.ps.slang), thay ảnh mặt đất nướng sẵn trên CPU: mọi ảnh
 // cọ ghép một tấm atlas, một texel mỗi ô ghi pixmap nền/phủ và hướng, và một bảng tra (bốn góc theo
 // orientation; hộp pixmap và phép đổi sang atlas). Bản đồ 512 x 512 ô chỉ cần ~1 MB thay vì 340 MB, dựng
 // trong vài chục ms thay vì 2,7 s, và hoạ tiết được lọc bất đẳng hướng trên chính ảnh cọ nên nét ở mọi khoảng cách.
 // Góc pixmap chép từ Terrain::_getPixmapCorner của client 2026: orientation là các bit lật/xoay, cờ lật
-// đường chéo chọn nửa bảng. Bố cục từng texel khớp chú thích đầu terrain.ps.hlsl.
+// đường chéo chọn nửa bảng. Bố cục từng texel khớp chú thích đầu terrain.ps.slang.
 #pragma once
 
 #include "client/map/picture.hpp"
@@ -16,7 +16,7 @@
 
 namespace game::client::map {
 
-// Số texel mỗi hàng của bảng tra; khớp kTableWidth trong terrain.ps.hlsl và terrain.ps.glsl.
+// Số texel mỗi hàng của bảng tra; khớp kTableWidth trong terrain.ps.slang và terrain.ps.glsl.
 inline constexpr std::uint32_t kSplatTableWidth = 1024;
 
 // Pixmap có 10 bit trong texel ô: id lớn hơn con số này bị bỏ.

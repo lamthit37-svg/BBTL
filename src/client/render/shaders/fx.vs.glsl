@@ -1,4 +1,4 @@
-// Cùng công thức với fx.vs.hlsl. Push là 4 uvec4, mỗi cái một cột của view-projection.
+// Cùng công thức với fx.vs.slang. Push là 4 uvec4, mỗi cái một cột của view-projection.
 uniform highp uvec4 tl_push[4];
 
 layout(location = 0) in vec3 position;

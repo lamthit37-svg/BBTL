@@ -28,8 +28,6 @@ using gate::Drop;
 using gate::Handle;
 using gate::Limits;
 using gate::Table;
-using metrics::Counter;
-using metrics::Gauge;
 using secure::ByteView;
 
 constexpr net::Ipv4 kOne{10, 0, 0, 1};
@@ -292,105 +290,13 @@ void idle_times_out(Context& context) {
     context.expect(counted || told, "im lặng thì báo đóng");
 }
 
-// Ba lý do từ chối lúc nhận tăng đúng bộ đếm của mình, mỗi lần từ chối một đơn vị. Trước khi bảng
-// ghi vào kho số đo, cả ba đều ra 0: kết nối bị từ chối chưa có ô nên không đi qua release.
-void admit_refusals_are_counted(Context& context) {
-    constexpr std::uint8_t kExtra = 5;
-    const secure::Identity identity = make_identity();
-    const auto full = std::make_unique<metrics::Registry>();
-    Table packed{small_limits(), {}, {}, gate::Backing{.identity = identity, .registry = *full}};
-    const bool is_packed = packed.admit(kOne, kNow).code == AdmitCode::kOk && packed.admit(kTwo, kNow).code == AdmitCode::kOk;
-    context.expect(is_packed, "lấp đầy bảng hai ô");
-    for (std::uint8_t last = 0; last < kExtra; ++last) {
-        context.expect(packed.admit(net::Ipv4{10, 0, 1, last}, kNow).code == AdmitCode::kFull, "bảng đầy thì từ chối");
-    }
-    context.expect(packed.drops(Drop::kFull) == kExtra, "đếm đủ số lần từ chối vì đầy");
-    context.expect(full->read(Counter::kGateDropFull) == kExtra, "kho số đo thấy cùng con số");
-    context.expect(full->read(Counter::kGateAdmitOk) == 2, "hai kết nối được nhận");
-    context.expect(packed.drops(Drop::kPerIp) == 0 && packed.drops(Drop::kDenied) == 0, "hai lý do kia không đổi");
-
-    const auto crowded = std::make_unique<metrics::Registry>();
-    Limits wide = small_limits();
-    wide.max_connections = 16;
-    Table shared{wide, {}, {}, gate::Backing{.identity = identity, .registry = *crowded}};
-    context.expect(shared.admit(kOne, kNow).code == AdmitCode::kOk, "địa chỉ được một kết nối");
-    for (std::uint8_t round = 0; round < kExtra; ++round) {
-        context.expect(shared.admit(kOne, kNow).code == AdmitCode::kPerIp, "quá trần của một địa chỉ");
-    }
-    context.expect(shared.drops(Drop::kPerIp) == kExtra, "đếm đủ số lần từ chối theo địa chỉ");
-    context.expect(shared.drops(Drop::kFull) == 0 && shared.drops(Drop::kDenied) == 0, "hai lý do kia không đổi");
-
-    const auto barred = std::make_unique<metrics::Registry>();
-    const Cidr deny = gate::parse_cidr("10.0.0.0/8").value_or(Cidr{});
-    Table closed{wide, {}, std::vector<Cidr>{deny}, gate::Backing{.identity = identity, .registry = *barred}};
-    for (std::uint8_t round = 0; round < kExtra; ++round) {
-        context.expect(closed.admit(kOne, kNow).code == AdmitCode::kDenied, "địa chỉ trong dải chặn");
-    }
-    context.expect(closed.drops(Drop::kDenied) == kExtra, "đếm đủ số lần từ chối vì bị chặn");
-    context.expect(barred->read(Counter::kGateAdmitOk) == 0, "không kết nối nào được nhận");
-}
-
-// Lý do ngắt xảy ra sau khi kết nối đã được nhận: mọi lý do trừ ba lý do từ chối lúc nhận.
-[[nodiscard]] bool is_after_admit(Drop reason) noexcept {
-    return reason != Drop::kFull && reason != Drop::kPerIp && reason != Drop::kDenied;
-}
-
-[[nodiscard]] std::uint64_t dropped_after_admit(const Table& table) noexcept {
-    std::uint64_t sum = 0;
-    for (std::uint8_t reason = 1; reason < std::to_underlying(Drop::kCount); ++reason) {
-        if (is_after_admit(Drop{reason})) sum += table.drops(Drop{reason});
-    }
-    return sum;
-}
-
-// Hai đẳng thức của sổ: kết nối được nhận thì hoặc còn sống hoặc nằm trong đúng một bộ đếm ngắt; lần
-// nhận nào cũng hoặc thành công hoặc nằm trong một trong ba bộ đếm từ chối.
-void counters_balance_after_mixed_run(Context& context) {
-    const secure::Identity identity = make_identity();
-    Limits limits = small_limits();
-    limits.max_connections = 3;
-    limits.per_ip = 2;
-    Linked linked = connected(identity, limits);
-    const metrics::Registry& registry = *linked.registry;
-    context.expect(linked.table.admit(kOne, kNow).code == AdmitCode::kOk, "kết nối thứ hai của cùng địa chỉ");
-    context.expect(linked.table.admit(kOne, kNow).code == AdmitCode::kPerIp, "kết nối thứ ba của địa chỉ bị từ chối");
-    context.expect(linked.table.admit(kTwo, kNow).code == AdmitCode::kOk, "địa chỉ khác lấp đầy bảng");
-    context.expect(linked.table.admit(kTwo, kNow).code == AdmitCode::kFull, "bảng đầy");
-    const auto balanced = [&] {
-        const std::uint64_t admitted = registry.read(Counter::kGateAdmitOk);
-        const std::uint64_t refused = linked.table.drops(Drop::kFull) + linked.table.drops(Drop::kPerIp) + linked.table.drops(Drop::kDenied);
-        return admitted == dropped_after_admit(linked.table) + linked.table.live() && admitted + refused == 5;
-    };
-    context.expect(balanced(), "sổ cân khi ba kết nối còn sống");
-    linked.table.advance(kNow);
-    context.expect(registry.read(Gauge::kGateLive) == 3, "mức đo số kết nối sống");
-    context.expect(registry.read(Gauge::kGateListening) == 0, "bảng đầy thì mức đo nghe bằng 0");
-    context.expect(registry.read(Gauge::kGateHandshakePerTick) == 1, "một lần bắt tay từ lúc dựng bảng");
-    linked.table.advance(kNow + limits.handshake_ns);
-    context.expect(linked.table.drops(Drop::kHandshake) == 2, "hai kết nối chưa bắt tay bị ngắt");
-    context.expect(registry.read(Gauge::kGateHandshakePerTick) == 0, "tick không có bắt tay thì mức đo về 0");
-    context.expect(balanced(), "sổ cân sau khi hết hạn bắt tay");
-    send_hello(linked, 1);
-    std::vector<std::byte> frame;
-    core::check(protocol::encode(frame, protocol::Logout{}).has_value(), "mã hoá Logout");
-    send_bytes(linked, frame, kNow);
-    drain(linked);
-    context.expect(linked.table.live() == 0 && balanced(), "sổ cân khi không còn kết nối nào");
-    context.expect(registry.read(Counter::kGateHandshakeDone) == 1, "một lần bắt tay xong");
-    context.expect(registry.read(Counter::kGateClosedOverflow) == 0, "hàng ô đã đóng không tràn");
-    linked.table.advance(kNow + limits.handshake_ns);
-    context.expect(registry.read(Gauge::kGateLive) == 0 && registry.read(Gauge::kGateListening) == 1, "mức đo sau khi trống");
-}
-
 void drop_reasons_have_names(Context& context) {
-    context.expect(gate::describe(Drop::kLocal) == "lỗi phía gate", "lý do mới có câu riêng");
     context.expect(gate::describe(Drop::kCount) == gate::describe(Drop{0}), "giá trị ngoài miền chung một câu");
     for (std::uint8_t reason = 1; reason < std::to_underlying(Drop::kCount); ++reason) {
         context.expect(gate::describe(Drop{reason}) != gate::describe(Drop::kCount), "mỗi lý do thật có câu của nó");
     }
     const secure::Identity identity = make_identity();
-    const auto registry = std::make_unique<metrics::Registry>();
-    const Table table{small_limits(), {}, {}, gate::Backing{.identity = identity, .registry = *registry}};
+    const Table table{small_limits(), {}, {}, identity};
     context.expect(table.drops(Drop::kCount) == 0 && table.drops(Drop{0}) == 0, "giá trị ngoài miền đọc ra 0");
     context.expect(table.drops(Drop{200}) == 0, "giá trị lạ đọc ra 0");
 }
@@ -409,8 +315,6 @@ constexpr std::array kCases{
     Case{.name = "logout_closes", .body = logout_closes},
     Case{.name = "burst_resumes", .body = burst_resumes},
     Case{.name = "idle_times_out", .body = idle_times_out},
-    Case{.name = "admit_refusals_are_counted", .body = admit_refusals_are_counted},
-    Case{.name = "counters_balance_after_mixed_run", .body = counters_balance_after_mixed_run},
     Case{.name = "drop_reasons_have_names", .body = drop_reasons_have_names},
 };
 

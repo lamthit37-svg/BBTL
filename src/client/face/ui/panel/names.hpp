@@ -32,13 +32,16 @@ namespace detail {
 [[nodiscard]] constexpr std::size_t write_number(std::array<char, 48>& slot, std::size_t written, std::size_t value) {
     std::array<char, 8> digits{};
     std::size_t used = 0;
-    for (std::size_t rest = value; rest > 0; rest /= 10) digits.at(used++) = static_cast<char>('0' + (rest % 10));
-    while (used > 0) slot.at(written++) = digits.at(--used);
+    for (std::size_t rest = value; rest > 0; rest /= 10)
+        digits.at(used++) = static_cast<char>('0' + (rest % 10));
+    while (used > 0)
+        slot.at(written++) = digits.at(--used);
     return written;
 }
 
 [[nodiscard]] constexpr std::size_t write_text(std::array<char, 48>& slot, std::size_t written, std::string_view text) {
-    for (const char letter : text) slot.at(written++) = letter;
+    for (const char letter : text)
+        slot.at(written++) = letter;
     return written;
 }
 

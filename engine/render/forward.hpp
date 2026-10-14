@@ -70,7 +70,7 @@ struct Fog {
     float end = 1.0F;
 };
 
-// Số ô đèn điểm của khối hằng một khung (kLamps ở model.hlsli); ô cuối dành cho đèn tắt.
+// Số ô đèn điểm của khối hằng một khung (kLamps ở model.inc.slang); ô cuối dành cho đèn tắt.
 inline constexpr std::size_t kLampSlots = 32;
 // Số đèn điểm một khung mang được; đèn đứng sau trong Lighting::lamps không chiếu.
 inline constexpr std::size_t kMaxLamps = kLampSlots - 1;

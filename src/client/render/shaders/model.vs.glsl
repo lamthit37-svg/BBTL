@@ -1,4 +1,4 @@
-// Cùng bố cục và công thức với model.vs.hlsl. Binding do map_bindings: frame 0, draw 1, palette 0,
+// Cùng bố cục và công thức với model.vs.slang. Binding do map_bindings: frame 0, draw 1, palette 0,
 // worlds 1. Không có TL_ZERO_TO_ONE thì đổi z [0,1] về clip [-1,1] của GL cũ.
 struct Lamp {
     vec4 place;
@@ -36,7 +36,7 @@ layout(std430, binding = 1) readonly buffer Worlds {
     mat4 column[];
 } worlds;
 
-// Khối hằng đẩy của từng lệnh vẽ, cùng bố cục 128 byte với Draw của model.hlsli: ba hàng của ma
+// Khối hằng đẩy của từng lệnh vẽ, cùng bố cục 128 byte với Draw của model.inc.slang: ba hàng của ma
 // trận thế giới, base_color, glow, diffuse, specular, rồi joint_base, joint_count, flags, lamp. Là
 // uniform thường để backend đặt bằng một lời gọi glUniform4uiv; uvec4 giữ nguyên bit, số thực lấy
 // lại bằng uintBitsToFloat.

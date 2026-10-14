@@ -1,0 +1,24 @@
+# schema 1
+# source: client_2026/CityInfo.txt
+# tool: TOOLS/server/export_tables.py; sửa tay sẽ mất ở lượt xuất sau
+# types: int	text	text	text	text
+index	original	name	type	note
+0	ID	id	int	neo: cột gốc 0, khớp 100.0% (216/216 id); luật: M1
+1	场景ID	scene_id	int	neo: cột gốc 1, khớp 100.0% (216/216 id); luật: nguyên văn
+2	入口场景ID	entrance_scene_id	int	neo: cột gốc 2, khớp 100.0% (216/216 id); luật: nguyên văn
+3	1级城市	city_level_1	int	neo: cột gốc 3, khớp 100.0% (216/216 id); luật: mẫu {n}
+4	2级城市	city_level_2	int	neo: cột gốc 4, khớp 100.0% (216/216 id); luật: mẫu {n}
+5	3级城市	city_level_3	int	neo: cột gốc 5, khớp 100.0% (216/216 id); luật: mẫu {n}
+6	4级城市	city_level_4	int	neo: cột gốc 6, khớp 100.0% (216/216 id); luật: mẫu {n}
+7	5级城市	city_level_5	int	neo: cột gốc 7, khớp 100.0% (216/216 id); luật: mẫu {n}
+8	入口组	entrance_group	int	neo: cột gốc 8, khớp 100.0% (216/216 id); luật: nguyên văn
+9	名称$1$	name	text	neo: cột gốc 9, khớp 100.0% (216/216 id); luật: nguyên văn
+10	所属商区$1$	trade_zone	text	neo: cột gốc 10, khớp 100.0% (216/216 id); luật: nguyên văn
+11	特产1	specialty_1	int	neo: cột gốc 11, khớp 100.0% (216/216 id); luật: mẫu {n}
+12	特产2	specialty_2	int	neo: cột gốc 12, khớp 100.0% (216/216 id); luật: mẫu {n}
+13	特产3	specialty_3	int	neo: cột gốc 13, khớp 100.0% (216/216 id); luật: mẫu {n}
+14	特产4	specialty_4	int	nội suy: cột gốc 14, khớp 100.0% (216/216 id); luật: mẫu {n}
+15	特产5	specialty_5	int	nội suy: cột gốc 15, khớp 100.0% (216/216 id); luật: mẫu {n}
+16	入口X坐标	entrance_position_x	int	neo: cột gốc 16, khớp 96.3% (208/216 id); luật: nguyên văn
+17	入口Y坐标	entrance_position_y	int	neo: cột gốc 17, khớp 96.3% (208/216 id); luật: nguyên văn
+18		column_18	int	mới ở 2026

@@ -1,0 +1,15 @@
+# schema 1
+# source: Public/Scene/gudi_monster.ini
+# tool: TOOLS/server/export_scene.py; sửa tay sẽ mất ở lượt xuất sau
+# types: int	int	text	text	float	float	int	int	int	int	int	int	int	int	int	int	int	int	int	int	int	int	text	int	int	int
+guid	type	name	title	position_x	position_z	direction	script_id	respawn_time	group_id	team_id	base_ai	ai_file	patrol_id	shop_0	shop_1	shop_2	shop_3	level	is_pet	script_timer	reputation_id	cshop	leader_id	is_npc	camp
+8623747	1580			54.3296	23.6750	27	-1	-1	-1	-1	0	-1	-1	-1	-1	-1	-1								
+8623748	1580			55.7306	29.2084	27	-1	-1	-1	-1	0	-1	-1	-1	-1	-1	-1								
+8623757	1580			24.9417	27.6685	27	-1	-1	-1	-1	0	-1	-1	-1	-1	-1	-1								
+8623771	1580			24.3912	50.7268	27	-1	-1	-1	-1	0	-1	-1	-1	-1	-1	-1								
+8623791	1580			27.4243	46.2794	27	-1	-1	-1	-1	0	-1	-1	-1	-1	-1	-1								
+8623812	1580			41.4503	23.3506	27	-1	-1	-1	-1	0	-1	-1	-1	-1	-1	-1								
+8623823	1580			30.0358	23.7501	27	-1	-1	-1	-1	0	-1	-1	-1	-1	-1	-1								
+8623841	1580			40.4988	35.6363	27	-1	-1	-1	-1	0	-1	-1	-1	-1	-1	-1								
+4717839	1580			52.5498	35.6832	27	-1	-1	-1	-1	0	0	-1	-1	-1	-1	-1								
+4718853	1580			30.1341	37.2687	27	-1	-1	-1	-1	0	0	-1	-1	-1	-1	-1								

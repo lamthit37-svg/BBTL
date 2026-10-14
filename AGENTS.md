@@ -15,14 +15,19 @@
     `assets/i18n` và `third_party/libsodium` phải cài, sinh hoặc tải lại. Danh sách từng tệp và
     lịch sử git 25 commit đầu ở `docs/KHOI-PHUC-2026-10-09/`. Các dòng dưới tả mã trước lúc mất.
   - Hình: vẽ được map (địa hình, vật thể tĩnh, hạt và hiệu ứng cộng sáng của bản 2026) và người
-    chơi có xương trên PC và máy tính bảng, 60 fps ở map nhỏ. Nước và vòm trời mới đọc dữ liệu,
-    chưa vẽ. Chưa có NPC, quái, vật phẩm, người chơi khác.
+    chơi có xương trên PC và máy tính bảng, 60 fps ở map nhỏ. Nước và vòm trời đã có mã dựng và vẽ
+    (`ensure_water`, `ensure_sky` ở `client/display/graphic/scene.cpp`, gọi từ `frame.cpp`); chưa
+    ai nhìn ảnh để đối chiếu với bản 2026. Chưa có NPC, quái, vật phẩm, người chơi khác, và chưa có
+    nhảy (không có mã `jump` nào trong `src/client`).
   - Backend: `gpu` có bốn backend (Vulkan, D3D12, D3D11, OpenGL/GLES). Windows dựng cả bốn, client
     tự chọn Vulkan phần cứng trước rồi tới các backend sau; Android dựng Vulkan và GLES. Vulkan
     và GLES đã vẽ lên cửa sổ; D3D12 và D3D11 chưa hiển thị được (`docs/NGHI-NGO.md` mục 25).
   - Màn chơi: camera và chuột port từ mã máy của client 2026 (`docs/CAMERA-2026.md`); đi bằng nhấp
     chuột, phím, cảm ứng và cần gạt, bị vật cản chặn và tìm đường vòng theo lưới đi `.path` của
-    client 2026 (`docs/DUONG-DI-2026.md`; mặt cầu, bậc thang của `.WCollision` chưa có).
+    client 2026 (`docs/DUONG-DI-2026.md`); chân nhân vật được nâng lên mặt công trình `.WCollision`
+    (mặt cầu, bậc thang: `surface_y` ở `display/graphic/play.cpp`, `building_height_tests` xanh; chưa
+    nhìn thử tay). Hai tệp `.path` và `.WCollision` của `dev/client/assets` chỉ có ở map gom từ
+    2026-10-13 (Đại Lý, Lạc Dương); `collect_map.py` bản cũ không gom chúng.
   - Giao diện: HUD nạp 36 layout của client 2026. Lúc nạp một cảnh của màn chơi, bảng chuyển cảnh
     `SceneTrans` của bản gốc hiện tên cảnh sẽ tới và phần trăm đã nạp (`ui/panel/scene_trans`).
     Khung nhân vật, minimap, thanh kinh nghiệm và
@@ -62,8 +67,10 @@
   có GPU của client, còn `gui` và `ui/panel` thì có, nên `gcc-debug` chỉ kiểm chéo phần không có
   GPU), Android arm64 (NDK 30, API 29; preset `android-x86_64` có sẵn nhưng trên máy chưa có cây
   dựng hay gói vcpkg nào cho nó, và nó đang kế thừa triplet `arm64-android`),
-  iOS arm64 (mã và preset có sẵn, CHƯA build: máy phát triển không có macOS; theo `CMakeLists.txt`
-  nhánh iOS còn link `game_jobs` và `game_capture` là hai target chỉ tạo cho Windows và Android).
+  iOS arm64 (mã và preset có sẵn, CHƯA build: máy phát triển không có macOS; ngày 2026-10-13 đã dọn
+  nguồn theo đọc mã: bật Objective-C++ và ARC, miniaudio dịch Objective-C++, `VK_EXT_metal_surface`,
+  preset kế thừa vcpkg `arm64-ios`, `game_jobs` và `game_capture` tạo cả cho iOS; chỗ còn nghi và
+  cách dựng trên máy Apple ở `docs/NGHI-NGO.md` mục 49 và `apple/HUONG-DAN.txt`).
   Máy chủ: Windows x64 và Linux x64 (chủ dự án nêu ngày 2026-10-08); bản POSIX của mã máy chủ mới
   qua kiểm cú pháp bằng trình dịch NDK, CHƯA dựng trên Linux: máy phát triển có WSL nhưng chưa có
   distro. Phép kiểm NDK không thay được Linux thật: `SRC/core/system_posix.cpp` include
@@ -191,14 +198,14 @@
   (ba gói của `fs` và gói shader), opus (tải Opus của tệp âm thanh `.tla`), tomlplusplus 3.4.0
   (module `config`) — vcpkg manifest (`vcpkg.json`, `C:\dev\vcpkg`); libsodium 1.0.22 (`seal`,
   `secure`) và miniaudio (`audio`) — chép nguồn trong `third_party/`, mỗi thư mục có `NGUON.txt`;
-  Vulkan SDK và DXC của máy cho shader. Cho máy chủ, đã duyệt ngày 2026-10-06 và đã build thử,
+  Vulkan SDK của máy cho shader (`slang.dll` dịch nguồn `.slang`, `dxcompiler.dll` chỉ đọc phản chiếu DXIL). Cho máy chủ, đã duyệt ngày 2026-10-06 và đã build thử,
   CHƯA có trong manifest, thêm khi viết `store/pg`: libpq 18.4 (không default-features).
   PostgreSQL 18.6 nằm trong `dev/server/pgsql`, tải bằng `setup_db.py`.
 - Tài liệu dự án: `docs/TIEN-DO.md` (tiến độ việc nhiều phiên), `docs/NGUON-FORGE2.md` (tệp chép từ
   Forge2: nguồn, khác gốc, số đo), `docs/NGUON-TLBB.md` (tệp port từ TLBB Dev),
   `docs/CAMERA-2026.md` (camera và chuột đọc từ mã máy của client 2026: địa chỉ, hành vi, lệnh
   tái hiện), `docs/VA-CHAM-2026.md` (mặt công trình `.WCollision` đọc từ mã máy `PathLib.dll`; module
-  `collision` mới có bộ đọc, lưới và cây OPCODE, chưa có truy vấn và chưa nối vào client),
+  `collision` có bộ đọc, lưới, cây OPCODE và `Model::height`/`raycast`; client dùng `height` để nâng chân),
   `docs/DUONG-DI-2026.md` (lưới đi `.path`, tìm đường và luật đi của client 2026, lệnh
   chạy trọng tài), `docs/TAO-NHAN-VAT-2026.md` (màn tạo nhân vật: ba bộ quản dữ liệu của
   `Game.exe`, phân bố ảnh chân dung, mặt, tóc, bộ đồ, thói quen của `CreateRole.lua`, lệnh sinh số
@@ -286,7 +293,7 @@
     ca bảng thật khi các tệp đó có lúc cấu hình CMake.
   - Bảng port từ script Lua (`ui/panel/quest_log`...): số vàng ở `Test/golden/panel/` do trọng
     tài sinh, tức script gốc chạy trên `LuaPlus.dll` của client: `python -B TOOLS/port/lua_oracle.py
-    "F:/tl 2026/Bin64" <script đã giải bằng lua_plain.py> <layout> <kịch bản ở TOOLS/port/oracle>
+    "F:/tl 2026/2026/Bin64" <script đã giải bằng lua_plain.py> <layout> <kịch bản ở TOOLS/port/oracle>
     <tệp số vàng> --words TOOLS/port/oracle/words.vi.tsv --lib TOOLS/port/oracle/<api>.lua`. Script
     đọc bảng của game thì thêm `--table <tên>=<tệp .tsv>` (bảng thành `__tables.<tên>` cho tệp
     `--lib`), tên đăng ký của script khác tên tệp thì thêm `--name` (lệnh đủ của bảng tạo nhân vật
@@ -307,7 +314,7 @@
     `scene/<tên cảnh>`, `image/<bộ ảnh>/<tên ảnh>`, `file/<đường dẫn trong dữ liệu>`) kèm tệp ở
     `assets/i18n/<mã>/`. Target
     `thienlong_i18n` (`cmake/GameI18n.cmake`) chạy `TOOLS/content/build_i18n.py` ở mỗi lượt dựng
-    client và đưa ngôn ngữ của `-DGAME_LANGUAGE=<mã>` (mặc định `vi`) vào `dev/client/assets`. Chạy tay:
+    client và đưa ngôn ngữ của `-DGAME_LANGUAGE=<mã>` (mặc định `zh`) vào `dev/client/assets`. Chạy tay:
     `python -B TOOLS/content/build_i18n.py assets/i18n/vi.tsv dev/client/assets --state build/i18n`.
     `dev/client/assets` dùng chung cho mọi preset nên các preset dựng cùng một `GAME_LANGUAGE`. Làm ảnh
     thay: `python -B TOOLS/content/export_layout_images.py` xuất ảnh gốc của một layout kèm cỡ ô;
@@ -481,6 +488,9 @@ nằm một nơi.
   dòng dừng với `unexpected EOF while looking for matching`, chưa tìm ra ký tự gây lỗi; cùng nội
   dung ghi bằng công cụ ghi tệp thì chạy). Công cụ ghi tệp lại cắt dấu cách cuối dòng: bảng TSV
   cần dấu cách cuối thì dùng ký hiệu thay, như `␣` của `TOOLS/port/oracle/words.vi.tsv`.
+- Công cụ Bash của agent chạy Git Bash: `cmd /c "..."` bị đổi thành `cmd.exe C:/ ...` (MSYS đổi `/c` thành
+  đường dẫn), cmd mở ra rồi treo không thoát (đo 2026-10-13: treo 10 phút trên lượt build MSVC). Lệnh `cmd`,
+  `dev.bat`, `.bat` gọi bằng công cụ PowerShell, hoặc ở Git Bash thì `MSYS2_ARG_CONV_EXCL='*'` / `cmd //c`.
 - Windows PowerShell 5.1: tệp `.ps1` UTF-8 không BOM bị đọc theo bảng mã ANSI, chuỗi tiếng Việt vỡ
   thành lỗi cú pháp; `Start-Process -PassThru` trả `ExitCode` rỗng nếu chưa đọc `.Handle` của tiến
   trình trước khi nó thoát.
@@ -539,7 +549,8 @@ Chỉ mục `docs/BAY-DA-BIET.md`: sắp làm một việc kể dưới đây th
   `UNICODE` và `NOMINMAX` dưới `check.py`, header con mà `misc-include-cleaner` đòi, `<jobapi2.h>`,
   `WaitOnAddress`); đọc biến môi trường; khởi tạo ghi tên cho struct có thành viên kiểu lớp; khai
   `thread_local` cho kiểu có destructor; viết `if constexpr` không có `else`; gắn `target("sse4.1")`
-  bằng pragma; thêm tệp `.rc`.
+  bằng pragma; thêm tệp `.rc`; chạy `check.py` trên tệp include header của Vulkan SDK (`dxcapi.h`,
+  `slang.h`); đổi cách trình dịch shader ghép phản chiếu (`kPipeline`); ép con trỏ hàm lấy từ DLL.
 - **Công cụ Python và git:** đưa chữ vào stdin của tiến trình con (`git apply`); tách cây làm việc
   thành nhiều commit; gõ tên nhánh `server` trong lệnh git.
 - **Test và công cụ đụng máy người dùng:** sửa `SRC/window/window.cpp`; viết hay chạy test, công cụ
@@ -559,7 +570,9 @@ Chỉ mục `docs/BAY-DA-BIET.md`: sắp làm một việc kể dưới đây th
   có cỡ lẻ trong `SRC/gui`.
 - **Dữ liệu, hình và bản dựng client:** đọc kết quả `collision_tests` (Skipped, thư mục `_raw`);
   cảnh thiếu hiệu ứng hay gom lại `dev/client/assets/effect`; nạp texture và mip; thêm gói shader; dựng
-  `thienlong_client` (cần Pillow); sửa đường nạp cảnh hay giao diện (đo bằng `bench_load.py`, ba bẫy đã đo).
+  `thienlong_client` (cần Pillow); sửa đường nạp cảnh hay giao diện (đo bằng `bench_load.py`, ba bẫy đã đo);
+  chụp bằng `--shot` (cần `--frames`, cửa sổ thu nhỏ, ảnh hai lượt không giống hệt); gom lại map cũ (thiếu
+  lưới đi `.path` và `.WCollision` nếu gom trước 2026-10-13).
 
 ## 12. Sổ tay
 

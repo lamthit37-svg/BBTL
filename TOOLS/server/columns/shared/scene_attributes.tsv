@@ -1,0 +1,31 @@
+# schema 1
+# source: client_2026/SceneAttr.txt
+# tool: TOOLS/server/export_tables.py; sửa tay sẽ mất ở lượt xuất sau
+# types: int	text	text	text	text
+index	original	name	type	note
+0	ID	id	int	neo: cột gốc 0, khớp 100.0% (528/528 id); luật: M1
+1		column_1	text	mới ở 2026
+2	类型	kind	int	neo: cột gốc 2, khớp 96.8% (511/528 id); luật: nguyên văn
+3		column_3	int	mới ở 2026
+4		column_4	int	mới ở 2026
+5		column_5	int	mới ở 2026
+6		column_6	int	mới ở 2026
+7		column_7	int	mới ở 2026
+8	场景怪物0	scene_monster_0	int	neo: cột gốc 7, khớp 98.7% (521/528 id); luật: nguyên văn
+9	场景怪物1	scene_monster_1	int	neo: cột gốc 8, khớp 98.7% (521/528 id); luật: nguyên văn
+10	场景怪物2	scene_monster_2	int	neo: cột gốc 9, khớp 98.7% (521/528 id); luật: nguyên văn
+11	场景怪物3	scene_monster_3	int	neo: cột gốc 10, khớp 98.7% (521/528 id); luật: nguyên văn
+12	场景怪物4	scene_monster_4	int	neo: cột gốc 11, khớp 98.7% (521/528 id); luật: nguyên văn
+13	场景怪物5	scene_monster_5	int	neo: cột gốc 12, khớp 99.1% (523/528 id); luật: nguyên văn
+14	场景怪物6	scene_monster_6	int	neo: cột gốc 13, khớp 99.4% (525/528 id); luật: nguyên văn
+15	场景怪物7	scene_monster_7	int	neo: cột gốc 14, khớp 99.4% (525/528 id); luật: nguyên văn
+16	场景怪物8	scene_monster_8	int	neo: cột gốc 15, khớp 99.4% (525/528 id); luật: nguyên văn
+17	场景怪物9	scene_monster_9	int	neo: cột gốc 16, khớp 99.4% (525/528 id); luật: nguyên văn
+18	场景怪物10	scene_monster_10	int	neo: cột gốc 17, khớp 100.0% (528/528 id); luật: nguyên văn
+19	场景怪物11	scene_monster_11	int	neo: cột gốc 18, khớp 100.0% (528/528 id); luật: nguyên văn
+20		column_20	int	mới ở 2026
+21		column_21	int	mới ở 2026
+22		column_22	int	mới ở 2026
+23		column_23	int	mới ở 2026
+24		column_24	int	mới ở 2026
+25		column_25	int	mới ở 2026

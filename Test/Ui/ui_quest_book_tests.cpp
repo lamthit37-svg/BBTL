@@ -12,6 +12,8 @@
 #include "ui/panel/desk.hpp"
 
 #include <array>
+#include <cstdint>
+#include <optional>
 #include <string_view>
 #include <vector>
 
@@ -114,13 +116,35 @@ void paints_only_when_shown(Context& context) {
     context.expect(!deck.overrides().empty(), "đang mở thì kê");
 }
 
-constexpr std::array kCases{
-    Case{.name = "tables_load_or_report", .body = &tables_load_or_report},
+void list_click_picks_item(Context& context) {
+    QuestBook book;
+    load(context, book);
+    ui::panel::Desk desk;
+    std::vector<Call> calls;
+    context.expect(!ui::panel::pick_quest_row(book, 0, nullptr, nullptr), "bảng ẩn thì không chọn");
+    ui::panel::press_desk(desk, ui::panel::kQuestLogOpener);
+    ui::panel::press_quest_book(book, desk, ui::panel::kQuestLogOpener, nullptr, nullptr, calls);
+    ui::panel::press_quest_book(book, desk, "QuestLog_AcceptMission", nullptr, nullptr, calls);
+    // Mục đầu là dòng loại (đang mở), dòng nhiệm vụ nằm ngay dưới.
+    const std::optional<std::int32_t> kind = book.panel.widgets.item_id(ui::panel::kQuestLogList, 0);
+    const std::optional<std::int32_t> offer = book.panel.widgets.item_id(ui::panel::kQuestLogList, 1);
+    context.expect(kind.has_value() && offer.has_value(), "danh sách nhiệm vụ nhận được có dòng loại và dòng nhiệm vụ");
+    if (!kind || !offer) return;
+    context.expect(ui::panel::pick_quest_row(book, 1, nullptr, nullptr), "nhấn dòng nhiệm vụ thì chọn");
+    context.expect(book.panel.widgets.clicked_item(ui::panel::kQuestLogList) == *offer, "GetClickItem là id của dòng");
+    context.expect(book.panel.widgets.selected_item(ui::panel::kQuestLogList) == *offer, "dòng nhiệm vụ được đánh dấu chọn");
+    context.expect(ui::panel::pick_quest_row(book, 0, nullptr, nullptr), "nhấn dòng loại thì đảo loại");
+    context.expect(!book.panel.widgets.item_id(ui::panel::kQuestLogList, 1).has_value(), "đóng loại thì dòng nhiệm vụ ẩn");
+    context.expect(!ui::panel::pick_quest_row(book, 999, nullptr, nullptr), "hàng ngoài danh sách thì bỏ");
+}
+
+constexpr std::array kCases{    Case{.name = "tables_load_or_report", .body = &tables_load_or_report},
     Case{.name = "opener_toggles_book_and_desk", .body = &opener_toggles_book_and_desk},
     Case{.name = "close_button_closes_both", .body = &close_button_closes_both},
     Case{.name = "desk_close_hides_book", .body = &desk_close_hides_book},
     Case{.name = "seeker_follows_hero", .body = &seeker_follows_hero},
     Case{.name = "paints_only_when_shown", .body = &paints_only_when_shown},
+    Case{.name = "list_click_picks_item", .body = &list_click_picks_item},
 };
 
 } // namespace

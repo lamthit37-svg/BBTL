@@ -109,7 +109,8 @@ struct Cursor {
         const std::byte* begin = data.data() + at;
         const std::byte* end = data.data() + data.size();
         const std::byte* found = begin;
-        while (found != end && *found != std::byte{'\n'}) ++found;
+        while (found != end && *found != std::byte{'\n'})
+            ++found;
         if (found == end) return fail("chuỗi mesh không có dấu kết");
         out.assign(reinterpret_cast<const char*>(begin), static_cast<std::size_t>(found - begin));
         at += static_cast<std::size_t>(found - begin) + 1;
@@ -310,7 +311,8 @@ struct RawMesh {
             break;
         }
     }
-    if (submesh.has_operation && submesh.operation != kTriangleList) return cursor.fail("mesh không phải danh sách tam giác");
+    if (submesh.has_operation && submesh.operation != kTriangleList)
+        return cursor.fail("mesh không phải danh sách tam giác");
     return cursor.error == nullptr;
 }
 
@@ -438,7 +440,8 @@ void write_colour(Vertex& vertex, const std::byte* bytes, bool swap) noexcept {
         if (!read_float(buffer, index, static_cast<std::uint16_t>(element.offset + 4), vertex.tangent.y)) return false;
         return read_float(buffer, index, static_cast<std::uint16_t>(element.offset + 8), vertex.tangent.z);
     }
-    if (element.semantic == kDiffuse && (element.type == kColour || element.type == kColourArgb || element.type == kColourAbgr)) {
+    if (element.semantic == kDiffuse &&
+        (element.type == kColour || element.type == kColourArgb || element.type == kColourAbgr)) {
         write_colour(vertex, bytes, element.type != kColourAbgr);
         return true;
     }
@@ -506,7 +509,8 @@ struct MaterialLook {
 using MaterialRules = std::vector<std::pair<std::string, MaterialRule>>;
 
 [[nodiscard]] std::string_view trim_left(std::string_view line) noexcept {
-    while (!line.empty() && (line.front() == ' ' || line.front() == '\t')) line.remove_prefix(1);
+    while (!line.empty() && (line.front() == ' ' || line.front() == '\t'))
+        line.remove_prefix(1);
     return line;
 }
 
@@ -544,8 +548,8 @@ void set_field(std::string& field, std::string value) {
 
 // all.material viết cả <baseTexture> và <BaseTexture> cho ảnh màu. Hai cách là cùng một ô.
 [[nodiscard]] bool is_diffuse_alias(std::string_view line) noexcept {
-    const bool lower = line.find("<baseTexture>") != std::string_view::npos;
-    const bool upper = line.find("<BaseTexture>") != std::string_view::npos;
+    const bool lower = line.contains("<baseTexture>");
+    const bool upper = line.contains("<BaseTexture>");
     return lower || upper;
 }
 
@@ -559,7 +563,8 @@ void set_field(std::string& field, std::string value) {
     std::size_t at = 0;
     while (at < text.size()) {
         const std::size_t end = text.find('\n', at);
-        const std::string_view raw = std::string_view(text).substr(at, (end == std::string::npos ? text.size() : end) - at);
+        const std::string_view raw =
+            std::string_view(text).substr(at, (end == std::string::npos ? text.size() : end) - at);
         at = end == std::string::npos ? text.size() : end + 1;
         std::string_view line = trim_left(raw);
         const std::size_t comment = line.find("//");
@@ -575,7 +580,8 @@ void set_field(std::string& field, std::string value) {
             std::string_view rest = trim_left(line.substr(9));
             const std::size_t colon = rest.find(':');
             std::string name(colon == std::string_view::npos ? first_token(rest) : trim_left(rest.substr(0, colon)));
-            while (!name.empty() && (name.back() == ' ' || name.back() == '\t')) name.pop_back();
+            while (!name.empty() && (name.back() == ' ' || name.back() == '\t'))
+                name.pop_back();
             std::string parent;
             if (colon != std::string_view::npos) parent = std::string(first_token(trim_left(rest.substr(colon + 1))));
             remember_rule(rules, std::move(name), std::move(parent));
@@ -655,7 +661,8 @@ struct MaterialTable {
 
 [[nodiscard]] int digits_of(std::string_view text) noexcept {
     int value = 0;
-    for (const char item : text) value = value * 10 + (item - '0');
+    for (const char item : text)
+        value = value * 10 + (item - '0');
     return value;
 }
 
@@ -709,11 +716,12 @@ void paint_rule(MaterialLook& look, const MaterialRule& rule) {
             ++count;
             name = rule->parent;
         }
-        for (int index = count - 1; index >= 0; --index) paint_rule(look, *chain[index]);
+        for (int index = count - 1; index >= 0; --index)
+            paint_rule(look, *chain[index]);
         // Mẫu như Mtl_Model_Transperant_NoLight không có thân trong all.material. Tên nói
         // chất liệu trong suốt và không thắp sáng: suối pubu dùng mẫu này.
-        if (!name.empty() && name.find("NoLight") != std::string::npos) look.unlit = true;
-        const bool is_clear = name.find("Transperant") != std::string::npos || name.find("Transparent") != std::string::npos;
+        if (!name.empty() && name.contains("NoLight")) look.unlit = true;
+        const bool is_clear = name.contains("Transperant") || name.contains("Transparent");
         if (!name.empty() && is_clear) look.alpha = Alpha::kBlend;
     }
     if (!alias.empty()) look.texture = alias;
@@ -834,7 +842,8 @@ void put_u32(std::vector<std::byte>& out, std::uint32_t value) {
     const std::string model = fs::join(root, "Model");
     std::string relative = std::string(mesh_file);
     if (relative.starts_with(model)) relative.erase(0, model.size());
-    while (!relative.empty() && (relative.front() == '/' || relative.front() == '\\')) relative.erase(relative.begin());
+    while (!relative.empty() && (relative.front() == '/' || relative.front() == '\\'))
+        relative.erase(relative.begin());
     return fs::join(fs::join(root, "cache/mesh"), relative + ".tlms");
 }
 
@@ -958,7 +967,8 @@ void ensure_static_root(Model& model) {
     std::span<const std::byte> rest = bytes.subspan(4);
     std::uint32_t version = 0;
     std::uint32_t count = 0;
-    if (!take_u32(rest, version) || version != kCacheVersion || !take_u32(rest, count)) return corrupt("cache mesh cụt");
+    if (!take_u32(rest, version) || version != kCacheVersion || !take_u32(rest, count))
+        return corrupt("cache mesh cụt");
     Model model;
     Mesh mesh;
     for (std::uint32_t index = 0; index < count; ++index) {

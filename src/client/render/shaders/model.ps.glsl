@@ -1,4 +1,4 @@
-// Cùng công thức với model.ps.hlsl. Ảnh và sampler dùng chung texture unit 0.
+// Cùng công thức với model.ps.slang. Ảnh và sampler dùng chung texture unit 0.
 struct Lamp {
     vec4 place;
     vec4 color;
@@ -21,7 +21,7 @@ layout(std140, binding = 0) uniform FrameBlock {
     vec4 hfog_scatter;
 } frame;
 
-// Khối hằng đẩy của từng lệnh vẽ, cùng bố cục 128 byte với Draw của model.hlsli (xem model.vs.glsl).
+// Khối hằng đẩy của từng lệnh vẽ, cùng bố cục 128 byte với Draw của model.inc.slang (xem model.vs.glsl).
 uniform highp uvec4 tl_push[8];
 
 layout(binding = 0) uniform sampler2D base_map;
@@ -47,7 +47,7 @@ float fog_share(float depth) {
     return 1.0;
 }
 
-// HeightFog_ps.hlsl, như height_fog của model_ps.hlsli.
+// HeightFog_ps.hlsl, như height_fog của model_ps.inc.slang.
 vec3 height_fog(vec3 color, vec3 place) {
     if (frame.hfog_color.a < 0.5) return color;
     vec3 to_point = place - frame.eye.xyz;

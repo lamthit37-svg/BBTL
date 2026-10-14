@@ -335,7 +335,8 @@ std::optional<std::uint32_t> FxView::Body::texture_of(const fx::Paint& paint) {
     const bool is_opaque = paint.blend == fx::Blend::kAdd;
     const bool repeats =
         paint.scroll_u != 0.0F || paint.scroll_v != 0.0F || paint.scale_u != 1.0F || paint.scale_v != 1.0F;
-    const std::string key = std::format("{}|{}|{}|{}", paint.image, is_opaque, repeats, paint.blend == fx::Blend::kDarken);
+    const std::string key =
+        std::format("{}|{}|{}|{}", paint.image, is_opaque, repeats, paint.blend == fx::Blend::kDarken);
     const auto found = by_image.find(key);
     if (found != by_image.end()) return found->second;
     const core::Clock::time_point began = core::Clock::now();

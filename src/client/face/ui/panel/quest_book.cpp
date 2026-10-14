@@ -58,6 +58,14 @@ void press_quest_book(QuestBook& book, Desk& desk, std::string_view window, cons
     settle_desk(book, desk);
 }
 
+bool pick_quest_row(QuestBook& book, std::size_t row, const hero::Hero* hero, const gui::StringBook* scenes) {
+    if (!book.panel.is_shown) return false;
+    const std::optional<std::int32_t> id = book.panel.widgets.item_id(kQuestLogList, row);
+    if (!id) return false;
+    pick_quest_item(book.panel, *id, facts_of(book, hero, scenes));
+    return true;
+}
+
 void paint_quest_book(Deck& deck, const QuestBook& book) {
     paint_quest_log(deck, book.panel);
 }

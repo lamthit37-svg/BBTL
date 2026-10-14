@@ -239,4 +239,3 @@ const AnimRow* find_anim(std::span<const AnimRow> rows, std::uint32_t set, Actio
 }
 
 } // namespace game::look
-

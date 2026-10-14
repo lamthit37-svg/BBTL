@@ -1,0 +1,11 @@
+# schema 1
+# source: Public/Scene/muxue_monster_160.ini
+# tool: TOOLS/server/export_scene.py; sửa tay sẽ mất ở lượt xuất sau
+# types: int	int	text	text	float	float	int	int	int	int	int	int	int	int	int	int	int	int	int	int	int	int	text	int	int	int
+guid	type	name	title	position_x	position_z	direction	script_id	respawn_time	group_id	team_id	base_ai	ai_file	patrol_id	shop_0	shop_1	shop_2	shop_3	level	is_pet	script_timer	reputation_id	cshop	leader_id	is_npc	camp
+11229946	31865			17.2120	41.2505	27	-1	-1	-1	-1	0	-1	-1	-1	-1	-1	-1								
+11230001	31865			15.9134	25.4610	27	-1	-1	-1	-1	0	-1	-1	-1	-1	-1	-1								
+11230005	31865			24.1343	23.8601	27	-1	-1	-1	-1	0	-1	-1	-1	-1	-1	-1								
+11230006	31865			33.6887	25.3946	27	-1	-1	-1	-1	0	-1	-1	-1	-1	-1	-1								
+11230009	31865			26.1037	35.6797	27	-1	-1	-1	-1	0	-1	-1	-1	-1	-1	-1								
+11229994	31875			28.2355	30.0247	27	807000	-1	-1	-1	14	139	-1	-1	-1	-1	-1								

@@ -2,8 +2,8 @@
 // được, bảng loại, sổ nhiệm vụ đang giữ, trạng thái theo dõi) và việc đồng bộ với bàn các bảng
 // (desk.hpp): nút Button_Mission của thanh menu là sự kiện TOGLE_MISSION, nút đóng và nút từ chối
 // của bảng đóng cả thứ hạng của bàn.
-// Khác gốc: sổ đang giữ rỗng cho tới khi có máy chủ; chưa nối việc chọn dòng của danh sách
-// (pick_quest_item cần id mục của listbox từ Hub); Call của bảng (mở khung theo dõi, lịch hoạt động,
+// Nhấn trái lên một mục của QuestLog_Listbox là sự kiện ListBox_Click: id của mục (AddItem) đưa vào
+// pick_quest_item. Khác gốc: sổ đang giữ rỗng cho tới khi có máy chủ; Call của bảng (mở khung theo dõi, lịch hoạt động,
 // trợ giúp) trả cho người gọi, HUD chưa làm việc nào trong số đó.
 #pragma once
 
@@ -18,6 +18,7 @@
 #include "ui/panel/desk.hpp"
 #include "ui/panel/quest_log.hpp"
 
+#include <cstddef>
 #include <optional>
 #include <string>
 #include <string_view>
@@ -49,6 +50,11 @@ struct QuestBook {
 // bảng. Việc bảng nhờ ghi thêm vào calls.
 void press_quest_book(QuestBook& book, Desk& desk, std::string_view window, const hero::Hero* hero,
     const gui::StringBook* scenes, std::vector<Call>& calls);
+
+// Nhấn trái lên mục thứ row (Hub::list_item của kQuestLogList) khi bảng đang hiện: tra id của mục rồi
+// pick_quest_item. Bảng ẩn hay row không ứng với mục nào thì không làm gì; trả true khi đã chọn.
+bool pick_quest_row(
+    QuestBook& book, std::size_t row, const hero::Hero* hero, const gui::StringBook* scenes);
 
 // Kê bảng khi nó đang hiện.
 void paint_quest_book(Deck& deck, const QuestBook& book);

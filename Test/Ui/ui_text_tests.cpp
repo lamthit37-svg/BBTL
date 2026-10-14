@@ -46,12 +46,77 @@ constexpr std::string_view kNotice =
     "Hiệu quả cấp tu luyện bảo thạch hiện tại: tăng tối đa hiệu quả khống chế của tâm pháp thứ tám 3 giây, "
     "giảm tối đa 2 giây.";
 
-using Codes = std::vector<ui::Code>;
 using Vertices = std::vector<render::UiVertex>;
 
-Codes codes_of(std::string_view text, const gui::StringBook* strings) {
-    Codes out;
-    ui::scan_markup(ui::MarkupAsk{.text = text, .strings = strings}, out);
+bool near_value(float value, float expect) {
+    return std::fabs(value - expect) < 0.01F;
+}
+
+// VTNAM14 của kho dữ liệu, cỡ 14 (bước dòng 19). Chưa có kho thì ca tự bỏ qua; có kho mà không mở
+// được phông là lỗi của ca.
+std::optional<ui::BitmapFont> open_font(Context& context) {
+    if (kClientData.empty()) return std::nullopt;
+    const std::filesystem::path file = std::filesystem::path(kClientData) / "Interface" / "Schema" / "VTNAM14.bin";
+    core::Result<ui::BitmapFont> font = ui::BitmapFont::open(file);
+    context.expect(font.has_value(), "mở được VTNAM14");
+    if (!font) return std::nullopt;
+    return std::move(*font);
+}
+
+gui::TextRun run_of(std::string_view text, gui::Box box, gui::TextRule rule) {
+    gui::TextRun run;
+    run.text = text;
+    run.box = box;
+    run.rule = rule;
+    run.colour = kBase;
+    return run;
+}
+
+// Như run_of nhưng ô cắt rộng vô hạn, để ca chỉ đo vị trí chữ mà không bị cắt ở mép ô.
+gui::TextRun open_run(std::string_view text, gui::Box box, gui::TextRule rule) {
+    gui::TextRun run = run_of(text, box, rule);
+    run.clip = kOpen;
+    return run;
+}
+
+Vertices drawn(ui::TextWriter& writer, const gui::TextRun& run) {
+    Vertices out;
+    static_cast<void>(writer.write(run, out));
+    return out;
+}
+
+// Bốn đỉnh một quad, đỉnh đầu là góc trái trên.
+bool quad_at(const Vertices& out, std::size_t index, float x, float y) {
+    const std::size_t first = index * 4;
+    if (first + 3 >= out.size()) return false;
+    return near_value(out[first].x, x) && near_value(out[first].y, y);
+}
+
+// Các hàng của chữ: cạnh trên của quad theo thứ tự xuất hiện, mỗi hàng một lần.
+std::vector<float> rows_of(const Vertices& out) {
+    std::vector<float> rows;
+    for (std::size_t first = 0; first + 3 < out.size(); first += 4) {
+        const float top = out[first].y;
+        const auto same = [top](float row) { return near_value(row, top); };
+        if (std::ranges::none_of(rows, same)) rows.push_back(top);
+    }
+    std::ranges::sort(rows);
+    return rows;
+}
+
+bool rows_are(const Vertices& out, std::initializer_list<float> want) {
+    const std::vector<float> rows = rows_of(out);
+    if (rows.size() != want.size()) return false;
+    return std::ranges::equal(rows, want, [](float row, float expect) { return near_value(row, expect); });
+}
+
+// Mép trái của quad trái nhất ở hàng có cạnh trên bằng row; hàng không có thì NaN (so sánh luôn sai).
+float left_of_row(const Vertices& out, float row) {
+    float left = std::numeric_limits<float>::quiet_NaN();
+    for (std::size_t first = 0; first + 3 < out.size(); first += 4) {
+        if (!near_value(out[first].y, row)) continue;
+        if (std::isnan(left) || out[first].x < left) left = out[first].x;
+    }
     return left;
 }
 
@@ -356,25 +421,7 @@ void writer_edges(Context& context) {
 }
 
 constexpr std::array kCases{
-    Case{.name = "markup_colour_keys", .body = &markup_colour_keys},
-    Case{.name = "markup_hex", .body = &markup_hex},
-    Case{.name = "markup_last_colour", .body = &markup_last_colour},
-    Case{.name = "markup_states", .body = &markup_states},
-    Case{.name = "markup_breaks", .body = &markup_breaks},
-    Case{.name = "markup_faces", .body = &markup_faces},
-    Case{.name = "markup_motions", .body = &markup_motions},
-    Case{.name = "markup_ids", .body = &markup_ids},
-    Case{.name = "markup_aim", .body = &markup_aim},
-    Case{.name = "markup_plain", .body = &markup_plain},
-    Case{.name = "markup_hostile", .body = &markup_hostile},
-    Case{.name = "meter_sizes", .body = &meter_sizes},
-    Case{.name = "meter_formatted", .body = &meter_formatted},
-    Case{.name = "meter_gbk", .body = &meter_gbk},
     Case{.name = "writer_amount", .body = &writer_amount},
-    Case{.name = "writer_simple_edges", .body = &writer_simple_edges},
-    Case{.name = "writer_component", .body = &writer_component},
-    Case{.name = "writer_raw", .body = &writer_raw},
-    Case{.name = "writer_notice", .body = &writer_notice},
     Case{.name = "writer_wraps", .body = &writer_wraps},
     Case{.name = "writer_wrap_quirks", .body = &writer_wrap_quirks},
     Case{.name = "writer_wrap_aligns", .body = &writer_wrap_aligns},

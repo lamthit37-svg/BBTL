@@ -403,7 +403,6 @@ void draw_part_button(const Ctx& ctx, const Placed& self, const Part& part, cons
     if (icon != nullptr) push_whole(*ctx.sheet, *icon, named_area(ctx, button, "ActionArea").value_or(box), kWhiteArgb);
 }
 
-
 // Cửa sổ thành tích
 
 // Phần còn lại của bản ghi sau count trường đầu; rỗng khi bản ghi không đủ trường.
@@ -677,7 +676,6 @@ void draw_action(const Ctx& ctx, const Placed& self) {
     paint_action(ctx, self, flags);
 }
 
-
 std::vector<CatalogItem> catalog_items(const Ctx& ctx, const Placed& self) {
     std::vector<CatalogItem> items;
     const std::vector<std::string_view> records = content_of(ctx, self, kElementsProperty);
@@ -709,7 +707,8 @@ Placed catalog_button(const Ctx& ctx, const Placed& self, const CatalogItem& ite
 std::optional<std::size_t> catalog_item_under(const Ctx& ctx, const Placed& self, Pointer pointer) {
     if (!contains(self.screen, pointer)) return std::nullopt;
     const std::vector<CatalogItem> items = catalog_items(ctx, self);
-    const auto found = std::ranges::find_if(items, [pointer](const CatalogItem& item) { return contains(item.box, pointer); });
+    const auto found =
+        std::ranges::find_if(items, [pointer](const CatalogItem& item) { return contains(item.box, pointer); });
     if (found == items.end()) return std::nullopt;
     return found->index;
 }

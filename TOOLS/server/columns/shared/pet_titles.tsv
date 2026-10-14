@@ -1,0 +1,13 @@
+# schema 1
+# source: client_2026/PetTitle.txt
+# tool: TOOLS/server/export_tables.py; sửa tay sẽ mất ở lượt xuất sau
+# types: int	text	text	text	text
+index	original	name	type	note
+0	ID(递增)	id	int	luật: M2; khớp 100.0% (149/149 id)
+1	CLASS	class	int	luật: M1; khớp 100.0% (149/149 id)
+2	LEVEL	level	int	luật: M1; khớp 100.0% (149/149 id)
+3	槽位（未实现）	slot	int	luật: nguyên văn; khớp 100.0% (149/149 id)
+4	称号（限长20个CHAR）$1$	title_name	text	luật: nguyên văn; khớp 100.0% (149/149 id)
+5	有效期（小时，未实现）	duration_hours	int	luật: nguyên văn; khớp 100.0% (149/149 id)
+6	COLOR	color	text	luật: M1; khớp 100.0% (149/149 id)
+7	描述$1$	description	text	luật: nguyên văn; khớp 100.0% (149/149 id)

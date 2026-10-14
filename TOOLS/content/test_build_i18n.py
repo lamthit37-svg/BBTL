@@ -66,6 +66,31 @@ class ManifestKinds(unittest.TestCase):
             self.assertIn(where, str(caught.exception))
 
 
+class TableCells(unittest.TestCase):
+    def test_table_keys_are_grouped_by_table(self) -> None:
+        text = "table/items/20101000/name\tBản đồ kho báu\ntable/skills/-1/explain\t#GChiêu%s0\nKEY_A\tx\n"
+        manifest = build_i18n.read_manifest(text)
+        self.assertEqual(manifest.tables, {
+            "items": [("20101000", "name", "Bản đồ kho báu")],
+            "skills": [("-1", "explain", "#GChiêu%s0")],
+        })
+        self.assertEqual(manifest.strings, [("KEY_A", "x")], "khoá bảng không lẫn vào bảng chữ")
+
+    def test_bad_table_keys_are_rejected(self) -> None:
+        cases = {
+            "thiếu cột": "table/items/1\tx\n",
+            "thừa phần": "table/items/1/name/x\tx\n",
+            "id không số": "table/items/a1/name\tx\n",
+            "bảng chữ hoa": "table/Items/1/name\tx\n",
+            "cột rỗng": "table/items/1/\tx\n",
+            "bảng giao diện": "table/ui_strings/1/text\tx\n",
+            "khoá lặp": "table/items/1/name\tx\ntable/items/1/name\ty\n",
+        }
+        for name, text in cases.items():
+            with self.subTest(name), self.assertRaises(build_i18n.ManifestError):
+                build_i18n.read_manifest(text)
+
+
 class Outputs(unittest.TestCase):
     def setUp(self) -> None:
         build = ROOT.parents[1] / "build"
@@ -238,6 +263,22 @@ class Outputs(unittest.TestCase):
         self.write_manifest(MANIFEST)
         self.assertEqual(self.run_tool(), 0)
         self.assertFalse(copied.exists(), "tệp thôi được nêu bị gỡ khỏi thư mục dữ liệu")
+
+    # Bản dịch ô: một tệp Table/<bảng>.lang.tsv mỗi bảng; bảng thôi được nêu thì tệp bị gỡ, mốc đổi.
+    def test_table_translations_are_written_and_dropped(self) -> None:
+        cells = "table/items/7/name\tKiếm\ntable/items/7/description\t#GSắc\ntable/skills/3/name\tChưởng\n"
+        self.write_manifest(MANIFEST + cells)
+        self.assertEqual(self.run_tool(), 0)
+        items = self.data / "Table" / "items.lang.tsv"
+        skills = self.data / "Table" / "skills.lang.tsv"
+        self.assertTrue(items.read_text(encoding="utf-8").endswith("id\tcolumn\ttext\n7\tname\tKiếm\n7\tdescription\t#GSắc\n"))
+        self.assertTrue(skills.read_text(encoding="utf-8").endswith("id\tcolumn\ttext\n3\tname\tChưởng\n"))
+        stamp = (self.state / "deployed.stamp").read_bytes()
+        self.write_manifest(MANIFEST + cells.replace("table/skills/3/name\tChưởng\n", ""))
+        self.assertEqual(self.run_tool(), 0)
+        self.assertFalse(skills.exists(), "bảng thôi được nêu thì bản dịch bị gỡ")
+        self.assertTrue(items.exists())
+        self.assertNotEqual((self.state / "deployed.stamp").read_bytes(), stamp, "đổi bản dịch bảng thì mốc đổi")
 
     # Mốc của bước đóng gói: đổi khi và chỉ khi thứ đã đưa vào thư mục dữ liệu đổi.
     def test_stamp_changes_exactly_when_the_deployment_changes(self) -> None:

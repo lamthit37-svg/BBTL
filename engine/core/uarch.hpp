@@ -12,7 +12,7 @@ namespace game::core {
 
 // Chuỗi hãng như lá CPUID 0 trả ("GenuineIntel", "AuthenticAMD"); họ và model đã cộng phần mở
 // rộng. Rỗng khi không có trong bảng.
-[[nodiscard]] std::string_view microarchitecture(std::string_view vendor, std::uint32_t family,
-    std::uint32_t model, std::uint32_t stepping) noexcept;
+[[nodiscard]] std::string_view microarchitecture(std::string_view vendor, std::uint32_t family, std::uint32_t model,
+    std::uint32_t stepping) noexcept;
 
 } // namespace game::core

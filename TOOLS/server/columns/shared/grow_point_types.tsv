@@ -1,0 +1,24 @@
+# schema 1
+# source: client_2026/GrowPoint.txt
+# tool: TOOLS/server/export_tables.py; sửa tay sẽ mất ở lượt xuất sau
+# types: int	text	text	text	text
+index	original	name	type	note
+0	编号	serial	int	neo: cột gốc 0, khớp 100.0% (339/339 id); luật: nguyên văn
+1		column_1	text	mới ở 2026
+2	对应模型	model_id	text	neo: cột gốc 2, khớp 100.0% (339/339 id); luật: nguyên văn
+3	对应生活技能ID	life_skill_id	int	neo: cột gốc 3, khớp 100.0% (339/339 id); luật: nguyên văn
+4	对应任务ID	mission_id	int	nội suy: cột gốc 4, khớp 100.0% (339/339 id); luật: nguyên văn
+5	Tips默认$1$	default_tip	text	nội suy: cột gốc 5, khớp 100.0% (339/339 id); luật: nguyên văn
+6	打开时间默认	default_open_time	int	nội suy: cột gốc 6, khớp 100.0% (339/339 id); luật: nguyên văn
+7	脚本ID	script_id	int	neo: cột gốc 7, khớp 100.0% (339/339 id); luật: nguyên văn
+8		column_8	int	mới ở 2026
+9		column_9	int	mới ở 2026
+10		column_10	int	mới ở 2026
+11		column_11	int	mới ở 2026
+12		column_12	int	mới ở 2026
+13		column_13	int	mới ở 2026
+14		column_14	int	mới ở 2026
+15		column_15	int	mới ở 2026
+16		column_16	int	mới ở 2026
+17		column_17	int	mới ở 2026
+18		column_18	int	mới ở 2026

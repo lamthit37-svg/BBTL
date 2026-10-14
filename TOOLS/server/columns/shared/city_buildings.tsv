@@ -1,0 +1,28 @@
+# schema 1
+# source: client_2026/CityBuilding.txt
+# tool: TOOLS/server/export_tables.py; sửa tay sẽ mất ở lượt xuất sau
+# types: int	text	text	text	text
+index	original	name	type	note
+0	ID	id	int	luật: M1; khớp 100.0% (3240/3240 id)
+1	CityID	city_id	int	luật: M1; khớp 100.0% (3239/3240 id)
+2	Name$1$	name	text	luật: M1; khớp 100.0% (3240/3240 id)
+3	BuildingType	building_type	int	luật: M1; khớp 100.0% (3240/3240 id)
+4	BuildingID	building_id	int	luật: M1; khớp 100.0% (3240/3240 id)
+5	InitialLevel	initial_level	int	luật: M1; khớp 100.0% (3240/3240 id)
+6	GfxPosition	gfx_position	text	luật: M1; khớp 100.0% (3240/3240 id)
+7	GfxOrientation	gfx_orientation	text	luật: M1; khớp 100.0% (3240/3240 id)
+8	LevelRequire1	level_require_1	int	luật: M1; khớp 100.0% (3240/3240 id)
+9	LevelRequire2	level_require_2	int	luật: M1; khớp 100.0% (3240/3240 id)
+10	LevelRequire3	level_require_3	int	luật: M1; khớp 100.0% (3240/3240 id)
+11	LevelRequire4	level_require_4	int	luật: M1; khớp 100.0% (3240/3240 id)
+12	LevelRequire5	level_require_5	int	luật: M1; khớp 100.0% (3240/3240 id)
+13	ResearchItem0	research_item_0	int	luật: M1; khớp 100.0% (3240/3240 id)
+14	ResearchItem1	research_item_1	int	luật: M1; khớp 100.0% (3240/3240 id)
+15	ResearchItem2	research_item_2	int	luật: M1; khớp 100.0% (3240/3240 id)
+16	ResearchItem3	research_item_3	int	luật: M1; khớp 100.0% (3240/3240 id)
+17	ResearchItem4	research_item_4	int	luật: M1; khớp 100.0% (3240/3240 id)
+18	Maintain0	maintain_0	int	luật: M1; khớp 86.7% (2808/3240 id)
+19	Maintain1	maintain_1	int	luật: M1; khớp 86.7% (2808/3240 id)
+20	Maintain2	maintain_2	int	luật: M1; khớp 73.3% (2376/3240 id)
+21	Maintain3	maintain_3	int	luật: M1; khớp 73.3% (2376/3240 id)
+22	Maintain4	maintain_4	int	luật: M1; khớp 73.3% (2376/3240 id)

@@ -72,8 +72,8 @@ inline void add_water(resource::Model& model, const map::LiquidSheet& sheet, res
 }
 
 // Rỗng khi không mặt nào có cả lưới lẫn ảnh.
-[[nodiscard]] inline resource::Model water_model(const Stage& stage, const map::Ground& ground,
-    std::string_view script, const std::filesystem::path& root) {
+[[nodiscard]] inline resource::Model water_model(const Stage& stage, const map::Ground& ground, std::string_view script,
+    const std::filesystem::path& root) {
     resource::Model model;
     resource::Mesh mesh;
     mesh.name = "water";

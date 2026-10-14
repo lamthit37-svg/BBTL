@@ -1,0 +1,255 @@
+# schema 1
+# source: Public/Data/Script/*.lua (4248 tệp)
+# tool: TOOLS/server/scene_refs.py; sửa tay sẽ mất ở lượt xuất sau
+# types: text	int	text	text	text	text	int
+script	line	kind	argument	resolved	how	files_on_disk
+event/challenge/edali_challenge.lua	50	map	x806014_g_CopyScene	leitai_1.nav	constant	1
+event/challenge/edali_challenge.lua	64	area	x806014_g_CopySceneExit	leitai_1_area.ini	constant	1
+event/challenge/eluoyang_challenge.lua	50	map	x806012_g_CopyScene	leitai_2.nav	constant	1
+event/challenge/eluoyang_challenge.lua	64	area	x806012_g_CopySceneExit	leitai_2_area.ini	constant	1
+event/city/ecity_0102eliminatethieves.lua	236	map	x600004_g_CopySceneMap	kuangchang.nav	constant	1
+event/city/ecity_0102eliminatethieves.lua	259	area	x600004_g_Exit	kuangchang_area.ini	constant	1
+event/city/ecity_0102eliminatethieves.lua	260	monster	"kuangchang_monster_" .. iniLevel .. ".ini"	kuangchang_monster_*.ini	format	20
+event/city/ecity_0202convoypet.lua	265	map	x600009_g_CopySceneMap	muchang.nav	constant	1
+event/city/ecity_0202convoypet.lua	286	area	x600009_g_Exit	muchang_area.ini	constant	1
+event/city/ecity_0202convoypet.lua	287	monster	"muchang_monster_" .. iniLevel .. ".ini"	muchang_monster_*.ini	format	20
+event/city/ecity_0302fightvermins.lua	235	map	x600014_g_CopySceneMap	shuge.nav	constant	1
+event/city/ecity_0302fightvermins.lua	258	area	x600014_g_Exit	shuge_area.ini	constant	1
+event/city/ecity_0302fightvermins.lua	259	monster	"shuge_monster_" .. iniLevel .. ".ini"	shuge_monster_*.ini	format	20
+event/city/ecity_0402chuckoutvillain.lua	233	map	x600019_g_CopySceneMap	jishi.nav	constant	1
+event/city/ecity_0402chuckoutvillain.lua	256	area	x600019_g_Exit	jishi_area.ini	constant	1
+event/city/ecity_0402chuckoutvillain.lua	257	monster	"jishi_monster_" .. iniLevel .. ".ini"	jishi_monster_*.ini	format	20
+event/city/ecity_0502directprentice.lua	227	map	x600025_g_CopySceneMap	jiaochang.nav	constant	1
+event/city/ecity_0502directprentice.lua	250	area	x600025_g_Exit	jiaochang_area.ini	constant	1
+event/city/ecity_0502directprentice.lua	251	monster	"jiaochang_monster_" .. iniLevel .. ".ini"	jiaochang_monster_*.ini	format	20
+event/city/ecity_0503savefamily.lua	332	map	MenpaiInfo.Map		unresolved	
+event/city/ecity_0503savefamily.lua	358	area	MenpaiInfo.Exit		unresolved	
+event/city/ecity_0503savefamily.lua	359	monster	format( MenpaiInfo.Monster, iniLevel )		unresolved	
+event/city/ecity_0602military.lua	395	map	x600032_g_CopySceneMap[nMenpai]	tongrenxiang_1.nav|guangmingdong_1.nav|jiujiao_1.nav|lingxingfeng_1.nav|taohuazhen_1.nav|wushendong_1.nav|tadi_1.nav|zhemeifeng_1.nav|gudi_1.nav	format	9
+event/city/ecity_0602military.lua	425	area	x600032_g_CopyArea[nMenpai]	tongrenxiang_1_area.ini|guangmingdong_1_area.ini|jiujiao_1_area.ini|lingxingfeng_1_area.ini|taohuazhen_1_area.ini|wushendong_1_area.ini|tadi_1_area.ini|zhemeifeng_1_area.ini|gudi_1_area.ini	format	9
+event/city/ecity_0602military.lua	426	monster	x600032_g_CopyNpc[nMenpai] .. "_" .. tostring(iniLevel) .. ".ini"	tongrenxiang_1_monster_*.ini|guangmingdong_1_monster_*.ini|jiujiao_1_monster_*.ini|lingxingfeng_1_monster_*.ini|taohuazhen_1_monster_*.ini|wushendong_1_monster_*.ini|tadi_1_monster_*.ini|zhemeifeng_1_monster_*.ini|gudi_1_monster_*.ini	format	180
+event/city/ecity_0604military.lua	358	map	x600034_g_CopySceneMap	yamen.nav	constant	1
+event/city/ecity_0604military.lua	388	area	"yamen_area.ini"	yamen_area.ini	literal	1
+event/city/ecity_0604military.lua	389	monster	"yamen_monster_" .. tostring(iniLevel) .. ".ini"	yamen_monster_*.ini	format	20
+event/city/ecity_07011chucktroublemaker.lua	147	map	x600037_g_CopySceneMap	shiji_2.nav	constant	1
+event/city/ecity_07011chucktroublemaker.lua	173	area	x600037_g_Exit	shiji_2_area.ini	constant	1
+event/city/ecity_07011chucktroublemaker.lua	174	monster	"shiji_2_monster_" .. iniLevel .. ".ini"	shiji_2_monster_*.ini	format	20
+event/city/ecity_0703killruffian.lua	258	map	x600039_g_CopySceneMap	gongdi.nav	constant	1
+event/city/ecity_0703killruffian.lua	282	area	x600039_g_Exit	gongdi_area.ini	constant	1
+event/city/ecity_0703killruffian.lua	283	monster	"gongdi_monster_" .. iniLevel .. ".ini"	gongdi_monster_*.ini	format	20
+event/city/ecity_0802findcompound.lua	594	map	x600042_g_CopySceneMap	shiji_1.nav	constant	1
+event/city/ecity_0802findcompound.lua	610	area	x600042_g_Exit	shiji_1_area.ini	constant	1
+event/city/ecity_0802findcompound.lua	611	monster	"shiji_1_monster_" .. iniLevel .. ".ini"	shiji_1_monster_*.ini	format	20
+event/city/protect_guild.lua	305	map	"protectguild.nav"	protectguild.nav	literal	1
+event/city/protect_guild.lua	326	monster	"protectguild_monster.ini"	protectguild_monster.ini	literal	1
+event/dali/edali_0222.lua	224	map	x210222_g_CopySceneMap	newbie_2.nav	constant	1
+event/dali/edali_0222.lua	236	monster	x210222_g_CopySceneMonster	newbie_2_monster.ini	constant	1
+event/emei/emei_skill_01.lua	120	map	"jishi.nav"	jishi.nav	literal	1
+event/emei/emei_skill_01.lua	139	area	"jishiemeimis_area.ini"	jishiemeimis_area.ini	literal	1
+event/emei/emei_skill_01.lua	140	monster	"jishiemeimis_monster.ini"	jishiemeimis_monster.ini	literal	1
+event/emei/shimen_0901.lua	212	map	"taohuazhen.nav"	taohuazhen.nav	literal	1
+event/emei/shimen_0901.lua	247	monster	"taohuazhen_monster_" .. iniLevel .. ".ini"	taohuazhen_monster_*.ini	format	20
+event/emei/shimen_0901.lua	256	monster	"taohuazhen_20monster_" .. iniLevel .. ".ini"	taohuazhen_20monster_*.ini	format	17
+event/festival/midautumn/emidautumn_fight.lua	168	map	x050010_g_CopySceneMap	bianguan_1.nav	constant	1
+event/festival/midautumn/emidautumn_fight.lua	191	area	x050010_g_CopySceneArea	bianguan_1_area.ini	constant	1
+event/festival/midautumn/emidautumn_fight.lua	194	monster	monsterINI	bianguan_*_monster_*.ini	format	80
+event/fuben/efuben_1_zhenlong.lua	317	map	"zhenlong.nav"	zhenlong.nav	literal	1
+event/fuben/efuben_1_zhenlong_huodong.lua	432	map	"zhenlong.nav"	zhenlong.nav	literal	1
+event/fuben/efuben_1_zhenlong_huodong.lua	472	monster	"zhenlong_monster_" .. iniLevel .. ".ini"	zhenlong_monster_*.ini	format	20
+event/fuben/efuben_2_murenxiang.lua	297	map	"xingxiu.nav"	xingxiu.nav	literal	1
+event/fuben/efuben_2_murenxiang.lua	311	monster	"murenxiang_monster_10.ini"	murenxiang_monster_10.ini	literal	1
+event/fuben/efuben_2_murenxiang.lua	313	monster	"murenxiang_monster_20.ini"	murenxiang_monster_20.ini	literal	1
+event/fuben/efuben_2_murenxiang.lua	315	monster	"murenxiang_monster_30.ini"	murenxiang_monster_30.ini	literal	1
+event/fuben/efuben_2_murenxiang.lua	317	monster	"murenxiang_monster_40.ini"	murenxiang_monster_40.ini	literal	1
+event/fuben/efuben_2_murenxiang.lua	319	monster	"murenxiang_monster_50.ini"	murenxiang_monster_50.ini	literal	1
+event/fuben/efuben_2_murenxiang.lua	321	monster	"murenxiang_monster_60.ini"	murenxiang_monster_60.ini	literal	1
+event/fuben/efuben_2_murenxiang.lua	323	monster	"murenxiang_monster_70.ini"	murenxiang_monster_70.ini	literal	1
+event/fuben/efuben_2_murenxiang.lua	325	monster	"murenxiang_monster_80.ini"	murenxiang_monster_80.ini	literal	1
+event/fuben/efuben_2_murenxiang.lua	327	monster	"murenxiang_monster_90.ini"	murenxiang_monster_90.ini	literal	1
+event/fuben/efuben_2_murenxiang.lua	329	monster	"murenxiang_monster_100.ini"	murenxiang_monster_100.ini	literal	1
+event/fuben/efuben_2_murenxiang.lua	331	monster	"murenxiang_monster_110.ini"	murenxiang_monster_110.ini	literal	1
+event/fuben/efuben_2_murenxiang.lua	333	monster	"murenxiang_monster_120.ini"	murenxiang_monster_120.ini	literal	1
+event/fuben/efuben_2_murenxiang.lua	335	monster	"murenxiang_monster_130.ini"	murenxiang_monster_130.ini	literal	1
+event/fuben/efuben_2_murenxiang.lua	337	monster	"murenxiang_monster_140.ini"	murenxiang_monster_140.ini	literal	1
+event/fuben/efuben_2_murenxiang.lua	339	monster	"murenxiang_monster_150.ini"	murenxiang_monster_150.ini	literal	1
+event/fuben/efuben_2_murenxiang.lua	341	monster	"murenxiang_monster_160.ini"	murenxiang_monster_160.ini	literal	1
+event/fuben/efuben_2_murenxiang.lua	343	monster	"murenxiang_monster_170.ini"	murenxiang_monster_170.ini	literal	1
+event/fuben/efuben_2_murenxiang.lua	345	monster	"murenxiang_monster_180.ini"	murenxiang_monster_180.ini	literal	1
+event/fuben/efuben_2_murenxiang.lua	347	monster	"murenxiang_monster_190.ini"	murenxiang_monster_190.ini	literal	1
+event/fuben/efuben_2_murenxiang.lua	349	monster	"murenxiang_monster_200.ini"	murenxiang_monster_200.ini	literal	1
+event/fuben/efuben_3_shuilao.lua	298	map	"shuilao.nav"	shuilao.nav	literal	1
+event/fuben/efuben_3_shuilao.lua	312	monster	"shuilao_monster_10.ini"	shuilao_monster_10.ini	literal	1
+event/fuben/efuben_3_shuilao.lua	314	monster	"shuilao_monster_15.ini"	shuilao_monster_15.ini	literal	0
+event/fuben/efuben_3_shuilao.lua	316	monster	"shuilao_monster_20.ini"	shuilao_monster_20.ini	literal	1
+event/fuben/efuben_3_shuilao.lua	318	monster	"shuilao_monster_25.ini"	shuilao_monster_25.ini	literal	0
+event/fuben/efuben_3_shuilao.lua	320	monster	"shuilao_monster_30.ini"	shuilao_monster_30.ini	literal	1
+event/fuben/efuben_3_shuilao.lua	322	monster	"shuilao_monster_35.ini"	shuilao_monster_35.ini	literal	0
+event/fuben/efuben_3_shuilao.lua	324	monster	"shuilao_monster_40.ini"	shuilao_monster_40.ini	literal	1
+event/fuben/efuben_3_shuilao.lua	326	monster	"shuilao_monster_45.ini"	shuilao_monster_45.ini	literal	0
+event/fuben/efuben_3_shuilao.lua	328	monster	"shuilao_monster_50.ini"	shuilao_monster_50.ini	literal	1
+event/fuben/efuben_bangzhan.lua	403	map	x402047_g_CopySceneMap	zhuluKVK.nav	constant	1
+event/fuben/efuben_bangzhan.lua	438	area	x402047_g_CopySceneArea	zhuluKVK_area.ini	constant	1
+event/fuben/efuben_bangzhan.lua	440	monster	x402047_g_CopySceneMonsterIni	zhuluKVK_monster.ini	constant	1
+event/fuben/efuben_cuju.lua	383	map	"cuju.nav"	cuju.nav	literal	1
+event/fuben/efuben_cuju.lua	423	area	"cuju_area.ini"	cuju_area.ini	literal	1
+event/fuben/efuben_cuju.lua	424	monster	"cuju_monster.ini"	cuju_monster.ini	literal	1
+event/fuben/efuben_jiaofei.lua	360	map	"jiaofei.nav"	jiaofei.nav	literal	1
+event/fuben/efuben_jiaofei.lua	397	area	"jiaofei_area.ini"	jiaofei_area.ini	literal	1
+event/fuben/efuben_jiaofei.lua	398	monster	"jiaofei_monster.ini"	jiaofei_monster.ini	literal	1
+event/fuben/efuben_wedding.lua	45	map	"wedding_2.nav"	wedding_2.nav	literal	1
+event/fuben/efuben_wedding.lua	46	monster	"wedding_2_monster.ini"	wedding_2_monster.ini	literal	1
+event/fuben/efuben_wedding.lua	48	map	"wedding_3.nav"	wedding_3.nav	literal	1
+event/fuben/efuben_wedding.lua	49	monster	"wedding_3_monster.ini"	wedding_3_monster.ini	literal	1
+event/fuben/efuben_wedding.lua	51	map	"wedding_1.nav"	wedding_1.nav	literal	1
+event/fuben/efuben_wedding.lua	52	monster	"wedding_1_monster.ini"	wedding_1_monster.ini	literal	1
+event/fuben/yezhu_catch.lua	245	map	"zhenshoulan.nav"	zhenshoulan.nav	literal	1
+event/fuben/yezhu_protect.lua	287	map	"petisland_2.nav"	petisland_2.nav	literal	1
+event/gaibang/shimen_0901.lua	212	map	"jiujiao.nav"	jiujiao.nav	literal	1
+event/gaibang/shimen_0901.lua	247	monster	"jiujiao_monster_" .. iniLevel .. ".ini"	jiujiao_monster_*.ini	format	20
+event/gaibang/shimen_0901.lua	256	monster	"jiujiao_20monster_" .. iniLevel .. ".ini"	jiujiao_20monster_*.ini	format	17
+event/huodong/eTouximenpai_NPC_emei.lua	403	map	"emei_1.nav"	emei_1.nav	literal	1
+event/huodong/eTouximenpai_NPC_emei.lua	425	monster	"emei_1_monster_" .. iniLevel .. ".ini"	emei_1_monster_*.ini	format	20
+event/huodong/eTouximenpai_NPC_gaibang.lua	400	map	"gaibang_1.nav"	gaibang_1.nav	literal	1
+event/huodong/eTouximenpai_NPC_gaibang.lua	422	monster	"gaibang_1_monster_" .. iniLevel .. ".ini"	gaibang_1_monster_*.ini	format	20
+event/huodong/eTouximenpai_NPC_mingjiao.lua	400	map	"mingjiao_1.nav"	mingjiao_1.nav	literal	1
+event/huodong/eTouximenpai_NPC_mingjiao.lua	422	monster	"mingjiao_1_monster_" .. iniLevel .. ".ini"	mingjiao_1_monster_*.ini	format	20
+event/huodong/eTouximenpai_NPC_shaolin.lua	399	map	"shaolin_1.nav"	shaolin_1.nav	literal	1
+event/huodong/eTouximenpai_NPC_shaolin.lua	430	monster	"shaolin_1_monster_" .. iniLevel .. ".ini"	shaolin_1_monster_*.ini	format	10
+event/huodong/eTouximenpai_NPC_tianlong.lua	398	map	"tianlong_1.nav"	tianlong_1.nav	literal	1
+event/huodong/eTouximenpai_NPC_tianlong.lua	420	monster	"tianlong_1_monster_" .. iniLevel .. ".ini"	tianlong_1_monster_*.ini	format	20
+event/huodong/eTouximenpai_NPC_tianshan.lua	398	map	"tianshan_1.nav"	tianshan_1.nav	literal	1
+event/huodong/eTouximenpai_NPC_tianshan.lua	420	monster	"tianshan_1_monster_" .. iniLevel .. ".ini"	tianshan_1_monster_*.ini	format	20
+event/huodong/eTouximenpai_NPC_wudang.lua	399	map	"wudang_1.nav"	wudang_1.nav	literal	1
+event/huodong/eTouximenpai_NPC_wudang.lua	421	monster	"wudang_1_monster_" .. iniLevel .. ".ini"	wudang_1_monster_*.ini	format	20
+event/huodong/eTouximenpai_NPC_xiaoyao.lua	397	map	"xiaoyao_1.nav"	xiaoyao_1.nav	literal	1
+event/huodong/eTouximenpai_NPC_xiaoyao.lua	419	monster	"xiaoyao_1_monster_" .. iniLevel .. ".ini"	xiaoyao_1_monster_*.ini	format	20
+event/huodong/eTouximenpai_NPC_xingxiu.lua	399	map	"xingxiu_1.nav"	xingxiu_1.nav	literal	1
+event/huodong/eTouximenpai_NPC_xingxiu.lua	421	monster	"xingxiu_1_monster_" .. iniLevel .. ".ini"	xingxiu_1_monster_*.ini	format	20
+event/huodong/edataosha_doing.lua	388	map	x808002_g_CopySceneMap	dataosha.nav	constant	1
+event/huodong/edataosha_doing.lua	401	area	"dataosha_area.ini"	dataosha_area.ini	literal	1
+event/huodong/edataosha_doing.lua	402	monster	"dataosha_monster.ini"	dataosha_monster.ini	literal	1
+event/huodong/seek_treasure.lua	614	map	x808039_g_FuBen_Data.MapFile		unresolved	
+event/huodong/seek_treasure.lua	657	area	x808039_g_FuBen_Data.AreaFile		unresolved	
+event/huodong/seek_treasure.lua	658	monster	x808039_g_FuBen_Data.MonsterFile		unresolved	
+event/juqing/cangmangshan_01.lua	121	map	"cangmang_1.nav"	cangmang_1.nav	literal	1
+event/juqing/cangmangshan_01.lua	140	area	"cangmang_1_area.ini"	cangmang_1_area.ini	literal	1
+event/juqing/cangmangshan_01.lua	141	monster	"cangmang_1_monster.ini"	cangmang_1_monster.ini	literal	1
+event/juqing/cangmangshan_05.lua	139	map	"cangmang.nav"	cangmang.nav	literal	1
+event/juqing/cangmangshan_05.lua	158	area	"cangmang_area.ini"	cangmang_area.ini	literal	1
+event/juqing/cangmangshan_05.lua	159	monster	"cangmang_monster.ini"	cangmang_monster.ini	literal	1
+event/juqing/juxianzhuang_01.lua	107	map	"juxian_1.nav"	juxian_1.nav	literal	1
+event/juqing/juxianzhuang_01.lua	126	area	"juxian_1_area.ini"	juxian_1_area.ini	literal	1
+event/juqing/juxianzhuang_01.lua	127	monster	"juxian_1_monster.ini"	juxian_1_monster.ini	literal	1
+event/juqing/juxianzhuang_04.lua	98	map	"juxian.nav"	juxian.nav	literal	1
+event/juqing/juxianzhuang_04.lua	117	area	"juxian_area.ini"	juxian_area.ini	literal	1
+event/juqing/juxianzhuang_04.lua	118	monster	"juxian_monster.ini"	juxian_monster.ini	literal	1
+event/juqing/leigu_01.lua	112	map	"leigu_1.nav"	leigu_1.nav	literal	1
+event/juqing/leigu_01.lua	131	area	"leigu_1_area.ini"	leigu_1_area.ini	literal	1
+event/juqing/leigu_01.lua	132	monster	"leigu_1_monster.ini"	leigu_1_monster.ini	literal	1
+event/juqing/leigu_05.lua	91	map	"leigu.nav"	leigu.nav	literal	1
+event/juqing/leigu_05.lua	110	area	"leigu_area.ini"	leigu_area.ini	literal	1
+event/juqing/leigu_05.lua	111	monster	"leigu_monster.ini"	leigu_monster.ini	literal	1
+event/juqing/wanjiegu_01.lua	118	map	"wanjie_1.nav"	wanjie_1.nav	literal	1
+event/juqing/wanjiegu_01.lua	137	area	"wanjie_1_area.ini"	wanjie_1_area.ini	literal	1
+event/juqing/wanjiegu_01.lua	138	monster	"wanjie_1_monster.ini"	wanjie_1_monster.ini	literal	1
+event/juqing/wanjiegu_05.lua	138	map	"wanjie.nav"	wanjie.nav	literal	1
+event/juqing/wanjiegu_05.lua	157	area	"wanjie_area.ini"	wanjie_area.ini	literal	1
+event/juqing/wanjiegu_05.lua	158	monster	"wanjie_monster.ini"	wanjie_monster.ini	literal	1
+event/juqing/yanziwu_01.lua	118	map	"yanzi_1.nav"	yanzi_1.nav	literal	1
+event/juqing/yanziwu_01.lua	136	area	"yanzi_1_area.ini"	yanzi_1_area.ini	literal	1
+event/juqing/yanziwu_01.lua	137	monster	"yanzi_1_monster.ini"	yanzi_1_monster.ini	literal	1
+event/juqing/yanziwu_04.lua	119	map	"yanzi.nav"	yanzi.nav	literal	1
+event/juqing/yanziwu_04.lua	139	area	"yanzi_area.ini"	yanzi_area.ini	literal	1
+event/juqing/yanziwu_04.lua	140	monster	"yanzi_monster.ini"	yanzi_monster.ini	literal	1
+event/juqing/yipin_01.lua	127	map	"yipin_1.nav"	yipin_1.nav	literal	1
+event/juqing/yipin_01.lua	147	area	"yipin_1_area.ini"	yipin_1_area.ini	literal	1
+event/juqing/yipin_01.lua	148	monster	"yipin_1_monster.ini"	yipin_1_monster.ini	literal	1
+event/juqing/yipin_05.lua	121	map	"yipin.nav"	yipin.nav	literal	1
+event/juqing/yipin_05.lua	140	area	"yipin_area.ini"	yipin_area.ini	literal	1
+event/juqing/yipin_05.lua	141	monster	"yipin_monster.ini"	yipin_monster.ini	literal	1
+event/mingjiao/shimen_0901.lua	211	map	"guangmingdong.nav"	guangmingdong.nav	literal	1
+event/mingjiao/shimen_0901.lua	246	monster	"guangmingdong_monster_" .. iniLevel .. ".ini"	guangmingdong_monster_*.ini	format	20
+event/mingjiao/shimen_0901.lua	255	monster	"guangmingdong_20monster_" .. iniLevel .. ".ini"	guangmingdong_20monster_*.ini	format	17
+event/olympicgames/eGodFireTransfer_fuben.lua	239	map	fubenData.MapFile		unresolved	
+event/olympicgames/eGodFireTransfer_fuben.lua	275	area	fubenData.AreaFile		unresolved	
+event/olympicgames/eGodFireTransfer_fuben.lua	276	monster	fubenData.MonsterFile		unresolved	
+event/piaomiaofeng/epiaomiaofeng.lua	210	map	"piaomiao.nav"	piaomiao.nav	literal	1
+event/piaomiaofeng/epiaomiaofeng.lua	244	area	"piaomiao_area.ini"	piaomiao_area.ini	literal	1
+event/piaomiaofeng/epiaomiaofeng.lua	245	monster	"piaomiao_monster.ini"	piaomiao_monster.ini	literal	1
+event/piaomiaofengsmall/epiaomiaofeng_small.lua	210	map	"piaomiao.nav"	piaomiao.nav	literal	1
+event/piaomiaofengsmall/epiaomiaofeng_small.lua	244	area	"piaomiao_area.ini"	piaomiao_area.ini	literal	1
+event/piaomiaofengsmall/epiaomiaofeng_small.lua	245	monster	"piaomiao_monster.ini"	piaomiao_monster.ini	literal	1
+event/pingpan/ezhaochen.lua	304	map	"_pingpan_1.nav"	_pingpan_1.nav	literal	1
+event/pingpan/ezhaochen.lua	319	monster	"_pingpan_1_monster.ini"	_pingpan_1_monster.ini	literal	1
+event/pingpan/ezhaochen.lua	324	monster	"_pingpan_40_monster.ini"	_pingpan_40_monster.ini	literal	1
+event/pingpan/ezhaochen.lua	329	monster	"_pingpan_55_monster.ini"	_pingpan_55_monster.ini	literal	1
+event/pingpan/ezhaochen.lua	334	monster	"_pingpan_70_monster.ini"	_pingpan_70_monster.ini	literal	1
+event/pingpan/ezhaochen.lua	339	monster	"_pingpan_85_monster.ini"	_pingpan_85_monster.ini	literal	1
+event/pingpan/ezhaoliu.lua	304	map	"_pingpan_1.nav"	_pingpan_1.nav	literal	1
+event/pingpan/ezhaoliu.lua	319	monster	"_pingpan_1_monster.ini"	_pingpan_1_monster.ini	literal	1
+event/pingpan/ezhaoliu.lua	324	monster	"_pingpan_40_monster.ini"	_pingpan_40_monster.ini	literal	1
+event/pingpan/ezhaoliu.lua	329	monster	"_pingpan_55_monster.ini"	_pingpan_55_monster.ini	literal	1
+event/pingpan/ezhaoliu.lua	334	monster	"_pingpan_70_monster.ini"	_pingpan_70_monster.ini	literal	1
+event/pingpan/ezhaoliu.lua	339	monster	"_pingpan_85_monster.ini"	_pingpan_85_monster.ini	literal	1
+event/shaolin/eshaolin_skill_03.lua	123	map	"gongdi.nav"	gongdi.nav	literal	1
+event/shaolin/eshaolin_skill_03.lua	142	area	"gongdishaolinmis_area.ini"	gongdishaolinmis_area.ini	literal	1
+event/shaolin/eshaolin_skill_03.lua	143	monster	"gongdishaolinmis_monster.ini"	gongdishaolinmis_monster.ini	literal	1
+event/shaolin/shimen_0901.lua	212	map	"tongrenxiang.nav"	tongrenxiang.nav	literal	1
+event/shaolin/shimen_0901.lua	247	monster	"tongrenxiang_monster_" .. iniLevel .. ".ini"	tongrenxiang_monster_*.ini	format	20
+event/shaolin/shimen_0901.lua	256	monster	"tongrenxiang_20monster_" .. iniLevel .. ".ini"	tongrenxiang_20monster_*.ini	format	17
+event/tianlong/shimen_0901.lua	206	map	"tadi.nav"	tadi.nav	literal	1
+event/tianlong/shimen_0901.lua	241	monster	"tadi_monster_" .. iniLevel .. ".ini"	tadi_monster_*.ini	format	20
+event/tianlong/shimen_0901.lua	250	monster	"tadi_20monster_" .. iniLevel .. ".ini"	tadi_20monster_*.ini	format	17
+event/tianshan/shimen_0901.lua	210	map	"zhemeifeng.nav"	zhemeifeng.nav	literal	1
+event/tianshan/shimen_0901.lua	245	monster	"zhemeifeng_monster_" .. iniLevel .. ".ini"	zhemeifeng_monster_*.ini	format	20
+event/tianshan/shimen_0901.lua	254	monster	"zhemeifeng_20monster_" .. iniLevel .. ".ini"	zhemeifeng_20monster_*.ini	format	17
+event/tianshan/tianshan_skill_02.lua	242	map	x228903_g_CopySceneMap	yamen.nav	constant	1
+event/tianshan/tianshan_skill_02.lua	256	area	x228903_g_Exit	yamentianshanmis_area.ini	constant	1
+event/tianshan/tianshan_skill_02.lua	257	monster	x228903_g_Monster	yamentianshanmis_monster.ini	constant	1
+event/wudang/shimen_0901.lua	212	map	"lingxingfeng.nav"	lingxingfeng.nav	literal	1
+event/wudang/shimen_0901.lua	247	monster	"lingxingfeng_monster_" .. iniLevel .. ".ini"	lingxingfeng_monster_*.ini	format	20
+event/wudang/shimen_0901.lua	256	monster	"lingxingfeng_20monster_" .. iniLevel .. ".ini"	lingxingfeng_20monster_*.ini	format	17
+event/xiaoyao/shimen_0901.lua	211	map	"gudi.nav"	gudi.nav	literal	1
+event/xiaoyao/shimen_0901.lua	246	monster	"gudi_monster_" .. iniLevel .. ".ini"	gudi_monster_*.ini	format	20
+event/xiaoyao/shimen_0901.lua	255	monster	"gudi_20monster_" .. iniLevel .. ".ini"	gudi_20monster_*.ini	format	17
+event/xingxiu/shimen_0901.lua	211	map	"wushendong.nav"	wushendong.nav	literal	1
+event/xingxiu/shimen_0901.lua	246	monster	"wushendong_monster_" .. iniLevel .. ".ini"	wushendong_monster_*.ini	format	20
+event/xingxiu/shimen_0901.lua	255	monster	"wushendong_20monster_" .. iniLevel .. ".ini"	wushendong_20monster_*.ini	format	17
+event/xinshengshoushan/entercopyScene.lua	248	map	x808121_g_FubenTbl.MapFile		unresolved	
+event/xinshengshoushan/entercopyScene.lua	272	area	x808121_g_FubenTbl.AreaFile		unresolved	
+event/xinshengshoushan/entercopyScene.lua	273	monster	x808121_g_FubenTbl.MonsterFile		unresolved	
+event/xunhuan/bamboo_forest.lua	435	map	x050101_g_CopySceneMap	zhulin.nav	constant	1
+event/xunhuan/bamboo_forest.lua	455	area	x050101_g_CopySceneArea	zhulin_area.ini	constant	1
+event/xunhuan/bamboo_forest.lua	458	monster	monsterINI	zhulin_monster_%d.ini	format	20
+event/xunhuan/boundary_between_song_and_liao.lua	434	map	x050100_g_CopySceneMap	songliao.nav	constant	1
+event/xunhuan/boundary_between_song_and_liao.lua	456	area	x050100_g_CopySceneArea	songliao_area.ini	constant	1
+event/xunhuan/boundary_between_song_and_liao.lua	459	monster	monsterINI	songliao_monster_%d.ini	format	20
+event/xunhuan/eDynamicNPC_ThiefSoldier.lua	348	map	"zeiying.nav"	zeiying.nav	literal	1
+event/xunhuan/eDynamicNPC_ThiefSoldier.lua	381	monster	"zeiying_monster_" .. iniLevel .. ".ini"	zeiying_monster_*.ini	format	20
+event/xunhuan/ebaimasi_231000.lua	284	map	"shuilao.nav"	shuilao.nav	literal	1
+event/xunhuan/ebaimasi_231000.lua	307	monster	"shuilao_monster_" .. iniLevel .. ".ini"	shuilao_monster_*.ini	format	20
+event/xunhuan/ebaimasi_231001.lua	308	map	"zhenlong.nav"	zhenlong.nav	literal	1
+event/xunhuan/ebaimasi_231001.lua	335	monster	"zhenlong_monster_" .. iniLevel .. ".ini"	zhenlong_monster_*.ini	format	20
+event/xunhuan/event_diaorubaozang.lua	120	map	"muxue.nav"	muxue.nav	literal	1
+event/xunhuan/event_diaorubaozang.lua	145	monster	"muxue_monster_" .. tostring(iniLevel) .. ".ini"	muxue_monster_*.ini	format	20
+event/xunhuan/event_renwulian_fuben.lua	164	map	"shiji.nav"	shiji.nav	literal	1
+event/xunhuan/event_renwulian_fuben.lua	194	monster	"shiji_monster.ini"	shiji_monster.ini	literal	1
+event/xunhuan/examination_room.lua	309	map	x801018_g_CopySceneMap	kaochang.nav	constant	1
+event/xunhuan/examination_room.lua	335	monster	"kaochang_monster_" .. tostring(iniLevel) .. ".ini"	kaochang_monster_*.ini	format	20
+event/xunhuan/field_fastness.lua	443	map	x050102_g_CopySceneMap	yewai.nav	constant	1
+event/xunhuan/field_fastness.lua	458	area	x050102_g_CopySceneArea	yewai_area.ini	constant	1
+event/xunhuan/field_fastness.lua	461	monster	monsterINI	yewai_monster_%d.ini	format	20
+event/xunhuan/shuilao_12.lua	361	map	"shuilao.nav"	shuilao.nav	literal	1
+event/xunhuan/shuilao_12.lua	383	monster	"shuilao_monster_" .. iniLevel .. ".ini"	shuilao_monster_*.ini	format	20
+event/xunhuan/xinsanhuan_1.lua	448	map	x050220_g_CopySceneMap	xuanmuchang.nav	constant	1
+event/xunhuan/xinsanhuan_1.lua	470	area	x050220_g_CopySceneArea	xuanmuchang_area.ini	constant	1
+event/xunhuan/xinsanhuan_1.lua	472	monster	x050220_g_CopySceneMonsterIni	xuanmuchang_monster.ini	constant	1
+event/xunhuan/xinsanhuan_2.lua	478	map	x050221_g_CopySceneMap	dumuchang.nav	constant	1
+event/xunhuan/xinsanhuan_2.lua	500	area	x050221_g_CopySceneArea	dumuchang_area.ini	constant	1
+event/xunhuan/xinsanhuan_2.lua	502	monster	x050221_g_CopySceneMonsterIni	dumuchang_monster.ini	constant	1
+event/xunhuan/xinsanhuan_3.lua	422	map	x050222_g_CopySceneMap	huomuchang.nav	constant	1
+event/xunhuan/xinsanhuan_3.lua	441	area	x050222_g_CopySceneArea	huomuchang_area.ini	constant	1
+event/xunhuan/xinsanhuan_3.lua	443	monster	x050222_g_CopySceneMonsterIni	huomuchang_monster.ini	constant	1
+event/yanziwu/yanziwu_1.lua	458	map	"yanziwu.nav"	yanziwu.nav	literal	1
+event/yanziwu/yanziwu_1.lua	490	area	"yanziwu_area.ini"	yanziwu_area.ini	literal	1
+event/yanziwu/yanziwu_1.lua	491	monster	"yanziwu_monster.ini"	yanziwu_monster.ini	literal	1

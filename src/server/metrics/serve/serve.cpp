@@ -136,14 +136,15 @@ net::NetResult<Server> Server::start(Registry& registry) {
     core::ThreadConfig config;
     config.name = "metrics";
     Readers readers{std::move(*listener), registry, std::move(fill)};
-    std::jthread thread = core::start_thread(std::move(config), [line = std::move(readers)](std::stop_token stop) mutable {
-        while (!stop.stop_requested()) {
-            const net::NetResult<void> stepped = line.step(kServeSlice, core::Clock::now());
-            if (stepped) continue;
-            std::println(stderr, "metrics: cổng đọc số đo dừng: {}", net::describe(stepped.error()));
-            return;
-        }
-    });
+    std::jthread thread =
+        core::start_thread(std::move(config), [line = std::move(readers)](std::stop_token stop) mutable {
+            while (!stop.stop_requested()) {
+                const net::NetResult<void> stepped = line.step(kServeSlice, core::Clock::now());
+                if (stepped) continue;
+                std::println(stderr, "metrics: cổng đọc số đo dừng: {}", net::describe(stepped.error()));
+                return;
+            }
+        });
     return Server{local->port, std::move(thread)};
 }
 

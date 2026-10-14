@@ -84,7 +84,8 @@ void RadarAtlas::reset(const RadarAim& seen) {
 
 bool RadarAtlas::covers(const RadarAim& seen) const noexcept {
     if (!origin_) return false;
-    return holds(origin_->column, shape_.across, across_span(seen)) && holds(origin_->row, shape_.down, down_span(seen));
+    return holds(origin_->column, shape_.across, across_span(seen)) &&
+        holds(origin_->row, shape_.down, down_span(seen));
 }
 
 RadarAtlas::Origin RadarAtlas::origin_for(const RadarAim& seen) const noexcept {
@@ -148,13 +149,16 @@ struct ShrinkAt {
     std::size_t shrink = 1;
 };
 
-[[nodiscard]] std::array<std::uint8_t, kBytesPerPixel> shrunk_pixel(std::span<const std::uint8_t> source, ShrinkAt at) noexcept {
+[[nodiscard]] std::array<std::uint8_t, kBytesPerPixel> shrunk_pixel(std::span<const std::uint8_t> source,
+    ShrinkAt at) noexcept {
     std::array<std::size_t, kBytesPerPixel> sum{};
     for (std::size_t dy = 0; dy < at.shrink; ++dy) {
         for (std::size_t dx = 0; dx < at.shrink; ++dx) {
             const std::size_t row = (at.line * at.shrink) + dy;
-            const std::size_t first = ((row * static_cast<std::size_t>(kRadarTilePixels)) + (at.column * at.shrink) + dx) * kBytesPerPixel;
-            for (std::size_t channel = 0; channel < kBytesPerPixel; ++channel) sum.at(channel) += source[first + channel];
+            const std::size_t first =
+                ((row * static_cast<std::size_t>(kRadarTilePixels)) + (at.column * at.shrink) + dx) * kBytesPerPixel;
+            for (std::size_t channel = 0; channel < kBytesPerPixel; ++channel)
+                sum.at(channel) += source[first + channel];
         }
     }
     std::array<std::uint8_t, kBytesPerPixel> out{};

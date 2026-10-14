@@ -1,0 +1,17 @@
+# schema 1
+# source: Public/Scene/guangmingdong_1_patrolpoint.ini
+# tool: TOOLS/server/export_scene.py; sửa tay sẽ mất ở lượt xuất sau
+# types: int	int	float	float	float	int	text	text	int	int	text	text	text	text
+patrol_index	point_index	position_x	position_y	position_z	settle_time	point_script_id	route_script_id	turns_back	teleport_to_respawn	speech_unread	speech_1	speech_2	speech_3
+0	0	17.3815	-400.0000	19.4431									
+0	1	24.0252	-400.0000	19.6096									
+0	2	30.8589	-400.0000	19.7201									
+0	3	39.3436	-400.0000	21.9730									
+0	4	44.3693	-403.8093	22.8190									
+0	5	49.1305	-405.2300	28.4366									
+0	6	46.3440	-294.7779	34.4900									
+0	7	39.7848	-119.6855	35.9757									
+0	8	31.9740	175.8582	37.3807									
+0	9	25.3104	200.0000	36.7821									
+0	10	20.8635	200.0000	37.5239									
+0	11	15.9030	200.0000	40.0348									

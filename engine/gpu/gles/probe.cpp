@@ -96,8 +96,8 @@ void read_profile(GlProbe& probe, const GlFunctions& api, GlFlavor flavor) {
 // Bảy tham số và const void* là chữ ký GLDEBUGPROC của đặc tả (lệch API-03). Bộ đếm mà user trỏ
 // tới vốn không const: set_debug_sink của context nhận nó dưới dạng con trỏ thường.
 // NOLINTBEGIN(readability-function-size,cppcoreguidelines-pro-type-const-cast)
-void GL_APIENTRY on_debug(std::uint32_t, std::uint32_t type, std::uint32_t, std::uint32_t severity,
-    std::int32_t, const char* message, const void* user) {
+void GL_APIENTRY on_debug(std::uint32_t, std::uint32_t type, std::uint32_t, std::uint32_t severity, std::int32_t,
+    const char* message, const void* user) {
     const auto* errors = static_cast<const std::atomic<std::uint64_t>*>(user);
     if (type == GL_DEBUG_TYPE_ERROR && errors != nullptr) {
         const_cast<std::atomic<std::uint64_t>*>(errors)->fetch_add(1, std::memory_order_relaxed);

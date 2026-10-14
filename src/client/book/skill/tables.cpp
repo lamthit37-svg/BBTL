@@ -95,7 +95,8 @@ using DataColumns = std::array<std::string, kDataTiers>;
 
 [[nodiscard]] DataColumns data_columns() {
     DataColumns columns;
-    for (std::size_t tier = 0; tier < kDataTiers; ++tier) columns.at(tier) = std::format("data_{}", tier);
+    for (std::size_t tier = 0; tier < kDataTiers; ++tier)
+        columns.at(tier) = std::format("data_{}", tier);
     return columns;
 }
 
@@ -110,7 +111,8 @@ using DataColumns = std::array<std::string, kDataTiers>;
     row.passivity = whole(reader, "passivity");
     row.must_learn = whole(reader, "must_learn");
     row.column_101 = whole(reader, "column_101");
-    for (std::size_t tier = 0; tier < kDataTiers; ++tier) row.data.at(tier) = whole(reader, columns.at(tier));
+    for (std::size_t tier = 0; tier < kDataTiers; ++tier)
+        row.data.at(tier) = whole(reader, columns.at(tier));
     row.name = reader.text("name");
     row.icon = reader.text("icon");
     row.explain = reader.text("explain");

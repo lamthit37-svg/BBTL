@@ -148,7 +148,8 @@ void Widgets::check(std::string_view window, bool is_on) {
 }
 
 void Widgets::check_one(std::string_view window, std::span<const std::string_view> group) {
-    for (const std::string_view other : group) entry_of(other).is_checked = false;
+    for (const std::string_view other : group)
+        entry_of(other).is_checked = false;
     entry_of(window).is_checked = true;
 }
 
@@ -244,6 +245,12 @@ std::int32_t Widgets::first_item(std::string_view window) const noexcept {
     return entry == nullptr ? 0 : entry->first.value_or(0);
 }
 
+std::optional<std::int32_t> Widgets::item_id(std::string_view window, std::size_t index) const noexcept {
+    const Entry* entry = find(window);
+    if (entry == nullptr || !entry->items || index >= entry->items->size()) return std::nullopt;
+    return (*entry->items)[index].id;
+}
+
 std::optional<std::string_view> Widgets::value(const Key& key) const noexcept {
     const Entry* entry = find(key.window);
     if (entry == nullptr) return std::nullopt;
@@ -286,7 +293,8 @@ void Widgets::paint(Deck& deck) const {
 void Widgets::describe_properties(const Entry& entry, std::vector<std::string>& lines) {
     std::vector<const Property*> sorted;
     sorted.reserve(entry.properties.size());
-    for (const Property& property : entry.properties) sorted.push_back(&property);
+    for (const Property& property : entry.properties)
+        sorted.push_back(&property);
     std::ranges::sort(sorted, {}, [](const Property* property) { return std::string_view(property->name); });
     for (const Property* property : sorted) {
         add_line(lines, Key{.window = entry.window, .name = property->name}, flat(property->value));

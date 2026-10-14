@@ -16,6 +16,29 @@ StaticEntity bằng Vulkan đúng phép đặt gốc, có camera bay; `--shot <t
 `--dump-bounds <tệp.tsv>` ghi hộp bao thế giới của từng vật thể. Sáu bước con làm đúng thứ tự, bước
 sau chỉ bắt đầu khi bước trước đạt mọi tiêu chí.
 
+## Shader chuyển sang Slang (2026-10-13)
+
+Nguồn shader của render là `src/client/render/shaders/*.slang` (cú pháp HLSL chạy nguyên văn). Slang dịch ra
+SPIR-V, DXIL, DXBC trong tiến trình (`engine/shader/detail/slang.cpp`); `d3dcompiler` và `dxbc.*` đã bỏ. DXC chỉ đọc
+phản chiếu DXIL. `reconcile.cpp` đối chiếu phản chiếu SPIR-V với DXIL của cùng nguồn mỗi lần dịch: bố cục lệch thì
+lỗi lúc dựng gói, semantic lấy từ DXIL, tên sạch lấy từ SPIR-V. Khoá cache của gói có `kPipeline` (`compiler.cpp`).
+
+Đã đo: băm phản chiếu 7 gói × 4 đích bằng bản DXC cũ; ảnh chụp Vulkan `--scene-id 2 --bare` giống bản cũ từng điểm
+ảnh; `--scene-id 2` và `--login` lệch ít hơn nhiễu giữa hai lượt chạy cùng một bản. Còn mở ở `docs/NGHI-NGO.md` mục 50
+(D3D12/D3D11 thật, cỡ DXIL, sinh GLSL của GLES từ Slang). Lệnh kiểm:
+`thienlong_shader build src/client/render/shaders/shaders.list --out <thư mục> --target spirv,dxil,dxbc,glsl`
+rồi `thienlong_shader show <gói>.f2s` so băm `phản chiếu` giữa các đích (phải bằng nhau).
+
+## Lưới đi của Đại Lý và Lạc Dương (2026-10-13)
+
+`dev/client/assets/Scene` của `dali_new_320` và `luoyang_new` thiếu `.path` và `.WCollision` dù kho gốc có đủ: công cụ
+`collect_map.py` bản cũ không gom hai tệp ấy, nên client in "cảnh không có tệp .path" và nhân vật đi xuyên vật cản.
+Đã thêm `collect_walk` (có `TOOLS/content/test_collect_map.py`, 5 ca xanh) và gom lại cả hai map. Đã chạy
+`thienlong_client --scene-id <id> --frames 3` thoát 0: Đại Lý "Lưới đi: 11669 đỉnh, 23324 tam giác, 11665 cạnh vật cản",
+Lạc Dương "10546 đỉnh, 21080 tam giác, 10543 cạnh vật cản". Chưa kiểm: nhân vật bị chặn thật trong tay người chơi
+(công cụ bấm chuột bị cấm). Có `.WCollision` thì `surface_y` nâng chân nhân vật lên mặt cầu, bậc thang của hai map
+(`docs/VA-CHAM-2026.md`); trước đó hai map không có tệp nên chân luôn ở địa hình. Chưa nhìn thử tay.
+
 ## Đăng ký, đăng nhập, nhân vật (2026-10-12)
 
 PostgreSQL 18.6 trong `SERVER/pgsql`, libpq 18.4. Schema `SERVER/sql/auth` và `SERVER/sql/game`:
@@ -2176,7 +2199,8 @@ dựng).
 
 ## Còn lại
 
-Đối chiếu với mã ngày 2026-10-08, `main` ở `501743a`. Mỗi dòng trỏ tới mục giữ chi tiết.
+Đối chiếu với mã ngày 2026-10-08, `main` ở `501743a`; các dòng "Giao diện", "Hình" và "Dựng lại cây chung"
+đã đối chiếu lại với mã ngày 2026-10-13. Mỗi dòng trỏ tới mục giữ chi tiết.
 
 - **Dựng lại cây chung**: `build/clang-asan` và `build/msvc-release` chưa dựng lại từ các lần gộp
   tối 2026-10-08; số đo của hai trình dịch ấy mới có ở cây riêng, thiếu `service_tests`,
@@ -2198,9 +2222,12 @@ dựng).
   hành trang; bấm thẻ và cộng điểm của bảng nhân vật (`NGHI-NGO.md` mục 36). Thương thành hiện tám
   mục và kệ, chưa có hàng và giá (script 888902 không có trong cây); giao dịch không mở khung khi
   chưa có lời mời; Về Đăng Nhập chưa có đường (`NGHI-NGO.md` mục 42). Bản đồ cảnh và bản đồ thế
-  giới chưa có layout. Chữ giao diện còn viết thẳng trong C++ ở vài bảng.
-- **Hình**: nước và vòm trời chưa vẽ; `fx` còn thiếu pipeline trộn alpha, hạt mesh, xoay hạt, thời
-  lượng của emitter (`NGHI-NGO.md` mục 40a); D3D12 và D3D11 chưa hiển thị (`NGHI-NGO.md` mục 25).
+  giới đã port ngày 2026-10-13 (`TAILIEU/MAN-CHOI-GIAO-DIEN-2026.md`). Chữ giao diện còn viết thẳng trong
+  C++ ở vài bảng.
+- **Hình**: nước và vòm trời có mã dựng và vẽ (`ensure_water`, `ensure_sky` ở `client/display/graphic/scene.cpp`),
+  chưa ai đối chiếu ảnh với bản 2026; `fx` còn thiếu pipeline trộn alpha, hạt mesh, xoay hạt, thời
+  lượng của emitter (`NGHI-NGO.md` mục 40a; ngày 2026-10-13 đã thêm `SequenceFrame`, `DirectionRandomiser` và
+  kiểu trộn `zero one_minus_src_colour`); D3D12 và D3D11 chưa hiển thị (`NGHI-NGO.md` mục 25).
 - **Client chưa có**: NPC, quái, vật phẩm, vũ khí, người chơi khác, kết nối máy chủ (module `link`
   là việc của P3). Mọi số trên HUD lấy từ nhân vật mẫu viết cứng.
 - **Android / iOS** (2026-10-09): thủ tục đăng nhập dùng chung `client/boot` với PC (`--login`):

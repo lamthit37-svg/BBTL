@@ -124,4 +124,3 @@ private:
 [[nodiscard]] core::Result<Uploaded> upload_queued(gpu::Device& device, const Model& model, Baked baked);
 
 } // namespace game::resource
-

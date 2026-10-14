@@ -20,8 +20,8 @@ namespace {
 // Các cảnh phó bản: bấm vào thì widget không phát NormalSceneClicked (isCopyScene, 0x18008d900).
 constexpr std::array<int, 8> kCopyScenes{0x24, 0x25, 0x26, 0x3D, 0x42, 0xA8, 0xEA, 0x118};
 
-// Loại nút mà ảnh nhãn gốc đỏ (đo trung bình R - G của ảnh "khi trỏ" trong tga_MiniMap_Icon2: 129..165, các loại khác 0):
-// phó bản và nơi đặc biệt. Còn lại nhãn đen.
+// Loại nút mà ảnh nhãn gốc đỏ (đo trung bình R - G của ảnh "khi trỏ" trong tga_MiniMap_Icon2: 129..165, các loại khác
+// 0): phó bản và nơi đặc biệt. Còn lại nhãn đen.
 constexpr std::array<std::string_view, 8> kRedSigns{
     "Sign13", "Sign14", "Sign15", "Sign16", "Sign17", "Sign18", "Sign55", "Sign66"};
 

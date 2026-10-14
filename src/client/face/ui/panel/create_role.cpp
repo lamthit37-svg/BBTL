@@ -96,14 +96,26 @@ constexpr std::string_view kSolid = "1";
 
 // g_FaceSel và g_FaceBorder: ảnh và nút chọn của chín ô chân dung.
 constexpr std::array<std::string_view, kHeadsPerPage> kHeadImages = {
-    "CreateRole_Select_HeadImage1", "CreateRole_Select_HeadImage2", "CreateRole_Select_HeadImage3",
-    "CreateRole_Select_HeadImage4", "CreateRole_Select_HeadImage5", "CreateRole_Select_HeadImage6",
-    "CreateRole_Select_HeadImage7", "CreateRole_Select_HeadImage8", "CreateRole_Select_HeadImage9",
+    "CreateRole_Select_HeadImage1",
+    "CreateRole_Select_HeadImage2",
+    "CreateRole_Select_HeadImage3",
+    "CreateRole_Select_HeadImage4",
+    "CreateRole_Select_HeadImage5",
+    "CreateRole_Select_HeadImage6",
+    "CreateRole_Select_HeadImage7",
+    "CreateRole_Select_HeadImage8",
+    "CreateRole_Select_HeadImage9",
 };
 constexpr std::array<std::string_view, kHeadsPerPage> kHeadButtons = {
-    "CreateRole_Select_Head1", "CreateRole_Select_Head2", "CreateRole_Select_Head3",
-    "CreateRole_Select_Head4", "CreateRole_Select_Head5", "CreateRole_Select_Head6",
-    "CreateRole_Select_Head7", "CreateRole_Select_Head8", "CreateRole_Select_Head9",
+    "CreateRole_Select_Head1",
+    "CreateRole_Select_Head2",
+    "CreateRole_Select_Head3",
+    "CreateRole_Select_Head4",
+    "CreateRole_Select_Head5",
+    "CreateRole_Select_Head6",
+    "CreateRole_Select_Head7",
+    "CreateRole_Select_Head8",
+    "CreateRole_Select_Head9",
 };
 // Các nút đánh dấu cùng cha (CheckMode 1: bật một nút thì các nút kia tắt).
 constexpr std::array<std::string_view, 2> kSexButtons = {kGirl, kBoy};
@@ -111,61 +123,142 @@ constexpr std::array<std::string_view, 2> kPreviewButtons = {kPreviewMan, kPrevi
 
 // g_MenpaiControl: ô 0 là nút thôi xem trước, ô 1..15 là mười lăm môn phái.
 constexpr std::array<std::string_view, kMenpaiCount + 1> kMenpaiControl = {
-    "CreateRole_MenpaiModel00", "CreateRole_MenpaiModel01", "CreateRole_MenpaiModel02", "CreateRole_MenpaiModel03",
-    "CreateRole_MenpaiModel04", "CreateRole_MenpaiModel05", "CreateRole_MenpaiModel06", "CreateRole_MenpaiModel07",
-    "CreateRole_MenpaiModel08", "CreateRole_MenpaiModel09", "CreateRole_MenpaiModel10", "CreateRole_MenpaiModel11",
-    "CreateRole_MenpaiModel12", "CreateRole_MenpaiModel13", "CreateRole_MenpaiModel14", "CreateRole_MenpaiModel15",
+    "CreateRole_MenpaiModel00",
+    "CreateRole_MenpaiModel01",
+    "CreateRole_MenpaiModel02",
+    "CreateRole_MenpaiModel03",
+    "CreateRole_MenpaiModel04",
+    "CreateRole_MenpaiModel05",
+    "CreateRole_MenpaiModel06",
+    "CreateRole_MenpaiModel07",
+    "CreateRole_MenpaiModel08",
+    "CreateRole_MenpaiModel09",
+    "CreateRole_MenpaiModel10",
+    "CreateRole_MenpaiModel11",
+    "CreateRole_MenpaiModel12",
+    "CreateRole_MenpaiModel13",
+    "CreateRole_MenpaiModel14",
+    "CreateRole_MenpaiModel15",
 };
 // g_MenpaiNormalImageList và g_MenpaiDisableImageList, nhánh cổ điển (IsClassic của bản 2026 luôn
 // trả 1).
 constexpr std::array<std::string_view, kMenpaiCount + 1> kMenpaiNormal = {
-    "set:CreateRole2 image:BtnCancel_Normal",      "set:MainFrameLuo03 image:Cs_Shaolin_Normal",
-    "set:MainFrameLuo03 image:Cs_Mingjiao_Normal", "set:MainFrameLuo03 image:Cs_Gaibang_Normal",
-    "set:MainFrameLuo05 image:Cs_Wudang_Normal",   "set:MainFrameLuo03 image:Cs_Emei_Normal",
-    "set:MainFrameLuo05 image:Cs_Xingxiu_Normal",  "set:MainFrameLuo03 image:Cs_Tianlong_Normal",
-    "set:MainFrameLuo04 image:Cs_Tianshan_Normal", "set:MainFrameLuo05 image:Cs_Xiaoyao_Normal",
-    "set:MainFrameLuo03 image:Cs_Murong_Normal",   "set:MainFrameLuo05 image:Cs_Tangmen_Normal",
-    "set:MainFrameLuo05 image:Cs_Guigu_Normal",    "set:MainFrameLuo05 image:Cs_Kunlun_Normal",
-    "set:MainFrameLuo06 image:Cs_Congren_Normal",  "set:MainFrameLuo06 image:Cs_ERenGu_Normal",
+    "set:CreateRole2 image:BtnCancel_Normal",
+    "set:MainFrameLuo03 image:Cs_Shaolin_Normal",
+    "set:MainFrameLuo03 image:Cs_Mingjiao_Normal",
+    "set:MainFrameLuo03 image:Cs_Gaibang_Normal",
+    "set:MainFrameLuo05 image:Cs_Wudang_Normal",
+    "set:MainFrameLuo03 image:Cs_Emei_Normal",
+    "set:MainFrameLuo05 image:Cs_Xingxiu_Normal",
+    "set:MainFrameLuo03 image:Cs_Tianlong_Normal",
+    "set:MainFrameLuo04 image:Cs_Tianshan_Normal",
+    "set:MainFrameLuo05 image:Cs_Xiaoyao_Normal",
+    "set:MainFrameLuo03 image:Cs_Murong_Normal",
+    "set:MainFrameLuo05 image:Cs_Tangmen_Normal",
+    "set:MainFrameLuo05 image:Cs_Guigu_Normal",
+    "set:MainFrameLuo05 image:Cs_Kunlun_Normal",
+    "set:MainFrameLuo06 image:Cs_Congren_Normal",
+    "set:MainFrameLuo06 image:Cs_ERenGu_Normal",
 };
 constexpr std::array<std::string_view, kMenpaiCount + 1> kMenpaiDisable = {
-    "set:CreateRole2 image:BtnCancel_Disable",     "set:MainFrameLuo03 image:Cs_Shaolin_Pushed",
-    "set:MainFrameLuo03 image:Cs_Mingjiao_Pushed", "set:MainFrameLuo03 image:Cs_Gaibang_Pushed",
-    "set:MainFrameLuo05 image:Cs_Wudang_Pushed",   "set:MainFrameLuo03 image:Cs_Emei_Pushed",
-    "set:MainFrameLuo05 image:Cs_Xingxiu_Pushed",  "set:MainFrameLuo04 image:Cs_Tianlong_Pushed",
-    "set:MainFrameLuo04 image:Cs_Tianshan_Pushed", "set:MainFrameLuo05 image:Cs_Xiaoyao_Pushed",
-    "set:MainFrameLuo03 image:Cs_Murong_Pushed",   "set:MainFrameLuo05 image:Cs_Tangmen_Pushed",
-    "set:MainFrameLuo05 image:Cs_Guigu_Pushed",    "set:MainFrameLuo05 image:Cs_Kunlun_Pushed",
-    "set:MainFrameLuo06 image:Cs_Congren_Pushed",  "set:MainFrameLuo06 image:Cs_ERenGu_Pushed",
+    "set:CreateRole2 image:BtnCancel_Disable",
+    "set:MainFrameLuo03 image:Cs_Shaolin_Pushed",
+    "set:MainFrameLuo03 image:Cs_Mingjiao_Pushed",
+    "set:MainFrameLuo03 image:Cs_Gaibang_Pushed",
+    "set:MainFrameLuo05 image:Cs_Wudang_Pushed",
+    "set:MainFrameLuo03 image:Cs_Emei_Pushed",
+    "set:MainFrameLuo05 image:Cs_Xingxiu_Pushed",
+    "set:MainFrameLuo04 image:Cs_Tianlong_Pushed",
+    "set:MainFrameLuo04 image:Cs_Tianshan_Pushed",
+    "set:MainFrameLuo05 image:Cs_Xiaoyao_Pushed",
+    "set:MainFrameLuo03 image:Cs_Murong_Pushed",
+    "set:MainFrameLuo05 image:Cs_Tangmen_Pushed",
+    "set:MainFrameLuo05 image:Cs_Guigu_Pushed",
+    "set:MainFrameLuo05 image:Cs_Kunlun_Pushed",
+    "set:MainFrameLuo06 image:Cs_Congren_Pushed",
+    "set:MainFrameLuo06 image:Cs_ERenGu_Pushed",
 };
 // g_MenpaiIntroduction: ô 0 là lời mời xem trước, ô 1..15 là lời giới thiệu ngắn của từng môn.
 constexpr std::array<std::string_view, kMenpaiCount + 1> kMenpaiIntro = {
-    "#{XZRW_XML_0}",     "#{XZRW_XML_1}",      "#{XZRW_XML_2}",      "#{XZRW_XML_3}",
-    "#{XZRW_XML_4}",     "#{XZRW_XML_5}",      "#{XZRW_XML_6}",      "#{XZRW_XML_7}",
-    "#{XZRW_XML_8}",     "#{XZRW_XML_9}",      "#{XZRW_XML_10}",     "#{XMPTM_130823_4}",
-    "#{XMPGG_160615_34}", "#{THDBQ_190809_08}", "#{XMPHM_210604_06}", "#{XMPHM_210604_29}",
+    "#{XZRW_XML_0}",
+    "#{XZRW_XML_1}",
+    "#{XZRW_XML_2}",
+    "#{XZRW_XML_3}",
+    "#{XZRW_XML_4}",
+    "#{XZRW_XML_5}",
+    "#{XZRW_XML_6}",
+    "#{XZRW_XML_7}",
+    "#{XZRW_XML_8}",
+    "#{XZRW_XML_9}",
+    "#{XZRW_XML_10}",
+    "#{XMPTM_130823_4}",
+    "#{XMPGG_160615_34}",
+    "#{THDBQ_190809_08}",
+    "#{XMPHM_210604_06}",
+    "#{XMPHM_210604_29}",
 };
 // g_Ex_MenpaiIntroduction và g_MenpaiBgImageControl của môn 0..14.
 constexpr std::array<std::string_view, kMenpaiCount> kMenpaiDetail = {
-    "#{JSCJYH_121224_04}", "#{JSCJYH_121224_06}", "#{JSCJYH_121224_05}", "#{JSCJYH_121224_07}", "#{JSCJYH_121224_09}",
-    "#{JSCJYH_121224_11}", "#{JSCJYH_121224_08}", "#{JSCJYH_121224_12}", "#{JSCJYH_121224_10}", "#{JSCJYH_121224_13}",
-    "#{XMPTM_130123_06}",  "#{XMPGG_160615_35}",  "#{THDBQ_190809_07}",  "#{XMPHM_210604_05}",  "#{XMPHM_210604_28}",
+    "#{JSCJYH_121224_04}",
+    "#{JSCJYH_121224_06}",
+    "#{JSCJYH_121224_05}",
+    "#{JSCJYH_121224_07}",
+    "#{JSCJYH_121224_09}",
+    "#{JSCJYH_121224_11}",
+    "#{JSCJYH_121224_08}",
+    "#{JSCJYH_121224_12}",
+    "#{JSCJYH_121224_10}",
+    "#{JSCJYH_121224_13}",
+    "#{XMPTM_130123_06}",
+    "#{XMPGG_160615_35}",
+    "#{THDBQ_190809_07}",
+    "#{XMPHM_210604_05}",
+    "#{XMPHM_210604_28}",
 };
 constexpr std::array<std::string_view, kMenpaiCount> kMenpaiIcons = {
-    "set:CreateRole3 image:Icon_Shaolin",  "set:CreateRole4 image:Icon_Mingjiao", "set:CreateRole3 image:Icon_Gaibang",
-    "set:CreateRole4 image:Icon_Wudang",   "set:CreateRole4 image:Icon_Emei",     "set:CreateRole3 image:Icon_Xingxiu",
-    "set:CreateRole4 image:Icon_Tianlong", "set:CreateRole3 image:Icon_Tianshan", "set:CreateRole4 image:Icon_Xiaoyao",
-    "set:CreateRole3 image:Icon_Murong",   "set:CreateRole5 image:Icon_Tangmen",  "set:CreateRole5 image:Icon_Guigu",
-    "set:CreateRole5 image:Icon_Kunlun",   "set:CreateRole5 image:Icon_Hongming", "set:CreateRole5 image:Icon_ERenGu",
+    "set:CreateRole3 image:Icon_Shaolin",
+    "set:CreateRole4 image:Icon_Mingjiao",
+    "set:CreateRole3 image:Icon_Gaibang",
+    "set:CreateRole4 image:Icon_Wudang",
+    "set:CreateRole4 image:Icon_Emei",
+    "set:CreateRole3 image:Icon_Xingxiu",
+    "set:CreateRole4 image:Icon_Tianlong",
+    "set:CreateRole3 image:Icon_Tianshan",
+    "set:CreateRole4 image:Icon_Xiaoyao",
+    "set:CreateRole3 image:Icon_Murong",
+    "set:CreateRole5 image:Icon_Tangmen",
+    "set:CreateRole5 image:Icon_Guigu",
+    "set:CreateRole5 image:Icon_Kunlun",
+    "set:CreateRole5 image:Icon_Hongming",
+    "set:CreateRole5 image:Icon_ERenGu",
 };
 // g_Description[1..24]: dòng mô tả khi rê chuột; ô 0 không có trong script.
 constexpr std::array<std::string_view, 25> kDescription = {
     "",
-    "#{DLJM_XML_16}",    "#{DLJM_XML_17}",     "#{DLJM_XML_18}",     "#{DLJM_XML_19}",     "#{DLJM_XML_20}",
-    "#{DLJM_XML_21}",    "#{DLJM_XML_22}",     "#{DLJM_XML_23}",     "#{DLJM_XML_24}",     "#{DLJM_XML_25}",
-    "#{DLJM_XML_26}",    "#{DLJM_XML_27}",     "#{DLJM_XML_28}",     "#{DLJM_XML_29}",     "#{DLJM_XML_30}",
-    "#{DLJM_XML_31}",    "#{DLJM_XML_32}",     "#{DLJM_XML_33}",     "#{DLJM_XML_34}",     "#{XMPTM_130823_3}",
-    "#{XMPGG_160615_33}", "#{THDBQ_190809_09}", "#{XMPHM_210604_04}", "#{XMPHM_210604_27}",
+    "#{DLJM_XML_16}",
+    "#{DLJM_XML_17}",
+    "#{DLJM_XML_18}",
+    "#{DLJM_XML_19}",
+    "#{DLJM_XML_20}",
+    "#{DLJM_XML_21}",
+    "#{DLJM_XML_22}",
+    "#{DLJM_XML_23}",
+    "#{DLJM_XML_24}",
+    "#{DLJM_XML_25}",
+    "#{DLJM_XML_26}",
+    "#{DLJM_XML_27}",
+    "#{DLJM_XML_28}",
+    "#{DLJM_XML_29}",
+    "#{DLJM_XML_30}",
+    "#{DLJM_XML_31}",
+    "#{DLJM_XML_32}",
+    "#{DLJM_XML_33}",
+    "#{DLJM_XML_34}",
+    "#{XMPTM_130823_3}",
+    "#{XMPGG_160615_33}",
+    "#{THDBQ_190809_09}",
+    "#{XMPHM_210604_04}",
+    "#{XMPHM_210604_27}",
 };
 // Số mà layout đưa cho CreateRole_MouseEnter: ô tên, hai nút giới, ô ảnh, nút tạo, nút quay lại;
 // nút môn phái thứ n (00 là thôi xem trước) nhận 9 + n.
@@ -382,7 +475,8 @@ void restore_character(CreateRole& panel, std::vector<Call>& calls) {
 void clear_images(Widgets& widgets) {
     widgets.disable(kPageUp);
     widgets.disable(kPageDown);
-    for (const std::string_view image : kHeadImages) put(widgets, image, "Image", "");
+    for (const std::string_view image : kHeadImages)
+        put(widgets, image, "Image", "");
 }
 
 // CreateRole_RefreshCurShowFacePage: chín ô của trang đang xem, ô thừa để trống.
@@ -616,7 +710,8 @@ void load(CreateRole& panel, const CreateFacts& facts) {
 }
 
 // Số n của cửa sổ "<prefix><n>" với n có đúng digits chữ số; nullopt khi không khớp.
-[[nodiscard]] std::optional<std::int32_t> numbered(std::string_view window, std::string_view prefix, std::size_t digits) {
+[[nodiscard]] std::optional<std::int32_t> numbered(std::string_view window, std::string_view prefix,
+    std::size_t digits) {
     if (!window.starts_with(prefix) || window.size() != prefix.size() + digits) return std::nullopt;
     std::int32_t number = 0;
     for (const char digit : window.substr(prefix.size())) {
@@ -662,8 +757,19 @@ void load(CreateRole& panel, const CreateFacts& facts) {
 // ngẫu nhiên, tạo, quay lại).
 [[nodiscard]] bool is_in_customizer(std::string_view window) {
     constexpr std::array<std::string_view, 13> kOwn = {
-        kGirl, kBoy, kHairLeft, kHairRight, kFaceLeft, kFaceRight, kClothLeft,
-        kClothRight, kPageUp, kPageDown, kRandom, kAuthor, kBack,
+        kGirl,
+        kBoy,
+        kHairLeft,
+        kHairRight,
+        kFaceLeft,
+        kFaceRight,
+        kClothLeft,
+        kClothRight,
+        kPageUp,
+        kPageDown,
+        kRandom,
+        kAuthor,
+        kBack,
     };
     return head_of(window).has_value() || std::ranges::contains(kOwn, window);
 }
@@ -678,7 +784,8 @@ void load(CreateRole& panel, const CreateFacts& facts) {
 [[nodiscard]] bool takes_mouse(const CreateRole& panel, std::string_view window) {
     const Widgets& widgets = panel.widgets;
     if (widgets.is_disabled(window) || widgets.is_hidden(window)) return false;
-    const bool is_info_shut = widgets.is_disabled(kInfoFrame) || widgets.is_hidden(kInfoFrame) || is_info_clear(widgets);
+    const bool is_info_shut =
+        widgets.is_disabled(kInfoFrame) || widgets.is_hidden(kInfoFrame) || is_info_clear(widgets);
     if (is_in_customizer(window) && is_info_shut) return false;
     return !is_in_preview(window) || !widgets.is_hidden(kInfo2Frame);
 }

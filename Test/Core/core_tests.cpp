@@ -141,7 +141,7 @@ void error_maps_and_prints_system_codes(Context& context) {
     const std::string marker = std::format("[hệ thống {:#x}: ", kMissing);
     context.expect(line.contains("NotFound: không mở được tệp (x.bin)"), "dòng in mã và chi tiết");
     context.expect(line.contains(marker), "dòng in mã hệ thống");
-    context.expect(line.contains("tests/core_tests.cpp:"), "đường dẫn in ra dùng dấu /");
+    context.expect(line.contains("Test/Core/core_tests.cpp:"), "đường dẫn in ra dùng dấu /");
 }
 
 void const_move_only_calls(Context& context) {

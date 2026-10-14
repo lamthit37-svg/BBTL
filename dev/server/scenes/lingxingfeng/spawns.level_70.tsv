@@ -1,0 +1,15 @@
+# schema 1
+# source: Public/Scene/lingxingfeng_monster_70.ini
+# tool: TOOLS/server/export_scene.py; sửa tay sẽ mất ở lượt xuất sau
+# types: int	int	text	text	float	float	int	int	int	int	int	int	int	int	int	int	int	int	int	int	int	int	text	int	int	int
+guid	type	name	title	position_x	position_z	direction	script_id	respawn_time	group_id	team_id	base_ai	ai_file	patrol_id	shop_0	shop_1	shop_2	shop_3	level	is_pet	script_timer	reputation_id	cshop	leader_id	is_npc	camp
+8622766	1536			18.3680	49.2067	27	-1	-1	-1	-1	0	-1	-1	-1	-1	-1	-1								
+8622772	1536			41.4697	8.8575	27	-1	-1	-1	-1	0	-1	-1	-1	-1	-1	-1								
+8622773	1536			43.6685	15.9249	27	-1	-1	-1	-1	0	-1	-1	-1	-1	-1	-1								
+8622779	1536			31.2827	26.4885	27	-1	-1	-1	-1	0	-1	-1	-1	-1	-1	-1								
+8622786	1536			21.3126	12.9731	27	-1	-1	-1	-1	0	-1	-1	-1	-1	-1	-1								
+8622787	1536			24.2329	9.4063	27	-1	-1	-1	-1	0	-1	-1	-1	-1	-1	-1								
+8622806	1536			34.5992	16.0713	27	-1	-1	-1	-1	0	-1	-1	-1	-1	-1	-1								
+8622817	1536			15.4202	42.8612	27	-1	-1	-1	-1	0	-1	-1	-1	-1	-1	-1								
+4717427	1536			24.7003	36.8098	27	-1	-1	-1	-1	0	0	-1	-1	-1	-1	-1								
+4717677	1536			38.3933	32.5439	27	-1	-1	-1	-1	0	0	-1	-1	-1	-1	-1								

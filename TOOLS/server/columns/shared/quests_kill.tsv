@@ -1,0 +1,92 @@
+# schema 1
+# source: client_2026/Mission_KillMonster.txt
+# tool: TOOLS/server/export_tables.py; sửa tay sẽ mất ở lượt xuất sau
+# types: int	text	text	text	text
+index	original	name	type	note
+0	MissionIndex	mission_index	int	neo: cột gốc 0, khớp 100.0% (147/147 id); luật: M1
+1	MissionId	mission_id	int	neo: cột gốc 1, khớp 100.0% (147/147 id); luật: M1
+2	任务类型（客户端）	client_mission_kind	int	neo: cột gốc 2, khớp 99.3% (146/147 id); luật: nguyên văn
+3	是否精英（客户端）	client_is_elite	int	nội suy: cột gốc 3, khớp 100.0% (147/147 id); luật: nguyên văn
+4	是否显示完成（客户端）	client_shows_complete	int	nội suy: cột gốc 4, khớp 100.0% (147/147 id); luật: nguyên văn
+5	环数（客户端）	client_round_count	int	nội suy: cột gốc 5, khớp 100.0% (147/147 id); luật: nguyên văn
+6	是否循环任务	is_repeatable_mission	int	nội suy: cột gốc 6, khớp 100.0% (147/147 id); luật: nguyên văn
+7		column_7	int	mới ở 2026
+8		column_8	int	mới ở 2026
+9	任务名称$1$	mission_name	text	neo: cột gốc 9, khớp 99.3% (146/147 id); luật: nguyên văn
+10	任务目标$1$	mission_objective	text	neo: cột gốc 10, khớp 100.0% (147/147 id); luật: nguyên văn
+11	任务详细描述$1$	mission_detail	text	neo: cột gốc 11, khớp 100.0% (147/147 id); luật: nguyên văn
+12	任务继续信息$1$	mission_continue_text	text	neo: cột gốc 12, khớp 100.0% (147/147 id); luật: nguyên văn
+13	任务完成信息$1$	mission_complete_text	text	neo: cột gốc 13, khớp 100.0% (147/147 id); luật: nguyên văn
+14	接受任务场景ID	accept_scene_id	int	neo: cột gốc 14, khớp 99.3% (146/147 id); luật: nguyên văn
+15	接受任务NpcName$1$	accept_npc_name	text	neo: cột gốc 15, khớp 100.0% (147/147 id); luật: nguyên văn
+16	接受任务NpcGuid	accept_npc_guid	int	nội suy: cột gốc 16, khớp 100.0% (147/147 id); luật: nguyên văn
+17	完成任务场景ID	complete_scene_id	int	neo: cột gốc 17, khớp 100.0% (147/147 id); luật: nguyên văn
+18	完成任务NpcName$1$	complete_npc_name	text	neo: cột gốc 18, khớp 100.0% (147/147 id); luật: nguyên văn
+19	完成任务NpcGuid	complete_npc_guid	int	nội suy: cột gốc 19, khớp 100.0% (147/147 id); luật: nguyên văn
+20	任务需求等级	required_level	int	neo: cột gốc 20, khớp 98.0% (144/147 id); luật: nguyên văn
+21	前续任务Id1	previous_mission_id_1	int	neo: cột gốc 21, khớp 98.0% (144/147 id); luật: mẫu {n}
+22	前续任务Id2	previous_mission_id_2	int	neo: cột gốc 22, khớp 100.0% (147/147 id); luật: mẫu {n}
+23	前续任务Id3	previous_mission_id_3	int	nội suy: cột gốc 23, khớp 100.0% (147/147 id); luật: mẫu {n}
+24	击杀种类数（最多8）	kill_kind_cap_8	int	neo: cột gốc 24, khớp 100.0% (147/147 id); luật: mẫu {n}
+25	怪物名称1$1$	monster_name_1	text	neo: cột gốc 25, khớp 100.0% (147/147 id); luật: mẫu {n}
+26	怪物标志1	monster_mark_1	int	nội suy: cột gốc 26, khớp 100.0% (147/147 id); luật: mẫu {n}
+27	击杀数量1	kill_count_1	int	neo: cột gốc 27, khớp 95.9% (141/147 id); luật: mẫu {n}
+28	怪物名称2$1$	monster_name_2	text	neo: cột gốc 28, khớp 100.0% (147/147 id); luật: mẫu {n}
+29	怪物标志2	monster_mark_2	int	nội suy: cột gốc 29, khớp 100.0% (147/147 id); luật: mẫu {n}
+30	击杀数量2	kill_count_2	int	neo: cột gốc 30, khớp 100.0% (147/147 id); luật: mẫu {n}
+31	怪物名称3$1$	monster_name_3	text	neo: cột gốc 31, khớp 100.0% (147/147 id); luật: mẫu {n}
+32	怪物标志3	monster_mark_3	int	nội suy: cột gốc 32, khớp 100.0% (147/147 id); luật: mẫu {n}
+33	击杀数量3	kill_count_3	int	neo: cột gốc 33, khớp 100.0% (147/147 id); luật: mẫu {n}
+34		column_34	text	mới ở 2026
+35		column_35	int	mới ở 2026
+36		column_36	int	mới ở 2026
+37		column_37	text	mới ở 2026
+38		column_38	int	mới ở 2026
+39		column_39	int	mới ở 2026
+40		column_40	int	mới ở 2026
+41		column_41	int	mới ở 2026
+42		column_42	int	mới ở 2026
+43	关系值存储位置	relation_value_slot	int	neo: cột gốc 42, khớp 100.0% (147/147 id); luật: nguyên văn
+44	关系值奖励	relation_reward	int	nội suy: cột gốc 43, khớp 100.0% (147/147 id); luật: nguyên văn
+45		column_45	text	mới ở 2026
+46	放弃任务关系值惩罚	abandon_relation_penalty	int	nội suy: cột gốc 45, khớp 100.0% (147/147 id); luật: nguyên văn
+47		column_47	text	mới ở 2026
+48	放弃任务后禁止接任务的时间存储位置	abandon_lock_slot	int	nội suy: cột gốc 47, khớp 100.0% (147/147 id); luật: nguyên văn
+49	禁止的时间长度，秒	lock_seconds	int	nội suy: cột gốc 48, khớp 100.0% (147/147 id); luật: nguyên văn
+50	时间限制内接任务的提示$1$	lock_notice	text	nội suy: cột gốc 49, khớp 78.2% (115/147 id); luật: nguyên văn
+51	固定物品奖励1	fixed_item_reward_1	int	nội suy: cột gốc 50, khớp 98.6% (145/147 id); luật: mẫu {n}
+52	个数1	count_1_1	int	nội suy: cột gốc 51, khớp 98.6% (145/147 id); luật: mẫu {n}
+53	固定物品奖励2	fixed_item_reward_2	int	nội suy: cột gốc 52, khớp 100.0% (147/147 id); luật: mẫu {n}
+54	个数2	count_2_1	int	nội suy: cột gốc 53, khớp 100.0% (147/147 id); luật: mẫu {n}
+55	固定物品奖励3	fixed_item_reward_3	int	nội suy: cột gốc 54, khớp 100.0% (147/147 id); luật: mẫu {n}
+56	个数3	count_3	int	nội suy: cột gốc 55, khớp 100.0% (147/147 id); luật: mẫu {n}
+57	固定物品奖励4	fixed_item_reward_4	int	nội suy: cột gốc 56, khớp 100.0% (147/147 id); luật: mẫu {n}
+58	个数4	count_4	int	nội suy: cột gốc 57, khớp 100.0% (147/147 id); luật: mẫu {n}
+59	固定物品奖励5	fixed_item_reward_5	int	nội suy: cột gốc 58, khớp 100.0% (147/147 id); luật: mẫu {n}
+60	个数5	count_5	int	nội suy: cột gốc 59, khớp 100.0% (147/147 id); luật: mẫu {n}
+61	可选物品奖励1	optional_item_reward_1	int	neo: cột gốc 60, khớp 100.0% (147/147 id); luật: mẫu {n}
+62	个数1	count_1_2	int	nội suy: cột gốc 61, khớp 100.0% (147/147 id); luật: mẫu {n}
+63	可选物品奖励2	optional_item_reward_2	int	neo: cột gốc 62, khớp 100.0% (147/147 id); luật: mẫu {n}
+64	个数2	count_2_2	int	nội suy: cột gốc 63, khớp 100.0% (147/147 id); luật: mẫu {n}
+65	可选物品奖励3	optional_item_reward_3	int	neo: cột gốc 64, khớp 99.3% (146/147 id); luật: mẫu {n}
+66		column_66	int	mới ở 2026
+67		column_67	int	mới ở 2026
+68		column_68	int	mới ở 2026
+69		column_69	int	mới ở 2026
+70		column_70	int	mới ở 2026
+71		column_71	int	mới ở 2026
+72		column_72	int	mới ở 2026
+73		column_73	int	mới ở 2026
+74		column_74	int	mới ở 2026
+75		column_75	int	mới ở 2026
+76		column_76	int	mới ở 2026
+77		column_77	int	mới ở 2026
+78		column_78	int	mới ở 2026
+79		column_79	int	mới ở 2026
+80		column_80	int	mới ở 2026
+81		column_81	int	mới ở 2026
+82		column_82	int	mới ở 2026
+83	后续任务INDEX	next_mission_index	int	neo: cột gốc 76, khớp 98.0% (144/147 id); luật: nguyên văn
+84		column_84	int	mới ở 2026
+85		column_85	int	mới ở 2026
+86		column_86	int	mới ở 2026

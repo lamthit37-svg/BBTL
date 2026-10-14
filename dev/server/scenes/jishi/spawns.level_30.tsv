@@ -1,0 +1,16 @@
+# schema 1
+# source: Public/Scene/jishi_monster_30.ini
+# tool: TOOLS/server/export_scene.py; sửa tay sẽ mất ở lượt xuất sau
+# types: int	int	text	text	float	float	int	int	int	int	int	int	int	int	int	int	int	int	int	int	int	int	text	int	int	int
+guid	type	name	title	position_x	position_z	direction	script_id	respawn_time	group_id	team_id	base_ai	ai_file	patrol_id	shop_0	shop_1	shop_2	shop_3	level	is_pet	script_timer	reputation_id	cshop	leader_id	is_npc	camp
+12004773	1912			19.0000	20.0000	18	-1	-1	1	-1	14	141	-1	-1	-1	-1	-1				-1				
+12004775	1922			19.0000	28.0000	18	-1	-1	-1	-1	0	-1	-1	-1	-1	-1	-1				-1				
+12004779	1922			22.0000	24.0000	18	-1	-1	-1	-1	0	-1	-1	-1	-1	-1	-1				-1				
+12004792	1922			26.0000	19.0000	27	-1	-1	-1	-1	0	-1	-1	-1	-1	-1	-1				-1				
+12004793	1922			19.0000	35.0000	27	-1	-1	-1	-1	0	-1	-1	-1	-1	-1	-1				-1				
+12004796	1922			25.0000	30.0000	27	-1	-1	-1	-1	0	-1	-1	-1	-1	-1	-1				-1				
+12004798	1922			29.0000	25.0000	27	-1	-1	-1	-1	0	-1	-1	-1	-1	-1	-1				-1				
+12004800	1922			34.0000	20.0000	27	-1	-1	-1	-1	0	-1	-1	-1	-1	-1	-1				-1				
+12004802	1922			26.0000	37.0000	27	-1	-1	-1	-1	0	-1	-1	-1	-1	-1	-1				-1				
+12004803	1922			31.0000	32.0000	27	-1	-1	-1	-1	0	-1	-1	-1	-1	-1	-1				-1				
+12004804	1922			36.0000	27.0000	27	-1	-1	-1	-1	0	-1	-1	-1	-1	-1	-1				-1				

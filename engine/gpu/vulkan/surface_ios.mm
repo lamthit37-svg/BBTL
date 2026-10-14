@@ -11,8 +11,6 @@
 #include "gpu/vulkan/api.hpp"
 #include "gpu/vulkan/instance.hpp"
 
-#include <dlfcn.h>
-
 #import <QuartzCore/CAMetalLayer.h>
 
 #include <vulkan/vulkan_core.h>
@@ -20,12 +18,8 @@
 
 namespace game::gpu::vulkan {
 
+// MoltenVK link tĩnh vào ứng dụng nên symbol Vulkan có sẵn từ lúc liên kết: không có loader để dò.
 bool has_loader() noexcept {
-    // MoltenVK thường nhúng tĩnh; bản đóng gói dylib thì mở được ở đây. Không mở được thì
-    // Instance::create trả Unsupported với thông điệp rõ, ứng dụng rơi về đường dự phòng.
-    void* const loader = dlopen("libMoltenVK.dylib", RTLD_NOW | RTLD_LOCAL);
-    if (loader == nullptr) return true; // tĩnh: symbol đã có sẵn từ lúc liên kết.
-    dlclose(loader);
     return true;
 }
 

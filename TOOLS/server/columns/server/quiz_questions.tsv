@@ -1,0 +1,21 @@
+# schema 1
+# source: server_config/Questions.txt
+# tool: TOOLS/server/import_legacy.py; sửa tay sẽ mất ở lượt xuất sau
+# types: int	text	text	text	text
+index	original	name	type	note
+0	问题号	column_0	int	?
+1	问题内容$1$	column_1	text	?
+2	选项0$1$	column_2	text	?
+3	选项1$1$	column_3	text	?
+4	选项2$1$	column_4	text	?
+5	选项3$1$	column_5	text	?
+6	选项4$1$	column_6	text	?
+7	选项5$1$	column_7	text	?
+8	答案0	column_8	int	?
+9	答案1	column_9	int	?
+10	答案2	column_10	int	?
+11	答案3	column_11	int	?
+12	答案4	column_12	int	?
+13	答案5	column_13	int	?
+14	问题类型	column_14	text	?
+15	1=新，2=城，3=亚，4=科举易，5=科举难，6=夫妻，7=夫妻，8=喜从天降，9=新圣火传递	column_15	int	?

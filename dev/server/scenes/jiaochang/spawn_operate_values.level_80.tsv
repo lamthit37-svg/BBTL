@@ -1,0 +1,26 @@
+# schema 1
+# source: Public/Scene/jiaochang_monster_80.ini
+# tool: TOOLS/server/export_scene.py; sửa tay sẽ mất ở lượt xuất sau
+# types: text	int	int	int	text	text
+spawn_file	data_index	data_type	value_index	value	value_extra
+spawns.level_80.tsv	0	3	0	55	30
+spawns.level_80.tsv	0	3	1	50	29
+spawns.level_80.tsv	0	3	2	46	35
+spawns.level_80.tsv	0	3	3	33	31
+spawns.level_80.tsv	0	3	4	25	32
+spawns.level_80.tsv	0	3	5	15	30
+spawns.level_80.tsv	0	3	6	12	36
+spawns.level_80.tsv	0	3	7	29	39
+spawns.level_80.tsv	0	3	8	39	38
+spawns.level_80.tsv	0	3	9	46	39
+spawns.level_80.tsv	0	3	10	54	41
+spawns.level_80.tsv	0	3	11	21	36
+spawns.level_80.tsv	0	3	11	53	47
+spawns.level_80.tsv	0	3	12	47	47
+spawns.level_80.tsv	0	3	13	39	45
+spawns.level_80.tsv	0	3	14	39	45
+spawns.level_80.tsv	0	3	15	32	44
+spawns.level_80.tsv	0	3	16	26	45
+spawns.level_80.tsv	0	3	17	17	47
+spawns.level_80.tsv	0	3	18	16	53
+spawns.level_80.tsv	0	3	19	25	52

@@ -330,8 +330,8 @@ void on_key_down(Controls& controls, SdlKey key, bool is_repeat) {
     }
     Steering input = camera_key_steering(key);
     input.toggles_pace = key == SdlKey::kF3 && !is_repeat;
-    input.wants_jump = key == SdlKey::kSpace && !is_repeat;
     controls.display->steer(input);
+    if (key == SdlKey::kSpace && !is_repeat) controls.display->act(PlayAct::kJump);
     const int step = direction_of(key);
     const bool has_world = controls.desc->playing != nullptr && controls.is_playing->load(std::memory_order_relaxed);
     const bool can_change = has_world && step != 0 && !is_repeat;
@@ -433,7 +433,8 @@ void drain_input(SdlInput& input, Controls& controls, std::vector<SdlAction>& ac
     const bool is_held = controls.opened->is_cursor_captured();
     input.set_relative(is_held);
     input.drain(actions);
-    for (const SdlAction& action : actions) apply_action(controls, action);
+    for (const SdlAction& action : actions)
+        apply_action(controls, action);
 }
 
 // Thời gian chuyển nhạc khi đổi cảnh, giây: nhạc cũ nhỏ dần trong lúc nhạc mới lên.

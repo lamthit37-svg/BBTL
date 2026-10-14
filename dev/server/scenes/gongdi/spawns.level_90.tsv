@@ -1,0 +1,15 @@
+# schema 1
+# source: Public/Scene/gongdi_monster_90.ini
+# tool: TOOLS/server/export_scene.py; sửa tay sẽ mất ở lượt xuất sau
+# types: int	int	text	text	float	float	int	int	int	int	int	int	int	int	int	int	int	int	int	int	int	int	text	int	int	int
+guid	type	name	title	position_x	position_z	direction	script_id	respawn_time	group_id	team_id	base_ai	ai_file	patrol_id	shop_0	shop_1	shop_2	shop_3	level	is_pet	script_timer	reputation_id	cshop	leader_id	is_npc	camp
+5412594	2378			24.8831	36.0409	27	-1	-1	-1	-1	0	0	-1	-1	-1	-1	-1								
+5412596	2378			38.2126	36.6334	27	-1	-1	-1	-1	0	0	-1	-1	-1	-1	-1								
+5412615	2378			49.8120	36.5301	27	-1	-1	-1	-1	0	0	-1	-1	-1	-1	-1								
+5412622	2378			15.1626	34.2415	27	-1	-1	-1	-1	0	0	-1	-1	-1	-1	-1								
+5412637	2378			47.3597	18.0775	27	-1	-1	-1	-1	0	0	-1	-1	-1	-1	-1								
+5412681	2378			28.9247	26.5533	27	-1	-1	-1	-1	5	0	-1	-1	-1	-1	-1								
+5412683	2378			35.4362	26.5133	27	-1	-1	-1	-1	5	0	-1	-1	-1	-1	-1								
+5412685	2378			28.8480	18.1008	27	-1	-1	-1	-1	5	0	-1	-1	-1	-1	-1								
+5412689	2378			35.4005	18.5194	27	-1	-1	-1	-1	5	0	-1	-1	-1	-1	-1								
+5415521	2388			31.9107	14.4674	27	-1	-1	51	1	14	149	-1	-1	-1	-1	-1								

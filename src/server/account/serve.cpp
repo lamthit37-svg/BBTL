@@ -62,7 +62,8 @@ template <typename Value>
     return std::move(*value);
 }
 
-[[nodiscard]] std::optional<config::ProcessBlock> find_process(const config::Cluster& cluster, config::ProcessKind kind) {
+[[nodiscard]] std::optional<config::ProcessBlock> find_process(const config::Cluster& cluster,
+    config::ProcessKind kind) {
     for (const config::ProcessBlock& block : cluster.processes) {
         if (block.kind == kind && block.id.value() == 0) return block;
     }
@@ -202,7 +203,8 @@ Reply on_auth(void* ctx, const Call& call) {
         std::string ip;
         if (!read_account_call(call, name, password, ip)) return reply_of(TicketResult{});
         const bool create = call.op == Op::kCreateAccount;
-        TicketResult result = create ? box->db->create_account(name, password, ip) : box->db->sign_in(name, password, ip);
+        TicketResult result =
+            create ? box->db->create_account(name, password, ip) : box->db->sign_in(name, password, ip);
         wipe_secret(password);
         return reply_of(result);
     }
@@ -298,9 +300,11 @@ int serve_auth(const Path& config_dir) {
         return 0;
     }
     std::string error;
-    const std::optional<config::Cluster> cluster = read_cfg(config_dir / "cluster.toml", config::read_cluster, error, "cluster.toml");
+    const std::optional<config::Cluster> cluster =
+        read_cfg(config_dir / "cluster.toml", config::read_cluster, error, "cluster.toml");
     const std::optional<config::Auth> auth = read_cfg(config_dir / "auth.toml", config::read_auth, error, "auth.toml");
-    const std::optional<config::Secrets> secrets = read_cfg(secrets_path, config::read_secrets, error, "secrets.local.toml");
+    const std::optional<config::Secrets> secrets =
+        read_cfg(secrets_path, config::read_secrets, error, "secrets.local.toml");
     if (!cluster || !auth || !secrets || secrets->auth.empty()) {
         if (error.empty()) error = "thiếu mật khẩu database tài khoản";
         std::println(stderr, "auth: {}", error);
@@ -330,7 +334,8 @@ int serve_auth(const Path& config_dir) {
         std::println(stderr, "auth: {}", error);
         return 1;
     }
-    const std::optional<std::array<std::byte, kIpcKeyBytes>> key = load_or_create_ipc_key(ipc_key_path(config_dir), error);
+    const std::optional<std::array<std::byte, kIpcKeyBytes>> key =
+        load_or_create_ipc_key(ipc_key_path(config_dir), error);
     if (!key) {
         std::println(stderr, "auth: {}", error);
         return 1;
@@ -366,9 +371,12 @@ int serve_game(const Path& config_dir) {
         return 0;
     }
     std::string error;
-    const std::optional<config::Cluster> cluster = read_cfg(config_dir / "cluster.toml", config::read_cluster, error, "cluster.toml");
-    const std::optional<config::Store> store_cfg = read_cfg(config_dir / "store.toml", config::read_store, error, "store.toml");
-    const std::optional<config::Secrets> secrets = read_cfg(secrets_path, config::read_secrets, error, "secrets.local.toml");
+    const std::optional<config::Cluster> cluster =
+        read_cfg(config_dir / "cluster.toml", config::read_cluster, error, "cluster.toml");
+    const std::optional<config::Store> store_cfg =
+        read_cfg(config_dir / "store.toml", config::read_store, error, "store.toml");
+    const std::optional<config::Secrets> secrets =
+        read_cfg(secrets_path, config::read_secrets, error, "secrets.local.toml");
     if (!cluster || !store_cfg || !secrets || secrets->store.empty()) {
         if (error.empty()) error = "thiếu mật khẩu database game";
         std::println(stderr, "store: {}", error);
@@ -378,7 +386,8 @@ int serve_game(const Path& config_dir) {
         std::println(stderr, "store: postgres chỉ được ở 127.0.0.1");
         return 1;
     }
-    const std::optional<std::array<std::byte, kIpcKeyBytes>> key = load_or_create_ipc_key(ipc_key_path(config_dir), error);
+    const std::optional<std::array<std::byte, kIpcKeyBytes>> key =
+        load_or_create_ipc_key(ipc_key_path(config_dir), error);
     if (!key) {
         std::println(stderr, "store: {}", error);
         return 1;
@@ -420,7 +429,8 @@ int serve_game(const Path& config_dir) {
     const auto ids = [](const std::vector<std::int64_t>& from) {
         std::vector<std::uint16_t> out;
         out.reserve(from.size());
-        for (const std::int64_t id : from) out.push_back(static_cast<std::uint16_t>(id));
+        for (const std::int64_t id : from)
+            out.push_back(static_cast<std::uint16_t>(id));
         return out;
     };
     CharacterPolicy policy;

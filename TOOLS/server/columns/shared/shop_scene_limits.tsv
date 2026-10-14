@@ -1,0 +1,72 @@
+# schema 1
+# source: client_2026/ShopSceneLimiti.txt
+# tool: TOOLS/server/export_tables.py; sửa tay sẽ mất ở lượt xuất sau
+# types: int	text	text	text	text
+index	original	name	type	note
+0	Index	index	int	neo: cột gốc 0, khớp 100.0% (172/172 id); luật: M1
+1	允许摆放的场景1	allowed_scene_1	int	neo: cột gốc 1, khớp 100.0% (172/172 id); luật: nguyên văn
+2	场景2	scene_2	int	neo: cột gốc 2, khớp 100.0% (172/172 id); luật: mẫu {n}
+3	场景3	scene_3	int	neo: cột gốc 3, khớp 100.0% (172/172 id); luật: mẫu {n}
+4	场景4	scene_4	int	neo: cột gốc 4, khớp 100.0% (172/172 id); luật: mẫu {n}
+5	场景5	scene_5	int	neo: cột gốc 5, khớp 99.4% (171/172 id); luật: mẫu {n}
+6	场景6	scene_6	int	neo: cột gốc 6, khớp 98.3% (169/172 id); luật: mẫu {n}
+7	场景7	scene_7	int	neo: cột gốc 7, khớp 98.3% (169/172 id); luật: mẫu {n}
+8	场景8	scene_8	int	neo: cột gốc 8, khớp 98.3% (169/172 id); luật: mẫu {n}
+9	场景9	scene_9	int	neo: cột gốc 9, khớp 98.3% (169/172 id); luật: mẫu {n}
+10	场景10	scene_10	int	neo: cột gốc 10, khớp 98.3% (169/172 id); luật: mẫu {n}
+11	场景11	scene_11	int	neo: cột gốc 11, khớp 98.3% (169/172 id); luật: mẫu {n}
+12		column_12	int	mới ở 2026
+13		column_13	int	mới ở 2026
+14		column_14	int	mới ở 2026
+15		column_15	int	mới ở 2026
+16		column_16	int	mới ở 2026
+17		column_17	int	mới ở 2026
+18		column_18	int	mới ở 2026
+19		column_19	int	mới ở 2026
+20		column_20	int	mới ở 2026
+21		column_21	int	mới ở 2026
+22		column_22	int	mới ở 2026
+23		column_23	int	mới ở 2026
+24		column_24	int	mới ở 2026
+25		column_25	int	mới ở 2026
+26		column_26	int	mới ở 2026
+27		column_27	int	mới ở 2026
+28		column_28	int	mới ở 2026
+29		column_29	int	mới ở 2026
+30		column_30	int	mới ở 2026
+31		column_31	int	mới ở 2026
+32		column_32	int	mới ở 2026
+33		column_33	int	mới ở 2026
+34		column_34	int	mới ở 2026
+35		column_35	int	mới ở 2026
+36		column_36	int	mới ở 2026
+37		column_37	int	mới ở 2026
+38		column_38	int	mới ở 2026
+39		column_39	int	mới ở 2026
+40		column_40	int	mới ở 2026
+41		column_41	int	mới ở 2026
+42		column_42	int	mới ở 2026
+43		column_43	int	mới ở 2026
+44		column_44	int	mới ở 2026
+45		column_45	int	mới ở 2026
+46		column_46	int	mới ở 2026
+47		column_47	int	mới ở 2026
+48		column_48	int	mới ở 2026
+49		column_49	int	mới ở 2026
+50		column_50	int	mới ở 2026
+51		column_51	int	mới ở 2026
+52		column_52	int	mới ở 2026
+53		column_53	int	mới ở 2026
+54		column_54	int	mới ở 2026
+55		column_55	int	mới ở 2026
+56		column_56	int	mới ở 2026
+57		column_57	int	mới ở 2026
+58		column_58	int	mới ở 2026
+59		column_59	int	mới ở 2026
+60		column_60	int	mới ở 2026
+61		column_61	int	mới ở 2026
+62		column_62	int	mới ở 2026
+63		column_63	int	mới ở 2026
+64		column_64	int	mới ở 2026
+65		column_65	int	mới ở 2026
+66		column_66	int	mới ở 2026

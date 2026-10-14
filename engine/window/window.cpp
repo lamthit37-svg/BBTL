@@ -301,8 +301,7 @@ void apply_theme(HWND handle) noexcept {
     DWORD is_light = 1;
     DWORD size = sizeof(is_light);
     const wchar_t* key = L"Software\\Microsoft\\Windows\\CurrentVersion\\Themes\\Personalize";
-    RegGetValueW(
-        HKEY_CURRENT_USER, key, L"AppsUseLightTheme", RRF_RT_REG_DWORD, nullptr, &is_light, &size);
+    RegGetValueW(HKEY_CURRENT_USER, key, L"AppsUseLightTheme", RRF_RT_REG_DWORD, nullptr, &is_light, &size);
     const BOOL is_dark = is_light == 0 ? TRUE : FALSE;
     DwmSetWindowAttribute(handle, kDarkModeAttribute, &is_dark, sizeof(is_dark));
 }
@@ -532,8 +531,7 @@ struct TickScope {
     return 0;
 }
 
-[[nodiscard]] std::optional<LRESULT> on_set_cursor(
-    const WindowState& state, LPARAM lparam) noexcept {
+[[nodiscard]] std::optional<LRESULT> on_set_cursor(const WindowState& state, LPARAM lparam) noexcept {
     if (LOWORD(lparam) != HTCLIENT) return std::nullopt;
     apply_cursor(state);
     return TRUE;
@@ -574,9 +572,7 @@ public:
     DropScope(DropScope&&) = delete;
     DropScope& operator=(DropScope&&) = delete;
 
-    [[nodiscard]] UINT count() const noexcept {
-        return DragQueryFileW(drop_, 0xFFFF'FFFFU, nullptr, 0);
-    }
+    [[nodiscard]] UINT count() const noexcept { return DragQueryFileW(drop_, 0xFFFF'FFFFU, nullptr, 0); }
     [[nodiscard]] std::string path(UINT index) const {
         std::wstring wide(DragQueryFileW(drop_, index, nullptr, 0), L'\0');
         DragQueryFileW(drop_, index, wide.data(), static_cast<UINT>(wide.size()) + 1);
@@ -673,8 +669,7 @@ private:
 
 // Ngoại lệ (hết bộ nhớ, móc của người dùng ném) không được thoát qua biên C của Win32: chặn tại đây
 // và để hệ thống xử lý thông điệp theo mặc định.
-[[nodiscard]] std::optional<LRESULT> dispatch(
-    WindowState& state, const NativeMessage& message) noexcept {
+[[nodiscard]] std::optional<LRESULT> dispatch(WindowState& state, const NativeMessage& message) noexcept {
     try {
         const std::optional<LRESULT> tracked = track(state, message);
         const std::optional<std::intptr_t> hooked = state.hook ? state.hook(message) : std::nullopt;

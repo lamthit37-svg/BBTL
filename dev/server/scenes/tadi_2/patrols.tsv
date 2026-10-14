@@ -1,0 +1,21 @@
+# schema 1
+# source: Public/Scene/tadi_2_patrolpoint.ini
+# tool: TOOLS/server/export_scene.py; sửa tay sẽ mất ở lượt xuất sau
+# types: int	int	float	float	float	int	text	text	int	int	text	text	text	text
+patrol_index	point_index	position_x	position_y	position_z	settle_time	point_script_id	route_script_id	turns_back	teleport_to_respawn	speech_unread	speech_1	speech_2	speech_3
+0	0	31.8692	-400.0000	23.4901									
+0	1	26.7868	-400.0000	22.8623									
+0	2	21.8754	-400.0000	22.3868									
+0	3	17.4855	-400.0000	23.2005									
+0	4	16.4605	-400.0000	26.5182									
+0	5	16.2338	-400.0000	33.5879									
+0	6	15.8653	-400.0000	37.8711									
+0	7	15.9877	-400.0000	42.3630									
+0	8	16.2418	-400.0000	45.4567									
+0	9	17.9673	-400.0000	47.5199									
+0	10	22.5885	-400.0000	48.2824									
+0	11	28.4404	-377.9800	48.7079									
+0	12	32.5788	-171.0575	47.8832									
+0	13	36.0549	0.0000	48.1091									
+0	14	43.0526	0.0000	48.1125									
+0	15	47.5673	128.3672	48.4825	10000								

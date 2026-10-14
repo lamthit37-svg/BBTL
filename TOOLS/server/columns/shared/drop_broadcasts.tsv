@@ -1,0 +1,10 @@
+# schema 1
+# source: client_2026/DropNotify.txt
+# tool: TOOLS/server/export_tables.py; sửa tay sẽ mất ở lượt xuất sau
+# types: int	text	text	text	text
+index	original	name	type	note
+0	索引（无具体含义）	unused_index	int	luật: nguyên văn; khớp 100.0% (101/101 id)
+1	广播类型ID（顺序递增）	broadcast_kind_id	int	luật: nguyên văn; khớp 99.0% (100/101 id)
+2	频道类型：4-系统消息，6-帮派消息，7-门派消息	channel_kind	int	luật: nguyên văn; khớp 100.0% (101/101 id)
+3	活动描述$1$	activity_description	text	luật: nguyên văn; khớp 96.0% (97/101 id)
+4	广播内容（消息限长256CHAR，严禁使用字符%）：&A-活动描述，&S-场景名称，&T-队长名称，&U-玩家名称，&I-物品名称$1$	broadcast_text	text	luật: nguyên văn; khớp 78.2% (79/101 id)

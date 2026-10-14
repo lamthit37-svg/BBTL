@@ -16,6 +16,7 @@
 #include <span>
 #include <string>
 #include <string_view>
+#include <system_error>
 #include <utility>
 #include <vector>
 
@@ -35,13 +36,46 @@ using Arguments = std::span<const std::string_view>;
 // Hạn cho một bước của con ngoan; máy bận dưới ASan vẫn xong trong hạn này.
 constexpr std::chrono::seconds kPatience{5};
 
-[[nodiscard]] std::string child_path() {
-    const std::filesystem::path path = io::executable_directory() / "thienlong_test_child.exe";
-    return io::utf8_of(path);
+// Exe phụ được chép vào một thư mục tạm có dấu cách trong tên: ca spawn_path_with_space cần đường dẫn
+// có dấu cách, mà chỗ để dự án và thư mục dựng thì test không được phép giả định. Thư mục mang số
+// đồng hồ riêng mỗi lượt chạy nên hai lượt không giẫm lên nhau; xoá khi test thoát.
+class SpacedChild {
+public:
+    SpacedChild() {
+        const auto stamp = std::chrono::steady_clock::now().time_since_epoch().count();
+        folder_ = std::filesystem::temp_directory_path() / ("thienlong test child " + std::to_string(stamp));
+        const std::filesystem::path source = io::executable_directory() / "thienlong_test_child.exe";
+        std::error_code error;
+        std::filesystem::create_directories(folder_, error);
+        core::check(!error, "tạo được thư mục tạm có dấu cách");
+        const std::filesystem::path copy = folder_ / source.filename();
+        std::filesystem::copy_file(source, copy, error);
+        core::check(!error, "chép được exe phụ vào thư mục có dấu cách");
+        exe_ = io::utf8_of(copy);
+    }
+    SpacedChild(const SpacedChild&) = delete;
+    SpacedChild& operator=(const SpacedChild&) = delete;
+    SpacedChild(SpacedChild&&) = delete;
+    SpacedChild& operator=(SpacedChild&&) = delete;
+    ~SpacedChild() {
+        std::error_code error;
+        std::filesystem::remove_all(folder_, error);
+    }
+
+    [[nodiscard]] const std::string& exe() const noexcept { return exe_; }
+
+private:
+    std::filesystem::path folder_;
+    std::string exe_;
+};
+
+[[nodiscard]] const std::string& child_path() {
+    static const SpacedChild kSpaced;
+    return kSpaced.exe();
 }
 
 [[nodiscard]] Result<Child> start(Arguments arguments, Mode mode = Mode::kService) {
-    const std::string exe = child_path();
+    const std::string& exe = child_path();
     const Spawn request{.executable = exe, .arguments = arguments, .mode = mode};
     return process::spawn(request);
 }

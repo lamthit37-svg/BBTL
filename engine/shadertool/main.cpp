@@ -209,7 +209,7 @@ void print_report(const shader::BuildReport& report) {
         const Error& error = compiler.error();
         return fail_error(error);
     }
-    std::println("thienlong_shader: DXC {} ({})", compiler->version(), compiler->library());
+    std::println("thienlong_shader: {} ({})", compiler->version(), compiler->library());
     std::optional<game::jobs::JobSystem> jobs;
     if (!parsed->serial) jobs.emplace();
     game::jobs::JobSystem* workers = jobs ? &*jobs : nullptr;

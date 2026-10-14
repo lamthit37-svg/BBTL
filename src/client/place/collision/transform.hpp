@@ -20,22 +20,38 @@ using Mat4 = std::array<std::array<float, 4>, 4>;
 // NOLINTNEXTLINE(bugprone-easily-swappable-parameters): (trái, phải) của phép nhân ma trận, đổi chỗ đổi kết quả.
 [[nodiscard]] inline Mat4 mat_mul(const Mat4& lhs, const Mat4& rhs) noexcept {
     Mat4 out{};
-    out[0][0] = (((lhs[0][0] * rhs[0][0]) + (lhs[0][1] * rhs[1][0])) + (lhs[0][2] * rhs[2][0])) + (lhs[0][3] * rhs[3][0]);
-    out[0][1] = (((lhs[0][0] * rhs[0][1]) + (lhs[0][1] * rhs[1][1])) + (lhs[0][2] * rhs[2][1])) + (lhs[0][3] * rhs[3][1]);
-    out[0][2] = (((lhs[0][0] * rhs[0][2]) + (lhs[0][1] * rhs[1][2])) + (lhs[0][2] * rhs[2][2])) + (lhs[0][3] * rhs[3][2]);
-    out[0][3] = (((lhs[0][0] * rhs[0][3]) + (lhs[0][1] * rhs[1][3])) + (lhs[0][2] * rhs[2][3])) + (lhs[0][3] * rhs[3][3]);
-    out[1][0] = (((lhs[1][0] * rhs[0][0]) + (lhs[1][1] * rhs[1][0])) + (lhs[1][2] * rhs[2][0])) + (lhs[1][3] * rhs[3][0]);
-    out[1][1] = (((lhs[1][0] * rhs[0][1]) + (lhs[1][1] * rhs[1][1])) + (lhs[1][2] * rhs[2][1])) + (lhs[1][3] * rhs[3][1]);
-    out[1][2] = (((lhs[1][0] * rhs[0][2]) + (lhs[1][1] * rhs[1][2])) + (lhs[1][2] * rhs[2][2])) + (lhs[1][3] * rhs[3][2]);
-    out[1][3] = (((lhs[1][0] * rhs[0][3]) + (lhs[1][1] * rhs[1][3])) + (lhs[1][2] * rhs[2][3])) + (lhs[1][3] * rhs[3][3]);
-    out[2][0] = (((lhs[2][0] * rhs[0][0]) + (lhs[2][1] * rhs[1][0])) + (lhs[2][2] * rhs[2][0])) + (lhs[2][3] * rhs[3][0]);
-    out[2][1] = (((lhs[2][0] * rhs[0][1]) + (lhs[2][1] * rhs[1][1])) + (lhs[2][2] * rhs[2][1])) + (lhs[2][3] * rhs[3][1]);
-    out[2][2] = (((lhs[2][0] * rhs[0][2]) + (lhs[2][1] * rhs[1][2])) + (lhs[2][2] * rhs[2][2])) + (lhs[2][3] * rhs[3][2]);
-    out[2][3] = (((lhs[2][0] * rhs[0][3]) + (lhs[2][1] * rhs[1][3])) + (lhs[2][2] * rhs[2][3])) + (lhs[2][3] * rhs[3][3]);
-    out[3][0] = (((lhs[3][0] * rhs[0][0]) + (lhs[3][1] * rhs[1][0])) + (lhs[3][2] * rhs[2][0])) + (lhs[3][3] * rhs[3][0]);
-    out[3][1] = (((lhs[3][0] * rhs[0][1]) + (lhs[3][1] * rhs[1][1])) + (lhs[3][2] * rhs[2][1])) + (lhs[3][3] * rhs[3][1]);
-    out[3][2] = (((lhs[3][0] * rhs[0][2]) + (lhs[3][1] * rhs[1][2])) + (lhs[3][2] * rhs[2][2])) + (lhs[3][3] * rhs[3][2]);
-    out[3][3] = (((lhs[3][0] * rhs[0][3]) + (lhs[3][1] * rhs[1][3])) + (lhs[3][2] * rhs[2][3])) + (lhs[3][3] * rhs[3][3]);
+    out[0][0] =
+        (((lhs[0][0] * rhs[0][0]) + (lhs[0][1] * rhs[1][0])) + (lhs[0][2] * rhs[2][0])) + (lhs[0][3] * rhs[3][0]);
+    out[0][1] =
+        (((lhs[0][0] * rhs[0][1]) + (lhs[0][1] * rhs[1][1])) + (lhs[0][2] * rhs[2][1])) + (lhs[0][3] * rhs[3][1]);
+    out[0][2] =
+        (((lhs[0][0] * rhs[0][2]) + (lhs[0][1] * rhs[1][2])) + (lhs[0][2] * rhs[2][2])) + (lhs[0][3] * rhs[3][2]);
+    out[0][3] =
+        (((lhs[0][0] * rhs[0][3]) + (lhs[0][1] * rhs[1][3])) + (lhs[0][2] * rhs[2][3])) + (lhs[0][3] * rhs[3][3]);
+    out[1][0] =
+        (((lhs[1][0] * rhs[0][0]) + (lhs[1][1] * rhs[1][0])) + (lhs[1][2] * rhs[2][0])) + (lhs[1][3] * rhs[3][0]);
+    out[1][1] =
+        (((lhs[1][0] * rhs[0][1]) + (lhs[1][1] * rhs[1][1])) + (lhs[1][2] * rhs[2][1])) + (lhs[1][3] * rhs[3][1]);
+    out[1][2] =
+        (((lhs[1][0] * rhs[0][2]) + (lhs[1][1] * rhs[1][2])) + (lhs[1][2] * rhs[2][2])) + (lhs[1][3] * rhs[3][2]);
+    out[1][3] =
+        (((lhs[1][0] * rhs[0][3]) + (lhs[1][1] * rhs[1][3])) + (lhs[1][2] * rhs[2][3])) + (lhs[1][3] * rhs[3][3]);
+    out[2][0] =
+        (((lhs[2][0] * rhs[0][0]) + (lhs[2][1] * rhs[1][0])) + (lhs[2][2] * rhs[2][0])) + (lhs[2][3] * rhs[3][0]);
+    out[2][1] =
+        (((lhs[2][0] * rhs[0][1]) + (lhs[2][1] * rhs[1][1])) + (lhs[2][2] * rhs[2][1])) + (lhs[2][3] * rhs[3][1]);
+    out[2][2] =
+        (((lhs[2][0] * rhs[0][2]) + (lhs[2][1] * rhs[1][2])) + (lhs[2][2] * rhs[2][2])) + (lhs[2][3] * rhs[3][2]);
+    out[2][3] =
+        (((lhs[2][0] * rhs[0][3]) + (lhs[2][1] * rhs[1][3])) + (lhs[2][2] * rhs[2][3])) + (lhs[2][3] * rhs[3][3]);
+    out[3][0] =
+        (((lhs[3][0] * rhs[0][0]) + (lhs[3][1] * rhs[1][0])) + (lhs[3][2] * rhs[2][0])) + (lhs[3][3] * rhs[3][0]);
+    out[3][1] =
+        (((lhs[3][0] * rhs[0][1]) + (lhs[3][1] * rhs[1][1])) + (lhs[3][2] * rhs[2][1])) + (lhs[3][3] * rhs[3][1]);
+    out[3][2] =
+        (((lhs[3][0] * rhs[0][2]) + (lhs[3][1] * rhs[1][2])) + (lhs[3][2] * rhs[2][2])) + (lhs[3][3] * rhs[3][2]);
+    out[3][3] =
+        (((lhs[3][0] * rhs[0][3]) + (lhs[3][1] * rhs[1][3])) + (lhs[3][2] * rhs[2][3])) + (lhs[3][3] * rhs[3][3]);
     return out;
 }
 
@@ -96,8 +112,7 @@ using Mat4 = std::array<std::array<float, 4>, 4>;
 
 // Nhân đỉnh với M, phối cảnh (r = 1/w) rồi đổi về toạ độ game theo khung.
 // Cộng số hạng y TRƯỚC số hạng x; chia thật divss ở 1/w và ở tỉ lệ khung.
-[[nodiscard]] inline Point3
-project_vertex(const Mat4& mat, const Frame& frame, Point3 vtx) noexcept {
+[[nodiscard]] inline Point3 project_vertex(const Mat4& mat, const Frame& frame, Point3 vtx) noexcept {
     const float vtx_x = vtx.x;
     const float vtx_y = vtx.y;
     const float vtx_z = vtx.z;
@@ -113,8 +128,7 @@ project_vertex(const Mat4& mat, const Frame& frame, Point3 vtx) noexcept {
 }
 
 // Biến đổi một đỉnh nguồn của một khối theo khung + lượt đặt mã 2, ra toạ độ game.
-[[nodiscard]] inline Point3
-transform_vertex(const Frame& frame, const Placement& placement, Point3 vtx) noexcept {
+[[nodiscard]] inline Point3 transform_vertex(const Frame& frame, const Placement& placement, Point3 vtx) noexcept {
     const Mat4 mat_r = rotation_matrix(placement.rotation);
     const Mat4 mat_t = translation_matrix(placement.position);
     const Mat4 mat_s = scale_matrix(placement.scale);
@@ -123,6 +137,6 @@ transform_vertex(const Frame& frame, const Placement& placement, Point3 vtx) noe
     return project_vertex(mat_m, frame, vtx);
 }
 
-}  // namespace game::collision::detail
+} // namespace game::collision::detail
 
-#endif  // GAME_COLLISION_TRANSFORM_HPP
+#endif // GAME_COLLISION_TRANSFORM_HPP

@@ -432,10 +432,12 @@ void named_area(Cook& cook, LookDraft& draft, const Node& child) {
 // ("key:<khoá> name:<kiểu>": nút action, ô tiền mà cửa sổ phức hợp dựng lúc chạy).
 void take_look_value(Cook& cook, const GuiProperty& property) {
     const std::optional<ImageName> image = tagged_image(property.value);
-    if (image) [[maybe_unused]] const std::int32_t index = image_of(cook, image->set, image->image);
+    if (image) [[maybe_unused]]
+        const std::int32_t index = image_of(cook, image->set, image->image);
     if (property.name != "ChildItem") return;
     const TagValue type = tagged_value(property.value, "name:");
-    if (type) [[maybe_unused]] const std::int32_t index = type_of(cook, *type);
+    if (type) [[maybe_unused]]
+        const std::int32_t index = type_of(cook, *type);
 }
 
 // Section sáng lên khi trỏ vào mà nút của cửa sổ thành tích gọi theo tên (SetHoverSection: Fal

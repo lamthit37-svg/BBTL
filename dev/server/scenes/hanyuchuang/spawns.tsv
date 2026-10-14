@@ -1,0 +1,9 @@
+# schema 1
+# source: Public/Scene/hanyuchuang_monster.ini
+# tool: TOOLS/server/export_scene.py; sửa tay sẽ mất ở lượt xuất sau
+# types: int	int	text	text	float	float	int	int	int	int	int	int	int	int	int	int	int	int	int	int	int	int	text	int	int	int
+guid	type	name	title	position_x	position_z	direction	script_id	respawn_time	group_id	team_id	base_ai	ai_file	patrol_id	shop_0	shop_1	shop_2	shop_3	level	is_pet	script_timer	reputation_id	cshop	leader_id	is_npc	camp
+11841757	19	林朝雄	寒玉谷接引人	26.2758	26.3733	27	402106	1000	-1	-1	3	0	-1	-1	-1	-1	-1	30			-1				
+11841761	3883	大笨熊	英明神武	48.0000	24.0000	27	-1	1000	-1	-1	8	0	0	-1	-1	-1	-1	10			-1				
+11841762	3885	飘飘鸭	奇帅无比	42.0000	24.0000	27	-1	1000	-1	-1	8	0	1	-1	-1	-1	-1	10			-1				
+11841764	3884	小兔兔	可爱无敌	54.0000	24.0000	27	-1	1000	-1	-1	8	0	2	-1	-1	-1	-1	10			-1				

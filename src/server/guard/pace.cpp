@@ -17,7 +17,7 @@ constexpr std::uint32_t kJitterTicks = 3;
 // Phạt khi nợ chạm ngưỡng; ngưỡng lẻ nửa điểm để rò trong vài tick không cứu chuỗi vượt liền nhau.
 constexpr float kSpeedLeakPerTick = 1.0F * kTickSeconds;
 constexpr float kTeleportLeakPerTick = 0.5F * kTickSeconds;
-constexpr float kSpeedPenalty = 2.5F;    // ba bước vượt liền nhau, hoặc xen kẽ dày
+constexpr float kSpeedPenalty = 2.5F; // ba bước vượt liền nhau, hoặc xen kẽ dày
 constexpr float kTeleportPenalty = 1.5F; // hai cú nhảy trong chừng một giây
 constexpr float kDebtCap = 16.0F;
 

@@ -25,4 +25,3 @@ void format_pattern(std::string& out, std::string_view pattern, Slots slots);
 void format_key(std::string& out, const gui::StringBook& book, std::string_view tag, Slots slots);
 
 } // namespace game::ui::panel
-

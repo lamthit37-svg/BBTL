@@ -1,0 +1,16 @@
+# schema 1
+# source: Public/Scene/shilin_patrolpoint.ini
+# tool: TOOLS/server/export_scene.py; sửa tay sẽ mất ở lượt xuất sau
+# types: int	int	float	float	float	int	text	text	int	int	text	text	text	text
+patrol_index	point_index	position_x	position_y	position_z	settle_time	point_script_id	route_script_id	turns_back	teleport_to_respawn	speech_unread	speech_1	speech_2	speech_3
+0	0	241.5002	0.1498	182.8949				0					
+0	1	240.4385	-0.0619	187.5170				0					
+0	2	236.1232	-0.4027	188.6897				0					
+0	3	224.6770	-0.4848	180.9483				0					
+0	4	211.1240	-0.5381	170.3542				0					
+0	5	202.0992	-0.6621	176.4639				0					
+0	6	190.4947	1.6904	182.5713				0					
+0	7	182.0418	4.0223	184.2995				0					
+0	8	170.4039	3.9421	176.6814				0					
+0	9	170.3086	4.4236	168.8909				0					
+0	10	176.9634	5.5568	168.0753	8000			0					

@@ -1,14 +1,42 @@
 Vỏ iOS của cùng client với APK. Điểm vào là ios_main.mm, không phải một mã game
-khác. Máy Windows này không có Apple Clang và không ký được. Preset ios-arm64
-chỉ hiện trên Darwin.
+khác. Máy Windows này không có Apple Clang và không ký được. Preset ios-arm64 và
+ios-sim-arm64 chỉ hiện trên Darwin. CHƯA có lượt dựng nào trên máy Apple: lần đầu
+có thể còn lỗi; danh sách chỗ nghi nằm ở docs/NGHI-NGO.md mục 49.
 
-Trên macOS:
+Chuẩn bị trên macOS:
 
-  cmake --preset ios-arm64
+  - Xcode (Apple Clang hỗ trợ C++23), CMake 3.28 trở lên, vcpkg (đặt VCPKG_ROOT).
+  - Vulkan SDK bản macOS, có thư mục MoltenVK. iOS không có loader Vulkan nên
+    find_package(Vulkan) không tự tìm được: đặt tay tới MoltenVK dạng tĩnh cho iOS
+    (-DVulkan_LIBRARY=<MoltenVK.xcframework/ios-arm64/libMoltenVK.a>
+     -DVulkan_INCLUDE_DIR=<thư mục include có vulkan/vulkan.h>).
+    Simulator dùng lát ios-arm64_x86_64-simulator của cùng xcframework.
+  - Gói shader .f2s: do thienlong_shader dựng trên Windows. Chép thư mục
+    build/<preset PC>/shaders sang máy Apple và đặt -DGAME_IOS_SHADERS=<thư mục đó>.
+  - Dữ liệu client dev/client/assets là dữ liệu sinh, không vào git: sinh trên Windows
+    (TOOLS/content/collect_*.py) rồi chép sang. package_apk.py đóng phần cần cho cảnh
+    khởi động vào bundle.
+  - Python 3 có Pillow (bước bản địa hoá chạy ở mỗi lượt dựng client).
+
+Dựng:
+
+  cmake --preset ios-arm64 -DVulkan_LIBRARY=... -DVulkan_INCLUDE_DIR=... -DGAME_IOS_SHADERS=...
   cmake --build --preset ios-arm64 --target thienlong_client
 
-Bundle ra release/IOS. Mã vn.thienlong.client. Cửa sổ là toàn màn, nằm ngang.
+Bundle nằm trong build/ios-arm64; cmake --install chép vào release/client/IOS.
+Mã vn.thienlong.client. Cửa sổ là toàn màn, nằm ngang.
 Layout dùng chung với Android ở Interface/phone. Texture ưu tiên mobile/astc.
 apple/Info.plist khai mạng nội bộ và màn mở LaunchScreen. PrivacyInfo không
 theo dõi và chưa khai API bắt buộc lý do: chưa có lượt dịch trên máy Apple để
 đối chiếu. Bundle đọc data/ tại chỗ. Sổ nhân vật ghi ở Documents.
+
+Những gì CMake làm riêng cho iOS (đọc CMakeLists.txt, tìm "IOS"):
+
+  - Bật ngôn ngữ OBJCXX và ARC: ios_main.mm và surface_ios.mm là Objective-C++.
+  - engine/audio/detail/native.cpp dịch thành Objective-C++ vì miniaudio bản iOS
+    chứa cú pháp Objective-C; các khung Core Audio link tĩnh.
+  - gpu chạy Vulkan trên MoltenVK (VK_EXT_metal_surface, surface_ios.mm). Không có
+    backend GLES, D3D hay Metal gốc trên iOS.
+  - vcpkg dùng triplet arm64-ios (simulator: arm64-ios-simulator), toolchain ở
+    $VCPKG_ROOT. Thư viện tải về của máy Apple nằm ngoài C:\dev\third_party vì đó
+    là chỗ của máy Windows.

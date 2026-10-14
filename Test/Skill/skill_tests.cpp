@@ -323,9 +323,16 @@ struct Shelf {
     }
 };
 
+// Số thứ tự action của sách tính từ action sách đầu tiên (nhận id 21 khi mới có bốn action thú cưng); từ khi
+// Initial tạo thêm bốn action trận pháp và đủ 1020 action của nó, action sách đầu tiên nhận id 1021.
+[[nodiscard]] constexpr std::int32_t book_id(std::int32_t order) noexcept {
+    return skill::kFirstBookAction + (order - 21);
+}
+
 void actions_start_with_pets(Context& context) {
     const Actions actions;
-    context.expect(actions.all.size() == 4 && actions.next_id == 21, "sau Initial: bốn action thú cưng, id kế là 21");
+    context.expect(actions.all.size() == 8 && actions.next_id == skill::kFirstBookAction,
+        "sau Initial: bốn action thú cưng, bốn action trận pháp, id kế là 1021");
     for (std::size_t slot = 0; slot < skill::kPetActions; ++slot) {
         const Action* pet = skill::pet_action(actions, static_cast<skill::PetAction>(slot));
         context.expect(pet != nullptr && pet->id == 17 + static_cast<std::int32_t>(slot), "id 17..20 theo thứ tự ô");
@@ -340,19 +347,19 @@ void actions_are_made_in_original_order(Context& context) {
     const Shelf shelf;
     const Action* art_two = shelf.at(ActionKind::kInnerArt, 0);
     const Action* art_one = shelf.at(ActionKind::kInnerArt, 1);
-    context.expect(art_two != nullptr && art_two->define == 2 && art_two->id == 21, "tâm pháp tới trước nhận id trước");
-    context.expect(art_one != nullptr && art_one->define == 1 && art_one->id == 22, "tâm pháp thứ hai");
+    context.expect(art_two != nullptr && art_two->define == 2 && art_two->id == book_id(21), "tâm pháp tới trước nhận id trước");
+    context.expect(art_one != nullptr && art_one->define == 1 && art_one->id == book_id(22), "tâm pháp thứ hai");
     context.expect(skill::action_count(shelf.actions, ActionKind::kSkill) == 5, "năm action kỹ năng");
     const Action* first = shelf.at(ActionKind::kSkill, 0);
-    context.expect(first != nullptr && first->define == 20 && first->id == 27, "PosIndex 0 là kỹ năng 20, id theo id kỹ năng");
+    context.expect(first != nullptr && first->define == 20 && first->id == book_id(27), "PosIndex 0 là kỹ năng 20, id theo id kỹ năng");
     const Action* second = shelf.at(ActionKind::kSkill, 1);
-    context.expect(second != nullptr && second->define == 0 && second->id == 23, "kỹ năng 0 có id nhỏ nhất");
+    context.expect(second != nullptr && second->define == 0 && second->id == book_id(23), "kỹ năng 0 có id nhỏ nhất");
     context.expect(shelf.at(ActionKind::kSkill, 4) == nullptr, "kỹ năng 2 không cần học: PosIndex -1, không liệt kê được");
     const Action* free = shelf.at(ActionKind::kSkill, -1);
     context.expect(free != nullptr && free->define == 2, "PosIndex -1 trả kỹ năng không cần học");
     context.expect(shelf.at(ActionKind::kSkill, 5) == nullptr && shelf.at(ActionKind::kInnerArt, 2) == nullptr, "ngoài miền");
     const Action* gem = shelf.at(ActionKind::kLifeSkill, 0);
-    context.expect(gem != nullptr && gem->define == 3 && gem->id == 28, "kỹ năng sống tới trước nhận id trước");
+    context.expect(gem != nullptr && gem->define == 3 && gem->id == book_id(28), "kỹ năng sống tới trước nhận id trước");
     context.expect(skill::action_count(shelf.actions, ActionKind::kLifeSkill) == 2, "hai action kỹ năng sống");
     context.expect(std::ranges::is_sorted(shelf.actions.all, {}, &Action::id), "danh sách xếp tăng theo id");
 }
@@ -364,10 +371,10 @@ void sync_drops_gone_and_keeps_ids(Context& context) {
     skill::sync_skill_actions(shelf.actions, shelf.book, shelf.tables);
     context.expect(skill::action_count(shelf.actions, ActionKind::kSkill) == 3, "còn 10, thêm 1, và 2 không cần học ở lại");
     const Action* kept = shelf.at(ActionKind::kSkill, 0);
-    context.expect(kept != nullptr && kept->define == 10 && kept->id == 25, "action cũ giữ id");
+    context.expect(kept != nullptr && kept->define == 10 && kept->id == book_id(25), "action cũ giữ id");
     const Action* added = shelf.at(ActionKind::kSkill, 1);
-    context.expect(added != nullptr && added->define == 1 && added->id == 30, "action mới nhận id kế tiếp");
-    context.expect(skill::action_by_id(shelf.actions, 27) == nullptr, "action của kỹ năng 20 đã gỡ");
+    context.expect(added != nullptr && added->define == 1 && added->id == book_id(30), "action mới nhận id kế tiếp");
+    context.expect(skill::action_by_id(shelf.actions, book_id(27)) == nullptr, "action của kỹ năng 20 đã gỡ");
     shelf.book.inner_arts.clear();
     shelf.book.life_skills.clear();
     skill::sync_inner_art_actions(shelf.actions, shelf.book);

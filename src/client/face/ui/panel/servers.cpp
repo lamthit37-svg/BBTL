@@ -173,7 +173,9 @@ std::vector<ServerRef> recommended(const ServerDirectory& directory) {
             picked.push_back(ServerRef{.area = area, .server = server});
         }
     }
-    const auto level_of = [&directory](ServerRef ref) { return directory.areas.at(ref.area).servers.at(ref.server).recommend; };
+    const auto level_of = [&directory](ServerRef ref) {
+        return directory.areas.at(ref.area).servers.at(ref.server).recommend;
+    };
     std::ranges::stable_sort(picked, {}, level_of);
     return picked;
 }

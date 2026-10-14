@@ -11,6 +11,7 @@
 #include "fs/buny.hpp"
 #include "fs/codec.hpp"
 #include "fs/stream.hpp"
+#include "shader/detail/reconcile.hpp"
 #include "shader/package.hpp"
 #include "shader/reflection.hpp"
 #include "shader/types.hpp"
@@ -947,6 +948,71 @@ void buny_hash_and_names_follow_the_original(Context& context) {
     }
 }
 
+// Slang ghi vào DXIL hậu tố "_0" sau mọi tên và mang semantic, còn SPIR-V mang tên sạch nhưng không
+// có semantic: phản chiếu chuẩn lấy tên của SPIR-V và semantic của DXIL (shader/detail/reconcile.hpp).
+void reconcile_takes_names_from_spirv_and_semantics_from_dxil(Context& context) {
+    StageReflection truth = pixel_reflection();
+    truth.inputs.back().index = 3;
+    truth.outputs.front().index = 2;
+    StageReflection spirv = truth;
+    for (Attribute& attribute : spirv.inputs) {
+        attribute.semantic.clear();
+        attribute.index = 0;
+    }
+    for (Attribute& attribute : spirv.outputs) {
+        attribute.semantic.clear();
+        attribute.index = 0;
+    }
+    StageReflection dxil = truth;
+    for (Resource& resource : dxil.resources) resource.name += "_0";
+    for (Block& block : dxil.blocks) {
+        block.name += "_0";
+        for (Variable& variable : block.variables) variable.name += "_0";
+    }
+    const core::Result<StageReflection> merged = shader::detail::reconcile(spirv, dxil);
+    context.expect(merged.has_value(), "hai bên cùng bố cục thì ghép được");
+    if (!merged) return;
+    context.expect(*merged == truth, "tên sạch của SPIR-V, semantic và index của DXIL");
+}
+
+// Mỗi chỗ hai bên bất đồng về bố cục là một lỗi Internal, không để lọt thành phản chiếu sai.
+struct Drift {
+    std::string_view what;
+    void (*mutate)(StageReflection&);
+};
+
+constexpr std::array kDrifts{
+    Drift{.what = "slot của tài nguyên", .mutate = [](StageReflection& side) { side.resources.front().slot += 1; }},
+    Drift{.what = "binding của tài nguyên", .mutate = [](StageReflection& side) { side.resources.back().binding += 1; }},
+    Drift{.what = "thiếu một tài nguyên", .mutate = [](StageReflection& side) { side.resources.pop_back(); }},
+    Drift{.what = "loại tài nguyên",
+        .mutate = [](StageReflection& side) { side.resources.at(1).kind = ResourceKind::kBuffer; }},
+    Drift{.what = "offset của biến cbuffer",
+        .mutate = [](StageReflection& side) { side.blocks.front().variables.back().offset += 4; }},
+    Drift{.what = "số phần tử mảng của biến cbuffer",
+        .mutate = [](StageReflection& side) { side.blocks.front().variables.front().elements = 2; }},
+    Drift{.what = "cỡ cbuffer", .mutate = [](StageReflection& side) { side.blocks.front().size = 48; }},
+    Drift{.what = "thiếu một biến cbuffer",
+        .mutate = [](StageReflection& side) { side.blocks.front().variables.pop_back(); }},
+    Drift{.what = "location của đầu vào", .mutate = [](StageReflection& side) { side.inputs.front().location = 9; }},
+    Drift{.what = "số thành phần của đầu ra",
+        .mutate = [](StageReflection& side) { side.outputs.front().components = 2; }},
+    Drift{.what = "thiếu một đầu vào", .mutate = [](StageReflection& side) { side.inputs.pop_back(); }},
+    Drift{.what = "tên entry", .mutate = [](StageReflection& side) { side.entry = "other"; }},
+};
+
+void reconcile_reports_every_kind_of_layout_drift(Context& context) {
+    const StageReflection truth = pixel_reflection();
+    const core::Result<StageReflection> same = shader::detail::reconcile(truth, truth);
+    context.expect(same.has_value() && *same == truth, "hai bên y hệt nhau thì ghép nguyên");
+    for (const Drift& drift : kDrifts) {
+        StageReflection dxil = truth;
+        drift.mutate(dxil);
+        const core::Result<StageReflection> merged = shader::detail::reconcile(truth, dxil);
+        context.expect(failed_with(merged, core::ErrorCode::kInternal), drift.what);
+    }
+}
+
 constexpr std::array kCases{
     Case{.name = "package_reads_back_header_fields", .body = &package_reads_back_header_fields},
     Case{.name = "package_reads_back_every_variant", .body = &package_reads_back_every_variant},
@@ -965,6 +1031,9 @@ constexpr std::array kCases{
     Case{.name = "merge_unions_stages", .body = &merge_unions_stages},
     Case{.name = "merge_reports_conflicts", .body = &merge_reports_conflicts},
     Case{.name = "interface_matches_outputs_to_inputs", .body = &interface_matches_outputs_to_inputs},
+    Case{.name = "reconcile_takes_names_from_spirv_and_semantics_from_dxil",
+        .body = &reconcile_takes_names_from_spirv_and_semantics_from_dxil},
+    Case{.name = "reconcile_reports_every_kind_of_layout_drift", .body = &reconcile_reports_every_kind_of_layout_drift},
     Case{.name = "stages_targets_and_models_parse", .body = &stages_targets_and_models_parse},
     Case{.name = "checksum_is_stable_xxh3", .body = &checksum_is_stable_xxh3},
     Case{.name = "codec_round_trips_lz4_and_zstd", .body = &codec_round_trips_lz4_and_zstd},

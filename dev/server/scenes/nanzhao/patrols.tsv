@@ -1,0 +1,24 @@
+# schema 1
+# source: Public/Scene/nanzhao_patrolpoint.ini
+# tool: TOOLS/server/export_scene.py; sửa tay sẽ mất ở lượt xuất sau
+# types: int	int	float	float	float	int	text	text	int	int	text	text	text	text
+patrol_index	point_index	position_x	position_y	position_z	settle_time	point_script_id	route_script_id	turns_back	teleport_to_respawn	speech_unread	speech_1	speech_2	speech_3
+0	0	129.6156	999.2766	50.9692									
+0	1	130.0206	974.5022	55.8166									
+0	2	136.5419	1000.0000	64.2296									
+0	3	147.8083	1000.0000	65.5426									
+0	4	147.6880	600.0000	85.4810									
+0	5	147.1775	253.7311	97.7569									
+0	6	152.0346	306.0017	103.3506									
+0	7	162.5924	530.2990	112.1813									
+0	8	179.5745	541.3469	117.3453									
+0	9	203.6099	490.4402	122.7658									
+0	10	201.3145	451.8835	140.6446									
+0	11	207.2247	454.1523	157.2968									
+0	12	215.9898	304.4929	164.7349									
+0	13	223.7506	223.2277	165.4241									
+0	14	225.1696	218.6130	211.7505									
+0	15	216.9424	252.7266	214.1688									
+0	16	201.3478	229.2363	204.9557									
+0	17	188.3828	256.3414	202.7281									
+0	18	167.4520	123.5160	221.9367									

@@ -1,0 +1,27 @@
+#==================================================
+# CẢNH PCITYYANBEIZHENGXI
+#==================================================
+# tool: TOOLS/server/export_scene.py; sửa tay sẽ mất ở lượt xuất sau
+# Dữ liệu cảnh bản 0859602 do công cụ sinh, sửa tay sẽ mất khi xuất lại.
+
+#==================================================
+# Phiên bản
+#==================================================
+# Mỗi cảnh một thư mục, tên giữ nguyên thân tệp scn.
+schema               = 1                            # phiên bản dữ liệu của cảnh
+
+#==================================================
+# Lưới đi
+#==================================================
+# Hai số u16 đầu tệp nav, mỗi ô bốn byte.
+grid_width           = 384                          # số ô ngang của lưới đi
+grid_height          = 384                          # số ô dọc của lưới đi
+
+#==================================================
+# Tệp đã xuất
+#==================================================
+# Sinh lại bằng export_scene.py, không sửa tay.
+areas                = "areas.tsv"                  # vùng sự kiện hình chữ nhật
+patrols              = "patrols.tsv"                # tuyến tuần và các điểm
+spawns_yanbeizhengxi = "spawns.yanbeizhengxi.tsv"   # quái theo lối vào
+walk                 = "walk.nav"                   # lưới đi, chép nguyên byte

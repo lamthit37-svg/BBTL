@@ -1,0 +1,11 @@
+# schema 1
+# source: server_config/PetApperceiveSkillTable.txt
+# tool: TOOLS/server/import_legacy.py; sửa tay sẽ mất ở lượt xuất sau
+# types: int	text	text	text	text
+index	original	name	type	note
+0	编号	serial	int	luật: nguyên văn
+1	珍兽技能总数	column_1	int	?
+2	已有主动技能数	column_2	int	?
+3	已有被动技能数	column_3	int	?
+4	领悟主动技能概率（单位1/10w）	column_4	int	?
+5	领悟被动技能概率（单位1/10w）	column_5	int	?

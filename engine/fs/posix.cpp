@@ -155,8 +155,9 @@ Result<std::chrono::file_clock::time_point> last_write(std::string_view path) {
     std::error_code error;
     const std::filesystem::path native{std::string(path)};
     const auto stamp = std::filesystem::last_write_time(native, error);
-    if (error) return fail(error == std::errc::no_such_file_or_directory ? ErrorCode::kNotFound : ErrorCode::kIo,
-        "không hỏi được thời điểm sửa", path);
+    if (error)
+        return fail(error == std::errc::no_such_file_or_directory ? ErrorCode::kNotFound : ErrorCode::kIo,
+            "không hỏi được thời điểm sửa", path);
     return stamp;
 }
 

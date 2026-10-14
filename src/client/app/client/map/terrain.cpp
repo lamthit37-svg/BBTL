@@ -54,9 +54,8 @@ void place_from_scale(TerrainFile& file) noexcept {
     const OptionalText text_y = attribute(element, "y");
     const OptionalText text_z = attribute(element, "z");
     if (!text_x || !text_y || !text_z) return false;
-    const scene::Vector3 scale{.x = scene::parse_real(*text_x),
-        .y = scene::parse_real(*text_y),
-        .z = scene::parse_real(*text_z)};
+    const scene::Vector3 scale{
+        .x = scene::parse_real(*text_x), .y = scene::parse_real(*text_y), .z = scene::parse_real(*text_z)};
     if (scale.x <= 0.0F || scale.y <= 0.0F || scale.z <= 0.0F) return false;
     file.scale = scale;
     place_from_scale(file);
@@ -86,9 +85,8 @@ void place_from_scale(TerrainFile& file) noexcept {
     const OptionalText text_y = attribute(element, "y");
     const OptionalText text_z = attribute(element, "z");
     if (!text_x || !text_y || !text_z) return false;
-    file.origin = scene::Vector3{.x = scene::parse_real(*text_x),
-        .y = scene::parse_real(*text_y),
-        .z = scene::parse_real(*text_z)};
+    file.origin = scene::Vector3{
+        .x = scene::parse_real(*text_x), .y = scene::parse_real(*text_y), .z = scene::parse_real(*text_z)};
     return true;
 }
 

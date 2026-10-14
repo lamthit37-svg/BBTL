@@ -1,0 +1,21 @@
+# schema 1
+# source: server_config/DarkSkillList.txt
+# tool: TOOLS/server/import_legacy.py; sửa tay sẽ mất ở lượt xuất sau
+# types: int	text	text	text	text
+index	original	name	type	note
+0	10级技能	column_0	int	?
+1	20级技能	column_1	int	?
+2	30级技能	column_2	int	?
+3	40级技能	column_3	int	?
+4	50级技能	column_4	int	?
+5	60级技能	column_5	int	?
+6	70级技能	column_6	int	?
+7	80级技能	column_7	int	?
+8	90级技能	column_8	int	?
+9	100级技能	column_9	int	?
+10	110级技能	column_10	int	?
+11	120级技能	column_11	int	?
+12	130级110级技能	column_12	int	?
+13	140级技能	column_13	int	?
+14	150级技能	column_14	int	?
+15	160级技能	column_15	int	?

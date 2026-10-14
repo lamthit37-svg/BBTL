@@ -154,8 +154,7 @@ std::optional<GuiColours> parse_colours(std::string_view text) noexcept {
 }
 
 // Kênh 8 bit thành số trên 255, nhân, rồi cắt phần thập phân.
-[[nodiscard]] static std::uint32_t scaled_channel(std::uint32_t first, std::uint32_t second,
-    unsigned shift) noexcept {
+[[nodiscard]] static std::uint32_t scaled_channel(std::uint32_t first, std::uint32_t second, unsigned shift) noexcept {
     const float left = static_cast<float>((first >> shift) & 0xFFU) / 255.0F;
     const float right = static_cast<float>((second >> shift) & 0xFFU) / 255.0F;
     return static_cast<std::uint32_t>(left * right * 255.0F) << shift;

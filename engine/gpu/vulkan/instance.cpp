@@ -33,10 +33,13 @@ namespace {
 
 constexpr const char* kValidationLayer = "VK_LAYER_KHRONOS_validation";
 // Tên chuỗi thay cho hằng của vulkan_win32.h: header ấy kéo windows.h. Android dùng bề mặt
-// ANativeWindow của nó (tệp này không kéo vulkan_android.h chỉ vì một tên).
+// ANativeWindow của nó (tệp này không kéo vulkan_android.h chỉ vì một tên); Apple (MoltenVK) dùng
+// bề mặt CAMetalLayer của surface_ios.mm.
 constexpr const char* kSurface = "VK_KHR_surface";
 #if defined(__ANDROID__)
 constexpr const char* kPlatformSurface = "VK_KHR_android_surface";
+#elif defined(__APPLE__)
+constexpr const char* kPlatformSurface = "VK_EXT_metal_surface";
 #else
 constexpr const char* kPlatformSurface = "VK_KHR_win32_surface";
 #endif

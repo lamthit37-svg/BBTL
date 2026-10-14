@@ -1,0 +1,23 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "TSV: kiểm tệp đang mở",
+            "type": "shell",
+            "command": "python -B TOOLS/tsv_lint.py \"${file}\"",
+            "problemMatcher": []
+        },
+        {
+            "label": "TSV: xem thẳng cột tệp đang mở",
+            "type": "shell",
+            "command": "python -B TOOLS/tsv_lint.py --view --rows 200 \"${file}\"",
+            "problemMatcher": []
+        },
+        {
+            "label": "TSV: kiểm cả dự án",
+            "type": "shell",
+            "command": "python -B TOOLS/tsv_lint.py --quiet",
+            "problemMatcher": []
+        }
+    ]
+}

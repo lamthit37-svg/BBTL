@@ -1,0 +1,39 @@
+# schema 1
+# source: public_config/ImpactCollections.txt
+# tool: TOOLS/server/import_legacy.py; sửa tay sẽ mất ở lượt xuất sau
+# types: int	text	text	text	text
+index	original	name	type	note
+0	标识ID的分类ID	category_id	int	luật: nguyên văn
+1	分类说明$1$	column_1	text	?
+2	本类中的ID数量	id_count	int	luật: nguyên văn
+3	ID1	id_1	int	luật: M1
+4	ID2	id_2	int	luật: M1
+5	ID3	id_3	int	luật: M1
+6	ID4	id_4	int	luật: M1
+7	ID5	id_5	int	luật: M1
+8	ID6	id_6	int	luật: M1
+9	ID7	id_7	int	luật: M1
+10	ID8	id_8	int	luật: M1
+11	ID9	id_9	int	luật: M1
+12	ID10	id_10	int	luật: M1
+13	ID11	id_11	int	luật: M1
+14	ID12	id_12	int	luật: M1
+15	ID13	id_13	int	luật: M1
+16	ID14	id_14	int	luật: M1
+17	ID15	id_15	int	luật: M1
+18	ID16	id_16	int	luật: M1
+19	ID17	id_17	int	luật: M1
+20	ID18	id_18	int	luật: M1
+21	ID19	id_19	int	luật: M1
+22	ID20	id_20	int	luật: M1
+23	ID21	id_21	int	luật: M1
+24	ID22	id_22	int	luật: M1
+25	ID23	id_23	int	luật: M1
+26	ID24	id_24	int	luật: M1
+27	ID25	id_25	int	luật: M1
+28	ID26	id_26	int	luật: M1
+29	ID27	id_27	int	luật: M1
+30	ID28	id_28	int	luật: M1
+31	ID29	id_29	int	luật: M1
+32	ID30	id_30	int	luật: M1
+33	结尾说明，测试用	test_trailer	text	luật: nguyên văn

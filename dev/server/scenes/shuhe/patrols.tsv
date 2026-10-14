@@ -1,0 +1,20 @@
+# schema 1
+# source: Public/Scene/shuhe_patrolpoint.ini
+# tool: TOOLS/server/export_scene.py; sửa tay sẽ mất ở lượt xuất sau
+# types: int	int	float	float	float	int	text	text	int	int	text	text	text	text
+patrol_index	point_index	position_x	position_y	position_z	settle_time	point_script_id	route_script_id	turns_back	teleport_to_respawn	speech_unread	speech_1	speech_2	speech_3
+0	0	167.7593	4.0000	82.9262									
+0	1	168.6539	4.0000	121.3776									
+0	2	156.9851	4.0000	125.4254									
+0	3	156.6815	4.0000	147.9927									
+0	4	168.5312	4.0000	161.8423									
+0	5	168.1274	4.0000	189.6163									
+0	6	157.1921	4.0000	188.4553									
+0	7	128.5941	4.0000	188.5562									
+0	8	114.3324	4.0000	184.0441									
+0	9	113.5367	4.0000	158.8035									
+0	10	99.9354	4.0000	121.6229									
+0	11	100.0002	4.0000	107.5505									
+0	12	100.3114	4.0000	82.1627									
+0	13	117.4112	4.0000	81.9126									
+0	14	134.3305	4.0000	83.6171									

@@ -110,7 +110,7 @@ struct ThreadBind {
     HGLRC context = nullptr;
     ~ThreadBind() {
         if (context != nullptr && wglGetCurrentContext() == context)
-        if (context != nullptr && wglGetCurrentContext() == context) wglMakeCurrent(nullptr, nullptr);
+            if (context != nullptr && wglGetCurrentContext() == context) wglMakeCurrent(nullptr, nullptr);
     }
 };
 
@@ -191,21 +191,19 @@ core::Status GlContext::attach_window(void* window) {
     HDC dc = GetDC(handle);
     if (dc == nullptr) return fail(ErrorCode::kUnsupported, "không lấy được DC của cửa sổ");
     if (GetPixelFormat(dc) == 0) {
-        const int attributes[]{kDrawWindow, 1, kSupportGl, 1, kDoubleBuffer, 1, kAcceleration,
-            kFullAcceleration, kPixelType, kTypeRgba, kColorBits, 32, kAlphaBits, 8, kDepthBits, 24,
-            kSrgb, 1, 0};
+        const int attributes[]{kDrawWindow, 1, kSupportGl, 1, kDoubleBuffer, 1, kAcceleration, kFullAcceleration,
+            kPixelType, kTypeRgba, kColorBits, 32, kAlphaBits, 8, kDepthBits, 24, kSrgb, 1, 0};
         int chosen = 0;
         UINT count = 0;
         const BOOL ok = native_->choose_format != nullptr &&
             native_->choose_format(dc, attributes, nullptr, 1, &chosen, &count) == TRUE && count > 0;
         int format = ok ? chosen : legacy_format(dc);
         if (!ok) {
-            const int plain[]{kDrawWindow, 1, kSupportGl, 1, kDoubleBuffer, 1, kPixelType, kTypeRgba,
-                kColorBits, 32, kAlphaBits, 8, kDepthBits, 24, 0};
+            const int plain[]{kDrawWindow, 1, kSupportGl, 1, kDoubleBuffer, 1, kPixelType, kTypeRgba, kColorBits, 32,
+                kAlphaBits, 8, kDepthBits, 24, 0};
             UINT plain_count = 0;
             if (native_->choose_format != nullptr &&
-                native_->choose_format(dc, plain, nullptr, 1, &chosen, &plain_count) == TRUE &&
-                plain_count > 0) {
+                native_->choose_format(dc, plain, nullptr, 1, &chosen, &plain_count) == TRUE && plain_count > 0) {
                 format = chosen;
             }
         }
@@ -283,12 +281,10 @@ core::Result<GlContext> open_context(bool debug) {
     native->hidden_dc = native->hidden != nullptr ? GetDC(native->hidden) : nullptr;
     int modern = 0;
     UINT modern_count = 0;
-    const int attributes[]{kDrawWindow, 1, kSupportGl, 1, kDoubleBuffer, 1, kAcceleration,
-        kFullAcceleration, kPixelType, kTypeRgba, kColorBits, 32, kAlphaBits, 8, kDepthBits, 24,
-        kSrgb, 1, 0};
+    const int attributes[]{kDrawWindow, 1, kSupportGl, 1, kDoubleBuffer, 1, kAcceleration, kFullAcceleration,
+        kPixelType, kTypeRgba, kColorBits, 32, kAlphaBits, 8, kDepthBits, 24, kSrgb, 1, 0};
     const bool chose = native->hidden_dc != nullptr && native->choose_format != nullptr &&
-        native->choose_format(native->hidden_dc, attributes, nullptr, 1, &modern, &modern_count) ==
-            TRUE &&
+        native->choose_format(native->hidden_dc, attributes, nullptr, 1, &modern, &modern_count) == TRUE &&
         modern_count > 0;
     const int format = chose ? modern : legacy_format(native->hidden_dc);
     if (!apply_format(native->hidden_dc, format)) {
@@ -299,8 +295,8 @@ core::Result<GlContext> open_context(bool debug) {
     HGLRC real = nullptr;
     for (const Version& version : kTries) {
         const int flags = debug ? kDebugFlag : 0;
-        const int list[]{kMajorAttrib, version.major, kMinorAttrib, version.minor, kProfileAttrib,
-            kCoreProfile, kFlagsAttrib, flags, 0};
+        const int list[]{kMajorAttrib, version.major, kMinorAttrib, version.minor, kProfileAttrib, kCoreProfile,
+            kFlagsAttrib, flags, 0};
         real = native->create_attribs(native->hidden_dc, nullptr, list);
         if (real != nullptr) break;
     }

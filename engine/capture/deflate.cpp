@@ -78,9 +78,7 @@ public:
     }
 
     // Chép thẳng byte; chỉ gọi ngay sau align().
-    void bytes(std::span<const std::byte> data) {
-        out_->insert(out_->end(), data.begin(), data.end());
-    }
+    void bytes(std::span<const std::byte> data) { out_->insert(out_->end(), data.begin(), data.end()); }
 
 private:
     void drain() {
@@ -386,8 +384,7 @@ struct Run {
     std::uint8_t extra = 0;
 };
 
-constexpr std::array<std::uint8_t, kLengthCodes> kRunExtraBits{
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 3, 7};
+constexpr std::array<std::uint8_t, kLengthCodes> kRunExtraBits{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 3, 7};
 
 // Thứ tự ghi độ dài của bảng mã độ dài (RFC 1951 mục 3.2.7).
 constexpr std::array<std::uint8_t, kLengthCodes> kRunOrder{
@@ -629,10 +626,7 @@ struct Search {
 class Matcher {
 public:
     Matcher(std::span<const std::byte> data, Effort effort)
-        : data_(data),
-          search_(search_of(effort)),
-          head_(std::size_t{1} << kHashBits),
-          prev_(kWindow) {}
+        : data_(data), search_(search_of(effort)), head_(std::size_t{1} << kHashBits), prev_(kWindow) {}
 
     [[nodiscard]] Match find(std::size_t at) const noexcept {
         Match best;
@@ -671,8 +665,7 @@ private:
     [[nodiscard]] Index common(Index first, Index second, Index limit) const noexcept {
         std::size_t length = 0;
         while (length + sizeof(std::uint64_t) <= limit) {
-            const std::uint64_t differ =
-                load64(data_, first + length) ^ load64(data_, second + length);
+            const std::uint64_t differ = load64(data_, first + length) ^ load64(data_, second + length);
             const auto same_bytes = static_cast<std::size_t>(std::countr_zero(differ)) / 8;
             if (differ != 0) return length + same_bytes;
             length += sizeof(std::uint64_t);
@@ -747,10 +740,10 @@ constexpr CrcTables kCrcTables = make_crc_tables();
 [[nodiscard]] std::uint32_t crc_step(std::uint32_t crc, std::span<const std::byte> data) noexcept {
     const std::uint32_t one = load32(data, 0) ^ crc;
     const std::uint32_t two = load32(data, 4);
-    const std::uint32_t low = crc_entry(7, one) ^ crc_entry(6, one >> 8U) ^
-        crc_entry(5, one >> 16U) ^ crc_entry(4, one >> 24U);
-    const std::uint32_t high = crc_entry(3, two) ^ crc_entry(2, two >> 8U) ^
-        crc_entry(1, two >> 16U) ^ crc_entry(0, two >> 24U);
+    const std::uint32_t low =
+        crc_entry(7, one) ^ crc_entry(6, one >> 8U) ^ crc_entry(5, one >> 16U) ^ crc_entry(4, one >> 24U);
+    const std::uint32_t high =
+        crc_entry(3, two) ^ crc_entry(2, two >> 8U) ^ crc_entry(1, two >> 16U) ^ crc_entry(0, two >> 24U);
     return low ^ high;
 }
 

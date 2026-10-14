@@ -1,0 +1,48 @@
+# schema 1
+# source: server_config/BaseValueTable.ini
+# tool: TOOLS/server/import_legacy.py; sửa tay sẽ mất ở lượt xuất sau
+# types: int	text	text	text	text
+index	original	name	type	note
+0		sect_id	int	chỉ số MENPAI, mã 2008 đọc 0 tới 9
+1	AINFOTYPE0	ainfotype0	int	
+2	AINFOTYPE1	ainfotype1	int	
+3	AINFOTYPE2	ainfotype2	int	
+4	AINFOTYPE3	ainfotype3	int	
+5	AINFOTYPE4	ainfotype4	int	
+6	AINFOTYPE5	ainfotype5	int	
+7	AINFOTYPE6	ainfotype6	int	
+8	AINFOTYPE7	ainfotype7	int	
+9	AINFOTYPE8	ainfotype8	int	
+10	AINFOTYPE9	ainfotype9	int	
+11	AINFOTYPE10	ainfotype10	int	
+12	AINFOTYPE11	ainfotype11	int	
+13	AINFOTYPE12	ainfotype12	int	
+14	AINFOTYPE13	ainfotype13	int	
+15	AINFOTYPE14	ainfotype14	int	
+16	AINFOTYPE15	ainfotype15	int	
+17	AINFOTYPE16	ainfotype16	int	
+18	AINFOTYPE17	ainfotype17	int	
+19	AINFOTYPE18	ainfotype18	int	
+20	AINFOTYPE19	ainfotype19	int	
+21	AINFOTYPE20	ainfotype20	int	
+22	AINFOTYPE21	ainfotype21	int	
+23	AINFOTYPE22	ainfotype22	int	
+24	AINFOTYPE23	ainfotype23	int	
+25	AINFOTYPE24	ainfotype24	int	
+26	AINFOTYPE25	ainfotype25	int	
+27	AINFOTYPE26	ainfotype26	int	
+28	AINFOTYPE27	ainfotype27	int	
+29	AINFOTYPE28	ainfotype28	int	
+30	AINFOTYPE29	ainfotype29	int	
+31	AINFOTYPE30	ainfotype30	int	
+32	AINFOTYPE31	ainfotype31	int	
+33	AINFOTYPE32	ainfotype32	int	
+34	AINFOTYPE33	ainfotype33	int	
+35	AINFOTYPE34	ainfotype34	int	mã 2008 không đọc khoá này
+36	AINFOTYPE35	ainfotype35	int	mã 2008 không đọc khoá này
+37	AINFOTYPE36	ainfotype36	int	mã 2008 không đọc khoá này
+38	AINFOTYPE37	ainfotype37	int	mã 2008 không đọc khoá này
+39	AINFOTYPE38	ainfotype38	int	mã 2008 không đọc khoá này
+40	AINFOTYPE39	ainfotype39	int	mã 2008 không đọc khoá này
+41	AINFOTYPE40	ainfotype40	int	mã 2008 không đọc khoá này
+42	AINFOTYPE41	ainfotype41	int	mã 2008 không đọc khoá này

@@ -1,0 +1,72 @@
+#==================================================
+# CẢNH ZHEMEIFENG
+#==================================================
+# tool: TOOLS/server/export_scene.py; sửa tay sẽ mất ở lượt xuất sau
+# Dữ liệu cảnh bản 0859602 do công cụ sinh, sửa tay sẽ mất khi xuất lại.
+
+#==================================================
+# Phiên bản
+#==================================================
+# Mỗi cảnh một thư mục, tên giữ nguyên thân tệp scn.
+schema               = 1                            # phiên bản dữ liệu của cảnh
+
+#==================================================
+# Lưới đi
+#==================================================
+# Hai số u16 đầu tệp nav, mỗi ô bốn byte.
+grid_width           = 128                          # số ô ngang của lưới đi
+grid_height          = 128                          # số ô dọc của lưới đi
+
+#==================================================
+# Tệp đã xuất
+#==================================================
+# Sinh lại bằng export_scene.py, không sửa tay.
+areas                = "areas.tsv"                  # vùng sự kiện hình chữ nhật
+grow_points          = "grow_points.tsv"            # điểm thu thập trên mặt đất
+patrols              = "patrols.tsv"                # tuyến tuần và các điểm
+spawns               = "spawns.tsv"                 # quái và NPC của cảnh
+spawns_level_10      = "spawns.level_10.tsv"        # quái theo mốc cấp người chơi
+spawns_level_100     = "spawns.level_100.tsv"       # quái theo mốc cấp người chơi
+spawns_level_110     = "spawns.level_110.tsv"       # quái theo mốc cấp người chơi
+spawns_level_120     = "spawns.level_120.tsv"       # quái theo mốc cấp người chơi
+spawns_level_130     = "spawns.level_130.tsv"       # quái theo mốc cấp người chơi
+spawns_level_140     = "spawns.level_140.tsv"       # quái theo mốc cấp người chơi
+spawns_level_150     = "spawns.level_150.tsv"       # quái theo mốc cấp người chơi
+spawns_level_160     = "spawns.level_160.tsv"       # quái theo mốc cấp người chơi
+spawns_level_170     = "spawns.level_170.tsv"       # quái theo mốc cấp người chơi
+spawns_level_180     = "spawns.level_180.tsv"       # quái theo mốc cấp người chơi
+spawns_level_190     = "spawns.level_190.tsv"       # quái theo mốc cấp người chơi
+spawns_level_20      = "spawns.level_20.tsv"        # quái theo mốc cấp người chơi
+spawns_level_200     = "spawns.level_200.tsv"       # quái theo mốc cấp người chơi
+spawns_level_30      = "spawns.level_30.tsv"        # quái theo mốc cấp người chơi
+spawns_level_40      = "spawns.level_40.tsv"        # quái theo mốc cấp người chơi
+spawns_level_50      = "spawns.level_50.tsv"        # quái theo mốc cấp người chơi
+spawns_level_60      = "spawns.level_60.tsv"        # quái theo mốc cấp người chơi
+spawns_level_70      = "spawns.level_70.tsv"        # quái theo mốc cấp người chơi
+spawns_level_80      = "spawns.level_80.tsv"        # quái theo mốc cấp người chơi
+spawns_level_90      = "spawns.level_90.tsv"        # quái theo mốc cấp người chơi
+spawns_n20_level_100 = "spawns.n20_level_100.tsv"   # quái theo nhóm và mốc cấp
+spawns_n20_level_110 = "spawns.n20_level_110.tsv"   # quái theo nhóm và mốc cấp
+spawns_n20_level_120 = "spawns.n20_level_120.tsv"   # quái theo nhóm và mốc cấp
+spawns_n20_level_130 = "spawns.n20_level_130.tsv"   # quái theo nhóm và mốc cấp
+spawns_n20_level_140 = "spawns.n20_level_140.tsv"   # quái theo nhóm và mốc cấp
+spawns_n20_level_150 = "spawns.n20_level_150.tsv"   # quái theo nhóm và mốc cấp
+spawns_n20_level_160 = "spawns.n20_level_160.tsv"   # quái theo nhóm và mốc cấp
+spawns_n20_level_170 = "spawns.n20_level_170.tsv"   # quái theo nhóm và mốc cấp
+spawns_n20_level_180 = "spawns.n20_level_180.tsv"   # quái theo nhóm và mốc cấp
+spawns_n20_level_190 = "spawns.n20_level_190.tsv"   # quái theo nhóm và mốc cấp
+spawns_n20_level_200 = "spawns.n20_level_200.tsv"   # quái theo nhóm và mốc cấp
+spawns_n20_level_40  = "spawns.n20_level_40.tsv"    # quái theo nhóm và mốc cấp
+spawns_n20_level_50  = "spawns.n20_level_50.tsv"    # quái theo nhóm và mốc cấp
+spawns_n20_level_60  = "spawns.n20_level_60.tsv"    # quái theo nhóm và mốc cấp
+spawns_n20_level_70  = "spawns.n20_level_70.tsv"    # quái theo nhóm và mốc cấp
+spawns_n20_level_80  = "spawns.n20_level_80.tsv"    # quái theo nhóm và mốc cấp
+spawns_n20_level_90  = "spawns.n20_level_90.tsv"    # quái theo nhóm và mốc cấp
+walk                 = "walk.nav"                   # lưới đi, chép nguyên byte
+wild_pets            = "wild_pets.tsv"              # trân thú hoang, mã 2008 không nạp tệp này
+
+#==================================================
+# Chỉ phân loại
+#==================================================
+# Ba định dạng này chưa đọc, không chép byte.
+path_file            = "zhemeifeng.path"            # chưa đọc định dạng, không chép

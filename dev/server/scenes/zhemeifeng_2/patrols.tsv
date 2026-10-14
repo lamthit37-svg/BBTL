@@ -1,0 +1,18 @@
+# schema 1
+# source: Public/Scene/zhemeifeng_2_patrolpoint.ini
+# tool: TOOLS/server/export_scene.py; sửa tay sẽ mất ở lượt xuất sau
+# types: int	int	float	float	float	int	text	text	int	int	text	text	text	text
+patrol_index	point_index	position_x	position_y	position_z	settle_time	point_script_id	route_script_id	turns_back	teleport_to_respawn	speech_unread	speech_1	speech_2	speech_3
+0	0	13.0962	2371.6670	11.6395									
+0	1	12.7631	2373.2998	18.2132									
+0	2	15.5813	2375.1772	22.6966									
+0	3	22.5487	2325.5181	25.3013									
+0	4	31.2535	2389.1541	27.0112									
+0	5	34.4799	2400.0000	29.9704									
+0	6	33.5100	2403.5305	32.9468									
+0	7	34.0660	2413.1025	39.7753									
+0	8	35.3961	2393.9624	43.4102									
+0	9	36.7039	2394.4976	47.3713									
+0	10	35.9616	2410.8301	49.3856									
+0	11	33.4566	2411.0439	50.7193									
+0	12	27.6495	2406.5427	52.3659	10000								

@@ -1,0 +1,78 @@
+# schema 1
+# source: client_2026/MonsterAttrExTable.txt
+# tool: TOOLS/server/export_tables.py; sửa tay sẽ mất ở lượt xuất sau
+# types: int	text	text	text	text
+index	original	name	type	note
+0	怪物编号	monster_id	int	neo: cột gốc 0, khớp 100.0% (9503/9503 id); luật: nguyên văn
+1	名称$1$	name	text	neo: cột gốc 1, khớp 96.0% (9121/9503 id); luật: nguyên văn
+2	怪物性别	gender	int	nội suy: cột gốc 2, khớp 99.8% (9483/9503 id); luật: nguyên văn
+3	等级	level	int	neo: cột gốc 3, khớp 96.8% (9202/9503 id); luật: nguyên văn
+4	最小伤血百分比	min_damage_percent	float	đổi kiểu: cột gốc 12, khớp 99.8% (9488/9503 id); luật: nguyên văn
+5	是否可以交互	can_interact	int	neo: cột gốc 13, khớp 99.0% (9407/9503 id); luật: nguyên văn
+6	BOSS标记	is_boss	int	nội suy: cột gốc 14, khớp 98.2% (9336/9503 id); luật: nguyên văn
+7	物理攻击	physical_attack	int	nội suy: cột gốc 15, khớp 96.3% (9151/9503 id); luật: nguyên văn
+8	物理防御	physical_defence	int	nội suy: cột gốc 16, khớp 96.8% (9199/9503 id); luật: nguyên văn
+9	魔法攻击	magic_attack	int	nội suy: cột gốc 17, khớp 96.3% (9151/9503 id); luật: nguyên văn
+10	魔法防御	magic_defence	int	nội suy: cột gốc 18, khớp 96.8% (9199/9503 id); luật: nguyên văn
+11	HP上限	max_hp_1	int	nội suy: cột gốc 19, khớp 96.3% (9148/9503 id); luật: nguyên văn
+12	MP上限	max_mp	int	nội suy: cột gốc 20, khớp 96.8% (9199/9503 id); luật: nguyên văn
+13	HP回复	hp_restore	int	đổi kiểu: cột gốc 21, khớp 100.0% (9503/9503 id); luật: nguyên văn
+14	MP回复	mp_restore	int	đổi kiểu: cột gốc 22, khớp 100.0% (9503/9503 id); luật: nguyên văn
+15	命中率	accuracy	int	nội suy: cột gốc 23, khớp 96.3% (9156/9503 id); luật: nguyên văn
+16	闪避	miss	int	nội suy: cột gốc 24, khớp 96.8% (9199/9503 id); luật: nguyên văn
+17	会心率	critical_rate	int	nội suy: cột gốc 25, khớp 97.2% (9238/9503 id); luật: nguyên văn
+18	会心防御	critical_defence	int	nội suy: cột gốc 26, khớp 96.9% (9205/9503 id); luật: nguyên văn
+19	移动速度	move_speed	int	neo: cột gốc 27, khớp 98.8% (9391/9503 id); luật: nguyên văn
+20	步行速度	walk_speed	int	neo: cột gốc 28, khớp 99.2% (9423/9503 id); luật: nguyên văn
+21	攻击速度	attack_speed	int	nội suy: cột gốc 29, khớp 100.0% (9503/9503 id); luật: nguyên văn
+22	冰攻击	cold_attack	int	đổi kiểu: cột gốc 30, khớp 99.7% (9470/9503 id); luật: nguyên văn
+23	冰防御	cold_defence	int	đổi kiểu: cột gốc 31, khớp 99.7% (9473/9503 id); luật: nguyên văn
+24	降低目标冰抵抗	cold_resist_reduction	int	đổi kiểu: cột gốc 32, khớp 100.0% (9503/9503 id); luật: nguyên văn
+25	火攻击	fire_attack	int	đổi kiểu: cột gốc 33, khớp 99.7% (9470/9503 id); luật: nguyên văn
+26	火防御	fire_defence	int	đổi kiểu: cột gốc 34, khớp 99.7% (9473/9503 id); luật: nguyên văn
+27	降低目标火抵抗	fire_resist_reduction	int	đổi kiểu: cột gốc 35, khớp 100.0% (9503/9503 id); luật: nguyên văn
+28	电攻击	lightning_attack	int	đổi kiểu: cột gốc 36, khớp 99.7% (9470/9503 id); luật: nguyên văn
+29	电防御	lightning_defence	int	đổi kiểu: cột gốc 37, khớp 99.7% (9473/9503 id); luật: nguyên văn
+30	降低目标玄抵抗	lightning_resist_reduction	int	đổi kiểu: cột gốc 38, khớp 100.0% (9503/9503 id); luật: nguyên văn
+31	毒攻击	poison_attack	int	đổi kiểu: cột gốc 39, khớp 99.7% (9470/9503 id); luật: nguyên văn
+32	毒防御	poison_defence	int	đổi kiểu: cột gốc 40, khớp 99.7% (9473/9503 id); luật: nguyên văn
+33	降低目标毒抵抗	poison_resist_reduction	int	đổi kiểu: cột gốc 41, khớp 100.0% (9503/9503 id); luật: nguyên văn
+34	瞬时效果免疫ID	instant_immunity_id	int	nội suy: cột gốc 42, khớp 100.0% (9503/9503 id); luật: nguyên văn
+35	持续效果免疫ID	duration_immunity_id	int	nội suy: cột gốc 43, khớp 100.0% (9503/9503 id); luật: nguyên văn
+36	外型ID	model_id	int	neo: cột gốc 44, khớp 95.5% (9080/9503 id); luật: nguyên văn
+37	是否显示头顶信息板	show_overhead_plate	int	nội suy: cột gốc 45, khớp 100.0% (9500/9503 id); luật: nguyên văn
+38	转向模式	turn_mode	int	neo: cột gốc 46, khớp 99.4% (9448/9503 id); luật: nguyên văn
+39	名字板高度	name_plate_height	float	neo: cột gốc 47, khớp 100.0% (9502/9503 id); luật: nguyên văn
+40	选中环大小	selection_ring_size	float	nội suy: cột gốc 48, khớp 100.0% (9503/9503 id); luật: nguyên văn
+41	阴影大小	shadow_size	float	neo: cột gốc 49, khớp 100.0% (9500/9503 id); luật: nguyên văn
+42	人物头像	portrait	text	neo: cột gốc 50, khớp 95.3% (9058/9503 id); luật: nguyên văn
+43	攻击动作时间	attack_animation_time	int	nội suy: cột gốc 51, khớp 100.0% (9503/9503 id); luật: nguyên văn
+44	攻击冷却时间	attack_cooldown_time	int	nội suy: cột gốc 52, khớp 100.0% (9503/9503 id); luật: nguyên văn
+45	MaxLv	max_lv	int	neo: cột gốc 53, khớp 98.7% (9376/9503 id); luật: M1
+46		column_46	int	mới ở 2026
+47	MaxAtt	max_att	int	nội suy: cột gốc 55, khớp 98.4% (9353/9503 id); luật: M1
+48	MaxDef	max_def	int	nội suy: cột gốc 56, khớp 98.5% (9358/9503 id); luật: M1
+49	MaxMag	max_mag	int	nội suy: cột gốc 57, khớp 98.4% (9353/9503 id); luật: M1
+50	MaxRes	max_res	int	nội suy: cột gốc 58, khớp 98.5% (9358/9503 id); luật: M1
+51	MaxHP	max_hp_2	int	nội suy: cột gốc 59, khớp 98.4% (9353/9503 id); luật: M1
+52	是否在小地图上显示	show_on_minimap	int	nội suy: cột gốc 60, khớp 100.0% (9500/9503 id); luật: nguyên văn
+53	势力ID	force_id	int	neo: cột gốc 61, khớp 96.9% (9213/9503 id); luật: nguyên văn
+54	攻击特性ID	attack_trait_id	int	neo: cột gốc 62, khớp 99.9% (9492/9503 id); luật: nguyên văn
+55	是否攻击NPC	attacks_npc	int	nội suy: cột gốc 63, khớp 100.0% (9503/9503 id); luật: nguyên văn
+56	是否播放融合，闪避，搁挡动作	plays_blend_dodge_block	int	nội suy: cột gốc 64, khớp 100.0% (9503/9503 id); luật: nguyên văn
+57	外观类型	appearance_type	int	neo: cột gốc 65, khớp 97.7% (9289/9503 id); luật: nguyên văn
+58	强度类型	strength_type	int	neo: cột gốc 66, khớp 97.6% (9277/9503 id); luật: nguyên văn
+59	交互方式	interaction_mode	int	neo: cột gốc 67, khớp 100.0% (9503/9503 id); luật: nguyên văn
+60	激活时间	active_time	int	neo: cột gốc 68, khớp 100.0% (9503/9503 id); luật: nguyên văn
+61	战斗方式	combat_style	int	neo: cột gốc 69, khớp 99.9% (9492/9503 id); luật: nguyên văn
+62		column_62	int	mới ở 2026
+63		column_63	int	mới ở 2026
+64		column_64	int	mới ở 2026
+65		column_65	int	mới ở 2026
+66		column_66	int	mới ở 2026
+67		column_67	int	mới ở 2026
+68	基础AI	base_ai	int	chéo: cột gốc 7, khớp 98.7% (9377/9503 id); luật: nguyên văn
+69	扩展AI	extended_ai	int	chéo: cột gốc 8, khớp 99.3% (9434/9503 id); luật: nguyên văn
+70	阵营	camp	int	chéo: cột gốc 9, khớp 99.5% (9456/9503 id); luật: nguyên văn
+71		column_71	int	mới ở 2026
+72		column_72	int	mới ở 2026

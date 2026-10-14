@@ -1,11 +1,10 @@
 // Kiểu chung của module shader: stage, đích dịch, shader model, tập stage. Module thay Forge
 // Shading Language của _Ref (Tools/ForgeShadingLanguage, 2.200 dòng Python dịch một phương ngữ
-// macro sang HLSL, GLSL, Metal rồi gọi dxc và glslangValidator): nguồn là HLSL chuẩn, DXC dịch ra
-// cả DXIL lẫn SPIR-V. Stage của _Ref (VERT, FRAG, COMP, GEOM, TESC, TESE, GRAPH) cộng mesh và
-// amplification của Wicked; ROOTSIG không có bản Forge2 vì root signature dựng từ phản chiếu. Tên
-// ngắn của stage là tiền tố profile của DXC ("vs", "ps"), dùng luôn cho tên tệp nguồn:
-// basic.vs.hlsl.
-// Nguồn: Forge2 src/shader/types.hpp@d7fcd76. Khác gốc: thêm đích kDxbc cho D3D11 và kGlsl cho GLES.
+// macro sang HLSL, GLSL, Metal rồi gọi dxc và glslangValidator): nguồn là Slang (cú pháp HLSL
+// chạy được nguyên văn), Slang dịch ra DXIL, SPIR-V và DXBC. Stage của _Ref (VERT, FRAG, COMP, GEOM, TESC, TESE, GRAPH)
+// cộng mesh và amplification của Wicked; ROOTSIG không có bản Forge2 vì root signature dựng từ phản chiếu. Tên ngắn của
+// stage là tiền tố profile của DXC ("vs", "ps"), dùng luôn cho tên tệp nguồn: basic.vs.slang. Nguồn: Forge2
+// src/shader/types.hpp@d7fcd76. Khác gốc: thêm đích kDxbc cho D3D11 và kGlsl cho GLES.
 #pragma once
 
 #include "core/error.hpp"

@@ -1,0 +1,39 @@
+# schema 1
+# source: client_2026/ActivityNotice.txt
+# tool: TOOLS/server/export_tables.py; sửa tay sẽ mất ở lượt xuất sau
+# types: int	text	text	text	text
+index	original	name	type	note
+0	id	id	int	neo: cột gốc 0, khớp 100.0% (71/71 id); luật: M1
+1	opt_type	opt_type	int	nội suy: cột gốc 1, khớp 100.0% (71/71 id); luật: M1
+2	time_type	time_type	int	nội suy: cột gốc 2, khớp 100.0% (71/71 id); luật: M1
+3		column_3	int	mới ở 2026
+4	sceneid	sceneid	int	neo: cột gốc 4, khớp 95.8% (68/71 id); luật: M1
+5		column_5	int	mới ở 2026
+6	time_slice	time_slice	int	neo: cột gốc 6, khớp 98.6% (70/71 id); luật: M1
+7	reserve1	reserve_1	int	nội suy: cột gốc 7, khớp 100.0% (71/71 id); luật: M1
+8	reserve2	reserve_2	int	nội suy: cột gốc 8, khớp 100.0% (71/71 id); luật: M1
+9	reserve3	reserve_3	int	nội suy: cột gốc 9, khớp 100.0% (71/71 id); luật: M1
+10	reserve4	reserve_4	int	nội suy: cột gốc 10, khớp 100.0% (71/71 id); luật: M1
+11	reserve5	reserve_5	int	neo: cột gốc 11, khớp 98.6% (70/71 id); luật: M1
+12	广播类型	broadcast_kind	int	neo: cột gốc 12, khớp 98.6% (70/71 id); luật: nguyên văn
+13		column_13	int	mới ở 2026
+14		column_14	text	mới ở 2026
+15		column_15	int	mới ở 2026
+16		column_16	int	mới ở 2026
+17	快报内容$1$	bulletin_text	text	neo: cột gốc 17, khớp 97.2% (69/71 id); luật: nguyên văn
+18		column_18	int	mới ở 2026
+19		column_19	int	mới ở 2026
+20		column_20	text	mới ở 2026
+21		column_21	int	mới ở 2026
+22		column_22	int	mới ở 2026
+23	进行中报内容$1$	running_bulletin_text	text	neo: cột gốc 23, khớp 97.2% (69/71 id); luật: nguyên văn
+24		column_24	int	mới ở 2026
+25		column_25	int	mới ở 2026
+26		column_26	text	mới ở 2026
+27		column_27	int	mới ở 2026
+28		column_28	int	mới ở 2026
+29		column_29	text	mới ở 2026
+30		column_30	int	mới ở 2026
+31		column_31	int	mới ở 2026
+32		column_32	int	mới ở 2026
+33		column_33	int	mới ở 2026

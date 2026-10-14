@@ -1,0 +1,15 @@
+# schema 1
+# source: Public/Scene/zhemeifeng_monster_110.ini
+# tool: TOOLS/server/export_scene.py; sửa tay sẽ mất ở lượt xuất sau
+# types: int	int	text	text	float	float	int	int	int	int	int	int	int	int	int	int	int	int	int	int	int	int	text	int	int	int
+guid	type	name	title	position_x	position_z	direction	script_id	respawn_time	group_id	team_id	base_ai	ai_file	patrol_id	shop_0	shop_1	shop_2	shop_3	level	is_pet	script_timer	reputation_id	cshop	leader_id	is_npc	camp
+8623470	31570			33.0520	27.2575	27	-1	-1	-1	-1	0	-1	-1	-1	-1	-1	-1								
+8623476	31570			10.5921	18.5259	27	-1	-1	-1	-1	0	-1	-1	-1	-1	-1	-1								
+8623477	31570			13.9992	13.7536	27	-1	-1	-1	-1	0	-1	-1	-1	-1	-1	-1								
+8623529	31570			19.7619	34.9519	27	-1	-1	-1	-1	0	-1	-1	-1	-1	-1	-1								
+4718575	31570			30.3164	36.4605	27	-1	-1	-1	-1	0	0	-1	-1	-1	-1	-1								
+4718587	31570			22.8139	23.3885	27	-1	-1	-1	-1	0	0	-1	-1	-1	-1	-1								
+4718596	31570			9.6740	41.0814	27	-1	-1	-1	-1	0	0	-1	-1	-1	-1	-1								
+4718643	31570			39.1960	25.0681	27	-1	-1	-1	-1	0	0	-1	-1	-1	-1	-1								
+4718667	31570			11.0945	30.0582	27	-1	-1	-1	-1	0	0	-1	-1	-1	-1	-1								
+4718682	31570			42.1611	51.2265	27	-1	-1	-1	-1	0	0	-1	-1	-1	-1	-1								

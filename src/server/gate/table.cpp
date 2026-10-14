@@ -18,20 +18,20 @@
 #include <cstdint>
 #include <cstdio>
 #include <cstring>
+#include <format>
 #include <iterator>
 #include <limits>
 #include <memory>
-#include <print>
-#include <format>
 #include <optional>
+#include <print>
 #include <span>
-#include <variant>
 #include <string>
 #include <string_view>
 #include <system_error>
 #include <thread>
 #include <unordered_map>
 #include <utility>
+#include <variant>
 #include <vector>
 
 namespace game::gate {
@@ -105,7 +105,8 @@ struct Probe {
 
 [[nodiscard]] std::size_t pow2_at_least(std::size_t value) noexcept {
     std::size_t size = 1;
-    while (size < value) size *= 2;
+    while (size < value)
+        size *= 2;
     return size;
 }
 
@@ -127,7 +128,15 @@ struct Probe {
 }
 
 // Câu hỏi luồng tick gửi thư ký. secret là mật khẩu hoặc vé hex, xoá ngay sau khi dùng.
-enum class AskKind : std::uint8_t { kCreateAccount, kSignIn, kLogin, kCreateCharacter, kDeleteCharacter, kEnter, kResume };
+enum class AskKind : std::uint8_t {
+    kCreateAccount,
+    kSignIn,
+    kLogin,
+    kCreateCharacter,
+    kDeleteCharacter,
+    kEnter,
+    kResume
+};
 
 struct Ask {
     Handle handle{};
@@ -782,7 +791,8 @@ void on_resume(Engine& state, Slot& slot, std::uint32_t index, const protocol::R
 
 // Mốc đầu do server đặt: Resume giữ mốc cuối của phiên cũ; còn lại lấy điểm store giữ cho nhân vật.
 // Client không bao giờ chọn mốc (docs/SERVER-DI-CHUYEN.md).
-[[nodiscard]] guard::Anchor entry_anchor(const account::EnterReply& entered, bool resumed, guard::Anchor kept) noexcept {
+[[nodiscard]] guard::Anchor entry_anchor(const account::EnterReply& entered, bool resumed,
+    guard::Anchor kept) noexcept {
     if (resumed) return kept;
     return guard::Anchor{.x_cm = entered.x_cm, .z_cm = entered.z_cm};
 }
@@ -822,15 +832,16 @@ void finish_enter(Engine& state, Slot& slot, std::uint32_t index, std::uint16_t 
     slot.scratch.clear();
     protocol::SessionStart session;
     const bool opened = open_session(state, slot, index, character, session.token);
-    const bool sent = opened && protocol::encode(slot.scratch, session).has_value() &&
-                      seal_to(state, slot, index, slot.scratch);
+    const bool sent =
+        opened && protocol::encode(slot.scratch, session).has_value() && seal_to(state, slot, index, slot.scratch);
     secure::wipe_bytes(session.token);
     if (!sent) {
         release(state, slot, index, Drop::kSlow);
         return;
     }
     if (!send_ui(state, slot, index)) return;
-    send_position(state, slot, index, slot.motion.place(entry_anchor(entered, resumed_spot, resume_spot), slot.seen_ns));
+    send_position(state, slot, index,
+        slot.motion.place(entry_anchor(entered, resumed_spot, resume_spot), slot.seen_ns));
 }
 
 // Mọi Move đi qua guard::Pace với đồng hồ của gate. Không nhận thì kéo về mốc; lặp lại thì đóng phiên.
@@ -848,7 +859,8 @@ void on_move(Engine& state, Slot& slot, std::uint32_t index, const protocol::Mov
     }
 }
 
-void send_ticket(Engine& state, Slot& slot, std::uint32_t index, std::uint16_t request, const account::TicketReply& ticket) {
+void send_ticket(Engine& state, Slot& slot, std::uint32_t index, std::uint16_t request,
+    const account::TicketReply& ticket) {
     if (!ticket.ok) {
         send_reject(state, slot, index, request, ticket.code);
         return;
@@ -1235,9 +1247,11 @@ Engine::~Engine() {
     asks.wake();
     if (clerk.joinable()) clerk.join();
     Ask left;
-    while (asks.try_pop(left)) wipe_ask(left);
+    while (asks.try_pop(left))
+        wipe_ask(left);
     Answer done;
-    while (answers.try_pop(done)) wipe_answer(done);
+    while (answers.try_pop(done))
+        wipe_answer(done);
 }
 
 std::string_view describe(Drop reason) noexcept {
@@ -1531,4 +1545,3 @@ std::size_t Table::take_resume(std::span<Handle> out) {
 }
 
 } // namespace game::gate
-

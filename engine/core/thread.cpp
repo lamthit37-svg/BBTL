@@ -74,8 +74,7 @@ void add_entry(std::vector<CpuEntry>& entries, const SYSTEM_CPU_SET_INFORMATION&
     // Union của Win32, nhánh CpuSet đúng khi Type là CpuSetInformation (kiểm ngay trên).
     // NOLINTNEXTLINE(cppcoreguidelines-pro-type-union-access)
     const auto& cpu = item.CpuSet;
-    const CpuEntry entry{
-        .group = cpu.Group, .index = cpu.LogicalProcessorIndex, .efficiency = cpu.EfficiencyClass};
+    const CpuEntry entry{.group = cpu.Group, .index = cpu.LogicalProcessorIndex, .efficiency = cpu.EfficiencyClass};
     entries.push_back(entry);
 }
 
@@ -210,8 +209,7 @@ void pin(const CpuSet& cpus) {
 // Thân luồng do start_thread tạo; đặt mọi thứ trước khi chạy body.
 class ThreadStart {
 public:
-    ThreadStart(ThreadConfig config, ThreadBody body)
-        : config_(std::move(config)), body_(std::move(body)) {}
+    ThreadStart(ThreadConfig config, ThreadBody body) : config_(std::move(config)), body_(std::move(body)) {}
 
     void operator()(std::stop_token token) {
         // Khác gốc: gốc gọi reserve_crash_stack() ở đây cho trình báo crash của Forge2.

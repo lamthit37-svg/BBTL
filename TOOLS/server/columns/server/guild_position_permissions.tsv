@@ -1,0 +1,29 @@
+# schema 1
+# source: server_config/GuildMemberAccess.ini
+# tool: TOOLS/server/import_legacy.py; sửa tay sẽ mất ở lượt xuất sau
+# types: int	text	text	text	text
+index	original	name	type	note
+0		position_id	int	chỉ số member_type
+1	access_type0	access_type0	int	
+2	access_type1	access_type1	int	
+3	access_type2	access_type2	int	
+4	access_type3	access_type3	int	
+5	access_type4	access_type4	int	
+6	access_type5	access_type5	int	
+7	access_type6	access_type6	int	
+8	access_type7	access_type7	int	
+9	access_type8	access_type8	int	mã 2008 không đọc khoá này
+10	access_type9	access_type9	int	mã 2008 không đọc khoá này
+11	access_type10	access_type10	int	mã 2008 không đọc khoá này
+12	access_type11	access_type11	int	mã 2008 không đọc khoá này
+13	access_type12	access_type12	int	mã 2008 không đọc khoá này
+14	access_type13	access_type13	int	mã 2008 không đọc khoá này
+15	access_type14	access_type14	int	mã 2008 không đọc khoá này
+16	access_type15	access_type15	int	mã 2008 không đọc khoá này
+17	access_type16	access_type16	int	mã 2008 không đọc khoá này
+18	access_type17	access_type17	int	mã 2008 không đọc khoá này
+19	access_type18	access_type18	int	mã 2008 không đọc khoá này
+20	access_type19	access_type19	int	mã 2008 không đọc khoá này
+21	access_type20	access_type20	int	mã 2008 không đọc khoá này
+22	access_type21	access_type21	int	mã 2008 không đọc khoá này
+23	access_type22	access_type22	int	mã 2008 không đọc khoá này

@@ -1,0 +1,23 @@
+# schema 1
+# source: client_2026/EquipExtraAttr.txt
+# tool: TOOLS/server/export_tables.py; sửa tay sẽ mất ở lượt xuất sau
+# types: int	text	text	text	text
+index	original	name	type	note
+0	Index	index	int	neo: cột gốc 0, khớp 100.0% (778/778 id); luật: M1
+1	有效期(小时)	duration_hours	int	neo: cột gốc 1, khớp 99.2% (772/778 id); luật: nguyên văn
+2	传输颜色	link_color	int	nội suy: cột gốc 2, khớp 100.0% (778/778 id); luật: nguyên văn
+3	附加属性描述$1$	extra_attribute_description	text	neo: cột gốc 3, khớp 99.6% (775/778 id); luật: nguyên văn
+4		column_4	int	mới ở 2026
+5		column_5	int	mới ở 2026
+6		column_6	int	mới ở 2026
+7		column_7	int	mới ở 2026
+8		column_8	int	mới ở 2026
+9		column_9	int	mới ở 2026
+10		column_10	int	mới ở 2026
+11		column_11	int	mới ở 2026
+12		column_12	int	mới ở 2026
+13		column_13	int	mới ở 2026
+14		column_14	int	mới ở 2026
+15		column_15	int	mới ở 2026
+16		column_16	int	mới ở 2026
+17		column_17	int	mới ở 2026

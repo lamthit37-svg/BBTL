@@ -1,0 +1,59 @@
+# schema 1
+# source: client_2026/PetAttrTable.txt
+# tool: TOOLS/server/export_tables.py; sửa tay sẽ mất ở lượt xuất sau
+# types: int	text	text	text	text
+index	original	name	type	note
+0	珍兽编号	pet_id	int	neo: cột gốc 0, khớp 100.0% (2103/2103 id); luật: nguyên văn
+1	名称$1$	name	text	neo: cột gốc 1, khớp 97.4% (2049/2103 id); luật: nguyên văn
+2		column_2	int	mới ở 2026
+3	珍兽类型	pet_kind	int	neo: cột gốc 2, khớp 100.0% (2103/2103 id); luật: nguyên văn
+4	可携带等级	carry_level	int	neo: cột gốc 3, khớp 100.0% (2103/2103 id); luật: nguyên văn
+5	阵营	camp	int	nội suy: cột gốc 4, khớp 100.0% (2103/2103 id); luật: nguyên văn
+6	是否变异	is_mutant	int	nội suy: cột gốc 5, khớp 100.0% (2102/2103 id); luật: nguyên văn
+7	是否宝宝	is_baby	int	nội suy: cột gốc 6, khớp 100.0% (2102/2103 id); luật: nguyên văn
+8	食物类	food_category	int	neo: cột gốc 7, khớp 100.0% (2103/2103 id); luật: nguyên văn
+9	所能学的技能数	learnable_skill_count	int	nội suy: cột gốc 8, khớp 100.0% (2103/2103 id); luật: nguyên văn
+10		column_10	int	mới ở 2026
+11	主动技能生成几率（1/100w）	active_skill_rate_ppm	int	neo: cột gốc 10, khớp 100.0% (2103/2103 id); luật: nguyên văn
+12	主动技能2	active_skill_2	int	nội suy: cột gốc 11, khớp 100.0% (2103/2103 id); luật: nguyên văn
+13	主动技能2生成几率（1/100w）	active_skill_2_rate_ppm	int	nội suy: cột gốc 12, khớp 100.0% (2103/2103 id); luật: nguyên văn
+14	被动技能1	passive_skill_1	int	neo: cột gốc 13, khớp 100.0% (2103/2103 id); luật: mẫu {n}
+15	被动技能1生成几率（1/100W）	passive_skill_1_rate_ppm	int	neo: cột gốc 14, khớp 100.0% (2103/2103 id); luật: mẫu {n}
+16	被动技能2	passive_skill_2	int	neo: cột gốc 15, khớp 100.0% (2103/2103 id); luật: mẫu {n}
+17	被动技能2生成几率（1/100W）	passive_skill_2_rate_ppm	int	neo: cột gốc 16, khớp 100.0% (2103/2103 id); luật: mẫu {n}
+18	被动技能3	passive_skill_3	int	neo: cột gốc 17, khớp 100.0% (2103/2103 id); luật: mẫu {n}
+19	被动技能3生成几率（1/100W）	passive_skill_3_rate_ppm	int	neo: cột gốc 18, khớp 100.0% (2103/2103 id); luật: mẫu {n}
+20	被动技能4	passive_skill_4	int	neo: cột gốc 19, khớp 100.0% (2103/2103 id); luật: mẫu {n}
+21	被动技能4生成几率（1/100W）	passive_skill_4_rate_ppm	int	neo: cột gốc 20, khớp 100.0% (2103/2103 id); luật: mẫu {n}
+22		column_22	int	mới ở 2026
+23		column_23	int	mới ở 2026
+24	标准寿命	base_lifespan	int	neo: cột gốc 33, khớp 100.0% (2103/2103 id); luật: nguyên văn
+25	标准力量资质	base_strength_aptitude	int	đổi kiểu: cột gốc 34, khớp 99.9% (2101/2103 id); luật: nguyên văn
+26	标准体质资质	base_constitution_aptitude	int	đổi kiểu: cột gốc 35, khớp 99.9% (2101/2103 id); luật: nguyên văn
+27	标准灵气资质	base_spirit_aptitude	int	đổi kiểu: cột gốc 36, khớp 99.9% (2101/2103 id); luật: nguyên văn
+28	标准身法资质	base_dexterity_aptitude	int	đổi kiểu: cột gốc 37, khớp 99.9% (2101/2103 id); luật: nguyên văn
+29	标准定力资质	base_concentration_aptitude	int	đổi kiểu: cột gốc 38, khớp 99.9% (2101/2103 id); luật: nguyên văn
+30	成长率1	growth_rate_1	int	neo: cột gốc 39, khớp 100.0% (2103/2103 id); luật: mẫu {n}
+31	成长率2	growth_rate_2	int	neo: cột gốc 40, khớp 100.0% (2103/2103 id); luật: mẫu {n}
+32	成长率3	growth_rate_3	int	neo: cột gốc 41, khớp 100.0% (2103/2103 id); luật: mẫu {n}
+33	成长率4	growth_rate_4	int	neo: cột gốc 42, khớp 100.0% (2103/2103 id); luật: mẫu {n}
+34		column_34	int	mới ở 2026
+35	胆小(1/1000)	timidity_permille	int	neo: cột gốc 44, khớp 100.0% (2103/2103 id); luật: nguyên văn
+36	谨慎(1/1000)	caution_permille	int	neo: cột gốc 45, khớp 100.0% (2103/2103 id); luật: nguyên văn
+37	忠诚(1/1000)	loyalty_permille	int	neo: cột gốc 46, khớp 100.0% (2103/2103 id); luật: nguyên văn
+38	精明(1/1000)	shrewdness_permille	int	neo: cột gốc 47, khớp 100.0% (2103/2103 id); luật: nguyên văn
+39	勇猛(1/1000)	bravery_permille	int	neo: cột gốc 48, khớp 100.0% (2103/2103 id); luật: nguyên văn
+40	珍兽繁殖时间(ms)	breed_time_ms	int	nội suy: cột gốc 49, khớp 0.0% (0/2103 id); luật: nguyên văn
+41	同类参考珍兽类型	reference_pet_kind	int	neo: cột gốc 50, khớp 100.0% (2103/2103 id); luật: nguyên văn
+42		column_42	int	mới ở 2026
+43		column_43	text	mới ở 2026
+44		column_44	int	mới ở 2026
+45		column_45	int	mới ở 2026
+46		column_46	int	mới ở 2026
+47		column_47	int	mới ở 2026
+48		column_48	int	mới ở 2026
+49		column_49	int	mới ở 2026
+50		column_50	int	mới ở 2026
+51		column_51	int	mới ở 2026
+52		column_52	int	mới ở 2026
+53		column_53	int	mới ở 2026

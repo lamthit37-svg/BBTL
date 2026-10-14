@@ -1,0 +1,29 @@
+# schema 1
+# source: client_2026/CharMount.txt
+# tool: TOOLS/server/export_tables.py; sửa tay sẽ mất ở lượt xuất sau
+# types: int	text	text	text	text
+index	original	name	type	note
+0	ID	id	int	neo: cột gốc 0, khớp 100.0% (53/53 id); luật: M1
+1		column_1	text	mới ở 2026
+2	准乘人数	passenger_capacity	int	nội suy: cột gốc 2, khớp 100.0% (53/53 id); luật: nguyên văn
+3	ModelID	model_id	int	neo: cột gốc 3, khớp 100.0% (53/53 id); luật: M1
+4	AddHeight	add_height	float	neo: cột gốc 4, khớp 100.0% (53/53 id); luật: M1
+5	RideRecipe	ride_recipe	int	neo: cột gốc 5, khớp 96.2% (51/53 id); luật: M1
+6		column_6	int	mới ở 2026
+7		column_7	int	mới ở 2026
+8	主绑定点	primary_anchor	text	neo: cột gốc 7, khớp 100.0% (53/53 id); luật: nguyên văn
+9		column_9	int	mới ở 2026
+10		column_10	int	mới ở 2026
+11	副绑定点	secondary_anchor	text	neo: cột gốc 9, khớp 100.0% (53/53 id); luật: nguyên văn
+12		column_12	text	mới ở 2026
+13		column_13	text	mới ở 2026
+14		column_14	text	mới ở 2026
+15		column_15	text	mới ở 2026
+16		column_16	int	mới ở 2026
+17		column_17	int	mới ở 2026
+18		column_18	int	mới ở 2026
+19		column_19	int	mới ở 2026
+20		column_20	int	mới ở 2026
+21		column_21	int	mới ở 2026
+22		column_22	float	mới ở 2026
+23		column_23	int	mới ở 2026

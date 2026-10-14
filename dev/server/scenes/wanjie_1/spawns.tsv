@@ -1,0 +1,19 @@
+# schema 1
+# source: Public/Scene/wanjie_1_monster.ini
+# tool: TOOLS/server/export_scene.py; sửa tay sẽ mất ở lượt xuất sau
+# types: int	int	text	text	float	float	int	int	int	int	int	int	int	int	int	int	int	int	int	int	int	int	text	int	int	int
+guid	type	name	title	position_x	position_z	direction	script_id	respawn_time	group_id	team_id	base_ai	ai_file	patrol_id	shop_0	shop_1	shop_2	shop_3	level	is_pet	script_timer	reputation_id	cshop	leader_id	is_npc	camp
+3434684	346	万劫谷木人守卫		107.1866	110.5917	27	119001	1000	-1	-1	3	0	-1	-1	-1	-1	-1								
+3434820	36	钟灵		27.5476	14.5893	27	119002	-1	-1	-1	3	0	-1	-1	-1	-1	-1								
+3434945	347	万劫谷石敢当		47.5394	95.0007	0	119003	-1	-1	-1	3	0	-1	-1	-1	-1	-1								
+3435253	434	段延庆		54.4186	98.0785	9	119004	-1	-1	-1	3	0	-1	-1	-1	-1	-1								
+4646550	104	华赫艮		104.9649	79.2600	0	119005	1000	-1	-1	3	0	-1	-1	-1	-1	-1								
+6113291	430			106.7103	41.4724	27	-1	-1	-1	-1	5	0	-1	-1	-1	-1	-1								
+6113314	430			113.5012	41.4747	27	-1	-1	-1	-1	5	0	-1	-1	-1	-1	-1								
+6113325	430			76.7469	23.5892	0	-1	-1	-1	-1	5	0	-1	-1	-1	-1	-1								
+6113330	430			76.7603	17.4262	0	-1	-1	-1	-1	5	0	-1	-1	-1	-1	-1								
+6113339	430			38.1863	13.8531	0	-1	-1	-1	-1	5	0	-1	-1	-1	-1	-1								
+6113351	430			23.0722	32.1648	0	-1	-1	-1	-1	5	0	-1	-1	-1	-1	-1								
+6113353	430			28.8770	32.2414	0	-1	-1	-1	-1	5	0	-1	-1	-1	-1	-1								
+6113367	430			14.2555	91.8078	0	-1	-1	-1	-1	5	0	-1	-1	-1	-1	-1								
+6113371	430			20.3065	92.1101	18	-1	-1	-1	-1	5	0	-1	-1	-1	-1	-1								

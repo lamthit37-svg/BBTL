@@ -147,7 +147,7 @@ struct OfferAsk {
 // loại máy chủ khi cột hidden của loại đó bằng 2 và tên riêng khác rỗng.
 // Khác gốc: không trả chuỗi "(x,z)" ghép từ hai cột chữ của bảng (cả 994 dòng để rỗng, script
 // không dùng); khi ngoài miền mã gốc vẫn đẩy sáu số chưa khởi tạo, ở đây là nullopt.
-[[nodiscard]] std::optional<OfferView> offer_at(
-    std::span<const OutlineRow> rows, const Offers& offers, const Seeker& seeker, const OfferAsk& ask) noexcept;
+[[nodiscard]] std::optional<OfferView> offer_at(std::span<const OutlineRow> rows, const Offers& offers,
+    const Seeker& seeker, const OfferAsk& ask) noexcept;
 
 } // namespace game::quest

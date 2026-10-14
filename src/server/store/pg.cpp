@@ -38,7 +38,8 @@ struct Result {
 [[nodiscard]] std::string trimmed(const char* text) {
     if (text == nullptr) return {};
     std::string out{text};
-    while (!out.empty() && (out.back() == '\n' || out.back() == '\r')) out.pop_back();
+    while (!out.empty() && (out.back() == '\n' || out.back() == '\r'))
+        out.pop_back();
     return out;
 }
 
@@ -112,8 +113,8 @@ PgConn::PgConn(PgConn&& other) noexcept = default;
 PgConn& PgConn::operator=(PgConn&& other) noexcept = default;
 
 std::optional<PgConn> PgConn::open(const PgLogin& login, std::string& error) {
-    const char* keys[] = {"host", "port", "dbname", "user", "password", "connect_timeout", "sslmode",
-        "client_encoding", nullptr};
+    const char* keys[] = {
+        "host", "port", "dbname", "user", "password", "connect_timeout", "sslmode", "client_encoding", nullptr};
     const char* values[] = {login.host.c_str(), login.port.c_str(), login.dbname.c_str(), login.user.c_str(),
         login.password.c_str(), "5", "disable", "UTF8", nullptr};
     PGconn* raw = PQconnectdbParams(keys, values, 0);

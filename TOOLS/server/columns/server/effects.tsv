@@ -1,0 +1,81 @@
+# schema 1
+# source: server_config/StandardImpact.txt
+# tool: TOOLS/server/import_legacy.py; sửa tay sẽ mất ở lượt xuất sau
+# types: int	text	text	text	text
+index	original	name	type	note
+0	Data_Index	data_index	int	luật: M1
+1	效果名称$1$	column_1	text	?
+2	逻辑ID	logic_id	int	luật: nguyên văn
+3	逻辑ID的说明	column_3	text	?
+4	是否是持续性效果	column_4	int	?
+5	瞬发效果ID/驻留效果ID	column_5	int	?
+6	分类ID（专门用于识别某一类BUFF）	column_6	int	?
+7	互斥ID(效果互相替换用)	column_7	int	?
+8	互斥优先级	column_8	int	?
+9	影响性质	column_9	int	?
+10	死后是否保留	kept_after_death	int	luật: nguyên văn
+11	是否可以被技能驱散	can_be_dispelled	int	luật: nguyên văn
+12	是否可以被手动取消	can_cancel_manually	int	luật: nguyên văn
+13	是否需要引导支持	column_13	int	?
+14	是否是直通效果	column_14	int	?
+15	受到伤害时是否消失	column_15	int	?
+16	开始动作时是否消失	column_16	int	?
+17	开始移动时是否消失	column_17	int	?
+18	下线就消失否	column_18	int	?
+19	下线仍然计时否	column_19	int	?
+20	总持续时间(毫秒)	column_20	int	?
+21	发作时间间隔(毫秒)	column_21	int	?
+22	互斥规则是否参考制造者ID	column_22	int	?
+23	是否需要装备支持	column_23	int	?
+24	装备的ItemIndex	column_24	int	?
+25	禁止反射	column_25	int	?
+26	禁止吸收	column_26	int	?
+27	参数1说明	column_27	text	?
+28	参数值	parameter_value_1	text	luật: nguyên văn
+29	修正步长	column_29	text	?
+30	参数2说明	column_30	text	?
+31	参数值	parameter_value_2	text	luật: nguyên văn
+32	修正步长	column_32	text	?
+33	参数3说明	column_33	text	?
+34	参数值	parameter_value_3	text	luật: nguyên văn
+35	修正步长	column_35	text	?
+36	参数4说明	column_36	text	?
+37	参数值	parameter_value_4	text	luật: nguyên văn
+38	修正步长	column_38	text	?
+39	参数5说明	column_39	text	?
+40	参数值	parameter_value_5	text	luật: nguyên văn
+41	修正步长	column_41	text	?
+42	参数6说明	column_42	text	?
+43	参数值	parameter_value_6	text	luật: nguyên văn
+44	修正步长	column_44	text	?
+45	参数7说明	column_45	text	?
+46	参数值	parameter_value_7	text	luật: nguyên văn
+47	修正步长	column_47	text	?
+48	参数8说明	column_48	text	?
+49	参数值	parameter_value_8	text	luật: nguyên văn
+50	修正步长	column_50	text	?
+51	参数9说明	column_51	text	?
+52	参数值	parameter_value_9	text	luật: nguyên văn
+53	修正步长	column_53	text	?
+54	参数10说明	column_54	text	?
+55	参数值	parameter_value_10	text	luật: nguyên văn
+56	修正步长	column_56	text	?
+57	参数11说明	column_57	text	?
+58	参数值	parameter_value_11	text	luật: nguyên văn
+59	修正步长	column_59	text	?
+60	参数12说明	column_60	text	?
+61	参数值	parameter_value_12	text	luật: nguyên văn
+62	修正步长	column_62	text	?
+63	参数13说明	column_63	text	?
+64	参数值	parameter_value_13	text	luật: nguyên văn
+65	修正步长	column_65	text	?
+66	参数14说明	column_66	text	?
+67	参数值	parameter_value_14	text	luật: nguyên văn
+68	修正步长	column_68	text	?
+69	参数15说明	column_69	text	?
+70	参数值	parameter_value_15	text	luật: nguyên văn
+71	修正步长	column_71	text	?
+72	参数16说明	column_72	text	?
+73	参数值	parameter_value_16	text	luật: nguyên văn
+74	修正步长	column_74	text	?
+75	效果描述(内部使用)	column_75	text	?

@@ -1,0 +1,68 @@
+# schema 1
+# source: client_2026/SpecialObjData.txt
+# tool: TOOLS/server/export_tables.py; sửa tay sẽ mất ở lượt xuất sau
+# types: int	text	text	text	text
+index	original	name	type	note
+0	ID	id	int	neo: cột gốc 0, khớp 100.0% (289/289 id); luật: M1
+1	名称$1$	name	text	neo: cột gốc 1, khớp 99.0% (286/289 id); luật: nguyên văn
+2	ToolTips$1$	tool_tips	text	neo: cột gốc 2, khớp 99.0% (286/289 id); luật: M1
+3	类别	category	int	neo: cột gốc 3, khớp 100.0% (289/289 id); luật: nguyên văn
+4	逻辑ID	logic_id	int	neo: cột gốc 4, khớp 100.0% (289/289 id); luật: nguyên văn
+5	隐形级别	stealth_level	int	neo: cột gốc 5, khớp 100.0% (289/289 id); luật: nguyên văn
+6		column_6	int	mới ở 2026
+7	可激活次数	activation_count	int	neo: cột gốc 7, khớp 100.0% (289/289 id); luật: nguyên văn
+8		column_8	text	mới ở 2026
+9	生存期持续音效	lifetime_sound	int	nội suy: cột gốc 9, khớp 100.0% (289/289 id); luật: nguyên văn
+10		column_10	text	mới ở 2026
+11	激发音效	activate_sound	int	nội suy: cột gốc 11, khớp 0.3% (1/289 id); luật: nguyên văn
+12	死亡特效	death_effect	text	nội suy: cột gốc 12, khớp 100.0% (289/289 id); luật: nguyên văn
+13	死亡音效	death_sound	int	nội suy: cột gốc 13, khớp 0.3% (1/289 id); luật: nguyên văn
+14	预留	reserved_1	int	nội suy: cột gốc 14, khớp 0.0% (0/289 id); luật: nguyên văn
+15	预留	reserved_2	int	nội suy: cột gốc 15, khớp 0.0% (0/289 id); luật: nguyên văn
+16	预留	reserved_3	int	nội suy: cột gốc 16, khớp 0.0% (0/289 id); luật: nguyên văn
+17	 子弹ID	bullet_id	int	nội suy: cột gốc 17, khớp 0.0% (0/289 id); luật: nguyên văn
+18		column_18	int	mới ở 2026
+19	激活或触发时间间隔	trigger_interval	int	neo: cột gốc 19, khớp 100.0% (289/289 id); luật: nguyên văn
+20		column_20	float	mới ở 2026
+21	影响半径	effect_radius	float	neo: cột gốc 21, khớp 100.0% (289/289 id); luật: nguyên văn
+22		column_22	int	mới ở 2026
+23		column_23	int	mới ở 2026
+24	影响个体数目	affected_count	int	neo: cột gốc 22, khớp 100.0% (289/289 id); luật: nguyên văn
+25	参数说明	parameter_description_1	text	neo: cột gốc 28, khớp 99.0% (286/289 id); luật: nguyên văn
+26		column_26	int	mới ở 2026
+27	参数说明	parameter_description_2	text	neo: cột gốc 30, khớp 99.0% (286/289 id); luật: nguyên văn
+28		column_28	int	mới ở 2026
+29	参数说明	parameter_description_3	text	neo: cột gốc 32, khớp 99.0% (286/289 id); luật: nguyên văn
+30	参数值	parameter_value	int	nội suy: cột gốc 33, khớp 99.0% (286/289 id); luật: nguyên văn
+31	参数说明	parameter_description_4	text	neo: cột gốc 34, khớp 99.0% (286/289 id); luật: nguyên văn
+32		column_32	int	mới ở 2026
+33		column_33	text	mới ở 2026
+34		column_34	int	mới ở 2026
+35		column_35	text	mới ở 2026
+36		column_36	int	mới ở 2026
+37		column_37	text	mới ở 2026
+38		column_38	int	mới ở 2026
+39		column_39	text	mới ở 2026
+40		column_40	int	mới ở 2026
+41		column_41	text	mới ở 2026
+42		column_42	int	mới ở 2026
+43		column_43	text	mới ở 2026
+44		column_44	int	mới ở 2026
+45		column_45	text	mới ở 2026
+46		column_46	int	mới ở 2026
+47		column_47	text	mới ở 2026
+48		column_48	int	mới ở 2026
+49		column_49	text	mới ở 2026
+50		column_50	int	mới ở 2026
+51		column_51	text	mới ở 2026
+52		column_52	int	mới ở 2026
+53		column_53	text	mới ở 2026
+54		column_54	int	mới ở 2026
+55		column_55	text	mới ở 2026
+56		column_56	int	mới ở 2026
+57		column_57	text	mới ở 2026
+58		column_58	int	mới ở 2026
+59		column_59	int	mới ở 2026
+60		column_60	int	mới ở 2026
+61		column_61	int	mới ở 2026
+62		column_62	int	mới ở 2026

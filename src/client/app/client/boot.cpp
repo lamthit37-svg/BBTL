@@ -38,9 +38,9 @@ void add_ground(NamedScene& named, world::ShownScene& shown, const std::filesyst
         named.terrain = std::string(map::describe(ground.error()));
         return;
     }
-    named.summary = std::format("Địa hình {}: {}x{} ô, {} tam giác, bản đồ {}x{}", ground->file.name,
-        ground->file.x_size, ground->file.z_size, ground->triangle_count(), ground->overview.width,
-        ground->overview.height);
+    named.summary =
+        std::format("Địa hình {}: {}x{} ô, {} tam giác, bản đồ {}x{}", ground->file.name, ground->file.x_size,
+            ground->file.z_size, ground->triangle_count(), ground->overview.width, ground->overview.height);
     shown.ground = std::move(*ground);
 }
 
@@ -68,8 +68,8 @@ void open_book(BootLoad& boot) {
     }
     std::expected<world::World, map::BookError> opened = world::open_world(*table);
     if (!opened) {
-        boot.lines.push_back(
-            {.is_problem = true, .text = std::string("Bảng cảnh: ") + std::string(map::describe(opened.error()))});
+        boot.lines.push_back({.is_problem = true,
+            .text = std::string("Bảng cảnh: ") + std::string(map::describe(opened.error()))});
         return;
     }
     boot.playing = std::move(*opened);

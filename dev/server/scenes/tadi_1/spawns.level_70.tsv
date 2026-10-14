@@ -1,0 +1,17 @@
+# schema 1
+# source: Public/Scene/tadi_1_monster_70.ini
+# tool: TOOLS/server/export_scene.py; sửa tay sẽ mất ở lượt xuất sau
+# types: int	int	text	text	float	float	int	int	int	int	int	int	int	int	int	int	int	int	int	int	int	int	text	int	int	int
+guid	type	name	title	position_x	position_z	direction	script_id	respawn_time	group_id	team_id	base_ai	ai_file	patrol_id	shop_0	shop_1	shop_2	shop_3	level	is_pet	script_timer	reputation_id	cshop	leader_id	is_npc	camp
+13826514	2086			43	42	2	-1	-1	1	-1	0	0	-1	-1	-1	-1	-1								
+13826514	2086			46	33	2	-1	-1	1	-1	0	0	-1	-1	-1	-1	-1								
+13826514	2086			46	20	2	-1	-1	1	-1	0	0	-1	-1	-1	-1	-1								
+13826514	2086			25	48	2	-1	-1	1	-1	0	0	-1	-1	-1	-1	-1								
+13826514	2086			15	47	2	-1	-1	1	-1	0	0	-1	-1	-1	-1	-1								
+13826514	2086			14	39	2	-1	-1	1	-1	0	0	-1	-1	-1	-1	-1								
+13826514	2086			15	26	2	-1	-1	1	-1	0	0	-1	-1	-1	-1	-1								
+13826514	2086			22	21	2	-1	-1	1	-1	0	0	-1	-1	-1	-1	-1								
+13826514	2086			24	32	2	-1	-1	1	-1	0	0	-1	-1	-1	-1	-1								
+13826514	2086			33	28	2	-1	-1	1	-1	0	0	-1	-1	-1	-1	-1								
+13826514	2116	帮会叛徒	帮会叛徒	64	64	2	-1	-1	2	-1	0	0	-1	-1	-1	-1	-1								
+13826514	2126	帮会叛徒	帮会叛徒	64	64	2	-1	-1	2	-1	0	0	-1	-1	-1	-1	-1								

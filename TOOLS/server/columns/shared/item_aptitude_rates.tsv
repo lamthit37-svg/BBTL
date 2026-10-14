@@ -1,0 +1,12 @@
+# schema 1
+# source: client_2026/ItemAptRate.txt
+# tool: TOOLS/server/export_tables.py; sửa tay sẽ mất ở lượt xuất sau
+# types: int	text	text	text	text
+index	original	name	type	note
+0	资质点	aptitude_point	int	luật: nguyên văn; khớp 100.0% (255/255 id)
+1	物理攻击	physical_attack	int	luật: nguyên văn; khớp 100.0% (255/255 id)
+2	物理防御	physical_defence	int	luật: nguyên văn; khớp 100.0% (255/255 id)
+3	魔法攻击	magic_attack	int	luật: nguyên văn; khớp 100.0% (255/255 id)
+4	魔法防御	magic_defence	int	luật: nguyên văn; khớp 100.0% (255/255 id)
+5	闪避	miss	int	luật: nguyên văn; khớp 97.6% (249/255 id)
+6	命中	hit	int	luật: nguyên văn; khớp 97.6% (249/255 id)

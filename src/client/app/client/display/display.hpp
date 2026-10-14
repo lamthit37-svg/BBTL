@@ -129,6 +129,10 @@ struct Steering {
     float walk_right = 0.0F;
 };
 
+// Thao tác chơi trừu tượng (lệnh của CAI_MySelf). Phím trên PC và nút chạm trên mobile cùng gọi
+// Display::act; màn chơi không đọc mã phím.
+enum class PlayAct : std::uint8_t { kJump };
+
 // Hàm tra tên hiển thị của một cảnh theo ngôn ngữ của bản dựng (Table/scene_names.lang.tsv dưới
 // data_root), cho nơi nằm dưới tầng giao diện như tiêu đề cửa sổ của viewer. Tên chưa có bản dịch
 // thì trả nguyên; thiếu tệp thì mọi tên trả nguyên. Bảng đọc một lần lúc gọi scene_title_lookup;
@@ -184,6 +188,8 @@ public:
     [[nodiscard]] std::vector<Request> take_requests();
     // Đưa điều khiển bằng phím cho luồng vẽ; nó dùng ở khung kế. An toàn mọi luồng, không chặn lâu.
     void steer(const Steering& input) noexcept;
+    // Đưa một thao tác chơi cho luồng vẽ; nó dùng ở bước mô phỏng kế. An toàn mọi luồng.
+    void act(PlayAct what) noexcept;
     // Đưa thao tác chuột hay chạm (nhấn, nhả, di, lăn, cần gạt) cho luồng vẽ; nó gom thành mẫu
     // chuột của khung kế, như CInputSystem::MouseTick. Vị trí chuẩn hoá về [0, 1] theo vùng vẽ.
     // An toàn mọi luồng, không chặn lâu.

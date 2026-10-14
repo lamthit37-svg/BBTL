@@ -515,7 +515,8 @@ void draw_board(const Ctx& ctx, const Placed& self, std::string_view zoom) {
     ask.centre_z = centre ? centre->second : size->second * 0.5F;
     const BoardView view = board_view(ask);
     if (view.pixels <= 0.0F) return;
-    const Box dest{.x = self.screen.x + view.dest.x, .y = self.screen.y + view.dest.y, .w = view.dest.w, .h = view.dest.h};
+    const Box dest{
+        .x = self.screen.x + view.dest.x, .y = self.screen.y + view.dest.y, .w = view.dest.w, .h = view.dest.h};
     if (ctx.is_live_pass) {
         ctx.sheet->board_dest = dest;
         ctx.sheet->board_uv = view.uv;
@@ -793,7 +794,10 @@ const GuiImage* sign_image(const Ctx& ctx, const Placed& self, std::string_view 
 
 // Ô của ảnh có tâm ở point (HookMode Center của FalagardWorldMap::createNewCity), cỡ gốc của ảnh.
 Box centred_image_box(const GuiImage& image, FloatPair point) noexcept {
-    return Box{.x = point.first - (image.width * 0.5F), .y = point.second - (image.height * 0.5F), .w = image.width, .h = image.height};
+    return Box{.x = point.first - (image.width * 0.5F),
+        .y = point.second - (image.height * 0.5F),
+        .w = image.width,
+        .h = image.height};
 }
 
 Box overlap(const Box& first, const Box& second) noexcept {
@@ -804,7 +808,8 @@ Box overlap(const Box& first, const Box& second) noexcept {
     return Box{.x = left, .y = top, .w = std::max(right - left, 0.0F), .h = std::max(bottom - top, 0.0F)};
 }
 
-// Ước lượng bề rộng nhãn chữ (số ký tự UTF-8 nhân bề rộng trung bình của chữ 14 điểm ảnh) và cao một dòng của phông Việt.
+// Ước lượng bề rộng nhãn chữ (số ký tự UTF-8 nhân bề rộng trung bình của chữ 14 điểm ảnh) và cao một dòng của phông
+// Việt.
 constexpr float kLabelGlyph = 8.0F;
 constexpr float kLabelPad = 6.0F;
 constexpr float kLabelHeight = 18.0F;
@@ -816,7 +821,8 @@ constexpr std::uint8_t kLabelHorz = 2;
 constexpr std::uint8_t kLabelVert = 1;
 
 [[nodiscard]] float utf8_length(std::string_view text) noexcept {
-    return static_cast<float>(std::ranges::count_if(text, [](char byte) { return (static_cast<unsigned char>(byte) & 0xC0U) != 0x80U; }));
+    return static_cast<float>(std::ranges::count_if(text,
+        [](char byte) { return (static_cast<unsigned char>(byte) & 0xC0U) != 0x80U; }));
 }
 
 // Ô của nhãn chữ: tâm ở chỗ nhãn của thành phố (HookMode Center như ảnh nhãn), bề rộng theo số ký tự.
@@ -833,8 +839,11 @@ constexpr std::uint8_t kLabelVert = 1;
 // rồi dấu MySelf ở chỗ nút nếu đây là cảnh người chơi đang đứng. Nút và nhãn đều bấm được.
 void draw_city(const Ctx& ctx, const Placed& self, const WorldCity& city, FloatPair origin) {
     Sheet& sheet = *ctx.sheet;
-    const auto shift = [origin](FloatPair point) { return FloatPair{.first = origin.first + point.first, .second = origin.second + point.second}; };
-    const std::optional<float> hovered = parse_float(effective(ctx, self, "WorldMapHover").value_or(std::string_view{}));
+    const auto shift = [origin](FloatPair point) {
+        return FloatPair{.first = origin.first + point.first, .second = origin.second + point.second};
+    };
+    const std::optional<float> hovered =
+        parse_float(effective(ctx, self, "WorldMapHover").value_or(std::string_view{}));
     const std::optional<float> mine = parse_float(effective(ctx, self, "WorldMapSelf").value_or(std::string_view{}));
     const bool is_hovered = hovered && static_cast<int>(*hovered) == city.id;
     const auto hit = [&](const GuiImage& image, FloatPair at) {
@@ -850,7 +859,8 @@ void draw_city(const Ctx& ctx, const Placed& self, const WorldCity& city, FloatP
     } else if (const GuiImage* label = named_image(ctx, city.name)) {
         hit(*label, city.label);
     }
-    if (const GuiImage* icon = sign_image(ctx, self, is_hovered ? "CityImageHover" : "CityImageNormal", city.sign)) hit(*icon, city.icon);
+    if (const GuiImage* icon = sign_image(ctx, self, is_hovered ? "CityImageHover" : "CityImageNormal", city.sign))
+        hit(*icon, city.icon);
     if (!mine || static_cast<int>(*mine) != city.id) return;
     const auto text = effective(ctx, self, "MySelfImage");
     const std::optional<ImageName> name = text ? parse_image(*text) : std::nullopt;
@@ -872,7 +882,8 @@ void draw_world(const Ctx& ctx, const Placed& self) {
     const std::optional<FloatPair> size = pair_of(effective(ctx, self, "WorldMapSize"));
     const std::optional<FloatPair> offset = pair_of(effective(ctx, self, "WorldMapView"));
     if (!size || !offset || size->first <= 0.0F || size->second <= 0.0F) return;
-    const Box whole{.x = self.screen.x + offset->first, .y = self.screen.y + offset->second, .w = size->first, .h = size->second};
+    const Box whole{
+        .x = self.screen.x + offset->first, .y = self.screen.y + offset->second, .w = size->first, .h = size->second};
     const Box shown = overlap(whole, self.screen);
     if (shown.w > 0.0F && shown.h > 0.0F) {
         Quad map;
@@ -890,7 +901,8 @@ void draw_world(const Ctx& ctx, const Placed& self) {
         const std::size_t end = rest.find('\n');
         const std::string_view line = rest.substr(0, end);
         rest.remove_prefix(end == std::string_view::npos ? rest.size() : end + 1);
-        if (const std::optional<WorldCity> city = parse_city(line)) draw_city(ctx, self, *city, FloatPair{.first = whole.x, .second = whole.y});
+        if (const std::optional<WorldCity> city = parse_city(line))
+            draw_city(ctx, self, *city, FloatPair{.first = whole.x, .second = whole.y});
     }
     clip_quads(sheet, first, self.screen);
 }
@@ -920,7 +932,8 @@ void world_texts(const Ctx& ctx, const Placed& self) {
         if (!city || city->title.empty()) continue;
         const Box box = label_box(*city, *origin);
         if (overlap(box, self.screen).w <= 0.0F) continue;
-        ctx.sheet->made.push_back(std::format("#e{}#c{}{}", kLabelHalo, city->is_red ? kLabelRed : kLabelInk, city->title));
+        ctx.sheet->made.push_back(std::format("#e{}#c{}{}", kLabelHalo, city->is_red ? kLabelRed : kLabelInk,
+            city->title));
         TextRun run;
         run.text = ctx.sheet->made.back();
         run.box = box;

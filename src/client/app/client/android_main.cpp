@@ -170,6 +170,9 @@ struct Shell {
     float per_dp = 1.0F;
     bool is_prepared = false;
     bool is_playing = false;
+    // Giữa APP_CMD_RESUME và APP_CMD_PAUSE. Chỉ vẽ khi vừa resumed vừa có cửa sổ: bề mặt có thể
+    // được tạo lại (INIT_WINDOW) lúc activity còn dừng.
+    bool is_resumed = false;
 };
 
 [[nodiscard]] Shell* shell_of(android_app* app) noexcept {
@@ -251,7 +254,7 @@ void arm_desc(const Shell& shell, game::client::DisplayDesc& desc) {
 
 void start_display(android_app* app) {
     Shell* shell = shell_of(app);
-    if (shell == nullptr || app->window == nullptr || shell->display) return;
+    if (shell == nullptr || app->window == nullptr || shell->display || !shell->is_resumed) return;
     if (!shell->is_prepared) {
         prepare_shell(app, *shell);
         shell->is_prepared = true;
@@ -386,7 +389,8 @@ void open_web(android_app* app, const std::filesystem::path& page, std::string_v
     jmethodID set_data = method_of(env, intent_class, "setData", "(Landroid/net/Uri;)Landroid/content/Intent;");
     jmethodID add_flags = method_of(env, intent_class, "addFlags", "(I)Landroid/content/Intent;");
     jfieldID flag_field = nullptr;
-    if (env->ExceptionCheck() == JNI_FALSE) flag_field = env->GetStaticFieldID(intent_class, "FLAG_ACTIVITY_NEW_TASK", "I");
+    if (env->ExceptionCheck() == JNI_FALSE)
+        flag_field = env->GetStaticFieldID(intent_class, "FLAG_ACTIVITY_NEW_TASK", "I");
     if (!jni_ok(env) || file_ctor == nullptr || from_file == nullptr || intent_ctor == nullptr || set_data == nullptr ||
         add_flags == nullptr || flag_field == nullptr) {
         log_error("Trang web " + std::string(link) + ": thiếu hàm Intent");
@@ -475,20 +479,47 @@ void serve(android_app* app, Shell& shell) {
     show_playing(shell);
 }
 
+// Hệ thống báo thiếu bộ nhớ. Khi đang dừng thì phần hiển thị đã huỷ; trả nốt loa (bộ đệm nhạc).
+void trim_memory(android_app* app) noexcept {
+    Shell* shell = shell_of(app);
+    if (shell == nullptr) return;
+    log_line("hệ thống báo thiếu bộ nhớ");
+    if (!shell->display) stop_speaker(*shell);
+}
+
+void on_resume(android_app* app) {
+    Shell* shell = shell_of(app);
+    if (shell == nullptr) return;
+    shell->is_resumed = true;
+    start_display(app);
+}
+
+void on_pause(android_app* app) {
+    Shell* shell = shell_of(app);
+    if (shell == nullptr) return;
+    shell->is_resumed = false;
+    stop_display(app);
+}
+
 void on_command(android_app* app, int32_t command) {
     Shell* shell = shell_of(app);
     if (shell == nullptr) return;
     switch (command) {
     case APP_CMD_INIT_WINDOW: start_display(app); break;
     case APP_CMD_TERM_WINDOW: stop_display(app); break;
-    case APP_CMD_WINDOW_RESIZED: note_resized(app); break;
-    case APP_CMD_RESUME: start_display(app); break;
-    case APP_CMD_PAUSE: stop_display(app); break;
+    // Xoay màn hình (configChanges giữ activity), đổi mật độ hay vùng nội dung: đo lại bề mặt.
+    case APP_CMD_WINDOW_RESIZED:
+    case APP_CMD_CONFIG_CHANGED:
+    case APP_CMD_CONTENT_RECT_CHANGED: note_resized(app); break;
+    case APP_CMD_RESUME: on_resume(app); break;
+    case APP_CMD_PAUSE: on_pause(app); break;
+    case APP_CMD_LOW_MEMORY: trim_memory(app); break;
     default: break;
     }
 }
 
-[[nodiscard]] game::control::TouchPoint touch_point(const AInputEvent* event, std::size_t index, float per_dp) noexcept {
+[[nodiscard]] game::control::TouchPoint touch_point(const AInputEvent* event, std::size_t index,
+    float per_dp) noexcept {
     const float scale = per_dp > 0.0F ? per_dp : 1.0F;
     return {.x = AMotionEvent_getX(event, index) / scale, .y = AMotionEvent_getY(event, index) / scale};
 }
@@ -549,7 +580,10 @@ void feed_motion(Shell& shell, const AInputEvent* event) {
     if (AInputEvent_getType(event) == AINPUT_EVENT_TYPE_MOTION) return handle_motion(app, event);
     if (AInputEvent_getType(event) != AINPUT_EVENT_TYPE_KEY) return 0;
     if (AKeyEvent_getKeyCode(event) != AKEYCODE_BACK) return 0;
-    if (AKeyEvent_getAction(event) != AKEY_EVENT_ACTION_UP) return 0;
+    // Nhận cả lần nhấn: để lọt thì NativeActivity tự đóng activity trước lần nhả. Chỉ đóng khi
+    // nhả thật (không bị huỷ, như cử chỉ back bị kéo ngược).
+    if (AKeyEvent_getAction(event) != AKEY_EVENT_ACTION_UP) return 1;
+    if ((AKeyEvent_getFlags(event) & AKEY_EVENT_FLAG_CANCELED) != 0) return 1;
     ANativeActivity_finish(app->activity);
     return 1;
 }

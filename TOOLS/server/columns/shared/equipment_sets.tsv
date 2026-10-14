@@ -1,0 +1,42 @@
+# schema 1
+# source: client_2026/EquipSetAttr.txt
+# tool: TOOLS/server/export_tables.py; sửa tay sẽ mất ở lượt xuất sau
+# types: int	text	text	text	text
+index	original	name	type	note
+0	套装编号	set_id	int	neo: cột gốc 0, khớp 100.0% (155/155 id); luật: nguyên văn
+1	套装名字$1$	set_name	text	neo: cột gốc 1, khớp 100.0% (155/155 id); luật: nguyên văn
+2	组件数	piece_count	int	neo: cột gốc 2, khớp 100.0% (155/155 id); luật: nguyên văn
+3	特效	effect	int	nội suy: cột gốc 3, khớp 100.0% (155/155 id); luật: nguyên văn
+4	绑定点	anchor	int	nội suy: cột gốc 4, khớp 100.0% (155/155 id); luật: nguyên văn
+5	效果类型0	effect_kind_0	int	nội suy: cột gốc 5, khớp 100.0% (155/155 id); luật: mẫu {n}
+6	效果值	effect_value_1	int	đổi kiểu: cột gốc 6, khớp 100.0% (155/155 id); luật: nguyên văn
+7	效果类型1	effect_kind_1	int	neo: cột gốc 7, khớp 100.0% (155/155 id); luật: mẫu {n}
+8	效果值	effect_value_2	int	đổi kiểu: cột gốc 8, khớp 100.0% (155/155 id); luật: nguyên văn
+9	效果类型2	effect_kind_2	int	neo: cột gốc 9, khớp 100.0% (155/155 id); luật: mẫu {n}
+10	效果值	effect_value_3	int	đổi kiểu: cột gốc 10, khớp 100.0% (155/155 id); luật: nguyên văn
+11	效果类型3	effect_kind_3	int	neo: cột gốc 11, khớp 100.0% (155/155 id); luật: mẫu {n}
+12	效果值	effect_value_4	int	đổi kiểu: cột gốc 12, khớp 100.0% (155/155 id); luật: nguyên văn
+13	效果类型4	effect_kind_4	int	neo: cột gốc 13, khớp 100.0% (155/155 id); luật: mẫu {n}
+14	效果值	effect_value_5	int	đổi kiểu: cột gốc 14, khớp 100.0% (155/155 id); luật: nguyên văn
+15	效果类型5	effect_kind_5	int	neo: cột gốc 15, khớp 100.0% (155/155 id); luật: mẫu {n}
+16	效果值	effect_value_6	int	đổi kiểu: cột gốc 16, khớp 100.0% (155/155 id); luật: nguyên văn
+17		column_17	int	mới ở 2026
+18		column_18	int	mới ở 2026
+19		column_19	int	mới ở 2026
+20		column_20	int	mới ở 2026
+21		column_21	int	mới ở 2026
+22		column_22	int	mới ở 2026
+23		column_23	int	mới ở 2026
+24		column_24	int	mới ở 2026
+25		column_25	int	mới ở 2026
+26		column_26	int	mới ở 2026
+27		column_27	int	mới ở 2026
+28		column_28	int	mới ở 2026
+29		column_29	int	mới ở 2026
+30		column_30	int	mới ở 2026
+31		column_31	int	mới ở 2026
+32		column_32	int	mới ở 2026
+33		column_33	int	mới ở 2026
+34		column_34	int	mới ở 2026
+35		column_35	int	mới ở 2026
+36		column_36	int	mới ở 2026

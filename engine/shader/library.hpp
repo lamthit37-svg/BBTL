@@ -1,7 +1,7 @@
 // Kho gói shader lúc chạy, kèm nạp nóng. Thay hai thứ của _Ref: phần nạp bytecode trong
 // ResourceLoader.cpp (đọc tệp `@FSL` theo tên, không giữ lại) và ReloadServer — một tiến trình
 // Python trên máy dev nhận yêu cầu qua TCP, gọi lại fsl.py rồi gửi bytecode về thiết bị, vì thiết
-// bị không tự dịch được. Trên Windows DXC nằm ngay trong tiến trình, nên nạp nóng ở đây là: theo
+// bị không tự dịch được. Trên Windows Slang nằm ngay trong tiến trình, nên nạp nóng ở đây là: theo
 // dõi thư mục nguồn (fs::Watcher), tới điểm an toàn của khung hình thì dịch lại đúng những gói có
 // nguồn đổi nội dung, thay gói đang giữ, và báo tên các gói đã đổi để tầng đồ hoạ dựng lại
 // pipeline. Lỗi dịch vào log và gói cũ ở lại, nên gõ sai một dòng không làm ứng dụng mất shader.

@@ -1,0 +1,97 @@
+#==================================================
+# CẢNH JIAOCHANG
+#==================================================
+# tool: TOOLS/server/export_scene.py; sửa tay sẽ mất ở lượt xuất sau
+# Dữ liệu cảnh bản 0859602 do công cụ sinh, sửa tay sẽ mất khi xuất lại.
+
+#==================================================
+# Phiên bản
+#==================================================
+# Mỗi cảnh một thư mục, tên giữ nguyên thân tệp scn.
+schema                         = 1                                      # phiên bản dữ liệu của cảnh
+
+#==================================================
+# Lưới đi
+#==================================================
+# Hai số u16 đầu tệp nav, mỗi ô bốn byte.
+grid_width                     = 128                                    # số ô ngang của lưới đi
+grid_height                    = 128                                    # số ô dọc của lưới đi
+
+#==================================================
+# Tệp đã xuất
+#==================================================
+# Sinh lại bằng export_scene.py, không sửa tay.
+areas                          = "areas.tsv"                            # vùng sự kiện hình chữ nhật
+grow_points                    = "grow_points.tsv"                      # điểm thu thập trên mặt đất
+patrols                        = "patrols.tsv"                          # tuyến tuần và các điểm
+spawn_operate_values           = "spawn_operate_values.tsv"             # giá trị thay của luật sinh quái
+spawn_operate_values_level_10  = "spawn_operate_values.level_10.tsv"    # giá trị luật quái
+spawn_operate_values_level_100 = "spawn_operate_values.level_100.tsv"   # giá trị luật quái
+spawn_operate_values_level_110 = "spawn_operate_values.level_110.tsv"   # giá trị luật quái
+spawn_operate_values_level_120 = "spawn_operate_values.level_120.tsv"   # giá trị luật quái
+spawn_operate_values_level_130 = "spawn_operate_values.level_130.tsv"   # giá trị luật quái
+spawn_operate_values_level_140 = "spawn_operate_values.level_140.tsv"   # giá trị luật quái
+spawn_operate_values_level_150 = "spawn_operate_values.level_150.tsv"   # giá trị luật quái
+spawn_operate_values_level_160 = "spawn_operate_values.level_160.tsv"   # giá trị luật quái
+spawn_operate_values_level_170 = "spawn_operate_values.level_170.tsv"   # giá trị luật quái
+spawn_operate_values_level_180 = "spawn_operate_values.level_180.tsv"   # giá trị luật quái
+spawn_operate_values_level_190 = "spawn_operate_values.level_190.tsv"   # giá trị luật quái
+spawn_operate_values_level_20  = "spawn_operate_values.level_20.tsv"    # giá trị luật quái
+spawn_operate_values_level_200 = "spawn_operate_values.level_200.tsv"   # giá trị luật quái
+spawn_operate_values_level_30  = "spawn_operate_values.level_30.tsv"    # giá trị luật quái
+spawn_operate_values_level_40  = "spawn_operate_values.level_40.tsv"    # giá trị luật quái
+spawn_operate_values_level_50  = "spawn_operate_values.level_50.tsv"    # giá trị luật quái
+spawn_operate_values_level_60  = "spawn_operate_values.level_60.tsv"    # giá trị luật quái
+spawn_operate_values_level_70  = "spawn_operate_values.level_70.tsv"    # giá trị luật quái
+spawn_operate_values_level_80  = "spawn_operate_values.level_80.tsv"    # giá trị luật quái
+spawn_operate_values_level_90  = "spawn_operate_values.level_90.tsv"    # giá trị luật quái
+spawn_operates                 = "spawn_operates.tsv"                   # luật chọn và sinh quái trong tệp
+spawn_operates_level_10        = "spawn_operates.level_10.tsv"          # luật chọn quái
+spawn_operates_level_100       = "spawn_operates.level_100.tsv"         # luật chọn quái
+spawn_operates_level_110       = "spawn_operates.level_110.tsv"         # luật chọn quái
+spawn_operates_level_120       = "spawn_operates.level_120.tsv"         # luật chọn quái
+spawn_operates_level_130       = "spawn_operates.level_130.tsv"         # luật chọn quái
+spawn_operates_level_140       = "spawn_operates.level_140.tsv"         # luật chọn quái
+spawn_operates_level_150       = "spawn_operates.level_150.tsv"         # luật chọn quái
+spawn_operates_level_160       = "spawn_operates.level_160.tsv"         # luật chọn quái
+spawn_operates_level_170       = "spawn_operates.level_170.tsv"         # luật chọn quái
+spawn_operates_level_180       = "spawn_operates.level_180.tsv"         # luật chọn quái
+spawn_operates_level_190       = "spawn_operates.level_190.tsv"         # luật chọn quái
+spawn_operates_level_20        = "spawn_operates.level_20.tsv"          # luật chọn quái
+spawn_operates_level_200       = "spawn_operates.level_200.tsv"         # luật chọn quái
+spawn_operates_level_30        = "spawn_operates.level_30.tsv"          # luật chọn quái
+spawn_operates_level_40        = "spawn_operates.level_40.tsv"          # luật chọn quái
+spawn_operates_level_50        = "spawn_operates.level_50.tsv"          # luật chọn quái
+spawn_operates_level_60        = "spawn_operates.level_60.tsv"          # luật chọn quái
+spawn_operates_level_70        = "spawn_operates.level_70.tsv"          # luật chọn quái
+spawn_operates_level_80        = "spawn_operates.level_80.tsv"          # luật chọn quái
+spawn_operates_level_90        = "spawn_operates.level_90.tsv"          # luật chọn quái
+spawns                         = "spawns.tsv"                           # quái và NPC của cảnh
+spawns_level_10                = "spawns.level_10.tsv"                  # quái theo mốc cấp người chơi
+spawns_level_100               = "spawns.level_100.tsv"                 # quái theo mốc cấp người chơi
+spawns_level_110               = "spawns.level_110.tsv"                 # quái theo mốc cấp người chơi
+spawns_level_120               = "spawns.level_120.tsv"                 # quái theo mốc cấp người chơi
+spawns_level_130               = "spawns.level_130.tsv"                 # quái theo mốc cấp người chơi
+spawns_level_140               = "spawns.level_140.tsv"                 # quái theo mốc cấp người chơi
+spawns_level_150               = "spawns.level_150.tsv"                 # quái theo mốc cấp người chơi
+spawns_level_160               = "spawns.level_160.tsv"                 # quái theo mốc cấp người chơi
+spawns_level_170               = "spawns.level_170.tsv"                 # quái theo mốc cấp người chơi
+spawns_level_180               = "spawns.level_180.tsv"                 # quái theo mốc cấp người chơi
+spawns_level_190               = "spawns.level_190.tsv"                 # quái theo mốc cấp người chơi
+spawns_level_20                = "spawns.level_20.tsv"                  # quái theo mốc cấp người chơi
+spawns_level_200               = "spawns.level_200.tsv"                 # quái theo mốc cấp người chơi
+spawns_level_30                = "spawns.level_30.tsv"                  # quái theo mốc cấp người chơi
+spawns_level_40                = "spawns.level_40.tsv"                  # quái theo mốc cấp người chơi
+spawns_level_50                = "spawns.level_50.tsv"                  # quái theo mốc cấp người chơi
+spawns_level_60                = "spawns.level_60.tsv"                  # quái theo mốc cấp người chơi
+spawns_level_70                = "spawns.level_70.tsv"                  # quái theo mốc cấp người chơi
+spawns_level_80                = "spawns.level_80.tsv"                  # quái theo mốc cấp người chơi
+spawns_level_90                = "spawns.level_90.tsv"                  # quái theo mốc cấp người chơi
+walk                           = "walk.nav"                             # lưới đi, chép nguyên byte
+
+#==================================================
+# Chỉ phân loại
+#==================================================
+# Ba định dạng này chưa đọc, không chép byte.
+path_file                      = "jiaochang.path"                       # chưa đọc định dạng, không chép
+stall_file                     = "jiaochang_StallInfo.stall"            # chưa đọc định dạng, không chép

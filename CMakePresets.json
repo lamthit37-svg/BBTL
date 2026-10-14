@@ -50,7 +50,7 @@
     {
       "name": "vcpkg",
       "hidden": true,
-      "toolchainFile": "C:/dev/third_party/vcpkg.cmake",
+      "toolchainFile": "${sourceDir}/cmake/VcpkgToolchain.cmake",
       "cacheVariables": {
         "VCPKG_TARGET_TRIPLET": "x64-windows-static-md",
         "VCPKG_INSTALLED_DIR": "${sourceDir}/vcpkg_installed",
@@ -60,7 +60,7 @@
     {
       "name": "android",
       "hidden": true,
-      "toolchainFile": "C:/dev/third_party/vcpkg.cmake",
+      "toolchainFile": "${sourceDir}/cmake/VcpkgToolchain.cmake",
       "cacheVariables": {
         "VCPKG_CHAINLOAD_TOOLCHAIN_FILE": "$env{ANDROID_NDK_HOME}/build/cmake/android.toolchain.cmake",
         "ANDROID_NDK_HOME": "$env{ANDROID_NDK_HOME}",
@@ -69,6 +69,15 @@
         "ANDROID_PLATFORM": "android-29",
         "ANDROID_STL": "c++_static",
         "CMAKE_BUILD_TYPE": "Debug"
+      }
+    },
+    {
+      "name": "ios",
+      "hidden": true,
+      "toolchainFile": "${sourceDir}/cmake/VcpkgToolchain.cmake",
+      "cacheVariables": {
+        "VCPKG_TARGET_TRIPLET": "arm64-ios",
+        "VCPKG_INSTALL_OPTIONS": "--clean-after-build"
       }
     },
     {
@@ -184,12 +193,15 @@
         "android"
       ],
       "cacheVariables": {
-        "ANDROID_ABI": "x86_64"
+        "ANDROID_ABI": "x86_64",
+        "VCPKG_TARGET_TRIPLET": "x64-android",
+        "VCPKG_INSTALLED_DIR": "${sourceDir}/vcpkg_installed/x64-android"
       }
     },
     {
       "name": "ios-arm64",
       "displayName": "iOS thiết bị arm64 (Xcode, deployment 15.0) — chỉ build được trên macOS",
+      "inherits": "ios",
       "generator": "Xcode",
       "binaryDir": "${sourceDir}/build/${presetName}",
       "condition": {
@@ -217,7 +229,8 @@
         "rhs": "Darwin"
       },
       "cacheVariables": {
-        "CMAKE_OSX_SYSROOT": "iphonesimulator"
+        "CMAKE_OSX_SYSROOT": "iphonesimulator",
+        "VCPKG_TARGET_TRIPLET": "arm64-ios-simulator"
       }
     }
   ],

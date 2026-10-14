@@ -195,8 +195,8 @@ void walk_tree(Best& best, const Mesh& mesh, const OpcodeTree& tree, Point3 orig
     box.max_x = -box.min_x;
     box.max_y = box.max_x;
     box.max_z = box.max_x;
-    const std::uint32_t count = mesh.vertex_count < mesh.vertices.size() ? mesh.vertex_count
-                                                                         : static_cast<std::uint32_t>(mesh.vertices.size());
+    const std::uint32_t count =
+        mesh.vertex_count < mesh.vertices.size() ? mesh.vertex_count : static_cast<std::uint32_t>(mesh.vertices.size());
     for (std::uint32_t index = 0; index < count; ++index) {
         const Point3 point = mesh.vertices[index];
         if (point.x < box.min_x) box.min_x = point.x;
@@ -243,7 +243,8 @@ std::optional<float> Model::height(float x, float z) const noexcept {
     return hit->y;
 }
 
-std::optional<Hit> Model::raycast(std::span<const float, 3> origin, std::span<const float, 3> direction) const noexcept {
+std::optional<Hit> Model::raycast(std::span<const float, 3> origin,
+    std::span<const float, 3> direction) const noexcept {
     if (body_ == nullptr) return std::nullopt;
     Best best;
     cast_all(best, body_->mesh, body_->tree, body_->stack, at3(origin), at3(direction));

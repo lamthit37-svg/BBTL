@@ -1,0 +1,21 @@
+# schema 1
+# source: server_config/PunishByState.txt
+# tool: TOOLS/server/import_legacy.py; sửa tay sẽ mất ở lượt xuất sau
+# types: int	text	text	text	text
+index	original	name	type	note
+0	ID	id	int	luật: M1
+1	描述	description	text	luật: nguyên văn
+2	免于惩罚	column_2	int	?
+3	金钱惩罚%	column_3	float	?
+4	经验惩罚%	column_4	float	?
+5	装备耐久度惩罚%	column_5	float	?
+6	装备最小掉落数目	column_6	int	?
+7	装备最大掉落数目	column_7	int	?
+8	物品最小掉落数目	column_8	int	?
+9	物品最大掉落数目	column_9	int	?
+10	预留1	reserved_1	int	luật: nguyên văn
+11	预留2	reserved_2	int	luật: nguyên văn
+12	预留3	reserved_3	int	luật: nguyên văn
+13	预留4	reserved_4	int	luật: nguyên văn
+14	预留5	reserved_5	int	luật: nguyên văn
+15	描述说明，内部使用	column_15	text	?

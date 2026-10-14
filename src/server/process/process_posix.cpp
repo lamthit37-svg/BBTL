@@ -390,8 +390,8 @@ core::Result<Child> spawn(const Spawn& request) {
     }
     pointers.push_back(nullptr);
     pid_t pid = 0;
-    const int spawned = ::posix_spawn(
-        &pid, pointers.front(), setup.actions(), setup.attributes(), pointers.data(), environ);
+    const int spawned =
+        ::posix_spawn(&pid, pointers.front(), setup.actions(), setup.attributes(), pointers.data(), environ);
     if (spawned != 0) {
         const auto system = static_cast<std::uint32_t>(spawned);
         return core::fail_system(system, "không tạo được tiến trình");

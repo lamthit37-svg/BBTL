@@ -312,8 +312,11 @@ struct Play {
 [[nodiscard]] std::optional<Play> playing(PilotRules rules) {
     std::optional<Ground> ground = flat_map();
     if (!ground) return std::nullopt;
-    Play play{.ground = std::move(*ground)};
-    play.pilot = Pilot{rules};
+    Play play{.ground = std::move(*ground),
+        .camera = FollowCamera{CameraRules{}},
+        .pilot = Pilot{rules},
+        .frame = PilotFrame{},
+        .now_ms = 1000};
     play.camera.enter(play.ground, Vec3{}, 1.0F);
     play.pilot.enter(1.0F);
     play.frame.mouse.x = 400;

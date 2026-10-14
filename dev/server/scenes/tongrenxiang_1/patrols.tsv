@@ -1,0 +1,18 @@
+# schema 1
+# source: Public/Scene/tongrenxiang_1_patrolpoint.ini
+# tool: TOOLS/server/export_scene.py; sửa tay sẽ mất ở lượt xuất sau
+# types: int	int	float	float	float	int	text	text	int	int	text	text	text	text
+patrol_index	point_index	position_x	position_y	position_z	settle_time	point_script_id	route_script_id	turns_back	teleport_to_respawn	speech_unread	speech_1	speech_2	speech_3
+0	0	19.0223	-234.5557	16.3163									
+0	1	25.1805	-403.5736	13.9844									
+0	2	32.5669	-412.2184	14.1063									
+0	3	42.2174	-404.5909	19.8021									
+0	4	50.1871	-418.3390	27.2313									
+0	5	51.2929	-362.4192	34.4941									
+0	6	47.1126	-164.2981	40.8026									
+0	7	40.2917	-111.3831	39.2067									
+0	8	34.9430	-72.9392	37.0179									
+0	9	25.5766	6.4115	36.9749									
+0	10	21.6586	132.8077	43.8019									
+0	11	24.3860	281.9075	49.7553									
+0	12	29.8995	391.1563	52.5325									

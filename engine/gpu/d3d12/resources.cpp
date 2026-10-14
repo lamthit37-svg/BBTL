@@ -610,8 +610,11 @@ Result<D3d12Device::Placed> D3d12Device::place(const D3D12_RESOURCE_DESC& desc, 
         free(placed.memory);
         return failed(created, "không đặt được tài nguyên");
     }
+    // Khác gốc: chỉ buffer có địa chỉ GPU. Hỏi GetGPUVirtualAddress của texture làm lớp kiểm tra D3D12 báo
+    // lỗi ("returns NULL for non-buffer resources") nên d3d12_depth_view_keeps_device đỏ.
+    const bool has_address = desc.Dimension == D3D12_RESOURCE_DIMENSION_BUFFER;
     if (!map_cpu) {
-        placed.address = placed.resource->GetGPUVirtualAddress();
+        if (has_address) placed.address = placed.resource->GetGPUVirtualAddress();
         return placed;
     }
     void* mapped = nullptr;
@@ -622,7 +625,7 @@ Result<D3d12Device::Placed> D3d12Device::place(const D3D12_RESOURCE_DESC& desc, 
         return failed(opened, "không ánh xạ được tài nguyên");
     }
     placed.mapped = static_cast<std::byte*>(mapped);
-    placed.address = placed.resource->GetGPUVirtualAddress();
+    if (has_address) placed.address = placed.resource->GetGPUVirtualAddress();
     return placed;
 }
 

@@ -1,0 +1,16 @@
+# schema 1
+# source: client_2026/AbilityLevelUp/diaoyu.txt
+# tool: TOOLS/server/export_tables.py; sửa tay sẽ mất ở lượt xuất sau
+# types: int	text	text	text	text
+index	original	name	type	note
+0	级别	rank	int	neo: cột gốc 0, khớp 100.0% (10/10 id); luật: nguyên văn
+1	名称	name	text	neo: cột gốc 1, khớp 100.0% (10/10 id); luật: nguyên văn
+2	需求金钱	required_money	int	neo: cột gốc 2, khớp 100.0% (10/10 id); luật: nguyên văn
+3	需求经验	required_exp	int	đổi kiểu: cột gốc 3, khớp 100.0% (10/10 id); luật: nguyên văn
+4	技能熟练度限制	proficiency_limit	int	neo: cột gốc 4, khớp 100.0% (10/10 id); luật: nguyên văn
+5	技能熟练度限制(客户端显示)	displayed_proficiency_limit	int	neo: cột gốc 5, khớp 100.0% (10/10 id); luật: nguyên văn
+6	本级熟练度的上限	proficiency_cap	int	neo: cột gốc 6, khớp 100.0% (10/10 id); luật: nguyên văn
+7	等级限制	level_limit	int	neo: cột gốc 7, khớp 100.0% (10/10 id); luật: nguyên văn
+8		column_8	text	mới ở 2026
+9		column_9	int	mới ở 2026
+10		column_10	int	mới ở 2026

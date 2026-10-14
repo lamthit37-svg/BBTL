@@ -2,7 +2,8 @@
 // Bảng thành phần đánh chỉ số bằng enum SDK; static_assert bắt bảng lệch enum.
 // Trong cbuffer, cột ma trận và phần tử mảng nằm trên biên 16 byte.
 // Nguồn: Forge2 src/shader/dxil.cpp@d7fcd76. Khác gốc: macro của windows.h lấy từ
-// core/win32.hpp; Block gán name sau khi khai; thân vòng có nhánh tách thành hàm.
+// core/win32.hpp; Block gán name sau khi khai; thân vòng có nhánh tách thành hàm; bỏ phản chiếu
+// thư viện nhiều hàm (Slang không dịch Stage::kLibrary); add_resource nhận thẳng ID3D12ShaderReflection.
 #include "shader/dxil.hpp"
 
 #include "shader/failure.hpp"
@@ -326,9 +327,7 @@ void fill_image(const D3D12_SHADER_INPUT_BIND_DESC& bind, Resource& resource) no
     return std::ranges::any_of(reflection.resources, same);
 }
 
-// Source là ID3D12ShaderReflection hoặc ID3D12FunctionReflection: hai giao diện cùng tên hàm.
-template <class Source>
-[[nodiscard]] Status add_resource(Source& source, UINT index, StageReflection& reflection) {
+[[nodiscard]] Status add_resource(ID3D12ShaderReflection& source, UINT index, StageReflection& reflection) {
     // Cấu trúc ra của SDK: enum ReturnType không có giá trị 0, GetResourceBindingDesc ghi đè cả.
     // NOLINTNEXTLINE(bugprone-invalid-enum-default-initialization)
     D3D12_SHADER_INPUT_BIND_DESC bind{};
@@ -406,27 +405,6 @@ void add_signatures(ID3D12ShaderReflection& shader, const D3D12_SHADER_DESC& des
     }
 }
 
-[[nodiscard]] Status add_function(ID3D12FunctionReflection* function, StageReflection& reflection) {
-    // Cấu trúc ra của SDK, như D3D12_SHADER_DESC: MinFeatureLevel không có giá trị 0.
-    // NOLINTNEXTLINE(bugprone-invalid-enum-default-initialization)
-    D3D12_FUNCTION_DESC desc{};
-    if (FAILED(function->GetDesc(&desc))) return corrupt("phản chiếu DXIL không đọc được");
-    Status added = ok();
-    for (UINT index = 0; index < desc.BoundResources && added; ++index) {
-        added = add_resource(*function, index, reflection);
-    }
-    if (!added) return pass(added);
-    return ok();
-}
-
-using Library = ID3D12LibraryReflection;
-
-// Khác gốc: thân vòng thư viện tách ra. Lỗi của một hàm trả lên, không đọc hàm sau.
-[[nodiscard]] Status function_at(Library& library, UINT index, StageReflection& reflection) {
-    ID3D12FunctionReflection* function = library.GetFunctionByIndex(static_cast<INT>(index));
-    return add_function(function, reflection);
-}
-
 } // namespace
 
 Result<StageReflection> reflect_dxil(ID3D12ShaderReflection& shader, Stage stage, std::string_view entry) {
@@ -452,20 +430,6 @@ Result<StageReflection> reflect_dxil(ID3D12ShaderReflection& shader, Stage stage
         shader.GetThreadGroupSize(&width, &height, &depth);
         reflection.group_size = {width, height, depth};
     }
-    normalize(reflection);
-    return reflection;
-}
-
-Result<StageReflection> reflect_dxil(ID3D12LibraryReflection& library) {
-    D3D12_LIBRARY_DESC desc{};
-    if (FAILED(library.GetDesc(&desc))) return corrupt("phản chiếu DXIL không đọc được");
-    StageReflection reflection;
-    reflection.stage = Stage::kLibrary;
-    Status added = ok();
-    for (UINT index = 0; index < desc.FunctionCount && added; ++index) {
-        added = function_at(library, index, reflection);
-    }
-    if (!added) return pass(added);
     normalize(reflection);
     return reflection;
 }

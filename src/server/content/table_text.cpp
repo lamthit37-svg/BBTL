@@ -77,8 +77,8 @@ void step_preamble(Preamble& preamble, const Line& line) {
     }
     if (line.done) return true;
     const std::size_t found = cell_count(line.text);
-    const std::string message = std::format(
-        "không đọc được: dòng {}: {} ô, dòng tên cột có {}", line.number, found, wanted);
+    const std::string message =
+        std::format("không đọc được: dòng {}: {} ô, dòng tên cột có {}", line.number, found, wanted);
     add_issue(issues, file.path, 1, message);
     return false;
 }

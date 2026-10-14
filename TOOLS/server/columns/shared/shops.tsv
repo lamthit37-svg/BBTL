@@ -1,0 +1,1234 @@
+# schema 1
+# source: client_2026/ShopTable.txt
+# tool: TOOLS/server/export_tables.py; sửa tay sẽ mất ở lượt xuất sau
+# types: int	text	text	text	text
+index	original	name	type	note
+0	Index	index	int	neo: cột gốc 0, khớp 100.0% (172/172 id); luật: M1
+1	修理等级	repair_level	int	nội suy: cột gốc 1, khớp 100.0% (172/172 id); luật: nguyên văn
+2	收购等级	buy_level	int	nội suy: cột gốc 2, khớp 76.7% (132/172 id); luật: nguyên văn
+3	RepairType(修理类型)	repair_type	int	nội suy: cột gốc 3, khớp 100.0% (172/172 id); luật: M2
+4	收购类型	buy_kind	int	nội suy: cột gốc 4, khớp 77.9% (134/172 id); luật: nguyên văn
+5	修理花费	repair_cost	float	nội suy: cột gốc 5, khớp 100.0% (172/172 id); luật: nguyên văn
+6	修理成功几率	repair_success_rate	float	nội suy: cột gốc 6, khớp 100.0% (172/172 id); luật: nguyên văn
+7	货币单位(1代表金币，2代表善恶值，4，帮贡，3代表师德点，5元宝，6赠点，7师门贡献度，8代表交子)	currency_kind	int	neo: cột gốc 7, khớp 100.0% (172/172 id); luật: nguyên văn
+8	能否回购	can_buy_back	int	nội suy: cột gốc 8, khớp 77.9% (134/172 id); luật: nguyên văn
+9	Scale(价格系数)	scale	float	nội suy: cột gốc 9, khớp 100.0% (172/172 id); luật: M2
+10	Time(刷新时间)	time	int	neo: cột gốc 10, khớp 100.0% (172/172 id); luật: M2
+11		column_11	int	mới ở 2026
+12	是否随机商店	is_random_shop	int	nội suy: cột gốc 12, khớp 100.0% (172/172 id); luật: nguyên văn
+13	随机商店配置文件路径	random_shop_config_path	text	neo: cột gốc 13, khớp 100.0% (172/172 id); luật: nguyên văn
+14		column_14	int	mới ở 2026
+15		column_15	int	mới ở 2026
+16		column_16	int	mới ở 2026
+17		column_17	int	mới ở 2026
+18		column_18	int	mới ở 2026
+19		column_19	int	mới ở 2026
+20		column_20	int	mới ở 2026
+21		column_21	int	mới ở 2026
+22		column_22	int	mới ở 2026
+23		column_23	int	mới ở 2026
+24		column_24	int	mới ở 2026
+25		column_25	int	mới ở 2026
+26		column_26	int	mới ở 2026
+27		column_27	int	mới ở 2026
+28		column_28	int	mới ở 2026
+29		column_29	int	mới ở 2026
+30	PNUM(每组多少个)	pnum_1	int	neo: cột gốc 26, khớp 100.0% (172/172 id); luật: M2
+31	PMAX(有限商品的数量上限)	pmax_1	int	neo: cột gốc 27, khớp 100.0% (172/172 id); luật: M2
+32		column_32	int	mới ở 2026
+33	商品折扣	goods_discount_1	int	neo: cột gốc 29, khớp 95.3% (164/172 id); luật: nguyên văn
+34	商品颜色	goods_color_1	text	nội suy: cột gốc 30, khớp 90.1% (155/172 id); luật: nguyên văn
+35		column_35	int	mới ở 2026
+36	PNUM(每组多少个)	pnum_2	int	neo: cột gốc 32, khớp 100.0% (172/172 id); luật: M2
+37	PMAX(有限商品的数量上限)	pmax_2	int	neo: cột gốc 33, khớp 99.4% (171/172 id); luật: M2
+38		column_38	int	mới ở 2026
+39	商品折扣	goods_discount_2	int	neo: cột gốc 35, khớp 95.9% (165/172 id); luật: nguyên văn
+40	商品颜色	goods_color_2	text	nội suy: cột gốc 36, khớp 88.4% (152/172 id); luật: nguyên văn
+41		column_41	int	mới ở 2026
+42	PNUM(每组多少个)	pnum_3	int	neo: cột gốc 38, khớp 99.4% (171/172 id); luật: M2
+43	PMAX(有限商品的数量上限)	pmax_3	int	neo: cột gốc 39, khớp 100.0% (172/172 id); luật: M2
+44		column_44	int	mới ở 2026
+45	商品折扣	goods_discount_3	int	neo: cột gốc 41, khớp 95.3% (164/172 id); luật: nguyên văn
+46	商品颜色	goods_color_3	text	nội suy: cột gốc 42, khớp 89.0% (153/172 id); luật: nguyên văn
+47		column_47	int	mới ở 2026
+48	PNUM(每组多少个)	pnum_4	int	neo: cột gốc 44, khớp 100.0% (172/172 id); luật: M2
+49	PMAX(有限商品的数量上限)	pmax_4	int	neo: cột gốc 45, khớp 100.0% (172/172 id); luật: M2
+50		column_50	int	mới ở 2026
+51	商品折扣	goods_discount_4	int	neo: cột gốc 47, khớp 96.5% (166/172 id); luật: nguyên văn
+52	商品颜色	goods_color_4	text	nội suy: cột gốc 48, khớp 88.4% (152/172 id); luật: nguyên văn
+53		column_53	int	mới ở 2026
+54	PNUM(每组多少个)	pnum_5	int	neo: cột gốc 50, khớp 99.4% (171/172 id); luật: M2
+55	PMAX(有限商品的数量上限)	pmax_5	int	neo: cột gốc 51, khớp 100.0% (172/172 id); luật: M2
+56		column_56	int	mới ở 2026
+57	商品折扣	goods_discount_5	int	neo: cột gốc 53, khớp 95.9% (165/172 id); luật: nguyên văn
+58	商品颜色	goods_color_5	text	nội suy: cột gốc 54, khớp 89.0% (153/172 id); luật: nguyên văn
+59		column_59	int	mới ở 2026
+60	PNUM(每组多少个)	pnum_6	int	neo: cột gốc 56, khớp 100.0% (172/172 id); luật: M2
+61	PMAX(有限商品的数量上限)	pmax_6	int	neo: cột gốc 57, khớp 100.0% (172/172 id); luật: M2
+62		column_62	int	mới ở 2026
+63	商品折扣	goods_discount_6	int	nội suy: cột gốc 59, khớp 97.7% (168/172 id); luật: nguyên văn
+64	商品颜色	goods_color_6	text	nội suy: cột gốc 60, khớp 90.1% (155/172 id); luật: nguyên văn
+65		column_65	int	mới ở 2026
+66	PNUM(每组多少个)	pnum_7	int	neo: cột gốc 62, khớp 99.4% (171/172 id); luật: M2
+67	PMAX(有限商品的数量上限)	pmax_7	int	neo: cột gốc 63, khớp 100.0% (172/172 id); luật: M2
+68		column_68	int	mới ở 2026
+69	商品折扣	goods_discount_7	int	neo: cột gốc 65, khớp 96.5% (166/172 id); luật: nguyên văn
+70	商品颜色	goods_color_7	text	nội suy: cột gốc 66, khớp 89.5% (154/172 id); luật: nguyên văn
+71		column_71	int	mới ở 2026
+72	PNUM(每组多少个)	pnum_8	int	neo: cột gốc 68, khớp 100.0% (172/172 id); luật: M2
+73	PMAX(有限商品的数量上限)	pmax_8	int	neo: cột gốc 69, khớp 100.0% (172/172 id); luật: M2
+74		column_74	int	mới ở 2026
+75	商品折扣	goods_discount_8	int	neo: cột gốc 71, khớp 96.5% (166/172 id); luật: nguyên văn
+76	商品颜色	goods_color_8	text	nội suy: cột gốc 72, khớp 89.5% (154/172 id); luật: nguyên văn
+77		column_77	int	mới ở 2026
+78	PNUM(每组多少个)	pnum_9	int	neo: cột gốc 74, khớp 100.0% (172/172 id); luật: M2
+79	PMAX(有限商品的数量上限)	pmax_9	int	neo: cột gốc 75, khớp 100.0% (172/172 id); luật: M2
+80		column_80	int	mới ở 2026
+81	商品折扣	goods_discount_9	int	neo: cột gốc 77, khớp 96.5% (166/172 id); luật: nguyên văn
+82	商品颜色	goods_color_9	text	nội suy: cột gốc 78, khớp 90.1% (155/172 id); luật: nguyên văn
+83		column_83	int	mới ở 2026
+84	PNUM(每组多少个)	pnum_10	int	neo: cột gốc 80, khớp 100.0% (172/172 id); luật: M2
+85	PMAX(有限商品的数量上限)	pmax_10	int	neo: cột gốc 81, khớp 100.0% (172/172 id); luật: M2
+86		column_86	int	mới ở 2026
+87	商品折扣	goods_discount_10	int	neo: cột gốc 83, khớp 98.3% (169/172 id); luật: nguyên văn
+88	商品颜色	goods_color_10	text	nội suy: cột gốc 84, khớp 90.7% (156/172 id); luật: nguyên văn
+89		column_89	int	mới ở 2026
+90	PNUM(每组多少个)	pnum_11	int	neo: cột gốc 86, khớp 100.0% (172/172 id); luật: M2
+91	PMAX(有限商品的数量上限)	pmax_11	int	neo: cột gốc 87, khớp 100.0% (172/172 id); luật: M2
+92		column_92	int	mới ở 2026
+93	商品折扣	goods_discount_11	int	nội suy: cột gốc 89, khớp 97.7% (168/172 id); luật: nguyên văn
+94	商品颜色	goods_color_11	text	nội suy: cột gốc 90, khớp 91.3% (157/172 id); luật: nguyên văn
+95		column_95	int	mới ở 2026
+96	PNUM(每组多少个)	pnum_12	int	neo: cột gốc 92, khớp 99.4% (171/172 id); luật: M2
+97	PMAX(有限商品的数量上限)	pmax_12	int	neo: cột gốc 93, khớp 100.0% (172/172 id); luật: M2
+98		column_98	int	mới ở 2026
+99	商品折扣	goods_discount_12	int	nội suy: cột gốc 95, khớp 97.7% (168/172 id); luật: nguyên văn
+100	商品颜色	goods_color_12	text	nội suy: cột gốc 96, khớp 92.4% (159/172 id); luật: nguyên văn
+101		column_101	int	mới ở 2026
+102	PNUM(每组多少个)	pnum_13	int	neo: cột gốc 98, khớp 98.3% (169/172 id); luật: M2
+103	PMAX(有限商品的数量上限)	pmax_13	int	neo: cột gốc 99, khớp 100.0% (172/172 id); luật: M2
+104		column_104	int	mới ở 2026
+105	商品折扣	goods_discount_13	int	nội suy: cột gốc 101, khớp 97.1% (167/172 id); luật: nguyên văn
+106	商品颜色	goods_color_13	text	nội suy: cột gốc 102, khớp 92.4% (159/172 id); luật: nguyên văn
+107		column_107	int	mới ở 2026
+108	PNUM(每组多少个)	pnum_14	int	neo: cột gốc 104, khớp 98.8% (170/172 id); luật: M2
+109	PMAX(有限商品的数量上限)	pmax_14	int	neo: cột gốc 105, khớp 100.0% (172/172 id); luật: M2
+110		column_110	int	mới ở 2026
+111	商品折扣	goods_discount_14	int	neo: cột gốc 107, khớp 97.1% (167/172 id); luật: nguyên văn
+112	商品颜色	goods_color_14	text	nội suy: cột gốc 108, khớp 92.4% (159/172 id); luật: nguyên văn
+113		column_113	int	mới ở 2026
+114	PNUM(每组多少个)	pnum_15	int	neo: cột gốc 110, khớp 98.8% (170/172 id); luật: M2
+115	PMAX(有限商品的数量上限)	pmax_15	int	neo: cột gốc 111, khớp 100.0% (172/172 id); luật: M2
+116		column_116	int	mới ở 2026
+117	商品折扣	goods_discount_15	int	neo: cột gốc 113, khớp 97.1% (167/172 id); luật: nguyên văn
+118	商品颜色	goods_color_15	text	nội suy: cột gốc 114, khớp 93.0% (160/172 id); luật: nguyên văn
+119		column_119	int	mới ở 2026
+120	PNUM(每组多少个)	pnum_16	int	neo: cột gốc 116, khớp 99.4% (171/172 id); luật: M2
+121	PMAX(有限商品的数量上限)	pmax_16	int	neo: cột gốc 117, khớp 100.0% (172/172 id); luật: M2
+122		column_122	int	mới ở 2026
+123	商品折扣	goods_discount_16	int	neo: cột gốc 119, khớp 97.7% (168/172 id); luật: nguyên văn
+124	商品颜色	goods_color_16	text	nội suy: cột gốc 120, khớp 94.2% (162/172 id); luật: nguyên văn
+125		column_125	int	mới ở 2026
+126	PNUM(每组多少个)	pnum_17	int	neo: cột gốc 122, khớp 96.5% (166/172 id); luật: M2
+127	PMAX(有限商品的数量上限)	pmax_17	int	neo: cột gốc 123, khớp 98.8% (170/172 id); luật: M2
+128		column_128	int	mới ở 2026
+129	商品折扣	goods_discount_17	int	neo: cột gốc 125, khớp 98.8% (170/172 id); luật: nguyên văn
+130	商品颜色	goods_color_17	text	nội suy: cột gốc 126, khớp 94.2% (162/172 id); luật: nguyên văn
+131		column_131	int	mới ở 2026
+132	PNUM(每组多少个)	pnum_18	int	neo: cột gốc 128, khớp 98.3% (169/172 id); luật: M2
+133	PMAX(有限商品的数量上限)	pmax_18	int	neo: cột gốc 129, khớp 98.8% (170/172 id); luật: M2
+134		column_134	int	mới ở 2026
+135	商品折扣	goods_discount_18	int	neo: cột gốc 131, khớp 98.3% (169/172 id); luật: nguyên văn
+136	商品颜色	goods_color_18	text	nội suy: cột gốc 132, khớp 93.0% (160/172 id); luật: nguyên văn
+137		column_137	int	mới ở 2026
+138	PNUM(每组多少个)	pnum_19	int	neo: cột gốc 134, khớp 98.3% (169/172 id); luật: M2
+139	PMAX(有限商品的数量上限)	pmax_19	int	neo: cột gốc 135, khớp 98.8% (170/172 id); luật: M2
+140		column_140	int	mới ở 2026
+141	商品折扣	goods_discount_19	int	neo: cột gốc 137, khớp 97.7% (168/172 id); luật: nguyên văn
+142	商品颜色	goods_color_19	text	nội suy: cột gốc 138, khớp 93.6% (161/172 id); luật: nguyên văn
+143		column_143	int	mới ở 2026
+144	PNUM(每组多少个)	pnum_20	int	neo: cột gốc 140, khớp 98.3% (169/172 id); luật: M2
+145	PMAX(有限商品的数量上限)	pmax_20	int	neo: cột gốc 141, khớp 98.8% (170/172 id); luật: M2
+146		column_146	int	mới ở 2026
+147	商品折扣	goods_discount_20	int	neo: cột gốc 143, khớp 97.1% (167/172 id); luật: nguyên văn
+148	商品颜色	goods_color_20	text	nội suy: cột gốc 144, khớp 93.6% (161/172 id); luật: nguyên văn
+149		column_149	int	mới ở 2026
+150	PNUM(每组多少个)	pnum_21	int	neo: cột gốc 146, khớp 97.7% (168/172 id); luật: M2
+151	PMAX(有限商品的数量上限)	pmax_21	int	neo: cột gốc 147, khớp 98.8% (170/172 id); luật: M2
+152		column_152	int	mới ở 2026
+153	商品折扣	goods_discount_21	int	neo: cột gốc 149, khớp 96.5% (166/172 id); luật: nguyên văn
+154	商品颜色	goods_color_21	text	nội suy: cột gốc 150, khớp 89.5% (154/172 id); luật: nguyên văn
+155		column_155	int	mới ở 2026
+156	PNUM(每组多少个)	pnum_22	int	neo: cột gốc 152, khớp 98.3% (169/172 id); luật: M2
+157	PMAX(有限商品的数量上限)	pmax_22	int	neo: cột gốc 153, khớp 100.0% (172/172 id); luật: M2
+158		column_158	int	mới ở 2026
+159	商品折扣	goods_discount_22	int	neo: cột gốc 155, khớp 96.5% (166/172 id); luật: nguyên văn
+160	商品颜色	goods_color_22	text	nội suy: cột gốc 156, khớp 89.0% (153/172 id); luật: nguyên văn
+161		column_161	int	mới ở 2026
+162	PNUM(每组多少个)	pnum_23	int	neo: cột gốc 158, khớp 95.9% (165/172 id); luật: M2
+163	PMAX(有限商品的数量上限)	pmax_23	int	neo: cột gốc 159, khớp 100.0% (172/172 id); luật: M2
+164		column_164	int	mới ở 2026
+165	商品折扣	goods_discount_23	int	neo: cột gốc 161, khớp 97.1% (167/172 id); luật: nguyên văn
+166	商品颜色	goods_color_23	text	nội suy: cột gốc 162, khớp 89.0% (153/172 id); luật: nguyên văn
+167		column_167	int	mới ở 2026
+168	PNUM(每组多少个)	pnum_24	int	neo: cột gốc 164, khớp 98.3% (169/172 id); luật: M2
+169	PMAX(有限商品的数量上限)	pmax_24	int	neo: cột gốc 165, khớp 100.0% (172/172 id); luật: M2
+170		column_170	int	mới ở 2026
+171	商品折扣	goods_discount_24	int	neo: cột gốc 167, khớp 96.5% (166/172 id); luật: nguyên văn
+172	商品颜色	goods_color_24	text	nội suy: cột gốc 168, khớp 90.1% (155/172 id); luật: nguyên văn
+173		column_173	int	mới ở 2026
+174	PNUM(每组多少个)	pnum_25	int	neo: cột gốc 170, khớp 98.8% (170/172 id); luật: M2
+175	PMAX(有限商品的数量上限)	pmax_25	int	neo: cột gốc 171, khớp 100.0% (172/172 id); luật: M2
+176		column_176	int	mới ở 2026
+177	商品折扣	goods_discount_25	int	neo: cột gốc 173, khớp 96.5% (166/172 id); luật: nguyên văn
+178	商品颜色	goods_color_25	text	nội suy: cột gốc 174, khớp 94.8% (163/172 id); luật: nguyên văn
+179		column_179	int	mới ở 2026
+180	PNUM(每组多少个)	pnum_26	int	neo: cột gốc 176, khớp 99.4% (171/172 id); luật: M2
+181	PMAX(有限商品的数量上限)	pmax_26	int	neo: cột gốc 177, khớp 100.0% (172/172 id); luật: M2
+182		column_182	int	mới ở 2026
+183	商品折扣	goods_discount_26	int	neo: cột gốc 179, khớp 95.3% (164/172 id); luật: nguyên văn
+184	商品颜色	goods_color_26	text	nội suy: cột gốc 180, khớp 93.6% (161/172 id); luật: nguyên văn
+185		column_185	int	mới ở 2026
+186	PNUM(每组多少个)	pnum_27	int	neo: cột gốc 182, khớp 98.3% (169/172 id); luật: M2
+187	PMAX(有限商品的数量上限)	pmax_27	int	neo: cột gốc 183, khớp 100.0% (172/172 id); luật: M2
+188		column_188	int	mới ở 2026
+189	商品折扣	goods_discount_27	int	nội suy: cột gốc 185, khớp 97.1% (167/172 id); luật: nguyên văn
+190	商品颜色	goods_color_27	text	nội suy: cột gốc 186, khớp 94.8% (163/172 id); luật: nguyên văn
+191		column_191	int	mới ở 2026
+192	PNUM(每组多少个)	pnum_28	int	neo: cột gốc 188, khớp 99.4% (171/172 id); luật: M2
+193	PMAX(有限商品的数量上限)	pmax_28	int	nội suy: cột gốc 189, khớp 100.0% (172/172 id); luật: M2
+194		column_194	int	mới ở 2026
+195	商品折扣	goods_discount_28	int	neo: cột gốc 191, khớp 97.7% (168/172 id); luật: nguyên văn
+196	商品颜色	goods_color_28	text	nội suy: cột gốc 192, khớp 94.8% (163/172 id); luật: nguyên văn
+197		column_197	int	mới ở 2026
+198	PNUM(每组多少个)	pnum_29	int	neo: cột gốc 194, khớp 98.8% (170/172 id); luật: M2
+199	PMAX(有限商品的数量上限)	pmax_29	int	nội suy: cột gốc 195, khớp 100.0% (172/172 id); luật: M2
+200		column_200	int	mới ở 2026
+201	商品折扣	goods_discount_29	int	neo: cột gốc 197, khớp 97.7% (168/172 id); luật: nguyên văn
+202	商品颜色	goods_color_29	text	nội suy: cột gốc 198, khớp 94.2% (162/172 id); luật: nguyên văn
+203		column_203	int	mới ở 2026
+204	PNUM(每组多少个)	pnum_30	int	neo: cột gốc 200, khớp 99.4% (171/172 id); luật: M2
+205		column_205	int	mới ở 2026
+206		column_206	int	mới ở 2026
+207		column_207	int	mới ở 2026
+208		column_208	text	mới ở 2026
+209		column_209	int	mới ở 2026
+210		column_210	int	mới ở 2026
+211		column_211	int	mới ở 2026
+212		column_212	int	mới ở 2026
+213		column_213	int	mới ở 2026
+214		column_214	text	mới ở 2026
+215		column_215	int	mới ở 2026
+216		column_216	int	mới ở 2026
+217		column_217	int	mới ở 2026
+218		column_218	int	mới ở 2026
+219	商品折扣	goods_discount_30	int	neo: cột gốc 203, khớp 97.1% (167/172 id); luật: nguyên văn
+220	商品颜色	goods_color_30	text	nội suy: cột gốc 204, khớp 94.8% (163/172 id); luật: nguyên văn
+221		column_221	int	mới ở 2026
+222	PNUM(每组多少个)	pnum_31	int	neo: cột gốc 206, khớp 98.8% (170/172 id); luật: M2
+223	PMAX(有限商品的数量上限)	pmax_30	int	nội suy: cột gốc 207, khớp 100.0% (172/172 id); luật: M2
+224		column_224	int	mới ở 2026
+225	商品折扣	goods_discount_31	int	neo: cột gốc 209, khớp 96.5% (166/172 id); luật: nguyên văn
+226		column_226	text	mới ở 2026
+227		column_227	int	mới ở 2026
+228		column_228	int	mới ở 2026
+229		column_229	int	mới ở 2026
+230		column_230	int	mới ở 2026
+231		column_231	int	mới ở 2026
+232		column_232	text	mới ở 2026
+233		column_233	int	mới ở 2026
+234	PNUM(每组多少个)	pnum_32	int	neo: cột gốc 212, khớp 98.8% (170/172 id); luật: M2
+235		column_235	int	mới ở 2026
+236		column_236	int	mới ở 2026
+237		column_237	int	mới ở 2026
+238		column_238	text	mới ở 2026
+239		column_239	int	mới ở 2026
+240		column_240	int	mới ở 2026
+241		column_241	int	mới ở 2026
+242		column_242	int	mới ở 2026
+243		column_243	int	mới ở 2026
+244		column_244	text	mới ở 2026
+245		column_245	int	mới ở 2026
+246	PNUM(每组多少个)	pnum_33	int	neo: cột gốc 218, khớp 98.8% (170/172 id); luật: M2
+247		column_247	int	mới ở 2026
+248		column_248	int	mới ở 2026
+249		column_249	int	mới ở 2026
+250		column_250	text	mới ở 2026
+251		column_251	int	mới ở 2026
+252	PNUM(每组多少个)	pnum_34	int	neo: cột gốc 260, khớp 98.8% (170/172 id); luật: M2
+253		column_253	int	mới ở 2026
+254		column_254	int	mới ở 2026
+255	商品41价格	goods_price_41	int	neo: cột gốc 268, khớp 95.3% (164/172 id); luật: mẫu {n}
+256	商品折扣	goods_discount_32	text	nội suy: cột gốc 269, khớp 0.0% (0/172 id); luật: nguyên văn
+257	商品颜色	goods_color_31	int	nội suy: cột gốc 270, khớp 0.0% (0/172 id); luật: nguyên văn
+258		column_258	int	mới ở 2026
+259	PNUM(每组多少个)	pnum_35	int	nội suy: cột gốc 272, khớp 7.0% (12/172 id); luật: M2
+260	PMAX(有限商品的数量上限)	pmax_31	int	nội suy: cột gốc 273, khớp 0.0% (0/172 id); luật: M2
+261	商品42价格	goods_price_42	int	neo: cột gốc 274, khớp 95.3% (164/172 id); luật: mẫu {n}
+262	商品折扣	goods_discount_33	text	nội suy: cột gốc 275, khớp 0.0% (0/172 id); luật: nguyên văn
+263	商品颜色	goods_color_32	int	nội suy: cột gốc 276, khớp 0.0% (0/172 id); luật: nguyên văn
+264		column_264	int	mới ở 2026
+265	PNUM(每组多少个)	pnum_36	int	nội suy: cột gốc 278, khớp 7.0% (12/172 id); luật: M2
+266	PMAX(有限商品的数量上限)	pmax_32	int	nội suy: cột gốc 279, khớp 0.0% (0/172 id); luật: M2
+267	商品43价格	goods_price_43	int	neo: cột gốc 280, khớp 95.3% (164/172 id); luật: mẫu {n}
+268	商品折扣	goods_discount_34	text	nội suy: cột gốc 281, khớp 0.0% (0/172 id); luật: nguyên văn
+269	商品颜色	goods_color_33	int	nội suy: cột gốc 282, khớp 0.0% (0/172 id); luật: nguyên văn
+270	PID(商品编号44)	pid_1	int	nội suy: cột gốc 283, khớp 7.0% (12/172 id); luật: M2
+271	PNUM(每组多少个)	pnum_37	int	nội suy: cột gốc 284, khớp 7.0% (12/172 id); luật: M2
+272	PMAX(有限商品的数量上限)	pmax_33	int	nội suy: cột gốc 285, khớp 0.0% (0/172 id); luật: M2
+273	商品44价格	goods_price_44	int	neo: cột gốc 286, khớp 95.3% (164/172 id); luật: mẫu {n}
+274	商品折扣	goods_discount_35	text	nội suy: cột gốc 287, khớp 0.0% (0/172 id); luật: nguyên văn
+275	商品颜色	goods_color_34	int	nội suy: cột gốc 288, khớp 0.0% (0/172 id); luật: nguyên văn
+276	PID(商品编号45)	pid_2	int	nội suy: cột gốc 289, khớp 7.0% (12/172 id); luật: M2
+277	PNUM(每组多少个)	pnum_38	int	nội suy: cột gốc 290, khớp 7.0% (12/172 id); luật: M2
+278	PMAX(有限商品的数量上限)	pmax_34	int	nội suy: cột gốc 291, khớp 0.0% (0/172 id); luật: M2
+279	商品45价格	goods_price_45	int	neo: cột gốc 292, khớp 95.9% (165/172 id); luật: mẫu {n}
+280		column_280	text	mới ở 2026
+281		column_281	int	mới ở 2026
+282		column_282	int	mới ở 2026
+283		column_283	int	mới ở 2026
+284		column_284	int	mới ở 2026
+285		column_285	int	mới ở 2026
+286		column_286	text	mới ở 2026
+287		column_287	int	mới ở 2026
+288		column_288	int	mới ở 2026
+289		column_289	int	mới ở 2026
+290		column_290	int	mới ở 2026
+291	商品46价格	goods_price_46	int	neo: cột gốc 298, khớp 95.9% (165/172 id); luật: mẫu {n}
+292		column_292	text	mới ở 2026
+293		column_293	int	mới ở 2026
+294		column_294	int	mới ở 2026
+295		column_295	int	mới ở 2026
+296		column_296	int	mới ở 2026
+297		column_297	int	mới ở 2026
+298		column_298	text	mới ở 2026
+299		column_299	int	mới ở 2026
+300		column_300	int	mới ở 2026
+301		column_301	int	mới ở 2026
+302		column_302	int	mới ở 2026
+303	商品47价格	goods_price_47	int	neo: cột gốc 304, khớp 96.5% (166/172 id); luật: mẫu {n}
+304		column_304	text	mới ở 2026
+305		column_305	int	mới ở 2026
+306		column_306	int	mới ở 2026
+307		column_307	int	mới ở 2026
+308		column_308	int	mới ở 2026
+309		column_309	int	mới ở 2026
+310		column_310	text	mới ở 2026
+311		column_311	int	mới ở 2026
+312		column_312	int	mới ở 2026
+313		column_313	int	mới ở 2026
+314		column_314	int	mới ở 2026
+315	商品48价格	goods_price_48	int	neo: cột gốc 310, khớp 97.1% (167/172 id); luật: mẫu {n}
+316		column_316	text	mới ở 2026
+317		column_317	int	mới ở 2026
+318		column_318	int	mới ở 2026
+319		column_319	int	mới ở 2026
+320		column_320	int	mới ở 2026
+321		column_321	int	mới ở 2026
+322		column_322	text	mới ở 2026
+323		column_323	int	mới ở 2026
+324		column_324	int	mới ở 2026
+325		column_325	int	mới ở 2026
+326		column_326	int	mới ở 2026
+327	商品49价格	goods_price_49	int	neo: cột gốc 316, khớp 97.1% (167/172 id); luật: mẫu {n}
+328		column_328	text	mới ở 2026
+329		column_329	int	mới ở 2026
+330		column_330	int	mới ở 2026
+331		column_331	int	mới ở 2026
+332		column_332	int	mới ở 2026
+333		column_333	int	mới ở 2026
+334		column_334	text	mới ở 2026
+335		column_335	int	mới ở 2026
+336		column_336	int	mới ở 2026
+337		column_337	int	mới ở 2026
+338		column_338	int	mới ở 2026
+339		column_339	int	mới ở 2026
+340		column_340	text	mới ở 2026
+341		column_341	int	mới ở 2026
+342		column_342	int	mới ở 2026
+343		column_343	int	mới ở 2026
+344		column_344	int	mới ở 2026
+345		column_345	int	mới ở 2026
+346		column_346	text	mới ở 2026
+347		column_347	int	mới ở 2026
+348		column_348	int	mới ở 2026
+349		column_349	int	mới ở 2026
+350		column_350	int	mới ở 2026
+351		column_351	int	mới ở 2026
+352		column_352	text	mới ở 2026
+353		column_353	int	mới ở 2026
+354		column_354	int	mới ở 2026
+355		column_355	int	mới ở 2026
+356		column_356	int	mới ở 2026
+357		column_357	int	mới ở 2026
+358		column_358	text	mới ở 2026
+359		column_359	int	mới ở 2026
+360		column_360	int	mới ở 2026
+361		column_361	int	mới ở 2026
+362		column_362	int	mới ở 2026
+363		column_363	int	mới ở 2026
+364		column_364	text	mới ở 2026
+365		column_365	int	mới ở 2026
+366		column_366	int	mới ở 2026
+367		column_367	int	mới ở 2026
+368		column_368	int	mới ở 2026
+369		column_369	int	mới ở 2026
+370		column_370	text	mới ở 2026
+371		column_371	int	mới ở 2026
+372		column_372	int	mới ở 2026
+373		column_373	int	mới ở 2026
+374		column_374	int	mới ở 2026
+375		column_375	int	mới ở 2026
+376		column_376	text	mới ở 2026
+377		column_377	int	mới ở 2026
+378		column_378	int	mới ở 2026
+379		column_379	int	mới ở 2026
+380		column_380	int	mới ở 2026
+381		column_381	int	mới ở 2026
+382		column_382	text	mới ở 2026
+383		column_383	int	mới ở 2026
+384		column_384	int	mới ở 2026
+385		column_385	int	mới ở 2026
+386		column_386	int	mới ở 2026
+387		column_387	int	mới ở 2026
+388		column_388	text	mới ở 2026
+389		column_389	int	mới ở 2026
+390		column_390	int	mới ở 2026
+391		column_391	int	mới ở 2026
+392		column_392	int	mới ở 2026
+393		column_393	int	mới ở 2026
+394		column_394	text	mới ở 2026
+395		column_395	int	mới ở 2026
+396		column_396	int	mới ở 2026
+397		column_397	int	mới ở 2026
+398		column_398	int	mới ở 2026
+399		column_399	int	mới ở 2026
+400		column_400	text	mới ở 2026
+401		column_401	int	mới ở 2026
+402		column_402	int	mới ở 2026
+403		column_403	int	mới ở 2026
+404		column_404	int	mới ở 2026
+405		column_405	int	mới ở 2026
+406		column_406	text	mới ở 2026
+407		column_407	int	mới ở 2026
+408		column_408	int	mới ở 2026
+409		column_409	int	mới ở 2026
+410		column_410	int	mới ở 2026
+411		column_411	int	mới ở 2026
+412		column_412	text	mới ở 2026
+413		column_413	int	mới ở 2026
+414		column_414	int	mới ở 2026
+415		column_415	int	mới ở 2026
+416		column_416	int	mới ở 2026
+417		column_417	int	mới ở 2026
+418		column_418	text	mới ở 2026
+419		column_419	int	mới ở 2026
+420		column_420	int	mới ở 2026
+421		column_421	int	mới ở 2026
+422		column_422	int	mới ở 2026
+423		column_423	int	mới ở 2026
+424		column_424	text	mới ở 2026
+425		column_425	int	mới ở 2026
+426		column_426	int	mới ở 2026
+427		column_427	int	mới ở 2026
+428		column_428	int	mới ở 2026
+429		column_429	int	mới ở 2026
+430		column_430	text	mới ở 2026
+431		column_431	int	mới ở 2026
+432		column_432	int	mới ở 2026
+433		column_433	int	mới ở 2026
+434		column_434	int	mới ở 2026
+435		column_435	int	mới ở 2026
+436		column_436	text	mới ở 2026
+437		column_437	int	mới ở 2026
+438		column_438	int	mới ở 2026
+439		column_439	int	mới ở 2026
+440		column_440	int	mới ở 2026
+441		column_441	int	mới ở 2026
+442		column_442	text	mới ở 2026
+443		column_443	int	mới ở 2026
+444		column_444	int	mới ở 2026
+445		column_445	int	mới ở 2026
+446		column_446	int	mới ở 2026
+447		column_447	int	mới ở 2026
+448		column_448	text	mới ở 2026
+449		column_449	int	mới ở 2026
+450		column_450	int	mới ở 2026
+451		column_451	int	mới ở 2026
+452		column_452	int	mới ở 2026
+453		column_453	int	mới ở 2026
+454		column_454	text	mới ở 2026
+455		column_455	int	mới ở 2026
+456		column_456	int	mới ở 2026
+457		column_457	int	mới ở 2026
+458		column_458	int	mới ở 2026
+459		column_459	int	mới ở 2026
+460		column_460	text	mới ở 2026
+461		column_461	int	mới ở 2026
+462		column_462	int	mới ở 2026
+463		column_463	int	mới ở 2026
+464		column_464	int	mới ở 2026
+465		column_465	int	mới ở 2026
+466		column_466	text	mới ở 2026
+467		column_467	int	mới ở 2026
+468		column_468	int	mới ở 2026
+469		column_469	int	mới ở 2026
+470		column_470	int	mới ở 2026
+471		column_471	int	mới ở 2026
+472		column_472	text	mới ở 2026
+473		column_473	int	mới ở 2026
+474		column_474	int	mới ở 2026
+475		column_475	int	mới ở 2026
+476		column_476	int	mới ở 2026
+477		column_477	int	mới ở 2026
+478		column_478	text	mới ở 2026
+479		column_479	int	mới ở 2026
+480		column_480	int	mới ở 2026
+481		column_481	int	mới ở 2026
+482		column_482	int	mới ở 2026
+483		column_483	int	mới ở 2026
+484		column_484	text	mới ở 2026
+485		column_485	int	mới ở 2026
+486		column_486	int	mới ở 2026
+487		column_487	int	mới ở 2026
+488		column_488	int	mới ở 2026
+489		column_489	int	mới ở 2026
+490		column_490	text	mới ở 2026
+491		column_491	int	mới ở 2026
+492		column_492	int	mới ở 2026
+493		column_493	int	mới ở 2026
+494		column_494	int	mới ở 2026
+495		column_495	int	mới ở 2026
+496		column_496	text	mới ở 2026
+497		column_497	int	mới ở 2026
+498		column_498	int	mới ở 2026
+499		column_499	int	mới ở 2026
+500		column_500	int	mới ở 2026
+501		column_501	int	mới ở 2026
+502		column_502	text	mới ở 2026
+503		column_503	int	mới ở 2026
+504		column_504	int	mới ở 2026
+505		column_505	int	mới ở 2026
+506		column_506	int	mới ở 2026
+507		column_507	int	mới ở 2026
+508		column_508	text	mới ở 2026
+509		column_509	int	mới ở 2026
+510		column_510	int	mới ở 2026
+511		column_511	int	mới ở 2026
+512		column_512	int	mới ở 2026
+513		column_513	int	mới ở 2026
+514		column_514	text	mới ở 2026
+515		column_515	int	mới ở 2026
+516		column_516	int	mới ở 2026
+517		column_517	int	mới ở 2026
+518		column_518	int	mới ở 2026
+519		column_519	int	mới ở 2026
+520		column_520	text	mới ở 2026
+521		column_521	int	mới ở 2026
+522		column_522	int	mới ở 2026
+523		column_523	int	mới ở 2026
+524		column_524	int	mới ở 2026
+525		column_525	int	mới ở 2026
+526		column_526	text	mới ở 2026
+527		column_527	int	mới ở 2026
+528		column_528	int	mới ở 2026
+529		column_529	int	mới ở 2026
+530		column_530	int	mới ở 2026
+531		column_531	int	mới ở 2026
+532		column_532	text	mới ở 2026
+533		column_533	int	mới ở 2026
+534		column_534	int	mới ở 2026
+535		column_535	int	mới ở 2026
+536		column_536	int	mới ở 2026
+537		column_537	int	mới ở 2026
+538		column_538	text	mới ở 2026
+539		column_539	int	mới ở 2026
+540		column_540	int	mới ở 2026
+541		column_541	int	mới ở 2026
+542		column_542	int	mới ở 2026
+543		column_543	int	mới ở 2026
+544		column_544	text	mới ở 2026
+545		column_545	int	mới ở 2026
+546		column_546	int	mới ở 2026
+547		column_547	int	mới ở 2026
+548		column_548	int	mới ở 2026
+549		column_549	int	mới ở 2026
+550		column_550	text	mới ở 2026
+551		column_551	int	mới ở 2026
+552		column_552	int	mới ở 2026
+553		column_553	int	mới ở 2026
+554		column_554	int	mới ở 2026
+555		column_555	int	mới ở 2026
+556		column_556	text	mới ở 2026
+557		column_557	int	mới ở 2026
+558		column_558	int	mới ở 2026
+559		column_559	int	mới ở 2026
+560		column_560	int	mới ở 2026
+561		column_561	int	mới ở 2026
+562		column_562	text	mới ở 2026
+563		column_563	int	mới ở 2026
+564		column_564	int	mới ở 2026
+565		column_565	int	mới ở 2026
+566		column_566	int	mới ở 2026
+567		column_567	int	mới ở 2026
+568		column_568	text	mới ở 2026
+569		column_569	int	mới ở 2026
+570		column_570	int	mới ở 2026
+571		column_571	int	mới ở 2026
+572		column_572	int	mới ở 2026
+573		column_573	int	mới ở 2026
+574		column_574	text	mới ở 2026
+575		column_575	int	mới ở 2026
+576		column_576	int	mới ở 2026
+577		column_577	int	mới ở 2026
+578		column_578	int	mới ở 2026
+579		column_579	int	mới ở 2026
+580		column_580	text	mới ở 2026
+581		column_581	int	mới ở 2026
+582		column_582	int	mới ở 2026
+583		column_583	int	mới ở 2026
+584		column_584	int	mới ở 2026
+585		column_585	int	mới ở 2026
+586		column_586	text	mới ở 2026
+587		column_587	int	mới ở 2026
+588		column_588	int	mới ở 2026
+589		column_589	int	mới ở 2026
+590		column_590	int	mới ở 2026
+591		column_591	int	mới ở 2026
+592		column_592	text	mới ở 2026
+593		column_593	int	mới ở 2026
+594		column_594	int	mới ở 2026
+595		column_595	int	mới ở 2026
+596		column_596	int	mới ở 2026
+597		column_597	int	mới ở 2026
+598		column_598	text	mới ở 2026
+599		column_599	int	mới ở 2026
+600		column_600	int	mới ở 2026
+601		column_601	int	mới ở 2026
+602		column_602	int	mới ở 2026
+603		column_603	int	mới ở 2026
+604		column_604	text	mới ở 2026
+605		column_605	int	mới ở 2026
+606		column_606	int	mới ở 2026
+607		column_607	int	mới ở 2026
+608		column_608	int	mới ở 2026
+609		column_609	int	mới ở 2026
+610		column_610	text	mới ở 2026
+611		column_611	int	mới ở 2026
+612		column_612	int	mới ở 2026
+613		column_613	int	mới ở 2026
+614		column_614	int	mới ở 2026
+615		column_615	int	mới ở 2026
+616		column_616	text	mới ở 2026
+617		column_617	int	mới ở 2026
+618		column_618	int	mới ở 2026
+619		column_619	int	mới ở 2026
+620		column_620	int	mới ở 2026
+621		column_621	int	mới ở 2026
+622		column_622	text	mới ở 2026
+623		column_623	int	mới ở 2026
+624		column_624	int	mới ở 2026
+625		column_625	int	mới ở 2026
+626		column_626	int	mới ở 2026
+627		column_627	int	mới ở 2026
+628	商品颜色	goods_color_35	text	chéo: cột gốc 222, khớp 96.5% (166/172 id); luật: nguyên văn
+629		column_629	int	mới ở 2026
+630		column_630	int	mới ở 2026
+631		column_631	int	mới ở 2026
+632		column_632	int	mới ở 2026
+633		column_633	int	mới ở 2026
+634		column_634	text	mới ở 2026
+635		column_635	int	mới ở 2026
+636		column_636	int	mới ở 2026
+637		column_637	int	mới ở 2026
+638		column_638	int	mới ở 2026
+639		column_639	int	mới ở 2026
+640		column_640	text	mới ở 2026
+641		column_641	int	mới ở 2026
+642		column_642	int	mới ở 2026
+643		column_643	int	mới ở 2026
+644		column_644	int	mới ở 2026
+645		column_645	int	mới ở 2026
+646		column_646	text	mới ở 2026
+647		column_647	int	mới ở 2026
+648		column_648	int	mới ở 2026
+649		column_649	int	mới ở 2026
+650		column_650	int	mới ở 2026
+651		column_651	int	mới ở 2026
+652		column_652	text	mới ở 2026
+653		column_653	int	mới ở 2026
+654		column_654	int	mới ở 2026
+655		column_655	int	mới ở 2026
+656		column_656	int	mới ở 2026
+657		column_657	int	mới ở 2026
+658		column_658	text	mới ở 2026
+659		column_659	int	mới ở 2026
+660		column_660	int	mới ở 2026
+661		column_661	int	mới ở 2026
+662		column_662	int	mới ở 2026
+663		column_663	int	mới ở 2026
+664		column_664	text	mới ở 2026
+665		column_665	int	mới ở 2026
+666		column_666	int	mới ở 2026
+667		column_667	int	mới ở 2026
+668		column_668	int	mới ở 2026
+669		column_669	int	mới ở 2026
+670		column_670	text	mới ở 2026
+671		column_671	int	mới ở 2026
+672		column_672	int	mới ở 2026
+673		column_673	int	mới ở 2026
+674		column_674	int	mới ở 2026
+675		column_675	int	mới ở 2026
+676		column_676	text	mới ở 2026
+677		column_677	int	mới ở 2026
+678		column_678	int	mới ở 2026
+679		column_679	int	mới ở 2026
+680		column_680	int	mới ở 2026
+681		column_681	int	mới ở 2026
+682		column_682	text	mới ở 2026
+683		column_683	int	mới ở 2026
+684		column_684	int	mới ở 2026
+685		column_685	int	mới ở 2026
+686		column_686	int	mới ở 2026
+687		column_687	int	mới ở 2026
+688		column_688	text	mới ở 2026
+689		column_689	int	mới ở 2026
+690		column_690	int	mới ở 2026
+691		column_691	int	mới ở 2026
+692		column_692	int	mới ở 2026
+693		column_693	int	mới ở 2026
+694		column_694	text	mới ở 2026
+695		column_695	int	mới ở 2026
+696		column_696	int	mới ở 2026
+697		column_697	int	mới ở 2026
+698		column_698	int	mới ở 2026
+699		column_699	int	mới ở 2026
+700		column_700	text	mới ở 2026
+701		column_701	int	mới ở 2026
+702		column_702	int	mới ở 2026
+703		column_703	int	mới ở 2026
+704		column_704	int	mới ở 2026
+705		column_705	int	mới ở 2026
+706		column_706	text	mới ở 2026
+707		column_707	int	mới ở 2026
+708		column_708	int	mới ở 2026
+709		column_709	int	mới ở 2026
+710		column_710	int	mới ở 2026
+711		column_711	int	mới ở 2026
+712		column_712	text	mới ở 2026
+713		column_713	int	mới ở 2026
+714		column_714	int	mới ở 2026
+715		column_715	int	mới ở 2026
+716		column_716	int	mới ở 2026
+717		column_717	int	mới ở 2026
+718		column_718	text	mới ở 2026
+719		column_719	int	mới ở 2026
+720		column_720	int	mới ở 2026
+721		column_721	int	mới ở 2026
+722		column_722	int	mới ở 2026
+723		column_723	int	mới ở 2026
+724		column_724	text	mới ở 2026
+725		column_725	int	mới ở 2026
+726		column_726	int	mới ở 2026
+727		column_727	int	mới ở 2026
+728		column_728	int	mới ở 2026
+729		column_729	int	mới ở 2026
+730		column_730	text	mới ở 2026
+731		column_731	int	mới ở 2026
+732		column_732	int	mới ở 2026
+733		column_733	int	mới ở 2026
+734		column_734	int	mới ở 2026
+735		column_735	int	mới ở 2026
+736		column_736	text	mới ở 2026
+737		column_737	int	mới ở 2026
+738		column_738	int	mới ở 2026
+739		column_739	int	mới ở 2026
+740		column_740	int	mới ở 2026
+741		column_741	int	mới ở 2026
+742		column_742	text	mới ở 2026
+743		column_743	int	mới ở 2026
+744		column_744	int	mới ở 2026
+745		column_745	int	mới ở 2026
+746		column_746	int	mới ở 2026
+747		column_747	int	mới ở 2026
+748		column_748	text	mới ở 2026
+749		column_749	int	mới ở 2026
+750		column_750	int	mới ở 2026
+751		column_751	int	mới ở 2026
+752		column_752	int	mới ở 2026
+753		column_753	int	mới ở 2026
+754		column_754	text	mới ở 2026
+755		column_755	int	mới ở 2026
+756		column_756	int	mới ở 2026
+757		column_757	int	mới ở 2026
+758		column_758	int	mới ở 2026
+759		column_759	int	mới ở 2026
+760		column_760	text	mới ở 2026
+761		column_761	int	mới ở 2026
+762		column_762	int	mới ở 2026
+763		column_763	int	mới ở 2026
+764		column_764	int	mới ở 2026
+765		column_765	int	mới ở 2026
+766		column_766	text	mới ở 2026
+767		column_767	int	mới ở 2026
+768		column_768	int	mới ở 2026
+769		column_769	int	mới ở 2026
+770		column_770	int	mới ở 2026
+771		column_771	int	mới ở 2026
+772		column_772	text	mới ở 2026
+773		column_773	int	mới ở 2026
+774		column_774	int	mới ở 2026
+775		column_775	int	mới ở 2026
+776		column_776	int	mới ở 2026
+777		column_777	int	mới ở 2026
+778		column_778	text	mới ở 2026
+779		column_779	int	mới ở 2026
+780		column_780	int	mới ở 2026
+781		column_781	int	mới ở 2026
+782		column_782	int	mới ở 2026
+783		column_783	int	mới ở 2026
+784		column_784	text	mới ở 2026
+785		column_785	int	mới ở 2026
+786		column_786	int	mới ở 2026
+787		column_787	int	mới ở 2026
+788		column_788	int	mới ở 2026
+789		column_789	int	mới ở 2026
+790		column_790	text	mới ở 2026
+791		column_791	int	mới ở 2026
+792		column_792	int	mới ở 2026
+793		column_793	int	mới ở 2026
+794		column_794	int	mới ở 2026
+795		column_795	int	mới ở 2026
+796		column_796	text	mới ở 2026
+797		column_797	int	mới ở 2026
+798		column_798	int	mới ở 2026
+799		column_799	int	mới ở 2026
+800		column_800	int	mới ở 2026
+801		column_801	int	mới ở 2026
+802		column_802	text	mới ở 2026
+803		column_803	int	mới ở 2026
+804		column_804	int	mới ở 2026
+805		column_805	int	mới ở 2026
+806		column_806	int	mới ở 2026
+807		column_807	int	mới ở 2026
+808		column_808	text	mới ở 2026
+809		column_809	int	mới ở 2026
+810		column_810	int	mới ở 2026
+811		column_811	int	mới ở 2026
+812		column_812	int	mới ở 2026
+813		column_813	int	mới ở 2026
+814		column_814	text	mới ở 2026
+815		column_815	int	mới ở 2026
+816		column_816	int	mới ở 2026
+817		column_817	int	mới ở 2026
+818		column_818	int	mới ở 2026
+819		column_819	int	mới ở 2026
+820		column_820	text	mới ở 2026
+821		column_821	int	mới ở 2026
+822		column_822	int	mới ở 2026
+823		column_823	int	mới ở 2026
+824		column_824	int	mới ở 2026
+825		column_825	int	mới ở 2026
+826		column_826	text	mới ở 2026
+827		column_827	int	mới ở 2026
+828		column_828	int	mới ở 2026
+829		column_829	int	mới ở 2026
+830		column_830	int	mới ở 2026
+831		column_831	int	mới ở 2026
+832		column_832	text	mới ở 2026
+833		column_833	int	mới ở 2026
+834		column_834	int	mới ở 2026
+835		column_835	int	mới ở 2026
+836		column_836	int	mới ở 2026
+837		column_837	int	mới ở 2026
+838		column_838	text	mới ở 2026
+839		column_839	int	mới ở 2026
+840		column_840	int	mới ở 2026
+841		column_841	int	mới ở 2026
+842		column_842	int	mới ở 2026
+843		column_843	int	mới ở 2026
+844		column_844	text	mới ở 2026
+845		column_845	int	mới ở 2026
+846		column_846	int	mới ở 2026
+847		column_847	int	mới ở 2026
+848		column_848	int	mới ở 2026
+849		column_849	int	mới ở 2026
+850		column_850	text	mới ở 2026
+851		column_851	int	mới ở 2026
+852		column_852	int	mới ở 2026
+853		column_853	int	mới ở 2026
+854		column_854	int	mới ở 2026
+855		column_855	int	mới ở 2026
+856		column_856	text	mới ở 2026
+857		column_857	int	mới ở 2026
+858		column_858	int	mới ở 2026
+859		column_859	int	mới ở 2026
+860		column_860	int	mới ở 2026
+861		column_861	int	mới ở 2026
+862		column_862	text	mới ở 2026
+863		column_863	int	mới ở 2026
+864		column_864	int	mới ở 2026
+865		column_865	int	mới ở 2026
+866		column_866	int	mới ở 2026
+867		column_867	int	mới ở 2026
+868		column_868	text	mới ở 2026
+869		column_869	int	mới ở 2026
+870		column_870	int	mới ở 2026
+871		column_871	int	mới ở 2026
+872		column_872	int	mới ở 2026
+873		column_873	int	mới ở 2026
+874		column_874	text	mới ở 2026
+875		column_875	int	mới ở 2026
+876		column_876	int	mới ở 2026
+877		column_877	int	mới ở 2026
+878		column_878	int	mới ở 2026
+879		column_879	int	mới ở 2026
+880		column_880	text	mới ở 2026
+881		column_881	int	mới ở 2026
+882		column_882	int	mới ở 2026
+883		column_883	int	mới ở 2026
+884		column_884	int	mới ở 2026
+885		column_885	int	mới ở 2026
+886		column_886	text	mới ở 2026
+887		column_887	int	mới ở 2026
+888		column_888	int	mới ở 2026
+889		column_889	int	mới ở 2026
+890		column_890	int	mới ở 2026
+891		column_891	int	mới ở 2026
+892		column_892	text	mới ở 2026
+893		column_893	int	mới ở 2026
+894		column_894	int	mới ở 2026
+895		column_895	int	mới ở 2026
+896		column_896	int	mới ở 2026
+897		column_897	int	mới ở 2026
+898		column_898	text	mới ở 2026
+899		column_899	int	mới ở 2026
+900		column_900	int	mới ở 2026
+901		column_901	int	mới ở 2026
+902		column_902	int	mới ở 2026
+903		column_903	int	mới ở 2026
+904		column_904	text	mới ở 2026
+905		column_905	int	mới ở 2026
+906		column_906	int	mới ở 2026
+907		column_907	int	mới ở 2026
+908		column_908	int	mới ở 2026
+909		column_909	int	mới ở 2026
+910		column_910	text	mới ở 2026
+911		column_911	int	mới ở 2026
+912		column_912	int	mới ở 2026
+913		column_913	int	mới ở 2026
+914		column_914	int	mới ở 2026
+915		column_915	int	mới ở 2026
+916		column_916	text	mới ở 2026
+917		column_917	int	mới ở 2026
+918		column_918	int	mới ở 2026
+919		column_919	int	mới ở 2026
+920		column_920	int	mới ở 2026
+921		column_921	int	mới ở 2026
+922		column_922	text	mới ở 2026
+923		column_923	int	mới ở 2026
+924		column_924	int	mới ở 2026
+925		column_925	int	mới ở 2026
+926		column_926	int	mới ở 2026
+927		column_927	int	mới ở 2026
+928		column_928	text	mới ở 2026
+929		column_929	int	mới ở 2026
+930		column_930	int	mới ở 2026
+931		column_931	int	mới ở 2026
+932		column_932	int	mới ở 2026
+933		column_933	int	mới ở 2026
+934		column_934	text	mới ở 2026
+935		column_935	int	mới ở 2026
+936		column_936	int	mới ở 2026
+937		column_937	int	mới ở 2026
+938		column_938	int	mới ở 2026
+939		column_939	int	mới ở 2026
+940		column_940	text	mới ở 2026
+941		column_941	int	mới ở 2026
+942		column_942	int	mới ở 2026
+943		column_943	int	mới ở 2026
+944		column_944	int	mới ở 2026
+945		column_945	int	mới ở 2026
+946		column_946	text	mới ở 2026
+947		column_947	int	mới ở 2026
+948		column_948	int	mới ở 2026
+949		column_949	int	mới ở 2026
+950		column_950	int	mới ở 2026
+951		column_951	int	mới ở 2026
+952		column_952	text	mới ở 2026
+953		column_953	int	mới ở 2026
+954		column_954	int	mới ở 2026
+955		column_955	int	mới ở 2026
+956		column_956	int	mới ở 2026
+957		column_957	int	mới ở 2026
+958		column_958	text	mới ở 2026
+959		column_959	int	mới ở 2026
+960		column_960	int	mới ở 2026
+961		column_961	int	mới ở 2026
+962		column_962	int	mới ở 2026
+963		column_963	int	mới ở 2026
+964		column_964	text	mới ở 2026
+965		column_965	int	mới ở 2026
+966		column_966	int	mới ở 2026
+967		column_967	int	mới ở 2026
+968		column_968	int	mới ở 2026
+969		column_969	int	mới ở 2026
+970		column_970	text	mới ở 2026
+971		column_971	int	mới ở 2026
+972		column_972	int	mới ở 2026
+973		column_973	int	mới ở 2026
+974		column_974	int	mới ở 2026
+975		column_975	int	mới ở 2026
+976		column_976	text	mới ở 2026
+977		column_977	int	mới ở 2026
+978		column_978	int	mới ở 2026
+979		column_979	int	mới ở 2026
+980		column_980	int	mới ở 2026
+981		column_981	int	mới ở 2026
+982		column_982	text	mới ở 2026
+983		column_983	int	mới ở 2026
+984		column_984	int	mới ở 2026
+985		column_985	int	mới ở 2026
+986		column_986	int	mới ở 2026
+987		column_987	int	mới ở 2026
+988		column_988	text	mới ở 2026
+989		column_989	int	mới ở 2026
+990		column_990	int	mới ở 2026
+991		column_991	int	mới ở 2026
+992		column_992	int	mới ở 2026
+993		column_993	int	mới ở 2026
+994		column_994	text	mới ở 2026
+995		column_995	int	mới ở 2026
+996		column_996	int	mới ở 2026
+997		column_997	int	mới ở 2026
+998		column_998	int	mới ở 2026
+999		column_999	int	mới ở 2026
+1000		column_1000	text	mới ở 2026
+1001		column_1001	int	mới ở 2026
+1002		column_1002	int	mới ở 2026
+1003		column_1003	int	mới ở 2026
+1004		column_1004	int	mới ở 2026
+1005		column_1005	int	mới ở 2026
+1006		column_1006	text	mới ở 2026
+1007		column_1007	int	mới ở 2026
+1008		column_1008	int	mới ở 2026
+1009		column_1009	int	mới ở 2026
+1010		column_1010	int	mới ở 2026
+1011		column_1011	int	mới ở 2026
+1012		column_1012	text	mới ở 2026
+1013		column_1013	int	mới ở 2026
+1014		column_1014	int	mới ở 2026
+1015		column_1015	int	mới ở 2026
+1016		column_1016	int	mới ở 2026
+1017		column_1017	int	mới ở 2026
+1018		column_1018	text	mới ở 2026
+1019		column_1019	int	mới ở 2026
+1020		column_1020	int	mới ở 2026
+1021		column_1021	int	mới ở 2026
+1022		column_1022	int	mới ở 2026
+1023		column_1023	int	mới ở 2026
+1024		column_1024	text	mới ở 2026
+1025		column_1025	int	mới ở 2026
+1026		column_1026	int	mới ở 2026
+1027		column_1027	int	mới ở 2026
+1028		column_1028	int	mới ở 2026
+1029		column_1029	int	mới ở 2026
+1030		column_1030	text	mới ở 2026
+1031		column_1031	int	mới ở 2026
+1032		column_1032	int	mới ở 2026
+1033		column_1033	int	mới ở 2026
+1034		column_1034	int	mới ở 2026
+1035		column_1035	int	mới ở 2026
+1036		column_1036	text	mới ở 2026
+1037		column_1037	int	mới ở 2026
+1038		column_1038	int	mới ở 2026
+1039		column_1039	int	mới ở 2026
+1040		column_1040	int	mới ở 2026
+1041		column_1041	int	mới ở 2026
+1042		column_1042	text	mới ở 2026
+1043		column_1043	int	mới ở 2026
+1044		column_1044	int	mới ở 2026
+1045		column_1045	int	mới ở 2026
+1046		column_1046	int	mới ở 2026
+1047		column_1047	int	mới ở 2026
+1048		column_1048	text	mới ở 2026
+1049		column_1049	int	mới ở 2026
+1050		column_1050	int	mới ở 2026
+1051		column_1051	int	mới ở 2026
+1052		column_1052	int	mới ở 2026
+1053		column_1053	int	mới ở 2026
+1054		column_1054	text	mới ở 2026
+1055		column_1055	int	mới ở 2026
+1056		column_1056	int	mới ở 2026
+1057		column_1057	int	mới ở 2026
+1058		column_1058	int	mới ở 2026
+1059		column_1059	int	mới ở 2026
+1060		column_1060	text	mới ở 2026
+1061		column_1061	int	mới ở 2026
+1062		column_1062	int	mới ở 2026
+1063		column_1063	int	mới ở 2026
+1064		column_1064	int	mới ở 2026
+1065		column_1065	int	mới ở 2026
+1066		column_1066	text	mới ở 2026
+1067		column_1067	int	mới ở 2026
+1068		column_1068	int	mới ở 2026
+1069		column_1069	int	mới ở 2026
+1070		column_1070	int	mới ở 2026
+1071		column_1071	int	mới ở 2026
+1072		column_1072	text	mới ở 2026
+1073		column_1073	int	mới ở 2026
+1074		column_1074	int	mới ở 2026
+1075		column_1075	int	mới ở 2026
+1076		column_1076	int	mới ở 2026
+1077		column_1077	int	mới ở 2026
+1078		column_1078	text	mới ở 2026
+1079		column_1079	int	mới ở 2026
+1080		column_1080	int	mới ở 2026
+1081		column_1081	int	mới ở 2026
+1082		column_1082	int	mới ở 2026
+1083		column_1083	int	mới ở 2026
+1084		column_1084	text	mới ở 2026
+1085		column_1085	int	mới ở 2026
+1086		column_1086	int	mới ở 2026
+1087		column_1087	int	mới ở 2026
+1088		column_1088	int	mới ở 2026
+1089		column_1089	int	mới ở 2026
+1090		column_1090	text	mới ở 2026
+1091		column_1091	int	mới ở 2026
+1092		column_1092	int	mới ở 2026
+1093		column_1093	int	mới ở 2026
+1094		column_1094	int	mới ở 2026
+1095		column_1095	int	mới ở 2026
+1096		column_1096	text	mới ở 2026
+1097		column_1097	int	mới ở 2026
+1098		column_1098	int	mới ở 2026
+1099		column_1099	int	mới ở 2026
+1100		column_1100	int	mới ở 2026
+1101		column_1101	int	mới ở 2026
+1102		column_1102	text	mới ở 2026
+1103		column_1103	int	mới ở 2026
+1104		column_1104	int	mới ở 2026
+1105		column_1105	int	mới ở 2026
+1106		column_1106	int	mới ở 2026
+1107		column_1107	int	mới ở 2026
+1108		column_1108	text	mới ở 2026
+1109		column_1109	int	mới ở 2026
+1110		column_1110	int	mới ở 2026
+1111		column_1111	int	mới ở 2026
+1112		column_1112	int	mới ở 2026
+1113		column_1113	int	mới ở 2026
+1114		column_1114	text	mới ở 2026
+1115		column_1115	int	mới ở 2026
+1116		column_1116	int	mới ở 2026
+1117		column_1117	int	mới ở 2026
+1118		column_1118	int	mới ở 2026
+1119		column_1119	int	mới ở 2026
+1120		column_1120	text	mới ở 2026
+1121		column_1121	int	mới ở 2026
+1122		column_1122	int	mới ở 2026
+1123		column_1123	int	mới ở 2026
+1124		column_1124	int	mới ở 2026
+1125		column_1125	int	mới ở 2026
+1126		column_1126	text	mới ở 2026
+1127		column_1127	int	mới ở 2026
+1128		column_1128	int	mới ở 2026
+1129		column_1129	int	mới ở 2026
+1130		column_1130	int	mới ở 2026
+1131		column_1131	int	mới ở 2026
+1132		column_1132	text	mới ở 2026
+1133		column_1133	int	mới ở 2026
+1134		column_1134	int	mới ở 2026
+1135		column_1135	int	mới ở 2026
+1136		column_1136	int	mới ở 2026
+1137		column_1137	int	mới ở 2026
+1138		column_1138	text	mới ở 2026
+1139		column_1139	int	mới ở 2026
+1140		column_1140	int	mới ở 2026
+1141		column_1141	int	mới ở 2026
+1142		column_1142	int	mới ở 2026
+1143		column_1143	int	mới ở 2026
+1144		column_1144	text	mới ở 2026
+1145		column_1145	int	mới ở 2026
+1146		column_1146	int	mới ở 2026
+1147		column_1147	int	mới ở 2026
+1148		column_1148	int	mới ở 2026
+1149		column_1149	int	mới ở 2026
+1150		column_1150	text	mới ở 2026
+1151		column_1151	int	mới ở 2026
+1152		column_1152	int	mới ở 2026
+1153		column_1153	int	mới ở 2026
+1154		column_1154	int	mới ở 2026
+1155		column_1155	int	mới ở 2026
+1156		column_1156	text	mới ở 2026
+1157		column_1157	int	mới ở 2026
+1158		column_1158	int	mới ở 2026
+1159		column_1159	int	mới ở 2026
+1160		column_1160	int	mới ở 2026
+1161		column_1161	int	mới ở 2026
+1162		column_1162	text	mới ở 2026
+1163		column_1163	int	mới ở 2026
+1164		column_1164	int	mới ở 2026
+1165		column_1165	int	mới ở 2026
+1166		column_1166	int	mới ở 2026
+1167		column_1167	int	mới ở 2026
+1168		column_1168	text	mới ở 2026
+1169		column_1169	int	mới ở 2026
+1170		column_1170	int	mới ở 2026
+1171		column_1171	int	mới ở 2026
+1172		column_1172	int	mới ở 2026
+1173		column_1173	int	mới ở 2026
+1174		column_1174	text	mới ở 2026
+1175		column_1175	int	mới ở 2026
+1176		column_1176	int	mới ở 2026
+1177		column_1177	int	mới ở 2026
+1178		column_1178	int	mới ở 2026
+1179		column_1179	int	mới ở 2026
+1180		column_1180	text	mới ở 2026
+1181		column_1181	int	mới ở 2026
+1182		column_1182	int	mới ở 2026
+1183		column_1183	int	mới ở 2026
+1184		column_1184	int	mới ở 2026
+1185		column_1185	int	mới ở 2026
+1186		column_1186	text	mới ở 2026
+1187		column_1187	int	mới ở 2026
+1188		column_1188	int	mới ở 2026
+1189		column_1189	int	mới ở 2026
+1190		column_1190	int	mới ở 2026
+1191		column_1191	int	mới ở 2026
+1192		column_1192	text	mới ở 2026
+1193		column_1193	int	mới ở 2026
+1194		column_1194	int	mới ở 2026
+1195		column_1195	int	mới ở 2026
+1196		column_1196	int	mới ở 2026
+1197		column_1197	int	mới ở 2026
+1198		column_1198	text	mới ở 2026
+1199		column_1199	int	mới ở 2026
+1200		column_1200	int	mới ở 2026
+1201		column_1201	int	mới ở 2026
+1202		column_1202	int	mới ở 2026
+1203		column_1203	int	mới ở 2026
+1204		column_1204	text	mới ở 2026
+1205		column_1205	int	mới ở 2026
+1206		column_1206	int	mới ở 2026
+1207		column_1207	int	mới ở 2026
+1208		column_1208	int	mới ở 2026
+1209		column_1209	int	mới ở 2026
+1210		column_1210	text	mới ở 2026
+1211		column_1211	int	mới ở 2026
+1212		column_1212	int	mới ở 2026
+1213		column_1213	int	mới ở 2026
+1214		column_1214	int	mới ở 2026
+1215		column_1215	int	mới ở 2026
+1216		column_1216	text	mới ở 2026
+1217		column_1217	int	mới ở 2026
+1218		column_1218	int	mới ở 2026
+1219		column_1219	int	mới ở 2026
+1220		column_1220	int	mới ở 2026
+1221		column_1221	int	mới ở 2026
+1222		column_1222	text	mới ở 2026
+1223		column_1223	int	mới ở 2026
+1224		column_1224	int	mới ở 2026
+1225		column_1225	int	mới ở 2026
+1226		column_1226	int	mới ở 2026
+1227		column_1227	int	mới ở 2026
+1228		column_1228	text	mới ở 2026

@@ -1,0 +1,22 @@
+{
+    "files.associations": {
+        "*.tsv": "tsv"
+    },
+    "[tsv]": {
+        "editor.insertSpaces": false,
+        "editor.detectIndentation": false,
+        "editor.renderWhitespace": "boundary",
+        "editor.wordWrap": "off",
+        "files.trimTrailingWhitespace": false,
+        "files.insertFinalNewline": true,
+        "files.eol": "\n",
+        "files.encoding": "utf8"
+    },
+    "rainbow_csv.enable_auto_csv_lint": true,
+    "rainbow_csv.comment_prefix": "#",
+    "rainbow_csv.virtual_alignment_mode": "always",
+    "rainbow_csv.virtual_alignment_vertical_grid": true,
+    "rainbow_csv.highlight_rows": false,
+    "rainbow_csv.enable_cursor_position_info": true,
+    "rainbow_csv.enable_tooltip": true
+}
