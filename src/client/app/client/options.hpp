@@ -10,6 +10,7 @@
 #include <span>
 #include <string>
 #include <string_view>
+#include <vector>
 
 namespace game::client {
 
@@ -19,6 +20,7 @@ inline constexpr std::string_view kUsage =
     "                         [--backend <tên>] [--size <rộng>x<cao>] [--login] [--bare]\n"
     "                         [--walk] [--weapon <mã vật phẩm>] [--gem <mã đá quý>]\n"
     "                         [--skill <mã skill>] [--auto-strike <khung>]\n"
+    "                         [--ui-event <TÊN|arg0|arg1|arg2|arg3>]...\n"
     "--scene-id là resid trong Config/SceneDefineEx.txt. --scene tìm tên file .Scene trong bảng "
     "đó.\n"
     "Không nêu --scene và --scene-id: mở đăng nhập, như bấm đúp exe. Nút vào game đọc "
@@ -46,7 +48,10 @@ inline constexpr std::string_view kUsage =
     "--auto-strike: ở màn chơi tự nhấn ô thao tác cuối ở khung màn chơi thứ <khung> (từ 1) rồi mỗi 180\n"
     "khung, để chụp hay đo đòn đánh mà không cần phím thật. --shot chụp ở khung cố định sau khi bảng đo\n"
     "đủ 30 mẫu, không theo --frames: đổi <khung> để chụp đòn ở thời điểm khác. Công cụ đo, client gốc\n"
-    "không có.";
+    "không có.\n"
+    "--ui-event: ở khung màn chơi đầu tiên phát một sự kiện của game cho các bảng giao diện (như\n"
+    "PushEvent(tên, arg0...) của game gốc), ví dụ \"PROGRESSBAR_SHOW|Đang luyện công\"; nêu nhiều\n"
+    "lần thì phát theo thứ tự. Phần rỗng là nil. Công cụ thử, tới khi có gói tin của máy chủ.";
 
 struct Options {
     // Rỗng: không chọn theo tên file. resid được ưu tiên hơn tên này.
@@ -81,6 +86,8 @@ struct Options {
     std::optional<std::uint32_t> skill_id;
     // --auto-strike: khung màn chơi đầu tiên tự dùng skill ở ô cuối, rồi lặp theo nhịp; 0 là tắt. Công cụ đo của dự án.
     std::uint32_t auto_strike_from = 0;
+    // --ui-event: sự kiện giao diện phát ở khung màn chơi đầu tiên, theo thứ tự. Công cụ thử của dự án.
+    std::vector<std::string> ui_events;
 };
 
 using Arguments = std::span<const std::string_view>;

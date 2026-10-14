@@ -263,7 +263,15 @@ kết luận ngay dưới mục đó chứ không xoá.
     bằng `EffectColor`; 243/251 thanh của 2.034 layout để màu trắng nên không thấy khác, 6 thanh
     (không thuộc HUD) có màu riêng thì hiện chưa tô. Thuộc tính chỉ có ở layout 2026
     (`UseUninterruptedEffectColor`, `FlashPoint`, `FlashSetting`, `EffectColorType` của thanh nộ)
-    chưa đọc: mã 2026 của SuperProgress chưa tháo.
+    chưa đọc: mã 2026 của SuperProgress chưa tháo. (Cập nhật 2026-10-15, từ bảng `ProgressBar`: vtable
+    của `FalagardSuperProgress` ở `CEGUIFalagard.dll` 0x1801385c8, `updateSelf` là mục 64 (0x18007a760,
+    đã port cho phần mờ dần ở `ui/panel/progress_bar`), vẽ là mục 66 (0x180078870, 2 922 byte): state
+    `Background`, `Enabled`/`Disabled` trong vùng `ProgressArea`, state `LightEnable` ở `LightArea`,
+    `Effect`, chữ của cửa sổ qua `Font::drawText` và độ trong `setAlpha`. `gui::draw_progress` mới vẽ
+    đúng state `Enabled` rộng bằng mức trên cả cửa sổ, nên ảnh chụp `--ui-event "PROGRESSBAR_SHOW|..."`
+    của bảng `ProgressBar` chỉ có dải màu vàng: thiếu khung nền, thiếu lề 17x6 của `ProgressArea`,
+    thiếu đầu sáng, thiếu chữ và chưa có độ trong khi mờ dần. Cần: port hàm ở 0x180078870 vào
+    `gui/paint.cpp` rồi chụp lại cả HUD để chắc các thanh máu khác không đổi.)
 19. **Sáu cửa sổ con của khung nhân vật bị giấu theo suy đoán** (2026-10-06,
     `ui/panel/player_frame.cpp`). `PlayerFrame_HPHDSandBoxHPBK`, `PlayerFrame_GQ`,
     `PlayerFrame_DaoYi`, `PlayerFrame_XingLingDian`, `PlayerFrame_ERenSoulHit` (thanh và hàng điểm

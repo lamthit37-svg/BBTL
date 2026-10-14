@@ -97,6 +97,7 @@ struct Display::State {
     void append_login_role();
     void close_mouse_frame() noexcept;
     void prepare_hud();
+    void seed_ui_events(std::span<const std::string> texts);
     void post_request(ui::Action action);
     void run_to_scene_point(ui::RunTo target);
     void open_login();
@@ -409,6 +410,10 @@ struct Display::State {
     // DisplayDesc::auto_strike_from, và số khung màn chơi đã chạy để đếm nhịp.
     std::uint32_t auto_strike_from = 0;
     std::uint32_t play_frames = 0;
+    // DisplayDesc::ui_events đã phân tích, còn chờ khung màn chơi đầu tiên; hud_events là phần HUD nhận ở khung
+    // đó (rỗng ở các khung khác).
+    std::vector<ui::panel::PostedEvent> posted_events;
+    std::vector<ui::panel::PostedEvent> hud_events;
     // DisplayDesc::weapon_item: vật phẩm khe 0 mà công cụ thử gieo vào hero.equipment như gói trang bị của
     // máy chủ; ngoại hình đọc từ hero.equipment, không đọc biến này.
     std::optional<std::uint32_t> weapon_item;

@@ -3,15 +3,14 @@
 #include "ui/panel/call.hpp"
 #include "ui/panel/deck.hpp"
 #include "ui/panel/events.hpp"
+#include "ui/panel/lua_value.hpp"
 #include "ui/panel/widgets.hpp"
 
 #include <algorithm>
-#include <cerrno>
 #include <cmath>
 #include <compare>
 #include <cstddef>
 #include <cstdint>
-#include <cstdlib>
 #include <format>
 #include <limits>
 #include <optional>
@@ -41,56 +40,10 @@ constexpr std::string_view kCannotDo = "你不能这么做。";
 constexpr double kJuniorFlash = 1.0;
 constexpr double kSeniorFlash = 2.0;
 
-// tonumber(text) của Lua 5.0: nhận khoảng trắng hai đầu, dấu +/-, "5.", ".5", số mũ e hoặc d; không nhận
-// thập lục phân, "inf", "nan", chuỗi rỗng. nullopt là nil. Số tràn thành vô cực, số quá nhỏ thành +0 (strtod của
-// MSVCR110 mà LuaPlus gọi).
-[[nodiscard]] std::optional<double> parse_number(std::string_view raw) {
-    constexpr std::string_view kSpace = " \t\n\v\f\r";
-    const std::size_t first = raw.find_first_not_of(kSpace);
-    if (first == std::string_view::npos) return std::nullopt;
-    std::string_view text = raw.substr(first, raw.find_last_not_of(kSpace) - first + 1);
-    const bool is_negative = text.starts_with('-');
-    if (is_negative || text.starts_with('+')) text.remove_prefix(1);
-    // Chỉ chữ số, một dấu chấm và số mũ; strtod còn nhận thập lục phân, inf, nan nên lọc trước.
-    std::string clean;
-    std::size_t digits = 0;
-    bool has_dot = false;
-    bool has_exponent = false;
-    for (std::size_t at = 0; at < text.size(); ++at) {
-        const char letter = text[at];
-        if (letter >= '0' && letter <= '9') {
-            ++digits;
-            clean.push_back(letter);
-        } else if (letter == '.' && !has_dot && !has_exponent) {
-            has_dot = true;
-            clean.push_back(letter);
-        } else if ((letter == 'e' || letter == 'E' || letter == 'd' || letter == 'D') && !has_exponent && digits > 0) {
-            has_exponent = true;
-            clean.push_back('e');
-            if (at + 1 < text.size() && (text[at + 1] == '+' || text[at + 1] == '-')) clean.push_back(text[++at]);
-            if (at + 1 >= text.size()) return std::nullopt;
-        } else {
-            return std::nullopt;
-        }
-    }
-    if (digits == 0) return std::nullopt;
-    errno = 0;
-    char* stop = nullptr;
-    double value = std::strtod(clean.c_str(), &stop);
-    if (stop == nullptr || *stop != '\0') return std::nullopt;
-    if (errno == ERANGE && std::fabs(value) < 1.0) value = 0.0;
-    return is_negative ? -value : value;
-}
-
 // tonumber(arg<k>): nil khi chưa có đối số hay không đọc được thành số.
 [[nodiscard]] std::optional<double> to_number(std::optional<std::string_view> text) {
     if (!text) return std::nullopt;
-    return parse_number(*text);
-}
-
-// Số trong chuỗi mà script ghép vào lời gọi ("%.14g"): số nguyên in không dấu chấm.
-[[nodiscard]] std::string number_text(double value) {
-    return std::format("{:.14g}", value);
+    return lua_tonumber(*text);
 }
 
 [[nodiscard]] std::int32_t to_int(double value) noexcept {
@@ -270,7 +223,7 @@ void uninstall_chat_action(ActionBar& bar, const UiEvent& event, const BarFacts&
     if (!index || *index < 0.0 || *index > kLastChatPack) return;
     unlink_pack(bar, *index, facts, calls);
     calls.push_back(Call{.ask = Ask::kUninstallChatAction,
-        .text = std::format("{}\t{}", number_text(*index), bar.spec->uninstall_level)});
+        .text = std::format("{}\t{}", lua_tostring(*index), bar.spec->uninstall_level)});
 }
 
 // CLEAR_CHAT_ACTION_BAR(arg0 = tên thanh, arg1 = ô gói, arg2 = id, arg3 = dữ liệu): <Tên>_ClearChatActionButton.
@@ -284,7 +237,7 @@ void clear_chat_action(ActionBar& bar, const UiEvent& event, const BarFacts& fac
     unlink_pack(bar, *index, facts, calls);
     // DataPool nhận đối số sai kiểu thì dừng script với lỗi (tThrowStringException).
     if (!id || !data) return;
-    const std::string numbers = std::format("{}\t{}\t{}", number_text(*index), number_text(*id), number_text(*data));
+    const std::string numbers = std::format("{}\t{}\t{}", lua_tostring(*index), lua_tostring(*id), lua_tostring(*data));
     if (bar.spec->forward.empty()) {
         calls.push_back(Call{.ask = Ask::kSetChatAction, .text = numbers});
     } else {

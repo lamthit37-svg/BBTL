@@ -1,0 +1,84 @@
+# Sinh bằng TOOLS/port/lua_oracle.py từ ProgressBar.lua và progress_bar_flow.lua; không sửa tay
+# sự kiện đăng ký
+event	PROGRESSBAR_SHOW	True
+event	PROGRESSBAR_HIDE	False
+event	PROGRESSBAR_WIDTH	False
+event	PLAYER_LEAVE_WORLD	False
+event	PROGRESSBAR_BREAK	False
+event	HIDE_ON_SCENE_TRANSED	False
+# hiện
+this	Visible	True
+ProgressBar_Progress	Alpha	1
+ProgressBar_Progress	SetFadeState	0
+ProgressBar_Progress	Text	Đang luyện công
+ProgressBar_Progress	Visible	True
+# mức 0,25
+this	Visible	True
+ProgressBar_Progress	Alpha	1
+ProgressBar_Progress	Progress	25/100
+ProgressBar_Progress	SetFadeState	0
+ProgressBar_Progress	Text	Đang luyện công
+ProgressBar_Progress	Visible	True
+# mức số mũ
+this	Visible	True
+ProgressBar_Progress	Alpha	1
+ProgressBar_Progress	Progress	10/100
+ProgressBar_Progress	SetFadeState	0
+ProgressBar_Progress	Text	Đang luyện công
+ProgressBar_Progress	Visible	True
+# mức số mũ d
+this	Visible	True
+ProgressBar_Progress	Alpha	1
+ProgressBar_Progress	Progress	50/100
+ProgressBar_Progress	SetFadeState	0
+ProgressBar_Progress	Text	Đang luyện công
+ProgressBar_Progress	Visible	True
+# mức vượt đầy
+this	Visible	True
+ProgressBar_Progress	Alpha	1
+ProgressBar_Progress	Progress	700/100
+ProgressBar_Progress	SetFadeState	0
+ProgressBar_Progress	Text	Đang luyện công
+ProgressBar_Progress	Visible	True
+# giấu bằng PROGRESSBAR_HIDE
+this	Visible	True
+ProgressBar_Progress	Alpha	1
+ProgressBar_Progress	Progress	700/100
+ProgressBar_Progress	SetFadeState	2
+ProgressBar_Progress	Text	Đang luyện công
+ProgressBar_Progress	Visible	True
+# hiện lại
+this	Visible	True
+ProgressBar_Progress	Alpha	1
+ProgressBar_Progress	Progress	700/100
+ProgressBar_Progress	SetFadeState	0
+ProgressBar_Progress	Text	Lần hai
+ProgressBar_Progress	Visible	True
+# ngắt
+this	Visible	True
+ProgressBar_Progress	Alpha	1
+ProgressBar_Progress	Progress	700/100
+ProgressBar_Progress	SetFadeState	2
+ProgressBar_Progress	Text	Lần hai
+ProgressBar_Progress	Visible	True
+# rời cảnh
+this	Visible	True
+ProgressBar_Progress	Alpha	1
+ProgressBar_Progress	Progress	700/100
+ProgressBar_Progress	SetFadeState	2
+ProgressBar_Progress	Text	Lần ba
+ProgressBar_Progress	Visible	True
+# chuyển cảnh xong
+this	Visible	False
+ProgressBar_Progress	Alpha	1
+ProgressBar_Progress	Progress	700/100
+ProgressBar_Progress	SetFadeState	2
+ProgressBar_Progress	Text	Lần ba
+ProgressBar_Progress	Visible	True
+# Progress_close
+this	Visible	False
+ProgressBar_Progress	Alpha	1
+ProgressBar_Progress	Progress	700/100
+ProgressBar_Progress	SetFadeState	2
+ProgressBar_Progress	Text	Lần ba
+ProgressBar_Progress	Visible	True

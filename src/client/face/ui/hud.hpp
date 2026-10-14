@@ -13,6 +13,7 @@
 #include "gui/sheet.hpp"
 #include "hero/hero.hpp"
 #include "render/ui.hpp"
+#include "ui/panel/events.hpp"
 #include "ui/panel/login_flow.hpp"
 #include "ui/view.hpp"
 
@@ -82,6 +83,8 @@ struct HudView {
     std::int32_t wheel = 0;
     // Có khi màn chơi đang nạp một cảnh. Hết nạp thì rỗng để bảng chuyển cảnh được giấu.
     std::optional<SceneLoad> loading;
+    // Sự kiện mà game phát cho các bảng kể từ khung trước (PushEvent của game gốc), theo thứ tự phát.
+    std::span<const panel::PostedEvent> events;
 };
 
 // Việc một nút của giao diện nhờ client làm ngoài giao diện (vào game, mở trang web, rời bảng).

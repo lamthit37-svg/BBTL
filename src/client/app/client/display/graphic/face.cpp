@@ -75,6 +75,7 @@ void Display::State::arm_scene(const DisplayDesc& desc) {
     is_bare = desc.is_bare;
     is_auto_walk = desc.is_auto_walk;
     auto_strike_from = desc.auto_strike_from;
+    seed_ui_events(desc.ui_events);
     weapon_item = desc.weapon_item;
     weapon_gem = desc.weapon_gem;
     skill_id = desc.skill_id;
@@ -201,7 +202,10 @@ void Display::State::apply_kept(const KeptRole& restored) {
 // Giao diện của khung: đưa đầu vào (kể cả ký tự vừa gõ) rồi lấy việc nó nhờ vòng cửa sổ làm.
 void Display::State::prepare_hud() {
     if (!hud) return;
+    // Sự kiện thử chờ khung màn chơi đầu tiên; HUD nhận chúng đúng một lần (posted_events rỗng từ khung sau).
+    if (procedure == Procedure::kPlay) hud_events.swap(posted_events);
     hud->prepare(hud_view());
+    hud_events.clear();
     typed.clear();
     hud_wheel = 0;
     const std::optional<ui::Action> action = hud->take_action();
@@ -209,6 +213,18 @@ void Display::State::prepare_hud() {
     if (const std::optional<ui::RunTo> run = hud->take_run_to()) run_to_scene_point(*run);
     if (body) body->set_spin(hud->equip_spin());
     store_roles();
+}
+
+// --ui-event: phân tích từng sự kiện giao diện; sự kiện sai dạng thì ghi một dòng và bỏ.
+void Display::State::seed_ui_events(std::span<const std::string> texts) {
+    for (const std::string& text : texts) {
+        std::optional<ui::panel::PostedEvent> event = ui::panel::PostedEvent::parse(text);
+        if (!event) {
+            std::println(stderr, "--ui-event: bỏ sự kiện sai dạng: {}", text);
+            continue;
+        }
+        posted_events.push_back(std::move(*event));
+    }
 }
 
 void Display::State::post_request(ui::Action action) {
@@ -238,6 +254,7 @@ ui::HudView Display::State::hud_view() const {
     view.typed = typed;
     view.wheel = hud_wheel;
     view.loading = scene_load();
+    view.events = hud_events;
     if (!held || !terrain) return view;
     const core::GroundPoint feet = terrain->to_game(foot());
     view.scene.radar = held->radar;

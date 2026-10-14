@@ -66,4 +66,17 @@ struct EventSub {
     return false;
 }
 
+// Sự kiện giữ chuỗi riêng, cho nơi xếp hàng sự kiện qua nhiều khung (công cụ thử --ui-event, về sau là gói
+// tin của máy chủ).
+struct PostedEvent {
+    std::string name;
+    std::vector<std::string> args;
+
+    // "TÊN|arg0|arg1|...": số đối số tuỳ ý, mỗi đối số là chuỗi (đối số rỗng là chuỗi rỗng như bộ gửi gốc).
+    // Tên rỗng thì không có kết quả.
+    [[nodiscard]] static std::optional<PostedEvent> parse(std::string_view text);
+    // Các đối số dạng mượn chuỗi, để đưa cho EventArgs::raise; còn đúng tới khi sự kiện bị đổi hay huỷ.
+    [[nodiscard]] std::vector<std::string_view> arguments() const;
+};
+
 } // namespace game::ui::panel

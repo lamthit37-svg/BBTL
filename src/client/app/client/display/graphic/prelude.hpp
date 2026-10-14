@@ -94,6 +94,7 @@
 #include "shader/package.hpp"
 #include "ui/hud.hpp"
 #include "ui/pace.hpp"
+#include "ui/panel/events.hpp"
 #include "ui/panel/role_pose.hpp"
 #include "ui/panel/roles.hpp"
 #include "ui/phone.hpp"
