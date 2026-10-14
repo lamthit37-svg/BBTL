@@ -268,6 +268,10 @@ constexpr float kWalkTurnPerSecond = 0.35F;
 constexpr std::size_t kMaxWalkSamples = 1U << 19U;
 // Số sự kiện chuột hay chạm chờ tối đa giữa hai khung; quá thì bỏ sự kiện mới.
 constexpr std::size_t kMaxQueued = 4096;
+// Trả lời của phần nối máy chủ chờ chuỗi đăng nhập tối đa giữa hai khung (mỗi việc nhờ có một trả lời, thêm UiConfig).
+constexpr std::size_t kMaxOnlineReplies = 64;
+// Đơn vị toạ độ máy chủ là centimet; đơn vị game của client (kích thước cảnh, minimap) là mét.
+constexpr float kCmPerUnit = 100.0F;
 // Bước thời gian dài nhất của một khung, giây: máy khựng không làm điểm nhìn nhảy xa.
 constexpr float kMaxStep = 0.1F;
 // Số nấc lăn dồn tối đa cho giao diện giữa hai khung (xem State::hud_wheel).

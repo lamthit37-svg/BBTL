@@ -1,6 +1,10 @@
 // Camera, đi lại và người mẫu. Đăng nhập dùng camera cố định hoặc camera chọn nhân vật.
 // Màn chơi dùng camera bám đất của client 2026.
 #include "client/display/graphic/state.hpp"
+
+#include "client/display/display.hpp"
+
+#include <utility>
 namespace game::client {
 
 void Display::State::ensure_gates() {
@@ -25,10 +29,17 @@ void Display::State::ensure_gates() {
 
 void Display::State::place_at(int scene_id) {
     ensure_gates();
+    std::optional<EntryPoint> entry;
+    {
+        const std::scoped_lock<std::mutex> locked(spawn_guard);
+        entry = std::exchange(entry_spot, std::nullopt);
+    }
     map::SceneStep step;
     step.previous = walk.scene_id;
     step.scene = scene_id;
-    const map::GateStand stand = map::arrival_at(gates, step);
+    map::GateStand stand = map::arrival_at(gates, step);
+    // Chỗ đứng máy chủ đặt thắng điểm đến mặc định, nhưng chỉ cho đúng cảnh nó nói tới.
+    if (entry && entry->scene == scene_id) stand = map::GateStand{.x = entry->x, .z = entry->z, .has = true};
     place_walk(walk, *ground, scene_id, stand);
 }
 

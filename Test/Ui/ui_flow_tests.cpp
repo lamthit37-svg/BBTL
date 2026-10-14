@@ -9,9 +9,13 @@
 #include "ui/panel/create_role.hpp"
 #include "ui/panel/deck.hpp"
 #include "ui/panel/logon.hpp"
+#include "ui/panel/online.hpp"
 #include "ui/panel/portraits.hpp"
 #include "ui/panel/role_cast.hpp"
 #include "ui/panel/roles.hpp"
+#include "ui/panel/select_role.hpp"
+#include "ui/panel/servers.hpp"
+#include "ui/panel/system_info.hpp"
 
 #include <array>
 #include <cstddef>
@@ -20,6 +24,7 @@
 #include <string>
 #include <string_view>
 #include <utility>
+#include <vector>
 
 namespace game::test {
 namespace {
@@ -357,7 +362,206 @@ void dice_changes_with_the_salt(Context& context) {
     context.expect(seen[0] && seen[1] && seen[2], "muối khác nhau thì gieo ra đủ ba bộ");
 }
 
+// ---------------------------------------------------------------------------------------------------------------
+// Chế độ trực tuyến: chuỗi chỉ nhờ và nhận trả lời, không biết socket (phần nối máy chủ là việc của client/online).
+
+using ui::panel::OnlineAsk;
+using ui::panel::OnlineFault;
+using ui::panel::OnlineReply;
+using ui::panel::OnlineWork;
+
+// Chuỗi đã chọn một máy chủ có cổng thật và đang ở bảng tài khoản, như sau khi người chơi bấm vào máy chủ đó.
+[[nodiscard]] LoginFlow online_flow() {
+    LoginFlow flow;
+    const bool loaded = ui::panel::recall_directory(flow, std::string{ui::panel::kServerColumns} + "\nVùng\tchú thích\t0\tMáy\t2\t0\t0\t0\t0\n");
+    core::check(loaded, "danh sách máy chủ mẫu phải đọc được");
+    const std::array names{ui::panel::ServerName{.area = "Vùng", .server = "Máy"}};
+    ui::panel::mark_online(flow, names);
+    ui::panel::start_login(flow);
+    flow.chosen = ui::panel::ServerRef{.area = 0, .server = 0};
+    flow.is_online = true;
+    flow.step = FlowStep::kAccount;
+    return flow;
+}
+
+enum class RoleSex : std::uint8_t { kFemale = 0, kMale = 1 };
+
+[[nodiscard]] OnlineReply roster_reply(std::uint64_t id, RoleSex sex) {
+    OnlineReply reply;
+    reply.kind = OnlineReply::Kind::kRoster;
+    Role role;
+    role.name = "Lam";
+    role.sex = static_cast<std::uint8_t>(sex);
+    role.id = id;
+    reply.roles.push_back(role);
+    return reply;
+}
+
+void online_sign_in_asks_instead_of_opening_roles(Context& context) {
+    LoginFlow flow = online_flow();
+    type_text(flow, U"a\tb", {});
+    ui::panel::press_flow(flow, "LogOn_LogOnGame", {});
+    context.expect(flow.step == FlowStep::kAccount && flow.is_waiting, "chờ máy chủ, chưa sang bảng chọn");
+    context.expect(flow.system_info.is_open && flow.system_info.text == ui::panel::kOnlineWaiting, "hộp báo đang nối");
+    std::vector<OnlineAsk> asks = ui::panel::take_asks(flow);
+    context.expect(asks.size() == 1 && asks.front().work == OnlineWork::kSignIn, "một việc đăng nhập");
+    if (!asks.empty()) {
+        context.expect(asks.front().server.area == "Vùng" && asks.front().server.server == "Máy", "đúng máy chủ đã chọn");
+        context.expect(asks.front().account == "a" && asks.front().password == "b", "tài khoản và mật khẩu đã gõ");
+    }
+    context.expect(ui::panel::take_asks(flow).empty(), "lấy rồi thì hết");
+    context.expect(!ui::panel::take_flow(flow), "đăng nhập chưa đưa gì ra client");
+}
+
+void online_waiting_blocks_input(Context& context) {
+    LoginFlow flow = online_flow();
+    type_text(flow, U"a\tb", {});
+    ui::panel::press_flow(flow, "LogOn_LogOnGame", {});
+    static_cast<void>(ui::panel::take_asks(flow));
+    type_text(flow, U"zzz", {});
+    ui::panel::key_flow(flow, U'q');
+    ui::panel::press_flow(flow, "LogOn_LogOnGame", {});
+    context.expect(flow.logon.account == "a" && flow.logon.password == "b", "đang chờ thì không nhận chữ");
+    context.expect(ui::panel::take_asks(flow).empty(), "đang chờ thì không nhờ lần hai");
+    ui::panel::press_flow(flow, "LogOn_Last", {});
+    context.expect(!ui::panel::take_flow(flow), "đang chờ thì nút thoát không đi ra");
+}
+
+void online_roster_opens_the_select_panel(Context& context) {
+    const World world = sample_world();
+    const LoginFacts facts = world.facts();
+    LoginFlow flow = online_flow();
+    type_text(flow, U"a\tb", facts);
+    ui::panel::press_flow(flow, "LogOn_LogOnGame", facts);
+    static_cast<void>(ui::panel::take_asks(flow));
+    ui::panel::deliver_online(flow, roster_reply(5, RoleSex::kMale), facts);
+    context.expect(flow.step == FlowStep::kRoles && !flow.is_waiting, "danh sách mở bảng chọn");
+    context.expect(!flow.system_info.is_open, "hộp 'đang nối' đã đóng");
+    const Role* shown = ui::panel::chosen_role(flow.select);
+    context.expect(shown != nullptr && shown->id == 5 && shown->name == "Lam", "nhân vật của máy chủ ở ô đầu");
+    context.expect(shown != nullptr && shown->portrait == ui::panel::kMalePortrait, "chân dung đầu của giới nam");
+    context.expect(flow.book.rows.empty(), "không ghi vào sổ cục bộ");
+    context.expect(!ui::panel::book_text(flow), "sổ cục bộ không đổi nên không có gì để ghi tệp");
+}
+
+void online_enter_waits_for_the_server(Context& context) {
+    const World world = sample_world();
+    const LoginFacts facts = world.facts();
+    LoginFlow flow = online_flow();
+    type_text(flow, U"a\tb", facts);
+    ui::panel::press_flow(flow, "LogOn_LogOnGame", facts);
+    static_cast<void>(ui::panel::take_asks(flow));
+    ui::panel::deliver_online(flow, roster_reply(5, RoleSex::kFemale), facts);
+    ui::panel::press_flow(flow, "SelectRole_Play", facts);
+    context.expect(!ui::panel::take_flow(flow), "bấm vào game chưa vào ngay: máy chủ chưa nhận");
+    std::vector<OnlineAsk> asks = ui::panel::take_asks(flow);
+    context.expect(asks.size() == 1 && asks.front().work == OnlineWork::kEnter && asks.front().role.id == 5, "nhờ EnterGame với id của máy chủ");
+
+    OnlineReply entered;
+    entered.kind = OnlineReply::Kind::kEntered;
+    entered.scene = 2;
+    ui::panel::deliver_online(flow, entered, facts);
+    context.expect(ui::panel::take_flow(flow) == LogonAction::kEnterGame, "máy chủ nhận rồi mới ra lệnh vào game");
+    const Role* going = ui::panel::entering_role(flow);
+    context.expect(going != nullptr && going->id == 5, "nhân vật vào game là nhân vật máy chủ");
+}
+
+void online_refusal_shows_the_reason_and_unblocks(Context& context) {
+    LoginFlow flow = online_flow();
+    type_text(flow, U"a\tb", {});
+    ui::panel::press_flow(flow, "LogOn_LogOnGame", {});
+    static_cast<void>(ui::panel::take_asks(flow));
+    OnlineReply refused;
+    refused.kind = OnlineReply::Kind::kRefused;
+    refused.fault = OnlineFault::kBadLogin;
+    ui::panel::deliver_online(flow, refused, {});
+    context.expect(flow.step == FlowStep::kAccount && !flow.is_waiting, "từ chối: ở lại bảng tài khoản, hết chờ");
+    context.expect(flow.system_info.is_open && flow.system_info.text == ui::panel::online_text(OnlineFault::kBadLogin), "hộp nêu lý do");
+    ui::panel::press_flow(flow, ui::panel::kSystemInfoClose, {});
+    type_text(flow, U"x", {});
+    context.expect(flow.logon.password == "bx", "gõ lại được sau khi bị từ chối");
+}
+
+void online_lost_session_returns_to_the_account_panel(Context& context) {
+    const World world = sample_world();
+    const LoginFacts facts = world.facts();
+    LoginFlow flow = online_flow();
+    type_text(flow, U"a\tb", facts);
+    ui::panel::press_flow(flow, "LogOn_LogOnGame", facts);
+    static_cast<void>(ui::panel::take_asks(flow));
+    ui::panel::deliver_online(flow, roster_reply(5, RoleSex::kMale), facts);
+    OnlineReply lost;
+    lost.kind = OnlineReply::Kind::kLost;
+    lost.fault = OnlineFault::kTimeout;
+    ui::panel::deliver_online(flow, lost, facts);
+    context.expect(flow.step == FlowStep::kAccount && !flow.is_waiting, "mất phiên: về bảng tài khoản");
+    context.expect(flow.remote.rows.empty(), "nhân vật của phiên đã mất bị bỏ");
+    context.expect(flow.system_info.is_open && flow.system_info.text == ui::panel::online_text(OnlineFault::kTimeout), "nêu lý do");
+}
+
+void online_back_drops_the_session(Context& context) {
+    const World world = sample_world();
+    const LoginFacts facts = world.facts();
+    LoginFlow flow = online_flow();
+    type_text(flow, U"a\tb", facts);
+    ui::panel::press_flow(flow, "LogOn_LogOnGame", facts);
+    static_cast<void>(ui::panel::take_asks(flow));
+    ui::panel::deliver_online(flow, roster_reply(5, RoleSex::kMale), facts);
+    ui::panel::press_flow(flow, "SelectRole_Last", facts);
+    context.expect(flow.step == FlowStep::kAccount, "về bảng tài khoản");
+    const std::vector<OnlineAsk> asks = ui::panel::take_asks(flow);
+    context.expect(asks.size() == 1 && asks.front().work == OnlineWork::kDrop, "trả phiên cho máy chủ");
+    context.expect(flow.remote.rows.empty(), "bỏ nhân vật của máy chủ");
+}
+
+void online_unsolicited_reply_is_ignored(Context& context) {
+    LoginFlow flow = online_flow();
+    ui::panel::deliver_online(flow, roster_reply(5, RoleSex::kMale), {});
+    context.expect(flow.step == FlowStep::kAccount && flow.remote.rows.empty(), "trả lời không ai hỏi bị bỏ");
+    LoginFlow offline;
+    ui::panel::start_login(offline);
+    ui::panel::deliver_online(offline, roster_reply(5, RoleSex::kMale), {});
+    context.expect(offline.step == FlowStep::kAccount, "chế độ cục bộ không nhận trả lời của máy chủ");
+}
+
+void online_create_and_delete_ask_the_server(Context& context) {
+    const World world = sample_world();
+    const LoginFacts facts = world.facts();
+    LoginFlow flow = online_flow();
+    type_text(flow, U"a\tb", facts);
+    ui::panel::press_flow(flow, "LogOn_LogOnGame", facts);
+    static_cast<void>(ui::panel::take_asks(flow));
+    ui::panel::deliver_online(flow, roster_reply(5, RoleSex::kMale), facts);
+
+    ui::panel::press_flow(flow, "SelectRole_Delete", facts);
+    ui::panel::press_flow(flow, "SelectRole_Delete", facts);
+    std::vector<OnlineAsk> asks = ui::panel::take_asks(flow);
+    context.expect(asks.size() == 1 && asks.front().work == OnlineWork::kDelete && asks.front().role.id == 5, "xoá nhờ máy chủ, không xoá ở sổ cục bộ");
+    context.expect(!flow.remote.rows.empty(), "nhân vật còn cho tới khi máy chủ trả danh sách mới");
+
+    OnlineReply emptied;
+    emptied.kind = OnlineReply::Kind::kRoster;
+    ui::panel::deliver_online(flow, emptied, facts);
+    context.expect(flow.step == FlowStep::kRoles && flow.select.count == 0, "danh sách rỗng sau khi xoá");
+
+    ui::panel::press_flow(flow, "SelectRole_Create", facts);
+    type_text(flow, U"Huyền", facts);
+    ui::panel::press_flow(flow, "CreateRole_Author", facts);
+    asks = ui::panel::take_asks(flow);
+    context.expect(asks.size() == 1 && asks.front().work == OnlineWork::kCreate && asks.front().role.name == "Huyền", "tạo nhờ máy chủ");
+    context.expect(flow.step == FlowStep::kCreate && flow.is_waiting, "chờ máy chủ nhận tên");
+}
+
 constexpr std::array kCases{
+    Case{.name = "online_sign_in_asks_instead_of_opening_roles", .body = &online_sign_in_asks_instead_of_opening_roles},
+    Case{.name = "online_waiting_blocks_input", .body = &online_waiting_blocks_input},
+    Case{.name = "online_roster_opens_the_select_panel", .body = &online_roster_opens_the_select_panel},
+    Case{.name = "online_enter_waits_for_the_server", .body = &online_enter_waits_for_the_server},
+    Case{.name = "online_refusal_shows_the_reason_and_unblocks", .body = &online_refusal_shows_the_reason_and_unblocks},
+    Case{.name = "online_lost_session_returns_to_the_account_panel", .body = &online_lost_session_returns_to_the_account_panel},
+    Case{.name = "online_back_drops_the_session", .body = &online_back_drops_the_session},
+    Case{.name = "online_unsolicited_reply_is_ignored", .body = &online_unsolicited_reply_is_ignored},
+    Case{.name = "online_create_and_delete_ask_the_server", .body = &online_create_and_delete_ask_the_server},
     Case{.name = "logon_enter_opens_roles", .body = &logon_enter_opens_roles},
     Case{.name = "web_and_leave_pass_through", .body = &web_and_leave_pass_through},
     Case{.name = "back_keeps_the_typed_account", .body = &back_keeps_the_typed_account},

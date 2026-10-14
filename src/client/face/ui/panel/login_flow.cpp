@@ -8,6 +8,7 @@
 #include "ui/panel/create_role.hpp"
 #include "ui/panel/deck.hpp"
 #include "ui/panel/logon.hpp"
+#include "ui/panel/online.hpp"
 #include "ui/panel/portraits.hpp"
 #include "ui/panel/role_cast.hpp"
 #include "ui/panel/role_pose.hpp"
@@ -24,6 +25,7 @@
 #include <cstdint>
 #include <iterator>
 #include <optional>
+#include <span>
 #include <string>
 #include <string_view>
 #include <utility>
@@ -60,15 +62,58 @@ constexpr std::int32_t kMaxShort = 65535;
     return made;
 }
 
+// Sổ đang dùng: nhân vật của máy chủ khi trực tuyến, sổ cục bộ khi không.
+[[nodiscard]] Book& book_of(LoginFlow& flow) noexcept {
+    return flow.is_online ? flow.remote : flow.book;
+}
+
 void show_roles(LoginFlow& flow, std::uint8_t selected) {
     if (flow.step == FlowStep::kCreate) close_create(flow.create);
     flow.step = FlowStep::kRoles;
     flow.enter_game = false;
-    const Roster roster = roster_of(flow.book, flow.account);
+    const Roster roster = roster_of(book_of(flow), flow.account);
     open_select(flow.select, roster, selected);
 }
 
+// Nhờ phần nối máy chủ một việc rồi chờ trả lời, hộp thông báo hiện câu "đang nối". Việc vượt trần hàng chờ bị bỏ
+// (không xảy ra: chuỗi chỉ nhờ khi không còn việc nào đang chờ).
+void request_online(LoginFlow& flow, OnlineAsk&& ask) {
+    if (flow.asks.size() >= kAskCap) return;
+    flow.asks.push_back(std::move(ask));
+    flow.is_waiting = true;
+    show_system_info(flow.system_info, kOnlineWaiting);
+}
+
+// Trả phiên khi rời nhân vật của máy chủ (về bảng tài khoản hay bảng chọn máy chủ): không đợi trả lời.
+void drop_online(LoginFlow& flow) {
+    if (!flow.is_online) return;
+    flow.remote = {};
+    if (flow.asks.size() >= kAskCap) return;
+    flow.asks.push_back(OnlineAsk{.work = OnlineWork::kDrop});
+}
+
+// Việc đăng nhập của bảng tài khoản ở chế độ trực tuyến.
+void sign_in_online(LoginFlow& flow) {
+    OnlineAsk ask{.work = OnlineWork::kSignIn};
+    if (!flow.chosen) return;
+    const std::size_t area = flow.chosen->area;
+    if (area >= flow.directory.areas.size()) return;
+    const LoginArea& where = *std::next(flow.directory.areas.begin(), static_cast<std::ptrdiff_t>(area));
+    const LoginServer* server = server_at(flow.directory, *flow.chosen);
+    if (server == nullptr) return;
+    ask.server = ServerName{.area = where.name, .server = server->name};
+    ask.account = flow.account;
+    ask.password = flow.logon.password;
+    request_online(flow, std::move(ask));
+}
+
 void apply_delete(LoginFlow& flow) {
+    if (flow.is_online) {
+        const Role* role = chosen_role(flow.select);
+        if (role == nullptr) return;
+        request_online(flow, OnlineAsk{.work = OnlineWork::kDelete, .role = *role});
+        return;
+    }
     const bool erased = erase_role(flow.book, flow.account, flow.select.selected);
     if (!erased) return;
     flow.dirty = true;
@@ -104,6 +149,16 @@ void wear_outfit(Role& role, const CreateRole& panel, const LoginFacts& facts) {
 // được nhận thì ở lại bảng tạo với lời nhắn.
 void accept_create(LoginFlow& flow, const LoginFacts& facts) {
     const Role role = drafted_role(flow.create, facts);
+    if (flow.is_online) {
+        // Máy chủ giữ luật tên cuối cùng; kiểm trước ở đây chỉ để khỏi gửi tên rỗng, dài hay trùng đã biết.
+        const NameFault online_fault = admit_name(flow.remote, flow.account, role.name);
+        if (online_fault != NameFault::kOk) {
+            notify_create(flow.create, name_fault_text(online_fault));
+            return;
+        }
+        request_online(flow, OnlineAsk{.work = OnlineWork::kCreate, .role = role});
+        return;
+    }
     const NameFault fault = add_role(flow.book, flow.account, role);
     if (fault != NameFault::kOk) {
         notify_create(flow.create, name_fault_text(fault));
@@ -138,14 +193,20 @@ void apply_enter(LoginFlow& flow) {
     const Role* role = chosen_role(flow.select);
     if (role == nullptr) return;
     flow.entering = *role;
-    flow.enter_game = true;
     if (flow.chosen && flow.last != flow.chosen) {
         flow.last = flow.chosen;
         flow.is_last_dirty = true;
     }
+    // Trực tuyến: vào game khi máy chủ đã nhận (deliver_online kEntered), không phải lúc nhấn.
+    if (flow.is_online) {
+        request_online(flow, OnlineAsk{.work = OnlineWork::kEnter, .role = *role});
+        return;
+    }
+    flow.enter_game = true;
 }
 
 void apply_back(LoginFlow& flow) {
+    drop_online(flow);
     flow.step = FlowStep::kAccount;
     flow.enter_game = false;
     open_logon(flow.logon);
@@ -174,6 +235,8 @@ void press_making(LoginFlow& flow, std::string_view window, const LoginFacts& fa
 // Mở lại bảng chọn máy chủ (ExitToSelectServer, FUN_14062c450 của Game.exe): máy chủ đã chọn được
 // chọn lại, chữ tài khoản giữ nguyên.
 void go_to_servers(LoginFlow& flow) {
+    drop_online(flow);
+    flow.is_online = false;
     flow.step = FlowStep::kServers;
     flow.enter_game = false;
     flow.pose = {};
@@ -192,6 +255,10 @@ void pull_logon(LoginFlow& flow) {
         return;
     }
     flow.account.assign(account_text(flow.logon));
+    if (flow.is_online) {
+        sign_in_online(flow);
+        return;
+    }
     show_roles(flow, 0);
 }
 
@@ -207,6 +274,8 @@ void note_situation(LoginFlow& flow, ServerRef chosen, const LoginFacts& facts) 
 // SelectLoginServer đã nhận máy chủ: sang bảng tài khoản.
 void enter_account(LoginFlow& flow, ServerRef server, const LoginFacts& facts) {
     flow.chosen = server;
+    const LoginServer* picked = server_at(flow.directory, server);
+    flow.is_online = picked != nullptr && picked->is_online;
     flow.step = FlowStep::kAccount;
     flow.enter_game = false;
     open_logon(flow.logon);
@@ -330,6 +399,9 @@ void turn_create_model(LoginFlow& flow, float seconds) noexcept {
 } // namespace
 
 void start_login(LoginFlow& flow) {
+    drop_online(flow);
+    flow.is_online = false;
+    flow.is_waiting = false;
     open_logon(flow.logon);
     flow.step = FlowStep::kAccount;
     flow.enter_game = false;
@@ -337,6 +409,78 @@ void start_login(LoginFlow& flow) {
     flow.pose = {};
     flow.chosen.reset();
     if (!flow.directory.areas.empty()) go_to_servers(flow);
+}
+
+void mark_online(LoginFlow& flow, std::span<const ServerName> names) {
+    for (LoginArea& area : flow.directory.areas) {
+        for (LoginServer& server : area.servers) {
+            const auto is_named = [&](const ServerName& name) { return name.area == area.name && name.server == server.name; };
+            server.is_online = std::ranges::any_of(names, is_named);
+        }
+    }
+}
+
+std::vector<OnlineAsk> take_asks(LoginFlow& flow) noexcept {
+    return std::exchange(flow.asks, {});
+}
+
+namespace {
+
+// Nhân vật của máy chủ thành nhân vật của sổ. Máy chủ chưa lưu chân dung nên lấy chân dung đầu của giới.
+void admit_remote(LoginFlow& flow, const OnlineReply& reply, const LoginFacts& facts) {
+    flow.remote = {};
+    for (Role role : reply.roles) {
+        role.portrait = role.sex == 1 ? kMalePortrait : kFemalePortrait;
+        if (facts.portraits != nullptr) role.icon = std::string(facts.portraits->image_of(hero::PortraitId{role.portrait}));
+        flow.remote.rows.push_back(StoredRole{.account = flow.account, .role = std::move(role)});
+    }
+}
+
+void settle_roster(LoginFlow& flow, const OnlineReply& reply, const LoginFacts& facts) {
+    const FlowStep was = flow.step;
+    admit_remote(flow, reply, facts);
+    const Roster roster = roster_of(flow.remote, flow.account);
+    const auto newest = static_cast<std::uint8_t>(roster.count == 0 ? 0 : roster.count - 1U);
+    show_roles(flow, was == FlowStep::kCreate ? newest : (was == FlowStep::kAccount ? std::uint8_t{0} : flow.select.selected));
+}
+
+void settle_refused(LoginFlow& flow, OnlineFault fault) {
+    const std::string_view text = online_text(fault);
+    if (flow.step == FlowStep::kCreate) {
+        notify_create(flow.create, text);
+        return;
+    }
+    show_system_info(flow.system_info, text);
+}
+
+// Mất phiên: về bảng tài khoản (máy chủ vẫn là máy chủ đã chọn, nên nhập lại là đăng nhập lại) kèm lý do.
+void settle_lost(LoginFlow& flow, OnlineFault fault) {
+    flow.remote = {};
+    if (flow.step == FlowStep::kCreate) close_create(flow.create);
+    flow.step = FlowStep::kAccount;
+    flow.enter_game = false;
+    flow.pose = {};
+    open_logon(flow.logon);
+    show_system_info(flow.system_info, online_text(fault));
+}
+
+} // namespace
+
+void deliver_online(LoginFlow& flow, const OnlineReply& reply, const LoginFacts& facts) {
+    if (!flow.is_online) return;
+    using Kind = OnlineReply::Kind;
+    if (reply.kind == Kind::kLost) {
+        flow.is_waiting = false;
+        settle_lost(flow, reply.fault);
+        return;
+    }
+    if (!flow.is_waiting) return;
+    if (reply.kind == Kind::kStyle) return;
+    flow.is_waiting = false;
+    flow.system_info.is_open = false;
+    if (reply.kind == Kind::kRoster) settle_roster(flow, reply, facts);
+    if (reply.kind == Kind::kRefused) settle_refused(flow, reply.fault);
+    if (reply.kind == Kind::kEntered && flow.entering) flow.enter_game = true;
 }
 
 bool recall_directory(LoginFlow& flow, std::string_view text) {
@@ -420,6 +564,7 @@ ShownModel shown_model(const LoginFlow& flow, const LoginFacts& facts) {
 
 void press_flow(LoginFlow& flow, std::string_view window, const LoginFacts& facts) {
     press_system_info(flow.system_info, window);
+    if (flow.is_waiting) return;
     if (flow.step == FlowStep::kServers) {
         press_servers(flow, window, facts);
         return;
@@ -436,6 +581,7 @@ void press_flow(LoginFlow& flow, std::string_view window, const LoginFacts& fact
 }
 
 void type_flow(LoginFlow& flow, char32_t code, const LoginFacts& facts) {
+    if (flow.is_waiting) return;
     if (flow.step == FlowStep::kServers) {
         type_servers(flow, code, facts);
         return;
@@ -448,7 +594,7 @@ void type_flow(LoginFlow& flow, char32_t code, const LoginFacts& facts) {
 }
 
 void key_flow(LoginFlow& flow, char32_t code) {
-    if (flow.step != FlowStep::kAccount) return;
+    if (flow.step != FlowStep::kAccount || flow.is_waiting) return;
     key_logon(flow.logon, code);
 }
 

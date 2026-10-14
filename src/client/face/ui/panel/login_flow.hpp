@@ -8,7 +8,10 @@
 // Ở bước tạo, chuỗi đóng vai game của bảng tạo: nó gieo số cho math.random của script, nhận việc
 // bảng nhờ (CreateRole, ChangeToSelectRoleDlgFromCreateRole, GameLoginShowSystemInfo) và lưu nhân
 // vật mới với đúng mặt, tóc, ảnh chân dung và bộ đồ tân thủ mà bảng đã đặt cho game.
-// Khác gốc: chưa có máy chủ, hộp YesNo, hộp thông báo (lời nhắn hiện ở dòng mô tả của bảng tạo),
+// Chế độ trực tuyến (máy chủ đã chọn có LoginServer::is_online): bảng tài khoản không vào bảng chọn ngay mà nhờ phần nối
+// máy chủ đăng nhập (OnlineAsk::kSignIn); nhân vật là của máy chủ (remote), không ghi tệp; tạo, xoá, vào game
+// cũng thành việc nhờ và chờ trả lời (deliver_online). Trong lúc chờ, chuỗi chỉ nhận nút đóng hộp thông báo.
+// Khác gốc: hộp YesNo, hộp thông báo (lời nhắn hiện ở dòng mô tả của bảng tạo),
 // và danh sách tên cấm; tên được nhận theo luật của roles.hpp. Người mẫu của hai màn đứng trong
 // cảnh; hướng mặt quay khi giữ nút (role_pose.hpp).
 #pragma once
@@ -17,6 +20,7 @@
 #include "gui/strings.hpp"
 #include "ui/panel/create_role.hpp"
 #include "ui/panel/logon.hpp"
+#include "ui/panel/online.hpp"
 #include "ui/panel/portraits.hpp"
 #include "ui/panel/role_cast.hpp"
 #include "ui/panel/role_pose.hpp"
@@ -29,8 +33,10 @@
 #include <array>
 #include <cstdint>
 #include <optional>
+#include <span>
 #include <string>
 #include <string_view>
+#include <vector>
 
 namespace game::ui::panel {
 
@@ -70,6 +76,11 @@ struct LoginFlow {
     SelectRole select;
     CreateRole create;
     Book book;
+    // Chế độ trực tuyến: nhân vật do máy chủ báo, việc đã nhờ chưa có trả lời, và việc chờ phần nối lấy.
+    Book remote;
+    bool is_online = false;
+    bool is_waiting = false;
+    std::vector<OnlineAsk> asks;
     std::string account;
     FlowStep step = FlowStep::kAccount;
     std::optional<Role> entering;
@@ -90,6 +101,14 @@ struct LoginFlow {
 void start_login(LoginFlow& flow);
 // Nạp danh sách máy chủ từ chữ TSV (servers.hpp); false khi tệp sai dạng (danh sách rỗng).
 [[nodiscard]] bool recall_directory(LoginFlow& flow, std::string_view text);
+// Đánh dấu các máy chủ của danh sách có cổng thật (LoginServer::is_online); tên không có trong danh sách bị bỏ qua.
+// Gọi sau recall_directory.
+void mark_online(LoginFlow& flow, std::span<const ServerName> names);
+// Việc chờ phần nối máy chủ lấy; lấy rồi thì hết.
+[[nodiscard]] std::vector<OnlineAsk> take_asks(LoginFlow& flow) noexcept;
+// Trả lời của phần nối máy chủ cho việc đã nhờ. Trả lời không có việc nào đang chờ thì bỏ (trừ kStyle, mà chuỗi bỏ).
+// facts.portraits (có thể rỗng) gán ảnh cho nhân vật của máy chủ.
+void deliver_online(LoginFlow& flow, const OnlineReply& reply, const LoginFacts& facts);
 // Nạp máy chủ của lần vào game trước từ chữ tệp; sai dạng hay không còn trong danh sách thì bỏ.
 void recall_last(LoginFlow& flow, std::string_view text);
 // Chữ tệp khi máy chủ lần vào game trước đổi kể từ lần ghi; không có khi chưa đổi.

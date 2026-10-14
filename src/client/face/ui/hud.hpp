@@ -14,6 +14,7 @@
 #include "hero/hero.hpp"
 #include "render/ui.hpp"
 #include "ui/panel/login_flow.hpp"
+#include "ui/panel/online.hpp"
 #include "ui/view.hpp"
 
 #include <chrono>
@@ -25,6 +26,7 @@
 #include <span>
 #include <string>
 #include <string_view>
+#include <vector>
 
 namespace game::ui {
 
@@ -170,6 +172,13 @@ public:
     void mark_roles_saved() noexcept;
     // Nhân vật sẽ vào game; không có khi chưa chọn.
     [[nodiscard]] const panel::Role* entering_role() const noexcept;
+    // Đánh dấu các máy chủ của danh sách có cổng thật: chọn chúng thì thủ tục đăng nhập nối máy chủ (chế độ trực
+    // tuyến), không thì dùng sổ nhân vật cục bộ. Gọi sau khi mở Hud.
+    void set_online_servers(std::span<const panel::ServerName> names);
+    // Việc chuỗi đăng nhập nhờ phần nối máy chủ từ lần gọi trước; lấy rồi thì hết.
+    [[nodiscard]] std::vector<panel::OnlineAsk> take_online_asks() noexcept;
+    // Trả lời của phần nối máy chủ. kStyle đổi dạng khung chân dung (UiConfig); loại khác đưa vào chuỗi đăng nhập.
+    void deliver_online(const panel::OnlineReply& reply);
     // Người mẫu của bảng chọn hay màn tạo ở khung vừa prepare.
     [[nodiscard]] const panel::ShownModel& role_model() const noexcept;
 

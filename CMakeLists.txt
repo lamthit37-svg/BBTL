@@ -410,6 +410,17 @@ if(NOT CMAKE_CROSSCOMPILING)
     target_link_libraries(game_secure PUBLIC game_core PRIVATE game_secure_sodium)
     game_module(link src/shared/link/link.cpp)
     target_link_libraries(game_link PUBLIC game_core game_net game_protocol game_secure)
+    # client/session: phiên mạng của client (luồng nền giữ link::Link, máy trạng thái, bảng cổng máy chủ). Chỉ máy tính,
+    # như net và link: Android và iOS vào thẳng cảnh, không có thủ tục đăng nhập trực tuyến.
+    game_module(client_session
+        src/client/app/client/session/gates.cpp
+        src/client/app/client/session/machine.cpp
+        src/client/app/client/session/session.cpp)
+    target_link_libraries(game_client_session PUBLIC game_core game_net game_protocol game_secure game_link game_table)
+    # client/online: cầu nối giữa chuỗi đăng nhập (ui/panel) và phiên mạng; viewer của Windows gọi nó.
+    game_module(client_online src/client/app/client/online/bridge.cpp)
+    target_link_libraries(game_client_online PUBLIC game_client_session game_ui_panel game_protocol game_core
+        PRIVATE game_secure)
     if(TARGET game_config)
         game_module(gate src/server/gate/table.cpp src/server/gate/front.cpp src/server/gate/motion.cpp)
         target_link_libraries(game_gate PUBLIC game_core game_net game_protocol game_secure game_config game_guard
@@ -526,6 +537,7 @@ target_link_libraries(game_skill PUBLIC game_table game_core)
 # ui/panel: logic của từng cửa sổ HUD, thay script Lua của client gốc (hiện, giấu, điền chữ, đặt
 # thanh). Thuần logic trên gui, không cần GPU; module ui (bộ vẽ) dùng nó.
 game_module(ui_panel
+    src/client/face/ui/panel/online.cpp
     src/client/face/ui/panel/deck.cpp
     src/client/face/ui/panel/desk.cpp
     src/client/face/ui/panel/logon.cpp
@@ -934,7 +946,7 @@ target_link_libraries(game_client_viewer PUBLIC game_core game_client_stage
     PRIVATE game_client_display)
 if(WIN32)
     find_package(SDL3 CONFIG REQUIRED)
-    target_link_libraries(game_client_viewer PRIVATE game_window SDL3::SDL3)
+    target_link_libraries(game_client_viewer PRIVATE game_window SDL3::SDL3 game_client_online game_client_session)
     # Thư mục include chung của vcpkg tới đây dưới dạng -I, nên Clang -Werror bắt cả SDL_bits.h
     # (ép kiểu kiểu C). Khai lại là SYSTEM: Clang giữ bản system khi một thư mục có cả hai.
     get_target_property(game_sdl_include SDL3::Headers INTERFACE_INCLUDE_DIRECTORIES)
@@ -1458,6 +1470,12 @@ endif()
 if(TARGET game_net)
     game_test(protocol game_protocol)
     game_test(link game_link)
+    # Phiên mạng của client và cầu nối với giao diện; chạy với máy chủ giả loopback (Test/support/fake_gate.hpp).
+    if(TARGET game_client_session)
+        game_test(session_logic game_client_session)
+        game_test(session game_client_session)
+        game_test(online game_client_online)
+    endif()
     game_test(guard game_guard)
     if(TARGET game_account)
         game_test(account game_account)
