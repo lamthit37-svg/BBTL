@@ -370,8 +370,15 @@ def bake_image(collector: Collector, image: str) -> bool:
     from PIL import Image
 
     pending = target + ".part"
-    with Image.open(source) as picture:
-        picture.convert("RGBA").save(pending, "PNG")
+    try:
+        with Image.open(source) as picture:
+            picture.convert("RGBA").save(pending, "PNG")
+    except (OSError, ValueError):
+        # Ảnh gốc hỏng hoặc Pillow chưa đọc được định dạng: trả false để claim_images ghi vào missing,
+        # thay vì dừng cả lượt gom bằng một traceback. Không để lại tệp .part dở.
+        if os.path.isfile(pending):
+            os.remove(pending)
+        return False
     os.replace(pending, target)
     return True
 

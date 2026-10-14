@@ -40,6 +40,20 @@ def add_default_parts(collector: Collector, table_dir: str, body: dict) -> None:
 
 
 HIGH_POLY_STEP = 10000
+# choice 1 hoặc 3 của faces.tsv và hairs.tsv là chọn được lúc tạo nhân vật (export_look.py chỉ ghi cột choice).
+CREATABLE_CHOICES = frozenset({"1", "3"})
+
+
+def creation_ids(rows: dict, race: str) -> list[str]:
+    """Id chọn được lúc tạo của một giới, mỗi id kèm bản cao mô id + 10000; theo thứ tự id, không lặp."""
+    chosen = sorted(int(ident) for (ident, row_race), row in rows.items()
+                    if row_race == race and row["choice"] in CREATABLE_CHOICES)
+    ordered: list[str] = []
+    for ident in chosen:
+        for wanted in (str(ident), str(ident + HIGH_POLY_STEP)):
+            if wanted not in ordered:
+                ordered.append(wanted)
+    return ordered
 
 
 def add_creation_parts(collector: Collector, table_dir: str) -> None:
@@ -60,11 +74,9 @@ def add_creation_parts(collector: Collector, table_dir: str) -> None:
                 collector.add_mesh(row[column])
 
     for rows, columns in ((face_rows, ("mesh",)), (hair_rows, ("mesh", "accessory"))):
-        for (ident, race), row in rows.items():
-            if row["creatable"] != "1":
-                continue
-            add_row(rows, (ident, race), columns)
-            add_row(rows, (str(int(ident) + HIGH_POLY_STEP), race), columns)
+        for race in ("0", "1"):
+            for ident in creation_ids(rows, race):
+                add_row(rows, (ident, race), columns)
     for suit in newbie:
         for race in ("0", "1"):
             for key in ("body", "arm", "foot"):
