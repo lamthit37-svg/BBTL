@@ -78,6 +78,10 @@ set(game_layer_hero "core hero")
 set(game_layer_quest "core table quest")
 set(game_layer_skill "core table skill")
 set(game_layer_ui/panel "core table gui hero quest ui/panel")
+# client/session: luồng nền giữ link::Link, máy trạng thái phiên và bảng cổng máy chủ. client/online: cầu nối giữa
+# chuỗi đăng nhập (ui/panel) và phiên mạng.
+set(game_layer_client/session "core net protocol secure link table client/session")
+set(game_layer_client/online "core protocol secure ui/panel client/session client/online")
 set(game_layer_ui "core io table gpu resource render gui hero ui/panel ui")
 set(game_layer_control "core ogre control")
 set(game_layer_avatar "core io math ogre anim look resource classic avatar")
@@ -95,7 +99,7 @@ set(game_layer_client/world "core io fs xml scene nav collision client/stage cli
 set(game_layer_client/display
     "core io math scene gpu resource capture render shader avatar look anim ogre fx control motion nav hero gui ui/panel ui classic client/stage client/map client/world client/display")
 set(game_layer_client/viewer
-    "core io window control audio client/stage client/display client/map client/world client/viewer")
+    "core io window control audio ui/panel client/stage client/display client/map client/world client/online client/session client/viewer")
 set(game_layer_client
     "core io xml scene control audio client/display client/stage client/map client/world client/viewer client")
 

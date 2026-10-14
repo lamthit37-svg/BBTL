@@ -1,6 +1,12 @@
 // Vòng khung của luồng vẽ: mở thiết bị, xin ảnh, ghi lệnh, nộp và trình bày.
 // Shot và cache pipeline nằm ở đây vì chúng đi cùng lệnh của khung.
 #include "client/display/graphic/state.hpp"
+
+#include "client/display/display.hpp"
+#include "client/display/graphic/prelude.hpp"
+#include "ui/panel/online.hpp"
+
+#include <utility>
 namespace game::client {
 
 SceneTitle scene_title_lookup(const std::filesystem::path& data_root) {
@@ -130,9 +136,25 @@ void Display::show(const std::shared_ptr<const world::ShownScene>& scene) {
     state_->pending = scene;
 }
 
-void Display::play(const std::shared_ptr<const world::ShownScene>& scene) {
+void Display::play(const std::shared_ptr<const world::ShownScene>& scene, std::optional<EntryPoint> entry) {
+    {
+        const std::scoped_lock<std::mutex> locked(state_->spawn_guard);
+        state_->entry_spot = entry;
+    }
     show(scene);
     state_->wants_play.store(true, std::memory_order_relaxed);
+}
+
+std::vector<ui::panel::OnlineAsk> Display::take_online_asks() {
+    const std::scoped_lock<std::mutex> locked(state_->online_guard);
+    return std::exchange(state_->online_asks, {});
+}
+
+void Display::post_online(const ui::panel::OnlineReply& reply) {
+    const std::scoped_lock<std::mutex> locked(state_->online_guard);
+    std::vector<ui::panel::OnlineReply>& replies = state_->online_replies;
+    if (replies.size() >= kMaxOnlineReplies) replies.erase(replies.begin());
+    replies.push_back(reply);
 }
 
 KeptRole Display::kept_role() const {

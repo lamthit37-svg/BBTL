@@ -47,6 +47,9 @@ struct LoginServer {
     std::uint8_t prize = 0;
     // Dấu "Vũ Thần Đàn" (nWuShenTan).
     bool has_arena = false;
+    // Máy chủ có cổng thật (bảng cổng của client có dòng cho nó): chọn nó thì thủ tục đăng nhập nối máy chủ thay vì dùng
+    // sổ nhân vật cục bộ. Không đến từ bảng TSV của danh sách; mark_online đặt sau khi nạp.
+    bool is_online = false;
 
     friend bool operator==(const LoginServer&, const LoginServer&) = default;
 };

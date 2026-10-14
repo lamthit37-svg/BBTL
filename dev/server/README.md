@@ -14,8 +14,9 @@ Trạng thái theo mã ngày 2026-10-14 (chi tiết ở mục 0 của `AGENTS.md
 - Đã có logic tài khoản/nhân vật dùng chung (`src/server/account/`: sổ, luật, vé,
   RPC loopback, bản SQL) và `serve_auth`/`serve_game` qua ipc; `thienlong_store`,
   `_auth`, `_billing`, `_world`, `_zone` ngoài `ready` vẫn chờ lệnh dừng: chưa có
-  migration nào, client chưa nối máy chủ.
-- Chưa có tài khoản, nhân vật hay cảnh nào chạy; client chưa nối máy chủ.
+  migration nào; client PC đã nối đăng nhập, chọn nhân vật và vào game (xem "Client nối vào đâu").
+- Chưa có tài khoản, nhân vật hay cảnh nào chạy sẵn (tài khoản tự tạo lúc đăng nhập vì
+  `auth.toml` `[register] auto_register = true`); client chưa gửi `Move` và chưa vẽ thực thể.
 
 ## Bố cục
 
@@ -109,8 +110,10 @@ quá 110 cột. Bỏ `--fix` thì lệnh chỉ kiểm, không sửa tệp. Số 
 
 ## Client nối vào đâu
 
-Gate đã nghe cổng 7000 (game) và 7001 (xác thực), nhưng client THIENLONG chưa có mã nối máy chủ
-(module `link` là việc của mốc P3); hiện chỉ test và công cụ đo tải nối vào gate. Khi client nối
-được: client trên máy này nối `127.0.0.1` cổng 7000 và 7001; máy khác trong LAN nối địa chỉ LAN
-của máy này, sau khi mở hai cổng đó trong tường lửa Windows. Database và các cổng nội bộ chỉ nghe
-loopback.
+Gate nghe cổng 7000 (game) và 7001 (xác thực). Client PC đọc địa chỉ và khoá công khai của gate từ
+`dev/client/assets/Table/gates.tsv` (không vào git): `python -B TOOLS/server/export_gates.py` ghi bảng từ
+`gate.toml` và khoá danh tính của gate (cổng khai 0 thì công cụ từ chối: cổng 0 không ghim được; cụm thử có cổng thật 7000 và 7001 thì chạy được), rồi
+chọn đúng máy chủ trong bảng chọn của màn đăng nhập (`--login`). Client trên máy này nối `127.0.0.1` cổng
+7000 và 7001; máy khác trong LAN nối địa chỉ LAN của máy này, sau khi mở hai cổng đó trong tường lửa Windows.
+Máy chủ trong bảng chọn mà không có dòng ở `gates.tsv` là máy chủ cục bộ, client không mở socket. Database
+và các cổng nội bộ chỉ nghe loopback.

@@ -111,6 +111,7 @@ private:
 class TcpStream {
 public:
     TcpStream() = default;
+    ~TcpStream() = default;
     TcpStream(TcpStream&& other) noexcept;
     TcpStream& operator=(TcpStream&& other) noexcept;
     TcpStream(const TcpStream&) = delete;

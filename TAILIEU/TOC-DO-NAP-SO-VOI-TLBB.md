@@ -24,8 +24,9 @@ thế giới chưa nạp xong). Số từng lượt: `anh/bench-thienlong.json`,
 ## Hai bên không giống hệt nhau — đọc kèm số
 
 - G:\TLBB tự đăng nhập vào máy chủ thử chạy trên máy này (`127.0.0.1`, bản sao ở thư mục tạm, tài khoản riêng, không đụng
-  dữ liệu G:) rồi mới vào cảnh, nên số của nó gồm cả vòng đăng nhập mạng (cỡ 0,3 giây theo các lần đo trước). THIENLONG chạy
-  offline: client chưa mở socket nào (AGENTS.md mục 0).
+  dữ liệu G:) rồi mới vào cảnh, nên số của nó gồm cả vòng đăng nhập mạng (cỡ 0,3 giây theo các lần đo trước). Số của THIENLONG ở
+  đây đo ở chế độ cục bộ (`--scene-id`, không có máy chủ): vòng đăng nhập mạng của client mới (AGENTS.md mục 0,
+  "Client đã nối máy chủ thật") chưa được đo cùng ngân sách này.
 - Khung cuối của G:\TLBB có NPC, người chơi khác và tên bay trên đầu; THIENLONG chưa có những thứ ấy. Phần nạp bản đồ,
   vật thể tĩnh, hạt và giao diện thì hai bên tương đương (so hai ảnh).
 - G:\TLBB chạy D3D11 `--no-vsync`; THIENLONG chạy Vulkan, mailbox. Mỗi bên là backend mặc định tốt nhất của nó.

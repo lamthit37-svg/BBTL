@@ -37,6 +37,8 @@ struct Role {
     std::uint8_t sect = kNewSect;
     std::int32_t portrait = 1;
     std::string icon;
+    // Id nhân vật do máy chủ cấp (CharacterSummary::id); 0 với nhân vật của sổ cục bộ. Không ghi vào tệp sổ.
+    std::uint64_t id = 0;
 
     friend bool operator==(const Role&, const Role&) = default;
 };

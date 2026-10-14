@@ -28,6 +28,7 @@
 #include "ui/panel/maps.hpp"
 #include "ui/panel/menubar.hpp"
 #include "ui/panel/minimap.hpp"
+#include "ui/panel/online.hpp"
 #include "ui/panel/packet.hpp"
 #include "ui/panel/player_frame.hpp"
 #include "ui/panel/portraits.hpp"
@@ -319,8 +320,8 @@ void Prepared::open_portraits(const std::filesystem::path& data_root) {
         loader.add_imageset(imageset);
     }
     loader.add_imageset(panel::kBagLockImageset);
-    const std::string_view avatar_set = panel::avatar_frame_imageset();
-    if (!avatar_set.empty()) loader.add_imageset(avatar_set);
+    // Dạng khung đổi được lúc chạy (UiConfig của máy chủ), nên nền khung vuông luôn được nạp.
+    loader.add_imageset(panel::kSquareImageset);
 }
 
 // Nạp bảng cảnh của các bảng bản đồ (Config/SceneDefineEx.txt). Thiếu hay hỏng thì bảng rỗng và bản đồ lớn
@@ -497,6 +498,8 @@ struct Hud::State {
     std::optional<Phase> phase;
     bool was_down = false;
     std::optional<Action> asked;
+    // Dạng khung chân dung: theo lúc dựng cho tới khi máy chủ gửi UiConfig.
+    panel::FrameStyle style = panel::FrameStyle::kBuild;
     std::optional<std::chrono::milliseconds> last_clock;
     panel::ShownModel shown;
     // Phông và bộ viết chữ; không mở được phông thì HUD không có chữ.
@@ -959,6 +962,7 @@ void Hud::State::fill_play(const HudView& view) {
     panel::Face face;
     face.image = portraits.image_of(view.hero->portrait);
     face.model = head_model(view.views);
+    face.style = style;
     panel::fill_player(deck, *view.hero, face);
     panel::fill_menubar(deck, *view.hero);
     const bool is_sheet_open = panel::is_open(desk, panel::Board::kCharacter);
@@ -1354,6 +1358,26 @@ void Hud::mark_roles_saved() noexcept {
 
 const panel::Role* Hud::entering_role() const noexcept {
     return panel::entering_role(state_->flow);
+}
+
+void Hud::set_online_servers(std::span<const panel::ServerName> names) {
+    panel::mark_online(state_->flow, names);
+}
+
+std::vector<panel::OnlineAsk> Hud::take_online_asks() noexcept {
+    return panel::take_asks(state_->flow);
+}
+
+void Hud::deliver_online(const panel::OnlineReply& reply) {
+    if (reply.kind == panel::OnlineReply::Kind::kStyle) {
+        state_->style = reply.style;
+        return;
+    }
+    panel::LoginFacts facts;
+    facts.cast = &state_->cast;
+    facts.portraits = &state_->portraits;
+    facts.words = &state_->strings;
+    panel::deliver_online(state_->flow, reply, facts);
 }
 
 const panel::ShownModel& Hud::role_model() const noexcept {
