@@ -67,9 +67,9 @@ Hội thoại (`talk_data_tests`): 9577 khối, 19258 bước, 3916 điểm vào
 
 ## 5. Chưa kiểm, chưa làm
 
-- Theo báo cáo của phiên làm việc (chưa tự đo lại), 827 id nhiệm vụ của client không có script cũng không có bảng, trong đó chuỗi tân
-  thủ 1400–1424: client có mà máy chủ không có nội dung. Cần quyết định nguồn (viết tay hay lấy từ nguồn khác) trước khi người chơi mới
-  chơi được từ đầu.
+- Đo 2026-10-15 (`shared/mission_dictionary.tsv` so với cột `quest` của `mission_quests.tsv`): trong 1617 id nhiệm vụ khác nhau của client,
+  827 id (kể cả id giữ chỗ -1) không có dòng nào ở máy chủ, trong đó 22 trên 25 id của chuỗi tân thủ 1400–1424 (1400–1408 và 1412–1424):
+  client có mà máy chủ không có nội dung. Cần quyết định nguồn (viết tay hay lấy từ nguồn khác) trước khi người chơi mới chơi được từ đầu.
 - Ba test của `talk` biên dịch sạch `-Werror` với GCC 16 và Clang 23 (`check.py --no-tidy`); clang-tidy trên file test chưa xanh (chủ yếu
   `misc-include-cleaner`, `modernize-use-designated-initializers`, `misc-const-correctness`), theo luật dự án test chỉ cần biên dịch và chạy.
   Mã nguồn sáu module qua `check.py` xanh theo báo cáo của phiên làm việc (33 tệp), chưa chạy lại ở đây. Test xanh dưới MSVC và clang-asan

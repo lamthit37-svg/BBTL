@@ -31,7 +31,7 @@ Chưa làm / biết rõ (chi tiết ở tài liệu của từng module):
 - Chiến đấu: phái 11..15 phủ 91,67..94,23% dữ liệu (dưới 95%) vì bí pháp tiến giai (logic 700..707, 734, 735) giữ `unsupported`; 59/138 bí pháp chỉ nối
   với kỹ năng gốc bằng tên.
 - Vật phẩm: chưa có khảm/tháo ngọc, nâng cấp ngọc, `ItemEnhance`, `EquipUpstage*`, `EquipLevelUp`, bộ trang bị, kiểm giới tính khi mặc.
-- Nhiệm vụ: không có handler viết tay; theo phiên làm việc, 827 id nhiệm vụ của client không có script cũng không có bảng, trong đó chuỗi tân thủ 1400–1424 (chưa tự đo lại).
+- Nhiệm vụ: không có handler viết tay; đo 2026-10-15: 827 trong 1617 id nhiệm vụ của client không có dòng nào ở máy chủ, gồm 22 trên 25 id của chuỗi tân thủ 1400–1424.
 - Xã hội: lời mời có nhớ và có hạn, không làm giai đoạn chuẩn bị lập bang và đột kích, `battle_time` đơn vị phút theo giả định.
 - `check.py` đầy đủ (kể cả clang-tidy) chưa xanh trên các tệp test của talk, combat, actor (nhiễu hình thức: include-cleaner, designated initializer,
   const-correctness) và chưa chạy lại trên mã nguồn sau các sửa cuối của combat, social, talk; biên dịch `-Werror` bằng GCC 16 và Clang 23 thì sạch cho các
