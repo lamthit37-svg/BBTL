@@ -424,6 +424,7 @@ void catch_up(Loop& loop, TickSpan span) {
     mark = steady_ns();
     pump(loop);
     loop.table.collect();
+    loop.table.pump_zone(start);
     note_phase(loop.pump_us, mark);
     mark = steady_ns();
     loop.table.advance(start);
@@ -574,6 +575,32 @@ namespace {
     return account::Realm{*auth, *store, *key};
 }
 
+// Điểm nối tới zone 0 và khoá ipc của cụm. Cổng 0 (zone cấp động trong test) hay thiếu khoá thì nullopt:
+// gate chạy không có thế giới thay vì từ chối khởi động, như với auth và store.
+struct ZoneDial {
+    net::Endpoint where{};
+    std::array<std::byte, account::kIpcKeyBytes> key{};
+};
+
+[[nodiscard]] std::optional<ZoneDial> open_zone(const std::filesystem::path& config_dir) {
+    const io::TextResult text = io::read_text(config_dir / "cluster.toml");
+    if (!text) return std::nullopt;
+    const config::ReadResult<config::Cluster> cluster = config::read_cluster(*text);
+    if (!cluster) return std::nullopt;
+    const std::optional<net::Endpoint> where = ipc_of(*cluster, config::ProcessKind::kZone);
+    if (!where) {
+        std::println(stderr, "gate: cổng ipc của zone là 0, không nối thế giới");
+        return std::nullopt;
+    }
+    std::string error;
+    const auto key = account::load_ipc_key(account::ipc_key_path(config_dir), error);
+    if (!key) {
+        std::println(stderr, "gate: {}", error);
+        return std::nullopt;
+    }
+    return ZoneDial{.where = *where, .key = *key};
+}
+
 // client.toml: giao diện nhà phát hành đặt cho client. Thiếu hay sai thì gate không khởi động, như mọi tệp cấu hình.
 [[nodiscard]] std::optional<Ui> load_ui(const std::filesystem::path& config_dir) {
     const io::TextResult text = io::read_text(config_dir / "client.toml");
@@ -621,6 +648,8 @@ int serve(const std::filesystem::path& config_dir) {
     table.set_ui(*ui);
     std::optional<account::Realm> realm = open_realm(config_dir);
     if (realm) table.set_realm(*realm);
+    const std::optional<ZoneDial> zone = open_zone(config_dir);
+    if (zone) table.set_zone(zone->where, zone->key);
     std::vector<Held> held(limits.max_connections);
     const std::optional<ListenPorts> ports = listen_ports(opened.listeners);
     if (!ports) return 1;

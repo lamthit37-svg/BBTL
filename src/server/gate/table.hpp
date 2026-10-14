@@ -2,6 +2,7 @@
 // Bảng kết nối cấp một lần. Đường xử lý một tin không cấp phát thêm.
 // Đồng hồ là nano giây đơn điệu do bên gọi đưa, để test không phải ngủ.
 
+#include "ipc/link.hpp"
 #include "net/net.hpp"
 #include "secure/secure.hpp"
 
@@ -145,6 +146,13 @@ public:
     void set_realm(const account::Realm& realm);
     // Đặt giao diện gửi cho client sau SessionStart. Gọi trước khi nhận kết nối; không gọi thì dạng vuông.
     void set_ui(Ui ui) noexcept;
+    // Nối gate với zone qua kênh ipc bền (docs/KE-HOACH-SERVER.md). Sau lời gọi này, người chơi vào game
+    // được Attach vào zone, Move được chấp nhận thì zone biết, và khung zone gửi về được chuyển cho client.
+    // Chưa nối được kênh thì EnterGame/Resume trả kBusy. Không gọi thì gate chạy như trước (không có thế giới).
+    void set_zone(net::Endpoint where, std::span<const std::byte, ipc::kKeyBytes> key);
+    // Nối lại kênh khi cần (mỗi giây một lần), bơm byte, chuyển khung zone cho client. Gọi mỗi tick.
+    void pump_zone(std::int64_t now);
+    [[nodiscard]] bool zone_linked() const noexcept;
     // Lấy các trả lời thư ký đã xong và gửi cho client. Gọi mỗi tick trên luồng tick.
     void collect();
     void receive(Handle handle, secure::ByteView bytes, std::int64_t now);

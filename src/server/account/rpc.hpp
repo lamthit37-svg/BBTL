@@ -28,7 +28,10 @@ enum class Op : std::uint16_t {
     kEnter = 7,
     // Store hỏi auth: tài khoản trong cap còn được chơi không (khoá, ban sau khi đăng nhập).
     kStanding = 8,
+    // Zone ghi điểm đứng của nhân vật khi họ rời cảnh hay định kỳ. Không mang cap: zone là bên tin cậy (khoá cụm).
+    kSave = 9,
 };
+
 
 struct Call {
     Op op = Op::kList;
@@ -47,6 +50,7 @@ struct Reply {
     protocol::Gender gender, std::uint16_t face, std::uint16_t hair);
 [[nodiscard]] Call standing_call(std::span<const std::byte, kCapBytes> cap);
 [[nodiscard]] Call id_call(Op op, std::span<const std::byte, kCapBytes> cap, std::uint64_t character);
+[[nodiscard]] Call save_call(const SaveSpot& spot);
 
 [[nodiscard]] bool read_account_call(const Call& call, std::string& name, std::string& password, std::string& ip);
 [[nodiscard]] bool read_text_call(const Call& call, std::string& text);
@@ -54,6 +58,8 @@ struct Reply {
 [[nodiscard]] bool read_character_call(const Call& call, std::array<std::byte, kCapBytes>& cap, std::string& name,
     protocol::Gender& gender, std::uint16_t& face, std::uint16_t& hair);
 [[nodiscard]] bool read_id_call(const Call& call, std::array<std::byte, kCapBytes>& cap, std::uint64_t& character);
+// Thân sai cỡ hoặc toạ độ ngoài trần thì false.
+[[nodiscard]] bool read_save_call(const Call& call, SaveSpot& spot);
 
 [[nodiscard]] Reply reply_of(const TicketResult& result);
 [[nodiscard]] Reply reply_of(const RedeemResult& result);

@@ -85,8 +85,8 @@ struct PortAsk {
     return static_cast<std::uint16_t>(*value);
 }
 
-// Dòng sẵn sàng của cụm: `ready` kèm hai cổng thật, khác nhau, của gate. Năm tiến trình kia chưa
-// mở cổng nào nên chưa báo gì.
+// Dòng sẵn sàng của cụm: `ready` kèm hai cổng thật, khác nhau, của gate (zone báo thêm cổng ipc của nó,
+// bốn tiến trình còn lại chưa mở cổng nào nên chưa báo gì).
 [[nodiscard]] bool is_cluster_ready(std::string_view line) {
     const std::optional<std::uint16_t> game = cluster_port({.line = line, .key = "gate.game"});
     const std::optional<std::uint16_t> auth = cluster_port({.line = line, .key = "gate.auth"});
@@ -157,10 +157,12 @@ struct Finished {
 // Dòng stderr mà cấu hình test (support/loopback_config.hpp: không chép *.local.toml, mọi cổng ipc là 0)
 // in ra khi stderr gộp vào (Mode::kCommand): so nguyên dòng, mỗi dòng tối đa một lần. Hai dòng của auth và store
 // chỉ có ở bản dựng có libpq (GAME_HAS_LIBPQ); bản không có libpq (gcc-debug) không in chúng, nên vắng là hợp lệ.
-constexpr std::array<std::string_view, 3> kExpectedNoise{
+constexpr std::array<std::string_view, 5> kExpectedNoise{
     "auth: chưa có secrets.local.toml, bỏ qua database", // account/serve.cpp:296
     "store: chưa có secrets.local.toml, bỏ qua database", // account/serve.cpp:364
     "gate: cổng ipc của auth hoặc store là 0, đăng ký trả bận", // gate/front.cpp:540 (ở 4e22b54)
+    "gate: cổng ipc của zone là 0, không nối thế giới", // gate/front.cpp open_zone
+    "zone: cổng ipc của store là 0, không ghi được điểm đứng", // zone/serve.cpp run
 };
 
 // Dòng báo tick của gate (gate/front.cpp report: mỗi giây một lần, tám cặp khoá=số, số đổi theo máy). Có hay
@@ -342,7 +344,7 @@ void stray_stderr_breaks_cycle(Context& context) {
     noisy.insert(noisy.begin() + 2, kExpectedNoise.begin(), kExpectedNoise.end());
     noisy.emplace_back("gate: tick p99_us=12 max_us=40 late=0 conn=0 accept_us=1 pump_us=2 advance_us=3 flush_us=4");
     const std::optional<Lines> clean = cycle_lines(noisy, kExpectedNoise);
-    context.expect(clean.has_value() && *clean == whole, "ba dòng chờ đợi và dòng tick được bỏ, còn đúng 13 dòng");
+    context.expect(clean.has_value() && *clean == whole, "năm dòng chờ đợi và dòng tick được bỏ, còn đúng 13 dòng");
     Lines stray = noisy;
     stray.emplace_back("gate: không nghe được cổng game: lỗi");
     const std::optional<Lines> with_stray = cycle_lines(stray, kExpectedNoise);
@@ -357,7 +359,7 @@ void stray_stderr_breaks_cycle(Context& context) {
     bad_tick.emplace_back("gate: tick p99_us=x max_us=40 late=0 conn=0 accept_us=1 pump_us=2 advance_us=3 flush_us=4");
     const std::optional<Lines> kept_tick = cycle_lines(bad_tick, {});
     context.expect(kept_tick.has_value() && kept_tick->size() == 14, "dòng tick sai dạng bị coi là dòng lạ");
-    context.expect(cycle_lines(whole, kExpectedNoise) == clean, "vắng cả ba dòng chờ đợi vẫn qua, chu trình vẫn đủ 13 dòng");
+    context.expect(cycle_lines(whole, kExpectedNoise) == clean, "vắng cả năm dòng chờ đợi vẫn qua, chu trình vẫn đủ 13 dòng");
 }
 
 constexpr std::array kCases{

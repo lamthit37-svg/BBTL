@@ -128,8 +128,8 @@ set(game_engine_names audio audiotool capture core fs gpu io jobs math net rende
 set(game_shared_names protocol secure table link nav collision ids)
 set(game_client_names anim avatar classic client control fx gui hero look motion ogre
     quest scene seal sealtool skill ui)
-set(game_server_names account authd billingd config content dice gate gated guard linttool metrics process
-    service store stored supervise supervisor worldd zoned)
+set(game_server_names account authd billingd config content dice gate gated guard ipc linttool metrics process
+    service store stored supervise supervisor worldd zone zoned)
 game_reject_foreign("${PROJECT_SOURCE_DIR}/engine" ${game_engine_names})
 game_reject_foreign("${PROJECT_SOURCE_DIR}/src/shared" ${game_engine_names} ${game_shared_names})
 game_reject_foreign("${PROJECT_SOURCE_DIR}/src/client" ${game_engine_names} ${game_shared_names}
@@ -423,7 +423,7 @@ if(NOT CMAKE_CROSSCOMPILING)
             src/server/account/realm.cpp)
         target_link_libraries(game_account PUBLIC game_core game_net game_protocol game_secure game_config
             game_io game_process)
-        target_link_libraries(game_gate PUBLIC game_account)
+        target_link_libraries(game_gate PUBLIC game_account game_ipc)
         # ipc_key.cpp: kiểm và đặt quyền riêng (DACL) cho ipc.key.
         if(WIN32)
             target_link_libraries(game_account PRIVATE advapi32)

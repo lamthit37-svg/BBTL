@@ -214,6 +214,7 @@ EnterResult MemoryBook::enter(std::uint64_t account, std::uint64_t character) {
             result.scene = row.summary.scene;
             result.x_cm = static_cast<std::int32_t>(starter::kPositionX * 100.0);
             result.z_cm = static_cast<std::int32_t>(starter::kPositionZ * 100.0);
+            result.summary = row.summary;
             return result;
         }
     }

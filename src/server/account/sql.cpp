@@ -7,6 +7,7 @@
 #include <array>
 #include <charconv>
 #include <chrono>
+#include <format>
 #include <optional>
 #include <utility>
 #include <vector>
@@ -662,7 +663,8 @@ EnterResult GameDb::enter(std::uint64_t account, std::uint64_t character) {
     args.i64(static_cast<std::int64_t>(account));
     // position_x/position_z lưu mét; gate làm việc bằng centimet nguyên.
     const PgExec found =
-        conn_.exec("SELECT scene::text, round(position_x * 100)::bigint::text, round(position_z * 100)::bigint::text "
+        conn_.exec("SELECT id::text, name, level::text, gender::text, face::text, hair::text, school::text, "
+                   "scene::text, round(position_x * 100)::bigint::text, round(position_z * 100)::bigint::text "
                    "FROM player WHERE id = $1 AND account_id = $2 AND deleted_at IS NULL",
             args.span());
     EnterResult result;
@@ -671,22 +673,46 @@ EnterResult GameDb::enter(std::uint64_t account, std::uint64_t character) {
         result.code = protocol::ErrorCode::kNoSuchCharacter;
         return result;
     }
-    const std::string* scene = cell(found, 0, 0);
-    const std::string* x_cm = cell(found, 0, 1);
-    const std::string* z_cm = cell(found, 0, 2);
-    const std::optional<std::int64_t> scene_value = scene == nullptr ? std::nullopt : as_i64(*scene);
+    const std::optional<protocol::CharacterSummary> summary = read_summary(found, 0);
+    const std::string* x_cm = cell(found, 0, 8);
+    const std::string* z_cm = cell(found, 0, 9);
     const std::optional<std::int64_t> x_value = x_cm == nullptr ? std::nullopt : as_i64(*x_cm);
     const std::optional<std::int64_t> z_value = z_cm == nullptr ? std::nullopt : as_i64(*z_cm);
     // Hàng hỏng hay toạ độ ngoài trần: không cho vào thay vì đặt mốc bừa.
-    if (!scene_value || !x_value || !z_value || !fits_wire(*scene_value, 65535) || !spot_fits(*x_value) ||
-        !spot_fits(*z_value)) {
+    if (!summary || !x_value || !z_value || !spot_fits(*x_value) || !spot_fits(*z_value)) {
         result.code = protocol::ErrorCode::kBusy;
         return result;
     }
     result.ok = true;
-    result.scene = static_cast<std::uint16_t>(*scene_value);
+    result.scene = summary->scene;
     result.x_cm = static_cast<std::int32_t>(*x_value);
     result.z_cm = static_cast<std::int32_t>(*z_value);
+    result.summary = *summary;
+    return result;
+}
+
+EnterResult GameDb::save_spot(const SaveSpot& spot) {
+    EnterResult result;
+    if (!spot_fits(spot.x_cm) || !spot_fits(spot.z_cm)) {
+        result.code = protocol::ErrorCode::kMalformed;
+        return result;
+    }
+    Args args;
+    args.i64(static_cast<std::int64_t>(spot.character));
+    args.i64(spot.scene);
+    // Cột lưu mét (số thực); trên dây là centimet nguyên.
+    args.text(std::format("{:.2f}", static_cast<double>(spot.x_cm) / 100.0));
+    args.text(std::format("{:.2f}", static_cast<double>(spot.z_cm) / 100.0));
+    const PgExec wrote =
+        conn_.exec("UPDATE player SET scene = $2, position_x = $3::double precision, position_z = $4::double precision "
+                   "WHERE id = $1 AND deleted_at IS NULL",
+            args.span());
+    if (!wrote.ok) return result;
+    if (wrote.affected != 1) {
+        result.code = protocol::ErrorCode::kNoSuchCharacter;
+        return result;
+    }
+    result.ok = true;
     return result;
 }
 

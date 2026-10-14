@@ -39,6 +39,8 @@ struct EnterReply {
     std::uint16_t scene = 0;
     float x_cm = 0.0F;
     float z_cm = 0.0F;
+    // Hồ sơ hiển thị của nhân vật; zone dựng EntityAppear từ đây.
+    protocol::CharacterSummary summary{};
 };
 
 class Realm {

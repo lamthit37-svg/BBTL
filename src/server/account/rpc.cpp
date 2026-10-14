@@ -284,6 +284,24 @@ Call id_call(Op op, std::span<const std::byte, kCapBytes> cap, std::uint64_t cha
     return Call{.op = op, .body = std::move(out.bytes)};
 }
 
+Call save_call(const SaveSpot& spot) {
+    Out out;
+    out.u64(spot.character);
+    out.u16(spot.scene);
+    out.u32(static_cast<std::uint32_t>(spot.x_cm));
+    out.u32(static_cast<std::uint32_t>(spot.z_cm));
+    return Call{.op = Op::kSave, .body = std::move(out.bytes)};
+}
+
+bool read_save_call(const Call& call, SaveSpot& spot) {
+    In in{call.body};
+    spot.character = in.u64();
+    spot.scene = in.u16();
+    spot.x_cm = static_cast<std::int32_t>(in.u32());
+    spot.z_cm = static_cast<std::int32_t>(in.u32());
+    return in.ok && in.rest.empty() && spot_fits(spot.x_cm) && spot_fits(spot.z_cm);
+}
+
 bool read_account_call(const Call& call, std::string& name, std::string& password, std::string& ip) {
     In in{call.body};
     name = in.text(protocol::kCreateAccountAccountBytes);
@@ -359,6 +377,7 @@ Reply enter_reply_of(const EnterResult& result) {
     out.u16(result.scene);
     out.u32(static_cast<std::uint32_t>(result.x_cm));
     out.u32(static_cast<std::uint32_t>(result.z_cm));
+    write_summary(out, result.summary);
     return ok_reply(std::move(out.bytes));
 }
 
@@ -436,7 +455,9 @@ EnterResult entered_from(const Reply& reply) {
     const std::uint16_t scene = in.u16();
     const auto x_cm = static_cast<std::int32_t>(in.u32());
     const auto z_cm = static_cast<std::int32_t>(in.u32());
-    if (!in.ok || !in.rest.empty() || !spot_fits(x_cm) || !spot_fits(z_cm)) {
+    protocol::CharacterSummary summary;
+    const bool summary_ok = read_summary(in, summary);
+    if (!in.ok || !summary_ok || !in.rest.empty() || !spot_fits(x_cm) || !spot_fits(z_cm)) {
         result.code = protocol::ErrorCode::kBusy;
         return result;
     }
@@ -444,6 +465,7 @@ EnterResult entered_from(const Reply& reply) {
     result.scene = scene;
     result.x_cm = x_cm;
     result.z_cm = z_cm;
+    result.summary = std::move(summary);
     return result;
 }
 

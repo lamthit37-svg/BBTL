@@ -120,6 +120,7 @@ EnterReply Realm::enter(std::span<const std::byte, kCapBytes> cap, std::uint64_t
     out.scene = result.scene;
     out.x_cm = static_cast<float>(result.x_cm);
     out.z_cm = static_cast<float>(result.z_cm);
+    out.summary = result.summary;
     return out;
 }
 

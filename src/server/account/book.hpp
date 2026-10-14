@@ -55,6 +55,14 @@ inline constexpr std::int32_t kSpotLimitCm = 10'000'000;
     return cm >= -kSpotLimitCm && cm <= kSpotLimitCm;
 }
 
+// Điểm đứng zone ghi lại cho một nhân vật (Op::kSave). Toạ độ centimet nguyên, trong ±kSpotLimitCm.
+struct SaveSpot {
+    std::uint64_t character = 0;
+    std::uint16_t scene = 0;
+    std::int32_t x_cm = 0;
+    std::int32_t z_cm = 0;
+};
+
 // Kết quả vào game. scene/x_cm/z_cm là điểm vào do store giữ (cột position_x/position_z, đơn vị mét,
 // đổi sang centimet). Phiếu standing của auth cũng dùng struct này nhưng không mang toạ độ.
 struct EnterResult {
@@ -63,6 +71,8 @@ struct EnterResult {
     std::uint16_t scene = 0;
     std::int32_t x_cm = 0;
     std::int32_t z_cm = 0;
+    // Hồ sơ hiển thị của nhân vật vào game (Op::kEnter); zone dựng EntityAppear từ đây.
+    protocol::CharacterSummary summary{};
 };
 
 class MemoryBook {

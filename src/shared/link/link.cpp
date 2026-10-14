@@ -191,6 +191,38 @@ LinkResult<Link> Link::open(const HelloDesc& desc) {
     return Link{std::move(*stream), std::move(*pipe), *welcome};
 }
 
+LinkResult<void> Link::send_frame(std::span<const std::byte> frame, net::Milliseconds timeout) {
+    const Deadline deadline{.at = Clock::now() + timeout};
+    net::PollSet poll;
+    if (!poll.add(stream_.handle(), kSocket)) return std::unexpected(LinkError::kNetwork);
+    const LinkError sealed = seal_send(stream_, poll, pipe_, frame, deadline);
+    if (sealed != LinkError{}) return std::unexpected(sealed);
+    return {};
+}
+
+LinkResult<std::vector<std::byte>> Link::receive_frame(net::Milliseconds timeout) {
+    const Deadline deadline{.at = Clock::now() + timeout};
+    net::PollSet poll;
+    if (!poll.add(stream_.handle(), kSocket)) return std::unexpected(LinkError::kNetwork);
+    std::array<std::byte, secure::kMaxPlainBytes> plain{};
+    while (true) {
+        const secure::ByteView input{inbox_.data(), inbox_.size()};
+        const secure::OpenResult opened = pipe_.open_bytes(input, plain);
+        if (!opened) return std::unexpected(LinkError::kSecure);
+        if (opened->consumed > 0) {
+            inbox_.erase(inbox_.begin(), inbox_.begin() + static_cast<std::ptrdiff_t>(opened->consumed));
+        }
+        if (opened->written > 0) {
+            const auto end = plain.begin() + static_cast<std::ptrdiff_t>(opened->written);
+            return std::vector<std::byte>(plain.begin(), end);
+        }
+        if (opened->consumed > 0) continue;
+        if (deadline.late()) return std::unexpected(LinkError::kTimeout);
+        const LinkError more = recv_some(stream_, poll, inbox_, deadline);
+        if (more != LinkError{} && more != LinkError::kTimeout) return std::unexpected(more);
+    }
+}
+
 LinkResult<protocol::Pong> Link::ping(std::chrono::milliseconds client_time, net::Milliseconds timeout) {
     const Deadline deadline{.at = Clock::now() + timeout};
     net::PollSet poll;

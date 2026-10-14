@@ -4,6 +4,8 @@
 #include "gate/motion.hpp"
 
 #include "account/realm.hpp"
+#include "ipc/link.hpp"
+#include "ipc/relay.hpp"
 #include "metrics/metrics.hpp"
 #include "net/net.hpp"
 #include "net/shard.hpp"
@@ -84,6 +86,13 @@ struct Slot {
     std::array<std::byte, kHeldBytes> held{};
     std::size_t held_at = 0;
     std::vector<std::byte> scratch;
+    // Đã Attach vào zone: gate báo vị trí chấp nhận và Detach khi ô đóng.
+    bool attached = false;
+    // Khung zone gửi cho client mà hộp gửi chưa nhận kịp (cả khung, nối nhau). Thứ tự giữ nguyên: khi
+    // còn tồn thì khung mới nối vào cuối thay vì chen lên trước.
+    std::vector<std::byte> down;
+    std::size_t down_from = 0;
+    bool down_listed = false;
 };
 
 struct IpSlot {
@@ -186,6 +195,21 @@ struct Session {
     guard::Anchor spot{};
 };
 
+// Kênh tới zone. Chưa cấu hình (set_zone) thì gate chạy như trước: vào game xong chỉ có Position.
+struct ZoneLink {
+    bool configured = false;
+    net::Endpoint where{};
+    std::array<std::byte, ipc::kKeyBytes> key{};
+    std::optional<ipc::Link> link;
+    // Kết nối đang dở: gate không chờ trên vòng tick (Windows có thể mất cả giây mới báo cổng loopback đóng).
+    std::optional<net::TcpStream> dialing;
+    std::int64_t dial_ns = 0;
+    std::int64_t retry_ns = 0;
+    // Một lần gửi lên kênh đã hỏng. lose_zone đóng cả bảng nên không gọi ngay giữa việc của một ô (nó sẽ đóng
+    // chính ô đang xử lý); cờ này hoãn tới đầu pump_zone của khung sau.
+    bool lost = false;
+};
+
 } // namespace
 
 struct Engine {
@@ -217,6 +241,9 @@ struct Engine {
     Ui ui;
     // Khoá là 8 byte đầu của digest; so khớp cả 32 byte bằng phép so thời gian hằng.
     std::unordered_map<std::uint64_t, Session> sessions;
+    ZoneLink zone;
+    // Chỉ số các ô còn khung zone chờ gửi (Slot::down); mục cũ được bỏ khi duyệt.
+    std::vector<std::uint32_t> backlog;
     // Luồng tick đẩy asks và lấy answers; luồng thư ký làm ngược lại. Mỗi hàng đúng một bên đẩy.
     net::SpscMail<Ask, kAskRoom> asks;
     net::SpscMail<Answer, kAskRoom> answers;
@@ -317,7 +344,7 @@ void lose_ip(Engine& state, net::Ipv4 address) noexcept {
     return &slot;
 }
 
-void count(Engine& state, metrics::Counter which) noexcept {
+void count(const Engine& state, metrics::Counter which) noexcept {
     if (state.registry != nullptr) state.registry->add(which);
 }
 
@@ -365,9 +392,27 @@ void remember_closed(Engine& state, Handle handle) {
 
 void release_session(Engine& state, Slot& slot, Drop reason);
 
+// Khoá phiên trên kênh ipc: thế hệ ô ở nửa cao, chỉ số ở nửa thấp, nên ô cấp lại không nhận nhầm tin cũ.
+[[nodiscard]] std::uint64_t zone_session(std::uint32_t index, std::uint32_t generation) noexcept {
+    return (static_cast<std::uint64_t>(generation) << 32U) | index;
+}
+
+// Ô sắp đóng: zone phải bỏ người chơi khỏi cảnh. Không gửi được thì kênh coi như hỏng để hai bên đồng bộ lại
+// (zone bỏ mọi phiên khi kênh đứt), thay vì để lại một người chơi ma trong cảnh.
+void detach_zone(Engine& state, Slot& slot, std::uint32_t index) {
+    slot.down.clear();
+    slot.down_from = 0;
+    if (!slot.attached) return;
+    slot.attached = false;
+    if (!state.zone.link) return;
+    const bool sent = state.zone.link->send(ipc::value_of(ipc::Relay::kDetach), zone_session(index, slot.generation), {});
+    if (!sent) state.zone.lost = true;
+}
+
 void release(Engine& state, Slot& slot, std::uint32_t index, Drop reason) {
     if (!slot.live) return;
     const Handle handle{.index = index, .generation = slot.generation};
+    detach_zone(state, slot, index);
     release_session(state, slot, reason);
     log_drop(state, reason, slot.address, slot.seen_ns);
     lose_ip(state, slot.address);
@@ -475,6 +520,184 @@ void send_goodbye(Engine& state, Slot& slot, std::uint32_t index, protocol::Disc
     }
     slot.draining = true;
     slot.drain_as = reason;
+}
+
+// Tin thế giới (SceneEnter, EntityAppear...) có từ phiên bản giao thức 3: client cũ coi tin lạ là vi phạm.
+constexpr std::uint16_t kWorldSince = 3;
+// Trần khung zone chờ gửi cho một client. Vượt là client đọc chậm hơn zone ghi: đóng như mọi client chậm.
+constexpr std::size_t kDownBacklogMax = std::size_t{256} * 1024;
+constexpr std::int64_t kZoneRetryNs = kNsPerSecond;
+// Kết nối dở quá lâu thì bỏ và thử lại.
+constexpr std::int64_t kZoneDialLimitNs = 3 * kNsPerSecond;
+constexpr std::size_t kRecordOverhead = secure::kRecordHeaderBytes + secure::kTagBytes;
+
+// Zone mất: mọi người chơi đang ở trong cảnh mất cảnh. Họ bị đóng kiểu rớt mạng (kSlow) để Resume được
+// khi zone lên lại; gate không cố giữ họ trong nửa vời.
+void lose_zone(Engine& state) {
+    state.zone.link.reset();
+    state.zone.lost = false;
+    for (std::uint32_t index = 0; index < state.slots.size(); ++index) {
+        Slot& slot = state.slots[index];
+        if (!slot.live || !slot.attached) continue;
+        slot.attached = false;
+        slot.down.clear();
+        slot.down_from = 0;
+        send_goodbye(state, slot, index, protocol::DisconnectReason::kShutdown, Drop::kSlow);
+    }
+}
+
+// Hộp gửi còn chỗ cho một bản ghi niêm phong của `plain_bytes`? Hỏi trước khi niêm phong: niêm phong tiêu một
+// số đếm của đường mã hoá, nên bản ghi đã niêm phong mà không xếp được là làm hỏng cả phiên.
+[[nodiscard]] bool outbox_has_room(const Slot& slot, std::size_t plain_bytes) noexcept {
+    const std::size_t held = slot.out_at - slot.out_from;
+    return plain_bytes + kRecordOverhead <= slot.outbox.size() - held;
+}
+
+// Gửi một khung zone cho client; hộp đầy thì giữ lại sau những khung đang chờ.
+void queue_down(Engine& state, Slot& slot, std::uint32_t index, secure::ByteView frame) {
+    if (!slot.pipe || slot.draining || slot.client_version < kWorldSince) return;
+    if (frame.size() > secure::kMaxPlainBytes) return;
+    const bool nothing_waiting = slot.down_from == slot.down.size();
+    if (nothing_waiting && outbox_has_room(slot, frame.size())) {
+        if (!seal_to(state, slot, index, frame)) release(state, slot, index, Drop::kSlow);
+        return;
+    }
+    if (slot.down.size() - slot.down_from + frame.size() > kDownBacklogMax) {
+        release(state, slot, index, Drop::kSlow);
+        return;
+    }
+    slot.down.insert(slot.down.end(), frame.begin(), frame.end());
+    if (slot.down_listed) return;
+    slot.down_listed = true;
+    state.backlog.push_back(index);
+}
+
+// Đẩy khung chờ của một ô vào hộp gửi, theo thứ tự, tới khi hộp đầy. true khi ô hết khung chờ.
+[[nodiscard]] bool drain_down(Engine& state, Slot& slot, std::uint32_t index) {
+    while (slot.live && slot.down_from < slot.down.size()) {
+        const secure::ByteView rest = secure::ByteView{slot.down}.subspan(slot.down_from);
+        const protocol::FrameResult peeked = protocol::peek_frame(rest, secure::kMaxPlainBytes);
+        // Khung đã qua is_single_frame lúc vào hàng, nên không thể hỏng; nếu hỏng thì bỏ cả phần chờ.
+        if (!peeked || !peeked->has_value()) break;
+        const std::size_t size = protocol::kHeaderBytes + (*peeked)->body_bytes;
+        if (size > rest.size()) break;
+        if (!outbox_has_room(slot, size)) return false;
+        if (!seal_to(state, slot, index, rest.first(size))) {
+            release(state, slot, index, Drop::kSlow);
+            return true;
+        }
+        slot.down_from += size;
+    }
+    slot.down.clear();
+    slot.down_from = 0;
+    return true;
+}
+
+void drain_backlog(Engine& state) {
+    std::size_t keep = 0;
+    for (std::size_t at = 0; at < state.backlog.size(); ++at) {
+        const std::uint32_t index = state.backlog[at];
+        Slot& slot = state.slots[index];
+        const bool done = !slot.live || drain_down(state, slot, index);
+        if (done) {
+            slot.down_listed = false;
+            continue;
+        }
+        state.backlog[keep++] = index;
+    }
+    state.backlog.resize(keep);
+}
+
+constexpr protocol::DisconnectReason disconnect_for(protocol::ErrorCode code) noexcept {
+    return code == protocol::ErrorCode::kServerFull ? protocol::DisconnectReason::kServerFull
+                                                    : protocol::DisconnectReason::kShutdown;
+}
+
+void on_zone_frame(Engine& state, const ipc::Frame& frame) {
+    const auto index = static_cast<std::uint32_t>(frame.session & 0xFFFFFFFFU);
+    const auto generation = static_cast<std::uint32_t>(frame.session >> 32U);
+    Slot* const slot = live_slot(state, Handle{.index = index, .generation = generation});
+    if (slot == nullptr || !slot->attached) return;
+    switch (static_cast<ipc::Relay>(frame.kind)) {
+    case ipc::Relay::kDown:
+        if (ipc::is_single_frame(frame.body)) queue_down(state, *slot, index, frame.body);
+        return;
+    case ipc::Relay::kRefuse: {
+        const std::optional<ipc::Refuse> refused = ipc::decode_refuse(frame.body);
+        slot->attached = false;
+        const protocol::ErrorCode code = refused ? refused->code : protocol::ErrorCode::kMalformed;
+        send_goodbye(state, *slot, index, disconnect_for(code), Drop::kFull);
+        return;
+    }
+    case ipc::Relay::kClose: {
+        const std::optional<ipc::Close> closed = ipc::decode_close(frame.body);
+        slot->attached = false;
+        const auto reason = closed ? closed->reason : protocol::DisconnectReason::kShutdown;
+        send_goodbye(state, *slot, index, reason, Drop::kLogout);
+        return;
+    }
+    case ipc::Relay::kAttach:
+    case ipc::Relay::kDetach:
+    case ipc::Relay::kMoved: return;
+    }
+}
+
+// Nối không chặn: mỗi lượt kiểm kết nối dở một lần, hỏng hoặc quá hạn thì chờ rồi thử lại.
+void advance_dial(ZoneLink& zone, std::int64_t now) {
+    if (!zone.dialing) {
+        if (now < zone.retry_ns) return;
+        zone.retry_ns = now + kZoneRetryNs;
+        net::NetResult<net::TcpStream> began = net::TcpStream::begin_connect(zone.where);
+        if (!began) return;
+        zone.dialing = std::move(*began);
+        zone.dial_ns = now;
+    }
+    const net::NetResult<bool> done = zone.dialing->finish_connect();
+    if (done && *done) {
+        zone.link.emplace(std::move(*zone.dialing), zone.key);
+        zone.dialing.reset();
+        return;
+    }
+    if (!done || now - zone.dial_ns > kZoneDialLimitNs) zone.dialing.reset();
+}
+
+// Một lượt với zone: nối nếu chưa có kênh (mỗi giây một lần), bơm byte, xử lý khung tới, rồi đẩy khung chờ.
+void pump_zone(Engine& state, std::int64_t now) {
+    ZoneLink& zone = state.zone;
+    if (!zone.configured) return;
+    if (zone.lost) {
+        lose_zone(state);
+        zone.retry_ns = now + kZoneRetryNs;
+        return;
+    }
+    if (!zone.link) {
+        advance_dial(zone, now);
+        if (!zone.link) return;
+    }
+    const ipc::LinkState link_state = zone.link->pump();
+    while (zone.link) {
+        std::optional<ipc::Frame> frame = zone.link->next();
+        if (!frame) break;
+        on_zone_frame(state, *frame);
+    }
+    if (!zone.link) return;
+    if (link_state != ipc::LinkState::kUp) {
+        lose_zone(state);
+        zone.retry_ns = now + kZoneRetryNs;
+        return;
+    }
+    drain_backlog(state);
+    static_cast<void>(zone.link->pump());
+}
+
+// Báo vị trí vừa được chấp nhận cho zone.
+void relay_move(Engine& state, const Slot& slot, std::uint32_t index) {
+    if (!slot.attached || !state.zone.link) return;
+    const guard::Anchor at = slot.motion.anchor();
+    const std::vector<std::byte> body = ipc::encode_body(ipc::Moved{.x_cm = at.x_cm, .z_cm = at.z_cm});
+    const bool sent =
+        state.zone.link->send(ipc::value_of(ipc::Relay::kMoved), zone_session(index, slot.generation), body);
+    if (!sent) state.zone.lost = true;
 }
 
 void on_hello(Engine& state, Slot& slot, std::uint32_t index, const protocol::Hello& hello, std::int64_t now) {
@@ -870,6 +1093,11 @@ void finish_enter(Engine& state, Slot& slot, std::uint32_t index, std::uint16_t 
         send_reject(state, slot, index, request, entered.code);
         return;
     }
+    // Zone khai báo mà chưa nối được: không mở phiên, để client thử lại thay vì vào một cảnh không ai trông.
+    if (state.zone.configured && (!state.zone.link || state.zone.lost)) {
+        send_reject(state, slot, index, request, protocol::ErrorCode::kBusy);
+        return;
+    }
     slot.scratch.clear();
     protocol::SessionStart session;
     const bool opened = open_session(state, slot, index, character, session.token);
@@ -883,13 +1111,36 @@ void finish_enter(Engine& state, Slot& slot, std::uint32_t index, std::uint16_t 
     if (!send_ui(state, slot, index)) return;
     send_position(state, slot, index,
         slot.motion.place(entry_anchor(entered, resumed_spot, resume_spot), slot.seen_ns));
+    if (!slot.live || !state.zone.link) return;
+    const guard::Anchor spot = slot.motion.anchor();
+    ipc::Attach arrival;
+    arrival.character = character;
+    arrival.account = slot.account_id;
+    arrival.scene = entered.scene;
+    arrival.x_cm = spot.x_cm;
+    arrival.z_cm = spot.z_cm;
+    arrival.name = entered.summary.name;
+    arrival.level = entered.summary.level;
+    arrival.gender = static_cast<std::uint8_t>(entered.summary.gender);
+    arrival.face = entered.summary.face;
+    arrival.hair = entered.summary.hair;
+    arrival.school = entered.summary.school;
+    arrival.client_version = slot.client_version;
+    const bool attached = state.zone.link->send(ipc::value_of(ipc::Relay::kAttach),
+        zone_session(index, slot.generation), ipc::encode_body(arrival));
+    if (!attached) {
+        state.zone.lost = true;
+        release(state, slot, index, Drop::kSlow);
+        return;
+    }
+    slot.attached = true;
 }
 
 // Mọi Move đi qua guard::Pace với đồng hồ của gate. Không nhận thì kéo về mốc; lặp lại thì đóng phiên.
 void on_move(Engine& state, Slot& slot, std::uint32_t index, const protocol::Move& move, std::int64_t now) {
     const MotionOutcome outcome = slot.motion.judge(move, now);
     switch (outcome.act) {
-    case MotionAct::kAccept: return;
+    case MotionAct::kAccept: relay_move(state, slot, index); return;
     case MotionAct::kCorrect: send_position(state, slot, index, outcome.position); return;
     case MotionAct::kKick:
         send_goodbye(state, slot, index, protocol::DisconnectReason::kKicked, Drop::kProtocol);
@@ -1384,6 +1635,24 @@ void Table::set_realm(const account::Realm& realm) {
 
 void Table::set_ui(Ui ui) noexcept {
     state_->ui = ui;
+}
+
+void Table::set_zone(net::Endpoint where, std::span<const std::byte, ipc::kKeyBytes> key) {
+    ZoneLink& zone = state_->zone;
+    zone.configured = true;
+    zone.where = where;
+    std::ranges::copy(key, zone.key.begin());
+    zone.link.reset();
+    zone.dialing.reset();
+    zone.retry_ns = 0;
+}
+
+void Table::pump_zone(std::int64_t now) {
+    gate::pump_zone(*state_, now);
+}
+
+bool Table::zone_linked() const noexcept {
+    return state_->zone.link.has_value();
 }
 
 void Table::collect() {

@@ -54,6 +54,8 @@ public:
         std::uint16_t face, std::uint16_t hair);
     [[nodiscard]] ListResult remove_character(std::uint64_t account, std::uint64_t character);
     [[nodiscard]] EnterResult enter(std::uint64_t account, std::uint64_t character);
+    // Ghi điểm đứng (zone). ok khi đúng một nhân vật chưa xoá được cập nhật.
+    [[nodiscard]] EnterResult save_spot(const SaveSpot& spot);
 
 private:
     store::PgConn& conn_;

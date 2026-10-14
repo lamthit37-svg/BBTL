@@ -13,6 +13,7 @@
 #include "service/detail/load.hpp"
 #include "service/detail/request.hpp"
 #include "supervise/supervise.hpp"
+#include "zone/serve.hpp"
 
 #include <chrono>
 #include <cstddef>
@@ -158,6 +159,7 @@ void print_event(const supervise::Event& event) {
         return kExitMisuse;
     }
     if (kind == Kind::kGate) return gate::serve(request.config_dir);
+    if (kind == Kind::kZone) return zone::serve(request.config_dir);
 #if defined(GAME_HAS_LIBPQ)
     if (kind == Kind::kAuth) return account::serve_auth(request.config_dir);
     if (kind == Kind::kStore) return account::serve_game(request.config_dir);

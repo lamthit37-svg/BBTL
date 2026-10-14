@@ -260,6 +260,15 @@ Reply on_game(void* ctx, const Call& call) {
         if (!who.ok) return reply_of(ListResult{.code = who.code});
         return reply_of(box->db->remove_character(who.account, character));
     }
+    if (call.op == Op::kSave) {
+        SaveSpot spot;
+        if (!read_save_call(call, spot)) {
+            EnterResult malformed;
+            malformed.code = protocol::ErrorCode::kMalformed;
+            return reply_of(malformed);
+        }
+        return reply_of(box->db->save_spot(spot));
+    }
     if (call.op == Op::kEnter) {
         std::uint64_t character = 0;
         if (!read_id_call(call, token, character)) return enter_reply_of(EnterResult{});

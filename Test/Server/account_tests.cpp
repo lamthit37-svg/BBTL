@@ -124,6 +124,28 @@ void three_characters_then_one_slot(Context& context) {
     context.expect(!book.enter(account, 999).ok, "không vào nhân vật không có");
     const account::EnterResult spot = book.enter(account, reused.characters.back().id);
     context.expect(spot.x_cm == 16500 && spot.z_cm == 16900, "vào ở điểm sinh của hồ sơ mới, đổi mét ra centimet");
+    context.expect(spot.summary.id == reused.characters.back().id && spot.summary.name == "Lý Mộ",
+        "vào game mang hồ sơ nhân vật");
+}
+
+// Zone ghi điểm đứng qua Op::kSave: thân đi về nguyên vẹn, sai cỡ hay toạ độ ngoài trần bị từ chối.
+void save_call_round_trip(Context& context) {
+    const account::SaveSpot sent{.character = 0x1122334455667788ULL, .scene = 71, .x_cm = -12345, .z_cm = 16900};
+    account::SaveSpot got;
+    const account::Call call = account::save_call(sent);
+    context.expect(call.op == account::Op::kSave && account::read_save_call(call, got), "thân đọc lại được");
+    context.expect(got.character == sent.character && got.scene == 71 && got.x_cm == -12345 && got.z_cm == 16900,
+        "giá trị nguyên vẹn");
+    account::Call cut = call;
+    cut.body.pop_back();
+    context.expect(!account::read_save_call(cut, got), "thiếu byte bị từ chối");
+    account::Call longer = call;
+    longer.body.push_back(std::byte{0});
+    context.expect(!account::read_save_call(longer, got), "thừa byte bị từ chối");
+    const account::SaveSpot far{.character = 1, .scene = 1, .x_cm = account::kSpotLimitCm + 1, .z_cm = 0};
+    context.expect(!account::read_save_call(account::save_call(far), got), "toạ độ ngoài trần bị từ chối");
+    const account::SaveSpot edge{.character = 1, .scene = 1, .x_cm = account::kSpotLimitCm, .z_cm = -account::kSpotLimitCm};
+    context.expect(account::read_save_call(account::save_call(edge), got), "đúng trần vẫn nhận");
 }
 
 // Trả lời Op::kEnter mang điểm vào; thân hỏng hoặc toạ độ ngoài trần thì không vào.
@@ -133,8 +155,20 @@ void enter_reply_carries_spot(Context& context) {
     sent.scene = 71;
     sent.x_cm = -12345;
     sent.z_cm = 16900;
+    sent.summary.id = 77;
+    sent.summary.name = "Lý Mộ";
+    sent.summary.level = 5;
+    sent.summary.gender = protocol::Gender::kFemale;
+    sent.summary.face = 3;
+    sent.summary.hair = 2;
+    sent.summary.school = 4;
+    sent.summary.scene = 71;
     const account::EnterResult got = account::entered_from(account::enter_reply_of(sent));
     context.expect(got.ok && got.scene == 71 && got.x_cm == -12345 && got.z_cm == 16900, "đi về giữ nguyên điểm vào");
+    context.expect(got.summary.id == 77 && got.summary.name == "Lý Mộ" && got.summary.level == 5 &&
+            got.summary.gender == protocol::Gender::kFemale && got.summary.face == 3 && got.summary.hair == 2 &&
+            got.summary.school == 4,
+        "hồ sơ hiển thị đi về nguyên vẹn");
 
     account::EnterResult denied;
     denied.code = protocol::ErrorCode::kNoSuchCharacter;
@@ -355,6 +389,7 @@ constexpr std::array kCases{
     Case{.name = "eight_failures_then_rate", .body = &eight_failures_then_rate},
     Case{.name = "three_characters_then_one_slot", .body = &three_characters_then_one_slot},
     Case{.name = "enter_reply_carries_spot", .body = &enter_reply_carries_spot},
+    Case{.name = "save_call_round_trip", .body = &save_call_round_trip},
     Case{.name = "sign_in_hides_unknown_name", .body = &sign_in_hides_unknown_name},
     Case{.name = "names_are_canonical", .body = &names_are_canonical},
     Case{.name = "cap_rejects_tamper", .body = &cap_rejects_tamper},
