@@ -328,7 +328,9 @@ void Display::State::compose_frame() {
     stand.foot = point_of(foot());
     stand.facing = facing;
     stand.is_moving = is_player_running;
-    const core::Status posed = player->update(core::Clock::now(), stand);
+    stand.jump = std::exchange(jump_begun, std::nullopt);
+    stand.has_landed = std::exchange(jump_landed, false);
+    const core::Status posed = player->update(frame_time, stand);
     if (!posed) {
         std::println(stderr, "Người chơi: {}", posed.error());
         return;

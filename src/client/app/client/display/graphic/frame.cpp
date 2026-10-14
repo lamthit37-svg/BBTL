@@ -86,7 +86,6 @@ void Display::steer(const Steering& input) noexcept {
     kept.turn_keys += input.turn_keys;
     kept.zoom_keys += input.zoom_keys;
     kept.is_home = kept.is_home || input.is_home;
-    kept.toggles_pace = kept.toggles_pace != input.toggles_pace;
     kept.wants_jump = kept.wants_jump || input.wants_jump;
     if (!input.has_walk) return;
     kept.walk_forward = input.walk_forward;
@@ -146,6 +145,17 @@ bool Display::is_spinning() const noexcept {
     return state_->is_spinning.load(std::memory_order_relaxed);
 }
 
+std::uint64_t Display::turns() const noexcept {
+    return state_->turn_count.load(std::memory_order_relaxed);
+}
+
+void Display::set_refresh(double rate_hz) noexcept {
+    // Trần 1000 Hz: số lớn hơn là hệ thống báo sai, ngân sách dưới 1 ms vô nghĩa với bảng.
+    constexpr double kMostHz = 1000.0;
+    const bool is_known = std::isfinite(rate_hz) && rate_hz > 0.0 && rate_hz <= kMostHz;
+    state_->refresh_hz.store(is_known ? rate_hz : 0.0, std::memory_order_relaxed);
+}
+
 std::string Display::description() const {
     return state_->reported_description;
 }
@@ -173,6 +183,9 @@ core::Status Display::State::open_gpu(const DisplayDesc& desc) {
     if (!made) return std::unexpected(made.error());
     device = std::move(*made);
     core::mark("GPU: thiết bị tạo xong");
+    core::Result<std::unique_ptr<gpu::Timeline>> line = device->create_timeline(0);
+    if (!line) return std::unexpected(line.error());
+    frame_line = std::move(*line);
     const gpu::AdapterInfo& adapter = device->adapter();
     if (!root.empty()) {
         CacheId actual;
@@ -271,6 +284,7 @@ void Display::State::spin(const std::stop_token& stop) {
 }
 
 [[nodiscard]] bool Display::State::turn_one(core::Clock::time_point& previous) {
+    turn_count.fetch_add(1, std::memory_order_relaxed);
     adopt();
     const TimePoint load_began = core::Clock::now();
     pump_load();
@@ -299,7 +313,7 @@ bool Display::State::turn(core::Clock::time_point& previous) {
     const double spent_ms = last_load_ms + render_ms;
     if (frame && !stale_flag) hold_pace(spent_ms);
     const double pace_ms = millis_between(pace_began, core::Clock::now());
-    const core::Clock::time_point now = core::Clock::now();
+    const core::Clock::time_point now = frame_time;
     if (frame && wait_flag) {
         wait_flag = false;
         nap(previous);
@@ -366,8 +380,6 @@ Display::State::Taken Display::State::take_steering() {
     steering.turn_keys = 0;
     steering.zoom_keys = 0;
     steering.is_home = false;
-    if (steering.toggles_pace) shows_pace = !shows_pace;
-    steering.toggles_pace = false;
     steering.wants_jump = false;
     return taken;
 }
@@ -385,7 +397,8 @@ core::Status Display::State::present_drawn(PresentAsk ask) const {
 core::Status Display::State::render() {
     stale_flag = false;
     wait_flag = false;
-    const core::Clock::time_point asked = core::Clock::now();
+    frame_time = await_shown();
+    const core::Clock::time_point asked = frame_time;
     prepare_board();
     last_prepare_ms = millis_between(asked, core::Clock::now());
     const core::Clock::time_point drawing = core::Clock::now();
@@ -403,6 +416,8 @@ core::Status Display::State::render() {
     stale_flag = is_stale;
     if (is_stale) return device->end_frame();
     if (!slot) return std::unexpected(slot.error());
+    const core::Status free = wait_slot(*slot);
+    if (!free) return free;
     const core::Clock::time_point acquired = core::Clock::now();
     const core::Status shown = draw_world(**list, *slot);
     if (!shown) return shown;
@@ -414,6 +429,8 @@ core::Status Display::State::render() {
     const PresentAsk present{.list = *list, .shot = shot};
     const core::Status submitted = present_drawn(present);
     if (!submitted) return submitted;
+    ++frame_serial;
+    slot_serials.at(*slot) = frame_serial;
     if (!has_marked_first) {
         has_marked_first = true;
         core::mark("khung đầu đã trình");
@@ -426,8 +443,33 @@ core::Status Display::State::render() {
     return ended;
 }
 
+// Trình Fifo mà bề mặt báo được lúc ảnh lên màn: khung mới chỉ bắt đầu khi khung trước nữa đã lên màn,
+// tức hàng chờ trình còn đúng một ảnh. Luồng vẽ vì thế thức theo nhịp quét thật thay vì theo lúc GPU nhả
+// ảnh, và mốc thức cách nhau đúng một nhịp quét trừ khi màn phải lặp ảnh (khung trễ thật). Chờ hỏng (hết
+// hạn, bề mặt đổi) thì vẽ luôn: acquire của khung tự báo cần dựng lại.
+core::Clock::time_point Display::State::await_shown() {
+    shown_wait_ms = 0.0;
+    shown_gpu_behind = 0;
+    gpu::Swapchain& chain = *screen->swapchain();
+    const std::uint64_t made = chain.presents();
+    const bool can_wait = chain.reports_shown() && chain.present_mode() == gpu::PresentMode::kFifo && made >= 2;
+    if (!can_wait) return core::Clock::now();
+    constexpr std::chrono::milliseconds kShowPatience{100};
+    const core::Clock::time_point began = core::Clock::now();
+    const core::Status shown = chain.wait_shown(made - 1, kShowPatience);
+    const core::Clock::time_point woke = core::Clock::now();
+    shown_wait_ms = millis_between(began, woke);
+    if (shown) ++shown_waits;
+    if (!shown) ++shown_failures;
+    if (frame_line) {
+        const std::uint64_t done = frame_line->completed();
+        shown_gpu_behind = frame_serial > done ? frame_serial - done : 0;
+    }
+    return woke;
+}
+
 core::Status Display::State::draw_world(gpu::CommandList& list, std::uint32_t slot) {
-    const float elapsed = std::chrono::duration<float>(core::Clock::now() - started).count();
+    const float elapsed = std::chrono::duration<float>(frame_time - started).count();
     FrameAsk ask;
     ask.elapsed = elapsed;
     ask.size = render::ViewSize{.width = screen->width(), .height = screen->height()};
@@ -450,19 +492,46 @@ core::Status Display::State::draw_world(gpu::CommandList& list, std::uint32_t sl
 
 core::Status Display::State::submit_frame(gpu::CommandList& list) const {
     const std::array<gpu::CommandList*, 1> one{&list};
+    const std::array<gpu::SubmitSignal, 1> done{gpu::SubmitSignal{.timeline = frame_line.get(), .value = frame_serial + 1}};
     gpu::SubmitDesc submit;
     submit.lists = one;
+    if (frame_line) submit.signals = done;
     submit.present_target = screen->swapchain();
     const core::Status sent = device->submit(gpu::QueueType::kGraphics, submit);
     if (!sent) return sent;
     return screen->present();
 }
 
+// Khung đang ghi là frame_serial + 1. Ảnh slot được khung slot_serials[slot] dùng lần cuối; ảnh đầu 3D
+// xoay vòng image_count nên ô của khung này được khung frame_serial + 1 - image_count dùng lần cuối.
+// Chờ có hạn: GPU không xong một khung trong 2 giây là thiết bị treo, dừng vòng vẽ và báo lỗi.
+core::Status Display::State::wait_slot(std::uint32_t slot) {
+    if (!frame_line) return core::ok();
+    const std::uint32_t count = screen->image_count();
+    // Đổi cỡ dựng lại swapchain sau wait_idle: mọi khung cũ đã xong, mốc 0 là đúng.
+    if (slot_serials.size() != count) slot_serials.assign(count, 0);
+    if (slot >= slot_serials.size()) return core::fail(core::ErrorCode::kInvalidState, "ảnh swapchain ngoài số ảnh");
+    const std::uint64_t ring = frame_serial + 1 > count ? frame_serial + 1 - count : 0;
+    const std::uint64_t needed = std::max(slot_serials.at(slot), ring);
+    const std::uint64_t done = frame_line->completed();
+    if (done >= needed) return core::ok();
+    ++gpu_waits;
+    if (done < slot_serials.at(slot)) ++gpu_same_image_waits;
+    constexpr std::chrono::seconds kGpuPatience{2};
+    const core::Clock::time_point began = core::Clock::now();
+    const core::Status waited = frame_line->wait(needed, kGpuPatience);
+    const double spent = millis_between(began, core::Clock::now());
+    gpu_wait_ms += spent;
+    gpu_wait_peak = std::max(gpu_wait_peak, spent);
+    if (spent > 1.0) ++gpu_long_waits;
+    return waited;
+}
+
 std::optional<ShotPlan> Display::State::record_shot(gpu::CommandList& list, std::uint32_t slot) {
     if (shot_taken || shot_path.empty() || arrival.has_value()) return std::nullopt;
-    // Bảng đo đang hiện thì chờ đủ mẫu: khung đầu chưa có số nào để chụp.
+    // Bảng đo luôn hiện (khi có phông và có vẽ giao diện): chờ đủ mẫu, khung đầu chưa có số nào để chụp.
     constexpr std::size_t kSamplesForShot = 30;
-    if (shows_pace && pace_filled < kSamplesForShot) return std::nullopt;
+    if (pace_font && !is_bare && pace_filled < kSamplesForShot) return std::nullopt;
     shot_taken = true;
     const gpu::Format colour = screen->color_format();
     const std::uint32_t width = screen->width();
@@ -574,6 +643,7 @@ void Display::State::wrap_up() {
     store_pipeline_cache();
     publish();
     report_frames();
+    report_walk();
     const core::Status waited = device->wait_idle();
     const std::scoped_lock<std::mutex> locked(outcome_guard);
     if (outcome) outcome = waited;
@@ -588,6 +658,9 @@ void Display::State::report_frames() const {
     const bool has_steady = steady_from && *steady_from + 8 < frame_ms.size();
     if (has_steady) say_steady(frame_ms, *steady_from);
     std::println("Khung bỏ vì đổi cỡ: {}", stale_frames);
+    std::println("Khung phải chờ GPU nhả bộ đệm của ảnh: {} trên {} ({} lần quá 1 ms, {} vì chính ảnh swapchain), tổng {:.2f} ms, lâu nhất {:.2f} ms",
+        gpu_waits, frame_serial, gpu_long_waits, gpu_same_image_waits, gpu_wait_ms, gpu_wait_peak);
+    std::println("Khung bắt đầu theo lúc ảnh lên màn: {} lần chờ được, {} lần hỏng", shown_waits, shown_failures);
     if (phase_ms.frames == 0) return;
     const auto frames = static_cast<double>(phase_ms.frames);
     const std::string acquire_ms = std::format("{:.2f}", phase_ms.acquire / frames);

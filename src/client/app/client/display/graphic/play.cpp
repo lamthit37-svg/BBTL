@@ -67,17 +67,19 @@ render::Camera Display::State::frame_camera(FrameAsk ask) {
     if (walk.scene_id != scene_id) place_at(scene_id);
     if (terrain_scene != scene_id) rebuild_terrain(scene_id);
     if (!terrain) return idle_view(ask);
-    const core::Clock::time_point now = core::Clock::now();
+    const core::Clock::time_point now = frame_time;
     const Taken taken = take_steering();
     view_size = ask.size;
     take_events(taken.events);
     const float delta_seconds = step_clock(ask.elapsed);
     enter_camera(scene_id);
-    steer_camera(taken.keys);
+    const Steering keys = is_auto_walk ? auto_walk(taken.keys, delta_seconds) : taken.keys;
+    steer_camera(keys);
     pilot_frame(now, delta_seconds);
     hold_stick_frame(now);
     publish_cursor();
-    simulate_motion(taken.keys, now);
+    simulate_motion(keys, now);
+    note_walk_step();
     // NOLINTNEXTLINE(bugprone-unchecked-optional-access): terrain đã kiểm ở đầu hàm
     follow.set_look_at(*terrain, foot());
     const control::CameraPose& pose = follow.pose();
@@ -351,9 +353,50 @@ void Display::State::simulate_motion(const Steering& keys, core::Clock::time_poi
     has_shown = true;
 }
 
+// Giữ W suốt, hướng nhìn quay đều theo thời gian khung: nhân vật chạy vòng tròn thay vì đứng ì trước
+// vật cản đầu tiên, và camera vừa trôi vừa xoay như lúc người chơi chạy thật.
+Steering Display::State::auto_walk(const Steering& keys, float seconds) {
+    Steering walking = keys;
+    walking.walk_forward = 1.0F;
+    walking.walk_right = 0.0F;
+    if (terrain) follow.add_direction(*terrain, kWalkTurnPerSecond * seconds);
+    return walking;
+}
+
+void Display::State::note_walk_step() {
+    if (!is_auto_walk) return;
+    const ogre::Vec3 here = foot();
+    if (walk_last_foot && walk_steps.size() < kMaxWalkSamples) {
+        const float across = here.x - walk_last_foot->x;
+        const float along = here.z - walk_last_foot->z;
+        walk_steps.push_back(std::hypot(across, along));
+    }
+    walk_last_foot = here;
+}
+
+// Bước chân mỗi khung là thứ mắt thấy khi camera bám nhân vật: Fifo hiện mỗi khung đúng một nhịp quét,
+// nên bước không đều là cảnh trôi giật. Khung "đứng" (dưới nửa trung vị) là vật cản chặn hay khung lặp;
+// khung "gấp" (trên 1,5 lần) là khung bị trễ một nhịp quét rồi bù.
+void Display::State::report_walk() const {
+    if (!is_auto_walk || walk_steps.size() < 8) return;
+    std::vector<float> sorted = walk_steps;
+    std::ranges::sort(sorted);
+    const auto rank = [&sorted](double part) {
+        const auto last = static_cast<double>(sorted.size() - 1);
+        return sorted.at(static_cast<std::size_t>(std::lround(last * part)));
+    };
+    const float median = rank(0.5);
+    const auto stalled = std::ranges::count_if(walk_steps, [median](float step) { return step < median * 0.5F; });
+    const auto doubled = std::ranges::count_if(walk_steps, [median](float step) { return step > median * 1.5F; });
+    std::println("Bước chân mỗi khung lúc tự chạy: {} khung, trung vị {:.2f} cm, p5 {:.2f}, p95 {:.2f}, max {:.2f}; "
+                 "{} khung đứng, {} khung bước gấp",
+        walk_steps.size(), median, rank(0.05), rank(0.95), sorted.back(), stalled, doubled);
+}
+
 // Một bước mô phỏng của cú nhảy: phím nhảy thành CAI_MySelf::Jump (CObject_Character::Jump), rồi
-// CObject_Phy::Tick với mặt đất (đơn vị game) dưới chỗ đứng. Đang chạy là logic MOVE. Chưa có máy chủ
-// nên không gửi CGCharJump; chưa có clip nhảy (hành động 9/12) nên thân bay mà tư thế vẫn là chạy/đứng.
+// CObject_Phy::Tick với mặt đất (đơn vị game) dưới chỗ đứng. Đang chạy là logic MOVE. Hành động 9/12
+// và lần chạm đất đưa sang Gait của người chơi (ChangeAction, NotifyPhyEvent). Chưa có máy chủ nên không
+// gửi CGCharJump.
 void Display::State::step_jump(bool wants_jump, float dt) {
     sim_ms += static_cast<std::uint32_t>(std::lround(dt * 1000.0F));
     if (ground == nullptr || !scale_ok(ground->file) || !(ground->file.scale.y > 0.0F)) return;
@@ -364,9 +407,15 @@ void Display::State::step_jump(bool wants_jump, float dt) {
     if (wants_jump) {
         motion::JumpGate gate;
         gate.is_moving = is_player_running;
-        static_cast<void>(motion::start_jump(jump, gate, ground_game, static_cast<std::uint32_t>(jump_dice())));
+        const motion::JumpStart leap =
+            motion::start_jump(jump, gate, ground_game, jump_dice());
+        if (leap.has_started) {
+            jump_begun = leap.action == motion::JumpAction::kJumpRun ? avatar::Stance::kJumpRun
+                                                                         : avatar::Stance::kJumpStand;
+            jump_landed = false;
+        }
     }
-    static_cast<void>(motion::tick_jump(jump, sim_ms, ground_game));
+    if (motion::tick_jump(jump, sim_ms, ground_game)) jump_landed = true;
 }
 
 // Độ cao thế giới của chân: mặt đất, hay thân đang bay khi cao hơn (Axis_Trans GAME sang GFX theo Y).
@@ -614,7 +663,7 @@ void Display::State::step_role_stage() {
         role_stamp.reset();
         return;
     }
-    const core::Clock::time_point now = core::Clock::now();
+    const core::Clock::time_point now = frame_time;
     StageFrame frame;
     frame.now_ms =
         static_cast<std::uint32_t>(std::chrono::duration_cast<std::chrono::milliseconds>(now - started).count());

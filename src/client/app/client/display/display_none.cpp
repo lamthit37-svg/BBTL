@@ -27,6 +27,7 @@ constexpr std::chrono::milliseconds kFramePause{16};
 
 struct Display::State {
     std::shared_ptr<const world::ShownScene> scene;
+    std::chrono::steady_clock::time_point started = std::chrono::steady_clock::now();
 };
 
 Display::Display(std::unique_ptr<State> state) noexcept : state_(std::move(state)) {}
@@ -80,6 +81,14 @@ std::uint32_t Display::draw_count() const noexcept {
 bool Display::is_spinning() const noexcept {
     return true;
 }
+
+// Luồng vẽ vô hình coi như quay một lượt mỗi kFramePause, để --frames vẫn dừng được.
+std::uint64_t Display::turns() const noexcept {
+    const auto lived = std::chrono::steady_clock::now() - state_->started;
+    return static_cast<std::uint64_t>(lived / kFramePause);
+}
+
+void Display::set_refresh(double /*rate_hz*/) noexcept {}
 
 // NOLINTNEXTLINE(modernize-use-string-view)
 std::string Display::description() const {

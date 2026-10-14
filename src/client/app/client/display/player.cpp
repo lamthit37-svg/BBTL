@@ -62,7 +62,7 @@ struct Built {
         const std::string path = (desc.data_root / "Table" / "sect_models.tsv").string();
         const auto text = read_table(path);
         if (!text) return core::fail(core::ErrorCode::kNotFound, "không đọc được bảng người mẫu môn phái");
-        const auto figure = look::sect_figure(*text, desc.race, *desc.sect);
+        auto figure = look::sect_figure(*text, desc.race, *desc.sect);
         if (!figure) return core::fail(core::ErrorCode::kCorrupt, "không giải được người mẫu môn phái", figure.error());
         return Built{.figure = std::move(figure->figure), .fidget = figure->has_fidget, .demo = true};
     }
@@ -71,7 +71,7 @@ struct Built {
         if (!figure) return std::unexpected(figure.error());
         return Built{.figure = std::move(*figure)};
     }
-    const auto figure = look::resolve(tables, desc.race, *desc.look);
+    auto figure = look::resolve(tables, desc.race, *desc.look);
     if (!figure) return core::fail(core::ErrorCode::kCorrupt, "không giải được ngoại hình đã chọn");
     return Built{.figure = std::move(*figure)};
 }
@@ -135,6 +135,8 @@ core::Status PlayerActor::update(core::Clock::time_point now, const Stand& stand
         gait_.cue(avatar::Stance::kIdleAlt);
         cue_demo_ = false;
     }
+    if (stand.jump) gait_.jump(now, *stand.jump, lengths_);
+    if (stand.has_landed) gait_.land(now, lengths_);
     const avatar::Playing playing = gait_.update(now, stand.is_moving, lengths_);
     const core::Status posed = skinner_.update(avatar_, playing);
     if (!posed) return posed;

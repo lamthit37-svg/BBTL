@@ -71,7 +71,7 @@ void Display::State::arm_scene(const DisplayDesc& desc) {
     save_root = desc.save_root;
     shot_path = desc.shot_path;
     is_bare = desc.is_bare;
-    shows_pace = desc.shows_pace;
+    is_auto_walk = desc.is_auto_walk;
     procedure = desc.procedure;
     if (!feeder) feeder = std::make_unique<Feed>();
     if (!held) {
@@ -84,6 +84,7 @@ void Display::State::arm_scene(const DisplayDesc& desc) {
     // prepare_hud, trước đây chúng đọc một gốc chưa đặt và đưa cho giao diện một mốc rất lớn rồi
     // mốc tụt về 0 ở khung thật đầu tiên.
     started = core::Clock::now();
+    frame_time = started;
     // Nướng địa hình bắt đầu trước khi dựng giao diện và người chơi, để ba việc chạy cùng lúc.
     // Lượt đọc của cảnh đầu đã giao ở kick_loading: ở đây chỉ còn pipeline và hiệu ứng của cảnh.
     if (held && arrival.has_value()) warm_scene();
@@ -213,7 +214,7 @@ ui::HudView Display::State::hud_view() const {
     view.height = height;
     view.hero = &hero;
     if (view_count > 0) view.views = std::span(head_views).first(view_count);
-    view.clock = std::chrono::duration_cast<std::chrono::milliseconds>(core::Clock::now() - started);
+    view.clock = std::chrono::duration_cast<std::chrono::milliseconds>(frame_time - started);
     view.pointer.emplace();
     view.pointer->x = pointer.x * width;
     view.pointer->y = pointer.y * height;
@@ -262,7 +263,7 @@ bool Display::State::is_on_hud(control::ScreenPoint point) const {
 void Display::State::fill_pace_board() {
     pace_board.vertices.clear();
     pace_board.batches.clear();
-    if (!pace_font || !shows_pace) return;
+    if (!pace_font) return;
     ui::PacePlace place;
     place.font = &*pace_font;
     place.texture = pace_texture;
@@ -279,7 +280,7 @@ void Display::State::prepare_board() {
 }
 
 void Display::State::stamp_phases(const FrameMarks& marks) {
-    pace_last.acquire_ms = static_cast<float>(millis_between(marks.asked, marks.acquired));
+    pace_last.acquire_ms = static_cast<float>(shown_wait_ms + millis_between(marks.asked, marks.acquired));
     pace_last.draw_ms = static_cast<float>(millis_between(marks.acquired, marks.recorded));
     pace_last.submit_ms = static_cast<float>(millis_between(marks.recorded, core::Clock::now()));
     pace_last.draws = scene_draws;
@@ -317,6 +318,16 @@ void Display::State::hold_pace(double spent_ms) {
     core::sleep_until(*next);
 }
 
+// Fifo khoá khung vào nhịp quét: trên màn 60 Hz không khung nào đạt ngân sách 8,3 ms của trần 120 Hz,
+// nên bảng từng báo TRƯỢT ở đúng 60,0 FPS (docs/BAY-DA-BIET.md). Bề mặt Fifo mà biết tần số quét thì
+// ngân sách là một nhịp quét; không Fifo hoặc chưa biết thì là trần render_hz như trước.
+float Display::State::frame_budget_ms() const noexcept {
+    const double rate = refresh_hz.load(std::memory_order_relaxed);
+    const bool is_fifo = screen != nullptr && screen->swapchain()->present_mode() == gpu::PresentMode::kFifo;
+    if (is_fifo && rate > 0.0) return static_cast<float>(1000.0 / rate);
+    return render_hz > 0 ? 1000.0F / static_cast<float>(render_hz) : 0.0F;
+}
+
 void Display::State::record_interval(IntervalNote note) {
     frame_ms.push_back(note.interval);
     note_pace(note.interval);
@@ -329,6 +340,9 @@ void Display::State::record_interval(IntervalNote note) {
     spike.draw_ms = pace_last.draw_ms;
     spike.submit_ms = pace_last.submit_ms;
     spike.prepare_ms = last_prepare_ms;
+    spike.budget_ms = static_cast<double>(frame_budget_ms());
+    spike.frame = frame_serial;
+    spike.gpu_behind = shown_gpu_behind;
     report_spike(spike);
 }
 
@@ -344,7 +358,7 @@ void Display::State::note_pace(double interval) {
     phases.draws = pace_last.draws;
     phases.ui_quads = pace_last.quads;
     phases.prepare_ms = static_cast<float>(last_prepare_ms);
-    if (render_hz > 0) phases.budget_ms = 1000.0F / static_cast<float>(render_hz);
+    phases.budget_ms = frame_budget_ms();
     phases.output_width = screen->width();
     phases.output_height = screen->height();
     phases.samples = screen->samples();

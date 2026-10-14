@@ -97,8 +97,10 @@ struct DisplayDesc {
     // Không vẽ lớp giao diện (HUD, bảng đăng nhập, bảng đo): khung hình chỉ còn cảnh 3D và hiệu
     // ứng. Giao diện vẫn chạy và nhận chuột, phím như thường, chỉ không ra hình.
     bool is_bare = false;
-    // Bảng đo nhịp khung hiện ngay từ khung đầu; F3 bật tắt tiếp.
-    bool shows_pace = false;
+    // Công cụ đo của dự án (--walk), client gốc không có: ở màn chơi nhân vật tự chạy tới như giữ W
+    // và hướng nhìn xoay đều kWalkTurnPerSecond, để đo nhịp khung lúc di chuyển mà không cần chuột hay
+    // phím thật. Lúc thoát in một dòng về bước đi mỗi khung.
+    bool is_auto_walk = false;
     // Rỗng: tự chọn backend. Có thì ép đúng tên đó.
     std::optional<std::string> backend;
     // Có has thì màn chơi dùng ngoại hình này thay cho nhân vật mặc định.
@@ -117,9 +119,6 @@ struct Steering {
     int zoom_keys = 0;
     // Có nhấn V: hướng camera quay về hướng lúc vào cảnh.
     bool is_home = false;
-    // Có nhấn F3: bật hay tắt bảng đo khung hình. Bảng là công cụ của dự án, client gốc không có,
-    // nên mặc định ẩn; hai lần nhấn giữa hai khung thì huỷ nhau.
-    bool toggles_pace = false;
     // Có nhấn phím nhảy (Space) từ khung trước; nhảy lặp do giữ phím không tính.
     bool wants_jump = false;
     // Hướng đi đang giữ so với hướng nhìn, trong [-1, 1]; ghi đè chứ không cộng dồn, và chỉ khi
@@ -203,6 +202,13 @@ public:
     [[nodiscard]] std::uint32_t draw_count() const noexcept;
     // Luồng vẽ còn quay hay không: dừng khi lỗi vẽ hoặc mất thiết bị, vòng cửa sổ nên kết thúc.
     [[nodiscard]] bool is_spinning() const noexcept;
+    // Số lượt của vòng vẽ từ lúc quay (khung đã vẽ cộng lượt nghỉ khi cửa sổ ẩn hay bề mặt đang
+    // đổi cỡ); --frames đếm theo số này. An toàn mọi luồng.
+    [[nodiscard]] std::uint64_t turns() const noexcept;
+    // Tần số quét của màn đang chứa cửa sổ, Hz. Khi trình Fifo, khung không nhanh hơn được nhịp quét,
+    // nên bảng đo lấy 1000 / hz làm ngân sách thay cho trần render_hz. Số không dương hay không hữu
+    // hạn là "không biết": bảng giữ ngân sách của trần. An toàn mọi luồng, không chặn.
+    void set_refresh(double rate_hz) noexcept;
     // Một dòng mô tả để in ra: tên API và tên card, hoặc lý do không vẽ.
     [[nodiscard]] std::string description() const;
     // Bản ngoại hình luồng vẽ đã áp. Luồng cửa sổ đọc được trong lúc luồng vẽ đang chạy.

@@ -43,9 +43,14 @@
 namespace game::client {
 namespace {
 
-// Nhịp vòng thông điệp khi Windows giữ vòng kéo hoặc đổi cỡ, cỡ một khung hình.
-// Luồng thông điệp nghỉ 8 ms: đủ thưa để không chiếm một lõi, đủ mau cho trần 120 khung/giây.
+// Nhịp vòng thông điệp khi Windows giữ vòng kéo hoặc đổi cỡ (SetTimer, không xuống dưới 10 ms).
 constexpr std::chrono::milliseconds kFramePause{8};
+// Nghỉ giữa hai lượt chuyển input sang luồng vẽ. Bản gốc đọc chuột và phím ngay đầu mỗi khung
+// (CInputSystem::MouseTick, GetAsyncKeyState), nên mỗi khung nhận đúng phần di chuột từ khung trước
+// tới nó. Ở đây input qua luồng này: nghỉ 8 ms thì độ dời tới luồng vẽ theo cụm 8 ms lệch nhịp với
+// khung 16,7 ms, khung nhận hai cụm, khung nhận ba, camera kéo bằng chuột phải xoay lúc 16 lúc 24 ms
+// đường chuột (lệch 50%). Nghỉ 1 ms đưa phần lệch xuống dưới 1 ms mỗi khung; vòng rỗi tốn vài µs.
+constexpr std::chrono::milliseconds kInputPause{1};
 struct LoopStats {
     std::uint32_t frames = 0;
     std::uint32_t resizes = 0;
@@ -87,13 +92,15 @@ void step(window::Window& opened, Display& display, LoopStats& stats) {
     ++stats.frames;
 }
 
-[[nodiscard]] bool is_done(const ViewerDesc& desc, const Display& display, const LoopStats& stats) {
+// --frames đếm lượt của vòng vẽ, không đếm vòng này: vòng này quay theo kInputPause nên số vòng của
+// nó không nói gì về số khung đã vẽ.
+[[nodiscard]] bool is_done(const ViewerDesc& desc, const Display& display) {
     if (!display.is_spinning()) return true;
-    return desc.frames.has_value() && stats.frames >= *desc.frames;
+    return desc.frames.has_value() && display.turns() >= *desc.frames;
 }
 
-void finish_if_done(window::Window& opened, const ViewerDesc& desc, const Display& display, const LoopStats& stats) {
-    if (!is_done(desc, display, stats)) return;
+void finish_if_done(window::Window& opened, const ViewerDesc& desc, const Display& display) {
+    if (!is_done(desc, display)) return;
     window::request_quit();
     opened.cancel_size_move();
 }
@@ -328,8 +335,7 @@ void on_key_down(Controls& controls, SdlKey key, bool is_repeat) {
         send_walk(controls);
         return;
     }
-    Steering input = camera_key_steering(key);
-    input.toggles_pace = key == SdlKey::kF3 && !is_repeat;
+    const Steering input = camera_key_steering(key);
     controls.display->steer(input);
     if (key == SdlKey::kSpace && !is_repeat) controls.display->act(PlayAct::kJump);
     const int step = direction_of(key);
@@ -435,6 +441,8 @@ void drain_input(SdlInput& input, Controls& controls, std::vector<SdlAction>& ac
     input.drain(actions);
     for (const SdlAction& action : actions)
         apply_action(controls, action);
+    const auto is_display = [](const SdlAction& action) { return action.kind == SdlAction::Kind::kDisplay; };
+    if (std::ranges::any_of(actions, is_display)) controls.display->set_refresh(input.refresh_hz());
 }
 
 // Thời gian chuyển nhạc khi đổi cảnh, giây: nhạc cũ nhỏ dần trong lúc nhạc mới lên.
@@ -549,12 +557,12 @@ void one_frame(Session& session) {
         session.display->show(scene);
     }
     step(*session.opened, *session.display, session.stats);
-    finish_if_done(*session.opened, *session.desc, *session.display, session.stats);
+    finish_if_done(*session.opened, *session.desc, *session.display);
 }
 
 // Chưa tới lúc dừng (đủ số vòng, luồng vẽ ngừng) và vòng thông điệp chưa nhận lệnh thoát.
 [[nodiscard]] bool pumps_on(const Session& session) {
-    if (is_done(*session.desc, *session.display, session.stats)) return false;
+    if (is_done(*session.desc, *session.display)) return false;
     return window::pump_messages() == window::Flow::kRunning;
 }
 
@@ -563,9 +571,9 @@ void pump_until_done(Session& session) {
     opened.set_modal_tick([&session] { one_frame(session); }, kFramePause);
     while (pumps_on(session)) {
         one_frame(session);
-        // Luồng vẽ tự vẽ lấy; luồng này không còn bị present chặn, nên tự nhịp nghỉ một khung
-        // hình (trước đây 67 triệu vòng bão hoà một lõi — đã đo bằng drive_window.py).
-        core::sleep_for(kFramePause);
+        // Luồng vẽ tự vẽ lấy; luồng này không bị present chặn nên phải tự nghỉ (không nghỉ thì 67
+        // triệu vòng bão hoà một lõi — đã đo bằng drive_window.py).
+        core::sleep_for(kInputPause);
     }
     // Nhịp modal giữ tham chiếu tới session và phần hiển thị, cả hai chết trước cửa sổ: gỡ nó ra.
     opened.set_modal_tick({}, kFramePause);
@@ -577,8 +585,8 @@ void pump_until_done(Session& session) {
     const LoopStats& stats = session.stats;
     const window::Size size = session.opened->client_size();
     const std::uint64_t faults = session.display->validation_errors();
-    std::println("Cửa sổ đóng sau {} vòng lặp, {} lần đổi cỡ, vùng vẽ cuối {}x{}", stats.frames, stats.resizes,
-        size.width, size.height);
+    std::println("Cửa sổ đóng sau {} lượt vẽ, {} vòng lặp, {} lần đổi cỡ, vùng vẽ cuối {}x{}", session.display->turns(),
+        stats.frames, stats.resizes, size.width, size.height);
     std::println("{} lệnh vẽ của khung cuối, lớp kiểm tra của GPU báo {} lỗi", session.display->draw_count(), faults);
     if (!finished) std::println(stderr, "Lỗi khi vẽ: {}", finished.error());
     const bool is_clean = finished.has_value() && faults == 0;
@@ -632,6 +640,9 @@ void begin_speaker(audio::Engine& speaker, const std::filesystem::path& data_roo
         std::println(stderr, "SDL: {}", input.error());
         return 1;
     }
+    const double refresh = input->refresh_hz();
+    display.set_refresh(refresh);
+    std::println("Màn hình: {:.2f} Hz", refresh);
     Session session;
     session.opened = &opened;
     session.display = &display;
@@ -672,6 +683,9 @@ int run_viewer(const ViewerDesc& desc) {
         return 1;
     }
     core::mark("cửa sổ mở");
+    // Lần ShowWindow đầu của tiến trình bị Windows đổi theo STARTUPINFO: lối tắt "Run: Minimized" cho cửa sổ ra thu
+    // nhỏ với vùng vẽ 0x0, mà swapchain không tạo được ở cỡ 0 ("texture: rộng hoặc cao bằng 0"). Đưa nó về cỡ thường.
+    if (opened->is_minimized()) opened->restore();
     const window::Size initial = opened->client_size();
     DisplayDesc shown;
     shown.window = opened->native_handle();
@@ -684,7 +698,7 @@ int run_viewer(const ViewerDesc& desc) {
     shown.data_root = desc.data_folder;
     shown.shot_path = desc.shot;
     shown.is_bare = desc.is_bare;
-    shown.shows_pace = desc.shows_pace;
+    shown.is_auto_walk = desc.is_auto_walk;
     shown.is_validated = desc.is_validated;
     shown.backend = desc.backend;
     shown.procedure = desc.procedure;

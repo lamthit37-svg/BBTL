@@ -211,7 +211,7 @@ void print_visit(const world::ShownScene& shown) {
     viewer.data_folder = data_folder_of(options);
     viewer.shot = options.shot_path;
     viewer.is_bare = options.is_bare;
-    viewer.shows_pace = options.shows_pace;
+    viewer.is_auto_walk = options.is_auto_walk;
     viewer.is_validated = options.validate.value_or(kValidatedByBuild);
     viewer.backend = options.backend;
     viewer.client_size = options.client_size;
@@ -310,7 +310,7 @@ void report_named(const client::NamedScene& named, std::string_view label) {
     const world::ShownScene& shown = *playing.current;
     print_visit(shown);
     std::println("Vào cảnh resid {} ({})", shown.id, shown.scene_file);
-    game::core::mark("cảnh đã đọc (world::enter)");
+    core::mark("cảnh đã đọc (world::enter)");
     client::ViewerDesc viewer = viewer_of(options, std::move(preload));
     viewer.title += " — " + shown.name;
     viewer.stage = &shown.stage;
@@ -360,7 +360,7 @@ void report_named(const client::NamedScene& named, std::string_view label) {
 
 [[nodiscard]] int start(std::span<char* const> arguments) {
     io::use_utf8_console();
-    game::core::mark("main bắt đầu");
+    core::mark("main bắt đầu");
     // Bỏ tên exe ở đầu; hệ điều hành được phép chạy một tiến trình không có đối số nào.
     const std::span<char* const> rest = arguments.subspan(arguments.empty() ? 0 : 1);
     const std::vector<std::string_view> texts(rest.begin(), rest.end());

@@ -94,9 +94,8 @@ struct Argument {
     if (text == "--validate") options.validate = true;
     if (text == "--login") options.is_login = true;
     if (text == "--bare") options.is_bare = true;
-    if (text == "--pace") options.shows_pace = true;
-    if (text == "--no-pace") options.shows_pace = false;
-    return text == "--validate" || text == "--login" || text == "--bare" || text == "--pace" || text == "--no-pace";
+    if (text == "--walk") options.is_auto_walk = true;
+    return text == "--validate" || text == "--login" || text == "--bare" || text == "--walk";
 }
 
 [[nodiscard]] bool take_argument(Options& options, Arguments arguments, std::size_t& index) {

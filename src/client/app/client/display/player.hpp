@@ -45,6 +45,10 @@ struct Stand {
     // Tỉ lệ quanh chân; người mẫu của màn tạo đứng to gấp rưỡi.
     float scale = 1.0F;
     bool is_moving = false;
+    // Cú nhảy bắt đầu trong khung này (kJumpStand hay kJumpRun của avatar::Stance), và chạm đất
+    // trong khung này. Bắt đầu áp trước chạm đất.
+    std::optional<avatar::Stance> jump;
+    bool has_landed = false;
 };
 
 // NOLINTNEXTLINE(bugprone-exception-escape): giả dương của STL MSVC (HP-07)

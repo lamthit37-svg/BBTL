@@ -15,8 +15,9 @@ namespace game::client {
 
 inline constexpr std::string_view kUsage =
     "Cách dùng: thienlong_client [--scene-id <resid>] [--scene <tên map>] [--data <thư mục>]\n"
-    "                         [--frames <số vòng>] [--shot <tệp.png>] [--validate]\n"
-    "                         [--backend <tên>] [--size <rộng>x<cao>] [--login] [--bare] [--no-pace]\n"
+    "                         [--frames <số khung>] [--shot <tệp.png>] [--validate]\n"
+    "                         [--backend <tên>] [--size <rộng>x<cao>] [--login] [--bare]\n"
+    "                         [--walk]\n"
     "--scene-id là resid trong Config/SceneDefineEx.txt. --scene tìm tên file .Scene trong bảng "
     "đó.\n"
     "Không nêu --scene và --scene-id: mở đăng nhập, như bấm đúp exe. Nút vào game đọc "
@@ -28,8 +29,12 @@ inline constexpr std::string_view kUsage =
     "--validate: bật lớp kiểm tra của API đồ hoạ (bản debug bật sẵn, bản phát hành tắt cho nhanh).\n"
     "--login: mở thủ tục đăng nhập (bảng nhập tài khoản) thay vì vào thẳng một cảnh.\n"
     "--bare: không vẽ lớp giao diện, chỉ cảnh 3D và hiệu ứng; dùng với --shot để chụp cảnh nền.\n"
-    "--no-pace: không mở bảng đo nhịp khung lúc khởi động (mặc định mở, F3 bật tắt), bảng so với\n"
-    "ngân sách khung của 120 Hz. --pace vẫn nhận, nghĩa là mở (mặc định).";
+    "--frames: thoát sau chừng ấy lượt của vòng vẽ (khung đã vẽ cộng lượt nghỉ khi cửa sổ ẩn).\n"
+    "Bảng đo nhịp khung luôn hiện ở màn chơi, không tắt được (chủ dự án chốt 2026-10-14); nó so\n"
+    "với một nhịp quét của màn (trình Fifo), không biết nhịp quét thì với 120 Hz. --shot chờ đủ\n"
+    "30 mẫu của bảng nên cần --frames từ 30 trở lên.\n"
+    "--walk: ở màn chơi nhân vật tự chạy vòng (giữ W, hướng nhìn xoay đều) để đo nhịp lúc di\n"
+    "chuyển; lúc thoát in bước chân mỗi khung. Công cụ đo, client gốc không có.";
 
 struct Options {
     // Rỗng: không chọn theo tên file. resid được ưu tiên hơn tên này.
@@ -38,7 +43,7 @@ struct Options {
     std::optional<int> scene_id;
     // Rỗng: lấy <thư mục chứa exe>/../assets.
     std::filesystem::path data_folder;
-    // Số vòng lặp của cửa sổ rồi tự thoát, cho chạy tự động; không có thì chạy tới khi đóng cửa sổ.
+    // Số lượt của vòng vẽ rồi tự thoát, cho chạy tự động; không có thì chạy tới khi đóng cửa sổ.
     std::optional<std::uint32_t> frames;
     // Ảnh chụp khung đầu tiên vẽ được; rỗng thì không chụp.
     std::filesystem::path shot_path;
@@ -53,9 +58,9 @@ struct Options {
     bool is_login = false;
     // Không vẽ lớp giao diện (khung, nút, chữ, bảng đo): khung hình chỉ còn cảnh 3D và hiệu ứng.
     bool is_bare = false;
-    // Bảng đo nhịp khung hiện ngay từ khung đầu (mặc định bật); F3 bật tắt, --no-pace tắt từ đầu.
-    // --shot chờ đủ 30 mẫu của bảng nên cần --frames từ 30 trở lên; chụp ngắn hơn thì dùng --no-pace.
-    bool shows_pace = true;
+    // --walk: ở màn chơi nhân vật tự chạy vòng (giữ W, hướng nhìn xoay đều), lúc thoát in bước chân
+    // mỗi khung. Công cụ đo của dự án, client gốc không có.
+    bool is_auto_walk = false;
 };
 
 using Arguments = std::span<const std::string_view>;

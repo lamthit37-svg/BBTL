@@ -15,7 +15,7 @@ Không đụng chuột, bàn phím hay cửa sổ. Chương trình bị kill khi
 
 Ví dụ (client này, mốc trong tiến trình):
   python TOOLS/run/bench_load.py --runs 10 --mark "khung đầu đã trình" --cwd dev/client/bin -- \\
-      ./thienlong_client.exe --scene-id 2 --size 1280x720 --frames 60 --no-pace
+      ./thienlong_client.exe --scene-id 2 --size 1280x720 --frames 60
 Ví dụ (client tham chiếu, ảnh do nó chụp theo kịch bản): xem docs/TIEN-DO.md mục "Tốc độ nạp".
 Ghi toàn bộ số từng lượt ra --json <tệp> nếu cần.
 """

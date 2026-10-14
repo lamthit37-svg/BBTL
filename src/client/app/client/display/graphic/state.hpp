@@ -114,6 +114,7 @@ struct Display::State {
         TimePoint recorded;
     };
     void stamp_phases(const FrameMarks& marks);
+    [[nodiscard]] core::Clock::time_point await_shown();
     struct IntervalNote {
         double interval = 0.0;
         double render_ms = 0.0;
@@ -123,6 +124,13 @@ struct Display::State {
     void record_interval(IntervalNote note);
     void ensure_clock();
     void hold_pace(double spent_ms);
+    // Ngân sách một khung của bảng đo, ms; 0 khi chưa biết gì.
+    [[nodiscard]] float frame_budget_ms() const noexcept;
+    // --walk: thay phím đi của khung bằng "giữ W" và xoay hướng nhìn theo thời gian khung.
+    [[nodiscard]] Steering auto_walk(const Steering& keys, float seconds);
+    // --walk: ghi quãng chân đi được ở khung này (sau simulate_motion) và in tổng kết lúc thoát.
+    void note_walk_step();
+    void report_walk() const;
     [[nodiscard]] core::Status paint_hud(gpu::CommandList& list, std::uint32_t slot) const;
     struct FxAsk {
         gpu::CommandList* list = nullptr;
@@ -179,6 +187,8 @@ struct Display::State {
     void seal_mesh(std::size_t index, std::vector<std::size_t>& slots);
     void finish_stream();
     [[nodiscard]] core::Status submit_frame(gpu::CommandList& list) const;
+    // Chờ GPU chạy xong mọi khung trước còn dùng bộ đệm của ảnh slot; xem frame_line.
+    [[nodiscard]] core::Status wait_slot(std::uint32_t slot);
     void load_props();
     [[nodiscard]] std::vector<std::size_t> load_listed(const PropTable& table);
     void load_stage();
@@ -336,6 +346,38 @@ struct Display::State {
     std::optional<core::FixedStep> frame_clock;
     std::optional<core::FixedStep> sim_clock;
     std::uint32_t render_hz = 120;
+    // Display::set_refresh: tần số quét của màn, Hz; 0 là chưa biết. Luồng cửa sổ ghi, luồng vẽ đọc.
+    std::atomic<double> refresh_hz{0.0};
+    // Display::turns: số lượt của vòng vẽ. Luồng vẽ ghi, luồng cửa sổ đọc.
+    std::atomic<std::uint64_t> turn_count{0};
+    // Số thứ tự khung trên GPU. Lần nộp thứ n của khung báo frame_line lên n. Bộ đệm mỗi khung (khối
+    // camera, ma trận vật thể, bảng xương, đỉnh giao diện, quad hạt) là bộ nhớ Upload ánh xạ thẳng,
+    // đánh số theo ảnh swapchain (slot_serials: khung gần nhất đã dùng ảnh đó) hay theo vòng
+    // image_count (ảnh đầu 3D). Acquire trả ảnh không có nghĩa GPU đã vẽ xong khung trước dùng ảnh ấy,
+    // nên wait_slot chờ mốc đó trước khi ghi. gpu_waits đếm số khung đã phải chờ thật.
+    std::unique_ptr<gpu::Timeline> frame_line;
+    std::uint64_t frame_serial = 0;
+    std::vector<std::uint64_t> slot_serials;
+    std::uint64_t gpu_waits = 0;
+    double gpu_wait_ms = 0.0;
+    double gpu_wait_peak = 0.0;
+    std::uint64_t gpu_long_waits = 0;
+    std::uint64_t gpu_same_image_waits = 0;
+    // Mốc thời gian của khung đang vẽ: lúc luồng vẽ thức sau khi khung trước nữa đã lên màn (await_shown),
+    // hay lúc render bắt đầu khi bề mặt không báo được. Mô phỏng, hoạt ảnh, HUD và bảng đo cùng đọc mốc
+    // này, nên hai khung liền nhau cách nhau đúng khoảng giữa hai lần ảnh lên màn. shown_wait_ms là phần
+    // chờ màn của khung, cộng vào chặng "Xin ảnh"; shown_waits và shown_failures đếm số lần chờ.
+    core::Clock::time_point frame_time{};
+    double shown_wait_ms = 0.0;
+    std::uint64_t shown_waits = 0;
+    std::uint64_t shown_failures = 0;
+    // Số khung đã nộp mà GPU chưa xong lúc await_shown trả về, cho dòng "Khung chậm".
+    std::uint64_t shown_gpu_behind = 0;
+    // DisplayDesc::is_auto_walk, và quãng chân đi được mỗi khung trong lúc tự chạy (cm), cho dòng
+    // tổng kết lúc thoát. Có trần kMaxWalkSamples mẫu.
+    bool is_auto_walk = false;
+    std::vector<float> walk_steps;
+    std::optional<ogre::Vec3> walk_last_foot;
     float prev_x = 0.0F;
     float prev_z = 0.0F;
     float shown_x = 0.0F;
@@ -401,8 +443,12 @@ struct Display::State {
     // Cú nhảy của người chơi (đơn vị game), đồng hồ mô phỏng (ms, cộng theo bước cố định) làm
     // mốc cho CObject_Phy::Tick, và số lăn thay cho rand() của gốc.
     motion::Jump jump;
+    // Cú nhảy bắt đầu và lần chạm đất từ các bước mô phỏng chưa đưa cho người chơi; compose_frame lấy.
+    std::optional<avatar::Stance> jump_begun;
+    bool jump_landed = false;
     std::uint32_t sim_ms = 0;
-    std::minstd_rand jump_dice{std::random_device{}()};
+    // minstd_rand với kiểu kết quả đúng 32 bit trên mọi nền (như avatar::Gait), để không phải ép kiểu số lăn.
+    std::linear_congruential_engine<std::uint32_t, 48271U, 0U, 2147483647U> jump_dice{std::random_device{}()};
     bool has_lens = false;
     // Ba nút chuột đang giữ theo sự kiện đã nhận, theo thứ tự của control::MouseButton, và nút
     // nào đã đổi trạng thái trong khung này.
@@ -413,8 +459,6 @@ struct Display::State {
     // Nấc lăn chưa đưa cho giao diện (dương là lăn lên): cộng ở turn_wheel, prepare_hud lấy rồi
     // xoá. Tách khỏi hai cờ trên vì chúng hết ở close_mouse_frame, trước lúc giao diện chạy.
     std::int32_t hud_wheel = 0;
-    // Bảng đo khung hình đang hiện (F3); chỉ luồng vẽ đụng, trong take_steering.
-    bool shows_pace = false;
     // Cú nhấn trái bắt đầu trên HUD thì thuộc về giao diện tới khi nhả.
     bool is_hud_press = false;
     bool stale_flag = false;

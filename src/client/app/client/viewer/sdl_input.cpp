@@ -1,9 +1,23 @@
 // Dịch sự kiện SDL3 sang SdlAction. Toạ độ chuột chia cho cỡ cửa sổ SDL, gốc trái trên.
 #include "client/viewer/sdl_input.hpp"
 
-#include <SDL3/SDL.h>
+#include "control/input.hpp"
+#include "core/error.hpp"
 
-#include <cmath>
+#include <SDL3/SDL_error.h>
+#include <SDL3/SDL_events.h>
+#include <SDL3/SDL_gamepad.h>
+#include <SDL3/SDL_init.h>
+#include <SDL3/SDL_joystick.h>
+#include <SDL3/SDL_keyboard.h>
+#include <SDL3/SDL_keycode.h>
+#include <SDL3/SDL_mouse.h>
+#include <SDL3/SDL_properties.h>
+#include <SDL3/SDL_stdinc.h>
+#include <SDL3/SDL_video.h>
+
+#include <cstddef>
+#include <cstdint>
 #include <memory>
 #include <string_view>
 #include <utility>
@@ -74,7 +88,6 @@ struct Utf8 {
     if (code == SDLK_PAGEUP) return SdlKey::kPageUp;
     if (code == SDLK_PAGEDOWN) return SdlKey::kPageDown;
     if (code == SDLK_V) return SdlKey::kV;
-    if (code == SDLK_F3) return SdlKey::kF3;
     if (code == SDLK_SPACE) return SdlKey::kSpace;
     if (code == SDLK_BACKSPACE) return SdlKey::kBackspace;
     if (code == SDLK_TAB) return SdlKey::kTab;
@@ -98,13 +111,19 @@ struct Utf8 {
     return control::MouseButton::kOther;
 }
 
-void place(SDL_Window* window, control::InputEvent& event, float x, float y) noexcept {
+// Toạ độ cửa sổ SDL, điểm ảnh, gốc trái trên.
+struct WindowPoint {
+    float x = 0.0F;
+    float y = 0.0F;
+};
+
+void place(SDL_Window* window, control::InputEvent& event, WindowPoint point) noexcept {
     int width = 0;
     int height = 0;
     SDL_GetWindowSize(window, &width, &height);
     if (width <= 0 || height <= 0) return;
-    event.x = x / static_cast<float>(width);
-    event.y = y / static_cast<float>(height);
+    event.x = point.x / static_cast<float>(width);
+    event.y = point.y / static_cast<float>(height);
 }
 
 void push_event(std::vector<SdlAction>& out, control::InputEvent event) {
@@ -189,7 +208,7 @@ void drop_pad(std::vector<Pad>& pads, SDL_JoystickID id) {
 void on_motion(SDL_Window* window, std::vector<SdlAction>& out, const SDL_MouseMotionEvent& motion) {
     control::InputEvent event;
     event.kind = control::InputKind::kMove;
-    place(window, event, motion.x, motion.y);
+    place(window, event, {.x = motion.x, .y = motion.y});
     event.dx = motion.xrel;
     event.dy = motion.yrel;
     push_event(out, event);
@@ -199,7 +218,7 @@ void on_button(SDL_Window* window, std::vector<SdlAction>& out, const SDL_MouseB
     control::InputEvent event;
     event.kind = button.down ? control::InputKind::kPress : control::InputKind::kRelease;
     event.button = button_of(button.button);
-    place(window, event, button.x, button.y);
+    place(window, event, {.x = button.x, .y = button.y});
     push_event(out, event);
 }
 
@@ -235,6 +254,13 @@ void take(SDL_Window* window, std::vector<Pad>& pads, std::vector<SdlAction>& ou
         on_keyboard(out, event.key);
     if (event.type == SDL_EVENT_TEXT_INPUT && event.text.text != nullptr && is_ours(window, event.text.windowID))
         push_text(out, event.text.text);
+    const bool is_moved = event.type == SDL_EVENT_WINDOW_DISPLAY_CHANGED && is_ours(window, event.window.windowID);
+    if (is_moved || event.type == SDL_EVENT_DISPLAY_CURRENT_MODE_CHANGED) {
+        SdlAction display;
+        display.kind = SdlAction::Kind::kDisplay;
+        out.push_back(display);
+        return;
+    }
     if (event.type != SDL_EVENT_WINDOW_FOCUS_LOST || !is_ours(window, event.window.windowID)) return;
     SdlAction blur;
     blur.kind = SdlAction::Kind::kBlur;
@@ -248,6 +274,12 @@ struct SdlInput::Holder {
     std::vector<Pad> pads;
     bool relative = false;
 
+    Holder() = default;
+    // Giữ cửa sổ và tay cầm của SDL: chép hay dời là đóng hai lần.
+    Holder(const Holder&) = delete;
+    Holder& operator=(const Holder&) = delete;
+    Holder(Holder&&) = delete;
+    Holder& operator=(Holder&&) = delete;
     ~Holder() {
         for (const Pad& pad : pads)
             SDL_CloseGamepad(pad.device);
@@ -299,6 +331,18 @@ void SdlInput::drain(std::vector<SdlAction>& out) {
     SDL_Event event{};
     while (SDL_PollEvent(&event))
         take(holder_->window, holder_->pads, out, event);
+}
+
+double SdlInput::refresh_hz() const noexcept {
+    if (holder_ == nullptr) return 0.0;
+    const SDL_DisplayID screen = SDL_GetDisplayForWindow(holder_->window);
+    const SDL_DisplayMode* const mode = screen == 0 ? nullptr : SDL_GetCurrentDisplayMode(screen);
+    if (mode == nullptr) return 0.0;
+    const bool is_exact = mode->refresh_rate_numerator > 0 && mode->refresh_rate_denominator > 0;
+    if (is_exact) {
+        return static_cast<double>(mode->refresh_rate_numerator) / static_cast<double>(mode->refresh_rate_denominator);
+    }
+    return static_cast<double>(mode->refresh_rate);
 }
 
 } // namespace game::client

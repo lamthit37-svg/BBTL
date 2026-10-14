@@ -171,11 +171,19 @@ struct SpikeParts {
     float draw_ms = 0.0F;
     float submit_ms = 0.0F;
     double prepare_ms = 0.0;
+    // Ngân sách một khung (ms; 0 là chưa biết thì lấy một nhịp 60 Hz), số thứ tự của khung, và số khung đã
+    // nộp mà GPU chưa xong lúc luồng vẽ thức (GPU chậm thì số này lớn; 0 mà vẫn chờ lâu là phía trình).
+    double budget_ms = 0.0;
+    std::uint64_t frame = 0;
+    std::uint64_t gpu_behind = 0;
 };
 
-// In khi khung vượt một nhịp 60 Hz cộng phần dư. Khung đều 16,7 ms không in.
+// In khi khung vượt ngân sách cộng 20%. Khung đều một nhịp quét không in.
 inline void report_spike(const SpikeParts& parts) {
-    if (parts.interval <= 20.0) return;
+    constexpr double kSixtyHertzMs = 1000.0 / 60.0;
+    constexpr double kSpikeSlack = 1.2;
+    const double budget = parts.budget_ms > 0.0 ? parts.budget_ms : kSixtyHertzMs;
+    if (parts.interval <= budget * kSpikeSlack) return;
     const std::string interval = std::format("{:.1f}", parts.interval);
     const std::string load_ms = std::format("{:.1f}", parts.load_ms);
     const std::string render_ms = std::format("{:.1f}", parts.render_ms);
@@ -184,10 +192,11 @@ inline void report_spike(const SpikeParts& parts) {
     const std::string draw_ms = std::format("{:.1f}", parts.draw_ms);
     const std::string submit_ms = std::format("{:.1f}", parts.submit_ms);
     const std::string prepare_ms = std::format("{:.1f}", parts.prepare_ms);
-    const std::string head = "Khung chậm " + interval + " ms: nạp " + load_ms + " ms, dựng UI ";
+    const std::string head = "Khung chậm #" + std::to_string(parts.frame) + " " + interval + " ms: nạp " + load_ms +
+        " ms, dựng UI ";
     const std::string body = prepare_ms + " ms, vẽ " + render_ms + " ms (xin " + acquire_ms;
     const std::string tail = ", ghi " + draw_ms + ", nộp " + submit_ms + "), chờ nhịp " + pace_ms;
-    std::println("{}{}{} ms", head, body, tail);
+    std::println("{}{}{} ms, GPU còn {} khung", head, body, tail, parts.gpu_behind);
 }
 
 struct FrameRank {
@@ -253,8 +262,10 @@ constexpr std::size_t kKeptGrounds = 4;
 // bỏ (đang kéo cửa sổ, máy bận) không để lại cú giật bù.
 constexpr float kYawStart = 0.6F;
 constexpr float kYawPerSecond = 0.24F;
-// Mọi nền trình Fifo theo Hz của màn (60, 90, 120 hay 144). Ngủ thêm sau Fifo làm khung trễ mất
-// nhịp quét, nên hold_pace chỉ ngủ khi bề mặt thật sự không phải Fifo.
+// --walk: hướng nhìn quay 0,35 radian mỗi giây (một vòng chừng 18 giây), và trần số mẫu bước chân
+// (một giờ ở 120 Hz chưa tới), để dòng tổng kết không làm bộ nhớ lớn mãi.
+constexpr float kWalkTurnPerSecond = 0.35F;
+constexpr std::size_t kMaxWalkSamples = 1U << 19U;
 // Số sự kiện chuột hay chạm chờ tối đa giữa hai khung; quá thì bỏ sự kiện mới.
 constexpr std::size_t kMaxQueued = 4096;
 // Bước thời gian dài nhất của một khung, giây: máy khựng không làm điểm nhìn nhảy xa.

@@ -25,7 +25,6 @@ enum class SdlKey : std::uint8_t {
     kPageUp,
     kPageDown,
     kV,
-    kF3,
     kSpace,
     kBackspace,
     kTab,
@@ -35,7 +34,8 @@ enum class SdlKey : std::uint8_t {
 
 // Một việc SDL vừa báo, theo thứ tự PollEvent.
 struct SdlAction {
-    enum class Kind : std::uint8_t { kEvent, kKey, kBlur, kStick };
+    // kDisplay: cửa sổ sang màn khác hoặc màn đổi chế độ; hỏi lại SdlInput::refresh_hz.
+    enum class Kind : std::uint8_t { kEvent, kKey, kBlur, kStick, kDisplay };
     Kind kind = Kind::kEvent;
     control::InputEvent event;
     SdlKey key = SdlKey::kNone;
@@ -63,6 +63,9 @@ public:
     void set_relative(bool is_relative) noexcept;
     // Lấy hết sự kiện đang chờ. out bị xoá rồi ghi lại.
     void drain(std::vector<SdlAction>& out);
+    // Tần số quét của màn đang chứa cửa sổ, Hz, theo số hữu tỉ của hệ thống khi có (59,94 chứ không
+    // làm tròn thành 60); 0 khi hệ thống không biết.
+    [[nodiscard]] double refresh_hz() const noexcept;
 
 private:
     struct Holder;
