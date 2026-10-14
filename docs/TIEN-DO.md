@@ -2450,13 +2450,36 @@ Còn lại, đã biết và chưa làm (không do đợt gộp gây ra):
 - Gate chưa nối kho số đo ở production: `front.cpp` dựng `Table` bằng constructor không có `Backing`, không
   có luồng `metrics::serve::Server` và dòng `ready` không mang khoá `metrics=` như mục "Máy chủ: P2-2" ở
   trên mô tả; phần đó mất cùng đợt khôi phục. Module `metrics`, `metrics/serve` và test của chúng nguyên vẹn.
-- Client chưa nhận `UiConfig` (chưa có module nối máy chủ); giá trị `avatar_frame` vẫn lấy từ
-  `src/client/client.build.toml` lúc dựng.
+- Client nhận `UiConfig` từ 2026-10-15 (xem mục "Client nối máy chủ thật (2026-10-15)"); chế độ cục bộ vẫn lấy
+  `avatar_frame` từ `src/client/client.build.toml` lúc dựng.
 - `check.py` (clang-tidy 438 check) còn đỏ ở mã của snapshot chưa chấm: `account/*`, `store/pg.cpp`,
   `engine/net/reactor_win32.cpp` (include-cleaner, độ phức tạp, tên ngắn...), và ở mã Forge2 `core/log.cpp:180`
   (`-Wexit-time-destructors` của `static Hub`), `core/thread.cpp:88` (`-Wcast-align` GCC), `thread.cpp:138`
   (`-Wglobal-constructors`). Cổng biên dịch `-Werror` của hai trình dịch đã xanh trên mọi tệp đụng tới ở
   lượt này.
+
+## Client nối máy chủ thật (2026-10-15)
+
+Nhánh `worktree-agent-a4b42ef1786c38bd5`, chưa gộp vào `main`. Thiết kế và giới hạn ở `AGENTS.md` mục 0 ("Client
+đã nối máy chủ thật"). Mô-đun mới `client/session` (luồng nền, máy trạng thái thuần, bảng cổng `gates.tsv`) và
+`client/online` (cầu nối với `ui/panel/online.hpp`); `link::Link` nhận `stop_token` để huỷ lúc bắt tay; chuỗi đăng
+nhập (`LoginFlow`) có chế độ trực tuyến; `Display` có hai kênh `OnlineAsk`/`OnlineReply` và `EntryPoint` để đặt
+nhân vật theo `Position`. Công cụ `TOOLS/server/export_gates.py` ghi `Table/gates.tsv`.
+
+Kiểm trên cụm thật (đo 2026-10-15, MSVC `msvc-release`): dựng cụm tạm (PostgreSQL tạm, gate `127.0.0.1:0`) bằng
+bản sao `dev/server/config`, rồi chạy một chương trình thử tạm (không vào repo) đi đúng đường của viewer qua
+`Bridge`. Kết quả thật: SignIn 195 ms ra danh sách rỗng, Create nhân vật `Lam` (nam, mặt 100, tóc 5) 257 ms ra danh
+sách 1 nhân vật (id=1, cấp 1), EnterGame 303 ms ra `UiConfig` (khung vuông) rồi `Position` cảnh 2, x=16500 cm,
+z=16900 cm; giữ phiên 4 giây vẫn ở `kInGame`; `Drop` về `kIdle`. Cụm dừng sạch (mã thoát 0, không còn tiến trình).
+`thienlong_client --login --frames 150` với `gates.tsv` tạm in `Bảng cổng máy chủ: 1 máy chủ trực tuyến`. Chưa bấm
+thật giao diện đăng nhập (cấm điều khiển chuột); đường UI được kiểm bằng `ui_flow_tests` và `online_tests`.
+
+Bẫy đã đo: tên tài khoản chỉ nhận `[0-9A-Za-z_]` (dấu `-` bị trả `kBadCredentials` dù `auto_register = true`);
+khuôn mặt/tóc phải thuộc bảng của máy chủ (`default_look_policy`: nam mặt 100..104/113, tóc 5/12/14), sai thì
+`kBadOption` và client báo `kOther`. `check.py` chỉ in 15 chẩn đoán đầu và `misc-include-cleaner` cần `-I` tuyệt đối.
+
+Còn thiếu: gửi `Move`, vẽ thực thể `Entity*`, bộ đồ và chân dung theo máy chủ, báo mất kết nối khi đang chơi,
+`SceneEnter` khác cảnh đã nạp, Android và iOS (vẫn vào thẳng cảnh).
 
 ## Còn lại
 

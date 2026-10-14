@@ -241,7 +241,7 @@ private:
 // Argon2id. ops và mem_bytes là tham số libsodium; mem_bytes tính bằng byte.
 // auth.toml ghi mem_limit_kib, bên gọi nhân 1024 trước khi đưa vào đây.
 struct PasswordPolicy {
-    unsigned long long ops = 2;
+    std::uint64_t ops = 2;
     std::size_t mem_bytes = 67108864;
 };
 

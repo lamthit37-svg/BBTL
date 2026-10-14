@@ -14,6 +14,7 @@
 #include "hero/hero.hpp"
 #include "ui/panel/deck.hpp"
 
+#include <cstdint>
 #include <string_view>
 
 namespace game::ui::panel {
@@ -23,12 +24,21 @@ inline constexpr std::string_view kPlayerHead = "Player_Head";
 // Tên ảnh toàn thân mà bảng nhân vật gắn vào SelfEquip_FakeObject.
 inline constexpr std::string_view kEquipModel = "SelfEquip_Player";
 
+// Dạng khung chân dung của HUD. kBuild theo avatar_frame lúc dựng; kRound, kSquare do máy chủ ép (UiConfig).
+enum class FrameStyle : std::uint8_t { kBuild, kRound, kSquare };
+
+// Bộ ảnh của nền khung vuông (CommonFrame18). Giao diện luôn nạp nó, vì dạng khung có thể đổi lúc chạy theo máy chủ.
+inline constexpr std::string_view kSquareImageset = "CommonFrame18";
+
 // Chân dung của khung. model là tên fake object của đầu 3D mà nơi vẽ đã dựng ảnh (rỗng khi chưa
 // có); image là ảnh phẳng của bảng chân dung, dạng "set:<bộ> image:<ảnh>", dùng khi không có đầu
 // 3D. Cả hai rỗng thì ô chân dung để trống.
 struct Face {
     std::string_view image;
     std::string_view model;
+    // Dạng khung chân dung đang dùng. kBuild là dạng chọn lúc dựng client (client.build.toml); máy chủ đặt dạng
+    // khác bằng tin UiConfig (client.toml của nhà phát hành) thì nơi vẽ đưa kRound hay kSquare vào đây.
+    FrameStyle style = FrameStyle::kBuild;
 };
 
 // Bộ ảnh mà dạng khung chân dung đã chọn lúc dựng (avatar_frame) gán lúc chạy, layout không nhắc

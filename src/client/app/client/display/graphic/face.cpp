@@ -1,5 +1,14 @@
 // Giao diện 2D trên khung: bảng đăng nhập, nhịp khung và việc nút nhờ vòng cửa sổ.
 #include "client/display/graphic/state.hpp"
+
+#include "client/display/display.hpp"
+#include "client/display/graphic/prelude.hpp"
+#include "ui/panel/online.hpp"
+
+#include <algorithm>
+#include <iterator>
+#include <utility>
+#include <vector>
 namespace game::client {
 
 // Mở giao diện nếu đủ shader và dữ liệu; thiếu thì ghi một dòng và bỏ qua, không làm hỏng game.
@@ -29,6 +38,7 @@ void Display::State::open_hud(const DisplayDesc& desc) {
         return;
     }
     hud = std::make_unique<ui::Hud>(std::move(*opened));
+    hud->set_online_servers(desc.online_servers);
     const std::filesystem::path font_file = desc.data_root / "Interface" / "Schema" / "VTNAM14.bin";
     core::Result<ui::BitmapFont> font = ui::BitmapFont::open(font_file);
     if (!font) {
@@ -204,12 +214,18 @@ void Display::State::prepare_hud() {
     if (!hud) return;
     // Sự kiện thử chờ khung màn chơi đầu tiên; HUD nhận chúng đúng một lần (posted_events rỗng từ khung sau).
     if (procedure == Procedure::kPlay) hud_events.swap(posted_events);
+    pump_online();
     hud->prepare(hud_view());
     hud_events.clear();
     typed.clear();
     hud_wheel = 0;
     const std::optional<ui::Action> action = hud->take_action();
     if (action) post_request(*action);
+    std::vector<ui::panel::OnlineAsk> asks = hud->take_online_asks();
+    if (!asks.empty()) {
+        const std::scoped_lock<std::mutex> locked(online_guard);
+        std::ranges::move(asks, std::back_inserter(online_asks));
+    }
     if (const std::optional<ui::RunTo> run = hud->take_run_to()) run_to_scene_point(*run);
     if (body) body->set_spin(hud->equip_spin());
     store_roles();
@@ -227,11 +243,29 @@ void Display::State::seed_ui_events(std::span<const std::string> texts) {
     }
 }
 
+// Trả lời của phần nối máy chủ vào chuỗi đăng nhập trước khung này. Chỗ vào game ghi nhớ để đi kèm nút vào game mà
+// chuỗi đăng nhập phát ngay sau đó (post_request).
+void Display::State::pump_online() {
+    std::vector<ui::panel::OnlineReply> replies;
+    {
+        const std::scoped_lock<std::mutex> locked(online_guard);
+        replies = std::exchange(online_replies, {});
+    }
+    for (const ui::panel::OnlineReply& reply : replies) {
+        if (reply.kind == ui::panel::OnlineReply::Kind::kEntered) {
+            online_entry = EntryPoint{.scene = reply.scene, .x = reply.x_cm / kCmPerUnit, .z = reply.z_cm / kCmPerUnit};
+        }
+        hud->deliver_online(reply);
+    }
+}
+
 void Display::State::post_request(ui::Action action) {
     const auto found = std::ranges::find(kActionRequests, action, &ActionRequest::action);
     if (found == kActionRequests.end()) return;
+    Request request = found->request;
+    if (request.kind == RequestKind::kEnterGame) request.entry = std::exchange(online_entry, std::nullopt);
     const std::scoped_lock<std::mutex> locked(request_guard);
-    requests.push_back(found->request);
+    requests.push_back(request);
 }
 
 // Đầu vào của HUD ở khung này: cỡ khung, chuột theo điểm ảnh, nhân vật, đồng hồ, và cảnh cùng chỗ

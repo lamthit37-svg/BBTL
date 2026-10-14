@@ -142,7 +142,8 @@ void fill_classic_portrait(Deck& deck, const Face& face) {
 // ảnh 2D của bảng chân dung thế chỗ texture mà FakeObj_Show gán vào mesh window. Ô phẳng
 // Head_2D và vòng TypeFrame_2D giữ ẩn như layout.
 void fill_portrait(Deck& deck, const Face& face) {
-    if (kSquareHead) {
+    const bool is_square = face.style == FrameStyle::kBuild ? kSquareHead : face.style == FrameStyle::kSquare;
+    if (is_square) {
         fill_classic_portrait(deck, face);
         return;
     }
@@ -158,7 +159,7 @@ void fill_portrait(Deck& deck, const Face& face) {
 
 std::string_view avatar_frame_imageset() noexcept {
     // Nền khung vuông CommonFrame18 image:PlayerFrame do kClassicFrame gán lúc chạy.
-    return kSquareHead ? std::string_view("CommonFrame18") : std::string_view{};
+    return kSquareHead ? kSquareImageset : std::string_view{};
 }
 
 void fill_player(Deck& deck, const hero::Hero& hero, const Face& face) {

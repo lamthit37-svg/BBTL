@@ -8,6 +8,8 @@
 #include "client/world/world.hpp"
 
 #include "client/display/display.hpp"
+#include "client/online/bridge.hpp"
+#include "client/session/gates.hpp"
 #include "client/viewer/client_size.hpp"
 #include "client/viewer/cursors.hpp"
 #include "client/viewer/sdl_input.hpp"
@@ -16,7 +18,9 @@
 #include "core/clock.hpp"
 #include "core/error.hpp"
 #include "core/timeline.hpp"
+#include "io/file.hpp"
 #include "io/platform.hpp"
+#include "ui/panel/online.hpp"
 #include "window/cursor.hpp"
 #include "window/system.hpp"
 #include "window/types.hpp"
@@ -38,6 +42,7 @@
 #include <string>
 #include <string_view>
 #include <thread>
+#include <utility>
 #include <vector>
 
 namespace game::client {
@@ -125,6 +130,8 @@ struct Session {
     SdlInput* input = nullptr;
     Controls* controls = nullptr;
     std::vector<SdlAction> actions;
+    // Cầu nối tới phiên mạng: việc đăng nhập trực tuyến đi qua nó. Luôn có, dù bảng cổng rỗng.
+    online::Bridge* bridge = nullptr;
 };
 
 [[nodiscard]] int direction_of(SdlKey key) noexcept {
@@ -531,36 +538,57 @@ void open_web(const ViewerDesc& desc, WebLink link) {
     std::println("Trang web {}: {}", kWebLinkNames.at(static_cast<std::size_t>(link)), outcome);
 }
 
-// Rời màn đăng nhập sang màn chơi: bảng chọn đã chốt nhân vật. Khác gốc: CheckAccount gửi tài
-// khoản cho máy chủ đăng nhập; client chưa nối máy chủ nào nên vào thẳng cảnh (docs/NGHI-NGO.md).
-void enter_game(const Session& session) {
+// Đã chọn xong nhưng không vào được cảnh máy chủ nói: báo cho chuỗi đăng nhập như mất phiên (nó về bảng tài khoản) và
+// trả phiên, thay vì để người chơi đứng ở bảng chọn trong khi máy chủ tưởng họ đã vào game.
+void abandon_entry(const Session& session) {
+    ui::panel::OnlineReply lost;
+    lost.kind = ui::panel::OnlineReply::Kind::kLost;
+    lost.fault = ui::panel::OnlineFault::kOther;
+    session.display->post_online(lost);
+    std::array<ui::panel::OnlineAsk, 1> drop{ui::panel::OnlineAsk{.work = ui::panel::OnlineWork::kDrop}};
+    session.bridge->serve(drop);
+}
+
+// Rời màn đăng nhập sang màn chơi: bảng chọn đã chốt nhân vật. Trực tuyến thì request.entry là cảnh và chỗ đứng máy
+// chủ đặt; cục bộ (không có máy chủ) thì vào cảnh Config/startup.id.
+void enter_game(const Session& session, const Request& request) {
     const ViewerDesc& desc = *session.desc;
     if (session.is_playing->load(std::memory_order_relaxed)) return;
-    if (desc.playing == nullptr || !desc.first_scene) {
+    const std::optional<int> resid = request.entry ? std::optional<int>{request.entry->scene} : desc.first_scene;
+    if (desc.playing == nullptr || !resid) {
         std::println(stderr, "Vào game: thư mục dữ liệu không có bảng cảnh hay cảnh đầu tiên");
+        if (request.entry) abandon_entry(session);
         return;
     }
     const std::filesystem::path folder = desc.data_folder / "Scene";
-    const world::EnterResult entered = world::enter(*desc.playing, *desc.first_scene, folder);
+    const world::EnterResult entered = world::enter(*desc.playing, *resid, folder);
     if (!entered) {
         std::println(stderr, "Vào game: {}", world::describe(entered.error()));
+        if (request.entry) abandon_entry(session);
         return;
     }
     session.is_playing->store(true, std::memory_order_relaxed);
-    session.display->play(world::current_scene(*desc.playing));
+    session.display->play(world::current_scene(*desc.playing), request.entry);
 }
 
-void serve_request(const Session& session, Request request) {
+void serve_request(const Session& session, const Request& request) {
     if (request.kind == RequestKind::kOpenWeb) open_web(*session.desc, request.link);
     if (request.kind == RequestKind::kLeave) window::request_quit();
-    if (request.kind == RequestKind::kEnterGame) enter_game(session);
+    if (request.kind == RequestKind::kEnterGame) enter_game(session, request);
 }
 
 // Việc giao diện nhờ từ vòng trước (nút của bảng đăng nhập).
 void serve_requests(const Session& session) {
-    for (const Request request : session.display->take_requests()) {
+    for (const Request& request : session.display->take_requests()) {
         serve_request(session, request);
     }
+}
+
+// Việc đăng nhập trực tuyến: chuỗi đăng nhập nhờ gì thì chuyển cho phiên mạng, phiên trả gì thì đưa về chuỗi. Không chặn.
+void serve_online(const Session& session) {
+    std::vector<ui::panel::OnlineAsk> asks = session.display->take_online_asks();
+    session.bridge->serve(asks);
+    for (const ui::panel::OnlineReply& reply : session.bridge->collect()) session.display->post_online(reply);
 }
 
 void one_frame(Session& session) {
@@ -568,6 +596,7 @@ void one_frame(Session& session) {
         drain_input(*session.input, *session.controls, session.actions);
     apply_game_cursor(session);
     play_due_sounds(session);
+    serve_online(session);
     serve_requests(session);
     const bool has_world = session.desc->playing != nullptr && session.is_playing->load(std::memory_order_relaxed);
     if (has_world) {
@@ -636,7 +665,7 @@ void begin_speaker(audio::Engine& speaker, const std::filesystem::path& data_roo
     }
 }
 
-[[nodiscard]] int present(window::Window& opened, Display& display, const ViewerDesc& desc) {
+[[nodiscard]] int present(window::Window& opened, Display& display, const ViewerDesc& desc, online::Bridge& bridge) {
     std::println("Hiển thị: {}", display.description());
     std::println("Đổi map: Page Up/Page Down. Camera: kéo chuột phải để xoay và ngẩng cúi, kéo nút giữa "
                  "để ngẩng cúi, lăn chuột hoặc mũi tên lên/xuống để zoom, mũi tên trái/phải để xoay, V "
@@ -674,11 +703,27 @@ void begin_speaker(audio::Engine& speaker, const std::filesystem::path& data_roo
     audio::Engine speaker;
     begin_speaker(speaker, desc.data_folder);
     session.speaker = &speaker;
+    session.bridge = &bridge;
     pump_until_done(session);
     const audio::Stats heard = speaker.stats();
     std::println("Âm thanh: {}", audio::describe(heard));
     speaker.close();
     return report(session);
+}
+
+// Bảng cổng máy chủ của thư mục dữ liệu (Table/gates.tsv). Không có tệp là bình thường (chỉ máy chủ cục bộ); tệp có mà
+// sai thì ghi một dòng và coi như không có máy chủ trực tuyến nào, không đoán.
+[[nodiscard]] session::GateBook read_gate_book_of(const std::filesystem::path& data_folder) {
+    const std::filesystem::path file = data_folder / "Table" / std::filesystem::path{std::string{session::kGateTable}};
+    const io::TextResult text = io::read_text(file);
+    if (!text) return {};
+    session::GateBookResult book = session::read_gate_book(*text);
+    if (!book) {
+        std::println(stderr, "Bảng cổng máy chủ {}: {}", io::utf8_of(file), book.error());
+        return {};
+    }
+    std::println("Bảng cổng máy chủ: {} máy chủ trực tuyến", book->gates.size());
+    return std::move(*book);
 }
 
 // Cửa sổ theo chuẩn client 2026: vùng chơi đúng View_Resoution (mặc định 1280x720) và khung cố
@@ -727,13 +772,15 @@ int run_viewer(const ViewerDesc& desc) {
     shown.backend = desc.backend;
     shown.procedure = desc.procedure;
     shown.preload = desc.preload;
+    online::Bridge bridge{read_gate_book_of(desc.data_folder)};
+    shown.online_servers = bridge.servers();
     core::Result<Display> display = Display::create(shown);
     if (!display) {
         std::println(stderr, "Lỗi: không khởi tạo được phần hiển thị: {}", display.error());
         return 1;
     }
     core::mark("Display::create xong");
-    return present(*opened, *display, desc);
+    return present(*opened, *display, desc, bridge);
 }
 
 } // namespace game::client

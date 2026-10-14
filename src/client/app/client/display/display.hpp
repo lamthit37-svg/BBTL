@@ -19,6 +19,7 @@
 #include "control/cursor_rules.hpp"
 #include "control/input.hpp"
 #include "core/error.hpp"
+#include "ui/panel/online.hpp"
 
 #include <atomic>
 #include <cstdint>
@@ -50,10 +51,19 @@ enum class WebLink : std::uint8_t { kTopUp, kRegister, kLostPassword, kSecurityC
 // Việc giao diện nhờ vòng cửa sổ làm: vào game (rời thủ tục đăng nhập), rời client, mở trang web.
 enum class RequestKind : std::uint8_t { kEnterGame, kLeave, kOpenWeb };
 
+// Chỗ vào game do máy chủ đặt: cảnh theo resid của client và chỗ đứng theo đơn vị game (mét; máy chủ nói centimet).
+struct EntryPoint {
+    std::int32_t scene = 0;
+    float x = 0.0F;
+    float z = 0.0F;
+};
+
 struct Request {
     RequestKind kind = RequestKind::kLeave;
     // Trang của kOpenWeb.
     WebLink link = WebLink::kHelp;
+    // kEnterGame ở chế độ trực tuyến: máy chủ đã nhận nhân vật và đặt chỗ vào. Không có là vào cảnh khởi đầu cục bộ.
+    std::optional<EntryPoint> entry;
 };
 
 // Ngoại hình đã chọn lúc vào game. Vỏ giữ bản này qua lần huỷ phần hiển thị (tạm dừng) để lần
@@ -116,6 +126,8 @@ struct DisplayDesc {
     std::optional<std::uint32_t> skill_id;
     // Rỗng: tự chọn backend. Có thì ép đúng tên đó.
     std::optional<std::string> backend;
+    // Máy chủ trong danh sách đăng nhập có cổng thật (client/session): chọn chúng thì thủ tục đăng nhập nối máy chủ.
+    std::vector<ui::panel::ServerName> online_servers;
     // Có has thì màn chơi dùng ngoại hình này thay cho nhân vật mặc định.
     KeptRole restored;
     // Việc đã bắt đầu sớm (DisplayPreload); nullptr thì Display::create tự bắt đầu.
@@ -196,8 +208,15 @@ public:
     // Đổi cảnh đang vẽ. Luồng vẽ xóa mesh cũ và nạp cảnh mới ở khung kế. An toàn mọi luồng.
     void show(const std::shared_ptr<const world::ShownScene>& scene);
     // Rời thủ tục đăng nhập sang màn chơi ở cảnh scene: luồng vẽ nạp người chơi, đổi sang camera và
-    // giao diện của màn chơi ở khung kế. Đang ở màn chơi thì chỉ đổi cảnh như show. An toàn mọi luồng.
-    void play(const std::shared_ptr<const world::ShownScene>& scene);
+    // giao diện của màn chơi ở khung kế. Đang ở màn chơi thì chỉ đổi cảnh như show. entry (nếu có) là chỗ đứng đầu
+    // tiên máy chủ đặt, thay điểm đến mặc định của cảnh. An toàn mọi luồng.
+    void play(const std::shared_ptr<const world::ShownScene>& scene, std::optional<EntryPoint> entry = std::nullopt);
+    // Việc chuỗi đăng nhập nhờ phần nối máy chủ từ lần gọi trước (đăng nhập, tạo, xoá, vào game, trả phiên), theo
+    // thứ tự; lấy rồi thì hết. An toàn mọi luồng.
+    [[nodiscard]] std::vector<ui::panel::OnlineAsk> take_online_asks();
+    // Đưa trả lời của phần nối máy chủ cho chuỗi đăng nhập ở khung kế. Hàng chờ có trần; vượt trần thì bỏ trả lời
+    // cũ nhất (phần nối chỉ gửi vài trả lời mỗi khung). An toàn mọi luồng.
+    void post_online(const ui::panel::OnlineReply& reply);
     // Việc giao diện đã nhờ từ lần gọi trước (nút của bảng đăng nhập), theo thứ tự. An toàn mọi luồng.
     [[nodiscard]] std::vector<Request> take_requests();
     // Đưa điều khiển bằng phím cho luồng vẽ; nó dùng ở khung kế. An toàn mọi luồng, không chặn lâu.

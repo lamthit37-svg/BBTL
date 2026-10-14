@@ -1,10 +1,22 @@
 #include "link/link.hpp"
 
+#include "net/net.hpp"
+#include "protocol/messages.hpp"
 #include "protocol/wire.hpp"
+#include "secure/secure.hpp"
 
+#include <algorithm>
 #include <array>
+#include <chrono>
+#include <cstddef>
+#include <cstdint>
+#include <expected>
+#include <optional>
 #include <span>
+#include <stop_token>
+#include <string_view>
 #include <utility>
+#include <variant>
 #include <vector>
 
 namespace game::link {
@@ -14,15 +26,20 @@ using Clock = std::chrono::steady_clock;
 
 constexpr std::uint64_t kSocket = 1;
 
+// Mỗi lần chờ socket không quá kCancelSlice khi hạn có thể bị huỷ, để yêu cầu dừng được thấy kịp.
+constexpr net::Milliseconds kCancelSlice{50};
+
 struct Deadline {
     Clock::time_point at;
+    std::stop_token stop{};
 
-    [[nodiscard]] bool late() const noexcept { return Clock::now() >= at; }
+    [[nodiscard]] bool late() const noexcept { return stop.stop_requested() || Clock::now() >= at; }
 
     [[nodiscard]] net::Milliseconds left() const noexcept {
         const auto rest = std::chrono::duration_cast<net::Milliseconds>(at - Clock::now());
-        if (rest.count() < 1) return net::Milliseconds{1};
-        return rest;
+        const net::Milliseconds floor{1};
+        const net::Milliseconds capped = stop.stop_possible() ? std::min(rest, kCancelSlice) : rest;
+        return std::max(capped, floor);
     }
 };
 
@@ -32,8 +49,9 @@ struct Deadline {
     return *sent;
 }
 
-[[nodiscard]] LinkError send_all(net::TcpStream& stream, net::PollSet& poll, std::span<const std::byte> data,
-    Deadline deadline) {
+// Các hàm trả std::optional<LinkError> dùng nullopt cho "xong, không lỗi": LinkError không có giá trị 0.
+[[nodiscard]] std::optional<LinkError> send_all(net::TcpStream& stream, net::PollSet& poll,
+    std::span<const std::byte> data, const Deadline& deadline) {
     std::size_t sent = 0;
     while (sent < data.size()) {
         if (deadline.late()) return LinkError::kTimeout;
@@ -48,34 +66,33 @@ struct Deadline {
         if (!poll.wait(deadline.left(), events)) return LinkError::kNetwork;
     }
     poll.want_write(kSocket, false);
-    return {};
+    return std::nullopt;
 }
 
-[[nodiscard]] LinkError recv_some(net::TcpStream& stream, net::PollSet& poll, std::vector<std::byte>& inbox,
-    Deadline deadline) {
+[[nodiscard]] std::optional<LinkError> recv_some(net::TcpStream& stream, net::PollSet& poll,
+    std::vector<std::byte>& inbox, const Deadline& deadline) {
     if (deadline.late()) return LinkError::kTimeout;
     std::array<std::byte, 2048> chunk{};
     const net::NetResult<std::size_t> got = stream.receive(chunk);
     if (!got) return LinkError::kNetwork;
     if (*got > 0) {
         inbox.insert(inbox.end(), chunk.begin(), chunk.begin() + static_cast<std::ptrdiff_t>(*got));
-        return {};
+        return std::nullopt;
     }
     net::PollEvents events;
     if (!poll.wait(deadline.left(), events)) return LinkError::kNetwork;
-    return {};
+    return std::nullopt;
 }
 
-[[nodiscard]] LinkError fill_to(net::TcpStream& stream, net::PollSet& poll, std::vector<std::byte>& inbox,
-    std::size_t need, Deadline deadline) {
+[[nodiscard]] std::optional<LinkError> fill_to(net::TcpStream& stream, net::PollSet& poll,
+    std::vector<std::byte>& inbox, std::size_t need, const Deadline& deadline) {
     while (inbox.size() < need) {
-        const LinkError more = recv_some(stream, poll, inbox, deadline);
-        if (more != LinkError{}) return more;
+        if (const std::optional<LinkError> more = recv_some(stream, poll, inbox, deadline)) return more;
     }
-    return {};
+    return std::nullopt;
 }
 
-[[nodiscard]] LinkResult<net::TcpStream> connect_to(net::Endpoint peer, net::PollSet& poll, Deadline deadline) {
+[[nodiscard]] LinkResult<net::TcpStream> connect_to(net::Endpoint peer, net::PollSet& poll, const Deadline& deadline) {
     net::NetResult<net::TcpStream> stream = net::TcpStream::begin_connect(peer);
     if (!stream) return std::unexpected(LinkError::kNetwork);
     if (!poll.add(stream->handle(), kSocket)) return std::unexpected(LinkError::kNetwork);
@@ -93,23 +110,23 @@ struct Deadline {
 }
 
 [[nodiscard]] LinkResult<secure::RecordPipe> shake(net::TcpStream& stream, net::PollSet& poll, secure::PublicKey server,
-    Deadline deadline) {
+    const Deadline& deadline) {
     secure::Result<secure::ClientHandshake> client = secure::ClientHandshake::begin();
     if (!client) return std::unexpected(LinkError::kSecure);
     const secure::ByteView hello = client->hello();
-    const LinkError sent = send_all(stream, poll, hello, deadline);
-    if (sent != LinkError{}) return std::unexpected(sent);
+    if (const std::optional<LinkError> sent = send_all(stream, poll, hello, deadline)) return std::unexpected(*sent);
     std::vector<std::byte> inbox;
-    const LinkError filled = fill_to(stream, poll, inbox, secure::kServerHelloBytes, deadline);
-    if (filled != LinkError{}) return std::unexpected(filled);
+    if (const std::optional<LinkError> filled = fill_to(stream, poll, inbox, secure::kServerHelloBytes, deadline)) {
+        return std::unexpected(*filled);
+    }
     const secure::ByteView reply{inbox.data(), secure::kServerHelloBytes};
     secure::Result<secure::SessionKeys> keys = client->finish(reply, server);
     if (!keys) return std::unexpected(LinkError::kSecure);
     return secure::RecordPipe{std::move(*keys)};
 }
 
-[[nodiscard]] LinkError seal_send(net::TcpStream& stream, net::PollSet& poll, secure::RecordPipe& pipe,
-    std::span<const std::byte> plain, Deadline deadline) {
+[[nodiscard]] std::optional<LinkError> seal_send(net::TcpStream& stream, net::PollSet& poll, secure::RecordPipe& pipe,
+    std::span<const std::byte> plain, const Deadline& deadline) {
     std::array<std::byte, secure::kMaxRecordBytes> record{};
     const secure::SealResult wrote = pipe.seal(plain, record);
     if (!wrote) return LinkError::kSecure;
@@ -117,7 +134,7 @@ struct Deadline {
 }
 
 [[nodiscard]] LinkResult<std::vector<std::byte>> open_one(net::TcpStream& stream, net::PollSet& poll,
-    secure::RecordPipe& pipe, Deadline deadline) {
+    secure::RecordPipe& pipe, const Deadline& deadline) {
     std::vector<std::byte> inbox;
     std::array<std::byte, secure::kMaxPlainBytes> plain{};
     while (true) {
@@ -129,8 +146,9 @@ struct Deadline {
             inbox.erase(inbox.begin(), inbox.begin() + static_cast<std::ptrdiff_t>(opened->consumed));
         if (opened->written > 0)
             return std::vector<std::byte>(plain.begin(), plain.begin() + static_cast<std::ptrdiff_t>(opened->written));
-        const LinkError more = recv_some(stream, poll, inbox, deadline);
-        if (more != LinkError{}) return std::unexpected(more);
+        if (const std::optional<LinkError> more = recv_some(stream, poll, inbox, deadline)) {
+            return std::unexpected(*more);
+        }
     }
 }
 
@@ -170,7 +188,7 @@ Link::Link(Link&& other) noexcept = default;
 Link& Link::operator=(Link&& other) noexcept = default;
 
 LinkResult<Link> Link::open(const HelloDesc& desc) {
-    const Deadline deadline{.at = Clock::now() + desc.timeout};
+    const Deadline deadline{.at = Clock::now() + desc.timeout, .stop = desc.stop};
     net::PollSet poll;
     LinkResult<net::TcpStream> stream = connect_to(desc.peer, poll, deadline);
     if (!stream) return std::unexpected(stream.error());
@@ -182,8 +200,9 @@ LinkResult<Link> Link::open(const HelloDesc& desc) {
     hello.build = desc.build;
     std::vector<std::byte> plain;
     if (!protocol::encode(plain, hello)) return std::unexpected(LinkError::kProtocol);
-    const LinkError sealed = seal_send(*stream, poll, *pipe, plain, deadline);
-    if (sealed != LinkError{}) return std::unexpected(sealed);
+    if (const std::optional<LinkError> sealed = seal_send(*stream, poll, *pipe, plain, deadline)) {
+        return std::unexpected(*sealed);
+    }
     const LinkResult<std::vector<std::byte>> opened = open_one(*stream, poll, *pipe, deadline);
     if (!opened) return std::unexpected(opened.error());
     LinkResult<protocol::Welcome> welcome = read_welcome(*opened);
@@ -195,8 +214,9 @@ LinkResult<void> Link::send_frame(std::span<const std::byte> frame, net::Millise
     const Deadline deadline{.at = Clock::now() + timeout};
     net::PollSet poll;
     if (!poll.add(stream_.handle(), kSocket)) return std::unexpected(LinkError::kNetwork);
-    const LinkError sealed = seal_send(stream_, poll, pipe_, frame, deadline);
-    if (sealed != LinkError{}) return std::unexpected(sealed);
+    if (const std::optional<LinkError> sealed = seal_send(stream_, poll, pipe_, frame, deadline)) {
+        return std::unexpected(*sealed);
+    }
     return {};
 }
 
@@ -218,33 +238,9 @@ LinkResult<std::vector<std::byte>> Link::receive_frame(net::Milliseconds timeout
         }
         if (opened->consumed > 0) continue;
         if (deadline.late()) return std::unexpected(LinkError::kTimeout);
-        const LinkError more = recv_some(stream_, poll, inbox_, deadline);
-        if (more != LinkError{} && more != LinkError::kTimeout) return std::unexpected(more);
+        const std::optional<LinkError> more = recv_some(stream_, poll, inbox_, deadline);
+        if (more && *more != LinkError::kTimeout) return std::unexpected(*more);
     }
-}
-
-LinkResult<protocol::Pong> Link::ping(std::chrono::milliseconds client_time, net::Milliseconds timeout) {
-    const Deadline deadline{.at = Clock::now() + timeout};
-    net::PollSet poll;
-    if (!poll.add(stream_.handle(), kSocket)) return std::unexpected(LinkError::kNetwork);
-    protocol::Ping ping;
-    ping.client_time = client_time;
-    std::vector<std::byte> plain;
-    if (!protocol::encode(plain, ping)) return std::unexpected(LinkError::kProtocol);
-    const LinkError sealed = seal_send(stream_, poll, pipe_, plain, deadline);
-    if (sealed != LinkError{}) return std::unexpected(sealed);
-    const LinkResult<std::vector<std::byte>> opened = open_one(stream_, poll, pipe_, deadline);
-    if (!opened) return std::unexpected(opened.error());
-    const protocol::ByteView bytes{opened->data(), opened->size()};
-    const protocol::FrameResult frame = protocol::peek_frame(bytes, protocol::kMaxBodyBytes);
-    if (!frame || !frame->has_value()) return std::unexpected(LinkError::kProtocol);
-    const protocol::Frame header = **frame;
-    const protocol::ByteView body = bytes.subspan(protocol::kHeaderBytes, header.body_bytes);
-    const protocol::GameServerResult decoded = protocol::decode_game_server(header, body);
-    if (!decoded) return std::unexpected(LinkError::kProtocol);
-    const protocol::Pong* pong = std::get_if<protocol::Pong>(&*decoded);
-    if (pong == nullptr) return std::unexpected(LinkError::kProtocol);
-    return *pong;
 }
 
 } // namespace game::link

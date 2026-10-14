@@ -93,6 +93,9 @@ mục ở mục 11.
   `check.py` TRƯỚC `CPP23_TIDY_ARGS`, nên `core/check.hpp` trỏ nhầm tệp mẫu của bộ cpp23 (`using Message = std::string_view`).
   Đã sửa ở `~/.claude/cpp23/tools/check.py` ngày 2026-10-15 (cờ của dự án đứng trước như ở bước biên dịch); tái hiện ở bản cũ:
   `bash TOOLS/port/ui_check.sh src/client/face/ui/painter.cpp`.
+- `-I` đưa cho clang-tidy phải là đường dẫn TUYỆT ĐỐI: với `-I` tương đối `misc-include-cleaner` không nối được header với
+  ký hiệu và báo hàng loạt "thừa/thiếu include" giả (đo 2026-10-15 ở `client/session`). `check.py` chỉ in 15 chẩn đoán đầu của
+  mỗi tệp: sửa hết 15 rồi chạy lại mới thấy phần còn lại, đừng kết luận "xong" khi chưa thấy `✓ clang-tidy`.
 
 ## Công cụ Python và git
 

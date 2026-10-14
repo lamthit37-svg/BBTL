@@ -99,6 +99,7 @@ struct Display::State {
     void prepare_hud();
     void seed_ui_events(std::span<const std::string> texts);
     void post_request(ui::Action action);
+    void pump_online();
     void run_to_scene_point(ui::RunTo target);
     void open_login();
     void store_roles() const;
@@ -352,6 +353,15 @@ struct Display::State {
     // Việc giao diện nhờ vòng cửa sổ; request_guard bảo vệ requests.
     std::mutex request_guard;
     std::vector<Request> requests;
+    // Chế độ trực tuyến: việc chuỗi đăng nhập nhờ phần nối máy chủ và trả lời đang chờ chuỗi; online_guard bảo vệ cả
+    // hai. online_entry là chỗ vào máy chủ đặt, chờ nút vào game của chuỗi đăng nhập (chỉ luồng vẽ chạm vào).
+    std::mutex online_guard;
+    std::vector<ui::panel::OnlineAsk> online_asks;
+    std::vector<ui::panel::OnlineReply> online_replies;
+    std::optional<EntryPoint> online_entry;
+    // Chỗ vào game cho lần place_at kế; spawn_guard bảo vệ (luồng cửa sổ ghi, luồng vẽ đọc).
+    std::mutex spawn_guard;
+    std::optional<EntryPoint> entry_spot;
     // Vòng cửa sổ đã gọi play: luồng vẽ rời thủ tục đăng nhập ở lượt kế.
     std::atomic<bool> wants_play{false};
     std::array<ui::ViewPaint, 2> head_views{};

@@ -6,6 +6,7 @@
 #include "control/cursor_rules.hpp"
 #include "control/input.hpp"
 #include "core/error.hpp"
+#include "ui/panel/online.hpp"
 
 #include <chrono>
 #include <cstdint>
@@ -57,7 +58,7 @@ void Display::show(const std::shared_ptr<const world::ShownScene>& scene) {
     state_->scene = scene;
 }
 
-void Display::play(const std::shared_ptr<const world::ShownScene>& scene) {
+void Display::play(const std::shared_ptr<const world::ShownScene>& scene, std::optional<EntryPoint> /*entry*/) {
     state_->scene = scene;
 }
 
@@ -103,6 +104,12 @@ std::optional<control::CursorKind> Display::cursor_choice() const noexcept {
 std::vector<Request> Display::take_requests() {
     return {};
 }
+
+std::vector<ui::panel::OnlineAsk> Display::take_online_asks() {
+    return {};
+}
+
+void Display::post_online(const ui::panel::OnlineReply& /*reply*/) {}
 
 KeptRole Display::kept_role() const {
     return {};

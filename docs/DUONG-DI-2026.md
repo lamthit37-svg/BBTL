@@ -130,7 +130,7 @@ python TOOLS/port/pathlib_oracle.py golden "F:/tl 2026/Bin64" CLIENT/data/Scene/
   gốc ở 29 trên 400 đường đi vì đúng chỗ này; lưới thử hiện tại không có đỉnh như vậy.
 - Góc không né được ở bán kính nào: bản gốc đổi sang thuật toán dự phòng 0x18002cd60, chưa port; ở
   đây điểm rẽ nằm ngay đỉnh.
-- Vùng cấm động do máy chủ bật (0x1800236f0) chưa có: client chưa nối máy chủ.
+- Vùng cấm động do máy chủ bật (0x1800236f0) chưa có: client nối máy chủ từ 2026-10-15 nhưng chưa xử lý tin này.
 - Trạng thái bay (hàm ảo `+0x288` của nhân vật): đi thẳng, bỏ qua vật cản có cờ bay qua được; chưa
   port.
 - Câu báo "không tới được" của giao diện chưa có. Bản gốc ghi log khi đường dài hơn 16 đoạn; chỗ cắt
