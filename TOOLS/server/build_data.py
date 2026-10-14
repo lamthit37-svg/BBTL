@@ -1,6 +1,7 @@
 """Sinh lại toàn bộ bảng và cảnh của máy chủ từ một lệnh.
 
 cách dùng: python TOOLS/server/build_data.py --legacy <tlbb> --raw <_raw> [--dest <gốc>] [--check] [--digest]
+    [--digest-per-table <tsv>]
 
 Gọi table_census, export_tables, import_legacy, export_scene, import_rules và
 scene_refs, rồi lint_names và diff_tables --check. --dest chọn gốc chứa tables,
@@ -27,11 +28,13 @@ import tsv_file
 
 HELP = """\
 cách dùng: python TOOLS/server/build_data.py --legacy <tlbb> --raw <_raw> [--dest <gốc>] [--check] [--digest]
+    [--digest-per-table <tsv>]
 
 Sinh lại tables, scenes và config/rules dưới gốc đích. Mặc định gốc là dev/server.
 --dest chọn gốc khác để test ghi vào build. --check kiểm hết và không ghi tệp nào.
 Sau khi sinh thì in tổng kết lint_names và diff_tables --check.
 --digest in một mã SHA-256 của tables và scenes. Thoát 0 khi sạch, 1 khi có lỗi.
+--digest-per-table ghi số bản ghi từng bảng shared và variants; chỉ ghi tệp đó, kể cả khi --check.
 """
 PROJECT = Path(__file__).resolve().parents[2]
 
@@ -65,7 +68,17 @@ def _store(arg: str, value: str, legacy: str, raw: str, dest: Path) -> tuple[str
     return legacy, raw, Path(value)
 
 
-def _parse(arguments: list[str]) -> tuple[str, str, Path, bool, bool]:
+class _Options(NamedTuple):
+    legacy: str
+    raw: str
+    dest: Path
+    check: bool
+    digest: bool
+    per_table: Path | None
+
+
+def _parse(arguments: list[str]) -> _Options:
+    per_table: Path | None = None
     legacy = ""
     raw = ""
     dest = PROJECT / "dev" / "server"
@@ -78,6 +91,9 @@ def _parse(arguments: list[str]) -> tuple[str, str, Path, bool, bool]:
             check = True
         elif arg == "--digest":
             digest = True
+        elif arg == "--digest-per-table":
+            index, value = _take_value(arguments, index, arg)
+            per_table = Path(value)
         elif arg in ("--legacy", "--raw", "--dest"):
             index, value = _take_value(arguments, index, arg)
             legacy, raw, dest = _store(arg, value, legacy, raw, dest)
@@ -86,7 +102,7 @@ def _parse(arguments: list[str]) -> tuple[str, str, Path, bool, bool]:
         index += 1
     if not legacy or not raw:
         raise ValueError("cần --legacy và --raw")
-    return legacy, raw, dest, check, digest
+    return _Options(legacy, raw, dest, check, digest, per_table)
 
 
 def _records(path: Path) -> int:
@@ -181,10 +197,14 @@ def _run_census(raw: str, check: bool, output: Path | None) -> int:
     return table_census.main(args)
 
 
-def _run_tables(raw: str, legacy: str, tables: Path, check: bool, columns: Path | None) -> int:
+def _run_tables(
+    raw: str, legacy: str, tables: Path, check: bool, columns: Path | None, per_table: Path | None
+) -> int:
     args = [raw, legacy, str(tables), *_flag(check)]
     if columns is not None:
         args.extend(["--columns", str(columns)])
+    if per_table is not None:
+        args.extend(["--digest-per-table", str(per_table)])
     return export_tables.main(args)
 
 
@@ -247,12 +267,12 @@ def _run_refs(legacy: str, output: Path, check: bool) -> int:
     return scene_refs.main([legacy, str(output), *_flag(check)])
 
 
-def _run_steps(legacy: str, raw: str, dest: Path, check: bool) -> int:
+def _run_steps(legacy: str, raw: str, dest: Path, check: bool, per_table: Path | None) -> int:
     layout = _layout(dest)
     server_tables = layout.tables / "server"
     if _run_census(raw, check, layout.census) != 0:
         return 1
-    if _run_tables(raw, legacy, layout.tables, check, layout.shared_columns) != 0:
+    if _run_tables(raw, legacy, layout.tables, check, layout.shared_columns, per_table) != 0:
         return 1
     if _run_legacy(legacy, server_tables, check, layout.server_columns) != 0:
         return 1
@@ -290,10 +310,10 @@ def main(argv: list[str] | None = None) -> int:
         print(HELP)
         return 0
     try:
-        legacy, raw, dest, check, digest = _parse(arguments)
+        legacy, raw, dest, check, digest, per_table = _parse(arguments)
     except ValueError as exc:
         return _fail(str(exc))
-    if _run_steps(legacy, raw, dest, check) != 0:
+    if _run_steps(legacy, raw, dest, check, per_table) != 0:
         return 1
     if check:
         print("không ghi tệp")

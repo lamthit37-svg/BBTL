@@ -98,6 +98,16 @@ class BuildDataContractTest(unittest.TestCase):
         self.assertEqual(err, "")
         self.assertFalse(dest.exists())
 
+    def test_digest_per_table_is_parsed(self) -> None:
+        out = self.root / "per_table.tsv"
+        options = build_data._parse(["--legacy", "l", "--raw", "r", "--check", "--digest-per-table", str(out)])
+        self.assertEqual(options.per_table, out)
+        self.assertTrue(options.check)
+        code, text, err = _run(["--legacy", "l", "--raw", "r", "--digest-per-table"])
+        self.assertEqual(code, 1)
+        self.assertEqual(err, "")
+        self.assertIn("thiếu giá trị --digest-per-table", text)
+
     def test_dest_redirects_away_from_server(self) -> None:
         dest = self.root / "out"
         layout = build_data._layout(dest)

@@ -10,6 +10,7 @@ import sys
 import unittest
 from contextlib import redirect_stderr, redirect_stdout
 from pathlib import Path
+from unittest import mock
 
 ROOT = Path(__file__).resolve().parent
 if str(ROOT) not in sys.path:
@@ -359,6 +360,71 @@ class ExportCollectTest(unittest.TestCase):
         self.assertEqual(result.records, 1)
         self.assertFalse(self.tables.exists())
         self.assertFalse(self.columns.exists())
+
+    def test_digest_per_table_with_check_writes_only_digest(self) -> None:
+        _dbc(self.config / "Pet.txt", [0], [[1], [2], [3]])
+        _dbc(self.config / "ShopTable_KaJi.txt", [0], [[7]])
+        _names(
+            self.names,
+            [
+                ("client_2026", "Pet.txt", "table", "tables/shared/pets.tsv", "", "", "A", "0", ""),
+                (
+                    "client_2026",
+                    "ShopTable_KaJi.txt",
+                    "table",
+                    "tables/variants/level_cap/shops.tsv",
+                    "variant",
+                    "level_cap",
+                    "A",
+                    "0",
+                    "",
+                ),
+            ],
+        )
+        out = self.root / "digest" / "per_table.tsv"
+        argv = [str(self.raw), str(self.legacy), str(self.tables), "--names", str(self.names)]
+        argv.extend(["--columns", str(self.columns), "--check", "--digest-per-table", str(out)])
+        code, output = _run(argv)
+        self.assertEqual(code, 0, output)
+        table = tsv_file.read_table(out)
+        self.assertEqual(table.columns, ("target", "kind", "source", "records"))
+        self.assertEqual(
+            table.rows,
+            (
+                ("tables/shared/pets.tsv", "shared", "Pet.txt", "3"),
+                ("tables/variants/level_cap/shops.tsv", "variants", "ShopTable_KaJi.txt", "1"),
+            ),
+        )
+        self.assertFalse(self.tables.exists())
+        self.assertFalse(self.columns.exists())
+        self.assertEqual(sorted(path.name for path in out.parent.iterdir()), ["per_table.tsv"])
+
+    def test_digest_per_table_not_written_on_error(self) -> None:
+        _dbc(self.config / "Pet.txt", [0], [[1]])
+        (self.config / "stray.txt").write_bytes(b"x")
+        _names(self.names, [("client_2026", "Pet.txt", "table", "tables/shared/pets.tsv", "", "", "A", "0", "")])
+        out = self.root / "digest" / "per_table.tsv"
+        argv = [str(self.raw), str(self.legacy), str(self.tables), "--names", str(self.names)]
+        argv.extend(["--columns", str(self.columns), "--check", "--digest-per-table", str(out)])
+        code, _output = _run(argv)
+        self.assertEqual(code, 1)
+        self.assertFalse(out.parent.exists())
+
+    def test_digest_per_table_not_written_when_alignment_write_fails(self) -> None:
+        _dbc(self.config / "Pet.txt", [0], [[1]])
+        _names(self.names, [("client_2026", "Pet.txt", "table", "tables/shared/pets.tsv", "", "", "A", "0", "")])
+        out = self.root / "digest" / "per_table.tsv"
+        argv = [str(self.raw), str(self.legacy), str(self.tables), "--names", str(self.names)]
+        argv.extend(["--columns", str(self.columns), "--alignment", str(self.root / "alignment.tsv")])
+        argv.extend(["--digest-per-table", str(out)])
+        failure = OSError("alignment write failed")
+        with mock.patch.object(export_tables, "_write_alignment", side_effect=failure) as patched:
+            code, output = _run(argv)
+        self.assertEqual(patched.call_count, 1)
+        self.assertEqual(code, 1, output)
+        self.assertIn("alignment write failed", output)
+        self.assertFalse(out.exists())
+        self.assertFalse(out.parent.exists())
 
     def test_second_write_matches_bytes(self) -> None:
         _dbc(self.config / "Pet.txt", [0], [[1], [2]])

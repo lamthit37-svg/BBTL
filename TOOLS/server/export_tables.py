@@ -30,6 +30,8 @@ _FALLBACK = re.compile(r"column_\d+")
 _KIND_OF = {"INT": "int", "FLOAT": "float", "STRING": "text"}
 _COLUMN_COLUMNS = ("index", "original", "name", "type", "note")
 _COLUMN_TYPES = ("int", "text", "text", "text", "text")
+_DIGEST_COLUMNS = ("target", "kind", "source", "records")
+_DIGEST_TYPES = ("text", "text", "text", "int")
 
 
 @dataclass(frozen=True)
@@ -47,6 +49,7 @@ class ExportResult:
     notices: tuple[str, ...]
     will_write: int
     alignments: tuple[align_columns.Summary, ...]
+    tables: tuple[tuple[str, str, int], ...] = ()
 
 
 @dataclass(frozen=True)
@@ -1047,6 +1050,7 @@ def _from_plan(
         plan.notices,
         will_write,
         plan.alignments,
+        tuple(sorted((spec.target, spec.source, spec.row_count) for spec in plan.specs)),
     )
 
 
@@ -1081,6 +1085,19 @@ def _write_planned(
         _write_spec(config, spec, tables_root, columns_root)
     written = tuple(spec.target for spec in plan.specs)
     return _from_plan(plan, (), census, written, len(written))
+
+
+def _digest_kind(target: str) -> str:
+    parts = target.split("/")
+    if len(parts) < 3 or parts[0] != "tables" or parts[1] not in ("shared", "variants"):
+        raise ValueError(f"{target}:1: đích không thuộc tables/shared hay tables/variants")
+    return parts[1]
+
+
+def write_digest(path: Path, result: ExportResult) -> None:
+    """Ghi số bản ghi từng bảng theo đích. Chỉ ghi đúng tệp này, kể cả khi --check."""
+    body = [(target, _digest_kind(target), source, str(records)) for target, source, records in result.tables]
+    tsv_file.write_table(path, "client_2026", "export_tables.py", _DIGEST_TYPES, _DIGEST_COLUMNS, body)
 
 
 def _load_terms() -> _TermMap | str:
@@ -1164,12 +1181,13 @@ def _write_alignment(path: Path, rows: tuple[align_columns.Summary, ...]) -> Non
 
 HELP = """\
 cách dùng: python TOOLS/server/export_tables.py <_raw> <tlbb> <thư mục bảng> [--check]
-[--names <tsv>] [--columns <thư mục>] [--alignment <tsv>]
+[--names <tsv>] [--columns <thư mục>] [--alignment <tsv>] [--digest-per-table <tsv>]
 
 Xuất DBC của client 2026 thành TSV. --check kiểm hết và không ghi tệp nào.
 Thoát 0 khi sạch, 1 khi có lỗi. Mỗi lỗi một dòng tệp:dòng: nội dung.
+--digest-per-table ghi đích, loại, nguồn và số bản ghi từng bảng; chỉ ghi tệp đó, kể cả khi --check.
 """
-_OPTIONS = {"--names", "--columns", "--alignment"}
+_OPTIONS = {"--names", "--columns", "--alignment", "--digest-per-table"}
 
 
 @dataclass
@@ -1178,6 +1196,7 @@ class _Parsed:
     names: str = ""
     columns: str = ""
     alignment: str = ""
+    digest: str = ""
     positionals: list[str] = field(default_factory=list)
 
 
@@ -1193,6 +1212,9 @@ def _store_option(parsed: _Parsed, name: str, value: str) -> None:
         return
     if name == "--columns":
         parsed.columns = value
+        return
+    if name == "--digest-per-table":
+        parsed.digest = value
         return
     parsed.alignment = value
 
@@ -1283,11 +1305,20 @@ def main(argv: list[str] | None = None) -> int:
     print(f"thời gian: {time.perf_counter() - started:.1f} giây")
     if result.errors:
         return 1
-    if parsed.check:
-        return 0
-    default_alignment = Path(__file__).with_name("column_alignment.tsv")
-    alignment = Path(parsed.alignment) if parsed.alignment else default_alignment
-    _write_alignment(alignment, result.alignments)
+    if not parsed.check:
+        default_alignment = Path(__file__).with_name("column_alignment.tsv")
+        alignment = Path(parsed.alignment) if parsed.alignment else default_alignment
+        try:
+            _write_alignment(alignment, result.alignments)
+        except OSError as exc:
+            print(exc)
+            return 1
+    if parsed.digest:
+        try:
+            write_digest(Path(parsed.digest), result)
+        except (OSError, ValueError) as exc:
+            print(exc)
+            return 1
     return 0
 
 
