@@ -1,4 +1,4 @@
-// Bảng đo nhịp khung trên màn hình (F11), bố cục theo bảng thông số dev của Crazy: ba cột nhãn /
+// Bảng đo nhịp khung trên màn hình (F3), bố cục theo bảng thông số dev của Crazy: ba cột nhãn /
 // giá trị căn phải / đơn vị, chia nhóm (nhịp, chặng của khung, tải, đích vẽ), kèm phán quyết so với
 // ngân sách khung của tần số quét (120 Hz là 8,3 ms). Phông bitmap AXFT (VTNAM14, có dấu tiếng
 // Việt); atlas dựng một lần lúc mở, mỗi khung chỉ ghép quad.

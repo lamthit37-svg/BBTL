@@ -10,6 +10,7 @@ layout(location = 2) in uint color;
 layout(location = 0) out vec2 varying_uv;
 layout(location = 1) out vec4 varying_color;
 layout(location = 2) out vec2 varying_mask;
+layout(location = 3) flat out float varying_premultiplied;
 
 void main() {
     vec2 size = uintBitsToFloat(tl_push[0]).xy;
@@ -25,4 +26,5 @@ void main() {
     float alpha = float((color >> 24u) & 255u) / 255.0;
     varying_color = vec4(pow(rgb, vec3(2.2)), alpha);
     varying_mask = (position - mask.xy) / mask.zw;
+    varying_premultiplied = uintBitsToFloat(tl_push[0]).z;
 }

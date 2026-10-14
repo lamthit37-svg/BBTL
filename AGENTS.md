@@ -137,6 +137,16 @@
   - Layout điện thoại là `Interface/phone/`, Android và iOS dùng chung; thiếu tệp thì layout PC.
     Texture PC là DDS. Bản điện thoại là `mobile/astc/` rồi `mobile/etc2/`, cùng đường tương đối,
     định dạng TLTX. GPU có ASTC thì chọn ASTC, không thì ETC2 — chủ dự án chốt ngày 2026-10-12.
+  - Dạng khung chân dung của HUD (tròn hoặc vuông) chọn lúc dựng client bằng `-DGAME_AVATAR_FRAME=round|square`
+    (mặc định `square`; `round` là nền tròn `CommonFrame8` và đầu 3D có mặt nạ `HeadRoundRegion`). `square` là chế độ
+    classic của client 2026, port đúng nhánh `SystemSetup:IsClassic() == 1` của `PlayerFrame_UpdateShow2DHead`
+    (`PlayerFrame.lua` 2026 giải bằng `TOOLS/content/lua_plain.py`, dòng 957-995): nền vuông
+    `CommonFrame18 image:PlayerFrame`, ảnh chân dung 2D ở `Head_2D`, đầu 3D bị giấu, các ô trên nền dời theo
+    (`kClassicFrame` ở `ui/panel/player_frame.cpp`). Không phải cấu hình server, không đi qua protocol — chủ
+    dự án chốt ngày 2026-10-14 ("phần này ở giao diện không nên đẩy lên server"; "mình có client bản 2026
+    mà", "cấm ghép linh tinh": mọi giá trị lấy từ script 2026, không tự ghép ảnh). Hiện chỉ khung `PlayerFrame`
+    (Target, Party, Pet chưa có trên HUD). Mặc định là `square` — chủ dự án chốt ngày 2026-10-14 ("để mặc định avt
+    vuông đi"). Đổi giá trị thì configure lại rồi dựng `thienlong_client`.
   - Nạp đầu: khung đầu phải có đủ cảnh lẫn HUD (nạp đồng bộ, `settle_first_scene`), và phải nhanh hơn G:\TLBB có số đo —
     chủ dự án chốt ngày 2026-10-13 ("load full giao diện game phải vượt qua G:\TLBB, có số làm dẫn chứng"; "load đồng bộ map
     cũng hiện luôn nhanh vẫn nhanh hơn"). Mọi việc không cần thiết bị GPU (đọc giao diện, bảng chuỗi, phông, mesh, địa hình,
@@ -144,7 +154,7 @@
     luồng vẽ chỉ làm việc cần thiết bị. Việc mới thêm vào đường nạp phải giữ ngân sách ở mục "Ngân sách" và đo bằng
     `TOOLS/run/bench_load.py`; mốc `Mốc <ms> ms` của `client/timeline.hpp` là bảng đo của đường nạp.
   - Bảng đo nhịp khung để dev giao diện đạt 120 fps, theo bảng thông số dev của Crazy — chủ dự án giao ngày 2026-10-13 ("thêm bảng
-    đo giống crazy", "dịch sang tiếng Việt"): `ui/pace` (F11 hoặc `--pace`; `--pace --shot` chờ đủ 30 mẫu rồi mới chụp). Ba cột nhãn /
+    đo giống crazy", "dịch sang tiếng Việt"): `ui/pace` (mặc định hiện ngay từ khung đầu trên PC, F3 bật tắt, `--no-pace` tắt từ đầu — chủ dự án chốt ngày 2026-10-14 ("hiển thị bảng thông số bật tắt bằng f3"); khi hiện, `--shot` chờ đủ 30 mẫu rồi mới chụp nên cần `--frames` từ 30, chụp ngắn hơn thì dùng `--no-pace`). Ba cột nhãn /
     giá trị căn phải / đơn vị, bốn nhóm (nhịp, chặng của khung, tải, đích vẽ), nhãn tiếng Việt vì là công cụ dev, không phải chữ
     người chơi. Kết luận ĐẠT khi không quá 5% khung vượt ngân sách `1000 / render_hz` cộng dung sai 10% (`meets_budget`). Số là
     cửa sổ 90 khung gần nhất. Chưa có mili-giây GPU thật: lớp `gpu` đã có `write_timestamp`/`read_queries` (`engine/gpu/command.hpp`)

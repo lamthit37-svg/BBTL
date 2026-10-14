@@ -16,7 +16,7 @@ namespace game::client {
 inline constexpr std::string_view kUsage =
     "Cách dùng: thienlong_client [--scene-id <resid>] [--scene <tên map>] [--data <thư mục>]\n"
     "                         [--frames <số vòng>] [--shot <tệp.png>] [--validate]\n"
-    "                         [--backend <tên>] [--size <rộng>x<cao>] [--login] [--bare] [--pace]\n"
+    "                         [--backend <tên>] [--size <rộng>x<cao>] [--login] [--bare] [--no-pace]\n"
     "--scene-id là resid trong Config/SceneDefineEx.txt. --scene tìm tên file .Scene trong bảng "
     "đó.\n"
     "Không nêu --scene và --scene-id: mở đăng nhập, như bấm đúp exe. Nút vào game đọc "
@@ -28,7 +28,8 @@ inline constexpr std::string_view kUsage =
     "--validate: bật lớp kiểm tra của API đồ hoạ (bản debug bật sẵn, bản phát hành tắt cho nhanh).\n"
     "--login: mở thủ tục đăng nhập (bảng nhập tài khoản) thay vì vào thẳng một cảnh.\n"
     "--bare: không vẽ lớp giao diện, chỉ cảnh 3D và hiệu ứng; dùng với --shot để chụp cảnh nền.\n"
-    "--pace: mở bảng đo nhịp khung ngay từ đầu (F11 bật tắt), so với ngân sách khung của 120 Hz.";
+    "--no-pace: không mở bảng đo nhịp khung lúc khởi động (mặc định mở, F3 bật tắt), bảng so với\n"
+    "ngân sách khung của 120 Hz. --pace vẫn nhận, nghĩa là mở (mặc định).";
 
 struct Options {
     // Rỗng: không chọn theo tên file. resid được ưu tiên hơn tên này.
@@ -52,8 +53,9 @@ struct Options {
     bool is_login = false;
     // Không vẽ lớp giao diện (khung, nút, chữ, bảng đo): khung hình chỉ còn cảnh 3D và hiệu ứng.
     bool is_bare = false;
-    // Mở bảng đo nhịp khung ngay từ khung đầu; F11 vẫn bật tắt như thường.
-    bool shows_pace = false;
+    // Bảng đo nhịp khung hiện ngay từ khung đầu (mặc định bật); F3 bật tắt, --no-pace tắt từ đầu.
+    // --shot chờ đủ 30 mẫu của bảng nên cần --frames từ 30 trở lên; chụp ngắn hơn thì dùng --no-pace.
+    bool shows_pace = true;
 };
 
 using Arguments = std::span<const std::string_view>;

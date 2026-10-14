@@ -25,7 +25,7 @@ enum class SdlKey : std::uint8_t {
     kPageUp,
     kPageDown,
     kV,
-    kF11,
+    kF3,
     kSpace,
     kBackspace,
     kTab,

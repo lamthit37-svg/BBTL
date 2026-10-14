@@ -22,5 +22,6 @@ Varying main(Vertex vertex) {
     const float alpha = float((vertex.color >> 24u) & 255u) / 255.0;
     output.color = float4(pow(rgb, float3(2.2, 2.2, 2.2)), alpha);
     output.mask_uv = (vertex.position - screen.mask.xy) / screen.mask.zw;
+    output.premultiplied = screen.size.z;
     return output;
 }

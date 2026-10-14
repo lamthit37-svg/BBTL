@@ -19,7 +19,10 @@ SamplerState mask_sampler : register(s1);
 #endif
 
 float4 main(Varying input) : SV_Target0 {
-    const float4 colour = ui_map.Sample(ui_sampler, input.uv) * input.color;
+    float4 texel = ui_map.Sample(ui_sampler, input.uv);
+    // Ảnh Canvas chứa màu đã nhân alpha: giải nhân để phép trộn alpha thẳng bên dưới không nhân hai lần.
+    if (input.premultiplied > 0.5) texel.rgb = saturate(texel.rgb / max(texel.a, 1.0e-4));
+    const float4 colour = texel * input.color;
     const float4 mask = mask_map.Sample(mask_sampler, input.mask_uv);
     return float4((colour.rgb * mask.a) + (mask.rgb * (1.0 - mask.a)), colour.a * mask.a);
 }

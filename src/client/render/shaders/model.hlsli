@@ -100,6 +100,8 @@ static const uint kAddLight = 128u;
 static const uint kVertexColor = 256u;
 // Ảnh t1 nhân lên ảnh t0, đúng Particle_2Tex của hạt mesh.
 static const uint kMaskTex = 512u;
+// Chất liệu không trộn alpha: pixel shader trả alpha 1 sau phép cắt (forward.cpp đặt cờ).
+static const uint kOpaqueAlpha = 1024u;
 
 struct Varying {
     float4 clip : SV_Position;

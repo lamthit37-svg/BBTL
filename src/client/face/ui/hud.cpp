@@ -281,6 +281,8 @@ void Prepared::open_portraits(const std::filesystem::path& data_root) {
         loader.add_imageset(imageset);
     }
     loader.add_imageset(panel::kBagLockImageset);
+    const std::string_view avatar_set = panel::avatar_frame_imageset();
+    if (!avatar_set.empty()) loader.add_imageset(avatar_set);
 }
 
 // Nạp bảng cảnh của các bảng bản đồ (Config/SceneDefineEx.txt). Thiếu hay hỏng thì bảng rỗng và bản đồ lớn

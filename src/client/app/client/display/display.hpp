@@ -97,7 +97,7 @@ struct DisplayDesc {
     // Không vẽ lớp giao diện (HUD, bảng đăng nhập, bảng đo): khung hình chỉ còn cảnh 3D và hiệu
     // ứng. Giao diện vẫn chạy và nhận chuột, phím như thường, chỉ không ra hình.
     bool is_bare = false;
-    // Bảng đo nhịp khung hiện ngay từ khung đầu; F11 bật tắt tiếp.
+    // Bảng đo nhịp khung hiện ngay từ khung đầu; F3 bật tắt tiếp.
     bool shows_pace = false;
     // Rỗng: tự chọn backend. Có thì ép đúng tên đó.
     std::optional<std::string> backend;
@@ -117,7 +117,7 @@ struct Steering {
     int zoom_keys = 0;
     // Có nhấn V: hướng camera quay về hướng lúc vào cảnh.
     bool is_home = false;
-    // Có nhấn F11: bật hay tắt bảng đo khung hình. Bảng là công cụ của dự án, client gốc không có,
+    // Có nhấn F3: bật hay tắt bảng đo khung hình. Bảng là công cụ của dự án, client gốc không có,
     // nên mặc định ẩn; hai lần nhấn giữa hai khung thì huỷ nhau.
     bool toggles_pace = false;
     // Có nhấn phím nhảy (Space) từ khung trước; nhảy lặp do giữ phím không tính.

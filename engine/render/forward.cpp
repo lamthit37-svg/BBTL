@@ -795,6 +795,7 @@ void Forward::State::add_item(const Pass& pass, const Placed& placed, std::size_
     item.block.diffuse = shade.diffuse;
     item.block.specular = shade.specular;
     item.block.flags = desc.lights_at_vertices ? shade.flags & ~kPixelLit : shade.flags;
+    if ((item.pipeline & kBlended) == 0) item.block.flags |= kOpaqueAlpha;
     if (pass.is_copied) {
         // Đèn của từng bản nằm trong buffer worlds; Draw::lamp giữ ô đèn tắt.
         item.instances = static_cast<std::uint32_t>(seen.size());

@@ -45,7 +45,7 @@ struct ViewerDesc {
     std::filesystem::path shot;
     // Không vẽ lớp giao diện: khung hình chỉ còn cảnh 3D và hiệu ứng (để chụp cảnh nền).
     bool is_bare = false;
-    // Mở bảng đo nhịp khung ngay từ khung đầu (DisplayDesc::shows_pace).
+    // Mở bảng đo nhịp khung ngay từ khung đầu (DisplayDesc::shows_pace); main đặt theo Options::shows_pace.
     bool shows_pace = false;
     // Bật lớp kiểm tra của API đồ hoạ: bản dựng phát hành tắt mặc định cho đỡ hao CPU mỗi khung.
     bool is_validated = true;

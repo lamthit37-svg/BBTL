@@ -115,5 +115,6 @@ void main() {
         float depth = dot(frame.depth_row, vec4(varying_place, 1.0));
         color = mix(frame.fog_color.rgb, color, fog_share(depth));
     }
+    if ((flags & 1024u) != 0u) alpha = 1.0;
     out_color = vec4(height_fog(color, varying_place), alpha);
 }

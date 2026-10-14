@@ -33,6 +33,8 @@ inline constexpr std::uint32_t kAddLight = 128;
 inline constexpr std::uint32_t kVertexColor = 256;
 // Ảnh surface nhân lên ảnh nền. Particle_2Tex của hạt mesh. Billboad không bật cờ này.
 inline constexpr std::uint32_t kMaskTex = 512;
+// Chất liệu không trộn alpha: shader trả alpha 1. forward.cpp đặt theo pipeline, shade_of không đặt.
+inline constexpr std::uint32_t kOpaqueAlpha = 1024;
 
 // Draw::lamp khi không đèn điểm nào với tới vật thể.
 inline constexpr std::uint32_t kNoLamp = std::numeric_limits<std::uint32_t>::max();

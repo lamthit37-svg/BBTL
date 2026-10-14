@@ -413,7 +413,7 @@ struct Display::State {
     // Nấc lăn chưa đưa cho giao diện (dương là lăn lên): cộng ở turn_wheel, prepare_hud lấy rồi
     // xoá. Tách khỏi hai cờ trên vì chúng hết ở close_mouse_frame, trước lúc giao diện chạy.
     std::int32_t hud_wheel = 0;
-    // Bảng đo khung hình đang hiện (F11); chỉ luồng vẽ đụng, trong take_steering.
+    // Bảng đo khung hình đang hiện (F3); chỉ luồng vẽ đụng, trong take_steering.
     bool shows_pace = false;
     // Cú nhấn trái bắt đầu trên HUD thì thuộc về giao diện tới khi nhả.
     bool is_hud_press = false;

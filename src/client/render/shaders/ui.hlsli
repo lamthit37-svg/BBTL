@@ -7,7 +7,8 @@
 #include "f2/shader.hlsli"
 
 struct Screen {
-    // Rộng và cao của vùng vẽ, điểm ảnh; hai số sau để đủ 16 byte.
+    // Rộng và cao của vùng vẽ, điểm ảnh; z là 1 khi ảnh của lô chứa màu đã nhân alpha (ảnh Canvas có
+    // nền trong suốt), 0 khi là ảnh thẳng; w để đủ 16 byte.
     float4 size;
     // Ô màn hình (trái, trên, rộng, cao theo điểm ảnh) mà texture mặt nạ của lô phủ kín.
     float4 mask;
@@ -19,6 +20,7 @@ struct Varying {
     float2 uv : TEXCOORD0;
     float4 color : COLOR0;
     float2 mask_uv : TEXCOORD1;
+    nointerpolation float premultiplied : TEXCOORD2;
 };
 
 #endif

@@ -1641,7 +1641,8 @@ Render.dll thì lấy đủ bấy nhiêu", "không viết test logic nữa, đ�
     riêng từng loại (nền đồng, nền xám), chữ xoay, ép ngang chữ dài, tô lại hình tròn. Ảnh `_Hover`
     và `_Disabled` của nút môn phái không cửa sổ nào dùng nên còn chữ Hán.
 - Bảng đo khung hình (chữ chẩn đoán của dự án, client gốc không có) mặc định ẩn từ 2026-10-09 theo
-  lời chủ dự án; F11 bật tắt trên Windows (`Steering::toggles_pace`). Android và iOS chưa có cách
+  lời chủ dự án, rồi mặc định hiện từ 2026-10-14 ("hiển thị bảng thông số bật tắt bằng f3"); F3 bật tắt trên
+  Windows (đổi từ F11), `--no-pace` tắt từ đầu (`Steering::toggles_pace`). Android và iOS chưa có cách
   bật: cần đo trên máy tính bảng thì phải thêm một thao tác chạm.
 - Bảng chuyển cảnh (2026-10-09, sau commit tạm `4bfb14a`): `ui/panel/scene_trans` là bản dịch của
   `SceneTrans.lua`; `Display::State::scene_load` báo cho HUD cảnh của màn chơi đang nạp (tên và

@@ -102,7 +102,9 @@ public:
 
     // Đăng ký một ảnh đã nằm trên GPU (ảnh màu của một render::Canvas) làm texture của giao diện
     // và trả chỉ số của nó; lấy mẫu kẹp mép, lọc tuyến tính. view phải sống tới khi UiPass bị huỷ,
-    // và phải ở bố cục ShaderRead lúc draw. Gọi ngoài begin_rendering.
+    // và phải ở bố cục ShaderRead lúc draw. Gọi ngoài begin_rendering. Ảnh Canvas có nền trong suốt
+    // chứa màu đã nhân alpha (pipeline trộn của forward ghi src * a + dst * (1 - a)), nên pixel
+    // shader giải nhân trước khi trộn alpha thẳng; ảnh đặc (alpha 1) không đổi.
     [[nodiscard]] core::Result<std::uint32_t> add_view(gpu::TextureViewHandle view);
 
     // Thay ảnh của texture index (cỡ mới tuỳ ý), cho ảnh đổi lúc chạy như minimap. Gọi ngoài

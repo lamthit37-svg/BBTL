@@ -518,6 +518,21 @@ game_module(ui_panel
     src/client/face/ui/panel/select_server.cpp
     src/client/face/ui/panel/login_flow.cpp)
 target_link_libraries(game_ui_panel PUBLIC game_gui game_hero game_quest game_table game_core)
+# Dạng khung chân dung của HUD, chọn lúc dựng client (chủ dự án chốt 2026-10-14: thuộc về giao
+# diện nên nằm ở cấu hình dựng, không đẩy lên server): round là nền tròn và đầu 3D của dự án, square là
+# chế độ classic của client 2026 (nền vuông, ảnh chân dung 2D). Macro chỉ đặt cho player_frame.cpp nên
+# đổi giá trị chỉ dựng lại tệp đó và hud.cpp không đổi. Mặc định square (chủ dự án chốt 2026-10-14).
+set(GAME_AVATAR_FRAME "square" CACHE STRING "Dạng khung chân dung của HUD: round (tròn) hoặc square (vuông)")
+set_property(CACHE GAME_AVATAR_FRAME PROPERTY STRINGS round square)
+if(NOT GAME_AVATAR_FRAME STREQUAL "round" AND NOT GAME_AVATAR_FRAME STREQUAL "square")
+    message(FATAL_ERROR "GAME_AVATAR_FRAME=${GAME_AVATAR_FRAME}: chỉ nhận round hoặc square")
+endif()
+set(game_avatar_square 0)
+if(GAME_AVATAR_FRAME STREQUAL "square")
+    set(game_avatar_square 1)
+endif()
+set_source_files_properties(src/client/face/ui/panel/player_frame.cpp
+    PROPERTIES COMPILE_DEFINITIONS "GAME_AVATAR_FRAME_SQUARE=${game_avatar_square}")
 game_module(client_map
     src/client/app/client/map/terrain.cpp
     src/client/app/client/map/samples.cpp

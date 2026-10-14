@@ -47,6 +47,8 @@ constexpr std::uint32_t kMaskSlot = 1;
 
 // Khớp struct Screen của ui.hlsli.
 struct ScreenBlock {
+    // Rộng, cao của vùng vẽ; thành phần z là 1 khi ảnh của lô chứa màu đã nhân alpha, 0 khi là ảnh
+    // thẳng (UiTexture::is_premultiplied).
     std::array<float, 4> size{};
     // Ô mặt nạ của lô: trái, trên, rộng, cao.
     std::array<float, 4> mask{0.0F, 0.0F, 1.0F, 1.0F};
@@ -92,6 +94,8 @@ struct UiTexture {
     gpu::TextureViewHandle view{};
     gpu::SamplerHandle sampler{};
     gpu::BindGroupHandle group{};
+    // View của nơi gọi (add_view) là ảnh của Canvas: màu đã nhân alpha.
+    bool is_premultiplied = false;
 };
 
 // Nhóm gắn của một cặp (ảnh, mặt nạ) có mặt nạ thật.
@@ -225,6 +229,7 @@ core::Result<std::uint32_t> UiPass::State::add_view(gpu::TextureViewHandle view)
     UiTexture made;
     made.view = view;
     made.sampler = textures.front().sampler;
+    made.is_premultiplied = true;
     const core::Result<gpu::BindGroupHandle> bound = make_group(made, textures.front());
     if (!bound) return std::unexpected(bound.error());
     made.group = *bound;
@@ -284,8 +289,10 @@ void UiPass::State::draw_batch(gpu::CommandList& list, const UiBatch& batch, UiS
     if (!(box.width > 0.0F) || !(box.height > 0.0F)) return;
     const std::optional<gpu::BindGroupHandle> group = group_of(batch);
     if (!group) return;
-    const ScreenBlock block{
-        .size = {screen.width, screen.height, 0.0F, 0.0F}, .mask = {box.x, box.y, box.width, box.height}};
+    const std::uint32_t texture = batch.texture < textures.size() ? batch.texture : kUiWhite;
+    const float premultiplied = textures.at(texture).is_premultiplied ? 1.0F : 0.0F;
+    const ScreenBlock block{.size = {screen.width, screen.height, premultiplied, 0.0F},
+        .mask = {box.x, box.y, box.width, box.height}};
     list.push_constants(std::as_bytes(std::span(&block, 1)), 0);
     list.bind_group(kTextureSpace, *group);
     gpu::DrawIndexedArguments draw;
