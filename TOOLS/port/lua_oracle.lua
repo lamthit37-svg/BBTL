@@ -155,6 +155,16 @@ function methods.AddItem(self, text, id, colour)
     table.insert(own.items, { text = tostring(text), id = id, colour = colour or "" })
     own.touched.items = true
 end
+-- AddInfo của danh sách TLBB_InfoList (FalagardInfoList::AddInfo, CEGUIFalagard.dll 0x18006b940): thêm một mục
+-- chữ id 0, NormalizeItemNumber bỏ mục cũ nhất cho tới khi còn tối đa 5 mục (mặc định 0x18006b676), rồi
+-- setVisible(true) cho chính danh sách. Tuổi thọ và độ mờ của mục (Life, FadeSpeed) không vào trạng thái ghi.
+function methods.AddInfo(self, text)
+    local own = record(self)
+    table.insert(own.items, { text = tostring(text), id = 0, colour = "" })
+    while table.getn(own.items) > 5 do table.remove(own.items, 1) end
+    own.touched.items = true
+    put(self, "visible", true)
+end
 function methods.GetFirstSelectItem(self)
     local own = record(self)
     if own.selected == nil then return -1 end

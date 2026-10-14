@@ -547,15 +547,17 @@ void desk_paints_shop_shelves(Context& context) {
     context.expect(said(deck, chosen) == "True", "mục bảo thạch đang chọn");
 }
 
-void desk_paints_notice(Context& context) {
+// Lời nhắc của nút là PushDebugMessage: desk đưa khoá ra đúng một lần cho HUD đẩy vào DebugListBox, không tự vẽ.
+void desk_hands_over_notice(Context& context) {
     ui::panel::Desk desk;
+    context.expect(ui::panel::take_notice(desk).empty(), "chưa bấm thì không có lời nhắc");
     ui::panel::press_desk(desk, "Button_Reputation");
     Deck deck;
     ui::panel::paint_desk(deck, desk);
-    context.expect(deck.is_shown("DebugListBox"), "lời nhắc hiện ở danh sách");
-    const Key line{.window = "DebugListBox_ListBox", .name = "Text"};
+    context.expect(!deck.is_shown("DebugListBox"), "desk không vẽ danh sách lời nhắn");
     constexpr std::string_view kNotMember = "GMGameInterface_Script_Guild_Not_Guild_Member";
-    context.expect(said(deck, line) == "#{GMGameInterface_Script_Guild_Not_Guild_Member}", "lời nhắc là khoá");
+    context.expect(ui::panel::take_notice(desk) == "#{GMGameInterface_Script_Guild_Not_Guild_Member}", "lời nhắc là khoá");
+    context.expect(desk.notice == ui::panel::Notice::kNone && ui::panel::take_notice(desk).empty(), "lấy rồi thì hết");
     // Chữ của khoá lấy từ bảng chuỗi của ngôn ngữ đang dựng, không gắn cứng một thứ tiếng.
     if (kClientData.empty()) return;
     const io::TextResult strings = io::read_text(std::filesystem::path(kClientData) / "Table" / "ui_strings.tsv");
@@ -676,7 +678,7 @@ constexpr std::array kCases{
     Case{.name = "desk_wires_the_menu", .body = &desk_wires_the_menu},
     Case{.name = "desk_routes_system_buttons", .body = &desk_routes_system_buttons},
     Case{.name = "desk_paints_shop_shelves", .body = &desk_paints_shop_shelves},
-    Case{.name = "desk_paints_notice", .body = &desk_paints_notice},
+    Case{.name = "desk_hands_over_notice", .body = &desk_hands_over_notice},
     Case{.name = "desk_paints_in_open_order", .body = &desk_paints_in_open_order},
     Case{.name = "desk_names_exist", .body = &desk_names_exist},
     Case{.name = "menubar_experience", .body = &menubar_experience},
