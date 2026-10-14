@@ -212,6 +212,10 @@ void print_visit(const world::ShownScene& shown) {
     viewer.shot = options.shot_path;
     viewer.is_bare = options.is_bare;
     viewer.is_auto_walk = options.is_auto_walk;
+    viewer.auto_strike_from = options.auto_strike_from;
+    viewer.weapon_item = options.weapon_item;
+    viewer.weapon_gem = options.weapon_gem;
+    viewer.skill_id = options.skill_id;
     viewer.is_validated = options.validate.value_or(kValidatedByBuild);
     viewer.backend = options.backend;
     viewer.client_size = options.client_size;

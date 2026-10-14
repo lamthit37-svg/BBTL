@@ -59,6 +59,37 @@ struct Argument {
     return options.client_size.has_value();
 }
 
+// Mã vật phẩm: số nguyên không âm hệ mười chiếm trọn chuỗi.
+[[nodiscard]] bool set_weapon(Options& options, std::string_view text) noexcept {
+    const core::OptionalUnsigned parsed = core::parse_unsigned(text, 10);
+    if (!parsed || parsed->length != text.size()) return false;
+    options.weapon_item = parsed->value;
+    return true;
+}
+
+// Khung màn chơi đầu tiên của --auto-strike: số nguyên dương chiếm trọn chuỗi (0 là tắt, chỉ có khi không đưa cờ).
+[[nodiscard]] bool set_auto_strike(Options& options, std::string_view text) noexcept {
+    const core::OptionalUnsigned parsed = core::parse_unsigned(text, 10);
+    if (!parsed || parsed->length != text.size() || parsed->value == 0) return false;
+    options.auto_strike_from = parsed->value;
+    return true;
+}
+
+// Mã vật phẩm đá quý: số nguyên dương hệ mười chiếm trọn chuỗi.
+[[nodiscard]] bool set_gem(Options& options, std::string_view text) noexcept {
+    const core::OptionalUnsigned parsed = core::parse_unsigned(text, 10);
+    if (!parsed || parsed->length != text.size() || parsed->value == 0) return false;
+    options.weapon_gem = parsed->value;
+    return true;
+}
+
+[[nodiscard]] bool set_skill(Options& options, std::string_view text) noexcept {
+    const core::OptionalUnsigned parsed = core::parse_unsigned(text, 10);
+    if (!parsed || parsed->length != text.size()) return false;
+    options.skill_id = parsed->value;
+    return true;
+}
+
 // resid: số nguyên không âm chiếm trọn chuỗi. 0 là Lạc Dương trong bảng gốc.
 [[nodiscard]] bool set_scene_id(Options& options, std::string_view text) noexcept {
     const std::optional<int> resid = core::parse_whole_int(text);
@@ -83,6 +114,10 @@ struct Argument {
     if (argument.key == "--scene-id") return set_scene_id(options, argument.value);
     if (argument.key == "--backend") return set_backend(options, argument.value);
     if (argument.key == "--size") return set_size(options, argument.value);
+    if (argument.key == "--weapon") return set_weapon(options, argument.value);
+    if (argument.key == "--gem") return set_gem(options, argument.value);
+    if (argument.key == "--skill") return set_skill(options, argument.value);
+    if (argument.key == "--auto-strike") return set_auto_strike(options, argument.value);
     if (argument.key == "--scene") options.scene_name = argument.value;
     if (argument.key == "--data") options.data_folder = io::path_from_utf8(argument.value);
     if (argument.key == "--shot") options.shot_path = io::path_from_utf8(argument.value);

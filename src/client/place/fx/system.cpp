@@ -81,8 +81,12 @@ void set_emitter(EmitterDef& emitter, const ScriptProperty& property) {
     if (key == "time_to_live") emitter.ttl_min = emitter.ttl_max = number_of(property, 1.0F, 0);
     if (key == "time_to_live_min") emitter.ttl_min = number_of(property, 1.0F, 0);
     if (key == "time_to_live_max") emitter.ttl_max = number_of(property, 1.0F, 0);
+    if (key == "duration") emitter.duration_min = emitter.duration_max = number_of(property, 0.0F, 0);
     if (key == "duration_min") emitter.duration_min = number_of(property, 0.0F, 0);
     if (key == "duration_max") emitter.duration_max = number_of(property, 0.0F, 0);
+    if (key == "repeat_delay") emitter.repeat_min = emitter.repeat_max = number_of(property, 0.0F, 0);
+    if (key == "repeat_delay_min") emitter.repeat_min = number_of(property, 0.0F, 0);
+    if (key == "repeat_delay_max") emitter.repeat_max = number_of(property, 0.0F, 0);
     if (key == "width") emitter.size.x = number_of(property, emitter.size.x, 0);
     if (key == "height") emitter.size.y = number_of(property, emitter.size.y, 0);
     if (key == "depth") emitter.size.z = number_of(property, emitter.size.z, 0);

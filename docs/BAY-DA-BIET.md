@@ -293,6 +293,13 @@ mục ở mục 11.
 - `math.random` trong script (bảng tạo nhân vật gieo bộ đồ tân thủ): kịch bản trọng tài thay nó
   bằng một dãy số đưa sẵn, test của bản port đưa cùng dãy qua hàm gieo tiêm vào; để nguyên
   `math.random` thì số vàng không lặp lại được.
+- REA (`D:\rea`, bản clone của github.com/morluto/rea ở tag `rea-agents-6.4.0`, đã `npm install` và `npm run build`): chạy
+  `GHIDRA_INSTALL_DIR=C:\Users\myhea\Desktop\ghidra\ghidra_12.1.4_PUBLIC JAVA_HOME=<JDK 21> REA_ANALYSIS_PROVIDER=ghidra node
+  scripts/rea.mjs inspect|function <Game.exe> [địa chỉ] --snapshot <tệp>`. Addon Windows native (`native/windows/build`, bị ignore) chỉ có
+  trong gói npm phát hành và phải khớp tag: bản `main` đòi trường `privateBridgeDescriptorAccess` mà addon 6.4.0 không có (doctor báo
+  `runtime_failure`), và dựng addon từ nguồn cần Linux + MinGW. `Game.exe` 2026 không còn trên đĩa (`F:\tl 2026\2026\Bin64` bị xoá
+  2026-10-09): bản xuất lại từ chương trình đã nạp trong dự án Ghidra TLBB (`OriginalFileExporter`, 18 614 816 byte, SHA-256
+  `3f8bb47de0bc...`) nằm ở `D:\rea\work\client\Game.exe`. Đo: `inspect` mất 5 phút 4 giây ở lượt đầu (58 035 hàm, 56 190 chuỗi, 9 đoạn).
 
 ## Giao diện và bản địa hoá
 
@@ -457,3 +464,22 @@ mục ở mục 11.
   `wait_slot` chờ số của lần cuối dùng ảnh đó (và vòng `image_count` khung). Sau sửa 871 khung, trung vị 16,7 ms,
   p95 17,4 ms, 0 lỗi lớp kiểm. Bộ đệm mới đánh số theo ảnh swapchain phải đi sau `wait_slot`; số khung phải chờ in ở
   dòng "Khung phải chờ GPU nhả bộ đệm của ảnh" lúc thoát.
+
+## Vũ khí, hiệu ứng đồ, đòn đánh
+
+- Mốc `BreakTime`, `HitTime`, `ShakeTime`, `AttachTime` của `Effect/all.skill` là PHẦN độ dài animation (0..1), không phải giây
+  (`LogicModel::execute` chia cho `getLength`); `SkillTemplate_V1` cột 5 là kiểu bước (0 ngẫu nhiên, 1 CONCATENATION_EX, 2
+  CONCATENATION) và cột 34 là thời gian phát (ms): clip dài hơn thì chạy nhanh lên cho vừa. Cột 18 là hành động cơ sở của
+  action set của NHÂN VẬT, không phải của `Config/CharActionSet`.
+- `--shot` chụp ở khung đầu sau khi bảng đo đủ 30 mẫu (`kSamplesForShot`), không theo `--frames`: ảnh chụp đòn đánh giống hệt nhau
+  nếu đòn bắt đầu sau khung đó. Dùng `--auto-strike <khung>` (k nhỏ hơn 30) và đo lại ở hai giá trị k.
+- Tên trong `Model/all.obj` không phân biệt hoa thường theo ASCII và khi trùng tên thì dòng đầu thắng; locator ra `1.#QNAN` là số
+  không hữu hạn (bộ đọc từ chối và nêu cột). Loại vũ khí thuộc vật phẩm, hình thuộc hình: nhiều vật phẩm khác loại dùng chung một hình.
+- Đường dẫn âm thanh của kịch bản thiếu tiền tố `sound/` (SoundInfo). `Attach=true` của hiệu ứng là bám theo điểm gắn mỗi khung,
+  `Attach=false` đặt một lần; hiệu ứng của cảnh không có handle và phát mãi, chỉ hiệu ứng `is_tracked` mới có vòng đời.
+- Hiệu ứng đồ: màu `RRGGBBAA` hex (alpha là cường độ, nhân trước vào rgb: `FFFFFF09` gần như tàng hình, thử bằng đá màu `FFFFFFFF`
+  như `50902003`); ký tự thứ hai của màu là `1` thì mã máy bỏ hiệu ứng; chỉ số hiệu ứng quá 34 không có ô.
+- `check.py` cần `-I` cho từng thư mục `src/client/<m>/` (và `src/client/app/client/...` cho `display`), một `--with` cho mỗi tệp
+  nguồn thêm khi `--run`; clang bắt `-Wshadow` mà MSVC không bắt (tên `follow` của `Display::State`).
+- Ghidra headless: khoá `s:` không tìm được chuỗi Hán; dùng `s:RightWeaponObj`. Tệp `.ps1` UTF-8 không BOM bị PowerShell 5.1 đọc
+  theo ANSI: mẫu tìm có chữ Việt thì dùng mẫu ASCII.

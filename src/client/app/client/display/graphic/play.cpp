@@ -73,7 +73,8 @@ render::Camera Display::State::frame_camera(FrameAsk ask) {
     take_events(taken.events);
     const float delta_seconds = step_clock(ask.elapsed);
     enter_camera(scene_id);
-    const Steering keys = is_auto_walk ? auto_walk(taken.keys, delta_seconds) : taken.keys;
+    Steering keys = is_auto_walk ? auto_walk(taken.keys, delta_seconds) : taken.keys;
+    if (auto_strike_from != 0) note_auto_strike(keys);
     steer_camera(keys);
     pilot_frame(now, delta_seconds);
     hold_stick_frame(now);
@@ -337,6 +338,7 @@ void Display::State::ensure_sim() {
 void Display::State::simulate_motion(const Steering& keys, core::Clock::time_point now) {
     ensure_sim();
     if (!sim_clock) return;
+    begin_strike(keys.strike_slot);
     const std::uint32_t due = sim_clock->advance(now);
     const float step = static_cast<float>(sim_clock->step_seconds());
     std::uint32_t index = 0;
@@ -351,6 +353,27 @@ void Display::State::simulate_motion(const Steering& keys, core::Clock::time_poi
     shown_x = prev_x + ((walk.x - prev_x) * alpha);
     shown_z = prev_z + ((walk.z - prev_z) * alpha);
     has_shown = true;
+}
+
+// Phím ô thao tác: skill ở ô đó (hero.skills), bước chọn ngẫu nhiên rand() % số bước như Start_MagicSend với skill
+// kiểu NONE. Đang đi, nhảy hay đang trong đòn chưa tới BreakTime thì không ra đòn (DoSimulantCommand trả RC_WAIT; gốc
+// xếp lệnh vào hàng chờ, ở đây bỏ). Ô trống, skill không có clip cho giới và loại vũ khí này thì không làm gì.
+// Khác gốc: gốc nhận lệnh từ máy chủ và chọn bước liên hoàn theo lệnh nối tiếp (docs/NGHI-NGO.md).
+void Display::State::begin_strike(std::optional<std::uint32_t> slot) {
+    if (!slot || !player || is_player_running || jump.is_jumping || player->is_locked(frame_time)) return;
+    if (*slot >= hero.skills.size()) return;
+    const std::uint32_t skill = hero.skills.at(*slot);
+    const std::vector<std::uint32_t> steps = player->steps_of(skill);
+    if (steps.empty()) return;
+    strike_begun = StrikeCall{.skill = skill, .step = steps.at(strike_dice() % steps.size())};
+}
+
+// Công cụ đo: ô cuối của hero.skills được nhấn ở khung màn chơi auto_strike_from rồi mỗi 180 khung.
+void Display::State::note_auto_strike(Steering& keys) {
+    constexpr std::uint32_t kPeriod = 180;
+    ++play_frames;
+    const bool is_due = play_frames >= auto_strike_from && (play_frames - auto_strike_from) % kPeriod == 0;
+    if (is_due && !hero.skills.empty()) keys.strike_slot = static_cast<std::uint32_t>(hero.skills.size() - 1);
 }
 
 // Giữ W suốt, hướng nhìn quay đều theo thời gian khung: nhân vật chạy vòng tròn thay vì đứng ì trước
@@ -404,7 +427,9 @@ void Display::State::step_jump(bool wants_jump, float dt) {
     const float terrain_y = terrain ? terrain->height_at(walk.x, walk.z) : 0.0F;
     const float surface = surface_y(held.get(), ground, walk.x, walk.z, terrain_y);
     const float ground_game = (surface - file.origin.y) / file.scale.y;
-    if (wants_jump) {
+    // Cú nhảy cũng là lệnh: chờ tới BreakTime của đòn đang phát (RC_WAIT), bấm trong lúc chờ thì bỏ.
+    const bool is_waiting = player && player->is_locked(frame_time);
+    if (wants_jump && !is_waiting) {
         motion::JumpGate gate;
         gate.is_moving = is_player_running;
         const motion::JumpStart leap =
@@ -428,6 +453,11 @@ float Display::State::jump_lift(float surface) const noexcept {
 
 // Phím đi bộ thắng lệnh nhấp chuột; không có phím thì đi tiếp theo lệnh (nếu có).
 void Display::State::move_player(const Steering& keys, float dt) {
+    // DoSimulantCommand trả RC_WAIT tới BreakTime của đòn đang phát: không đi, lệnh đi còn nguyên chờ sau đòn.
+    if (player && player->is_locked(frame_time)) {
+        is_player_running = false;
+        return;
+    }
     const bool is_asked = keys.walk_forward != 0.0F || keys.walk_right != 0.0F;
     if (is_asked) order.reset();
     if (is_asked) walk_free(keys, dt);
@@ -518,6 +548,10 @@ void Display::State::load_player() {
     desc.data_root = data_root;
     if (has_role_look) desc.race = role_race;
     if (has_role_look) desc.look = role_look;
+    desc.weapon_item = hero.equipment.at(hero::EquipPoint::kWeapon);
+    desc.weapon_gem = hero.equipment.gem_at(hero::EquipPoint::kWeapon).value_or(0);
+    desc.skills = hero.skills;
+    if (tables_job.valid()) desc.tables = tables_job.get();
     const MeshLoader loader = [this](const std::string& mesh) -> const render::Drawable* {
         const std::size_t index = load_mesh(mesh);
         return index == kMissing ? nullptr : &kept.at(index).loaded.drawable;
@@ -528,6 +562,7 @@ void Display::State::load_player() {
         return;
     }
     player.emplace(std::move(*made));
+    follow_handles.clear();
     std::println("Người chơi: {} bộ phận", player->figure().parts.size());
     load_head(desc, loader);
 }
@@ -551,6 +586,8 @@ void Display::State::load_head(const PlayerDesc& desc, const MeshLoader& loader)
     if (!ui_pass || head) return;
     HeadShotDesc shot;
     shot.player = desc;
+    // Ảnh chân dung không ra đòn: không nạp bảng skill và clip đòn cho chúng (ngân sách nạp đầu).
+    shot.player.skills.clear();
     shot.forward = forward.get();
     shot.color_format = screen->color_format();
     shot.depth_format = screen->depth_format();

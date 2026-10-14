@@ -3,13 +3,13 @@
 // table::RowReader; giới là Race; khoá faces, hairs là (id, race).
 #include "look/appearance.hpp"
 
+#include "look/detail/rows.hpp"
 #include "table/tsv.hpp"
 
 #include <algorithm>
 #include <array>
 #include <cstddef>
 #include <cstdint>
-#include <expected>
 #include <format>
 #include <optional>
 #include <span>
@@ -21,6 +21,10 @@
 
 namespace game::look {
 namespace {
+
+using detail::not_empty;
+using detail::read_all;
+using detail::sorted_unique;
 
 constexpr std::uint32_t kMaxShort = 0xFFFFU;
 constexpr std::uint32_t kMaxLong = 0xFFFFFFFFU;
@@ -56,22 +60,6 @@ std::optional<Weapon> weapon_of(std::string_view name) {
     const auto found = std::ranges::find(kWeapons, name, &WeaponName::name);
     if (found == kWeapons.end()) return std::nullopt;
     return found->weapon;
-}
-
-// Mọi dòng của bảng qua một bộ đọc một dòng; dừng ở dòng sai đầu tiên.
-template <typename Row>
-Rows<Row> read_all(const table::Tsv& table, Row (*read_row)(table::RowReader&)) {
-    std::vector<Row> rows;
-    rows.reserve(table.rows.size());
-    std::optional<std::string> failure;
-    for (std::size_t index = 0; index < table.rows.size() && !failure; ++index) {
-        // NOLINTNEXTLINE(misc-const-correctness): giả dương, read_row nhận RowReader& (HP-07)
-        table::RowReader reader(table, index);
-        rows.push_back(read_row(reader));
-        failure = reader.error();
-    }
-    if (failure) return std::unexpected(*failure);
-    return rows;
 }
 
 Race race_of(table::RowReader& reader) {
@@ -152,31 +140,6 @@ AnimRow anim_row(table::RowReader& reader) {
     return anim;
 }
 
-// Khoá của hàng trước phải nhỏ hơn khoá của hàng sau: bảng không có khoá trùng.
-template <typename Row, typename Key>
-std::optional<std::string> check_unique(std::span<const Row> rows, Key key, std::string_view name) {
-    const auto repeats = [&key](const Row& left, const Row& right) { return key(left) == key(right); };
-    const auto found = std::ranges::adjacent_find(rows, repeats);
-    if (found == rows.end()) return std::nullopt;
-    return std::format("bảng {} có khoá trùng", name);
-}
-
-template <typename Row, typename Key>
-Rows<Row> sorted_unique(Rows<Row> rows, Key key, std::string_view name) {
-    if (!rows) return rows;
-    const auto before = [&key](const Row& left, const Row& right) { return key(left) < key(right); };
-    std::ranges::sort(*rows, before);
-    const std::optional<std::string> repeated = check_unique<Row>(*rows, key, name);
-    if (repeated) return std::unexpected(*repeated);
-    return rows;
-}
-
-template <typename Row>
-Rows<Row> not_empty(Rows<Row> rows, std::string_view name) {
-    if (rows && rows->empty()) return std::unexpected(std::format("bảng {} không có dòng nào", name));
-    return rows;
-}
-
 } // namespace
 
 Rows<PlayerBody> read_player_bodies(const table::Tsv& table) {
@@ -206,6 +169,10 @@ Rows<AnimRow> read_anim_sets(const table::Tsv& table) {
     };
     auto rows = read_all<AnimRow>(table, anim_row);
     return not_empty(sorted_unique(std::move(rows), key, "anim_sets"), "anim_sets");
+}
+
+std::optional<Weapon> weapon_named(std::string_view name) {
+    return weapon_of(name);
 }
 
 const PlayerBody* find_body(std::span<const PlayerBody> rows, Race race) {

@@ -27,6 +27,8 @@ struct Display::State {
     void kick_loading(const DisplayDesc& desc);
     // Phần đọc đĩa của giao diện do DisplayPreload bắt đầu, nếu có và cùng data_root; lấy đi nên chỉ lấy được một lần.
     [[nodiscard]] static std::optional<ui::HudPrep> take_early_hud(const DisplayDesc& desc);
+    // Việc đọc bảng người chơi do DisplayPreload bắt đầu, nếu có và cùng data_root (không thì future rỗng); lấy một lần.
+    [[nodiscard]] static PlayerTablesJob take_early_tables(const DisplayDesc& desc);
     void arm_scene(const DisplayDesc& desc);
     // Thân của luồng vẽ: khởi tạo qua bàn tay bắt tay, báo kết quả, rồi quay tới khi dừng.
     void run(Launch& handshake, const DisplayDesc& desc, const std::stop_token& stop);
@@ -100,6 +102,16 @@ struct Display::State {
     void open_login();
     void store_roles() const;
     void apply_role();
+    // Gieo vật phẩm của công cụ thử (weapon_item) vào hero.equipment; gọi lại mỗi lần hero dựng mới.
+    void seed_equipment();
+    // Phím ô thao tác thành lệnh dùng skill (CAI_MySelf::UseSkill): chọn bước liên hoàn kế của skill ở ô đó.
+    void begin_strike(std::optional<std::uint32_t> slot);
+    // Khối con kịch bản đòn vừa tới mốc: hiệu ứng thành hệ hạt trong FxView, âm thanh vào sounds_due cho luồng cửa sổ.
+    void dispatch_cues();
+    // Hiệu ứng đồ của người chơi (PlayerActor::gear_effects): dựng khi có, dừng khi hết, dời theo điểm 武器特效点 mỗi khung.
+    void sync_gear();
+    // Hiệu ứng bám của đòn (SkillCue::token): dời theo điểm gắn mỗi khung tới khi hiệu ứng hết.
+    void sync_follows();
     void apply_kept(const KeptRole& restored);
     void start_play();
     [[nodiscard]] ui::HudView hud_view() const;
@@ -128,6 +140,7 @@ struct Display::State {
     [[nodiscard]] float frame_budget_ms() const noexcept;
     // --walk: thay phím đi của khung bằng "giữ W" và xoay hướng nhìn theo thời gian khung.
     [[nodiscard]] Steering auto_walk(const Steering& keys, float seconds);
+    void note_auto_strike(Steering& keys);
     // --walk: ghi quãng chân đi được ở khung này (sau simulate_motion) và in tổng kết lúc thoát.
     void note_walk_step();
     void report_walk() const;
@@ -271,12 +284,29 @@ struct Display::State {
     std::unique_ptr<render::Screen> screen;
     std::unique_ptr<render::Forward> forward;
     std::unique_ptr<FxView> fx_view;
+    // Hiệu ứng đồ đang chạy trong fx_view: mẫu con, tên effect và màu đã dựng (đổi một trong ba thì dựng lại), handle
+    // (0 là fx không dựng được, không thử lại).
+    struct GearHandle {
+        std::size_t mount = 0;
+        std::string name;
+        std::uint32_t colour = 0;
+        std::uint32_t handle = 0;
+    };
+    std::vector<GearHandle> gear_handles;
+    // Hiệu ứng bám của đòn: dấu của PlayerActor và handle trong fx_view.
+    struct FollowHandle {
+        std::uint32_t token = 0;
+        std::uint32_t handle = 0;
+    };
+    std::vector<FollowHandle> follow_handles;
     // Đã in lỗi dựng hiệu ứng một lần. PSO chưa được yêu cầu thì fault còn trống, không in.
     bool fx_fault_noted = false;
     // Giao diện 2D. Rỗng khi thiếu shader hay dữ liệu; game vẫn chạy.
     std::unique_ptr<render::UiPass> ui_pass;
     // Phần đọc đĩa của giao diện đang chạy ở luồng riêng (kick_loading); open_hud lấy đi.
     std::optional<ui::HudPrep> hud_prep;
+    // Bảng người chơi đang đọc ở luồng riêng (kick_loading); load_player lấy kết quả. Rỗng thì create tự đọc.
+    PlayerTablesJob tables_job;
     std::unique_ptr<ui::Hud> hud;
     const Stage* stage = nullptr;
     // Vòm trời của cảnh đang vẽ. Drawable trỏ vào model và uploaded của chính optional này.
@@ -376,6 +406,16 @@ struct Display::State {
     // DisplayDesc::is_auto_walk, và quãng chân đi được mỗi khung trong lúc tự chạy (cm), cho dòng
     // tổng kết lúc thoát. Có trần kMaxWalkSamples mẫu.
     bool is_auto_walk = false;
+    // DisplayDesc::auto_strike_from, và số khung màn chơi đã chạy để đếm nhịp.
+    std::uint32_t auto_strike_from = 0;
+    std::uint32_t play_frames = 0;
+    // DisplayDesc::weapon_item: vật phẩm khe 0 mà công cụ thử gieo vào hero.equipment như gói trang bị của
+    // máy chủ; ngoại hình đọc từ hero.equipment, không đọc biến này.
+    std::optional<std::uint32_t> weapon_item;
+    // DisplayDesc::weapon_gem: đá quý của vũ khí mà công cụ thử gieo vào hero.equipment.
+    std::optional<std::uint32_t> weapon_gem;
+    // DisplayDesc::skill_id: skill học thêm mà công cụ thử gieo vào hero.skills.
+    std::optional<std::uint32_t> skill_id;
     std::vector<float> walk_steps;
     std::optional<ogre::Vec3> walk_last_foot;
     float prev_x = 0.0F;
@@ -446,6 +486,12 @@ struct Display::State {
     // Cú nhảy bắt đầu và lần chạm đất từ các bước mô phỏng chưa đưa cho người chơi; compose_frame lấy.
     std::optional<avatar::Stance> jump_begun;
     bool jump_landed = false;
+    // Đòn vừa chọn mà compose_frame chưa đưa cho người chơi, và bước liên hoàn kế của từng skill.
+    std::optional<StrikeCall> strike_begun;
+    // Số lăn thay cho rand() của Start_MagicSend khi chọn bước của skill kiểu ngẫu nhiên.
+    std::linear_congruential_engine<std::uint32_t, 48271U, 0U, 2147483647U> strike_dice{std::random_device{}()};
+    // Tên âm thanh của khối con kịch bản vừa tới mốc mà luồng cửa sổ chưa lấy, có khoá steer_guard.
+    std::vector<std::string> sounds_due;
     std::uint32_t sim_ms = 0;
     // minstd_rand với kiểu kết quả đúng 32 bit trên mọi nền (như avatar::Gait), để không phải ép kiểu số lăn.
     std::linear_congruential_engine<std::uint32_t, 48271U, 0U, 2147483647U> jump_dice{std::random_device{}()};

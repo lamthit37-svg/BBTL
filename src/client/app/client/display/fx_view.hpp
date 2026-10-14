@@ -9,6 +9,7 @@
 #pragma once
 
 #include "client/stage/stage.hpp"
+#include "fx/cast.hpp"
 #include "fx/field.hpp"
 #include "gpu/handle.hpp"
 #include "render/camera.hpp"
@@ -48,6 +49,14 @@ public:
     void load(const std::filesystem::path& data_root);
     // Nhận cảnh mới: bỏ hiệu ứng của cảnh cũ rồi dựng hiệu ứng của stage.
     void adopt(const Stage& stage);
+    // Dựng thêm một hệ hạt hay effect giữa cảnh (hiệu ứng đòn đánh, hiệu ứng đồ của người chơi); thứ chưa vẽ đúng được
+    // thì bị bỏ và đếm như lúc adopt. Trả handle (khác 0) khi spawn.is_tracked và dựng được. Gọi từ luồng vẽ.
+    std::uint32_t spawn(const fx::Spawn& spawn);
+    // Dời hay dừng hiệu ứng theo dõi (fx::Cast::move, release).
+    void move(std::uint32_t handle, const fx::Node& node);
+    void release(std::uint32_t handle);
+    // Hiệu ứng theo dõi còn chạy (fx::Cast::is_live); cảnh mới (adopt) làm mọi handle hết sống.
+    [[nodiscard]] bool is_live(std::uint32_t handle) const;
     // Bước mô phỏng. Gọi trước lượt vẽ model để hạt mesh kịp vào cùng pass.
     void advance(float seconds);
     [[nodiscard]] std::vector<const fx::Field*> fields() const;

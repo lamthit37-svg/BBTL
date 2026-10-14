@@ -93,6 +93,9 @@ struct Utf8 {
     if (code == SDLK_TAB) return SdlKey::kTab;
     if (code == SDLK_RETURN || code == SDLK_KP_ENTER) return SdlKey::kEnter;
     if (code == SDLK_ESCAPE) return SdlKey::kEscape;
+    if (code >= SDLK_1 && code <= SDLK_9) {
+        return static_cast<SdlKey>(static_cast<std::uint8_t>(SdlKey::kDigit1) + static_cast<std::uint8_t>(code - SDLK_1));
+    }
     return SdlKey::kNone;
 }
 

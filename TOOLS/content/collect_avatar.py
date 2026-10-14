@@ -2,11 +2,13 @@
 # lưới của bộ mặc định (mặt, tóc và phụ kiện tóc, áo, tay, giày), các tệp skeleton chứa clip của
 # anim_sets theo loại vũ khí đã chọn, mọi mặt và tóc chọn được lúc tạo nhân vật (creatable = 1, kèm
 # bản cao mô id + 10000 mà màn tạo dùng cho người mẫu), ba bộ đồ tân thủ của newbie_outfits.tsv,
-# 30 người mẫu xem trước môn phái của sect_models.tsv, và ảnh mà GLB của chúng trỏ tới. Giữ nguyên bố cục tương đối
+# 30 người mẫu xem trước môn phái của sect_models.tsv, lưới của mọi mẫu vũ khí trong objects.tsv (do
+# export_weapons.py sinh), tệp skeleton chứa clip đòn đánh và tuyệt chiêu của skill_clips.tsv (do export_skills.py
+# sinh), và ảnh mà GLB của chúng trỏ tới. Giữ nguyên bố cục tương đối
 # (Model/<tên>.glb, Material/<ảnh>.png) để URI ảnh trong GLB vẫn đúng. Chỉ chép, không đổi nội dung.
 # Dựa trên Collector của collect_map.py. Đọc Table/*.tsv do export_look.py sinh ra.
 # Cách dùng: python collect_avatar.py <_raw> <_glb> <thư mục dữ liệu client> [loại vũ khí ...]
-# Mặc định chỉ loại "none" (tay không). Ghi Table/avatar.files.tsv; mã thoát 1 khi có thứ thiếu.
+# Mặc định đủ bảy loại (tay không và sáu loại cầm tay). Ghi Table/avatar.files.tsv; mã thoát 1 khi có thứ thiếu.
 
 import csv
 import os
@@ -16,7 +18,7 @@ from collections import Counter
 from collect_map import Collector, copy_files
 
 TABLE_FOLDER = "Table"
-DEFAULT_WEAPONS = ("none",)
+DEFAULT_WEAPONS = ("none", "spear", "blade", "dual_short", "short", "fan", "ring")
 
 
 def read_table(path: str) -> list:
@@ -92,6 +94,26 @@ def add_sect_models(collector: Collector, table_dir: str) -> None:
                 collector.add_mesh(mesh)
 
 
+def add_weapons(collector: Collector, table_dir: str) -> None:
+    """Lưới của mọi mẫu vũ khí (mọi khe) mà weapons.tsv dẫn tới; chưa có objects.tsv thì không gom gì."""
+    path = os.path.join(table_dir, "objects.tsv")
+    if not os.path.isfile(path):
+        return
+    for row in read_table(path):
+        for mesh in row["meshes"].split("|"):
+            if mesh:
+                collector.add_mesh(mesh)
+
+
+def add_skill_clips(collector: Collector, table_dir: str) -> None:
+    """Tệp skeleton chứa clip của đòn đánh và tuyệt chiêu; chưa có skill_clips.tsv thì không gom gì."""
+    path = os.path.join(table_dir, "skill_clips.tsv")
+    if not os.path.isfile(path):
+        return
+    for row in read_table(path):
+        collector.want("clip", collector.glb_root, os.path.join("Model", row["anim"] + ".glb"))
+
+
 def add_clips(collector: Collector, table_dir: str, body: dict, weapons: tuple) -> None:
     for row in read_table(os.path.join(table_dir, "anim_sets.tsv")):
         if row["set"] == body["anim_set"] and row["weapon"] in weapons:
@@ -113,6 +135,8 @@ def main() -> int:
         add_clips(collector, table_dir, body, weapons)
     add_creation_parts(collector, table_dir)
     add_sect_models(collector, table_dir)
+    add_weapons(collector, table_dir)
+    add_skill_clips(collector, table_dir)
     sizes = copy_files(collector)
     kinds = Counter(kind for kind, _ in collector.files.values())
     list_path = os.path.join(table_dir, "avatar.files.tsv")

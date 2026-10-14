@@ -2,21 +2,30 @@
 // clip đứng phát một lần rồi chọn lại, động tác nghỉ chỉ sau khoảng CalcIdleRandInterval, công
 // thức khoảng giữ đúng toán tử của ref; và hướng mặt xoay dần: mới thấy thì lấy thẳng hướng
 // logic, sau kTurnTime quay được 1 − 1/e phần góc, đi theo cung ngắn nhất qua ±π, không phụ thuộc
-// tốc độ khung, và bỏ đối tượng đã rời vùng nhìn. Nhảy theo Jump và NotifyPhyEvent của ref (gait.hpp).
+// tốc độ khung, và bỏ đối tượng đã rời vùng nhìn. Nhảy theo Jump và NotifyPhyEvent của ref (gait.hpp); đòn đánh
+// phát một lần ở tốc độ của kế hoạch, khoá lệnh khác tới BreakTime (Start_MagicSend).
 // Nguồn: TLBB Dev tests/client_app/gait_test.cpp và turning_test.cpp@e0d89a6. Khác gốc: khung test
 // của dự án (Context::expect); core::Clock; id đối tượng là số nguyên không dấu.
+#include "anim/asset.hpp"
+#include "anim/rig.hpp"
 #include "avatar/gait.hpp"
+#include "avatar/locator.hpp"
 #include "avatar/turning.hpp"
 #include "core/check.hpp"
 #include "core/clock.hpp"
+#include "look/weapon.hpp"
+#include "ogre/quat.hpp"
+#include "ogre/vec3.hpp"
 #include "test.hpp"
 
 #include <array>
 #include <chrono>
 #include <cmath>
 #include <cstdint>
+#include <limits>
 #include <numbers>
 #include <optional>
+#include <string>
 
 namespace game::test {
 namespace {
@@ -285,6 +294,142 @@ void jump_without_clip(Context& context) {
     context.expect(landed.stance == Stance::kRun && near_value(landed.time, 0.1F), "chạm đất hai lần chỉ tính một");
 }
 
+// Đòn đánh (Start_MagicSend): clip phát một lần từ đầu ở tốc độ plan.rate, hết clip thì FreshAnimation về đứng; lệnh khác
+// chỉ ngắt được từ mốc BreakTime.
+[[nodiscard]] avatar::StrikePlan plan_of(float length, float rate, std::optional<float> break_at) {
+    return avatar::StrikePlan{.index = 3, .length = length, .rate = rate, .break_at = break_at};
+}
+
+void strike_plays_once(Context& context) {
+    Gait gait{1, avatar::kIdleInterval};
+    const ClipLengths lengths = lengths_with_alt();
+    static_cast<void>(gait.update(at(0.0F), false, lengths));
+    gait.strike(at(0.5F), plan_of(1.0F, 2.0F, std::nullopt));
+    const Playing mid = gait.update(at(0.75F), false, lengths);
+    context.expect(mid.stance == Stance::kStrike && mid.strike == 3, "đang đánh: clip đòn, đúng chỉ số");
+    context.expect(near_value(mid.time, 0.5F), "tốc độ 2: 0,25 s thật là 0,5 s trong clip");
+    const Playing ended = gait.update(at(1.1F), false, lengths);
+    context.expect(ended.stance == Stance::kIdle && near_value(ended.time, 0.0F), "hết clip: về đứng từ đầu");
+    context.expect(!gait.is_locked(at(1.1F)), "hết clip hết khoá");
+}
+
+void strike_locks_until_break(Context& context) {
+    Gait gait{1, avatar::kIdleInterval};
+    const ClipLengths lengths = lengths_with_alt();
+    static_cast<void>(gait.update(at(0.0F), false, lengths));
+    context.expect(!gait.is_locked(at(0.0F)), "chưa đánh thì không khoá");
+    gait.strike(at(1.0F), plan_of(1.0F, 1.0F, 0.5F));
+    context.expect(gait.is_locked(at(1.4F)), "trước BreakTime: khoá");
+    context.expect(!gait.is_locked(at(1.6F)), "sau BreakTime: nhận lệnh mới");
+    Gait unbroken{1, avatar::kIdleInterval};
+    static_cast<void>(unbroken.update(at(0.0F), false, lengths));
+    unbroken.strike(at(1.0F), plan_of(1.0F, 1.0F, std::nullopt));
+    context.expect(unbroken.is_locked(at(1.9F)), "không có mốc: khoá tới hết clip");
+    context.expect(!unbroken.is_locked(at(2.1F)), "hết clip thì mở");
+}
+
+void strike_refused(Context& context) {
+    const ClipLengths lengths = lengths_with_jump();
+    Gait flying{1, avatar::kIdleInterval};
+    static_cast<void>(flying.update(at(0.0F), false, lengths));
+    flying.jump(at(0.1F), Stance::kJumpStand, lengths);
+    flying.strike(at(0.2F), plan_of(1.0F, 1.0F, std::nullopt));
+    context.expect(flying.update(at(0.3F), false, lengths).stance == Stance::kJumpStand, "đang nhảy: không ra đòn");
+    Gait empty{1, avatar::kIdleInterval};
+    static_cast<void>(empty.update(at(0.0F), false, lengths));
+    empty.strike(at(0.1F), plan_of(0.0F, 1.0F, std::nullopt));
+    context.expect(empty.update(at(0.2F), false, lengths).stance == Stance::kIdle, "clip dài 0: không ra đòn");
+    empty.strike(at(0.1F), plan_of(1.0F, 0.0F, std::nullopt));
+    context.expect(empty.update(at(0.2F), false, lengths).stance == Stance::kIdle, "tốc độ 0: không ra đòn");
+    empty.strike(at(0.1F), plan_of(1.0F, std::numeric_limits<float>::quiet_NaN(), std::nullopt));
+    context.expect(!empty.is_locked(at(0.2F)), "tốc độ NaN: không ra đòn");
+}
+
+// Đang đánh mà người chơi đi (gốc chờ BreakTime ở lớp lệnh; ở đây lớp trên đã chặn) thì clip chạy thay clip đòn.
+void strike_yields_to_run(Context& context) {
+    Gait gait{1, avatar::kIdleInterval};
+    const ClipLengths lengths = lengths_with_alt();
+    static_cast<void>(gait.update(at(0.0F), false, lengths));
+    gait.strike(at(0.1F), plan_of(1.0F, 1.0F, 0.2F));
+    const Playing moved = gait.update(at(0.5F), true, lengths);
+    context.expect(moved.stance == Stance::kRun, "đi giữa đòn: clip chạy");
+}
+
+// Locator
+
+[[nodiscard]] anim::Transform bone_at(float across, float angle) {
+    const ogre::Vec3 upward{.x = 0.0F, .y = 0.0F, .z = 1.0F};
+    return anim::Transform{.position = ogre::Vec3{.x = across, .y = 0.0F, .z = 0.0F},
+        .orientation = ogre::quat_from_angle_axis(angle, upward)};
+}
+
+[[nodiscard]] look::LocatorRow row_of(const std::string& bone, bool is_translate_first) {
+    look::LocatorRow row;
+    row.object = "女主角.obj";
+    row.name = "p";
+    row.bone = bone;
+    row.offset = {1.0F, 0.0F, 0.0F};
+    row.axis = {0.0F, 0.0F, 1.0F};
+    row.angle = kHalfPi;
+    row.is_translate_first = is_translate_first;
+    return row;
+}
+
+[[nodiscard]] anim::SourceSkeleton skeleton_of(const std::string& name) {
+    anim::SourceSkeleton skeleton;
+    skeleton.bones.push_back(anim::Bone{.name = "gốc", .handle = 0, .position = {}, .orientation = {}, .scale = {.x = 1.0F, .y = 1.0F, .z = 1.0F}});
+    skeleton.bones.push_back(anim::Bone{.name = name, .handle = 1, .position = {}, .orientation = {}, .scale = {.x = 1.0F, .y = 1.0F, .z = 1.0F}});
+    return skeleton;
+}
+
+// _updateLocatorPos: translate_first dịch theo hướng của xương (p = P + Q·offset), không thì dịch theo hướng đã
+// quay thêm rotation (p = P + (Q ⊗ R)·offset); hướng luôn là Q ⊗ R.
+void locator_orders(Context& context) {
+    const anim::SourceSkeleton skeleton = skeleton_of("Bone08");
+    const std::array<anim::Transform, 2> bones{anim::Transform{}, bone_at(10.0F, kHalfPi)};
+    const avatar::Locator first = avatar::make_locator(row_of("Bone08", true), skeleton);
+    const avatar::Locator after = avatar::make_locator(row_of("Bone08", false), skeleton);
+    context.expect(first.bone == 1 && after.bone == 1, "tên xương thành handle");
+    const anim::Transform near_first = avatar::locator_pose(first, bones);
+    context.expect(near_value(near_first.position.x, 10.0F) && near_value(near_first.position.y, 1.0F), "translate_first");
+    const anim::Transform near_after = avatar::locator_pose(after, bones);
+    context.expect(near_value(near_after.position.x, 9.0F) && near_value(near_after.position.y, 0.0F), "dịch theo hướng đã quay");
+    const bool same_turn = near_value(near_first.orientation.z, near_after.orientation.z) &&
+        near_value(near_first.orientation.w, near_after.orientation.w) && near_value(near_first.orientation.z, 1.0F);
+    context.expect(same_turn, "hướng là Q nhân R, hai thứ tự như nhau");
+}
+
+// Không xương (tên rỗng, tên không có, handle ngoài tư thế) thì nút giữ trạng thái lúc tạo; trục không chuẩn
+// hoá thì quaternion không đơn vị, đúng Quaternion::FromAngleAxis.
+void locator_without_bone(Context& context) {
+    const anim::SourceSkeleton skeleton = skeleton_of("Bone08");
+    const std::array<anim::Transform, 2> bones{anim::Transform{}, bone_at(10.0F, kHalfPi)};
+    look::LocatorRow row = row_of("", true);
+    row.axis = {0.0F, 0.0F, 2.0F};
+    const avatar::Locator plain = avatar::make_locator(row, skeleton);
+    context.expect(!plain.bone.has_value(), "tên rỗng không theo xương");
+    const anim::Transform pose = avatar::locator_pose(plain, bones);
+    context.expect(near_value(pose.position.x, 1.0F) && near_value(pose.position.y, 0.0F), "vị trí là offset");
+    context.expect(near_value(pose.orientation.z, 2.0F * std::sin(kHalfPi / 2.0F)), "trục 2 cho quaternion không đơn vị");
+    const avatar::Locator lost = avatar::make_locator(row_of("Bone99", true), skeleton);
+    context.expect(!lost.bone.has_value(), "xương không có thì bỏ qua như ref");
+    avatar::Locator far = avatar::make_locator(row_of("Bone08", true), skeleton);
+    far.bone = 7;
+    const anim::Transform outside = avatar::locator_pose(far, bones);
+    context.expect(near_value(outside.position.x, 1.0F), "handle ngoài tư thế giữ trạng thái lúc tạo");
+}
+
+// Mẫu con trong khe mang scale riêng của mẫu, vị trí và hướng của nút locator.
+void slot_carries_scale(Context& context) {
+    const anim::SourceSkeleton skeleton = skeleton_of("Bone08");
+    const std::array<anim::Transform, 2> bones{anim::Transform{}, bone_at(10.0F, kHalfPi)};
+    const avatar::Locator locator = avatar::make_locator(row_of("Bone08", true), skeleton);
+    const ogre::Vec3 scale{.x = 0.9F, .y = 0.8F, .z = 0.9F};
+    const anim::Transform slot = avatar::slot_pose(locator, bones, scale);
+    context.expect(near_value(slot.position.x, 10.0F) && near_value(slot.position.y, 1.0F), "vị trí của nút locator");
+    context.expect(slot.scale == scale, "scale của mẫu con");
+}
+
 constexpr std::array kCases{
     Case{.name = "interval_formula", .body = &interval_formula},
     Case{.name = "standing_plays_idle_once", .body = &standing_plays_idle_once},
@@ -294,12 +439,19 @@ constexpr std::array kCases{
     Case{.name = "jump_while_running", .body = &jump_while_running},
     Case{.name = "jump_keeps_clip_until_land", .body = &jump_keeps_clip_until_land},
     Case{.name = "jump_without_clip", .body = &jump_without_clip},
+    Case{.name = "strike_plays_once", .body = &strike_plays_once},
+    Case{.name = "strike_locks_until_break", .body = &strike_locks_until_break},
+    Case{.name = "strike_refused", .body = &strike_refused},
+    Case{.name = "strike_yields_to_run", .body = &strike_yields_to_run},
     Case{.name = "both_rests", .body = &both_rests},
     Case{.name = "first_sight", .body = &first_sight},
     Case{.name = "eases_in", .body = &eases_in},
     Case{.name = "shortest_arc", .body = &shortest_arc},
     Case{.name = "frame_rate", .body = &frame_rate},
     Case{.name = "drops_unseen", .body = &drops_unseen},
+    Case{.name = "locator_orders", .body = &locator_orders},
+    Case{.name = "locator_without_bone", .body = &locator_without_bone},
+    Case{.name = "slot_carries_scale", .body = &slot_carries_scale},
 };
 
 } // namespace

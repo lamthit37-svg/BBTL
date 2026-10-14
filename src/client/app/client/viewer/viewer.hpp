@@ -47,6 +47,14 @@ struct ViewerDesc {
     bool is_bare = false;
     // --walk: nhân vật tự chạy vòng để đo nhịp lúc di chuyển (DisplayDesc::is_auto_walk).
     bool is_auto_walk = false;
+    // --auto-strike: khung màn chơi đầu tiên tự dùng skill ở ô cuối, 0 là tắt (DisplayDesc::auto_strike_from).
+    std::uint32_t auto_strike_from = 0;
+    // --weapon: vật phẩm khe 0 mà nhân vật ở màn chơi cầm (DisplayDesc::weapon_item).
+    std::optional<std::uint32_t> weapon_item;
+    // --gem: đá quý gắn vào vũ khí (DisplayDesc::weapon_gem).
+    std::optional<std::uint32_t> weapon_gem;
+    // --skill: skill gieo thêm vào hero.skills (DisplayDesc::skill_id).
+    std::optional<std::uint32_t> skill_id;
     // Bật lớp kiểm tra của API đồ hoạ: bản dựng phát hành tắt mặc định cho đỡ hao CPU mỗi khung.
     bool is_validated = true;
     // Rỗng: tự chọn. Có thì ép backend.

@@ -47,6 +47,8 @@ void Display::State::open_hud(const DisplayDesc& desc) {
 void Display::State::kick_loading(const DisplayDesc& desc) {
     if (feeder || desc.data_root.empty()) return;
     hud_prep = take_early_hud(desc);
+    tables_job = take_early_tables(desc);
+    if (!tables_job.valid()) tables_job = start_player_tables(desc.data_root);
     if (!hud_prep) {
         ui::HudDesc hud_desc;
         hud_desc.data_root = desc.data_root;
@@ -72,6 +74,11 @@ void Display::State::arm_scene(const DisplayDesc& desc) {
     shot_path = desc.shot_path;
     is_bare = desc.is_bare;
     is_auto_walk = desc.is_auto_walk;
+    auto_strike_from = desc.auto_strike_from;
+    weapon_item = desc.weapon_item;
+    weapon_gem = desc.weapon_gem;
+    skill_id = desc.skill_id;
+    seed_equipment();
     procedure = desc.procedure;
     if (!feeder) feeder = std::make_unique<Feed>();
     if (!held) {
@@ -134,10 +141,18 @@ void Display::State::store_roles() const {
     }
 }
 
+void Display::State::seed_equipment() {
+    if (weapon_item) hero.equipment.wear(hero::EquipPoint::kWeapon, *weapon_item);
+    if (weapon_gem) hero.equipment.socket(hero::EquipPoint::kWeapon, *weapon_gem);
+    const bool is_known = skill_id && std::ranges::find(hero.skills, *skill_id) != hero.skills.end();
+    if (skill_id && !is_known) hero.skills.push_back(*skill_id);
+}
+
 void Display::State::apply_role() {
     const ui::panel::Role* role = hud ? hud->entering_role() : nullptr;
     if (role == nullptr) return;
     hero = hero::newcomer();
+    seed_equipment();
     hero.name = role->name;
     hero.level = role->level;
     hero.portrait = hero::PortraitId{role->portrait};

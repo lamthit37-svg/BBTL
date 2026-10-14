@@ -46,6 +46,8 @@ public:
     [[nodiscard]] std::int32_t integer(std::string_view column, std::int32_t low, std::int32_t high);
     // Số thực hữu hạn lớn hơn 0.
     [[nodiscard]] float positive(std::string_view column);
+    // Số thực hữu hạn, vừa kiểu float, được âm hay 0 (vị trí, trục, góc).
+    [[nodiscard]] float real(std::string_view column);
     // 0 hoặc 1.
     [[nodiscard]] bool flag(std::string_view column);
 

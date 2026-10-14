@@ -2,15 +2,19 @@
 // mặc định, kiểu tóc không lưới, mũ và trang phục không có, thứ tự vẽ (tóc sau cùng), clip đứng và
 // chạy, lỗi khi bảng thiếu thứ bắt buộc, và nạp bảng từ một thư mục qua hàm đọc tệp của bên gọi.
 // Nguồn: TLBB Dev tests/look/look_test.cpp@e0d89a6. Khác gốc: khung test của dự án; giới là Race;
-// bỏ các ca vũ khí, NPC và chọn được lúc tạo nhân vật (chưa làm); tên tệp là tên gốc dưới Model/.
+// bỏ các ca vũ khí, NPC và chọn được lúc tạo nhân vật (chưa làm); tên tệp là tên gốc dưới Model/. Thêm các ca
+// bảng đòn đánh (skill.hpp): bộ đọc năm bảng, mảng mốc, giải skill thành đòn theo giới và loại vũ khí.
 #include "core/check.hpp"
 #include "look/appearance.hpp"
 #include "look/look.hpp"
+#include "look/skill.hpp"
+#include "look/weapon.hpp"
 #include "table/tsv.hpp"
 #include "test.hpp"
 
 #include <algorithm>
 #include <array>
+#include <cstddef>
 #include <cstdint>
 #include <expected>
 #include <format>
@@ -226,6 +230,282 @@ void weapon_kind_picks_clips(Context& context) {
     context.expect(rest, "loại không có clip nghỉ phụ thì dùng của tay không");
 }
 
+// Bảng vũ khí
+
+// Bốn bảng vũ khí rút gọn: hình 410 do vật phẩm đao (loại blade) và vật phẩm quạt (loại fan) dùng chung,
+// hình 593 hai tay, hình 700 có mẫu thiếu trong objects.
+[[nodiscard]] look::WeaponTables weapon_sample() {
+    const auto read = [](const char* text) { return table::parse_tsv(text); };
+    const auto weapons = read("id\tright\tleft\tkfs\tfoot\tback\twaist1\twaist2\n"
+                              "410\t大刀.obj\t\t\t\t\t\t\n593\t双短.obj\t双短.obj\t\t\t\t\t\n700\t无此.obj\t\t\t\t\t\t\n");
+    const auto items = read("item\tvisual\tclass\n10100000\t410\tblade\n10104000\t410\tfan\n"
+                            "10103000\t593\tdual_short\n10106000\t-1\tnone\n");
+    const auto objects = read("object\tmeshes\tsx\tsy\tsz\n大刀.obj\t大刀.mesh|刀鞘.mesh\t1\t1\t1\n"
+                              "双短.obj\t双短.mesh\t0.9\t0.8\t0.9\n");
+    const auto locators = read("object\tlocator\tbone\tx\ty\tz\tqx\tqy\tqz\tqw\ttranslate_first\tslot\n"
+                               "女主角.obj\t右武器绑定点\tBone08_mirror01\t0.2\t0.3\t-1\t0\t0\t1\t-1.5\t0\tRightWeaponObj\n"
+                               "女主角.obj\t左武器绑定点\tBone08\t0.2\t0.3\t1\t0.7\t0.7\t0\t-3.1\t1\tLeftWeaponObj\n"
+                               "女主角.obj\t前置特效点\t\t0\t0\t150\t1\t0\t0\t0\t0\t\n");
+    look::WeaponTables tables;
+    tables.weapons = *look::read_weapons(*weapons);
+    tables.items = *look::read_weapon_items(*items);
+    tables.objects = *look::read_objects(*objects);
+    tables.locators = *look::read_locators(*locators);
+    return tables;
+}
+
+// Loại vũ khí là của vật phẩm, hình của vật phẩm là của hình: cùng hình 410, hai vật phẩm cho hai loại
+// clip khác nhau nhưng cùng một mẫu gắn tay.
+void weapon_kind_belongs_to_item(Context& context) {
+    const look::WeaponTables tables = weapon_sample();
+    Look blade;
+    context.expect(look::equip_weapon(blade, tables, 10100000), "vật phẩm đao có trong bảng");
+    Look fan;
+    context.expect(look::equip_weapon(fan, tables, 10104000), "vật phẩm quạt có trong bảng");
+    context.expect(blade.weapon == Weapon::kBlade && fan.weapon == Weapon::kFan, "loại theo vật phẩm");
+    context.expect(blade.weapon_visual == 410 && fan.weapon_visual == 410, "hình dùng chung");
+    Look bare = blade;
+    context.expect(look::equip_weapon(bare, tables, 10106000), "vật phẩm không hình vẫn có dòng");
+    context.expect(bare.weapon == Weapon::kNone && bare.weapon_visual == 0, "không hình thì 0, không phải -1");
+    Look keep = blade;
+    context.expect(!look::equip_weapon(keep, tables, 99999999), "vật phẩm lạ bị từ chối");
+    context.expect(keep.weapon == Weapon::kBlade && keep.weapon_visual == 410, "bị từ chối thì look không đổi");
+}
+
+// Mỗi khe có mẫu và locator thì thành một Held theo thứ tự Hold; thiếu mẫu hay locator thì khe trống.
+void held_follows_slots(Context& context) {
+    Tables tables = sample();
+    tables.weapons = weapon_sample();
+    Look worn;
+    worn.face = 1;
+    worn.hair = 1;
+    worn.weapon_visual = 593;
+    const auto dual = look::resolve(tables, Race::kFemale, worn);
+    context.expect(dual.has_value(), "giải được");
+    if (!dual) return;
+    context.expect(dual->held.size() == 2, "hai tay có mẫu, các khe khác trống");
+    const bool order = dual->held.size() == 2 && dual->held[0].hold == look::Hold::kRight &&
+        dual->held[1].hold == look::Hold::kLeft;
+    context.expect(order, "phải trước trái");
+    const look::Held& left = dual->held.back();
+    context.expect(left.object == "双短.obj" && left.meshes == std::vector<std::string>{"双短.mesh"}, "mẫu và lưới");
+    context.expect(left.scale[0] == 0.9F && left.scale[1] == 0.8F, "tỉ lệ của mẫu");
+    context.expect(left.locator.bone == "Bone08" && left.locator.is_translate_first, "locator của khe trái");
+    context.expect(left.locator.slot == "LeftWeaponObj", "tên khe");
+    worn.weapon_visual = 410;
+    const auto blade = look::resolve(tables, Race::kFemale, worn);
+    context.expect(blade && blade->held.size() == 1 && blade->held.front().meshes.size() == 2, "một tay, hai lưới");
+    worn.weapon_visual = 700;
+    const auto lost = look::resolve(tables, Race::kFemale, worn);
+    context.expect(lost && lost->held.empty(), "mẫu không có trong objects thì tay trống");
+    worn.weapon_visual = 12345;
+    const auto unknown = look::resolve(tables, Race::kFemale, worn);
+    context.expect(unknown && unknown->held.empty(), "hình không có trong bảng thì tay trống");
+    const auto male = look::resolve(tables, Race::kMale, Look{.weapon_visual = 410});
+    context.expect(male && male->held.empty(), "mẫu nam không có locator trong bảng mẫu: khe trống");
+    worn.weapon_visual = 0;
+    const auto bare = look::resolve(tables, Race::kFemale, worn);
+    context.expect(bare && bare->held.empty(), "hình 0 là tay không");
+}
+
+void weapon_table_rules(Context& context) {
+    const look::WeaponTables tables = weapon_sample();
+    context.expect(look::find_weapon(tables.weapons, 593) != nullptr, "tra hình");
+    context.expect(look::find_weapon(tables.weapons, 594) == nullptr, "hình lạ");
+    context.expect(look::find_object(tables.objects, "双短.obj") != nullptr, "tra mẫu");
+    context.expect(look::find_slot_locator(tables.locators, "女主角.obj", "RightWeaponObj") != nullptr, "tra khe");
+    context.expect(look::find_slot_locator(tables.locators, "女主角.obj", "") == nullptr, "khe rỗng không khớp locator trơn");
+    context.expect(look::find_slot_locator(tables.locators, "男主角.obj", "RightWeaponObj") == nullptr, "mẫu khác");
+    const auto repeated = table::parse_tsv("id\tright\tleft\tkfs\tfoot\tback\twaist1\twaist2\n5\ta\t\t\t\t\t\t\n5\tb\t\t\t\t\t\t\n");
+    context.expect(!look::read_weapons(*repeated).has_value(), "khoá trùng là lỗi");
+    const auto nan_cell = table::parse_tsv("object\tlocator\tbone\tx\ty\tz\tqx\tqy\tqz\tqw\ttranslate_first\tslot\n"
+                                          "a.obj\tp\t\t0\t0\t0\t1\t0\t0\t1.#QNAN\t0\t\n");
+    const auto nan = look::read_locators(*nan_cell);
+    context.expect(!nan && nan.error().contains("qw"), "số không hữu hạn bị từ chối, nêu cột");
+    const auto no_mesh = table::parse_tsv("object\tmeshes\tsx\tsy\tsz\na.obj\t\t1\t1\t1\n");
+    context.expect(!look::read_objects(*no_mesh).has_value(), "mẫu không lưới là lỗi");
+    const auto bad_class = table::parse_tsv("item\tvisual\tclass\n1\t2\tsword\n");
+    context.expect(!look::read_weapon_items(*bad_class).has_value(), "tên loại lạ là lỗi");
+}
+
+// Hiệu ứng đồ (đá quý gắn vũ khí): chọn ô hiệu ứng theo chỉ số, màu RRGGBBAA, khe nhận.
+
+// Hình 410: ô 1 là 火焰, ô 2 là 冰霜, ô 3 rỗng, ô còn lại rỗng; cờ lưng và hông 1 bật, hông 2 tắt.
+// Đá 50902003 màu trắng đủ, chỉ số 1; 50902004 alpha một nửa, chỉ số 2; 50902005 chỉ số 3 (ô rỗng); 50902006 chỉ số 99
+// (quá 34); 50902007 màu có chữ số 1 ở vị trí thứ hai; 50902008 màu 0; 50902009 màu trắng chỉ số 0.
+[[nodiscard]] look::WeaponTables gear_sample() {
+    look::WeaponTables tables = weapon_sample();
+    std::string cells = "火焰;冰霜";
+    for (std::size_t cell = 2; cell < look::kEffectSlots; ++cell) cells += ';';
+    const auto effects = table::parse_tsv("visual\tback\twaist1\twaist2\teffects\n410\t1\t1\t0\t" + cells + "\n");
+    const auto gems = table::parse_tsv("gem\tcolour\teffect\n50902003\tFFFFFFFF\t1\n50902004\tFFFFFF80\t2\n"
+                                       "50902005\tFFFFFFFF\t3\n50902006\tFFFFFFFF\t99\n50902007\tF1FFFFFF\t1\n"
+                                       "50902008\t00000000\t1\n50902009\tFFFFFFFF\t0\n");
+    tables.effects = *look::read_weapon_effects(*effects);
+    tables.gems = *look::read_gems(*gems);
+    return tables;
+}
+
+void gem_effect_rules(Context& context) {
+    const look::WeaponTables tables = gear_sample();
+    const look::EffectRow* row = look::find_effects(tables.effects, 410);
+    context.expect(row != nullptr && row->effects.size() == look::kEffectSlots, "hình 410 có đủ 34 ô");
+    if (row == nullptr) return;
+    const look::GemRow* fire = look::find_gem(tables.gems, 50902003);
+    const look::GemRow* frost = look::find_gem(tables.gems, 50902004);
+    context.expect(fire != nullptr && frost != nullptr, "tra đá quý");
+    if (fire == nullptr || frost == nullptr) return;
+    const auto lit = look::gem_effect(*row, *fire, look::Hold::kRight);
+    context.expect(lit && lit->name == "火焰" && lit->colour == 0xFFFFFFFFU, "chỉ số 1 là ô đầu, màu đọc RRGGBBAA");
+    const auto dim = look::gem_effect(*row, *frost, look::Hold::kLeft);
+    context.expect(dim && dim->name == "冰霜" && dim->colour == 0xFFFFFF80U, "chỉ số 2 là ô thứ hai, alpha nằm ở byte cuối");
+    context.expect(look::gem_effect(*row, *fire, look::Hold::kBack).has_value(), "cờ lưng bật thì khe lưng nhận");
+    context.expect(look::gem_effect(*row, *fire, look::Hold::kWaist1).has_value(), "cờ hông 1 bật thì khe hông 1 nhận");
+    context.expect(!look::gem_effect(*row, *fire, look::Hold::kWaist2).has_value(), "cờ hông 2 tắt thì khe hông 2 không nhận");
+    context.expect(!look::gem_effect(*row, *fire, look::Hold::kSoul).has_value(), "võ hồn không nhận");
+    context.expect(!look::gem_effect(*row, *fire, look::Hold::kFoot).has_value(), "chân không nhận");
+    const auto none = [&](std::uint32_t gem) {
+        const look::GemRow* found = look::find_gem(tables.gems, gem);
+        return found != nullptr && !look::gem_effect(*row, *found, look::Hold::kRight).has_value();
+    };
+    context.expect(none(50902005), "ô rỗng thì không có hiệu ứng");
+    context.expect(none(50902006), "chỉ số quá 34 thì không có hiệu ứng (khác mã máy: nó đọc ngoài hàng)");
+    context.expect(none(50902007), "ký tự thứ hai của màu là '1' thì bỏ (điều kiện của mã máy)");
+    context.expect(none(50902008), "màu 0 là xoá hiệu ứng");
+    context.expect(none(50902009), "chỉ số 0 không hợp lệ");
+    context.expect(look::find_gem(tables.gems, 1) == nullptr && look::find_effects(tables.effects, 7) == nullptr, "khoá lạ");
+}
+
+void held_carries_gem_effect(Context& context) {
+    Tables tables = sample();
+    tables.weapons = gear_sample();
+    Look worn;
+    worn.face = 1;
+    worn.hair = 1;
+    worn.weapon_visual = 410;
+    const auto plain = look::resolve(tables, Race::kFemale, worn);
+    context.expect(plain && plain->held.size() == 1 && plain->held.front().effect.empty(), "không đá thì không hiệu ứng");
+    worn.weapon_gem = 50902003;
+    const auto lit = look::resolve(tables, Race::kFemale, worn);
+    const bool carried = lit && lit->held.size() == 1 && lit->held.front().effect == "火焰" &&
+        lit->held.front().effect_colour == 0xFFFFFFFFU;
+    context.expect(carried, "đá có hiệu ứng thì khe tay mang tên effect và màu");
+    worn.weapon_gem = 50902005;
+    const auto empty_cell = look::resolve(tables, Race::kFemale, worn);
+    context.expect(empty_cell && empty_cell->held.front().effect.empty(), "đá trỏ ô rỗng thì không hiệu ứng");
+    worn.weapon_gem = 12345;
+    const auto unknown = look::resolve(tables, Race::kFemale, worn);
+    context.expect(unknown && unknown->held.size() == 1 && unknown->held.front().effect.empty(), "đá lạ thì không hiệu ứng");
+    worn.weapon_gem = 50902003;
+    worn.weapon_visual = 593;
+    const auto no_row = look::resolve(tables, Race::kFemale, worn);
+    context.expect(no_row && no_row->held.size() == 2 && no_row->held.front().effect.empty(), "hình không có hàng hiệu ứng thì thôi");
+}
+
+void gem_tables_reject_bad_rows(Context& context) {
+    const auto bad_flag = table::parse_tsv("visual\tback\twaist1\twaist2\teffects\n410\t2\t0\t0\ta\n");
+    context.expect(!look::read_weapon_effects(*bad_flag).has_value(), "cờ khác 0, 1 là lỗi");
+    const auto short_cells = table::parse_tsv("visual\tback\twaist1\twaist2\teffects\n410\t0\t0\t0\ta;b\n");
+    context.expect(!look::read_weapon_effects(*short_cells).has_value(), "thiếu ô hiệu ứng là lỗi");
+    const auto twice = table::parse_tsv("gem\tcolour\teffect\n1\tFFFFFFFF\t1\n1\tFFFFFFFF\t2\n");
+    context.expect(!look::read_gems(*twice).has_value(), "khoá đá trùng là lỗi");
+}
+
+// Đòn đánh và tuyệt chiêu (skill.hpp): năm bảng thành Strike cho một giới và loại vũ khí.
+
+[[nodiscard]] look::SkillTables skill_sample() {
+    look::SkillTables tables;
+    const auto moves = table::parse_tsv(
+        "skill\tname\tstep\taction\tkind\tsend_ms\n"
+        "7\t劈\t0\t100\t0\t800\n"
+        "7\t劈\t1\t101\t0\t800\n"
+        "7\t劈\t2\t999\t0\t800\n"
+        "8\t连\t0\t100\t2\t0\n");
+    const auto actions = table::parse_tsv(
+        "race\taction\tweapon\tscript\n"
+        "0\t100\tnone\tbare_100\n"
+        "0\t100\tblade\tblade_100\n"
+        "0\t101\tnone\tbare_101\n"
+        "0\t999\tnone\tno_clip\n"
+        "1\t100\tnone\tman_100\n");
+    const auto scripts = table::parse_tsv(
+        "script\tanimation\tbreak_time\thit_time\tshake_time\trepeat\n"
+        "bare_100\t空手一\t0.5 1\t0.25\t-1\tfalse\n"
+        "bare_101\t空手二\t\t\t\tfalse\n"
+        "blade_100\t刀一\t0.4\t0.3 0.6\t0.3\tfalse\n"
+        "no_clip\t没有\t1\t0.5\t-1\tfalse\n"
+        "man_100\t男一\t1\t0.5\t-1\tfalse\n");
+    const auto events = table::parse_tsv(
+        "script\torder\tkind\ttime\tpoint\tname\tpx\tpy\tpz\trw\trx\try\trz\tattach\tprops\n"
+        "blade_100\t0\tAnimEffect\t0.5\t脚下光圈点\tfx_a\t1\t2\t3\t1\t0\t0\t0\ttrue\tDefaultShow=false\n"
+        "blade_100\t1\tSound\t0\t\tSkills\\a.wav\t\t\t\t\t\t\t\t\t\n"
+        "bare_100\t0\tRibbon\t0.2\tRightHand\tmat_r\t0\t0\t0\t1\t0\t0\t0\tfalse\tPointCount=8\n");
+    const auto clips = table::parse_tsv(
+        "race\tanimation\tanim\tclip\n"
+        "0\t空手一\t0_女空手.skeleton\t空手一\n"
+        "0\t空手二\t0_女空手.skeleton\t空手二\n"
+        "0\t刀一\t0_女大刀.skeleton\t刀一\n"
+        "1\t男一\t0_男空手.skeleton\t男一\n");
+    if (moves && actions && scripts && events && clips) {
+        tables.moves = look::read_moves(*moves).value_or(std::vector<look::MoveRow>{});
+        tables.actions = look::read_actions(*actions).value_or(std::vector<look::ActionRow>{});
+        tables.scripts = look::read_scripts(*scripts).value_or(std::vector<look::ScriptRow>{});
+        tables.events = look::read_events(*events).value_or(std::vector<look::EventRow>{});
+        tables.clips = look::read_skill_clips(*clips).value_or(std::vector<look::SkillClipRow>{});
+    }
+    return tables;
+}
+
+void skill_tables_read(Context& context) {
+    const look::SkillTables tables = skill_sample();
+    context.expect(tables.moves.size() == 4 && tables.actions.size() == 5 && tables.scripts.size() == 5, "đọc đủ dòng");
+    context.expect(tables.events.size() == 3 && tables.clips.size() == 4, "đọc đủ khối con và clip");
+    const auto script = std::ranges::find(tables.scripts, "blade_100", &look::ScriptRow::name);
+    const bool has_script = script != tables.scripts.end();
+    context.expect(has_script && script->hit_times.size() == 2 && script->hit_times.at(1) == 0.6F, "mảng mốc tách theo dấu cách");
+    const auto bare = std::ranges::find(tables.scripts, "bare_100", &look::ScriptRow::name);
+    const bool has_bare = bare != tables.scripts.end();
+    context.expect(has_bare && bare->shake_times.empty(), "mốc -1 là không có");
+    const auto empty = std::ranges::find(tables.scripts, "bare_101", &look::ScriptRow::name);
+    const bool has_empty = empty != tables.scripts.end();
+    context.expect(has_empty && empty->break_times.empty() && empty->hit_times.empty(), "ô rỗng là mảng rỗng");
+    context.expect(look::step_count(tables.moves, 7) == 3 && look::step_count(tables.moves, 99) == 0, "số bước của skill");
+    const auto bad_time = table::parse_tsv("script\tanimation\tbreak_time\thit_time\tshake_time\trepeat\na\tb\t0.5 x\t\t\tfalse\n");
+    const auto refused = look::read_scripts(*bad_time);
+    context.expect(!refused && refused.error().contains("break_time"), "mốc không phải số bị từ chối, nêu cột");
+    const auto bad_kind = table::parse_tsv("script\torder\tkind\ttime\tpoint\tname\tpx\tpy\tpz\trw\trx\try\trz\tattach\tprops\n"
+                                          "a\t0\tFlame\t0\t\tx\t\t\t\t\t\t\t\tfalse\t\n");
+    context.expect(!look::read_events(*bad_kind).has_value(), "loại khối lạ là lỗi");
+    const auto bad_weapon = table::parse_tsv("race\taction\tweapon\tscript\n0\t1\tsword\tx\n");
+    context.expect(!look::read_actions(*bad_weapon).has_value(), "tên loại vũ khí lạ là lỗi");
+    const auto repeated = table::parse_tsv("skill\tname\tstep\taction\tkind\tsend_ms\n1\ta\t0\t1\t0\t0\n1\ta\t0\t2\t0\t0\n");
+    context.expect(!look::read_moves(*repeated).has_value(), "khoá (skill, bước) trùng là lỗi");
+}
+
+void strikes_resolve(Context& context) {
+    const look::SkillTables tables = skill_sample();
+    const std::vector<look::Strike> bare = look::strikes_of(tables, Race::kFemale, Weapon::kNone, 7);
+    context.expect(bare.size() == 2, "bước thiếu clip (action 999) bị bỏ, hai bước còn lại");
+    const bool is_ordered = bare.size() == 2 && bare.at(0).step == 0 && bare.at(1).step == 1;
+    context.expect(is_ordered, "giữ số bước gốc, theo thứ tự");
+    context.expect(bare.at(0).clip.anim == "0_女空手.skeleton" && bare.at(0).clip.name == "空手一", "clip của tay không");
+    context.expect(bare.at(0).send_ms == 800 && bare.at(0).kind == look::ActionKind::kRandom, "thời gian phát và kiểu bước");
+    context.expect(bare.at(0).break_times.size() == 2 && bare.at(0).break_times.at(0) == 0.5F, "mốc ngắt");
+    context.expect(bare.at(0).events.size() == 1 && bare.at(0).events.at(0).kind == look::EventKind::kRibbon, "khối con của kịch bản");
+    const std::vector<look::Strike> blade = look::strikes_of(tables, Race::kFemale, Weapon::kBlade, 7);
+    const bool is_blade_first = !blade.empty() && blade.at(0).script == "blade_100";
+    context.expect(blade.size() == 2 && is_blade_first, "loại vũ khí có động tác riêng thì dùng nó");
+    context.expect(blade.size() == 2 && blade.at(1).script == "bare_101", "không có dòng riêng thì dùng dòng tay không");
+    const bool has_events = !blade.empty() && blade.at(0).events.size() == 2;
+    context.expect(has_events && blade.at(0).events.at(0).is_attached && blade.at(0).events.at(0).offset.at(2) == 3.0F, "khối con mang điểm gắn và lệch");
+    context.expect(has_events && blade.at(0).events.at(1).kind == look::EventKind::kSound, "âm thanh đứng sau theo thứ tự");
+    const std::vector<look::Strike> man = look::strikes_of(tables, Race::kMale, Weapon::kNone, 7);
+    context.expect(man.size() == 1 && man.at(0).step == 0, "giới nam chỉ có bước 0");
+    context.expect(look::strikes_of(tables, Race::kFemale, Weapon::kNone, 99).empty(), "skill lạ thì không có đòn");
+    const std::vector<look::Strike> linked = look::strikes_of(tables, Race::kFemale, Weapon::kNone, 8);
+    context.expect(linked.size() == 1 && linked.at(0).kind == look::ActionKind::kLinked, "kiểu liên hoàn giữ nguyên");
+}
+
 void missing_rows(Context& context) {
     Tables no_male = sample();
     no_male.bodies.pop_back();
@@ -307,6 +587,20 @@ void load_failures(Context& context) {
     context.expect(!action && action.error().contains("action"), "tên hành động lạ là lỗi");
 }
 
+void skill_load_failures(Context& context) {
+    Files folder;
+    folder["bang/skill_moves.tsv"] = "skill\tname\tstep\taction\tkind\tsend_ms\n1\ta\t0\t1\t0\t0\n";
+    folder["bang/skill_actions.tsv"] = "race\taction\tweapon\tscript\n0\t1\tnone\ts\n";
+    folder["bang/skill_scripts.tsv"] = "script\tanimation\tbreak_time\thit_time\tshake_time\trepeat\ns\ta\t1\t0.5\t-1\tfalse\n";
+    folder["bang/skill_events.tsv"] = "script\torder\tkind\ttime\tpoint\tname\tpx\tpy\tpz\trw\trx\try\trz\tattach\tprops\n";
+    folder["bang/skill_clips.tsv"] = "race\tanimation\tanim\tclip\n0\ta\tx.skeleton\ta\n";
+    const auto loaded = look::load_skill_tables("bang", reader_of(folder));
+    context.expect(loaded && loaded->moves.size() == 1 && loaded->clips.size() == 1, "đủ năm bảng thì nạp được");
+    folder.erase("bang/skill_events.tsv");
+    const auto missing = look::load_skill_tables("bang", reader_of(folder));
+    context.expect(!missing && missing.error().contains("skill_events.tsv"), "thiếu tệp thì lỗi có đường dẫn");
+}
+
 void tsv_rules(Context& context) {
     const auto table = table::parse_tsv("# chú thích\r\na\tb\r\n\r\n1\t2\r\n3\t\r\n");
     context.expect(table.has_value() && table->rows.size() == 2, "bỏ chú thích và dòng trống, bỏ \\r");
@@ -320,9 +614,18 @@ constexpr std::array kCases{
     Case{.name = "default_male", .body = &default_male},
     Case{.name = "fallbacks", .body = &fallbacks},
     Case{.name = "weapon_kind_picks_clips", .body = &weapon_kind_picks_clips},
+    Case{.name = "weapon_kind_belongs_to_item", .body = &weapon_kind_belongs_to_item},
+    Case{.name = "held_follows_slots", .body = &held_follows_slots},
+    Case{.name = "weapon_table_rules", .body = &weapon_table_rules},
+    Case{.name = "gem_effect_rules", .body = &gem_effect_rules},
+    Case{.name = "held_carries_gem_effect", .body = &held_carries_gem_effect},
+    Case{.name = "gem_tables_reject_bad_rows", .body = &gem_tables_reject_bad_rows},
+    Case{.name = "skill_tables_read", .body = &skill_tables_read},
+    Case{.name = "strikes_resolve", .body = &strikes_resolve},
     Case{.name = "missing_rows", .body = &missing_rows},
     Case{.name = "load_folder", .body = &load_folder},
     Case{.name = "load_failures", .body = &load_failures},
+    Case{.name = "skill_load_failures", .body = &skill_load_failures},
     Case{.name = "tsv_rules", .body = &tsv_rules},
 };
 

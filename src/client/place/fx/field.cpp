@@ -601,11 +601,58 @@ void Field::spawn(std::size_t emitter, float offset) {
 std::uint16_t Field::emission_count(std::size_t emitter, float dt) {
     const EmitterDef& source = definition_->emitters[emitter];
     EmitterState& state = emitters_[emitter];
-    if (!state.enabled) return 0;
+    if (is_stopped_) return 0;
+    if (!state.enabled) {
+        if (is_timed_) wait_repeat(emitter, dt);
+        return 0;
+    }
     state.remainder += source.emission_rate * dt;
     const float whole = std::clamp(std::floor(state.remainder), 0.0F, 65535.0F);
     state.remainder -= whole;
+    // Hết duration thì tắt, có hiệu lực từ lần sau (genConstantEmissionCount).
+    if (is_timed_ && source.duration_max != 0.0F) {
+        state.duration_left -= dt;
+        if (state.duration_left <= 0.0F) set_enabled(emitter, false);
+    }
     return static_cast<std::uint16_t>(whole);
+}
+
+void Field::set_enabled(std::size_t emitter, bool is_enabled) {
+    const EmitterDef& source = definition_->emitters[emitter];
+    EmitterState& state = emitters_[emitter];
+    state.enabled = is_enabled;
+    if (is_enabled) {
+        const bool is_fixed = source.duration_min == source.duration_max;
+        state.duration_left = is_fixed ? source.duration_min : range(source.duration_min, source.duration_max);
+        return;
+    }
+    const bool is_fixed = source.repeat_min == source.repeat_max;
+    state.repeat_left = is_fixed ? source.repeat_min : range(source.repeat_min, source.repeat_max);
+}
+
+void Field::wait_repeat(std::size_t emitter, float dt) {
+    const EmitterDef& source = definition_->emitters[emitter];
+    EmitterState& state = emitters_[emitter];
+    if (source.repeat_max == 0.0F) return;
+    state.repeat_left -= dt;
+    if (state.repeat_left <= 0.0F) set_enabled(emitter, true);
+}
+
+void Field::set_timed(bool is_timed) {
+    is_timed_ = is_timed;
+    for (std::size_t index = 0; index < emitters_.size(); ++index) {
+        set_enabled(index, true);
+    }
+}
+
+bool Field::is_spent() const noexcept {
+    if (!active_.empty()) return false;
+    if (is_stopped_) return true;
+    if (!is_timed_) return false;
+    for (std::size_t index = 0; index < emitters_.size(); ++index) {
+        if (emitters_[index].enabled || definition_->emitters[index].repeat_max != 0.0F) return false;
+    }
+    return true;
 }
 
 void Field::emit(float dt) {

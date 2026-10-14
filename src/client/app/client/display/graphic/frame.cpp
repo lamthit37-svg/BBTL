@@ -29,6 +29,8 @@ struct DisplayPreload::Work {
     std::optional<ui::HudPrep> hud;
     // Chỉ để giữ luồng nạp driver sống tới khi xong; kết quả của nó không ai cần.
     std::future<void> driver;
+    // Bảng ngoại hình, vũ khí và đòn đánh của người chơi (PlayerTables).
+    PlayerTablesJob tables;
 };
 
 DisplayPreload::DisplayPreload(const std::filesystem::path& data_root, const std::optional<std::string>& backend)
@@ -42,6 +44,7 @@ DisplayPreload::DisplayPreload(const std::filesystem::path& data_root, const std
     hud_desc.data_root = data_root;
     work_->data_root = data_root;
     work_->hud.emplace(ui::HudPrep::start(hud_desc));
+    work_->tables = start_player_tables(data_root);
 }
 DisplayPreload::DisplayPreload(DisplayPreload&&) noexcept = default;
 DisplayPreload& DisplayPreload::operator=(DisplayPreload&&) noexcept = default;
@@ -52,6 +55,13 @@ std::optional<ui::HudPrep> Display::State::take_early_hud(const DisplayDesc& des
     DisplayPreload::Work& early = *desc.preload->work_;
     if (!early.hud || early.data_root != desc.data_root) return std::nullopt;
     return std::exchange(early.hud, std::nullopt);
+}
+
+PlayerTablesJob Display::State::take_early_tables(const DisplayDesc& desc) {
+    if (!desc.preload || !desc.preload->work_) return {};
+    DisplayPreload::Work& early = *desc.preload->work_;
+    if (early.data_root != desc.data_root) return {};
+    return std::move(early.tables);
 }
 
 core::Result<Display> Display::create(const DisplayDesc& desc) {
@@ -92,11 +102,19 @@ void Display::steer(const Steering& input) noexcept {
     kept.walk_right = input.walk_right;
 }
 
-void Display::act(PlayAct what) noexcept {
+void Display::act(PlayAct what, std::uint32_t slot) noexcept {
     const std::scoped_lock<std::mutex> locked(state_->steer_guard);
     switch (what) {
     case PlayAct::kJump: state_->steering.wants_jump = true; return;
+    case PlayAct::kStrike: state_->steering.strike_slot = slot; return;
     }
+}
+
+std::vector<std::string> Display::take_sounds() {
+    const std::scoped_lock<std::mutex> locked(state_->steer_guard);
+    std::vector<std::string> due;
+    due.swap(state_->sounds_due);
+    return due;
 }
 
 void Display::input(std::span<const control::InputEvent> events) {
@@ -381,6 +399,7 @@ Display::State::Taken Display::State::take_steering() {
     steering.zoom_keys = 0;
     steering.is_home = false;
     steering.wants_jump = false;
+    steering.strike_slot.reset();
     return taken;
 }
 

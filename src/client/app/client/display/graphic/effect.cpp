@@ -2,6 +2,92 @@
 #include "client/display/graphic/state.hpp"
 namespace game::client {
 
+void Display::State::dispatch_cues() {
+    std::vector<SkillCue> cues;
+    player->take_cues(cues);
+    for (SkillCue& cue : cues) {
+        if (cue.kind == look::EventKind::kSound) {
+            const std::scoped_lock<std::mutex> locked(steer_guard);
+            sounds_due.push_back(std::move(cue.name));
+            continue;
+        }
+        if (cue.kind != look::EventKind::kAnimEffect || !fx_view) continue;
+        fx::Spawn spawn;
+        spawn.name = std::move(cue.name);
+        spawn.is_effect = true;
+        spawn.is_tracked = true;
+        spawn.node.position = cue.position;
+        spawn.node.orientation = cue.orientation;
+        const std::uint32_t handle = fx_view->spawn(spawn);
+        if (handle != 0 && cue.token != 0) follow_handles.push_back(FollowHandle{.token = cue.token, .handle = handle});
+        if (handle == 0 && cue.token != 0) player->drop_follow(cue.token);
+    }
+}
+
+void Display::State::sync_follows() {
+    if (!fx_view || !player) return;
+    const std::span<const CueFollow> moved = player->follows();
+    std::erase_if(follow_handles, [&](const FollowHandle& tracked) {
+        if (!fx_view->is_live(tracked.handle)) {
+            player->drop_follow(tracked.token);
+            return true;
+        }
+        const auto at = std::ranges::find(moved, tracked.token, &CueFollow::token);
+        if (at != moved.end()) fx_view->move(tracked.handle, fx::Node{.position = at->position, .orientation = at->orientation});
+        return false;
+    });
+}
+
+namespace {
+
+// Màu RRGGBBAA của đá quý thành hệ số nhân vào hạt: rgb nhân trước với alpha (Effect::setColour của ref).
+[[nodiscard]] fx::Colour gem_tint(std::uint32_t colour) {
+    constexpr float kByte = 255.0F;
+    const float alpha = static_cast<float>(colour & 0xFFU) / kByte;
+    const float red = static_cast<float>((colour >> 24U) & 0xFFU) / kByte * alpha;
+    const float green = static_cast<float>((colour >> 16U) & 0xFFU) / kByte * alpha;
+    const float blue = static_cast<float>((colour >> 8U) & 0xFFU) / kByte * alpha;
+    return fx::Colour{red, green, blue, alpha};
+}
+
+} // namespace
+
+void Display::State::sync_gear() {
+    if (!fx_view || !player) return;
+    const std::span<const GearEffect> wanted = player->gear_effects();
+    const std::vector<look::Held>& mounted = player->figure().held;
+    const auto is_wanted = [&](const GearHandle& gear) {
+        const auto at = std::ranges::find(wanted, gear.mount, &GearEffect::mount);
+        if (at == wanted.end()) return false;
+        const look::Held& slot = mounted.at(gear.mount);
+        return slot.effect == gear.name && slot.effect_colour == gear.colour;
+    };
+    // Hết hạn, đổi đá, hay cảnh mới đã xoá hiệu ứng (adopt): dừng cái cũ, dựng lại nếu còn cần.
+    std::erase_if(gear_handles, [&](const GearHandle& gear) {
+        const bool is_alive = gear.handle == 0 || fx_view->is_live(gear.handle);
+        if (is_wanted(gear) && is_alive) return false;
+        fx_view->release(gear.handle);
+        return true;
+    });
+    for (const GearEffect& place : wanted) {
+        const look::Held& slot = mounted.at(place.mount);
+        const fx::Node node{.position = place.position, .orientation = place.orientation};
+        const auto known = std::ranges::find(gear_handles, place.mount, &GearHandle::mount);
+        if (known != gear_handles.end()) {
+            fx_view->move(known->handle, node);
+            continue;
+        }
+        fx::Spawn spawn;
+        spawn.name = slot.effect;
+        spawn.is_effect = true;
+        spawn.is_tracked = true;
+        spawn.node = node;
+        spawn.tint = gem_tint(slot.effect_colour);
+        gear_handles.push_back(GearHandle{.mount = place.mount, .name = slot.effect, .colour = slot.effect_colour,
+            .handle = fx_view->spawn(spawn)});
+    }
+}
+
 void Display::State::say_fx_fault() {
     if (fx_fault_noted || catalog == nullptr) return;
     const core::Error* fault = catalog->fault(render::Pso::kFx);

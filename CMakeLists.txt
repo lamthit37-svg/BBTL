@@ -451,12 +451,13 @@ if(NOT CMAKE_CROSSCOMPILING)
 endif()
 game_module(classic src/client/place/classic/classic.cpp)
 target_link_libraries(game_classic PUBLIC game_core game_math)
-game_module(look src/client/figure/look/appearance.cpp src/client/figure/look/look.cpp src/client/figure/look/head.cpp src/client/figure/look/sect.cpp)
+game_module(look src/client/figure/look/appearance.cpp src/client/figure/look/look.cpp src/client/figure/look/head.cpp src/client/figure/look/sect.cpp
+    src/client/figure/look/weapon.cpp src/client/figure/look/skill.cpp)
 target_link_libraries(game_look PUBLIC game_table game_core)
 
 # avatar: chọn clip theo trạng thái (gait) và làm mượt hướng mặt (turning), port từ TLBB Dev.
-game_module(avatar src/client/figure/avatar/gait.cpp src/client/figure/avatar/turning.cpp)
-target_link_libraries(game_avatar PUBLIC game_anim game_core)
+game_module(avatar src/client/figure/avatar/gait.cpp src/client/figure/avatar/turning.cpp src/client/figure/avatar/locator.cpp)
+target_link_libraries(game_avatar PUBLIC game_anim game_core game_look)
 
 # control: mặt đất của cảnh (độ cao, tia chạm đất, va chạm của mắt camera), tia từ màn hình, camera
 # bám theo, lệnh đi bằng chuột, chọn thứ dưới chuột, cử chỉ chạm và cần gạt ảo; port từ TLBB Dev.

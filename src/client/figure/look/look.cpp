@@ -5,8 +5,11 @@
 #include "look/look.hpp"
 
 #include "look/appearance.hpp"
+#include "look/skill.hpp"
+#include "look/weapon.hpp"
 #include "table/tsv.hpp"
 
+#include <cstddef>
 #include <cstdint>
 #include <expected>
 #include <format>
@@ -112,6 +115,44 @@ std::vector<Part> parts_of(const Tables& tables, const Chosen& chosen, const Loo
     return parts;
 }
 
+// Một khe vũ khí của hình: mẫu .obj của khe, lưới của mẫu, và locator của mẫu nhân vật giữ khe. Thiếu
+// mẫu hay locator thì khe trống (client gốc cũng không gắn được: changeEntity/slot không có).
+std::optional<Held> held_of(const Tables& tables, const PlayerBody& body, const WeaponRow& weapon, Hold hold) {
+    const std::string& name = weapon.objects.at(static_cast<std::size_t>(hold));
+    if (name.empty()) return std::nullopt;
+    const ObjectRow* object = find_object(tables.weapons.objects, name);
+    const LocatorRow* locator = find_slot_locator(tables.weapons.locators, body.template_name, slot_name(hold));
+    if (object == nullptr || locator == nullptr) return std::nullopt;
+    return Held{.hold = hold, .object = object->name, .meshes = object->meshes, .scale = object->scale,
+        .locator = *locator, .effect = {}, .effect_colour = 0};
+}
+
+// Hiệu ứng đá quý của khe: có khi người chơi gắn đá, hình có hàng hiệu ứng và đá có màu hợp lệ.
+void add_effect(const WeaponTables& tables, const Look& look, Held& held) {
+    if (look.weapon_gem == 0) return;
+    const EffectRow* row = find_effects(tables.effects, look.weapon_visual);
+    const GemRow* gem = find_gem(tables.gems, look.weapon_gem);
+    if (row == nullptr || gem == nullptr) return;
+    std::optional<SlotEffect> found = gem_effect(*row, *gem, held.hold);
+    if (!found) return;
+    held.effect = std::move(found->name);
+    held.effect_colour = found->colour;
+}
+
+std::vector<Held> held_by(const Tables& tables, const PlayerBody& body, const Look& look) {
+    std::vector<Held> held;
+    if (look.weapon_visual == 0) return held;
+    const WeaponRow* weapon = find_weapon(tables.weapons.weapons, look.weapon_visual);
+    if (weapon == nullptr) return held;
+    for (std::size_t index = 0; index < kHoldCount; ++index) {
+        std::optional<Held> one = held_of(tables, body, *weapon, static_cast<Hold>(index));
+        if (!one) continue;
+        add_effect(tables.weapons, look, *one);
+        held.push_back(std::move(*one));
+    }
+    return held;
+}
+
 // Đường dẫn của tệp name trong folder; thư mục rỗng hay đã có dấu phân cách ở cuối thì không thêm
 // "/".
 std::string join(std::string_view folder, std::string_view name) {
@@ -157,6 +198,14 @@ std::string_view describe(LookError error) {
 constexpr std::string_view kMaleHeadBone = "m_Bip01_Head";
 constexpr float kMaleIdleHeadLower = 0.188F;
 
+bool equip_weapon(Look& look, const WeaponTables& tables, std::uint32_t item) {
+    const WeaponItemRow* row = find_weapon_item(tables.items, item);
+    if (row == nullptr) return false;
+    look.weapon = row->kind;
+    look.weapon_visual = row->visual > 0 ? static_cast<std::uint16_t>(row->visual) : std::uint16_t{0};
+    return true;
+}
+
 std::expected<Figure, LookError> resolve(const Tables& tables, Race race, const Look& look) {
     const PlayerBody* body = find_body(tables.bodies, race);
     if (body == nullptr) return std::unexpected(LookError::kNoBody);
@@ -171,6 +220,7 @@ std::expected<Figure, LookError> resolve(const Tables& tables, Race race, const 
     figure.template_name = body->template_name;
     figure.height = body->height;
     figure.parts = parts_of(tables, *chosen, look, race);
+    figure.held = held_by(tables, *body, look);
     figure.idle = std::move(*idle);
     figure.idle_alt = clip_of(tables, body->anim_set, Action::kIdleAlt, look.weapon);
     figure.idle_alt2 = clip_of(tables, body->anim_set, Action::kIdleAlt2, look.weapon);
@@ -200,6 +250,49 @@ std::expected<Tables, std::string> load_tables(std::string_view folder, const Re
     auto anims = load_one<AnimRow>(join(folder, "anim_sets.tsv"), read, read_anim_sets);
     if (!anims) return std::unexpected(anims.error());
     loaded.anims = std::move(*anims);
+    return loaded;
+}
+
+std::expected<WeaponTables, std::string> load_weapon_tables(std::string_view folder, const ReadFile& read) {
+    WeaponTables loaded;
+    auto weapons = load_one<WeaponRow>(join(folder, "weapons.tsv"), read, read_weapons);
+    if (!weapons) return std::unexpected(weapons.error());
+    loaded.weapons = std::move(*weapons);
+    auto items = load_one<WeaponItemRow>(join(folder, "weapon_items.tsv"), read, read_weapon_items);
+    if (!items) return std::unexpected(items.error());
+    loaded.items = std::move(*items);
+    auto objects = load_one<ObjectRow>(join(folder, "objects.tsv"), read, read_objects);
+    if (!objects) return std::unexpected(objects.error());
+    loaded.objects = std::move(*objects);
+    auto locators = load_one<LocatorRow>(join(folder, "locators.tsv"), read, read_locators);
+    if (!locators) return std::unexpected(locators.error());
+    loaded.locators = std::move(*locators);
+    auto effects = load_one<EffectRow>(join(folder, "weapon_effects.tsv"), read, read_weapon_effects);
+    if (!effects) return std::unexpected(effects.error());
+    loaded.effects = std::move(*effects);
+    auto gems = load_one<GemRow>(join(folder, "gems.tsv"), read, read_gems);
+    if (!gems) return std::unexpected(gems.error());
+    loaded.gems = std::move(*gems);
+    return loaded;
+}
+
+std::expected<SkillTables, std::string> load_skill_tables(std::string_view folder, const ReadFile& read) {
+    SkillTables loaded;
+    auto moves = load_one<MoveRow>(join(folder, "skill_moves.tsv"), read, read_moves);
+    if (!moves) return std::unexpected(moves.error());
+    loaded.moves = std::move(*moves);
+    auto actions = load_one<ActionRow>(join(folder, "skill_actions.tsv"), read, read_actions);
+    if (!actions) return std::unexpected(actions.error());
+    loaded.actions = std::move(*actions);
+    auto scripts = load_one<ScriptRow>(join(folder, "skill_scripts.tsv"), read, read_scripts);
+    if (!scripts) return std::unexpected(scripts.error());
+    loaded.scripts = std::move(*scripts);
+    auto events = load_one<EventRow>(join(folder, "skill_events.tsv"), read, read_events);
+    if (!events) return std::unexpected(events.error());
+    loaded.events = std::move(*events);
+    auto clips = load_one<SkillClipRow>(join(folder, "skill_clips.tsv"), read, read_skill_clips);
+    if (!clips) return std::unexpected(clips.error());
+    loaded.clips = std::move(*clips);
     return loaded;
 }
 

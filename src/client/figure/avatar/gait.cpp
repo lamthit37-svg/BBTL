@@ -42,6 +42,10 @@ void Gait::take_cue(Clock::time_point now) {
 Playing Gait::update(Clock::time_point now, bool is_moving, const ClipLengths& lengths) {
     enter(now, is_moving);
     take_cue(now);
+    if (stance_ == Stance::kStrike && (is_moving || strike_time(now) >= plan_.length)) fresh_logic(now, lengths);
+    if (stance_ == Stance::kStrike) {
+        return Playing{.stance = Stance::kStrike, .time = strike_time(now), .strike = plan_.index};
+    }
     const bool is_jump_clip = stance_ == Stance::kJumpStand || stance_ == Stance::kJumpRun;
     if (is_jump_clip && elapsed(now) >= length_of(stance_, lengths)) fresh_logic(now, lengths);
     if (stance_ == Stance::kJumpStand || stance_ == Stance::kJumpRun) {
@@ -75,6 +79,20 @@ void Gait::jump(Clock::time_point now, Stance stance, const ClipLengths& lengths
     if (!has_clip) return;
     stance_ = stance;
     clip_started_ = now;
+}
+
+void Gait::strike(Clock::time_point now, const StrikePlan& plan) {
+    if (is_jumping_ || !(plan.length > 0.0F) || !(plan.rate > 0.0F)) return;
+    stance_ = Stance::kStrike;
+    plan_ = plan;
+    clip_started_ = now;
+}
+
+bool Gait::is_locked(Clock::time_point now) const {
+    if (stance_ != Stance::kStrike) return false;
+    const float time = strike_time(now);
+    if (time >= plan_.length) return false;
+    return !plan_.break_at || time < *plan_.break_at * plan_.length;
 }
 
 void Gait::land(Clock::time_point now, const ClipLengths& lengths) {
@@ -129,7 +147,11 @@ float Gait::elapsed(Clock::time_point now) const {
     return std::chrono::duration<float>(now - clip_started_).count();
 }
 
-float Gait::length_of(Stance stance, const ClipLengths& lengths) {
+float Gait::strike_time(Clock::time_point now) const {
+    return elapsed(now) * plan_.rate;
+}
+
+float Gait::length_of(Stance stance, const ClipLengths& lengths) const {
     switch (stance) {
     case Stance::kIdle: return lengths.idle;
     case Stance::kIdleAlt: return lengths.idle_alt.value_or(lengths.idle);
@@ -137,6 +159,7 @@ float Gait::length_of(Stance stance, const ClipLengths& lengths) {
     case Stance::kRun: return lengths.run;
     case Stance::kJumpStand: return lengths.jump_stand.value_or(lengths.idle);
     case Stance::kJumpRun: return lengths.jump_run.value_or(lengths.idle);
+    case Stance::kStrike: return plan_.length;
     }
     return lengths.idle;
 }

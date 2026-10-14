@@ -152,6 +152,12 @@ struct Spawn {
     Node node{};
     // Đích thế giới của Beam. Thiếu thì beam không dựng, đúng sentinel (0, 1, 0).
     std::optional<ogre::Vec3> aim;
+    // Hiệu ứng của skill hay của đồ (không phải của cảnh): Cast theo dõi nó, add trả handle để move và release. Emitter
+    // theo duration và repeat_delay của hệ, effect hết LifeTime thì dừng, hệ hết hạt thì bị gỡ. Hiệu ứng của cảnh (mặc
+    // định) phát mãi tới clear().
+    bool is_tracked = false;
+    // Hệ số nhân vào màu mọi hạt (Effect::setColour của gốc).
+    Colour tint{1.0F, 1.0F, 1.0F, 1.0F};
 };
 
 // Số hệ được nhận dựng và số bị bỏ theo lý do, tính từ lần clear gần nhất.
@@ -173,8 +179,15 @@ public:
     explicit Cast(Library* library);
 
     // Dựng một hệ hạt hoặc một effect tại spawn.node. Thứ chưa vẽ đúng được thì không dựng và được
-    // ghi vào tally().
-    void add(const Spawn& spawn);
+    // ghi vào tally(). Trả handle (khác 0) khi spawn.is_tracked và dựng được, không thì 0.
+    std::uint32_t add(const Spawn& spawn);
+    // Dời hiệu ứng theo dõi tới node mới (hiệu ứng bám theo xương hay vũ khí): hệ và dải của nó đi theo, hạt đã phát
+    // trong không gian thế giới ở lại. Handle không còn thì bỏ qua.
+    void move(std::uint32_t handle, const Node& node);
+    // Dừng hiệu ứng theo dõi: không phát thêm, hạt đang bay bay nốt rồi hệ bị gỡ.
+    void release(std::uint32_t handle);
+    // Hiệu ứng theo dõi còn việc (chưa dựng xong element, hay còn hệ hạt hoặc dải của nó). Handle 0 hay đã gỡ thì sai.
+    [[nodiscard]] bool is_live(std::uint32_t handle) const;
     // Bỏ mọi hệ đang chạy và đặt lại tally: gọi khi đổi cảnh.
     void clear() noexcept;
     void update(float seconds);
@@ -187,11 +200,23 @@ private:
         Node node{};
         float age = 0.0F;
         std::optional<ogre::Vec3> aim;
+        // 0 là hiệu ứng của cảnh. LifeTime của effect (0 là mãi), màu nhân.
+        std::uint32_t handle = 0;
+        float lifetime = 0.0F;
+        Colour tint{1.0F, 1.0F, 1.0F, 1.0F};
         // Các element đã qua cửa xét, chờ tới StartTime.
         std::vector<const ElementDef*> elements;
     };
 
+    // Hệ hạt đang chạy và chủ của nó: handle (0 là của cảnh) và element đặt nó (nullptr khi hệ dựng thẳng).
+    struct Owned {
+        std::unique_ptr<Field> field;
+        std::uint32_t handle = 0;
+        const ElementDef* element = nullptr;
+    };
+
     struct Strip {
+        std::uint32_t handle = 0;
         const ElementDef* element = nullptr;
         Node node{};
         std::optional<ogre::Vec3> aim;
@@ -204,7 +229,7 @@ private:
         TrailRun trail;
     };
 
-    void add_effect(const Spawn& spawn);
+    std::uint32_t add_effect(const Spawn& spawn);
     void take_element(Running& running, const ElementDef& element);
     [[nodiscard]] bool accepts(const ElementDef& element);
     [[nodiscard]] bool accepts_system(std::string_view name);
@@ -212,14 +237,18 @@ private:
     void note_affector(const std::string& kind);
     void advance(Running& running, float seconds);
     void spawn_due(const Running& running, const ElementDef& element, float before);
-    void spawn_system(std::string_view name, const Node& node);
+    Field* spawn_system(std::string_view name, const Node& node, const Owned& owner);
     void spawn_element(const ElementDef& element, const Running& running);
+    // Gỡ hệ hết hạt, dải đã tắt, và effect theo dõi đã xong việc.
+    void sweep();
+    [[nodiscard]] bool has_children(std::uint32_t handle) const;
     static void step_strip(Strip& strip, float dt);
     static void emit_beam(BillboardBatch& batch, const Strip& strip, CameraAxes camera);
     static void emit_one(std::vector<BillboardBatch>& batches, const Strip& strip, CameraAxes camera);
 
     Library* library_ = nullptr;
-    std::vector<std::unique_ptr<Field>> fields_;
+    std::vector<Owned> fields_;
+    std::uint32_t last_handle_ = 0;
     std::vector<Running> runnings_;
     std::vector<Strip> strips_;
     Tally tally_;

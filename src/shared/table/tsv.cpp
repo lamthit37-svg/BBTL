@@ -9,6 +9,7 @@
 #include <cstdint>
 #include <expected>
 #include <format>
+#include <limits>
 #include <optional>
 #include <string>
 #include <string_view>
@@ -155,6 +156,20 @@ float RowReader::positive(std::string_view column) {
     const bool is_usable = is_whole && std::isfinite(parsed->value) && parsed->value > 0.0;
     if (!is_usable) {
         reject(column, std::format("\"{}\" không phải số thực dương", cell));
+        return 0.0F;
+    }
+    return static_cast<float>(parsed->value);
+}
+
+float RowReader::real(std::string_view column) {
+    const std::string_view cell = text(column);
+    if (error_) return 0.0F;
+    const core::OptionalDouble parsed = core::parse_double(cell);
+    const bool is_whole = parsed && parsed->length == cell.size();
+    constexpr auto kLimit = static_cast<double>(std::numeric_limits<float>::max());
+    const bool is_usable = is_whole && std::isfinite(parsed->value) && std::abs(parsed->value) <= kLimit;
+    if (!is_usable) {
+        reject(column, std::format("\"{}\" không phải số thực vừa kiểu float", cell));
         return 0.0F;
     }
     return static_cast<float>(parsed->value);

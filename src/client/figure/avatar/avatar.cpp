@@ -5,11 +5,14 @@
 #include "anim/pose.hpp"
 #include "anim/rig.hpp"
 #include "avatar/gait.hpp"
+#include "avatar/locator.hpp"
 #include "avatar/rig.hpp"
 #include "classic/bake.hpp"
 #include "core/error.hpp"
 #include "io/file.hpp"
 #include "look/look.hpp"
+#include "look/skill.hpp"
+#include "look/weapon.hpp"
 #include "math/matrix.hpp"
 #include "math/vector.hpp"
 #include "ogre/quat.hpp"
@@ -18,6 +21,7 @@
 
 #include <algorithm>
 #include <cstddef>
+#include <cstdint>
 #include <expected>
 #include <filesystem>
 #include <iterator>
@@ -25,7 +29,9 @@
 #include <memory>
 #include <optional>
 #include <ranges>
+#include <span>
 #include <string>
+#include <string_view>
 #include <utility>
 #include <vector>
 
@@ -100,6 +106,9 @@ struct Loader {
     return core::fail(core::ErrorCode::kCorrupt, "skeleton chính không dựng được rig");
 }
 
+// Tên locator trên mẫu vũ khí nơi hiệu ứng đồ gắn vào (CRFObj_Actor::SetRightWeaponEffect của ref: addEffect(.., "武器特效点")).
+constexpr std::string_view kEffectPoint = "武器特效点";
+
 // Affine 3x4 theo hàng của OGRE sang Matrix4 theo cột, hàng cuối (0, 0, 0, 1).
 [[nodiscard]] math::Matrix4 matrix_of(const anim::Affine& rows) {
     const math::Vector4 col0(rows.at(0), rows.at(4), rows.at(8), 0.0F);
@@ -109,9 +118,24 @@ struct Loader {
     return {col0, col1, col2, col3};
 }
 
+// Điểm gắn theo tên: locator của mẫu nhân vật trước, rồi xương cùng tên (như LogicModel::getLocatorWorldTransform
+// rồi getBoneWorldTransform); xương coi như locator không lệch. Tên rỗng hay không có thì rỗng.
+[[nodiscard]] std::optional<Locator> point_of(const std::string& object, const std::string& name,
+    std::span<const look::LocatorRow> locators, const anim::SourceSkeleton& skeleton) {
+    if (name.empty()) return std::nullopt;
+    const look::LocatorRow* row = look::find_locator(locators, object, name);
+    if (row != nullptr) return make_locator(*row, skeleton);
+    const auto bone = std::ranges::find(skeleton.bones, name, &anim::Bone::name);
+    if (bone == skeleton.bones.end()) return std::nullopt;
+    Locator locator;
+    locator.bone = bone->handle;
+    return locator;
+}
+
 } // namespace
 
-core::Result<Avatar> Avatar::load(const look::Figure& figure, const std::filesystem::path& data_root) {
+core::Result<Avatar> Avatar::load(const look::Figure& figure, const std::filesystem::path& data_root,
+    std::span<const look::Strike> strikes, std::span<const look::LocatorRow> locators) {
     Loader loader{.root = data_root, .files = {}};
     const auto main = file_of(loader, figure.skeleton);
     if (!main) return std::unexpected(main.error());
@@ -130,13 +154,39 @@ core::Result<Avatar> Avatar::load(const look::Figure& figure, const std::filesys
     if (!jump_stand) return std::unexpected(jump_stand.error());
     auto jump_run = optional_clip_of(loader, figure.jump_run, bones);
     if (!jump_run) return std::unexpected(jump_run.error());
+    std::vector<anim::Animation> strike_clips;
+    strike_clips.reserve(strikes.size());
+    for (const look::Strike& strike : strikes) {
+        auto clip = clip_of(loader, strike.clip, bones);
+        if (!clip) return std::unexpected(clip.error());
+        strike_clips.push_back(std::move(*clip));
+    }
     Avatar avatar(figure, std::move(*rig));
+    avatar.strike_defs_.assign(strikes.begin(), strikes.end());
+    avatar.strike_clips_ = std::move(strike_clips);
+    for (const look::Strike& strike : strikes) {
+        std::vector<std::optional<Locator>> points;
+        points.reserve(strike.events.size());
+        for (const look::StrikeEvent& event : strike.events) {
+            points.push_back(point_of(figure.template_name, event.point, locators, bones));
+        }
+        avatar.event_points_.push_back(std::move(points));
+    }
     avatar.idle_ = std::move(*idle);
     avatar.run_ = std::move(*run);
     avatar.idle_alt_ = std::move(*alt);
     avatar.idle_alt2_ = std::move(*alt2);
     avatar.jump_stand_ = std::move(*jump_stand);
     avatar.jump_run_ = std::move(*jump_run);
+    avatar.mounts_.reserve(figure.held.size());
+    for (const look::Held& held : figure.held) {
+        const ogre::Vec3 scale{.x = held.scale.at(0), .y = held.scale.at(1), .z = held.scale.at(2)};
+        std::optional<Locator> effect_point;
+        const look::LocatorRow* point = look::find_locator(locators, held.object, kEffectPoint);
+        if (point != nullptr) effect_point = make_locator(*point, bones);
+        avatar.mounts_.push_back(
+            Mount{.locator = make_locator(held.locator, bones), .scale = scale, .effect_point = effect_point});
+    }
     if (figure.idle_trim) {
         const auto found = std::ranges::find(bones.bones, figure.idle_trim->bone, &anim::Bone::name);
         if (found == bones.bones.end()) {
@@ -155,6 +205,14 @@ void Avatar::trim_idle(anim::Pose& pose) const noexcept {
     bone.orientation = ogre::quat_multiply(bone.orientation, trim_->turn);
 }
 
+void Avatar::mount_matrices(std::span<const anim::Transform> bones, std::vector<math::Matrix4>& out) const {
+    out.clear();
+    out.reserve(mounts_.size());
+    for (const Mount& mount : mounts_) {
+        out.push_back(matrix_of(anim::affine_of(slot_pose(mount.locator, bones, mount.scale))));
+    }
+}
+
 ClipLengths Avatar::lengths() const noexcept {
     ClipLengths lengths;
     lengths.idle = idle_.length;
@@ -166,14 +224,58 @@ ClipLengths Avatar::lengths() const noexcept {
     return lengths;
 }
 
-const anim::Animation& Avatar::animation(Stance stance) const noexcept {
-    switch (stance) {
+std::optional<anim::Transform> Avatar::effect_pose(std::size_t mount, std::span<const anim::Transform> bones) const {
+    if (mount >= mounts_.size()) return std::nullopt;
+    const Mount& held = mounts_.at(mount);
+    const anim::Transform slot = slot_pose(held.locator, bones, held.scale);
+    if (!held.effect_point) return slot;
+    // Locator của mẫu vũ khí không theo xương của người chơi: bones rỗng thì nút giữ vị trí lệch và hướng của nó.
+    const anim::Transform point = locator_pose(*held.effect_point, {});
+    return anim::from_parent(slot, point);
+}
+
+std::optional<anim::Transform> Avatar::event_pose(std::size_t strike, std::size_t event,
+    std::span<const anim::Transform> bones) const {
+    if (strike >= event_points_.size() || strike >= strike_defs_.size()) return std::nullopt;
+    const auto& points = event_points_.at(strike);
+    if (event >= points.size()) return std::nullopt;
+    const std::optional<Locator>& attach = points.at(event);
+    if (!attach) return std::nullopt;
+    const look::StrikeEvent& block = strike_defs_.at(strike).events.at(event);
+    const anim::Transform point = locator_pose(*attach, bones);
+    const ogre::Quat offset_turn{.x = block.rotation.at(1), .y = block.rotation.at(2), .z = block.rotation.at(3),
+        .w = block.rotation.at(0)};
+    const ogre::Vec3 offset{.x = block.offset.at(0), .y = block.offset.at(1), .z = block.offset.at(2)};
+    anim::Transform pose;
+    pose.orientation = ogre::quat_multiply(point.orientation, offset_turn);
+    pose.position = ogre::add_vec3(point.position, ogre::quat_rotate(point.orientation, offset));
+    return pose;
+}
+
+std::optional<std::size_t> Avatar::strike_index(std::uint32_t skill, std::uint32_t step) const noexcept {
+    const auto found = std::ranges::find_if(strike_defs_, [&](const look::Strike& strike) {
+        return strike.skill == skill && strike.step == step;
+    });
+    if (found == strike_defs_.end()) return std::nullopt;
+    return static_cast<std::size_t>(found - strike_defs_.begin());
+}
+
+float Avatar::strike_length(std::size_t index) const noexcept {
+    return index < strike_clips_.size() ? strike_clips_.at(index).length : 0.0F;
+}
+
+const anim::Animation& Avatar::animation(const Playing& playing) const noexcept {
+    if (playing.stance == Stance::kStrike && playing.strike < strike_clips_.size()) {
+        return strike_clips_.at(playing.strike);
+    }
+    switch (playing.stance) {
     case Stance::kIdle: return idle_;
     case Stance::kIdleAlt: return idle_alt_ ? *idle_alt_ : idle_;
     case Stance::kIdleAlt2: return idle_alt2_ ? *idle_alt2_ : idle_;
     case Stance::kRun: return run_;
     case Stance::kJumpStand: return jump_stand_ ? *jump_stand_ : idle_;
     case Stance::kJumpRun: return jump_run_ ? *jump_run_ : idle_;
+    case Stance::kStrike: return idle_;
     }
     return idle_;
 }
@@ -181,7 +283,7 @@ const anim::Animation& Avatar::animation(Stance stance) const noexcept {
 core::Status Skinner::update(const Avatar& avatar, const Playing& playing) {
     anim::bind_pose(avatar.rig(), pose_);
     const anim::Blend blend{.time = playing.time, .weight = 1.0F, .scale = 1.0F};
-    const auto applied = anim::apply(avatar.animation(playing.stance), blend, pose_);
+    const auto applied = anim::apply(avatar.animation(playing), blend, pose_);
     if (!applied) return core::fail(core::ErrorCode::kCorrupt, "clip trỏ xương không có trong rig");
     if (playing.stance == Stance::kIdle) avatar.trim_idle(pose_);
     avatar.rig().skin(pose_, skin_, derived_);

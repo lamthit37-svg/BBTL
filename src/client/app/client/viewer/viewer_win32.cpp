@@ -338,6 +338,10 @@ void on_key_down(Controls& controls, SdlKey key, bool is_repeat) {
     const Steering input = camera_key_steering(key);
     controls.display->steer(input);
     if (key == SdlKey::kSpace && !is_repeat) controls.display->act(PlayAct::kJump);
+    if (key >= SdlKey::kDigit1 && !is_repeat) {
+        const auto slot = static_cast<std::uint32_t>(key) - static_cast<std::uint32_t>(SdlKey::kDigit1);
+        controls.display->act(PlayAct::kStrike, slot);
+    }
     const int step = direction_of(key);
     const bool has_world = controls.desc->playing != nullptr && controls.is_playing->load(std::memory_order_relaxed);
     const bool can_change = has_world && step != 0 && !is_repeat;
@@ -461,6 +465,20 @@ void play_scene_music(audio::Engine* speaker, const world::ShownScene& scene) {
     std::println(stderr, "Âm thanh: nhạc nền cảnh {} (id {}): {}", scene.id, id, played.error());
 }
 
+// Âm thanh của khối Sound trong kịch bản đòn mà luồng vẽ vừa báo tới mốc: phát phẳng (chưa có vị trí 3D). Lỗi (thiếu tệp)
+// chỉ ghi log; không có loa thì bỏ.
+void play_due_sounds(Session& session) {
+    const std::vector<std::string> due = session.display->take_sounds();
+    if (session.speaker == nullptr || !session.speaker->device_is_open()) return;
+    for (const std::string& name : due) {
+        // SoundName của all.skill tính từ thư mục Sound của kho gốc, nằm ở sound/ của dữ liệu client (như giá trị của
+        // sound_table.xml); engine nhận đường dẫn trực tiếp.
+        const std::string path = "sound/" + name;
+        const audio::SoundResult played = session.speaker->play_flat(path, 1.0F);
+        if (!played) std::println(stderr, "Âm thanh: {}: {}", path, played.error());
+    }
+}
+
 // Cảnh đang chơi đổi thì in một dòng và đặt lại tiêu đề cửa sổ, tên cảnh theo ngôn ngữ của bản dựng.
 void note_scene(Session& session) {
     const std::shared_ptr<const world::ShownScene> scene = world::current_scene(*session.desc->playing);
@@ -549,6 +567,7 @@ void one_frame(Session& session) {
     if (session.input != nullptr && session.controls != nullptr)
         drain_input(*session.input, *session.controls, session.actions);
     apply_game_cursor(session);
+    play_due_sounds(session);
     serve_requests(session);
     const bool has_world = session.desc->playing != nullptr && session.is_playing->load(std::memory_order_relaxed);
     if (has_world) {
@@ -699,6 +718,10 @@ int run_viewer(const ViewerDesc& desc) {
     shown.shot_path = desc.shot;
     shown.is_bare = desc.is_bare;
     shown.is_auto_walk = desc.is_auto_walk;
+    shown.auto_strike_from = desc.auto_strike_from;
+    shown.weapon_item = desc.weapon_item;
+    shown.weapon_gem = desc.weapon_gem;
+    shown.skill_id = desc.skill_id;
     shown.is_validated = desc.is_validated;
     shown.backend = desc.backend;
     shown.procedure = desc.procedure;

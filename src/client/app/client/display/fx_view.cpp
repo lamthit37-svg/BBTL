@@ -545,6 +545,25 @@ void FxView::load(const std::filesystem::path& data_root) {
     std::println("Hiệu ứng: nạp thư viện {:.1f} ms, {} byte, {} material", millis_since(began), bytes, paints);
 }
 
+std::uint32_t FxView::spawn(const fx::Spawn& spawn) {
+    if (!body_->cast) return 0;
+    const std::uint32_t handle = body_->cast->add(spawn);
+    body_->warm_textures();
+    return handle;
+}
+
+void FxView::move(std::uint32_t handle, const fx::Node& node) {
+    if (body_->cast) body_->cast->move(handle, node);
+}
+
+void FxView::release(std::uint32_t handle) {
+    if (body_->cast) body_->cast->release(handle);
+}
+
+bool FxView::is_live(std::uint32_t handle) const {
+    return body_->cast && body_->cast->is_live(handle);
+}
+
 void FxView::adopt(const Stage& stage) {
     if (!body_->cast) return;
     body_->cast->clear();

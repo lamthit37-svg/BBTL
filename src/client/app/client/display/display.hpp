@@ -101,6 +101,16 @@ struct DisplayDesc {
     // và hướng nhìn xoay đều kWalkTurnPerSecond, để đo nhịp khung lúc di chuyển mà không cần chuột hay
     // phím thật. Lúc thoát in một dòng về bước đi mỗi khung.
     bool is_auto_walk = false;
+    // Công cụ đo của dự án (--auto-strike), client gốc không có: ở màn chơi tự nhấn ô thao tác cuối ở khung màn chơi
+    // thứ auto_strike_from rồi mỗi 180 khung, để chụp hay đo đòn đánh mà không cần phím thật. 0 là tắt.
+    std::uint32_t auto_strike_from = 0;
+    // Công cụ thử của dự án (--weapon): vật phẩm khe 0 mà nhân vật ở màn chơi cầm; không có thì tay không
+    // (hay ngoại hình đã chọn). Hành trang thật nối vào ngoại hình sau (docs/NGHI-NGO.md).
+    std::optional<std::uint32_t> weapon_item;
+    // Công cụ thử của dự án (--gem): đá quý gắn vào vũ khí, gieo vào hero.equipment như gói trang bị của máy chủ.
+    std::optional<std::uint32_t> weapon_gem;
+    // Công cụ thử của dự án (--skill): skill học thêm, gieo vào hero.skills như gói skill của máy chủ.
+    std::optional<std::uint32_t> skill_id;
     // Rỗng: tự chọn backend. Có thì ép đúng tên đó.
     std::optional<std::string> backend;
     // Có has thì màn chơi dùng ngoại hình này thay cho nhân vật mặc định.
@@ -121,6 +131,8 @@ struct Steering {
     bool is_home = false;
     // Có nhấn phím nhảy (Space) từ khung trước; nhảy lặp do giữ phím không tính.
     bool wants_jump = false;
+    // Ô thao tác vừa nhấn (0 là ô 1) từ khung trước; giữ phím lặp không tính.
+    std::optional<std::uint32_t> strike_slot;
     // Hướng đi đang giữ so với hướng nhìn, trong [-1, 1]; ghi đè chứ không cộng dồn, và chỉ khi
     // has_walk (để phím mũi tên không xoá hướng đi đang giữ).
     bool has_walk = false;
@@ -130,7 +142,7 @@ struct Steering {
 
 // Thao tác chơi trừu tượng (lệnh của CAI_MySelf). Phím trên PC và nút chạm trên mobile cùng gọi
 // Display::act; màn chơi không đọc mã phím.
-enum class PlayAct : std::uint8_t { kJump };
+enum class PlayAct : std::uint8_t { kJump, kStrike };
 
 // Hàm tra tên hiển thị của một cảnh theo ngôn ngữ của bản dựng (Table/scene_names.lang.tsv dưới
 // data_root), cho nơi nằm dưới tầng giao diện như tiêu đề cửa sổ của viewer. Tên chưa có bản dịch
@@ -188,7 +200,11 @@ public:
     // Đưa điều khiển bằng phím cho luồng vẽ; nó dùng ở khung kế. An toàn mọi luồng, không chặn lâu.
     void steer(const Steering& input) noexcept;
     // Đưa một thao tác chơi cho luồng vẽ; nó dùng ở bước mô phỏng kế. An toàn mọi luồng.
-    void act(PlayAct what) noexcept;
+    // slot chỉ dùng cho kStrike: ô thao tác (0 là ô 1).
+    void act(PlayAct what, std::uint32_t slot = 0) noexcept;
+    // Tên âm thanh (đường dẫn trong SoundInfo) của các khối Sound của kịch bản đòn vừa tới mốc, từ lần gọi trước. Luồng cửa
+    // sổ phát chúng ra loa; nơi vẽ không giữ loa. An toàn mọi luồng.
+    [[nodiscard]] std::vector<std::string> take_sounds();
     // Đưa thao tác chuột hay chạm (nhấn, nhả, di, lăn, cần gạt) cho luồng vẽ; nó gom thành mẫu
     // chuột của khung kế, như CInputSystem::MouseTick. Vị trí chuẩn hoá về [0, 1] theo vùng vẽ.
     // An toàn mọi luồng, không chặn lâu.

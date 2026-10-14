@@ -12,12 +12,17 @@
 // mà chưa chạm đất thì OnAnimationEnd gọi FreshAnimation: logic MOVE thì chạy lại từ đầu, IDLE thì như
 // lúc hết clip đứng. Chạm đất (PE_COLLISION_WITH_GROUND) thì tắt cờ rồi FreshAnimation một lần nữa.
 // Hành động không có clip thì ChangeAction của gốc bỏ qua: clip đang phát giữ nguyên.
+// Đòn đánh và tuyệt chiêu (strike) là clip phát một lần từ đầu do skill chọn (Start_MagicSend: ChangeAction
+// với tên kịch bản của all.skill, tốc độ phát là Actor_ChangeActionRate): hết clip thì FreshAnimation như hết clip
+// nhảy; đang nhảy thì không bắt đầu đòn. Lệnh mới (đi, nhảy, đòn khác) chỉ ngắt được đòn từ mốc BreakTime của
+// kịch bản (DoSimulantCommand trả RC_WAIT tới khi OnAnimationCanBreak đặt m_bCanBreak): is_locked.
 // Nguồn: TLBB Dev src/client_app/gait.hpp@e0d89a6. Khác gốc: namespace game::avatar; đồng hồ là
 // core::Clock; enumerator mang tiền tố k.
 
 #include "core/clock.hpp"
 
 #include <chrono>
+#include <cstddef>
 #include <cstdint>
 #include <optional>
 #include <random>
@@ -45,12 +50,23 @@ struct ClipLengths {
     std::optional<float> jump_run;
 };
 
-enum class Stance : std::uint8_t { kIdle = 1, kIdleAlt, kIdleAlt2, kRun, kJumpStand, kJumpRun };
+enum class Stance : std::uint8_t { kIdle = 1, kIdleAlt, kIdleAlt2, kRun, kJumpStand, kJumpRun, kStrike };
 
 // Clip đang phát và thời điểm trong clip, giây, trong [0, độ dài).
 struct Playing {
     Stance stance = Stance::kIdle;
     float time = 0.0F;
+    // Chỉ số đòn trong Avatar::strikes() khi stance là kStrike; không thì 0.
+    std::size_t strike = 0;
+};
+
+// Cách phát một đòn: chỉ số trong Avatar::strikes(), độ dài clip ở tốc độ 1 (giây), tốc độ phát, và mốc BreakTime đầu
+// tiên (phần của clip, 0..1; rỗng là không có mốc nên chỉ hết clip mới ngắt được).
+struct StrikePlan {
+    std::size_t index = 0;
+    float length = 0.0F;
+    float rate = 1.0F;
+    std::optional<float> break_at;
 };
 
 class Gait {
@@ -65,6 +81,10 @@ public:
     void jump(core::Clock::time_point now, Stance stance, const ClipLengths& lengths);
     // Chạm đất lúc now: hết nhảy rồi FreshAnimation. Không đang nhảy thì không làm gì.
     void land(core::Clock::time_point now, const ClipLengths& lengths);
+    // Phát đòn theo plan từ đầu lúc now. Đang nhảy hay length hay rate không dương thì không làm gì.
+    void strike(core::Clock::time_point now, const StrikePlan& plan);
+    // Đang trong đòn mà chưa tới BreakTime: lệnh đi, nhảy, đòn khác phải chờ (RC_WAIT của gốc).
+    [[nodiscard]] bool is_locked(core::Clock::time_point now) const;
     [[nodiscard]] bool is_jumping() const noexcept { return is_jumping_; }
     // Phát stance ở khung kế, rồi về đứng. Dùng cho bài múa lúc người mẫu môn phái hiện.
     void cue(Stance stance) noexcept;
@@ -79,7 +99,9 @@ private:
     void fresh(core::Clock::time_point now, const ClipLengths& lengths);
     void fresh_logic(core::Clock::time_point now, const ClipLengths& lengths);
     [[nodiscard]] float elapsed(core::Clock::time_point now) const;
-    [[nodiscard]] static float length_of(Stance stance, const ClipLengths& lengths);
+    // Thời điểm trong clip của đòn đang phát, giây.
+    [[nodiscard]] float strike_time(core::Clock::time_point now) const;
+    [[nodiscard]] float length_of(Stance stance, const ClipLengths& lengths) const;
 
     // minstd_rand với kiểu kết quả đúng 32 bit trên mọi nền, nên cùng dãy số ở mọi trình dịch.
     std::linear_congruential_engine<std::uint32_t, 48271U, 0U, 2147483647U> random_;
@@ -90,6 +112,7 @@ private:
     // Logic MOVE (đang đi) và m_bJumping của ref; clip đang phát là stance_.
     bool is_moving_ = false;
     bool is_jumping_ = false;
+    StrikePlan plan_;
     std::optional<Stance> cued_;
     Stance stance_ = Stance::kIdle;
     core::Clock::time_point clip_started_;

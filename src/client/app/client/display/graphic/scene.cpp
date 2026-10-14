@@ -330,11 +330,15 @@ void Display::State::compose_frame() {
     stand.is_moving = is_player_running;
     stand.jump = std::exchange(jump_begun, std::nullopt);
     stand.has_landed = std::exchange(jump_landed, false);
+    stand.strike = std::exchange(strike_begun, std::nullopt);
     const core::Status posed = player->update(frame_time, stand);
     if (!posed) {
         std::println(stderr, "Người chơi: {}", posed.error());
         return;
     }
+    dispatch_cues();
+    sync_follows();
+    sync_gear();
     player->append(frame_instances);
 }
 } // namespace game::client

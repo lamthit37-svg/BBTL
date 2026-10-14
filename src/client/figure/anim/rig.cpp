@@ -168,6 +168,10 @@ Affine offset_transform(const Transform& derived, const Transform& inverse) {
 
 } // namespace
 
+Affine affine_of(const Transform& placed) {
+    return make_transform(placed);
+}
+
 // Hướng nhân hướng cha, scale nhân scale cha, vị trí co theo scale cha, quay theo hướng cha rồi
 // cộng vị trí cha.
 Transform from_parent(const Transform& parent, const Transform& local) {

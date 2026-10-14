@@ -43,6 +43,18 @@ public:
     Field(const SystemDef& definition, std::uint32_t seed);
 
     void update(float seconds, const Node& node);
+    // Hệ của skill hay của đồ bật thời gian của emitter như ParticleEmitter của Ogre (OgreParticleEmitter.cpp,
+    // genConstantEmissionCount): phát duration giây (0 là mãi), nghỉ repeat_delay giây rồi phát lại (0 là không
+    // lại). Hệ của cảnh giữ phát mãi: chưa kiểm bản gốc của cảnh có lặp lại hay không (docs/NGHI-NGO.md). Gọi trước
+    // lần update đầu.
+    void set_timed(bool is_timed);
+    // Dừng mọi emitter; hạt đang bay vẫn bay nốt.
+    void stop() noexcept { is_stopped_ = true; }
+    // Hết hạt và không phát được nữa (đã dừng, hay mọi emitter hết duration mà không có repeat_delay): gỡ được.
+    [[nodiscard]] bool is_spent() const noexcept;
+    // Hệ số nhân vào màu mọi hạt lúc vẽ (Effect::setColour của gốc).
+    void set_tint(Colour tint) noexcept { tint_ = tint; }
+    [[nodiscard]] const Colour& tint() const noexcept { return tint_; }
     [[nodiscard]] const SystemDef& definition() const noexcept { return *definition_; }
     [[nodiscard]] const Node& node() const noexcept { return node_; }
     [[nodiscard]] std::span<const std::uint32_t> order() const noexcept { return active_; }
@@ -97,6 +109,9 @@ private:
     [[nodiscard]] static std::uint32_t link_count(const RibbonChain& chain);
     [[nodiscard]] ogre::Vec3 ribbon_local(ogre::Vec3 position) const;
     void emit(float dt);
+    // ParticleEmitter::setEnabled: đặt lại bộ đếm duration (đang phát) hay repeat_delay (đang nghỉ).
+    void set_enabled(std::size_t emitter, bool is_enabled);
+    void wait_repeat(std::size_t emitter, float dt);
     void spawn(std::size_t emitter, float offset);
     void init_grain(std::size_t emitter, Grain& grain);
     [[nodiscard]] std::uint16_t emission_count(std::size_t emitter, float dt);
@@ -110,6 +125,9 @@ private:
     std::vector<EmitterState> emitters_;
     std::vector<RibbonChain> chains_;
     float remain_ = 0.0F;
+    bool is_timed_ = false;
+    bool is_stopped_ = false;
+    Colour tint_{1.0F, 1.0F, 1.0F, 1.0F};
 };
 
 } // namespace game::fx

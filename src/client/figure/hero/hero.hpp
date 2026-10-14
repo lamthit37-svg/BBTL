@@ -8,6 +8,8 @@
 #pragma once
 
 #include <algorithm>
+#include <array>
+#include <cstddef>
 #include <cstdint>
 #include <expected>
 #include <optional>
@@ -126,6 +128,36 @@ struct Purse {
     std::int32_t cash_gift = 0;
 };
 
+// Điểm mang trang bị (cột "điểm mang" của EquipBase, HUMAN_EQUIP của ref). Chỉ đặt tên điểm mà mã dùng:
+// 0 là vũ khí (khe mà ItemVisualLocator và loại vũ khí của vật phẩm tính cho).
+enum class EquipPoint : std::uint8_t { kWeapon = 0 };
+
+// Số điểm mang mà bảng giữ chỗ; điểm lớn nhất của EquipBase client 2026 là 23.
+inline constexpr std::size_t kEquipPoints = 32;
+
+// Vật phẩm đang mặc theo điểm mang (id vật phẩm của EquipBase). Client gốc giữ trong CDataPool::UserEquip
+// do gói trang bị của máy chủ ghi; ngoại hình (look::equip_weapon) đọc từ đây chứ không từ nơi khác,
+// nên chưa có máy chủ thì chỗ gieo vật phẩm là công cụ thử, không phải đường tắt vào ngoại hình.
+struct Equipment {
+    std::array<std::optional<std::uint32_t>, kEquipPoints> worn;
+    // Đá quý gắn vào vật phẩm ở điểm mang đó (Get_EquipGem của ref): vật phẩm đá quý đầu tiên; chỉ vũ khí dùng tới
+    // (hiệu ứng đồ). Máy chủ ghi cùng gói trang bị; chưa có máy chủ thì công cụ thử gieo.
+    std::array<std::optional<std::uint32_t>, kEquipPoints> gems;
+
+    [[nodiscard]] constexpr std::optional<std::uint32_t> at(EquipPoint point) const noexcept {
+        return worn.at(static_cast<std::size_t>(point));
+    }
+    constexpr void wear(EquipPoint point, std::uint32_t item) noexcept { worn.at(static_cast<std::size_t>(point)) = item; }
+    constexpr void take_off(EquipPoint point) noexcept {
+        worn.at(static_cast<std::size_t>(point)).reset();
+        gems.at(static_cast<std::size_t>(point)).reset();
+    }
+    [[nodiscard]] constexpr std::optional<std::uint32_t> gem_at(EquipPoint point) const noexcept {
+        return gems.at(static_cast<std::size_t>(point));
+    }
+    constexpr void socket(EquipPoint point, std::uint32_t gem) noexcept { gems.at(static_cast<std::size_t>(point)) = gem; }
+};
+
 struct Hero {
     std::string name;
     std::int32_t level = 1;
@@ -156,6 +188,10 @@ struct Hero {
     Milestones milestones;
     LevelLock level_lock = LevelLock::kOpen;
     Purse purse;
+    Equipment equipment;
+    // Skill đã học theo id của SkillTemplate_V1, theo thứ tự ô thao tác. 0 là 普通攻击 (đánh thường) mà mọi
+    // nhân vật có sẵn. Máy chủ ghi (gói skill); chưa có máy chủ thì công cụ thử gieo thêm.
+    std::vector<std::uint32_t> skills{0};
 };
 
 // Lên cấp được chưa, như Player:IsCanLevelup của Game.exe 2026 (0x1403954d0): kinh nghiệm đang có

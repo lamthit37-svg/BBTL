@@ -84,6 +84,11 @@ private:
 // chuẩn hoá.
 [[nodiscard]] Transform from_parent(const Transform& parent, const Transform& local);
 
+// Matrix4::makeTransform: ma trận affine của một biến đổi (scale trước, quay sau, dịch cuối). Quaternion
+// không đơn vị cho đúng ma trận mà Quaternion::ToRotationMatrix của OGRE cho. Locator và mẫu con đặt
+// vào thế giới bằng nó.
+[[nodiscard]] Affine affine_of(const Transform& placed);
+
 // Ma trận cho bảng xương của một submesh, theo thứ tự bảng.
 [[nodiscard]] std::vector<Affine> palette_matrices(std::span<const Affine> skin,
     std::span<const std::uint16_t> palette);

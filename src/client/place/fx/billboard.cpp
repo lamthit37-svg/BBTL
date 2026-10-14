@@ -259,12 +259,25 @@ void fill_field(BillboardBatch& batch, const Field& field, CameraAxes camera) {
     return !field->definition().material.empty();
 }
 
+// Màu của hệ nhân vào màu từng đỉnh. Trắng thì không đổi gì.
+void apply_tint(BillboardBatch& batch, const Colour& tint) {
+    const bool is_white = tint[0] == 1.0F && tint[1] == 1.0F && tint[2] == 1.0F && tint[3] == 1.0F;
+    if (is_white) return;
+    for (BillboardVertex& vertex : batch.vertices) {
+        vertex.red *= tint[0];
+        vertex.green *= tint[1];
+        vertex.blue *= tint[2];
+        vertex.alpha *= tint[3];
+    }
+}
+
 void take_batch(std::vector<BillboardBatch>& batches, const Field* field, CameraAxes camera) {
     if (!shown_field(field)) return;
     BillboardBatch batch;
     batch.material = field->definition().material;
     fill_field(batch, *field, camera);
     if (batch.vertices.empty()) return;
+    apply_tint(batch, field->tint());
     batches.push_back(std::move(batch));
 }
 

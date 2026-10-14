@@ -118,7 +118,7 @@ void take_scale(Paint& paint, std::string_view extra) {
     constexpr std::string_view kMark = "scale ";
     const std::size_t at = extra.find(kMark);
     if (at == std::string_view::npos) return;
-    std::string_view rest = extra.substr(at + kMark.size());
+    const std::string_view rest = extra.substr(at + kMark.size());
     const std::size_t gap = rest.find(' ');
     if (gap == std::string_view::npos) return;
     const std::optional<float> across = parse_float(rest.substr(0, gap));
@@ -364,29 +364,66 @@ void Cast::take_element(Running& running, const ElementDef& element) {
     if (accepts(element)) running.elements.push_back(&element);
 }
 
-void Cast::add_effect(const Spawn& spawn) {
+std::uint32_t Cast::add_effect(const Spawn& spawn) {
     const EffectDef* effect = library_->effect(spawn.name);
     if (effect == nullptr) {
         note(Skip::kUnknownName);
-        return;
+        return 0;
     }
     tally_.skipped.at(static_cast<std::size_t>(Skip::kUnknownElement)) += library_->lost_elements(spawn.name);
     Running running;
     running.node = spawn.node;
     running.aim = spawn.aim;
+    if (spawn.is_tracked) {
+        running.handle = ++last_handle_;
+        running.lifetime = effect->lifetime;
+        running.tint = spawn.tint;
+    }
     for (const ElementDef& element : effect->elements) {
         take_element(running, element);
     }
+    const std::uint32_t handle = running.handle;
     runnings_.push_back(std::move(running));
+    return handle;
 }
 
-void Cast::add(const Spawn& spawn) {
-    if (library_ == nullptr) return;
-    if (spawn.is_effect) {
-        add_effect(spawn);
-        return;
+std::uint32_t Cast::add(const Spawn& spawn) {
+    if (library_ == nullptr) return 0;
+    if (spawn.is_effect) return add_effect(spawn);
+    if (!accepts_system(spawn.name)) return 0;
+    Owned owner;
+    if (spawn.is_tracked) owner.handle = ++last_handle_;
+    Field* const made = spawn_system(spawn.name, spawn.node, owner);
+    if (made == nullptr) return 0;
+    made->set_tint(spawn.tint);
+    return owner.handle;
+}
+
+void Cast::move(std::uint32_t handle, const Node& node) {
+    if (handle == 0) return;
+    for (Running& running : runnings_) {
+        if (running.handle == handle) running.node = node;
     }
-    if (accepts_system(spawn.name)) spawn_system(spawn.name, spawn.node);
+    for (const Owned& owned : fields_) {
+        if (owned.handle != handle) continue;
+        const Node placed_node = owned.element != nullptr ? placed(node, *owned.element) : node;
+        owned.field->update(0.0F, placed_node);
+    }
+    for (Strip& strip : strips_) {
+        if (strip.handle != handle || strip.element == nullptr) continue;
+        strip.node = placed(node, *strip.element);
+    }
+}
+
+void Cast::release(std::uint32_t handle) {
+    if (handle == 0) return;
+    std::erase_if(runnings_, [handle](const Running& running) { return running.handle == handle; });
+    for (const Owned& owned : fields_) {
+        if (owned.handle == handle) owned.field->stop();
+    }
+    for (Strip& strip : strips_) {
+        if (strip.handle == handle) strip.alive = false;
+    }
 }
 
 void Cast::clear() noexcept {
@@ -400,21 +437,27 @@ void Cast::clear() noexcept {
 }
 
 // Hệ khai quota 0 không bao giờ có hạt: không dựng Field cho nó.
-void Cast::spawn_system(std::string_view name, const Node& node) {
+Field* Cast::spawn_system(std::string_view name, const Node& node, const Owned& owner) {
     const SystemDef* definition = library_->system(name);
-    if (definition == nullptr || definition->quota == 0) return;
+    if (definition == nullptr || definition->quota == 0) return nullptr;
     auto field = std::make_unique<Field>(*definition, static_cast<std::uint32_t>(fields_.size() + 1));
+    field->set_timed(owner.handle != 0);
     field->update(0.0F, node);
-    fields_.push_back(std::move(field));
+    Field* const made = field.get();
+    fields_.push_back(Owned{.field = std::move(field), .handle = owner.handle, .element = owner.element});
+    return made;
 }
 
 void Cast::spawn_element(const ElementDef& element, const Running& running) {
     const Node node = placed(running.node, element);
     if (element.kind == ElementKind::kParticle) {
-        spawn_system(element.system, node);
+        Field* const made =
+            spawn_system(element.system, node, Owned{.field = nullptr, .handle = running.handle, .element = &element});
+        if (made != nullptr) made->set_tint(running.tint);
         return;
     }
     Strip strip;
+    strip.handle = running.handle;
     strip.element = &element;
     strip.node = node;
     strip.aim = running.aim;
@@ -458,13 +501,44 @@ void Cast::update(float seconds) {
     for (Running& running : runnings_) {
         advance(running, seconds);
     }
-    for (const std::unique_ptr<Field>& field : fields_) {
-        field->update(seconds, field->node());
+    // Hết LifeTime thì dừng (release gỡ running khỏi danh sách, nên gom handle trước).
+    std::vector<std::uint32_t> ended;
+    for (const Running& running : runnings_) {
+        if (running.handle != 0 && running.lifetime > 0.0F && running.age >= running.lifetime) ended.push_back(running.handle);
+    }
+    for (const std::uint32_t handle : ended) release(handle);
+    for (const Owned& owned : fields_) {
+        owned.field->update(seconds, owned.field->node());
     }
     for (Strip& strip : strips_) {
         step_strip(strip, seconds);
     }
+    sweep();
+}
+
+bool Cast::is_live(std::uint32_t handle) const {
+    if (handle == 0) return false;
+    const auto is_mine = [handle](const Running& running) { return running.handle == handle; };
+    return std::ranges::any_of(runnings_, is_mine) || has_children(handle);
+}
+
+bool Cast::has_children(std::uint32_t handle) const {
+    const auto is_mine = [handle](const Owned& owned) { return owned.handle == handle; };
+    const auto is_strip = [handle](const Strip& strip) { return strip.handle == handle && strip.alive; };
+    return std::ranges::any_of(fields_, is_mine) || std::ranges::any_of(strips_, is_strip);
+}
+
+void Cast::sweep() {
+    std::erase_if(fields_, [](const Owned& owned) { return owned.handle != 0 && owned.field->is_spent(); });
     std::erase_if(strips_, [](const Strip& strip) { return !strip.alive; });
+    // Effect theo dõi đã đưa hết element ra và hết con thì xong việc.
+    std::erase_if(runnings_, [this](const Running& running) {
+        if (running.handle == 0) return false;
+        const bool is_all_due = std::ranges::all_of(running.elements, [&running](const ElementDef* element) {
+            return element->start_time < running.age;
+        });
+        return is_all_due && !has_children(running.handle);
+    });
 }
 
 void Cast::emit_beam(BillboardBatch& batch, const Strip& strip, CameraAxes camera) {
@@ -502,8 +576,8 @@ std::vector<BillboardBatch> Cast::strips(CameraAxes camera) const {
 std::vector<const Field*> Cast::live() const {
     std::vector<const Field*> fields;
     fields.reserve(fields_.size());
-    for (const std::unique_ptr<Field>& field : fields_) {
-        take_live(fields, *field);
+    for (const Owned& owned : fields_) {
+        take_live(fields, *owned.field);
     }
     return fields;
 }

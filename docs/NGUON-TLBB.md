@@ -67,10 +67,18 @@ tiến trình con. Dev không có test cho `supervise`; `tests/supervise_tests.c
   pose của skeleton CHÍNH; `resource::animation_of` làm phép trừ ngược. Thử: dịch ở khoá cuối của clip
   đứng của nữ khớp khoá tuyệt đối của tệp trong 1e-4 (`rig_tests`).
 
+## Vũ khí, locator, đòn đánh (2026-10-14)
+
+Đã port: `look/weapon.{hpp,cpp}` (WeaponRow, WeaponHand của `src/tables/appearance.hpp@e0d89a6`, khác gốc: bảy khe, loại thuộc vật
+phẩm, locator và objects đọc từ TSV), `avatar/locator.{hpp,cpp}` (`src/client_app/locator.hpp@e0d89a6`). `look/skill`, `avatar/gait`
+(`Stance::kStrike`), hiệu ứng đồ và hiệu ứng theo dõi KHÔNG có trong TLBB Dev: viết theo client ref 2008 (`CObject_Character::SetCurrentSkill`,
+`LogicModel::_createAnimationEffect`, `CRFObj_Actor::SetRightWeaponEffect`) và mã máy Game.exe 2026 (`Start_MagicSend` 0x1405ee920,
+`EquipItem_BodyLocator` `FUN_140604720`); các chỗ chưa giải ở `docs/NGHI-NGO.md` mục 51.
+
 ## Chưa port (TLBB có, THIENLONG chưa)
 
 WalkMap (va chạm công trình; phần vùng cấm và tìm đường KHÔNG port từ `src/walk` của TLBB mà từ
-`PathLib.dll` của client 2026, xem `docs/DUONG-DI-2026.md`), vũ khí và locator, NPC (`creature`, `model_anims`, `spawns`),
+`PathLib.dll` của client 2026, xem `docs/DUONG-DI-2026.md`), NPC (`creature`, `model_anims`, `spawns`),
 `melee`, `hotkey`, bảng tên, nạp nhiều luồng (`world_load`),
 rung camera của kỹ năng (`AddOneVib`), phím tắt Alt+Lên và Alt+Xuống để zoom, skeleton mở rộng của 17 trang phục thời
 trang (`anim::retarget` đã có, chưa nối), vẽ chất liệu theo `all.obj` (1 364 mesh dính `BaseWhite`).

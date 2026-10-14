@@ -4,15 +4,17 @@
 // anim_sets (clip theo hành động và loại vũ khí, đã giải hết chuỗi action set lúc xuất). Id giữ số
 // của Config client; giới là race của CharRace (0 nữ, 1 nam); tên tệp là tên gốc dưới Model/.
 // Nguồn: TLBB Dev src/tables/appearance.hpp@e0d89a6. Khác gốc: giới thay bằng Race theo CharRace;
-// khoá của faces, hairs là (id, race) vì id của hai giới có thể trùng; chưa có bảng vũ khí và
-// model_anims (làm cùng NPC và vũ khí); bộ đọc dựa trên table::Tsv của dự án.
+// khoá của faces, hairs là (id, race) vì id của hai giới có thể trùng; bảng vũ khí ở look/weapon.hpp,
+// chưa có model_anims (làm cùng NPC); bộ đọc dựa trên table::Tsv của dự án.
 
 #include "table/tsv.hpp"
 
 #include <cstdint>
 #include <expected>
+#include <optional>
 #include <span>
 #include <string>
+#include <string_view>
 #include <vector>
 
 namespace game::look {
@@ -99,6 +101,9 @@ using Rows = std::expected<std::vector<Row>, std::string>;
 // Cột: set, action (idle, idle_alt, idle_alt2, run, combat_idle, combat_run), weapon (none, spear,
 // blade, dual_short, short, fan, ring), anim, clip. Khoá (set, action, weapon). Ít nhất một dòng.
 [[nodiscard]] Rows<AnimRow> read_anim_sets(const table::Tsv& table);
+
+// Loại vũ khí theo tên trong bảng (none, spear, blade, dual_short, short, fan, ring); nullopt khi tên lạ.
+[[nodiscard]] std::optional<Weapon> weapon_named(std::string_view name);
 
 // Tra theo khoá; nullptr khi không có. Con trỏ mượn vào rows.
 [[nodiscard]] const PlayerBody* find_body(std::span<const PlayerBody> rows, Race race);

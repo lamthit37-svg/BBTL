@@ -812,3 +812,31 @@ kết luận ngay dưới mục đó chứ không xoá.
     (`-target glsl`) để bỏ ba tệp `.glsl` viết tay chưa thử, chưa đo. (f) Mỗi lần dịch chạy 2 tới 3 lượt Slang (SPIR-V
     và DXIL để đối chiếu, thêm DXBC); 7 gói × 4 đích mất 2,6 giây trên máy dựng, chưa so với DXC. Khoá cache của gói
     gồm `kPipeline` trong `compiler.cpp`: đổi cách ghép phản chiếu thì tăng số này, không thì gói cũ vẫn "còn mới".
+51. **Vũ khí, hiệu ứng đồ, đòn đánh, tuyệt chiêu 2026-10-14: đã có và CHƯA làm** (`TOOLS/content/export_weapons.py`,
+    `export_skills.py`, `src/client/figure/look/{weapon,skill}`, `avatar/locator`, `place/fx`). Đã có và đã chạy thật:
+    vũ khí theo bảy khe gắn vào locator của mẫu nhân vật (đứng, chạy, đánh); phím 1 tới 9, `--skill`, `--auto-strike`
+    chạy đòn đánh thường và tuyệt chiêu qua chuỗi `SkillTemplate_V1` cột 18 -> `ActionSet` -> `Effect/all.skill` -> clip
+    (mốc của `all.skill` là PHẦN độ dài clip); hiệu ứng AnimEffect và âm thanh của kịch bản; hiệu ứng đồ (đá quý gắn
+    vũ khí: `--weapon <item> --gem <đá>`) bám điểm `武器特效点` mỗi khung; hiệu ứng của skill và của đồ có vòng đời
+    (LifeTime của effect, `duration`/`repeat_delay` của emitter, hết hạt thì gỡ). CHƯA làm hay chưa kiểm:
+    (a) Hành trang, skill, đá quý chưa nối máy chủ: `hero.equipment`, `hero.skills` do `--weapon`, `--skill`, `--gem`
+    gieo (`Display::State::seed_equipment`); client chưa có gói trang bị, gói skill, gói đá quý.
+    (b) Điều kiện chưa giải trong `FUN_140604720` của Game.exe 2026: hàm `FUN_1405e95a0(char)` (dữ liệu nhân vật
+    `+0x3c == 0`) và `locator id != *(int*)(char+0x424)` (nghi là vũ khí thời trang đè hình); port bỏ cả hai, nên vũ khí
+    đã đè hình vẫn hiện hiệu ứng của hình gốc. Chỉ số hiệu ứng của đá quý tới 169 nhưng ItemVisualLocator chỉ có 34 ô
+    (cột 29 tới 62): mã máy đọc ngoài hàng, port trả không hiệu ứng (`Khác gốc:` ở `look::gem_effect`).
+    (c) Khe lưng, hông 1, hông 2 chỉ nhận hiệu ứng khi cờ cột 19, 23, 27 bật; võ hồn (KFS, điểm 18) và vũ khí ảo
+    (điểm 22, `0x16`) không có hiệu ứng đá quý và chưa có mẫu riêng. Cờ ẩn vũ khí lúc đánh chưa làm.
+    (d) Bảng `CharEffect`, `SpecialDressEffect`, `CangPinSetEffect`, `ChongLouEffect`, `GemEffect_Cloth`,
+    `Exterior_GemEffect`, `DressGem`, `WeaponVisualLocator` (hiệu ứng đồ không phải vũ khí: áo, bộ, cường hoá, tinh luyện)
+    chưa đọc và chưa xuất bảng nào; hiệu ứng của trang phục khác vũ khí vẫn thiếu.
+    (e) Kịch bản: nối `CONCATENATION`/`CONCATENATION_EX` (liên hoàn 1, 2, 3 và 轻功 nhảy nối) mới chọn bước đầu; số lần
+    `OnAnimationHit` (lúc đòn trúng) chưa phát; `ShakeTime` (rung camera) và khối Ribbon, SceneLight của kịch bản chưa
+    dựng; âm thanh phát phẳng, chưa có âm thanh không gian 3D; chưa có mục tiêu, đạn (`BeHit`, bullet), tốc độ đánh
+    (`rate` luôn 1) và đường nhảy nối của skill kind 2. 116 tên animation của `skill_clips` không có clip trong kho.
+    (f) Hiệu ứng theo dõi: emitter chỉ theo `duration` và `repeat_delay` ở hiệu ứng skill và hiệu ứng đồ
+    (`Spawn::is_tracked`); hiệu ứng của cảnh vẫn phát mãi, CHƯA đo bản gốc có lặp lại theo `repeat_delay` hay không.
+    `LifeTime` của element Particle (không phải dải) chưa dùng; hiệu ứng đồ chưa theo tỉ lệ người chơi (`Stand::scale`).
+    (g) Dung lượng: `weapon_effects.tsv` 1,1 MB, `effect/all.effect` + `all.particle` 4,2 MB, clip đòn đánh 102 MB đi
+    vào `avatar.files.tsv`: APK và bản điện thoại chưa đo lại; nạp đầu của cảnh Đại Lý đo 2026-10-14 trung vị 490 ms
+    ở cả bản cũ lẫn bản mới (ngân sách 450 ms; máy hôm đó chậm hơn lúc đo 387 ms ngày 2026-10-13).

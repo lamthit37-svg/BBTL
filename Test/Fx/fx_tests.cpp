@@ -398,6 +398,66 @@ constexpr std::string_view kOddTable = "gain\tnote\tname\tblend\timage\tshader\r
                                        "1\t\tshort\r\n"
                                        "1\t\tswirl\tone one\tMaterial/swirl.png\tModel_Flow_PS\r\n";
 
+// Hệ của skill và của đồ (Spawn::is_tracked): steady phát mãi, burst phát 0,5 s rồi hết, pulse phát 0,2 s, nghỉ 0,3 s rồi
+// lại. Effect once có LifeTime 0,5, effect forever có LifeTime 0 (sống tới khi bị gỡ).
+constexpr std::string_view kTrackedParticles = R"(steady
+{
+quota 64
+material fire
+emitter Point
+{
+emission_rate 100
+time_to_live 0.2
+velocity 0
+}
+}
+burst
+{
+quota 64
+material fire
+emitter Point
+{
+emission_rate 100
+time_to_live 0.3
+velocity 0
+duration 0.5
+}
+}
+pulse
+{
+quota 64
+material fire
+emitter Point
+{
+emission_rate 100
+time_to_live 0.1
+velocity 0
+duration 0.2
+repeat_delay 0.3
+}
+}
+)";
+
+constexpr std::string_view kTrackedEffects = R"(effect once
+{
+element Particle
+{
+StartTime 0
+ParticleSystem steady
+}
+LifeTime 0.5
+}
+effect forever
+{
+element Particle
+{
+StartTime 0
+ParticleSystem steady
+}
+LifeTime 0
+}
+)";
+
 // Hệ của kGateParticles và một tên thư viện không có.
 constexpr std::array<std::string_view, 9> kGateNames{
     "flame", "fog", "plane", "candle", "scrolled", "bare", "card", "falls", "ghost"};
@@ -412,6 +472,14 @@ constexpr std::array<std::string_view, 9> kGateNames{
     fx::LibraryText text;
     text.particles = std::string(kGateParticles);
     text.effects = std::string(kGateEffects);
+    text.materials = std::string(kGateTable);
+    return fx::Library(std::move(text));
+}
+
+[[nodiscard]] fx::Library tracked_library() {
+    fx::LibraryText text;
+    text.particles = std::string(kTrackedParticles);
+    text.effects = std::string(kTrackedEffects);
     text.materials = std::string(kGateTable);
     return fx::Library(std::move(text));
 }
@@ -778,6 +846,123 @@ void cast_clear_resets(Context& context) {
     context.expect(cast.live().size() == 1 && cast.tally().systems == 1, "cảnh mới dựng lại từ đầu");
 }
 
+// Chạy field steps bước, mỗi bước 0,05 giây.
+void run_field(fx::Field& field, int steps) {
+    for (int step = 0; step < steps; ++step) field.update(0.05F, fx::Node{});
+}
+
+// Hệ của skill hay của đồ (set_timed) theo duration của emitter như ParticleEmitter của Ogre; hệ của cảnh phát mãi.
+void field_runs_its_duration(Context& context) {
+    fx::Library library = particles_only(kTrackedParticles);
+    const fx::SystemDef* system = library.system("burst");
+    context.expect(system != nullptr, "có hệ burst");
+    if (system == nullptr) return;
+    fx::Field timed(*system, 1);
+    timed.set_timed(true);
+    fx::Field scene(*system, 2);
+    run_field(timed, 4);
+    run_field(scene, 4);
+    context.expect(!timed.order().empty() && !timed.is_spent(), "đang trong duration thì còn phát");
+    run_field(timed, 10);
+    run_field(scene, 10);
+    context.expect(timed.order().size() < scene.order().size(), "quá duration thì hệ của đồ thôi phát, hệ của cảnh vẫn phát");
+    run_field(timed, 12);
+    run_field(scene, 12);
+    context.expect(timed.order().empty() && timed.is_spent(), "hết duration, hết hạt, không repeat_delay: gỡ được");
+    context.expect(!scene.order().empty() && !scene.is_spent(), "hệ của cảnh không bao giờ hết");
+}
+
+// stop: không phát thêm, hạt đang bay bay nốt rồi hệ gỡ được.
+void field_stop_drains(Context& context) {
+    fx::Library library = particles_only(kTrackedParticles);
+    const fx::SystemDef* system = library.system("steady");
+    context.expect(system != nullptr, "có hệ steady");
+    if (system == nullptr) return;
+    fx::Field field(*system, 1);
+    field.set_timed(true);
+    run_field(field, 10);
+    context.expect(!field.order().empty() && !field.is_spent(), "đang phát");
+    field.stop();
+    context.expect(!field.is_spent(), "vừa stop: hạt còn bay");
+    run_field(field, 10);
+    context.expect(field.order().empty() && field.is_spent(), "hạt bay hết thì gỡ được");
+}
+
+// repeat_delay: hết duration, nghỉ, rồi phát lại; hệ còn lượt phát lại thì chưa gỡ được.
+void field_repeats_after_delay(Context& context) {
+    fx::Library library = particles_only(kTrackedParticles);
+    const fx::SystemDef* system = library.system("pulse");
+    context.expect(system != nullptr, "có hệ pulse");
+    if (system == nullptr) return;
+    fx::Field field(*system, 1);
+    field.set_timed(true);
+    run_field(field, 2);
+    context.expect(!field.order().empty(), "lượt phát đầu");
+    run_field(field, 6);
+    context.expect(field.order().empty() && !field.is_spent(), "nghỉ: không hạt, chưa gỡ vì còn phát lại");
+    run_field(field, 4);
+    context.expect(!field.order().empty(), "hết repeat_delay thì phát lại");
+}
+
+// Hiệu ứng theo dõi: hết LifeTime thì dừng, hệ hết hạt thì bị gỡ; effect LifeTime 0 và effect của cảnh sống tiếp.
+void cast_tracked_effect_ends(Context& context) {
+    fx::Library library = tracked_library();
+    fx::Cast cast(&library);
+    fx::Spawn once = spawn_of("once", true);
+    once.is_tracked = true;
+    fx::Spawn forever = spawn_of("forever", true);
+    forever.is_tracked = true;
+    const std::uint32_t ending = cast.add(once);
+    const std::uint32_t lasting = cast.add(forever);
+    const std::uint32_t scene_ring = cast.add(spawn_of("forever", true));
+    context.expect(ending != 0 && lasting != 0 && ending != lasting, "hiệu ứng theo dõi có handle riêng");
+    context.expect(scene_ring == 0, "hiệu ứng của cảnh không có handle");
+    for (int step = 0; step < 5; ++step) cast.update(0.1F);
+    context.expect(cast.is_live(ending) && cast.is_live(lasting), "trong LifeTime cả hai còn chạy");
+    for (int step = 0; step < 10; ++step) cast.update(0.1F);
+    context.expect(!cast.is_live(ending), "quá LifeTime 0,5 và hạt đã tàn: gỡ hẳn");
+    context.expect(cast.is_live(lasting), "LifeTime 0 sống tới khi bị gỡ");
+    context.expect(cast.live().size() == 2, "còn hệ của effect forever và hệ của cảnh");
+    cast.release(lasting);
+    for (int step = 0; step < 5; ++step) cast.update(0.1F);
+    context.expect(!cast.is_live(lasting), "release rồi hạt tàn thì gỡ hẳn");
+    context.expect(cast.live().size() == 1, "chỉ còn hệ của cảnh");
+}
+
+// move dời hệ theo dõi; handle đã gỡ hay 0 thì bỏ qua.
+void cast_moves_tracked(Context& context) {
+    fx::Library library = tracked_library();
+    fx::Cast cast(&library);
+    fx::Spawn spawn = spawn_of("steady", false);
+    spawn.is_tracked = true;
+    const std::uint32_t handle = cast.add(spawn);
+    context.expect(handle != 0, "hệ theo dõi có handle");
+    cast.update(0.1F);
+    fx::Node there;
+    there.position = ogre::Vec3{.x = 5.0F, .y = 6.0F, .z = 7.0F};
+    cast.move(handle, there);
+    cast.move(0, there);
+    cast.move(handle + 100, there);
+    const std::vector<const fx::Field*> live = cast.live();
+    context.expect(live.size() == 1, "một hệ");
+    if (live.size() != 1) return;
+    const ogre::Vec3 where = live.front()->node().position;
+    context.expect(where.x == 5.0F && where.y == 6.0F && where.z == 7.0F, "hệ đã dời tới nút mới");
+}
+
+// Màu của hệ nhân vào màu đỉnh lúc vẽ; mặc định trắng thì không đổi gì.
+void field_tint_defaults_white(Context& context) {
+    fx::Library library = particles_only(kTrackedParticles);
+    const fx::SystemDef* system = library.system("steady");
+    context.expect(system != nullptr, "có hệ steady");
+    if (system == nullptr) return;
+    fx::Field field(*system, 1);
+    const fx::Colour white = field.tint();
+    context.expect(white[0] == 1.0F && white[1] == 1.0F && white[2] == 1.0F && white[3] == 1.0F, "mặc định là trắng");
+    field.set_tint(fx::Colour{0.5F, 0.25F, 1.0F, 0.5F});
+    context.expect(field.tint()[1] == 0.25F && field.tint()[3] == 0.5F, "set_tint nhớ màu");
+}
+
 constexpr std::array kCases{
     Case{.name = "mesh_yaw", .body = &mesh_yaw},
     Case{.name = "ribbon_grows", .body = &ribbon_grows},
@@ -797,6 +982,12 @@ constexpr std::array kCases{
     Case{.name = "palette_survives_odd_table", .body = &palette_survives_odd_table},
     Case{.name = "cast_skips_by_reason", .body = &cast_skips_by_reason},
     Case{.name = "cast_clear_resets", .body = &cast_clear_resets},
+    Case{.name = "field_runs_its_duration", .body = &field_runs_its_duration},
+    Case{.name = "field_stop_drains", .body = &field_stop_drains},
+    Case{.name = "field_repeats_after_delay", .body = &field_repeats_after_delay},
+    Case{.name = "cast_tracked_effect_ends", .body = &cast_tracked_effect_ends},
+    Case{.name = "cast_moves_tracked", .body = &cast_moves_tracked},
+    Case{.name = "field_tint_defaults_white", .body = &field_tint_defaults_white},
 };
 
 } // namespace
