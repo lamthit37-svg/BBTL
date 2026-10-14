@@ -1,0 +1,16 @@
+# schema 1
+# source: Public/Data/Script
+# tool: TOOLS/server/lua_extract.py; sửa tay sẽ mất ở lượt xuất sau
+# types: int	int	int	int	int	int	int	int	text
+level	quest	script	pre_quest	event	full_level	complete_idx	record_idx	message
+26	400	1018700	0	4	-1	-1	-1	
+28	403	500606	0	0	28	0	1	#{YD_20080421_188}
+30	409	500602	0	0	30	0	1	#{YD_20080421_181}
+32	412	500603	0	0	32	0	1	#{YD_20080421_183}
+35	415	500605	0	0	35	0	1	#{YD_20080421_186}
+38	418	500608	0	0	38	0	1	#{YD_20080421_191}
+40	428	500612	0	0	40	0	1	#{YD_20080421_196}
+42	433	500613	0	0	42	0	1	#{YD_20080421_198}
+45	437	500614	0	0	45	0	1	#{YD_20080421_200}
+48	476	500615	0	0	48	0	1	#{YD_20080421_202}
+50	480	500616	0	0	50	0	1	#{YD_20080421_204}

@@ -1,0 +1,15 @@
+# schema 1
+# source: Public/Data/Script
+# tool: TOOLS/server/lua_extract.py; sửa tay sẽ mất ở lượt xuất sau
+# types: int	int	text	int
+script	seq	event	effects
+200006	0	kill	7
+200021	0	kill	17
+200024	0	kill	20
+210202	0	item_changed	76
+210213	0	kill	94
+210217	0	kill	101
+210231	0	kill	123
+212102	0	kill	131
+212109	0	kill	143
+212113	0	kill	148
