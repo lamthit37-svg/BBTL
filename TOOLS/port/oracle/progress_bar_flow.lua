@@ -1,0 +1,28 @@
+-- Thanh tiến trình (ProgressBar): hiện kèm chữ, đổi mức, ngắt, rời cảnh, giấu khi chuyển cảnh xong.
+-- Script chỉ gọi hàm của cửa sổ nên không cần tệp --lib. PROGRESSBAR_WIDTH nhận chuỗi (tonumber của
+-- LuaPlus của client 2026 nhận khoảng trắng hai đầu, số mũ e hoặc d, không nhận số thập lục phân).
+--@steps
+__dump_events("sự kiện đăng ký")
+__event("PROGRESSBAR_SHOW", "Đang luyện công")
+__dump("hiện")
+__event("PROGRESSBAR_WIDTH", "0.25")
+__dump("mức 0,25")
+__event("PROGRESSBAR_WIDTH", " 1e-1 ")
+__dump("mức số mũ")
+__event("PROGRESSBAR_WIDTH", "5d-1")
+__dump("mức số mũ d")
+__event("PROGRESSBAR_WIDTH", "7")
+__dump("mức vượt đầy")
+__event("PROGRESSBAR_HIDE")
+__dump("giấu bằng PROGRESSBAR_HIDE")
+__event("PROGRESSBAR_SHOW", "Lần hai")
+__dump("hiện lại")
+__event("PROGRESSBAR_BREAK")
+__dump("ngắt")
+__event("PROGRESSBAR_SHOW", "Lần ba")
+__event("PLAYER_LEAVE_WORLD")
+__dump("rời cảnh")
+__event("HIDE_ON_SCENE_TRANSED")
+__dump("chuyển cảnh xong")
+Progress_close()
+__dump("Progress_close")
