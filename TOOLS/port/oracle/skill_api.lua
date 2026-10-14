@@ -22,7 +22,7 @@ __scene = -1
 
 -- Hệ action -----------------------------------------------------------------------------------
 
--- Số loại theo bảng tên của Game.exe (0x140ed78d0); tên không có trong bảng là 0.
+-- Số loại theo bảng tên của Game.exe (0x140ed88d0); tên không có trong bảng là 0.
 local type_numbers = { skill = 1, life = 2, packageitem = 3, bankitem = 4, boothitem = 5, lootitem = 6,
     xinfa = 7, xiulianbook = 8, xiulianmiji = 9, petskill = 10, virtualitem = 11, equip = 12 }
 
@@ -363,7 +363,7 @@ local function one_of(id, low, high)
     return 0
 end
 
--- IsLMSJSecond (0x14023f8f0), IsJYJYSecond (0x14023f980), IsWJQFSecond (0x14023fa10).
+-- IsLMSJSecond (0x14023fdf0), IsJYJYSecond (0x14023fe80), IsWJQFSecond (0x14023ff10).
 function IsLMSJSecond(id) return one_of(id, 821, 826) end
 function IsJYJYSecond(id) return one_of(id, 827, 834) end
 function IsWJQFSecond(id) return one_of(id, 4465, 4466) end

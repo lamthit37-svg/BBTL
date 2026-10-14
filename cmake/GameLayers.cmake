@@ -111,11 +111,13 @@ set(include_re "^[ \t]*#[ \t]*include[ \t]*\"[a-z0-9_]+/")
 # con "cha/con". detail/ không là module (header nội bộ của cha) nên cha quét trọn cây của mình.
 # src/client xếp module vào sáu nhóm (app, figure, place, face, book, pack). Nhóm không phải module.
 set(game_client_groups app figure place face book pack)
+# Thư mục chỉ chứa dữ liệu, không có mã: script Lua gốc của client 2026 (src/client/script, 3 173 tệp .lua).
+set(game_data_only_dirs script)
 set(modules "")
 foreach(tree IN LISTS game_source_roots)
     file(GLOB game_roots LIST_DIRECTORIES true RELATIVE "${tree}" "${tree}/*")
     foreach(root IN LISTS game_roots)
-        if(NOT IS_DIRECTORY "${tree}/${root}")
+        if(NOT IS_DIRECTORY "${tree}/${root}" OR root IN_LIST game_data_only_dirs)
             continue()
         endif()
         if(root IN_LIST game_client_groups)

@@ -40,6 +40,9 @@ CMakeLists.txt text
 *.ico binary
 *.pdf binary
 
+# Script Lua gốc của client 2026 (src/client/script): UTF-8, giữ CRLF của gốc; Git không đổi xuống dòng.
+/src/client/script/** -text
+
 # Git LFS
 *.blend filter=lfs diff=lfs merge=lfs -text
 *.fbx filter=lfs diff=lfs merge=lfs -text

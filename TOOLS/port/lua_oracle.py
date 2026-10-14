@@ -7,12 +7,11 @@
 # (docs/NHIEM-VU-VO-CONG-2026.md). Cần Python 64 bit trên Windows và thư mục Bin64 của client.
 # Chạy ở gốc dự án:
 #   python -B TOOLS/port/lua_oracle.py <Bin64> <script.lua> <layout.xml> <kịch bản.lua> <tệp ra.tsv>
-#       [--head CHỮ] [--name TÊN] [--words bảng.tsv] [--lib hàm.lua]... [--table tên=bảng.tsv]...
+#       [--name TÊN] [--words bảng.tsv] [--lib hàm.lua]... [--table tên=bảng.tsv]...
 # - --name: tên cửa sổ mà client gốc đăng ký cho script, tức tiền tố của ba hàm <tên>_PreLoad,
 #   <tên>_OnLoad, <tên>_OnEvent, khi nó khác tên tệp (CreateRole.lua dùng LoginCreateRole).
-# - script.lua là bản đã giải bằng TOOLS/content/lua_plain.py; 24 byte đầu của nó chưa giải được
-#   và nằm trong một chú thích: --head là chữ đứng ở đó (đoán từ phần còn lại của dòng đầu, ví dụ
-#   "local COMMON_BUTTONS = {"), không nêu thì dòng đầu giữ nguyên.
+# - script.lua là bản đã giải bằng TOOLS/content/lua_plain.py (giải đủ cả 24 byte đầu từ 2026-10-15;
+#   trước đó phải đưa phần đầu đoán được qua cờ --head, nay đã gỡ).
 # - layout.xml là bản UTF-8 đã gom (CLIENT/data/Interface/<Tên>/<Tên>.layout.xml): mỗi <Window>
 #   thành một biến toàn cục mang các thuộc tính của nó. Thư mục Schema cạnh thư mục của layout (hay
 #   --schema) cho biết kiểu cửa sổ nào là nút đánh dấu và CheckMode mặc định của nó, để trọng tài
@@ -42,7 +41,6 @@ import re
 import sys
 import xml.etree.ElementTree as ElementTree
 
-VEILED_NOTE = "--[[ 24 byte đầu của script chưa giải được ]]"
 STEPS_MARK = "--@steps"
 # lua.h của Lua 5.0: chỉ số giả của bảng toàn cục.
 LUA_GLOBALSINDEX = -10001
@@ -216,13 +214,8 @@ def localized(script: str, words: dict[str, str]) -> str:
     return LITERAL.sub(swap, script) if words else script
 
 
-def script_code(path: pathlib.Path, head: str | None, words: dict[str, str]) -> str:
-    text = path.read_text(encoding="utf-8")
-    if head is not None:
-        if not text.startswith(VEILED_NOTE):
-            raise OracleError(f"{path}: --head chỉ dùng cho script có 24 byte đầu chưa giải")
-        text = head + text[len(VEILED_NOTE):]
-    return localized(text, words)
+def script_code(path: pathlib.Path, words: dict[str, str]) -> str:
+    return localized(path.read_text(encoding="utf-8"), words)
 
 
 def run(args: argparse.Namespace) -> list[str]:
@@ -240,7 +233,7 @@ def run(args: argparse.Namespace) -> list[str]:
     for library in args.lib:
         machine.run(library.read_text(encoding="utf-8"), library.name)
     machine.run(before, args.scenario.name + " (hàm)")
-    machine.run(script_code(args.script, args.head, read_words(args.words)), args.script.name)
+    machine.run(script_code(args.script, read_words(args.words)), args.script.name)
     machine.run(f"{name}_PreLoad()\n{name}_OnLoad()", name + " (nạp)")
     event = (
         "function __event(name, a0, a1, a2, a3)\n"
@@ -260,7 +253,6 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("layout", type=pathlib.Path, help="layout UTF-8 đã gom")
     parser.add_argument("scenario", type=pathlib.Path, help="kịch bản Lua")
     parser.add_argument("out", type=pathlib.Path, help="tệp số vàng ghi ra")
-    parser.add_argument("--head", help="chữ của 24 byte đầu chưa giải")
     parser.add_argument("--name", help="tiền tố của _PreLoad, _OnLoad, _OnEvent (mặc định tên tệp script)")
     parser.add_argument("--words", type=pathlib.Path, help="bảng nguyên văn sang bản dịch")
     parser.add_argument("--lib", type=pathlib.Path, action="append", default=[], help="tệp Lua nạp trước kịch bản")

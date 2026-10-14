@@ -1,0 +1,223 @@
+-- fypvpzhankuang
+
+
+-- 保存UI默认位置
+local FengYun_JianJiZhanKuang_Frame_UnifiedPosition = nil
+
+local g_RoomStr = {
+	[0] = "#{FYPVP_260106_292}",
+	[1] = "#{FYPVP_260106_175}",
+	[2] = "#{FYPVP_260106_176}",
+	[3] = "#{FYPVP_260106_290}",
+	[4] = "#{FYPVP_260106_291}",
+
+	
+}
+
+local g_RoomTeamNum = {
+	[0] = "#{FYPVP_260106_249}",
+	[1] = 2,
+	[2] = 3,
+	[3] = "#{FYPVP_260106_249}",
+	[4] = "#{FYPVP_260106_249}",
+
+	
+}
+
+local g_RoomText = {
+	[0] = "#{FYPVP_260106_250}",
+	[1] = "#{FYPVP_260106_253}",
+	[2] = "#{FYPVP_260106_256}",
+	[3] = "#{FYPVP_260106_259}",
+	[4] = "#{FYPVP_260106_262}",
+}
+
+local g_LeaveText = {
+	[0] = "#{FYPVP_260106_250}",
+	[1] = "#{FYPVP_260106_253}",
+	[2] = "#{FYPVP_260106_256}",
+	[3] = "#{FYPVP_260106_259}",
+	[4] = "#{FYPVP_260106_262}",
+}
+
+local g_AwardLevel = {
+	
+	[1] = {point = 40000, text = "#{FYPVP_260106_270}"},
+	[2] = {point = 20000, text = "#{FYPVP_260106_269}"},
+	[3] = {point = 10000, text = "#{FYPVP_260106_268}"},
+	[4] = {point = 2000, text = "#{FYPVP_260106_267}"},
+	[5] = {point = 0, text = "#{FYPVP_260106_293}"},
+
+	
+}
+
+
+
+function FengYun_JianJiZhanKuang_PreLoad()
+  
+	this:RegisterEvent("HIDE_ON_SCENE_TRANSED", true)
+	this:RegisterEvent("VIEW_RESOLUTION_CHANGED",false)     -- 窗口分辨率发生变化
+    this:RegisterEvent("ADJEST_UI_POS",false)               -- 窗口尺寸发生变化
+	this:RegisterEvent("UI_COMMAND")
+	this:RegisterEvent("FYJCPVP_BIG")     -- 窗口分辨率发生变化
+
+end -- end func FengYun_JianJiZhanKuang_Frame_PreLoad()
+
+function FengYun_JianJiZhanKuang_OnLoad()
+    FengYun_JianJiZhanKuang_Frame_UnifiedPosition = FengYun_JianJiZhanKuang_Frame:GetProperty("UnifiedPosition")
+	
+	
+	
+end -- end func FengYun_JianJiZhanKuang_Frame_OnLoad()
+
+function FengYun_JianJiZhanKuang_OnEvent(event)
+	if (event == "HIDE_ON_SCENE_TRANSED") then
+        FengYun_JianJiZhanKuang_Frame_Hide()
+    elseif (event == "VIEW_RESOLUTION_CHANGED") then
+        FengYun_JianJiZhanKuang_Frame_UnifiedPos()
+    elseif (event == "ADJEST_UI_POS") then
+        FengYun_JianJiZhanKuang_Frame_UnifiedPos()
+	elseif event == "UI_COMMAND" and (tonumber(arg0) == 331200004) then	--服务端传数据
+	
+		local teampoint = Get_XParam_INT(0)	
+		local nLeaveTime  = Get_XParam_INT(1) 
+		local nALLeaveTime  = Get_XParam_INT(2) 
+		local nRoomType  = Get_XParam_INT(3) 
+		local nRoomTeamNum = Get_XParam_INT(4) 
+		local nRoomMonasterNun = Get_XParam_INT(5) 
+		local bIsOut = Get_XParam_INT(6) 
+		local nSmallBossNum = Get_XParam_INT(7) 
+		local nTeamRank = Get_XParam_INT(9) 
+		
+		FengYun_JianJiZhanKuang_Frame_Updata(teampoint, nLeaveTime, nALLeaveTime, nRoomType, nRoomTeamNum, nRoomMonasterNun, bIsOut, nSmallBossNum, nTeamRank)
+	 elseif (event == "FYJCPVP_BIG") then
+		this:Show()
+		
+	end
+end -- end func FengYun_JianJiZhanKuang_Frame_OnEvent()
+
+function FengYun_JianJiZhanKuang_Frame_Updata(teampoint, nLeaveTime, nALLeaveTime, nRoomType, nRoomTeamNum, nRoomMonasterNun, bIsOut, nSmallBossNum, nTeamRank)
+	--FengYun_JianJiZhanKuang_TeamNumText:SetText("#{FYPVP_260106_249}")
+	if nLeaveTime <= 0 or nSmallBossNum == 0 then
+		FengYun_JianJiZhanKuang_NowText:SetText("#{FYPVP_260106_243}")
+		FengYun_JianJiZhanKuang_NowText:SetToolTip("#{FYPVP_260106_244}")
+		--FengYun_JianJiZhanKuang_Info:SetText("#{FYPVP_260106_246}")	
+		
+	else
+
+		FengYun_JianJiZhanKuang_NowText:SetText("#{FYPVP_260106_241}")
+		FengYun_JianJiZhanKuang_NowText:SetToolTip("#{FYPVP_260106_242}")
+		--FengYun_JianJiZhanKuang_Info:SetText("#{FYPVP_260106_245}")		
+		
+		if nRoomType == 1 or nRoomType == 2 then
+			--FengYun_JianJiZhanKuang_TeamNumText:SetText(ScriptGlobal_Format("#{FYPVP_260106_248}",g_RoomTeamNum[nRoomType]))
+		end
+		
+	end
+	FengYun_JianJiZhanKuang_Countdown_Time:SetProperty("Timer", nALLeaveTime)
+	if g_RoomStr[nRoomType] ~= nil then
+		FengYun_JianJiZhanKuang_TeamNow:SetText(ScriptGlobal_Format("#{FYPVP_260106_247}",g_RoomStr[nRoomType]))	
+		if nRoomType ~= 0 then
+			--FengYun_JianJiZhanKuang_Num1:SetText(g_RoomText[nRoomType])	
+			--FengYun_JianJiZhanKuang_Num2:SetText(ScriptGlobal_Format("#{FYPVP_260106_263}",nRoomMonasterNun))
+			--FengYun_JianJiZhanKuang_Num3:SetText(ScriptGlobal_Format("#{FYPVP_260106_264}",nRoomTeamNum))
+			--FengYun_JianJiZhanKuang_Num1:Show()
+			--FengYun_JianJiZhanKuang_Num2:Show()
+			--FengYun_JianJiZhanKuang_Num3:Show()
+			FengYun_JianJiZhanKuang_Info:SetText("#{FYPVP_260106_297}")	
+		else
+			--FengYun_JianJiZhanKuang_Num1:Show()
+			--FengYun_JianJiZhanKuang_Num2:Hide()
+			--FengYun_JianJiZhanKuang_Num3:Hide()
+			if nLeaveTime <= 0 or nSmallBossNum == 0 then
+				if bIsOut == 0 then
+					--FengYun_JianJiZhanKuang_Num1:SetText("#{FYPVP_260106_251}")	
+					FengYun_JianJiZhanKuang_Info:SetText("#{FYPVP_260106_251}")	
+				else
+					--FengYun_JianJiZhanKuang_Num1:SetText("#{FYPVP_260106_252}")
+					FengYun_JianJiZhanKuang_Info:SetText("#{FYPVP_260106_252}")						
+				end
+			else
+				
+				--FengYun_JianJiZhanKuang_Num1:SetText("#{FYPVP_260106_250}")	
+				FengYun_JianJiZhanKuang_Info:SetText("#{FYPVP_260106_298}")	
+			end
+			
+		end
+	end
+	
+	FengYun_JianJiZhanKuang_TeamTopNum:SetText(ScriptGlobal_Format("#{FYPVP_260106_328}",nTeamRank))	
+	
+	for i = 1, table.getn(g_AwardLevel) do
+		if teampoint >= g_AwardLevel[i].point then
+			FengYun_JianJiZhanKuang_TeamNum:SetText(ScriptGlobal_Format("#{FYPVP_260106_265}",teampoint, g_AwardLevel[i].text))
+			break
+		end
+	end
+	
+	
+	--打开界面
+	if(IsWindowShow("FengYun_JianJiZhanKuang_Mini")) then
+		
+	else
+		this:Show()
+	end 
+	
+end -- end func FengYun_JianJiZhanKuang_Frame_Updata()
+
+
+-- 界面默认位置
+function FengYun_JianJiZhanKuang_Frame_UnifiedPos()
+    if (this:IsVisible()) then
+        if (FengYun_JianJiZhanKuang_Frame_UnifiedPosition ~= nil) then
+            FengYun_JianJiZhanKuang_Frame:SetProperty("UnifiedPosition", FengYun_JianJiZhanKuang_Frame_UnifiedPosition)
+        end
+    end
+end -- end func FengYun_JianJiZhanKuang_Frame_UnifiedPos()
+
+function FengYun_JianJiZhanKuang_Frame_Hide()
+    this:Hide()
+end -- end func FengYun_JianJiZhanKuang_Frame_Hide()
+
+-- 关闭按钮点击事件
+function FengYun_JianJiZhanKuang_Frame_Close_Clicked()
+	FengYun_JianJiZhanKuang_Frame_Hide()
+end  -- end func FengYun_JianJiZhanKuang_Frame_Close_Clicked()
+
+function FengYun_JianJiZhanKuang_Help_Clicked()
+    PushEvent("CCSHOP_HELP", 32)
+end -- end func FengYun_JianJiZhanKuang_Frame_Help()
+
+function FengYun_JianJiZhanKuang_Frame_Leave()
+  	
+end -- end func FengYun_JianJiZhanKuang_Frame_OpenMap()
+
+function FengYun_JianJiZhanKuang_ScenceBtn()
+	if (IsWindowShow("FengYun_JianJiSceneFb")) then
+		CloseWindow("FengYun_JianJiSceneFb", true)
+	else
+		 Clear_XSCRIPT()
+			Set_XSCRIPT_Function_Name("OpenMap")
+			Set_XSCRIPT_ScriptID(331200)
+			Set_XSCRIPT_ParamCount(0)
+		Send_XSCRIPT()
+	end
+end -- end func FengYun_JianJiZhanKuang_Frame_OpenAward()
+
+function FengYun_JianJiZhanKuang_Small_Clicked()
+	FengYun_JianJiZhanKuang_Frame_Hide()
+	PushEvent("FYJCPVP_SMALL")
+end 
+
+function FengYun_JianJiZhanKuang_RankList()
+	if (IsWindowShow("FengYun_JianJiTeamInfo2")) then
+		CloseWindow("FengYun_JianJiTeamInfo2", true)
+	else
+		 Clear_XSCRIPT()
+			Set_XSCRIPT_Function_Name("OpenRankList")
+			Set_XSCRIPT_ScriptID(331200)
+			Set_XSCRIPT_ParamCount(0)
+		Send_XSCRIPT()
+	end
+	
+end -- end func FengYun_JianJiZhanKuang_Frame_OpenAward()

@@ -1,0 +1,38 @@
+Script Lua gốc của client Thiên Long Bát Bộ 2026 (XTLBB-JD), tách khỏi gói của client, văn bản UTF-8.
+
+Nguồn: D:\XTLBB\Data\Config.axp (1 130 script) và D:\XTLBB\Data\Interface.axp (2 043 script).
+Bản client: 3.71.9509 (tệp (version) ghi "3.71.9509", (partner) ghi "GF_JDWZ_20260812_3.71.9509"), Game.exe 64-bit dựng 2026-08-11.
+Đây KHÔNG phải bản Game.exe đã trích ở TAILIEU/GAME-EXE-2026 (dựng 2026-09-29, SHA-256 3f8bb47d...): script có thể lệch
+giữa hai bản (so với F:\tl 2026\_goc: 79 tệp văn bản và 20 tệp mã hoá khác nội dung, _goc có 5 tệp mà bản này không có).
+
+Đây là MÃ NGUỒN Lua gốc (client nạp thẳng văn bản này), không phải bản dịch ngược: còn nguyên chú thích của người viết
+(ví dụ "--变量的第0位"), thụt lề bằng tab, CRLF. Cỡ từng tệp khớp danh mục trong gói.
+
+Tổng: 3 173 tệp, 27 533 933 byte. Bố cục theo đường dẫn trong gói: Config/<tên>, Interface/<cửa sổ>/<tên>.lua.
+
+Bảng mã: gói lưu GBK, nhưng 38 tệp có dòng chú thích viết bằng UTF-8 lẫn vào, nên thư mục này đã đổi sang UTF-8 TỪNG DÒNG
+(TOOLS/content/script_charset.py; luật và số đo ở đầu tệp đó). Xuống dòng CRLF giữ nguyên (.gitattributes đặt -text cho cả
+thư mục để Git không đổi). Mã hoá ngược GB18030 của mọi dòng GBK được kiểm ra đúng byte gốc. Hỏng sẵn trong gói: 18 dòng chú
+thích của Interface/DressPaint_sp/DressPaint_sp.lua bị cắt cụt ký tự cuối (U+FFFD thay byte hỏng) và một dòng của
+Interface/Zhen_chonglou/Zhen_chonglou.lua chứa sẵn U+FFFD; chỉ là chú thích. Cột source_sha256 của MANIFEST.tsv là sha256 của
+byte GBK gốc (đối chiếu lại với gói bằng lệnh dưới; muốn byte gốc thì chạy lệnh không có --utf8).
+Lưu ý khi chạy bằng máy Lua của client: chuỗi trong script nay là UTF-8; bảng dữ liệu của dự án (Table/*.tsv) cũng UTF-8, nhưng
+bảng .txt/.dbc gốc của client là GBK.
+
+Cách tách (3 tầng, đã kiểm trên cả 3 173 tệp):
+  1. gói .axp: TOOLS/content/axp_pack.py;
+  2. vỏ CryptBox (702 tệp Interface bọc): TOOLS/content/cryptbox.py;
+  3. mã hoá script (226 tệp): TOOLS/content/script_crypt.py, dấu hiệu D2D1E2E1B2B1C2C1; 24 byte đầu là một khối
+     Rijndael 192 bit khoá "ASDRTFYUIOGHJKLm" + 8 byte 0, phần còn lại XOR "AS" (Game.exe FUN_1406deb20).
+Chạy lại ở gốc dự án (ghi đè đúng các tệp này):
+  python -B TOOLS/content/unpack_scripts.py D:/XTLBB/Data src/client/script --utf8 --luaplus D:/XTLBB/Bin64
+Kiểm: mọi tệp mã hoá qua CRC-32 ở đầu tệp; mọi tệp (sau khi đổi UTF-8) được biên dịch, không chạy, bằng LuaPlus.dll 64-bit
+của client (Lua 5.0.1): 3 173 trên 3 173 qua; hai số vàng của trọng tài (QuestLog, CreateRole) chạy trên chính cây này vẫn giống
+từng byte. MANIFEST.tsv ghi cỡ, sha256, cách lưu trong gói, số dòng hỏng và kết quả kiểm của từng tệp.
+
+Bản căn cột để đọc (dấu `=` và chú thích thẳng cột, chỉ đổi khoảng trắng, mã trung gian LuaPlus khớp từng byte):
+  python -B TOOLS/content/script_align.py src/client/script <thư mục đích> --luaplus D:/XTLBB/Bin64
+Thư mục này giữ bản gốc, không căn tại chỗ.
+
+Chưa dùng trong mã: client chưa nhúng máy Lua (docs/NGHI-NGO.md, TAILIEU/MAY-CHU-SUY-RA.md). Đây là nguồn để port và để
+chạy khi có máy Lua; build/lua-2026 (lua_plain.py, UTF-8, bản _goc) không còn cần khi có thư mục này.
