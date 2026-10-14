@@ -35,6 +35,7 @@
 #include <functional>
 #include <iterator>
 #include <map>
+#include <unordered_map>
 #include <memory>
 #include <optional>
 #include <print>
@@ -258,6 +259,11 @@ struct FxView::Body {
     std::vector<KeptTexture> textures;
     // Ảnh đã tải theo đường dẫn và việc có bỏ alpha hay không; rỗng là ảnh không nạp được.
     std::map<std::string, std::optional<std::uint32_t>, std::less<>> by_image;
+    // Lối tắt của texture_of theo chính material trong bảng của library (địa chỉ ổn định tới lần load kế):
+    // mỗi lô mỗi khung chỉ còn một lần tra băm con trỏ, không dựng chuỗi khoá. load() xoá cùng library.
+    std::unordered_map<const fx::Paint*, std::optional<std::uint32_t>> by_paint;
+    // Đỉnh và lệnh vẽ của khung, giữ qua các khung để không cấp phát lại.
+    Frame scratch;
     std::unique_ptr<fx::Library> library;
     std::unique_ptr<fx::Cast> cast;
     std::filesystem::path data_root;
@@ -278,6 +284,8 @@ struct FxView::Body {
     [[nodiscard]] core::Result<std::uint32_t> load_texture(const fx::Paint& paint);
     [[nodiscard]] std::optional<std::uint32_t> texture_of(const fx::Paint& paint);
     void take_batch(Frame& frame, const fx::BillboardBatch& batch);
+    // Nạp trước ảnh của mọi hệ đang sống, để lần vẽ đầu của cảnh không đọc đĩa và giải mã ảnh giữa khung.
+    void warm_textures();
     [[nodiscard]] core::Status grow_indices(std::uint32_t quads);
     [[nodiscard]] core::Status grow_vertices(SlotBuffer& buffer, std::uint32_t quads) const;
     [[nodiscard]] core::Status submit(const Pass& pass, const Frame& frame);
@@ -354,7 +362,9 @@ void FxView::Body::take_batch(Frame& frame, const fx::BillboardBatch& batch) {
     if (paint == nullptr || paint->blend == fx::Blend::kOther) return;
     const bool is_straight = paint->blend == fx::Blend::kAlpha || paint->blend == fx::Blend::kDarken;
     if (is_straight && !blend_pipeline) return;
-    const std::optional<std::uint32_t> texture = texture_of(*paint);
+    const auto cached = by_paint.find(paint);
+    const std::optional<std::uint32_t> texture =
+        cached != by_paint.end() ? cached->second : by_paint.emplace(paint, texture_of(*paint)).first->second;
     const std::size_t quads = batch.vertices.size() / 4U;
     if (!texture || quads == 0) return;
     BatchDraw draw;
@@ -372,6 +382,14 @@ void FxView::Body::take_batch(Frame& frame, const fx::BillboardBatch& batch) {
         frame.vertices.push_back(vertex_of(shifted, tint));
     }
     frame.draws.push_back(draw);
+}
+
+void FxView::Body::warm_textures() {
+    for (const fx::Field* field : cast->live()) {
+        const fx::Paint* paint = library->palette().find(field->definition().material);
+        if (paint == nullptr || paint->blend == fx::Blend::kOther) continue;
+        if (by_paint.find(paint) == by_paint.end()) by_paint.emplace(paint, texture_of(*paint));
+    }
 }
 
 // Huỷ buffer là huỷ hoãn (gpu/device.hpp), nên khung còn ở GPU vẫn đọc được mẫu chỉ số cũ.
@@ -519,6 +537,7 @@ void FxView::load(const std::filesystem::path& data_root) {
     text.effects = std::move(*effects);
     text.materials = std::move(*materials);
     body_->cast.reset();
+    body_->by_paint.clear();
     body_->data_root = data_root;
     body_->library = std::make_unique<fx::Library>(std::move(text));
     body_->cast = std::make_unique<fx::Cast>(body_->library.get());
@@ -536,6 +555,7 @@ void FxView::adopt(const Stage& stage) {
         const fx::Spawn spawn = spawn_of(place);
         body_->cast->add(spawn);
     }
+    body_->warm_textures();
     body_->report_adopted(stage.effects.size());
 }
 
@@ -562,7 +582,15 @@ void FxView::draw(gpu::CommandList& list, std::uint32_t slot, const render::Came
     std::vector<fx::BillboardBatch> batches = fx::billboards_of(fields, axes);
     std::vector<fx::BillboardBatch> strips = body_->cast->strips(axes);
     std::ranges::move(strips, std::back_inserter(batches));
-    Frame frame;
+    Frame& frame = body_->scratch;
+    frame.vertices.clear();
+    frame.draws.clear();
+    std::size_t corners = 0;
+    for (const fx::BillboardBatch& batch : batches) {
+        corners += batch.vertices.size();
+    }
+    frame.vertices.reserve(corners);
+    frame.draws.reserve(batches.size());
     for (const fx::BillboardBatch& batch : batches) {
         body_->take_batch(frame, batch);
     }

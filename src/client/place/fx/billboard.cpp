@@ -1,11 +1,19 @@
 #include "fx/billboard.hpp"
 
 #include "fx/field.hpp"
+#include "fx/strip.hpp"
 #include "fx/system.hpp"
+#include "ogre/quat.hpp"
 #include "ogre/vec3.hpp"
 
 #include <algorithm>
 #include <cmath>
+#include <cstddef>
+#include <cstdint>
+#include <span>
+#include <utility>
+#include <variant>
+#include <vector>
 
 namespace game::fx {
 namespace {
@@ -34,22 +42,28 @@ struct Axes {
     return ogre::quat_rotate(field.node().orientation, direction);
 }
 
-[[nodiscard]] Axes axes_of(const SystemDef& definition, const Field& field, Vec3 velocity, CameraAxes camera) {
-    const Vec3 common = world_direction(field, definition.common_direction);
-    const Vec3 up = world_direction(field, definition.common_up);
-    const bool stretch = definition.billboard == BillboardKind::kOrientedSelf && definition.speed_factor > 0.0F;
-    const Vec3 own = stretch ? ogre::scale_vec3(velocity, definition.speed_factor) : unit_vec(velocity);
-    if (definition.billboard == BillboardKind::kOrientedCommon)
+// Hướng của hệ chỉ tính cho kiểu billboard cần nó (đường nóng: mỗi hạt mỗi khung). direction là hướng của
+// hạt trong không gian của hệ; kiểu theo hướng hạt mới đổi nó sang thế giới.
+[[nodiscard]] Axes axes_of(const SystemDef& definition, const Field& field, Vec3 direction, CameraAxes camera) {
+    const BillboardKind kind = definition.billboard;
+    if (kind == BillboardKind::kOrientedCommon) {
+        const Vec3 common = world_direction(field, definition.common_direction);
         return Axes{.x = unit_vec(ogre::cross_vec3(camera.forward, common)), .y = common};
-    if (definition.billboard == BillboardKind::kOrientedSelf)
-        return Axes{.x = unit_vec(ogre::cross_vec3(camera.forward, own)), .y = own};
-    if (definition.billboard == BillboardKind::kPerpendicularCommon)
-        return Axes{.x = ogre::cross_vec3(up, common), .y = ogre::cross_vec3(common, ogre::cross_vec3(up, common))};
-    if (definition.billboard == BillboardKind::kPerpendicularSelf) {
-        const Vec3 across = unit_vec(ogre::cross_vec3(up, own));
-        return Axes{.x = across, .y = ogre::cross_vec3(own, across)};
     }
-    return Axes{.x = camera.right, .y = camera.up};
+    if (kind == BillboardKind::kPerpendicularCommon) {
+        const Vec3 common = world_direction(field, definition.common_direction);
+        const Vec3 up = world_direction(field, definition.common_up);
+        return Axes{.x = ogre::cross_vec3(up, common), .y = ogre::cross_vec3(common, ogre::cross_vec3(up, common))};
+    }
+    const bool is_self = kind == BillboardKind::kOrientedSelf || kind == BillboardKind::kPerpendicularSelf;
+    if (!is_self) return Axes{.x = camera.right, .y = camera.up};
+    const Vec3 velocity = world_direction(field, direction);
+    const bool stretch = kind == BillboardKind::kOrientedSelf && definition.speed_factor > 0.0F;
+    const Vec3 own = stretch ? ogre::scale_vec3(velocity, definition.speed_factor) : unit_vec(velocity);
+    if (kind == BillboardKind::kOrientedSelf) return Axes{.x = unit_vec(ogre::cross_vec3(camera.forward, own)), .y = own};
+    const Vec3 up = world_direction(field, definition.common_up);
+    const Vec3 across = unit_vec(ogre::cross_vec3(up, own));
+    return Axes{.x = across, .y = ogre::cross_vec3(own, across)};
 }
 
 struct Uv {
@@ -113,9 +127,9 @@ struct TexFrame {
     return std::max(phase, 0.0F);
 }
 
-[[nodiscard]] TexFrame frame_of(const SystemDef& definition, const Grain& grain) {
+// sequence là sequence_of(definition), tìm một lần cho cả hệ thay vì cho từng hạt.
+[[nodiscard]] TexFrame frame_of(const SystemDef& definition, const SequenceFrame* sequence, const Grain& grain) {
     if (definition.renderer != RendererKind::kTexcoord) return {};
-    const SequenceFrame* sequence = sequence_of(definition);
     const int slice_count = std::max(1, sequence != nullptr ? sequence->slices : definition.slices);
     const int stack_count = std::max(1, sequence != nullptr ? sequence->stacks : definition.stacks);
     const int frames = slice_count * stack_count;
@@ -136,18 +150,19 @@ struct TexFrame {
     return frame;
 }
 
-void push_grain(BillboardBatch& batch, const Field& field, const Grain& grain, CameraAxes camera) {
+void push_grain(BillboardBatch& batch, const Field& field, const SequenceFrame* sequence, const Grain& grain,
+    CameraAxes camera) {
     const SystemDef& definition = field.definition();
     const float width = grain.own ? grain.width : definition.width;
     const float height = grain.own ? grain.height : definition.height;
     const Vec3 center = world_point(field, grain.position);
-    const Axes axes = axes_of(definition, field, world_direction(field, grain.direction), camera);
+    const Axes axes = axes_of(definition, field, grain.direction, camera);
     const Vec3 left = ogre::scale_vec3(axes.x, definition.origin.left * width);
     const Vec3 right = ogre::scale_vec3(axes.x, definition.origin.right * width);
     const Vec3 top = ogre::scale_vec3(axes.y, definition.origin.top * height);
     const Vec3 bottom = ogre::scale_vec3(axes.y, definition.origin.bottom * height);
     const Colour colour = grain.colour;
-    const TexFrame frame = frame_of(definition, grain);
+    const TexFrame frame = frame_of(definition, sequence, grain);
     Uv top_left{.u = frame.left, .v = frame.top};
     Uv top_right{.u = frame.right, .v = frame.top};
     Uv low_left{.u = frame.left, .v = frame.bottom};
@@ -220,18 +235,22 @@ void push_ribbon(BillboardBatch& batch, const Field& field, std::uint32_t index,
     push_ribbon_span(batch, field, points, eye);
 }
 
-void push_one(BillboardBatch& batch, const Field& field, std::uint32_t index, CameraAxes camera) {
+void push_one(BillboardBatch& batch, const Field& field, const SequenceFrame* sequence, std::uint32_t index,
+    CameraAxes camera) {
     if (field.definition().renderer == RendererKind::kRibbon) {
         push_ribbon(batch, field, index, camera);
         return;
     }
     if (field.definition().renderer == RendererKind::kMesh) return;
-    push_grain(batch, field, field.grain(index), camera);
+    push_grain(batch, field, sequence, field.grain(index), camera);
 }
 
+// Mỗi hạt bốn đỉnh; chuỗi có thể nhiều hơn, vector tự nới phần còn lại.
 void fill_field(BillboardBatch& batch, const Field& field, CameraAxes camera) {
+    const SequenceFrame* sequence = sequence_of(field.definition());
+    batch.vertices.reserve(field.order().size() * 4U);
     for (const std::uint32_t index : field.order())
-        push_one(batch, field, index, camera);
+        push_one(batch, field, sequence, index, camera);
 }
 
 [[nodiscard]] bool shown_field(const Field* field) {
@@ -308,6 +327,7 @@ void append_deck(BillboardBatch& batch, const Node& node, float size, Colour col
 
 std::vector<BillboardBatch> billboards_of(std::span<const Field* const> fields, CameraAxes camera) {
     std::vector<BillboardBatch> batches;
+    batches.reserve(fields.size());
     for (const Field* field : fields)
         take_batch(batches, field, camera);
     return batches;
