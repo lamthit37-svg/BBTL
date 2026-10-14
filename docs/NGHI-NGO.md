@@ -571,8 +571,12 @@ kết luận ngay dưới mục đó chứ không xoá.
     `Is2606S`, không thì 50; `Lua_CheckOpenTalent` dưới cấp 60 báo `ZMTF_230628_21`, vô phái báo
     `ZMTF_230628_165`. `desk.cpp` chưa dùng hai số đó.
     (e) `YuanbaoShop_XuanShop` đẩy `OPEN_IMDRESS_YUANBAOSHOP` và `YuanbaoShop_Lijin` gọi
-    `YuanbaoShop_Lijin_Show`; hai khung đó chưa gom, bấm chỉ đổi thẻ đang chọn. (f) `InfoList`
-    chưa vẽ từng dòng `AddInfo` (mờ sau 5 giây); lời nhắc ghi vào `Text` và vẽ như SimpleText.
+    `YuanbaoShop_Lijin_Show`; hai khung đó chưa gom, bấm chỉ đổi thẻ đang chọn. (f) `InfoList`:
+    lời nhắc của nút nay đi qua `ui/panel/debug_list_box` (sự kiện NEW_DEBUGMESSAGE; tuổi thọ 5 giây, rồi mờ
+    FadeSpeed/255 mỗi giây, bỏ khi độ trong âm, tối đa 5 mục — đọc từ `FalagardInfoList::updateSelf` 0x18006bd60).
+    Phần vẽ vẫn là một khối chữ như SimpleText (mỗi mục một dòng, đủ độ đục tới lúc bị bỏ), vì `gui` chưa vẽ
+    ListboxTextItem của InfoList; còn thiếu độ trong từng dòng. `--shot` chụp ở khung thứ 30 trở đi nên chưa nhìn
+    được lúc dòng hết hạn; phần đó chỉ có test (`ui_debug_list_box_tests`).
 
 43. **Sổ nhiệm vụ, sách võ và widget cuộn: phần đã port chưa nối vào màn chơi** (2026-10-08,
     `SRC/quest`, `SRC/skill`, `SRC/ui/panel/quest_log.*`, `SRC/ui/panel/widgets.*`,

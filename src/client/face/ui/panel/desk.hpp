@@ -43,7 +43,7 @@ enum class Board : std::uint8_t {
     kTeam,
 };
 
-// Lời PushDebugMessage đang hiện. kNone là không có dòng.
+// Lời PushDebugMessage mà nút vừa bấm gọi, chờ HUD đẩy vào DebugListBox (take_notice). kNone là không có lời.
 enum class Notice : std::uint8_t { kNone, kNoGuild, kNoSect };
 
 // Môn phái của người đang chơi, cho thẻ võ công của sách kỹ năng. Vô phái không mở trang môn phái.
@@ -120,7 +120,10 @@ void toggle_board(Desk& desk, Board board) noexcept;
 void close_board(Desk& desk, Board board) noexcept;
 // Nút của thanh menu, thẻ trang và kệ thương thành. facts là môn phái đang chơi.
 void press_desk(Desk& desk, std::string_view window, PlayFacts facts = {}) noexcept;
-// Kê gốc của các bảng đang mở theo thứ tự mở, rồi chữ của thẻ, kệ và dòng thông báo.
+// Lời PushDebugMessage mà nút vừa bấm gọi (khoá "#{...}" của bảng chuỗi), rỗng khi không có; lấy xong thì xoá, để HUD đẩy
+// đúng một lần sự kiện NEW_DEBUGMESSAGE cho DebugListBox.
+[[nodiscard]] std::string_view take_notice(Desk& desk) noexcept;
+// Kê gốc của các bảng đang mở theo thứ tự mở, rồi chữ của thẻ và kệ.
 void paint_desk(Deck& deck, const Desk& desk);
 
 } // namespace game::ui::panel
