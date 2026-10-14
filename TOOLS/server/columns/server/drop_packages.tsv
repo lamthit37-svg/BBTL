@@ -5,9 +5,9 @@
 index	original	name	type	note
 0	ID(掉落包编号)	id	int	luật: M2
 1	BoxValue(掉落包价值)	box_value	int	luật: M2
-2	广播类型ID（Form DropNotify.txt）	column_2	int	?; mã InitDropBoxTable bắt đầu ở cột 2, 100 cặp; item_100_id nằm ngoài vòng
+2	广播类型ID（Form DropNotify.txt）	column_2	int	?; InitDropBoxTable 2008 đọc cặp từ cột 2 vì tệp 2008 không có hai cột đầu phát thanh và ép khoá; tệp này có hai cột đó nên cặp (vật phẩm, cấp) bắt đầu ở cột 4 (loot::kFirstPairColumn)
 3	是否强制绑定	column_3	int	?
-4	Item1ID	item_1_id	int	luật: M1; mã InitDropBoxTable bắt đầu ở cột 2, 100 cặp; item_100_id nằm ngoài vòng
+4	Item1ID	item_1_id	int	luật: M1; InitDropBoxTable 2008 đọc cặp từ cột 2 vì tệp 2008 không có hai cột đầu phát thanh và ép khoá; tệp này có hai cột đó nên cặp (vật phẩm, cấp) bắt đầu ở cột 4 (loot::kFirstPairColumn)
 5	Level	level_1	int	luật: M1
 6	Item2ID	item_2_id	int	luật: M1
 7	Level	level_2	int	luật: M1
@@ -203,9 +203,9 @@ index	original	name	type	note
 197	Level	level_97	int	luật: M1
 198	Item98ID	item_98_id	int	luật: M1
 199	Level	level_98	int	luật: M1
-200	Item99ID	item_99_id	int	luật: M1; mã InitDropBoxTable bắt đầu ở cột 2, 100 cặp; item_100_id nằm ngoài vòng
+200	Item99ID	item_99_id	int	luật: M1
 201	Level	level_99	int	luật: M1
-202	Item100ID	item_100_id	int	luật: M1; mã InitDropBoxTable bắt đầu ở cột 2, 100 cặp; item_100_id nằm ngoài vòng
+202	Item100ID	item_100_id	int	luật: M1
 203	Level	level_100	int	luật: M1
 204	101	column_204	int	?
 205	Level	level_101	int	luật: M1

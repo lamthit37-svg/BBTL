@@ -340,11 +340,13 @@ class ExportLegacyTest(unittest.TestCase):
         columns = tsv_file.read_table(self.columns / "drop_packages.tsv")
         self.assertEqual(columns.rows[2][1], "NotItem")
         self.assertEqual(columns.rows[2][2], "not_item")
-        for index in (2, 4, 200, 202):
+        for index in (2, 4):
             note = columns.rows[index][4]
             self.assertIn("cột 2", note)
-            self.assertIn("100", note)
-            self.assertIn("item_100_id", note)
+            self.assertIn("cột 4", note)
+            self.assertIn("kFirstPairColumn", note)
+        for index in (200, 202):
+            self.assertNotIn("InitDropBoxTable", columns.rows[index][4])
 
     def test_reject_shop_total(self) -> None:
         folder = self.legacy / "Public" / "Config" / "RandShop"

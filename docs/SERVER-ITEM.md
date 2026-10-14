@@ -248,8 +248,9 @@ Mỗi mục: điều đã chọn, vì sao, cách đổi.
    7 và 9..16 "đã tách" theo điểm lắp 0..18. Đọc từ tên cột của tệp gốc.
 3. **Gói rơi** (`drop_packages`): cặp (vật phẩm, cấp) bắt đầu ở cột 4 (cột 2 là loại phát thanh, cột 3 là cờ ép khoá) — đo trên bảng
    thật. Cột "cấp" của cặp (chỉ gặp 1..6 ở trang bị) đọc là nguồn sinh đồ cho `ItemSegQuality`; ô để trống thì lấy hạng của quái. Đoán
-   theo cấu trúc bảng, chưa được client hay máy chủ gốc xác nhận. (Ghi chú cột ở `TOOLS/server/columns/server/drop_packages.tsv` do
-   công cụ khác sở hữu còn nói "cặp bắt đầu ở cột 2, 100 cặp" của 2008: lệch với bố cục XJL7457 mà bộ nạp dùng.)
+   theo cấu trúc bảng, chưa được client hay máy chủ gốc xác nhận. (Ghi chú cột ở `TOOLS/server/columns/server/drop_packages.tsv` từng
+   nói "cặp bắt đầu ở cột 2, 100 cặp" của mã 2008, lệch với bố cục XJL7457 mà bộ nạp dùng; đã sửa 2026-10-15 ở `import_legacy.py` và
+   tệp cột: mã 2008 đọc từ cột 2 vì tệp 2008 không có hai cột phát thanh và ép khoá, tệp này bắt đầu cặp ở cột 4.)
 4. **Cửa hàng**: `buy_kind` 9 là "thu mua mọi thứ", 8 là "không thu mua" — suy ra từ phân bố dữ liệu (160/169 cửa hàng loại 9 có
    `buy_level` 120 và `can_buy_back`; 206/214 cửa hàng loại 8 có `buy_level` 0); sửa đồ chỉ có loại 1 trong dữ liệu. Khối hàng bắt
    đầu ở cột 29 (sáu cột mỗi khối); tên cột của `shops.tsv` sau khối thứ 29 lệch nên bộ nạp kiểm tên 14 cột đầu rồi dựa vào VỊ TRÍ,

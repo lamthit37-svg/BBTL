@@ -50,8 +50,11 @@ CHANGE_LABELS = (
     ("unread_after_type", "ô sau kiểu bị bỏ"),
 )
 TYPE_MAP = {"INT": "int", "FLOAT": "float", "STRING": "text"}
-_DROP_CODE_INDEXES = (2, 4, 200, 202)
-_DROP_CODE_NOTE = "mã InitDropBoxTable bắt đầu ở cột 2, 100 cặp; item_100_id nằm ngoài vòng"
+_DROP_CODE_INDEXES = (2, 4)
+_DROP_CODE_NOTE = (
+    "InitDropBoxTable 2008 đọc cặp từ cột 2 vì tệp 2008 không có hai cột đầu phát thanh và ép khoá; "
+    "tệp này có hai cột đó nên cặp (vật phẩm, cấp) bắt đầu ở cột 4 (loot::kFirstPairColumn)"
+)
 TREE_DIR = {
     "server_config": "Server/Config",
     "public_config": "Public/Config",
