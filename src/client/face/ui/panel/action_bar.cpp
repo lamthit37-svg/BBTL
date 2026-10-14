@@ -1,18 +1,17 @@
 #include "ui/panel/action_bar.hpp"
 
 #include "ui/panel/call.hpp"
+#include "ui/panel/call_events.hpp"
 #include "ui/panel/deck.hpp"
 #include "ui/panel/events.hpp"
 #include "ui/panel/lua_value.hpp"
 #include "ui/panel/widgets.hpp"
 
 #include <algorithm>
-#include <cmath>
 #include <compare>
 #include <cstddef>
 #include <cstdint>
 #include <format>
-#include <limits>
 #include <optional>
 #include <span>
 #include <string>
@@ -23,9 +22,6 @@
 namespace game::ui::panel {
 namespace {
 
-// Gói tin và chuỗi trên dây là số nguyên; id lớn hơn miền int32 thì ép về cận (game ép (int) lên số thực).
-constexpr double kInt32Min = static_cast<double>(std::numeric_limits<std::int32_t>::min());
-constexpr double kInt32Max = static_cast<double>(std::numeric_limits<std::int32_t>::max());
 // Số thú cưng tối đa (pet_num < 6).
 constexpr std::size_t kPetCount = 6;
 // Chỉ số ô gói hành động chat lớn nhất mà script nhận (index > 10 thì bỏ).
@@ -44,11 +40,6 @@ constexpr double kSeniorFlash = 2.0;
 [[nodiscard]] std::optional<double> to_number(std::optional<std::string_view> text) {
     if (!text) return std::nullopt;
     return lua_tonumber(*text);
-}
-
-[[nodiscard]] std::int32_t to_int(double value) noexcept {
-    if (std::isnan(value)) return 0;
-    return static_cast<std::int32_t>(std::clamp(std::trunc(value), kInt32Min, kInt32Max));
 }
 
 // Vị trí 0.. của ô mang id trong các dãy BUTTONS và FLASH của script; nullopt khi bảng không có khoá đó (id ngoài
@@ -109,7 +100,7 @@ void place_action(ActionBar& bar, const UiEvent& event, const BarFacts& facts, s
         const std::optional<std::size_t> slot = slot_of(spec, *id);
         const std::optional<double> action = to_number(event.arg(2));
         if (!slot || !action) return;
-        put_action(bar, *slot, face_of(facts.actions, to_int(*action)));
+        put_action(bar, *slot, face_of(facts.actions, game_int(*action)));
         if (const std::optional<std::string_view> pet_text = event.arg(3)) {
             const std::optional<double> pet = to_number(pet_text);
             if (!pet) return;

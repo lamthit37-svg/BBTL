@@ -14,7 +14,9 @@
 #include "ui/pace.hpp"
 #include "ui/painter.hpp"
 #include "ui/panel/action_bar.hpp"
+#include "ui/panel/action_bars.hpp"
 #include "ui/panel/call.hpp"
+#include "ui/panel/call_events.hpp"
 #include "ui/panel/can_do.hpp"
 #include "ui/panel/create_role.hpp"
 #include "ui/panel/deck.hpp"
@@ -23,7 +25,6 @@
 #include "ui/panel/login_flow.hpp"
 #include "ui/panel/logon.hpp"
 #include "ui/panel/main_menu_bar_3.hpp"
-#include "ui/panel/main_menu_bar_4.hpp"
 #include "ui/panel/maps.hpp"
 #include "ui/panel/menubar.hpp"
 #include "ui/panel/minimap.hpp"
@@ -121,6 +122,9 @@ constexpr std::array<std::string_view, 40> kLayouts = {
     panel::kSoftKeysLayout,
     panel::kSceneTransLayout,
 };
+
+// Trần số sự kiện giao diện xử lý mỗi khung, kể cả sự kiện do các bảng tự đẩy (xem Hud::State::step_panels).
+constexpr std::size_t kMaxPanelEvents = 256;
 
 // Bảng chuyển cảnh đã hiện thì ở lại ít nhất chừng này (xem Hud::State::note_loading).
 constexpr std::chrono::milliseconds kTransShown{900};
@@ -464,10 +468,10 @@ struct Hud::State {
     // thanh do hệ thú cưng giữ, client chưa có hệ đó nên thanh chưa hiện (xem main_menu_bar_3.hpp).
     panel::MainMenuBar3 pet_bar;
     std::vector<panel::Call> pet_bar_calls;
-    // Thanh action phụ MainMenuBar_4 và việc nó nhờ ở lần xử lý gần nhất. bar_facts là điều game trả cho script của
-    // nhóm thanh action: client chưa có hệ action, hệ thú cưng và kho gói hành động chat nên để rỗng (xem
+    // Nhóm thanh action (MainMenuBar_4, FunctionBarRight_2...) và việc chúng nhờ ở lần xử lý gần nhất. bar_facts là điều
+    // game trả cho script của nhóm: client chưa có hệ action, hệ thú cưng và kho gói hành động chat nên để rỗng (xem
     // action_bar.hpp).
-    panel::ActionBar menu_bar_4 = panel::make_main_menu_bar_4();
+    panel::ActionBars action_bars;
     panel::BarFacts bar_facts;
     std::vector<panel::Call> bar_calls;
     panel::SoftKeys keys;
@@ -548,7 +552,6 @@ struct Hud::State {
     void press_login(std::string_view window, const HudView& view);
     void press_pet_bar(std::string_view window);
     void press_action_bars(std::string_view window);
-    void report_bar_calls(std::string_view bar);
     [[nodiscard]] bool can_do_action_now() const;
     [[nodiscard]] panel::LoginFacts login_facts(const HudView& view) const noexcept;
     void note_hover(const HudView& view);
@@ -783,19 +786,11 @@ bool Hud::State::can_do_action_now() const {
 
 // Nhấn trái lên một ô của nhóm thanh action: <Thanh>_Clicked(id). Khác gốc: nhấn phải (RBClicked) chưa tới được HUD.
 void Hud::State::press_action_bars(std::string_view window) {
-    const std::optional<std::int32_t> id = panel::bar_button_id(menu_bar_4, window);
-    if (!id) return;
     bar_calls.clear();
-    panel::press_bar_button(menu_bar_4, *id, can_do_action_now(), bar_calls);
-    report_bar_calls("MainMenuBar_4");
-}
-
-// Việc mà một thanh action nhờ game: HUD chưa làm việc nào (chưa có hệ action, kho gói hành động chat, máy chủ).
-void Hud::State::report_bar_calls(std::string_view bar) {
+    action_bars.press(window, can_do_action_now(), bar_calls);
     for (const panel::Call& call : bar_calls) {
-        std::println(stderr, "{}: việc nhờ {} chưa có ở HUD", bar, panel::name_of(call.ask));
+        std::println(stderr, "Thanh action: việc nhờ {} chưa có ở HUD", panel::name_of(call.ask));
     }
-    bar_calls.clear();
 }
 
 // Lần nhấn này có phải lần thứ hai của một cú nhấn đúp không. Nhấn đúp xong thì lần nhấn kế bắt đầu
@@ -875,7 +870,12 @@ void Hud::State::step_panels(const HudView& view) {
     const bool is_forward = before.has_value() && view.clock >= *before;
     panel_seconds = is_forward ? std::chrono::duration<float>(view.clock - *before).count() : 0.0F;
     if (view.phase != Phase::kPlay) return;
-    for (const panel::PostedEvent& posted : view.events) {
+    // Sự kiện do chính các bảng đẩy (PushEvent, chuỗi gỡ gói hành động chat) xếp thêm vào cuối hàng đợi và tới các bảng
+    // sau khi sự kiện đang xử lý xong; trần để chuỗi sự kiện vô hạn không giữ khung mãi.
+    std::vector<panel::PostedEvent> queue(view.events.begin(), view.events.end());
+    for (std::size_t at = 0; at < queue.size() && at < kMaxPanelEvents; ++at) {
+        // Bản sao: hàng đợi có thể cấp lại bộ nhớ khi một bảng đẩy thêm sự kiện.
+        const panel::PostedEvent posted = queue[at];
         // Bộ gửi gốc đặt arg<k> một lần cho mỗi sự kiện, trước khi hỏi từng bảng có nghe không.
         const std::vector<std::string_view> given = posted.arguments();
         const panel::UiEvent event = ui_args.raise(posted.name, given);
@@ -883,10 +883,14 @@ void Hud::State::step_panels(const HudView& view) {
             panel::progress_bar_event(progress, event);
         if (panel::is_delivered(panel::kMainMenuBar3Events, event.name, pet_bar.is_shown))
             panel::on_main_menu_bar_3_event(pet_bar, event, panel::PetSkillBar{});
-        if (panel::is_delivered(panel::kMainMenuBar4Events, event.name, menu_bar_4.is_shown)) {
-            bar_calls.clear();
-            panel::on_main_menu_bar_4_event(menu_bar_4, event, bar_facts, bar_calls);
-            report_bar_calls("MainMenuBar_4");
+        bar_calls.clear();
+        action_bars.raise(event, bar_facts, bar_calls);
+        for (const panel::Call& call : bar_calls) {
+            if (std::optional<panel::PostedEvent> next = panel::event_of(call)) {
+                queue.push_back(std::move(*next));
+            } else {
+                std::println(stderr, "Thanh action: việc nhờ {} chưa có ở HUD", panel::name_of(call.ask));
+            }
         }
     }
     panel::progress_bar_fade(progress, panel_seconds);
@@ -930,7 +934,7 @@ void Hud::State::fill_play(const HudView& view) {
     panel::paint_quest_book(deck, quests);
     panel::paint_progress_bar(deck, progress);
     panel::paint_main_menu_bar_3(deck, pet_bar);
-    panel::paint_action_bar(deck, menu_bar_4);
+    action_bars.paint(deck);
     fill_board(view);
     fill_world(view);
     if (panel::is_open(desk, panel::Board::kBag)) {
