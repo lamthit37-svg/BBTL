@@ -21,7 +21,6 @@
 #include "core/error.hpp"
 #include "ui/panel/online.hpp"
 
-#include <atomic>
 #include <cstdint>
 #include <filesystem>
 #include <functional>
@@ -63,7 +62,7 @@ struct Request {
     // Trang của kOpenWeb.
     WebLink link = WebLink::kHelp;
     // kEnterGame ở chế độ trực tuyến: máy chủ đã nhận nhân vật và đặt chỗ vào. Không có là vào cảnh khởi đầu cục bộ.
-    std::optional<EntryPoint> entry;
+    std::optional<EntryPoint> entry = std::nullopt;
 };
 
 // Ngoại hình đã chọn lúc vào game. Vỏ giữ bản này qua lần huỷ phần hiển thị (tạm dừng) để lần

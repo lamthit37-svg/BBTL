@@ -474,7 +474,7 @@ void play_scene_music(audio::Engine* speaker, const world::ShownScene& scene) {
 
 // Âm thanh của khối Sound trong kịch bản đòn mà luồng vẽ vừa báo tới mốc: phát phẳng (chưa có vị trí 3D). Lỗi (thiếu tệp)
 // chỉ ghi log; không có loa thì bỏ.
-void play_due_sounds(Session& session) {
+void play_due_sounds(const Session& session) {
     const std::vector<std::string> due = session.display->take_sounds();
     if (session.speaker == nullptr || !session.speaker->device_is_open()) return;
     for (const std::string& name : due) {
