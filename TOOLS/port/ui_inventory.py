@@ -9,7 +9,7 @@ sự kiện tự đẩy (PushEvent), đối tượng API của Game.exe được
 Thứ tự port: khoảng cách từ các cửa sổ HUD đang nạp (kLayouts của hud.cpp) trên đồ thị "A đẩy sự kiện mà B
 đăng ký" (bỏ sự kiện phát chung, xem BROADCAST_LISTENERS); cửa sổ chỉ nhận sự kiện mà không script nào đẩy thì sự
 kiện đến từ Game.exe (trạng thái game hoặc gói tin máy chủ) và được đánh dấu game_events. server_opened: đăng ký
-UI_COMMAND, tức script máy chủ bật cửa sổ bằng DispatchUICommand; npc_bound: đăng ký OBJECT_CARED_EVENT (cửa sổ
+UI_COMMAND, tức script máy chủ có thể bật cửa sổ bằng DispatchUICommand (cửa sổ game tự bật cũng có thể đăng ký); npc_bound: đăng ký OBJECT_CARED_EVENT (cửa sổ
 gắn một NPC, đi xa thì đóng). Chỉ đọc tĩnh bằng biểu thức chính quy, không chạy Lua.
 """
 

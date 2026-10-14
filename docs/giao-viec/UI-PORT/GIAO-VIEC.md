@@ -8,9 +8,9 @@ từng phần. Được dựng công cụ chuyển đổi hoặc tải công c�
 
 `HANG-DOI.tsv`, sinh bằng `python -B TOOLS/port/ui_inventory.py` (đọc tĩnh, không chạy Lua). Cột: thứ tự, cửa sổ, độ sâu
 từ HUD (đồ thị "A đẩy sự kiện B đăng ký", bỏ sự kiện phát chung), `server_opened` (đăng ký `UI_COMMAND`: script máy chủ
-bật cửa sổ bằng `DispatchUICommand`), `npc_bound` (đăng ký `OBJECT_CARED_EVENT`), số dòng, số hàm, sự kiện vào/ra, đối
+có thể bật cửa sổ bằng `DispatchUICommand`; nhiều cửa sổ do game tự bật như `TargetFrame` cũng đăng ký), `npc_bound` (đăng ký `OBJECT_CARED_EVENT`), số dòng, số hàm, sự kiện vào/ra, đối
 tượng API của `Game.exe` được gọi, đã có bản port chưa. Số đo 2026-10-15: 33 cửa sổ HUD (39 808 dòng), 322 cửa sổ cách HUD
-1..3 bước, 1 403 cửa sổ do máy chủ bật (551 755 dòng; cần client nối máy chủ, client chưa mở socket nào).
+1..3 bước, 1 403 cửa sổ đăng ký `UI_COMMAND` (551 755 dòng; phần do máy chủ bật cần client nối máy chủ, client chưa mở socket nào).
 
 ## Đợt 1: 33 cửa sổ HUD (độ sâu 0)
 
@@ -19,6 +19,12 @@ tượng API của `Game.exe` được gọi, đã có bản port chưa. Số đ
 | thienlong-e7 | ProgressBar, DebugListBox, Operation, SoundSetup, GameSetup, ViewSetup, AcceSetup, PlayerImpactFrame, AutoAttack_Button, MiniMap, LargeMap, SceneMap |
 | thienlong-c8 | MainMenuBar_3, MainMenuBar_4, FunctionBarRight_2, FunctionBarRight, MainMenuBar_2, MainMenuBar, ZhenfaSkill, LifeSkill, CommonSkill, ActionSkill, AutoAttackSkill, ZongMenSkill |
 | sau (giao khi xong phần trên) | PlayerFrame, ChatFrame, Friend, TeamFrame, Pet, YuanbaoShop, Packet, SelfEquip, QuestLog (bốn cái cuối đã port một phần) |
+
+## Đợt 2: cửa sổ cốt lõi của màn chơi (game tự bật, chưa trên HUD)
+
+TargetFrame, PartyFrame, ContexMenu, MissionTrack, Quest, NewNpcChat, MessageBox_Self, Relive, MissionReply, Shop, Bank,
+Exchange, StallSale. Giao cho phiên nào xong đợt 1 trước; phần cần máy chủ chờ module phiên mạng của client (đang làm ở
+nhánh riêng, thienlong-2d gộp).
 
 ## Một cửa sổ là xong khi
 
