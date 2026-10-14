@@ -554,6 +554,8 @@ game_module(ui_panel
     src/client/face/ui/panel/servers.cpp
     src/client/face/ui/panel/select_server.cpp
     src/client/face/ui/panel/login_flow.cpp
+    src/client/face/ui/panel/events.cpp
+    src/client/face/ui/panel/lua_value.cpp
     src/client/face/ui/panel/main_menu_bar_3.cpp)
 target_link_libraries(game_ui_panel PUBLIC game_gui game_hero game_quest game_table game_core)
 # Cấu hình dựng client nằm ở src/client/client.build.toml (chủ dự án chốt 2026-10-14: gắn thẳng vào
@@ -1374,6 +1376,7 @@ function(game_panel_golden_test name)
     endif()
 endfunction()
 game_panel_golden_test(ui_main_menu_bar_3)
+game_panel_golden_test(ui_lua_value)
 game_test(ui_flow game_ui_panel)
 if(NOT ANDROID AND EXISTS "${PROJECT_SOURCE_DIR}/dev/client/assets/Interface/SelectRole/SelectRole.layout.xml")
     target_compile_definitions(ui_select_tests PRIVATE

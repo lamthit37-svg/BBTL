@@ -98,6 +98,14 @@ struct Argument {
     return true;
 }
 
+// Sự kiện giao diện "TÊN|arg0|arg1|...": tên không rỗng, số đối số tuỳ ý. Phân tích đầy đủ làm ở
+// ui::panel::PostedEvent::parse khi màn chơi phát sự kiện.
+[[nodiscard]] bool add_ui_event(Options& options, std::string_view text) {
+    if (text.empty() || text.front() == '|') return false;
+    options.ui_events.emplace_back(text);
+    return true;
+}
+
 // Ghi một cặp khoá và giá trị vào options; false khi khoá lạ hoặc giá trị không hợp lệ.
 [[nodiscard]] bool known_backend(std::string_view text) noexcept {
     return text == "vulkan" || text == "gles" || text == "d3d12" || text == "d3d11";
@@ -121,6 +129,7 @@ struct Argument {
     if (argument.key == "--scene") options.scene_name = argument.value;
     if (argument.key == "--data") options.data_folder = io::path_from_utf8(argument.value);
     if (argument.key == "--shot") options.shot_path = io::path_from_utf8(argument.value);
+    if (argument.key == "--ui-event") return add_ui_event(options, argument.value);
     return argument.key == "--scene" || argument.key == "--data" || argument.key == "--shot";
 }
 

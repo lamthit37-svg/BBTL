@@ -14,6 +14,7 @@
 #include <optional>
 #include <string>
 #include <string_view>
+#include <vector>
 
 namespace game::client {
 
@@ -49,6 +50,8 @@ struct ViewerDesc {
     bool is_auto_walk = false;
     // --auto-strike: khung màn chơi đầu tiên tự dùng skill ở ô cuối, 0 là tắt (DisplayDesc::auto_strike_from).
     std::uint32_t auto_strike_from = 0;
+    // --ui-event: sự kiện giao diện phát ở khung màn chơi đầu tiên (DisplayDesc::ui_events).
+    std::vector<std::string> ui_events;
     // --weapon: vật phẩm khe 0 mà nhân vật ở màn chơi cầm (DisplayDesc::weapon_item).
     std::optional<std::uint32_t> weapon_item;
     // --gem: đá quý gắn vào vũ khí (DisplayDesc::weapon_gem).
