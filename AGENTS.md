@@ -550,7 +550,8 @@ Chỉ mục `docs/BAY-DA-BIET.md`: sắp làm một việc kể dưới đây th
   `WaitOnAddress`); đọc biến môi trường; khởi tạo ghi tên cho struct có thành viên kiểu lớp; khai
   `thread_local` cho kiểu có destructor; viết `if constexpr` không có `else`; gắn `target("sse4.1")`
   bằng pragma; thêm tệp `.rc`; chạy `check.py` trên tệp include header của Vulkan SDK (`dxcapi.h`,
-  `slang.h`); đổi cách trình dịch shader ghép phản chiếu (`kPipeline`); ép con trỏ hàm lấy từ DLL.
+  `slang.h`); đổi cách trình dịch shader ghép phản chiếu (`kPipeline`); ép con trỏ hàm lấy từ DLL; dựng
+  `gcc-debug` trên Windows (SDL3, test `Not Run` vì thư viện vcpkg dựng bằng MSVC).
 - **Công cụ Python và git:** đưa chữ vào stdin của tiến trình con (`git apply`); tách cây làm việc
   thành nhiều commit; gõ tên nhánh `server` trong lệnh git.
 - **Test và công cụ đụng máy người dùng:** sửa `SRC/window/window.cpp`; viết hay chạy test, công cụ

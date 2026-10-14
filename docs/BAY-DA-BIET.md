@@ -73,6 +73,15 @@ mục ở mục 11.
   Clang chặn, kể cả khi đi qua `void (*)()` (Clang strict vẫn báo). Dùng `find_symbol` của `engine/shader/detail/library.hpp`
   (bit_cast kèm NOLINT có lý do), đừng ép tay ở chỗ khác.
 
+- Dựng `gcc-debug` trên máy này: preset không chạy vcpkg nên cấu hình dừng ở `find_package(SDL3 CONFIG REQUIRED)`
+  (`CMakeLists.txt`, trong `if(WIN32)`). Thêm `-DCMAKE_PREFIX_PATH=C:/dev/third_party/installed/x64-windows-static-md
+  -DGAME_TOML_INCLUDE=C:/dev/third_party/installed/x64-windows-static-md/include` thì cấu hình qua và mọi tệp biên dịch
+  được, nhưng `thienlong_client.exe`, `thienlong_audio.exe` và bốn test (`audio_dsp_tests`, `world_tests`, `client_tests`,
+  `boot_tests`) không link vì SDL3 và opus của vcpkg dựng bằng MSVC (`Warning: corrupt .drectve`, hàng nghìn
+  `undefined reference`): ctest báo `Not Run`, không phải lỗi mã. Hai test đó vẫn chạy được ở MSVC và `clang-asan`. Đo
+  2026-10-14: 70/74 test qua, 0 lỗi biên dịch. Libpq cũng vắng ở bản này, nên `auth` và `store` không in hai dòng
+  "bỏ qua database" mà `server_boot_tests.cpp` chờ ở MSVC và Clang (test nhận 0 hoặc 1 lần mỗi dòng).
+
 ## Công cụ Python và git
 
 - Python trên Windows, `subprocess.run(..., input=chuỗi, text=True)`: chế độ văn bản ghi `\n` thành
