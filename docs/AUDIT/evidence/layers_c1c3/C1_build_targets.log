@@ -1,0 +1,6 @@
+[0/2] Re-checking globbed directories...
+[1/4] i18n: đưa bản zh vào dev/client/assets
+i18n zh: 13188 chuỗi, 257 tên cảnh, 0 ảnh, 2 tệp; ghi 0 bảng chữ, 0 atlas, 0 tệp
+[2/4] Building CXX object CMakeFiles\thienlong_client.dir\src\client\app\client\main.cpp.obj
+[3/4] Linking CXX executable thienlong_client.exe
+exit=0

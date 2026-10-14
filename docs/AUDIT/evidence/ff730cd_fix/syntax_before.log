@@ -1,0 +1,277 @@
+﻿sha=b0f8904446a10c2725698758a18a78cf6c8c4b0b tag=before root=D:\THIENLONG_wt\ff730cd-fix time=2026-10-13T19:49:30
+### [clang-cl-x64] rc=1 :: "C:\Program Files\Microsoft Visual Studio\18\Community\VC\Tools\Llvm\x64\bin\clang-cl.exe" System.Object[] -Iengine -Isrc\shared -Isrc\client\app -Isrc\client\figure -Isrc\client\place -Isrc\client\face -Isrc\client\book -Isrc\client\pack src\client\app\client\display\graphic\effect.cpp
+clang-cl.exe : src\client\app\client\display\graphic\effect.cpp(91,15): error: '#pragma clang attribute pop' with no 
+matching '#pragma clang attribute push'
+At D:\THIENLONG_wt\ff730cd-fix\docs\AUDIT\evidence\ff730cd_fix\syntax_check.ps1:20 char:32
++  foreach($f in $files){ $out = & $exe @a $f 2>&1 | Out-String; $rc=$L ...
++                                ~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (src\client\app\...attribute push':String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+   91 | #pragma clang attribute pop
+      |               ^
+1 error generated.
+
+### [clang-cl-x64] rc=1 :: "C:\Program Files\Microsoft Visual Studio\18\Community\VC\Tools\Llvm\x64\bin\clang-cl.exe" System.Object[] -Iengine -Isrc\shared -Isrc\client\app -Isrc\client\figure -Isrc\client\place -Isrc\client\face -Isrc\client\book -Isrc\client\pack src\client\app\client\display\graphic\face.cpp
+clang-cl.exe : src\client\app\client\display\graphic\face.cpp(366,15): error: '#pragma clang attribute pop' with no 
+matching '#pragma clang attribute push'
+At D:\THIENLONG_wt\ff730cd-fix\docs\AUDIT\evidence\ff730cd_fix\syntax_check.ps1:20 char:32
++  foreach($f in $files){ $out = & $exe @a $f 2>&1 | Out-String; $rc=$L ...
++                                ~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (src\client\app\...attribute push':String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+  366 | #pragma clang attribute pop
+      |               ^
+1 error generated.
+
+### [clang-cl-x64] rc=1 :: "C:\Program Files\Microsoft Visual Studio\18\Community\VC\Tools\Llvm\x64\bin\clang-cl.exe" System.Object[] -Iengine -Isrc\shared -Isrc\client\app -Isrc\client\figure -Isrc\client\place -Isrc\client\face -Isrc\client\book -Isrc\client\pack src\client\app\client\display\graphic\frame.cpp
+clang-cl.exe : src\client\app\client\display\graphic\frame.cpp(608,15): error: '#pragma clang attribute pop' with no 
+matching '#pragma clang attribute push'
+At D:\THIENLONG_wt\ff730cd-fix\docs\AUDIT\evidence\ff730cd_fix\syntax_check.ps1:20 char:32
++  foreach($f in $files){ $out = & $exe @a $f 2>&1 | Out-String; $rc=$L ...
++                                ~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (src\client\app\...attribute push':String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+  608 | #pragma clang attribute pop
+      |               ^
+1 error generated.
+
+### [clang-cl-x64] rc=1 :: "C:\Program Files\Microsoft Visual Studio\18\Community\VC\Tools\Llvm\x64\bin\clang-cl.exe" System.Object[] -Iengine -Isrc\shared -Isrc\client\app -Isrc\client\figure -Isrc\client\place -Isrc\client\face -Isrc\client\book -Isrc\client\pack src\client\app\client\display\graphic\play.cpp
+clang-cl.exe : src\client\app\client\display\graphic\play.cpp(654,15): error: '#pragma clang attribute pop' with no 
+matching '#pragma clang attribute push'
+At D:\THIENLONG_wt\ff730cd-fix\docs\AUDIT\evidence\ff730cd_fix\syntax_check.ps1:20 char:32
++  foreach($f in $files){ $out = & $exe @a $f 2>&1 | Out-String; $rc=$L ...
++                                ~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (src\client\app\...attribute push':String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+  654 | #pragma clang attribute pop
+      |               ^
+1 error generated.
+
+### [clang-cl-x64] rc=1 :: "C:\Program Files\Microsoft Visual Studio\18\Community\VC\Tools\Llvm\x64\bin\clang-cl.exe" System.Object[] -Iengine -Isrc\shared -Isrc\client\app -Isrc\client\figure -Isrc\client\place -Isrc\client\face -Isrc\client\book -Isrc\client\pack src\client\app\client\display\graphic\scene.cpp
+clang-cl.exe : src\client\app\client\display\graphic\scene.cpp(341,15): error: '#pragma clang attribute pop' with no 
+matching '#pragma clang attribute push'
+At D:\THIENLONG_wt\ff730cd-fix\docs\AUDIT\evidence\ff730cd_fix\syntax_check.ps1:20 char:32
++  foreach($f in $files){ $out = & $exe @a $f 2>&1 | Out-String; $rc=$L ...
++                                ~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (src\client\app\...attribute push':String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+  341 | #pragma clang attribute pop
+      |               ^
+1 error generated.
+
+### [clang-cl-x64] rc=1 :: "C:\Program Files\Microsoft Visual Studio\18\Community\VC\Tools\Llvm\x64\bin\clang-cl.exe" System.Object[] -Iengine -Isrc\shared -Isrc\client\app -Isrc\client\figure -Isrc\client\place -Isrc\client\face -Isrc\client\book -Isrc\client\pack src\client\app\client\display\graphic\stream.cpp
+clang-cl.exe : src\client\app\client\display\graphic\stream.cpp(339,15): error: '#pragma clang attribute pop' with no 
+matching '#pragma clang attribute push'
+At D:\THIENLONG_wt\ff730cd-fix\docs\AUDIT\evidence\ff730cd_fix\syntax_check.ps1:20 char:32
++  foreach($f in $files){ $out = & $exe @a $f 2>&1 | Out-String; $rc=$L ...
++                                ~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (src\client\app\...attribute push':String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+  339 | #pragma clang attribute pop
+      |               ^
+1 error generated.
+
+### [ndk-x86_64] rc=1 :: "C:\Users\myhea\AppData\Local\Android\Sdk\ndk\30.0.16248370\toolchains\llvm\prebuilt\windows-x86_64\bin\clang++.exe" System.Object[] -Wall -Wextra -Werror -Iengine -Isrc\shared -Isrc\client\app -Isrc\client\figure -Isrc\client\place -Isrc\client\face -Isrc\client\book -Isrc\client\pack src\client\app\client\display\graphic\effect.cpp
+clang++.exe : src\client\app\client\display\graphic\effect.cpp:91:15: error: '#pragma clang attribute pop' with no 
+matching '#pragma clang attribute push'
+At D:\THIENLONG_wt\ff730cd-fix\docs\AUDIT\evidence\ff730cd_fix\syntax_check.ps1:20 char:32
++  foreach($f in $files){ $out = & $exe @a $f 2>&1 | Out-String; $rc=$L ...
++                                ~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (src\client\app\...attribute push':String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+   91 | #pragma clang attribute pop
+      |               ^
+1 error generated.
+
+### [ndk-x86_64] rc=1 :: "C:\Users\myhea\AppData\Local\Android\Sdk\ndk\30.0.16248370\toolchains\llvm\prebuilt\windows-x86_64\bin\clang++.exe" System.Object[] -Wall -Wextra -Werror -Iengine -Isrc\shared -Isrc\client\app -Isrc\client\figure -Isrc\client\place -Isrc\client\face -Isrc\client\book -Isrc\client\pack src\client\app\client\display\graphic\face.cpp
+clang++.exe : src\client\app\client\display\graphic\face.cpp:366:15: error: '#pragma clang attribute pop' with no 
+matching '#pragma clang attribute push'
+At D:\THIENLONG_wt\ff730cd-fix\docs\AUDIT\evidence\ff730cd_fix\syntax_check.ps1:20 char:32
++  foreach($f in $files){ $out = & $exe @a $f 2>&1 | Out-String; $rc=$L ...
++                                ~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (src\client\app\...attribute push':String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+  366 | #pragma clang attribute pop
+      |               ^
+1 error generated.
+
+### [ndk-x86_64] rc=1 :: "C:\Users\myhea\AppData\Local\Android\Sdk\ndk\30.0.16248370\toolchains\llvm\prebuilt\windows-x86_64\bin\clang++.exe" System.Object[] -Wall -Wextra -Werror -Iengine -Isrc\shared -Isrc\client\app -Isrc\client\figure -Isrc\client\place -Isrc\client\face -Isrc\client\book -Isrc\client\pack src\client\app\client\display\graphic\frame.cpp
+clang++.exe : src\client\app\client\display\graphic\frame.cpp:608:15: error: '#pragma clang attribute pop' with no 
+matching '#pragma clang attribute push'
+At D:\THIENLONG_wt\ff730cd-fix\docs\AUDIT\evidence\ff730cd_fix\syntax_check.ps1:20 char:32
++  foreach($f in $files){ $out = & $exe @a $f 2>&1 | Out-String; $rc=$L ...
++                                ~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (src\client\app\...attribute push':String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+  608 | #pragma clang attribute pop
+      |               ^
+1 error generated.
+
+### [ndk-x86_64] rc=1 :: "C:\Users\myhea\AppData\Local\Android\Sdk\ndk\30.0.16248370\toolchains\llvm\prebuilt\windows-x86_64\bin\clang++.exe" System.Object[] -Wall -Wextra -Werror -Iengine -Isrc\shared -Isrc\client\app -Isrc\client\figure -Isrc\client\place -Isrc\client\face -Isrc\client\book -Isrc\client\pack src\client\app\client\display\graphic\play.cpp
+clang++.exe : src\client\app\client\display\graphic\play.cpp:654:15: error: '#pragma clang attribute pop' with no 
+matching '#pragma clang attribute push'
+At D:\THIENLONG_wt\ff730cd-fix\docs\AUDIT\evidence\ff730cd_fix\syntax_check.ps1:20 char:32
++  foreach($f in $files){ $out = & $exe @a $f 2>&1 | Out-String; $rc=$L ...
++                                ~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (src\client\app\...attribute push':String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+  654 | #pragma clang attribute pop
+      |               ^
+1 error generated.
+
+### [ndk-x86_64] rc=1 :: "C:\Users\myhea\AppData\Local\Android\Sdk\ndk\30.0.16248370\toolchains\llvm\prebuilt\windows-x86_64\bin\clang++.exe" System.Object[] -Wall -Wextra -Werror -Iengine -Isrc\shared -Isrc\client\app -Isrc\client\figure -Isrc\client\place -Isrc\client\face -Isrc\client\book -Isrc\client\pack src\client\app\client\display\graphic\scene.cpp
+clang++.exe : src\client\app\client\display\graphic\scene.cpp:341:15: error: '#pragma clang attribute pop' with no 
+matching '#pragma clang attribute push'
+At D:\THIENLONG_wt\ff730cd-fix\docs\AUDIT\evidence\ff730cd_fix\syntax_check.ps1:20 char:32
++  foreach($f in $files){ $out = & $exe @a $f 2>&1 | Out-String; $rc=$L ...
++                                ~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (src\client\app\...attribute push':String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+  341 | #pragma clang attribute pop
+      |               ^
+1 error generated.
+
+### [ndk-x86_64] rc=1 :: "C:\Users\myhea\AppData\Local\Android\Sdk\ndk\30.0.16248370\toolchains\llvm\prebuilt\windows-x86_64\bin\clang++.exe" System.Object[] -Wall -Wextra -Werror -Iengine -Isrc\shared -Isrc\client\app -Isrc\client\figure -Isrc\client\place -Isrc\client\face -Isrc\client\book -Isrc\client\pack src\client\app\client\display\graphic\stream.cpp
+clang++.exe : src\client\app\client\display\graphic\stream.cpp:339:15: error: '#pragma clang attribute pop' with no 
+matching '#pragma clang attribute push'
+At D:\THIENLONG_wt\ff730cd-fix\docs\AUDIT\evidence\ff730cd_fix\syntax_check.ps1:20 char:32
++  foreach($f in $files){ $out = & $exe @a $f 2>&1 | Out-String; $rc=$L ...
++                                ~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (src\client\app\...attribute push':String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+  339 | #pragma clang attribute pop
+      |               ^
+1 error generated.
+
+### [ndk-arm64-v8a] rc=0 :: "C:\Users\myhea\AppData\Local\Android\Sdk\ndk\30.0.16248370\toolchains\llvm\prebuilt\windows-x86_64\bin\clang++.exe" System.Object[] -Wall -Wextra -Werror -Iengine -Isrc\shared -Isrc\client\app -Isrc\client\figure -Isrc\client\place -Isrc\client\face -Isrc\client\book -Isrc\client\pack src\client\app\client\display\graphic\effect.cpp
+
+### [ndk-arm64-v8a] rc=0 :: "C:\Users\myhea\AppData\Local\Android\Sdk\ndk\30.0.16248370\toolchains\llvm\prebuilt\windows-x86_64\bin\clang++.exe" System.Object[] -Wall -Wextra -Werror -Iengine -Isrc\shared -Isrc\client\app -Isrc\client\figure -Isrc\client\place -Isrc\client\face -Isrc\client\book -Isrc\client\pack src\client\app\client\display\graphic\face.cpp
+
+### [ndk-arm64-v8a] rc=0 :: "C:\Users\myhea\AppData\Local\Android\Sdk\ndk\30.0.16248370\toolchains\llvm\prebuilt\windows-x86_64\bin\clang++.exe" System.Object[] -Wall -Wextra -Werror -Iengine -Isrc\shared -Isrc\client\app -Isrc\client\figure -Isrc\client\place -Isrc\client\face -Isrc\client\book -Isrc\client\pack src\client\app\client\display\graphic\frame.cpp
+
+### [ndk-arm64-v8a] rc=0 :: "C:\Users\myhea\AppData\Local\Android\Sdk\ndk\30.0.16248370\toolchains\llvm\prebuilt\windows-x86_64\bin\clang++.exe" System.Object[] -Wall -Wextra -Werror -Iengine -Isrc\shared -Isrc\client\app -Isrc\client\figure -Isrc\client\place -Isrc\client\face -Isrc\client\book -Isrc\client\pack src\client\app\client\display\graphic\play.cpp
+
+### [ndk-arm64-v8a] rc=0 :: "C:\Users\myhea\AppData\Local\Android\Sdk\ndk\30.0.16248370\toolchains\llvm\prebuilt\windows-x86_64\bin\clang++.exe" System.Object[] -Wall -Wextra -Werror -Iengine -Isrc\shared -Isrc\client\app -Isrc\client\figure -Isrc\client\place -Isrc\client\face -Isrc\client\book -Isrc\client\pack src\client\app\client\display\graphic\scene.cpp
+
+### [ndk-arm64-v8a] rc=0 :: "C:\Users\myhea\AppData\Local\Android\Sdk\ndk\30.0.16248370\toolchains\llvm\prebuilt\windows-x86_64\bin\clang++.exe" System.Object[] -Wall -Wextra -Werror -Iengine -Isrc\shared -Isrc\client\app -Isrc\client\figure -Isrc\client\place -Isrc\client\face -Isrc\client\book -Isrc\client\pack src\client\app\client\display\graphic\stream.cpp
+
+### [ios-arm64-SYNTAX-ONLY] rc=1 :: "C:\Users\myhea\AppData\Local\Android\Sdk\ndk\30.0.16248370\toolchains\llvm\prebuilt\windows-x86_64\bin\clang++.exe" System.Object[] -Wall -Wextra -Werror -Iengine -Isrc\shared -Isrc\client\app -Isrc\client\figure -Isrc\client\place -Isrc\client\face -Isrc\client\book -Isrc\client\pack src\client\app\client\display\graphic\effect.cpp
+clang++.exe : In file included from src\client\app\client\display\graphic\effect.cpp:2:
+At D:\THIENLONG_wt\ff730cd-fix\docs\AUDIT\evidence\ff730cd_fix\syntax_check.ps1:20 char:32
++  foreach($f in $files){ $out = & $exe @a $f 2>&1 | Out-String; $rc=$L ...
++                                ~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (In file include...c\effect.cpp:2::String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+In file included from src\client\app/client/display/graphic/state.hpp:3:
+In file included from src\client\app/client/display/graphic/prelude.hpp:11:
+In file included from src\client\app/client/display/assets.hpp:8:
+In file included from engine/render/catalog.hpp:7:
+In file included from engine/core/error.hpp:11:
+engine/core/check.hpp:10:10: fatal error: 'cstdio' file not found
+   10 | #include <cstdio>
+      |          ^~~~~~~~
+1 error generated.
+
+### [ios-arm64-SYNTAX-ONLY] rc=1 :: "C:\Users\myhea\AppData\Local\Android\Sdk\ndk\30.0.16248370\toolchains\llvm\prebuilt\windows-x86_64\bin\clang++.exe" System.Object[] -Wall -Wextra -Werror -Iengine -Isrc\shared -Isrc\client\app -Isrc\client\figure -Isrc\client\place -Isrc\client\face -Isrc\client\book -Isrc\client\pack src\client\app\client\display\graphic\face.cpp
+clang++.exe : In file included from src\client\app\client\display\graphic\face.cpp:2:
+At D:\THIENLONG_wt\ff730cd-fix\docs\AUDIT\evidence\ff730cd_fix\syntax_check.ps1:20 char:32
++  foreach($f in $files){ $out = & $exe @a $f 2>&1 | Out-String; $rc=$L ...
++                                ~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (In file include...hic\face.cpp:2::String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+In file included from src\client\app/client/display/graphic/state.hpp:3:
+In file included from src\client\app/client/display/graphic/prelude.hpp:11:
+In file included from src\client\app/client/display/assets.hpp:8:
+In file included from engine/render/catalog.hpp:7:
+In file included from engine/core/error.hpp:11:
+engine/core/check.hpp:10:10: fatal error: 'cstdio' file not found
+   10 | #include <cstdio>
+      |          ^~~~~~~~
+1 error generated.
+
+### [ios-arm64-SYNTAX-ONLY] rc=1 :: "C:\Users\myhea\AppData\Local\Android\Sdk\ndk\30.0.16248370\toolchains\llvm\prebuilt\windows-x86_64\bin\clang++.exe" System.Object[] -Wall -Wextra -Werror -Iengine -Isrc\shared -Isrc\client\app -Isrc\client\figure -Isrc\client\place -Isrc\client\face -Isrc\client\book -Isrc\client\pack src\client\app\client\display\graphic\frame.cpp
+clang++.exe : In file included from src\client\app\client\display\graphic\frame.cpp:3:
+At D:\THIENLONG_wt\ff730cd-fix\docs\AUDIT\evidence\ff730cd_fix\syntax_check.ps1:20 char:32
++  foreach($f in $files){ $out = & $exe @a $f 2>&1 | Out-String; $rc=$L ...
++                                ~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (In file include...ic\frame.cpp:3::String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+In file included from src\client\app/client/display/graphic/state.hpp:3:
+In file included from src\client\app/client/display/graphic/prelude.hpp:11:
+In file included from src\client\app/client/display/assets.hpp:8:
+In file included from engine/render/catalog.hpp:7:
+In file included from engine/core/error.hpp:11:
+engine/core/check.hpp:10:10: fatal error: 'cstdio' file not found
+   10 | #include <cstdio>
+      |          ^~~~~~~~
+1 error generated.
+
+### [ios-arm64-SYNTAX-ONLY] rc=1 :: "C:\Users\myhea\AppData\Local\Android\Sdk\ndk\30.0.16248370\toolchains\llvm\prebuilt\windows-x86_64\bin\clang++.exe" System.Object[] -Wall -Wextra -Werror -Iengine -Isrc\shared -Isrc\client\app -Isrc\client\figure -Isrc\client\place -Isrc\client\face -Isrc\client\book -Isrc\client\pack src\client\app\client\display\graphic\play.cpp
+clang++.exe : In file included from src\client\app\client\display\graphic\play.cpp:3:
+At D:\THIENLONG_wt\ff730cd-fix\docs\AUDIT\evidence\ff730cd_fix\syntax_check.ps1:20 char:32
++  foreach($f in $files){ $out = & $exe @a $f 2>&1 | Out-String; $rc=$L ...
++                                ~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (In file include...hic\play.cpp:3::String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+In file included from src\client\app/client/display/graphic/state.hpp:3:
+In file included from src\client\app/client/display/graphic/prelude.hpp:11:
+In file included from src\client\app/client/display/assets.hpp:8:
+In file included from engine/render/catalog.hpp:7:
+In file included from engine/core/error.hpp:11:
+engine/core/check.hpp:10:10: fatal error: 'cstdio' file not found
+   10 | #include <cstdio>
+      |          ^~~~~~~~
+1 error generated.
+
+### [ios-arm64-SYNTAX-ONLY] rc=1 :: "C:\Users\myhea\AppData\Local\Android\Sdk\ndk\30.0.16248370\toolchains\llvm\prebuilt\windows-x86_64\bin\clang++.exe" System.Object[] -Wall -Wextra -Werror -Iengine -Isrc\shared -Isrc\client\app -Isrc\client\figure -Isrc\client\place -Isrc\client\face -Isrc\client\book -Isrc\client\pack src\client\app\client\display\graphic\scene.cpp
+clang++.exe : In file included from src\client\app\client\display\graphic\scene.cpp:3:
+At D:\THIENLONG_wt\ff730cd-fix\docs\AUDIT\evidence\ff730cd_fix\syntax_check.ps1:20 char:32
++  foreach($f in $files){ $out = & $exe @a $f 2>&1 | Out-String; $rc=$L ...
++                                ~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (In file include...ic\scene.cpp:3::String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+In file included from src\client\app/client/display/graphic/state.hpp:3:
+In file included from src\client\app/client/display/graphic/prelude.hpp:11:
+In file included from src\client\app/client/display/assets.hpp:8:
+In file included from engine/render/catalog.hpp:7:
+In file included from engine/core/error.hpp:11:
+engine/core/check.hpp:10:10: fatal error: 'cstdio' file not found
+   10 | #include <cstdio>
+      |          ^~~~~~~~
+1 error generated.
+
+### [ios-arm64-SYNTAX-ONLY] rc=1 :: "C:\Users\myhea\AppData\Local\Android\Sdk\ndk\30.0.16248370\toolchains\llvm\prebuilt\windows-x86_64\bin\clang++.exe" System.Object[] -Wall -Wextra -Werror -Iengine -Isrc\shared -Isrc\client\app -Isrc\client\figure -Isrc\client\place -Isrc\client\face -Isrc\client\book -Isrc\client\pack src\client\app\client\display\graphic\stream.cpp
+clang++.exe : In file included from src\client\app\client\display\graphic\stream.cpp:3:
+At D:\THIENLONG_wt\ff730cd-fix\docs\AUDIT\evidence\ff730cd_fix\syntax_check.ps1:20 char:32
++  foreach($f in $files){ $out = & $exe @a $f 2>&1 | Out-String; $rc=$L ...
++                                ~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (In file include...c\stream.cpp:3::String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+In file included from src\client\app/client/display/graphic/state.hpp:3:
+In file included from src\client\app/client/display/graphic/prelude.hpp:11:
+In file included from src\client\app/client/display/assets.hpp:8:
+In file included from engine/render/catalog.hpp:7:
+In file included from engine/core/error.hpp:11:
+engine/core/check.hpp:10:10: fatal error: 'cstdio' file not found
+   10 | #include <cstdio>
+      |          ^~~~~~~~
+1 error generated.
+

@@ -1,0 +1,12 @@
+# sha=693a79f7c9bbe5bc2daa990de3d72b9e2e477f92 thay đổi chưa commit (cmake/src/engine/CMakeLists)=1
+# diff đang áp: -set(game_layer_gate "core config io net protocol secure process account guard gate") | +set(game_layer_gate "core config io net protocol secure process account gate")
+# lệnh: cmake -DGAME_SOURCE_DIR=D:\THIENLONG_wt\layers -P cmake\GameLayers.cmake
+CMake Error at cmake/GameLayers.cmake:136 (message):
+  tầng: gate → guard (src/server/gate/motion.hpp)
+Call Stack (most recent call first):
+  cmake/GameLayers.cmake:154 (game_layer_violation)
+  cmake/GameLayers.cmake:201 (game_check_include)
+  cmake/GameLayers.cmake:212 (game_check_module)
+
+
+exit=1

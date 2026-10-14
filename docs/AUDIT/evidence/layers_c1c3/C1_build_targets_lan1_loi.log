@@ -1,0 +1,279 @@
+[0/2] Re-checking globbed directories...
+[1/262] Building CXX object CMakeFiles\game_core.dir\engine\core\handle.cpp.obj
+[2/262] Building CXX object CMakeFiles\game_core.dir\engine\core\uarch.cpp.obj
+[3/262] Building CXX object CMakeFiles\game_fs.dir\engine\fs\path.cpp.obj
+[4/262] Building CXX object CMakeFiles\game_core.dir\engine\core\range.cpp.obj
+[5/262] Building CXX object CMakeFiles\game_core.dir\engine\core\text.cpp.obj
+[6/262] Building CXX object CMakeFiles\game_fs.dir\engine\fs\codec.cpp.obj
+[7/262] Building CXX object CMakeFiles\game_fs.dir\engine\fs\stream.cpp.obj
+[8/262] Building CXX object CMakeFiles\game_core.dir\engine\core\error.cpp.obj
+[9/262] Building CXX object CMakeFiles\game_core.dir\engine\core\clock.cpp.obj
+[10/262] Building CXX object CMakeFiles\game_io.dir\engine\io\platform_win32.cpp.obj
+[11/262] Building CXX object CMakeFiles\game_fs.dir\engine\fs\disk.cpp.obj
+[12/262] Building CXX object CMakeFiles\game_shader.dir\engine\shader\types.cpp.obj
+[13/262] Building CXX object CMakeFiles\game_xml.dir\engine\xml\document.cpp.obj
+[14/262] Building CXX object CMakeFiles\game_io.dir\engine\io\file.cpp.obj
+[15/262] Building CXX object CMakeFiles\game_shader.dir\engine\shader\spirv.cpp.obj
+[16/262] Building CXX object CMakeFiles\game_math.dir\engine\math\geometry.cpp.obj
+[17/262] Building CXX object CMakeFiles\game_gpu.dir\engine\gpu\format.cpp.obj
+[18/262] Building CXX object CMakeFiles\game_shader.dir\engine\shader\dxil.cpp.obj
+[19/262] Building CXX object CMakeFiles\game_table.dir\src\shared\table\tsv.cpp.obj
+[20/262] Building CXX object CMakeFiles\game_gpu.dir\engine\gpu\vulkan\api.cpp.obj
+[21/262] Building CXX object CMakeFiles\game_gpu.dir\engine\gpu\layout.cpp.obj
+[22/262] Building CXX object CMakeFiles\game_gpu.dir\engine\gpu\check.cpp.obj
+[23/262] Building CXX object CMakeFiles\game_gpu.dir\engine\gpu\device.cpp.obj
+[24/262] Building CXX object CMakeFiles\game_fs.dir\engine\fs\buny.cpp.obj
+[25/262] Building CXX object CMakeFiles\game_gpu.dir\engine\gpu\vulkan\convert.cpp.obj
+[26/262] Building CXX object CMakeFiles\game_jobs.dir\engine\jobs\queue.cpp.obj
+[27/262] Building CXX object CMakeFiles\game_gpu.dir\engine\gpu\vulkan\commands.cpp.obj
+[28/262] Building CXX object CMakeFiles\game_shader.dir\engine\shader\manifest.cpp.obj
+[29/262] Building CXX object CMakeFiles\game_shader.dir\engine\shader\dxbc.cpp.obj
+[30/262] Building CXX object CMakeFiles\game_shader.dir\engine\shader\reflection.cpp.obj
+[31/262] Building CXX object CMakeFiles\game_shader.dir\engine\shader\builder.cpp.obj
+[32/262] Building CXX object CMakeFiles\game_core.dir\engine\core\thread.cpp.obj
+[33/262] Building CXX object CMakeFiles\game_gpu.dir\engine\gpu\vulkan\surface_win32.cpp.obj
+[34/262] Building CXX object CMakeFiles\game_gpu.dir\engine\gpu\d3d12\convert.cpp.obj
+[35/262] Building CXX object CMakeFiles\game_gpu.dir\engine\gpu\d3d11\convert.cpp.obj
+[36/262] Building CXX object CMakeFiles\game_gpu.dir\engine\gpu\vulkan\instance.cpp.obj
+[37/262] Building CXX object CMakeFiles\game_core.dir\engine\core\system.cpp.obj
+[38/262] Building CXX object CMakeFiles\game_gpu.dir\engine\gpu\vulkan\swapchain.cpp.obj
+[39/262] Building CXX object CMakeFiles\game_gpu.dir\engine\gpu\d3d11\hresult.cpp.obj
+[40/262] Building CXX object CMakeFiles\game_gpu.dir\engine\gpu\gles\bind_map.cpp.obj
+[41/262] Building CXX object CMakeFiles\game_core.dir\engine\core\log_sink.cpp.obj
+[42/262] Building CXX object CMakeFiles\game_gpu.dir\engine\gpu\gles\load.cpp.obj
+[43/262] Building CXX object CMakeFiles\game_fs.dir\engine\fs\watcher.cpp.obj
+[44/262] Building CXX object CMakeFiles\game_gpu.dir\engine\gpu\d3d11\commands.cpp.obj
+[45/262] Building CXX object CMakeFiles\game_gpu.dir\engine\gpu\gles\context_wgl.cpp.obj
+[46/262] Building CXX object CMakeFiles\game_gpu.dir\engine\gpu\gles\pick.cpp.obj
+[47/262] Building CXX object CMakeFiles\game_fs.dir\engine\fs\file.cpp.obj
+[48/262] Building CXX object CMakeFiles\game_gpu.dir\engine\gpu\d3d11\swapchain.cpp.obj
+[49/262] Building CXX object CMakeFiles\game_jobs.dir\engine\jobs\jobs.cpp.obj
+[50/262] Building CXX object CMakeFiles\game_gpu.dir\engine\gpu\d3d12\swapchain.cpp.obj
+[51/262] Building CXX object CMakeFiles\game_gpu.dir\engine\gpu\vulkan\resources.cpp.obj
+[52/262] Building CXX object CMakeFiles\game_shader.dir\engine\shader\package.cpp.obj
+[53/262] Building CXX object CMakeFiles\game_ogre.dir\src\client\place\ogre\quat.cpp.obj
+[54/262] Building CXX object CMakeFiles\game_scene.dir\src\client\place\scene\transform.cpp.obj
+[55/262] Building CXX object CMakeFiles\game_scene.dir\src\client\place\scene\placement.cpp.obj
+[56/262] Building CXX object CMakeFiles\game_scene.dir\src\client\place\scene\scene_file.cpp.obj
+[57/262] Building CXX object CMakeFiles\game_gpu.dir\engine\gpu\gles\probe.cpp.obj
+[58/262] Building CXX object CMakeFiles\game_gpu.dir\engine\gpu\d3d11\resources.cpp.obj
+[59/262] Building CXX object CMakeFiles\game_gui.dir\src\client\face\gui\value.cpp.obj
+[60/262] Building CXX object CMakeFiles\game_gui.dir\src\client\face\gui\strings.cpp.obj
+[61/262] Building CXX object CMakeFiles\game_gpu.dir\engine\gpu\gles\swapchain.cpp.obj
+[62/262] Building CXX object CMakeFiles\game_gpu.dir\engine\gpu\gles\resources.cpp.obj
+[63/262] Building CXX object CMakeFiles\game_gpu.dir\engine\gpu\vulkan\programs.cpp.obj
+[64/262] Building CXX object CMakeFiles\game_gpu.dir\engine\gpu\d3d12\commands.cpp.obj
+[65/262] Building CXX object CMakeFiles\game_gpu.dir\engine\gpu\gles\commands.cpp.obj
+[66/262] Building CXX object CMakeFiles\game_gui.dir\src\client\face\gui\text.cpp.obj
+[67/262] Building CXX object CMakeFiles\game_hero.dir\src\client\figure\hero\hero.cpp.obj
+[68/262] Building CXX object CMakeFiles\game_gui.dir\src\client\face\gui\softkey.cpp.obj
+[69/262] Building CXX object CMakeFiles\game_quest.dir\src\client\book\quest\outline.cpp.obj
+[70/262] Building CXX object CMakeFiles\game_gpu.dir\engine\gpu\d3d12\resources.cpp.obj
+[71/262] Building CXX object CMakeFiles\game_gui.dir\src\client\face\gui\radar.cpp.obj
+[72/262] Building CXX object CMakeFiles\game_gpu.dir\engine\gpu\d3d11\programs.cpp.obj
+[73/262] Building CXX object CMakeFiles\game_resource.dir\engine\resource\dds.cpp.obj
+[74/262] Linking CXX static library game_ogre.lib
+[75/262] Building CXX object CMakeFiles\game_gui.dir\src\client\face\gui\layout.cpp.obj
+[76/262] Building CXX object CMakeFiles\game_anim.dir\src\client\figure\anim\pose.cpp.obj
+[77/262] Building CXX object CMakeFiles\game_resource.dir\engine\resource\tier.cpp.obj
+[78/262] Building CXX object CMakeFiles\game_classic.dir\src\client\place\classic\classic.cpp.obj
+[79/262] Building CXX object CMakeFiles\game_resource.dir\engine\resource\image.cpp.obj
+[80/262] Building CXX object CMakeFiles\game_anim.dir\src\client\figure\anim\rig.cpp.obj
+[81/262] Building CXX object CMakeFiles\game_gpu.dir\engine\gpu\vulkan\device.cpp.obj
+[82/262] Building CXX object CMakeFiles\game_look.dir\src\client\figure\look\head.cpp.obj
+[83/262] Building CXX object CMakeFiles\game_gpu.dir\engine\gpu\gles\device.cpp.obj
+[84/262] Building CXX object CMakeFiles\game_nav.dir\src\client\place\nav\mesh.cpp.obj
+[85/262] Building CXX object CMakeFiles\game_nav.dir\src\client\place\nav\route.cpp.obj
+[86/262] Building CXX object CMakeFiles\game_nav.dir\src\client\place\nav\finder.cpp.obj
+[87/262] Building CXX object CMakeFiles\game_collision.dir\src\client\place\collision\building_file.cpp.obj
+[88/262] Building CXX object CMakeFiles\game_collision.dir\src\client\place\collision\opcode_tree.cpp.obj
+[89/262] Building CXX object CMakeFiles\game_collision.dir\src\client\place\collision\model.cpp.obj
+[90/262] Building CXX object CMakeFiles\game_collision.dir\src\client\place\collision\mesh.cpp.obj
+[91/262] Building CXX object CMakeFiles\game_look.dir\src\client\figure\look\sect.cpp.obj
+[92/262] Building CXX object CMakeFiles\game_gpu.dir\engine\gpu\gles\programs.cpp.obj
+[93/262] Building CXX object CMakeFiles\game_ui_panel.dir\src\client\face\ui\panel\deck.cpp.obj
+[94/262] Building CXX object CMakeFiles\game_ui_panel.dir\src\client\face\ui\panel\logon.cpp.obj
+[95/262] Building CXX object CMakeFiles\game_ui_panel.dir\src\client\face\ui\panel\softkey.cpp.obj
+[96/262] Building CXX object CMakeFiles\game_ui_panel.dir\src\client\face\ui\panel\scene_trans.cpp.obj
+[97/262] Building CXX object CMakeFiles\game_ui_panel.dir\src\client\face\ui\panel\start.cpp.obj
+[98/262] Building CXX object CMakeFiles\game_ui_panel.dir\src\client\face\ui\panel\desk.cpp.obj
+[99/262] Building CXX object CMakeFiles\game_look.dir\src\client\figure\look\look.cpp.obj
+[100/262] Building CXX object CMakeFiles\game_gpu.dir\engine\gpu\d3d12\programs.cpp.obj
+[101/262] Building CXX object CMakeFiles\game_gui.dir\src\client\face\gui\paint.cpp.obj
+[102/262] Building CXX object CMakeFiles\game_shader.dir\engine\shader\compiler.cpp.obj
+[103/262] Building CXX object CMakeFiles\game_ui_panel.dir\src\client\face\ui\panel\wording.cpp.obj
+[104/262] Building CXX object CMakeFiles\game_ui_panel.dir\src\client\face\ui\panel\player_frame.cpp.obj
+[105/262] Building CXX object CMakeFiles\game_ui_panel.dir\src\client\face\ui\panel\menubar.cpp.obj
+[106/262] Building CXX object CMakeFiles\game_ui_panel.dir\src\client\face\ui\panel\maps.cpp.obj
+[107/262] Building CXX object CMakeFiles\game_ui_panel.dir\src\client\face\ui\panel\minimap.cpp.obj
+[108/262] Building CXX object CMakeFiles\game_gui.dir\src\client\face\gui\widgets.cpp.obj
+[109/262] Building CXX object CMakeFiles\game_ui_panel.dir\src\client\face\ui\panel\quest_book.cpp.obj
+[110/262] Building CXX object CMakeFiles\game_ui_panel.dir\src\client\face\ui\panel\portraits.cpp.obj
+[111/262] Building CXX object CMakeFiles\game_ui_panel.dir\src\client\face\ui\panel\self_equip.cpp.obj
+[112/262] Building CXX object CMakeFiles\game_ui_panel.dir\src\client\face\ui\panel\role_cast.cpp.obj
+[113/262] Building CXX object CMakeFiles\game_ui_panel.dir\src\client\face\ui\panel\scene_table.cpp.obj
+[114/262] Building CXX object CMakeFiles\game_ui_panel.dir\src\client\face\ui\panel\roles.cpp.obj
+[115/262] Building CXX object CMakeFiles\game_look.dir\src\client\figure\look\appearance.cpp.obj
+[116/262] Building CXX object CMakeFiles\game_gpu.dir\engine\gpu\d3d11\device.cpp.obj
+[117/262] Building CXX object CMakeFiles\game_ui_panel.dir\src\client\face\ui\panel\servers.cpp.obj
+[118/262] Building CXX object CMakeFiles\game_client_map.dir\src\client\app\client\map\samples.cpp.obj
+[119/262] Building CXX object CMakeFiles\game_client_map.dir\src\client\app\client\map\terrain.cpp.obj
+[120/262] Building CXX object CMakeFiles\game_client_map.dir\src\client\app\client\map\picture.cpp.obj
+[121/262] Building CXX object CMakeFiles\game_ui_panel.dir\src\client\face\ui\panel\select_server.cpp.obj
+[122/262] Building CXX object CMakeFiles\game_client_map.dir\src\client\app\client\map\sheet.cpp.obj
+[123/262] Building CXX object CMakeFiles\game_client_map.dir\src\client\app\client\map\splat.cpp.obj
+[124/262] Building CXX object CMakeFiles\game_ui_panel.dir\src\client\face\ui\panel\quest_log.cpp.obj
+[125/262] Building CXX object CMakeFiles\game_ui_panel.dir\src\client\face\ui\panel\login_flow.cpp.obj
+[126/262] Building CXX object CMakeFiles\game_client_map.dir\src\client\app\client\map\liquid.cpp.obj
+[127/262] Building CXX object CMakeFiles\game_client_map.dir\src\client\app\client\map\gates.cpp.obj
+[128/262] Building CXX object CMakeFiles\game_client_map.dir\src\client\app\client\map\book.cpp.obj
+[129/262] Building CXX object CMakeFiles\game_resource.dir\engine\resource\upload.cpp.obj
+[130/262] Building CXX object CMakeFiles\game_ui_panel.dir\src\client\face\ui\panel\system_info.cpp.obj
+[131/262] Building CXX object CMakeFiles\game_client_map.dir\src\client\app\client\map\ground.cpp.obj
+[132/262] Building CXX object CMakeFiles\game_client_stage.dir\src\client\app\client\stage\stage.cpp.obj
+[133/262] Building CXX object CMakeFiles\game_render.dir\engine\render\camera.cpp.obj
+[134/262] Building CXX object CMakeFiles\game_render.dir\engine\render\screen.cpp.obj
+[135/262] Building CXX object CMakeFiles\game_ui_panel.dir\src\client\face\ui\panel\select_role.cpp.obj
+[136/262] Building CXX object CMakeFiles\game_ui_panel.dir\src\client\face\ui\panel\widgets.cpp.obj
+[137/262] Building CXX object CMakeFiles\game_client_stage.dir\src\client\app\client\stage\props.cpp.obj
+[138/262] Building CXX object CMakeFiles\game_client_stage.dir\src\client\app\client\stage\sky.cpp.obj
+[139/262] Building CXX object CMakeFiles\game_ui_panel.dir\src\client\face\ui\panel\scene_board.cpp.obj
+[140/262] Building CXX object CMakeFiles\game_render.dir\engine\render\shade.cpp.obj
+[141/262] Building CXX object CMakeFiles\game_render.dir\engine\render\canvas.cpp.obj
+[142/262] Building CXX object CMakeFiles\game_ui_panel.dir\src\client\face\ui\panel\packet.cpp.obj
+[143/262] Building CXX object CMakeFiles\game_fx.dir\src\client\place\fx\script.cpp.obj
+[144/262] Linking CXX static library game_anim.lib
+[145/262] Building CXX object CMakeFiles\game_fx.dir\src\client\place\fx\mesh.cpp.obj
+[146/262] Building CXX object CMakeFiles\game_fx.dir\src\client\place\fx\strip.cpp.obj
+[147/262] Building CXX object CMakeFiles\game_fx.dir\src\client\place\fx\field.cpp.obj
+[148/262] Building CXX object CMakeFiles\game_fx.dir\src\client\place\fx\billboard.cpp.obj
+[149/262] Building CXX object CMakeFiles\game_fx.dir\src\client\place\fx\system.cpp.obj
+[150/262] Building CXX object CMakeFiles\game_resource.dir\engine\resource\ogre_mesh.cpp.obj
+[151/262] Building CXX object CMakeFiles\game_ui_panel.dir\src\client\face\ui\panel\world_map.cpp.obj
+[152/262] Building CXX object CMakeFiles\game_control.dir\src\client\figure\control\char_camera.cpp.obj
+[153/262] Building CXX object CMakeFiles\game_control.dir\src\client\figure\control\cursor_rules.cpp.obj
+[154/262] Building CXX object CMakeFiles\game_control.dir\src\client\figure\control\follow_camera.cpp.obj
+[155/262] Building CXX object CMakeFiles\game_control.dir\src\client\figure\control\ground.cpp.obj
+[156/262] Building CXX object CMakeFiles\game_avatar.dir\src\client\figure\avatar\gait.cpp.obj
+[157/262] Building CXX object CMakeFiles\game_control.dir\src\client\figure\control\hover.cpp.obj
+[158/262] Building CXX object CMakeFiles\game_gui.dir\src\client\face\gui\hub.cpp.obj
+[159/262] Building CXX object CMakeFiles\game_motion.dir\src\client\figure\motion\jump.cpp.obj
+[160/262] Building CXX object CMakeFiles\game_control.dir\src\client\figure\control\view_ray.cpp.obj
+[161/262] Building CXX object CMakeFiles\game_fx.dir\src\client\place\fx\cast.cpp.obj
+[162/262] Building CXX object CMakeFiles\game_gui.dir\src\client\face\gui\loader.cpp.obj
+[163/262] Building CXX object CMakeFiles\game_avatar.dir\src\client\figure\avatar\turning.cpp.obj
+[164/262] Building CXX object CMakeFiles\game_render.dir\engine\render\catalog.cpp.obj
+[165/262] Building CXX object CMakeFiles\game_avatar.dir\src\client\figure\avatar\rig.cpp.obj
+[166/262] Building CXX object CMakeFiles\game_gui.dir\src\client\face\gui\loader_look.cpp.obj
+[167/262] Building CXX object CMakeFiles\game_ui_panel.dir\src\client\face\ui\panel\create_role.cpp.obj
+[168/262] Building CXX object CMakeFiles\game_control.dir\src\client\figure\control\touch.cpp.obj
+[169/262] Building CXX object CMakeFiles\game_control.dir\src\client\figure\control\stick.cpp.obj
+[170/262] Building CXX object CMakeFiles\game_control.dir\src\client\figure\control\player_input.cpp.obj
+[171/262] Building CXX object CMakeFiles\game_capture.dir\engine\capture\deflate.cpp.obj
+[172/262] Building CXX object CMakeFiles\game_motion.dir\src\client\figure\motion\motion.cpp.obj
+[173/262] Building CXX object CMakeFiles\game_capture.dir\engine\capture\frame.cpp.obj
+[174/262] Building CXX object CMakeFiles\game_audio.dir\engine\audio\gain.cpp.obj
+[175/262] Building CXX object CMakeFiles\game_audio.dir\engine\audio\limiter.cpp.obj
+[176/262] Building CXX object CMakeFiles\game_audio.dir\engine\audio\catalog.cpp.obj
+[177/262] Linking CXX static library game_fx.lib
+[178/262] Building CXX object CMakeFiles\game_audio.dir\engine\audio\detail\codec.cpp.obj
+[179/262] Building CXX object CMakeFiles\game_audio.dir\engine\audio\cook.cpp.obj
+[180/262] Building CXX object CMakeFiles\game_audio.dir\engine\audio\resample.cpp.obj
+[181/262] Building CXX object CMakeFiles\game_audio.dir\engine\audio\detail\music.cpp.obj
+[182/262] Building CXX object CMakeFiles\game_audio.dir\engine\audio\pack.cpp.obj
+[183/262] Building CXX object CMakeFiles\game_render.dir\engine\render\forward.cpp.obj
+[184/262] Building CXX object CMakeFiles\game_window.dir\engine\window\cursor.cpp.obj
+[185/262] Building CXX object CMakeFiles\game_render.dir\engine\render\ui.cpp.obj
+[186/262] Building CXX object CMakeFiles\game_resource.dir\engine\resource\model.cpp.obj
+[187/262] Building CXX object CMakeFiles\game_window.dir\engine\window\monitor.cpp.obj
+[188/262] Building CXX object CMakeFiles\game_window.dir\engine\window\system.cpp.obj
+[189/262] Building CXX object CMakeFiles\game_ui.dir\src\client\face\ui\radar.cpp.obj
+[190/262] Building CXX object CMakeFiles\game_window.dir\engine\window\window.cpp.obj
+[191/262] Building CXX object CMakeFiles\game_audio_native.dir\engine\audio\detail\native.cpp.obj
+[192/262] Building CXX object CMakeFiles\game_gpu.dir\engine\gpu\d3d12\device.cpp.obj
+[193/262] Building CXX object CMakeFiles\game_client_display.dir\src\client\app\client\display\role_stage.cpp.obj
+[194/262] Building CXX object CMakeFiles\game_audio.dir\engine\audio\engine.cpp.obj
+[195/262] Building CXX object CMakeFiles\game_client_display.dir\src\client\app\client\display\login_data.cpp.obj
+[196/262] Building CXX object CMakeFiles\game_client_display.dir\src\client\app\client\display\lighting.cpp.obj
+[197/262] Building CXX object CMakeFiles\thienlong_shader.dir\engine\shadertool\main.cpp.obj
+[198/262] Building CXX object CMakeFiles\game_capture.dir\engine\capture\png.cpp.obj
+[199/262] Building CXX object CMakeFiles\game_client_viewer.dir\src\client\app\client\viewer\viewer_win32.cpp.obj
+[200/262] Building CXX object CMakeFiles\game_client_viewer.dir\src\client\app\client\viewer\sdl_input.cpp.obj
+[201/262] Building CXX object CMakeFiles\game_client.dir\src\client\app\client\assets.cpp.obj
+[202/262] Building RC object CMakeFiles\thienlong_client_icon.dir\src\client\app\client\app.rc.res
+[203/262] i18n: đưa bản zh vào dev/client/assets
+i18n zh: 13188 chuỗi, 257 tên cảnh, 0 ảnh, 2 tệp; ghi 2 bảng chữ, 0 atlas, 2 tệp
+[204/262] Building CXX object CMakeFiles\game_client_viewer.dir\src\client\app\client\viewer\cursors.cpp.obj
+[205/262] Building CXX object CMakeFiles\game_client.dir\src\client\app\client\options.cpp.obj
+[206/262] Building CXX object CMakeFiles\game_client_display.dir\src\client\app\client\display\role_preview.cpp.obj
+[207/262] Building CXX object CMakeFiles\game_client.dir\src\client\app\client\boot.cpp.obj
+[208/262] Building CXX object CMakeFiles\game_client_world.dir\src\client\app\client\world\world.cpp.obj
+[209/262] Building CXX object CMakeFiles\game_avatar.dir\src\client\figure\avatar\avatar.cpp.obj
+[210/262] Building CXX object CMakeFiles\game_ui.dir\src\client\face\ui\pace.cpp.obj
+[211/262] Building CXX object CMakeFiles\game_client_display.dir\src\client\app\client\display\portrait.cpp.obj
+[212/262] Building CXX object CMakeFiles\game_ui.dir\src\client\face\ui\text.cpp.obj
+[213/262] Building CXX object CMakeFiles\game_ui.dir\src\client\face\ui\painter.cpp.obj
+[214/262] Building CXX object CMakeFiles\game_client_display.dir\src\client\app\client\display\player.cpp.obj
+[215/262] Building CXX object CMakeFiles\game_client_display.dir\src\client\app\client\display\fx_view.cpp.obj
+[216/262] Building CXX object CMakeFiles\game_ui.dir\src\client\face\ui\hud.cpp.obj
+[217/262] Building CXX object CMakeFiles\game_client_display.dir\src\client\app\client\display\graphic\effect.cpp.obj
+[218/262] Building CXX object CMakeFiles\game_client_display.dir\src\client\app\client\display\graphic\play.cpp.obj
+[219/262] Building CXX object CMakeFiles\game_client_display.dir\src\client\app\client\display\graphic\stream.cpp.obj
+[220/262] Building CXX object CMakeFiles\game_client_display.dir\src\client\app\client\display\graphic\scene.cpp.obj
+[221/262] Building CXX object CMakeFiles\game_client_display.dir\src\client\app\client\display\graphic\face.cpp.obj
+[222/262] Building CXX object CMakeFiles\game_client_display.dir\src\client\app\client\display\graphic\frame.cpp.obj
+[223/262] Building CXX object CMakeFiles\game_core.dir\engine\core\log.cpp.obj
+[224/262] Linking CXX static library game_core.lib
+[225/262] Linking CXX static library game_io.lib
+[226/262] Linking CXX static library game_math.lib
+[227/262] Linking CXX static library game_jobs.lib
+[228/262] Linking CXX static library game_xml.lib
+[229/262] Linking CXX static library game_hero.lib
+[230/262] Linking CXX static library game_nav.lib
+[231/262] Linking CXX static library game_fs.lib
+[232/262] Linking CXX static library game_table.lib
+[233/262] Linking CXX static library game_collision.lib
+[234/262] Linking CXX static library game_audio_native.lib
+[235/262] Linking CXX static library game_window.lib
+[236/262] Linking CXX static library game_control.lib
+[237/262] Linking CXX static library game_motion.lib
+[238/262] Linking CXX static library game_classic.lib
+[239/262] Linking CXX static library game_scene.lib
+[240/262] Linking CXX static library game_capture.lib
+[241/262] Linking CXX static library game_quest.lib
+[242/262] Linking CXX static library game_audio.lib
+[243/262] Linking CXX static library game_client_stage.lib
+[244/262] Linking CXX static library game_look.lib
+[245/262] Linking CXX static library game_client_map.lib
+[246/262] Linking CXX static library game_shader.lib
+[247/262] Linking CXX static library game_gui.lib
+[248/262] Linking CXX static library game_client_world.lib
+[249/262] Linking CXX static library game_ui_panel.lib
+[250/262] Linking CXX static library game_client.lib
+[251/262] Linking CXX static library game_gpu.lib
+[252/262] Linking CXX static library game_resource.lib
+[253/262] Linking CXX static library game_avatar.lib
+[254/262] Linking CXX static library game_render.lib
+[255/262] Linking CXX static library game_ui.lib
+[256/262] Linking CXX static library game_client_display.lib
+[257/262] Linking CXX static library game_client_viewer.lib
+[258/262] Linking CXX executable thienlong_shader.exe
+[259/262] Dịch shader của render thành gói .f2s
+thienlong_shader: DXC 1.9.5512 (01b62ad4) (C:\VulkanSDK\1.4.363.0\Bin\dxcompiler.dll)
+[dịch] model.vs
+[dịch] model.ps
+[dịch] terrain.ps
+[dịch] ui.vs
+[dịch] ui.ps
+[dịch] fx.vs
+[dịch] fx.ps
+thienlong_shader: 7 dịch, 0 còn mới, 0 hỏng.
+[260/262] Building CXX object CMakeFiles\thienlong_client.dir\src\client\app\client\main.cpp.obj
+FAILED: [code=2] CMakeFiles/thienlong_client.dir/src/client/app/client/main.cpp.obj 
+"C:\Program Files\Microsoft Visual Studio\18\Community\VC\Tools\MSVC\14.51.36231\bin\Hostx64\x64\cl.exe"  /nologo /TP -D_GLIBCXX_ASSERTIONS -D_LIBCPP_HARDENING_MODE=_LIBCPP_HARDENING_MODE_FAST -D_MSVC_STL_HARDENING=1 -ID:\THIENLONG_wt\layers\engine -ID:\THIENLONG_wt\layers\src\shared -ID:\THIENLONG_wt\layers\src\client\app -ID:\THIENLONG_wt\layers\src\client\figure -ID:\THIENLONG_wt\layers\src\client\place -ID:\THIENLONG_wt\layers\src\client\face -ID:\THIENLONG_wt\layers\src\client\book -ID:\THIENLONG_wt\layers\src\client\pack /DWIN32 /D_WINDOWS /EHsc /O2 /Ob1 /DNDEBUG -std:c++23preview -MD -Zi /guard:cf /sdl /W4 /permissive- /Zc:__cplusplus /Zc:preprocessor /utf-8 -WX /showIncludes /FoCMakeFiles\thienlong_client.dir\src\client\app\client\main.cpp.obj /FdCMakeFiles\thienlong_client.dir\ /FS -c D:\THIENLONG_wt\layers\src\client\app\client\main.cpp
+D:\THIENLONG_wt\layers\src\client\app\client\main.cpp(312): error C2653: 'core': is not a class or namespace name
+D:\THIENLONG_wt\layers\src\client\app\client\main.cpp(312): error C3861: 'mark': identifier not found
+D:\THIENLONG_wt\layers\src\client\app\client\main.cpp(362): error C2653: 'core': is not a class or namespace name
+D:\THIENLONG_wt\layers\src\client\app\client\main.cpp(362): error C3861: 'mark': identifier not found
+ninja: build stopped: subcommand failed.
+exit=2

@@ -336,7 +336,3 @@ void Display::State::compose_frame() {
     player->append(frame_instances);
 }
 } // namespace game::client
-
-#if defined(__clang__) && defined(__x86_64__)
-#pragma clang attribute pop
-#endif

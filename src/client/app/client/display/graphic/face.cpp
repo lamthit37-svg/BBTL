@@ -361,7 +361,3 @@ core::Status Display::State::paint_hud(gpu::CommandList& list, std::uint32_t slo
     return hud->draw(list, slot, extra);
 }
 } // namespace game::client
-
-#if defined(__clang__) && defined(__x86_64__)
-#pragma clang attribute pop
-#endif

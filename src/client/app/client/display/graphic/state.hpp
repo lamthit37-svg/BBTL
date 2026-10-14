@@ -422,7 +422,7 @@ struct Display::State {
     bool wait_flag = false;
     // Ảnh chụp (--shot): chụp đúng một lần ở khung đầu vẽ được.
     bool shot_taken = false;
-    // Mốc khung đầu trình đã in (timeline.hpp).
+    // Mốc khung đầu trình đã in (core/timeline.hpp).
     bool has_marked_first = false;
     // Đã thử đọc bảng cổng. Không thử lại mỗi khung khi tệp thiếu hoặc hỏng.
     bool gates_ready = false;
