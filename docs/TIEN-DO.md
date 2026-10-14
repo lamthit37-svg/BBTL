@@ -5,6 +5,54 @@ hiện tại của cả dự án đọc ở ba chỗ: mục "Khảo sát theo m�
 tệp này, và dòng "Trạng thái" ở mục 0 của `AGENTS.md`. Tên cũ của tệp là "cửa sổ, Vulkan và 57 vật
 thể tĩnh của map huoyangu": đó là đích của sáu bước B1 tới B6 đầu tiên, tả ngay dưới.
 
+## Audit kỹ thuật một lượt theo mã hiện tại (2026-10-14)
+
+Chạy audit chỉ-đọc ở `main 1ff6703`, không sửa production source. Đã đo:
+778 file C++ (`engine/src/Test`) ~142k LOC, 53 module, 17 exe, 12 preset,
+38 test domain, protocol 22 tin version 2, 4 backend GPU (không Metal gốc).
+`gen_protocol --check` True. Kết quả ở `docs/AUDIT-2026-10-14/` (7 tệp:
+README, inventory, architecture AS-IS, findings 17 mục `AUD-*`, gap + gate,
+metrics, evidence). Trạng thái `PARTIALLY COMPLETE`: build/ctest/sanitizer/
+benchmark chưa chạy (working tree bẩn + cấm việc nặng song song) nên mọi gate
+trừ protocol-freshness là Unknown; không nhận platform nào ngoài Windows-x64
+hiện tại là supported.
+
+Phiên tiếp cùng ngày: consistency 120 evidence-ref (78 full-path, đã gắn đủ tiền
+tố repo, 2 điểm đọc lại đúng chữ); type-surface 2228 class/struct + 277 enum class,
+13501 điểm rẽ proxy (~9,5/100 LOC, không thay công cụ complexity); phiên khác đang
+thêm vũ khí (`look/weapon`, `look/skill`, `avatar/locator`, `export_weapons/skills`,
+chưa track — đã đọc lướt, giữ nhãn Stub).
+
+Phiên tiếp cùng ngày: `lint_config.py` check-only sạch (26 tệp/437 cài đặt);
+review tay toàn bộ 130 dòng quét secret — sạch (VERIFIED, không hardcoded);
+đo thêm 419 TU + 366 header, sâu include client `main.cpp` = 10, 206 nhóm trùng
+khối gom ở bộ ba `gpu/*/device.hpp` (by-design); đọc `client.build.toml`
+(`schema = 1`, `avatar_frame = "square"`). Ba gate G-CONFIG/G-SECRET chuyển
+Unknown → Pass; G-BUILD/G-TEST/G-SAN/G-LOAD vẫn Unknown (BLOCKED như cũ).
+
+## Dọn tài liệu một lượt theo mã hiện tại (2026-10-14)
+
+Quét toàn cây, đối chiếu `AGENTS.md` mục 0 với mã ở `main 1ff6703`, không động tới
+code. Đã sửa: ngày/commit đối chiếu, đoạn khôi phục ghi rõ nay đã có `.git` và đã
+dựng; nhảy đã có mã (`figure/motion/jump.cpp`, clip `跑跳a`/`跑跳b`); `.path` có ở
+4 cảnh và `.WCollision` ở khoảng 70 cảnh (`collect_walk` đã gom); sổ nhiệm vụ đã
+nối vào HUD (`hud.cpp` gọi `press_quest_book`/`paint_quest_book`); máy chủ đã có
+`account/` (sổ, luật, vé, RPC, SQL) và gate gửi `SessionStart`/`UiConfig`/`Position`;
+`protocol`/`secure`/`link` ở `src/shared/`, mạng ở `engine/net`, 22 tin version 2
+bốn nhóm; `libpq` đã vào manifest (`store/pg` đã dùng); danh sách tài liệu thêm
+`docs/README.md`, `TAILIEU/*`, `SERVER-DI-CHUYEN.md`, `I18N-BAO-CAO-2026-10-13.md`
+và ghi rõ `NHIEM-VU-VO-CONG-2026.md` đang vắng (bản cũ ở `KHOI-PHUC-2026-10-09/chua-du/docs/`).
+
+Đã dọn: xoá 6 bản nháp `I18N-BAO-CAO-2026-10-13.truoc-*`/`*.bak-*`; xoá bản sao bộ
+quy cách C++23 trong repo (`docs/refs/`, `docs/MAP.md`, `docs/INDEX.md`, nội dung
+cũ của `README.md` gốc) — bản duy nhất ở `D:\CLAUDE\cpp23`; viết mới `README.md`
+gốc (bố cục, dựng, kiểm) và `docs/README.md` (chỉ mục sống/lưu trữ, tệp thiếu).
+`docs/giao-viec/`, `docs/AUDIT/`, `docs/KHOI-PHUC-2026-10-09/` giữ làm lưu trữ.
+
+Chưa kiểm: build/test sau dọn (chỉ sửa `.md`, không sửa code nên không dựng lại);
+nội dung từng tài liệu `docs/*2026.md` chưa rà từng dòng, chỉ sửa chỗ đã chắc vênh
+với mã.
+
 Hiện trạng 2026-10-06 (của riêng phần chọn backend): máy có Vulkan 1.3 vẫn chọn Vulkan. Không có thì Android rơi xuống GLES
 (đã chạy trên PowerVR Rogue GE8320, log `gles trên PowerVR Rogue GE8320`). iOS không có GLES
 (Apple đã gỡ); mã iOS đi MoltenVK và chưa build vì máy này không có macOS. APK
@@ -16,41 +64,6 @@ StaticEntity bằng Vulkan đúng phép đặt gốc, có camera bay; `--shot <t
 `--dump-bounds <tệp.tsv>` ghi hộp bao thế giới của từng vật thể. Sáu bước con làm đúng thứ tự, bước
 sau chỉ bắt đầu khi bước trước đạt mọi tiêu chí.
 
-## Shader chuyển sang Slang (2026-10-13)
-
-Nguồn shader của render là `src/client/render/shaders/*.slang` (cú pháp HLSL chạy nguyên văn). Slang dịch ra
-SPIR-V, DXIL, DXBC trong tiến trình (`engine/shader/detail/slang.cpp`); `d3dcompiler` và `dxbc.*` đã bỏ. DXC chỉ đọc
-phản chiếu DXIL. `reconcile.cpp` đối chiếu phản chiếu SPIR-V với DXIL của cùng nguồn mỗi lần dịch: bố cục lệch thì
-lỗi lúc dựng gói, semantic lấy từ DXIL, tên sạch lấy từ SPIR-V. Khoá cache của gói có `kPipeline` (`compiler.cpp`).
-
-Đã đo: băm phản chiếu 7 gói × 4 đích bằng bản DXC cũ; ảnh chụp Vulkan `--scene-id 2 --bare` giống bản cũ từng điểm
-ảnh; `--scene-id 2` và `--login` lệch ít hơn nhiễu giữa hai lượt chạy cùng một bản. Còn mở ở `docs/NGHI-NGO.md` mục 50
-(D3D12/D3D11 thật, cỡ DXIL, sinh GLSL của GLES từ Slang). Lệnh kiểm:
-`thienlong_shader build src/client/render/shaders/shaders.list --out <thư mục> --target spirv,dxil,dxbc,glsl`
-rồi `thienlong_shader show <gói>.f2s` so băm `phản chiếu` giữa các đích (phải bằng nhau).
-
-## Lưới đi của Đại Lý và Lạc Dương (2026-10-13)
-
-`dev/client/assets/Scene` của `dali_new_320` và `luoyang_new` thiếu `.path` và `.WCollision` dù kho gốc có đủ: công cụ
-`collect_map.py` bản cũ không gom hai tệp ấy, nên client in "cảnh không có tệp .path" và nhân vật đi xuyên vật cản.
-Đã thêm `collect_walk` (có `TOOLS/content/test_collect_map.py`, 5 ca xanh) và gom lại cả hai map. Đã chạy
-`thienlong_client --scene-id <id> --frames 3` thoát 0: Đại Lý "Lưới đi: 11669 đỉnh, 23324 tam giác, 11665 cạnh vật cản",
-Lạc Dương "10546 đỉnh, 21080 tam giác, 10543 cạnh vật cản". Chưa kiểm: nhân vật bị chặn thật trong tay người chơi
-(công cụ bấm chuột bị cấm). Có `.WCollision` thì `surface_y` nâng chân nhân vật lên mặt cầu, bậc thang của hai map
-(`docs/VA-CHAM-2026.md`); trước đó hai map không có tệp nên chân luôn ở địa hình. Chưa nhìn thử tay.
-
-## Đăng ký, đăng nhập, nhân vật (2026-10-12)
-
-PostgreSQL 18.6 trong `SERVER/pgsql`, libpq 18.4. Schema `SERVER/sql/auth` và `SERVER/sql/game`:
-tài khoản Argon2id, vé một lần (SHA-256, không lưu vé thô), nhân vật tách cột và bảng con
-(`player_skill`, `player_life_skill`, `player_recipe`, `player_setting`, `item`) với id `bigint`.
-`thienlong_auth` và `thienlong_store` nghe ipc `7011` và `7010` khi có `secrets.local.toml`; không
-có tệp đó thì vẫn in `ready` để cụm thử khởi động. Gate chuyển CreateAccount, SignIn, Login,
-CreateCharacter, DeleteCharacter, EnterGame. Trần nhân vật đang sống là 3, khớp màn chọn của client
-2026. Chưa có IPC tổng quát, chưa có zone, chưa nạp vật phẩm tân thủ.
-
-Đã chạy: `account_tests` thoát 0; vòng thật trên PostgreSQL tạo tài khoản, từ chối trùng tên và sai
-mật khẩu, đổi vé một lần, tạo nhân vật `Lý Mộ`, từ chối trùng tên, vào game, xoá. Lệnh:
 ## Giật khi di chuyển, nhịp khung, nhảy (2026-10-14)
 
 Chủ dự án báo: cây cối, trời đất nhảy loạn mỗi khi nhân vật đi, minimap giật, bảng đo báo TRƯỢT ở 60 FPS, animation
@@ -87,6 +100,61 @@ nhảy sai. Đã sửa:
 Chưa kiểm: nhìn tận mắt khi chạy và nhảy (agent không được điều khiển chuột, phím của máy); `PresentClock` (thời gian
 khung lượng tử theo nhịp quét) chưa làm: sau một nhịp quét bị lỡ, bước chân của hai khung kế không đều.
 
+## Vũ khí, hiệu ứng đồ, đòn đánh, tuyệt chiêu (2026-10-14)
+
+Chủ dự án giao ("làm chuẩn tuyệt đối theo pipe") và dặn "đọc source gốc để hiểu trước, rồi phân tích mã máy và khớp nối". Thứ tự
+pipe: `collect_map` -> `export_skills` -> `export_weapons` -> `collect_avatar` -> `collect_fx` (đọc cả `weapon_effects.tsv`) -> client.
+
+- Dữ liệu: `export_weapons.py` (vũ khí bảy khe, mẫu, locator, `weapon_effects.tsv` 1319 hình, `gems.tsv` 1195 đá),
+  `export_skills.py` (năm bảng đòn đánh); có `test_export_weapons.py` (14 ca xanh).
+- Logic: `look/weapon` (`gem_effect`), `look/skill` (`strikes_of`), `avatar/locator` + `Avatar::effect_pose`, `avatar/gait`
+  (`Stance::kStrike`, khoá lệnh tới `BreakTime`), `place/fx` (hiệu ứng theo dõi: `Spawn::is_tracked`, `Cast::move`,
+  `release`, `is_live`; `Field::set_timed`, `stop`, `is_spent`, `set_tint`), `display` (`PlayerActor::gear_effects`,
+  `follows`; `Display::State::sync_gear`, `sync_follows`).
+- Công cụ thử (client gốc không có): `--weapon <item>`, `--gem <đá quý>`, `--skill <skill>`, `--auto-strike <khung>` (phím 1 tới
+  9 dùng skill ở ô n). `--shot` chụp ở khung đầu sau khi bảng đo đủ 30 mẫu, không theo `--frames`: dùng `--auto-strike` để chụp
+  đòn. Ví dụ: `thienlong_client --scene-id 2 --weapon 10100002 --gem 50902003 --frames 60 --shot x.png` (lửa bám lưỡi đao,
+  cũng bám khi chạy `--walk` và khi đánh `--skill 358 --auto-strike 22`).
+- Đã chạy: `fx_tests` (cộng 6 ca vòng đời), `look_tests` (cộng 3 ca đá quý), `avatar_tests`, `test_export_weapons.py`; ảnh chụp
+  thật có lửa, độc bám vũ khí. `check.py` xanh ở các tệp mới đổi (xem NGHI-NGO mục 51 cho những lỗi tidy cũ còn trên dòng không
+  đụng tới: `place/fx/{field,billboard,system}.cpp`, `display/graphic/*`).
+- Chưa làm: danh sách đầy đủ ở `docs/NGHI-NGO.md` mục 51.
+
+## Shader chuyển sang Slang (2026-10-13)
+
+Nguồn shader của render là `src/client/render/shaders/*.slang` (cú pháp HLSL chạy nguyên văn). Slang dịch ra
+SPIR-V, DXIL, DXBC trong tiến trình (`engine/shader/detail/slang.cpp`); `d3dcompiler` và `dxbc.*` đã bỏ. DXC chỉ đọc
+phản chiếu DXIL. `reconcile.cpp` đối chiếu phản chiếu SPIR-V với DXIL của cùng nguồn mỗi lần dịch: bố cục lệch thì
+lỗi lúc dựng gói, semantic lấy từ DXIL, tên sạch lấy từ SPIR-V. Khoá cache của gói có `kPipeline` (`compiler.cpp`).
+
+Đã đo: băm phản chiếu 7 gói × 4 đích bằng bản DXC cũ; ảnh chụp Vulkan `--scene-id 2 --bare` giống bản cũ từng điểm
+ảnh; `--scene-id 2` và `--login` lệch ít hơn nhiễu giữa hai lượt chạy cùng một bản. Còn mở ở `docs/NGHI-NGO.md` mục 50
+(D3D12/D3D11 thật, cỡ DXIL, sinh GLSL của GLES từ Slang). Lệnh kiểm:
+`thienlong_shader build src/client/render/shaders/shaders.list --out <thư mục> --target spirv,dxil,dxbc,glsl`
+rồi `thienlong_shader show <gói>.f2s` so băm `phản chiếu` giữa các đích (phải bằng nhau).
+
+## Lưới đi của Đại Lý và Lạc Dương (2026-10-13)
+
+`dev/client/assets/Scene` của `dali_new_320` và `luoyang_new` thiếu `.path` và `.WCollision` dù kho gốc có đủ: công cụ
+`collect_map.py` bản cũ không gom hai tệp ấy, nên client in "cảnh không có tệp .path" và nhân vật đi xuyên vật cản.
+Đã thêm `collect_walk` (có `TOOLS/content/test_collect_map.py`, 5 ca xanh) và gom lại cả hai map. Đã chạy
+`thienlong_client --scene-id <id> --frames 3` thoát 0: Đại Lý "Lưới đi: 11669 đỉnh, 23324 tam giác, 11665 cạnh vật cản",
+Lạc Dương "10546 đỉnh, 21080 tam giác, 10543 cạnh vật cản". Chưa kiểm: nhân vật bị chặn thật trong tay người chơi
+(công cụ bấm chuột bị cấm). Có `.WCollision` thì `surface_y` nâng chân nhân vật lên mặt cầu, bậc thang của hai map
+(`docs/VA-CHAM-2026.md`); trước đó hai map không có tệp nên chân luôn ở địa hình. Chưa nhìn thử tay.
+
+## Đăng ký, đăng nhập, nhân vật (2026-10-12)
+
+PostgreSQL 18.6 trong `SERVER/pgsql`, libpq 18.4. Schema `SERVER/sql/auth` và `SERVER/sql/game`:
+tài khoản Argon2id, vé một lần (SHA-256, không lưu vé thô), nhân vật tách cột và bảng con
+(`player_skill`, `player_life_skill`, `player_recipe`, `player_setting`, `item`) với id `bigint`.
+`thienlong_auth` và `thienlong_store` nghe ipc `7011` và `7010` khi có `secrets.local.toml`; không
+có tệp đó thì vẫn in `ready` để cụm thử khởi động. Gate chuyển CreateAccount, SignIn, Login,
+CreateCharacter, DeleteCharacter, EnterGame. Trần nhân vật đang sống là 3, khớp màn chọn của client
+2026. Chưa có IPC tổng quát, chưa có zone, chưa nạp vật phẩm tân thủ.
+
+Đã chạy: `account_tests` thoát 0; vòng thật trên PostgreSQL tạo tài khoản, từ chối trùng tên và sai
+mật khẩu, đổi vé một lần, tạo nhân vật `Lý Mộ`, từ chối trùng tên, vào game, xoá. Lệnh:
 `py -B TOOLS/server/setup_db.py start` rồi `thienlong_auth` và `thienlong_store --config SERVER/config`.
 
 ## Đã xong

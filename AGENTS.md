@@ -5,19 +5,22 @@
 - Tên: THIENLONG
 - Mục tiêu một câu: client tự viết nạp và vẽ lại tài nguyên của client Thiên Long Bát Bộ (XTLBB-JD
   3.71) đúng toạ độ gốc, chạy offline trước, trên PC và mobile.
-- Trạng thái (đối chiếu với mã ngày 2026-10-08, `main` ở `501743a`; số đo tốc độ là của các ngày
-  trước, ở `docs/TIEN-DO.md`):
-  - Khôi phục (2026-10-09), đọc trước mọi dòng dưới: `F:\tl 2026` bị xoá nhầm ngày 2026-10-09; cây
-    này ghép lại từ nhật ký của các công cụ và nằm ở `D:\THIENLONG`, chưa có `.git`, chưa dựng và
-    chưa chạy test lần nào sau khôi phục. 56 tệp `SRC` và 31 tệp test là bản cũ hơn bản cuối, 12
-    tệp `CMakeLists.txt` nêu còn thiếu, `CMakeLists.txt` chưa có target của gói P2-2; client gốc,
+- Trạng thái (đối chiếu với mã ngày 2026-10-14, `main` ở `1ff6703`; số đo tốc độ là của các ngày
+  trước, ở `docs/TIEN-DO.md`; chỉ mục tài liệu ở `docs/README.md`):
+  - Khôi phục (2026-10-09), đọc như lịch sử, không như hiện trạng: `F:\tl 2026` bị xoá nhầm ngày 2026-10-09; cây
+    này ghép lại từ nhật ký của các công cụ và nằm ở `D:\THIENLONG`. Lúc mới ghép chưa có `.git`, chưa dựng và
+    chưa chạy test lần nào sau khôi phục (56 tệp `SRC` và 31 tệp test là bản cũ hơn bản cuối, 12
+    tệp `CMakeLists.txt` nêu còn thiếu; client gốc,
     `_raw`, `_glb`, `dev/client/assets`, `SERVER/tables`, `SERVER/scenes`, `Test/golden`, ảnh
-    `assets/i18n` và `third_party/libsodium` phải cài, sinh hoặc tải lại. Danh sách từng tệp và
-    lịch sử git 25 commit đầu ở `docs/KHOI-PHUC-2026-10-09/`. Các dòng dưới tả mã trước lúc mất.
+    `assets/i18n` và `third_party/libsodium` phải cài, sinh hoặc tải lại). Nay cây đã có `.git`,
+    đã dựng được (`build/msvc-release/` có đủ exe và lib) và `ctest` đã chạy; hồ sơ vụ mất
+    (danh sách từng tệp, lịch sử git 25 commit đầu) ở `docs/KHOI-PHUC-2026-10-09/`. Các dòng dưới tả mã hiện tại.
   - Hình: vẽ được map (địa hình, vật thể tĩnh, hạt và hiệu ứng cộng sáng của bản 2026) và người
     chơi có xương trên PC và máy tính bảng, 60 fps ở map nhỏ. Nước và vòm trời đã có mã dựng và vẽ
     (`ensure_water`, `ensure_sky` ở `client/display/graphic/scene.cpp`, gọi từ `frame.cpp`); chưa
-    ai nhìn ảnh để đối chiếu với bản 2026. Chưa có NPC, quái, vật phẩm hay người chơi khác.
+    ai nhìn ảnh để đối chiếu với bản 2026. Chưa có NPC, quái, vật phẩm hay người chơi khác. Vũ khí cầm tay, đòn đánh,
+    tuyệt chiêu và hiệu ứng đồ (đá quý gắn vũ khí) đã chạy bằng công cụ thử `--weapon`, `--skill`, `--gem`, `--auto-strike`
+    (hành trang, skill, đá quý chưa nối máy chủ; phần chưa làm ở `docs/NGHI-NGO.md` mục 51).
     Nhảy đã có mã: `src/client/figure/motion/jump.cpp` (`can_jump`/`start_jump`, port `Game.exe`
     64-bit), clip nhảy `跑跳a`/`跑跳b` đã vào `anim_sets.tsv`, `Gait::jump`/`land` theo
     `CObject_Character::Jump` (`docs/TIEN-DO.md` mục 2026-10-14); chưa nhìn tận mắt khi chạy.
@@ -28,15 +31,19 @@
     chuột, phím, cảm ứng và cần gạt, bị vật cản chặn và tìm đường vòng theo lưới đi `.path` của
     client 2026 (`docs/DUONG-DI-2026.md`); chân nhân vật được nâng lên mặt công trình `.WCollision`
     (mặt cầu, bậc thang: `surface_y` ở `display/graphic/play.cpp`, `building_height_tests` xanh; chưa
-    nhìn thử tay). Hai tệp `.path` và `.WCollision` của `dev/client/assets` chỉ có ở map gom từ
-    2026-10-13 (Đại Lý, Lạc Dương); `collect_map.py` bản cũ không gom chúng.
+    nhìn thử tay). Lưới đi `.path` có ở 4 cảnh (`dali_new_320`, `erengu_DL`, `huoyangu`,
+    `luoyang_new`), `.WCollision` có ở khoảng 70 cảnh trong `dev/client/assets/Scene`;
+    `luoyang_new` và `erengu_DL` đủ bộ Terrain + Scene + path + WCollision, `tl3chuangjian`
+    thiếu cả hai; `collect_map.py` đã có `collect_walk` gom hai tệp ấy (trước 2026-10-13 bản cũ
+    không gom, chỉ hai map Đại Lý và Lạc Dương gom tay mới có).
   - Giao diện: HUD nạp 36 layout của client 2026. Lúc nạp một cảnh của màn chơi, bảng chuyển cảnh
     `SceneTrans` của bản gốc hiện tên cảnh sẽ tới và phần trăm đã nạp (`ui/panel/scene_trans`).
     Khung nhân vật, minimap, thanh kinh nghiệm và
     bảng nhân vật có số, số lấy từ nhân vật mẫu viết cứng `hero::newcomer()`. Hành trang, nhiệm
     vụ, thương thành, hệ thống và bốn trang cài đặt, sách kỹ năng, trân thú, hảo hữu, tổ đội mới là
-    khung. Sổ nhiệm vụ (`ui/panel/quest_log`, module `quest`) đã port và có test nhưng chưa nối
-    vào HUD; module `skill` chưa được `ui` hay `client` dùng (`docs/NGHI-NGO.md` mục 43).
+    khung. Sổ nhiệm vụ (`ui/panel/quest_log`, module `quest`) đã port, có test và đã nối
+    vào HUD (`face/ui/hud.cpp` gọi `press_quest_book`/`paint_quest_book`); module `skill`
+    chưa được `ui` hay `client` dùng (`docs/NGHI-NGO.md` mục 43).
   - Đăng nhập (`--login`, chỉ bản Windows; Android và iOS vào thẳng cảnh của `Config/startup.id`):
     cảnh nền 3D `erengu_DL` với camera cố định của bản gốc, gõ tài khoản và mật khẩu (không kiểm,
     không lưu), nút "Vào Game" mở chọn nhân vật trên cảnh `tl3chuangjian` (tối đa 3; nhân vật mới
@@ -62,8 +69,11 @@
   - `WEB/` là trang giới thiệu tĩnh (Vite, React, three.js), không có backend, không nối client
     hay máy chủ, không nằm trong CMake.
   - Máy chủ: bảy exe khởi động và dừng theo thứ tự dưới trình giám sát, gate nghe hai cổng và giữ
-    phiên đã bắt tay; chưa có tài khoản, nhân vật, cảnh, chưa có migration nào của database — P2
-    còn dở, mốc và số đo ở `docs/KE-HOACH-SERVER.md` mục 10.
+    phiên đã bắt tay (`gate.toml` `[listen]` game 7000/auth 7001; sau `SessionStart` gửi `UiConfig`
+    rồi `Position`). Đã có logic tài khoản/nhân vật dùng chung (`src/server/account/`: sổ, luật,
+    vé, RPC loopback, bản SQL) và `serve_auth`/`serve_game` qua ipc; `store`/`auth`/`billing`/
+    `world`/`zone` mới in `ready` rồi chờ. Chưa có migration nào của database, client chưa nối
+    máy chủ — P2 còn dở, mốc và số đo ở `docs/KE-HOACH-SERVER.md` mục 10.
 - Nền tảng đích: Windows x64 (MSVC 19.51 là bản phát hành; GCC 16 MinGW và Clang 23 để kiểm chéo;
   GCC MinGW không dựng `fs`, `shader`, `gpu`, `resource`, `render`, module `ui` và phần hiển thị
   có GPU của client, còn `gui` và `ui/panel` thì có, nên `gcc-debug` chỉ kiểm chéo phần không có
@@ -83,13 +93,15 @@
   control, audio,
   audiotool, seal, sealtool, gui, hero, quest (nhiệm vụ nhận được, sổ 20 ô, theo dõi), skill (bảng
   và sách kỹ năng, action), ui (panel), client (stage, map, world, display, viewer);
+  dùng chung ở `src/shared/`: protocol (tầng byte, khung, kênh, danh mục tin sinh từ bảng: 22 tin
+  version 2 của bốn nhóm phiên, nhân vật, di chuyển, xác thực), secure (bắt tay
+  và bản ghi mã hoá nằm dưới khung, gọi libsodium; `docs/SERVER-BAO-MAT.md`), table (TSV),
+  link (nối net + protocol + secure); mạng ở `engine/net` (socket TCP không chặn, tập chờ);
   của máy chủ: content (kiểm bảng TSV và tham chiếu chéo), linttool (exe
   `thienlong_lint`), config (TOML thành struct đã kiểm miền), process (chạy tiến trình con, yêu cầu
   dừng), supervise (máy trạng thái của trình giám sát), service (điểm vào chung của bảy exe:
   `supervisor`, `stored`, `authd`, `billingd`, `worldd`, `zoned`, `gated`; giao kèo ở mục 3.1 của
-  `docs/KE-HOACH-SERVER.md`), protocol (tầng byte, khung, kênh, danh mục tin sinh từ bảng: 19 tin
-  của ba nhóm phiên, nhân vật, xác thực), net (socket TCP không chặn, tập chờ), secure (bắt tay
-  và bản ghi mã hoá nằm dưới khung, gọi libsodium; `docs/SERVER-BAO-MAT.md`), gate (bảng kết nối
+  `docs/KE-HOACH-SERVER.md`), gate (bảng kết nối
   và vòng tick 60 Hz của `thienlong_gate`: exe duy nhất đã mở cổng, sau bắt tay mới xử lý `Hello`,
   `Ping`, `Logout`; năm exe `store`, `auth`, `billing`, `world`, `zone` mới in `ready` rồi chờ
   dừng) — bảng tầng ở `cmake/GameLayers.cmake`, nguồn sự thật về ai include ai.
@@ -200,10 +212,10 @@
   (ba gói của `fs` và gói shader), opus (tải Opus của tệp âm thanh `.tla`), tomlplusplus 3.4.0
   (module `config`) — vcpkg manifest (`vcpkg.json`, `C:\dev\vcpkg`); libsodium 1.0.22 (`seal`,
   `secure`) và miniaudio (`audio`) — chép nguồn trong `third_party/`, mỗi thư mục có `NGUON.txt`;
-  Vulkan SDK của máy cho shader (`slang.dll` dịch nguồn `.slang`, `dxcompiler.dll` chỉ đọc phản chiếu DXIL). Cho máy chủ, đã duyệt ngày 2026-10-06 và đã build thử,
-  CHƯA có trong manifest, thêm khi viết `store/pg`: libpq 18.4 (không default-features).
+  Vulkan SDK của máy cho shader (`slang.dll` dịch nguồn `.slang`, `dxcompiler.dll` chỉ đọc phản chiếu DXIL). Cho máy chủ: libpq
+  (không default-features) đã vào manifest, module `store/pg` đã dùng; đã duyệt ngày 2026-10-06 và đã build thử.
   PostgreSQL 18.6 nằm trong `dev/server/pgsql`, tải bằng `setup_db.py`.
-- Tài liệu dự án: `docs/TIEN-DO.md` (tiến độ việc nhiều phiên), `docs/NGUON-FORGE2.md` (tệp chép từ
+- Tài liệu dự án (chỉ mục ở `docs/README.md`): `docs/TIEN-DO.md` (tiến độ việc nhiều phiên), `docs/NGUON-FORGE2.md` (tệp chép từ
   Forge2: nguồn, khác gốc, số đo), `docs/NGUON-TLBB.md` (tệp port từ TLBB Dev),
   `docs/CAMERA-2026.md` (camera và chuột đọc từ mã máy của client 2026: địa chỉ, hành vi, lệnh
   tái hiện), `docs/VA-CHAM-2026.md` (mặt công trình `.WCollision` đọc từ mã máy `PathLib.dll`; module
@@ -213,15 +225,20 @@
   `Game.exe`, phân bố ảnh chân dung, mặt, tóc, bộ đồ, thói quen của `CreateRole.lua`, lệnh sinh số
   vàng), `docs/NGHI-NGO.md` (sổ nghi ngờ), `docs/KE-HOACH-SERVER.md` (kế hoạch máy chủ, mười ba mốc), `docs/SERVER-TEP-CAU-HINH.md`
   (từng tệp cấu hình và bảng của máy chủ, tên gốc sang tên tiếng Anh), `docs/PROTOCOL-TIN.md`
-  (bảng tra danh mục tin của protocol, tệp sinh), `docs/NHIEM-VU-VO-CONG-2026.md` (hàm C++ mà
-  script bảng nhiệm vụ và sách võ gọi, đọc từ mã máy `Game.exe`: bảng, bộ lọc, sổ nhiệm vụ, 39
-  token `MisDesc`, action và thông tin kỹ năng), `docs/GIAO-DIEN-2026.md` (widget của bản 2026 đọc
+  (bảng tra danh mục tin của protocol, tệp sinh), `docs/NHIEM-VU-VO-CONG-2026.md` (VẮNG sau vụ mất
+  2026-10-09 — code `src/client/book/*`, `Test/Quest`, `Test/Skill`, `TOOLS/port/oracle/*` còn trỏ
+  tới; bản cũ ở `docs/KHOI-PHUC-2026-10-09/chua-du/docs/`), `docs/GIAO-DIEN-2026.md` (widget của bản 2026 đọc
   từ mã máy CEGUI: listbox, thanh cuộn, cửa sổ phức hợp, nút action, ô tiền, phông và thẻ chữ),
   `docs/SERVER-BAO-MAT.md` (thiết kế bắt tay, bản ghi mã hoá và mặt trước của gate),
+  `docs/SERVER-DI-CHUYEN.md` (di chuyển do server làm chủ),
   `docs/CHEP-FORGE2.md` (quy trình chép một tệp từ Forge2), `docs/DINH-DANG-TLA.md` (định dạng
-  tệp âm thanh đã cook `.tla`), `dev/server/README.md` (bố cục runtime của máy chủ, lệnh chạy cụm),
+  tệp âm thanh đã cook `.tla`), `docs/I18N-BAO-CAO-2026-10-13.md` (báo cáo bản địa hoá, bản cuối),
+  `TAILIEU/` (phân tích mã máy mới: `DANG-NHAP-GOC`, `GOI-TIN-DANG-NHAP`, `MAY-CHU-SUY-RA`,
+  `MAN-CHOI-GIAO-DIEN-2026`, `TOC-DO-NAP-SO-VOI-TLBB`; chỉ mục ở `TAILIEU/README.md`),
+  `dev/server/README.md` (bố cục runtime của máy chủ, lệnh chạy cụm),
   `docs/giao-viec/` (hồ sơ từng đợt giao việc cho phiên AI phụ; `KD-DOT-1/GHI-CHU.md` giữ các ý
   tối ưu đã hoãn), `docs/BAY-DA-BIET.md` (bẫy đã đo của từng vùng; chỉ mục ở mục 11).
+  Bộ quy cách C++23 không nằm trong repo (bản duy nhất ở `D:\CLAUDE\cpp23`).
 - Lệch quy định chung bên dưới (mỗi dòng: mục nào — dự án làm gì thay — vì sao):
   - Mục 3, bố cục — chủ dự án chốt 2026-10-12: `engine/` là hạ tầng tái sử dụng. Target engine
     chỉ nhận `engine/` trên dòng include; client không thấy `src/server`, server không thấy
@@ -571,6 +588,9 @@ Chỉ mục `docs/BAY-DA-BIET.md`: sắp làm một việc kể dưới đây th
 - **Giao diện và bản địa hoá:** thêm chuỗi `#{khoá}` trong `SRC/ui/panel`; gom thêm một layout;
   đụng ảnh của `dev/client/assets/Interface` hay xoá `build/i18n`; làm ảnh nút tiếng Việt; tính ô cửa sổ
   có cỡ lẻ hay cỡ cửa sổ con trong `SRC/gui`; tách tên ảnh `set:... image:...`; đọc `Imageset` của scheme.
+- **Vũ khí, hiệu ứng đồ, đòn đánh:** đọc mốc `BreakTime`/`HitTime` của `all.skill` (phần độ dài, không phải giây); chụp
+  đòn bằng `--shot` (cố định khung, dùng `--auto-strike`); thử đá quý (`FFFFFF09` gần như tàng hình); chạy `check.py` cho tệp
+  `src/client/*/` (cần `-I` từng thư mục); Ghidra `s:` không tìm chữ Hán.
 - **Dữ liệu, hình và bản dựng client:** đọc kết quả `collision_tests` (Skipped, thư mục `_raw`);
   cảnh thiếu hiệu ứng hay gom lại `dev/client/assets/effect`; nạp texture và mip; thêm gói shader; dựng
   `thienlong_client` (cần Pillow); sửa đường nạp cảnh hay giao diện (đo bằng `bench_load.py`, ba bẫy đã đo);

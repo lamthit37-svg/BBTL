@@ -34,5 +34,8 @@ thư mục này. Tài liệu cũ ở `docs/` giữ nguyên chỗ (xem chỉ mụ
 
 `docs/TAO-NHAN-VAT-2026.md` (màn tạo nhân vật), `docs/CAMERA-2026.md` (camera, màn đăng nhập),
 `docs/GIAO-DIEN-2026.md` (widget CEGUI), `docs/DUONG-DI-2026.md`, `docs/VA-CHAM-2026.md`,
-`docs/NHIEM-VU-VO-CONG-2026.md`, `docs/NGHI-NGO.md` (sổ nghi ngờ; mục 40 và 46 đã có kết luận ở
-`DANG-NHAP-GOC.md`).
+`docs/NGHI-NGO.md` (sổ nghi ngờ; mục 40 và 46 đã có kết luận ở
+`DANG-NHAP-GOC.md`). Riêng `docs/NHIEM-VU-VO-CONG-2026.md` đang VẮNG sau vụ mất
+cây 2026-10-09 (bản cũ ở `docs/KHOI-PHUC-2026-10-09/chua-du/docs/`); code
+`src/client/book/*`, `Test/Quest`, `Test/Skill`, `TOOLS/port/oracle/*` vẫn trỏ tới
+tên đó nên chưa đổi đường dẫn.

@@ -4,14 +4,17 @@
 Không có mã nguồn. Mã ở `src/server/`. Bản chính thức cùng hình nằm ở `release/server`, database
 riêng. Kế hoạch ở `docs/KE-HOACH-SERVER.md`, danh sách tệp ở `docs/SERVER-TEP-CAU-HINH.md`.
 
-Trạng thái theo mã ngày 2026-10-08 (đo lại trên bản `msvc-release` cài cùng ngày):
+Trạng thái theo mã ngày 2026-10-14 (chi tiết ở mục 0 của `AGENTS.md`):
 
 - Bảy exe đọc và kiểm cấu hình, khởi động theo thứ tự, in `ready`, dừng ngược thứ tự.
 - Chỉ `thienlong_gate` mở cổng: nó nghe hai cổng của `gate.toml`, bắt tay bảo mật
-  (`docs/SERVER-BAO-MAT.md`) và trả lời ba tin mức phiên `Hello`, `Ping`, `Logout`; mọi tin khác
-  bị ngắt. Gate chưa chuyển tiếp gì cho tiến trình phía sau.
-- `thienlong_store`, `_auth`, `_billing`, `_world`, `_zone` mới in `ready` rồi chờ lệnh dừng: chưa
-  mở cổng ipc, chưa nối database, chưa có logic nào.
+  (`docs/SERVER-BAO-MAT.md`), giữ phiên đã bắt tay rồi gửi `SessionStart`, `UiConfig`
+  (`client.toml` `[hud] avatar_frame`) và `Position`; sau đó mới xử lý ba tin mức
+  phiên `Hello`, `Ping`, `Logout`; mọi tin khác bị ngắt.
+- Đã có logic tài khoản/nhân vật dùng chung (`src/server/account/`: sổ, luật, vé,
+  RPC loopback, bản SQL) và `serve_auth`/`serve_game` qua ipc; `thienlong_store`,
+  `_auth`, `_billing`, `_world`, `_zone` ngoài `ready` vẫn chờ lệnh dừng: chưa có
+  migration nào, client chưa nối máy chủ.
 - Chưa có tài khoản, nhân vật hay cảnh nào chạy; client chưa nối máy chủ.
 
 ## Bố cục
