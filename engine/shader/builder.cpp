@@ -80,8 +80,8 @@ struct Work {
     const ShaderSpec* spec = nullptr;
     const BuildOptions* options = nullptr;
     PackageSource source{};
-    std::vector<std::string> files;
-    std::string messages;
+    std::vector<std::string> files{};
+    std::string messages{};
 };
 
 [[nodiscard]] Status compile_variant(Work& work, const std::vector<std::string>& variant, Target target) {

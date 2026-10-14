@@ -317,7 +317,7 @@ struct RealTables {
 
 std::optional<RealTables> real_tables(Context& context) {
     if (kClientData.empty()) return std::nullopt;
-    const std::filesystem::path folder = std::filesystem::path(io::path_from_utf8(kClientData)) / "Table";
+    const std::filesystem::path folder = io::path_from_utf8(kClientData) / "Table";
     const io::TextResult outline_text = io::read_text(folder / "mission_outline.tsv");
     const io::TextResult kinds_text = io::read_text(folder / "mission_kinds.tsv");
     context.expect(outline_text.has_value() && kinds_text.has_value(), "hai bảng nhiệm vụ đã xuất");

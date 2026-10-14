@@ -137,9 +137,10 @@ void add_entry(std::vector<CpuEntry>& entries, const SYSTEM_CPU_SET_INFORMATION&
 
 const DWORD kMainThreadId = current_thread_id();
 
+// std::string có destructor nên đi qua thread_slot, không khai thread_local thẳng (GCC MinGW, xem
+// core/thread_slot.hpp).
 [[nodiscard]] std::string& local_name() {
-    thread_local std::string name;
-    return name;
+    return thread_slot([] { return std::string{}; });
 }
 
 // Tên hệ điều hành do mã khác đặt (thư viện ngoài, debugger); rỗng nếu chưa có.

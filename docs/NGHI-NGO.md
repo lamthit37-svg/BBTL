@@ -215,6 +215,17 @@ kết luận ngay dưới mục đó chứ không xoá.
     `gcc-debug`; sau khi sửa, `log_tests`, `thread_slot_tests`, `core_tests` lặp 40 lượt mỗi ca,
     hai đợt liền (200 lượt), không hỏng lượt nào. `window_tests` chết 0xC0000409 KHÔNG cùng
     nguyên nhân: mục 37.
+
+    Lượt 2026-10-14, phần sửa trên MẤT rồi khôi phục. Trong cây gộp, `core/log.cpp` (hai bộ đệm),
+    `core/log_sink.cpp` (`joined`) và `core/thread.cpp` (`local_name`) lại khai `thread_local
+    std::string` trần, dù cùng sổ này ghi là đã chuyển (cây ghép lại sau vụ xoá nhầm 2026-10-09,
+    `AGENTS.md` mục 0); `log.cpp` và `thread.cpp` còn include `core/thread_slot.hpp` mà không dùng.
+    Đo trên `gcc-debug`: `log_tests` chết 21 trên 30 lần liên tiếp (đúng backtrace trên: gdb bắt
+    `std::string::~basic_string` trên con trỏ `0xfeeefeeefeeefeee` trong `run_dtor_list`, ném
+    `std::system_error: No such process`). Chuyển lại ba chỗ sang `thread_slot`: `log_tests`,
+    `thread_slot_tests`, `core_tests` lặp 40 lần mỗi ca dưới `gcc-debug`, 0 lần chết. `window.cpp` và
+    `clock.cpp` vẫn dùng `thread_slot`; chưa chuyển như cũ: `fs/codec.cpp`,
+    `gpu/gles/context_wgl.cpp` (GCC Windows không dựng).
 13. **Context EGL không hỏi mức anisotropy.** Bản WGL đọc `GL_MAX_TEXTURE_MAX_ANISOTROPY` khi có
     `GL_EXT_texture_filter_anisotropic`; bản EGL chưa từng đọc, nên trên Android
     `caps.max_anisotropy` luôn là 1 dù GPU có extension. Khi gộp hai bản vào `gpu/gles/probe.cpp`

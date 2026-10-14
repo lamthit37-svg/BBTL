@@ -926,6 +926,12 @@ target_link_libraries(game_client_viewer PUBLIC game_core game_client_stage
 if(WIN32)
     find_package(SDL3 CONFIG REQUIRED)
     target_link_libraries(game_client_viewer PRIVATE game_window SDL3::SDL3)
+    # Thư mục include chung của vcpkg tới đây dưới dạng -I, nên Clang -Werror bắt cả SDL_bits.h
+    # (ép kiểu kiểu C). Khai lại là SYSTEM: Clang giữ bản system khi một thư mục có cả hai.
+    get_target_property(game_sdl_include SDL3::Headers INTERFACE_INCLUDE_DIRECTORIES)
+    if(game_sdl_include)
+        target_include_directories(game_client_viewer SYSTEM PRIVATE ${game_sdl_include})
+    endif()
     target_link_libraries(game_client_viewer PUBLIC game_audio)
 endif()
 game_module(client src/client/app/client/options.cpp src/client/app/client/assets.cpp src/client/app/client/boot.cpp)

@@ -10,6 +10,7 @@
 #include "core/handle.hpp"
 #include "core/log.hpp"
 #include "core/text.hpp"
+#include "core/thread_slot.hpp"
 #if defined(_WIN32)
 #include "core/win32.hpp" // IWYU pragma: keep
 
@@ -316,7 +317,8 @@ void LogHistory::append(Level level, std::string_view line) noexcept {
 // Mỗi dòng chép vào bộ đệm của luồng đọc (dùng lại, không cấp phát sau lần đầu), vì dòng có thể vắt
 // qua cuối vòng.
 void LogHistory::visit_all(Visitor visit, const void* user) const {
-    thread_local std::string joined;
+    // std::string có destructor nên đi qua thread_slot (GCC MinGW, core/thread_slot.hpp).
+    std::string& joined = thread_slot([] { return std::string{}; });
     const std::scoped_lock lock(mutex_);
     std::size_t cursor = head_;
     for (std::size_t i = 0; i < count_; ++i) {

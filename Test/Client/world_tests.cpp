@@ -5,13 +5,10 @@
 #include "nav/mesh.hpp"
 #include "test.hpp"
 
-#include <algorithm>
 #include <array>
-#include <cstddef>
 #include <filesystem>
 #include <fstream>
 #include <ios>
-#include <span>
 #include <string>
 #include <string_view>
 #include <system_error>
@@ -77,12 +74,6 @@ struct SceneDir {
 
 [[nodiscard]] bool write_scene(const std::filesystem::path& path) {
     return write_text(path, kSceneText);
-}
-
-[[nodiscard]] bool write_bytes(const std::filesystem::path& path, std::span<const std::byte> bytes) {
-    std::string text(bytes.size(), '\0');
-    std::ranges::transform(bytes, text.begin(), [](std::byte one) { return static_cast<char>(one); });
-    return write_text(path, text);
 }
 
 [[nodiscard]] std::string rows_of(int count) {

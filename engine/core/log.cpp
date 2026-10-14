@@ -219,14 +219,14 @@ private:
 };
 
 // Bộ đệm định dạng của luồng gọi và bộ đệm đọc của bên xả: dùng lại, không cấp phát sau lần đầu.
+// std::string có destructor nên đi qua thread_slot, không khai thread_local thẳng (GCC MinGW, xem
+// core/thread_slot.hpp).
 [[nodiscard]] std::string& line_buffer() {
-    thread_local std::string line;
-    return line;
+    return thread_slot([] { return std::string{}; });
 }
 
 [[nodiscard]] std::string& drain_buffer() {
-    thread_local std::string text;
-    return text;
+    return thread_slot([] { return std::string{}; });
 }
 
 // Giây hiện tại đã định dạng "YYYY-MM-DD HH:MM:SS" theo giờ địa phương; chỉ tính lại khi sang giây
