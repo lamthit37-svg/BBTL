@@ -44,7 +44,7 @@ struct Tx {
     PgConn& conn;
     bool open = false;
 
-    explicit Tx(PgConn& conn) : conn(conn) {}
+    explicit Tx(PgConn& connection) : conn(connection) {}
     ~Tx() {
         if (open) static_cast<void>(conn.exec("ROLLBACK"));
     }
@@ -108,7 +108,7 @@ void burn_dummy(const AuthOptions& options, std::string_view password) {
 [[nodiscard]] std::optional<int> failure_count_ip(PgConn& conn, std::string_view ip) {
     Args args;
     args.text(std::string{ip});
-    args.i64(static_cast<std::int64_t>(kFailWindow.count()));
+    args.i64(kFailWindow.count());
     const PgExec counted =
         conn.exec("SELECT count(*)::text FROM login_attempt "
                   "WHERE ip = $1::inet AND ok = false AND at > now() - make_interval(secs => $2::int)",
@@ -123,7 +123,7 @@ void burn_dummy(const AuthOptions& options, std::string_view password) {
 [[nodiscard]] std::optional<int> failure_count(PgConn& conn, std::string_view fold) {
     Args args;
     args.text(std::string{fold});
-    args.i64(static_cast<std::int64_t>(kFailWindow.count()));
+    args.i64(kFailWindow.count());
     const PgExec counted =
         conn.exec("SELECT count(*)::text FROM login_attempt "
                   "WHERE name_fold = $1 AND ok = false AND at > now() - make_interval(secs => $2::int)",
@@ -154,8 +154,8 @@ struct Loaded {
     bool found = false;
     bool disabled = false;
     std::int64_t id = 0;
-    std::string name;
-    std::string password_hash;
+    std::string name{};
+    std::string password_hash{};
 };
 
 [[nodiscard]] Loaded load_account(PgConn& conn, std::string_view fold) {

@@ -148,25 +148,64 @@ struct Finished {
     return finished;
 }
 
-// Dòng của máy trạng thái giám sát. Chế độ kCommand gộp stderr vào: lời nhắn của store, auth và gate
-// (thiếu secrets.local.toml, cổng ipc bằng 0) đứng xen giữa nhưng không thuộc chu trình khởi động.
-[[nodiscard]] bool is_cycle_line(std::string_view line) {
-    return line.starts_with("started ") || line.starts_with("ready") || line.starts_with("stopped ");
-}
-
-[[nodiscard]] Finished cycle_only(Finished finished) {
-    std::erase_if(finished.lines, [](const std::string& line) { return !is_cycle_line(line); });
-    return finished;
-}
-
 [[nodiscard]] bool has_line_with(const Lines& lines, std::string_view piece) {
     const auto holds = [&](const std::string& line) { return line.contains(piece); };
     return std::ranges::any_of(lines, holds);
 }
 
-void expect_full_cycle(Context& context, const Finished& finished) {
+// Dòng stderr mà cấu hình test (support/loopback_config.hpp: không chép *.local.toml, mọi cổng ipc là 0)
+// chắc chắn in ra khi stderr gộp vào (Mode::kCommand): so nguyên dòng, mỗi dòng đúng một lần.
+constexpr std::array<std::string_view, 3> kExpectedNoise{
+    "auth: chưa có secrets.local.toml, bỏ qua database", // account/serve.cpp:296
+    "store: chưa có secrets.local.toml, bỏ qua database", // account/serve.cpp:364
+    "gate: cổng ipc của auth hoặc store là 0, đăng ký trả bận", // gate/front.cpp:540 (ở 4e22b54)
+};
+
+// Dòng báo tick của gate (gate/front.cpp report: mỗi giây một lần, tám cặp khoá=số, số đổi theo máy). Có hay
+// không tuỳ cụm sống quá một giây, nên được 0..n lần; khoá phải đúng thứ tự, giá trị phải là số thập phân.
+[[nodiscard]] bool is_tick_report(std::string_view line) {
+    constexpr std::string_view kHead = "gate: tick ";
+    constexpr std::array<std::string_view, 8> kKeys{
+        "p99_us", "max_us", "late", "conn", "accept_us", "pump_us", "advance_us", "flush_us"};
+    if (!line.starts_with(kHead)) return false;
+    line.remove_prefix(kHead.size());
+    bool first = true;
+    for (const std::string_view key : kKeys) {
+        if (!first && !line.starts_with(' ')) return false;
+        if (!first) line.remove_prefix(1);
+        first = false;
+        if (!line.starts_with(key)) return false;
+        line.remove_prefix(key.size());
+        if (!line.starts_with('=')) return false;
+        line.remove_prefix(1);
+        const std::size_t end = line.find_first_not_of("0123456789");
+        const std::size_t digits = end == std::string_view::npos ? line.size() : end;
+        if (digits == 0) return false;
+        line.remove_prefix(digits);
+    }
+    return line.empty();
+}
+
+// Bỏ các dòng expected (mỗi dòng phải có đúng một lần) và dòng báo tick; dòng khác giữ lại, nên một dòng lạ
+// làm hỏng phép đếm 13 dòng. nullopt khi một dòng expected thiếu hoặc lặp.
+[[nodiscard]] std::optional<Lines> cycle_lines(const Lines& lines, std::span<const std::string_view> expected) {
+    for (const std::string_view want : expected) {
+        if (std::ranges::count(lines, want) != 1) return std::nullopt;
+    }
+    Lines kept;
+    for (const std::string& line : lines) {
+        const bool is_expected = std::ranges::find(expected, std::string_view{line}) != expected.end();
+        if (!is_expected && !is_tick_report(line)) kept.push_back(line);
+    }
+    return kept;
+}
+
+void expect_full_cycle(Context& context, const Finished& finished, std::span<const std::string_view> noise) {
     context.expect(finished.code == 0, "giám sát thoát 0");
-    const std::span<const std::string> lines{finished.lines};
+    const std::optional<Lines> cycle = cycle_lines(finished.lines, noise);
+    context.expect(cycle.has_value(), "mỗi dòng stderr chờ đợi có đúng một lần");
+    if (!cycle) return;
+    const std::span<const std::string> lines{*cycle};
     context.expect(lines.size() == 13, "đủ 13 dòng");
     if (lines.size() != 13) return;
     context.expect(std::ranges::equal(lines.first(6), kStartLines), "sáu dòng started đúng thứ tự");
@@ -191,7 +230,7 @@ void closed_input_runs_full_cycle(Context& context) {
     const std::optional<std::string> config = loopback_config(context);
     if (!config) return;
     const std::array<std::string_view, 3> arguments{"--config", *config, "--no-postgres"};
-    expect_full_cycle(context, cycle_only(run_to_end("thienlong_server.exe", arguments, Mode::kService)));
+    expect_full_cycle(context, run_to_end("thienlong_server.exe", arguments, Mode::kService), {});
 }
 
 // stdin là thiết bị rỗng (chạy với `< NUL`): đọc là hết dòng ngay, cũng là yêu cầu dừng.
@@ -199,7 +238,7 @@ void empty_input_runs_full_cycle(Context& context) {
     const std::optional<std::string> config = loopback_config(context);
     if (!config) return;
     const std::array<std::string_view, 3> arguments{"--config", *config, "--no-postgres"};
-    expect_full_cycle(context, cycle_only(run_to_end("thienlong_server.exe", arguments, Mode::kCommand)));
+    expect_full_cycle(context, run_to_end("thienlong_server.exe", arguments, Mode::kCommand), kExpectedNoise);
 }
 
 void cluster_stays_up_until_input_closes(Context& context) {
@@ -287,7 +326,36 @@ void bad_command_line_exits_two(Context& context) {
     context.expect(has_line_with(zone.lines, "cluster.toml:"), "lỗi chỉ vào cluster.toml");
 }
 
+// Hàm kiểm thuần, không chạy cụm: dòng stderr lạ, dòng chờ đợi thiếu hoặc lặp, và dòng tick sai dạng đều
+// làm kiểm tra chu trình thất bại.
+void stray_stderr_breaks_cycle(Context& context) {
+    Lines whole{kStartLines.begin(), kStartLines.end()};
+    whole.emplace_back("ready gate.game=40001 gate.auth=40002");
+    whole.insert(whole.end(), kStopLines.begin(), kStopLines.end());
+    Lines noisy = whole;
+    noisy.insert(noisy.begin() + 2, kExpectedNoise.begin(), kExpectedNoise.end());
+    noisy.emplace_back("gate: tick p99_us=12 max_us=40 late=0 conn=0 accept_us=1 pump_us=2 advance_us=3 flush_us=4");
+    const std::optional<Lines> clean = cycle_lines(noisy, kExpectedNoise);
+    context.expect(clean.has_value() && *clean == whole, "ba dòng chờ đợi và dòng tick được bỏ, còn đúng 13 dòng");
+    Lines stray = noisy;
+    stray.emplace_back("gate: không nghe được cổng game: lỗi");
+    const std::optional<Lines> with_stray = cycle_lines(stray, kExpectedNoise);
+    context.expect(with_stray.has_value() && with_stray->size() == 14, "dòng lạ được giữ, phép đếm 13 dòng hỏng");
+    Lines missing = noisy;
+    std::erase(missing, std::string{kExpectedNoise[0]});
+    context.expect(!cycle_lines(missing, kExpectedNoise).has_value(), "thiếu một dòng chờ đợi thì hỏng");
+    Lines twice = noisy;
+    twice.emplace_back(kExpectedNoise[2]);
+    context.expect(!cycle_lines(twice, kExpectedNoise).has_value(), "một dòng chờ đợi lặp thì hỏng");
+    Lines bad_tick = whole;
+    bad_tick.emplace_back("gate: tick p99_us=x max_us=40 late=0 conn=0 accept_us=1 pump_us=2 advance_us=3 flush_us=4");
+    const std::optional<Lines> kept_tick = cycle_lines(bad_tick, {});
+    context.expect(kept_tick.has_value() && kept_tick->size() == 14, "dòng tick sai dạng bị coi là dòng lạ");
+    context.expect(cycle_lines(whole, kExpectedNoise) == std::nullopt, "stderr gộp mà vắng cả ba dòng thì hỏng");
+}
+
 constexpr std::array kCases{
+    Case{.name = "stray_stderr_breaks_cycle", .body = &stray_stderr_breaks_cycle},
     Case{.name = "closed_input_runs_full_cycle", .body = &closed_input_runs_full_cycle},
     Case{.name = "empty_input_runs_full_cycle", .body = &empty_input_runs_full_cycle},
     Case{.name = "cluster_stays_up_until_input_closes", .body = &cluster_stays_up_until_input_closes},

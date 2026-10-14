@@ -412,7 +412,7 @@ if(NOT CMAKE_CROSSCOMPILING)
     if(TARGET game_config)
         game_module(gate src/server/gate/table.cpp src/server/gate/front.cpp src/server/gate/motion.cpp)
         target_link_libraries(game_gate PUBLIC game_core game_net game_protocol game_secure game_config game_guard
-            PRIVATE game_io game_process)
+            game_metrics PRIVATE game_io game_process)
         target_link_libraries(game_service PUBLIC game_gate)
         game_module(account
             src/server/account/rules.cpp

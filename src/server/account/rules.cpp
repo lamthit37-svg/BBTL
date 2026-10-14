@@ -17,11 +17,6 @@ namespace {
     return digit || upper || lower || value == '_';
 }
 
-[[nodiscard]] bool banned_in_name(unsigned char value) noexcept {
-    if (value < 0x20 || value == 0x7f) return true;
-    return value == '<' || value == '>' || value == '{' || value == '}' || value == '\\' || value == '|';
-}
-
 [[nodiscard]] int hex_value(unsigned char value) noexcept {
     if (value >= '0' && value <= '9') return value - '0';
     if (value >= 'a' && value <= 'f') return value - 'a' + 10;
@@ -377,29 +372,55 @@ void append_utf8(std::string& out, char32_t cp) {
     return cp;
 }
 
-} // namespace
+// Bảng mặc định khớp bảng client hiện tại. Là mảng constexpr, không phải biến static có destructor,
+// nên không có việc dọn lúc thoát tiến trình và look_ok mặc định không cấp phát.
+constexpr std::array<std::uint16_t, 6> kDefaultFemaleFaces{1, 2, 3, 4, 5, 14};
+constexpr std::array<std::uint16_t, 6> kDefaultMaleFaces{100, 101, 102, 103, 104, 113};
+constexpr std::array<std::uint16_t, 3> kDefaultFemaleHairs{1, 17, 19};
+constexpr std::array<std::uint16_t, 3> kDefaultMaleHairs{5, 12, 14};
 
-const LookPolicy& default_look_policy() {
-    static const LookPolicy kDefault{
-        .female_faces = {1, 2, 3, 4, 5, 14},
-        .male_faces = {100, 101, 102, 103, 104, 113},
-        .female_hairs = {1, 17, 19},
-        .male_hairs = {5, 12, 14},
-    };
-    return kDefault;
-}
+struct LookSets {
+    std::span<const std::uint16_t> female_faces;
+    std::span<const std::uint16_t> male_faces;
+    std::span<const std::uint16_t> female_hairs;
+    std::span<const std::uint16_t> male_hairs;
+};
 
-bool look_ok(const LookPolicy& policy, protocol::Gender gender, std::uint16_t face, std::uint16_t hair) noexcept {
+[[nodiscard]] bool look_in(const LookSets& sets, protocol::Gender gender, std::uint16_t face,
+    std::uint16_t hair) noexcept {
     const auto has = [](std::span<const std::uint16_t> set, std::uint16_t id) {
         return std::ranges::find(set, id) != set.end();
     };
-    if (gender == protocol::Gender::kFemale) return has(policy.female_faces, face) && has(policy.female_hairs, hair);
-    if (gender == protocol::Gender::kMale) return has(policy.male_faces, face) && has(policy.male_hairs, hair);
+    if (gender == protocol::Gender::kFemale) return has(sets.female_faces, face) && has(sets.female_hairs, hair);
+    if (gender == protocol::Gender::kMale) return has(sets.male_faces, face) && has(sets.male_hairs, hair);
     return false;
 }
 
+} // namespace
+
+LookPolicy default_look_policy() {
+    return LookPolicy{
+        .female_faces{kDefaultFemaleFaces.begin(), kDefaultFemaleFaces.end()},
+        .male_faces{kDefaultMaleFaces.begin(), kDefaultMaleFaces.end()},
+        .female_hairs{kDefaultFemaleHairs.begin(), kDefaultFemaleHairs.end()},
+        .male_hairs{kDefaultMaleHairs.begin(), kDefaultMaleHairs.end()},
+    };
+}
+
+bool look_ok(const LookPolicy& policy, protocol::Gender gender, std::uint16_t face, std::uint16_t hair) noexcept {
+    const LookSets sets{.female_faces = policy.female_faces,
+        .male_faces = policy.male_faces,
+        .female_hairs = policy.female_hairs,
+        .male_hairs = policy.male_hairs};
+    return look_in(sets, gender, face, hair);
+}
+
 bool look_ok(protocol::Gender gender, std::uint16_t face, std::uint16_t hair) noexcept {
-    return look_ok(default_look_policy(), gender, face, hair);
+    const LookSets sets{.female_faces = kDefaultFemaleFaces,
+        .male_faces = kDefaultMaleFaces,
+        .female_hairs = kDefaultFemaleHairs,
+        .male_hairs = kDefaultMaleHairs};
+    return look_in(sets, gender, face, hair);
 }
 
 std::string fold_character_name(std::string_view canonical) {

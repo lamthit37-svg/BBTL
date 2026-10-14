@@ -55,7 +55,7 @@ struct LookPolicy {
     std::vector<std::uint16_t> male_hairs;
 };
 
-[[nodiscard]] const LookPolicy& default_look_policy();
+[[nodiscard]] LookPolicy default_look_policy();
 [[nodiscard]] bool look_ok(const LookPolicy& policy, protocol::Gender gender, std::uint16_t face,
     std::uint16_t hair) noexcept;
 // Theo default_look_policy().

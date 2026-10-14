@@ -101,15 +101,6 @@ struct In {
     }
 };
 
-[[nodiscard]] std::vector<std::byte> frame_of(std::uint16_t code, std::span<const std::byte> body) {
-    if (body.size() + 2 > kPayloadMax) return {};
-    Out out;
-    out.u32(static_cast<std::uint32_t>(body.size() + 2));
-    out.u16(code);
-    out.bytes.insert(out.bytes.end(), body.begin(), body.end());
-    return std::move(out.bytes);
-}
-
 [[nodiscard]] std::chrono::milliseconds remaining(Clock::time_point deadline) {
     const auto left = std::chrono::duration_cast<std::chrono::milliseconds>(deadline - Clock::now());
     if (left.count() < 0) return std::chrono::milliseconds::zero();
@@ -163,14 +154,17 @@ struct In {
     }
 }
 
+// Độ dài khung: bốn byte đầu, little-endian.
+[[nodiscard]] std::uint32_t frame_size(std::span<const std::byte> head) noexcept {
+    return std::to_integer<std::uint32_t>(head[0]) | (std::to_integer<std::uint32_t>(head[1]) << 8U) |
+        (std::to_integer<std::uint32_t>(head[2]) << 16U) | (std::to_integer<std::uint32_t>(head[3]) << 24U);
+}
+
 [[nodiscard]] std::optional<Reply> read_reply(net::TcpStream& stream, net::PollSet& poll, Clock::time_point deadline,
     secure::ByteView key) {
     std::array<std::byte, 4> head{};
     if (!read_exact(stream, poll, head, deadline)) return std::nullopt;
-    const auto size = static_cast<std::uint32_t>(static_cast<unsigned>(head[0])) |
-        (static_cast<std::uint32_t>(static_cast<unsigned>(head[1])) << 8U) |
-        (static_cast<std::uint32_t>(static_cast<unsigned>(head[2])) << 16U) |
-        (static_cast<std::uint32_t>(static_cast<unsigned>(head[3])) << 24U);
+    const std::uint32_t size = frame_size(head);
     constexpr std::uint32_t kBoxMin = 24 + 16 + 2;
     constexpr std::uint32_t kBoxMax = kBoxMin + kPayloadMax;
     if (size < kBoxMin || size > kBoxMax) return std::nullopt;
@@ -199,15 +193,6 @@ struct In {
     wire.u32(static_cast<std::uint32_t>(boxed->size()));
     wire.bytes.insert(wire.bytes.end(), boxed->begin(), boxed->end());
     return std::move(wire.bytes);
-}
-
-[[nodiscard]] bool read_call(net::TcpStream& stream, net::PollSet& poll, secure::ByteView key, Call& call) {
-    const Clock::time_point deadline = Clock::now() + std::chrono::seconds{3};
-    const std::optional<Reply> reply = read_reply(stream, poll, deadline, key);
-    if (!reply) return false;
-    call.op = static_cast<Op>(reply->code);
-    call.body = std::move(reply->body);
-    return true;
 }
 
 void write_summary(Out& out, const protocol::CharacterSummary& summary) {
@@ -581,7 +566,7 @@ struct Server {
 [[nodiscard]] Conn* conn_of(Server& server, std::uint64_t tag) noexcept {
     const std::uint64_t low = tag & 0xFFFFFFFFULL;
     if (low < kFirstConnTag || low - kFirstConnTag >= kConns) return nullptr;
-    Conn& conn = server.conns[static_cast<std::size_t>(low - kFirstConnTag)];
+    Conn& conn = server.conns[low - kFirstConnTag];
     if (conn.phase == Phase::kFree || conn.tag != tag) return nullptr;
     return &conn;
 }
@@ -631,13 +616,6 @@ void begin_reply(Server& server, Conn& conn, std::uint16_t code, std::span<const
     conn.phase = Phase::kWriting;
     conn.deadline = Clock::now() + kIoLimit;
     flush(server, conn);
-}
-
-[[nodiscard]] std::uint32_t frame_size(std::span<const std::byte> head) noexcept {
-    return static_cast<std::uint32_t>(static_cast<unsigned>(head[0])) |
-        (static_cast<std::uint32_t>(static_cast<unsigned>(head[1])) << 8U) |
-        (static_cast<std::uint32_t>(static_cast<unsigned>(head[2])) << 16U) |
-        (static_cast<std::uint32_t>(static_cast<unsigned>(head[3])) << 24U);
 }
 
 void take_frame(Server& server, Conn& conn) {

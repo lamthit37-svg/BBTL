@@ -100,9 +100,12 @@ void close_accept(AcceptOp& accept) noexcept {
     return WSASocketW(AF_INET, SOCK_STREAM, IPPROTO_TCP, nullptr, 0, flags);
 }
 
+// FIONBIO của SDK là unsigned long, ioctlsocket nhận long: ép một lần (như socket_win32.cpp).
+constexpr long kNonBlockingCommand = static_cast<long>(FIONBIO);
+
 [[nodiscard]] bool set_nonblocking(SOCKET socket) noexcept {
     u_long enabled = 1;
-    return ioctlsocket(socket, FIONBIO, &enabled) == 0;
+    return ioctlsocket(socket, kNonBlockingCommand, &enabled) == 0;
 }
 
 [[nodiscard]] bool set_nodelay(SOCKET socket) noexcept {

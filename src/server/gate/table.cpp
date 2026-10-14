@@ -4,6 +4,7 @@
 #include "gate/motion.hpp"
 
 #include "account/realm.hpp"
+#include "metrics/metrics.hpp"
 #include "net/net.hpp"
 #include "net/shard.hpp"
 #include "protocol/messages.hpp"
@@ -192,6 +193,10 @@ struct Engine {
     std::vector<Cidr> allow;
     std::vector<Cidr> deny;
     const secure::Identity* identity = nullptr;
+    // nullptr khi bảng dựng không có Backing: khi đó chỉ đếm vào drops.
+    metrics::Registry* registry = nullptr;
+    // Số lần bắt tay xong từ lần advance trước, đẩy ra Gauge::kGateHandshakePerTick.
+    std::int64_t handshakes_since_tick = 0;
     std::vector<Slot> slots;
     // Mốc sớm nhất một ô có thể tới hạn bắt tay hoặc idle, xếp liền nhau để advance() chỉ quét 8 byte
     // mỗi ô thay vì chạm vào Slot (hàng chục KB, nhiều lần trượt cache mỗi ô). Mốc chỉ được sớm hơn
@@ -312,8 +317,49 @@ void lose_ip(Engine& state, net::Ipv4 address) noexcept {
     return &slot;
 }
 
+void count(Engine& state, metrics::Counter which) noexcept {
+    if (state.registry != nullptr) state.registry->add(which);
+}
+
+// Bộ đếm metrics của từng lý do ngắt. Không có default: thêm một Drop mà quên ở đây thì -Wswitch báo.
+[[nodiscard]] std::optional<metrics::Counter> counter_of(Drop reason) noexcept {
+    switch (reason) {
+    case Drop::kHandshake: return metrics::Counter::kGateDropHandshake;
+    case Drop::kIdle: return metrics::Counter::kGateDropIdle;
+    case Drop::kRate: return metrics::Counter::kGateDropRate;
+    case Drop::kFrame: return metrics::Counter::kGateDropFrame;
+    case Drop::kProtocol: return metrics::Counter::kGateDropProtocol;
+    case Drop::kSecure: return metrics::Counter::kGateDropSecure;
+    case Drop::kFull: return metrics::Counter::kGateDropFull;
+    case Drop::kPerIp: return metrics::Counter::kGateDropPerIp;
+    case Drop::kDenied: return metrics::Counter::kGateDropDenied;
+    case Drop::kSlow: return metrics::Counter::kGateDropSlow;
+    case Drop::kForeign: return metrics::Counter::kGateDropForeign;
+    case Drop::kVersion: return metrics::Counter::kGateDropVersion;
+    case Drop::kLogout: return metrics::Counter::kGateDropLogout;
+    case Drop::kClosed: return metrics::Counter::kGateDropClosed;
+    case Drop::kStop: return metrics::Counter::kGateDropStop;
+    case Drop::kLocal: return metrics::Counter::kGateDropLocal;
+    case Drop::kCount: return std::nullopt;
+    }
+    return std::nullopt;
+}
+
+void count_drop(Engine& state, Drop reason) noexcept {
+    const auto which = static_cast<std::size_t>(reason);
+    if (which == 0 || which >= state.drops.size()) return;
+    auto counter = state.drops.begin();
+    std::advance(counter, static_cast<std::ptrdiff_t>(which));
+    ++*counter;
+    const std::optional<metrics::Counter> metric = counter_of(reason);
+    if (metric) count(state, *metric);
+}
+
 void remember_closed(Engine& state, Handle handle) {
-    if (state.closed.size() == state.closed.capacity()) return;
+    if (state.closed.size() == state.closed.capacity()) {
+        count(state, metrics::Counter::kGateClosedOverflow);
+        return;
+    }
     state.closed.push_back(handle);
 }
 
@@ -350,11 +396,7 @@ void release(Engine& state, Slot& slot, std::uint32_t index, Drop reason) {
     if (state.live > 0) --state.live;
     state.free_slots.push_back(index);
     remember_closed(state, handle);
-    const auto which = static_cast<std::size_t>(reason);
-    if (which >= state.drops.size()) return;
-    auto counter = state.drops.begin();
-    std::advance(counter, static_cast<std::ptrdiff_t>(which));
-    ++*counter;
+    count_drop(state, reason);
 }
 
 [[nodiscard]] bool enqueue(Slot& slot, secure::ByteView bytes) noexcept {
@@ -505,8 +547,7 @@ void send_roster(Engine& state, Slot& slot, std::uint32_t index, const account::
         return;
     }
     slot.scratch.clear();
-    protocol::CharacterList message;
-    message.characters = roster.characters;
+    const protocol::CharacterList message{.characters = roster.characters};
     const bool encoded = protocol::encode(slot.scratch, message).has_value();
     if (!encoded || !seal_to(state, slot, index, slot.scratch)) release(state, slot, index, Drop::kSlow);
 }
@@ -1201,6 +1242,8 @@ void open_pipe(SlotNow in, secure::ByteView bytes, std::size_t consumed) {
     secure::SessionKeys keys = handshake.take_keys();
     in.slot.handshake.reset();
     in.slot.pipe.emplace(std::move(keys));
+    ++in.state.handshakes_since_tick;
+    count(in.state, metrics::Counter::kGateHandshakeDone);
     if (consumed >= bytes.size()) return;
     feed_records(in.state, in.slot, in.index, bytes.subspan(consumed), in.now);
 }
@@ -1271,6 +1314,7 @@ std::string_view describe(Drop reason) noexcept {
     case Drop::kLogout: return "client đóng phiên";
     case Drop::kClosed: return "bên kia đóng kết nối";
     case Drop::kStop: return "gate dừng";
+    case Drop::kLocal: return "lỗi phía gate";
     case Drop::kCount: return "lý do không rõ";
     }
     return "lý do không rõ";
@@ -1316,6 +1360,11 @@ Table::Table(Limits limits, std::vector<Cidr> allow, std::vector<Cidr> deny, con
     state_->ips.resize(ip_slots);
 }
 
+Table::Table(Limits limits, std::vector<Cidr> allow, std::vector<Cidr> deny, Backing backing)
+    : Table(limits, std::move(allow), std::move(deny), backing.identity.get()) {
+    state_->registry = &backing.registry.get();
+}
+
 Table::~Table() = default;
 
 Table::Table(Table&&) noexcept = default;
@@ -1350,9 +1399,19 @@ void Table::collect() {
 }
 
 Admit Table::admit(net::Ipv4 address, std::int64_t now, Door door) {
-    if (state_->free_slots.empty()) return Admit{.code = AdmitCode::kFull};
-    if (!address_ok(*state_, address)) return Admit{.code = AdmitCode::kDenied};
-    if (!gain_ip(*state_, address)) return Admit{.code = AdmitCode::kPerIp};
+    // Ba lý do từ chối lúc nhận đếm ở đây: kết nối bị từ chối chưa có ô nên không đi qua release.
+    if (state_->free_slots.empty()) {
+        count_drop(*state_, Drop::kFull);
+        return Admit{.code = AdmitCode::kFull};
+    }
+    if (!address_ok(*state_, address)) {
+        count_drop(*state_, Drop::kDenied);
+        return Admit{.code = AdmitCode::kDenied};
+    }
+    if (!gain_ip(*state_, address)) {
+        count_drop(*state_, Drop::kPerIp);
+        return Admit{.code = AdmitCode::kPerIp};
+    }
     const std::uint32_t index = state_->free_slots.back();
     state_->free_slots.pop_back();
     Slot& slot = state_->slots[index];
@@ -1383,6 +1442,7 @@ Admit Table::admit(net::Ipv4 address, std::int64_t now, Door door) {
     slot.pipe.reset();
     state_->due[index] = now;
     ++state_->live;
+    count(*state_, metrics::Counter::kGateAdmitOk);
     return Admit{.code = AdmitCode::kOk, .handle = Handle{.index = index, .generation = slot.generation}};
 }
 
@@ -1464,6 +1524,12 @@ void Table::advance(std::int64_t now) {
         if (now < due[index]) continue;
         clock_slot(*state_, TickAt{.index = index, .now = now});
     }
+    const std::int64_t handshakes = std::exchange(state_->handshakes_since_tick, 0);
+    metrics::Registry* const registry = state_->registry;
+    if (registry == nullptr) return;
+    registry->set(metrics::Gauge::kGateLive, static_cast<std::int64_t>(state_->live));
+    registry->set(metrics::Gauge::kGateListening, listening() ? 1 : 0);
+    registry->set(metrics::Gauge::kGateHandshakePerTick, handshakes);
 }
 
 void Table::close_all() {

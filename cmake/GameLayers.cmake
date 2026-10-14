@@ -34,7 +34,9 @@ set(game_layer_metrics "core metrics")
 set(game_layer_metrics/serve "core net metrics metrics/serve")
 set(game_layer_store "core io store")
 set(game_layer_account "core config io net protocol secure process store account")
-set(game_layer_gate "core config io net protocol secure process account guard gate")
+# gate ghi bộ đếm/mức đo vào metrics::Registry (gate::Backing). metrics chỉ phụ thuộc core nên phụ thuộc vẫn đi xuống;
+# gate không được dùng metrics/serve (net + HTTP), chỉ phần lõi metrics.
+set(game_layer_gate "core config io net protocol secure process account guard metrics gate")
 set(game_layer_service "core io config process supervise gate account service")
 set(game_layer_supervisor "service supervisor")
 set(game_layer_stored "service stored")

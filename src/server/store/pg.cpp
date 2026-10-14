@@ -15,24 +15,16 @@ namespace {
 
 constexpr int kParamCap = 32;
 
+// Giữ PGresult cho tới hết phạm vi (chỉ from_result dùng), nên không cần chuyển quyền sở hữu.
 struct Result {
-    PGresult* raw = nullptr;
+    PGresult* raw;
 
-    Result() = default;
-    explicit Result(PGresult* raw) noexcept : raw(raw) {}
+    explicit Result(PGresult* handle) noexcept : raw(handle) {}
     ~Result() {
         if (raw != nullptr) PQclear(raw);
     }
     Result(const Result&) = delete;
     Result& operator=(const Result&) = delete;
-    Result(Result&& other) noexcept : raw(other.raw) { other.raw = nullptr; }
-    Result& operator=(Result&& other) noexcept {
-        if (this == &other) return *this;
-        if (raw != nullptr) PQclear(raw);
-        raw = other.raw;
-        other.raw = nullptr;
-        return *this;
-    }
 };
 
 [[nodiscard]] std::string trimmed(const char* text) {

@@ -97,10 +97,11 @@ enum class CloseHow : std::uint8_t { kReset, kFinish };
     const std::string_view host = endpoint.host.text();
     const std::uint16_t port = endpoint.port.value();
     const std::string text = std::format("{}:{}", host, port);
-    // Cổng 0 chỉ qua được bộ đọc cấu hình khi nghe đúng 127.0.0.1 (config::Port::any): hệ điều hành cấp
-    // cổng lúc nghe và dòng ready báo lại cổng thật.
-    const net::ZeroPort zero = port == 0 ? net::ZeroPort::kAllow : net::ZeroPort::kRefuse;
-    return net::parse_endpoint(text, zero);
+    // Cổng 0 (hệ điều hành tự cấp) chỉ khi nghe đúng 127.0.0.1: bộ đọc cấu hình đã chỉ trả Port::any() cho
+    // 127.0.0.1 (config/read.cpp:167-168, config/types.cpp:141-142); kiểm lại ở đây để địa chỉ khác không
+    // bao giờ nghe cổng ngẫu nhiên. Cổng thật được báo lại trong dòng ready.
+    const bool any_port = port == 0 && config::is_loopback(endpoint.host);
+    return net::parse_endpoint(text, any_port ? net::ZeroPort::kAllow : net::ZeroPort::kRefuse);
 }
 
 void fail_listen(std::string_view name, net::NetError error) {
@@ -205,7 +206,8 @@ void keep_stream(Held& place, net::TcpStream stream, Handle handle, net::Reactor
     }
     Held& place = loop.held[admitted.handle.index];
     keep_stream(place, std::move(accepted.stream), admitted.handle, loop.reactor);
-    if (!place.open) loop.table.drop(admitted.handle, Drop::kClosed);
+    // reactor không nhận socket: lỗi phía gate, không phải bên kia đóng (docs/TIEN-DO.md:1994).
+    if (!place.open) loop.table.drop(admitted.handle, Drop::kLocal);
     return AcceptStep::kAgain;
 }
 

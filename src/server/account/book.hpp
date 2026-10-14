@@ -45,7 +45,7 @@ struct ListResult {
     bool ok = false;
     protocol::ErrorCode code = protocol::ErrorCode::kBusy;
     std::uint64_t account = 0;
-    std::vector<protocol::CharacterSummary> characters;
+    std::vector<protocol::CharacterSummary> characters{};
 };
 
 // Trần toạ độ điểm vào game, centimet (100 km). Số nguyên tới đây vẫn đúng tuyệt đối trong float.

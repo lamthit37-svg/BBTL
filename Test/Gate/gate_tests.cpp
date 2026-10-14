@@ -1,5 +1,6 @@
 // Giới hạn và tin mức phiên của bảng kết nối, không mở socket và không ngủ.
 #include "gate/table.hpp"
+#include "metrics/metrics.hpp"
 #include "net/net.hpp"
 #include "protocol/messages.hpp"
 #include "protocol/wire.hpp"
@@ -12,6 +13,8 @@
 #include <cstddef>
 #include <cstdint>
 #include <cstring>
+#include <initializer_list>
+#include <memory>
 #include <optional>
 #include <span>
 #include <string_view>
@@ -28,6 +31,8 @@ using gate::Drop;
 using gate::Handle;
 using gate::Limits;
 using gate::Table;
+using metrics::Counter;
+using metrics::Gauge;
 using secure::ByteView;
 
 constexpr net::Ipv4 kOne{10, 0, 0, 1};
@@ -67,13 +72,16 @@ constexpr std::int64_t kNow = 1'000'000'000;
 }
 
 struct Linked {
+    // Khai trước table để sống lâu hơn bảng đang trỏ vào nó.
+    std::unique_ptr<metrics::Registry> registry;
     Table table;
     Handle handle;
     secure::RecordPipe client;
 };
 
 [[nodiscard]] Linked connected(const secure::Identity& identity, Limits limits) {
-    Table table{limits, {}, {}, identity};
+    auto registry = std::make_unique<metrics::Registry>();
+    Table table{limits, {}, {}, gate::Backing{.identity = identity, .registry = *registry}};
     const gate::Admit admitted = table.admit(kOne, kNow);
     core::check(admitted.code == AdmitCode::kOk, "nhận kết nối");
     secure::Result<secure::ClientHandshake> client = secure::ClientHandshake::begin();
@@ -84,7 +92,10 @@ struct Linked {
     core::check(keys.has_value(), "client xong bắt tay");
     table.mark_sent(admitted.handle, reply.size());
     secure::RecordPipe pipe{std::move(*keys)};
-    return Linked{.table = std::move(table), .handle = admitted.handle, .client = std::move(pipe)};
+    return Linked{.registry = std::move(registry),
+        .table = std::move(table),
+        .handle = admitted.handle,
+        .client = std::move(pipe)};
 }
 
 void full_refuses(Context& context) {
@@ -290,6 +301,213 @@ void idle_times_out(Context& context) {
     context.expect(counted || told, "im lặng thì báo đóng");
 }
 
+// Ba lý do từ chối lúc nhận tăng đúng bộ đếm của mình, mỗi lần từ chối một đơn vị. Trước khi bảng
+// ghi vào kho số đo, cả ba đều ra 0: kết nối bị từ chối chưa có ô nên không đi qua release.
+void admit_refusals_are_counted(Context& context) {
+    constexpr std::uint8_t kExtra = 5;
+    const secure::Identity identity = make_identity();
+    const auto full = std::make_unique<metrics::Registry>();
+    Table packed{small_limits(), {}, {}, gate::Backing{.identity = identity, .registry = *full}};
+    const bool is_packed = packed.admit(kOne, kNow).code == AdmitCode::kOk && packed.admit(kTwo, kNow).code == AdmitCode::kOk;
+    context.expect(is_packed, "lấp đầy bảng hai ô");
+    for (std::uint8_t last = 0; last < kExtra; ++last) {
+        context.expect(packed.admit(net::Ipv4{10, 0, 1, last}, kNow).code == AdmitCode::kFull, "bảng đầy thì từ chối");
+    }
+    context.expect(packed.drops(Drop::kFull) == kExtra, "đếm đủ số lần từ chối vì đầy");
+    context.expect(full->read(Counter::kGateDropFull) == kExtra, "kho số đo thấy cùng con số");
+    context.expect(full->read(Counter::kGateAdmitOk) == 2, "hai kết nối được nhận");
+    context.expect(packed.drops(Drop::kPerIp) == 0 && packed.drops(Drop::kDenied) == 0, "hai lý do kia không đổi");
+
+    const auto crowded = std::make_unique<metrics::Registry>();
+    Limits wide = small_limits();
+    wide.max_connections = 16;
+    Table shared{wide, {}, {}, gate::Backing{.identity = identity, .registry = *crowded}};
+    context.expect(shared.admit(kOne, kNow).code == AdmitCode::kOk, "địa chỉ được một kết nối");
+    for (std::uint8_t round = 0; round < kExtra; ++round) {
+        context.expect(shared.admit(kOne, kNow).code == AdmitCode::kPerIp, "quá trần của một địa chỉ");
+    }
+    context.expect(shared.drops(Drop::kPerIp) == kExtra, "đếm đủ số lần từ chối theo địa chỉ");
+    context.expect(shared.drops(Drop::kFull) == 0 && shared.drops(Drop::kDenied) == 0, "hai lý do kia không đổi");
+
+    const auto barred = std::make_unique<metrics::Registry>();
+    const Cidr deny = gate::parse_cidr("10.0.0.0/8").value_or(Cidr{});
+    Table closed{wide, {}, std::vector<Cidr>{deny}, gate::Backing{.identity = identity, .registry = *barred}};
+    for (std::uint8_t round = 0; round < kExtra; ++round) {
+        context.expect(closed.admit(kOne, kNow).code == AdmitCode::kDenied, "địa chỉ trong dải chặn");
+    }
+    context.expect(closed.drops(Drop::kDenied) == kExtra, "đếm đủ số lần từ chối vì bị chặn");
+    context.expect(barred->read(Counter::kGateAdmitOk) == 0, "không kết nối nào được nhận");
+}
+
+// Lý do ngắt xảy ra sau khi kết nối đã được nhận: mọi lý do trừ ba lý do từ chối lúc nhận.
+[[nodiscard]] bool is_after_admit(Drop reason) noexcept {
+    return reason != Drop::kFull && reason != Drop::kPerIp && reason != Drop::kDenied;
+}
+
+[[nodiscard]] std::uint64_t dropped_after_admit(const Table& table) noexcept {
+    std::uint64_t sum = 0;
+    for (std::uint8_t reason = 1; reason < std::to_underlying(Drop::kCount); ++reason) {
+        if (is_after_admit(Drop{reason})) sum += table.drops(Drop{reason});
+    }
+    return sum;
+}
+
+// Hai đẳng thức của sổ: kết nối được nhận thì hoặc còn sống hoặc nằm trong đúng một bộ đếm ngắt; lần
+// nhận nào cũng hoặc thành công hoặc nằm trong một trong ba bộ đếm từ chối.
+void counters_balance_after_mixed_run(Context& context) {
+    const secure::Identity identity = make_identity();
+    Limits limits = small_limits();
+    limits.max_connections = 3;
+    limits.per_ip = 2;
+    Linked linked = connected(identity, limits);
+    const metrics::Registry& registry = *linked.registry;
+    context.expect(linked.table.admit(kOne, kNow).code == AdmitCode::kOk, "kết nối thứ hai của cùng địa chỉ");
+    context.expect(linked.table.admit(kOne, kNow).code == AdmitCode::kPerIp, "kết nối thứ ba của địa chỉ bị từ chối");
+    context.expect(linked.table.admit(kTwo, kNow).code == AdmitCode::kOk, "địa chỉ khác lấp đầy bảng");
+    context.expect(linked.table.admit(kTwo, kNow).code == AdmitCode::kFull, "bảng đầy");
+    const auto balanced = [&] {
+        const std::uint64_t admitted = registry.read(Counter::kGateAdmitOk);
+        const std::uint64_t refused = linked.table.drops(Drop::kFull) + linked.table.drops(Drop::kPerIp) + linked.table.drops(Drop::kDenied);
+        return admitted == dropped_after_admit(linked.table) + linked.table.live() && admitted + refused == 5;
+    };
+    context.expect(balanced(), "sổ cân khi ba kết nối còn sống");
+    linked.table.advance(kNow);
+    context.expect(registry.read(Gauge::kGateLive) == 3, "mức đo số kết nối sống");
+    context.expect(registry.read(Gauge::kGateListening) == 0, "bảng đầy thì mức đo nghe bằng 0");
+    context.expect(registry.read(Gauge::kGateHandshakePerTick) == 1, "một lần bắt tay từ lúc dựng bảng");
+    linked.table.advance(kNow + limits.handshake_ns);
+    context.expect(linked.table.drops(Drop::kHandshake) == 2, "hai kết nối chưa bắt tay bị ngắt");
+    context.expect(registry.read(Gauge::kGateHandshakePerTick) == 0, "tick không có bắt tay thì mức đo về 0");
+    context.expect(balanced(), "sổ cân sau khi hết hạn bắt tay");
+    send_hello(linked, 1);
+    std::vector<std::byte> frame;
+    core::check(protocol::encode(frame, protocol::Logout{}).has_value(), "mã hoá Logout");
+    send_bytes(linked, frame, kNow);
+    drain(linked);
+    context.expect(linked.table.live() == 0 && balanced(), "sổ cân khi không còn kết nối nào");
+    context.expect(registry.read(Counter::kGateHandshakeDone) == 1, "một lần bắt tay xong");
+    context.expect(registry.read(Counter::kGateClosedOverflow) == 0, "hàng ô đã đóng không tràn");
+    linked.table.advance(kNow + limits.handshake_ns);
+    context.expect(registry.read(Gauge::kGateLive) == 0 && registry.read(Gauge::kGateListening) == 1, "mức đo sau khi trống");
+}
+
+// Gate tự ngắt vì lỗi phía mình (front.cpp: reactor không nhận socket) đếm vào kLocal, tách khỏi kClosed.
+void local_drop_is_counted(Context& context) {
+    const secure::Identity identity = make_identity();
+    const auto registry = std::make_unique<metrics::Registry>();
+    Table table{small_limits(), {}, {}, gate::Backing{.identity = identity, .registry = *registry}};
+    const gate::Admit admitted = table.admit(kOne, kNow);
+    context.expect(admitted.code == AdmitCode::kOk, "nhận kết nối");
+    table.drop(admitted.handle, Drop::kLocal);
+    context.expect(!table.is_live(admitted.handle), "ngắt vì lỗi phía gate");
+    context.expect(table.drops(Drop::kLocal) == 1 && table.drops(Drop::kClosed) == 0,
+        "đếm vào kLocal, không vào kClosed");
+    context.expect(registry->read(Counter::kGateDropLocal) == 1, "kho số đo thấy gate.drop.local");
+    context.expect(registry->read(Counter::kGateDropClosed) == 0, "gate.drop.closed không đổi");
+}
+
+// Bảng viết tay: mỗi lý do ngắt ứng với đúng một bộ đếm metrics.
+struct DropMetric {
+    Drop reason;
+    Counter counter;
+};
+
+constexpr std::array<DropMetric, 16> kDropMetrics{{
+    {.reason = Drop::kHandshake, .counter = Counter::kGateDropHandshake},
+    {.reason = Drop::kIdle, .counter = Counter::kGateDropIdle},
+    {.reason = Drop::kRate, .counter = Counter::kGateDropRate},
+    {.reason = Drop::kFrame, .counter = Counter::kGateDropFrame},
+    {.reason = Drop::kProtocol, .counter = Counter::kGateDropProtocol},
+    {.reason = Drop::kSecure, .counter = Counter::kGateDropSecure},
+    {.reason = Drop::kFull, .counter = Counter::kGateDropFull},
+    {.reason = Drop::kPerIp, .counter = Counter::kGateDropPerIp},
+    {.reason = Drop::kDenied, .counter = Counter::kGateDropDenied},
+    {.reason = Drop::kSlow, .counter = Counter::kGateDropSlow},
+    {.reason = Drop::kForeign, .counter = Counter::kGateDropForeign},
+    {.reason = Drop::kVersion, .counter = Counter::kGateDropVersion},
+    {.reason = Drop::kLogout, .counter = Counter::kGateDropLogout},
+    {.reason = Drop::kClosed, .counter = Counter::kGateDropClosed},
+    {.reason = Drop::kStop, .counter = Counter::kGateDropStop},
+    {.reason = Drop::kLocal, .counter = Counter::kGateDropLocal},
+}};
+
+using CounterValues = std::array<std::uint64_t, metrics::kCounterCount>;
+
+[[nodiscard]] CounterValues read_counters(const metrics::Registry& registry) noexcept {
+    CounterValues values{};
+    for (std::size_t index = 0; index < values.size(); ++index) {
+        values.at(index) = registry.read(static_cast<Counter>(index));
+    }
+    return values;
+}
+
+// Ngắt một kết nối với từng lý do: đúng bộ đếm của lý do đó tăng 1, mọi bộ đếm khác giữ nguyên.
+void each_drop_moves_one_counter(Context& context) {
+    context.expect(kDropMetrics.size() + 1 == std::to_underlying(Drop::kCount), "bảng phủ mọi lý do trừ kCount");
+    const secure::Identity identity = make_identity();
+    const auto registry = std::make_unique<metrics::Registry>();
+    Table table{small_limits(), {}, {}, gate::Backing{.identity = identity, .registry = *registry}};
+    for (const DropMetric& row : kDropMetrics) {
+        const gate::Admit admitted = table.admit(kOne, kNow);
+        context.expect(admitted.code == AdmitCode::kOk, "nhận kết nối trước khi ngắt");
+        const CounterValues before = read_counters(*registry);
+        table.drop(admitted.handle, row.reason);
+        CounterValues expected = before;
+        ++expected.at(std::to_underlying(row.counter));
+        context.expect(read_counters(*registry) == expected, "đúng một bộ đếm tăng 1");
+        // Hàng ô chết chỉ chứa max_connections ô (table.cpp:1311); quá chỗ thì đếm kGateClosedOverflow
+        // (table.cpp:347-349, gọi từ release :386). Lấy ô vừa chết ra để lần ngắt sau không đầy hàng.
+        std::array<Handle, 2> closed{};
+        context.expect(table.take_closed(closed) == 1, "đúng một ô chết sau mỗi lần ngắt");
+        context.expect(closed[0] == admitted.handle, "ô chết là ô vừa ngắt");
+    }
+}
+
+// Không lấy ô chết ra: mỗi lần ngắt vượt sức chứa hàng ô chết (max_connections, table.cpp:1311) đếm thêm
+// kGateClosedOverflow (table.cpp:347-349); bộ đếm lý do vẫn tăng 1 mỗi lần, bộ đếm khác giữ nguyên.
+void closed_overflow_is_counted(Context& context) {
+    const Limits limits = small_limits();
+    const std::size_t capacity = limits.max_connections;
+    const std::size_t extra = 3;
+    const std::size_t drops = capacity + extra;
+    const secure::Identity identity = make_identity();
+    const auto registry = std::make_unique<metrics::Registry>();
+    Table table{limits, {}, {}, gate::Backing{.identity = identity, .registry = *registry}};
+    const CounterValues start = read_counters(*registry);
+    for (std::size_t done = 0; done < drops; ++done) {
+        const gate::Admit admitted = table.admit(kOne, kNow);
+        context.expect(admitted.code == AdmitCode::kOk, "nhận kết nối trước khi ngắt");
+        const CounterValues before = read_counters(*registry);
+        table.drop(admitted.handle, Drop::kIdle);
+        CounterValues expected = before;
+        ++expected.at(std::to_underlying(Counter::kGateDropIdle));
+        if (done >= capacity) ++expected.at(std::to_underlying(Counter::kGateClosedOverflow));
+        context.expect(read_counters(*registry) == expected, "lý do tăng 1, tràn chỉ khi hàng đầy");
+    }
+    const CounterValues end = read_counters(*registry);
+    context.expect(end.at(std::to_underlying(Counter::kGateClosedOverflow)) -
+                start.at(std::to_underlying(Counter::kGateClosedOverflow)) ==
+            extra,
+        "tràn đúng bằng số lần vượt sức chứa");
+    context.expect(end.at(std::to_underlying(Counter::kGateDropIdle)) -
+                start.at(std::to_underlying(Counter::kGateDropIdle)) ==
+            drops,
+        "mỗi lần ngắt đếm một lý do");
+    context.expect(end.at(std::to_underlying(Counter::kGateAdmitOk)) -
+                start.at(std::to_underlying(Counter::kGateAdmitOk)) ==
+            drops,
+        "mỗi lần nhận đếm một admit");
+    CounterValues others_start = start;
+    CounterValues others_end = end;
+    for (const Counter moved : {Counter::kGateDropIdle, Counter::kGateClosedOverflow, Counter::kGateAdmitOk}) {
+        others_start.at(std::to_underlying(moved)) = 0;
+        others_end.at(std::to_underlying(moved)) = 0;
+    }
+    context.expect(others_end == others_start, "bộ đếm khác không đổi");
+    std::array<Handle, 8> closed{};
+    context.expect(table.take_closed(closed) == capacity, "hàng ô chết giữ đúng sức chứa");
+}
+
 void drop_reasons_have_names(Context& context) {
     context.expect(gate::describe(Drop::kCount) == gate::describe(Drop{0}), "giá trị ngoài miền chung một câu");
     for (std::uint8_t reason = 1; reason < std::to_underlying(Drop::kCount); ++reason) {
@@ -315,6 +533,11 @@ constexpr std::array kCases{
     Case{.name = "logout_closes", .body = logout_closes},
     Case{.name = "burst_resumes", .body = burst_resumes},
     Case{.name = "idle_times_out", .body = idle_times_out},
+    Case{.name = "admit_refusals_are_counted", .body = admit_refusals_are_counted},
+    Case{.name = "counters_balance_after_mixed_run", .body = counters_balance_after_mixed_run},
+    Case{.name = "local_drop_is_counted", .body = local_drop_is_counted},
+    Case{.name = "each_drop_moves_one_counter", .body = each_drop_moves_one_counter},
+    Case{.name = "closed_overflow_is_counted", .body = closed_overflow_is_counted},
     Case{.name = "drop_reasons_have_names", .body = drop_reasons_have_names},
 };
 

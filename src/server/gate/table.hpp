@@ -7,11 +7,16 @@
 
 #include <cstddef>
 #include <cstdint>
+#include <functional>
 #include <memory>
 #include <optional>
 #include <span>
 #include <string_view>
 #include <vector>
+
+namespace game::metrics {
+class Registry; // metrics/metrics.hpp:246; định nghĩa đầy đủ chỉ cần ở table.cpp
+}
 
 namespace game::account {
 class Realm;
@@ -62,6 +67,8 @@ enum class Drop : std::uint8_t {
     kLogout,
     kClosed,
     kStop,
+    // Lỗi phía gate (metrics::Counter::kGateDropLocal).
+    kLocal,
     kCount,
 };
 
@@ -112,10 +119,19 @@ struct Admit {
 
 struct Engine;
 
+// Phần bảng mượn từ tiến trình: khoá danh tính và kho số đo. Cả hai phải sống lâu hơn bảng. Dùng
+// reference_wrapper thay cho thành viên tham chiếu để Backing còn gán và chép được; không thể rỗng.
+struct Backing {
+    std::reference_wrapper<const secure::Identity> identity;
+    std::reference_wrapper<metrics::Registry> registry;
+};
+
 // identity phải sống lâu hơn bảng. allow rỗng là mọi địa chỉ không bị deny.
 class Table {
 public:
     Table(Limits limits, std::vector<Cidr> allow, std::vector<Cidr> deny, const secure::Identity& identity);
+    // Như trên, và ghi bộ đếm/mức đo của gate vào backing.registry.
+    Table(Limits limits, std::vector<Cidr> allow, std::vector<Cidr> deny, Backing backing);
     ~Table();
     Table(const Table&) = delete;
     Table& operator=(const Table&) = delete;

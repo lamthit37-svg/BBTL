@@ -278,7 +278,7 @@ Reply on_game(void* ctx, const Call& call) {
     const std::string& password) {
     store::PgLogin login;
     login.host = std::string{cluster.postgres.host.text()};
-    login.port = std::to_string(cluster.postgres.port.value());
+    login.port = std::to_string(static_cast<unsigned>(cluster.postgres.port.value()));
     login.dbname = database.name;
     login.user = database.user;
     login.password = password;
