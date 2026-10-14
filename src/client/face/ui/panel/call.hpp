@@ -56,6 +56,11 @@ enum class Ask : std::uint8_t {
     // DataPool:Clear_ChatAction_Bar(thanh, ô gói, id, dữ liệu): đẩy CLEAR_CHAT_ACTION_BAR cho thanh kế
     // (Game.exe 0x1402f32d0). Chữ: thanh, ô gói, id, dữ liệu.
     kClearChatActionBar,
+    // OpenFreshManGuideNew(loại, x, y, rộng, cao, kiểu, hướng, chủ): mở lớp hướng dẫn tân thủ quanh một ô (Game.exe
+    // 0x1402649e0). Chữ: tám đối số.
+    kOpenFreshManGuide,
+    // CloseFreshManGuide(): đóng lớp hướng dẫn tân thủ (Game.exe 0x140262120).
+    kCloseFreshManGuide,
 };
 
 struct Call {
@@ -89,6 +94,8 @@ struct Call {
     case Ask::kUninstallChatAction: return "UnInstall_RMB_ChatAction";
     case Ask::kSetChatAction: return "Set_RMB_ChatAction";
     case Ask::kClearChatActionBar: return "Clear_ChatAction_Bar";
+    case Ask::kOpenFreshManGuide: return "OpenFreshManGuideNew";
+    case Ask::kCloseFreshManGuide: return "CloseFreshManGuide";
     }
     return {};
 }

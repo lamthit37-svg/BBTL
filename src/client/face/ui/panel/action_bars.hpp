@@ -9,6 +9,7 @@
 #include "ui/panel/deck.hpp"
 #include "ui/panel/events.hpp"
 
+#include <cstdint>
 #include <span>
 #include <string_view>
 #include <vector>
@@ -18,11 +19,16 @@ namespace game::ui::panel {
 // Hàm xử lý sự kiện của một thanh (<Tên>_OnEvent).
 using BarEventHandler = void (*)(ActionBar&, const UiEvent&, const BarFacts&, std::vector<Call>&);
 
-// Một thanh trong nhóm: trạng thái, bảng đăng ký sự kiện (<Tên>_PreLoad) và hàm xử lý.
+// Hàm xử lý nhấn trái vào ô id của thanh (<Tên>_Clicked); can_do là DataPool:IsCanDoAction() lúc nhấn.
+using BarPressHandler = void (*)(ActionBar&, std::int32_t id, bool can_do, const BarFacts&, std::vector<Call>&);
+
+// Một thanh trong nhóm: trạng thái, bảng đăng ký sự kiện (<Tên>_PreLoad) và hàm xử lý. on_press để trống thì nhấn ô chạy
+// press_bar_button.
 struct BarWindow {
     ActionBar bar;
     std::span<const EventSub> events;
     BarEventHandler on_event = nullptr;
+    BarPressHandler on_press = nullptr;
 };
 
 class ActionBars {
@@ -36,7 +42,7 @@ public:
 
     // Nhấn trái lên cửa sổ window: nếu là ô action của một thanh thì chạy <Tên>_Clicked của thanh đó. can_do là
     // DataPool:IsCanDoAction() lúc nhấn.
-    void press(std::string_view window, bool can_do, std::vector<Call>& calls) const;
+    void press(std::string_view window, bool can_do, const BarFacts& facts, std::vector<Call>& calls);
 
     // Chép mọi thanh đang hiện sang deck.
     void paint(Deck& deck) const;

@@ -797,12 +797,20 @@ bool Hud::State::can_do_action_now() const {
     return panel::can_do_action([this](std::string_view name) { return hub->box(name).has_value(); });
 }
 
-// Nhấn trái lên một ô của nhóm thanh action: <Thanh>_Clicked(id). Khác gốc: nhấn phải (RBClicked) chưa tới được HUD.
+// Nhấn trái lên một ô của nhóm thanh action: <Thanh>_Clicked(id). Lời nhắc "không làm được" của script là
+// PushDebugMessage, tới các bảng qua NEW_DEBUGMESSAGE. Khác gốc: nhấn phải (RBClicked) chưa tới được HUD.
 void Hud::State::press_action_bars(std::string_view window) {
     bar_calls.clear();
-    action_bars.press(window, can_do_action_now(), bar_calls);
-    for (const panel::Call& call : bar_calls) {
-        std::println(stderr, "Thanh action: việc nhờ {} chưa có ở HUD", panel::name_of(call.ask));
+    action_bars.press(window, can_do_action_now(), bar_facts, bar_calls);
+    // dispatch dùng lại bar_calls, nên việc đã nhờ phải ra khỏi nó trước khi gửi sự kiện.
+    const std::vector<panel::Call> calls = std::move(bar_calls);
+    bar_calls.clear();
+    for (const panel::Call& call : calls) {
+        if (call.ask == panel::Ask::kPushDebugMessage) {
+            push_debug_message(call.text);
+        } else {
+            std::println(stderr, "Thanh action: việc nhờ {} chưa có ở HUD", panel::name_of(call.ask));
+        }
     }
 }
 

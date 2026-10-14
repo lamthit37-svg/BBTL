@@ -248,6 +248,7 @@ ActionBar make_action_bar(const BarSpec& spec) {
         bar.seniors.push_back(std::format("{}{}{}{}", spec.name, spec.flash_infix, number, kSeniorTail));
         bar.widgets.seed_hidden(bar.juniors.back());
         bar.widgets.seed_hidden(bar.seniors.back());
+        if (spec.has_masks) bar.masks.push_back(bar.buttons.back() + "_Mask");
     }
     return bar;
 }

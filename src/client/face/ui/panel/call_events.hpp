@@ -11,7 +11,9 @@
 //    đồng bộ. Nút bị bỏ nếu một nút đứng trước nó trong danh sách cùng sự kiện và cùng mọi đối số (0x140207180), trừ id 0x85
 //    NEW_DEBUGMESSAGE; xong thì xoá cả danh sách.
 //  - Danh sách +0x58 (cờ trễ khác 0: 71 sự kiện UNIT_* và 9 sự kiện khác như UPDATE_QUICK, VARIABLE_CHANGED) mỗi Tick chỉ
-//    xử lý một nút, cách nhau trên một mili giây. Khác gốc: chưa mô hình; không sự kiện nào của nhóm thanh action ở đó
+//    xử lý một nút, cách nhau trên một mili giây (Ev+0x10 của bảng khởi tạo tĩnh 0x140a10cd0, 0x140a272b0). Khác gốc: chưa
+//    mô hình. Bảng nghe UNIT_* (TargetFrame, PartyFrame...) cần mô hình hàng trễ này: UNIT_NAME, UNIT_MAX_HP... không tới ngay
+//    trong khung mà mỗi Tick một sự kiện. Không sự kiện nào của nhóm thanh action ở đó
 //    (cờ 0: CHANGE_BAR, ACTION_UPDATE, FLASH_COMBOSKILL, HIDE_THIS_UI, PLAYER_ENTERING_WORLD, SHOW_TRANSFIGURATION_SKILL,
 //    OPEN_*_BAR_2, OPEN_MENUBAR_2, SWITCH_MENU_BUTTON, UI_COMMAND, CLEAR_CHAT_ACTION_BAR, các UNINSTALL_*).
 // Khác gốc: gốc không đặt trần số sự kiện của một Tick; EventQueue có trần do người dùng đặt, để một chuỗi sự kiện đẩy nhau
