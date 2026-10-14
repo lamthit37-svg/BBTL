@@ -96,25 +96,33 @@ void clear_pushes_event_for_next_bar(Context& context) {
 
 // Giống vòng của HUD: sự kiện đầu vào các thanh, việc các thanh nhờ mà là sự kiện thì xếp cuối hàng đợi và tới các thanh
 // sau khi sự kiện hiện tại xong. Trả mọi việc không phải sự kiện theo thứ tự phát sinh.
-[[nodiscard]] std::vector<Call> drain(ui::panel::ActionBars& bars, const ui::panel::BarFacts& facts, PostedEvent first) {
+[[nodiscard]] std::vector<Call> drain(
+    ui::panel::ActionBars& bars, const ui::panel::BarFacts& facts, std::vector<PostedEvent> first) {
     ui::panel::EventArgs args;
-    std::vector<PostedEvent> queue{std::move(first)};
+    ui::panel::EventQueue queue(first, kHopLimit);
     std::vector<Call> rest;
-    for (std::size_t at = 0; at < queue.size() && at < kHopLimit; ++at) {
-        const PostedEvent posted = queue.at(at);
-        const std::vector<std::string_view> given = posted.arguments();
-        const ui::panel::UiEvent event = args.raise(posted.name, given);
+    while (const std::optional<PostedEvent> posted = queue.next()) {
+        const std::vector<std::string_view> given = posted->arguments();
+        const ui::panel::UiEvent event = args.raise(posted->name, given);
         std::vector<Call> calls;
         bars.raise(event, facts, calls);
         for (Call& call : calls) {
             if (std::optional<PostedEvent> next = ui::panel::event_of(call)) {
-                queue.push_back(std::move(*next));
+                queue.push(std::move(*next));
             } else {
                 rest.push_back(std::move(call));
             }
         }
     }
     return rest;
+}
+
+// Mọi sự kiện mà queue còn trả, theo thứ tự.
+[[nodiscard]] std::vector<PostedEvent> rest_of(ui::panel::EventQueue& queue) {
+    std::vector<PostedEvent> events;
+    while (std::optional<PostedEvent> next = queue.next())
+        events.push_back(std::move(*next));
+    return events;
 }
 
 [[nodiscard]] ui::panel::BarFacts chat_facts() {
@@ -131,11 +139,23 @@ void clear_pushes_event_for_next_bar(Context& context) {
     return false;
 }
 
-// FunctionBarRight_2 (cấp 5) rồi MainMenuBar_4 (cấp 6, gửi gói tin): hai thanh nối nhau chỉ bằng sự kiện.
-void uninstall_chain_runs_through_both_bars(Context& context) {
+// FunctionBarRight (cấp 4), FunctionBarRight_2 (cấp 5) rồi MainMenuBar_4 (cấp 6, gửi gói tin): các thanh nối nhau chỉ
+// bằng sự kiện.
+void uninstall_chain_runs_through_the_bars(Context& context) {
     ui::panel::ActionBars bars;
     const ui::panel::BarFacts facts = chat_facts();
-    const std::vector<Call> rest = drain(bars, facts, PostedEvent{.name = "UNINSTALL_CHAT_ACTION_BAR4", .args = {"2"}});
+    const std::vector<Call> rest =
+        drain(bars, facts, {PostedEvent{.name = "UNINSTALL_CHAT_ACTION_BAR3", .args = {"2"}}});
+    context.expect(has_call(rest, Ask::kUninstallChatAction, "2\t6"), "thanh cuối gửi gói tin xoá (cấp 6)");
+    context.expect(!has_call(rest, Ask::kUninstallChatAction, "2\t4"), "cấp 4 đã thành sự kiện cho FunctionBarRight_2");
+    context.expect(!has_call(rest, Ask::kUninstallChatAction, "2\t5"), "cấp 5 đã thành sự kiện cho MainMenuBar_4");
+}
+
+void uninstall_chain_can_start_at_the_second_bar(Context& context) {
+    ui::panel::ActionBars bars;
+    const ui::panel::BarFacts facts = chat_facts();
+    const std::vector<Call> rest =
+        drain(bars, facts, {PostedEvent{.name = "UNINSTALL_CHAT_ACTION_BAR4", .args = {"2"}}});
     context.expect(has_call(rest, Ask::kUninstallChatAction, "2\t6"), "thanh cuối gửi gói tin xoá (cấp 6)");
     context.expect(!has_call(rest, Ask::kUninstallChatAction, "2\t5"), "cấp 5 đã thành sự kiện cho MainMenuBar_4");
 }
@@ -144,14 +164,54 @@ void clear_chain_ends_in_the_store(Context& context) {
     ui::panel::ActionBars bars;
     const ui::panel::BarFacts facts = chat_facts();
     const std::vector<Call> rest = drain(bars, facts,
-        PostedEvent{.name = "CLEAR_CHAT_ACTION_BAR", .args = {"FunctionBarRight_2", "2", "5", "6"}});
+        {PostedEvent{.name = "CLEAR_CHAT_ACTION_BAR", .args = {"FunctionBarRight", "2", "5", "6"}}});
     context.expect(has_call(rest, Ask::kSetChatAction, "2\t5\t6"), "thanh cuối ghi gói mới vào kho");
+}
+
+// Game.exe 0x140205430: sự kiện giống hệt một sự kiện đứng trước trong cùng khung thì bị bỏ, trừ NEW_DEBUGMESSAGE.
+void queue_drops_repeated_events(Context& context) {
+    const std::array first = {PostedEvent{.name = "A", .args = {"1"}}, PostedEvent{.name = "A", .args = {"1"}},
+        PostedEvent{.name = "A", .args = {"2"}}, PostedEvent{.name = "B", .args = {"1"}},
+        PostedEvent{.name = "A", .args = {"1"}}};
+    ui::panel::EventQueue queue(first, kHopLimit);
+    const std::vector<PostedEvent> got = rest_of(queue);
+    context.expect(got.size() == 3, "ba sự kiện khác nhau còn lại");
+    context.expect(got.size() == 3 && got.at(0) == first.at(0) && got.at(1) == first.at(2) && got.at(2) == first.at(3),
+        "giữ lần xuất hiện đầu, theo thứ tự");
+}
+
+void queue_keeps_repeated_debug_messages(Context& context) {
+    const std::array first = {PostedEvent{.name = "NEW_DEBUGMESSAGE", .args = {"x"}},
+        PostedEvent{.name = "NEW_DEBUGMESSAGE", .args = {"x"}}};
+    ui::panel::EventQueue queue(first, kHopLimit);
+    context.expect(rest_of(queue).size() == 2, "thông báo giống nhau đều hiện");
+}
+
+// Sự kiện đẩy trong lúc xử lý tới sau mọi sự kiện đang chờ, trong cùng khung; sự kiện đã có thì bị bỏ như sự kiện lặp.
+void queue_appends_pushed_events_at_the_end(Context& context) {
+    const std::array first = {PostedEvent{.name = "A", .args = {}}, PostedEvent{.name = "B", .args = {}}};
+    ui::panel::EventQueue queue(first, kHopLimit);
+    const std::optional<PostedEvent> head = queue.next();
+    context.expect(head && head->name == "A", "sự kiện đầu");
+    queue.push(PostedEvent{.name = "C", .args = {}});
+    queue.push(PostedEvent{.name = "B", .args = {}});
+    const std::vector<PostedEvent> got = rest_of(queue);
+    context.expect(got.size() == 2 && got.at(0).name == "B" && got.at(1).name == "C",
+        "B đang chờ chạy trước C đẩy sau; B đẩy lần hai bị bỏ");
+}
+
+void queue_stops_at_the_limit(Context& context) {
+    ui::panel::EventQueue queue({}, 4);
+    for (std::size_t index = 0; index < 10; ++index)
+        queue.push(PostedEvent{.name = "E", .args = {std::to_string(index)}});
+    context.expect(rest_of(queue).size() == 4, "trần tính theo số nút đã duyệt");
+    context.expect(!queue.next().has_value(), "chạm trần thì không trả thêm");
 }
 
 void unheard_event_makes_no_work(Context& context) {
     ui::panel::ActionBars bars;
     const ui::panel::BarFacts facts = chat_facts();
-    const std::vector<Call> rest = drain(bars, facts, PostedEvent{.name = "CHANGE_BAR", .args = {"other"}});
+    const std::vector<Call> rest = drain(bars, facts, {PostedEvent{.name = "CHANGE_BAR", .args = {"other"}}});
     context.expect(rest.empty(), "sự kiện không ai nghe thì không sinh việc");
 }
 
@@ -160,8 +220,13 @@ constexpr std::array kCases{
     Case{.name = "push_event_splits_arguments", .body = &push_event_splits_arguments},
     Case{.name = "uninstall_levels_map_to_events", .body = &uninstall_levels_map_to_events},
     Case{.name = "clear_pushes_event_for_next_bar", .body = &clear_pushes_event_for_next_bar},
-    Case{.name = "uninstall_chain_runs_through_both_bars", .body = &uninstall_chain_runs_through_both_bars},
+    Case{.name = "uninstall_chain_runs_through_the_bars", .body = &uninstall_chain_runs_through_the_bars},
+    Case{.name = "uninstall_chain_can_start_at_the_second_bar", .body = &uninstall_chain_can_start_at_the_second_bar},
     Case{.name = "clear_chain_ends_in_the_store", .body = &clear_chain_ends_in_the_store},
+    Case{.name = "queue_drops_repeated_events", .body = &queue_drops_repeated_events},
+    Case{.name = "queue_keeps_repeated_debug_messages", .body = &queue_keeps_repeated_debug_messages},
+    Case{.name = "queue_appends_pushed_events_at_the_end", .body = &queue_appends_pushed_events_at_the_end},
+    Case{.name = "queue_stops_at_the_limit", .body = &queue_stops_at_the_limit},
     Case{.name = "unheard_event_makes_no_work", .body = &unheard_event_makes_no_work},
 };
 

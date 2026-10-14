@@ -8,13 +8,13 @@
 namespace game::ui::panel {
 namespace {
 
-// Gốc hiện ở PLAYER_ENTERING_WORLD và SCENE_TRANSED. Các thanh phụ (MainMenuBar_2, _3, _4), khung
-// mục tiêu, khung buff và thanh thi triển chỉ hiện khi sự kiện riêng của chúng tới.
-constexpr std::array<std::string_view, 6> kRoots = {
+// Gốc hiện ở PLAYER_ENTERING_WORLD và SCENE_TRANSED. Các thanh phụ (MainMenuBar_2, _3, _4), thanh action
+// bên phải (FunctionBarRight, _2; nhóm ActionBars tự quyết hiện hay ẩn), khung mục tiêu, khung buff và thanh thi
+// triển chỉ hiện khi sự kiện riêng của chúng tới.
+constexpr std::array<std::string_view, 5> kRoots = {
     "PlayerFrame",
     "MiniMap_Frame",
     "MainMenuBar",
-    "FunctionBarRight_Frame",
     "Chat_Frame",
     "AutoAttack_Button_Frame",
 };

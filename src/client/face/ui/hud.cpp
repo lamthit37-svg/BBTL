@@ -123,7 +123,8 @@ constexpr std::array<std::string_view, 40> kLayouts = {
     panel::kSceneTransLayout,
 };
 
-// Trần số sự kiện giao diện xử lý mỗi khung, kể cả sự kiện do các bảng tự đẩy (xem Hud::State::step_panels).
+// Trần số sự kiện giao diện xử lý mỗi khung, kể cả sự kiện do các bảng tự đẩy (xem Hud::State::step_panels và EventQueue:
+// gốc không có trần, đây là chốt an toàn).
 constexpr std::size_t kMaxPanelEvents = 256;
 
 // Bảng chuyển cảnh đã hiện thì ở lại ít nhất chừng này (xem Hud::State::note_loading).
@@ -474,6 +475,8 @@ struct Hud::State {
     panel::ActionBars action_bars;
     panel::BarFacts bar_facts;
     std::vector<panel::Call> bar_calls;
+    // Đã phát PLAYER_ENTERING_WORLD cho lần vào màn chơi này (đặt lại khi rời màn chơi).
+    bool has_entered_world = false;
     panel::SoftKeys keys;
     // Bảng chuyển cảnh, phần trăm đã đưa cho nó ở khung trước và lúc nó hiện ra.
     panel::SceneTrans trans;
@@ -869,13 +872,23 @@ void Hud::State::step_panels(const HudView& view) {
     panel_clock = view.clock;
     const bool is_forward = before.has_value() && view.clock >= *before;
     panel_seconds = is_forward ? std::chrono::duration<float>(view.clock - *before).count() : 0.0F;
-    if (view.phase != Phase::kPlay) return;
-    // Sự kiện do chính các bảng đẩy (PushEvent, chuỗi gỡ gói hành động chat) xếp thêm vào cuối hàng đợi và tới các bảng
-    // sau khi sự kiện đang xử lý xong; trần để chuỗi sự kiện vô hạn không giữ khung mãi.
-    std::vector<panel::PostedEvent> queue(view.events.begin(), view.events.end());
-    for (std::size_t at = 0; at < queue.size() && at < kMaxPanelEvents; ++at) {
-        // Bản sao: hàng đợi có thể cấp lại bộ nhớ khi một bảng đẩy thêm sự kiện.
-        const panel::PostedEvent posted = queue[at];
+    if (view.phase != Phase::kPlay) {
+        has_entered_world = false;
+        return;
+    }
+    // CGamePro_Main::Init (Game.exe 0x140648b80) phát PLAYER_ENTERING_WORLD một lần lúc vào thủ tục chơi, trước mọi sự
+    // kiện khác. Khác gốc: 0x14021d2f0 phát lại sự kiện này khi bỏ chế độ ẩn giao diện (HideMain), chưa có chế độ đó.
+    std::vector<panel::PostedEvent> first;
+    if (!has_entered_world) {
+        has_entered_world = true;
+        first.push_back(panel::PostedEvent{.name = "PLAYER_ENTERING_WORLD", .args = {}});
+    }
+    first.insert(first.end(), view.events.begin(), view.events.end());
+    // Sự kiện do chính các bảng đẩy (PushEvent, chuỗi gỡ gói hành động chat) vào cuối hàng đợi và tới các bảng sau khi
+    // sự kiện đang xử lý xong, ngay trong khung này; sự kiện lặp bị bỏ (xem EventQueue).
+    panel::EventQueue queue(first, kMaxPanelEvents);
+    while (const std::optional<panel::PostedEvent> posted_event = queue.next()) {
+        const panel::PostedEvent& posted = *posted_event;
         // Bộ gửi gốc đặt arg<k> một lần cho mỗi sự kiện, trước khi hỏi từng bảng có nghe không.
         const std::vector<std::string_view> given = posted.arguments();
         const panel::UiEvent event = ui_args.raise(posted.name, given);
@@ -887,7 +900,7 @@ void Hud::State::step_panels(const HudView& view) {
         action_bars.raise(event, bar_facts, bar_calls);
         for (const panel::Call& call : bar_calls) {
             if (std::optional<panel::PostedEvent> next = panel::event_of(call)) {
-                queue.push_back(std::move(*next));
+                queue.push(std::move(*next));
             } else {
                 std::println(stderr, "Thanh action: việc nhờ {} chưa có ở HUD", panel::name_of(call.ask));
             }

@@ -4,6 +4,7 @@
 #include "ui/panel/call.hpp"
 #include "ui/panel/deck.hpp"
 #include "ui/panel/events.hpp"
+#include "ui/panel/function_bar_right.hpp"
 #include "ui/panel/function_bar_right_2.hpp"
 #include "ui/panel/main_menu_bar_4.hpp"
 
@@ -18,6 +19,8 @@ namespace game::ui::panel {
 ActionBars::ActionBars() {
     windows_.push_back(BarWindow{
         .bar = make_main_menu_bar_4(), .events = kMainMenuBar4Events, .on_event = &on_main_menu_bar_4_event});
+    windows_.push_back(BarWindow{
+        .bar = make_function_bar_right(), .events = kFunctionBarRightEvents, .on_event = &on_function_bar_right_event});
     windows_.push_back(BarWindow{.bar = make_function_bar_right_2(),
         .events = kFunctionBarRight2Events,
         .on_event = &on_function_bar_right_2_event});
