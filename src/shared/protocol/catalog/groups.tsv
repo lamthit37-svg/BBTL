@@ -5,4 +5,5 @@ id	name	summary
 01	session	Phiên kết nối: chào, đăng nhập, nối lại, nhịp tim và rời phiên.
 02	character	Nhân vật: danh sách, tạo, xoá và vào game.
 03	move	Di chuyển: client xin bước, server làm chủ vị trí và kéo về mốc khi không nhận.
+04	world	Thế giới: người chơi vào cảnh, thực thể xuất hiện, di chuyển và biến mất trong vùng nhìn.
 05	auth	Cổng xác thực: tạo tài khoản, đăng nhập bằng mật khẩu và cấp vé vào cổng game.

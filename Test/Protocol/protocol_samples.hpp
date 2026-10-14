@@ -522,6 +522,158 @@ template <class Message, class Result>
     return value;
 }
 
+[[nodiscard]] inline protocol::SceneEnter scene_enter_min() {
+    protocol::SceneEnter value;
+    value.scene = 0U;
+    value.x_cm = std::bit_cast<float>(0xFF7FFFFFU);
+    value.z_cm = std::bit_cast<float>(0xFF7FFFFFU);
+    value.direction = 0U;
+    return value;
+}
+
+[[nodiscard]] inline protocol::SceneEnter scene_enter_max() {
+    protocol::SceneEnter value;
+    value.scene = 65535U;
+    value.x_cm = std::bit_cast<float>(0x7F7FFFFFU);
+    value.z_cm = std::bit_cast<float>(0x7F7FFFFFU);
+    value.direction = 65535U;
+    return value;
+}
+
+[[nodiscard]] inline protocol::SceneEnter scene_enter_typical() {
+    protocol::SceneEnter value;
+    value.scene = 1009U;
+    value.x_cm = std::bit_cast<float>(0x40100000U);
+    value.z_cm = std::bit_cast<float>(0x40500000U);
+    value.direction = 4036U;
+    return value;
+}
+
+[[nodiscard]] inline protocol::EntityAppear entity_appear_min() {
+    protocol::EntityAppear value;
+    value.id = 0U;
+    value.kind = protocol::EntityKind::kPlayer;
+    value.template_id = 0U;
+    value.level = 0U;
+    value.x_cm = std::bit_cast<float>(0xFF7FFFFFU);
+    value.z_cm = std::bit_cast<float>(0xFF7FFFFFU);
+    value.direction = 0U;
+    value.speed_cm = 0U;
+    value.hp_percent = 0U;
+    value.gender = 0U;
+    value.face = 0U;
+    value.hair = 0U;
+    value.school = 0U;
+    return value;
+}
+
+[[nodiscard]] inline protocol::EntityAppear entity_appear_max() {
+    protocol::EntityAppear value;
+    value.id = 4294967295U;
+    value.kind = protocol::EntityKind::kObject;
+    value.template_id = 4294967295U;
+    value.name = wide_text(protocol::kEntityAppearNameBytes);
+    value.level = 65535U;
+    value.x_cm = std::bit_cast<float>(0x7F7FFFFFU);
+    value.z_cm = std::bit_cast<float>(0x7F7FFFFFU);
+    value.direction = 65535U;
+    value.speed_cm = 65535U;
+    value.hp_percent = 255U;
+    value.gender = 255U;
+    value.face = 65535U;
+    value.hair = 65535U;
+    value.school = 255U;
+    return value;
+}
+
+[[nodiscard]] inline protocol::EntityAppear entity_appear_typical() {
+    protocol::EntityAppear value;
+    value.id = 1009U;
+    value.kind = protocol::EntityKind::kMonster;
+    value.template_id = 3027U;
+    value.name = "Thi\xC3\xAAn Long B\xC3\xA1t B\xE1\xBB\x99";
+    value.level = 5045U;
+    value.x_cm = std::bit_cast<float>(0x40C80000U);
+    value.z_cm = std::bit_cast<float>(0x40E80000U);
+    value.direction = 8072U;
+    value.speed_cm = 9081U;
+    value.hp_percent = 106U;
+    value.gender = 91U;
+    value.face = 12108U;
+    value.hair = 13117U;
+    value.school = 46U;
+    return value;
+}
+
+[[nodiscard]] inline protocol::EntityDisappear entity_disappear_min() {
+    protocol::EntityDisappear value;
+    value.id = 0U;
+    return value;
+}
+
+[[nodiscard]] inline protocol::EntityDisappear entity_disappear_max() {
+    protocol::EntityDisappear value;
+    value.id = 4294967295U;
+    return value;
+}
+
+[[nodiscard]] inline protocol::EntityDisappear entity_disappear_typical() {
+    protocol::EntityDisappear value;
+    value.id = 1009U;
+    return value;
+}
+
+[[nodiscard]] inline protocol::EntityPos entity_pos_min() {
+    protocol::EntityPos value;
+    value.id = 0U;
+    value.x_cm = std::bit_cast<float>(0xFF7FFFFFU);
+    value.z_cm = std::bit_cast<float>(0xFF7FFFFFU);
+    value.direction = 0U;
+    value.tick = 0U;
+    return value;
+}
+
+[[nodiscard]] inline protocol::EntityPos entity_pos_max() {
+    protocol::EntityPos value;
+    value.id = 4294967295U;
+    value.x_cm = std::bit_cast<float>(0x7F7FFFFFU);
+    value.z_cm = std::bit_cast<float>(0x7F7FFFFFU);
+    value.direction = 65535U;
+    value.tick = 4294967295U;
+    return value;
+}
+
+[[nodiscard]] inline protocol::EntityPos entity_pos_typical() {
+    protocol::EntityPos value;
+    value.id = 1009U;
+    value.x_cm = std::bit_cast<float>(0x40100000U);
+    value.z_cm = std::bit_cast<float>(0x40500000U);
+    value.direction = 4036U;
+    value.tick = 5045U;
+    return value;
+}
+
+[[nodiscard]] inline protocol::EntityVitals entity_vitals_min() {
+    protocol::EntityVitals value;
+    value.id = 0U;
+    value.hp_percent = 0U;
+    return value;
+}
+
+[[nodiscard]] inline protocol::EntityVitals entity_vitals_max() {
+    protocol::EntityVitals value;
+    value.id = 4294967295U;
+    value.hp_percent = 255U;
+    return value;
+}
+
+[[nodiscard]] inline protocol::EntityVitals entity_vitals_typical() {
+    protocol::EntityVitals value;
+    value.id = 1009U;
+    value.hp_percent = 226U;
+    return value;
+}
+
 [[nodiscard]] inline protocol::Ticket ticket_min() {
     protocol::Ticket value;
     value.token = pattern<protocol::kTicketTokenBytes>(0, 0);
@@ -1952,6 +2104,328 @@ inline constexpr Sample kPositionTypical{.name = "Position/typical",
     .decode = &decode_position_typical,
     .decoders = kGameServer};
 
+[[nodiscard]] inline protocol::WireStatus encode_scene_enter_min(Buffer& out) {
+    return protocol::encode(out, scene_enter_min());
+}
+
+[[nodiscard]] inline Check decode_scene_enter_min(protocol::ByteView body) {
+    protocol::Frame frame;
+    frame.kind = protocol::SceneEnter::kKind;
+    frame.body_bytes = body.size();
+    const auto result = protocol::decode_game_server(frame, body);
+    return holds(result, scene_enter_min());
+}
+
+inline constexpr std::array<std::uint8_t, 20> kSceneEnterMinFrame{0x0C, 0x00, 0x00, 0x00, 0x01, 0x84, 0x00, 0x00, 0x00,
+    0x00, 0xFF, 0xFF, 0x7F, 0xFF, 0xFF, 0xFF, 0x7F, 0xFF, 0x00, 0x00};
+
+inline constexpr Sample kSceneEnterMin{.name = "SceneEnter/min",
+    .frame = kSceneEnterMinFrame,
+    .encode = &encode_scene_enter_min,
+    .decode = &decode_scene_enter_min,
+    .decoders = kGameServer};
+
+[[nodiscard]] inline protocol::WireStatus encode_scene_enter_max(Buffer& out) {
+    return protocol::encode(out, scene_enter_max());
+}
+
+[[nodiscard]] inline Check decode_scene_enter_max(protocol::ByteView body) {
+    protocol::Frame frame;
+    frame.kind = protocol::SceneEnter::kKind;
+    frame.body_bytes = body.size();
+    const auto result = protocol::decode_game_server(frame, body);
+    return holds(result, scene_enter_max());
+}
+
+inline constexpr std::array<std::uint8_t, 20> kSceneEnterMaxFrame{0x0C, 0x00, 0x00, 0x00, 0x01, 0x84, 0x00, 0x00, 0xFF,
+    0xFF, 0xFF, 0xFF, 0x7F, 0x7F, 0xFF, 0xFF, 0x7F, 0x7F, 0xFF, 0xFF};
+
+inline constexpr Sample kSceneEnterMax{.name = "SceneEnter/max",
+    .frame = kSceneEnterMaxFrame,
+    .encode = &encode_scene_enter_max,
+    .decode = &decode_scene_enter_max,
+    .decoders = kGameServer};
+
+[[nodiscard]] inline protocol::WireStatus encode_scene_enter_typical(Buffer& out) {
+    return protocol::encode(out, scene_enter_typical());
+}
+
+[[nodiscard]] inline Check decode_scene_enter_typical(protocol::ByteView body) {
+    protocol::Frame frame;
+    frame.kind = protocol::SceneEnter::kKind;
+    frame.body_bytes = body.size();
+    const auto result = protocol::decode_game_server(frame, body);
+    return holds(result, scene_enter_typical());
+}
+
+inline constexpr std::array<std::uint8_t, 20> kSceneEnterTypicalFrame{0x0C, 0x00, 0x00, 0x00, 0x01, 0x84, 0x00, 0x00,
+    0xF1, 0x03, 0x00, 0x00, 0x10, 0x40, 0x00, 0x00, 0x50, 0x40, 0xC4, 0x0F};
+
+inline constexpr Sample kSceneEnterTypical{.name = "SceneEnter/typical",
+    .frame = kSceneEnterTypicalFrame,
+    .encode = &encode_scene_enter_typical,
+    .decode = &decode_scene_enter_typical,
+    .decoders = kGameServer};
+
+[[nodiscard]] inline protocol::WireStatus encode_entity_appear_min(Buffer& out) {
+    return protocol::encode(out, entity_appear_min());
+}
+
+[[nodiscard]] inline Check decode_entity_appear_min(protocol::ByteView body) {
+    protocol::Frame frame;
+    frame.kind = protocol::EntityAppear::kKind;
+    frame.body_bytes = body.size();
+    const auto result = protocol::decode_game_server(frame, body);
+    return holds(result, entity_appear_min());
+}
+
+inline constexpr std::array<std::uint8_t, 40> kEntityAppearMinFrame{0x20, 0x00, 0x00, 0x00, 0x02, 0x84, 0x00, 0x00,
+    0x00, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xFF, 0xFF, 0x7F, 0xFF, 0xFF, 0xFF,
+    0x7F, 0xFF, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+
+inline constexpr Sample kEntityAppearMin{.name = "EntityAppear/min",
+    .frame = kEntityAppearMinFrame,
+    .encode = &encode_entity_appear_min,
+    .decode = &decode_entity_appear_min,
+    .decoders = kGameServer};
+
+[[nodiscard]] inline protocol::WireStatus encode_entity_appear_max(Buffer& out) {
+    return protocol::encode(out, entity_appear_max());
+}
+
+[[nodiscard]] inline Check decode_entity_appear_max(protocol::ByteView body) {
+    protocol::Frame frame;
+    frame.kind = protocol::EntityAppear::kKind;
+    frame.body_bytes = body.size();
+    const auto result = protocol::decode_game_server(frame, body);
+    return holds(result, entity_appear_max());
+}
+
+inline constexpr std::array<std::uint8_t, 88> kEntityAppearMaxFrame{0x50, 0x00, 0x00, 0x00, 0x02, 0x84, 0x00, 0x00,
+    0xFF, 0xFF, 0xFF, 0xFF, 0x06, 0xFF, 0xFF, 0xFF, 0xFF, 0x30, 0x00, 0x41, 0xC3, 0xA9, 0xE1, 0xBB, 0x87, 0xF0, 0xA0,
+    0x80, 0x80, 0x41, 0xC3, 0xA9, 0xE1, 0xBB, 0x87, 0xF0, 0xA0, 0x80, 0x80, 0x41, 0xC3, 0xA9, 0xE1, 0xBB, 0x87, 0xF0,
+    0xA0, 0x80, 0x80, 0x41, 0xC3, 0xA9, 0xE1, 0xBB, 0x87, 0xF0, 0xA0, 0x80, 0x80, 0x41, 0xC3, 0xA9, 0xE1, 0xBB, 0x87,
+    0x61, 0x61, 0xFF, 0xFF, 0xFF, 0xFF, 0x7F, 0x7F, 0xFF, 0xFF, 0x7F, 0x7F, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
+    0xFF, 0xFF, 0xFF, 0xFF};
+
+inline constexpr Sample kEntityAppearMax{.name = "EntityAppear/max",
+    .frame = kEntityAppearMaxFrame,
+    .encode = &encode_entity_appear_max,
+    .decode = &decode_entity_appear_max,
+    .decoders = kGameServer};
+
+[[nodiscard]] inline protocol::WireStatus encode_entity_appear_typical(Buffer& out) {
+    return protocol::encode(out, entity_appear_typical());
+}
+
+[[nodiscard]] inline Check decode_entity_appear_typical(protocol::ByteView body) {
+    protocol::Frame frame;
+    frame.kind = protocol::EntityAppear::kKind;
+    frame.body_bytes = body.size();
+    const auto result = protocol::decode_game_server(frame, body);
+    return holds(result, entity_appear_typical());
+}
+
+inline constexpr std::array<std::uint8_t, 61> kEntityAppearTypicalFrame{0x35, 0x00, 0x00, 0x00, 0x02, 0x84, 0x00, 0x00,
+    0xF1, 0x03, 0x00, 0x00, 0x02, 0xD3, 0x0B, 0x00, 0x00, 0x15, 0x00, 0x54, 0x68, 0x69, 0xC3, 0xAA, 0x6E, 0x20, 0x4C,
+    0x6F, 0x6E, 0x67, 0x20, 0x42, 0xC3, 0xA1, 0x74, 0x20, 0x42, 0xE1, 0xBB, 0x99, 0xB5, 0x13, 0x00, 0x00, 0xC8, 0x40,
+    0x00, 0x00, 0xE8, 0x40, 0x88, 0x1F, 0x79, 0x23, 0x6A, 0x5B, 0x4C, 0x2F, 0x3D, 0x33, 0x2E};
+
+inline constexpr Sample kEntityAppearTypical{.name = "EntityAppear/typical",
+    .frame = kEntityAppearTypicalFrame,
+    .encode = &encode_entity_appear_typical,
+    .decode = &decode_entity_appear_typical,
+    .decoders = kGameServer};
+
+[[nodiscard]] inline protocol::WireStatus encode_entity_disappear_min(Buffer& out) {
+    return protocol::encode(out, entity_disappear_min());
+}
+
+[[nodiscard]] inline Check decode_entity_disappear_min(protocol::ByteView body) {
+    protocol::Frame frame;
+    frame.kind = protocol::EntityDisappear::kKind;
+    frame.body_bytes = body.size();
+    const auto result = protocol::decode_game_server(frame, body);
+    return holds(result, entity_disappear_min());
+}
+
+inline constexpr std::array<std::uint8_t, 12> kEntityDisappearMinFrame{
+    0x04, 0x00, 0x00, 0x00, 0x03, 0x84, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+
+inline constexpr Sample kEntityDisappearMin{.name = "EntityDisappear/min",
+    .frame = kEntityDisappearMinFrame,
+    .encode = &encode_entity_disappear_min,
+    .decode = &decode_entity_disappear_min,
+    .decoders = kGameServer};
+
+[[nodiscard]] inline protocol::WireStatus encode_entity_disappear_max(Buffer& out) {
+    return protocol::encode(out, entity_disappear_max());
+}
+
+[[nodiscard]] inline Check decode_entity_disappear_max(protocol::ByteView body) {
+    protocol::Frame frame;
+    frame.kind = protocol::EntityDisappear::kKind;
+    frame.body_bytes = body.size();
+    const auto result = protocol::decode_game_server(frame, body);
+    return holds(result, entity_disappear_max());
+}
+
+inline constexpr std::array<std::uint8_t, 12> kEntityDisappearMaxFrame{
+    0x04, 0x00, 0x00, 0x00, 0x03, 0x84, 0x00, 0x00, 0xFF, 0xFF, 0xFF, 0xFF};
+
+inline constexpr Sample kEntityDisappearMax{.name = "EntityDisappear/max",
+    .frame = kEntityDisappearMaxFrame,
+    .encode = &encode_entity_disappear_max,
+    .decode = &decode_entity_disappear_max,
+    .decoders = kGameServer};
+
+[[nodiscard]] inline protocol::WireStatus encode_entity_disappear_typical(Buffer& out) {
+    return protocol::encode(out, entity_disappear_typical());
+}
+
+[[nodiscard]] inline Check decode_entity_disappear_typical(protocol::ByteView body) {
+    protocol::Frame frame;
+    frame.kind = protocol::EntityDisappear::kKind;
+    frame.body_bytes = body.size();
+    const auto result = protocol::decode_game_server(frame, body);
+    return holds(result, entity_disappear_typical());
+}
+
+inline constexpr std::array<std::uint8_t, 12> kEntityDisappearTypicalFrame{
+    0x04, 0x00, 0x00, 0x00, 0x03, 0x84, 0x00, 0x00, 0xF1, 0x03, 0x00, 0x00};
+
+inline constexpr Sample kEntityDisappearTypical{.name = "EntityDisappear/typical",
+    .frame = kEntityDisappearTypicalFrame,
+    .encode = &encode_entity_disappear_typical,
+    .decode = &decode_entity_disappear_typical,
+    .decoders = kGameServer};
+
+[[nodiscard]] inline protocol::WireStatus encode_entity_pos_min(Buffer& out) {
+    return protocol::encode(out, entity_pos_min());
+}
+
+[[nodiscard]] inline Check decode_entity_pos_min(protocol::ByteView body) {
+    protocol::Frame frame;
+    frame.kind = protocol::EntityPos::kKind;
+    frame.body_bytes = body.size();
+    const auto result = protocol::decode_game_server(frame, body);
+    return holds(result, entity_pos_min());
+}
+
+inline constexpr std::array<std::uint8_t, 26> kEntityPosMinFrame{0x12, 0x00, 0x00, 0x00, 0x04, 0x84, 0x00, 0x00, 0x00,
+    0x00, 0x00, 0x00, 0xFF, 0xFF, 0x7F, 0xFF, 0xFF, 0xFF, 0x7F, 0xFF, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+
+inline constexpr Sample kEntityPosMin{.name = "EntityPos/min",
+    .frame = kEntityPosMinFrame,
+    .encode = &encode_entity_pos_min,
+    .decode = &decode_entity_pos_min,
+    .decoders = kGameServer};
+
+[[nodiscard]] inline protocol::WireStatus encode_entity_pos_max(Buffer& out) {
+    return protocol::encode(out, entity_pos_max());
+}
+
+[[nodiscard]] inline Check decode_entity_pos_max(protocol::ByteView body) {
+    protocol::Frame frame;
+    frame.kind = protocol::EntityPos::kKind;
+    frame.body_bytes = body.size();
+    const auto result = protocol::decode_game_server(frame, body);
+    return holds(result, entity_pos_max());
+}
+
+inline constexpr std::array<std::uint8_t, 26> kEntityPosMaxFrame{0x12, 0x00, 0x00, 0x00, 0x04, 0x84, 0x00, 0x00, 0xFF,
+    0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0x7F, 0x7F, 0xFF, 0xFF, 0x7F, 0x7F, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF};
+
+inline constexpr Sample kEntityPosMax{.name = "EntityPos/max",
+    .frame = kEntityPosMaxFrame,
+    .encode = &encode_entity_pos_max,
+    .decode = &decode_entity_pos_max,
+    .decoders = kGameServer};
+
+[[nodiscard]] inline protocol::WireStatus encode_entity_pos_typical(Buffer& out) {
+    return protocol::encode(out, entity_pos_typical());
+}
+
+[[nodiscard]] inline Check decode_entity_pos_typical(protocol::ByteView body) {
+    protocol::Frame frame;
+    frame.kind = protocol::EntityPos::kKind;
+    frame.body_bytes = body.size();
+    const auto result = protocol::decode_game_server(frame, body);
+    return holds(result, entity_pos_typical());
+}
+
+inline constexpr std::array<std::uint8_t, 26> kEntityPosTypicalFrame{0x12, 0x00, 0x00, 0x00, 0x04, 0x84, 0x00, 0x00,
+    0xF1, 0x03, 0x00, 0x00, 0x00, 0x00, 0x10, 0x40, 0x00, 0x00, 0x50, 0x40, 0xC4, 0x0F, 0xB5, 0x13, 0x00, 0x00};
+
+inline constexpr Sample kEntityPosTypical{.name = "EntityPos/typical",
+    .frame = kEntityPosTypicalFrame,
+    .encode = &encode_entity_pos_typical,
+    .decode = &decode_entity_pos_typical,
+    .decoders = kGameServer};
+
+[[nodiscard]] inline protocol::WireStatus encode_entity_vitals_min(Buffer& out) {
+    return protocol::encode(out, entity_vitals_min());
+}
+
+[[nodiscard]] inline Check decode_entity_vitals_min(protocol::ByteView body) {
+    protocol::Frame frame;
+    frame.kind = protocol::EntityVitals::kKind;
+    frame.body_bytes = body.size();
+    const auto result = protocol::decode_game_server(frame, body);
+    return holds(result, entity_vitals_min());
+}
+
+inline constexpr std::array<std::uint8_t, 13> kEntityVitalsMinFrame{
+    0x05, 0x00, 0x00, 0x00, 0x05, 0x84, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+
+inline constexpr Sample kEntityVitalsMin{.name = "EntityVitals/min",
+    .frame = kEntityVitalsMinFrame,
+    .encode = &encode_entity_vitals_min,
+    .decode = &decode_entity_vitals_min,
+    .decoders = kGameServer};
+
+[[nodiscard]] inline protocol::WireStatus encode_entity_vitals_max(Buffer& out) {
+    return protocol::encode(out, entity_vitals_max());
+}
+
+[[nodiscard]] inline Check decode_entity_vitals_max(protocol::ByteView body) {
+    protocol::Frame frame;
+    frame.kind = protocol::EntityVitals::kKind;
+    frame.body_bytes = body.size();
+    const auto result = protocol::decode_game_server(frame, body);
+    return holds(result, entity_vitals_max());
+}
+
+inline constexpr std::array<std::uint8_t, 13> kEntityVitalsMaxFrame{
+    0x05, 0x00, 0x00, 0x00, 0x05, 0x84, 0x00, 0x00, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF};
+
+inline constexpr Sample kEntityVitalsMax{.name = "EntityVitals/max",
+    .frame = kEntityVitalsMaxFrame,
+    .encode = &encode_entity_vitals_max,
+    .decode = &decode_entity_vitals_max,
+    .decoders = kGameServer};
+
+[[nodiscard]] inline protocol::WireStatus encode_entity_vitals_typical(Buffer& out) {
+    return protocol::encode(out, entity_vitals_typical());
+}
+
+[[nodiscard]] inline Check decode_entity_vitals_typical(protocol::ByteView body) {
+    protocol::Frame frame;
+    frame.kind = protocol::EntityVitals::kKind;
+    frame.body_bytes = body.size();
+    const auto result = protocol::decode_game_server(frame, body);
+    return holds(result, entity_vitals_typical());
+}
+
+inline constexpr std::array<std::uint8_t, 13> kEntityVitalsTypicalFrame{
+    0x05, 0x00, 0x00, 0x00, 0x05, 0x84, 0x00, 0x00, 0xF1, 0x03, 0x00, 0x00, 0xE2};
+
+inline constexpr Sample kEntityVitalsTypical{.name = "EntityVitals/typical",
+    .frame = kEntityVitalsTypicalFrame,
+    .encode = &encode_entity_vitals_typical,
+    .decode = &decode_entity_vitals_typical,
+    .decoders = kGameServer};
+
 [[nodiscard]] inline protocol::WireStatus encode_ticket_min(Buffer& out) {
     return protocol::encode(out, ticket_min());
 }
@@ -2045,7 +2519,7 @@ inline constexpr Sample kTicketTypical{.name = "Ticket/typical",
     .decode = &decode_ticket_typical,
     .decoders = kAuthServer};
 
-inline constexpr std::array<Sample, 66> kSamples{kHelloMin, kHelloMax, kHelloTypical, kLoginMin, kLoginMax,
+inline constexpr std::array<Sample, 81> kSamples{kHelloMin, kHelloMax, kHelloTypical, kLoginMin, kLoginMax,
     kLoginTypical, kResumeMin, kResumeMax, kResumeTypical, kPingMin, kPingMax, kPingTypical, kLogoutMin, kLogoutMax,
     kLogoutTypical, kCreateCharacterMin, kCreateCharacterMax, kCreateCharacterTypical, kDeleteCharacterMin,
     kDeleteCharacterMax, kDeleteCharacterTypical, kEnterGameMin, kEnterGameMax, kEnterGameTypical, kMoveMin, kMoveMax,
@@ -2054,6 +2528,9 @@ inline constexpr std::array<Sample, 66> kSamples{kHelloMin, kHelloMax, kHelloTyp
     kContentKeyMax, kContentKeyTypical, kPongMin, kPongMax, kPongTypical, kRejectMin, kRejectMax, kRejectTypical,
     kGoodbyeMin, kGoodbyeMax, kGoodbyeTypical, kContentStampMin, kContentStampMax, kContentStampTypical, kUiConfigMin,
     kUiConfigMax, kUiConfigTypical, kCharacterListMin, kCharacterListMax, kCharacterListTypical, kPositionMin,
-    kPositionMax, kPositionTypical, kTicketMin, kTicketMax, kTicketTypical};
+    kPositionMax, kPositionTypical, kSceneEnterMin, kSceneEnterMax, kSceneEnterTypical, kEntityAppearMin,
+    kEntityAppearMax, kEntityAppearTypical, kEntityDisappearMin, kEntityDisappearMax, kEntityDisappearTypical,
+    kEntityPosMin, kEntityPosMax, kEntityPosTypical, kEntityVitalsMin, kEntityVitalsMax, kEntityVitalsTypical,
+    kTicketMin, kTicketMax, kTicketTypical};
 
 } // namespace game::test::samples

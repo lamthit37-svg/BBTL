@@ -18,7 +18,7 @@
 namespace game::protocol {
 
 // Bản của danh mục; tin có since lớn hơn bản bên kia đang chạy thì bên kia chưa hiểu.
-inline constexpr std::uint16_t kVersion = 2;
+inline constexpr std::uint16_t kVersion = 3;
 
 enum class AvatarFrame : std::uint8_t {
     kRound = 1,
@@ -35,6 +35,15 @@ enum class DisconnectReason : std::uint8_t {
     kVersionMismatch = 7,
     kServerFull = 8,
     kContentMismatch = 9,
+};
+
+enum class EntityKind : std::uint8_t {
+    kPlayer = 1,
+    kMonster = 2,
+    kNpc = 3,
+    kPet = 4,
+    kDrop = 5,
+    kObject = 6,
 };
 
 // NOLINTNEXTLINE(performance-enum-size): cỡ trên dây theo bảng, giữ byte của Dev (HP-07)
@@ -87,6 +96,7 @@ enum class Platform : std::uint8_t {
 // Giá trị có trong bảng enum; giải mã gặp giá trị lạ là kBadEnum, mã hoá cũng vậy.
 [[nodiscard]] bool is_valid(AvatarFrame value) noexcept;
 [[nodiscard]] bool is_valid(DisconnectReason value) noexcept;
+[[nodiscard]] bool is_valid(EntityKind value) noexcept;
 [[nodiscard]] bool is_valid(ErrorCode value) noexcept;
 [[nodiscard]] bool is_valid(Gender value) noexcept;
 [[nodiscard]] bool is_valid(Platform value) noexcept;
@@ -105,6 +115,7 @@ inline constexpr std::size_t kSessionStartTokenBytes = 16;
 inline constexpr std::size_t kContentKeyKeyBytes = 32;
 inline constexpr std::size_t kContentStampStampBytes = 32;
 inline constexpr std::size_t kCharacterListCharactersCount = 8;
+inline constexpr std::size_t kEntityAppearNameBytes = 48;
 inline constexpr std::size_t kTicketTokenBytes = 204;
 
 // Record: Tóm tắt một nhân vật trong danh sách chọn nhân vật.
@@ -334,6 +345,88 @@ struct Position {
     friend bool operator==(const Position&, const Position&) = default;
 };
 
+// 0x8401, server gửi, cổng game, từ bản 3: Server báo nhân vật đã vào một cảnh: id cảnh, vị trí và hướng đầu tiên. Gửi
+// lúc vào game và mỗi lần đổi cảnh.
+struct SceneEnter {
+    static constexpr std::uint16_t kKind = 0x8401;
+    // Id cảnh (SceneAttr của client 2026).
+    std::uint16_t scene = 0;
+    // Toạ độ X đầu tiên, centimet.
+    float x_cm = 0.0F;
+    // Toạ độ Z đầu tiên, centimet.
+    float z_cm = 0.0F;
+    // Hướng nhìn: 0..65535 ứng với 0..2π.
+    std::uint16_t direction = 0;
+    friend bool operator==(const SceneEnter&, const SceneEnter&) = default;
+};
+
+// 0x8402, server gửi, cổng game, từ bản 3: Một thực thể (người, quái, NPC...) bước vào vùng nhìn của client.
+struct EntityAppear {
+    static constexpr std::uint16_t kKind = 0x8402;
+    // Id thực thể trong cảnh; không dùng lại ngay sau khi thực thể biến mất (có số thế hệ).
+    std::uint32_t id = 0;
+    EntityKind kind = EntityKind::kPlayer;
+    // Id mẫu: quái (monsters.tsv), NPC; 0 với người chơi.
+    std::uint32_t template_id = 0;
+    // Tên hiển thị của người chơi; rỗng với quái và NPC (client tra theo mẫu).
+    std::string name;
+    std::uint16_t level = 0;
+    // Toạ độ X, centimet.
+    float x_cm = 0.0F;
+    // Toạ độ Z, centimet.
+    float z_cm = 0.0F;
+    // Hướng nhìn: 0..65535 ứng với 0..2π.
+    std::uint16_t direction = 0;
+    // Tốc độ chạy, centimet mỗi giây.
+    std::uint16_t speed_cm = 0;
+    // Sinh lực theo phần trăm 0..100.
+    std::uint8_t hp_percent = 0;
+    // 1 nữ, 2 nam; 0 với thực thể không phải người.
+    std::uint8_t gender = 0;
+    // Id mặt trong faces.tsv; chỉ có nghĩa với người chơi.
+    std::uint16_t face = 0;
+    // Id tóc trong hairs.tsv; chỉ có nghĩa với người chơi.
+    std::uint16_t hair = 0;
+    // Môn phái 0..15; chỉ có nghĩa với người chơi.
+    std::uint8_t school = 0;
+    friend bool operator==(const EntityAppear&, const EntityAppear&) = default;
+};
+
+// 0x8403, server gửi, cổng game, từ bản 3: Một thực thể rời vùng nhìn của client hoặc biến mất khỏi cảnh.
+struct EntityDisappear {
+    static constexpr std::uint16_t kKind = 0x8403;
+    // Id thực thể.
+    std::uint32_t id = 0;
+    friend bool operator==(const EntityDisappear&, const EntityDisappear&) = default;
+};
+
+// 0x8404, server gửi, cổng game, từ bản 3: Vị trí mới của một thực thể trong vùng nhìn; client nội suy giữa hai lần
+// nhận.
+struct EntityPos {
+    static constexpr std::uint16_t kKind = 0x8404;
+    // Id thực thể.
+    std::uint32_t id = 0;
+    // Toạ độ X, centimet.
+    float x_cm = 0.0F;
+    // Toạ độ Z, centimet.
+    float z_cm = 0.0F;
+    // Hướng nhìn: 0..65535 ứng với 0..2π.
+    std::uint16_t direction = 0;
+    // Tick của cảnh lúc ghi nhận, 20 tick mỗi giây.
+    std::uint32_t tick = 0;
+    friend bool operator==(const EntityPos&, const EntityPos&) = default;
+};
+
+// 0x8405, server gửi, cổng game, từ bản 3: Sinh lực của một thực thể trong vùng nhìn, theo phần trăm.
+struct EntityVitals {
+    static constexpr std::uint16_t kKind = 0x8405;
+    // Id thực thể.
+    std::uint32_t id = 0;
+    // Sinh lực theo phần trăm 0..100.
+    std::uint8_t hp_percent = 0;
+    friend bool operator==(const EntityVitals&, const EntityVitals&) = default;
+};
+
 // 0x8501, server gửi, cổng auth, từ bản 1: Vé vào cổng game do cổng xác thực cấp sau khi đăng nhập đúng.
 struct Ticket {
     static constexpr std::uint16_t kKind = 0x8501;
@@ -346,7 +439,7 @@ using GameClientMessage =
     std::variant<Hello, Login, Resume, Ping, Logout, CreateCharacter, DeleteCharacter, EnterGame, Move>;
 using GameClientResult = std::expected<GameClientMessage, WireError>;
 using GameServerMessage = std::variant<Welcome, SessionStart, ContentKey, Pong, Reject, Goodbye, ContentStamp, UiConfig,
-    CharacterList, Position>;
+    CharacterList, Position, SceneEnter, EntityAppear, EntityDisappear, EntityPos, EntityVitals>;
 using GameServerResult = std::expected<GameServerMessage, WireError>;
 using AuthClientMessage = std::variant<Hello, CreateAccount, SignIn>;
 using AuthClientResult = std::expected<AuthClientMessage, WireError>;
@@ -375,6 +468,11 @@ using AuthServerResult = std::expected<AuthServerMessage, WireError>;
 [[nodiscard]] WireStatus encode(std::vector<std::byte>& out, const UiConfig& message);
 [[nodiscard]] WireStatus encode(std::vector<std::byte>& out, const CharacterList& message);
 [[nodiscard]] WireStatus encode(std::vector<std::byte>& out, const Position& message);
+[[nodiscard]] WireStatus encode(std::vector<std::byte>& out, const SceneEnter& message);
+[[nodiscard]] WireStatus encode(std::vector<std::byte>& out, const EntityAppear& message);
+[[nodiscard]] WireStatus encode(std::vector<std::byte>& out, const EntityDisappear& message);
+[[nodiscard]] WireStatus encode(std::vector<std::byte>& out, const EntityPos& message);
+[[nodiscard]] WireStatus encode(std::vector<std::byte>& out, const EntityVitals& message);
 [[nodiscard]] WireStatus encode(std::vector<std::byte>& out, const Ticket& message);
 
 // Giải mã thân của một khung đã tách bằng peek_frame. Kind không thuộc cổng hoặc chiều của bộ giải mã là kUnknownKind;

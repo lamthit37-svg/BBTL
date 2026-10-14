@@ -2,7 +2,7 @@
 
 # Danh mục tin của giao thức
 
-Bản danh mục 2: 22 tin, 1 record, 5 enum.
+Bản danh mục 3: 27 tin, 1 record, 6 enum.
 Khung có 8 byte đầu (u32 số byte thân, u16 kind, u16 flags bằng 0), little-endian; thân tối đa 65 536 byte, tin client gửi tối đa 4 096 byte.
 Byte cao của kind là nhóm, bit 15 bật là tin server gửi. Trần của text tính bằng byte UTF-8, trần của list tính bằng số phần tử.
 
@@ -248,6 +248,89 @@ Cổng game, server gửi, có từ bản 1. Thân tối đa 12 byte.
 | 2 | `z_cm` | `f32` | – | Toạ độ Z server chấp nhận, centimet. |
 | 3 | `tick` | `u32` | – | Tick client mới làm gốc: client đặt bộ đếm tick về giá trị này rồi đếm tiếp. |
 
+## Nhóm 04: world
+
+Thế giới: người chơi vào cảnh, thực thể xuất hiện, di chuyển và biến mất trong vùng nhìn.
+
+| Kind | Tin | Cổng | Chiều | Từ bản | Thân tối đa (byte) |
+|---|---|---|---|---|---|
+| `0x8401` | SceneEnter | game | server | 3 | 12 |
+| `0x8402` | EntityAppear | game | server | 3 | 80 |
+| `0x8403` | EntityDisappear | game | server | 3 | 4 |
+| `0x8404` | EntityPos | game | server | 3 | 18 |
+| `0x8405` | EntityVitals | game | server | 3 | 5 |
+
+### SceneEnter (0x8401)
+
+Server báo nhân vật đã vào một cảnh: id cảnh, vị trí và hướng đầu tiên. Gửi lúc vào game và mỗi lần đổi cảnh.
+
+Cổng game, server gửi, có từ bản 3. Thân tối đa 12 byte.
+
+| Thứ tự | Trường | Kiểu | Trần | Ghi chú |
+|---|---|---|---|---|
+| 1 | `scene` | `u16` | – | Id cảnh (SceneAttr của client 2026). |
+| 2 | `x_cm` | `f32` | – | Toạ độ X đầu tiên, centimet. |
+| 3 | `z_cm` | `f32` | – | Toạ độ Z đầu tiên, centimet. |
+| 4 | `direction` | `u16` | – | Hướng nhìn: 0..65535 ứng với 0..2π. |
+
+### EntityAppear (0x8402)
+
+Một thực thể (người, quái, NPC...) bước vào vùng nhìn của client.
+
+Cổng game, server gửi, có từ bản 3. Thân tối đa 80 byte.
+
+| Thứ tự | Trường | Kiểu | Trần | Ghi chú |
+|---|---|---|---|---|
+| 1 | `id` | `u32` | – | Id thực thể trong cảnh; không dùng lại ngay sau khi thực thể biến mất (có số thế hệ). |
+| 2 | `kind` | `enum:EntityKind` | – | – |
+| 3 | `template_id` | `u32` | – | Id mẫu: quái (monsters.tsv), NPC; 0 với người chơi. |
+| 4 | `name` | `text` | 48 | Tên hiển thị của người chơi; rỗng với quái và NPC (client tra theo mẫu). |
+| 5 | `level` | `u16` | – | – |
+| 6 | `x_cm` | `f32` | – | Toạ độ X, centimet. |
+| 7 | `z_cm` | `f32` | – | Toạ độ Z, centimet. |
+| 8 | `direction` | `u16` | – | Hướng nhìn: 0..65535 ứng với 0..2π. |
+| 9 | `speed_cm` | `u16` | – | Tốc độ chạy, centimet mỗi giây. |
+| 10 | `hp_percent` | `u8` | – | Sinh lực theo phần trăm 0..100. |
+| 11 | `gender` | `u8` | – | 1 nữ, 2 nam; 0 với thực thể không phải người. |
+| 12 | `face` | `u16` | – | Id mặt trong faces.tsv; chỉ có nghĩa với người chơi. |
+| 13 | `hair` | `u16` | – | Id tóc trong hairs.tsv; chỉ có nghĩa với người chơi. |
+| 14 | `school` | `u8` | – | Môn phái 0..15; chỉ có nghĩa với người chơi. |
+
+### EntityDisappear (0x8403)
+
+Một thực thể rời vùng nhìn của client hoặc biến mất khỏi cảnh.
+
+Cổng game, server gửi, có từ bản 3. Thân tối đa 4 byte.
+
+| Thứ tự | Trường | Kiểu | Trần | Ghi chú |
+|---|---|---|---|---|
+| 1 | `id` | `u32` | – | Id thực thể. |
+
+### EntityPos (0x8404)
+
+Vị trí mới của một thực thể trong vùng nhìn; client nội suy giữa hai lần nhận.
+
+Cổng game, server gửi, có từ bản 3. Thân tối đa 18 byte.
+
+| Thứ tự | Trường | Kiểu | Trần | Ghi chú |
+|---|---|---|---|---|
+| 1 | `id` | `u32` | – | Id thực thể. |
+| 2 | `x_cm` | `f32` | – | Toạ độ X, centimet. |
+| 3 | `z_cm` | `f32` | – | Toạ độ Z, centimet. |
+| 4 | `direction` | `u16` | – | Hướng nhìn: 0..65535 ứng với 0..2π. |
+| 5 | `tick` | `u32` | – | Tick của cảnh lúc ghi nhận, 20 tick mỗi giây. |
+
+### EntityVitals (0x8405)
+
+Sinh lực của một thực thể trong vùng nhìn, theo phần trăm.
+
+Cổng game, server gửi, có từ bản 3. Thân tối đa 5 byte.
+
+| Thứ tự | Trường | Kiểu | Trần | Ghi chú |
+|---|---|---|---|---|
+| 1 | `id` | `u32` | – | Id thực thể. |
+| 2 | `hp_percent` | `u8` | – | Sinh lực theo phần trăm 0..100. |
+
 ## Nhóm 05: auth
 
 Cổng xác thực: tạo tài khoản, đăng nhập bằng mật khẩu và cấp vé vào cổng game.
@@ -333,6 +416,17 @@ Giá trị ngoài bảng là lỗi kBadEnum ở cả hai chiều.
 | 7 | `kVersionMismatch` | – |
 | 8 | `kServerFull` | – |
 | 9 | `kContentMismatch` | – |
+
+### EntityKind (u8)
+
+| Giá trị | Tên | Ghi chú |
+|---|---|---|
+| 1 | `kPlayer` | – |
+| 2 | `kMonster` | – |
+| 3 | `kNpc` | – |
+| 4 | `kPet` | – |
+| 5 | `kDrop` | – |
+| 6 | `kObject` | – |
 
 ### ErrorCode (u16)
 

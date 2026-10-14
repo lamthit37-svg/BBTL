@@ -125,10 +125,10 @@ function(game_reject_foreign tree)
 endfunction()
 set(game_engine_names audio audiotool capture core fs gpu io jobs math net render resource shader
     shadertool window xml)
-set(game_shared_names protocol secure table link)
-set(game_client_names anim avatar classic client collision control fx gui hero look motion nav ogre
+set(game_shared_names protocol secure table link nav collision ids)
+set(game_client_names anim avatar classic client control fx gui hero look motion ogre
     quest scene seal sealtool skill ui)
-set(game_server_names account authd billingd config content gate gated guard linttool metrics process
+set(game_server_names account authd billingd config content dice gate gated guard linttool metrics process
     service store stored supervise supervisor worldd zoned)
 game_reject_foreign("${PROJECT_SOURCE_DIR}/engine" ${game_engine_names})
 game_reject_foreign("${PROJECT_SOURCE_DIR}/src/shared" ${game_engine_names} ${game_shared_names})
@@ -441,6 +441,13 @@ if(NOT CMAKE_CROSSCOMPILING)
             target_link_libraries(game_service PUBLIC game_account)
         endif()
     endif()
+    # Module gameplay của máy chủ: mỗi module một tệp cmake/server/<tên>.modules.cmake (game_module, link)
+    # và, nếu có test, cmake/server/<tên>.tests.cmake (game_test, nạp sau khi game_test được định nghĩa).
+    # Tách tệp để nhiều người cùng thêm module mà không sửa chung một vùng của tệp này.
+    file(GLOB game_server_module_files CONFIGURE_DEPENDS "${PROJECT_SOURCE_DIR}/cmake/server/*.modules.cmake")
+    foreach(game_server_module_file IN LISTS game_server_module_files)
+        include("${game_server_module_file}")
+    endforeach()
     if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/Test/bench/collision_bench.cpp")
         add_executable(collision_bench Test/bench/collision_bench.cpp)
         target_include_directories(collision_bench PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/Test" "${CMAKE_CURRENT_SOURCE_DIR}/Test/Collision")
@@ -480,12 +487,12 @@ target_link_libraries(game_motion PUBLIC game_core)
 # nav: lưới đi của cảnh (tệp .path) và luật đi của người chơi, port PathLib.dll và CPath của client
 # 2026. Kết quả phải trùng từng bit với bản gốc, nên GCC và Clang không được gộp nhân với cộng
 # thành FMA (arm64 có sẵn FMA; MSVC x64 mặc định không gộp).
-game_module(nav src/client/place/nav/mesh.cpp src/client/place/nav/finder.cpp src/client/place/nav/route.cpp)
+game_module(nav src/shared/nav/mesh.cpp src/shared/nav/finder.cpp src/shared/nav/route.cpp)
 target_link_libraries(game_nav PUBLIC game_core)
 target_compile_options(game_nav PRIVATE "$<$<CXX_COMPILER_ID:GNU,Clang>:-ffp-contract=off>")
 # collision: va chạm công trình (.WCollision), port BuildingCollision của PathLib.dll. A: bộ đọc; C thêm Model.
-game_module(collision src/client/place/collision/building_file.cpp src/client/place/collision/mesh.cpp
-    src/client/place/collision/opcode_tree.cpp src/client/place/collision/model.cpp)
+game_module(collision src/shared/collision/building_file.cpp src/shared/collision/mesh.cpp
+    src/shared/collision/opcode_tree.cpp src/shared/collision/model.cpp)
 target_link_libraries(game_collision PUBLIC game_core)
 target_compile_options(game_collision PRIVATE "$<$<CXX_COMPILER_ID:GNU,Clang>:-ffp-contract=off>" "$<$<CXX_COMPILER_ID:MSVC>:/fp:precise>")
 
@@ -1491,6 +1498,10 @@ if(TARGET game_net)
         target_link_libraries(core_bench PRIVATE game_net game::warnings)
     endif()
     game_test(secure game_secure)
+    file(GLOB game_server_test_files CONFIGURE_DEPENDS "${PROJECT_SOURCE_DIR}/cmake/server/*.tests.cmake")
+    foreach(game_server_test_file IN LISTS game_server_test_files)
+        include("${game_server_test_file}")
+    endforeach()
     if(TARGET game_gate)
         game_test(gate game_gate)
         game_test(gate_motion game_gate)

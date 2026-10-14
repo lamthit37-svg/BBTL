@@ -70,6 +70,17 @@ void put_disconnect_reason(Writer& writer, DisconnectReason value) {
     return value;
 }
 
+void put_entity_kind(Writer& writer, EntityKind value) {
+    if (!is_valid(value)) writer.fail(WireError::kBadEnum);
+    writer.u8(std::to_underlying(value));
+}
+
+[[nodiscard]] EntityKind get_entity_kind(Reader& reader) {
+    const auto value = static_cast<EntityKind>(reader.u8());
+    if (!is_valid(value)) reader.fail(WireError::kBadEnum);
+    return value;
+}
+
 void put_error_code(Writer& writer, ErrorCode value) {
     if (!is_valid(value)) writer.fail(WireError::kBadEnum);
     writer.u16(std::to_underlying(value));
@@ -377,6 +388,98 @@ void put_position(Writer& writer, const Position& message) {
     return message;
 }
 
+void put_scene_enter(Writer& writer, const SceneEnter& message) {
+    writer.u16(message.scene);
+    writer.f32(message.x_cm);
+    writer.f32(message.z_cm);
+    writer.u16(message.direction);
+}
+
+[[nodiscard]] SceneEnter get_scene_enter(Reader& reader) {
+    SceneEnter message;
+    message.scene = reader.u16();
+    message.x_cm = reader.f32();
+    message.z_cm = reader.f32();
+    message.direction = reader.u16();
+    return message;
+}
+
+void put_entity_appear(Writer& writer, const EntityAppear& message) {
+    writer.u32(message.id);
+    put_entity_kind(writer, message.kind);
+    writer.u32(message.template_id);
+    writer.text(message.name, kEntityAppearNameBytes);
+    writer.u16(message.level);
+    writer.f32(message.x_cm);
+    writer.f32(message.z_cm);
+    writer.u16(message.direction);
+    writer.u16(message.speed_cm);
+    writer.u8(message.hp_percent);
+    writer.u8(message.gender);
+    writer.u16(message.face);
+    writer.u16(message.hair);
+    writer.u8(message.school);
+}
+
+[[nodiscard]] EntityAppear get_entity_appear(Reader& reader) {
+    EntityAppear message;
+    message.id = reader.u32();
+    message.kind = get_entity_kind(reader);
+    message.template_id = reader.u32();
+    message.name = reader.text(kEntityAppearNameBytes);
+    message.level = reader.u16();
+    message.x_cm = reader.f32();
+    message.z_cm = reader.f32();
+    message.direction = reader.u16();
+    message.speed_cm = reader.u16();
+    message.hp_percent = reader.u8();
+    message.gender = reader.u8();
+    message.face = reader.u16();
+    message.hair = reader.u16();
+    message.school = reader.u8();
+    return message;
+}
+
+void put_entity_disappear(Writer& writer, const EntityDisappear& message) {
+    writer.u32(message.id);
+}
+
+[[nodiscard]] EntityDisappear get_entity_disappear(Reader& reader) {
+    EntityDisappear message;
+    message.id = reader.u32();
+    return message;
+}
+
+void put_entity_pos(Writer& writer, const EntityPos& message) {
+    writer.u32(message.id);
+    writer.f32(message.x_cm);
+    writer.f32(message.z_cm);
+    writer.u16(message.direction);
+    writer.u32(message.tick);
+}
+
+[[nodiscard]] EntityPos get_entity_pos(Reader& reader) {
+    EntityPos message;
+    message.id = reader.u32();
+    message.x_cm = reader.f32();
+    message.z_cm = reader.f32();
+    message.direction = reader.u16();
+    message.tick = reader.u32();
+    return message;
+}
+
+void put_entity_vitals(Writer& writer, const EntityVitals& message) {
+    writer.u32(message.id);
+    writer.u8(message.hp_percent);
+}
+
+[[nodiscard]] EntityVitals get_entity_vitals(Reader& reader) {
+    EntityVitals message;
+    message.id = reader.u32();
+    message.hp_percent = reader.u8();
+    return message;
+}
+
 void put_ticket(Writer& writer, const Ticket& message) {
     writer.bytes(message.token);
 }
@@ -405,6 +508,11 @@ bool is_valid(AvatarFrame value) noexcept {
 bool is_valid(DisconnectReason value) noexcept {
     const auto raw = std::to_underlying(value);
     return raw >= 1 && raw <= 9;
+}
+
+bool is_valid(EntityKind value) noexcept {
+    const auto raw = std::to_underlying(value);
+    return raw >= 1 && raw <= 6;
 }
 
 bool is_valid(ErrorCode value) noexcept {
@@ -547,6 +655,36 @@ WireStatus encode(std::vector<std::byte>& out, const Position& message) {
     return writer.finish(Position::kKind);
 }
 
+WireStatus encode(std::vector<std::byte>& out, const SceneEnter& message) {
+    Writer writer{out};
+    put_scene_enter(writer, message);
+    return writer.finish(SceneEnter::kKind);
+}
+
+WireStatus encode(std::vector<std::byte>& out, const EntityAppear& message) {
+    Writer writer{out};
+    put_entity_appear(writer, message);
+    return writer.finish(EntityAppear::kKind);
+}
+
+WireStatus encode(std::vector<std::byte>& out, const EntityDisappear& message) {
+    Writer writer{out};
+    put_entity_disappear(writer, message);
+    return writer.finish(EntityDisappear::kKind);
+}
+
+WireStatus encode(std::vector<std::byte>& out, const EntityPos& message) {
+    Writer writer{out};
+    put_entity_pos(writer, message);
+    return writer.finish(EntityPos::kKind);
+}
+
+WireStatus encode(std::vector<std::byte>& out, const EntityVitals& message) {
+    Writer writer{out};
+    put_entity_vitals(writer, message);
+    return writer.finish(EntityVitals::kKind);
+}
+
 WireStatus encode(std::vector<std::byte>& out, const Ticket& message) {
     Writer writer{out};
     put_ticket(writer, message);
@@ -582,6 +720,11 @@ GameServerResult decode_game_server(const Frame& frame, ByteView body) {
     case UiConfig::kKind: return checked(reader, get_ui_config(reader));
     case CharacterList::kKind: return checked(reader, get_character_list(reader));
     case Position::kKind: return checked(reader, get_position(reader));
+    case SceneEnter::kKind: return checked(reader, get_scene_enter(reader));
+    case EntityAppear::kKind: return checked(reader, get_entity_appear(reader));
+    case EntityDisappear::kKind: return checked(reader, get_entity_disappear(reader));
+    case EntityPos::kKind: return checked(reader, get_entity_pos(reader));
+    case EntityVitals::kKind: return checked(reader, get_entity_vitals(reader));
     default: return std::unexpected(WireError::kUnknownKind);
     }
 }
