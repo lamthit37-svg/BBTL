@@ -16,6 +16,10 @@ mục ở mục 11.
   Macro phải nằm trong mã nguồn; mọi tệp Win32 lấy `<windows.h>` qua `core/win32.hpp`.
 - `misc-include-cleaner` đòi header con cung cấp từng ký hiệu Win32 (`winuser.h`, `winerror.h`...),
   không chấp nhận chỉ `<windows.h>`. Hỏi danh sách: `python TOOLS/port/forge2_port.py includes <tệp>`.
+- `<windows.h>` (qua `core/win32.hpp`) định nghĩa `far` và `near` thành macro rỗng: tệp nào include
+  nó thì biến tên `far`, `near` thành `Expected unqualified-id`. Đo 2026-10-14: `Test/Server/account_tests.cpp`
+  có biến `far`, include `support/lax_file.hpp` (kéo `core/win32.hpp`) là vỡ. Đổi tên biến (đã đổi thành
+  `beyond`); đừng `#undef far` vì `FAR` của các header Windows sau đó còn dùng nó.
 - GCC MinGW cần `-lsynchronization` cho `WaitOnAddress` (CMake: `target_link_libraries(game_core
   PRIVATE synchronization ntdll)`).
 - MSVC `/W4 /WX`: `std::getenv` là C4996. Trên Windows đọc biến môi trường bằng

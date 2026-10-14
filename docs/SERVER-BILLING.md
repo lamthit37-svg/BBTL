@@ -141,7 +141,7 @@ không chờ quá hạn; mọi lỗi vận chuyển thành `Reply{kBusy}`.
 
 `billing.toml`: `[database] name user pool`, `[access] allow` (phải chứa `127.0.0.1`), `[limits] max_clients`, `[points] ingot_per_point register_gift`, `[spend] daily_ingot_cap`,
 `[orders] pending_timeout_seconds reconcile_interval_seconds`, `[redeem] attempts_per_hour`, `[webhook] port` (127.0.0.1; chỉ nghe khi có ít nhất một nhà cung cấp bật), và mỗi nhà cung cấp một khối
-`[[provider]] key webhook_path secret_file enabled` (`secret_file` tính từ thư mục cấu hình, nội dung 64 ký tự hex). Mật khẩu role `thienlong_billing` ở `secrets.local.toml`. Khoá ipc ở `ipc.key` cạnh cấu hình.
+`[[provider]] key webhook_path secret_file enabled` (`secret_file` tính từ thư mục cấu hình, nội dung 64 ký tự hex, tệp phải riêng của tài khoản chạy máy chủ như `ipc.key`). Mật khẩu role `thienlong_billing` ở `secrets.local.toml`. Khoá ipc ở `ipc.key` cạnh cấu hình.
 
 Bảng `billing_limits.tsv` (11 số; `basis`: `client_2026` là đo từ script client, `made_up` là **số tự đặt chờ chủ dự án duyệt**):
 
@@ -190,7 +190,7 @@ Test dùng số vàng tính tay (ví dụ `ceil(10 × 10 / 3) = 34`, chữ ký H
 
 ## 12. Chưa làm, giới hạn, giả định
 
-- **Tệp khoá HMAC của nhà cung cấp không bị kiểm quyền truy cập** (billing đọc được là đủ), khác `ipc.key` vốn bị `account::ipc_key_private` từ chối khi lỏng. Đây là khe hở an ninh lớn nhất còn lại: lộ khoá thì kẻ gian ký được webhook cộng điểm. Chưa làm vì `ipc_key_private` thuộc module `account` (không thuộc phạm vi đợt này), câu lỗi của nó viết cứng "ipc.key", và tệp test trên Windows thừa hưởng ACL của thư mục dựng nên cần đặt quyền riêng cho tệp tạm. Việc sửa: tổng quát hoá hàm đó thành `file_private(path, tên, error)` rồi gọi trong `providers_of` (`billing/serve/setup.cpp`). Trước đó: đặt thư mục cấu hình thuộc riêng tài khoản chạy máy chủ.
+- ~~Tệp khoá HMAC của nhà cung cấp không bị kiểm quyền truy cập~~ — **đã đóng 2026-10-14**: `account::file_private(path, tên, error)` (tổng quát hoá của `ipc_key_private`, câu lỗi nêu đúng tên tệp) được gọi trong `provider_key_of` (`billing/serve/setup.cpp`) trước khi đọc khoá; tệp lỏng quyền thì billing thoát mã 1, không tự sửa quyền. `account::create_private_file` tạo tệp riêng ngay lúc tạo (test và công cụ cấp khoá dùng); `fake_provider.py keygen` làm tương đương (POSIX 0600 lúc tạo, Windows `icacls /inheritance:r` rồi mới ghi khoá). Test: `secret_files_must_be_private` (`account_tests`), `serve_bad_config` ca khoá lỏng quyền (`billing_serve_tests`; gỡ lời gọi `file_private` thì ca này đỏ). Khoá viết tay trên Windows: bỏ quyền kế thừa rồi cấp riêng cho tài khoản chạy máy chủ, ví dụ `icacls alpha.key /inheritance:r /grant:r "%USERDOMAIN%\%USERNAME%:F"`.
 - `[limits] max_clients` **không có hiệu lực**: khung vận chuyển dùng chung với account cố định 64 kết nối. `[access] allow` chỉ được kiểm là có `127.0.0.1`; ipc chỉ nghe địa chỉ loopback trong `cluster.toml`.
 - Bộ đếm tốc độ nhập mã nằm trong bộ nhớ: billing chạy lại thì mọi tài khoản và IP có lại đủ lượt.
 - `ledger_check` quét cả sổ (độ phức tạp O(số dòng sổ)); ổn khi sổ cỡ trăm nghìn dòng, chưa đo ở cỡ hàng chục triệu. Khi cần: đối soát gia tăng theo mốc `id`.

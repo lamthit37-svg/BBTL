@@ -2,11 +2,16 @@
 kiểu làm hỏng yêu cầu, và việc đợt `storm` tất định theo hạt giống."""
 from __future__ import annotations
 
+import argparse
 import random
 import socket
+import subprocess
+import sys
+import tempfile
 import threading
 import unittest
 from collections.abc import Callable
+from pathlib import Path
 
 import fake_provider as provider
 
@@ -83,6 +88,22 @@ class SignatureTests(unittest.TestCase):
         with self.assertRaises(ValueError):
             provider.load_key_text("00ff")
         self.assertEqual(provider.load_key_text("00" * 32 + "\n"), bytes(32))
+
+    def test_keygen_writes_private_file(self) -> None:
+        with tempfile.TemporaryDirectory() as folder:
+            path = Path(folder) / "alpha.key"
+            self.assertEqual(provider.command_keygen(argparse.Namespace(file=str(path))), 0)
+            self.assertEqual(len(provider.load_key_text(path.read_text(encoding="ascii"))), provider.KEY_BYTES)
+            # Không ghi đè khoá đã có.
+            before = path.read_text(encoding="ascii")
+            self.assertEqual(provider.command_keygen(argparse.Namespace(file=str(path))), 2)
+            self.assertEqual(path.read_text(encoding="ascii"), before)
+            if sys.platform == "win32":
+                listing = subprocess.run(["icacls", str(path)], check=True, capture_output=True, text=True).stdout
+                for broad in ("Everyone", "BUILTIN\\Users", "Authenticated Users"):
+                    self.assertNotIn(broad, listing)
+            else:
+                self.assertEqual(path.stat().st_mode & 0o077, 0)
 
 
 class RequestTests(unittest.TestCase):

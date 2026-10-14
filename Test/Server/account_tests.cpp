@@ -7,12 +7,16 @@
 #include "account/standing.hpp"
 #include "secure/secure.hpp"
 
+#include "support/lax_file.hpp"
 #include "test.hpp"
 
 #include <array>
 #include <chrono>
+#include <cstddef>
+#include <filesystem>
 #include <span>
 #include <string>
+#include <system_error>
 
 namespace game::test {
 namespace {
@@ -142,8 +146,8 @@ void save_call_round_trip(Context& context) {
     account::Call longer = call;
     longer.body.push_back(std::byte{0});
     context.expect(!account::read_save_call(longer, got), "thừa byte bị từ chối");
-    const account::SaveSpot far{.character = 1, .scene = 1, .x_cm = account::kSpotLimitCm + 1, .z_cm = 0};
-    context.expect(!account::read_save_call(account::save_call(far), got), "toạ độ ngoài trần bị từ chối");
+    const account::SaveSpot beyond{.character = 1, .scene = 1, .x_cm = account::kSpotLimitCm + 1, .z_cm = 0};
+    context.expect(!account::read_save_call(account::save_call(beyond), got), "toạ độ ngoài trần bị từ chối");
     const account::SaveSpot edge{.character = 1, .scene = 1, .x_cm = account::kSpotLimitCm, .z_cm = -account::kSpotLimitCm};
     context.expect(account::read_save_call(account::save_call(edge), got), "đúng trần vẫn nhận");
 }
@@ -183,9 +187,9 @@ void enter_reply_carries_spot(Context& context) {
     context.expect(!account::entered_from(longer).ok, "thân thừa byte bị từ chối");
     context.expect(!account::entered_from(account::Reply{}).ok, "thân rỗng (kiểu standing) không phải điểm vào");
 
-    account::EnterResult far = sent;
-    far.x_cm = account::kSpotLimitCm + 1;
-    context.expect(!account::entered_from(account::enter_reply_of(far)).ok, "store không gửi toạ độ ngoài trần");
+    account::EnterResult beyond = sent;
+    beyond.x_cm = account::kSpotLimitCm + 1;
+    context.expect(!account::entered_from(account::enter_reply_of(beyond)).ok, "store không gửi toạ độ ngoài trần");
     account::Reply forged = account::enter_reply_of(sent);
     const auto huge = static_cast<std::uint32_t>(account::kSpotLimitCm + 1);
     for (std::size_t i = 0; i < 4; ++i) forged.body[2 + i] = std::byte{static_cast<std::uint8_t>(huge >> (8U * i))};
@@ -382,7 +386,45 @@ void standing_cache_stays_bounded(Context& context) {
     context.expect(cache.find(last, start).has_value(), "dòng vừa ghi vẫn còn");
 }
 
+// Hồi quy: khoá HMAC của nhà cung cấp thanh toán từng không bị kiểm quyền, nên tệp ai đọc cũng được vẫn chạy.
+void secret_files_must_be_private(Context& context) {
+    namespace fs = std::filesystem;
+    const fs::path dir = fs::temp_directory_path() / "thienlong-private-file-test";
+    std::error_code ignored;
+    fs::remove_all(dir, ignored);
+    fs::create_directories(dir, ignored);
+    context.expect(!ignored, "dựng được thư mục thử");
+
+    const std::array<std::byte, 4> bytes{std::byte{1}, std::byte{2}, std::byte{3}, std::byte{4}};
+    const fs::path mine = dir / "alpha.key";
+    std::string error;
+    bool existed = true;
+    context.expect(account::create_private_file(mine, bytes, "alpha.key", existed, error) && !existed,
+        "tạo tệp riêng thành công");
+    context.expect(account::file_private(mine, "alpha.key", error), "tệp vừa tạo là riêng");
+    context.expect(account::ipc_key_private(mine, error), "ipc_key_private vẫn là cùng phép kiểm");
+
+    error.clear();
+    context.expect(!account::create_private_file(mine, bytes, "alpha.key", existed, error) && existed && error.empty(),
+        "tệp đã có: không ghi đè, báo existed");
+
+    const fs::path lax = dir / "beta.key";
+    context.expect(write_world_readable(lax, "x"), "dựng được tệp mọi người đọc");
+    error.clear();
+    context.expect(!account::file_private(lax, "beta.key", error), "tệp mọi người đọc bị từ chối");
+    context.expect(error.contains("beta.key"), "câu lỗi nêu đúng tên tệp, không nhầm ipc.key");
+    error.clear();
+    context.expect(!account::ipc_key_private(lax, error) && error.contains("ipc.key"),
+        "ipc_key_private vẫn nêu ipc.key");
+
+    error.clear();
+    context.expect(!account::file_private(dir / "khong-co.key", "khong-co.key", error) && !error.empty(),
+        "tệp thiếu: sai kèm lý do");
+    fs::remove_all(dir, ignored);
+}
+
 constexpr std::array kCases{
+    Case{.name = "secret_files_must_be_private", .body = &secret_files_must_be_private},
     Case{.name = "names_reject_junk", .body = &names_reject_junk},
     Case{.name = "sign_steps", .body = &sign_steps},
     Case{.name = "register_sign_and_ticket", .body = &register_sign_and_ticket},

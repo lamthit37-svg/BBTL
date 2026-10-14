@@ -20,9 +20,11 @@ import argparse
 import hashlib
 import hmac
 import json
+import os
 import random
 import secrets
 import socket
+import subprocess
 import sys
 import time
 from dataclasses import dataclass, replace
@@ -213,13 +215,38 @@ def run_storm(target: Target, orders: int, seed: int, accounts: int) -> dict[str
             "answers": answers, "wrong": wrong[:20], "wrong_count": len(wrong)}
 
 
+def make_private(path: Path) -> None:
+    """Chỉ chủ tệp đọc được: billing từ chối khoá HMAC mà tài khoản khác đọc được (account::file_private).
+
+    POSIX: chế độ 0600 đã đặt lúc tạo. Windows: bỏ quyền kế thừa của thư mục rồi chỉ cấp cho tài khoản đang chạy,
+    làm trước khi ghi khoá để khoá không có lúc nào nằm trong tệp ai cũng đọc được."""
+    if sys.platform != "win32":
+        return
+    user = os.environ.get("USERNAME", "")
+    domain = os.environ.get("USERDOMAIN", "")
+    if not user:
+        raise OSError("không biết tài khoản đang chạy để khoá quyền tệp")
+    account = f"{domain}\\{user}" if domain else user
+    subprocess.run(["icacls", str(path), "/inheritance:r", "/grant:r", f"{account}:F"], check=True,
+                   capture_output=True)
+
+
 def command_keygen(arguments: argparse.Namespace) -> int:
     path = Path(arguments.file)
-    if path.exists():
+    try:
+        descriptor = os.open(path, os.O_WRONLY | os.O_CREAT | os.O_EXCL, 0o600)
+    except FileExistsError:
         print(f"{path} đã có, không ghi đè", file=sys.stderr)
         return 2
-    path.write_text(secrets.token_hex(KEY_BYTES) + "\n", encoding="ascii")
-    path.chmod(0o600)
+    with os.fdopen(descriptor, "w", encoding="ascii") as out:
+        try:
+            make_private(path)
+        except (OSError, subprocess.CalledProcessError) as problem:
+            out.close()
+            path.unlink(missing_ok=True)
+            print(f"không khoá được quyền của {path}: {problem}", file=sys.stderr)
+            return 1
+        out.write(secrets.token_hex(KEY_BYTES) + "\n")
     print(f"đã ghi khoá {KEY_BYTES * 8} bit vào {path}")
     return 0
 

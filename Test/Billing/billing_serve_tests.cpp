@@ -196,6 +196,14 @@ void serve_bad_config(Context& context) {
     if (!second) return;
     const std::optional<int> key_code = sv::Daemon::start_and_wait_exit(*second);
     context.expect(key_code && *key_code == 1, "khoá nhà cung cấp không phải 64 ký tự hex: thoát mã 1");
+
+    // Hồi quy: khoá HMAC hợp lệ nhưng ai cũng đọc được thì billing không chạy (ai có khoá là ký được webhook cộng điểm).
+    sv::StageOptions lax_key;
+    lax_key.lax_key_file = true;
+    const std::unique_ptr<sv::Stage> third = sv::Stage::create(*access, lax_key, why);
+    if (!third) return;
+    const std::optional<int> lax_code = sv::Daemon::start_and_wait_exit(*third);
+    context.expect(lax_code && *lax_code == 1, "khoá nhà cung cấp lỏng quyền: thoát mã 1");
 }
 
 // ---- webhook --------------------------------------------------------------------------------------------

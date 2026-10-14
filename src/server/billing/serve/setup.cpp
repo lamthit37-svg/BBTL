@@ -28,6 +28,7 @@
 #include <span>
 #include <string>
 #include <string_view>
+#include <system_error>
 #include <utility>
 #include <vector>
 
@@ -81,6 +82,31 @@ template <typename Value>
     });
 }
 
+// Khoá HMAC của một nhà cung cấp. Ai đọc được khoá là ký được webhook cộng điểm, nên tệp phải riêng của tài khoản
+// chạy máy chủ (cùng phép kiểm với ipc.key); lỏng hơn thì billing từ chối chạy, không tự sửa quyền.
+[[nodiscard]] std::expected<ProviderKey, SetupFault> provider_key_of(const config::Provider& declared,
+    const Path& config_dir) {
+    const Path secret_path = config_dir / io::path_from_utf8(declared.secret_file);
+    std::error_code probe;
+    // Tệp thiếu thì file_private cũng sai; xét riêng để câu lỗi nói đúng nguyên nhân.
+    if (std::filesystem::is_regular_file(secret_path, probe)) {
+        std::string why;
+        if (!account::file_private(secret_path, declared.secret_file, why)) {
+            return fault(1, std::format("tệp khoá của nhà cung cấp '{}': {}", declared.key, why));
+        }
+    }
+    io::TextResult secret = io::read_text(secret_path);
+    if (!secret) {
+        return fault(1, std::format("không đọc được tệp khoá của nhà cung cấp '{}'", declared.key));
+    }
+    const std::optional<ProviderKey> key = parse_provider_key(*secret);
+    secure::wipe_bytes(std::as_writable_bytes(std::span{secret->data(), secret->size()}));
+    if (!key) {
+        return fault(1, std::format("tệp khoá của nhà cung cấp '{}' phải là 64 ký tự hex", declared.key));
+    }
+    return *key;
+}
+
 [[nodiscard]] std::expected<std::vector<WebhookProvider>, SetupFault> providers_of(const config::Billing& billing,
     const Path& config_dir) {
     std::vector<WebhookProvider> out;
@@ -98,15 +124,8 @@ template <typename Value>
             return known.name == declared.key || known.path == declared.webhook_path;
         });
         if (repeated) return fault(1, std::format("billing.toml dòng {}: nhà cung cấp hoặc đường dẫn lặp", declared.line));
-        io::TextResult secret = io::read_text(config_dir / io::path_from_utf8(declared.secret_file));
-        if (!secret) {
-            return fault(1, std::format("không đọc được tệp khoá của nhà cung cấp '{}'", declared.key));
-        }
-        const std::optional<ProviderKey> key = parse_provider_key(*secret);
-        secure::wipe_bytes(std::as_writable_bytes(std::span{secret->data(), secret->size()}));
-        if (!key) {
-            return fault(1, std::format("tệp khoá của nhà cung cấp '{}' phải là 64 ký tự hex", declared.key));
-        }
+        const std::expected<ProviderKey, SetupFault> key = provider_key_of(declared, config_dir);
+        if (!key) return std::unexpected(key.error());
         out.push_back(WebhookProvider{.name = declared.key, .path = declared.webhook_path, .key = *key});
     }
     return out;
