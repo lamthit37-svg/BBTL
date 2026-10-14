@@ -89,14 +89,16 @@ def depths(rows: dict[str, dict], roots: set[str]) -> dict[str, int]:
     depth = {name: 0 for name in roots if name in rows}
     frontier = list(depth)
     while frontier:
-        following = []
-        for name in frontier:
-            for target in edges.get(name, ()):
-                if target in rows and target not in depth:
-                    depth[target] = depth[name] + 1
-                    following.append(target)
-        frontier = following
+        frontier = [target for name in frontier for target in _visit(name, edges, rows, depth)]
     return depth
+
+
+def _visit(name: str, edges: dict[str, set[str]], rows: dict[str, dict], depth: dict[str, int]) -> list[str]:
+    """Đánh độ sâu cho các cửa sổ chưa thăm mà name mở được; trả chúng theo thứ tự tên để kết quả tất định."""
+    fresh = sorted(target for target in edges.get(name, ()) if target in rows and target not in depth)
+    for target in fresh:
+        depth[target] = depth[name] + 1
+    return fresh
 
 
 def main() -> int:
