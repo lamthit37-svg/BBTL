@@ -137,7 +137,8 @@
   - Layout điện thoại là `Interface/phone/`, Android và iOS dùng chung; thiếu tệp thì layout PC.
     Texture PC là DDS. Bản điện thoại là `mobile/astc/` rồi `mobile/etc2/`, cùng đường tương đối,
     định dạng TLTX. GPU có ASTC thì chọn ASTC, không thì ETC2 — chủ dự án chốt ngày 2026-10-12.
-  - Dạng khung chân dung của HUD (tròn hoặc vuông) chọn lúc dựng client bằng `-DGAME_AVATAR_FRAME=round|square`
+  - Dạng khung chân dung của HUD (tròn hoặc vuông) chọn lúc dựng client trong `src/client/client.build.toml`
+    (khoá `avatar_frame = "square"` hoặc `"round"`; CMake đọc rồi gắn thẳng vào exe, client không đọc tệp lúc chạy)
     (mặc định `square`; `round` là nền tròn `CommonFrame8` và đầu 3D có mặt nạ `HeadRoundRegion`). `square` là chế độ
     classic của client 2026, port đúng nhánh `SystemSetup:IsClassic() == 1` của `PlayerFrame_UpdateShow2DHead`
     (`PlayerFrame.lua` 2026 giải bằng `TOOLS/content/lua_plain.py`, dòng 957-995): nền vuông
@@ -146,7 +147,8 @@
     dự án chốt ngày 2026-10-14 ("phần này ở giao diện không nên đẩy lên server"; "mình có client bản 2026
     mà", "cấm ghép linh tinh": mọi giá trị lấy từ script 2026, không tự ghép ảnh). Hiện chỉ khung `PlayerFrame`
     (Target, Party, Pet chưa có trên HUD). Mặc định là `square` — chủ dự án chốt ngày 2026-10-14 ("để mặc định avt
-    vuông đi"). Đổi giá trị thì configure lại rồi dựng `thienlong_client`.
+    vuông đi"). Đổi giá trị: sửa tệp rồi dựng lại `thienlong_client` (CMake tự cấu hình lại) — chủ dự án
+    chốt ngày 2026-10-14 ("đưa nó thành file toml đặt ở client"; "build gắn thẳng vào dll hoặc exe").
   - Nạp đầu: khung đầu phải có đủ cảnh lẫn HUD (nạp đồng bộ, `settle_first_scene`), và phải nhanh hơn G:\TLBB có số đo —
     chủ dự án chốt ngày 2026-10-13 ("load full giao diện game phải vượt qua G:\TLBB, có số làm dẫn chứng"; "load đồng bộ map
     cũng hiện luôn nhanh vẫn nhanh hơn"). Mọi việc không cần thiết bị GPU (đọc giao diện, bảng chuỗi, phông, mesh, địa hình,

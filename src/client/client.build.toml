@@ -1,0 +1,17 @@
+#==================================================
+# CẤU HÌNH DỰNG CLIENT
+#==================================================
+# Tệp: client.build.toml. CMake đọc tệp này lúc cấu hình và gắn thẳng vào exe; client không đọc nó lúc
+# chạy, và nó không đi qua server hay protocol. Sửa xong dựng lại, CMake tự cấu hình lại.
+
+#==================================================
+# Chung
+#==================================================
+schema = 1   # Phiên bản bố cục của tệp; CMake từ chối số nó không hiểu
+
+#==================================================
+# Giao diện
+#==================================================
+# "square" là chế độ classic của client 2026 (nền vuông, ảnh chân dung 2D); "round" là nền tròn với đầu 3D.
+[hud]
+avatar_frame = "square"   # Dạng khung chân dung của HUD: square hoặc round

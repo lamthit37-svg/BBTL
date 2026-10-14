@@ -518,17 +518,26 @@ game_module(ui_panel
     src/client/face/ui/panel/select_server.cpp
     src/client/face/ui/panel/login_flow.cpp)
 target_link_libraries(game_ui_panel PUBLIC game_gui game_hero game_quest game_table game_core)
-# Dạng khung chân dung của HUD, chọn lúc dựng client (chủ dự án chốt 2026-10-14: thuộc về giao
-# diện nên nằm ở cấu hình dựng, không đẩy lên server): round là nền tròn và đầu 3D của dự án, square là
-# chế độ classic của client 2026 (nền vuông, ảnh chân dung 2D). Macro chỉ đặt cho player_frame.cpp nên
-# đổi giá trị chỉ dựng lại tệp đó và hud.cpp không đổi. Mặc định square (chủ dự án chốt 2026-10-14).
-set(GAME_AVATAR_FRAME "square" CACHE STRING "Dạng khung chân dung của HUD: round (tròn) hoặc square (vuông)")
-set_property(CACHE GAME_AVATAR_FRAME PROPERTY STRINGS round square)
-if(NOT GAME_AVATAR_FRAME STREQUAL "round" AND NOT GAME_AVATAR_FRAME STREQUAL "square")
-    message(FATAL_ERROR "GAME_AVATAR_FRAME=${GAME_AVATAR_FRAME}: chỉ nhận round hoặc square")
+# Cấu hình dựng client nằm ở src/client/client.build.toml (chủ dự án chốt 2026-10-14: gắn thẳng vào
+# exe lúc dựng, không đọc tệp lúc chạy, không qua server hay protocol). CMake đọc khoá avatar_frame
+# bằng regex (chỉ nhận dạng `khoá = "giá trị"` trên một dòng) rồi đặt macro cho riêng player_frame.cpp,
+# nên đổi giá trị chỉ dựng lại tệp đó. Sửa tệp thì CMake tự cấu hình lại (CMAKE_CONFIGURE_DEPENDS).
+set(game_client_build "${PROJECT_SOURCE_DIR}/src/client/client.build.toml")
+set_property(DIRECTORY APPEND PROPERTY CMAKE_CONFIGURE_DEPENDS "${game_client_build}")
+file(STRINGS "${game_client_build}" game_schema_line REGEX "^schema[ \t]*=")
+if(NOT game_schema_line MATCHES "^schema[ \t]*=[ \t]*1([ \t]|$)")
+    message(FATAL_ERROR "${game_client_build}: schema phải là 1")
+endif()
+file(STRINGS "${game_client_build}" game_avatar_line REGEX "^[ \t]*avatar_frame[ \t]*=")
+if(NOT game_avatar_line MATCHES "^[ \t]*avatar_frame[ \t]*=[ \t]*\"([a-z]*)\"")
+    message(FATAL_ERROR "${game_client_build}: thiếu dòng avatar_frame = \"round\" hoặc \"square\"")
+endif()
+set(game_avatar_frame "${CMAKE_MATCH_1}")
+if(NOT game_avatar_frame STREQUAL "round" AND NOT game_avatar_frame STREQUAL "square")
+    message(FATAL_ERROR "${game_client_build}: avatar_frame = \"${game_avatar_frame}\", chỉ nhận round hoặc square")
 endif()
 set(game_avatar_square 0)
-if(GAME_AVATAR_FRAME STREQUAL "square")
+if(game_avatar_frame STREQUAL "square")
     set(game_avatar_square 1)
 endif()
 set_source_files_properties(src/client/face/ui/panel/player_frame.cpp

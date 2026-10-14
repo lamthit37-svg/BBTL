@@ -1,7 +1,7 @@
 // Khung nhân vật (PlayerFrame): tên, cấp, ba thanh máu, khí, nộ, điểm liên kích, dấu đội trưởng,
 // chân dung và cảnh báo máu thấp, theo PlayerFrame_Update của script gốc.
 // Nguồn: G:\TLBB\_content\source\Interface\PlayerFrame\PlayerFrame.lua (dòng 219-291, 345-355).
-// Dựng với -DGAME_AVATAR_FRAME=square thì khung theo chế độ classic của client 2026: nền vuông, ảnh
+// Dựng với avatar_frame = "square" (src/client/client.build.toml) thì khung theo chế độ classic của client 2026: nền vuông, ảnh
 // 2D ở PlayerFrame_Head_2D, không có đầu 3D (xem kClassicFrame ở player_frame.cpp).
 // Chân dung là ảnh 2D gán vào PlayerFrame_Head_3D, cửa sổ con của PlayerFrame_Head_Parent. Cha bật
 // RoundEnabled trước MaskImage HeadRoundRegion, nên hub che quad của con bằng mặt nạ đó. Khác gốc:
@@ -31,7 +31,7 @@ struct Face {
     std::string_view model;
 };
 
-// Bộ ảnh mà dạng khung chân dung đã chọn lúc dựng (GAME_AVATAR_FRAME) gán lúc chạy, layout không nhắc
+// Bộ ảnh mà dạng khung chân dung đã chọn lúc dựng (avatar_frame) gán lúc chạy, layout không nhắc
 // tới: người gọi đưa trọn nó vào giao diện trước khi dựng Hub. Rỗng khi là dạng tròn.
 [[nodiscard]] std::string_view avatar_frame_imageset() noexcept;
 

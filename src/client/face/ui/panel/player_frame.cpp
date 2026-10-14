@@ -16,7 +16,7 @@
 namespace game::ui::panel {
 namespace {
 
-// Dạng khung chân dung chọn lúc dựng client bằng -DGAME_AVATAR_FRAME=round|square (CMakeLists.txt đặt
+// Dạng khung chân dung chọn lúc dựng client ở src/client/client.build.toml (CMakeLists.txt đọc rồi đặt
 // macro GAME_AVATAR_FRAME_SQUARE cho riêng tệp này). Thiếu macro (check.py dịch từng tệp riêng) thì
 // giữ dạng tròn của gốc.
 #if defined(GAME_AVATAR_FRAME_SQUARE) && GAME_AVATAR_FRAME_SQUARE != 0
@@ -124,7 +124,7 @@ constexpr std::array<gui::Override, 18> kClassicFrame = {{
     {.window = "PlayerFrame_DuiHuan", .name = "UnifiedPosition", .value = "{{1.000000,-43.000000},{0.000000,33.000000}}"},
 }};
 
-// Dạng vuông (-DGAME_AVATAR_FRAME=square) là chế độ classic của client 2026: chân dung là ảnh phẳng
+// Dạng vuông (avatar_frame = "square") là chế độ classic của client 2026: chân dung là ảnh phẳng
 // của bảng chân dung gán vào Head_2D (48x48, con của nó là lớp đỏ máu thấp PlayerFrame_Mask) và đầu
 // 3D bị giấu, như PlayerFrame_UpdateShow2DHead. Không có ảnh thì ô để trống như dạng tròn.
 void fill_classic_portrait(Deck& deck, const Face& face) {
