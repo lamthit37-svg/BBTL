@@ -1,13 +1,17 @@
 #include "ui/panel/desk.hpp"
 
+#include "gui/sheet.hpp"
+#include "hero/hero.hpp"
 #include "ui/panel/deck.hpp"
 
 #include <algorithm>
 #include <array>
+#include <cstddef>
 #include <cstdint>
 #include <optional>
 #include <ranges>
 #include <span>
+#include <string>
 #include <string_view>
 
 namespace game::ui::panel {
@@ -585,7 +589,14 @@ void paint_one_check(Deck& deck, std::string_view window, bool is_on) {
     return kNoShelves;
 }
 
-[[nodiscard]] std::span<const std::string_view> shelf_keys(std::uint8_t money, std::uint8_t tab) noexcept {
+// Thẻ tiền và mục của thương thành: hai số nguyên cùng kiểu, nên đi chung một kiểu để không đảo chỗ.
+struct ShelfAt {
+    std::uint8_t money = 0;
+    std::uint8_t tab = 1;
+};
+
+[[nodiscard]] std::span<const std::string_view> shelf_keys(ShelfAt at) noexcept {
+    const auto [money, tab] = at;
     if (money == 1) return bind_row(tab);
     if (money == 2) return gift_row(tab);
     if (money == 4) return kVipShelves;
@@ -608,7 +619,7 @@ void paint_category(Deck& deck, std::string_view window, bool is_shown, bool is_
 }
 
 void paint_category_at(Deck& deck, std::string_view name, std::uint8_t money, std::uint8_t index, std::uint8_t tab) {
-    const auto keys = shelf_keys(money, index);
+    const auto keys = shelf_keys({.money = money, .tab = index});
     paint_category(deck, name, has_shelf(keys), index == tab);
 }
 
@@ -639,7 +650,7 @@ void paint_shelf_row(Deck& deck, ShelfSide side, std::uint8_t chosen) {
 }
 
 void paint_shelves(Deck& deck, std::span<const std::string_view> windows, const Desk& desk) {
-    const auto keys = shelf_keys(desk.shop_money, desk.shop_tab);
+    const auto keys = shelf_keys({.money = desk.shop_money, .tab = desk.shop_tab});
     const ShelfSide side{.windows = windows, .keys = keys};
     paint_shelf_row(deck, side, desk.shop_shelf);
 }
@@ -706,14 +717,14 @@ void paint_shop(Deck& deck, const Desk& desk) {
 void paint_skill_tab(Deck& deck, std::string_view window, std::size_t slot, std::size_t chosen) {
     const bool is_on = slot == chosen;
     std::string text(is_on ? kSkillOn : kSkillOff);
-    text.append(kSkillKeys[slot]);
+    text.append(kSkillKeys.at(slot));
     put(deck, window, "Text", text);
     paint_one_check(deck, window, is_on);
 }
 
 void paint_skill_face(Deck& deck, const SkillFace& face, std::size_t chosen) {
     for (std::size_t slot = 0; slot < face.tabs.size(); ++slot)
-        paint_skill_tab(deck, face.tabs[slot], slot, chosen);
+        paint_skill_tab(deck, face.tabs.at(slot), slot, chosen);
 }
 
 void paint_skills(Deck& deck, const Desk& desk) {
@@ -725,7 +736,7 @@ void paint_skills(Deck& deck, const Desk& desk) {
 void paint_friend(Deck& deck, const Desk& desk) {
     if (!is_open(desk, Board::kFriend)) return;
     for (std::size_t i = 0; i < kFriendPages.size(); ++i)
-        paint_one_check(deck, kFriendPages[i], i + 1U == desk.friend_page);
+        paint_one_check(deck, kFriendPages.at(i), i + 1U == desk.friend_page);
 }
 
 void paint_team(Deck& deck, const Desk& desk) {
@@ -745,13 +756,6 @@ void paint_team(Deck& deck, const Desk& desk) {
     if (notice == Notice::kNoGuild) return kNoGuild;
     if (notice == Notice::kNoSect) return kNoSect;
     return {};
-}
-
-void paint_notice(Deck& deck, const Desk& desk) {
-    const std::string_view text = notice_text(desk.notice);
-    if (text.empty()) return;
-    deck.show("DebugListBox");
-    put(deck, "DebugListBox_ListBox", "Text", text);
 }
 
 } // namespace
@@ -806,6 +810,12 @@ void press_desk(Desk& desk, std::string_view window, PlayFacts facts) noexcept {
     if (closed != kRows.end()) close_board(desk, closed->board);
 }
 
+std::string_view take_notice(Desk& desk) noexcept {
+    const std::string_view text = notice_text(desk.notice);
+    desk.notice = Notice::kNone;
+    return text;
+}
+
 void paint_desk(Deck& deck, const Desk& desk) {
     const auto rank_of = [&desk](const BoardRow* row) noexcept { return desk.*(row->rank); };
     const auto is_shown = [&rank_of](const BoardRow* row) noexcept { return rank_of(row) != 0; };
@@ -818,7 +828,6 @@ void paint_desk(Deck& deck, const Desk& desk) {
     paint_skills(deck, desk);
     paint_friend(deck, desk);
     paint_team(deck, desk);
-    paint_notice(deck, desk);
 }
 
 } // namespace game::ui::panel
