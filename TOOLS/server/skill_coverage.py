@@ -31,6 +31,8 @@ import re
 import sys
 from pathlib import Path
 
+import tsv_file
+
 ROOT = Path(__file__).resolve().parents[2]
 TABLES = ROOT / "dev" / "server" / "tables"
 SECTS = [*range(0, 9), *range(10, 16)]
@@ -55,12 +57,7 @@ FULL, CORE, EVENT = "full", "core", "event"
 
 def read_table(relative: str) -> tuple[list[str], list[list[str]]]:
     """Đọc bảng TSV của dự án: bỏ dòng # và dòng rỗng, dòng đầu là tên cột."""
-    path = TABLES / relative
-    rows: list[list[str]] = []
-    for line in path.read_text(encoding="utf-8").splitlines():
-        if not line or line.startswith("#"):
-            continue
-        rows.append(line.split("\t"))
+    rows = tsv_file.split_rows((TABLES / relative).read_text(encoding="utf-8"))
     return rows[0], rows[1:]
 
 

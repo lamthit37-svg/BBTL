@@ -2,5 +2,6 @@
 # source: server_config/GeneralSets.txt
 # tool: TOOLS/server/import_legacy.py; sửa tay sẽ mất ở lượt xuất sau
 # types: int	text	int	int	int	int	int	int	int	int	int	int	int	int	int	int	int	int
-index	description	element_0	element_1	element_2	element_3	element_4	element_5	element_6	element_7	element_8	element_9	element_10	element_11	element_12	element_13	element_14	element_15
-0	银行所在地	0	1	2	186	420	-1	-1	-1	-1	-1	-1	-1	-1	-1	-1	-1
+# layout: aligned
+index  	description  	element_0  	element_1  	element_2  	element_3  	element_4  	element_5  	element_6  	element_7  	element_8  	element_9  	element_10  	element_11  	element_12  	element_13  	element_14  	element_15
+0      	银行所在地   	0          	1          	2          	186        	420        	-1         	-1         	-1         	-1         	-1         	-1          	-1          	-1          	-1          	-1          	-1

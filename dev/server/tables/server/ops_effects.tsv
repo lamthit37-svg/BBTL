@@ -2,862 +2,863 @@
 # source: Public/Data/Script
 # tool: TOOLS/server/lua_extract.py; sửa tay sẽ mất ở lượt xuất sau
 # types: int	int	text	int	int	int	text	text	int
-set	seq	op	a1	a2	a3	text	args	cond
-1	0	notify	0	0	0	lua.e648721b		-1
-1	1	signpost_pos	-1	306	157	lua.18c90303		-1
-2	0	take_item	40001114	5	0			-1
-2	1	notify	0	0	0	lua.f49dd523		4
-3	0	notify	0	0	0	lua.be403aae		-1
-4	0	notify	0	0	0	lua.2807e9b6		19
-4	1	objective_set	4	0	1			19
-5	0	notify	0	0	0	lua.ddbe3861		-1
-6	0	notify	0	0	0	lua.4202e9ed		-1
-7	0	objective_set	6	0	1			22
-7	1	objective_set	6	1	1			23
-7	2	objective_set	6	2	1			24
-8	0	take_item	40001001	1	0			-1
-9	0	take_item	40001002	1	0			-1
-9	1	take_item	40001003	1	0			-1
-9	2	notify	0	0	0	lua.518366d7		-1
-10	0	take_item	40001002	1	0			-1
-10	1	take_item	40001003	1	0			-1
-11	0	give_item	40001004	1	0			-1
-11	1	notify	0	0	0	lua.9242adc5		-1
-11	2	objective_set	12	0	1			-1
-12	0	take_item	40001004	1	0			-1
-12	1	notify	0	0	0	lua.40a5c6d2		-1
-13	0	take_item	40001004	1	0			-1
-14	0	notify	0	0	0	lua.6220ca47		-1
-15	0	take_item	40001005	1	0			-1
-16	0	notify	0	0	0	lua.3b743785		-1
-17	0	objective_set	21	1	1			34
-17	1	objective_set	21	0	1			35
-17	2	objective_set	21	2	1			36
-17	3	objective_set	21	0	1			37
-17	4	objective_set	21	3	1			38
-17	5	objective_set	21	0	1			39
-18	0	notify	0	0	0	lua.6e868b50		40
-18	1	objective_set	22	0	1			40
-18	2	objective_set	22	1	1			40
-19	0	notify	0	0	0	lua.e1cd727b		-1
-20	0	objective_set	23	3	1			42
-20	1	objective_set	23	4	1			43
-21	0	notify	0	0	0	lua.dd6aeb45		44
-21	1	objective_set	47	0	1			44
-21	2	objective_set	47	1	1			44
-22	0	notify	0	0	0	lua.1e15d77a		-1
-23	0	notify	0	0	0	lua.b468b77c		45
-23	1	objective_set	27	0	0			45
-23	2	objective_set	27	1	0			45
-23	3	objective_set	27	2	0			45
-23	4	objective_set	27	3	0			45
-24	0	take_item	40001008	1	0			-1
-24	1	notify	0	0	0	lua.874c94fd		-1
-25	0	take_item	40001008	1	0			-1
-26	0	notify	0	0	0	TM_20080313_04		-1
-27	0	notify	0	0	0	lua.723f56fb		47
-27	1	objective_set	30	0	1			47
-28	0	notify	0	0	0	lua.afe377f3		-1
-29	0	notify	0	0	0	TM_20080313_10		52
-29	1	objective_set	37	0	0			52
-30	0	notify	0	0	0	lua.720da841		55
-30	1	objective_set	42	0	1			55
-30	2	objective_set	42	1	1			55
-31	0	notify	0	0	0	lua.cb63ece0		-1
-32	0	notify	0	0	0	lua.631902e3		56
-32	1	objective_set	43	0	1			56
-33	0	notify	0	0	0	lua.9ab28041		-1
-34	0	notify	0	0	0	lua.2cc7f714		2
-34	1	objective_set	1	0	1			2
-34	2	objective_set	1	1	1			2
-35	0	notify	0	0	0	lua.fdb2f2c1		-1
-36	0	notify	0	0	0	lua.5880342d		61
-36	1	objective_set	2	0	1			61
-36	2	objective_set	2	1	1			61
-37	0	notify	0	0	0	lua.22dc58ac		-1
-38	0	notify	0	0	0	lua.a13a2131		62
-38	1	objective_set	9	0	1			62
-38	2	objective_set	9	1	1			62
-39	0	notify	0	0	0	lua.a9d63722		-1
-40	0	notify	0	0	0	lua.590a87f8		63
-40	1	objective_set	10	0	1			63
-40	2	objective_set	10	1	1			63
-41	0	notify	0	0	0	lua.101b775b		-1
-42	0	notify	0	0	0	lua.d72e1a38		64
-42	1	objective_set	13	0	1			64
-42	2	objective_set	13	1	1			64
-43	0	notify	0	0	0	lua.20660821		-1
-44	0	notify	0	0	0	lua.6e868b50		65
-44	1	objective_set	16	0	1			65
-44	2	objective_set	16	1	1			65
-45	0	notify	0	0	0	lua.722c854b		66
-45	1	objective_set	17	0	1			66
-45	2	objective_set	17	1	1			66
-46	0	notify	0	0	0	lua.a265e614		-1
-47	0	give_item	40001006	1	0			67
-47	1	notify	0	0	0	lua.79aea5b9		67
-47	2	objective_set	18	0	1			67
-47	3	objective_set	18	1	1			67
-48	0	take_item	40001006	1	0			-1
-48	1	notify	0	0	0	lua.6bf92a5e		-1
-49	0	take_item	40001006	1	0			-1
-50	0	notify	0	0	0	lua.c0290245		68
-50	1	objective_set	19	0	1			68
-50	2	objective_set	19	1	1			68
-51	0	notify	0	0	0	lua.4e4f0eec		-1
-52	0	notify	0	0	0	lua.c6f05d46		69
-52	1	objective_set	20	0	1			69
-52	2	objective_set	20	1	1			69
-53	0	notify	0	0	0	lua.d3fe3caf		-1
-54	0	notify	0	0	0	lua.1119abb8		70
-54	1	objective_set	24	0	1			70
-54	2	objective_set	24	1	1			70
-55	0	notify	0	0	0	lua.bc226ca1		-1
-56	0	notify	0	0	0	lua.75b09f9f		71
-56	1	objective_set	25	0	1			71
-56	2	objective_set	25	1	1			71
-57	0	notify	0	0	0	lua.651a3094		-1
-58	0	give_item	40001007	1	0			72
-58	1	notify	0	0	0	lua.b132da0e		72
-58	2	objective_set	26	0	1			72
-58	3	objective_set	26	1	1			72
-59	0	take_item	40001007	1	0			-1
-59	1	notify	0	0	0	lua.179fef4f		-1
-60	0	take_item	40001007	1	0			-1
-61	0	notify	0	0	0	lua.290cf1d4		73
-61	1	objective_set	33	0	1			73
-61	2	objective_set	33	1	1			73
-62	0	notify	0	0	0	lua.6f753d47		-1
-63	0	notify	0	0	0	TM_20080313_06		74
-63	1	objective_set	38	0	1			74
-63	2	objective_set	38	1	1			74
-64	0	notify	0	0	0	TM_20080313_07		-1
-65	0	notify	0	0	0	lua.e5d7a9a4		75
-65	1	objective_set	39	0	1			75
-65	2	objective_set	39	1	1			75
-66	0	notify	0	0	0	lua.023b38e5		-1
-67	0	notify	0	0	0	lua.158767f8		76
-67	1	objective_set	40	0	1			76
-67	2	objective_set	40	1	1			76
-68	0	notify	0	0	0	lua.1149a867		-1
-69	0	notify	0	0	0	lua.8c653e06		-1
-69	1	signpost	-1	341	221	lua.567e4439		-1
-69	2	objective_set	440	0	1			-1
-69	3	objective_set	440	1	1			-1
-70	0	notify	0	0	0	lua.0d2e92ef		-1
-71	0	give_item	40002110	1	0			-1
-71	1	notify	0	0	0	lua.e2250375		-1
-71	2	signpost	-1	110	159	lua.86bbe6cd		-1
-71	3	objective_set	441	0	1			-1
-71	4	objective_set	441	1	1			-1
-72	0	take_item	40002110	1	0			-1
-72	1	notify	0	0	0	lua.48fbae1c		-1
-73	0	take_item	40002110	1	0			-1
-74	0	notify	0	0	0	lua.7a44a151		-1
-74	1	signpost	-1	110	159	lua.86bbe6cd		-1
-75	0	take_item	30101001	1	0			-1
-75	1	notify	0	0	0	lua.a064be5c		-1
-76	0	objective_set	442	0	1			80
-77	0	notify	0	0	0	lua.3c11c492		-1
-77	1	signpost	-1	103	133	lua.aa16d6bb		-1
-77	2	objective_set	443	0	1			-1
-77	3	objective_set	443	1	1			-1
-78	0	notify	0	0	0	lua.597effbb		-1
-79	0	notify	0	0	0	lua.4a7f2784		-1
-79	1	signpost	-1	160	156	lua.1074211a		-1
-79	2	objective_set	444	0	1			-1
-79	3	objective_set	444	1	1			-1
-80	0	notify	0	0	0	lua.2b92710b		-1
-81	0	notify	0	0	0	lua.49da4e39		-1
-81	1	signpost	-1	145	138	lua.028392f9		-1
-81	2	objective_set	445	0	1			-1
-81	3	objective_set	445	1	1			-1
-82	0	notify	0	0	0	lua.66cb5a30		-1
-83	0	notify	0	0	0	lua.bbe6dbd7		-1
-84	0	notify	0	0	0	lua.ff1f4d72		-1
-84	1	signpost	-1	160	156	lua.1074211a		-1
-84	2	objective_set	448	0	1			-1
-84	3	objective_set	448	1	1			-1
-85	0	notify	0	0	0	lua.c94c27dd		-1
-86	0	notify	0	0	0	lua.7a6412ed		-1
-87	0	notify	0	0	0	lua.436a9f3d		-1
-87	1	signpost	-1	296	239	lua.388bcab3		-1
-87	2	objective_set	450	0	1			-1
-88	0	notify	0	0	0	lua.5fa188f4		-1
-89	0	notify	0	0	0	lua.72ec2815		-1
-90	0	notify	0	0	0	lua.98c80cdb		-1
-90	1	signpost	-1	282	253	lua.1074211a		-1
-90	2	objective_set	452	0	1			-1
-91	0	notify	0	0	0	lua.29c738f4		-1
-92	0	objective_set	453	0	0			-1
-92	1	objective_set	453	1	0			-1
-92	2	notify	0	0	0	lua.f917a77d		-1
-92	3	signpost	-1	282	253	lua.1074211a		-1
-92	4	signpost	7	71	250	lua.b872616c		-1
-92	5	signpost	75	71	250	lua.b872616c		-1
-92	6	signpost	76	71	250	lua.b872616c		-1
-93	0	notify	0	0	0	lua.8b811ad0		-1
-94	0	objective_set	453	0	1			87
-94	1	objective_add	453	1	1			88
-95	0	notify	0	0	0	lua.fda5a05d		-1
-95	1	signpost	-1	400	218	lua.4f6c8cee		-1
-95	2	objective_set	454	0	1			-1
-95	3	objective_set	454	1	1			-1
-96	0	notify	0	0	0	lua.3bcc2714		-1
-97	0	notify	0	0	0	lua.3a57040a		-1
-97	1	signpost	-1	282	253	lua.1074211a		-1
-97	2	objective_set	456	0	1			-1
-97	3	objective_set	456	1	1			-1
-98	0	notify	0	0	0	lua.20e984a5		-1
-99	0	objective_set	457	0	0			-1
-99	1	objective_set	457	1	0			-1
-99	2	notify	0	0	0	lua.67818378		-1
-99	3	signpost	-1	282	253	lua.1074211a		-1
-99	4	signpost	6	127	195	lua.e18a1f78		-1
-100	0	notify	0	0	0	lua.89c09bb1		-1
-101	0	objective_set	457	0	1			92
-101	1	objective_add	457	1	1			93
-102	0	notify	0	0	0	lua.2e1f34ef		-1
-102	1	signpost	-1	400	218	lua.4f6c8cee		-1
-103	0	notify	0	0	0	lua.198ca31c		-1
-104	0	objective_set	701	0	0			-1
-104	1	notify	0	0	0	lua.7062f0ee		-1
-104	2	signpost	-1	435	202	lua.bae91f9c		-1
-105	0	notify	0	0	0	lua.62bf9195		-1
-105	1	signpost	-1	282	253	lua.1074211a		-1
-105	2	objective_set	703	0	1			-1
-105	3	objective_set	703	1	1			-1
-106	0	notify	0	0	0	lua.1e3ee0c6		-1
-107	0	objective_set	704	0	0			-1
-107	1	objective_set	704	1	0			-1
-107	2	notify	0	0	0	lua.b3217a6e		-1
-107	3	signpost	-1	269	83	lua.df821f85		-1
-108	0	notify	0	0	0	lua.09b30173		-1
-109	0	notify	0	0	0	lua.9273f932		-1
-109	1	signpost	-1	402	358	lua.5ce48695		-1
-109	2	objective_set	705	0	1			-1
-109	3	objective_set	705	1	1			-1
-110	0	notify	0	0	0	lua.3e219a43		-1
-111	0	objective_set	706	0	0			-1
-111	1	objective_set	706	1	0			-1
-111	2	notify	0	0	0	lua.2b13bc62		-1
-111	3	signpost	-1	371	367	lua.cab0ba5c		-1
-112	0	notify	0	0	0	lua.5ce6b8eb		-1
-113	0	objective_set	707	0	0			-1
-113	1	objective_set	707	1	0			-1
-113	2	notify	0	0	0	lua.273670e6		-1
-113	3	signpost	-1	371	367	lua.cab0ba5c		-1
-114	0	notify	0	0	0	lua.f0c7a567		-1
-115	0	objective_set	708	0	0			-1
-115	1	objective_set	708	1	0			-1
-115	2	notify	0	0	0	lua.58971f6a		-1
-115	3	signpost	-1	371	367	lua.cab0ba5c		-1
-116	0	notify	0	0	0	lua.019b943f		-1
-117	0	notify	0	0	0	lua.56ce5dc4		-1
-117	1	signpost	-1	282	253	lua.1074211a		-1
-117	2	objective_set	709	0	1			-1
-117	3	objective_set	709	1	1			-1
-118	0	notify	0	0	0	lua.cc65d52f		-1
-119	0	notify	0	0	0	lua.00fe8a41		-1
-119	1	signpost	-1	435	202	lua.bae91f9c		-1
-119	2	objective_set	710	0	1			-1
-119	3	objective_set	710	1	1			-1
-120	0	notify	0	0	0	lua.64faa24a		-1
-121	0	objective_set	711	0	0			-1
-121	1	objective_set	711	1	0			-1
-121	2	notify	0	0	0	lua.b2290275		-1
-121	3	signpost	-1	275	50	lua.bae91f9c		-1
-122	0	notify	0	0	0	lua.48349e7a		-1
-123	0	objective_set	711	0	1			101
-123	1	objective_add	711	1	1			102
-124	0	notify	0	0	0	lua.6b993464		-1
-124	1	signpost	-1	160	156	lua.1074211a		-1
-124	2	objective_set	712	0	1			-1
-124	3	objective_set	712	1	1			-1
-125	0	notify	0	0	0	lua.5517806b		-1
-126	0	take_item	20309001	1	0			-1
-126	1	take_item	20309005	1	0			-1
-126	2	notify	0	0	0	lua.5311b9fe		-1
-127	0	take_item	20309002	1	0			-1
-127	1	take_item	20309006	1	0			-1
-127	2	notify	0	0	0	lua.dbd4a4b2		-1
-128	0	take_item	20309003	1	0			-1
-128	1	take_item	20309007	1	0			-1
-128	2	notify	0	0	0	lua.0311c2cc		-1
-129	0	take_item	20309004	1	0			-1
-129	1	take_item	20309008	1	0			-1
-129	2	notify	0	0	0	lua.b655725a		-1
-130	0	notify	0	0	0	lua.ff94ad58		-1
-130	1	objective_set	718	1	1			-1
-131	0	objective_set	536	0	1			112
-131	1	objective_set	536	1	1			112
-132	0	objective_set	602	0	0			-1
-132	1	notify	0	0	0	lua.e400e1d8		-1
-133	0	take_item	40002112	1	0			116
-134	0	take_item	40002112	1	0			-1
-135	0	give_item	40002070	1	0			117
-135	1	objective_set	552	0	0			117
-135	2	notify	0	0	0	lua.817dfdcc		117
-136	0	take_item	40002070	1	0			118
-136	1	take_item	40002069	1	0			118
-137	0	take_item	40002070	1	0			-1
-137	1	take_item	40002069	1	0			-1
-138	0	objective_set	554	0	0			119
-138	1	notify	0	0	0	lua.a2a83052		119
-139	0	take_item	20103005	10	0			120
-139	1	take_item	20103004	10	0			120
-139	2	take_money	100000	0	0			120
-140	0	give_item	40002152	1	0			-1
-140	1	objective_set	658	0	0			-1
-140	2	objective_set	658	1	0			-1
-140	3	notify	0	0	0	lua.5ef39277		-1
-141	0	take_item	40002152	1	0			122
-142	0	take_item	40002152	1	0			-1
-143	0	objective_set	658	0	1			123
-143	1	objective_set	658	1	1			123
-144	0	objective_set	561	1	0			124
-144	1	objective_set	561	2	0			124
-144	2	objective_set	561	3	0			124
-144	3	notify	0	0	0	lua.56297239		124
-145	0	objective_set	618	0	0			-1
-145	1	objective_set	618	1	0			-1
-145	2	notify	0	0	0	lua.20e0ed01		-1
-146	0	take_item	40002071	1	0			129
-147	0	take_item	40002071	1	0			-1
-148	0	objective_set	678	0	1			132
-148	1	objective_set	678	1	1			132
-149	0	give_item	40002075	1	0			133
-149	1	notify	0	0	0	lua.3bb99e4b		133
-149	2	objective_set	688	0	1			133
-149	3	objective_set	688	1	1			133
-150	0	take_item	40002075	1	0			-1
-151	0	notify	0	0	0	lua.62b62a3b		136
-151	1	objective_set	923	0	1			136
-151	2	objective_set	923	1	1			136
-152	0	take_item	40004418	1	0			-1
-152	1	notify	0	0	0	lua.936a1ca4		-1
-153	0	take_item	40004418	1	0			-1
-154	0	take_item	40004416	1	0			-1
-154	1	notify	0	0	0	lua.5e53ca0d		-1
-155	0	take_item	40004416	1	0			-1
-156	0	notify	0	0	0	lua.7013410c		-1
-157	0	notify	0	0	0	lua.2993d804		-1
-158	0	take_item	40004420	1	0			-1
-158	1	notify	0	0	0	lua.b999da8b		-1
-159	0	take_item	40004420	1	0			-1
-160	0	notify	0	0	0	lua.bb2341a5		-1
-161	0	notify	0	0	0	lua.95f95589		-1
-162	0	notify	0	0	0	lua.7d88e3ef		-1
-163	0	notify	0	0	0	lua.3921e490		-1
-164	0	notify	0	0	0	lua.2f93d1fa		-1
-165	0	notify	0	0	0	lua.d81797b9		-1
-166	0	notify	0	0	0	lua.537f28af		153
-166	1	objective_set	964	0	0			153
-166	2	objective_set	964	1	0			153
-167	0	notify	0	0	0	lua.3bec4e67		-1
-168	0	notify	0	0	0	lua.303c2ac4		155
-168	1	objective_set	966	0	1			155
-168	2	objective_set	966	1	1			155
-169	0	notify	0	0	0	lua.894e6f1d		-1
-170	0	notify	0	0	0	lua.7688f038		-1
-171	0	notify	0	0	0	lua.20e842f4		166
-172	0	take_item	40004000	1	0			182
-172	1	set_counter_clock	1000030	3	0			182
-172	2	set_counter_clock	1000030	3	0			183
-173	0	objective_set	4011	0	0			184
-173	1	objective_set	4011	1	230011			184
-173	2	set_counter	5	1	0			185
-173	3	counter_add	5	1	0			186
-173	4	objective_set	4011	6	1			184
-174	0	objective_set	4011	0	0			184
-174	1	objective_set	4011	1	230012			184
-174	2	set_counter	5	1	0			185
-174	3	counter_add	5	1	0			186
-174	4	objective_set	4011	7	1			184
-175	0	take_item	40002104	1	0			-1
-175	1	set_counter	12	0	0			-1
-176	0	set_counter_clock	45	3	0			-1
-176	1	set_counter	44	0	0			-1
-177	0	set_counter_clock	58	3	0			-1
-177	1	set_counter	55	0	0			-1
-178	0	set_counter_clock	62	3	0			-1
-178	1	set_counter	61	0	0			-1
-179	0	notify	0	0	0	lua.64a7d59e		-1
-180	0	objective_set	1564	0	0			194
-180	1	objective_set	1564	1	0			194
-180	2	objective_set	1564	2	1			194
-181	0	ui_command	1000	0	0			-1
-182	0	ui_command	41	-1	3			-1
-183	0	ui_command	41	-1	2			-1
-184	0	ui_command	41	-1	1			-1
-185	0	ui_command	800108	-1	0			-1
-186	0	ui_command	800107	-1	800107			-1
-187	0	ui_command	19820425	-1	0			-1
-188	0	ui_command	19820424	-1	0			-1
-189	0	ui_command	150	-1	0			-1
-190	0	open_shop	10	0	0			-1
-191	0	open_shop	7	0	0			-1
-192	0	open_shop	8	0	0			-1
-193	0	open_shop	9	0	0			-1
-194	0	open_shop	5	0	0			-1
-195	0	open_shop	4	0	0			-1
-196	0	open_shop	3	0	0			-1
-197	0	open_shop	2	0	0			-1
-198	0	open_shop	1	0	0			-1
-199	0	objective_set	704	0	1			-1
-199	1	objective_set	704	1	1			-1
-200	0	signpost	-1	160	156	lua.1074211a		-1
-201	0	open_shop	52	0	0			-1
-202	0	open_shop	58	0	0			-1
-203	0	open_shop	57	0	0			-1
-204	0	open_shop	56	0	0			-1
-205	0	open_shop	55	0	0			-1
-206	0	open_shop	54	0	0			-1
-207	0	open_shop	53	0	0			-1
-208	0	open_shop	59	0	0			-1
-209	0	open_shop	51	0	0			-1
-210	0	ui_command	23	0	0			-1
-211	0	ui_command	5020231	-1	0			-1
-212	0	ui_command	5020232	-1	0			-1
-213	0	teleport	0	61	134			-1
-214	0	teleport	0	160	106			-1
-215	0	ui_command	1000	-1	0			-1
-216	0	open_shop	47	0	0			-1
-217	0	signpost	-1	231	170	lua.14e0a414		-1
-218	0	notify	0	0	0	lua.2d05096e		-1
-219	0	objective_set	949	0	1			-1
-219	1	objective_set	949	1	1			-1
-220	0	objective_set	944	0	1			-1
-220	1	objective_set	944	1	1			-1
-221	0	give_item	30308021	1	0			-1
-221	1	ui_command	1000	-1	0			-1
-222	0	signpost	-1	189	124	lua.bd5de86c		-1
-222	1	teleport	-1	185	128			-1
-222	2	ui_command	1000	-1	0			-1
-223	0	ui_command	2001	-1	20000			-1
-224	0	open_shop	30	0	0			-1
-225	0	ui_command	19810313	-1	-1			-1
-226	0	open_shop	14	0	0			-1
-227	0	open_shop	27	0	0			-1
-228	0	open_shop	143	0	0			-1
-229	0	open_shop	85	0	0			-1
-230	0	signpost	-1	88	111	lua.8128550a		-1
-231	0	signpost	-1	152	154	lua.4baa9c8c		-1
-232	0	signpost	-1	126	68	lua.86237e66		-1
-233	0	signpost	-1	100	64	lua.214a568a		-1
-234	0	signpost	-1	170	32	lua.8f014bce		-1
-235	0	signpost	-1	41	140	lua.eab0884f		-1
-236	0	signpost	-1	50	63	lua.ee0c1447		-1
-237	0	signpost	-1	92	55	lua.4baa9c8c		-1
-238	0	signpost	-1	99	56	lua.e6900975		-1
-239	0	signpost	-1	96	52	lua.e0997de6		-1
-240	0	ui_command	42	-1	0			-1
-241	0	teleport	30	166	264			-1
-242	0	teleport	24	208	49			-1
-243	0	teleport	18	244	75			-1
-244	0	open_shop	187	0	0			-1
-245	0	open_shop	179	0	0			-1
-246	0	open_shop	148	0	0			-1
-247	0	open_shop	110	0	0			-1
-248	0	open_shop	108	0	0			-1
-249	0	give_item	40001039	1	0			-1
-250	0	notify	0	0	0	lua.64c5d216		-1
-251	0	open_shop	140	0	0			-1
-252	0	open_shop	109	0	0			-1
-253	0	open_shop	147	0	0			-1
-254	0	open_shop	139	0	0			-1
-255	0	open_shop	111	0	0			-1
-256	0	objective_set	561	1	1			-1
-257	0	objective_set	561	0	1			-1
-258	0	objective_set	561	2	1			-1
-259	0	objective_set	561	3	1			-1
-260	0	open_shop	141	0	0			-1
-261	0	open_shop	107	0	0			-1
-262	0	signpost	-1	88	111	lua.5b26812d		-1
-263	0	signpost	-1	152	154	lua.91c725f8		-1
-264	0	signpost	-1	126	68	lua.3a10ae2b		-1
-265	0	signpost	-1	100	64	lua.8b7fd830		-1
-266	0	signpost	-1	170	32	lua.11f1eecf		-1
-267	0	signpost	-1	41	140	lua.36d6ec28		-1
-268	0	signpost	-1	40	142	lua.a931382a		-1
-269	0	signpost	-1	38	75	lua.5432412b		-1
-270	0	signpost	-1	78	35	lua.2e51c92a		-1
-271	0	signpost	-1	66	29	lua.80620a61		-1
-272	0	open_shop	272	0	0			-1
-273	0	signpost	-1	98	44	lua.0243bb68		-1
-274	0	signpost	-1	101	44	lua.2173328a		-1
-275	0	signpost	-1	90	120	lua.9d5e1e00		-1
-276	0	signpost	-1	95	60	lua.5f525b94		-1
-277	0	signpost	-1	39	71	lua.2a737b95		-1
-278	0	signpost	-1	45	69	lua.e7e6f7fb		-1
-279	0	signpost	-1	123	67	lua.bfad6ffa		-1
-280	0	signpost	-1	119	67	lua.2f729100		-1
-281	0	signpost	-1	88	44	lua.609cd2a4		-1
-282	0	signpost	-1	91	44	lua.03271ab5		-1
-283	0	signpost	-1	91	44	lua.80620a61		-1
-284	0	open_shop	48	0	0			-1
-285	0	signpost	-1	90	88	lua.d7349c24		-1
-286	0	signpost	-1	128	78	lua.fc471c53		-1
-287	0	signpost	-1	99	150	lua.8cb9c8e4		-1
-288	0	signpost	-1	96	92	lua.b4239998		-1
-289	0	signpost	-1	97	46	lua.2a737b95		-1
-290	0	signpost	-1	94	46	lua.e7e6f7fb		-1
-291	0	signpost	-1	101	89	lua.f8ae6002		-1
-292	0	signpost	-1	101	87	lua.21bcea68		-1
-293	0	signpost	-1	87	70	lua.d3095eac		-1
-294	0	signpost	-1	95	75	lua.1fa63cc6		-1
-295	0	signpost	-1	142	55	lua.80620a61		-1
-296	0	open_shop	46	0	0			-1
-297	0	open_shop	177	0	0			-1
-298	0	open_shop	176	0	0			-1
-299	0	open_shop	175	0	0			-1
-300	0	open_shop	174	0	0			-1
-301	0	open_shop	173	0	0			-1
-302	0	open_shop	172	0	0			-1
-303	0	open_shop	171	0	0			-1
-304	0	open_shop	170	0	0			-1
-305	0	open_shop	169	0	0			-1
-306	0	signpost	-1	105	58	lua.20ac59aa		-1
-307	0	signpost	-1	96	73	lua.d2898f0e		-1
-308	0	signpost	-1	86	142	lua.2b821086		-1
-309	0	signpost	-1	95	86	lua.d274bc42		-1
-310	0	signpost	-1	145	53	lua.2a737b95		-1
-311	0	signpost	-1	141	51	lua.e7e6f7fb		-1
-312	0	signpost	-1	39	109	lua.1be875de		-1
-313	0	signpost	-1	43	108	lua.2b22f324		-1
-314	0	signpost	-1	98	51	lua.751216f0		-1
-315	0	signpost	-1	96	51	lua.f5e41b4e		-1
-316	0	signpost	-1	96	73	lua.80620a61		-1
-317	0	open_shop	45	0	0			-1
-318	0	signpost	-1	54	149	lua.13fc68a4		-1
-319	0	signpost	-1	62	68	lua.a9d43614		-1
-320	0	signpost	-1	48	124	lua.1c7b6764		-1
-321	0	signpost	-1	120	153	lua.b7144e18		-1
-322	0	signpost	-1	65	55	lua.2a737b95		-1
-323	0	signpost	-1	53	56	lua.e7e6f7fb		-1
-324	0	signpost	-1	53	150	lua.d1f104e6		-1
-325	0	signpost	-1	62	68	lua.c5db5c6c		-1
-326	0	signpost	-1	125	142	lua.3f8f61d8		-1
-327	0	signpost	-1	125	144	lua.23511521		-1
-328	0	signpost	-1	125	144	lua.80620a61		-1
-329	0	signpost	-1	35	86	lua.91a45ad3		-1
-330	0	signpost	-1	35	86	lua.e8bc0c61		-1
-331	0	signpost	-1	99	120	lua.a31dbd57		-1
-332	0	signpost	-1	95	88	lua.1896b44d		-1
-333	0	signpost	-1	146	95	lua.2a737b95		-1
-334	0	signpost	-1	148	92	lua.e7e6f7fb		-1
-335	0	signpost	-1	64	151	lua.b0b6b30b		-1
-336	0	signpost	-1	35	86	lua.961d8929		-1
-337	0	signpost	-1	97	67	lua.5f159b8d		-1
-338	0	signpost	-1	96	66	lua.7c962217		-1
-339	0	signpost	-1	96	66	lua.b4eda878		-1
-340	0	open_shop	42	0	0			-1
-341	0	signpost	-1	65	109	lua.d2cf66bf		-1
-342	0	signpost	-1	58	73	lua.9a197de9		-1
-343	0	signpost	-1	101	136	lua.86129ceb		-1
-344	0	signpost	-1	78	92	lua.42b42df1		-1
-345	0	signpost	-1	101	115	lua.2a737b95		-1
-346	0	signpost	-1	102	112	lua.e7e6f7fb		-1
-347	0	signpost	-1	41	58	lua.fd393995		-1
-348	0	signpost	-1	44	56	lua.a45039fb		-1
-349	0	signpost	-1	82	84	lua.90383747		-1
-350	0	signpost	-1	77	85	lua.790479c0		-1
-351	0	signpost	-1	77	85	lua.80620a61		-1
-352	0	open_shop	44	0	0			-1
-353	0	signpost	-1	133	137	lua.78c39ad3		-1
-354	0	signpost	-1	89	56	lua.6ba15076		-1
-355	0	signpost	-1	102	167	lua.f786fd57		-1
-356	0	signpost	-1	98	105	lua.1aca744d		-1
-357	0	signpost	-1	64	115	lua.2a737b95		-1
-358	0	signpost	-1	66	118	lua.e7e6f7fb		-1
-359	0	signpost	-1	87	58	lua.18bc3279		-1
-360	0	signpost	-1	87	61	lua.483ba14f		-1
-361	0	signpost	-1	109	59	lua.af2033b3		-1
-362	0	signpost	-1	108	56	lua.f57df8af		-1
-363	0	signpost	-1	98	52	lua.97658a58		-1
-364	0	open_shop	43	0	0			-1
-365	0	signpost	-1	112	90	lua.1fed9630		-1
-366	0	signpost	-1	41	144	lua.bb70debc		-1
-367	0	signpost	-1	93	118	lua.714367a8		-1
-368	0	signpost	-1	92	70	lua.e985b6bc		-1
-369	0	signpost	-1	54	86	lua.2a737b95		-1
-370	0	signpost	-1	38	89	lua.e7e6f7fb		-1
-371	0	signpost	-1	131	83	lua.998b8fc4		-1
-372	0	signpost	-1	114	91	lua.70dec33a		-1
-373	0	signpost	-1	94	99	lua.af619126		-1
-374	0	signpost	-1	91	98	lua.3f17b1c8		-1
-375	0	open_shop	49	0	0			-1
-376	0	signpost	-1	93	99	lua.798d2e89		-1
-377	0	signpost	-1	38	102	lua.384ea154		-1
-378	0	signpost	-1	61	62	lua.a89c42ab		-1
-379	0	signpost	-1	932	131	lua.664f7c13		-1
-380	0	signpost	-1	96	89	lua.2668abb9		-1
-381	0	signpost	-1	60	82	lua.2a737b95		-1
-382	0	signpost	-1	57	88	lua.e7e6f7fb		-1
-383	0	signpost	-1	135	90	lua.c2035c15		-1
-384	0	signpost	-1	128	86	lua.2ab26c7b		-1
-385	0	signpost	-1	91	71	lua.d5ce0bc7		-1
-386	0	signpost	-1	89	72	lua.bc05af0a		-1
-387	0	signpost	-1	38	98	lua.b4eda878		-1
-388	0	take_item	30202049	1	0			-1
-388	1	objective_set	1060	0	1			-1
-389	0	take_item	30202022	1	0			-1
-389	1	objective_set	1060	0	1			-1
-390	0	take_item	30202001	1	0			-1
-390	1	objective_set	1060	0	1			-1
-391	0	open_shop	41	0	0			-1
-392	0	teleport	5	200	52			-1
-393	0	signpost	-1	45	23	lua.5d805dd1		-1
-394	0	signpost	-1	159	163	lua.9508ae0a		-1
-395	0	signpost	-1	27	137	lua.d4f7d321		-1
-396	0	signpost	-1	69	125	lua.85c9481f		-1
-397	0	signpost	-1	25	166	lua.2a737b95		-1
-398	0	signpost	-1	132	31	lua.87993117		-1
-399	0	signpost	-1	127	30	lua.ce855a65		-1
-400	0	signpost	-1	48	134	lua.7a1cda31		-1
-401	0	signpost	-1	48	144	lua.6d2d8d2e		-1
-402	0	signpost	-1	69	109	lua.80620a61		-1
-403	0	open_shop	271	0	0			-1
-404	0	open_shop	17	0	0			-1
-405	0	give_money	1000000	0	0			-1
-406	0	set_flag	5	0	0			-1
-407	0	give_item	50101002	1	0			-1
-408	0	set_flag	6	0	0			-1
-409	0	give_item	50101001	1	0			-1
-410	0	open_shop	33	0	0			-1
-411	0	signpost	-1	134	120	lua.d23c8775		-1
-411	1	teleport	-1	133	130			-1
-411	2	ui_command	1000	-1	0			-1
-412	0	signpost	-1	188	133	lua.83776f8e		-1
-412	1	teleport	-1	185	128			-1
-412	2	ui_command	1000	-1	0			-1
-413	0	signpost	-1	127	131	lua.5387dcb3		-1
-413	1	teleport	-1	133	130			-1
-413	2	ui_command	1000	-1	0			-1
-414	0	signpost	-1	131	124	lua.8b9f2350		-1
-414	1	teleport	-1	133	130			-1
-414	2	ui_command	1000	-1	0			-1
-415	0	signpost	-1	187	122	lua.85d44584		-1
-415	1	teleport	-1	185	128			-1
-415	2	ui_command	1000	-1	0			-1
-416	0	signpost	-1	130	121	lua.88091cc2		-1
-416	1	teleport	-1	133	130			-1
-416	2	ui_command	1000	-1	0			-1
-417	0	signpost	-1	126	135	lua.09c571ee		-1
-417	1	teleport	-1	133	130			-1
-417	2	ui_command	1000	-1	0			-1
-418	0	signpost	-1	192	129	lua.37d655e7		-1
-418	1	teleport	-1	185	128			-1
-418	2	ui_command	1000	-1	0			-1
-419	0	take_item	10102012	1	0			-1
-419	1	objective_set	708	0	1			-1
-419	2	objective_set	708	1	1			-1
-420	0	signpost	-1	215	284	lua.5ce48695		-1
-421	0	take_item	10113001	1	0			-1
-421	1	objective_set	707	0	1			-1
-421	2	objective_set	707	1	1			-1
-422	0	take_item	30101001	1	0			-1
-422	1	objective_set	706	0	1			-1
-422	2	objective_set	706	1	1			-1
-423	0	open_shop	6	0	0			-1
-424	0	ui_command	110526	0	0			-1
-425	0	take_item	40002115	1	0			-1
-425	1	objective_set	1060	0	1			-1
-426	0	signpost	-1	141	133	lua.3eed9017		-1
-427	0	signpost	-1	96	221	lua.5ed28cb2		-1
-428	0	signpost	-1	119	293	lua.b2417bd4		-1
-429	0	signpost	-1	-1	-1	lua.811c9dc5		-1
-430	0	signpost	-1	141	133	lua.cdb61387		-1
-431	0	signpost	-1	219	218	lua.15fce0a4		-1
-432	0	signpost	-1	235	251	lua.11fbbdf8		-1
-433	0	signpost	-1	351	186	lua.0ab8822b		-1
-434	0	signpost	-1	381	294	lua.122ae5ad		-1
-435	0	signpost	-1	343	284	lua.dc167c13		-1
-436	0	signpost	-1	225	251	lua.9a314e3a		-1
-437	0	signpost	-1	219	224	lua.7e843dea		-1
-438	0	signpost	-1	214	117	lua.adbd3f8a		-1
-439	0	signpost	-1	431	289	lua.67be54fc		-1
-440	0	signpost	-1	31	151	lua.7a5e3bd1		-1
-441	0	signpost	-1	288	152	lua.b99c2b6d		-1
-442	0	signpost	-1	160	257	lua.31055ab4		-1
-443	0	signpost	-1	81	162	lua.57e4a8d8		-1
-444	0	signpost	-1	211	172	lua.bf01aeb0		-1
-445	0	signpost	-1	241	136	lua.c299e3bd		-1
-446	0	signpost	-1	57	131	lua.49736cf9		-1
-447	0	signpost	-1	110	159	lua.86bbe6cd		-1
-448	0	signpost	-1	102	131	lua.aa16d6bb		-1
-449	0	signpost	-1	265	128	lua.4f6c8cee		-1
-450	0	signpost	-1	248	171	lua.529df897		-1
-451	0	signpost	-1	238	171	lua.bb2e57fa		-1
-452	0	signpost	-1	216	133	lua.567e4439		-1
-453	0	signpost	-1	126	135	lua.09c571ee		-1
-454	0	signpost	-1	127	131	lua.5387dcb3		-1
-455	0	signpost	-1	130	121	lua.88091cc2		-1
-456	0	signpost	-1	134	120	lua.d23c8775		-1
-457	0	signpost	-1	131	124	lua.8b9f2350		-1
-458	0	signpost	-1	192	129	lua.37d655e7		-1
-459	0	signpost	-1	188	133	lua.83776f8e		-1
-460	0	signpost	-1	189	124	lua.bd5de86c		-1
-461	0	signpost	-1	187	122	lua.85d44584		-1
-462	0	set_flag	0	0	0			-1
-463	0	open_shop	26	0	0			-1
-464	0	open_shop	18	0	0			-1
-465	0	ui_command	112237	-1	0			-1
-466	0	ui_command	112236	-1	0			-1
-467	0	ui_command	19830424	-1	0			-1
-468	0	ui_command	19810424	-1	0			-1
-469	0	ui_command	27	-1	0			-1
-470	0	ui_command	25	-1	0			-1
-471	0	ui_command	23	-1	0			-1
-472	0	open_shop	71	0	0			-1
-473	0	open_shop	13	0	0			-1
-474	0	open_shop	25	0	0			-1
-475	0	open_shop	21	0	0			-1
-476	0	ui_command	1001	-1	0			-1
-477	0	open_shop	186	0	0			-1
-478	0	open_shop	183	0	0			-1
-479	0	open_shop	185	0	0			-1
-480	0	ui_command	86021935	-1	0			-1
-481	0	open_shop	184	0	0			-1
-482	0	open_shop	74	0	0			-1
-483	0	ui_command	3	-1	6			-1
-484	0	ui_command	20101029	-1	0			-1
-485	0	ui_command	20090805	-1	0			-1
-486	0	ui_command	20090804	-1	0			-1
-487	0	ui_command	1004	-1	0			-1
-488	0	ui_command	19831114	-1	0			-1
-489	0	ui_command	19824	-1	0			-1
-490	0	open_shop	102	0	0			-1
-491	0	open_shop	168	0	0			-1
-492	0	ui_command	20140618	-1	0			-1
-493	0	open_shop	196	0	0			-1
-494	0	open_shop	142	0	0			-1
-495	0	give_item	38002727	1	0			-1
-495	1	take_item	38000639	100	0			-1
-496	0	ui_command	112233	-1	0			-1
-497	0	ui_command	1005	-1	0			-1
-498	0	ui_command	20130521	-1	0			-1
-499	0	ui_command	20130510	-1	0			-1
-500	0	ui_command	1002	-1	0			-1
-501	0	open_shop	20	0	0			-1
-502	0	open_shop	35	0	0			-1
-503	0	open_shop	104	0	0			-1
-504	0	signpost	-1	201	82	lua.3ef77e1e		-1
-505	0	signpost	-1	266	139	lua.c05bc80b		-1
-506	0	signpost	-1	93	177	lua.9acd594f		-1
-507	0	signpost	-1	111	160	lua.507d6d17		-1
-508	0	signpost	-1	87	142	lua.36b1b372		-1
-509	0	signpost	-1	134	260	lua.dc79bb69		-1
-510	0	signpost	-1	294	234	lua.14939e70		-1
-511	0	signpost	-1	267	243	lua.eabbf1fe		-1
-512	0	signpost	-1	224	226	lua.185112d7		-1
-513	0	signpost	-1	342	311	lua.e62bcd39		-1
-514	0	signpost	-1	331	169	lua.74747fea		-1
-515	0	signpost	-1	96	127	lua.cdb61387		-1
-516	0	signpost	-1	189	173	lua.7f6e96c3		-1
-517	0	signpost	-1	251	151	lua.00fedae3		-1
-518	0	signpost	-1	211	90	lua.97e4ebd4		-1
-519	0	signpost	-1	109	130	lua.b74ff5af		-1
-520	0	signpost	-1	238	77	lua.b0f6a7af		-1
-521	0	signpost	-1	106	109	lua.96031db6		-1
-522	0	signpost	-1	259	132	lua.d252adf3		-1
-523	0	signpost	-1	64	200	lua.5a4680c9		-1
-524	0	signpost	-1	183	67	lua.af7e31a7		-1
-525	0	signpost	-1	78	163	lua.7a5e3bd1		-1
-526	0	signpost	-1	182	238	lua.31055ab4		-1
-527	0	signpost	-1	110	133	lua.936b7d5a		-1
-528	0	signpost	-1	128	173	lua.4f3c97f4		-1
-529	0	signpost	-1	190	168	lua.723a9125		-1
-530	0	signpost	-1	99	155	lua.74414b0e		-1
-531	0	signpost	-1	217	81	lua.0d5f6a5e		-1
-532	0	signpost	-1	217	88	lua.4287c340		-1
-533	0	signpost	-1	164	80	lua.f097694d		-1
-534	0	open_shop	24	0	0			-1
-535	0	open_shop	23	0	0			-1
-536	0	open_shop	31	0	0			-1
-537	0	open_shop	28	0	0			-1
-538	0	open_shop	22	0	0			-1
-539	0	ui_command	3	-1	7			-1
-540	0	signpost	-1	188	73	lua.2435f116		-1
-541	0	signpost	-1	224	182	lua.0b24c5ba		-1
-542	0	signpost	-1	159	78	lua.98bd8256		-1
-543	0	signpost	-1	124	143	lua.2a737b95		-1
-544	0	signpost	-1	113	87	lua.4067c1f8		-1
-545	0	signpost	-1	115	85	lua.081f5c5e		-1
-546	0	signpost	-1	188	79	lua.f0c275c2		-1
-547	0	signpost	-1	194	96	lua.b363b19e		-1
-548	0	signpost	-1	159	65	lua.80620a61		-1
-549	0	open_shop	269	0	0			-1
-550	0	ui_command	201207232	-1	0			-1
-551	0	ui_command	201207231	-1	0			-1
-552	0	open_shop	105	0	0			-1
-553	0	open_shop	103	0	0			-1
-554	0	open_shop	101	0	0			-1
-555	0	open_shop	72	0	0			-1
-556	0	open_shop	70	0	0			-1
-557	0	ui_command	2013060601	-1	0			-1
-558	0	open_shop	138	0	0			-1
-559	0	ui_command	19823	-1	0			-1
-560	0	ui_command	3	-1	3			-1
-561	0	ui_command	3	-1	4			-1
-562	0	ui_command	20090929	-1	0			-1
-563	0	ui_command	223	-1	0			-1
-564	0	open_shop	16	0	0			-1
-565	0	signpost	-1	144	68	lua.ab869e77		-1
-566	0	signpost	-1	177	184	lua.88955740		-1
-567	0	signpost	-1	89	173	lua.a0fa914c		-1
-568	0	signpost	-1	136	180	lua.3b3feb8e		-1
-569	0	signpost	-1	230	156	lua.4d37bd49		-1
-570	0	signpost	-1	140	95	lua.8b862188		-1
-571	0	signpost	-1	46	62	lua.88a8df6c		-1
-572	0	signpost	-1	366	228	lua.8ab0ec98		-1
-573	0	signpost	-1	326	318	lua.4be84f80		-1
-574	0	signpost	-1	153	171	lua.36ad2e08		-1
-575	0	signpost	-1	136	169	lua.f0c8161d		-1
-576	0	signpost	-1	132	156	lua.160a9f95		-1
-577	0	signpost	-1	138	164	lua.6a7593c6		-1
-578	0	signpost	-1	134	152	lua.90e17ec3		-1
-579	0	signpost	-1	213	160	lua.a5dea7d9		-1
-580	0	signpost	-1	193	172	lua.8285d7f2		-1
-581	0	signpost	-1	60	146	lua.60355b6c		-1
-582	0	signpost	-1	207	184	lua.1f34e27b		-1
-583	0	signpost	-1	120	169	lua.05541c40		-1
-584	0	signpost	-1	212	151	lua.1aa863c7		-1
-585	0	signpost	-1	219	262	lua.fb4fcf91		-1
-586	0	signpost	-1	58	135	lua.7a5e3bd1		-1
-587	0	signpost	-1	260	134	lua.b99c2b6d		-1
-588	0	signpost	-1	159	251	lua.31055ab4		-1
-589	0	signpost	-1	206	172	lua.271cdb8b		-1
-590	0	signpost	-1	80	152	lua.ffe456f7		-1
-591	0	signpost	-1	95	152	lua.6c299ef7		-1
-592	0	signpost	-1	230	129	lua.7bf93b1c		-1
-593	0	signpost	-1	139	182	lua.7a6e816e		-1
-594	0	signpost	-1	63	147	lua.a7076ee7		-1
-595	0	signpost	-1	138	140	lua.0a7827a5		-1
-596	0	signpost	-1	135	164	lua.1a7bedc0		-1
-597	0	signpost	-1	178	177	lua.55a2e5e7		-1
-598	0	signpost	-1	182	183	lua.618c3049		-1
-599	0	signpost	-1	254	145	lua.ae5b1d22		-1
-600	0	signpost	-1	210	154	lua.dcb8d576		-1
-601	0	signpost	-1	150	91	lua.214db89f		-1
-602	0	open_shop	32	0	0			-1
-603	0	open_shop	12	0	0			-1
-604	0	ui_command	800034	9	-1			-1
-605	0	ui_command	800034	8	-1			-1
-606	0	ui_command	800034	7	-1			-1
-607	0	ui_command	800034	6	-1			-1
-608	0	ui_command	800034	5	-1			-1
-609	0	ui_command	800034	4	-1			-1
-610	0	ui_command	800034	3	-1			-1
-611	0	ui_command	800034	2	-1			-1
-612	0	ui_command	800034	1	-1			-1
-613	0	give_item	20700053	1	0			-1
-613	1	give_item	20700053	1	0			-1
-613	2	give_item	20700053	1	0			-1
-613	3	give_item	20700053	1	0			-1
-613	4	give_item	20700053	1	0			-1
-613	5	give_item	20700053	1	0			-1
-613	6	give_item	20700053	1	0			-1
-613	7	give_item	20700053	1	0			-1
-613	8	give_item	20700053	1	0			-1
-614	0	ui_command	1206	-1	0			-1
+# layout: aligned
+set  	seq  	op                 	a1          	a2   	a3      	text            	args  	cond
+1    	0    	notify             	0           	0    	0       	lua.e648721b    	      	-1
+1    	1    	signpost_pos       	-1          	306  	157     	lua.18c90303    	      	-1
+2    	0    	take_item          	40001114    	5    	0       	                	      	-1
+2    	1    	notify             	0           	0    	0       	lua.f49dd523    	      	4
+3    	0    	notify             	0           	0    	0       	lua.be403aae    	      	-1
+4    	0    	notify             	0           	0    	0       	lua.2807e9b6    	      	19
+4    	1    	objective_set      	4           	0    	1       	                	      	19
+5    	0    	notify             	0           	0    	0       	lua.ddbe3861    	      	-1
+6    	0    	notify             	0           	0    	0       	lua.4202e9ed    	      	-1
+7    	0    	objective_set      	6           	0    	1       	                	      	22
+7    	1    	objective_set      	6           	1    	1       	                	      	23
+7    	2    	objective_set      	6           	2    	1       	                	      	24
+8    	0    	take_item          	40001001    	1    	0       	                	      	-1
+9    	0    	take_item          	40001002    	1    	0       	                	      	-1
+9    	1    	take_item          	40001003    	1    	0       	                	      	-1
+9    	2    	notify             	0           	0    	0       	lua.518366d7    	      	-1
+10   	0    	take_item          	40001002    	1    	0       	                	      	-1
+10   	1    	take_item          	40001003    	1    	0       	                	      	-1
+11   	0    	give_item          	40001004    	1    	0       	                	      	-1
+11   	1    	notify             	0           	0    	0       	lua.9242adc5    	      	-1
+11   	2    	objective_set      	12          	0    	1       	                	      	-1
+12   	0    	take_item          	40001004    	1    	0       	                	      	-1
+12   	1    	notify             	0           	0    	0       	lua.40a5c6d2    	      	-1
+13   	0    	take_item          	40001004    	1    	0       	                	      	-1
+14   	0    	notify             	0           	0    	0       	lua.6220ca47    	      	-1
+15   	0    	take_item          	40001005    	1    	0       	                	      	-1
+16   	0    	notify             	0           	0    	0       	lua.3b743785    	      	-1
+17   	0    	objective_set      	21          	1    	1       	                	      	34
+17   	1    	objective_set      	21          	0    	1       	                	      	35
+17   	2    	objective_set      	21          	2    	1       	                	      	36
+17   	3    	objective_set      	21          	0    	1       	                	      	37
+17   	4    	objective_set      	21          	3    	1       	                	      	38
+17   	5    	objective_set      	21          	0    	1       	                	      	39
+18   	0    	notify             	0           	0    	0       	lua.6e868b50    	      	40
+18   	1    	objective_set      	22          	0    	1       	                	      	40
+18   	2    	objective_set      	22          	1    	1       	                	      	40
+19   	0    	notify             	0           	0    	0       	lua.e1cd727b    	      	-1
+20   	0    	objective_set      	23          	3    	1       	                	      	42
+20   	1    	objective_set      	23          	4    	1       	                	      	43
+21   	0    	notify             	0           	0    	0       	lua.dd6aeb45    	      	44
+21   	1    	objective_set      	47          	0    	1       	                	      	44
+21   	2    	objective_set      	47          	1    	1       	                	      	44
+22   	0    	notify             	0           	0    	0       	lua.1e15d77a    	      	-1
+23   	0    	notify             	0           	0    	0       	lua.b468b77c    	      	45
+23   	1    	objective_set      	27          	0    	0       	                	      	45
+23   	2    	objective_set      	27          	1    	0       	                	      	45
+23   	3    	objective_set      	27          	2    	0       	                	      	45
+23   	4    	objective_set      	27          	3    	0       	                	      	45
+24   	0    	take_item          	40001008    	1    	0       	                	      	-1
+24   	1    	notify             	0           	0    	0       	lua.874c94fd    	      	-1
+25   	0    	take_item          	40001008    	1    	0       	                	      	-1
+26   	0    	notify             	0           	0    	0       	TM_20080313_04  	      	-1
+27   	0    	notify             	0           	0    	0       	lua.723f56fb    	      	47
+27   	1    	objective_set      	30          	0    	1       	                	      	47
+28   	0    	notify             	0           	0    	0       	lua.afe377f3    	      	-1
+29   	0    	notify             	0           	0    	0       	TM_20080313_10  	      	52
+29   	1    	objective_set      	37          	0    	0       	                	      	52
+30   	0    	notify             	0           	0    	0       	lua.720da841    	      	55
+30   	1    	objective_set      	42          	0    	1       	                	      	55
+30   	2    	objective_set      	42          	1    	1       	                	      	55
+31   	0    	notify             	0           	0    	0       	lua.cb63ece0    	      	-1
+32   	0    	notify             	0           	0    	0       	lua.631902e3    	      	56
+32   	1    	objective_set      	43          	0    	1       	                	      	56
+33   	0    	notify             	0           	0    	0       	lua.9ab28041    	      	-1
+34   	0    	notify             	0           	0    	0       	lua.2cc7f714    	      	2
+34   	1    	objective_set      	1           	0    	1       	                	      	2
+34   	2    	objective_set      	1           	1    	1       	                	      	2
+35   	0    	notify             	0           	0    	0       	lua.fdb2f2c1    	      	-1
+36   	0    	notify             	0           	0    	0       	lua.5880342d    	      	61
+36   	1    	objective_set      	2           	0    	1       	                	      	61
+36   	2    	objective_set      	2           	1    	1       	                	      	61
+37   	0    	notify             	0           	0    	0       	lua.22dc58ac    	      	-1
+38   	0    	notify             	0           	0    	0       	lua.a13a2131    	      	62
+38   	1    	objective_set      	9           	0    	1       	                	      	62
+38   	2    	objective_set      	9           	1    	1       	                	      	62
+39   	0    	notify             	0           	0    	0       	lua.a9d63722    	      	-1
+40   	0    	notify             	0           	0    	0       	lua.590a87f8    	      	63
+40   	1    	objective_set      	10          	0    	1       	                	      	63
+40   	2    	objective_set      	10          	1    	1       	                	      	63
+41   	0    	notify             	0           	0    	0       	lua.101b775b    	      	-1
+42   	0    	notify             	0           	0    	0       	lua.d72e1a38    	      	64
+42   	1    	objective_set      	13          	0    	1       	                	      	64
+42   	2    	objective_set      	13          	1    	1       	                	      	64
+43   	0    	notify             	0           	0    	0       	lua.20660821    	      	-1
+44   	0    	notify             	0           	0    	0       	lua.6e868b50    	      	65
+44   	1    	objective_set      	16          	0    	1       	                	      	65
+44   	2    	objective_set      	16          	1    	1       	                	      	65
+45   	0    	notify             	0           	0    	0       	lua.722c854b    	      	66
+45   	1    	objective_set      	17          	0    	1       	                	      	66
+45   	2    	objective_set      	17          	1    	1       	                	      	66
+46   	0    	notify             	0           	0    	0       	lua.a265e614    	      	-1
+47   	0    	give_item          	40001006    	1    	0       	                	      	67
+47   	1    	notify             	0           	0    	0       	lua.79aea5b9    	      	67
+47   	2    	objective_set      	18          	0    	1       	                	      	67
+47   	3    	objective_set      	18          	1    	1       	                	      	67
+48   	0    	take_item          	40001006    	1    	0       	                	      	-1
+48   	1    	notify             	0           	0    	0       	lua.6bf92a5e    	      	-1
+49   	0    	take_item          	40001006    	1    	0       	                	      	-1
+50   	0    	notify             	0           	0    	0       	lua.c0290245    	      	68
+50   	1    	objective_set      	19          	0    	1       	                	      	68
+50   	2    	objective_set      	19          	1    	1       	                	      	68
+51   	0    	notify             	0           	0    	0       	lua.4e4f0eec    	      	-1
+52   	0    	notify             	0           	0    	0       	lua.c6f05d46    	      	69
+52   	1    	objective_set      	20          	0    	1       	                	      	69
+52   	2    	objective_set      	20          	1    	1       	                	      	69
+53   	0    	notify             	0           	0    	0       	lua.d3fe3caf    	      	-1
+54   	0    	notify             	0           	0    	0       	lua.1119abb8    	      	70
+54   	1    	objective_set      	24          	0    	1       	                	      	70
+54   	2    	objective_set      	24          	1    	1       	                	      	70
+55   	0    	notify             	0           	0    	0       	lua.bc226ca1    	      	-1
+56   	0    	notify             	0           	0    	0       	lua.75b09f9f    	      	71
+56   	1    	objective_set      	25          	0    	1       	                	      	71
+56   	2    	objective_set      	25          	1    	1       	                	      	71
+57   	0    	notify             	0           	0    	0       	lua.651a3094    	      	-1
+58   	0    	give_item          	40001007    	1    	0       	                	      	72
+58   	1    	notify             	0           	0    	0       	lua.b132da0e    	      	72
+58   	2    	objective_set      	26          	0    	1       	                	      	72
+58   	3    	objective_set      	26          	1    	1       	                	      	72
+59   	0    	take_item          	40001007    	1    	0       	                	      	-1
+59   	1    	notify             	0           	0    	0       	lua.179fef4f    	      	-1
+60   	0    	take_item          	40001007    	1    	0       	                	      	-1
+61   	0    	notify             	0           	0    	0       	lua.290cf1d4    	      	73
+61   	1    	objective_set      	33          	0    	1       	                	      	73
+61   	2    	objective_set      	33          	1    	1       	                	      	73
+62   	0    	notify             	0           	0    	0       	lua.6f753d47    	      	-1
+63   	0    	notify             	0           	0    	0       	TM_20080313_06  	      	74
+63   	1    	objective_set      	38          	0    	1       	                	      	74
+63   	2    	objective_set      	38          	1    	1       	                	      	74
+64   	0    	notify             	0           	0    	0       	TM_20080313_07  	      	-1
+65   	0    	notify             	0           	0    	0       	lua.e5d7a9a4    	      	75
+65   	1    	objective_set      	39          	0    	1       	                	      	75
+65   	2    	objective_set      	39          	1    	1       	                	      	75
+66   	0    	notify             	0           	0    	0       	lua.023b38e5    	      	-1
+67   	0    	notify             	0           	0    	0       	lua.158767f8    	      	76
+67   	1    	objective_set      	40          	0    	1       	                	      	76
+67   	2    	objective_set      	40          	1    	1       	                	      	76
+68   	0    	notify             	0           	0    	0       	lua.1149a867    	      	-1
+69   	0    	notify             	0           	0    	0       	lua.8c653e06    	      	-1
+69   	1    	signpost           	-1          	341  	221     	lua.567e4439    	      	-1
+69   	2    	objective_set      	440         	0    	1       	                	      	-1
+69   	3    	objective_set      	440         	1    	1       	                	      	-1
+70   	0    	notify             	0           	0    	0       	lua.0d2e92ef    	      	-1
+71   	0    	give_item          	40002110    	1    	0       	                	      	-1
+71   	1    	notify             	0           	0    	0       	lua.e2250375    	      	-1
+71   	2    	signpost           	-1          	110  	159     	lua.86bbe6cd    	      	-1
+71   	3    	objective_set      	441         	0    	1       	                	      	-1
+71   	4    	objective_set      	441         	1    	1       	                	      	-1
+72   	0    	take_item          	40002110    	1    	0       	                	      	-1
+72   	1    	notify             	0           	0    	0       	lua.48fbae1c    	      	-1
+73   	0    	take_item          	40002110    	1    	0       	                	      	-1
+74   	0    	notify             	0           	0    	0       	lua.7a44a151    	      	-1
+74   	1    	signpost           	-1          	110  	159     	lua.86bbe6cd    	      	-1
+75   	0    	take_item          	30101001    	1    	0       	                	      	-1
+75   	1    	notify             	0           	0    	0       	lua.a064be5c    	      	-1
+76   	0    	objective_set      	442         	0    	1       	                	      	80
+77   	0    	notify             	0           	0    	0       	lua.3c11c492    	      	-1
+77   	1    	signpost           	-1          	103  	133     	lua.aa16d6bb    	      	-1
+77   	2    	objective_set      	443         	0    	1       	                	      	-1
+77   	3    	objective_set      	443         	1    	1       	                	      	-1
+78   	0    	notify             	0           	0    	0       	lua.597effbb    	      	-1
+79   	0    	notify             	0           	0    	0       	lua.4a7f2784    	      	-1
+79   	1    	signpost           	-1          	160  	156     	lua.1074211a    	      	-1
+79   	2    	objective_set      	444         	0    	1       	                	      	-1
+79   	3    	objective_set      	444         	1    	1       	                	      	-1
+80   	0    	notify             	0           	0    	0       	lua.2b92710b    	      	-1
+81   	0    	notify             	0           	0    	0       	lua.49da4e39    	      	-1
+81   	1    	signpost           	-1          	145  	138     	lua.028392f9    	      	-1
+81   	2    	objective_set      	445         	0    	1       	                	      	-1
+81   	3    	objective_set      	445         	1    	1       	                	      	-1
+82   	0    	notify             	0           	0    	0       	lua.66cb5a30    	      	-1
+83   	0    	notify             	0           	0    	0       	lua.bbe6dbd7    	      	-1
+84   	0    	notify             	0           	0    	0       	lua.ff1f4d72    	      	-1
+84   	1    	signpost           	-1          	160  	156     	lua.1074211a    	      	-1
+84   	2    	objective_set      	448         	0    	1       	                	      	-1
+84   	3    	objective_set      	448         	1    	1       	                	      	-1
+85   	0    	notify             	0           	0    	0       	lua.c94c27dd    	      	-1
+86   	0    	notify             	0           	0    	0       	lua.7a6412ed    	      	-1
+87   	0    	notify             	0           	0    	0       	lua.436a9f3d    	      	-1
+87   	1    	signpost           	-1          	296  	239     	lua.388bcab3    	      	-1
+87   	2    	objective_set      	450         	0    	1       	                	      	-1
+88   	0    	notify             	0           	0    	0       	lua.5fa188f4    	      	-1
+89   	0    	notify             	0           	0    	0       	lua.72ec2815    	      	-1
+90   	0    	notify             	0           	0    	0       	lua.98c80cdb    	      	-1
+90   	1    	signpost           	-1          	282  	253     	lua.1074211a    	      	-1
+90   	2    	objective_set      	452         	0    	1       	                	      	-1
+91   	0    	notify             	0           	0    	0       	lua.29c738f4    	      	-1
+92   	0    	objective_set      	453         	0    	0       	                	      	-1
+92   	1    	objective_set      	453         	1    	0       	                	      	-1
+92   	2    	notify             	0           	0    	0       	lua.f917a77d    	      	-1
+92   	3    	signpost           	-1          	282  	253     	lua.1074211a    	      	-1
+92   	4    	signpost           	7           	71   	250     	lua.b872616c    	      	-1
+92   	5    	signpost           	75          	71   	250     	lua.b872616c    	      	-1
+92   	6    	signpost           	76          	71   	250     	lua.b872616c    	      	-1
+93   	0    	notify             	0           	0    	0       	lua.8b811ad0    	      	-1
+94   	0    	objective_set      	453         	0    	1       	                	      	87
+94   	1    	objective_add      	453         	1    	1       	                	      	88
+95   	0    	notify             	0           	0    	0       	lua.fda5a05d    	      	-1
+95   	1    	signpost           	-1          	400  	218     	lua.4f6c8cee    	      	-1
+95   	2    	objective_set      	454         	0    	1       	                	      	-1
+95   	3    	objective_set      	454         	1    	1       	                	      	-1
+96   	0    	notify             	0           	0    	0       	lua.3bcc2714    	      	-1
+97   	0    	notify             	0           	0    	0       	lua.3a57040a    	      	-1
+97   	1    	signpost           	-1          	282  	253     	lua.1074211a    	      	-1
+97   	2    	objective_set      	456         	0    	1       	                	      	-1
+97   	3    	objective_set      	456         	1    	1       	                	      	-1
+98   	0    	notify             	0           	0    	0       	lua.20e984a5    	      	-1
+99   	0    	objective_set      	457         	0    	0       	                	      	-1
+99   	1    	objective_set      	457         	1    	0       	                	      	-1
+99   	2    	notify             	0           	0    	0       	lua.67818378    	      	-1
+99   	3    	signpost           	-1          	282  	253     	lua.1074211a    	      	-1
+99   	4    	signpost           	6           	127  	195     	lua.e18a1f78    	      	-1
+100  	0    	notify             	0           	0    	0       	lua.89c09bb1    	      	-1
+101  	0    	objective_set      	457         	0    	1       	                	      	92
+101  	1    	objective_add      	457         	1    	1       	                	      	93
+102  	0    	notify             	0           	0    	0       	lua.2e1f34ef    	      	-1
+102  	1    	signpost           	-1          	400  	218     	lua.4f6c8cee    	      	-1
+103  	0    	notify             	0           	0    	0       	lua.198ca31c    	      	-1
+104  	0    	objective_set      	701         	0    	0       	                	      	-1
+104  	1    	notify             	0           	0    	0       	lua.7062f0ee    	      	-1
+104  	2    	signpost           	-1          	435  	202     	lua.bae91f9c    	      	-1
+105  	0    	notify             	0           	0    	0       	lua.62bf9195    	      	-1
+105  	1    	signpost           	-1          	282  	253     	lua.1074211a    	      	-1
+105  	2    	objective_set      	703         	0    	1       	                	      	-1
+105  	3    	objective_set      	703         	1    	1       	                	      	-1
+106  	0    	notify             	0           	0    	0       	lua.1e3ee0c6    	      	-1
+107  	0    	objective_set      	704         	0    	0       	                	      	-1
+107  	1    	objective_set      	704         	1    	0       	                	      	-1
+107  	2    	notify             	0           	0    	0       	lua.b3217a6e    	      	-1
+107  	3    	signpost           	-1          	269  	83      	lua.df821f85    	      	-1
+108  	0    	notify             	0           	0    	0       	lua.09b30173    	      	-1
+109  	0    	notify             	0           	0    	0       	lua.9273f932    	      	-1
+109  	1    	signpost           	-1          	402  	358     	lua.5ce48695    	      	-1
+109  	2    	objective_set      	705         	0    	1       	                	      	-1
+109  	3    	objective_set      	705         	1    	1       	                	      	-1
+110  	0    	notify             	0           	0    	0       	lua.3e219a43    	      	-1
+111  	0    	objective_set      	706         	0    	0       	                	      	-1
+111  	1    	objective_set      	706         	1    	0       	                	      	-1
+111  	2    	notify             	0           	0    	0       	lua.2b13bc62    	      	-1
+111  	3    	signpost           	-1          	371  	367     	lua.cab0ba5c    	      	-1
+112  	0    	notify             	0           	0    	0       	lua.5ce6b8eb    	      	-1
+113  	0    	objective_set      	707         	0    	0       	                	      	-1
+113  	1    	objective_set      	707         	1    	0       	                	      	-1
+113  	2    	notify             	0           	0    	0       	lua.273670e6    	      	-1
+113  	3    	signpost           	-1          	371  	367     	lua.cab0ba5c    	      	-1
+114  	0    	notify             	0           	0    	0       	lua.f0c7a567    	      	-1
+115  	0    	objective_set      	708         	0    	0       	                	      	-1
+115  	1    	objective_set      	708         	1    	0       	                	      	-1
+115  	2    	notify             	0           	0    	0       	lua.58971f6a    	      	-1
+115  	3    	signpost           	-1          	371  	367     	lua.cab0ba5c    	      	-1
+116  	0    	notify             	0           	0    	0       	lua.019b943f    	      	-1
+117  	0    	notify             	0           	0    	0       	lua.56ce5dc4    	      	-1
+117  	1    	signpost           	-1          	282  	253     	lua.1074211a    	      	-1
+117  	2    	objective_set      	709         	0    	1       	                	      	-1
+117  	3    	objective_set      	709         	1    	1       	                	      	-1
+118  	0    	notify             	0           	0    	0       	lua.cc65d52f    	      	-1
+119  	0    	notify             	0           	0    	0       	lua.00fe8a41    	      	-1
+119  	1    	signpost           	-1          	435  	202     	lua.bae91f9c    	      	-1
+119  	2    	objective_set      	710         	0    	1       	                	      	-1
+119  	3    	objective_set      	710         	1    	1       	                	      	-1
+120  	0    	notify             	0           	0    	0       	lua.64faa24a    	      	-1
+121  	0    	objective_set      	711         	0    	0       	                	      	-1
+121  	1    	objective_set      	711         	1    	0       	                	      	-1
+121  	2    	notify             	0           	0    	0       	lua.b2290275    	      	-1
+121  	3    	signpost           	-1          	275  	50      	lua.bae91f9c    	      	-1
+122  	0    	notify             	0           	0    	0       	lua.48349e7a    	      	-1
+123  	0    	objective_set      	711         	0    	1       	                	      	101
+123  	1    	objective_add      	711         	1    	1       	                	      	102
+124  	0    	notify             	0           	0    	0       	lua.6b993464    	      	-1
+124  	1    	signpost           	-1          	160  	156     	lua.1074211a    	      	-1
+124  	2    	objective_set      	712         	0    	1       	                	      	-1
+124  	3    	objective_set      	712         	1    	1       	                	      	-1
+125  	0    	notify             	0           	0    	0       	lua.5517806b    	      	-1
+126  	0    	take_item          	20309001    	1    	0       	                	      	-1
+126  	1    	take_item          	20309005    	1    	0       	                	      	-1
+126  	2    	notify             	0           	0    	0       	lua.5311b9fe    	      	-1
+127  	0    	take_item          	20309002    	1    	0       	                	      	-1
+127  	1    	take_item          	20309006    	1    	0       	                	      	-1
+127  	2    	notify             	0           	0    	0       	lua.dbd4a4b2    	      	-1
+128  	0    	take_item          	20309003    	1    	0       	                	      	-1
+128  	1    	take_item          	20309007    	1    	0       	                	      	-1
+128  	2    	notify             	0           	0    	0       	lua.0311c2cc    	      	-1
+129  	0    	take_item          	20309004    	1    	0       	                	      	-1
+129  	1    	take_item          	20309008    	1    	0       	                	      	-1
+129  	2    	notify             	0           	0    	0       	lua.b655725a    	      	-1
+130  	0    	notify             	0           	0    	0       	lua.ff94ad58    	      	-1
+130  	1    	objective_set      	718         	1    	1       	                	      	-1
+131  	0    	objective_set      	536         	0    	1       	                	      	112
+131  	1    	objective_set      	536         	1    	1       	                	      	112
+132  	0    	objective_set      	602         	0    	0       	                	      	-1
+132  	1    	notify             	0           	0    	0       	lua.e400e1d8    	      	-1
+133  	0    	take_item          	40002112    	1    	0       	                	      	116
+134  	0    	take_item          	40002112    	1    	0       	                	      	-1
+135  	0    	give_item          	40002070    	1    	0       	                	      	117
+135  	1    	objective_set      	552         	0    	0       	                	      	117
+135  	2    	notify             	0           	0    	0       	lua.817dfdcc    	      	117
+136  	0    	take_item          	40002070    	1    	0       	                	      	118
+136  	1    	take_item          	40002069    	1    	0       	                	      	118
+137  	0    	take_item          	40002070    	1    	0       	                	      	-1
+137  	1    	take_item          	40002069    	1    	0       	                	      	-1
+138  	0    	objective_set      	554         	0    	0       	                	      	119
+138  	1    	notify             	0           	0    	0       	lua.a2a83052    	      	119
+139  	0    	take_item          	20103005    	10   	0       	                	      	120
+139  	1    	take_item          	20103004    	10   	0       	                	      	120
+139  	2    	take_money         	100000      	0    	0       	                	      	120
+140  	0    	give_item          	40002152    	1    	0       	                	      	-1
+140  	1    	objective_set      	658         	0    	0       	                	      	-1
+140  	2    	objective_set      	658         	1    	0       	                	      	-1
+140  	3    	notify             	0           	0    	0       	lua.5ef39277    	      	-1
+141  	0    	take_item          	40002152    	1    	0       	                	      	122
+142  	0    	take_item          	40002152    	1    	0       	                	      	-1
+143  	0    	objective_set      	658         	0    	1       	                	      	123
+143  	1    	objective_set      	658         	1    	1       	                	      	123
+144  	0    	objective_set      	561         	1    	0       	                	      	124
+144  	1    	objective_set      	561         	2    	0       	                	      	124
+144  	2    	objective_set      	561         	3    	0       	                	      	124
+144  	3    	notify             	0           	0    	0       	lua.56297239    	      	124
+145  	0    	objective_set      	618         	0    	0       	                	      	-1
+145  	1    	objective_set      	618         	1    	0       	                	      	-1
+145  	2    	notify             	0           	0    	0       	lua.20e0ed01    	      	-1
+146  	0    	take_item          	40002071    	1    	0       	                	      	129
+147  	0    	take_item          	40002071    	1    	0       	                	      	-1
+148  	0    	objective_set      	678         	0    	1       	                	      	132
+148  	1    	objective_set      	678         	1    	1       	                	      	132
+149  	0    	give_item          	40002075    	1    	0       	                	      	133
+149  	1    	notify             	0           	0    	0       	lua.3bb99e4b    	      	133
+149  	2    	objective_set      	688         	0    	1       	                	      	133
+149  	3    	objective_set      	688         	1    	1       	                	      	133
+150  	0    	take_item          	40002075    	1    	0       	                	      	-1
+151  	0    	notify             	0           	0    	0       	lua.62b62a3b    	      	136
+151  	1    	objective_set      	923         	0    	1       	                	      	136
+151  	2    	objective_set      	923         	1    	1       	                	      	136
+152  	0    	take_item          	40004418    	1    	0       	                	      	-1
+152  	1    	notify             	0           	0    	0       	lua.936a1ca4    	      	-1
+153  	0    	take_item          	40004418    	1    	0       	                	      	-1
+154  	0    	take_item          	40004416    	1    	0       	                	      	-1
+154  	1    	notify             	0           	0    	0       	lua.5e53ca0d    	      	-1
+155  	0    	take_item          	40004416    	1    	0       	                	      	-1
+156  	0    	notify             	0           	0    	0       	lua.7013410c    	      	-1
+157  	0    	notify             	0           	0    	0       	lua.2993d804    	      	-1
+158  	0    	take_item          	40004420    	1    	0       	                	      	-1
+158  	1    	notify             	0           	0    	0       	lua.b999da8b    	      	-1
+159  	0    	take_item          	40004420    	1    	0       	                	      	-1
+160  	0    	notify             	0           	0    	0       	lua.bb2341a5    	      	-1
+161  	0    	notify             	0           	0    	0       	lua.95f95589    	      	-1
+162  	0    	notify             	0           	0    	0       	lua.7d88e3ef    	      	-1
+163  	0    	notify             	0           	0    	0       	lua.3921e490    	      	-1
+164  	0    	notify             	0           	0    	0       	lua.2f93d1fa    	      	-1
+165  	0    	notify             	0           	0    	0       	lua.d81797b9    	      	-1
+166  	0    	notify             	0           	0    	0       	lua.537f28af    	      	153
+166  	1    	objective_set      	964         	0    	0       	                	      	153
+166  	2    	objective_set      	964         	1    	0       	                	      	153
+167  	0    	notify             	0           	0    	0       	lua.3bec4e67    	      	-1
+168  	0    	notify             	0           	0    	0       	lua.303c2ac4    	      	155
+168  	1    	objective_set      	966         	0    	1       	                	      	155
+168  	2    	objective_set      	966         	1    	1       	                	      	155
+169  	0    	notify             	0           	0    	0       	lua.894e6f1d    	      	-1
+170  	0    	notify             	0           	0    	0       	lua.7688f038    	      	-1
+171  	0    	notify             	0           	0    	0       	lua.20e842f4    	      	166
+172  	0    	take_item          	40004000    	1    	0       	                	      	182
+172  	1    	set_counter_clock  	1000030     	3    	0       	                	      	182
+172  	2    	set_counter_clock  	1000030     	3    	0       	                	      	183
+173  	0    	objective_set      	4011        	0    	0       	                	      	184
+173  	1    	objective_set      	4011        	1    	230011  	                	      	184
+173  	2    	set_counter        	5           	1    	0       	                	      	185
+173  	3    	counter_add        	5           	1    	0       	                	      	186
+173  	4    	objective_set      	4011        	6    	1       	                	      	184
+174  	0    	objective_set      	4011        	0    	0       	                	      	184
+174  	1    	objective_set      	4011        	1    	230012  	                	      	184
+174  	2    	set_counter        	5           	1    	0       	                	      	185
+174  	3    	counter_add        	5           	1    	0       	                	      	186
+174  	4    	objective_set      	4011        	7    	1       	                	      	184
+175  	0    	take_item          	40002104    	1    	0       	                	      	-1
+175  	1    	set_counter        	12          	0    	0       	                	      	-1
+176  	0    	set_counter_clock  	45          	3    	0       	                	      	-1
+176  	1    	set_counter        	44          	0    	0       	                	      	-1
+177  	0    	set_counter_clock  	58          	3    	0       	                	      	-1
+177  	1    	set_counter        	55          	0    	0       	                	      	-1
+178  	0    	set_counter_clock  	62          	3    	0       	                	      	-1
+178  	1    	set_counter        	61          	0    	0       	                	      	-1
+179  	0    	notify             	0           	0    	0       	lua.64a7d59e    	      	-1
+180  	0    	objective_set      	1564        	0    	0       	                	      	194
+180  	1    	objective_set      	1564        	1    	0       	                	      	194
+180  	2    	objective_set      	1564        	2    	1       	                	      	194
+181  	0    	ui_command         	1000        	0    	0       	                	      	-1
+182  	0    	ui_command         	41          	-1   	3       	                	      	-1
+183  	0    	ui_command         	41          	-1   	2       	                	      	-1
+184  	0    	ui_command         	41          	-1   	1       	                	      	-1
+185  	0    	ui_command         	800108      	-1   	0       	                	      	-1
+186  	0    	ui_command         	800107      	-1   	800107  	                	      	-1
+187  	0    	ui_command         	19820425    	-1   	0       	                	      	-1
+188  	0    	ui_command         	19820424    	-1   	0       	                	      	-1
+189  	0    	ui_command         	150         	-1   	0       	                	      	-1
+190  	0    	open_shop          	10          	0    	0       	                	      	-1
+191  	0    	open_shop          	7           	0    	0       	                	      	-1
+192  	0    	open_shop          	8           	0    	0       	                	      	-1
+193  	0    	open_shop          	9           	0    	0       	                	      	-1
+194  	0    	open_shop          	5           	0    	0       	                	      	-1
+195  	0    	open_shop          	4           	0    	0       	                	      	-1
+196  	0    	open_shop          	3           	0    	0       	                	      	-1
+197  	0    	open_shop          	2           	0    	0       	                	      	-1
+198  	0    	open_shop          	1           	0    	0       	                	      	-1
+199  	0    	objective_set      	704         	0    	1       	                	      	-1
+199  	1    	objective_set      	704         	1    	1       	                	      	-1
+200  	0    	signpost           	-1          	160  	156     	lua.1074211a    	      	-1
+201  	0    	open_shop          	52          	0    	0       	                	      	-1
+202  	0    	open_shop          	58          	0    	0       	                	      	-1
+203  	0    	open_shop          	57          	0    	0       	                	      	-1
+204  	0    	open_shop          	56          	0    	0       	                	      	-1
+205  	0    	open_shop          	55          	0    	0       	                	      	-1
+206  	0    	open_shop          	54          	0    	0       	                	      	-1
+207  	0    	open_shop          	53          	0    	0       	                	      	-1
+208  	0    	open_shop          	59          	0    	0       	                	      	-1
+209  	0    	open_shop          	51          	0    	0       	                	      	-1
+210  	0    	ui_command         	23          	0    	0       	                	      	-1
+211  	0    	ui_command         	5020231     	-1   	0       	                	      	-1
+212  	0    	ui_command         	5020232     	-1   	0       	                	      	-1
+213  	0    	teleport           	0           	61   	134     	                	      	-1
+214  	0    	teleport           	0           	160  	106     	                	      	-1
+215  	0    	ui_command         	1000        	-1   	0       	                	      	-1
+216  	0    	open_shop          	47          	0    	0       	                	      	-1
+217  	0    	signpost           	-1          	231  	170     	lua.14e0a414    	      	-1
+218  	0    	notify             	0           	0    	0       	lua.2d05096e    	      	-1
+219  	0    	objective_set      	949         	0    	1       	                	      	-1
+219  	1    	objective_set      	949         	1    	1       	                	      	-1
+220  	0    	objective_set      	944         	0    	1       	                	      	-1
+220  	1    	objective_set      	944         	1    	1       	                	      	-1
+221  	0    	give_item          	30308021    	1    	0       	                	      	-1
+221  	1    	ui_command         	1000        	-1   	0       	                	      	-1
+222  	0    	signpost           	-1          	189  	124     	lua.bd5de86c    	      	-1
+222  	1    	teleport           	-1          	185  	128     	                	      	-1
+222  	2    	ui_command         	1000        	-1   	0       	                	      	-1
+223  	0    	ui_command         	2001        	-1   	20000   	                	      	-1
+224  	0    	open_shop          	30          	0    	0       	                	      	-1
+225  	0    	ui_command         	19810313    	-1   	-1      	                	      	-1
+226  	0    	open_shop          	14          	0    	0       	                	      	-1
+227  	0    	open_shop          	27          	0    	0       	                	      	-1
+228  	0    	open_shop          	143         	0    	0       	                	      	-1
+229  	0    	open_shop          	85          	0    	0       	                	      	-1
+230  	0    	signpost           	-1          	88   	111     	lua.8128550a    	      	-1
+231  	0    	signpost           	-1          	152  	154     	lua.4baa9c8c    	      	-1
+232  	0    	signpost           	-1          	126  	68      	lua.86237e66    	      	-1
+233  	0    	signpost           	-1          	100  	64      	lua.214a568a    	      	-1
+234  	0    	signpost           	-1          	170  	32      	lua.8f014bce    	      	-1
+235  	0    	signpost           	-1          	41   	140     	lua.eab0884f    	      	-1
+236  	0    	signpost           	-1          	50   	63      	lua.ee0c1447    	      	-1
+237  	0    	signpost           	-1          	92   	55      	lua.4baa9c8c    	      	-1
+238  	0    	signpost           	-1          	99   	56      	lua.e6900975    	      	-1
+239  	0    	signpost           	-1          	96   	52      	lua.e0997de6    	      	-1
+240  	0    	ui_command         	42          	-1   	0       	                	      	-1
+241  	0    	teleport           	30          	166  	264     	                	      	-1
+242  	0    	teleport           	24          	208  	49      	                	      	-1
+243  	0    	teleport           	18          	244  	75      	                	      	-1
+244  	0    	open_shop          	187         	0    	0       	                	      	-1
+245  	0    	open_shop          	179         	0    	0       	                	      	-1
+246  	0    	open_shop          	148         	0    	0       	                	      	-1
+247  	0    	open_shop          	110         	0    	0       	                	      	-1
+248  	0    	open_shop          	108         	0    	0       	                	      	-1
+249  	0    	give_item          	40001039    	1    	0       	                	      	-1
+250  	0    	notify             	0           	0    	0       	lua.64c5d216    	      	-1
+251  	0    	open_shop          	140         	0    	0       	                	      	-1
+252  	0    	open_shop          	109         	0    	0       	                	      	-1
+253  	0    	open_shop          	147         	0    	0       	                	      	-1
+254  	0    	open_shop          	139         	0    	0       	                	      	-1
+255  	0    	open_shop          	111         	0    	0       	                	      	-1
+256  	0    	objective_set      	561         	1    	1       	                	      	-1
+257  	0    	objective_set      	561         	0    	1       	                	      	-1
+258  	0    	objective_set      	561         	2    	1       	                	      	-1
+259  	0    	objective_set      	561         	3    	1       	                	      	-1
+260  	0    	open_shop          	141         	0    	0       	                	      	-1
+261  	0    	open_shop          	107         	0    	0       	                	      	-1
+262  	0    	signpost           	-1          	88   	111     	lua.5b26812d    	      	-1
+263  	0    	signpost           	-1          	152  	154     	lua.91c725f8    	      	-1
+264  	0    	signpost           	-1          	126  	68      	lua.3a10ae2b    	      	-1
+265  	0    	signpost           	-1          	100  	64      	lua.8b7fd830    	      	-1
+266  	0    	signpost           	-1          	170  	32      	lua.11f1eecf    	      	-1
+267  	0    	signpost           	-1          	41   	140     	lua.36d6ec28    	      	-1
+268  	0    	signpost           	-1          	40   	142     	lua.a931382a    	      	-1
+269  	0    	signpost           	-1          	38   	75      	lua.5432412b    	      	-1
+270  	0    	signpost           	-1          	78   	35      	lua.2e51c92a    	      	-1
+271  	0    	signpost           	-1          	66   	29      	lua.80620a61    	      	-1
+272  	0    	open_shop          	272         	0    	0       	                	      	-1
+273  	0    	signpost           	-1          	98   	44      	lua.0243bb68    	      	-1
+274  	0    	signpost           	-1          	101  	44      	lua.2173328a    	      	-1
+275  	0    	signpost           	-1          	90   	120     	lua.9d5e1e00    	      	-1
+276  	0    	signpost           	-1          	95   	60      	lua.5f525b94    	      	-1
+277  	0    	signpost           	-1          	39   	71      	lua.2a737b95    	      	-1
+278  	0    	signpost           	-1          	45   	69      	lua.e7e6f7fb    	      	-1
+279  	0    	signpost           	-1          	123  	67      	lua.bfad6ffa    	      	-1
+280  	0    	signpost           	-1          	119  	67      	lua.2f729100    	      	-1
+281  	0    	signpost           	-1          	88   	44      	lua.609cd2a4    	      	-1
+282  	0    	signpost           	-1          	91   	44      	lua.03271ab5    	      	-1
+283  	0    	signpost           	-1          	91   	44      	lua.80620a61    	      	-1
+284  	0    	open_shop          	48          	0    	0       	                	      	-1
+285  	0    	signpost           	-1          	90   	88      	lua.d7349c24    	      	-1
+286  	0    	signpost           	-1          	128  	78      	lua.fc471c53    	      	-1
+287  	0    	signpost           	-1          	99   	150     	lua.8cb9c8e4    	      	-1
+288  	0    	signpost           	-1          	96   	92      	lua.b4239998    	      	-1
+289  	0    	signpost           	-1          	97   	46      	lua.2a737b95    	      	-1
+290  	0    	signpost           	-1          	94   	46      	lua.e7e6f7fb    	      	-1
+291  	0    	signpost           	-1          	101  	89      	lua.f8ae6002    	      	-1
+292  	0    	signpost           	-1          	101  	87      	lua.21bcea68    	      	-1
+293  	0    	signpost           	-1          	87   	70      	lua.d3095eac    	      	-1
+294  	0    	signpost           	-1          	95   	75      	lua.1fa63cc6    	      	-1
+295  	0    	signpost           	-1          	142  	55      	lua.80620a61    	      	-1
+296  	0    	open_shop          	46          	0    	0       	                	      	-1
+297  	0    	open_shop          	177         	0    	0       	                	      	-1
+298  	0    	open_shop          	176         	0    	0       	                	      	-1
+299  	0    	open_shop          	175         	0    	0       	                	      	-1
+300  	0    	open_shop          	174         	0    	0       	                	      	-1
+301  	0    	open_shop          	173         	0    	0       	                	      	-1
+302  	0    	open_shop          	172         	0    	0       	                	      	-1
+303  	0    	open_shop          	171         	0    	0       	                	      	-1
+304  	0    	open_shop          	170         	0    	0       	                	      	-1
+305  	0    	open_shop          	169         	0    	0       	                	      	-1
+306  	0    	signpost           	-1          	105  	58      	lua.20ac59aa    	      	-1
+307  	0    	signpost           	-1          	96   	73      	lua.d2898f0e    	      	-1
+308  	0    	signpost           	-1          	86   	142     	lua.2b821086    	      	-1
+309  	0    	signpost           	-1          	95   	86      	lua.d274bc42    	      	-1
+310  	0    	signpost           	-1          	145  	53      	lua.2a737b95    	      	-1
+311  	0    	signpost           	-1          	141  	51      	lua.e7e6f7fb    	      	-1
+312  	0    	signpost           	-1          	39   	109     	lua.1be875de    	      	-1
+313  	0    	signpost           	-1          	43   	108     	lua.2b22f324    	      	-1
+314  	0    	signpost           	-1          	98   	51      	lua.751216f0    	      	-1
+315  	0    	signpost           	-1          	96   	51      	lua.f5e41b4e    	      	-1
+316  	0    	signpost           	-1          	96   	73      	lua.80620a61    	      	-1
+317  	0    	open_shop          	45          	0    	0       	                	      	-1
+318  	0    	signpost           	-1          	54   	149     	lua.13fc68a4    	      	-1
+319  	0    	signpost           	-1          	62   	68      	lua.a9d43614    	      	-1
+320  	0    	signpost           	-1          	48   	124     	lua.1c7b6764    	      	-1
+321  	0    	signpost           	-1          	120  	153     	lua.b7144e18    	      	-1
+322  	0    	signpost           	-1          	65   	55      	lua.2a737b95    	      	-1
+323  	0    	signpost           	-1          	53   	56      	lua.e7e6f7fb    	      	-1
+324  	0    	signpost           	-1          	53   	150     	lua.d1f104e6    	      	-1
+325  	0    	signpost           	-1          	62   	68      	lua.c5db5c6c    	      	-1
+326  	0    	signpost           	-1          	125  	142     	lua.3f8f61d8    	      	-1
+327  	0    	signpost           	-1          	125  	144     	lua.23511521    	      	-1
+328  	0    	signpost           	-1          	125  	144     	lua.80620a61    	      	-1
+329  	0    	signpost           	-1          	35   	86      	lua.91a45ad3    	      	-1
+330  	0    	signpost           	-1          	35   	86      	lua.e8bc0c61    	      	-1
+331  	0    	signpost           	-1          	99   	120     	lua.a31dbd57    	      	-1
+332  	0    	signpost           	-1          	95   	88      	lua.1896b44d    	      	-1
+333  	0    	signpost           	-1          	146  	95      	lua.2a737b95    	      	-1
+334  	0    	signpost           	-1          	148  	92      	lua.e7e6f7fb    	      	-1
+335  	0    	signpost           	-1          	64   	151     	lua.b0b6b30b    	      	-1
+336  	0    	signpost           	-1          	35   	86      	lua.961d8929    	      	-1
+337  	0    	signpost           	-1          	97   	67      	lua.5f159b8d    	      	-1
+338  	0    	signpost           	-1          	96   	66      	lua.7c962217    	      	-1
+339  	0    	signpost           	-1          	96   	66      	lua.b4eda878    	      	-1
+340  	0    	open_shop          	42          	0    	0       	                	      	-1
+341  	0    	signpost           	-1          	65   	109     	lua.d2cf66bf    	      	-1
+342  	0    	signpost           	-1          	58   	73      	lua.9a197de9    	      	-1
+343  	0    	signpost           	-1          	101  	136     	lua.86129ceb    	      	-1
+344  	0    	signpost           	-1          	78   	92      	lua.42b42df1    	      	-1
+345  	0    	signpost           	-1          	101  	115     	lua.2a737b95    	      	-1
+346  	0    	signpost           	-1          	102  	112     	lua.e7e6f7fb    	      	-1
+347  	0    	signpost           	-1          	41   	58      	lua.fd393995    	      	-1
+348  	0    	signpost           	-1          	44   	56      	lua.a45039fb    	      	-1
+349  	0    	signpost           	-1          	82   	84      	lua.90383747    	      	-1
+350  	0    	signpost           	-1          	77   	85      	lua.790479c0    	      	-1
+351  	0    	signpost           	-1          	77   	85      	lua.80620a61    	      	-1
+352  	0    	open_shop          	44          	0    	0       	                	      	-1
+353  	0    	signpost           	-1          	133  	137     	lua.78c39ad3    	      	-1
+354  	0    	signpost           	-1          	89   	56      	lua.6ba15076    	      	-1
+355  	0    	signpost           	-1          	102  	167     	lua.f786fd57    	      	-1
+356  	0    	signpost           	-1          	98   	105     	lua.1aca744d    	      	-1
+357  	0    	signpost           	-1          	64   	115     	lua.2a737b95    	      	-1
+358  	0    	signpost           	-1          	66   	118     	lua.e7e6f7fb    	      	-1
+359  	0    	signpost           	-1          	87   	58      	lua.18bc3279    	      	-1
+360  	0    	signpost           	-1          	87   	61      	lua.483ba14f    	      	-1
+361  	0    	signpost           	-1          	109  	59      	lua.af2033b3    	      	-1
+362  	0    	signpost           	-1          	108  	56      	lua.f57df8af    	      	-1
+363  	0    	signpost           	-1          	98   	52      	lua.97658a58    	      	-1
+364  	0    	open_shop          	43          	0    	0       	                	      	-1
+365  	0    	signpost           	-1          	112  	90      	lua.1fed9630    	      	-1
+366  	0    	signpost           	-1          	41   	144     	lua.bb70debc    	      	-1
+367  	0    	signpost           	-1          	93   	118     	lua.714367a8    	      	-1
+368  	0    	signpost           	-1          	92   	70      	lua.e985b6bc    	      	-1
+369  	0    	signpost           	-1          	54   	86      	lua.2a737b95    	      	-1
+370  	0    	signpost           	-1          	38   	89      	lua.e7e6f7fb    	      	-1
+371  	0    	signpost           	-1          	131  	83      	lua.998b8fc4    	      	-1
+372  	0    	signpost           	-1          	114  	91      	lua.70dec33a    	      	-1
+373  	0    	signpost           	-1          	94   	99      	lua.af619126    	      	-1
+374  	0    	signpost           	-1          	91   	98      	lua.3f17b1c8    	      	-1
+375  	0    	open_shop          	49          	0    	0       	                	      	-1
+376  	0    	signpost           	-1          	93   	99      	lua.798d2e89    	      	-1
+377  	0    	signpost           	-1          	38   	102     	lua.384ea154    	      	-1
+378  	0    	signpost           	-1          	61   	62      	lua.a89c42ab    	      	-1
+379  	0    	signpost           	-1          	932  	131     	lua.664f7c13    	      	-1
+380  	0    	signpost           	-1          	96   	89      	lua.2668abb9    	      	-1
+381  	0    	signpost           	-1          	60   	82      	lua.2a737b95    	      	-1
+382  	0    	signpost           	-1          	57   	88      	lua.e7e6f7fb    	      	-1
+383  	0    	signpost           	-1          	135  	90      	lua.c2035c15    	      	-1
+384  	0    	signpost           	-1          	128  	86      	lua.2ab26c7b    	      	-1
+385  	0    	signpost           	-1          	91   	71      	lua.d5ce0bc7    	      	-1
+386  	0    	signpost           	-1          	89   	72      	lua.bc05af0a    	      	-1
+387  	0    	signpost           	-1          	38   	98      	lua.b4eda878    	      	-1
+388  	0    	take_item          	30202049    	1    	0       	                	      	-1
+388  	1    	objective_set      	1060        	0    	1       	                	      	-1
+389  	0    	take_item          	30202022    	1    	0       	                	      	-1
+389  	1    	objective_set      	1060        	0    	1       	                	      	-1
+390  	0    	take_item          	30202001    	1    	0       	                	      	-1
+390  	1    	objective_set      	1060        	0    	1       	                	      	-1
+391  	0    	open_shop          	41          	0    	0       	                	      	-1
+392  	0    	teleport           	5           	200  	52      	                	      	-1
+393  	0    	signpost           	-1          	45   	23      	lua.5d805dd1    	      	-1
+394  	0    	signpost           	-1          	159  	163     	lua.9508ae0a    	      	-1
+395  	0    	signpost           	-1          	27   	137     	lua.d4f7d321    	      	-1
+396  	0    	signpost           	-1          	69   	125     	lua.85c9481f    	      	-1
+397  	0    	signpost           	-1          	25   	166     	lua.2a737b95    	      	-1
+398  	0    	signpost           	-1          	132  	31      	lua.87993117    	      	-1
+399  	0    	signpost           	-1          	127  	30      	lua.ce855a65    	      	-1
+400  	0    	signpost           	-1          	48   	134     	lua.7a1cda31    	      	-1
+401  	0    	signpost           	-1          	48   	144     	lua.6d2d8d2e    	      	-1
+402  	0    	signpost           	-1          	69   	109     	lua.80620a61    	      	-1
+403  	0    	open_shop          	271         	0    	0       	                	      	-1
+404  	0    	open_shop          	17          	0    	0       	                	      	-1
+405  	0    	give_money         	1000000     	0    	0       	                	      	-1
+406  	0    	set_flag           	5           	0    	0       	                	      	-1
+407  	0    	give_item          	50101002    	1    	0       	                	      	-1
+408  	0    	set_flag           	6           	0    	0       	                	      	-1
+409  	0    	give_item          	50101001    	1    	0       	                	      	-1
+410  	0    	open_shop          	33          	0    	0       	                	      	-1
+411  	0    	signpost           	-1          	134  	120     	lua.d23c8775    	      	-1
+411  	1    	teleport           	-1          	133  	130     	                	      	-1
+411  	2    	ui_command         	1000        	-1   	0       	                	      	-1
+412  	0    	signpost           	-1          	188  	133     	lua.83776f8e    	      	-1
+412  	1    	teleport           	-1          	185  	128     	                	      	-1
+412  	2    	ui_command         	1000        	-1   	0       	                	      	-1
+413  	0    	signpost           	-1          	127  	131     	lua.5387dcb3    	      	-1
+413  	1    	teleport           	-1          	133  	130     	                	      	-1
+413  	2    	ui_command         	1000        	-1   	0       	                	      	-1
+414  	0    	signpost           	-1          	131  	124     	lua.8b9f2350    	      	-1
+414  	1    	teleport           	-1          	133  	130     	                	      	-1
+414  	2    	ui_command         	1000        	-1   	0       	                	      	-1
+415  	0    	signpost           	-1          	187  	122     	lua.85d44584    	      	-1
+415  	1    	teleport           	-1          	185  	128     	                	      	-1
+415  	2    	ui_command         	1000        	-1   	0       	                	      	-1
+416  	0    	signpost           	-1          	130  	121     	lua.88091cc2    	      	-1
+416  	1    	teleport           	-1          	133  	130     	                	      	-1
+416  	2    	ui_command         	1000        	-1   	0       	                	      	-1
+417  	0    	signpost           	-1          	126  	135     	lua.09c571ee    	      	-1
+417  	1    	teleport           	-1          	133  	130     	                	      	-1
+417  	2    	ui_command         	1000        	-1   	0       	                	      	-1
+418  	0    	signpost           	-1          	192  	129     	lua.37d655e7    	      	-1
+418  	1    	teleport           	-1          	185  	128     	                	      	-1
+418  	2    	ui_command         	1000        	-1   	0       	                	      	-1
+419  	0    	take_item          	10102012    	1    	0       	                	      	-1
+419  	1    	objective_set      	708         	0    	1       	                	      	-1
+419  	2    	objective_set      	708         	1    	1       	                	      	-1
+420  	0    	signpost           	-1          	215  	284     	lua.5ce48695    	      	-1
+421  	0    	take_item          	10113001    	1    	0       	                	      	-1
+421  	1    	objective_set      	707         	0    	1       	                	      	-1
+421  	2    	objective_set      	707         	1    	1       	                	      	-1
+422  	0    	take_item          	30101001    	1    	0       	                	      	-1
+422  	1    	objective_set      	706         	0    	1       	                	      	-1
+422  	2    	objective_set      	706         	1    	1       	                	      	-1
+423  	0    	open_shop          	6           	0    	0       	                	      	-1
+424  	0    	ui_command         	110526      	0    	0       	                	      	-1
+425  	0    	take_item          	40002115    	1    	0       	                	      	-1
+425  	1    	objective_set      	1060        	0    	1       	                	      	-1
+426  	0    	signpost           	-1          	141  	133     	lua.3eed9017    	      	-1
+427  	0    	signpost           	-1          	96   	221     	lua.5ed28cb2    	      	-1
+428  	0    	signpost           	-1          	119  	293     	lua.b2417bd4    	      	-1
+429  	0    	signpost           	-1          	-1   	-1      	lua.811c9dc5    	      	-1
+430  	0    	signpost           	-1          	141  	133     	lua.cdb61387    	      	-1
+431  	0    	signpost           	-1          	219  	218     	lua.15fce0a4    	      	-1
+432  	0    	signpost           	-1          	235  	251     	lua.11fbbdf8    	      	-1
+433  	0    	signpost           	-1          	351  	186     	lua.0ab8822b    	      	-1
+434  	0    	signpost           	-1          	381  	294     	lua.122ae5ad    	      	-1
+435  	0    	signpost           	-1          	343  	284     	lua.dc167c13    	      	-1
+436  	0    	signpost           	-1          	225  	251     	lua.9a314e3a    	      	-1
+437  	0    	signpost           	-1          	219  	224     	lua.7e843dea    	      	-1
+438  	0    	signpost           	-1          	214  	117     	lua.adbd3f8a    	      	-1
+439  	0    	signpost           	-1          	431  	289     	lua.67be54fc    	      	-1
+440  	0    	signpost           	-1          	31   	151     	lua.7a5e3bd1    	      	-1
+441  	0    	signpost           	-1          	288  	152     	lua.b99c2b6d    	      	-1
+442  	0    	signpost           	-1          	160  	257     	lua.31055ab4    	      	-1
+443  	0    	signpost           	-1          	81   	162     	lua.57e4a8d8    	      	-1
+444  	0    	signpost           	-1          	211  	172     	lua.bf01aeb0    	      	-1
+445  	0    	signpost           	-1          	241  	136     	lua.c299e3bd    	      	-1
+446  	0    	signpost           	-1          	57   	131     	lua.49736cf9    	      	-1
+447  	0    	signpost           	-1          	110  	159     	lua.86bbe6cd    	      	-1
+448  	0    	signpost           	-1          	102  	131     	lua.aa16d6bb    	      	-1
+449  	0    	signpost           	-1          	265  	128     	lua.4f6c8cee    	      	-1
+450  	0    	signpost           	-1          	248  	171     	lua.529df897    	      	-1
+451  	0    	signpost           	-1          	238  	171     	lua.bb2e57fa    	      	-1
+452  	0    	signpost           	-1          	216  	133     	lua.567e4439    	      	-1
+453  	0    	signpost           	-1          	126  	135     	lua.09c571ee    	      	-1
+454  	0    	signpost           	-1          	127  	131     	lua.5387dcb3    	      	-1
+455  	0    	signpost           	-1          	130  	121     	lua.88091cc2    	      	-1
+456  	0    	signpost           	-1          	134  	120     	lua.d23c8775    	      	-1
+457  	0    	signpost           	-1          	131  	124     	lua.8b9f2350    	      	-1
+458  	0    	signpost           	-1          	192  	129     	lua.37d655e7    	      	-1
+459  	0    	signpost           	-1          	188  	133     	lua.83776f8e    	      	-1
+460  	0    	signpost           	-1          	189  	124     	lua.bd5de86c    	      	-1
+461  	0    	signpost           	-1          	187  	122     	lua.85d44584    	      	-1
+462  	0    	set_flag           	0           	0    	0       	                	      	-1
+463  	0    	open_shop          	26          	0    	0       	                	      	-1
+464  	0    	open_shop          	18          	0    	0       	                	      	-1
+465  	0    	ui_command         	112237      	-1   	0       	                	      	-1
+466  	0    	ui_command         	112236      	-1   	0       	                	      	-1
+467  	0    	ui_command         	19830424    	-1   	0       	                	      	-1
+468  	0    	ui_command         	19810424    	-1   	0       	                	      	-1
+469  	0    	ui_command         	27          	-1   	0       	                	      	-1
+470  	0    	ui_command         	25          	-1   	0       	                	      	-1
+471  	0    	ui_command         	23          	-1   	0       	                	      	-1
+472  	0    	open_shop          	71          	0    	0       	                	      	-1
+473  	0    	open_shop          	13          	0    	0       	                	      	-1
+474  	0    	open_shop          	25          	0    	0       	                	      	-1
+475  	0    	open_shop          	21          	0    	0       	                	      	-1
+476  	0    	ui_command         	1001        	-1   	0       	                	      	-1
+477  	0    	open_shop          	186         	0    	0       	                	      	-1
+478  	0    	open_shop          	183         	0    	0       	                	      	-1
+479  	0    	open_shop          	185         	0    	0       	                	      	-1
+480  	0    	ui_command         	86021935    	-1   	0       	                	      	-1
+481  	0    	open_shop          	184         	0    	0       	                	      	-1
+482  	0    	open_shop          	74          	0    	0       	                	      	-1
+483  	0    	ui_command         	3           	-1   	6       	                	      	-1
+484  	0    	ui_command         	20101029    	-1   	0       	                	      	-1
+485  	0    	ui_command         	20090805    	-1   	0       	                	      	-1
+486  	0    	ui_command         	20090804    	-1   	0       	                	      	-1
+487  	0    	ui_command         	1004        	-1   	0       	                	      	-1
+488  	0    	ui_command         	19831114    	-1   	0       	                	      	-1
+489  	0    	ui_command         	19824       	-1   	0       	                	      	-1
+490  	0    	open_shop          	102         	0    	0       	                	      	-1
+491  	0    	open_shop          	168         	0    	0       	                	      	-1
+492  	0    	ui_command         	20140618    	-1   	0       	                	      	-1
+493  	0    	open_shop          	196         	0    	0       	                	      	-1
+494  	0    	open_shop          	142         	0    	0       	                	      	-1
+495  	0    	give_item          	38002727    	1    	0       	                	      	-1
+495  	1    	take_item          	38000639    	100  	0       	                	      	-1
+496  	0    	ui_command         	112233      	-1   	0       	                	      	-1
+497  	0    	ui_command         	1005        	-1   	0       	                	      	-1
+498  	0    	ui_command         	20130521    	-1   	0       	                	      	-1
+499  	0    	ui_command         	20130510    	-1   	0       	                	      	-1
+500  	0    	ui_command         	1002        	-1   	0       	                	      	-1
+501  	0    	open_shop          	20          	0    	0       	                	      	-1
+502  	0    	open_shop          	35          	0    	0       	                	      	-1
+503  	0    	open_shop          	104         	0    	0       	                	      	-1
+504  	0    	signpost           	-1          	201  	82      	lua.3ef77e1e    	      	-1
+505  	0    	signpost           	-1          	266  	139     	lua.c05bc80b    	      	-1
+506  	0    	signpost           	-1          	93   	177     	lua.9acd594f    	      	-1
+507  	0    	signpost           	-1          	111  	160     	lua.507d6d17    	      	-1
+508  	0    	signpost           	-1          	87   	142     	lua.36b1b372    	      	-1
+509  	0    	signpost           	-1          	134  	260     	lua.dc79bb69    	      	-1
+510  	0    	signpost           	-1          	294  	234     	lua.14939e70    	      	-1
+511  	0    	signpost           	-1          	267  	243     	lua.eabbf1fe    	      	-1
+512  	0    	signpost           	-1          	224  	226     	lua.185112d7    	      	-1
+513  	0    	signpost           	-1          	342  	311     	lua.e62bcd39    	      	-1
+514  	0    	signpost           	-1          	331  	169     	lua.74747fea    	      	-1
+515  	0    	signpost           	-1          	96   	127     	lua.cdb61387    	      	-1
+516  	0    	signpost           	-1          	189  	173     	lua.7f6e96c3    	      	-1
+517  	0    	signpost           	-1          	251  	151     	lua.00fedae3    	      	-1
+518  	0    	signpost           	-1          	211  	90      	lua.97e4ebd4    	      	-1
+519  	0    	signpost           	-1          	109  	130     	lua.b74ff5af    	      	-1
+520  	0    	signpost           	-1          	238  	77      	lua.b0f6a7af    	      	-1
+521  	0    	signpost           	-1          	106  	109     	lua.96031db6    	      	-1
+522  	0    	signpost           	-1          	259  	132     	lua.d252adf3    	      	-1
+523  	0    	signpost           	-1          	64   	200     	lua.5a4680c9    	      	-1
+524  	0    	signpost           	-1          	183  	67      	lua.af7e31a7    	      	-1
+525  	0    	signpost           	-1          	78   	163     	lua.7a5e3bd1    	      	-1
+526  	0    	signpost           	-1          	182  	238     	lua.31055ab4    	      	-1
+527  	0    	signpost           	-1          	110  	133     	lua.936b7d5a    	      	-1
+528  	0    	signpost           	-1          	128  	173     	lua.4f3c97f4    	      	-1
+529  	0    	signpost           	-1          	190  	168     	lua.723a9125    	      	-1
+530  	0    	signpost           	-1          	99   	155     	lua.74414b0e    	      	-1
+531  	0    	signpost           	-1          	217  	81      	lua.0d5f6a5e    	      	-1
+532  	0    	signpost           	-1          	217  	88      	lua.4287c340    	      	-1
+533  	0    	signpost           	-1          	164  	80      	lua.f097694d    	      	-1
+534  	0    	open_shop          	24          	0    	0       	                	      	-1
+535  	0    	open_shop          	23          	0    	0       	                	      	-1
+536  	0    	open_shop          	31          	0    	0       	                	      	-1
+537  	0    	open_shop          	28          	0    	0       	                	      	-1
+538  	0    	open_shop          	22          	0    	0       	                	      	-1
+539  	0    	ui_command         	3           	-1   	7       	                	      	-1
+540  	0    	signpost           	-1          	188  	73      	lua.2435f116    	      	-1
+541  	0    	signpost           	-1          	224  	182     	lua.0b24c5ba    	      	-1
+542  	0    	signpost           	-1          	159  	78      	lua.98bd8256    	      	-1
+543  	0    	signpost           	-1          	124  	143     	lua.2a737b95    	      	-1
+544  	0    	signpost           	-1          	113  	87      	lua.4067c1f8    	      	-1
+545  	0    	signpost           	-1          	115  	85      	lua.081f5c5e    	      	-1
+546  	0    	signpost           	-1          	188  	79      	lua.f0c275c2    	      	-1
+547  	0    	signpost           	-1          	194  	96      	lua.b363b19e    	      	-1
+548  	0    	signpost           	-1          	159  	65      	lua.80620a61    	      	-1
+549  	0    	open_shop          	269         	0    	0       	                	      	-1
+550  	0    	ui_command         	201207232   	-1   	0       	                	      	-1
+551  	0    	ui_command         	201207231   	-1   	0       	                	      	-1
+552  	0    	open_shop          	105         	0    	0       	                	      	-1
+553  	0    	open_shop          	103         	0    	0       	                	      	-1
+554  	0    	open_shop          	101         	0    	0       	                	      	-1
+555  	0    	open_shop          	72          	0    	0       	                	      	-1
+556  	0    	open_shop          	70          	0    	0       	                	      	-1
+557  	0    	ui_command         	2013060601  	-1   	0       	                	      	-1
+558  	0    	open_shop          	138         	0    	0       	                	      	-1
+559  	0    	ui_command         	19823       	-1   	0       	                	      	-1
+560  	0    	ui_command         	3           	-1   	3       	                	      	-1
+561  	0    	ui_command         	3           	-1   	4       	                	      	-1
+562  	0    	ui_command         	20090929    	-1   	0       	                	      	-1
+563  	0    	ui_command         	223         	-1   	0       	                	      	-1
+564  	0    	open_shop          	16          	0    	0       	                	      	-1
+565  	0    	signpost           	-1          	144  	68      	lua.ab869e77    	      	-1
+566  	0    	signpost           	-1          	177  	184     	lua.88955740    	      	-1
+567  	0    	signpost           	-1          	89   	173     	lua.a0fa914c    	      	-1
+568  	0    	signpost           	-1          	136  	180     	lua.3b3feb8e    	      	-1
+569  	0    	signpost           	-1          	230  	156     	lua.4d37bd49    	      	-1
+570  	0    	signpost           	-1          	140  	95      	lua.8b862188    	      	-1
+571  	0    	signpost           	-1          	46   	62      	lua.88a8df6c    	      	-1
+572  	0    	signpost           	-1          	366  	228     	lua.8ab0ec98    	      	-1
+573  	0    	signpost           	-1          	326  	318     	lua.4be84f80    	      	-1
+574  	0    	signpost           	-1          	153  	171     	lua.36ad2e08    	      	-1
+575  	0    	signpost           	-1          	136  	169     	lua.f0c8161d    	      	-1
+576  	0    	signpost           	-1          	132  	156     	lua.160a9f95    	      	-1
+577  	0    	signpost           	-1          	138  	164     	lua.6a7593c6    	      	-1
+578  	0    	signpost           	-1          	134  	152     	lua.90e17ec3    	      	-1
+579  	0    	signpost           	-1          	213  	160     	lua.a5dea7d9    	      	-1
+580  	0    	signpost           	-1          	193  	172     	lua.8285d7f2    	      	-1
+581  	0    	signpost           	-1          	60   	146     	lua.60355b6c    	      	-1
+582  	0    	signpost           	-1          	207  	184     	lua.1f34e27b    	      	-1
+583  	0    	signpost           	-1          	120  	169     	lua.05541c40    	      	-1
+584  	0    	signpost           	-1          	212  	151     	lua.1aa863c7    	      	-1
+585  	0    	signpost           	-1          	219  	262     	lua.fb4fcf91    	      	-1
+586  	0    	signpost           	-1          	58   	135     	lua.7a5e3bd1    	      	-1
+587  	0    	signpost           	-1          	260  	134     	lua.b99c2b6d    	      	-1
+588  	0    	signpost           	-1          	159  	251     	lua.31055ab4    	      	-1
+589  	0    	signpost           	-1          	206  	172     	lua.271cdb8b    	      	-1
+590  	0    	signpost           	-1          	80   	152     	lua.ffe456f7    	      	-1
+591  	0    	signpost           	-1          	95   	152     	lua.6c299ef7    	      	-1
+592  	0    	signpost           	-1          	230  	129     	lua.7bf93b1c    	      	-1
+593  	0    	signpost           	-1          	139  	182     	lua.7a6e816e    	      	-1
+594  	0    	signpost           	-1          	63   	147     	lua.a7076ee7    	      	-1
+595  	0    	signpost           	-1          	138  	140     	lua.0a7827a5    	      	-1
+596  	0    	signpost           	-1          	135  	164     	lua.1a7bedc0    	      	-1
+597  	0    	signpost           	-1          	178  	177     	lua.55a2e5e7    	      	-1
+598  	0    	signpost           	-1          	182  	183     	lua.618c3049    	      	-1
+599  	0    	signpost           	-1          	254  	145     	lua.ae5b1d22    	      	-1
+600  	0    	signpost           	-1          	210  	154     	lua.dcb8d576    	      	-1
+601  	0    	signpost           	-1          	150  	91      	lua.214db89f    	      	-1
+602  	0    	open_shop          	32          	0    	0       	                	      	-1
+603  	0    	open_shop          	12          	0    	0       	                	      	-1
+604  	0    	ui_command         	800034      	9    	-1      	                	      	-1
+605  	0    	ui_command         	800034      	8    	-1      	                	      	-1
+606  	0    	ui_command         	800034      	7    	-1      	                	      	-1
+607  	0    	ui_command         	800034      	6    	-1      	                	      	-1
+608  	0    	ui_command         	800034      	5    	-1      	                	      	-1
+609  	0    	ui_command         	800034      	4    	-1      	                	      	-1
+610  	0    	ui_command         	800034      	3    	-1      	                	      	-1
+611  	0    	ui_command         	800034      	2    	-1      	                	      	-1
+612  	0    	ui_command         	800034      	1    	-1      	                	      	-1
+613  	0    	give_item          	20700053    	1    	0       	                	      	-1
+613  	1    	give_item          	20700053    	1    	0       	                	      	-1
+613  	2    	give_item          	20700053    	1    	0       	                	      	-1
+613  	3    	give_item          	20700053    	1    	0       	                	      	-1
+613  	4    	give_item          	20700053    	1    	0       	                	      	-1
+613  	5    	give_item          	20700053    	1    	0       	                	      	-1
+613  	6    	give_item          	20700053    	1    	0       	                	      	-1
+613  	7    	give_item          	20700053    	1    	0       	                	      	-1
+613  	8    	give_item          	20700053    	1    	0       	                	      	-1
+614  	0    	ui_command         	1206        	-1   	0       	                	      	-1

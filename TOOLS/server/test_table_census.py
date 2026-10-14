@@ -159,7 +159,8 @@ class CensusCommandTest(unittest.TestCase):
         self.assertNotIn(b"\r", self.output.read_bytes())
         text = self.output.read_text(encoding="utf-8")
         self.assertIn("client_2026/Config (1 tệp .txt)", text)
-        self.assertIn("\t1\t1\tint\t", text)
+        rows = tsv_file.read_table(self.output).rows
+        self.assertIn(("1", "1", "int"), [row[1:4] for row in rows])
 
     def test_bad_magic_exits_one_and_skips_write(self) -> None:
         (self.raw / "Config" / "Skill.txt").write_bytes(b"bad-magic-bytes!")

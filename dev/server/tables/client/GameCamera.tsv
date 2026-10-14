@@ -2,15 +2,16 @@
 # source: client_2026/GameCamera.txt
 # tool: TOOLS/server/export_client_rest.py; sửa tay sẽ mất ở lượt xuất sau
 # types: int	text	int	int	text	int	int
-column_0	column_1	column_2	column_3	column_4	column_5	column_6
-0	luoyang.track	0	1	luoyang_new_monster.ini	0	1
-9	shaolin.track	0	0	shaolin_monster.ini	1	0
-10	gaibang.track	0	0	gaibang_monster.ini	2	0
-11	mingjiao.track	0	0	mingjiao_monster.ini	3	0
-12	wudang.track	0	0	wudang_monster.ini	4	0
-13	tianlong.track	0	0	tianlong_monster.ini	5	0
-14	xiaoyao.track	0	0	xiaoyao_monster.ini	6	0
-15	emei.track	0	0	emei_monster.ini	7	0
-16	xingxiu.track	0	0	xingxiu_monster.ini	8	0
-17	tianshan.track	0	0	tianshan_monster.ini	9	0
-195	gusu.track	0	0	gusu_monster.ini	10	0
+# layout: aligned
+column_0  	column_1        	column_2  	column_3  	column_4                 	column_5  	column_6
+0         	luoyang.track   	0         	1         	luoyang_new_monster.ini  	0         	1
+9         	shaolin.track   	0         	0         	shaolin_monster.ini      	1         	0
+10        	gaibang.track   	0         	0         	gaibang_monster.ini      	2         	0
+11        	mingjiao.track  	0         	0         	mingjiao_monster.ini     	3         	0
+12        	wudang.track    	0         	0         	wudang_monster.ini       	4         	0
+13        	tianlong.track  	0         	0         	tianlong_monster.ini     	5         	0
+14        	xiaoyao.track   	0         	0         	xiaoyao_monster.ini      	6         	0
+15        	emei.track      	0         	0         	emei_monster.ini         	7         	0
+16        	xingxiu.track   	0         	0         	xingxiu_monster.ini      	8         	0
+17        	tianshan.track  	0         	0         	tianshan_monster.ini     	9         	0
+195       	gusu.track      	0         	0         	gusu_monster.ini         	10        	0

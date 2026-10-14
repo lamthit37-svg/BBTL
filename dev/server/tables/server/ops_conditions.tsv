@@ -2,1488 +2,1489 @@
 # source: Public/Data/Script
 # tool: TOOLS/server/lua_extract.py; sửa tay sẽ mất ở lượt xuất sau
 # types: int	int	int	text	int	int	int	int	text
-set	clause	seq	op	neg	a1	a2	a3	word
-1	0	0	level_at_least	0	10	0	0	
-1	0	1	sect_is	0	4	0	0	
-2	0	0	level_at_least	0	20	0	0	
-3	0	0	item_count_at_least	0	40001114	5	0	
-4	0	0	level_at_least	0	100	0	0	
-4	0	1	level_at_least	1	120	0	0	
-4	1	0	level_at_least	0	120	0	0	
-4	2	0	level_at_least	0	20	0	0	
-4	2	1	level_at_least	1	30	0	0	
-4	3	0	level_at_least	0	30	0	0	
-4	3	1	level_at_least	1	40	0	0	
-4	4	0	level_at_least	0	40	0	0	
-4	4	1	level_at_least	1	50	0	0	
-4	5	0	level_at_least	0	50	0	0	
-4	5	1	level_at_least	1	60	0	0	
-4	6	0	level_at_least	0	60	0	0	
-4	6	1	level_at_least	1	70	0	0	
-4	7	0	level_at_least	0	70	0	0	
-4	7	1	level_at_least	1	80	0	0	
-4	8	0	level_at_least	0	80	0	0	
-4	8	1	level_at_least	1	90	0	0	
-4	9	0	level_at_least	0	90	0	0	
-4	9	1	level_at_least	1	100	0	0	
-4	10	0	level_at_least	1	20	0	0	
-5	0	0	level_at_least	0	20	0	0	
-5	0	1	level_at_least	1	30	0	0	
-6	0	0	level_at_least	0	30	0	0	
-6	0	1	level_at_least	1	40	0	0	
-7	0	0	level_at_least	0	40	0	0	
-7	0	1	level_at_least	1	50	0	0	
-8	0	0	level_at_least	0	50	0	0	
-8	0	1	level_at_least	1	60	0	0	
-9	0	0	level_at_least	0	60	0	0	
-9	0	1	level_at_least	1	70	0	0	
-10	0	0	level_at_least	0	70	0	0	
-10	0	1	level_at_least	1	80	0	0	
-11	0	0	level_at_least	0	80	0	0	
-11	0	1	level_at_least	1	90	0	0	
-12	0	0	level_at_least	0	90	0	0	
-12	0	1	level_at_least	1	100	0	0	
-13	0	0	level_at_least	0	100	0	0	
-13	0	1	level_at_least	1	120	0	0	
-14	0	0	level_at_least	0	120	0	0	
-15	0	0	item_count_at_least	0	40004315	1	0	
-15	0	1	objective_at_least	0	1260	0	1	
-15	0	2	objective_at_least	1	1260	0	2	
-16	0	0	item_count_at_least	0	40004454	1	0	
-16	0	1	objective_at_least	0	1257	0	1	
-16	0	2	objective_at_least	1	1257	0	2	
-17	0	0	item_count_at_least	0	40004454	1	0	
-17	0	1	objective_at_least	0	1258	0	1	
-17	0	2	objective_at_least	1	1258	0	2	
-18	0	0	never	0	0	0	0	
-19	0	0	level_at_least	0	20	0	0	
-19	0	1	quest_done	0	3	0	0	
-20	0	0	level_at_least	0	20	0	0	
-20	0	1	quest_done	0	5	0	0	
-21	0	0	objective_at_least	0	6	0	1	
-21	0	1	objective_at_least	0	6	1	1	
-21	0	2	objective_at_least	0	6	2	1	
-21	0	3	objective_at_least	1	6	0	2	
-21	0	4	objective_at_least	1	6	1	2	
-21	0	5	objective_at_least	1	6	2	2	
-22	0	0	event_monster_name	0	0	0	0	叶二娘
-23	0	0	event_monster_name	0	0	0	0	岳老三
-24	0	0	event_monster_name	0	0	0	0	云中鹤
-25	0	0	level_at_least	0	20	0	0	
-25	0	1	quest_done	0	7	0	0	
-26	0	0	objective_at_least	0	8	0	1	
-26	0	1	objective_at_least	1	8	0	2	
-27	0	0	level_at_least	0	30	0	0	
-27	0	1	quest_done	0	10	0	0	
-28	0	0	item_count_at_least	0	40001002	1	0	
-28	0	1	item_count_at_least	0	40001003	1	0	
-29	0	0	level_at_least	0	30	0	0	
-29	0	1	quest_done	0	11	0	0	
-30	0	0	objective_at_least	0	14	0	1	
-30	0	1	objective_at_least	0	14	1	1	
-30	0	2	objective_at_least	0	14	2	1	
-30	0	3	objective_at_least	0	14	3	1	
-30	0	4	objective_at_least	0	14	4	1	
-30	0	5	objective_at_least	1	14	0	2	
-30	0	6	objective_at_least	1	14	1	2	
-30	0	7	objective_at_least	1	14	2	2	
-30	0	8	objective_at_least	1	14	3	2	
-30	0	9	objective_at_least	1	14	4	2	
-31	0	0	item_count_at_least	0	40001005	1	0	
-32	0	0	level_at_least	0	20	0	0	
-32	0	1	quest_done	0	20	0	0	
-33	0	0	objective_at_least	0	21	1	1	
-33	0	1	objective_at_least	0	21	2	1	
-33	0	2	objective_at_least	0	21	3	1	
-33	0	3	objective_at_least	1	21	1	2	
-33	0	4	objective_at_least	1	21	2	2	
-33	0	5	objective_at_least	1	21	3	2	
-34	0	0	event_monster_name	0	0	0	0	鲍千灵
-35	0	0	event_monster_name	0	0	0	0	鲍千灵
-35	0	1	objective_at_least	0	21	1	1	
-35	0	2	objective_at_least	0	21	2	1	
-35	0	3	objective_at_least	0	21	3	1	
-35	0	4	objective_at_least	1	21	1	2	
-35	0	5	objective_at_least	1	21	2	2	
-35	0	6	objective_at_least	1	21	3	2	
-36	0	0	event_monster_name	0	0	0	0	祁六
-37	0	0	event_monster_name	0	0	0	0	祁六
-37	0	1	objective_at_least	0	21	1	1	
-37	0	2	objective_at_least	0	21	2	1	
-37	0	3	objective_at_least	0	21	3	1	
-37	0	4	objective_at_least	1	21	1	2	
-37	0	5	objective_at_least	1	21	2	2	
-37	0	6	objective_at_least	1	21	3	2	
-38	0	0	event_monster_name	0	0	0	0	向望海
-39	0	0	event_monster_name	0	0	0	0	向望海
-39	0	1	objective_at_least	0	21	1	1	
-39	0	2	objective_at_least	0	21	2	1	
-39	0	3	objective_at_least	0	21	3	1	
-39	0	4	objective_at_least	1	21	1	2	
-39	0	5	objective_at_least	1	21	2	2	
-39	0	6	objective_at_least	1	21	3	2	
-40	0	0	level_at_least	0	40	0	0	
-40	0	1	quest_done	0	47	0	0	
-41	0	0	level_at_least	0	40	0	0	
-41	0	1	quest_done	0	22	0	0	
-42	0	0	event_monster_name	0	0	0	0	玄难
-43	0	0	event_monster_name	0	0	0	0	玄寂
-44	0	0	level_at_least	0	40	0	0	
-44	0	1	quest_done	0	21	0	0	
-45	0	0	level_at_least	0	50	0	0	
-45	0	1	quest_done	0	26	0	0	
-46	0	0	objective_at_least	0	27	0	1	
-46	0	1	objective_at_least	0	27	1	1	
-46	0	2	objective_at_least	0	27	2	1	
-46	0	3	objective_at_least	0	27	3	1	
-47	0	0	level_at_least	0	50	0	0	
-47	0	1	quest_done	0	29	0	0	
-47	0	2	target_name	0	0	0	0	耶律洪基
-48	0	0	level_at_least	0	50	0	0	
-48	0	1	quest_done	0	30	0	0	
-49	0	0	level_at_least	0	50	0	0	
-49	0	1	quest_done	0	31	0	0	
-50	0	0	objective_at_least	0	32	0	1	
-51	0	0	level_at_least	0	60	0	0	
-51	0	1	quest_done	0	34	0	0	
-52	0	0	level_at_least	0	60	0	0	
-52	0	1	quest_done	0	36	0	0	
-53	0	0	objective_at_least	0	37	0	1	
-53	0	1	objective_at_least	1	37	0	2	
-54	0	0	level_at_least	0	70	0	0	
-54	0	1	quest_done	0	40	0	0	
-54	0	2	target_name	0	0	0	0	天山童姥
-55	0	0	level_at_least	0	70	0	0	
-55	0	1	quest_done	0	41	0	0	
-56	0	0	level_at_least	0	70	0	0	
-56	0	1	quest_done	0	42	0	0	
-57	0	0	level_at_least	0	70	0	0	
-57	0	1	objective_at_least	0	43	0	1	
-57	0	2	objective_at_least	1	43	0	2	
-58	0	0	objective_at_least	0	44	0	1	
-58	0	1	objective_at_least	1	44	0	2	
-59	0	0	level_at_least	0	20	0	0	
-59	0	1	quest_done	0	44	0	0	
-60	0	0	objective_at_least	0	45	0	1	
-61	0	0	level_at_least	0	20	0	0	
-61	0	1	quest_done	0	1	0	0	
-62	0	0	level_at_least	0	30	0	0	
-62	0	1	quest_done	0	8	0	0	
-63	0	0	level_at_least	0	30	0	0	
-63	0	1	quest_done	0	9	0	0	
-64	0	0	level_at_least	0	30	0	0	
-64	0	1	quest_done	0	12	0	0	
-65	0	0	level_at_least	0	40	0	0	
-65	0	1	quest_done	0	15	0	0	
-66	0	0	level_at_least	0	40	0	0	
-66	0	1	quest_done	0	16	0	0	
-67	0	0	level_at_least	0	40	0	0	
-67	0	1	quest_done	0	17	0	0	
-68	0	0	level_at_least	0	40	0	0	
-68	0	1	quest_done	0	18	0	0	
-69	0	0	level_at_least	0	40	0	0	
-69	0	1	quest_done	0	19	0	0	
-70	0	0	level_at_least	0	50	0	0	
-70	0	1	quest_done	0	23	0	0	
-71	0	0	level_at_least	0	50	0	0	
-71	0	1	quest_done	0	24	0	0	
-72	0	0	level_at_least	0	50	0	0	
-72	0	1	quest_done	0	25	0	0	
-73	0	0	level_at_least	0	60	0	0	
-73	0	1	quest_done	0	32	0	0	
-74	0	0	level_at_least	0	70	0	0	
-74	0	1	quest_done	0	37	0	0	
-75	0	0	level_at_least	0	70	0	0	
-75	0	1	quest_done	0	38	0	0	
-76	0	0	level_at_least	0	70	0	0	
-76	0	1	quest_done	0	39	0	0	
-77	0	0	level_at_least	0	1	0	0	
-78	0	0	item_count_at_least	0	40002110	1	0	
-79	0	0	item_count_at_least	0	30101001	1	0	
-80	0	0	event_item_is	0	30101001	0	0	
-81	0	0	level_at_least	0	2	0	0	
-82	0	0	objective_at_least	0	447	1	1	
-83	0	0	level_at_least	0	3	0	0	
-84	0	0	objective_at_least	0	451	0	1	
-85	0	0	level_at_least	0	4	0	0	
-86	0	0	objective_at_least	0	453	1	8	
-86	0	1	objective_at_least	1	453	1	9	
-87	0	0	event_monster_name	0	0	0	0	蜀道白猿
-87	0	1	objective_at_least	0	453	1	7	
-87	0	2	objective_at_least	1	453	1	8	
-88	0	0	event_monster_name	0	0	0	0	蜀道白猿
-88	0	1	objective_at_least	0	453	1	7	
-88	0	2	objective_at_least	1	453	1	8	
-88	1	0	event_monster_name	0	0	0	0	蜀道白猿
-88	1	1	objective_at_least	1	453	1	7	
-89	0	0	level_at_least	0	5	0	0	
-90	0	0	level_at_least	0	6	0	0	
-91	0	0	objective_at_least	0	457	0	1	
-91	0	1	objective_at_least	1	457	0	2	
-92	0	0	event_monster_name	0	0	0	0	山蛛
-92	0	1	objective_at_least	0	457	1	7	
-92	0	2	objective_at_least	1	457	1	8	
-93	0	0	event_monster_name	0	0	0	0	山蛛
-93	0	1	objective_at_least	0	457	1	7	
-93	0	2	objective_at_least	1	457	1	8	
-93	1	0	event_monster_name	0	0	0	0	山蛛
-93	1	1	objective_at_least	1	457	1	7	
-94	0	0	level_at_least	0	8	0	0	
-95	0	0	level_at_least	0	7	0	0	
-96	0	0	objective_at_least	0	706	0	1	
-96	0	1	objective_at_least	1	706	0	2	
-97	0	0	objective_at_least	0	707	0	1	
-97	0	1	objective_at_least	1	707	0	2	
-98	0	0	objective_at_least	0	708	0	1	
-98	0	1	objective_at_least	1	708	0	2	
-99	0	0	level_at_least	0	9	0	0	
-100	0	0	objective_at_least	0	711	1	5	
-100	0	1	objective_at_least	1	711	1	6	
-101	0	0	event_monster_name	0	0	0	0	木头人
-101	0	1	objective_at_least	0	711	1	4	
-101	0	2	objective_at_least	1	711	1	5	
-102	0	0	event_monster_name	0	0	0	0	木头人
-102	0	1	objective_at_least	0	711	1	4	
-102	0	2	objective_at_least	1	711	1	5	
-102	1	0	event_monster_name	0	0	0	0	木头人
-102	1	1	objective_at_least	1	711	1	4	
-103	0	0	item_count_at_least	0	20309001	1	0	
-103	0	1	item_count_at_least	0	20309005	1	0	
-104	0	0	item_count_at_least	0	20309002	1	0	
-104	0	1	item_count_at_least	0	20309006	1	0	
-105	0	0	item_count_at_least	0	20309003	1	0	
-105	0	1	item_count_at_least	0	20309007	1	0	
-106	0	0	item_count_at_least	0	20309004	1	0	
-106	0	1	item_count_at_least	0	20309008	1	0	
-107	0	0	level_at_least	0	10	0	0	
-108	0	0	level_at_least	0	25	0	0	
-108	0	1	quest_done	0	645	0	0	
-108	0	2	quest_done	0	646	0	0	
-108	0	3	quest_done	0	647	0	0	
-109	0	0	objective_at_least	0	648	0	1	
-110	0	0	level_at_least	0	48	0	0	
-110	0	1	quest_done	0	535	0	0	
-111	0	0	objective_at_least	0	536	0	1	
-112	0	0	event_monster_name	0	0	0	0	小胖
-112	0	1	objective_at_least	1	536	0	1	
-113	0	0	level_at_least	0	55	0	0	
-114	0	0	objective_at_least	0	602	0	1	
-115	0	0	level_at_least	0	60	0	0	
-116	0	0	item_count_at_least	0	40002112	1	0	
-117	0	0	level_at_least	0	75	0	0	
-118	0	0	objective_at_least	0	552	0	1	
-119	0	0	level_at_least	0	78	0	0	
-120	0	0	item_count_at_least	0	20103004	10	0	
-120	0	1	item_count_at_least	0	20103005	10	0	
-120	0	2	money_at_least	0	0	100000	0	
-121	0	0	level_at_least	0	38	0	0	
-121	0	1	quest_done	0	656	0	0	
-121	0	2	quest_done	0	657	0	0	
-122	0	0	objective_at_least	0	658	0	1	
-123	0	0	event_monster_name	0	0	0	0	通天
-123	0	1	objective_at_least	1	658	0	1	
-124	0	0	level_at_least	0	88	0	0	
-125	0	0	objective_at_least	0	561	1	1	
-125	0	1	objective_at_least	0	561	2	1	
-125	0	2	objective_at_least	0	561	3	1	
-126	0	0	level_at_least	0	72	0	0	
-126	0	1	quest_done	0	615	0	0	
-126	0	2	quest_done	0	616	0	0	
-126	0	3	quest_done	0	617	0	0	
-127	0	0	objective_at_least	0	618	0	1	
-127	0	1	objective_at_least	1	618	0	2	
-128	0	0	level_at_least	0	80	0	0	
-129	0	0	item_count_at_least	0	40002071	1	0	
-130	0	0	level_at_least	0	70	0	0	
-130	0	1	quest_done	0	673	0	0	
-130	0	2	quest_done	0	674	0	0	
-130	0	3	quest_done	0	675	0	0	
-131	0	0	objective_at_least	0	678	0	1	
-132	0	0	event_monster_name	0	0	0	0	严白虎
-132	0	1	objective_at_least	1	678	0	1	
-133	0	0	level_at_least	0	82	0	0	
-133	0	1	quest_done	0	687	0	0	
-134	0	0	level_at_least	0	98	0	0	
-134	0	1	quest_done	0	638	0	0	
-135	0	0	objective_at_least	0	639	0	1	
-136	0	0	level_at_least	0	20	0	0	
-136	0	1	quest_done	0	922	0	0	
-137	0	0	money_at_least	0	0	50000	0	
-138	0	0	level_at_least	0	36	0	0	
-139	0	0	level_at_least	0	31	0	0	
-140	0	0	level_at_least	0	41	0	0	
-141	0	0	objective_at_least	0	932	0	1	
-142	0	0	level_at_least	0	46	0	0	
-143	0	0	objective_at_least	0	935	0	1	
-144	0	0	level_at_least	0	52	0	0	
-145	0	0	level_at_least	0	56	0	0	
-145	0	1	quest_done	0	605	0	0	
-146	0	0	level_at_least	0	59	0	0	
-147	0	0	objective_at_least	0	943	0	1	
-148	0	0	level_at_least	0	75	0	0	
-148	0	1	quest_done	0	309	0	0	
-149	0	0	level_at_least	0	75	0	0	
-149	0	1	quest_done	0	349	0	0	
-150	0	0	level_at_least	0	75	0	0	
-150	0	1	quest_done	0	389	0	0	
-151	0	0	level_at_least	0	75	0	0	
-151	0	1	quest_done	0	253	0	0	
-151	0	2	quest_done	0	254	0	0	
-151	0	3	quest_done	0	255	0	0	
-152	0	0	level_at_least	0	30	0	0	
-152	0	1	sect_is	0	0	0	0	
-153	0	0	level_at_least	0	30	0	0	
-153	0	1	quest_done	0	963	0	0	
-153	0	2	sect_is	0	0	0	0	
-154	0	0	objective_at_least	0	964	0	1	
-154	1	0	objective_at_least	1	964	0	0	
-155	0	0	level_at_least	0	30	0	0	
-155	0	1	quest_done	0	965	0	0	
-155	0	2	sect_is	0	0	0	0	
-156	0	0	sect_is	0	0	0	0	
-157	0	0	sect_is	0	2	0	0	
-158	0	0	sect_is	0	1	0	0	
-159	0	0	sect_is	0	3	0	0	
-160	0	0	sect_is	0	6	0	0	
-161	0	0	sect_is	0	8	0	0	
-162	0	0	sect_is	0	4	0	0	
-163	0	0	sect_is	0	5	0	0	
-164	0	0	sect_is	0	7	0	0	
-165	0	0	objective_at_least	0	944	0	1	
-165	0	1	objective_at_least	1	944	0	2	
-166	0	0	objective_at_least	0	944	0	1	
-166	0	1	objective_at_least	1	944	0	2	
-166	0	2	target_name	0	0	0	0	王韶
-167	0	0	objective_at_least	0	949	0	1	
-167	0	1	objective_at_least	1	949	0	2	
-168	0	0	sect_is	0	10	0	0	
-169	0	0	sect_is	0	11	0	0	
-170	0	0	level_at_least	0	10	0	0	
-170	0	1	sect_is	0	0	0	0	
-171	0	0	level_at_least	0	10	0	0	
-171	0	1	sect_is	0	1	0	0	
-172	0	0	level_at_least	0	10	0	0	
-172	0	1	sect_is	0	3	0	0	
-173	0	0	level_at_least	0	10	0	0	
-173	0	1	sect_is	0	6	0	0	
-174	0	0	level_at_least	0	10	0	0	
-174	0	1	sect_is	0	8	0	0	
-175	0	0	level_at_least	0	10	0	0	
-175	0	1	sect_is	0	7	0	0	
-176	0	0	level_at_least	0	10	0	0	
-176	0	1	sect_is	0	5	0	0	
-177	0	0	level_at_least	0	10	0	0	
-177	0	1	sect_is	0	2	0	0	
-178	0	0	level_at_least	0	10	0	0	
-178	0	1	sect_is	0	10	0	0	
-179	0	0	level_at_least	0	10	0	0	
-179	0	1	sect_is	0	11	0	0	
-180	0	0	level_at_least	0	10	0	0	
-180	0	1	sect_is	0	12	0	0	
-181	0	0	objective_at_least	0	1200	0	1	
-182	0	0	item_count_at_least	0	40004000	1	0	
-183	0	0	item_count_at_least	1	40004000	1	0	
-184	0	0	target_name	0	0	0	0	智清大师
-185	0	0	counter_at_least	0	5	20	0	
-185	0	1	target_name	0	0	0	0	智清大师
-186	0	0	counter_at_least	1	5	20	0	
-186	0	1	target_name	0	0	0	0	智清大师
-187	0	0	objective_at_least	0	721	0	1	
-187	0	1	objective_at_least	1	721	0	2	
-188	0	0	item_count_at_least	0	40002106	1	0	
-189	0	0	objective_at_least	0	420	0	1	
-190	0	0	item_count_at_least	0	40004254	1	0	
-191	0	0	objective_at_least	0	1109	0	1	
-192	0	0	level_at_least	0	30	0	0	
-193	0	0	counter_at_least	0	1000023	5	0	
-194	0	0	level_at_least	0	85	0	0	
-195	0	0	sect_is	1	0	0	0	
-195	0	1	sect_is	1	1	0	0	
-195	0	2	sect_is	1	10	0	0	
-195	0	3	sect_is	1	2	0	0	
-195	0	4	sect_is	1	7	0	0	
-196	0	0	counter_is	0	1000233	0	0	
-197	0	0	quest_active	0	1711	0	0	
-198	0	0	counter_at_least	0	9	10	0	
-199	0	0	counter_at_least	1	9	10	0	
-200	0	0	quest_active	0	1161	0	0	
-201	0	0	clock_at_least	0	1	8365	0	
-201	1	0	clock_at_least	1	1	8323	0	
-202	0	0	clock_at_least	0	1	7326	0	
-202	1	0	clock_at_least	1	1	7304	0	
-203	0	0	clock_at_least	0	1	8283	0	
-203	1	0	clock_at_least	1	1	8257	0	
-204	0	0	clock_at_least	1	1	7168	0	
-205	0	0	clock_at_least	0	1	7172	0	
-206	0	0	clock_at_least	1	1	7154	0	
-207	0	0	clock_at_least	0	1	7193	0	
-208	0	0	clock_at_least	0	1	7123	0	
-209	0	0	clock_at_least	1	1	7107	0	
-210	0	0	item_count_at_least	0	20001003	1	0	
-210	0	1	quest_active	0	4009	0	0	
-210	0	2	quest_done	1	4009	0	0	
-211	0	0	quest_active	0	4009	0	0	
-212	0	0	item_count_at_least	0	20001002	1	0	
-212	0	1	quest_active	0	4008	0	0	
-212	0	2	quest_done	1	4008	0	0	
-213	0	0	quest_active	0	4008	0	0	
-214	0	0	quest_done	0	4008	0	0	
-215	0	0	item_count_at_least	0	20001002	1	0	
-215	0	1	quest_active	0	4007	0	0	
-215	0	2	quest_done	1	4007	0	0	
-216	0	0	quest_active	0	4007	0	0	
-217	0	0	quest_done	0	4007	0	0	
-218	0	0	item_count_at_least	0	20001004	1	0	
-218	0	1	quest_active	0	4006	0	0	
-218	0	2	quest_done	1	4006	0	0	
-219	0	0	quest_active	0	4006	0	0	
-220	0	0	target_name	1	0	0	0	云霏霏
-221	0	0	target_name	0	0	0	0	宁忆
-222	0	0	target_name	0	0	0	0	叶睿
-223	0	0	target_name	0	0	0	0	慕容玖
-224	0	0	target_name	0	0	0	0	朱翎羽
-225	0	0	target_name	0	0	0	0	郭大鹏
-226	0	0	target_name	0	0	0	0	唐千川
-227	0	0	target_name	0	0	0	0	宋倩秋
-228	0	0	target_name	0	0	0	0	天岩大师
-229	0	0	target_name	0	0	0	0	黎岫锋
-230	0	0	target_name	0	0	0	0	明厉大师
-231	0	0	target_name	0	0	0	0	苏敬池
-232	0	0	target_name	0	0	0	0	曹琦
-233	0	0	ability_at_least	0	10	7	0	
-234	0	0	ability_is	0	10	0	0	
-235	0	0	ability_is	1	10	0	0	
-236	0	0	quest_active	0	704	0	0	
-237	0	0	target_name	0	0	0	0	童清
-238	0	0	target_name	0	0	0	0	辰溪
-239	0	0	target_name	1	0	0	0	立繁
-240	0	0	quest_active	0	700	0	0	
-241	0	0	impact_active	0	31550	0	0	
-242	0	0	target_name	1	0	0	0	周然
-243	0	0	target_name	0	0	0	0	政一
-244	0	0	target_name	0	0	0	0	黄时雨
-245	0	0	target_name	0	0	0	0	杨渐
-246	0	0	target_name	0	0	0	0	唐昱
-247	0	0	target_name	0	0	0	0	慕容传
-248	0	0	target_name	0	0	0	0	澹台子羽
-249	0	0	target_name	0	0	0	0	程青霜
-250	0	0	target_name	0	0	0	0	破贪
-251	0	0	target_name	0	0	0	0	海风子
-252	0	0	target_name	0	0	0	0	路三娘
-253	0	0	target_name	0	0	0	0	张获
-254	0	0	target_name	0	0	0	0	简宁
-255	0	0	target_name	0	0	0	0	石宝
-256	0	0	target_name	0	0	0	0	慧易
-257	0	0	sect_is	1	9	0	0	
-258	0	0	gender_is	0	0	0	0	
-259	0	0	sect_is	0	14	0	0	
-260	0	0	sect_is	0	9	0	0	
-261	0	0	target_name	1	0	0	0	赵天师
-262	0	0	sect_is	0	13	0	0	
-263	0	0	target_name	0	0	0	0	枕梦归
-264	0	0	sect_is	0	12	0	0	
-265	0	0	target_name	0	0	0	0	王栩之
-266	0	0	target_name	0	0	0	0	唐岳天
-267	0	0	target_name	0	0	0	0	慕容杰
-268	0	0	target_name	0	0	0	0	苏星河
-269	0	0	target_name	0	0	0	0	梅剑
-270	0	0	target_name	0	0	0	0	丁春秋
-271	0	0	target_name	0	0	0	0	本因
-272	0	0	target_name	0	0	0	0	孟青青
-273	0	0	target_name	0	0	0	0	张玄素
-274	0	0	target_name	0	0	0	0	宋慈
-275	0	0	target_name	0	0	0	0	林世长
-276	0	0	target_name	0	0	0	0	玄慈
-277	0	0	target_name	0	0	0	0	王玄风
-278	0	0	target_name	1	0	0	0	王玄风
-279	0	0	quest_active	0	1303	0	0	
-280	0	0	quest_done	0	1303	0	0	
-281	0	0	target_name	0	0	0	0	唐清秋
-282	0	0	target_name	1	0	0	0	唐清秋
-283	0	0	quest_active	0	1301	0	0	
-284	0	0	quest_done	0	1301	0	0	
-285	0	0	target_name	0	0	0	0	慕容胜
-286	0	0	target_name	1	0	0	0	慕容胜
-287	0	0	quest_active	0	1116	0	0	
-288	0	0	quest_done	0	1116	0	0	
-289	0	0	target_name	0	0	0	0	王韶
-290	0	0	level_at_least	0	30	0	0	
-290	0	1	quest_active	1	949	0	0	
-290	0	2	quest_done	0	948	0	0	
-290	0	3	quest_done	1	949	0	0	
-291	0	0	quest_active	0	949	0	0	
-292	0	0	quest_done	0	949	0	0	
-293	0	0	target_name	1	0	0	0	王韶
-294	0	0	level_at_least	0	30	0	0	
-294	0	1	quest_active	1	944	0	0	
-294	0	2	quest_done	1	944	0	0	
-295	0	0	quest_active	0	944	0	0	
-296	0	0	quest_done	0	944	0	0	
-297	0	0	target_name	0	0	0	0	符敏仪
-298	0	0	target_name	1	0	0	0	符敏仪
-299	0	0	quest_active	0	1104	0	0	
-300	0	0	quest_done	0	1104	0	0	
-301	0	0	target_name	0	0	0	0	王彦
-302	0	0	target_name	1	0	0	0	王彦
-303	0	0	quest_active	0	1099	0	0	
-304	0	0	quest_done	0	1099	0	0	
-305	0	0	target_name	0	0	0	0	孟龙
-306	0	0	target_name	1	0	0	0	孟龙
-307	0	0	quest_active	0	1094	0	0	
-308	0	0	quest_done	0	1094	0	0	
-309	0	0	target_name	0	0	0	0	秦观
-310	0	0	target_name	1	0	0	0	秦观
-311	0	0	quest_active	0	1089	0	0	
-312	0	0	quest_done	0	1089	0	0	
-313	0	0	target_name	0	0	0	0	本凡
-314	0	0	target_name	1	0	0	0	本凡
-315	0	0	quest_active	0	1084	0	0	
-316	0	0	quest_done	0	1084	0	0	
-317	0	0	target_name	0	0	0	0	张中行
-318	0	0	target_name	1	0	0	0	张中行
-319	0	0	quest_active	0	1079	0	0	
-320	0	0	quest_done	0	1079	0	0	
-321	0	0	target_name	0	0	0	0	林岩
-322	0	0	target_name	1	0	0	0	林岩
-323	0	0	quest_active	0	1074	0	0	
-324	0	0	quest_done	0	1074	0	0	
-325	0	0	target_name	0	0	0	0	洪通
-326	0	0	target_name	1	0	0	0	洪通
-327	0	0	quest_active	0	1069	0	0	
-328	0	0	quest_done	0	1069	0	0	
-329	0	0	target_name	0	0	0	0	慧方
-330	0	0	target_name	1	0	0	0	慧方
-331	0	0	quest_active	0	1064	0	0	
-332	0	0	quest_done	0	1064	0	0	
-333	0	0	level_at_least	0	30	0	0	
-333	0	1	quest_done	0	965	0	0	
-333	0	2	quest_done	1	966	0	0	
-333	0	3	sect_is	0	0	0	0	
-334	0	0	quest_active	0	966	0	0	
-335	0	0	quest_done	0	966	0	0	
-336	0	0	level_at_least	0	30	0	0	
-336	0	1	quest_done	0	963	0	0	
-336	0	2	quest_done	1	964	0	0	
-336	0	3	sect_is	0	0	0	0	
-337	0	0	quest_active	0	964	0	0	
-338	0	0	quest_done	0	964	0	0	
-339	0	0	level_at_least	0	30	0	0	
-339	0	1	quest_done	1	961	0	0	
-339	0	2	sect_is	0	0	0	0	
-340	0	0	quest_active	0	961	0	0	
-341	0	0	quest_done	0	961	0	0	
-342	0	0	level_at_least	0	75	0	0	
-342	0	1	quest_done	0	253	0	0	
-342	0	2	quest_done	0	254	0	0	
-342	0	3	quest_done	0	255	0	0	
-342	0	4	quest_done	1	256	0	0	
-343	0	0	quest_active	0	256	0	0	
-344	0	0	quest_done	0	256	0	0	
-345	0	0	level_at_least	0	75	0	0	
-345	0	1	quest_done	0	389	0	0	
-345	0	2	quest_done	1	255	0	0	
-346	0	0	quest_active	0	255	0	0	
-347	0	0	quest_done	0	255	0	0	
-348	0	0	level_at_least	0	75	0	0	
-348	0	1	quest_done	0	349	0	0	
-348	0	2	quest_done	1	254	0	0	
-349	0	0	quest_active	0	254	0	0	
-350	0	0	quest_done	0	254	0	0	
-351	0	0	level_at_least	0	75	0	0	
-351	0	1	quest_done	0	309	0	0	
-351	0	2	quest_done	1	253	0	0	
-352	0	0	quest_active	0	253	0	0	
-353	0	0	quest_done	0	253	0	0	
-354	0	0	target_name	0	0	0	0	王安石
-355	0	0	target_name	1	0	0	0	王安石
-356	0	0	level_at_least	0	10	0	0	
-356	0	1	quest_done	1	252	0	0	
-357	0	0	quest_active	0	252	0	0	
-358	0	0	quest_done	0	252	0	0	
-359	0	0	target_name	0	0	0	0	司马光
-360	0	0	target_name	1	0	0	0	司马光
-361	0	0	level_at_least	0	10	0	0	
-361	0	1	quest_done	1	251	0	0	
-362	0	0	quest_active	0	251	0	0	
-363	0	0	quest_done	0	251	0	0	
-364	0	0	target_name	0	0	0	0	沈括
-365	0	0	target_name	1	0	0	0	沈括
-366	0	0	level_at_least	0	10	0	0	
-366	0	1	quest_done	1	250	0	0	
-367	0	0	quest_active	0	250	0	0	
-368	0	0	quest_done	0	250	0	0	
-369	0	0	level_at_least	0	59	0	0	
-369	0	1	quest_done	1	943	0	0	
-370	0	0	quest_active	0	943	0	0	
-371	0	0	quest_done	0	943	0	0	
-372	0	0	target_name	0	0	0	0	郑圆
-373	0	0	target_name	1	0	0	0	郑圆
-374	0	0	level_at_least	0	56	0	0	
-374	0	1	quest_done	0	605	0	0	
-374	0	2	quest_done	1	940	0	0	
-375	0	0	quest_active	0	940	0	0	
-376	0	0	quest_done	0	940	0	0	
-377	0	0	target_name	0	0	0	0	曲阳
-378	0	0	target_name	1	0	0	0	曲阳
-379	0	0	level_at_least	0	52	0	0	
-379	0	1	quest_done	1	938	0	0	
-380	0	0	quest_active	0	938	0	0	
-381	0	0	quest_done	0	938	0	0	
-382	0	0	level_at_least	0	46	0	0	
-382	0	1	quest_done	1	935	0	0	
-383	0	0	quest_active	0	935	0	0	
-384	0	0	quest_done	0	935	0	0	
-385	0	0	level_at_least	0	41	0	0	
-385	0	1	quest_done	1	932	0	0	
-386	0	0	quest_active	0	932	0	0	
-387	0	0	quest_done	0	932	0	0	
-388	0	0	target_name	0	0	0	0	耶律莫哥
-389	0	0	target_name	1	0	0	0	耶律莫哥
-390	0	0	level_at_least	0	31	0	0	
-390	0	1	quest_done	1	926	0	0	
-391	0	0	quest_active	0	926	0	0	
-392	0	0	quest_done	0	926	0	0	
-393	0	0	target_name	0	0	0	0	法念
-394	0	0	target_name	1	0	0	0	法念
-395	0	0	level_at_least	0	36	0	0	
-395	0	1	quest_done	1	929	0	0	
-396	0	0	quest_active	0	929	0	0	
-397	0	0	quest_done	0	929	0	0	
-398	0	0	level_at_least	0	20	0	0	
-398	0	1	quest_done	0	922	0	0	
-398	0	2	quest_done	1	923	0	0	
-399	0	0	quest_active	0	923	0	0	
-400	0	0	quest_done	0	923	0	0	
-401	0	0	target_name	0	0	0	0	叶流凡
-402	0	0	target_name	1	0	0	0	叶流凡
-403	0	0	level_at_least	0	82	0	0	
-403	0	1	quest_done	0	687	0	0	
-403	0	2	quest_done	1	688	0	0	
-404	0	0	quest_active	0	688	0	0	
-405	0	0	quest_done	0	688	0	0	
-406	0	0	quest_active	0	678	0	0	
-407	0	0	quest_done	0	678	0	0	
-408	0	0	target_name	0	0	0	0	李老太太
-409	0	0	quest_active	0	558	0	0	
-410	0	0	quest_done	0	558	0	0	
-411	0	0	target_name	0	0	0	0	阿诗玛
-412	0	0	quest_active	0	618	0	0	
-413	0	0	quest_active	0	561	0	0	
-414	0	0	quest_done	0	561	0	0	
-415	0	0	quest_active	0	658	0	0	
-416	0	0	quest_done	0	658	0	0	
-417	0	0	quest_active	0	554	0	0	
-418	0	0	quest_done	0	554	0	0	
-419	0	0	quest_active	0	552	0	0	
-420	0	0	quest_done	0	552	0	0	
-421	0	0	target_name	0	0	0	0	郑玄
-422	0	0	quest_active	0	608	0	0	
-423	0	0	quest_done	0	608	0	0	
-424	0	0	level_at_least	0	55	0	0	
-424	0	1	quest_done	1	602	0	0	
-425	0	0	quest_active	0	602	0	0	
-426	0	0	quest_active	0	536	0	0	
-427	0	0	quest_done	0	536	0	0	
-428	0	0	quest_active	0	648	0	0	
-429	0	0	quest_done	0	648	0	0	
-430	0	0	clock_at_least	0	1	9121	0	
-430	1	0	clock_at_least	1	1	9045	0	
-431	0	0	bag_space_at_least	0	1	0	0	
-432	0	0	item_count_at_least	0	30308021	1	0	
-433	0	0	quest_active	0	718	0	0	
-434	0	0	quest_done	0	718	0	0	
-435	0	0	target_name	0	0	0	0	赵天师
-436	0	0	quest_active	0	712	0	0	
-437	0	0	quest_done	0	712	0	0	
-438	0	0	quest_active	0	711	0	0	
-439	0	0	target_name	0	0	0	0	黄眉僧
-440	0	0	target_name	1	0	0	0	黄眉僧
-441	0	0	quest_active	0	710	0	0	
-442	0	0	quest_done	0	710	0	0	
-443	0	0	quest_active	0	709	0	0	
-444	0	0	quest_done	0	709	0	0	
-445	0	0	quest_active	0	708	0	0	
-446	0	0	quest_active	0	707	0	0	
-447	0	0	quest_active	0	706	0	0	
-448	0	0	target_name	0	0	0	0	段延庆
-449	0	0	target_name	1	0	0	0	段延庆
-450	0	0	quest_active	0	705	0	0	
-451	0	0	quest_done	0	705	0	0	
-452	0	0	quest_active	0	703	0	0	
-453	0	0	quest_done	0	703	0	0	
-454	0	0	target_name	0	0	0	0	云飘飘
-455	0	0	target_name	1	0	0	0	云飘飘
-456	0	0	quest_done	0	700	0	0	
-457	0	0	quest_active	0	457	0	0	
-458	0	0	quest_active	0	456	0	0	
-459	0	0	quest_done	0	456	0	0	
-460	0	0	quest_active	0	454	0	0	
-461	0	0	quest_done	0	454	0	0	
-462	0	0	quest_active	0	453	0	0	
-463	0	0	quest_active	0	452	0	0	
-464	0	0	quest_done	0	452	0	0	
-465	0	0	quest_active	0	451	0	0	
-466	0	0	target_name	0	0	0	0	孙八爷
-467	0	0	target_name	1	0	0	0	孙八爷
-468	0	0	quest_active	0	450	0	0	
-469	0	0	quest_done	0	450	0	0	
-470	0	0	quest_active	0	448	0	0	
-471	0	0	quest_done	0	448	0	0	
-472	0	0	target_name	0	0	0	0	钱龙
-473	0	0	target_name	1	0	0	0	钱龙
-474	0	0	quest_active	0	445	0	0	
-475	0	0	quest_done	0	445	0	0	
-476	0	0	quest_active	0	444	0	0	
-477	0	0	quest_done	0	444	0	0	
-478	0	0	target_name	0	0	0	0	卢三七
-479	0	0	target_name	1	0	0	0	卢三七
-480	0	0	quest_active	0	443	0	0	
-481	0	0	quest_done	0	443	0	0	
-482	0	0	quest_active	0	442	0	0	
-483	0	0	target_name	0	0	0	0	杜子腾
-484	0	0	target_name	1	0	0	0	杜子腾
-485	0	0	quest_active	0	441	0	0	
-486	0	0	quest_done	0	441	0	0	
-487	0	0	target_name	0	0	0	0	蒲良
-488	0	0	target_name	1	0	0	0	蒲良
-489	0	0	quest_active	0	440	0	0	
-490	0	0	quest_done	0	440	0	0	
-491	0	0	target_name	0	0	0	0	叶二娘
-492	0	0	target_name	0	0	0	0	耶律大石
-493	0	0	target_name	0	0	0	0	段正淳
-494	0	0	target_name	0	0	0	0	慕容复
-495	0	0	target_name	0	0	0	0	赫连铁树
-496	0	0	target_name	0	0	0	0	阿紫
-497	0	0	target_name	0	0	0	0	王夫人
-498	0	0	target_name	0	0	0	0	阿碧
-499	0	0	target_name	0	0	0	0	阮星竹
-500	0	0	target_name	0	0	0	0	鸠摩智
-501	0	0	target_name	0	0	0	0	钟灵
-502	0	0	target_name	0	0	0	0	木婉清
-503	0	0	target_name	0	0	0	0	天山童姥
-504	0	0	target_name	1	0	0	0	天山童姥
-505	0	0	level_at_least	0	70	0	0	
-505	0	1	quest_done	0	39	0	0	
-505	0	2	quest_done	1	40	0	0	
-506	0	0	quest_active	0	40	0	0	
-507	0	0	quest_done	0	40	0	0	
-508	0	0	target_name	1	0	0	0	梅剑
-509	0	0	level_at_least	0	70	0	0	
-509	0	1	quest_done	0	38	0	0	
-509	0	2	quest_done	1	39	0	0	
-510	0	0	quest_active	0	39	0	0	
-511	0	0	quest_done	0	39	0	0	
-512	0	0	target_name	1	0	0	0	赫连铁树
-513	0	0	level_at_least	0	70	0	0	
-513	0	1	quest_done	0	37	0	0	
-513	0	2	quest_done	1	38	0	0	
-514	0	0	quest_active	0	38	0	0	
-515	0	0	quest_done	0	38	0	0	
-516	0	0	target_name	1	0	0	0	苏星河
-517	0	0	level_at_least	0	60	0	0	
-517	0	1	quest_done	0	32	0	0	
-517	0	2	quest_done	1	33	0	0	
-518	0	0	quest_active	0	33	0	0	
-519	0	0	quest_done	0	33	0	0	
-520	0	0	target_name	0	0	0	0	萧峰
-521	0	0	target_name	1	0	0	0	萧峰
-522	0	0	level_at_least	0	50	0	0	
-522	0	1	quest_done	0	25	0	0	
-522	0	2	quest_done	1	26	0	0	
-523	0	0	quest_active	0	26	0	0	
-524	0	0	quest_done	0	26	0	0	
-525	0	0	target_name	1	0	0	0	段正淳
-526	0	0	level_at_least	0	50	0	0	
-526	0	1	quest_done	0	24	0	0	
-526	0	2	quest_done	1	25	0	0	
-527	0	0	quest_active	0	25	0	0	
-528	0	0	quest_done	0	25	0	0	
-529	0	0	target_name	0	0	0	0	康敏
-530	0	0	target_name	1	0	0	0	康敏
-531	0	0	level_at_least	0	50	0	0	
-531	0	1	quest_done	0	23	0	0	
-531	0	2	quest_done	1	24	0	0	
-532	0	0	quest_active	0	24	0	0	
-533	0	0	quest_done	0	24	0	0	
-534	0	0	target_name	0	0	0	0	徐惊雷
-535	0	0	target_name	1	0	0	0	徐惊雷
-536	0	0	level_at_least	0	40	0	0	
-536	0	1	quest_done	0	19	0	0	
-536	0	2	quest_done	1	20	0	0	
-537	0	0	quest_active	0	20	0	0	
-538	0	0	quest_done	0	20	0	0	
-539	0	0	target_name	1	0	0	0	玄慈
-540	0	0	level_at_least	0	40	0	0	
-540	0	1	quest_done	0	18	0	0	
-540	0	2	quest_done	1	19	0	0	
-541	0	0	quest_active	0	19	0	0	
-542	0	0	quest_done	0	19	0	0	
-543	0	0	level_at_least	0	40	0	0	
-543	0	1	quest_done	0	17	0	0	
-543	0	2	quest_done	1	18	0	0	
-544	0	0	quest_active	0	18	0	0	
-545	0	0	quest_done	0	18	0	0	
-546	0	0	level_at_least	0	40	0	0	
-546	0	1	quest_done	0	16	0	0	
-546	0	2	quest_done	1	17	0	0	
-547	0	0	quest_active	0	17	0	0	
-548	0	0	quest_done	0	17	0	0	
-549	0	0	level_at_least	0	40	0	0	
-549	0	1	quest_done	0	15	0	0	
-549	0	2	quest_done	1	16	0	0	
-550	0	0	quest_active	0	16	0	0	
-551	0	0	quest_done	0	16	0	0	
-552	0	0	target_name	0	0	0	0	王语嫣
-553	0	0	target_name	1	0	0	0	王语嫣
-554	0	0	level_at_least	0	30	0	0	
-554	0	1	quest_done	0	12	0	0	
-554	0	2	quest_done	1	13	0	0	
-555	0	0	quest_active	0	13	0	0	
-556	0	0	quest_done	0	13	0	0	
-557	0	0	level_at_least	0	30	0	0	
-557	0	1	quest_done	0	9	0	0	
-557	0	2	quest_done	1	10	0	0	
-558	0	0	quest_active	0	10	0	0	
-559	0	0	quest_done	0	10	0	0	
-560	0	0	target_name	1	0	0	0	阿碧
-561	0	0	level_at_least	0	30	0	0	
-561	0	1	quest_done	0	8	0	0	
-561	0	2	quest_done	1	9	0	0	
-562	0	0	quest_active	0	9	0	0	
-563	0	0	quest_done	0	9	0	0	
-564	0	0	target_name	1	0	0	0	钟灵
-565	0	0	level_at_least	0	20	0	0	
-565	0	1	quest_done	0	1	0	0	
-565	0	2	quest_done	1	2	0	0	
-566	0	0	quest_active	0	2	0	0	
-567	0	0	quest_done	0	2	0	0	
-568	0	0	level_at_least	0	20	0	0	
-568	0	1	quest_done	1	1	0	0	
-569	0	0	quest_active	0	1	0	0	
-570	0	0	quest_done	0	1	0	0	
-571	0	0	objective_at_least	0	45	0	1	
-571	0	1	objective_at_least	1	45	0	2	
-572	0	0	target_name	0	0	0	0	李清露
-573	0	0	quest_active	0	45	0	0	
-574	0	0	target_name	0	0	0	0	晓蕾
-575	0	0	level_at_least	0	70	0	0	
-575	0	1	quest_done	0	42	0	0	
-575	0	2	quest_done	1	43	0	0	
-576	0	0	quest_active	0	43	0	0	
-577	0	0	quest_done	0	43	0	0	
-578	0	0	level_at_least	0	70	0	0	
-578	0	1	quest_done	0	41	0	0	
-578	0	2	quest_done	1	42	0	0	
-579	0	0	quest_active	0	42	0	0	
-580	0	0	quest_done	0	42	0	0	
-581	0	0	objective_at_least	0	32	0	1	
-581	0	1	objective_at_least	1	32	0	2	
-582	0	0	level_at_least	0	50	0	0	
-582	0	1	quest_done	0	31	0	0	
-582	0	2	quest_done	1	32	0	0	
-583	0	0	quest_active	0	32	0	0	
-584	0	0	level_at_least	0	50	0	0	
-584	0	1	quest_done	0	26	0	0	
-584	0	2	quest_done	1	27	0	0	
-585	0	0	quest_active	0	27	0	0	
-586	0	0	quest_done	0	27	0	0	
-587	0	0	level_at_least	0	40	0	0	
-587	0	1	quest_done	0	47	0	0	
-587	0	2	quest_done	1	22	0	0	
-588	0	0	quest_active	0	22	0	0	
-589	0	0	quest_done	0	22	0	0	
-590	0	0	quest_active	0	21	0	0	
-591	0	0	target_name	1	0	0	0	慕容复
-592	0	0	quest_active	0	12	0	0	
-593	0	0	quest_done	0	12	0	0	
-594	0	0	quest_active	0	11	0	0	
-595	0	0	quest_active	0	8	0	0	
-596	0	0	quest_active	0	6	0	0	
-597	0	0	quest_active	0	4	0	0	
-598	0	0	quest_done	0	4	0	0	
-599	0	0	bag_space_at_least	1	2	0	0	
-600	0	0	counter_at_least	1	481	1	0	
-601	0	0	target_name	0	0	0	0	宋知玉
-602	0	0	target_name	0	0	0	0	贾思谊
-603	0	0	target_name	0	0	0	0	陶水潜
-604	0	0	target_name	0	0	0	0	屈平原
-605	0	0	level_at_least	1	20	0	0	
-605	0	1	target_name	0	0	0	0	宋知玉
-606	0	0	quest_done	0	32	0	0	
-607	0	0	quest_done	1	31	0	0	
-608	0	0	quest_active	0	31	0	0	
-609	0	0	quest_done	0	31	0	0	
-610	0	0	level_at_least	0	50	0	0	
-610	0	1	quest_done	0	29	0	0	
-610	0	2	quest_done	1	30	0	0	
-610	0	3	target_name	0	0	0	0	耶律洪基
-611	0	0	quest_active	0	30	0	0	
-612	0	0	quest_done	0	30	0	0	
-613	0	0	level_at_least	0	50	0	0	
-613	0	1	quest_done	0	30	0	0	
-613	0	2	quest_done	1	31	0	0	
-614	0	0	quest_active	0	37	0	0	
-615	0	0	quest_done	0	37	0	0	
-616	0	0	target_name	0	0	0	0	虚竹
-617	0	0	level_at_least	0	70	0	0	
-617	0	1	quest_done	0	40	0	0	
-617	0	2	quest_done	1	41	0	0	
-617	0	3	target_name	0	0	0	0	天山童姥
-618	0	0	quest_active	0	41	0	0	
-619	0	0	quest_done	0	41	0	0	
-620	0	0	quest_done	0	11	0	0	
-621	0	0	quest_active	0	1381	0	0	
-622	0	0	quest_done	0	1381	0	0	
-623	0	0	sect_at_least	0	0	0	0	
-623	0	1	sect_at_least	1	13	0	0	
-623	0	2	sect_is	0	0	0	0	
-623	1	0	sect_at_least	0	0	0	0	
-623	1	1	sect_at_least	1	13	0	0	
-623	1	2	sect_is	0	1	0	0	
-623	2	0	sect_at_least	0	0	0	0	
-623	2	1	sect_at_least	1	13	0	0	
-623	2	2	sect_is	0	10	0	0	
-623	3	0	sect_at_least	0	0	0	0	
-623	3	1	sect_at_least	1	13	0	0	
-623	3	2	sect_is	0	11	0	0	
-623	4	0	sect_at_least	0	0	0	0	
-623	4	1	sect_at_least	1	13	0	0	
-623	4	2	sect_is	0	2	0	0	
-623	5	0	sect_at_least	0	0	0	0	
-623	5	1	sect_at_least	1	13	0	0	
-623	5	2	sect_is	0	3	0	0	
-623	6	0	sect_at_least	0	0	0	0	
-623	6	1	sect_at_least	1	13	0	0	
-623	6	2	sect_is	0	4	0	0	
-623	7	0	sect_at_least	0	0	0	0	
-623	7	1	sect_at_least	1	13	0	0	
-623	7	2	sect_is	0	5	0	0	
-623	8	0	sect_at_least	0	0	0	0	
-623	8	1	sect_at_least	1	13	0	0	
-623	8	2	sect_is	0	6	0	0	
-623	9	0	sect_at_least	0	0	0	0	
-623	9	1	sect_at_least	1	13	0	0	
-623	9	2	sect_is	0	7	0	0	
-623	10	0	sect_at_least	0	0	0	0	
-623	10	1	sect_at_least	1	13	0	0	
-623	10	2	sect_is	0	8	0	0	
-623	11	0	sect_at_least	0	0	0	0	
-623	11	1	sect_at_least	1	13	0	0	
-623	11	2	sect_is	1	0	0	0	
-623	11	3	sect_is	1	1	0	0	
-623	11	4	sect_is	1	10	0	0	
-623	11	5	sect_is	1	11	0	0	
-623	11	6	sect_is	1	12	0	0	
-623	11	7	sect_is	1	2	0	0	
-623	11	8	sect_is	1	3	0	0	
-623	11	9	sect_is	1	4	0	0	
-623	11	10	sect_is	1	5	0	0	
-623	11	11	sect_is	1	6	0	0	
-623	11	12	sect_is	1	7	0	0	
-623	11	13	sect_is	1	8	0	0	
-623	11	14	sect_is	1	9	0	0	
-623	12	0	sect_at_least	0	13	0	0	
-623	13	0	sect_at_least	1	0	0	0	
-623	14	0	sect_is	0	9	0	0	
-624	0	0	sect_at_least	0	13	0	0	
-624	1	0	sect_at_least	1	0	0	0	
-624	2	0	sect_is	0	9	0	0	
-625	0	0	level_at_least	1	10	0	0	
-626	0	0	quest_active	1	1258	0	0	
-627	0	0	target_name	1	0	0	0	何悦
-628	0	0	quest_active	1	1257	0	0	
-629	0	0	target_name	1	0	0	0	刘盾
-630	0	0	quest_active	1	1256	0	0	
-631	0	0	item_count_at_least	1	40004455	1	0	
-631	0	1	item_count_at_least	1	40004456	1	0	
-631	0	2	item_count_at_least	1	40004457	1	0	
-631	0	3	item_count_at_least	1	40004458	1	0	
-631	0	4	item_count_at_least	1	40004459	1	0	
-632	0	0	item_count_at_least	0	40004459	1	0	
-633	0	0	item_count_at_least	0	40004458	1	0	
-634	0	0	item_count_at_least	0	40004457	1	0	
-635	0	0	item_count_at_least	0	40004456	1	0	
-636	0	0	item_count_at_least	0	40004455	1	0	
-637	0	0	quest_active	0	1256	0	0	
-637	1	0	quest_active	0	1258	0	0	
-637	1	1	quest_active	1	1256	0	0	
-638	0	0	quest_active	1	1262	0	0	
-639	0	0	target_name	1	0	0	0	钱宏宇
-640	0	0	quest_active	1	1261	0	0	
-641	0	0	target_name	1	0	0	0	花剑雨
-642	0	0	quest_active	1	1260	0	0	
-643	0	0	clock_at_least	0	1	8257	0	
-643	0	1	clock_at_least	1	1	8283	0	
-644	0	0	quest_done	0	45	0	0	
-645	0	0	quest_done	1	44	0	0	
-646	0	0	level_at_least	1	0	0	0	
-647	0	0	target_name	0	0	0	0	薛慕华
-648	0	0	quest_active	0	23	0	0	
-649	0	0	quest_done	0	23	0	0	
-650	0	0	level_at_least	1	30	0	0	
-651	0	0	item_count_at_least	1	40001039	1	0	
-652	0	0	quest_active	0	568	0	0	
-653	0	0	bag_space_at_least	1	1	0	0	
-654	0	0	target_name	0	0	0	0	阿会南
-655	0	0	target_name	1	0	0	0	勇闯寒玉塔
-656	0	0	quest_active	0	639	0	0	
-657	0	0	quest_done	0	639	0	0	
-658	0	0	target_name	0	0	0	0	阿黑
-659	0	0	quest_done	0	618	0	0	
-660	0	0	quest_done	0	602	0	0	
-661	0	0	target_name	1	0	0	0	郑玄
-662	0	0	quest_active	1	602	0	0	
-663	0	0	objective_at_least	0	561	1	1	
-663	0	1	objective_at_least	0	561	2	1	
-663	0	2	objective_at_least	0	561	3	1	
-663	0	3	objective_at_least	1	561	1	2	
-663	0	4	objective_at_least	1	561	2	2	
-663	0	5	objective_at_least	1	561	3	2	
-664	0	0	target_name	0	0	0	0	完颜兀术
-665	0	0	objective_at_least	0	561	3	0	
-665	0	1	objective_at_least	1	561	3	1	
-666	0	0	target_name	0	0	0	0	完颜讹里朵
-667	0	0	objective_at_least	0	561	2	0	
-667	0	1	objective_at_least	1	561	2	1	
-668	0	0	target_name	0	0	0	0	完颜斡离不
-669	0	0	objective_at_least	0	561	1	0	
-669	0	1	objective_at_least	1	561	1	1	
-670	0	0	target_name	0	0	0	0	完颜粘没喝
-671	0	0	target_name	1	0	0	0	重建牧场
-672	0	0	target_name	1	0	0	0	驱赶黑蜂
-673	0	0	quest_active	1	542	0	0	
-673	0	1	quest_active	1	543	0	0	
-673	0	2	quest_active	1	544	0	0	
-674	0	0	quest_active	0	548	0	0	
-675	0	0	quest_active	1	28	0	0	
-676	0	0	quest_done	1	28	0	0	
-677	0	0	quest_active	1	27	0	0	
-678	0	0	quest_done	1	27	0	0	
-679	0	0	quest_done	0	29	0	0	
-680	0	0	quest_active	0	29	0	0	
-681	0	0	quest_active	1	32	0	0	
-682	0	0	quest_done	1	32	0	0	
-683	0	0	quest_active	1	31	0	0	
-684	0	0	quest_active	1	30	0	0	
-685	0	0	quest_done	1	30	0	0	
-686	0	0	level_at_least	0	30	0	0	
-686	0	1	quest_active	1	947	0	0	
-686	0	2	quest_done	0	946	0	0	
-686	0	3	quest_done	1	947	0	0	
-687	0	0	quest_active	0	947	0	0	
-688	0	0	target_name	1	0	0	0	种世衡
-689	0	0	quest_active	1	947	0	0	
-690	0	0	objective_at_least	0	947	0	1	
-690	0	1	objective_at_least	1	947	0	2	
-690	0	2	quest_active	0	947	0	0	
-690	0	3	quest_done	1	947	0	0	
-691	0	0	objective_at_least	0	947	0	2	
-691	0	1	quest_active	0	947	0	0	
-691	0	2	quest_done	1	947	0	0	
-691	1	0	objective_at_least	1	947	0	1	
-691	1	1	quest_active	0	947	0	0	
-691	1	2	quest_done	1	947	0	0	
-691	2	0	quest_active	1	947	0	0	
-691	3	0	quest_done	0	947	0	0	
-692	0	0	quest_active	0	1300	0	0	
-693	0	0	quest_done	0	1300	0	0	
-694	0	0	sect_at_least	0	0	0	0	
-694	0	1	sect_at_least	1	13	0	0	
-694	0	2	sect_is	0	0	0	0	
-694	1	0	sect_at_least	0	0	0	0	
-694	1	1	sect_at_least	1	13	0	0	
-694	1	2	sect_is	0	1	0	0	
-694	2	0	sect_at_least	0	0	0	0	
-694	2	1	sect_at_least	1	13	0	0	
-694	2	2	sect_is	0	10	0	0	
-694	3	0	sect_at_least	0	0	0	0	
-694	3	1	sect_at_least	1	13	0	0	
-694	3	2	sect_is	0	12	0	0	
-694	4	0	sect_at_least	0	0	0	0	
-694	4	1	sect_at_least	1	13	0	0	
-694	4	2	sect_is	0	2	0	0	
-694	5	0	sect_at_least	0	0	0	0	
-694	5	1	sect_at_least	1	13	0	0	
-694	5	2	sect_is	0	3	0	0	
-694	6	0	sect_at_least	0	0	0	0	
-694	6	1	sect_at_least	1	13	0	0	
-694	6	2	sect_is	0	4	0	0	
-694	7	0	sect_at_least	0	0	0	0	
-694	7	1	sect_at_least	1	13	0	0	
-694	7	2	sect_is	0	5	0	0	
-694	8	0	sect_at_least	0	0	0	0	
-694	8	1	sect_at_least	1	13	0	0	
-694	8	2	sect_is	0	6	0	0	
-694	9	0	sect_at_least	0	0	0	0	
-694	9	1	sect_at_least	1	13	0	0	
-694	9	2	sect_is	0	7	0	0	
-694	10	0	sect_at_least	0	0	0	0	
-694	10	1	sect_at_least	1	13	0	0	
-694	10	2	sect_is	0	8	0	0	
-694	11	0	sect_at_least	0	0	0	0	
-694	11	1	sect_at_least	1	13	0	0	
-694	11	2	sect_is	1	0	0	0	
-694	11	3	sect_is	1	1	0	0	
-694	11	4	sect_is	1	10	0	0	
-694	11	5	sect_is	1	11	0	0	
-694	11	6	sect_is	1	12	0	0	
-694	11	7	sect_is	1	2	0	0	
-694	11	8	sect_is	1	3	0	0	
-694	11	9	sect_is	1	4	0	0	
-694	11	10	sect_is	1	5	0	0	
-694	11	11	sect_is	1	6	0	0	
-694	11	12	sect_is	1	7	0	0	
-694	11	13	sect_is	1	8	0	0	
-694	11	14	sect_is	1	9	0	0	
-694	12	0	sect_at_least	0	13	0	0	
-694	13	0	sect_at_least	1	0	0	0	
-694	14	0	sect_is	0	9	0	0	
-695	0	0	quest_active	0	1100	0	0	
-696	0	0	quest_done	0	1100	0	0	
-697	0	0	level_at_least	0	30	0	0	
-697	0	1	target_name	0	0	0	0	兰剑
-698	0	0	quest_active	0	1095	0	0	
-699	0	0	quest_done	0	1095	0	0	
-700	0	0	level_at_least	0	70	0	0	
-701	0	0	level_at_least	0	40	0	0	
-701	0	1	level_at_least	1	70	0	0	
-702	0	0	quest_active	0	1090	0	0	
-703	0	0	quest_done	0	1090	0	0	
-704	0	0	quest_active	0	1085	0	0	
-705	0	0	quest_done	0	1085	0	0	
-706	0	0	quest_active	1	36	0	0	
-707	0	0	quest_active	1	35	0	0	
-708	0	0	quest_done	0	34	0	0	
-709	0	0	quest_active	0	35	0	0	
-710	0	0	quest_active	0	34	0	0	
-711	0	0	quest_done	0	36	0	0	
-712	0	0	quest_active	0	36	0	0	
-713	0	0	quest_active	0	1080	0	0	
-714	0	0	quest_done	0	1080	0	0	
-715	0	0	quest_active	0	1075	0	0	
-716	0	0	quest_done	0	1075	0	0	
-717	0	0	quest_active	0	1070	0	0	
-718	0	0	quest_done	0	1070	0	0	
-719	0	0	quest_active	0	1065	0	0	
-720	0	0	quest_done	0	1065	0	0	
-721	0	0	objective_at_least	0	1060	3	3	
-721	0	1	objective_at_least	1	1060	0	1	
-721	0	2	objective_at_least	1	1060	3	4	
-722	0	0	quest_active	0	1060	0	0	
-723	0	0	item_count_at_least	0	30202049	1	0	
-724	0	0	objective_at_least	0	1060	3	2	
-724	0	1	objective_at_least	1	1060	0	1	
-724	0	2	objective_at_least	1	1060	3	3	
-725	0	0	item_count_at_least	0	30202022	1	0	
-726	0	0	objective_at_least	0	1060	3	1	
-726	0	1	objective_at_least	1	1060	0	1	
-726	0	2	objective_at_least	1	1060	3	2	
-727	0	0	item_count_at_least	0	30202001	1	0	
-728	0	0	quest_done	0	1060	0	0	
-729	0	0	target_name	1	0	0	0	叶二娘
-729	0	1	target_name	1	0	0	0	慕容复
-729	0	2	target_name	1	0	0	0	木婉清
-729	0	3	target_name	1	0	0	0	段延庆
-729	0	4	target_name	1	0	0	0	段正淳
-729	0	5	target_name	1	0	0	0	王夫人
-729	0	6	target_name	1	0	0	0	耶律大石
-729	0	7	target_name	1	0	0	0	赫连铁树
-729	0	8	target_name	1	0	0	0	钟灵
-729	0	9	target_name	1	0	0	0	阮星竹
-729	0	10	target_name	1	0	0	0	阿碧
-729	0	11	target_name	1	0	0	0	阿紫
-729	0	12	target_name	1	0	0	0	鸠摩智
-730	0	0	quest_done	0	15	0	0	
-730	0	1	target_name	0	0	0	0	王夫人
-730	1	0	quest_done	0	15	0	0	
-730	1	1	target_name	0	0	0	0	阮星竹
-730	2	0	quest_done	0	15	0	0	
-730	2	1	target_name	0	0	0	0	阿碧
-730	3	0	quest_done	0	23	0	0	
-730	3	1	target_name	0	0	0	0	耶律大石
-730	4	0	quest_done	0	32	0	0	
-730	4	1	target_name	0	0	0	0	阿紫
-730	5	0	quest_done	0	37	0	0	
-730	5	1	target_name	0	0	0	0	叶二娘
-730	6	0	quest_done	0	37	0	0	
-730	6	1	target_name	0	0	0	0	慕容复
-730	7	0	quest_done	0	37	0	0	
-730	7	1	target_name	0	0	0	0	鸠摩智
-730	8	0	quest_done	0	45	0	0	
-730	8	1	target_name	0	0	0	0	赫连铁树
-730	9	0	quest_done	0	45	0	0	
-730	9	1	target_name	1	0	0	0	叶二娘
-730	9	2	target_name	1	0	0	0	慕容复
-730	9	3	target_name	1	0	0	0	木婉清
-730	9	4	target_name	1	0	0	0	段延庆
-730	9	5	target_name	1	0	0	0	段正淳
-730	9	6	target_name	1	0	0	0	王夫人
-730	9	7	target_name	1	0	0	0	耶律大石
-730	9	8	target_name	1	0	0	0	赫连铁树
-730	9	9	target_name	1	0	0	0	钟灵
-730	9	10	target_name	1	0	0	0	阮星竹
-730	9	11	target_name	1	0	0	0	阿碧
-730	9	12	target_name	1	0	0	0	阿紫
-730	9	13	target_name	1	0	0	0	鸠摩智
-730	10	0	quest_done	0	8	0	0	
-730	10	1	target_name	0	0	0	0	木婉清
-730	11	0	quest_done	0	8	0	0	
-730	11	1	target_name	0	0	0	0	段延庆
-730	12	0	quest_done	0	8	0	0	
-730	12	1	target_name	0	0	0	0	段正淳
-730	13	0	quest_done	0	8	0	0	
-730	13	1	target_name	0	0	0	0	钟灵
-731	0	0	quest_done	0	15	0	0	
-731	0	1	target_name	0	0	0	0	王夫人
-731	1	0	quest_done	0	15	0	0	
-731	1	1	target_name	0	0	0	0	阮星竹
-731	2	0	quest_done	0	15	0	0	
-731	2	1	target_name	0	0	0	0	阿碧
-731	3	0	quest_done	0	23	0	0	
-731	3	1	target_name	0	0	0	0	耶律大石
-731	4	0	quest_done	0	32	0	0	
-731	4	1	target_name	0	0	0	0	阿紫
-731	5	0	quest_done	0	37	0	0	
-731	5	1	target_name	0	0	0	0	叶二娘
-731	6	0	quest_done	0	37	0	0	
-731	6	1	target_name	0	0	0	0	慕容复
-731	7	0	quest_done	0	37	0	0	
-731	7	1	target_name	0	0	0	0	鸠摩智
-731	8	0	quest_done	0	37	0	0	
-731	8	1	target_name	1	0	0	0	叶二娘
-731	8	2	target_name	1	0	0	0	慕容复
-731	8	3	target_name	1	0	0	0	木婉清
-731	8	4	target_name	1	0	0	0	段延庆
-731	8	5	target_name	1	0	0	0	段正淳
-731	8	6	target_name	1	0	0	0	王夫人
-731	8	7	target_name	1	0	0	0	耶律大石
-731	8	8	target_name	1	0	0	0	赫连铁树
-731	8	9	target_name	1	0	0	0	钟灵
-731	8	10	target_name	1	0	0	0	阮星竹
-731	8	11	target_name	1	0	0	0	阿碧
-731	8	12	target_name	1	0	0	0	阿紫
-731	8	13	target_name	1	0	0	0	鸠摩智
-731	9	0	quest_done	0	45	0	0	
-731	9	1	target_name	0	0	0	0	赫连铁树
-731	10	0	quest_done	0	8	0	0	
-731	10	1	target_name	0	0	0	0	木婉清
-731	11	0	quest_done	0	8	0	0	
-731	11	1	target_name	0	0	0	0	段延庆
-731	12	0	quest_done	0	8	0	0	
-731	12	1	target_name	0	0	0	0	段正淳
-731	13	0	quest_done	0	8	0	0	
-731	13	1	target_name	0	0	0	0	钟灵
-732	0	0	quest_done	0	37	0	0	
-732	0	1	quest_named	1	101	0	0	鸠摩智任务
-733	0	0	quest_active	0	101	0	0	
-734	0	0	target_name	0	0	0	0	叶二娘
-734	1	0	target_name	0	0	0	0	慕容复
-734	2	0	target_name	0	0	0	0	木婉清
-734	3	0	target_name	0	0	0	0	段延庆
-734	4	0	target_name	0	0	0	0	段正淳
-734	5	0	target_name	0	0	0	0	王夫人
-734	6	0	target_name	0	0	0	0	耶律大石
-734	7	0	target_name	0	0	0	0	赫连铁树
-734	8	0	target_name	0	0	0	0	钟灵
-734	9	0	target_name	0	0	0	0	阮星竹
-734	10	0	target_name	0	0	0	0	阿碧
-734	11	0	target_name	0	0	0	0	阿紫
-734	12	0	target_name	0	0	0	0	鸠摩智
-735	0	0	quest_done	0	8	0	0	
-735	0	1	quest_named	1	101	0	0	钟灵任务
-736	0	0	quest_done	0	8	0	0	
-737	0	0	target_name	0	0	0	0	齐煞云
-738	0	0	quest_done	1	474	0	0	
-739	0	0	target_name	0	0	0	0	李纲
-740	0	0	objective_at_least	0	1212	0	2	
-740	0	1	objective_at_least	0	1213	0	2	
-740	0	2	objective_at_least	1	1212	0	3	
-740	1	0	objective_at_least	0	1212	0	2	
-740	1	1	objective_at_least	1	1212	0	3	
-740	1	2	objective_at_least	1	1213	0	1	
-741	0	0	objective_at_least	0	1212	0	1	
-741	0	1	objective_at_least	0	1213	0	1	
-741	0	2	objective_at_least	1	1212	0	2	
-741	0	3	objective_at_least	1	1213	0	2	
-742	0	0	quest_active	0	1213	0	0	
-743	0	0	quest_active	1	1212	0	0	
-744	0	0	objective_at_least	0	1213	0	1	
-744	0	1	objective_at_least	1	1213	0	2	
-745	0	0	objective_at_least	0	1213	0	2	
-745	1	0	objective_at_least	1	1213	0	1	
-746	0	0	target_name	1	0	0	0	呼延庆
-747	0	0	quest_active	0	1115	0	0	
-748	0	0	quest_done	0	1115	0	0	
-749	0	0	sect_at_least	0	0	0	0	
-749	0	1	sect_at_least	1	12	0	0	
-749	0	2	sect_is	0	0	0	0	
-749	1	0	sect_at_least	0	0	0	0	
-749	1	1	sect_at_least	1	12	0	0	
-749	1	2	sect_is	0	1	0	0	
-749	2	0	sect_at_least	0	0	0	0	
-749	2	1	sect_at_least	1	12	0	0	
-749	2	2	sect_is	0	11	0	0	
-749	3	0	sect_at_least	0	0	0	0	
-749	3	1	sect_at_least	1	12	0	0	
-749	3	2	sect_is	0	2	0	0	
-749	4	0	sect_at_least	0	0	0	0	
-749	4	1	sect_at_least	1	12	0	0	
-749	4	2	sect_is	0	3	0	0	
-749	5	0	sect_at_least	0	0	0	0	
-749	5	1	sect_at_least	1	12	0	0	
-749	5	2	sect_is	0	4	0	0	
-749	6	0	sect_at_least	0	0	0	0	
-749	6	1	sect_at_least	1	12	0	0	
-749	6	2	sect_is	0	5	0	0	
-749	7	0	sect_at_least	0	0	0	0	
-749	7	1	sect_at_least	1	12	0	0	
-749	7	2	sect_is	0	6	0	0	
-749	8	0	sect_at_least	0	0	0	0	
-749	8	1	sect_at_least	1	12	0	0	
-749	8	2	sect_is	0	7	0	0	
-749	9	0	sect_at_least	0	0	0	0	
-749	9	1	sect_at_least	1	12	0	0	
-749	9	2	sect_is	0	8	0	0	
-749	10	0	sect_at_least	0	0	0	0	
-749	10	1	sect_at_least	1	12	0	0	
-749	10	2	sect_is	1	0	0	0	
-749	10	3	sect_is	1	1	0	0	
-749	10	4	sect_is	1	10	0	0	
-749	10	5	sect_is	1	11	0	0	
-749	10	6	sect_is	1	2	0	0	
-749	10	7	sect_is	1	3	0	0	
-749	10	8	sect_is	1	4	0	0	
-749	10	9	sect_is	1	5	0	0	
-749	10	10	sect_is	1	6	0	0	
-749	10	11	sect_is	1	7	0	0	
-749	10	12	sect_is	1	8	0	0	
-749	10	13	sect_is	1	9	0	0	
-749	11	0	sect_at_least	0	12	0	0	
-749	12	0	sect_at_least	1	0	0	0	
-749	13	0	sect_is	0	9	0	0	
-750	0	0	sect_at_least	0	12	0	0	
-750	1	0	sect_at_least	1	0	0	0	
-750	2	0	sect_is	0	9	0	0	
-751	0	0	item_count_at_least	0	40002000	1	0	
-752	0	0	quest_count_at_least	1	1	0	0	
-753	0	0	clock_at_least	0	1	7019	0	
-754	0	0	level_at_least	1	40	0	0	
-755	0	0	flag_set	0	5	0	0	
-756	0	0	flag_set	0	6	0	0	
-757	0	0	bag_space_at_least	1	20	0	0	
-758	0	0	item_count_at_least	0	40002000	1	0	
-758	0	1	item_count_at_least	1	40002000	2	0	
-759	0	0	ability_at_least	1	39	1	0	
-760	0	0	level_at_least	0	10	0	0	
-760	0	1	sect_is	0	9	0	0	
-761	0	0	objective_at_least	1	706	0	1	
-762	0	0	objective_at_least	1	707	0	1	
-763	0	0	objective_at_least	1	708	0	1	
-764	0	0	item_count_at_least	0	10102012	1	0	
-765	0	0	item_count_at_least	0	10113001	1	0	
-766	0	0	objective_at_least	0	1060	2	1	
-766	0	1	objective_at_least	1	1060	0	1	
-766	0	2	objective_at_least	1	1060	2	2	
-767	0	0	objective_at_least	0	1060	2	2	
-767	0	1	objective_at_least	1	1060	0	1	
-767	0	2	objective_at_least	1	1060	2	3	
-768	0	0	objective_at_least	0	1060	2	3	
-768	0	1	objective_at_least	1	1060	0	1	
-768	0	2	objective_at_least	1	1060	2	4	
-769	0	0	quest_done	0	713	0	0	
-770	0	0	quest_done	0	714	0	0	
-771	0	0	quest_done	0	715	0	0	
-772	0	0	quest_done	0	716	0	0	
-773	0	0	quest_active	0	447	0	0	
-774	0	0	quest_done	0	447	0	0	
-775	0	0	quest_done	1	445	0	0	
-776	0	0	quest_done	1	447	0	0	
-777	0	0	clock_at_least	0	1	9097	0	
-777	0	1	clock_at_least	1	1	9151	0	
-778	0	0	quest_done	1	443	0	0	
-779	0	0	quest_done	1	451	0	0	
-780	0	0	quest_done	0	453	0	0	
-781	0	0	quest_done	1	455	0	0	
-782	0	0	quest_done	0	457	0	0	
-783	0	0	quest_done	1	701	0	0	
-784	0	0	quest_done	0	704	0	0	
-785	0	0	quest_done	1	704	0	0	
-786	0	0	quest_done	1	708	0	0	
-787	0	0	quest_done	1	711	0	0	
-788	0	0	level_at_least	0	50	0	0	
-789	0	0	flag_set	0	0	0	0	
-790	0	0	flag_set	1	0	0	0	
-791	0	0	quest_done	1	440	0	0	
-792	0	0	quest_done	0	442	0	0	
-793	0	0	quest_done	1	441	0	0	
-794	0	0	quest_done	1	442	0	0	
-795	0	0	quest_active	1	4	0	0	
-796	0	0	quest_done	0	3	0	0	
-797	0	0	quest_active	1	3	0	0	
-798	0	0	quest_active	0	3	0	0	
-799	0	0	quest_done	0	706	0	0	
-800	0	0	quest_done	1	705	0	0	
-801	0	0	quest_done	0	707	0	0	
-802	0	0	quest_done	1	706	0	0	
-803	0	0	quest_done	0	708	0	0	
-804	0	0	quest_done	1	707	0	0	
-805	0	0	quest_active	1	8	0	0	
-806	0	0	quest_active	1	7	0	0	
-807	0	0	quest_active	1	6	0	0	
-808	0	0	quest_done	0	5	0	0	
-809	0	0	quest_active	0	7	0	0	
-810	0	0	quest_active	0	5	0	0	
-811	0	0	quest_done	0	711	0	0	
-812	0	0	quest_done	1	710	0	0	
-813	0	0	quest_active	0	701	0	0	
-814	0	0	quest_done	0	37	0	0	
-814	0	1	quest_named	1	101	0	0	虚竹任务
-815	0	0	level_at_least	0	30	0	0	
-815	0	1	target_name	0	0	0	0	王韶
-816	0	0	quest_done	1	948	0	0	
-817	0	0	quest_done	0	1161	0	0	
-818	0	0	item_count_at_least	1	38000639	100	0	
-819	0	0	target_name	0	0	0	0	欧冶子
-820	0	0	target_name	1	0	0	0	欧冶子
-821	0	0	quest_active	1	12	0	0	
-822	0	0	quest_active	1	11	0	0	
-823	0	0	quest_active	1	15	0	0	
-824	0	0	quest_active	1	14	0	0	
-825	0	0	quest_active	0	15	0	0	
-826	0	0	quest_active	0	14	0	0	
-827	0	0	quest_done	0	15	0	0	
-828	0	0	quest_done	0	15	0	0	
-828	0	1	quest_named	1	101	0	0	阿碧任务
-829	0	0	objective_at_least	0	1202	2	1	
-829	0	1	objective_at_least	1	1202	2	2	
-830	0	0	objective_at_least	0	1202	1	2	
-830	0	1	objective_at_least	1	1202	1	3	
-831	0	0	quest_active	0	1202	0	0	
-832	0	0	quest_done	0	1202	0	0	
-833	0	0	quest_done	0	15	0	0	
-833	0	1	quest_named	1	101	0	0	王语嫣任务
-834	0	0	quest_done	0	37	0	0	
-834	0	1	quest_named	1	101	0	0	慕容复任务
-835	0	0	target_name	0	0	0	0	小雨歇
-836	0	0	skill_known	1	103	0	0	
-837	0	0	sect_is	1	13	0	0	
-838	0	0	clock_at_least	0	1	9040	0	
-838	0	1	clock_at_least	1	1	9047	0	
-839	0	0	level_at_least	1	56	0	0	
-840	0	0	clock_at_least	0	1	7304	0	
-840	0	1	clock_at_least	1	1	7326	0	
-841	0	0	quest_active	0	1020	0	0	
-842	0	0	quest_active	0	1021	0	0	
-843	0	0	target_name	0	0	0	0	邱行洛
-844	0	0	quest_active	0	721	0	0	
-845	0	0	quest_active	1	42	0	0	
-846	0	0	quest_active	1	41	0	0	
-847	0	0	quest_active	0	44	0	0	
-848	0	0	quest_active	1	45	0	0	
-849	0	0	quest_active	1	34	0	0	
-850	0	0	quest_done	0	45	0	0	
-850	0	1	quest_named	1	101	0	0	银川公主任务
-851	0	0	quest_active	1	47	0	0	
-852	0	0	quest_done	0	21	0	0	
-853	0	0	quest_done	0	32	0	0	
-853	0	1	quest_named	1	101	0	0	阿紫任务
+# layout: aligned
+set  	clause  	seq  	op                    	neg  	a1        	a2      	a3  	word
+1    	0       	0    	level_at_least        	0    	10        	0       	0   	
+1    	0       	1    	sect_is               	0    	4         	0       	0   	
+2    	0       	0    	level_at_least        	0    	20        	0       	0   	
+3    	0       	0    	item_count_at_least   	0    	40001114  	5       	0   	
+4    	0       	0    	level_at_least        	0    	100       	0       	0   	
+4    	0       	1    	level_at_least        	1    	120       	0       	0   	
+4    	1       	0    	level_at_least        	0    	120       	0       	0   	
+4    	2       	0    	level_at_least        	0    	20        	0       	0   	
+4    	2       	1    	level_at_least        	1    	30        	0       	0   	
+4    	3       	0    	level_at_least        	0    	30        	0       	0   	
+4    	3       	1    	level_at_least        	1    	40        	0       	0   	
+4    	4       	0    	level_at_least        	0    	40        	0       	0   	
+4    	4       	1    	level_at_least        	1    	50        	0       	0   	
+4    	5       	0    	level_at_least        	0    	50        	0       	0   	
+4    	5       	1    	level_at_least        	1    	60        	0       	0   	
+4    	6       	0    	level_at_least        	0    	60        	0       	0   	
+4    	6       	1    	level_at_least        	1    	70        	0       	0   	
+4    	7       	0    	level_at_least        	0    	70        	0       	0   	
+4    	7       	1    	level_at_least        	1    	80        	0       	0   	
+4    	8       	0    	level_at_least        	0    	80        	0       	0   	
+4    	8       	1    	level_at_least        	1    	90        	0       	0   	
+4    	9       	0    	level_at_least        	0    	90        	0       	0   	
+4    	9       	1    	level_at_least        	1    	100       	0       	0   	
+4    	10      	0    	level_at_least        	1    	20        	0       	0   	
+5    	0       	0    	level_at_least        	0    	20        	0       	0   	
+5    	0       	1    	level_at_least        	1    	30        	0       	0   	
+6    	0       	0    	level_at_least        	0    	30        	0       	0   	
+6    	0       	1    	level_at_least        	1    	40        	0       	0   	
+7    	0       	0    	level_at_least        	0    	40        	0       	0   	
+7    	0       	1    	level_at_least        	1    	50        	0       	0   	
+8    	0       	0    	level_at_least        	0    	50        	0       	0   	
+8    	0       	1    	level_at_least        	1    	60        	0       	0   	
+9    	0       	0    	level_at_least        	0    	60        	0       	0   	
+9    	0       	1    	level_at_least        	1    	70        	0       	0   	
+10   	0       	0    	level_at_least        	0    	70        	0       	0   	
+10   	0       	1    	level_at_least        	1    	80        	0       	0   	
+11   	0       	0    	level_at_least        	0    	80        	0       	0   	
+11   	0       	1    	level_at_least        	1    	90        	0       	0   	
+12   	0       	0    	level_at_least        	0    	90        	0       	0   	
+12   	0       	1    	level_at_least        	1    	100       	0       	0   	
+13   	0       	0    	level_at_least        	0    	100       	0       	0   	
+13   	0       	1    	level_at_least        	1    	120       	0       	0   	
+14   	0       	0    	level_at_least        	0    	120       	0       	0   	
+15   	0       	0    	item_count_at_least   	0    	40004315  	1       	0   	
+15   	0       	1    	objective_at_least    	0    	1260      	0       	1   	
+15   	0       	2    	objective_at_least    	1    	1260      	0       	2   	
+16   	0       	0    	item_count_at_least   	0    	40004454  	1       	0   	
+16   	0       	1    	objective_at_least    	0    	1257      	0       	1   	
+16   	0       	2    	objective_at_least    	1    	1257      	0       	2   	
+17   	0       	0    	item_count_at_least   	0    	40004454  	1       	0   	
+17   	0       	1    	objective_at_least    	0    	1258      	0       	1   	
+17   	0       	2    	objective_at_least    	1    	1258      	0       	2   	
+18   	0       	0    	never                 	0    	0         	0       	0   	
+19   	0       	0    	level_at_least        	0    	20        	0       	0   	
+19   	0       	1    	quest_done            	0    	3         	0       	0   	
+20   	0       	0    	level_at_least        	0    	20        	0       	0   	
+20   	0       	1    	quest_done            	0    	5         	0       	0   	
+21   	0       	0    	objective_at_least    	0    	6         	0       	1   	
+21   	0       	1    	objective_at_least    	0    	6         	1       	1   	
+21   	0       	2    	objective_at_least    	0    	6         	2       	1   	
+21   	0       	3    	objective_at_least    	1    	6         	0       	2   	
+21   	0       	4    	objective_at_least    	1    	6         	1       	2   	
+21   	0       	5    	objective_at_least    	1    	6         	2       	2   	
+22   	0       	0    	event_monster_name    	0    	0         	0       	0   	叶二娘
+23   	0       	0    	event_monster_name    	0    	0         	0       	0   	岳老三
+24   	0       	0    	event_monster_name    	0    	0         	0       	0   	云中鹤
+25   	0       	0    	level_at_least        	0    	20        	0       	0   	
+25   	0       	1    	quest_done            	0    	7         	0       	0   	
+26   	0       	0    	objective_at_least    	0    	8         	0       	1   	
+26   	0       	1    	objective_at_least    	1    	8         	0       	2   	
+27   	0       	0    	level_at_least        	0    	30        	0       	0   	
+27   	0       	1    	quest_done            	0    	10        	0       	0   	
+28   	0       	0    	item_count_at_least   	0    	40001002  	1       	0   	
+28   	0       	1    	item_count_at_least   	0    	40001003  	1       	0   	
+29   	0       	0    	level_at_least        	0    	30        	0       	0   	
+29   	0       	1    	quest_done            	0    	11        	0       	0   	
+30   	0       	0    	objective_at_least    	0    	14        	0       	1   	
+30   	0       	1    	objective_at_least    	0    	14        	1       	1   	
+30   	0       	2    	objective_at_least    	0    	14        	2       	1   	
+30   	0       	3    	objective_at_least    	0    	14        	3       	1   	
+30   	0       	4    	objective_at_least    	0    	14        	4       	1   	
+30   	0       	5    	objective_at_least    	1    	14        	0       	2   	
+30   	0       	6    	objective_at_least    	1    	14        	1       	2   	
+30   	0       	7    	objective_at_least    	1    	14        	2       	2   	
+30   	0       	8    	objective_at_least    	1    	14        	3       	2   	
+30   	0       	9    	objective_at_least    	1    	14        	4       	2   	
+31   	0       	0    	item_count_at_least   	0    	40001005  	1       	0   	
+32   	0       	0    	level_at_least        	0    	20        	0       	0   	
+32   	0       	1    	quest_done            	0    	20        	0       	0   	
+33   	0       	0    	objective_at_least    	0    	21        	1       	1   	
+33   	0       	1    	objective_at_least    	0    	21        	2       	1   	
+33   	0       	2    	objective_at_least    	0    	21        	3       	1   	
+33   	0       	3    	objective_at_least    	1    	21        	1       	2   	
+33   	0       	4    	objective_at_least    	1    	21        	2       	2   	
+33   	0       	5    	objective_at_least    	1    	21        	3       	2   	
+34   	0       	0    	event_monster_name    	0    	0         	0       	0   	鲍千灵
+35   	0       	0    	event_monster_name    	0    	0         	0       	0   	鲍千灵
+35   	0       	1    	objective_at_least    	0    	21        	1       	1   	
+35   	0       	2    	objective_at_least    	0    	21        	2       	1   	
+35   	0       	3    	objective_at_least    	0    	21        	3       	1   	
+35   	0       	4    	objective_at_least    	1    	21        	1       	2   	
+35   	0       	5    	objective_at_least    	1    	21        	2       	2   	
+35   	0       	6    	objective_at_least    	1    	21        	3       	2   	
+36   	0       	0    	event_monster_name    	0    	0         	0       	0   	祁六
+37   	0       	0    	event_monster_name    	0    	0         	0       	0   	祁六
+37   	0       	1    	objective_at_least    	0    	21        	1       	1   	
+37   	0       	2    	objective_at_least    	0    	21        	2       	1   	
+37   	0       	3    	objective_at_least    	0    	21        	3       	1   	
+37   	0       	4    	objective_at_least    	1    	21        	1       	2   	
+37   	0       	5    	objective_at_least    	1    	21        	2       	2   	
+37   	0       	6    	objective_at_least    	1    	21        	3       	2   	
+38   	0       	0    	event_monster_name    	0    	0         	0       	0   	向望海
+39   	0       	0    	event_monster_name    	0    	0         	0       	0   	向望海
+39   	0       	1    	objective_at_least    	0    	21        	1       	1   	
+39   	0       	2    	objective_at_least    	0    	21        	2       	1   	
+39   	0       	3    	objective_at_least    	0    	21        	3       	1   	
+39   	0       	4    	objective_at_least    	1    	21        	1       	2   	
+39   	0       	5    	objective_at_least    	1    	21        	2       	2   	
+39   	0       	6    	objective_at_least    	1    	21        	3       	2   	
+40   	0       	0    	level_at_least        	0    	40        	0       	0   	
+40   	0       	1    	quest_done            	0    	47        	0       	0   	
+41   	0       	0    	level_at_least        	0    	40        	0       	0   	
+41   	0       	1    	quest_done            	0    	22        	0       	0   	
+42   	0       	0    	event_monster_name    	0    	0         	0       	0   	玄难
+43   	0       	0    	event_monster_name    	0    	0         	0       	0   	玄寂
+44   	0       	0    	level_at_least        	0    	40        	0       	0   	
+44   	0       	1    	quest_done            	0    	21        	0       	0   	
+45   	0       	0    	level_at_least        	0    	50        	0       	0   	
+45   	0       	1    	quest_done            	0    	26        	0       	0   	
+46   	0       	0    	objective_at_least    	0    	27        	0       	1   	
+46   	0       	1    	objective_at_least    	0    	27        	1       	1   	
+46   	0       	2    	objective_at_least    	0    	27        	2       	1   	
+46   	0       	3    	objective_at_least    	0    	27        	3       	1   	
+47   	0       	0    	level_at_least        	0    	50        	0       	0   	
+47   	0       	1    	quest_done            	0    	29        	0       	0   	
+47   	0       	2    	target_name           	0    	0         	0       	0   	耶律洪基
+48   	0       	0    	level_at_least        	0    	50        	0       	0   	
+48   	0       	1    	quest_done            	0    	30        	0       	0   	
+49   	0       	0    	level_at_least        	0    	50        	0       	0   	
+49   	0       	1    	quest_done            	0    	31        	0       	0   	
+50   	0       	0    	objective_at_least    	0    	32        	0       	1   	
+51   	0       	0    	level_at_least        	0    	60        	0       	0   	
+51   	0       	1    	quest_done            	0    	34        	0       	0   	
+52   	0       	0    	level_at_least        	0    	60        	0       	0   	
+52   	0       	1    	quest_done            	0    	36        	0       	0   	
+53   	0       	0    	objective_at_least    	0    	37        	0       	1   	
+53   	0       	1    	objective_at_least    	1    	37        	0       	2   	
+54   	0       	0    	level_at_least        	0    	70        	0       	0   	
+54   	0       	1    	quest_done            	0    	40        	0       	0   	
+54   	0       	2    	target_name           	0    	0         	0       	0   	天山童姥
+55   	0       	0    	level_at_least        	0    	70        	0       	0   	
+55   	0       	1    	quest_done            	0    	41        	0       	0   	
+56   	0       	0    	level_at_least        	0    	70        	0       	0   	
+56   	0       	1    	quest_done            	0    	42        	0       	0   	
+57   	0       	0    	level_at_least        	0    	70        	0       	0   	
+57   	0       	1    	objective_at_least    	0    	43        	0       	1   	
+57   	0       	2    	objective_at_least    	1    	43        	0       	2   	
+58   	0       	0    	objective_at_least    	0    	44        	0       	1   	
+58   	0       	1    	objective_at_least    	1    	44        	0       	2   	
+59   	0       	0    	level_at_least        	0    	20        	0       	0   	
+59   	0       	1    	quest_done            	0    	44        	0       	0   	
+60   	0       	0    	objective_at_least    	0    	45        	0       	1   	
+61   	0       	0    	level_at_least        	0    	20        	0       	0   	
+61   	0       	1    	quest_done            	0    	1         	0       	0   	
+62   	0       	0    	level_at_least        	0    	30        	0       	0   	
+62   	0       	1    	quest_done            	0    	8         	0       	0   	
+63   	0       	0    	level_at_least        	0    	30        	0       	0   	
+63   	0       	1    	quest_done            	0    	9         	0       	0   	
+64   	0       	0    	level_at_least        	0    	30        	0       	0   	
+64   	0       	1    	quest_done            	0    	12        	0       	0   	
+65   	0       	0    	level_at_least        	0    	40        	0       	0   	
+65   	0       	1    	quest_done            	0    	15        	0       	0   	
+66   	0       	0    	level_at_least        	0    	40        	0       	0   	
+66   	0       	1    	quest_done            	0    	16        	0       	0   	
+67   	0       	0    	level_at_least        	0    	40        	0       	0   	
+67   	0       	1    	quest_done            	0    	17        	0       	0   	
+68   	0       	0    	level_at_least        	0    	40        	0       	0   	
+68   	0       	1    	quest_done            	0    	18        	0       	0   	
+69   	0       	0    	level_at_least        	0    	40        	0       	0   	
+69   	0       	1    	quest_done            	0    	19        	0       	0   	
+70   	0       	0    	level_at_least        	0    	50        	0       	0   	
+70   	0       	1    	quest_done            	0    	23        	0       	0   	
+71   	0       	0    	level_at_least        	0    	50        	0       	0   	
+71   	0       	1    	quest_done            	0    	24        	0       	0   	
+72   	0       	0    	level_at_least        	0    	50        	0       	0   	
+72   	0       	1    	quest_done            	0    	25        	0       	0   	
+73   	0       	0    	level_at_least        	0    	60        	0       	0   	
+73   	0       	1    	quest_done            	0    	32        	0       	0   	
+74   	0       	0    	level_at_least        	0    	70        	0       	0   	
+74   	0       	1    	quest_done            	0    	37        	0       	0   	
+75   	0       	0    	level_at_least        	0    	70        	0       	0   	
+75   	0       	1    	quest_done            	0    	38        	0       	0   	
+76   	0       	0    	level_at_least        	0    	70        	0       	0   	
+76   	0       	1    	quest_done            	0    	39        	0       	0   	
+77   	0       	0    	level_at_least        	0    	1         	0       	0   	
+78   	0       	0    	item_count_at_least   	0    	40002110  	1       	0   	
+79   	0       	0    	item_count_at_least   	0    	30101001  	1       	0   	
+80   	0       	0    	event_item_is         	0    	30101001  	0       	0   	
+81   	0       	0    	level_at_least        	0    	2         	0       	0   	
+82   	0       	0    	objective_at_least    	0    	447       	1       	1   	
+83   	0       	0    	level_at_least        	0    	3         	0       	0   	
+84   	0       	0    	objective_at_least    	0    	451       	0       	1   	
+85   	0       	0    	level_at_least        	0    	4         	0       	0   	
+86   	0       	0    	objective_at_least    	0    	453       	1       	8   	
+86   	0       	1    	objective_at_least    	1    	453       	1       	9   	
+87   	0       	0    	event_monster_name    	0    	0         	0       	0   	蜀道白猿
+87   	0       	1    	objective_at_least    	0    	453       	1       	7   	
+87   	0       	2    	objective_at_least    	1    	453       	1       	8   	
+88   	0       	0    	event_monster_name    	0    	0         	0       	0   	蜀道白猿
+88   	0       	1    	objective_at_least    	0    	453       	1       	7   	
+88   	0       	2    	objective_at_least    	1    	453       	1       	8   	
+88   	1       	0    	event_monster_name    	0    	0         	0       	0   	蜀道白猿
+88   	1       	1    	objective_at_least    	1    	453       	1       	7   	
+89   	0       	0    	level_at_least        	0    	5         	0       	0   	
+90   	0       	0    	level_at_least        	0    	6         	0       	0   	
+91   	0       	0    	objective_at_least    	0    	457       	0       	1   	
+91   	0       	1    	objective_at_least    	1    	457       	0       	2   	
+92   	0       	0    	event_monster_name    	0    	0         	0       	0   	山蛛
+92   	0       	1    	objective_at_least    	0    	457       	1       	7   	
+92   	0       	2    	objective_at_least    	1    	457       	1       	8   	
+93   	0       	0    	event_monster_name    	0    	0         	0       	0   	山蛛
+93   	0       	1    	objective_at_least    	0    	457       	1       	7   	
+93   	0       	2    	objective_at_least    	1    	457       	1       	8   	
+93   	1       	0    	event_monster_name    	0    	0         	0       	0   	山蛛
+93   	1       	1    	objective_at_least    	1    	457       	1       	7   	
+94   	0       	0    	level_at_least        	0    	8         	0       	0   	
+95   	0       	0    	level_at_least        	0    	7         	0       	0   	
+96   	0       	0    	objective_at_least    	0    	706       	0       	1   	
+96   	0       	1    	objective_at_least    	1    	706       	0       	2   	
+97   	0       	0    	objective_at_least    	0    	707       	0       	1   	
+97   	0       	1    	objective_at_least    	1    	707       	0       	2   	
+98   	0       	0    	objective_at_least    	0    	708       	0       	1   	
+98   	0       	1    	objective_at_least    	1    	708       	0       	2   	
+99   	0       	0    	level_at_least        	0    	9         	0       	0   	
+100  	0       	0    	objective_at_least    	0    	711       	1       	5   	
+100  	0       	1    	objective_at_least    	1    	711       	1       	6   	
+101  	0       	0    	event_monster_name    	0    	0         	0       	0   	木头人
+101  	0       	1    	objective_at_least    	0    	711       	1       	4   	
+101  	0       	2    	objective_at_least    	1    	711       	1       	5   	
+102  	0       	0    	event_monster_name    	0    	0         	0       	0   	木头人
+102  	0       	1    	objective_at_least    	0    	711       	1       	4   	
+102  	0       	2    	objective_at_least    	1    	711       	1       	5   	
+102  	1       	0    	event_monster_name    	0    	0         	0       	0   	木头人
+102  	1       	1    	objective_at_least    	1    	711       	1       	4   	
+103  	0       	0    	item_count_at_least   	0    	20309001  	1       	0   	
+103  	0       	1    	item_count_at_least   	0    	20309005  	1       	0   	
+104  	0       	0    	item_count_at_least   	0    	20309002  	1       	0   	
+104  	0       	1    	item_count_at_least   	0    	20309006  	1       	0   	
+105  	0       	0    	item_count_at_least   	0    	20309003  	1       	0   	
+105  	0       	1    	item_count_at_least   	0    	20309007  	1       	0   	
+106  	0       	0    	item_count_at_least   	0    	20309004  	1       	0   	
+106  	0       	1    	item_count_at_least   	0    	20309008  	1       	0   	
+107  	0       	0    	level_at_least        	0    	10        	0       	0   	
+108  	0       	0    	level_at_least        	0    	25        	0       	0   	
+108  	0       	1    	quest_done            	0    	645       	0       	0   	
+108  	0       	2    	quest_done            	0    	646       	0       	0   	
+108  	0       	3    	quest_done            	0    	647       	0       	0   	
+109  	0       	0    	objective_at_least    	0    	648       	0       	1   	
+110  	0       	0    	level_at_least        	0    	48        	0       	0   	
+110  	0       	1    	quest_done            	0    	535       	0       	0   	
+111  	0       	0    	objective_at_least    	0    	536       	0       	1   	
+112  	0       	0    	event_monster_name    	0    	0         	0       	0   	小胖
+112  	0       	1    	objective_at_least    	1    	536       	0       	1   	
+113  	0       	0    	level_at_least        	0    	55        	0       	0   	
+114  	0       	0    	objective_at_least    	0    	602       	0       	1   	
+115  	0       	0    	level_at_least        	0    	60        	0       	0   	
+116  	0       	0    	item_count_at_least   	0    	40002112  	1       	0   	
+117  	0       	0    	level_at_least        	0    	75        	0       	0   	
+118  	0       	0    	objective_at_least    	0    	552       	0       	1   	
+119  	0       	0    	level_at_least        	0    	78        	0       	0   	
+120  	0       	0    	item_count_at_least   	0    	20103004  	10      	0   	
+120  	0       	1    	item_count_at_least   	0    	20103005  	10      	0   	
+120  	0       	2    	money_at_least        	0    	0         	100000  	0   	
+121  	0       	0    	level_at_least        	0    	38        	0       	0   	
+121  	0       	1    	quest_done            	0    	656       	0       	0   	
+121  	0       	2    	quest_done            	0    	657       	0       	0   	
+122  	0       	0    	objective_at_least    	0    	658       	0       	1   	
+123  	0       	0    	event_monster_name    	0    	0         	0       	0   	通天
+123  	0       	1    	objective_at_least    	1    	658       	0       	1   	
+124  	0       	0    	level_at_least        	0    	88        	0       	0   	
+125  	0       	0    	objective_at_least    	0    	561       	1       	1   	
+125  	0       	1    	objective_at_least    	0    	561       	2       	1   	
+125  	0       	2    	objective_at_least    	0    	561       	3       	1   	
+126  	0       	0    	level_at_least        	0    	72        	0       	0   	
+126  	0       	1    	quest_done            	0    	615       	0       	0   	
+126  	0       	2    	quest_done            	0    	616       	0       	0   	
+126  	0       	3    	quest_done            	0    	617       	0       	0   	
+127  	0       	0    	objective_at_least    	0    	618       	0       	1   	
+127  	0       	1    	objective_at_least    	1    	618       	0       	2   	
+128  	0       	0    	level_at_least        	0    	80        	0       	0   	
+129  	0       	0    	item_count_at_least   	0    	40002071  	1       	0   	
+130  	0       	0    	level_at_least        	0    	70        	0       	0   	
+130  	0       	1    	quest_done            	0    	673       	0       	0   	
+130  	0       	2    	quest_done            	0    	674       	0       	0   	
+130  	0       	3    	quest_done            	0    	675       	0       	0   	
+131  	0       	0    	objective_at_least    	0    	678       	0       	1   	
+132  	0       	0    	event_monster_name    	0    	0         	0       	0   	严白虎
+132  	0       	1    	objective_at_least    	1    	678       	0       	1   	
+133  	0       	0    	level_at_least        	0    	82        	0       	0   	
+133  	0       	1    	quest_done            	0    	687       	0       	0   	
+134  	0       	0    	level_at_least        	0    	98        	0       	0   	
+134  	0       	1    	quest_done            	0    	638       	0       	0   	
+135  	0       	0    	objective_at_least    	0    	639       	0       	1   	
+136  	0       	0    	level_at_least        	0    	20        	0       	0   	
+136  	0       	1    	quest_done            	0    	922       	0       	0   	
+137  	0       	0    	money_at_least        	0    	0         	50000   	0   	
+138  	0       	0    	level_at_least        	0    	36        	0       	0   	
+139  	0       	0    	level_at_least        	0    	31        	0       	0   	
+140  	0       	0    	level_at_least        	0    	41        	0       	0   	
+141  	0       	0    	objective_at_least    	0    	932       	0       	1   	
+142  	0       	0    	level_at_least        	0    	46        	0       	0   	
+143  	0       	0    	objective_at_least    	0    	935       	0       	1   	
+144  	0       	0    	level_at_least        	0    	52        	0       	0   	
+145  	0       	0    	level_at_least        	0    	56        	0       	0   	
+145  	0       	1    	quest_done            	0    	605       	0       	0   	
+146  	0       	0    	level_at_least        	0    	59        	0       	0   	
+147  	0       	0    	objective_at_least    	0    	943       	0       	1   	
+148  	0       	0    	level_at_least        	0    	75        	0       	0   	
+148  	0       	1    	quest_done            	0    	309       	0       	0   	
+149  	0       	0    	level_at_least        	0    	75        	0       	0   	
+149  	0       	1    	quest_done            	0    	349       	0       	0   	
+150  	0       	0    	level_at_least        	0    	75        	0       	0   	
+150  	0       	1    	quest_done            	0    	389       	0       	0   	
+151  	0       	0    	level_at_least        	0    	75        	0       	0   	
+151  	0       	1    	quest_done            	0    	253       	0       	0   	
+151  	0       	2    	quest_done            	0    	254       	0       	0   	
+151  	0       	3    	quest_done            	0    	255       	0       	0   	
+152  	0       	0    	level_at_least        	0    	30        	0       	0   	
+152  	0       	1    	sect_is               	0    	0         	0       	0   	
+153  	0       	0    	level_at_least        	0    	30        	0       	0   	
+153  	0       	1    	quest_done            	0    	963       	0       	0   	
+153  	0       	2    	sect_is               	0    	0         	0       	0   	
+154  	0       	0    	objective_at_least    	0    	964       	0       	1   	
+154  	1       	0    	objective_at_least    	1    	964       	0       	0   	
+155  	0       	0    	level_at_least        	0    	30        	0       	0   	
+155  	0       	1    	quest_done            	0    	965       	0       	0   	
+155  	0       	2    	sect_is               	0    	0         	0       	0   	
+156  	0       	0    	sect_is               	0    	0         	0       	0   	
+157  	0       	0    	sect_is               	0    	2         	0       	0   	
+158  	0       	0    	sect_is               	0    	1         	0       	0   	
+159  	0       	0    	sect_is               	0    	3         	0       	0   	
+160  	0       	0    	sect_is               	0    	6         	0       	0   	
+161  	0       	0    	sect_is               	0    	8         	0       	0   	
+162  	0       	0    	sect_is               	0    	4         	0       	0   	
+163  	0       	0    	sect_is               	0    	5         	0       	0   	
+164  	0       	0    	sect_is               	0    	7         	0       	0   	
+165  	0       	0    	objective_at_least    	0    	944       	0       	1   	
+165  	0       	1    	objective_at_least    	1    	944       	0       	2   	
+166  	0       	0    	objective_at_least    	0    	944       	0       	1   	
+166  	0       	1    	objective_at_least    	1    	944       	0       	2   	
+166  	0       	2    	target_name           	0    	0         	0       	0   	王韶
+167  	0       	0    	objective_at_least    	0    	949       	0       	1   	
+167  	0       	1    	objective_at_least    	1    	949       	0       	2   	
+168  	0       	0    	sect_is               	0    	10        	0       	0   	
+169  	0       	0    	sect_is               	0    	11        	0       	0   	
+170  	0       	0    	level_at_least        	0    	10        	0       	0   	
+170  	0       	1    	sect_is               	0    	0         	0       	0   	
+171  	0       	0    	level_at_least        	0    	10        	0       	0   	
+171  	0       	1    	sect_is               	0    	1         	0       	0   	
+172  	0       	0    	level_at_least        	0    	10        	0       	0   	
+172  	0       	1    	sect_is               	0    	3         	0       	0   	
+173  	0       	0    	level_at_least        	0    	10        	0       	0   	
+173  	0       	1    	sect_is               	0    	6         	0       	0   	
+174  	0       	0    	level_at_least        	0    	10        	0       	0   	
+174  	0       	1    	sect_is               	0    	8         	0       	0   	
+175  	0       	0    	level_at_least        	0    	10        	0       	0   	
+175  	0       	1    	sect_is               	0    	7         	0       	0   	
+176  	0       	0    	level_at_least        	0    	10        	0       	0   	
+176  	0       	1    	sect_is               	0    	5         	0       	0   	
+177  	0       	0    	level_at_least        	0    	10        	0       	0   	
+177  	0       	1    	sect_is               	0    	2         	0       	0   	
+178  	0       	0    	level_at_least        	0    	10        	0       	0   	
+178  	0       	1    	sect_is               	0    	10        	0       	0   	
+179  	0       	0    	level_at_least        	0    	10        	0       	0   	
+179  	0       	1    	sect_is               	0    	11        	0       	0   	
+180  	0       	0    	level_at_least        	0    	10        	0       	0   	
+180  	0       	1    	sect_is               	0    	12        	0       	0   	
+181  	0       	0    	objective_at_least    	0    	1200      	0       	1   	
+182  	0       	0    	item_count_at_least   	0    	40004000  	1       	0   	
+183  	0       	0    	item_count_at_least   	1    	40004000  	1       	0   	
+184  	0       	0    	target_name           	0    	0         	0       	0   	智清大师
+185  	0       	0    	counter_at_least      	0    	5         	20      	0   	
+185  	0       	1    	target_name           	0    	0         	0       	0   	智清大师
+186  	0       	0    	counter_at_least      	1    	5         	20      	0   	
+186  	0       	1    	target_name           	0    	0         	0       	0   	智清大师
+187  	0       	0    	objective_at_least    	0    	721       	0       	1   	
+187  	0       	1    	objective_at_least    	1    	721       	0       	2   	
+188  	0       	0    	item_count_at_least   	0    	40002106  	1       	0   	
+189  	0       	0    	objective_at_least    	0    	420       	0       	1   	
+190  	0       	0    	item_count_at_least   	0    	40004254  	1       	0   	
+191  	0       	0    	objective_at_least    	0    	1109      	0       	1   	
+192  	0       	0    	level_at_least        	0    	30        	0       	0   	
+193  	0       	0    	counter_at_least      	0    	1000023   	5       	0   	
+194  	0       	0    	level_at_least        	0    	85        	0       	0   	
+195  	0       	0    	sect_is               	1    	0         	0       	0   	
+195  	0       	1    	sect_is               	1    	1         	0       	0   	
+195  	0       	2    	sect_is               	1    	10        	0       	0   	
+195  	0       	3    	sect_is               	1    	2         	0       	0   	
+195  	0       	4    	sect_is               	1    	7         	0       	0   	
+196  	0       	0    	counter_is            	0    	1000233   	0       	0   	
+197  	0       	0    	quest_active          	0    	1711      	0       	0   	
+198  	0       	0    	counter_at_least      	0    	9         	10      	0   	
+199  	0       	0    	counter_at_least      	1    	9         	10      	0   	
+200  	0       	0    	quest_active          	0    	1161      	0       	0   	
+201  	0       	0    	clock_at_least        	0    	1         	8365    	0   	
+201  	1       	0    	clock_at_least        	1    	1         	8323    	0   	
+202  	0       	0    	clock_at_least        	0    	1         	7326    	0   	
+202  	1       	0    	clock_at_least        	1    	1         	7304    	0   	
+203  	0       	0    	clock_at_least        	0    	1         	8283    	0   	
+203  	1       	0    	clock_at_least        	1    	1         	8257    	0   	
+204  	0       	0    	clock_at_least        	1    	1         	7168    	0   	
+205  	0       	0    	clock_at_least        	0    	1         	7172    	0   	
+206  	0       	0    	clock_at_least        	1    	1         	7154    	0   	
+207  	0       	0    	clock_at_least        	0    	1         	7193    	0   	
+208  	0       	0    	clock_at_least        	0    	1         	7123    	0   	
+209  	0       	0    	clock_at_least        	1    	1         	7107    	0   	
+210  	0       	0    	item_count_at_least   	0    	20001003  	1       	0   	
+210  	0       	1    	quest_active          	0    	4009      	0       	0   	
+210  	0       	2    	quest_done            	1    	4009      	0       	0   	
+211  	0       	0    	quest_active          	0    	4009      	0       	0   	
+212  	0       	0    	item_count_at_least   	0    	20001002  	1       	0   	
+212  	0       	1    	quest_active          	0    	4008      	0       	0   	
+212  	0       	2    	quest_done            	1    	4008      	0       	0   	
+213  	0       	0    	quest_active          	0    	4008      	0       	0   	
+214  	0       	0    	quest_done            	0    	4008      	0       	0   	
+215  	0       	0    	item_count_at_least   	0    	20001002  	1       	0   	
+215  	0       	1    	quest_active          	0    	4007      	0       	0   	
+215  	0       	2    	quest_done            	1    	4007      	0       	0   	
+216  	0       	0    	quest_active          	0    	4007      	0       	0   	
+217  	0       	0    	quest_done            	0    	4007      	0       	0   	
+218  	0       	0    	item_count_at_least   	0    	20001004  	1       	0   	
+218  	0       	1    	quest_active          	0    	4006      	0       	0   	
+218  	0       	2    	quest_done            	1    	4006      	0       	0   	
+219  	0       	0    	quest_active          	0    	4006      	0       	0   	
+220  	0       	0    	target_name           	1    	0         	0       	0   	云霏霏
+221  	0       	0    	target_name           	0    	0         	0       	0   	宁忆
+222  	0       	0    	target_name           	0    	0         	0       	0   	叶睿
+223  	0       	0    	target_name           	0    	0         	0       	0   	慕容玖
+224  	0       	0    	target_name           	0    	0         	0       	0   	朱翎羽
+225  	0       	0    	target_name           	0    	0         	0       	0   	郭大鹏
+226  	0       	0    	target_name           	0    	0         	0       	0   	唐千川
+227  	0       	0    	target_name           	0    	0         	0       	0   	宋倩秋
+228  	0       	0    	target_name           	0    	0         	0       	0   	天岩大师
+229  	0       	0    	target_name           	0    	0         	0       	0   	黎岫锋
+230  	0       	0    	target_name           	0    	0         	0       	0   	明厉大师
+231  	0       	0    	target_name           	0    	0         	0       	0   	苏敬池
+232  	0       	0    	target_name           	0    	0         	0       	0   	曹琦
+233  	0       	0    	ability_at_least      	0    	10        	7       	0   	
+234  	0       	0    	ability_is            	0    	10        	0       	0   	
+235  	0       	0    	ability_is            	1    	10        	0       	0   	
+236  	0       	0    	quest_active          	0    	704       	0       	0   	
+237  	0       	0    	target_name           	0    	0         	0       	0   	童清
+238  	0       	0    	target_name           	0    	0         	0       	0   	辰溪
+239  	0       	0    	target_name           	1    	0         	0       	0   	立繁
+240  	0       	0    	quest_active          	0    	700       	0       	0   	
+241  	0       	0    	impact_active         	0    	31550     	0       	0   	
+242  	0       	0    	target_name           	1    	0         	0       	0   	周然
+243  	0       	0    	target_name           	0    	0         	0       	0   	政一
+244  	0       	0    	target_name           	0    	0         	0       	0   	黄时雨
+245  	0       	0    	target_name           	0    	0         	0       	0   	杨渐
+246  	0       	0    	target_name           	0    	0         	0       	0   	唐昱
+247  	0       	0    	target_name           	0    	0         	0       	0   	慕容传
+248  	0       	0    	target_name           	0    	0         	0       	0   	澹台子羽
+249  	0       	0    	target_name           	0    	0         	0       	0   	程青霜
+250  	0       	0    	target_name           	0    	0         	0       	0   	破贪
+251  	0       	0    	target_name           	0    	0         	0       	0   	海风子
+252  	0       	0    	target_name           	0    	0         	0       	0   	路三娘
+253  	0       	0    	target_name           	0    	0         	0       	0   	张获
+254  	0       	0    	target_name           	0    	0         	0       	0   	简宁
+255  	0       	0    	target_name           	0    	0         	0       	0   	石宝
+256  	0       	0    	target_name           	0    	0         	0       	0   	慧易
+257  	0       	0    	sect_is               	1    	9         	0       	0   	
+258  	0       	0    	gender_is             	0    	0         	0       	0   	
+259  	0       	0    	sect_is               	0    	14        	0       	0   	
+260  	0       	0    	sect_is               	0    	9         	0       	0   	
+261  	0       	0    	target_name           	1    	0         	0       	0   	赵天师
+262  	0       	0    	sect_is               	0    	13        	0       	0   	
+263  	0       	0    	target_name           	0    	0         	0       	0   	枕梦归
+264  	0       	0    	sect_is               	0    	12        	0       	0   	
+265  	0       	0    	target_name           	0    	0         	0       	0   	王栩之
+266  	0       	0    	target_name           	0    	0         	0       	0   	唐岳天
+267  	0       	0    	target_name           	0    	0         	0       	0   	慕容杰
+268  	0       	0    	target_name           	0    	0         	0       	0   	苏星河
+269  	0       	0    	target_name           	0    	0         	0       	0   	梅剑
+270  	0       	0    	target_name           	0    	0         	0       	0   	丁春秋
+271  	0       	0    	target_name           	0    	0         	0       	0   	本因
+272  	0       	0    	target_name           	0    	0         	0       	0   	孟青青
+273  	0       	0    	target_name           	0    	0         	0       	0   	张玄素
+274  	0       	0    	target_name           	0    	0         	0       	0   	宋慈
+275  	0       	0    	target_name           	0    	0         	0       	0   	林世长
+276  	0       	0    	target_name           	0    	0         	0       	0   	玄慈
+277  	0       	0    	target_name           	0    	0         	0       	0   	王玄风
+278  	0       	0    	target_name           	1    	0         	0       	0   	王玄风
+279  	0       	0    	quest_active          	0    	1303      	0       	0   	
+280  	0       	0    	quest_done            	0    	1303      	0       	0   	
+281  	0       	0    	target_name           	0    	0         	0       	0   	唐清秋
+282  	0       	0    	target_name           	1    	0         	0       	0   	唐清秋
+283  	0       	0    	quest_active          	0    	1301      	0       	0   	
+284  	0       	0    	quest_done            	0    	1301      	0       	0   	
+285  	0       	0    	target_name           	0    	0         	0       	0   	慕容胜
+286  	0       	0    	target_name           	1    	0         	0       	0   	慕容胜
+287  	0       	0    	quest_active          	0    	1116      	0       	0   	
+288  	0       	0    	quest_done            	0    	1116      	0       	0   	
+289  	0       	0    	target_name           	0    	0         	0       	0   	王韶
+290  	0       	0    	level_at_least        	0    	30        	0       	0   	
+290  	0       	1    	quest_active          	1    	949       	0       	0   	
+290  	0       	2    	quest_done            	0    	948       	0       	0   	
+290  	0       	3    	quest_done            	1    	949       	0       	0   	
+291  	0       	0    	quest_active          	0    	949       	0       	0   	
+292  	0       	0    	quest_done            	0    	949       	0       	0   	
+293  	0       	0    	target_name           	1    	0         	0       	0   	王韶
+294  	0       	0    	level_at_least        	0    	30        	0       	0   	
+294  	0       	1    	quest_active          	1    	944       	0       	0   	
+294  	0       	2    	quest_done            	1    	944       	0       	0   	
+295  	0       	0    	quest_active          	0    	944       	0       	0   	
+296  	0       	0    	quest_done            	0    	944       	0       	0   	
+297  	0       	0    	target_name           	0    	0         	0       	0   	符敏仪
+298  	0       	0    	target_name           	1    	0         	0       	0   	符敏仪
+299  	0       	0    	quest_active          	0    	1104      	0       	0   	
+300  	0       	0    	quest_done            	0    	1104      	0       	0   	
+301  	0       	0    	target_name           	0    	0         	0       	0   	王彦
+302  	0       	0    	target_name           	1    	0         	0       	0   	王彦
+303  	0       	0    	quest_active          	0    	1099      	0       	0   	
+304  	0       	0    	quest_done            	0    	1099      	0       	0   	
+305  	0       	0    	target_name           	0    	0         	0       	0   	孟龙
+306  	0       	0    	target_name           	1    	0         	0       	0   	孟龙
+307  	0       	0    	quest_active          	0    	1094      	0       	0   	
+308  	0       	0    	quest_done            	0    	1094      	0       	0   	
+309  	0       	0    	target_name           	0    	0         	0       	0   	秦观
+310  	0       	0    	target_name           	1    	0         	0       	0   	秦观
+311  	0       	0    	quest_active          	0    	1089      	0       	0   	
+312  	0       	0    	quest_done            	0    	1089      	0       	0   	
+313  	0       	0    	target_name           	0    	0         	0       	0   	本凡
+314  	0       	0    	target_name           	1    	0         	0       	0   	本凡
+315  	0       	0    	quest_active          	0    	1084      	0       	0   	
+316  	0       	0    	quest_done            	0    	1084      	0       	0   	
+317  	0       	0    	target_name           	0    	0         	0       	0   	张中行
+318  	0       	0    	target_name           	1    	0         	0       	0   	张中行
+319  	0       	0    	quest_active          	0    	1079      	0       	0   	
+320  	0       	0    	quest_done            	0    	1079      	0       	0   	
+321  	0       	0    	target_name           	0    	0         	0       	0   	林岩
+322  	0       	0    	target_name           	1    	0         	0       	0   	林岩
+323  	0       	0    	quest_active          	0    	1074      	0       	0   	
+324  	0       	0    	quest_done            	0    	1074      	0       	0   	
+325  	0       	0    	target_name           	0    	0         	0       	0   	洪通
+326  	0       	0    	target_name           	1    	0         	0       	0   	洪通
+327  	0       	0    	quest_active          	0    	1069      	0       	0   	
+328  	0       	0    	quest_done            	0    	1069      	0       	0   	
+329  	0       	0    	target_name           	0    	0         	0       	0   	慧方
+330  	0       	0    	target_name           	1    	0         	0       	0   	慧方
+331  	0       	0    	quest_active          	0    	1064      	0       	0   	
+332  	0       	0    	quest_done            	0    	1064      	0       	0   	
+333  	0       	0    	level_at_least        	0    	30        	0       	0   	
+333  	0       	1    	quest_done            	0    	965       	0       	0   	
+333  	0       	2    	quest_done            	1    	966       	0       	0   	
+333  	0       	3    	sect_is               	0    	0         	0       	0   	
+334  	0       	0    	quest_active          	0    	966       	0       	0   	
+335  	0       	0    	quest_done            	0    	966       	0       	0   	
+336  	0       	0    	level_at_least        	0    	30        	0       	0   	
+336  	0       	1    	quest_done            	0    	963       	0       	0   	
+336  	0       	2    	quest_done            	1    	964       	0       	0   	
+336  	0       	3    	sect_is               	0    	0         	0       	0   	
+337  	0       	0    	quest_active          	0    	964       	0       	0   	
+338  	0       	0    	quest_done            	0    	964       	0       	0   	
+339  	0       	0    	level_at_least        	0    	30        	0       	0   	
+339  	0       	1    	quest_done            	1    	961       	0       	0   	
+339  	0       	2    	sect_is               	0    	0         	0       	0   	
+340  	0       	0    	quest_active          	0    	961       	0       	0   	
+341  	0       	0    	quest_done            	0    	961       	0       	0   	
+342  	0       	0    	level_at_least        	0    	75        	0       	0   	
+342  	0       	1    	quest_done            	0    	253       	0       	0   	
+342  	0       	2    	quest_done            	0    	254       	0       	0   	
+342  	0       	3    	quest_done            	0    	255       	0       	0   	
+342  	0       	4    	quest_done            	1    	256       	0       	0   	
+343  	0       	0    	quest_active          	0    	256       	0       	0   	
+344  	0       	0    	quest_done            	0    	256       	0       	0   	
+345  	0       	0    	level_at_least        	0    	75        	0       	0   	
+345  	0       	1    	quest_done            	0    	389       	0       	0   	
+345  	0       	2    	quest_done            	1    	255       	0       	0   	
+346  	0       	0    	quest_active          	0    	255       	0       	0   	
+347  	0       	0    	quest_done            	0    	255       	0       	0   	
+348  	0       	0    	level_at_least        	0    	75        	0       	0   	
+348  	0       	1    	quest_done            	0    	349       	0       	0   	
+348  	0       	2    	quest_done            	1    	254       	0       	0   	
+349  	0       	0    	quest_active          	0    	254       	0       	0   	
+350  	0       	0    	quest_done            	0    	254       	0       	0   	
+351  	0       	0    	level_at_least        	0    	75        	0       	0   	
+351  	0       	1    	quest_done            	0    	309       	0       	0   	
+351  	0       	2    	quest_done            	1    	253       	0       	0   	
+352  	0       	0    	quest_active          	0    	253       	0       	0   	
+353  	0       	0    	quest_done            	0    	253       	0       	0   	
+354  	0       	0    	target_name           	0    	0         	0       	0   	王安石
+355  	0       	0    	target_name           	1    	0         	0       	0   	王安石
+356  	0       	0    	level_at_least        	0    	10        	0       	0   	
+356  	0       	1    	quest_done            	1    	252       	0       	0   	
+357  	0       	0    	quest_active          	0    	252       	0       	0   	
+358  	0       	0    	quest_done            	0    	252       	0       	0   	
+359  	0       	0    	target_name           	0    	0         	0       	0   	司马光
+360  	0       	0    	target_name           	1    	0         	0       	0   	司马光
+361  	0       	0    	level_at_least        	0    	10        	0       	0   	
+361  	0       	1    	quest_done            	1    	251       	0       	0   	
+362  	0       	0    	quest_active          	0    	251       	0       	0   	
+363  	0       	0    	quest_done            	0    	251       	0       	0   	
+364  	0       	0    	target_name           	0    	0         	0       	0   	沈括
+365  	0       	0    	target_name           	1    	0         	0       	0   	沈括
+366  	0       	0    	level_at_least        	0    	10        	0       	0   	
+366  	0       	1    	quest_done            	1    	250       	0       	0   	
+367  	0       	0    	quest_active          	0    	250       	0       	0   	
+368  	0       	0    	quest_done            	0    	250       	0       	0   	
+369  	0       	0    	level_at_least        	0    	59        	0       	0   	
+369  	0       	1    	quest_done            	1    	943       	0       	0   	
+370  	0       	0    	quest_active          	0    	943       	0       	0   	
+371  	0       	0    	quest_done            	0    	943       	0       	0   	
+372  	0       	0    	target_name           	0    	0         	0       	0   	郑圆
+373  	0       	0    	target_name           	1    	0         	0       	0   	郑圆
+374  	0       	0    	level_at_least        	0    	56        	0       	0   	
+374  	0       	1    	quest_done            	0    	605       	0       	0   	
+374  	0       	2    	quest_done            	1    	940       	0       	0   	
+375  	0       	0    	quest_active          	0    	940       	0       	0   	
+376  	0       	0    	quest_done            	0    	940       	0       	0   	
+377  	0       	0    	target_name           	0    	0         	0       	0   	曲阳
+378  	0       	0    	target_name           	1    	0         	0       	0   	曲阳
+379  	0       	0    	level_at_least        	0    	52        	0       	0   	
+379  	0       	1    	quest_done            	1    	938       	0       	0   	
+380  	0       	0    	quest_active          	0    	938       	0       	0   	
+381  	0       	0    	quest_done            	0    	938       	0       	0   	
+382  	0       	0    	level_at_least        	0    	46        	0       	0   	
+382  	0       	1    	quest_done            	1    	935       	0       	0   	
+383  	0       	0    	quest_active          	0    	935       	0       	0   	
+384  	0       	0    	quest_done            	0    	935       	0       	0   	
+385  	0       	0    	level_at_least        	0    	41        	0       	0   	
+385  	0       	1    	quest_done            	1    	932       	0       	0   	
+386  	0       	0    	quest_active          	0    	932       	0       	0   	
+387  	0       	0    	quest_done            	0    	932       	0       	0   	
+388  	0       	0    	target_name           	0    	0         	0       	0   	耶律莫哥
+389  	0       	0    	target_name           	1    	0         	0       	0   	耶律莫哥
+390  	0       	0    	level_at_least        	0    	31        	0       	0   	
+390  	0       	1    	quest_done            	1    	926       	0       	0   	
+391  	0       	0    	quest_active          	0    	926       	0       	0   	
+392  	0       	0    	quest_done            	0    	926       	0       	0   	
+393  	0       	0    	target_name           	0    	0         	0       	0   	法念
+394  	0       	0    	target_name           	1    	0         	0       	0   	法念
+395  	0       	0    	level_at_least        	0    	36        	0       	0   	
+395  	0       	1    	quest_done            	1    	929       	0       	0   	
+396  	0       	0    	quest_active          	0    	929       	0       	0   	
+397  	0       	0    	quest_done            	0    	929       	0       	0   	
+398  	0       	0    	level_at_least        	0    	20        	0       	0   	
+398  	0       	1    	quest_done            	0    	922       	0       	0   	
+398  	0       	2    	quest_done            	1    	923       	0       	0   	
+399  	0       	0    	quest_active          	0    	923       	0       	0   	
+400  	0       	0    	quest_done            	0    	923       	0       	0   	
+401  	0       	0    	target_name           	0    	0         	0       	0   	叶流凡
+402  	0       	0    	target_name           	1    	0         	0       	0   	叶流凡
+403  	0       	0    	level_at_least        	0    	82        	0       	0   	
+403  	0       	1    	quest_done            	0    	687       	0       	0   	
+403  	0       	2    	quest_done            	1    	688       	0       	0   	
+404  	0       	0    	quest_active          	0    	688       	0       	0   	
+405  	0       	0    	quest_done            	0    	688       	0       	0   	
+406  	0       	0    	quest_active          	0    	678       	0       	0   	
+407  	0       	0    	quest_done            	0    	678       	0       	0   	
+408  	0       	0    	target_name           	0    	0         	0       	0   	李老太太
+409  	0       	0    	quest_active          	0    	558       	0       	0   	
+410  	0       	0    	quest_done            	0    	558       	0       	0   	
+411  	0       	0    	target_name           	0    	0         	0       	0   	阿诗玛
+412  	0       	0    	quest_active          	0    	618       	0       	0   	
+413  	0       	0    	quest_active          	0    	561       	0       	0   	
+414  	0       	0    	quest_done            	0    	561       	0       	0   	
+415  	0       	0    	quest_active          	0    	658       	0       	0   	
+416  	0       	0    	quest_done            	0    	658       	0       	0   	
+417  	0       	0    	quest_active          	0    	554       	0       	0   	
+418  	0       	0    	quest_done            	0    	554       	0       	0   	
+419  	0       	0    	quest_active          	0    	552       	0       	0   	
+420  	0       	0    	quest_done            	0    	552       	0       	0   	
+421  	0       	0    	target_name           	0    	0         	0       	0   	郑玄
+422  	0       	0    	quest_active          	0    	608       	0       	0   	
+423  	0       	0    	quest_done            	0    	608       	0       	0   	
+424  	0       	0    	level_at_least        	0    	55        	0       	0   	
+424  	0       	1    	quest_done            	1    	602       	0       	0   	
+425  	0       	0    	quest_active          	0    	602       	0       	0   	
+426  	0       	0    	quest_active          	0    	536       	0       	0   	
+427  	0       	0    	quest_done            	0    	536       	0       	0   	
+428  	0       	0    	quest_active          	0    	648       	0       	0   	
+429  	0       	0    	quest_done            	0    	648       	0       	0   	
+430  	0       	0    	clock_at_least        	0    	1         	9121    	0   	
+430  	1       	0    	clock_at_least        	1    	1         	9045    	0   	
+431  	0       	0    	bag_space_at_least    	0    	1         	0       	0   	
+432  	0       	0    	item_count_at_least   	0    	30308021  	1       	0   	
+433  	0       	0    	quest_active          	0    	718       	0       	0   	
+434  	0       	0    	quest_done            	0    	718       	0       	0   	
+435  	0       	0    	target_name           	0    	0         	0       	0   	赵天师
+436  	0       	0    	quest_active          	0    	712       	0       	0   	
+437  	0       	0    	quest_done            	0    	712       	0       	0   	
+438  	0       	0    	quest_active          	0    	711       	0       	0   	
+439  	0       	0    	target_name           	0    	0         	0       	0   	黄眉僧
+440  	0       	0    	target_name           	1    	0         	0       	0   	黄眉僧
+441  	0       	0    	quest_active          	0    	710       	0       	0   	
+442  	0       	0    	quest_done            	0    	710       	0       	0   	
+443  	0       	0    	quest_active          	0    	709       	0       	0   	
+444  	0       	0    	quest_done            	0    	709       	0       	0   	
+445  	0       	0    	quest_active          	0    	708       	0       	0   	
+446  	0       	0    	quest_active          	0    	707       	0       	0   	
+447  	0       	0    	quest_active          	0    	706       	0       	0   	
+448  	0       	0    	target_name           	0    	0         	0       	0   	段延庆
+449  	0       	0    	target_name           	1    	0         	0       	0   	段延庆
+450  	0       	0    	quest_active          	0    	705       	0       	0   	
+451  	0       	0    	quest_done            	0    	705       	0       	0   	
+452  	0       	0    	quest_active          	0    	703       	0       	0   	
+453  	0       	0    	quest_done            	0    	703       	0       	0   	
+454  	0       	0    	target_name           	0    	0         	0       	0   	云飘飘
+455  	0       	0    	target_name           	1    	0         	0       	0   	云飘飘
+456  	0       	0    	quest_done            	0    	700       	0       	0   	
+457  	0       	0    	quest_active          	0    	457       	0       	0   	
+458  	0       	0    	quest_active          	0    	456       	0       	0   	
+459  	0       	0    	quest_done            	0    	456       	0       	0   	
+460  	0       	0    	quest_active          	0    	454       	0       	0   	
+461  	0       	0    	quest_done            	0    	454       	0       	0   	
+462  	0       	0    	quest_active          	0    	453       	0       	0   	
+463  	0       	0    	quest_active          	0    	452       	0       	0   	
+464  	0       	0    	quest_done            	0    	452       	0       	0   	
+465  	0       	0    	quest_active          	0    	451       	0       	0   	
+466  	0       	0    	target_name           	0    	0         	0       	0   	孙八爷
+467  	0       	0    	target_name           	1    	0         	0       	0   	孙八爷
+468  	0       	0    	quest_active          	0    	450       	0       	0   	
+469  	0       	0    	quest_done            	0    	450       	0       	0   	
+470  	0       	0    	quest_active          	0    	448       	0       	0   	
+471  	0       	0    	quest_done            	0    	448       	0       	0   	
+472  	0       	0    	target_name           	0    	0         	0       	0   	钱龙
+473  	0       	0    	target_name           	1    	0         	0       	0   	钱龙
+474  	0       	0    	quest_active          	0    	445       	0       	0   	
+475  	0       	0    	quest_done            	0    	445       	0       	0   	
+476  	0       	0    	quest_active          	0    	444       	0       	0   	
+477  	0       	0    	quest_done            	0    	444       	0       	0   	
+478  	0       	0    	target_name           	0    	0         	0       	0   	卢三七
+479  	0       	0    	target_name           	1    	0         	0       	0   	卢三七
+480  	0       	0    	quest_active          	0    	443       	0       	0   	
+481  	0       	0    	quest_done            	0    	443       	0       	0   	
+482  	0       	0    	quest_active          	0    	442       	0       	0   	
+483  	0       	0    	target_name           	0    	0         	0       	0   	杜子腾
+484  	0       	0    	target_name           	1    	0         	0       	0   	杜子腾
+485  	0       	0    	quest_active          	0    	441       	0       	0   	
+486  	0       	0    	quest_done            	0    	441       	0       	0   	
+487  	0       	0    	target_name           	0    	0         	0       	0   	蒲良
+488  	0       	0    	target_name           	1    	0         	0       	0   	蒲良
+489  	0       	0    	quest_active          	0    	440       	0       	0   	
+490  	0       	0    	quest_done            	0    	440       	0       	0   	
+491  	0       	0    	target_name           	0    	0         	0       	0   	叶二娘
+492  	0       	0    	target_name           	0    	0         	0       	0   	耶律大石
+493  	0       	0    	target_name           	0    	0         	0       	0   	段正淳
+494  	0       	0    	target_name           	0    	0         	0       	0   	慕容复
+495  	0       	0    	target_name           	0    	0         	0       	0   	赫连铁树
+496  	0       	0    	target_name           	0    	0         	0       	0   	阿紫
+497  	0       	0    	target_name           	0    	0         	0       	0   	王夫人
+498  	0       	0    	target_name           	0    	0         	0       	0   	阿碧
+499  	0       	0    	target_name           	0    	0         	0       	0   	阮星竹
+500  	0       	0    	target_name           	0    	0         	0       	0   	鸠摩智
+501  	0       	0    	target_name           	0    	0         	0       	0   	钟灵
+502  	0       	0    	target_name           	0    	0         	0       	0   	木婉清
+503  	0       	0    	target_name           	0    	0         	0       	0   	天山童姥
+504  	0       	0    	target_name           	1    	0         	0       	0   	天山童姥
+505  	0       	0    	level_at_least        	0    	70        	0       	0   	
+505  	0       	1    	quest_done            	0    	39        	0       	0   	
+505  	0       	2    	quest_done            	1    	40        	0       	0   	
+506  	0       	0    	quest_active          	0    	40        	0       	0   	
+507  	0       	0    	quest_done            	0    	40        	0       	0   	
+508  	0       	0    	target_name           	1    	0         	0       	0   	梅剑
+509  	0       	0    	level_at_least        	0    	70        	0       	0   	
+509  	0       	1    	quest_done            	0    	38        	0       	0   	
+509  	0       	2    	quest_done            	1    	39        	0       	0   	
+510  	0       	0    	quest_active          	0    	39        	0       	0   	
+511  	0       	0    	quest_done            	0    	39        	0       	0   	
+512  	0       	0    	target_name           	1    	0         	0       	0   	赫连铁树
+513  	0       	0    	level_at_least        	0    	70        	0       	0   	
+513  	0       	1    	quest_done            	0    	37        	0       	0   	
+513  	0       	2    	quest_done            	1    	38        	0       	0   	
+514  	0       	0    	quest_active          	0    	38        	0       	0   	
+515  	0       	0    	quest_done            	0    	38        	0       	0   	
+516  	0       	0    	target_name           	1    	0         	0       	0   	苏星河
+517  	0       	0    	level_at_least        	0    	60        	0       	0   	
+517  	0       	1    	quest_done            	0    	32        	0       	0   	
+517  	0       	2    	quest_done            	1    	33        	0       	0   	
+518  	0       	0    	quest_active          	0    	33        	0       	0   	
+519  	0       	0    	quest_done            	0    	33        	0       	0   	
+520  	0       	0    	target_name           	0    	0         	0       	0   	萧峰
+521  	0       	0    	target_name           	1    	0         	0       	0   	萧峰
+522  	0       	0    	level_at_least        	0    	50        	0       	0   	
+522  	0       	1    	quest_done            	0    	25        	0       	0   	
+522  	0       	2    	quest_done            	1    	26        	0       	0   	
+523  	0       	0    	quest_active          	0    	26        	0       	0   	
+524  	0       	0    	quest_done            	0    	26        	0       	0   	
+525  	0       	0    	target_name           	1    	0         	0       	0   	段正淳
+526  	0       	0    	level_at_least        	0    	50        	0       	0   	
+526  	0       	1    	quest_done            	0    	24        	0       	0   	
+526  	0       	2    	quest_done            	1    	25        	0       	0   	
+527  	0       	0    	quest_active          	0    	25        	0       	0   	
+528  	0       	0    	quest_done            	0    	25        	0       	0   	
+529  	0       	0    	target_name           	0    	0         	0       	0   	康敏
+530  	0       	0    	target_name           	1    	0         	0       	0   	康敏
+531  	0       	0    	level_at_least        	0    	50        	0       	0   	
+531  	0       	1    	quest_done            	0    	23        	0       	0   	
+531  	0       	2    	quest_done            	1    	24        	0       	0   	
+532  	0       	0    	quest_active          	0    	24        	0       	0   	
+533  	0       	0    	quest_done            	0    	24        	0       	0   	
+534  	0       	0    	target_name           	0    	0         	0       	0   	徐惊雷
+535  	0       	0    	target_name           	1    	0         	0       	0   	徐惊雷
+536  	0       	0    	level_at_least        	0    	40        	0       	0   	
+536  	0       	1    	quest_done            	0    	19        	0       	0   	
+536  	0       	2    	quest_done            	1    	20        	0       	0   	
+537  	0       	0    	quest_active          	0    	20        	0       	0   	
+538  	0       	0    	quest_done            	0    	20        	0       	0   	
+539  	0       	0    	target_name           	1    	0         	0       	0   	玄慈
+540  	0       	0    	level_at_least        	0    	40        	0       	0   	
+540  	0       	1    	quest_done            	0    	18        	0       	0   	
+540  	0       	2    	quest_done            	1    	19        	0       	0   	
+541  	0       	0    	quest_active          	0    	19        	0       	0   	
+542  	0       	0    	quest_done            	0    	19        	0       	0   	
+543  	0       	0    	level_at_least        	0    	40        	0       	0   	
+543  	0       	1    	quest_done            	0    	17        	0       	0   	
+543  	0       	2    	quest_done            	1    	18        	0       	0   	
+544  	0       	0    	quest_active          	0    	18        	0       	0   	
+545  	0       	0    	quest_done            	0    	18        	0       	0   	
+546  	0       	0    	level_at_least        	0    	40        	0       	0   	
+546  	0       	1    	quest_done            	0    	16        	0       	0   	
+546  	0       	2    	quest_done            	1    	17        	0       	0   	
+547  	0       	0    	quest_active          	0    	17        	0       	0   	
+548  	0       	0    	quest_done            	0    	17        	0       	0   	
+549  	0       	0    	level_at_least        	0    	40        	0       	0   	
+549  	0       	1    	quest_done            	0    	15        	0       	0   	
+549  	0       	2    	quest_done            	1    	16        	0       	0   	
+550  	0       	0    	quest_active          	0    	16        	0       	0   	
+551  	0       	0    	quest_done            	0    	16        	0       	0   	
+552  	0       	0    	target_name           	0    	0         	0       	0   	王语嫣
+553  	0       	0    	target_name           	1    	0         	0       	0   	王语嫣
+554  	0       	0    	level_at_least        	0    	30        	0       	0   	
+554  	0       	1    	quest_done            	0    	12        	0       	0   	
+554  	0       	2    	quest_done            	1    	13        	0       	0   	
+555  	0       	0    	quest_active          	0    	13        	0       	0   	
+556  	0       	0    	quest_done            	0    	13        	0       	0   	
+557  	0       	0    	level_at_least        	0    	30        	0       	0   	
+557  	0       	1    	quest_done            	0    	9         	0       	0   	
+557  	0       	2    	quest_done            	1    	10        	0       	0   	
+558  	0       	0    	quest_active          	0    	10        	0       	0   	
+559  	0       	0    	quest_done            	0    	10        	0       	0   	
+560  	0       	0    	target_name           	1    	0         	0       	0   	阿碧
+561  	0       	0    	level_at_least        	0    	30        	0       	0   	
+561  	0       	1    	quest_done            	0    	8         	0       	0   	
+561  	0       	2    	quest_done            	1    	9         	0       	0   	
+562  	0       	0    	quest_active          	0    	9         	0       	0   	
+563  	0       	0    	quest_done            	0    	9         	0       	0   	
+564  	0       	0    	target_name           	1    	0         	0       	0   	钟灵
+565  	0       	0    	level_at_least        	0    	20        	0       	0   	
+565  	0       	1    	quest_done            	0    	1         	0       	0   	
+565  	0       	2    	quest_done            	1    	2         	0       	0   	
+566  	0       	0    	quest_active          	0    	2         	0       	0   	
+567  	0       	0    	quest_done            	0    	2         	0       	0   	
+568  	0       	0    	level_at_least        	0    	20        	0       	0   	
+568  	0       	1    	quest_done            	1    	1         	0       	0   	
+569  	0       	0    	quest_active          	0    	1         	0       	0   	
+570  	0       	0    	quest_done            	0    	1         	0       	0   	
+571  	0       	0    	objective_at_least    	0    	45        	0       	1   	
+571  	0       	1    	objective_at_least    	1    	45        	0       	2   	
+572  	0       	0    	target_name           	0    	0         	0       	0   	李清露
+573  	0       	0    	quest_active          	0    	45        	0       	0   	
+574  	0       	0    	target_name           	0    	0         	0       	0   	晓蕾
+575  	0       	0    	level_at_least        	0    	70        	0       	0   	
+575  	0       	1    	quest_done            	0    	42        	0       	0   	
+575  	0       	2    	quest_done            	1    	43        	0       	0   	
+576  	0       	0    	quest_active          	0    	43        	0       	0   	
+577  	0       	0    	quest_done            	0    	43        	0       	0   	
+578  	0       	0    	level_at_least        	0    	70        	0       	0   	
+578  	0       	1    	quest_done            	0    	41        	0       	0   	
+578  	0       	2    	quest_done            	1    	42        	0       	0   	
+579  	0       	0    	quest_active          	0    	42        	0       	0   	
+580  	0       	0    	quest_done            	0    	42        	0       	0   	
+581  	0       	0    	objective_at_least    	0    	32        	0       	1   	
+581  	0       	1    	objective_at_least    	1    	32        	0       	2   	
+582  	0       	0    	level_at_least        	0    	50        	0       	0   	
+582  	0       	1    	quest_done            	0    	31        	0       	0   	
+582  	0       	2    	quest_done            	1    	32        	0       	0   	
+583  	0       	0    	quest_active          	0    	32        	0       	0   	
+584  	0       	0    	level_at_least        	0    	50        	0       	0   	
+584  	0       	1    	quest_done            	0    	26        	0       	0   	
+584  	0       	2    	quest_done            	1    	27        	0       	0   	
+585  	0       	0    	quest_active          	0    	27        	0       	0   	
+586  	0       	0    	quest_done            	0    	27        	0       	0   	
+587  	0       	0    	level_at_least        	0    	40        	0       	0   	
+587  	0       	1    	quest_done            	0    	47        	0       	0   	
+587  	0       	2    	quest_done            	1    	22        	0       	0   	
+588  	0       	0    	quest_active          	0    	22        	0       	0   	
+589  	0       	0    	quest_done            	0    	22        	0       	0   	
+590  	0       	0    	quest_active          	0    	21        	0       	0   	
+591  	0       	0    	target_name           	1    	0         	0       	0   	慕容复
+592  	0       	0    	quest_active          	0    	12        	0       	0   	
+593  	0       	0    	quest_done            	0    	12        	0       	0   	
+594  	0       	0    	quest_active          	0    	11        	0       	0   	
+595  	0       	0    	quest_active          	0    	8         	0       	0   	
+596  	0       	0    	quest_active          	0    	6         	0       	0   	
+597  	0       	0    	quest_active          	0    	4         	0       	0   	
+598  	0       	0    	quest_done            	0    	4         	0       	0   	
+599  	0       	0    	bag_space_at_least    	1    	2         	0       	0   	
+600  	0       	0    	counter_at_least      	1    	481       	1       	0   	
+601  	0       	0    	target_name           	0    	0         	0       	0   	宋知玉
+602  	0       	0    	target_name           	0    	0         	0       	0   	贾思谊
+603  	0       	0    	target_name           	0    	0         	0       	0   	陶水潜
+604  	0       	0    	target_name           	0    	0         	0       	0   	屈平原
+605  	0       	0    	level_at_least        	1    	20        	0       	0   	
+605  	0       	1    	target_name           	0    	0         	0       	0   	宋知玉
+606  	0       	0    	quest_done            	0    	32        	0       	0   	
+607  	0       	0    	quest_done            	1    	31        	0       	0   	
+608  	0       	0    	quest_active          	0    	31        	0       	0   	
+609  	0       	0    	quest_done            	0    	31        	0       	0   	
+610  	0       	0    	level_at_least        	0    	50        	0       	0   	
+610  	0       	1    	quest_done            	0    	29        	0       	0   	
+610  	0       	2    	quest_done            	1    	30        	0       	0   	
+610  	0       	3    	target_name           	0    	0         	0       	0   	耶律洪基
+611  	0       	0    	quest_active          	0    	30        	0       	0   	
+612  	0       	0    	quest_done            	0    	30        	0       	0   	
+613  	0       	0    	level_at_least        	0    	50        	0       	0   	
+613  	0       	1    	quest_done            	0    	30        	0       	0   	
+613  	0       	2    	quest_done            	1    	31        	0       	0   	
+614  	0       	0    	quest_active          	0    	37        	0       	0   	
+615  	0       	0    	quest_done            	0    	37        	0       	0   	
+616  	0       	0    	target_name           	0    	0         	0       	0   	虚竹
+617  	0       	0    	level_at_least        	0    	70        	0       	0   	
+617  	0       	1    	quest_done            	0    	40        	0       	0   	
+617  	0       	2    	quest_done            	1    	41        	0       	0   	
+617  	0       	3    	target_name           	0    	0         	0       	0   	天山童姥
+618  	0       	0    	quest_active          	0    	41        	0       	0   	
+619  	0       	0    	quest_done            	0    	41        	0       	0   	
+620  	0       	0    	quest_done            	0    	11        	0       	0   	
+621  	0       	0    	quest_active          	0    	1381      	0       	0   	
+622  	0       	0    	quest_done            	0    	1381      	0       	0   	
+623  	0       	0    	sect_at_least         	0    	0         	0       	0   	
+623  	0       	1    	sect_at_least         	1    	13        	0       	0   	
+623  	0       	2    	sect_is               	0    	0         	0       	0   	
+623  	1       	0    	sect_at_least         	0    	0         	0       	0   	
+623  	1       	1    	sect_at_least         	1    	13        	0       	0   	
+623  	1       	2    	sect_is               	0    	1         	0       	0   	
+623  	2       	0    	sect_at_least         	0    	0         	0       	0   	
+623  	2       	1    	sect_at_least         	1    	13        	0       	0   	
+623  	2       	2    	sect_is               	0    	10        	0       	0   	
+623  	3       	0    	sect_at_least         	0    	0         	0       	0   	
+623  	3       	1    	sect_at_least         	1    	13        	0       	0   	
+623  	3       	2    	sect_is               	0    	11        	0       	0   	
+623  	4       	0    	sect_at_least         	0    	0         	0       	0   	
+623  	4       	1    	sect_at_least         	1    	13        	0       	0   	
+623  	4       	2    	sect_is               	0    	2         	0       	0   	
+623  	5       	0    	sect_at_least         	0    	0         	0       	0   	
+623  	5       	1    	sect_at_least         	1    	13        	0       	0   	
+623  	5       	2    	sect_is               	0    	3         	0       	0   	
+623  	6       	0    	sect_at_least         	0    	0         	0       	0   	
+623  	6       	1    	sect_at_least         	1    	13        	0       	0   	
+623  	6       	2    	sect_is               	0    	4         	0       	0   	
+623  	7       	0    	sect_at_least         	0    	0         	0       	0   	
+623  	7       	1    	sect_at_least         	1    	13        	0       	0   	
+623  	7       	2    	sect_is               	0    	5         	0       	0   	
+623  	8       	0    	sect_at_least         	0    	0         	0       	0   	
+623  	8       	1    	sect_at_least         	1    	13        	0       	0   	
+623  	8       	2    	sect_is               	0    	6         	0       	0   	
+623  	9       	0    	sect_at_least         	0    	0         	0       	0   	
+623  	9       	1    	sect_at_least         	1    	13        	0       	0   	
+623  	9       	2    	sect_is               	0    	7         	0       	0   	
+623  	10      	0    	sect_at_least         	0    	0         	0       	0   	
+623  	10      	1    	sect_at_least         	1    	13        	0       	0   	
+623  	10      	2    	sect_is               	0    	8         	0       	0   	
+623  	11      	0    	sect_at_least         	0    	0         	0       	0   	
+623  	11      	1    	sect_at_least         	1    	13        	0       	0   	
+623  	11      	2    	sect_is               	1    	0         	0       	0   	
+623  	11      	3    	sect_is               	1    	1         	0       	0   	
+623  	11      	4    	sect_is               	1    	10        	0       	0   	
+623  	11      	5    	sect_is               	1    	11        	0       	0   	
+623  	11      	6    	sect_is               	1    	12        	0       	0   	
+623  	11      	7    	sect_is               	1    	2         	0       	0   	
+623  	11      	8    	sect_is               	1    	3         	0       	0   	
+623  	11      	9    	sect_is               	1    	4         	0       	0   	
+623  	11      	10   	sect_is               	1    	5         	0       	0   	
+623  	11      	11   	sect_is               	1    	6         	0       	0   	
+623  	11      	12   	sect_is               	1    	7         	0       	0   	
+623  	11      	13   	sect_is               	1    	8         	0       	0   	
+623  	11      	14   	sect_is               	1    	9         	0       	0   	
+623  	12      	0    	sect_at_least         	0    	13        	0       	0   	
+623  	13      	0    	sect_at_least         	1    	0         	0       	0   	
+623  	14      	0    	sect_is               	0    	9         	0       	0   	
+624  	0       	0    	sect_at_least         	0    	13        	0       	0   	
+624  	1       	0    	sect_at_least         	1    	0         	0       	0   	
+624  	2       	0    	sect_is               	0    	9         	0       	0   	
+625  	0       	0    	level_at_least        	1    	10        	0       	0   	
+626  	0       	0    	quest_active          	1    	1258      	0       	0   	
+627  	0       	0    	target_name           	1    	0         	0       	0   	何悦
+628  	0       	0    	quest_active          	1    	1257      	0       	0   	
+629  	0       	0    	target_name           	1    	0         	0       	0   	刘盾
+630  	0       	0    	quest_active          	1    	1256      	0       	0   	
+631  	0       	0    	item_count_at_least   	1    	40004455  	1       	0   	
+631  	0       	1    	item_count_at_least   	1    	40004456  	1       	0   	
+631  	0       	2    	item_count_at_least   	1    	40004457  	1       	0   	
+631  	0       	3    	item_count_at_least   	1    	40004458  	1       	0   	
+631  	0       	4    	item_count_at_least   	1    	40004459  	1       	0   	
+632  	0       	0    	item_count_at_least   	0    	40004459  	1       	0   	
+633  	0       	0    	item_count_at_least   	0    	40004458  	1       	0   	
+634  	0       	0    	item_count_at_least   	0    	40004457  	1       	0   	
+635  	0       	0    	item_count_at_least   	0    	40004456  	1       	0   	
+636  	0       	0    	item_count_at_least   	0    	40004455  	1       	0   	
+637  	0       	0    	quest_active          	0    	1256      	0       	0   	
+637  	1       	0    	quest_active          	0    	1258      	0       	0   	
+637  	1       	1    	quest_active          	1    	1256      	0       	0   	
+638  	0       	0    	quest_active          	1    	1262      	0       	0   	
+639  	0       	0    	target_name           	1    	0         	0       	0   	钱宏宇
+640  	0       	0    	quest_active          	1    	1261      	0       	0   	
+641  	0       	0    	target_name           	1    	0         	0       	0   	花剑雨
+642  	0       	0    	quest_active          	1    	1260      	0       	0   	
+643  	0       	0    	clock_at_least        	0    	1         	8257    	0   	
+643  	0       	1    	clock_at_least        	1    	1         	8283    	0   	
+644  	0       	0    	quest_done            	0    	45        	0       	0   	
+645  	0       	0    	quest_done            	1    	44        	0       	0   	
+646  	0       	0    	level_at_least        	1    	0         	0       	0   	
+647  	0       	0    	target_name           	0    	0         	0       	0   	薛慕华
+648  	0       	0    	quest_active          	0    	23        	0       	0   	
+649  	0       	0    	quest_done            	0    	23        	0       	0   	
+650  	0       	0    	level_at_least        	1    	30        	0       	0   	
+651  	0       	0    	item_count_at_least   	1    	40001039  	1       	0   	
+652  	0       	0    	quest_active          	0    	568       	0       	0   	
+653  	0       	0    	bag_space_at_least    	1    	1         	0       	0   	
+654  	0       	0    	target_name           	0    	0         	0       	0   	阿会南
+655  	0       	0    	target_name           	1    	0         	0       	0   	勇闯寒玉塔
+656  	0       	0    	quest_active          	0    	639       	0       	0   	
+657  	0       	0    	quest_done            	0    	639       	0       	0   	
+658  	0       	0    	target_name           	0    	0         	0       	0   	阿黑
+659  	0       	0    	quest_done            	0    	618       	0       	0   	
+660  	0       	0    	quest_done            	0    	602       	0       	0   	
+661  	0       	0    	target_name           	1    	0         	0       	0   	郑玄
+662  	0       	0    	quest_active          	1    	602       	0       	0   	
+663  	0       	0    	objective_at_least    	0    	561       	1       	1   	
+663  	0       	1    	objective_at_least    	0    	561       	2       	1   	
+663  	0       	2    	objective_at_least    	0    	561       	3       	1   	
+663  	0       	3    	objective_at_least    	1    	561       	1       	2   	
+663  	0       	4    	objective_at_least    	1    	561       	2       	2   	
+663  	0       	5    	objective_at_least    	1    	561       	3       	2   	
+664  	0       	0    	target_name           	0    	0         	0       	0   	完颜兀术
+665  	0       	0    	objective_at_least    	0    	561       	3       	0   	
+665  	0       	1    	objective_at_least    	1    	561       	3       	1   	
+666  	0       	0    	target_name           	0    	0         	0       	0   	完颜讹里朵
+667  	0       	0    	objective_at_least    	0    	561       	2       	0   	
+667  	0       	1    	objective_at_least    	1    	561       	2       	1   	
+668  	0       	0    	target_name           	0    	0         	0       	0   	完颜斡离不
+669  	0       	0    	objective_at_least    	0    	561       	1       	0   	
+669  	0       	1    	objective_at_least    	1    	561       	1       	1   	
+670  	0       	0    	target_name           	0    	0         	0       	0   	完颜粘没喝
+671  	0       	0    	target_name           	1    	0         	0       	0   	重建牧场
+672  	0       	0    	target_name           	1    	0         	0       	0   	驱赶黑蜂
+673  	0       	0    	quest_active          	1    	542       	0       	0   	
+673  	0       	1    	quest_active          	1    	543       	0       	0   	
+673  	0       	2    	quest_active          	1    	544       	0       	0   	
+674  	0       	0    	quest_active          	0    	548       	0       	0   	
+675  	0       	0    	quest_active          	1    	28        	0       	0   	
+676  	0       	0    	quest_done            	1    	28        	0       	0   	
+677  	0       	0    	quest_active          	1    	27        	0       	0   	
+678  	0       	0    	quest_done            	1    	27        	0       	0   	
+679  	0       	0    	quest_done            	0    	29        	0       	0   	
+680  	0       	0    	quest_active          	0    	29        	0       	0   	
+681  	0       	0    	quest_active          	1    	32        	0       	0   	
+682  	0       	0    	quest_done            	1    	32        	0       	0   	
+683  	0       	0    	quest_active          	1    	31        	0       	0   	
+684  	0       	0    	quest_active          	1    	30        	0       	0   	
+685  	0       	0    	quest_done            	1    	30        	0       	0   	
+686  	0       	0    	level_at_least        	0    	30        	0       	0   	
+686  	0       	1    	quest_active          	1    	947       	0       	0   	
+686  	0       	2    	quest_done            	0    	946       	0       	0   	
+686  	0       	3    	quest_done            	1    	947       	0       	0   	
+687  	0       	0    	quest_active          	0    	947       	0       	0   	
+688  	0       	0    	target_name           	1    	0         	0       	0   	种世衡
+689  	0       	0    	quest_active          	1    	947       	0       	0   	
+690  	0       	0    	objective_at_least    	0    	947       	0       	1   	
+690  	0       	1    	objective_at_least    	1    	947       	0       	2   	
+690  	0       	2    	quest_active          	0    	947       	0       	0   	
+690  	0       	3    	quest_done            	1    	947       	0       	0   	
+691  	0       	0    	objective_at_least    	0    	947       	0       	2   	
+691  	0       	1    	quest_active          	0    	947       	0       	0   	
+691  	0       	2    	quest_done            	1    	947       	0       	0   	
+691  	1       	0    	objective_at_least    	1    	947       	0       	1   	
+691  	1       	1    	quest_active          	0    	947       	0       	0   	
+691  	1       	2    	quest_done            	1    	947       	0       	0   	
+691  	2       	0    	quest_active          	1    	947       	0       	0   	
+691  	3       	0    	quest_done            	0    	947       	0       	0   	
+692  	0       	0    	quest_active          	0    	1300      	0       	0   	
+693  	0       	0    	quest_done            	0    	1300      	0       	0   	
+694  	0       	0    	sect_at_least         	0    	0         	0       	0   	
+694  	0       	1    	sect_at_least         	1    	13        	0       	0   	
+694  	0       	2    	sect_is               	0    	0         	0       	0   	
+694  	1       	0    	sect_at_least         	0    	0         	0       	0   	
+694  	1       	1    	sect_at_least         	1    	13        	0       	0   	
+694  	1       	2    	sect_is               	0    	1         	0       	0   	
+694  	2       	0    	sect_at_least         	0    	0         	0       	0   	
+694  	2       	1    	sect_at_least         	1    	13        	0       	0   	
+694  	2       	2    	sect_is               	0    	10        	0       	0   	
+694  	3       	0    	sect_at_least         	0    	0         	0       	0   	
+694  	3       	1    	sect_at_least         	1    	13        	0       	0   	
+694  	3       	2    	sect_is               	0    	12        	0       	0   	
+694  	4       	0    	sect_at_least         	0    	0         	0       	0   	
+694  	4       	1    	sect_at_least         	1    	13        	0       	0   	
+694  	4       	2    	sect_is               	0    	2         	0       	0   	
+694  	5       	0    	sect_at_least         	0    	0         	0       	0   	
+694  	5       	1    	sect_at_least         	1    	13        	0       	0   	
+694  	5       	2    	sect_is               	0    	3         	0       	0   	
+694  	6       	0    	sect_at_least         	0    	0         	0       	0   	
+694  	6       	1    	sect_at_least         	1    	13        	0       	0   	
+694  	6       	2    	sect_is               	0    	4         	0       	0   	
+694  	7       	0    	sect_at_least         	0    	0         	0       	0   	
+694  	7       	1    	sect_at_least         	1    	13        	0       	0   	
+694  	7       	2    	sect_is               	0    	5         	0       	0   	
+694  	8       	0    	sect_at_least         	0    	0         	0       	0   	
+694  	8       	1    	sect_at_least         	1    	13        	0       	0   	
+694  	8       	2    	sect_is               	0    	6         	0       	0   	
+694  	9       	0    	sect_at_least         	0    	0         	0       	0   	
+694  	9       	1    	sect_at_least         	1    	13        	0       	0   	
+694  	9       	2    	sect_is               	0    	7         	0       	0   	
+694  	10      	0    	sect_at_least         	0    	0         	0       	0   	
+694  	10      	1    	sect_at_least         	1    	13        	0       	0   	
+694  	10      	2    	sect_is               	0    	8         	0       	0   	
+694  	11      	0    	sect_at_least         	0    	0         	0       	0   	
+694  	11      	1    	sect_at_least         	1    	13        	0       	0   	
+694  	11      	2    	sect_is               	1    	0         	0       	0   	
+694  	11      	3    	sect_is               	1    	1         	0       	0   	
+694  	11      	4    	sect_is               	1    	10        	0       	0   	
+694  	11      	5    	sect_is               	1    	11        	0       	0   	
+694  	11      	6    	sect_is               	1    	12        	0       	0   	
+694  	11      	7    	sect_is               	1    	2         	0       	0   	
+694  	11      	8    	sect_is               	1    	3         	0       	0   	
+694  	11      	9    	sect_is               	1    	4         	0       	0   	
+694  	11      	10   	sect_is               	1    	5         	0       	0   	
+694  	11      	11   	sect_is               	1    	6         	0       	0   	
+694  	11      	12   	sect_is               	1    	7         	0       	0   	
+694  	11      	13   	sect_is               	1    	8         	0       	0   	
+694  	11      	14   	sect_is               	1    	9         	0       	0   	
+694  	12      	0    	sect_at_least         	0    	13        	0       	0   	
+694  	13      	0    	sect_at_least         	1    	0         	0       	0   	
+694  	14      	0    	sect_is               	0    	9         	0       	0   	
+695  	0       	0    	quest_active          	0    	1100      	0       	0   	
+696  	0       	0    	quest_done            	0    	1100      	0       	0   	
+697  	0       	0    	level_at_least        	0    	30        	0       	0   	
+697  	0       	1    	target_name           	0    	0         	0       	0   	兰剑
+698  	0       	0    	quest_active          	0    	1095      	0       	0   	
+699  	0       	0    	quest_done            	0    	1095      	0       	0   	
+700  	0       	0    	level_at_least        	0    	70        	0       	0   	
+701  	0       	0    	level_at_least        	0    	40        	0       	0   	
+701  	0       	1    	level_at_least        	1    	70        	0       	0   	
+702  	0       	0    	quest_active          	0    	1090      	0       	0   	
+703  	0       	0    	quest_done            	0    	1090      	0       	0   	
+704  	0       	0    	quest_active          	0    	1085      	0       	0   	
+705  	0       	0    	quest_done            	0    	1085      	0       	0   	
+706  	0       	0    	quest_active          	1    	36        	0       	0   	
+707  	0       	0    	quest_active          	1    	35        	0       	0   	
+708  	0       	0    	quest_done            	0    	34        	0       	0   	
+709  	0       	0    	quest_active          	0    	35        	0       	0   	
+710  	0       	0    	quest_active          	0    	34        	0       	0   	
+711  	0       	0    	quest_done            	0    	36        	0       	0   	
+712  	0       	0    	quest_active          	0    	36        	0       	0   	
+713  	0       	0    	quest_active          	0    	1080      	0       	0   	
+714  	0       	0    	quest_done            	0    	1080      	0       	0   	
+715  	0       	0    	quest_active          	0    	1075      	0       	0   	
+716  	0       	0    	quest_done            	0    	1075      	0       	0   	
+717  	0       	0    	quest_active          	0    	1070      	0       	0   	
+718  	0       	0    	quest_done            	0    	1070      	0       	0   	
+719  	0       	0    	quest_active          	0    	1065      	0       	0   	
+720  	0       	0    	quest_done            	0    	1065      	0       	0   	
+721  	0       	0    	objective_at_least    	0    	1060      	3       	3   	
+721  	0       	1    	objective_at_least    	1    	1060      	0       	1   	
+721  	0       	2    	objective_at_least    	1    	1060      	3       	4   	
+722  	0       	0    	quest_active          	0    	1060      	0       	0   	
+723  	0       	0    	item_count_at_least   	0    	30202049  	1       	0   	
+724  	0       	0    	objective_at_least    	0    	1060      	3       	2   	
+724  	0       	1    	objective_at_least    	1    	1060      	0       	1   	
+724  	0       	2    	objective_at_least    	1    	1060      	3       	3   	
+725  	0       	0    	item_count_at_least   	0    	30202022  	1       	0   	
+726  	0       	0    	objective_at_least    	0    	1060      	3       	1   	
+726  	0       	1    	objective_at_least    	1    	1060      	0       	1   	
+726  	0       	2    	objective_at_least    	1    	1060      	3       	2   	
+727  	0       	0    	item_count_at_least   	0    	30202001  	1       	0   	
+728  	0       	0    	quest_done            	0    	1060      	0       	0   	
+729  	0       	0    	target_name           	1    	0         	0       	0   	叶二娘
+729  	0       	1    	target_name           	1    	0         	0       	0   	慕容复
+729  	0       	2    	target_name           	1    	0         	0       	0   	木婉清
+729  	0       	3    	target_name           	1    	0         	0       	0   	段延庆
+729  	0       	4    	target_name           	1    	0         	0       	0   	段正淳
+729  	0       	5    	target_name           	1    	0         	0       	0   	王夫人
+729  	0       	6    	target_name           	1    	0         	0       	0   	耶律大石
+729  	0       	7    	target_name           	1    	0         	0       	0   	赫连铁树
+729  	0       	8    	target_name           	1    	0         	0       	0   	钟灵
+729  	0       	9    	target_name           	1    	0         	0       	0   	阮星竹
+729  	0       	10   	target_name           	1    	0         	0       	0   	阿碧
+729  	0       	11   	target_name           	1    	0         	0       	0   	阿紫
+729  	0       	12   	target_name           	1    	0         	0       	0   	鸠摩智
+730  	0       	0    	quest_done            	0    	15        	0       	0   	
+730  	0       	1    	target_name           	0    	0         	0       	0   	王夫人
+730  	1       	0    	quest_done            	0    	15        	0       	0   	
+730  	1       	1    	target_name           	0    	0         	0       	0   	阮星竹
+730  	2       	0    	quest_done            	0    	15        	0       	0   	
+730  	2       	1    	target_name           	0    	0         	0       	0   	阿碧
+730  	3       	0    	quest_done            	0    	23        	0       	0   	
+730  	3       	1    	target_name           	0    	0         	0       	0   	耶律大石
+730  	4       	0    	quest_done            	0    	32        	0       	0   	
+730  	4       	1    	target_name           	0    	0         	0       	0   	阿紫
+730  	5       	0    	quest_done            	0    	37        	0       	0   	
+730  	5       	1    	target_name           	0    	0         	0       	0   	叶二娘
+730  	6       	0    	quest_done            	0    	37        	0       	0   	
+730  	6       	1    	target_name           	0    	0         	0       	0   	慕容复
+730  	7       	0    	quest_done            	0    	37        	0       	0   	
+730  	7       	1    	target_name           	0    	0         	0       	0   	鸠摩智
+730  	8       	0    	quest_done            	0    	45        	0       	0   	
+730  	8       	1    	target_name           	0    	0         	0       	0   	赫连铁树
+730  	9       	0    	quest_done            	0    	45        	0       	0   	
+730  	9       	1    	target_name           	1    	0         	0       	0   	叶二娘
+730  	9       	2    	target_name           	1    	0         	0       	0   	慕容复
+730  	9       	3    	target_name           	1    	0         	0       	0   	木婉清
+730  	9       	4    	target_name           	1    	0         	0       	0   	段延庆
+730  	9       	5    	target_name           	1    	0         	0       	0   	段正淳
+730  	9       	6    	target_name           	1    	0         	0       	0   	王夫人
+730  	9       	7    	target_name           	1    	0         	0       	0   	耶律大石
+730  	9       	8    	target_name           	1    	0         	0       	0   	赫连铁树
+730  	9       	9    	target_name           	1    	0         	0       	0   	钟灵
+730  	9       	10   	target_name           	1    	0         	0       	0   	阮星竹
+730  	9       	11   	target_name           	1    	0         	0       	0   	阿碧
+730  	9       	12   	target_name           	1    	0         	0       	0   	阿紫
+730  	9       	13   	target_name           	1    	0         	0       	0   	鸠摩智
+730  	10      	0    	quest_done            	0    	8         	0       	0   	
+730  	10      	1    	target_name           	0    	0         	0       	0   	木婉清
+730  	11      	0    	quest_done            	0    	8         	0       	0   	
+730  	11      	1    	target_name           	0    	0         	0       	0   	段延庆
+730  	12      	0    	quest_done            	0    	8         	0       	0   	
+730  	12      	1    	target_name           	0    	0         	0       	0   	段正淳
+730  	13      	0    	quest_done            	0    	8         	0       	0   	
+730  	13      	1    	target_name           	0    	0         	0       	0   	钟灵
+731  	0       	0    	quest_done            	0    	15        	0       	0   	
+731  	0       	1    	target_name           	0    	0         	0       	0   	王夫人
+731  	1       	0    	quest_done            	0    	15        	0       	0   	
+731  	1       	1    	target_name           	0    	0         	0       	0   	阮星竹
+731  	2       	0    	quest_done            	0    	15        	0       	0   	
+731  	2       	1    	target_name           	0    	0         	0       	0   	阿碧
+731  	3       	0    	quest_done            	0    	23        	0       	0   	
+731  	3       	1    	target_name           	0    	0         	0       	0   	耶律大石
+731  	4       	0    	quest_done            	0    	32        	0       	0   	
+731  	4       	1    	target_name           	0    	0         	0       	0   	阿紫
+731  	5       	0    	quest_done            	0    	37        	0       	0   	
+731  	5       	1    	target_name           	0    	0         	0       	0   	叶二娘
+731  	6       	0    	quest_done            	0    	37        	0       	0   	
+731  	6       	1    	target_name           	0    	0         	0       	0   	慕容复
+731  	7       	0    	quest_done            	0    	37        	0       	0   	
+731  	7       	1    	target_name           	0    	0         	0       	0   	鸠摩智
+731  	8       	0    	quest_done            	0    	37        	0       	0   	
+731  	8       	1    	target_name           	1    	0         	0       	0   	叶二娘
+731  	8       	2    	target_name           	1    	0         	0       	0   	慕容复
+731  	8       	3    	target_name           	1    	0         	0       	0   	木婉清
+731  	8       	4    	target_name           	1    	0         	0       	0   	段延庆
+731  	8       	5    	target_name           	1    	0         	0       	0   	段正淳
+731  	8       	6    	target_name           	1    	0         	0       	0   	王夫人
+731  	8       	7    	target_name           	1    	0         	0       	0   	耶律大石
+731  	8       	8    	target_name           	1    	0         	0       	0   	赫连铁树
+731  	8       	9    	target_name           	1    	0         	0       	0   	钟灵
+731  	8       	10   	target_name           	1    	0         	0       	0   	阮星竹
+731  	8       	11   	target_name           	1    	0         	0       	0   	阿碧
+731  	8       	12   	target_name           	1    	0         	0       	0   	阿紫
+731  	8       	13   	target_name           	1    	0         	0       	0   	鸠摩智
+731  	9       	0    	quest_done            	0    	45        	0       	0   	
+731  	9       	1    	target_name           	0    	0         	0       	0   	赫连铁树
+731  	10      	0    	quest_done            	0    	8         	0       	0   	
+731  	10      	1    	target_name           	0    	0         	0       	0   	木婉清
+731  	11      	0    	quest_done            	0    	8         	0       	0   	
+731  	11      	1    	target_name           	0    	0         	0       	0   	段延庆
+731  	12      	0    	quest_done            	0    	8         	0       	0   	
+731  	12      	1    	target_name           	0    	0         	0       	0   	段正淳
+731  	13      	0    	quest_done            	0    	8         	0       	0   	
+731  	13      	1    	target_name           	0    	0         	0       	0   	钟灵
+732  	0       	0    	quest_done            	0    	37        	0       	0   	
+732  	0       	1    	quest_named           	1    	101       	0       	0   	鸠摩智任务
+733  	0       	0    	quest_active          	0    	101       	0       	0   	
+734  	0       	0    	target_name           	0    	0         	0       	0   	叶二娘
+734  	1       	0    	target_name           	0    	0         	0       	0   	慕容复
+734  	2       	0    	target_name           	0    	0         	0       	0   	木婉清
+734  	3       	0    	target_name           	0    	0         	0       	0   	段延庆
+734  	4       	0    	target_name           	0    	0         	0       	0   	段正淳
+734  	5       	0    	target_name           	0    	0         	0       	0   	王夫人
+734  	6       	0    	target_name           	0    	0         	0       	0   	耶律大石
+734  	7       	0    	target_name           	0    	0         	0       	0   	赫连铁树
+734  	8       	0    	target_name           	0    	0         	0       	0   	钟灵
+734  	9       	0    	target_name           	0    	0         	0       	0   	阮星竹
+734  	10      	0    	target_name           	0    	0         	0       	0   	阿碧
+734  	11      	0    	target_name           	0    	0         	0       	0   	阿紫
+734  	12      	0    	target_name           	0    	0         	0       	0   	鸠摩智
+735  	0       	0    	quest_done            	0    	8         	0       	0   	
+735  	0       	1    	quest_named           	1    	101       	0       	0   	钟灵任务
+736  	0       	0    	quest_done            	0    	8         	0       	0   	
+737  	0       	0    	target_name           	0    	0         	0       	0   	齐煞云
+738  	0       	0    	quest_done            	1    	474       	0       	0   	
+739  	0       	0    	target_name           	0    	0         	0       	0   	李纲
+740  	0       	0    	objective_at_least    	0    	1212      	0       	2   	
+740  	0       	1    	objective_at_least    	0    	1213      	0       	2   	
+740  	0       	2    	objective_at_least    	1    	1212      	0       	3   	
+740  	1       	0    	objective_at_least    	0    	1212      	0       	2   	
+740  	1       	1    	objective_at_least    	1    	1212      	0       	3   	
+740  	1       	2    	objective_at_least    	1    	1213      	0       	1   	
+741  	0       	0    	objective_at_least    	0    	1212      	0       	1   	
+741  	0       	1    	objective_at_least    	0    	1213      	0       	1   	
+741  	0       	2    	objective_at_least    	1    	1212      	0       	2   	
+741  	0       	3    	objective_at_least    	1    	1213      	0       	2   	
+742  	0       	0    	quest_active          	0    	1213      	0       	0   	
+743  	0       	0    	quest_active          	1    	1212      	0       	0   	
+744  	0       	0    	objective_at_least    	0    	1213      	0       	1   	
+744  	0       	1    	objective_at_least    	1    	1213      	0       	2   	
+745  	0       	0    	objective_at_least    	0    	1213      	0       	2   	
+745  	1       	0    	objective_at_least    	1    	1213      	0       	1   	
+746  	0       	0    	target_name           	1    	0         	0       	0   	呼延庆
+747  	0       	0    	quest_active          	0    	1115      	0       	0   	
+748  	0       	0    	quest_done            	0    	1115      	0       	0   	
+749  	0       	0    	sect_at_least         	0    	0         	0       	0   	
+749  	0       	1    	sect_at_least         	1    	12        	0       	0   	
+749  	0       	2    	sect_is               	0    	0         	0       	0   	
+749  	1       	0    	sect_at_least         	0    	0         	0       	0   	
+749  	1       	1    	sect_at_least         	1    	12        	0       	0   	
+749  	1       	2    	sect_is               	0    	1         	0       	0   	
+749  	2       	0    	sect_at_least         	0    	0         	0       	0   	
+749  	2       	1    	sect_at_least         	1    	12        	0       	0   	
+749  	2       	2    	sect_is               	0    	11        	0       	0   	
+749  	3       	0    	sect_at_least         	0    	0         	0       	0   	
+749  	3       	1    	sect_at_least         	1    	12        	0       	0   	
+749  	3       	2    	sect_is               	0    	2         	0       	0   	
+749  	4       	0    	sect_at_least         	0    	0         	0       	0   	
+749  	4       	1    	sect_at_least         	1    	12        	0       	0   	
+749  	4       	2    	sect_is               	0    	3         	0       	0   	
+749  	5       	0    	sect_at_least         	0    	0         	0       	0   	
+749  	5       	1    	sect_at_least         	1    	12        	0       	0   	
+749  	5       	2    	sect_is               	0    	4         	0       	0   	
+749  	6       	0    	sect_at_least         	0    	0         	0       	0   	
+749  	6       	1    	sect_at_least         	1    	12        	0       	0   	
+749  	6       	2    	sect_is               	0    	5         	0       	0   	
+749  	7       	0    	sect_at_least         	0    	0         	0       	0   	
+749  	7       	1    	sect_at_least         	1    	12        	0       	0   	
+749  	7       	2    	sect_is               	0    	6         	0       	0   	
+749  	8       	0    	sect_at_least         	0    	0         	0       	0   	
+749  	8       	1    	sect_at_least         	1    	12        	0       	0   	
+749  	8       	2    	sect_is               	0    	7         	0       	0   	
+749  	9       	0    	sect_at_least         	0    	0         	0       	0   	
+749  	9       	1    	sect_at_least         	1    	12        	0       	0   	
+749  	9       	2    	sect_is               	0    	8         	0       	0   	
+749  	10      	0    	sect_at_least         	0    	0         	0       	0   	
+749  	10      	1    	sect_at_least         	1    	12        	0       	0   	
+749  	10      	2    	sect_is               	1    	0         	0       	0   	
+749  	10      	3    	sect_is               	1    	1         	0       	0   	
+749  	10      	4    	sect_is               	1    	10        	0       	0   	
+749  	10      	5    	sect_is               	1    	11        	0       	0   	
+749  	10      	6    	sect_is               	1    	2         	0       	0   	
+749  	10      	7    	sect_is               	1    	3         	0       	0   	
+749  	10      	8    	sect_is               	1    	4         	0       	0   	
+749  	10      	9    	sect_is               	1    	5         	0       	0   	
+749  	10      	10   	sect_is               	1    	6         	0       	0   	
+749  	10      	11   	sect_is               	1    	7         	0       	0   	
+749  	10      	12   	sect_is               	1    	8         	0       	0   	
+749  	10      	13   	sect_is               	1    	9         	0       	0   	
+749  	11      	0    	sect_at_least         	0    	12        	0       	0   	
+749  	12      	0    	sect_at_least         	1    	0         	0       	0   	
+749  	13      	0    	sect_is               	0    	9         	0       	0   	
+750  	0       	0    	sect_at_least         	0    	12        	0       	0   	
+750  	1       	0    	sect_at_least         	1    	0         	0       	0   	
+750  	2       	0    	sect_is               	0    	9         	0       	0   	
+751  	0       	0    	item_count_at_least   	0    	40002000  	1       	0   	
+752  	0       	0    	quest_count_at_least  	1    	1         	0       	0   	
+753  	0       	0    	clock_at_least        	0    	1         	7019    	0   	
+754  	0       	0    	level_at_least        	1    	40        	0       	0   	
+755  	0       	0    	flag_set              	0    	5         	0       	0   	
+756  	0       	0    	flag_set              	0    	6         	0       	0   	
+757  	0       	0    	bag_space_at_least    	1    	20        	0       	0   	
+758  	0       	0    	item_count_at_least   	0    	40002000  	1       	0   	
+758  	0       	1    	item_count_at_least   	1    	40002000  	2       	0   	
+759  	0       	0    	ability_at_least      	1    	39        	1       	0   	
+760  	0       	0    	level_at_least        	0    	10        	0       	0   	
+760  	0       	1    	sect_is               	0    	9         	0       	0   	
+761  	0       	0    	objective_at_least    	1    	706       	0       	1   	
+762  	0       	0    	objective_at_least    	1    	707       	0       	1   	
+763  	0       	0    	objective_at_least    	1    	708       	0       	1   	
+764  	0       	0    	item_count_at_least   	0    	10102012  	1       	0   	
+765  	0       	0    	item_count_at_least   	0    	10113001  	1       	0   	
+766  	0       	0    	objective_at_least    	0    	1060      	2       	1   	
+766  	0       	1    	objective_at_least    	1    	1060      	0       	1   	
+766  	0       	2    	objective_at_least    	1    	1060      	2       	2   	
+767  	0       	0    	objective_at_least    	0    	1060      	2       	2   	
+767  	0       	1    	objective_at_least    	1    	1060      	0       	1   	
+767  	0       	2    	objective_at_least    	1    	1060      	2       	3   	
+768  	0       	0    	objective_at_least    	0    	1060      	2       	3   	
+768  	0       	1    	objective_at_least    	1    	1060      	0       	1   	
+768  	0       	2    	objective_at_least    	1    	1060      	2       	4   	
+769  	0       	0    	quest_done            	0    	713       	0       	0   	
+770  	0       	0    	quest_done            	0    	714       	0       	0   	
+771  	0       	0    	quest_done            	0    	715       	0       	0   	
+772  	0       	0    	quest_done            	0    	716       	0       	0   	
+773  	0       	0    	quest_active          	0    	447       	0       	0   	
+774  	0       	0    	quest_done            	0    	447       	0       	0   	
+775  	0       	0    	quest_done            	1    	445       	0       	0   	
+776  	0       	0    	quest_done            	1    	447       	0       	0   	
+777  	0       	0    	clock_at_least        	0    	1         	9097    	0   	
+777  	0       	1    	clock_at_least        	1    	1         	9151    	0   	
+778  	0       	0    	quest_done            	1    	443       	0       	0   	
+779  	0       	0    	quest_done            	1    	451       	0       	0   	
+780  	0       	0    	quest_done            	0    	453       	0       	0   	
+781  	0       	0    	quest_done            	1    	455       	0       	0   	
+782  	0       	0    	quest_done            	0    	457       	0       	0   	
+783  	0       	0    	quest_done            	1    	701       	0       	0   	
+784  	0       	0    	quest_done            	0    	704       	0       	0   	
+785  	0       	0    	quest_done            	1    	704       	0       	0   	
+786  	0       	0    	quest_done            	1    	708       	0       	0   	
+787  	0       	0    	quest_done            	1    	711       	0       	0   	
+788  	0       	0    	level_at_least        	0    	50        	0       	0   	
+789  	0       	0    	flag_set              	0    	0         	0       	0   	
+790  	0       	0    	flag_set              	1    	0         	0       	0   	
+791  	0       	0    	quest_done            	1    	440       	0       	0   	
+792  	0       	0    	quest_done            	0    	442       	0       	0   	
+793  	0       	0    	quest_done            	1    	441       	0       	0   	
+794  	0       	0    	quest_done            	1    	442       	0       	0   	
+795  	0       	0    	quest_active          	1    	4         	0       	0   	
+796  	0       	0    	quest_done            	0    	3         	0       	0   	
+797  	0       	0    	quest_active          	1    	3         	0       	0   	
+798  	0       	0    	quest_active          	0    	3         	0       	0   	
+799  	0       	0    	quest_done            	0    	706       	0       	0   	
+800  	0       	0    	quest_done            	1    	705       	0       	0   	
+801  	0       	0    	quest_done            	0    	707       	0       	0   	
+802  	0       	0    	quest_done            	1    	706       	0       	0   	
+803  	0       	0    	quest_done            	0    	708       	0       	0   	
+804  	0       	0    	quest_done            	1    	707       	0       	0   	
+805  	0       	0    	quest_active          	1    	8         	0       	0   	
+806  	0       	0    	quest_active          	1    	7         	0       	0   	
+807  	0       	0    	quest_active          	1    	6         	0       	0   	
+808  	0       	0    	quest_done            	0    	5         	0       	0   	
+809  	0       	0    	quest_active          	0    	7         	0       	0   	
+810  	0       	0    	quest_active          	0    	5         	0       	0   	
+811  	0       	0    	quest_done            	0    	711       	0       	0   	
+812  	0       	0    	quest_done            	1    	710       	0       	0   	
+813  	0       	0    	quest_active          	0    	701       	0       	0   	
+814  	0       	0    	quest_done            	0    	37        	0       	0   	
+814  	0       	1    	quest_named           	1    	101       	0       	0   	虚竹任务
+815  	0       	0    	level_at_least        	0    	30        	0       	0   	
+815  	0       	1    	target_name           	0    	0         	0       	0   	王韶
+816  	0       	0    	quest_done            	1    	948       	0       	0   	
+817  	0       	0    	quest_done            	0    	1161      	0       	0   	
+818  	0       	0    	item_count_at_least   	1    	38000639  	100     	0   	
+819  	0       	0    	target_name           	0    	0         	0       	0   	欧冶子
+820  	0       	0    	target_name           	1    	0         	0       	0   	欧冶子
+821  	0       	0    	quest_active          	1    	12        	0       	0   	
+822  	0       	0    	quest_active          	1    	11        	0       	0   	
+823  	0       	0    	quest_active          	1    	15        	0       	0   	
+824  	0       	0    	quest_active          	1    	14        	0       	0   	
+825  	0       	0    	quest_active          	0    	15        	0       	0   	
+826  	0       	0    	quest_active          	0    	14        	0       	0   	
+827  	0       	0    	quest_done            	0    	15        	0       	0   	
+828  	0       	0    	quest_done            	0    	15        	0       	0   	
+828  	0       	1    	quest_named           	1    	101       	0       	0   	阿碧任务
+829  	0       	0    	objective_at_least    	0    	1202      	2       	1   	
+829  	0       	1    	objective_at_least    	1    	1202      	2       	2   	
+830  	0       	0    	objective_at_least    	0    	1202      	1       	2   	
+830  	0       	1    	objective_at_least    	1    	1202      	1       	3   	
+831  	0       	0    	quest_active          	0    	1202      	0       	0   	
+832  	0       	0    	quest_done            	0    	1202      	0       	0   	
+833  	0       	0    	quest_done            	0    	15        	0       	0   	
+833  	0       	1    	quest_named           	1    	101       	0       	0   	王语嫣任务
+834  	0       	0    	quest_done            	0    	37        	0       	0   	
+834  	0       	1    	quest_named           	1    	101       	0       	0   	慕容复任务
+835  	0       	0    	target_name           	0    	0         	0       	0   	小雨歇
+836  	0       	0    	skill_known           	1    	103       	0       	0   	
+837  	0       	0    	sect_is               	1    	13        	0       	0   	
+838  	0       	0    	clock_at_least        	0    	1         	9040    	0   	
+838  	0       	1    	clock_at_least        	1    	1         	9047    	0   	
+839  	0       	0    	level_at_least        	1    	56        	0       	0   	
+840  	0       	0    	clock_at_least        	0    	1         	7304    	0   	
+840  	0       	1    	clock_at_least        	1    	1         	7326    	0   	
+841  	0       	0    	quest_active          	0    	1020      	0       	0   	
+842  	0       	0    	quest_active          	0    	1021      	0       	0   	
+843  	0       	0    	target_name           	0    	0         	0       	0   	邱行洛
+844  	0       	0    	quest_active          	0    	721       	0       	0   	
+845  	0       	0    	quest_active          	1    	42        	0       	0   	
+846  	0       	0    	quest_active          	1    	41        	0       	0   	
+847  	0       	0    	quest_active          	0    	44        	0       	0   	
+848  	0       	0    	quest_active          	1    	45        	0       	0   	
+849  	0       	0    	quest_active          	1    	34        	0       	0   	
+850  	0       	0    	quest_done            	0    	45        	0       	0   	
+850  	0       	1    	quest_named           	1    	101       	0       	0   	银川公主任务
+851  	0       	0    	quest_active          	1    	47        	0       	0   	
+852  	0       	0    	quest_done            	0    	21        	0       	0   	
+853  	0       	0    	quest_done            	0    	32        	0       	0   	
+853  	0       	1    	quest_named           	1    	101       	0       	0   	阿紫任务

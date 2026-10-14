@@ -2,11 +2,12 @@
 # source: client_2026/CodeConvert.txt
 # tool: TOOLS/server/export_client_rest.py; sửa tay sẽ mất ở lượt xuất sau
 # types: int	text	text
-column_0	column_1	column_2
-1	笑脸	FEF10000
-2	哭脸	FEF10001
-3	大笑	FEF10002
-4	大哭	FEF10003
-5	汗	FEF10004
-6	无语	FEF10005
-7	谢谢	FEF10006
+# layout: aligned
+column_0  	column_1  	column_2
+1         	笑脸      	FEF10000
+2         	哭脸      	FEF10001
+3         	大笑      	FEF10002
+4         	大哭      	FEF10003
+5         	汗        	FEF10004
+6         	无语      	FEF10005
+7         	谢谢      	FEF10006

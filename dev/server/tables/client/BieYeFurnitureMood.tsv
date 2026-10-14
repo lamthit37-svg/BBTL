@@ -2,14 +2,15 @@
 # source: client_2026/BieYeFurnitureMood.txt
 # tool: TOOLS/server/export_client_rest.py; sửa tay sẽ mất ở lượt xuất sau
 # types: int	text	text	int	int	int	int	int	int	text	text	text	text	text	text	int	text	text	text	text	text	text
-column_0	column_1	column_2	column_3	column_4	column_5	column_6	column_7	column_8	column_9	column_10	column_11	column_12	column_13	column_14	column_15	column_16	column_17	column_18	column_19	column_20	column_21
-0			1198	-1	-1	-1	-1	-1	躺卧						2	attach1	attach2				
-1			1199	1200	-1	-1	-1	-1	闲坐1	闲坐2					1	attach1					
-2			1201	-1	-1	-1	-1	-1	闲坐						1	attach1					
-3			1202	-1	-1	-1	-1	-1	闲坐						1	attach1					
-4	站立	休闲	1206	-1	-1	-1	-1	-1	荡秋千						2	attach1	attach2				
-5			1207	1208	-1	-1	-1	-1	沐浴	戏水					1	attach1					
-6			1209	1210	-1	-1	-1	-1	书写	挥笔					1	attach1					
-7			1212	-1	-1	-1	-1	-1	照镜						1	attach1					
-8			1213	1214	1221	1215	-1	-1	右侧卧	左侧卧	向右坐	向左坐			2	attach1	attach2				
-9			1202	1203	1204	-1	-1	-1	闲坐1	闲坐2	闲坐3				1	attach1					
+# layout: aligned
+column_0  	column_1  	column_2  	column_3  	column_4  	column_5  	column_6  	column_7  	column_8  	column_9  	column_10  	column_11  	column_12  	column_13  	column_14  	column_15  	column_16  	column_17  	column_18  	column_19  	column_20  	column_21
+0         	          	          	1198      	-1        	-1        	-1        	-1        	-1        	躺卧      	           	           	           	           	           	2          	attach1    	attach2    	           	           	           	
+1         	          	          	1199      	1200      	-1        	-1        	-1        	-1        	闲坐1     	闲坐2      	           	           	           	           	1          	attach1    	           	           	           	           	
+2         	          	          	1201      	-1        	-1        	-1        	-1        	-1        	闲坐      	           	           	           	           	           	1          	attach1    	           	           	           	           	
+3         	          	          	1202      	-1        	-1        	-1        	-1        	-1        	闲坐      	           	           	           	           	           	1          	attach1    	           	           	           	           	
+4         	站立      	休闲      	1206      	-1        	-1        	-1        	-1        	-1        	荡秋千    	           	           	           	           	           	2          	attach1    	attach2    	           	           	           	
+5         	          	          	1207      	1208      	-1        	-1        	-1        	-1        	沐浴      	戏水       	           	           	           	           	1          	attach1    	           	           	           	           	
+6         	          	          	1209      	1210      	-1        	-1        	-1        	-1        	书写      	挥笔       	           	           	           	           	1          	attach1    	           	           	           	           	
+7         	          	          	1212      	-1        	-1        	-1        	-1        	-1        	照镜      	           	           	           	           	           	1          	attach1    	           	           	           	           	
+8         	          	          	1213      	1214      	1221      	1215      	-1        	-1        	右侧卧    	左侧卧     	向右坐     	向左坐     	           	           	2          	attach1    	attach2    	           	           	           	
+9         	          	          	1202      	1203      	1204      	-1        	-1        	-1        	闲坐1     	闲坐2      	闲坐3      	           	           	           	1          	attach1    	           	           	           	           	

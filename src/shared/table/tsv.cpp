@@ -1,6 +1,7 @@
 // Đọc bảng TSV và các ô của một bản ghi (xem tsv.hpp).
 #include "table/tsv.hpp"
 
+#include "core/aligned.hpp"
 #include "core/number.hpp"
 
 #include <algorithm>
@@ -21,14 +22,23 @@ namespace {
 
 constexpr char kTab = '\t';
 
+// Chữ thật của một ô theo bố cục của bảng.
+std::string cell_text(std::string_view cell, core::Layout layout) {
+    if (layout == core::Layout::kPlain) return std::string(cell);
+    const core::AlignedCell aligned = core::unpad(cell);
+    std::string text(aligned.body);
+    text.append(aligned.trailing_spaces, ' ');
+    return text;
+}
+
 // Tách một dòng theo tab; dòng rỗng cho một ô rỗng, nên ô cuối rỗng vẫn được tính.
-std::vector<std::string> split_tabs(std::string_view line) {
+std::vector<std::string> split_tabs(std::string_view line, core::Layout layout) {
     std::vector<std::string> cells;
     std::size_t start = 0;
     std::size_t stop = 0;
     while (stop != std::string_view::npos) {
         stop = line.find(kTab, start);
-        cells.emplace_back(line.substr(start, stop - start));
+        cells.push_back(cell_text(line.substr(start, stop - start), layout));
         start = stop + 1;
     }
     return cells;
@@ -46,8 +56,8 @@ std::string_view without_return(std::string_view line) {
 }
 
 // Thêm một dòng vào bảng: dòng đầu là tên cột, các dòng sau phải đủ số ô.
-std::optional<std::string> add_line(Tsv& table, std::string_view line, std::size_t number) {
-    std::vector<std::string> cells = split_tabs(line);
+std::optional<std::string> add_line(Tsv& table, std::string_view line, std::size_t number, core::Layout layout) {
+    std::vector<std::string> cells = split_tabs(line, layout);
     if (table.header.empty()) {
         table.header = std::move(cells);
         return std::nullopt;
@@ -67,11 +77,20 @@ std::optional<std::uint32_t> whole_number(std::string_view cell) {
     return parsed->value;
 }
 
-// Vị trí đọc trong văn bản: byte đầu của dòng kế và số dòng đã đọc.
+// Vị trí đọc trong văn bản: byte đầu của dòng kế, số dòng đã đọc và bố cục đã khai.
 struct Cursor {
     std::size_t start = 0;
     std::size_t number = 0;
+    core::Layout layout = core::Layout::kPlain;
 };
+
+// Dòng "# layout: ..." trước dòng tên cột đặt bố cục; sau dòng tên cột nó chỉ là chú thích.
+std::optional<std::string> note_layout(const Tsv& table, std::string_view line, Cursor& cursor) {
+    if (!table.header.empty() || !line.starts_with(core::kLayoutPrefix)) return std::nullopt;
+    if (line != core::kAlignedLayout) return std::format("dòng {}: bố cục lạ \"{}\"", cursor.number, line);
+    cursor.layout = core::Layout::kAligned;
+    return std::nullopt;
+}
 
 // Đọc một dòng của văn bản vào bảng rồi dời con trỏ; lỗi của dòng nếu có.
 std::optional<std::string> read_line(Tsv& table, std::string_view text, Cursor& cursor) {
@@ -80,8 +99,8 @@ std::optional<std::string> read_line(Tsv& table, std::string_view text, Cursor& 
     const std::string_view line = without_return(text.substr(cursor.start, end - cursor.start));
     ++cursor.number;
     cursor.start = end + 1;
-    if (is_skipped(line)) return std::nullopt;
-    return add_line(table, line, cursor.number);
+    if (is_skipped(line)) return note_layout(table, line, cursor);
+    return add_line(table, line, cursor.number, cursor.layout);
 }
 
 } // namespace

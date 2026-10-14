@@ -2,9 +2,10 @@
 # source: server_config/GuildMemberAccess.ini
 # tool: TOOLS/server/import_legacy.py; sửa tay sẽ mất ở lượt xuất sau
 # types: int	int	int	int	int	int	int	int	int	int	int	int	int	int	int	int	int	int	int	int	int	int	int	int
-position_id	access_type0	access_type1	access_type2	access_type3	access_type4	access_type5	access_type6	access_type7	access_type8	access_type9	access_type10	access_type11	access_type12	access_type13	access_type14	access_type15	access_type16	access_type17	access_type18	access_type19	access_type20	access_type21	access_type22
-0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0
-1	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0
-2	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0
-3	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0
-4	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0
+# layout: aligned
+position_id  	access_type0  	access_type1  	access_type2  	access_type3  	access_type4  	access_type5  	access_type6  	access_type7  	access_type8  	access_type9  	access_type10  	access_type11  	access_type12  	access_type13  	access_type14  	access_type15  	access_type16  	access_type17  	access_type18  	access_type19  	access_type20  	access_type21  	access_type22
+0            	0             	0             	0             	0             	0             	0             	0             	0             	0             	0             	0              	0              	0              	0              	0              	0              	0              	0              	0              	0              	0              	0              	0
+1            	0             	0             	0             	0             	0             	0             	0             	0             	0             	0             	0              	0              	0              	0              	0              	0              	0              	0              	0              	0              	0              	0              	0
+2            	0             	0             	0             	0             	0             	0             	0             	0             	0             	0             	0              	0              	0              	0              	0              	0              	0              	0              	0              	0              	0              	0              	0
+3            	0             	0             	0             	0             	0             	0             	0             	0             	0             	0             	0              	0              	0              	0              	0              	0              	0              	0              	0              	0              	0              	0              	0
+4            	0             	0             	0             	0             	0             	0             	0             	0             	0             	0             	0              	0              	0              	0              	0              	0              	0              	0              	0              	0              	0              	0              	0

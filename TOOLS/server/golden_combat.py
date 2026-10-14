@@ -17,6 +17,8 @@ import dataclasses
 import sys
 from pathlib import Path
 
+import tsv_file
+
 ROOT = Path(__file__).resolve().parents[2]
 TABLES = ROOT / "dev" / "server" / "tables"
 MASK = (1 << 64) - 1
@@ -85,11 +87,7 @@ def truncate_div(numerator: int, denominator: int) -> int:
 
 
 def read_rows(relative: str) -> list[list[str]]:
-    rows: list[list[str]] = []
-    for line in (TABLES / relative).read_text(encoding="utf-8").splitlines():
-        if line and not line.startswith("#"):
-            rows.append(line.split("\t"))
-    return rows
+    return tsv_file.split_rows((TABLES / relative).read_text(encoding="utf-8"))
 
 
 @dataclasses.dataclass(frozen=True)

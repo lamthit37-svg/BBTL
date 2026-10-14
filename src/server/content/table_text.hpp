@@ -3,10 +3,13 @@
 // từng bản ghi. Bảng không được dựng trong bộ nhớ: mỗi bản ghi là các view vào chữ của tệp, nên
 // bộ nhớ của một lần kiểm không phụ thuộc số ô của bảng lớn nhất.
 // Quy tắc dòng trùng table::parse_tsv, bộ đọc mà máy chủ sẽ dùng: dòng rỗng và dòng bắt đầu bằng #
-// bị bỏ, dòng đầu còn lại là tên cột, mọi bản ghi đủ số ô. content_tests giữ hai bên khớp nhau.
+// bị bỏ, dòng đầu còn lại là tên cột, mọi bản ghi đủ số ô, dòng core::kAlignedLayout trước tên cột
+// thì ô bỏ đệm như parse_tsv và dòng "# layout: " khác thì không đọc được. content_tests giữ hai bên
+// khớp nhau.
 
 #include "content/detail/scan.hpp"
 #include "content/lint.hpp"
+#include "core/aligned.hpp"
 
 #include <cstddef>
 #include <cstdint>
@@ -22,6 +25,9 @@ struct Preamble {
     std::size_t schema_line = 1;
     std::size_t types_line = 1;
     std::string type_text;
+    core::Layout layout = core::Layout::kPlain;
+    // Dòng "# layout: " không phải core::kAlignedLayout; 0 khi không có.
+    std::size_t bad_layout_line = 0;
     bool saw_header = false;
 };
 
@@ -37,6 +43,7 @@ struct TableHead {
     std::vector<TextView> types;
     // Chỗ bắt đầu của dòng ngay sau dòng tên cột.
     LinePlace body;
+    core::Layout layout = core::Layout::kPlain;
     bool is_readable = false;
 };
 
@@ -65,6 +72,7 @@ private:
     enum class Pass : std::uint8_t { kPlain, kHash };
 
     [[nodiscard]] bool take_line(Record& record, IssueList& issues);
+    void unpad_cells();
     void end_pass() noexcept;
 
     TextView path_;
@@ -74,6 +82,8 @@ private:
     Pass pass_ = Pass::kPlain;
     bool is_done_ = false;
     std::vector<TextView> cells_;
+    // Chữ thật của ô bảng căn cột có dấu cách cuối (core::kSpaceMark), theo chỉ số cột; cells_ trỏ vào.
+    std::vector<std::string> restored_;
 };
 
 enum class CellKind : std::uint8_t { kOther, kInt, kFloat };

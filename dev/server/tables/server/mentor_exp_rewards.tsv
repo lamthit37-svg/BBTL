@@ -2,10 +2,11 @@
 # source: server_config/MasterExpBounty.txt
 # tool: TOOLS/server/import_legacy.py; sửa tay sẽ mất ở lượt xuất sau
 # types: int	int	int	int	int	int
-apprentice_level	exp_reward_no_guild	exp_reward_guild_1	rating_1	rating_2	rating_3
-30	250000	500000	100	80	40
-45	500000	1000000	100	80	40
-60	1800000	5400	0	0	0
-70	3220110	9660	0	0	0
-80	6739740	20219	0	0	0
-90	60163290	60163	0	0	0
+# layout: aligned
+apprentice_level  	exp_reward_no_guild  	exp_reward_guild_1  	rating_1  	rating_2  	rating_3
+30                	250000               	500000              	100       	80        	40
+45                	500000               	1000000             	100       	80        	40
+60                	1800000              	5400                	0         	0         	0
+70                	3220110              	9660                	0         	0         	0
+80                	6739740              	20219               	0         	0         	0
+90                	60163290             	60163               	0         	0         	0

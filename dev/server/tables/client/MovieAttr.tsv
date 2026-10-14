@@ -2,17 +2,18 @@
 # source: client_2026/MovieAttr.txt
 # tool: TOOLS/server/export_client_rest.py; sửa tay sẽ mất ở lượt xuất sau
 # types: int	int	text	text
-column_0	column_1	column_2	column_3
-0	892520	Fuxichuchang	jiuxing.movie九星铸魂副本
-1	402051	sijuezhuang_1	sijuezhuang.movie四绝庄副本庞企出场
-2	998050	tianbofu_1	tianbofu.movie夜闯天波府段延庆心魔
-3	999121	luoyang_new_	luoyang_new.movie 大话西游一阶段洛阳动画
-4	999123	DHXYshuiliandong_1	DHXYshuiliandong 大话西游一阶段水帘洞动画
-5	999124	DHXYcuiyunshan_StoryLine1_	DHXYcuiyunshan_StoryLine1.movie大话西游一阶段翠云山剧情副本
-6	999194	DHXYyongningcheng_	DHXYyongningcheng.movie大话阶段三永宁城剧情
-7	999151	DHXYshuiliandong_StoryLine1_	DHXYshuiliandong_StoryLine1大话西游二阶段水帘洞剧情副本
-9	999166	luoyang_new_2	luoyang_new.movie 大话西游二阶段洛阳动画
-10	999166	DHXYshuiliandong_2	DHXYshuiliandong.movie  大话西游二阶段水帘洞动画
-11	999206	DHXYtianjie_	DHXYtianjie.movie 大话三阶段天劫动画
-12	999391	ERGyure_suzhou	恶人谷预热苏州动画
-13	999823	FengYun_lingyunku_	风云预热动画
+# layout: aligned
+column_0  	column_1  	column_2                      	column_3
+0         	892520    	Fuxichuchang                  	jiuxing.movie九星铸魂副本
+1         	402051    	sijuezhuang_1                 	sijuezhuang.movie四绝庄副本庞企出场
+2         	998050    	tianbofu_1                    	tianbofu.movie夜闯天波府段延庆心魔
+3         	999121    	luoyang_new_                  	luoyang_new.movie 大话西游一阶段洛阳动画
+4         	999123    	DHXYshuiliandong_1            	DHXYshuiliandong 大话西游一阶段水帘洞动画
+5         	999124    	DHXYcuiyunshan_StoryLine1_    	DHXYcuiyunshan_StoryLine1.movie大话西游一阶段翠云山剧情副本
+6         	999194    	DHXYyongningcheng_            	DHXYyongningcheng.movie大话阶段三永宁城剧情
+7         	999151    	DHXYshuiliandong_StoryLine1_  	DHXYshuiliandong_StoryLine1大话西游二阶段水帘洞剧情副本
+9         	999166    	luoyang_new_2                 	luoyang_new.movie 大话西游二阶段洛阳动画
+10        	999166    	DHXYshuiliandong_2            	DHXYshuiliandong.movie  大话西游二阶段水帘洞动画
+11        	999206    	DHXYtianjie_                  	DHXYtianjie.movie 大话三阶段天劫动画
+12        	999391    	ERGyure_suzhou                	恶人谷预热苏州动画
+13        	999823    	FengYun_lingyunku_            	风云预热动画

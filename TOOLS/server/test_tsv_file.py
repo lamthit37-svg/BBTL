@@ -172,7 +172,7 @@ class ReadTableTest(unittest.TestCase):
 
     def test_reject_short_row(self) -> None:
         path = self.root / "short.tsv"
-        tsv_file.write_table(path, "x", "export_tables.py", ["int", "int"], ["id", "n"], [("1", "2")])
+        tsv_file.write_table(path, "x", "export_tables.py", ["int", "int"], ["id", "n"], [("1", "2")], layout="plain")
         raw = path.read_bytes().replace(b"1\t2\n", b"1\n")
         path.write_bytes(raw)
         with self.assertRaises(tsv_file.TsvError):
@@ -185,6 +185,89 @@ class ReadTableTest(unittest.TestCase):
         path.write_bytes(raw)
         with self.assertRaises(tsv_file.TsvError):
             tsv_file.read_table(path)
+
+
+class AlignedTableTest(unittest.TestCase):
+    """Bố cục căn cột: đệm dấu cách trước tab, dấu cách cuối thật thành ký hiệu, đọc lại ra đúng ô."""
+
+    def setUp(self) -> None:
+        self.root = _scratch(self.id().split(".")[-1])
+
+    def tearDown(self) -> None:
+        shutil.rmtree(self.root, ignore_errors=True)
+
+    def write(self, rows: list[tuple[str, ...]], columns: list[str], types: list[str]) -> Path:
+        path = self.root / "t.tsv"
+        tool = "TOOLS/server/lua_extract.py"
+        tsv_file.write_table(path, "Public/Data/Script", tool, types, columns, rows, layout="aligned")
+        return path
+
+    def test_columns_line_up_by_display_width(self) -> None:
+        path = self.write([("1", "帮会大总管", "x"), ("22", "ab", "y")], ["id", "name", "tail"], ["int", "text", "text"])
+        lines = path.read_text(encoding="utf-8").split("\n")
+        self.assertEqual(lines[4], "# layout: aligned")
+        body = [line.split("\t") for line in lines[5:8]]
+        for column in (0, 1):
+            self.assertEqual(len({tsv_file.display_width(row[column]) for row in body}), 1)
+        self.assertEqual(body[1][2], "x")
+        self.assertEqual(tsv_file.display_width(body[0][1]), 10 + tsv_file.ALIGN_GAP)
+
+    def test_roundtrip_trailing_spaces_and_empty_cells(self) -> None:
+        rows = [("1", "  lead and trail  ", ""), ("2", " ", "end "), ("3", "", "")]
+        path = self.write(rows, ["id", "a", "b"], ["int", "text", "text"])
+        text = path.read_text(encoding="utf-8")
+        self.assertIn("trail" + tsv_file.SPACE_MARK * 2, text)
+        table = tsv_file.read_table(path)
+        self.assertEqual(table.layout, "aligned")
+        self.assertEqual(table.columns, ("id", "a", "b"))
+        self.assertEqual(table.rows, tuple(rows))
+
+    def test_split_rows_matches_read_table(self) -> None:
+        rows = [("1", "  lead and trail  ", ""), ("2", " ", "end "), ("3", "", "")]
+        path = self.write(rows, ["id", "a", "b"], ["int", "text", "text"])
+        cells = tsv_file.split_rows(path.read_text(encoding="utf-8"))
+        self.assertEqual(cells[0], ["id", "a", "b"])
+        self.assertEqual([tuple(row) for row in cells[1:]], rows)
+        plain = "# schema 1\nid\tn\n1\tx \n"
+        self.assertEqual(tsv_file.split_rows(plain), [["id", "n"], ["1", "x "]])
+        with self.assertRaises(tsv_file.TsvError):
+            tsv_file.split_rows("# layout: wide\nid\n1\n")
+
+    def test_reject_space_mark_in_data(self) -> None:
+        with self.assertRaises(tsv_file.TsvError):
+            self.write([("1", "a" + tsv_file.SPACE_MARK, "b")], ["id", "a", "b"], ["int", "text", "text"])
+
+    def test_reject_unknown_layout(self) -> None:
+        with self.assertRaises(tsv_file.TsvError):
+            tsv_file.render_table("s", "TOOLS/server/x.py", ["text"], ["a"], [("1",)], layout="wide")
+        path = self.root / "bad.tsv"
+        path.write_text("# schema 1\n# source: s\n# tool: TOOLS/server/x.py" + tsv_file.TOOL_SUFFIX
+                        + "\n# types: text\n# layout: wide\na\n1\n", encoding="utf-8")
+        with self.assertRaises(tsv_file.TsvError):
+            tsv_file.read_table(path)
+
+    def test_auto_aligns_small_and_leaves_large_plain(self) -> None:
+        columns, types = ["id", "name"], ["int", "text"]
+        rows = [("1", "a"), ("22", "bb")]
+        small = tsv_file.render_table("s", "TOOLS/server/x.py", types, columns, rows)
+        self.assertIn(tsv_file.LAYOUT_PREFIX + "aligned", small)
+        original = tsv_file.ALIGN_LIMIT
+        tsv_file.ALIGN_LIMIT = 10
+        try:
+            plain = tsv_file.render_table("s", "TOOLS/server/x.py", types, columns, rows)
+        finally:
+            tsv_file.ALIGN_LIMIT = original
+        self.assertNotIn(tsv_file.LAYOUT_PREFIX, plain)
+        self.assertEqual(plain.split("\n")[4:], ["id\tname", "1\ta", "22\tbb", ""])
+
+    def test_auto_falls_back_for_space_mark(self) -> None:
+        text = tsv_file.render_table("s", "TOOLS/server/x.py", ["text"], ["a"], [("x" + tsv_file.SPACE_MARK,)])
+        self.assertNotIn(tsv_file.LAYOUT_PREFIX, text)
+
+    def test_plain_table_keeps_spaces(self) -> None:
+        path = self.root / "p.tsv"
+        tsv_file.write_table(path, "s", "TOOLS/server/x.py", ["text", "text"], ["a", "b"], [("x  ", "y")])
+        self.assertEqual(tsv_file.read_table(path).rows, (("x  ", "y"),))
 
 
 class DirectoryTest(unittest.TestCase):

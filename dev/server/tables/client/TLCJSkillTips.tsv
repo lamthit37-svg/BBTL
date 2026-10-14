@@ -2,109 +2,110 @@
 # source: client_2026/TLCJSkillTips.txt
 # tool: TOOLS/server/export_client_rest.py; sửa tay sẽ mất ở lượt xuất sau
 # types: int	int	text	text
-column_0	column_1	column_2	column_3
-1	5430	FightSkillShaoLin1_1	#c54FF00伏虎拳#r#cFFFFFF有效距离：0-2米#r瞬间释放#r单体近身攻击 增加外功攻击#r#c5BC257自动连续释放
-2	5431	FightSkillShaoLin1_3	#c54FF00大力金刚掌#r#cFFFFFF有效距离：0-2米#r瞬间释放#r冷却时间：10秒#r单体近身攻击 玄攻击增加
-3	5432	FightSkillShaoLin2_4	#c54FF00金刚不坏体#r#cFFFFFF瞬间释放#r冷却时间：30秒#r佛门无上神功，可将#c54FF0050%#cFFFFFF的伤害化为无形，持续10秒
-4	5433	FightSkillShaoLin1_5	#c54FF00拈花指#r#cFFFFFF有效距离：0-2米#r瞬间释放#r冷却时间：30秒#r单体近身攻击 使目标散功，无法使用任何门派技能，持续2秒，散功状态下可以移动，但无法使用技能
-5	5587	FightSkillShaoLin1_4	#c54FF00一苇渡江#r#cFFFFFF瞬间释放#r冷却时间：60秒#r提高自身移动速度#c54FF0050%#cFFFFFF，持续15秒
-6	5435	FightSkillShaoLin1_13	#c54FF00百无禁忌#r#cFFFFFF瞬间释放#r冷却时间：30秒#r状态 免疫控制、破绽、虚弱、僵硬、持续伤血状态，持续10秒#r高于此技能等级的不良效果不能免疫
-7	5436	FightSkillShaoLin1_9	#c54FF00礼敬如来#r#cFFFFFF瞬间释放#r冷却时间：30秒#r状态 此状态下被攻击，反射#c54FF0020%#cFFFFFF的伤害，持续10秒
-8	5437	FightSkillMingJiao_1	#c54FF00摧心掌#r#cFFFFFF有效距离：0-2米#r瞬间释放#r单体近身攻击 增加外功攻击#r#c5BC257自动连续释放
-9	5438	FightSkillMingJiao_3	#c54FF00炎龙无双#r#cFFFFFF有效距离：0-2米#r瞬间释放#r冷却时间：10秒#r单体近身攻击 火攻击增加
-10	5439	FightSkillMingJiao1_9	#c54FF00怒火连斩#r#cFFFFFF瞬间释放#r冷却时间：90秒#r单体状态 持续30秒，在持续时间内的前15次攻击中伤害逐步提升，并在持续时间内每次命中目标都会提高自身#c54FF0050%#cFFFFFF的移动速度，如果前一刀未命中，则下一刀必定命中#r#c54FF00引导类、陷阱类技能无法触发
-11	5440	FightSkillMingJiao_5	#c54FF00葵花点穴手#r#cFFFFFF有效距离：0-2米#r瞬间释放#r冷却时间：30秒#r单体近身攻击 将目标封穴，持续2秒，封穴状态下无法进行任何操作
-12	5588	FightSkillMingJiao_4	#c54FF00葵花逐日#r#cFFFFFF瞬间释放#r冷却时间：60秒#r提高自身移动速度#c54FF0050%#cFFFFFF，持续15秒
-13	5442	FightSkillMingJiao1_8	#c54FF00烽火连城#r#cFFFFFF有效距离：0-15米#r瞬间释放#r冷却时间：20秒#r单体远程攻击，使目标眩晕。眩晕期间移动不能，操作不能，可被攻击，无法被打醒。同时将其拉到自己身边。#r只能对玩家使用。
-14	5443	FightSkillMingJiao1_4	#c54FF00破釜沉舟#r#cFFFFFF瞬间释放#r冷却时间：60秒#r状态 该状态下对目标造成的伤害提高#c54FF0010%#cFFFFFF，持续时间：20秒
-15	5444	FightSkillGaiBang1_1	#c54FF00蟠龙击#r#cFFFFFF有效距离：0-2米#r瞬间释放#r单体近身攻击 增加外功攻击#r#c5BC257自动连续释放
-16	5445	FightSkillGaiBang1_3	#c54FF00冲阵斩将#r#cFFFFFF有效距离：0-2米#r瞬间释放#r冷却时间：10秒#r单体近身攻击 毒攻击增加
-17	5446	FightSkillGaiBang_10	#c54FF00横扫乾坤#r#cFFFFFF瞬间释放#r冷却时间：90秒#r范围攻击 在10秒内持续对自身周围半径5米范围内最多6个目标造成伤害，并造成目标减速，同时自身免疫控制技能，不能攻击不能使用战斗技能
-18	5447	FightSkillGaiBang1_5	#c54FF00雪泥鸿爪#r#cFFFFFF有效距离：0-2米#r瞬间释放#r冷却时间：30秒#r单体近身技能 使目标散功，持续2秒，散功状态下可以移动，但无法使用技能
-19	5589	FightSkillGaiBang1_4	#c54FF00八步赶蟾#r#cFFFFFF瞬间释放#r冷却时间：60秒#r提高自身移动速度#c54FF0050%#cFFFFFF，持续15秒
-20	5449	FightSkillGaiBang_9	#c54FF00棒打狗头#r#cFFFFFF有效距离15米#r瞬间释放#r冷却时间：20秒#r单体远程攻击 外功攻击力增加，将目标封穴1秒，同时降低移动速度50%，持续10秒
-21	5450	FightSkillGaiBang_4	#c54FF00龙战于野#r#cFFFFFF瞬间释放#r冷却时间：30秒#r状态 短时间内自身闪避率暴增，持续10秒，且有极高概率躲闪前三次受击
-22	5451	FightSkillWuDang1_1	#c54FF00八卦掌#r#cFFFFFF有效距离：0-15米#r瞬间释放#r单体远程攻击 增加内功攻击#r#c5BC257自动连续释放
-23	5452	FightSkillWuDang1_7	#c54FF00天马飞瀑#r#cFFFFFF有效距离：0-15米#r瞬间释放#r冷却时间：10秒#r单体远程攻击 玄攻击增加
-24	5453	FightSkillWuDang2_4	#c54FF00游刃有余#r#cFFFFFF瞬间释放#r冷却时间：90秒#r解除所有技能的冷却
-25	5454	FightSkillWuDang2_5	#c54FF00天外飞仙#r#cFFFFFF有效距离：0-15米#r瞬间释放#r冷却时间：30秒#r单体远程攻击 令目标麻痹2秒，麻痹状态下无法进行任何操作
-26	5590	FightSkillWuDang2_1	#c54FF00白鹤亮翅#r#cFFFFFF瞬间释放#r冷却时间：60秒#r状态 该状态下对目标造成的伤害提高#c54FF0020%#cFFFFFF，持续时间：10秒
-27	5456	FightSkillWuDang1_9	#c54FF00梯云纵#r#cFFFFFF有效距离：0-20米#r瞬间释放#r冷却时间：40秒#r瞬间移动 点选地面，瞬间移动到所选位置
-28	5457	FightSkillWuDang2_8	#c54FF00仙风道骨#r#cFFFFFF瞬间释放#r冷却时间：60秒#r解除流血、减速、虚弱、弱控、强控等所有负面效果，并进入无敌状态，自身无法移动，无法使用任何技能，持续#c54FF003#cFFFFFF秒
-29	5458	FightSkillEMei1_1	#c54FF00貂蝉拜月#r#cFFFFFF有效距离：0-15米#r瞬间释放#r单体远程攻击 增加内功攻击#r#c5BC257自动连续释放
-30	5459	FightSkillEMei1_3	#c54FF00西子捧心#r#cFFFFFF有效距离：0-15米#r瞬间释放#r冷却时间：10秒#r单体远程攻击 冰攻击增加
-31	5460	FightSkillEMei2_8	#c54FF00清心普善咒#r#cFFFFFF有效距离：0-15米#r运气时间：1秒#r单体治疗 快速回复目标血#r#G在野外场景和PK活动场景中，使用此技能治疗人物时，治疗目标在2秒内，最多可被峨嵋和长生星阵恢复血上限15%的血量
-32	5461	FightSkillEMei1_5	#c54FF00月落西山#r#cFFFFFF瞬间释放#r冷却时间：30秒#r群体技能 使自身周围5米范围内，最多6个目标进入失明状态，持续2秒，失明状态下无法进行任何操作，会在一定区域内随机移动
-33	5591	FightSkillEMei2_1	#c54FF00斩情诀#r#cFFFFFF瞬间释放#r冷却时间：40秒#r状态 该状态下对目标造成的伤害提高#c54FF0010%#cFFFFFF，持续时间：10秒
-34	5463	FightSkillEMei1_9	#c54FF00延年益寿#r#cFFFFFF瞬间释放#r冷却时间：60秒#r状态 为自身增加一个持续10秒的恢复效果，效果持续期间每2秒恢复生命值#r#G在野外场景和PK活动场景中，使用此技能治疗人物时，治疗目标在2秒内，最多可被峨嵋和长生星阵恢复血上限15%的血量
-35	5464	FightSkillEMei2_4	#c54FF00呆若木鸡#r#cFFFFFF瞬间释放#r冷却时间：60秒#r无敌状态 使自己无敌，但该状态下不能攻击，不能使用技能，持续3秒
-36	5465	FightSkillXinXiu1_1	#c54FF00蓝砂手#r#cFFFFFF有效距离：0-15米#r瞬间释放#r单体远程攻击 增加内功攻击#r#c5BC257自动连续释放
-37	5466	FightSkillXinXiu1_3	#c54FF00幽冥神掌#r#cFFFFFF有效距离：0-15米#r瞬间释放#r冷却时间：10秒#r单体攻击 毒攻击增加
-38	5467	FightSkillXinXiu2_4	#c54FF00天地同寿#r#cFFFFFF有效距离：0-15米#r瞬间释放#r冷却时间：20秒#r单体攻击 对目标造成额外直接伤害，有30%的几率发动两次额外攻击
-39	5468	FightSkillXinXiu2_8	#c54FF00含笑半步癫#r#cFFFFFF有效距离：0-15米#r瞬间释放#r冷却时间：60秒#r单体远程攻击，目标每3秒受到一次1秒的封穴效果，持续9秒，自身移动速度提高45%，持续5秒
-40	5592	FightSkillXinXiu2_1	#c54FF00经脉逆行#r#cFFFFFF瞬间释放#r冷却时间：20秒#r状态 该状态下对目标造成的伤害提高#c54FF0010%#cFFFFFF，持续时间：10秒
-41	5470	FightSkillXinXiu2_9	#c54FF00一日丧命散#r#cFFFFFF瞬间释放#r冷却时间：30#r单体（范围）攻击 使用后对目标造成伤害并失明1秒，并附加一日丧命散状态20秒，如果在20秒内目标死亡，则对目标周围6个敌方目标造成伤害附加失明状态2秒，如果20秒内目标没有死亡则对目标周围最多6个其他敌方目标造成失明状态5秒（不包括目标自身）
-42	5471	FightSkillXinXiu1_7	#c54FF00笑里藏刀#r#cFFFFFF有效距离：0-15米#r发功持续时间：5秒#r冷却时间：30秒#r单体吸血 持续攻击目标，并将一定量伤害转化为自己的血，同时造成减速效果，引导时间越长伤害与减速效果越强，引导完成后将使目标定身
-43	5472	FightSkillDaLi_1	#c54FF00正阳手#r#cFFFFFF有效距离：0-15米#r瞬间释放#r单体远程攻击 增加内外功攻击#r#c5BC257自动连续释放
-44	5473	FightSkillDaLi2_15	#c54FF00少商剑#r#cFFFFFF有效距离：0-15米#r瞬间释放#r冷却时间：30秒#r单体远程攻击 火攻击增加，并引发爆炸，对目标周围5米范围内最多5个额外敌对目标造成伤害
-45	5474	FightSkillDaLi_7	#c54FF00指点江山#r#cFFFFFF有效距离：0-15米#r瞬间释放#r单体标记 令目标进入虚弱状态，所受伤害放大#c54FF0010%#cFFFFFF，持续30秒
-46	5475	FightSkillDaLi_5	#c54FF00八门金锁#r#cFFFFFF有效距离：0-15米#r瞬间释放#r冷却时间：30秒#r单体攻击 封印目标，令目标无法移动，无法释放门派技能，持续2秒
-47	5476	FightSkillDaLi2_6	#c54FF00关冲剑#r#cFFFFFF有效距离：0-15米#r瞬间释放#r冷却时间：30秒#r单体远程攻击 冰攻击增加，有几率令目标散功，持续3秒
-48	5477	FightSkillDaLi3_1	#c54FF00少泽剑#r#cFFFFFF有效距离：0-15米#r瞬间释放#r冷却时间：30秒#r单体远程攻击 玄攻击增加，随机使目标受到的1种属性伤害提高，持续10秒
-49	5478	FightSkillDaLi2_9	#c54FF00商阳剑#r#cFFFFFF有效距离：0-15米#r瞬间释放#r冷却时间：30秒#r单体远程攻击 毒攻击增加，并且附加单体异常状态#r异常状态下，目标持续受到极大伤害，持续30秒。
-50	5479	FightSkillTianShan_1	#c54FF00雁南飞#r#cFFFFFF有效距离：0-2米#r瞬间释放#r单体近身攻击 增加外功攻击#r#c5BC257自动连续释放 
-51	5480	FightSkillTianShan_3	#c54FF00凤舞九天#r#cFFFFFF有效距离：0-2米#r瞬间释放#r冷却时间：10秒#r单体近身攻击 增加冰攻击 
-52	5481	FightSkillTianShan_8	#c54FF00移花接木#r#cFFFFFF瞬间释放#r冷却时间：60秒#r状态 使自己的攻击携带范围爆炸效果，持续15秒
-53	5482	FightSkillTianShan1_5	#c54FF00同生共死#r#cFFFFFF有效距离：0-15米#r瞬间释放#r冷却时间：30秒#r单体远程攻击 直接造成伤害，并将目标封穴，持续2秒
-54	5593	FightSkillTianShan_4	#c54FF00白驹过隙#r#cFFFFFF瞬间释放#r冷却时间：60秒#r提高自身移动速度#c54FF0050%#cFFFFFF，持续15秒
-55	5484	FightSkillTianShan_7	#c54FF00金蝉脱壳#r#cFFFFFF运气时间：1秒#r冷却时间：90秒#r单体技能　使自己隐身，持续20秒，受到伤害或主动释放技能便立即现身
-56	5485	FightSkillTianShan_13	#c54FF00踏雪无痕#r#cFFFFFF有效距离：0-20米#r瞬间释放#r冷却时间：40秒#r瞬间移动 点选地面，瞬间移动到目的，同时进入隐身状态，隐身持续3秒，受到伤害或主动释放技能便立即现身
-57	5486	FightSkillXiaoYao_1	#c54FF00落英剑#r#cFFFFFF有效距离：0-15米#r瞬间释放#r单体远程攻击 增加内功攻击#r#c5BC257自动连续释放 
-58	5487	FightSkillXiaoYao_3	#c54FF00弹指神功#r#cFFFFFF有效距离：0-15米#r瞬间释放#r冷却时间：10秒#r单体攻击 增加火攻击
-59	5488	FightSkillXiaoYao_15	#c54FF00溪山行旅#r#cFFFFFF有效距离：0-15米#r瞬间释放#r冷却时间：10秒#r单体远程攻击 增加内功攻击，有#c54FF0030%#cFFFFFF的几率令目标虚弱，所受伤害放大，效果持续20秒
-60	5489	FightSkillXiaoYao_5	#c54FF00画地为牢#r#cFFFFFF有效距离：0-15米#r瞬间释放#r冷却时间：30秒#r单体远程攻击 使目标被围困，持续4秒，围困状态下无法进行任何操作，但该状态下是无敌的，不会受到任何伤害
-61	5594	FightSkillXiaoYao_7	#c54FF00八阵图#r#cFFFFFF瞬间释放#r冷却时间：30秒#r放置定时攻击陷阱 作用范围4米，最多作用目标6人，直接对目标产生伤害，并令目标散功2秒，散功状态下可以移动，但无法使用技能，陷阱5秒后自动爆炸#r#c5BC257同类陷阱数目上限：1个
-62	5491	FightSkillXiaoYao_4	#c54FF00凌波微步#r#cFFFFFF有效距离：0-20米#r瞬间释放#r冷却时间：40秒#r瞬间移动 点选地面，瞬间移动到目的地
-63	5492	FightSkillXiaoYao1_4	#c54FF00惊涛骇浪#r#cFFFFFF瞬间释放#r冷却时间：30秒#r群体攻击 使自身周围5米范围内，最多6个目标散功，散功持续2秒，散功状态下可以移动，但无法使用技能
-64	5493	FightSkillMurong1_3	#c54FF00柳拂衣#r#cFFFFFF有效距离：0-2米#r瞬间释放#r单体近身攻击 增加内功攻击#r#c5BC257自动连续释放
-65	5494	FightSkillMurong_1	#c54FF00横剑疆场#r#cFFFFFF有效距离：0-2米#r瞬间释放#r冷却时间：10秒#r单体近身攻击 玄攻击增加
-66	5495	FightSkillMurong2_7	#c54FF00破天式#r#cFFFFFF瞬间释放#r冷却时间：90秒#r释放技能时使8米半径内至多10个目标减速50%，持续15秒，并立即释放一把飞剑，之后进入破天式状态，此状态下每1.5秒会召唤一把飞剑，飞剑追击自身周围8米范围内的敌对目标，且优先追击玩家，一共可以召唤十把飞剑，飞剑落地一段时间后爆炸，对周围的3个目标造成一定比例普通攻击伤害，并造成1秒麻痹
-67	5496	FightSkillMurong_12	#c54FF00探营取将#r#cFFFFFF有效距离：0-15米#r瞬间释放#r冷却时间：30秒#r单体远程攻击 将目标封穴，持续2秒，封穴状态下无法进行任何操作
-68	5595	FightSkillMurong1_2	#c54FF00陌上行#r#cFFFFFF瞬间释放#r冷却时间：60秒#r提高自身移动速度#c54FF0050%#cFFFFFF，持续15秒
-69	5498	FightSkillMurong2_8	#c54FF00凌神式#r#cFFFFFF有效距离：0-15米#r瞬间释放#r冷却时间：20秒#r瞬间移动 选定目标后瞬间移动到目标身边进行一次攻击，增加内功攻击
-70	5499	FightSkillMurong_2	#c54FF00彼行我释#r#cFFFFFF有效距离：0-15米#r瞬间释放#r冷却时间：30秒#r状态 解除当前自身受到的所有能被返还的控制，并将其中1个控制返还给该控制的释放者，持续2秒
-71	5500	FightSkillTangMen_13	#c54FF00流云矢#r#cFFFFFF有效距离：0-15米#r瞬间释放#r单体远程攻击 增加内功攻击#r#c5BC257自动连续释放
-72	5501	FightSkillTangMen_9	#c54FF00九天揽月#r#cFFFFFF有效距离：0-15米#r瞬间释放#r冷却时间：10秒#r单体攻击 增加毒攻击
-73	5502	FightSkillTangMen_4	#c54FF00风雷万钧#r#cFFFFFF瞬间释放#r冷却时间：60秒#r状态 该状态下对目标造成的伤害提高#c54FF0060%#cFFFFFF，持续时间：10秒
-74	5503	FightSkillTangMen_1	#c54FF00暴雨梨花针#r#cFFFFFF有效距离：0-15米#r瞬间释放#r冷却时间：30秒#r单体攻击 封印目标，令目标无法移动，无法释放门派技能，持续2秒
-75	5596	FightSkillTangMen1_1	#c54FF00十方俱灭#r#cFFFFFF瞬间释放#r冷却时间：60秒#r状态 每秒会心一击提升20点，状态结束或者暴击3次后消失，持续15秒
-76	5505	FightSkillTangMen_5	#c54FF00浮光掠影#r#cFFFFFF有效距离：0-20米#r瞬间释放#r冷却时间：40秒#r瞬间移动 点选地面，瞬间移动到目的地#r并获得一个状态 提高自身移动速度#c54FF0050%#cFFFFFF，持续5秒
-77	5506	FightSkillTangMen_7	#c54FF00含沙射影#r#cFFFFFF瞬间释放#r冷却时间：30秒#r状态 每次普通攻击有#c54FF0020%#cFFFFFF概率令目标失明0.3秒，持续5秒
-78	5507	FightSkillGuiGu1_1	#c54FF00乾坤引#r#cFFFFFF有效距离：0-15米#r瞬间释放#r单体远程攻击 增加内功攻击#r#c5BC257自动连续释放
-79	5508	FightSkillGuiGu1_8	#c54FF00一气三清#r#cFFFFFF有效距离：0-15米#r瞬间释放#r冷却时间：10秒#r单体远程攻击 增加玄攻击
-80	5509	FightSkillGuiGu1_6	#c54FF00五气朝元#r#cFFFFFF瞬间释放#r冷却时间：10秒#r恢复自身#c54FF0010%#cFFFFFF的血
-81	5510	FightSkillGuiGu1_3	#c54FF00陶然一醉#r#cFFFFFF有效距离：0-15米#r瞬间释放#r冷却时间：30秒#r单体远程攻击 令目标麻痹，麻痹状态下无法进行任何操作，持续2秒
-82	5597	FightSkillGuiGu1_9	#c54FF00荧惑守心#r#cFFFFFF瞬间释放#r冷却时间：30秒#r单体远程攻击 增加内功攻击，并令目标进入灼烧状态
-83	5512	FightSkillGuiGu1_15	#c54FF00绝星阵·破军#r#cFFFFFF瞬间释放#r冷却时间：30秒#r状态 该状态下对目标造成的伤害提高#c54FF0030%#cFFFFFF，持续时间：10秒
-84	5513	FightSkillGuiGu2_7	#c54FF00谪仙梦影#r#cFFFFFF瞬间释放#r冷却时间：60秒#r状态 降低自身受到伤害的#G25%#W，持续10秒
-85	5514	FightSkillTaoHuaDao_6	#c54FF00雅颂之音#r#cFFFFFF有效距离：0-15米#r瞬间释放#r单体远程攻击 增加外功攻击#r#c5BC257自动连续释放
-86	5515	FightSkillTaoHuaDao2_5	#c54FF00人之可诛#r#cFFFFFF有效距离：0-15米#r瞬间释放#r冷却时间：10秒#r单体远程攻击 增加冰攻击
-87	5516	FightSkillTaoHuaDao2_7	#c54FF00秦皇东遣#r#cFFFFFF有效距离：0-12米#r瞬间释放#r冷却时间：20秒#r指向位移 向#G12米#W范围内的指定位置进行一次位移，位移过程中免疫控制，且所受伤害降低#G50%#W。位移后10秒内的下一次雅颂之音或人之可诛伤害提升#G100%#W
-88	5517	FightSkillTaoHuaDao_11	#c54FF00去智去故#r#cFFFFFF有效距离：0-15米#r瞬间释放#r冷却时间：30秒#r群体攻击 以指定位置为圆心，半径#G4#W米范围内，对最多#G6#W个敌对目标造成#G2#W秒散功
-89	5518	FightSkillTaoHuaDao2_16	#c54FF00解我心忧#r#cFFFFFF瞬间释放#r冷却时间：30秒#r解除自身受到的部分控制，并令自身进入隐身状态，持续2秒。受到伤害或主动释放技能便立即现身#r高于此技能等级的不良效果不能解除或免疫
-90	5519	FightSkillTaoHuaDao2_13	#c54FF00高唐云散#r#cFFFFFF有效距离：0-12米#r瞬间释放#r冷却时间：30秒#r对敌对目标施加持续10秒的标记，攻击携带标记的目标时，会心一击概率提升
-91	5520	FightSkillTaoHuaDao2_4	#c54FF00棹歌中流#r#cFFFFFF瞬间释放#r冷却时间：60秒#r对自身当前位置5米范围内最多6个目标，每秒造成一定比例普通攻击伤害，持续10秒
-92	5521	FightSkillCongRen2_10	#c54FF00刃击千里#r#cFFFFFF有效距离：0-15米#r瞬间释放#r单体远程攻击 增加外功攻击#r#c5BC257自动连续释放
-93	5522	FightSkillCongRen2_15	#c54FF00烈火燎情#r#cFFFFFF有效距离：0-15米#r瞬间释放#r冷却时间：10秒#r单体攻击 增加火攻击
-94	5523	FightSkillCongRen1_2	#c54FF00荡千军#r#cFFFFFF有效距离：0-15米#r瞬间释放#r冷却时间：20秒#r范围攻击 瞬移至指定位置，并对终点6米范围内最多3名敌方目标造成#c54FF00100#cFFFFFF点直接伤害和1秒麻痹
-95	5524	FightSkillCongRen1_13	#c54FF00挥刃封喉#r#cFFFFFF有效距离：0-15米#r瞬间释放#r冷却时间：30秒#r单体控制 使目标硬直，硬直状态下无法进行任何操作，持续2秒
-96	5525	FightSkillCongRen3_3	#c54FF00情尽盈血#r#cFFFFFF瞬间释放#r冷却时间：30秒#r状态 每1.5秒恢复自身血上限1%的生命值，持续#G15#W秒
-97	5526	FightSkillCongRen2_2	#c54FF00宁鸣不默#r#cFFFFFF有效距离：0-15米#r瞬间释放#r冷却时间：8秒#r群体攻击 对目标周围5米范围内最多3名敌人造成伤害，造成普通攻击150%的伤害
-98	5527	FightSkillCongRen3_1	#c54FF00笑恩仇#W#r瞬间释放#r冷却时间：30秒#r状态 进入霸体状态：无法被部分技能控制，持续6秒#r高于此技能等级的不良效果不能免疫
-99	5528	FightSkillERenGu2_6	#c54FF00剜心镰#r#cFFFFFF有效距离：0-15米#r瞬间释放#r单体远程攻击 增加内功攻击#r#c5BC257自动连续释放
-100	5529	FightSkillERenGu1_8	#c54FF00拘魂·地#r#cFFFFFF有效距离：0-15米#r瞬间释放#r冷却时间：6秒，与拘魂·天、拘魂·命共享冷却时间#r单体远程攻击 增加毒攻击，并拘拿目标的地魂，自身获得#c54FF0020#cFFFFFF秒的拘魂·地状态，受到的伤害降低#c54FF003%#cFFFFFF；目标获得#c54FF0010#cFFFFFF秒的丧魂·地状态，受到恶人谷的伤害提高#c54FF0010%#cFFFFFF
-101	5530	FightSkillERenGu1_1	#c54FF00百倍奉还#r#cFFFFFF有效距离：0-15米#r瞬间释放#r冷却时间：6秒#r单体远程攻击 对处于丧魂状态的目标造成普通攻击150%的伤害
-102	5531	FightSkillERenGu2_2	#c54FF00锁魂斩#r#cFFFFFF有效距离：0-15米#r瞬间释放#r冷却时间：30秒#r单体远程攻击 封印目标，令目标无法移动，无法释放门派技能，持续#c54FF002#cFFFFFF秒
-103	5598	FightSkillERenGu1_5	#c54FF00恶鬼踏江#r#cFFFFFF瞬间释放#r冷却时间：60秒#r指向位移 向#G10米#W范围内的指定位置进行一次位移，同时进入无拘状态，自身无敌且无法使用任何技能，并提高自身移动速度#c54FF00100%#cFFFFFF，持续#c54FF005#cFFFFFF秒
-104	5533	FightSkillERenGu1_9	#c54FF00拘魂·命#r#cFFFFFF有效距离：0-15米#r瞬间释放#r冷却时间：6秒，与拘魂·天、拘魂·地共享冷却时间#r单体远程攻击 增加内功攻击，并拘拿目标的命魂，自身获得#c54FF0020#cFFFFFF秒的拘魂·命状态，每#c54FF005#cFFFFFF秒回复#c54FF002%#cFFFFFF生命值；目标获得#c54FF0010#cFFFFFF秒的丧魂·命状态，获得的治疗效果降低#c54FF0020%#cFFFFFF
-105	5534	FightSkillERenGu1_10	#c54FF00拘魂·天#r#cFFFFFF有效距离：0-15米#r瞬间释放#r冷却时间：6秒，与拘魂·地、拘魂·命共享冷却时间#r单体远程攻击 增加直接伤害，并拘拿目标的天魂，自身获得#c54FF0020#cFFFFFF秒的拘魂·天状态，造成的伤害提高#c54FF005%#cFFFFFF；目标获得#c54FF0010#cFFFFFF秒的丧魂·天状态，对恶人谷造成的伤害降低#c54FF006%#cFFFFFF
+# layout: aligned
+column_0  	column_1  	column_2                 	column_3
+1         	5430      	FightSkillShaoLin1_1     	#c54FF00伏虎拳#r#cFFFFFF有效距离：0-2米#r瞬间释放#r单体近身攻击 增加外功攻击#r#c5BC257自动连续释放
+2         	5431      	FightSkillShaoLin1_3     	#c54FF00大力金刚掌#r#cFFFFFF有效距离：0-2米#r瞬间释放#r冷却时间：10秒#r单体近身攻击 玄攻击增加
+3         	5432      	FightSkillShaoLin2_4     	#c54FF00金刚不坏体#r#cFFFFFF瞬间释放#r冷却时间：30秒#r佛门无上神功，可将#c54FF0050%#cFFFFFF的伤害化为无形，持续10秒
+4         	5433      	FightSkillShaoLin1_5     	#c54FF00拈花指#r#cFFFFFF有效距离：0-2米#r瞬间释放#r冷却时间：30秒#r单体近身攻击 使目标散功，无法使用任何门派技能，持续2秒，散功状态下可以移动，但无法使用技能
+5         	5587      	FightSkillShaoLin1_4     	#c54FF00一苇渡江#r#cFFFFFF瞬间释放#r冷却时间：60秒#r提高自身移动速度#c54FF0050%#cFFFFFF，持续15秒
+6         	5435      	FightSkillShaoLin1_13    	#c54FF00百无禁忌#r#cFFFFFF瞬间释放#r冷却时间：30秒#r状态 免疫控制、破绽、虚弱、僵硬、持续伤血状态，持续10秒#r高于此技能等级的不良效果不能免疫
+7         	5436      	FightSkillShaoLin1_9     	#c54FF00礼敬如来#r#cFFFFFF瞬间释放#r冷却时间：30秒#r状态 此状态下被攻击，反射#c54FF0020%#cFFFFFF的伤害，持续10秒
+8         	5437      	FightSkillMingJiao_1     	#c54FF00摧心掌#r#cFFFFFF有效距离：0-2米#r瞬间释放#r单体近身攻击 增加外功攻击#r#c5BC257自动连续释放
+9         	5438      	FightSkillMingJiao_3     	#c54FF00炎龙无双#r#cFFFFFF有效距离：0-2米#r瞬间释放#r冷却时间：10秒#r单体近身攻击 火攻击增加
+10        	5439      	FightSkillMingJiao1_9    	#c54FF00怒火连斩#r#cFFFFFF瞬间释放#r冷却时间：90秒#r单体状态 持续30秒，在持续时间内的前15次攻击中伤害逐步提升，并在持续时间内每次命中目标都会提高自身#c54FF0050%#cFFFFFF的移动速度，如果前一刀未命中，则下一刀必定命中#r#c54FF00引导类、陷阱类技能无法触发
+11        	5440      	FightSkillMingJiao_5     	#c54FF00葵花点穴手#r#cFFFFFF有效距离：0-2米#r瞬间释放#r冷却时间：30秒#r单体近身攻击 将目标封穴，持续2秒，封穴状态下无法进行任何操作
+12        	5588      	FightSkillMingJiao_4     	#c54FF00葵花逐日#r#cFFFFFF瞬间释放#r冷却时间：60秒#r提高自身移动速度#c54FF0050%#cFFFFFF，持续15秒
+13        	5442      	FightSkillMingJiao1_8    	#c54FF00烽火连城#r#cFFFFFF有效距离：0-15米#r瞬间释放#r冷却时间：20秒#r单体远程攻击，使目标眩晕。眩晕期间移动不能，操作不能，可被攻击，无法被打醒。同时将其拉到自己身边。#r只能对玩家使用。
+14        	5443      	FightSkillMingJiao1_4    	#c54FF00破釜沉舟#r#cFFFFFF瞬间释放#r冷却时间：60秒#r状态 该状态下对目标造成的伤害提高#c54FF0010%#cFFFFFF，持续时间：20秒
+15        	5444      	FightSkillGaiBang1_1     	#c54FF00蟠龙击#r#cFFFFFF有效距离：0-2米#r瞬间释放#r单体近身攻击 增加外功攻击#r#c5BC257自动连续释放
+16        	5445      	FightSkillGaiBang1_3     	#c54FF00冲阵斩将#r#cFFFFFF有效距离：0-2米#r瞬间释放#r冷却时间：10秒#r单体近身攻击 毒攻击增加
+17        	5446      	FightSkillGaiBang_10     	#c54FF00横扫乾坤#r#cFFFFFF瞬间释放#r冷却时间：90秒#r范围攻击 在10秒内持续对自身周围半径5米范围内最多6个目标造成伤害，并造成目标减速，同时自身免疫控制技能，不能攻击不能使用战斗技能
+18        	5447      	FightSkillGaiBang1_5     	#c54FF00雪泥鸿爪#r#cFFFFFF有效距离：0-2米#r瞬间释放#r冷却时间：30秒#r单体近身技能 使目标散功，持续2秒，散功状态下可以移动，但无法使用技能
+19        	5589      	FightSkillGaiBang1_4     	#c54FF00八步赶蟾#r#cFFFFFF瞬间释放#r冷却时间：60秒#r提高自身移动速度#c54FF0050%#cFFFFFF，持续15秒
+20        	5449      	FightSkillGaiBang_9      	#c54FF00棒打狗头#r#cFFFFFF有效距离15米#r瞬间释放#r冷却时间：20秒#r单体远程攻击 外功攻击力增加，将目标封穴1秒，同时降低移动速度50%，持续10秒
+21        	5450      	FightSkillGaiBang_4      	#c54FF00龙战于野#r#cFFFFFF瞬间释放#r冷却时间：30秒#r状态 短时间内自身闪避率暴增，持续10秒，且有极高概率躲闪前三次受击
+22        	5451      	FightSkillWuDang1_1      	#c54FF00八卦掌#r#cFFFFFF有效距离：0-15米#r瞬间释放#r单体远程攻击 增加内功攻击#r#c5BC257自动连续释放
+23        	5452      	FightSkillWuDang1_7      	#c54FF00天马飞瀑#r#cFFFFFF有效距离：0-15米#r瞬间释放#r冷却时间：10秒#r单体远程攻击 玄攻击增加
+24        	5453      	FightSkillWuDang2_4      	#c54FF00游刃有余#r#cFFFFFF瞬间释放#r冷却时间：90秒#r解除所有技能的冷却
+25        	5454      	FightSkillWuDang2_5      	#c54FF00天外飞仙#r#cFFFFFF有效距离：0-15米#r瞬间释放#r冷却时间：30秒#r单体远程攻击 令目标麻痹2秒，麻痹状态下无法进行任何操作
+26        	5590      	FightSkillWuDang2_1      	#c54FF00白鹤亮翅#r#cFFFFFF瞬间释放#r冷却时间：60秒#r状态 该状态下对目标造成的伤害提高#c54FF0020%#cFFFFFF，持续时间：10秒
+27        	5456      	FightSkillWuDang1_9      	#c54FF00梯云纵#r#cFFFFFF有效距离：0-20米#r瞬间释放#r冷却时间：40秒#r瞬间移动 点选地面，瞬间移动到所选位置
+28        	5457      	FightSkillWuDang2_8      	#c54FF00仙风道骨#r#cFFFFFF瞬间释放#r冷却时间：60秒#r解除流血、减速、虚弱、弱控、强控等所有负面效果，并进入无敌状态，自身无法移动，无法使用任何技能，持续#c54FF003#cFFFFFF秒
+29        	5458      	FightSkillEMei1_1        	#c54FF00貂蝉拜月#r#cFFFFFF有效距离：0-15米#r瞬间释放#r单体远程攻击 增加内功攻击#r#c5BC257自动连续释放
+30        	5459      	FightSkillEMei1_3        	#c54FF00西子捧心#r#cFFFFFF有效距离：0-15米#r瞬间释放#r冷却时间：10秒#r单体远程攻击 冰攻击增加
+31        	5460      	FightSkillEMei2_8        	#c54FF00清心普善咒#r#cFFFFFF有效距离：0-15米#r运气时间：1秒#r单体治疗 快速回复目标血#r#G在野外场景和PK活动场景中，使用此技能治疗人物时，治疗目标在2秒内，最多可被峨嵋和长生星阵恢复血上限15%的血量
+32        	5461      	FightSkillEMei1_5        	#c54FF00月落西山#r#cFFFFFF瞬间释放#r冷却时间：30秒#r群体技能 使自身周围5米范围内，最多6个目标进入失明状态，持续2秒，失明状态下无法进行任何操作，会在一定区域内随机移动
+33        	5591      	FightSkillEMei2_1        	#c54FF00斩情诀#r#cFFFFFF瞬间释放#r冷却时间：40秒#r状态 该状态下对目标造成的伤害提高#c54FF0010%#cFFFFFF，持续时间：10秒
+34        	5463      	FightSkillEMei1_9        	#c54FF00延年益寿#r#cFFFFFF瞬间释放#r冷却时间：60秒#r状态 为自身增加一个持续10秒的恢复效果，效果持续期间每2秒恢复生命值#r#G在野外场景和PK活动场景中，使用此技能治疗人物时，治疗目标在2秒内，最多可被峨嵋和长生星阵恢复血上限15%的血量
+35        	5464      	FightSkillEMei2_4        	#c54FF00呆若木鸡#r#cFFFFFF瞬间释放#r冷却时间：60秒#r无敌状态 使自己无敌，但该状态下不能攻击，不能使用技能，持续3秒
+36        	5465      	FightSkillXinXiu1_1      	#c54FF00蓝砂手#r#cFFFFFF有效距离：0-15米#r瞬间释放#r单体远程攻击 增加内功攻击#r#c5BC257自动连续释放
+37        	5466      	FightSkillXinXiu1_3      	#c54FF00幽冥神掌#r#cFFFFFF有效距离：0-15米#r瞬间释放#r冷却时间：10秒#r单体攻击 毒攻击增加
+38        	5467      	FightSkillXinXiu2_4      	#c54FF00天地同寿#r#cFFFFFF有效距离：0-15米#r瞬间释放#r冷却时间：20秒#r单体攻击 对目标造成额外直接伤害，有30%的几率发动两次额外攻击
+39        	5468      	FightSkillXinXiu2_8      	#c54FF00含笑半步癫#r#cFFFFFF有效距离：0-15米#r瞬间释放#r冷却时间：60秒#r单体远程攻击，目标每3秒受到一次1秒的封穴效果，持续9秒，自身移动速度提高45%，持续5秒
+40        	5592      	FightSkillXinXiu2_1      	#c54FF00经脉逆行#r#cFFFFFF瞬间释放#r冷却时间：20秒#r状态 该状态下对目标造成的伤害提高#c54FF0010%#cFFFFFF，持续时间：10秒
+41        	5470      	FightSkillXinXiu2_9      	#c54FF00一日丧命散#r#cFFFFFF瞬间释放#r冷却时间：30#r单体（范围）攻击 使用后对目标造成伤害并失明1秒，并附加一日丧命散状态20秒，如果在20秒内目标死亡，则对目标周围6个敌方目标造成伤害附加失明状态2秒，如果20秒内目标没有死亡则对目标周围最多6个其他敌方目标造成失明状态5秒（不包括目标自身）
+42        	5471      	FightSkillXinXiu1_7      	#c54FF00笑里藏刀#r#cFFFFFF有效距离：0-15米#r发功持续时间：5秒#r冷却时间：30秒#r单体吸血 持续攻击目标，并将一定量伤害转化为自己的血，同时造成减速效果，引导时间越长伤害与减速效果越强，引导完成后将使目标定身
+43        	5472      	FightSkillDaLi_1         	#c54FF00正阳手#r#cFFFFFF有效距离：0-15米#r瞬间释放#r单体远程攻击 增加内外功攻击#r#c5BC257自动连续释放
+44        	5473      	FightSkillDaLi2_15       	#c54FF00少商剑#r#cFFFFFF有效距离：0-15米#r瞬间释放#r冷却时间：30秒#r单体远程攻击 火攻击增加，并引发爆炸，对目标周围5米范围内最多5个额外敌对目标造成伤害
+45        	5474      	FightSkillDaLi_7         	#c54FF00指点江山#r#cFFFFFF有效距离：0-15米#r瞬间释放#r单体标记 令目标进入虚弱状态，所受伤害放大#c54FF0010%#cFFFFFF，持续30秒
+46        	5475      	FightSkillDaLi_5         	#c54FF00八门金锁#r#cFFFFFF有效距离：0-15米#r瞬间释放#r冷却时间：30秒#r单体攻击 封印目标，令目标无法移动，无法释放门派技能，持续2秒
+47        	5476      	FightSkillDaLi2_6        	#c54FF00关冲剑#r#cFFFFFF有效距离：0-15米#r瞬间释放#r冷却时间：30秒#r单体远程攻击 冰攻击增加，有几率令目标散功，持续3秒
+48        	5477      	FightSkillDaLi3_1        	#c54FF00少泽剑#r#cFFFFFF有效距离：0-15米#r瞬间释放#r冷却时间：30秒#r单体远程攻击 玄攻击增加，随机使目标受到的1种属性伤害提高，持续10秒
+49        	5478      	FightSkillDaLi2_9        	#c54FF00商阳剑#r#cFFFFFF有效距离：0-15米#r瞬间释放#r冷却时间：30秒#r单体远程攻击 毒攻击增加，并且附加单体异常状态#r异常状态下，目标持续受到极大伤害，持续30秒。
+50        	5479      	FightSkillTianShan_1     	#c54FF00雁南飞#r#cFFFFFF有效距离：0-2米#r瞬间释放#r单体近身攻击 增加外功攻击#r#c5BC257自动连续释放␣
+51        	5480      	FightSkillTianShan_3     	#c54FF00凤舞九天#r#cFFFFFF有效距离：0-2米#r瞬间释放#r冷却时间：10秒#r单体近身攻击 增加冰攻击␣
+52        	5481      	FightSkillTianShan_8     	#c54FF00移花接木#r#cFFFFFF瞬间释放#r冷却时间：60秒#r状态 使自己的攻击携带范围爆炸效果，持续15秒
+53        	5482      	FightSkillTianShan1_5    	#c54FF00同生共死#r#cFFFFFF有效距离：0-15米#r瞬间释放#r冷却时间：30秒#r单体远程攻击 直接造成伤害，并将目标封穴，持续2秒
+54        	5593      	FightSkillTianShan_4     	#c54FF00白驹过隙#r#cFFFFFF瞬间释放#r冷却时间：60秒#r提高自身移动速度#c54FF0050%#cFFFFFF，持续15秒
+55        	5484      	FightSkillTianShan_7     	#c54FF00金蝉脱壳#r#cFFFFFF运气时间：1秒#r冷却时间：90秒#r单体技能　使自己隐身，持续20秒，受到伤害或主动释放技能便立即现身
+56        	5485      	FightSkillTianShan_13    	#c54FF00踏雪无痕#r#cFFFFFF有效距离：0-20米#r瞬间释放#r冷却时间：40秒#r瞬间移动 点选地面，瞬间移动到目的，同时进入隐身状态，隐身持续3秒，受到伤害或主动释放技能便立即现身
+57        	5486      	FightSkillXiaoYao_1      	#c54FF00落英剑#r#cFFFFFF有效距离：0-15米#r瞬间释放#r单体远程攻击 增加内功攻击#r#c5BC257自动连续释放␣
+58        	5487      	FightSkillXiaoYao_3      	#c54FF00弹指神功#r#cFFFFFF有效距离：0-15米#r瞬间释放#r冷却时间：10秒#r单体攻击 增加火攻击
+59        	5488      	FightSkillXiaoYao_15     	#c54FF00溪山行旅#r#cFFFFFF有效距离：0-15米#r瞬间释放#r冷却时间：10秒#r单体远程攻击 增加内功攻击，有#c54FF0030%#cFFFFFF的几率令目标虚弱，所受伤害放大，效果持续20秒
+60        	5489      	FightSkillXiaoYao_5      	#c54FF00画地为牢#r#cFFFFFF有效距离：0-15米#r瞬间释放#r冷却时间：30秒#r单体远程攻击 使目标被围困，持续4秒，围困状态下无法进行任何操作，但该状态下是无敌的，不会受到任何伤害
+61        	5594      	FightSkillXiaoYao_7      	#c54FF00八阵图#r#cFFFFFF瞬间释放#r冷却时间：30秒#r放置定时攻击陷阱 作用范围4米，最多作用目标6人，直接对目标产生伤害，并令目标散功2秒，散功状态下可以移动，但无法使用技能，陷阱5秒后自动爆炸#r#c5BC257同类陷阱数目上限：1个
+62        	5491      	FightSkillXiaoYao_4      	#c54FF00凌波微步#r#cFFFFFF有效距离：0-20米#r瞬间释放#r冷却时间：40秒#r瞬间移动 点选地面，瞬间移动到目的地
+63        	5492      	FightSkillXiaoYao1_4     	#c54FF00惊涛骇浪#r#cFFFFFF瞬间释放#r冷却时间：30秒#r群体攻击 使自身周围5米范围内，最多6个目标散功，散功持续2秒，散功状态下可以移动，但无法使用技能
+64        	5493      	FightSkillMurong1_3      	#c54FF00柳拂衣#r#cFFFFFF有效距离：0-2米#r瞬间释放#r单体近身攻击 增加内功攻击#r#c5BC257自动连续释放
+65        	5494      	FightSkillMurong_1       	#c54FF00横剑疆场#r#cFFFFFF有效距离：0-2米#r瞬间释放#r冷却时间：10秒#r单体近身攻击 玄攻击增加
+66        	5495      	FightSkillMurong2_7      	#c54FF00破天式#r#cFFFFFF瞬间释放#r冷却时间：90秒#r释放技能时使8米半径内至多10个目标减速50%，持续15秒，并立即释放一把飞剑，之后进入破天式状态，此状态下每1.5秒会召唤一把飞剑，飞剑追击自身周围8米范围内的敌对目标，且优先追击玩家，一共可以召唤十把飞剑，飞剑落地一段时间后爆炸，对周围的3个目标造成一定比例普通攻击伤害，并造成1秒麻痹
+67        	5496      	FightSkillMurong_12      	#c54FF00探营取将#r#cFFFFFF有效距离：0-15米#r瞬间释放#r冷却时间：30秒#r单体远程攻击 将目标封穴，持续2秒，封穴状态下无法进行任何操作
+68        	5595      	FightSkillMurong1_2      	#c54FF00陌上行#r#cFFFFFF瞬间释放#r冷却时间：60秒#r提高自身移动速度#c54FF0050%#cFFFFFF，持续15秒
+69        	5498      	FightSkillMurong2_8      	#c54FF00凌神式#r#cFFFFFF有效距离：0-15米#r瞬间释放#r冷却时间：20秒#r瞬间移动 选定目标后瞬间移动到目标身边进行一次攻击，增加内功攻击
+70        	5499      	FightSkillMurong_2       	#c54FF00彼行我释#r#cFFFFFF有效距离：0-15米#r瞬间释放#r冷却时间：30秒#r状态 解除当前自身受到的所有能被返还的控制，并将其中1个控制返还给该控制的释放者，持续2秒
+71        	5500      	FightSkillTangMen_13     	#c54FF00流云矢#r#cFFFFFF有效距离：0-15米#r瞬间释放#r单体远程攻击 增加内功攻击#r#c5BC257自动连续释放
+72        	5501      	FightSkillTangMen_9      	#c54FF00九天揽月#r#cFFFFFF有效距离：0-15米#r瞬间释放#r冷却时间：10秒#r单体攻击 增加毒攻击
+73        	5502      	FightSkillTangMen_4      	#c54FF00风雷万钧#r#cFFFFFF瞬间释放#r冷却时间：60秒#r状态 该状态下对目标造成的伤害提高#c54FF0060%#cFFFFFF，持续时间：10秒
+74        	5503      	FightSkillTangMen_1      	#c54FF00暴雨梨花针#r#cFFFFFF有效距离：0-15米#r瞬间释放#r冷却时间：30秒#r单体攻击 封印目标，令目标无法移动，无法释放门派技能，持续2秒
+75        	5596      	FightSkillTangMen1_1     	#c54FF00十方俱灭#r#cFFFFFF瞬间释放#r冷却时间：60秒#r状态 每秒会心一击提升20点，状态结束或者暴击3次后消失，持续15秒
+76        	5505      	FightSkillTangMen_5      	#c54FF00浮光掠影#r#cFFFFFF有效距离：0-20米#r瞬间释放#r冷却时间：40秒#r瞬间移动 点选地面，瞬间移动到目的地#r并获得一个状态 提高自身移动速度#c54FF0050%#cFFFFFF，持续5秒
+77        	5506      	FightSkillTangMen_7      	#c54FF00含沙射影#r#cFFFFFF瞬间释放#r冷却时间：30秒#r状态 每次普通攻击有#c54FF0020%#cFFFFFF概率令目标失明0.3秒，持续5秒
+78        	5507      	FightSkillGuiGu1_1       	#c54FF00乾坤引#r#cFFFFFF有效距离：0-15米#r瞬间释放#r单体远程攻击 增加内功攻击#r#c5BC257自动连续释放
+79        	5508      	FightSkillGuiGu1_8       	#c54FF00一气三清#r#cFFFFFF有效距离：0-15米#r瞬间释放#r冷却时间：10秒#r单体远程攻击 增加玄攻击
+80        	5509      	FightSkillGuiGu1_6       	#c54FF00五气朝元#r#cFFFFFF瞬间释放#r冷却时间：10秒#r恢复自身#c54FF0010%#cFFFFFF的血
+81        	5510      	FightSkillGuiGu1_3       	#c54FF00陶然一醉#r#cFFFFFF有效距离：0-15米#r瞬间释放#r冷却时间：30秒#r单体远程攻击 令目标麻痹，麻痹状态下无法进行任何操作，持续2秒
+82        	5597      	FightSkillGuiGu1_9       	#c54FF00荧惑守心#r#cFFFFFF瞬间释放#r冷却时间：30秒#r单体远程攻击 增加内功攻击，并令目标进入灼烧状态
+83        	5512      	FightSkillGuiGu1_15      	#c54FF00绝星阵·破军#r#cFFFFFF瞬间释放#r冷却时间：30秒#r状态 该状态下对目标造成的伤害提高#c54FF0030%#cFFFFFF，持续时间：10秒
+84        	5513      	FightSkillGuiGu2_7       	#c54FF00谪仙梦影#r#cFFFFFF瞬间释放#r冷却时间：60秒#r状态 降低自身受到伤害的#G25%#W，持续10秒
+85        	5514      	FightSkillTaoHuaDao_6    	#c54FF00雅颂之音#r#cFFFFFF有效距离：0-15米#r瞬间释放#r单体远程攻击 增加外功攻击#r#c5BC257自动连续释放
+86        	5515      	FightSkillTaoHuaDao2_5   	#c54FF00人之可诛#r#cFFFFFF有效距离：0-15米#r瞬间释放#r冷却时间：10秒#r单体远程攻击 增加冰攻击
+87        	5516      	FightSkillTaoHuaDao2_7   	#c54FF00秦皇东遣#r#cFFFFFF有效距离：0-12米#r瞬间释放#r冷却时间：20秒#r指向位移 向#G12米#W范围内的指定位置进行一次位移，位移过程中免疫控制，且所受伤害降低#G50%#W。位移后10秒内的下一次雅颂之音或人之可诛伤害提升#G100%#W
+88        	5517      	FightSkillTaoHuaDao_11   	#c54FF00去智去故#r#cFFFFFF有效距离：0-15米#r瞬间释放#r冷却时间：30秒#r群体攻击 以指定位置为圆心，半径#G4#W米范围内，对最多#G6#W个敌对目标造成#G2#W秒散功
+89        	5518      	FightSkillTaoHuaDao2_16  	#c54FF00解我心忧#r#cFFFFFF瞬间释放#r冷却时间：30秒#r解除自身受到的部分控制，并令自身进入隐身状态，持续2秒。受到伤害或主动释放技能便立即现身#r高于此技能等级的不良效果不能解除或免疫
+90        	5519      	FightSkillTaoHuaDao2_13  	#c54FF00高唐云散#r#cFFFFFF有效距离：0-12米#r瞬间释放#r冷却时间：30秒#r对敌对目标施加持续10秒的标记，攻击携带标记的目标时，会心一击概率提升
+91        	5520      	FightSkillTaoHuaDao2_4   	#c54FF00棹歌中流#r#cFFFFFF瞬间释放#r冷却时间：60秒#r对自身当前位置5米范围内最多6个目标，每秒造成一定比例普通攻击伤害，持续10秒
+92        	5521      	FightSkillCongRen2_10    	#c54FF00刃击千里#r#cFFFFFF有效距离：0-15米#r瞬间释放#r单体远程攻击 增加外功攻击#r#c5BC257自动连续释放
+93        	5522      	FightSkillCongRen2_15    	#c54FF00烈火燎情#r#cFFFFFF有效距离：0-15米#r瞬间释放#r冷却时间：10秒#r单体攻击 增加火攻击
+94        	5523      	FightSkillCongRen1_2     	#c54FF00荡千军#r#cFFFFFF有效距离：0-15米#r瞬间释放#r冷却时间：20秒#r范围攻击 瞬移至指定位置，并对终点6米范围内最多3名敌方目标造成#c54FF00100#cFFFFFF点直接伤害和1秒麻痹
+95        	5524      	FightSkillCongRen1_13    	#c54FF00挥刃封喉#r#cFFFFFF有效距离：0-15米#r瞬间释放#r冷却时间：30秒#r单体控制 使目标硬直，硬直状态下无法进行任何操作，持续2秒
+96        	5525      	FightSkillCongRen3_3     	#c54FF00情尽盈血#r#cFFFFFF瞬间释放#r冷却时间：30秒#r状态 每1.5秒恢复自身血上限1%的生命值，持续#G15#W秒
+97        	5526      	FightSkillCongRen2_2     	#c54FF00宁鸣不默#r#cFFFFFF有效距离：0-15米#r瞬间释放#r冷却时间：8秒#r群体攻击 对目标周围5米范围内最多3名敌人造成伤害，造成普通攻击150%的伤害
+98        	5527      	FightSkillCongRen3_1     	#c54FF00笑恩仇#W#r瞬间释放#r冷却时间：30秒#r状态 进入霸体状态：无法被部分技能控制，持续6秒#r高于此技能等级的不良效果不能免疫
+99        	5528      	FightSkillERenGu2_6      	#c54FF00剜心镰#r#cFFFFFF有效距离：0-15米#r瞬间释放#r单体远程攻击 增加内功攻击#r#c5BC257自动连续释放
+100       	5529      	FightSkillERenGu1_8      	#c54FF00拘魂·地#r#cFFFFFF有效距离：0-15米#r瞬间释放#r冷却时间：6秒，与拘魂·天、拘魂·命共享冷却时间#r单体远程攻击 增加毒攻击，并拘拿目标的地魂，自身获得#c54FF0020#cFFFFFF秒的拘魂·地状态，受到的伤害降低#c54FF003%#cFFFFFF；目标获得#c54FF0010#cFFFFFF秒的丧魂·地状态，受到恶人谷的伤害提高#c54FF0010%#cFFFFFF
+101       	5530      	FightSkillERenGu1_1      	#c54FF00百倍奉还#r#cFFFFFF有效距离：0-15米#r瞬间释放#r冷却时间：6秒#r单体远程攻击 对处于丧魂状态的目标造成普通攻击150%的伤害
+102       	5531      	FightSkillERenGu2_2      	#c54FF00锁魂斩#r#cFFFFFF有效距离：0-15米#r瞬间释放#r冷却时间：30秒#r单体远程攻击 封印目标，令目标无法移动，无法释放门派技能，持续#c54FF002#cFFFFFF秒
+103       	5598      	FightSkillERenGu1_5      	#c54FF00恶鬼踏江#r#cFFFFFF瞬间释放#r冷却时间：60秒#r指向位移 向#G10米#W范围内的指定位置进行一次位移，同时进入无拘状态，自身无敌且无法使用任何技能，并提高自身移动速度#c54FF00100%#cFFFFFF，持续#c54FF005#cFFFFFF秒
+104       	5533      	FightSkillERenGu1_9      	#c54FF00拘魂·命#r#cFFFFFF有效距离：0-15米#r瞬间释放#r冷却时间：6秒，与拘魂·天、拘魂·地共享冷却时间#r单体远程攻击 增加内功攻击，并拘拿目标的命魂，自身获得#c54FF0020#cFFFFFF秒的拘魂·命状态，每#c54FF005#cFFFFFF秒回复#c54FF002%#cFFFFFF生命值；目标获得#c54FF0010#cFFFFFF秒的丧魂·命状态，获得的治疗效果降低#c54FF0020%#cFFFFFF
+105       	5534      	FightSkillERenGu1_10     	#c54FF00拘魂·天#r#cFFFFFF有效距离：0-15米#r瞬间释放#r冷却时间：6秒，与拘魂·地、拘魂·命共享冷却时间#r单体远程攻击 增加直接伤害，并拘拿目标的天魂，自身获得#c54FF0020#cFFFFFF秒的拘魂·天状态，造成的伤害提高#c54FF005%#cFFFFFF；目标获得#c54FF0010#cFFFFFF秒的丧魂·天状态，对恶人谷造成的伤害降低#c54FF006%#cFFFFFF

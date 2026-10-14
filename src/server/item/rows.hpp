@@ -5,7 +5,11 @@
 // table::Tsv dựng một std::string cho mỗi ô (vài triệu cấp phát) và giữ cả bảng trong bộ nhớ. Bộ đọc
 // này đi qua văn bản một lần, mỗi dòng chỉ cắt thành string_view trỏ vào văn bản gốc (bên gọi giữ văn bản
 // sống tới khi nạp xong). Cùng định dạng với table::parse_tsv: dòng bắt đầu bằng # là chú thích, dòng đầu
-// còn lại là tên cột, ô cách nhau bằng tab, mọi dòng phải đủ số ô của dòng tên cột.
+// còn lại là tên cột, ô cách nhau bằng tab, mọi dòng phải đủ số ô của dòng tên cột; bảng căn cột
+// (core/aligned.hpp) bỏ đệm dấu cách ở cuối từng ô, ô có dấu cách cuối thật được dựng lại trong bộ nhớ
+// của Rows (view của dòng hiện tại sống tới lời gọi next kế tiếp).
+
+#include "core/aligned.hpp"
 
 #include <cstddef>
 #include <cstdint>
@@ -38,9 +42,18 @@ public:
     static constexpr std::size_t npos = static_cast<std::size_t>(-1);
 
 private:
+    [[nodiscard]] bool take_line(std::string_view& line);
+    [[nodiscard]] bool note_layout(std::string_view line);
+    void read_header(std::string_view line);
+    [[nodiscard]] bool read_cells(std::string_view line);
+    void unpad_cells();
+
     std::string_view rest_;
     std::vector<std::string_view> header_;
     std::vector<std::string_view> cells_;
+    // Chữ dựng lại của ô bảng căn cột có dấu cách cuối thật, theo chỉ số cột; cells_ trỏ vào.
+    std::vector<std::string> restored_;
+    core::Layout layout_ = core::Layout::kPlain;
     std::size_t line_ = 0;
     std::optional<std::string> error_;
 };

@@ -11,6 +11,7 @@
 #include "social/relation.hpp"
 #include "social/types.hpp"
 #include "social/wordfilter.hpp"
+#include "support/tsv_text.hpp"
 #include "test.hpp"
 
 #include <array>
@@ -20,7 +21,6 @@
 #include <ios>
 #include <iterator>
 #include <optional>
-#include <sstream>
 #include <string>
 #include <string_view>
 
@@ -57,45 +57,20 @@ std::optional<std::string> read_table(std::string_view relative) {
     return std::string{std::istreambuf_iterator<char>(file), std::istreambuf_iterator<char>()};
 }
 
-// Số dòng dữ liệu của bảng: bỏ dòng chú thích '#', dòng trống và dòng tên cột.
+// Số dòng dữ liệu của bảng: bỏ dòng chú thích '#', dòng trống và dòng tên cột; bảng căn cột đã bỏ đệm.
 std::size_t data_rows(const std::string& tsv) {
-    std::istringstream stream(tsv);
-    std::string line;
-    std::size_t rows = 0;
-    bool header_seen = false;
-    while (std::getline(stream, line)) {
-        if (line.empty() || line.front() == '#') continue;
-        if (!header_seen) {
-            header_seen = true;
-            continue;
-        }
-        ++rows;
-    }
-    return rows;
+    const auto rows = split_tsv(tsv);
+    return rows.empty() ? 0 : rows.size() - 1;
 }
 
 // Số dòng dữ liệu có ô `column` (đếm từ 0) bằng `wanted`.
 std::size_t rows_with(const std::string& tsv, std::size_t column, std::string_view wanted) {
-    std::istringstream stream(tsv);
-    std::string line;
-    std::size_t rows = 0;
-    bool header_seen = false;
-    while (std::getline(stream, line)) {
-        if (line.empty() || line.front() == '#') continue;
-        if (!header_seen) {
-            header_seen = true;
-            continue;
-        }
-        std::istringstream cells(line);
-        std::string cell;
-        for (std::size_t index = 0; std::getline(cells, cell, '\t'); ++index) {
-            if (index == column) {
-                if (cell == wanted) ++rows;
-                break;
-            }
-        }
+    const auto rows = split_tsv(tsv);
+    std::size_t count = 0;
+    for (std::size_t index = 1; index < rows.size(); ++index) {
+        if (column < rows[index].size() && rows[index][column] == wanted) ++count;
     }
-    return rows;
+    return count;
 }
 
 // Trả bảng, hoặc in lý do bỏ qua và trả nullopt (bảng của client không vào git).

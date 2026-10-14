@@ -4,6 +4,7 @@
     # source: <cây>/<đường dẫn gốc>
     # tool: TOOLS/server/<công cụ>.py; sửa tay sẽ mất ở lượt xuất sau
     # types: <int, float hoặc text, cách nhau bằng tab>
+    # layout: aligned                      (chỉ bảng căn cột)
     <tên cột>
     <bản ghi>
 
@@ -11,6 +12,17 @@
 ô không có cách thoát. write_table từ chối ô có tab hoặc xuống dòng, ô đầu bắt đầu bằng #,
 và ô rỗng của bảng một cột, vì những dòng đó biến mất khi đọc. Ghi qua tệp tạm rồi đổi tên.
 prepare_directory chỉ xoá tệp của đúng công cụ; gặp tệp lạ thì dừng, không xoá gì.
+
+Bố cục "aligned" (chủ dự án giao 2026-10-15, cho bảng mở bằng trình soạn để đọc): mỗi ô trừ cột cuối
+được đệm dấu cách tới độ rộng hiển thị lớn nhất của cột cộng ALIGN_GAP (chữ Hán và dạng toàn chiều
+tính 2 ô), rồi mới tới tab; mọi dòng có cùng độ rộng trước mỗi tab nên cột thẳng với cỡ tab nào cũng
+được. Dấu cách cuối ô khi đó là đệm; dấu cách cuối thật của dữ liệu ghi bằng SPACE_MARK (U+2423),
+nên dữ liệu không được chứa SPACE_MARK. Dòng # types không căn (tiền tố của nó lệch cột). Bộ đọc C++
+(table/tsv.hpp, content/table_text.hpp) và read_table bỏ đệm theo đúng luật này; cột ở đây tính độ
+rộng như wcwidth, cột chỉ thẳng trên trình soạn vẽ chữ Hán đúng hai ô chữ Latin.
+Mặc định write_table dùng layout "auto": căn cột khi bảng sau căn không quá ALIGN_LIMIT byte (1 MiB), không thì ghi
+thường; "aligned" ép căn (lua_extract, bảng nhiệm vụ và hội thoại do chủ dự án đọc bằng mắt), "plain" ép thường.
+Mọi bộ đọc của dự án hiểu cả hai bố cục: read_table, table::parse_tsv, item::tsv::Rows, content::RecordReader.
 """
 from __future__ import annotations
 
@@ -19,10 +31,18 @@ import os
 import re
 import struct
 import tempfile
+import unicodedata
 from dataclasses import dataclass
 from pathlib import Path
 
 SCHEMA = "1"
+LAYOUTS = ("plain", "aligned", "auto")
+LAYOUT_PREFIX = "# layout: "
+SPACE_MARK = "␣"
+ALIGN_GAP = 2
+# Bảng căn cột nở ra vài lần (mỗi ô đệm tới độ rộng ô dài nhất của cột): bảng lớn ghi thường để tệp và thời gian nạp
+# không phình. Đo 2026-10-15 trên dev/server/tables: căn hết mọi bảng thì 133 MB thành khoảng 660 MB.
+ALIGN_LIMIT = 1 << 20
 TOOL_SUFFIX = "; sửa tay sẽ mất ở lượt xuất sau"
 COLUMN_NAME = re.compile(r"^[a-z][a-z0-9_]*$")
 TOOL_FILE = re.compile(r"^[a-z][a-z0-9_]*\.py$")
@@ -60,6 +80,7 @@ class Table:
     types: tuple[str, ...]
     columns: tuple[str, ...]
     rows: tuple[tuple[str, ...], ...]
+    layout: str = "plain"
 
 
 @dataclass(frozen=True)
@@ -136,26 +157,93 @@ def _check_rows(width: int, rows: list | tuple) -> tuple[tuple[str, ...], ...]:
     return tuple(checked)
 
 
+def display_width(text: str) -> int:
+    """Số ô hiển thị trong phông đơn cách: chữ Hán và dạng toàn chiều 2 ô, dấu kết hợp 0 ô."""
+    return sum(
+        0 if unicodedata.combining(char) else 2 if unicodedata.east_asian_width(char) in "WF" else 1
+        for char in text
+    )
+
+
+def _mark_trailing(cell: str) -> str:
+    """Dấu cách cuối thật thành SPACE_MARK để không lẫn với đệm."""
+    body = cell.rstrip(" ")
+    return body + SPACE_MARK * (len(cell) - len(body))
+
+
+def _unmark_trailing(cell: str) -> str:
+    """Ngược _mark_trailing trên một ô đã đọc của bảng căn cột: bỏ đệm, SPACE_MARK cuối thành dấu cách."""
+    body = cell.rstrip(" ")
+    text = body.rstrip(SPACE_MARK)
+    return text + " " * (len(body) - len(text))
+
+
+def _aligned_lines(lines: list[tuple[str, ...]]) -> list[str]:
+    """Các dòng (tên cột và bản ghi) căn cột; ô cuối không đệm. O(tổng độ dài ô)."""
+    marked = [tuple(_mark_trailing(cell) for cell in line) for line in lines]
+    widths = [0] * len(marked[0])
+    for line in marked:
+        for column, cell in enumerate(line[:-1]):
+            widths[column] = max(widths[column], display_width(cell))
+    out = []
+    for line in marked:
+        padded = [
+            cell + " " * (widths[column] - display_width(cell) + ALIGN_GAP) for column, cell in enumerate(line[:-1])
+        ]
+        out.append("\t".join([*padded, line[-1]]))
+    return out
+
+
+def _plain_lines(columns: list[str] | tuple[str, ...], body: tuple[tuple[str, ...], ...]) -> list[str]:
+    return ["\t".join(columns), *("\t".join(row) for row in body)]
+
+
+def _aligned_text_lines(columns: list[str] | tuple[str, ...], body: tuple[tuple[str, ...], ...]) -> list[str]:
+    return [f"{LAYOUT_PREFIX}aligned", *_aligned_lines([tuple(columns), *body])]
+
+
+def _fits_aligned(columns: list[str] | tuple[str, ...], body: tuple[tuple[str, ...], ...]) -> list[str] | None:
+    """Các dòng căn cột khi bảng đủ nhỏ để căn, hoặc None. Số ký tự chưa tính đệm đã vượt trần thì khỏi tính độ rộng:
+    byte sau căn không bao giờ ít hơn số ký tự. O(tổng độ dài ô) và dừng sớm với bảng lớn."""
+    chars = sum(len(cell) + 1 for cell in columns) + sum(len(cell) + 1 for row in body for cell in row)
+    if chars > ALIGN_LIMIT or any(SPACE_MARK in cell for row in body for cell in row):
+        return None
+    lines = _aligned_text_lines(columns, body)
+    if sum(len(line.encode("utf-8")) + 1 for line in lines) > ALIGN_LIMIT:
+        return None
+    return lines
+
+
 def render_table(
     source: str,
     tool: str,
     types: list[str] | tuple[str, ...],
     columns: list[str] | tuple[str, ...],
     rows: list | tuple,
+    layout: str = "auto",
 ) -> str:
-    """Nội dung tệp đúng hợp đồng. Chưa ghi đĩa."""
+    """Nội dung tệp đúng hợp đồng. Chưa ghi đĩa. layout: "plain", "aligned" (bảng chứa SPACE_MARK thì lỗi) hay "auto"
+    (căn cột khi bảng sau căn không quá ALIGN_LIMIT byte, không thì ghi thường)."""
     tool_id = canonical_tool(tool)
     _check_source(source)
     _check_header(columns, types)
+    if layout not in LAYOUTS:
+        raise TsvError(f"bố cục lạ: {layout}")
     body = _check_rows(len(columns), rows)
     lines = [
         f"# schema {SCHEMA}",
         f"# source: {source}",
         f"# tool: {tool_id}{TOOL_SUFFIX}",
         "# types: " + "\t".join(types),
-        "\t".join(columns),
     ]
-    lines.extend("\t".join(row) for row in body)
+    if layout == "aligned":
+        for index, row in enumerate(body, start=1):
+            if any(SPACE_MARK in cell for cell in row):
+                raise TsvError(f"dòng {index}: bảng căn cột không nhận ô chứa {SPACE_MARK}")
+        lines.extend(_aligned_text_lines(columns, body))
+    else:
+        fitted = _fits_aligned(columns, body) if layout == "auto" else None
+        lines.extend(fitted if fitted is not None else _plain_lines(columns, body))
     return "\n".join(lines) + "\n"
 
 
@@ -187,10 +275,11 @@ def write_table(
     types: list[str] | tuple[str, ...],
     columns: list[str] | tuple[str, ...],
     rows: list | tuple,
+    layout: str = "auto",
 ) -> None:
     """Ghi một bảng. Tệp đã có mà không phải của công cụ này thì không ghi đè."""
     destination = Path(path)
-    text = render_table(source, tool, types, columns, rows)
+    text = render_table(source, tool, types, columns, rows, layout)
     tool_id = canonical_tool(tool)
     if destination.exists() and _owned_tool(destination) != tool_id:
         raise _fail(destination, 1, f"tệp không phải của {tool_id}")
@@ -234,9 +323,33 @@ def _take_comment(path: Path, number: int, line: str, found: dict) -> None:
     if line.startswith("# types: "):
         found["types"] = tuple(line[len("# types: ") :].split("\t"))
         return
+    if line.startswith(LAYOUT_PREFIX):
+        layout = line[len(LAYOUT_PREFIX) :]
+        if layout != "aligned":
+            raise _fail(path, number, f"bố cục lạ: {layout}")
+        found["layout"] = layout
+        return
     if line.startswith("# "):
         return
     raise _fail(path, number, "dòng chú thích không thuộc hợp đồng")
+
+
+def split_rows(text: str) -> list[list[str]]:
+    """Ô của mọi dòng không phải # và không rỗng, kể cả dòng tên cột, cho công cụ tự đọc bảng mà không cần đủ hợp đồng
+    của read_table (CRLF được chấp nhận). Bảng căn cột (dòng # layout: aligned trước tên cột) được bỏ đệm như
+    read_table; bố cục lạ là lỗi. O(độ dài văn bản)."""
+    aligned = False
+    rows: list[list[str]] = []
+    for number, line in enumerate(text.replace("\r\n", "\n").split("\n"), start=1):
+        if not rows and line.startswith(LAYOUT_PREFIX):
+            if line != f"{LAYOUT_PREFIX}aligned":
+                raise TsvError(f"dòng {number}: bố cục lạ: {line[len(LAYOUT_PREFIX):]}")
+            aligned = True
+        if line == "" or line.startswith("#"):
+            continue
+        cells = line.split("\t")
+        rows.append([_unmark_trailing(cell) for cell in cells] if aligned else cells)
+    return rows
 
 
 def read_table(path: Path | str) -> Table:
@@ -253,6 +366,8 @@ def read_table(path: Path | str) -> Table:
             _take_comment(source_path, number, line, found)
             continue
         cells = tuple(line.split("\t"))
+        if found.get("layout") == "aligned":
+            cells = tuple(_unmark_trailing(cell) for cell in cells)
         if header is None:
             header = cells
             continue
@@ -267,7 +382,7 @@ def read_table(path: Path | str) -> Table:
     checked = []
     for index, row in enumerate(rows, start=1):
         checked.append(tuple(_check_cell(cell, index, len(header), column == 0) for column, cell in enumerate(row)))
-    return Table(found["source"], found["tool"], found["types"], header, tuple(checked))
+    return Table(found["source"], found["tool"], found["types"], header, tuple(checked), found.get("layout", "plain"))
 
 
 def _relative_name(name: str) -> str:

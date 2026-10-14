@@ -2,71 +2,72 @@
 # source: GameServer 2008 Impacts/*.cpp, tham số theo effects.tsv
 # tool: TOOLS/server/import_combat.py; sửa tay sẽ mất ở lượt xuất sau
 # types: int	text	text	text	text
-logic_id	handler	roles	fidelity	note
-0	none		full	hiệu ứng hình ảnh (nâng cấp): không đổi trạng thái
-1	damage_flat		full	sát thương thẳng một số
-2	damage_percent		core	sát thương theo phần trăm HP tối đa; lõi dùng HP tối đa hiện tại, bản 2008 dùng HP gốc
-3	damage_attack		full	sát thương sáu kênh theo công thức chiến đấu, cộng sát thương thẳng
-4	restore_value		full	đổi HP/MP/nộ khí/liên kích theo số
-5	restore_rate		core	đổi HP/MP/nộ khí/liên kích theo phần trăm mức tối đa; bỏ phép cộng 100 sai của bản 2008
-6	pet_event		event	hồi phục cho thú cưng: module thú cưng làm
-8	aggro_switch		event	khiêu khích/đổi mục tiêu của quái: AI quái làm theo sự kiện kAggro
-9	teleport		core	dịch chuyển; khác cảnh chỉ phát sự kiện cho zone
-10	composite	0:sub;1:sub;2:sub;3:sub;4:sub;5:sub;6:sub;7:sub;8:sub;9:sub;10:sub;11:sub;12:sub;13:sub;14:sub;15:sub	full	gửi các hiệu ứng con lên người mang theo chu kỳ
-11	stat_point		full	cộng điểm vào 16 chỉ số công/thủ/kháng/tối đa
-12	stat_rate		full	cộng phần trăm vào 16 chỉ số công/thủ/kháng/tối đa
-13	stat_hit		full	cộng điểm trúng, né, hội tâm, hội tâm phòng
-14	state_flags		full	cờ trạng thái: hành động, di chuyển, bất tử, tốc chạy, ẩn thân, mô hình, bộ lọc kỹ năng/hiệu ứng
-15	stat_primary		full	cộng điểm thuộc tính cấp một
-16	stat_primary_rate		full	cộng phần trăm thuộc tính cấp một
-17	immunity		full	miễn nhiễm hiệu ứng thuộc các tập, theo cấp
-18	dispel		full	gỡ buff thuộc các tập
-19	refix_impact		full	chỉnh sức mạnh/thời gian hiệu ứng gửi đi
-20	self_resurrect		core	tự hồi sinh khi chết; lõi đặt đề nghị hồi sinh cho người chơi chấp nhận
-21	skill_refix		full	chỉnh kỹ năng trong tập: trúng, hội tâm, uy lực, tiêu hao, thời gian, hồi chiêu, gom, dẫn; có số lần
-22	counter		core	phản kích; sát thương phản trừ ngay thay vì trễ 500 ms
-23	guard		full	giảm sát thương nhận, hút nội lực và nộ khí đối phương
-24	immune_odds		full	xác suất hấp thụ hiệu ứng thuộc tập
-25	crit_absorb		full	xác suất hấp thụ hiệu ứng đến từ hội tâm
-26	shield		full	khiên sát thương: hút, miễn, phản
-27	pet_event		event	chuyển sát thương của thú cưng: module thú cưng làm
-28	pet_event		event	sát thương theo hệ của thú cưng: module thú cưng làm
-29	absorb_shield		core	khiên hút sát thương, giảm tiêu hao và thời gian gom; sửa RefixPowerByRate chia 1000 của bản 2008
-35	terror		core	choáng: không hành động được; AI hoảng sợ do zone làm theo cờ trạng thái
-36	stat_detect		core	cộng cấp dò ẩn thân
-38	none		full	buff đánh dấu (câu cá): không đổi trạng thái
-51	none		full	buff đánh dấu (phân thân): ảnh vệ do module ngoài lõi quản
-52	none		full	buff đánh dấu (ghi bẫy): quản bẫy do zone làm
-53	cooldown_reset		full	xoá hồi chiêu mọi kỹ năng đã học, trừ bốn nhóm
-54	resurrect		core	hồi sinh người đã chết; lõi đặt đề nghị hồi sinh cho người chơi chấp nhận
-56	stat_mixed		core	cộng trúng, né, hội tâm; phần trăm HP tối đa và công/thủ gốc
-57	pet_event		event	thú cưng chia máu cho chủ: module thú cưng làm
-58	friendliness		full	tặng điểm thân thiện
-59	stat_tough		core	tăng nộ khí nhận, kháng bốn hệ, thủ, HP tối đa, né
-60	rage_trigger	2:target;3:self	core	tăng nộ khí nhận; trúng địch có xác suất giáng hiệu ứng. Thời điểm kích hoạt suy từ dữ liệu
-61	skill_refix_time		core	bớt thời gian gom và hồi chiêu của kỹ năng trong tập, chỉnh trúng và hội tâm
-62	ignore_disturb		full	gom/dẫn khí không bị gián đoạn
-64	ignore_defence		core	đòn sát thương công thức kế tiếp bỏ qua phòng thủ ngoại và nội
-65	combo_points		core	nâng trần điểm liên kích, cộng điểm khi đánh trúng địch
-66	absorb_percent		core	hấp thụ một phần trăm sát thương nhận; nghĩa suy từ tên cột
-67	hp_threshold		core	một nhát theo phần trăm HP hiện tại, có sát thương tối thiểu
-68	explosion	2:sub	core	nổ quanh người mang, gửi hiệu ứng con cho địch của người tạo
-69	damage_amp		core	người mang nhận thêm sát thương từ kỹ năng trong tập
-70	steal		core	sát thương kèm hút HP, MP, nộ khí về người tạo
-72	none		full	buff đánh dấu (đảo ngược càn khôn): kỹ năng khác hỏi qua tập buff
-74	taunt		event	chế giễu: quái buộc đánh người tạo qua sự kiện kAggro, giảm phòng ngự nội
-76	mark_damage		core	sát thương từ kỹ năng trong tập kèm lượng cố định ở một kênh
-77	mark_trigger	1:sub	core	trúng sát thương từ kỹ năng trong tập thì có xác suất nhận thêm hiệu ứng
-79	stat_weaken		core	không đi được và tăng công mọi hệ theo phần trăm
-81	damage_boost		core	khuếch đại sát thương gây ra; khác bản 2008 vì hook OnDamageTarget đổi được con số trừ máu
-83	immunity_flags		core	miễn hẳn sát thương ngoại và/hoặc nội công
-86	interval_aoe	6:sub;7:sub;8:sub	core	vùng gây hiệu ứng theo chu kỳ quanh người mang; chọn đồng đội cần module tổ đội
-87	none		full	buff đánh dấu (cưỡi): trạng thái cưỡi do zone quản
-88	trigger_on_hit	5:self;6:self;7:target;8:target	core	xác suất kích hoạt hiệu ứng khi gây/nhận sát thương hay hội tâm
-89	reflect		core	xác suất phản một phần sát thương về người đánh
-90	script_event		event	gọi script: lõi chỉ báo mã script, không chạy Lua
-91	stat_attack_rate		core	cộng phần trăm công ngoại và nội
-92	damage_amp_kind		core	như logic 69, tỉ lệ khác cho quái và người
-93	skill_refix_rage		core	bớt thời gian gom và hồi chiêu của kỹ năng trong tập, tăng nộ khí nhận
-94	stat_resist_reduce		core	giảm kháng bốn hệ của đối phương khi mình gây sát thương
-95	stat_chariot		core	cộng thủ và kháng rất lớn (xe chiến); ô 6 là mã script, lõi chỉ báo
+# layout: aligned
+logic_id  	handler             	roles                                                                                                  	fidelity  	note
+0         	none                	                                                                                                       	full      	hiệu ứng hình ảnh (nâng cấp): không đổi trạng thái
+1         	damage_flat         	                                                                                                       	full      	sát thương thẳng một số
+2         	damage_percent      	                                                                                                       	core      	sát thương theo phần trăm HP tối đa; lõi dùng HP tối đa hiện tại, bản 2008 dùng HP gốc
+3         	damage_attack       	                                                                                                       	full      	sát thương sáu kênh theo công thức chiến đấu, cộng sát thương thẳng
+4         	restore_value       	                                                                                                       	full      	đổi HP/MP/nộ khí/liên kích theo số
+5         	restore_rate        	                                                                                                       	core      	đổi HP/MP/nộ khí/liên kích theo phần trăm mức tối đa; bỏ phép cộng 100 sai của bản 2008
+6         	pet_event           	                                                                                                       	event     	hồi phục cho thú cưng: module thú cưng làm
+8         	aggro_switch        	                                                                                                       	event     	khiêu khích/đổi mục tiêu của quái: AI quái làm theo sự kiện kAggro
+9         	teleport            	                                                                                                       	core      	dịch chuyển; khác cảnh chỉ phát sự kiện cho zone
+10        	composite           	0:sub;1:sub;2:sub;3:sub;4:sub;5:sub;6:sub;7:sub;8:sub;9:sub;10:sub;11:sub;12:sub;13:sub;14:sub;15:sub  	full      	gửi các hiệu ứng con lên người mang theo chu kỳ
+11        	stat_point          	                                                                                                       	full      	cộng điểm vào 16 chỉ số công/thủ/kháng/tối đa
+12        	stat_rate           	                                                                                                       	full      	cộng phần trăm vào 16 chỉ số công/thủ/kháng/tối đa
+13        	stat_hit            	                                                                                                       	full      	cộng điểm trúng, né, hội tâm, hội tâm phòng
+14        	state_flags         	                                                                                                       	full      	cờ trạng thái: hành động, di chuyển, bất tử, tốc chạy, ẩn thân, mô hình, bộ lọc kỹ năng/hiệu ứng
+15        	stat_primary        	                                                                                                       	full      	cộng điểm thuộc tính cấp một
+16        	stat_primary_rate   	                                                                                                       	full      	cộng phần trăm thuộc tính cấp một
+17        	immunity            	                                                                                                       	full      	miễn nhiễm hiệu ứng thuộc các tập, theo cấp
+18        	dispel              	                                                                                                       	full      	gỡ buff thuộc các tập
+19        	refix_impact        	                                                                                                       	full      	chỉnh sức mạnh/thời gian hiệu ứng gửi đi
+20        	self_resurrect      	                                                                                                       	core      	tự hồi sinh khi chết; lõi đặt đề nghị hồi sinh cho người chơi chấp nhận
+21        	skill_refix         	                                                                                                       	full      	chỉnh kỹ năng trong tập: trúng, hội tâm, uy lực, tiêu hao, thời gian, hồi chiêu, gom, dẫn; có số lần
+22        	counter             	                                                                                                       	core      	phản kích; sát thương phản trừ ngay thay vì trễ 500 ms
+23        	guard               	                                                                                                       	full      	giảm sát thương nhận, hút nội lực và nộ khí đối phương
+24        	immune_odds         	                                                                                                       	full      	xác suất hấp thụ hiệu ứng thuộc tập
+25        	crit_absorb         	                                                                                                       	full      	xác suất hấp thụ hiệu ứng đến từ hội tâm
+26        	shield              	                                                                                                       	full      	khiên sát thương: hút, miễn, phản
+27        	pet_event           	                                                                                                       	event     	chuyển sát thương của thú cưng: module thú cưng làm
+28        	pet_event           	                                                                                                       	event     	sát thương theo hệ của thú cưng: module thú cưng làm
+29        	absorb_shield       	                                                                                                       	core      	khiên hút sát thương, giảm tiêu hao và thời gian gom; sửa RefixPowerByRate chia 1000 của bản 2008
+35        	terror              	                                                                                                       	core      	choáng: không hành động được; AI hoảng sợ do zone làm theo cờ trạng thái
+36        	stat_detect         	                                                                                                       	core      	cộng cấp dò ẩn thân
+38        	none                	                                                                                                       	full      	buff đánh dấu (câu cá): không đổi trạng thái
+51        	none                	                                                                                                       	full      	buff đánh dấu (phân thân): ảnh vệ do module ngoài lõi quản
+52        	none                	                                                                                                       	full      	buff đánh dấu (ghi bẫy): quản bẫy do zone làm
+53        	cooldown_reset      	                                                                                                       	full      	xoá hồi chiêu mọi kỹ năng đã học, trừ bốn nhóm
+54        	resurrect           	                                                                                                       	core      	hồi sinh người đã chết; lõi đặt đề nghị hồi sinh cho người chơi chấp nhận
+56        	stat_mixed          	                                                                                                       	core      	cộng trúng, né, hội tâm; phần trăm HP tối đa và công/thủ gốc
+57        	pet_event           	                                                                                                       	event     	thú cưng chia máu cho chủ: module thú cưng làm
+58        	friendliness        	                                                                                                       	full      	tặng điểm thân thiện
+59        	stat_tough          	                                                                                                       	core      	tăng nộ khí nhận, kháng bốn hệ, thủ, HP tối đa, né
+60        	rage_trigger        	2:target;3:self                                                                                        	core      	tăng nộ khí nhận; trúng địch có xác suất giáng hiệu ứng. Thời điểm kích hoạt suy từ dữ liệu
+61        	skill_refix_time    	                                                                                                       	core      	bớt thời gian gom và hồi chiêu của kỹ năng trong tập, chỉnh trúng và hội tâm
+62        	ignore_disturb      	                                                                                                       	full      	gom/dẫn khí không bị gián đoạn
+64        	ignore_defence      	                                                                                                       	core      	đòn sát thương công thức kế tiếp bỏ qua phòng thủ ngoại và nội
+65        	combo_points        	                                                                                                       	core      	nâng trần điểm liên kích, cộng điểm khi đánh trúng địch
+66        	absorb_percent      	                                                                                                       	core      	hấp thụ một phần trăm sát thương nhận; nghĩa suy từ tên cột
+67        	hp_threshold        	                                                                                                       	core      	một nhát theo phần trăm HP hiện tại, có sát thương tối thiểu
+68        	explosion           	2:sub                                                                                                  	core      	nổ quanh người mang, gửi hiệu ứng con cho địch của người tạo
+69        	damage_amp          	                                                                                                       	core      	người mang nhận thêm sát thương từ kỹ năng trong tập
+70        	steal               	                                                                                                       	core      	sát thương kèm hút HP, MP, nộ khí về người tạo
+72        	none                	                                                                                                       	full      	buff đánh dấu (đảo ngược càn khôn): kỹ năng khác hỏi qua tập buff
+74        	taunt               	                                                                                                       	event     	chế giễu: quái buộc đánh người tạo qua sự kiện kAggro, giảm phòng ngự nội
+76        	mark_damage         	                                                                                                       	core      	sát thương từ kỹ năng trong tập kèm lượng cố định ở một kênh
+77        	mark_trigger        	1:sub                                                                                                  	core      	trúng sát thương từ kỹ năng trong tập thì có xác suất nhận thêm hiệu ứng
+79        	stat_weaken         	                                                                                                       	core      	không đi được và tăng công mọi hệ theo phần trăm
+81        	damage_boost        	                                                                                                       	core      	khuếch đại sát thương gây ra; khác bản 2008 vì hook OnDamageTarget đổi được con số trừ máu
+83        	immunity_flags      	                                                                                                       	core      	miễn hẳn sát thương ngoại và/hoặc nội công
+86        	interval_aoe        	6:sub;7:sub;8:sub                                                                                      	core      	vùng gây hiệu ứng theo chu kỳ quanh người mang; chọn đồng đội cần module tổ đội
+87        	none                	                                                                                                       	full      	buff đánh dấu (cưỡi): trạng thái cưỡi do zone quản
+88        	trigger_on_hit      	5:self;6:self;7:target;8:target                                                                        	core      	xác suất kích hoạt hiệu ứng khi gây/nhận sát thương hay hội tâm
+89        	reflect             	                                                                                                       	core      	xác suất phản một phần sát thương về người đánh
+90        	script_event        	                                                                                                       	event     	gọi script: lõi chỉ báo mã script, không chạy Lua
+91        	stat_attack_rate    	                                                                                                       	core      	cộng phần trăm công ngoại và nội
+92        	damage_amp_kind     	                                                                                                       	core      	như logic 69, tỉ lệ khác cho quái và người
+93        	skill_refix_rage    	                                                                                                       	core      	bớt thời gian gom và hồi chiêu của kỹ năng trong tập, tăng nộ khí nhận
+94        	stat_resist_reduce  	                                                                                                       	core      	giảm kháng bốn hệ của đối phương khi mình gây sát thương
+95        	stat_chariot        	                                                                                                       	core      	cộng thủ và kháng rất lớn (xe chiến); ô 6 là mã script, lõi chỉ báo

@@ -2,8 +2,9 @@
 # source: XJL7457/Public/Data/Script/ScriptGlobal.lua
 # tool: TOOLS/server/import_social.py; sửa tay sẽ mất ở lượt xuất sau
 # types: int	text	int
-board_id	name	capacity
-1	chongzi	10
-11	axchongzi	10
-12	bxchongzi	10
-13	cxchongzi	10
+# layout: aligned
+board_id  	name       	capacity
+1         	chongzi    	10
+11        	axchongzi  	10
+12        	bxchongzi  	10
+13        	cxchongzi  	10

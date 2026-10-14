@@ -12,6 +12,8 @@ import unicodedata
 from dataclasses import dataclass, field
 from pathlib import Path
 
+import tsv_file
+
 _SPACES = re.compile(r"[\s　]+")
 
 
@@ -26,10 +28,10 @@ def rows_of(path: Path) -> tuple[list, list]:
     """Cột và các dòng của bảng TSV (bỏ dòng # và dòng rỗng). Thiếu tệp thì ([], [])."""
     if not path.is_file():
         return [], []
-    lines = [line for line in path.read_text(encoding="utf-8").split("\n") if line and not line.startswith("#")]
-    if not lines:
+    rows = tsv_file.split_rows(path.read_text(encoding="utf-8"))
+    if not rows:
         return [], []
-    return lines[0].split("\t"), [line.split("\t") for line in lines[1:]]
+    return rows[0], rows[1:]
 
 
 def to_int(cell: str, default: int = -1) -> int:

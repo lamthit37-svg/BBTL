@@ -2,6 +2,7 @@
 
 Mỗi bảng khai báo bằng một dòng "cột:kiểu ..." để tên cột và kiểu nằm cạnh nhau. Ô văn bản bị làm sạch
 tab và xuống dòng (script gốc có chuỗi nhiều dòng); mất ký tự đó là chủ ý, không đổi nghĩa nội dung hiển thị.
+Bảng ghi theo bố cục căn cột (tsv_file.py, chủ dự án giao 2026-10-15): mở bằng trình soạn thì cột thẳng hàng.
 """
 from __future__ import annotations
 
@@ -46,7 +47,7 @@ def emit(out_dir: Path, name: str, rows: list) -> int:
     columns = [column for column, _ in pairs]
     types = [kind for _, kind in pairs]
     cells = [tuple(clean(cell) for cell in row) for row in rows]
-    tsv_file.write_table(out_dir / f"{name}.tsv", "Public/Data/Script", TOOL, types, columns, cells)
+    tsv_file.write_table(out_dir / f"{name}.tsv", "Public/Data/Script", TOOL, types, columns, cells, layout="aligned")
     return len(rows)
 
 

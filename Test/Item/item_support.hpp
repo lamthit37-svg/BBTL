@@ -12,6 +12,7 @@
 #include "item/roll.hpp"
 #include "item/types.hpp"
 
+#include "support/tsv_text.hpp"
 #include "test.hpp"
 
 #include "dice/dice.hpp"
@@ -25,7 +26,6 @@
 #include <iterator>
 #include <map>
 #include <optional>
-#include <sstream>
 #include <string>
 #include <string_view>
 #include <utility>
@@ -335,26 +335,10 @@ struct Bench {
     [[nodiscard]] bool commit(Planner&& planner_value) { return inventory.apply(std::move(planner_value).finish()).has_value(); }
 };
 
-// Bộ tách TSV riêng của test, độc lập với bộ nạp của module: bỏ dòng trống và dòng bắt đầu bằng #, dòng đầu là
-// tiêu đề cột. Dùng để lấy số kỳ vọng thẳng từ tệp bảng thật.
+// Bộ tách TSV riêng của test, độc lập với bộ nạp của module (support/tsv_text.hpp): lấy số kỳ vọng thẳng từ tệp
+// bảng thật. Hàng đầu là tên cột.
 [[nodiscard]] inline std::vector<std::vector<std::string>> tsv_rows(const std::string& text) {
-    std::vector<std::vector<std::string>> rows;
-    std::istringstream in(text);
-    std::string line;
-    while (std::getline(in, line)) {
-        if (!line.empty() && line.back() == '\r') line.pop_back();
-        if (line.empty() || line.front() == '#') continue;
-        std::vector<std::string> cells;
-        std::size_t begin = 0;
-        for (;;) {
-            const std::size_t tab = line.find('\t', begin);
-            cells.push_back(line.substr(begin, tab == std::string::npos ? std::string::npos : tab - begin));
-            if (tab == std::string::npos) break;
-            begin = tab + 1;
-        }
-        rows.push_back(std::move(cells));
-    }
-    return rows;
+    return split_tsv(text);
 }
 
 // Đọc tệp văn bản; rỗng khi không mở được.

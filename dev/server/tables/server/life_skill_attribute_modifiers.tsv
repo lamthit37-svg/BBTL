@@ -2,10 +2,11 @@
 # source: server_config/AttrRefixTable.txt
 # tool: TOOLS/server/import_legacy.py; sửa tay sẽ mất ở lượt xuất sau
 # types: int	int	text	text	text
-id	life_skill_id	multiply_parameter	add_parameter	unread_comment
-1	40	1	0	MAX HP
-2	41	1	0	MAX MP
-3	42	1	0	MAX Vigor
-4	44	1	0	Vigor Regenerate
-5	43	1	0	Max Energy
-6	45	1	0	Energy Regenerate
+# layout: aligned
+id  	life_skill_id  	multiply_parameter  	add_parameter  	unread_comment
+1   	40             	1                   	0              	MAX HP
+2   	41             	1                   	0              	MAX MP
+3   	42             	1                   	0              	MAX Vigor
+4   	44             	1                   	0              	Vigor Regenerate
+5   	43             	1                   	0              	Max Energy
+6   	45             	1                   	0              	Energy Regenerate

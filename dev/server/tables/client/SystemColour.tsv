@@ -2,51 +2,52 @@
 # source: client_2026/SystemColour.txt
 # tool: TOOLS/server/export_client_rest.py; sửa tay sẽ mất ở lượt xuất sau
 # types: int	text	text	text
-column_0	column_1	column_2	column_3
-1	名字_主角	3c00ff	ffffff
-2	名字_其他玩家	3c01ff	ffffff
-3	名字_和平NPC	ffffff	2727ff
-4	名字_主动攻击NPC	ff0000	880000
-5	名字_不主动攻击NPC	ffff00	888800
-6	不可攻击的NPC	ffffff	
-7	宠物名字	662C91	ffffff
-8	自己的宠物名字	3c01ff	ffffff
-9	名字_友好玩家	0000ff	ffffff
-10	名字_敌对玩家	ff0000	ffffff
-11	名字_敌对_不可攻击玩家	ff00ff	100000
-12	可反击状态	0000ff	00ff00
-13	杀气状态	0000ff	ff0000
-14	名字_参战帮派1	ff0000	ffffff
-15	名字_参战帮派2	0000ff	ffffff
-16	名字_参战帮派3	00ff00	ffffff
-21	名字_珍兽内丹外观（蓝）	1190BF	ffffff
-22	名字_珍兽内丹外观（紫）	800080	ffffff
-23	名字_珍兽内丹外观（金）	E6A21A	ffffff
-24	主角名字_天勋金色	#gffafff	#ea96f00
-25	主角名字_天勋蓝色	#gafffff	#e475794
-26	主角名字_天勋红色	#gfcafff	#e88513e
-100	称号_普通	ffff00	323232
-101	称号_帮派职称	00A8EB	0054a8
-102	称号_玩家自定义心情	e8641b	89390e
-103	称号_玩家商店	0000FF	
-104	称号_师傅	00FF00	
-105	称号_竞技/争夺类	#gff0f5e	#eb21f64
-106	称号_普通类	#cffff00	#e323232
-107	称号_玩家关系类	#gf0f0ff	#e351d53
-108	称号_帮会职位	#c00A8EB	#e0054a8
-109	称号_师德等级	#gff00ff	#e0f4900
-110	称号_玩家商店	#gfff70f	#e0c031b
-111	称号_特殊活动	#gf49f10	#effc9d8
-112	称号_挚爱礼包	#gff3e96	#eaf0c14
-113	男神称号	#gFF00FF	#e00008B
-114	称号_庄园永久称号	#gDC4C18	#eFFFF00
-2000	白色_白装\材料（矿，药草，鱼，种植物，掉落材料）、药品、食品、任务物品	C8C8C8	
-2001	绿色_绿装和绿色配方	00FF00	
-2002	蓝色_蓝装和蓝色配方	00CCFE	
-2003	紫色_紫装	ff53ff	
-2004	青黄色_宝石	B3DB35	
-2005	亮黄色_鉴定书、珍兽技能书、珍兽还童卷轴（低高）、珍兽增寿药（低高）、打孔材料、制作图、配方、易容丹、发型图、染发剂、装备改造材料、秘籍心法等	FFFF66	
-2006	宠物_淡紫色	C43FFF	
-2007	Npc频道场景名	60DFC2	
-2008	Npc频道Npc名	C4A97B	
-2009	Npc频道内容	FFFFFF	
+# layout: aligned
+column_0  	column_1                                                                                                                                       	column_2  	column_3
+1         	名字_主角                                                                                                                                      	3c00ff    	ffffff
+2         	名字_其他玩家                                                                                                                                  	3c01ff    	ffffff
+3         	名字_和平NPC                                                                                                                                   	ffffff    	2727ff
+4         	名字_主动攻击NPC                                                                                                                               	ff0000    	880000
+5         	名字_不主动攻击NPC                                                                                                                             	ffff00    	888800
+6         	不可攻击的NPC                                                                                                                                  	ffffff    	
+7         	宠物名字                                                                                                                                       	662C91    	ffffff
+8         	自己的宠物名字                                                                                                                                 	3c01ff    	ffffff
+9         	名字_友好玩家                                                                                                                                  	0000ff    	ffffff
+10        	名字_敌对玩家                                                                                                                                  	ff0000    	ffffff
+11        	名字_敌对_不可攻击玩家                                                                                                                         	ff00ff    	100000
+12        	可反击状态                                                                                                                                     	0000ff    	00ff00
+13        	杀气状态                                                                                                                                       	0000ff    	ff0000
+14        	名字_参战帮派1                                                                                                                                 	ff0000    	ffffff
+15        	名字_参战帮派2                                                                                                                                 	0000ff    	ffffff
+16        	名字_参战帮派3                                                                                                                                 	00ff00    	ffffff
+21        	名字_珍兽内丹外观（蓝）                                                                                                                        	1190BF    	ffffff
+22        	名字_珍兽内丹外观（紫）                                                                                                                        	800080    	ffffff
+23        	名字_珍兽内丹外观（金）                                                                                                                        	E6A21A    	ffffff
+24        	主角名字_天勋金色                                                                                                                              	#gffafff  	#ea96f00
+25        	主角名字_天勋蓝色                                                                                                                              	#gafffff  	#e475794
+26        	主角名字_天勋红色                                                                                                                              	#gfcafff  	#e88513e
+100       	称号_普通                                                                                                                                      	ffff00    	323232
+101       	称号_帮派职称                                                                                                                                  	00A8EB    	0054a8
+102       	称号_玩家自定义心情                                                                                                                            	e8641b    	89390e
+103       	称号_玩家商店                                                                                                                                  	0000FF    	
+104       	称号_师傅                                                                                                                                      	00FF00    	
+105       	称号_竞技/争夺类                                                                                                                               	#gff0f5e  	#eb21f64
+106       	称号_普通类                                                                                                                                    	#cffff00  	#e323232
+107       	称号_玩家关系类                                                                                                                                	#gf0f0ff  	#e351d53
+108       	称号_帮会职位                                                                                                                                  	#c00A8EB  	#e0054a8
+109       	称号_师德等级                                                                                                                                  	#gff00ff  	#e0f4900
+110       	称号_玩家商店                                                                                                                                  	#gfff70f  	#e0c031b
+111       	称号_特殊活动                                                                                                                                  	#gf49f10  	#effc9d8
+112       	称号_挚爱礼包                                                                                                                                  	#gff3e96  	#eaf0c14
+113       	男神称号                                                                                                                                       	#gFF00FF  	#e00008B
+114       	称号_庄园永久称号                                                                                                                              	#gDC4C18  	#eFFFF00
+2000      	白色_白装\材料（矿，药草，鱼，种植物，掉落材料）、药品、食品、任务物品                                                                         	C8C8C8    	
+2001      	绿色_绿装和绿色配方                                                                                                                            	00FF00    	
+2002      	蓝色_蓝装和蓝色配方                                                                                                                            	00CCFE    	
+2003      	紫色_紫装                                                                                                                                      	ff53ff    	
+2004      	青黄色_宝石                                                                                                                                    	B3DB35    	
+2005      	亮黄色_鉴定书、珍兽技能书、珍兽还童卷轴（低高）、珍兽增寿药（低高）、打孔材料、制作图、配方、易容丹、发型图、染发剂、装备改造材料、秘籍心法等  	FFFF66    	
+2006      	宠物_淡紫色                                                                                                                                    	C43FFF    	
+2007      	Npc频道场景名                                                                                                                                  	60DFC2    	
+2008      	Npc频道Npc名                                                                                                                                   	C4A97B    	
+2009      	Npc频道内容                                                                                                                                    	FFFFFF    	

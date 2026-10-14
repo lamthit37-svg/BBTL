@@ -1,7 +1,9 @@
 #pragma once
-// Bảng TSV của client (Table/*.tsv do TOOLS/content sinh ra): dòng bắt đầu bằng # là chú thích,
-// dòng đầu tiên còn lại là tên cột, mỗi dòng sau là một bản ghi cách nhau bằng tab và phải đủ số ô
-// của dòng tên cột. Không căn cột, không nháy, không escape: ô không chứa tab hay xuống dòng.
+// Bảng TSV của client (Table/*.tsv do TOOLS/content sinh ra) và của máy chủ (TOOLS/server/tsv_file.py):
+// dòng bắt đầu bằng # là chú thích, dòng đầu tiên còn lại là tên cột, mỗi dòng sau là một bản ghi
+// cách nhau bằng tab và phải đủ số ô của dòng tên cột. Không nháy, không escape: ô không chứa tab hay
+// xuống dòng.
+// Bảng căn cột (core/aligned.hpp): ô trả về đã bỏ đệm dấu cách ở cuối, dấu cách cuối thật được dựng lại.
 // RowReader đọc ô theo tên cột với kiểm miền và nhớ lỗi đầu tiên (kèm số dòng của tệp và tên cột),
 // để bộ đọc từng bảng viết một lượt rồi hỏi lỗi một lần.
 // Bản mới của dự án; tương ứng tables/table.hpp của TLBB Dev, nhưng định dạng bảng đơn giản hơn vì
@@ -27,6 +29,7 @@ struct Tsv {
 // Câu lỗi tiếng Việt kèm số dòng.
 using TsvResult = std::expected<Tsv, std::string>;
 
+// Bảng căn cột đọc đúng như bảng thường sau khi bỏ đệm (core::kAlignedLayout). O(độ dài văn bản).
 [[nodiscard]] TsvResult parse_tsv(std::string_view text);
 
 // Chỉ số cột tên name; không có thì nullopt.

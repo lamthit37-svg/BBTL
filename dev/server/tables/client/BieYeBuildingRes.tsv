@@ -2,18 +2,19 @@
 # source: client_2026/BieYeBuildingRes.txt
 # tool: TOOLS/server/export_client_rest.py; sửa tay sẽ mất ở lượt xuất sau
 # types: int	int	int	text	text	text	text	text	int	float	float
-column_0	column_1	column_2	column_3	column_4	column_5	column_6	column_7	column_8	column_9	column_10
-1	1	0	npc160629家园1级居室.obj	npc160629家园2级居室.obj	npc160629家园3级居室.obj	npc160629家园4级居室.obj	npc160629家园5级居室.obj	27	128	116
-2	1	1	npc160629家园1级仓库.obj	npc160629家园2级仓库.obj	npc160629家园3级仓库.obj	npc160629家园4级仓库.obj	npc160629家园5级仓库.obj	27	93	1.2e+02
-3	1	2	npc160629家园1级兽栏.obj	npc160629家园2级兽栏.obj	npc160629家园3级兽栏.obj	npc160629家园4级兽栏.obj	npc160629家园5级兽栏.obj	0	86	178
-4	1	3	npc160629家园1级捕鱼区.obj	npc160629家园2级捕鱼区.obj	npc160629家园3级捕鱼区.obj	npc160629家园4级捕鱼区.obj	npc160629家园5级捕鱼区.obj	27	103	219
-5	1	4	npc160629家园1级磨坊.obj	npc160629家园2级磨坊.obj	npc160629家园3级磨坊.obj	npc160629家园4级磨坊.obj	npc160629家园5级磨坊.obj	18	175	176
-6	1	5	npc160629家园1级采石场.obj	npc160629家园2级采石场.obj	npc160629家园3级采石场.obj	npc160629家园4级采石场.obj	npc160629家园5级采石场.obj	0	46	146
-7	1	5	npc160629家园1级采石场.obj	npc160629家园2级采石场.obj	npc160629家园3级采石场.obj	npc160629家园4级采石场.obj	npc160629家园5级采石场.obj	0	46	167
-8	2	0	npc160629家园1级居室.obj	npc160629家园2级居室.obj	npc160629家园3级居室.obj	npc160629家园4级居室.obj	npc170802家园海底居室.obj	27	128	116
-9	2	1	npc160629家园1级仓库.obj	npc160629家园2级仓库.obj	npc160629家园3级仓库.obj	npc160629家园4级仓库.obj	npc171003家园海底仓库.obj	27	93	1.2e+02
-10	2	2	npc160629家园1级兽栏.obj	npc160629家园2级兽栏.obj	npc160629家园3级兽栏.obj	npc160629家园4级兽栏.obj	npc171003家园海底兽栏.obj	0	86	178
-11	2	3	npc160629家园1级捕鱼区.obj	npc160629家园2级捕鱼区.obj	npc160629家园3级捕鱼区.obj	npc160629家园4级捕鱼区.obj	npc171011家园海底捕鱼区.obj	27	103	219
-12	2	4	npc160629家园1级磨坊.obj	npc160629家园2级磨坊.obj	npc160629家园3级磨坊.obj	npc160629家园4级磨坊.obj	npc171003家园海底磨坊.obj	18	175	176
-13	2	5	npc160629家园1级采石场.obj	npc160629家园2级采石场.obj	npc160629家园3级采石场.obj	npc160629家园4级采石场.obj	npc171003家园海底矿洞.obj	0	46	146
-14	2	5	npc160629家园1级采石场.obj	npc160629家园2级采石场.obj	npc160629家园3级采石场.obj	npc160629家园4级采石场.obj	npc171003家园海底矿洞.obj	0	46	167
+# layout: aligned
+column_0  	column_1  	column_2  	column_3                    	column_4                    	column_5                    	column_6                    	column_7                     	column_8  	column_9  	column_10
+1         	1         	0         	npc160629家园1级居室.obj    	npc160629家园2级居室.obj    	npc160629家园3级居室.obj    	npc160629家园4级居室.obj    	npc160629家园5级居室.obj     	27        	128       	116
+2         	1         	1         	npc160629家园1级仓库.obj    	npc160629家园2级仓库.obj    	npc160629家园3级仓库.obj    	npc160629家园4级仓库.obj    	npc160629家园5级仓库.obj     	27        	93        	1.2e+02
+3         	1         	2         	npc160629家园1级兽栏.obj    	npc160629家园2级兽栏.obj    	npc160629家园3级兽栏.obj    	npc160629家园4级兽栏.obj    	npc160629家园5级兽栏.obj     	0         	86        	178
+4         	1         	3         	npc160629家园1级捕鱼区.obj  	npc160629家园2级捕鱼区.obj  	npc160629家园3级捕鱼区.obj  	npc160629家园4级捕鱼区.obj  	npc160629家园5级捕鱼区.obj   	27        	103       	219
+5         	1         	4         	npc160629家园1级磨坊.obj    	npc160629家园2级磨坊.obj    	npc160629家园3级磨坊.obj    	npc160629家园4级磨坊.obj    	npc160629家园5级磨坊.obj     	18        	175       	176
+6         	1         	5         	npc160629家园1级采石场.obj  	npc160629家园2级采石场.obj  	npc160629家园3级采石场.obj  	npc160629家园4级采石场.obj  	npc160629家园5级采石场.obj   	0         	46        	146
+7         	1         	5         	npc160629家园1级采石场.obj  	npc160629家园2级采石场.obj  	npc160629家园3级采石场.obj  	npc160629家园4级采石场.obj  	npc160629家园5级采石场.obj   	0         	46        	167
+8         	2         	0         	npc160629家园1级居室.obj    	npc160629家园2级居室.obj    	npc160629家园3级居室.obj    	npc160629家园4级居室.obj    	npc170802家园海底居室.obj    	27        	128       	116
+9         	2         	1         	npc160629家园1级仓库.obj    	npc160629家园2级仓库.obj    	npc160629家园3级仓库.obj    	npc160629家园4级仓库.obj    	npc171003家园海底仓库.obj    	27        	93        	1.2e+02
+10        	2         	2         	npc160629家园1级兽栏.obj    	npc160629家园2级兽栏.obj    	npc160629家园3级兽栏.obj    	npc160629家园4级兽栏.obj    	npc171003家园海底兽栏.obj    	0         	86        	178
+11        	2         	3         	npc160629家园1级捕鱼区.obj  	npc160629家园2级捕鱼区.obj  	npc160629家园3级捕鱼区.obj  	npc160629家园4级捕鱼区.obj  	npc171011家园海底捕鱼区.obj  	27        	103       	219
+12        	2         	4         	npc160629家园1级磨坊.obj    	npc160629家园2级磨坊.obj    	npc160629家园3级磨坊.obj    	npc160629家园4级磨坊.obj    	npc171003家园海底磨坊.obj    	18        	175       	176
+13        	2         	5         	npc160629家园1级采石场.obj  	npc160629家园2级采石场.obj  	npc160629家园3级采石场.obj  	npc160629家园4级采石场.obj  	npc171003家园海底矿洞.obj    	0         	46        	146
+14        	2         	5         	npc160629家园1级采石场.obj  	npc160629家园2级采石场.obj  	npc160629家园3级采石场.obj  	npc160629家园4级采石场.obj  	npc171003家园海底矿洞.obj    	0         	46        	167

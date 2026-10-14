@@ -5,6 +5,7 @@
 #include "content/detail/scan.hpp"
 #include "content/lint.hpp"
 #include "content/utf8.hpp"
+#include "core/aligned.hpp"
 
 #include <algorithm>
 #include <charconv>
@@ -25,6 +26,15 @@ namespace {
 constexpr std::int64_t kInt32Min = -2147483647 - 1;
 constexpr std::int64_t kInt32Max = 2147483647;
 
+// Dòng "# layout: " trước tên cột: bố cục căn cột, hay dòng lạ đầu tiên (parse_tsv dừng ở đó).
+void note_layout(Preamble& preamble, const Line& line) {
+    if (line.text == core::kAlignedLayout) {
+        preamble.layout = core::Layout::kAligned;
+        return;
+    }
+    if (preamble.bad_layout_line == 0) preamble.bad_layout_line = line.number;
+}
+
 [[nodiscard]] bool note_comment(Preamble& preamble, const Line& line) {
     if (line.text == "# schema 1") {
         preamble.schemas += 1;
@@ -36,6 +46,10 @@ constexpr std::int64_t kInt32Max = 2147483647;
         preamble.types += 1;
         preamble.types_line = line.number;
         preamble.type_text = std::string(line.text.substr(kTypes.size()));
+        return true;
+    }
+    if (line.text.starts_with(core::kLayoutPrefix)) {
+        note_layout(preamble, line);
         return true;
     }
     return line.text.starts_with('#');
@@ -51,7 +65,26 @@ void step_preamble(Preamble& preamble, const Line& line) {
     return line.empty() || line.front() == '#';
 }
 
+// Tên cột của bảng căn cột bỏ đệm như parse_tsv. Tên mang core::kSpaceMark (dấu cách thật) giữ cả
+// ký hiệu trong view để check_name báo sai: view không chứa được dấu cách đã dựng lại.
+[[nodiscard]] TextView unpad_name(TextView name) noexcept {
+    const core::AlignedCell cell = core::unpad(name);
+    if (cell.trailing_spaces == 0) return cell.body;
+    return name.substr(0, cell.body.size() + (cell.trailing_spaces * core::kSpaceMark.size()));
+}
+
+// Chữ thật của một ô bảng căn cột. Ô có dấu cách cuối thật được dựng lại trong storage và view trỏ
+// vào đó; ô khác trỏ thẳng vào chữ của tệp.
+[[nodiscard]] TextView unpad_cell(TextView cell, std::string& storage) {
+    const core::AlignedCell aligned = core::unpad(cell);
+    if (aligned.trailing_spaces == 0) return aligned.body;
+    storage.assign(aligned.body);
+    storage.append(aligned.trailing_spaces, ' ');
+    return storage;
+}
+
 // Tìm dòng tên cột: dòng đầu tiên không bị bỏ qua. false khi tệp không có dòng nào như vậy.
+// head.layout phải đặt trước.
 [[nodiscard]] bool find_header(TextView text, TableHead& head) {
     Line line = next_line(text, head.body);
     while (!line.done && is_skipped(line.text)) {
@@ -59,6 +92,9 @@ void step_preamble(Preamble& preamble, const Line& line) {
     }
     if (line.done) return false;
     split_tabs(line.text, head.columns);
+    if (head.layout == core::Layout::kAligned) {
+        std::ranges::transform(head.columns, head.columns.begin(), unpad_name);
+    }
     return true;
 }
 
@@ -231,6 +267,12 @@ TableHead read_head(const TextFile& file, IssueList& issues) {
     Preamble preamble;
     read_preamble(preamble, file.text);
     if (!preamble_ok(preamble, file.path, issues)) return head;
+    if (preamble.bad_layout_line != 0) {
+        const std::string message = std::format("không đọc được: dòng {}: bố cục lạ", preamble.bad_layout_line);
+        add_issue(issues, file.path, preamble.bad_layout_line, message);
+        return head;
+    }
+    head.layout = preamble.layout;
     if (!find_header(file.text, head)) {
         add_issue(issues, file.path, 1, "không đọc được: bảng không có dòng tên cột");
         return head;
@@ -267,9 +309,19 @@ bool RecordReader::take_line(Record& record, IssueList& issues) {
     split_tabs(line.text, cells_);
     // Chỉ dòng # mới có thể lệch số ô ở đây: rows_fit đã bỏ qua chúng như parse_tsv.
     if (cells_.size() != head_->columns.size()) return false;
+    if (head_->layout == core::Layout::kAligned) unpad_cells();
     record.cells = cells_;
     record.line = line.number;
     return true;
+}
+
+// Bỏ đệm từng ô như parse_tsv. restored_ chỉ lớn lên trước khi lấy view, nên view của dòng này
+// không treo cho tới lời gọi next kế tiếp.
+void RecordReader::unpad_cells() {
+    if (restored_.size() < cells_.size()) restored_.resize(cells_.size());
+    for (std::size_t column = 0; column < cells_.size(); ++column) {
+        cells_[column] = unpad_cell(cells_[column], restored_[column]);
+    }
 }
 
 bool RecordReader::next(Record& record, IssueList& issues) {

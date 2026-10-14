@@ -165,8 +165,8 @@ class CommandTest(unittest.TestCase):
         output = folder / "out"
         done = subprocess.run(_command(folder, server, output), capture_output=True, text=True, encoding="utf-8")
         self.assertEqual(done.returncode, 0, done.stdout + done.stderr)
-        text = (output / "table_ref_coverage.tsv").read_text(encoding="utf-8")
-        self.assertIn("2\t3\t3\t3\t2\t2\tb:-10;b:2\n", text)
+        rows = tsv_file.read_table(output / "table_ref_coverage.tsv").rows
+        self.assertIn(("2", "3", "3", "3", "2", "2", "b:-10;b:2"), [row[-7:] for row in rows])
 
     def test_bad_utf8_reports_the_line(self) -> None:
         folder = BUILD / "utf8"
@@ -238,7 +238,8 @@ class CommandTest(unittest.TestCase):
         text = (output / "table_ref_coverage.tsv").read_text(encoding="utf-8")
         self.assertIn("public_config/Pet.txt (1 tệp)", (output / "table_id_diff.tsv").read_text(encoding="utf-8"))
         self.assertIn("refs/*.tsv (1 tệp)", text)
-        self.assertIn("tables/shared/pets.tsv\tid\ttables/shared/skills.tsv\tid\t1\t1\t1\t1\t0\t0\t\n", text)
+        expected = ("tables/shared/pets.tsv", "id", "tables/shared/skills.tsv", "id", "1", "1", "1", "1", "0", "0", "")
+        self.assertIn(expected, tsv_file.read_table(output / "table_ref_coverage.tsv").rows)
 
 
 if __name__ == "__main__":

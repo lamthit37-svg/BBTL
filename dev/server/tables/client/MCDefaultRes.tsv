@@ -2,92 +2,93 @@
 # source: client_2026/MCDefaultRes.txt
 # tool: TOOLS/server/export_client_rest.py; sửa tay sẽ mất ở lượt xuất sau
 # types: int	int	int	int	text	text	text
-column_0	column_1	column_2	column_3	column_4	column_5	column_6
-0	0	0	10100000	大刀1a.obj		武器(大刀)
-1	0	1	10101000	mao1a.obj		武器(长枪)
-2	0	2	10102000	单短1a.obj		武器(单短)
-3	0	3	10103000	双短1A.obj		武器(双短)
-4	0	4	10104000	扇子1A.obj		武器(扇类)
-5	0	5	10105000	环1a.obj		武器(环类)
-6	1	170	0			坐骑ID
-7	2	0	3330	替模npc.obj	0	Monster
-8	3	0	3331	替模珍兽.obj		Pet
-9	4	2	0			bus在配表businfo中的id
-10	5	0	3331	Pet	替模珍兽.obj	fakeobj名字中包含pet的
-11	5	0	3332	Horse	替模骑乘.obj	fakeobj名字中包含horse的，其他返回Monster的替模
-12	5	0	3330	default	替模npc.obj	fakeobj名字中其他的类型，如果以上两种查询失败，会返回此行信息
-13	6	0	0	tl3chuangjian.skysphere		天空盒
-14	7	0	0	Icons/IconDefault.jpg		UIIcon
-15	8	0	0			帮会建筑Mesh格式（不使用替模）
-16	8	1	0			帮会建筑Model格式（不使用替模）
-17	8	2	0			帮会建筑Obj格式（不使用替模）
-18	9	0	0	师门任务/宝箱.mesh		生长点Mesh格式
-19	9	1	0	小动物/鱼群03.model		生长点Model格式
-20	9	2	0	师门任务/箱.obj		生长点Obj格式
-21	10	0	0			掉落包（已经放到基础包中去了）
-22	11	0	0			操作台（操作台已经全放到基础包中了）
-23	12	347	0			时装替模
-24	13	0	0	npc_yuancheng		子弹飞行特效
-25	14	0	0	all_bj06		子弹击中特效
-26	15	0	0	g01_bamenjinsuo		陷阱生存期特效
-27	16	0	0	g01_xy_jq_zdo_八阵图_2		陷阱激发期特效
-28	17	0	0	女主角头发02.mesh		女主角发型
-29	17	1	0	男主角头发01.mesh		男主角发型
-30	18	0	0	女主角脸02.mesh		女主角脸型
-31	18	1	0	男主角脸01.mesh		男主角脸型
-32	19	0	0	default.enscene		默认区域天空盒
-33	0	6	10106000	武器20130515唐门弩1.obj		武器(弩)
-34	7	1	0	Icons/IconDefault.jpg		
-35	20	1	3719	男孩儿童期130916.obj	1	子女功能（男孩）
-36	20	0	3720	女孩儿童期130918.obj	2	子女功能（女孩）
-37	21	0	10101000	mao1a.obj		少林武器(长枪)
-38	21	1	10100000	大刀1a.obj		明教武器(大刀)
-39	21	2	10101000	mao1a.obj		丐帮武器(长枪)
-40	21	3	10102000	单短1a.obj		武当武器(单短)
-41	21	4	10103000	双短1A.obj		峨眉武器(双短)
-42	21	5	10103000	双短1A.obj		星宿武器(双短)
-43	21	6	10105000	环1a.obj		天龙武器(环类)
-44	21	7	10105000	环1a.obj		天山武器(环类)
-45	21	8	10104000	扇子1A.obj		逍遥武器(扇类)
-46	21	9	10102000	单短1a.obj		无门派单短
-47	21	10	10102000	单短1a.obj		慕容武器(单短)
-48	21	11	10106000	武器20130515唐门弩1.obj		唐门武器(弩)
-49	22	0	4820	npc160822鬼谷浑天仪替模.obj	3	鬼谷技能图腾
-50	8	3	4905	npc20160629家园凳子01.obj		家园家具
-51	0	7	10107000	武器鬼谷杖1.obj		武器(杖)
-52	21	12	10107000	武器鬼谷杖1.obj		鬼谷武器(杖)
-53	23	0	0	npc190802桃花岛离人偶(替模低).obj		桃花岛傀儡
-54	21	13	10108000	武器190926桃花岛低级剑箫.obj		桃花岛（箫剑类）
-55	24	0	0	武器190926桃花岛低级剑鞘.obj	武器190926桃花岛低级剑箫.obj	原来0类型，箫剑类
-56	25	0	0	武器190926桃花岛低级剑.obj		傀儡用的
-57	26	0	6435	m01_cr_挥斥方遒_刀npc.obj	3	从刃刀域替模
-58	27	0	0	weapon_CR_2021PT_baizhuang1双刀右02.obj		丛刃双手右手替模
-59	27	1	0	weapon_CR_2021PT_baizhuang1双刀左02.obj		丛刃双手左手替模
-60	27	2	0	weapon_CR_2021PT_baizhuang1双刀右03.obj		丛刃双手腰间替模
-61	27	3	0	weapon_CR_2021PT_baizhuang1双刀右03.obj		丛刃双手腰间替模
-62	27	4	0	weapon_CR_2021PT_baizhuang1大刀01.obj		丛刃双手背部替模
-63	28	0	0	weapon_CR_2021PT_baizhuang1大刀02.obj		丛刃单手右手替模
-64	28	2	0	weapon_CR_2021PT_baizhuang1双刀右01.obj		丛刃单手腰间替模
-65	28	3	0	weapon_CR_2021PT_baizhuang1双刀左01.obj		丛刃单手腰间替模
-66	28	4	0	weapon_CR_2021PT_baizhuang1大刀03.obj		丛刃单手背部替模
-67	29	2	0	weapon_CR_2021PT_baizhuang1双刀右01.obj		丛刃空手腰间替模
-68	29	3	0	weapon_CR_2021PT_baizhuang1双刀左01.obj		丛刃空手腰间替模
-69	29	4	0	weapon_CR_2021PT_baizhuang1大刀01.obj		丛刃空手背部替模
-70	21	14	10116000	Sweapon_CR_2021_92ji双刀右02.obj		丛刃武器
-71	30	0	0	头饰背饰空模型.obj		头饰背挂替模
-72	31	0	0	女主角头发02_iv.mesh		女主角发型_iv
-73	31	1	0	男主角头发01_iv.mesh		男主角发型_iv
-74	32	0	0	女主角脸02_iv.mesh		女主角脸型_iv
-75	32	1	0	男主角脸01_iv.mesh		男主角脸型_iv
-76	0	17	10117000	恶人谷门派高手武器.obj		武器(冷镰类)
-77	21	15	10117000	恶人谷门派高手武器.obj		恶人谷武器(冷镰类)
-78	33	0	8311	npc_2025峨嵋技改恶猿.obj	0	Monster
-79	34	0	8426	npc_2025唐门技改诸葛神弩.obj	0	Monster
-80	35	0	8427	npc_2025唐门技改千机玄豹.obj	0	Monster
-81	36	0	8428	npc_2025唐门技改千机幽鸩.obj	0	Monster
-82	37	0	8429	npc_2025唐门技改千机游蛇.obj	0	Monster
-83	38	0	8439	npc_2025唐门技改召唤物男.obj	0	Monster
-84	39	0	8440	npc_2025唐门技改召唤物女.obj	0	Monster
-85	40	0	8441	npc_2025空模型.obj	0	Monster
-86	41	0	8442	npc_2025神机幻影替模男.obj	0	Monster
-87	42	0	8443	npc_2025神机幻影替模女.obj	0	Monster
+# layout: aligned
+column_0  	column_1  	column_2  	column_3  	column_4                                 	column_5                      	column_6
+0         	0         	0         	10100000  	大刀1a.obj                               	                              	武器(大刀)
+1         	0         	1         	10101000  	mao1a.obj                                	                              	武器(长枪)
+2         	0         	2         	10102000  	单短1a.obj                               	                              	武器(单短)
+3         	0         	3         	10103000  	双短1A.obj                               	                              	武器(双短)
+4         	0         	4         	10104000  	扇子1A.obj                               	                              	武器(扇类)
+5         	0         	5         	10105000  	环1a.obj                                 	                              	武器(环类)
+6         	1         	170       	0         	                                         	                              	坐骑ID
+7         	2         	0         	3330      	替模npc.obj                              	0                             	Monster
+8         	3         	0         	3331      	替模珍兽.obj                             	                              	Pet
+9         	4         	2         	0         	                                         	                              	bus在配表businfo中的id
+10        	5         	0         	3331      	Pet                                      	替模珍兽.obj                  	fakeobj名字中包含pet的
+11        	5         	0         	3332      	Horse                                    	替模骑乘.obj                  	fakeobj名字中包含horse的，其他返回Monster的替模
+12        	5         	0         	3330      	default                                  	替模npc.obj                   	fakeobj名字中其他的类型，如果以上两种查询失败，会返回此行信息
+13        	6         	0         	0         	tl3chuangjian.skysphere                  	                              	天空盒
+14        	7         	0         	0         	Icons/IconDefault.jpg                    	                              	UIIcon
+15        	8         	0         	0         	                                         	                              	帮会建筑Mesh格式（不使用替模）
+16        	8         	1         	0         	                                         	                              	帮会建筑Model格式（不使用替模）
+17        	8         	2         	0         	                                         	                              	帮会建筑Obj格式（不使用替模）
+18        	9         	0         	0         	师门任务/宝箱.mesh                       	                              	生长点Mesh格式
+19        	9         	1         	0         	小动物/鱼群03.model                      	                              	生长点Model格式
+20        	9         	2         	0         	师门任务/箱.obj                          	                              	生长点Obj格式
+21        	10        	0         	0         	                                         	                              	掉落包（已经放到基础包中去了）
+22        	11        	0         	0         	                                         	                              	操作台（操作台已经全放到基础包中了）
+23        	12        	347       	0         	                                         	                              	时装替模
+24        	13        	0         	0         	npc_yuancheng                            	                              	子弹飞行特效
+25        	14        	0         	0         	all_bj06                                 	                              	子弹击中特效
+26        	15        	0         	0         	g01_bamenjinsuo                          	                              	陷阱生存期特效
+27        	16        	0         	0         	g01_xy_jq_zdo_八阵图_2                   	                              	陷阱激发期特效
+28        	17        	0         	0         	女主角头发02.mesh                        	                              	女主角发型
+29        	17        	1         	0         	男主角头发01.mesh                        	                              	男主角发型
+30        	18        	0         	0         	女主角脸02.mesh                          	                              	女主角脸型
+31        	18        	1         	0         	男主角脸01.mesh                          	                              	男主角脸型
+32        	19        	0         	0         	default.enscene                          	                              	默认区域天空盒
+33        	0         	6         	10106000  	武器20130515唐门弩1.obj                  	                              	武器(弩)
+34        	7         	1         	0         	Icons/IconDefault.jpg                    	                              	
+35        	20        	1         	3719      	男孩儿童期130916.obj                     	1                             	子女功能（男孩）
+36        	20        	0         	3720      	女孩儿童期130918.obj                     	2                             	子女功能（女孩）
+37        	21        	0         	10101000  	mao1a.obj                                	                              	少林武器(长枪)
+38        	21        	1         	10100000  	大刀1a.obj                               	                              	明教武器(大刀)
+39        	21        	2         	10101000  	mao1a.obj                                	                              	丐帮武器(长枪)
+40        	21        	3         	10102000  	单短1a.obj                               	                              	武当武器(单短)
+41        	21        	4         	10103000  	双短1A.obj                               	                              	峨眉武器(双短)
+42        	21        	5         	10103000  	双短1A.obj                               	                              	星宿武器(双短)
+43        	21        	6         	10105000  	环1a.obj                                 	                              	天龙武器(环类)
+44        	21        	7         	10105000  	环1a.obj                                 	                              	天山武器(环类)
+45        	21        	8         	10104000  	扇子1A.obj                               	                              	逍遥武器(扇类)
+46        	21        	9         	10102000  	单短1a.obj                               	                              	无门派单短
+47        	21        	10        	10102000  	单短1a.obj                               	                              	慕容武器(单短)
+48        	21        	11        	10106000  	武器20130515唐门弩1.obj                  	                              	唐门武器(弩)
+49        	22        	0         	4820      	npc160822鬼谷浑天仪替模.obj              	3                             	鬼谷技能图腾
+50        	8         	3         	4905      	npc20160629家园凳子01.obj                	                              	家园家具
+51        	0         	7         	10107000  	武器鬼谷杖1.obj                          	                              	武器(杖)
+52        	21        	12        	10107000  	武器鬼谷杖1.obj                          	                              	鬼谷武器(杖)
+53        	23        	0         	0         	npc190802桃花岛离人偶(替模低).obj        	                              	桃花岛傀儡
+54        	21        	13        	10108000  	武器190926桃花岛低级剑箫.obj             	                              	桃花岛（箫剑类）
+55        	24        	0         	0         	武器190926桃花岛低级剑鞘.obj             	武器190926桃花岛低级剑箫.obj  	原来0类型，箫剑类
+56        	25        	0         	0         	武器190926桃花岛低级剑.obj               	                              	傀儡用的
+57        	26        	0         	6435      	m01_cr_挥斥方遒_刀npc.obj                	3                             	从刃刀域替模
+58        	27        	0         	0         	weapon_CR_2021PT_baizhuang1双刀右02.obj  	                              	丛刃双手右手替模
+59        	27        	1         	0         	weapon_CR_2021PT_baizhuang1双刀左02.obj  	                              	丛刃双手左手替模
+60        	27        	2         	0         	weapon_CR_2021PT_baizhuang1双刀右03.obj  	                              	丛刃双手腰间替模
+61        	27        	3         	0         	weapon_CR_2021PT_baizhuang1双刀右03.obj  	                              	丛刃双手腰间替模
+62        	27        	4         	0         	weapon_CR_2021PT_baizhuang1大刀01.obj    	                              	丛刃双手背部替模
+63        	28        	0         	0         	weapon_CR_2021PT_baizhuang1大刀02.obj    	                              	丛刃单手右手替模
+64        	28        	2         	0         	weapon_CR_2021PT_baizhuang1双刀右01.obj  	                              	丛刃单手腰间替模
+65        	28        	3         	0         	weapon_CR_2021PT_baizhuang1双刀左01.obj  	                              	丛刃单手腰间替模
+66        	28        	4         	0         	weapon_CR_2021PT_baizhuang1大刀03.obj    	                              	丛刃单手背部替模
+67        	29        	2         	0         	weapon_CR_2021PT_baizhuang1双刀右01.obj  	                              	丛刃空手腰间替模
+68        	29        	3         	0         	weapon_CR_2021PT_baizhuang1双刀左01.obj  	                              	丛刃空手腰间替模
+69        	29        	4         	0         	weapon_CR_2021PT_baizhuang1大刀01.obj    	                              	丛刃空手背部替模
+70        	21        	14        	10116000  	Sweapon_CR_2021_92ji双刀右02.obj         	                              	丛刃武器
+71        	30        	0         	0         	头饰背饰空模型.obj                       	                              	头饰背挂替模
+72        	31        	0         	0         	女主角头发02_iv.mesh                     	                              	女主角发型_iv
+73        	31        	1         	0         	男主角头发01_iv.mesh                     	                              	男主角发型_iv
+74        	32        	0         	0         	女主角脸02_iv.mesh                       	                              	女主角脸型_iv
+75        	32        	1         	0         	男主角脸01_iv.mesh                       	                              	男主角脸型_iv
+76        	0         	17        	10117000  	恶人谷门派高手武器.obj                   	                              	武器(冷镰类)
+77        	21        	15        	10117000  	恶人谷门派高手武器.obj                   	                              	恶人谷武器(冷镰类)
+78        	33        	0         	8311      	npc_2025峨嵋技改恶猿.obj                 	0                             	Monster
+79        	34        	0         	8426      	npc_2025唐门技改诸葛神弩.obj             	0                             	Monster
+80        	35        	0         	8427      	npc_2025唐门技改千机玄豹.obj             	0                             	Monster
+81        	36        	0         	8428      	npc_2025唐门技改千机幽鸩.obj             	0                             	Monster
+82        	37        	0         	8429      	npc_2025唐门技改千机游蛇.obj             	0                             	Monster
+83        	38        	0         	8439      	npc_2025唐门技改召唤物男.obj             	0                             	Monster
+84        	39        	0         	8440      	npc_2025唐门技改召唤物女.obj             	0                             	Monster
+85        	40        	0         	8441      	npc_2025空模型.obj                       	0                             	Monster
+86        	41        	0         	8442      	npc_2025神机幻影替模男.obj               	0                             	Monster
+87        	42        	0         	8443      	npc_2025神机幻影替模女.obj               	0                             	Monster

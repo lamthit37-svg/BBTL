@@ -2,7 +2,8 @@
 # source: client_2026/NameBoardEx.txt
 # tool: TOOLS/server/export_client_rest.py; sửa tay sẽ mất ở lượt xuất sau
 # types: int	text	text	text	text	int
-column_0	column_1	column_2	column_3	column_4	column_5
-1	龙腾九州	NameBoard1_1	龙腾九州	新全球争霸赛	1
-2	虎踞雄关	NameBoard1_2	虎踞雄关	新全球争霸赛	2
-3	鹰扬日空	NameBoard1_3	鹰扬日空	新全球争霸赛	3
+# layout: aligned
+column_0  	column_1  	column_2      	column_3  	column_4      	column_5
+1         	龙腾九州  	NameBoard1_1  	龙腾九州  	新全球争霸赛  	1
+2         	虎踞雄关  	NameBoard1_2  	虎踞雄关  	新全球争霸赛  	2
+3         	鹰扬日空  	NameBoard1_3  	鹰扬日空  	新全球争霸赛  	3

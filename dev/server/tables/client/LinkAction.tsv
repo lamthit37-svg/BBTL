@@ -2,6 +2,7 @@
 # source: client_2026/LinkAction.txt
 # tool: TOOLS/server/export_client_rest.py; sửa tay sẽ mất ở lượt xuất sau
 # types: int	int	text	int	text	int	text	int	text	int
-column_0	column_1	column_2	column_3	column_4	column_5	column_6	column_7	column_8	column_9
-1	1784	-1	-1	-1	-1	-1	-1	3200;3201	12
-2	1791	-1	-1	-1	-1	-1	-1	3247	12
+# layout: aligned
+column_0  	column_1  	column_2  	column_3  	column_4  	column_5  	column_6  	column_7  	column_8   	column_9
+1         	1784      	-1        	-1        	-1        	-1        	-1        	-1        	3200;3201  	12
+2         	1791      	-1        	-1        	-1        	-1        	-1        	-1        	3247       	12

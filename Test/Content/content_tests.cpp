@@ -401,7 +401,7 @@ void expect_same_as_parse_tsv(Context& context, View body) {
 // Bộ đọc theo dòng của content và table::parse_tsv phải cùng nhận, cùng từ chối, cùng đếm bản ghi:
 // máy chủ nạp bảng bằng parse_tsv, nên bảng qua lint mà parse_tsv từ chối là lint vô dụng.
 void row_rules_match_parse_tsv(Context& context) {
-    constexpr std::array<View, 8> kBodies{
+    constexpr std::array<View, 12> kBodies{
         "n\n1\n2\n",
         "n\tm\n1\t2\n3\n",
         "n\n\n1\n\n2\n",
@@ -410,6 +410,12 @@ void row_rules_match_parse_tsv(Context& context) {
         "a\tb\n1\t2\t3\n",
         "a\tb\n1\t2\n\t\t\n",
         "n\n1\n-2\n",
+        // Bố cục căn cột: đệm dấu cách bỏ đi, dòng bố cục lạ trước tên cột là lỗi. (Dòng "# layout:" sau tên
+        // cột là dòng # như mọi dòng #, lint đếm nó là bản ghi; ca đó ở table_tsv_tests.)
+        "# layout: aligned\nn   \tm\n1   \t2\n",
+        "# layout: aligned\nn   \tm\n1   \t2\t3\n",
+        "# layout: wide\nn\n1\n",
+        "# layout: aligned\nn\n1\n",
     };
     for (const View body : kBodies) {
         expect_same_as_parse_tsv(context, body);

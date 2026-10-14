@@ -2,5 +2,6 @@
 # source: server_config/OnSaleLimit.txt
 # tool: TOOLS/server/import_legacy.py; sửa tay sẽ mất ở lượt xuất sau
 # types: int	int	int
-item_id	stall_list_limited	player_shop_list_limited
-30501036	1	1
+# layout: aligned
+item_id   	stall_list_limited  	player_shop_list_limited
+30501036  	1                   	1
