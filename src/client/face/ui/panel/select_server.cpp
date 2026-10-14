@@ -745,6 +745,9 @@ void paint_server(Deck& deck, const SelectServer& panel) {
     deck.show(kRoot);
     deck.hide(kWeGameCancel);
     deck.hide(kFluencyFrame);
+    // SelectServer.lua (dòng 2893) giấu 上一步 lúc nạp và không hiện lại; handler nhấn của nó đã bị chú thích.
+    // Layout gốc đặt nó đè lên 退出游戏 28 px, nên hiện nó thì hai nút chồng nhau.
+    deck.hide(kBack);
     hide_unless(deck, kRecommendFrame, panel.page == ServerPage::kRecommend);
     hide_unless(deck, kAreaFrame, panel.page != ServerPage::kRecommend);
     paint_area_list(deck, panel);

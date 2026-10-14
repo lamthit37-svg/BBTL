@@ -18,6 +18,7 @@
 #include "ui/panel/minimap.hpp"
 #include "ui/panel/player_frame.hpp"
 #include "ui/panel/portraits.hpp"
+#include "ui/panel/select_server.hpp"
 #include "ui/panel/start.hpp"
 
 #include <algorithm>
@@ -646,8 +647,22 @@ void desk_names_exist(Context& context) {
     context.expect(shut.roots().empty(), "ba nút đóng đóng ba bảng");
 }
 
+// SelectServer.lua bản 2026 giấu 上一步 (SelectServer_shangyibu) lúc nạp và không hiện lại, handler nhấn đã
+// bị chú thích. Trong layout gốc nó đè lên 退出游戏 28 px (x 146 so với 44 + 130), nên hiện nó thì hai nút
+// chồng nhau trên màn chọn máy chủ. WeGame_Cancel và khung Fluency cũng bị giấu như script.
+void server_hides_the_back_button(Context& context) {
+    Deck deck;
+    const ui::panel::SelectServer panel;
+    ui::panel::paint_server(deck, panel);
+    context.expect(is_hidden(deck, "SelectServer_shangyibu"), "上一步 bị giấu như script gốc");
+    context.expect(is_hidden(deck, "SelectServer_WeGame_Cancel"), "nút thoát của WeGame bị giấu");
+    context.expect(!is_hidden(deck, "SelectServer_Cancel"), "退出游戏 vẫn hiện");
+    context.expect(!is_hidden(deck, "SelectServer_Accept"), "确认选择 vẫn hiện");
+}
+
 constexpr std::array kCases{
     Case{.name = "deck_keeps_root_order", .body = &deck_keeps_root_order},
+    Case{.name = "server_hides_the_back_button", .body = &server_hides_the_back_button},
     Case{.name = "deck_copies_values", .body = &deck_copies_values},
     Case{.name = "deck_composes_in_place", .body = &deck_composes_in_place},
     Case{.name = "player_frame_of_newcomer", .body = &player_frame_of_newcomer},
