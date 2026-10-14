@@ -67,10 +67,13 @@ public:
     void push(std::string_view window, bool is_on);
     // SetActionItem(face.id); id -1 là ô trống.
     void set_action(std::string_view window, ActionFace face);
-    // SetNewFlash() của nút action: bật cờ nháy theo action đang giữ (UI_CEGUI, docs/GIAO-DIEN-2026.md 2.7).
+    // SetNewFlash() của nút action: ô có action thì bật cờ nháy theo action, ô trống thì không làm gì (UI_CEGUI
+    // 0x180029060, docs/GIAO-DIEN-2026.md 2.7).
     void flash(std::string_view window);
     // Play(is_looping) của cửa sổ hoạt ảnh TLBB_Animate.
     void play(std::string_view window, bool is_looping);
+    // Gloom() (is_dim) và Bright() của nút action: thuộc tính Gloom True và False (UI_CEGUI 0x180028cf0, 0x180028970).
+    void gloom(std::string_view window, bool is_dim);
 
     // ClearListBox: bỏ mọi mục, bỏ mục đang chọn, về đầu danh sách.
     void clear_list(std::string_view window);

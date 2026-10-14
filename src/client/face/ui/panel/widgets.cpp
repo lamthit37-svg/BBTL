@@ -162,11 +162,16 @@ void Widgets::set_action(std::string_view window, ActionFace face) {
 }
 
 void Widgets::flash(std::string_view window) {
+    if (action_item(window) == kEmptyAction) return;
     entry_of(window).is_flashing = true;
 }
 
 void Widgets::play(std::string_view window, bool is_looping) {
     entry_of(window).is_playing = is_looping;
+}
+
+void Widgets::gloom(std::string_view window, bool is_dim) {
+    set(gui::Override{.window = window, .name = "Gloom", .value = is_dim ? "True" : "False"});
 }
 
 void Widgets::clear_list(std::string_view window) {
