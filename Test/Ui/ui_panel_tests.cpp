@@ -12,6 +12,7 @@
 #include "table/tsv.hpp"
 #include "test.hpp"
 #include "ui/panel/desk.hpp"
+#include "ui/panel/logon.hpp"
 #include "ui/panel/maps.hpp"
 #include "ui/panel/menubar.hpp"
 #include "ui/panel/minimap.hpp"
@@ -125,6 +126,12 @@ constexpr Key kRing{.window = "PlayerFrame_TypeFrame_2D", .name = "SetCurrentIma
 constexpr Key kFlash{.window = "PlayerFrame_HP_Flash", .name = "Size"};
 constexpr std::string_view kGirl = "set:GirlProtagonist image:GirlProtagonist_1";
 
+// Dạng khung chân dung đã chọn lúc dựng (avatar_frame ở client.build.toml): vuông thì chân dung vào ô phẳng
+// Head_2D và đầu 3D bị giấu, tròn thì vào cửa sổ Head_3D.
+[[nodiscard]] bool is_square_frame() {
+    return !ui::panel::avatar_frame_imageset().empty();
+}
+
 // Nhân vật mới: thanh đầy, nộ rỗng, không điểm liên kích, không cảnh báo máu, có chân dung.
 void player_frame_of_newcomer(Context& context) {
     const hero::Hero hero = hero::newcomer();
@@ -140,8 +147,13 @@ void player_frame_of_newcomer(Context& context) {
     context.expect(is_hidden(deck, "PlayerFrame_Captain"), "không phải đội trưởng");
     const bool is_calm = is_hidden(deck, "PlayerFrame_Mask") && is_hidden(deck, "PlayerFrame_HP_Flash");
     context.expect(is_calm && !said(deck, kFlash), "máu đủ thì không cảnh báo");
-    context.expect(said(deck, kFace) == kGirl, "chân dung gán vào cửa sổ trong khung tròn");
-    context.expect(!said(deck, kFlat) && !said(deck, kRing), "ô phẳng và vòng 2D giữ ẩn");
+    if (is_square_frame()) {
+        context.expect(said(deck, kFlat) == kGirl, "khung vuông: chân dung gán vào ô phẳng Head_2D");
+        context.expect(!said(deck, kFace) && is_hidden(deck, "PlayerFrame_Head_3D"), "khung vuông: đầu 3D bị giấu");
+    } else {
+        context.expect(said(deck, kFace) == kGirl, "chân dung gán vào cửa sổ trong khung tròn");
+        context.expect(!said(deck, kFlat) && !said(deck, kRing), "ô phẳng và vòng 2D giữ ẩn");
+    }
     context.expect(is_hidden(deck, "PlayerFrame_GQ"), "thanh của môn phái mới bị giấu");
     context.expect(is_hidden(deck, "PlayerFrame_PVPPK"), "không ở trạng thái PK");
 }
@@ -153,11 +165,18 @@ void player_frame_prefers_model(Context& context) {
     Deck deck;
     const ui::panel::Face both{.image = kGirl, .model = ui::panel::kPlayerHead};
     ui::panel::fill_player(deck, hero, both);
-    context.expect(said(deck, model) == "Player_Head", "cửa sổ mô hình nhận tên fake object");
-    context.expect(!said(deck, kFace), "có đầu 3D thì không gán ảnh phẳng");
+    const Key& flat_target = is_square_frame() ? kFlat : kFace;
+    if (is_square_frame()) {
+        // Khung vuông không dựng đầu 3D: tên fake object không được gán, ảnh phẳng vào Head_2D.
+        context.expect(!said(deck, model), "khung vuông: không gán fake object");
+        context.expect(said(deck, kFlat) == kGirl, "khung vuông: ảnh phẳng vào Head_2D dù có tên đầu 3D");
+    } else {
+        context.expect(said(deck, model) == "Player_Head", "cửa sổ mô hình nhận tên fake object");
+        context.expect(!said(deck, kFace), "có đầu 3D thì không gán ảnh phẳng");
+    }
     deck.clear();
     ui::panel::fill_player(deck, hero, ui::panel::Face{.image = kGirl, .model = {}});
-    context.expect(!said(deck, model) && said(deck, kFace) == kGirl, "chưa có đầu 3D: ảnh phẳng");
+    context.expect(!said(deck, model) && said(deck, flat_target) == kGirl, "chưa có đầu 3D: ảnh phẳng");
 }
 
 // Máu đúng một phần năm là thấp (bản gốc so HP / MAXHP > 1/5), hơn một điểm thì hết.
