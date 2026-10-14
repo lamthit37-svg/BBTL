@@ -840,3 +840,19 @@ kết luận ngay dưới mục đó chứ không xoá.
     (g) Dung lượng: `weapon_effects.tsv` 1,1 MB, `effect/all.effect` + `all.particle` 4,2 MB, clip đòn đánh 102 MB đi
     vào `avatar.files.tsv`: APK và bản điện thoại chưa đo lại; nạp đầu của cảnh Đại Lý đo 2026-10-14 trung vị 490 ms
     ở cả bản cũ lẫn bản mới (ngân sách 450 ms; máy hôm đó chậm hơn lúc đo 387 ms ngày 2026-10-13).
+
+54. **Máy chủ gameplay 2026-10-15: các chỗ chưa kết luận được** (`src/server/zone/`, `src/server/scenedata/`, `docs/SERVER-SCENEDATA.md`,
+    `docs/SERVER-DI-CHUYEN.md`)
+    (a) Hướng quái và NPC: bảng cảnh ghi hướng theo bước 10 độ, `scenedata` đổi ra độ (`heading_degrees()`), `zone/content.cpp` đổi tiếp sang
+    `0..65535` của `EntityAppear.direction` (tuyến tính). Chưa đối chiếu với client 2026 gốc góc (hướng 0 là +X hay +Z) và chiều quay (thuận hay
+    ngược chiều kim đồng hồ), nên NPC có thể quay lệch một góc cố định khi client nối máy chủ. Cần để kết luận: client có module nối máy chủ,
+    rồi so hướng một NPC đứng đã biết (ví dụ NPC ở Đại Lý) giữa `spawns.tsv` và hình dựng của client.
+    (b) Luật đi của zone chỉ kiểm điểm đến của mỗi gói `Moved` (độ nới 20 cm ở mép) và không kiểm trục Y. Chưa đo xem trần tốc độ của gate có đủ
+    nhỏ để một bước không vượt qua bức tường mỏng giữa hai gói hay không. Cần: đo bề dày nhỏ nhất của ranh giới không đi được trong lưới
+    `.path` của vài cảnh so với bước đi lớn nhất gate cho qua trong một tick.
+    (c) Bảng quái theo cấp người chơi (`spawns.level_*.tsv`) và quy tắc chọn (`spawn_operates`: `select_type`, `select_value`, `data_def`,
+    `max_left`): `scenedata` chỉ nạp, ngữ nghĩa của `select_type` thuộc zone và chưa đọc từ mã 2008; zone chưa dùng bảng này nên chỉ đặt bảng
+    quái gốc của cảnh.
+    (d) Lệch giữa dữ liệu 2008 và lưới đi 2026: điểm đặt quái nằm ngoài lưới `.path` của client 2026 ở nhiều cảnh (`dali` 50/164, `kunlunshan`
+    143/325, `guigu` 80/234; bảng đầy đủ ở `docs/SERVER-SCENEDATA.md`). Quái đặt ở đó đứng ngoài lưới và người chơi không tới được. Chưa biết
+    là dữ liệu đặt quái 2008 cũ hơn bản đồ hay bản đồ 2026 đổi bố cục; không đoán vị trí mới.
