@@ -50,7 +50,19 @@ function methods.Disable(self) put(self, "disabled", true) end
 function methods.SetText(self, text) put_prop(self, "Text", text) end
 function methods.GetText(self) return record(self).props.Text or "" end
 function methods.SetToolTip(self, text) put_prop(self, "Tooltip", text) end
-function methods.SetProperty(self, name, value) put_prop(self, name, value) end
+function methods.SetProperty(self, name, value)
+    put_prop(self, name, value)
+    if name == "SetFadeState" then
+        -- FalagardSuperProgressProperties::SetFadeState (CEGUIFalagard.dll 0x180079f20): giá trị <= 0
+        -- hiện cửa sổ lại; mọi giá trị đều đặt độ trong về 1. Lúc cửa sổ là gốc của layout thì nó cũng
+        -- là `this`.
+        if tonumber(value) <= 0 then
+            put(self, "visible", true)
+            if record(self).parent == "" then __this.visible = true end
+        end
+        put_prop(self, "Alpha", 1)
+    end
+end
 -- Cửa sổ mesh: tên fake object đang hiện (rỗng là không hiện gì).
 function methods.SetFakeObject(self, name) put_prop(self, "FakeObject", name) end
 -- Độ trong của cửa sổ. Trọng tài không có đồng hồ: StartFade tới đích ngay, và ghi đích đó thành
@@ -98,6 +110,14 @@ function methods.SetCheck(self, state) set_check(self.__name, state == 1) end
 function methods.GetCheck(self)
     if record(self).checked then return 1 end
     return 0
+end
+
+-- ProgressBar:SetProgress(tử, mẫu) (UI_CEGUI.dll 0x18003a390): chỉ khi cả hai là số, đặt mức thanh
+-- bằng float(tử) / float(mẫu). Trọng tài giữ nguyên hai số (ghi "tử/mẫu") vì Lua không có float32.
+function methods.SetProgress(self, current, total)
+    if type(current) == "number" and type(total) == "number" then
+        put_prop(self, "Progress", string.format("%.14g/%.14g", current, total))
+    end
 end
 
 -- Nút action.
@@ -258,7 +278,12 @@ function this:Show() __this.visible = true end
 function this:Hide() __this.visible = false end
 function this:TogleShow() __this.visible = not __this.visible end
 function this:IsVisible() return __this.visible end
-function this:RegisterEvent(name) table.insert(__this.events, name) end
+-- RegisterEvent(tên[, cờ]) (UI_CEGUI.dll 0x180077be0): cờ không phải boolean thì là true; cờ false
+-- nghĩa là sự kiện chỉ tới khi cửa sổ đang hiện (bộ phân phối 0x180079310).
+function this:RegisterEvent(name, always)
+    if type(always) ~= "boolean" then always = true end
+    table.insert(__this.events, { name = name, always = always })
+end
 
 -- Biến toàn cục chưa định nghĩa: báo ngay tên, thay vì để script chạy tiếp với nil. Kịch bản kê
 -- vào __optional những tên mà chính script gốc đọc khi chưa gán (lỗi của script gốc, giá trị nil là
@@ -327,4 +352,13 @@ function __dump(label)
         __emit("!call" .. index .. "\t" .. flat(line))
     end
     __calls = {}
+end
+
+-- Ghi các sự kiện mà PreLoad đã đăng ký, theo thứ tự đăng ký: "event<tab>tên<tab>True|False" (cờ
+-- true là nhận cả khi cửa sổ đang ẩn).
+function __dump_events(label)
+    __emit("# " .. label)
+    for _, item in ipairs(__this.events) do
+        __emit("event\t" .. item.name .. "\t" .. truth(item.always))
+    end
 end

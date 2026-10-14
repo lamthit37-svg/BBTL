@@ -1,2 +1,3 @@
 window	session	functions_total	functions_ported	golden	commit	note
 MainMenuBar_3	thienlong-c8	7	6	Test/golden/panel/main_menu_bar_3_pet.tsv	(chờ)	AdjustMoveCtl có thân toàn chú thích nên ghi Khác gốc; thanh chưa hiện vì chưa có hệ thú cưng
+ProgressBar	thienlong-e7	6	6	Test/golden/panel/progress_bar_flow.tsv	(chờ)	PreLoad, OnEvent, SetWidth, Break, close; OnLoad rỗng. Phần mờ dần (SetFadeState, updateSelf) đọc từ CEGUIFalagard.dll. Hình: gui::draw_progress chỉ vẽ state Enabled nên thiếu khung nền, vùng ProgressArea, đầu sáng, chữ và độ trong của FalagardSuperProgress::populateRenderCache (0x180078870), xem NGHI-NGO mục 18

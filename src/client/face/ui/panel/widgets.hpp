@@ -18,6 +18,7 @@
 #include <span>
 #include <string>
 #include <string_view>
+#include <utility>
 #include <vector>
 
 namespace game::ui::panel {
@@ -67,6 +68,9 @@ public:
     void push(std::string_view window, bool is_on);
     // SetActionItem(face.id); id -1 là ô trống.
     void set_action(std::string_view window, ActionFace face);
+    // SetProgress(current, total) của thanh: mức thanh là float(current) / float(total) (UI_CEGUI.dll
+    // 0x18003a390). Giữ nguyên hai số vì trọng tài ghi "current/total"; paint kẹp mức vào 0..1.
+    void set_progress(std::string_view window, double current, double total);
     // SetNewFlash() của nút action: bật cờ nháy theo action đang giữ (UI_CEGUI, docs/GIAO-DIEN-2026.md 2.7).
     void flash(std::string_view window);
     // Play(is_looping) của cửa sổ hoạt ảnh TLBB_Animate.
@@ -114,6 +118,8 @@ public:
     [[nodiscard]] std::optional<std::string_view> value(const Key& key) const noexcept;
     // id của action đang nằm trong ô của một nút; nullopt khi chưa đặt.
     [[nodiscard]] std::optional<std::int32_t> action(std::string_view window) const noexcept;
+    // Mức thanh theo SetProgress, đã kẹp vào 0..1 (ProgressBar::setProgress); nullopt khi chưa đặt.
+    [[nodiscard]] std::optional<float> progress(std::string_view window) const noexcept;
     // GetActionItem() của nút action: id action đang giữ, -1 khi ô trống hay chưa đặt (UI_CEGUI 3.71.9509
     // 0x180028f00 đẩy -1 khi con trỏ action null).
     [[nodiscard]] std::int32_t action_item(std::string_view window) const noexcept;
@@ -125,8 +131,8 @@ public:
     [[nodiscard]] bool is_shown(std::string_view window) const noexcept;
 
     // Chép trạng thái đang giữ sang deck của khung: thuộc tính đã đặt, cờ hiện, khoá, dấu chọn,
-    // dấu nhấn (thuộc tính Disabled, Selected, Pushed của bộ dàn trang) và icon của ô action
-    // (thuộc tính NormalImage; ô trống không đặt gì). Cửa sổ có thuộc tính Alpha bằng "0" (mờ hẳn
+    // dấu nhấn (thuộc tính Disabled, Selected, Pushed của bộ dàn trang), icon của ô action
+    // (thuộc tính NormalImage; ô trống không đặt gì) và mức thanh. Cửa sổ có thuộc tính Alpha bằng "0" (mờ hẳn
     // sau StartFade) được giấu: bộ dàn trang không có độ trong của từng cửa sổ.
     void paint(Deck& deck) const;
     // Trạng thái đang giữ theo dạng dòng của trọng tài: "cửa sổ<tab>thuộc tính<tab>giá trị", các
@@ -148,6 +154,8 @@ private:
         std::optional<bool> is_checked;
         std::optional<bool> is_pushed;
         std::optional<ActionFace> action;
+        // SetProgress: tử và mẫu của lần gọi cuối.
+        std::optional<std::pair<double, double>> progress;
         bool is_flashing = false;
         // Layout khai Visible=False (xem seed_hidden).
         bool is_layout_hidden = false;

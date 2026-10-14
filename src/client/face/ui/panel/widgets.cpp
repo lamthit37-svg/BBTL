@@ -2,11 +2,14 @@
 
 #include "gui/sheet.hpp"
 #include "ui/panel/deck.hpp"
+#include "ui/panel/lua_value.hpp"
 
 #include <algorithm>
+#include <cmath>
 #include <cstddef>
 #include <cstdint>
 #include <format>
+#include <limits>
 #include <optional>
 #include <span>
 #include <string>
@@ -46,6 +49,31 @@ constexpr std::string_view kClear = "0";
         out += escape;
     }
     return out;
+}
+
+// Số của script sang float32 như phép ép double sang float của mã gốc; số ngoài miền float32 (mã gốc ra
+// vô cực) thành số hữu hạn lớn nhất để phép ép không có hành vi không xác định.
+[[nodiscard]] float to_float(double value) noexcept {
+    constexpr auto kLimit = static_cast<double>(std::numeric_limits<float>::max());
+    return static_cast<float>(std::clamp(value, -kLimit, kLimit));
+}
+
+// ProgressBar::setProgress (CEGUIBase.dll 0x1800fb270) trên float(tử) / float(mẫu): mức nhỏ hơn 0 thành 0,
+// lớn hơn 1 thành 1.
+// Khác gốc: NaN (0 trên 0) thành 0; mã gốc cho NaN đi qua, bộ vẽ thanh không có mức không xác định. Mẫu 0
+// ra vô cực (hay NaN) ở mã gốc, ở đây ra 1 hay 0 theo dấu mà không chia cho 0; số ngoài miền float32 bị kẹp
+// vào số hữu hạn lớn nhất nên tỉ số vô cực trên vô cực ra 1 thay vì NaN.
+[[nodiscard]] float progress_of(const std::pair<double, double>& fraction) noexcept {
+    const float current = to_float(fraction.first);
+    const float total = to_float(fraction.second);
+    if (total == 0.0F) {
+        // Tử khác 0 trên mẫu 0 là vô cực mang dấu của tử nhân dấu của mẫu.
+        const bool is_infinite_up = (current > 0.0F) != std::signbit(total);
+        return (current != 0.0F && is_infinite_up) ? 1.0F : 0.0F;
+    }
+    const float ratio = current / total;
+    if (std::isnan(ratio) || ratio < 0.0F) return 0.0F;
+    return ratio > 1.0F ? 1.0F : ratio;
 }
 
 // Chỉ số của mục đầu tiên mang id; nullopt khi không có.
@@ -161,6 +189,10 @@ void Widgets::set_action(std::string_view window, ActionFace face) {
     entry_of(window).action = std::move(face);
 }
 
+void Widgets::set_progress(std::string_view window, double current, double total) {
+    entry_of(window).progress = std::pair{current, total};
+}
+
 void Widgets::flash(std::string_view window) {
     entry_of(window).is_flashing = true;
 }
@@ -273,6 +305,12 @@ std::optional<std::int32_t> Widgets::action(std::string_view window) const noexc
     return entry->action->id;
 }
 
+std::optional<float> Widgets::progress(std::string_view window) const noexcept {
+    const Entry* entry = find(window);
+    if (entry == nullptr || !entry->progress) return std::nullopt;
+    return progress_of(*entry->progress);
+}
+
 std::int32_t Widgets::action_item(std::string_view window) const noexcept {
     const Entry* entry = find(window);
     if (entry == nullptr || !entry->action) return kEmptyAction;
@@ -304,6 +342,7 @@ void Widgets::paint_entry(const Entry& entry, Deck& deck) {
     paint_flag(deck, Key{.window = window, .name = "Pushed"}, entry.is_pushed);
     const bool has_icon = entry.action && !entry.action->icon.empty();
     if (has_icon) deck.set(gui::Override{.window = window, .name = "NormalImage", .value = entry.action->icon});
+    if (entry.progress) deck.bar(window, progress_of(*entry.progress));
 }
 
 void Widgets::paint(Deck& deck) const {
@@ -332,6 +371,10 @@ void Widgets::describe_entry(const Entry& entry, std::vector<std::string>& lines
     describe_flag(lines, Key{.window = window, .name = "Selected"}, entry.is_checked);
     describe_flag(lines, Key{.window = window, .name = "Pushed"}, entry.is_pushed);
     if (entry.action) add_line(lines, Key{.window = window, .name = "ActionItem"}, std::to_string(entry.action->id));
+    if (entry.progress) {
+        const std::string ratio = std::format("{}/{}", lua_tostring(entry.progress->first), lua_tostring(entry.progress->second));
+        add_line(lines, Key{.window = window, .name = "Progress"}, ratio);
+    }
     if (entry.is_flashing) add_line(lines, Key{.window = window, .name = "NewFlash"}, truth(true));
     describe_flag(lines, Key{.window = window, .name = "Playing"}, entry.is_playing);
     describe_number(lines, Key{.window = window, .name = "FirstItem"}, entry.first);

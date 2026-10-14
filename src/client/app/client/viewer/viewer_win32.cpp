@@ -719,6 +719,7 @@ int run_viewer(const ViewerDesc& desc) {
     shown.is_bare = desc.is_bare;
     shown.is_auto_walk = desc.is_auto_walk;
     shown.auto_strike_from = desc.auto_strike_from;
+    shown.ui_events = desc.ui_events;
     shown.weapon_item = desc.weapon_item;
     shown.weapon_gem = desc.weapon_gem;
     shown.skill_id = desc.skill_id;

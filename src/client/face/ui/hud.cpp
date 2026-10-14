@@ -18,6 +18,7 @@
 #include "ui/panel/create_role.hpp"
 #include "ui/panel/deck.hpp"
 #include "ui/panel/desk.hpp"
+#include "ui/panel/events.hpp"
 #include "ui/panel/login_flow.hpp"
 #include "ui/panel/logon.hpp"
 #include "ui/panel/main_menu_bar_3.hpp"
@@ -27,6 +28,7 @@
 #include "ui/panel/packet.hpp"
 #include "ui/panel/player_frame.hpp"
 #include "ui/panel/portraits.hpp"
+#include "ui/panel/progress_bar.hpp"
 #include "ui/panel/quest_book.hpp"
 #include "ui/panel/quest_log.hpp"
 #include "ui/panel/role_cast.hpp"
@@ -465,6 +467,13 @@ struct Hud::State {
     panel::SceneTrans trans;
     std::int32_t trans_percent = -1;
     std::chrono::milliseconds trans_since{0};
+    // Các bảng port từ script (UI-PORT): trạng thái của từng bảng. panel_clock là đồng hồ khung trước để tính
+    // panel_seconds, thời gian của khung này; tách khỏi last_clock vì frame_seconds chỉ trả được một lần mỗi khung.
+    // ui_args là kho arg<k> dùng chung của mọi bảng (xem ui/panel/events.hpp).
+    panel::EventArgs ui_args;
+    panel::ProgressBar progress;
+    std::optional<std::chrono::milliseconds> panel_clock;
+    float panel_seconds = 0.0F;
     // Lần nhấn trước trong thủ tục đăng nhập (cửa sổ, lúc nhấn, điểm nhấn: press_x, press_y đứng cạnh
     // held_x), để nhận ra nhấn đúp.
     std::string press_window;
@@ -536,6 +545,7 @@ struct Hud::State {
     void note_loading(const HudView& view);
     void fill_panels(const HudView& view);
     void fill_play(const HudView& view);
+    void step_panels(const HudView& view);
     [[nodiscard]] core::Status add_map();
     void upload_map();
     [[nodiscard]] std::optional<MapPaint> map_of(const HudScene& scene);
@@ -824,10 +834,29 @@ void Hud::State::note_loading(const HudView& view) {
     if (trans_percent > 0) panel::scene_transing(trans, trans_percent, strings);
 }
 
+// Thời gian của khung cho các bảng port từ script, rồi sự kiện của game tới từng bảng đã đăng ký nghe
+// (bảng đang ẩn chỉ nhận sự kiện đăng ký với cờ true), và nhịp updateSelf của các cửa sổ có hoạt ảnh riêng.
+void Hud::State::step_panels(const HudView& view) {
+    const std::optional<std::chrono::milliseconds> before = panel_clock;
+    panel_clock = view.clock;
+    const bool is_forward = before.has_value() && view.clock >= *before;
+    panel_seconds = is_forward ? std::chrono::duration<float>(view.clock - *before).count() : 0.0F;
+    if (view.phase != Phase::kPlay) return;
+    for (const panel::PostedEvent& posted : view.events) {
+        // Bộ gửi gốc đặt arg<k> một lần cho mỗi sự kiện, trước khi hỏi từng bảng có nghe không.
+        const std::vector<std::string_view> given = posted.arguments();
+        const panel::UiEvent event = ui_args.raise(posted.name, given);
+        if (panel::is_delivered(panel::kProgressBarEvents, event.name, progress.is_shown))
+            panel::progress_bar_event(progress, event);
+    }
+    panel::progress_bar_fade(progress, panel_seconds);
+}
+
 // Chỉ thị của khung theo thủ tục đang chạy (thay các script Lua của client gốc). Bảng chuyển cảnh
 // kê sau cùng nên nằm trên mọi bảng khác.
 void Hud::State::fill_panels(const HudView& view) {
     deck.clear();
+    step_panels(view);
     if (view.phase == Phase::kLogin) {
         panel::paint_flow(deck, flow, writer ? &*writer : nullptr);
         shown = panel::shown_model(flow, login_facts(view));
@@ -859,6 +888,7 @@ void Hud::State::fill_play(const HudView& view) {
     panel::paint_maps(deck, maps, seen.title, resolution);
     panel::paint_desk(deck, desk);
     panel::paint_quest_book(deck, quests);
+    panel::paint_progress_bar(deck, progress);
     panel::paint_main_menu_bar_3(deck, pet_bar);
     fill_board(view);
     fill_world(view);

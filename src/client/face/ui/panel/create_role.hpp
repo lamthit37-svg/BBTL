@@ -6,8 +6,8 @@
 // - mũi tên và nút ngẫu nhiên của kiểu mặt chỉ đi qua số kiểu bằng số kiểu TÓC chọn được;
 // - đổi giới không đặt lại dấu chọn của ô ảnh, trong khi ô sẽ dùng để tạo về ô đầu;
 // - lật trang không dời ô đang chọn: tạo ở ô không có ảnh thì game báo "#{DLXZ_090711_1}".
-// tests/ui_create_tests.cpp so trạng thái từng bước với trạng thái script gốc để lại khi chạy trên
-// LuaPlus.dll của client 2026 với bảng thật (TOOLS/port/lua_oracle.py, tests/golden/panel/).
+// Test/Ui/ui_create_tests.cpp so trạng thái từng bước với trạng thái script gốc để lại khi chạy trên
+// LuaPlus.dll của client 2026 với bảng thật (TOOLS/port/lua_oracle.py, Test/golden/panel/).
 // Hàm của game mà script gọi (GameProduceLogin) là role_cast.hpp cho phần tra bảng và CreateGame
 // cho phần game ghi nhớ; mỗi lời gọi còn để lại một Call để chuỗi đăng nhập làm tiếp và để test so.
 // Khác gốc: chưa có máy chủ, nên GetIsForbidName luôn 0 (nút tên ngẫu nhiên luôn ẩn, sự kiện

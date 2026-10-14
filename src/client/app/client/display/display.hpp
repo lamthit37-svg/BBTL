@@ -104,6 +104,9 @@ struct DisplayDesc {
     // Công cụ đo của dự án (--auto-strike), client gốc không có: ở màn chơi tự nhấn ô thao tác cuối ở khung màn chơi
     // thứ auto_strike_from rồi mỗi 180 khung, để chụp hay đo đòn đánh mà không cần phím thật. 0 là tắt.
     std::uint32_t auto_strike_from = 0;
+    // Công cụ thử của dự án (--ui-event), client gốc không có: sự kiện giao diện "TÊN|arg0|...|arg3" phát cho các bảng ở
+    // khung màn chơi đầu tiên, theo thứ tự, như PushEvent của game gốc.
+    std::vector<std::string> ui_events;
     // Công cụ thử của dự án (--weapon): vật phẩm khe 0 mà nhân vật ở màn chơi cầm; không có thì tay không
     // (hay ngoại hình đã chọn). Hành trang thật nối vào ngoại hình sau (docs/NGHI-NGO.md).
     std::optional<std::uint32_t> weapon_item;

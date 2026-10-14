@@ -2,8 +2,8 @@
 // loại gập mở được, ô mô tả, hai ô bật khung theo dõi và ba nút dưới bảng.
 // Nguồn: Interface/QuestLog/QuestLog.lua của client 2026 (giải bằng TOOLS/content/lua_plain.py); mỗi
 // hàm ở quest_log.cpp là bản dịch một hàm của script, ghi vào Widgets đúng những lời gọi script
-// làm. tests/ui_quest_tests.cpp so trạng thái đó từng dòng với trạng thái script gốc để lại khi
-// chạy trên LuaPlus.dll của client 2026 (TOOLS/port/lua_oracle.py, tests/golden/panel/).
+// làm. Test/Ui/ui_quest_tests.cpp so trạng thái đó từng dòng với trạng thái script gốc để lại khi
+// chạy trên LuaPlus.dll của client 2026 (TOOLS/port/lua_oracle.py, Test/golden/panel/).
 // Hàm C++ mà script gọi (GetMissionOutlineNum, GetMissionInfo_Kind, IsTrackFuncShow...) là module
 // quest, port từ mã máy Game.exe (docs/NHIEM-VU-VO-CONG-2026.md).
 // Khác gốc: chưa hiện nhiệm vụ đang giữ (danh sách thẻ hiện tại, mô tả, mục tiêu, phần thưởng, bật
