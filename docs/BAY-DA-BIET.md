@@ -324,6 +324,28 @@ mục ở mục 11.
   `PixelAligned(cỡ)`, nên ô dò chuột, ô cắt và ô `Hub::box` trả có cỡ đã làm tròn, còn phép đặt
   cửa sổ con và phép vẽ ảnh dùng cỡ lẻ (`shown_box` trong `SRC/gui/hub.cpp`). Layout chỉ có cỡ
   nguyên thì hai thứ trùng nhau, nên `gui_real_tests` chỉ đỏ khi gom thêm layout có cỡ lẻ.
+- Cỡ điểm ảnh của cửa sổ con không tính từ UDim cỡ đã đặt mà từ `max - min` của vùng `URect` (đo
+  2026-10-14 ở `BieYePersonnelManage_List1_Text_3`: vị trí `0,5` rồi cỡ `0,15` trong cha rộng 430 cho 64,
+  không phải 65). `setWindowArea_impl` đặt `max = min + cỡ` qua cộng trừ float32 nên `max - min` có thể
+  lệch 1 ulp, và `onParentSized` lúc layout gắn vào tấm nền tính lại cỡ từ giá trị lệch đó. Chỉ cửa sổ
+  gốc cuối của layout được gắn, con chỉ bị tính lại khi cha có scale ở cạnh max (`layout.cpp`,
+  `place_window`). Layout gốc luôn đặt thuộc tính trước cửa sổ con (đếm 2.035 layout), nên một lượt từ
+  gốc xuống là đủ; layout mới có thuộc tính hình học đứng sau cửa sổ con thì mô hình này không đủ.
+  Hai ca `area_size_is_max_minus_min`, `fixed_parent_does_not_resize_children` của `gui_sheet_tests` canh.
+- `grep` thấy một dòng `<Imageset Name=... Filename=...>` trong `WoWLookSkin.scheme.xml` không có nghĩa
+  client gốc nạp nó: ~3.800 dòng đó nằm lẫn trong những chú thích XML nhiều dòng (`chunfen`, `chunfen1`,
+  `WeixinHongbaoPaisong` ở cuối tệp đều bị chú thích). Xác định bằng bộ phân tích XML chứ không bằng grep.
+  Một lần đã thêm nạp imageset riêng theo scheme vì đọc sai chỗ này rồi hoàn nguyên.
+- Giá trị thuộc tính ảnh có thể ngắt dòng giữa `set:` và `image:` (`NewExterior_PetPossJian.layout.xml`
+  dòng 595, CR LF rồi thụt lề). `PropertyHelper::stringToImage` tách bằng `sscanf(" set:%s image:%s")` nên
+  khoảng trắng nào cũng ngăn cách; `parse_image` phải tách y như vậy chứ không tìm `" image:"` (tìm kiểu đó
+  làm tên bộ dính xuống dòng và ảnh bị ghi chú là thiếu).
+- `Place::overrides` quét tuyến tính: `layout.cpp` (`apply_forced`, `forced`) duyệt cả danh sách cho từng cửa sổ
+  và mỗi thuộc tính, nên `Hub::update` tốn O(cửa sổ × override). Game thật chỉ có vài override nên không sao;
+  `gui_real_tests` từng ép `Visible=True` lên cả 94 nghìn cửa sổ của 2.027 layout và `update` mất 50–72 s mỗi
+  cỡ màn hình, cả test 459 s (đo 2026-10-14, ctest `--timeout 300` làm nó đỏ giả). Nay `show_hidden` chỉ ép
+  cửa sổ mà chính layout khai `Visible=False`: 96 s, cùng 0 ô lệch. Test nào dựng `Place` cho nhiều cửa sổ
+  thì đừng nhét override cho từng cửa sổ.
 
 ## Dữ liệu, hình và bản dựng client
 

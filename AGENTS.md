@@ -568,7 +568,7 @@ Chỉ mục `docs/BAY-DA-BIET.md`: sắp làm một việc kể dưới đây th
   animation của node OGRE (camera chạy track); đặt tên kiểu mới trong một module.
 - **Giao diện và bản địa hoá:** thêm chuỗi `#{khoá}` trong `SRC/ui/panel`; gom thêm một layout;
   đụng ảnh của `dev/client/assets/Interface` hay xoá `build/i18n`; làm ảnh nút tiếng Việt; tính ô cửa sổ
-  có cỡ lẻ trong `SRC/gui`.
+  có cỡ lẻ hay cỡ cửa sổ con trong `SRC/gui`; tách tên ảnh `set:... image:...`; đọc `Imageset` của scheme.
 - **Dữ liệu, hình và bản dựng client:** đọc kết quả `collision_tests` (Skipped, thư mục `_raw`);
   cảnh thiếu hiệu ứng hay gom lại `dev/client/assets/effect`; nạp texture và mip; thêm gói shader; dựng
   `thienlong_client` (cần Pillow); sửa đường nạp cảnh hay giao diện (đo bằng `bench_load.py`, ba bẫy đã đo);

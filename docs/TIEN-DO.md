@@ -2218,6 +2218,51 @@ gộp, rồi dọn". Làm trong worktree `.worktrees/merge_all` từ `192f181`, 
 6. Lỗi mà chỉ Clang/GCC bắt (`d88ef03`, `2842a96`): xem thân hai commit. Đáng nhớ nhất: bộ đệm
    `thread_local std::string` của `core/log.cpp`, `log_sink.cpp`, `thread.cpp` quay về dạng trần sau đợt khôi
    phục 2026-10-09 (`docs/NGHI-NGO.md` mục 12), `log_tests` chết 21/30 lần dưới `gcc-debug`, nay 0/40.
+7. `gui_real_tests`, chạy ở cây chính có dữ liệu thật `dev/` (cây gộp không có dữ liệu nên hai ca bị bỏ qua,
+   chỉ lộ ở đây). Hai ca đỏ ngay trên snapshot, đã sửa tận gốc:
+   - `window_boxes_match_golden`, 192 ô lệch golden. 100 ô lệch 1 điểm ảnh là lỗi của `layout.cpp`: CEGUI 2026
+     lưu vùng cửa sổ dạng `URect(min, max)` và tính lại cỡ điểm ảnh bằng `max - min` trong float32 lúc layout
+     gắn vào tấm nền (`onParentSized`), còn `layout.cpp` dùng thẳng UDim cỡ đã đặt. Ví dụ vị trí `0,5` rồi cỡ
+     `0,15` trong cha 430 cho 64 chứ không phải 65 (`BieYePersonnelManage_List1_Text_3`). `layout.cpp` nay giữ
+     vùng như `URect` và mô phỏng một lượt `onParentSized` từ gốc xuống (`Placed::is_resized`,
+     `is_resizing_children`). 92 ô còn lại là lỗi của test: 48 dòng golden của cửa sổ không có tên và 44 dòng
+     của tên khai ở nhiều layout (cột `is_duplicate`) mà `Hub::box` tra theo tên không chỉ tới được; test nay
+     bỏ dòng không tên và so tên trùng với mọi ô golden cùng tên. Hai ca mới của `gui_sheet_tests`
+     (`area_size_is_max_minus_min`, `fixed_parent_does_not_resize_children`) canh lỗi, đã thấy đỏ trên
+     `layout.cpp` cũ.
+   - `notes_are_known_gaps`: trần "< 20 ghi chú" không còn đúng khi đã gom đủ 2.027 layout (112 ghi chú). Một
+     ghi chú là lỗi thật: `parse_image` tìm `" image:"` nên thuộc tính ngắt dòng giữa `set:` và `image:`
+     (`NewExterior_PetPossJian.layout.xml:595`) làm tên bộ dính xuống dòng. Client gốc tách bằng
+     `sscanf(" set:%s image:%s")` (`PropertyHelper::stringToImage`, cây `_ref`) nên khoảng trắng nào cũng ngăn
+     cách; `parse_image` nay tách y như vậy, `gui_value_tests` có ca hồi quy. Phần còn lại là chỗ hỏng của dữ
+     liệu gốc, nay kê đủ từng cái trong test (52 ảnh, 7 hoạt ảnh) thay cho trần số lượng: 20 ảnh thuộc bộ không có
+     tệp imageset nào, 23 ảnh thuộc ba bộ (`chunfen`, `chunfen1`, `WeixinHongbaoPaisong`) có tệp riêng nhưng
+     `WoWLookSkin.scheme.xml` gốc kê chúng trong chú thích XML (hoạt động đã ngừng), 9 ảnh thiếu trong bộ có
+     tệp. Thêm một chỗ hỏng lạ làm ca đỏ.
+   - Sửa kèm (tìm thấy trên đường): `loader.cpp` bỏ chuyển `std::string` thừa; `value.cpp` đưa `scaled_channel`
+     vào namespace ẩn danh; `gui_real_tests.cpp` `GoldenPass::rows` thành `std::span`; `ui_panel_tests.cpp`
+     include `logon.hpp` và hai ca `player_frame_*` theo hình khung chân dung lúc dựng (vuông là mặc định, nhánh
+     tròn vẫn giữ kỳ vọng cũ nhưng chưa dựng bản `round` để chạy nó).
+   - Tốc độ: ở cây chính `ctest -j 4 --timeout 300` làm `gui_real_tests` đỏ vì hết giờ (459 s). Đo từng ca: năm
+     ca đầu cộng lại khoảng 10 s; `window_boxes_match_golden` tốn gần hết, trong đó `Hub::update` 50–72 s và 94
+     nghìn lần `Hub::box` 10–18 s mỗi cỡ màn hình. Nguyên nhân là `show_all` của test ép `Visible=True` lên cả
+     94 nghìn cửa sổ trong khi `layout.cpp` quét tuyến tính danh sách override cho từng cửa sổ. Mã sản phẩm không
+     đổi (game thật chỉ có vài override); test nay chỉ ép cửa sổ mà layout khai ẩn (`show_hidden`): 96 s, vẫn 0 ô
+     lệch.
+   - Đã kiểm ở cây chính có dữ liệu thật (`msvc-release`, 2026-10-14): dựng 538 bước 0 cảnh báo; `ctest -j 4
+     --timeout 900 -E "^audio_tests$"` 93/93 qua, `gui_real_tests` 55–159 s tùy tải máy (trước sửa 459 s).
+     Ca hồi quy `parse_image` của `gui_value_tests` đỏ trên `value.cpp` của `HEAD` (hai kỳ vọng sai: xuống dòng
+     giữa `set:` và `image:`, tên bộ có dấu cách), xanh trên bản sửa. `check.py` xanh trên cả tám tệp mã và test
+     đã đổi. `check.py --run` (Clang ASan + UBSan + hardening STL và GCC debug mode của libstdc++) xanh cho
+     `gui_value_tests` và `gui_sheet_tests`; mỗi `--with` chỉ nhận một tệp nên phải lặp cờ, và `gui_sheet_tests`
+     cần thêm `src/shared/table/tsv.cpp`, `localize.cpp`, bỏ `loader*.cpp`. Chưa chạy `gui_loader_tests` dưới
+     sanitizer (cần thêm nguồn `core`, `io`, `xml` và cờ liên kết Windows; `loader.cpp` chỉ đổi một dòng
+     `path_from_utf8`) và nhánh khung tròn của `ui_panel_tests` (chưa dựng bản `round`). Ảnh `--shot` của bản cài
+     ở `dev/client/bin` (màn chọn máy chủ và màn chơi cảnh Đại Lý): không mất texture, chữ không chồng nhau.
+     Cảnh báo `ninja: premature end of file` ở cây này do
+     `.ninja_deps` bị cụt (nhiều lượt dựng chồng nhau); `ninja -t recompact` xoá được, và dựng lại toàn bộ một lần.
+   - Bẫy đã đo: ghi ở `docs/BAY-DA-BIET.md` nhóm "Giao diện và bản địa hoá" (cỡ con là `max - min`; `grep` thấy
+     dòng `<Imageset>` trong scheme không có nghĩa client nạp nó; thuộc tính ảnh ngắt dòng).
 
 Không gộp: worktree `.worktrees/v97ed65b` (bản cũ hơn của khung chân dung/bảng đo nhịp đã nằm trong `69dd513`
 ..`192f181`; mọi tệp trùng `69dd513` hoặc cũ hơn `main`). Log bằng chứng chưa theo dõi của các worktree (219
