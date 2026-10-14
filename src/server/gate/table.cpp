@@ -47,6 +47,8 @@ struct Slot {
     std::uint32_t generation = 1;
     bool live = false;
     bool greeted = false;
+    // Phiên bản giao thức client khai trong Hello; 0 khi chưa chào. Quyết định tin nào client hiểu.
+    std::uint16_t client_version = 0;
     bool draining = false;
     bool send_queued = false;
     bool resume_queued = false;
@@ -198,6 +200,7 @@ struct Engine {
     std::int64_t log_ns = 0;
     std::size_t live = 0;
     std::optional<account::Realm> realm;
+    Ui ui;
     // Khoá là 8 byte đầu của digest; so khớp cả 32 byte bằng phép so thời gian hằng.
     std::unordered_map<std::uint64_t, Session> sessions;
     // Luồng tick đẩy asks và lấy answers; luồng thư ký làm ngược lại. Mỗi hàng đúng một bên đẩy.
@@ -435,6 +438,7 @@ void on_hello(Engine& state, Slot& slot, std::uint32_t index, const protocol::He
         return;
     }
     slot.greeted = true;
+    slot.client_version = hello.version;
     slot.scratch.clear();
     protocol::Welcome welcome;
     welcome.version = protocol::kVersion;
@@ -783,6 +787,21 @@ void on_resume(Engine& state, Slot& slot, std::uint32_t index, const protocol::R
     return guard::Anchor{.x_cm = entered.x_cm, .z_cm = entered.z_cm};
 }
 
+// UiConfig (since 2 trong danh mục) chỉ đi tới client khai phiên bản giao thức từ 2: client cũ không biết kind
+// 0x8109 và coi tin lạ là vi phạm. Trả false khi ô đã bị đóng vì không gửi được.
+constexpr std::uint16_t kUiSince = 2;
+
+[[nodiscard]] bool send_ui(Engine& state, Slot& slot, std::uint32_t index) {
+    if (slot.client_version < kUiSince) return true;
+    slot.scratch.clear();
+    protocol::UiConfig ui;
+    ui.avatar_frame = state.ui.avatar_frame == AvatarFrame::kRound ? protocol::AvatarFrame::kRound
+                                                                   : protocol::AvatarFrame::kSquare;
+    if (protocol::encode(slot.scratch, ui) && seal_to(state, slot, index, slot.scratch)) return true;
+    release(state, slot, index, Drop::kSlow);
+    return false;
+}
+
 void finish_enter(Engine& state, Slot& slot, std::uint32_t index, std::uint16_t request, std::uint64_t character,
     const account::EnterReply& entered) {
     const bool resumed_spot = request == protocol::Resume::kKind && slot.has_resume_spot;
@@ -810,6 +829,7 @@ void finish_enter(Engine& state, Slot& slot, std::uint32_t index, std::uint16_t 
         release(state, slot, index, Drop::kSlow);
         return;
     }
+    if (!send_ui(state, slot, index)) return;
     send_position(state, slot, index, slot.motion.place(entry_anchor(entered, resumed_spot, resume_spot), slot.seen_ns));
 }
 
@@ -1297,6 +1317,10 @@ void Table::set_realm(const account::Realm& realm) {
     state_->realm.emplace(realm);
     Engine* const engine = state_.get();
     state_->clerk = std::jthread([engine] { clerk_main(*engine); });
+}
+
+void Table::set_ui(Ui ui) noexcept {
+    state_->ui = ui;
 }
 
 void Table::collect() {

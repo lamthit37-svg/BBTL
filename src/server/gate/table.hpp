@@ -67,6 +67,13 @@ enum class Drop : std::uint8_t {
 
 [[nodiscard]] std::string_view describe(Drop reason) noexcept;
 
+// Giao diện nhà phát hành đặt ở client.toml. Gate gửi nó cho client trong tin UiConfig sau SessionStart.
+enum class AvatarFrame : std::uint8_t { kRound, kSquare };
+
+struct Ui {
+    AvatarFrame avatar_frame = AvatarFrame::kSquare;
+};
+
 struct Limits {
     std::size_t max_connections = 0;
     std::size_t per_ip = 0;
@@ -120,6 +127,8 @@ public:
     // Chép realm vào bảng và mở một luồng thư ký hỏi auth/store. Luồng tick không chờ IPC: mỗi ô có
     // tối đa một câu hỏi đang bay, hàng đầy thì trả kBusy. Gọi một lần; lần sau bị bỏ qua.
     void set_realm(const account::Realm& realm);
+    // Đặt giao diện gửi cho client sau SessionStart. Gọi trước khi nhận kết nối; không gọi thì dạng vuông.
+    void set_ui(Ui ui) noexcept;
     // Lấy các trả lời thư ký đã xong và gửi cho client. Gọi mỗi tick trên luồng tick.
     void collect();
     void receive(Handle handle, secure::ByteView bytes, std::int64_t now);

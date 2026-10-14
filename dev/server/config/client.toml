@@ -1,0 +1,18 @@
+#==================================================
+# CẤU HÌNH GIAO DIỆN CLIENT
+#==================================================
+# Tệp: client.toml. Chỉ tiến trình gate đọc tệp này.
+# Nhà phát hành đặt giao diện của client ở đây; gate gửi cho client trong tin UiConfig sau khi vào game.
+# Client không có tệp nào để người chơi sửa, và đổi giá trị chỉ cần khởi động lại gate.
+
+#==================================================
+# Chung
+#==================================================
+schema = 1   # Phiên bản bố cục của tệp; bộ đọc từ chối số nó không hiểu
+
+#==================================================
+# Giao diện
+#==================================================
+# "square" là chế độ classic của client 2026 (nền vuông, ảnh chân dung 2D); "round" là nền tròn với đầu 3D.
+[hud]
+avatar_frame = "square"   # Dạng khung chân dung của HUD: square hoặc round

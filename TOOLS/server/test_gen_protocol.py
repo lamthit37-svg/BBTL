@@ -16,7 +16,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent
 REPO = ROOT.parents[1]
-CATALOG = REPO / "SRC" / "protocol" / "catalog"
+CATALOG = REPO / "src" / "shared" / "protocol" / "catalog"
 sys.path.insert(0, str(ROOT))
 
 import gen_protocol  # noqa: E402
@@ -246,7 +246,7 @@ class RuleTests(Scratch):
     def test_g11_message_without_fields(self) -> None:
         code, output = self.run_rows(copy_rows())
         self.assertEqual(code, 0, output)
-        header = (self.folder / "out" / "SRC" / "protocol" / "messages.hpp").read_text(encoding="utf-8")
+        header = (self.folder / "out" / "src" / "shared" / "protocol" / "messages.hpp").read_text(encoding="utf-8")
         self.assertIn("struct Empty {", header)
 
 
@@ -256,7 +256,7 @@ class OutputTests(Scratch):
     def test_test_catalog_covers_every_type(self) -> None:
         code, output = self.run_rows(copy_rows())
         self.assertEqual(code, 0, output)
-        header = (self.folder / "out" / "SRC" / "protocol" / "messages.hpp").read_text(encoding="utf-8")
+        header = (self.folder / "out" / "src" / "shared" / "protocol" / "messages.hpp").read_text(encoding="utf-8")
         for text in ("std::vector<Item> items", "std::optional<Color> maybe", "std::optional<std::string> nick",
                      "std::chrono::seconds wait", "std::array<std::byte, kProbeBlobBytes> blob", "decode_auth_client",
                      "decode_game_server", "enum class Big : std::uint16_t"):
@@ -265,7 +265,7 @@ class OutputTests(Scratch):
     def test_empty_record_field(self) -> None:
         code, output = self.run_rows(copy_rows())
         self.assertEqual(code, 0, output)
-        source = (self.folder / "out" / "SRC" / "protocol" / "messages.cpp").read_text(encoding="utf-8")
+        source = (self.folder / "out" / "src" / "shared" / "protocol" / "messages.cpp").read_text(encoding="utf-8")
         # Record rỗng làm trường đơn: Report gọi put_blank/get_blank nên hai hàm phải được sinh.
         for text in ("void put_blank([[maybe_unused]] const Writer& writer",
                      "Blank get_blank([[maybe_unused]] const Reader& reader)", "put_blank(writer, message.blank);",
@@ -282,7 +282,7 @@ class OutputTests(Scratch):
             rows["messages.tsv"].append([f"0x{0x0104 + number:04X}", name, "game", "1", "Tin tên dài."])
         code, output = self.run_rows(rows)
         self.assertEqual(code, 0, output)
-        lines = (self.folder / "out" / "SRC" / "protocol" / "messages.cpp").read_text(encoding="utf-8").split("\n")
+        lines = (self.folder / "out" / "src" / "shared" / "protocol" / "messages.cpp").read_text(encoding="utf-8").split("\n")
         wrapped = [index for index, line in enumerate(lines) if re.fullmatch(r" {4}case \w+::kKind:", line)]
         self.assertGreater(len(wrapped), 30)
         for index in wrapped:

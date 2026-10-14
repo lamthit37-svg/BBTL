@@ -41,6 +41,7 @@ Reject	1	request	u16		Mã tin của client bị từ chối; để u16 thay vì 
 Reject	2	code	enum:ErrorCode		
 Goodbye	1	reason	enum:DisconnectReason		
 ContentStamp	1	stamp	bytes	32	Dấu băm của gói nội dung.
+UiConfig	1	avatar_frame	enum:AvatarFrame		Dạng khung chân dung của HUD (client.toml, [hud] avatar_frame).
 CharacterList	1	characters	list:record:CharacterSummary	8	Tối đa 8 nhân vật mỗi tài khoản (kCharacterSlots của Dev).
 Ticket	1	token	bytes	204	Vé vào cổng game (kConnectTokenBytes của Dev).
 Position	1	x_cm	f32		Toạ độ X server chấp nhận, centimet.

@@ -48,3 +48,5 @@ DisconnectReason	u8	6	ProtocolViolation
 DisconnectReason	u8	7	VersionMismatch	
 DisconnectReason	u8	8	ServerFull	
 DisconnectReason	u8	9	ContentMismatch	
+AvatarFrame	u8	1	Round	
+AvatarFrame	u8	2	Square	

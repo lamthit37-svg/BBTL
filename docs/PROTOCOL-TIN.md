@@ -2,7 +2,7 @@
 
 # Danh mục tin của giao thức
 
-Bản danh mục 1: 21 tin, 1 record, 4 enum.
+Bản danh mục 2: 22 tin, 1 record, 5 enum.
 Khung có 8 byte đầu (u32 số byte thân, u16 kind, u16 flags bằng 0), little-endian; thân tối đa 65 536 byte, tin client gửi tối đa 4 096 byte.
 Byte cao của kind là nhóm, bit 15 bật là tin server gửi. Trần của text tính bằng byte UTF-8, trần của list tính bằng số phần tử.
 
@@ -24,6 +24,7 @@ Phiên kết nối: chào, đăng nhập, nối lại, nhịp tim và rời phi�
 | `0x8106` | Reject | game, auth | server | 1 | 4 |
 | `0x8107` | Goodbye | game, auth | server | 1 | 1 |
 | `0x8108` | ContentStamp | game | server | 1 | 32 |
+| `0x8109` | UiConfig | game | server | 2 | 1 |
 
 ### Hello (0x0101)
 
@@ -149,6 +150,16 @@ Cổng game, server gửi, có từ bản 1. Thân tối đa 32 byte.
 | Thứ tự | Trường | Kiểu | Trần | Ghi chú |
 |---|---|---|---|---|
 | 1 | `stamp` | `bytes` | 32 | Dấu băm của gói nội dung. |
+
+### UiConfig (0x8109)
+
+Cấu hình giao diện do nhà phát hành đặt ở server (client.toml): gửi sau SessionStart, chỉ cho client khai phiên bản giao thức từ 2.
+
+Cổng game, server gửi, có từ bản 2. Thân tối đa 1 byte.
+
+| Thứ tự | Trường | Kiểu | Trần | Ghi chú |
+|---|---|---|---|---|
+| 1 | `avatar_frame` | `enum:AvatarFrame` | – | Dạng khung chân dung của HUD (client.toml, [hud] avatar_frame). |
 
 ## Nhóm 02: character
 
@@ -301,6 +312,13 @@ Thân tối đa 68 byte.
 ## Enum
 
 Giá trị ngoài bảng là lỗi kBadEnum ở cả hai chiều.
+
+### AvatarFrame (u8)
+
+| Giá trị | Tên | Ghi chú |
+|---|---|---|
+| 1 | `kRound` | – |
+| 2 | `kSquare` | – |
 
 ### DisconnectReason (u8)
 

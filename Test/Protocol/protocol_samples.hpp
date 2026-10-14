@@ -463,6 +463,24 @@ template <class Message, class Result>
     return value;
 }
 
+[[nodiscard]] inline protocol::UiConfig ui_config_min() {
+    protocol::UiConfig value;
+    value.avatar_frame = protocol::AvatarFrame::kRound;
+    return value;
+}
+
+[[nodiscard]] inline protocol::UiConfig ui_config_max() {
+    protocol::UiConfig value;
+    value.avatar_frame = protocol::AvatarFrame::kSquare;
+    return value;
+}
+
+[[nodiscard]] inline protocol::UiConfig ui_config_typical() {
+    protocol::UiConfig value;
+    value.avatar_frame = protocol::AvatarFrame::kSquare;
+    return value;
+}
+
 [[nodiscard]] inline protocol::CharacterList character_list_min() {
     protocol::CharacterList value;
     return value;
@@ -1715,6 +1733,67 @@ inline constexpr Sample kContentStampTypical{.name = "ContentStamp/typical",
     .decode = &decode_content_stamp_typical,
     .decoders = kGameServer};
 
+[[nodiscard]] inline protocol::WireStatus encode_ui_config_min(Buffer& out) {
+    return protocol::encode(out, ui_config_min());
+}
+
+[[nodiscard]] inline Check decode_ui_config_min(protocol::ByteView body) {
+    protocol::Frame frame;
+    frame.kind = protocol::UiConfig::kKind;
+    frame.body_bytes = body.size();
+    const auto result = protocol::decode_game_server(frame, body);
+    return holds(result, ui_config_min());
+}
+
+inline constexpr std::array<std::uint8_t, 9> kUiConfigMinFrame{0x01, 0x00, 0x00, 0x00, 0x09, 0x81, 0x00, 0x00, 0x01};
+
+inline constexpr Sample kUiConfigMin{.name = "UiConfig/min",
+    .frame = kUiConfigMinFrame,
+    .encode = &encode_ui_config_min,
+    .decode = &decode_ui_config_min,
+    .decoders = kGameServer};
+
+[[nodiscard]] inline protocol::WireStatus encode_ui_config_max(Buffer& out) {
+    return protocol::encode(out, ui_config_max());
+}
+
+[[nodiscard]] inline Check decode_ui_config_max(protocol::ByteView body) {
+    protocol::Frame frame;
+    frame.kind = protocol::UiConfig::kKind;
+    frame.body_bytes = body.size();
+    const auto result = protocol::decode_game_server(frame, body);
+    return holds(result, ui_config_max());
+}
+
+inline constexpr std::array<std::uint8_t, 9> kUiConfigMaxFrame{0x01, 0x00, 0x00, 0x00, 0x09, 0x81, 0x00, 0x00, 0x02};
+
+inline constexpr Sample kUiConfigMax{.name = "UiConfig/max",
+    .frame = kUiConfigMaxFrame,
+    .encode = &encode_ui_config_max,
+    .decode = &decode_ui_config_max,
+    .decoders = kGameServer};
+
+[[nodiscard]] inline protocol::WireStatus encode_ui_config_typical(Buffer& out) {
+    return protocol::encode(out, ui_config_typical());
+}
+
+[[nodiscard]] inline Check decode_ui_config_typical(protocol::ByteView body) {
+    protocol::Frame frame;
+    frame.kind = protocol::UiConfig::kKind;
+    frame.body_bytes = body.size();
+    const auto result = protocol::decode_game_server(frame, body);
+    return holds(result, ui_config_typical());
+}
+
+inline constexpr std::array<std::uint8_t, 9> kUiConfigTypicalFrame{
+    0x01, 0x00, 0x00, 0x00, 0x09, 0x81, 0x00, 0x00, 0x02};
+
+inline constexpr Sample kUiConfigTypical{.name = "UiConfig/typical",
+    .frame = kUiConfigTypicalFrame,
+    .encode = &encode_ui_config_typical,
+    .decode = &decode_ui_config_typical,
+    .decoders = kGameServer};
+
 [[nodiscard]] inline protocol::WireStatus encode_character_list_min(Buffer& out) {
     return protocol::encode(out, character_list_min());
 }
@@ -1966,15 +2045,15 @@ inline constexpr Sample kTicketTypical{.name = "Ticket/typical",
     .decode = &decode_ticket_typical,
     .decoders = kAuthServer};
 
-inline constexpr std::array<Sample, 63> kSamples{kHelloMin, kHelloMax, kHelloTypical, kLoginMin, kLoginMax,
+inline constexpr std::array<Sample, 66> kSamples{kHelloMin, kHelloMax, kHelloTypical, kLoginMin, kLoginMax,
     kLoginTypical, kResumeMin, kResumeMax, kResumeTypical, kPingMin, kPingMax, kPingTypical, kLogoutMin, kLogoutMax,
     kLogoutTypical, kCreateCharacterMin, kCreateCharacterMax, kCreateCharacterTypical, kDeleteCharacterMin,
     kDeleteCharacterMax, kDeleteCharacterTypical, kEnterGameMin, kEnterGameMax, kEnterGameTypical, kMoveMin, kMoveMax,
     kMoveTypical, kCreateAccountMin, kCreateAccountMax, kCreateAccountTypical, kSignInMin, kSignInMax, kSignInTypical,
     kWelcomeMin, kWelcomeMax, kWelcomeTypical, kSessionStartMin, kSessionStartMax, kSessionStartTypical, kContentKeyMin,
     kContentKeyMax, kContentKeyTypical, kPongMin, kPongMax, kPongTypical, kRejectMin, kRejectMax, kRejectTypical,
-    kGoodbyeMin, kGoodbyeMax, kGoodbyeTypical, kContentStampMin, kContentStampMax, kContentStampTypical,
-    kCharacterListMin, kCharacterListMax, kCharacterListTypical, kPositionMin, kPositionMax, kPositionTypical,
-    kTicketMin, kTicketMax, kTicketTypical};
+    kGoodbyeMin, kGoodbyeMax, kGoodbyeTypical, kContentStampMin, kContentStampMax, kContentStampTypical, kUiConfigMin,
+    kUiConfigMax, kUiConfigTypical, kCharacterListMin, kCharacterListMax, kCharacterListTypical, kPositionMin,
+    kPositionMax, kPositionTypical, kTicketMin, kTicketMax, kTicketTypical};
 
 } // namespace game::test::samples

@@ -3,6 +3,7 @@
 
 #include "account/ipc_key.hpp"
 #include "account/realm.hpp"
+#include "config/client.hpp"
 #include "config/cluster.hpp"
 #include "config/gate.hpp"
 #include "config/issue.hpp"
@@ -517,6 +518,8 @@ int write_identity(const std::filesystem::path& path) {
     return 0;
 }
 
+namespace {
+
 [[nodiscard]] std::optional<net::Endpoint> ipc_of(const config::Cluster& cluster, config::ProcessKind kind) {
     for (const config::ProcessBlock& block : cluster.processes) {
         const bool match = block.kind == kind && block.id.value() == 0 && block.port.value() != 0;
@@ -549,6 +552,24 @@ int write_identity(const std::filesystem::path& path) {
     return account::Realm{*auth, *store, *key};
 }
 
+// client.toml: giao diện nhà phát hành đặt cho client. Thiếu hay sai thì gate không khởi động, như mọi tệp cấu hình.
+[[nodiscard]] std::optional<Ui> load_ui(const std::filesystem::path& config_dir) {
+    const io::TextResult text = io::read_text(config_dir / "client.toml");
+    if (!text) {
+        std::println(stderr, "gate: không đọc được client.toml");
+        return std::nullopt;
+    }
+    const config::ReadResult<config::Client> loaded = config::read_client(*text);
+    if (!loaded) {
+        std::println(stderr, "gate: client.toml không hợp lệ");
+        return std::nullopt;
+    }
+    const bool is_round = loaded->hud.avatar_frame == config::AvatarFrame::kRound;
+    return Ui{.avatar_frame = is_round ? AvatarFrame::kRound : AvatarFrame::kSquare};
+}
+
+} // namespace
+
 int serve(const std::filesystem::path& config_dir) {
     const io::TextResult text = io::read_text(config_dir / "gate.toml");
     if (!text) {
@@ -560,6 +581,8 @@ int serve(const std::filesystem::path& config_dir) {
         if (!loaded) std::println(stderr, "gate: gate.toml không hợp lệ");
         return 2;
     }
+    const std::optional<Ui> ui = load_ui(config_dir);
+    if (!ui) return 2;
     const secure::Result<secure::Identity> identity = load_identity(config_dir, *loaded);
     if (!identity) return 2;
     std::vector<Cidr> allow;
@@ -573,6 +596,7 @@ int serve(const std::filesystem::path& config_dir) {
     if (opened.code != 0) return opened.code;
     const Limits limits = limits_of(*loaded);
     Table table{limits, std::move(allow), std::move(deny), *identity};
+    table.set_ui(*ui);
     std::optional<account::Realm> realm = open_realm(config_dir);
     if (realm) table.set_realm(*realm);
     std::vector<Held> held(limits.max_connections);

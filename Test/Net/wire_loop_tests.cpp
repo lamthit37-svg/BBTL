@@ -10,7 +10,7 @@
 #include "protocol/channel.hpp"
 #include "protocol/messages.hpp"
 #include "protocol/wire.hpp"
-#include "protocol_samples.hpp"
+#include "Protocol/protocol_samples.hpp"
 #include "test.hpp"
 
 #include <algorithm>

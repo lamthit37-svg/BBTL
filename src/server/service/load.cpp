@@ -5,6 +5,7 @@
 #include "config/admin.hpp"
 #include "config/auth.hpp"
 #include "config/billing.hpp"
+#include "config/client.hpp"
 #include "config/cluster.hpp"
 #include "config/gate.hpp"
 #include "config/issue.hpp"
@@ -92,6 +93,7 @@ void check_own(Loader& loader, Kind kind) {
     if (kind == Kind::kWorld) loader.check("world.toml", config::read_world);
     if (kind == Kind::kZone) loader.check("zone.toml", config::read_zone);
     if (kind == Kind::kGate) loader.check("gate.toml", config::read_gate);
+    if (kind == Kind::kGate) loader.check("client.toml", config::read_client);
 }
 
 struct Instance {

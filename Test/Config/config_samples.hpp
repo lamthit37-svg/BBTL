@@ -21,6 +21,7 @@ enum class Which : std::uint8_t {
     kZone,
     kStore,
     kAdmin,
+    kClient,
     kSecrets,
     kLoose,
 };
@@ -116,6 +117,9 @@ inline constexpr auto kSamples = std::to_array<Sample>({
     {Which::kAdmin, "listen = \"nope\"\n", 1, "khoá listen ngoài miền"},
     {Which::kAdmin, "token_file = \"\"\n", 1, "token_file ngoài miền"},
     {Which::kAdmin, "[[operator]]\nname = \"gm\"\nlevel = -1\n", 3, "khoá level ngoài miền"},
+    {Which::kClient, "[hud]\navatar_frame = \"oval\"\n", 2, "khoá avatar_frame ngoài miền"},
+    {Which::kClient, "[hud]\navatar_frame = 1\n", 2, "khoá avatar_frame sai kiểu"},
+    {Which::kClient, "[hud]\nframe = \"round\"\n", 2, "khoá lạ frame"},
     {Which::kSecrets, "[database.postgres]\npassword = 1\n", 2, "khoá password sai kiểu"},
     {Which::kSecrets, "[database.other]\npassword = \"\"\n", 1, "nhóm lạ other"},
     {Which::kLoose, "schema = true\n", 1, "khoá schema sai kiểu"},

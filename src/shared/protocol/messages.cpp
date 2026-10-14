@@ -48,6 +48,17 @@ void put_seconds16(Writer& writer, std::chrono::seconds value) {
     return std::chrono::seconds{reader.u16()};
 }
 
+void put_avatar_frame(Writer& writer, AvatarFrame value) {
+    if (!is_valid(value)) writer.fail(WireError::kBadEnum);
+    writer.u8(std::to_underlying(value));
+}
+
+[[nodiscard]] AvatarFrame get_avatar_frame(Reader& reader) {
+    const auto value = static_cast<AvatarFrame>(reader.u8());
+    if (!is_valid(value)) reader.fail(WireError::kBadEnum);
+    return value;
+}
+
 void put_disconnect_reason(Writer& writer, DisconnectReason value) {
     if (!is_valid(value)) writer.fail(WireError::kBadEnum);
     writer.u8(std::to_underlying(value));
@@ -314,6 +325,16 @@ void put_content_stamp(Writer& writer, const ContentStamp& message) {
     return message;
 }
 
+void put_ui_config(Writer& writer, const UiConfig& message) {
+    put_avatar_frame(writer, message.avatar_frame);
+}
+
+[[nodiscard]] UiConfig get_ui_config(Reader& reader) {
+    UiConfig message;
+    message.avatar_frame = get_avatar_frame(reader);
+    return message;
+}
+
 // list:record:CharacterSummary, tối đa kCharacterListCharactersCount phần tử.
 void put_list_1(Writer& writer, const std::vector<CharacterSummary>& values) {
     writer.count(values.size(), kCharacterListCharactersCount);
@@ -375,6 +396,11 @@ template <class Message>
 }
 
 } // namespace
+
+bool is_valid(AvatarFrame value) noexcept {
+    const auto raw = std::to_underlying(value);
+    return raw >= 1 && raw <= 2;
+}
 
 bool is_valid(DisconnectReason value) noexcept {
     const auto raw = std::to_underlying(value);
@@ -503,6 +529,12 @@ WireStatus encode(std::vector<std::byte>& out, const ContentStamp& message) {
     return writer.finish(ContentStamp::kKind);
 }
 
+WireStatus encode(std::vector<std::byte>& out, const UiConfig& message) {
+    Writer writer{out};
+    put_ui_config(writer, message);
+    return writer.finish(UiConfig::kKind);
+}
+
 WireStatus encode(std::vector<std::byte>& out, const CharacterList& message) {
     Writer writer{out};
     put_character_list(writer, message);
@@ -547,6 +579,7 @@ GameServerResult decode_game_server(const Frame& frame, ByteView body) {
     case Reject::kKind: return checked(reader, get_reject(reader));
     case Goodbye::kKind: return checked(reader, get_goodbye(reader));
     case ContentStamp::kKind: return checked(reader, get_content_stamp(reader));
+    case UiConfig::kKind: return checked(reader, get_ui_config(reader));
     case CharacterList::kKind: return checked(reader, get_character_list(reader));
     case Position::kKind: return checked(reader, get_position(reader));
     default: return std::unexpected(WireError::kUnknownKind);

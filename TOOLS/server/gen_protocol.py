@@ -1,8 +1,8 @@
-# Sinh mã giao thức từ bốn bảng SRC/protocol/catalog/*.tsv (DE-BAI P2-DOT-2 §3.5): messages.hpp và
+# Sinh mã giao thức từ bốn bảng src/shared/protocol/catalog/*.tsv (DE-BAI P2-DOT-2 §3.5): messages.hpp và
 # messages.cpp, mẫu cho test, tài liệu tin. Bảng sai một luật G1–G11 thì in mọi lỗi và không ghi gì.
 """Cách chạy: python -B TOOLS/server/gen_protocol.py [--catalog DIR] [--out DIR] [--check]
 
---catalog  thư mục bốn bảng, mặc định SRC/protocol/catalog
+--catalog  thư mục bốn bảng, mặc định src/shared/protocol/catalog
 --out      gốc nơi ghi bốn tệp sinh (giữ đường dẫn tương đối), mặc định gốc repo
 --check    không ghi; tệp nào khác nội dung sẽ sinh thì in tên và trả 1
 

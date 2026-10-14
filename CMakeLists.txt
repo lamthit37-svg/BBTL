@@ -284,6 +284,7 @@ if(GAME_TOML_INCLUDE)
         src/server/config/admin.cpp
         src/server/config/auth.cpp
         src/server/config/billing.cpp
+        src/server/config/client.cpp
         src/server/config/cluster.cpp
         src/server/config/gate.cpp
         src/server/config/log.cpp

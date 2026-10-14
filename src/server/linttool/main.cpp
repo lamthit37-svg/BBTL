@@ -339,7 +339,7 @@ struct Collected {
     std::vector<Path> refs;
 };
 
-void feed_named(const LintSession& session, std::vector<Loaded>& failures, const NamedFile& file) {
+void feed_named(LintSession& session, std::vector<Loaded>& failures, const NamedFile& file) {
     Loaded item;
     item.path = file.relative;
     load_one(item, file.absolute);
@@ -348,14 +348,14 @@ void feed_named(const LintSession& session, std::vector<Loaded>& failures, const
         return;
     }
     const TextFile view{.path = item.path, .text = item.text};
-    game::content::feed_lint_file(session, view);
+    session.feed(view);
     // CRT giữ trang của bảng vừa bỏ. Trả trang thì đỉnh bộ nhớ là một tệp, không phải cả cây.
 #if defined(_MSC_VER)
     _heapmin();
 #endif
 }
 
-void feed_all(const LintSession& session, std::vector<Loaded>& failures, const NamedList& named) {
+void feed_all(LintSession& session, std::vector<Loaded>& failures, const NamedList& named) {
     for (const NamedFile& file : named)
         feed_named(session, failures, file);
 }
@@ -390,10 +390,10 @@ struct LintRoots {
     std::vector<TextFile> ref_views;
     load_all(ref_data, ref_named);
     append_views(ref_views, ref_data);
-    LintSession session = game::content::open_lint(ref_views);
+    LintSession session(ref_views);
     std::vector<Loaded> failures;
     feed_all(session, failures, tables);
-    LintResult result = game::content::finish_lint(std::move(session));
+    LintResult result = session.finish();
     add_read_errors(result, ref_data);
     add_read_errors(result, failures);
     game::linttool::append_config(*roots.root, result);

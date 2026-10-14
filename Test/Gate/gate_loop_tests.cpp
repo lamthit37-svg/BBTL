@@ -209,6 +209,7 @@ struct Prepared {
     std::filesystem::create_directories(prepared.dir, error);
     if (error) return prepared;
     if (!copy_named(prepared.dir, "cluster.toml") || !copy_named(prepared.dir, "log.toml")) return prepared;
+    if (!copy_named(prepared.dir, "client.toml")) return prepared;
     secure::Result<secure::Identity> made = secure::Identity::generate();
     if (!made) return prepared;
     const secure::Result<void> stored = made->store_new(prepared.dir / "identity.key");

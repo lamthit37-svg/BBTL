@@ -3,6 +3,7 @@
 #include "config/admin.hpp"
 #include "config/auth.hpp"
 #include "config/billing.hpp"
+#include "config/client.hpp"
 #include "config/cluster.hpp"
 #include "config/gate.hpp"
 #include "config/issue.hpp"
@@ -59,7 +60,7 @@ struct ReaderEntry {
     View required;
 };
 
-constexpr std::array<ReaderEntry, 12> kReaders{{
+constexpr std::array<ReaderEntry, 13> kReaders{{
     {.which = Which::kCluster, .read = &issues_of<&config::read_cluster>, .required = "world"},
     {.which = Which::kSupervisor, .read = &issues_of<&config::read_supervisor>, .required = "stop"},
     {.which = Which::kLog, .read = &issues_of<&config::read_log>, .required = "audit"},
@@ -70,6 +71,7 @@ constexpr std::array<ReaderEntry, 12> kReaders{{
     {.which = Which::kZone, .read = &issues_of<&config::read_zone>, .required = "tick"},
     {.which = Which::kStore, .read = &issues_of<&config::read_store>, .required = "database"},
     {.which = Which::kAdmin, .read = &issues_of<&config::read_admin>, .required = "listen"},
+    {.which = Which::kClient, .read = &issues_of<&config::read_client>, .required = "hud"},
     {.which = Which::kSecrets, .read = &issues_of<&config::read_secrets>, .required = "database"},
     {.which = Which::kLoose, .read = &issues_of<&config::read_loose>, .required = "schema"},
 }};
@@ -362,6 +364,13 @@ void real_billing(Context& context) {
     context.expect(is_orders, "đơn hàng");
 }
 
+// Giao diện nhà phát hành đặt: khung chân dung vuông là mặc định của dự án (chủ dự án chốt 2026-10-14).
+void real_client(Context& context) {
+    const std::optional client = real(context, "client.toml", config::read_client);
+    if (!client) return;
+    context.expect(client->hud.avatar_frame == config::AvatarFrame::kSquare, "khung chân dung");
+}
+
 void real_world(Context& context) {
     const std::optional world = real(context, "world.toml", config::read_world);
     if (!world) return;
@@ -517,6 +526,7 @@ constexpr std::array kCases{
     Case{.name = "real_gate", .body = &real_gate},
     Case{.name = "real_auth", .body = &real_auth},
     Case{.name = "real_billing", .body = &real_billing},
+    Case{.name = "real_client", .body = &real_client},
     Case{.name = "real_world", .body = &real_world},
     Case{.name = "same_side_meets_until_the_flag_opens", .body = &same_side_meets_until_the_flag_opens},
     Case{.name = "real_zone", .body = &real_zone},

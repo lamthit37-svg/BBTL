@@ -7,6 +7,7 @@
 #include "config/admin.hpp"
 #include "config/auth.hpp"
 #include "config/billing.hpp"
+#include "config/client.hpp"
 #include "config/cluster.hpp"
 #include "config/gate.hpp"
 #include "config/issue.hpp"
@@ -53,10 +54,11 @@ struct NamedChecker {
 };
 
 // Tệp có struct, chỉ tính khi nằm ngay trong config/.
-constexpr std::array<NamedChecker, 11> kProcessFiles{{
+constexpr std::array<NamedChecker, 12> kProcessFiles{{
     {.name = "admin.toml", .check = &issues_of<&config::read_admin>},
     {.name = "auth.toml", .check = &issues_of<&config::read_auth>},
     {.name = "billing.toml", .check = &issues_of<&config::read_billing>},
+    {.name = "client.toml", .check = &issues_of<&config::read_client>},
     {.name = "cluster.toml", .check = &issues_of<&config::read_cluster>},
     {.name = "gate.toml", .check = &issues_of<&config::read_gate>},
     {.name = "log.toml", .check = &issues_of<&config::read_log>},

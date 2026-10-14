@@ -5,6 +5,7 @@
 #include "config/admin.hpp"
 #include "config/auth.hpp"
 #include "config/billing.hpp"
+#include "config/client.hpp"
 #include "config/cluster.hpp"
 #include "config/gate.hpp"
 #include "config/issue.hpp"

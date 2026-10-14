@@ -330,7 +330,11 @@ void drain_errors(Load& load) {
     log.from = config;
     log.dir = started.dir;
     log.name = "log.toml";
-    return copy_named(cluster) && copy_named(log);
+    NamedCopy client;
+    client.from = config;
+    client.dir = started.dir;
+    client.name = "client.toml";
+    return copy_named(cluster) && copy_named(log) && copy_named(client);
 }
 
 [[nodiscard]] bool write_identity_files(Started& started, int max_connections) {

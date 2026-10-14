@@ -18,7 +18,12 @@
 namespace game::protocol {
 
 // Bản của danh mục; tin có since lớn hơn bản bên kia đang chạy thì bên kia chưa hiểu.
-inline constexpr std::uint16_t kVersion = 1;
+inline constexpr std::uint16_t kVersion = 2;
+
+enum class AvatarFrame : std::uint8_t {
+    kRound = 1,
+    kSquare = 2,
+};
 
 enum class DisconnectReason : std::uint8_t {
     kLoggedOut = 1,
@@ -80,6 +85,7 @@ enum class Platform : std::uint8_t {
 };
 
 // Giá trị có trong bảng enum; giải mã gặp giá trị lạ là kBadEnum, mã hoá cũng vậy.
+[[nodiscard]] bool is_valid(AvatarFrame value) noexcept;
 [[nodiscard]] bool is_valid(DisconnectReason value) noexcept;
 [[nodiscard]] bool is_valid(ErrorCode value) noexcept;
 [[nodiscard]] bool is_valid(Gender value) noexcept;
@@ -298,6 +304,15 @@ struct ContentStamp {
     friend bool operator==(const ContentStamp&, const ContentStamp&) = default;
 };
 
+// 0x8109, server gửi, cổng game, từ bản 2: Cấu hình giao diện do nhà phát hành đặt ở server (client.toml): gửi sau
+// SessionStart, chỉ cho client khai phiên bản giao thức từ 2.
+struct UiConfig {
+    static constexpr std::uint16_t kKind = 0x8109;
+    // Dạng khung chân dung của HUD (client.toml, [hud] avatar_frame).
+    AvatarFrame avatar_frame = AvatarFrame::kRound;
+    friend bool operator==(const UiConfig&, const UiConfig&) = default;
+};
+
 // 0x8201, server gửi, cổng game, từ bản 1: Danh sách nhân vật của tài khoản để chọn vào game.
 struct CharacterList {
     static constexpr std::uint16_t kKind = 0x8201;
@@ -330,8 +345,8 @@ struct Ticket {
 using GameClientMessage =
     std::variant<Hello, Login, Resume, Ping, Logout, CreateCharacter, DeleteCharacter, EnterGame, Move>;
 using GameClientResult = std::expected<GameClientMessage, WireError>;
-using GameServerMessage =
-    std::variant<Welcome, SessionStart, ContentKey, Pong, Reject, Goodbye, ContentStamp, CharacterList, Position>;
+using GameServerMessage = std::variant<Welcome, SessionStart, ContentKey, Pong, Reject, Goodbye, ContentStamp, UiConfig,
+    CharacterList, Position>;
 using GameServerResult = std::expected<GameServerMessage, WireError>;
 using AuthClientMessage = std::variant<Hello, CreateAccount, SignIn>;
 using AuthClientResult = std::expected<AuthClientMessage, WireError>;
@@ -357,6 +372,7 @@ using AuthServerResult = std::expected<AuthServerMessage, WireError>;
 [[nodiscard]] WireStatus encode(std::vector<std::byte>& out, const Reject& message);
 [[nodiscard]] WireStatus encode(std::vector<std::byte>& out, const Goodbye& message);
 [[nodiscard]] WireStatus encode(std::vector<std::byte>& out, const ContentStamp& message);
+[[nodiscard]] WireStatus encode(std::vector<std::byte>& out, const UiConfig& message);
 [[nodiscard]] WireStatus encode(std::vector<std::byte>& out, const CharacterList& message);
 [[nodiscard]] WireStatus encode(std::vector<std::byte>& out, const Position& message);
 [[nodiscard]] WireStatus encode(std::vector<std::byte>& out, const Ticket& message);

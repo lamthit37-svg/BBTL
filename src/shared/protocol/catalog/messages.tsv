@@ -1,6 +1,6 @@
 # schema 1
 # source: TLBB Dev src/protocol/protocol.hpp @e0d89a6 (bản 2026-10-05, nhóm 01, 02, 05)
-# version 1
+# version 2
 # types: kind	ident	port	int	text
 kind	name	port	since	summary
 record	CharacterSummary			Tóm tắt một nhân vật trong danh sách chọn nhân vật.
@@ -22,6 +22,7 @@ record	CharacterSummary			Tóm tắt một nhân vật trong danh sách chọn n
 0x8106	Reject	both	1	Server từ chối một tin của client và nêu mã lỗi.
 0x8107	Goodbye	both	1	Server báo sắp đóng kết nối và nêu lý do.
 0x8108	ContentStamp	game	1	Dấu băm của gói nội dung để client đối chiếu với bản đang có.
+0x8109	UiConfig	game	2	Cấu hình giao diện do nhà phát hành đặt ở server (client.toml): gửi sau SessionStart, chỉ cho client khai phiên bản giao thức từ 2.
 0x8201	CharacterList	game	1	Danh sách nhân vật của tài khoản để chọn vào game.
 0x8301	Position	game	1	Vị trí server làm chủ: gửi khi vào game (mốc đầu), khi dịch chuyển hợp lệ, và khi bước của client bị từ chối (kéo về).
 0x8501	Ticket	auth	1	Vé vào cổng game do cổng xác thực cấp sau khi đăng nhập đúng.

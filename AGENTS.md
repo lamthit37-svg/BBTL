@@ -143,12 +143,26 @@
     classic của client 2026, port đúng nhánh `SystemSetup:IsClassic() == 1` của `PlayerFrame_UpdateShow2DHead`
     (`PlayerFrame.lua` 2026 giải bằng `TOOLS/content/lua_plain.py`, dòng 957-995): nền vuông
     `CommonFrame18 image:PlayerFrame`, ảnh chân dung 2D ở `Head_2D`, đầu 3D bị giấu, các ô trên nền dời theo
-    (`kClassicFrame` ở `ui/panel/player_frame.cpp`). Không phải cấu hình server, không đi qua protocol — chủ
-    dự án chốt ngày 2026-10-14 ("phần này ở giao diện không nên đẩy lên server"; "mình có client bản 2026
-    mà", "cấm ghép linh tinh": mọi giá trị lấy từ script 2026, không tự ghép ảnh). Hiện chỉ khung `PlayerFrame`
+    (`kClassicFrame` ở `ui/panel/player_frame.cpp`). Mọi giá trị lấy từ script 2026, không tự ghép ảnh — chủ
+    dự án chốt ngày 2026-10-14 ("mình có client bản 2026 mà", "cấm ghép linh tinh"). Hiện chỉ khung `PlayerFrame`
     (Target, Party, Pet chưa có trên HUD). Mặc định là `square` — chủ dự án chốt ngày 2026-10-14 ("để mặc định avt
     vuông đi"). Đổi giá trị: sửa tệp rồi dựng lại `thienlong_client` (CMake tự cấu hình lại) — chủ dự án
     chốt ngày 2026-10-14 ("đưa nó thành file toml đặt ở client"; "build gắn thẳng vào dll hoặc exe").
+  - Nhà phát hành không có source vẫn đổi được giao diện, người chơi thì không: server gửi cấu hình giao diện cho
+    client — chủ dự án chốt ngày 2026-10-14 ("NẾU CHỈ LÀ NHÀ PHÁT HÀNH KO CÓ SOURCE. THAY ĐỔI LÀM SAO ĐƯỢC GIAO
+    DIỆN"; "LÀM CÁI NÀY ĐI"; "TẠO 1 FILE TOML RIÊNG ĐẶT TÊN client.toml"). Đổi ý so với "phần này ở giao diện
+    không nên đẩy lên server" cùng ngày: lý do là nhà phát hành không có source nên không dựng lại được client, còn
+    tệp ini cạnh exe thì người chơi sửa được. `dev/server/config/client.toml` (`[hud] avatar_frame = "round"` hoặc
+    `"square"`, bộ đọc `config::read_client`, lint bằng `lint_config.py`) do gate đọc lúc khởi động (thiếu hay
+    sai thì gate không chạy). Sau `SessionStart` gate gửi tin `UiConfig` (0x8109, `since` 2, `protocol::kVersion`
+    thành 2) cho client có `Hello.version >= 2`; client khai phiên bản 1 không nhận vì coi tin lạ là vi phạm.
+    Client CHƯA nhận: chưa mở socket nào, nên exe vẫn dùng giá trị gắn lúc dựng ở `client.build.toml`; khi có module
+    nối máy chủ thì `UiConfig` đè lên giá trị gắn. Đã chạy thật bằng một probe tạm, không vào repo (`Table` thật với
+    auth và store giả): Hello 2, Login, EnterGame cho ra `SessionStart`, `UiConfig`, `Position` với khung đúng như
+    `Ui` đã đặt; Hello 1 cho ra `SessionStart`, `Position`. Chưa có test trong `ctest` cho đường này: `serve_loop`
+    của auth và store chạy tới khi `process::stop_requested()` đúng, hàm ấy cũng đúng khi stdin hết dòng (đọc
+    `self_win32.cpp`, chưa đo stdin của `ctest`) và không có móc để test dừng chúng, nên probe phải chạy với stdin là
+    ống mở (`sleep 60 | probe.exe`) và thoát bằng `_Exit`.
   - Nạp đầu: khung đầu phải có đủ cảnh lẫn HUD (nạp đồng bộ, `settle_first_scene`), và phải nhanh hơn G:\TLBB có số đo —
     chủ dự án chốt ngày 2026-10-13 ("load full giao diện game phải vượt qua G:\TLBB, có số làm dẫn chứng"; "load đồng bộ map
     cũng hiện luôn nhanh vẫn nhanh hơn"). Mọi việc không cần thiết bị GPU (đọc giao diện, bảng chuỗi, phông, mesh, địa hình,
