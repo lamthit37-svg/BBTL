@@ -557,6 +557,8 @@ game_module(ui_panel
     src/client/face/ui/panel/events.cpp
     src/client/face/ui/panel/lua_value.cpp
     src/client/face/ui/panel/main_menu_bar_3.cpp
+    src/client/face/ui/panel/action_bar.cpp
+    src/client/face/ui/panel/main_menu_bar_4.cpp
     src/client/face/ui/panel/progress_bar.cpp)
 target_link_libraries(game_ui_panel PUBLIC game_gui game_hero game_quest game_table game_core)
 # Cấu hình dựng client nằm ở src/client/client.build.toml (chủ dự án chốt 2026-10-14: gắn thẳng vào
@@ -1377,6 +1379,7 @@ function(game_panel_golden_test name)
     endif()
 endfunction()
 game_panel_golden_test(ui_main_menu_bar_3)
+game_panel_golden_test(ui_main_menu_bar_4)
 game_panel_golden_test(ui_lua_value)
 game_panel_golden_test(ui_progress_bar)
 game_test(ui_flow game_ui_panel)

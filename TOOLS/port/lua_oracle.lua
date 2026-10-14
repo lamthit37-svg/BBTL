@@ -11,6 +11,7 @@
 __windows = {}
 __tables = {}
 __order = {}
+__root = false
 __calls = {}
 __this = { visible = false, events = {} }
 
@@ -44,7 +45,16 @@ end
 
 function methods.Show(self) put(self, "visible", true) end
 function methods.Hide(self) put(self, "visible", false) end
-function methods.IsVisible(self) return record(self).visible end
+-- IsVisible (UI_CEGUI 3.71.9509 0x180028b60 gọi Window::isVisible(false), nên đi ngược cả chuỗi cha): cửa sổ
+-- hiện khi nó và mọi cửa sổ cha đều hiện. Cửa sổ gốc đầu tiên của layout là chính `this`, cờ của nó là
+-- __this.visible; cửa sổ gốc khác tính theo cờ riêng.
+local function is_shown(name)
+    local own = __windows[name]
+    if name == __root then return __this.visible end
+    if own.parent == "" then return own.visible end
+    return own.visible and is_shown(own.parent)
+end
+function methods.IsVisible(self) return is_shown(self.__name) end
 function methods.Enable(self) put(self, "disabled", false) end
 function methods.Disable(self) put(self, "disabled", true) end
 function methods.SetText(self, text) put_prop(self, "Text", text) end
@@ -121,9 +131,17 @@ function methods.SetProgress(self, current, total)
 end
 
 -- Nút action.
-function methods.SetActionItem(self, id) put(self, "action", id) end
+-- SetActionItem (UI_CEGUI 0x180028d70): id phải là số, nếu không là lỗi của script.
+function methods.SetActionItem(self, id)
+    if type(id) ~= "number" then error("SetActionItem: id phải là số, nhận " .. type(id), 2) end
+    put(self, "action", id)
+end
 function methods.SetPushed(self, state) put(self, "pushed", state == 1) end
-function methods.SetNewFlash(self) put(self, "flash", true) end
+-- SetNewFlash (UI_CEGUI 0x180029060): có action thì bật cờ nháy theo action, không có thì không làm gì.
+function methods.SetNewFlash(self)
+    local action = record(self).action
+    if action ~= nil and action ~= -1 then put(self, "flash", true) end
+end
 -- DoAction (UI_CEGUI 3.71.9509 0x180028c00): ô trống (không có action) thì không làm gì.
 function methods.DoAction(self)
     local action = record(self).action
@@ -216,6 +234,7 @@ function __window(name, props, events, parent, is_check)
         items = {}, elements = {}, first = 0, set = {}, touched = {}, parent = parent, is_check = is_check,
     }
     table.insert(__order, name)
+    if parent == "" and not __root then __root = name end
     local proxy = { __name = name }
     setmetatable(proxy, window_meta)
     rawset(_G, name, proxy)
