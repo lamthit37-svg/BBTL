@@ -720,6 +720,20 @@ của `fuzz_secure.py`, mỗi đích một triệu vòng dưới ASan và UBSan,
 --teeth` bắt được bản bỏ kiểm biên. Tiêu chí fuzz của P2 vì thế còn giữ với mã hiện có; module mới
 (`ipc`, vé, bản ghi của `store`) phải thêm đích của mình.
 
+Gameplay đợt 1 (2026-10-14; nhật ký và số đo ở `docs/TIEN-DO.md`, mục "Máy chủ: gameplay đợt 1"). Bảy commit trên
+`main`, từ `ce1f194d` tới `9f6d8267`, mỗi commit kiểm trong worktree sạch trước khi đẩy:
+
+- `ipc` đã có (kênh bền niêm phong bằng khoá cụm, khung relay gate ↔ zone): mục "Còn thiếu để P2 đạt" ở trên về `ipc`
+  và việc gate chưa chuyển tiếp là của ngày 2026-10-08, nay không còn đúng. `metrics` vẫn như cũ.
+- P4 đạt một phần: `zone` thật (tick 20 Hz, AOI, cảnh tạo lười, quái/NPC đặt từ dữ liệu cảnh), nhiều khách thấy nhau
+  trên cụm thật, luật đi do zone giữ (lưới `.path` của client 2026, hoàn bước bằng `Relay::kPlace`). Chưa đạt: đổi cảnh,
+  400 bot một cảnh với p99 so ngân sách 50 ms, TSan, client hiện người chơi khác (client chưa có module nối máy chủ).
+- P9 có mã đủ lớp: sổ điểm chỉ-thêm, webhook ký HMAC, đổi điểm hai pha, mã đổi, tiến trình `thienlong_billing`, nhà cung
+  cấp giả; `docs/SERVER-BILLING.md`. Chưa nối world (world còn là bản `ready` rồi chờ), nên hai pha mới chạy tới ranh
+  giới ipc của billing; chưa đo tiêu chí "đối soát ngày khớp sau một nghìn đơn có chèn lỗi".
+- P5 tới P8 do bốn phiên con làm song song (combat, vật phẩm, nhiệm vụ, xã hội); mỗi phiên là một phase riêng khi được
+  nghiệm thu, trạng thái ghi ở `docs/TIEN-DO.md`.
+
 ## 11. Vận hành
 
 Máy chủ thử là chính máy phát triển này **[chốt]**. Mọi thứ của runtime nằm trong `SERVER/`; xem

@@ -5,6 +5,33 @@ hiện tại của cả dự án đọc ở ba chỗ: mục "Khảo sát theo m�
 tệp này, và dòng "Trạng thái" ở mục 0 của `AGENTS.md`. Tên cũ của tệp là "cửa sổ, Vulkan và 57 vật
 thể tĩnh của map huoyangu": đó là đích của sáu bước B1 tới B6 đầu tiên, tả ngay dưới.
 
+## Máy chủ: gameplay đợt 1 — zone thật, dữ liệu cảnh, billing, luật đi (2026-10-14)
+
+Chủ dự án giao ("triển khai hoàn thành hết toàn bộ các phần của server, dựa source gốc và bản 14 môn phái; đặt cao nhất và đáng tin nhất là
+client 2026"; nguồn máy chủ 14 môn ở `G:\XJL7457`, chỉ đọc). Làm theo phase, mỗi phase một commit, kiểm trong worktree sạch rồi đẩy lên `main`:
+
+| Phase | Commit | Nội dung | Đã kiểm |
+|---|---|---|---|
+| P1 nền | `ce1f194d` | `src/shared/ids` (kiểu mạnh), `src/server/dice` (xúc xắc tất định), `nav`/`collision` dời sang `src/shared/`, protocol v3 nhóm thế giới (`SceneEnter`, `EntityAppear/Disappear/Pos/Vitals`) | nav, ids, dice, protocol, layers |
+| P2 zone | `ab35c898` | zone 20 Hz thật: lưới AOI 5×5 ô, cảnh tạo lười, `Saver` ghi điểm đứng (`Op::kSave`); kênh `ipc::Link` gate ↔ zone (`Attach/Detach/Moved` lên, `Down/Refuse/Close` xuống); `thienlong_bot` | zone, ipc, gate, gate_loop, server_boot; cụm thật: 6 khách thấy nhau, 3218 vị trí, 0 lỗi |
+| P3 dữ liệu cảnh | `adc620e1` | `src/server/scenedata`: 325 thư mục cảnh (từ 244), quái/NPC đặt sẵn 47 970 (từ 40 168), lưới đi `.path` của client 2026 cho 273 cảnh; luật AI quái (307 kịch bản, 1 073 luật); công cụ `scene_xref`, `import_scene_xjl`, `scene_walk`, `scene_diff`, `ai_convert` | scenedata_tests 23 ca (nạp 325 cảnh thật), `test_scene_xjl.py` 51 ca; `docs/SERVER-SCENEDATA.md` |
+| P4 zone đặt quái | `06414404` | khi tạo cảnh, zone đọc dữ liệu cảnh và đặt quái/NPC (1 đơn vị game = 100 cm, độ → 0..65535) | zone_tests; cụm thật với Đại Lý: 6 khách thấy 40 lượt NPC hiện ra, 0 lỗi |
+| billing | `47159261` | `src/server/billing`: sổ điểm chỉ-thêm, webhook ký HMAC, đổi điểm hai pha, mã đổi, quà, hạn mức tiêu, PgBook trên PostgreSQL, tiến trình `thienlong_billing`, `fake_provider.py` | billing_tests 22, billing_db_tests 10 (PostgreSQL thật), billing_serve_tests 6 (exe thật), ASan/UBSan 38/38; `docs/SERVER-BILLING.md` |
+| khoá HMAC | `9cc8a928` | `account::file_private`/`create_private_file`: billing từ chối khoá nhà cung cấp lỏng quyền (khe hở mà phiên billing đã nêu) | `secret_files_must_be_private`, ca khoá lỏng của `serve_bad_config` |
+| luật đi | `9f6d8267` | zone kiểm ô đi được bằng lưới `.path`; bước đi từ chỗ đi được vào chỗ không đi được bị hoàn bằng `Relay::kPlace` (zone → gate → `Motion::place` + `Position`) | `walkable_*`, `host_*` trong zone_tests; cụm thật: 8 bot Đại Lý đi thẳng vào tường, 2.006 lần kéo về, không lần nào xa quá 45 cm; ASan/UBSan zone, ipc, gate |
+
+Quyết định mới (ghi vào mục 0 của `AGENTS.md` khi xong cả đợt): lưới `.path` của client 2026 là luật đi của zone (client thắng); `walk.nav` 2008 chỉ
+dùng cho cảnh không có `.path`; độ nới ở mép 20 cm; hướng quái/NPC đổi từ độ của bảng cảnh theo `0..360 -> 0..65535`
+(quy ước gốc của góc chưa đối chiếu với client 2026: `docs/NGHI-NGO.md`). Cảnh Đại Lý: 2008 lệch lưới 2026 (50/164 điểm đặt quái nằm ngoài lưới).
+
+Chưa làm / biết rõ:
+- Bảng quái theo cấp người chơi (`spawns.level_*.tsv`), AI, tuần tra, hồi sinh chưa chạy trong zone: cảnh dựng xong thì quái đứng yên.
+- Zone chỉ kiểm điểm đến (không quét đoạn đường) và chưa kiểm trục Y.
+- Gate trả `kBusy` cho `EnterGame` khi đã cấu hình zone mà zone chưa lên.
+- `build_data.py`/`table_names.tsv` chưa biết năm công cụ cảnh và sáu bảng máy chủ mới (cần dữ liệu `--legacy` 2008 không có trên máy này).
+- 21 thư mục cảnh ứng viên bỏ và 44 cảnh XJL bị bỏ qua chờ chủ dự án quyết (`docs/SERVER-SCENEDATA.md`).
+- Chưa chạy TSan (Windows không có) và debug mode libstdc++ cho zone, billing.
+
 ## Audit kỹ thuật một lượt theo mã hiện tại (2026-10-14)
 
 Chạy audit chỉ-đọc ở `main 1ff6703`, không sửa production source. Đã đo:
