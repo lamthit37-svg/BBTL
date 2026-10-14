@@ -1,0 +1,62 @@
+# schema 1
+# source: dev/server/tables/server/social_limits.tsv tự soạn; nguồn từng số ở cột source
+# tool: sửa tay (số basis=made_up là số tự đặt chờ chủ dự án duyệt)
+# types: text	int	text	text
+key	value	basis	source
+team.max_members	6	source_2008	WorldServer MAX_TEAM_MEMBER
+team.max_teams	3000	source_2008	WorldServer MAX_TEAMS
+team.pending_ttl_seconds	60	made_up	tự đặt: 2008 không hết hạn lời mời; cần trần để bộ nhớ không phình
+team.max_pending_per_target	8	made_up	tự đặt: chống nhồi lời mời vào một người
+team.max_pending_per_sender	16	made_up	tự đặt: chống một người rải lời mời
+team.offline_grace_seconds	300	made_up	tự đặt: giữ chỗ trong đội khi rớt mạng
+relation.max_friends	80	source_2008	Relation MAX_FRIEND_COUNT; client 2026 friend.lua cũng 80
+relation.max_per_group	20	source_2008	IsGroupFull: 80 chia bốn nhóm bạn
+relation.max_blacklist	20	source_2008	tổng 100 trừ 80 bạn; blacklist offset 80
+relation.max_enemies	20	made_up	tự đặt: 2008 không có danh sách thù riêng
+relation.max_temp_friends	20	made_up	tự đặt: bạn tạm (nhóm 13 của friend.lua) chưa có trần trong nguồn
+relation.max_friend_point	9999	source_2008	MAX_FRIEND_POINT
+relation.mood_max_bytes	25	source_2008	MAX_MOOD_SIZE
+relation.max_prentices	2	source_2008	MAX_PRENTICE_COUNT
+relation.max_moral_point	1000000	source_2008	MAX_MORAL_POINT
+relation.betray_cooldown_seconds	259200	made_up	tự đặt: ba ngày chờ sau khi phản sư
+relation.pending_ttl_seconds	60	made_up	tự đặt: hạn lời kết bạn, kết hôn, bái sư
+relation.max_pending	16	made_up	tự đặt: số lời chờ tối đa của một người nhận
+relation.marry_min_friend_point	1000	made_up	tự đặt: độ thân thiết tối thiểu để kết hôn (2008 để kịch bản quyết định)
+relation.master_min_level	40	made_up	tự đặt: cấp tối thiểu của sư phụ (2008 để kịch bản quyết định)
+relation.prentice_max_level	29	made_up	tự đặt: cấp tối đa của đồ đệ, lấy dưới mốc thưởng đầu tiên 30 của mentor_exp_rewards
+relation.moral_per_milestone	10	made_up	tự đặt: điểm sư đức mỗi lần đồ đệ đạt mốc thưởng
+guild.hard_member_cap	160	source_2008	MAX_USER_IN_GUILD
+guild.max_proposers	10	source_2008	MAX_PROPOSER
+guild.max_guilds	1024	source_2008	MAX_GUILD_SIZE
+guild.name_max_bytes	12	client_2026	Guild create MaxTextLength 12
+guild.name_min_codepoints	2	made_up	tự đặt: tên bang tối thiểu
+guild.desc_max_bytes	50	client_2026	Guild create description MaxTextLength 50
+guild.position_name_max_bytes	23	made_up	tự đặt: tên chức vị tuỳ chỉnh
+guild.create_min_level	40	client_2026	OtherRef.txt: lập bang cần cấp 40
+guild.create_fee_copper	500000	client_2026	OtherRef.txt: lập bang 50 vàng, 1 vàng = 10000 đồng
+guild.war_min_members	5	made_up	tự đặt: số thành viên tối thiểu để tuyên chiến
+guild.league_max_members	8	made_up	tự đặt: số bang tối đa trong một liên minh
+guild.max_elite	10	source_2008	GUILD_ADMIN_t: tinh anh tối đa 10 người
+guild.max_office	4	source_2008	GUILD_ADMIN_t: mỗi chức thương/nông/công/nhân sự tối đa 4 người
+guild.proposer_ttl_seconds	259200	made_up	tự đặt: 2008 giữ đơn xin vào bang vô hạn; hạn để kẻ xấu không chiếm hết 10 chỗ chờ
+guild.league_invite_ttl_seconds	300	made_up	tự đặt: hạn lời mời vào liên minh
+mail.inbox_cap	15	client_2026	MailBox: hộp thư 15 ô
+mail.max_items	5	client_2026	MailEdit: tối đa 5 vật phẩm
+mail.title_max_bytes	20	client_2026	MailEdit layout MaxTextLength 20
+mail.text_max_bytes	253	client_2026	MailEdit: nội dung 253 byte
+mail.send_min_level	50	client_2026	MailEdit: gửi thư cần cấp 50
+mail.send_fee_copper	2000	client_2026	MailEdit: phí gửi 2000 đồng
+mail.expire_seconds	2592000	made_up	tự đặt: thư tự xoá sau 30 ngày
+chat.max_bytes	255	client_2026	khung chat MaxTextLength 255
+chat.burst	2	made_up	tự đặt: số tin dồn tối đa mỗi kênh của một người
+chat.global_interval_ms	500	made_up	tự đặt: nhịp tin chung của một người
+chat.global_burst	4	made_up	tự đặt: số tin dồn tối đa trên mọi kênh
+chat.repeat_window_seconds	30	made_up	tự đặt: cửa sổ phát hiện lặp tin
+chat.repeat_max	2	made_up	tự đặt: số lần lặp nguyên văn tối đa trong cửa sổ
+chat.custom_channel_members	11	source_2008	kênh tự lập 11 người
+chat.max_custom_channels	3000	source_2008	kênh tự lập tối đa 3000
+rank.default_capacity	100	made_up	tự đặt: số dòng một bảng xếp hạng
+rank.snapshot_interval_seconds	300	made_up	tự đặt: nhịp chụp ảnh bảng xếp hạng
+rank.max_boards	256	made_up	tự đặt: số bảng tối đa
+notice.daily_broadcast_minute	480	made_up	tự đặt: giờ phát thông báo của ngày (08:00); NotifyDate/NotifyWeek của máy chủ gốc không có cột giờ
+notice.max_text_bytes	1024	made_up	tự đặt: trần độ dài một dòng thông báo khi nạp bảng
