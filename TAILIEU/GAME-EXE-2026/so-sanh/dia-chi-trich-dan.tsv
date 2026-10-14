@@ -1,0 +1,459 @@
+file	line	address	mention	kind	boundary	detail	verdict	lua_script
+src/shared/nav/route.cpp	109	0x1406199b0		TRONG HÀM	GIỮA LỆNH	hàm 0x140619560+0x450; .pdata [0x140619560,0x140619a78); lệnh chứa nó bắt đầu ở 0x1406199ad (sớm hơn 3 byte)	CẦN XEM	
+src/shared/nav/route.hpp	3	0x1406d9da0		TRONG HÀM	GIỮA LỆNH	hàm 0x1406d9d50+0x50; .pdata [0x1406d9d50,0x1406d9ea5); lệnh chứa nó bắt đầu ở 0x1406d9d9e (sớm hơn 2 byte)	CẦN XEM	
+src/shared/nav/route.hpp	3	0x1406da140		TRONG HÀM	GIỮA LỆNH	hàm 0x1406da0b0+0x90; .pdata [0x1406da0b0,0x1406da193); lệnh chứa nó bắt đầu ở 0x1406da13a (sớm hơn 6 byte)	CẦN XEM	
+src/shared/nav/route.hpp	3	0x1406da6c0		TRONG HÀM	GIỮA LỆNH	hàm 0x1406da6b0+0x10; .pdata [0x1406da6b0,0x1406da7ca); lệnh chứa nó bắt đầu ở 0x1406da6bd (sớm hơn 3 byte)	CẦN XEM	
+src/shared/nav/route.hpp	3	0x1406199b0		TRONG HÀM	GIỮA LỆNH	hàm 0x140619560+0x450; .pdata [0x140619560,0x140619a78); lệnh chứa nó bắt đầu ở 0x1406199ad (sớm hơn 3 byte)	CẦN XEM	
+src/client/figure/avatar/gait.hpp	9	0x1405ea2b0		ĐẦU HÀM	RANH GIỚI LỆNH	0x1405ea2b0	OK	
+src/client/figure/avatar/gait.hpp	10	0x1405e2740	ChangeAction	ĐẦU HÀM	RANH GIỚI LỆNH	0x1405e2740	OK	
+src/client/figure/control/char_camera.hpp	7	0x140641210	exe	TRONG HÀM	RANH GIỚI LỆNH	hàm 0x1406411b0+0x60; .pdata [0x1406411b0,0x140641260)	OK	
+src/client/figure/control/char_camera.hpp	9	0x14063c480	exe	ĐẦU HÀM	RANH GIỚI LỆNH	0x14063c480	OK	
+src/client/figure/control/char_camera.hpp	15	0x14063d97a	exe	TRONG HÀM	GIỮA LỆNH	hàm 0x14063d8b0+0xca; .pdata [0x14063d8b0,0x14063dcb0); lệnh chứa nó bắt đầu ở 0x14063d978 (sớm hơn 2 byte)	CẦN XEM	
+src/client/figure/control/char_camera.hpp	73	0x140641bd0	exe	TRONG HÀM (không có .pdata)	RANH GIỚI LỆNH	hàm 0x140641b50+0x80	OK	
+src/client/figure/control/char_camera.hpp	73	0x140641e60		TRONG HÀM	RANH GIỚI LỆNH	hàm 0x140641db0+0xb0; .pdata [0x140641db0,0x140641e6d)	OK	
+src/client/figure/control/follow_camera.cpp	36	0x140b0dde8	exe	DỮ LIỆU .rdata			OK	
+src/client/figure/control/follow_camera.cpp	39	0x140b79650	exe	DỮ LIỆU .rdata			OK	
+src/client/figure/control/follow_camera.cpp	41	0x140baea28	radian	DỮ LIỆU .rdata			OK	
+src/client/figure/control/follow_camera.hpp	34	0x1406c0c8d	exe	TRONG HÀM	GIỮA LỆNH	hàm 0x1406c0580+0x70d; .pdata [0x1406c0580,0x1406c1ac7); lệnh chứa nó bắt đầu ở 0x1406c0c8c (sớm hơn 1 byte)	CẦN XEM	
+src/client/figure/control/follow_camera.hpp	65	0x140643d13	exe	TRONG HÀM (không có .pdata)	GIỮA LỆNH	hàm 0x140643c80+0x93; lệnh chứa nó bắt đầu ở 0x140643d12 (sớm hơn 1 byte)	CẦN XEM	
+src/client/figure/control/login_view.hpp	4	0x140630900		TRONG HÀM	RANH GIỚI LỆNH	hàm 0x1406308f0+0x10; .pdata [0x1406308f0,0x1406309d5)	OK	
+src/client/figure/control/player_input.cpp	2	0x140000000	c	DỮ LIỆU Headers			OK	
+src/client/figure/control/player_input.cpp	21	0x140f0c850	ms	DỮ LIỆU .data			OK	
+src/client/figure/control/player_input.cpp	25	0x14064d0f2	xoay	TRONG HÀM	GIỮA LỆNH	hàm 0x14064b840+0x18b2; .pdata [0x14064b840,0x14064d14b); lệnh chứa nó bắt đầu ở 0x14064d0f0 (sớm hơn 2 byte)	CẦN XEM	
+src/client/figure/control/player_input.cpp	26	0x140c2a848	radian	DỮ LIỆU .rdata			OK	
+src/client/figure/control/player_input.cpp	26	0x140a70b28	nh	DỮ LIỆU .rdata			OK	
+src/client/figure/control/player_input.cpp	31	0x140baea28	exe	DỮ LIỆU .rdata			OK	
+src/client/figure/control/player_input.cpp	31	0x140c2e5b0	Tick	DỮ LIỆU .rdata			OK	
+src/client/figure/control/player_input.cpp	34	0x140b0dde8	h	DỮ LIỆU .rdata			OK	
+src/client/figure/control/player_input.cpp	34	0x140b0ddec		DỮ LIỆU .rdata			OK	
+src/client/figure/control/player_input.cpp	46	0x1406c0cc0	EnterScene	TRONG HÀM	GIỮA LỆNH	hàm 0x1406c0580+0x740; .pdata [0x1406c0580,0x1406c1ac7); lệnh chứa nó bắt đầu ở 0x1406c0cbf (sớm hơn 1 byte)	CẦN XEM	
+src/client/figure/control/player_input.cpp	51	0x140fb2d74	exe	DỮ LIỆU .data			OK	
+src/client/figure/control/player_input.cpp	161	0x1406c0d7b	EnterScene	TRONG HÀM	RANH GIỚI LỆNH	hàm 0x1406c0580+0x7fb; .pdata [0x1406c0580,0x1406c1ac7)	OK	
+src/client/figure/control/player_input.cpp	161	0x14064812e	Init	TRONG HÀM	GIỮA LỆNH	hàm 0x140647dc0+0x36e; .pdata [0x140647dc0,0x14064870d); lệnh chứa nó bắt đầu ở 0x14064812d (sớm hơn 1 byte)	CẦN XEM	
+src/client/figure/control/player_input.cpp	196	0x14064c960	ProcessInput_Mouse	TRONG HÀM	RANH GIỚI LỆNH	hàm 0x14064b840+0x1120; .pdata [0x14064b840,0x14064d14b)	OK	
+src/client/figure/control/player_input.cpp	247	0x14064d06a	EVENT_MOUSE_RBDOWN	TRONG HÀM	GIỮA LỆNH	hàm 0x14064b840+0x182a; .pdata [0x14064b840,0x14064d14b); lệnh chứa nó bắt đầu ở 0x14064d066 (sớm hơn 4 byte)	CẦN XEM	
+src/client/figure/control/player_input.cpp	254	0x14064d0d9	EVENT_MOUSE_RDRAG_MOVE	TRONG HÀM	GIỮA LỆNH	hàm 0x14064b840+0x1899; .pdata [0x14064b840,0x14064d14b); lệnh chứa nó bắt đầu ở 0x14064d0d8 (sớm hơn 1 byte)	CẦN XEM	
+src/client/figure/control/player_input.cpp	271	0x14064d2a5	a	TRONG HÀM	GIỮA LỆNH	hàm 0x14064d160+0x145; .pdata [0x14064d160,0x14064d2f9); lệnh chứa nó bắt đầu ở 0x14064d2a3 (sớm hơn 2 byte)	CẦN XEM	
+src/client/figure/control/player_input.cpp	280	0x14064d48f	EVENT_MOUSE_RBUP	TRONG HÀM (không có .pdata)	RANH GIỚI LỆNH	hàm 0x14064d470+0x1f	OK	
+src/client/figure/control/player_input.cpp	280	0x14064d442	a	TRONG HÀM	RANH GIỚI LỆNH	hàm 0x14064d3f0+0x52; .pdata [0x14064d3f0,0x14064d45b)	OK	
+src/client/figure/control/player_input.cpp	287	0x14064d50e	t	TRONG HÀM (không có .pdata)	RANH GIỚI LỆNH	hàm 0x14064d490+0x7e	OK	
+src/client/figure/control/player_input.cpp	287	0x14064d6bb		TRONG HÀM	GIỮA LỆNH	hàm 0x14064d510+0x1ab; .pdata [0x14064d5c4,0x14064db73); lệnh chứa nó bắt đầu ở 0x14064d6b7 (sớm hơn 4 byte)	CẦN XEM	
+src/client/figure/control/player_input.cpp	299	0x14007c6cb	i	TRONG HÀM	GIỮA LỆNH	hàm 0x14007c4b0+0x21b; .pdata [0x14007c4b0,0x14007ea78); lệnh chứa nó bắt đầu ở 0x14007c6c7 (sớm hơn 4 byte)	CẦN XEM	
+src/client/figure/control/player_input.cpp	307	0x140616a00	Enter_Move	TRONG HÀM	RANH GIỚI LỆNH	hàm 0x1406169b0+0x50; .pdata [0x1406169b0,0x140616cd3)	OK	
+src/client/figure/control/player_input.cpp	320	0x14064b39f	Tick	TRONG HÀM	RANH GIỚI LỆNH	hàm 0x140648b80+0x281f; .pdata [0x140648b80,0x14064b82e)	OK	
+src/client/figure/control/player_input.cpp	341	0x14064b46e	pitch	TRONG HÀM	GIỮA LỆNH	hàm 0x140648b80+0x28ee; .pdata [0x140648b80,0x14064b82e); lệnh chứa nó bắt đầu ở 0x14064b469 (sớm hơn 5 byte)	CẦN XEM	
+src/client/figure/control/player_input.cpp	357	0x14064b53b	Camera_RestoreView	TRONG HÀM	GIỮA LỆNH	hàm 0x140648b80+0x29bb; .pdata [0x140648b80,0x14064b82e); lệnh chứa nó bắt đầu ở 0x14064b536 (sớm hơn 5 byte)	CẦN XEM	
+src/client/figure/control/player_input.cpp	386	0x140239dc8	Lua_ResetCamera	TRONG HÀM	GIỮA LỆNH	hàm 0x140239d70+0x58; .pdata [0x140239d70,0x140239ded); lệnh chứa nó bắt đầu ở 0x140239dc6 (sớm hơn 2 byte)	CẦN XEM	
+src/client/figure/control/player_input.hpp	3	0x140212ad0	MouseTick	TRONG HÀM	GIỮA LỆNH	hàm 0x140212a60+0x70; .pdata [0x140212a60,0x140212b18); lệnh chứa nó bắt đầu ở 0x140212acf (sớm hơn 1 byte)	CẦN XEM	
+src/client/figure/control/player_input.hpp	7	0x14064c960	ProcessInput_Mouse	TRONG HÀM	RANH GIỚI LỆNH	hàm 0x14064b840+0x1120; .pdata [0x14064b840,0x14064d14b)	OK	
+src/client/figure/control/player_input.hpp	8	0x14064b39f	Tick	TRONG HÀM	RANH GIỚI LỆNH	hàm 0x140648b80+0x281f; .pdata [0x140648b80,0x14064b82e)	OK	
+src/client/figure/control/player_input.hpp	8	0x140239dc8	ResetCamera	TRONG HÀM	GIỮA LỆNH	hàm 0x140239d70+0x58; .pdata [0x140239d70,0x140239ded); lệnh chứa nó bắt đầu ở 0x140239dc6 (sớm hơn 2 byte)	CẦN XEM	script ResetCamera: impl 0x14023a2b0
+src/client/figure/control/player_input.hpp	9	0x14007c6cb	MouseCommand_Active	TRONG HÀM	GIỮA LỆNH	hàm 0x14007c4b0+0x21b; .pdata [0x14007c4b0,0x14007ea78); lệnh chứa nó bắt đầu ở 0x14007c6c7 (sớm hơn 4 byte)	CẦN XEM	
+src/client/figure/control/player_input.hpp	10	0x140616a00	Enter_Move	TRONG HÀM	RANH GIỚI LỆNH	hàm 0x1406169b0+0x50; .pdata [0x1406169b0,0x140616cd3)	OK	
+src/client/figure/control/player_input.hpp	19	0x14103dfc0	exe	DỮ LIỆU .data			OK	
+src/client/figure/control/player_input.hpp	192	0x140fb2df4	exe	DỮ LIỆU .data			OK	
+src/client/figure/control/player_input.hpp	192	0x140fb2df8		DỮ LIỆU .data			OK	
+src/client/figure/control/player_input.hpp	216	0x14021b490	exe	TRONG HÀM (không có .pdata)	RANH GIỚI LỆNH	hàm 0x14021b420+0x70	OK	
+src/client/figure/hero/hero.hpp	197	0x1403954d0		TRONG HÀM	RANH GIỚI LỆNH	hàm 0x1403954c0+0x10; .pdata [0x1403954c0,0x140395515)	OK	
+src/client/figure/look/sect.hpp	3	0x1406420d0	exe	TRONG HÀM	GIỮA LỆNH	hàm 0x140641e80+0x250; .pdata [0x140641e80,0x14064213f); lệnh chứa nó bắt đầu ở 0x1406420c9 (sớm hơn 7 byte)	CẦN XEM	
+src/client/figure/look/sect.hpp	5	0x140640450	n	TRONG HÀM	RANH GIỚI LỆNH	hàm 0x140640390+0xc0; .pdata [0x14064042f,0x140640485)	OK	
+src/client/figure/motion/jump.hpp	3	0x1405ea2b0	Jump	ĐẦU HÀM	RANH GIỚI LỆNH	0x1405ea2b0	OK	
+src/client/figure/motion/jump.hpp	3	0x1405ea4b8		TRONG HÀM	RANH GIỚI LỆNH	hàm 0x1405ea2b0+0x208; .pdata [0x1405ea4b8,0x1405ea4c0)	OK	
+src/client/figure/motion/jump.hpp	3	0x1405ea4d0	n	ĐẦU HÀM	RANH GIỚI LỆNH	0x1405ea4d0	OK	
+src/client/figure/motion/jump.hpp	6	0x140c1cdb8	ng	DỮ LIỆU .rdata			OK	
+src/client/figure/motion/jump.hpp	7	0x1405c5440	Tick	ĐẦU HÀM	RANH GIỚI LỆNH	0x1405c5440	OK	
+src/client/figure/motion/jump.hpp	9	0x140a57ccc		DỮ LIỆU .rdata			OK	
+src/client/figure/motion/jump.hpp	9	0x140c151d8		DỮ LIỆU .rdata			OK	
+src/client/figure/motion/jump.hpp	9	0x140c151dc		DỮ LIỆU .rdata			OK	
+src/client/face/ui/panel/create_role.cpp	316	0x140640450	game	TRONG HÀM	RANH GIỚI LỆNH	hàm 0x140640390+0xc0; .pdata [0x14064042f,0x140640485)	OK	
+src/client/face/ui/panel/create_role.cpp	334	0x140343300		TRONG HÀM	GIỮA LỆNH	hàm 0x1403432d0+0x30; .pdata [0x1403432d0,0x140343320); lệnh chứa nó bắt đầu ở 0x1403432fe (sớm hơn 2 byte)	CẦN XEM	
+src/client/face/ui/panel/create_role.cpp	341	0x140342e10		TRONG HÀM	GIỮA LỆNH	hàm 0x140342a90+0x380; .pdata [0x140342a90,0x140342efa); lệnh chứa nó bắt đầu ở 0x140342e0e (sớm hơn 2 byte)	CẦN XEM	
+src/client/face/ui/panel/create_role.cpp	348	0x140342c20		TRONG HÀM	GIỮA LỆNH	hàm 0x140342a90+0x190; .pdata [0x140342a90,0x140342efa); lệnh chứa nó bắt đầu ở 0x140342c1f (sớm hơn 1 byte)	CẦN XEM	
+src/client/face/ui/panel/create_role.cpp	355	0x1403434b0		ĐẦU HÀM	RANH GIỚI LỆNH	0x1403434b0	OK	
+src/client/face/ui/panel/create_role.cpp	355	0x140641210		TRONG HÀM	RANH GIỚI LỆNH	hàm 0x1406411b0+0x60; .pdata [0x1406411b0,0x140641260)	OK	
+src/client/face/ui/panel/create_role.cpp	371	0x140342950		TRONG HÀM	GIỮA LỆNH	hàm 0x140342440+0x510; .pdata [0x140342440,0x140342a11); lệnh chứa nó bắt đầu ở 0x14034294f (sớm hơn 1 byte)	CẦN XEM	
+src/client/face/ui/panel/create_role.cpp	851	0x1406413e0		TRONG HÀM	GIỮA LỆNH	hàm 0x140641270+0x170; .pdata [0x140641270,0x140641789); lệnh chứa nó bắt đầu ở 0x1406413df (sớm hơn 1 byte)	CẦN XEM	
+src/client/face/ui/panel/logon.hpp	16	0x14045fbb0	exe	TRONG HÀM	GIỮA LỆNH	hàm 0x14045fa10+0x1a0; .pdata [0x14045fb02,0x14045fc65); lệnh chứa nó bắt đầu ở 0x14045fbaf (sớm hơn 1 byte)	CẦN XEM	
+src/client/face/ui/panel/packet.hpp	5	0x14045fbb0	exe	TRONG HÀM	GIỮA LỆNH	hàm 0x14045fa10+0x1a0; .pdata [0x14045fb02,0x14045fc65); lệnh chứa nó bắt đầu ở 0x14045fbaf (sớm hơn 1 byte)	CẦN XEM	
+src/client/face/ui/panel/role_cast.cpp	61	0x14063f480	c	TRONG HÀM	GIỮA LỆNH	hàm 0x14063f240+0x240; .pdata [0x14063f240,0x14063f488); lệnh chứa nó bắt đầu ở 0x14063f47f (sớm hơn 1 byte)	CẦN XEM	
+src/client/face/ui/panel/role_cast.hpp	3	0x14063df70		TRONG HÀM	GIỮA LỆNH	hàm 0x14063de10+0x160; .pdata [0x14063de10,0x14063df9f); lệnh chứa nó bắt đầu ở 0x14063df6a (sớm hơn 6 byte)	CẦN XEM	
+src/client/face/ui/panel/role_cast.hpp	6	0x14063fa20	FaceModelMng	TRONG HÀM (không có .pdata)	RANH GIỚI LỆNH	hàm 0x14063fa10+0x10	OK	
+src/client/face/ui/panel/role_cast.hpp	8	0x140642d20	HairModelMng	TRONG HÀM	GIỮA LỆNH	hàm 0x140642cb0+0x70; .pdata [0x140642cb0,0x140642e11); lệnh chứa nó bắt đầu ở 0x140642d1c (sớm hơn 4 byte)	CẦN XEM	
+src/client/face/ui/panel/role_cast.hpp	9	0x140640ec0		TRONG HÀM	GIỮA LỆNH	hàm 0x140640e20+0xa0; .pdata [0x140640e20,0x1406411a2); lệnh chứa nó bắt đầu ở 0x140640ebd (sớm hơn 3 byte)	CẦN XEM	
+src/client/face/ui/panel/role_pose.hpp	3	0x1406416f1	exe	TRONG HÀM	GIỮA LỆNH	hàm 0x140641270+0x481; .pdata [0x140641270,0x140641789); lệnh chứa nó bắt đầu ở 0x1406416ef (sớm hơn 2 byte)	CẦN XEM	
+src/client/face/ui/panel/role_pose.hpp	13	0x140c1be24	n	DỮ LIỆU .rdata			OK	
+src/client/face/ui/panel/select_server.hpp	11	0x140340550	SelectLoginServer	ĐẦU HÀM	RANH GIỚI LỆNH	0x140340550	OK	script SelectLoginServer: impl 0x140340550
+src/client/face/ui/panel/select_server.hpp	11	0x1403400d0	SetLoginServerKeyword	ĐẦU HÀM	RANH GIỚI LỆNH	0x1403400d0	OK	script SetLoginServerKeyword: impl 0x1403400d0
+src/client/face/ui/panel/select_server.hpp	12	0x140628240		ĐẦU HÀM	RANH GIỚI LỆNH	0x140628240	OK	
+src/client/face/ui/panel/select_server.hpp	12	0x140340840	LoadLaunch	ĐẦU HÀM	RANH GIỚI LỆNH	0x140340840	OK	script LoadLaunch: impl 0x140340840
+src/client/face/ui/panel/self_equip.hpp	7	0x140013a70		TRONG HÀM	GIỮA LỆNH	hàm 0x140013a40+0x30; .pdata [0x140013a40,0x140013aa9); lệnh chứa nó bắt đầu ở 0x140013a6d (sớm hơn 3 byte)	CẦN XEM	
+src/client/face/ui/panel/self_equip.hpp	8	0x140012750		TRONG HÀM	RANH GIỚI LỆNH	hàm 0x140012660+0xf0; .pdata [0x1400126ab,0x140012772)	OK	
+src/client/face/ui/panel/self_equip.hpp	9	0x140014bc0		TRONG HÀM	GIỮA LỆNH	hàm 0x140014b50+0x70; .pdata [0x140014b50,0x140014c24); lệnh chứa nó bắt đầu ở 0x140014bb9 (sớm hơn 7 byte)	CẦN XEM	
+src/client/face/ui/panel/servers.hpp	110	0x140628240	exe	ĐẦU HÀM	RANH GIỚI LỆNH	0x140628240	OK	
+src/client/face/ui/panel/servers.hpp	110	0x1407671e0		ĐẦU HÀM	RANH GIỚI LỆNH	0x1407671e0	OK	
+src/client/book/quest/log.hpp	37	0x14009e790		TRONG HÀM	GIỮA LỆNH	hàm 0x14009e730+0x60; .pdata [0x14009e730,0x14009e7dc); lệnh chứa nó bắt đầu ở 0x14009e78d (sớm hơn 3 byte)	CẦN XEM	
+src/client/book/quest/log.hpp	55	0x14009e1e0		TRONG HÀM	GIỮA LỆNH	hàm 0x14009e0a0+0x140; .pdata [0x14009e0a0,0x14009e44a); lệnh chứa nó bắt đầu ở 0x14009e1da (sớm hơn 6 byte)	CẦN XEM	
+src/client/book/quest/outline.cpp	2	0x1406ddeb0	m	TRONG HÀM	GIỮA LỆNH	hàm 0x1406dd6a0+0x810; .pdata [0x1406dd6a0,0x1406ddfe1); lệnh chứa nó bắt đầu ở 0x1406ddeaf (sớm hơn 1 byte)	CẦN XEM	
+src/client/book/quest/outline.cpp	69	0x1406ddf27	ng	TRONG HÀM	GIỮA LỆNH	hàm 0x1406dd6a0+0x887; .pdata [0x1406dd6a0,0x1406ddfe1); lệnh chứa nó bắt đầu ở 0x1406ddf26 (sớm hơn 1 byte)	CẦN XEM	
+src/client/book/quest/outline.cpp	69	0x1406ddf5b		TRONG HÀM	GIỮA LỆNH	hàm 0x1406dd6a0+0x8bb; .pdata [0x1406dd6a0,0x1406ddfe1); lệnh chứa nó bắt đầu ở 0x1406ddf58 (sớm hơn 3 byte)	CẦN XEM	
+src/client/book/quest/outline.cpp	91	0x1406de093	ng	TRONG HÀM	GIỮA LỆNH	hàm 0x1406ddff0+0xa3; .pdata [0x1406ddff0,0x1406de0d1); lệnh chứa nó bắt đầu ở 0x1406de08c (sớm hơn 7 byte)	CẦN XEM	
+src/client/book/quest/outline.cpp	97	0x1406de0bc		TRONG HÀM	GIỮA LỆNH	hàm 0x1406ddff0+0xcc; .pdata [0x1406ddff0,0x1406de0d1); lệnh chứa nó bắt đầu ở 0x1406de0b9 (sớm hơn 3 byte)	CẦN XEM	
+src/client/book/quest/outline.cpp	97	0x1406de1ae		TRONG HÀM	GIỮA LỆNH	hàm 0x1406de170+0x3e; .pdata [0x1406de170,0x1406de1e0); lệnh chứa nó bắt đầu ở 0x1406de1ac (sớm hơn 2 byte)	CẦN XEM	
+src/client/book/quest/outline.cpp	124	0x1406ddc76	ng	TRONG HÀM	GIỮA LỆNH	hàm 0x1406dd6a0+0x5d6; .pdata [0x1406dd6a0,0x1406ddfe1); lệnh chứa nó bắt đầu ở 0x1406ddc70 (sớm hơn 6 byte)	CẦN XEM	
+src/client/book/quest/outline.cpp	124	0x1406ddcf0		TRONG HÀM	GIỮA LỆNH	hàm 0x1406dd6a0+0x650; .pdata [0x1406dd6a0,0x1406ddfe1); lệnh chứa nó bắt đầu ở 0x1406ddceb (sớm hơn 5 byte)	CẦN XEM	
+src/client/book/quest/outline.hpp	5	0x1406dd8e0	CollectMissionOutline	TRONG HÀM	RANH GIỚI LỆNH	hàm 0x1406dd6a0+0x240; .pdata [0x1406dd6a0,0x1406ddfe1)	OK	script CollectMissionOutline: impl 0x1402491d0
+src/client/book/quest/outline.hpp	5	0x1406ddeb0	ng	TRONG HÀM	GIỮA LỆNH	hàm 0x1406dd6a0+0x810; .pdata [0x1406dd6a0,0x1406ddfe1); lệnh chứa nó bắt đầu ở 0x1406ddeaf (sớm hơn 1 byte)	CẦN XEM	
+src/client/book/quest/outline.hpp	6	0x140248990	GetMissionOutlineNum	TRONG HÀM	GIỮA LỆNH	hàm 0x1402488e0+0xb0; .pdata [0x14024894f,0x140248af4); lệnh chứa nó bắt đầu ở 0x14024898e (sớm hơn 2 byte)	CẦN XEM	script GetMissionOutlineNum: impl 0x140248e90
+src/client/book/quest/outline.hpp	6	0x1406ddad0	GetMissionOutlineInfo	TRONG HÀM	RANH GIỚI LỆNH	hàm 0x1406dd6a0+0x430; .pdata [0x1406dd6a0,0x1406ddfe1)	OK	script GetMissionOutlineInfo: impl 0x140248f10
+src/client/book/quest/outline.hpp	7	0x1402cc5c0		TRONG HÀM	GIỮA LỆNH	hàm 0x1402cc4a0+0x120; .pdata [0x1402cc4a0,0x1402cc606); lệnh chứa nó bắt đầu ở 0x1402cc5bf (sớm hơn 1 byte)	CẦN XEM	
+src/client/book/quest/outline.hpp	83	0x140509c00	m	TRONG HÀM	GIỮA LỆNH	hàm 0x140509b80+0x80; .pdata [0x140509b80,0x140509c2f); lệnh chứa nó bắt đầu ở 0x140509bfc (sớm hơn 4 byte)	CẦN XEM	
+src/client/book/quest/track.hpp	22	0x1400f4e60	IsTrackFuncShow	TRONG HÀM	GIỮA LỆNH	hàm 0x1400f4df0+0x70; .pdata [0x1400f4df0,0x1400f4e98); lệnh chứa nó bắt đầu ở 0x1400f4e5a (sớm hơn 6 byte)	CẦN XEM	script IsTrackFuncShow: impl 0x1402d3f20
+src/client/book/quest/track.hpp	22	0x1400f4fe0		TRONG HÀM	RANH GIỚI LỆNH	hàm 0x1400f4f50+0x90; .pdata [0x1400f4f50,0x1400f4ff8)	OK	
+src/client/book/skill/actions.cpp	19	0x14002468e	chung	TRONG HÀM	GIỮA LỆNH	hàm 0x140024530+0x15e; .pdata [0x140024530,0x1400246aa); lệnh chứa nó bắt đầu ở 0x14002468c (sớm hơn 2 byte)	CẦN XEM	
+src/client/book/skill/actions.hpp	7	0x140018750	Initial	TRONG HÀM	GIỮA LỆNH	hàm 0x140018660+0xf0; .pdata [0x140018660,0x140019d0b); lệnh chứa nó bắt đầu ở 0x14001874f (sớm hơn 1 byte)	CẦN XEM	
+src/client/book/skill/actions.hpp	28	0x140ed88d0	exe	DỮ LIỆU .data			OK	
+src/client/book/skill/actions.hpp	55	0x140ed8218	id	DỮ LIỆU .data			OK	
+src/client/book/skill/actions.hpp	72	0x14001bc50	UserSkill_Update	TRONG HÀM	GIỮA LỆNH	hàm 0x14001bc20+0x30; .pdata [0x14001bc20,0x14001bc80); lệnh chứa nó bắt đầu ở 0x14001bc4b (sớm hơn 5 byte)	CẦN XEM	
+src/client/book/skill/actions.hpp	73	0x14001d6a0	SkillClass_Update	TRONG HÀM	GIỮA LỆNH	hàm 0x14001d670+0x30; .pdata [0x14001d670,0x14001d723); lệnh chứa nó bắt đầu ở 0x14001d69e (sớm hơn 2 byte)	CẦN XEM	
+src/client/book/skill/actions.hpp	73	0x14001c770	UserLifeAbility_Update	TRONG HÀM	RANH GIỚI LỆNH	hàm 0x14001c750+0x20; .pdata [0x14001c750,0x14001c7b1)	OK	
+src/client/book/skill/actions.hpp	81	0x140017280		TRONG HÀM	RANH GIỚI LỆNH	hàm 0x140017270+0x10; .pdata [0x140017270,0x140017331)	OK	
+src/client/book/skill/actions.hpp	90	0x140017360	EnumAction	TRONG HÀM	GIỮA LỆNH	hàm 0x140017340+0x20; .pdata [0x140017340,0x140017432); lệnh chứa nó bắt đầu ở 0x14001735c (sớm hơn 4 byte)	CẦN XEM	script EnumAction: impl 0x1402348b0,0x1402c5420
+src/client/book/skill/actions.hpp	92	0x14006d020	PosIndex	TRONG HÀM	GIỮA LỆNH	hàm 0x14006cfc0+0x60; .pdata [0x14006cfc0,0x14006d039); lệnh chứa nó bắt đầu ở 0x14006d01d (sớm hơn 3 byte)	CẦN XEM	
+src/client/book/skill/actions.hpp	99	0x140017160		TRONG HÀM	RANH GIỚI LỆNH	hàm 0x140017130+0x30; .pdata [0x140017130,0x14001717e)	OK	
+src/client/book/skill/actions.hpp	102	0x140379af0	GetPetFightAction	ĐẦU HÀM	RANH GIỚI LỆNH	0x140379af0	OK	script GetPetFightAction: impl 0x14037a6e0
+src/client/book/skill/actions.hpp	106	0x140013690	GetDefineID	TRONG HÀM	GIỮA LỆNH	hàm 0x1400135e0+0xb0; .pdata [0x14001362b,0x1400136f3); lệnh chứa nó bắt đầu ở 0x14001368f (sớm hơn 1 byte)	CẦN XEM	script GetDefineID: impl 0x1400135a0,0x1402a0ef0
+src/client/book/skill/actions.hpp	108	0x14006cff0		TRONG HÀM	GIỮA LỆNH	hàm 0x14006cfc0+0x30; .pdata [0x14006cfc0,0x14006d039); lệnh chứa nó bắt đầu ở 0x14006cfee (sớm hơn 2 byte)	CẦN XEM	
+src/client/book/skill/actions.hpp	111	0x140346dc0		TRONG HÀM	GIỮA LỆNH	hàm 0x140346d00+0xc0; .pdata [0x140346d00,0x1403474e6); lệnh chứa nó bắt đầu ở 0x140346dbf (sớm hơn 1 byte)	CẦN XEM	
+src/client/book/skill/actions.hpp	120	0x1400136d0	GetOwnerXinfa	TRONG HÀM	RANH GIỚI LỆNH	hàm 0x1400135e0+0xf0; .pdata [0x14001362b,0x1400136f3)	OK	script GetOwnerXinfa: impl 0x1400135e0
+src/client/book/skill/actions.hpp	132	0x14006476f	PetAction	TRONG HÀM	RANH GIỚI LỆNH	hàm 0x140064750+0x1f; .pdata [0x140064750,0x140064985)	OK	
+src/client/book/skill/actions.hpp	146	0x14023fdf0	IsLMSJSecond	ĐẦU HÀM	RANH GIỚI LỆNH	0x14023fdf0	OK	script IsLMSJSecond: impl 0x14023fdf0
+src/client/book/skill/actions.hpp	146	0x14023fe80	IsJYJYSecond	ĐẦU HÀM	RANH GIỚI LỆNH	0x14023fe80	OK	script IsJYJYSecond: impl 0x14023fe80
+src/client/book/skill/actions.hpp	147	0x14023ff10		ĐẦU HÀM	RANH GIỚI LỆNH	0x14023ff10	OK	
+src/client/book/skill/book.cpp	19	0x140193e6e	c	TRONG HÀM	GIỮA LỆNH	hàm 0x140193c80+0x1ee; .pdata [0x140193c80,0x140193f6a); lệnh chứa nó bắt đầu ở 0x140193e69 (sớm hơn 5 byte)	CẦN XEM	
+src/client/book/skill/book.hpp	7	0x140389a50	GetSkillInfo	TRONG HÀM	GIỮA LỆNH	hàm 0x140387360+0x26f0; .pdata [0x140387360,0x14038a160); lệnh chứa nó bắt đầu ở 0x140389a4e (sớm hơn 2 byte)	CẦN XEM	script GetSkillInfo: impl 0x140687ce0
+src/client/book/skill/book.hpp	10	0x140389fc0	GetXinfaInfo	TRONG HÀM	RANH GIỚI LỆNH	hàm 0x140387360+0x2c60; .pdata [0x140387360,0x14038a160)	OK	script GetXinfaInfo: impl 0x140687cec
+src/client/book/skill/book.hpp	13	0x140389590	GetAbilityInfo	TRONG HÀM	GIỮA LỆNH	hàm 0x140387360+0x2230; .pdata [0x140387360,0x14038a160); lệnh chứa nó bắt đầu ở 0x14038958d (sớm hơn 3 byte)	CẦN XEM	script GetAbilityInfo: impl 0x140687cd4
+src/client/book/skill/book.hpp	64	0x140191320	Set_SkillClass	TRONG HÀM	GIỮA LỆNH	hàm 0x1401911f0+0x130; .pdata [0x1401911f0,0x14019140f); lệnh chứa nó bắt đầu ở 0x14019131f (sớm hơn 1 byte)	CẦN XEM	
+src/client/book/skill/book.hpp	74	0x140193f30	Set_Skill	TRONG HÀM	GIỮA LỆNH	hàm 0x140193c80+0x2b0; .pdata [0x140193c80,0x140193f6a); lệnh chứa nó bắt đầu ở 0x140193f2d (sớm hơn 3 byte)	CẦN XEM	
+src/client/book/skill/book.hpp	79	0x14058d920	ng	TRONG HÀM	GIỮA LỆNH	hàm 0x14058d7d0+0x150; .pdata [0x14058d835,0x14058daf5); lệnh chứa nó bắt đầu ở 0x14058d91d (sớm hơn 3 byte)	CẦN XEM	
+src/client/book/skill/book.hpp	93	0x140194d10	Set_LifeAbility	TRONG HÀM	RANH GIỚI LỆNH	hàm 0x140194aa0+0x270; .pdata [0x140194aa0,0x140194dfc)	OK	
+src/client/book/skill/book.hpp	110	0x140193c20	Get_Skill	TRONG HÀM	GIỮA LỆNH	hàm 0x140193a30+0x1f0; .pdata [0x140193a30,0x140193c74); lệnh chứa nó bắt đầu ở 0x140193c1f (sớm hơn 1 byte)	CẦN XEM	
+src/client/book/skill/book.hpp	115	0x1401910d0	Get_SkillClass	TRONG HÀM	GIỮA LỆNH	hàm 0x140190fd0+0x100; .pdata [0x140190fd0,0x1401911dc); lệnh chứa nó bắt đầu ở 0x1401910cd (sớm hơn 3 byte)	CẦN XEM	
+src/client/book/skill/book.hpp	115	0x140194ac0	Get_LifeAbility	TRONG HÀM	GIỮA LỆNH	hàm 0x140194aa0+0x20; .pdata [0x140194aa0,0x140194dfc); lệnh chứa nó bắt đầu ở 0x140194abf (sớm hơn 1 byte)	CẦN XEM	
+src/client/book/skill/book.hpp	119	0x1401ec780	m	TRONG HÀM	RANH GIỚI LỆNH	hàm 0x1401ec700+0x80; .pdata [0x1401ec700,0x1401ecb29)	OK	
+src/client/book/skill/book.hpp	135	0x14038a2dc	p	TRONG HÀM	GIỮA LỆNH	hàm 0x14038a170+0x16c; .pdata [0x14038a170,0x14038a620); lệnh chứa nó bắt đầu ở 0x14038a2db (sớm hơn 1 byte)	CẦN XEM	
+src/client/book/skill/book.hpp	135	0x14038a30c		TRONG HÀM	GIỮA LỆNH	hàm 0x14038a170+0x19c; .pdata [0x14038a170,0x14038a620); lệnh chứa nó bắt đầu ở 0x14038a30b (sớm hơn 1 byte)	CẦN XEM	
+src/client/book/skill/tables.cpp	80	0x14039a47b	values	TRONG HÀM (không có .pdata)	RANH GIỚI LỆNH	hàm 0x14039a3f0+0x8b	OK	
+src/client/book/skill/tables.hpp	170	0x14039a3a0	GetStrZhenfaSkill	TRONG HÀM	RANH GIỚI LỆNH	hàm 0x14039a360+0x40; .pdata [0x14039a360,0x14039a3e4)	OK	script GetStrZhenfaSkill: impl 0x14039af80
+src/client/book/skill/tables.hpp	173	0x140233d00	GetUplevelXinfaSpendMoney	TRONG HÀM	GIỮA LỆNH	hàm 0x140233a30+0x2d0; .pdata [0x140233a30,0x140233dc8); lệnh chứa nó bắt đầu ở 0x140233cfc (sớm hơn 4 byte)	CẦN XEM	script GetUplevelXinfaSpendMoney: impl 0x140234200
+src/client/book/skill/tables.hpp	174	0x140233f60	GetUplevelXinfaSpendExp	TRONG HÀM	GIỮA LỆNH	hàm 0x140233f50+0x10; .pdata [0x140233f50,0x140234152); lệnh chứa nó bắt đầu ở 0x140233f5e (sớm hơn 2 byte)	CẦN XEM	script GetUplevelXinfaSpendExp: impl 0x140234460
+src/client/book/skill/tables.hpp	180	0x14034d6a0	GetLifeAbility_LimitExp	TRONG HÀM	GIỮA LỆNH	hàm 0x14034d620+0x80; .pdata [0x14034d620,0x14034d6a3); lệnh chứa nó bắt đầu ở 0x14034d69d (sớm hơn 3 byte)	CẦN XEM	script GetLifeAbility_LimitExp: impl 0x14034e2f0
+src/client/book/skill/tables.hpp	190	0x14038a333		TRONG HÀM	GIỮA LỆNH	hàm 0x14038a170+0x1c3; .pdata [0x14038a170,0x14038a620); lệnh chứa nó bắt đầu ở 0x14038a332 (sớm hơn 1 byte)	CẦN XEM	
+src/client/app/client/display/player.cpp	290	0x1405ee920		ĐẦU HÀM	RANH GIỚI LỆNH	0x1405ee920	OK	
+src/client/app/client/display/role_preview.hpp	4	0x14063d97a		TRONG HÀM	GIỮA LỆNH	hàm 0x14063d8b0+0xca; .pdata [0x14063d8b0,0x14063dcb0); lệnh chứa nó bắt đầu ở 0x14063d978 (sớm hơn 2 byte)	CẦN XEM	
+src/client/app/client/display/role_preview.hpp	4	0x140641e60		TRONG HÀM	RANH GIỚI LỆNH	hàm 0x140641db0+0xb0; .pdata [0x140641db0,0x140641e6d)	OK	
+src/client/app/client/display/role_stage.cpp	17	0x140b0cfd4	exe	DỮ LIỆU .rdata			OK	
+src/client/app/client/display/role_stage.cpp	20	0x14063c480	a	ĐẦU HÀM	RANH GIỚI LỆNH	0x14063c480	OK	
+src/client/app/client/display/role_stage.cpp	94	0x14063d620	exe	TRONG HÀM	RANH GIỚI LỆNH	hàm 0x14063d530+0xf0; .pdata [0x14063d551,0x14063d75d)	OK	
+src/client/app/client/display/role_stage.cpp	95	0x140b0cfd4	ng	DỮ LIỆU .rdata			OK	
+src/client/app/client/display/role_stage.hpp	4	0x1406413e0	Init	TRONG HÀM	GIỮA LỆNH	hàm 0x140641270+0x170; .pdata [0x140641270,0x140641789); lệnh chứa nó bắt đầu ở 0x1406413df (sớm hơn 1 byte)	CẦN XEM	
+src/client/app/client/display/role_stage.hpp	4	0x1406414b0	p	TRONG HÀM	GIỮA LỆNH	hàm 0x140641270+0x240; .pdata [0x140641270,0x140641789); lệnh chứa nó bắt đầu ở 0x1406414af (sớm hơn 1 byte)	CẦN XEM	
+src/client/app/client/display/role_stage.hpp	4	0x1406418be	n	TRONG HÀM	GIỮA LỆNH	hàm 0x140641890+0x2e; .pdata [0x140641890,0x14064190d); lệnh chứa nó bắt đầu ở 0x1406418b9 (sớm hơn 5 byte)	CẦN XEM	
+src/client/app/client/display/role_stage.hpp	5	0x140641210		TRONG HÀM	RANH GIỚI LỆNH	hàm 0x1406411b0+0x60; .pdata [0x1406411b0,0x140641260)	OK	
+src/client/app/client/display/role_stage.hpp	7	0x14063c480		ĐẦU HÀM	RANH GIỚI LỆNH	0x14063c480	OK	
+src/client/app/client/display/role_stage.hpp	7	0x14063cfa0	p	TRONG HÀM	RANH GIỚI LỆNH	hàm 0x14063cf90+0x10; .pdata [0x14063cf90,0x14063d065)	OK	
+src/client/app/client/display/role_stage.hpp	7	0x14063d41e	n	TRONG HÀM	GIỮA LỆNH	hàm 0x14063d410+0xe; .pdata [0x14063d410,0x14063d48c); lệnh chứa nó bắt đầu ở 0x14063d41b (sớm hơn 3 byte)	CẦN XEM	
+src/client/app/client/display/role_stage.hpp	12	0x14063d620	Init	TRONG HÀM	RANH GIỚI LỆNH	hàm 0x14063d530+0xf0; .pdata [0x14063d551,0x14063d75d)	OK	
+src/client/app/client/map/book.hpp	20	0x1406c2130		TRONG HÀM	RANH GIỚI LỆNH	hàm 0x1406c1e40+0x2f0; .pdata [0x1406c2118,0x1406c21a4)	OK	
+src/client/app/client/map/book.hpp	27	0x1406bfaff	exe	TRONG HÀM (không có .pdata)	RANH GIỚI LỆNH	hàm 0x1406bfab0+0x4f	OK	
+src/client/app/client/viewer/client_size.hpp	23	0x140630900		TRONG HÀM	RANH GIỚI LỆNH	hàm 0x1406308f0+0x10; .pdata [0x1406308f0,0x1406309d5)	OK	
+src/client/app/client/viewer/client_size.hpp	23	0x140631270	i	TRONG HÀM	GIỮA LỆNH	hàm 0x140630fd0+0x2a0; .pdata [0x140631158,0x140631277); lệnh chứa nó bắt đầu ở 0x14063126d (sớm hơn 3 byte)	CẦN XEM	
+src/client/app/client/display/graphic/face.cpp	256	0x1405493da	exe	TRONG HÀM	RANH GIỚI LỆNH	hàm 0x140549140+0x29a; .pdata [0x14054924f,0x140549433)	OK	
+src/client/app/client/display/graphic/play.cpp	261	0x14007b550	exe	ĐẦU HÀM	RANH GIỚI LỆNH	0x14007b550	OK	
+src/client/app/client/display/graphic/state.hpp	448	0x1405493da	exe	TRONG HÀM	RANH GIỚI LỆNH	hàm 0x140549140+0x29a; .pdata [0x14054924f,0x140549433)	OK	
+engine/window/window.cpp	795	0x140631940	exe	ĐẦU HÀM	RANH GIỚI LỆNH	0x140631940	OK	
+TOOLS/content/export_cursors.py	4	0x14007b2d0		ĐẦU HÀM	RANH GIỚI LỆNH	0x14007b2d0	OK	
+TOOLS/content/export_skills.py	21	0x1405ee920	Start_MagicSend	ĐẦU HÀM	RANH GIỚI LỆNH	0x1405ee920	OK	
+TOOLS/port/lua_native.py	3	0x140013a70	GetEquipDur	TRONG HÀM	GIỮA LỆNH	hàm 0x140013a40+0x30; .pdata [0x140013a40,0x140013aa9); lệnh chứa nó bắt đầu ở 0x140013a6d (sớm hơn 3 byte)	CẦN XEM	script GetEquipDur: impl 0x140013980
+TOOLS/port/lua_native.py	4	0x1403954d0		TRONG HÀM	RANH GIỚI LỆNH	hàm 0x1403954c0+0x10; .pdata [0x1403954c0,0x140395515)	OK	
+TOOLS/port/pe_refs.py	30	0x140013a70	hex	TRONG HÀM	GIỮA LỆNH	hàm 0x140013a40+0x30; .pdata [0x140013a40,0x140013aa9); lệnh chứa nó bắt đầu ở 0x140013a6d (sớm hơn 3 byte)	CẦN XEM	
+TOOLS/port/ghidra/DecompileAt.java	3	0x140641210		TRONG HÀM	RANH GIỚI LỆNH	hàm 0x1406411b0+0x60; .pdata [0x1406411b0,0x140641260)	OK	
+TOOLS/port/ghidra/DecompileAt.java	3	0x140000000	nh	DỮ LIỆU Headers			OK	
+TOOLS/port/ghidra/DecompileAt.java	11	0x140a10f2d	exe	TRONG HÀM	RANH GIỚI LỆNH	hàm 0x140a10cd0+0x25d; .pdata [0x140a10cd0,0x140a18c04)	OK	
+TOOLS/port/oracle/create_role_api.lua	27	0x14063df70		TRONG HÀM	GIỮA LỆNH	hàm 0x14063de10+0x160; .pdata [0x14063de10,0x14063df9f); lệnh chứa nó bắt đầu ở 0x14063df6a (sớm hơn 6 byte)	CẦN XEM	
+TOOLS/port/oracle/create_role_api.lua	44	0x14063fa20		TRONG HÀM (không có .pdata)	RANH GIỚI LỆNH	hàm 0x14063fa10+0x10	OK	
+TOOLS/port/oracle/create_role_api.lua	53	0x140642d20		TRONG HÀM	GIỮA LỆNH	hàm 0x140642cb0+0x70; .pdata [0x140642cb0,0x140642e11); lệnh chứa nó bắt đầu ở 0x140642d1c (sớm hơn 4 byte)	CẦN XEM	
+TOOLS/port/oracle/create_role_api.lua	63	0x140640ec0		TRONG HÀM	GIỮA LỆNH	hàm 0x140640e20+0xa0; .pdata [0x140640e20,0x1406411a2); lệnh chứa nó bắt đầu ở 0x140640ebd (sớm hơn 3 byte)	CẦN XEM	
+TOOLS/port/oracle/create_role_api.lua	76	0x14063fb90	y	TRONG HÀM	GIỮA LỆNH	hàm 0x14063fb60+0x30; .pdata [0x14063fb60,0x14063fc25); lệnh chứa nó bắt đầu ở 0x14063fb8e (sớm hơn 2 byte)	CẦN XEM	
+TOOLS/port/oracle/create_role_api.lua	76	0x140642ea0		TRONG HÀM	RANH GIỚI LỆNH	hàm 0x140642e20+0x80; .pdata [0x140642e20,0x140642f2f)	OK	
+TOOLS/port/oracle/create_role_api.lua	93	0x140342850		TRONG HÀM	RANH GIỚI LỆNH	hàm 0x140342440+0x410; .pdata [0x140342440,0x140342a11)	OK	
+TOOLS/port/oracle/create_role_api.lua	100	0x140342950		TRONG HÀM	GIỮA LỆNH	hàm 0x140342440+0x510; .pdata [0x140342440,0x140342a11); lệnh chứa nó bắt đầu ở 0x14034294f (sớm hơn 1 byte)	CẦN XEM	
+TOOLS/port/oracle/create_role_api.lua	113	0x14063fe40		TRONG HÀM	GIỮA LỆNH	hàm 0x14063fd50+0xf0; .pdata [0x14063fd50,0x14063fe70); lệnh chứa nó bắt đầu ở 0x14063fe3e (sớm hơn 2 byte)	CẦN XEM	
+TOOLS/port/oracle/create_role_api.lua	158	0x140641210		TRONG HÀM	RANH GIỚI LỆNH	hàm 0x1406411b0+0x60; .pdata [0x1406411b0,0x140641260)	OK	
+TOOLS/port/oracle/create_role_api.lua	176	0x1403432b0		TRONG HÀM	GIỮA LỆNH	hàm 0x140343270+0x40; .pdata [0x140343270,0x1403432c0); lệnh chứa nó bắt đầu ở 0x1403432af (sớm hơn 1 byte)	CẦN XEM	
+TOOLS/port/oracle/create_role_api.lua	179	0x14033fcb0		TRONG HÀM	GIỮA LỆNH	hàm 0x14033fc30+0x80; .pdata [0x14033fc30,0x14033fcdc); lệnh chứa nó bắt đầu ở 0x14033fcaf (sớm hơn 1 byte)	CẦN XEM	
+TOOLS/port/oracle/create_role_api.lua	186	0x14045fbb0		TRONG HÀM	GIỮA LỆNH	hàm 0x14045fa10+0x1a0; .pdata [0x14045fb02,0x14045fc65); lệnh chứa nó bắt đầu ở 0x14045fbaf (sớm hơn 1 byte)	CẦN XEM	
+TOOLS/port/oracle/create_role_api.lua	190	0x140301630		TRONG HÀM	GIỮA LỆNH	hàm 0x140301610+0x20; .pdata [0x140301610,0x140301663); lệnh chứa nó bắt đầu ở 0x14030162c (sớm hơn 4 byte)	CẦN XEM	
+TOOLS/port/oracle/skill_api.lua	25	0x140ed88d0	exe	DỮ LIỆU .data			OK	
+TOOLS/port/oracle/skill_api.lua	29	0x140ed8218	chung	DỮ LIỆU .data			OK	
+TOOLS/port/oracle/skill_api.lua	46	0x140193c20	Get_Skill	TRONG HÀM	GIỮA LỆNH	hàm 0x140193a30+0x1f0; .pdata [0x140193a30,0x140193c74); lệnh chứa nó bắt đầu ở 0x140193c1f (sớm hơn 1 byte)	CẦN XEM	
+TOOLS/port/oracle/skill_api.lua	83	0x1400136d0	GetOwnerXinfa	TRONG HÀM	RANH GIỚI LỆNH	hàm 0x1400135e0+0xf0; .pdata [0x14001362b,0x1400136f3)	OK	script GetOwnerXinfa: impl 0x1400135e0
+TOOLS/port/oracle/skill_api.lua	95	0x140ed8180	nh	DỮ LIỆU .data			OK	
+TOOLS/port/oracle/skill_api.lua	100	0x14001bc50	UserSkill_Update	TRONG HÀM	GIỮA LỆNH	hàm 0x14001bc20+0x30; .pdata [0x14001bc20,0x14001bc80); lệnh chứa nó bắt đầu ở 0x14001bc4b (sớm hơn 5 byte)	CẦN XEM	
+TOOLS/port/oracle/skill_api.lua	100	0x14001d6a0	SkillClass_Update	TRONG HÀM	GIỮA LỆNH	hàm 0x14001d670+0x30; .pdata [0x14001d670,0x14001d723); lệnh chứa nó bắt đầu ở 0x14001d69e (sớm hơn 2 byte)	CẦN XEM	
+TOOLS/port/oracle/skill_api.lua	100	0x14001c770	UserLifeAbility_Update	TRONG HÀM	RANH GIỚI LỆNH	hàm 0x14001c750+0x20; .pdata [0x14001c750,0x14001c7b1)	OK	
+TOOLS/port/oracle/skill_api.lua	118	0x140018750	Initial	TRONG HÀM	GIỮA LỆNH	hàm 0x140018660+0xf0; .pdata [0x140018660,0x140019d0b); lệnh chứa nó bắt đầu ở 0x14001874f (sớm hơn 1 byte)	CẦN XEM	
+TOOLS/port/oracle/skill_api.lua	130	0x140191320	Set_SkillClass	TRONG HÀM	GIỮA LỆNH	hàm 0x1401911f0+0x130; .pdata [0x1401911f0,0x14019140f); lệnh chứa nó bắt đầu ở 0x14019131f (sớm hơn 1 byte)	CẦN XEM	
+TOOLS/port/oracle/skill_api.lua	144	0x14058d920	ng	TRONG HÀM	GIỮA LỆNH	hàm 0x14058d7d0+0x150; .pdata [0x14058d835,0x14058daf5); lệnh chứa nó bắt đầu ở 0x14058d91d (sớm hơn 3 byte)	CẦN XEM	
+TOOLS/port/oracle/skill_api.lua	144	0x140193f30	Set_Skill	TRONG HÀM	GIỮA LỆNH	hàm 0x140193c80+0x2b0; .pdata [0x140193c80,0x140193f6a); lệnh chứa nó bắt đầu ở 0x140193f2d (sớm hơn 3 byte)	CẦN XEM	
+TOOLS/port/oracle/skill_api.lua	160	0x140194d10	Set_LifeAbility	TRONG HÀM	RANH GIỚI LỆNH	hàm 0x140194aa0+0x270; .pdata [0x140194aa0,0x140194dfc)	OK	
+TOOLS/port/oracle/skill_api.lua	177	0x140017280	GetActionNum	TRONG HÀM	RANH GIỚI LỆNH	hàm 0x140017270+0x10; .pdata [0x140017270,0x140017331)	OK	script GetActionNum: impl 0x140234160
+TOOLS/port/oracle/skill_api.lua	195	0x140017360	EnumAction	TRONG HÀM	GIỮA LỆNH	hàm 0x140017340+0x20; .pdata [0x140017340,0x140017432); lệnh chứa nó bắt đầu ở 0x14001735c (sớm hơn 4 byte)	CẦN XEM	script EnumAction: impl 0x1402348b0,0x1402c5420
+TOOLS/port/oracle/skill_api.lua	214	0x140346dc0	GetLifeAbility_Number	TRONG HÀM	GIỮA LỆNH	hàm 0x140346d00+0xc0; .pdata [0x140346d00,0x1403474e6); lệnh chứa nó bắt đầu ở 0x140346dbf (sớm hơn 1 byte)	CẦN XEM	script GetLifeAbility_Number: impl 0x140347a10
+TOOLS/port/oracle/skill_api.lua	229	0x14034d6a0	GetLifeAbility_LimitExp	TRONG HÀM	GIỮA LỆNH	hàm 0x14034d620+0x80; .pdata [0x14034d620,0x14034d6a3); lệnh chứa nó bắt đầu ở 0x14034d69d (sớm hơn 3 byte)	CẦN XEM	script GetLifeAbility_LimitExp: impl 0x14034e2f0
+TOOLS/port/oracle/skill_api.lua	242	0x140386780	GetData	TRONG HÀM	GIỮA LỆNH	hàm 0x140386770+0x10; .pdata [0x140386770,0x1403868f7); lệnh chứa nó bắt đầu ở 0x14038677f (sớm hơn 1 byte)	CẦN XEM	script GetData: impl 0x1402b9d70,0x14037d060,0x1403a8010,0x140687cc8
+TOOLS/port/oracle/skill_api.lua	252	0x1401ec780	p	TRONG HÀM	RANH GIỚI LỆNH	hàm 0x1401ec700+0x80; .pdata [0x1401ec700,0x1401ecb29)	OK	
+TOOLS/port/oracle/skill_api.lua	263	0x140389a50	GetSkillInfo	TRONG HÀM	GIỮA LỆNH	hàm 0x140387360+0x26f0; .pdata [0x140387360,0x14038a160); lệnh chứa nó bắt đầu ở 0x140389a4e (sớm hơn 2 byte)	CẦN XEM	script GetSkillInfo: impl 0x140687ce0
+TOOLS/port/oracle/skill_api.lua	285	0x140389fc0	GetXinfaInfo	TRONG HÀM	RANH GIỚI LỆNH	hàm 0x140387360+0x2c60; .pdata [0x140387360,0x14038a160)	OK	script GetXinfaInfo: impl 0x140687cec
+TOOLS/port/oracle/skill_api.lua	308	0x140389590	GetAbilityInfo	TRONG HÀM	GIỮA LỆNH	hàm 0x140387360+0x2230; .pdata [0x140387360,0x14038a160); lệnh chứa nó bắt đầu ở 0x14038958d (sớm hơn 3 byte)	CẦN XEM	script GetAbilityInfo: impl 0x140687cd4
+TOOLS/port/oracle/skill_api.lua	326	0x1402340c0	GetXinfaLevel	TRONG HÀM	GIỮA LỆNH	hàm 0x140233f50+0x170; .pdata [0x140233f50,0x140234152); lệnh chứa nó bắt đầu ở 0x1402340bb (sớm hơn 5 byte)	CẦN XEM	script GetXinfaLevel: impl 0x1402345c0
+TOOLS/port/oracle/skill_api.lua	341	0x140233d00	GetUplevelXinfaSpendMoney	TRONG HÀM	GIỮA LỆNH	hàm 0x140233a30+0x2d0; .pdata [0x140233a30,0x140233dc8); lệnh chứa nó bắt đầu ở 0x140233cfc (sớm hơn 4 byte)	CẦN XEM	script GetUplevelXinfaSpendMoney: impl 0x140234200
+TOOLS/port/oracle/skill_api.lua	354	0x140233f60	GetUplevelXinfaSpendExp	TRONG HÀM	GIỮA LỆNH	hàm 0x140233f50+0x10; .pdata [0x140233f50,0x140234152); lệnh chứa nó bắt đầu ở 0x140233f5e (sớm hơn 2 byte)	CẦN XEM	script GetUplevelXinfaSpendExp: impl 0x140234460
+TOOLS/port/oracle/skill_api.lua	366	0x14023fdf0	IsLMSJSecond	ĐẦU HÀM	RANH GIỚI LỆNH	0x14023fdf0	OK	script IsLMSJSecond: impl 0x14023fdf0
+TOOLS/port/oracle/skill_api.lua	366	0x14023fe80	IsJYJYSecond	ĐẦU HÀM	RANH GIỚI LỆNH	0x14023fe80	OK	script IsJYJYSecond: impl 0x14023fe80
+TOOLS/port/oracle/skill_api.lua	366	0x14023ff10	IsWJQFSecond	ĐẦU HÀM	RANH GIỚI LỆNH	0x14023ff10	OK	script IsWJQFSecond: impl 0x14023ff10
+TOOLS/port/oracle/skill_api.lua	372	0x1403d1960	Farm_GetLimitLevel	TRONG HÀM	RANH GIỚI LỆNH	hàm 0x1403d1530+0x430; .pdata [0x1403d1530,0x1403d2112)	OK	script Farm_GetLimitLevel: impl 0x1403d2490
+TOOLS/port/oracle/skill_api.lua	379	0x14045fbb0		TRONG HÀM	GIỮA LỆNH	hàm 0x14045fa10+0x1a0; .pdata [0x14045fb02,0x14045fc65); lệnh chứa nó bắt đầu ở 0x14045fbaf (sớm hơn 1 byte)	CẦN XEM	
+TOOLS/port/oracle/skill_api.lua	398	0x1402297a0		TRONG HÀM	GIỮA LỆNH	hàm 0x140229710+0x90; .pdata [0x140229710,0x1402298c7); lệnh chứa nó bắt đầu ở 0x14022979d (sớm hơn 3 byte)	CẦN XEM	
+TOOLS/port/oracle/skill_api.lua	403	0x1402323e0	trang	TRONG HÀM	RANH GIỚI LỆNH	hàm 0x140232280+0x160; .pdata [0x140232280,0x14023244b)	OK	
+TOOLS/port/oracle/skill_api.lua	403	0x140233230		TRONG HÀM	GIỮA LỆNH	hàm 0x140233190+0xa0; .pdata [0x140233190,0x14023331e); lệnh chứa nó bắt đầu ở 0x14023322b (sớm hơn 5 byte)	CẦN XEM	
+TOOLS/port/oracle/skill_api.lua	403	0x1402331e0		TRONG HÀM	GIỮA LỆNH	hàm 0x140233190+0x50; .pdata [0x140233190,0x14023331e); lệnh chứa nó bắt đầu ở 0x1402331de (sớm hơn 2 byte)	CẦN XEM	
+TOOLS/port/oracle/skill_api.lua	403	0x140232430		TRONG HÀM	RANH GIỚI LỆNH	hàm 0x140232280+0x1b0; .pdata [0x140232280,0x14023244b)	OK	
+TOOLS/port/oracle/skill_api.lua	403	0x140232500		TRONG HÀM	RANH GIỚI LỆNH	hàm 0x140232460+0xa0; .pdata [0x140232460,0x140232602)	OK	
+TOOLS/port/oracle/skill_api.lua	421	0x14030e740	Lua_SetLastSkill_UI	TRONG HÀM	RANH GIỚI LỆNH	hàm 0x14030e720+0x20; .pdata [0x14030e720,0x14030e7c9)	OK	script Lua_SetLastSkill_UI: impl 0x14030f4b0
+docs/BAY-DA-BIET.md	253	0x14103ef58		DỮ LIỆU .data			OK	
+docs/BAY-DA-BIET.md	302	0x1406864e0		TRONG HÀM	GIỮA LỆNH	hàm 0x1406864c0+0x20; .pdata [0x1406864c0,0x140686582); lệnh chứa nó bắt đầu ở 0x1406864dc (sớm hơn 4 byte)	CẦN XEM	
+docs/CAMERA-2026.md	5	0x140000000		DỮ LIỆU Headers			OK	
+docs/CAMERA-2026.md	24	0x14103d668		DỮ LIỆU .data			OK	
+docs/CAMERA-2026.md	105	0x140630900		TRONG HÀM	RANH GIỚI LỆNH	hàm 0x1406308f0+0x10; .pdata [0x1406308f0,0x1406309d5)	OK	
+docs/CAMERA-2026.md	106	0x140631270		TRONG HÀM	GIỮA LỆNH	hàm 0x140630fd0+0x2a0; .pdata [0x140631158,0x140631277); lệnh chứa nó bắt đầu ở 0x14063126d (sớm hơn 3 byte)	CẦN XEM	
+docs/CAMERA-2026.md	150	0x14103d668		DỮ LIỆU .data			OK	
+docs/CAMERA-2026.md	151	0x14103d640		DỮ LIỆU .data			OK	
+docs/CAMERA-2026.md	152	0x14103d618		DỮ LIỆU .data			OK	
+docs/CAMERA-2026.md	153	0x140fb2df4		DỮ LIỆU .data			OK	
+docs/CAMERA-2026.md	154	0x140fb2df8		DỮ LIỆU .data			OK	
+docs/CAMERA-2026.md	155	0x140fb2d74		DỮ LIỆU .data			OK	
+docs/CAMERA-2026.md	156	0x140fb2db4		DỮ LIỆU .data			OK	
+docs/CAMERA-2026.md	157	0x140fb2ef0		DỮ LIỆU .data			OK	
+docs/CAMERA-2026.md	158	0x140fb2ef4		DỮ LIỆU .data			OK	
+docs/CAMERA-2026.md	159	0x140fb2ef8		DỮ LIỆU .data			OK	
+docs/CAMERA-2026.md	160	0x140fb2dfc		DỮ LIỆU .data			OK	
+docs/CAMERA-2026.md	161	0x14103dfa8		DỮ LIỆU .data			OK	
+docs/CAMERA-2026.md	162	0x14103dfc0		DỮ LIỆU .data			OK	
+docs/CAMERA-2026.md	164	0x14064de80		TRONG HÀM	GIỮA LỆNH	hàm 0x14064d510+0x970; .pdata [0x14064db73,0x14064e4ac); lệnh chứa nó bắt đầu ở 0x14064de79 (sớm hơn 7 byte)	CẦN XEM	
+docs/CAMERA-2026.md	173	0x1406bfad0		TRONG HÀM	GIỮA LỆNH	hàm 0x1406bfab0+0x20; .pdata [0x1406bfab0,0x1406bfaf9); lệnh chứa nó bắt đầu ở 0x1406bfaca (sớm hơn 6 byte)	CẦN XEM	
+docs/CAMERA-2026.md	174	0x1406c0c53		TRONG HÀM	GIỮA LỆNH	hàm 0x1406c0580+0x6d3; .pdata [0x1406c0580,0x1406c1ac7); lệnh chứa nó bắt đầu ở 0x1406c0c52 (sớm hơn 1 byte)	CẦN XEM	
+docs/CAMERA-2026.md	175	0x140643d13		TRONG HÀM (không có .pdata)	GIỮA LỆNH	hàm 0x140643c80+0x93; lệnh chứa nó bắt đầu ở 0x140643d12 (sớm hơn 1 byte)	CẦN XEM	
+docs/CAMERA-2026.md	176	0x140647fd0		TRONG HÀM	GIỮA LỆNH	hàm 0x140647dc0+0x210; .pdata [0x140647dc0,0x14064870d); lệnh chứa nó bắt đầu ở 0x140647fca (sớm hơn 6 byte)	CẦN XEM	
+docs/CAMERA-2026.md	177	0x14064c750		TRONG HÀM	RANH GIỚI LỆNH	hàm 0x14064b840+0xf10; .pdata [0x14064b840,0x14064d14b)	OK	
+docs/CAMERA-2026.md	178	0x14064c960		TRONG HÀM	RANH GIỚI LỆNH	hàm 0x14064b840+0x1120; .pdata [0x14064b840,0x14064d14b)	OK	
+docs/CAMERA-2026.md	179	0x14064b39f		TRONG HÀM	RANH GIỚI LỆNH	hàm 0x140648b80+0x281f; .pdata [0x140648b80,0x14064b82e)	OK	
+docs/CAMERA-2026.md	180	0x140239dc8		TRONG HÀM	GIỮA LỆNH	hàm 0x140239d70+0x58; .pdata [0x140239d70,0x140239ded); lệnh chứa nó bắt đầu ở 0x140239dc6 (sớm hơn 2 byte)	CẦN XEM	
+docs/CAMERA-2026.md	181	0x14021b490		TRONG HÀM (không có .pdata)	RANH GIỚI LỆNH	hàm 0x14021b420+0x70	OK	
+docs/CAMERA-2026.md	182	0x14045f6ba		TRONG HÀM	GIỮA LỆNH	hàm 0x14045f630+0x8a; .pdata [0x14045f630,0x14045f738); lệnh chứa nó bắt đầu ở 0x14045f6b6 (sớm hơn 4 byte)	CẦN XEM	
+docs/CAMERA-2026.md	184	0x140212ad0		TRONG HÀM	GIỮA LỆNH	hàm 0x140212a60+0x70; .pdata [0x140212a60,0x140212b18); lệnh chứa nó bắt đầu ở 0x140212acf (sớm hơn 1 byte)	CẦN XEM	
+docs/CAMERA-2026.md	201	0x140f0c850		DỮ LIỆU .data			OK	
+docs/CAMERA-2026.md	205	0x14064c960		TRONG HÀM	RANH GIỚI LỆNH	hàm 0x14064b840+0x1120; .pdata [0x14064b840,0x14064d14b)	OK	
+docs/CAMERA-2026.md	209	0x14064da38		TRONG HÀM	GIỮA LỆNH	hàm 0x14064d510+0x528; .pdata [0x14064d5c4,0x14064db73); lệnh chứa nó bắt đầu ở 0x14064da35 (sớm hơn 3 byte)	CẦN XEM	
+docs/CAMERA-2026.md	211	0x14064d06a		TRONG HÀM	GIỮA LỆNH	hàm 0x14064b840+0x182a; .pdata [0x14064b840,0x14064d14b); lệnh chứa nó bắt đầu ở 0x14064d066 (sớm hơn 4 byte)	CẦN XEM	
+docs/CAMERA-2026.md	212	0x14064d0d9		TRONG HÀM	GIỮA LỆNH	hàm 0x14064b840+0x1899; .pdata [0x14064b840,0x14064d14b); lệnh chứa nó bắt đầu ở 0x14064d0d8 (sớm hơn 1 byte)	CẦN XEM	
+docs/CAMERA-2026.md	214	0x140fb2df8		DỮ LIỆU .data			OK	
+docs/CAMERA-2026.md	214	0x140fb2df4		DỮ LIỆU .data			OK	
+docs/CAMERA-2026.md	217	0x14064d08c		TRONG HÀM	RANH GIỚI LỆNH	hàm 0x14064b840+0x184c; .pdata [0x14064b840,0x14064d14b)	OK	
+docs/CAMERA-2026.md	217	0x14064d2a5		TRONG HÀM	GIỮA LỆNH	hàm 0x14064d160+0x145; .pdata [0x14064d160,0x14064d2f9); lệnh chứa nó bắt đầu ở 0x14064d2a3 (sớm hơn 2 byte)	CẦN XEM	
+docs/CAMERA-2026.md	219	0x14064d48f		TRONG HÀM (không có .pdata)	RANH GIỚI LỆNH	hàm 0x14064d470+0x1f	OK	
+docs/CAMERA-2026.md	219	0x14064d442		TRONG HÀM	RANH GIỚI LỆNH	hàm 0x14064d3f0+0x52; .pdata [0x14064d3f0,0x14064d45b)	OK	
+docs/CAMERA-2026.md	221	0x14064d3e4		TRONG HÀM (không có .pdata)	RANH GIỚI LỆNH	hàm 0x14064d300+0xe4	OK	
+docs/CAMERA-2026.md	221	0x14064d34b		TRONG HÀM	GIỮA LỆNH	hàm 0x14064d300+0x4b; .pdata [0x14064d300,0x14064d3e2); lệnh chứa nó bắt đầu ở 0x14064d348 (sớm hơn 3 byte)	CẦN XEM	
+docs/CAMERA-2026.md	222	0x14064d3f9		TRONG HÀM	GIỮA LỆNH	hàm 0x14064d3f0+0x9; .pdata [0x14064d3f0,0x14064d45b); lệnh chứa nó bắt đầu ở 0x14064d3f4 (sớm hơn 5 byte)	CẦN XEM	
+docs/CAMERA-2026.md	223	0x14064d4d3		TRONG HÀM	GIỮA LỆNH	hàm 0x14064d490+0x43; .pdata [0x14064d490,0x14064d506); lệnh chứa nó bắt đầu ở 0x14064d4ce (sớm hơn 5 byte)	CẦN XEM	
+docs/CAMERA-2026.md	224	0x14064d50e		TRONG HÀM (không có .pdata)	RANH GIỚI LỆNH	hàm 0x14064d490+0x7e	OK	
+docs/CAMERA-2026.md	224	0x14064d6bb		TRONG HÀM	GIỮA LỆNH	hàm 0x14064d510+0x1ab; .pdata [0x14064d5c4,0x14064db73); lệnh chứa nó bắt đầu ở 0x14064d6b7 (sớm hơn 4 byte)	CẦN XEM	
+docs/CAMERA-2026.md	233	0x14007c610		TRONG HÀM	RANH GIỚI LỆNH	hàm 0x14007c4b0+0x160; .pdata [0x14007c4b0,0x14007ea78)	OK	
+docs/CAMERA-2026.md	233	0x14007c6cb		TRONG HÀM	GIỮA LỆNH	hàm 0x14007c4b0+0x21b; .pdata [0x14007c4b0,0x14007ea78); lệnh chứa nó bắt đầu ở 0x14007c6c7 (sớm hơn 4 byte)	CẦN XEM	
+docs/CAMERA-2026.md	235	0x140616a00		TRONG HÀM	RANH GIỚI LỆNH	hàm 0x1406169b0+0x50; .pdata [0x1406169b0,0x140616cd3)	OK	
+docs/CAMERA-2026.md	239	0x14064b39f		TRONG HÀM	RANH GIỚI LỆNH	hàm 0x140648b80+0x281f; .pdata [0x140648b80,0x14064b82e)	OK	
+docs/DUONG-DI-2026.md	9	0x140000000		DỮ LIỆU Headers			OK	
+docs/DUONG-DI-2026.md	22	0x1406d9da0		TRONG HÀM	GIỮA LỆNH	hàm 0x1406d9d50+0x50; .pdata [0x1406d9d50,0x1406d9ea5); lệnh chứa nó bắt đầu ở 0x1406d9d9e (sớm hơn 2 byte)	CẦN XEM	
+docs/DUONG-DI-2026.md	22	0x1406da140		TRONG HÀM	GIỮA LỆNH	hàm 0x1406da0b0+0x90; .pdata [0x1406da0b0,0x1406da193); lệnh chứa nó bắt đầu ở 0x1406da13a (sớm hơn 6 byte)	CẦN XEM	
+docs/DUONG-DI-2026.md	23	0x1406da6c0		TRONG HÀM	GIỮA LỆNH	hàm 0x1406da6b0+0x10; .pdata [0x1406da6b0,0x1406da7ca); lệnh chứa nó bắt đầu ở 0x1406da6bd (sớm hơn 3 byte)	CẦN XEM	
+docs/DUONG-DI-2026.md	23	0x1406199b0		TRONG HÀM	GIỮA LỆNH	hàm 0x140619560+0x450; .pdata [0x140619560,0x140619a78); lệnh chứa nó bắt đầu ở 0x1406199ad (sớm hơn 3 byte)	CẦN XEM	
+docs/DUONG-DI-2026.md	24	0x1406be3a0		TRONG HÀM	GIỮA LỆNH	hàm 0x1406be1b0+0x1f0; .pdata [0x1406be1e2,0x1406be3e9); lệnh chứa nó bắt đầu ở 0x1406be39f (sớm hơn 1 byte)	CẦN XEM	
+docs/DUONG-DI-2026.md	88	0x1406199b0		TRONG HÀM	GIỮA LỆNH	hàm 0x140619560+0x450; .pdata [0x140619560,0x140619a78); lệnh chứa nó bắt đầu ở 0x1406199ad (sớm hơn 3 byte)	CẦN XEM	
+docs/GIAO-DIEN-2026.md	1541	0x1406950f0	G	TRONG HÀM	GIỮA LỆNH	hàm 0x1406949e0+0x710; .pdata [0x1406949e0,0x1406953da); lệnh chứa nó bắt đầu ở 0x1406950ec (sớm hơn 4 byte)	CẦN XEM	
+docs/NGHI-NGO.md	417	0x1406199b0		TRONG HÀM	GIỮA LỆNH	hàm 0x140619560+0x450; .pdata [0x140619560,0x140619a78); lệnh chứa nó bắt đầu ở 0x1406199ad (sớm hơn 3 byte)	CẦN XEM	
+docs/NGHI-NGO.md	494	0x1406416f1	exe	TRONG HÀM	GIỮA LỆNH	hàm 0x140641270+0x481; .pdata [0x140641270,0x140641789); lệnh chứa nó bắt đầu ở 0x1406416ef (sớm hơn 2 byte)	CẦN XEM	
+docs/NGHI-NGO.md	494	0x14063cc7a	exe	TRONG HÀM	GIỮA LỆNH	hàm 0x14063cc30+0x4a; .pdata [0x14063cc45,0x14063cf7a); lệnh chứa nó bắt đầu ở 0x14063cc75 (sớm hơn 5 byte)	CẦN XEM	
+docs/NGHI-NGO.md	495	0x14063d97a		TRONG HÀM	GIỮA LỆNH	hàm 0x14063d8b0+0xca; .pdata [0x14063d8b0,0x14063dcb0); lệnh chứa nó bắt đầu ở 0x14063d978 (sớm hơn 2 byte)	CẦN XEM	
+docs/NGHI-NGO.md	506	0x140c2bea8		DỮ LIỆU .rdata			OK	
+docs/NGHI-NGO.md	514	0x14063b7a0		TRONG HÀM	RANH GIỚI LỆNH	hàm 0x14063b780+0x20; .pdata [0x14063b780,0x14063b82b)	OK	
+docs/NGHI-NGO.md	735	0x140afc7f8		DỮ LIỆU .rdata			OK	
+docs/NGHI-NGO.md	738	0x140afc7f8		DỮ LIỆU .rdata			OK	
+docs/NGHI-NGO.md	764	0x14103e688		DỮ LIỆU .data			OK	
+docs/NGHI-NGO.md	765	0x14103e688		DỮ LIỆU .data			OK	
+docs/NGHI-NGO.md	894	0x140b1f8f4		DỮ LIỆU .rdata			OK	
+docs/NGHI-NGO.md	894	0x140b1fa54		DỮ LIỆU .rdata			OK	
+docs/NGHI-NGO.md	900	0x140ed88d0		DỮ LIỆU .data			OK	
+docs/NGHI-NGO.md	900	0x1405ea2b0		ĐẦU HÀM	RANH GIỚI LỆNH	0x1405ea2b0	OK	
+docs/NGHI-NGO.md	911	0x14001d9b0		ĐẦU HÀM	RANH GIỚI LỆNH	0x14001d9b0	OK	
+docs/NGHI-NGO.md	911	0x140017590		ĐẦU HÀM	RANH GIỚI LỆNH	0x140017590	OK	
+docs/NGHI-NGO.md	911	0x140194aa0		ĐẦU HÀM	RANH GIỚI LỆNH	0x140194aa0	OK	
+docs/NGHI-NGO.md	911	0x1402cd4e0		ĐẦU HÀM	RANH GIỚI LỆNH	0x1402cd4e0	OK	
+docs/NGHI-NGO.md	912	0x1403443b0		ĐẦU HÀM	RANH GIỚI LỆNH	0x1403443b0	OK	
+docs/NGHI-NGO.md	912	0x14063fb60		ĐẦU HÀM	RANH GIỚI LỆNH	0x14063fb60	OK	
+docs/NGUON-TLBB.md	75	0x1405ee920		ĐẦU HÀM	RANH GIỚI LỆNH	0x1405ee920	OK	
+docs/TAO-NHAN-VAT-2026.md	6	0x140000000		DỮ LIỆU Headers			OK	
+docs/TAO-NHAN-VAT-2026.md	27	0x14103d608		DỮ LIỆU .data			OK	
+docs/TAO-NHAN-VAT-2026.md	27	0x140c2bea8		DỮ LIỆU .rdata			OK	
+docs/TAO-NHAN-VAT-2026.md	28	0x1406413e0		TRONG HÀM	GIỮA LỆNH	hàm 0x140641270+0x170; .pdata [0x140641270,0x140641789); lệnh chứa nó bắt đầu ở 0x1406413df (sớm hơn 1 byte)	CẦN XEM	
+docs/TAO-NHAN-VAT-2026.md	32	0x14063df70		TRONG HÀM	GIỮA LỆNH	hàm 0x14063de10+0x160; .pdata [0x14063de10,0x14063df9f); lệnh chứa nó bắt đầu ở 0x14063df6a (sớm hơn 6 byte)	CẦN XEM	
+docs/TAO-NHAN-VAT-2026.md	32	0x14063f480		TRONG HÀM	GIỮA LỆNH	hàm 0x14063f240+0x240; .pdata [0x14063f240,0x14063f488); lệnh chứa nó bắt đầu ở 0x14063f47f (sớm hơn 1 byte)	CẦN XEM	
+docs/TAO-NHAN-VAT-2026.md	33	0x14063fa20		TRONG HÀM (không có .pdata)	RANH GIỚI LỆNH	hàm 0x14063fa10+0x10	OK	
+docs/TAO-NHAN-VAT-2026.md	34	0x140642d20		TRONG HÀM	GIỮA LỆNH	hàm 0x140642cb0+0x70; .pdata [0x140642cb0,0x140642e11); lệnh chứa nó bắt đầu ở 0x140642d1c (sớm hơn 4 byte)	CẦN XEM	
+docs/TAO-NHAN-VAT-2026.md	34	0x140642920		TRONG HÀM	GIỮA LỆNH	hàm 0x140642830+0xf0; .pdata [0x140642903,0x140642a74); lệnh chứa nó bắt đầu ở 0x14064291e (sớm hơn 2 byte)	CẦN XEM	
+docs/TAO-NHAN-VAT-2026.md	35	0x140640ec0		TRONG HÀM	GIỮA LỆNH	hàm 0x140640e20+0xa0; .pdata [0x140640e20,0x1406411a2); lệnh chứa nó bắt đầu ở 0x140640ebd (sớm hơn 3 byte)	CẦN XEM	
+docs/TAO-NHAN-VAT-2026.md	66	0x140342610		TRONG HÀM	RANH GIỚI LỆNH	hàm 0x140342440+0x1d0; .pdata [0x140342440,0x140342a11)	OK	
+docs/TAO-NHAN-VAT-2026.md	66	0x140342670		TRONG HÀM	GIỮA LỆNH	hàm 0x140342440+0x230; .pdata [0x140342440,0x140342a11); lệnh chứa nó bắt đầu ở 0x14034266f (sớm hơn 1 byte)	CẦN XEM	
+docs/TAO-NHAN-VAT-2026.md	67	0x140342850		TRONG HÀM	RANH GIỚI LỆNH	hàm 0x140342440+0x410; .pdata [0x140342440,0x140342a11)	OK	
+docs/TAO-NHAN-VAT-2026.md	68	0x140342950		TRONG HÀM	GIỮA LỆNH	hàm 0x140342440+0x510; .pdata [0x140342440,0x140342a11); lệnh chứa nó bắt đầu ở 0x14034294f (sớm hơn 1 byte)	CẦN XEM	
+docs/TAO-NHAN-VAT-2026.md	69	0x140342a10		TRONG HÀM	RANH GIỚI LỆNH	hàm 0x140342440+0x5d0; .pdata [0x140342440,0x140342a11)	OK	
+docs/TAO-NHAN-VAT-2026.md	69	0x140342b60		TRONG HÀM	GIỮA LỆNH	hàm 0x140342a90+0xd0; .pdata [0x140342a90,0x140342efa); lệnh chứa nó bắt đầu ở 0x140342b5e (sớm hơn 2 byte)	CẦN XEM	
+docs/TAO-NHAN-VAT-2026.md	69	0x140342aa0		TRONG HÀM	GIỮA LỆNH	hàm 0x140342a90+0x10; .pdata [0x140342a90,0x140342efa); lệnh chứa nó bắt đầu ở 0x140342a9c (sớm hơn 4 byte)	CẦN XEM	
+docs/TAO-NHAN-VAT-2026.md	70	0x140342c20		TRONG HÀM	GIỮA LỆNH	hàm 0x140342a90+0x190; .pdata [0x140342a90,0x140342efa); lệnh chứa nó bắt đầu ở 0x140342c1f (sớm hơn 1 byte)	CẦN XEM	
+docs/TAO-NHAN-VAT-2026.md	70	0x14063fb90		TRONG HÀM	GIỮA LỆNH	hàm 0x14063fb60+0x30; .pdata [0x14063fb60,0x14063fc25); lệnh chứa nó bắt đầu ở 0x14063fb8e (sớm hơn 2 byte)	CẦN XEM	
+docs/TAO-NHAN-VAT-2026.md	71	0x140342cc0		TRONG HÀM	GIỮA LỆNH	hàm 0x140342a90+0x230; .pdata [0x140342a90,0x140342efa); lệnh chứa nó bắt đầu ở 0x140342cbe (sớm hơn 2 byte)	CẦN XEM	
+docs/TAO-NHAN-VAT-2026.md	71	0x140342d50		TRONG HÀM	GIỮA LỆNH	hàm 0x140342a90+0x2c0; .pdata [0x140342a90,0x140342efa); lệnh chứa nó bắt đầu ở 0x140342d4e (sớm hơn 2 byte)	CẦN XEM	
+docs/TAO-NHAN-VAT-2026.md	72	0x140342e10		TRONG HÀM	GIỮA LỆNH	hàm 0x140342a90+0x380; .pdata [0x140342a90,0x140342efa); lệnh chứa nó bắt đầu ở 0x140342e0e (sớm hơn 2 byte)	CẦN XEM	
+docs/TAO-NHAN-VAT-2026.md	73	0x1403433e0		TRONG HÀM (không có .pdata)	RANH GIỚI LỆNH	hàm 0x140343330+0xb0	OK	
+docs/TAO-NHAN-VAT-2026.md	73	0x140343430		TRONG HÀM	GIỮA LỆNH	hàm 0x1403433f0+0x40; .pdata [0x1403433f0,0x1403434a5); lệnh chứa nó bắt đầu ở 0x14034342b (sớm hơn 5 byte)	CẦN XEM	
+docs/TAO-NHAN-VAT-2026.md	74	0x1403434b0		ĐẦU HÀM	RANH GIỚI LỆNH	0x1403434b0	OK	
+docs/TAO-NHAN-VAT-2026.md	74	0x140641210		TRONG HÀM	RANH GIỚI LỆNH	hàm 0x1406411b0+0x60; .pdata [0x1406411b0,0x140641260)	OK	
+docs/TAO-NHAN-VAT-2026.md	75	0x140343300		TRONG HÀM	GIỮA LỆNH	hàm 0x1403432d0+0x30; .pdata [0x1403432d0,0x140343320); lệnh chứa nó bắt đầu ở 0x1403432fe (sớm hơn 2 byte)	CẦN XEM	
+docs/TAO-NHAN-VAT-2026.md	76	0x140343540		TRONG HÀM	GIỮA LỆNH	hàm 0x1403434b0+0x90; .pdata [0x1403434b0,0x1403435a0); lệnh chứa nó bắt đầu ở 0x14034353d (sớm hơn 3 byte)	CẦN XEM	
+docs/TAO-NHAN-VAT-2026.md	76	0x1403435d0		TRONG HÀM	RANH GIỚI LỆNH	hàm 0x1403435b0+0x20; .pdata [0x1403435b0,0x14034365e)	OK	
+docs/TAO-NHAN-VAT-2026.md	76	0x1403436c0		TRONG HÀM	GIỮA LỆNH	hàm 0x140343670+0x50; .pdata [0x140343670,0x1403436f2); lệnh chứa nó bắt đầu ở 0x1403436bf (sớm hơn 1 byte)	CẦN XEM	
+docs/TAO-NHAN-VAT-2026.md	77	0x140340d40		TRONG HÀM	GIỮA LỆNH	hàm 0x140340c70+0xd0; .pdata [0x140340c70,0x140340d66); lệnh chứa nó bắt đầu ở 0x140340d3f (sớm hơn 1 byte)	CẦN XEM	
+docs/TAO-NHAN-VAT-2026.md	77	0x1406408a0		TRONG HÀM (không có .pdata)	RANH GIỚI LỆNH	hàm 0x1406407b0+0xf0	OK	
+docs/TAO-NHAN-VAT-2026.md	78	0x140340a20		TRONG HÀM (không có .pdata)	RANH GIỚI LỆNH	hàm 0x140340970+0xb0	OK	
+docs/TAO-NHAN-VAT-2026.md	79	0x1403432b0		TRONG HÀM	GIỮA LỆNH	hàm 0x140343270+0x40; .pdata [0x140343270,0x1403432c0); lệnh chứa nó bắt đầu ở 0x1403432af (sớm hơn 1 byte)	CẦN XEM	
+docs/TAO-NHAN-VAT-2026.md	79	0x14033fcb0		TRONG HÀM	GIỮA LỆNH	hàm 0x14033fc30+0x80; .pdata [0x14033fc30,0x14033fcdc); lệnh chứa nó bắt đầu ở 0x14033fcaf (sớm hơn 1 byte)	CẦN XEM	
+docs/TAO-NHAN-VAT-2026.md	79	0x140342eb0		TRONG HÀM	GIỮA LỆNH	hàm 0x140342a90+0x420; .pdata [0x140342a90,0x140342efa); lệnh chứa nó bắt đầu ở 0x140342eae (sớm hơn 2 byte)	CẦN XEM	
+docs/TAO-NHAN-VAT-2026.md	80	0x140343c70		TRONG HÀM	GIỮA LỆNH	hàm 0x140343b10+0x160; .pdata [0x140343b10,0x140343e8a); lệnh chứa nó bắt đầu ở 0x140343c6e (sớm hơn 2 byte)	CẦN XEM	
+docs/TAO-NHAN-VAT-2026.md	82	0x140641e60		TRONG HÀM	RANH GIỚI LỆNH	hàm 0x140641db0+0xb0; .pdata [0x140641db0,0x140641e6d)	OK	
+docs/TAO-NHAN-VAT-2026.md	161	0x140641210		TRONG HÀM	RANH GIỚI LỆNH	hàm 0x1406411b0+0x60; .pdata [0x1406411b0,0x140641260)	OK	
+docs/TAO-NHAN-VAT-2026.md	181	0x140641bd0		TRONG HÀM (không có .pdata)	RANH GIỚI LỆNH	hàm 0x140641b50+0x80	OK	
+docs/TAO-NHAN-VAT-2026.md	183	0x14064206e		TRONG HÀM	GIỮA LỆNH	hàm 0x140641e80+0x1ee; .pdata [0x140641e80,0x14064213f); lệnh chứa nó bắt đầu ở 0x14064206b (sớm hơn 3 byte)	CẦN XEM	
+docs/TAO-NHAN-VAT-2026.md	184	0x140640450		TRONG HÀM	RANH GIỚI LỆNH	hàm 0x140640390+0xc0; .pdata [0x14064042f,0x140640485)	OK	
+docs/TAO-NHAN-VAT-2026.md	190	0x1406416f1		TRONG HÀM	GIỮA LỆNH	hàm 0x140641270+0x481; .pdata [0x140641270,0x140641789); lệnh chứa nó bắt đầu ở 0x1406416ef (sớm hơn 2 byte)	CẦN XEM	
+docs/TAO-NHAN-VAT-2026.md	208	0x1406413e0		TRONG HÀM	GIỮA LỆNH	hàm 0x140641270+0x170; .pdata [0x140641270,0x140641789); lệnh chứa nó bắt đầu ở 0x1406413df (sớm hơn 1 byte)	CẦN XEM	
+docs/TAO-NHAN-VAT-2026.md	213	0x140641210		TRONG HÀM	RANH GIỚI LỆNH	hàm 0x1406411b0+0x60; .pdata [0x1406411b0,0x140641260)	OK	
+docs/TAO-NHAN-VAT-2026.md	223	0x14063c480		ĐẦU HÀM	RANH GIỚI LỆNH	0x14063c480	OK	
+docs/TAO-NHAN-VAT-2026.md	225	0x14063cfa0		TRONG HÀM	RANH GIỚI LỆNH	hàm 0x14063cf90+0x10; .pdata [0x14063cf90,0x14063d065)	OK	
+docs/TAO-NHAN-VAT-2026.md	231	0x1406418be		TRONG HÀM	GIỮA LỆNH	hàm 0x140641890+0x2e; .pdata [0x140641890,0x14064190d); lệnh chứa nó bắt đầu ở 0x1406418b9 (sớm hơn 5 byte)	CẦN XEM	
+docs/TAO-NHAN-VAT-2026.md	232	0x14063d41e		TRONG HÀM	GIỮA LỆNH	hàm 0x14063d410+0xe; .pdata [0x14063d410,0x14063d48c); lệnh chứa nó bắt đầu ở 0x14063d41b (sớm hơn 3 byte)	CẦN XEM	
+docs/TAO-NHAN-VAT-2026.md	252	0x140fb22c8		DỮ LIỆU .data			OK	
+docs/TAO-NHAN-VAT-2026.md	252	0x140fb22f8		DỮ LIỆU .data			OK	
+docs/TAO-NHAN-VAT-2026.md	253	0x1406420d0		TRONG HÀM	GIỮA LỆNH	hàm 0x140641e80+0x250; .pdata [0x140641e80,0x14064213f); lệnh chứa nó bắt đầu ở 0x1406420c9 (sớm hơn 7 byte)	CẦN XEM	
+docs/TAO-NHAN-VAT-2026.md	262	0x140fb22c0		DỮ LIỆU .data			OK	
+docs/TAO-NHAN-VAT-2026.md	276	0x14103ef58		DỮ LIỆU .data			OK	
+docs/TAO-NHAN-VAT-2026.md	278	0x14045fbb0		TRONG HÀM	GIỮA LỆNH	hàm 0x14045fa10+0x1a0; .pdata [0x14045fb02,0x14045fc65); lệnh chứa nó bắt đầu ở 0x14045fbaf (sớm hơn 1 byte)	CẦN XEM	
+docs/TIEN-DO.md	141	0x1405ea2b0		ĐẦU HÀM	RANH GIỚI LỆNH	0x1405ea2b0	OK	
+docs/TIEN-DO.md	141	0x1405e2740		ĐẦU HÀM	RANH GIỚI LỆNH	0x1405e2740	OK	
+docs/TIEN-DO.md	141	0x1405c5440		ĐẦU HÀM	RANH GIỚI LỆNH	0x1405c5440	OK	
+docs/TIEN-DO.md	1201	0x140013a70		TRONG HÀM	GIỮA LỆNH	hàm 0x140013a40+0x30; .pdata [0x140013a40,0x140013aa9); lệnh chứa nó bắt đầu ở 0x140013a6d (sớm hơn 3 byte)	CẦN XEM	
+docs/TIEN-DO.md	1202	0x140013eb0		TRONG HÀM	RANH GIỚI LỆNH	hàm 0x140013e80+0x30; .pdata [0x140013e80,0x140013eec)	OK	
+docs/TIEN-DO.md	1202	0x140012750	nh	TRONG HÀM	RANH GIỚI LỆNH	hàm 0x140012660+0xf0; .pdata [0x1400126ab,0x140012772)	OK	
+docs/TIEN-DO.md	1203	0x140014bc0		TRONG HÀM	GIỮA LỆNH	hàm 0x140014b50+0x70; .pdata [0x140014b50,0x140014c24); lệnh chứa nó bắt đầu ở 0x140014bb9 (sớm hơn 7 byte)	CẦN XEM	
+docs/TIEN-DO.md	1204	0x1403954d0		TRONG HÀM	RANH GIỚI LỆNH	hàm 0x1403954c0+0x10; .pdata [0x1403954c0,0x140395515)	OK	
+docs/TIEN-DO.md	1621	0x140630900		TRONG HÀM	RANH GIỚI LỆNH	hàm 0x1406308f0+0x10; .pdata [0x1406308f0,0x1406309d5)	OK	
+docs/TIEN-DO.md	1622	0x140631270		TRONG HÀM	GIỮA LỆNH	hàm 0x140630fd0+0x2a0; .pdata [0x140631158,0x140631277); lệnh chứa nó bắt đầu ở 0x14063126d (sớm hơn 3 byte)	CẦN XEM	
+docs/TIEN-DO.md	1635	0x14045fbb0		TRONG HÀM	GIỮA LỆNH	hàm 0x14045fa10+0x1a0; .pdata [0x14045fb02,0x14045fc65); lệnh chứa nó bắt đầu ở 0x14045fbaf (sớm hơn 1 byte)	CẦN XEM	
+docs/TIEN-DO.md	1648	0x140630bc0		TRONG HÀM	GIỮA LỆNH	hàm 0x140630ad0+0xf0; .pdata [0x140630b3e,0x140630d95); lệnh chứa nó bắt đầu ở 0x140630bbd (sớm hơn 3 byte)	CẦN XEM	
+docs/VA-CHAM-2026.md	18	0x140000000		DỮ LIỆU Headers			OK	
+docs/VA-CHAM-2026.md	346	0x140000000	base	DỮ LIỆU Headers			OK	
+docs/VA-CHAM-2026.md	348	0x140c271d0		DỮ LIỆU .rdata			OK	
+docs/giao-viec/DH-DOT-1/DE-BAI.md	208	0x140000000		DỮ LIỆU Headers			OK	
+TAILIEU/DANG-NHAP-GOC.md	3	0x140000000		DỮ LIỆU Headers			OK	
+TAILIEU/DANG-NHAP-GOC.md	13	0x140c2b408		DỮ LIỆU .rdata			OK	
+TAILIEU/DANG-NHAP-GOC.md	13	0x140630fd0		ĐẦU HÀM	RANH GIỚI LỆNH	0x140630fd0	OK	
+TAILIEU/DANG-NHAP-GOC.md	13	0x140631290		ĐẦU HÀM	RANH GIỚI LỆNH	0x140631290	OK	
+TAILIEU/DANG-NHAP-GOC.md	13	0x140630e10		ĐẦU HÀM	RANH GIỚI LỆNH	0x140630e10	OK	
+TAILIEU/DANG-NHAP-GOC.md	14	0x140c2c7b8		DỮ LIỆU .rdata			OK	
+TAILIEU/DANG-NHAP-GOC.md	14	0x14063d530		ĐẦU HÀM	RANH GIỚI LỆNH	0x14063d530	OK	
+TAILIEU/DANG-NHAP-GOC.md	14	0x14063d8b0		ĐẦU HÀM	RANH GIỚI LỆNH	0x14063d8b0	OK	
+TAILIEU/DANG-NHAP-GOC.md	14	0x14063b4f0		ĐẦU HÀM	RANH GIỚI LỆNH	0x14063b4f0	OK	
+TAILIEU/DANG-NHAP-GOC.md	15	0x140c2cea8		DỮ LIỆU .rdata			OK	
+TAILIEU/DANG-NHAP-GOC.md	15	0x1406413e0		TRONG HÀM	GIỮA LỆNH	hàm 0x140641270+0x170; .pdata [0x140641270,0x140641789); lệnh chứa nó bắt đầu ở 0x1406413df (sớm hơn 1 byte)	CẦN XEM	
+TAILIEU/DANG-NHAP-GOC.md	16	0x140c2f778		DỮ LIỆU .rdata			OK	
+TAILIEU/DANG-NHAP-GOC.md	16	0x140650e80		ĐẦU HÀM	RANH GIỚI LỆNH	0x140650e80	OK	
+TAILIEU/DANG-NHAP-GOC.md	17	0x140c2d238		DỮ LIỆU .rdata			OK	
+TAILIEU/DANG-NHAP-GOC.md	17	0x1406447f0		ĐẦU HÀM	RANH GIỚI LỆNH	0x1406447f0	OK	
+TAILIEU/DANG-NHAP-GOC.md	18	0x140c2ea18		DỮ LIỆU .rdata			OK	
+TAILIEU/DANG-NHAP-GOC.md	21	0x140836eb0		ĐẦU HÀM	RANH GIỚI LỆNH	0x140836eb0	OK	
+TAILIEU/DANG-NHAP-GOC.md	21	0x1405b1e90		ĐẦU HÀM	RANH GIỚI LỆNH	0x1405b1e90	OK	
+TAILIEU/DANG-NHAP-GOC.md	31	0x140631940		ĐẦU HÀM	RANH GIỚI LỆNH	0x140631940	OK	
+TAILIEU/DANG-NHAP-GOC.md	36	0x140630fd0		ĐẦU HÀM	RANH GIỚI LỆNH	0x140630fd0	OK	
+TAILIEU/DANG-NHAP-GOC.md	38	0x14062bf50		ĐẦU HÀM	RANH GIỚI LỆNH	0x14062bf50	OK	
+TAILIEU/DANG-NHAP-GOC.md	42	0x14062c450		ĐẦU HÀM	RANH GIỚI LỆNH	0x14062c450	OK	
+TAILIEU/DANG-NHAP-GOC.md	44	0x140630e10		ĐẦU HÀM	RANH GIỚI LỆNH	0x140630e10	OK	
+TAILIEU/DANG-NHAP-GOC.md	45	0x140630e10		ĐẦU HÀM	RANH GIỚI LỆNH	0x140630e10	OK	
+TAILIEU/DANG-NHAP-GOC.md	48	0x140631290		ĐẦU HÀM	RANH GIỚI LỆNH	0x140631290	OK	
+TAILIEU/DANG-NHAP-GOC.md	56	0x14063d530		ĐẦU HÀM	RANH GIỚI LỆNH	0x14063d530	OK	
+TAILIEU/DANG-NHAP-GOC.md	57	0x14063b8f0		ĐẦU HÀM	RANH GIỚI LỆNH	0x14063b8f0	OK	
+TAILIEU/DANG-NHAP-GOC.md	60	0x14063d620		TRONG HÀM	RANH GIỚI LỆNH	hàm 0x14063d530+0xf0; .pdata [0x14063d551,0x14063d75d)	OK	
+TAILIEU/DANG-NHAP-GOC.md	61	0x140b0cfd4		DỮ LIỆU .rdata			OK	
+TAILIEU/DANG-NHAP-GOC.md	65	0x14063c480		ĐẦU HÀM	RANH GIỚI LỆNH	0x14063c480	OK	
+TAILIEU/DANG-NHAP-GOC.md	65	0x14063bb70		TRONG HÀM	GIỮA LỆNH	hàm 0x14063b8f0+0x280; .pdata [0x14063b8f0,0x14063c069); lệnh chứa nó bắt đầu ở 0x14063bb6e (sớm hơn 2 byte)	CẦN XEM	
+TAILIEU/DANG-NHAP-GOC.md	68	0x14063c0b0		ĐẦU HÀM	RANH GIỚI LỆNH	0x14063c0b0	OK	
+TAILIEU/DANG-NHAP-GOC.md	68	0x14063d4a0		ĐẦU HÀM	RANH GIỚI LỆNH	0x14063d4a0	OK	
+TAILIEU/DANG-NHAP-GOC.md	71	0x14063c210		ĐẦU HÀM	RANH GIỚI LỆNH	0x14063c210	OK	
+TAILIEU/DANG-NHAP-GOC.md	71	0x14063c290		ĐẦU HÀM	RANH GIỚI LỆNH	0x14063c290	OK	
+TAILIEU/DANG-NHAP-GOC.md	72	0x14063d8b0		ĐẦU HÀM	RANH GIỚI LỆNH	0x14063d8b0	OK	
+TAILIEU/DANG-NHAP-GOC.md	74	0x14063a000		ĐẦU HÀM	RANH GIỚI LỆNH	0x14063a000	OK	
+TAILIEU/DANG-NHAP-GOC.md	79	0x140650e80		ĐẦU HÀM	RANH GIỚI LỆNH	0x140650e80	OK	
+TAILIEU/DANG-NHAP-GOC.md	79	0x1406508f0		ĐẦU HÀM	RANH GIỚI LỆNH	0x1406508f0	OK	
+TAILIEU/DANG-NHAP-GOC.md	79	0x140fb2b28		DỮ LIỆU .data			OK	
+TAILIEU/DANG-NHAP-GOC.md	80	0x14103e808		DỮ LIỆU .data			OK	
+TAILIEU/DANG-NHAP-GOC.md	80	0x140650a80		ĐẦU HÀM	RANH GIỚI LỆNH	0x140650a80	OK	
+TAILIEU/DANG-NHAP-GOC.md	81	0x140650db0		ĐẦU HÀM	RANH GIỚI LỆNH	0x140650db0	OK	
+TAILIEU/DANG-NHAP-GOC.md	82	0x140644700		ĐẦU HÀM	RANH GIỚI LỆNH	0x140644700	OK	
+TAILIEU/DANG-NHAP-GOC.md	89	0x1406441b0		ĐẦU HÀM	RANH GIỚI LỆNH	0x1406441b0	OK	
+TAILIEU/DANG-NHAP-GOC.md	91	0x140549140		ĐẦU HÀM	RANH GIỚI LỆNH	0x140549140	OK	
+TAILIEU/DANG-NHAP-GOC.md	92	0x1405476d0		ĐẦU HÀM	RANH GIỚI LỆNH	0x1405476d0	OK	
+TAILIEU/DANG-NHAP-GOC.md	98	0x14063c480		ĐẦU HÀM	RANH GIỚI LỆNH	0x14063c480	OK	
+TAILIEU/GOI-TIN-DANG-NHAP.md	8	0x140833910		ĐẦU HÀM	RANH GIỚI LỆNH	0x140833910	OK	
+TAILIEU/GOI-TIN-DANG-NHAP.md	26	0x1408371a0		ĐẦU HÀM	RANH GIỚI LỆNH	0x1408371a0	OK	
+TAILIEU/GOI-TIN-DANG-NHAP.md	43	0x140833b30		ĐẦU HÀM	RANH GIỚI LỆNH	0x140833b30	OK	
+TAILIEU/GOI-TIN-DANG-NHAP.md	72	0x1408319e0		ĐẦU HÀM	RANH GIỚI LỆNH	0x1408319e0	OK	
+TAILIEU/GOI-TIN-DANG-NHAP.md	102	0x1408341b0		ĐẦU HÀM	RANH GIỚI LỆNH	0x1408341b0	OK	
+TAILIEU/GOI-TIN-DANG-NHAP.md	122	0x14077de90		ĐẦU HÀM	RANH GIỚI LỆNH	0x14077de90	OK	
+TAILIEU/GOI-TIN-DANG-NHAP.md	132	0x1408351a0		ĐẦU HÀM	RANH GIỚI LỆNH	0x1408351a0	OK	
+TAILIEU/GOI-TIN-DANG-NHAP.md	155	0x14077de90		ĐẦU HÀM	RANH GIỚI LỆNH	0x14077de90	OK	
+TAILIEU/GOI-TIN-DANG-NHAP.md	167	0x140834e80		ĐẦU HÀM	RANH GIỚI LỆNH	0x140834e80	OK	
+TAILIEU/GOI-TIN-DANG-NHAP.md	179	0x14077de90		ĐẦU HÀM	RANH GIỚI LỆNH	0x14077de90	OK	
+TAILIEU/GOI-TIN-DANG-NHAP.md	191	0x140834f60		ĐẦU HÀM	RANH GIỚI LỆNH	0x140834f60	OK	
+TAILIEU/GOI-TIN-DANG-NHAP.md	211	0x140836eb0		ĐẦU HÀM	RANH GIỚI LỆNH	0x140836eb0	OK	
+TAILIEU/GOI-TIN-DANG-NHAP.md	225	0x140836e50		ĐẦU HÀM	RANH GIỚI LỆNH	0x140836e50	OK	
+TAILIEU/GOI-TIN-DANG-NHAP.md	236	0x140836880		ĐẦU HÀM	RANH GIỚI LỆNH	0x140836880	OK	
+TAILIEU/GOI-TIN-DANG-NHAP.md	262	0x14083cfb0		ĐẦU HÀM	RANH GIỚI LỆNH	0x14083cfb0	OK	
+TAILIEU/GOI-TIN-DANG-NHAP.md	276	0x140835420		ĐẦU HÀM	RANH GIỚI LỆNH	0x140835420	OK	
+TAILIEU/GOI-TIN-DANG-NHAP.md	288	0x14083d1e0		ĐẦU HÀM	RANH GIỚI LỆNH	0x14083d1e0	OK	
+TAILIEU/MAN-CHOI-GIAO-DIEN-2026.md	10	0x14007b2d0		ĐẦU HÀM	RANH GIỚI LỆNH	0x14007b2d0	OK	
+TAILIEU/MAN-CHOI-GIAO-DIEN-2026.md	13	0x14007b550		ĐẦU HÀM	RANH GIỚI LỆNH	0x14007b550	OK	
+TAILIEU/MAN-CHOI-GIAO-DIEN-2026.md	62	0x1402103e0	exe	ĐẦU HÀM	RANH GIỚI LỆNH	0x1402103e0	OK	
+TAILIEU/MAN-CHOI-GIAO-DIEN-2026.md	63	0x140210560		ĐẦU HÀM	RANH GIỚI LỆNH	0x140210560	OK	
+TAILIEU/MAY-CHU-SUY-RA.md	31	0x1405b4ba0		ĐẦU HÀM	RANH GIỚI LỆNH	0x1405b4ba0	OK	
+TAILIEU/MAY-CHU-SUY-RA.md	104	0x14063b8f0		ĐẦU HÀM	RANH GIỚI LỆNH	0x14063b8f0	OK	
+TAILIEU/SU-KIEN-GAME.tsv	2	0x140a10f2d	e	TRONG HÀM	RANH GIỚI LỆNH	hàm 0x140a10cd0+0x25d; .pdata [0x140a10cd0,0x140a18c04)	OK	
+Test/Client/client_tests.cpp	116	0x140631270	exe	TRONG HÀM	GIỮA LỆNH	hàm 0x140630fd0+0x2a0; .pdata [0x140631158,0x140631277); lệnh chứa nó bắt đầu ở 0x14063126d (sớm hơn 3 byte)	CẦN XEM	
+Test/Window/window_tests.cpp	146	0x140631940	exe	ĐẦU HÀM	RANH GIỚI LỆNH	0x140631940	OK	

@@ -1,0 +1,55 @@
+no	status	title
+1	MỞ	Kéo hoặc đổi cỡ cửa sổ bằng chuột làm đứng vòng lặp.
+2	MỞ	Ảnh màu là sRGB hay không.
+3	MỞ	Mã chép còn `throw`
+4	MỞ	Trạng thái toàn cục khả biến trong mã chép
+5	MỞ	Log đa luồng chưa chạy ThreadSanitizer.
+6	MỞ	Chữ ký bẻ dòng trong mã chép.
+7	MỞ	Phần `.cpp` của core chỉ có bản Win32.
+8	MỞ	Client chưa tạo `core::Log`.
+9	MỞ	Nhánh tự cài của `core/function.hpp` chưa chạy.
+10	MỞ	Hai cách xử lý `misc-include-cleaner` với Win32 cùng tồn tại.
+11	ĐÃ ĐÓNG	(Đã đóng 2026-10-08) Camera và nhập liệu.
+12	MỞ	`log_tests` trên gcc-debug thỉnh thoảng thoát 0xC0000374.
+13	MỞ	Context EGL không hỏi mức anisotropy.
+14	MỞ	Ba chỗ của bộ âm thanh còn chặn hoặc còn thô
+15	MỞ	Nút tự chiến đấu của HUD hiện theo suy đoán
+16	MỞ	Ba chỗ của bộ dàn chữ chưa có căn cứ đo
+17	MỞ	Nhãn thẻ kênh chat bị cắt sau khi dịch
+18	MỞ	Dải hiệu ứng của thanh trượt vẽ cùng màu với thanh
+19	MỞ	Sáu cửa sổ con của khung nhân vật bị giấu theo suy đoán
+20	MỞ	Bảng cảnh client đang nạp không phải bảng của bản 2026
+21	MỞ	`Falagard/MapImage` và `Falagard/AnimateImage` không có mã nguồn
+22	MỞ	Giờ trong game của minimap đứng ở giờ Tý
+23	MỞ	Texture ghi thẳng đường dẫn trong look chưa được gom
+24	MỞ	Ảnh đầu 3D của khung người chơi: phần còn ngờ
+25	MỞ	D3D12 và D3D11 không khởi tạo được phần hiển thị trên máy dựng
+26	MỞ	Nhịp khung của backend GL
+27	MỞ	Số "Vừa rồi" trên tablet dao động dù hình hiện đều
+28	MỞ	Ánh sáng theo shader gốc: phần còn ngờ
+29	MỞ	Backend GL màu thô lệch Vulkan ở phần trong suốt
+30	MỞ	GLES tính ánh sáng ở đỉnh
+31	MỞ	Sổ assets Android và dữ liệu vào APK
+32	MỞ	Gợi ý cho mục 25 từ mã bgfx
+33	MỞ	Chữ Việt và vùng chữ của nút
+34	MỞ	Một khung dài 87–100 ms khi lần đầu mở bảng
+35	MỞ	Ảnh con trỏ `Interface/cursor` không có công cụ nào sinh ra
+36	MỞ	Bảng nhân vật: phần chưa theo hết script 2026
+37	MỞ	Ca vòng kéo của cửa sổ thỉnh thoảng không có nhịp nào
+38	MỞ	Camera và chuột theo mã máy 2026: phần còn ngờ
+39	MỞ	Đường đi và vật cản theo `PathLib.dll` 2026: phần còn ngờ
+40	MỞ	Màn đăng nhập: phần chưa theo hết bản gốc
+41	MỞ	Module `collision` gộp từ việc dở của đợt DH 1
+42	MỞ	Nút còn không nối vì chưa đo được đích
+43	MỞ	Sổ nhiệm vụ, sách võ và widget cuộn: phần đã port chưa nối vào màn chơi
+44	MỞ	Máy chủ sau P2 đợt 3 phần đầu: nợ và chỗ ngờ của `gate`, `secure` và test của chúng
+45	MỞ	Lỗ hổng của hạ tầng và của cổng dựng, thấy khi đối chiếu mã với tài liệu
+46	MỞ	Bảng chuyển cảnh: lúc nào bản gốc phát `PLAYER_LEAVE_WORLD`
+47	MỞ	Máy chủ: review cuối 2026-10-12 — đã sửa và còn mở
+48	MỞ	Giao diện màn chơi 2026-10-13: các chỗ chưa đọc được từ mã máy hay chưa làm
+49	MỞ	iOS: dọn nguồn 2026-10-13 và những gì chỉ kiểm được trên máy Apple
+50	MỞ	Shader chuyển sang Slang 2026-10-13: các chỗ chưa kiểm
+51	MỞ	Vũ khí, hiệu ứng đồ, đòn đánh, tuyệt chiêu 2026-10-14: đã có và CHƯA làm
+52	MỞ	Xương/animation (figure/anim, avatar/rig, model clip): review sâu 2026-10-14 — đã xác minh và kẽ hở còn mở
+53	MỞ	Địa chỉ `Game.exe` trong mã và tài liệu không khớp bản `Game.exe` đã trích
+54	MỞ	Máy chủ gameplay 2026-10-15: các chỗ chưa kết luận được

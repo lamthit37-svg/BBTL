@@ -1,0 +1,67 @@
+type	id	bytes	status	evidence
+RT_CURSOR	13	3244	THEO NHÓM	ảnh con trỏ đơn lẻ, thuộc một RT_GROUP_CURSOR
+RT_CURSOR	14	2220	THEO NHÓM	ảnh con trỏ đơn lẻ, thuộc một RT_GROUP_CURSOR
+RT_CURSOR	15	4268	THEO NHÓM	ảnh con trỏ đơn lẻ, thuộc một RT_GROUP_CURSOR
+RT_CURSOR	16	4268	THEO NHÓM	ảnh con trỏ đơn lẻ, thuộc một RT_GROUP_CURSOR
+RT_CURSOR	17	2220	THEO NHÓM	ảnh con trỏ đơn lẻ, thuộc một RT_GROUP_CURSOR
+RT_CURSOR	18	2220	THEO NHÓM	ảnh con trỏ đơn lẻ, thuộc một RT_GROUP_CURSOR
+RT_CURSOR	19	4268	THEO NHÓM	ảnh con trỏ đơn lẻ, thuộc một RT_GROUP_CURSOR
+RT_CURSOR	20	4268	THEO NHÓM	ảnh con trỏ đơn lẻ, thuộc một RT_GROUP_CURSOR
+RT_CURSOR	21	2220	THEO NHÓM	ảnh con trỏ đơn lẻ, thuộc một RT_GROUP_CURSOR
+RT_CURSOR	22	2220	THEO NHÓM	ảnh con trỏ đơn lẻ, thuộc một RT_GROUP_CURSOR
+RT_CURSOR	23	4268	THEO NHÓM	ảnh con trỏ đơn lẻ, thuộc một RT_GROUP_CURSOR
+RT_CURSOR	24	4268	THEO NHÓM	ảnh con trỏ đơn lẻ, thuộc một RT_GROUP_CURSOR
+RT_CURSOR	25	2220	THEO NHÓM	ảnh con trỏ đơn lẻ, thuộc một RT_GROUP_CURSOR
+RT_CURSOR	26	2220	THEO NHÓM	ảnh con trỏ đơn lẻ, thuộc một RT_GROUP_CURSOR
+RT_CURSOR	27	2220	THEO NHÓM	ảnh con trỏ đơn lẻ, thuộc một RT_GROUP_CURSOR
+RT_CURSOR	28	2220	THEO NHÓM	ảnh con trỏ đơn lẻ, thuộc một RT_GROUP_CURSOR
+RT_CURSOR	29	2220	THEO NHÓM	ảnh con trỏ đơn lẻ, thuộc một RT_GROUP_CURSOR
+RT_CURSOR	30	3244	THEO NHÓM	ảnh con trỏ đơn lẻ, thuộc một RT_GROUP_CURSOR
+RT_CURSOR	31	3244	THEO NHÓM	ảnh con trỏ đơn lẻ, thuộc một RT_GROUP_CURSOR
+RT_CURSOR	32	3244	THEO NHÓM	ảnh con trỏ đơn lẻ, thuộc một RT_GROUP_CURSOR
+RT_CURSOR	33	3244	THEO NHÓM	ảnh con trỏ đơn lẻ, thuộc một RT_GROUP_CURSOR
+RT_CURSOR	34	4268	THEO NHÓM	ảnh con trỏ đơn lẻ, thuộc một RT_GROUP_CURSOR
+RT_CURSOR	35	4268	THEO NHÓM	ảnh con trỏ đơn lẻ, thuộc một RT_GROUP_CURSOR
+RT_ICON	1	5672	THEO NHÓM	ảnh icon đơn lẻ, thuộc một RT_GROUP_ICON
+RT_ICON	2	270376	THEO NHÓM	ảnh icon đơn lẻ, thuộc một RT_GROUP_ICON
+RT_ICON	3	9640	THEO NHÓM	ảnh icon đơn lẻ, thuộc một RT_GROUP_ICON
+RT_ICON	4	4264	THEO NHÓM	ảnh icon đơn lẻ, thuộc một RT_GROUP_ICON
+RT_ICON	5	2440	THEO NHÓM	ảnh icon đơn lẻ, thuộc một RT_GROUP_ICON
+RT_ICON	6	1128	THEO NHÓM	ảnh icon đơn lẻ, thuộc một RT_GROUP_ICON
+RT_ICON	7	5672	THEO NHÓM	ảnh icon đơn lẻ, thuộc một RT_GROUP_ICON
+RT_ICON	8	270376	THEO NHÓM	ảnh icon đơn lẻ, thuộc một RT_GROUP_ICON
+RT_ICON	9	9640	THEO NHÓM	ảnh icon đơn lẻ, thuộc một RT_GROUP_ICON
+RT_ICON	10	4264	THEO NHÓM	ảnh icon đơn lẻ, thuộc một RT_GROUP_ICON
+RT_ICON	11	2440	THEO NHÓM	ảnh icon đơn lẻ, thuộc một RT_GROUP_ICON
+RT_ICON	12	1128	THEO NHÓM	ảnh icon đơn lẻ, thuộc một RT_GROUP_ICON
+RT_MENU	109	74	CHƯA CÓ	dự án không đọc loại tài nguyên này; nội dung chưa giải mã
+RT_DIALOG	131	512	CHƯA CÓ	dự án không đọc loại tài nguyên này; nội dung chưa giải mã
+RT_STRING	7	48	CHƯA CÓ	dự án không đọc loại tài nguyên này; nội dung chưa giải mã
+RT_ACCELERATOR	109	16	CHƯA CÓ	dự án không đọc loại tài nguyên này; nội dung chưa giải mã
+RT_GROUP_CURSOR	129	20	CÓ	export_cursors.py xuất nhóm này (CursorKind trong control/cursor_rules.hpp)
+RT_GROUP_CURSOR	130	20	CÓ	export_cursors.py xuất nhóm này (CursorKind trong control/cursor_rules.hpp)
+RT_GROUP_CURSOR	135	20	CÓ	export_cursors.py xuất nhóm này (CursorKind trong control/cursor_rules.hpp)
+RT_GROUP_CURSOR	136	20	CÓ	export_cursors.py xuất nhóm này (CursorKind trong control/cursor_rules.hpp)
+RT_GROUP_CURSOR	137	20	CÓ	export_cursors.py xuất nhóm này (CursorKind trong control/cursor_rules.hpp)
+RT_GROUP_CURSOR	138	20	CÓ	export_cursors.py xuất nhóm này (CursorKind trong control/cursor_rules.hpp)
+RT_GROUP_CURSOR	139	20	CÓ	export_cursors.py xuất nhóm này (CursorKind trong control/cursor_rules.hpp)
+RT_GROUP_CURSOR	140	20	CÓ	export_cursors.py xuất nhóm này (CursorKind trong control/cursor_rules.hpp)
+RT_GROUP_CURSOR	141	20	CÓ	export_cursors.py xuất nhóm này (CursorKind trong control/cursor_rules.hpp)
+RT_GROUP_CURSOR	145	20	CÓ	export_cursors.py xuất nhóm này (CursorKind trong control/cursor_rules.hpp)
+RT_GROUP_CURSOR	147	20	CÓ	export_cursors.py xuất nhóm này (CursorKind trong control/cursor_rules.hpp)
+RT_GROUP_CURSOR	149	20	CÓ	export_cursors.py xuất nhóm này (CursorKind trong control/cursor_rules.hpp)
+RT_GROUP_CURSOR	150	20	CÓ	export_cursors.py xuất nhóm này (CursorKind trong control/cursor_rules.hpp)
+RT_GROUP_CURSOR	151	20	CÓ	export_cursors.py xuất nhóm này (CursorKind trong control/cursor_rules.hpp)
+RT_GROUP_CURSOR	152	20	CHƯA CÓ	CCursorMng::Initial của bản gốc không nạp nhóm này; chưa thấy chỗ nào khác của bản gốc dùng nó
+RT_GROUP_CURSOR	153	20	CÓ	export_cursors.py xuất nhóm này (CursorKind trong control/cursor_rules.hpp)
+RT_GROUP_CURSOR	154	20	CÓ	export_cursors.py xuất nhóm này (CursorKind trong control/cursor_rules.hpp)
+RT_GROUP_CURSOR	155	20	CÓ	export_cursors.py xuất nhóm này (CursorKind trong control/cursor_rules.hpp)
+RT_GROUP_CURSOR	158	20	CÓ	export_cursors.py xuất nhóm này (CursorKind trong control/cursor_rules.hpp)
+RT_GROUP_CURSOR	159	20	CÓ	export_cursors.py xuất nhóm này (CursorKind trong control/cursor_rules.hpp)
+RT_GROUP_CURSOR	160	20	CÓ	export_cursors.py xuất nhóm này (CursorKind trong control/cursor_rules.hpp)
+RT_GROUP_CURSOR	161	20	CÓ	export_cursors.py xuất nhóm này (CursorKind trong control/cursor_rules.hpp)
+RT_GROUP_CURSOR	162	20	CÓ	export_cursors.py xuất nhóm này (CursorKind trong control/cursor_rules.hpp)
+RT_GROUP_ICON	107	90	MỘT PHẦN	src/client/app/client/app.rc khai 2 icon (client, thanh tiêu đề); chưa so ảnh với hai nhóm icon của bản gốc
+RT_GROUP_ICON	108	90	MỘT PHẦN	src/client/app/client/app.rc khai 2 icon (client, thanh tiêu đề); chưa so ảnh với hai nhóm icon của bản gốc
+RT_VERSION	1	824	CHƯA CÓ	dự án không có tài nguyên VERSIONINFO (bản gốc: FileVersion 0,85,0,0, Changyou)
+RT_MANIFEST	1	381	MỘT PHẦN	có manifest (src/client/pack/seal/package.hpp)

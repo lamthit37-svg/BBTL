@@ -1,0 +1,9 @@
+[
+ {"name":"open","tool":"open_binary","args":{"path":"D:/rea/work/client/Game.exe","provider_id":"ghidra","snapshot_path":"D:/rea/work/game.snapshot"}},
+ {"name":"overview","tool":"binary_overview","args":{}},
+ {"name":"list_procs","tool":"list_procedures","args":{}},
+ {"name":"list_names","tool":"list_names","args":{}},
+ {"name":"list_strings","tool":"list_strings","args":{}},
+ {"name":"segments","tool":"list_segments","args":{}},
+ {"name":"export_bundle","tool":"export_evidence_bundle","args":{"path":"D:/rea/work/bundle_full.json","overwrite":true}}
+]

@@ -1,6 +1,6 @@
 # Trường của gói tin đăng nhập (suy từ hàm Read trong Game.exe)
 
-Sinh bằng `TOOLS/port/ghidra/packet_fields.py` từ `TAILIEU/ghidra/login_packets.txt`.
+Sinh bằng `TOOLS/port/ghidra/packet_fields.py` từ `TAILIEU/ghidra/login_packets.txt`. Giới hạn của công cụ: một hàm Read dùng chung cho nhiều gói chỉ hiện dưới gói đầu tiên khai nó, các gói sau bị ghi "không có hàm đọc"; bảng đầy đủ và đã đối chiếu của mọi gói ở `TAILIEU/GAME-EXE-2026/packets.tsv`. Hai mục `LCRetCreateChar` và `LCRetDeleteChar` đã sửa tay (2026-10-14).
 
 
 ## Packets::CLConnect
@@ -152,7 +152,14 @@ Hàm Read: `FUN_1408351a0 @ 0x1408351a0`
 
 ## Packets::LCRetCreateChar
 
-Không có hàm đọc trường (gói rỗng hoặc chỉ mang kiểu).
+Hàm Read: `FUN_14077de90 @ 0x14077de90` (hàm đọc 4 byte dùng chung; opcode 440, `GetPacketSize` = 4)
+
+```
+  đọc gói + 0x18 cỡ 4
+}
+```
+
+Đính chính 2026-10-14: bản trước ghi nhầm "gói rỗng". `packet_fields.py` chỉ nhận hàm Read riêng của từng lớp; hàm này dùng chung với nhiều gói nên chỉ hiện dưới lớp đầu tiên khai nó (`CGActiveMonster`). Đối chiếu: `TAILIEU/GAME-EXE-2026/packets.tsv` (cột `fields`, `fixed_size`).
 
 
 ## Packets::CLAskDeleteChar
@@ -169,7 +176,14 @@ Hàm Read: `FUN_140834e80 @ 0x140834e80`
 
 ## Packets::LCRetDeleteChar
 
-Không có hàm đọc trường (gói rỗng hoặc chỉ mang kiểu).
+Hàm Read: `FUN_14077de90 @ 0x14077de90` (hàm đọc 4 byte dùng chung; opcode 707, `GetPacketSize` = 4)
+
+```
+  đọc gói + 0x18 cỡ 4
+}
+```
+
+Đính chính 2026-10-14: bản trước ghi nhầm "gói rỗng". `packet_fields.py` chỉ nhận hàm Read riêng của từng lớp; hàm này dùng chung với nhiều gói nên chỉ hiện dưới lớp đầu tiên khai nó (`CGActiveMonster`). Đối chiếu: `TAILIEU/GAME-EXE-2026/packets.tsv` (cột `fields`, `fixed_size`).
 
 
 ## Packets::CLAskCharLogin

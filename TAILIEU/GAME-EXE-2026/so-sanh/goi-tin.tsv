@@ -1,0 +1,1368 @@
+class	packet_id	fixed_size	group	status	evidence	read_kind	read_fields
+CGGetMailAppend	1	9	tổ đội/bang/quan hệ	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	3
+CGStopTeamFollow	2	0	vào cảnh/di chuyển	CHƯA CÓ	client không có socket/handler/giải mã gói này	empty	0
+GCStallRemoveItem	3	21	vật phẩm/hành trang	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	5
+GCGuildApply	7	4	tổ đội/bang/quan hệ	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	1
+GCTLCJShopInfo	8	60	cửa hàng/giao dịch	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	2
+GCPlayerShopSaleShopOptResult	9	14	cửa hàng/giao dịch	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	3
+CGShopBuyForFriend	10	46	cửa hàng/giao dịch	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	13
+GCBusRemovePassenger	11	8	vật phẩm/hành trang	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	2
+CGSectOper	12	62	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	4
+GCFinalCorpsListInfo_2016	15	1216	tổ đội/bang/quan hệ	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	2
+CGEnterScene	17	11	vào cảnh/di chuyển	MỘT PHẦN	tương đương chức năng: EnterGame (server có, client chưa nối; định dạng dự án khác)	flat	3
+GCXbwCopySceneData	18	8	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	1
+GCReturnShopList	19	None	cửa hàng/giao dịch	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	3
+CGPVPCarTeamOper	20	44	nhiệm vụ	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	2
+CGAskPlayerInfoBySuper	21	44	đối tượng trong cảnh	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	5
+GCSyncBossInfo	22	164	nhiệm vụ	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	5
+GCCorpsOperResult_2016	23	None	tổ đội/bang/quan hệ	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	15
+CGAskSecKillNum	25	1	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	1
+CGAskWeekShopInfo	26	0	cửa hàng/giao dịch	CHƯA CÓ	client không có socket/handler/giải mã gói này	empty	0
+GCGMChat	27	None	chat/thông báo	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	4
+GCPetProcreateRegisterUI	28	357	thú cưng/nhi	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	1
+GCChangeFatigueState	30	4	thuộc tính nhân vật	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	1
+GCMovieOpr	31	5	giao diện/script	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	2
+GCAuctionError	32	None	cửa hàng/giao dịch	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	2
+GCDynActivityTime	37	80	nhiệm vụ	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	1
+LCRetCharLogin	38	None	đăng nhập/tài khoản	MỘT PHẦN	tương đương chức năng: SessionStart/SceneEnter (server có, client chưa nối; định dạng dự án khác)	branching	2
+CGBJJJHZhenJiu	40	4	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	1
+GCDRideOperate	41	39	vật phẩm/hành trang	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	4
+CGAskIMDressChest	42	8	vật phẩm/hành trang	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	2
+CGAskGemContainer	45	4	vật phẩm/hành trang	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	1
+CGExchangeCode	46	None	vật phẩm/hành trang	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	1
+CGWFriendADAskSimpleInfo	47	16	tổ đội/bang/quan hệ	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	4
+CGWGuildLeagueQuit	48	8	tổ đội/bang/quan hệ	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	2
+GCChristmasThiefPos	49	4	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	2
+GCCharAutoRide	50	4	vật phẩm/hành trang	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	1
+CGWLZDBaseData	52	32	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	6
+CGMiniStat	54	161	nhịp tim/hệ thống	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	2
+CGIMDressChest_SwapItem	55	3	vật phẩm/hành trang	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	3
+CGExchangeSynchItemII	56	7	vật phẩm/hành trang	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	5
+CGWGuildLeagueAskEnter	58	10	tổ đội/bang/quan hệ	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	3
+GCEquipUpstageResult	59	28	vật phẩm/hành trang	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	4
+CGLookUpOther	60	40	đối tượng trong cảnh	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	4
+GCPhoenixPlainWarCrystalPos	61	168	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	1
+CGPneumaOpt	62	3	chiến đấu/kỹ năng	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	3
+CGXBWCmnData	63	50	nhiệm vụ	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	4
+GCXFTQShopInfo	65	1204	cửa hàng/giao dịch	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	2
+GCRetCampaignCount	66	256	nhiệm vụ	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	3
+KeyExchange	67	2	vật phẩm/hành trang	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	1
+CGManipulateInfant	69	16	thú cưng/nhi	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	3
+CGUseGem	70	9	vật phẩm/hành trang	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	6
+GCRMBChatFaceInfo	73	20	chat/thông báo	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	1
+CGManipulateMengChong	75	12	thú cưng/nhi	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	3
+GCXRZPVPSyncMapData	78	None	nhiệm vụ	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	3
+GCMonsterSpeak	79	None	chat/thông báo	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	2
+GCGuiShiNpcShopInfo	82	None	cửa hàng/giao dịch	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	5
+GCMail	83	None	tổ đội/bang/quan hệ	CHƯA CÓ	client không có socket/handler/giải mã gói này	delegated	0
+GCSyncXiaKeBossInfo	86	1064	nhiệm vụ	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	8
+GCDetailXiulianList	87	68	thuộc tính nhân vật	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	3
+GCGuildError	88	1	tổ đội/bang/quan hệ	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	1
+GCDressTransform	89	45	vật phẩm/hành trang	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	4
+GCOtherEquip	92	None	vật phẩm/hành trang	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	4
+GCBXJGeCaoRankList	93	840	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	1
+GCSendFairShopData	94	1014	cửa hàng/giao dịch	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	11
+GCRetIMDressChest	95	200	vật phẩm/hành trang	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	2
+GCSummonerObj_ActNow	96	8	thú cưng/nhi	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	2
+GCXRZPVPSyncBattleData	97	1756	nhiệm vụ	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	10
+GCGSScoreRet	99	5	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	2
+GCNewSummoner	100	40	thú cưng/nhi	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	9
+CGCheckWinActive	102	12	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	3
+GCStallApply	104	8	cửa hàng/giao dịch	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	5
+CGKMCorpOper	106	9	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	3
+GCChallenge	109	None	chiến đấu/kỹ năng	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	42
+GCMonsterEquipment	110	56	vật phẩm/hành trang	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	9
+GCArrive	111	17	vào cảnh/di chuyển	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	4
+CGXiuChangLogin	112	16	đăng nhập/tài khoản	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	4
+GCDiscardItemResult	113	7	vật phẩm/hành trang	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	4
+GCPetBankListUPData	115	None	vật phẩm/hành trang	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	1
+GCMartialExp	117	16	thuộc tính nhân vật	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	4
+CGAskLockObj	119	18	đối tượng trong cảnh	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	5
+CGAskMyTemBankList	122	None	vật phẩm/hành trang	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	2
+GCXBWTeamData	124	432	nhiệm vụ	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	2
+CGAskGetNewAuctionItem	125	2	vật phẩm/hành trang	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	2
+GC7ZhouNianBoxList	126	None	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	4
+GCUseItemResult	127	None	vật phẩm/hành trang	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	2
+CGAskMyBagList	128	None	vật phẩm/hành trang	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	2
+GCNotifyQuery	129	8	chat/thông báo	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	2
+GCPlayerAutoRun	130	12	vào cảnh/di chuyển	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	3
+GCRetAskMobilePhoneStatus	131	25	nhịp tim/hệ thống	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	7
+GCRemovePet	133	8	vật phẩm/hành trang	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	1
+GCNewPet_Death	134	32	đối tượng trong cảnh	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	7
+CGAuctionModify	137	None	cửa hàng/giao dịch	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	6
+CGMengChongOpt	138	None	thú cưng/nhi	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	11
+CGReqResetAttr	139	0	chiến đấu/kỹ năng	CHƯA CÓ	client không có socket/handler/giải mã gói này	empty	0
+GCCorpsError_2018	140	4	tổ đội/bang/quan hệ	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	1
+GCFollow	141	4	vào cảnh/di chuyển	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	1
+CGAskDetailAttrib	143	8	thuộc tính nhân vật	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	2
+CGT3ShopReq	144	12	cửa hàng/giao dịch	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	3
+CGSendMailNew	145	None	tổ đội/bang/quan hệ	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	1
+GCWGAchReq	146	2265	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	6
+GCTeamAskApply	147	None	tổ đội/bang/quan hệ	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	46
+GCRetFindCatData	148	1	tổ đội/bang/quan hệ	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	6
+CGCityBankAcquireList	149	5	vật phẩm/hành trang	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	2
+GCCityAttr	150	None	tổ đội/bang/quan hệ	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	8
+CGAskLeanAbility	151	18	thuộc tính nhân vật	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	5
+CGPlayerShopSaleShopAskInfo	153	13	cửa hàng/giao dịch	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	2
+CGDressTransform	154	4	vật phẩm/hành trang	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	1
+GCKvkMaZeiPosList	156	244	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	1
+GCGSChatInfoRet	157	12	chat/thông báo	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	6
+CGBXJGeCaoTeamOper	159	44	tổ đội/bang/quan hệ	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	2
+CGAttack	163	0	chiến đấu/kỹ năng	CHƯA CÓ	client không có socket/handler/giải mã gói này	empty	0
+GCZdZdRequestResult	165	None	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	13
+GCDetailImpactListUpdate	168	None	chiến đấu/kỹ năng	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	2
+WGCFriendADGiveSimpleVoteInfo	169	None	tổ đội/bang/quan hệ	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	9
+GCNotifyTeamInfo	170	7	chat/thông báo	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	4
+GCDarkResult	171	None	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	3
+CGNetDelay	172	10	nhịp tim/hệ thống	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	3
+CGAskCampaignCount	173	4	nhiệm vụ	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	1
+GCGangTerritory	174	None	tổ đội/bang/quan hệ	CHƯA CÓ	client không có socket/handler/giải mã gói này	delegated	0
+GCCharDirectImpact	175	10	chiến đấu/kỹ năng	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	3
+CGExchangeSynchMoneyII	176	8	vật phẩm/hành trang	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	2
+CGTLBBRecorderLog	177	4	nhịp tim/hệ thống	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	1
+CGWaiguaInfo	179	5	nhịp tim/hệ thống	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	2
+GCTLCJSyncMapData	181	222	nhiệm vụ	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	6
+GCRefreshInfantSkill	182	16	chiến đấu/kỹ năng	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	2
+CGDisplaceGem	183	6	vật phẩm/hành trang	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	3
+GCRetAppYanZheng	185	3	đăng nhập/tài khoản	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	3
+CGUseAbility	186	11	thuộc tính nhân vật	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	4
+GCFZXXMonsterRem	188	5	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	2
+CGClientPerformanceNormal	190	46	nhịp tim/hệ thống	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	12
+GCMissionRemove	191	4	vật phẩm/hành trang	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	1
+GCStallClose	192	0	cửa hàng/giao dịch	CHƯA CÓ	client không có socket/handler/giải mã gói này	empty	0
+GCTeamFollowList	195	None	vào cảnh/di chuyển	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	2
+GCWLZDBaseData	196	36	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	8
+CGChat	198	None	chat/thông báo	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	12
+CGWGuildLeagueInfo	199	8	tổ đội/bang/quan hệ	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	2
+GCWeaponYiGuiMoveItemResult	200	10	vào cảnh/di chuyển	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	4
+CGPlayerShopDesc	201	None	cửa hàng/giao dịch	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	2
+WGCFriendADGiveSearchRet	202	None	tổ đội/bang/quan hệ	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	5
+GCGuildGift	204	3560	tổ đội/bang/quan hệ	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	10
+CGAskNoteLog	205	None	nhịp tim/hệ thống	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	2
+GCTJCPVPMonsterInfo	206	None	nhiệm vụ	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	3
+CGPlayerShopSize	207	14	cửa hàng/giao dịch	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	3
+CGAutoCreateTeam	209	4	tổ đội/bang/quan hệ	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	1
+CGInviteToGuild	210	None	tổ đội/bang/quan hệ	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	3
+CGAskTeamFollow	211	0	vào cảnh/di chuyển	CHƯA CÓ	client không có socket/handler/giải mã gói này	empty	0
+GCCommonPos	212	None	vào cảnh/di chuyển	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	3
+GCIcePrizeDraw	213	49	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	6
+CGGetTujian	214	0	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	empty	0
+CG2023ActivationCDK	218	None	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	2
+GCUpdateGuiShiBaseData	219	None	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	2
+CGInfantExteriorChange	221	15	thú cưng/nhi	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	5
+CGGuildJoin	222	2	tổ đội/bang/quan hệ	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	1
+LCRetLogin	223	None	đăng nhập/tài khoản	MỘT PHẦN	tương đương chức năng: Ticket/Reject (server có, client chưa nối; định dạng dự án khác)	branching	12
+GCXiuChangRetLogin	224	None	đăng nhập/tài khoản	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	3
+GCNewMonster_SkillChannel	226	64	đối tượng trong cảnh	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	14
+GCAnniversaryInfo	227	233	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	3
+GCHuaZhaoJieInfo	228	400	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	1
+GCKSBossMiniMapRefresh	229	84	nhiệm vụ	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	1
+GCRetZNQfudaiInfo	230	177	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	3
+CGAntiStudio	232	1	nhịp tim/hệ thống	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	1
+GCPetNeiDan	235	14	thú cưng/nhi	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	6
+GCAbilityAction	236	23	thuộc tính nhân vật	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	7
+GCAttack	237	0	chiến đấu/kỹ năng	CHƯA CÓ	client không có socket/handler/giải mã gói này	empty	0
+CGInviteAddMeFriend	238	8	tổ đội/bang/quan hệ	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	2
+CLAskDeleteChar	240	59	đăng nhập/tài khoản	MỘT PHẦN	tương đương chức năng: DeleteCharacter (server có, client chưa nối; định dạng dự án khác)	flat	3
+GCShopUpdateMerchandiseList	242	None	cửa hàng/giao dịch	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	3
+CGBankMoney	245	None	vật phẩm/hành trang	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	2
+CGYiGuiMoveItem	246	10	vào cảnh/di chuyển	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	4
+GCCharMoveResult	247	12	vào cảnh/di chuyển	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	3
+GCNewItemBox	248	32	đối tượng trong cảnh	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	7
+CGWFriendADAskSearch	249	32	tổ đội/bang/quan hệ	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	8
+CGWFriendADAskVoteInfo	250	24	tổ đội/bang/quan hệ	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	6
+CGCharDefaultEvent	251	8	nhiệm vụ	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	2
+GCBankMoney	252	None	vật phẩm/hành trang	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	3
+GCQIXIPVESyncScore	256	260	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	1
+CGAskWeekcardInfo	258	0	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	empty	0
+GCCompeMarryAliveInfo	261	None	tổ đội/bang/quan hệ	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	4
+GCSynPneumaSmeltBag	263	None	chiến đấu/kỹ năng	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	2
+GCMartialFullData	264	164	thuộc tính nhân vật	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	4
+GCCityWarRankOp	268	None	tổ đội/bang/quan hệ	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	7
+GCZBSGMVisable	269	24	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	3
+CGPetBankAddPet	270	17	vật phẩm/hành trang	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	3
+GCDetailFiveElements	272	172	thuộc tính nhân vật	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	4
+CGAskTujianInfo	273	0	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	empty	0
+CGMail	275	None	tổ đội/bang/quan hệ	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	1
+GCCommonMonsterSyncMapData	277	None	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	3
+GCPlayerRealMove	279	24	vào cảnh/di chuyển	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	6
+GCChangeGSBind	281	4	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	4
+GCPetUnEquipResult	282	23	vật phẩm/hành trang	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	7
+GCOrnamentsDataUpdate	285	None	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	17
+CGExchangeOkIII	286	4	vật phẩm/hành trang	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	1
+GCXiuChangShutDown	287	0	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	empty	0
+CGAuctionSell	288	15	cửa hàng/giao dịch	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	5
+CGLwOperate	290	7	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	4
+GCUseEquipResult	292	29	vật phẩm/hành trang	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	10
+CGShowFashionDepotData	293	2	vật phẩm/hành trang	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	2
+CGWGuildLeagueAnswerEnter	294	14	tổ đội/bang/quan hệ	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	4
+GCNewMonster_Move	296	None	vào cảnh/di chuyển	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	10
+GCWeekPveMapInfo	297	197	vào cảnh/di chuyển	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	21
+GCNameBoardExDataUpdate	298	None	đối tượng trong cảnh	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	5
+CLAskLogin	299	None	đăng nhập/tài khoản	MỘT PHẦN	tương đương chức năng: SignIn (server có, client chưa nối; định dạng dự án khác)	flat	19
+GCObjTeleport	300	24	vào cảnh/di chuyển	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	5
+GCNewPet	303	32	đối tượng trong cảnh	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	7
+CGBieYeMengChongRemoveItem	305	15	vật phẩm/hành trang	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	6
+CGTeamApply	306	None	tổ đội/bang/quan hệ	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	6
+CGUnEquip	307	4	vật phẩm/hành trang	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	4
+GCRetSetActivePoint	308	4	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	1
+GCRetSuperWeaponDIYSkill	309	64	chiến đấu/kỹ năng	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	2
+LCRetConnect	311	74	đăng nhập/tài khoản	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	8
+CGIMDressMultiBuyToOther	312	None	vật phẩm/hành trang	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	4
+GCDetailXinbiwu_2018	314	170	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	4
+GCShowPVPCARTaps	316	None	nhiệm vụ	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	2
+LCRetCharList	319	None	đăng nhập/tài khoản	MỘT PHẦN	tương đương chức năng: CharacterList (server có, client chưa nối; định dạng dự án khác)	branching	0
+CGZbsAskHideUI_2016	322	0	giao diện/script	CHƯA CÓ	client không có socket/handler/giải mã gói này	empty	0
+CGAskBieYeResInfo	323	12	biệt dã	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	3
+CGAskSuperWeaponDIYSkill	325	4	chiến đấu/kỹ năng	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	1
+CGWFriendADAskDetailInfo	326	20	tổ đội/bang/quan hệ	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	5
+GCJZWLZDRankList	327	None	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	3
+CGZBSCreateTeam	328	28	tổ đội/bang/quan hệ	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	2
+GCCancelGSBind	329	1	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	1
+GCT3ShopInfo	331	None	cửa hàng/giao dịch	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	8
+WGCGuildLeagueInfo	332	542	tổ đội/bang/quan hệ	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	2
+GCRideBagMoveItemResult	334	None	vào cảnh/di chuyển	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	4
+CGZYPVPTeamOper	335	44	nhiệm vụ	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	2
+GCFinger	336	36	tổ đội/bang/quan hệ	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	2
+GCShowFashionDepotData	337	None	vật phẩm/hành trang	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	4
+CGWGuildLeagueMemberApplyList	338	8	tổ đội/bang/quan hệ	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	2
+GCExchangeConfirm	340	2	vật phẩm/hành trang	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	1
+CLRegSafeSign	341	51	đăng nhập/tài khoản	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	2
+GCCorpsCopySceneData_2018	344	None	tổ đội/bang/quan hệ	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	12
+GCAbilitySucc	346	11	thuộc tính nhân vật	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	4
+GCBXJGeCaoUpdataPos	347	200	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	1
+GCAddSkillList	348	None	chiến đấu/kỹ năng	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	7
+GCWorldTime	349	12	nhịp tim/hệ thống	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	3
+GCXinShouZhanLing	352	556	tổ đội/bang/quan hệ	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	14
+CLConnect	355	124	đăng nhập/tài khoản	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	9
+GCIMDressChest_SwapItem	356	4	vật phẩm/hành trang	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	4
+GCZJZDPVPOperation	357	None	nhiệm vụ	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	2
+GCReturnTeamFollow	358	9	vào cảnh/di chuyển	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	3
+GCCorpsOperResult_2018	359	None	tổ đội/bang/quan hệ	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	14
+CGAskMyBagSize	361	0	vật phẩm/hành trang	CHƯA CÓ	client không có socket/handler/giải mã gói này	empty	0
+GCAskServerTime	364	99	nhịp tim/hệ thống	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	13
+GCNpcTalk	366	None	chat/thông báo	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	1
+GCRetSecKillData	367	None	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	7
+GCPlayerShopSaleShopInfo	371	None	cửa hàng/giao dịch	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	12
+CGAskMyPneumaList	372	0	chiến đấu/kỹ năng	CHƯA CÓ	client không có socket/handler/giải mã gói này	empty	0
+CGOpenFuJiangTianLong	373	1	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	1
+GCExchangeCode	375	None	vật phẩm/hành trang	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	1
+GCSelectTarget	376	4	chiến đấu/kỹ năng	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	1
+GCEnterScene	380	52	vào cảnh/di chuyển	MỘT PHẦN	tương đương chức năng: SceneEnter (server có, client chưa nối; định dạng dự án khác)	flat	17
+GCFangChenMiError	381	8	nhịp tim/hệ thống	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	2
+GCFYJCTDTeamJoin	382	314	tổ đội/bang/quan hệ	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	1
+GCDfsSceneSyncData	383	None	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	1
+GCTeamLeaderAskInvite	386	None	tổ đội/bang/quan hệ	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	10
+CGCreateChatGroup	387	None	chat/thông báo	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	2
+CGAskTeamMemberInfo	389	14	tổ đội/bang/quan hệ	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	4
+GCTalentSkill	391	12	chiến đấu/kỹ năng	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	3
+GCGuildZhanTuanRankOp	393	None	tổ đội/bang/quan hệ	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	2
+GCManipulateInfantRet	395	16	thú cưng/nhi	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	3
+CGAskRaidMemberInfo	397	14	nhiệm vụ	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	4
+GCRetChangeScene	398	None	vào cảnh/di chuyển	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	4
+CGAskAddSkillList	400	4	chiến đấu/kỹ năng	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	1
+GCAskDoDoubleChatAction	401	36	chat/thông báo	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	9
+CGSelectTargetOfObject	403	4	chiến đấu/kỹ năng	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	1
+CGZNQSendInsert	404	None	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	2
+CLRegNewLicense	406	51	đăng nhập/tài khoản	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	2
+WGCFriendADGiveSimpleInfo	407	None	tổ đội/bang/quan hệ	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	9
+GCMissionHaveDoneFlag	408	8	nhiệm vụ	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	2
+GCXRZPVPCmnData	409	28	nhiệm vụ	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	2
+CGChatGroupOperate	410	8	chat/thông báo	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	7
+CGChangyigeCheck	412	69	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	5
+CGSendGQHYChouJiang	413	None	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	2
+GCCharSkill_Send	414	None	chiến đấu/kỹ năng	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	6
+CGMissionContinue	415	12	nhiệm vụ	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	3
+GCBieYeAllFurnitureObj	416	None	biệt dã	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	1
+GCManipulateMengChongRet	418	12	thú cưng/nhi	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	3
+CGPlayerShopBuyShop	419	13	cửa hàng/giao dịch	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	2
+CGAskFindCatData	420	1	tổ đội/bang/quan hệ	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	1
+GCLongZhouList	421	32	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	4
+GCStallOpen	425	None	cửa hàng/giao dịch	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	1
+CLAskCharLogin	426	None	đăng nhập/tài khoản	MỘT PHẦN	tương đương chức năng: EnterGame (server có, client chưa nối; định dạng dự án khác)	flat	8
+GCXiaKeShopData	427	None	cửa hàng/giao dịch	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	5
+GCTSLCmnData	428	28	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	2
+GCWatermelonScorceRank	429	856	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	4
+GCUpdatePlayerQuicklyEnter	430	9	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	3
+CGSetPetAttrib	432	None	thuộc tính nhân vật	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	10
+CGAskSetting	433	0	nhịp tim/hệ thống	CHƯA CÓ	client không có socket/handler/giải mã gói này	empty	0
+GCPlayerShopError	435	1	cửa hàng/giao dịch	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	1
+GCZhouNianHuaCheList	436	None	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	3
+GCGuildBatlePos	437	None	tổ đội/bang/quan hệ	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	1
+LCRetCreateChar	440	4	đăng nhập/tài khoản	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	1
+CGCIPRegion	442	6	nhịp tim/hệ thống	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	3
+CGStallOpen	444	4	cửa hàng/giao dịch	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	1
+GCAskQuestion	445	616	nhiệm vụ	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	7
+GCGuildActValueOp	446	None	tổ đội/bang/quan hệ	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	3
+GCNewGSLink	447	None	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	9
+GCBianJingBidding	449	11726	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	14
+GCCityError	453	1	tổ đội/bang/quan hệ	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	1
+GCTeamMemberInfo	454	None	tổ đội/bang/quan hệ	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	53
+GCGMVisibleSyncData	455	None	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	3
+CGConnect	456	140	đăng nhập/tài khoản	MỘT PHẦN	tương đương chức năng: Hello+Login/Resume (server có, client chưa nối; định dạng dự án khác)	flat	17
+CGTeamChangeOption	457	12	tổ đội/bang/quan hệ	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	2
+CGZBSCmnData	458	52	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	2
+GCXbwResultData	459	332	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	7
+GCAbilityResult	460	10	thuộc tính nhân vật	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	3
+CGWGuildLeagueList	461	8	tổ đội/bang/quan hệ	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	2
+GCSyncCommanderSvrData	462	None	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	4
+CGAskx64Info	463	2	nhịp tim/hệ thống	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	2
+CGGameCommond	464	None	nhịp tim/hệ thống	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	2
+GCPlayerCallOf	465	12	vào cảnh/di chuyển	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	3
+GCMissionModify	467	42	nhiệm vụ	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	2
+CGWFriendADIssueOrEdit	471	33	tổ đội/bang/quan hệ	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	14
+GCGuild	472	0	tổ đội/bang/quan hệ	CHƯA CÓ	client không có socket/handler/giải mã gói này	delegated	0
+GCPickResult	473	24	vật phẩm/hành trang	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	8
+CGYiGuiDressAndWeapon	474	8	vật phẩm/hành trang	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	2
+CGGuildZhanTuanRankOp	479	4	tổ đội/bang/quan hệ	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	1
+CGRaidLeave	480	8	nhiệm vụ	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	2
+GCUICommand	481	None	giao diện/script	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	2
+GCRetCYJPlusYanZheng	482	3	đăng nhập/tài khoản	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	3
+GCCharBuff	485	None	chiến đấu/kỹ năng	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	8
+CGLoginAcc	486	51	đăng nhập/tài khoản	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	1
+GCTalentFullData	487	88	chiến đấu/kỹ năng	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	2
+CGDeleteIMDress	488	4	vật phẩm/hành trang	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	1
+GCCooldownUpdate	489	None	thuộc tính nhân vật	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	0
+CGCharAskEquipment	491	4	vật phẩm/hành trang	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	1
+GCETJCmnData	493	20	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	2
+GCSBGHumanInfo	494	None	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	2
+CGPlayerShopMultiBuyItem	495	None	vật phẩm/hành trang	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	1
+CGAuctionSearch	496	None	cửa hàng/giao dịch	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	5
+GCXingZhenNpcShopInfo	501	394	chiến đấu/kỹ năng	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	4
+CGRaidCreate	502	None	nhiệm vụ	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	5
+CGAskZongMenShopInfo	504	0	cửa hàng/giao dịch	CHƯA CÓ	client không có socket/handler/giải mã gói này	empty	0
+CGExchangeReplyI	507	12	vật phẩm/hành trang	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	3
+CGCorpsOper_2016	508	None	tổ đội/bang/quan hệ	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	7
+CGGangTerritory	510	None	tổ đội/bang/quan hệ	CHƯA CÓ	client không có socket/handler/giải mã gói này	delegated	0
+GCUpdateCapturePetOwn	511	4	thú cưng/nhi	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	1
+GCExteriorInfo	512	None	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	9
+CGQRJWordsOperate	513	None	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	3
+CGNTPPacket	515	16	nhịp tim/hệ thống	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	4
+WGCFriendADGiveDetailInfo	516	None	tổ đội/bang/quan hệ	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	4
+GCPVPShopInfo	517	1692	cửa hàng/giao dịch	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	24
+WGCGuildLeagueMemberApplyList	518	None	tổ đội/bang/quan hệ	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	2
+CGWGuildLeagueChangeInfo	519	72	tổ đội/bang/quan hệ	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	3
+GCXiuChangRetHeartBeat	520	1	nhịp tim/hệ thống	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	1
+CLAskCreateChar	522	148	đăng nhập/tài khoản	MỘT PHẦN	tương đương chức năng: CreateCharacter (server có, client chưa nối; định dạng dự án khác)	flat	14
+GCAppChat	528	None	chat/thông báo	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	14
+CGXiuChangStopHeartBeat	530	4	nhịp tim/hệ thống	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	1
+GCAbilityExp	533	10	thuộc tính nhân vật	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	3
+GCCharAllTitles	536	None	thuộc tính nhân vật	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	4
+GCSplitItemResult	539	None	vật phẩm/hành trang	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	4
+CGMoneyChallenge	540	9	chiến đấu/kỹ năng	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	3
+WGCFriendADGiveVoteInfo	541	None	tổ đội/bang/quan hệ	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	3
+GCRetAskQuit	545	5	nhịp tim/hệ thống	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	2
+GCNewPlayer_SkillChannel	546	64	đối tượng trong cảnh	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	14
+CGCityBankSetAccess	547	40	vật phẩm/hành trang	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	2
+CGAskMenPaiDiYi	548	0	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	empty	0
+CGAuctionReUp	550	2	cửa hàng/giao dịch	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	2
+CGStallSetStallOffline	553	5	cửa hàng/giao dịch	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	2
+LCStatus	554	6	nhịp tim/hệ thống	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	2
+GCServerLsCount	556	8	nhịp tim/hệ thống	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	2
+CGAskJPNewAuctionItem	557	26	vật phẩm/hành trang	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	8
+GCCharBeHitOut	558	28	chiến đấu/kỹ năng	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	7
+CGPlayerShopAcquireItemList	559	16	vật phẩm/hành trang	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	5
+GCStudyXinfa	560	16	chiến đấu/kỹ năng	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	4
+CGChannelKick	561	16	chiến đấu/kỹ năng	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	4
+CGWFriendADAskSimpleVoteInfo	562	12	tổ đội/bang/quan hệ	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	3
+CGBieYeAddFurniture	563	11	biệt dã	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	5
+GCCityBankBegin	564	4	vật phẩm/hành trang	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	1
+CGGrabMessage	565	105	nhịp tim/hệ thống	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	2
+GCBieYeQiYuNpcPos	568	17	nhiệm vụ	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	5
+CGCharUpdateCurTitleEffect	572	6	thuộc tính nhân vật	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	2
+GCNewPet_SkillChannel	574	64	đối tượng trong cảnh	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	14
+CGReportWaigua	575	39	nhịp tim/hệ thống	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	4
+CGShopBuy	577	42	cửa hàng/giao dịch	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	13
+GCNewInfant_Move	578	None	vào cảnh/di chuyển	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	10
+GCCharCharge	579	32	thuộc tính nhân vật	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	6
+CGRequestMobileApprove	580	None	nhịp tim/hệ thống	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	2
+GCPetFriends	581	None	tổ đội/bang/quan hệ	CHƯA CÓ	client không có socket/handler/giải mã gói này	delegated	0
+CGCYJTest	582	0	nhịp tim/hệ thống	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	3
+GCCheckMemory_00	584	None	nhịp tim/hệ thống	CHƯA CÓ	client không có socket/handler/giải mã gói này	unparsed	0
+GCRaidMemberInfo	585	None	nhiệm vụ	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	53
+GCCharBaseAttrib	587	None	thuộc tính nhân vật	MỘT PHẦN	tương đương chức năng: EntityVitals (một phần) (server có, client chưa nối; định dạng dự án khác)	branching	158
+GCLeaveScene	589	5	vào cảnh/di chuyển	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	2
+GCPetPossShowUpdate	590	41	thú cưng/nhi	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	11
+GCRaidResult	591	None	nhiệm vụ	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	20
+CGPlayerVMMapInfo	592	45	vào cảnh/di chuyển	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	12
+GCCompeMarrySponsorList	593	390	tổ đội/bang/quan hệ	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	0
+GCNotifyEquip	594	246	chat/thông báo	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	2
+GCPlayerShopType	595	13	cửa hàng/giao dịch	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	2
+CGPackGetAccountPacket	598	4	đăng nhập/tài khoản	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	1
+CGAskGQHYChouJiang	602	8	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	2
+GCCharModifyAction	604	12	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	3
+GCCharFly	606	44	vào cảnh/di chuyển	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	8
+CGChongLouEffect	607	None	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	2
+GCPlayerDie	610	None	đối tượng trong cảnh	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	8
+GCGuildReturn	611	None	tổ đội/bang/quan hệ	CHƯA CÓ	client không có socket/handler/giải mã gói này	delegated	0
+GCAuctionBoxList	612	None	cửa hàng/giao dịch	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	1
+CGDoEvent	613	8	nhiệm vụ	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	2
+CGPetUnEquip	617	10	vật phẩm/hành trang	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	3
+GCPetHuanLingCollectionInfo	622	1028	thú cưng/nhi	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	2
+CGBieYeFurnitureAcquireList	623	7	biệt dã	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	4
+GCRemoveGemResult	625	8	vật phẩm/hành trang	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	2
+CGWGCDuel	626	None	chiến đấu/kỹ năng	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	9
+GCCangPinShop	627	None	vật phẩm/hành trang	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	2
+GCNewSpecial	628	20	đối tượng trong cảnh	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	4
+CGStallShopName	630	None	cửa hàng/giao dịch	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	1
+CGAskForbidIt	631	98	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	7
+GCUICommandEx	632	5	giao diện/script	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	2
+CGPlayerShopMoney	633	19	cửa hàng/giao dịch	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	5
+GCNewServerRetXFSJHumanInfo	635	None	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	5
+GCRetZongMenShopInfo	636	1295	cửa hàng/giao dịch	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	6
+CGPlayerShopEstablish	639	None	cửa hàng/giao dịch	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	3
+GCPopupString	641	259	chat/thông báo	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	2
+CGAuctionBoxList	642	0	cửa hàng/giao dịch	CHƯA CÓ	client không có socket/handler/giải mã gói này	empty	0
+GCRefreshEquipAttr	643	48	vật phẩm/hành trang	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	4
+GCRetStandData	644	None	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	27
+GCDetailPetMaster	646	492	tổ đội/bang/quan hệ	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	4
+CGMissionAbandon	647	4	nhiệm vụ	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	1
+GCGemContainer	648	384	vật phẩm/hành trang	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	2
+CGGuildActValueOp	649	1	tổ đội/bang/quan hệ	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	1
+CGUnderArmour	652	None	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	2
+GCFengMingShopInfo	653	817	cửa hàng/giao dịch	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	8
+GCCityBankRecordList	655	None	vật phẩm/hành trang	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	3
+CGAskDarkAdjust	657	17	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	4
+CGFinger	658	36	tổ đội/bang/quan hệ	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	2
+CGClientPerformanceBlock	659	102	nhịp tim/hệ thống	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	26
+GCPhoenixPlainWarCampInfo	663	None	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	1
+GCTest	664	0	nhịp tim/hệ thống	CHƯA CÓ	client không có socket/handler/giải mã gói này	empty	0
+GCNetClean	665	None	nhịp tim/hệ thống	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	1
+GCRetGetBiWuRankSuc	666	5	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	2
+CGAskBudgetPlanGemInfo	672	0	vật phẩm/hành trang	CHƯA CÓ	client không có socket/handler/giải mã gói này	empty	0
+GCRetSetting	674	566	nhịp tim/hệ thống	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	2
+CGAllianceShopBuy	675	6	cửa hàng/giao dịch	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	3
+GCScriptCommand	676	None	giao diện/script	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	1
+GCCharDoAction	678	12	vào cảnh/di chuyển	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	3
+CGCorpsOper_2018	679	None	tổ đội/bang/quan hệ	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	9
+GCZBSTeamInfo	681	412	tổ đội/bang/quan hệ	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	2
+CGExteriorYiRongGe	684	None	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	7
+CGRideBagMoveItem	685	11	vào cảnh/di chuyển	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	5
+GCChatSignRedPoint	686	1	chat/thông báo	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	1
+GCDetailAttrib	687	None	thuộc tính nhân vật	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	302
+CGAskDetailXinbiwu_2018	690	4	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	1
+WGCFriendADIssueOrEditRet	691	22	tổ đội/bang/quan hệ	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	6
+GCPetPlacardList	692	None	thú cưng/nhi	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	1
+GCOpenTransitionSceneEffect	694	4	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	1
+CGClientLsCount	695	8	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	2
+GCXinfaStudyInfo	696	6	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	2
+CGUseItem	697	38	vật phẩm/hành trang	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	9
+CGCommand	699	None	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	1
+CGSplitItem	700	12	vật phẩm/hành trang	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	3
+CGAskAchievements	701	None	thuộc tính nhân vật	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	3
+GCPlayerShopAcquireShopList	702	None	cửa hàng/giao dịch	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	5
+CGCorpsInviteConfirm_2016	703	20	tổ đội/bang/quan hệ	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	5
+GCShopRepair	704	None	cửa hàng/giao dịch	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	2
+CGAskMibaoStatus	705	12	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	3
+LCRetDeleteChar	707	4	đăng nhập/tài khoản	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	1
+GCLookUpOther	708	None	đối tượng trong cảnh	CHƯA CÓ	client không có socket/handler/giải mã gói này	delegated	0
+CGBieYeFurnitureObjOperate	709	25	biệt dã	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	2
+CLAskCharList	711	50	đăng nhập/tài khoản	MỘT PHẦN	tương đương chức năng: Login/EnterGame (danh sách nhân vật) (server có, client chưa nối; định dạng dự án khác)	flat	1
+CGCharJump	712	4	vào cảnh/di chuyển	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	1
+CGTeamInvite	714	None	tổ đội/bang/quan hệ	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	1
+GCFYPVESyncMapData	715	None	nhiệm vụ	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	3
+GCRetOffLineRelation	717	None	tổ đội/bang/quan hệ	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	1
+GCXingZhen	720	4	chiến đấu/kỹ năng	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	8
+GCBoxItemList	722	None	vật phẩm/hành trang	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	3
+CGReplyQuery	723	8	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	2
+GCInfantHeroCard	725	None	thú cưng/nhi	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	11
+CGReqManualAttr	726	20	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	5
+GCChampionCupInfo	727	472	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	7
+WGCGuildLeagueList	728	None	tổ đội/bang/quan hệ	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	2
+GCOpenChangYouJiaPlus	731	33	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	1
+GCAskDynamicRegionResult	732	None	nhịp tim/hệ thống	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	1
+GCPandaPosTabMap	733	16	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	1
+GCRetBudgetPlanGemInfo	734	97	vật phẩm/hành trang	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	2
+GCChristmas2015ElkPos	736	None	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	4
+GCCharSkill_Lead	738	40	chiến đấu/kỹ năng	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	8
+GCNewInfant	743	32	thú cưng/nhi	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	7
+CGAskSetActivePoint	744	4	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	1
+GCWLZDStageState	746	140	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	4
+CGWTeamBoardAskInfo	749	20	tổ đội/bang/quan hệ	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	5
+CGWTeamBoardControlInfo	750	None	tổ đội/bang/quan hệ	CHƯA CÓ	client không có socket/handler/giải mã gói này	delegated	0
+WGCTeamBoardControlInfoResult	751	15	tổ đội/bang/quan hệ	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	5
+WGCTeamBoardGiveInfo	752	None	tổ đội/bang/quan hệ	CHƯA CÓ	client không có socket/handler/giải mã gói này	delegated	0
+GCStartCrashUpload	753	4	nhịp tim/hệ thống	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	1
+CGWFriendADPlayerMsg	754	None	chat/thông báo	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	8
+WGCFriendADPlayerMsgRet	755	12	chat/thông báo	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	9
+CGCommonTeamOper	757	48	tổ đội/bang/quan hệ	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	3
+GCUseInfantCardResult	758	14	thú cưng/nhi	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	6
+CGNeiDanBaoTuData	761	4	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	1
+GCBXJWuHuiRankList	762	840	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	1
+CGAskDetailAbilityInfo	765	4	thuộc tính nhân vật	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	1
+GCAskTeamFollow	772	0	vào cảnh/di chuyển	CHƯA CÓ	client không có socket/handler/giải mã gói này	empty	0
+GCShopSell	773	1	cửa hàng/giao dịch	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	1
+GCCityBankItemList	774	None	vật phẩm/hành trang	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	4
+GCCharSkill_Missed	782	17	chiến đấu/kỹ năng	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	5
+CGAskFHSXData	783	1	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	1
+CGPlayerCallOfResult	784	4	vào cảnh/di chuyển	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	1
+GCDetailHealsAndDamages	785	None	chiến đấu/kỹ năng	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	11
+CGAskIMDressMail	786	None	vật phẩm/hành trang	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	1
+GCGameCommond	787	None	nhịp tim/hệ thống	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	2
+GCT3ZhanGongTarget	788	44	chiến đấu/kỹ năng	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	11
+GCComboSkillOperation	789	52	chiến đấu/kỹ năng	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	6
+GCCharEquipment	790	None	vật phẩm/hành trang	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	22
+CGCharFly	791	24	vào cảnh/di chuyển	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	4
+CGXiuChangLogout	792	8	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	2
+GCRetConnectGMChat	793	8	đăng nhập/tài khoản	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	2
+GCBankRemoveItem	794	4	vật phẩm/hành trang	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	4
+GCConnect	796	18	đăng nhập/tài khoản	MỘT PHẦN	tương đương chức năng: Welcome/SessionStart (server có, client chưa nối; định dạng dự án khác)	flat	5
+GCNewMonster	797	116	đối tượng trong cảnh	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	1
+GCTujianInfo	798	100	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	1
+CGAskChongLouShop	802	0	cửa hàng/giao dịch	CHƯA CÓ	client không có socket/handler/giải mã gói này	empty	0
+GCDiscardEquipResult	803	6	vật phẩm/hành trang	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	3
+GCTeQuanKaInfo	807	56	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	1
+GCNewBus	808	None	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	5
+GCPacketStream	809	None	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	2
+CGBankSwapItem	810	4	vật phẩm/hành trang	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	4
+GCRideBagInfo	811	None	vật phẩm/hành trang	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	4
+GCRetWeekShopInfo	814	None	cửa hàng/giao dịch	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	10
+GCCharChangeDirection	815	8	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	2
+CGTeamRetApply	816	77	tổ đội/bang/quan hệ	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	4
+LCRetAntiViolentCode	817	None	nhịp tim/hệ thống	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	2
+CLAskAntiViolentCode	818	None	nhịp tim/hệ thống	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	3
+GCGouWuCheInfo	819	175	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	6
+CGApplyPrivateInfo	820	None	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	14
+GCMyTemBankList	821	None	vật phẩm/hành trang	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	2
+CGCityBankAddItem	826	3	vật phẩm/hành trang	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	3
+CGAskComboSkillOperation	827	12	chiến đấu/kỹ năng	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	3
+CGFashionDepotOperation	828	10	vật phẩm/hành trang	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	4
+CGAskCheckSOSecond	830	8	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	2
+GCTemBankSwap	832	4	vật phẩm/hành trang	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	4
+CGBieYeAddMengChong	834	None	thú cưng/nhi	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	3
+CGGSScore	836	2	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	1
+GCPhoenixPlainWarScore	838	1444	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	2
+GCDoubleExpInfo	840	28	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	7
+CGXingZhen	843	8	chiến đấu/kỹ năng	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	1
+GCBieYePetProcreateRegisterUI	845	5	thú cưng/nhi	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	1
+GCRetSendMail	847	1	tổ đội/bang/quan hệ	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	1
+GCXingZhenSkill	849	8	chiến đấu/kỹ năng	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	2
+GCDetailComboSkillList	852	52	chiến đấu/kỹ năng	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	5
+CGBankRemoveItem	857	3	vật phẩm/hành trang	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	3
+GCChannelResult	860	11	chiến đấu/kỹ năng	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	4
+GCExchangeEstablishI	862	4	vật phẩm/hành trang	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	1
+GCDetailEquipList	865	None	vật phẩm/hành trang	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	4
+GCBHSDZDCopySceneBasicData	866	644	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	4
+GCQuickEnterPointTip	867	12	giao diện/script	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	3
+GCZBSCmnData	870	20	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	2
+GCChatGroupResult	873	8	chat/thông báo	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	51
+GCBieYeMengChongList	874	None	thú cưng/nhi	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	11
+GCReqMachineCode	878	0	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	empty	0
+GCDetailAbilityInfo	879	None	thuộc tính nhân vật	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	3
+CGChatSymbol	886	8	chat/thông báo	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	2
+CGBankAcquireList	889	1	vật phẩm/hành trang	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	1
+CGHeartBeat	896	None	nhịp tim/hệ thống	MỘT PHẦN	tương đương chức năng: Ping/Pong (server có, client chưa nối; định dạng dự án khác)	empty	0
+GCZhuGeCaiYun	899	4	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	2
+GCChongLouEffect	901	4	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	3
+GCNotifyMail	902	1	chat/thông báo	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	1
+GCReturnItemList	903	None	vật phẩm/hành trang	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	4
+CGExchangeCancel	904	0	vật phẩm/hành trang	CHƯA CÓ	client không có socket/handler/giải mã gói này	empty	0
+GCCharAction	905	28	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	6
+GCBusStopMove	907	12	vào cảnh/di chuyển	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	2
+GCFanGuangHuiYanCmnData	909	20	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	5
+CGInfantChangeName	910	None	thú cưng/nhi	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	2
+CGExchangeSynchLock	911	5	vật phẩm/hành trang	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	2
+GCUnEquipResult	912	15	vật phẩm/hành trang	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	6
+GCRetShowShopCredit	913	8	cửa hàng/giao dịch	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	2
+GCPetBankAddPet	914	17	vật phẩm/hành trang	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	3
+GCBXJWuHuiUpdataPos	915	200	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	1
+GCXbwCopySceneFullData	916	680	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	4
+CGGetReturnPage	917	5	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	2
+GCTeamFollowErr	918	1	vào cảnh/di chuyển	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	1
+GCCharSkill_Lead_Modify	920	8	chiến đấu/kỹ năng	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	2
+CGAskQuit	921	13	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	4
+CGChannelInvite	924	16	chiến đấu/kỹ năng	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	4
+CGUseEquip	925	6	vật phẩm/hành trang	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	3
+CGAskJuqingPoint	926	4	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	1
+GCCharSkill_Gather_Modify	927	8	chiến đấu/kỹ năng	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	2
+GCBHSDZDCopySceneFullData	928	696	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	6
+CGNameBoardExOperation	929	None	đối tượng trong cảnh	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	2
+CGRaidModifyMemberPosition	937	22	vào cảnh/di chuyển	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	7
+CGAskServerConfigInfo	938	1	giao diện/script	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	1
+GCSpecialObj_FadeOut	939	4	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	1
+GCExchangeSynchII	940	None	vật phẩm/hành trang	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	11
+CGTeamAppoint	941	16	tổ đội/bang/quan hệ	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	4
+CGRemoveDressGem	942	3	vật phẩm/hành trang	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	3
+GCRetDaFuwengData	945	262	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	12
+GCYiGuiMoveItemResult	946	10	vào cảnh/di chuyển	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	4
+CGPlayerShopSaleShopOpt	949	None	cửa hàng/giao dịch	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	10
+GCDiGongShopInfo	950	128	cửa hàng/giao dịch	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	1
+CGRaidKick	951	16	nhiệm vụ	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	4
+GCChallengeListInfo	958	None	chiến đấu/kỹ năng	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	1
+CGWAskMailNewList	960	9	tổ đội/bang/quan hệ	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	3
+WGCRetMailNewList	961	None	tổ đội/bang/quan hệ	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	4
+CGWAskMailNew	962	18	tổ đội/bang/quan hệ	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	6
+GCRaidList	964	None	nhiệm vụ	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	4
+GCWGCPacket	965	None	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	2
+CGWMailNewDelOrBack	966	None	tổ đội/bang/quan hệ	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	4
+GWGCFriendPresent	967	24	tổ đội/bang/quan hệ	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	8
+WGCNotifyMailNew	968	10	chat/thông báo	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	3
+GCNewPlatform	978	None	đối tượng trong cảnh	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	5
+CGAskOtherSceneMazei	979	4	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	1
+GCBankItemInfo	981	None	vật phẩm/hành trang	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	2
+CGBieYeComfortTopListOperate	982	None	biệt dã	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	0
+GCExchangeApplyI	983	None	vật phẩm/hành trang	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	5
+CGGameLog	984	None	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	2
+CGMilitaryShopBuyItem	985	None	vật phẩm/hành trang	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	3
+CGCangPin	986	8	vật phẩm/hành trang	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	1
+CGBugFeedBack	987	2000	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	1
+CGShadowCursorCommand	988	4	giao diện/script	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	1
+GCTWorldBossMonsterInfo	989	None	nhiệm vụ	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	3
+CGTeamRetInvite	990	77	tổ đội/bang/quan hệ	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	4
+GCGrabMessage	991	4	nhịp tim/hệ thống	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	1
+CGCancelConnectGMChat	992	8	đăng nhập/tài khoản	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	2
+CGCityAskAttr	993	0	tổ đội/bang/quan hệ	CHƯA CÓ	client không có socket/handler/giải mã gói này	empty	0
+GCRaidAskInvite	1000	50	nhiệm vụ	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	7
+CGGuildGift	1004	8	tổ đội/bang/quan hệ	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	5
+CGGuild	1014	0	tổ đội/bang/quan hệ	CHƯA CÓ	client không có socket/handler/giải mã gói này	delegated	0
+GCNotifyChangeScene	1017	65	chat/thông báo	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	7
+CGAskDiGongShopInfo	1018	0	cửa hàng/giao dịch	CHƯA CÓ	client không có socket/handler/giải mã gói này	empty	0
+GCMyPneumaExpChip	1020	8	chiến đấu/kỹ năng	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	2
+GCNeiDanBaoTuData	1021	28	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	2
+GCTCWSyncEnvironmentData	1022	None	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	3
+GCGSChat	1024	None	chat/thông báo	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	5
+GCTianJiChengOp	1025	60	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	4
+GCTargetHuanLingInfo	1026	None	chiến đấu/kỹ năng	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	3
+GCHuaShanGRMatchScore	1029	500	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	5
+GCSetMouseBJJJH	1030	4	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	1
+GCDetailXueWeiList	1033	70	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	8
+CGAskMail	1034	21	tổ đội/bang/quan hệ	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	21
+GCPetUseEquipResult	1035	27	vật phẩm/hành trang	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	8
+GCDetailVipInfo	1037	37	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	10
+GCPlayerInfo	1048	8	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	2
+CGWAskVipInfo	1049	13	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	4
+WGCRetVipInfo	1052	46	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	15
+GCInfantExteriorChange	1053	7	thú cưng/nhi	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	4
+CGWGQinmiToTudi	1054	18	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	5
+GWGCQinmiToTudi	1055	22	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	6
+CGCharUseSkill	1056	32	chiến đấu/kỹ năng	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	7
+GCAuctionChangeMoney	1057	6	cửa hàng/giao dịch	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	3
+GCSecKillRemoveItem	1058	2	vật phẩm/hành trang	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	2
+CGAskSMSCode	1062	None	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	3
+GCSpecialObj_ActNow	1065	None	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	3
+CLAskQuitQuene	1067	1	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	1
+CGCreateGuildLeague	1068	100	tổ đội/bang/quan hệ	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	3
+GCXinFuHongBaoDatainfo	1070	736	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	4
+GCRetMobileApprove	1071	10	nhịp tim/hệ thống	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	4
+GCXiangLongCiFuAccountInfo	1072	100	đăng nhập/tài khoản	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	2
+CGAskPreIMDressMailInfo	1090	4	vật phẩm/hành trang	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	1
+GCCharHxyEffectWork	1091	20	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	5
+CGAskPrize	1096	28	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	3
+GCSJTXSceneSyncData	1099	None	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	1
+GCDetailBWShopInfo	1103	125	cửa hàng/giao dịch	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	3
+GCDetailExp	1111	36	thuộc tính nhân vật	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	9
+GCAddSkill	1115	6	chiến đấu/kỹ năng	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	2
+GCExamRankingListRet	1116	None	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	7
+CGAuctionGetYB	1118	2	cửa hàng/giao dịch	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	2
+CGShideShopBuyItem	1119	None	vật phẩm/hành trang	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	3
+CGPackUpIMDressChest	1124	0	vật phẩm/hành trang	CHƯA CÓ	client không có socket/handler/giải mã gói này	empty	0
+CGCharIdle	1125	12	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	2
+GCPackUpPacket	1130	4	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	1
+GCOpenWorldReference	1131	32	vào cảnh/di chuyển	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	1
+GCRetTujian	1134	12	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	3
+GCExchangeError	1137	1	vật phẩm/hành trang	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	1
+CGConnectGMChat	1138	None	đăng nhập/tài khoản	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	1
+GCRetPreIMDressMailInfo	1143	None	vật phẩm/hành trang	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	2
+CGSetOpenWhichBank	1144	1	vật phẩm/hành trang	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	1
+CGAskMartialAllData	1146	5	thuộc tính nhân vật	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	2
+GCBusRemoveAllPassenger	1148	4	vật phẩm/hành trang	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	1
+CGCharCharge	1150	12	thuộc tính nhân vật	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	2
+CGAskCatMission	1153	1	nhiệm vụ	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	1
+CGBBSSychMessages	1154	9	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	5
+CGAskCheckSafeCode	1156	9	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	1
+GCShadowCursorCommand	1162	4	giao diện/script	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	1
+GCStallAddItem	1163	26	vật phẩm/hành trang	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	7
+CGAskMissionList	1166	4	nhiệm vụ	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	1
+CGByname	1167	None	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	2
+CGAskDetailXinFaList	1168	4	chiến đấu/kỹ năng	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	1
+CGWGAchReq	1171	0	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	empty	0
+GCMissionResult	1172	1	nhiệm vụ	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	1
+GCStallBuy	1176	35	cửa hàng/giao dịch	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	10
+GCZYPVPRankList	1177	4328	nhiệm vụ	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	3
+GC2019JinLi	1178	2264	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	7
+GCSpringFestivalBidding	1179	549	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	9
+CGTCityWarLimitCmnData	1180	20	tổ đội/bang/quan hệ	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	2
+GCReqResetAttrResult	1181	8	chiến đấu/kỹ năng	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	2
+GCItemList	1182	None	vật phẩm/hành trang	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	6
+CGRaidInvite	1183	None	nhiệm vụ	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	4
+GCBusAddPassenger	1184	12	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	3
+CGCYJPlusYanZheng	1185	33	đăng nhập/tài khoản	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	1
+CGShopSell	1186	10	cửa hàng/giao dịch	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	4
+GCFYJCPVPMapInfo	1187	740	vào cảnh/di chuyển	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	5
+GCTXbwMatchListInfo	1189	None	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	2
+GCBankBegin	1191	6	vật phẩm/hành trang	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	3
+GCDetailCCShopInfo	1196	141	cửa hàng/giao dịch	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	8
+GCNotifyRaidInfo	1198	7	chat/thông báo	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	4
+CGBieYeBankAcquireList	1200	1	vật phẩm/hành trang	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	1
+GCUpdateMenPaiDiYi	1222	668	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	3
+CGDRideOperate	1227	5	vật phẩm/hành trang	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	2
+CGReturnTeamFollow	1229	1	vào cảnh/di chuyển	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	1
+GCBieYeFurnitureObjOperateResult	1232	33	biệt dã	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	4
+CGAskMobilePhoneStatus	1233	5	nhịp tim/hệ thống	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	2
+CGManipulatePet	1234	16	thú cưng/nhi	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	3
+GCNotifyGoodBad	1236	5	chat/thông báo	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	2
+WGCCTUGabrielCommond	1237	None	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	2
+CGCreateCorps_2016	1238	38	tổ đội/bang/quan hệ	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	3
+GCItemSynch	1243	None	vật phẩm/hành trang	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	10
+CGSetMoodToHead	1247	1	chat/thông báo	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	1
+GCRetSecKillNum	1248	25	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	7
+CGChannelDismiss	1249	8	chiến đấu/kỹ năng	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	2
+CLCheckAllowCreateChar	1250	0	đăng nhập/tài khoản	CHƯA CÓ	client không có socket/handler/giải mã gói này	empty	0
+LCRetCheckAllowCreateChar	1251	4	đăng nhập/tài khoản	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	1
+GCToyInfo	1252	15	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	5
+GCXBWCmnData	1254	28	nhiệm vụ	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	4
+CGWApplyZhengZhao	1261	48	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	5
+WGCRetApplyZhengZhao	1262	24	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	6
+CGWAskZhengZhaoList	1263	26	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	7
+WGCRetAskZhengZhaoList	1264	None	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	8
+WGCDismissZhengZhao	1267	12	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	3
+CGWApplyZhengZhaoTeam	1268	18	tổ đội/bang/quan hệ	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	5
+WGCRetApplyZhengZhaoTeam	1269	16	tổ đội/bang/quan hệ	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	4
+GCXbwBroadKill	1270	64	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	3
+CGWAskZhengZhaoMemberInfo	1271	14	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	4
+WGCRetZhengZhaoMemberInfo	1272	None	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	4
+CGPackUpPacket	1274	4	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	1
+GCNewPlayer_Move	1275	None	vào cảnh/di chuyển	MỘT PHẦN	tương đương chức năng: Position/EntityPos (server có, client chưa nối; định dạng dự án khác)	branching	12
+CGAskRideBagInfo	1276	4	vật phẩm/hành trang	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	1
+CGMinorPasswd	1277	None	đăng nhập/tài khoản	CHƯA CÓ	client không có socket/handler/giải mã gói này	delegated	0
+CGTeamKick	1280	16	tổ đội/bang/quan hệ	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	4
+GCOpenFuJiangTianLong	1281	5	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	2
+CGSkill	1282	0	chiến đấu/kỹ năng	CHƯA CÓ	client không có socket/handler/giải mã gói này	empty	0
+WGCRetQueryYBTopList	1286	11284	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	9
+CGClientStatisInfo	1291	4	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	1
+CGStallClose	1293	0	cửa hàng/giao dịch	CHƯA CÓ	client không có socket/handler/giải mã gói này	empty	0
+GCExteriorYiRongGe	1302	162	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	10
+CGRetQuestion	1336	8	nhiệm vụ	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	2
+CGExteriorRequest	1337	9	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	10
+CGAskTeamInfo	1346	4	tổ đội/bang/quan hệ	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	1
+GCVirtualNPCInfo	1351	17	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	4
+GCCharImpactListUpdate	1353	None	chiến đấu/kỹ năng	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	5
+CGStallEstablish	1356	0	cửa hàng/giao dịch	CHƯA CÓ	client không có socket/handler/giải mã gói này	empty	0
+GCPackGetAccountPacket	1360	None	đăng nhập/tài khoản	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	3
+CGExchangeApplyI	1362	12	vật phẩm/hành trang	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	3
+CGChannelCreate	1363	8	chiến đấu/kỹ năng	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	2
+CGTest	1364	0	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	empty	0
+CGPlayerInfoCollect_WOW	1365	60	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	4
+GCBXJWuHuiMiniMapData	1366	156	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	4
+GCFZXXMonsterPos	1367	None	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	delegated	0
+GCPlayerRelive	1370	0	chiến đấu/kỹ năng	CHƯA CÓ	client không có socket/handler/giải mã gói này	empty	0
+GCAbilityLevel	1371	6	thuộc tính nhân vật	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	2
+CGTestClient	1382	4	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	1
+GCPlayerShopMoney	1386	18	cửa hàng/giao dịch	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	4
+GCRemoveInfant	1389	8	vật phẩm/hành trang	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	1
+GCPlayerShopUpdateFavorite	1390	13	cửa hàng/giao dịch	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	2
+CGPlayerShopBuyItem	1406	33	vật phẩm/hành trang	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	6
+GCMonsterRealMove	1410	22	vào cảnh/di chuyển	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	4
+CGPlayerDieResult	1411	4	đối tượng trong cảnh	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	1
+CGHuaShanMenpai	1414	4	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	1
+GCLevelUp	1416	8	thuộc tính nhân vật	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	2
+GCPlayerShopOpenStall	1419	15	cửa hàng/giao dịch	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	4
+GCLevelUpResult	1420	None	thuộc tính nhân vật	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	3
+GCPetPossBufInfo	1421	None	thú cưng/nhi	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	3
+GCBieYeComfortTopListData	1426	None	biệt dã	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	0
+GCNetCheck	1428	1	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	1
+CGGuildApply	1429	None	tổ đội/bang/quan hệ	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	2
+CGShopClose	1430	0	cửa hàng/giao dịch	CHƯA CÓ	client không có socket/handler/giải mã gói này	empty	0
+GCBieYeStyleUpdate	1431	51	biệt dã	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	2
+GCJZWLZDTeamMemberData	1432	62	tổ đội/bang/quan hệ	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	8
+GCNewPet_Move	1433	None	vào cảnh/di chuyển	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	10
+CGLegalCheck	1434	144	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	5
+GCTeamError	1435	1	tổ đội/bang/quan hệ	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	1
+GCTWorldBossSceneRankInfo	1436	None	nhiệm vụ	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	1
+GCBieYeBaseInfo	1437	None	biệt dã	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	1
+GCClearStealSkillInBar	1438	4	chiến đấu/kỹ năng	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	1
+CGAskZNQfudai	1442	8	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	2
+KGCGuildList	1447	None	tổ đội/bang/quan hệ	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	6
+KGCGuild	1449	32	tổ đội/bang/quan hệ	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	10
+GCWLZDTeamMemberInfo	1456	58	tổ đội/bang/quan hệ	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	7
+CGBieYeMengChongAcquireList	1457	3	thú cưng/nhi	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	3
+GCDetailXinFaList	1458	None	chiến đấu/kỹ năng	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	3
+GCIASkill	1460	8	chiến đấu/kỹ năng	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	2
+GCExchangeSynchConfirmII	1461	1	vật phẩm/hành trang	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	1
+GCAuctionChangeStatus	1466	None	cửa hàng/giao dịch	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	6
+GCRetFHSXData	1469	14	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	9
+CGMissionAccept	1470	12	nhiệm vụ	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	3
+CGKfsOperate	1471	8	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	5
+CGAskDetailFiveElements	1476	4	thuộc tính nhân vật	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	1
+CGCharAutoRide	1478	4	vật phẩm/hành trang	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	1
+CGWAskGuildShop	1481	19	cửa hàng/giao dịch	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	6
+WGCRetGuildShop	1482	116	cửa hàng/giao dịch	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	7
+WGCRetGuildShopError	1483	13	cửa hàng/giao dịch	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	4
+GCNewSummoner_Death	1486	40	đối tượng trong cảnh	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	9
+CLAskQRCodeLogin	1487	1040	đăng nhập/tài khoản	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	17
+LCAskToRecheckCode	1489	8	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	2
+CLRetAskToReCheckCode	1490	8	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	2
+LCMibaoReCheckResult	1492	5	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	4
+GCBieYeFurnitureListWithCK	1493	None	biệt dã	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	2
+GCDaHuaQiXiShopInfo	1495	432	cửa hàng/giao dịch	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	9
+GCRetPneumaOpt	1498	97	chiến đấu/kỹ năng	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	2
+GCKMCorpsInfo	1500	750	tổ đội/bang/quan hệ	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	3
+CGBieYeBuildingOperate	1518	10	biệt dã	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	4
+GCExteriorShareStyle	1519	None	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	4
+CGCharAskBaseAttrib	1521	4	thuộc tính nhân vật	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	1
+GCRMBChatActionInfo	1526	116	chat/thông báo	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	8
+CGNewAskGSInfo	1529	0	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	empty	0
+GCCorpsError_2016	1530	None	tổ đội/bang/quan hệ	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	2
+CGPlayerShopPartner	1531	21	cửa hàng/giao dịch	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	4
+GCCityBankSetAccessResult	1534	40	vật phẩm/hành trang	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	2
+GCXinShouCarnInfo	1535	120	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	1
+GCYuanBao	1539	None	cửa hàng/giao dịch	CHƯA CÓ	client không có socket/handler/giải mã gói này	delegated	0
+GCAskFashionDepotData	1543	None	vật phẩm/hành trang	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	6
+GCTCityWarLimitGuildList	1546	156	tổ đội/bang/quan hệ	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	1
+CGAskStandData	1547	4	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	1
+GCNewPlayer_Death	1550	32	đối tượng trong cảnh	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	7
+GCRemoveCanPickMissionItem	1560	4	vật phẩm/hành trang	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	1
+CGBankAddItem	1561	3	vật phẩm/hành trang	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	3
+CGCharStopLogic	1562	4	vào cảnh/di chuyển	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	1
+GCNeiDanShopInfo	1563	1012	cửa hàng/giao dịch	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	4
+GCCangPin	1564	4	vật phẩm/hành trang	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	5
+WGCRetQueryYBNewSrvTopList	1565	640	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	7
+WGCRetCSRankingAsk	1569	1564	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	7
+WGCRetFBRankingAsk	1573	112659	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	6
+GCRetServerConfigInfo	1575	5	giao diện/script	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	2
+CGCityBankAskForRecord	1576	1	vật phẩm/hành trang	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	1
+CGWBinCommonData	1587	None	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	5
+WGCRetBinCommonData	1588	None	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	5
+CGAskBieYeBaseInfo	1596	4	biệt dã	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	1
+GCRetGMMsg	1600	3	chat/thông báo	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	2
+CGRaidRetInvite	1612	13	nhiệm vụ	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	4
+CGWSetCurZhanQi	1613	18	tổ đội/bang/quan hệ	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	5
+WGCZhanQiData	1614	68	tổ đội/bang/quan hệ	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	9
+CGAuctionExpireBack	1617	2	cửa hàng/giao dịch	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	2
+GCCorpsMatchListInfo_2016	1619	None	tổ đội/bang/quan hệ	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	1
+GCInfantAttr	1620	None	thú cưng/nhi	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	30
+GCCharSkill_CreateBullet	1625	20	chiến đấu/kỹ năng	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	4
+CGWAskGuildOnTime	1627	12	tổ đội/bang/quan hệ	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	3
+WGCRetGuildOnTime	1628	16	tổ đội/bang/quan hệ	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	4
+GCRetIMDress	1631	33	vật phẩm/hành trang	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	4
+GCClearDirty	1632	42	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	4
+GCGuanHuaiJueQingGuInfo	1633	255	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	2
+GCNotifyPneuma	1634	20	chat/thông báo	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	2
+WGCRetQueryRoseTopList	1638	4757	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	7
+GCQuickEnterPoint	1644	12	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	3
+GCPlayerShopStallStatus	1645	15	cửa hàng/giao dịch	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	4
+GCDie	1648	8	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	2
+GCDailyShopInfo	1649	408	cửa hàng/giao dịch	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	3
+GCRetNetDelay	1652	0	nhịp tim/hệ thống	CHƯA CÓ	client không có socket/handler/giải mã gói này	empty	0
+GCRaidAskApply	1655	None	nhiệm vụ	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	43
+GCErrorAttack	1658	9	chiến đấu/kỹ năng	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	3
+CGAuctionBuy	1659	None	cửa hàng/giao dịch	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	6
+CGEnvRequest	1661	0	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	empty	0
+GCChat	1664	None	chat/thông báo	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	24
+GCUpdateZhaoHuiData	1667	1004	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	2
+WGCAskBrotherSpirit	1670	None	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	6
+CGWGBrotherRetSpirit	1671	22	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	12
+GCFYPVECmnData	1672	36	nhiệm vụ	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	2
+CGGemChange	1673	8	vật phẩm/hành trang	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	2
+GCPrescription	1674	8	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	2
+GCBusChangeDirection	1675	8	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	2
+CGCharMoodState	1676	12	chat/thông báo	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	3
+GCDetailShiDeShopInfo	1677	21	cửa hàng/giao dịch	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	2
+GCJHShituInfo	1678	24	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	6
+GCCharChangeInteraction	1679	8	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	2
+CGWAskBrotherInfo	1684	16	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	4
+WGCRetBrotherInfo	1685	None	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	5
+WGCShiMenInfo	1687	None	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	3
+GCXinShouYueInfo	1694	24	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	unparsed	0
+GCZBSTeamListInfo	1695	None	tổ đội/bang/quan hệ	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	4
+CGWBinCommonString	1696	None	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	10
+WGCRetBinCommonString	1697	None	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	10
+CGExpAssign	1698	6	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	2
+CGChallenge	1719	9	chiến đấu/kỹ năng	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	3
+GCManipulatePetRet	1721	16	thú cưng/nhi	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	3
+CGPlayerShopAskForRecord	1725	14	cửa hàng/giao dịch	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	3
+CGAskExteriorYiRongGe	1726	4	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	1
+GCFYJCTDRankListRet	1728	None	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	10
+CGPlayerShopApply	1729	0	cửa hàng/giao dịch	CHƯA CÓ	client không có socket/handler/giải mã gói này	empty	0
+GCTargetListAndHitFlags	1732	None	chiến đấu/kỹ năng	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	9
+CGAskStudyXinfa	1737	6	chiến đấu/kỹ năng	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	1
+GCRetSMSCode	1754	6	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	3
+WGCRetQueryQixiTopList	1760	4757	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	7
+CGPlayerShopOpenStall	1761	15	cửa hàng/giao dịch	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	4
+GCPlayerShopSaleOut	1762	2	cửa hàng/giao dịch	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	2
+CLAskQueueMsg	1765	34	chat/thông báo	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	2
+LCRetQueueMsg	1766	23	chat/thông báo	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	3
+CGPickBoxItem	1775	12	vật phẩm/hành trang	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	3
+TWGCRetQueryWTeamMatchInfo	1777	1936	tổ đội/bang/quan hệ	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	4
+GCRefreshKFSSkill	1779	10	chiến đấu/kỹ năng	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	2
+CGCharPositionWarp	1781	20	vào cảnh/di chuyển	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	3
+GCSkillPrepare	1782	12	chiến đấu/kỹ năng	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	3
+CGSpouseDressImpact	1784	8	chiến đấu/kỹ năng	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	2
+CGAskTargetPneumaList	1785	4	chiến đấu/kỹ năng	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	1
+GCYingXiong	1795	None	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	6
+CGRemoveGem	1796	3	vật phẩm/hành trang	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	3
+GCSongliaoSyncName	1797	2340	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	3
+GCRetAskScore	1798	4	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	1
+GCFYJCGRRankListRet	1800	None	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	9
+GCRetReportWaigua	1801	42	nhịp tim/hệ thống	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	4
+CGIssuePetPlacard	1804	None	thú cưng/nhi	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	3
+GCPhoenixPlainWarFlagPos	1806	66	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	1
+CGWAskGuildBattleRank	1810	23	nhiệm vụ	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	8
+WGCRetGuildBattleRank	1811	1373	nhiệm vụ	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	11
+GCRetAppWareCheck	1814	3	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	3
+CGWorldItemStoreSwap	1819	8	vật phẩm/hành trang	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	5
+GCWriteProcessMemory	1821	None	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	1
+GCBieYeBuildingsData	1826	9	biệt dã	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	3
+CGWASkGuildBattleHisInfo	1829	16	nhiệm vụ	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	4
+WGCRetGuildBattleHis	1830	701	nhiệm vụ	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	7
+GCQuanMin8XingOp	1831	1506	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	11
+CGNewPlayer2GMChat	1843	None	chat/thông báo	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	1
+GCBBSMessages	1844	None	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	4
+GCSyncLongzhuInfo	1849	10	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	1
+GCMissionList	1850	4544	nhiệm vụ	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	3
+GCTeamOptionChanged	1863	12	tổ đội/bang/quan hệ	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	2
+CGAskGuiShiBaseData	1864	1	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	1
+GCPartyMealPos	1872	None	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	1
+GCTLCJPlayerInfoOpt	1874	338	nhiệm vụ	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	2
+CLCancelDelChar	1876	8	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	2
+LCRetCancelDelChar	1877	12	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	3
+WGCXiuChangNotify	1879	None	chat/thông báo	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	8
+CGSyncClientPos	1882	32	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	7
+CGAskSafeCodeInfo	1885	0	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	empty	0
+GCRefreshEquipZiZhi	1888	10	vật phẩm/hành trang	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	2
+GCStopPedding	1889	0	vào cảnh/di chuyển	CHƯA CÓ	client không có socket/handler/giải mã gói này	empty	0
+CGOrnamentsOperation	1890	None	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	3
+CLAskSafeCheck	1891	8	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	2
+LCRetSafeCheck	1892	2	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	2
+CGBieYePetProcreateRegisterUI	1902	9	thú cưng/nhi	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	2
+CGRefreshShowOffMsg	1903	8	chat/thông báo	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	2
+CGPackUpBank	1907	4	vật phẩm/hành trang	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	2
+GCExpAssign	1909	19	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	6
+GCBankSwapItem	1912	4	vật phẩm/hành trang	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	4
+CGReqLevelUp	1914	None	thuộc tính nhân vật	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	4
+GCCangPinRank	1924	None	vật phẩm/hành trang	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	4
+GCRetChongLouShop	1925	200	cửa hàng/giao dịch	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	1
+GCTLCJSyncBattleData	1934	None	nhiệm vụ	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	2
+GCMenpaiInfo	1936	2	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	1
+CGAskIMDress	1940	18	vật phẩm/hành trang	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	5
+GCSendCheckMobileSafeCode	1941	12	nhịp tim/hệ thống	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	3
+GCRetExteriorYiRongGe	1942	None	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	7
+GCOtherAttack	1943	0	chiến đấu/kỹ năng	CHƯA CÓ	client không có socket/handler/giải mã gói này	empty	0
+GCJoinMenpai	1949	2	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	1
+GCHuaShanMenpai	1951	142	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	5
+CGBBSApply	1958	8	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	2
+CGOtherEquip	1959	4	vật phẩm/hành trang	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	1
+GCLegalCheck	1961	144	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	5
+CGWQueryCorpsInfo_2016	1966	16	tổ đội/bang/quan hệ	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	4
+WGCRetQueryCorpsInfo_2016	1967	None	tổ đội/bang/quan hệ	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	6
+GCBankAcquireList	1970	None	vật phẩm/hành trang	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	5
+GCAddCanPickMissionItem	1972	4	vật phẩm/hành trang	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	1
+CGPetNeiDan	1975	8	thú cưng/nhi	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	2
+GCJZWLZDCmnData	1977	24	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	2
+CGWQueryCorpsRankingCharts_2016	1980	14	tổ đội/bang/quan hệ	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	5
+WGCRetQueryCorpsRankingCharts_2016	1981	None	tổ đội/bang/quan hệ	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	7
+GCBagSizeChange	1985	2	vật phẩm/hành trang	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	2
+GCRefreshSuperAttr	1986	52	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	4
+CGAskDaFuWengData	1987	10	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	5
+GCCharSkill_Gather	1988	40	chiến đấu/kỹ năng	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	8
+GCChatSymbol	1989	1096	chat/thông báo	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	2
+CGStopPedding	1990	0	vào cảnh/di chuyển	CHƯA CÓ	client không có socket/handler/giải mã gói này	empty	0
+GCXbwCopySceneBasicData	1991	676	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	2
+CGAskDoubleExp	1993	4	thuộc tính nhân vật	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	1
+GCVerificationCode	1994	8	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	2
+GCSectDetail	1995	290	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	6
+GCDfsWTeamListInfo	1997	None	tổ đội/bang/quan hệ	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	1
+CGAskJoinMenpai	1999	2	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	1
+CGStallItemPrice	2003	24	vật phẩm/hành trang	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	5
+CGRaidRetApply	2004	13	nhiệm vụ	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	4
+CGWAskNewServerBroadcast	2010	12	chat/thông báo	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	3
+WGCRetQueryNewServerBroadcast	2011	21216	chat/thông báo	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	4
+CGAskDetailPetMaster	2015	4	tổ đội/bang/quan hệ	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	1
+CGWAskDisclose	2016	40	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	4
+GCHaoXiaRoad	2019	None	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	5
+GCChannelError	2020	1	chiến đấu/kỹ năng	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	1
+CGReturnAsk	2021	None	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	2
+GCTCityWarLimitCmnData	2022	20	tổ đội/bang/quan hệ	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	2
+GCRequestSMSCode	2023	None	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	3
+GCRelation	2024	None	tổ đội/bang/quan hệ	CHƯA CÓ	client không có socket/handler/giải mã gói này	delegated	0
+GCPlayerShopBuyShop	2033	12	cửa hàng/giao dịch	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	1
+CGPlayerShopType	2036	13	cửa hàng/giao dịch	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	2
+GCShowOffMsg	2041	1600	chat/thông báo	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	12
+GCPackUpIMDressChest	2043	0	vật phẩm/hành trang	CHƯA CÓ	client không có socket/handler/giải mã gói này	empty	0
+CGStallApply	2044	0	cửa hàng/giao dịch	CHƯA CÓ	client không có socket/handler/giải mã gói này	empty	0
+GCInviteAddMeFriend	2052	40	tổ đội/bang/quan hệ	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	4
+CGTeamLeave	2058	8	tổ đội/bang/quan hệ	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	2
+CGGSChat	2068	None	chat/thông báo	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	1
+GCQIXIPVEMonsterInfo	2070	None	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	3
+GCDiGongPos	2074	None	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	3
+GCRetRaidModifyMemberPosition	2079	23	vào cảnh/di chuyển	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	8
+GCTransBWaitInfo	2080	None	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	3
+GCSetDynamicRegion	2081	22	nhịp tim/hệ thống	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	6
+CGUICommandError	2093	4	giao diện/script	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	1
+CGClientPerformanceLogin	2096	340	đăng nhập/tài khoản	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	28
+GCFZXXPos	2097	None	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	1
+CGRetCheckMemory_00	2098	4	nhịp tim/hệ thống	CHƯA CÓ	client không có socket/handler/giải mã gói này	unparsed	0
+CGXunzhangOperation	2099	21	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	2
+GCSetCameraState	2101	1	giao diện/script	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	1
+GCExchangeNotifySerial	2104	4	chat/thông báo	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	1
+GCPlayerShopUpdatePartners	2105	None	cửa hàng/giao dịch	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	3
+GCPlayerShopApply	2108	14	cửa hàng/giao dịch	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	5
+GCSpouseDressImpactSend	2109	12	chiến đấu/kỹ năng	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	3
+GCCityList	2110	54	tổ đội/bang/quan hệ	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	1
+CGPetProcreateRegisterUI	2111	9	thú cưng/nhi	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	1
+CGWAskServerNewLotteryName	2114	8	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	2
+WGCRetServerNewLotteryName	2115	98	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	3
+CGWQueryCorpsInfo_2018	2117	16	tổ đội/bang/quan hệ	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	4
+WGCRetCorpsInfo_2018	2118	None	tổ đội/bang/quan hệ	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	3
+GCNewItem	2119	24	đối tượng trong cảnh	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	5
+GCStallItemPrice	2121	24	vật phẩm/hành trang	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	5
+CGAuctionMultiBuyItem	2124	None	vật phẩm/hành trang	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	1
+GCRetAchievements	2126	2057	thuộc tính nhân vật	CHƯA CÓ	client không có socket/handler/giải mã gói này	delegated	0
+CGWQueryCorpsRankList_2018	2127	12	tổ đội/bang/quan hệ	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	3
+WGCRetCorpsRankList_2018	2128	None	tổ đội/bang/quan hệ	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	5
+CGStallDefaultPage	2132	1	cửa hàng/giao dịch	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	1
+GCYiGuiItemList	2133	None	vật phẩm/hành trang	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	6
+CGRequestNewAuctionItem	2134	13	vật phẩm/hành trang	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	4
+CGWInviteMemAnswer	2135	20	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	5
+CGWCorpsVoteOper_2018	2136	20	tổ đội/bang/quan hệ	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	6
+WGCRetCorpsVoteOper_2018	2137	54	tổ đội/bang/quan hệ	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	8
+CGWAskZhouNianYuanName	2141	8	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	2
+WGCRetZhouNianYuanName	2143	98	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	3
+GCChildrenDayScorceRank	2145	500	thú cưng/nhi	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	5
+CGPackage_SwapItem	2146	3	vật phẩm/hành trang	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	3
+GCStallEstablish	2147	0	cửa hàng/giao dịch	CHƯA CÓ	client không có socket/handler/giải mã gói này	empty	0
+CGAskShowShopCredit	2153	0	cửa hàng/giao dịch	CHƯA CÓ	client không có socket/handler/giải mã gói này	empty	0
+GCNotifyTemBank	2154	250	chat/thông báo	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	3
+GCHuaShanPos	2155	None	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	1
+CGRefreshTShowOffMsg	2156	8	chat/thông báo	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	2
+CGAlyExpToMaster	2157	0	tổ đội/bang/quan hệ	CHƯA CÓ	client không có socket/handler/giải mã gói này	empty	0
+GCKMFightSceneData	2158	None	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	8
+GCXunzhangOperationRet	2162	None	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	9
+CGAskDetailSkillList	2163	4	chiến đấu/kỹ năng	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	1
+GCZMBossRankList	2164	2200	nhiệm vụ	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	1
+GCBHSDZDCopySceneData	2166	8	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	1
+CGWAskGetBWRankAward	2167	13	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	4
+GCPackage_SwapItem	2169	4	vật phẩm/hành trang	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	4
+WGCRetQueryXBWRankCharts	2171	7217	nhiệm vụ	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	9
+GCModifySpeed	2177	8	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	2
+CGNewGSScore	2180	4	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	2
+CGPetFriends	2181	None	tổ đội/bang/quan hệ	CHƯA CÓ	client không có socket/handler/giải mã gói này	delegated	0
+CGWTTXbwCreateWTeam	2184	398	tổ đội/bang/quan hệ	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	2
+CGWTTXbwQueryWTeamInfo	2185	15	tổ đội/bang/quan hệ	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	5
+CGWTTXbwWTeamOper	2186	77	tổ đội/bang/quan hệ	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	6
+CGWTQueryWTeamRankList	2187	14	tổ đội/bang/quan hệ	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	4
+TWGCRetQueryWTeamInfo	2188	400	tổ đội/bang/quan hệ	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	4
+TWGCRetTXbwWTeamRankList	2189	None	tổ đội/bang/quan hệ	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	4
+TWGCTXbwWTeamError	2190	12	tổ đội/bang/quan hệ	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	3
+TWGCTXbwWTeamOperResult	2191	139	tổ đội/bang/quan hệ	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	8
+CGModifySetting	2196	6	nhịp tim/hệ thống	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	2
+CGAskSBGHumanInfo	2198	1	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	1
+CGWTQueryWTeamMatchInfo	2199	18	tổ đội/bang/quan hệ	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	5
+GCQRJWordsOperate	2201	None	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	2
+CGStallAddItem	2202	22	vật phẩm/hành trang	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	6
+GCNewPlayer	2203	40	đối tượng trong cảnh	MỘT PHẦN	tương đương chức năng: EntityAppear (server có, client chưa nối; định dạng dự án khác)	flat	9
+CGCreateCorps_2018	2204	186	tổ đội/bang/quan hệ	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	4
+GCOtherSkill	2205	0	chiến đấu/kỹ năng	CHƯA CÓ	client không có socket/handler/giải mã gói này	empty	0
+GCSongliaoSyncScore	2206	1088	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	6
+CGAskFashionDepotData	2211	10	vật phẩm/hành trang	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	4
+GCQIXIPVESyncName	2214	920	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	4
+CGAskRaidInfo	2217	4	nhiệm vụ	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	1
+CGSendCapieMessage	2218	None	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	1
+CGExecuteScript	2219	None	giao diện/script	CHƯA CÓ	client không có socket/handler/giải mã gói này	delegated	0
+CGCityBankRemoveItem	2220	2	vật phẩm/hành trang	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	2
+GCShopSoldList	2221	None	cửa hàng/giao dịch	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	1
+WGCRetJiebanPartnerList	2223	150	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	3
+CGAskWorldItemStoreOpt	2225	8	vật phẩm/hành trang	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	2
+GCRetGQHYChouJiang	2226	174	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	3
+CGPlayerShopName	2228	None	cửa hàng/giao dịch	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	2
+CGRaidApply	2229	None	nhiệm vụ	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	4
+GCRetCatMission	2230	62	nhiệm vụ	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	6
+GCNewSummoner_SkillChannel	2231	72	chiến đấu/kỹ năng	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	16
+GCExchangeSynchLock	2232	5	vật phẩm/hành trang	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	4
+GCRetBieYeJiaYanUser	2233	1208	biệt dã	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	3
+CGRaidAppoint	2234	17	nhiệm vụ	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	5
+GCDetailMilitaryShopInfo	2235	85	cửa hàng/giao dịch	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	3
+CGPlayerInfoCollect_2018	2236	58	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	4
+GCKvkShowOffMsg	2238	2240	chat/thông báo	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	15
+GCFightBgm	2241	8	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	2
+CGFlyOperation	2242	5	vào cảnh/di chuyển	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	2
+GCSyncClientPos	2243	16	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	3
+GCShowFeastTaps	2247	20	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	8
+CGDataSmuggler	2248	96	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	3
+GCDetailBuff	2249	None	chiến đấu/kỹ năng	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	10
+GCMoneyChallenge	2266	9	chiến đấu/kỹ năng	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	38
+GCMissionAdd	2267	41	nhiệm vụ	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	1
+GCFYPVESyncItemData	2268	92	vật phẩm/hành trang	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	4
+GCCharStopAction	2270	12	vào cảnh/di chuyển	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	3
+GCDetailAttrib_Infant	2271	None	thuộc tính nhân vật	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	30
+CGWWLZDRankingListAsk	2273	12	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	3
+WGCWLZDRankingListRet	2274	None	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	8
+GCServerQuery	2276	128	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	1
+WGCRetTeamRaidPlayerInfo	2278	None	nhiệm vụ	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	7
+CGStallRemoveItem	2281	21	vật phẩm/hành trang	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	5
+CGWDfsCreateWTeam	2287	38	tổ đội/bang/quan hệ	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	3
+CGWDfsQueryWTeamInfo	2288	16	tổ đội/bang/quan hệ	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	4
+CGWDfsWTeamOper	2289	20	tổ đội/bang/quan hệ	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	5
+CGWDfsQueryRankList	2290	8	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	2
+WGCRetDfsWTeamInfo	2292	368	tổ đội/bang/quan hệ	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	3
+WGCDfsOperResult	2293	136	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	8
+WGCRetDfsRankList	2294	None	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	3
+WGCDfsError	2295	12	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	3
+GCGuildSaoLeiOp	2297	277	tổ đội/bang/quan hệ	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	3
+CGSecKillRemoveItem	2298	3	vật phẩm/hành trang	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	3
+GCDrideStartStop	2303	33	vào cảnh/di chuyển	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	3
+GCPlayerShopOnSale	2304	39	cửa hàng/giao dịch	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	9
+CGBankClose	2305	1	vật phẩm/hành trang	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	1
+CGLogSubmit	2306	None	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	1
+GCZbsRetHideUI_2016	2307	4	giao diện/script	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	1
+GCShowShengXiaoTaps	2308	None	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	2
+CTWTGuildBattle	2313	72	nhiệm vụ	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	3
+GCTeamResult	2315	None	tổ đội/bang/quan hệ	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	17
+GCCanPickMissionItemList	2316	None	vật phẩm/hành trang	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	1
+CGAskDunJiaShuData	2319	2	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	2
+CGDiscardItem	2320	10	vật phẩm/hành trang	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	4
+CGLockTarget	2327	4	chiến đấu/kỹ năng	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	1
+CGCharMove	2345	None	vào cảnh/di chuyển	MỘT PHẦN	tương đương chức năng: Move (server có, client chưa nối; định dạng dự án khác)	branching	5
+GCSyncCommanderSceneData	2346	None	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	3
+GCTeamAskInvite	2349	None	tổ đội/bang/quan hệ	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	6
+CGAppWareCheck	2350	7	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	1
+GCSongliaoSyncDingInfo	2351	342	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	2
+CGBieYeFurnitureRemoveItem	2352	14	vật phẩm/hành trang	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	5
+GC2021Q3SignInActivity	2353	104	nhiệm vụ	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	7
+CGPlayerShopSearch	2354	None	cửa hàng/giao dịch	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	5
+GCPlayerShopRecordList	2355	None	cửa hàng/giao dịch	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	4
+GCWorldItemStoreSwap	2356	4	vật phẩm/hành trang	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	4
+GCFYPVECmnInfo	2357	380	nhiệm vụ	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	2
+WGCJZWLZDRankListInfo	2362	0	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	empty	0
+CGWJZWLZDAskRankListInfo	2363	0	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	empty	0
+CGWAskLuckyCarpName	2371	8	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	2
+WGCRetLuckyCarpName	2372	328	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	4
+GCTLCJCmnData	2375	28	nhiệm vụ	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	2
+CGXBWCreateTeam	2376	28	nhiệm vụ	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	2
+GCBieYeMengChongOpt	2377	8	thú cưng/nhi	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	2
+CGCharAskImpactList	2379	4	chiến đấu/kỹ năng	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	1
+GCTeamList	2381	None	tổ đội/bang/quan hệ	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	1
+CGPlayerShopAcquireShopList	2382	0	cửa hàng/giao dịch	CHƯA CÓ	client không có socket/handler/giải mã gói này	empty	0
+CGAskGSChatInfo	2383	1	chat/thông báo	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	1
+CGWeaponYiGuiMoveItem	2385	10	vào cảnh/di chuyển	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	4
+GCFashionDepotOperation	2386	None	vật phẩm/hành trang	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	4
+CGRemoveRMBChatFace	2387	4	chat/thông báo	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	1
+CGUseInfantCard	2389	11	thú cưng/nhi	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	4
+GCCharJump	2390	4	vào cảnh/di chuyển	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	1
+GCNewSkillObj	2391	36	chiến đấu/kỹ năng	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	7
+GCAskGSBind	2394	4	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	4
+CGIMDressMultiBuy	2397	None	vật phẩm/hành trang	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	3
+GCWeekcardInfo	2398	24	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	6
+CGWaiGuaReportNew	2399	None	nhịp tim/hệ thống	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	2
+GCFashionAuction	2401	20	vật phẩm/hành trang	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	7
+WGCAskXuYuanKaRankData	2402	648	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	3
+CGWAskXuYuanKaRankData	2403	8	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	2
+CGDisclosureToGM	2405	None	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	4
+CGActiveMonster	2406	4	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	1
+GCDunJiaShuData	2417	None	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	3
+GCOpenPlayerShop	2419	4	cửa hàng/giao dịch	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	1
+CGAskChangeScene	2422	20	vào cảnh/di chuyển	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	6
+GCTLCJItemOpt	2425	221	vật phẩm/hành trang	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	2
+GCBieYeFurnitureList	2426	None	biệt dã	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	11
+GCDetailAttrib_Pet	2431	None	thuộc tính nhân vật	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	111
+GCStealSkillInfo	2434	64	chiến đấu/kỹ năng	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	4
+CGInfantDressOperate	2441	12	vật phẩm/hành trang	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	3
+CGItemSynch	2443	None	vật phẩm/hành trang	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	7
+GCPrivateInfo	2445	None	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	16
+GCRefreshDarkSkill	2446	11	chiến đấu/kỹ năng	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	6
+CGCharSit	2447	5	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	2
+GCXFXYCSDPos	2449	None	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	3
+CGAskOpenUIState	2450	2	giao diện/script	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	2
+GCAnonymousDecryption	2451	4	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	1
+CGZdZdRequest	2452	None	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	13
+GCCityWarZhanTuanRankOp	2454	None	tổ đội/bang/quan hệ	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	8
+GCAppRankListRankData	2455	528	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	2
+GCOperateResult	2461	4	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	1
+CGWRankingListAsk	2464	28	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	10
+WGCRankingListRet	2465	None	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	14
+GCMinorPasswd	2466	None	đăng nhập/tài khoản	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	3
+GCSkill	2471	0	chiến đấu/kỹ năng	CHƯA CÓ	client không có socket/handler/giải mã gói này	empty	0
+CGWAskfmzoneInfo	2485	8	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	2
+CGYingXiong	2492	8	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	2
+GCETJSynMembersInfo	2495	344	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	5
+CGYuanBao	2496	None	cửa hàng/giao dịch	CHƯA CÓ	client không có socket/handler/giải mã gói này	delegated	0
+CGCharAllTitles	2500	4	thuộc tính nhân vật	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	1
+CGPetHuanLingCollectionRequest	2505	4	thú cưng/nhi	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	1
+GCExchangeCancel	2506	0	vật phẩm/hành trang	CHƯA CÓ	client không có socket/handler/giải mã gói này	empty	0
+CGTelCodeMonitor	2507	None	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	1
+CGFYPVECmnData	2510	20	nhiệm vụ	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	2
+GCPlayerShopSearch	2511	None	cửa hàng/giao dịch	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	7
+CGStallBuy	2512	24	cửa hàng/giao dịch	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	5
+CGBXJWuHuiTeamOper	2513	44	tổ đội/bang/quan hệ	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	2
+CGGuildZhanTuanOp	2514	None	tổ đội/bang/quan hệ	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	5
+GCCityNotify	2521	1	chat/thông báo	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	1
+CGNormal	2522	12	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	3
+GCUseGemResult	2527	4	vật phẩm/hành trang	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	1
+GCPlayerShopEstablish	2529	12	cửa hàng/giao dịch	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	1
+GCPxxInitInfo	2531	None	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	3
+GCRetAskJPNewAuctionItem	2532	50	vật phẩm/hành trang	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	14
+CGJZWLZDCmnData	2535	16	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	4
+GCMyBagList	2537	None	vật phẩm/hành trang	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	2
+GCAddLockObj	2538	2	đối tượng trong cảnh	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	2
+GCBHSDZDCopyScenePKResultData	2541	64	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	3
+GCCharDoNPCSpecialAction	2542	16	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	4
+GCRetCheckSafecode	2543	2	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	2
+CGWGuildActive	2547	16	tổ đội/bang/quan hệ	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	4
+WGCGuildActive	2548	26	tổ đội/bang/quan hệ	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	7
+CGWDFWOperate	2549	8	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	2
+WGCDFWRet	2550	329	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	7
+CLAskWeGameLogin	2552	1914	đăng nhập/tài khoản	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	15
+GCRefreshPetEquipZiZhi	2556	10	vật phẩm/hành trang	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	2
+GCAbilityZhuanjing	2559	6	thuộc tính nhân vật	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	2
+CGCTUGabrielCmdRet	2560	None	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	3
+CGAntagonistReq	2561	None	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	1
+GCRetKAllianceShopOp	2562	41	cửa hàng/giao dịch	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	3
+CGAskBieYeJiaYanUser	2564	8	biệt dã	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	2
+GCJuqingPoint	2565	4	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	1
+GCZBSBattleInfoToGM	2566	None	nhiệm vụ	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	2
+GCMyPneumaList	2573	2052	chiến đấu/kỹ năng	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	1
+GCCorpsCopySceneData_2016	2574	None	tổ đội/bang/quan hệ	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	13
+CGPetUseEquip	2575	10	vật phẩm/hành trang	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	3
+GCRetWorldItemStoreOpt	2577	None	vật phẩm/hành trang	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	4
+CGAskDynamicRegion	2578	2	nhịp tim/hệ thống	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	1
+GCHuoYueShopInfo	2579	1616	cửa hàng/giao dịch	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	5
+GCExchangeSuccessIII	2580	None	vật phẩm/hành trang	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	3
+GCFanGuangHuiYanItemList	2583	36	vật phẩm/hành trang	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	2
+GCAbandonAbility	2584	2	thuộc tính nhân vật	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	1
+CGTemBankSwap	2587	4	vật phẩm/hành trang	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	4
+GCNewBus_Move	2588	None	vào cảnh/di chuyển	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	8
+CGOpenItemBox	2590	4	vật phẩm/hành trang	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	1
+GCItemInfo	2604	None	vật phẩm/hành trang	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	6
+CGGemCompound	2605	12	vật phẩm/hành trang	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	3
+CGAskSecKillData	2608	0	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	empty	0
+CGAskPrivateInfo	2611	4	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	1
+GCManualAttrResult	2612	4	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	1
+GCRetAuctionNewRequest	2614	None	cửa hàng/giao dịch	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	9
+GCBieYeCreatePetError	2616	32	thú cưng/nhi	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	2
+CGYuanBaoToBind	2621	4	cửa hàng/giao dịch	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	1
+GCNotifyNeiGuaInfo	2622	None	chat/thông báo	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	2
+CGLeaveScene	2628	4	vào cảnh/di chuyển	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	1
+CGMissionRefuse	2629	12	nhiệm vụ	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	3
+GCAuctionSearch	2630	None	cửa hàng/giao dịch	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	7
+GCPlayerAge	2631	1	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	1
+CGTeamDismiss	2632	8	tổ đội/bang/quan hệ	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	2
+LCPxxInitInfo	2638	None	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	3
+CGAPPFastCheck	2639	0	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	empty	0
+CGAskTargetHuanLing	2640	None	chiến đấu/kỹ năng	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	2
+LCRequestSMSCode	2641	5	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	2
+CLAskSMSCode	2642	None	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	4
+LCRetSMSCode	2643	6	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	3
+GCNewSummoner_Move	2646	None	vào cảnh/di chuyển	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	12
+GCBankAddItem	2647	4	vật phẩm/hành trang	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	4
+CGRelation	2650	None	tổ đội/bang/quan hệ	CHƯA CÓ	client không có socket/handler/giải mã gói này	delegated	0
+CGCharUpdateCurTitle	2651	6	thuộc tính nhân vật	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	2
+CGEventRequest	2652	16	nhiệm vụ	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	4
+CGAskScore	2653	4	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	1
+WGCOpHuaZhaoTopList	2655	2372	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	4
+GCBusMove	2659	28	vào cảnh/di chuyển	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	5
+GCFanGuangHuiYanAwardInfo	2661	32	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	2
+GCTargetPneumaList	2662	508	chiến đấu/kỹ năng	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	2
+CGRemoveRMBChatAction	2666	4	chat/thông báo	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	1
+CGWTCityWarLimitMemberList	2678	740	tổ đội/bang/quan hệ	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	4
+GCTSLRankList	2679	2412	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	4
+CGMissionCheck	2681	24	nhiệm vụ	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	7
+WGCTCityWarLimitAssistList	2683	None	tổ đội/bang/quan hệ	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	4
+GCTestClient	2689	4	nhịp tim/hệ thống	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	1
+CGNewServerAskXFSJHumanInfo	2697	1	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	1
+GCCharGetDown	2698	24	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	6
+GCPackUpBank	2699	4	vật phẩm/hành trang	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	1
+CGGMChat	2700	None	chat/thông báo	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	1
+CGDispelBuffReq	2701	10	chiến đấu/kỹ năng	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	3
+CGShopRepair	2704	14	cửa hàng/giao dịch	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	5
+GCShopMerchandiseList	2705	None	cửa hàng/giao dịch	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	24
+GCDirectString	2706	None	chat/thông báo	CHƯA CÓ	client không có socket/handler/giải mã gói này	delegated	0
+GCCorpsMatchListInfo_2018	2707	None	tổ đội/bang/quan hệ	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	1
+GCFinalCorpsListInfo_2018	2712	1216	tổ đội/bang/quan hệ	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	2
+GCETJGameData	2714	24	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	6
+GCManorPos	2715	None	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	delegated	0
+GCBGLiuTongTabMap	2716	6	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	3
+CGAskServerTime	2717	12	nhịp tim/hệ thống	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	3
+GCDetailNobilityShopInfo	2718	85	cửa hàng/giao dịch	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	3
+GCZBSBattleSceneInfo	2719	None	vào cảnh/di chuyển	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	23
+CGWInviteBZTXMember	2720	9	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	3
+WTW8RetTCityMemberList	2722	None	tổ đội/bang/quan hệ	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	3
+CGToyReq	2723	8	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	7
+CGPlayerShopOnSale	2724	39	cửa hàng/giao dịch	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	9
+GCRaidError	2725	1	nhiệm vụ	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	1
+CGWNormalRankingListAsk	2730	80	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	12
+WGCNormalRankingListRet	2731	1198	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	15
+GCReturnRegion	2734	12	nhịp tim/hệ thống	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	3
+CGChangeIMDress	2737	8	vật phẩm/hành trang	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	2
+GCByname	2738	None	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	delegated	0
+GCUnderArmour	2741	None	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	11
+GCCharMove	2742	None	vào cảnh/di chuyển	MỘT PHẦN	tương đương chức năng: Position/EntityPos (server có, client chưa nối; định dạng dự án khác)	branching	7
+CGAskDoDoubleChatAction	2743	24	chat/thông báo	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	6
+GCStallError	2744	1	cửa hàng/giao dịch	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	1
+CGTeamLeaderRetInvite	2745	145	tổ đội/bang/quan hệ	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	6
+CGNobilityShopBuyItem	2751	None	vật phẩm/hành trang	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	3
+GCZiweixingluoPos	2752	None	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	4
+GCErrorSkill	2753	13	chiến đấu/kỹ năng	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	4
+WGCXBWTeamList	2755	4276	nhiệm vụ	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	3
+WGCXBWTeamRankList	2757	4792	nhiệm vụ	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	4
+GCInnerAlchemy	2762	12	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	3
+GC2015QiXiJH	2763	None	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	8
+GCRetMailNewOpt	2764	3	tổ đội/bang/quan hệ	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	3
+CGTSTestAskChangeScene	2765	20	vào cảnh/di chuyển	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	3
+CGMACNotify	2766	12	chat/thông báo	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	2
+GCBieYeScenePlayerList	2767	None	biệt dã	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	2
+CGChangePkModeReq	2774	32	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	2
+CGPlayerShopFavorite	2775	13	cửa hàng/giao dịch	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	2
+GCDetailZongMenInfo	2776	20	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	5
+CGPlayerShopSaleOut	2777	19	cửa hàng/giao dịch	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	5
+WGCGuildRspTCWRecord	2781	None	tổ đội/bang/quan hệ	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	5
+CGModifyIMStatus	2783	4	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	1
+GCNewMonster_Death	2785	32	đối tượng trong cảnh	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	7
+CGClientState	2787	None	nhịp tim/hệ thống	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	0
+CGAuctionTakeBack	2788	2	cửa hàng/giao dịch	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	2
+GCCharTakeOff	2789	12	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	3
+CGAskItemInfo	2790	18	vật phẩm/hành trang	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	5
+CGMissionSubmit	2791	16	nhiệm vụ	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	4
+GCDelObject	2792	6	đối tượng trong cảnh	MỘT PHẦN	tương đương chức năng: EntityDisappear (server có, client chưa nối; định dạng dự án khác)	flat	2
+GCMsgBall	2793	None	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	8
+CGAskDetailEquipList	2794	20	vật phẩm/hành trang	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	3
+GCNTPPacket	2798	20	nhịp tim/hệ thống	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	4
+GCAbilityTeacherInfo	2805	26	thuộc tính nhân vật	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	7
+CGExteriorShareStyle	2806	None	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	4
+GCCharDoContAction	2807	12	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	3
+GCRetMailNew	2808	None	tổ đội/bang/quan hệ	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	2
+GCShopBuy	2810	None	cửa hàng/giao dịch	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	14
+CGCGWPacket	2811	None	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	2
+GCGroupingNameRet	2813	None	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	1
+GCZYPVPUpdataPos	2814	40	nhiệm vụ	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	1
+CGAskMyPneumaExpChip	2818	0	chiến đấu/kỹ năng	CHƯA CÓ	client không có socket/handler/giải mã gói này	empty	0
+GCDisplaceGemResult	2819	4	vật phẩm/hành trang	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	1
+GCBieYeResUpdate	2821	12	biệt dã	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	3
+GCHeartBeat	2822	None	nhịp tim/hệ thống	MỘT PHẦN	tương đương chức năng: Ping/Pong (server có, client chưa nối; định dạng dự án khác)	unparsed	0
+CGDiscardEquip	2823	1	vật phẩm/hành trang	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	1
+GCDelAllObject	2824	None	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	2
+GCNewPortal	2825	13	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	3
+CGPlayerInfo	2830	12	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	3
+GCReturnResult	2831	None	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	2
+GCDetailSkillList	2832	None	chiến đấu/kỹ năng	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	2
+GCMengTuFinishPoint	2833	8	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	3
+GCReturnPetList	2836	None	thú cưng/nhi	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	3
+GCBXDBZCmnData	2839	16	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	2
+CGBieYeTickScenePlayer	2840	None	biệt dã	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	1
+WGCGuildZhanTuanOp	2842	None	tổ đội/bang/quan hệ	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	9
+GCHLSCOpen	2843	264	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	5
+WTCTCityWarReturnRankList	2849	17292	tổ đội/bang/quan hệ	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	5
+GCRetSetStallState	2854	8	cửa hàng/giao dịch	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	2
+CGXBWJHSCmnData	2855	42	nhiệm vụ	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	2
+GCXBWJHSBattleData	2856	None	nhiệm vụ	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	7
+GCXBWJHSTeamData	2857	468	nhiệm vụ	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	2
+GCXBWJHSCmnData	2858	28	nhiệm vụ	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	4
+GCWSTGuideTeamData	2868	None	tổ đội/bang/quan hệ	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	1
+GCChallengeRoomMemberList	2871	None	chiến đấu/kỹ năng	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	3
+GCWuShenTanShopLimit	2872	None	cửa hàng/giao dịch	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	3
+GCWuShenTanHuaChePos	2873	None	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	3
+GCQiXiGuideShopLimit	2876	None	cửa hàng/giao dịch	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	4
+GCQXPVPSyncRank	2880	None	nhiệm vụ	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	1
+GCQXPVPSyncPlayerInfo	2881	None	nhiệm vụ	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	1
+GCNotifyQXPVPPos	2882	117	chat/thông báo	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	4
+CGApproveAscendingCode	2883	1	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	1
+GCRetApproveAscendingCode	2886	1	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	1
+GCAscendingCode	2887	None	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	6
+GC26QXPVEMapData	2888	44	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	4
+GCChitChatFlag	2889	1	chat/thông báo	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	1
+CGAskGSChitChatInfo	2891	1	chat/thông báo	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	1
+GCRetGSChitChatInfo	2892	2	chat/thông báo	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	2
+CGAskGSChitChatSN	2893	1	chat/thông báo	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	1
+GCRetGSChitChatSN	2894	None	chat/thông báo	CHƯA CÓ	client không có socket/handler/giải mã gói này	flat	1
+GCFFM	2896	None	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	2
+CGRetFFM	2897	None	hoạt động/tính năng riêng (không suy được nhóm từ tên)	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	4
+GCGuildAuction	9033	None	cửa hàng/giao dịch	CHƯA CÓ	client không có socket/handler/giải mã gói này	branching	2

@@ -1,0 +1,90 @@
+{
+ "bang_du_lieu": {
+  "KHÔNG SO ĐƯỢC": 61,
+  "CHƯA CÓ": 592,
+  "CÓ": 39
+ },
+ "goi_tin": {
+  "CHƯA CÓ": 1347,
+  "MỘT PHẦN": 20
+ },
+ "goi_tin_theo_nhom": {
+  "tổ đội/bang/quan hệ": 173,
+  "vào cảnh/di chuyển": 59,
+  "vật phẩm/hành trang": 181,
+  "cửa hàng/giao dịch": 117,
+  "hoạt động/tính năng riêng (không suy được nhóm từ tên)": 381,
+  "nhiệm vụ": 84,
+  "đối tượng trong cảnh": 24,
+  "chat/thông báo": 60,
+  "thú cưng/nhi": 37,
+  "thuộc tính nhân vật": 40,
+  "giao diện/script": 15,
+  "đăng nhập/tài khoản": 35,
+  "nhịp tim/hệ thống": 53,
+  "chiến đấu/kỹ năng": 88,
+  "biệt dã": 20
+ },
+ "lop": {
+  "CHƯA CÓ": 312,
+  "MỘT PHẦN": 50,
+  "CÓ": 10,
+  "KHÁC THIẾT KẾ": 73,
+  "KHÔNG ÁP DỤNG": 62
+ },
+ "tep_nguon": {
+  "MỘT PHẦN": 33,
+  "CHƯA CÓ": 207,
+  "CÓ": 16,
+  "KHÁC THIẾT KẾ": 4,
+  "KHÔNG ÁP DỤNG": 1
+ },
+ "lua_api": {
+  "CHƯA CÓ": 5913,
+  "CHÚ THÍCH": 83,
+  "CHỈ TRỌNG TÀI": 27,
+  "CÓ TÊN (MÃ)": 24,
+  "ĐÃ PORT": 8
+ },
+ "import": {
+  "KHÁC THIẾT KẾ": 273,
+  "KHÔNG ÁP DỤNG": 292,
+  "CHƯA CÓ": 2,
+  "CÓ": 231,
+  "MỘT PHẦN": 37
+ },
+ "tai_nguyen_pe": {
+  "THEO NHÓM": 35,
+  "CHƯA CÓ": 6,
+  "CÓ": 22,
+  "MỘT PHẦN": 3
+ },
+ "khac_goc_da_ghi": 709,
+ "khac_goc_theo_loai": {
+  "khác": 332,
+  "chặt hơn/an toàn hơn bản gốc": 56,
+  "thiếu phần của bản gốc": 213,
+  "hình thức/kiến trúc (không đổi hành vi)": 108
+ },
+ "nghi_ngo": {
+  "MỞ": 53,
+  "ĐÃ ĐÓNG": 1
+ },
+ "kiem_goi_dang_nhap": {
+  "KHỚP": 19
+ },
+ "dia_chi_trich_dan": {
+  "tong": 458,
+  "theo_loai": {
+   "TRONG HÀM / GIỮA LỆNH": 181,
+   "ĐẦU HÀM / RANH GIỚI LỆNH": 99,
+   "TRONG HÀM / RANH GIỚI LỆNH": 82,
+   "TRONG HÀM (không có .pdata) / RANH GIỚI LỆNH": 17,
+   "DỮ LIỆU .rdata / ": 30,
+   "TRONG HÀM (không có .pdata) / GIỮA LỆNH": 2,
+   "DỮ LIỆU Headers / ": 9,
+   "DỮ LIỆU .data / ": 38
+  },
+  "can_xem": 183
+ }
+}

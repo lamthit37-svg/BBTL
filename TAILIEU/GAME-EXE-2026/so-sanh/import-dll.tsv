@@ -1,0 +1,836 @@
+address	dll	symbol	status	reason
+EXTERNAL:0x2	TENGINE.DLL	tNewSoundSystem::~tNewSoundSystem	KHÁC THIẾT KẾ	engine nội bộ của TLBB (122 import, 115 ký hiệu khác nhau) không còn trên đĩa; dự án tự viết engine/ (gpu, render, scene) và port logic từ TLBB Dev
+EXTERNAL:0x3	TENGINE.DLL	tNewSoundSystem::tNewSoundSystem	KHÁC THIẾT KẾ	engine nội bộ của TLBB (122 import, 115 ký hiệu khác nhau) không còn trên đĩa; dự án tự viết engine/ (gpu, render, scene) và port logic từ TLBB Dev
+EXTERNAL:0x5	TENGINE.DLL	TDU_GetLineFromMemory	KHÁC THIẾT KẾ	engine nội bộ của TLBB (122 import, 115 ký hiệu khác nhau) không còn trên đĩa; dự án tự viết engine/ (gpu, render, scene) và port logic từ TLBB Dev
+EXTERNAL:0x6	TENGINE.DLL	fiVector9::vTestElement	KHÁC THIẾT KẾ	engine nội bộ của TLBB (122 import, 115 ký hiệu khác nhau) không còn trên đĩa; dự án tự viết engine/ (gpu, render, scene) và port logic từ TLBB Dev
+EXTERNAL:0x7	TENGINE.DLL	fiVector9::vClearElement	KHÁC THIẾT KẾ	engine nội bộ của TLBB (122 import, 115 ký hiệu khác nhau) không còn trên đĩa; dự án tự viết engine/ (gpu, render, scene) và port logic từ TLBB Dev
+EXTERNAL:0x8	TENGINE.DLL	tScriptSystem::~tScriptSystem	KHÁC THIẾT KẾ	engine nội bộ của TLBB (122 import, 115 ký hiệu khác nhau) không còn trên đĩa; dự án tự viết engine/ (gpu, render, scene) và port logic từ TLBB Dev
+EXTERNAL:0x9	TENGINE.DLL	tScriptSystem::tScriptSystem	KHÁC THIẾT KẾ	engine nội bộ của TLBB (122 import, 115 ký hiệu khác nhau) không còn trên đĩa; dự án tự viết engine/ (gpu, render, scene) và port logic từ TLBB Dev
+EXTERNAL:0xb	TENGINE.DLL	tHelperSystem::~tHelperSystem	KHÁC THIẾT KẾ	engine nội bộ của TLBB (122 import, 115 ký hiệu khác nhau) không còn trên đĩa; dự án tự viết engine/ (gpu, render, scene) và port logic từ TLBB Dev
+EXTERNAL:0xc	TENGINE.DLL	tHelperSystem::tHelperSystem	KHÁC THIẾT KẾ	engine nội bộ của TLBB (122 import, 115 ký hiệu khác nhau) không còn trên đĩa; dự án tự viết engine/ (gpu, render, scene) và port logic từ TLBB Dev
+EXTERNAL:0xd	TENGINE.DLL	tProcessException	KHÁC THIẾT KẾ	engine nội bộ của TLBB (122 import, 115 ký hiệu khác nhau) không còn trên đĩa; dự án tự viết engine/ (gpu, render, scene) và port logic từ TLBB Dev
+EXTERNAL:0x10	TENGINE.DLL	TD_SetWindowTextW	KHÁC THIẾT KẾ	engine nội bộ của TLBB (122 import, 115 ký hiệu khác nhau) không còn trên đĩa; dự án tự viết engine/ (gpu, render, scene) và port logic từ TLBB Dev
+EXTERNAL:0x11	TENGINE.DLL	tSetLibQuitCrashStep	KHÁC THIẾT KẾ	engine nội bộ của TLBB (122 import, 115 ký hiệu khác nhau) không còn trên đĩa; dự án tự viết engine/ (gpu, render, scene) và port logic từ TLBB Dev
+EXTERNAL:0x12	TENGINE.DLL	tKernel::LoadPlugin	KHÁC THIẾT KẾ	engine nội bộ của TLBB (122 import, 115 ký hiệu khác nhau) không còn trên đĩa; dự án tự viết engine/ (gpu, render, scene) và port logic từ TLBB Dev
+EXTERNAL:0x13	TENGINE.DLL	tKernel::ReisgerClass	KHÁC THIẾT KẾ	engine nội bộ của TLBB (122 import, 115 ký hiệu khác nhau) không còn trên đĩa; dự án tự viết engine/ (gpu, render, scene) và port logic từ TLBB Dev
+EXTERNAL:0x14	TENGINE.DLL	TDU_PostWork	KHÁC THIẾT KẾ	engine nội bộ của TLBB (122 import, 115 ký hiệu khác nhau) không còn trên đĩa; dự án tự viết engine/ (gpu, render, scene) và port logic từ TLBB Dev
+EXTERNAL:0x15	TENGINE.DLL	TDU_StartWorkThread	KHÁC THIẾT KẾ	engine nội bộ của TLBB (122 import, 115 ký hiệu khác nhau) không còn trên đĩa; dự án tự viết engine/ (gpu, render, scene) và port logic từ TLBB Dev
+EXTERNAL:0x16	TENGINE.DLL	TDU_MD5File	KHÁC THIẾT KẾ	engine nội bộ của TLBB (122 import, 115 ký hiệu khác nhau) không còn trên đĩa; dự án tự viết engine/ (gpu, render, scene) và port logic từ TLBB Dev
+EXTERNAL:0x17	TENGINE.DLL	fVector3::normalise	KHÁC THIẾT KẾ	engine nội bộ của TLBB (122 import, 115 ký hiệu khác nhau) không còn trên đĩa; dự án tự viết engine/ (gpu, render, scene) và port logic từ TLBB Dev
+EXTERNAL:0x18	TENGINE.DLL	fVector3::operator=	KHÁC THIẾT KẾ	engine nội bộ của TLBB (122 import, 115 ký hiệu khác nhau) không còn trên đĩa; dự án tự viết engine/ (gpu, render, scene) và port logic từ TLBB Dev
+EXTERNAL:0x1a	TENGINE.DLL	TDU_GetDistSq	KHÁC THIẾT KẾ	engine nội bộ của TLBB (122 import, 115 ký hiệu khác nhau) không còn trên đĩa; dự án tự viết engine/ (gpu, render, scene) và port logic từ TLBB Dev
+EXTERNAL:0x1b	TENGINE.DLL	tKernel::NewNode	KHÁC THIẾT KẾ	engine nội bộ của TLBB (122 import, 115 ký hiệu khác nhau) không còn trên đĩa; dự án tự viết engine/ (gpu, render, scene) và port logic từ TLBB Dev
+EXTERNAL:0x1c	TENGINE.DLL	tKernel::NewNode	KHÁC THIẾT KẾ	engine nội bộ của TLBB (122 import, 115 ký hiệu khác nhau) không còn trên đĩa; dự án tự viết engine/ (gpu, render, scene) và port logic từ TLBB Dev
+EXTERNAL:0x1d	TENGINE.DLL	tObjectSystem::~tObjectSystem	KHÁC THIẾT KẾ	engine nội bộ của TLBB (122 import, 115 ký hiệu khác nhau) không còn trên đĩa; dự án tự viết engine/ (gpu, render, scene) và port logic từ TLBB Dev
+EXTERNAL:0x1e	TENGINE.DLL	tObjectSystem::tObjectSystem	KHÁC THIẾT KẾ	engine nội bộ của TLBB (122 import, 115 ký hiệu khác nhau) không còn trên đĩa; dự án tự viết engine/ (gpu, render, scene) và port logic từ TLBB Dev
+EXTERNAL:0x20	TENGINE.DLL	tObject::~tObject	KHÁC THIẾT KẾ	engine nội bộ của TLBB (122 import, 115 ký hiệu khác nhau) không còn trên đĩa; dự án tự viết engine/ (gpu, render, scene) và port logic từ TLBB Dev
+EXTERNAL:0x21	TENGINE.DLL	tObject::tObject	KHÁC THIẾT KẾ	engine nội bộ của TLBB (122 import, 115 ký hiệu khác nhau) không còn trên đĩa; dự án tự viết engine/ (gpu, render, scene) và port logic từ TLBB Dev
+EXTERNAL:0x22	TENGINE.DLL	fVector3::operator+	KHÁC THIẾT KẾ	engine nội bộ của TLBB (122 import, 115 ký hiệu khác nhau) không còn trên đĩa; dự án tự viết engine/ (gpu, render, scene) và port logic từ TLBB Dev
+EXTERNAL:0x23	TENGINE.DLL	fVector2::length	KHÁC THIẾT KẾ	engine nội bộ của TLBB (122 import, 115 ký hiệu khác nhau) không còn trên đĩa; dự án tự viết engine/ (gpu, render, scene) và port logic từ TLBB Dev
+EXTERNAL:0x24	TENGINE.DLL	TDU_GetDistSq	KHÁC THIẾT KẾ	engine nội bộ của TLBB (122 import, 115 ký hiệu khác nhau) không còn trên đĩa; dự án tự viết engine/ (gpu, render, scene) và port logic từ TLBB Dev
+EXTERNAL:0x25	TENGINE.DLL	fVector3::operator-	KHÁC THIẾT KẾ	engine nội bộ của TLBB (122 import, 115 ký hiệu khác nhau) không còn trên đĩa; dự án tự viết engine/ (gpu, render, scene) và port logic từ TLBB Dev
+EXTERNAL:0x26	TENGINE.DLL	TD_MessageBoxW	KHÁC THIẾT KẾ	engine nội bộ của TLBB (122 import, 115 ký hiệu khác nhau) không còn trên đĩa; dự án tự viết engine/ (gpu, render, scene) và port logic từ TLBB Dev
+EXTERNAL:0x27	TENGINE.DLL	TDU_LogMemStatus	KHÁC THIẾT KẾ	engine nội bộ của TLBB (122 import, 115 ký hiệu khác nhau) không còn trên đĩa; dự án tự viết engine/ (gpu, render, scene) và port logic từ TLBB Dev
+EXTERNAL:0x29	TENGINE.DLL	TDU_MemCurrentStationLog	KHÁC THIẾT KẾ	engine nội bộ của TLBB (122 import, 115 ký hiệu khác nhau) không còn trên đĩa; dự án tự viết engine/ (gpu, render, scene) và port logic từ TLBB Dev
+EXTERNAL:0x2a	TENGINE.DLL	TDU_LogMemory	KHÁC THIẾT KẾ	engine nội bộ của TLBB (122 import, 115 ký hiệu khác nhau) không còn trên đĩa; dự án tự viết engine/ (gpu, render, scene) và port logic từ TLBB Dev
+EXTERNAL:0x2b	TENGINE.DLL	fiVector9::vPopElement3	KHÁC THIẾT KẾ	engine nội bộ của TLBB (122 import, 115 ký hiệu khác nhau) không còn trên đĩa; dự án tự viết engine/ (gpu, render, scene) và port logic từ TLBB Dev
+EXTERNAL:0x2c	TENGINE.DLL	tProcessInnerExceptionWithStealthily	KHÁC THIẾT KẾ	engine nội bộ của TLBB (122 import, 115 ký hiệu khác nhau) không còn trên đĩa; dự án tự viết engine/ (gpu, render, scene) và port logic từ TLBB Dev
+EXTERNAL:0x2d	TENGINE.DLL	tSetCPPException	KHÁC THIẾT KẾ	engine nội bộ của TLBB (122 import, 115 ký hiệu khác nhau) không còn trên đĩa; dự án tự viết engine/ (gpu, render, scene) và port logic từ TLBB Dev
+EXTERNAL:0x2e	TENGINE.DLL	TDU_TestIn32BitOS	KHÁC THIẾT KẾ	engine nội bộ của TLBB (122 import, 115 ký hiệu khác nhau) không còn trên đĩa; dự án tự viết engine/ (gpu, render, scene) và port logic từ TLBB Dev
+EXTERNAL:0x2f	TENGINE.DLL	TDU_DumpParentProcess	KHÁC THIẾT KẾ	engine nội bộ của TLBB (122 import, 115 ký hiệu khác nhau) không còn trên đĩa; dự án tự viết engine/ (gpu, render, scene) và port logic từ TLBB Dev
+EXTERNAL:0x30	TENGINE.DLL	tSetMainThread	KHÁC THIẾT KẾ	engine nội bộ của TLBB (122 import, 115 ký hiệu khác nhau) không còn trên đĩa; dự án tự viết engine/ (gpu, render, scene) và port logic từ TLBB Dev
+EXTERNAL:0x31	TENGINE.DLL	tIsInMainThread	KHÁC THIẾT KẾ	engine nội bộ của TLBB (122 import, 115 ký hiệu khác nhau) không còn trên đĩa; dự án tự viết engine/ (gpu, render, scene) và port logic từ TLBB Dev
+EXTERNAL:0x32	TENGINE.DLL	TDU_ClearLogFiles	KHÁC THIẾT KẾ	engine nội bộ của TLBB (122 import, 115 ký hiệu khác nhau) không còn trên đĩa; dự án tự viết engine/ (gpu, render, scene) và port logic từ TLBB Dev
+EXTERNAL:0x33	TENGINE.DLL	tKernel::tKernel	KHÁC THIẾT KẾ	engine nội bộ của TLBB (122 import, 115 ký hiệu khác nhau) không còn trên đĩa; dự án tự viết engine/ (gpu, render, scene) và port logic từ TLBB Dev
+EXTERNAL:0x34	TENGINE.DLL	tKernel::~tKernel	KHÁC THIẾT KẾ	engine nội bộ của TLBB (122 import, 115 ký hiệu khác nhau) không còn trên đĩa; dự án tự viết engine/ (gpu, render, scene) và port logic từ TLBB Dev
+EXTERNAL:0x35	TENGINE.DLL	tTransferItemSystem::tTransferItemSystem	KHÁC THIẾT KẾ	engine nội bộ của TLBB (122 import, 115 ký hiệu khác nhau) không còn trên đĩa; dự án tự viết engine/ (gpu, render, scene) và port logic từ TLBB Dev
+EXTERNAL:0x36	TENGINE.DLL	tTransferItemSystem::~tTransferItemSystem	KHÁC THIẾT KẾ	engine nội bộ của TLBB (122 import, 115 ký hiệu khác nhau) không còn trên đĩa; dự án tự viết engine/ (gpu, render, scene) và port logic từ TLBB Dev
+EXTERNAL:0x38	TENGINE.DLL	tVariableSystem::tVariableSystem	KHÁC THIẾT KẾ	engine nội bộ của TLBB (122 import, 115 ký hiệu khác nhau) không còn trên đĩa; dự án tự viết engine/ (gpu, render, scene) và port logic từ TLBB Dev
+EXTERNAL:0x39	TENGINE.DLL	tVariableSystem::~tVariableSystem	KHÁC THIẾT KẾ	engine nội bộ của TLBB (122 import, 115 ký hiệu khác nhau) không còn trên đĩa; dự án tự viết engine/ (gpu, render, scene) và port logic từ TLBB Dev
+EXTERNAL:0x3b	TENGINE.DLL	tVersionSystem::tVersionSystem	KHÁC THIẾT KẾ	engine nội bộ của TLBB (122 import, 115 ký hiệu khác nhau) không còn trên đĩa; dự án tự viết engine/ (gpu, render, scene) và port logic từ TLBB Dev
+EXTERNAL:0x3c	TENGINE.DLL	tVersionSystem::~tVersionSystem	KHÁC THIẾT KẾ	engine nội bộ của TLBB (122 import, 115 ký hiệu khác nhau) không còn trên đĩa; dự án tự viết engine/ (gpu, render, scene) và port logic từ TLBB Dev
+EXTERNAL:0x3e	TENGINE.DLL	fVector2::setlength	KHÁC THIẾT KẾ	engine nội bộ của TLBB (122 import, 115 ký hiệu khác nhau) không còn trên đĩa; dự án tự viết engine/ (gpu, render, scene) và port logic từ TLBB Dev
+EXTERNAL:0x3f	TENGINE.DLL	fVector2::fVector2	KHÁC THIẾT KẾ	engine nội bộ của TLBB (122 import, 115 ký hiệu khác nhau) không còn trên đĩa; dự án tự viết engine/ (gpu, render, scene) và port logic từ TLBB Dev
+EXTERNAL:0x41	TENGINE.DLL	tWorldSystem::tWorldSystem	KHÁC THIẾT KẾ	engine nội bộ của TLBB (122 import, 115 ký hiệu khác nhau) không còn trên đĩa; dự án tự viết engine/ (gpu, render, scene) và port logic từ TLBB Dev
+EXTERNAL:0x42	TENGINE.DLL	tWorldSystem::~tWorldSystem	KHÁC THIẾT KẾ	engine nội bộ của TLBB (122 import, 115 ký hiệu khác nhau) không còn trên đĩa; dự án tự viết engine/ (gpu, render, scene) và port logic từ TLBB Dev
+EXTERNAL:0x44	TENGINE.DLL	fVector2::normalise	KHÁC THIẾT KẾ	engine nội bộ của TLBB (122 import, 115 ký hiệu khác nhau) không còn trên đĩa; dự án tự viết engine/ (gpu, render, scene) và port logic từ TLBB Dev
+EXTERNAL:0x45	TENGINE.DLL	tNode::~tNode	KHÁC THIẾT KẾ	engine nội bộ của TLBB (122 import, 115 ký hiệu khác nhau) không còn trên đĩa; dự án tự viết engine/ (gpu, render, scene) và port logic từ TLBB Dev
+EXTERNAL:0x46	TENGINE.DLL	tNode::tNode	KHÁC THIẾT KẾ	engine nội bộ của TLBB (122 import, 115 ký hiệu khác nhau) không còn trên đĩa; dự án tự viết engine/ (gpu, render, scene) và port logic từ TLBB Dev
+EXTERNAL:0x48	TENGINE.DLL	tItemSystem::~tItemSystem	KHÁC THIẾT KẾ	engine nội bộ của TLBB (122 import, 115 ký hiệu khác nhau) không còn trên đĩa; dự án tự viết engine/ (gpu, render, scene) và port logic từ TLBB Dev
+EXTERNAL:0x49	TENGINE.DLL	tItemSystem::tItemSystem	KHÁC THIẾT KẾ	engine nội bộ của TLBB (122 import, 115 ký hiệu khác nhau) không còn trên đĩa; dự án tự viết engine/ (gpu, render, scene) và port logic từ TLBB Dev
+EXTERNAL:0x4a	TENGINE.DLL	tTimeSystem::EndCalcFrameCostTime	KHÁC THIẾT KẾ	engine nội bộ của TLBB (122 import, 115 ký hiệu khác nhau) không còn trên đĩa; dự án tự viết engine/ (gpu, render, scene) và port logic từ TLBB Dev
+EXTERNAL:0x4b	TENGINE.DLL	tTimeSystem::BeginCalcFrameCostTime	KHÁC THIẾT KẾ	engine nội bộ của TLBB (122 import, 115 ký hiệu khác nhau) không còn trên đĩa; dự án tự viết engine/ (gpu, render, scene) và port logic từ TLBB Dev
+EXTERNAL:0x4c	TENGINE.DLL	tSetFullDump	KHÁC THIẾT KẾ	engine nội bộ của TLBB (122 import, 115 ký hiệu khác nhau) không còn trên đĩa; dự án tự viết engine/ (gpu, render, scene) và port logic từ TLBB Dev
+EXTERNAL:0x4d	TENGINE.DLL	TDU_GenQRCode_RawBuffer	KHÁC THIẾT KẾ	engine nội bộ của TLBB (122 import, 115 ký hiệu khác nhau) không còn trên đĩa; dự án tự viết engine/ (gpu, render, scene) và port logic từ TLBB Dev
+EXTERNAL:0x4e	TENGINE.DLL	TDU_ReportTNodeMemory	KHÁC THIẾT KẾ	engine nội bộ của TLBB (122 import, 115 ký hiệu khác nhau) không còn trên đĩa; dự án tự viết engine/ (gpu, render, scene) và port logic từ TLBB Dev
+EXTERNAL:0x50	TENGINE.DLL	tGameInterfaceBase::~tGameInterfaceBase	KHÁC THIẾT KẾ	engine nội bộ của TLBB (122 import, 115 ký hiệu khác nhau) không còn trên đĩa; dự án tự viết engine/ (gpu, render, scene) và port logic từ TLBB Dev
+EXTERNAL:0x51	TENGINE.DLL	tGameInterfaceBase::tGameInterfaceBase	KHÁC THIẾT KẾ	engine nội bộ của TLBB (122 import, 115 ký hiệu khác nhau) không còn trên đĩa; dự án tự viết engine/ (gpu, render, scene) và port logic từ TLBB Dev
+EXTERNAL:0x53	TENGINE.DLL	tInputSystem::~tInputSystem	KHÁC THIẾT KẾ	engine nội bộ của TLBB (122 import, 115 ký hiệu khác nhau) không còn trên đĩa; dự án tự viết engine/ (gpu, render, scene) và port logic từ TLBB Dev
+EXTERNAL:0x54	TENGINE.DLL	tInputSystem::tInputSystem	KHÁC THIẾT KẾ	engine nội bộ của TLBB (122 import, 115 ký hiệu khác nhau) không còn trên đĩa; dự án tự viết engine/ (gpu, render, scene) và port logic từ TLBB Dev
+EXTERNAL:0x56	TENGINE.DLL	tFakeObjSystem::~tFakeObjSystem	KHÁC THIẾT KẾ	engine nội bộ của TLBB (122 import, 115 ký hiệu khác nhau) không còn trên đĩa; dự án tự viết engine/ (gpu, render, scene) và port logic từ TLBB Dev
+EXTERNAL:0x57	TENGINE.DLL	tFakeObjSystem::tFakeObjSystem	KHÁC THIẾT KẾ	engine nội bộ của TLBB (122 import, 115 ký hiệu khác nhau) không còn trên đĩa; dự án tự viết engine/ (gpu, render, scene) và port logic từ TLBB Dev
+EXTERNAL:0x59	TENGINE.DLL	fiVector9::vAddElement3	KHÁC THIẾT KẾ	engine nội bộ của TLBB (122 import, 115 ký hiệu khác nhau) không còn trên đĩa; dự án tự viết engine/ (gpu, render, scene) và port logic từ TLBB Dev
+EXTERNAL:0x5a	TENGINE.DLL	fiVector9::vAddElement2	KHÁC THIẾT KẾ	engine nội bộ của TLBB (122 import, 115 ký hiệu khác nhau) không còn trên đĩa; dự án tự viết engine/ (gpu, render, scene) và port logic từ TLBB Dev
+EXTERNAL:0x5b	TENGINE.DLL	fiVector9::vAddElement1	KHÁC THIẾT KẾ	engine nội bộ của TLBB (122 import, 115 ký hiệu khác nhau) không còn trên đĩa; dự án tự viết engine/ (gpu, render, scene) và port logic từ TLBB Dev
+EXTERNAL:0x5c	TENGINE.DLL	tEventSystem::~tEventSystem	KHÁC THIẾT KẾ	engine nội bộ của TLBB (122 import, 115 ký hiệu khác nhau) không còn trên đĩa; dự án tự viết engine/ (gpu, render, scene) và port logic từ TLBB Dev
+EXTERNAL:0x5d	TENGINE.DLL	tEventSystem::tEventSystem	KHÁC THIẾT KẾ	engine nội bộ của TLBB (122 import, 115 ký hiệu khác nhau) không còn trên đĩa; dự án tự viết engine/ (gpu, render, scene) và port logic từ TLBB Dev
+EXTERNAL:0x5f	TENGINE.DLL	tFakeObjSystemEx::~tFakeObjSystemEx	KHÁC THIẾT KẾ	engine nội bộ của TLBB (122 import, 115 ký hiệu khác nhau) không còn trên đĩa; dự án tự viết engine/ (gpu, render, scene) và port logic từ TLBB Dev
+EXTERNAL:0x60	TENGINE.DLL	tFakeObjSystemEx::tFakeObjSystemEx	KHÁC THIẾT KẾ	engine nội bộ của TLBB (122 import, 115 ký hiệu khác nhau) không còn trên đĩa; dự án tự viết engine/ (gpu, render, scene) và port logic từ TLBB Dev
+EXTERNAL:0x61	TENGINE.DLL	tTimeSystem::GetTimeNow	KHÁC THIẾT KẾ	engine nội bộ của TLBB (122 import, 115 ký hiệu khác nhau) không còn trên đĩa; dự án tự viết engine/ (gpu, render, scene) và port logic từ TLBB Dev
+EXTERNAL:0x62	TENGINE.DLL	fVector2::operator!=	KHÁC THIẾT KẾ	engine nội bộ của TLBB (122 import, 115 ký hiệu khác nhau) không còn trên đĩa; dự án tự viết engine/ (gpu, render, scene) và port logic từ TLBB Dev
+EXTERNAL:0x63	TENGINE.DLL	TDU_MD5String	KHÁC THIẾT KẾ	engine nội bộ của TLBB (122 import, 115 ký hiệu khác nhau) không còn trên đĩa; dự án tự viết engine/ (gpu, render, scene) và port logic từ TLBB Dev
+EXTERNAL:0x65	TENGINE.DLL	TDU_ConvertStringToVector	KHÁC THIẾT KẾ	engine nội bộ của TLBB (122 import, 115 ký hiệu khác nhau) không còn trên đĩa; dự án tự viết engine/ (gpu, render, scene) và port logic từ TLBB Dev
+EXTERNAL:0x66	TENGINE.DLL	fiVector9::vGetSize	KHÁC THIẾT KẾ	engine nội bộ của TLBB (122 import, 115 ký hiệu khác nhau) không còn trên đĩa; dự án tự viết engine/ (gpu, render, scene) và port logic từ TLBB Dev
+EXTERNAL:0x67	TENGINE.DLL	fiVector9::vPopElement0	KHÁC THIẾT KẾ	engine nội bộ của TLBB (122 import, 115 ký hiệu khác nhau) không còn trên đĩa; dự án tự viết engine/ (gpu, render, scene) và port logic từ TLBB Dev
+EXTERNAL:0x68	TENGINE.DLL	fVector2::fVector2	KHÁC THIẾT KẾ	engine nội bộ của TLBB (122 import, 115 ký hiệu khác nhau) không còn trên đĩa; dự án tự viết engine/ (gpu, render, scene) và port logic từ TLBB Dev
+EXTERNAL:0x69	TENGINE.DLL	fVector2::operator=	KHÁC THIẾT KẾ	engine nội bộ của TLBB (122 import, 115 ký hiệu khác nhau) không còn trên đĩa; dự án tự viết engine/ (gpu, render, scene) và port logic từ TLBB Dev
+EXTERNAL:0x6a	TENGINE.DLL	tDataPool_::~tDataPool_	KHÁC THIẾT KẾ	engine nội bộ của TLBB (122 import, 115 ký hiệu khác nhau) không còn trên đĩa; dự án tự viết engine/ (gpu, render, scene) và port logic từ TLBB Dev
+EXTERNAL:0x6b	TENGINE.DLL	tDataPool_::tDataPool_	KHÁC THIẾT KẾ	engine nội bộ của TLBB (122 import, 115 ký hiệu khác nhau) không còn trên đĩa; dự án tự viết engine/ (gpu, render, scene) và port logic từ TLBB Dev
+EXTERNAL:0x6d	TENGINE.DLL	tDataPool::~tDataPool	KHÁC THIẾT KẾ	engine nội bộ của TLBB (122 import, 115 ký hiệu khác nhau) không còn trên đĩa; dự án tự viết engine/ (gpu, render, scene) và port logic từ TLBB Dev
+EXTERNAL:0x6e	TENGINE.DLL	tDataPool::tDataPool	KHÁC THIẾT KẾ	engine nội bộ của TLBB (122 import, 115 ký hiệu khác nhau) không còn trên đĩa; dự án tự viết engine/ (gpu, render, scene) và port logic từ TLBB Dev
+EXTERNAL:0x70	TENGINE.DLL	tDataBaseSystem::~tDataBaseSystem	KHÁC THIẾT KẾ	engine nội bộ của TLBB (122 import, 115 ký hiệu khác nhau) không còn trên đĩa; dự án tự viết engine/ (gpu, render, scene) và port logic từ TLBB Dev
+EXTERNAL:0x71	TENGINE.DLL	tDataBaseSystem::tDataBaseSystem	KHÁC THIẾT KẾ	engine nội bộ của TLBB (122 import, 115 ký hiệu khác nhau) không còn trên đĩa; dự án tự viết engine/ (gpu, render, scene) và port logic từ TLBB Dev
+EXTERNAL:0x72	TENGINE.DLL	tTimeSystem::CalSubTime	KHÁC THIẾT KẾ	engine nội bộ của TLBB (122 import, 115 ký hiệu khác nhau) không còn trên đĩa; dự án tự viết engine/ (gpu, render, scene) và port logic từ TLBB Dev
+EXTERNAL:0x74	TENGINE.DLL	tNode::Tick	KHÁC THIẾT KẾ	engine nội bộ của TLBB (122 import, 115 ký hiệu khác nhau) không còn trên đĩa; dự án tự viết engine/ (gpu, render, scene) và port logic từ TLBB Dev
+EXTERNAL:0x75	TENGINE.DLL	tNode::Release	KHÁC THIẾT KẾ	engine nội bộ của TLBB (122 import, 115 ký hiệu khác nhau) không còn trên đĩa; dự án tự viết engine/ (gpu, render, scene) và port logic từ TLBB Dev
+EXTERNAL:0x76	TENGINE.DLL	TDU_GetYAngle	KHÁC THIẾT KẾ	engine nội bộ của TLBB (122 import, 115 ký hiệu khác nhau) không còn trên đĩa; dự án tự viết engine/ (gpu, render, scene) và port logic từ TLBB Dev
+EXTERNAL:0x77	TENGINE.DLL	tCursorSystem::~tCursorSystem	KHÁC THIẾT KẾ	engine nội bộ của TLBB (122 import, 115 ký hiệu khác nhau) không còn trên đĩa; dự án tự viết engine/ (gpu, render, scene) và port logic từ TLBB Dev
+EXTERNAL:0x78	TENGINE.DLL	tCursorSystem::tCursorSystem	KHÁC THIẾT KẾ	engine nội bộ của TLBB (122 import, 115 ký hiệu khác nhau) không còn trên đĩa; dự án tự viết engine/ (gpu, render, scene) và port logic từ TLBB Dev
+EXTERNAL:0x79	TENGINE.DLL	fVector3::fVector3	KHÁC THIẾT KẾ	engine nội bộ của TLBB (122 import, 115 ký hiệu khác nhau) không còn trên đĩa; dự án tự viết engine/ (gpu, render, scene) và port logic từ TLBB Dev
+EXTERNAL:0x7a	TENGINE.DLL	fVector3::fVector3	KHÁC THIẾT KẾ	engine nội bộ của TLBB (122 import, 115 ký hiệu khác nhau) không còn trên đĩa; dự án tự viết engine/ (gpu, render, scene) và port logic từ TLBB Dev
+EXTERNAL:0x7b	TENGINE.DLL	TDU_FlushLog	KHÁC THIẾT KẾ	engine nội bộ của TLBB (122 import, 115 ký hiệu khác nhau) không còn trên đĩa; dự án tự viết engine/ (gpu, render, scene) và port logic từ TLBB Dev
+EXTERNAL:0x7c	TENGINE.DLL	TDU_GetDist	KHÁC THIẾT KẾ	engine nội bộ của TLBB (122 import, 115 ký hiệu khác nhau) không còn trên đĩa; dự án tự viết engine/ (gpu, render, scene) và port logic từ TLBB Dev
+EXTERNAL:0x7d	TENGINE.DLL	TDU_GetDist	KHÁC THIẾT KẾ	engine nội bộ của TLBB (122 import, 115 ký hiệu khác nhau) không còn trên đĩa; dự án tự viết engine/ (gpu, render, scene) và port logic từ TLBB Dev
+EXTERNAL:0x7e	TENGINE.DLL	TdGetTimeTickCountSafe	KHÁC THIẾT KẾ	engine nội bộ của TLBB (122 import, 115 ký hiệu khác nhau) không còn trên đĩa; dự án tự viết engine/ (gpu, render, scene) và port logic từ TLBB Dev
+EXTERNAL:0x7f	TENGINE.DLL	fiVector9::vPopElement2	KHÁC THIẾT KẾ	engine nội bộ của TLBB (122 import, 115 ký hiệu khác nhau) không còn trên đĩa; dự án tự viết engine/ (gpu, render, scene) và port logic từ TLBB Dev
+EXTERNAL:0x80	TENGINE.DLL	fiVector9::vPopElement1	KHÁC THIẾT KẾ	engine nội bộ của TLBB (122 import, 115 ký hiệu khác nhau) không còn trên đĩa; dự án tự viết engine/ (gpu, render, scene) và port logic từ TLBB Dev
+EXTERNAL:0x81	TENGINE.DLL	fVector2::fVector2	KHÁC THIẾT KẾ	engine nội bộ của TLBB (122 import, 115 ký hiệu khác nhau) không còn trên đĩa; dự án tự viết engine/ (gpu, render, scene) và port logic từ TLBB Dev
+EXTERNAL:0x83	TENGINE.DLL	tNode::LookUpChild	KHÁC THIẾT KẾ	engine nội bộ của TLBB (122 import, 115 ký hiệu khác nhau) không còn trên đĩa; dự án tự viết engine/ (gpu, render, scene) và port logic từ TLBB Dev
+EXTERNAL:0x84	TENGINE.DLL	tNode::LookUpChild	KHÁC THIẾT KẾ	engine nội bộ của TLBB (122 import, 115 ký hiệu khác nhau) không còn trên đĩa; dự án tự viết engine/ (gpu, render, scene) và port logic từ TLBB Dev
+EXTERNAL:0x85	TENGINE.DLL	tNode::GetParent	KHÁC THIẾT KẾ	engine nội bộ của TLBB (122 import, 115 ký hiệu khác nhau) không còn trên đĩa; dự án tự viết engine/ (gpu, render, scene) và port logic từ TLBB Dev
+EXTERNAL:0x86	TENGINE.DLL	tNode::GetNodeName	KHÁC THIẾT KẾ	engine nội bộ của TLBB (122 import, 115 ký hiệu khác nhau) không còn trên đĩa; dự án tự viết engine/ (gpu, render, scene) và port logic từ TLBB Dev
+EXTERNAL:0x87	TENGINE.DLL	tNode::GetMemory	KHÁC THIẾT KẾ	engine nội bộ của TLBB (122 import, 115 ký hiệu khác nhau) không còn trên đĩa; dự án tự viết engine/ (gpu, render, scene) và port logic từ TLBB Dev
+EXTERNAL:0x88	TENGINE.DLL	tNode::GetCurrentStation	KHÁC THIẾT KẾ	engine nội bộ của TLBB (122 import, 115 ký hiệu khác nhau) không còn trên đĩa; dự án tự viết engine/ (gpu, render, scene) và port logic từ TLBB Dev
+EXTERNAL:0x89	TENGINE.DLL	tNode::GetChildNum	KHÁC THIẾT KẾ	engine nội bộ của TLBB (122 import, 115 ký hiệu khác nhau) không còn trên đĩa; dự án tự viết engine/ (gpu, render, scene) và port logic từ TLBB Dev
+EXTERNAL:0x8a	TENGINE.DLL	tNode::EraseChild	KHÁC THIẾT KẾ	engine nội bộ của TLBB (122 import, 115 ký hiệu khác nhau) không còn trên đĩa; dự án tự viết engine/ (gpu, render, scene) và port logic từ TLBB Dev
+EXTERNAL:0x8b	TENGINE.DLL	tNode::EraseAllChild	KHÁC THIẾT KẾ	engine nội bộ của TLBB (122 import, 115 ký hiệu khác nhau) không còn trên đĩa; dự án tự viết engine/ (gpu, render, scene) và port logic từ TLBB Dev
+EXTERNAL:0x8c	TENGINE.DLL	tNode::AddChild	KHÁC THIẾT KẾ	engine nội bộ của TLBB (122 import, 115 ký hiệu khác nhau) không còn trên đĩa; dự án tự viết engine/ (gpu, render, scene) và port logic từ TLBB Dev
+EXTERNAL:0x8d	TENGINE.DLL	TDU_Log	KHÁC THIẾT KẾ	engine nội bộ của TLBB (122 import, 115 ký hiệu khác nhau) không còn trên đĩa; dự án tự viết engine/ (gpu, render, scene) và port logic từ TLBB Dev
+EXTERNAL:0x8e	TENGINE.DLL	tActionSystem::~tActionSystem	KHÁC THIẾT KẾ	engine nội bộ của TLBB (122 import, 115 ký hiệu khác nhau) không còn trên đĩa; dự án tự viết engine/ (gpu, render, scene) và port logic từ TLBB Dev
+EXTERNAL:0x8f	TENGINE.DLL	tActionSystem::tActionSystem	KHÁC THIẾT KẾ	engine nội bộ của TLBB (122 import, 115 ký hiệu khác nhau) không còn trên đĩa; dự án tự viết engine/ (gpu, render, scene) và port logic từ TLBB Dev
+EXTERNAL:0x90	TENGINE.DLL	tThrowAssertException	KHÁC THIẾT KẾ	engine nội bộ của TLBB (122 import, 115 ký hiệu khác nhau) không còn trên đĩa; dự án tự viết engine/ (gpu, render, scene) và port logic từ TLBB Dev
+EXTERNAL:0x91	TENGINE.DLL	tThrowStringException	KHÁC THIẾT KẾ	engine nội bộ của TLBB (122 import, 115 ký hiệu khác nhau) không còn trên đĩa; dự án tự viết engine/ (gpu, render, scene) và port logic từ TLBB Dev
+EXTERNAL:0x92	TENGINE.DLL	tKernel::IsKindOf	KHÁC THIẾT KẾ	engine nội bộ của TLBB (122 import, 115 ký hiệu khác nhau) không còn trên đĩa; dự án tự viết engine/ (gpu, render, scene) và port logic từ TLBB Dev
+EXTERNAL:0x93	LUAPLUS.DLL	LuaPlus::LuaObject::Register	KHÁC THIẾT KẾ	Lua của bản gốc; client dự án không nhúng Lua
+EXTERNAL:0x94	LUAPLUS.DLL	LuaPlus::LuaStackObject::CreateTable	KHÁC THIẾT KẾ	Lua của bản gốc; client dự án không nhúng Lua
+EXTERNAL:0x95	LUAPLUS.DLL	LuaPlus::LuaState::BoxPointer	KHÁC THIẾT KẾ	Lua của bản gốc; client dự án không nhúng Lua
+EXTERNAL:0x96	LUAPLUS.DLL	LuaPlus::LuaStackObject::SetInteger	KHÁC THIẾT KẾ	Lua của bản gốc; client dự án không nhúng Lua
+EXTERNAL:0x97	LUAPLUS.DLL	LuaPlus::LuaState::PushLString	KHÁC THIẾT KẾ	Lua của bản gốc; client dự án không nhúng Lua
+EXTERNAL:0x98	LUAPLUS.DLL	lua_dostring	KHÁC THIẾT KẾ	Lua của bản gốc; client dự án không nhúng Lua
+EXTERNAL:0x99	LUAPLUS.DLL	LuaPlus::LuaObject::IsNil	KHÁC THIẾT KẾ	Lua của bản gốc; client dự án không nhúng Lua
+EXTERNAL:0x9a	LUAPLUS.DLL	LuaPlus::LuaObject::GetByName	KHÁC THIẾT KẾ	Lua của bản gốc; client dự án không nhúng Lua
+EXTERNAL:0x9b	LUAPLUS.DLL	LuaPlus::LuaState::DumpGlobals	KHÁC THIẾT KẾ	Lua của bản gốc; client dự án không nhúng Lua
+EXTERNAL:0x9c	LUAPLUS.DLL	lua_isnumber	KHÁC THIẾT KẾ	Lua của bản gốc; client dự án không nhúng Lua
+EXTERNAL:0x9d	LUAPLUS.DLL	lua_getgcthreshold	KHÁC THIẾT KẾ	Lua của bản gốc; client dự án không nhúng Lua
+EXTERNAL:0x9e	LUAPLUS.DLL	lua_getgccount	KHÁC THIẾT KẾ	Lua của bản gốc; client dự án không nhúng Lua
+EXTERNAL:0x9f	LUAPLUS.DLL	LuaPlus::LuaObject::SetNumber	KHÁC THIẾT KẾ	Lua của bản gốc; client dự án không nhúng Lua
+EXTERNAL:0xa0	LUAPLUS.DLL	LuaPlus::LuaState::GetGlobals	KHÁC THIẾT KẾ	Lua của bản gốc; client dự án không nhúng Lua
+EXTERNAL:0xa1	LUAPLUS.DLL	LuaPlus::LuaState::GetGCThreshold	KHÁC THIẾT KẾ	Lua của bản gốc; client dự án không nhúng Lua
+EXTERNAL:0xa2	LUAPLUS.DLL	LuaPlus::LuaState::GetGCCount	KHÁC THIẾT KẾ	Lua của bản gốc; client dự án không nhúng Lua
+EXTERNAL:0xa3	LUAPLUS.DLL	LuaPlus::LuaObject::IsInteger	KHÁC THIẾT KẾ	Lua của bản gốc; client dự án không nhúng Lua
+EXTERNAL:0xa4	LUAPLUS.DLL	LuaPlus::LuaObject::GetInteger	KHÁC THIẾT KẾ	Lua của bản gốc; client dự án không nhúng Lua
+EXTERNAL:0xa5	LUAPLUS.DLL	LuaPlus::LuaState::GetGlobal	KHÁC THIẾT KẾ	Lua của bản gốc; client dự án không nhúng Lua
+EXTERNAL:0xa6	LUAPLUS.DLL	LuaPlus::LuaObject::LuaObject	KHÁC THIẾT KẾ	Lua của bản gốc; client dự án không nhúng Lua
+EXTERNAL:0xa7	LUAPLUS.DLL	LuaPlus::LuaObject::operator=	KHÁC THIẾT KẾ	Lua của bản gốc; client dự án không nhúng Lua
+EXTERNAL:0xa8	LUAPLUS.DLL	LuaPlus::LuaObject::CreateTable	KHÁC THIẾT KẾ	Lua của bản gốc; client dự án không nhúng Lua
+EXTERNAL:0xa9	LUAPLUS.DLL	lua_setgcthreshold	KHÁC THIẾT KẾ	Lua của bản gốc; client dự án không nhúng Lua
+EXTERNAL:0xaa	LUAPLUS.DLL	LuaPlus::LuaObject::GetCState	KHÁC THIẾT KẾ	Lua của bản gốc; client dự án không nhúng Lua
+EXTERNAL:0xab	LUAPLUS.DLL	LuaPlus::LuaState::Create	KHÁC THIẾT KẾ	Lua của bản gốc; client dự án không nhúng Lua
+EXTERNAL:0xac	LUAPLUS.DLL	LuaPlus::LuaState::Destroy	KHÁC THIẾT KẾ	Lua của bản gốc; client dự án không nhúng Lua
+EXTERNAL:0xad	LUAPLUS.DLL	LuaPlus::LuaObject::IsString	KHÁC THIẾT KẾ	Lua của bản gốc; client dự án không nhúng Lua
+EXTERNAL:0xae	LUAPLUS.DLL	LuaPlus::LuaObject::ToInteger	KHÁC THIẾT KẾ	Lua của bản gốc; client dự án không nhúng Lua
+EXTERNAL:0xaf	LUAPLUS.DLL	LuaPlus::LuaObject::ToString	KHÁC THIẾT KẾ	Lua của bản gốc; client dự án không nhúng Lua
+EXTERNAL:0xb0	LUAPLUS.DLL	LuaPlus::LuaStackObject::GetByIndex	KHÁC THIẾT KẾ	Lua của bản gốc; client dự án không nhúng Lua
+EXTERNAL:0xb1	LUAPLUS.DLL	LuaPlus::LuaStackObject::GetInteger	KHÁC THIẾT KẾ	Lua của bản gốc; client dự án không nhúng Lua
+EXTERNAL:0xb2	LUAPLUS.DLL	LuaPlus::LuaStackObject::IsString	KHÁC THIẾT KẾ	Lua của bản gốc; client dự án không nhúng Lua
+EXTERNAL:0xb3	LUAPLUS.DLL	LuaPlus::LuaStackObject::IsInteger	KHÁC THIẾT KẾ	Lua của bản gốc; client dự án không nhúng Lua
+EXTERNAL:0xb4	LUAPLUS.DLL	LuaPlus::LuaState::PushBoolean	KHÁC THIẾT KẾ	Lua của bản gốc; client dự án không nhúng Lua
+EXTERNAL:0xb5	LUAPLUS.DLL	LuaPlus::LuaObject::Register	KHÁC THIẾT KẾ	Lua của bản gốc; client dự án không nhúng Lua
+EXTERNAL:0xb6	LUAPLUS.DLL	LuaPlus::LuaObject::SetObject	KHÁC THIẾT KẾ	Lua của bản gốc; client dự án không nhúng Lua
+EXTERNAL:0xb7	LUAPLUS.DLL	luaL_error	KHÁC THIẾT KẾ	Lua của bản gốc; client dự án không nhúng Lua
+EXTERNAL:0xb8	LUAPLUS.DLL	luaL_argerror	KHÁC THIẾT KẾ	Lua của bản gốc; client dự án không nhúng Lua
+EXTERNAL:0xb9	LUAPLUS.DLL	lua_getstateuserdata	KHÁC THIẾT KẾ	Lua của bản gốc; client dự án không nhúng Lua
+EXTERNAL:0xba	LUAPLUS.DLL	lua_touserdata	KHÁC THIẾT KẾ	Lua của bản gốc; client dự án không nhúng Lua
+EXTERNAL:0xbb	LUAPLUS.DLL	lua_isuserdata	KHÁC THIẾT KẾ	Lua của bản gốc; client dự án không nhúng Lua
+EXTERNAL:0xbc	LUAPLUS.DLL	lua_pushvalue	KHÁC THIẾT KẾ	Lua của bản gốc; client dự án không nhúng Lua
+EXTERNAL:0xbd	LUAPLUS.DLL	LuaPlus::LuaState::PushNumber	KHÁC THIẾT KẾ	Lua của bản gốc; client dự án không nhúng Lua
+EXTERNAL:0xbe	LUAPLUS.DLL	LuaPlus::LuaStackObject::operator[]	KHÁC THIẾT KẾ	Lua của bản gốc; client dự án không nhúng Lua
+EXTERNAL:0xbf	LUAPLUS.DLL	LuaPlus::LuaStackObject::GetByName	KHÁC THIẾT KẾ	Lua của bản gốc; client dự án không nhúng Lua
+EXTERNAL:0xc0	LUAPLUS.DLL	LuaPlus::LuaStackObject::SetString	KHÁC THIẾT KẾ	Lua của bản gốc; client dự án không nhúng Lua
+EXTERNAL:0xc1	LUAPLUS.DLL	lua_remove	KHÁC THIẾT KẾ	Lua của bản gốc; client dự án không nhúng Lua
+EXTERNAL:0xc2	LUAPLUS.DLL	lua_type	KHÁC THIẾT KẾ	Lua của bản gốc; client dự án không nhúng Lua
+EXTERNAL:0xc3	LUAPLUS.DLL	lua_tonumber	KHÁC THIẾT KẾ	Lua của bản gốc; client dự án không nhúng Lua
+EXTERNAL:0xc4	LUAPLUS.DLL	lua_gettop	KHÁC THIẾT KẾ	Lua của bản gốc; client dự án không nhúng Lua
+EXTERNAL:0xc5	LUAPLUS.DLL	lua_pushnumber	KHÁC THIẾT KẾ	Lua của bản gốc; client dự án không nhúng Lua
+EXTERNAL:0xc6	LUAPLUS.DLL	lua_pushstring	KHÁC THIẾT KẾ	Lua của bản gốc; client dự án không nhúng Lua
+EXTERNAL:0xc7	LUAPLUS.DLL	lua_pushboolean	KHÁC THIẾT KẾ	Lua của bản gốc; client dự án không nhúng Lua
+EXTERNAL:0xc8	LUAPLUS.DLL	lua_newtable	KHÁC THIẾT KẾ	Lua của bản gốc; client dự án không nhúng Lua
+EXTERNAL:0xc9	LUAPLUS.DLL	LuaPlus::LuaStackObject::CreateTable	KHÁC THIẾT KẾ	Lua của bản gốc; client dự án không nhúng Lua
+EXTERNAL:0xca	LUAPLUS.DLL	LuaPlus::LuaStackObject::SetNil	KHÁC THIẾT KẾ	Lua của bản gốc; client dự án không nhúng Lua
+EXTERNAL:0xcb	LUAPLUS.DLL	LuaPlus::LuaStackObject::SetNumber	KHÁC THIẾT KẾ	Lua của bản gốc; client dự án không nhúng Lua
+EXTERNAL:0xcc	LUAPLUS.DLL	LuaPlus::LuaStackObject::SetString	KHÁC THIẾT KẾ	Lua của bản gốc; client dự án không nhúng Lua
+EXTERNAL:0xcd	LUAPLUS.DLL	lua_isstring	KHÁC THIẾT KẾ	Lua của bản gốc; client dự án không nhúng Lua
+EXTERNAL:0xce	LUAPLUS.DLL	LuaPlus::LuaStackObject::GetString	KHÁC THIẾT KẾ	Lua của bản gốc; client dự án không nhúng Lua
+EXTERNAL:0xcf	LUAPLUS.DLL	LuaPlus::LuaState::PushInteger	KHÁC THIẾT KẾ	Lua của bản gốc; client dự án không nhúng Lua
+EXTERNAL:0xd0	LUAPLUS.DLL	LuaPlus::LuaState::PushString	KHÁC THIẾT KẾ	Lua của bản gốc; client dự án không nhúng Lua
+EXTERNAL:0xd1	LUAPLUS.DLL	lua_newuserdata	KHÁC THIẾT KẾ	Lua của bản gốc; client dự án không nhúng Lua
+EXTERNAL:0xd2	LUAPLUS.DLL	LuaPlus::LuaObject::LuaObject	KHÁC THIẾT KẾ	Lua của bản gốc; client dự án không nhúng Lua
+EXTERNAL:0xd3	LUAPLUS.DLL	LuaPlus::LuaObject::~LuaObject	KHÁC THIẾT KẾ	Lua của bản gốc; client dự án không nhúng Lua
+EXTERNAL:0xd4	LUAPLUS.DLL	LuaPlus::LuaStackObject::SetNumber	KHÁC THIẾT KẾ	Lua của bản gốc; client dự án không nhúng Lua
+EXTERNAL:0xd5	LUAPLUS.DLL	LuaPlus::LuaStackObject::GetBoolean	KHÁC THIẾT KẾ	Lua của bản gốc; client dự án không nhúng Lua
+EXTERNAL:0xd6	LUAPLUS.DLL	LuaPlus::LuaStackObject::LuaStackObject	KHÁC THIẾT KẾ	Lua của bản gốc; client dự án không nhúng Lua
+EXTERNAL:0xd7	LUAPLUS.DLL	lua_getn	KHÁC THIẾT KẾ	Lua của bản gốc; client dự án không nhúng Lua
+EXTERNAL:0xd8	LUAPLUS.DLL	lua_next	KHÁC THIẾT KẾ	Lua của bản gốc; client dự án không nhúng Lua
+EXTERNAL:0xd9	LUAPLUS.DLL	lua_gettable	KHÁC THIẾT KẾ	Lua của bản gốc; client dự án không nhúng Lua
+EXTERNAL:0xda	LUAPLUS.DLL	lua_pushlstring	KHÁC THIẾT KẾ	Lua của bản gốc; client dự án không nhúng Lua
+EXTERNAL:0xdb	LUAPLUS.DLL	lua_pushnil	KHÁC THIẾT KẾ	Lua của bản gốc; client dự án không nhúng Lua
+EXTERNAL:0xdc	LUAPLUS.DLL	lua_tostring	KHÁC THIẾT KẾ	Lua của bản gốc; client dự án không nhúng Lua
+EXTERNAL:0xdd	LUAPLUS.DLL	lua_insert	KHÁC THIẾT KẾ	Lua của bản gốc; client dự án không nhúng Lua
+EXTERNAL:0xde	LUAPLUS.DLL	lua_settop	KHÁC THIẾT KẾ	Lua của bản gốc; client dự án không nhúng Lua
+EXTERNAL:0xdf	LUAPLUS.DLL	lua_rawseti	KHÁC THIẾT KẾ	Lua của bản gốc; client dự án không nhúng Lua
+EXTERNAL:0xe0	LUAPLUS.DLL	lua_settable	KHÁC THIẾT KẾ	Lua của bản gốc; client dự án không nhúng Lua
+EXTERNAL:0xe1	LUAPLUS.DLL	LuaPlus::LuaObject::SetMetaTable	KHÁC THIẾT KẾ	Lua của bản gốc; client dự án không nhúng Lua
+EXTERNAL:0xe2	LUAPLUS.DLL	LuaPlus::LuaObject::PushStack	KHÁC THIẾT KẾ	Lua của bản gốc; client dự án không nhúng Lua
+EXTERNAL:0xe3	CRYPT32.DLL	CertFreeCertificateContext	KHÁC THIẾT KẾ	chứng chỉ/mã hoá Windows; dự án dùng libsodium
+EXTERNAL:0xe4	CRYPT32.DLL	CertFindCertificateInStore	KHÁC THIẾT KẾ	chứng chỉ/mã hoá Windows; dự án dùng libsodium
+EXTERNAL:0xe5	CRYPT32.DLL	CertEnumCertificatesInStore	KHÁC THIẾT KẾ	chứng chỉ/mã hoá Windows; dự án dùng libsodium
+EXTERNAL:0xe6	CRYPT32.DLL	CertOpenStore	KHÁC THIẾT KẾ	chứng chỉ/mã hoá Windows; dự án dùng libsodium
+EXTERNAL:0xe7	CRYPT32.DLL	CryptStringToBinaryA	KHÁC THIẾT KẾ	chứng chỉ/mã hoá Windows; dự án dùng libsodium
+EXTERNAL:0xe8	CRYPT32.DLL	PFXImportCertStore	KHÁC THIẾT KẾ	chứng chỉ/mã hoá Windows; dự án dùng libsodium
+EXTERNAL:0xe9	CRYPT32.DLL	CryptDecodeObjectEx	KHÁC THIẾT KẾ	chứng chỉ/mã hoá Windows; dự án dùng libsodium
+EXTERNAL:0xea	CRYPT32.DLL	CertAddCertificateContextToStore	KHÁC THIẾT KẾ	chứng chỉ/mã hoá Windows; dự án dùng libsodium
+EXTERNAL:0xeb	CRYPT32.DLL	CertFindExtension	KHÁC THIẾT KẾ	chứng chỉ/mã hoá Windows; dự án dùng libsodium
+EXTERNAL:0xec	CRYPT32.DLL	CertGetNameStringA	KHÁC THIẾT KẾ	chứng chỉ/mã hoá Windows; dự án dùng libsodium
+EXTERNAL:0xed	CRYPT32.DLL	CryptQueryObject	KHÁC THIẾT KẾ	chứng chỉ/mã hoá Windows; dự án dùng libsodium
+EXTERNAL:0xee	CRYPT32.DLL	CertCreateCertificateChainEngine	KHÁC THIẾT KẾ	chứng chỉ/mã hoá Windows; dự án dùng libsodium
+EXTERNAL:0xef	CRYPT32.DLL	CertFreeCertificateChainEngine	KHÁC THIẾT KẾ	chứng chỉ/mã hoá Windows; dự án dùng libsodium
+EXTERNAL:0xf0	CRYPT32.DLL	CertGetCertificateChain	KHÁC THIẾT KẾ	chứng chỉ/mã hoá Windows; dự án dùng libsodium
+EXTERNAL:0xf1	CRYPT32.DLL	CertFreeCertificateChain	KHÁC THIẾT KẾ	chứng chỉ/mã hoá Windows; dự án dùng libsodium
+EXTERNAL:0xf2	CRYPT32.DLL	CertCloseStore	KHÁC THIẾT KẾ	chứng chỉ/mã hoá Windows; dự án dùng libsodium
+EXTERNAL:0xf3	CRYPT32.DLL	CertDuplicateCertificateContext	KHÁC THIẾT KẾ	chứng chỉ/mã hoá Windows; dự án dùng libsodium
+EXTERNAL:0xf4	CRYPT32.DLL	CertGetCertificateContextProperty	KHÁC THIẾT KẾ	chứng chỉ/mã hoá Windows; dự án dùng libsodium
+EXTERNAL:0xf5	WLDAP32.DLL	ldap_sslinit	KHÔNG ÁP DỤNG	LDAP, kéo theo bởi WinINet/Crypt32 của bản gốc
+EXTERNAL:0xf6	WLDAP32.DLL	ldap_unbind_s	KHÔNG ÁP DỤNG	LDAP, kéo theo bởi WinINet/Crypt32 của bản gốc
+EXTERNAL:0xf7	WLDAP32.DLL	ldap_set_option	KHÔNG ÁP DỤNG	LDAP, kéo theo bởi WinINet/Crypt32 của bản gốc
+EXTERNAL:0xf8	WLDAP32.DLL	ldap_simple_bind_s	KHÔNG ÁP DỤNG	LDAP, kéo theo bởi WinINet/Crypt32 của bản gốc
+EXTERNAL:0xf9	WLDAP32.DLL	ldap_bind_s	KHÔNG ÁP DỤNG	LDAP, kéo theo bởi WinINet/Crypt32 của bản gốc
+EXTERNAL:0xfa	WLDAP32.DLL	ldap_search_s	KHÔNG ÁP DỤNG	LDAP, kéo theo bởi WinINet/Crypt32 của bản gốc
+EXTERNAL:0xfb	WLDAP32.DLL	ldap_msgfree	KHÔNG ÁP DỤNG	LDAP, kéo theo bởi WinINet/Crypt32 của bản gốc
+EXTERNAL:0xfc	WLDAP32.DLL	ldap_err2string	KHÔNG ÁP DỤNG	LDAP, kéo theo bởi WinINet/Crypt32 của bản gốc
+EXTERNAL:0xfd	WLDAP32.DLL	ldap_first_entry	KHÔNG ÁP DỤNG	LDAP, kéo theo bởi WinINet/Crypt32 của bản gốc
+EXTERNAL:0xfe	WLDAP32.DLL	ldap_next_entry	KHÔNG ÁP DỤNG	LDAP, kéo theo bởi WinINet/Crypt32 của bản gốc
+EXTERNAL:0xff	WLDAP32.DLL	ldap_first_attribute	KHÔNG ÁP DỤNG	LDAP, kéo theo bởi WinINet/Crypt32 của bản gốc
+EXTERNAL:0x100	WLDAP32.DLL	ldap_next_attribute	KHÔNG ÁP DỤNG	LDAP, kéo theo bởi WinINet/Crypt32 của bản gốc
+EXTERNAL:0x101	WLDAP32.DLL	ldap_get_values_len	KHÔNG ÁP DỤNG	LDAP, kéo theo bởi WinINet/Crypt32 của bản gốc
+EXTERNAL:0x102	WLDAP32.DLL	ldap_value_free_len	KHÔNG ÁP DỤNG	LDAP, kéo theo bởi WinINet/Crypt32 của bản gốc
+EXTERNAL:0x103	WLDAP32.DLL	ldap_get_dn	KHÔNG ÁP DỤNG	LDAP, kéo theo bởi WinINet/Crypt32 của bản gốc
+EXTERNAL:0x104	WLDAP32.DLL	ldap_memfree	KHÔNG ÁP DỤNG	LDAP, kéo theo bởi WinINet/Crypt32 của bản gốc
+EXTERNAL:0x105	WLDAP32.DLL	ldap_init	KHÔNG ÁP DỤNG	LDAP, kéo theo bởi WinINet/Crypt32 của bản gốc
+EXTERNAL:0x106	WLDAP32.DLL	ber_free	KHÔNG ÁP DỤNG	LDAP, kéo theo bởi WinINet/Crypt32 của bản gốc
+EXTERNAL:0x107	IPHLPAPI.DLL	GetAdaptersAddresses	CHƯA CÓ	lấy địa chỉ mạng/MAC (định danh máy)
+EXTERNAL:0x108	IPHLPAPI.DLL	GetIpAddrTable	CHƯA CÓ	lấy địa chỉ mạng/MAC (định danh máy)
+EXTERNAL:0x109	KERNEL32.DLL	GetModuleHandleExW	CÓ	engine/core, engine/fs, engine/jobs, engine/window (gọi Win32 trực tiếp hoặc qua SDL3)
+EXTERNAL:0x10a	KERNEL32.DLL	GetSystemTimeAsFileTime	CÓ	engine/core, engine/fs, engine/jobs, engine/window (gọi Win32 trực tiếp hoặc qua SDL3)
+EXTERNAL:0x10b	KERNEL32.DLL	IsProcessorFeaturePresent	CÓ	engine/core, engine/fs, engine/jobs, engine/window (gọi Win32 trực tiếp hoặc qua SDL3)
+EXTERNAL:0x10c	KERNEL32.DLL	IsDebuggerPresent	CÓ	engine/core, engine/fs, engine/jobs, engine/window (gọi Win32 trực tiếp hoặc qua SDL3)
+EXTERNAL:0x10d	KERNEL32.DLL	DecodePointer	CÓ	engine/core, engine/fs, engine/jobs, engine/window (gọi Win32 trực tiếp hoặc qua SDL3)
+EXTERNAL:0x10e	KERNEL32.DLL	EncodePointer	CÓ	engine/core, engine/fs, engine/jobs, engine/window (gọi Win32 trực tiếp hoặc qua SDL3)
+EXTERNAL:0x10f	KERNEL32.DLL	CopyFileA	CÓ	engine/core, engine/fs, engine/jobs, engine/window (gọi Win32 trực tiếp hoặc qua SDL3)
+EXTERNAL:0x110	KERNEL32.DLL	FindNextFileW	CÓ	engine/core, engine/fs, engine/jobs, engine/window (gọi Win32 trực tiếp hoặc qua SDL3)
+EXTERNAL:0x111	KERNEL32.DLL	FindFirstFileW	CÓ	engine/core, engine/fs, engine/jobs, engine/window (gọi Win32 trực tiếp hoặc qua SDL3)
+EXTERNAL:0x112	KERNEL32.DLL	DeleteFileW	CÓ	engine/core, engine/fs, engine/jobs, engine/window (gọi Win32 trực tiếp hoặc qua SDL3)
+EXTERNAL:0x113	KERNEL32.DLL	GetVersion	CÓ	engine/core, engine/fs, engine/jobs, engine/window (gọi Win32 trực tiếp hoặc qua SDL3)
+EXTERNAL:0x114	KERNEL32.DLL	GetEnvironmentVariableA	CÓ	engine/core, engine/fs, engine/jobs, engine/window (gọi Win32 trực tiếp hoặc qua SDL3)
+EXTERNAL:0x115	KERNEL32.DLL	FormatMessageW	CÓ	engine/core, engine/fs, engine/jobs, engine/window (gọi Win32 trực tiếp hoặc qua SDL3)
+EXTERNAL:0x116	KERNEL32.DLL	SetLastError	CÓ	engine/core, engine/fs, engine/jobs, engine/window (gọi Win32 trực tiếp hoặc qua SDL3)
+EXTERNAL:0x117	KERNEL32.DLL	QueryPerformanceCounter	CÓ	engine/core, engine/fs, engine/jobs, engine/window (gọi Win32 trực tiếp hoặc qua SDL3)
+EXTERNAL:0x118	KERNEL32.DLL	GetSystemDirectoryA	CÓ	engine/core, engine/fs, engine/jobs, engine/window (gọi Win32 trực tiếp hoặc qua SDL3)
+EXTERNAL:0x119	KERNEL32.DLL	QueryPerformanceFrequency	CÓ	engine/core, engine/fs, engine/jobs, engine/window (gọi Win32 trực tiếp hoặc qua SDL3)
+EXTERNAL:0x11a	KERNEL32.DLL	SleepEx	CÓ	engine/core, engine/fs, engine/jobs, engine/window (gọi Win32 trực tiếp hoặc qua SDL3)
+EXTERNAL:0x11b	KERNEL32.DLL	VerifyVersionInfoW	CÓ	engine/core, engine/fs, engine/jobs, engine/window (gọi Win32 trực tiếp hoặc qua SDL3)
+EXTERNAL:0x11c	KERNEL32.DLL	VerSetConditionMask	CÓ	engine/core, engine/fs, engine/jobs, engine/window (gọi Win32 trực tiếp hoặc qua SDL3)
+EXTERNAL:0x11d	KERNEL32.DLL	GetUserDefaultUILanguage	CÓ	engine/core, engine/fs, engine/jobs, engine/window (gọi Win32 trực tiếp hoặc qua SDL3)
+EXTERNAL:0x11e	KERNEL32.DLL	GetComputerNameW	CÓ	engine/core, engine/fs, engine/jobs, engine/window (gọi Win32 trực tiếp hoặc qua SDL3)
+EXTERNAL:0x11f	KERNEL32.DLL	GetModuleHandleW	CÓ	engine/core, engine/fs, engine/jobs, engine/window (gọi Win32 trực tiếp hoặc qua SDL3)
+EXTERNAL:0x120	KERNEL32.DLL	CreateThread	CÓ	engine/core, engine/fs, engine/jobs, engine/window (gọi Win32 trực tiếp hoặc qua SDL3)
+EXTERNAL:0x121	KERNEL32.DLL	InitializeCriticalSectionAndSpinCount	CÓ	engine/core, engine/fs, engine/jobs, engine/window (gọi Win32 trực tiếp hoặc qua SDL3)
+EXTERNAL:0x122	KERNEL32.DLL	TlsAlloc	CÓ	engine/core, engine/fs, engine/jobs, engine/window (gọi Win32 trực tiếp hoặc qua SDL3)
+EXTERNAL:0x123	KERNEL32.DLL	TlsGetValue	CÓ	engine/core, engine/fs, engine/jobs, engine/window (gọi Win32 trực tiếp hoặc qua SDL3)
+EXTERNAL:0x124	KERNEL32.DLL	VirtualProtect	CÓ	engine/core, engine/fs, engine/jobs, engine/window (gọi Win32 trực tiếp hoặc qua SDL3)
+EXTERNAL:0x125	KERNEL32.DLL	RtlAddFunctionTable	CÓ	engine/core, engine/fs, engine/jobs, engine/window (gọi Win32 trực tiếp hoặc qua SDL3)
+EXTERNAL:0x126	KERNEL32.DLL	IsBadReadPtr	CÓ	engine/core, engine/fs, engine/jobs, engine/window (gọi Win32 trực tiếp hoặc qua SDL3)
+EXTERNAL:0x127	KERNEL32.DLL	VirtualAlloc	CÓ	engine/core, engine/fs, engine/jobs, engine/window (gọi Win32 trực tiếp hoặc qua SDL3)
+EXTERNAL:0x128	KERNEL32.DLL	VirtualFree	CÓ	engine/core, engine/fs, engine/jobs, engine/window (gọi Win32 trực tiếp hoặc qua SDL3)
+EXTERNAL:0x129	KERNEL32.DLL	K32GetModuleInformation	CÓ	engine/core, engine/fs, engine/jobs, engine/window (gọi Win32 trực tiếp hoặc qua SDL3)
+EXTERNAL:0x12a	KERNEL32.DLL	VirtualQueryEx	CÓ	engine/core, engine/fs, engine/jobs, engine/window (gọi Win32 trực tiếp hoặc qua SDL3)
+EXTERNAL:0x12b	KERNEL32.DLL	GetSystemInfo	CÓ	engine/core, engine/fs, engine/jobs, engine/window (gọi Win32 trực tiếp hoặc qua SDL3)
+EXTERNAL:0x12c	KERNEL32.DLL	MoveFileA	CÓ	engine/core, engine/fs, engine/jobs, engine/window (gọi Win32 trực tiếp hoặc qua SDL3)
+EXTERNAL:0x12d	KERNEL32.DLL	GetPrivateProfileSectionA	CÓ	engine/core, engine/fs, engine/jobs, engine/window (gọi Win32 trực tiếp hoặc qua SDL3)
+EXTERNAL:0x12e	KERNEL32.DLL	GetCurrentThreadId	CÓ	engine/core, engine/fs, engine/jobs, engine/window (gọi Win32 trực tiếp hoặc qua SDL3)
+EXTERNAL:0x12f	KERNEL32.DLL	GetFileSize	CÓ	engine/core, engine/fs, engine/jobs, engine/window (gọi Win32 trực tiếp hoặc qua SDL3)
+EXTERNAL:0x130	KERNEL32.DLL	IsDBCSLeadByte	CÓ	engine/core, engine/fs, engine/jobs, engine/window (gọi Win32 trực tiếp hoặc qua SDL3)
+EXTERNAL:0x131	KERNEL32.DLL	FlushFileBuffers	CÓ	engine/core, engine/fs, engine/jobs, engine/window (gọi Win32 trực tiếp hoặc qua SDL3)
+EXTERNAL:0x132	KERNEL32.DLL	DeleteFiber	CÓ	engine/core, engine/fs, engine/jobs, engine/window (gọi Win32 trực tiếp hoặc qua SDL3)
+EXTERNAL:0x133	KERNEL32.DLL	SuspendThread	CÓ	engine/core, engine/fs, engine/jobs, engine/window (gọi Win32 trực tiếp hoặc qua SDL3)
+EXTERNAL:0x134	KERNEL32.DLL	ExitProcess	CÓ	engine/core, engine/fs, engine/jobs, engine/window (gọi Win32 trực tiếp hoặc qua SDL3)
+EXTERNAL:0x135	KERNEL32.DLL	CreateMutexA	CÓ	engine/core, engine/fs, engine/jobs, engine/window (gọi Win32 trực tiếp hoặc qua SDL3)
+EXTERNAL:0x136	KERNEL32.DLL	SetUnhandledExceptionFilter	CÓ	engine/core, engine/fs, engine/jobs, engine/window (gọi Win32 trực tiếp hoặc qua SDL3)
+EXTERNAL:0x137	KERNEL32.DLL	SetFileAttributesA	CÓ	engine/core, engine/fs, engine/jobs, engine/window (gọi Win32 trực tiếp hoặc qua SDL3)
+EXTERNAL:0x138	KERNEL32.DLL	GetFileAttributesA	CÓ	engine/core, engine/fs, engine/jobs, engine/window (gọi Win32 trực tiếp hoặc qua SDL3)
+EXTERNAL:0x139	KERNEL32.DLL	FindClose	CÓ	engine/core, engine/fs, engine/jobs, engine/window (gọi Win32 trực tiếp hoặc qua SDL3)
+EXTERNAL:0x13a	KERNEL32.DLL	K32GetProcessMemoryInfo	CÓ	engine/core, engine/fs, engine/jobs, engine/window (gọi Win32 trực tiếp hoặc qua SDL3)
+EXTERNAL:0x13b	KERNEL32.DLL	LocalFree	CÓ	engine/core, engine/fs, engine/jobs, engine/window (gọi Win32 trực tiếp hoặc qua SDL3)
+EXTERNAL:0x13c	KERNEL32.DLL	LocalAlloc	CÓ	engine/core, engine/fs, engine/jobs, engine/window (gọi Win32 trực tiếp hoặc qua SDL3)
+EXTERNAL:0x13d	KERNEL32.DLL	lstrlenA	CÓ	engine/core, engine/fs, engine/jobs, engine/window (gọi Win32 trực tiếp hoặc qua SDL3)
+EXTERNAL:0x13e	KERNEL32.DLL	lstrcatA	CÓ	engine/core, engine/fs, engine/jobs, engine/window (gọi Win32 trực tiếp hoặc qua SDL3)
+EXTERNAL:0x13f	KERNEL32.DLL	WinExec	CÓ	engine/core, engine/fs, engine/jobs, engine/window (gọi Win32 trực tiếp hoặc qua SDL3)
+EXTERNAL:0x140	KERNEL32.DLL	OpenEventA	CÓ	engine/core, engine/fs, engine/jobs, engine/window (gọi Win32 trực tiếp hoặc qua SDL3)
+EXTERNAL:0x141	KERNEL32.DLL	GetModuleHandleA	CÓ	engine/core, engine/fs, engine/jobs, engine/window (gọi Win32 trực tiếp hoặc qua SDL3)
+EXTERNAL:0x142	KERNEL32.DLL	TlsSetValue	CÓ	engine/core, engine/fs, engine/jobs, engine/window (gọi Win32 trực tiếp hoặc qua SDL3)
+EXTERNAL:0x143	KERNEL32.DLL	ResetEvent	CÓ	engine/core, engine/fs, engine/jobs, engine/window (gọi Win32 trực tiếp hoặc qua SDL3)
+EXTERNAL:0x144	KERNEL32.DLL	GetCommandLineA	CÓ	engine/core, engine/fs, engine/jobs, engine/window (gọi Win32 trực tiếp hoặc qua SDL3)
+EXTERNAL:0x145	KERNEL32.DLL	ResumeThread	CÓ	engine/core, engine/fs, engine/jobs, engine/window (gọi Win32 trực tiếp hoặc qua SDL3)
+EXTERNAL:0x146	KERNEL32.DLL	GetExitCodeThread	CÓ	engine/core, engine/fs, engine/jobs, engine/window (gọi Win32 trực tiếp hoặc qua SDL3)
+EXTERNAL:0x147	KERNEL32.DLL	TerminateThread	CÓ	engine/core, engine/fs, engine/jobs, engine/window (gọi Win32 trực tiếp hoặc qua SDL3)
+EXTERNAL:0x148	KERNEL32.DLL	CreateEventA	CÓ	engine/core, engine/fs, engine/jobs, engine/window (gọi Win32 trực tiếp hoặc qua SDL3)
+EXTERNAL:0x149	KERNEL32.DLL	SetEvent	CÓ	engine/core, engine/fs, engine/jobs, engine/window (gọi Win32 trực tiếp hoặc qua SDL3)
+EXTERNAL:0x14a	KERNEL32.DLL	LeaveCriticalSection	CÓ	engine/core, engine/fs, engine/jobs, engine/window (gọi Win32 trực tiếp hoặc qua SDL3)
+EXTERNAL:0x14b	KERNEL32.DLL	EnterCriticalSection	CÓ	engine/core, engine/fs, engine/jobs, engine/window (gọi Win32 trực tiếp hoặc qua SDL3)
+EXTERNAL:0x14c	KERNEL32.DLL	OpenProcess	CÓ	engine/core, engine/fs, engine/jobs, engine/window (gọi Win32 trực tiếp hoặc qua SDL3)
+EXTERNAL:0x14d	KERNEL32.DLL	CreateProcessW	CÓ	engine/core, engine/fs, engine/jobs, engine/window (gọi Win32 trực tiếp hoặc qua SDL3)
+EXTERNAL:0x14e	KERNEL32.DLL	TerminateProcess	CÓ	engine/core, engine/fs, engine/jobs, engine/window (gọi Win32 trực tiếp hoặc qua SDL3)
+EXTERNAL:0x14f	KERNEL32.DLL	GetCurrentProcessId	CÓ	engine/core, engine/fs, engine/jobs, engine/window (gọi Win32 trực tiếp hoặc qua SDL3)
+EXTERNAL:0x150	KERNEL32.DLL	CreateNamedPipeW	CÓ	engine/core, engine/fs, engine/jobs, engine/window (gọi Win32 trực tiếp hoặc qua SDL3)
+EXTERNAL:0x151	KERNEL32.DLL	SetNamedPipeHandleState	CÓ	engine/core, engine/fs, engine/jobs, engine/window (gọi Win32 trực tiếp hoặc qua SDL3)
+EXTERNAL:0x152	KERNEL32.DLL	CreatePipe	CÓ	engine/core, engine/fs, engine/jobs, engine/window (gọi Win32 trực tiếp hoặc qua SDL3)
+EXTERNAL:0x153	KERNEL32.DLL	SetHandleInformation	CÓ	engine/core, engine/fs, engine/jobs, engine/window (gọi Win32 trực tiếp hoặc qua SDL3)
+EXTERNAL:0x154	KERNEL32.DLL	WriteFile	CÓ	engine/core, engine/fs, engine/jobs, engine/window (gọi Win32 trực tiếp hoặc qua SDL3)
+EXTERNAL:0x155	KERNEL32.DLL	ReadFile	CÓ	engine/core, engine/fs, engine/jobs, engine/window (gọi Win32 trực tiếp hoặc qua SDL3)
+EXTERNAL:0x156	KERNEL32.DLL	CreateFileW	CÓ	engine/core, engine/fs, engine/jobs, engine/window (gọi Win32 trực tiếp hoặc qua SDL3)
+EXTERNAL:0x157	KERNEL32.DLL	GetStdHandle	CÓ	engine/core, engine/fs, engine/jobs, engine/window (gọi Win32 trực tiếp hoặc qua SDL3)
+EXTERNAL:0x158	KERNEL32.DLL	FileTimeToSystemTime	CÓ	engine/core, engine/fs, engine/jobs, engine/window (gọi Win32 trực tiếp hoặc qua SDL3)
+EXTERNAL:0x159	KERNEL32.DLL	GetTempFileNameA	CÓ	engine/core, engine/fs, engine/jobs, engine/window (gọi Win32 trực tiếp hoặc qua SDL3)
+EXTERNAL:0x15a	KERNEL32.DLL	GetTempPathA	CÓ	engine/core, engine/fs, engine/jobs, engine/window (gọi Win32 trực tiếp hoặc qua SDL3)
+EXTERNAL:0x15b	KERNEL32.DLL	GetShortPathNameA	CÓ	engine/core, engine/fs, engine/jobs, engine/window (gọi Win32 trực tiếp hoặc qua SDL3)
+EXTERNAL:0x15c	KERNEL32.DLL	GetModuleFileNameA	CÓ	engine/core, engine/fs, engine/jobs, engine/window (gọi Win32 trực tiếp hoặc qua SDL3)
+EXTERNAL:0x15d	KERNEL32.DLL	GetVersionExA	CÓ	engine/core, engine/fs, engine/jobs, engine/window (gọi Win32 trực tiếp hoặc qua SDL3)
+EXTERNAL:0x15e	KERNEL32.DLL	CreateProcessA	CÓ	engine/core, engine/fs, engine/jobs, engine/window (gọi Win32 trực tiếp hoặc qua SDL3)
+EXTERNAL:0x15f	KERNEL32.DLL	GetFileTime	CÓ	engine/core, engine/fs, engine/jobs, engine/window (gọi Win32 trực tiếp hoặc qua SDL3)
+EXTERNAL:0x160	KERNEL32.DLL	FileTimeToLocalFileTime	CÓ	engine/core, engine/fs, engine/jobs, engine/window (gọi Win32 trực tiếp hoặc qua SDL3)
+EXTERNAL:0x161	KERNEL32.DLL	CreateFileA	CÓ	engine/core, engine/fs, engine/jobs, engine/window (gọi Win32 trực tiếp hoặc qua SDL3)
+EXTERNAL:0x162	KERNEL32.DLL	SetEnvironmentVariableA	CÓ	engine/core, engine/fs, engine/jobs, engine/window (gọi Win32 trực tiếp hoặc qua SDL3)
+EXTERNAL:0x163	KERNEL32.DLL	WideCharToMultiByte	CÓ	engine/core, engine/fs, engine/jobs, engine/window (gọi Win32 trực tiếp hoặc qua SDL3)
+EXTERNAL:0x164	KERNEL32.DLL	MultiByteToWideChar	CÓ	engine/core, engine/fs, engine/jobs, engine/window (gọi Win32 trực tiếp hoặc qua SDL3)
+EXTERNAL:0x165	KERNEL32.DLL	lstrcpyA	CÓ	engine/core, engine/fs, engine/jobs, engine/window (gọi Win32 trực tiếp hoặc qua SDL3)
+EXTERNAL:0x166	KERNEL32.DLL	GetExitCodeProcess	CÓ	engine/core, engine/fs, engine/jobs, engine/window (gọi Win32 trực tiếp hoặc qua SDL3)
+EXTERNAL:0x167	KERNEL32.DLL	WaitForSingleObject	CÓ	engine/core, engine/fs, engine/jobs, engine/window (gọi Win32 trực tiếp hoặc qua SDL3)
+EXTERNAL:0x168	KERNEL32.DLL	CloseHandle	CÓ	engine/core, engine/fs, engine/jobs, engine/window (gọi Win32 trực tiếp hoặc qua SDL3)
+EXTERNAL:0x169	KERNEL32.DLL	OutputDebugStringA	CÓ	engine/core, engine/fs, engine/jobs, engine/window (gọi Win32 trực tiếp hoặc qua SDL3)
+EXTERNAL:0x16a	KERNEL32.DLL	GetCurrentDirectoryA	CÓ	engine/core, engine/fs, engine/jobs, engine/window (gọi Win32 trực tiếp hoặc qua SDL3)
+EXTERNAL:0x16b	KERNEL32.DLL	GetLastError	CÓ	engine/core, engine/fs, engine/jobs, engine/window (gọi Win32 trực tiếp hoặc qua SDL3)
+EXTERNAL:0x16c	KERNEL32.DLL	CompareStringA	CÓ	engine/core, engine/fs, engine/jobs, engine/window (gọi Win32 trực tiếp hoặc qua SDL3)
+EXTERNAL:0x16d	KERNEL32.DLL	GetTimeZoneInformation	CÓ	engine/core, engine/fs, engine/jobs, engine/window (gọi Win32 trực tiếp hoặc qua SDL3)
+EXTERNAL:0x16e	KERNEL32.DLL	GetSystemTime	CÓ	engine/core, engine/fs, engine/jobs, engine/window (gọi Win32 trực tiếp hoặc qua SDL3)
+EXTERNAL:0x16f	KERNEL32.DLL	GetPrivateProfileIntA	CÓ	engine/core, engine/fs, engine/jobs, engine/window (gọi Win32 trực tiếp hoặc qua SDL3)
+EXTERNAL:0x170	KERNEL32.DLL	CreateDirectoryA	CÓ	engine/core, engine/fs, engine/jobs, engine/window (gọi Win32 trực tiếp hoặc qua SDL3)
+EXTERNAL:0x171	KERNEL32.DLL	GetTickCount	CÓ	engine/core, engine/fs, engine/jobs, engine/window (gọi Win32 trực tiếp hoặc qua SDL3)
+EXTERNAL:0x172	KERNEL32.DLL	RtlCaptureStackBackTrace	CÓ	engine/core, engine/fs, engine/jobs, engine/window (gọi Win32 trực tiếp hoặc qua SDL3)
+EXTERNAL:0x173	KERNEL32.DLL	GetLocalTime	CÓ	engine/core, engine/fs, engine/jobs, engine/window (gọi Win32 trực tiếp hoặc qua SDL3)
+EXTERNAL:0x174	KERNEL32.DLL	FindNextFileA	CÓ	engine/core, engine/fs, engine/jobs, engine/window (gọi Win32 trực tiếp hoặc qua SDL3)
+EXTERNAL:0x175	KERNEL32.DLL	FindFirstFileA	CÓ	engine/core, engine/fs, engine/jobs, engine/window (gọi Win32 trực tiếp hoặc qua SDL3)
+EXTERNAL:0x176	KERNEL32.DLL	DeleteFileA	CÓ	engine/core, engine/fs, engine/jobs, engine/window (gọi Win32 trực tiếp hoặc qua SDL3)
+EXTERNAL:0x177	KERNEL32.DLL	Sleep	CÓ	engine/core, engine/fs, engine/jobs, engine/window (gọi Win32 trực tiếp hoặc qua SDL3)
+EXTERNAL:0x178	KERNEL32.DLL	LoadLibraryA	CÓ	engine/core, engine/fs, engine/jobs, engine/window (gọi Win32 trực tiếp hoặc qua SDL3)
+EXTERNAL:0x179	KERNEL32.DLL	GetProcAddress	CÓ	engine/core, engine/fs, engine/jobs, engine/window (gọi Win32 trực tiếp hoặc qua SDL3)
+EXTERNAL:0x17a	KERNEL32.DLL	FreeLibrary	CÓ	engine/core, engine/fs, engine/jobs, engine/window (gọi Win32 trực tiếp hoặc qua SDL3)
+EXTERNAL:0x17b	KERNEL32.DLL	GetProcessHeap	CÓ	engine/core, engine/fs, engine/jobs, engine/window (gọi Win32 trực tiếp hoặc qua SDL3)
+EXTERNAL:0x17c	KERNEL32.DLL	HeapFree	CÓ	engine/core, engine/fs, engine/jobs, engine/window (gọi Win32 trực tiếp hoặc qua SDL3)
+EXTERNAL:0x17d	KERNEL32.DLL	HeapAlloc	CÓ	engine/core, engine/fs, engine/jobs, engine/window (gọi Win32 trực tiếp hoặc qua SDL3)
+EXTERNAL:0x17e	KERNEL32.DLL	WritePrivateProfileStringA	CÓ	engine/core, engine/fs, engine/jobs, engine/window (gọi Win32 trực tiếp hoặc qua SDL3)
+EXTERNAL:0x17f	KERNEL32.DLL	GetPrivateProfileStringA	CÓ	engine/core, engine/fs, engine/jobs, engine/window (gọi Win32 trực tiếp hoặc qua SDL3)
+EXTERNAL:0x180	KERNEL32.DLL	DeleteCriticalSection	CÓ	engine/core, engine/fs, engine/jobs, engine/window (gọi Win32 trực tiếp hoặc qua SDL3)
+EXTERNAL:0x181	KERNEL32.DLL	InitializeCriticalSection	CÓ	engine/core, engine/fs, engine/jobs, engine/window (gọi Win32 trực tiếp hoặc qua SDL3)
+EXTERNAL:0x182	KERNEL32.DLL	TlsFree	CÓ	engine/core, engine/fs, engine/jobs, engine/window (gọi Win32 trực tiếp hoặc qua SDL3)
+EXTERNAL:0x183	KERNEL32.DLL	GetCurrentProcess	CÓ	engine/core, engine/fs, engine/jobs, engine/window (gọi Win32 trực tiếp hoặc qua SDL3)
+EXTERNAL:0x184	KERNEL32.DLL	GetEnvironmentVariableW	CÓ	engine/core, engine/fs, engine/jobs, engine/window (gọi Win32 trực tiếp hoặc qua SDL3)
+EXTERNAL:0x185	KERNEL32.DLL	ConvertFiberToThread	CÓ	engine/core, engine/fs, engine/jobs, engine/window (gọi Win32 trực tiếp hoặc qua SDL3)
+EXTERNAL:0x186	KERNEL32.DLL	RtlVirtualUnwind	CÓ	engine/core, engine/fs, engine/jobs, engine/window (gọi Win32 trực tiếp hoặc qua SDL3)
+EXTERNAL:0x187	KERNEL32.DLL	LoadLibraryW	CÓ	engine/core, engine/fs, engine/jobs, engine/window (gọi Win32 trực tiếp hoặc qua SDL3)
+EXTERNAL:0x188	KERNEL32.DLL	GetConsoleMode	CÓ	engine/core, engine/fs, engine/jobs, engine/window (gọi Win32 trực tiếp hoặc qua SDL3)
+EXTERNAL:0x189	KERNEL32.DLL	ReadConsoleA	CÓ	engine/core, engine/fs, engine/jobs, engine/window (gọi Win32 trực tiếp hoặc qua SDL3)
+EXTERNAL:0x18a	KERNEL32.DLL	ReadConsoleW	CÓ	engine/core, engine/fs, engine/jobs, engine/window (gọi Win32 trực tiếp hoặc qua SDL3)
+EXTERNAL:0x18b	KERNEL32.DLL	SetConsoleMode	CÓ	engine/core, engine/fs, engine/jobs, engine/window (gọi Win32 trực tiếp hoặc qua SDL3)
+EXTERNAL:0x18c	KERNEL32.DLL	GetFileType	CÓ	engine/core, engine/fs, engine/jobs, engine/window (gọi Win32 trực tiếp hoặc qua SDL3)
+EXTERNAL:0x18d	KERNEL32.DLL	PeekNamedPipe	CÓ	engine/core, engine/fs, engine/jobs, engine/window (gọi Win32 trực tiếp hoặc qua SDL3)
+EXTERNAL:0x18e	KERNEL32.DLL	WaitForMultipleObjects	CÓ	engine/core, engine/fs, engine/jobs, engine/window (gọi Win32 trực tiếp hoặc qua SDL3)
+EXTERNAL:0x18f	KERNEL32.DLL	VerifyVersionInfoA	CÓ	engine/core, engine/fs, engine/jobs, engine/window (gọi Win32 trực tiếp hoặc qua SDL3)
+EXTERNAL:0x190	KERNEL32.DLL	GetFileSizeEx	CÓ	engine/core, engine/fs, engine/jobs, engine/window (gọi Win32 trực tiếp hoặc qua SDL3)
+EXTERNAL:0x191	KERNEL32.DLL	GlobalMemoryStatusEx	CÓ	engine/core, engine/fs, engine/jobs, engine/window (gọi Win32 trực tiếp hoặc qua SDL3)
+EXTERNAL:0x192	KERNEL32.DLL	MoveFileExA	CÓ	engine/core, engine/fs, engine/jobs, engine/window (gọi Win32 trực tiếp hoặc qua SDL3)
+EXTERNAL:0x193	USER32.DLL	GetClientRect	CÓ	engine/window (SDL3 + Win32)
+EXTERNAL:0x194	USER32.DLL	GetUserObjectInformationW	CÓ	engine/window (SDL3 + Win32)
+EXTERNAL:0x195	USER32.DLL	KillTimer	CÓ	engine/window (SDL3 + Win32)
+EXTERNAL:0x196	USER32.DLL	SetTimer	CÓ	engine/window (SDL3 + Win32)
+EXTERNAL:0x197	USER32.DLL	MessageBoxA	CÓ	engine/window (SDL3 + Win32)
+EXTERNAL:0x198	USER32.DLL	GetWindowRect	CÓ	engine/window (SDL3 + Win32)
+EXTERNAL:0x199	USER32.DLL	EnableWindow	CÓ	engine/window (SDL3 + Win32)
+EXTERNAL:0x19a	USER32.DLL	SendDlgItemMessageA	CÓ	engine/window (SDL3 + Win32)
+EXTERNAL:0x19b	USER32.DLL	IsDlgButtonChecked	CÓ	engine/window (SDL3 + Win32)
+EXTERNAL:0x19c	USER32.DLL	CheckDlgButton	CÓ	engine/window (SDL3 + Win32)
+EXTERNAL:0x19d	USER32.DLL	GetDlgItemTextA	CÓ	engine/window (SDL3 + Win32)
+EXTERNAL:0x19e	USER32.DLL	SetDlgItemTextA	CÓ	engine/window (SDL3 + Win32)
+EXTERNAL:0x19f	USER32.DLL	GetDlgItem	CÓ	engine/window (SDL3 + Win32)
+EXTERNAL:0x1a0	USER32.DLL	EndDialog	CÓ	engine/window (SDL3 + Win32)
+EXTERNAL:0x1a1	USER32.DLL	DialogBoxParamA	CÓ	engine/window (SDL3 + Win32)
+EXTERNAL:0x1a2	USER32.DLL	SetWindowLongA	CÓ	engine/window (SDL3 + Win32)
+EXTERNAL:0x1a3	USER32.DLL	GetWindowLongA	CÓ	engine/window (SDL3 + Win32)
+EXTERNAL:0x1a4	USER32.DLL	EnumWindows	CÓ	engine/window (SDL3 + Win32)
+EXTERNAL:0x1a5	USER32.DLL	FindWindowA	CÓ	engine/window (SDL3 + Win32)
+EXTERNAL:0x1a6	USER32.DLL	ReleaseCapture	CÓ	engine/window (SDL3 + Win32)
+EXTERNAL:0x1a7	USER32.DLL	SetCapture	CÓ	engine/window (SDL3 + Win32)
+EXTERNAL:0x1a8	USER32.DLL	GetDesktopWindow	CÓ	engine/window (SDL3 + Win32)
+EXTERNAL:0x1a9	USER32.DLL	UnregisterHotKey	CÓ	engine/window (SDL3 + Win32)
+EXTERNAL:0x1aa	USER32.DLL	RegisterHotKey	CÓ	engine/window (SDL3 + Win32)
+EXTERNAL:0x1ab	USER32.DLL	LoadIconA	CÓ	engine/window (SDL3 + Win32)
+EXTERNAL:0x1ac	USER32.DLL	GetWindowThreadProcessId	CÓ	engine/window (SDL3 + Win32)
+EXTERNAL:0x1ad	USER32.DLL	EqualRect	CÓ	engine/window (SDL3 + Win32)
+EXTERNAL:0x1ae	USER32.DLL	OffsetRect	CÓ	engine/window (SDL3 + Win32)
+EXTERNAL:0x1af	USER32.DLL	CopyRect	CÓ	engine/window (SDL3 + Win32)
+EXTERNAL:0x1b0	USER32.DLL	InvalidateRect	CÓ	engine/window (SDL3 + Win32)
+EXTERNAL:0x1b1	USER32.DLL	EndPaint	CÓ	engine/window (SDL3 + Win32)
+EXTERNAL:0x1b2	USER32.DLL	BeginPaint	CÓ	engine/window (SDL3 + Win32)
+EXTERNAL:0x1b3	USER32.DLL	GetForegroundWindow	CÓ	engine/window (SDL3 + Win32)
+EXTERNAL:0x1b4	USER32.DLL	UpdateWindow	CÓ	engine/window (SDL3 + Win32)
+EXTERNAL:0x1b5	USER32.DLL	MsgWaitForMultipleObjects	CÓ	engine/window (SDL3 + Win32)
+EXTERNAL:0x1b6	USER32.DLL	SetWindowPos	CÓ	engine/window (SDL3 + Win32)
+EXTERNAL:0x1b7	USER32.DLL	DestroyWindow	CÓ	engine/window (SDL3 + Win32)
+EXTERNAL:0x1b8	USER32.DLL	CreateWindowExA	CÓ	engine/window (SDL3 + Win32)
+EXTERNAL:0x1b9	USER32.DLL	RegisterClassExA	CÓ	engine/window (SDL3 + Win32)
+EXTERNAL:0x1ba	USER32.DLL	UnregisterClassA	CÓ	engine/window (SDL3 + Win32)
+EXTERNAL:0x1bb	USER32.DLL	PostQuitMessage	CÓ	engine/window (SDL3 + Win32)
+EXTERNAL:0x1bc	USER32.DLL	DefWindowProcA	CÓ	engine/window (SDL3 + Win32)
+EXTERNAL:0x1bd	USER32.DLL	AttachThreadInput	CÓ	engine/window (SDL3 + Win32)
+EXTERNAL:0x1be	USER32.DLL	SendMessageA	CÓ	engine/window (SDL3 + Win32)
+EXTERNAL:0x1bf	USER32.DLL	PeekMessageA	CÓ	engine/window (SDL3 + Win32)
+EXTERNAL:0x1c0	USER32.DLL	DispatchMessageA	CÓ	engine/window (SDL3 + Win32)
+EXTERNAL:0x1c1	USER32.DLL	TranslateMessage	CÓ	engine/window (SDL3 + Win32)
+EXTERNAL:0x1c2	USER32.DLL	SetForegroundWindow	CÓ	engine/window (SDL3 + Win32)
+EXTERNAL:0x1c3	USER32.DLL	SetWindowLongPtrA	CÓ	engine/window (SDL3 + Win32)
+EXTERNAL:0x1c4	USER32.DLL	SetFocus	CÓ	engine/window (SDL3 + Win32)
+EXTERNAL:0x1c5	USER32.DLL	SystemParametersInfoA	CÓ	engine/window (SDL3 + Win32)
+EXTERNAL:0x1c6	USER32.DLL	SetRect	CÓ	engine/window (SDL3 + Win32)
+EXTERNAL:0x1c7	USER32.DLL	AdjustWindowRect	CÓ	engine/window (SDL3 + Win32)
+EXTERNAL:0x1c8	USER32.DLL	MoveWindow	CÓ	engine/window (SDL3 + Win32)
+EXTERNAL:0x1c9	USER32.DLL	ShowWindow	CÓ	engine/window (SDL3 + Win32)
+EXTERNAL:0x1ca	USER32.DLL	IsClipboardFormatAvailable	CÓ	engine/window (SDL3 + Win32)
+EXTERNAL:0x1cb	USER32.DLL	GetClipboardData	CÓ	engine/window (SDL3 + Win32)
+EXTERNAL:0x1cc	USER32.DLL	CloseClipboard	CÓ	engine/window (SDL3 + Win32)
+EXTERNAL:0x1cd	USER32.DLL	OpenClipboard	CÓ	engine/window (SDL3 + Win32)
+EXTERNAL:0x1ce	USER32.DLL	GetWindowInfo	CÓ	engine/window (SDL3 + Win32)
+EXTERNAL:0x1cf	USER32.DLL	MessageBoxW	CÓ	engine/window (SDL3 + Win32)
+EXTERNAL:0x1d0	USER32.DLL	AdjustWindowRectEx	CÓ	engine/window (SDL3 + Win32)
+EXTERNAL:0x1d1	USER32.DLL	IsIconic	CÓ	engine/window (SDL3 + Win32)
+EXTERNAL:0x1d2	USER32.DLL	GetWindowPlacement	CÓ	engine/window (SDL3 + Win32)
+EXTERNAL:0x1d3	USER32.DLL	GetWindowLongPtrA	CÓ	engine/window (SDL3 + Win32)
+EXTERNAL:0x1d4	USER32.DLL	PtInRect	CÓ	engine/window (SDL3 + Win32)
+EXTERNAL:0x1d5	USER32.DLL	WindowFromPoint	CÓ	engine/window (SDL3 + Win32)
+EXTERNAL:0x1d6	USER32.DLL	ScreenToClient	CÓ	engine/window (SDL3 + Win32)
+EXTERNAL:0x1d7	USER32.DLL	ClientToScreen	CÓ	engine/window (SDL3 + Win32)
+EXTERNAL:0x1d8	USER32.DLL	GetCursorPos	CÓ	engine/window (SDL3 + Win32)
+EXTERNAL:0x1d9	USER32.DLL	SetCursorPos	CÓ	engine/window (SDL3 + Win32)
+EXTERNAL:0x1da	USER32.DLL	GetKeyboardState	CÓ	engine/window (SDL3 + Win32)
+EXTERNAL:0x1db	USER32.DLL	GetActiveWindow	CÓ	engine/window (SDL3 + Win32)
+EXTERNAL:0x1dc	USER32.DLL	GetDoubleClickTime	CÓ	engine/window (SDL3 + Win32)
+EXTERNAL:0x1dd	USER32.DLL	GetKeyState	CÓ	engine/window (SDL3 + Win32)
+EXTERNAL:0x1de	USER32.DLL	wsprintfA	CÓ	engine/window (SDL3 + Win32)
+EXTERNAL:0x1df	USER32.DLL	LoadCursorA	CÓ	engine/window (SDL3 + Win32)
+EXTERNAL:0x1e2	USER32.DLL	GetSystemMetrics	CÓ	engine/window (SDL3 + Win32)
+EXTERNAL:0x1e3	USER32.DLL	GetAsyncKeyState	CÓ	engine/window (SDL3 + Win32)
+EXTERNAL:0x1e4	USER32.DLL	PostMessageA	CÓ	engine/window (SDL3 + Win32)
+EXTERNAL:0x1e5	USER32.DLL	GetCapture	CÓ	engine/window (SDL3 + Win32)
+EXTERNAL:0x1e6	USER32.DLL	GetProcessWindowStation	CÓ	engine/window (SDL3 + Win32)
+EXTERNAL:0x1e7	ADVAPI32.DLL	RegQueryValueA	KHÔNG ÁP DỤNG	registry; dự án không dùng registry (cấu hình là TOML/CLI)
+EXTERNAL:0x1e8	ADVAPI32.DLL	CryptEncrypt	KHÁC THIẾT KẾ	CryptoAPI (băm, mã hoá, ký) của bản gốc; dự án dùng libsodium (shared/secure)
+EXTERNAL:0x1e9	ADVAPI32.DLL	CryptImportKey	KHÁC THIẾT KẾ	CryptoAPI (băm, mã hoá, ký) của bản gốc; dự án dùng libsodium (shared/secure)
+EXTERNAL:0x1ea	ADVAPI32.DLL	CryptDestroyKey	KHÁC THIẾT KẾ	CryptoAPI (băm, mã hoá, ký) của bản gốc; dự án dùng libsodium (shared/secure)
+EXTERNAL:0x1eb	ADVAPI32.DLL	CryptDestroyHash	KHÁC THIẾT KẾ	CryptoAPI (băm, mã hoá, ký) của bản gốc; dự án dùng libsodium (shared/secure)
+EXTERNAL:0x1ec	ADVAPI32.DLL	CryptHashData	KHÁC THIẾT KẾ	CryptoAPI (băm, mã hoá, ký) của bản gốc; dự án dùng libsodium (shared/secure)
+EXTERNAL:0x1ed	ADVAPI32.DLL	CryptCreateHash	KHÁC THIẾT KẾ	CryptoAPI (băm, mã hoá, ký) của bản gốc; dự án dùng libsodium (shared/secure)
+EXTERNAL:0x1ee	ADVAPI32.DLL	CryptGenRandom	KHÁC THIẾT KẾ	CryptoAPI (băm, mã hoá, ký) của bản gốc; dự án dùng libsodium (shared/secure)
+EXTERNAL:0x1ef	ADVAPI32.DLL	CryptGetHashParam	KHÁC THIẾT KẾ	CryptoAPI (băm, mã hoá, ký) của bản gốc; dự án dùng libsodium (shared/secure)
+EXTERNAL:0x1f0	ADVAPI32.DLL	CryptReleaseContext	KHÁC THIẾT KẾ	CryptoAPI (băm, mã hoá, ký) của bản gốc; dự án dùng libsodium (shared/secure)
+EXTERNAL:0x1f1	ADVAPI32.DLL	CryptAcquireContextA	KHÁC THIẾT KẾ	CryptoAPI (băm, mã hoá, ký) của bản gốc; dự án dùng libsodium (shared/secure)
+EXTERNAL:0x1f2	ADVAPI32.DLL	LookupPrivilegeValueA	KHÔNG ÁP DỤNG	nâng quyền tiến trình (kiểu crash-dump/anti-cheat của bản gốc)
+EXTERNAL:0x1f3	ADVAPI32.DLL	AdjustTokenPrivileges	KHÔNG ÁP DỤNG	nâng quyền tiến trình (kiểu crash-dump/anti-cheat của bản gốc)
+EXTERNAL:0x1f4	ADVAPI32.DLL	OpenProcessToken	KHÔNG ÁP DỤNG	nâng quyền tiến trình (kiểu crash-dump/anti-cheat của bản gốc)
+EXTERNAL:0x1f5	ADVAPI32.DLL	ReadEventLogA	KHÔNG ÁP DỤNG	ghi nhật ký sự kiện Windows; dự án ghi log tệp/console (core::Log)
+EXTERNAL:0x1f6	ADVAPI32.DLL	OpenEventLogA	KHÔNG ÁP DỤNG	ghi nhật ký sự kiện Windows; dự án ghi log tệp/console (core::Log)
+EXTERNAL:0x1f7	ADVAPI32.DLL	CloseEventLog	KHÔNG ÁP DỤNG	ghi nhật ký sự kiện Windows; dự án ghi log tệp/console (core::Log)
+EXTERNAL:0x1f8	ADVAPI32.DLL	DeregisterEventSource	KHÔNG ÁP DỤNG	ghi nhật ký sự kiện Windows; dự án ghi log tệp/console (core::Log)
+EXTERNAL:0x1f9	ADVAPI32.DLL	RegOpenKeyExA	KHÔNG ÁP DỤNG	registry; dự án không dùng registry (cấu hình là TOML/CLI)
+EXTERNAL:0x1fa	ADVAPI32.DLL	RegCloseKey	KHÔNG ÁP DỤNG	registry; dự án không dùng registry (cấu hình là TOML/CLI)
+EXTERNAL:0x1fb	ADVAPI32.DLL	RegisterEventSourceW	KHÔNG ÁP DỤNG	registry; dự án không dùng registry (cấu hình là TOML/CLI)
+EXTERNAL:0x1fc	ADVAPI32.DLL	ReportEventW	KHÔNG ÁP DỤNG	ghi nhật ký sự kiện Windows; dự án ghi log tệp/console (core::Log)
+EXTERNAL:0x1fd	ADVAPI32.DLL	CryptAcquireContextW	KHÁC THIẾT KẾ	CryptoAPI (băm, mã hoá, ký) của bản gốc; dự án dùng libsodium (shared/secure)
+EXTERNAL:0x1fe	ADVAPI32.DLL	CryptSetHashParam	KHÁC THIẾT KẾ	CryptoAPI (băm, mã hoá, ký) của bản gốc; dự án dùng libsodium (shared/secure)
+EXTERNAL:0x1ff	ADVAPI32.DLL	CryptEnumProvidersW	KHÁC THIẾT KẾ	CryptoAPI (băm, mã hoá, ký) của bản gốc; dự án dùng libsodium (shared/secure)
+EXTERNAL:0x200	ADVAPI32.DLL	CryptSignHashW	KHÁC THIẾT KẾ	CryptoAPI (băm, mã hoá, ký) của bản gốc; dự án dùng libsodium (shared/secure)
+EXTERNAL:0x201	ADVAPI32.DLL	CryptDecrypt	KHÁC THIẾT KẾ	CryptoAPI (băm, mã hoá, ký) của bản gốc; dự án dùng libsodium (shared/secure)
+EXTERNAL:0x202	ADVAPI32.DLL	CryptExportKey	KHÁC THIẾT KẾ	CryptoAPI (băm, mã hoá, ký) của bản gốc; dự án dùng libsodium (shared/secure)
+EXTERNAL:0x203	ADVAPI32.DLL	CryptGetUserKey	KHÁC THIẾT KẾ	CryptoAPI (băm, mã hoá, ký) của bản gốc; dự án dùng libsodium (shared/secure)
+EXTERNAL:0x204	ADVAPI32.DLL	CryptGetProvParam	KHÁC THIẾT KẾ	CryptoAPI (băm, mã hoá, ký) của bản gốc; dự án dùng libsodium (shared/secure)
+EXTERNAL:0x205	SHELL32.DLL	ShellExecuteExA	MỘT PHẦN	mở trang web/tệp ngoài; nút web của dự án mở trang 'Coming soon' (kOpenWeb)
+EXTERNAL:0x206	SHELL32.DLL	ShellExecuteA	MỘT PHẦN	mở trang web/tệp ngoài; nút web của dự án mở trang 'Coming soon' (kOpenWeb)
+EXTERNAL:0x207	OLE32.DLL	CoInitializeEx	KHÔNG ÁP DỤNG	COM
+EXTERNAL:0x208	OLE32.DLL	CoInitializeSecurity	KHÔNG ÁP DỤNG	COM
+EXTERNAL:0x209	OLE32.DLL	CoSetProxyBlanket	KHÔNG ÁP DỤNG	COM
+EXTERNAL:0x20a	OLE32.DLL	CoCreateInstance	KHÔNG ÁP DỤNG	COM
+EXTERNAL:0x20b	OLE32.DLL	CoCreateGuid	KHÔNG ÁP DỤNG	COM
+EXTERNAL:0x20c	OLE32.DLL	CoInitialize	KHÔNG ÁP DỤNG	COM
+EXTERNAL:0x20d	OLE32.DLL	CoUninitialize	KHÔNG ÁP DỤNG	COM
+EXTERNAL:0x20e	OLEAUT32.DLL	SysFreeString	KHÔNG ÁP DỤNG	COM
+EXTERNAL:0x20f	OLEAUT32.DLL	VariantChangeType	KHÔNG ÁP DỤNG	COM
+EXTERNAL:0x210	OLEAUT32.DLL	SysAllocString	KHÔNG ÁP DỤNG	COM
+EXTERNAL:0x211	OLEAUT32.DLL	VariantInit	KHÔNG ÁP DỤNG	COM
+EXTERNAL:0x212	OLEAUT32.DLL	VariantClear	KHÔNG ÁP DỤNG	COM
+EXTERNAL:0x213	OLEAUT32.DLL	SafeArrayGetElement	KHÔNG ÁP DỤNG	COM
+EXTERNAL:0x214	SHLWAPI.DLL	SHGetValueA	CÓ	xử lý đường dẫn: std::filesystem
+EXTERNAL:0x215	SHLWAPI.DLL	PathFileExistsA	CÓ	xử lý đường dẫn: std::filesystem
+EXTERNAL:0x216	SHLWAPI.DLL	PathRemoveFileSpecA	CÓ	xử lý đường dẫn: std::filesystem
+EXTERNAL:0x217	SHLWAPI.DLL	PathAppendA	CÓ	xử lý đường dẫn: std::filesystem
+EXTERNAL:0x218	SHLWAPI.DLL	PathFindExtensionA	CÓ	xử lý đường dẫn: std::filesystem
+EXTERNAL:0x219	SHLWAPI.DLL	StrStrIA	CÓ	xử lý đường dẫn: std::filesystem
+EXTERNAL:0x21a	SHLWAPI.DLL	PathRenameExtensionA	CÓ	xử lý đường dẫn: std::filesystem
+EXTERNAL:0x21b	SHLWAPI.DLL	SHSetValueA	CÓ	xử lý đường dẫn: std::filesystem
+EXTERNAL:0x21c	WINMM.DLL	timeGetTime	CÓ	engine/core thời gian
+EXTERNAL:0x21d	WINMM.DLL	timeSetEvent	CÓ	engine/core thời gian
+EXTERNAL:0x21e	WINMM.DLL	timeKillEvent	CÓ	engine/core thời gian
+EXTERNAL:0x21f	MSVCP110.DLL	std::basic_streambuf<char,std::char_traits<char>_>::basic_streambuf<char,std::char_traits<char>_>	KHÔNG ÁP DỤNG	STL MSVC 2012
+EXTERNAL:0x220	MSVCP110.DLL	std::basic_streambuf<char,std::char_traits<char>_>::~basic_streambuf<char,std::char_traits<char>_>	KHÔNG ÁP DỤNG	STL MSVC 2012
+EXTERNAL:0x221	MSVCP110.DLL	std::basic_streambuf<char,std::char_traits<char>_>::sputc	KHÔNG ÁP DỤNG	STL MSVC 2012
+EXTERNAL:0x222	MSVCP110.DLL	std::basic_streambuf<char,std::char_traits<char>_>::sputn	KHÔNG ÁP DỤNG	STL MSVC 2012
+EXTERNAL:0x223	MSVCP110.DLL	std::basic_streambuf<char,std::char_traits<char>_>::gptr	KHÔNG ÁP DỤNG	STL MSVC 2012
+EXTERNAL:0x224	MSVCP110.DLL	std::basic_streambuf<char,std::char_traits<char>_>::pptr	KHÔNG ÁP DỤNG	STL MSVC 2012
+EXTERNAL:0x225	MSVCP110.DLL	std::basic_streambuf<char,std::char_traits<char>_>::gbump	KHÔNG ÁP DỤNG	STL MSVC 2012
+EXTERNAL:0x226	MSVCP110.DLL	std::basic_streambuf<char,std::char_traits<char>_>::pbump	KHÔNG ÁP DỤNG	STL MSVC 2012
+EXTERNAL:0x227	MSVCP110.DLL	std::basic_streambuf<char,std::char_traits<char>_>::_Pninc	KHÔNG ÁP DỤNG	STL MSVC 2012
+EXTERNAL:0x228	MSVCP110.DLL	std::basic_ios<char,std::char_traits<char>_>::~basic_ios<char,std::char_traits<char>_>	KHÔNG ÁP DỤNG	STL MSVC 2012
+EXTERNAL:0x229	MSVCP110.DLL	std::basic_ios<char,std::char_traits<char>_>::setstate	KHÔNG ÁP DỤNG	STL MSVC 2012
+EXTERNAL:0x22a	MSVCP110.DLL	std::basic_ios<char,std::char_traits<char>_>::tie	KHÔNG ÁP DỤNG	STL MSVC 2012
+EXTERNAL:0x22b	MSVCP110.DLL	std::basic_ios<char,std::char_traits<char>_>::rdbuf	KHÔNG ÁP DỤNG	STL MSVC 2012
+EXTERNAL:0x22c	MSVCP110.DLL	std::basic_ios<char,std::char_traits<char>_>::basic_ios<char,std::char_traits<char>_>	KHÔNG ÁP DỤNG	STL MSVC 2012
+EXTERNAL:0x22d	MSVCP110.DLL	std::basic_ostream<char,std::char_traits<char>_>::_Add_vtordisp2	KHÔNG ÁP DỤNG	STL MSVC 2012
+EXTERNAL:0x22e	MSVCP110.DLL	std::basic_ostream<char,std::char_traits<char>_>::operator<<	KHÔNG ÁP DỤNG	STL MSVC 2012
+EXTERNAL:0x22f	MSVCP110.DLL	std::basic_ostream<char,std::char_traits<char>_>::flush	KHÔNG ÁP DỤNG	STL MSVC 2012
+EXTERNAL:0x230	MSVCP110.DLL	std::basic_istream<char,std::char_traits<char>_>::_Add_vtordisp1	KHÔNG ÁP DỤNG	STL MSVC 2012
+EXTERNAL:0x231	MSVCP110.DLL	std::basic_ostream<char,std::char_traits<char>_>::_Osfx	KHÔNG ÁP DỤNG	STL MSVC 2012
+EXTERNAL:0x232	MSVCP110.DLL	std::ios_base::width	KHÔNG ÁP DỤNG	STL MSVC 2012
+EXTERNAL:0x233	MSVCP110.DLL	std::ios_base::width	KHÔNG ÁP DỤNG	STL MSVC 2012
+EXTERNAL:0x234	MSVCP110.DLL	std::ios_base::flags	KHÔNG ÁP DỤNG	STL MSVC 2012
+EXTERNAL:0x235	MSVCP110.DLL	std::ios_base::good	KHÔNG ÁP DỤNG	STL MSVC 2012
+EXTERNAL:0x236	MSVCP110.DLL	std::uncaught_exception	KHÔNG ÁP DỤNG	STL MSVC 2012
+EXTERNAL:0x237	MSVCP110.DLL	std::_Container_base0::_Swap_all	KHÔNG ÁP DỤNG	STL MSVC 2012
+EXTERNAL:0x238	MSVCP110.DLL	std::_Lockit::~_Lockit	KHÔNG ÁP DỤNG	STL MSVC 2012
+EXTERNAL:0x239	MSVCP110.DLL	std::_Lockit::_Lockit	KHÔNG ÁP DỤNG	STL MSVC 2012
+EXTERNAL:0x23a	MSVCP110.DLL	std::_Container_base12::_Orphan_all	KHÔNG ÁP DỤNG	STL MSVC 2012
+EXTERNAL:0x23b	MSVCP110.DLL	std::_Container_base12::~_Container_base12	KHÔNG ÁP DỤNG	STL MSVC 2012
+EXTERNAL:0x23c	MSVCP110.DLL	std::_Container_base12::_Container_base12	KHÔNG ÁP DỤNG	STL MSVC 2012
+EXTERNAL:0x23d	MSVCP110.DLL	std::_Winerror_map	KHÔNG ÁP DỤNG	STL MSVC 2012
+EXTERNAL:0x23e	MSVCP110.DLL	std::_Syserror_map	KHÔNG ÁP DỤNG	STL MSVC 2012
+EXTERNAL:0x23f	MSVCP110.DLL	std::_Pad::_Release	KHÔNG ÁP DỤNG	STL MSVC 2012
+EXTERNAL:0x240	MSVCP110.DLL	std::_Pad::_Launch	KHÔNG ÁP DỤNG	STL MSVC 2012
+EXTERNAL:0x241	MSVCP110.DLL	std::_Pad::~_Pad	KHÔNG ÁP DỤNG	STL MSVC 2012
+EXTERNAL:0x242	MSVCP110.DLL	std::_Pad::_Pad	KHÔNG ÁP DỤNG	STL MSVC 2012
+EXTERNAL:0x243	MSVCP110.DLL	_Xtime_get_ticks	KHÔNG ÁP DỤNG	STL MSVC 2012
+EXTERNAL:0x244	MSVCP110.DLL	std::_Container_base0::_Orphan_all	KHÔNG ÁP DỤNG	STL MSVC 2012
+EXTERNAL:0x245	MSVCP110.DLL	std::_Xout_of_range	KHÔNG ÁP DỤNG	STL MSVC 2012
+EXTERNAL:0x246	MSVCP110.DLL	std::_Xlength_error	KHÔNG ÁP DỤNG	STL MSVC 2012
+EXTERNAL:0x247	MSVCP110.DLL	std::_Xbad_alloc	KHÔNG ÁP DỤNG	STL MSVC 2012
+EXTERNAL:0x248	MSVCP110.DLL	std::basic_iostream<char,std::char_traits<char>_>::~basic_iostream<char,std::char_traits<char>_>	KHÔNG ÁP DỤNG	STL MSVC 2012
+EXTERNAL:0x249	MSVCP110.DLL	std::basic_streambuf<char,std::char_traits<char>_>::_Lock	KHÔNG ÁP DỤNG	STL MSVC 2012
+EXTERNAL:0x24a	MSVCP110.DLL	std::basic_streambuf<char,std::char_traits<char>_>::_Unlock	KHÔNG ÁP DỤNG	STL MSVC 2012
+EXTERNAL:0x24b	MSVCP110.DLL	std::basic_streambuf<char,std::char_traits<char>_>::imbue	KHÔNG ÁP DỤNG	STL MSVC 2012
+EXTERNAL:0x24c	MSVCP110.DLL	std::basic_streambuf<char,std::char_traits<char>_>::setbuf	KHÔNG ÁP DỤNG	STL MSVC 2012
+EXTERNAL:0x24d	MSVCP110.DLL	std::basic_streambuf<char,std::char_traits<char>_>::showmanyc	KHÔNG ÁP DỤNG	STL MSVC 2012
+EXTERNAL:0x24e	MSVCP110.DLL	std::basic_streambuf<char,std::char_traits<char>_>::sync	KHÔNG ÁP DỤNG	STL MSVC 2012
+EXTERNAL:0x24f	MSVCP110.DLL	std::basic_streambuf<char,std::char_traits<char>_>::uflow	KHÔNG ÁP DỤNG	STL MSVC 2012
+EXTERNAL:0x250	MSVCP110.DLL	std::basic_streambuf<char,std::char_traits<char>_>::xsgetn	KHÔNG ÁP DỤNG	STL MSVC 2012
+EXTERNAL:0x251	MSVCP110.DLL	std::basic_streambuf<char,std::char_traits<char>_>::xsputn	KHÔNG ÁP DỤNG	STL MSVC 2012
+EXTERNAL:0x253	MSVCP110.DLL	std::_Container_base12::_Swap_all	KHÔNG ÁP DỤNG	STL MSVC 2012
+EXTERNAL:0x254	MSVCP110.DLL	std::locale::id::operator_unsigned___int64	KHÔNG ÁP DỤNG	STL MSVC 2012
+EXTERNAL:0x255	MSVCP110.DLL	std::locale::_Getgloballocale	KHÔNG ÁP DỤNG	STL MSVC 2012
+EXTERNAL:0x256	MSVCP110.DLL	std::ctype<char>::is	KHÔNG ÁP DỤNG	STL MSVC 2012
+EXTERNAL:0x257	MSVCP110.DLL	std::ctype<char>::_Getcat	KHÔNG ÁP DỤNG	STL MSVC 2012
+EXTERNAL:0x258	MSVCP110.DLL	std::ios_base::operator_void*___ptr64	KHÔNG ÁP DỤNG	STL MSVC 2012
+EXTERNAL:0x259	MSVCP110.DLL	std::ios_base::getloc	KHÔNG ÁP DỤNG	STL MSVC 2012
+EXTERNAL:0x25a	MSVCP110.DLL	std::basic_streambuf<char,std::char_traits<char>_>::sgetc	KHÔNG ÁP DỤNG	STL MSVC 2012
+EXTERNAL:0x25b	MSVCP110.DLL	std::basic_streambuf<char,std::char_traits<char>_>::snextc	KHÔNG ÁP DỤNG	STL MSVC 2012
+EXTERNAL:0x25c	MSVCP110.DLL	std::basic_istream<char,std::char_traits<char>_>::basic_istream<char,std::char_traits<char>_>	KHÔNG ÁP DỤNG	STL MSVC 2012
+EXTERNAL:0x25d	MSVCP110.DLL	std::basic_istream<char,std::char_traits<char>_>::~basic_istream<char,std::char_traits<char>_>	KHÔNG ÁP DỤNG	STL MSVC 2012
+EXTERNAL:0x25e	MSVCP110.DLL	std::basic_istream<char,std::char_traits<char>_>::_Ipfx	KHÔNG ÁP DỤNG	STL MSVC 2012
+EXTERNAL:0x25f	MSVCP110.DLL	std::basic_ios<char,std::char_traits<char>_>::_Add_vtordisp2	KHÔNG ÁP DỤNG	STL MSVC 2012
+EXTERNAL:0x261	MSVCP110.DLL	std::basic_ios<char,std::char_traits<char>_>::clear	KHÔNG ÁP DỤNG	STL MSVC 2012
+EXTERNAL:0x262	MSVCP110.DLL	std::basic_ostream<char,std::char_traits<char>_>::operator<<	KHÔNG ÁP DỤNG	STL MSVC 2012
+EXTERNAL:0x263	MSVCP110.DLL	std::basic_ostream<char,std::char_traits<char>_>::operator<<	KHÔNG ÁP DỤNG	STL MSVC 2012
+EXTERNAL:0x264	MSVCP110.DLL	std::codecvt_base::always_noconv	KHÔNG ÁP DỤNG	STL MSVC 2012
+EXTERNAL:0x265	MSVCP110.DLL	std::codecvt<char,char,int>::in	KHÔNG ÁP DỤNG	STL MSVC 2012
+EXTERNAL:0x266	MSVCP110.DLL	std::codecvt<char,char,int>::out	KHÔNG ÁP DỤNG	STL MSVC 2012
+EXTERNAL:0x267	MSVCP110.DLL	std::codecvt<char,char,int>::unshift	KHÔNG ÁP DỤNG	STL MSVC 2012
+EXTERNAL:0x268	MSVCP110.DLL	std::codecvt<char,char,int>::_Getcat	KHÔNG ÁP DỤNG	STL MSVC 2012
+EXTERNAL:0x269	MSVCP110.DLL	std::basic_streambuf<char,std::char_traits<char>_>::getloc	KHÔNG ÁP DỤNG	STL MSVC 2012
+EXTERNAL:0x26a	MSVCP110.DLL	std::basic_streambuf<char,std::char_traits<char>_>::setg	KHÔNG ÁP DỤNG	STL MSVC 2012
+EXTERNAL:0x26b	MSVCP110.DLL	std::basic_streambuf<char,std::char_traits<char>_>::_Gninc	KHÔNG ÁP DỤNG	STL MSVC 2012
+EXTERNAL:0x26c	MSVCP110.DLL	std::basic_streambuf<char,std::char_traits<char>_>::_Init	KHÔNG ÁP DỤNG	STL MSVC 2012
+EXTERNAL:0x26d	MSVCP110.DLL	std::basic_ostream<char,std::char_traits<char>_>::basic_ostream<char,std::char_traits<char>_>	KHÔNG ÁP DỤNG	STL MSVC 2012
+EXTERNAL:0x26e	MSVCP110.DLL	std::basic_ostream<char,std::char_traits<char>_>::~basic_ostream<char,std::char_traits<char>_>	KHÔNG ÁP DỤNG	STL MSVC 2012
+EXTERNAL:0x26f	MSVCP110.DLL	std::basic_ostream<char,std::char_traits<char>_>::write	KHÔNG ÁP DỤNG	STL MSVC 2012
+EXTERNAL:0x270	MSVCP110.DLL	std::basic_ostream<char,std::char_traits<char>_>::seekp	KHÔNG ÁP DỤNG	STL MSVC 2012
+EXTERNAL:0x271	MSVCP110.DLL	std::basic_istream<char,std::char_traits<char>_>::read	KHÔNG ÁP DỤNG	STL MSVC 2012
+EXTERNAL:0x272	MSVCP110.DLL	std::_Fiopen	KHÔNG ÁP DỤNG	STL MSVC 2012
+EXTERNAL:0x273	MSVCP110.DLL	std::basic_ios<char,std::char_traits<char>_>::_Add_vtordisp1	KHÔNG ÁP DỤNG	STL MSVC 2012
+EXTERNAL:0x275	MSVCP110.DLL	std::basic_iostream<char,std::char_traits<char>_>::basic_iostream<char,std::char_traits<char>_>	KHÔNG ÁP DỤNG	STL MSVC 2012
+EXTERNAL:0x276	MSVCR110.DLL	fopen	KHÔNG ÁP DỤNG	CRT MSVC 2012 của bản gốc; dự án dựng với CRT hiện đại
+EXTERNAL:0x277	MSVCR110.DLL	fgets	KHÔNG ÁP DỤNG	CRT MSVC 2012 của bản gốc; dự án dựng với CRT hiện đại
+EXTERNAL:0x278	MSVCR110.DLL	fclose	KHÔNG ÁP DỤNG	CRT MSVC 2012 của bản gốc; dự án dựng với CRT hiện đại
+EXTERNAL:0x279	MSVCR110.DLL	malloc	KHÔNG ÁP DỤNG	CRT MSVC 2012 của bản gốc; dự án dựng với CRT hiện đại
+EXTERNAL:0x27a	MSVCR110.DLL	rand	KHÔNG ÁP DỤNG	CRT MSVC 2012 của bản gốc; dự án dựng với CRT hiện đại
+EXTERNAL:0x27b	MSVCR110.DLL	qsort	KHÔNG ÁP DỤNG	CRT MSVC 2012 của bản gốc; dự án dựng với CRT hiện đại
+EXTERNAL:0x27c	MSVCR110.DLL	strncmp	KHÔNG ÁP DỤNG	CRT MSVC 2012 của bản gốc; dự án dựng với CRT hiện đại
+EXTERNAL:0x27d	MSVCR110.DLL	_stricmp	KHÔNG ÁP DỤNG	CRT MSVC 2012 của bản gốc; dự án dựng với CRT hiện đại
+EXTERNAL:0x27e	MSVCR110.DLL	strcmp	KHÔNG ÁP DỤNG	CRT MSVC 2012 của bản gốc; dự án dựng với CRT hiện đại
+EXTERNAL:0x27f	MSVCR110.DLL	strtok	KHÔNG ÁP DỤNG	CRT MSVC 2012 của bản gốc; dự án dựng với CRT hiện đại
+EXTERNAL:0x280	MSVCR110.DLL	strstr	KHÔNG ÁP DỤNG	CRT MSVC 2012 của bản gốc; dự án dựng với CRT hiện đại
+EXTERNAL:0x281	MSVCR110.DLL	sprintf	KHÔNG ÁP DỤNG	CRT MSVC 2012 của bản gốc; dự án dựng với CRT hiện đại
+EXTERNAL:0x282	MSVCR110.DLL	terminate	KHÔNG ÁP DỤNG	CRT MSVC 2012 của bản gốc; dự án dựng với CRT hiện đại
+EXTERNAL:0x283	MSVCR110.DLL	free	KHÔNG ÁP DỤNG	CRT MSVC 2012 của bản gốc; dự án dựng với CRT hiện đại
+EXTERNAL:0x284	MSVCR110.DLL	std::exception::~exception	KHÔNG ÁP DỤNG	CRT MSVC 2012 của bản gốc; dự án dựng với CRT hiện đại
+EXTERNAL:0x285	MSVCR110.DLL	std::exception::exception	KHÔNG ÁP DỤNG	CRT MSVC 2012 của bản gốc; dự án dựng với CRT hiện đại
+EXTERNAL:0x286	MSVCR110.DLL	strchr	KHÔNG ÁP DỤNG	CRT MSVC 2012 của bản gốc; dự án dựng với CRT hiện đại
+EXTERNAL:0x287	MSVCR110.DLL	atof	KHÔNG ÁP DỤNG	CRT MSVC 2012 của bản gốc; dự án dựng với CRT hiện đại
+EXTERNAL:0x288	MSVCR110.DLL	_itoa	KHÔNG ÁP DỤNG	CRT MSVC 2012 của bản gốc; dự án dựng với CRT hiện đại
+EXTERNAL:0x289	MSVCR110.DLL	memcmp	KHÔNG ÁP DỤNG	CRT MSVC 2012 của bản gốc; dự án dựng với CRT hiện đại
+EXTERNAL:0x28a	MSVCR110.DLL	floor	KHÔNG ÁP DỤNG	CRT MSVC 2012 của bản gốc; dự án dựng với CRT hiện đại
+EXTERNAL:0x28b	MSVCR110.DLL	vsprintf_s	KHÔNG ÁP DỤNG	CRT MSVC 2012 của bản gốc; dự án dựng với CRT hiện đại
+EXTERNAL:0x28c	MSVCR110.DLL	atoi	KHÔNG ÁP DỤNG	CRT MSVC 2012 của bản gốc; dự án dựng với CRT hiện đại
+EXTERNAL:0x28d	MSVCR110.DLL	memchr	KHÔNG ÁP DỤNG	CRT MSVC 2012 của bản gốc; dự án dựng với CRT hiện đại
+EXTERNAL:0x28e	MSVCR110.DLL	_purecall	KHÔNG ÁP DỤNG	CRT MSVC 2012 của bản gốc; dự án dựng với CRT hiện đại
+EXTERNAL:0x28f	MSVCR110.DLL	_snprintf	KHÔNG ÁP DỤNG	CRT MSVC 2012 của bản gốc; dự án dựng với CRT hiện đại
+EXTERNAL:0x290	MSVCR110.DLL	strncpy	KHÔNG ÁP DỤNG	CRT MSVC 2012 của bản gốc; dự án dựng với CRT hiện đại
+EXTERNAL:0x291	MSVCR110.DLL	memset	KHÔNG ÁP DỤNG	CRT MSVC 2012 của bản gốc; dự án dựng với CRT hiện đại
+EXTERNAL:0x292	MSVCR110.DLL	memcpy	KHÔNG ÁP DỤNG	CRT MSVC 2012 của bản gốc; dự án dựng với CRT hiện đại
+EXTERNAL:0x293	MSVCR110.DLL	__CxxFrameHandler3	KHÔNG ÁP DỤNG	CRT MSVC 2012 của bản gốc; dự án dựng với CRT hiện đại
+EXTERNAL:0x294	MSVCR110.DLL	_CxxThrowException	KHÔNG ÁP DỤNG	CRT MSVC 2012 của bản gốc; dự án dựng với CRT hiện đại
+EXTERNAL:0x295	MSVCR110.DLL	operator_delete[]	KHÔNG ÁP DỤNG	CRT MSVC 2012 của bản gốc; dự án dựng với CRT hiện đại
+EXTERNAL:0x296	MSVCR110.DLL	_vsnprintf_s	KHÔNG ÁP DỤNG	CRT MSVC 2012 của bản gốc; dự án dựng với CRT hiện đại
+EXTERNAL:0x297	MSVCR110.DLL	memmove	KHÔNG ÁP DỤNG	CRT MSVC 2012 của bản gốc; dự án dựng với CRT hiện đại
+EXTERNAL:0x298	MSVCR110.DLL	operator_new	KHÔNG ÁP DỤNG	CRT MSVC 2012 của bản gốc; dự án dựng với CRT hiện đại
+EXTERNAL:0x299	MSVCR110.DLL	_time64	KHÔNG ÁP DỤNG	CRT MSVC 2012 của bản gốc; dự án dựng với CRT hiện đại
+EXTERNAL:0x29a	MSVCR110.DLL	_localtime64	KHÔNG ÁP DỤNG	CRT MSVC 2012 của bản gốc; dự án dựng với CRT hiện đại
+EXTERNAL:0x29b	MSVCR110.DLL	operator_delete	KHÔNG ÁP DỤNG	CRT MSVC 2012 của bản gốc; dự án dựng với CRT hiện đại
+EXTERNAL:0x29c	MSVCR110.DLL	sscanf	KHÔNG ÁP DỤNG	CRT MSVC 2012 của bản gốc; dự án dựng với CRT hiện đại
+EXTERNAL:0x29d	MSVCR110.DLL	_difftime64	KHÔNG ÁP DỤNG	CRT MSVC 2012 của bản gốc; dự án dựng với CRT hiện đại
+EXTERNAL:0x29e	MSVCR110.DLL	_mktime64	KHÔNG ÁP DỤNG	CRT MSVC 2012 của bản gốc; dự án dựng với CRT hiện đại
+EXTERNAL:0x29f	MSVCR110.DLL	ceil	KHÔNG ÁP DỤNG	CRT MSVC 2012 của bản gốc; dự án dựng với CRT hiện đại
+EXTERNAL:0x2a0	MSVCR110.DLL	_strtoi64	KHÔNG ÁP DỤNG	CRT MSVC 2012 của bản gốc; dự án dựng với CRT hiện đại
+EXTERNAL:0x2a1	MSVCR110.DLL	strftime	KHÔNG ÁP DỤNG	CRT MSVC 2012 của bản gốc; dự án dựng với CRT hiện đại
+EXTERNAL:0x2a2	MSVCR110.DLL	_strdup	KHÔNG ÁP DỤNG	CRT MSVC 2012 của bản gốc; dự án dựng với CRT hiện đại
+EXTERNAL:0x2a3	MSVCR110.DLL	_gmtime64	KHÔNG ÁP DỤNG	CRT MSVC 2012 của bản gốc; dự án dựng với CRT hiện đại
+EXTERNAL:0x2a4	MSVCR110.DLL	_stat64	KHÔNG ÁP DỤNG	CRT MSVC 2012 của bản gốc; dự án dựng với CRT hiện đại
+EXTERNAL:0x2a5	MSVCR110.DLL	_open	KHÔNG ÁP DỤNG	CRT MSVC 2012 của bản gốc; dự án dựng với CRT hiện đại
+EXTERNAL:0x2a6	MSVCR110.DLL	wcstombs	KHÔNG ÁP DỤNG	CRT MSVC 2012 của bản gốc; dự án dựng với CRT hiện đại
+EXTERNAL:0x2a7	MSVCR110.DLL	__sys_nerr	KHÔNG ÁP DỤNG	CRT MSVC 2012 của bản gốc; dự án dựng với CRT hiện đại
+EXTERNAL:0x2a8	MSVCR110.DLL	strspn	KHÔNG ÁP DỤNG	CRT MSVC 2012 của bản gốc; dự án dựng với CRT hiện đại
+EXTERNAL:0x2a9	MSVCR110.DLL	__sys_errlist	KHÔNG ÁP DỤNG	CRT MSVC 2012 của bản gốc; dự án dựng với CRT hiện đại
+EXTERNAL:0x2aa	MSVCR110.DLL	strpbrk	KHÔNG ÁP DỤNG	CRT MSVC 2012 của bản gốc; dự án dựng với CRT hiện đại
+EXTERNAL:0x2ab	MSVCR110.DLL	_errno	KHÔNG ÁP DỤNG	CRT MSVC 2012 của bản gốc; dự án dựng với CRT hiện đại
+EXTERNAL:0x2ac	MSVCR110.DLL	fputs	KHÔNG ÁP DỤNG	CRT MSVC 2012 của bản gốc; dự án dựng với CRT hiện đại
+EXTERNAL:0x2ad	MSVCR110.DLL	__iob_func	KHÔNG ÁP DỤNG	CRT MSVC 2012 của bản gốc; dự án dựng với CRT hiện đại
+EXTERNAL:0x2ae	MSVCR110.DLL	calloc	KHÔNG ÁP DỤNG	CRT MSVC 2012 của bản gốc; dự án dựng với CRT hiện đại
+EXTERNAL:0x2af	MSVCR110.DLL	isalpha	KHÔNG ÁP DỤNG	CRT MSVC 2012 của bản gốc; dự án dựng với CRT hiện đại
+EXTERNAL:0x2b0	MSVCR110.DLL	strnlen	KHÔNG ÁP DỤNG	CRT MSVC 2012 của bản gốc; dự án dựng với CRT hiện đại
+EXTERNAL:0x2b1	MSVCR110.DLL	atol	KHÔNG ÁP DỤNG	CRT MSVC 2012 của bản gốc; dự án dựng với CRT hiện đại
+EXTERNAL:0x2b2	MSVCR110.DLL	ftell	KHÔNG ÁP DỤNG	CRT MSVC 2012 của bản gốc; dự án dựng với CRT hiện đại
+EXTERNAL:0x2b3	MSVCR110.DLL	fopen_s	KHÔNG ÁP DỤNG	CRT MSVC 2012 của bản gốc; dự án dựng với CRT hiện đại
+EXTERNAL:0x2b4	MSVCR110.DLL	strcat_s	KHÔNG ÁP DỤNG	CRT MSVC 2012 của bản gốc; dự án dựng với CRT hiện đại
+EXTERNAL:0x2b5	MSVCR110.DLL	_isnan	KHÔNG ÁP DỤNG	CRT MSVC 2012 của bản gốc; dự án dựng với CRT hiện đại
+EXTERNAL:0x2b6	MSVCR110.DLL	fseek	KHÔNG ÁP DỤNG	CRT MSVC 2012 của bản gốc; dự án dựng với CRT hiện đại
+EXTERNAL:0x2b7	MSVCR110.DLL	_stat64i32	KHÔNG ÁP DỤNG	CRT MSVC 2012 của bản gốc; dự án dựng với CRT hiện đại
+EXTERNAL:0x2b8	MSVCR110.DLL	strtoul	KHÔNG ÁP DỤNG	CRT MSVC 2012 của bản gốc; dự án dựng với CRT hiện đại
+EXTERNAL:0x2b9	MSVCR110.DLL	fread	KHÔNG ÁP DỤNG	CRT MSVC 2012 của bản gốc; dự án dựng với CRT hiện đại
+EXTERNAL:0x2ba	MSVCR110.DLL	tolower	KHÔNG ÁP DỤNG	CRT MSVC 2012 của bản gốc; dự án dựng với CRT hiện đại
+EXTERNAL:0x2bb	MSVCR110.DLL	_vsnprintf	KHÔNG ÁP DỤNG	CRT MSVC 2012 của bản gốc; dự án dựng với CRT hiện đại
+EXTERNAL:0x2bd	MSVCR110.DLL	toupper	KHÔNG ÁP DỤNG	CRT MSVC 2012 của bản gốc; dự án dựng với CRT hiện đại
+EXTERNAL:0x2be	MSVCR110.DLL	_vswprintf_c_l	KHÔNG ÁP DỤNG	CRT MSVC 2012 của bản gốc; dự án dựng với CRT hiện đại
+EXTERNAL:0x2bf	MSVCR110.DLL	feof	KHÔNG ÁP DỤNG	CRT MSVC 2012 của bản gốc; dự án dựng với CRT hiện đại
+EXTERNAL:0x2c0	MSVCR110.DLL	__C_specific_handler	KHÔNG ÁP DỤNG	CRT MSVC 2012 của bản gốc; dự án dựng với CRT hiện đại
+EXTERNAL:0x2c1	MSVCR110.DLL	_unlink	KHÔNG ÁP DỤNG	CRT MSVC 2012 của bản gốc; dự án dựng với CRT hiện đại
+EXTERNAL:0x2c2	MSVCR110.DLL	_read	KHÔNG ÁP DỤNG	CRT MSVC 2012 của bản gốc; dự án dựng với CRT hiện đại
+EXTERNAL:0x2c3	MSVCR110.DLL	_write	KHÔNG ÁP DỤNG	CRT MSVC 2012 của bản gốc; dự án dựng với CRT hiện đại
+EXTERNAL:0x2c4	MSVCR110.DLL	_close	KHÔNG ÁP DỤNG	CRT MSVC 2012 của bản gốc; dự án dựng với CRT hiện đại
+EXTERNAL:0x2c5	MSVCR110.DLL	_vsnwprintf	KHÔNG ÁP DỤNG	CRT MSVC 2012 của bản gốc; dự án dựng với CRT hiện đại
+EXTERNAL:0x2c6	MSVCR110.DLL	wcsstr	KHÔNG ÁP DỤNG	CRT MSVC 2012 của bản gốc; dự án dựng với CRT hiện đại
+EXTERNAL:0x2c7	MSVCR110.DLL	raise	KHÔNG ÁP DỤNG	CRT MSVC 2012 của bản gốc; dự án dựng với CRT hiện đại
+EXTERNAL:0x2c8	MSVCR110.DLL	isspace	KHÔNG ÁP DỤNG	CRT MSVC 2012 của bản gốc; dự án dựng với CRT hiện đại
+EXTERNAL:0x2c9	MSVCR110.DLL	strerror_s	KHÔNG ÁP DỤNG	CRT MSVC 2012 của bản gốc; dự án dựng với CRT hiện đại
+EXTERNAL:0x2ca	MSVCR110.DLL	getenv	KHÔNG ÁP DỤNG	CRT MSVC 2012 của bản gốc; dự án dựng với CRT hiện đại
+EXTERNAL:0x2cb	MSVCR110.DLL	_strnicmp	KHÔNG ÁP DỤNG	CRT MSVC 2012 của bản gốc; dự án dựng với CRT hiện đại
+EXTERNAL:0x2cc	MSVCR110.DLL	ferror	KHÔNG ÁP DỤNG	CRT MSVC 2012 của bản gốc; dự án dựng với CRT hiện đại
+EXTERNAL:0x2cd	MSVCR110.DLL	_fileno	KHÔNG ÁP DỤNG	CRT MSVC 2012 của bản gốc; dự án dựng với CRT hiện đại
+EXTERNAL:0x2ce	MSVCR110.DLL	_setmode	KHÔNG ÁP DỤNG	CRT MSVC 2012 của bản gốc; dự án dựng với CRT hiện đại
+EXTERNAL:0x2cf	MSVCR110.DLL	_wfopen	KHÔNG ÁP DỤNG	CRT MSVC 2012 của bản gốc; dự án dựng với CRT hiện đại
+EXTERNAL:0x2d0	MSVCR110.DLL	_gmtime64_s	KHÔNG ÁP DỤNG	CRT MSVC 2012 của bản gốc; dự án dựng với CRT hiện đại
+EXTERNAL:0x2d1	MSVCR110.DLL	signal	KHÔNG ÁP DỤNG	CRT MSVC 2012 của bản gốc; dự án dựng với CRT hiện đại
+EXTERNAL:0x2d2	MSVCR110.DLL	_lseeki64	KHÔNG ÁP DỤNG	CRT MSVC 2012 của bản gốc; dự án dựng với CRT hiện đại
+EXTERNAL:0x2d3	MSVCR110.DLL	_fstat64	KHÔNG ÁP DỤNG	CRT MSVC 2012 của bản gốc; dự án dựng với CRT hiện đại
+EXTERNAL:0x2d4	MSVCR110.DLL	strcspn	KHÔNG ÁP DỤNG	CRT MSVC 2012 của bản gốc; dự án dựng với CRT hiện đại
+EXTERNAL:0x2d5	MSVCR110.DLL	_access	KHÔNG ÁP DỤNG	CRT MSVC 2012 của bản gốc; dự án dựng với CRT hiện đại
+EXTERNAL:0x2d6	MSVCR110.DLL	_snwprintf	KHÔNG ÁP DỤNG	CRT MSVC 2012 của bản gốc; dự án dựng với CRT hiện đại
+EXTERNAL:0x2d7	MSVCR110.DLL	remove	KHÔNG ÁP DỤNG	CRT MSVC 2012 của bản gốc; dự án dựng với CRT hiện đại
+EXTERNAL:0x2d8	MSVCR110.DLL	__dllonexit	KHÔNG ÁP DỤNG	CRT MSVC 2012 của bản gốc; dự án dựng với CRT hiện đại
+EXTERNAL:0x2d9	MSVCR110.DLL	_calloc_crt	KHÔNG ÁP DỤNG	CRT MSVC 2012 của bản gốc; dự án dựng với CRT hiện đại
+EXTERNAL:0x2da	MSVCR110.DLL	_unlock	KHÔNG ÁP DỤNG	CRT MSVC 2012 của bản gốc; dự án dựng với CRT hiện đại
+EXTERNAL:0x2db	MSVCR110.DLL	_lock	KHÔNG ÁP DỤNG	CRT MSVC 2012 của bản gốc; dự án dựng với CRT hiện đại
+EXTERNAL:0x2dc	MSVCR110.DLL	isupper	KHÔNG ÁP DỤNG	CRT MSVC 2012 của bản gốc; dự án dựng với CRT hiện đại
+EXTERNAL:0x2dd	MSVCR110.DLL	srand	KHÔNG ÁP DỤNG	CRT MSVC 2012 của bản gốc; dự án dựng với CRT hiện đại
+EXTERNAL:0x2de	MSVCR110.DLL	_exit	KHÔNG ÁP DỤNG	CRT MSVC 2012 của bản gốc; dự án dựng với CRT hiện đại
+EXTERNAL:0x2df	MSVCR110.DLL	sqrtf	KHÔNG ÁP DỤNG	CRT MSVC 2012 của bản gốc; dự án dựng với CRT hiện đại
+EXTERNAL:0x2e2	MSVCR110.DLL	ungetc	KHÔNG ÁP DỤNG	CRT MSVC 2012 của bản gốc; dự án dựng với CRT hiện đại
+EXTERNAL:0x2e3	MSVCR110.DLL	setvbuf	KHÔNG ÁP DỤNG	CRT MSVC 2012 của bản gốc; dự án dựng với CRT hiện đại
+EXTERNAL:0x2e4	MSVCR110.DLL	_fseeki64	KHÔNG ÁP DỤNG	CRT MSVC 2012 của bản gốc; dự án dựng với CRT hiện đại
+EXTERNAL:0x2e5	MSVCR110.DLL	fsetpos	KHÔNG ÁP DỤNG	CRT MSVC 2012 của bản gốc; dự án dựng với CRT hiện đại
+EXTERNAL:0x2e6	MSVCR110.DLL	fputc	KHÔNG ÁP DỤNG	CRT MSVC 2012 của bản gốc; dự án dựng với CRT hiện đại
+EXTERNAL:0x2e7	MSVCR110.DLL	fgetpos	KHÔNG ÁP DỤNG	CRT MSVC 2012 của bản gốc; dự án dựng với CRT hiện đại
+EXTERNAL:0x2e8	MSVCR110.DLL	fgetc	KHÔNG ÁP DỤNG	CRT MSVC 2012 của bản gốc; dự án dựng với CRT hiện đại
+EXTERNAL:0x2e9	MSVCR110.DLL	fflush	KHÔNG ÁP DỤNG	CRT MSVC 2012 của bản gốc; dự án dựng với CRT hiện đại
+EXTERNAL:0x2ea	MSVCR110.DLL	memcpy_s	KHÔNG ÁP DỤNG	CRT MSVC 2012 của bản gốc; dự án dựng với CRT hiện đại
+EXTERNAL:0x2eb	MSVCR110.DLL	fwrite	KHÔNG ÁP DỤNG	CRT MSVC 2012 của bản gốc; dự án dựng với CRT hiện đại
+EXTERNAL:0x2ec	MSVCR110.DLL	_beginthreadex	KHÔNG ÁP DỤNG	CRT MSVC 2012 của bản gốc; dự án dựng với CRT hiện đại
+EXTERNAL:0x2ed	MSVCR110.DLL	std::exception::exception	KHÔNG ÁP DỤNG	CRT MSVC 2012 của bản gốc; dự án dựng với CRT hiện đại
+EXTERNAL:0x2ee	MSVCR110.DLL	_vsnwprintf_s	KHÔNG ÁP DỤNG	CRT MSVC 2012 của bản gốc; dự án dựng với CRT hiện đại
+EXTERNAL:0x2ef	MSVCR110.DLL	realloc	KHÔNG ÁP DỤNG	CRT MSVC 2012 của bản gốc; dự án dựng với CRT hiện đại
+EXTERNAL:0x2f0	MSVCR110.DLL	wcsncpy_s	KHÔNG ÁP DỤNG	CRT MSVC 2012 của bản gốc; dự án dựng với CRT hiện đại
+EXTERNAL:0x2f1	MSVCR110.DLL	strncpy_s	KHÔNG ÁP DỤNG	CRT MSVC 2012 của bản gốc; dự án dựng với CRT hiện đại
+EXTERNAL:0x2f2	MSVCR110.DLL	floorf	KHÔNG ÁP DỤNG	CRT MSVC 2012 của bản gốc; dự án dựng với CRT hiện đại
+EXTERNAL:0x2f3	MSVCR110.DLL	__crtSetUnhandledExceptionFilter	KHÔNG ÁP DỤNG	CRT MSVC 2012 của bản gốc; dự án dựng với CRT hiện đại
+EXTERNAL:0x2f4	MSVCR110.DLL	type_info::_type_info_dtor_internal_method	KHÔNG ÁP DỤNG	CRT MSVC 2012 của bản gốc; dự án dựng với CRT hiện đại
+EXTERNAL:0x2f8	MSVCR110.DLL	_initterm	KHÔNG ÁP DỤNG	CRT MSVC 2012 của bản gốc; dự án dựng với CRT hiện đại
+EXTERNAL:0x2f9	MSVCR110.DLL	_initterm_e	KHÔNG ÁP DỤNG	CRT MSVC 2012 của bản gốc; dự án dựng với CRT hiện đại
+EXTERNAL:0x2fa	MSVCR110.DLL	__setusermatherr	KHÔNG ÁP DỤNG	CRT MSVC 2012 của bản gốc; dự án dựng với CRT hiện đại
+EXTERNAL:0x2fb	MSVCR110.DLL	_configthreadlocale	KHÔNG ÁP DỤNG	CRT MSVC 2012 của bản gốc; dự án dựng với CRT hiện đại
+EXTERNAL:0x2fc	MSVCR110.DLL	_ismbblead	KHÔNG ÁP DỤNG	CRT MSVC 2012 của bản gốc; dự án dựng với CRT hiện đại
+EXTERNAL:0x2fd	MSVCR110.DLL	_cexit	KHÔNG ÁP DỤNG	CRT MSVC 2012 của bản gốc; dự án dựng với CRT hiện đại
+EXTERNAL:0x2fe	MSVCR110.DLL	exit	KHÔNG ÁP DỤNG	CRT MSVC 2012 của bản gốc; dự án dựng với CRT hiện đại
+EXTERNAL:0x2ff	MSVCR110.DLL	__set_app_type	KHÔNG ÁP DỤNG	CRT MSVC 2012 của bản gốc; dự án dựng với CRT hiện đại
+EXTERNAL:0x300	MSVCR110.DLL	__getmainargs	KHÔNG ÁP DỤNG	CRT MSVC 2012 của bản gốc; dự án dựng với CRT hiện đại
+EXTERNAL:0x301	MSVCR110.DLL	_amsg_exit	KHÔNG ÁP DỤNG	CRT MSVC 2012 của bản gốc; dự án dựng với CRT hiện đại
+EXTERNAL:0x302	MSVCR110.DLL	__crtGetShowWindowMode	KHÔNG ÁP DỤNG	CRT MSVC 2012 của bản gốc; dự án dựng với CRT hiện đại
+EXTERNAL:0x303	MSVCR110.DLL	_XcptFilter	KHÔNG ÁP DỤNG	CRT MSVC 2012 của bản gốc; dự án dựng với CRT hiện đại
+EXTERNAL:0x304	MSVCR110.DLL	__crtCapturePreviousContext	KHÔNG ÁP DỤNG	CRT MSVC 2012 của bản gốc; dự án dựng với CRT hiện đại
+EXTERNAL:0x305	MSVCR110.DLL	__crtCaptureCurrentContext	KHÔNG ÁP DỤNG	CRT MSVC 2012 của bản gốc; dự án dựng với CRT hiện đại
+EXTERNAL:0x306	MSVCR110.DLL	__crtTerminateProcess	KHÔNG ÁP DỤNG	CRT MSVC 2012 của bản gốc; dự án dựng với CRT hiện đại
+EXTERNAL:0x307	MSVCR110.DLL	__crtUnhandledException	KHÔNG ÁP DỤNG	CRT MSVC 2012 của bản gốc; dự án dựng với CRT hiện đại
+EXTERNAL:0x308	MSVCR110.DLL	__crt_debugger_hook	KHÔNG ÁP DỤNG	CRT MSVC 2012 của bản gốc; dự án dựng với CRT hiện đại
+EXTERNAL:0x309	MSVCR110.DLL	_onexit	KHÔNG ÁP DỤNG	CRT MSVC 2012 của bản gốc; dự án dựng với CRT hiện đại
+EXTERNAL:0x30a	MSVCR110.DLL	isdigit	KHÔNG ÁP DỤNG	CRT MSVC 2012 của bản gốc; dự án dựng với CRT hiện đại
+EXTERNAL:0x30b	MSVCR110.DLL	strncat	KHÔNG ÁP DỤNG	CRT MSVC 2012 của bản gốc; dự án dựng với CRT hiện đại
+EXTERNAL:0x30c	MSVCR110.DLL	strrchr	KHÔNG ÁP DỤNG	CRT MSVC 2012 của bản gốc; dự án dựng với CRT hiện đại
+EXTERNAL:0x30d	MSVCR110.DLL	ceilf	KHÔNG ÁP DỤNG	CRT MSVC 2012 của bản gốc; dự án dựng với CRT hiện đại
+EXTERNAL:0x30e	MSVCR110.DLL	cosf	KHÔNG ÁP DỤNG	CRT MSVC 2012 của bản gốc; dự án dựng với CRT hiện đại
+EXTERNAL:0x30f	MSVCR110.DLL	sinf	KHÔNG ÁP DỤNG	CRT MSVC 2012 của bản gốc; dự án dựng với CRT hiện đại
+EXTERNAL:0x310	MSVCR110.DLL	strtol	KHÔNG ÁP DỤNG	CRT MSVC 2012 của bản gốc; dự án dựng với CRT hiện đại
+EXTERNAL:0x311	MSVCR110.DLL	ldiv	KHÔNG ÁP DỤNG	CRT MSVC 2012 của bản gốc; dự án dựng với CRT hiện đại
+EXTERNAL:0x312	MSVCR110.DLL	mbstowcs	KHÔNG ÁP DỤNG	CRT MSVC 2012 của bản gốc; dự án dựng với CRT hiện đại
+EXTERNAL:0x313	MSVCR110.DLL	pow	KHÔNG ÁP DỤNG	CRT MSVC 2012 của bản gốc; dự án dựng với CRT hiện đại
+EXTERNAL:0x314	MSVCR110.DLL	sprintf_s	KHÔNG ÁP DỤNG	CRT MSVC 2012 của bản gốc; dự án dựng với CRT hiện đại
+EXTERNAL:0x315	MSVCR110.DLL	_controlfp	KHÔNG ÁP DỤNG	CRT MSVC 2012 của bản gốc; dự án dựng với CRT hiện đại
+EXTERNAL:0x316	MSVCR110.DLL	strcoll	KHÔNG ÁP DỤNG	CRT MSVC 2012 của bản gốc; dự án dựng với CRT hiện đại
+EXTERNAL:0x317	MSVCR110.DLL	_strlwr	KHÔNG ÁP DỤNG	CRT MSVC 2012 của bản gốc; dự án dựng với CRT hiện đại
+EXTERNAL:0x318	MSVCR110.DLL	fprintf	KHÔNG ÁP DỤNG	CRT MSVC 2012 của bản gốc; dự án dựng với CRT hiện đại
+EXTERNAL:0x319	MSVCR110.DLL	_fullpath	KHÔNG ÁP DỤNG	CRT MSVC 2012 của bản gốc; dự án dựng với CRT hiện đại
+EXTERNAL:0x31a	MSVCR110.DLL	std::bad_cast::bad_cast	KHÔNG ÁP DỤNG	CRT MSVC 2012 của bản gốc; dự án dựng với CRT hiện đại
+EXTERNAL:0x31b	MSVCR110.DLL	std::bad_cast::bad_cast	KHÔNG ÁP DỤNG	CRT MSVC 2012 của bản gốc; dự án dựng với CRT hiện đại
+EXTERNAL:0x31c	MSVCR110.DLL	std::bad_cast::~bad_cast	KHÔNG ÁP DỤNG	CRT MSVC 2012 của bản gốc; dự án dựng với CRT hiện đại
+EXTERNAL:0x31d	MSVCR110.DLL	_getpid	KHÔNG ÁP DỤNG	CRT MSVC 2012 của bản gốc; dự án dựng với CRT hiện đại
+EXTERNAL:0x31e	WS2_32.DLL	WSAGetLastError	MỘT PHẦN	engine/net có socket TCP; client chưa gọi
+EXTERNAL:0x31f	WS2_32.DLL	htonl	MỘT PHẦN	engine/net có socket TCP; client chưa gọi
+EXTERNAL:0x320	WS2_32.DLL	htons	MỘT PHẦN	engine/net có socket TCP; client chưa gọi
+EXTERNAL:0x321	WS2_32.DLL	socket	MỘT PHẦN	engine/net có socket TCP; client chưa gọi
+EXTERNAL:0x322	WS2_32.DLL	getaddrinfo	MỘT PHẦN	engine/net có socket TCP; client chưa gọi
+EXTERNAL:0x323	WS2_32.DLL	freeaddrinfo	MỘT PHẦN	engine/net có socket TCP; client chưa gọi
+EXTERNAL:0x324	WS2_32.DLL	WSACloseEvent	MỘT PHẦN	engine/net có socket TCP; client chưa gọi
+EXTERNAL:0x325	WS2_32.DLL	WSACreateEvent	MỘT PHẦN	engine/net có socket TCP; client chưa gọi
+EXTERNAL:0x326	WS2_32.DLL	WSAEnumNetworkEvents	MỘT PHẦN	engine/net có socket TCP; client chưa gọi
+EXTERNAL:0x327	WS2_32.DLL	WSAEventSelect	MỘT PHẦN	engine/net có socket TCP; client chưa gọi
+EXTERNAL:0x328	WS2_32.DLL	WSAResetEvent	MỘT PHẦN	engine/net có socket TCP; client chưa gọi
+EXTERNAL:0x329	WS2_32.DLL	WSAWaitForMultipleEvents	MỘT PHẦN	engine/net có socket TCP; client chưa gọi
+EXTERNAL:0x32a	WS2_32.DLL	getpeername	MỘT PHẦN	engine/net có socket TCP; client chưa gọi
+EXTERNAL:0x32b	WS2_32.DLL	getsockname	MỘT PHẦN	engine/net có socket TCP; client chưa gọi
+EXTERNAL:0x32c	WS2_32.DLL	ntohs	MỘT PHẦN	engine/net có socket TCP; client chưa gọi
+EXTERNAL:0x32d	WS2_32.DLL	WSASetLastError	MỘT PHẦN	engine/net có socket TCP; client chưa gọi
+EXTERNAL:0x32e	WS2_32.DLL	WSAIoctl	MỘT PHẦN	engine/net có socket TCP; client chưa gọi
+EXTERNAL:0x32f	WS2_32.DLL	gethostname	MỘT PHẦN	engine/net có socket TCP; client chưa gọi
+EXTERNAL:0x330	WS2_32.DLL	sendto	MỘT PHẦN	engine/net có socket TCP; client chưa gọi
+EXTERNAL:0x331	WS2_32.DLL	send	MỘT PHẦN	engine/net có socket TCP; client chưa gọi
+EXTERNAL:0x332	WS2_32.DLL	select	MỘT PHẦN	engine/net có socket TCP; client chưa gọi
+EXTERNAL:0x333	WS2_32.DLL	recvfrom	MỘT PHẦN	engine/net có socket TCP; client chưa gọi
+EXTERNAL:0x334	WS2_32.DLL	recv	MỘT PHẦN	engine/net có socket TCP; client chưa gọi
+EXTERNAL:0x335	WS2_32.DLL	listen	MỘT PHẦN	engine/net có socket TCP; client chưa gọi
+EXTERNAL:0x336	WS2_32.DLL	getsockopt	MỘT PHẦN	engine/net có socket TCP; client chưa gọi
+EXTERNAL:0x337	WS2_32.DLL	ioctlsocket	MỘT PHẦN	engine/net có socket TCP; client chưa gọi
+EXTERNAL:0x338	WS2_32.DLL	connect	MỘT PHẦN	engine/net có socket TCP; client chưa gọi
+EXTERNAL:0x339	WS2_32.DLL	closesocket	MỘT PHẦN	engine/net có socket TCP; client chưa gọi
+EXTERNAL:0x33a	WS2_32.DLL	bind	MỘT PHẦN	engine/net có socket TCP; client chưa gọi
+EXTERNAL:0x33b	WS2_32.DLL	accept	MỘT PHẦN	engine/net có socket TCP; client chưa gọi
+EXTERNAL:0x33c	WS2_32.DLL	WSACleanup	MỘT PHẦN	engine/net có socket TCP; client chưa gọi
+EXTERNAL:0x33d	WS2_32.DLL	WSAStartup	MỘT PHẦN	engine/net có socket TCP; client chưa gọi
+EXTERNAL:0x33e	WS2_32.DLL	setsockopt	MỘT PHẦN	engine/net có socket TCP; client chưa gọi
+EXTERNAL:0x33f	WS2_32.DLL	__WSAFDIsSet	MỘT PHẦN	engine/net có socket TCP; client chưa gọi
+EXTERNAL:0x340	WS2_32.DLL	inet_addr	MỘT PHẦN	engine/net có socket TCP; client chưa gọi
+EXTERNAL:0x341	IMM32.DLL	ImmAssociateContext	KHÁC THIẾT KẾ	IME: SDL3 text input + bàn phím ảo của dự án
+EXTERNAL:0x342	IMM32.DLL	ImmGetContext	KHÁC THIẾT KẾ	IME: SDL3 text input + bàn phím ảo của dự án
+EXTERNAL:0x343	VERSION.DLL	GetFileVersionInfoA	KHÔNG ÁP DỤNG	đọc phiên bản tệp
+EXTERNAL:0x344	VERSION.DLL	VerQueryValueA	KHÔNG ÁP DỤNG	đọc phiên bản tệp
+EXTERNAL:0x345	VERSION.DLL	GetFileVersionInfoSizeA	KHÔNG ÁP DỤNG	đọc phiên bản tệp
+EXTERNAL:0x346	FMOD64.DLL	FMOD::System::getChannel	KHÁC THIẾT KẾ	FMOD; dự án dùng miniaudio và định dạng .tla
+EXTERNAL:0x347	FMOD64.DLL	FMOD_System_Create	KHÁC THIẾT KẾ	FMOD; dự án dùng miniaudio và định dạng .tla
+EXTERNAL:0x348	FMOD64.DLL	FMOD::System::release	KHÁC THIẾT KẾ	FMOD; dự án dùng miniaudio và định dạng .tla
+EXTERNAL:0x349	FMOD64.DLL	FMOD::System::setOutput	KHÁC THIẾT KẾ	FMOD; dự án dùng miniaudio và định dạng .tla
+EXTERNAL:0x34a	FMOD64.DLL	FMOD::System::getOutput	KHÁC THIẾT KẾ	FMOD; dự án dùng miniaudio và định dạng .tla
+EXTERNAL:0x34b	FMOD64.DLL	FMOD::System::getNumDrivers	KHÁC THIẾT KẾ	FMOD; dự án dùng miniaudio và định dạng .tla
+EXTERNAL:0x34c	FMOD64.DLL	FMOD::System::getDriverInfo	KHÁC THIẾT KẾ	FMOD; dự án dùng miniaudio và định dạng .tla
+EXTERNAL:0x34d	FMOD64.DLL	FMOD::System::init	KHÁC THIẾT KẾ	FMOD; dự án dùng miniaudio và định dạng .tla
+EXTERNAL:0x34e	FMOD64.DLL	FMOD::Channel::getIndex	KHÁC THIẾT KẾ	FMOD; dự án dùng miniaudio và định dạng .tla
+EXTERNAL:0x34f	FMOD64.DLL	FMOD::Channel::setPosition	KHÁC THIẾT KẾ	FMOD; dự án dùng miniaudio và định dạng .tla
+EXTERNAL:0x350	FMOD64.DLL	FMOD::ChannelControl::isPlaying	KHÁC THIẾT KẾ	FMOD; dự án dùng miniaudio và định dạng .tla
+EXTERNAL:0x351	FMOD64.DLL	FMOD::ChannelControl::setMode	KHÁC THIẾT KẾ	FMOD; dự án dùng miniaudio và định dạng .tla
+EXTERNAL:0x352	FMOD64.DLL	FMOD::ChannelControl::setVolume	KHÁC THIẾT KẾ	FMOD; dự án dùng miniaudio và định dạng .tla
+EXTERNAL:0x353	FMOD64.DLL	FMOD::ChannelControl::setPaused	KHÁC THIẾT KẾ	FMOD; dự án dùng miniaudio và định dạng .tla
+EXTERNAL:0x354	FMOD64.DLL	FMOD::ChannelControl::stop	KHÁC THIẾT KẾ	FMOD; dự án dùng miniaudio và định dạng .tla
+EXTERNAL:0x355	FMOD64.DLL	FMOD::System::playSound	KHÁC THIẾT KẾ	FMOD; dự án dùng miniaudio và định dạng .tla
+EXTERNAL:0x356	FMOD64.DLL	FMOD::Sound::release	KHÁC THIẾT KẾ	FMOD; dự án dùng miniaudio và định dạng .tla
+EXTERNAL:0x357	FMOD64.DLL	FMOD::System::createSound	KHÁC THIẾT KẾ	FMOD; dự án dùng miniaudio và định dạng .tla
+EXTERNAL:0x358	FMOD64.DLL	FMOD::ChannelControl::setMute	KHÁC THIẾT KẾ	FMOD; dự án dùng miniaudio và định dạng .tla
+EXTERNAL:0x359	FMOD64.DLL	FMOD::System::close	KHÁC THIẾT KẾ	FMOD; dự án dùng miniaudio và định dạng .tla
+EXTERNAL:0x35a	FMOD64.DLL	FMOD::System::getVersion	KHÁC THIẾT KẾ	FMOD; dự án dùng miniaudio và định dạng .tla
+EXTERNAL:0x35b	FMOD64.DLL	FMOD::System::set3DSettings	KHÁC THIẾT KẾ	FMOD; dự án dùng miniaudio và định dạng .tla
+EXTERNAL:0x35c	FMOD64.DLL	FMOD::System::update	KHÁC THIẾT KẾ	FMOD; dự án dùng miniaudio và định dạng .tla
+EXTERNAL:0x35d	FMOD64.DLL	FMOD_Memory_GetStats	KHÁC THIẾT KẾ	FMOD; dự án dùng miniaudio và định dạng .tla
+EXTERNAL:0x35e	WININET.DLL	InternetCrackUrlA	KHÁC THIẾT KẾ	HTTP của bản gốc; các nút web mở trang 'Coming soon' ngoài trình duyệt
+EXTERNAL:0x35f	WININET.DLL	InternetOpenA	KHÁC THIẾT KẾ	HTTP của bản gốc; các nút web mở trang 'Coming soon' ngoài trình duyệt
+EXTERNAL:0x360	WININET.DLL	InternetCloseHandle	KHÁC THIẾT KẾ	HTTP của bản gốc; các nút web mở trang 'Coming soon' ngoài trình duyệt
+EXTERNAL:0x361	WININET.DLL	InternetConnectA	KHÁC THIẾT KẾ	HTTP của bản gốc; các nút web mở trang 'Coming soon' ngoài trình duyệt
+EXTERNAL:0x362	WININET.DLL	HttpOpenRequestA	KHÁC THIẾT KẾ	HTTP của bản gốc; các nút web mở trang 'Coming soon' ngoài trình duyệt
+EXTERNAL:0x363	WININET.DLL	HttpSendRequestA	KHÁC THIẾT KẾ	HTTP của bản gốc; các nút web mở trang 'Coming soon' ngoài trình duyệt
+EXTERNAL:0x364	WININET.DLL	InternetOpenUrlA	KHÁC THIẾT KẾ	HTTP của bản gốc; các nút web mở trang 'Coming soon' ngoài trình duyệt
+EXTERNAL:0x365	WININET.DLL	InternetSetStatusCallback	KHÁC THIẾT KẾ	HTTP của bản gốc; các nút web mở trang 'Coming soon' ngoài trình duyệt
+EXTERNAL:0x366	BCRYPT.DLL	BCryptGenRandom	KHÁC THIẾT KẾ	số ngẫu nhiên mật mã; dự án dùng libsodium randombytes

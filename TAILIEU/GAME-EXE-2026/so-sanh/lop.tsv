@@ -1,0 +1,508 @@
+class	vftable	slot_count	bases	status	counterpart_or_reason	probe
+AchievementElement	0x140c60b58	8	CElement,tTransferItemSystem::Element	CHƯA CÓ	phần tử danh sách giao diện/quan hệ chưa có (chưa có bạn bè, đội, thú, shop, thành tích...)	
+ActivityNotePetTalkTmp	0x140af6138	1	PetTalkImp	CHƯA CÓ	hệ quản lý tính năng riêng của bản gốc chưa có	
+AnonymousCommonManager	0x140a3d2a8	1		CHƯA CÓ	hệ quản lý tính năng riêng của bản gốc chưa có	
+BkThreadChatProcess	0x140bb7800	3	IBkWorkData	CHƯA CÓ	luồng xử lý chat nền; chưa có chat	
+BlackList	0x140af3dd8	9	RelationList	CHƯA CÓ	phần tử danh sách giao diện/quan hệ chưa có (chưa có bạn bè, đội, thú, shop, thành tích...)	
+BossElement	0x140c60b08	8	CElement,tTransferItemSystem::Element	CHƯA CÓ	phần tử danh sách giao diện/quan hệ chưa có (chưa có bạn bè, đội, thú, shop, thành tích...)	
+BuyFromYBShopElement	0x140c60c08	8	CElement,tTransferItemSystem::Element	CHƯA CÓ	phần tử danh sách giao diện/quan hệ chưa có (chưa có bạn bè, đội, thú, shop, thành tích...)	
+CAI_Base	0x140c24628	15		MỘT PHẦN	figure/hero (số liệu nhân vật) và book/skill; chưa có AI, chưa có DetailAttrib từ máy chủ	probe 'hero::': thấy src/client/face/ui/hud.cpp
+CAI_MySelf	0x140c25668	22	CAI_Base	MỘT PHẦN	figure/hero (số liệu nhân vật) và book/skill; chưa có AI, chưa có DetailAttrib từ máy chủ	probe 'hero::': thấy src/client/face/ui/hud.cpp
+CAbilityTableManager	0x140b0edf8	1		CHƯA CÓ	hệ quản lý tính năng riêng của bản gốc chưa có	
+CActionItem	0x140a41cb8	49	tActionItem	MỘT PHẦN	book/skill/actions (chỉ 5 loại action của sách võ công)	probe 'ActionKind': thấy src/client/figure/look/skill.cpp
+CActionItem_CangPin	0x140a42378	50	CActionItem,tActionItem	CHƯA CÓ	loại action này chưa có (chỉ có skill, life, xinfa, formation, pet)	
+CActionItem_CangPinChip	0x140a42518	50	CActionItem_CangPin,CActionItem,tActionItem	CHƯA CÓ	loại action này chưa có (chỉ có skill, life, xinfa, formation, pet)	
+CActionItem_CangPin_NextLevel	0x140a42858	50	CActionItem_CangPin,CActionItem,tActionItem	CHƯA CÓ	loại action này chưa có (chỉ có skill, life, xinfa, formation, pet)	
+CActionItem_CangPin_QualReset	0x140a42b98	50	CActionItem_CangPin,CActionItem,tActionItem	CHƯA CÓ	loại action này chưa có (chỉ có skill, life, xinfa, formation, pet)	
+CActionItem_CangPin_QualUp	0x140a429f8	50	CActionItem_CangPin,CActionItem,tActionItem	CHƯA CÓ	loại action này chưa có (chỉ có skill, life, xinfa, formation, pet)	
+CActionItem_ChatMood	0x140a42f48	51	CActionItem,tActionItem	CHƯA CÓ	loại action này chưa có (chỉ có skill, life, xinfa, formation, pet)	
+CActionItem_ChijiEquip	0x140a432b8	51	CActionItem_Item,CActionItem,tActionItem	CHƯA CÓ	loại action này chưa có (chỉ có skill, life, xinfa, formation, pet)	
+CActionItem_ChijiItem	0x140a43668	51	CActionItem_Item,CActionItem,tActionItem	CHƯA CÓ	loại action này chưa có (chỉ có skill, life, xinfa, formation, pet)	
+CActionItem_ChijiSkill	0x140a439f8	52	CActionItem_Skill,CActionItem,tActionItem	CHƯA CÓ	loại action này chưa có (chỉ có skill, life, xinfa, formation, pet)	
+CActionItem_Combo_Book	0x140a43db8	51	CActionItem,tActionItem	CHƯA CÓ	loại action này chưa có (chỉ có skill, life, xinfa, formation, pet)	
+CActionItem_CoolDownItem	0x140a43f58	51	CActionItem_Item,CActionItem,tActionItem	CHƯA CÓ	loại action này chưa có (chỉ có skill, life, xinfa, formation, pet)	
+CActionItem_Double_ChatMood	0x140a44288	51	CActionItem,tActionItem	CHƯA CÓ	loại action này chưa có (chỉ có skill, life, xinfa, formation, pet)	
+CActionItem_FYPVEItem	0x140a452c8	51	CActionItem_Item,CActionItem,tActionItem	CHƯA CÓ	loại action này chưa có (chỉ có skill, life, xinfa, formation, pet)	
+CActionItem_FYPVETalent	0x140a45468	49	CActionItem,tActionItem	CHƯA CÓ	loại action này chưa có (chỉ có skill, life, xinfa, formation, pet)	
+CActionItem_Fashion	0x140a44658	49	CActionItem,tActionItem	CHƯA CÓ	loại action này chưa có (chỉ có skill, life, xinfa, formation, pet)	
+CActionItem_Frame	0x140a44cc8	50	CActionItem,tActionItem	CHƯA CÓ	loại action này chưa có (chỉ có skill, life, xinfa, formation, pet)	
+CActionItem_Item	0x140a4d1f8	51	CActionItem,tActionItem	CHƯA CÓ	loại action này chưa có (chỉ có skill, life, xinfa, formation, pet)	
+CActionItem_KFSSkill	0x140a4dd68	52	CActionItem,tActionItem	CHƯA CÓ	loại action này chưa có (chỉ có skill, life, xinfa, formation, pet)	
+CActionItem_LifeAbility	0x140a4e0d8	51	CActionItem,tActionItem	CÓ	book/skill/actions (ActionKind: skill, life, xinfa, formation)	probe 'ActionKind': thấy src/client/figure/look/skill.cpp
+CActionItem_MailItem	0x140a4e378	49	CActionItem,tActionItem	CHƯA CÓ	loại action này chưa có (chỉ có skill, life, xinfa, formation, pet)	
+CActionItem_MouseCmd_AddCommanderFlag	0x140a52ab8	49	CActionItem,tActionItem	CHƯA CÓ	con trỏ lệnh của vật phẩm/bán/sửa/giám định chưa có (chưa có vật phẩm)	
+CActionItem_MouseCmd_AddFriend	0x140a4fa48	49	CActionItem,tActionItem	CHƯA CÓ	con trỏ lệnh của vật phẩm/bán/sửa/giám định chưa có (chưa có vật phẩm)	
+CActionItem_MouseCmd_Archer	0x140a51ca8	49	CActionItem,tActionItem	CHƯA CÓ	con trỏ lệnh của vật phẩm/bán/sửa/giám định chưa có (chưa có vật phẩm)	
+CActionItem_MouseCmd_Asunder	0x140a503a8	49	CActionItem,tActionItem	CHƯA CÓ	con trỏ lệnh của vật phẩm/bán/sửa/giám định chưa có (chưa có vật phẩm)	
+CActionItem_MouseCmd_AttachModel	0x140a4f728	49	CActionItem,tActionItem	CHƯA CÓ	con trỏ lệnh của vật phẩm/bán/sửa/giám định chưa có (chưa có vật phẩm)	
+CActionItem_MouseCmd_BJJJH_2022	0x140a52158	49	CActionItem,tActionItem	CHƯA CÓ	con trỏ lệnh của vật phẩm/bán/sửa/giám định chưa có (chưa có vật phẩm)	
+CActionItem_MouseCmd_BuyMult	0x140a50088	49	CActionItem,tActionItem	CHƯA CÓ	con trỏ lệnh của vật phẩm/bán/sửa/giám định chưa có (chưa có vật phẩm)	
+CActionItem_MouseCmd_CallOutMengChong	0x140a51988	49	CActionItem,tActionItem	CHƯA CÓ	con trỏ lệnh của vật phẩm/bán/sửa/giám định chưa có (chưa có vật phẩm)	
+CActionItem_MouseCmd_CatchPet	0x140a4fd68	49	CActionItem,tActionItem	CHƯA CÓ	con trỏ lệnh của vật phẩm/bán/sửa/giám định chưa có (chưa có vật phẩm)	
+CActionItem_MouseCmd_DFWDismiss	0x140a50538	49	CActionItem,tActionItem	CHƯA CÓ	con trỏ lệnh của vật phẩm/bán/sửa/giám định chưa có (chưa có vật phẩm)	
+CActionItem_MouseCmd_Exchange	0x140a4fbd8	49	CActionItem,tActionItem	CHƯA CÓ	con trỏ lệnh của vật phẩm/bán/sửa/giám định chưa có (chưa có vật phẩm)	
+CActionItem_MouseCmd_ExteriorFitting	0x140a509e8	49	CActionItem,tActionItem	CHƯA CÓ	con trỏ lệnh của vật phẩm/bán/sửa/giám định chưa có (chưa có vật phẩm)	
+CActionItem_MouseCmd_Furniture	0x140a50d08	49	CActionItem,tActionItem	CHƯA CÓ	con trỏ lệnh của vật phẩm/bán/sửa/giám định chưa có (chưa có vật phẩm)	
+CActionItem_MouseCmd_GiveMessage	0x140a52478	49	CActionItem,tActionItem	CHƯA CÓ	con trỏ lệnh của vật phẩm/bán/sửa/giám định chưa có (chưa có vật phẩm)	
+CActionItem_MouseCmd_HCFurniture	0x140a51348	49	CActionItem,tActionItem	CHƯA CÓ	con trỏ lệnh của vật phẩm/bán/sửa/giám định chưa có (chưa có vật phẩm)	
+CActionItem_MouseCmd_Identify	0x140a4f598	49	CActionItem,tActionItem	CHƯA CÓ	con trỏ lệnh của vật phẩm/bán/sửa/giám định chưa có (chưa có vật phẩm)	
+CActionItem_MouseCmd_LuckyLineResolve	0x140a52928	49	CActionItem,tActionItem	CHƯA CÓ	con trỏ lệnh của vật phẩm/bán/sửa/giám định chưa có (chưa có vật phẩm)	
+CActionItem_MouseCmd_Mifa	0x140a4f8b8	49	CActionItem,tActionItem	CHƯA CÓ	con trỏ lệnh của vật phẩm/bán/sửa/giám định chưa có (chưa có vật phẩm)	
+CActionItem_MouseCmd_PND_HQ	0x140a532c8	49	CActionItem,tActionItem	CHƯA CÓ	con trỏ lệnh của vật phẩm/bán/sửa/giám định chưa có (chưa có vật phẩm)	
+CActionItem_MouseCmd_QiYuanGiveWine	0x140a51fc8	49	CActionItem,tActionItem	CHƯA CÓ	con trỏ lệnh của vật phẩm/bán/sửa/giám định chưa có (chưa có vật phẩm)	
+CActionItem_MouseCmd_QianKunPot	0x140a52608	49	CActionItem,tActionItem	CHƯA CÓ	con trỏ lệnh của vật phẩm/bán/sửa/giám định chưa có (chưa có vật phẩm)	
+CActionItem_MouseCmd_QianKunPotDel	0x140a52798	49	CActionItem,tActionItem	CHƯA CÓ	con trỏ lệnh của vật phẩm/bán/sửa/giám định chưa có (chưa có vật phẩm)	
+CActionItem_MouseCmd_RecycleFurniture	0x140a51668	49	CActionItem,tActionItem	CHƯA CÓ	con trỏ lệnh của vật phẩm/bán/sửa/giám định chưa có (chưa có vật phẩm)	
+CActionItem_MouseCmd_RemoveFurniture	0x140a50e98	49	CActionItem,tActionItem	CHƯA CÓ	con trỏ lệnh của vật phẩm/bán/sửa/giám định chưa có (chưa có vật phẩm)	
+CActionItem_MouseCmd_RemoveMengChong	0x140a517f8	49	CActionItem,tActionItem	CHƯA CÓ	con trỏ lệnh của vật phẩm/bán/sửa/giám định chưa có (chưa có vật phẩm)	
+CActionItem_MouseCmd_Repair	0x140a4f408	49	CActionItem,tActionItem	CHƯA CÓ	con trỏ lệnh của vật phẩm/bán/sửa/giám định chưa có (chưa có vật phẩm)	
+CActionItem_MouseCmd_Sale	0x140a4fef8	49	CActionItem,tActionItem	CHƯA CÓ	con trỏ lệnh của vật phẩm/bán/sửa/giám định chưa có (chưa có vật phẩm)	
+CActionItem_MouseCmd_SaleToRecShop	0x140a50b78	49	CActionItem,tActionItem	CHƯA CÓ	con trỏ lệnh của vật phẩm/bán/sửa/giám định chưa có (chưa có vật phẩm)	
+CActionItem_MouseCmd_ShadowCursorCommand	0x140a522e8	49	CActionItem,tActionItem	CHƯA CÓ	con trỏ lệnh của vật phẩm/bán/sửa/giám định chưa có (chưa có vật phẩm)	
+CActionItem_MouseCmd_ShareLuckyPoint	0x140a51e38	49	CActionItem,tActionItem	CHƯA CÓ	con trỏ lệnh của vật phẩm/bán/sửa/giám định chưa có (chưa có vật phẩm)	
+CActionItem_MouseCmd_ShopDresser	0x140a50218	49	CActionItem,tActionItem	CHƯA CÓ	con trỏ lệnh của vật phẩm/bán/sửa/giám định chưa có (chưa có vật phẩm)	
+CActionItem_MouseCmd_ShopFitting	0x140a50858	49	CActionItem,tActionItem	CHƯA CÓ	con trỏ lệnh của vật phẩm/bán/sửa/giám định chưa có (chưa có vật phẩm)	
+CActionItem_MouseCmd_ShopGift	0x140a506c8	49	CActionItem,tActionItem	CHƯA CÓ	con trỏ lệnh của vật phẩm/bán/sửa/giám định chưa có (chưa có vật phẩm)	
+CActionItem_MouseCmd_ShowFurniture	0x140a51028	49	CActionItem,tActionItem	CHƯA CÓ	con trỏ lệnh của vật phẩm/bán/sửa/giám định chưa có (chưa có vật phẩm)	
+CActionItem_MouseCmd_ShowFurniture_InBank	0x140a511b8	49	CActionItem,tActionItem	CHƯA CÓ	con trỏ lệnh của vật phẩm/bán/sửa/giám định chưa có (chưa có vật phẩm)	
+CActionItem_MouseCmd_ShowMengChong	0x140a51b18	49	CActionItem,tActionItem	CHƯA CÓ	con trỏ lệnh của vật phẩm/bán/sửa/giám định chưa có (chưa có vật phẩm)	
+CActionItem_MouseCmd_ZHFurniture	0x140a514d8	49	CActionItem,tActionItem	CHƯA CÓ	con trỏ lệnh của vật phẩm/bán/sửa/giám định chưa có (chưa có vật phẩm)	
+CActionItem_OtherComboSkill	0x140a53668	52	CActionItem,tActionItem	CHƯA CÓ	loại action này chưa có (chỉ có skill, life, xinfa, formation, pet)	
+CActionItem_Other_CangPin	0x140a426b8	50	CActionItem_CangPin,CActionItem,tActionItem	CHƯA CÓ	loại action này chưa có (chỉ có skill, life, xinfa, formation, pet)	
+CActionItem_Other_SkillCard	0x140a55668	51	CActionItem_SkillCard,CActionItem,tActionItem	CHƯA CÓ	loại action này chưa có (chỉ có skill, life, xinfa, formation, pet)	
+CActionItem_Other_XingJuan	0x140a55208	50	CActionItem_XingJuan,CActionItem,tActionItem	CHƯA CÓ	loại action này chưa có (chỉ có skill, life, xinfa, formation, pet)	
+CActionItem_PND	0x140a56b48	50	CActionItem,tActionItem	CHƯA CÓ	loại action này chưa có (chỉ có skill, life, xinfa, formation, pet)	
+CActionItem_PetFight	0x140a52c48	51	CActionItem,tActionItem	CHƯA CÓ	loại action này chưa có (chỉ có skill, life, xinfa, formation, pet)	
+CActionItem_PetPossession	0x140a52f88	51	CActionItem,tActionItem	CHƯA CÓ	loại action này chưa có (chỉ có skill, life, xinfa, formation, pet)	
+CActionItem_PetRelax	0x140a52de8	51	CActionItem,tActionItem	CHƯA CÓ	loại action này chưa có (chỉ có skill, life, xinfa, formation, pet)	
+CActionItem_PetRestore	0x140a53128	51	CActionItem,tActionItem	CHƯA CÓ	loại action này chưa có (chỉ có skill, life, xinfa, formation, pet)	
+CActionItem_PetSkill	0x140a539f8	50	CActionItem,tActionItem	CHƯA CÓ	loại action này chưa có (chỉ có skill, life, xinfa, formation, pet)	
+CActionItem_Pneuma	0x140a53e28	50	CActionItem,tActionItem	CHƯA CÓ	loại action này chưa có (chỉ có skill, life, xinfa, formation, pet)	
+CActionItem_Ride	0x140a447e8	50	CActionItem,tActionItem	CHƯA CÓ	loại action này chưa có (chỉ có skill, life, xinfa, formation, pet)	
+CActionItem_SectInfo	0x140a54188	49	CActionItem,tActionItem	CHƯA CÓ	loại action này chưa có (chỉ có skill, life, xinfa, formation, pet)	
+CActionItem_Skill	0x140a54538	52	CActionItem,tActionItem	CÓ	book/skill/actions (ActionKind: skill, life, xinfa, formation)	probe 'ActionKind': thấy src/client/figure/look/skill.cpp
+CActionItem_SkillCard	0x140a554c8	51	CActionItem,tActionItem	CHƯA CÓ	loại action này chưa có (chỉ có skill, life, xinfa, formation, pet)	
+CActionItem_SuperWeaponDIYSkill	0x140a54928	52	CActionItem,tActionItem	CHƯA CÓ	loại action này chưa có (chỉ có skill, life, xinfa, formation, pet)	
+CActionItem_Toy	0x140a44e68	50	CActionItem,tActionItem	CHƯA CÓ	loại action này chưa có (chỉ có skill, life, xinfa, formation, pet)	
+CActionItem_Weapon	0x140a44988	50	CActionItem,tActionItem	CHƯA CÓ	loại action này chưa có (chỉ có skill, life, xinfa, formation, pet)	
+CActionItem_Weapon_Group	0x140a44b28	50	CActionItem,tActionItem	CHƯA CÓ	loại action này chưa có (chỉ có skill, life, xinfa, formation, pet)	
+CActionItem_XinFa	0x140a54c08	51	CActionItem,tActionItem	CÓ	book/skill/actions (ActionKind: skill, life, xinfa, formation)	probe 'ActionKind': thấy src/client/figure/look/skill.cpp
+CActionItem_XingJuan	0x140a54ec8	50	CActionItem,tActionItem	CHƯA CÓ	loại action này chưa có (chỉ có skill, life, xinfa, formation, pet)	
+CActionItem_XingJuanChip	0x140a55068	50	CActionItem_XingJuan,CActionItem,tActionItem	CHƯA CÓ	loại action này chưa có (chỉ có skill, life, xinfa, formation, pet)	
+CActionItem_Xiulian_Book	0x140a55938	51	CActionItem,tActionItem	CHƯA CÓ	loại action này chưa có (chỉ có skill, life, xinfa, formation, pet)	
+CActionItem_Xiulian_Miji	0x140a55c08	51	CActionItem,tActionItem	CHƯA CÓ	loại action này chưa có (chỉ có skill, life, xinfa, formation, pet)	
+CActionItem_XueWei	0x140a56198	52	CActionItem,tActionItem	CHƯA CÓ	loại action này chưa có (chỉ có skill, life, xinfa, formation, pet)	
+CActionItem_ZhenFaSkill	0x140a56548	52	CActionItem,tActionItem	CÓ	book/skill/actions (ActionKind: skill, life, xinfa, formation)	probe 'ActionKind': thấy src/client/figure/look/skill.cpp
+CActionSetMgr	0x140c118a0	1		CÓ	bảng ActionSet đã xuất (skill_actions.tsv, anim_sets.tsv) và figure/look	probe 'ActionSet|anim_sets': thấy src/client/figure/look/appearance.cpp
+CActionSystem	0x140a41e48	33	tActionSystem,tNode	MỘT PHẦN	book/skill/actions (chỉ 5 loại action của sách võ công)	probe 'ActionKind': thấy src/client/figure/look/skill.cpp
+CActivePosManager	0x140c68378	1		CHƯA CÓ	hệ quản lý tính năng riêng của bản gốc chưa có	
+CBRLoop_Config<CBRConfig_Farm>	0x140a57af8	15	CBRLoop	CHƯA CÓ	BowlRobbing chưa có	
+CBRLoop_Farm	0x140a57b78	15	.?AV?$CBRLoop_Config@VCBRConfig_Farm@@@@,CBRLoop	CHƯA CÓ	BowlRobbing chưa có	
+CCharacterData	0x140af0530	1		MỘT PHẦN	figure/hero (số liệu nhân vật) và book/skill; chưa có AI, chưa có DetailAttrib từ máy chủ	probe 'hero::': thấy src/client/face/ui/hud.cpp
+CCursorMng	0x140a58e58	27	tCursorSystem,tNode	CÓ	app/client/viewer/cursors + figure/control/cursor_rules (22 con trỏ đọc từ Game.exe)	probe 'GameCursors': thấy src/client/app/client/viewer/cursors.cpp
+CDataBase	0x140a5d758	17	tDataBase	MỘT PHẦN	shared/table + TOOLS/content/dbc.py; nạp 46 bảng đã xuất, không nạp 598 bảng của bản gốc	probe 'dbc': thấy src/client/figure/hero/hero.cpp
+CDataBaseSystem	0x140a5d7e8	23	tDataBaseSystem,tNode	MỘT PHẦN	shared/table + TOOLS/content/dbc.py; nạp 46 bảng đã xuất, không nạp 598 bảng của bản gốc	probe 'dbc': thấy src/client/figure/hero/hero.cpp
+CDataPool	0x140a6f5e8	128	tDataPool_,tNode	MỘT PHẦN	ui/panel dùng dữ liệu cục bộ; chưa có DataPool chung và bóng tin nhắn	probe 'hero::': thấy src/client/face/ui/hud.cpp
+CDetailAttrib_Base	0x140a5d9a8	15		MỘT PHẦN	figure/hero (số liệu nhân vật) và book/skill; chưa có AI, chưa có DetailAttrib từ máy chủ	probe 'hero::': thấy src/client/face/ui/hud.cpp
+CDetailAttrib_Player	0x140a5e3c8	18	CDetailAttrib_Base	MỘT PHẦN	figure/hero (số liệu nhân vật) và book/skill; chưa có AI, chưa có DetailAttrib từ máy chủ	probe 'hero::': thấy src/client/face/ui/hud.cpp
+CElement	0x140c60748	8	tTransferItemSystem::Element	CHƯA CÓ	phần tử danh sách giao diện/quan hệ chưa có (chưa có bạn bè, đội, thú, shop, thành tích...)	
+CEventSystem	0x140b0b8d8	54	tEventSystem,tNode	KHÁC THIẾT KẾ	ui/panel gọi trực tiếp; không có bus sự kiện PushEvent (docs ghi SU-KIEN-GAME.tsv)	probe 'press_|Clicked': thấy src/client/figure/control/player_input.cpp
+CFakeObjSystem	0x140b0cef8	27	tFakeObjSystem,tNode	MỘT PHẦN	app/client/display/role_stage + role_preview (người mẫu xem trước trên màn tạo nhân vật)	probe 'RoleStage': thấy src/client/app/client/display/role_stage.cpp
+CFakeObjSystemEx	0x140af75c8	25	tFakeObjSystemEx,tNode	MỘT PHẦN	app/client/display/role_stage + role_preview (người mẫu xem trước trên màn tạo nhân vật)	probe 'RoleStage': thấy src/client/app/client/display/role_stage.cpp
+CGameInterface	0x140b10f88	123	tGameInterfaceBase,tNode	KHÁC THIẾT KẾ	ui/panel gọi trực tiếp; không có bus sự kiện PushEvent (docs ghi SU-KIEN-GAME.tsv)	probe 'press_|Clicked': thấy src/client/figure/control/player_input.cpp
+CGamePro_Break	0x140c2f908	9	CGameProcedure	MỘT PHẦN	thủ tục Login/CharSel/CharCreate có ở face/ui/panel; thủ tục Main chỉ là màn chơi không máy chủ	probe 'LoginFlow|SelectRole|CreateRole': thấy src/client/figure/look/body.hpp
+CGamePro_Camera	0x140c2fba8	9	CGameProcedure	MỘT PHẦN	thủ tục Login/CharSel/CharCreate có ở face/ui/panel; thủ tục Main chỉ là màn chơi không máy chủ	probe 'LoginFlow|SelectRole|CreateRole': thấy src/client/figure/look/body.hpp
+CGamePro_ChangeScene	0x140c2f778	8	CGameProcedure	MỘT PHẦN	thủ tục Login/CharSel/CharCreate có ở face/ui/panel; thủ tục Main chỉ là màn chơi không máy chủ	probe 'LoginFlow|SelectRole|CreateRole': thấy src/client/figure/look/body.hpp
+CGamePro_CharCreate	0x140c2cea8	10	CGameProcedure	MỘT PHẦN	thủ tục Login/CharSel/CharCreate có ở face/ui/panel; thủ tục Main chỉ là màn chơi không máy chủ	probe 'LoginFlow|SelectRole|CreateRole': thấy src/client/figure/look/body.hpp
+CGamePro_CharSel	0x140c2c7b8	9	CGameProcedure	MỘT PHẦN	thủ tục Login/CharSel/CharCreate có ở face/ui/panel; thủ tục Main chỉ là màn chơi không máy chủ	probe 'LoginFlow|SelectRole|CreateRole': thấy src/client/figure/look/body.hpp
+CGamePro_Enter	0x140c2d238	10	CGameProcedure	MỘT PHẦN	thủ tục Login/CharSel/CharCreate có ở face/ui/panel; thủ tục Main chỉ là màn chơi không máy chủ	probe 'LoginFlow|SelectRole|CreateRole': thấy src/client/figure/look/body.hpp
+CGamePro_Login	0x140c2b408	9	CGameProcedure	MỘT PHẦN	thủ tục Login/CharSel/CharCreate có ở face/ui/panel; thủ tục Main chỉ là màn chơi không máy chủ	probe 'LoginFlow|SelectRole|CreateRole': thấy src/client/figure/look/body.hpp
+CGamePro_Main	0x140c2ea18	9	CGameProcedure	MỘT PHẦN	thủ tục Login/CharSel/CharCreate có ở face/ui/panel; thủ tục Main chỉ là màn chơi không máy chủ	probe 'LoginFlow|SelectRole|CreateRole': thấy src/client/figure/look/body.hpp
+CHelperSystem	0x140c300c8	21	tHelperSystem,tNode,.?AV?$LuaExport@VCHelperSystem@@@@	KHÁC THIẾT KẾ	nút trợ giúp mở trang web (kOpenWeb)	probe 'kOpenWeb': thấy src/client/app/client/android_main.cpp
+CInputSystem	0x140b0d1a8	33	tInputSystem,tNode	MỘT PHẦN	figure/control + app/client/viewer/sdl_input (chuột, phím, cảm ứng, cần gạt)	probe 'SdlInput': thấy src/client/app/client/viewer/sdl_input.cpp
+CItem	0x140bc5fd8	75	tItem	CHƯA CÓ	chưa có hệ vật phẩm (hành trang, trang bị thật, chuyển vật phẩm); chỉ có bảng và vũ khí cầm tay thử	probe 'WeaponItemRow': thấy src/client/figure/look/look.cpp
+CItemSystem	0x140bd0248	23	tItemSystem,tNode	CHƯA CÓ	chưa có hệ vật phẩm (hành trang, trang bị thật, chuyển vật phẩm); chỉ có bảng và vũ khí cầm tay thử	probe 'WeaponItemRow': thấy src/client/figure/look/look.cpp
+CItem_Common	0x140bc6bd8	75	CItem,tItem	CHƯA CÓ	chưa có hệ vật phẩm (hành trang, trang bị thật, chuyển vật phẩm); chỉ có bảng và vũ khí cầm tay thử	probe 'WeaponItemRow': thấy src/client/figure/look/look.cpp
+CItem_Dummy	0x140bc7678	75	CItem,tItem	CHƯA CÓ	chưa có hệ vật phẩm (hành trang, trang bị thật, chuyển vật phẩm); chỉ có bảng và vũ khí cầm tay thử	probe 'WeaponItemRow': thấy src/client/figure/look/look.cpp
+CItem_Equip	0x140bcc988	82	CItem,tItem	CHƯA CÓ	chưa có hệ vật phẩm (hành trang, trang bị thật, chuyển vật phẩm); chỉ có bảng và vũ khí cầm tay thử	probe 'WeaponItemRow': thấy src/client/figure/look/look.cpp
+CItem_Gem	0x140bcd118	75	CItem,tItem	CHƯA CÓ	chưa có hệ vật phẩm (hành trang, trang bị thật, chuyển vật phẩm); chỉ có bảng và vũ khí cầm tay thử	probe 'WeaponItemRow': thấy src/client/figure/look/look.cpp
+CItem_IMDress	0x140bcd5b8	75	CItem,tItem	CHƯA CÓ	chưa có hệ vật phẩm (hành trang, trang bị thật, chuyển vật phẩm); chỉ có bảng và vũ khí cầm tay thử	probe 'WeaponItemRow': thấy src/client/figure/look/look.cpp
+CItem_PetEquip	0x140bcf688	75	CItem,tItem	CHƯA CÓ	chưa có hệ vật phẩm (hành trang, trang bị thật, chuyển vật phẩm); chỉ có bảng và vũ khí cầm tay thử	probe 'WeaponItemRow': thấy src/client/figure/look/look.cpp
+CItem_Pneuma	0x140bcfdb8	75	CItem,tItem	CHƯA CÓ	chưa có hệ vật phẩm (hành trang, trang bị thật, chuyển vật phẩm); chỉ có bảng và vũ khí cầm tay thử	probe 'WeaponItemRow': thấy src/client/figure/look/look.cpp
+CMD5	0x140c2edd0	1	CMD	KHÁC THIẾT KẾ	shared/secure dùng libsodium (bắt tay, bản ghi mã hoá)	probe 'sodium': thấy src/client/pack/seal/key.cpp
+CNetManager	0x140bd1b98	17	tNode,Player_AtClient	KHÁC THIẾT KẾ	engine/net (socket TCP không chặn, PollSet) và shared/link; client chưa gọi	probe 'PollSet|Reactor': thấy src/shared/link/link.cpp
+CNewSoundSystemFMod	0x140c5a098	27	tNewSoundSystem,tNode	MỘT PHẦN	engine/audio (miniaudio, nhạc nền theo cảnh); chưa có tiếng hiệu ứng	probe 'audio': thấy src/client/app/client/android_main.cpp
+CObject	0x140c156e8	78	tObject,tNode	CHƯA CÓ	không có bộ quản lý đối tượng trong cảnh (Stage thiếu Actor, kOtherActor còn là stub)	probe 'kOtherActor': thấy src/client/app/client/display/assets.hpp
+CObjectCommand	0x140c159d8	2		CHƯA CÓ	lệnh đối tượng do máy chủ/AI ra (di chuyển, đánh, dùng kỹ năng); client chỉ có WalkOrder/Strike cục bộ	probe 'WalkOrder': thấy src/client/app/client/display/graphic/play.cpp
+CObjectCommand_Ability	0x140c15b58	3	CObjectCommand_Logic,CObjectCommand	CHƯA CÓ	lệnh đối tượng do máy chủ/AI ra (di chuyển, đánh, dùng kỹ năng); client chỉ có WalkOrder/Strike cục bộ	probe 'WalkOrder': thấy src/client/app/client/display/graphic/play.cpp
+CObjectCommand_Action	0x140c15a28	3	CObjectCommand_Logic,CObjectCommand	CHƯA CÓ	lệnh đối tượng do máy chủ/AI ra (di chuyển, đánh, dùng kỹ năng); client chỉ có WalkOrder/Strike cục bộ	probe 'WalkOrder': thấy src/client/app/client/display/graphic/play.cpp
+CObjectCommand_BeHitOut	0x140c15a98	3	CObjectCommand_Logic,CObjectCommand	CHƯA CÓ	lệnh đối tượng do máy chủ/AI ra (di chuyển, đánh, dùng kỹ năng); client chỉ có WalkOrder/Strike cục bộ	probe 'WalkOrder': thấy src/client/app/client/display/graphic/play.cpp
+CObjectCommand_Charge	0x140c15ad8	3	CObjectCommand_Logic,CObjectCommand	CHƯA CÓ	lệnh đối tượng do máy chủ/AI ra (di chuyển, đánh, dùng kỹ năng); client chỉ có WalkOrder/Strike cục bộ	probe 'WalkOrder': thấy src/client/app/client/display/graphic/play.cpp
+CObjectCommand_Fly	0x140c15ab8	3	CObjectCommand_Logic,CObjectCommand	CHƯA CÓ	lệnh đối tượng do máy chủ/AI ra (di chuyển, đánh, dùng kỹ năng); client chỉ có WalkOrder/Strike cục bộ	probe 'WalkOrder': thấy src/client/app/client/display/graphic/play.cpp
+CObjectCommand_Logic	0x140c159f0	3	CObjectCommand	CHƯA CÓ	lệnh đối tượng do máy chủ/AI ra (di chuyển, đánh, dùng kỹ năng); client chỉ có WalkOrder/Strike cục bộ	probe 'WalkOrder': thấy src/client/app/client/display/graphic/play.cpp
+CObjectCommand_MagicChannel	0x140c15b38	3	CObjectCommand_Logic,CObjectCommand	CHƯA CÓ	lệnh đối tượng do máy chủ/AI ra (di chuyển, đánh, dùng kỹ năng); client chỉ có WalkOrder/Strike cục bộ	probe 'WalkOrder': thấy src/client/app/client/display/graphic/play.cpp
+CObjectCommand_MagicCharge	0x140c15b18	3	CObjectCommand_Logic,CObjectCommand	CHƯA CÓ	lệnh đối tượng do máy chủ/AI ra (di chuyển, đánh, dùng kỹ năng); client chỉ có WalkOrder/Strike cục bộ	probe 'WalkOrder': thấy src/client/app/client/display/graphic/play.cpp
+CObjectCommand_MagicSend	0x140c15af8	3	CObjectCommand_Logic,CObjectCommand	CHƯA CÓ	lệnh đối tượng do máy chủ/AI ra (di chuyển, đánh, dùng kỹ năng); client chỉ có WalkOrder/Strike cục bộ	probe 'WalkOrder': thấy src/client/app/client/display/graphic/play.cpp
+CObjectCommand_Move	0x140c15a60	3	CObjectCommand_Logic,CObjectCommand	CHƯA CÓ	lệnh đối tượng do máy chủ/AI ra (di chuyển, đánh, dùng kỹ năng); client chỉ có WalkOrder/Strike cục bộ	probe 'WalkOrder': thấy src/client/app/client/display/graphic/play.cpp
+CObjectCommand_StopAction	0x140c15a48	2	CObjectCommand_StopLogic,CObjectCommand	CHƯA CÓ	lệnh đối tượng do máy chủ/AI ra (di chuyển, đánh, dùng kỹ năng); client chỉ có WalkOrder/Strike cục bộ	probe 'WalkOrder': thấy src/client/app/client/display/graphic/play.cpp
+CObjectCommand_StopLogic	0x140c15a10	2	CObjectCommand	CHƯA CÓ	lệnh đối tượng do máy chủ/AI ra (di chuyển, đánh, dùng kỹ năng); client chỉ có WalkOrder/Strike cục bộ	probe 'WalkOrder': thấy src/client/app/client/display/graphic/play.cpp
+CObjectCommand_StopMove	0x140c15a80	2	CObjectCommand_StopLogic,CObjectCommand	CHƯA CÓ	lệnh đối tượng do máy chủ/AI ra (di chuyển, đánh, dùng kỹ năng); client chỉ có WalkOrder/Strike cục bộ	probe 'WalkOrder': thấy src/client/app/client/display/graphic/play.cpp
+CObjectLoadQueue	0x140c11b68	1		CHƯA CÓ	không có bộ quản lý đối tượng trong cảnh (Stage thiếu Actor, kOtherActor còn là stub)	probe 'kOtherActor': thấy src/client/app/client/display/assets.hpp
+CObjectManager	0x140c17398	40	tObjectSystem,tNode	CHƯA CÓ	không có bộ quản lý đối tượng trong cảnh (Stage thiếu Actor, kOtherActor còn là stub)	probe 'kOtherActor': thấy src/client/app/client/display/assets.hpp
+CObject_AttachBieYeItem	0x140c13df8	90	CObject_BieYeItem,CObject_MoveBuilding,CObject_Static,CObject_Map,CObject_Phy,CObject,tObject,tNode	CHƯA CÓ	chưa có NPC, quái, người chơi khác, xe, đạn, hiệu ứng bề mặt, vòng chọn	
+CObject_BieYeBuilding	0x140c140d8	84	CObject_Static,CObject_Map,CObject_Phy,CObject,tObject,tNode	CHƯA CÓ	chưa có NPC, quái, người chơi khác, xe, đạn, hiệu ứng bề mặt, vòng chọn	
+CObject_BieYeItem	0x140c13b18	90	CObject_MoveBuilding,CObject_Static,CObject_Map,CObject_Phy,CObject,tObject,tNode	CHƯA CÓ	chưa có NPC, quái, người chơi khác, xe, đạn, hiệu ứng bề mặt, vòng chọn	
+CObject_BlueCircle	0x140c12418	83	CObject_Static,CObject_Map,CObject_Phy,CObject,tObject,tNode	CHƯA CÓ	chưa có NPC, quái, người chơi khác, xe, đạn, hiệu ứng bề mặt, vòng chọn	
+CObject_Building	0x140c135c8	83	CObject_Static,CObject_Map,CObject_Phy,CObject,tObject,tNode	MỘT PHẦN	vật thể công trình ở place/scene + shared/collision (.WCollision, nâng chân)	probe 'WCollision|building': thấy src/client/app/client/boot.cpp
+CObject_Building2	0x140c13868	84	CObject_Static,CObject_Map,CObject_Phy,CObject,tObject,tNode	MỘT PHẦN	vật thể công trình ở place/scene + shared/collision (.WCollision, nâng chân)	probe 'WCollision|building': thấy src/client/app/client/boot.cpp
+CObject_Bullet	0x140c26228	83	CObject_Effect,CObject_Surface,CObject_Phy,CObject,tObject,tNode	CHƯA CÓ	chưa có NPC, quái, người chơi khác, xe, đạn, hiệu ứng bề mặt, vòng chọn	
+CObject_Bus	0x140c17ef8	87	CObject_Dynamic,CObject_Map,CObject_Phy,CObject,tObject,tNode	CHƯA CÓ	chưa có NPC, quái, người chơi khác, xe, đạn, hiệu ứng bề mặt, vòng chọn	
+CObject_Character	0x140c1a848	128	CObject_Dynamic,CObject_Map,CObject_Phy,CObject,tObject,tNode	MỘT PHẦN	app/client/display/player + figure/avatar (xương, dáng đi, đòn đánh, vũ khí); không có logic do máy chủ điều khiển	probe 'PlayerActor': thấy src/client/app/client/display/player.cpp
+CObject_Dynamic	0x140c14828	84	CObject_Map,CObject_Phy,CObject,tObject,tNode	MỘT PHẦN	app/client/display/player + figure/avatar (xương, dáng đi, đòn đánh, vũ khí); không có logic do máy chủ điều khiển	probe 'PlayerActor': thấy src/client/app/client/display/player.cpp
+CObject_Effect	0x140c264f8	83	CObject_Surface,CObject_Phy,CObject,tObject,tNode	CÓ	place/scene (vật thể tĩnh) và place/fx (hiệu ứng)	probe 'PlacedProp|fx::': thấy src/client/app/client/display/fx_view.cpp
+CObject_FakeSWItem	0x140c14388	88	CObject_MoveBuilding,CObject_Static,CObject_Map,CObject_Phy,CObject,tObject,tNode	CHƯA CÓ	chưa có NPC, quái, người chơi khác, xe, đạn, hiệu ứng bề mặt, vòng chọn	
+CObject_Map	0x140c14bb8	82	CObject_Phy,CObject,tObject,tNode	MỘT PHẦN	vị trí/va chạm rải ở figure/control/ground + shared/collision; không có lớp nền chung	probe 'ground': thấy src/client/figure/avatar/gait.hpp
+CObject_Phy	0x140c14f48	82	CObject,tObject,tNode	MỘT PHẦN	vị trí/va chạm rải ở figure/control/ground + shared/collision; không có lớp nền chung	probe 'ground': thấy src/client/figure/avatar/gait.hpp
+CObject_PlayerInfant	0x140c1d248	128	CObject_PlayerNPC,CObject_Character,CObject_Dynamic,CObject_Map,CObject_Phy,CObject,tObject,tNode	CHƯA CÓ	chưa có NPC, quái, người chơi khác, xe, đạn, hiệu ứng bề mặt, vòng chọn	
+CObject_PlayerMySelf	0x140c1f678	128	CObject_PlayerOther,CObject_PlayerNPC,CObject_Character,CObject_Dynamic,CObject_Map,CObject_Phy,CObject,tObject,tNode	MỘT PHẦN	app/client/display/player + figure/avatar (xương, dáng đi, đòn đánh, vũ khí); không có logic do máy chủ điều khiển	probe 'PlayerActor': thấy src/client/app/client/display/player.cpp
+CObject_PlayerNPC	0x140c21268	128	CObject_Character,CObject_Dynamic,CObject_Map,CObject_Phy,CObject,tObject,tNode	CHƯA CÓ	chưa có NPC, quái, người chơi khác, xe, đạn, hiệu ứng bề mặt, vòng chọn	
+CObject_PlayerOther	0x140c23028	128	CObject_PlayerNPC,CObject_Character,CObject_Dynamic,CObject_Map,CObject_Phy,CObject,tObject,tNode	CHƯA CÓ	chưa có NPC, quái, người chơi khác, xe, đạn, hiệu ứng bề mặt, vòng chọn	
+CObject_PlayerSummoner	0x140c23dd8	128	CObject_PlayerNPC,CObject_Character,CObject_Dynamic,CObject_Map,CObject_Phy,CObject,tObject,tNode	CHƯA CÓ	chưa có NPC, quái, người chơi khác, xe, đạn, hiệu ứng bề mặt, vòng chọn	
+CObject_ProjTex	0x140c258a8	84	CObject_Static,CObject_Map,CObject_Phy,CObject,tObject,tNode	CHƯA CÓ	chưa có NPC, quái, người chơi khác, xe, đạn, hiệu ứng bề mặt, vòng chọn	
+CObject_ProjTex_AuraDure	0x140c25e08	84	CObject_ProjTex,CObject_Static,CObject_Map,CObject_Phy,CObject,tObject,tNode	CHƯA CÓ	chưa có NPC, quái, người chơi khác, xe, đạn, hiệu ứng bề mặt, vòng chọn	
+CObject_ProjTex_MouseTarget	0x140c25b58	84	CObject_ProjTex,CObject_Static,CObject_Map,CObject_Phy,CObject,tObject,tNode	CHƯA CÓ	chưa có NPC, quái, người chơi khác, xe, đạn, hiệu ứng bề mặt, vòng chọn	
+CObject_Special	0x140c26968	83	CObject_Effect,CObject_Surface,CObject_Phy,CObject,tObject,tNode	CHƯA CÓ	chưa có NPC, quái, người chơi khác, xe, đạn, hiệu ứng bề mặt, vòng chọn	
+CObject_Static	0x140c15218	82	CObject_Map,CObject_Phy,CObject,tObject,tNode	CÓ	place/scene (vật thể tĩnh) và place/fx (hiệu ứng)	probe 'PlacedProp|fx::': thấy src/client/app/client/display/fx_view.cpp
+CObject_Surface	0x140c26c38	82	CObject_Phy,CObject,tObject,tNode	CHƯA CÓ	chưa có NPC, quái, người chơi khác, xe, đạn, hiệu ứng bề mặt, vòng chọn	
+CPath	0x140c68bd0	1		MỘT PHẦN	place/scene, app/client/world, shared/nav (.path)	probe 'SceneFile|PathFinder|nav::': thấy src/client/place/scene/scene_file.cpp
+CPetPossPositionMgr	0x140c17940	1		CHƯA CÓ	chưa có thú cưng	
+CScene	0x140c65f78	24	tScene	MỘT PHẦN	place/scene, app/client/world, shared/nav (.path)	probe 'SceneFile|PathFinder|nav::': thấy src/client/place/scene/scene_file.cpp
+CScriptEnvironment	0x140c57d40	6	tScriptEnvironment	KHÁC THIẾT KẾ	môi trường Lua; client dự án không nhúng Lua	
+CScriptSystem	0x140c57d78	20	tScriptSystem,tNode	KHÁC THIẾT KẾ	môi trường Lua; client dự án không nhúng Lua	
+CServerObjectManager	0x140c17cb0	1		CHƯA CÓ	không có bộ quản lý đối tượng trong cảnh (Stage thiếu Actor, kOtherActor còn là stub)	probe 'kOtherActor': thấy src/client/app/client/display/assets.hpp
+CSoundBufferFMod	0x140c5a1b0	3	tSoundBuffer	MỘT PHẦN	engine/audio (miniaudio, nhạc nền theo cảnh); chưa có tiếng hiệu ứng	probe 'audio': thấy src/client/app/client/android_main.cpp
+CSoundSourceFMod	0x140c5bc68	29	tSoundSource	MỘT PHẦN	engine/audio (miniaudio, nhạc nền theo cảnh); chưa có tiếng hiệu ứng	probe 'audio': thấy src/client/app/client/android_main.cpp
+CTDProfileBase	0x140c5c5e0	1		KHÔNG ÁP DỤNG	SDK/dịch vụ bên thứ ba của bản gốc (Rail, anti-cheat, thống kê, tải crash, WeGame, profiler)	
+CTDProfileEntity	0x140c5c5f0	1	CTDProfileBase	KHÔNG ÁP DỤNG	SDK/dịch vụ bên thứ ba của bản gốc (Rail, anti-cheat, thống kê, tải crash, WeGame, profiler)	
+CTU::CTUClientEntityShellImpl	0x140d2ca38	7	CTU::CTUClientEntity	KHÔNG ÁP DỤNG	SDK/dịch vụ bên thứ ba của bản gốc (Rail, anti-cheat, thống kê, tải crash, WeGame, profiler)	
+CTimerManager	0x140c5e898	22	tTimerSystem,tNode	MỘT PHẦN	engine/core đồng hồ và FixedStep	probe 'FixedStep': thấy src/client/app/client/mobile_probe.cpp
+CTransferItemSystem	0x140c60ee8	71	tTransferItemSystem,tNode	CHƯA CÓ	chưa có hệ vật phẩm (hành trang, trang bị thật, chuyển vật phẩm); chỉ có bảng và vũ khí cầm tay thử	probe 'WeaponItemRow': thấy src/client/figure/look/look.cpp
+CTripperObject_ItemBox	0x140c270f8	82	CTripperObject,CObject_Static,CObject_Map,CObject_Phy,CObject,tObject,tNode	CHƯA CÓ	chưa có vật thể tương tác (bục, tài nguyên)	
+CTripperObject_Platform	0x140c275f8	83	CTripperObject,CObject_Static,CObject_Map,CObject_Phy,CObject,tObject,tNode	CHƯA CÓ	chưa có vật thể tương tác (bục, tài nguyên)	
+CTripperObject_Resource	0x140c27d68	82	CTripperObject,CObject_Static,CObject_Map,CObject_Phy,CObject,tObject,tNode	CHƯA CÓ	chưa có vật thể tương tác (bục, tài nguyên)	
+CTripperObject_Transport	0x140c28058	82	CTripperObject,CObject_Static,CObject_Map,CObject_Phy,CObject,tObject,tNode	CHƯA CÓ	chưa có vật thể tương tác (bục, tài nguyên)	
+CUICommandSystem	0x140b0bf00	1		KHÁC THIẾT KẾ	ui/panel gọi trực tiếp; không có bus sự kiện PushEvent (docs ghi SU-KIEN-GAME.tsv)	probe 'press_|Clicked': thấy src/client/figure/control/player_input.cpp
+CUIDataPool	0x140a60228	23	tDataPool,tNode	MỘT PHẦN	ui/panel dùng dữ liệu cục bộ; chưa có DataPool chung và bóng tin nhắn	probe 'hero::': thấy src/client/face/ui/hud.cpp
+CVariableSystem	0x140c63f48	37	tVariableSystem,tNode	CHƯA CÓ	không có hệ biến cấu hình/phiên bản chạy như bản gốc (client dùng options CLI)	
+CVersionSystem	0x140c640c8	17	tVersionSystem,tNode	CHƯA CÓ	không có hệ biến cấu hình/phiên bản chạy như bản gốc (client dùng options CLI)	
+CWorldManager	0x140c68388	47	tWorldSystem,tNode	MỘT PHẦN	place/scene, app/client/world, shared/nav (.path)	probe 'SceneFile|PathFinder|nav::': thấy src/client/place/scene/scene_file.cpp
+CYouServerPluginsDlCClient::GLZOBuffer	0x140c709c8	2		KHÔNG ÁP DỤNG	SDK/dịch vụ bên thứ ba của bản gốc (Rail, anti-cheat, thống kê, tải crash, WeGame, profiler)	
+CYouServerPluginsDlCClient::GLZOWrkMem	0x140c709e0	2	CYouServerPluginsDlCClient::GLZOBuffer	KHÔNG ÁP DỤNG	SDK/dịch vụ bên thứ ba của bản gốc (Rail, anti-cheat, thống kê, tải crash, WeGame, profiler)	
+CYouServerPluginsDlCClient::ParsedURI	0x140c6ff60	1		KHÔNG ÁP DỤNG	SDK/dịch vụ bên thứ ba của bản gốc (Rail, anti-cheat, thống kê, tải crash, WeGame, profiler)	
+CYouServerPluginsDlCClient::Thread	0x140c70150	3		KHÔNG ÁP DỤNG	SDK/dịch vụ bên thứ ba của bản gốc (Rail, anti-cheat, thống kê, tải crash, WeGame, profiler)	
+CYouServerPluginsDlCClient::UploadThread	0x140c6ffb0	3	CYouServerPluginsDlCClient::Thread	KHÔNG ÁP DỤNG	SDK/dịch vụ bên thứ ba của bản gốc (Rail, anti-cheat, thống kê, tải crash, WeGame, profiler)	
+CZone	0x140c65f60	1		MỘT PHẦN	place/scene, app/client/world, shared/nav (.path)	probe 'SceneFile|PathFinder|nav::': thấy src/client/place/scene/scene_file.cpp
+CalcTargetNum	0x140a57da0	1	ObjectFilter	CHƯA CÓ	bộ lọc chọn mục tiêu (quái/NPC/người chơi gần nhất) cho AI/kỹ năng chưa có	
+ChannelElement	0x140c60a68	8	CElement,tTransferItemSystem::Element	CHƯA CÓ	phần tử danh sách giao diện/quan hệ chưa có (chưa có bạn bè, đội, thú, shop, thành tích...)	
+ChildFashionDepotElement	0x140c60888	8	CElement,tTransferItemSystem::Element	CHƯA CÓ	phần tử danh sách giao diện/quan hệ chưa có (chưa có bạn bè, đội, thú, shop, thành tích...)	
+Citem_CampaignTable	0x140bc63c8	83	CItem,tItem	CHƯA CÓ	chưa có hệ vật phẩm (hành trang, trang bị thật, chuyển vật phẩm); chỉ có bảng và vũ khí cầm tay thử	probe 'WeaponItemRow': thấy src/client/figure/look/look.cpp
+Citem_InfantCard	0x140bcdbc8	88	CItem,tItem	CHƯA CÓ	chưa có hệ vật phẩm (hành trang, trang bị thật, chuyển vật phẩm); chỉ có bảng và vũ khí cầm tay thử	probe 'WeaponItemRow': thấy src/client/figure/look/look.cpp
+ClientFYPVEManager	0x140a6f538	1		CHƯA CÓ	quản lý hoạt động/PVP/phim của bản gốc chưa có	
+ClientMovieBridge	0x140c29848	6	tMovieDataBridge	CHƯA CÓ	quản lý hoạt động/PVP/phim của bản gốc chưa có	
+ClientQXPVPManager	0x140a6f558	1		CHƯA CÓ	quản lý hoạt động/PVP/phim của bản gốc chưa có	
+ClientTLCJManager	0x140a6f508	1		CHƯA CÓ	quản lý hoạt động/PVP/phim của bản gốc chưa có	
+ClientXBWJHSManager	0x140a6f548	1		CHƯA CÓ	quản lý hoạt động/PVP/phim của bản gốc chưa có	
+ClientXBWManager	0x140a6f528	1		CHƯA CÓ	quản lý hoạt động/PVP/phim của bản gốc chưa có	
+ClientXRZPVPManager	0x140a6f518	1		CHƯA CÓ	quản lý hoạt động/PVP/phim của bản gốc chưa có	
+ClientZBSManager	0x140a6f4f8	1		CHƯA CÓ	quản lý hoạt động/PVP/phim của bản gốc chưa có	
+CryptBox	0x140c6f708	3	ICryptBox	KHÁC THIẾT KẾ	shared/secure dùng libsodium (bắt tay, bản ghi mã hoá)	probe 'sodium': thấy src/client/pack/seal/key.cpp
+CryptionBox::CryptBox	0x140c5be50	3		KHÁC THIẾT KẾ	shared/secure dùng libsodium (bắt tay, bản ghi mã hoá)	probe 'sodium': thấy src/client/pack/seal/key.cpp
+DBC::DBCFile	0x140c6ecb8	14		MỘT PHẦN	shared/table + TOOLS/content/dbc.py; nạp 46 bảng đã xuất, không nạp 598 bảng của bản gốc	probe 'dbc': thấy src/client/figure/hero/hero.cpp
+DFWGROUP_CGW_ASKDETAIL	0x140b80db0	3	DFWGROUP_PACKET	CHƯA CÓ	cấu trúc gói bang hội/Đại Phú Ông/lãnh địa chưa có	
+DFWGROUP_GW_CREATE	0x140b80cf0	3	DFWGROUP_PACKET	CHƯA CÓ	cấu trúc gói bang hội/Đại Phú Ông/lãnh địa chưa có	
+DFWGROUP_GW_DISMISS	0x140b80d10	3	DFWGROUP_PACKET	CHƯA CÓ	cấu trúc gói bang hội/Đại Phú Ông/lãnh địa chưa có	
+DFWGROUP_GW_JOIN	0x140b80d30	3	DFWGROUP_PACKET	CHƯA CÓ	cấu trúc gói bang hội/Đại Phú Ông/lãnh địa chưa có	
+DFWGROUP_GW_KICK	0x140b80d70	3	DFWGROUP_PACKET	CHƯA CÓ	cấu trúc gói bang hội/Đại Phú Ông/lãnh địa chưa có	
+DFWGROUP_GW_LEAVE	0x140b80d50	3	DFWGROUP_PACKET	CHƯA CÓ	cấu trúc gói bang hội/Đại Phú Ông/lãnh địa chưa có	
+DFWGROUP_GW_LOCK	0x140b80d90	3	DFWGROUP_PACKET	CHƯA CÓ	cấu trúc gói bang hội/Đại Phú Ông/lãnh địa chưa có	
+DFWGROUP_GW_SYNCTHROW	0x140b80dd0	3	DFWGROUP_PACKET	CHƯA CÓ	cấu trúc gói bang hội/Đại Phú Ông/lãnh địa chưa có	
+DFWGROUP_GW_TRYJOIN	0x140b80df0	3	DFWGROUP_PACKET	CHƯA CÓ	cấu trúc gói bang hội/Đại Phú Ông/lãnh địa chưa có	
+DFWGROUP_GW_TRYRECIVE	0x140b80e10	3	DFWGROUP_PACKET	CHƯA CÓ	cấu trúc gói bang hội/Đại Phú Ông/lãnh địa chưa có	
+DWTestListener	0x140a6f568	9	CT_Listener	KHÔNG ÁP DỤNG	SDK/dịch vụ bên thứ ba của bản gốc (Rail, anti-cheat, thống kê, tải crash, WeGame, profiler)	
+EPRule00	0x140b0bff8	4	IEPRule	CHƯA CÓ	ExcitPoint (điểm kích hoạt) chưa có	
+EPRule00Factory	0x140b0c3e0	4	IEPRuleFactory	CHƯA CÓ	ExcitPoint (điểm kích hoạt) chưa có	
+EPRule01	0x140b0c1e8	4	IEPRule	CHƯA CÓ	ExcitPoint (điểm kích hoạt) chưa có	
+EPRule01Factory	0x140b0c408	4	IEPRuleFactory	CHƯA CÓ	ExcitPoint (điểm kích hoạt) chưa có	
+EnemyList	0x140af3e28	9	RelationList	CHƯA CÓ	phần tử danh sách giao diện/quan hệ chưa có (chưa có bạn bè, đội, thú, shop, thành tích...)	
+ExteriorRideElement	0x140c607e8	8	CElement,tTransferItemSystem::Element	CHƯA CÓ	phần tử danh sách giao diện/quan hệ chưa có (chưa có bạn bè, đội, thú, shop, thành tích...)	
+ExteriorShareHyperLinkElement	0x140c60928	8	CElement,tTransferItemSystem::Element	CHƯA CÓ	phần tử danh sách giao diện/quan hệ chưa có (chưa có bạn bè, đội, thú, shop, thành tích...)	
+ExteriorWeaponElement	0x140c60798	8	CElement,tTransferItemSystem::Element	CHƯA CÓ	phần tử danh sách giao diện/quan hệ chưa có (chưa có bạn bè, đội, thú, shop, thành tích...)	
+FashionDepotElement	0x140c60838	8	CElement,tTransferItemSystem::Element	CHƯA CÓ	phần tử danh sách giao diện/quan hệ chưa có (chưa có bạn bè, đội, thú, shop, thành tích...)	
+FindAMonster	0x140a57c08	1	ObjectFilter	CHƯA CÓ	bộ lọc chọn mục tiêu (quái/NPC/người chơi gần nhất) cho AI/kỹ năng chưa có	
+FindAMonsterInRange	0x140bc52a0	1	ObjectFilter	CHƯA CÓ	bộ lọc chọn mục tiêu (quái/NPC/người chơi gần nhất) cho AI/kỹ năng chưa có	
+FindAMonsterOccupateMe	0x140bc52c0	1	ObjectFilter	CHƯA CÓ	bộ lọc chọn mục tiêu (quái/NPC/người chơi gần nhất) cho AI/kỹ năng chưa có	
+FindAliveNPC	0x140c12030	1	ObjectFilter	CHƯA CÓ	bộ lọc chọn mục tiêu (quái/NPC/người chơi gần nhất) cho AI/kỹ năng chưa có	
+FindAlivePlayer	0x140c121e0	1	ObjectFilter	CHƯA CÓ	bộ lọc chọn mục tiêu (quái/NPC/người chơi gần nhất) cho AI/kỹ năng chưa có	
+FindFriendAD_DetailInfo	0x140cbfdb0	3	FindFriendAD_Packet	CHƯA CÓ	bộ lọc chọn mục tiêu (quái/NPC/người chơi gần nhất) cho AI/kỹ năng chưa có	
+FindFriendAD_VoteInfo_Packets	0x140cbfd90	3	FindFriendAD_Packet	CHƯA CÓ	bộ lọc chọn mục tiêu (quái/NPC/người chơi gần nhất) cho AI/kỹ năng chưa có	
+FindMonsterInRange_LessHp	0x140bc52e0	1	ObjectFilter	CHƯA CÓ	bộ lọc chọn mục tiêu (quái/NPC/người chơi gần nhất) cho AI/kỹ năng chưa có	
+FindMonsterInRange_MoreHp	0x140bc52d0	1	ObjectFilter	CHƯA CÓ	bộ lọc chọn mục tiêu (quái/NPC/người chơi gần nhất) cho AI/kỹ năng chưa có	
+FindMonsterInRange_NearestLessHp	0x140bc52f0	1	ObjectFilter	CHƯA CÓ	bộ lọc chọn mục tiêu (quái/NPC/người chơi gần nhất) cho AI/kỹ năng chưa có	
+FindNPCInRange	0x140bc5320	1	ObjectFilter	CHƯA CÓ	bộ lọc chọn mục tiêu (quái/NPC/người chơi gần nhất) cho AI/kỹ năng chưa có	
+FindNearestMonster	0x140c11f60	1	ObjectFilter	CHƯA CÓ	bộ lọc chọn mục tiêu (quái/NPC/người chơi gần nhất) cho AI/kỹ năng chưa có	
+FindNearestMonsterInRange	0x140bc52b0	1	ObjectFilter	CHƯA CÓ	bộ lọc chọn mục tiêu (quái/NPC/người chơi gần nhất) cho AI/kỹ năng chưa có	
+FindPetInRange	0x140bc5340	1	ObjectFilter	CHƯA CÓ	bộ lọc chọn mục tiêu (quái/NPC/người chơi gần nhất) cho AI/kỹ năng chưa có	
+FindPlayerInRange	0x140c121d0	1	ObjectFilter	CHƯA CÓ	bộ lọc chọn mục tiêu (quái/NPC/người chơi gần nhất) cho AI/kỹ năng chưa có	
+FindPlayerInRangeWithLogicType	0x140bc5310	1	ObjectFilter	CHƯA CÓ	bộ lọc chọn mục tiêu (quái/NPC/người chơi gần nhất) cho AI/kỹ năng chưa có	
+FindResourceInRange	0x140bc5300	1	ObjectFilter	CHƯA CÓ	bộ lọc chọn mục tiêu (quái/NPC/người chơi gần nhất) cho AI/kỹ năng chưa có	
+FindTheClosestNPC	0x140bc5330	1	ObjectFilter	CHƯA CÓ	bộ lọc chọn mục tiêu (quái/NPC/người chơi gần nhất) cho AI/kỹ năng chưa có	
+FindTheClosestPlayer	0x140c121f0	1	ObjectFilter	CHƯA CÓ	bộ lọc chọn mục tiêu (quái/NPC/người chơi gần nhất) cho AI/kỹ năng chưa có	
+FingerList	0x140af3f18	9	RelationList	CHƯA CÓ	phần tử danh sách giao diện/quan hệ chưa có (chưa có bạn bè, đội, thú, shop, thành tích...)	
+FoeList	0x140af3ec8	9	RelationList	CHƯA CÓ	phần tử danh sách giao diện/quan hệ chưa có (chưa có bạn bè, đội, thú, shop, thành tích...)	
+FriendList	0x140af3d38	9	RelationList	CHƯA CÓ	phần tử danh sách giao diện/quan hệ chưa có (chưa có bạn bè, đội, thú, shop, thành tích...)	
+GUILD_CGW_ADJUSTAUTH	0x140b99c28	3	GUILD_PACKET	CHƯA CÓ	cấu trúc gói bang hội/Đại Phú Ông/lãnh địa chưa có	
+GUILD_CGW_APPOINT	0x140b99be8	3	GUILD_PACKET	CHƯA CÓ	cấu trúc gói bang hội/Đại Phú Ông/lãnh địa chưa có	
+GUILD_CGW_ASKCAMPAINERLIST	0x140b99e28	3	GUILD_PACKET	CHƯA CÓ	cấu trúc gói bang hội/Đại Phú Ông/lãnh địa chưa có	
+GUILD_CGW_ASKINFO	0x140b99bc0	4	GUILD_PACKET	CHƯA CÓ	cấu trúc gói bang hội/Đại Phú Ông/lãnh địa chưa có	
+GUILD_CGW_ASKKVKBOSSPARAM	0x140b99e08	3	GUILD_PACKET	CHƯA CÓ	cấu trúc gói bang hội/Đại Phú Ông/lãnh địa chưa có	
+GUILD_CGW_ASKLIST	0x140b99b20	3	GUILD_PACKET	CHƯA CÓ	cấu trúc gói bang hội/Đại Phú Ông/lãnh địa chưa có	
+GUILD_CGW_ASKLISTWITHCITY	0x140b99d48	3	GUILD_PACKET	CHƯA CÓ	cấu trúc gói bang hội/Đại Phú Ông/lãnh địa chưa có	
+GUILD_CGW_ASKNAMELIST	0x140b99b40	3	GUILD_PACKET	CHƯA CÓ	cấu trúc gói bang hội/Đại Phú Ông/lãnh địa chưa có	
+GUILD_CGW_ASK_GIFT_LOG	0x140b99b60	3	GUILD_PACKET	CHƯA CÓ	cấu trúc gói bang hội/Đại Phú Ông/lãnh địa chưa có	
+GUILD_CGW_BACK_CITY	0x140b99d08	3	GUILD_PACKET	CHƯA CÓ	cấu trúc gói bang hội/Đại Phú Ông/lãnh địa chưa có	
+GUILD_CGW_CHANG_DESC	0x140b99f08	3	GUILD_PACKET	CHƯA CÓ	cấu trúc gói bang hội/Đại Phú Ông/lãnh địa chưa có	
+GUILD_CGW_CLEAR_JOIN_INFO	0x140b99e68	3	GUILD_PACKET	CHƯA CÓ	cấu trúc gói bang hội/Đại Phú Ông/lãnh địa chưa có	
+GUILD_CGW_COM_MISS_COMPLETE	0x140b99ee8	3	GUILD_PACKET	CHƯA CÓ	cấu trúc gói bang hội/Đại Phú Ông/lãnh địa chưa có	
+GUILD_CGW_CREATE	0x140b99b80	3	GUILD_PACKET	CHƯA CÓ	cấu trúc gói bang hội/Đại Phú Ông/lãnh địa chưa có	
+GUILD_CGW_DEMISE	0x140b99cc8	3	GUILD_PACKET	CHƯA CÓ	cấu trúc gói bang hội/Đại Phú Ông/lãnh địa chưa có	
+GUILD_CGW_DEPOSIT	0x140b99ca8	3	GUILD_PACKET	CHƯA CÓ	cấu trúc gói bang hội/Đại Phú Ông/lãnh địa chưa có	
+GUILD_CGW_EXPEL	0x140b99c68	3	GUILD_PACKET	CHƯA CÓ	cấu trúc gói bang hội/Đại Phú Ông/lãnh địa chưa có	
+GUILD_CGW_FIRSTMAN	0x140b99c08	3	GUILD_PACKET	CHƯA CÓ	cấu trúc gói bang hội/Đại Phú Ông/lãnh địa chưa có	
+GUILD_CGW_GET_POSITION_NAME	0x140b99ea8	3	GUILD_PACKET	CHƯA CÓ	cấu trúc gói bang hội/Đại Phú Ông/lãnh địa chưa có	
+GUILD_CGW_JOIN	0x140b99ba0	3	GUILD_PACKET	CHƯA CÓ	cấu trúc gói bang hội/Đại Phú Ông/lãnh địa chưa có	
+GUILD_CGW_LEAVE	0x140b99ce8	3	GUILD_PACKET	CHƯA CÓ	cấu trúc gói bang hội/Đại Phú Ông/lãnh địa chưa có	
+GUILD_CGW_MODIFY_LEAVE_WORD	0x140b99f28	3	GUILD_PACKET	CHƯA CÓ	cấu trúc gói bang hội/Đại Phú Ông/lãnh địa chưa có	
+GUILD_CGW_PROMOTE_CHIEF	0x140b99d28	3	GUILD_PACKET	CHƯA CÓ	cấu trúc gói bang hội/Đại Phú Ông/lãnh địa chưa có	
+GUILD_CGW_RECRUIT	0x140b99c48	3	GUILD_PACKET	CHƯA CÓ	cấu trúc gói bang hội/Đại Phú Ông/lãnh địa chưa có	
+GUILD_CGW_REFLASHEP	0x140b99e48	3	GUILD_PACKET	CHƯA CÓ	cấu trúc gói bang hội/Đại Phú Ông/lãnh địa chưa có	
+GUILD_CGW_REQUEST_POSITION_NAME	0x140b99ec8	3	GUILD_PACKET	CHƯA CÓ	cấu trúc gói bang hội/Đại Phú Ông/lãnh địa chưa có	
+GUILD_CGW_SETCOMMANDER	0x140b99da8	3	GUILD_PACKET	CHƯA CÓ	cấu trúc gói bang hội/Đại Phú Ông/lãnh địa chưa có	
+GUILD_CGW_TIANDAO	0x140b99de8	3	GUILD_PACKET	CHƯA CÓ	cấu trúc gói bang hội/Đại Phú Ông/lãnh địa chưa có	
+GUILD_CGW_TRY_ELECTION	0x140b99d68	3	GUILD_PACKET	CHƯA CÓ	cấu trúc gói bang hội/Đại Phú Ông/lãnh địa chưa có	
+GUILD_CGW_VOTECAMPAIGN	0x140b99d88	3	GUILD_PACKET	CHƯA CÓ	cấu trúc gói bang hội/Đại Phú Ông/lãnh địa chưa có	
+GUILD_CGW_WITHDRAW	0x140b99c88	3	GUILD_PACKET	CHƯA CÓ	cấu trúc gói bang hội/Đại Phú Ông/lãnh địa chưa có	
+GUILD_CGW_ZHIZUNEQUIP	0x140b99dc8	3	GUILD_PACKET	CHƯA CÓ	cấu trúc gói bang hội/Đại Phú Ông/lãnh địa chưa có	
+GUILD_GW_ASKFULIPOINTINFO	0x140b99f48	3	GUILD_PACKET	CHƯA CÓ	cấu trúc gói bang hội/Đại Phú Ông/lãnh địa chưa có	
+GUILD_GW_OPERFULIPOINT	0x140b99f68	3	GUILD_PACKET	CHƯA CÓ	cấu trúc gói bang hội/Đại Phú Ông/lãnh địa chưa có	
+GUILD_POSITION_NAME_LIST	0x140b99e88	3	GUILD_PACKET	CHƯA CÓ	cấu trúc gói bang hội/Đại Phú Ông/lãnh địa chưa có	
+GUILD_WGC_APPOINT_INFO	0x140c90478	3	GUILD_PACKET	CHƯA CÓ	cấu trúc gói bang hội/Đại Phú Ông/lãnh địa chưa có	
+GUILD_WGC_FIRSTMAN	0x140c90498	3	GUILD_PACKET	CHƯA CÓ	cấu trúc gói bang hội/Đại Phú Ông/lãnh địa chưa có	
+GUILD_WGC_FULIPOINT_INFO	0x140c903f8	3	GUILD_PACKET	CHƯA CÓ	cấu trúc gói bang hội/Đại Phú Ông/lãnh địa chưa có	
+GUILD_WGC_GUILDWITHCITY_LIST	0x140c90598	3	GUILD_PACKET	CHƯA CÓ	cấu trúc gói bang hội/Đại Phú Ông/lãnh địa chưa có	
+GUILD_WGC_GUILD_INFO	0x140c904b8	3	GUILD_PACKET	CHƯA CÓ	cấu trúc gói bang hội/Đại Phú Ông/lãnh địa chưa có	
+GUILD_WGC_LIST	0x140c904f8	3	GUILD_PACKET	CHƯA CÓ	cấu trúc gói bang hội/Đại Phú Ông/lãnh địa chưa có	
+GUILD_WGC_LISTCAMPAINER	0x140c90558	3	GUILD_PACKET	CHƯA CÓ	cấu trúc gói bang hội/Đại Phú Ông/lãnh địa chưa có	
+GUILD_WGC_MEMBER_LIST	0x140c904d8	3	GUILD_PACKET	CHƯA CÓ	cấu trúc gói bang hội/Đại Phú Ông/lãnh địa chưa có	
+GUILD_WGC_NAMELIST	0x140c90518	3	GUILD_PACKET	CHƯA CÓ	cấu trúc gói bang hội/Đại Phú Ông/lãnh địa chưa có	
+GUILD_WGC_REFLASHEP	0x140c905b8	3	GUILD_PACKET	CHƯA CÓ	cấu trúc gói bang hội/Đại Phú Ông/lãnh địa chưa có	
+GUILD_WGC_RETELECTIONINFO	0x140c90578	3	GUILD_PACKET	CHƯA CÓ	cấu trúc gói bang hội/Đại Phú Ông/lãnh địa chưa có	
+GUILD_WGC_RETKVKBOSSPARAM	0x140c903d8	3	GUILD_PACKET	CHƯA CÓ	cấu trúc gói bang hội/Đại Phú Ông/lãnh địa chưa có	
+GUILD_WGC_RET_OPER_FULIPOINT	0x140c90418	3	GUILD_PACKET	CHƯA CÓ	cấu trúc gói bang hội/Đại Phú Ông/lãnh địa chưa có	
+GUILD_WGC_SELF_GUILD_INFO	0x140c90538	3	GUILD_PACKET	CHƯA CÓ	cấu trúc gói bang hội/Đại Phú Ông/lãnh địa chưa có	
+GUILD_WGC_TIANDAO	0x140c90458	3	GUILD_PACKET	CHƯA CÓ	cấu trúc gói bang hội/Đại Phú Ông/lãnh địa chưa có	
+GUILD_WGC_ZHIZUNEQUIP	0x140c90438	3	GUILD_PACKET	CHƯA CÓ	cấu trúc gói bang hội/Đại Phú Ông/lãnh địa chưa có	
+GUILD_WG_ALLIANCEINFO	0x140c905d8	3	GUILD_PACKET	CHƯA CÓ	cấu trúc gói bang hội/Đại Phú Ông/lãnh địa chưa có	
+GUILD_WG_UPDATEEQUIPSCORE	0x140c905f8	3	GUILD_PACKET	CHƯA CÓ	cấu trúc gói bang hội/Đại Phú Ông/lãnh địa chưa có	
+GameLink	0x140bd0960	3		KHÁC THIẾT KẾ	shared/link và protocol của dự án	probe 'link': thấy src/client/place/fx/billboard.cpp
+GameLinkClient	0x140bd09a0	3	GameLink	KHÁC THIẾT KẾ	shared/link và protocol của dự án	probe 'link': thấy src/client/place/fx/billboard.cpp
+GameLinkServer	0x140bd0980	3	GameLink	KHÁC THIẾT KẾ	shared/link và protocol của dự án	probe 'link': thấy src/client/place/fx/billboard.cpp
+GangT_CGW_AskFight	0x140c9cf70	3	GangTerritory_Packet	CHƯA CÓ	cấu trúc gói bang hội/Đại Phú Ông/lãnh địa chưa có	
+GangT_CGW_AskFinalList	0x140c9cff0	3	GangTerritory_Packet	CHƯA CÓ	cấu trúc gói bang hội/Đại Phú Ông/lãnh địa chưa có	
+GangT_CGW_AskJoin	0x140c9cfb0	3	GangTerritory_Packet	CHƯA CÓ	cấu trúc gói bang hội/Đại Phú Ông/lãnh địa chưa có	
+GangT_CGW_AskList	0x140c9cf30	3	GangTerritory_Packet	CHƯA CÓ	cấu trúc gói bang hội/Đại Phú Ông/lãnh địa chưa có	
+GangT_CGW_SendFightResult	0x140c9d030	3	GangTerritory_Packet	CHƯA CÓ	cấu trúc gói bang hội/Đại Phú Ông/lãnh địa chưa có	
+GangT_CGW_SendMail	0x140c9d050	3	GangTerritory_Packet	CHƯA CÓ	cấu trúc gói bang hội/Đại Phú Ông/lãnh địa chưa có	
+GangT_WGC_RetAskFight	0x140c9cf90	3	GangTerritory_Packet	CHƯA CÓ	cấu trúc gói bang hội/Đại Phú Ông/lãnh địa chưa có	
+GangT_WGC_RetAskFinalList	0x140c9d010	3	GangTerritory_Packet	CHƯA CÓ	cấu trúc gói bang hội/Đại Phú Ông/lãnh địa chưa có	
+GangT_WGC_RetJoin	0x140c9cfd0	3	GangTerritory_Packet	CHƯA CÓ	cấu trúc gói bang hội/Đại Phú Ông/lãnh địa chưa có	
+GangT_WGC_RetList	0x140c9cf50	3	GangTerritory_Packet	CHƯA CÓ	cấu trúc gói bang hội/Đại Phú Ông/lãnh địa chưa có	
+GenericWork<<lambda_09c44ae34c9f62c0a88ce0ab346b556c>_>	0x140c2b7c8	4	IBkWorkData	KHÔNG ÁP DỤNG	mẫu/lambda hạ tầng sinh bởi trình dịch hoặc bọc Lua	
+GenericWork<<lambda_0fba36237d5a1d86df7e74817a8131da>_>	0x140c10540	4	IBkWorkData	KHÔNG ÁP DỤNG	mẫu/lambda hạ tầng sinh bởi trình dịch hoặc bọc Lua	
+GenericWork<<lambda_22b57fc007db8405d8db9db6706c3627>_>	0x140b2a648	4	IBkWorkData	KHÔNG ÁP DỤNG	mẫu/lambda hạ tầng sinh bởi trình dịch hoặc bọc Lua	
+GenericWork<<lambda_2c25c3c9538697cc09d262684b8d1710>_>	0x140c2d330	4	IBkWorkData	KHÔNG ÁP DỤNG	mẫu/lambda hạ tầng sinh bởi trình dịch hoặc bọc Lua	
+GenericWork<<lambda_37592d2cc5be09eb0c281469eebafae8>_>	0x140c11180	4	IBkWorkData	KHÔNG ÁP DỤNG	mẫu/lambda hạ tầng sinh bởi trình dịch hoặc bọc Lua	
+GenericWork<<lambda_405016b4c698382cc3ebcb855317f027>_>	0x140c2b750	4	IBkWorkData	KHÔNG ÁP DỤNG	mẫu/lambda hạ tầng sinh bởi trình dịch hoặc bọc Lua	
+GenericWork<<lambda_4bc29042bcff2c823b2ac440887a7421>_>	0x140c0fb90	4	IBkWorkData	KHÔNG ÁP DỤNG	mẫu/lambda hạ tầng sinh bởi trình dịch hoặc bọc Lua	
+GenericWork<<lambda_5d450ef652ebadf41b4f6e0d4cb77d5c>_>	0x140c2b728	4	IBkWorkData	KHÔNG ÁP DỤNG	mẫu/lambda hạ tầng sinh bởi trình dịch hoặc bọc Lua	
+GenericWork<<lambda_77d00ae86fe2001555bf87547d13868d>_>	0x140c2b7a0	4	IBkWorkData	KHÔNG ÁP DỤNG	mẫu/lambda hạ tầng sinh bởi trình dịch hoặc bọc Lua	
+GenericWork<<lambda_88cd71a7910a4494641ded77b9ec54d9>_>	0x140c111d0	4	IBkWorkData	KHÔNG ÁP DỤNG	mẫu/lambda hạ tầng sinh bởi trình dịch hoặc bọc Lua	
+GenericWork<<lambda_8f8bb008d9f033204437e0e23de37f1a>_>	0x140c2b778	4	IBkWorkData	KHÔNG ÁP DỤNG	mẫu/lambda hạ tầng sinh bởi trình dịch hoặc bọc Lua	
+GenericWork<<lambda_92af61a6cb6375c0b094a233b9e72bc6>_>	0x140c114b0	4	IBkWorkData	KHÔNG ÁP DỤNG	mẫu/lambda hạ tầng sinh bởi trình dịch hoặc bọc Lua	
+GenericWork<<lambda_9e2fd1a03b8ee27b7ba6a36c2e8e88c9>_>	0x140c2c8f0	4	IBkWorkData	KHÔNG ÁP DỤNG	mẫu/lambda hạ tầng sinh bởi trình dịch hoặc bọc Lua	
+GenericWork<<lambda_a6c06c041bd387dc85e7d5aa682df5ec>_>	0x140c10518	4	IBkWorkData	KHÔNG ÁP DỤNG	mẫu/lambda hạ tầng sinh bởi trình dịch hoặc bọc Lua	
+GenericWork<<lambda_b8f0244b9c09f5e085c4eb9c0a083682>_>	0x140c114d8	4	IBkWorkData	KHÔNG ÁP DỤNG	mẫu/lambda hạ tầng sinh bởi trình dịch hoặc bọc Lua	
+GenericWork<<lambda_c4aafc7358367cb707d1fb700ced6054>_>	0x140c0fbb8	4	IBkWorkData	KHÔNG ÁP DỤNG	mẫu/lambda hạ tầng sinh bởi trình dịch hoặc bọc Lua	
+GenericWork<<lambda_cbb1115c094656183926b326cc40be11>_>	0x140c111a8	4	IBkWorkData	KHÔNG ÁP DỤNG	mẫu/lambda hạ tầng sinh bởi trình dịch hoặc bọc Lua	
+GenericWork<<lambda_cde69444480caebf8fb1185e03773181>_>	0x140c11500	4	IBkWorkData	KHÔNG ÁP DỤNG	mẫu/lambda hạ tầng sinh bởi trình dịch hoặc bọc Lua	
+GenericWork<<lambda_ede8866448550f2fb8c13980a1e06b67>_>	0x140c0ff88	4	IBkWorkData	KHÔNG ÁP DỤNG	mẫu/lambda hạ tầng sinh bởi trình dịch hoặc bọc Lua	
+GongChengZhanBaoElement	0x140c60e48	8	CElement,tTransferItemSystem::Element	CHƯA CÓ	phần tử danh sách giao diện/quan hệ chưa có (chưa có bạn bè, đội, thú, shop, thành tích...)	
+GongChengZhanBaoElement_New	0x140c60e98	8	GongChengZhanBaoElement,CElement,tTransferItemSystem::Element	CHƯA CÓ	phần tử/giao diện của tính năng chưa có	
+HttpElement	0x140c60df8	8	CElement,tTransferItemSystem::Element	CHƯA CÓ	phần tử danh sách giao diện/quan hệ chưa có (chưa có bạn bè, đội, thú, shop, thành tích...)	
+HyperLinkElement	0x140c60a18	8	CElement,tTransferItemSystem::Element	CHƯA CÓ	phần tử danh sách giao diện/quan hệ chưa có (chưa có bạn bè, đội, thú, shop, thành tích...)	
+IODataStream	0x140b29220	2	InputStream,OutputStream	KHÁC THIẾT KẾ	engine/io, engine/fs; cấu hình bằng TOML/CLI	probe 'engine/io|fs::': thấy src/client/app/client/world/world.cpp
+IniFile	0x140c69a68	1		KHÁC THIẾT KẾ	engine/io, engine/fs; cấu hình bằng TOML/CLI	probe 'engine/io|fs::': thấy src/client/app/client/world/world.cpp
+InputStream	0x140b291f0	2		KHÁC THIẾT KẾ	engine/io, engine/fs; cấu hình bằng TOML/CLI	probe 'engine/io|fs::': thấy src/client/app/client/world/world.cpp
+InstallStatistics::InstallStatisticsAgent	0x140c81290	1		KHÔNG ÁP DỤNG	SDK/dịch vụ bên thứ ba của bản gốc (Rail, anti-cheat, thống kê, tải crash, WeGame, profiler)	
+ItemElement	0x140c60978	8	CElement,tTransferItemSystem::Element	CHƯA CÓ	chưa có hệ vật phẩm (hành trang, trang bị thật, chuyển vật phẩm); chỉ có bảng và vũ khí cầm tay thử	probe 'WeaponItemRow': thấy src/client/figure/look/look.cpp
+JsonProtocol::CProtocolDataBase	0x140c6fec0	3		KHÁC THIẾT KẾ	shared/link và protocol của dự án	probe 'link': thấy src/client/place/fx/billboard.cpp
+JsonProtocol::DLCClientExtData	0x140c6ff40	3	JsonProtocol::CProtocolDataBase	KHÁC THIẾT KẾ	shared/link và protocol của dự án	probe 'link': thấy src/client/place/fx/billboard.cpp
+JsonProtocol::EnterScenePlayerOption	0x140c6ff20	3	JsonProtocol::CProtocolDataBase	KHÁC THIẾT KẾ	shared/link và protocol của dự án	probe 'link': thấy src/client/place/fx/billboard.cpp
+JsonProtocol::ReportDataVersion1	0x140c6fee0	3	JsonProtocol::CProtocolDataBase	KHÁC THIẾT KẾ	shared/link và protocol của dự án	probe 'link': thấy src/client/place/fx/billboard.cpp
+JsonProtocol::ServerConnectInfo	0x140c6ff00	3	JsonProtocol::CProtocolDataBase	KHÁC THIẾT KẾ	shared/link và protocol của dự án	probe 'link': thấy src/client/place/fx/billboard.cpp
+LuaExport<CHelperSystem>	0x140c300b0	1		KHÔNG ÁP DỤNG	mẫu/lambda hạ tầng sinh bởi trình dịch hoặc bọc Lua	
+LuaExport<SCRIPT_SANDBOX::Macro>	0x140c57e20	1		KHÔNG ÁP DỤNG	mẫu/lambda hạ tầng sinh bởi trình dịch hoặc bọc Lua	
+LuaExport<SCRIPT_SANDBOX::SystemSetup>	0x140c57e48	1		KHÔNG ÁP DỤNG	mẫu/lambda hạ tầng sinh bởi trình dịch hoặc bọc Lua	
+MAP_POS_DEFINE	0x140c68338	7	TD_MAP_POS_DEFINE	CÓ	bảng ScenePosDefineEx / SceneDefineEx đã xuất và đọc (app/client/map, ui/panel/scene_table)	probe 'ScenePosDefineEx': thấy src/client/app/client/map/gates.hpp
+MsgBall	0x140af5508	1	AttrSet,.?AV?$RefCnt@VMsgBall@@@@	MỘT PHẦN	ui/panel dùng dữ liệu cục bộ; chưa có DataPool chung và bóng tin nhắn	probe 'hero::': thấy src/client/face/ui/hud.cpp
+MsgBallImp	0x140af57f8	4	AttrSet,.?AV?$RefCnt@VMsgBallImp@@@@	MỘT PHẦN	ui/panel dùng dữ liệu cục bộ; chưa có DataPool chung và bóng tin nhắn	probe 'hero::': thấy src/client/face/ui/hud.cpp
+MsgBallImp4	0x140af58c0	4	MsgBallImp,AttrSet,.?AV?$RefCnt@VMsgBallImp@@@@	MỘT PHẦN	ui/panel dùng dữ liệu cục bộ; chưa có DataPool chung và bóng tin nhắn	probe 'hero::': thấy src/client/face/ui/hud.cpp
+MsgBallImp5	0x140af58e8	4	MsgBallImp,AttrSet,.?AV?$RefCnt@VMsgBallImp@@@@	MỘT PHẦN	ui/panel dùng dữ liệu cục bộ; chưa có DataPool chung và bóng tin nhắn	probe 'hero::': thấy src/client/face/ui/hud.cpp
+MsgBallImp6	0x140af5910	4	MsgBallImp,AttrSet,.?AV?$RefCnt@VMsgBallImp@@@@	MỘT PHẦN	ui/panel dùng dữ liệu cục bộ; chưa có DataPool chung và bóng tin nhắn	probe 'hero::': thấy src/client/face/ui/hud.cpp
+MsgBallImpGuild	0x140af5870	4	MsgBallImp,AttrSet,.?AV?$RefCnt@VMsgBallImp@@@@	MỘT PHẦN	ui/panel dùng dữ liệu cục bộ; chưa có DataPool chung và bóng tin nhắn	probe 'hero::': thấy src/client/face/ui/hud.cpp
+MsgBallImpPlayer	0x140af5848	4	MsgBallImp,AttrSet,.?AV?$RefCnt@VMsgBallImp@@@@	MỘT PHẦN	ui/panel dùng dữ liệu cục bộ; chưa có DataPool chung và bóng tin nhắn	probe 'hero::': thấy src/client/face/ui/hud.cpp
+MsgBallImpSpecial	0x140af5820	4	MsgBallImp,AttrSet,.?AV?$RefCnt@VMsgBallImp@@@@	MỘT PHẦN	ui/panel dùng dữ liệu cục bộ; chưa có DataPool chung và bóng tin nhắn	probe 'hero::': thấy src/client/face/ui/hud.cpp
+MsgBallImpSystem	0x140af5898	4	MsgBallImp,AttrSet,.?AV?$RefCnt@VMsgBallImp@@@@	MỘT PHẦN	ui/panel dùng dữ liệu cục bộ; chưa có DataPool chung và bóng tin nhắn	probe 'hero::': thấy src/client/face/ui/hud.cpp
+MsgIODataStream	0x140b29250	2	IODataStream,InputStream,OutputStream	KHÁC THIẾT KẾ	engine/io, engine/fs; cấu hình bằng TOML/CLI	probe 'engine/io|fs::': thấy src/client/app/client/world/world.cpp
+MutiLineTableManager	0x140a3d538	1		CHƯA CÓ	hệ quản lý tính năng riêng của bản gốc chưa có	
+MyThread	0x140bd0f58	3		KHÁC THIẾT KẾ	engine/net (socket TCP không chặn, PollSet) và shared/link; client chưa gọi	probe 'PollSet|Reactor': thấy src/shared/link/link.cpp
+NetThread	0x140bd1e78	3	MyThread	KHÁC THIẾT KẾ	engine/net (socket TCP không chặn, PollSet) và shared/link; client chưa gọi	probe 'PollSet|Reactor': thấy src/shared/link/link.cpp
+ObjectFilter	0x140a57bf8	1		CHƯA CÓ	bộ lọc chọn mục tiêu (quái/NPC/người chơi gần nhất) cho AI/kỹ năng chưa có	
+OutputStream	0x140b29208	2		KHÁC THIẾT KẾ	engine/io, engine/fs; cấu hình bằng TOML/CLI	probe 'engine/io|fs::': thấy src/client/app/client/world/world.cpp
+Packet	0x140af6258	8		KHÁC THIẾT KẾ	shared/protocol (khung, kênh, danh mục tin sinh từ bảng)	probe 'protocol': thấy src/client/client.build.toml
+PacketFactory	0x140c90658	4		KHÁC THIẾT KẾ	shared/protocol (khung, kênh, danh mục tin sinh từ bảng)	probe 'protocol': thấy src/client/client.build.toml
+PacketFactoryManager	0x140c6f610	2		KHÁC THIẾT KẾ	shared/protocol (khung, kênh, danh mục tin sinh từ bảng)	probe 'protocol': thấy src/client/client.build.toml
+PacketFactoryManagerInstance	0x140c903c0	2	PacketFactoryManager	KHÔNG ÁP DỤNG	mẫu/lambda hạ tầng sinh bởi trình dịch hoặc bọc Lua	
+PaoPaoPetTalkImp	0x140af6118	1	PetTalkImp	CHƯA CÓ	hệ quản lý tính năng riêng của bản gốc chưa có	
+PetElement	0x140c60ab8	8	CElement,tTransferItemSystem::Element	CHƯA CÓ	phần tử danh sách giao diện/quan hệ chưa có (chưa có bạn bè, đội, thú, shop, thành tích...)	
+PetNeiDanElement	0x140c60da8	8	CElement,tTransferItemSystem::Element	CHƯA CÓ	phần tử danh sách giao diện/quan hệ chưa có (chưa có bạn bè, đội, thú, shop, thành tích...)	
+PlayerElement	0x140c60d08	8	HyperLinkElement,CElement,tTransferItemSystem::Element	CHƯA CÓ	phần tử danh sách giao diện/quan hệ chưa có (chưa có bạn bè, đội, thú, shop, thành tích...)	
+Player_AtClient	0x140c6f538	11		CHƯA CÓ	phần tử/giao diện của tính năng chưa có	
+PneumaElement	0x140c60cb8	8	CElement,tTransferItemSystem::Element	CHƯA CÓ	phần tử danh sách giao diện/quan hệ chưa có (chưa có bạn bè, đội, thú, shop, thành tích...)	
+QianKunPotManager	0x140a6f4e8	1		CHƯA CÓ	hệ quản lý tính năng riêng của bản gốc chưa có	
+RelationList	0x140af3ce8	9		CHƯA CÓ	phần tử danh sách giao diện/quan hệ chưa có (chưa có bạn bè, đội, thú, shop, thành tích...)	
+SCRIPT_SANDBOX::AttrCompare	0x140b8f990	1		KHÁC THIẾT KẾ	lớp bọc API Lua của một tính năng; dự án không chạy Lua ở client mà dịch script sang C++ (ui/panel, có số vàng từ trọng tài)	probe 'lua_oracle|oracle': thấy src/client/face/ui/panel/call.hpp
+SCRIPT_SANDBOX::BWDH	0x140b90e28	1		KHÁC THIẾT KẾ	lớp bọc API Lua của một tính năng; dự án không chạy Lua ở client mà dịch script sang C++ (ui/panel, có số vàng từ trọng tài)	probe 'lua_oracle|oracle': thấy src/client/face/ui/panel/call.hpp
+SCRIPT_SANDBOX::BWDH2018	0x140b92250	1		KHÁC THIẾT KẾ	lớp bọc API Lua của một tính năng; dự án không chạy Lua ở client mà dịch script sang C++ (ui/panel, có số vàng từ trọng tài)	probe 'lua_oracle|oracle': thấy src/client/face/ui/panel/call.hpp
+SCRIPT_SANDBOX::BattleAssistInterface	0x140b87960	1		KHÁC THIẾT KẾ	lớp bọc API Lua của một tính năng; dự án không chạy Lua ở client mà dịch script sang C++ (ui/panel, có số vàng từ trọng tài)	probe 'lua_oracle|oracle': thấy src/client/face/ui/panel/call.hpp
+SCRIPT_SANDBOX::BudgetPlanGem	0x140b90ba8	1		KHÁC THIẾT KẾ	lớp bọc API Lua của một tính năng; dự án không chạy Lua ở client mà dịch script sang C++ (ui/panel, có số vàng từ trọng tài)	probe 'lua_oracle|oracle': thấy src/client/face/ui/panel/call.hpp
+SCRIPT_SANDBOX::CachedCharacter	0x140b39f08	21	SCRIPT_SANDBOX::Character	KHÁC THIẾT KẾ	lớp bọc API Lua của một tính năng; dự án không chạy Lua ở client mà dịch script sang C++ (ui/panel, có số vàng từ trọng tài)	probe 'lua_oracle|oracle': thấy src/client/face/ui/panel/call.hpp
+SCRIPT_SANDBOX::Character	0x140b39e58	21		KHÁC THIẾT KẾ	lớp bọc API Lua của một tính năng; dự án không chạy Lua ở client mà dịch script sang C++ (ui/panel, có số vàng từ trọng tài)	probe 'lua_oracle|oracle': thấy src/client/face/ui/panel/call.hpp
+SCRIPT_SANDBOX::CityBase	0x140b9edd0	1		KHÁC THIẾT KẾ	lớp bọc API Lua của một tính năng; dự án không chạy Lua ở client mà dịch script sang C++ (ui/panel, có số vàng từ trọng tài)	probe 'lua_oracle|oracle': thấy src/client/face/ui/panel/call.hpp
+SCRIPT_SANDBOX::CityLoopMission	0x140b9edf0	1		KHÁC THIẾT KẾ	lớp bọc API Lua của một tính năng; dự án không chạy Lua ở client mà dịch script sang C++ (ui/panel, có số vàng từ trọng tài)	probe 'lua_oracle|oracle': thấy src/client/face/ui/panel/call.hpp
+SCRIPT_SANDBOX::CityManage	0x140b9ed80	1		KHÁC THIẾT KẾ	lớp bọc API Lua của một tính năng; dự án không chạy Lua ở client mà dịch script sang C++ (ui/panel, có số vàng từ trọng tài)	probe 'lua_oracle|oracle': thấy src/client/face/ui/panel/call.hpp
+SCRIPT_SANDBOX::CityResearch	0x140b9edc0	1		KHÁC THIẾT KẾ	lớp bọc API Lua của một tính năng; dự án không chạy Lua ở client mà dịch script sang C++ (ui/panel, có số vàng từ trọng tài)	probe 'lua_oracle|oracle': thấy src/client/face/ui/panel/call.hpp
+SCRIPT_SANDBOX::CityResearchElement	0x140b9eda0	1		KHÁC THIẾT KẾ	lớp bọc API Lua của một tính năng; dự án không chạy Lua ở client mà dịch script sang C++ (ui/panel, có số vàng từ trọng tài)	probe 'lua_oracle|oracle': thấy src/client/face/ui/panel/call.hpp
+SCRIPT_SANDBOX::CityResearchListElement	0x140b9edb0	1		KHÁC THIẾT KẾ	lớp bọc API Lua của một tính năng; dự án không chạy Lua ở client mà dịch script sang C++ (ui/panel, có số vàng từ trọng tài)	probe 'lua_oracle|oracle': thấy src/client/face/ui/panel/call.hpp
+SCRIPT_SANDBOX::CityRoadElement	0x140b9ede0	1		KHÁC THIẾT KẾ	lớp bọc API Lua của một tính năng; dự án không chạy Lua ở client mà dịch script sang C++ (ui/panel, có số vàng từ trọng tài)	probe 'lua_oracle|oracle': thấy src/client/face/ui/panel/call.hpp
+SCRIPT_SANDBOX::CityTrend	0x140b9ed90	1		KHÁC THIẾT KẾ	lớp bọc API Lua của một tính năng; dự án không chạy Lua ở client mà dịch script sang C++ (ui/panel, có số vàng từ trọng tài)	probe 'lua_oracle|oracle': thấy src/client/face/ui/panel/call.hpp
+SCRIPT_SANDBOX::DoubleGem	0x140b934f8	1		KHÁC THIẾT KẾ	lớp bọc API Lua của một tính năng; dự án không chạy Lua ở client mà dịch script sang C++ (ui/panel, có số vàng từ trọng tài)	probe 'lua_oracle|oracle': thấy src/client/face/ui/panel/call.hpp
+SCRIPT_SANDBOX::Guild	0x140b9a080	1		KHÁC THIẾT KẾ	lớp bọc API Lua của một tính năng; dự án không chạy Lua ở client mà dịch script sang C++ (ui/panel, có số vàng từ trọng tài)	probe 'lua_oracle|oracle': thấy src/client/face/ui/panel/call.hpp
+SCRIPT_SANDBOX::GuildCity	0x140b9ee00	1		KHÁC THIẾT KẾ	lớp bọc API Lua của một tính năng; dự án không chạy Lua ở client mà dịch script sang C++ (ui/panel, có số vàng từ trọng tài)	probe 'lua_oracle|oracle': thấy src/client/face/ui/panel/call.hpp
+SCRIPT_SANDBOX::GuildLeague	0x140ba0270	1		KHÁC THIẾT KẾ	lớp bọc API Lua của một tính năng; dự án không chạy Lua ở client mà dịch script sang C++ (ui/panel, có số vàng từ trọng tài)	probe 'lua_oracle|oracle': thấy src/client/face/ui/panel/call.hpp
+SCRIPT_SANDBOX::Infant	0x140ba6378	1		KHÁC THIẾT KẾ	lớp bọc API Lua của một tính năng; dự án không chạy Lua ở client mà dịch script sang C++ (ui/panel, có số vàng từ trọng tài)	probe 'lua_oracle|oracle': thấy src/client/face/ui/panel/call.hpp
+SCRIPT_SANDBOX::LuaTalkAnalyze	0x140bb78d8	6	SCRIPT_SANDBOX::TalkAnalyze	KHÁC THIẾT KẾ	lớp bọc API Lua của một tính năng; dự án không chạy Lua ở client mà dịch script sang C++ (ui/panel, có số vàng từ trọng tài)	probe 'lua_oracle|oracle': thấy src/client/face/ui/panel/call.hpp
+SCRIPT_SANDBOX::Macro	0x140c57e30	1	.?AV?$LuaExport@VMacro@SCRIPT_SANDBOX@@@@	KHÁC THIẾT KẾ	lớp bọc API Lua của một tính năng; dự án không chạy Lua ở client mà dịch script sang C++ (ui/panel, có số vàng từ trọng tài)	probe 'lua_oracle|oracle': thấy src/client/face/ui/panel/call.hpp
+SCRIPT_SANDBOX::PetInviteFriend	0x140ba8010	1		KHÁC THIẾT KẾ	lớp bọc API Lua của một tính năng; dự án không chạy Lua ở client mà dịch script sang C++ (ui/panel, có số vàng từ trọng tài)	probe 'lua_oracle|oracle': thấy src/client/face/ui/panel/call.hpp
+SCRIPT_SANDBOX::PetInviteFriend::PET_FRIEND	0x140ba8000	1		KHÁC THIẾT KẾ	lớp bọc API Lua của một tính năng; dự án không chạy Lua ở client mà dịch script sang C++ (ui/panel, có số vàng từ trọng tài)	probe 'lua_oracle|oracle': thấy src/client/face/ui/panel/call.hpp
+SCRIPT_SANDBOX::PlayerMySelf	0x140b79c98	79	SCRIPT_SANDBOX::Character	KHÁC THIẾT KẾ	lớp bọc API Lua của một tính năng; dự án không chạy Lua ở client mà dịch script sang C++ (ui/panel, có số vàng từ trọng tài)	probe 'lua_oracle|oracle': thấy src/client/face/ui/panel/call.hpp
+SCRIPT_SANDBOX::Pneuma	0x140bad530	1		KHÁC THIẾT KẾ	lớp bọc API Lua của một tính năng; dự án không chạy Lua ở client mà dịch script sang C++ (ui/panel, có số vàng từ trọng tài)	probe 'lua_oracle|oracle': thấy src/client/face/ui/panel/call.hpp
+SCRIPT_SANDBOX::RecvTalkAnalyze	0x140bb7898	7	SCRIPT_SANDBOX::TalkAnalyze	KHÁC THIẾT KẾ	lớp bọc API Lua của một tính năng; dự án không chạy Lua ở client mà dịch script sang C++ (ui/panel, có số vàng từ trọng tài)	probe 'lua_oracle|oracle': thấy src/client/face/ui/panel/call.hpp
+SCRIPT_SANDBOX::SaveTalkAnalyze	0x140bb7918	7	SCRIPT_SANDBOX::TalkAnalyze	KHÁC THIẾT KẾ	lớp bọc API Lua của một tính năng; dự án không chạy Lua ở client mà dịch script sang C++ (ui/panel, có số vàng từ trọng tài)	probe 'lua_oracle|oracle': thấy src/client/face/ui/panel/call.hpp
+SCRIPT_SANDBOX::SendTalkAnalyze	0x140bb7858	6	SCRIPT_SANDBOX::TalkAnalyze	KHÁC THIẾT KẾ	lớp bọc API Lua của một tính năng; dự án không chạy Lua ở client mà dịch script sang C++ (ui/panel, có số vàng từ trọng tài)	probe 'lua_oracle|oracle': thấy src/client/face/ui/panel/call.hpp
+SCRIPT_SANDBOX::SuperTooltips	0x140bc3ea0	1		KHÁC THIẾT KẾ	lớp bọc API Lua của một tính năng; dự án không chạy Lua ở client mà dịch script sang C++ (ui/panel, có số vàng từ trọng tài)	probe 'lua_oracle|oracle': thấy src/client/face/ui/panel/call.hpp
+SCRIPT_SANDBOX::SystemSetup	0x140c57e58	1	.?AV?$LuaExport@VSystemSetup@SCRIPT_SANDBOX@@@@	KHÁC THIẾT KẾ	lớp bọc API Lua của một tính năng; dự án không chạy Lua ở client mà dịch script sang C++ (ui/panel, có số vàng từ trọng tài)	probe 'lua_oracle|oracle': thấy src/client/face/ui/panel/call.hpp
+SCRIPT_SANDBOX::Talk	0x140bb7a30	1		KHÁC THIẾT KẾ	lớp bọc API Lua của một tính năng; dự án không chạy Lua ở client mà dịch script sang C++ (ui/panel, có số vàng từ trọng tài)	probe 'lua_oracle|oracle': thấy src/client/face/ui/panel/call.hpp
+SCRIPT_SANDBOX::Talk::Channel	0x140bb7958	2		KHÁC THIẾT KẾ	lớp bọc API Lua của một tính năng; dự án không chạy Lua ở client mà dịch script sang C++ (ui/panel, có số vàng từ trọng tài)	probe 'lua_oracle|oracle': thấy src/client/face/ui/panel/call.hpp
+SCRIPT_SANDBOX::Talk::GuildChannel	0x140bb79b8	2	SCRIPT_SANDBOX::Talk::Channel	KHÁC THIẾT KẾ	lớp bọc API Lua của một tính năng; dự án không chạy Lua ở client mà dịch script sang C++ (ui/panel, có số vàng từ trọng tài)	probe 'lua_oracle|oracle': thấy src/client/face/ui/panel/call.hpp
+SCRIPT_SANDBOX::Talk::GuildLeagueChannel	0x140bb79d0	2	SCRIPT_SANDBOX::Talk::Channel	KHÁC THIẾT KẾ	lớp bọc API Lua của một tính năng; dự án không chạy Lua ở client mà dịch script sang C++ (ui/panel, có số vàng từ trọng tài)	probe 'lua_oracle|oracle': thấy src/client/face/ui/panel/call.hpp
+SCRIPT_SANDBOX::Talk::IPRegionChannel	0x140bb79e8	2	SCRIPT_SANDBOX::Talk::Channel	KHÁC THIẾT KẾ	lớp bọc API Lua của một tính năng; dự án không chạy Lua ở client mà dịch script sang C++ (ui/panel, có số vàng từ trọng tài)	probe 'lua_oracle|oracle': thấy src/client/face/ui/panel/call.hpp
+SCRIPT_SANDBOX::Talk::MenPaiChannel	0x140bb79a0	2	SCRIPT_SANDBOX::Talk::Channel	KHÁC THIẾT KẾ	lớp bọc API Lua của một tính năng; dự án không chạy Lua ở client mà dịch script sang C++ (ui/panel, có số vàng từ trọng tài)	probe 'lua_oracle|oracle': thấy src/client/face/ui/panel/call.hpp
+SCRIPT_SANDBOX::Talk::RaidChannel	0x140bb7a00	2	SCRIPT_SANDBOX::Talk::Channel	KHÁC THIẾT KẾ	lớp bọc API Lua của một tính năng; dự án không chạy Lua ở client mà dịch script sang C++ (ui/panel, có số vàng từ trọng tài)	probe 'lua_oracle|oracle': thấy src/client/face/ui/panel/call.hpp
+SCRIPT_SANDBOX::Talk::RaidSquadChannel	0x140bb7a18	2	SCRIPT_SANDBOX::Talk::Channel	KHÁC THIẾT KẾ	lớp bọc API Lua của một tính năng; dự án không chạy Lua ở client mà dịch script sang C++ (ui/panel, có số vàng từ trọng tài)	probe 'lua_oracle|oracle': thấy src/client/face/ui/panel/call.hpp
+SCRIPT_SANDBOX::Talk::TeamChannel	0x140bb7988	2	SCRIPT_SANDBOX::Talk::Channel	KHÁC THIẾT KẾ	lớp bọc API Lua của một tính năng; dự án không chạy Lua ở client mà dịch script sang C++ (ui/panel, có số vàng từ trọng tài)	probe 'lua_oracle|oracle': thấy src/client/face/ui/panel/call.hpp
+SCRIPT_SANDBOX::Talk::UserChannel	0x140bb7970	2	SCRIPT_SANDBOX::Talk::Channel	KHÁC THIẾT KẾ	lớp bọc API Lua của một tính năng; dự án không chạy Lua ở client mà dịch script sang C++ (ui/panel, có số vàng từ trọng tài)	probe 'lua_oracle|oracle': thấy src/client/face/ui/panel/call.hpp
+SCRIPT_SANDBOX::TalkAnalyze	0x140bb7820	6		KHÁC THIẾT KẾ	lớp bọc API Lua của một tính năng; dự án không chạy Lua ở client mà dịch script sang C++ (ui/panel, có số vàng từ trọng tài)	probe 'lua_oracle|oracle': thấy src/client/face/ui/panel/call.hpp
+SDATA_RELATION_MEMBER	0x140a60210	1		MỘT PHẦN	figure/hero (số liệu nhân vật) và book/skill; chưa có AI, chưa có DetailAttrib từ máy chủ	probe 'hero::': thấy src/client/face/ui/hud.cpp
+SDATA_TRUST_FRIEND	0x140af3cd0	1	SDATA_RELATION_MEMBER	MỘT PHẦN	figure/hero (số liệu nhân vật) và book/skill; chưa có AI, chưa có DetailAttrib từ máy chủ	probe 'hero::': thấy src/client/face/ui/hud.cpp
+SImpactEffect	0x140c1a830	1		CHƯA CÓ	chưa có đối tượng/impact do máy chủ gửi	
+SObjectInit	0x140af75b0	1		CHƯA CÓ	chưa có đối tượng/impact do máy chủ gửi	
+SObject_BulletInit	0x140c1cd90	1	SObject_EffectInit,SObjectInit	CHƯA CÓ	chưa có đối tượng/impact do máy chủ gửi	
+SObject_BusInit	0x140bf55b0	1	SObjectInit	CHƯA CÓ	chưa có đối tượng/impact do máy chủ gửi	
+SObject_EffectInit	0x140bf66e8	1	SObjectInit	CHƯA CÓ	chưa có đối tượng/impact do máy chủ gửi	
+SObject_SpecialInit	0x140bf66f8	1	SObject_EffectInit,SObjectInit	CHƯA CÓ	chưa có đối tượng/impact do máy chủ gửi	
+SectElement	0x140c608d8	8	CElement,tTransferItemSystem::Element	CHƯA CÓ	phần tử danh sách giao diện/quan hệ chưa có (chưa có bạn bè, đội, thú, shop, thành tích...)	
+Seraph::ClientForSeraph	0x140c6f6d0	4	Seraph::IClient	KHÔNG ÁP DỤNG	SDK/dịch vụ bên thứ ba của bản gốc (Rail, anti-cheat, thống kê, tải crash, WeGame, profiler)	
+Socket	0x140c6f4d0	1		KHÁC THIẾT KẾ	engine/net (socket TCP không chặn, PollSet) và shared/link; client chưa gọi	probe 'PollSet|Reactor': thấy src/shared/link/link.cpp
+SocketInputStream	0x140c6f1e0	1		KHÁC THIẾT KẾ	engine/net (socket TCP không chặn, PollSet) và shared/link; client chưa gọi	probe 'PollSet|Reactor': thấy src/shared/link/link.cpp
+SocketOutputStream	0x140c6f218	4		KHÁC THIẾT KẾ	engine/net (socket TCP không chặn, PollSet) và shared/link; client chưa gọi	probe 'PollSet|Reactor': thấy src/shared/link/link.cpp
+StreamAutomatic::PacketFactoryAutomatic<Packets::CGBieYeComfortTopListOperate,982>	0x140cc57d8	4	PacketFactory	KHÔNG ÁP DỤNG	mẫu/lambda hạ tầng sinh bởi trình dịch hoặc bọc Lua	
+StreamAutomatic::PacketFactoryAutomatic<Packets::CGClientState,2787>	0x140cc5800	4	PacketFactory	KHÔNG ÁP DỤNG	mẫu/lambda hạ tầng sinh bởi trình dịch hoặc bọc Lua	
+StreamAutomatic::PacketFactoryAutomatic<Packets::GCBieYeComfortTopListData,1426>	0x140cc57b0	4	PacketFactory	KHÔNG ÁP DỤNG	mẫu/lambda hạ tầng sinh bởi trình dịch hoặc bọc Lua	
+SubActionList<3,115>	0x140a6f5b8	4	SubActionListBase	CHƯA CÓ	phần tử/giao diện của tính năng chưa có	
+SysBroadCastPetTalkImp	0x140af6128	1	PetTalkImp	CHƯA CÓ	hệ quản lý tính năng riêng của bản gốc chưa có	
+T300JZWLZDAwardManager	0x140a3d820	1		CHƯA CÓ	hệ quản lý tính năng riêng của bản gốc chưa có	
+T300SceneIDManager	0x140a3d880	1		CHƯA CÓ	hệ quản lý tính năng riêng của bản gốc chưa có	
+TAnomymousInfoManager	0x140a3d9c8	1		CHƯA CÓ	hệ quản lý tính năng riêng của bản gốc chưa có	
+TD_MAP_POS_DEFINE	0x140c682f8	7		CÓ	bảng ScenePosDefineEx / SceneDefineEx đã xuất và đọc (app/client/map, ui/panel/scene_table)	probe 'ScenePosDefineEx': thấy src/client/app/client/map/gates.hpp
+TableItemElement	0x140c609c8	8	CElement,tTransferItemSystem::Element	CHƯA CÓ	chưa có hệ vật phẩm (hành trang, trang bị thật, chuyển vật phẩm); chỉ có bảng và vũ khí cầm tay thử	probe 'WeaponItemRow': thấy src/client/figure/look/look.cpp
+TeamZhengZhaoElement	0x140c60c58	8	CElement,tTransferItemSystem::Element	CHƯA CÓ	phần tử danh sách giao diện/quan hệ chưa có (chưa có bạn bè, đội, thú, shop, thành tích...)	
+TempRelationList	0x140af3d88	9	RelationList	CHƯA CÓ	phần tử danh sách giao diện/quan hệ chưa có (chưa có bạn bè, đội, thú, shop, thành tích...)	
+TimelineLink	0x140bd3638	3	GameLinkServer,GameLink	MỘT PHẦN	engine/core đồng hồ và FixedStep	probe 'FixedStep': thấy src/client/app/client/mobile_probe.cpp
+TrustFriendList	0x140af3e78	9	RelationList	CHƯA CÓ	phần tử danh sách giao diện/quan hệ chưa có (chưa có bạn bè, đội, thú, shop, thành tích...)	
+WeGameEventMgr	0x140a3dc28	1	rail::IRailEvent	KHÔNG ÁP DỤNG	SDK/dịch vụ bên thứ ba của bản gốc (Rail, anti-cheat, thống kê, tải crash, WeGame, profiler)	
+XingZhenElement	0x140c60d58	8	CElement,tTransferItemSystem::Element	CHƯA CÓ	phần tử danh sách giao diện/quan hệ chưa có (chưa có bạn bè, đội, thú, shop, thành tích...)	
+YuanBaoShopElement	0x140c60bb8	8	CElement,tTransferItemSystem::Element	CHƯA CÓ	phần tử danh sách giao diện/quan hệ chưa có (chưa có bạn bè, đội, thú, shop, thành tích...)	
+ZZFubenBingshengCheck	0x140a60500	1	ZZFubenCheck	CHƯA CÓ	kiểm tra phó bản chưa có	
+ZZFubenDapiaoCheck	0x140a604e0	1	ZZFubenCheck	CHƯA CÓ	kiểm tra phó bản chưa có	
+ZZFubenGSHCheck	0x140a60530	1	ZZFubenCheck	CHƯA CÓ	kiểm tra phó bản chưa có	
+ZZFubenHuanjingCheck	0x140a604f0	1	ZZFubenCheck	CHƯA CÓ	kiểm tra phó bản chưa có	
+ZZFubenQijuCheck	0x140a60480	1	ZZFubenCheck	CHƯA CÓ	kiểm tra phó bản chưa có	
+ZZFubenSanhuanCheck	0x140a604c0	1	ZZFubenCheck	CHƯA CÓ	kiểm tra phó bản chưa có	
+ZZFubenShaoshishanCheck	0x140a604b0	1	ZZFubenCheck	CHƯA CÓ	kiểm tra phó bản chưa có	
+ZZFubenShuilaoCheck	0x140a60470	1	ZZFubenCheck	CHƯA CÓ	kiểm tra phó bản chưa có	
+ZZFubenSijueCheck	0x140a604d0	1	ZZFubenCheck	CHƯA CÓ	kiểm tra phó bản chưa có	
+ZZFubenXubaoCheck	0x140a60490	1	ZZFubenCheck	CHƯA CÓ	kiểm tra phó bản chưa có	
+ZZFubenYanziwuCheck	0x140a604a0	1	ZZFubenCheck	CHƯA CÓ	kiểm tra phó bản chưa có	
+ZZFubenlanghuanJDCheck	0x140a60510	1	ZZFubenCheck	CHƯA CÓ	kiểm tra phó bản chưa có	
+ZZFubenlanghuanKNCheck	0x140a60520	1	ZZFubenCheck	CHƯA CÓ	kiểm tra phó bản chưa có	
+_DAFUWENGGROUP_GW_PACKET	0x140b80e30	1	_DAFUWENGGROUP_PACKET	CHƯA CÓ	cấu trúc gói bang hội/Đại Phú Ông/lãnh địa chưa có	
+_GANGTERRITORY_INIT	0x140a6f4d0	2		CHƯA CÓ	cấu trúc gói bang hội/Đại Phú Ông/lãnh địa chưa có	
+_GUILD_CGW_PACKET	0x140b99f88	1	_GUILD_PACKET	CHƯA CÓ	cấu trúc gói bang hội/Đại Phú Ông/lãnh địa chưa có	
+_GUILD_WGC_PACKET	0x140c90618	1	_GUILD_PACKET	CHƯA CÓ	cấu trúc gói bang hội/Đại Phú Ông/lãnh địa chưa có	
+rail::RailArray<char>	0x140a3db68	1		KHÔNG ÁP DỤNG	SDK/dịch vụ bên thứ ba của bản gốc (Rail, anti-cheat, thống kê, tải crash, WeGame, profiler)	
+rail::RailBaseString<char>	0x140a3db78	1	.?AV?$RailArray@D@rail@@	KHÔNG ÁP DỤNG	SDK/dịch vụ bên thứ ba của bản gốc (Rail, anti-cheat, thống kê, tải crash, WeGame, profiler)	
+reflect::TypeDescriptor	0x140af6a88	4		KHÔNG ÁP DỤNG	SDK/dịch vụ bên thứ ba của bản gốc (Rail, anti-cheat, thống kê, tải crash, WeGame, profiler)	
+reflect::TypeDescriptor_BYTE	0x140af6d50	4	reflect::TypeDescriptor	KHÔNG ÁP DỤNG	SDK/dịch vụ bên thứ ba của bản gốc (Rail, anti-cheat, thống kê, tải crash, WeGame, profiler)	
+reflect::TypeDescriptor_CHARArray	0x140af6b00	4	reflect::TypeDescriptor	KHÔNG ÁP DỤNG	SDK/dịch vụ bên thứ ba của bản gốc (Rail, anti-cheat, thống kê, tải crash, WeGame, profiler)	
+reflect::TypeDescriptor_FLOAT	0x140af6d20	4	reflect::TypeDescriptor	KHÔNG ÁP DỤNG	SDK/dịch vụ bên thứ ba của bản gốc (Rail, anti-cheat, thống kê, tải crash, WeGame, profiler)	
+reflect::TypeDescriptor_FixedArray	0x140af6ad8	4	reflect::TypeDescriptor	KHÔNG ÁP DỤNG	SDK/dịch vụ bên thứ ba của bản gốc (Rail, anti-cheat, thống kê, tải crash, WeGame, profiler)	
+reflect::TypeDescriptor_Int	0x140af6c90	4	reflect::TypeDescriptor	KHÔNG ÁP DỤNG	SDK/dịch vụ bên thứ ba của bản gốc (Rail, anti-cheat, thống kê, tải crash, WeGame, profiler)	
+reflect::TypeDescriptor_LPCSTR	0x140af6d80	4	reflect::TypeDescriptor	KHÔNG ÁP DỤNG	SDK/dịch vụ bên thứ ba của bản gốc (Rail, anti-cheat, thống kê, tải crash, WeGame, profiler)	
+reflect::TypeDescriptor_Struct	0x140af6ab0	4	reflect::TypeDescriptor	KHÔNG ÁP DỤNG	SDK/dịch vụ bên thứ ba của bản gốc (Rail, anti-cheat, thống kê, tải crash, WeGame, profiler)	
+reflect::TypeDescriptor_UInt	0x140af6cc0	4	reflect::TypeDescriptor	KHÔNG ÁP DỤNG	SDK/dịch vụ bên thứ ba của bản gốc (Rail, anti-cheat, thống kê, tải crash, WeGame, profiler)	
+reflect::TypeDescriptor_UShort	0x140af6cf0	4	reflect::TypeDescriptor	KHÔNG ÁP DỤNG	SDK/dịch vụ bên thứ ba của bản gốc (Rail, anti-cheat, thống kê, tải crash, WeGame, profiler)	
+std::_Generic_error_category	0x140a587d0	6	std::error_category	KHÔNG ÁP DỤNG	thư viện chuẩn/CRT của MSVC	
+std::_Iostream_error_category	0x140a58808	6	std::_Generic_error_category,std::error_category	KHÔNG ÁP DỤNG	thư viện chuẩn/CRT của MSVC	
+std::_LaunchPad<std::_Bind<1,void,std::_Pmf_wrap<void_(__cdecl_LockFreeProcessQueue<ChatProcessor::ChatTask,ChatProcessor::MainProcessor,ChatProcessor::WorkProcessor>::*)(void)___ptr64,void,LockFreeProcessQueue<struct_ChatProcessor::ChatTask,struct_ChatProcessor::MainProcessor,struct_ChatProcessor::WorkProcessor>,std::_Nil,std::_Nil,std::_Nil,std::_Nil,std::_Nil,std::_Nil,std::_Nil>,LockFreeProcessQueue<ChatProcessor::ChatTask,ChatProcessor::MainProcessor,ChatProcessor::WorkProcessor>*___ptr64_const,std::_Nil,std::_Nil,std::_Nil,std::_Nil,std::_Nil,std::_Nil>_>	0x140a58520	1	std::_Pad	KHÔNG ÁP DỤNG	thư viện chuẩn/CRT của MSVC	
+std::_System_error_category	0x140a58840	6	std::_Generic_error_category,std::error_category	KHÔNG ÁP DỤNG	thư viện chuẩn/CRT của MSVC	
+std::basic_filebuf<char,std::char_traits<char>_>	0x140c17538	15	.?AV?$basic_streambuf@DU?$char_traits@D@std@@@std@@	KHÔNG ÁP DỤNG	thư viện chuẩn/CRT của MSVC	
+std::basic_ifstream<char,std::char_traits<char>_>	0x140c175d8	3	.?AV?$basic_istream@DU?$char_traits@D@std@@@std@@,.?AV?$basic_ios@DU?$char_traits@D@std@@@std@@,std::ios_base,.?AV?$_Iosb@H@std@@	KHÔNG ÁP DỤNG	thư viện chuẩn/CRT của MSVC	
+std::basic_istringstream<char,std::char_traits<char>,std::allocator<char>_>	0x140bb7cd8	3	.?AV?$basic_istream@DU?$char_traits@D@std@@@std@@,.?AV?$basic_ios@DU?$char_traits@D@std@@@std@@,std::ios_base,.?AV?$_Iosb@H@std@@	KHÔNG ÁP DỤNG	thư viện chuẩn/CRT của MSVC	
+std::basic_ofstream<char,std::char_traits<char>_>	0x140c175b8	3	.?AV?$basic_ostream@DU?$char_traits@D@std@@@std@@,.?AV?$basic_ios@DU?$char_traits@D@std@@@std@@,std::ios_base,.?AV?$_Iosb@H@std@@	KHÔNG ÁP DỤNG	thư viện chuẩn/CRT của MSVC	
+std::basic_stringbuf<char,std::char_traits<char>,std::allocator<char>_>	0x140b2a598	15	.?AV?$basic_streambuf@DU?$char_traits@D@std@@@std@@	KHÔNG ÁP DỤNG	thư viện chuẩn/CRT của MSVC	
+std::basic_stringstream<char,std::char_traits<char>,std::allocator<char>_>	0x140b2a618	3	.?AV?$basic_iostream@DU?$char_traits@D@std@@@std@@,.?AV?$basic_istream@DU?$char_traits@D@std@@@std@@,.?AV?$basic_ios@DU?$char_traits@D@std@@@std@@,std::ios_base,.?AV?$_Iosb@H@std@@,.?AV?$basic_ostream@DU?$char_traits@D@std@@@std@@,.?AV?$basic_ios@DU?$char_traits@D@std@@@std@@,std::ios_base,.?AV?$_Iosb@H@std@@	KHÔNG ÁP DỤNG	thư viện chuẩn/CRT của MSVC	
+std::error_category	0x140a58798	6		KHÔNG ÁP DỤNG	thư viện chuẩn/CRT của MSVC	
+tItem	0x140bc5dd8	63		CHƯA CÓ	chưa có hệ vật phẩm (hành trang, trang bị thật, chuyển vật phẩm); chỉ có bảng và vũ khí cầm tay thử	probe 'WeaponItemRow': thấy src/client/figure/look/look.cpp
+tMovieDataBridge	0x140c29810	6		CHƯA CÓ	quản lý hoạt động/PVP/phim của bản gốc chưa có	
+tTransferItemSystem::Element	0x140c60710	6		CHƯA CÓ	chưa có hệ vật phẩm (hành trang, trang bị thật, chuyển vật phẩm); chỉ có bảng và vũ khí cầm tay thử	probe 'WeaponItemRow': thấy src/client/figure/look/look.cpp
+type_info	0x140cc7b88	1		KHÔNG ÁP DỤNG	thư viện chuẩn/CRT của MSVC	

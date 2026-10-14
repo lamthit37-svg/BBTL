@@ -1,0 +1,693 @@
+name	address	status	evidence	files	original_referrers
+%04d_%02d_%02d_%02d_%02d_%02d.txt	0x140bb2080	KHÔNG SO ĐƯỢC	mẫu định dạng hoặc đường dẫn chung (chứa %, \, / hoặc chỉ là đuôi)		0x1404a1620
+%04d_%02d_%02d_%02d_%02d_%02d.txt	0x140bb3e80	KHÔNG SO ĐƯỢC	mẫu định dạng hoặc đường dẫn chung (chứa %, \, / hoặc chỉ là đuôi)		0x140483d50
+%s.layout.xml	0x140c28668	KHÔNG SO ĐƯỢC	mẫu định dạng hoặc đường dẫn chung (chứa %, \, / hoặc chỉ là đuôi)		0x140622910
+%s\%s.lua	0x140c5d1f0	KHÔNG SO ĐƯỢC	mẫu định dạng hoặc đường dẫn chung (chứa %, \, / hoặc chỉ là đuôi)		0x140695b30
+%s\QKH.cfg	0x140a592f0	KHÔNG SO ĐƯỢC	mẫu định dạng hoặc đường dẫn chung (chứa %, \, / hoặc chỉ là đuôi)		0x1400846d0
+%s_%d.%d_%d.%d.csv	0x140c5c1a0	KHÔNG SO ĐƯỢC	mẫu định dạng hoặc đường dẫn chung (chứa %, \, / hoặc chỉ là đuôi)		0x14068e4f0
+%s_%d.%d_%d.%d.csv	0x140c5c1d0	KHÔNG SO ĐƯỢC	mẫu định dạng hoặc đường dẫn chung (chứa %, \, / hoặc chỉ là đuôi)		0x14068e4f0
+%s_%d.%d_%d.%d.csv	0x140c5c200	KHÔNG SO ĐƯỢC	mẫu định dạng hoặc đường dẫn chung (chứa %, \, / hoặc chỉ là đuôi)		0x14068e4f0
+../Bin/ClientType.cfg	0x140a61b28	KHÔNG SO ĐƯỢC	mẫu định dạng hoặc đường dẫn chung (chứa %, \, / hoặc chỉ là đuôi)		0x1400dec40
+../Bin/ClientType.cfg	0x140a61c28	KHÔNG SO ĐƯỢC	mẫu định dạng hoặc đường dẫn chung (chứa %, \, / hoặc chỉ là đuôi)		0x1400dec40
+../Bin/ClientType.cfg	0x140a64718	KHÔNG SO ĐƯỢC	mẫu định dạng hoặc đường dẫn chung (chứa %, \, / hoặc chỉ là đuôi)		0x1400fc310
+../Bin/ClientType.cfg	0x140a647b8	KHÔNG SO ĐƯỢC	mẫu định dạng hoặc đường dẫn chung (chứa %, \, / hoặc chỉ là đuôi)		0x1400fc310
+../Bin/ClientType.cfg	0x140c2a2a8	KHÔNG SO ĐƯỢC	mẫu định dạng hoặc đường dẫn chung (chứa %, \, / hoặc chỉ là đuôi)		0x14062f550
+../Bin/ClientType.cfg	0x140c2a2d0	KHÔNG SO ĐƯỢC	mẫu định dạng hoặc đường dẫn chung (chứa %, \, / hoặc chỉ là đuôi)		0x14062f550
+../Bin/ClientType.cfg	0x140c2a5d0	KHÔNG SO ĐƯỢC	mẫu định dạng hoặc đường dẫn chung (chứa %, \, / hoặc chỉ là đuôi)		0x14062b830
+../Bin/ClientType.cfg	0x140c2a5f0	KHÔNG SO ĐƯỢC	mẫu định dạng hoặc đường dẫn chung (chứa %, \, / hoặc chỉ là đuôi)		0x14062b830
+../Bin/ClientType.cfg	0x140c812d0	KHÔNG SO ĐƯỢC	mẫu định dạng hoặc đường dẫn chung (chứa %, \, / hoặc chỉ là đuôi)		0x140777ec0
+../Bin/System.cfg	0x140c5ce88	KHÔNG SO ĐƯỢC	mẫu định dạng hoặc đường dẫn chung (chứa %, \, / hoặc chỉ là đuôi)		0x1406963a0
+../Data/ndata.dat	0x140b875c8	KHÔNG SO ĐƯỢC	mẫu định dạng hoặc đường dẫn chung (chứa %, \, / hoặc chỉ là đuôi)		0x1403cf1d0
+../Launch.ini	0x140c2de58	KHÔNG SO ĐƯỢC	mẫu định dạng hoặc đường dẫn chung (chứa %, \, / hoặc chỉ là đuôi)		0x140648b80
+../Launch.ini	0x140c2de78	KHÔNG SO ĐƯỢC	mẫu định dạng hoặc đường dẫn chung (chứa %, \, / hoặc chỉ là đuôi)		0x140648b80
+../Launch.ini	0x140c2de98	KHÔNG SO ĐƯỢC	mẫu định dạng hoặc đường dẫn chung (chứa %, \, / hoặc chỉ là đuôi)		0x140648b80
+../Launch.ini	0x140c2deb8	KHÔNG SO ĐƯỢC	mẫu định dạng hoặc đường dẫn chung (chứa %, \, / hoặc chỉ là đuôi)		0x140648b80
+..\Accounts\%s\%s.cfg	0x140c61dc0	KHÔNG SO ĐƯỢC	mẫu định dạng hoặc đường dẫn chung (chứa %, \, / hoặc chỉ là đuôi)		0x1406b0370
+..\Accounts\%s\%s.cfg	0x140c61e88	KHÔNG SO ĐƯỢC	mẫu định dạng hoặc đường dẫn chung (chứa %, \, / hoặc chỉ là đuôi)		0x1406b05d0
+..\Accounts\%s\%s.cfg	0x140c61f38	KHÔNG SO ĐƯỢC	mẫu định dạng hoặc đường dẫn chung (chứa %, \, / hoặc chỉ là đuôi)		0x1406ba1b0
+..\Accounts\%s\Acce_Custom.ini	0x140c61ea0	KHÔNG SO ĐƯỢC	mẫu định dạng hoặc đường dẫn chung (chứa %, \, / hoặc chỉ là đuôi)		0x1406b05d0
+..\Accounts\System.cfg	0x140c5cea0	KHÔNG SO ĐƯỢC	mẫu định dạng hoặc đường dẫn chung (chứa %, \, / hoặc chỉ là đuôi)		0x1406963a0
+..\Accounts\System.cfg	0x140c63068	KHÔNG SO ĐƯỢC	mẫu định dạng hoặc đường dẫn chung (chứa %, \, / hoặc chỉ là đuôi)		0x1406afef0,0x1406b0aa0,0x1406b95d0,0x140a3a670
+..\Bin\System.cfg	0x140a58700	KHÔNG SO ĐƯỢC	mẫu định dạng hoặc đường dẫn chung (chứa %, \, / hoặc chỉ là đuôi)		0x14007ab80
+..\Bin\System.cfg	0x140c10ee0	KHÔNG SO ĐƯỢC	mẫu định dạng hoặc đường dẫn chung (chứa %, \, / hoặc chỉ là đuôi)		0x1405b4ba0
+..\Bin\System.cfg	0x140c10fe0	KHÔNG SO ĐƯỢC	mẫu định dạng hoặc đường dẫn chung (chứa %, \, / hoặc chỉ là đuôi)		0x1405b4ba0
+..\Bin\System.cfg	0x140c63038	KHÔNG SO ĐƯỢC	mẫu định dạng hoặc đường dẫn chung (chứa %, \, / hoặc chỉ là đuôi)		0x1406b0aa0,0x1406b8590,0x1406b95d0,0x140a3a670
+..\Patch\RemoteAddr.txt	0x140c2a338	KHÔNG SO ĐƯỢC	mẫu định dạng hoặc đường dẫn chung (chứa %, \, / hoặc chỉ là đuôi)		0x14062f550
+..\Patch\RemoteAddr.txt	0x140c5c9f0	KHÔNG SO ĐƯỢC	mẫu định dạng hoặc đường dẫn chung (chứa %, \, / hoặc chỉ là đuôi)		0x140693db0
+..\Patch\loginserver.txt	0x140c299e0	KHÔNG SO ĐƯỢC	mẫu định dạng hoặc đường dẫn chung (chứa %, \, / hoặc chỉ là đuôi)		0x140633b10
+..\Patch\loginserver.txt	0x140c29a00	KHÔNG SO ĐƯỢC	mẫu định dạng hoặc đường dẫn chung (chứa %, \, / hoặc chỉ là đuôi)		0x140633b10
+..\Patch\loginserver.txt	0x140c2a478	KHÔNG SO ĐƯỢC	mẫu định dạng hoặc đường dẫn chung (chứa %, \, / hoặc chỉ là đuôi)		0x140631d60
+..\Patch\loginserver.txt	0x140c2a498	KHÔNG SO ĐƯỢC	mẫu định dạng hoặc đường dẫn chung (chứa %, \, / hoặc chỉ là đuôi)		0x140631d60
+..\Patch\loginserver.txt	0x140c2a4b8	KHÔNG SO ĐƯỢC	mẫu định dạng hoặc đường dẫn chung (chứa %, \, / hoặc chỉ là đuôi)		0x140631d60
+..\Patch\loginserver.txt	0x140c5ccc8	KHÔNG SO ĐƯỢC	mẫu định dạng hoặc đường dẫn chung (chứa %, \, / hoặc chỉ là đuôi)		0x140694840
+..\versionlist.dat	0x140c5d1b8	KHÔNG SO ĐƯỢC	mẫu định dạng hoặc đường dẫn chung (chứa %, \, / hoặc chỉ là đuôi)		0x140694930
+.//StreamRecord.dat	0x140bea350	KHÔNG SO ĐƯỢC	mẫu định dạng hoặc đường dẫn chung (chứa %, \, / hoặc chỉ là đuôi)		0x1405476d0
+.//StreamRecord_%d_%d_%d.dat	0x140bea330	KHÔNG SO ĐƯỢC	mẫu định dạng hoặc đường dẫn chung (chứa %, \, / hoặc chỉ là đuôi)		0x1405476d0
+./ClientType.cfg	0x140bea250	KHÔNG SO ĐƯỢC	mẫu định dạng hoặc đường dẫn chung (chứa %, \, / hoặc chỉ là đuôi)		0x1405476d0
+./ClientType.cfg	0x140c28958	KHÔNG SO ĐƯỢC	mẫu định dạng hoặc đường dẫn chung (chứa %, \, / hoặc chỉ là đuôi)		0x140622da0
+./ClientType.cfg	0x140c5d190	KHÔNG SO ĐƯỢC	mẫu định dạng hoặc đường dẫn chung (chứa %, \, / hoặc chỉ là đuôi)		0x140694930
+./System.cfg	0x140c28630	KHÔNG SO ĐƯỢC	mẫu định dạng hoặc đường dẫn chung (chứa %, \, / hoặc chỉ là đuôi)		0x14061f8a0
+./System.cfg	0x140c5ca28	KHÔNG SO ĐƯỢC	mẫu định dạng hoặc đường dẫn chung (chứa %, \, / hoặc chỉ là đuôi)		0x1406958b0
+.Scene	0x140c65480	KHÔNG SO ĐƯỢC	mẫu định dạng hoặc đường dẫn chung (chứa %, \, / hoặc chỉ là đuôi)		0x1406c0580
+.Scene	0x140c65488	KHÔNG SO ĐƯỢC	mẫu định dạng hoặc đường dẫn chung (chứa %, \, / hoặc chỉ là đuôi)		0x1406c0580
+.\PlayerOther.bin	0x140c16508	KHÔNG SO ĐƯỢC	mẫu định dạng hoặc đường dẫn chung (chứa %, \, / hoặc chỉ là đuôi)		0x1405d13c0
+.\PlayerOther.bin	0x140c16b18	KHÔNG SO ĐƯỢC	mẫu định dạng hoặc đường dẫn chung (chứa %, \, / hoặc chỉ là đuôi)		0x1405d1990
+2606SLevelInfo.txt	0x140a5d240	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+Ability.txt	0x140a5a150	CÓ	công cụ xuất/gom nhắc đích danh tên tệp	TOOLS/content/export_config.py	0x140091610
+AccountSafeRef.txt	0x140a5a508	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+ActionExtInfo.txt	0x140a5b938	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+ActionSet.txt	0x140c11780	CÓ	công cụ xuất/gom nhắc đích danh tên tệp	TOOLS/content/export_look.py	0x1405b8850
+ActionSetFile.txt	0x140a5d3f8	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+ActionSetKV.txt	0x140c11800	CÓ	công cụ xuất/gom nhắc đích danh tên tệp	TOOLS/content/export_look.py	0x1405b8850
+ActionSetLine.txt	0x140c117d8	CÓ	công cụ xuất/gom nhắc đích danh tên tệp	TOOLS/content/export_look.py	0x1405b8850
+ActiveHaoLi.txt	0x140a5acd8	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+ActivityGift.txt	0x140a5b100	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+AnonymousCommonInfo.txt	0x140a3d240	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140007fd0
+AppearanceAchivement.txt	0x140a5bde0	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+AppearanceLevel.txt	0x140a5be00	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+Appearanceshop.txt	0x140a5be18	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+AttackTraits.txt	0x140a5a4b0	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+AutoSearch.txt	0x140a5a570	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+AwardTaskList.txt	0x140a5c0e0	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+AwardTaskType.txt	0x140a5c0f8	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+BeHit.txt	0x140a5a408	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+BeiWangLu.txt	0x140a5b640	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+BiWuShop.txt	0x140a5bb40	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+BianJingBiddingItem.txt	0x140a5c030	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+BianJingExchangeItem.txt	0x140a5c048	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+BieYeBuildingLevelUp.txt	0x140a5b800	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+BieYeBuildingRes.txt	0x140a5b838	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+BieYeFurniture.txt	0x140a5b820	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+BieYeFurnitureMood.txt	0x140a5b990	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+BieYeFurnitureShop.txt	0x140a5b880	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+BieYeHuanZhuang.txt	0x140a5b9f8	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+BieYeItemRes.txt	0x140a5b7e8	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+BieYeMaterialOutput.txt	0x140a5b868	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+BieYeMengChong.txt	0x140a5b9a8	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+BieYeSceneDefine.txt	0x140a5b850	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+BuildingDefine.txt	0x140a5a280	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+BuildingName.txt	0x140a5a298	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+Bullet.txt	0x140a5a070	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+BusInfo.txt	0x140a5a0f0	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+CJI.txt	0x140a5ceb0	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+CJS.txt	0x140a5ceb8	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+CJ_EquipInfo.txt	0x140a5ce40	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+CJ_ItemInfo.txt	0x140a5ce58	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+CJ_SkillInfo.txt	0x140a5ce28	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+CXGEnterTips.txt	0x140a5ba80	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+CampaignItem.txt	0x140a5b3c8	CÓ	công cụ xuất/gom nhắc đích danh tên tệp	TOOLS/content/export_config.py	0x140091610
+CampaignTable.txt	0x140a5a698	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+CampaignTableNew.txt	0x140a5b8f0	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+CampaignTableNew_KaJi_1.txt	0x140a5b908	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+CampaignTable_KaJi_1.txt	0x140a5a6b0	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+CangPin.txt	0x140a5d150	CHƯA CÓ	chỉ nhắc tên trong mã/chú thích, không có công cụ xuất	src/client/book/skill/actions.hpp	0x140091610
+CangPinSetEffect.txt	0x140a5d120	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+CangPinShop.txt	0x140a5d1b8	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+CangPin_ClassLevel.txt	0x140a5d188	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+CangPin_Item.txt	0x140a5d138	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+CangPin_Level.txt	0x140a5d160	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+CangPin_QualUp.txt	0x140a5d0f0	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+CangPin_RankBonus.txt	0x140a5d108	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+CangPin_Set.txt	0x140a5d178	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+Canyeshop.txt	0x140a5c310	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+CardRule.txt	0x140a5acc8	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+Cast/Cast1.mesh	0x140c28000	KHÔNG SO ĐƯỢC	mẫu định dạng hoặc đường dẫn chung (chứa %, \, / hoặc chỉ là đuôi)		0x14061ef70
+Cast/pilon.mesh	0x140c28010	KHÔNG SO ĐƯỢC	mẫu định dạng hoặc đường dẫn chung (chứa %, \, / hoặc chỉ là đuôi)		0x14061ef70
+CatMission.txt	0x140a5c398	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+Catinfo.txt	0x140a5c350	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+ChampionCupTeamInfo.txt	0x140a5af08	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+CharFaceGeo.txt	0x140a5d3c0	CÓ	công cụ xuất/gom nhắc đích danh tên tệp	TOOLS/content/export_look.py	0x140091610
+CharHairGeo.txt	0x140a5d3b0	CÓ	công cụ xuất/gom nhắc đích danh tên tệp	TOOLS/content/export_look.py	0x140091610
+CharHead.txt	0x140a5a718	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+CharHeadFrame.txt	0x140a5b898	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+CharModelEx.txt	0x140a5d3e8	CÓ	công cụ xuất/gom nhắc đích danh tên tệp	TOOLS/content/collect_ui.py;TOOLS/content/export_look.py	0x140091610
+CharMount.txt	0x140a5d410	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+CharRace.txt	0x140a5d3a0	CÓ	công cụ xuất/gom nhắc đích danh tên tệp	TOOLS/content/export_look.py	0x140091610
+CharTitle.txt	0x140a5a1a0	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+CharTitleBoard.txt	0x140a5b7d0	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+CharTitleNew.txt	0x140a5aca0	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+CharacterFace.txt	0x140a5d438	CÓ	công cụ xuất/gom nhắc đích danh tên tệp	TOOLS/content/collect_ui.py	0x140091610
+Character_3DHead.txt	0x140a5ade0	CÓ	công cụ xuất/gom nhắc đích danh tên tệp	TOOLS/content/collect_ui.py	0x140091610
+ChatConfig.txt	0x140a5a258	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+ChatHelp.txt	0x140a5a488	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+ChatMood.txt	0x140a5a230	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+ChatMood_Double.txt	0x140a5a240	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+ChatSymbol.txt	0x140a5acb8	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+ChengjiuDesc.txt	0x140a5abf0	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+ChengjiuType.txt	0x140a5ac08	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+ChongLouEffect.txt	0x140a5cec0	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+ChongLouShop.txt	0x140a5c320	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+ChonglouDecor.txt	0x140a5c338	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+CityBuilding.txt	0x140a5a2c0	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+CityIdOfChina.txt	0x140a5a700	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+CityInfo.txt	0x140a5a300	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+ClientType.cfg	0x140a3d380	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140008d70
+ComboSkillBook.txt	0x140a5b118	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+ComboSkillRate.txt	0x140a5b130	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+CommonItem.txt	0x140a5d4d8	CÓ	công cụ xuất/gom nhắc đích danh tên tệp	TOOLS/content/export_config.py	0x140091610
+Condition.txt	0x140a5a2b0	CHƯA CÓ	chỉ nhắc tên trong mã/chú thích, không có công cụ xuất	engine/core/check.hpp	0x140091610
+CrashNoteKeyList.txt	0x140a5ae88	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+DLSH.txt	0x140a5ce90	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+DLSH_KaJi_1.txt	0x140a5cea0	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+DaHuaQiXi_Shop.txt	0x140a5cd68	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+DaHuaQiXi_Shop_kaji.txt	0x140a5cd80	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+DarkBaseQuality.txt	0x140a5a7b8	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+DarkExpLevel.txt	0x140a5a788	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+DarkImpackStr.txt	0x140a5a7a0	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+DarkLYCuiDuLevelUP.txt	0x140a5b7a0	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+DarkLYStarUpData.txt	0x140a5b7b8	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+DaysSign.txt	0x140a5c700	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+DaysSign_KaJi_1.txt	0x140a5c750	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+DecoWeaponConvert.txt	0x140a5b788	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+DecoWeaponLevelUp.txt	0x140a5b770	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+Di4Shop.txt	0x140a5c428	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+Di4Shop_KaJi_1.txt	0x140a5c438	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+Di4Shop_OriginalJD_1.txt	0x140a5c490	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+DiaowenInfo.txt	0x140a5ab58	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+DiaowenRule.txt	0x140a5ab68	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+DingZhiMenPaiSvr.txt	0x140a5cd38	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+DoubleGemCompound.txt	0x140a5b060	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+DressColorRate.txt	0x140a5ab00	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+DressColorSpecial.txt	0x140a5bb68	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+DressTransform.txt	0x140a5ca58	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+DuanWeiHonourShop.txt	0x140a5b458	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+DuanWeiHonourShop_QX.txt	0x140a5b488	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+DuanWeiYuanBaoShop.txt	0x140a5b470	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+DuanWeiYuanBaoShop_QX.txt	0x140a5b4a8	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+DuanWuBiddingBonus.txt	0x140a5bdc8	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+DuanWuChouJiang.txt	0x140a5bc08	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+DuanWuChouJiang_Ori.txt	0x140a5d1f8	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+DummyItem.txt	0x140a5a618	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+DynamicRegion.txt	0x140c64ad8	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x1406bdef0
+EffectDefine.txt	0x140a5d540	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+EnchanceSetAttr.txt	0x140a5b428	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+EquipAttaLevelup.txt	0x140a5b1e0	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+EquipBase.txt	0x140a5d4c8	CÓ	công cụ xuất/gom nhắc đích danh tên tệp	TOOLS/content/export_config.py;TOOLS/content/export_weapons.py	0x140091610
+EquipBase.txt	0x140a69560	CÓ	công cụ xuất/gom nhắc đích danh tên tệp	TOOLS/content/export_config.py;TOOLS/content/export_weapons.py	0x1400ec6f0
+EquipChangerate.txt	0x140a5b1c8	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+EquipDecompose.txt	0x140a5b1a0	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+EquipDetail.txt	0x140a5b1b8	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+EquipDress.txt	0x140a5d510	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+EquipExtraAttr.txt	0x140a5a580	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+EquipLevelStd.txt	0x140a5b3e0	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+EquipMoodAction.txt	0x140a5c0c8	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+EquipPriLevelValue.txt	0x140a5ae18	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+EquipPriMpWuqi.txt	0x140a5ae48	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+EquipPriRateValue.txt	0x140a5ae30	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+EquipSetAttr.txt	0x140a5d4f8	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+EquipUpstage.txt	0x140a5d030	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+EquipUpstageChongLou.txt	0x140a5d060	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+EquipUpstageMat.txt	0x140a5d048	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+ExcitPoint.txt	0x140a5ac50	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+ExcitPoint.txt	0x140ba6b60	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140446f60
+ExteriorRideCamera.txt	0x140a5c110	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+Exterior_BG.txt	0x140a5c5b0	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+Exterior_BGTSitem.txt	0x140a5c598	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+Exterior_DressStyle.txt	0x140a5cad0	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+Exterior_DressStyle_Achivement.txt	0x140a5cbe0	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+Exterior_ExchangeItem.txt	0x140a5c238	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+Exterior_Face.txt	0x140a5c190	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+Exterior_GemEffect.txt	0x140a5cae8	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+Exterior_Hair.txt	0x140a5c1a8	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+Exterior_Head.txt	0x140a5c1d8	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+Exterior_HeadFrame.txt	0x140a5c1f0	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+Exterior_InfantHair.txt	0x140a5c208	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+Exterior_Item.txt	0x140a5c220	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+Exterior_PetPoss.txt	0x140a5c178	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+Exterior_Ride.txt	0x140a5c128	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+Exterior_TS.txt	0x140a5c5c0	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+Exterior_TuJing.txt	0x140a5cb50	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+Exterior_Weapon.txt	0x140a5c160	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+Exterior_WeaponGroup.txt	0x140a5c140	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+FYPVEAchInfo.txt	0x140a5d0c0	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+FYPVEItemInfo.txt	0x140a5d0a8	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+FYPVETalentInfo.txt	0x140a5d0d8	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+FeiPinHuiShou.txt	0x140a5c6e8	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+FemaleFirstName.txt	0x140b5ab80	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140343b10
+FemaleLastName.txt	0x140b5ab98	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140343b10
+FengMingShop.txt	0x140a5c738	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+Fengyunlu.txt	0x140a5b018	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+FengyunluText.txt	0x140a5b028	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+FiveElementsExtend.txt	0x140a5b6e8	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+FiveElementsValue.txt	0x140a5b700	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+GQHYChouJiang.txt	0x140a5bc38	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+GQHYChouJiang_CT.txt	0x140a5bc88	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+GQHYChouJiang_KaJi_1.txt	0x140a5bc50	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+GQHYChouJiang_QX.txt	0x140a5bc70	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+GSName.txt	0x140a5b2c0	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+GSPic.txt	0x140a5b2d0	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+GameCamera.txt	0x140a5ad70	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+GemCarve.txt	0x140a5a678	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+GemEffect_Cloth.txt	0x140a5b0d8	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+GemInfo.txt	0x140a5d4e8	CÓ	công cụ xuất/gom nhắc đích danh tên tệp	TOOLS/content/export_config.py;TOOLS/content/export_weapons.py	0x140091610
+GemLevelup.txt	0x140a5b078	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+GemMelting.txt	0x140a5a778	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+GoodsProtect_Goods.txt	0x140a5a870	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+GoodsProtect_Pet.txt	0x140a5a858	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+GouWuCheItem.txt	0x140a5c288	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+GrowPoint.txt	0x140a5a140	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+Guanshanhaishop.txt	0x140a5bf58	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+GuiShi_NPCShop.txt	0x140a5bd18	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+GuiShi_NPCShopItem.txt	0x140a5bd00	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+GuildShop.txt	0x140a5b350	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+GuildShop_KaJi_1.txt	0x140a5b360	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+GuildShop_QX.txt	0x140a5d278	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+HLSCMissionInfo.txt	0x140a5c520	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+HLSCProgressItemInfo.txt	0x140a5c538	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+HLSCProgressItemInfo_CT.txt	0x140a5c558	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+HLSCProgressItemInfo_QX.txt	0x140a5c578	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+HXYBase.txt	0x140a5b5d8	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+HXYEffect.txt	0x140a5b5c8	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+HXYExAttr.txt	0x140a5b5b8	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+HXYLevel.txt	0x140a5b5e8	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+HomePetExper.txt	0x140a5a978	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+HongBaoShop.txt	0x140a5cf00	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+HongBaoWeekInfo.txt	0x140a5cf10	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+HuiLiu2022Shop.txt	0x140a5c4d8	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+HuiLiu2022Shop_CT.txt	0x140a5c4f0	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+HuiLiu2022Shop_QX.txt	0x140a5c508	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+HuiLiuShop.txt	0x140a5bef8	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+HuoYue_Shop.txt	0x140a5c2a0	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+HuoYue_Shop_KaJi_1.txt	0x140a5c2c8	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+HuoyueDaibiClean.txt	0x140a5bfa8	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+IDCollections.txt	0x140a5ace8	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+IMDress.txt	0x140a5ac60	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+IMLevelTime.txt	0x140a5abe0	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+ImpactDirectly.txt	0x140a5d580	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+ImpactPreShow.txt	0x140a5d090	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+ImpactSEData_V1.txt	0x140a5d568	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+Infant.txt	0x140a5b228	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+InfantCard.txt	0x140a5b268	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+InfantDoubleAction.txt	0x140a5b2a8	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+InfantDressColorRate.txt	0x140a5b568	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+InfantDressConvert.txt	0x140a5b4f8	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+InfantEnhance.txt	0x140a5b290	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+InfantExpMisTable.txt	0x140a5b250	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+InfantHairGeo.txt	0x140a5b510	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+InfantHeroLevel.txt	0x140a5b278	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+InfantLevelUpTable.txt	0x140a5b1f8	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+InfantVisualPart.txt	0x140a5b4e0	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+Infantskillinfo.txt	0x140a5b210	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+Infantskillup.txt	0x140a5b238	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+InterfaceEx.txt	0x140a5a130	CÓ	công cụ xuất/gom nhắc đích danh tên tệp	TOOLS/content/collect_ui.py;TOOLS/content/verify_ui.py	0x140091610
+ItemAptRate.txt	0x140a5a548	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+ItemCompound.txt	0x140a5a160	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+ItemEnhance.txt	0x140a5a200	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+ItemLocatorAction.txt	0x140a5cce8	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+ItemOrnamentsVisual.txt	0x140a5c5d0	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+ItemRule.txt	0x140a5a1f0	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+ItemVisualChar.txt	0x140a5d498	CÓ	công cụ xuất/gom nhắc đích danh tên tệp	TOOLS/content/export_look.py	0x140091610
+ItemVisualChar_iv.txt	0x140a5d2a8	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+ItemVisualLocator.txt	0x140a5d4b0	CÓ	công cụ xuất/gom nhắc đích danh tên tệp	TOOLS/content/export_weapons.py	0x140091610
+ItemdescQX.txt	0x140a5d258	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+JieBanShop.txt	0x140a5bf08	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+JieBanShop_CT.txt	0x140a5d1c8	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+JieBanShop_QX.txt	0x140a5d1e0	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+KBuildingAttr.txt	0x140a5b730	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+KBuildingAttrEx.txt	0x140a5b748	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+KCityShopCommodity.txt	0x140a5b718	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+KFSAttrEx.txt	0x140a5aa10	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+KFSAttrLevelUp.txt	0x140a5aa38	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+KFSBase.txt	0x140a5a9f0	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+KFSCompoudEx.txt	0x140a5aa50	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+KFSLevelupExp.txt	0x140a5aa20	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+KFSSkillLevelup.txt	0x140a5aa68	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+KFSSlot.txt	0x140a5aa80	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+KMSDShop.txt	0x140a5ba70	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+KaJiSvr.txt	0x140a5c378	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+KillMonsterTasKExp.txt	0x140a5d008	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+LUT_00gao.png	0x140c65a00	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140a3a670
+LUT_00gao.png	0x140c65a10	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140a3a670
+LUT_00gao.png	0x140c65a20	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		
+LUT_bianjing1.png	0x140c65a30	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		
+LUT_bianjing1.png	0x140c65a48	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		
+LUT_bianjing1.png	0x140c65a60	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		
+LUT_bianjing1.png	0x140c65a78	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		
+LUT_bianjing1.png	0x140c65a90	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		
+LUT_bianjing1.png	0x140c65aa8	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		
+LUT_congren.png	0x140c65ac0	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		
+LUT_congren.png	0x140c65ae8	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		
+LUT_congren.png	0x140c65af8	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		
+LUT_congren.png	0x140c65b08	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		
+LUT_congren.png	0x140c65b18	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		
+LUT_congrenfb.png	0x140c65ad0	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		
+LUT_congrenfb.png	0x140c65b28	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		
+LUT_congrenfb.png	0x140c65b40	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		
+LiWuDuiHuanShop.txt	0x140a5bfc0	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+LimitShop.txt	0x140a5cf98	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+LinkAction.txt	0x140a5cd00	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+LiuboEquipLevelup.txt	0x140a5ac70	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+LiuboEquipStarup.txt	0x140a5ac88	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+LogicSceneAttr.txt	0x140a5a558	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+LongWenAddAttr.txt	0x140a5ad90	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+LongWenBase.txt	0x140a5ad80	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+LongWenRateBase.txt	0x140a5ada8	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+LvMaxMoney.txt	0x140a5a220	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+MCDefaultRes.txt	0x140a5ae70	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+MaleFirstName.txt	0x140b5abb0	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140343b10
+MaleLastName.txt	0x140b5abc8	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140343b10
+MartialAttr.txt	0x140a5b928	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+MartialLevel.txt	0x140a5b950	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+McardInfo.txt	0x140a5aee8	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+Mergeserver.txt	0x140a5b0c8	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+MiFaInfo.txt	0x140a5add0	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+MilitaryDetails.txt	0x140a5b4c8	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+MissionDictionary.txt	0x140a5ad48	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+MissionEffect.txt	0x140a5ad30	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+MissionItem_GroupHashTable.txt	0x140a5a6d0	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+MissionItem_HashTable.txt	0x140a5a320	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+MissionKind.txt	0x140a5a1c8	CÓ	công cụ xuất/gom nhắc đích danh tên tệp	TOOLS/content/export_config.py	0x140091610
+MissionNPC_HashTable.txt	0x140a5a340	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+MissionOutline.txt	0x140a5a520	CÓ	công cụ xuất/gom nhắc đích danh tên tệp	TOOLS/content/export_config.py	0x140091610
+MissionPet_HashTable.txt	0x140a5a360	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+MissionRef.txt	0x140a5a4d8	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+MissionTrack.txt	0x140a5a840	CHƯA CÓ	chỉ nhắc tên trong mã/chú thích, không có công cụ xuất	src/client/face/ui/panel/quest_log.cpp;TOOLS/content/collect_ui.py	0x140091610
+Mission_Delivery.txt	0x140a5a380	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+Mission_EnterArea.txt	0x140a5a3c8	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+Mission_Husong.txt	0x140a5a3e0	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+Mission_KillMonster.txt	0x140a5a3b0	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+Mission_LootItem.txt	0x140a5a398	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+Mission_SceneCycle.txt	0x140a5abc8	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+Model_Parameter.txt	0x140a5a458	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+MoneyRecycleItem.txt	0x140a5c5e8	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+MonsterAttrExTable.txt	0x140a5d468	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+MonsterLimitedTable.txt	0x140a5b5a0	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+MonsterPaoPao.txt	0x140a5a268	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+MonsterRef.txt	0x140a5a4e8	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+MovieAttr.txt	0x140a5ba48	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+MsgBall.txt	0x140a5a668	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+MsgBallType.txt	0x140a5a830	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+MultiLine.txt	0x140a3d458	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x14000a5d0
+MultiLineEx.txt	0x140a3d438	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x14000a4b0
+NameBoardEx.txt	0x140a5cde8	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+NameBoardExItem.txt	0x140a5cdd0	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+NameBoardExVisual.txt	0x140a5cdf8	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+NationalShop.txt	0x140a5bc20	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+NationalShop_KaJi_1.txt	0x140a5c958	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+NewActivePoint.txt	0x140a5c2e0	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+NewLongZhengShiZai.txt	0x140a5c258	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+NewLongZhengShiZai_KaJi_1.txt	0x140a5c600	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+NewRoleEquipSet.txt	0x140a5d3d0	CÓ	công cụ xuất/gom nhắc đích danh tên tệp	TOOLS/content/export_config.py	0x140091610
+Newserverhm.txt	0x140a5b050	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+NiudanDuihuan.txt	0x140a5c098	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+NiudanReward.txt	0x140a5c080	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+NoPackingItems.txt	0x140a5c3c0	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+NobilityDetails.txt	0x140a5b588	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+NormalRankReward.txt	0x140a3d550	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x14000b510
+NormalRankingBase.txt	0x140a3d5c0	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x14000bb00
+NotScalePetModel.txt	0x140a5bb28	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+NpcAttachMission.txt	0x140a5ad00	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+NpcTalk.txt	0x140a5aef8	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+NpcVisible.txt	0x140a5ce80	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+NumberingFashion.txt	0x140a5cd50	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+OptionalGiftBox.txt	0x140a5c780	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+OtherRef.txt	0x140a5a4f8	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+PVPShop.txt	0x140a5c4c8	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+PetAttrJinJie.txt	0x140a5b000	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+PetAttrTable.txt	0x140a5d480	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+PetEquipBase.txt	0x140a5a7d0	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+PetEquipFuse.txt	0x140a5a9a0	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+PetEquipItemAptRate.txt	0x140a5a818	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+PetEquipItemEnhance.txt	0x140a5a800	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+PetEquipSetAttr.txt	0x140a5a7e8	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+PetEquipSuitUp.txt	0x140a5a9c8	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+PetHuanLing.txt	0x140a5bac0	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+PetHuanLingItem.txt	0x140a5baa8	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+PetHuanhuaTable.txt	0x140a5aad8	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+PetLevelUpTable.txt	0x140a5a2d8	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+PetLianHua.txt	0x140a5ba98	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+PetLingXing.txt	0x140a5aaf0	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+PetMaster.txt	0x140a5b558	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+PetMedicineHCCompound.txt	0x140a5a758	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+PetNeiDan.txt	0x140a5cab0	CHƯA CÓ	chỉ nhắc tên trong mã/chú thích, không có công cụ xuất	src/client/book/skill/actions.hpp	0x140091610
+PetNeiDan_Shop.txt	0x140a5ca70	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+PetPaoPaoIndex.txt	0x140a5ac20	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+PetPaoPaoWord.txt	0x140a5ac38	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+PetPossColourRate.txt	0x140a5af98	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+PetPossPosition.txt	0x140a5cd98	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+PetPossPositionValue.txt	0x140a5cdb0	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+PetSkillBook.txt	0x140a5a728	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+PetSkillLevelup.txt	0x140a5a740	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+PetTitle.txt	0x140a5a688	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+PetTypeAttr.txt	0x140a5a538	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+Platform.txt	0x140a5a178	CHƯA CÓ	chỉ nhắc tên trong mã/chú thích, không có công cụ xuất	src/client/pack/sealtool/main.cpp;src/client/app/client/main.cpp;src/client/app/client/viewer/viewer_win32.cpp	0x140091610
+PlayerExpLevel.txt	0x140a5d420	CÓ	công cụ xuất/gom nhắc đích danh tên tệp	TOOLS/content/collect_sound.py	0x140091610
+PlayerQuicklyEnterHide.txt	0x140a5b5f8	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+PneumaInfo.txt	0x140a5ae60	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+PneumaSet.txt	0x140a5b040	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+QiXi_Shop.txt	0x140a5d268	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+QianKunDai.txt	0x140a5b178	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+QingmingJackpot.txt	0x140a5bb80	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+QingmingJackpot_CT.txt	0x140a5bbb8	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+QingmingJackpot_KaJi_1.txt	0x140a5bb98	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+RLAttrEx.txt	0x140a5b388	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+RLBase.txt	0x140a5b378	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+RLStar.txt	0x140a5b3b8	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+RMBChatAction.txt	0x140a5ab28	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+RMBChatFace.txt	0x140a5ab18	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+RSInfo.txt	0x140a5b398	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+RSSkill.txt	0x140a5b3a8	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+RankingList.txt	0x140a5c710	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+RecipeKind.txt	0x140a5a2f0	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+RecycleItem.txt	0x140a5a628	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+RecycleItemClass.txt	0x140a5a638	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+RecycleItemType.txt	0x140a5a650	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+RedPointTreeTable.txt	0x140a5c068	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+RepairRate.txt	0x140a5a448	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+ReputationTable.txt	0x140a5a498	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+ResearchItem.txt	0x140a5a418	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+ResourceFilter.txt	0x140a5b668	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+RichmanChangeSuipianClient.txt	0x140a5c998	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+RichmanChangeSuipianClient_KaJi_1.txt	0x140a5c9b8	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+RichmanChangeSuipianClient_ori.txt	0x140a5c9e0	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+RichmanMap.txt	0x140a5ca08	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+RichmanShop.txt	0x140a5ca18	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+RichmanShop_KaJi_1.txt	0x140a5ca28	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+RichmanShop_ori.txt	0x140a5ca40	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+RideCollection.txt	0x140a5cfc0	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+RideCollectionEffect.txt	0x140a5cfd8	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+RideSeries.txt	0x140a5cff8	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+RoguePT_Skill.txt	0x140a5cd10	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+SJFHShop.txt	0x140a5ca88	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+SJFHShop_KaJi_1.txt	0x140a5ca98	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+SafeItemList.txt	0x140a5b2e0	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+SafeScore.txt	0x140a5b2f8	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+SafeScore_KaJi_1.txt	0x140a5b308	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+SceneAearDefine.txt	0x140a5a430	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+SceneAreaTransfer.txt	0x140a5aed0	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+SceneAttr.txt	0x140a5a3f8	CHƯA CÓ	chỉ nhắc tên trong mã/chú thích, không có công cụ xuất	src/shared/protocol/messages.hpp	0x140091610
+SceneDefineEx.txt	0x140a5a100	CÓ	công cụ xuất/gom nhắc đích danh tên tệp	TOOLS/content/collect_map.py;TOOLS/content/collect_ui.py;TOOLS/content/export_config.py	0x140091610
+SceneFacility.txt	0x140a5bd68	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+ScenePosDefine.txt	0x140a5a118	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+ScenePosDefineEx.txt	0x140a5aea0	CHƯA CÓ	chỉ nhắc tên trong mã/chú thích, không có công cụ xuất	src/client/app/client/display/graphic/play.cpp;CMakeLists.txt	0x140091610
+Script.dat	0x140c40bc0	CHƯA CÓ	chỉ nhắc tên trong mã/chú thích, không có công cụ xuất	src/client/place/classic/classic.cpp;src/client/place/classic/classic.hpp;src/client/place/fx/cast.cpp	0x1406865b0
+Scripttalk.txt	0x140a5ba38	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+SecKillBase.txt	0x140a5b618	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+SecKillHuoDongBase.txt	0x140a5d1a0	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+ServerState.txt	0x140a5d080	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+ShenqiLeveUp.txt	0x140a5a8b0	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+ShideShop.txt	0x140a5b698	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+ShideShop_QX.txt	0x140a5b6a8	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+ShopBaodi.txt	0x140a5bff8	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+ShopDuihuan.txt	0x140a5bfe8	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+ShopLibao.txt	0x140a5bfd8	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+ShopRandom.txt	0x140a5afc8	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+ShopTable.txt	0x140a5a5f0	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+ShopTable_KaJi_1.txt	0x140a5a600	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+ShopVIP.txt	0x140a5afd8	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+ShopVIP_KaJi_1.txt	0x140a5afe8	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+ShouKaiKaItemTable.txt	0x140a5b188	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+SkillData_V1.txt	0x140a5a1b0	CÓ	công cụ xuất/gom nhắc đích danh tên tệp	TOOLS/content/export_config.py	0x140091610
+SkillDeplete.txt	0x140a5a098	CHƯA CÓ	chỉ nhắc tên trong mã/chú thích, không có công cụ xuất	src/client/book/skill/book.hpp	0x140091610
+SkillTemplate_V1.txt	0x140a5a080	CÓ	công cụ xuất/gom nhắc đích danh tên tệp	TOOLS/content/export_config.py;TOOLS/content/export_skills.py	0x140091610
+SlotCost.txt	0x140a5a310	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+SnowItem.txt	0x140a5cef0	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+SoundInfo.txt	0x140a5d520	CÓ	công cụ xuất/gom nhắc đích danh tên tệp	TOOLS/content/collect_sound.py	0x140091610
+SoundUI.txt	0x140a5d530	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+SpecialDressColor.txt	0x140a5c270	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+SpecialDressEffect.txt	0x140a5c4b0	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+SpecialEquipVisiblRule.txt	0x140a5a5d0	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+SpecialObjData.txt	0x140a5a0b8	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+SpecialPriority.txt	0x140a5b320	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+SpecialSceneCamera.txt	0x140a5c0b0	CHƯA CÓ	chỉ nhắc tên trong mã/chú thích, không có công cụ xuất	src/client/figure/control/follow_camera.hpp;src/client/figure/control/player_input.cpp;src/client/figure/control/player_input.hpp	0x140091610
+SpecialSceneName.txt	0x140a5a5b8	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+SpecialServerIDTable.txt	0x140a5b158	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+SpringFestivalBiddingBonus.txt	0x140a5bd80	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+SpringFestivalBiddingBonus_KaJi_1.txt	0x140a5bda0	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+StrDictionary.txt	0x140a5a1d8	CÓ	công cụ xuất/gom nhắc đích danh tên tệp	TOOLS/content/collect_ui.py;TOOLS/content/verify_ui.py	0x140091610
+StrDictionary.txt	0x140ba6b38	CÓ	công cụ xuất/gom nhắc đích danh tên tệp	TOOLS/content/collect_ui.py;TOOLS/content/verify_ui.py	0x140446f60
+StrFilter.txt	0x140a5a210	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+StrReplace.txt	0x140a5ab78	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+StrTalkTemplateTable.txt	0x140a5a598	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+SummerZhanLingInfo.txt	0x140a5cf38	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+SummerZhanLingInfo_KaJi_1.txt	0x140a5cf50	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+SummonerAttr.txt	0x140a5a0d0	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+SuperWeapon9Res.txt	0x140a5b978	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+SuperWeapon9WG.txt	0x140a5af80	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+SuperWeaponDownItemBack.txt	0x140a5b088	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+SuperWeaponDownMaterial.txt	0x140a5b0a8	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+SuperWeaponJJ.txt	0x140a5af50	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+SuperWeaponQH.txt	0x140a5af38	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+SuperWeaponSkillActivation.txt	0x140a5b8b0	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+SuperWeaponSkillLevelUp.txt	0x140a5b8d0	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+SuperWeaponTL.txt	0x140a5af20	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+SuperWeaponUp.txt	0x140a5a888	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+SuperWeaponWG.txt	0x140a5af68	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+SystemColour.txt	0x140a5d450	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+T300Battlefield.txt	0x140a5c008	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+T300JZWLZDAward.txt	0x140a3d7d8	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x14000cc40
+T300Line.txt	0x140a5c020	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+T300SceneIDInfo.txt	0x140a3d838	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x14000d6f0
+TAnonymousInfo.txt	0x140a3d938	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x14000d9b0,0x14000de60
+TLCJPlayerExpLevel.txt	0x140a5ce68	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+TLCJShop.txt	0x140a5cf28	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+TLCJSkillTips.txt	0x140a5ced8	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+TalentInfo.txt	0x140a5b968	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+TalentLayerLevel.txt	0x140a5ba10	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+TaskCollections.txt	0x140a5ad18	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+TeSeServer.txt	0x140a5c388	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+TeamBoardGoal.txt	0x140a5ab40	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+TelCode.txt	0x140a5b0f0	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+ThanksJackpot.txt	0x140a5bb50	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+ThanksJackpot_KaJi_1.txt	0x140a5c3d8	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+TianJiChengShop.txt	0x140a5cb68	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+TianJiChengShop_KaJi_1.txt	0x140a5cb80	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+TitleFlash.txt	0x140a5b548	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+ToushiSkill.txt	0x140a5d020	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+Toy.txt	0x140a5c2f8	CHƯA CÓ	chỉ nhắc tên trong mã/chú thích, không có công cụ xuất	src/client/book/skill/actions.hpp;TOOLS/content/export_weapons.py	0x140091610
+ToyItem.txt	0x140a5c300	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+TransportDefine.txt	0x140a5aeb8	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+Tujian.txt	0x140a5ad60	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+UICommandIndex.txt	0x140a5ab88	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+UnderArmour.txt	0x140a5c798	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+UnderArmourJewel.txt	0x140a5c828	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+UnderArmourJewelCompound.txt	0x140a5c8b0	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+UnderArmourJewelEffect.txt	0x140a5c890	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+UnderArmourJewelExtra.txt	0x140a5c8d0	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+UnderArmourLevel.txt	0x140a5c7a8	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+UnderArmourPlate.txt	0x140a5c840	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+UnderArmourRank.txt	0x140a5c7c0	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+UnderArmourStar.txt	0x140a5c7d8	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+VipFuncName.txt	0x140a5ae08	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+VipInfo.txt	0x140a5adf8	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+VipMotionBlend.txt	0x140a5a470	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+WR_BossRef.txt	0x140a5a6f0	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+WR_MainPage.txt	0x140a5a4c8	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+WeaponVisualLocator.txt	0x140a5c3a8	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+WeblinkTable.txt	0x140a5aba0	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+WinterShop.txt	0x140a5cd28	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+WuShenTanShop.txt	0x140a5d228	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+WuShenTanSvr.txt	0x140a5d210	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+XBWJHSHonourWall.txt	0x140a5d290	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+XFTQ_Shop.txt	0x140a5c988	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+XF_QuanMinBaXing.txt	0x140a5cc40	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+XbwDuanweiTable_2018.txt	0x140a5bad0	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+XbwHonourWall.txt	0x140a5cf70	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+XbwTimeTable_2018.txt	0x140a5baf0	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+XbwTimeTable_JiHouSai.txt	0x140a5bb08	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+XiGuaShop.txt	0x140a5cba0	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+XiGuaShop_CT.txt	0x140a5cbc8	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+XiGuaShop_KaJi_1.txt	0x140a5cbb0	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+XiaKeShop.txt	0x140a5cf88	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+XiaKeShop_KaJi.txt	0x140a5cfa8	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+XinFaStudySpend_V1.txt	0x140a5a188	CÓ	công cụ xuất/gom nhắc đích danh tên tệp	TOOLS/content/export_config.py	0x140091610
+XinFa_V1.txt	0x140a5d558	CÓ	công cụ xuất/gom nhắc đích danh tên tệp	TOOLS/content/export_config.py	0x140091610
+XinShouHeroesRoad.txt	0x140a5b628	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+XinShouZhanLing_Award.txt	0x140a5c620	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+XinShouZhanLing_Award_KaJi.txt	0x140a5c640	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+XinShouZhanLing_Award_QX.txt	0x140a5c660	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+XinShouZhanLing_Mission.txt	0x140a5c680	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+XinShouZhanLing_Mission_KaJi.txt	0x140a5c6a0	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+XinShouZhanLing_Mission_QX.txt	0x140a5c6c8	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+XingZhen.txt	0x140a5be30	CHƯA CÓ	chỉ nhắc tên trong mã/chú thích, không có công cụ xuất	src/client/book/skill/actions.hpp	0x140091610
+XingZhen_AttrPriority.txt	0x140a5bf18	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+XingZhen_Chip.txt	0x140a5bf70	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+XingZhen_Interests.txt	0x140a5be88	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+XingZhen_JiBan_Award.txt	0x140a5bed8	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+XingZhen_Level.txt	0x140a5be70	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+XingZhen_NPCShop.txt	0x140a5bd50	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+XingZhen_NPCShopItem.txt	0x140a5bd30	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+XingZhen_Skill.txt	0x140a5be40	CHƯA CÓ	chỉ nhắc tên trong mã/chú thích, không có công cụ xuất	src/client/book/skill/actions.hpp	0x140091610
+XingZhen_SkillBook.txt	0x140a5be58	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+XingZhen_Skill_PingFen.txt	0x140a5bf38	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+XingZhen_YingXiong.txt	0x140a5bea0	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+XingZhen_YingXiong_Award.txt	0x140a5beb8	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+XiuChangNotice.txt	0x140b45bb8	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x14030efb0
+XiuLianBook.txt	0x140a5aab8	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+XiuLianDetail.txt	0x140a5aa90	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+XiuLianMiJi.txt	0x140a5aaa8	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+XiuLianRate.txt	0x140a5aac8	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+XueWeiBook.txt	0x140a5adc0	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+XunzhangInfo.txt	0x140a5ce10	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+YueLiAttr.txt	0x140a5abb8	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+ZMPTEnter.txt	0x140a5cc30	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+ZM_Shop.txt	0x140a5cc08	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+ZM_dizilevel.txt	0x140a5cc18	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+ZdZdAutoPickType.txt	0x140a5c970	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+ZdZdPotion.txt	0x140a5c408	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+ZdZdScene.txt	0x140a5c418	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+ZdZdSkill.txt	0x140a5c3f8	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+ZhanLingInfo.txt	0x140a5bca0	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+ZhanLingInfo_CT.txt	0x140a5bcd0	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+ZhanLingInfo_KaJi_1.txt	0x140a5bcb8	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+ZhanLingInfo_QX.txt	0x140a5bce8	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+ZhaoHui.txt	0x140a5ba28	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+ZhenFaDemand.txt	0x140a5b680	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+ZhenFaStr.txt	0x140a5b6c0	CÓ	công cụ xuất/gom nhắc đích danh tên tệp	TOOLS/content/export_config.py	0x140091610
+ZhenShouDanPreView.txt	0x140a5afb0	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+ZhengZhao.txt	0x140a5b148	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+ZhiZunEquipRate.txt	0x140a5b6d0	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+ZhouNianChouJiang.txt	0x140a5bbd0	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+ZhouNianChouJiang_KaJi_1.txt	0x140a5bbe8	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+ZongmenEquip_Ext.txt	0x140a5cc68	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+ZongmenTalent.txt	0x140a5b650	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+ZongmenTitle.txt	0x140a5ccd0	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+\*.bin	0x140c618cc	KHÔNG SO ĐƯỢC	mẫu định dạng hoặc đường dẫn chung (chứa %, \, / hoặc chỉ là đuôi)		0x1406b8590
+\*.bin	0x140c6191c	KHÔNG SO ĐƯỢC	mẫu định dạng hoặc đường dẫn chung (chứa %, \, / hoặc chỉ là đuôi)		0x1406b8590
+\ClientType.cfg	0x140a3d390	KHÔNG SO ĐƯỢC	mẫu định dạng hoặc đường dẫn chung (chứa %, \, / hoặc chỉ là đuôi)		0x140008d70
+anniversary7hit.txt	0x140a5ba58	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+baoshipingfen.txt	0x140a5b410	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+bieyemengchongReputation.txt	0x140a5b9d8	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+bieyemengchongcolor.txt	0x140a5b9c0	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+buffbuchang.txt	0x140a5b760	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+congren.Scene	0x140c65448	CÓ	dev/client/assets/Scene có 3 tệp congren.* (client đọc dữ liệu đã gom, không đọc .Scene gốc)		0x1406c0580
+congrensg.Scene	0x140c65458	CÓ	dev/client/assets/Scene có 3 tệp congrensg.* (client đọc dữ liệu đã gom, không đọc .Scene gốc)		0x1406c0580
+congrentx.Scene	0x140c65468	CÓ	dev/client/assets/Scene có 3 tệp congrentx.* (client đọc dữ liệu đã gom, không đọc .Scene gốc)		0x1406c0580
+diaowenpingfen.txt	0x140a5b440	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+emei.track	0x140b1bf40	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x1402383b0
+erengu_DL.Scene	0x140c2a580	CÓ	dev/client/assets/Scene có 11 tệp erengu_DL.* (client đọc dữ liệu đã gom, không đọc .Scene gốc)		0x140630fd0
+erengu_DL.Scene	0x140c66220	CÓ	dev/client/assets/Scene có 11 tệp erengu_DL.* (client đọc dữ liệu đã gom, không đọc .Scene gốc)		0x1406c74a0
+fengmingBiddingItem.txt	0x140a5c768	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+fmhostiletime.txt	0x140a5c720	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+gaibang.track	0x140b1bb80	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x1402383b0
+gradeflash.txt	0x140a5b538	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+gusu.track	0x140b1c8e0	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x1402383b0
+installgemprice.txt	0x140a5b338	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+interface\click_fail.wav	0x140a5f9a8	KHÔNG SO ĐƯỢC	mẫu định dạng hoặc đường dẫn chung (chứa %, \, / hoặc chỉ là đuôi)		0x1400a83d0
+interface\quest_accet.wav	0x140a5dde8	KHÔNG SO ĐƯỢC	mẫu định dạng hoặc đường dẫn chung (chứa %, \, / hoặc chỉ là đuôi)		0x14009d1e0
+interface\quest_complete.wav	0x140a5f9c8	KHÔNG SO ĐƯỢC	mẫu định dạng hoặc đường dẫn chung (chứa %, \, / hoặc chỉ là đuôi)		0x1400a83d0
+jianzhitianhuangitem.txt	0x140a5c938	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+jierihuodong.txt	0x140a5a8d8	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+jierihuodong_DZD.txt	0x140a5a950	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+jierihuodong_KaJi_1.txt	0x140a5a900	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+jierihuodong_QX.txt	0x140a5a928	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+md5.txt	0x140c285f0	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140622910
+md5l.txt	0x140c28748	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140622910
+mingjiao.track	0x140b1b9b8	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x1402383b0
+ngmain.lua	0x140b875b8	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x1403cf1d0
+rankflash.txt	0x140a5b528	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
+shaolin.track	0x140b1b810	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x1402383b0
+tangmen.track	0x140b1cac0	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x1402383b0
+tangmen.track	0x140b1cca0	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x1402383b0
+tangmen.track	0x140b1cf28	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x1402383b0
+tangmen.track	0x140b1d140	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x1402383b0
+tangmen.track	0x140b1d2b0	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x1402383b0
+tianlong.track	0x140b1c248	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x1402383b0
+tianshan.track	0x140b1c4d0	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x1402383b0
+tl3chuangjian.Scene	0x140c299c8	CÓ	dev/client/assets/Scene có 8 tệp tl3chuangjian.* (client đọc dữ liệu đã gom, không đọc .Scene gốc)		0x14062ce70
+tl3chuangjian.Scene	0x140c2bc68	CÓ	dev/client/assets/Scene có 8 tệp tl3chuangjian.* (client đọc dữ liệu đã gom, không đọc .Scene gốc)		0x14063d530
+tl3chuangjian.Scene	0x140c66258	CÓ	dev/client/assets/Scene có 8 tệp tl3chuangjian.* (client đọc dữ liệu đã gom, không đọc .Scene gốc)		0x1406c74a0
+wudang.track	0x140b1bdc0	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x1402383b0
+xiaoyao.track	0x140b1c708	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x1402383b0
+xingxiu.track	0x140b1c050	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x1402383b0
+zhenyuanpingfen.txt	0x140a5b3f8	CHƯA CÓ	không có mã hay công cụ nào nhắc tên		0x140091610
