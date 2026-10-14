@@ -7,7 +7,8 @@
 // - Cây lưu phẳng trong một vector, phần tử con trỏ nhau bằng chỉ số, nên Document chép và dời được
 //   mà không có tham chiếu treo. Tên và giá trị là chuỗi sở hữu, không trỏ vào văn bản nguồn.
 // - Không hỗ trợ DTD và CDATA (kho gốc không dùng); gặp thì báo lỗi.
-// - Không đổi bảng mã: văn bản vào là UTF-8 thì chuỗi ra là UTF-8.
+// - Chuỗi ra luôn là UTF-8. Văn bản vào là UTF-8 (BOM, nếu có, bị bỏ) hoặc UTF-16 có BOM (LE hay BE; đổi sang
+//   UTF-8 trước khi đọc, nên vị trí byte của lỗi tính trên bản đã đổi). UTF-16 hỏng là kBadSyntax ở byte 0.
 #pragma once
 
 #include <cstddef>

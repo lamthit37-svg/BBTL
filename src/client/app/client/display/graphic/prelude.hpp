@@ -38,7 +38,6 @@
 #include "client/map/samples.hpp"
 #include "client/stage/props.hpp"
 #include "client/stage/stage.hpp"
-#include "client/timeline.hpp"
 #include "control/cursor_rules.hpp"
 #include "control/follow_camera.hpp"
 #include "control/ground.hpp"
@@ -55,6 +54,7 @@
 #include "core/system.hpp"
 #include "core/text.hpp"
 #include "core/thread.hpp"
+#include "core/timeline.hpp"
 #include "gpu/barrier.hpp"
 #include "gpu/command.hpp"
 #include "gpu/device.hpp"
@@ -102,10 +102,6 @@
 #ifdef __ANDROID__
 #include <android/log.h>
 #endif
-#if defined(__APPLE__)
-#include <TargetConditionals.h>
-#endif
-
 #include <algorithm>
 #include <array>
 #include <atomic>
@@ -120,6 +116,7 @@
 #include <filesystem>
 #include <format>
 #include <fstream>
+#include <future>
 #include <ios>
 #include <iterator>
 #include <limits>
@@ -130,7 +127,6 @@
 #include <print>
 #include <ranges>
 #include <ratio>
-#include <future>
 #include <span>
 #include <stop_token>
 #include <string>
@@ -563,7 +559,7 @@ inline void place_walk(WalkPose& pose, const MapGround& ground, int scene_id, ma
 // thành kOpenWeb kèm trang của nó. Khác gốc: trợ giúp của bản gốc là bảng Helper trong game
 // (Helper:GotoHelper), chưa port, nên tạm mở trang web.
 struct ActionRequest {
-    ui::Action action;
+    ui::Action action{};
     Request request;
 };
 
@@ -661,11 +657,7 @@ struct DecodeOne {
 
 // Cạnh dài tối đa của atlas cọ: PC 4096, điện thoại 2048 vì GLES 3 chỉ bảo đảm texture 2048. Bản đồ thật cần ~1024
 // (11 ảnh cọ 128 tới 512 cạnh, mỗi ảnh đệm 16 điểm ảnh).
-#if defined(__ANDROID__) || defined(__APPLE__)
-inline constexpr std::uint32_t kAtlasEdge = 2048;
-#else
-inline constexpr std::uint32_t kAtlasEdge = 4096;
-#endif
+inline constexpr std::uint32_t kAtlasEdge = ui::kPhone ? 2048 : 4096;
 
 // Mức mip lớn nhất mà sampler atlas được dùng: atlas đệm 16 điểm ảnh và đặt ở bội của 16, nên tới mức 4 mip không
 // trộn ảnh cọ kề nhau (map/splat.hpp).
@@ -1234,8 +1226,10 @@ struct CacheId {
     return std::ranges::any_of(list, [](const gpu::AdapterInfo& info) { return !info.is_software; });
 }
 
-// id (backend và hash shader đã điền) cùng vendor và device của adapter thứ index trong list; index ngoài list thì giữ id.
-[[nodiscard]] inline CacheId identity_in(std::span<const gpu::AdapterInfo> list, std::size_t index, CacheId id) noexcept {
+// id (backend và hash shader đã điền) cùng vendor và device của adapter thứ index trong list; index ngoài list thì giữ
+// id.
+[[nodiscard]] inline CacheId identity_in(std::span<const gpu::AdapterInfo> list, std::size_t index,
+    CacheId id) noexcept {
     if (index >= list.size()) return id;
     id.vendor = list[index].vendor_id;
     id.device = list[index].device_id;

@@ -5,6 +5,8 @@
 #include "anim/pose.hpp"
 #include "anim/rig.hpp"
 #include "avatar/gait.hpp"
+#include "avatar/rig.hpp"
+#include "classic/bake.hpp"
 #include "core/error.hpp"
 #include "io/file.hpp"
 #include "look/look.hpp"
@@ -12,9 +14,7 @@
 #include "math/vector.hpp"
 #include "ogre/quat.hpp"
 #include "ogre/vec3.hpp"
-#include "classic/bake.hpp"
 #include "resource/model.hpp"
-#include "avatar/rig.hpp"
 
 #include <algorithm>
 #include <cstddef>
@@ -134,7 +134,8 @@ core::Result<Avatar> Avatar::load(const look::Figure& figure, const std::filesys
     if (figure.idle_trim) {
         const auto found = std::ranges::find(bones.bones, figure.idle_trim->bone, &anim::Bone::name);
         if (found == bones.bones.end()) {
-            return core::fail(core::ErrorCode::kCorrupt, "skeleton không có xương cần chỉnh", "{}", figure.idle_trim->bone);
+            return core::fail(core::ErrorCode::kCorrupt, "skeleton không có xương cần chỉnh", "{}",
+                figure.idle_trim->bone);
         }
         const ogre::Vec3 own_z{.x = 0.0F, .y = 0.0F, .z = 1.0F};
         avatar.trim_ = Trim{.handle = found->handle, .turn = ogre::quat_from_angle_axis(figure.idle_trim->turn, own_z)};

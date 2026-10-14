@@ -37,7 +37,7 @@ using detail::ShaderPair;
     return {.location = location, .buffer = 0, .format = format, .offset = static_cast<std::uint32_t>(offset)};
 }
 
-// Theo location của model.vs.hlsl: thứ tự trường của resource::Vertex.
+// Theo location của model.vs.slang: thứ tự trường của resource::Vertex.
 constexpr std::array<gpu::VertexAttribute, 6> kModelAttributes{
     attribute(0, gpu::Format::kRgb32Float, offsetof(resource::Vertex, position)),
     attribute(1, gpu::Format::kRgb32Float, offsetof(resource::Vertex, normal)),
@@ -242,8 +242,7 @@ void Catalog::take_loaded(const Entry& entry, std::span<const gpu::ShaderHandle>
     ++created;
 }
 
-void Catalog::warm_family(Tier tier, const Entry& pair, std::uint32_t& created,
-    std::optional<core::Error>& required) {
+void Catalog::warm_family(Tier tier, const Entry& pair, std::uint32_t& created, std::optional<core::Error>& required) {
     if (!tier_has(tier, pair)) return;
     const std::string folder = detail::shader_folder(desc_.shader_dir);
     ShaderPair shaders(*device_);

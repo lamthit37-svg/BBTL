@@ -300,7 +300,7 @@ void book_reads_scene_music(Context& context) {
     context.expect(minus->music == 0, "số âm: không có nhạc");
 }
 
-// Số 16 bit từ hai kênh (cao, thấp) của một texel, đúng như word16 của terrain.ps.hlsl.
+// Số 16 bit từ hai kênh (cao, thấp) của một texel, đúng như word16 của terrain.ps.slang.
 [[nodiscard]] float word16(std::uint8_t high, std::uint8_t low) noexcept {
     return static_cast<float>((static_cast<std::uint32_t>(high) << 8U) | low) / 65535.0F;
 }

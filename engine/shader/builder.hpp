@@ -45,7 +45,7 @@ enum class Outcome : std::uint8_t {
 struct BuildResult {
     std::string name;
     Outcome outcome = Outcome::kFailed;
-    // Lỗi khi Failed; cảnh báo của DXC khi Built.
+    // Lỗi khi Failed; cảnh báo của Slang khi Built.
     std::string messages;
 };
 
@@ -60,26 +60,26 @@ struct BuildReport {
 // Một gói đã dựng trong bộ nhớ.
 struct Packed {
     std::vector<std::byte> bytes;
-    // Cảnh báo của DXC, gộp của mọi bản dịch.
+    // Cảnh báo của Slang, gộp của mọi bản dịch.
     std::string messages;
 };
 
 // Dịch mọi biến thể của spec cho mọi đích và dựng nội dung gói; không ghi đĩa.
-[[nodiscard]] Result<Packed> pack(const Compiler& compiler, const Manifest& manifest,
-    const ShaderSpec& spec, const BuildOptions& options);
+[[nodiscard]] Result<Packed> pack(const Compiler& compiler, const Manifest& manifest, const ShaderSpec& spec,
+    const BuildOptions& options);
 
 // Gói của spec trên đĩa có còn khớp không: cùng trình dịch, tuỳ chọn, define, và mọi tệp nó phụ
 // thuộc còn nguyên nội dung.
-[[nodiscard]] bool is_fresh(const Compiler& compiler, const Manifest& manifest,
-    const ShaderSpec& spec, const BuildOptions& options);
+[[nodiscard]] bool is_fresh(const Compiler& compiler, const Manifest& manifest, const ShaderSpec& spec,
+    const BuildOptions& options);
 
 // Dựng một shader: bỏ qua nếu còn mới, không thì dịch rồi ghi gói bằng một lần thay tệp nguyên tử.
-[[nodiscard]] BuildResult build_shader(const Compiler& compiler, const Manifest& manifest,
-    const ShaderSpec& spec, const BuildOptions& options);
+[[nodiscard]] BuildResult build_shader(const Compiler& compiler, const Manifest& manifest, const ShaderSpec& spec,
+    const BuildOptions& options);
 
 // Dựng cả danh sách. jobs khác null thì các shader dịch song song và luồng gọi cùng làm; null thì
 // tuần tự.
-[[nodiscard]] BuildReport build(const Compiler& compiler, const Manifest& manifest,
-    const BuildOptions& options, jobs::JobSystem* jobs = nullptr);
+[[nodiscard]] BuildReport build(const Compiler& compiler, const Manifest& manifest, const BuildOptions& options,
+    jobs::JobSystem* jobs = nullptr);
 
 } // namespace game::shader

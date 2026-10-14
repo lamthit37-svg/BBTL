@@ -318,7 +318,8 @@ std::chrono::microseconds process_age() noexcept {
     FILETIME kernel{};
     FILETIME user{};
     FILETIME now{};
-    if (GetProcessTimes(GetCurrentProcess(), &created, &exited, &kernel, &user) == 0) return std::chrono::microseconds::zero();
+    if (GetProcessTimes(GetCurrentProcess(), &created, &exited, &kernel, &user) == 0)
+        return std::chrono::microseconds::zero();
     GetSystemTimePreciseAsFileTime(&now);
     const auto ticks_of = [](const FILETIME& stamp) {
         return (static_cast<std::uint64_t>(stamp.dwHighDateTime) << 32U) | stamp.dwLowDateTime;

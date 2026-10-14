@@ -1,0 +1,17 @@
+# schema 1
+# source: Public/Scene/shuilao_monster_160.ini
+# tool: TOOLS/server/export_scene.py; sửa tay sẽ mất ở lượt xuất sau
+# types: int	int	text	text	float	float	int	int	int	int	int	int	int	int	int	int	int	int	int	int	int	int	text	int	int	int
+guid	type	name	title	position_x	position_z	direction	script_id	respawn_time	group_id	team_id	base_ai	ai_file	patrol_id	shop_0	shop_1	shop_2	shop_3	level	is_pet	script_timer	reputation_id	cshop	leader_id	is_npc	camp
+4832386	31655			84.9027	151.0349	27	-1	-1	1	-1	14	140	-1	-1	-1	-1	-1								
+4832388	31665			119.5657	151.5225	27	-1	-1	1	-1	14	141	-1	-1	-1	-1	-1								
+4832392	31675			49.2335	152.6832	27	-1	-1	1	-1	14	142	-1	-1	-1	-1	-1								
+4832394	31685			41.4945	122.0421	27	-1	-1	1	-1	14	143	-1	-1	-1	-1	-1								
+4832396	31695			41.7766	85.7181	27	-1	-1	1	-1	14	144	-1	-1	-1	-1	-1								
+4832398	31705			40.1224	46.7591	27	-1	-1	1	-1	14	145	-1	-1	-1	-1	-1								
+4832400	31715			71.5742	42.4701	27	-1	-1	1	-1	14	146	-1	-1	-1	-1	-1								
+4832402	31725			107.4001	41.3855	27	-1	-1	1	-1	14	147	-1	-1	-1	-1	-1								
+4832404	31735			144.6832	41.6924	27	-1	-1	1	-1	14	148	-1	-1	-1	-1	-1								
+4832406	31745			149.8699	72.2396	27	-1	-1	1	-1	14	149	-1	-1	-1	-1	-1								
+4832408	31755			150.7712	107.8804	27	-1	-1	1	-1	14	150	-1	-1	-1	-1	-1								
+4832411	31765			151.2032	149.5273	27	-1	-1	1	-1	14	151	-1	-1	-1	-1	-1								

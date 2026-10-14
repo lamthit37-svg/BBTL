@@ -10,10 +10,12 @@
 #include "gui/loader.hpp"
 #include "gui/sheet.hpp"
 #include "gui/value.hpp"
+#include "io/file.hpp"
 #include "test.hpp"
 
 #include <algorithm>
 #include <array>
+#include <fstream>
 #include <cmath>
 #include <cstddef>
 #include <cstdint>
@@ -75,7 +77,12 @@ void add_one(
     if (!added) failures.push_back(layout + ": " + added.error());
 }
 
-Loaded load_all(const gui::FileSource& files) {
+// Layout điện thoại (phone/) dự án tự dựng: không có bản gốc, cửa sổ trùng tên cửa sổ PC.
+bool is_phone_layout(std::string_view layout) {
+    return layout.starts_with("phone/");
+}
+
+Loaded load_all(const gui::FileSource& files, bool with_phone = true) {
     Loaded loaded;
     gui::GuiSources sources;
     sources.files = &files;
@@ -86,7 +93,7 @@ Loaded load_all(const gui::FileSource& files) {
     }
     loaded.loader.emplace(std::move(*opened));
     for (const std::string& layout : collected_layouts())
-        add_one(*loaded.loader, loaded.failures, layout);
+        if (with_phone || !is_phone_layout(layout)) add_one(*loaded.loader, loaded.failures, layout);
     return loaded;
 }
 
@@ -104,14 +111,22 @@ void loads_every_layout(Context& context) {
 }
 
 // Ghi chú chỉ được là chỗ hỏng có sẵn trong dữ liệu gốc: vài tên ảnh không tồn tại trong imageset,
-// và hoạt ảnh CoolDownEnd2 mà ô kỹ năng của các thanh phụ nhắc tới nhưng wowanimate.xml của client
-// 2026 không còn.
+// và bảy hoạt ảnh (CoolDownEnd2 của ô kỹ năng thanh phụ, cùng sáu cái khác) layout gốc nhắc tới mà
+// dữ liệu Interface của client 2026 không khai.
 void notes_are_known_gaps(Context& context) {
     const gui::DiskSource files(interface_root());
     const Loaded loaded = load_all(files);
     if (!loaded.loader) return;
     const auto is_known = [](std::string_view note) {
-        return note.starts_with("không có ảnh ") || note == "không có hoạt ảnh CoolDownEnd2";
+        // Bảy hoạt ảnh layout gốc nhắc tới mà không tệp XML nào của Interface 2026 (F:\tl 2026\_goc)
+        // khai `<Animate Name=...>`: đếm lại 2026-10-13, wowanimate.xml giống từng byte bản đã gom.
+        constexpr std::array<std::string_view, 7> kMissingInOriginal = {"CoolDownEnd2", "ChatSignMini_MPMJ_1",
+            "HZJYR_Luck", "HZJYR_Success", "ShuangDan_Huoguo_Counting_Light", "BaoJian1",
+            "XinShouNew_SheJiaoDaRen_RewardFrame_Flash"};
+        constexpr std::string_view kNoAnimate = "không có hoạt ảnh ";
+        if (note.starts_with("không có ảnh ")) return true;
+        if (!note.starts_with(kNoAnimate)) return false;
+        return std::ranges::find(kMissingInOriginal, note.substr(kNoAnimate.size())) != kMissingInOriginal.end();
     };
     for (const std::string_view note : loaded.loader->notes())
         context.expect(is_known(note), note);
@@ -135,12 +150,13 @@ void arrow_animate_is_collected(Context& context) {
     context.expect(image.width == 32.0F && image.height == 32.0F, "ảnh 32 x 32");
 }
 
-void every_texture_has_png(Context& context) {
+// Bộ vẽ mở đúng tệp Imagefile gốc (dds, tga, png, jpg) dưới Interface, không nối ".png" (ui/painter.cpp).
+void every_texture_has_file(Context& context) {
     const gui::DiskSource files(interface_root());
     const Loaded loaded = load_all(files);
     if (!loaded.loader) return;
     for (const std::string& texture : loaded.loader->asset().textures)
-        context.expect(fs::exists(interface_root() / (texture + ".png")), texture);
+        context.expect(fs::exists(interface_root() / io::path_from_utf8(texture)), texture);
 }
 
 // Quad hợp lệ: texture trong miền, ô đích có diện tích dương.
@@ -198,6 +214,7 @@ constexpr std::size_t kShownMisses = 12;
 // Một dòng golden: ô getUnclippedPixelRect của một cửa sổ ở một cỡ màn hình.
 struct GoldenRow {
     ScreenSize screen;
+    std::string layout;
     std::string window;
     gui::Box box;
 };
@@ -219,6 +236,7 @@ std::optional<GoldenRow> golden_row(std::string_view line) {
     if (cells.size() != kGoldenColumns || cells.front() == "screen_w") return std::nullopt;
     GoldenRow row;
     row.screen = ScreenSize{.width = number_of(cells.at(0)), .height = number_of(cells.at(1))};
+    row.layout = std::string(cells.at(2));
     row.window = std::string(cells.at(3));
     row.box.x = number_of(cells.at(4));
     row.box.y = number_of(cells.at(5));
@@ -270,7 +288,7 @@ void compare_row(const gui::Hub& hub, const GoldenRow& row, Tally& tally) {
     const std::string screen = std::to_string(static_cast<int>(row.screen.width));
     const std::string found = got ? box_text(*got) : std::string("không có");
     tally.misses.push_back(
-        screen + " " + row.window + ": golden " + box_text(row.box) + ", Hub " + found);
+        screen + "\t" + row.layout + "\t" + row.window + "\tgolden " + box_text(row.box) + "\tHub " + found);
 }
 
 // Một lượt so golden: asset, mọi dòng golden và cỡ màn hình đang so.
@@ -307,7 +325,8 @@ void window_boxes_match_golden(Context& context) {
     if (kGoldenFolder.empty()) return;
     const std::vector<GoldenRow> rows = golden_rows();
     const gui::DiskSource files(interface_root());
-    const Loaded loaded = load_all(files);
+    // Golden chỉ có layout PC có bản gốc (TOOLS/content/ui_rects.py bỏ phone/), nên chỉ nạp các layout đó.
+    const Loaded loaded = load_all(files, false);
     if (!loaded.loader) return;
     const gui::GuiAsset& asset = loaded.loader->asset();
     // Golden chỉ có cửa sổ khai trong layout; con mà look tự dựng (thanh cuộn...) không nằm trong đó.
@@ -320,6 +339,14 @@ void window_boxes_match_golden(Context& context) {
         compare_screen(GoldenPass{.asset = &asset, .rows = rows, .size = size}, tally);
     context.expect(tally.compared == rows.size(), "mọi dòng golden thuộc bốn cỡ màn hình");
     const std::string total = std::to_string(tally.misses.size()) + " ô lệch golden";
+    if (!tally.misses.empty()) {
+        // Ghi đủ mọi dòng lệch (cỡ màn hình, layout, cửa sổ, golden, Hub) để soát theo layout.
+        std::ofstream dump(fs::current_path() / "gui_real_misses.tsv", std::ios::binary);
+        dump << "screen\tlayout\twindow\tgolden\thub\n";
+        for (const std::string& miss : tally.misses)
+            dump << miss << '\n';
+        context.expect(static_cast<bool>(dump), "ghi gui_real_misses.tsv");
+    }
     context.expect(tally.misses.empty(), total);
     for (const std::string& miss : tally.misses | std::views::take(kShownMisses))
         context.expect(false, miss);
@@ -329,7 +356,7 @@ constexpr std::array kCases{
     Case{.name = "loads_every_layout", .body = &loads_every_layout},
     Case{.name = "notes_are_known_gaps", .body = &notes_are_known_gaps},
     Case{.name = "arrow_animate_is_collected", .body = &arrow_animate_is_collected},
-    Case{.name = "every_texture_has_png", .body = &every_texture_has_png},
+    Case{.name = "every_texture_has_file", .body = &every_texture_has_file},
     Case{.name = "lays_out_at_three_sizes", .body = &lays_out_at_three_sizes},
     Case{.name = "window_boxes_match_golden", .body = &window_boxes_match_golden},
 };

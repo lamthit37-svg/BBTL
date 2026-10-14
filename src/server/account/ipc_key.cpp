@@ -15,6 +15,8 @@
 #define NOMINMAX
 #endif
 #include <windows.h>
+
+// aclapi.h và sddl.h cần kiểu của windows.h nên đứng sau, khối riêng để clang-format không xếp lại.
 #include <aclapi.h>
 #include <sddl.h>
 #else
@@ -108,7 +110,8 @@ struct Handle {
     attributes.nLength = sizeof(attributes);
     attributes.lpSecurityDescriptor = sd;
     attributes.bInheritHandle = FALSE;
-    const Handle file{CreateFileW(path.c_str(), GENERIC_WRITE, 0, &attributes, CREATE_NEW, FILE_ATTRIBUTE_NORMAL, nullptr)};
+    const Handle file{
+        CreateFileW(path.c_str(), GENERIC_WRITE, 0, &attributes, CREATE_NEW, FILE_ATTRIBUTE_NORMAL, nullptr)};
     if (file.value == INVALID_HANDLE_VALUE) {
         existed = GetLastError() == ERROR_FILE_EXISTS;
         if (!existed) error = "không tạo được ipc.key";

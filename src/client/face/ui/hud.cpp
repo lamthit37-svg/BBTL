@@ -8,36 +8,37 @@
 #include "gui/strings.hpp"
 #include "io/file.hpp"
 #include "render/ui.hpp"
+#include "resource/image.hpp"
+#include "table/localize.hpp"
 #include "table/tsv.hpp"
 #include "ui/pace.hpp"
 #include "ui/painter.hpp"
-#include "ui/phone.hpp"
 #include "ui/panel/create_role.hpp"
 #include "ui/panel/deck.hpp"
 #include "ui/panel/desk.hpp"
 #include "ui/panel/login_flow.hpp"
-#include "ui/panel/select_server.hpp"
-#include "ui/panel/system_info.hpp"
 #include "ui/panel/logon.hpp"
 #include "ui/panel/maps.hpp"
-#include "ui/panel/packet.hpp"
-#include "ui/panel/scene_board.hpp"
-#include "ui/panel/scene_table.hpp"
 #include "ui/panel/menubar.hpp"
 #include "ui/panel/minimap.hpp"
+#include "ui/panel/packet.hpp"
 #include "ui/panel/player_frame.hpp"
 #include "ui/panel/portraits.hpp"
 #include "ui/panel/quest_book.hpp"
 #include "ui/panel/role_cast.hpp"
 #include "ui/panel/role_pose.hpp"
 #include "ui/panel/roles.hpp"
+#include "ui/panel/scene_board.hpp"
+#include "ui/panel/scene_table.hpp"
 #include "ui/panel/scene_trans.hpp"
 #include "ui/panel/select_role.hpp"
+#include "ui/panel/select_server.hpp"
 #include "ui/panel/self_equip.hpp"
 #include "ui/panel/softkey.hpp"
 #include "ui/panel/start.hpp"
+#include "ui/panel/system_info.hpp"
 #include "ui/panel/world_map.hpp"
-#include "resource/image.hpp"
+#include "ui/phone.hpp"
 #include "ui/radar.hpp"
 #include "ui/text.hpp"
 #include "ui/view.hpp"
@@ -59,8 +60,8 @@
 #include <set>
 #include <span>
 #include <string>
-#include <system_error>
 #include <string_view>
+#include <system_error>
 #include <utility>
 #include <vector>
 
@@ -153,7 +154,31 @@ std::expected<void, std::string> add_layouts(gui::GuiLoader& loader) {
     return status;
 }
 
-// Đọc một bảng của thư mục Table; thiếu tệp hay hỏng thì ghi một dòng và trả nullopt.
+// Dịch ô của bảng đã đọc theo tệp bản dịch cạnh nó (<bảng>.lang.tsv, table/localize.hpp). Không có
+// tệp bản dịch thì bảng giữ chữ gốc; bản dịch hỏng thì ghi một dòng và cũng giữ chữ gốc.
+void localize_table(table::Tsv& table, const std::filesystem::path& file) {
+    const std::string name = table::lang_name(io::utf8_of(file.filename()));
+    if (name.empty()) return;
+    const std::filesystem::path lang_file = file.parent_path() / std::filesystem::path(name);
+    std::error_code missing;
+    if (!std::filesystem::is_regular_file(lang_file, missing)) return;
+    const io::TextResult text = io::read_text(lang_file);
+    if (!text) {
+        std::println(stderr, "Giao diện: không đọc được bản dịch {}", io::utf8_of(lang_file));
+        return;
+    }
+    const table::TsvResult lang = table::parse_tsv(*text);
+    const table::LocalizeResult done =
+        lang ? table::localize(table, *lang) : table::LocalizeResult(std::unexpected(lang.error()));
+    if (!done) {
+        std::println(stderr, "Giao diện: bỏ bản dịch hỏng {}: {}", io::utf8_of(lang_file), done.error());
+    } else if (done->missed > 0) {
+        std::println(stderr, "Giao diện: {} có {} ô dịch không khớp bảng", io::utf8_of(lang_file), done->missed);
+    }
+}
+
+// Đọc một bảng của thư mục Table; thiếu tệp hay hỏng thì ghi một dòng và trả nullopt. Ô có bản dịch
+// (<bảng>.lang.tsv) mang chữ dịch.
 std::optional<table::Tsv> read_table(const std::filesystem::path& file) {
     const io::TextResult text = io::read_text(file);
     if (!text) {
@@ -165,6 +190,7 @@ std::optional<table::Tsv> read_table(const std::filesystem::path& file) {
         std::println(stderr, "Giao diện: bảng hỏng: {}", table.error());
         return std::nullopt;
     }
+    localize_table(*table, file);
     return std::move(*table);
 }
 
@@ -195,7 +221,6 @@ panel::RoleCast cast_of(const std::filesystem::path& data_root, const std::optio
     if (cast.skipped() != 0) std::println(stderr, "Giao diện: bảng tạo nhân vật bỏ {} dòng hỏng", cast.skipped());
     return cast;
 }
-
 
 // Bảng chuỗi gốc của client (Table/ui_strings.tsv, trích StrDictionary). Bản dịch
 // Table/ui_strings.lang.tsv chưa nạp: chủ dự án muốn hết bản gốc trước, tiếng Việt để sau.
@@ -299,7 +324,8 @@ void Prepared::open_scenes(const std::filesystem::path& data_root) {
     for (const panel::SceneRow& row : scenes.rows()) {
         if (row.world == panel::kNormalWorld && !row.hover_set.empty()) label_sets.insert(row.hover_set);
     }
-    for (const std::string_view set : label_sets) loader.add_imageset(set);
+    for (const std::string_view set : label_sets)
+        loader.add_imageset(set);
 }
 
 // Nạp danh sách máy chủ của bảng chọn máy chủ (Table/login_servers.tsv). Thiếu hay hỏng thì thủ tục
@@ -331,8 +357,10 @@ core::Result<Prepared> prepare_hud(const std::filesystem::path& data_root) {
     const std::filesystem::path root = data_root / "Interface";
     auto strings = std::async(std::launch::async, [&data_root] { return strings_of(data_root); });
     auto names = std::async(std::launch::async, [&data_root] { return scene_names(data_root); });
-    auto font = std::async(std::launch::async, [&root] { return read_font(root / io::path_from_utf8(kFontFile), "phông chữ"); });
-    auto vi_font = std::async(std::launch::async, [&root] { return read_font(root / io::path_from_utf8(kViFontFile), "phông Việt"); });
+    auto font = std::async(std::launch::async,
+        [&root] { return read_font(root / io::path_from_utf8(kFontFile), "phông chữ"); });
+    auto vi_font = std::async(std::launch::async,
+        [&root] { return read_font(root / io::path_from_utf8(kViFontFile), "phông Việt"); });
     const gui::DiskSource files(root, kPhone);
     gui::GuiSources sources;
     sources.files = &files;
@@ -514,7 +542,8 @@ struct Hud::State {
     void rebuild();
 };
 
-// Đưa hai phông đã đọc lên GPU. Không lên được thì phông đó coi như thiếu (HUD không có chữ, hay chữ có dấu ra ô vuông).
+// Đưa hai phông đã đọc lên GPU. Không lên được thì phông đó coi như thiếu (HUD không có chữ, hay chữ có dấu ra ô
+// vuông).
 void Hud::State::seat_fonts(Prepared& ready) {
     if (!ready.font) return;
     const core::Result<std::uint32_t> texture = pass->add_texture(ready.font->atlas());
@@ -687,6 +716,9 @@ void Hud::State::note_press(const HudView& view) {
     panel::press_desk(desk, *window, facts);
     quest_calls.clear();
     panel::press_quest_book(quests, desk, *window, view.hero, &scene_names, quest_calls);
+    if (const std::optional<std::size_t> row = hub->list_item(panel::kQuestLogList, spot)) {
+        static_cast<void>(panel::pick_quest_row(quests, *row, view.hero, &scene_names));
+    }
     for (const panel::Call& call : quest_calls) {
         std::println(stderr, "Sổ nhiệm vụ: việc nhờ {} chưa có ở HUD", static_cast<int>(call.ask));
     }
@@ -737,7 +769,8 @@ void Hud::State::press_login(std::string_view window, const HudView& view) {
 // Ký tự gõ từ bàn phím tới ô đang nhận phím của bảng nhập tài khoản; màn chơi chưa có ô nhập nào.
 void Hud::State::note_text(const HudView& view) {
     if (view.phase != Phase::kLogin) return;
-    for (const char32_t code : view.typed) panel::type_flow(flow, code, login_facts(view));
+    for (const char32_t code : view.typed)
+        panel::type_flow(flow, code, login_facts(view));
     if (!panel::on_account(flow)) panel::close_soft_keys(keys);
 }
 
@@ -880,7 +913,8 @@ void Hud::State::fill_board(const HudView& view) {
     }
     const std::optional<gui::Box> window = hub->box(panel::kBoardWindow);
     if (window) {
-        const panel::BoardStep step{.window = *window, .pointer = view.pointer, .seconds = frame_seconds(view.clock), .player = player};
+        const panel::BoardStep step{
+            .window = *window, .pointer = view.pointer, .seconds = frame_seconds(view.clock), .player = player};
         panel::step_board(board, *scene, step);
     }
     panel::paint_board(deck, board, *scene);
@@ -895,7 +929,9 @@ void Hud::State::fill_world(const HudView& view) {
         return;
     }
     const std::optional<gui::Box> window = hub->world();
-    if (window) panel::step_world(world, panel::WorldStep{.window = *window, .pointer = view.pointer, .hits = hub->world_hits()});
+    if (window)
+        panel::step_world(world,
+            panel::WorldStep{.window = *window, .pointer = view.pointer, .hits = hub->world_hits()});
     panel::paint_world(deck, world, world_cities, maps.here);
 }
 
@@ -929,7 +965,8 @@ void Hud::State::load_world_image() {
     const std::filesystem::path file = client_root / "Interface" / "LargeMap" / "WorldMap.png";
     const io::TextResult bytes = io::read_text(file);
     if (!bytes) {
-        std::println(stderr, "Giao diện: không có ảnh bản đồ thế giới {} (TOOLS/content/export_worldmap.py)", io::utf8_of(file));
+        std::println(stderr, "Giao diện: không có ảnh bản đồ thế giới {} (TOOLS/content/export_worldmap.py)",
+            io::utf8_of(file));
         return;
     }
     const core::Result<resource::Image> image = resource::decode_image(std::as_bytes(std::span(*bytes)));
@@ -976,7 +1013,8 @@ void Hud::State::note_board_release(const HudView& view) {
 namespace {
 AtlasShape board_shape(float pixels) noexcept {
     int shrink = 1;
-    while (shrink < kBoardMaxShrink && kRadarSourcePixels / static_cast<float>(shrink * 2) >= pixels) shrink *= 2;
+    while (shrink < kBoardMaxShrink && kRadarSourcePixels / static_cast<float>(shrink * 2) >= pixels)
+        shrink *= 2;
     const int tiles = kBoardAtlasTiles * shrink;
     return AtlasShape{.across = tiles, .down = tiles, .shrink = shrink, .kept = kBoardKeptTiles};
 }
@@ -990,7 +1028,8 @@ std::optional<MapPaint> Hud::State::board_of() {
     const gui::BoardView seen = gui::board_view(panel::board_ask(board, *scene, *window));
     if (seen.pixels <= 0.0F) return std::nullopt;
     const AtlasShape shape = board_shape(seen.pixels);
-    RadarAtlas& wide = (board_atlas && board_atlas->shape() == shape) ? *board_atlas : board_atlas.emplace(client_root, shape);
+    RadarAtlas& wide =
+        (board_atlas && board_atlas->shape() == shape) ? *board_atlas : board_atlas.emplace(client_root, shape);
     RadarAim aim;
     aim.token = scene->token;
     aim.scene_width = scene->width;

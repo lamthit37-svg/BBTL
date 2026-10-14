@@ -1,0 +1,20 @@
+# schema 1
+# source: public_config/SkillBullet.txt
+# tool: TOOLS/server/import_legacy.py; sửa tay sẽ mất ở lượt xuất sau
+# types: int	text	text	text	text
+index	original	name	type	note
+0	ID	id	int	luật: M1
+1	类型	kind	int	luật: nguyên văn
+2	初始位置类型	column_2	int	?
+3	子弹飞行特效ID	flight_effect_id	text	luật: nguyên văn
+4	飞行音效ID	flight_sound_id	text	luật: nguyên văn
+5	速度(m/s)	speed_m_per_s	float	luật: nguyên văn
+6	子弹爆炸特效ID	explosion_effect_id	text	luật: nguyên văn
+7	爆炸音效ID	explosion_sound_id	text	luật: nguyên văn
+8	击中特效的绑定点	hit_effect_anchor	text	luật: nguyên văn
+9	预留1	reserved_1	text	luật: nguyên văn
+10	预留2	reserved_2	text	luật: nguyên văn
+11	预留3	reserved_3	text	luật: nguyên văn
+12	预留4	reserved_4	text	luật: nguyên văn
+13	预留5	reserved_5	text	luật: nguyên văn
+14	描述$1$	description	text	luật: nguyên văn

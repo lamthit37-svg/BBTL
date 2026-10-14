@@ -5,6 +5,7 @@
 #include "xml/document.hpp"
 
 #include <array>
+#include <string>
 #include <string_view>
 
 namespace game::test {
@@ -74,11 +75,66 @@ void parse_reports_offset_of_fault(Context& context) noexcept {
     context.expect(document.error().offset == 9, "vị trí lỗi ở ngay sau tên thẻ đóng lệch");
 }
 
+// UTF-16 như tệp layout của client 2026 (BOM, mỗi đơn vị hai byte); big chọn thứ tự byte của đơn vị.
+enum class Order : bool { kLittle, kBig };
+
+[[nodiscard]] std::string utf16_file(std::u16string_view text, Order order, bool has_bom = true) {
+    std::string bytes;
+    const auto put = [&bytes, order](char16_t unit) {
+        const auto low = static_cast<char>(unit & 0xFFU);
+        const auto high = static_cast<char>((unit >> 8U) & 0xFFU);
+        bytes.push_back(order == Order::kBig ? high : low);
+        bytes.push_back(order == Order::kBig ? low : high);
+    };
+    if (has_bom) put(u'\uFEFF');
+    for (const char16_t unit : text) put(unit);
+    return bytes;
+}
+
+constexpr std::u16string_view kWide = u"<?xml version=\"1.0\" ?>\r\n<Layout name=\"大理\">\r\n"
+                                      u"  <Window Text=\"帮助 𠀀\"/>\r\n</Layout>\r\n";
+
+void parse_reads_utf16_with_bom(Context& context) noexcept {
+    for (const Order order : {Order::kLittle, Order::kBig}) {
+        const std::string file = utf16_file(kWide, order);
+        const auto document = xml::parse(file);
+        context.expect(document.has_value(), "UTF-16 có BOM đọc được");
+        if (!document) return;
+        const xml::Element& root = document->elements.front();
+        context.expect(root.name == "Layout" && xml::attribute(root, "name") == "大理", "chữ Hán ra UTF-8");
+        const xml::Element& window = document->elements[root.children.front()];
+        context.expect(xml::attribute(window, "Text") == "帮助 \U00020000", "cặp thay thế thành một điểm mã");
+    }
+}
+
+void parse_skips_utf8_bom(Context& context) noexcept {
+    const std::string source = std::string("\xEF\xBB\xBF") + "<a/>";
+    const auto document = xml::parse(source);
+    context.expect(document.has_value() && document->elements.front().name == "a", "BOM UTF-8 bị bỏ");
+    const auto broken = xml::parse(std::string("\xEF\xBB\xBF") + "<a><b></c></a>");
+    context.expect(!broken && broken.error().offset == 12, "vị trí lỗi vẫn tính từ đầu tệp");
+}
+
+void parse_rejects_broken_utf16(Context& context) noexcept {
+    const std::string odd = utf16_file(u"<a/>", Order::kLittle) + "x";
+    context.expect(fails_with(odd, xml::XmlError::kBadSyntax), "số byte lẻ");
+    const std::u16string lone_low = u"<a x=\"" + std::u16string(1, char16_t{0xDC00}) + u"\"/>";
+    context.expect(fails_with(utf16_file(lone_low, Order::kLittle), xml::XmlError::kBadSyntax), "nửa sau đứng một mình");
+    const std::u16string lone_high = u"<a x=\"" + std::u16string(1, char16_t{0xD800}) + u"\"/>";
+    context.expect(fails_with(utf16_file(lone_high, Order::kBig), xml::XmlError::kBadSyntax), "nửa đầu không có nửa sau");
+    const std::u16string cut = u"<a/>" + std::u16string(1, char16_t{0xD800});
+    context.expect(fails_with(utf16_file(cut, Order::kLittle), xml::XmlError::kBadSyntax), "nửa đầu cụt ở cuối tệp");
+    context.expect(fails_with(utf16_file(u"<a/>", Order::kLittle).substr(0, 2), xml::XmlError::kNoRoot), "chỉ có BOM");
+}
+
 constexpr std::array kCases{
     Case{.name = "parse_builds_tree_in_file_order", .body = &parse_builds_tree_in_file_order},
     Case{.name = "parse_decodes_entities_and_text", .body = &parse_decodes_entities_and_text},
     Case{.name = "parse_reports_broken_input", .body = &parse_reports_broken_input},
     Case{.name = "parse_reports_offset_of_fault", .body = &parse_reports_offset_of_fault},
+    Case{.name = "parse_reads_utf16_with_bom", .body = &parse_reads_utf16_with_bom},
+    Case{.name = "parse_skips_utf8_bom", .body = &parse_skips_utf8_bom},
+    Case{.name = "parse_rejects_broken_utf16", .body = &parse_rejects_broken_utf16},
 };
 
 } // namespace

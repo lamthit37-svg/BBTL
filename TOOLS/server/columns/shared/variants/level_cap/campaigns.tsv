@@ -1,0 +1,54 @@
+# schema 1
+# source: client_2026/CampaignTable_KaJi_1.txt
+# tool: TOOLS/server/export_tables.py; sửa tay sẽ mất ở lượt xuất sau
+# types: int	text	text	text	text
+index	original	name	type	note
+0	ID	id	int	neo: cột gốc 0, khớp 100.0% (40/40 id); luật: M1
+1		column_1	int	mới ở 2026
+2		column_2	text	mới ở 2026
+3		column_3	text	mới ở 2026
+4		column_4	int	mới ở 2026
+5		column_5	int	mới ở 2026
+6		column_6	text	mới ở 2026
+7		column_7	text	mới ở 2026
+8		column_8	text	mới ở 2026
+9		column_9	text	mới ở 2026
+10		column_10	text	mới ở 2026
+11		column_11	int	mới ở 2026
+12		column_12	text	mới ở 2026
+13		column_13	int	mới ở 2026
+14		column_14	int	mới ở 2026
+15		column_15	int	mới ở 2026
+16		column_16	int	mới ở 2026
+17		column_17	text	mới ở 2026
+18		column_18	text	mới ở 2026
+19		column_19	int	mới ở 2026
+20		column_20	text	mới ở 2026
+21		column_21	text	mới ở 2026
+22		column_22	int	mới ở 2026
+23		column_23	int	mới ở 2026
+24		column_24	int	mới ở 2026
+25		column_25	text	mới ở 2026
+26		column_26	int	mới ở 2026
+27		column_27	int	mới ở 2026
+28		column_28	int	mới ở 2026
+29		column_29	int	mới ở 2026
+30		column_30	int	mới ở 2026
+31		column_31	int	mới ở 2026
+32		column_32	int	mới ở 2026
+33		column_33	int	mới ở 2026
+34		column_34	int	mới ở 2026
+35		column_35	int	mới ở 2026
+36		column_36	int	mới ở 2026
+37		column_37	int	mới ở 2026
+38		column_38	int	mới ở 2026
+39		column_39	text	mới ở 2026
+40		column_40	text	mới ở 2026
+41		column_41	text	mới ở 2026
+42		column_42	text	mới ở 2026
+43		column_43	int	mới ở 2026
+44		column_44	int	mới ở 2026
+45		column_45	int	mới ở 2026
+46		column_46	int	mới ở 2026
+47		column_47	int	mới ở 2026
+48		column_48	int	mới ở 2026

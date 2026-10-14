@@ -42,8 +42,8 @@
 #include <array>
 #include <cmath>
 #include <cstddef>
-#include <cstdio>
 #include <cstdint>
+#include <cstdio>
 #include <expected>
 #include <limits>
 #include <memory>
@@ -73,13 +73,13 @@ constexpr std::uint32_t kStartWorlds = 1024;
 // số mũ là mặc định của LightObject (100000 và 1).
 constexpr float kSunFade = 1.0F - (1.0F / 100000.0F);
 
-// Khớp struct Lamp của model.hlsli.
+// Khớp struct Lamp của model.inc.slang.
 struct LampWords {
     math::Float4 place{};
     math::Float4 color{};
 };
 
-// Khớp struct Frame của model.hlsli.
+// Khớp struct Frame của model.inc.slang.
 struct FrameBlock {
     std::array<math::Float4, 4> view_proj{};
     math::Float4 depth_row{};
@@ -102,7 +102,7 @@ static_assert(sizeof(FrameBlock) == kModelFrameBytes);
 // bao giờ đọc mảng bằng chỉ số ngoài biên (GLES không bảo đảm gì cho phép đọc ấy).
 constexpr auto kDarkLamp = static_cast<std::uint32_t>(kLampSlots - 1);
 
-// Khớp struct Draw của model.hlsli.
+// Khớp struct Draw của model.inc.slang.
 struct DrawBlock {
     std::array<math::Float4, 3> world{};
     math::Float4 base_color{};
@@ -116,7 +116,7 @@ struct DrawBlock {
 };
 static_assert(sizeof(DrawBlock) == kModelDrawBytes);
 
-// Khớp struct Joint của model.vs.hlsl: ba hàng đầu của ma trận skin.
+// Khớp struct Joint của model.vs.slang: ba hàng đầu của ma trận skin.
 struct JointRows {
     math::Float4 row0{};
     math::Float4 row1{};
@@ -202,8 +202,7 @@ struct TexBind {
     return bound;
 }
 
-void write_bind(gpu::BindEntry& entry, shader::RegisterType type, std::uint32_t slot,
-    const gpu::Bound& resource) {
+void write_bind(gpu::BindEntry& entry, shader::RegisterType type, std::uint32_t slot, const gpu::Bound& resource) {
     entry.type = type;
     entry.slot = slot;
     entry.resource = resource;

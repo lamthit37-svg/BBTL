@@ -34,8 +34,7 @@ struct NamedScene {
 // name là tên không đuôi của Scene/<name>.Scene. Có '/' , '\\' , ':' , rỗng, "." hoặc ".." thì
 // không đọc đĩa và error nói tên không hợp lệ. Dấu ':' trên Windows biến đường tương đối thành
 // tên ổ (C:ten.Scene thoát khỏi thư mục Scene).
-[[nodiscard]] NamedScene load_named_scene(const std::filesystem::path& data_root, std::string_view name,
-    int scene_id);
+[[nodiscard]] NamedScene load_named_scene(const std::filesystem::path& data_root, std::string_view name, int scene_id);
 
 struct BootLoad {
     std::filesystem::path data_root;

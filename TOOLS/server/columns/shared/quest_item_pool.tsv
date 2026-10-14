@@ -1,0 +1,689 @@
+# schema 1
+# source: client_2026/MissionItem_HashTable.txt
+# tool: TOOLS/server/export_tables.py; sửa tay sẽ mất ở lượt xuất sau
+# types: int	text	text	text	text
+index	original	name	type	note
+0	物品编号	item_id	int	neo: cột gốc 0, khớp 100.0% (2264/2264 id); luật: nguyên văn
+1	物品名称$1$	item_name	text	neo: cột gốc 1, khớp 100.0% (2264/2264 id); luật: nguyên văn
+2		column_2	text	mới ở 2026
+3	物品使用几率	item_use_rate_1	int	neo: cột gốc 3, khớp 100.0% (2264/2264 id); luật: nguyên văn
+4	奖励几率	reward_rate_1	int	neo: cột gốc 4, khớp 100.0% (2264/2264 id); luật: nguyên văn
+5	广播类型0.普通说话消息1.队伍消息2.场景消息4.系统消息世界消息6.帮派消息7.门派消息0.普通说话消息1.队伍消息2.场景消息4.系统消息世界消息6.帮派消息7.门派消息	broadcast_kind_1	int	nội suy: cột gốc 5, khớp 100.0% (2264/2264 id); luật: nguyên văn
+6	物品使用几率	item_use_rate_2	int	neo: cột gốc 6, khớp 100.0% (2264/2264 id); luật: nguyên văn
+7	奖励几率	reward_rate_2	int	neo: cột gốc 7, khớp 100.0% (2264/2264 id); luật: nguyên văn
+8	广播类型0.普通说话消息1.队伍消息2.场景消息4.系统消息世界消息6.帮派消息7.门派消息	broadcast_kind_2	int	nội suy: cột gốc 8, khớp 100.0% (2264/2264 id); luật: nguyên văn
+9	物品使用几率	item_use_rate_3	int	neo: cột gốc 9, khớp 100.0% (2264/2264 id); luật: nguyên văn
+10	奖励几率	reward_rate_3	int	neo: cột gốc 10, khớp 100.0% (2264/2264 id); luật: nguyên văn
+11	广播类型0.普通说话消息1.队伍消息2.场景消息4.系统消息世界消息6.帮派消息7.门派消息	broadcast_kind_3	int	nội suy: cột gốc 11, khớp 100.0% (2264/2264 id); luật: nguyên văn
+12	物品使用几率	item_use_rate_4	int	neo: cột gốc 12, khớp 100.0% (2264/2264 id); luật: nguyên văn
+13	奖励几率	reward_rate_4	int	neo: cột gốc 13, khớp 100.0% (2264/2264 id); luật: nguyên văn
+14	广播类型0.普通说话消息1.队伍消息2.场景消息4.系统消息世界消息6.帮派消息7.门派消息	broadcast_kind_4	int	nội suy: cột gốc 14, khớp 100.0% (2264/2264 id); luật: nguyên văn
+15	物品使用几率	item_use_rate_5	int	neo: cột gốc 15, khớp 99.2% (2245/2264 id); luật: nguyên văn
+16	奖励几率	reward_rate_5	int	neo: cột gốc 16, khớp 100.0% (2264/2264 id); luật: nguyên văn
+17	广播类型0.普通说话消息1.队伍消息2.场景消息4.系统消息世界消息6.帮派消息7.门派消息	broadcast_kind_5	int	nội suy: cột gốc 17, khớp 100.0% (2264/2264 id); luật: nguyên văn
+18	物品使用几率	item_use_rate_6	int	neo: cột gốc 18, khớp 99.2% (2245/2264 id); luật: nguyên văn
+19	奖励几率	reward_rate_6	int	neo: cột gốc 19, khớp 100.0% (2264/2264 id); luật: nguyên văn
+20	广播类型0.普通说话消息1.队伍消息2.场景消息4.系统消息世界消息6.帮派消息7.门派消息	broadcast_kind_6	int	nội suy: cột gốc 20, khớp 100.0% (2264/2264 id); luật: nguyên văn
+21	物品使用几率	item_use_rate_7	int	neo: cột gốc 21, khớp 100.0% (2264/2264 id); luật: nguyên văn
+22	奖励几率	reward_rate_7	int	nội suy: cột gốc 22, khớp 100.0% (2264/2264 id); luật: nguyên văn
+23	广播类型0.普通说话消息1.队伍消息2.场景消息4.系统消息世界消息6.帮派消息7.门派消息	broadcast_kind_7	int	nội suy: cột gốc 23, khớp 100.0% (2264/2264 id); luật: nguyên văn
+24	物品使用几率	item_use_rate_8	int	neo: cột gốc 24, khớp 100.0% (2264/2264 id); luật: nguyên văn
+25	奖励几率	reward_rate_8	int	nội suy: cột gốc 25, khớp 100.0% (2264/2264 id); luật: nguyên văn
+26	广播类型0.普通说话消息1.队伍消息2.场景消息4.系统消息世界消息6.帮派消息7.门派消息	broadcast_kind_8	int	nội suy: cột gốc 26, khớp 100.0% (2264/2264 id); luật: nguyên văn
+27	物品使用几率	item_use_rate_9	int	neo: cột gốc 27, khớp 100.0% (2264/2264 id); luật: nguyên văn
+28	奖励几率	reward_rate_9	int	nội suy: cột gốc 28, khớp 100.0% (2264/2264 id); luật: nguyên văn
+29	广播类型0.普通说话消息1.队伍消息2.场景消息4.系统消息世界消息6.帮派消息7.门派消息	broadcast_kind_9	int	nội suy: cột gốc 29, khớp 100.0% (2264/2264 id); luật: nguyên văn
+30	物品使用几率	item_use_rate_10	int	neo: cột gốc 30, khớp 100.0% (2264/2264 id); luật: nguyên văn
+31	奖励几率	reward_rate_10	int	nội suy: cột gốc 31, khớp 100.0% (2264/2264 id); luật: nguyên văn
+32	广播类型0.普通说话消息1.队伍消息2.场景消息4.系统消息世界消息6.帮派消息7.门派消息	broadcast_kind_10	int	nội suy: cột gốc 32, khớp 100.0% (2264/2264 id); luật: nguyên văn
+33	物品使用几率	item_use_rate_11	int	neo: cột gốc 33, khớp 100.0% (2264/2264 id); luật: nguyên văn
+34	奖励几率	reward_rate_11	int	nội suy: cột gốc 34, khớp 100.0% (2264/2264 id); luật: nguyên văn
+35	广播类型0.普通说话消息1.队伍消息2.场景消息4.系统消息世界消息6.帮派消息7.门派消息	broadcast_kind_11	int	nội suy: cột gốc 35, khớp 100.0% (2264/2264 id); luật: nguyên văn
+36	物品使用几率	item_use_rate_12	int	neo: cột gốc 36, khớp 100.0% (2264/2264 id); luật: nguyên văn
+37	奖励几率	reward_rate_12	int	nội suy: cột gốc 37, khớp 100.0% (2264/2264 id); luật: nguyên văn
+38	广播类型0.普通说话消息1.队伍消息2.场景消息4.系统消息世界消息6.帮派消息7.门派消息	broadcast_kind_12	int	nội suy: cột gốc 38, khớp 100.0% (2264/2264 id); luật: nguyên văn
+39	物品使用几率	item_use_rate_13	int	nội suy: cột gốc 39, khớp 100.0% (2264/2264 id); luật: nguyên văn
+40	奖励几率	reward_rate_13	int	nội suy: cột gốc 40, khớp 100.0% (2264/2264 id); luật: nguyên văn
+41	广播类型0.普通说话消息1.队伍消息2.场景消息4.系统消息世界消息6.帮派消息7.门派消息	broadcast_kind_13	int	nội suy: cột gốc 41, khớp 100.0% (2264/2264 id); luật: nguyên văn
+42	物品使用几率	item_use_rate_14	int	neo: cột gốc 42, khớp 100.0% (2264/2264 id); luật: nguyên văn
+43	奖励几率	reward_rate_14	int	nội suy: cột gốc 43, khớp 100.0% (2264/2264 id); luật: nguyên văn
+44	广播类型0.普通说话消息1.队伍消息2.场景消息4.系统消息世界消息6.帮派消息7.门派消息	broadcast_kind_14	int	nội suy: cột gốc 44, khớp 100.0% (2264/2264 id); luật: nguyên văn
+45	物品使用几率	item_use_rate_15	int	neo: cột gốc 45, khớp 100.0% (2264/2264 id); luật: nguyên văn
+46	奖励几率	reward_rate_15	int	nội suy: cột gốc 46, khớp 100.0% (2264/2264 id); luật: nguyên văn
+47	广播类型0.普通说话消息1.队伍消息2.场景消息4.系统消息世界消息6.帮派消息7.门派消息	broadcast_kind_15	int	nội suy: cột gốc 47, khớp 100.0% (2264/2264 id); luật: nguyên văn
+48	物品使用几率	item_use_rate_16	int	neo: cột gốc 48, khớp 100.0% (2264/2264 id); luật: nguyên văn
+49	奖励几率	reward_rate_16	int	nội suy: cột gốc 49, khớp 100.0% (2264/2264 id); luật: nguyên văn
+50	广播类型0.普通说话消息1.队伍消息2.场景消息4.系统消息世界消息6.帮派消息7.门派消息	broadcast_kind_16	int	nội suy: cột gốc 50, khớp 100.0% (2264/2264 id); luật: nguyên văn
+51	物品使用几率	item_use_rate_17	int	neo: cột gốc 51, khớp 100.0% (2264/2264 id); luật: nguyên văn
+52	奖励几率	reward_rate_17	int	nội suy: cột gốc 52, khớp 100.0% (2264/2264 id); luật: nguyên văn
+53	广播类型0.普通说话消息1.队伍消息2.场景消息4.系统消息世界消息6.帮派消息7.门派消息	broadcast_kind_17	int	nội suy: cột gốc 53, khớp 100.0% (2264/2264 id); luật: nguyên văn
+54	物品使用几率	item_use_rate_18	int	neo: cột gốc 54, khớp 100.0% (2264/2264 id); luật: nguyên văn
+55	奖励几率	reward_rate_18	int	nội suy: cột gốc 55, khớp 100.0% (2264/2264 id); luật: nguyên văn
+56	广播类型0.普通说话消息1.队伍消息2.场景消息4.系统消息世界消息6.帮派消息7.门派消息	broadcast_kind_18	int	nội suy: cột gốc 56, khớp 100.0% (2264/2264 id); luật: nguyên văn
+57	物品使用几率	item_use_rate_19	int	neo: cột gốc 57, khớp 100.0% (2264/2264 id); luật: nguyên văn
+58	奖励几率	reward_rate_19	int	nội suy: cột gốc 58, khớp 100.0% (2264/2264 id); luật: nguyên văn
+59	广播类型0.普通说话消息1.队伍消息2.场景消息4.系统消息世界消息6.帮派消息7.门派消息	broadcast_kind_19	int	nội suy: cột gốc 59, khớp 100.0% (2264/2264 id); luật: nguyên văn
+60	物品使用几率	item_use_rate_20	int	neo: cột gốc 60, khớp 100.0% (2264/2264 id); luật: nguyên văn
+61	奖励几率	reward_rate_20	int	nội suy: cột gốc 61, khớp 100.0% (2264/2264 id); luật: nguyên văn
+62	广播类型0.普通说话消息1.队伍消息2.场景消息4.系统消息世界消息6.帮派消息7.门派消息	broadcast_kind_20	int	nội suy: cột gốc 62, khớp 100.0% (2264/2264 id); luật: nguyên văn
+63	物品使用几率	item_use_rate_21	int	nội suy: cột gốc 63, khớp 100.0% (2264/2264 id); luật: nguyên văn
+64	奖励几率	reward_rate_21	int	nội suy: cột gốc 64, khớp 100.0% (2264/2264 id); luật: nguyên văn
+65	广播类型0.普通说话消息1.队伍消息2.场景消息4.系统消息世界消息6.帮派消息7.门派消息	broadcast_kind_21	int	nội suy: cột gốc 65, khớp 100.0% (2264/2264 id); luật: nguyên văn
+66	物品使用几率	item_use_rate_22	int	neo: cột gốc 66, khớp 99.3% (2249/2264 id); luật: nguyên văn
+67	奖励几率	reward_rate_22	int	nội suy: cột gốc 67, khớp 100.0% (2264/2264 id); luật: nguyên văn
+68	广播类型0.普通说话消息1.队伍消息2.场景消息4.系统消息世界消息6.帮派消息7.门派消息	broadcast_kind_22	int	nội suy: cột gốc 68, khớp 100.0% (2264/2264 id); luật: nguyên văn
+69	物品使用几率	item_use_rate_23	int	neo: cột gốc 69, khớp 100.0% (2264/2264 id); luật: nguyên văn
+70	奖励几率	reward_rate_23	int	nội suy: cột gốc 70, khớp 100.0% (2264/2264 id); luật: nguyên văn
+71	广播类型0.普通说话消息1.队伍消息2.场景消息4.系统消息世界消息6.帮派消息7.门派消息	broadcast_kind_23	int	nội suy: cột gốc 71, khớp 100.0% (2264/2264 id); luật: nguyên văn
+72	物品使用几率	item_use_rate_24	int	neo: cột gốc 72, khớp 100.0% (2264/2264 id); luật: nguyên văn
+73	奖励几率	reward_rate_24	int	neo: cột gốc 73, khớp 100.0% (2264/2264 id); luật: nguyên văn
+74	广播类型0.普通说话消息1.队伍消息2.场景消息4.系统消息世界消息6.帮派消息7.门派消息	broadcast_kind_24	int	nội suy: cột gốc 74, khớp 100.0% (2264/2264 id); luật: nguyên văn
+75	物品使用几率	item_use_rate_25	int	nội suy: cột gốc 75, khớp 100.0% (2264/2264 id); luật: nguyên văn
+76	奖励几率	reward_rate_25	int	neo: cột gốc 76, khớp 98.9% (2238/2264 id); luật: nguyên văn
+77	广播类型0.普通说话消息1.队伍消息2.场景消息4.系统消息世界消息6.帮派消息7.门派消息	broadcast_kind_25	int	nội suy: cột gốc 77, khớp 98.9% (2238/2264 id); luật: nguyên văn
+78	物品使用几率	item_use_rate_26	int	nội suy: cột gốc 78, khớp 100.0% (2264/2264 id); luật: nguyên văn
+79	奖励几率	reward_rate_26	int	neo: cột gốc 79, khớp 100.0% (2264/2264 id); luật: nguyên văn
+80	广播类型0.普通说话消息1.队伍消息2.场景消息4.系统消息世界消息6.帮派消息7.门派消息	broadcast_kind_26	int	nội suy: cột gốc 80, khớp 100.0% (2264/2264 id); luật: nguyên văn
+81	物品使用几率	item_use_rate_27	int	nội suy: cột gốc 81, khớp 100.0% (2264/2264 id); luật: nguyên văn
+82	奖励几率	reward_rate_27	int	neo: cột gốc 82, khớp 100.0% (2264/2264 id); luật: nguyên văn
+83	广播类型0.普通说话消息1.队伍消息2.场景消息4.系统消息世界消息6.帮派消息7.门派消息	broadcast_kind_27	int	nội suy: cột gốc 83, khớp 100.0% (2264/2264 id); luật: nguyên văn
+84	物品使用几率	item_use_rate_28	int	nội suy: cột gốc 84, khớp 100.0% (2264/2264 id); luật: nguyên văn
+85	奖励几率	reward_rate_28	int	neo: cột gốc 85, khớp 100.0% (2264/2264 id); luật: nguyên văn
+86	广播类型0.普通说话消息1.队伍消息2.场景消息4.系统消息世界消息6.帮派消息7.门派消息	broadcast_kind_28	int	nội suy: cột gốc 86, khớp 100.0% (2264/2264 id); luật: nguyên văn
+87	物品使用几率	item_use_rate_29	int	nội suy: cột gốc 87, khớp 100.0% (2264/2264 id); luật: nguyên văn
+88	奖励几率	reward_rate_29	int	nội suy: cột gốc 88, khớp 100.0% (2264/2264 id); luật: nguyên văn
+89	广播类型0.普通说话消息1.队伍消息2.场景消息4.系统消息世界消息6.帮派消息7.门派消息	broadcast_kind_29	int	nội suy: cột gốc 89, khớp 100.0% (2264/2264 id); luật: nguyên văn
+90	物品使用几率	item_use_rate_30	int	neo: cột gốc 90, khớp 100.0% (2264/2264 id); luật: nguyên văn
+91	奖励几率	reward_rate_30	int	nội suy: cột gốc 91, khớp 100.0% (2264/2264 id); luật: nguyên văn
+92	广播类型0.普通说话消息1.队伍消息2.场景消息4.系统消息世界消息6.帮派消息7.门派消息	broadcast_kind_30	int	nội suy: cột gốc 92, khớp 100.0% (2264/2264 id); luật: nguyên văn
+93	物品使用几率	item_use_rate_31	int	nội suy: cột gốc 93, khớp 100.0% (2264/2264 id); luật: nguyên văn
+94	奖励几率	reward_rate_31	int	nội suy: cột gốc 94, khớp 100.0% (2264/2264 id); luật: nguyên văn
+95	广播类型0.普通说话消息1.队伍消息2.场景消息4.系统消息世界消息6.帮派消息7.门派消息	broadcast_kind_31	int	nội suy: cột gốc 95, khớp 100.0% (2264/2264 id); luật: nguyên văn
+96	物品使用几率	item_use_rate_32	int	neo: cột gốc 96, khớp 100.0% (2264/2264 id); luật: nguyên văn
+97	奖励几率	reward_rate_32	int	nội suy: cột gốc 97, khớp 100.0% (2264/2264 id); luật: nguyên văn
+98	广播类型0.普通说话消息1.队伍消息2.场景消息4.系统消息世界消息6.帮派消息7.门派消息	broadcast_kind_32	int	nội suy: cột gốc 98, khớp 100.0% (2264/2264 id); luật: nguyên văn
+99	物品使用几率	item_use_rate_33	int	neo: cột gốc 99, khớp 100.0% (2264/2264 id); luật: nguyên văn
+100	奖励几率	reward_rate_33	int	nội suy: cột gốc 100, khớp 100.0% (2264/2264 id); luật: nguyên văn
+101	广播类型0.普通说话消息1.队伍消息2.场景消息4.系统消息世界消息6.帮派消息7.门派消息	broadcast_kind_33	int	nội suy: cột gốc 101, khớp 100.0% (2264/2264 id); luật: nguyên văn
+102	物品使用几率	item_use_rate_34	int	neo: cột gốc 102, khớp 100.0% (2264/2264 id); luật: nguyên văn
+103	奖励几率	reward_rate_34	int	nội suy: cột gốc 103, khớp 100.0% (2264/2264 id); luật: nguyên văn
+104	广播类型0.普通说话消息1.队伍消息2.场景消息4.系统消息世界消息6.帮派消息7.门派消息	broadcast_kind_34	int	nội suy: cột gốc 104, khớp 100.0% (2264/2264 id); luật: nguyên văn
+105	物品使用几率	item_use_rate_35	int	neo: cột gốc 105, khớp 100.0% (2264/2264 id); luật: nguyên văn
+106	奖励几率	reward_rate_35	int	nội suy: cột gốc 106, khớp 100.0% (2264/2264 id); luật: nguyên văn
+107	广播类型0.普通说话消息1.队伍消息2.场景消息4.系统消息世界消息6.帮派消息7.门派消息	broadcast_kind_35	int	nội suy: cột gốc 107, khớp 100.0% (2264/2264 id); luật: nguyên văn
+108	物品使用几率	item_use_rate_36	int	neo: cột gốc 108, khớp 100.0% (2264/2264 id); luật: nguyên văn
+109	奖励几率	reward_rate_36	int	nội suy: cột gốc 109, khớp 100.0% (2264/2264 id); luật: nguyên văn
+110	广播类型0.普通说话消息1.队伍消息2.场景消息4.系统消息世界消息6.帮派消息7.门派消息	broadcast_kind_36	int	nội suy: cột gốc 110, khớp 100.0% (2264/2264 id); luật: nguyên văn
+111	物品使用几率	item_use_rate_37	int	neo: cột gốc 111, khớp 100.0% (2264/2264 id); luật: nguyên văn
+112	奖励几率	reward_rate_37	int	nội suy: cột gốc 112, khớp 100.0% (2264/2264 id); luật: nguyên văn
+113	广播类型0.普通说话消息1.队伍消息2.场景消息4.系统消息世界消息6.帮派消息7.门派消息	broadcast_kind_37	int	nội suy: cột gốc 113, khớp 100.0% (2264/2264 id); luật: nguyên văn
+114	物品使用几率	item_use_rate_38	int	neo: cột gốc 114, khớp 100.0% (2264/2264 id); luật: nguyên văn
+115	奖励几率	reward_rate_38	int	nội suy: cột gốc 115, khớp 100.0% (2264/2264 id); luật: nguyên văn
+116	广播类型0.普通说话消息1.队伍消息2.场景消息4.系统消息世界消息6.帮派消息7.门派消息	broadcast_kind_38	int	nội suy: cột gốc 116, khớp 100.0% (2264/2264 id); luật: nguyên văn
+117	物品使用几率	item_use_rate_39	int	neo: cột gốc 117, khớp 100.0% (2264/2264 id); luật: nguyên văn
+118	奖励几率	reward_rate_39	int	nội suy: cột gốc 118, khớp 100.0% (2264/2264 id); luật: nguyên văn
+119	广播类型0.普通说话消息1.队伍消息2.场景消息4.系统消息世界消息6.帮派消息7.门派消息	broadcast_kind_39	int	nội suy: cột gốc 119, khớp 100.0% (2264/2264 id); luật: nguyên văn
+120	物品使用几率	item_use_rate_40	int	neo: cột gốc 120, khớp 100.0% (2264/2264 id); luật: nguyên văn
+121	奖励几率	reward_rate_40	int	nội suy: cột gốc 121, khớp 100.0% (2264/2264 id); luật: nguyên văn
+122	广播类型0.普通说话消息1.队伍消息2.场景消息4.系统消息世界消息6.帮派消息7.门派消息	broadcast_kind_40	int	nội suy: cột gốc 122, khớp 100.0% (2264/2264 id); luật: nguyên văn
+123	物品使用几率	item_use_rate_41	int	nội suy: cột gốc 123, khớp 100.0% (2264/2264 id); luật: nguyên văn
+124	奖励几率	reward_rate_41	int	nội suy: cột gốc 124, khớp 100.0% (2264/2264 id); luật: nguyên văn
+125	广播类型0.普通说话消息1.队伍消息2.场景消息4.系统消息世界消息6.帮派消息7.门派消息	broadcast_kind_41	int	nội suy: cột gốc 125, khớp 100.0% (2264/2264 id); luật: nguyên văn
+126	物品使用几率	item_use_rate_42	int	nội suy: cột gốc 126, khớp 100.0% (2264/2264 id); luật: nguyên văn
+127	奖励几率	reward_rate_42	int	nội suy: cột gốc 127, khớp 100.0% (2264/2264 id); luật: nguyên văn
+128	广播类型0.普通说话消息1.队伍消息2.场景消息4.系统消息世界消息6.帮派消息7.门派消息	broadcast_kind_42	int	nội suy: cột gốc 128, khớp 100.0% (2264/2264 id); luật: nguyên văn
+129	物品使用几率	item_use_rate_43	int	neo: cột gốc 129, khớp 100.0% (2264/2264 id); luật: nguyên văn
+130	奖励几率	reward_rate_43	int	nội suy: cột gốc 130, khớp 100.0% (2264/2264 id); luật: nguyên văn
+131	广播类型0.普通说话消息1.队伍消息2.场景消息4.系统消息世界消息6.帮派消息7.门派消息	broadcast_kind_43	int	nội suy: cột gốc 131, khớp 100.0% (2264/2264 id); luật: nguyên văn
+132	物品使用几率	item_use_rate_44	int	neo: cột gốc 132, khớp 98.9% (2239/2264 id); luật: nguyên văn
+133	奖励几率	reward_rate_44	int	neo: cột gốc 133, khớp 98.9% (2239/2264 id); luật: nguyên văn
+134	广播类型0.普通说话消息1.队伍消息2.场景消息4.系统消息世界消息6.帮派消息7.门派消息	broadcast_kind_44	int	nội suy: cột gốc 134, khớp 100.0% (2264/2264 id); luật: nguyên văn
+135	物品使用几率	item_use_rate_45	int	neo: cột gốc 135, khớp 98.9% (2239/2264 id); luật: nguyên văn
+136	奖励几率	reward_rate_45	int	neo: cột gốc 136, khớp 98.9% (2239/2264 id); luật: nguyên văn
+137	广播类型0.普通说话消息1.队伍消息2.场景消息4.系统消息世界消息6.帮派消息8.门派消息	broadcast_kind_45	int	nội suy: cột gốc 137, khớp 100.0% (2264/2264 id); luật: nguyên văn
+138	物品使用几率	item_use_rate_46	int	neo: cột gốc 138, khớp 98.8% (2236/2264 id); luật: nguyên văn
+139	奖励几率	reward_rate_46	int	neo: cột gốc 139, khớp 98.8% (2236/2264 id); luật: nguyên văn
+140	广播类型0.普通说话消息1.队伍消息2.场景消息4.系统消息世界消息6.帮派消息9.门派消息	broadcast_kind_46	int	nội suy: cột gốc 140, khớp 100.0% (2264/2264 id); luật: nguyên văn
+141	物品使用几率	item_use_rate_47	int	neo: cột gốc 141, khớp 98.9% (2238/2264 id); luật: nguyên văn
+142	奖励几率	reward_rate_47	int	neo: cột gốc 142, khớp 98.9% (2238/2264 id); luật: nguyên văn
+143	广播类型0.普通说话消息1.队伍消息2.场景消息4.系统消息世界消息6.帮派消息9.门派消息	broadcast_kind_47	int	nội suy: cột gốc 143, khớp 100.0% (2264/2264 id); luật: nguyên văn
+144	物品使用几率	item_use_rate_48	int	neo: cột gốc 144, khớp 98.7% (2234/2264 id); luật: nguyên văn
+145	奖励几率	reward_rate_48	int	neo: cột gốc 145, khớp 98.7% (2234/2264 id); luật: nguyên văn
+146	广播类型0.普通说话消息1.队伍消息2.场景消息4.系统消息世界消息6.帮派消息10.门派消息	broadcast_kind_48	int	nội suy: cột gốc 146, khớp 100.0% (2264/2264 id); luật: nguyên văn
+147	物品使用几率	item_use_rate_49	int	neo: cột gốc 147, khớp 98.7% (2234/2264 id); luật: nguyên văn
+148	奖励几率	reward_rate_49	int	neo: cột gốc 148, khớp 98.7% (2234/2264 id); luật: nguyên văn
+149	广播类型0.普通说话消息1.队伍消息2.场景消息4.系统消息世界消息6.帮派消息10.门派消息	broadcast_kind_49	int	nội suy: cột gốc 149, khớp 100.0% (2264/2264 id); luật: nguyên văn
+150	物品使用几率	item_use_rate_50	int	neo: cột gốc 150, khớp 98.6% (2233/2264 id); luật: nguyên văn
+151	奖励几率	reward_rate_50	int	neo: cột gốc 151, khớp 98.6% (2233/2264 id); luật: nguyên văn
+152	广播类型0.普通说话消息1.队伍消息2.场景消息4.系统消息世界消息6.帮派消息9.门派消息	broadcast_kind_50	int	nội suy: cột gốc 152, khớp 100.0% (2264/2264 id); luật: nguyên văn
+153	物品使用几率	item_use_rate_51	int	neo: cột gốc 153, khớp 98.6% (2233/2264 id); luật: nguyên văn
+154	奖励几率	reward_rate_51	int	neo: cột gốc 154, khớp 98.6% (2233/2264 id); luật: nguyên văn
+155	广播类型0.普通说话消息1.队伍消息2.场景消息4.系统消息世界消息6.帮派消息10.门派消息	broadcast_kind_51	int	nội suy: cột gốc 155, khớp 100.0% (2264/2264 id); luật: nguyên văn
+156	物品使用几率	item_use_rate_52	int	nội suy: cột gốc 156, khớp 100.0% (2264/2264 id); luật: nguyên văn
+157	奖励几率	reward_rate_52	int	nội suy: cột gốc 157, khớp 100.0% (2264/2264 id); luật: nguyên văn
+158	广播类型0.普通说话消息1.队伍消息2.场景消息4.系统消息世界消息6.帮派消息10.门派消息	broadcast_kind_52	int	nội suy: cột gốc 158, khớp 100.0% (2264/2264 id); luật: nguyên văn
+159	物品使用几率	item_use_rate_53	int	nội suy: cột gốc 159, khớp 100.0% (2264/2264 id); luật: nguyên văn
+160	奖励几率	reward_rate_53	int	nội suy: cột gốc 160, khớp 100.0% (2264/2264 id); luật: nguyên văn
+161	广播类型0.普通说话消息1.队伍消息2.场景消息4.系统消息世界消息6.帮派消息10.门派消息	broadcast_kind_53	int	nội suy: cột gốc 161, khớp 100.0% (2264/2264 id); luật: nguyên văn
+162	物品使用几率	item_use_rate_54	int	nội suy: cột gốc 162, khớp 100.0% (2264/2264 id); luật: nguyên văn
+163	奖励几率	reward_rate_54	int	neo: cột gốc 163, khớp 100.0% (2264/2264 id); luật: nguyên văn
+164	广播类型0.普通说话消息1.队伍消息2.场景消息4.系统消息世界消息6.帮派消息10.门派消息	broadcast_kind_54	int	nội suy: cột gốc 164, khớp 100.0% (2264/2264 id); luật: nguyên văn
+165	物品使用几率	item_use_rate_55	int	nội suy: cột gốc 165, khớp 100.0% (2264/2264 id); luật: nguyên văn
+166	奖励几率	reward_rate_55	int	nội suy: cột gốc 166, khớp 100.0% (2264/2264 id); luật: nguyên văn
+167	广播类型0.普通说话消息1.队伍消息2.场景消息4.系统消息世界消息6.帮派消息10.门派消息	broadcast_kind_55	int	nội suy: cột gốc 167, khớp 100.0% (2264/2264 id); luật: nguyên văn
+168	物品使用几率	item_use_rate_56	int	nội suy: cột gốc 168, khớp 100.0% (2264/2264 id); luật: nguyên văn
+169	奖励几率	reward_rate_56	int	neo: cột gốc 169, khớp 100.0% (2264/2264 id); luật: nguyên văn
+170	广播类型0.普通说话消息1.队伍消息2.场景消息4.系统消息世界消息6.帮派消息10.门派消息	broadcast_kind_56	int	nội suy: cột gốc 170, khớp 100.0% (2264/2264 id); luật: nguyên văn
+171	物品使用几率	item_use_rate_57	int	nội suy: cột gốc 171, khớp 100.0% (2264/2264 id); luật: nguyên văn
+172	奖励几率	reward_rate_57	int	neo: cột gốc 172, khớp 100.0% (2264/2264 id); luật: nguyên văn
+173	广播类型0.普通说话消息1.队伍消息2.场景消息4.系统消息世界消息6.帮派消息10.门派消息	broadcast_kind_57	int	nội suy: cột gốc 173, khớp 100.0% (2264/2264 id); luật: nguyên văn
+174	物品使用几率	item_use_rate_58	int	nội suy: cột gốc 174, khớp 100.0% (2264/2264 id); luật: nguyên văn
+175	奖励几率	reward_rate_58	int	nội suy: cột gốc 175, khớp 100.0% (2264/2264 id); luật: nguyên văn
+176	广播类型0.普通说话消息1.队伍消息2.场景消息4.系统消息世界消息6.帮派消息10.门派消息	broadcast_kind_58	int	nội suy: cột gốc 176, khớp 100.0% (2264/2264 id); luật: nguyên văn
+177	物品使用几率	item_use_rate_59	int	nội suy: cột gốc 177, khớp 100.0% (2264/2264 id); luật: nguyên văn
+178	奖励几率	reward_rate_59	int	neo: cột gốc 178, khớp 100.0% (2264/2264 id); luật: nguyên văn
+179	广播类型0.普通说话消息1.队伍消息2.场景消息4.系统消息世界消息6.帮派消息10.门派消息	broadcast_kind_59	int	nội suy: cột gốc 179, khớp 100.0% (2264/2264 id); luật: nguyên văn
+180	物品使用几率	item_use_rate_60	int	nội suy: cột gốc 180, khớp 100.0% (2264/2264 id); luật: nguyên văn
+181	奖励几率	reward_rate_60	int	neo: cột gốc 181, khớp 100.0% (2264/2264 id); luật: nguyên văn
+182	广播类型0.普通说话消息1.队伍消息2.场景消息4.系统消息世界消息6.帮派消息10.门派消息	broadcast_kind_60	int	nội suy: cột gốc 182, khớp 100.0% (2264/2264 id); luật: nguyên văn
+183	物品使用几率	item_use_rate_61	int	nội suy: cột gốc 183, khớp 100.0% (2264/2264 id); luật: nguyên văn
+184	奖励几率	reward_rate_61	int	nội suy: cột gốc 184, khớp 100.0% (2264/2264 id); luật: nguyên văn
+185	广播类型0.普通说话消息1.队伍消息2.场景消息4.系统消息世界消息6.帮派消息10.门派消息	broadcast_kind_61	int	nội suy: cột gốc 185, khớp 100.0% (2264/2264 id); luật: nguyên văn
+186	物品使用几率	item_use_rate_62	int	nội suy: cột gốc 186, khớp 100.0% (2264/2264 id); luật: nguyên văn
+187	奖励几率	reward_rate_62	int	nội suy: cột gốc 187, khớp 100.0% (2264/2264 id); luật: nguyên văn
+188	广播类型0.普通说话消息1.队伍消息2.场景消息4.系统消息世界消息6.帮派消息10.门派消息	broadcast_kind_62	int	nội suy: cột gốc 188, khớp 100.0% (2264/2264 id); luật: nguyên văn
+189	物品使用几率	item_use_rate_63	int	nội suy: cột gốc 189, khớp 100.0% (2264/2264 id); luật: nguyên văn
+190	奖励几率	reward_rate_63	int	neo: cột gốc 190, khớp 100.0% (2264/2264 id); luật: nguyên văn
+191	广播类型0.普通说话消息1.队伍消息2.场景消息4.系统消息世界消息6.帮派消息10.门派消息	broadcast_kind_63	int	nội suy: cột gốc 191, khớp 100.0% (2264/2264 id); luật: nguyên văn
+192	物品使用几率	item_use_rate_64	int	nội suy: cột gốc 192, khớp 100.0% (2264/2264 id); luật: nguyên văn
+193	奖励几率	reward_rate_64	int	neo: cột gốc 193, khớp 100.0% (2264/2264 id); luật: nguyên văn
+194	广播类型0.普通说话消息1.队伍消息2.场景消息4.系统消息世界消息6.帮派消息10.门派消息	broadcast_kind_64	int	nội suy: cột gốc 194, khớp 100.0% (2264/2264 id); luật: nguyên văn
+195	物品使用几率	item_use_rate_65	int	neo: cột gốc 195, khớp 100.0% (2264/2264 id); luật: nguyên văn
+196	奖励几率	reward_rate_65	int	nội suy: cột gốc 196, khớp 100.0% (2264/2264 id); luật: nguyên văn
+197	广播类型0.普通说话消息1.队伍消息2.场景消息4.系统消息世界消息6.帮派消息10.门派消息	broadcast_kind_65	int	nội suy: cột gốc 197, khớp 100.0% (2264/2264 id); luật: nguyên văn
+198	物品使用几率	item_use_rate_66	int	neo: cột gốc 198, khớp 100.0% (2264/2264 id); luật: nguyên văn
+199	奖励几率	reward_rate_66	int	nội suy: cột gốc 199, khớp 100.0% (2264/2264 id); luật: nguyên văn
+200	广播类型0.普通说话消息1.队伍消息2.场景消息4.系统消息世界消息6.帮派消息10.门派消息	broadcast_kind_66	int	nội suy: cột gốc 200, khớp 100.0% (2264/2264 id); luật: nguyên văn
+201	物品使用几率	item_use_rate_67	int	neo: cột gốc 201, khớp 100.0% (2264/2264 id); luật: nguyên văn
+202	奖励几率	reward_rate_67	int	nội suy: cột gốc 202, khớp 100.0% (2264/2264 id); luật: nguyên văn
+203	广播类型0.普通说话消息1.队伍消息2.场景消息4.系统消息世界消息6.帮派消息10.门派消息	broadcast_kind_67	int	nội suy: cột gốc 203, khớp 100.0% (2264/2264 id); luật: nguyên văn
+204	物品使用几率	item_use_rate_68	int	neo: cột gốc 204, khớp 100.0% (2264/2264 id); luật: nguyên văn
+205	奖励几率	reward_rate_68	int	nội suy: cột gốc 205, khớp 100.0% (2264/2264 id); luật: nguyên văn
+206	广播类型0.普通说话消息1.队伍消息2.场景消息4.系统消息世界消息6.帮派消息10.门派消息	broadcast_kind_68	int	nội suy: cột gốc 206, khớp 100.0% (2264/2264 id); luật: nguyên văn
+207	物品使用几率	item_use_rate_69	int	neo: cột gốc 207, khớp 100.0% (2264/2264 id); luật: nguyên văn
+208	奖励几率	reward_rate_69	int	nội suy: cột gốc 208, khớp 100.0% (2264/2264 id); luật: nguyên văn
+209	广播类型0.普通说话消息1.队伍消息2.场景消息4.系统消息世界消息6.帮派消息10.门派消息	broadcast_kind_69	int	nội suy: cột gốc 209, khớp 100.0% (2264/2264 id); luật: nguyên văn
+210	物品使用几率	item_use_rate_70	int	nội suy: cột gốc 210, khớp 100.0% (2264/2264 id); luật: nguyên văn
+211	奖励几率	reward_rate_70	int	nội suy: cột gốc 211, khớp 100.0% (2264/2264 id); luật: nguyên văn
+212	广播类型0.普通说话消息1.队伍消息2.场景消息4.系统消息世界消息6.帮派消息10.门派消息	broadcast_kind_70	int	nội suy: cột gốc 212, khớp 100.0% (2264/2264 id); luật: nguyên văn
+213	物品使用几率	item_use_rate_71	int	neo: cột gốc 213, khớp 100.0% (2264/2264 id); luật: nguyên văn
+214	奖励几率	reward_rate_71	int	nội suy: cột gốc 214, khớp 100.0% (2264/2264 id); luật: nguyên văn
+215	广播类型0.普通说话消息1.队伍消息2.场景消息4.系统消息世界消息6.帮派消息10.门派消息	broadcast_kind_71	int	nội suy: cột gốc 215, khớp 100.0% (2264/2264 id); luật: nguyên văn
+216	物品使用几率	item_use_rate_72	int	neo: cột gốc 216, khớp 100.0% (2264/2264 id); luật: nguyên văn
+217	奖励几率	reward_rate_72	int	nội suy: cột gốc 217, khớp 100.0% (2264/2264 id); luật: nguyên văn
+218	广播类型0.普通说话消息1.队伍消息2.场景消息4.系统消息世界消息6.帮派消息10.门派消息	broadcast_kind_72	int	nội suy: cột gốc 218, khớp 100.0% (2264/2264 id); luật: nguyên văn
+219	物品使用几率	item_use_rate_73	int	neo: cột gốc 219, khớp 100.0% (2264/2264 id); luật: nguyên văn
+220	奖励几率	reward_rate_73	int	nội suy: cột gốc 220, khớp 100.0% (2264/2264 id); luật: nguyên văn
+221	广播类型0.普通说话消息1.队伍消息2.场景消息4.系统消息世界消息6.帮派消息10.门派消息	broadcast_kind_73	int	nội suy: cột gốc 221, khớp 100.0% (2264/2264 id); luật: nguyên văn
+222	物品使用几率	item_use_rate_74	int	neo: cột gốc 222, khớp 100.0% (2264/2264 id); luật: nguyên văn
+223	奖励几率	reward_rate_74	int	nội suy: cột gốc 223, khớp 100.0% (2264/2264 id); luật: nguyên văn
+224	广播类型0.普通说话消息1.队伍消息2.场景消息4.系统消息世界消息6.帮派消息10.门派消息	broadcast_kind_74	int	nội suy: cột gốc 224, khớp 100.0% (2264/2264 id); luật: nguyên văn
+225	物品使用几率	item_use_rate_75	int	neo: cột gốc 225, khớp 100.0% (2264/2264 id); luật: nguyên văn
+226	奖励几率	reward_rate_75	int	nội suy: cột gốc 226, khớp 100.0% (2264/2264 id); luật: nguyên văn
+227	广播类型0.普通说话消息1.队伍消息2.场景消息4.系统消息世界消息6.帮派消息10.门派消息	broadcast_kind_75	int	nội suy: cột gốc 227, khớp 100.0% (2264/2264 id); luật: nguyên văn
+228	物品使用几率	item_use_rate_76	int	neo: cột gốc 228, khớp 100.0% (2264/2264 id); luật: nguyên văn
+229	奖励几率	reward_rate_76	int	nội suy: cột gốc 229, khớp 100.0% (2264/2264 id); luật: nguyên văn
+230	广播类型0.普通说话消息1.队伍消息2.场景消息4.系统消息世界消息6.帮派消息10.门派消息	broadcast_kind_76	int	nội suy: cột gốc 230, khớp 100.0% (2264/2264 id); luật: nguyên văn
+231	物品使用几率	item_use_rate_77	int	neo: cột gốc 231, khớp 100.0% (2264/2264 id); luật: nguyên văn
+232	奖励几率	reward_rate_77	int	nội suy: cột gốc 232, khớp 100.0% (2264/2264 id); luật: nguyên văn
+233	广播类型0.普通说话消息1.队伍消息2.场景消息4.系统消息世界消息6.帮派消息10.门派消息	broadcast_kind_77	int	nội suy: cột gốc 233, khớp 100.0% (2264/2264 id); luật: nguyên văn
+234	物品使用几率	item_use_rate_78	int	nội suy: cột gốc 234, khớp 100.0% (2264/2264 id); luật: nguyên văn
+235	奖励几率	reward_rate_78	int	nội suy: cột gốc 235, khớp 100.0% (2264/2264 id); luật: nguyên văn
+236	广播类型0.普通说话消息1.队伍消息2.场景消息4.系统消息世界消息6.帮派消息10.门派消息	broadcast_kind_78	int	nội suy: cột gốc 236, khớp 100.0% (2264/2264 id); luật: nguyên văn
+237	物品使用几率	item_use_rate_79	int	neo: cột gốc 237, khớp 100.0% (2264/2264 id); luật: nguyên văn
+238	奖励几率	reward_rate_79	int	nội suy: cột gốc 238, khớp 100.0% (2264/2264 id); luật: nguyên văn
+239	广播类型0.普通说话消息1.队伍消息2.场景消息4.系统消息世界消息6.帮派消息10.门派消息	broadcast_kind_79	int	nội suy: cột gốc 239, khớp 100.0% (2264/2264 id); luật: nguyên văn
+240	物品使用几率	item_use_rate_80	int	neo: cột gốc 240, khớp 100.0% (2264/2264 id); luật: nguyên văn
+241	奖励几率	reward_rate_80	int	nội suy: cột gốc 241, khớp 100.0% (2264/2264 id); luật: nguyên văn
+242	广播类型0.普通说话消息1.队伍消息2.场景消息4.系统消息世界消息6.帮派消息10.门派消息	broadcast_kind_80	int	nội suy: cột gốc 242, khớp 100.0% (2264/2264 id); luật: nguyên văn
+243	物品使用几率	item_use_rate_81	int	neo: cột gốc 243, khớp 100.0% (2264/2264 id); luật: nguyên văn
+244	奖励几率	reward_rate_81	int	nội suy: cột gốc 244, khớp 100.0% (2264/2264 id); luật: nguyên văn
+245	广播类型0.普通说话消息1.队伍消息2.场景消息4.系统消息世界消息6.帮派消息10.门派消息	broadcast_kind_81	int	nội suy: cột gốc 245, khớp 100.0% (2264/2264 id); luật: nguyên văn
+246	物品使用几率	item_use_rate_82	int	neo: cột gốc 246, khớp 100.0% (2264/2264 id); luật: nguyên văn
+247	奖励几率	reward_rate_82	int	nội suy: cột gốc 247, khớp 100.0% (2264/2264 id); luật: nguyên văn
+248	广播类型0.普通说话消息1.队伍消息2.场景消息4.系统消息世界消息6.帮派消息10.门派消息	broadcast_kind_82	int	nội suy: cột gốc 248, khớp 100.0% (2264/2264 id); luật: nguyên văn
+249	物品使用几率	item_use_rate_83	int	neo: cột gốc 249, khớp 100.0% (2264/2264 id); luật: nguyên văn
+250	奖励几率	reward_rate_83	int	nội suy: cột gốc 250, khớp 100.0% (2264/2264 id); luật: nguyên văn
+251	广播类型0.普通说话消息1.队伍消息2.场景消息4.系统消息世界消息6.帮派消息10.门派消息	broadcast_kind_83	int	nội suy: cột gốc 251, khớp 100.0% (2264/2264 id); luật: nguyên văn
+252	物品使用几率	item_use_rate_84	int	nội suy: cột gốc 252, khớp 100.0% (2264/2264 id); luật: nguyên văn
+253	奖励几率	reward_rate_84	int	nội suy: cột gốc 253, khớp 100.0% (2264/2264 id); luật: nguyên văn
+254	广播类型0.普通说话消息1.队伍消息2.场景消息4.系统消息世界消息6.帮派消息10.门派消息	broadcast_kind_84	int	nội suy: cột gốc 254, khớp 100.0% (2264/2264 id); luật: nguyên văn
+255	物品使用几率	item_use_rate_85	int	neo: cột gốc 255, khớp 100.0% (2264/2264 id); luật: nguyên văn
+256	奖励几率	reward_rate_85	int	nội suy: cột gốc 256, khớp 100.0% (2264/2264 id); luật: nguyên văn
+257	广播类型0.普通说话消息1.队伍消息2.场景消息4.系统消息世界消息6.帮派消息10.门派消息	broadcast_kind_85	int	nội suy: cột gốc 257, khớp 100.0% (2264/2264 id); luật: nguyên văn
+258	物品使用几率	item_use_rate_86	int	nội suy: cột gốc 258, khớp 100.0% (2264/2264 id); luật: nguyên văn
+259	奖励几率	reward_rate_86	int	nội suy: cột gốc 259, khớp 100.0% (2264/2264 id); luật: nguyên văn
+260	广播类型0.普通说话消息1.队伍消息2.场景消息4.系统消息世界消息6.帮派消息10.门派消息	broadcast_kind_86	int	nội suy: cột gốc 260, khớp 100.0% (2264/2264 id); luật: nguyên văn
+261	物品使用几率	item_use_rate_87	int	neo: cột gốc 261, khớp 100.0% (2264/2264 id); luật: nguyên văn
+262	奖励几率	reward_rate_87	int	nội suy: cột gốc 262, khớp 100.0% (2264/2264 id); luật: nguyên văn
+263	广播类型0.普通说话消息1.队伍消息2.场景消息4.系统消息世界消息6.帮派消息10.门派消息	broadcast_kind_87	int	nội suy: cột gốc 263, khớp 100.0% (2264/2264 id); luật: nguyên văn
+264	物品使用几率	item_use_rate_88	int	neo: cột gốc 264, khớp 100.0% (2264/2264 id); luật: nguyên văn
+265	奖励几率	reward_rate_88	int	nội suy: cột gốc 265, khớp 100.0% (2264/2264 id); luật: nguyên văn
+266	广播类型0.普通说话消息1.队伍消息2.场景消息4.系统消息世界消息6.帮派消息10.门派消息	broadcast_kind_88	int	nội suy: cột gốc 266, khớp 100.0% (2264/2264 id); luật: nguyên văn
+267	物品使用几率	item_use_rate_89	int	neo: cột gốc 267, khớp 100.0% (2264/2264 id); luật: nguyên văn
+268	奖励几率	reward_rate_89	int	nội suy: cột gốc 268, khớp 100.0% (2264/2264 id); luật: nguyên văn
+269	广播类型0.普通说话消息1.队伍消息2.场景消息4.系统消息世界消息6.帮派消息10.门派消息	broadcast_kind_89	int	nội suy: cột gốc 269, khớp 100.0% (2264/2264 id); luật: nguyên văn
+270	物品使用几率	item_use_rate_90	int	neo: cột gốc 270, khớp 100.0% (2264/2264 id); luật: nguyên văn
+271	奖励几率	reward_rate_90	int	nội suy: cột gốc 271, khớp 100.0% (2264/2264 id); luật: nguyên văn
+272	广播类型0.普通说话消息1.队伍消息2.场景消息4.系统消息世界消息6.帮派消息10.门派消息	broadcast_kind_90	int	nội suy: cột gốc 272, khớp 100.0% (2264/2264 id); luật: nguyên văn
+273	物品使用几率	item_use_rate_91	int	neo: cột gốc 273, khớp 100.0% (2264/2264 id); luật: nguyên văn
+274	奖励几率	reward_rate_91	int	nội suy: cột gốc 274, khớp 100.0% (2264/2264 id); luật: nguyên văn
+275	广播类型0.普通说话消息1.队伍消息2.场景消息4.系统消息世界消息6.帮派消息10.门派消息	broadcast_kind_91	int	nội suy: cột gốc 275, khớp 100.0% (2264/2264 id); luật: nguyên văn
+276	物品使用几率	item_use_rate_92	int	neo: cột gốc 276, khớp 100.0% (2264/2264 id); luật: nguyên văn
+277	奖励几率	reward_rate_92	int	nội suy: cột gốc 277, khớp 100.0% (2264/2264 id); luật: nguyên văn
+278	广播类型0.普通说话消息1.队伍消息2.场景消息4.系统消息世界消息6.帮派消息10.门派消息	broadcast_kind_92	int	nội suy: cột gốc 278, khớp 100.0% (2264/2264 id); luật: nguyên văn
+279	物品使用几率	item_use_rate_93	int	neo: cột gốc 279, khớp 100.0% (2264/2264 id); luật: nguyên văn
+280	奖励几率	reward_rate_93	int	nội suy: cột gốc 280, khớp 100.0% (2264/2264 id); luật: nguyên văn
+281	广播类型0.普通说话消息1.队伍消息2.场景消息4.系统消息世界消息6.帮派消息10.门派消息	broadcast_kind_93	int	nội suy: cột gốc 281, khớp 100.0% (2264/2264 id); luật: nguyên văn
+282	物品使用几率	item_use_rate_94	int	nội suy: cột gốc 282, khớp 100.0% (2264/2264 id); luật: nguyên văn
+283	奖励几率	reward_rate_94	int	nội suy: cột gốc 283, khớp 100.0% (2264/2264 id); luật: nguyên văn
+284	广播类型0.普通说话消息1.队伍消息2.场景消息4.系统消息世界消息6.帮派消息10.门派消息	broadcast_kind_94	int	nội suy: cột gốc 284, khớp 100.0% (2264/2264 id); luật: nguyên văn
+285	物品使用几率	item_use_rate_95	int	nội suy: cột gốc 285, khớp 100.0% (2264/2264 id); luật: nguyên văn
+286	奖励几率	reward_rate_95	int	nội suy: cột gốc 286, khớp 100.0% (2264/2264 id); luật: nguyên văn
+287	广播类型0.普通说话消息1.队伍消息2.场景消息4.系统消息世界消息6.帮派消息10.门派消息	broadcast_kind_95	int	nội suy: cột gốc 287, khớp 100.0% (2264/2264 id); luật: nguyên văn
+288	物品使用几率	item_use_rate_96	int	nội suy: cột gốc 288, khớp 100.0% (2264/2264 id); luật: nguyên văn
+289	奖励几率	reward_rate_96	int	nội suy: cột gốc 289, khớp 100.0% (2264/2264 id); luật: nguyên văn
+290	广播类型0.普通说话消息1.队伍消息2.场景消息4.系统消息世界消息6.帮派消息10.门派消息	broadcast_kind_96	int	nội suy: cột gốc 290, khớp 100.0% (2264/2264 id); luật: nguyên văn
+291	物品使用几率	item_use_rate_97	int	nội suy: cột gốc 291, khớp 100.0% (2264/2264 id); luật: nguyên văn
+292	奖励几率	reward_rate_97	int	nội suy: cột gốc 292, khớp 100.0% (2264/2264 id); luật: nguyên văn
+293	广播类型0.普通说话消息1.队伍消息2.场景消息4.系统消息世界消息6.帮派消息10.门派消息	broadcast_kind_97	int	nội suy: cột gốc 293, khớp 100.0% (2264/2264 id); luật: nguyên văn
+294	物品使用几率	item_use_rate_98	int	nội suy: cột gốc 294, khớp 100.0% (2264/2264 id); luật: nguyên văn
+295	奖励几率	reward_rate_98	int	nội suy: cột gốc 295, khớp 100.0% (2264/2264 id); luật: nguyên văn
+296	广播类型0.普通说话消息1.队伍消息2.场景消息4.系统消息世界消息6.帮派消息10.门派消息	broadcast_kind_98	int	nội suy: cột gốc 296, khớp 100.0% (2264/2264 id); luật: nguyên văn
+297	物品使用几率	item_use_rate_99	int	nội suy: cột gốc 297, khớp 100.0% (2264/2264 id); luật: nguyên văn
+298	奖励几率	reward_rate_99	int	nội suy: cột gốc 298, khớp 100.0% (2264/2264 id); luật: nguyên văn
+299	广播类型0.普通说话消息1.队伍消息2.场景消息4.系统消息世界消息6.帮派消息10.门派消息	broadcast_kind_99	int	nội suy: cột gốc 299, khớp 100.0% (2264/2264 id); luật: nguyên văn
+300	物品使用几率	item_use_rate_100	int	nội suy: cột gốc 300, khớp 100.0% (2264/2264 id); luật: nguyên văn
+301	奖励几率	reward_rate_100	int	nội suy: cột gốc 301, khớp 100.0% (2264/2264 id); luật: nguyên văn
+302	广播类型0.普通说话消息1.队伍消息2.场景消息4.系统消息世界消息6.帮派消息10.门派消息	broadcast_kind_100	int	nội suy: cột gốc 302, khớp 100.0% (2264/2264 id); luật: nguyên văn
+303	物品使用几率	item_use_rate_101	int	nội suy: cột gốc 303, khớp 100.0% (2264/2264 id); luật: nguyên văn
+304	奖励几率	reward_rate_101	int	nội suy: cột gốc 304, khớp 100.0% (2264/2264 id); luật: nguyên văn
+305	广播类型0.普通说话消息1.队伍消息2.场景消息4.系统消息世界消息6.帮派消息10.门派消息	broadcast_kind_101	int	nội suy: cột gốc 305, khớp 100.0% (2264/2264 id); luật: nguyên văn
+306	物品使用几率	item_use_rate_102	int	nội suy: cột gốc 306, khớp 100.0% (2264/2264 id); luật: nguyên văn
+307	奖励几率	reward_rate_102	int	nội suy: cột gốc 307, khớp 100.0% (2264/2264 id); luật: nguyên văn
+308	广播类型0.普通说话消息1.队伍消息2.场景消息4.系统消息世界消息6.帮派消息10.门派消息	broadcast_kind_102	int	nội suy: cột gốc 308, khớp 100.0% (2264/2264 id); luật: nguyên văn
+309	物品使用几率	item_use_rate_103	int	nội suy: cột gốc 309, khớp 100.0% (2264/2264 id); luật: nguyên văn
+310	奖励几率	reward_rate_103	int	nội suy: cột gốc 310, khớp 100.0% (2264/2264 id); luật: nguyên văn
+311	广播类型0.普通说话消息1.队伍消息2.场景消息4.系统消息世界消息6.帮派消息10.门派消息	broadcast_kind_103	int	nội suy: cột gốc 311, khớp 100.0% (2264/2264 id); luật: nguyên văn
+312	物品使用几率	item_use_rate_104	int	neo: cột gốc 312, khớp 100.0% (2264/2264 id); luật: nguyên văn
+313	奖励几率	reward_rate_104	int	nội suy: cột gốc 313, khớp 100.0% (2264/2264 id); luật: nguyên văn
+314	广播类型0.普通说话消息1.队伍消息2.场景消息4.系统消息世界消息6.帮派消息10.门派消息	broadcast_kind_104	int	nội suy: cột gốc 314, khớp 100.0% (2264/2264 id); luật: nguyên văn
+315	物品使用几率	item_use_rate_105	int	neo: cột gốc 315, khớp 100.0% (2264/2264 id); luật: nguyên văn
+316	奖励几率	reward_rate_105	int	nội suy: cột gốc 316, khớp 100.0% (2264/2264 id); luật: nguyên văn
+317	广播类型0.普通说话消息1.队伍消息2.场景消息4.系统消息世界消息6.帮派消息10.门派消息	broadcast_kind_105	int	nội suy: cột gốc 317, khớp 100.0% (2264/2264 id); luật: nguyên văn
+318	物品使用几率	item_use_rate_106	int	neo: cột gốc 318, khớp 100.0% (2264/2264 id); luật: nguyên văn
+319	奖励几率	reward_rate_106	int	nội suy: cột gốc 319, khớp 100.0% (2264/2264 id); luật: nguyên văn
+320	广播类型0.普通说话消息1.队伍消息2.场景消息4.系统消息世界消息6.帮派消息10.门派消息	broadcast_kind_106	int	nội suy: cột gốc 320, khớp 100.0% (2264/2264 id); luật: nguyên văn
+321	物品使用几率	item_use_rate_107	int	neo: cột gốc 321, khớp 100.0% (2264/2264 id); luật: nguyên văn
+322	奖励几率	reward_rate_107	int	nội suy: cột gốc 322, khớp 100.0% (2264/2264 id); luật: nguyên văn
+323	广播类型0.普通说话消息1.队伍消息2.场景消息4.系统消息世界消息6.帮派消息10.门派消息	broadcast_kind_107	int	nội suy: cột gốc 323, khớp 100.0% (2264/2264 id); luật: nguyên văn
+324	物品使用几率	item_use_rate_108	int	neo: cột gốc 324, khớp 100.0% (2264/2264 id); luật: nguyên văn
+325	奖励几率	reward_rate_108	int	nội suy: cột gốc 325, khớp 100.0% (2264/2264 id); luật: nguyên văn
+326	广播类型0.普通说话消息1.队伍消息2.场景消息4.系统消息世界消息6.帮派消息10.门派消息	broadcast_kind_108	int	nội suy: cột gốc 326, khớp 100.0% (2264/2264 id); luật: nguyên văn
+327	物品使用几率	item_use_rate_109	int	neo: cột gốc 327, khớp 100.0% (2264/2264 id); luật: nguyên văn
+328	奖励几率	reward_rate_109	int	nội suy: cột gốc 328, khớp 100.0% (2264/2264 id); luật: nguyên văn
+329	广播类型0.普通说话消息1.队伍消息2.场景消息4.系统消息世界消息6.帮派消息10.门派消息	broadcast_kind_109	int	nội suy: cột gốc 329, khớp 100.0% (2264/2264 id); luật: nguyên văn
+330	物品使用几率	item_use_rate_110	int	neo: cột gốc 330, khớp 100.0% (2264/2264 id); luật: nguyên văn
+331	奖励几率	reward_rate_110	int	nội suy: cột gốc 331, khớp 100.0% (2264/2264 id); luật: nguyên văn
+332	广播类型0.普通说话消息1.队伍消息2.场景消息4.系统消息世界消息6.帮派消息10.门派消息	broadcast_kind_110	int	nội suy: cột gốc 332, khớp 100.0% (2264/2264 id); luật: nguyên văn
+333	物品使用几率	item_use_rate_111	int	neo: cột gốc 333, khớp 100.0% (2264/2264 id); luật: nguyên văn
+334	奖励几率	reward_rate_111	int	nội suy: cột gốc 334, khớp 100.0% (2264/2264 id); luật: nguyên văn
+335	广播类型0.普通说话消息1.队伍消息2.场景消息4.系统消息世界消息6.帮派消息10.门派消息	broadcast_kind_111	int	nội suy: cột gốc 335, khớp 100.0% (2264/2264 id); luật: nguyên văn
+336	物品使用几率	item_use_rate_112	int	neo: cột gốc 336, khớp 100.0% (2264/2264 id); luật: nguyên văn
+337	奖励几率	reward_rate_112	int	nội suy: cột gốc 337, khớp 100.0% (2264/2264 id); luật: nguyên văn
+338	广播类型0.普通说话消息1.队伍消息2.场景消息4.系统消息世界消息6.帮派消息10.门派消息	broadcast_kind_112	int	nội suy: cột gốc 338, khớp 100.0% (2264/2264 id); luật: nguyên văn
+339	物品使用几率	item_use_rate_113	int	neo: cột gốc 339, khớp 100.0% (2264/2264 id); luật: nguyên văn
+340	奖励几率	reward_rate_113	int	nội suy: cột gốc 340, khớp 100.0% (2264/2264 id); luật: nguyên văn
+341	广播类型0.普通说话消息1.队伍消息2.场景消息4.系统消息世界消息6.帮派消息10.门派消息	broadcast_kind_113	int	nội suy: cột gốc 341, khớp 100.0% (2264/2264 id); luật: nguyên văn
+342	物品使用几率	item_use_rate_114	int	neo: cột gốc 342, khớp 100.0% (2264/2264 id); luật: nguyên văn
+343	奖励几率	reward_rate_114	int	nội suy: cột gốc 343, khớp 100.0% (2264/2264 id); luật: nguyên văn
+344	广播类型0.普通说话消息1.队伍消息2.场景消息4.系统消息世界消息6.帮派消息10.门派消息	broadcast_kind_114	int	nội suy: cột gốc 344, khớp 100.0% (2264/2264 id); luật: nguyên văn
+345	物品使用几率	item_use_rate_115	int	neo: cột gốc 345, khớp 100.0% (2264/2264 id); luật: nguyên văn
+346	奖励几率	reward_rate_115	int	nội suy: cột gốc 346, khớp 100.0% (2264/2264 id); luật: nguyên văn
+347	广播类型0.普通说话消息1.队伍消息2.场景消息4.系统消息世界消息6.帮派消息10.门派消息	broadcast_kind_115	int	nội suy: cột gốc 347, khớp 100.0% (2264/2264 id); luật: nguyên văn
+348	物品使用几率	item_use_rate_116	int	neo: cột gốc 348, khớp 100.0% (2264/2264 id); luật: nguyên văn
+349	奖励几率	reward_rate_116	int	nội suy: cột gốc 349, khớp 100.0% (2264/2264 id); luật: nguyên văn
+350	广播类型0.普通说话消息1.队伍消息2.场景消息4.系统消息世界消息6.帮派消息10.门派消息	broadcast_kind_116	int	nội suy: cột gốc 350, khớp 100.0% (2264/2264 id); luật: nguyên văn
+351	物品使用几率	item_use_rate_117	int	neo: cột gốc 351, khớp 100.0% (2264/2264 id); luật: nguyên văn
+352	奖励几率	reward_rate_117	int	nội suy: cột gốc 352, khớp 100.0% (2264/2264 id); luật: nguyên văn
+353	广播类型0.普通说话消息1.队伍消息2.场景消息4.系统消息世界消息6.帮派消息10.门派消息	broadcast_kind_117	int	nội suy: cột gốc 353, khớp 100.0% (2264/2264 id); luật: nguyên văn
+354	物品使用几率	item_use_rate_118	int	nội suy: cột gốc 354, khớp 100.0% (2264/2264 id); luật: nguyên văn
+355	奖励几率	reward_rate_118	int	nội suy: cột gốc 355, khớp 100.0% (2264/2264 id); luật: nguyên văn
+356	广播类型0.普通说话消息1.队伍消息2.场景消息4.系统消息世界消息6.帮派消息10.门派消息	broadcast_kind_118	int	nội suy: cột gốc 356, khớp 100.0% (2264/2264 id); luật: nguyên văn
+357	物品使用几率	item_use_rate_119	int	nội suy: cột gốc 357, khớp 100.0% (2264/2264 id); luật: nguyên văn
+358	奖励几率	reward_rate_119	int	nội suy: cột gốc 358, khớp 100.0% (2264/2264 id); luật: nguyên văn
+359	广播类型0.普通说话消息1.队伍消息2.场景消息4.系统消息世界消息6.帮派消息10.门派消息	broadcast_kind_119	int	nội suy: cột gốc 359, khớp 100.0% (2264/2264 id); luật: nguyên văn
+360	物品使用几率	item_use_rate_120	int	nội suy: cột gốc 360, khớp 100.0% (2264/2264 id); luật: nguyên văn
+361	奖励几率	reward_rate_120	int	nội suy: cột gốc 361, khớp 100.0% (2264/2264 id); luật: nguyên văn
+362	广播类型0.普通说话消息1.队伍消息2.场景消息4.系统消息世界消息6.帮派消息10.门派消息	broadcast_kind_120	int	nội suy: cột gốc 362, khớp 100.0% (2264/2264 id); luật: nguyên văn
+363	物品使用几率	item_use_rate_121	int	nội suy: cột gốc 363, khớp 100.0% (2264/2264 id); luật: nguyên văn
+364	奖励几率	reward_rate_121	int	nội suy: cột gốc 364, khớp 100.0% (2264/2264 id); luật: nguyên văn
+365	广播类型0.普通说话消息1.队伍消息2.场景消息4.系统消息世界消息6.帮派消息10.门派消息	broadcast_kind_121	int	nội suy: cột gốc 365, khớp 100.0% (2264/2264 id); luật: nguyên văn
+366	物品使用几率	item_use_rate_122	int	nội suy: cột gốc 366, khớp 100.0% (2264/2264 id); luật: nguyên văn
+367	奖励几率	reward_rate_122	int	nội suy: cột gốc 367, khớp 100.0% (2264/2264 id); luật: nguyên văn
+368	广播类型0.普通说话消息1.队伍消息2.场景消息4.系统消息世界消息6.帮派消息10.门派消息	broadcast_kind_122	int	nội suy: cột gốc 368, khớp 100.0% (2264/2264 id); luật: nguyên văn
+369	物品使用几率	item_use_rate_123	int	nội suy: cột gốc 369, khớp 100.0% (2264/2264 id); luật: nguyên văn
+370	奖励几率	reward_rate_123	int	nội suy: cột gốc 370, khớp 100.0% (2264/2264 id); luật: nguyên văn
+371	广播类型0.普通说话消息1.队伍消息2.场景消息4.系统消息世界消息6.帮派消息10.门派消息	broadcast_kind_123	int	nội suy: cột gốc 371, khớp 100.0% (2264/2264 id); luật: nguyên văn
+372	物品使用几率	item_use_rate_124	int	nội suy: cột gốc 372, khớp 100.0% (2264/2264 id); luật: nguyên văn
+373	奖励几率	reward_rate_124	int	nội suy: cột gốc 373, khớp 100.0% (2264/2264 id); luật: nguyên văn
+374	广播类型0.普通说话消息1.队伍消息2.场景消息4.系统消息世界消息6.帮派消息10.门派消息	broadcast_kind_124	int	nội suy: cột gốc 374, khớp 100.0% (2264/2264 id); luật: nguyên văn
+375	物品使用几率	item_use_rate_125	int	nội suy: cột gốc 375, khớp 100.0% (2264/2264 id); luật: nguyên văn
+376	奖励几率	reward_rate_125	int	nội suy: cột gốc 376, khớp 100.0% (2264/2264 id); luật: nguyên văn
+377	广播类型0.普通说话消息1.队伍消息2.场景消息4.系统消息世界消息6.帮派消息10.门派消息	broadcast_kind_125	int	nội suy: cột gốc 377, khớp 100.0% (2264/2264 id); luật: nguyên văn
+378	物品使用几率	item_use_rate_126	int	nội suy: cột gốc 378, khớp 100.0% (2264/2264 id); luật: nguyên văn
+379	奖励几率	reward_rate_126	int	nội suy: cột gốc 379, khớp 100.0% (2264/2264 id); luật: nguyên văn
+380	广播类型0.普通说话消息1.队伍消息2.场景消息4.系统消息世界消息6.帮派消息10.门派消息	broadcast_kind_126	int	nội suy: cột gốc 380, khớp 100.0% (2264/2264 id); luật: nguyên văn
+381	物品使用几率	item_use_rate_127	int	nội suy: cột gốc 381, khớp 100.0% (2264/2264 id); luật: nguyên văn
+382	奖励几率	reward_rate_127	int	nội suy: cột gốc 382, khớp 100.0% (2264/2264 id); luật: nguyên văn
+383	广播类型0.普通说话消息1.队伍消息2.场景消息4.系统消息世界消息6.帮派消息10.门派消息	broadcast_kind_127	int	nội suy: cột gốc 383, khớp 100.0% (2264/2264 id); luật: nguyên văn
+384	物品使用几率	item_use_rate_128	int	nội suy: cột gốc 384, khớp 100.0% (2264/2264 id); luật: nguyên văn
+385	奖励几率	reward_rate_128	int	nội suy: cột gốc 385, khớp 100.0% (2264/2264 id); luật: nguyên văn
+386	广播类型0.普通说话消息1.队伍消息2.场景消息4.系统消息世界消息6.帮派消息10.门派消息	broadcast_kind_128	int	nội suy: cột gốc 386, khớp 100.0% (2264/2264 id); luật: nguyên văn
+387	物品使用几率	item_use_rate_129	int	nội suy: cột gốc 387, khớp 100.0% (2264/2264 id); luật: nguyên văn
+388	奖励几率	reward_rate_129	int	nội suy: cột gốc 388, khớp 100.0% (2264/2264 id); luật: nguyên văn
+389	广播类型0.普通说话消息1.队伍消息2.场景消息4.系统消息世界消息6.帮派消息10.门派消息	broadcast_kind_129	int	nội suy: cột gốc 389, khớp 100.0% (2264/2264 id); luật: nguyên văn
+390	物品使用几率	item_use_rate_130	int	nội suy: cột gốc 390, khớp 100.0% (2264/2264 id); luật: nguyên văn
+391	奖励几率	reward_rate_130	int	nội suy: cột gốc 391, khớp 100.0% (2264/2264 id); luật: nguyên văn
+392	广播类型0.普通说话消息1.队伍消息2.场景消息4.系统消息世界消息6.帮派消息10.门派消息	broadcast_kind_130	int	nội suy: cột gốc 392, khớp 100.0% (2264/2264 id); luật: nguyên văn
+393	物品使用几率	item_use_rate_131	int	nội suy: cột gốc 393, khớp 100.0% (2264/2264 id); luật: nguyên văn
+394	奖励几率	reward_rate_131	int	nội suy: cột gốc 394, khớp 100.0% (2264/2264 id); luật: nguyên văn
+395	广播类型0.普通说话消息1.队伍消息2.场景消息4.系统消息世界消息6.帮派消息10.门派消息	broadcast_kind_131	int	nội suy: cột gốc 395, khớp 100.0% (2264/2264 id); luật: nguyên văn
+396	物品使用几率	item_use_rate_132	int	nội suy: cột gốc 396, khớp 100.0% (2264/2264 id); luật: nguyên văn
+397	奖励几率	reward_rate_132	int	nội suy: cột gốc 397, khớp 100.0% (2264/2264 id); luật: nguyên văn
+398	广播类型0.普通说话消息1.队伍消息2.场景消息4.系统消息世界消息6.帮派消息10.门派消息	broadcast_kind_132	int	nội suy: cột gốc 398, khớp 100.0% (2264/2264 id); luật: nguyên văn
+399	物品使用几率	item_use_rate_133	int	nội suy: cột gốc 399, khớp 100.0% (2264/2264 id); luật: nguyên văn
+400	奖励几率	reward_rate_133	int	nội suy: cột gốc 400, khớp 100.0% (2264/2264 id); luật: nguyên văn
+401	广播类型0.普通说话消息1.队伍消息2.场景消息4.系统消息世界消息6.帮派消息10.门派消息	broadcast_kind_133	int	nội suy: cột gốc 401, khớp 100.0% (2264/2264 id); luật: nguyên văn
+402	物品使用几率	item_use_rate_134	int	nội suy: cột gốc 402, khớp 100.0% (2264/2264 id); luật: nguyên văn
+403	奖励几率	reward_rate_134	int	nội suy: cột gốc 403, khớp 100.0% (2264/2264 id); luật: nguyên văn
+404	广播类型0.普通说话消息1.队伍消息2.场景消息4.系统消息世界消息6.帮派消息10.门派消息	broadcast_kind_134	int	nội suy: cột gốc 404, khớp 100.0% (2264/2264 id); luật: nguyên văn
+405	物品使用几率	item_use_rate_135	int	nội suy: cột gốc 405, khớp 100.0% (2264/2264 id); luật: nguyên văn
+406	奖励几率	reward_rate_135	int	nội suy: cột gốc 406, khớp 100.0% (2264/2264 id); luật: nguyên văn
+407	广播类型0.普通说话消息1.队伍消息2.场景消息4.系统消息世界消息6.帮派消息10.门派消息	broadcast_kind_135	int	nội suy: cột gốc 407, khớp 100.0% (2264/2264 id); luật: nguyên văn
+408	物品使用几率	item_use_rate_136	int	nội suy: cột gốc 408, khớp 100.0% (2264/2264 id); luật: nguyên văn
+409	奖励几率	reward_rate_136	int	nội suy: cột gốc 409, khớp 100.0% (2264/2264 id); luật: nguyên văn
+410	广播类型0.普通说话消息1.队伍消息2.场景消息4.系统消息世界消息6.帮派消息10.门派消息	broadcast_kind_136	int	nội suy: cột gốc 410, khớp 100.0% (2264/2264 id); luật: nguyên văn
+411	物品使用几率	item_use_rate_137	int	nội suy: cột gốc 411, khớp 100.0% (2264/2264 id); luật: nguyên văn
+412	奖励几率	reward_rate_137	int	nội suy: cột gốc 412, khớp 100.0% (2264/2264 id); luật: nguyên văn
+413	广播类型0.普通说话消息1.队伍消息2.场景消息4.系统消息世界消息6.帮派消息10.门派消息	broadcast_kind_137	int	nội suy: cột gốc 413, khớp 100.0% (2264/2264 id); luật: nguyên văn
+414	物品使用几率	item_use_rate_138	int	nội suy: cột gốc 414, khớp 100.0% (2264/2264 id); luật: nguyên văn
+415	奖励几率	reward_rate_138	int	nội suy: cột gốc 415, khớp 100.0% (2264/2264 id); luật: nguyên văn
+416	广播类型0.普通说话消息1.队伍消息2.场景消息4.系统消息世界消息6.帮派消息10.门派消息	broadcast_kind_138	int	nội suy: cột gốc 416, khớp 100.0% (2264/2264 id); luật: nguyên văn
+417	物品使用几率	item_use_rate_139	int	nội suy: cột gốc 417, khớp 100.0% (2264/2264 id); luật: nguyên văn
+418	奖励几率	reward_rate_139	int	nội suy: cột gốc 418, khớp 100.0% (2264/2264 id); luật: nguyên văn
+419	广播类型0.普通说话消息1.队伍消息2.场景消息4.系统消息世界消息6.帮派消息10.门派消息	broadcast_kind_139	int	nội suy: cột gốc 419, khớp 100.0% (2264/2264 id); luật: nguyên văn
+420	物品使用几率	item_use_rate_140	int	nội suy: cột gốc 420, khớp 100.0% (2264/2264 id); luật: nguyên văn
+421	奖励几率	reward_rate_140	int	nội suy: cột gốc 421, khớp 100.0% (2264/2264 id); luật: nguyên văn
+422	广播类型0.普通说话消息1.队伍消息2.场景消息4.系统消息世界消息6.帮派消息10.门派消息	broadcast_kind_140	int	nội suy: cột gốc 422, khớp 100.0% (2264/2264 id); luật: nguyên văn
+423	物品使用几率	item_use_rate_141	int	nội suy: cột gốc 423, khớp 100.0% (2264/2264 id); luật: nguyên văn
+424	奖励几率	reward_rate_141	int	nội suy: cột gốc 424, khớp 100.0% (2264/2264 id); luật: nguyên văn
+425	广播类型0.普通说话消息1.队伍消息2.场景消息4.系统消息世界消息6.帮派消息10.门派消息	broadcast_kind_141	int	nội suy: cột gốc 425, khớp 100.0% (2264/2264 id); luật: nguyên văn
+426	物品使用几率	item_use_rate_142	int	nội suy: cột gốc 426, khớp 100.0% (2264/2264 id); luật: nguyên văn
+427	奖励几率	reward_rate_142	int	nội suy: cột gốc 427, khớp 100.0% (2264/2264 id); luật: nguyên văn
+428	广播类型0.普通说话消息1.队伍消息2.场景消息4.系统消息世界消息6.帮派消息10.门派消息	broadcast_kind_142	int	nội suy: cột gốc 428, khớp 100.0% (2264/2264 id); luật: nguyên văn
+429	物品使用几率	item_use_rate_143	int	nội suy: cột gốc 429, khớp 100.0% (2264/2264 id); luật: nguyên văn
+430	奖励几率	reward_rate_143	int	nội suy: cột gốc 430, khớp 100.0% (2264/2264 id); luật: nguyên văn
+431	广播类型0.普通说话消息1.队伍消息2.场景消息4.系统消息世界消息6.帮派消息10.门派消息	broadcast_kind_143	int	nội suy: cột gốc 431, khớp 100.0% (2264/2264 id); luật: nguyên văn
+432	物品使用几率	item_use_rate_144	int	nội suy: cột gốc 432, khớp 100.0% (2264/2264 id); luật: nguyên văn
+433	奖励几率	reward_rate_144	int	nội suy: cột gốc 433, khớp 100.0% (2264/2264 id); luật: nguyên văn
+434	广播类型0.普通说话消息1.队伍消息2.场景消息4.系统消息世界消息6.帮派消息10.门派消息	broadcast_kind_144	int	nội suy: cột gốc 434, khớp 100.0% (2264/2264 id); luật: nguyên văn
+435	物品使用几率	item_use_rate_145	int	nội suy: cột gốc 435, khớp 100.0% (2264/2264 id); luật: nguyên văn
+436	奖励几率	reward_rate_145	int	nội suy: cột gốc 436, khớp 100.0% (2264/2264 id); luật: nguyên văn
+437	广播类型0.普通说话消息1.队伍消息2.场景消息4.系统消息世界消息6.帮派消息10.门派消息	broadcast_kind_145	int	nội suy: cột gốc 437, khớp 100.0% (2264/2264 id); luật: nguyên văn
+438	物品使用几率	item_use_rate_146	int	neo: cột gốc 438, khớp 100.0% (2264/2264 id); luật: nguyên văn
+439	奖励几率	reward_rate_146	int	nội suy: cột gốc 439, khớp 100.0% (2264/2264 id); luật: nguyên văn
+440	广播类型0.普通说话消息1.队伍消息2.场景消息4.系统消息世界消息6.帮派消息10.门派消息	broadcast_kind_146	int	nội suy: cột gốc 440, khớp 100.0% (2264/2264 id); luật: nguyên văn
+441	物品使用几率	item_use_rate_147	int	neo: cột gốc 441, khớp 100.0% (2264/2264 id); luật: nguyên văn
+442	奖励几率	reward_rate_147	int	nội suy: cột gốc 442, khớp 100.0% (2264/2264 id); luật: nguyên văn
+443	广播类型0.普通说话消息1.队伍消息2.场景消息4.系统消息世界消息6.帮派消息10.门派消息	broadcast_kind_147	int	nội suy: cột gốc 443, khớp 100.0% (2264/2264 id); luật: nguyên văn
+444	物品使用几率	item_use_rate_148	int	nội suy: cột gốc 444, khớp 100.0% (2264/2264 id); luật: nguyên văn
+445	奖励几率	reward_rate_148	int	nội suy: cột gốc 445, khớp 100.0% (2264/2264 id); luật: nguyên văn
+446	广播类型0.普通说话消息1.队伍消息2.场景消息4.系统消息世界消息6.帮派消息10.门派消息	broadcast_kind_148	int	nội suy: cột gốc 446, khớp 100.0% (2264/2264 id); luật: nguyên văn
+447	物品使用几率	item_use_rate_149	int	neo: cột gốc 447, khớp 100.0% (2264/2264 id); luật: nguyên văn
+448	奖励几率	reward_rate_149	int	nội suy: cột gốc 448, khớp 100.0% (2264/2264 id); luật: nguyên văn
+449	广播类型0.普通说话消息1.队伍消息2.场景消息4.系统消息世界消息6.帮派消息10.门派消息	broadcast_kind_149	int	nội suy: cột gốc 449, khớp 100.0% (2264/2264 id); luật: nguyên văn
+450	物品使用几率	item_use_rate_150	int	nội suy: cột gốc 450, khớp 100.0% (2264/2264 id); luật: nguyên văn
+451	奖励几率	reward_rate_150	int	nội suy: cột gốc 451, khớp 100.0% (2264/2264 id); luật: nguyên văn
+452	广播类型0.普通说话消息1.队伍消息2.场景消息4.系统消息世界消息6.帮派消息10.门派消息	broadcast_kind_150	int	nội suy: cột gốc 452, khớp 100.0% (2264/2264 id); luật: nguyên văn
+453	物品使用几率	item_use_rate_151	int	nội suy: cột gốc 453, khớp 100.0% (2264/2264 id); luật: nguyên văn
+454	奖励几率	reward_rate_151	int	nội suy: cột gốc 454, khớp 100.0% (2264/2264 id); luật: nguyên văn
+455	广播类型0.普通说话消息1.队伍消息2.场景消息4.系统消息世界消息6.帮派消息10.门派消息	broadcast_kind_151	int	nội suy: cột gốc 455, khớp 100.0% (2264/2264 id); luật: nguyên văn
+456	物品使用几率	item_use_rate_152	int	neo: cột gốc 456, khớp 100.0% (2264/2264 id); luật: nguyên văn
+457	奖励几率	reward_rate_152	int	nội suy: cột gốc 457, khớp 100.0% (2264/2264 id); luật: nguyên văn
+458	广播类型0.普通说话消息1.队伍消息2.场景消息4.系统消息世界消息6.帮派消息10.门派消息	broadcast_kind_152	int	nội suy: cột gốc 458, khớp 100.0% (2264/2264 id); luật: nguyên văn
+459	物品使用几率	item_use_rate_153	int	neo: cột gốc 459, khớp 100.0% (2264/2264 id); luật: nguyên văn
+460	奖励几率	reward_rate_153	int	nội suy: cột gốc 460, khớp 100.0% (2264/2264 id); luật: nguyên văn
+461	广播类型0.普通说话消息1.队伍消息2.场景消息4.系统消息世界消息6.帮派消息10.门派消息	broadcast_kind_153	int	nội suy: cột gốc 461, khớp 100.0% (2264/2264 id); luật: nguyên văn
+462	物品使用几率	item_use_rate_154	int	neo: cột gốc 462, khớp 100.0% (2264/2264 id); luật: nguyên văn
+463	奖励几率	reward_rate_154	int	nội suy: cột gốc 463, khớp 100.0% (2264/2264 id); luật: nguyên văn
+464	广播类型0.普通说话消息1.队伍消息2.场景消息4.系统消息世界消息6.帮派消息10.门派消息	broadcast_kind_154	int	nội suy: cột gốc 464, khớp 100.0% (2264/2264 id); luật: nguyên văn
+465	物品使用几率	item_use_rate_155	int	neo: cột gốc 465, khớp 100.0% (2264/2264 id); luật: nguyên văn
+466	奖励几率	reward_rate_155	int	nội suy: cột gốc 466, khớp 100.0% (2264/2264 id); luật: nguyên văn
+467	广播类型0.普通说话消息1.队伍消息2.场景消息4.系统消息世界消息6.帮派消息10.门派消息	broadcast_kind_155	int	nội suy: cột gốc 467, khớp 100.0% (2264/2264 id); luật: nguyên văn
+468	物品使用几率	item_use_rate_156	int	neo: cột gốc 468, khớp 100.0% (2264/2264 id); luật: nguyên văn
+469	奖励几率	reward_rate_156	int	nội suy: cột gốc 469, khớp 100.0% (2264/2264 id); luật: nguyên văn
+470	广播类型0.普通说话消息1.队伍消息2.场景消息4.系统消息世界消息6.帮派消息10.门派消息	broadcast_kind_156	int	nội suy: cột gốc 470, khớp 100.0% (2264/2264 id); luật: nguyên văn
+471	物品使用几率	item_use_rate_157	int	neo: cột gốc 471, khớp 100.0% (2264/2264 id); luật: nguyên văn
+472	奖励几率	reward_rate_157	int	nội suy: cột gốc 472, khớp 100.0% (2264/2264 id); luật: nguyên văn
+473	广播类型0.普通说话消息1.队伍消息2.场景消息4.系统消息世界消息6.帮派消息10.门派消息	broadcast_kind_157	int	nội suy: cột gốc 473, khớp 100.0% (2264/2264 id); luật: nguyên văn
+474	物品使用几率	item_use_rate_158	int	neo: cột gốc 474, khớp 100.0% (2264/2264 id); luật: nguyên văn
+475	奖励几率	reward_rate_158	int	nội suy: cột gốc 475, khớp 100.0% (2264/2264 id); luật: nguyên văn
+476	广播类型0.普通说话消息1.队伍消息2.场景消息4.系统消息世界消息6.帮派消息10.门派消息	broadcast_kind_158	int	nội suy: cột gốc 476, khớp 100.0% (2264/2264 id); luật: nguyên văn
+477	物品使用几率	item_use_rate_159	int	neo: cột gốc 477, khớp 100.0% (2264/2264 id); luật: nguyên văn
+478	奖励几率	reward_rate_159	int	nội suy: cột gốc 478, khớp 100.0% (2264/2264 id); luật: nguyên văn
+479	广播类型0.普通说话消息1.队伍消息2.场景消息4.系统消息世界消息6.帮派消息10.门派消息	broadcast_kind_159	int	nội suy: cột gốc 479, khớp 100.0% (2264/2264 id); luật: nguyên văn
+480	物品使用几率	item_use_rate_160	int	neo: cột gốc 480, khớp 100.0% (2264/2264 id); luật: nguyên văn
+481	奖励几率	reward_rate_160	int	nội suy: cột gốc 481, khớp 100.0% (2264/2264 id); luật: nguyên văn
+482	广播类型0.普通说话消息1.队伍消息2.场景消息4.系统消息世界消息6.帮派消息10.门派消息	broadcast_kind_160	int	nội suy: cột gốc 482, khớp 100.0% (2264/2264 id); luật: nguyên văn
+483	物品使用几率	item_use_rate_161	int	neo: cột gốc 483, khớp 100.0% (2264/2264 id); luật: nguyên văn
+484	奖励几率	reward_rate_161	int	nội suy: cột gốc 484, khớp 100.0% (2264/2264 id); luật: nguyên văn
+485	广播类型0.普通说话消息1.队伍消息2.场景消息4.系统消息世界消息6.帮派消息10.门派消息	broadcast_kind_161	int	nội suy: cột gốc 485, khớp 100.0% (2264/2264 id); luật: nguyên văn
+486	物品使用几率	item_use_rate_162	int	neo: cột gốc 486, khớp 100.0% (2264/2264 id); luật: nguyên văn
+487	奖励几率	reward_rate_162	int	nội suy: cột gốc 487, khớp 100.0% (2264/2264 id); luật: nguyên văn
+488	广播类型0.普通说话消息1.队伍消息2.场景消息4.系统消息世界消息6.帮派消息10.门派消息	broadcast_kind_162	int	nội suy: cột gốc 488, khớp 100.0% (2264/2264 id); luật: nguyên văn
+489	物品使用几率	item_use_rate_163	int	nội suy: cột gốc 489, khớp 100.0% (2264/2264 id); luật: nguyên văn
+490	奖励几率	reward_rate_163	int	nội suy: cột gốc 490, khớp 100.0% (2264/2264 id); luật: nguyên văn
+491	广播类型0.普通说话消息1.队伍消息2.场景消息4.系统消息世界消息6.帮派消息10.门派消息	broadcast_kind_163	int	nội suy: cột gốc 491, khớp 100.0% (2264/2264 id); luật: nguyên văn
+492	物品使用几率	item_use_rate_164	int	nội suy: cột gốc 492, khớp 100.0% (2264/2264 id); luật: nguyên văn
+493	奖励几率	reward_rate_164	int	nội suy: cột gốc 493, khớp 100.0% (2264/2264 id); luật: nguyên văn
+494	广播类型0.普通说话消息1.队伍消息2.场景消息4.系统消息世界消息6.帮派消息10.门派消息	broadcast_kind_164	int	nội suy: cột gốc 494, khớp 100.0% (2264/2264 id); luật: nguyên văn
+495	物品使用几率	item_use_rate_165	int	nội suy: cột gốc 495, khớp 100.0% (2264/2264 id); luật: nguyên văn
+496	奖励几率	reward_rate_165	int	nội suy: cột gốc 496, khớp 100.0% (2264/2264 id); luật: nguyên văn
+497	广播类型0.普通说话消息1.队伍消息2.场景消息4.系统消息世界消息6.帮派消息10.门派消息	broadcast_kind_165	int	nội suy: cột gốc 497, khớp 100.0% (2264/2264 id); luật: nguyên văn
+498	物品使用几率	item_use_rate_166	int	nội suy: cột gốc 498, khớp 100.0% (2264/2264 id); luật: nguyên văn
+499	奖励几率	reward_rate_166	int	nội suy: cột gốc 499, khớp 100.0% (2264/2264 id); luật: nguyên văn
+500	广播类型0.普通说话消息1.队伍消息2.场景消息4.系统消息世界消息6.帮派消息10.门派消息	broadcast_kind_166	int	nội suy: cột gốc 500, khớp 100.0% (2264/2264 id); luật: nguyên văn
+501	物品使用几率	item_use_rate_167	int	nội suy: cột gốc 501, khớp 100.0% (2264/2264 id); luật: nguyên văn
+502	奖励几率	reward_rate_167	int	nội suy: cột gốc 502, khớp 100.0% (2264/2264 id); luật: nguyên văn
+503	广播类型0.普通说话消息1.队伍消息2.场景消息4.系统消息世界消息6.帮派消息10.门派消息	broadcast_kind_167	int	nội suy: cột gốc 503, khớp 100.0% (2264/2264 id); luật: nguyên văn
+504	物品使用几率	item_use_rate_168	int	neo: cột gốc 504, khớp 99.2% (2245/2264 id); luật: nguyên văn
+505	奖励几率	reward_rate_168	int	neo: cột gốc 505, khớp 100.0% (2264/2264 id); luật: nguyên văn
+506	广播类型0.普通说话消息1.队伍消息2.场景消息4.系统消息世界消息6.帮派消息7.门派消息	broadcast_kind_168	int	nội suy: cột gốc 506, khớp 100.0% (2264/2264 id); luật: nguyên văn
+507	物品使用几率	item_use_rate_169	int	neo: cột gốc 507, khớp 99.2% (2245/2264 id); luật: nguyên văn
+508	奖励几率	reward_rate_169	int	neo: cột gốc 508, khớp 100.0% (2264/2264 id); luật: nguyên văn
+509	广播类型0.普通说话消息1.队伍消息2.场景消息4.系统消息世界消息6.帮派消息7.门派消息	broadcast_kind_169	int	nội suy: cột gốc 509, khớp 100.0% (2264/2264 id); luật: nguyên văn
+510	物品使用几率	item_use_rate_170	int	neo: cột gốc 510, khớp 100.0% (2264/2264 id); luật: nguyên văn
+511	奖励几率	reward_rate_170	int	nội suy: cột gốc 511, khớp 100.0% (2264/2264 id); luật: nguyên văn
+512	广播类型0.普通说话消息1.队伍消息2.场景消息4.系统消息世界消息6.帮派消息7.门派消息	broadcast_kind_170	int	nội suy: cột gốc 512, khớp 100.0% (2264/2264 id); luật: nguyên văn
+513	物品使用几率	item_use_rate_171	int	neo: cột gốc 513, khớp 100.0% (2264/2264 id); luật: nguyên văn
+514	奖励几率	reward_rate_171	int	nội suy: cột gốc 514, khớp 100.0% (2264/2264 id); luật: nguyên văn
+515	广播类型0.普通说话消息1.队伍消息2.场景消息4.系统消息世界消息6.帮派消息7.门派消息	broadcast_kind_171	int	nội suy: cột gốc 515, khớp 100.0% (2264/2264 id); luật: nguyên văn
+516	物品使用几率	item_use_rate_172	int	neo: cột gốc 516, khớp 100.0% (2264/2264 id); luật: nguyên văn
+517	奖励几率	reward_rate_172	int	nội suy: cột gốc 517, khớp 100.0% (2264/2264 id); luật: nguyên văn
+518	广播类型0.普通说话消息1.队伍消息2.场景消息4.系统消息世界消息6.帮派消息7.门派消息	broadcast_kind_172	int	nội suy: cột gốc 518, khớp 100.0% (2264/2264 id); luật: nguyên văn
+519	物品使用几率	item_use_rate_173	int	nội suy: cột gốc 519, khớp 100.0% (2264/2264 id); luật: nguyên văn
+520	奖励几率	reward_rate_173	int	nội suy: cột gốc 520, khớp 100.0% (2264/2264 id); luật: nguyên văn
+521	广播类型0.普通说话消息1.队伍消息2.场景消息4.系统消息世界消息6.帮派消息7.门派消息	broadcast_kind_173	int	nội suy: cột gốc 521, khớp 100.0% (2264/2264 id); luật: nguyên văn
+522	物品使用几率	item_use_rate_174	int	nội suy: cột gốc 522, khớp 100.0% (2264/2264 id); luật: nguyên văn
+523	奖励几率	reward_rate_174	int	nội suy: cột gốc 523, khớp 100.0% (2264/2264 id); luật: nguyên văn
+524	广播类型0.普通说话消息1.队伍消息2.场景消息4.系统消息世界消息6.帮派消息7.门派消息	broadcast_kind_174	int	nội suy: cột gốc 524, khớp 100.0% (2264/2264 id); luật: nguyên văn
+525	物品使用几率	item_use_rate_175	int	nội suy: cột gốc 525, khớp 100.0% (2264/2264 id); luật: nguyên văn
+526	奖励几率	reward_rate_175	int	nội suy: cột gốc 526, khớp 100.0% (2264/2264 id); luật: nguyên văn
+527	广播类型0.普通说话消息1.队伍消息2.场景消息4.系统消息世界消息6.帮派消息7.门派消息	broadcast_kind_175	int	nội suy: cột gốc 527, khớp 100.0% (2264/2264 id); luật: nguyên văn
+528	物品使用几率	item_use_rate_176	int	nội suy: cột gốc 528, khớp 100.0% (2264/2264 id); luật: nguyên văn
+529	奖励几率	reward_rate_176	int	nội suy: cột gốc 529, khớp 100.0% (2264/2264 id); luật: nguyên văn
+530	广播类型0.普通说话消息1.队伍消息2.场景消息4.系统消息世界消息6.帮派消息7.门派消息	broadcast_kind_176	int	nội suy: cột gốc 530, khớp 100.0% (2264/2264 id); luật: nguyên văn
+531	物品使用几率	item_use_rate_177	int	neo: cột gốc 531, khớp 100.0% (2264/2264 id); luật: nguyên văn
+532	奖励几率	reward_rate_177	int	neo: cột gốc 532, khớp 100.0% (2264/2264 id); luật: nguyên văn
+533	广播类型0.普通说话消息1.队伍消息2.场景消息4.系统消息世界消息6.帮派消息9.门派消息	broadcast_kind_177	int	nội suy: cột gốc 533, khớp 100.0% (2264/2264 id); luật: nguyên văn
+534	物品使用几率	item_use_rate_178	int	neo: cột gốc 534, khớp 100.0% (2264/2264 id); luật: nguyên văn
+535	奖励几率	reward_rate_178	int	neo: cột gốc 535, khớp 100.0% (2264/2264 id); luật: nguyên văn
+536	广播类型0.普通说话消息1.队伍消息2.场景消息4.系统消息世界消息6.帮派消息10.门派消息	broadcast_kind_178	int	nội suy: cột gốc 536, khớp 100.0% (2264/2264 id); luật: nguyên văn
+537	物品使用几率	item_use_rate_179	int	neo: cột gốc 537, khớp 100.0% (2264/2264 id); luật: nguyên văn
+538	奖励几率	reward_rate_179	int	neo: cột gốc 538, khớp 100.0% (2264/2264 id); luật: nguyên văn
+539	广播类型0.普通说话消息1.队伍消息2.场景消息4.系统消息世界消息6.帮派消息10.门派消息	broadcast_kind_179	int	nội suy: cột gốc 539, khớp 100.0% (2264/2264 id); luật: nguyên văn
+540	物品使用几率	item_use_rate_180	int	neo: cột gốc 540, khớp 100.0% (2264/2264 id); luật: nguyên văn
+541	奖励几率	reward_rate_180	int	neo: cột gốc 541, khớp 100.0% (2264/2264 id); luật: nguyên văn
+542	广播类型0.普通说话消息1.队伍消息2.场景消息4.系统消息世界消息6.帮派消息10.门派消息	broadcast_kind_180	int	nội suy: cột gốc 542, khớp 100.0% (2264/2264 id); luật: nguyên văn
+543	物品使用几率	item_use_rate_181	int	neo: cột gốc 543, khớp 100.0% (2264/2264 id); luật: nguyên văn
+544	奖励几率	reward_rate_181	int	neo: cột gốc 544, khớp 100.0% (2264/2264 id); luật: nguyên văn
+545	广播类型0.普通说话消息1.队伍消息2.场景消息4.系统消息世界消息6.帮派消息10.门派消息	broadcast_kind_181	int	nội suy: cột gốc 545, khớp 100.0% (2264/2264 id); luật: nguyên văn
+546	物品使用几率	item_use_rate_182	int	neo: cột gốc 546, khớp 100.0% (2264/2264 id); luật: nguyên văn
+547	奖励几率	reward_rate_182	int	neo: cột gốc 547, khớp 100.0% (2264/2264 id); luật: nguyên văn
+548	广播类型0.普通说话消息1.队伍消息2.场景消息4.系统消息世界消息6.帮派消息10.门派消息	broadcast_kind_182	int	nội suy: cột gốc 548, khớp 100.0% (2264/2264 id); luật: nguyên văn
+549	物品使用几率	item_use_rate_183	int	neo: cột gốc 549, khớp 100.0% (2264/2264 id); luật: nguyên văn
+550	奖励几率	reward_rate_183	int	neo: cột gốc 550, khớp 100.0% (2264/2264 id); luật: nguyên văn
+551	广播类型0.普通说话消息1.队伍消息2.场景消息4.系统消息世界消息6.帮派消息10.门派消息	broadcast_kind_183	int	nội suy: cột gốc 551, khớp 100.0% (2264/2264 id); luật: nguyên văn
+552	物品使用几率	item_use_rate_184	int	neo: cột gốc 552, khớp 100.0% (2264/2264 id); luật: nguyên văn
+553	奖励几率	reward_rate_184	int	neo: cột gốc 553, khớp 100.0% (2264/2264 id); luật: nguyên văn
+554	广播类型0.普通说话消息1.队伍消息2.场景消息4.系统消息世界消息6.帮派消息10.门派消息	broadcast_kind_184	int	nội suy: cột gốc 554, khớp 100.0% (2264/2264 id); luật: nguyên văn
+555	物品使用几率	item_use_rate_185	int	neo: cột gốc 555, khớp 100.0% (2264/2264 id); luật: nguyên văn
+556	奖励几率	reward_rate_185	int	neo: cột gốc 556, khớp 100.0% (2264/2264 id); luật: nguyên văn
+557	广播类型0.普通说话消息1.队伍消息2.场景消息4.系统消息世界消息6.帮派消息10.门派消息	broadcast_kind_185	int	nội suy: cột gốc 557, khớp 100.0% (2264/2264 id); luật: nguyên văn
+558	物品使用几率	item_use_rate_186	int	neo: cột gốc 558, khớp 100.0% (2264/2264 id); luật: nguyên văn
+559	奖励几率	reward_rate_186	int	neo: cột gốc 559, khớp 100.0% (2264/2264 id); luật: nguyên văn
+560	广播类型0.普通说话消息1.队伍消息2.场景消息4.系统消息世界消息6.帮派消息10.门派消息	broadcast_kind_186	int	nội suy: cột gốc 560, khớp 100.0% (2264/2264 id); luật: nguyên văn
+561	物品使用几率	item_use_rate_187	int	neo: cột gốc 561, khớp 100.0% (2264/2264 id); luật: nguyên văn
+562	奖励几率	reward_rate_187	int	neo: cột gốc 562, khớp 100.0% (2264/2264 id); luật: nguyên văn
+563	广播类型0.普通说话消息1.队伍消息2.场景消息4.系统消息世界消息6.帮派消息10.门派消息	broadcast_kind_187	int	nội suy: cột gốc 563, khớp 100.0% (2264/2264 id); luật: nguyên văn
+564	物品使用几率	item_use_rate_188	int	neo: cột gốc 564, khớp 100.0% (2264/2264 id); luật: nguyên văn
+565	奖励几率	reward_rate_188	int	neo: cột gốc 565, khớp 100.0% (2264/2264 id); luật: nguyên văn
+566	广播类型0.普通说话消息1.队伍消息2.场景消息4.系统消息世界消息6.帮派消息10.门派消息	broadcast_kind_188	int	nội suy: cột gốc 566, khớp 100.0% (2264/2264 id); luật: nguyên văn
+567	物品使用几率	item_use_rate_189	int	neo: cột gốc 567, khớp 100.0% (2264/2264 id); luật: nguyên văn
+568	奖励几率	reward_rate_189	int	neo: cột gốc 568, khớp 100.0% (2264/2264 id); luật: nguyên văn
+569	广播类型0.普通说话消息1.队伍消息2.场景消息4.系统消息世界消息6.帮派消息10.门派消息	broadcast_kind_189	int	nội suy: cột gốc 569, khớp 100.0% (2264/2264 id); luật: nguyên văn
+570	物品使用几率	item_use_rate_190	int	neo: cột gốc 570, khớp 100.0% (2264/2264 id); luật: nguyên văn
+571	奖励几率	reward_rate_190	int	neo: cột gốc 571, khớp 100.0% (2264/2264 id); luật: nguyên văn
+572	广播类型0.普通说话消息1.队伍消息2.场景消息4.系统消息世界消息6.帮派消息10.门派消息	broadcast_kind_190	int	nội suy: cột gốc 572, khớp 100.0% (2264/2264 id); luật: nguyên văn
+573	物品使用几率	item_use_rate_191	int	neo: cột gốc 573, khớp 100.0% (2264/2264 id); luật: nguyên văn
+574	奖励几率	reward_rate_191	int	neo: cột gốc 574, khớp 100.0% (2264/2264 id); luật: nguyên văn
+575	广播类型0.普通说话消息1.队伍消息2.场景消息4.系统消息世界消息6.帮派消息10.门派消息	broadcast_kind_191	int	nội suy: cột gốc 575, khớp 100.0% (2264/2264 id); luật: nguyên văn
+576	物品使用几率	item_use_rate_192	int	neo: cột gốc 576, khớp 100.0% (2264/2264 id); luật: nguyên văn
+577	奖励几率	reward_rate_192	int	neo: cột gốc 577, khớp 100.0% (2264/2264 id); luật: nguyên văn
+578	广播类型0.普通说话消息1.队伍消息2.场景消息4.系统消息世界消息6.帮派消息10.门派消息	broadcast_kind_192	int	nội suy: cột gốc 578, khớp 100.0% (2264/2264 id); luật: nguyên văn
+579	物品使用几率	item_use_rate_193	int	neo: cột gốc 579, khớp 100.0% (2264/2264 id); luật: nguyên văn
+580	奖励几率	reward_rate_193	int	neo: cột gốc 580, khớp 100.0% (2264/2264 id); luật: nguyên văn
+581	广播类型0.普通说话消息1.队伍消息2.场景消息4.系统消息世界消息6.帮派消息10.门派消息	broadcast_kind_193	int	nội suy: cột gốc 581, khớp 100.0% (2264/2264 id); luật: nguyên văn
+582	物品使用几率	item_use_rate_194	int	neo: cột gốc 582, khớp 100.0% (2264/2264 id); luật: nguyên văn
+583	奖励几率	reward_rate_194	int	neo: cột gốc 583, khớp 100.0% (2264/2264 id); luật: nguyên văn
+584	广播类型0.普通说话消息1.队伍消息2.场景消息4.系统消息世界消息6.帮派消息10.门派消息	broadcast_kind_194	int	nội suy: cột gốc 584, khớp 100.0% (2264/2264 id); luật: nguyên văn
+585	物品使用几率	item_use_rate_195	int	neo: cột gốc 585, khớp 100.0% (2264/2264 id); luật: nguyên văn
+586	奖励几率	reward_rate_195	int	neo: cột gốc 586, khớp 100.0% (2264/2264 id); luật: nguyên văn
+587	广播类型0.普通说话消息1.队伍消息2.场景消息4.系统消息世界消息6.帮派消息10.门派消息	broadcast_kind_195	int	nội suy: cột gốc 587, khớp 100.0% (2264/2264 id); luật: nguyên văn
+588	物品使用几率	item_use_rate_196	int	neo: cột gốc 588, khớp 100.0% (2264/2264 id); luật: nguyên văn
+589	奖励几率	reward_rate_196	int	neo: cột gốc 589, khớp 100.0% (2264/2264 id); luật: nguyên văn
+590	广播类型0.普通说话消息1.队伍消息2.场景消息4.系统消息世界消息6.帮派消息10.门派消息	broadcast_kind_196	int	nội suy: cột gốc 590, khớp 100.0% (2264/2264 id); luật: nguyên văn
+591	物品使用几率	item_use_rate_197	int	neo: cột gốc 591, khớp 100.0% (2264/2264 id); luật: nguyên văn
+592	奖励几率	reward_rate_197	int	neo: cột gốc 592, khớp 100.0% (2264/2264 id); luật: nguyên văn
+593	广播类型0.普通说话消息1.队伍消息2.场景消息4.系统消息世界消息6.帮派消息10.门派消息	broadcast_kind_197	int	nội suy: cột gốc 593, khớp 100.0% (2264/2264 id); luật: nguyên văn
+594	物品使用几率	item_use_rate_198	int	neo: cột gốc 594, khớp 100.0% (2264/2264 id); luật: nguyên văn
+595	奖励几率	reward_rate_198	int	neo: cột gốc 595, khớp 100.0% (2264/2264 id); luật: nguyên văn
+596	广播类型0.普通说话消息1.队伍消息2.场景消息4.系统消息世界消息6.帮派消息10.门派消息	broadcast_kind_198	int	nội suy: cột gốc 596, khớp 100.0% (2264/2264 id); luật: nguyên văn
+597	物品使用几率	item_use_rate_199	int	neo: cột gốc 597, khớp 100.0% (2264/2264 id); luật: nguyên văn
+598	奖励几率	reward_rate_199	int	neo: cột gốc 598, khớp 100.0% (2264/2264 id); luật: nguyên văn
+599	广播类型0.普通说话消息1.队伍消息2.场景消息4.系统消息世界消息6.帮派消息10.门派消息	broadcast_kind_199	int	nội suy: cột gốc 599, khớp 100.0% (2264/2264 id); luật: nguyên văn
+600	物品使用几率	item_use_rate_200	int	neo: cột gốc 600, khớp 100.0% (2264/2264 id); luật: nguyên văn
+601	奖励几率	reward_rate_200	int	neo: cột gốc 601, khớp 100.0% (2264/2264 id); luật: nguyên văn
+602	广播类型0.普通说话消息1.队伍消息2.场景消息4.系统消息世界消息6.帮派消息10.门派消息	broadcast_kind_200	int	nội suy: cột gốc 602, khớp 100.0% (2264/2264 id); luật: nguyên văn
+603	物品使用几率	item_use_rate_201	int	neo: cột gốc 603, khớp 100.0% (2264/2264 id); luật: nguyên văn
+604	奖励几率	reward_rate_201	int	neo: cột gốc 604, khớp 100.0% (2264/2264 id); luật: nguyên văn
+605	广播类型0.普通说话消息1.队伍消息2.场景消息4.系统消息世界消息6.帮派消息10.门派消息	broadcast_kind_201	int	nội suy: cột gốc 605, khớp 100.0% (2264/2264 id); luật: nguyên văn
+606	物品使用几率	item_use_rate_202	int	neo: cột gốc 606, khớp 100.0% (2264/2264 id); luật: nguyên văn
+607	奖励几率	reward_rate_202	int	neo: cột gốc 607, khớp 100.0% (2264/2264 id); luật: nguyên văn
+608	广播类型0.普通说话消息1.队伍消息2.场景消息4.系统消息世界消息6.帮派消息10.门派消息	broadcast_kind_202	int	nội suy: cột gốc 608, khớp 100.0% (2264/2264 id); luật: nguyên văn
+609	物品使用几率	item_use_rate_203	int	neo: cột gốc 609, khớp 100.0% (2264/2264 id); luật: nguyên văn
+610	奖励几率	reward_rate_203	int	neo: cột gốc 610, khớp 100.0% (2264/2264 id); luật: nguyên văn
+611	广播类型0.普通说话消息1.队伍消息2.场景消息4.系统消息世界消息6.帮派消息10.门派消息	broadcast_kind_203	int	nội suy: cột gốc 611, khớp 100.0% (2264/2264 id); luật: nguyên văn
+612	物品使用几率	item_use_rate_204	int	neo: cột gốc 612, khớp 100.0% (2264/2264 id); luật: nguyên văn
+613	奖励几率	reward_rate_204	int	neo: cột gốc 613, khớp 100.0% (2264/2264 id); luật: nguyên văn
+614	广播类型0.普通说话消息1.队伍消息2.场景消息4.系统消息世界消息6.帮派消息10.门派消息	broadcast_kind_204	int	nội suy: cột gốc 614, khớp 100.0% (2264/2264 id); luật: nguyên văn
+615	物品使用几率	item_use_rate_205	int	neo: cột gốc 615, khớp 100.0% (2264/2264 id); luật: nguyên văn
+616	奖励几率	reward_rate_205	int	neo: cột gốc 616, khớp 100.0% (2264/2264 id); luật: nguyên văn
+617	广播类型0.普通说话消息1.队伍消息2.场景消息4.系统消息世界消息6.帮派消息10.门派消息	broadcast_kind_205	int	nội suy: cột gốc 617, khớp 100.0% (2264/2264 id); luật: nguyên văn
+618	物品使用几率	item_use_rate_206	int	neo: cột gốc 618, khớp 100.0% (2264/2264 id); luật: nguyên văn
+619	奖励几率	reward_rate_206	int	neo: cột gốc 619, khớp 100.0% (2264/2264 id); luật: nguyên văn
+620	广播类型0.普通说话消息1.队伍消息2.场景消息4.系统消息世界消息6.帮派消息10.门派消息	broadcast_kind_206	int	nội suy: cột gốc 620, khớp 100.0% (2264/2264 id); luật: nguyên văn
+621	物品使用几率	item_use_rate_207	int	neo: cột gốc 621, khớp 100.0% (2264/2264 id); luật: nguyên văn
+622	奖励几率	reward_rate_207	int	neo: cột gốc 622, khớp 100.0% (2264/2264 id); luật: nguyên văn
+623	广播类型0.普通说话消息1.队伍消息2.场景消息4.系统消息世界消息6.帮派消息10.门派消息	broadcast_kind_207	int	nội suy: cột gốc 623, khớp 100.0% (2264/2264 id); luật: nguyên văn
+624	物品使用几率	item_use_rate_208	int	neo: cột gốc 624, khớp 100.0% (2264/2264 id); luật: nguyên văn
+625	奖励几率	reward_rate_208	int	neo: cột gốc 625, khớp 100.0% (2264/2264 id); luật: nguyên văn
+626	广播类型0.普通说话消息1.队伍消息2.场景消息4.系统消息世界消息6.帮派消息10.门派消息	broadcast_kind_208	int	nội suy: cột gốc 626, khớp 100.0% (2264/2264 id); luật: nguyên văn
+627	物品使用几率	item_use_rate_209	int	neo: cột gốc 627, khớp 100.0% (2264/2264 id); luật: nguyên văn
+628	奖励几率	reward_rate_209	int	neo: cột gốc 628, khớp 100.0% (2264/2264 id); luật: nguyên văn
+629	广播类型0.普通说话消息1.队伍消息2.场景消息4.系统消息世界消息6.帮派消息10.门派消息	broadcast_kind_209	int	nội suy: cột gốc 629, khớp 100.0% (2264/2264 id); luật: nguyên văn
+630	物品使用几率	item_use_rate_210	int	neo: cột gốc 630, khớp 100.0% (2264/2264 id); luật: nguyên văn
+631	奖励几率	reward_rate_210	int	neo: cột gốc 631, khớp 100.0% (2264/2264 id); luật: nguyên văn
+632	广播类型0.普通说话消息1.队伍消息2.场景消息4.系统消息世界消息6.帮派消息10.门派消息	broadcast_kind_210	int	nội suy: cột gốc 632, khớp 100.0% (2264/2264 id); luật: nguyên văn
+633	物品使用几率	item_use_rate_211	int	neo: cột gốc 633, khớp 100.0% (2264/2264 id); luật: nguyên văn
+634	奖励几率	reward_rate_211	int	neo: cột gốc 634, khớp 100.0% (2264/2264 id); luật: nguyên văn
+635	广播类型0.普通说话消息1.队伍消息2.场景消息4.系统消息世界消息6.帮派消息10.门派消息	broadcast_kind_211	int	nội suy: cột gốc 635, khớp 100.0% (2264/2264 id); luật: nguyên văn
+636	物品使用几率	item_use_rate_212	int	neo: cột gốc 636, khớp 100.0% (2264/2264 id); luật: nguyên văn
+637	奖励几率	reward_rate_212	int	neo: cột gốc 637, khớp 100.0% (2264/2264 id); luật: nguyên văn
+638	广播类型0.普通说话消息1.队伍消息2.场景消息4.系统消息世界消息6.帮派消息10.门派消息	broadcast_kind_212	int	nội suy: cột gốc 638, khớp 100.0% (2264/2264 id); luật: nguyên văn
+639	物品使用几率	item_use_rate_213	int	neo: cột gốc 639, khớp 100.0% (2264/2264 id); luật: nguyên văn
+640	奖励几率	reward_rate_213	int	neo: cột gốc 640, khớp 100.0% (2264/2264 id); luật: nguyên văn
+641	广播类型0.普通说话消息1.队伍消息2.场景消息4.系统消息世界消息6.帮派消息10.门派消息	broadcast_kind_213	int	nội suy: cột gốc 641, khớp 100.0% (2264/2264 id); luật: nguyên văn
+642	物品使用几率	item_use_rate_214	int	neo: cột gốc 642, khớp 100.0% (2264/2264 id); luật: nguyên văn
+643	奖励几率	reward_rate_214	int	neo: cột gốc 643, khớp 100.0% (2264/2264 id); luật: nguyên văn
+644	广播类型0.普通说话消息1.队伍消息2.场景消息4.系统消息世界消息6.帮派消息10.门派消息	broadcast_kind_214	int	nội suy: cột gốc 644, khớp 100.0% (2264/2264 id); luật: nguyên văn
+645	物品使用几率	item_use_rate_215	int	neo: cột gốc 645, khớp 100.0% (2264/2264 id); luật: nguyên văn
+646	奖励几率	reward_rate_215	int	neo: cột gốc 646, khớp 100.0% (2264/2264 id); luật: nguyên văn
+647	广播类型0.普通说话消息1.队伍消息2.场景消息4.系统消息世界消息6.帮派消息10.门派消息	broadcast_kind_215	int	nội suy: cột gốc 647, khớp 100.0% (2264/2264 id); luật: nguyên văn
+648	物品使用几率	item_use_rate_216	int	neo: cột gốc 648, khớp 100.0% (2264/2264 id); luật: nguyên văn
+649	奖励几率	reward_rate_216	int	neo: cột gốc 649, khớp 100.0% (2264/2264 id); luật: nguyên văn
+650	广播类型0.普通说话消息1.队伍消息2.场景消息4.系统消息世界消息6.帮派消息10.门派消息	broadcast_kind_216	int	nội suy: cột gốc 650, khớp 100.0% (2264/2264 id); luật: nguyên văn
+651	物品使用几率	item_use_rate_217	int	neo: cột gốc 651, khớp 100.0% (2264/2264 id); luật: nguyên văn
+652	奖励几率	reward_rate_217	int	neo: cột gốc 652, khớp 100.0% (2264/2264 id); luật: nguyên văn
+653		column_653	int	mới ở 2026
+654		column_654	int	mới ở 2026
+655		column_655	int	mới ở 2026
+656		column_656	int	mới ở 2026
+657		column_657	int	mới ở 2026
+658		column_658	int	mới ở 2026
+659		column_659	int	mới ở 2026
+660		column_660	int	mới ở 2026
+661		column_661	int	mới ở 2026
+662		column_662	int	mới ở 2026
+663		column_663	int	mới ở 2026
+664		column_664	int	mới ở 2026
+665		column_665	int	mới ở 2026
+666		column_666	int	mới ở 2026
+667		column_667	int	mới ở 2026
+668		column_668	int	mới ở 2026
+669		column_669	int	mới ở 2026
+670		column_670	int	mới ở 2026
+671		column_671	int	mới ở 2026
+672		column_672	int	mới ở 2026
+673		column_673	int	mới ở 2026
+674		column_674	int	mới ở 2026
+675		column_675	int	mới ở 2026
+676		column_676	int	mới ở 2026
+677		column_677	int	mới ở 2026
+678		column_678	int	mới ở 2026
+679		column_679	int	mới ở 2026
+680		column_680	int	mới ở 2026
+681		column_681	int	mới ở 2026
+682		column_682	int	mới ở 2026
+683		column_683	int	mới ở 2026

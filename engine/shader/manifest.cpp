@@ -3,16 +3,25 @@
 // Tên gói không có dấu phân cách hay ".."; nháy kép giữ khoảng trắng và '#'.
 #include "shader/manifest.hpp"
 
+#include "core/error.hpp"
 #include "fs/file.hpp"
 #include "fs/path.hpp"
+#include "fs/stream.hpp"
 #include "shader/failure.hpp"
 #include "shader/package.hpp"
+#include "shader/types.hpp"
 
 #include <algorithm>
+#include <cstddef>
+#include <cstdint>
 #include <cstring>
+#include <optional>
 #include <ranges>
 #include <span>
+#include <string>
+#include <string_view>
 #include <utility>
+#include <vector>
 
 namespace game::shader {
 
@@ -86,7 +95,7 @@ using Tokens = std::vector<std::string>;
         // Khác gốc: hiệu iterator có dấu, không âm vì nằm trong rest.
         const auto trimmed = std::ranges::find_if_not(rest, is_space);
         const auto offset = trimmed - rest.begin();
-        const std::size_t start = static_cast<std::size_t>(offset);
+        const auto start = static_cast<std::size_t>(offset);
         rest.remove_prefix(start);
         if (rest.empty() || rest.front() == '#') break;
         tokens.push_back(next_token(rest, open));
@@ -108,7 +117,7 @@ using Tokens = std::vector<std::string>;
     return parse_stage(fs::extension(text));
 }
 
-// Stage theo tên gói, không được thì theo nguồn bỏ đuôi cuối ("sky.ps.hlsl" xét "sky.ps").
+// Stage theo tên gói, không được thì theo nguồn bỏ đuôi cuối ("sky.ps.slang" xét "sky.ps").
 [[nodiscard]] std::optional<Stage> guess_stage(const ShaderSpec& spec) noexcept {
     if (const auto named = stage_of(spec.name)) return named;
     const std::string_view file = fs::file_name(spec.source);
@@ -227,6 +236,8 @@ using Tokens = std::vector<std::string>;
 
 } // namespace
 
+// Nội dung rồi thư mục gốc của đường dẫn tương đối: hai vai khác nhau, mọi chỗ gọi đều nêu rõ tên biến.
+// NOLINTNEXTLINE(bugprone-easily-swappable-parameters)
 Result<Manifest> Manifest::parse(std::string_view text, std::string_view directory) {
     Manifest manifest;
     manifest.directory = fs::normalize(directory);

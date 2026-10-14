@@ -36,7 +36,8 @@ Display::~Display() = default;
 
 struct DisplayPreload::Work {};
 
-DisplayPreload::DisplayPreload(const std::filesystem::path& /*data_root*/, const std::optional<std::string>& /*backend*/) {}
+DisplayPreload::DisplayPreload(const std::filesystem::path& /*data_root*/,
+    const std::optional<std::string>& /*backend*/) {}
 DisplayPreload::DisplayPreload(DisplayPreload&&) noexcept = default;
 DisplayPreload& DisplayPreload::operator=(DisplayPreload&&) noexcept = default;
 DisplayPreload::~DisplayPreload() = default;

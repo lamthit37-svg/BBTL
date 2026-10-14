@@ -14,9 +14,9 @@
 #include "client/stage/stage.hpp"
 #include "client/viewer/viewer.hpp"
 #include "client/world/world.hpp"
-#include "client/timeline.hpp"
 #include "control/char_camera.hpp"
 #include "control/login_view.hpp"
+#include "core/timeline.hpp"
 #include "io/file.hpp"
 #include "io/platform.hpp"
 #include "scene/placement.hpp"
@@ -44,6 +44,7 @@
 namespace {
 
 namespace client = game::client;
+namespace core = game::core;
 namespace io = game::io;
 namespace scene = game::scene;
 namespace world = game::client::world;
@@ -309,7 +310,7 @@ void report_named(const client::NamedScene& named, std::string_view label) {
     const world::ShownScene& shown = *playing.current;
     print_visit(shown);
     std::println("Vào cảnh resid {} ({})", shown.id, shown.scene_file);
-    client::mark("cảnh đã đọc (world::enter)");
+    core::mark("cảnh đã đọc (world::enter)");
     client::ViewerDesc viewer = viewer_of(options, std::move(preload));
     viewer.title += " — " + shown.name;
     viewer.stage = &shown.stage;
@@ -359,7 +360,7 @@ void report_named(const client::NamedScene& named, std::string_view label) {
 
 [[nodiscard]] int start(std::span<char* const> arguments) {
     io::use_utf8_console();
-    client::mark("main bắt đầu");
+    core::mark("main bắt đầu");
     // Bỏ tên exe ở đầu; hệ điều hành được phép chạy một tiến trình không có đối số nào.
     const std::span<char* const> rest = arguments.subspan(arguments.empty() ? 0 : 1);
     const std::vector<std::string_view> texts(rest.begin(), rest.end());

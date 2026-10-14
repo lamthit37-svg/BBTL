@@ -45,7 +45,7 @@ constexpr std::uint32_t kTextureSpace = 1;
 constexpr std::uint32_t kImageSlot = 0;
 constexpr std::uint32_t kMaskSlot = 1;
 
-// Khớp struct Screen của ui.hlsli.
+// Khớp struct Screen của ui.inc.slang.
 struct ScreenBlock {
     std::array<float, 4> size{};
     // Ô mặt nạ của lô: trái, trên, rộng, cao.

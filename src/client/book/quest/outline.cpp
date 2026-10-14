@@ -169,7 +169,8 @@ std::string_view kind_title(std::span<const KindRow> kinds, std::int32_t kind) n
 }
 
 void collect_offers(std::span<const OutlineRow> rows, const Seeker& seeker, const Log& log, Offers& offers) {
-    for (std::vector<std::uint32_t>& list : offers.by_kind) list.clear();
+    for (std::vector<std::uint32_t>& list : offers.by_kind)
+        list.clear();
     for (std::size_t index = 0; index < rows.size(); ++index) {
         const OutlineRow& row = rows[index];
         if (!passes(row, seeker, log)) continue;
@@ -182,8 +183,8 @@ std::size_t offer_count(const Offers& offers, std::int32_t kind) noexcept {
     return offers.by_kind.at(static_cast<std::size_t>(kind) - 1).size();
 }
 
-std::optional<OfferView> offer_at(
-    std::span<const OutlineRow> rows, const Offers& offers, const Seeker& seeker, const OfferAsk& ask) noexcept {
+std::optional<OfferView> offer_at(std::span<const OutlineRow> rows, const Offers& offers, const Seeker& seeker,
+    const OfferAsk& ask) noexcept {
     const bool is_listed = ask.number >= 1 && std::cmp_less_equal(ask.number, offer_count(offers, ask.kind));
     if (!is_listed) return std::nullopt;
     const std::vector<std::uint32_t>& list = offers.by_kind.at(static_cast<std::size_t>(ask.kind) - 1);

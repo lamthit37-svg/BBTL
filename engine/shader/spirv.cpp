@@ -3,10 +3,16 @@
 #include "shader/spirv.hpp"
 
 #include "shader/failure.hpp"
+#include "shader/reflection.hpp"
+#include "shader/types.hpp"
 
 #include <algorithm>
+#include <cstddef>
+#include <cstdint>
 #include <cstring>
+#include <span>
 #include <string>
+#include <string_view>
 #include <unordered_map>
 #include <utility>
 #include <vector>
@@ -132,6 +138,9 @@ struct Member {
     bool read_only = false;
 };
 
+// Phép chuyển của unordered_map trong STL của MSVC cấp một nút gác nên có thể ném: Module chỉ bị chuyển
+// một lần, lúc trả khỏi bộ đọc.
+// NOLINTNEXTLINE(bugprone-exception-escape)
 struct Module {
     std::vector<std::uint32_t> words;
     std::vector<Id> ids;
@@ -258,6 +267,7 @@ struct Module {
     }
 }
 
+// NOLINTNEXTLINE(bugprone-easily-swappable-parameters)
 void define(Module& module, std::uint32_t id, std::size_t start) noexcept {
     Id* slot = find(module, id);
     if (slot == nullptr) module.broken = true;
@@ -422,22 +432,38 @@ struct Element {
     return word(words, 3);
 }
 
+[[nodiscard]] bool is_array_type(std::uint16_t code) noexcept {
+    return code == kOpTypeArray || code == kOpTypeRuntimeArray;
+}
+
+// Slang ghi mảng trong cbuffer std140 thành struct một thành viên tên "data" mang mảng thật, đặt
+// tên `_Array_std140_<phần tử><số phần tử>`. Bố cục byte của mảng không đổi qua lớp bọc, nên
+// phản chiếu bỏ lớp ấy đi để float4 sun[2] vẫn là một biến hai phần tử.
+[[nodiscard]] bool is_array_wrapper(const Module& module, std::uint32_t type) {
+    const Words words = definition(module, type);
+    constexpr std::size_t kOneMember = 3;
+    if (opcode(words) != kOpTypeStruct || words.size() != kOneMember) return false;
+    if (!is_array_type(opcode(definition(module, word(words, 2))))) return false;
+    return name_of(module, type).starts_with("_Array_");
+}
+
 // Bóc một tầng mảng của element; false khi kiểu hiện tại không phải mảng, element giữ nguyên.
-// Khác gốc: thân vòng for của strip_arrays tách ra đây.
-[[nodiscard]] bool strip_layer(const Module& module, Element& element) noexcept {
-    const Words words = definition(module, element.type);
+// Khác gốc: thân vòng for của strip_arrays tách ra đây; thêm bóc lớp bọc mảng của Slang.
+[[nodiscard]] bool strip_layer(const Module& module, Element& element) {
+    const std::uint32_t outer = element.type;
+    const std::uint32_t inner = is_array_wrapper(module, outer) ? word(definition(module, outer), 2) : outer;
+    const Words words = definition(module, inner);
     const std::uint16_t code = opcode(words);
-    const bool is_array = code == kOpTypeArray || code == kOpTypeRuntimeArray;
-    if (!is_array) return false;
+    if (!is_array_type(code)) return false;
     const std::uint32_t length = code == kOpTypeArray ? constant(module, word(words, 3)) : 0;
-    if (!element.array) element.stride = info(module, element.type).stride;
+    if (!element.array) element.stride = info(module, inner).stride;
     element.count = element.array ? element.count * length : length;
     element.array = true;
     element.type = word(words, 2);
     return true;
 }
 
-[[nodiscard]] Element strip_arrays(const Module& module, std::uint32_t type) noexcept {
+[[nodiscard]] Element strip_arrays(const Module& module, std::uint32_t type) {
     Element element{.type = type};
     bool stripped = true;
     for (int depth = 0; stripped && depth < kMaxDepth; ++depth) {
@@ -446,7 +472,7 @@ struct Element {
     return element;
 }
 
-// Kiểu số: vô hướng, vector hay ma trận. DXC ghi floatRxC của HLSL thành ma trận SPIR-V gồm R
+// Kiểu số: vô hướng, vector hay ma trận. Slang ghi floatRxC của HLSL thành ma trận SPIR-V gồm R
 // vector C thành phần, nên số "cột" của SPIR-V là số hàng của HLSL.
 struct Numeric {
     Scalar scalar = Scalar::kNone;
@@ -464,6 +490,8 @@ struct Numeric {
     return {.scalar = scalar, .bits = bits, .rows = 1, .columns = 1};
 }
 
+// Đệ quy theo kiểu lồng nhau, chặn bởi kMaxDepth.
+// NOLINTNEXTLINE(misc-no-recursion,bugprone-easily-swappable-parameters)
 [[nodiscard]] Numeric numeric(const Module& module, std::uint32_t type, int depth = 0) noexcept {
     const Words words = definition(module, type);
     const std::uint16_t code = opcode(words);
@@ -483,9 +511,12 @@ struct Numeric {
     return inner;
 }
 
+// Đệ quy theo kiểu lồng nhau, chặn bởi kMaxDepth.
+// NOLINTNEXTLINE(misc-no-recursion,bugprone-easily-swappable-parameters)
 [[nodiscard]] std::uint32_t struct_size(const Module& module, std::uint32_t type, int depth);
 
 // Cỡ một phần tử kiểu type đứng ở thành viên holder của một struct.
+// NOLINTNEXTLINE(misc-no-recursion)
 [[nodiscard]] std::uint32_t element_size(const Module& module, std::uint32_t type, const Member& holder, int depth) {
     const Numeric shape = numeric(module, type);
     if (shape.scalar == Scalar::kStruct) return struct_size(module, type, depth + 1);
@@ -499,6 +530,7 @@ struct Numeric {
     return (holder.matrix_stride * (rows - 1)) + (columns * bytes);
 }
 
+// NOLINTNEXTLINE(misc-no-recursion)
 [[nodiscard]] std::uint32_t member_size(const Module& module, std::uint32_t type, const Member& holder, int depth) {
     const Element element = strip_arrays(module, type);
     const std::uint32_t single = element_size(module, element.type, holder, depth);
@@ -508,6 +540,7 @@ struct Numeric {
 }
 
 // Cuối của thành viên xa nhất, không đệm đuôi: cùng con số mà phản chiếu D3D12 báo.
+// NOLINTNEXTLINE(misc-no-recursion,bugprone-easily-swappable-parameters)
 [[nodiscard]] std::uint32_t struct_size(const Module& module, std::uint32_t type, int depth) {
     if (depth >= kMaxDepth) return 0;
     const Words words = definition(module, type);
@@ -646,9 +679,11 @@ void fill_struct(const Module& module, std::uint32_t id, std::uint32_t type, std
     const Words base = definition(module, element.type);
     Resource resource;
     resource.name = name_of(module, id);
-    // DXC tách bộ đếm của Append/Consume thành biến binding riêng. DXIL gom vào UAV.
-    // Vulkan không có bộ đếm ấy: từ chối trước khi xét binding, để không thành Corrupt.
-    if (resource.name.starts_with("counter.var.")) {
+    // Slang tách bộ đếm của Append/Consume thành biến binding riêng tên "<buffer>.counter" (đo bằng
+    // slangc 2026.17 trên AppendStructuredBuffer); DXIL gom vào UAV. Vulkan không có bộ đếm ấy: từ
+    // chối trước khi xét binding, để không thành Corrupt. Dấu chấm không có trong định danh HLSL
+    // nên tên ấy không thể trùng biến của người viết shader.
+    if (resource.name.ends_with(".counter")) {
         return fail(ErrorCode::kUnsupported, "buffer có bộ đếm không có trên Vulkan", resource.name);
     }
     resource.count = element.array ? element.count : 1;
@@ -670,46 +705,17 @@ void fill_struct(const Module& module, std::uint32_t id, std::uint32_t type, std
     return ok();
 }
 
-[[nodiscard]] constexpr bool is_digit(char unit) noexcept {
-    return unit >= '0' && unit <= '9';
-}
-
-[[nodiscard]] constexpr char upper(char unit) noexcept {
-    const bool lower = unit >= 'a' && unit <= 'z';
-    return lower ? static_cast<char>(unit - 'a' + 'A') : unit;
-}
-
-// "in.var.TEXCOORD1" thành semantic "TEXCOORD", index 1. Semantic của HLSL không phân biệt hoa
-// thường nên đưa về chữ hoa, như phía DXIL.
-void fill_semantic(std::string_view variable_name, Attribute& attribute) {
-    const std::size_t dot = variable_name.rfind('.');
-    std::string_view semantic = variable_name.substr(dot == std::string_view::npos ? 0 : dot + 1);
-    std::size_t digits = 0;
-    while (digits < semantic.size() && is_digit(semantic.at(semantic.size() - digits - 1))) {
-        ++digits;
-    }
-    // Chín chữ số là đủ cho mọi chỉ số thật và không tràn 32 bit.
-    digits = std::min<std::size_t>(digits, 9);
-    for (const char digit : semantic.substr(semantic.size() - digits)) {
-        attribute.index = (attribute.index * 10) + static_cast<std::uint32_t>(digit - '0');
-    }
-    semantic.remove_suffix(digits);
-    attribute.semantic.resize(semantic.size());
-    std::ranges::transform(semantic, attribute.semantic.begin(), upper);
-}
-
 void store_attribute(StageReflection& reflection, bool input, Attribute attribute) {
     std::vector<Attribute>& list = input ? reflection.inputs : reflection.outputs;
     list.push_back(std::move(attribute));
 }
 
-// Ma trận SPIR-V là một biến chiếm nhiều location. DXIL tách float4x4 thành từng hàng, semantic
-// index liên tiếp. Tách cùng cách thì hai phản chiếu khớp.
-void store_matrix(StageReflection& reflection, bool input, Attribute base, const Numeric& shape,
+// Ma trận SPIR-V là một biến chiếm nhiều location. DXIL tách float4x4 thành từng hàng. Tách cùng
+// cách thì hai phản chiếu khớp location từng hàng.
+void store_matrix(StageReflection& reflection, bool input, const Attribute& base, const Numeric& shape,
     std::uint32_t location) {
     for (std::uint8_t row = 0; row < shape.rows; ++row) {
         Attribute attribute = base;
-        attribute.index = base.index + row;
         attribute.location = location + row;
         attribute.components = shape.columns;
         store_attribute(reflection, input, std::move(attribute));
@@ -727,8 +733,9 @@ void add_attribute(const Module& module, std::uint32_t id, StageReflection& refl
     const Words pointer = definition(module, word(variable, 1));
     const Element element = strip_arrays(module, word(pointer, 3));
     const Numeric shape = numeric(module, element.type);
+    // Slang không ghi semantic của HLSL vào SPIR-V: semantic và index để trống, compiler.cpp lấy
+    // từ DXIL cùng nguồn (shader/detail/reconcile.cpp).
     Attribute attribute;
-    fill_semantic(name_of(module, id), attribute);
     attribute.scalar = shape.scalar;
     attribute.bits = shape.bits;
     const bool input = storage == kStorageInput;

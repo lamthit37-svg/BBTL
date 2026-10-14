@@ -1676,7 +1676,10 @@ def run_golden(args: argparse.Namespace) -> int:
     started = time.perf_counter()
     tree = RawTree(args.raw)
     targets = read_type_targets(tree)
-    runs = load_runs(tree, collected_layouts(args.collected))
+    # phone/ là layout điện thoại dự án tự dựng, không có bản gốc: golden chỉ gồm layout PC có gốc.
+    # Cửa sổ của chúng trùng tên cửa sổ PC, mà gui_real_tests tra ô theo tên cửa sổ.
+    pc_layouts = [name for name in collected_layouts(args.collected) if not name.lower().startswith("phone/")]
+    runs = load_runs(tree, pc_layouts)
     tallies = compute_runs(runs, targets)
     per_layout = [(run.layout, [rect.name for rect in run.rects[SCREENS[0]]]) for run in runs]
     names = analyse_names(per_layout)

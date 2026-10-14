@@ -1,0 +1,16 @@
+# schema 1
+# source: Public/Scene/bianguan_1_monster_110.ini
+# tool: TOOLS/server/export_scene.py; sửa tay sẽ mất ở lượt xuất sau
+# types: int	int	text	text	float	float	int	int	int	int	int	int	int	int	int	int	int	int	int	int	int	int	text	int	int	int
+guid	type	name	title	position_x	position_z	direction	script_id	respawn_time	group_id	team_id	base_ai	ai_file	patrol_id	shop_0	shop_1	shop_2	shop_3	level	is_pet	script_timer	reputation_id	cshop	leader_id	is_npc	camp
+15969971	34010			33.9738	23.9887	27	-1	-1	2	-1	0	108	-1	-1	-1	-1	-1								
+15970032	34000			23.4970	37.0766	27	-1	-1	1	-1	0	0	-1	-1	-1	-1	-1								
+15970066	34000			25.5079	32.0626	27	-1	-1	1	-1	0	0	-1	-1	-1	-1	-1								
+15970070	34000			29.2762	36.9382	27	-1	-1	1	-1	0	0	-1	-1	-1	-1	-1								
+15970076	34000			39.5820	31.0569	27	-1	-1	1	-1	0	0	-1	-1	-1	-1	-1								
+15970078	34000			44.5564	33.8064	27	-1	-1	1	-1	0	0	-1	-1	-1	-1	-1								
+15970081	34000			40.4841	35.7643	27	-1	-1	1	-1	0	0	-1	-1	-1	-1	-1								
+15970098	34000			29.7775	21.8207	27	-1	-1	1	-1	0	0	-1	-1	-1	-1	-1								
+15970100	34000			40.0138	23.1940	27	-1	-1	1	-1	0	0	-1	-1	-1	-1	-1								
+15970230	34000			36.7306	42.2121	27	-1	-1	1	-1	0	0	-1	-1	-1	-1	-1								
+15970230	34000			36.000	26.000	27	-1	-1	1	-1	0	0	-1	-1	-1	-1	-1								

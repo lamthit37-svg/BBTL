@@ -25,8 +25,8 @@ private:
 
 class Swapchain12 final : public Swapchain {
 public:
-    Swapchain12(D3d12Device& device, Microsoft::WRL::ComPtr<IDXGISwapChain3> swap, HWND window,
-        Format format, PresentMode mode, std::uint32_t width, std::uint32_t height, UINT flags);
+    Swapchain12(D3d12Device& device, Microsoft::WRL::ComPtr<IDXGISwapChain3> swap, HWND window, Format format,
+        PresentMode mode, std::uint32_t width, std::uint32_t height, UINT flags);
     ~Swapchain12() override;
     Swapchain12(const Swapchain12&) = delete;
     Swapchain12& operator=(const Swapchain12&) = delete;

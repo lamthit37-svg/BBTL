@@ -1,0 +1,56 @@
+# schema 1
+# source: server_config/AttrLevelUpTable.txt
+# tool: TOOLS/server/import_legacy.py; sửa tay sẽ mất ở lượt xuất sau
+# types: int	text	text	text	text
+index	original	name	type	note
+0	级别	rank	int	luật: nguyên văn
+1	少林力量	column_1	text	?
+2	少林灵气	column_2	text	?
+3	少林体质	column_3	text	?
+4	少林定力	column_4	text	?
+5	少林身法	column_5	text	?
+6	明教力量	column_6	text	?
+7	明教灵气	column_7	text	?
+8	明教体质	column_8	text	?
+9	明教定力	column_9	text	?
+10	明教身法	column_10	text	?
+11	丐帮力量	column_11	text	?
+12	丐帮灵气	column_12	text	?
+13	丐帮体质	column_13	text	?
+14	丐帮定力	column_14	text	?
+15	丐帮身法	column_15	text	?
+16	武当力量	column_16	text	?
+17	武当灵气	column_17	text	?
+18	武当体质	column_18	text	?
+19	武当定力	column_19	text	?
+20	武当身法	column_20	text	?
+21	峨嵋力量	column_21	text	?
+22	峨嵋灵气	column_22	text	?
+23	峨嵋体质	column_23	text	?
+24	峨嵋定力	column_24	text	?
+25	峨嵋身法	column_25	text	?
+26	星宿力量	column_26	text	?
+27	星宿灵气	column_27	text	?
+28	星宿体质	column_28	text	?
+29	星宿定力	column_29	text	?
+30	星宿身法	column_30	text	?
+31	大理力量	column_31	text	?
+32	大理灵气	column_32	text	?
+33	大理体质	column_33	text	?
+34	大理定力	column_34	text	?
+35	大理身法	column_35	text	?
+36	天山力量	column_36	text	?
+37	天山灵气	column_37	text	?
+38	天山体质	column_38	text	?
+39	天山定力	column_39	text	?
+40	天山身法	column_40	text	?
+41	逍遥力量	column_41	text	?
+42	逍遥灵气	column_42	text	?
+43	逍遥体质	column_43	text	?
+44	逍遥定力	column_44	text	?
+45	逍遥身法	column_45	text	?
+46	无门派力量	column_46	text	?
+47	无门派灵气	column_47	text	?
+48	无门派体质	column_48	text	?
+49	无门派定力	column_49	text	?
+50	无门派身法	column_50	text	?

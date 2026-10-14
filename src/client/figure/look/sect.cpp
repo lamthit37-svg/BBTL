@@ -50,7 +50,8 @@ std::expected<SectFigure, std::string> sect_figure(std::string_view text, Race r
     const std::uint32_t wanted = race == Race::kFemale ? 0 : 1;
     for (std::size_t row = 0; row < table->rows.size(); ++row) {
         table::RowReader reader(*table, row);
-        const bool is_wanted = reader.number("race", 0, 1) == wanted && reader.number("sect", 0, kSectCount - 1U) == sect;
+        const bool is_wanted =
+            reader.number("race", 0, 1) == wanted && reader.number("sect", 0, kSectCount - 1U) == sect;
         if (!is_wanted && !reader.error()) continue;
         SectFigure found;
         found.figure = figure_of(reader);

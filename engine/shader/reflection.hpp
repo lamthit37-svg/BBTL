@@ -3,8 +3,8 @@
 // đầu vào đỉnh và cỡ nhóm compute: bố cục descriptor ở đó khai tay hai lần bằng macro SRT, một lần
 // cho C++ và một lần cho shader. Ở đây một cấu trúc dùng cho cả DXIL lẫn SPIR-V, mỗi tài nguyên
 // mang cả hai hệ toạ độ (register của D3D12, set và binding của Vulkan), nên tầng đồ hoạ dựng root
-// signature và descriptor set layout từ cùng một nguồn. Cùng một tệp HLSL phải ra hai phản chiếu
-// bằng nhau; phép thử của module giữ điều đó.
+// signature và descriptor set layout từ cùng một nguồn. Cùng một tệp .slang phải ra hai phản chiếu
+// bằng nhau; shader/detail/reconcile.cpp kiểm điều đó mỗi lần dịch.
 // Nguồn: Forge2 src/shader/reflection.hpp@d7fcd76. Khác gốc: bỏ {} thừa ở thành viên string, vector
 // và StageSet của các struct.
 #pragma once
@@ -76,7 +76,7 @@ enum class TextureShape : std::uint8_t {
 };
 
 // Kiểu vô hướng của một biến, một thành phần đỉnh hay một mẫu texture. bool của HLSL nằm trong
-// cbuffer là 4 byte và DXC ghi nó thành uint ở SPIR-V, nên cả hai đích báo UInt.
+// cbuffer là 4 byte và Slang ghi nó thành uint ở SPIR-V, nên cả hai đích báo UInt.
 enum class Scalar : std::uint8_t {
     kNone,
     kInt,
@@ -145,7 +145,7 @@ struct Attribute {
     // "TEXCOORD" của TEXCOORD1; index là 1.
     std::string semantic;
     std::uint32_t index = 0;
-    // Location của Vulkan; ở DXIL là thứ tự khai báo, trùng với location mà DXC gán.
+    // Location của Vulkan; ở DXIL là thứ tự khai báo, trùng với location mà Slang gán ở SPIR-V.
     std::uint32_t location = 0;
     Scalar scalar = Scalar::kNone;
     std::uint8_t bits = 0;

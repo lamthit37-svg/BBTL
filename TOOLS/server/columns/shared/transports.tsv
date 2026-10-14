@@ -1,0 +1,21 @@
+# schema 1
+# source: client_2026/TransportDefine.txt
+# tool: TOOLS/server/export_tables.py; sửa tay sẽ mất ở lượt xuất sau
+# types: int	text	text	text	text
+index	original	name	type	note
+0	INT	int_1	int	luật: M1; khớp 100.0% (273/273 id)
+1	STRING	string_1	text	luật: M1; khớp 23.4% (64/273 id)
+2	INT	int_2	int	luật: M1; khớp 23.4% (64/273 id)
+3	STRING	string_2	text	luật: M1; khớp 20.5% (56/273 id)
+4	INT	int_3	int	luật: M1; khớp 19.4% (53/273 id)
+5	INT	int_4	int	luật: M1; khớp 1.8% (5/273 id)
+6	INT	int_5	int	luật: M1; khớp 4.4% (12/273 id)
+7	INT	int_6	int	luật: M1; khớp 18.7% (51/273 id)
+8	INT	int_7	int	luật: M1; khớp 84.2% (230/273 id)
+9	INT	int_8	int	luật: M1; khớp 100.0% (273/273 id)
+10	INT	int_9	int	luật: M1; khớp 100.0% (273/273 id)
+11	INT	int_10	int	luật: M1; khớp 7.0% (19/273 id)
+12	STRING	string_3	text	luật: M1; khớp 7.0% (19/273 id)
+13	INT	int_11	int	luật: M1; khớp 73.6% (201/273 id)
+14	INT	int_12	int	luật: M1; khớp 0.7% (2/273 id)
+15	INT	int_13	int	luật: M1; khớp 4.4% (12/273 id)

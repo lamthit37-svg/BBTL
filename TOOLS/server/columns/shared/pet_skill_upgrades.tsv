@@ -1,0 +1,15 @@
+# schema 1
+# source: client_2026/PetSkillLevelup.txt
+# tool: TOOLS/server/export_tables.py; sửa tay sẽ mất ở lượt xuất sau
+# types: int	text	text	text	text
+index	original	name	type	note
+0	需要升级的珍兽技能ID	pet_skill_id	int	neo: cột gốc 0, khớp 100.0% (189/189 id); luật: nguyên văn
+1	升级后的珍兽技能ID	upgraded_pet_skill_id	int	neo: cột gốc 1, khớp 100.0% (189/189 id); luật: nguyên văn
+2	需要消耗的物品ID	cost_item_id	int	neo: cột gốc 2, khớp 100.0% (189/189 id); luật: nguyên văn
+3		column_3	int	mới ở 2026
+4	需要消耗的金钱	money_cost	int	neo: cột gốc 3, khớp 100.0% (189/189 id); luật: nguyên văn
+5		column_5	int	mới ở 2026
+6		column_6	int	mới ở 2026
+7		column_7	int	mới ở 2026
+8		column_8	int	mới ở 2026
+9		column_9	int	mới ở 2026

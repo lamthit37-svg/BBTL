@@ -1,0 +1,27 @@
+# schema 1
+# source: client_2026/CommerceRelation.txt
+# tool: TOOLS/server/export_tables.py; sửa tay sẽ mất ở lượt xuất sau
+# types: int	text	text	text	text
+index	original	name	type	note
+0	商区ID	trade_zone_id_1	int	luật: nguyên văn; khớp 100.0% (22/22 id)
+1	商区ID	trade_zone_id_2	float	luật: nguyên văn; khớp 100.0% (22/22 id)
+2	商区ID	trade_zone_id_3	float	luật: nguyên văn; khớp 100.0% (22/22 id)
+3	商区ID	trade_zone_id_4	float	luật: nguyên văn; khớp 100.0% (22/22 id)
+4	商区ID	trade_zone_id_5	float	luật: nguyên văn; khớp 100.0% (22/22 id)
+5	商区ID	trade_zone_id_6	float	luật: nguyên văn; khớp 100.0% (22/22 id)
+6	商区ID	trade_zone_id_7	float	luật: nguyên văn; khớp 100.0% (22/22 id)
+7	商区ID	trade_zone_id_8	float	luật: nguyên văn; khớp 100.0% (22/22 id)
+8	商区ID	trade_zone_id_9	float	luật: nguyên văn; khớp 100.0% (22/22 id)
+9	商区ID	trade_zone_id_10	float	luật: nguyên văn; khớp 100.0% (22/22 id)
+10	商区ID	trade_zone_id_11	float	luật: nguyên văn; khớp 100.0% (22/22 id)
+11	商区ID	trade_zone_id_12	float	luật: nguyên văn; khớp 100.0% (22/22 id)
+12	商区ID	trade_zone_id_13	float	luật: nguyên văn; khớp 100.0% (22/22 id)
+13	商区ID	trade_zone_id_14	float	luật: nguyên văn; khớp 100.0% (22/22 id)
+14	商区ID	trade_zone_id_15	float	luật: nguyên văn; khớp 100.0% (22/22 id)
+15	商区ID	trade_zone_id_16	float	luật: nguyên văn; khớp 100.0% (22/22 id)
+16	商区ID	trade_zone_id_17	float	luật: nguyên văn; khớp 100.0% (22/22 id)
+17	商区ID	trade_zone_id_18	float	luật: nguyên văn; khớp 100.0% (22/22 id)
+18	商区ID	trade_zone_id_19	float	luật: nguyên văn; khớp 100.0% (22/22 id)
+19	商区ID	trade_zone_id_20	float	luật: nguyên văn; khớp 100.0% (22/22 id)
+20	商区ID	trade_zone_id_21	float	luật: nguyên văn; khớp 100.0% (22/22 id)
+21	商区ID	trade_zone_id_22	float	luật: nguyên văn; khớp 100.0% (22/22 id)

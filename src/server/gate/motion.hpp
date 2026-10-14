@@ -17,9 +17,9 @@ inline constexpr std::int64_t kMotionTickNs = 1'000'000'000 / 30;
 [[nodiscard]] std::uint32_t motion_tick(std::int64_t now_ns) noexcept;
 
 enum class MotionAct : std::uint8_t {
-    kAccept,     // nhận bước, không gửi gì
-    kCorrect,    // không nhận: gửi Position kéo về mốc
-    kKick,       // vi phạm lặp lại: đóng phiên (DisconnectReason::kKicked)
+    kAccept, // nhận bước, không gửi gì
+    kCorrect, // không nhận: gửi Position kéo về mốc
+    kKick, // vi phạm lặp lại: đóng phiên (DisconnectReason::kKicked)
     kOutOfOrder, // chưa vào game / chưa có mốc: Reject kOutOfOrder
 };
 

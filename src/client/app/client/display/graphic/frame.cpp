@@ -93,6 +93,13 @@ void Display::steer(const Steering& input) noexcept {
     kept.walk_right = input.walk_right;
 }
 
+void Display::act(PlayAct what) noexcept {
+    const std::scoped_lock<std::mutex> locked(state_->steer_guard);
+    switch (what) {
+    case PlayAct::kJump: state_->steering.wants_jump = true; return;
+    }
+}
+
 void Display::input(std::span<const control::InputEvent> events) {
     const std::scoped_lock<std::mutex> locked(state_->steer_guard);
     std::vector<control::InputEvent>& queued = state_->queued;
@@ -165,7 +172,7 @@ core::Status Display::State::open_gpu(const DisplayDesc& desc) {
     auto made = is_forced ? gpu::create_device(device_desc) : gpu::create_present_device(device_desc);
     if (!made) return std::unexpected(made.error());
     device = std::move(*made);
-    mark("GPU: thiết bị tạo xong");
+    core::mark("GPU: thiết bị tạo xong");
     const gpu::AdapterInfo& adapter = device->adapter();
     if (!root.empty()) {
         CacheId actual;
@@ -192,7 +199,7 @@ core::Status Display::State::open_gpu(const DisplayDesc& desc) {
     core::Result<render::Screen> shown = render::Screen::create(*device, screen_desc);
     if (!shown) return std::unexpected(shown.error());
     screen = std::make_unique<render::Screen>(std::move(*shown));
-    mark("GPU: swapchain tạo xong");
+    core::mark("GPU: swapchain tạo xong");
     render::CatalogDesc catalog_desc;
     catalog_desc.color = screen->color_format();
     catalog_desc.depth = screen->depth_format();
@@ -217,9 +224,9 @@ core::Status Display::State::open_gpu(const DisplayDesc& desc) {
     core::Result<render::Forward> pass = make_forward(*device, *screen, shaders, *catalog);
     if (!pass) return std::unexpected(pass.error());
     forward = std::make_unique<render::Forward>(std::move(*pass));
-    mark("GPU: lượt vẽ và pipeline xong");
+    core::mark("GPU: lượt vẽ và pipeline xong");
     open_hud(desc);
-    mark("HUD: Hud::open xong");
+    core::mark("HUD: Hud::open xong");
     return core::ok();
 }
 
@@ -229,7 +236,7 @@ core::Status Display::State::launch(const DisplayDesc& desc) {
     const core::Status opened = open_gpu(desc);
     if (!opened) return opened;
     arm_scene(desc);
-    mark("arm_scene xong");
+    core::mark("arm_scene xong");
     const std::string gap = closed_port_line();
     if (!gap.empty()) std::println("{}", gap);
     // Cache ghi sau tầng 0, tầng 1 và cảnh đầu. Tầng 2 tạo trong warm_scene.
@@ -409,7 +416,7 @@ core::Status Display::State::render() {
     if (!submitted) return submitted;
     if (!has_marked_first) {
         has_marked_first = true;
-        mark("khung đầu đã trình");
+        core::mark("khung đầu đã trình");
     }
     const core::Status ended = device->end_frame();
     // Chia thời gian khung vào ba chặng để biết chặng nào chặn: xin ảnh (chờ GPU nhả ảnh cũ), ghi
@@ -494,7 +501,7 @@ std::optional<ShotPlan> Display::State::record_shot(gpu::CommandList& list, std:
 }
 
 void Display::State::finish_shot(const ShotPlan& plan) const {
-    mark("chụp ảnh (trước khi mã hoá PNG)");
+    core::mark("chụp ảnh (trước khi mã hoá PNG)");
     const core::Status waited = device->wait_idle();
     if (!waited) {
         std::println(stderr, "Lỗi chụp {}: {}", io::utf8_of(shot_path), waited.error());

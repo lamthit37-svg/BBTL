@@ -1,0 +1,1349 @@
+# schema 1
+# source: Public/Scene
+# tool: TOOLS/server/scene_refs.py; sửa tay sẽ mất ở lượt xuất sau
+# types: text	text	text	text
+file	scene_by_name	script_scenes	verdict
+bianguan_1_monster_10.ini	bianguan_1	bianguan_1	same
+bianguan_1_monster_100.ini	bianguan_1	bianguan_1	same
+bianguan_1_monster_110.ini	bianguan_1	bianguan_1	same
+bianguan_1_monster_120.ini	bianguan_1	bianguan_1	same
+bianguan_1_monster_130.ini	bianguan_1	bianguan_1	same
+bianguan_1_monster_140.ini	bianguan_1	bianguan_1	same
+bianguan_1_monster_150.ini	bianguan_1	bianguan_1	same
+bianguan_1_monster_160.ini	bianguan_1	bianguan_1	same
+bianguan_1_monster_170.ini	bianguan_1	bianguan_1	same
+bianguan_1_monster_180.ini	bianguan_1	bianguan_1	same
+bianguan_1_monster_190.ini	bianguan_1	bianguan_1	same
+bianguan_1_monster_20.ini	bianguan_1	bianguan_1	same
+bianguan_1_monster_200.ini	bianguan_1	bianguan_1	same
+bianguan_1_monster_30.ini	bianguan_1	bianguan_1	same
+bianguan_1_monster_40.ini	bianguan_1	bianguan_1	same
+bianguan_1_monster_50.ini	bianguan_1	bianguan_1	same
+bianguan_1_monster_60.ini	bianguan_1	bianguan_1	same
+bianguan_1_monster_70.ini	bianguan_1	bianguan_1	same
+bianguan_1_monster_80.ini	bianguan_1	bianguan_1	same
+bianguan_1_monster_90.ini	bianguan_1	bianguan_1	same
+bianguan_2_monster_10.ini	bianguan_2	bianguan_1	mismatch
+bianguan_2_monster_100.ini	bianguan_2	bianguan_1	mismatch
+bianguan_2_monster_110.ini	bianguan_2	bianguan_1	mismatch
+bianguan_2_monster_120.ini	bianguan_2	bianguan_1	mismatch
+bianguan_2_monster_130.ini	bianguan_2	bianguan_1	mismatch
+bianguan_2_monster_140.ini	bianguan_2	bianguan_1	mismatch
+bianguan_2_monster_150.ini	bianguan_2	bianguan_1	mismatch
+bianguan_2_monster_160.ini	bianguan_2	bianguan_1	mismatch
+bianguan_2_monster_170.ini	bianguan_2	bianguan_1	mismatch
+bianguan_2_monster_180.ini	bianguan_2	bianguan_1	mismatch
+bianguan_2_monster_190.ini	bianguan_2	bianguan_1	mismatch
+bianguan_2_monster_20.ini	bianguan_2	bianguan_1	mismatch
+bianguan_2_monster_200.ini	bianguan_2	bianguan_1	mismatch
+bianguan_2_monster_30.ini	bianguan_2	bianguan_1	mismatch
+bianguan_2_monster_40.ini	bianguan_2	bianguan_1	mismatch
+bianguan_2_monster_50.ini	bianguan_2	bianguan_1	mismatch
+bianguan_2_monster_60.ini	bianguan_2	bianguan_1	mismatch
+bianguan_2_monster_70.ini	bianguan_2	bianguan_1	mismatch
+bianguan_2_monster_80.ini	bianguan_2	bianguan_1	mismatch
+bianguan_2_monster_90.ini	bianguan_2	bianguan_1	mismatch
+bianguan_3_monster_10.ini	bianguan_3	bianguan_1	mismatch
+bianguan_3_monster_100.ini	bianguan_3	bianguan_1	mismatch
+bianguan_3_monster_110.ini	bianguan_3	bianguan_1	mismatch
+bianguan_3_monster_120.ini	bianguan_3	bianguan_1	mismatch
+bianguan_3_monster_130.ini	bianguan_3	bianguan_1	mismatch
+bianguan_3_monster_140.ini	bianguan_3	bianguan_1	mismatch
+bianguan_3_monster_150.ini	bianguan_3	bianguan_1	mismatch
+bianguan_3_monster_160.ini	bianguan_3	bianguan_1	mismatch
+bianguan_3_monster_170.ini	bianguan_3	bianguan_1	mismatch
+bianguan_3_monster_180.ini	bianguan_3	bianguan_1	mismatch
+bianguan_3_monster_190.ini	bianguan_3	bianguan_1	mismatch
+bianguan_3_monster_20.ini	bianguan_3	bianguan_1	mismatch
+bianguan_3_monster_200.ini	bianguan_3	bianguan_1	mismatch
+bianguan_3_monster_30.ini	bianguan_3	bianguan_1	mismatch
+bianguan_3_monster_40.ini	bianguan_3	bianguan_1	mismatch
+bianguan_3_monster_50.ini	bianguan_3	bianguan_1	mismatch
+bianguan_3_monster_60.ini	bianguan_3	bianguan_1	mismatch
+bianguan_3_monster_70.ini	bianguan_3	bianguan_1	mismatch
+bianguan_3_monster_80.ini	bianguan_3	bianguan_1	mismatch
+bianguan_3_monster_90.ini	bianguan_3	bianguan_1	mismatch
+bianguan_4_monster_10.ini	bianguan_4	bianguan_1	mismatch
+bianguan_4_monster_100.ini	bianguan_4	bianguan_1	mismatch
+bianguan_4_monster_110.ini	bianguan_4	bianguan_1	mismatch
+bianguan_4_monster_120.ini	bianguan_4	bianguan_1	mismatch
+bianguan_4_monster_130.ini	bianguan_4	bianguan_1	mismatch
+bianguan_4_monster_140.ini	bianguan_4	bianguan_1	mismatch
+bianguan_4_monster_150.ini	bianguan_4	bianguan_1	mismatch
+bianguan_4_monster_160.ini	bianguan_4	bianguan_1	mismatch
+bianguan_4_monster_170.ini	bianguan_4	bianguan_1	mismatch
+bianguan_4_monster_180.ini	bianguan_4	bianguan_1	mismatch
+bianguan_4_monster_190.ini	bianguan_4	bianguan_1	mismatch
+bianguan_4_monster_20.ini	bianguan_4	bianguan_1	mismatch
+bianguan_4_monster_200.ini	bianguan_4	bianguan_1	mismatch
+bianguan_4_monster_30.ini	bianguan_4	bianguan_1	mismatch
+bianguan_4_monster_40.ini	bianguan_4	bianguan_1	mismatch
+bianguan_4_monster_50.ini	bianguan_4	bianguan_1	mismatch
+bianguan_4_monster_60.ini	bianguan_4	bianguan_1	mismatch
+bianguan_4_monster_70.ini	bianguan_4	bianguan_1	mismatch
+bianguan_4_monster_80.ini	bianguan_4	bianguan_1	mismatch
+bianguan_4_monster_90.ini	bianguan_4	bianguan_1	mismatch
+emei_1_monster_10.ini	emei_1	emei_1	same
+emei_1_monster_100.ini	emei_1	emei_1	same
+emei_1_monster_110.ini	emei_1	emei_1	same
+emei_1_monster_120.ini	emei_1	emei_1	same
+emei_1_monster_130.ini	emei_1	emei_1	same
+emei_1_monster_140.ini	emei_1	emei_1	same
+emei_1_monster_150.ini	emei_1	emei_1	same
+emei_1_monster_160.ini	emei_1	emei_1	same
+emei_1_monster_170.ini	emei_1	emei_1	same
+emei_1_monster_180.ini	emei_1	emei_1	same
+emei_1_monster_190.ini	emei_1	emei_1	same
+emei_1_monster_20.ini	emei_1	emei_1	same
+emei_1_monster_200.ini	emei_1	emei_1	same
+emei_1_monster_30.ini	emei_1	emei_1	same
+emei_1_monster_40.ini	emei_1	emei_1	same
+emei_1_monster_50.ini	emei_1	emei_1	same
+emei_1_monster_60.ini	emei_1	emei_1	same
+emei_1_monster_70.ini	emei_1	emei_1	same
+emei_1_monster_80.ini	emei_1	emei_1	same
+emei_1_monster_90.ini	emei_1	emei_1	same
+gaibang_1_monster_10.ini	gaibang_1	gaibang_1	same
+gaibang_1_monster_100.ini	gaibang_1	gaibang_1	same
+gaibang_1_monster_110.ini	gaibang_1	gaibang_1	same
+gaibang_1_monster_120.ini	gaibang_1	gaibang_1	same
+gaibang_1_monster_130.ini	gaibang_1	gaibang_1	same
+gaibang_1_monster_140.ini	gaibang_1	gaibang_1	same
+gaibang_1_monster_150.ini	gaibang_1	gaibang_1	same
+gaibang_1_monster_160.ini	gaibang_1	gaibang_1	same
+gaibang_1_monster_170.ini	gaibang_1	gaibang_1	same
+gaibang_1_monster_180.ini	gaibang_1	gaibang_1	same
+gaibang_1_monster_190.ini	gaibang_1	gaibang_1	same
+gaibang_1_monster_20.ini	gaibang_1	gaibang_1	same
+gaibang_1_monster_200.ini	gaibang_1	gaibang_1	same
+gaibang_1_monster_30.ini	gaibang_1	gaibang_1	same
+gaibang_1_monster_40.ini	gaibang_1	gaibang_1	same
+gaibang_1_monster_50.ini	gaibang_1	gaibang_1	same
+gaibang_1_monster_60.ini	gaibang_1	gaibang_1	same
+gaibang_1_monster_70.ini	gaibang_1	gaibang_1	same
+gaibang_1_monster_80.ini	gaibang_1	gaibang_1	same
+gaibang_1_monster_90.ini	gaibang_1	gaibang_1	same
+gongdi_monster_10.ini	gongdi	gongdi	same
+gongdi_monster_100.ini	gongdi	gongdi	same
+gongdi_monster_110.ini	gongdi	gongdi	same
+gongdi_monster_120.ini	gongdi	gongdi	same
+gongdi_monster_130.ini	gongdi	gongdi	same
+gongdi_monster_140.ini	gongdi	gongdi	same
+gongdi_monster_150.ini	gongdi	gongdi	same
+gongdi_monster_160.ini	gongdi	gongdi	same
+gongdi_monster_170.ini	gongdi	gongdi	same
+gongdi_monster_180.ini	gongdi	gongdi	same
+gongdi_monster_190.ini	gongdi	gongdi	same
+gongdi_monster_20.ini	gongdi	gongdi	same
+gongdi_monster_200.ini	gongdi	gongdi	same
+gongdi_monster_30.ini	gongdi	gongdi	same
+gongdi_monster_40.ini	gongdi	gongdi	same
+gongdi_monster_50.ini	gongdi	gongdi	same
+gongdi_monster_60.ini	gongdi	gongdi	same
+gongdi_monster_70.ini	gongdi	gongdi	same
+gongdi_monster_80.ini	gongdi	gongdi	same
+gongdi_monster_90.ini	gongdi	gongdi	same
+guangmingdong_1_monster_10.ini	guangmingdong_1		map_unknown
+guangmingdong_1_monster_100.ini	guangmingdong_1		map_unknown
+guangmingdong_1_monster_110.ini	guangmingdong_1		map_unknown
+guangmingdong_1_monster_120.ini	guangmingdong_1		map_unknown
+guangmingdong_1_monster_130.ini	guangmingdong_1		map_unknown
+guangmingdong_1_monster_140.ini	guangmingdong_1		map_unknown
+guangmingdong_1_monster_150.ini	guangmingdong_1		map_unknown
+guangmingdong_1_monster_160.ini	guangmingdong_1		map_unknown
+guangmingdong_1_monster_170.ini	guangmingdong_1		map_unknown
+guangmingdong_1_monster_180.ini	guangmingdong_1		map_unknown
+guangmingdong_1_monster_190.ini	guangmingdong_1		map_unknown
+guangmingdong_1_monster_20.ini	guangmingdong_1		map_unknown
+guangmingdong_1_monster_200.ini	guangmingdong_1		map_unknown
+guangmingdong_1_monster_30.ini	guangmingdong_1		map_unknown
+guangmingdong_1_monster_40.ini	guangmingdong_1		map_unknown
+guangmingdong_1_monster_50.ini	guangmingdong_1		map_unknown
+guangmingdong_1_monster_60.ini	guangmingdong_1		map_unknown
+guangmingdong_1_monster_70.ini	guangmingdong_1		map_unknown
+guangmingdong_1_monster_80.ini	guangmingdong_1		map_unknown
+guangmingdong_1_monster_90.ini	guangmingdong_1		map_unknown
+guangmingdong_20monster_100.ini	guangmingdong	guangmingdong	same
+guangmingdong_20monster_110.ini	guangmingdong	guangmingdong	same
+guangmingdong_20monster_120.ini	guangmingdong	guangmingdong	same
+guangmingdong_20monster_130.ini	guangmingdong	guangmingdong	same
+guangmingdong_20monster_140.ini	guangmingdong	guangmingdong	same
+guangmingdong_20monster_150.ini	guangmingdong	guangmingdong	same
+guangmingdong_20monster_160.ini	guangmingdong	guangmingdong	same
+guangmingdong_20monster_170.ini	guangmingdong	guangmingdong	same
+guangmingdong_20monster_180.ini	guangmingdong	guangmingdong	same
+guangmingdong_20monster_190.ini	guangmingdong	guangmingdong	same
+guangmingdong_20monster_200.ini	guangmingdong	guangmingdong	same
+guangmingdong_20monster_40.ini	guangmingdong	guangmingdong	same
+guangmingdong_20monster_50.ini	guangmingdong	guangmingdong	same
+guangmingdong_20monster_60.ini	guangmingdong	guangmingdong	same
+guangmingdong_20monster_70.ini	guangmingdong	guangmingdong	same
+guangmingdong_20monster_80.ini	guangmingdong	guangmingdong	same
+guangmingdong_20monster_90.ini	guangmingdong	guangmingdong	same
+guangmingdong_2_monster_10.ini	guangmingdong_2		unpointed
+guangmingdong_2_monster_100.ini	guangmingdong_2		unpointed
+guangmingdong_2_monster_110.ini	guangmingdong_2		unpointed
+guangmingdong_2_monster_120.ini	guangmingdong_2		unpointed
+guangmingdong_2_monster_130.ini	guangmingdong_2		unpointed
+guangmingdong_2_monster_140.ini	guangmingdong_2		unpointed
+guangmingdong_2_monster_150.ini	guangmingdong_2		unpointed
+guangmingdong_2_monster_160.ini	guangmingdong_2		unpointed
+guangmingdong_2_monster_170.ini	guangmingdong_2		unpointed
+guangmingdong_2_monster_180.ini	guangmingdong_2		unpointed
+guangmingdong_2_monster_190.ini	guangmingdong_2		unpointed
+guangmingdong_2_monster_20.ini	guangmingdong_2		unpointed
+guangmingdong_2_monster_200.ini	guangmingdong_2		unpointed
+guangmingdong_2_monster_30.ini	guangmingdong_2		unpointed
+guangmingdong_2_monster_40.ini	guangmingdong_2		unpointed
+guangmingdong_2_monster_50.ini	guangmingdong_2		unpointed
+guangmingdong_2_monster_60.ini	guangmingdong_2		unpointed
+guangmingdong_2_monster_70.ini	guangmingdong_2		unpointed
+guangmingdong_2_monster_80.ini	guangmingdong_2		unpointed
+guangmingdong_2_monster_90.ini	guangmingdong_2		unpointed
+guangmingdong_monster_10.ini	guangmingdong	guangmingdong	same
+guangmingdong_monster_100.ini	guangmingdong	guangmingdong	same
+guangmingdong_monster_110.ini	guangmingdong	guangmingdong	same
+guangmingdong_monster_120.ini	guangmingdong	guangmingdong	same
+guangmingdong_monster_130.ini	guangmingdong	guangmingdong	same
+guangmingdong_monster_140.ini	guangmingdong	guangmingdong	same
+guangmingdong_monster_150.ini	guangmingdong	guangmingdong	same
+guangmingdong_monster_160.ini	guangmingdong	guangmingdong	same
+guangmingdong_monster_170.ini	guangmingdong	guangmingdong	same
+guangmingdong_monster_180.ini	guangmingdong	guangmingdong	same
+guangmingdong_monster_190.ini	guangmingdong	guangmingdong	same
+guangmingdong_monster_20.ini	guangmingdong	guangmingdong	same
+guangmingdong_monster_200.ini	guangmingdong	guangmingdong	same
+guangmingdong_monster_30.ini	guangmingdong	guangmingdong	same
+guangmingdong_monster_40.ini	guangmingdong	guangmingdong	same
+guangmingdong_monster_50.ini	guangmingdong	guangmingdong	same
+guangmingdong_monster_60.ini	guangmingdong	guangmingdong	same
+guangmingdong_monster_70.ini	guangmingdong	guangmingdong	same
+guangmingdong_monster_80.ini	guangmingdong	guangmingdong	same
+guangmingdong_monster_90.ini	guangmingdong	guangmingdong	same
+gudi_1_monster_10.ini	gudi_1		map_unknown
+gudi_1_monster_100.ini	gudi_1		map_unknown
+gudi_1_monster_110.ini	gudi_1		map_unknown
+gudi_1_monster_120.ini	gudi_1		map_unknown
+gudi_1_monster_130.ini	gudi_1		map_unknown
+gudi_1_monster_140.ini	gudi_1		map_unknown
+gudi_1_monster_150.ini	gudi_1		map_unknown
+gudi_1_monster_160.ini	gudi_1		map_unknown
+gudi_1_monster_170.ini	gudi_1		map_unknown
+gudi_1_monster_180.ini	gudi_1		map_unknown
+gudi_1_monster_190.ini	gudi_1		map_unknown
+gudi_1_monster_20.ini	gudi_1		map_unknown
+gudi_1_monster_200.ini	gudi_1		map_unknown
+gudi_1_monster_30.ini	gudi_1		map_unknown
+gudi_1_monster_40.ini	gudi_1		map_unknown
+gudi_1_monster_50.ini	gudi_1		map_unknown
+gudi_1_monster_60.ini	gudi_1		map_unknown
+gudi_1_monster_70.ini	gudi_1		map_unknown
+gudi_1_monster_80.ini	gudi_1		map_unknown
+gudi_1_monster_90.ini	gudi_1		map_unknown
+gudi_20monster_100.ini	gudi	gudi	same
+gudi_20monster_110.ini	gudi	gudi	same
+gudi_20monster_120.ini	gudi	gudi	same
+gudi_20monster_130.ini	gudi	gudi	same
+gudi_20monster_140.ini	gudi	gudi	same
+gudi_20monster_150.ini	gudi	gudi	same
+gudi_20monster_160.ini	gudi	gudi	same
+gudi_20monster_170.ini	gudi	gudi	same
+gudi_20monster_180.ini	gudi	gudi	same
+gudi_20monster_190.ini	gudi	gudi	same
+gudi_20monster_200.ini	gudi	gudi	same
+gudi_20monster_40.ini	gudi	gudi	same
+gudi_20monster_50.ini	gudi	gudi	same
+gudi_20monster_60.ini	gudi	gudi	same
+gudi_20monster_70.ini	gudi	gudi	same
+gudi_20monster_80.ini	gudi	gudi	same
+gudi_20monster_90.ini	gudi	gudi	same
+gudi_2_monster_10.ini	gudi_2		unpointed
+gudi_2_monster_100.ini	gudi_2		unpointed
+gudi_2_monster_110.ini	gudi_2		unpointed
+gudi_2_monster_120.ini	gudi_2		unpointed
+gudi_2_monster_130.ini	gudi_2		unpointed
+gudi_2_monster_140.ini	gudi_2		unpointed
+gudi_2_monster_150.ini	gudi_2		unpointed
+gudi_2_monster_160.ini	gudi_2		unpointed
+gudi_2_monster_170.ini	gudi_2		unpointed
+gudi_2_monster_180.ini	gudi_2		unpointed
+gudi_2_monster_190.ini	gudi_2		unpointed
+gudi_2_monster_20.ini	gudi_2		unpointed
+gudi_2_monster_200.ini	gudi_2		unpointed
+gudi_2_monster_30.ini	gudi_2		unpointed
+gudi_2_monster_40.ini	gudi_2		unpointed
+gudi_2_monster_50.ini	gudi_2		unpointed
+gudi_2_monster_60.ini	gudi_2		unpointed
+gudi_2_monster_70.ini	gudi_2		unpointed
+gudi_2_monster_80.ini	gudi_2		unpointed
+gudi_2_monster_90.ini	gudi_2		unpointed
+gudi_monster_10.ini	gudi	gudi	same
+gudi_monster_100.ini	gudi	gudi	same
+gudi_monster_110.ini	gudi	gudi	same
+gudi_monster_120.ini	gudi	gudi	same
+gudi_monster_130.ini	gudi	gudi	same
+gudi_monster_140.ini	gudi	gudi	same
+gudi_monster_150.ini	gudi	gudi	same
+gudi_monster_160.ini	gudi	gudi	same
+gudi_monster_170.ini	gudi	gudi	same
+gudi_monster_180.ini	gudi	gudi	same
+gudi_monster_190.ini	gudi	gudi	same
+gudi_monster_20.ini	gudi	gudi	same
+gudi_monster_200.ini	gudi	gudi	same
+gudi_monster_30.ini	gudi	gudi	same
+gudi_monster_40.ini	gudi	gudi	same
+gudi_monster_50.ini	gudi	gudi	same
+gudi_monster_60.ini	gudi	gudi	same
+gudi_monster_70.ini	gudi	gudi	same
+gudi_monster_80.ini	gudi	gudi	same
+gudi_monster_90.ini	gudi	gudi	same
+jiaochang_monster_10.ini	jiaochang	jiaochang	same
+jiaochang_monster_100.ini	jiaochang	jiaochang	same
+jiaochang_monster_110.ini	jiaochang	jiaochang	same
+jiaochang_monster_120.ini	jiaochang	jiaochang	same
+jiaochang_monster_130.ini	jiaochang	jiaochang	same
+jiaochang_monster_140.ini	jiaochang	jiaochang	same
+jiaochang_monster_150.ini	jiaochang	jiaochang	same
+jiaochang_monster_160.ini	jiaochang	jiaochang	same
+jiaochang_monster_170.ini	jiaochang	jiaochang	same
+jiaochang_monster_180.ini	jiaochang	jiaochang	same
+jiaochang_monster_190.ini	jiaochang	jiaochang	same
+jiaochang_monster_20.ini	jiaochang	jiaochang	same
+jiaochang_monster_200.ini	jiaochang	jiaochang	same
+jiaochang_monster_30.ini	jiaochang	jiaochang	same
+jiaochang_monster_40.ini	jiaochang	jiaochang	same
+jiaochang_monster_50.ini	jiaochang	jiaochang	same
+jiaochang_monster_60.ini	jiaochang	jiaochang	same
+jiaochang_monster_70.ini	jiaochang	jiaochang	same
+jiaochang_monster_80.ini	jiaochang	jiaochang	same
+jiaochang_monster_90.ini	jiaochang	jiaochang	same
+jishi_monster_10.ini	jishi	jishi	same
+jishi_monster_100.ini	jishi	jishi	same
+jishi_monster_110.ini	jishi	jishi	same
+jishi_monster_120.ini	jishi	jishi	same
+jishi_monster_130.ini	jishi	jishi	same
+jishi_monster_140.ini	jishi	jishi	same
+jishi_monster_150.ini	jishi	jishi	same
+jishi_monster_160.ini	jishi	jishi	same
+jishi_monster_170.ini	jishi	jishi	same
+jishi_monster_180.ini	jishi	jishi	same
+jishi_monster_190.ini	jishi	jishi	same
+jishi_monster_20.ini	jishi	jishi	same
+jishi_monster_200.ini	jishi	jishi	same
+jishi_monster_30.ini	jishi	jishi	same
+jishi_monster_40.ini	jishi	jishi	same
+jishi_monster_50.ini	jishi	jishi	same
+jishi_monster_60.ini	jishi	jishi	same
+jishi_monster_70.ini	jishi	jishi	same
+jishi_monster_80.ini	jishi	jishi	same
+jishi_monster_90.ini	jishi	jishi	same
+jiujiao_1_monster_10.ini	jiujiao_1		map_unknown
+jiujiao_1_monster_100.ini	jiujiao_1		map_unknown
+jiujiao_1_monster_110.ini	jiujiao_1		map_unknown
+jiujiao_1_monster_120.ini	jiujiao_1		map_unknown
+jiujiao_1_monster_130.ini	jiujiao_1		map_unknown
+jiujiao_1_monster_140.ini	jiujiao_1		map_unknown
+jiujiao_1_monster_150.ini	jiujiao_1		map_unknown
+jiujiao_1_monster_160.ini	jiujiao_1		map_unknown
+jiujiao_1_monster_170.ini	jiujiao_1		map_unknown
+jiujiao_1_monster_180.ini	jiujiao_1		map_unknown
+jiujiao_1_monster_190.ini	jiujiao_1		map_unknown
+jiujiao_1_monster_20.ini	jiujiao_1		map_unknown
+jiujiao_1_monster_200.ini	jiujiao_1		map_unknown
+jiujiao_1_monster_30.ini	jiujiao_1		map_unknown
+jiujiao_1_monster_40.ini	jiujiao_1		map_unknown
+jiujiao_1_monster_50.ini	jiujiao_1		map_unknown
+jiujiao_1_monster_60.ini	jiujiao_1		map_unknown
+jiujiao_1_monster_70.ini	jiujiao_1		map_unknown
+jiujiao_1_monster_80.ini	jiujiao_1		map_unknown
+jiujiao_1_monster_90.ini	jiujiao_1		map_unknown
+jiujiao_20monster_100.ini	jiujiao	jiujiao	same
+jiujiao_20monster_110.ini	jiujiao	jiujiao	same
+jiujiao_20monster_120.ini	jiujiao	jiujiao	same
+jiujiao_20monster_130.ini	jiujiao	jiujiao	same
+jiujiao_20monster_140.ini	jiujiao	jiujiao	same
+jiujiao_20monster_150.ini	jiujiao	jiujiao	same
+jiujiao_20monster_160.ini	jiujiao	jiujiao	same
+jiujiao_20monster_170.ini	jiujiao	jiujiao	same
+jiujiao_20monster_180.ini	jiujiao	jiujiao	same
+jiujiao_20monster_190.ini	jiujiao	jiujiao	same
+jiujiao_20monster_200.ini	jiujiao	jiujiao	same
+jiujiao_20monster_40.ini	jiujiao	jiujiao	same
+jiujiao_20monster_50.ini	jiujiao	jiujiao	same
+jiujiao_20monster_60.ini	jiujiao	jiujiao	same
+jiujiao_20monster_70.ini	jiujiao	jiujiao	same
+jiujiao_20monster_80.ini	jiujiao	jiujiao	same
+jiujiao_20monster_90.ini	jiujiao	jiujiao	same
+jiujiao_2_monster_10.ini	jiujiao_2		unpointed
+jiujiao_2_monster_100.ini	jiujiao_2		unpointed
+jiujiao_2_monster_110.ini	jiujiao_2		unpointed
+jiujiao_2_monster_120.ini	jiujiao_2		unpointed
+jiujiao_2_monster_130.ini	jiujiao_2		unpointed
+jiujiao_2_monster_140.ini	jiujiao_2		unpointed
+jiujiao_2_monster_150.ini	jiujiao_2		unpointed
+jiujiao_2_monster_160.ini	jiujiao_2		unpointed
+jiujiao_2_monster_170.ini	jiujiao_2		unpointed
+jiujiao_2_monster_180.ini	jiujiao_2		unpointed
+jiujiao_2_monster_190.ini	jiujiao_2		unpointed
+jiujiao_2_monster_20.ini	jiujiao_2		unpointed
+jiujiao_2_monster_200.ini	jiujiao_2		unpointed
+jiujiao_2_monster_30.ini	jiujiao_2		unpointed
+jiujiao_2_monster_40.ini	jiujiao_2		unpointed
+jiujiao_2_monster_50.ini	jiujiao_2		unpointed
+jiujiao_2_monster_60.ini	jiujiao_2		unpointed
+jiujiao_2_monster_70.ini	jiujiao_2		unpointed
+jiujiao_2_monster_80.ini	jiujiao_2		unpointed
+jiujiao_2_monster_90.ini	jiujiao_2		unpointed
+jiujiao_monster_10.ini	jiujiao	jiujiao	same
+jiujiao_monster_100.ini	jiujiao	jiujiao	same
+jiujiao_monster_110.ini	jiujiao	jiujiao	same
+jiujiao_monster_120.ini	jiujiao	jiujiao	same
+jiujiao_monster_130.ini	jiujiao	jiujiao	same
+jiujiao_monster_140.ini	jiujiao	jiujiao	same
+jiujiao_monster_150.ini	jiujiao	jiujiao	same
+jiujiao_monster_160.ini	jiujiao	jiujiao	same
+jiujiao_monster_170.ini	jiujiao	jiujiao	same
+jiujiao_monster_180.ini	jiujiao	jiujiao	same
+jiujiao_monster_190.ini	jiujiao	jiujiao	same
+jiujiao_monster_20.ini	jiujiao	jiujiao	same
+jiujiao_monster_200.ini	jiujiao	jiujiao	same
+jiujiao_monster_30.ini	jiujiao	jiujiao	same
+jiujiao_monster_40.ini	jiujiao	jiujiao	same
+jiujiao_monster_50.ini	jiujiao	jiujiao	same
+jiujiao_monster_60.ini	jiujiao	jiujiao	same
+jiujiao_monster_70.ini	jiujiao	jiujiao	same
+jiujiao_monster_80.ini	jiujiao	jiujiao	same
+jiujiao_monster_90.ini	jiujiao	jiujiao	same
+kaochang_monster_10.ini	kaochang	kaochang	same
+kaochang_monster_100.ini	kaochang	kaochang	same
+kaochang_monster_110.ini	kaochang	kaochang	same
+kaochang_monster_120.ini	kaochang	kaochang	same
+kaochang_monster_130.ini	kaochang	kaochang	same
+kaochang_monster_140.ini	kaochang	kaochang	same
+kaochang_monster_150.ini	kaochang	kaochang	same
+kaochang_monster_160.ini	kaochang	kaochang	same
+kaochang_monster_170.ini	kaochang	kaochang	same
+kaochang_monster_180.ini	kaochang	kaochang	same
+kaochang_monster_190.ini	kaochang	kaochang	same
+kaochang_monster_20.ini	kaochang	kaochang	same
+kaochang_monster_200.ini	kaochang	kaochang	same
+kaochang_monster_30.ini	kaochang	kaochang	same
+kaochang_monster_40.ini	kaochang	kaochang	same
+kaochang_monster_50.ini	kaochang	kaochang	same
+kaochang_monster_60.ini	kaochang	kaochang	same
+kaochang_monster_70.ini	kaochang	kaochang	same
+kaochang_monster_80.ini	kaochang	kaochang	same
+kaochang_monster_90.ini	kaochang	kaochang	same
+kuangchang_monster_10.ini	kuangchang	kuangchang	same
+kuangchang_monster_100.ini	kuangchang	kuangchang	same
+kuangchang_monster_110.ini	kuangchang	kuangchang	same
+kuangchang_monster_120.ini	kuangchang	kuangchang	same
+kuangchang_monster_130.ini	kuangchang	kuangchang	same
+kuangchang_monster_140.ini	kuangchang	kuangchang	same
+kuangchang_monster_150.ini	kuangchang	kuangchang	same
+kuangchang_monster_160.ini	kuangchang	kuangchang	same
+kuangchang_monster_170.ini	kuangchang	kuangchang	same
+kuangchang_monster_180.ini	kuangchang	kuangchang	same
+kuangchang_monster_190.ini	kuangchang	kuangchang	same
+kuangchang_monster_20.ini	kuangchang	kuangchang	same
+kuangchang_monster_200.ini	kuangchang	kuangchang	same
+kuangchang_monster_30.ini	kuangchang	kuangchang	same
+kuangchang_monster_40.ini	kuangchang	kuangchang	same
+kuangchang_monster_50.ini	kuangchang	kuangchang	same
+kuangchang_monster_60.ini	kuangchang	kuangchang	same
+kuangchang_monster_70.ini	kuangchang	kuangchang	same
+kuangchang_monster_80.ini	kuangchang	kuangchang	same
+kuangchang_monster_90.ini	kuangchang	kuangchang	same
+lingxingfeng_1_monster_10.ini	lingxingfeng_1		map_unknown
+lingxingfeng_1_monster_100.ini	lingxingfeng_1		map_unknown
+lingxingfeng_1_monster_110.ini	lingxingfeng_1		map_unknown
+lingxingfeng_1_monster_120.ini	lingxingfeng_1		map_unknown
+lingxingfeng_1_monster_130.ini	lingxingfeng_1		map_unknown
+lingxingfeng_1_monster_140.ini	lingxingfeng_1		map_unknown
+lingxingfeng_1_monster_150.ini	lingxingfeng_1		map_unknown
+lingxingfeng_1_monster_160.ini	lingxingfeng_1		map_unknown
+lingxingfeng_1_monster_170.ini	lingxingfeng_1		map_unknown
+lingxingfeng_1_monster_180.ini	lingxingfeng_1		map_unknown
+lingxingfeng_1_monster_190.ini	lingxingfeng_1		map_unknown
+lingxingfeng_1_monster_20.ini	lingxingfeng_1		map_unknown
+lingxingfeng_1_monster_200.ini	lingxingfeng_1		map_unknown
+lingxingfeng_1_monster_30.ini	lingxingfeng_1		map_unknown
+lingxingfeng_1_monster_40.ini	lingxingfeng_1		map_unknown
+lingxingfeng_1_monster_50.ini	lingxingfeng_1		map_unknown
+lingxingfeng_1_monster_60.ini	lingxingfeng_1		map_unknown
+lingxingfeng_1_monster_70.ini	lingxingfeng_1		map_unknown
+lingxingfeng_1_monster_80.ini	lingxingfeng_1		map_unknown
+lingxingfeng_1_monster_90.ini	lingxingfeng_1		map_unknown
+lingxingfeng_20monster_100.ini	lingxingfeng	lingxingfeng	same
+lingxingfeng_20monster_110.ini	lingxingfeng	lingxingfeng	same
+lingxingfeng_20monster_120.ini	lingxingfeng	lingxingfeng	same
+lingxingfeng_20monster_130.ini	lingxingfeng	lingxingfeng	same
+lingxingfeng_20monster_140.ini	lingxingfeng	lingxingfeng	same
+lingxingfeng_20monster_150.ini	lingxingfeng	lingxingfeng	same
+lingxingfeng_20monster_160.ini	lingxingfeng	lingxingfeng	same
+lingxingfeng_20monster_170.ini	lingxingfeng	lingxingfeng	same
+lingxingfeng_20monster_180.ini	lingxingfeng	lingxingfeng	same
+lingxingfeng_20monster_190.ini	lingxingfeng	lingxingfeng	same
+lingxingfeng_20monster_200.ini	lingxingfeng	lingxingfeng	same
+lingxingfeng_20monster_40.ini	lingxingfeng	lingxingfeng	same
+lingxingfeng_20monster_50.ini	lingxingfeng	lingxingfeng	same
+lingxingfeng_20monster_60.ini	lingxingfeng	lingxingfeng	same
+lingxingfeng_20monster_70.ini	lingxingfeng	lingxingfeng	same
+lingxingfeng_20monster_80.ini	lingxingfeng	lingxingfeng	same
+lingxingfeng_20monster_90.ini	lingxingfeng	lingxingfeng	same
+lingxingfeng_2_monster_10.ini	lingxingfeng_2		unpointed
+lingxingfeng_2_monster_100.ini	lingxingfeng_2		unpointed
+lingxingfeng_2_monster_110.ini	lingxingfeng_2		unpointed
+lingxingfeng_2_monster_120.ini	lingxingfeng_2		unpointed
+lingxingfeng_2_monster_130.ini	lingxingfeng_2		unpointed
+lingxingfeng_2_monster_140.ini	lingxingfeng_2		unpointed
+lingxingfeng_2_monster_150.ini	lingxingfeng_2		unpointed
+lingxingfeng_2_monster_160.ini	lingxingfeng_2		unpointed
+lingxingfeng_2_monster_170.ini	lingxingfeng_2		unpointed
+lingxingfeng_2_monster_180.ini	lingxingfeng_2		unpointed
+lingxingfeng_2_monster_190.ini	lingxingfeng_2		unpointed
+lingxingfeng_2_monster_20.ini	lingxingfeng_2		unpointed
+lingxingfeng_2_monster_200.ini	lingxingfeng_2		unpointed
+lingxingfeng_2_monster_30.ini	lingxingfeng_2		unpointed
+lingxingfeng_2_monster_40.ini	lingxingfeng_2		unpointed
+lingxingfeng_2_monster_50.ini	lingxingfeng_2		unpointed
+lingxingfeng_2_monster_60.ini	lingxingfeng_2		unpointed
+lingxingfeng_2_monster_70.ini	lingxingfeng_2		unpointed
+lingxingfeng_2_monster_80.ini	lingxingfeng_2		unpointed
+lingxingfeng_2_monster_90.ini	lingxingfeng_2		unpointed
+lingxingfeng_monster_10.ini	lingxingfeng	lingxingfeng	same
+lingxingfeng_monster_100.ini	lingxingfeng	lingxingfeng	same
+lingxingfeng_monster_110.ini	lingxingfeng	lingxingfeng	same
+lingxingfeng_monster_120.ini	lingxingfeng	lingxingfeng	same
+lingxingfeng_monster_130.ini	lingxingfeng	lingxingfeng	same
+lingxingfeng_monster_140.ini	lingxingfeng	lingxingfeng	same
+lingxingfeng_monster_150.ini	lingxingfeng	lingxingfeng	same
+lingxingfeng_monster_160.ini	lingxingfeng	lingxingfeng	same
+lingxingfeng_monster_170.ini	lingxingfeng	lingxingfeng	same
+lingxingfeng_monster_180.ini	lingxingfeng	lingxingfeng	same
+lingxingfeng_monster_190.ini	lingxingfeng	lingxingfeng	same
+lingxingfeng_monster_20.ini	lingxingfeng	lingxingfeng	same
+lingxingfeng_monster_200.ini	lingxingfeng	lingxingfeng	same
+lingxingfeng_monster_30.ini	lingxingfeng	lingxingfeng	same
+lingxingfeng_monster_40.ini	lingxingfeng	lingxingfeng	same
+lingxingfeng_monster_50.ini	lingxingfeng	lingxingfeng	same
+lingxingfeng_monster_60.ini	lingxingfeng	lingxingfeng	same
+lingxingfeng_monster_70.ini	lingxingfeng	lingxingfeng	same
+lingxingfeng_monster_80.ini	lingxingfeng	lingxingfeng	same
+lingxingfeng_monster_90.ini	lingxingfeng	lingxingfeng	same
+mingjiao_1_monster_10.ini	mingjiao_1	mingjiao_1	same
+mingjiao_1_monster_100.ini	mingjiao_1	mingjiao_1	same
+mingjiao_1_monster_110.ini	mingjiao_1	mingjiao_1	same
+mingjiao_1_monster_120.ini	mingjiao_1	mingjiao_1	same
+mingjiao_1_monster_130.ini	mingjiao_1	mingjiao_1	same
+mingjiao_1_monster_140.ini	mingjiao_1	mingjiao_1	same
+mingjiao_1_monster_150.ini	mingjiao_1	mingjiao_1	same
+mingjiao_1_monster_160.ini	mingjiao_1	mingjiao_1	same
+mingjiao_1_monster_170.ini	mingjiao_1	mingjiao_1	same
+mingjiao_1_monster_180.ini	mingjiao_1	mingjiao_1	same
+mingjiao_1_monster_190.ini	mingjiao_1	mingjiao_1	same
+mingjiao_1_monster_20.ini	mingjiao_1	mingjiao_1	same
+mingjiao_1_monster_200.ini	mingjiao_1	mingjiao_1	same
+mingjiao_1_monster_30.ini	mingjiao_1	mingjiao_1	same
+mingjiao_1_monster_40.ini	mingjiao_1	mingjiao_1	same
+mingjiao_1_monster_50.ini	mingjiao_1	mingjiao_1	same
+mingjiao_1_monster_60.ini	mingjiao_1	mingjiao_1	same
+mingjiao_1_monster_70.ini	mingjiao_1	mingjiao_1	same
+mingjiao_1_monster_80.ini	mingjiao_1	mingjiao_1	same
+mingjiao_1_monster_90.ini	mingjiao_1	mingjiao_1	same
+muchang_monster_10.ini	muchang	muchang	same
+muchang_monster_100.ini	muchang	muchang	same
+muchang_monster_110.ini	muchang	muchang	same
+muchang_monster_120.ini	muchang	muchang	same
+muchang_monster_130.ini	muchang	muchang	same
+muchang_monster_140.ini	muchang	muchang	same
+muchang_monster_150.ini	muchang	muchang	same
+muchang_monster_160.ini	muchang	muchang	same
+muchang_monster_170.ini	muchang	muchang	same
+muchang_monster_180.ini	muchang	muchang	same
+muchang_monster_190.ini	muchang	muchang	same
+muchang_monster_20.ini	muchang	muchang	same
+muchang_monster_200.ini	muchang	muchang	same
+muchang_monster_30.ini	muchang	muchang	same
+muchang_monster_40.ini	muchang	muchang	same
+muchang_monster_50.ini	muchang	muchang	same
+muchang_monster_60.ini	muchang	muchang	same
+muchang_monster_70.ini	muchang	muchang	same
+muchang_monster_80.ini	muchang	muchang	same
+muchang_monster_90.ini	muchang	muchang	same
+murenxiang_monster_10.ini	murenxiang	xingxiu	mismatch
+murenxiang_monster_100.ini	murenxiang	xingxiu	mismatch
+murenxiang_monster_110.ini	murenxiang	xingxiu	mismatch
+murenxiang_monster_120.ini	murenxiang	xingxiu	mismatch
+murenxiang_monster_130.ini	murenxiang	xingxiu	mismatch
+murenxiang_monster_140.ini	murenxiang	xingxiu	mismatch
+murenxiang_monster_150.ini	murenxiang	xingxiu	mismatch
+murenxiang_monster_160.ini	murenxiang	xingxiu	mismatch
+murenxiang_monster_170.ini	murenxiang	xingxiu	mismatch
+murenxiang_monster_180.ini	murenxiang	xingxiu	mismatch
+murenxiang_monster_190.ini	murenxiang	xingxiu	mismatch
+murenxiang_monster_20.ini	murenxiang	xingxiu	mismatch
+murenxiang_monster_200.ini	murenxiang	xingxiu	mismatch
+murenxiang_monster_30.ini	murenxiang	xingxiu	mismatch
+murenxiang_monster_40.ini	murenxiang	xingxiu	mismatch
+murenxiang_monster_50.ini	murenxiang	xingxiu	mismatch
+murenxiang_monster_60.ini	murenxiang	xingxiu	mismatch
+murenxiang_monster_7.ini	murenxiang		unpointed
+murenxiang_monster_70.ini	murenxiang	xingxiu	mismatch
+murenxiang_monster_80.ini	murenxiang	xingxiu	mismatch
+murenxiang_monster_9.ini	murenxiang		unpointed
+murenxiang_monster_90.ini	murenxiang	xingxiu	mismatch
+muxue_monster_10.ini	muxue	muxue	same
+muxue_monster_100.ini	muxue	muxue	same
+muxue_monster_110.ini	muxue	muxue	same
+muxue_monster_120.ini	muxue	muxue	same
+muxue_monster_130.ini	muxue	muxue	same
+muxue_monster_140.ini	muxue	muxue	same
+muxue_monster_150.ini	muxue	muxue	same
+muxue_monster_160.ini	muxue	muxue	same
+muxue_monster_170.ini	muxue	muxue	same
+muxue_monster_180.ini	muxue	muxue	same
+muxue_monster_190.ini	muxue	muxue	same
+muxue_monster_20.ini	muxue	muxue	same
+muxue_monster_200.ini	muxue	muxue	same
+muxue_monster_30.ini	muxue	muxue	same
+muxue_monster_40.ini	muxue	muxue	same
+muxue_monster_50.ini	muxue	muxue	same
+muxue_monster_60.ini	muxue	muxue	same
+muxue_monster_70.ini	muxue	muxue	same
+muxue_monster_80.ini	muxue	muxue	same
+muxue_monster_90.ini	muxue	muxue	same
+PCity_monster_cangshanzhengbei.ini	PCitycangshanzhengbei		unpointed
+PCity_monster_caoyuanzhengxi.ini	PCitycaoyuanzhengxi		unpointed
+PCity_monster_changbaishanxibei.ini	PCitychangbaishanxibei		unpointed
+PCity_monster_erhaizhengxi.ini	PCityerhaizhengxi		unpointed
+PCity_monster_huanglongfuxibei.ini	PCityhuanglongfuxibei		unpointed
+PCity_monster_liaoxixibei.ini	PCityliaoxixibei		unpointed
+PCity_monster_longquanzhengbei.ini	PCitylongquanzhengbei		unpointed
+PCity_monster_meilingxibei.ini	PCitymeilingxibei		unpointed
+PCity_monster_miaojiangzhengdong.ini	PCitymiaojiangzhengdong		unpointed
+PCity_monster_nanhaizhengbei.ini	PCitynanhaizhengbei		unpointed
+PCity_monster_nanzhaoxinan.ini	PCitynanzhaoxinan		unpointed
+PCity_monster_qiongzhouzhengxi.ini	PCityqiongzhouzhengxi		unpointed
+PCity_monster_shilinzhengnan.ini	PCityshilinzhengnan		unpointed
+PCity_monster_wuyizhengxi.ini	PCitywuyizhengxi		unpointed
+PCity_monster_xihuzhengxi.ini	PCityxihuzhengxi		unpointed
+PCity_monster_yanbeizhengxi.ini	PCityyanbeizhengxi		unpointed
+PCity_monster_yannanzhengnan.ini	PCityyannanzhengnan		unpointed
+PCity_monster_yuxixinan.ini	PCityyuxixinan		unpointed
+shaolin_1_monster_10.ini	shaolin_1	shaolin_1	same
+shaolin_1_monster_100.ini	shaolin_1	shaolin_1	same
+shaolin_1_monster_20.ini	shaolin_1	shaolin_1	same
+shaolin_1_monster_30.ini	shaolin_1	shaolin_1	same
+shaolin_1_monster_40.ini	shaolin_1	shaolin_1	same
+shaolin_1_monster_50.ini	shaolin_1	shaolin_1	same
+shaolin_1_monster_60.ini	shaolin_1	shaolin_1	same
+shaolin_1_monster_70.ini	shaolin_1	shaolin_1	same
+shaolin_1_monster_80.ini	shaolin_1	shaolin_1	same
+shaolin_1_monster_90.ini	shaolin_1	shaolin_1	same
+shiji_1_monster_10.ini	shiji_1	shiji_1	same
+shiji_1_monster_100.ini	shiji_1	shiji_1	same
+shiji_1_monster_110.ini	shiji_1	shiji_1	same
+shiji_1_monster_120.ini	shiji_1	shiji_1	same
+shiji_1_monster_130.ini	shiji_1	shiji_1	same
+shiji_1_monster_140.ini	shiji_1	shiji_1	same
+shiji_1_monster_150.ini	shiji_1	shiji_1	same
+shiji_1_monster_160.ini	shiji_1	shiji_1	same
+shiji_1_monster_170.ini	shiji_1	shiji_1	same
+shiji_1_monster_180.ini	shiji_1	shiji_1	same
+shiji_1_monster_190.ini	shiji_1	shiji_1	same
+shiji_1_monster_20.ini	shiji_1	shiji_1	same
+shiji_1_monster_200.ini	shiji_1	shiji_1	same
+shiji_1_monster_30.ini	shiji_1	shiji_1	same
+shiji_1_monster_40.ini	shiji_1	shiji_1	same
+shiji_1_monster_50.ini	shiji_1	shiji_1	same
+shiji_1_monster_60.ini	shiji_1	shiji_1	same
+shiji_1_monster_70.ini	shiji_1	shiji_1	same
+shiji_1_monster_80.ini	shiji_1	shiji_1	same
+shiji_1_monster_90.ini	shiji_1	shiji_1	same
+shiji_2_monster_10.ini	shiji_2	shiji_2	same
+shiji_2_monster_100.ini	shiji_2	shiji_2	same
+shiji_2_monster_110.ini	shiji_2	shiji_2	same
+shiji_2_monster_120.ini	shiji_2	shiji_2	same
+shiji_2_monster_130.ini	shiji_2	shiji_2	same
+shiji_2_monster_140.ini	shiji_2	shiji_2	same
+shiji_2_monster_150.ini	shiji_2	shiji_2	same
+shiji_2_monster_160.ini	shiji_2	shiji_2	same
+shiji_2_monster_170.ini	shiji_2	shiji_2	same
+shiji_2_monster_180.ini	shiji_2	shiji_2	same
+shiji_2_monster_190.ini	shiji_2	shiji_2	same
+shiji_2_monster_20.ini	shiji_2	shiji_2	same
+shiji_2_monster_200.ini	shiji_2	shiji_2	same
+shiji_2_monster_30.ini	shiji_2	shiji_2	same
+shiji_2_monster_40.ini	shiji_2	shiji_2	same
+shiji_2_monster_50.ini	shiji_2	shiji_2	same
+shiji_2_monster_60.ini	shiji_2	shiji_2	same
+shiji_2_monster_70.ini	shiji_2	shiji_2	same
+shiji_2_monster_80.ini	shiji_2	shiji_2	same
+shiji_2_monster_90.ini	shiji_2	shiji_2	same
+shuge_monster_10.ini	shuge	shuge	same
+shuge_monster_100.ini	shuge	shuge	same
+shuge_monster_110.ini	shuge	shuge	same
+shuge_monster_120.ini	shuge	shuge	same
+shuge_monster_130.ini	shuge	shuge	same
+shuge_monster_140.ini	shuge	shuge	same
+shuge_monster_150.ini	shuge	shuge	same
+shuge_monster_160.ini	shuge	shuge	same
+shuge_monster_170.ini	shuge	shuge	same
+shuge_monster_180.ini	shuge	shuge	same
+shuge_monster_190.ini	shuge	shuge	same
+shuge_monster_20.ini	shuge	shuge	same
+shuge_monster_200.ini	shuge	shuge	same
+shuge_monster_30.ini	shuge	shuge	same
+shuge_monster_40.ini	shuge	shuge	same
+shuge_monster_50.ini	shuge	shuge	same
+shuge_monster_60.ini	shuge	shuge	same
+shuge_monster_70.ini	shuge	shuge	same
+shuge_monster_80.ini	shuge	shuge	same
+shuge_monster_90.ini	shuge	shuge	same
+shuilao_monster_10.ini	shuilao	shuilao	same
+shuilao_monster_100.ini	shuilao	shuilao	same
+shuilao_monster_110.ini	shuilao	shuilao	same
+shuilao_monster_120.ini	shuilao	shuilao	same
+shuilao_monster_130.ini	shuilao	shuilao	same
+shuilao_monster_140.ini	shuilao	shuilao	same
+shuilao_monster_150.ini	shuilao	shuilao	same
+shuilao_monster_160.ini	shuilao	shuilao	same
+shuilao_monster_170.ini	shuilao	shuilao	same
+shuilao_monster_180.ini	shuilao	shuilao	same
+shuilao_monster_190.ini	shuilao	shuilao	same
+shuilao_monster_20.ini	shuilao	shuilao	same
+shuilao_monster_200.ini	shuilao	shuilao	same
+shuilao_monster_30.ini	shuilao	shuilao	same
+shuilao_monster_40.ini	shuilao	shuilao	same
+shuilao_monster_50.ini	shuilao	shuilao	same
+shuilao_monster_60.ini	shuilao	shuilao	same
+shuilao_monster_70.ini	shuilao	shuilao	same
+shuilao_monster_80.ini	shuilao	shuilao	same
+shuilao_monster_90.ini	shuilao	shuilao	same
+songliao_monster_10.ini	songliao	songliao	same
+songliao_monster_100.ini	songliao	songliao	same
+songliao_monster_110.ini	songliao	songliao	same
+songliao_monster_120.ini	songliao	songliao	same
+songliao_monster_130.ini	songliao	songliao	same
+songliao_monster_140.ini	songliao	songliao	same
+songliao_monster_150.ini	songliao	songliao	same
+songliao_monster_160.ini	songliao	songliao	same
+songliao_monster_170.ini	songliao	songliao	same
+songliao_monster_180.ini	songliao	songliao	same
+songliao_monster_190.ini	songliao	songliao	same
+songliao_monster_20.ini	songliao	songliao	same
+songliao_monster_200.ini	songliao	songliao	same
+songliao_monster_30.ini	songliao	songliao	same
+songliao_monster_40.ini	songliao	songliao	same
+songliao_monster_50.ini	songliao	songliao	same
+songliao_monster_60.ini	songliao	songliao	same
+songliao_monster_70.ini	songliao	songliao	same
+songliao_monster_80.ini	songliao	songliao	same
+songliao_monster_90.ini	songliao	songliao	same
+tadi_1_monster_10.ini	tadi_1		map_unknown
+tadi_1_monster_100.ini	tadi_1		map_unknown
+tadi_1_monster_110.ini	tadi_1		map_unknown
+tadi_1_monster_120.ini	tadi_1		map_unknown
+tadi_1_monster_130.ini	tadi_1		map_unknown
+tadi_1_monster_140.ini	tadi_1		map_unknown
+tadi_1_monster_150.ini	tadi_1		map_unknown
+tadi_1_monster_160.ini	tadi_1		map_unknown
+tadi_1_monster_170.ini	tadi_1		map_unknown
+tadi_1_monster_180.ini	tadi_1		map_unknown
+tadi_1_monster_190.ini	tadi_1		map_unknown
+tadi_1_monster_20.ini	tadi_1		map_unknown
+tadi_1_monster_200.ini	tadi_1		map_unknown
+tadi_1_monster_30.ini	tadi_1		map_unknown
+tadi_1_monster_40.ini	tadi_1		map_unknown
+tadi_1_monster_50.ini	tadi_1		map_unknown
+tadi_1_monster_60.ini	tadi_1		map_unknown
+tadi_1_monster_70.ini	tadi_1		map_unknown
+tadi_1_monster_80.ini	tadi_1		map_unknown
+tadi_1_monster_90.ini	tadi_1		map_unknown
+tadi_20monster_100.ini	tadi	tadi	same
+tadi_20monster_110.ini	tadi	tadi	same
+tadi_20monster_120.ini	tadi	tadi	same
+tadi_20monster_130.ini	tadi	tadi	same
+tadi_20monster_140.ini	tadi	tadi	same
+tadi_20monster_150.ini	tadi	tadi	same
+tadi_20monster_160.ini	tadi	tadi	same
+tadi_20monster_170.ini	tadi	tadi	same
+tadi_20monster_180.ini	tadi	tadi	same
+tadi_20monster_190.ini	tadi	tadi	same
+tadi_20monster_200.ini	tadi	tadi	same
+tadi_20monster_40.ini	tadi	tadi	same
+tadi_20monster_50.ini	tadi	tadi	same
+tadi_20monster_60.ini	tadi	tadi	same
+tadi_20monster_70.ini	tadi	tadi	same
+tadi_20monster_80.ini	tadi	tadi	same
+tadi_20monster_90.ini	tadi	tadi	same
+tadi_2_monster_10.ini	tadi_2		unpointed
+tadi_2_monster_100.ini	tadi_2		unpointed
+tadi_2_monster_110.ini	tadi_2		unpointed
+tadi_2_monster_120.ini	tadi_2		unpointed
+tadi_2_monster_130.ini	tadi_2		unpointed
+tadi_2_monster_140.ini	tadi_2		unpointed
+tadi_2_monster_150.ini	tadi_2		unpointed
+tadi_2_monster_160.ini	tadi_2		unpointed
+tadi_2_monster_170.ini	tadi_2		unpointed
+tadi_2_monster_180.ini	tadi_2		unpointed
+tadi_2_monster_190.ini	tadi_2		unpointed
+tadi_2_monster_20.ini	tadi_2		unpointed
+tadi_2_monster_200.ini	tadi_2		unpointed
+tadi_2_monster_30.ini	tadi_2		unpointed
+tadi_2_monster_40.ini	tadi_2		unpointed
+tadi_2_monster_50.ini	tadi_2		unpointed
+tadi_2_monster_60.ini	tadi_2		unpointed
+tadi_2_monster_70.ini	tadi_2		unpointed
+tadi_2_monster_80.ini	tadi_2		unpointed
+tadi_2_monster_90.ini	tadi_2		unpointed
+tadi_monster_10.ini	tadi	tadi	same
+tadi_monster_100.ini	tadi	tadi	same
+tadi_monster_110.ini	tadi	tadi	same
+tadi_monster_120.ini	tadi	tadi	same
+tadi_monster_130.ini	tadi	tadi	same
+tadi_monster_140.ini	tadi	tadi	same
+tadi_monster_150.ini	tadi	tadi	same
+tadi_monster_160.ini	tadi	tadi	same
+tadi_monster_170.ini	tadi	tadi	same
+tadi_monster_180.ini	tadi	tadi	same
+tadi_monster_190.ini	tadi	tadi	same
+tadi_monster_20.ini	tadi	tadi	same
+tadi_monster_200.ini	tadi	tadi	same
+tadi_monster_30.ini	tadi	tadi	same
+tadi_monster_40.ini	tadi	tadi	same
+tadi_monster_50.ini	tadi	tadi	same
+tadi_monster_60.ini	tadi	tadi	same
+tadi_monster_70.ini	tadi	tadi	same
+tadi_monster_80.ini	tadi	tadi	same
+tadi_monster_90.ini	tadi	tadi	same
+taohuazhen_1_monster_10.ini	taohuazhen_1		map_unknown
+taohuazhen_1_monster_100.ini	taohuazhen_1		map_unknown
+taohuazhen_1_monster_110.ini	taohuazhen_1		map_unknown
+taohuazhen_1_monster_120.ini	taohuazhen_1		map_unknown
+taohuazhen_1_monster_130.ini	taohuazhen_1		map_unknown
+taohuazhen_1_monster_140.ini	taohuazhen_1		map_unknown
+taohuazhen_1_monster_150.ini	taohuazhen_1		map_unknown
+taohuazhen_1_monster_160.ini	taohuazhen_1		map_unknown
+taohuazhen_1_monster_170.ini	taohuazhen_1		map_unknown
+taohuazhen_1_monster_180.ini	taohuazhen_1		map_unknown
+taohuazhen_1_monster_190.ini	taohuazhen_1		map_unknown
+taohuazhen_1_monster_20.ini	taohuazhen_1		map_unknown
+taohuazhen_1_monster_200.ini	taohuazhen_1		map_unknown
+taohuazhen_1_monster_30.ini	taohuazhen_1		map_unknown
+taohuazhen_1_monster_40.ini	taohuazhen_1		map_unknown
+taohuazhen_1_monster_50.ini	taohuazhen_1		map_unknown
+taohuazhen_1_monster_60.ini	taohuazhen_1		map_unknown
+taohuazhen_1_monster_70.ini	taohuazhen_1		map_unknown
+taohuazhen_1_monster_80.ini	taohuazhen_1		map_unknown
+taohuazhen_1_monster_90.ini	taohuazhen_1		map_unknown
+taohuazhen_20monster_100.ini	taohuazhen	taohuazhen	same
+taohuazhen_20monster_110.ini	taohuazhen	taohuazhen	same
+taohuazhen_20monster_120.ini	taohuazhen	taohuazhen	same
+taohuazhen_20monster_130.ini	taohuazhen	taohuazhen	same
+taohuazhen_20monster_140.ini	taohuazhen	taohuazhen	same
+taohuazhen_20monster_150.ini	taohuazhen	taohuazhen	same
+taohuazhen_20monster_160.ini	taohuazhen	taohuazhen	same
+taohuazhen_20monster_170.ini	taohuazhen	taohuazhen	same
+taohuazhen_20monster_180.ini	taohuazhen	taohuazhen	same
+taohuazhen_20monster_190.ini	taohuazhen	taohuazhen	same
+taohuazhen_20monster_200.ini	taohuazhen	taohuazhen	same
+taohuazhen_20monster_40.ini	taohuazhen	taohuazhen	same
+taohuazhen_20monster_50.ini	taohuazhen	taohuazhen	same
+taohuazhen_20monster_60.ini	taohuazhen	taohuazhen	same
+taohuazhen_20monster_70.ini	taohuazhen	taohuazhen	same
+taohuazhen_20monster_80.ini	taohuazhen	taohuazhen	same
+taohuazhen_20monster_90.ini	taohuazhen	taohuazhen	same
+taohuazhen_2_monster_10.ini	taohuazhen_2		unpointed
+taohuazhen_2_monster_100.ini	taohuazhen_2		unpointed
+taohuazhen_2_monster_110.ini	taohuazhen_2		unpointed
+taohuazhen_2_monster_120.ini	taohuazhen_2		unpointed
+taohuazhen_2_monster_130.ini	taohuazhen_2		unpointed
+taohuazhen_2_monster_140.ini	taohuazhen_2		unpointed
+taohuazhen_2_monster_150.ini	taohuazhen_2		unpointed
+taohuazhen_2_monster_160.ini	taohuazhen_2		unpointed
+taohuazhen_2_monster_170.ini	taohuazhen_2		unpointed
+taohuazhen_2_monster_180.ini	taohuazhen_2		unpointed
+taohuazhen_2_monster_190.ini	taohuazhen_2		unpointed
+taohuazhen_2_monster_20.ini	taohuazhen_2		unpointed
+taohuazhen_2_monster_30.ini	taohuazhen_2		unpointed
+taohuazhen_2_monster_40.ini	taohuazhen_2		unpointed
+taohuazhen_2_monster_50.ini	taohuazhen_2		unpointed
+taohuazhen_2_monster_60.ini	taohuazhen_2		unpointed
+taohuazhen_2_monster_70.ini	taohuazhen_2		unpointed
+taohuazhen_2_monster_80.ini	taohuazhen_2		unpointed
+taohuazhen_2_monster_90.ini	taohuazhen_2		unpointed
+taohuazhen_monster_10.ini	taohuazhen	taohuazhen	same
+taohuazhen_monster_100.ini	taohuazhen	taohuazhen	same
+taohuazhen_monster_110.ini	taohuazhen	taohuazhen	same
+taohuazhen_monster_120.ini	taohuazhen	taohuazhen	same
+taohuazhen_monster_130.ini	taohuazhen	taohuazhen	same
+taohuazhen_monster_140.ini	taohuazhen	taohuazhen	same
+taohuazhen_monster_150.ini	taohuazhen	taohuazhen	same
+taohuazhen_monster_160.ini	taohuazhen	taohuazhen	same
+taohuazhen_monster_170.ini	taohuazhen	taohuazhen	same
+taohuazhen_monster_180.ini	taohuazhen	taohuazhen	same
+taohuazhen_monster_190.ini	taohuazhen	taohuazhen	same
+taohuazhen_monster_20.ini	taohuazhen	taohuazhen	same
+taohuazhen_monster_200.ini	taohuazhen	taohuazhen	same
+taohuazhen_monster_30.ini	taohuazhen	taohuazhen	same
+taohuazhen_monster_40.ini	taohuazhen	taohuazhen	same
+taohuazhen_monster_50.ini	taohuazhen	taohuazhen	same
+taohuazhen_monster_60.ini	taohuazhen	taohuazhen	same
+taohuazhen_monster_70.ini	taohuazhen	taohuazhen	same
+taohuazhen_monster_80.ini	taohuazhen	taohuazhen	same
+taohuazhen_monster_90.ini	taohuazhen	taohuazhen	same
+tianlong_1_monster_10.ini	tianlong_1	tianlong_1	same
+tianlong_1_monster_100.ini	tianlong_1	tianlong_1	same
+tianlong_1_monster_110.ini	tianlong_1	tianlong_1	same
+tianlong_1_monster_120.ini	tianlong_1	tianlong_1	same
+tianlong_1_monster_130.ini	tianlong_1	tianlong_1	same
+tianlong_1_monster_140.ini	tianlong_1	tianlong_1	same
+tianlong_1_monster_150.ini	tianlong_1	tianlong_1	same
+tianlong_1_monster_160.ini	tianlong_1	tianlong_1	same
+tianlong_1_monster_170.ini	tianlong_1	tianlong_1	same
+tianlong_1_monster_180.ini	tianlong_1	tianlong_1	same
+tianlong_1_monster_190.ini	tianlong_1	tianlong_1	same
+tianlong_1_monster_20.ini	tianlong_1	tianlong_1	same
+tianlong_1_monster_200.ini	tianlong_1	tianlong_1	same
+tianlong_1_monster_30.ini	tianlong_1	tianlong_1	same
+tianlong_1_monster_40.ini	tianlong_1	tianlong_1	same
+tianlong_1_monster_50.ini	tianlong_1	tianlong_1	same
+tianlong_1_monster_60.ini	tianlong_1	tianlong_1	same
+tianlong_1_monster_70.ini	tianlong_1	tianlong_1	same
+tianlong_1_monster_80.ini	tianlong_1	tianlong_1	same
+tianlong_1_monster_90.ini	tianlong_1	tianlong_1	same
+tianshan_1_monster30.ini	tianshan_1		unpointed
+tianshan_1_monster320.ini	tianshan_1		unpointed
+tianshan_1_monster_10.ini	tianshan_1	tianshan_1	same
+tianshan_1_monster_100.ini	tianshan_1	tianshan_1	same
+tianshan_1_monster_110.ini	tianshan_1	tianshan_1	same
+tianshan_1_monster_120.ini	tianshan_1	tianshan_1	same
+tianshan_1_monster_130.ini	tianshan_1	tianshan_1	same
+tianshan_1_monster_140.ini	tianshan_1	tianshan_1	same
+tianshan_1_monster_150.ini	tianshan_1	tianshan_1	same
+tianshan_1_monster_160.ini	tianshan_1	tianshan_1	same
+tianshan_1_monster_170.ini	tianshan_1	tianshan_1	same
+tianshan_1_monster_180.ini	tianshan_1	tianshan_1	same
+tianshan_1_monster_190.ini	tianshan_1	tianshan_1	same
+tianshan_1_monster_20.ini	tianshan_1	tianshan_1	same
+tianshan_1_monster_200.ini	tianshan_1	tianshan_1	same
+tianshan_1_monster_30.ini	tianshan_1	tianshan_1	same
+tianshan_1_monster_40.ini	tianshan_1	tianshan_1	same
+tianshan_1_monster_50.ini	tianshan_1	tianshan_1	same
+tianshan_1_monster_60.ini	tianshan_1	tianshan_1	same
+tianshan_1_monster_70.ini	tianshan_1	tianshan_1	same
+tianshan_1_monster_80.ini	tianshan_1	tianshan_1	same
+tianshan_1_monster_90.ini	tianshan_1	tianshan_1	same
+tongrenxiang_1_monster_10.ini	tongrenxiang_1		map_unknown
+tongrenxiang_1_monster_100.ini	tongrenxiang_1		map_unknown
+tongrenxiang_1_monster_110.ini	tongrenxiang_1		map_unknown
+tongrenxiang_1_monster_120.ini	tongrenxiang_1		map_unknown
+tongrenxiang_1_monster_130.ini	tongrenxiang_1		map_unknown
+tongrenxiang_1_monster_140.ini	tongrenxiang_1		map_unknown
+tongrenxiang_1_monster_150.ini	tongrenxiang_1		map_unknown
+tongrenxiang_1_monster_160.ini	tongrenxiang_1		map_unknown
+tongrenxiang_1_monster_170.ini	tongrenxiang_1		map_unknown
+tongrenxiang_1_monster_180.ini	tongrenxiang_1		map_unknown
+tongrenxiang_1_monster_190.ini	tongrenxiang_1		map_unknown
+tongrenxiang_1_monster_20.ini	tongrenxiang_1		map_unknown
+tongrenxiang_1_monster_200.ini	tongrenxiang_1		map_unknown
+tongrenxiang_1_monster_30.ini	tongrenxiang_1		map_unknown
+tongrenxiang_1_monster_40.ini	tongrenxiang_1		map_unknown
+tongrenxiang_1_monster_50.ini	tongrenxiang_1		map_unknown
+tongrenxiang_1_monster_60.ini	tongrenxiang_1		map_unknown
+tongrenxiang_1_monster_70.ini	tongrenxiang_1		map_unknown
+tongrenxiang_1_monster_80.ini	tongrenxiang_1		map_unknown
+tongrenxiang_1_monster_90.ini	tongrenxiang_1		map_unknown
+tongrenxiang_20monster_100.ini	tongrenxiang	tongrenxiang	same
+tongrenxiang_20monster_110.ini	tongrenxiang	tongrenxiang	same
+tongrenxiang_20monster_120.ini	tongrenxiang	tongrenxiang	same
+tongrenxiang_20monster_130.ini	tongrenxiang	tongrenxiang	same
+tongrenxiang_20monster_140.ini	tongrenxiang	tongrenxiang	same
+tongrenxiang_20monster_150.ini	tongrenxiang	tongrenxiang	same
+tongrenxiang_20monster_160.ini	tongrenxiang	tongrenxiang	same
+tongrenxiang_20monster_170.ini	tongrenxiang	tongrenxiang	same
+tongrenxiang_20monster_180.ini	tongrenxiang	tongrenxiang	same
+tongrenxiang_20monster_190.ini	tongrenxiang	tongrenxiang	same
+tongrenxiang_20monster_200.ini	tongrenxiang	tongrenxiang	same
+tongrenxiang_20monster_40.ini	tongrenxiang	tongrenxiang	same
+tongrenxiang_20monster_50.ini	tongrenxiang	tongrenxiang	same
+tongrenxiang_20monster_60.ini	tongrenxiang	tongrenxiang	same
+tongrenxiang_20monster_70.ini	tongrenxiang	tongrenxiang	same
+tongrenxiang_20monster_80.ini	tongrenxiang	tongrenxiang	same
+tongrenxiang_20monster_90.ini	tongrenxiang	tongrenxiang	same
+tongrenxiang_2_monster_10.ini	tongrenxiang_2		unpointed
+tongrenxiang_2_monster_100.ini	tongrenxiang_2		unpointed
+tongrenxiang_2_monster_110.ini	tongrenxiang_2		unpointed
+tongrenxiang_2_monster_120.ini	tongrenxiang_2		unpointed
+tongrenxiang_2_monster_130.ini	tongrenxiang_2		unpointed
+tongrenxiang_2_monster_140.ini	tongrenxiang_2		unpointed
+tongrenxiang_2_monster_150.ini	tongrenxiang_2		unpointed
+tongrenxiang_2_monster_160.ini	tongrenxiang_2		unpointed
+tongrenxiang_2_monster_170.ini	tongrenxiang_2		unpointed
+tongrenxiang_2_monster_180.ini	tongrenxiang_2		unpointed
+tongrenxiang_2_monster_190.ini	tongrenxiang_2		unpointed
+tongrenxiang_2_monster_20.ini	tongrenxiang_2		unpointed
+tongrenxiang_2_monster_200.ini	tongrenxiang_2		unpointed
+tongrenxiang_2_monster_30.ini	tongrenxiang_2		unpointed
+tongrenxiang_2_monster_40.ini	tongrenxiang_2		unpointed
+tongrenxiang_2_monster_50.ini	tongrenxiang_2		unpointed
+tongrenxiang_2_monster_60.ini	tongrenxiang_2		unpointed
+tongrenxiang_2_monster_70.ini	tongrenxiang_2		unpointed
+tongrenxiang_2_monster_80.ini	tongrenxiang_2		unpointed
+tongrenxiang_2_monster_90.ini	tongrenxiang_2		unpointed
+tongrenxiang_monster_10.ini	tongrenxiang	tongrenxiang	same
+tongrenxiang_monster_100.ini	tongrenxiang	tongrenxiang	same
+tongrenxiang_monster_110.ini	tongrenxiang	tongrenxiang	same
+tongrenxiang_monster_120.ini	tongrenxiang	tongrenxiang	same
+tongrenxiang_monster_130.ini	tongrenxiang	tongrenxiang	same
+tongrenxiang_monster_140.ini	tongrenxiang	tongrenxiang	same
+tongrenxiang_monster_150.ini	tongrenxiang	tongrenxiang	same
+tongrenxiang_monster_160.ini	tongrenxiang	tongrenxiang	same
+tongrenxiang_monster_170.ini	tongrenxiang	tongrenxiang	same
+tongrenxiang_monster_180.ini	tongrenxiang	tongrenxiang	same
+tongrenxiang_monster_190.ini	tongrenxiang	tongrenxiang	same
+tongrenxiang_monster_20.ini	tongrenxiang	tongrenxiang	same
+tongrenxiang_monster_200.ini	tongrenxiang	tongrenxiang	same
+tongrenxiang_monster_30.ini	tongrenxiang	tongrenxiang	same
+tongrenxiang_monster_40.ini	tongrenxiang	tongrenxiang	same
+tongrenxiang_monster_50.ini	tongrenxiang	tongrenxiang	same
+tongrenxiang_monster_60.ini	tongrenxiang	tongrenxiang	same
+tongrenxiang_monster_70.ini	tongrenxiang	tongrenxiang	same
+tongrenxiang_monster_80.ini	tongrenxiang	tongrenxiang	same
+tongrenxiang_monster_90.ini	tongrenxiang	tongrenxiang	same
+wudang_1_monster_10.ini	wudang_1	wudang_1	same
+wudang_1_monster_100.ini	wudang_1	wudang_1	same
+wudang_1_monster_110.ini	wudang_1	wudang_1	same
+wudang_1_monster_120.ini	wudang_1	wudang_1	same
+wudang_1_monster_130.ini	wudang_1	wudang_1	same
+wudang_1_monster_140.ini	wudang_1	wudang_1	same
+wudang_1_monster_150.ini	wudang_1	wudang_1	same
+wudang_1_monster_160.ini	wudang_1	wudang_1	same
+wudang_1_monster_170.ini	wudang_1	wudang_1	same
+wudang_1_monster_180.ini	wudang_1	wudang_1	same
+wudang_1_monster_190.ini	wudang_1	wudang_1	same
+wudang_1_monster_20.ini	wudang_1	wudang_1	same
+wudang_1_monster_200.ini	wudang_1	wudang_1	same
+wudang_1_monster_30.ini	wudang_1	wudang_1	same
+wudang_1_monster_40.ini	wudang_1	wudang_1	same
+wudang_1_monster_50.ini	wudang_1	wudang_1	same
+wudang_1_monster_60.ini	wudang_1	wudang_1	same
+wudang_1_monster_70.ini	wudang_1	wudang_1	same
+wudang_1_monster_80.ini	wudang_1	wudang_1	same
+wudang_1_monster_90.ini	wudang_1	wudang_1	same
+wushendong_1_monster_10.ini	wushendong_1		map_unknown
+wushendong_1_monster_100.ini	wushendong_1		map_unknown
+wushendong_1_monster_110.ini	wushendong_1		map_unknown
+wushendong_1_monster_120.ini	wushendong_1		map_unknown
+wushendong_1_monster_130.ini	wushendong_1		map_unknown
+wushendong_1_monster_140.ini	wushendong_1		map_unknown
+wushendong_1_monster_150.ini	wushendong_1		map_unknown
+wushendong_1_monster_160.ini	wushendong_1		map_unknown
+wushendong_1_monster_170.ini	wushendong_1		map_unknown
+wushendong_1_monster_180.ini	wushendong_1		map_unknown
+wushendong_1_monster_190.ini	wushendong_1		map_unknown
+wushendong_1_monster_20.ini	wushendong_1		map_unknown
+wushendong_1_monster_200.ini	wushendong_1		map_unknown
+wushendong_1_monster_30.ini	wushendong_1		map_unknown
+wushendong_1_monster_40.ini	wushendong_1		map_unknown
+wushendong_1_monster_50.ini	wushendong_1		map_unknown
+wushendong_1_monster_60.ini	wushendong_1		map_unknown
+wushendong_1_monster_70.ini	wushendong_1		map_unknown
+wushendong_1_monster_80.ini	wushendong_1		map_unknown
+wushendong_1_monster_90.ini	wushendong_1		map_unknown
+wushendong_20monster_100.ini	wushendong	wushendong	same
+wushendong_20monster_110.ini	wushendong	wushendong	same
+wushendong_20monster_120.ini	wushendong	wushendong	same
+wushendong_20monster_130.ini	wushendong	wushendong	same
+wushendong_20monster_140.ini	wushendong	wushendong	same
+wushendong_20monster_150.ini	wushendong	wushendong	same
+wushendong_20monster_160.ini	wushendong	wushendong	same
+wushendong_20monster_170.ini	wushendong	wushendong	same
+wushendong_20monster_180.ini	wushendong	wushendong	same
+wushendong_20monster_190.ini	wushendong	wushendong	same
+wushendong_20monster_200.ini	wushendong	wushendong	same
+wushendong_20monster_40.ini	wushendong	wushendong	same
+wushendong_20monster_50.ini	wushendong	wushendong	same
+wushendong_20monster_60.ini	wushendong	wushendong	same
+wushendong_20monster_70.ini	wushendong	wushendong	same
+wushendong_20monster_80.ini	wushendong	wushendong	same
+wushendong_20monster_90.ini	wushendong	wushendong	same
+wushendong_2_monster_10.ini	wushendong_2		unpointed
+wushendong_2_monster_100.ini	wushendong_2		unpointed
+wushendong_2_monster_110.ini	wushendong_2		unpointed
+wushendong_2_monster_120.ini	wushendong_2		unpointed
+wushendong_2_monster_130.ini	wushendong_2		unpointed
+wushendong_2_monster_140.ini	wushendong_2		unpointed
+wushendong_2_monster_150.ini	wushendong_2		unpointed
+wushendong_2_monster_160.ini	wushendong_2		unpointed
+wushendong_2_monster_170.ini	wushendong_2		unpointed
+wushendong_2_monster_180.ini	wushendong_2		unpointed
+wushendong_2_monster_190.ini	wushendong_2		unpointed
+wushendong_2_monster_20.ini	wushendong_2		unpointed
+wushendong_2_monster_200.ini	wushendong_2		unpointed
+wushendong_2_monster_30.ini	wushendong_2		unpointed
+wushendong_2_monster_40.ini	wushendong_2		unpointed
+wushendong_2_monster_50.ini	wushendong_2		unpointed
+wushendong_2_monster_60.ini	wushendong_2		unpointed
+wushendong_2_monster_70.ini	wushendong_2		unpointed
+wushendong_2_monster_80.ini	wushendong_2		unpointed
+wushendong_2_monster_90.ini	wushendong_2		unpointed
+wushendong_monster_10.ini	wushendong	wushendong	same
+wushendong_monster_100.ini	wushendong	wushendong	same
+wushendong_monster_110.ini	wushendong	wushendong	same
+wushendong_monster_120.ini	wushendong	wushendong	same
+wushendong_monster_130.ini	wushendong	wushendong	same
+wushendong_monster_140.ini	wushendong	wushendong	same
+wushendong_monster_150.ini	wushendong	wushendong	same
+wushendong_monster_160.ini	wushendong	wushendong	same
+wushendong_monster_170.ini	wushendong	wushendong	same
+wushendong_monster_180.ini	wushendong	wushendong	same
+wushendong_monster_190.ini	wushendong	wushendong	same
+wushendong_monster_20.ini	wushendong	wushendong	same
+wushendong_monster_200.ini	wushendong	wushendong	same
+wushendong_monster_30.ini	wushendong	wushendong	same
+wushendong_monster_40.ini	wushendong	wushendong	same
+wushendong_monster_50.ini	wushendong	wushendong	same
+wushendong_monster_60.ini	wushendong	wushendong	same
+wushendong_monster_70.ini	wushendong	wushendong	same
+wushendong_monster_80.ini	wushendong	wushendong	same
+wushendong_monster_90.ini	wushendong	wushendong	same
+xiaoyao_1_monster_10.ini	xiaoyao_1	xiaoyao_1	same
+xiaoyao_1_monster_100.ini	xiaoyao_1	xiaoyao_1	same
+xiaoyao_1_monster_110.ini	xiaoyao_1	xiaoyao_1	same
+xiaoyao_1_monster_120.ini	xiaoyao_1	xiaoyao_1	same
+xiaoyao_1_monster_130.ini	xiaoyao_1	xiaoyao_1	same
+xiaoyao_1_monster_140.ini	xiaoyao_1	xiaoyao_1	same
+xiaoyao_1_monster_150.ini	xiaoyao_1	xiaoyao_1	same
+xiaoyao_1_monster_160.ini	xiaoyao_1	xiaoyao_1	same
+xiaoyao_1_monster_170.ini	xiaoyao_1	xiaoyao_1	same
+xiaoyao_1_monster_180.ini	xiaoyao_1	xiaoyao_1	same
+xiaoyao_1_monster_190.ini	xiaoyao_1	xiaoyao_1	same
+xiaoyao_1_monster_20.ini	xiaoyao_1	xiaoyao_1	same
+xiaoyao_1_monster_200.ini	xiaoyao_1	xiaoyao_1	same
+xiaoyao_1_monster_30.ini	xiaoyao_1	xiaoyao_1	same
+xiaoyao_1_monster_40.ini	xiaoyao_1	xiaoyao_1	same
+xiaoyao_1_monster_50.ini	xiaoyao_1	xiaoyao_1	same
+xiaoyao_1_monster_60.ini	xiaoyao_1	xiaoyao_1	same
+xiaoyao_1_monster_70.ini	xiaoyao_1	xiaoyao_1	same
+xiaoyao_1_monster_80.ini	xiaoyao_1	xiaoyao_1	same
+xiaoyao_1_monster_90.ini	xiaoyao_1	xiaoyao_1	same
+xingxiu_1_monster_10.ini	xingxiu_1	xingxiu_1	same
+xingxiu_1_monster_100.ini	xingxiu_1	xingxiu_1	same
+xingxiu_1_monster_110.ini	xingxiu_1	xingxiu_1	same
+xingxiu_1_monster_120.ini	xingxiu_1	xingxiu_1	same
+xingxiu_1_monster_130.ini	xingxiu_1	xingxiu_1	same
+xingxiu_1_monster_140.ini	xingxiu_1	xingxiu_1	same
+xingxiu_1_monster_150.ini	xingxiu_1	xingxiu_1	same
+xingxiu_1_monster_160.ini	xingxiu_1	xingxiu_1	same
+xingxiu_1_monster_170.ini	xingxiu_1	xingxiu_1	same
+xingxiu_1_monster_180.ini	xingxiu_1	xingxiu_1	same
+xingxiu_1_monster_190.ini	xingxiu_1	xingxiu_1	same
+xingxiu_1_monster_20.ini	xingxiu_1	xingxiu_1	same
+xingxiu_1_monster_200.ini	xingxiu_1	xingxiu_1	same
+xingxiu_1_monster_30.ini	xingxiu_1	xingxiu_1	same
+xingxiu_1_monster_40.ini	xingxiu_1	xingxiu_1	same
+xingxiu_1_monster_50.ini	xingxiu_1	xingxiu_1	same
+xingxiu_1_monster_60.ini	xingxiu_1	xingxiu_1	same
+xingxiu_1_monster_70.ini	xingxiu_1	xingxiu_1	same
+xingxiu_1_monster_80.ini	xingxiu_1	xingxiu_1	same
+xingxiu_1_monster_90.ini	xingxiu_1	xingxiu_1	same
+xingxiu_monster_10.ini	xingxiu		unpointed
+xingxiu_monster_100.ini	xingxiu		unpointed
+xingxiu_monster_110.ini	xingxiu		unpointed
+xingxiu_monster_120.ini	xingxiu		unpointed
+xingxiu_monster_130.ini	xingxiu		unpointed
+xingxiu_monster_140.ini	xingxiu		unpointed
+xingxiu_monster_150.ini	xingxiu		unpointed
+xingxiu_monster_160.ini	xingxiu		unpointed
+xingxiu_monster_170.ini	xingxiu		unpointed
+xingxiu_monster_180.ini	xingxiu		unpointed
+xingxiu_monster_190.ini	xingxiu		unpointed
+xingxiu_monster_20.ini	xingxiu		unpointed
+xingxiu_monster_200.ini	xingxiu		unpointed
+xingxiu_monster_30.ini	xingxiu		unpointed
+xingxiu_monster_40.ini	xingxiu		unpointed
+xingxiu_monster_50.ini	xingxiu		unpointed
+xingxiu_monster_60.ini	xingxiu		unpointed
+xingxiu_monster_70.ini	xingxiu		unpointed
+xingxiu_monster_80.ini	xingxiu		unpointed
+xingxiu_monster_90.ini	xingxiu		unpointed
+yamen_monster_10.ini	yamen	yamen	same
+yamen_monster_100.ini	yamen	yamen	same
+yamen_monster_110.ini	yamen	yamen	same
+yamen_monster_120.ini	yamen	yamen	same
+yamen_monster_130.ini	yamen	yamen	same
+yamen_monster_140.ini	yamen	yamen	same
+yamen_monster_150.ini	yamen	yamen	same
+yamen_monster_160.ini	yamen	yamen	same
+yamen_monster_170.ini	yamen	yamen	same
+yamen_monster_180.ini	yamen	yamen	same
+yamen_monster_190.ini	yamen	yamen	same
+yamen_monster_20.ini	yamen	yamen	same
+yamen_monster_200.ini	yamen	yamen	same
+yamen_monster_30.ini	yamen	yamen	same
+yamen_monster_40.ini	yamen	yamen	same
+yamen_monster_50.ini	yamen	yamen	same
+yamen_monster_60.ini	yamen	yamen	same
+yamen_monster_70.ini	yamen	yamen	same
+yamen_monster_80.ini	yamen	yamen	same
+yamen_monster_90.ini	yamen	yamen	same
+yewai_monster_10.ini	yewai	yewai	same
+yewai_monster_100.ini	yewai	yewai	same
+yewai_monster_110.ini	yewai	yewai	same
+yewai_monster_120.ini	yewai	yewai	same
+yewai_monster_130.ini	yewai	yewai	same
+yewai_monster_140.ini	yewai	yewai	same
+yewai_monster_150.ini	yewai	yewai	same
+yewai_monster_160.ini	yewai	yewai	same
+yewai_monster_170.ini	yewai	yewai	same
+yewai_monster_180.ini	yewai	yewai	same
+yewai_monster_190.ini	yewai	yewai	same
+yewai_monster_20.ini	yewai	yewai	same
+yewai_monster_200.ini	yewai	yewai	same
+yewai_monster_30.ini	yewai	yewai	same
+yewai_monster_40.ini	yewai	yewai	same
+yewai_monster_50.ini	yewai	yewai	same
+yewai_monster_60.ini	yewai	yewai	same
+yewai_monster_70.ini	yewai	yewai	same
+yewai_monster_80.ini	yewai	yewai	same
+yewai_monster_90.ini	yewai	yewai	same
+zeiying_monster_10.ini	zeiying	zeiying	same
+zeiying_monster_100.ini	zeiying	zeiying	same
+zeiying_monster_110.ini	zeiying	zeiying	same
+zeiying_monster_120.ini	zeiying	zeiying	same
+zeiying_monster_130.ini	zeiying	zeiying	same
+zeiying_monster_140.ini	zeiying	zeiying	same
+zeiying_monster_150.ini	zeiying	zeiying	same
+zeiying_monster_160.ini	zeiying	zeiying	same
+zeiying_monster_170.ini	zeiying	zeiying	same
+zeiying_monster_180.ini	zeiying	zeiying	same
+zeiying_monster_190.ini	zeiying	zeiying	same
+zeiying_monster_20.ini	zeiying	zeiying	same
+zeiying_monster_200.ini	zeiying	zeiying	same
+zeiying_monster_30.ini	zeiying	zeiying	same
+zeiying_monster_40.ini	zeiying	zeiying	same
+zeiying_monster_50.ini	zeiying	zeiying	same
+zeiying_monster_60.ini	zeiying	zeiying	same
+zeiying_monster_70.ini	zeiying	zeiying	same
+zeiying_monster_80.ini	zeiying	zeiying	same
+zeiying_monster_90.ini	zeiying	zeiying	same
+zhemeifeng_1_monster_10.ini	zhemeifeng_1		map_unknown
+zhemeifeng_1_monster_100.ini	zhemeifeng_1		map_unknown
+zhemeifeng_1_monster_110.ini	zhemeifeng_1		map_unknown
+zhemeifeng_1_monster_120.ini	zhemeifeng_1		map_unknown
+zhemeifeng_1_monster_130.ini	zhemeifeng_1		map_unknown
+zhemeifeng_1_monster_140.ini	zhemeifeng_1		map_unknown
+zhemeifeng_1_monster_150.ini	zhemeifeng_1		map_unknown
+zhemeifeng_1_monster_160.ini	zhemeifeng_1		map_unknown
+zhemeifeng_1_monster_170.ini	zhemeifeng_1		map_unknown
+zhemeifeng_1_monster_180.ini	zhemeifeng_1		map_unknown
+zhemeifeng_1_monster_190.ini	zhemeifeng_1		map_unknown
+zhemeifeng_1_monster_20.ini	zhemeifeng_1		map_unknown
+zhemeifeng_1_monster_200.ini	zhemeifeng_1		map_unknown
+zhemeifeng_1_monster_30.ini	zhemeifeng_1		map_unknown
+zhemeifeng_1_monster_40.ini	zhemeifeng_1		map_unknown
+zhemeifeng_1_monster_50.ini	zhemeifeng_1		map_unknown
+zhemeifeng_1_monster_60.ini	zhemeifeng_1		map_unknown
+zhemeifeng_1_monster_70.ini	zhemeifeng_1		map_unknown
+zhemeifeng_1_monster_80.ini	zhemeifeng_1		map_unknown
+zhemeifeng_1_monster_90.ini	zhemeifeng_1		map_unknown
+zhemeifeng_20monster_100.ini	zhemeifeng	zhemeifeng	same
+zhemeifeng_20monster_110.ini	zhemeifeng	zhemeifeng	same
+zhemeifeng_20monster_120.ini	zhemeifeng	zhemeifeng	same
+zhemeifeng_20monster_130.ini	zhemeifeng	zhemeifeng	same
+zhemeifeng_20monster_140.ini	zhemeifeng	zhemeifeng	same
+zhemeifeng_20monster_150.ini	zhemeifeng	zhemeifeng	same
+zhemeifeng_20monster_160.ini	zhemeifeng	zhemeifeng	same
+zhemeifeng_20monster_170.ini	zhemeifeng	zhemeifeng	same
+zhemeifeng_20monster_180.ini	zhemeifeng	zhemeifeng	same
+zhemeifeng_20monster_190.ini	zhemeifeng	zhemeifeng	same
+zhemeifeng_20monster_200.ini	zhemeifeng	zhemeifeng	same
+zhemeifeng_20monster_40.ini	zhemeifeng	zhemeifeng	same
+zhemeifeng_20monster_50.ini	zhemeifeng	zhemeifeng	same
+zhemeifeng_20monster_60.ini	zhemeifeng	zhemeifeng	same
+zhemeifeng_20monster_70.ini	zhemeifeng	zhemeifeng	same
+zhemeifeng_20monster_80.ini	zhemeifeng	zhemeifeng	same
+zhemeifeng_20monster_90.ini	zhemeifeng	zhemeifeng	same
+zhemeifeng_2_monster_10.ini	zhemeifeng_2		unpointed
+zhemeifeng_2_monster_100.ini	zhemeifeng_2		unpointed
+zhemeifeng_2_monster_110.ini	zhemeifeng_2		unpointed
+zhemeifeng_2_monster_120.ini	zhemeifeng_2		unpointed
+zhemeifeng_2_monster_130.ini	zhemeifeng_2		unpointed
+zhemeifeng_2_monster_140.ini	zhemeifeng_2		unpointed
+zhemeifeng_2_monster_150.ini	zhemeifeng_2		unpointed
+zhemeifeng_2_monster_160.ini	zhemeifeng_2		unpointed
+zhemeifeng_2_monster_170.ini	zhemeifeng_2		unpointed
+zhemeifeng_2_monster_180.ini	zhemeifeng_2		unpointed
+zhemeifeng_2_monster_190.ini	zhemeifeng_2		unpointed
+zhemeifeng_2_monster_20.ini	zhemeifeng_2		unpointed
+zhemeifeng_2_monster_200.ini	zhemeifeng_2		unpointed
+zhemeifeng_2_monster_30.ini	zhemeifeng_2		unpointed
+zhemeifeng_2_monster_40.ini	zhemeifeng_2		unpointed
+zhemeifeng_2_monster_50.ini	zhemeifeng_2		unpointed
+zhemeifeng_2_monster_60.ini	zhemeifeng_2		unpointed
+zhemeifeng_2_monster_70.ini	zhemeifeng_2		unpointed
+zhemeifeng_2_monster_80.ini	zhemeifeng_2		unpointed
+zhemeifeng_2_monster_90.ini	zhemeifeng_2		unpointed
+zhemeifeng_monster_10.ini	zhemeifeng	zhemeifeng	same
+zhemeifeng_monster_100.ini	zhemeifeng	zhemeifeng	same
+zhemeifeng_monster_110.ini	zhemeifeng	zhemeifeng	same
+zhemeifeng_monster_120.ini	zhemeifeng	zhemeifeng	same
+zhemeifeng_monster_130.ini	zhemeifeng	zhemeifeng	same
+zhemeifeng_monster_140.ini	zhemeifeng	zhemeifeng	same
+zhemeifeng_monster_150.ini	zhemeifeng	zhemeifeng	same
+zhemeifeng_monster_160.ini	zhemeifeng	zhemeifeng	same
+zhemeifeng_monster_170.ini	zhemeifeng	zhemeifeng	same
+zhemeifeng_monster_180.ini	zhemeifeng	zhemeifeng	same
+zhemeifeng_monster_190.ini	zhemeifeng	zhemeifeng	same
+zhemeifeng_monster_20.ini	zhemeifeng	zhemeifeng	same
+zhemeifeng_monster_200.ini	zhemeifeng	zhemeifeng	same
+zhemeifeng_monster_30.ini	zhemeifeng	zhemeifeng	same
+zhemeifeng_monster_40.ini	zhemeifeng	zhemeifeng	same
+zhemeifeng_monster_50.ini	zhemeifeng	zhemeifeng	same
+zhemeifeng_monster_60.ini	zhemeifeng	zhemeifeng	same
+zhemeifeng_monster_70.ini	zhemeifeng	zhemeifeng	same
+zhemeifeng_monster_80.ini	zhemeifeng	zhemeifeng	same
+zhemeifeng_monster_90.ini	zhemeifeng	zhemeifeng	same
+zhenlong_monster_10.ini	zhenlong	zhenlong	same
+zhenlong_monster_100.ini	zhenlong	zhenlong	same
+zhenlong_monster_110.ini	zhenlong	zhenlong	same
+zhenlong_monster_120.ini	zhenlong	zhenlong	same
+zhenlong_monster_130.ini	zhenlong	zhenlong	same
+zhenlong_monster_140.ini	zhenlong	zhenlong	same
+zhenlong_monster_150.ini	zhenlong	zhenlong	same
+zhenlong_monster_160.ini	zhenlong	zhenlong	same
+zhenlong_monster_170.ini	zhenlong	zhenlong	same
+zhenlong_monster_180.ini	zhenlong	zhenlong	same
+zhenlong_monster_190.ini	zhenlong	zhenlong	same
+zhenlong_monster_20.ini	zhenlong	zhenlong	same
+zhenlong_monster_200.ini	zhenlong	zhenlong	same
+zhenlong_monster_30.ini	zhenlong	zhenlong	same
+zhenlong_monster_40.ini	zhenlong	zhenlong	same
+zhenlong_monster_50.ini	zhenlong	zhenlong	same
+zhenlong_monster_60.ini	zhenlong	zhenlong	same
+zhenlong_monster_70.ini	zhenlong	zhenlong	same
+zhenlong_monster_80.ini	zhenlong	zhenlong	same
+zhenlong_monster_90.ini	zhenlong	zhenlong	same
+zhulin_monster_10.ini	zhulin	zhulin	same
+zhulin_monster_100.ini	zhulin	zhulin	same
+zhulin_monster_110.ini	zhulin	zhulin	same
+zhulin_monster_120.ini	zhulin	zhulin	same
+zhulin_monster_130.ini	zhulin	zhulin	same
+zhulin_monster_140.ini	zhulin	zhulin	same
+zhulin_monster_150.ini	zhulin	zhulin	same
+zhulin_monster_160.ini	zhulin	zhulin	same
+zhulin_monster_170.ini	zhulin	zhulin	same
+zhulin_monster_180.ini	zhulin	zhulin	same
+zhulin_monster_190.ini	zhulin	zhulin	same
+zhulin_monster_20.ini	zhulin	zhulin	same
+zhulin_monster_200.ini	zhulin	zhulin	same
+zhulin_monster_30.ini	zhulin	zhulin	same
+zhulin_monster_40.ini	zhulin	zhulin	same
+zhulin_monster_50.ini	zhulin	zhulin	same
+zhulin_monster_60.ini	zhulin	zhulin	same
+zhulin_monster_70.ini	zhulin	zhulin	same
+zhulin_monster_80.ini	zhulin	zhulin	same
+zhulin_monster_90.ini	zhulin	zhulin	same

@@ -1,0 +1,21 @@
+# schema 1
+# source: public_config/CampAndStand.txt
+# tool: TOOLS/server/import_legacy.py; sửa tay sẽ mất ở lượt xuất sau
+# types: int	int	int	int	int	int	int	int	int	int	int	int	int	int	int	int	int
+column_0	column_1	column_2	column_3	column_4	column_5	column_6	column_7	column_8	column_9	column_10	column_11	column_12	column_13	column_14	column_15	column_16
+0	0	0	0	0	0	0	0	0	0	1	1	0	0	0	0	0
+1	0	1	0	0	0	0	0	0	0	1	1	0	0	0	0	0
+2	0	0	0	1	0	0	0	0	0	0	0	0	0	0	0	0
+3	0	0	1	0	0	0	0	0	0	0	0	0	0	0	0	0
+4	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0
+5	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0
+6	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0
+7	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0
+8	0	0	0	0	0	0	0	0	0	0	1	0	0	0	0	0
+9	1	1	0	0	0	0	0	0	0	0	0	0	0	0	0	0
+10	1	1	0	0	0	0	0	0	1	0	0	0	0	0	0	0
+11	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0
+12	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0
+13	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0
+14	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0
+15	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0

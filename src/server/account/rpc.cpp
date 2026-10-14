@@ -168,9 +168,9 @@ struct In {
     std::array<std::byte, 4> head{};
     if (!read_exact(stream, poll, head, deadline)) return std::nullopt;
     const auto size = static_cast<std::uint32_t>(static_cast<unsigned>(head[0])) |
-                      (static_cast<std::uint32_t>(static_cast<unsigned>(head[1])) << 8U) |
-                      (static_cast<std::uint32_t>(static_cast<unsigned>(head[2])) << 16U) |
-                      (static_cast<std::uint32_t>(static_cast<unsigned>(head[3])) << 24U);
+        (static_cast<std::uint32_t>(static_cast<unsigned>(head[1])) << 8U) |
+        (static_cast<std::uint32_t>(static_cast<unsigned>(head[2])) << 16U) |
+        (static_cast<std::uint32_t>(static_cast<unsigned>(head[3])) << 24U);
     constexpr std::uint32_t kBoxMin = 24 + 16 + 2;
     constexpr std::uint32_t kBoxMax = kBoxMin + kPayloadMax;
     if (size < kBoxMin || size > kBoxMax) return std::nullopt;
@@ -357,7 +357,8 @@ Reply reply_of(const ListResult& result) {
     if (!result.ok) return error_reply(result.code);
     Out out;
     out.u16(static_cast<std::uint16_t>(result.characters.size()));
-    for (const protocol::CharacterSummary& summary : result.characters) write_summary(out, summary);
+    for (const protocol::CharacterSummary& summary : result.characters)
+        write_summary(out, summary);
     return ok_reply(std::move(out.bytes));
 }
 
@@ -472,7 +473,8 @@ std::optional<Reply> exchange(const net::Endpoint& endpoint, const Call& call, s
         poll.remove(kTag);
         return std::nullopt;
     }
-    const std::optional<std::vector<std::byte>> frame = seal_message(key, static_cast<std::uint16_t>(call.op), call.body);
+    const std::optional<std::vector<std::byte>> frame =
+        seal_message(key, static_cast<std::uint16_t>(call.op), call.body);
     if (!frame || !write_all(*opened, poll, *frame, deadline)) {
         poll.remove(kTag);
         return std::nullopt;
@@ -633,9 +635,9 @@ void begin_reply(Server& server, Conn& conn, std::uint16_t code, std::span<const
 
 [[nodiscard]] std::uint32_t frame_size(std::span<const std::byte> head) noexcept {
     return static_cast<std::uint32_t>(static_cast<unsigned>(head[0])) |
-           (static_cast<std::uint32_t>(static_cast<unsigned>(head[1])) << 8U) |
-           (static_cast<std::uint32_t>(static_cast<unsigned>(head[2])) << 16U) |
-           (static_cast<std::uint32_t>(static_cast<unsigned>(head[3])) << 24U);
+        (static_cast<std::uint32_t>(static_cast<unsigned>(head[1])) << 8U) |
+        (static_cast<std::uint32_t>(static_cast<unsigned>(head[2])) << 16U) |
+        (static_cast<std::uint32_t>(static_cast<unsigned>(head[3])) << 24U);
 }
 
 void take_frame(Server& server, Conn& conn) {

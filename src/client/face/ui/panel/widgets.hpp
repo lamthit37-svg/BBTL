@@ -101,6 +101,9 @@ public:
     [[nodiscard]] std::int32_t clicked_item(std::string_view window) const noexcept;
     // GetCurrentFirstItem: 0 khi chưa đặt.
     [[nodiscard]] std::int32_t first_item(std::string_view window) const noexcept;
+    // id của mục thứ index (từ 0, theo thứ tự AddItem) của danh sách window; nullopt khi chưa có danh
+    // sách hay index vượt số mục. Hub::list_item cho index của mục dưới chuột.
+    [[nodiscard]] std::optional<std::int32_t> item_id(std::string_view window, std::size_t index) const noexcept;
     // Giá trị đã đặt của một thuộc tính; nullopt khi chưa đặt.
     [[nodiscard]] std::optional<std::string_view> value(const Key& key) const noexcept;
     // id của action đang nằm trong ô của một nút; nullopt khi chưa đặt.

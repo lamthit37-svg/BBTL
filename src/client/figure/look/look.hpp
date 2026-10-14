@@ -108,4 +108,3 @@ using ReadFile = std::function<std::expected<std::string, std::string>(const std
 [[nodiscard]] std::expected<Tables, std::string> load_tables(std::string_view folder, const ReadFile& read);
 
 } // namespace game::look
-

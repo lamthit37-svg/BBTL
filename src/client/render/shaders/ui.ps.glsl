@@ -1,4 +1,4 @@
-// Cùng công thức với ui.ps.hlsl. Ảnh ở texture unit 0, mặt nạ ở unit 1 (mỗi ảnh dùng chung unit với
+// Cùng công thức với ui.ps.slang. Ảnh ở texture unit 0, mặt nạ ở unit 1 (mỗi ảnh dùng chung unit với
 // sampler của nó).
 layout(binding = 0) uniform sampler2D ui_map;
 layout(binding = 1) uniform sampler2D mask_map;

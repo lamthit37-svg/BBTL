@@ -98,7 +98,8 @@ struct Head {
 
 [[nodiscard]] bool is_bgra(const Head& head) noexcept {
     const bool rgb = (head.pixel_flags & kRgbFlag) != 0 && (head.pixel_flags & kFourccFlag) == 0;
-    const bool masks = head.bits == 32 && head.red == 0x00FF0000U && head.green == 0x0000FF00U && head.blue == 0x000000FFU;
+    const bool masks =
+        head.bits == 32 && head.red == 0x00FF0000U && head.green == 0x0000FF00U && head.blue == 0x000000FFU;
     return rgb && masks;
 }
 
@@ -118,7 +119,8 @@ struct Head {
     return std::vector<std::byte>(taken.begin(), taken.end());
 }
 
-[[nodiscard]] core::Result<Image> read_blocks(const Head& head, std::span<const std::byte> payload, gpu::Format format) {
+[[nodiscard]] core::Result<Image> read_blocks(const Head& head, std::span<const std::byte> payload,
+    gpu::Format format) {
     const std::uint32_t limit = gpu::full_mip_count(head.width, head.height);
     if (head.mips > limit) return corrupt("DDS nhiều mip hơn chuỗi đầy đủ");
     Image image;
@@ -137,7 +139,8 @@ struct Head {
     return image;
 }
 
-void write_bgra(std::vector<std::uint8_t>& rgba, std::size_t index, std::span<const std::byte> packed, bool keep_alpha) {
+void write_bgra(std::vector<std::uint8_t>& rgba, std::size_t index, std::span<const std::byte> packed,
+    bool keep_alpha) {
     const auto blue = static_cast<std::uint8_t>(packed[index]);
     const auto green = static_cast<std::uint8_t>(packed[index + 1]);
     const auto red = static_cast<std::uint8_t>(packed[index + 2]);

@@ -1,0 +1,16 @@
+# schema 1
+# source: server_config/ItemSegAffect.txt
+# tool: TOOLS/server/import_legacy.py; sửa tay sẽ mất ở lượt xuất sau
+# types: int	text	text	text	text
+index	original	name	type	note
+0	品质分布编号	column_0	int	?
+1	total	total	int	luật: M1
+2	段1几率	column_2	int	?
+3	段2几率	column_3	int	?
+4	段3几率	column_4	int	?
+5	段4几率	column_5	int	?
+6	段5几率	column_6	int	?
+7	段6几率	column_7	int	?
+8	段7几率	column_8	int	?
+9	段8几率	column_9	int	?
+10	段9几率	column_10	int	?

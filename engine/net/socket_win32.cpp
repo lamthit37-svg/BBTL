@@ -238,8 +238,7 @@ void Socket::close() noexcept {
 
 TcpStream::TcpStream(Socket socket) noexcept : socket_(std::move(socket)) {}
 
-TcpStream::TcpStream(TcpStream&& other) noexcept
-    : socket_(std::move(other.socket_)), connecting_(other.connecting_) {
+TcpStream::TcpStream(TcpStream&& other) noexcept : socket_(std::move(other.socket_)), connecting_(other.connecting_) {
     other.connecting_ = false;
 }
 

@@ -194,7 +194,8 @@ void copy_role(SelectRole& select, const Roster& roster, std::uint8_t index) {
 void open_select(SelectRole& select, const Roster& roster, std::uint8_t selected) {
     select = {};
     select.count = roster.count;
-    for (std::uint8_t index = 0; index < roster.count; ++index) copy_role(select, roster, index);
+    for (std::uint8_t index = 0; index < roster.count; ++index)
+        copy_role(select, roster, index);
     if (select.count == 0) return;
     const auto last = static_cast<std::uint8_t>(select.count - 1);
     select.selected = selected < select.count ? selected : last;

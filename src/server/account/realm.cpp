@@ -91,7 +91,8 @@ RosterReply Realm::login(std::string_view name, std::string_view ticket_hex) con
     return roster;
 }
 
-RosterReply Realm::create_character(std::span<const std::byte, kCapBytes> cap, const protocol::CreateCharacter& request) const {
+RosterReply Realm::create_character(std::span<const std::byte, kCapBytes> cap,
+    const protocol::CreateCharacter& request) const {
     const Call call = character_call(cap, request.name, request.gender, request.face, request.hair);
     const std::optional<Reply> reply = exchange(store_, call, kFast, key_);
     if (!reply) return {};

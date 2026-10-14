@@ -1,0 +1,521 @@
+# schema 1
+# source: server_config/DropBoxContent.txt
+# tool: TOOLS/server/import_legacy.py; sửa tay sẽ mất ở lượt xuất sau
+# types: int	text	text	text	text
+index	original	name	type	note
+0	ID(掉落包编号)	id	int	luật: M2
+1	BoxValue(掉落包价值)	box_value	int	luật: M2
+2	广播类型ID（Form DropNotify.txt）	column_2	int	?; mã InitDropBoxTable bắt đầu ở cột 2, 100 cặp; item_100_id nằm ngoài vòng
+3	是否强制绑定	column_3	int	?
+4	Item1ID	item_1_id	int	luật: M1; mã InitDropBoxTable bắt đầu ở cột 2, 100 cặp; item_100_id nằm ngoài vòng
+5	Level	level_1	int	luật: M1
+6	Item2ID	item_2_id	int	luật: M1
+7	Level	level_2	int	luật: M1
+8	Item3ID	item_3_id	int	luật: M1
+9	Level	level_3	int	luật: M1
+10	Item4ID	item_4_id	int	luật: M1
+11	Level	level_4	int	luật: M1
+12	Item5ID	item_5_id	int	luật: M1
+13	Level	level_5	int	luật: M1
+14	Item6ID	item_6_id	int	luật: M1
+15	Level	level_6	int	luật: M1
+16	Item7ID	item_7_id	int	luật: M1
+17	Level	level_7	int	luật: M1
+18	Item8ID	item_8_id	int	luật: M1
+19	Level	level_8	int	luật: M1
+20	Item9ID	item_9_id	int	luật: M1
+21	Level	level_9	int	luật: M1
+22	Item10ID	item_10_id	int	luật: M1
+23	Level	level_10	int	luật: M1
+24	Item11ID	item_11_id	int	luật: M1
+25	Level	level_11	int	luật: M1
+26	Item12ID	item_12_id	int	luật: M1
+27	Level	level_12	int	luật: M1
+28	Item13ID	item_13_id	int	luật: M1
+29	Level	level_13	int	luật: M1
+30	Item16ID	item_16_id_1	int	luật: M1
+31	Level	level_14	int	luật: M1
+32	Item15ID	item_15_id	int	luật: M1
+33	Level	level_15	int	luật: M1
+34	Item16ID	item_16_id_2	int	luật: M1
+35	Level	level_16	int	luật: M1
+36	Item17ID	item_17_id	int	luật: M1
+37	Level	level_17	int	luật: M1
+38	Item18ID	item_18_id	int	luật: M1
+39	Level	level_18	int	luật: M1
+40	Item19ID	item_19_id	int	luật: M1
+41	Level	level_19	int	luật: M1
+42	Item20ID	item_20_id	int	luật: M1
+43	Level	level_20	int	luật: M1
+44	Item21ID	item_21_id	int	luật: M1
+45	Level	level_21	int	luật: M1
+46	Item22ID	item_22_id	int	luật: M1
+47	Level	level_22	int	luật: M1
+48	Item23ID	item_23_id	int	luật: M1
+49	Level	level_23	int	luật: M1
+50	Item24ID	item_24_id	int	luật: M1
+51	Level	level_24	int	luật: M1
+52	Item25ID	item_25_id	int	luật: M1
+53	Level	level_25	int	luật: M1
+54	Item26ID	item_26_id	int	luật: M1
+55	Level	level_26	int	luật: M1
+56	Item27ID	item_27_id	int	luật: M1
+57	Level	level_27	int	luật: M1
+58	Item28ID	item_28_id	int	luật: M1
+59	Level	level_28	int	luật: M1
+60	Item29ID	item_29_id	int	luật: M1
+61	Level	level_29	int	luật: M1
+62	Item30ID	item_30_id	int	luật: M1
+63	Level	level_30	int	luật: M1
+64	Item31ID	item_31_id	int	luật: M1
+65	Level	level_31	int	luật: M1
+66	Item32ID	item_32_id	int	luật: M1
+67	Level	level_32	int	luật: M1
+68	Item33ID	item_33_id	int	luật: M1
+69	Level	level_33	int	luật: M1
+70	Item34ID	item_34_id	int	luật: M1
+71	Level	level_34	int	luật: M1
+72	Item35ID	item_35_id	int	luật: M1
+73	Level	level_35	int	luật: M1
+74	Item36ID	item_36_id	int	luật: M1
+75	Level	level_36	int	luật: M1
+76	Item37ID	item_37_id	int	luật: M1
+77	Level	level_37	int	luật: M1
+78	Item38ID	item_38_id	int	luật: M1
+79	Level	level_38	int	luật: M1
+80	Item39ID	item_39_id	int	luật: M1
+81	Level	level_39	int	luật: M1
+82	Item40ID	item_40_id	int	luật: M1
+83	Level	level_40	int	luật: M1
+84	Item41ID	item_41_id	int	luật: M1
+85	Level	level_41	int	luật: M1
+86	Item42ID	item_42_id	int	luật: M1
+87	Level	level_42	int	luật: M1
+88	Item43ID	item_43_id	int	luật: M1
+89	Level	level_43	int	luật: M1
+90	Item44ID	item_44_id	int	luật: M1
+91	Level	level_44	int	luật: M1
+92	Item45ID	item_45_id	int	luật: M1
+93	Level	level_45	int	luật: M1
+94	Item46ID	item_46_id	int	luật: M1
+95	Level	level_46	int	luật: M1
+96	Item47ID	item_47_id	int	luật: M1
+97	Level	level_47	int	luật: M1
+98	Item48ID	item_48_id	int	luật: M1
+99	Level	level_48	int	luật: M1
+100	Item49ID	item_49_id	int	luật: M1
+101	Level	level_49	int	luật: M1
+102	Item50ID	item_50_id	int	luật: M1
+103	Level	level_50	int	luật: M1
+104	Item51ID	item_51_id	int	luật: M1
+105	Level	level_51	int	luật: M1
+106	Item52ID	item_52_id	int	luật: M1
+107	Level	level_52	int	luật: M1
+108	Item53ID	item_53_id	int	luật: M1
+109	Level	level_53	int	luật: M1
+110	Item54ID	item_54_id	int	luật: M1
+111	Level	level_54	int	luật: M1
+112	Item55ID	item_55_id	int	luật: M1
+113	Level	level_55	int	luật: M1
+114	Item56ID	item_56_id	int	luật: M1
+115	Level	level_56	int	luật: M1
+116	Item57ID	item_57_id	int	luật: M1
+117	Level	level_57	int	luật: M1
+118	Item58ID	item_58_id	int	luật: M1
+119	Level	level_58	int	luật: M1
+120	Item59ID	item_59_id	int	luật: M1
+121	Level	level_59	int	luật: M1
+122	Item60ID	item_60_id	int	luật: M1
+123	Level	level_60	int	luật: M1
+124	Item61ID	item_61_id	int	luật: M1
+125	Level	level_61	int	luật: M1
+126	Item62ID	item_62_id	int	luật: M1
+127	Level	level_62	int	luật: M1
+128	Item63ID	item_63_id	int	luật: M1
+129	Level	level_63	int	luật: M1
+130	Item64ID	item_64_id	int	luật: M1
+131	Level	level_64	int	luật: M1
+132	Item65ID	item_65_id	int	luật: M1
+133	Level	level_65	int	luật: M1
+134	Item66ID	item_66_id	int	luật: M1
+135	Level	level_66	int	luật: M1
+136	Item67ID	item_67_id	int	luật: M1
+137	Level	level_67	int	luật: M1
+138	Item68ID	item_68_id	int	luật: M1
+139	Level	level_68	int	luật: M1
+140	Item69ID	item_69_id	int	luật: M1
+141	Level	level_69	int	luật: M1
+142	Item70ID	item_70_id	int	luật: M1
+143	Level	level_70	int	luật: M1
+144	Item71ID	item_71_id	int	luật: M1
+145	Level	level_71	int	luật: M1
+146	Item72ID	item_72_id	int	luật: M1
+147	Level	level_72	int	luật: M1
+148	Item73ID	item_73_id	int	luật: M1
+149	Level	level_73	int	luật: M1
+150	Item74ID	item_74_id	int	luật: M1
+151	Level	level_74	int	luật: M1
+152	Item75ID	item_75_id	int	luật: M1
+153	Level	level_75	int	luật: M1
+154	Item76ID	item_76_id	int	luật: M1
+155	Level	level_76	int	luật: M1
+156	Item77ID	item_77_id	int	luật: M1
+157	Level	level_77	int	luật: M1
+158	Item78ID	item_78_id	int	luật: M1
+159	Level	level_78	int	luật: M1
+160	Item79ID	item_79_id	int	luật: M1
+161	Level	level_79	int	luật: M1
+162	Item80ID	item_80_id	int	luật: M1
+163	Level	level_80	int	luật: M1
+164	Item81ID	item_81_id	int	luật: M1
+165	Level	level_81	int	luật: M1
+166	Item82ID	item_82_id	int	luật: M1
+167	Level	level_82	int	luật: M1
+168	Item83ID	item_83_id	int	luật: M1
+169	Level	level_83	int	luật: M1
+170	Item84ID	item_84_id	int	luật: M1
+171	Level	level_84	int	luật: M1
+172	Item85ID	item_85_id	int	luật: M1
+173	Level	level_85	int	luật: M1
+174	Item86ID	item_86_id	int	luật: M1
+175	Level	level_86	int	luật: M1
+176	Item87ID	item_87_id	int	luật: M1
+177	Level	level_87	int	luật: M1
+178	Item88ID	item_88_id	int	luật: M1
+179	Level	level_88	int	luật: M1
+180	Item89ID	item_89_id	int	luật: M1
+181	Level	level_89	int	luật: M1
+182	Item90ID	item_90_id	int	luật: M1
+183	Level	level_90	int	luật: M1
+184	Item91ID	item_91_id	int	luật: M1
+185	Level	level_91	int	luật: M1
+186	Item92ID	item_92_id	int	luật: M1
+187	Level	level_92	int	luật: M1
+188	Item93ID	item_93_id	int	luật: M1
+189	Level	level_93	int	luật: M1
+190	Item94ID	item_94_id	int	luật: M1
+191	Level	level_94	int	luật: M1
+192	Item95ID	item_95_id	int	luật: M1
+193	Level	level_95	int	luật: M1
+194	Item96ID	item_96_id	int	luật: M1
+195	Level	level_96	int	luật: M1
+196	Item97ID	item_97_id	int	luật: M1
+197	Level	level_97	int	luật: M1
+198	Item98ID	item_98_id	int	luật: M1
+199	Level	level_98	int	luật: M1
+200	Item99ID	item_99_id	int	luật: M1; mã InitDropBoxTable bắt đầu ở cột 2, 100 cặp; item_100_id nằm ngoài vòng
+201	Level	level_99	int	luật: M1
+202	Item100ID	item_100_id	int	luật: M1; mã InitDropBoxTable bắt đầu ở cột 2, 100 cặp; item_100_id nằm ngoài vòng
+203	Level	level_100	int	luật: M1
+204	101	column_204	int	?
+205	Level	level_101	int	luật: M1
+206	102	column_206	int	?
+207	Level	level_102	int	luật: M1
+208	103	column_208	int	?
+209	Level	level_103	int	luật: M1
+210	104	column_210	int	?
+211	Level	level_104	int	luật: M1
+212	105	column_212	int	?
+213	Level	level_105	int	luật: M1
+214	106	column_214	int	?
+215	Level	level_106	int	luật: M1
+216	107	column_216	int	?
+217	Level	level_107	int	luật: M1
+218	108	column_218	int	?
+219	Level	level_108	int	luật: M1
+220	109	column_220	int	?
+221	Level	level_109	int	luật: M1
+222	110	column_222	int	?
+223	Level	level_110	int	luật: M1
+224	111	column_224	int	?
+225	Level	level_111	int	luật: M1
+226	112	column_226	int	?
+227	Level	level_112	int	luật: M1
+228	113	column_228	int	?
+229	Level	level_113	int	luật: M1
+230	114	column_230	int	?
+231	Level	level_114	int	luật: M1
+232	115	column_232	int	?
+233	Level	level_115	int	luật: M1
+234	116	column_234	int	?
+235	Level	level_116	int	luật: M1
+236	117	column_236	int	?
+237	Level	level_117	int	luật: M1
+238	118	column_238	int	?
+239	Level	level_118	int	luật: M1
+240	119	column_240	int	?
+241	Level	level_119	int	luật: M1
+242	120	column_242	int	?
+243	Level	level_120	int	luật: M1
+244	121	column_244	int	?
+245	Level	level_121	int	luật: M1
+246	122	column_246	int	?
+247	Level	level_122	int	luật: M1
+248	123	column_248	int	?
+249	Level	level_123	int	luật: M1
+250	124	column_250	int	?
+251	Level	level_124	int	luật: M1
+252	125	column_252	int	?
+253	Level	level_125	int	luật: M1
+254	126	column_254	int	?
+255	Level	level_126	int	luật: M1
+256	127	column_256	int	?
+257	Level	level_127	int	luật: M1
+258	128	column_258	int	?
+259	Level	level_128	int	luật: M1
+260	129	column_260	int	?
+261	Level	level_129	int	luật: M1
+262	130	column_262	int	?
+263	Level	level_130	int	luật: M1
+264	131	column_264	int	?
+265	Level	level_131	int	luật: M1
+266	132	column_266	int	?
+267	Level	level_132	int	luật: M1
+268	133	column_268	int	?
+269	Level	level_133	int	luật: M1
+270	134	column_270	int	?
+271	Level	level_134	int	luật: M1
+272	135	column_272	int	?
+273	Level	level_135	int	luật: M1
+274	136	column_274	int	?
+275	Level	level_136	int	luật: M1
+276	137	column_276	int	?
+277	Level	level_137	int	luật: M1
+278	138	column_278	int	?
+279	Level	level_138	int	luật: M1
+280	139	column_280	int	?
+281	Level	level_139	int	luật: M1
+282	140	column_282	int	?
+283	Level	level_140	int	luật: M1
+284	141	column_284	int	?
+285	Level	level_141	int	luật: M1
+286	142	column_286	int	?
+287	Level	level_142	int	luật: M1
+288	143	column_288	int	?
+289	Level	level_143	int	luật: M1
+290	144	column_290	int	?
+291	Level	level_144	int	luật: M1
+292	145	column_292	int	?
+293	Level	level_145	int	luật: M1
+294	146	column_294	int	?
+295	Level	level_146	int	luật: M1
+296	147	column_296	int	?
+297	Level	level_147	int	luật: M1
+298	148	column_298	int	?
+299	Level	level_148	int	luật: M1
+300	149	column_300	int	?
+301	Level	level_149	int	luật: M1
+302	150	column_302	int	?
+303	Level	level_150	int	luật: M1
+304	151	column_304	int	?
+305	Level	level_151	int	luật: M1
+306	152	column_306	int	?
+307	Level	level_152	int	luật: M1
+308	153	column_308	int	?
+309	Level	level_153	int	luật: M1
+310	154	column_310	int	?
+311	Level	level_154	int	luật: M1
+312	155	column_312	int	?
+313	Level	level_155	int	luật: M1
+314	156	column_314	int	?
+315	Level	level_156	int	luật: M1
+316	157	column_316	int	?
+317	Level	level_157	int	luật: M1
+318	158	column_318	int	?
+319	Level	level_158	int	luật: M1
+320	159	column_320	int	?
+321	Level	level_159	int	luật: M1
+322	160	column_322	int	?
+323	Level	level_160	int	luật: M1
+324	161	column_324	int	?
+325	Level	level_161	int	luật: M1
+326	162	column_326	int	?
+327	Level	level_162	int	luật: M1
+328	163	column_328	int	?
+329	Level	level_163	int	luật: M1
+330	164	column_330	int	?
+331	Level	level_164	int	luật: M1
+332	165	column_332	int	?
+333	Level	level_165	int	luật: M1
+334	166	column_334	int	?
+335	Level	level_166	int	luật: M1
+336	167	column_336	int	?
+337	Level	level_167	int	luật: M1
+338	168	column_338	int	?
+339	Level	level_168	int	luật: M1
+340	169	column_340	int	?
+341	Level	level_169	int	luật: M1
+342	170	column_342	int	?
+343	Level	level_170	int	luật: M1
+344	171	column_344	int	?
+345	Level	level_171	int	luật: M1
+346	172	column_346	int	?
+347	Level	level_172	int	luật: M1
+348	173	column_348	int	?
+349	Level	level_173	int	luật: M1
+350	174	column_350	int	?
+351	Level	level_174	int	luật: M1
+352	175	column_352	int	?
+353	Level	level_175	int	luật: M1
+354	176	column_354	int	?
+355	Level	level_176	int	luật: M1
+356	177	column_356	int	?
+357	Level	level_177	int	luật: M1
+358	178	column_358	int	?
+359	Level	level_178	int	luật: M1
+360	179	column_360	int	?
+361	Level	level_179	int	luật: M1
+362	180	column_362	int	?
+363	Level	level_180	int	luật: M1
+364	181	column_364	int	?
+365	Level	level_181	int	luật: M1
+366	182	column_366	int	?
+367	Level	level_182	int	luật: M1
+368	183	column_368	int	?
+369	Level	level_183	int	luật: M1
+370	184	column_370	int	?
+371	Level	level_184	int	luật: M1
+372	185	column_372	int	?
+373	Level	level_185	int	luật: M1
+374	186	column_374	int	?
+375	Level	level_186	int	luật: M1
+376	187	column_376	int	?
+377	Level	level_187	int	luật: M1
+378	188	column_378	int	?
+379	Level	level_188	int	luật: M1
+380	189	column_380	int	?
+381	Level	level_189	int	luật: M1
+382	190	column_382	int	?
+383	Level	level_190	int	luật: M1
+384	191	column_384	int	?
+385	Level	level_191	int	luật: M1
+386	192	column_386	int	?
+387	Level	level_192	int	luật: M1
+388	193	column_388	int	?
+389	Level	level_193	int	luật: M1
+390	194	column_390	int	?
+391	Level	level_194	int	luật: M1
+392	195	column_392	int	?
+393	Level	level_195	int	luật: M1
+394	196	column_394	int	?
+395	Level	level_196	int	luật: M1
+396	197	column_396	int	?
+397	Level	level_197	int	luật: M1
+398	198	column_398	int	?
+399	Level	level_198	int	luật: M1
+400	199	column_400	int	?
+401	Level	level_199	int	luật: M1
+402	200	column_402	int	?
+403	Level	level_200	int	luật: M1
+404	201	column_404	int	?
+405	Level	level_201	int	luật: M1
+406	202	column_406	int	?
+407	Level	level_202	int	luật: M1
+408	203	column_408	int	?
+409	Level	level_203	int	luật: M1
+410	204	column_410	int	?
+411	Level	level_204	int	luật: M1
+412	205	column_412	int	?
+413	Level	level_205	int	luật: M1
+414	206	column_414	int	?
+415	Level	level_206	int	luật: M1
+416	207	column_416	int	?
+417	Level	level_207	int	luật: M1
+418	208	column_418	int	?
+419	Level	level_208	int	luật: M1
+420	209	column_420	int	?
+421	Level	level_209	int	luật: M1
+422	210	column_422	int	?
+423	Level	level_210	int	luật: M1
+424	211	column_424	int	?
+425	Level	level_211	int	luật: M1
+426	212	column_426	int	?
+427	Level	level_212	int	luật: M1
+428	213	column_428	int	?
+429	Level	level_213	int	luật: M1
+430	214	column_430	int	?
+431	Level	level_214	int	luật: M1
+432	215	column_432	int	?
+433	Level	level_215	int	luật: M1
+434	216	column_434	int	?
+435	Level	level_216	int	luật: M1
+436	217	column_436	int	?
+437	Level	level_217	int	luật: M1
+438	218	column_438	int	?
+439	Level	level_218	int	luật: M1
+440	219	column_440	int	?
+441	Level	level_219	int	luật: M1
+442	220	column_442	int	?
+443	Level	level_220	int	luật: M1
+444	221	column_444	int	?
+445	Level	level_221	int	luật: M1
+446	222	column_446	int	?
+447	Level	level_222	int	luật: M1
+448	223	column_448	int	?
+449	Level	level_223	int	luật: M1
+450	224	column_450	int	?
+451	Level	level_224	int	luật: M1
+452	225	column_452	int	?
+453	Level	level_225	int	luật: M1
+454	226	column_454	int	?
+455	Level	level_226	int	luật: M1
+456	227	column_456	int	?
+457	Level	level_227	int	luật: M1
+458	228	column_458	int	?
+459	Level	level_228	int	luật: M1
+460	229	column_460	int	?
+461	Level	level_229	int	luật: M1
+462	230	column_462	int	?
+463	Level	level_230	int	luật: M1
+464	231	column_464	int	?
+465	Level	level_231	int	luật: M1
+466	232	column_466	int	?
+467	Level	level_232	int	luật: M1
+468	233	column_468	int	?
+469	Level	level_233	int	luật: M1
+470	234	column_470	int	?
+471	Level	level_234	int	luật: M1
+472	235	column_472	int	?
+473	Level	level_235	int	luật: M1
+474	236	column_474	int	?
+475	Level	level_236	int	luật: M1
+476	237	column_476	int	?
+477	Level	level_237	int	luật: M1
+478	238	column_478	int	?
+479	Level	level_238	int	luật: M1
+480	239	column_480	int	?
+481	Level	level_239	int	luật: M1
+482	240	column_482	int	?
+483	Level	level_240	int	luật: M1
+484	241	column_484	int	?
+485	Level	level_241	int	luật: M1
+486	242	column_486	int	?
+487	Level	level_242	int	luật: M1
+488	243	column_488	int	?
+489	Level	level_243	int	luật: M1
+490	244	column_490	int	?
+491	Level	level_244	int	luật: M1
+492	245	column_492	int	?
+493	Level	level_245	int	luật: M1
+494	246	column_494	int	?
+495	Level	level_246	int	luật: M1
+496	247	column_496	int	?
+497	Level	level_247	int	luật: M1
+498	248	column_498	int	?
+499	Level	level_248	int	luật: M1
+500	249	column_500	int	?
+501	Level	level_249	int	luật: M1
+502	250	column_502	int	?
+503	Level	level_250	int	luật: M1
+504	251	column_504	int	?
+505	Level	level_251	int	luật: M1
+506	252	column_506	int	?
+507	Level	level_252	int	luật: M1
+508	253	column_508	int	?
+509	Level	level_253	int	luật: M1
+510	254	column_510	int	?
+511	Level	level_254	int	luật: M1
+512	255	column_512	int	?
+513	Level	level_255	int	luật: M1
+514	256	column_514	int	?
+515	Level	level_256	int	luật: M1

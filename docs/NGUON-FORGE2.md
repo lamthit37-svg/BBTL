@@ -93,7 +93,7 @@ Kiểu lỗi `core::Result`, `core::Status`, `core::Error` giữ nguyên như Fo
 | `SRC/gpu/d3d12/commands.hpp` | `src/gpu/d3d12/commands.hpp` | bỏ `{}` thừa của `error_`; alias để chữ ký còn một dòng |
 | `SRC/gpu/d3d12/commands.cpp` | `src/gpu/d3d12/commands.cpp` | thân vòng lồng tách hàm; `return` hàm `void` tách lời gọi |
 | `SRC/gpu/d3d12/programs.cpp` | `src/gpu/d3d12/programs.cpp` | thân vòng lồng tách hàm; chữ ký dài gom tham số; pragma C4324 chỉ với MSVC |
-| `SRC/gpu/d3d12/resources.cpp` | `src/gpu/d3d12/resources.cpp` | `if` lồng tách hàm; hai case UAV đa mẫu chỉ dịch khi không phải MinGW vì header MinGW không có tên đó, vẫn trả false |
+| `SRC/gpu/d3d12/resources.cpp` | `src/gpu/d3d12/resources.cpp` | `if` lồng tách hàm; hai case UAV đa mẫu chỉ dịch khi không phải MinGW vì header MinGW không có tên đó, vẫn trả false; `place` chỉ lấy địa chỉ GPU của buffer (texture không có, lớp kiểm tra báo lỗi — đo 2026-10-13 ở `d3d12_depth_view_keeps_device`) |
 | `SRC/gpu/d3d12/swapchain.hpp` | `src/gpu/d3d12/swapchain.hpp` | không |
 | `SRC/gpu/d3d12/swapchain.cpp` | `src/gpu/d3d12/swapchain.cpp` | vòng `adopt_images` đưa điều kiện dừng lên điều kiện lặp; `const HANDLE` thành `auto* const` |
 | `SRC/gpu/check.hpp` | `src/gpu/check.hpp` | không |
@@ -202,9 +202,9 @@ measure <tệp>`:
 - Sổ chép có 151 tệp; 46 tệp trong đó chưa có dòng nào ở bảng trên: `capture` 6 (`deflate`,
   `frame`, `png`), `core` 7 (`bits.hpp`, `clock.*`, `system.*`, `uarch.*`), `jobs` 4 (`jobs.*`,
   `queue.*`), `render` 10 (`camera.*`, `forward.*`, `target.*`, `shaders/shaders.list`,
-  `shaders/model.hlsli`, `model.vs.hlsl`, `model.ps.hlsl`), `resource` 6 (`image.*`, `model.*`,
+  `shaders/model.inc.slang`, `model.vs.slang`, `model.ps.slang`), `resource` 6 (`image.*`, `model.*`,
   `upload.*`), `shader` 13 (`builder.*`, `builtin.hpp`, `compiler.*`, `dxil.*`, `library.*`,
-  `manifest.*`, `spirv.*`). Phần "khác gốc" của 46 tệp này chưa ai ghi.
+  `manifest.*`, `spirv.*`; từ 2026-10-13 `compiler.*` dịch bằng Slang, `dxil.*` bỏ phần thư viện, `spirv.*` bóc mảng bọc của Slang). Phần "khác gốc" của 46 tệp này chưa ai ghi.
 - Các dòng ghi "không" ở cột khác gốc mà bản đích đã dài hơn hẳn bản gốc, tức đã có phần thêm của
   dự án chưa ghi (số dòng gốc sang số dòng đích): `core/text.hpp` 49 sang 91, `core/text.cpp` 142
   sang 256 (nhánh POSIX, các hàm `utf8_*`), `core/function.hpp` 138 sang 253 (lớp bọc ở cả hai
@@ -213,7 +213,7 @@ measure <tệp>`:
   `render/screen.cpp` 169 sang 258 (MSAA, `set_clear`), `gpu/vulkan/api.hpp` 56 sang 169 (bảng
   `CoreLate` cho Android).
 - Thứ không đến từ Forge2 dù nằm trong các module "hạ tầng": toàn bộ `gpu/d3d11` và `gpu/gles`
-  (Forge2 chỉ có `d3d12` và `vulkan`), `shader/dxbc.*`, `render/{ui,canvas,shade}.*`, mọi tệp
+  (Forge2 chỉ có `d3d12` và `vulkan`), `shader/detail/{slang,reconcile}.*` (thay `dxbc.*` và `d3dcompiler`), `render/{ui,canvas,shade}.*`, mọi tệp
   `.glsl` và các gói shader `ui.*`, `fx.*`, `resource/{classic,rig}.*`,
   `core/{check,number,thread_slot,win32,ground_point}.hpp`, `core/{system,thread}_posix.cpp`.
 - Câu "Định dạng theo `.clang-format` của dự án" ở mục quy ước là luật của cổng cũ: `check.py`

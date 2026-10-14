@@ -1,0 +1,10 @@
+# Login server list shown by the server-select panel (ui/panel/servers.hpp). The original client reads
+# ..\Patch\loginserver.txt downloaded by the launcher; this build reads this plain TSV, one server per row;
+# adjacent rows with the same area name merge into one area. The part of the area name before '-' picks the
+# region in the left column (电信, 网通, 双线, 争霸赛, 轻享, 特色服, 至尊帮派邀请赛, 天下会武, 巅峰赛, WG独立大区;
+# names without '-' belong to 电信), so these data cells stay in the original Chinese. status: 0 full,
+# 1 busy, 2 good, 3 smooth, 4 maintenance, 10 hidden. recommend above 0 puts the server in the recommended
+# list (smaller first). prize is the reward tier, 0 to 18.
+# The project's dev test server currently has a single server.
+area	tip	area_recommend	server	status	recommend	is_new	prize	has_arena
+电信-开发区	开发用测试服务器	1	开发一服	3	1	0	0	0

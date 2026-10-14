@@ -59,6 +59,73 @@ void append_utf8(std::string& output, std::uint32_t point) {
     output.push_back(continuation(point, 0));
 }
 
+// Mã hoá của văn bản theo BOM đầu tệp; không có BOM là UTF-8. 29 layout giao diện của client 2026
+// lưu UTF-16 LE có BOM (EquipRepair, Anniversary_*...); CEGUI gốc đọc được, nên bộ đọc phải đọc được.
+enum class Encoding : std::uint8_t { kUtf8, kUtf16Little, kUtf16Big };
+
+struct Detected {
+    Encoding encoding = Encoding::kUtf8;
+    // Số byte BOM đứng đầu tệp.
+    std::size_t bom = 0;
+};
+
+[[nodiscard]] Detected detect_encoding(std::string_view source) noexcept {
+    constexpr std::string_view kUtf8Bom = "\xEF\xBB\xBF";
+    constexpr std::string_view kLittleBom = "\xFF\xFE";
+    constexpr std::string_view kBigBom = "\xFE\xFF";
+    if (source.starts_with(kUtf8Bom)) return {.encoding = Encoding::kUtf8, .bom = kUtf8Bom.size()};
+    if (source.starts_with(kLittleBom)) return {.encoding = Encoding::kUtf16Little, .bom = kLittleBom.size()};
+    if (source.starts_with(kBigBom)) return {.encoding = Encoding::kUtf16Big, .bom = kBigBom.size()};
+    return {};
+}
+
+// Đơn vị UTF-16 ở offset (cần offset + 2 <= bytes.size()); is_big chọn thứ tự byte.
+[[nodiscard]] std::uint32_t unit_at(std::string_view bytes, std::size_t offset, bool is_big) noexcept {
+    const auto first = static_cast<std::uint32_t>(static_cast<unsigned char>(bytes[offset]));
+    const auto second = static_cast<std::uint32_t>(static_cast<unsigned char>(bytes[offset + 1]));
+    return is_big ? (first << 8U) | second : (second << 8U) | first;
+}
+
+[[nodiscard]] bool is_high_surrogate(std::uint32_t unit) noexcept {
+    return unit >= 0xD800U && unit <= 0xDBFFU;
+}
+
+[[nodiscard]] bool is_low_surrogate(std::uint32_t unit) noexcept {
+    return unit >= 0xDC00U && unit <= 0xDFFFU;
+}
+
+// Một điểm mã UTF-16 và số byte nó dùng (2, hoặc 4 với cặp thay thế); used bằng 0 khi dữ liệu hỏng.
+struct Utf16Step {
+    std::uint32_t point = 0;
+    std::size_t used = 0;
+};
+
+[[nodiscard]] Utf16Step utf16_step(std::string_view bytes, std::size_t offset, bool is_big) noexcept {
+    const std::uint32_t head = unit_at(bytes, offset, is_big);
+    if (is_low_surrogate(head)) return {};
+    if (!is_high_surrogate(head)) return {.point = head, .used = 2};
+    if (offset + 4 > bytes.size()) return {};
+    const std::uint32_t low = unit_at(bytes, offset + 2, is_big);
+    if (!is_low_surrogate(low)) return {};
+    return {.point = 0x10000U + ((head - 0xD800U) << 10U) + (low - 0xDC00U), .used = 4};
+}
+
+// UTF-16 (không kể BOM) sang UTF-8. Số byte lẻ, nửa cặp thay thế lạc chỗ hay bị cụt là dữ liệu hỏng:
+// nullopt. Đầu ra không quá 1,5 lần đầu vào.
+[[nodiscard]] std::optional<std::string> utf8_of_utf16(std::string_view bytes, bool is_big) {
+    if (bytes.size() % 2 != 0) return std::nullopt;
+    std::string output;
+    output.reserve(bytes.size() + (bytes.size() / 2));
+    std::size_t offset = 0;
+    while (offset < bytes.size()) {
+        const Utf16Step step = utf16_step(bytes, offset, is_big);
+        if (step.used == 0) return std::nullopt;
+        append_utf8(output, step.point);
+        offset += step.used;
+    }
+    return output;
+}
+
 // Thực thể số "#N" hoặc "#xH" (đã bỏ & và ;). Trả false khi không phải số hợp lệ.
 [[nodiscard]] bool append_numeric_entity(std::string& output, std::string_view body) {
     const bool is_hex = body.starts_with("#x") || body.starts_with("#X");
@@ -274,7 +341,18 @@ ParseResult Parser::run() {
 } // namespace
 
 ParseResult parse(std::string_view source) {
-    Parser parser(source);
+    const Detected detected = detect_encoding(source);
+    const std::string_view body = source.substr(detected.bom);
+    if (detected.encoding == Encoding::kUtf8) {
+        Parser parser(body);
+        ParseResult result = parser.run();
+        if (!result) result.error().offset += detected.bom;
+        return result;
+    }
+    const bool is_big = detected.encoding == Encoding::kUtf16Big;
+    const std::optional<std::string> utf8 = utf8_of_utf16(body, is_big);
+    if (!utf8) return std::unexpected(Fault{.error = XmlError::kBadSyntax, .offset = 0});
+    Parser parser(*utf8);
     return parser.run();
 }
 

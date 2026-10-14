@@ -220,15 +220,19 @@ struct BoxLine {
     const std::uint32_t sides = column_bit(at.pixel_size, kBoxLeft) | column_bit(at.pixel_size, kBoxRight);
     if (at.line != kBoxTop && at.line != kBoxBottom) return sides;
     std::uint32_t bar = 0;
-    for (int column = kBoxLeft; column <= kBoxRight; ++column) bar |= column_bit(at.pixel_size, column);
+    for (int column = kBoxLeft; column <= kBoxRight; ++column)
+        bar |= column_bit(at.pixel_size, column);
     return bar;
 }
-static_assert(box_row({.pixel_size = 14, .line = kBoxTop}) == 0x0FE0U && box_row({.pixel_size = 14, .line = 5}) == 0x0820U);
-static_assert(box_row({.pixel_size = 12, .line = kBoxBottom}) == 0x03F8U && box_row({.pixel_size = 12, .line = 3}) == 0x0208U);
+static_assert(box_row({.pixel_size = 14, .line = kBoxTop}) == 0x0FE0U &&
+    box_row({.pixel_size = 14, .line = 5}) == 0x0820U);
+static_assert(box_row({.pixel_size = 12, .line = kBoxBottom}) == 0x03F8U &&
+    box_row({.pixel_size = 12, .line = 3}) == 0x0208U);
 
 void paint_missing(resource::Image& atlas, int pixel_size, GlyphCell cell) {
     for (int line = kBoxTop; line <= kBoxBottom; ++line) {
-        const RowPlace place{.pixel_size = pixel_size, .column = cell.column, .pixel_y = (cell.row * pixel_size) + line};
+        const RowPlace place{
+            .pixel_size = pixel_size, .column = cell.column, .pixel_y = (cell.row * pixel_size) + line};
         paint_row(atlas, place, box_row({.pixel_size = pixel_size, .line = line}));
     }
 }
@@ -375,27 +379,43 @@ struct PaceLine {
         PaceLine{.label = "Mục tiêu", .value = target, .unit = "Hz", .colour = kInk},
         PaceLine{.label = "Kết luận", .value = verdict, .unit = "", .colour = verdict_ink},
         PaceLine{.label = "FPS", .value = timing(pace.fps), .unit = "", .colour = kInk},
-        PaceLine{.label = "Khung", .value = timing(pace.average_ms), .unit = "ms",
+        PaceLine{.label = "Khung",
+            .value = timing(pace.average_ms),
+            .unit = "ms",
             .colour = colour_of(pace.average_ms, budget)},
-        PaceLine{.label = "Trung vị", .value = timing(pace.median_ms), .unit = "ms",
+        PaceLine{.label = "Trung vị",
+            .value = timing(pace.median_ms),
+            .unit = "ms",
             .colour = colour_of(pace.median_ms, budget)},
         PaceLine{.label = "p95", .value = timing(pace.p95_ms), .unit = "ms", .colour = colour_of(pace.p95_ms, budget)},
-        PaceLine{.label = "Chậm nhất", .value = timing(pace.worst_ms), .unit = "ms",
+        PaceLine{.label = "Chậm nhất",
+            .value = timing(pace.worst_ms),
+            .unit = "ms",
             .colour = colour_of(pace.worst_ms, budget)},
-        PaceLine{.label = "Vượt ngân sách", .value = timing(pace.over_percent), .unit = "%",
+        PaceLine{.label = "Vượt ngân sách",
+            .value = timing(pace.over_percent),
+            .unit = "%",
             .colour = pace.over_percent > kMaxOverPercent ? kBadInk : kInk},
-        PaceLine{.label = "Ngân sách", .value = budget > 0.0F ? one_decimal(budget) : std::string("-"), .unit = "ms",
+        PaceLine{.label = "Ngân sách",
+            .value = budget > 0.0F ? one_decimal(budget) : std::string("-"),
+            .unit = "ms",
             .colour = kInk},
-        PaceLine{.label = "Xin ảnh", .value = one_decimal(pace.acquire_ms), .unit = "ms", .colour = kInk,
+        PaceLine{.label = "Xin ảnh",
+            .value = one_decimal(pace.acquire_ms),
+            .unit = "ms",
+            .colour = kInk,
             .opens_group = true},
         PaceLine{.label = "Ghi lệnh", .value = one_decimal(pace.draw_ms), .unit = "ms", .colour = kInk},
         PaceLine{.label = "Nộp", .value = one_decimal(pace.submit_ms), .unit = "ms", .colour = kInk},
         PaceLine{.label = "Dựng UI", .value = one_decimal(pace.prepare_ms), .unit = "ms", .colour = kInk},
-        PaceLine{.label = "Lệnh vẽ", .value = std::to_string(pace.draws), .unit = "", .colour = kInk,
-            .opens_group = true},
+        PaceLine{
+            .label = "Lệnh vẽ", .value = std::to_string(pace.draws), .unit = "", .colour = kInk, .opens_group = true},
         PaceLine{.label = "Quad UI", .value = std::to_string(pace.ui_quads), .unit = "", .colour = kInk},
-        PaceLine{.label = "Màn hình", .value = extent_text(pace.output_width, pace.output_height), .unit = "",
-            .colour = kInk, .opens_group = true},
+        PaceLine{.label = "Màn hình",
+            .value = extent_text(pace.output_width, pace.output_height),
+            .unit = "",
+            .colour = kInk,
+            .opens_group = true},
     };
 }
 
@@ -429,8 +449,8 @@ struct Frame {
     for (const PaceLine& line : lines) {
         height += step + (line.opens_group ? kGroupGap : 0.0F);
     }
-    return {.width = (kPad * 2.0F) + columns.label + kColumnGap + columns.value + tail,
-        .height = (kPad * 2.0F) + height};
+    return {
+        .width = (kPad * 2.0F) + columns.label + kColumnGap + columns.value + tail, .height = (kPad * 2.0F) + height};
 }
 
 void append_lines(const BitmapFont& font, std::span<const PaceLine> lines, const Columns& columns, float origin_x,
@@ -599,8 +619,8 @@ void write_pace(const PacePlace& place, const PaceNumbers& pace, PaceOverlay& ov
     const std::array<PaceLine, 16> lines = lines_of(pace);
     const Columns columns = columns_of(font, lines);
     const Frame frame = frame_of(font, lines, columns);
-    const float left = place.screen_width > 0.0F ? std::max(0.0F, place.screen_width - frame.width - place.origin_x)
-                                                  : place.origin_x;
+    const float left =
+        place.screen_width > 0.0F ? std::max(0.0F, place.screen_width - frame.width - place.origin_x) : place.origin_x;
     const std::size_t panel = overlay.vertices.size();
     const QuadBox board{.left = left,
         .top = place.origin_y,

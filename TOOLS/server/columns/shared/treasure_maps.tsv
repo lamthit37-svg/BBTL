@@ -1,0 +1,20 @@
+# schema 1
+# source: client_2026/StoreMapItem.txt
+# tool: TOOLS/server/export_tables.py; sửa tay sẽ mất ở lượt xuất sau
+# types: int	text	text	text	text
+index	original	name	type	note
+0	index	index	int	luật: M1; khớp 100.0% (1/1 id)
+1	class	class	int	luật: M1; khớp 100.0% (1/1 id)
+2	quality	quality	int	luật: M1; khớp 100.0% (1/1 id)
+3	type	type	int	luật: M1; khớp 100.0% (1/1 id)
+4	Mapindex	mapindex	int	luật: M1; khớp 100.0% (1/1 id)
+5	资源	resource_id	text	luật: nguyên văn; khớp 100.0% (1/1 id)
+6	name$1$	name	text	luật: M1; khớp 100.0% (1/1 id)
+7	说明文字$1$	description	text	luật: nguyên văn; khớp 100.0% (1/1 id)
+8	等级	level	int	luật: nguyên văn; khớp 100.0% (1/1 id)
+9	适应规则	fit_rules	int	luật: nguyên văn; khớp 100.0% (1/1 id)
+10	X坐标	position_x	float	luật: nguyên văn; khớp 100.0% (1/1 id)
+11	Z坐标	position_z	float	luật: nguyên văn; khớp 100.0% (1/1 id)
+12	SceneID	scene_id	int	luật: M1; khớp 100.0% (1/1 id)
+13	生长点类型	grow_point_kind	int	luật: nguyên văn; khớp 100.0% (1/1 id)
+14	脚本编号	script_id	int	luật: nguyên văn; khớp 100.0% (1/1 id)

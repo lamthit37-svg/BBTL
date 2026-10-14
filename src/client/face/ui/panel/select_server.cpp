@@ -69,7 +69,8 @@ constexpr auto kRecommendImages =
 
 // Số thứ tự (từ 1) khi window là prefix cộng một số và không còn gì nữa; số ngoài [1, count] thì
 // không có.
-[[nodiscard]] std::optional<std::size_t> ordinal_of(std::string_view window, std::string_view prefix, std::size_t count) noexcept {
+[[nodiscard]] std::optional<std::size_t> ordinal_of(std::string_view window, std::string_view prefix,
+    std::size_t count) noexcept {
     if (!window.starts_with(prefix)) return std::nullopt;
     const std::string_view digits = window.substr(prefix.size());
     if (digits.empty() || digits.size() > 3) return std::nullopt;
@@ -94,28 +95,61 @@ struct BigInfo {
 
 constexpr std::array<BigInfo, kBigAreaSlots> kBigInfo = {{
     {},
-    {.name = "#{DLYHQF_12121301}", .open_tip = "#{DLYHQF_12121307}", .close_tip = "#{DLYHQF_12121307}",
-        .must_show = true, .shows_list = false},
-    {.name = "#{DLYHQF_12121303}", .open_tip = "#{DLYHQF_12121309}", .close_tip = "#{DLYHQF_12121309}",
-        .must_show = false, .shows_list = false},
-    {.name = "#{DLYHQF_12121304}", .open_tip = "#{DLYHQF_12121310}", .close_tip = "#{DLYHQF_12121311}",
-        .must_show = true, .shows_list = true},
-    {.name = "#{DLYHQF_12121305}", .open_tip = "#{DLYHQF_12121312}", .close_tip = "#{DLYHQF_12121313}",
-        .must_show = true, .shows_list = true},
-    {.name = "#{DLYHQF_12121306}", .open_tip = "#{DLYHQF_12121314}", .close_tip = "#{DLYHQF_12121315}",
-        .must_show = true, .shows_list = true},
-    {.name = "#{DLYHQF_12121362}", .open_tip = "#{DLYHQF_12121363}", .close_tip = "#{DLYHQF_12121364}",
-        .must_show = false, .shows_list = true},
-    {.name = "#{DLYHQF_12121365}", .open_tip = "#{DLYHQF_12121366}", .close_tip = "#{DLYHQF_12121367}",
-        .must_show = false, .shows_list = false},
-    {.name = "#{BHKF_150323_198}", .open_tip = "#{BHKF_150323_199}", .close_tip = "#{BHKF_150323_199}",
-        .must_show = false, .shows_list = false},
-    {.name = "#{WCJS_180521_71}", .open_tip = "#{WCJS_180521_72}", .close_tip = "#{WCJS_180521_72}",
-        .must_show = false, .shows_list = false},
-    {.name = "#{SJDF_190603_194}", .open_tip = "#{SJDF_190603_195}", .close_tip = "#{SJDF_190603_196}",
-        .must_show = false, .shows_list = false},
-    {.name = "#{WEJR_251216_03}", .open_tip = "#{WEJR_251216_04}", .close_tip = "#{WEJR_251216_05}",
-        .must_show = false, .shows_list = false},
+    {.name = "#{DLYHQF_12121301}",
+        .open_tip = "#{DLYHQF_12121307}",
+        .close_tip = "#{DLYHQF_12121307}",
+        .must_show = true,
+        .shows_list = false},
+    {.name = "#{DLYHQF_12121303}",
+        .open_tip = "#{DLYHQF_12121309}",
+        .close_tip = "#{DLYHQF_12121309}",
+        .must_show = false,
+        .shows_list = false},
+    {.name = "#{DLYHQF_12121304}",
+        .open_tip = "#{DLYHQF_12121310}",
+        .close_tip = "#{DLYHQF_12121311}",
+        .must_show = true,
+        .shows_list = true},
+    {.name = "#{DLYHQF_12121305}",
+        .open_tip = "#{DLYHQF_12121312}",
+        .close_tip = "#{DLYHQF_12121313}",
+        .must_show = true,
+        .shows_list = true},
+    {.name = "#{DLYHQF_12121306}",
+        .open_tip = "#{DLYHQF_12121314}",
+        .close_tip = "#{DLYHQF_12121315}",
+        .must_show = true,
+        .shows_list = true},
+    {.name = "#{DLYHQF_12121362}",
+        .open_tip = "#{DLYHQF_12121363}",
+        .close_tip = "#{DLYHQF_12121364}",
+        .must_show = false,
+        .shows_list = true},
+    {.name = "#{DLYHQF_12121365}",
+        .open_tip = "#{DLYHQF_12121366}",
+        .close_tip = "#{DLYHQF_12121367}",
+        .must_show = false,
+        .shows_list = false},
+    {.name = "#{BHKF_150323_198}",
+        .open_tip = "#{BHKF_150323_199}",
+        .close_tip = "#{BHKF_150323_199}",
+        .must_show = false,
+        .shows_list = false},
+    {.name = "#{WCJS_180521_71}",
+        .open_tip = "#{WCJS_180521_72}",
+        .close_tip = "#{WCJS_180521_72}",
+        .must_show = false,
+        .shows_list = false},
+    {.name = "#{SJDF_190603_194}",
+        .open_tip = "#{SJDF_190603_195}",
+        .close_tip = "#{SJDF_190603_196}",
+        .must_show = false,
+        .shows_list = false},
+    {.name = "#{WEJR_251216_03}",
+        .open_tip = "#{WEJR_251216_04}",
+        .close_tip = "#{WEJR_251216_05}",
+        .must_show = false,
+        .shows_list = false},
 }};
 
 // Khi vùng đầu của đại khu tranh bá tên "tổng quyết đấu" thì nhãn và chú thích đổi (g_ZBS_STRING).
@@ -208,7 +242,8 @@ struct SubFind {
 // Dựng các nhóm vùng và các nút của cột trái (SelectServer_Data_GetAreaInfoAndRecommendServerInfo
 // và SelectServer_AddAllAreaButton).
 void build_rows(SelectServer& panel) {
-    for (std::vector<std::size_t>& group : panel.groups) group.clear();
+    for (std::vector<std::size_t>& group : panel.groups)
+        group.clear();
     for (std::size_t area = 0; area < panel.directory.areas.size(); ++area) {
         const std::optional<BigArea> big = big_area_of(panel.directory.areas.at(area).name);
         if (big) panel.groups.at(slot(*big)).push_back(area);
@@ -505,7 +540,8 @@ void press_server_button(SelectServer& panel, const ServerPress& press) {
 }
 
 // Chữ ở thanh thông tin khi chuột đứng trên một cửa sổ: MouseEnter của từng nút trong script.
-[[nodiscard]] std::string hint_of(const SelectServer& panel, std::string_view window, std::optional<std::size_t> element) {
+[[nodiscard]] std::string hint_of(const SelectServer& panel, std::string_view window,
+    std::optional<std::size_t> element) {
     if (window == kServerAreaList && element && *element < panel.rows.size()) {
         const AreaRow& row = panel.rows.at(*element);
         if (row.sub) return area_of_sub(panel, row.big, *row.sub).tip;
@@ -522,7 +558,8 @@ void press_server_button(SelectServer& panel, const ServerPress& press) {
         return server == nullptr ? std::string() : server_hint(*server);
     }
     const std::optional<std::size_t> recommend = ordinal_of(window, kRecommendPrefix, kRecommendCap);
-    const std::optional<std::size_t> number = recommend ? recommend : ordinal_of(window, kServerPrefix, kServersPerArea);
+    const std::optional<std::size_t> number =
+        recommend ? recommend : ordinal_of(window, kServerPrefix, kServersPerArea);
     if (!number) return {};
     if (recommend.has_value() != (panel.page == ServerPage::kRecommend)) return {};
     const std::optional<ServerRef> ref = button_ref(panel, *number - 1);
@@ -593,7 +630,8 @@ void paint_server_button(Deck& deck, const SelectServer& panel, const ServerButt
     }
     set_text(deck, button.window, coloured(*server, button.name));
     deck.set(gui::Override{.window = button.window, .name = "Disabled", .value = flag(!is_open(*server))});
-    deck.set(gui::Override{.window = button.window, .name = "Selected", .value = flag(panel.picked_mark == button.ref)});
+    deck.set(gui::Override{
+        .window = button.window, .name = "Selected", .value = flag(panel.picked_mark == button.ref)});
     if (server->has_arena) deck.reveal(button.image);
 }
 
@@ -601,7 +639,8 @@ void paint_server_button(Deck& deck, const SelectServer& panel, const ServerButt
 void paint_recommend(Deck& deck, const SelectServer& panel) {
     std::string name;
     for (std::size_t index = 0; index < kRecommendCap; ++index) {
-        ServerButton button{.window = kRecommendButtons.at(index), .image = kRecommendImages.at(index), .ref = {}, .name = {}};
+        ServerButton button{
+            .window = kRecommendButtons.at(index), .image = kRecommendImages.at(index), .ref = {}, .name = {}};
         const bool is_used = panel.page == ServerPage::kRecommend && index < panel.recommend.size();
         if (is_used) {
             button.ref = panel.recommend.at(index);
@@ -619,7 +658,8 @@ void paint_recommend(Deck& deck, const SelectServer& panel) {
 void paint_servers(Deck& deck, const SelectServer& panel) {
     const std::size_t count = panel.page == ServerPage::kRecommend ? 0 : button_count(panel);
     for (std::size_t index = 0; index < kServersPerArea; ++index) {
-        ServerButton button{.window = kServerButtons.at(index), .image = kServerImages.at(index), .ref = {}, .name = {}};
+        ServerButton button{
+            .window = kServerButtons.at(index), .image = kServerImages.at(index), .ref = {}, .name = {}};
         if (index < count) button.ref = button_ref(panel, index);
         const LoginServer* server = button.ref ? server_of(panel, *button.ref) : nullptr;
         if (server != nullptr) button.name = server->name;
@@ -633,7 +673,8 @@ void paint_last(Deck& deck, const SelectServer& panel) {
     set_text(deck, kLastButton, server == nullptr ? kNoLast : std::string_view(server->name));
     const bool is_usable = server != nullptr && server->status != kStatusStop;
     deck.set(gui::Override{.window = kLastButton, .name = "Disabled", .value = flag(!is_usable)});
-    deck.set(gui::Override{.window = kLastButton, .name = "Selected", .value = flag(is_usable && panel.is_last_checked)});
+    deck.set(gui::Override{
+        .window = kLastButton, .name = "Selected", .value = flag(is_usable && panel.is_last_checked)});
     if (server != nullptr && server->has_arena) deck.reveal(kLastImage);
 }
 
@@ -644,7 +685,8 @@ void paint_paging(Deck& deck, const SelectServer& panel) {
     hide_unless(deck, kDownPage, is_shown);
     if (!is_shown) return;
     deck.set(gui::Override{.window = kUpPage, .name = "Disabled", .value = flag(panel.search_page <= 1)});
-    deck.set(gui::Override{.window = kDownPage, .name = "Disabled", .value = flag(panel.search_page >= search_pages(panel))});
+    deck.set(gui::Override{
+        .window = kDownPage, .name = "Disabled", .value = flag(panel.search_page >= search_pages(panel))});
 }
 
 } // namespace

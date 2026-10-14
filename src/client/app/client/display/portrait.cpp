@@ -81,7 +81,8 @@ render::Camera body_camera(float height) noexcept {
     const look::BodySight sight = look::body_sight(height);
     const math::Point3 target(sight.target[0], sight.target[1], sight.target[2]);
     const math::Point3 eye(sight.eye[0], sight.eye[1], sight.eye[2]);
-    const render::Lens lens{.fov_degrees = look::kBodyFovDegrees, .near_plane = look::kBodyNear, .far_plane = kFarPlane};
+    const render::Lens lens{
+        .fov_degrees = look::kBodyFovDegrees, .near_plane = look::kBodyNear, .far_plane = kFarPlane};
     return render::look_camera(eye, target, lens, render::ViewSize{.width = 1, .height = 1});
 }
 

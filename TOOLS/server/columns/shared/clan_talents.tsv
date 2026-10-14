@@ -1,0 +1,42 @@
+# schema 1
+# source: client_2026/ZongmenTalent.txt
+# tool: TOOLS/server/export_tables.py; sửa tay sẽ mất ở lượt xuất sau
+# types: int	text	text	text	text
+index	original	name	type	note
+0		column_0	int	không có bản đối chiếu
+1		column_1	text	không có bản đối chiếu
+2		column_2	int	không có bản đối chiếu
+3		column_3	int	không có bản đối chiếu
+4		column_4	int	không có bản đối chiếu
+5		column_5	text	không có bản đối chiếu
+6		column_6	text	không có bản đối chiếu
+7		column_7	text	không có bản đối chiếu
+8		column_8	text	không có bản đối chiếu
+9		column_9	text	không có bản đối chiếu
+10		column_10	text	không có bản đối chiếu
+11		column_11	text	không có bản đối chiếu
+12		column_12	int	không có bản đối chiếu
+13		column_13	int	không có bản đối chiếu
+14		column_14	int	không có bản đối chiếu
+15		column_15	int	không có bản đối chiếu
+16		column_16	int	không có bản đối chiếu
+17		column_17	int	không có bản đối chiếu
+18		column_18	int	không có bản đối chiếu
+19		column_19	int	không có bản đối chiếu
+20		column_20	int	không có bản đối chiếu
+21		column_21	int	không có bản đối chiếu
+22		column_22	int	không có bản đối chiếu
+23		column_23	int	không có bản đối chiếu
+24		column_24	int	không có bản đối chiếu
+25		column_25	int	không có bản đối chiếu
+26		column_26	int	không có bản đối chiếu
+27		column_27	int	không có bản đối chiếu
+28		column_28	int	không có bản đối chiếu
+29		column_29	int	không có bản đối chiếu
+30		column_30	int	không có bản đối chiếu
+31		column_31	int	không có bản đối chiếu
+32		column_32	int	không có bản đối chiếu
+33		column_33	int	không có bản đối chiếu
+34		column_34	int	không có bản đối chiếu
+35		column_35	int	không có bản đối chiếu
+36		column_36	text	không có bản đối chiếu

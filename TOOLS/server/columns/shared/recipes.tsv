@@ -1,0 +1,43 @@
+# schema 1
+# source: client_2026/ItemCompound.txt
+# tool: TOOLS/server/export_tables.py; sửa tay sẽ mất ở lượt xuất sau
+# types: int	text	text	text	text
+index	original	name	type	note
+0	index	index	int	neo: cột gốc 0, khớp 100.0% (1084/1084 id); luật: M1
+1	名称$1$	name	text	neo: cột gốc 1, khớp 99.6% (1080/1084 id); luật: nguyên văn
+2	ResultID	result_id	int	neo: cột gốc 2, khớp 99.9% (1083/1084 id); luật: M1
+3	ResultNum	result_num	int	neo: cột gốc 3, khớp 99.9% (1083/1084 id); luật: M1
+4	对应技能ID	skill_id	int	neo: cột gốc 4, khớp 99.8% (1082/1084 id); luật: nguyên văn
+5	技能等级需求（此列最低填1）	required_skill_level	int	neo: cột gốc 5, khớp 99.8% (1082/1084 id); luật: nguyên văn
+6	Stuff1ID	stuff_1_id	int	neo: cột gốc 6, khớp 99.9% (1083/1084 id); luật: M1
+7	Stuff1num	stuff_1_num	int	neo: cột gốc 7, khớp 99.9% (1083/1084 id); luật: M1
+8	Stuff2ID	stuff_2_id	int	neo: cột gốc 8, khớp 100.0% (1084/1084 id); luật: M1
+9	Stuff2num	stuff_2_num	int	neo: cột gốc 9, khớp 100.0% (1084/1084 id); luật: M1
+10	Stuff3ID	stuff_3_id	int	neo: cột gốc 10, khớp 100.0% (1084/1084 id); luật: M1
+11	Stuff3num	stuff_3_num	int	neo: cột gốc 11, khớp 100.0% (1084/1084 id); luật: M1
+12	Stuff4ID	stuff_4_id	int	neo: cột gốc 12, khớp 100.0% (1084/1084 id); luật: M1
+13	Stuff4num	stuff_4_num	int	nội suy: cột gốc 13, khớp 100.0% (1084/1084 id); luật: M1
+14	Stuff5ID	stuff_5_id	int	nội suy: cột gốc 14, khớp 100.0% (1084/1084 id); luật: M1
+15	Stuff5num	stuff_5_num	int	nội suy: cột gốc 15, khớp 100.0% (1084/1084 id); luật: M1
+16	活力需求	vigor_cost	int	neo: cột gốc 16, khớp 99.9% (1083/1084 id); luật: nguyên văn
+17		column_17	int	mới ở 2026
+18		column_18	int	mới ở 2026
+19		column_19	int	mới ở 2026
+20	功能分组	function_group	int	neo: cột gốc 25, khớp 99.9% (1083/1084 id); luật: nguyên văn
+21	操作时间	action_time	int	neo: cột gốc 26, khớp 99.8% (1082/1084 id); luật: nguyên văn
+22	脚本ID	script_id	int	neo: cột gốc 27, khớp 100.0% (1084/1084 id); luật: nguyên văn
+23	失败时产品编号	failure_product_id	int	neo: cột gốc 28, khớp 100.0% (1084/1084 id); luật: nguyên văn
+24	随机配方的详细描述$1$	random_recipe_description	text	neo: cột gốc 29, khớp 99.6% (1080/1084 id); luật: nguyên văn
+25	特殊材料的物品子类（From CommonItem.txt），若填写则必须	material_subclass	int	neo: cột gốc 31, khớp 100.0% (1084/1084 id); luật: nguyên văn
+26		column_26	int	mới ở 2026
+27		column_27	int	mới ở 2026
+28		column_28	int	mới ở 2026
+29		column_29	int	mới ở 2026
+30		column_30	int	mới ở 2026
+31		column_31	int	mới ở 2026
+32		column_32	int	mới ở 2026
+33		column_33	int	mới ở 2026
+34		column_34	int	mới ở 2026
+35		column_35	int	mới ở 2026
+36	增加熟练度	proficiency_gain	int	chéo: cột gốc 24, khớp 99.9% (1083/1084 id); luật: nguyên văn
+37		column_37	int	mới ở 2026

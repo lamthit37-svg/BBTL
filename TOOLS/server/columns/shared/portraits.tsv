@@ -1,0 +1,16 @@
+# schema 1
+# source: client_2026/CharHead.txt
+# tool: TOOLS/server/export_tables.py; sửa tay sẽ mất ở lượt xuất sau
+# types: int	text	text	text	text
+index	original	name	type	note
+0	ID	id	int	neo: cột gốc 0, khớp 100.0% (44/44 id); luật: M1
+1	RaceID	race_id	int	nội suy: cột gốc 1, khớp 100.0% (44/44 id); luật: M1
+2	ShowName$1$	show_name	text	neo: cột gốc 2, khớp 100.0% (44/44 id); luật: M1
+3	消耗物品ID	cost_item_id	int	nội suy: cột gốc 3, khớp 100.0% (44/44 id); luật: nguyên văn
+4	消耗物品数量	cost_item_count	int	nội suy: cột gốc 4, khớp 100.0% (44/44 id); luật: nguyên văn
+5	是否在初始时可选(0表示游戏中，初始时都不可选，1表示只有初始时可选，2表示只有在游戏中可选，3表示游戏中，初始时都可选)	selection_phase	int	nội suy: cột gốc 5, khớp 100.0% (44/44 id); luật: nguyên văn
+6	头像的图标	portrait_icon	text	neo: cột gốc 6, khớp 100.0% (44/44 id); luật: nguyên văn
+7	消耗金钱	money_cost	int	nội suy: cột gốc 7, khớp 100.0% (44/44 id); luật: nguyên văn
+8	GroupID	group_id	int	neo: cột gốc 8, khớp 100.0% (44/44 id); luật: M1
+9	TitleInfo$1$	title_info	text	neo: cột gốc 9, khớp 100.0% (44/44 id); luật: M1
+10		column_10	int	mới ở 2026

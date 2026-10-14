@@ -1,0 +1,22 @@
+# schema 1
+# source: public_config/CampAndStand.txt
+# tool: TOOLS/server/import_legacy.py; sửa tay sẽ mất ở lượt xuất sau
+# types: int	text	text	text	text
+index	original	name	type	note
+0	Camp\Camp	column_0	int	?
+1	0	column_1	int	?
+2	1	column_2	int	?
+3	2	column_3	int	?
+4	3	column_4	int	?
+5	4	column_5	int	?
+6	5	column_6	int	?
+7	6	column_7	int	?
+8	7	column_8	int	?
+9	8	column_9	int	?
+10	9	column_10	int	?
+11	10	column_11	int	?
+12	11	column_12	int	?
+13	12	column_13	int	?
+14	13	column_14	int	?
+15	14	column_15	int	?
+16	15	column_16	int	?

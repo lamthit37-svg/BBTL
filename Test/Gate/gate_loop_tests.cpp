@@ -8,6 +8,7 @@
 #include "protocol/messages.hpp"
 #include "protocol/wire.hpp"
 #include "secure/secure.hpp"
+#include "supervise/supervise.hpp"
 
 #include "test.hpp"
 
@@ -15,7 +16,9 @@
 #include <chrono>
 #include <cstddef>
 #include <cstdint>
+#include <expected>
 #include <filesystem>
+#include <format>
 #include <fstream>
 #include <ios>
 #include <iterator>
@@ -91,8 +94,9 @@ struct GateRun {
     return got == sink.size();
 }
 
-[[nodiscard]] bool connect_to(net::TcpStream& stream) {
-    const net::NetResult<net::Endpoint> target = net::parse_endpoint("127.0.0.1:17921", net::ZeroPort::kRefuse);
+[[nodiscard]] bool connect_to(net::TcpStream& stream, std::uint16_t port) {
+    const std::string text = std::format("127.0.0.1:{}", port);
+    const net::NetResult<net::Endpoint> target = net::parse_endpoint(text, net::ZeroPort::kRefuse);
     if (!target) return false;
     net::NetResult<net::TcpStream> opened = net::TcpStream::begin_connect(*target);
     if (!opened) return false;
@@ -172,8 +176,8 @@ struct GateRun {
     out << "identity_key_file = \"identity.key\"\n";
     out << "trusted_proxies = []\n";
     out << "[listen]\n";
-    out << "game = \"127.0.0.1:17921\"\n";
-    out << "auth = \"127.0.0.1:17922\"\n";
+    out << "game = \"127.0.0.1:0\"\n";
+    out << "auth = \"127.0.0.1:0\"\n";
     out << "[limits]\n";
     out << "max_connections = 8\n";
     out << "per_ip_connections = 8\n";
@@ -217,7 +221,9 @@ struct Prepared {
     return prepared;
 }
 
-[[nodiscard]] bool launch(const Path& dir, Child& child) {
+// Chạy gate với cấu hình ở dir và đọc dòng ready. Cấu hình khai cổng 0 nên cổng thật do hệ điều hành cấp
+// và nằm trong dòng ready; hai cổng phải có thật và khác nhau. Không đọc được thì trả nullopt.
+[[nodiscard]] std::optional<supervise::ReadyPorts> launch(const Path& dir, Child& child) {
     const Path exe = io::executable_directory() / "thienlong_gate.exe";
     const std::string program = io::utf8_of(exe);
     const std::string config = io::utf8_of(dir);
@@ -227,10 +233,14 @@ struct Prepared {
     request.arguments = arguments;
     request.mode = process::Mode::kService;
     core::Result<Child> spawned = process::spawn(request);
-    if (!spawned) return false;
+    if (!spawned) return std::nullopt;
     child = std::move(*spawned);
-    core::Result<process::Line> line = child.read_line(std::chrono::seconds{10});
-    return line.has_value() && line->kind == LineKind::kText && line->text == "ready";
+    const core::Result<process::Line> line = child.read_line(std::chrono::seconds{10});
+    if (!line || line->kind != LineKind::kText) return std::nullopt;
+    const std::expected<supervise::ReadyPorts, supervise::ReadyFault> ports = supervise::parse_ready(line->text);
+    const bool is_real = ports.has_value() && ports->game != 0 && ports->auth != 0 && ports->game != ports->auth;
+    if (!is_real) return std::nullopt;
+    return *ports;
 }
 
 void loopback_session(Context& context) {
@@ -241,27 +251,56 @@ void loopback_session(Context& context) {
     context.expect(prepared.identity.has_value(), "ghi cấu hình và khoá tạm");
     if (!prepared.identity) return;
     Child child;
-    const bool started = launch(prepared.dir, child);
-    context.expect(started, "gate in ready");
-    if (!started) return;
+    const std::optional<supervise::ReadyPorts> ports = launch(prepared.dir, child);
+    context.expect(ports.has_value(), "gate in ready kèm hai cổng thật");
+    if (!ports) return;
+    const std::uint16_t game_port = ports->game;
     net::TcpStream stream;
     secure::RecordPipe pipe{secure::SessionKeys{}};
-    const bool opened = connect_to(stream) && handshake(stream, *prepared.identity, pipe);
+    const bool opened = connect_to(stream, game_port) && handshake(stream, *prepared.identity, pipe);
     context.expect(opened, "bắt tay qua loopback");
     if (opened) context.expect(session(stream, pipe), "Hello, Ping và Logout");
     net::TcpStream junk;
-    context.expect(connect_to(junk), "khách rác vẫn nối được");
+    context.expect(connect_to(junk, game_port), "khách rác vẫn nối được");
     const std::array<std::byte, 24> noise{};
     context.expect(send_all(junk, noise), "gửi rác");
     std::array<std::byte, 8> sink{};
     context.expect(!read_exact(junk, sink), "rác bị ngắt");
     net::TcpStream again;
     secure::RecordPipe second{secure::SessionKeys{}};
-    const bool survived = connect_to(again) && handshake(again, *prepared.identity, second);
+    const bool survived = connect_to(again, game_port) && handshake(again, *prepared.identity, second);
     context.expect(survived, "gate còn sống sau khách rác");
     child.close_input();
     const ExitStatus status = child.wait_for(std::chrono::seconds{10});
     context.expect(status.kind == WaitKind::kExited && status.code == 0, "đóng ống thì gate thoát 0");
+    std::error_code error;
+    std::filesystem::remove_all(prepared.dir, error);
+}
+
+// Hồi quy: hai gate chạy cùng một cấu hình khai 127.0.0.1:0 phải cùng lên, mỗi gate với cổng thật
+// riêng. Bản gate đọc cổng 0 như lỗi thoát mã 2, và cổng cố định thì lượt ctest thứ hai tranh cổng.
+void two_gates_share_one_config(Context& context) {
+    const net::NetResult<net::Network> network = net::Network::start();
+    context.expect(network.has_value(), "khởi động mạng");
+    if (!network) return;
+    Prepared prepared = prepare();
+    context.expect(prepared.identity.has_value(), "ghi cấu hình và khoá tạm");
+    if (!prepared.identity) return;
+    Child first;
+    Child second;
+    const std::optional<supervise::ReadyPorts> one = launch(prepared.dir, first);
+    const std::optional<supervise::ReadyPorts> two = launch(prepared.dir, second);
+    context.expect(one.has_value() && two.has_value(), "cả hai gate in ready kèm hai cổng thật");
+    if (one && two) {
+        const bool is_apart = one->game != two->game && one->game != two->auth && one->auth != two->game && one->auth != two->auth;
+        context.expect(is_apart, "bốn cổng khác nhau");
+    }
+    first.close_input();
+    second.close_input();
+    const ExitStatus first_status = first.wait_for(std::chrono::seconds{10});
+    const ExitStatus second_status = second.wait_for(std::chrono::seconds{10});
+    context.expect(first_status.kind == WaitKind::kExited && first_status.code == 0, "gate thứ nhất thoát 0");
+    context.expect(second_status.kind == WaitKind::kExited && second_status.code == 0, "gate thứ hai thoát 0");
     std::error_code error;
     std::filesystem::remove_all(prepared.dir, error);
 }
@@ -282,6 +321,7 @@ void early_wakes_keep_deadline(Context& context) {
 
 constexpr std::array kCases{
     Case{.name = "loopback_session", .body = loopback_session},
+    Case{.name = "two_gates_share_one_config", .body = two_gates_share_one_config},
     Case{.name = "early_wakes_keep_deadline", .body = early_wakes_keep_deadline},
 };
 

@@ -1,0 +1,19 @@
+# schema 1
+# source: server_config/SystemInfo.ini
+# tool: TOOLS/server/import_legacy.py; sửa tay sẽ mất ở lượt xuất sau
+# types: int	text	text	text	text
+index	original	name	type	note
+0		event_id	int	chỉ số section huodongN
+1	opt_type	opt_type	text	mã 2008 không có hàm nạp
+2	time_type	time_type	text	mã 2008 không có hàm nạp
+3	time_start	time_start	text	mã 2008 không có hàm nạp
+4	time_end	time_end	text	mã 2008 không có hàm nạp
+5	scene	scene	text	mã 2008 không có hàm nạp
+6	scriptid	scriptid	text	mã 2008 không có hàm nạp
+7	param0	param0	text	mã 2008 không có hàm nạp
+8	param1	param1	text	mã 2008 không có hàm nạp
+9	param2	param2	text	mã 2008 không có hàm nạp
+10	param3	param3	text	mã 2008 không có hàm nạp
+11	param4	param4	text	mã 2008 không có hàm nạp
+12	param5	param5	text	mã 2008 không có hàm nạp
+13		within_declared_count	int	1 khi chỉ số huodong nhỏ hơn huodongcount

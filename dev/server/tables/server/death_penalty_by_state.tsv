@@ -1,0 +1,10 @@
+# schema 1
+# source: server_config/PunishByState.txt
+# tool: TOOLS/server/import_legacy.py; sửa tay sẽ mất ở lượt xuất sau
+# types: int	text	int	float	float	float	int	int	int	int	int	int	int	int	int	text
+id	description	column_2	column_3	column_4	column_5	column_6	column_7	column_8	column_9	reserved_1	reserved_2	reserved_3	reserved_4	reserved_5	column_15
+0	普通死亡	0	0	0	0	0	0	0	0	0	0	0	0	0	Desc
+1	竞技死亡	1	0	0	0	0	0	0	0	0	0	0	0	0	Desc
+2	PK死亡	0	0.05	0.05	0.03	0	0	0	1	0	0	0	0	0	Desc
+3	决斗死亡	0	0	0	0.03	0	0	0	0	0	0	0	0	0	Desc
+4	战争死亡	0	0	0	0	0	0	0	0	0	0	0	0	0	Desc

@@ -21,8 +21,8 @@ void Display::State::open_hud(const DisplayDesc& desc) {
     ui::HudDesc hud_desc;
     hud_desc.data_root = desc.data_root;
     // Phần đọc đĩa đã chạy từ trước thiết bị (kick_loading); chưa có thì Hud::open tự bắt đầu.
-    core::Result<ui::Hud> opened = hud_prep ? ui::Hud::open(*ui_pass, hud_desc, std::move(*hud_prep))
-                                            : ui::Hud::open(*ui_pass, hud_desc);
+    core::Result<ui::Hud> opened =
+        hud_prep ? ui::Hud::open(*ui_pass, hud_desc, std::move(*hud_prep)) : ui::Hud::open(*ui_pass, hud_desc);
     hud_prep.reset();
     if (!opened) {
         std::println(stderr, "Giao diện: bỏ qua, không mở được dữ liệu: {}", opened.error());

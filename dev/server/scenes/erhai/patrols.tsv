@@ -1,0 +1,26 @@
+# schema 1
+# source: Public/Scene/erhai_patrolpoint.ini
+# tool: TOOLS/server/export_scene.py; sửa tay sẽ mất ở lượt xuất sau
+# types: int	int	float	float	float	int	text	text	int	int	text	text	text	text
+patrol_index	point_index	position_x	position_y	position_z	settle_time	point_script_id	route_script_id	turns_back	teleport_to_respawn	speech_unread	speech_1	speech_2	speech_3
+0	0	62.1198		75.0855	5000			0			41		
+0	1	69.0646		71.3370				0					
+0	2	78.3228		75.9969				0					
+0	3	84.6598		81.7288				0					
+0	4	89.8710		87.3007				0					
+0	5	98.1444		90.9837				0					
+0	6	109.0090		93.0363				0					
+0	7	118.5890		92.8320				0					
+0	8	130.5568		92.4263				0					
+0	9	141.3979		93.9617				0					
+0	10	150.1750		97.8270				0					
+0	11	158.7436		95.7805				0					
+0	12	168.4086		92.1307				0					
+0	13	175.0721		88.4493				0					
+0	14	177.9596		83.2853				0					
+0	15	184.4720		82.4028				0					
+0	16	185.6224		75.3163				0					
+0	17	190.1356		67.8596				0					
+0	18	194.7014		60.8782				0					
+0	19	198.8890		54.3522				0					
+0	20	204.2254		51.5375	5000			0			42		

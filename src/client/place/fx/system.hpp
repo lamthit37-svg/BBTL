@@ -165,8 +165,8 @@ struct SequenceFrame {
     float start_max = 0.0F;
 };
 
-// DirectionRandomiserAffector của Ogre: mỗi nhịp, hạt nằm trong scope (phần trăm số hạt) được cộng vào vận tốc một vectơ
-// ngẫu nhiên mỗi trục trong [-randomness, randomness] nhân số giây của nhịp; keep_velocity giữ độ dài vận tốc.
+// DirectionRandomiserAffector của Ogre: mỗi nhịp, hạt nằm trong scope (phần trăm số hạt) được cộng vào vận tốc một
+// vectơ ngẫu nhiên mỗi trục trong [-randomness, randomness] nhân số giây của nhịp; keep_velocity giữ độ dài vận tốc.
 struct DirectionRandomiser {
     float randomness = 1.0F;
     float scope = 100.0F;

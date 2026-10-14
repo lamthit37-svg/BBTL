@@ -60,7 +60,8 @@ struct ReactorNative {
         core::check(pipe(ends) == 0, "không tạo được pipe đánh thức");
         wake_read = ends[0];
         wake_write = ends[1];
-        core::check(set_nonblocking(wake_read) && set_nonblocking(wake_write), "pipe không chuyển được sang không chặn");
+        core::check(set_nonblocking(wake_read) && set_nonblocking(wake_write),
+            "pipe không chuyển được sang không chặn");
         core::check(poll.add(static_cast<SocketHandle>(static_cast<std::uintptr_t>(wake_read)), kWakeTag),
             "không gắn được pipe vào tập chờ");
     }

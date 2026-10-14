@@ -1,0 +1,16 @@
+# schema 1
+# source: client_2026/AbilityLevelUp/fengren.txt
+# tool: TOOLS/server/export_tables.py; sửa tay sẽ mất ở lượt xuất sau
+# types: int	text	text	text	text
+index	original	name	type	note
+0	级别	rank	int	neo: cột gốc 0, khớp 100.0% (10/10 id); luật: nguyên văn
+1	名称	name	text	neo: cột gốc 1, khớp 100.0% (10/10 id); luật: nguyên văn
+2	需求金钱	required_money	int	neo: cột gốc 2, khớp 100.0% (10/10 id); luật: nguyên văn
+3	需求经验	required_exp	int	đổi kiểu: cột gốc 3, khớp 100.0% (10/10 id); luật: nguyên văn
+4	技能熟练度限制	proficiency_limit	int	nội suy: cột gốc 4, khớp 100.0% (10/10 id); luật: nguyên văn
+5	技能熟练度限制(客户端显示)	displayed_proficiency_limit	int	nội suy: cột gốc 5, khớp 100.0% (10/10 id); luật: nguyên văn
+6	本级熟练度的上限	proficiency_cap	int	nội suy: cột gốc 6, khớp 100.0% (10/10 id); luật: nguyên văn
+7	等级限制	level_limit	int	nội suy: cột gốc 7, khớp 100.0% (10/10 id); luật: nguyên văn
+8	NPC名称$1$	npc_name	text	nội suy: cột gốc 8, khớp 100.0% (10/10 id); luật: nguyên văn
+9	NPC需求金钱	npc_required_money	int	neo: cột gốc 9, khớp 100.0% (10/10 id); luật: nguyên văn
+10	NPC需求经验	npc_required_exp	int	đổi kiểu: cột gốc 10, khớp 100.0% (10/10 id); luật: nguyên văn

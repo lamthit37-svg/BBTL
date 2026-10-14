@@ -1,0 +1,19 @@
+# schema 1
+# source: client_2026/ItemEnhance.txt
+# tool: TOOLS/server/export_tables.py; sửa tay sẽ mất ở lượt xuất sau
+# types: int	text	text	text	text
+index	original	name	type	note
+0	索引	index	int	neo: cột gốc 0, khớp 100.0% (171/171 id); luật: nguyên văn
+1		column_1	int	mới ở 2026
+2		column_2	int	mới ở 2026
+3		column_3	int	mới ở 2026
+4		column_4	int	mới ở 2026
+5		column_5	int	mới ở 2026
+6		column_6	int	mới ở 2026
+7		column_7	int	mới ở 2026
+8		column_8	int	mới ở 2026
+9		column_9	int	mới ở 2026
+10		column_10	int	mới ở 2026
+11		column_11	int	mới ở 2026
+12		column_12	int	mới ở 2026
+13		column_13	int	mới ở 2026

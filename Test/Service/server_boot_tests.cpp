@@ -148,6 +148,17 @@ struct Finished {
     return finished;
 }
 
+// Dòng của máy trạng thái giám sát. Chế độ kCommand gộp stderr vào: lời nhắn của store, auth và gate
+// (thiếu secrets.local.toml, cổng ipc bằng 0) đứng xen giữa nhưng không thuộc chu trình khởi động.
+[[nodiscard]] bool is_cycle_line(std::string_view line) {
+    return line.starts_with("started ") || line.starts_with("ready") || line.starts_with("stopped ");
+}
+
+[[nodiscard]] Finished cycle_only(Finished finished) {
+    std::erase_if(finished.lines, [](const std::string& line) { return !is_cycle_line(line); });
+    return finished;
+}
+
 [[nodiscard]] bool has_line_with(const Lines& lines, std::string_view piece) {
     const auto holds = [&](const std::string& line) { return line.contains(piece); };
     return std::ranges::any_of(lines, holds);
@@ -180,7 +191,7 @@ void closed_input_runs_full_cycle(Context& context) {
     const std::optional<std::string> config = loopback_config(context);
     if (!config) return;
     const std::array<std::string_view, 3> arguments{"--config", *config, "--no-postgres"};
-    expect_full_cycle(context, run_to_end("thienlong_server.exe", arguments, Mode::kService));
+    expect_full_cycle(context, cycle_only(run_to_end("thienlong_server.exe", arguments, Mode::kService)));
 }
 
 // stdin là thiết bị rỗng (chạy với `< NUL`): đọc là hết dòng ngay, cũng là yêu cầu dừng.
@@ -188,7 +199,7 @@ void empty_input_runs_full_cycle(Context& context) {
     const std::optional<std::string> config = loopback_config(context);
     if (!config) return;
     const std::array<std::string_view, 3> arguments{"--config", *config, "--no-postgres"};
-    expect_full_cycle(context, run_to_end("thienlong_server.exe", arguments, Mode::kCommand));
+    expect_full_cycle(context, cycle_only(run_to_end("thienlong_server.exe", arguments, Mode::kCommand)));
 }
 
 void cluster_stays_up_until_input_closes(Context& context) {

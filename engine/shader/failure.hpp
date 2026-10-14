@@ -22,7 +22,8 @@ template <class T>
     return fail(ErrorCode::kCorrupt, message);
 }
 
-// DXC trả về thứ mà hợp đồng của nó không cho phép: lỗi của công cụ, không phải của nguồn shader.
+// Slang hay DXC trả về thứ mà hợp đồng của nó không cho phép, hoặc hai bản dịch của cùng một nguồn
+// lệch nhau: lỗi của công cụ, không phải của nguồn shader.
 [[nodiscard]] inline core::Failure internal(core::Message message) noexcept {
     return fail(ErrorCode::kInternal, message);
 }

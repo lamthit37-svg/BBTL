@@ -15,13 +15,14 @@ namespace game::ui::panel {
 
 // Số điểm mã của text: byte tiếp nối không đếm.
 [[nodiscard]] inline std::size_t code_points(std::string_view text) noexcept {
-    return static_cast<std::size_t>(
-        std::ranges::count_if(text, [](char byte) { return starts_point(static_cast<unsigned char>(byte)); }));
+    return static_cast<std::size_t>(std::ranges::count_if(text,
+        [](char byte) { return starts_point(static_cast<unsigned char>(byte)); }));
 }
 
 // Bỏ điểm mã cuối; chuỗi rỗng thì không làm gì.
 inline void pop_code_point(std::string& text) noexcept {
-    while (!text.empty() && !starts_point(static_cast<unsigned char>(text.back()))) text.pop_back();
+    while (!text.empty() && !starts_point(static_cast<unsigned char>(text.back())))
+        text.pop_back();
     if (!text.empty()) text.pop_back();
 }
 

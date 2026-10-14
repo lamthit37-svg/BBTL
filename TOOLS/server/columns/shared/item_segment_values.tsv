@@ -1,0 +1,70 @@
+# schema 1
+# source: client_2026/ItemSegValue.txt
+# tool: TOOLS/server/export_tables.py; sửa tay sẽ mất ở lượt xuất sau
+# types: int	text	text	text	text
+index	original	name	type	note
+0	Index	index	int	neo: cột gốc 0, khớp 100.0% (450/450 id); luật: M1
+1	增加HP的上限	max_hp_bonus	int	đổi kiểu: cột gốc 1, khớp 100.0% (450/450 id); luật: nguyên văn
+2		column_2	int	mới ở 2026
+3		column_3	int	mới ở 2026
+4	增加MP的上限	max_mp_bonus	int	đổi kiểu: cột gốc 4, khớp 100.0% (450/450 id); luật: nguyên văn
+5		column_5	int	mới ở 2026
+6		column_6	int	mới ở 2026
+7	冰攻击	cold_attack	int	đổi kiểu: cột gốc 7, khớp 100.0% (450/450 id); luật: nguyên văn
+8	冰抵抗	cold_resist	int	đổi kiểu: cột gốc 8, khớp 100.0% (450/450 id); luật: nguyên văn
+9		column_9	int	mới ở 2026
+10	火攻击	fire_attack	int	đổi kiểu: cột gốc 10, khớp 100.0% (450/450 id); luật: nguyên văn
+11	火抵抗	fire_resist	int	đổi kiểu: cột gốc 11, khớp 100.0% (450/450 id); luật: nguyên văn
+12		column_12	int	mới ở 2026
+13	玄攻击	lightning_attack	int	đổi kiểu: cột gốc 13, khớp 100.0% (450/450 id); luật: nguyên văn
+14	玄抵抗	lightning_resist	int	đổi kiểu: cột gốc 14, khớp 100.0% (450/450 id); luật: nguyên văn
+15		column_15	int	mới ở 2026
+16	毒攻击	poison_attack	int	đổi kiểu: cột gốc 16, khớp 100.0% (450/450 id); luật: nguyên văn
+17	毒抵抗	poison_resist	int	đổi kiểu: cột gốc 17, khớp 100.0% (450/450 id); luật: nguyên văn
+18		column_18	int	mới ở 2026
+19	按百分比抵消所有属性攻击	all_element_resist_percent	int	đổi kiểu: cột gốc 19, khớp 100.0% (450/450 id); luật: nguyên văn
+20	物理攻击	physical_attack	int	đổi kiểu: cột gốc 20, khớp 100.0% (450/450 id); luật: nguyên văn
+21		column_21	int	mới ở 2026
+22		column_22	int	mới ở 2026
+23	物理防御	physical_defence	int	đổi kiểu: cột gốc 23, khớp 100.0% (450/450 id); luật: nguyên văn
+24		column_24	int	mới ở 2026
+25		column_25	int	mới ở 2026
+26	按百分比抵消物理伤害	physical_damage_resist_percent	int	đổi kiểu: cột gốc 26, khớp 100.0% (450/450 id); luật: nguyên văn
+27	魔法攻击	magic_attack	int	đổi kiểu: cột gốc 27, khớp 100.0% (450/450 id); luật: nguyên văn
+28		column_28	int	mới ở 2026
+29		column_29	int	mới ở 2026
+30	魔法防御	magic_defence	int	đổi kiểu: cột gốc 30, khớp 100.0% (450/450 id); luật: nguyên văn
+31		column_31	int	mới ở 2026
+32		column_32	int	mới ở 2026
+33	按百分比抵消魔法伤害	magic_damage_resist_percent	int	đổi kiểu: cột gốc 33, khớp 100.0% (450/450 id); luật: nguyên văn
+34		column_34	int	mới ở 2026
+35		column_35	int	mới ở 2026
+36	命中	hit	int	đổi kiểu: cột gốc 36, khớp 100.0% (450/450 id); luật: nguyên văn
+37	闪避	miss	int	đổi kiểu: cột gốc 37, khớp 100.0% (450/450 id); luật: nguyên văn
+38	会心一击（双倍攻击）的百分比	double_attack_percent	int	đổi kiểu: cột gốc 38, khớp 100.0% (450/450 id); luật: nguyên văn
+39		column_39	int	mới ở 2026
+40		column_40	int	mới ở 2026
+41		column_41	int	mới ở 2026
+42		column_42	int	mới ở 2026
+43	力量	strength	int	đổi kiểu: cột gốc 43, khớp 100.0% (450/450 id); luật: nguyên văn
+44	灵气	spirit	int	đổi kiểu: cột gốc 44, khớp 100.0% (450/450 id); luật: nguyên văn
+45	体质	constitution	int	đổi kiểu: cột gốc 45, khớp 100.0% (450/450 id); luật: nguyên văn
+46	定力	concentration	int	đổi kiểu: cột gốc 46, khớp 100.0% (450/450 id); luật: nguyên văn
+47	身法	dexterity	int	đổi kiểu: cột gốc 47, khớp 100.0% (450/450 id); luật: nguyên văn
+48	会心防御	critical_defence	int	đổi kiểu: cột gốc 48, khớp 100.0% (450/450 id); luật: nguyên văn
+49	增加所有的人物一级属性	all_primary_attributes	int	đổi kiểu: cột gốc 49, khớp 100.0% (450/450 id); luật: nguyên văn
+50		column_50	int	mới ở 2026
+51		column_51	int	mới ở 2026
+52		column_52	int	mới ở 2026
+53		column_53	int	mới ở 2026
+54		column_54	int	mới ở 2026
+55	降低目标冰抵抗	cold_resist_reduction	int	đổi kiểu: cột gốc 55, khớp 100.0% (450/450 id); luật: nguyên văn
+56	降低目标火抵抗	fire_resist_reduction	int	đổi kiểu: cột gốc 56, khớp 100.0% (450/450 id); luật: nguyên văn
+57	降低目标玄抵抗	lightning_resist_reduction	int	đổi kiểu: cột gốc 57, khớp 100.0% (450/450 id); luật: nguyên văn
+58	降低目标毒抵抗	poison_resist_reduction	int	đổi kiểu: cột gốc 58, khớp 100.0% (450/450 id); luật: nguyên văn
+59		column_59	int	mới ở 2026
+60		column_60	int	mới ở 2026
+61		column_61	int	mới ở 2026
+62		column_62	int	mới ở 2026
+63		column_63	int	mới ở 2026
+64		column_64	int	mới ở 2026

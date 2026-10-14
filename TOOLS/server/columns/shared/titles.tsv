@@ -1,0 +1,55 @@
+# schema 1
+# source: client_2026/CharTitle.txt
+# tool: TOOLS/server/export_tables.py; sửa tay sẽ mất ở lượt xuất sau
+# types: int	text	text	text	text
+index	original	name	type	note
+0	ID	id	int	neo: cột gốc 0, khớp 100.0% (260/260 id); luật: M1
+1	类型(策划分类用)	designer_kind	int	neo: cột gốc 1, khớp 100.0% (260/260 id); luật: nguyên văn
+2	名称$1$	name	text	neo: cột gốc 2, khớp 97.3% (253/260 id); luật: nguyên văn
+3		column_3	text	mới ở 2026
+4	逻辑类型(程序用)	logic_kind	int	neo: cột gốc 4, khớp 100.0% (260/260 id); luật: nguyên văn
+5	等级	level	int	neo: cột gốc 5, khớp 98.8% (257/260 id); luật: nguyên văn
+6		column_6	int	mới ở 2026
+7		column_7	text	mới ở 2026
+8		column_8	int	mới ở 2026
+9		column_9	text	mới ở 2026
+10		column_10	int	mới ở 2026
+11		column_11	int	mới ở 2026
+12		column_12	int	mới ở 2026
+13		column_13	int	mới ở 2026
+14		column_14	int	mới ở 2026
+15		column_15	int	mới ở 2026
+16		column_16	int	mới ở 2026
+17		column_17	int	mới ở 2026
+18		column_18	int	mới ở 2026
+19		column_19	int	mới ở 2026
+20		column_20	int	mới ở 2026
+21		column_21	int	mới ở 2026
+22		column_22	int	mới ở 2026
+23		column_23	int	mới ở 2026
+24		column_24	int	mới ở 2026
+25		column_25	int	mới ở 2026
+26		column_26	int	mới ở 2026
+27		column_27	int	mới ở 2026
+28		column_28	int	mới ở 2026
+29		column_29	int	mới ở 2026
+30		column_30	int	mới ở 2026
+31		column_31	int	mới ở 2026
+32		column_32	int	mới ở 2026
+33		column_33	int	mới ở 2026
+34		column_34	int	mới ở 2026
+35		column_35	int	mới ở 2026
+36		column_36	int	mới ở 2026
+37		column_37	int	mới ở 2026
+38		column_38	int	mới ở 2026
+39		column_39	int	mới ở 2026
+40		column_40	int	mới ở 2026
+41		column_41	int	mới ở 2026
+42		column_42	int	mới ở 2026
+43		column_43	int	mới ở 2026
+44		column_44	int	mới ở 2026
+45		column_45	int	mới ở 2026
+46		column_46	int	mới ở 2026
+47		column_47	int	mới ở 2026
+48		column_48	int	mới ở 2026
+49		column_49	int	mới ở 2026

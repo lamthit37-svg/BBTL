@@ -1,0 +1,11 @@
+# schema 1
+# source: Public/Scene/jinghu_monster.ini
+# tool: TOOLS/server/export_scene.py; sửa tay sẽ mất ở lượt xuất sau
+# types: int	int	text	text	float	float	int	int	int	int	int	int	int	int	int	int	int	int	int	int	int	int	text	int	int	int
+guid	type	name	title	position_x	position_z	direction	script_id	respawn_time	group_id	team_id	base_ai	ai_file	patrol_id	shop_0	shop_1	shop_2	shop_3	level	is_pet	script_timer	reputation_id	cshop	leader_id	is_npc	camp
+2947303	153	黑市商人		246.8660	66.8768	9	311009	15000	-1	-1	3	0	-1	-1	-1	-1	-1				-1				
+9649089	160	阮星竹		108.0979	140.3247	27	5001	15000	-1	-1	3	0	-1	-1	-1	-1	-1				-1				
+9649142	291	丫鬟		109.3675	138.3972	27	5002	15000	-1	-1	3	0	-1	-1	-1	-1	-1				-1				
+9649175	291	丫鬟		106.5955	138.4239	27	5002	15000	-1	-1	3	0	-1	-1	-1	-1	-1				-1				
+2947194	153	黑市商人		267.0000	43.0000	22	311009	10000	-1	-1	3	-1	-1	-1	-1	-1	-1				-1				
+4030562	104	齐煞云	天下绿林盟主	199	54	27	5113	1000	-1	-1	3	0	-1	-1	-1	-1	-1	46			-1				

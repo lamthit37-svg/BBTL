@@ -1,0 +1,14 @@
+# schema 1
+# source: Public/Scene/wedding_1_monster.ini
+# tool: TOOLS/server/export_scene.py; sửa tay sẽ mất ở lượt xuất sau
+# types: int	int	text	text	float	float	int	int	int	int	int	int	int	int	int	int	int	int	int	int	int	int	text	int	int	int
+guid	type	name	title	position_x	position_z	direction	script_id	respawn_time	group_id	team_id	base_ai	ai_file	patrol_id	shop_0	shop_1	shop_2	shop_3	level	is_pet	script_timer	reputation_id	cshop	leader_id	is_npc	camp
+8449628	153	李骅	礼花出售人	42.5268	72.5043	23	155008	1000	-1	-1	3	0	-1	-1	-1	-1	-1								
+8451253	147	喜来乐	礼堂传送人	27.9689	75.3924	7	155000	1000	-1	-1	3	0	-1	-1	-1	-1	-1								
+8451683	361			24.6410	16.3647	31	155001	1000	-1	-1	3	0	-1	-1	-1	-1	-1								
+8451735	363			21.0615	19.3804	0	155002	1000	-1	-1	3	0	-1	-1	-1	-1	-1								
+8451738	363			21.0057	22.4041	0	155002	1000	-1	-1	3	0	-1	-1	-1	-1	-1								
+8451791	363			43.7617	22.2717	18	155002	1000	-1	-1	3	0	-1	-1	-1	-1	-1								
+8451795	363			43.9670	18.7633	18	155002	1000	-1	-1	3	0	-1	-1	-1	-1	-1								
+8451848	363			26.4456	66.8423	27	155002	1000	-1	-1	3	0	-1	-1	-1	-1	-1								
+8451850	363			39.3985	67.3049	27	155002	1000	-1	-1	3	0	-1	-1	-1	-1	-1								

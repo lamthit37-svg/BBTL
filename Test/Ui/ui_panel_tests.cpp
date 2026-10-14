@@ -22,11 +22,13 @@
 #include <algorithm>
 #include <array>
 #include <cmath>
+#include <cstddef>
 #include <filesystem>
 #include <optional>
 #include <span>
 #include <string>
 #include <string_view>
+#include <vector>
 
 namespace game::test {
 namespace {
@@ -532,9 +534,25 @@ void desk_paints_notice(Context& context) {
     ui::panel::paint_desk(deck, desk);
     context.expect(deck.is_shown("DebugListBox"), "lời nhắc hiện ở danh sách");
     const Key line{.window = "DebugListBox_ListBox", .name = "Text"};
-    const auto text = said(deck, line);
-    const bool has_place = text.has_value() && text->find("Lạc Dương (237, 236)") != std::string_view::npos;
-    context.expect(has_place, "đúng chỗ xin vào bang");
+    constexpr std::string_view kNotMember = "GMGameInterface_Script_Guild_Not_Guild_Member";
+    context.expect(said(deck, line) == "#{GMGameInterface_Script_Guild_Not_Guild_Member}", "lời nhắc là khoá");
+    // Chữ của khoá lấy từ bảng chuỗi của ngôn ngữ đang dựng, không gắn cứng một thứ tiếng.
+    if (kClientData.empty()) return;
+    const io::TextResult strings = io::read_text(std::filesystem::path(kClientData) / "Table" / "ui_strings.tsv");
+    context.expect(strings.has_value(), "có Table/ui_strings.tsv");
+    if (!strings) return;
+    const table::TsvResult table = table::parse_tsv(*strings);
+    context.expect(table.has_value(), "bảng chuỗi đọc được");
+    if (!table) return;
+    const std::optional<std::size_t> key = table::column_of(*table, "key");
+    const std::optional<std::size_t> value = table::column_of(*table, "text");
+    context.expect(key.has_value() && value.has_value(), "bảng chuỗi có cột key và text");
+    if (!key || !value) return;
+    const auto is_notice = [&](const std::vector<std::string>& row) { return row[*key] == kNotMember; };
+    const auto found = std::ranges::find_if(table->rows, is_notice);
+    context.expect(found != table->rows.end(), "khoá lời nhắc có trong bảng chuỗi");
+    if (found == table->rows.end()) return;
+    context.expect(!(*found)[*value].empty(), "khoá lời nhắc có chữ trong ngôn ngữ đang dựng");
 }
 
 // Gốc của ba bảng khi mở lần lượt nhân vật, nhiệm vụ, thùng đồ; rồi sau khi mở lại nhân vật.

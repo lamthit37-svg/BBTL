@@ -17,7 +17,6 @@
 #include "gui/strings.hpp"
 #include "ui/panel/create_role.hpp"
 #include "ui/panel/logon.hpp"
-#include "ui/panel/system_info.hpp"
 #include "ui/panel/portraits.hpp"
 #include "ui/panel/role_cast.hpp"
 #include "ui/panel/role_pose.hpp"
@@ -25,6 +24,7 @@
 #include "ui/panel/select_role.hpp"
 #include "ui/panel/select_server.hpp"
 #include "ui/panel/servers.hpp"
+#include "ui/panel/system_info.hpp"
 
 #include <array>
 #include <cstdint>

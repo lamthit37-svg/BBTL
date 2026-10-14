@@ -249,7 +249,8 @@ struct SdlInput::Holder {
     bool relative = false;
 
     ~Holder() {
-        for (const Pad& pad : pads) SDL_CloseGamepad(pad.device);
+        for (const Pad& pad : pads)
+            SDL_CloseGamepad(pad.device);
         if (window != nullptr) SDL_DestroyWindow(window);
         SDL_Quit();
     }
@@ -296,7 +297,8 @@ void SdlInput::drain(std::vector<SdlAction>& out) {
     out.clear();
     if (holder_ == nullptr) return;
     SDL_Event event{};
-    while (SDL_PollEvent(&event)) take(holder_->window, holder_->pads, out, event);
+    while (SDL_PollEvent(&event))
+        take(holder_->window, holder_->pads, out, event);
 }
 
 } // namespace game::client

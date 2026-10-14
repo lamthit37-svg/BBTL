@@ -110,7 +110,8 @@ template <class Row, std::size_t Size>
 [[nodiscard]] Parsed read_bucket(std::string_view field, PhaseRow& row, std::uint32_t& next) noexcept {
     std::string_view column;
     if (!eat(field, "b") || !cut(field, '=', column)) return refuse(SnapshotError::kLine);
-    const bool digits = !column.empty() && std::ranges::all_of(column, [](char one) { return one >= '0' && one <= '9'; });
+    const bool digits =
+        !column.empty() && std::ranges::all_of(column, [](char one) { return one >= '0' && one <= '9'; });
     if (!digits) return refuse(SnapshotError::kLine);
     if (column.size() > 4) return refuse(SnapshotError::kBucket);
     const std::optional<std::uint32_t> index = read_number<std::uint32_t>(column);

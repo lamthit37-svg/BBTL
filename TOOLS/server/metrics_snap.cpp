@@ -73,9 +73,12 @@ struct Flags {
     Flag name;
 };
 
+// Con trỏ tới một cờ của Flags.
+using Slot = Flag Flags::*;
+
 struct Key {
     std::string_view text;
-    Flag Flags::* slot = nullptr;
+    Slot slot = nullptr;
 };
 
 constexpr std::array kKeys{
@@ -88,15 +91,15 @@ constexpr std::array kKeys{
 // Một lệnh con: cờ bắt buộc và cờ tuỳ chọn. Cờ ngoài hai danh sách là dùng sai.
 struct Command {
     std::string_view word;
-    std::span<const Flag Flags::* const> required;
-    std::span<const Flag Flags::* const> optional;
+    std::span<const Slot> required;
+    std::span<const Slot> optional;
 };
 
-constexpr std::array<Flag Flags::*, 2> kCaptureNeeds{&Flags::port, &Flags::out};
-constexpr std::array<Flag Flags::*, 1> kCaptureMay{&Flags::timeout};
-constexpr std::array<Flag Flags::*, 2> kDeltaNeeds{&Flags::after, &Flags::name};
-constexpr std::array<Flag Flags::*, 1> kDeltaMay{&Flags::before};
-constexpr std::array<Flag Flags::*, 2> kGaugeNeeds{&Flags::at, &Flags::name};
+constexpr std::array<Slot, 2> kCaptureNeeds{&Flags::port, &Flags::out};
+constexpr std::array<Slot, 1> kCaptureMay{&Flags::timeout};
+constexpr std::array<Slot, 2> kDeltaNeeds{&Flags::after, &Flags::name};
+constexpr std::array<Slot, 1> kDeltaMay{&Flags::before};
+constexpr std::array<Slot, 2> kGaugeNeeds{&Flags::at, &Flags::name};
 
 [[nodiscard]] int fail_usage(std::string_view why) {
     std::println(stderr, "thienlong_metrics_snap: {}", why);
@@ -113,7 +116,7 @@ constexpr std::array<Flag Flags::*, 2> kGaugeNeeds{&Flags::at, &Flags::name};
 [[nodiscard]] bool read_flags(std::span<const std::string> words, Flags& flags) {
     for (std::size_t index = 0; index < words.size(); index += 2) {
         const std::string_view word = words[index];
-        const auto* const key = std::ranges::find(kKeys, word, &Key::text);
+        const auto key = std::ranges::find(kKeys, word, &Key::text);
         if (key == kKeys.end() || index + 1 >= words.size()) return false;
         Flag& slot = flags.*(key->slot);
         if (slot) return false;
@@ -123,7 +126,7 @@ constexpr std::array<Flag Flags::*, 2> kGaugeNeeds{&Flags::at, &Flags::name};
 }
 
 [[nodiscard]] bool fits(const Flags& flags, const Command& command) {
-    const auto is_set = [&flags](Flag Flags::* slot) { return (flags.*slot).has_value(); };
+    const auto is_set = [&flags](Slot slot) { return (flags.*slot).has_value(); };
     if (!std::ranges::all_of(command.required, is_set)) return false;
     const auto is_allowed = [&command](const Key& key) {
         return std::ranges::contains(command.required, key.slot) || std::ranges::contains(command.optional, key.slot);
@@ -316,7 +319,7 @@ struct Pair {
         Command{.word = "gauge", .required = kGaugeNeeds, .optional = {}},
         Command{.word = "phase", .required = kDeltaNeeds, .optional = kDeltaMay},
     };
-    const auto* const command = std::ranges::find(commands, std::string_view{words.front()}, &Command::word);
+    const auto command = std::ranges::find(commands, std::string_view{words.front()}, &Command::word);
     if (command == commands.end()) return fail_usage("lệnh con lạ");
     Flags flags;
     if (!read_flags(words.subspan(1), flags) || !fits(flags, *command)) return fail_usage("đối số sai");

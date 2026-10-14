@@ -13,6 +13,13 @@ if(CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
     string(REGEX REPLACE "/RTC[1csu]+" "" CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG}")
     string(REGEX REPLACE "/RTC[1csu]+" "" CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG}")
     add_compile_options(/fsanitize=address /Zi)
+    # CMake's default /INCREMENTAL in *_LINKER_FLAGS_{DEBUG,RELWITHDEBINFO} conflicts with ASan; strip it so
+    # the link line carries only /INCREMENTAL:NO instead of relying on the later flag overriding the earlier one.
+    foreach(kind IN ITEMS EXE SHARED MODULE)
+        foreach(config IN ITEMS DEBUG RELWITHDEBINFO)
+            string(REGEX REPLACE "/INCREMENTAL(:NO)?" "" CMAKE_${kind}_LINKER_FLAGS_${config} "${CMAKE_${kind}_LINKER_FLAGS_${config}}")
+        endforeach()
+    endforeach()
     add_link_options(/INCREMENTAL:NO /DEBUG)
     return()
 endif()

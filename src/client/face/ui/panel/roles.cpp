@@ -140,7 +140,8 @@ void note_slot(SlotWalk& walk, const StoredRole& row, std::size_t index) noexcep
     SlotWalk walk;
     walk.account = account;
     walk.slot = slot;
-    for (std::size_t index = 0; index < book.rows.size(); ++index) note_slot(walk, book.rows[index], index);
+    for (std::size_t index = 0; index < book.rows.size(); ++index)
+        note_slot(walk, book.rows[index], index);
     return walk.found;
 }
 
@@ -165,7 +166,8 @@ struct AccountName {
 [[nodiscard]] bool is_taken(const Book& book, AccountName who) {
     const Roster roster = roster_of(book, who.account);
     bool taken = false;
-    for (std::uint8_t index = 0; index < roster.count; ++index) taken = taken || taken_at(roster, who.name, index);
+    for (std::uint8_t index = 0; index < roster.count; ++index)
+        taken = taken || taken_at(roster, who.name, index);
     return taken;
 }
 
@@ -228,7 +230,8 @@ void store_cell(Cells& cells, std::size_t index, std::string_view& line) noexcep
     Cells cells;
     const bool fits = columns > 0 && columns <= kColumns && tab_count(line) == columns - 1;
     if (!fits) return cells;
-    for (std::size_t index = 0; index < columns - 1; ++index) store_cell(cells, index, line);
+    for (std::size_t index = 0; index < columns - 1; ++index)
+        store_cell(cells, index, line);
     cells.fields[columns - 1] = line;
     cells.count = columns;
     cells.is_full = true;
@@ -318,7 +321,8 @@ void consume_line(Book& book, std::string_view& text, VersionMark& mark) {
 
 Roster roster_of(const Book& book, std::string_view account) {
     Roster roster;
-    for (const StoredRole& row : book.rows) keep_role(roster, row, account);
+    for (const StoredRole& row : book.rows)
+        keep_role(roster, row, account);
     return roster;
 }
 
@@ -371,7 +375,8 @@ std::string encode_book(const Book& book) {
 std::optional<Book> decode_book(std::string_view text) {
     Book book;
     VersionMark mark;
-    while (!text.empty()) consume_line(book, text, mark);
+    while (!text.empty())
+        consume_line(book, text, mark);
     if (!mark.seen || mark.version == 0) return std::nullopt;
     return book;
 }

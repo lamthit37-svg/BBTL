@@ -148,7 +148,8 @@ struct Arrangement {
             const std::size_t target = ((static_cast<std::size_t>(row) * brush.width) + column) * 4U;
             for (std::size_t channel = 0; channel < 4U; ++channel) {
                 std::uint32_t sum = 2U;
-                for (const std::size_t tap : taps) sum += from.rgba[tap + channel];
+                for (const std::size_t tap : taps)
+                    sum += from.rgba[tap + channel];
                 brush.rgba[target + channel] = static_cast<std::uint8_t>(sum / 4U);
             }
         }
@@ -292,8 +293,8 @@ void put_pair(std::span<std::uint8_t> texel, float first, float second) noexcept
 
 // Hàng 0 là bốn góc theo (lật đường chéo * 16 + orientation); từ hàng 1, pixmap id chiếm bốn texel liền nhau từ
 // vị trí 4 * id: hộp (trái, trên | phải, dưới) rồi phép đổi (gốc x, gốc y | tỉ lệ x, tỉ lệ y) sang atlas.
-[[nodiscard]] Picture table_image(const TerrainFile& file, const std::vector<Brush>& brushes,
-    const Arrangement& layout, std::span<const std::uint8_t> ready) {
+[[nodiscard]] Picture table_image(const TerrainFile& file, const std::vector<Brush>& brushes, const Arrangement& layout,
+    std::span<const std::uint8_t> ready) {
     Picture table;
     table.width = kSplatTableWidth;
     table.height = static_cast<std::uint32_t>(table_rows(file));
@@ -313,11 +314,14 @@ void put_pair(std::span<std::uint8_t> texel, float first, float second) noexcept
         const auto down = static_cast<float>(layout.height);
         const std::size_t first = id * kPixmapTexels;
         const std::size_t base = ((1U + (first / kSplatTableWidth)) * kSplatTableWidth) + (first % kSplatTableWidth);
-        const std::span<std::uint8_t> texels = std::span<std::uint8_t>(table.rgba).subspan(base * 4U, kPixmapTexels * 4U);
+        const std::span<std::uint8_t> texels =
+            std::span<std::uint8_t>(table.rgba).subspan(base * 4U, kPixmapTexels * 4U);
         put_pair(texels.subspan(0, 4), pixmap.left, pixmap.top);
         put_pair(texels.subspan(4, 4), pixmap.right, pixmap.bottom);
-        put_pair(texels.subspan(8, 4), static_cast<float>(slot.x + kPad) / across, static_cast<float>(slot.y + kPad) / down);
-        put_pair(texels.subspan(12, 4), static_cast<float>(brush.width) / across, static_cast<float>(brush.height) / down);
+        put_pair(texels.subspan(8, 4), static_cast<float>(slot.x + kPad) / across,
+            static_cast<float>(slot.y + kPad) / down);
+        put_pair(texels.subspan(12, 4), static_cast<float>(brush.width) / across,
+            static_cast<float>(brush.height) / down);
     }
     return table;
 }

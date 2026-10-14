@@ -6,9 +6,9 @@
 //   include ../common — thư mục tìm #include, tính từ thư mục của danh sách
 //   define QUALITY=2 — define cho mọi shader
 //   model 6.6 — shader model mặc định
-//   shader sky.ps sky.hlsl entry=sky_main variant=FOG variant=FOG,SHADOW permute=A,B
+//   shader sky.ps sky.slang entry=sky_main variant=FOG variant=FOG,SHADOW permute=A,B
 // Stage lấy từ khoá stage=, không có thì từ đuôi của tên gói ("sky.ps") hoặc của nguồn
-// ("sky.ps.hlsl"). Mã thông báo có khoảng trắng thì bọc trong dấu nháy kép; `#` mở chú thích.
+// ("sky.ps.slang"). Mã thông báo có khoảng trắng thì bọc trong dấu nháy kép; `#` mở chú thích.
 // Nguồn: Forge2 src/shader/manifest.hpp@d7fcd76. Khác gốc: bỏ {} thừa ở thành viên string, vector
 // và optional của các struct.
 #pragma once

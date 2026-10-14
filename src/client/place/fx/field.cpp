@@ -396,15 +396,15 @@ void affect_one(Field& field, Grain& grain, const Affector& affector, float dt) 
     if (const auto* jitter = std::get_if<DirectionRandomiser>(&affector)) {
         // scope là phần trăm hạt bị rung mỗi nhịp.
         if (field.unit() * 100.0F >= jitter->scope) return;
-        const float length = std::sqrt((grain.direction.x * grain.direction.x) + (grain.direction.y * grain.direction.y) +
-            (grain.direction.z * grain.direction.z));
+        const float length = std::sqrt((grain.direction.x * grain.direction.x) +
+            (grain.direction.y * grain.direction.y) + (grain.direction.z * grain.direction.z));
         const Vec3 kick{.x = field.range(-jitter->randomness, jitter->randomness),
             .y = field.range(-jitter->randomness, jitter->randomness),
             .z = field.range(-jitter->randomness, jitter->randomness)};
         grain.direction = add(grain.direction, scaled(kick, dt));
         if (!jitter->keep_velocity) return;
-        const float rotated = std::sqrt((grain.direction.x * grain.direction.x) + (grain.direction.y * grain.direction.y) +
-            (grain.direction.z * grain.direction.z));
+        const float rotated = std::sqrt((grain.direction.x * grain.direction.x) +
+            (grain.direction.y * grain.direction.y) + (grain.direction.z * grain.direction.z));
         if (rotated > 0.0F) grain.direction = scaled(grain.direction, length / rotated);
     }
 }

@@ -77,8 +77,8 @@ public:
             const std::uint32_t first = pool_[id].first;
             const auto child = static_cast<std::uint32_t>(pool_.size());
             pool_.push_back(BuildNode{.box = {}, .first = first, .count = positive_count, .positive = 0});
-            pool_.push_back(
-                BuildNode{.box = {}, .first = first + positive_count, .count = total - positive_count, .positive = 0});
+            pool_.push_back(BuildNode{
+                .box = {}, .first = first + positive_count, .count = total - positive_count, .positive = 0});
             pool_[id].positive = child;
             pending.push_back(child + 1);
             pending.push_back(child);
@@ -135,11 +135,13 @@ private:
         const std::uint32_t count = pool_[id].count;
         Axes sum{0.0F, 0.0F, 0.0F};
         for (std::uint32_t at = first; at < first + count; ++at) {
-            for (std::size_t axis = 0; axis < 3; ++axis) sum[axis] += centroid(perm_[at], axis);
+            for (std::size_t axis = 0; axis < 3; ++axis)
+                sum[axis] += centroid(perm_[at], axis);
         }
         const float inverse = 1.0F / static_cast<float>(std::uint64_t{count}); // cvtsi2ss 64 bit, divss
         Axes mean{};
-        for (std::size_t axis = 0; axis < 3; ++axis) mean[axis] = sum[axis] * inverse;
+        for (std::size_t axis = 0; axis < 3; ++axis)
+            mean[axis] = sum[axis] * inverse;
         Axes variance{0.0F, 0.0F, 0.0F};
         for (std::uint32_t at = first; at < first + count; ++at) {
             for (std::size_t axis = 0; axis < 3; ++axis) {
@@ -149,14 +151,16 @@ private:
             }
         }
         const float inverse_less = 1.0F / static_cast<float>(std::uint64_t{count} - 1U);
-        for (float& value : variance) value *= inverse_less;
+        for (float& value : variance)
+            value *= inverse_less;
         std::size_t axis = 0;
         if (variance[1] > variance[0]) axis = 1;
         if (variance[2] > variance[axis]) axis = 2;
         // GetSplittingValue(prims, n, box, axis) 0x18003e810: trung bình đỉnh, một thanh ghi tích luỹ, chia thật.
         float vertex_sum = 0.0F;
         for (std::uint32_t at = first; at < first + count; ++at) {
-            for (std::size_t corner = 0; corner < 3; ++corner) vertex_sum += coordinate(perm_[at], corner, axis);
+            for (std::size_t corner = 0; corner < 3; ++corner)
+                vertex_sum += coordinate(perm_[at], corner, axis);
         }
         const float split = vertex_sum / static_cast<float>(std::uint64_t{count} * 3U);
         // Phân hoạch hoán đổi tại chỗ, không ổn định: tâm > giá trị chia (so chặt, NaN sang âm) dồn lên đầu.
@@ -203,12 +207,14 @@ void link_nodes(const TreeBuilder& builder, std::vector<QuantizedNode>& nodes, s
         if (negative.count == 1) {
             nodes[id].negative = (builder.leaf_triangle(negative) << 1U) | 1U;
         } else {
-            pending.push_back(Pending{.pool_id = node.positive + 1, .parent = id, .positive_side = false, .has_parent = true});
+            pending.push_back(Pending{
+                .pool_id = node.positive + 1, .parent = id, .positive_side = false, .has_parent = true});
         }
         if (positive.count == 1) {
             nodes[id].positive = (builder.leaf_triangle(positive) << 1U) | 1U;
         } else {
-            pending.push_back(Pending{.pool_id = node.positive, .parent = id, .positive_side = true, .has_parent = true});
+            pending.push_back(Pending{
+                .pool_id = node.positive, .parent = id, .positive_side = true, .has_parent = true});
         }
     }
 }

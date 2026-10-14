@@ -544,6 +544,7 @@ constexpr std::array kCases{
     Case{.name = "gles_probe_follows_the_api_flavor", .body = &gles_probe_follows_the_api_flavor},
     Case{.name = "gles_probe_copies_driver_strings", .body = &gles_probe_copies_driver_strings},
     Case{.name = "gles_debug_sink_counts_only_errors", .body = &gles_debug_sink_counts_only_errors},
+    Case{.name = "gles_clear_of_srgb_target_is_encoded", .body = &gles_clear_of_srgb_target_is_encoded},
 #if defined(_WIN32)
     Case{.name = "d3d12_swapchain_accepts_srgb", .body = &d3d12_swapchain_accepts_srgb},
     Case{.name = "d3d11_swapchain_accepts_srgb", .body = &d3d11_swapchain_accepts_srgb},

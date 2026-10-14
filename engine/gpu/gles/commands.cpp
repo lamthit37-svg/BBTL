@@ -30,6 +30,16 @@ constexpr std::uint32_t kPushAlign = 256;
 // Số uvec4 tối đa của khối hằng đẩy: 256 byte, bằng kPushAlign.
 constexpr std::size_t kPushWords = 16;
 
+// Đích khai sRGB được cất như RGBA8 thô (xem device.hpp), phần cứng không mã hoá lúc ghi, nên màu xoá
+// (số tuyến tính theo hợp đồng chung của gpu::ClearColor) phải mã hoá sRGB trước khi xoá. NaN và số
+// ngoài [0, 1] kẹp về hai đầu: màu xoá do bên gọi đưa, không tin được.
+[[nodiscard]] float encode_srgb(float linear) noexcept {
+    if (!(linear > 0.0F)) return 0.0F;
+    if (linear >= 1.0F) return 1.0F;
+    if (linear <= 0.0031308F) return linear * 12.92F;
+    return (1.055F * std::pow(linear, 1.0F / 2.4F)) - 0.055F;
+}
+
 [[nodiscard]] std::uint32_t compare_of(CompareOp op) noexcept {
     switch (op) {
     case CompareOp::kNever: return GL_NEVER;
@@ -100,7 +110,8 @@ void scissor_of(GlFunctions& api, const Scissor& area, std::uint32_t target_heig
     api.scissor(static_cast<int>(area.x), bottom, static_cast<int>(area.width), static_cast<int>(area.height));
 }
 
-[[nodiscard]] GlDrawCache::BufferSlot* buffer_slot(GlDrawCache& cache, std::uint32_t target, std::uint32_t index) noexcept {
+[[nodiscard]] GlDrawCache::BufferSlot* buffer_slot(GlDrawCache& cache, std::uint32_t target,
+    std::uint32_t index) noexcept {
     for (GlDrawCache::BufferSlot& slot : cache.buffers) {
         if (slot.target == target && slot.index == index) return &slot;
     }
@@ -113,7 +124,8 @@ void bind_buffer_once(GlDevice& device, std::uint32_t target, std::uint32_t inde
     GlDrawCache::BufferSlot* slot = buffer_slot(cache, target, index);
     const bool same = slot != nullptr && slot->name == name && slot->offset == offset && slot->size == size;
     if (same) return;
-    device.api().bind_buffer_range(target, index, name, static_cast<std::intptr_t>(offset), static_cast<std::intptr_t>(size));
+    device.api().bind_buffer_range(target, index, name, static_cast<std::intptr_t>(offset),
+        static_cast<std::intptr_t>(size));
     if (slot == nullptr) {
         GlDrawCache::BufferSlot made;
         made.target = target;
@@ -129,7 +141,8 @@ void bind_buffer_once(GlDevice& device, std::uint32_t target, std::uint32_t inde
     slot->size = size;
 }
 
-[[nodiscard]] GlDrawCache::UnitSlot* unit_slot(std::vector<GlDrawCache::UnitSlot>& units, std::uint32_t index) noexcept {
+[[nodiscard]] GlDrawCache::UnitSlot* unit_slot(std::vector<GlDrawCache::UnitSlot>& units,
+    std::uint32_t index) noexcept {
     for (GlDrawCache::UnitSlot& slot : units) {
         if (slot.index == index) return &slot;
     }
@@ -241,8 +254,7 @@ void GlCommands::begin_rendering(const RenderingDesc& desc) {
             reject(fail(kBad, "begin_rendering: view màu đã chết"));
             return;
         }
-        api.framebuffer_texture(
-            GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, first->target, first->name, 0);
+        api.framebuffer_texture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, first->target, first->name, 0);
         const std::uint32_t color = GL_COLOR_ATTACHMENT0;
         api.draw_buffers(1, &color);
     }
@@ -271,8 +283,8 @@ void GlCommands::begin_rendering(const RenderingDesc& desc) {
         area.width = pass_width_;
         area.height = pass_height_;
     }
-    viewport_of(api, static_cast<float>(area.x), static_cast<float>(area.y),
-        static_cast<float>(area.width), static_cast<float>(area.height), target_height_);
+    viewport_of(api, static_cast<float>(area.x), static_cast<float>(area.y), static_cast<float>(area.width),
+        static_cast<float>(area.height), target_height_);
     api.enable(GL_SCISSOR_TEST);
     scissor_of(api, area, target_height_);
     // GLES tự mã hoá attachment sRGB. GL_FRAMEBUFFER_SRGB không có trong ES: bật nó là
@@ -289,7 +301,12 @@ void GlCommands::begin_rendering(const RenderingDesc& desc) {
     api.depth_mask(write);
     if (!desc.colors.empty() && desc.colors.front().load == LoadOp::kClear) {
         const ClearColor& clear = desc.colors.front().clear;
-        const std::array<float, 4> color{clear.red, clear.green, clear.blue, clear.alpha};
+        std::array<float, 4> color{clear.red, clear.green, clear.blue, clear.alpha};
+        if (first->srgb) {
+            color[0] = encode_srgb(color[0]);
+            color[1] = encode_srgb(color[1]);
+            color[2] = encode_srgb(color[2]);
+        }
         api.clear_buffer(GL_COLOR, 0, color.data());
     }
     if (desc.depth && desc.depth->load == LoadOp::kClear) {
@@ -325,8 +342,7 @@ void GlCommands::end_rendering() {
         api.framebuffer_texture(GL_DRAW_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, view->target, view->name, 0);
         api.bind_framebuffer(GL_READ_FRAMEBUFFER, device_->draw_framebuffer());
         api.blit_framebuffer(0, 0, static_cast<int>(pass_width_), static_cast<int>(pass_height_), 0, 0,
-            static_cast<int>(view->width), static_cast<int>(view->height), GL_COLOR_BUFFER_BIT,
-            GL_NEAREST);
+            static_cast<int>(view->width), static_cast<int>(view->height), GL_COLOR_BUFFER_BIT, GL_NEAREST);
     }
     device_->api().bind_framebuffer(GL_FRAMEBUFFER, 0);
     is_rendering_ = false;
@@ -463,8 +479,7 @@ void GlCommands::bind_group_at(const GlPipeline& pipeline, std::uint32_t space) 
     }
 }
 
-void GlCommands::bind_entry(
-    const GlPipeline& pipeline, std::uint32_t space, const GlBinding& binding) {
+void GlCommands::bind_entry(const GlPipeline& pipeline, std::uint32_t space, const GlBinding& binding) {
     const BindSlot* slot = find_slot(pipeline.bindings, space, binding.type, binding.slot);
     if (slot == nullptr) return;
     bind_slot(*slot, binding.resource);
@@ -472,7 +487,8 @@ void GlCommands::bind_entry(
     // còn gắn ở unit này; nếu nó lọc theo mip mà texture chỉ có mức 0 hoặc khác kích cỡ thì texture thành "không
     // hoàn chỉnh" và đọc ra số 0. Nhả sampler để unit dùng tham số của chính texture.
     const bool is_texture = std::holds_alternative<TextureViewHandle>(binding.resource);
-    const bool has_sampler = find_slot(pipeline.bindings, space, shader::RegisterType::kSampler, binding.slot) != nullptr;
+    const bool has_sampler =
+        find_slot(pipeline.bindings, space, shader::RegisterType::kSampler, binding.slot) != nullptr;
     if (is_texture && !has_sampler) bind_sampler_once(*device_, slot->index, 0);
 }
 
@@ -493,8 +509,7 @@ void GlCommands::bind_slot(const BindSlot& slot, const Bound& resource) {
 void GlCommands::bind_range(const BindSlot& slot, const BufferRange& range) {
     GlBuffer* buffer = device_->buffer(range.buffer);
     if (buffer == nullptr) return;
-    const std::uint32_t target =
-        slot.kind == BindClass::kStorage ? GL_SHADER_STORAGE_BUFFER : GL_UNIFORM_BUFFER;
+    const std::uint32_t target = slot.kind == BindClass::kStorage ? GL_SHADER_STORAGE_BUFFER : GL_UNIFORM_BUFFER;
     const std::uint64_t size = range.size == kWholeSize ? buffer->size - range.offset : range.size;
     bind_buffer_once(*device_, target, slot.index, buffer->name, range.offset, size);
 }
@@ -535,8 +550,8 @@ void GlCommands::bind_push(const GlPipeline& pipeline) {
         return;
     }
     const std::uint32_t offset = device_->push_range(push_);
-    bind_buffer_once(*device_, GL_UNIFORM_BUFFER, pipeline.bindings.push_binding, device_->push_buffer(),
-        offset, kPushAlign);
+    bind_buffer_once(*device_, GL_UNIFORM_BUFFER, pipeline.bindings.push_binding, device_->push_buffer(), offset,
+        kPushAlign);
 }
 
 // Hình học: VAO nhớ sẵn khuôn thuộc tính của cặp (pipeline, buffer đỉnh, buffer chỉ số), nên lần
@@ -562,8 +577,8 @@ void GlCommands::bind_geometry(GlFunctions& api) {
     cache.vertices = key;
 }
 
-void GlCommands::issue_draw(GlFunctions& api, const GlPipeline& pipeline, std::uint32_t count,
-    std::uint32_t instances, bool indexed) {
+void GlCommands::issue_draw(GlFunctions& api, const GlPipeline& pipeline, std::uint32_t count, std::uint32_t instances,
+    bool indexed) {
     const std::uint32_t mode = topology_of(pipeline.topology);
     if (!indexed) {
         if (instances > 1) {
@@ -581,8 +596,7 @@ void GlCommands::issue_draw(GlFunctions& api, const GlPipeline& pipeline, std::u
     const std::uint32_t type = index_type_ == IndexType::kUint16 ? GL_UNSIGNED_SHORT : GL_UNSIGNED_INT;
     const auto pointer = reinterpret_cast<const void*>(static_cast<std::uintptr_t>(index_offset_));
     if (api.draw_elements_instanced != nullptr) {
-        api.draw_elements_instanced(
-            mode, static_cast<int>(count), type, pointer, static_cast<int>(instances), 0);
+        api.draw_elements_instanced(mode, static_cast<int>(count), type, pointer, static_cast<int>(instances), 0);
         return;
     }
     api.draw_elements(mode, static_cast<int>(count), type, pointer);

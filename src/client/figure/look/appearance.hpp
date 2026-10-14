@@ -107,4 +107,3 @@ using Rows = std::expected<std::vector<Row>, std::string>;
 [[nodiscard]] const AnimRow* find_anim(std::span<const AnimRow> rows, std::uint32_t set, Action action, Weapon weapon);
 
 } // namespace game::look
-

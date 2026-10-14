@@ -14,9 +14,9 @@
 namespace game::account {
 namespace {
 
+using game::store::pg_i64;
 using game::store::PgConn;
 using game::store::PgExec;
-using game::store::pg_i64;
 
 [[nodiscard]] TicketResult fail_ticket(protocol::ErrorCode code) {
     TicketResult result;
@@ -109,10 +109,10 @@ void burn_dummy(const AuthOptions& options, std::string_view password) {
     Args args;
     args.text(std::string{ip});
     args.i64(static_cast<std::int64_t>(kFailWindow.count()));
-    const PgExec counted = conn.exec(
-        "SELECT count(*)::text FROM login_attempt "
-        "WHERE ip = $1::inet AND ok = false AND at > now() - make_interval(secs => $2::int)",
-        args.span());
+    const PgExec counted =
+        conn.exec("SELECT count(*)::text FROM login_attempt "
+                  "WHERE ip = $1::inet AND ok = false AND at > now() - make_interval(secs => $2::int)",
+            args.span());
     const std::string* text = cell(counted, 0, 0);
     if (!counted.ok || text == nullptr) return std::nullopt;
     const std::optional<std::int64_t> value = as_i64(*text);
@@ -124,10 +124,10 @@ void burn_dummy(const AuthOptions& options, std::string_view password) {
     Args args;
     args.text(std::string{fold});
     args.i64(static_cast<std::int64_t>(kFailWindow.count()));
-    const PgExec counted = conn.exec(
-        "SELECT count(*)::text FROM login_attempt "
-        "WHERE name_fold = $1 AND ok = false AND at > now() - make_interval(secs => $2::int)",
-        args.span());
+    const PgExec counted =
+        conn.exec("SELECT count(*)::text FROM login_attempt "
+                  "WHERE name_fold = $1 AND ok = false AND at > now() - make_interval(secs => $2::int)",
+            args.span());
     const std::string* text = cell(counted, 0, 0);
     if (!counted.ok || text == nullptr) return std::nullopt;
     const std::optional<std::int64_t> value = as_i64(*text);
@@ -143,8 +143,9 @@ void burn_dummy(const AuthOptions& options, std::string_view password) {
     args.text(std::string{fold});
     args.text(std::string{ip});
     args.text(ok ? "true" : "false");
-    const PgExec wrote = conn.exec(
-        "INSERT INTO login_attempt (account_id, name_fold, ip, ok) VALUES ($1, $2, $3::inet, $4)", args.span());
+    const PgExec wrote =
+        conn.exec("INSERT INTO login_attempt (account_id, name_fold, ip, ok) VALUES ($1, $2, $3::inet, $4)",
+            args.span());
     return wrote.ok;
 }
 
@@ -186,11 +187,13 @@ struct Loaded {
     if (!loaded.disabled) {
         Args ban;
         ban.i64(loaded.id);
-        const PgExec banned = conn.exec(
-            "SELECT 1 FROM ban WHERE account_id = $1 AND (until_at IS NULL OR until_at > now()) LIMIT 1", ban.span());
+        const PgExec banned =
+            conn.exec("SELECT 1 FROM ban WHERE account_id = $1 AND (until_at IS NULL OR until_at > now()) LIMIT 1",
+                ban.span());
         // Không đọc được bảng cấm thì không cho vào: lỗi database không được mở cửa cho tài khoản bị cấm.
         if (!banned.ok) {
-            secure::wipe_bytes(std::as_writable_bytes(std::span{loaded.password_hash.data(), loaded.password_hash.size()}));
+            secure::wipe_bytes(std::as_writable_bytes(std::span{
+                loaded.password_hash.data(), loaded.password_hash.size()}));
             return Loaded{.failed = true};
         }
         loaded.disabled = !banned.rows.empty();
@@ -212,22 +215,21 @@ struct Loaded {
     args.i64(account);
     args.text(stored);
     args.i64(ttl_seconds);
-    const PgExec wrote = conn.exec(
-        "INSERT INTO ticket (account_id, token_hash, expires_at) "
-        "VALUES ($1, $2, now() + make_interval(secs => $3::int))",
+    const PgExec wrote = conn.exec("INSERT INTO ticket (account_id, token_hash, expires_at) "
+                                   "VALUES ($1, $2, now() + make_interval(secs => $3::int))",
         args.span());
     static_cast<void>(conn.exec("DELETE FROM ticket WHERE expires_at < now() - interval '1 day'"));
     if (!wrote.ok) return std::nullopt;
     Args audit;
     audit.i64(account);
-    const PgExec noted = conn.exec(
-        "INSERT INTO audit_event (account_id, kind, detail) VALUES ($1, 'ticket', '')", audit.span());
+    const PgExec noted =
+        conn.exec("INSERT INTO audit_event (account_id, kind, detail) VALUES ($1, 'ticket', '')", audit.span());
     if (!noted.ok) return std::nullopt;
     return hex;
 }
 
-[[nodiscard]] std::optional<std::int64_t> insert_account(PgConn& conn, const AuthOptions& options, std::string_view name,
-    std::string_view fold, std::string_view password) {
+[[nodiscard]] std::optional<std::int64_t> insert_account(PgConn& conn, const AuthOptions& options,
+    std::string_view name, std::string_view fold, std::string_view password) {
     const std::size_t mem_bytes = static_cast<std::size_t>(options.mem_limit_kib) * 1024U;
     const secure::PasswordPolicy policy{
         .ops = static_cast<unsigned long long>(options.ops_limit),
@@ -244,10 +246,10 @@ struct Loaded {
     args.i64(options.gift_points);
     secure::wipe_bytes(std::as_writable_bytes(std::span{hash.data(), hash.size()}));
     hash.clear();
-    const PgExec wrote = conn.exec(
-        "INSERT INTO account (name, name_fold, password_hash, ops_limit, mem_limit_kib, gift_points) "
-        "VALUES ($1, $2, $3, $4, $5, $6) RETURNING id::text",
-        args.span());
+    const PgExec wrote =
+        conn.exec("INSERT INTO account (name, name_fold, password_hash, ops_limit, mem_limit_kib, gift_points) "
+                  "VALUES ($1, $2, $3, $4, $5, $6) RETURNING id::text",
+            args.span());
     if (unique_hit(wrote)) return std::int64_t{-1};
     const std::string* id = cell(wrote, 0, 0);
     if (!wrote.ok || id == nullptr) return std::nullopt;
@@ -299,10 +301,10 @@ struct Loaded {
 [[nodiscard]] ListResult list_players(PgConn& conn, std::uint64_t account) {
     Args args;
     args.i64(static_cast<std::int64_t>(account));
-    const PgExec found = conn.exec(
-        "SELECT id::text, name, level::text, gender::text, face::text, hair::text, school::text, scene::text "
-        "FROM player WHERE account_id = $1 AND deleted_at IS NULL ORDER BY id LIMIT 8",
-        args.span());
+    const PgExec found =
+        conn.exec("SELECT id::text, name, level::text, gender::text, face::text, hair::text, school::text, scene::text "
+                  "FROM player WHERE account_id = $1 AND deleted_at IS NULL ORDER BY id LIMIT 8",
+            args.span());
     if (!found.ok) return ListResult{};
     ListResult result;
     result.ok = true;
@@ -321,8 +323,8 @@ struct Loaded {
         args.i64(player);
         args.i64(static_cast<std::int64_t>(slot));
         args.i64(starter::kSkills[slot]);
-        const PgExec wrote = conn.exec(
-            "INSERT INTO player_skill (player_id, slot, skill_id) VALUES ($1, $2, $3)", args.span());
+        const PgExec wrote =
+            conn.exec("INSERT INTO player_skill (player_id, slot, skill_id) VALUES ($1, $2, $3)", args.span());
         if (!wrote.ok) return false;
     }
     for (const starter::LifeSkill& skill : starter::kLifeSkills) {
@@ -331,8 +333,9 @@ struct Loaded {
         args.i64(skill.id);
         args.i64(skill.level);
         args.i64(skill.exp);
-        const PgExec wrote = conn.exec(
-            "INSERT INTO player_life_skill (player_id, skill_id, level, exp) VALUES ($1, $2, $3, $4)", args.span());
+        const PgExec wrote =
+            conn.exec("INSERT INTO player_life_skill (player_id, skill_id, level, exp) VALUES ($1, $2, $3, $4)",
+                args.span());
         if (!wrote.ok) return false;
     }
     for (const std::int64_t recipe : starter::kRecipes) {
@@ -348,8 +351,9 @@ struct Loaded {
         args.i64(setting.index);
         args.i64(setting.kind);
         args.i64(setting.data);
-        const PgExec wrote = conn.exec(
-            "INSERT INTO player_setting (player_id, slot_index, kind, data) VALUES ($1, $2, $3, $4)", args.span());
+        const PgExec wrote =
+            conn.exec("INSERT INTO player_setting (player_id, slot_index, kind, data) VALUES ($1, $2, $3, $4)",
+                args.span());
         if (!wrote.ok) return false;
     }
     return true;
@@ -478,17 +482,18 @@ RedeemResult AuthDb::redeem(std::string_view ticket_hex) {
     if (!tx.begin()) return {};
     Args args;
     args.text(stored);
-    const PgExec used = conn_.exec(
-        "UPDATE ticket SET used_at = now() WHERE token_hash = $1 AND used_at IS NULL AND expires_at > now() "
-        "RETURNING account_id::text",
-        args.span());
+    const PgExec used =
+        conn_.exec("UPDATE ticket SET used_at = now() WHERE token_hash = $1 AND used_at IS NULL AND expires_at > now() "
+                   "RETURNING account_id::text",
+            args.span());
     if (!used.ok) return {};
     if (used.rows.empty()) {
-        const PgExec prior = conn_.exec(
-            "SELECT (used_at IS NOT NULL OR expires_at <= now())::text FROM ticket WHERE token_hash = $1", args.span());
+        const PgExec prior =
+            conn_.exec("SELECT (used_at IS NOT NULL OR expires_at <= now())::text FROM ticket WHERE token_hash = $1",
+                args.span());
         RedeemResult result;
         result.code = prior.ok && !prior.rows.empty() ? protocol::ErrorCode::kSessionExpired
-                                                       : protocol::ErrorCode::kBadCredentials;
+                                                      : protocol::ErrorCode::kBadCredentials;
         return result;
     }
     const std::string* id_text = cell(used, 0, 0);
@@ -521,10 +526,10 @@ EnterResult AuthDb::standing(std::uint64_t account) {
     result.code = protocol::ErrorCode::kBusy;
     Args who;
     who.i64(static_cast<std::int64_t>(account));
-    const PgExec found = conn_.exec(
-        "SELECT (disabled_at IS NOT NULL OR EXISTS (SELECT 1 FROM ban WHERE ban.account_id = account.id "
-        "AND (ban.until_at IS NULL OR ban.until_at > now())))::text FROM account WHERE id = $1",
-        who.span());
+    const PgExec found =
+        conn_.exec("SELECT (disabled_at IS NOT NULL OR EXISTS (SELECT 1 FROM ban WHERE ban.account_id = account.id "
+                   "AND (ban.until_at IS NULL OR ban.until_at > now())))::text FROM account WHERE id = $1",
+            who.span());
     if (!found.ok) return result;
     const std::string* disabled = cell(found, 0, 0);
     if (disabled == nullptr) {
@@ -565,8 +570,8 @@ ListResult GameDb::create_character(std::uint64_t account, std::string_view name
     if (!lock_name(conn_, std::string("player:") + fold)) return {};
     Args count_args;
     count_args.i64(static_cast<std::int64_t>(account));
-    const PgExec counted = conn_.exec(
-        "SELECT count(*)::text FROM player WHERE account_id = $1 AND deleted_at IS NULL", count_args.span());
+    const PgExec counted =
+        conn_.exec("SELECT count(*)::text FROM player WHERE account_id = $1 AND deleted_at IS NULL", count_args.span());
     const std::string* count_text = cell(counted, 0, 0);
     if (!counted.ok || count_text == nullptr) return {};
     const std::optional<std::int64_t> live = as_i64(*count_text);
@@ -577,10 +582,10 @@ ListResult GameDb::create_character(std::uint64_t account, std::string_view name
     taken_args.i64(static_cast<std::int64_t>(account));
     taken_args.i64(policy_.name_reserve.count());
     // Tên đang sống của bất kỳ ai, hoặc tên tài khoản khác vừa xoá mềm còn trong hạn giữ chỗ.
-    const PgExec taken = conn_.exec(
-        "SELECT 1 FROM player WHERE name_fold = $1 AND (deleted_at IS NULL OR "
-        "(account_id <> $2 AND deleted_at > now() - make_interval(secs => $3::int))) LIMIT 1",
-        taken_args.span());
+    const PgExec taken =
+        conn_.exec("SELECT 1 FROM player WHERE name_fold = $1 AND (deleted_at IS NULL OR "
+                   "(account_id <> $2 AND deleted_at > now() - make_interval(secs => $3::int))) LIMIT 1",
+            taken_args.span());
     if (!taken.ok) return {};
     const CreateStep step = create_step(character_name_ok(name), live_count, !taken.rows.empty());
     if (step != CreateStep::kOk) {
@@ -639,8 +644,9 @@ ListResult GameDb::remove_character(std::uint64_t account, std::uint64_t charact
     Args args;
     args.i64(static_cast<std::int64_t>(character));
     args.i64(static_cast<std::int64_t>(account));
-    const PgExec wrote = conn_.exec(
-        "UPDATE player SET deleted_at = now() WHERE id = $1 AND account_id = $2 AND deleted_at IS NULL", args.span());
+    const PgExec wrote =
+        conn_.exec("UPDATE player SET deleted_at = now() WHERE id = $1 AND account_id = $2 AND deleted_at IS NULL",
+            args.span());
     if (!wrote.ok) return {};
     if (wrote.affected != 1) {
         ListResult result;
@@ -655,10 +661,10 @@ EnterResult GameDb::enter(std::uint64_t account, std::uint64_t character) {
     args.i64(static_cast<std::int64_t>(character));
     args.i64(static_cast<std::int64_t>(account));
     // position_x/position_z lưu mét; gate làm việc bằng centimet nguyên.
-    const PgExec found = conn_.exec(
-        "SELECT scene::text, round(position_x * 100)::bigint::text, round(position_z * 100)::bigint::text "
-        "FROM player WHERE id = $1 AND account_id = $2 AND deleted_at IS NULL",
-        args.span());
+    const PgExec found =
+        conn_.exec("SELECT scene::text, round(position_x * 100)::bigint::text, round(position_z * 100)::bigint::text "
+                   "FROM player WHERE id = $1 AND account_id = $2 AND deleted_at IS NULL",
+            args.span());
     EnterResult result;
     if (!found.ok) return result;
     if (found.rows.empty()) {

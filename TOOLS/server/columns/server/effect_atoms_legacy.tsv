@@ -1,0 +1,51 @@
+# schema 1
+# source: public_config/Impact.txt
+# tool: TOOLS/server/import_legacy.py; sửa tay sẽ mất ở lượt xuất sau
+# types: int	text	text	text	text
+index	original	name	type	note
+0	ID	id	int	luật: M1
+1	Class_ID	class_id	int	luật: M1
+2	互斥标记	column_2	int	?
+3	是否同步(0/1)	column_3	int	?
+4	最大叠加次数	column_4	int	?
+5	发作时间间隔(ms)	column_5	int	?
+6	持续时间(ms)	column_6	int	?
+7	持续时间修正修正公式ID	column_7	int	?
+8	原子操作ID(1)	column_8	int	?
+9	参数1(1)	column_9	int	?
+10	参数2(1)	column_10	int	?
+11	修正公式ID(1)	column_11	int	?
+12	原子操作ID(2)	column_12	int	?
+13	参数1(2)	column_13	int	?
+14	参数2(2)	column_14	int	?
+15	修正公式ID(2)	column_15	int	?
+16	原子操作ID(3)	column_16	int	?
+17	参数1(3)	column_17	int	?
+18	参数2(3)	column_18	int	?
+19	修正公式ID(3)	column_19	int	?
+20	原子操作ID(4)	column_20	int	?
+21	参数1(4)	column_21	int	?
+22	参数2(4)	column_22	int	?
+23	修正公式ID(4)	column_23	int	?
+24	原子操作ID(5)	column_24	int	?
+25	参数1(5)	column_25	int	?
+26	参数2(5)	column_26	int	?
+27	修正公式ID(5)	column_27	int	?
+28	原子操作ID(6)	column_28	int	?
+29	参数1(6)	column_29	int	?
+30	参数2(6)	column_30	int	?
+31	修正公式ID(6)	column_31	int	?
+32	原子操作ID(7)	column_32	int	?
+33	参数1(7)	column_33	int	?
+34	参数2(7)	column_34	int	?
+35	修正公式ID(7)	column_35	int	?
+36	原子操作ID(8)	column_36	int	?
+37	参数1(8)	column_37	int	?
+38	参数2(8)	column_38	int	?
+39	修正公式ID(8)	column_39	int	?
+40	触发特效ID	trigger_effect_id	int	luật: nguyên văn
+41	触发特效的绑定点	trigger_effect_anchor	text	luật: nguyên văn
+42	伤害特效ID	column_42	int	?
+43	伤害特效的绑定点	column_43	int	?
+44	图标ID	column_44	int	?
+45	效果描述$1$	column_45	text	?

@@ -67,7 +67,7 @@ enum class Pso : std::uint8_t {
 
 inline constexpr std::uint32_t kModelTwoSided = 1;
 inline constexpr std::uint32_t kModelBlended = 2;
-// Cỡ khối hằng của model.hlsli. forward.cpp static_assert sizeof khối C++ bằng hai số này.
+// Cỡ khối hằng của model.inc.slang. forward.cpp static_assert sizeof khối C++ bằng hai số này.
 inline constexpr std::uint32_t kModelFrameBytes = 1344;
 inline constexpr std::uint32_t kModelDrawBytes = gpu::kMaxPushBytes;
 inline constexpr std::size_t kModelVariants = 4;

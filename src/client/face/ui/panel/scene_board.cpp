@@ -143,7 +143,8 @@ void step_board(SceneBoard& board, const SceneRow& scene, const BoardStep& step)
         board.centre_z = view.centre_z;
     }
     if (!step.pointer) return;
-    const gui::SceneCursor cursor{.local_x = step.pointer->x - step.window.x, .local_y = step.pointer->y - step.window.y};
+    const gui::SceneCursor cursor{
+        .local_x = step.pointer->x - step.window.x, .local_y = step.pointer->y - step.window.y};
     const gui::SceneHit hit = gui::board_scene_at(ask, view, cursor);
     if (!hit.is_on_scene) return;
     board.coord_x = hit.x;
@@ -159,7 +160,8 @@ void paint_board(Deck& deck, const SceneBoard& board, const SceneRow& scene) {
     put("SceneMapCenter", std::format("{} {}", board.centre_x, board.centre_z));
     deck.set(gui::Override{.window = kBoardWindow, .name = "SceneMapSelf", .value = board.is_here ? kTrue : kFalse});
     // SceneMap_UpdateInfo: toạ độ viết thành số nguyên cách nhau bốn dấu cách.
-    const std::string place = std::format("{}    {}", static_cast<int>(std::floor(board.coord_x)), static_cast<int>(std::floor(board.coord_z)));
+    const std::string place = std::format("{}    {}", static_cast<int>(std::floor(board.coord_x)),
+        static_cast<int>(std::floor(board.coord_z)));
     deck.set(gui::Override{.window = "SceneMap_Crood", .name = "Text", .value = place});
 }
 

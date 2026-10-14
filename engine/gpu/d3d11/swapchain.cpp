@@ -379,14 +379,6 @@ void fill_discard(DXGI_SWAP_CHAIN_DESC1& info) {
     return args;
 }
 
-[[nodiscard]] Result<std::uint32_t> flip_index(IDXGISwapChain& swap) {
-    ComPtr<IDXGISwapChain3> chain;
-    IDXGISwapChain3** slot = chain.GetAddressOf();
-    const HRESULT queried = swap.QueryInterface(com_iid(slot), com_pp(slot));
-    if (FAILED(queried)) return hresult_failure(queried, "không lấy được chỉ số ảnh");
-    return chain->GetCurrentBackBufferIndex();
-}
-
 void unbind_immediate(ID3D11DeviceContext& context) {
     context.OMSetRenderTargets(0, nullptr, nullptr);
 }
@@ -478,9 +470,7 @@ Swapchain11::~Swapchain11() {
 
 Result<std::uint32_t> Swapchain11::acquire() {
     if (images_.empty()) return fail(kState, "swapchain chưa có ảnh");
-    if (!is_flip_) return 0U;
-    IDXGISwapChain* swap = swap_.Get();
-    return flip_index(*swap);
+    return 0U;
 }
 
 TextureHandle Swapchain11::image(std::uint32_t index) const {
@@ -530,9 +520,6 @@ Status Swapchain11::resize(std::uint32_t width, std::uint32_t height) {
 }
 
 Status Swapchain11::adopt_images() {
-    DXGI_SWAP_CHAIN_DESC info{};
-    const HRESULT read = swap_->GetDesc(&info);
-    if (FAILED(read)) return failed(read, "không đọc được swapchain");
     ChainSlots slots;
     slots.images = &images_;
     slots.views = &views_;
@@ -541,10 +528,10 @@ Status Swapchain11::adopt_images() {
     slots.height = &height_;
     slots.device = device_;
     slots.swap = swap_.Get();
-    Status status = ok();
-    for (UINT index = 0; index < info.BufferCount && status; ++index) {
-        status = keep_one(status, slots, index);
-    }
+    // D3D11 chỉ cho GetBuffer(0), cả flip lẫn blt: runtime tự xoay các buffer sau mỗi Present, nên chuỗi
+    // giữ đúng một ảnh. Hỏi chỉ số lớn hơn 0 là DXGI_ERROR_INVALID_CALL (đo 2026-10-13 ở
+    // d3d11_swapchain_accepts_srgb: "không lấy được ảnh swapchain").
+    const Status status = keep_one(ok(), slots, 0);
     if (!status) release_images();
     return status;
 }

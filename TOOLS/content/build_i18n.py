@@ -2,14 +2,19 @@
 # lấy đúng MỘT tệp nguồn assets/i18n/<ngôn ngữ>.tsv và đưa nó vào bản triển khai. Bản triển khai
 # (thư mục dữ liệu client) chỉ chứa một bộ chữ dịch và một bộ ảnh; client không biết và không chọn
 # ngôn ngữ lúc chạy. CMake chạy công cụ ở mỗi lượt dựng (target thienlong_i18n), nên sửa chữ hay ảnh
-# rồi dựng lại là client thấy. Tệp nguồn có bốn loại dòng "khoá<tab>giá trị":
+# rồi dựng lại là client thấy. Tệp nguồn có năm loại dòng "khoá<tab>giá trị":
 #   khoá chuỗi (#{...} của StrDictionary, hoặc mở đầu bằng = là nguyên văn chữ của layout)
 #   scene/<tên gốc của cảnh>
 #   image/<bộ ảnh>/<tên ảnh>     giá trị là tệp PNG trong assets/i18n/<ngôn ngữ>/
 #   file/<đường dẫn trong thư mục dữ liệu>     giá trị là tệp trong assets/i18n/<ngôn ngữ>/, chép nguyên
+#   table/<bảng>/<id>/<cột>     chữ dịch của một ô của Table/<bảng>.tsv: <bảng> là tên tệp bảng không
+#     đuôi (skills, items...), <id> là giá trị cột id của dòng, <cột> là tên cột trong dòng tên cột
+#     của bảng; ô không có khoá giữ chữ gốc tiếng Trung (table/localize.hpp của client).
 # Ghi vào thư mục dữ liệu client:
 #   Table/ui_strings.lang.tsv và Table/scene_names.lang.tsv: chữ của ngôn ngữ đã chọn.
 #   Interface/<atlas>.png: atlas của bộ ảnh với mảnh ảnh đã thay, ghi đè lên atlas bộ gom đã đặt.
+#   Table/<bảng>.lang.tsv (ba cột id, column, text): bản dịch ô của từng bảng có dòng table/; bảng
+#   thôi được nêu thì tệp bản dịch của nó bị xoá (sổ tables.tsv của thư mục --state).
 #   các tệp của dòng file/ (trang web mở từ nút, ...); tệp thôi được nêu thì bị xoá khỏi thư mục dữ
 #   liệu (sổ files.tsv của thư mục --state nhớ các tệp đã chép).
 # Hai ô ảnh của cùng một atlas có thể chồng nhau (bộ ảnh gốc khai lệch một hàng): hai ảnh thay phải
@@ -45,6 +50,11 @@ import export_layout_images
 SCENE = "scene/"
 IMAGE = "image/"
 FILE = "file/"
+TABLE = "table/"
+# Tên bảng và tên cột của khoá table/: chữ thường, số, gạch dưới (như tên tệp do export_config.py đặt).
+# Hai tên của bảng chữ giao diện bị cấm: Table/<bảng>.lang.tsv của chúng là hai bảng chữ ở trên.
+TABLE_RESERVED = frozenset({"ui_strings", "scene_names"})
+TABLE_LISTING = "tables.tsv"
 STRINGS_TABLE = "Table/ui_strings.lang.tsv"
 SCENES_TABLE = "Table/scene_names.lang.tsv"
 LEDGER = "atlases.tsv"
@@ -79,6 +89,8 @@ class Manifest:
     scenes: list[tuple[str, str]] = field(default_factory=list)
     images: list[ImageRow] = field(default_factory=list)
     files: list[FileRow] = field(default_factory=list)
+    # Bảng -> các ô dịch (id, cột, chữ) theo thứ tự của tệp nguồn.
+    tables: dict[str, list[tuple[str, str, str]]] = field(default_factory=dict)
 
 
 @dataclass(frozen=True)
@@ -117,7 +129,30 @@ def add_file(manifest: Manifest, target: str, value: str, where: str) -> None:
     manifest.files.append(FileRow(target, value))
 
 
+def is_name(text: str) -> bool:
+    return bool(text) and all(char.isascii() and (char.islower() or char.isdigit() or char == "_") for char in text)
+
+
+def is_id(text: str) -> bool:
+    digits = text[1:] if text.startswith("-") else text
+    return digits.isascii() and digits.isdigit()
+
+
+# Khoá table/<bảng>/<id>/<cột>: đúng ba phần, id là số nguyên thập phân như cột id của bảng.
+def add_table_cell(manifest: Manifest, key: str, value: str, where: str) -> None:
+    parts = key[len(TABLE):].split("/")
+    if len(parts) != 3 or not is_name(parts[0]) or not is_id(parts[1]) or not is_name(parts[2]):
+        raise ManifestError(f"{where}: khoá bảng phải là {TABLE}<bảng>/<id>/<cột>, bảng và cột viết [a-z0-9_]")
+    table, row, column = parts
+    if table in TABLE_RESERVED:
+        raise ManifestError(f"{where}: bảng {table} là bảng chữ giao diện, không dịch theo ô")
+    manifest.tables.setdefault(table, []).append((row, column, value))
+
+
 def add_row(manifest: Manifest, key: str, value: str, where: str) -> None:
+    if key.startswith(TABLE):
+        add_table_cell(manifest, key, value, where)
+        return
     if key.startswith(FILE):
         add_file(manifest, key[len(FILE):], value, where)
         return
@@ -156,6 +191,24 @@ def read_manifest(text: str) -> Manifest:
 def table_bytes(rows: list[tuple[str, str]]) -> bytes:
     lines = [f"# {NOTE}", "key\ttext"] + [f"{key}\t{text}" for key, text in rows]
     return ("\n".join(lines) + "\n").encode("utf-8")
+
+
+def cells_bytes(rows: list[tuple[str, str, str]]) -> bytes:
+    lines = [f"# {NOTE}", "id\tcolumn\ttext"] + ["\t".join(row) for row in rows]
+    return ("\n".join(lines) + "\n").encode("utf-8")
+
+
+# Ghi Table/<bảng>.lang.tsv của từng bảng có ô dịch, xoá bản dịch của bảng lượt trước có mà nay
+# không còn; trả số tệp đã ghi và nội dung từng tệp (để băm vào mốc).
+def deploy_tables(manifest: Manifest, data: Path, state: Path) -> tuple[int, dict[str, bytes]]:
+    contents = {f"Table/{table}.lang.tsv": cells_bytes(rows) for table, rows in sorted(manifest.tables.items())}
+    listing = state / TABLE_LISTING
+    before = listing.read_text(encoding="utf-8").split("\n") if listing.is_file() else []
+    for target in sorted(set(filter(None, before)) - set(contents)):
+        (data / target).unlink(missing_ok=True)
+    written = sum(int(write_changed(data / target, content)) for target, content in contents.items())
+    write_changed(listing, "".join(target + "\n" for target in sorted(contents)).encode("utf-8"))
+    return written, contents
 
 
 def digest(*parts: bytes) -> str:
@@ -366,12 +419,18 @@ def build(source: Path, data: Path, state: Path) -> int:
     scenes = table_bytes(manifest.scenes)
     tables = int(write_changed(data / STRINGS_TABLE, strings)) + int(write_changed(data / SCENES_TABLE, scenes))
     copied = deploy_files(contents, data, state)
+    table_count, cells = deploy_tables(manifest, data, state)
     # Sổ mang băm của từng atlas đã ghi, nên các phần này phủ hết thứ lượt dựng đưa vào thư mục dữ liệu.
     names = "\n".join(sorted(contents)).encode("utf-8")
-    deployed = digest(strings, scenes, ledger_bytes(store.records), names, *[contents[key] for key in sorted(contents)])
+    files = [contents[key] for key in sorted(contents)]
+    translated = [part for key in sorted(cells) for part in (key.encode("utf-8"), cells[key])]
+    deployed = digest(strings, scenes, ledger_bytes(store.records), names, *files, *translated)
     write_changed(state / STAMP, (deployed + "\n").encode("utf-8"))
     counts = f"{len(manifest.strings)} chuỗi, {len(manifest.scenes)} tên cảnh, {len(manifest.images)} ảnh"
-    print(f"i18n {language}: {counts}, {len(contents)} tệp; ghi {tables} bảng chữ, {atlases} atlas, {copied} tệp")
+    cell_count = sum(len(rows) for rows in manifest.tables.values())
+    counts += f", {cell_count} ô của {len(manifest.tables)} bảng"
+    wrote = f"{tables} bảng chữ, {table_count} bản dịch bảng, {atlases} atlas, {copied} tệp"
+    print(f"i18n {language}: {counts}, {len(contents)} tệp; ghi {wrote}")
     return 0
 
 

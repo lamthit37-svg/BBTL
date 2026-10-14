@@ -255,11 +255,13 @@ void press_quest_log(QuestLog& panel, std::string_view window, const QuestFacts&
     if (window == kClose) panel.is_shown = false;
     if (window == kRefuse) press_refuse(panel);
     if (window == kMissionsMode) {
-        const ModeBox box{.window = kMissionsMode, .frame = quest::TrackFrame::kMissions, .frame_window = kMissionsFrame};
+        const ModeBox box{
+            .window = kMissionsMode, .frame = quest::TrackFrame::kMissions, .frame_window = kMissionsFrame};
         toggle_mode(panel, box, facts, calls);
     }
     if (window == kCampaignsMode) {
-        const ModeBox box{.window = kCampaignsMode, .frame = quest::TrackFrame::kCampaigns, .frame_window = kCampaignsFrame};
+        const ModeBox box{
+            .window = kCampaignsMode, .frame = quest::TrackFrame::kCampaigns, .frame_window = kCampaignsFrame};
         toggle_mode(panel, box, facts, calls);
     }
     if (window == kHeldTab) {

@@ -11,11 +11,11 @@
 #include "client/viewer/client_size.hpp"
 #include "client/viewer/cursors.hpp"
 #include "client/viewer/sdl_input.hpp"
-#include "client/timeline.hpp"
 #include "control/cursor_rules.hpp"
 #include "control/input.hpp"
 #include "core/clock.hpp"
 #include "core/error.hpp"
+#include "core/timeline.hpp"
 #include "io/platform.hpp"
 #include "window/cursor.hpp"
 #include "window/system.hpp"
@@ -330,8 +330,8 @@ void on_key_down(Controls& controls, SdlKey key, bool is_repeat) {
     }
     Steering input = camera_key_steering(key);
     input.toggles_pace = key == SdlKey::kF11 && !is_repeat;
-    input.wants_jump = key == SdlKey::kSpace && !is_repeat;
     controls.display->steer(input);
+    if (key == SdlKey::kSpace && !is_repeat) controls.display->act(PlayAct::kJump);
     const int step = direction_of(key);
     const bool has_world = controls.desc->playing != nullptr && controls.is_playing->load(std::memory_order_relaxed);
     const bool can_change = has_world && step != 0 && !is_repeat;
@@ -433,7 +433,8 @@ void drain_input(SdlInput& input, Controls& controls, std::vector<SdlAction>& ac
     const bool is_held = controls.opened->is_cursor_captured();
     input.set_relative(is_held);
     input.drain(actions);
-    for (const SdlAction& action : actions) apply_action(controls, action);
+    for (const SdlAction& action : actions)
+        apply_action(controls, action);
 }
 
 // Thời gian chuyển nhạc khi đổi cảnh, giây: nhạc cũ nhỏ dần trong lúc nhạc mới lên.
@@ -670,7 +671,7 @@ int run_viewer(const ViewerDesc& desc) {
         std::println(stderr, "Lỗi: không mở được cửa sổ: {}", opened.error());
         return 1;
     }
-    client::mark("cửa sổ mở");
+    core::mark("cửa sổ mở");
     const window::Size initial = opened->client_size();
     DisplayDesc shown;
     shown.window = opened->native_handle();
@@ -693,7 +694,7 @@ int run_viewer(const ViewerDesc& desc) {
         std::println(stderr, "Lỗi: không khởi tạo được phần hiển thị: {}", display.error());
         return 1;
     }
-    client::mark("Display::create xong");
+    core::mark("Display::create xong");
     return present(*opened, *display, desc);
 }
 

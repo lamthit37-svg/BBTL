@@ -63,4 +63,3 @@ void format_key(std::string& out, const gui::StringBook& book, std::string_view 
 }
 
 } // namespace game::ui::panel
-

@@ -74,12 +74,14 @@ void set_skill(Book& book, const Tables& tables, std::int32_t sect, const SkillM
     const SkillRow* row = skill_row(tables, mark.id);
     if (row == nullptr) return;
     if (row->inner_art != kNone && row->sect != sect) return;
-    book.skills.insert(slot, OwnedSkill{.id = mark.id, .pos_index = next_pos(book.skills), .is_learned = mark.is_learned});
+    book.skills.insert(slot,
+        OwnedSkill{.id = mark.id, .pos_index = next_pos(book.skills), .is_learned = mark.is_learned});
 }
 
 void replace_skills(Book& book, const Tables& tables, std::int32_t sect, std::span<const std::int32_t> ids) {
     book.skills.clear();
-    for (const std::int32_t id : ids) set_skill(book, tables, sect, SkillMark{.id = id, .is_learned = true});
+    for (const std::int32_t id : ids)
+        set_skill(book, tables, sect, SkillMark{.id = id, .is_learned = true});
 }
 
 void set_life_skill(Book& book, const Tables& tables, const LifeMark& mark) {

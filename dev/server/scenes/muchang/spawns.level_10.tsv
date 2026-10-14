@@ -1,0 +1,22 @@
+# schema 1
+# source: Public/Scene/muchang_monster_10.ini
+# tool: TOOLS/server/export_scene.py; sửa tay sẽ mất ở lượt xuất sau
+# types: int	int	text	text	float	float	int	int	int	int	int	int	int	int	int	int	int	int	int	int	int	int	text	int	int	int
+guid	type	name	title	position_x	position_z	direction	script_id	respawn_time	group_id	team_id	base_ai	ai_file	patrol_id	shop_0	shop_1	shop_2	shop_3	level	is_pet	script_timer	reputation_id	cshop	leader_id	is_npc	camp
+12003952	1990			75	96	0	-1	-1	-1	-1	0	-1	-1	-1	-1	-1	-1								
+12003952	1990			88	88	0	-1	-1	-1	-1	0	-1	-1	-1	-1	-1	-1								
+12003952	1990			96	83	0	-1	-1	-1	-1	0	-1	-1	-1	-1	-1	-1								
+12003952	1990			100	72	0	-1	-1	-1	-1	0	-1	-1	-1	-1	-1	-1								
+12003952	2000			103	59	0	-1	-1	-1	-1	0	-1	-1	-1	-1	-1	-1								
+12003952	2000			109	47	0	-1	-1	-1	-1	0	-1	-1	-1	-1	-1	-1								
+12003952	2000			106	32	0	-1	-1	-1	-1	0	-1	-1	-1	-1	-1	-1								
+12003952	2000			91	26	0	-1	-1	-1	-1	0	-1	-1	-1	-1	-1	-1								
+12003952	2000			75	22	0	-1	-1	-1	-1	0	-1	-1	-1	-1	-1	-1								
+12003952	2010			60	23	0	-1	-1	-1	-1	0	-1	-1	-1	-1	-1	-1								
+12003952	2010			43	21	0	-1	-1	-1	-1	0	-1	-1	-1	-1	-1	-1								
+12003952	2010			25	21	0	-1	-1	-1	-1	0	-1	-1	-1	-1	-1	-1								
+12003952	2010			32	35	0	-1	-1	-1	-1	0	-1	-1	-1	-1	-1	-1								
+12003952	2010			40	56	0	-1	-1	-1	-1	0	-1	-1	-1	-1	-1	-1								
+12003952	2010			39	78	0	-1	-1	-1	-1	0	-1	-1	-1	-1	-1	-1								
+12003952	2010			23	88	0	-1	-1	-1	-1	0	-1	-1	-1	-1	-1	-1								
+12003952	364	少女		20	106	0	-1	-1	-1	-1	3	-1	-1	-1	-1	-1	-1								

@@ -51,7 +51,8 @@ public:
     [[nodiscard]] RosterReply login(std::string_view name, std::string_view ticket_hex) const;
     [[nodiscard]] RosterReply create_character(std::span<const std::byte, kCapBytes> cap,
         const protocol::CreateCharacter& request) const;
-    [[nodiscard]] RosterReply remove_character(std::span<const std::byte, kCapBytes> cap, std::uint64_t character) const;
+    [[nodiscard]] RosterReply remove_character(std::span<const std::byte, kCapBytes> cap,
+        std::uint64_t character) const;
     [[nodiscard]] EnterReply enter(std::span<const std::byte, kCapBytes> cap, std::uint64_t character) const;
 
 private:

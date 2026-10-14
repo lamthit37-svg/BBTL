@@ -73,7 +73,8 @@ void sync_skill_actions(Actions& actions, const Book& book, const Tables& tables
         return one.kind == ActionKind::kSkill && !is_backed(one, book, tables);
     };
     std::erase_if(actions.all, is_gone);
-    for (const OwnedSkill& skill : book.skills) add_action(actions, ActionKind::kSkill, skill.id);
+    for (const OwnedSkill& skill : book.skills)
+        add_action(actions, ActionKind::kSkill, skill.id);
 }
 
 void sync_inner_art_actions(Actions& actions, const Book& book) {
@@ -81,7 +82,8 @@ void sync_inner_art_actions(Actions& actions, const Book& book) {
         return one.kind == ActionKind::kInnerArt && find_inner_art(book, one.define) == nullptr;
     };
     std::erase_if(actions.all, is_gone);
-    for (const OwnedInnerArt& art : book.inner_arts) add_action(actions, ActionKind::kInnerArt, art.id);
+    for (const OwnedInnerArt& art : book.inner_arts)
+        add_action(actions, ActionKind::kInnerArt, art.id);
 }
 
 void sync_life_actions(Actions& actions, const Book& book) {
@@ -89,14 +91,16 @@ void sync_life_actions(Actions& actions, const Book& book) {
         return one.kind == ActionKind::kLifeSkill && find_life_skill(book, one.define) == nullptr;
     };
     std::erase_if(actions.all, is_gone);
-    for (const OwnedLifeSkill& life : book.life_skills) add_action(actions, ActionKind::kLifeSkill, life.id);
+    for (const OwnedLifeSkill& life : book.life_skills)
+        add_action(actions, ActionKind::kLifeSkill, life.id);
 }
 
 std::size_t action_count(const Actions& actions, ActionKind kind) noexcept {
     return static_cast<std::size_t>(std::ranges::count(actions.all, kind, &Action::kind));
 }
 
-const Action* enum_action(const Actions& actions, const Book& book, const Tables& tables, const ActionAsk& ask) noexcept {
+const Action* enum_action(const Actions& actions, const Book& book, const Tables& tables,
+    const ActionAsk& ask) noexcept {
     const auto is_it = [&book, &tables, &ask](const Action& one) noexcept {
         return one.kind == ask.kind && pos_index(one, book, tables) == ask.index;
     };
@@ -122,7 +126,8 @@ std::int32_t define_id(const Action& action, const Book& book, const Tables& tab
     return is_backed(action, book, tables) ? action.define : kNone;
 }
 
-std::optional<std::int32_t> defined_by(const Actions& actions, const Book& book, const Tables& tables, std::int32_t action_id) noexcept {
+std::optional<std::int32_t> defined_by(const Actions& actions, const Book& book, const Tables& tables,
+    std::int32_t action_id) noexcept {
     const Action* action = action_by_id(actions, action_id);
     if (action == nullptr) return std::nullopt;
     const std::int32_t define = define_id(*action, book, tables);
@@ -130,12 +135,15 @@ std::optional<std::int32_t> defined_by(const Actions& actions, const Book& book,
     return define;
 }
 
-std::int32_t owner_inner_art(const Actions& actions, const Book& book, const Tables& tables, const Action& action) noexcept {
+std::int32_t owner_inner_art(const Actions& actions, const Book& book, const Tables& tables,
+    const Action& action) noexcept {
     if (action.kind != ActionKind::kSkill) return kNotOwned;
     const std::optional<SkillView> skill = find_skill(book, tables, action.define);
     if (!skill || skill->row->user_class != 0) return kNotOwned;
     const std::int32_t art = skill->row->inner_art;
-    const auto is_it = [art](const Action& one) noexcept { return one.kind == ActionKind::kInnerArt && one.define == art; };
+    const auto is_it = [art](const Action& one) noexcept {
+        return one.kind == ActionKind::kInnerArt && one.define == art;
+    };
     const auto found = std::ranges::find_if(actions.all, is_it);
     return found == actions.all.end() ? kNoOwnerArt : found->id;
 }

@@ -1,0 +1,30 @@
+# schema 1
+# source: client_2026/ImpactDirectly.txt
+# tool: TOOLS/server/export_tables.py; sửa tay sẽ mất ở lượt xuất sau
+# types: int	text	text	text	text
+index	original	name	type	note
+0	ID	id	int	neo: cột gốc 0, khớp 100.0% (200/200 id); luật: M1
+1	特效ID1	effect_id_1	text	neo: cột gốc 1, khớp 97.5% (195/200 id); luật: mẫu {n}
+2	音效ID1	sound_id_1	text	neo: cột gốc 2, khớp 100.0% (200/200 id); luật: mẫu {n}
+3	特效的绑定点1	effect_anchor_1	text	neo: cột gốc 3, khớp 100.0% (200/200 id); luật: mẫu {n}
+4		column_4	int	mới ở 2026
+5	特效ID2	effect_id_2	text	neo: cột gốc 4, khớp 97.5% (195/200 id); luật: mẫu {n}
+6	音效ID2	sound_id_2	text	neo: cột gốc 5, khớp 100.0% (200/200 id); luật: mẫu {n}
+7	特效的绑定点2	effect_anchor_2	text	neo: cột gốc 6, khớp 100.0% (200/200 id); luật: mẫu {n}
+8		column_8	int	mới ở 2026
+9	特效ID3	effect_id_3	text	neo: cột gốc 7, khớp 97.5% (195/200 id); luật: mẫu {n}
+10	音效ID3	sound_id_3	text	neo: cột gốc 8, khớp 100.0% (200/200 id); luật: mẫu {n}
+11	特效的绑定点3	effect_anchor_3	text	neo: cột gốc 9, khớp 100.0% (200/200 id); luật: mẫu {n}
+12		column_12	int	mới ở 2026
+13	特效ID4	effect_id_4	text	neo: cột gốc 10, khớp 97.5% (195/200 id); luật: mẫu {n}
+14	音效ID4	sound_id_4	text	neo: cột gốc 11, khớp 100.0% (200/200 id); luật: mẫu {n}
+15	特效的绑定点4	effect_anchor_4	text	neo: cột gốc 12, khớp 100.0% (200/200 id); luật: mẫu {n}
+16		column_16	int	mới ở 2026
+17	特效ID5	effect_id_5	text	neo: cột gốc 13, khớp 97.5% (195/200 id); luật: mẫu {n}
+18	音效ID5	sound_id_5	text	neo: cột gốc 14, khớp 100.0% (200/200 id); luật: mẫu {n}
+19	特效的绑定点5	effect_anchor_5	text	neo: cột gốc 15, khớp 100.0% (200/200 id); luật: mẫu {n}
+20		column_20	int	mới ở 2026
+21		column_21	text	mới ở 2026
+22		column_22	text	mới ở 2026
+23	效果说明	effect_description	text	neo: cột gốc 18, khớp 100.0% (200/200 id); luật: nguyên văn
+24		column_24	int	mới ở 2026

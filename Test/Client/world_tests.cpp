@@ -2,7 +2,7 @@
 #include "client/world/world.hpp"
 #include "core/check.hpp"
 #include "nav/mesh.hpp"
-#include "nav_sample.hpp"
+#include "Nav/nav_sample.hpp"
 #include "test.hpp"
 
 #include <algorithm>
@@ -77,12 +77,6 @@ struct SceneDir {
 
 [[nodiscard]] bool write_scene(const std::filesystem::path& path) {
     return write_text(path, kSceneText);
-}
-
-[[nodiscard]] bool write_bytes(const std::filesystem::path& path, std::span<const std::byte> bytes) {
-    std::string text(bytes.size(), '\0');
-    std::ranges::transform(bytes, text.begin(), [](std::byte one) { return static_cast<char>(one); });
-    return write_text(path, text);
 }
 
 [[nodiscard]] std::string rows_of(int count) {

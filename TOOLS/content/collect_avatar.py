@@ -1,6 +1,8 @@
 # Gom tài nguyên của người chơi vào thư mục dữ liệu client: với mỗi giới trong Table/player_bodies.tsv,
 # lưới của bộ mặc định (mặt, tóc và phụ kiện tóc, áo, tay, giày), các tệp skeleton chứa clip của
-# anim_sets theo loại vũ khí đã chọn, và ảnh mà GLB của chúng trỏ tới. Giữ nguyên bố cục tương đối
+# anim_sets theo loại vũ khí đã chọn, mọi mặt và tóc chọn được lúc tạo nhân vật (creatable = 1, kèm
+# bản cao mô id + 10000 mà màn tạo dùng cho người mẫu), ba bộ đồ tân thủ của newbie_outfits.tsv,
+# 30 người mẫu xem trước môn phái của sect_models.tsv, và ảnh mà GLB của chúng trỏ tới. Giữ nguyên bố cục tương đối
 # (Model/<tên>.glb, Material/<ảnh>.png) để URI ảnh trong GLB vẫn đúng. Chỉ chép, không đổi nội dung.
 # Dựa trên Collector của collect_map.py. Đọc Table/*.tsv do export_look.py sinh ra.
 # Cách dùng: python collect_avatar.py <_raw> <_glb> <thư mục dữ liệu client> [loại vũ khí ...]
@@ -37,6 +39,47 @@ def add_default_parts(collector: Collector, table_dir: str, body: dict) -> None:
         collector.add_mesh(outfits[(body[key], race)]["mesh"])
 
 
+HIGH_POLY_STEP = 10000
+
+
+def add_creation_parts(collector: Collector, table_dir: str) -> None:
+    """Mặt, tóc chọn được lúc tạo (và bản cao mô nếu bảng có) và ba bộ đồ tân thủ của mỗi giới."""
+    faces = read_table(os.path.join(table_dir, "faces.tsv"))
+    hairs = read_table(os.path.join(table_dir, "hairs.tsv"))
+    outfits = {(row["id"], row["race"]): row for row in read_table(os.path.join(table_dir, "outfits.tsv"))}
+    newbie = read_table(os.path.join(table_dir, "newbie_outfits.tsv"))
+    face_rows = {(row["id"], row["race"]): row for row in faces}
+    hair_rows = {(row["id"], row["race"]): row for row in hairs}
+
+    def add_row(rows: dict, key: tuple, columns: tuple) -> None:
+        row = rows.get(key)
+        if row is None:
+            return
+        for column in columns:
+            if row[column]:
+                collector.add_mesh(row[column])
+
+    for rows, columns in ((face_rows, ("mesh",)), (hair_rows, ("mesh", "accessory"))):
+        for (ident, race), row in rows.items():
+            if row["creatable"] != "1":
+                continue
+            add_row(rows, (ident, race), columns)
+            add_row(rows, (str(int(ident) + HIGH_POLY_STEP), race), columns)
+    for suit in newbie:
+        for race in ("0", "1"):
+            for key in ("body", "arm", "foot"):
+                add_row(outfits, (suit[key], race), ("mesh",))
+
+
+def add_sect_models(collector: Collector, table_dir: str) -> None:
+    """Skeleton (chứa idle và demo) và mọi lưới của người mẫu môn phái."""
+    for row in read_table(os.path.join(table_dir, "sect_models.tsv")):
+        collector.want("skeleton", collector.glb_root, os.path.join("Model", row["skeleton"] + ".glb"))
+        for mesh in row["meshes"].split("|"):
+            if mesh:
+                collector.add_mesh(mesh)
+
+
 def add_clips(collector: Collector, table_dir: str, body: dict, weapons: tuple) -> None:
     for row in read_table(os.path.join(table_dir, "anim_sets.tsv")):
         if row["set"] == body["anim_set"] and row["weapon"] in weapons:
@@ -56,6 +99,8 @@ def main() -> int:
         collector.want("skeleton", glb_root, os.path.join("Model", body["skeleton"] + ".glb"))
         add_default_parts(collector, table_dir, body)
         add_clips(collector, table_dir, body, weapons)
+    add_creation_parts(collector, table_dir)
+    add_sect_models(collector, table_dir)
     sizes = copy_files(collector)
     kinds = Counter(kind for kind, _ in collector.files.values())
     list_path = os.path.join(table_dir, "avatar.files.tsv")

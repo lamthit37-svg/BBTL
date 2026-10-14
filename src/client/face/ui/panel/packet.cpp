@@ -31,8 +31,8 @@ constexpr auto kSlotNames =
     grid<kBagLines, kBagRow>({.prefix = "Packet_Space_Line", .infix = "_Row", .suffix = "_button"});
 
 // Số mặc định của script khi chưa có máy chủ (Packet_OnUpdateShow: CurrNum, MaxNum).
-constexpr std::array<BagSize, kBagTabs> kSizes = {{{.current = 20, .most = 60}, {.current = 20, .most = 60},
-    {.current = 20, .most = 20}}};
+constexpr std::array<BagSize, kBagTabs> kSizes = {
+    {{.current = 20, .most = 60}, {.current = 20, .most = 60}, {.current = 20, .most = 20}}};
 
 // Hai chiều của nhánh IsClassic trong Packet_UpdateBagLine: cao một hàng và phần cố định.
 constexpr float kLineHeight = 35.0F;

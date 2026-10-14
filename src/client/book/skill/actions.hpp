@@ -93,7 +93,8 @@ struct ActionAsk {
 // nullptr là action rỗng của mã gốc (GetID() bằng 0). O(số action x log số mục).
 // Khác gốc: action trận pháp mà bảng kỹ năng không có dòng thì PosIndex là -1; mã gốc khi đó không
 // đặt id kỹ năng cho action và giá trị bộ dựng để lại chưa đọc.
-[[nodiscard]] const Action* enum_action(const Actions& actions, const Book& book, const Tables& tables, const ActionAsk& ask) noexcept;
+[[nodiscard]] const Action* enum_action(const Actions& actions, const Book& book, const Tables& tables,
+    const ActionAsk& ask) noexcept;
 
 // Action mang id (CActionSystem::GetAction, 0x140017160); nullptr khi không có.
 [[nodiscard]] const Action* action_by_id(const Actions& actions, std::int32_t id) noexcept;
@@ -109,7 +110,8 @@ struct ActionAsk {
 
 // LifeAbility:GetLifeAbility_Number(id action) (0x140346dc0): id định nghĩa của action mang id đó;
 // nullopt khi không có action hay id định nghĩa là -1 (script nhận nil).
-[[nodiscard]] std::optional<std::int32_t> defined_by(const Actions& actions, const Book& book, const Tables& tables, std::int32_t action_id) noexcept;
+[[nodiscard]] std::optional<std::int32_t> defined_by(const Actions& actions, const Book& book, const Tables& tables,
+    std::int32_t action_id) noexcept;
 
 // Hai giá trị đặc biệt của GetOwnerXinfa.
 inline constexpr std::int32_t kNotOwned = -1;
@@ -119,7 +121,8 @@ inline constexpr std::int32_t kNoOwnerArt = -9999;
 // action không phải kỹ năng, kỹ năng không còn, hay user_class của nó khác 0; kNoOwnerArt khi kỹ
 // năng không có tâm pháp hoặc nhân vật chưa có action của tâm pháp ấy (điều kiện để trang phổ thông
 // nhận kỹ năng).
-[[nodiscard]] std::int32_t owner_inner_art(const Actions& actions, const Book& book, const Tables& tables, const Action& action) noexcept;
+[[nodiscard]] std::int32_t owner_inner_art(const Actions& actions, const Book& book, const Tables& tables,
+    const Action& action) noexcept;
 
 // Tên icon trần của một action (chuỗi ở CActionItem+0x30): ô icon của dòng định nghĩa (action trận
 // pháp: dòng kỹ năng), hay icon cố định của action thú cưng; rỗng khi bảng không có dòng. Tên đầy

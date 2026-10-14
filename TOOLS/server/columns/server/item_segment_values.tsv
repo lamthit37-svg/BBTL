@@ -1,0 +1,70 @@
+# schema 1
+# source: server_config/ItemSegValue.txt
+# tool: TOOLS/server/import_legacy.py; sửa tay sẽ mất ở lượt xuất sau
+# types: int	text	text	text	text
+index	original	name	type	note
+0	Index	index	int	luật: M1
+1	增加HP的上限	max_hp_bonus	int	luật: nguyên văn
+2	百分比增加HP的上限	max_hp_percent	int	luật: nguyên văn
+3	加快HP的回复速度	hp_restore_speed	int	luật: nguyên văn
+4	增加MP的上限	max_mp_bonus	int	luật: nguyên văn
+5	百分比增加MP的上限	max_mp_percent	int	luật: nguyên văn
+6	加快MP的回复速度	mp_restore_speed	int	luật: nguyên văn
+7	冰攻击	cold_attack	int	luật: nguyên văn
+8	冰抵抗	cold_resist	int	luật: nguyên văn
+9	减少冰冻迟缓时间	cold_slow_reduction	int	luật: nguyên văn
+10	火攻击	fire_attack	int	luật: nguyên văn
+11	火抵抗	fire_resist	int	luật: nguyên văn
+12	减少火烧持续时间	fire_burn_reduction	int	luật: nguyên văn
+13	玄攻击	lightning_attack	int	luật: nguyên văn
+14	玄抵抗	lightning_resist	int	luật: nguyên văn
+15	减少电击眩晕时间	shock_stun_reduction	int	luật: nguyên văn
+16	毒攻击	poison_attack	int	luật: nguyên văn
+17	毒抵抗	poison_resist	int	luật: nguyên văn
+18	减少中毒时间	poison_time_reduction	int	luật: nguyên văn
+19	按百分比抵消所有属性攻击	all_element_resist_percent	int	luật: nguyên văn
+20	物理攻击	physical_attack	int	luật: nguyên văn
+21	按百分比增加物理攻击	physical_attack_percent	int	luật: nguyên văn
+22	对装备基础物理攻击百分比加成	equip_base_physical_attack_percent	int	luật: nguyên văn
+23	物理防御	physical_defence	int	luật: nguyên văn
+24	按百分比增加物理防御	physical_defence_percent	int	luật: nguyên văn
+25	对装备基础物理防御百分比加成	equip_base_physical_defence_percent	int	luật: nguyên văn
+26	按百分比抵消物理伤害	physical_damage_resist_percent	int	luật: nguyên văn
+27	魔法攻击	magic_attack	int	luật: nguyên văn
+28	按百分比增加魔法攻击	magic_attack_percent	int	luật: nguyên văn
+29	对装备基础魔法攻击百分比加成	equip_base_magic_attack_percent	int	luật: nguyên văn
+30	魔法防御	magic_defence	int	luật: nguyên văn
+31	按百分比增加魔法防御	magic_defence_percent	int	luật: nguyên văn
+32	对装备基础魔法防御百分比加成	equip_base_magic_defence_percent	int	luật: nguyên văn
+33	按百分比抵消魔法伤害	magic_damage_resist_percent	int	luật: nguyên văn
+34	攻击速度(两次攻击间隔时间)	attack_interval	int	luật: nguyên văn
+35	魔法冷却速度	magic_cooldown_speed	int	luật: nguyên văn
+36	命中	hit	int	luật: nguyên văn
+37	闪避	miss	int	luật: nguyên văn
+38	会心一击（双倍攻击）的百分比	double_attack_percent	int	luật: nguyên văn
+39	无视对方防御比率	ignore_defence_rate	int	luật: nguyên văn
+40	移动速度百分比	move_speed_percent	int	luật: nguyên văn
+41	伤害反射	damage_reflect	int	luật: nguyên văn
+42	伤害由内力抵消	damage_to_mana	int	luật: nguyên văn
+43	力量	strength	int	luật: nguyên văn
+44	灵气	spirit	int	luật: nguyên văn
+45	体质	constitution	int	luật: nguyên văn
+46	定力	concentration	int	luật: nguyên văn
+47	身法	dexterity	int	luật: nguyên văn
+48	会心防御	critical_defence	int	luật: nguyên văn
+49	增加所有的人物一级属性	all_primary_attributes	int	luật: nguyên văn
+50	生命偷取	hp_steal	int	luật: nguyên văn
+51	内力偷取	mp_steal	int	luật: nguyên văn
+52	增加某个技能等级	one_skill_level	int	luật: nguyên văn
+53	增加所有技能等级	all_skill_levels	int	luật: nguyên văn
+54	特殊技能发动概率	special_skill_rate	int	luật: nguyên văn
+55	降低目标冰抵抗	cold_resist_reduction	int	luật: nguyên văn
+56	降低目标火抵抗	fire_resist_reduction	int	luật: nguyên văn
+57	降低目标玄抵抗	lightning_resist_reduction	int	luật: nguyên văn
+58	降低目标毒抵抗	poison_resist_reduction	int	luật: nguyên văn
+59	保留1	column_59	int	?
+60	保留2	column_60	int	?
+61	保留3	column_61	int	?
+62	保留4	column_62	int	?
+63	保留5	column_63	int	?
+64	保留6	column_64	int	?

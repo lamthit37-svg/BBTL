@@ -146,7 +146,8 @@ constexpr std::array<ColourKey, 12> kColourKeys = {{
 // sscanf(" %6X") và sscanf(" %2X") của bản gốc trên một trường đã cắt đúng bề rộng: bỏ khoảng trắng
 // đầu, nhận một dấu và tiền tố 0x, đọc chữ số hex tới ký tự lạ; không chữ số nào thì 0.
 [[nodiscard]] constexpr std::uint32_t scan_hex(std::string_view field) noexcept {
-    while (!field.empty() && is_space(field.front())) field.remove_prefix(1);
+    while (!field.empty() && is_space(field.front()))
+        field.remove_prefix(1);
     const bool is_negative = field.starts_with('-');
     if (is_negative || field.starts_with('+')) field.remove_prefix(1);
     if (field.starts_with("0x") || field.starts_with("0X")) field.remove_prefix(2);
@@ -165,14 +166,16 @@ static_assert(scan_hex("") == 0U && scan_hex("12") == 0x12U && scan_hex("0x") ==
 // Số thập phân của một dãy đã kiểm là toàn chữ số, dài tối đa bốn.
 [[nodiscard]] constexpr std::uint32_t decimal(std::string_view digits) noexcept {
     std::uint32_t value = 0;
-    for (const char letter : digits) value = (value * 10U) + static_cast<std::uint32_t>(letter - '0');
+    for (const char letter : digits)
+        value = (value * 10U) + static_cast<std::uint32_t>(letter - '0');
     return value;
 }
 
 // %d của sscanf ở đầu rest: bỏ khoảng trắng, nhận một dấu rồi chữ số; số quá lớn quấn 32 bit như
 // MSVCR110. Không có chữ số thì nullopt.
 [[nodiscard]] constexpr std::optional<std::int32_t> take_int(std::string_view& rest) noexcept {
-    while (!rest.empty() && is_space(rest.front())) rest.remove_prefix(1);
+    while (!rest.empty() && is_space(rest.front()))
+        rest.remove_prefix(1);
     const bool is_negative = rest.starts_with('-');
     if (is_negative || rest.starts_with('+')) rest.remove_prefix(1);
     if (rest.empty() || !is_digit(rest.front())) return std::nullopt;
@@ -199,7 +202,8 @@ struct Aim {
 
 // %s của sscanf: bỏ khoảng trắng rồi lấy tới khoảng trắng kế (tên có dấu cách chỉ còn từ đầu).
 [[nodiscard]] constexpr std::string_view take_word(std::string_view rest) noexcept {
-    while (!rest.empty() && is_space(rest.front())) rest.remove_prefix(1);
+    while (!rest.empty() && is_space(rest.front()))
+        rest.remove_prefix(1);
     const auto stop = std::ranges::find_if(rest, is_space);
     return rest.substr(0, static_cast<std::size_t>(stop - rest.begin()));
 }
@@ -448,9 +452,7 @@ static_assert(kAimPrefix.size() == kMapPrefix.size());
         push(scan, kBlinkOff);
         push(scan, kUnderlineOff);
         return key + 1;
-    case 'r':
-        push(scan, U'\n');
-        return key + 1;
+    case 'r': push(scan, U'\n'); return key + 1;
     default: return key;
     }
 }
@@ -703,7 +705,8 @@ constexpr std::array<Nudge, 8> kEdgeNudges = {{
 // phông Hán vẽ được, nhưng cả run đã là tiếng Việt thì vẽ chung một phông): Ă ă Đ đ Ĩ ĩ Ũ ũ Ơ ơ Ư ư, các chữ
 // Latin-1 có dấu (trừ × và ÷) và cả khối Latin mở rộng bổ sung U+1EA0..U+1EF9.
 [[nodiscard]] constexpr bool is_vietnamese_letter(Code code) noexcept {
-    constexpr std::array<Code, 12> kSingles{0x102, 0x103, 0x110, 0x111, 0x128, 0x129, 0x168, 0x169, 0x1A0, 0x1A1, 0x1AF, 0x1B0};
+    constexpr std::array<Code, 12> kSingles{
+        0x102, 0x103, 0x110, 0x111, 0x128, 0x129, 0x168, 0x169, 0x1A0, 0x1A1, 0x1AF, 0x1B0};
     if (code >= 0x1EA0U && code <= 0x1EF9U) return true;
     if (code >= 0xC0U && code <= 0xFFU) return code != 0xD7U && code != 0xF7U;
     return std::ranges::find(kSingles, code) != kSingles.end();
@@ -824,7 +827,8 @@ void Typesetter::add(Tally& tally, Code code) const {
 
 float Typesetter::extent(std::span<const Code> text) const {
     Tally tally;
-    for (const Code code : text) add(tally, code);
+    for (const Code code : text)
+        add(tally, code);
     return std::max(0.0F, tally.width);
 }
 
@@ -1072,8 +1076,8 @@ void Typesetter::draw_underline(const Corner& pen, float advance) {
     if (!writer_->solid_) return;
     const std::uint32_t colour = ink_.in_link || ink_.top == ink_.bottom ? tint_now().bottom : ink_.bottom;
     const Limits wide{.low = std::max(pen.x, clip_.x), .high = std::min(pen.x + advance, clip_.x + clip_.w)};
-    const Limits tall{.low = std::max(pen.y + height_ - 1.0F, clip_.y),
-        .high = std::min(pen.y + height_, clip_.y + clip_.h)};
+    const Limits tall{
+        .low = std::max(pen.y + height_ - 1.0F, clip_.y), .high = std::min(pen.y + height_, clip_.y + clip_.h)};
     if (wide.high <= wide.low || tall.high <= tall.low) return;
     const TextWriter::Texel& dot = *writer_->solid_;
     out_->push_back({.x = wide.low, .y = tall.low, .u = dot.u, .v = dot.v, .colour = colour});
@@ -1114,7 +1118,8 @@ float Typesetter::edit_row(std::span<const Code> row, Corner pen, std::uint32_t 
     for (const Code code : row) {
         if (!is_glyph(code)) continue;
         const GlyphCell& cell = writer_->cell_of(code);
-        const Stamp stamp{.left = pen.x, .top = pen.y + kBitmapDrop, .size = size_, .cell = &cell, .tint = flat(colour)};
+        const Stamp stamp{
+            .left = pen.x, .top = pen.y + kBitmapDrop, .size = size_, .cell = &cell, .tint = flat(colour)};
         if (cell.is_known && cell.has_ink) push_stamp(stamp, clip_, *out_);
         pen.x += cell.file_advance;
     }

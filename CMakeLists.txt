@@ -16,12 +16,25 @@ if(CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
     set(CMAKE_CXX23_EXTENSION_COMPILE_OPTION "-std:c++23preview")
 endif()
 
+# iOS: project() chỉ khai CXX, mà ios_main.mm và surface_ios.mm là Objective-C++, và bản iOS của
+# miniaudio chứa cú pháp Objective-C (@interface, @autoreleasepool) nên native.cpp phải dịch thành
+# Objective-C++ (xem game_audio_native). ARC bật cả cây: hai tệp .mm không retain/release tay.
+# Chưa dựng được trên máy này (không có macOS): mọi nhánh IOS dưới đây chưa qua trình dịch.
+if(IOS)
+    enable_language(OBJCXX)
+    set(CMAKE_OBJCXX_STANDARD 23)
+    set(CMAKE_OBJCXX_STANDARD_REQUIRED ON)
+    set(CMAKE_OBJCXX_EXTENSIONS OFF)
+    set(CMAKE_XCODE_ATTRIBUTE_CLANG_ENABLE_OBJC_ARC YES)
+endif()
+
 include(cmake/GameWarnings.cmake)
 include(cmake/GameOptions.cmake)
 include(cmake/GameSanitize.cmake)
 include(cmake/GameHarden.cmake)
 include(cmake/GameDebugInfo.cmake)
 include(cmake/GameSplitDebug.cmake)
+include(cmake/GameDeviceShaders.cmake)
 
 # GCC của MinGW: std::print ghi console Windows qua các hàm nằm trong libstdc++exp (đo với GCC 16.2:
 # thiếu thì lỗi liên kết ở vprint_unicode).
@@ -182,6 +195,13 @@ target_link_libraries(game_audio_native PUBLIC game_core game::options PRIVATE g
 if(ANDROID)
     target_link_libraries(game_audio_native PUBLIC aaudio log)
 endif()
+if(IOS)
+    # miniaudio trên iOS (MA_APPLE_MOBILE) viết Core Audio bằng Objective-C và không nạp khung lúc
+    # chạy, nên tệp cài đặt dịch thành Objective-C++ và các khung link tĩnh.
+    set_source_files_properties(engine/audio/detail/native.cpp PROPERTIES LANGUAGE OBJCXX)
+    target_link_libraries(game_audio_native PUBLIC "-framework CoreFoundation"
+        "-framework CoreAudio" "-framework AudioToolbox" "-framework AVFoundation")
+endif()
 game_module(audio
     engine/audio/catalog.cpp
     engine/audio/cook.cpp
@@ -258,7 +278,7 @@ game_module(anim src/client/figure/anim/pose.cpp src/client/figure/anim/rig.cpp)
 target_link_libraries(game_anim PUBLIC game_ogre)
 
 # table: đọc bảng TSV của client; look: giải ngoại hình người chơi từ các bảng đó (port từ TLBB Dev).
-game_module(table src/shared/table/tsv.cpp)
+game_module(table src/shared/table/tsv.cpp src/shared/table/localize.cpp)
 target_link_libraries(game_table PUBLIC game_core)
 # Máy chủ. content chỉ nhận chữ và trả kết quả; exe thienlong_lint là nơi đọc đĩa.
 game_module(content
@@ -369,6 +389,13 @@ if(NOT CMAKE_CROSSCOMPILING)
     target_link_libraries(game_guard PUBLIC game_core)
     game_module(metrics src/server/metrics/metrics.cpp)
     target_link_libraries(game_metrics PUBLIC game_core)
+    game_module(metrics_serve src/server/metrics/serve/serve.cpp)
+    target_link_libraries(game_metrics_serve PUBLIC game_core game_metrics game_net)
+    # Chụp ảnh số đo của một tiến trình qua cổng metrics của nó (kịch bản kiểm gọi exe này).
+    if(TARGET game_process)
+        add_executable(thienlong_metrics_snap TOOLS/server/metrics_snap.cpp)
+        target_link_libraries(thienlong_metrics_snap PRIVATE game_metrics game_net game_process game_io game::warnings)
+    endif()
     # secure: bắt tay và bản ghi. Header C của libsodium đi qua include SYSTEM của
     # game_sodium, nên cảnh báo của thư viện không vào sodium.cpp.
     game_module(secure src/shared/secure/identity.cpp src/shared/secure/handshake.cpp src/shared/secure/record.cpp
@@ -547,8 +574,8 @@ endif()
 
 # jobs: hệ thống job (hàng đợi chia việc, đếm việc, chờ có hạn); chép từ Forge2, dựa phần luồng và
 # đồng hồ của core. Core có bản POSIX nên dựng được cả trên Android; capture đi kèm vì nén dải
-# hình chạy qua jobs.
-if(WIN32 OR ANDROID)
+# hình chạy qua jobs. iOS dùng chung vì client_display (đường vẽ) và game_shader link cả hai.
+if(WIN32 OR ANDROID OR IOS)
     game_module(jobs engine/jobs/jobs.cpp engine/jobs/queue.cpp)
     target_link_libraries(game_jobs PUBLIC game_core)
 
@@ -625,12 +652,14 @@ if(GAME_HAS_GPU)
             engine/shader/types.cpp)
         target_link_libraries(game_shader PUBLIC game_core game_fs PRIVATE game_io game_jobs)
     else()
-        # builder dịch HLSL; compiler và dxil include <windows.h> trực tiếp (bản chép) rồi gọi
-        # std::max. NOMINMAX phải có trước header ấy. check.py không thấy cờ của target này.
+        # builder dịch nguồn Slang (detail/slang.cpp, slang.dll nạp lúc chạy); compiler và dxil
+        # include <windows.h> trực tiếp (bản chép) rồi gọi std::max. NOMINMAX phải có trước header
+        # ấy. check.py không thấy cờ của target này.
         game_module(shader
             engine/shader/builder.cpp
             engine/shader/compiler.cpp
-            engine/shader/dxbc.cpp
+            engine/shader/detail/reconcile.cpp
+            engine/shader/detail/slang.cpp
             engine/shader/dxil.cpp
             engine/shader/manifest.cpp
             engine/shader/package.cpp
@@ -638,7 +667,7 @@ if(GAME_HAS_GPU)
             engine/shader/spirv.cpp
             engine/shader/types.cpp)
         target_link_libraries(
-            game_shader PUBLIC game_core game_fs PRIVATE game_io game_jobs d3dcompiler)
+            game_shader PUBLIC game_core game_fs PRIVATE game_io game_jobs)
         target_compile_definitions(game_shader PRIVATE NOMINMAX)
     endif()
 
@@ -689,14 +718,20 @@ if(GAME_HAS_GPU)
             engine/gpu/vulkan/resources.cpp
             engine/gpu/vulkan/surface_ios.mm
             engine/gpu/vulkan/swapchain.cpp)
+        # iOS không có loader Vulkan: Vulkan::Vulkan phải là MoltenVK. find_package(Vulkan) tìm tên
+        # "vulkan" nên cần đặt Vulkan_LIBRARY và Vulkan_INCLUDE_DIR tới MoltenVK (apple/HUONG-DAN.txt).
+        # Các khung dưới là phần phụ thuộc của MoltenVK tĩnh.
         target_link_libraries(game_gpu PUBLIC game_core game_shader
-            PRIVATE Vulkan::Vulkan "-framework Metal" "-framework QuartzCore" "-framework UIKit")
+            PRIVATE Vulkan::Vulkan "-framework Metal" "-framework QuartzCore" "-framework UIKit"
+            "-framework Foundation" "-framework IOSurface" "-framework CoreGraphics")
     else()
         # Macro GAME_GPU_D3D12 và GAME_GPU_D3D11 bật nhánh trong gpu/device.cpp; thiếu macro thì
         # nhánh ấy trả kUnsupported. dxcapi.h nằm trong include của Vulkan SDK, không trong Windows
         # SDK. Không link vulkan-1.
         target_include_directories(game_shader PRIVATE
             "$<TARGET_PROPERTY:Vulkan::Vulkan,INTERFACE_INCLUDE_DIRECTORIES>")
+        # slang.h cũng nằm trong SDK (Include/slang). SYSTEM: cảnh báo của header ấy không thuộc dự án.
+        target_include_directories(game_shader SYSTEM PRIVATE "${Vulkan_INCLUDE_DIR}/slang")
         game_module(gpu
             engine/gpu/check.cpp
             engine/gpu/device.cpp
@@ -806,7 +841,7 @@ if(GAME_HAS_GPU AND WIN32)
     endif()
     # Mọi tệp nguồn shader của thư mục: sửa tệp nào thì dịch lại.
     file(GLOB game_shader_sources CONFIGURE_DEPENDS
-        "${game_shader_src}/*.hlsl" "${game_shader_src}/*.hlsli" "${game_shader_src}/*.glsl")
+        "${game_shader_src}/*.slang" "${game_shader_src}/*.glsl")
     add_custom_command(
         OUTPUT ${game_shader_packages}
         COMMAND thienlong_shader build "${game_shader_src}/shaders.list"
@@ -915,12 +950,14 @@ if(IOS)
         MACOSX_BUNDLE_BUNDLE_VERSION ${PROJECT_VERSION}
         MACOSX_BUNDLE_SHORT_VERSION_STRING ${PROJECT_VERSION}
         MACOSX_BUNDLE_INFO_PLIST "${PROJECT_SOURCE_DIR}/apple/Info.plist.in")
-    # Cùng dữ liệu và gói .f2s với preset PC clang-asan. resourcePath/data là chỗ ios_main đọc.
-    set(GAME_IOS_SHADERS "${PROJECT_SOURCE_DIR}/build/clang-asan/shaders" CACHE PATH
-        "Gói .f2s đóng vào bundle iOS. Mặc định là build/clang-asan/shaders của bản PC.")
+    # Cùng dữ liệu và gói .f2s với bản PC. resourcePath/data là chỗ ios_main đọc. Gói do Windows dựng:
+    # trên máy Apple chép thư mục shaders của cây PC sang và đặt GAME_IOS_SHADERS.
+    game_device_shaders(GAME_IOS_SHADERS
+        "Gói .f2s đóng vào bundle iOS. Mặc định là shaders của cây dựng PC đang dùng.")
     if(NOT EXISTS "${GAME_IOS_SHADERS}/model.vs.f2s" OR NOT EXISTS "${GAME_IOS_SHADERS}/model.ps.f2s")
         message(FATAL_ERROR
-            "Thiếu gói shader PC tại ${GAME_IOS_SHADERS}. Dựng preset clang-asan trước.")
+            "Thiếu gói shader tại ${GAME_IOS_SHADERS}. Dựng bản PC (thienlong_client) trên Windows rồi "
+            "chép thư mục build/<preset>/shaders sang và đặt -DGAME_IOS_SHADERS=<thư mục đó>.")
     endif()
     add_custom_command(TARGET thienlong_client POST_BUILD
         COMMAND ${CMAKE_COMMAND} -E env PYTHONUTF8=1
@@ -935,7 +972,7 @@ endif()
 
 # APK NativeActivity: cùng Display với bản PC (Vulkan 1.3, rồi GLES). Glue của NDK là C,
 # không qua cổng cảnh báo của dự án. Exe thienlong_client vẫn để ctest đẩy qua adb.
-# Gói shader lấy từ preset PC (cache GAME_ANDROID_SHADERS, mặc định clang-asan).
+# Gói shader lấy từ cây dựng PC (cache GAME_ANDROID_SHADERS, tự chọn cây có đủ gói).
 # --data trỏ cả assets/client; package_apk.py chỉ đóng cảnh của Config/startup.id.
 if(ANDROID)
     enable_language(C)
@@ -954,15 +991,11 @@ if(ANDROID)
     set_target_properties(thienlong_activity PROPERTIES OUTPUT_NAME thienlong)
     target_link_options(thienlong_activity PRIVATE "-u" "ANativeActivity_onCreate")
     set(game_apk "${CMAKE_BINARY_DIR}/thienlong.apk")
-    # Mặc định là shader của preset PC đang dùng (clang-asan). Đặt GAME_ANDROID_SHADERS khi
-    # muốn đóng gói của preset khác. Thiếu model.vs.f2s thì package_apk.py từ chối đóng.
-    set(GAME_ANDROID_SHADERS "${PROJECT_SOURCE_DIR}/build/clang-asan/shaders" CACHE PATH
-        "Thư mục gói .f2s đóng vào APK. Mặc định là build/clang-asan/shaders của bản PC.")
-    if(NOT EXISTS "${GAME_ANDROID_SHADERS}/model.vs.f2s")
-        set(GAME_ANDROID_SHADERS "${PROJECT_SOURCE_DIR}/build/clang-asan/shaders" CACHE PATH
-            "Thư mục gói .f2s đóng vào APK. Mặc định là build/clang-asan/shaders của bản PC."
-            FORCE)
-    endif()
+    # Mặc định là shader của cây dựng PC đang dùng (cmake/GameDeviceShaders.cmake). Đặt
+    # GAME_ANDROID_SHADERS khi muốn đóng gói của cây khác. Thiếu model.vs.f2s thì package_apk.py từ
+    # chối đóng.
+    game_device_shaders(GAME_ANDROID_SHADERS
+        "Thư mục gói .f2s đóng vào APK. Mặc định là shaders của cây dựng PC đang dùng.")
     set(game_apk_assets
         --data "${PROJECT_SOURCE_DIR}/dev/client/assets"
         --shaders "${GAME_ANDROID_SHADERS}")
@@ -1228,6 +1261,7 @@ if(TARGET collision_model_tests)
     set_tests_properties(collision_model_tests PROPERTIES SKIP_RETURN_CODE 77)
 endif()
 game_test(building_height game_collision)
+game_test(table_localize game_table)
 game_test(look game_look)
 game_test(head game_look)
 game_test(avatar game_avatar)
@@ -1397,6 +1431,7 @@ if(TARGET game_net)
     endif()
     game_test(net game_net)
     game_test(metrics game_metrics)
+    game_test(metrics_serve game_metrics_serve)
     game_test(wire_loop game_protocol game_net)
     # Exe đo của mục 7 (Đ1 tới Đ3): dựng cùng mọi target, không đăng ký vào ctest.
     if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/Test/bench/protocol_bench.cpp")

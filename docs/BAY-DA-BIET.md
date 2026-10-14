@@ -51,6 +51,27 @@ mục ở mục 11.
   các câu sau vẫn được dịch và `msvc-debug` dừng với C4702 (mã không tới được) dưới `/WX`;
   `msvc-release`, GCC, Clang và `cl /Zs` đều không báo. Viết đủ `if constexpr (...) { ... } else {
   ... }`, và sửa tệp có template kiểu này thì dựng cả `msvc-debug` chứ không chỉ bản phát hành.
+- Preset PC và preset Android dùng chung MỘT thư mục vcpkg `C:\dev\third_party\installed` (toolchain
+  `C:\dev\third_party\vcpkg.cmake` bỏ qua `VCPKG_INSTALLED_DIR` của preset), nên mỗi lần cấu hình
+  một bên, vcpkg gỡ gói của bên kia (đo 2026-10-13: `cmake --preset android-arm64` gỡ `opus`,
+  `sdl3` của `x64-windows-static-md`, rồi `cmake --build build/msvc-release` dừng ở LNK1104
+  `SDL3-static.lib`; cấu hình lại `msvc-release` gỡ gói `arm64-android` và khôi phục gói PC từ
+  binary-cache trong 1,6 s). Đừng cấu hình hai nền xen kẽ trong một lượt làm việc; sau khi cấu
+  hình nền phụ, cấu hình lại preset hàng ngày trước khi dựng nó.
+
+- `check.py` trên tệp include header của Vulkan SDK (`engine/shader/compiler.cpp`, `detail/slang.cpp`:
+  `dxcapi.h`, `slang.h`): cùng bẫy với `tomlplusplus` ở nhóm Máy chủ — truyền `-I <SDK>/Include/dxc` thì clang-tidy
+  đếm cả header của SDK là mã của dự án và đổ hàng trăm lỗi của chúng lên tệp. Cho đúng đường `-isystem` qua biến
+  trình dịch và qua clang-tidy:
+  `CPP23_G14="g++ -DNOMINMAX -isystem C:/VulkanSDK/<bản>/Include/dxc -isystem C:/VulkanSDK/<bản>/Include/slang"`
+  (cả `CPP23_G15`, `CPP23_C20` với `clang++`), `CPP23_CLANG_TIDY="clang-tidy --extra-arg=-DNOMINMAX
+  --extra-arg=-isystemC:/VulkanSDK/<bản>/Include/dxc --extra-arg=-isystemC:/VulkanSDK/<bản>/Include/slang"`, rồi
+  `check.py -I engine <tệp>` (đo 2026-10-13). `dxil.cpp` vẫn đỏ ở GCC MinGW vì header `d3d12shader.h` của MinGW thiếu
+  `D3D_SVT_INT64` và `D3D_REGISTER_COMPONENT_FLOAT64`: giới hạn của môi trường, Clang qua.
+- `std::bit_cast` giữa hai con trỏ hàm (đọc `GetProcAddress`) bị clang-tidy 23 chặn bằng `bugprone-bitwise-pointer-cast`;
+  `reinterpret_cast` thẳng giữa hai chữ ký hàm bị `-Wcast-function-type` của GCC và `-Wcast-function-type-strict` của
+  Clang chặn, kể cả khi đi qua `void (*)()` (Clang strict vẫn báo). Dùng `find_symbol` của `engine/shader/detail/library.hpp`
+  (bit_cast kèm NOLINT có lý do), đừng ép tay ở chỗ khác.
 
 ## Công cụ Python và git
 
@@ -357,3 +378,25 @@ mục ở mục 11.
 - Dựng `thienlong_client` cần Pillow: target `thienlong_i18n` chạy `TOOLS/content/build_i18n.py` ở
   mọi lượt dựng và tệp đó `from PIL import Image`. CMake chỉ bỏ bước này khi không có Python; có
   Python mà thiếu Pillow thì bước dựng dừng. Cài: `python -m pip install pillow`.
+- Gói shader `.f2s` có khoá kiểm cũ-mới gồm phiên bản Slang, DXC và băm nguồn, nhưng KHÔNG gồm cách trình dịch ghép
+  phản chiếu: đổi `engine/shader/compiler.cpp` hay `detail/reconcile.cpp` mà không tăng `kPipeline` thì `thienlong_shader`
+  in `[còn mới]` cho cả 7 gói và giữ nguyên gói cũ mang phản chiếu của quy trình trước (đo 2026-10-13: gói trong
+  `build/msvc-release/shaders` khác băm gói dựng sạch). Đổi quy trình dịch thì tăng `kPipeline`; nghi gói cũ thì dựng
+  vào thư mục trống để so: `thienlong_shader build src/client/render/shaders/shaders.list --out <thư mục trống>
+  --target spirv,dxil,dxbc,glsl`, rồi `thienlong_shader show <gói>` so băm `phản chiếu` giữa các đích (phải bằng nhau).
+- Chụp ảnh khung đầu bằng `thienlong_client --shot` mà mở cửa sổ ở chế độ thu nhỏ (`Start-Process -WindowStyle
+  Minimized`) thì khởi tạo hiển thị dừng với `InvalidArgument: texture: rộng hoặc cao bằng 0`: vùng vẽ của cửa sổ thu
+  nhỏ rộng 0 nên texture độ sâu của swapchain rộng 0. Lỗi trông như hỏng dữ liệu hay shader nhưng bản cài cũ cũng dừng
+  y hệt (đo 2026-10-13). Chạy cửa sổ thường; cửa sổ bật lên ngắn trên màn hình người đang dùng máy, nói trước. So
+  ảnh chụp của hai bản thì chụp mỗi bản hai lần: cảnh có hạt và hoạt ảnh nên hai lượt của cùng một bản đã lệch
+  3.432 điểm ảnh (Đại Lý có giao diện) và 10.174 (màn đăng nhập) trên 921.600; chênh giữa hai bản chỉ có nghĩa khi
+  nhỏ hơn mức nhiễu ấy. `--bare` (cảnh 3D thuần, không giao diện) của Đại Lý cho hai ảnh giống nhau từng điểm ảnh.
+- `thienlong_client --shot <ảnh>` không nêu `--frames` thì chụp xong vẫn chạy tiếp như bản chơi thật; công cụ chờ tiến
+  trình thoát sẽ treo tới hết giờ (đo 2026-10-13: 120 giây, ảnh đã ghi từ giây 0,6). Chụp rồi đóng: thêm `--frames 3`.
+  Cờ này cũng là cách dò log nạp cảnh trên máy không có người ngồi.
+- `collect_map.py` trước 2026-10-13 không gom lưới đi `.path` và mặt công trình `.WCollision`: map nào gom từ bản cũ
+  của công cụ thì client in `Lưới đi: cảnh không có tệp .path: nhân vật không bị vật cản nào chặn` và nhân vật đi xuyên
+  mọi vật cản, dù kho gốc có đủ hai tệp (đo: `dali_new_320` và `luoyang_new` đều thiếu). Nay `collect_walk` gom theo tên
+  `.path` của cột 5 bảng cảnh và tên cảnh đổi đuôi `.WCollision`. Map gom từ trước chạy lại công cụ là đủ (idempotent);
+  cảnh không có hai tệp ở kho gốc (như `tl3chuangjian`) chỉ để lại ghi chú. Kết quả sau khi gom lại: Đại Lý 11.669 đỉnh,
+  23.324 tam giác, 11.665 cạnh vật cản; Lạc Dương 10.546 đỉnh, 21.080 tam giác, 10.543 cạnh vật cản.

@@ -1,4 +1,4 @@
-// Cùng công thức với ui.vs.hlsl. Khối push là mảng uvec4 tl_push: phần tử 0 chứa rộng và cao của
+// Cùng công thức với ui.vs.slang. Khối push là mảng uvec4 tl_push: phần tử 0 chứa rộng và cao của
 // vùng vẽ, phần tử 1 là ô mặt nạ của lô (số thực giữ nguyên bit). Không có TL_ZERO_TO_ONE thì đổi z
 // [0,1] về clip [-1,1] của GL cũ.
 uniform highp uvec4 tl_push[2];

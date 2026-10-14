@@ -1,0 +1,19 @@
+# schema 1
+# source: Public/Scene/murenxiang_patrolpoint.ini
+# tool: TOOLS/server/export_scene.py; sửa tay sẽ mất ở lượt xuất sau
+# types: int	int	float	float	float	int	text	text	int	int	text	text	text	text
+patrol_index	point_index	position_x	position_y	position_z	settle_time	point_script_id	route_script_id	turns_back	teleport_to_respawn	speech_unread	speech_1	speech_2	speech_3
+0	0	50.0760		20.0847									
+0	1	50.0613		100.0743									
+0	2	42.4423		108.6511									
+0	3	30.1465		108.7337									
+0	4	26.2127		103.9671									
+0	5	26.0410		72.3485									
+0	6	17.0532		61.8982									
+0	7	17.0735		37.1142									
+1	0	106.0512		32.2439									
+1	1	106.5236		103.3174									
+1	2	99.2662		108.5183									
+1	3	79.6865		108.3881									
+1	4	71.9526		100.6808									
+1	5	72.6784		20.3550									

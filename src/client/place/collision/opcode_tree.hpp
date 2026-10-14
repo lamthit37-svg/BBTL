@@ -72,8 +72,8 @@ enum class [[nodiscard]] TreeError : std::uint8_t {
 // Cùng kết quả với fix_extent_reference trên mọi đầu vào, nhưng tìm nhị phân điểm dừng khi extents_coeff >= 0
 // (luôn đúng trừ NaN: 1 / EQ với EQ >= 0): điều kiện tăng đơn điệu theo q, nên không phải đi 65536 vòng mỗi trục
 // (EMax = 0 với tâm lệch). extents_coeff âm hay NaN thì chạy đúng bản từng vòng.
-[[nodiscard]] std::uint16_t fix_extent(std::uint16_t quantized, float center, float extent,
-    float dequantized_center, float extents_coeff) noexcept;
+[[nodiscard]] std::uint16_t fix_extent(std::uint16_t quantized, float center, float extent, float dequantized_center,
+    float extents_coeff) noexcept;
 
 // Model::Build trên NbTris tam giác đầu của lưới.
 [[nodiscard]] std::expected<OpcodeTree, TreeError> build_tree(const Mesh& mesh);

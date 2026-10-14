@@ -1,0 +1,63 @@
+# schema 1
+# source: client_2026/Mission_Husong.txt
+# tool: TOOLS/server/export_tables.py; sửa tay sẽ mất ở lượt xuất sau
+# types: int	text	text	text	text
+index	original	name	type	note
+0	MissionIndex	mission_index	int	neo: cột gốc 0, khớp 100.0% (5/5 id); luật: M1
+1	MissionId	mission_id	int	neo: cột gốc 1, khớp 100.0% (5/5 id); luật: M1
+2	任务类型（客户端）	client_mission_kind	int	neo: cột gốc 2, khớp 100.0% (5/5 id); luật: nguyên văn
+3	是否精英（客户端）	client_is_elite	int	nội suy: cột gốc 3, khớp 100.0% (5/5 id); luật: nguyên văn
+4	是否显示完成（客户端）	client_shows_complete	int	nội suy: cột gốc 4, khớp 100.0% (5/5 id); luật: nguyên văn
+5	环数（客户端）	client_round_count	int	nội suy: cột gốc 5, khớp 100.0% (5/5 id); luật: nguyên văn
+6	完成任务的Npc的坐标(X)	complete_npc_position_x	int	neo: cột gốc 6, khớp 100.0% (5/5 id); luật: nguyên văn
+7	完成任务的Npc的坐标(Y)	complete_npc_position_y	int	neo: cột gốc 7, khớp 100.0% (5/5 id); luật: nguyên văn
+8	任务名称$1$	mission_name	text	neo: cột gốc 8, khớp 100.0% (5/5 id); luật: nguyên văn
+9	任务目标$1$	mission_objective	text	neo: cột gốc 9, khớp 100.0% (5/5 id); luật: nguyên văn
+10	任务描述3$1$	mission_description_3	text	neo: cột gốc 10, khớp 100.0% (5/5 id); luật: mẫu {n}
+11	任务描述4$1$	mission_description_4	text	nội suy: cột gốc 11, khớp 0.0% (0/5 id); luật: mẫu {n}
+12		column_12	text	mới ở 2026
+13	接受任务场景ID	accept_scene_id	int	neo: cột gốc 13, khớp 100.0% (5/5 id); luật: nguyên văn
+14	接受任务NpcName$1$	accept_npc_name	text	neo: cột gốc 14, khớp 100.0% (5/5 id); luật: nguyên văn
+15	完成任务场景ID	complete_scene_id	int	neo: cột gốc 15, khớp 100.0% (5/5 id); luật: nguyên văn
+16	完成任务NpcName$1$	complete_npc_name	text	neo: cột gốc 16, khớp 100.0% (5/5 id); luật: nguyên văn
+17	护送目标的场景号	escort_target_scene_id	int	neo: cột gốc 17, khớp 100.0% (5/5 id); luật: nguyên văn
+18	护送目标的名字$1$	escort_target_name	text	neo: cột gốc 18, khớp 100.0% (5/5 id); luật: nguyên văn
+19	护送路线ID	escort_route_id	int	nội suy: cột gốc 19, khớp 100.0% (5/5 id); luật: nguyên văn
+20	等级限制	level_limit	int	neo: cột gốc 20, khớp 100.0% (5/5 id); luật: nguyên văn
+21	前续任务Id1	previous_mission_id_1	int	neo: cột gốc 21, khớp 100.0% (5/5 id); luật: mẫu {n}
+22		column_22	int	mới ở 2026
+23		column_23	int	mới ở 2026
+24		column_24	int	mới ở 2026
+25		column_25	int	mới ở 2026
+26		column_26	int	mới ở 2026
+27	经验奖励	exp_reward	int	đổi kiểu: cột gốc 26, khớp 100.0% (5/5 id); luật: nguyên văn
+28		column_28	int	mới ở 2026
+29		column_29	int	mới ở 2026
+30		column_30	int	mới ở 2026
+31		column_31	int	mới ở 2026
+32		column_32	int	mới ở 2026
+33		column_33	int	mới ở 2026
+34		column_34	int	mới ở 2026
+35		column_35	int	mới ở 2026
+36		column_36	int	mới ở 2026
+37		column_37	int	mới ở 2026
+38	可选物品奖励1	optional_item_reward_1	int	neo: cột gốc 37, khớp 100.0% (5/5 id); luật: mẫu {n}
+39	可选物品1奖励数量	optional_item_1_reward_count	int	nội suy: cột gốc 38, khớp 100.0% (5/5 id); luật: mẫu {n}
+40	可选物品奖励2	optional_item_reward_2	int	neo: cột gốc 39, khớp 100.0% (5/5 id); luật: mẫu {n}
+41	可选物品2奖励数量	optional_item_2_reward_count	int	nội suy: cột gốc 40, khớp 100.0% (5/5 id); luật: mẫu {n}
+42	可选物品奖励3	optional_item_reward_3	int	neo: cột gốc 41, khớp 100.0% (5/5 id); luật: mẫu {n}
+43		column_43	int	mới ở 2026
+44		column_44	int	mới ở 2026
+45		column_45	int	mới ở 2026
+46		column_46	int	mới ở 2026
+47		column_47	int	mới ở 2026
+48		column_48	int	mới ở 2026
+49		column_49	int	mới ở 2026
+50		column_50	int	mới ở 2026
+51		column_51	int	mới ở 2026
+52		column_52	int	mới ở 2026
+53		column_53	int	mới ở 2026
+54		column_54	int	mới ở 2026
+55		column_55	int	mới ở 2026
+56		column_56	int	mới ở 2026
+57		column_57	int	mới ở 2026

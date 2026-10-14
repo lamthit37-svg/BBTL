@@ -32,7 +32,8 @@ struct Deadline {
     return *sent;
 }
 
-[[nodiscard]] LinkError send_all(net::TcpStream& stream, net::PollSet& poll, std::span<const std::byte> data, Deadline deadline) {
+[[nodiscard]] LinkError send_all(net::TcpStream& stream, net::PollSet& poll, std::span<const std::byte> data,
+    Deadline deadline) {
     std::size_t sent = 0;
     while (sent < data.size()) {
         if (deadline.late()) return LinkError::kTimeout;
@@ -50,7 +51,8 @@ struct Deadline {
     return {};
 }
 
-[[nodiscard]] LinkError recv_some(net::TcpStream& stream, net::PollSet& poll, std::vector<std::byte>& inbox, Deadline deadline) {
+[[nodiscard]] LinkError recv_some(net::TcpStream& stream, net::PollSet& poll, std::vector<std::byte>& inbox,
+    Deadline deadline) {
     if (deadline.late()) return LinkError::kTimeout;
     std::array<std::byte, 2048> chunk{};
     const net::NetResult<std::size_t> got = stream.receive(chunk);
@@ -64,8 +66,8 @@ struct Deadline {
     return {};
 }
 
-[[nodiscard]] LinkError fill_to(net::TcpStream& stream, net::PollSet& poll, std::vector<std::byte>& inbox, std::size_t need,
-    Deadline deadline) {
+[[nodiscard]] LinkError fill_to(net::TcpStream& stream, net::PollSet& poll, std::vector<std::byte>& inbox,
+    std::size_t need, Deadline deadline) {
     while (inbox.size() < need) {
         const LinkError more = recv_some(stream, poll, inbox, deadline);
         if (more != LinkError{}) return more;
@@ -114,8 +116,8 @@ struct Deadline {
     return send_all(stream, poll, std::span{record}.first(*wrote), deadline);
 }
 
-[[nodiscard]] LinkResult<std::vector<std::byte>> open_one(net::TcpStream& stream, net::PollSet& poll, secure::RecordPipe& pipe,
-    Deadline deadline) {
+[[nodiscard]] LinkResult<std::vector<std::byte>> open_one(net::TcpStream& stream, net::PollSet& poll,
+    secure::RecordPipe& pipe, Deadline deadline) {
     std::vector<std::byte> inbox;
     std::array<std::byte, secure::kMaxPlainBytes> plain{};
     while (true) {
@@ -123,8 +125,10 @@ struct Deadline {
         const secure::ByteView input{inbox.data(), inbox.size()};
         const secure::OpenResult opened = pipe.open_bytes(input, plain);
         if (!opened) return std::unexpected(LinkError::kSecure);
-        if (opened->consumed > 0) inbox.erase(inbox.begin(), inbox.begin() + static_cast<std::ptrdiff_t>(opened->consumed));
-        if (opened->written > 0) return std::vector<std::byte>(plain.begin(), plain.begin() + static_cast<std::ptrdiff_t>(opened->written));
+        if (opened->consumed > 0)
+            inbox.erase(inbox.begin(), inbox.begin() + static_cast<std::ptrdiff_t>(opened->consumed));
+        if (opened->written > 0)
+            return std::vector<std::byte>(plain.begin(), plain.begin() + static_cast<std::ptrdiff_t>(opened->written));
         const LinkError more = recv_some(stream, poll, inbox, deadline);
         if (more != LinkError{}) return std::unexpected(more);
     }

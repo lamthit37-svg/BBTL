@@ -7,8 +7,10 @@ thư mục này. Tài liệu cũ ở `docs/` giữ nguyên chỗ (xem chỉ mụ
 
 - Client gốc: `F:\tl 2026\2026` (3.71, `Bin64\Game.exe`, `Render.dll`, `OgreMain.dll`, `CEGUIBase.dll`,
   `UI_CEGUI.dll`). Cây đã giải gói, tên gốc: `F:\tl 2026\_goc`. Chỉ đọc.
-- Ghidra 12.1.4 ở `Desktop\ghidra_12.1.4_PUBLIC`, dự án `Desktop\ghidra-projects\TLBB` (đã phân tích đủ cả năm tệp
-  trên). Nhập lại Game.exe: `TOOLS\port\ghidra\import_game.bat` (khoảng 5 phút).
+- Mọi thứ của Ghidra nằm trong một thư mục `Desktop\ghidra` (gom 2026-10-13): bản chạy
+  `ghidra_12.1.4_PUBLIC\`, dự án `projects\TLBB` (đã phân tích đủ cả năm tệp trên, thêm `CEGUIFalagard.dll`),
+  `scripts\` (`ExportProof.java`, `check_proof.py`, `run_ui.bat`, các tệp `keys-*.txt`: xuất bằng chứng của bốn DLL) và
+  `export\` (kết quả `*.proof.txt` của lần xuất đó). Nhập lại Game.exe: `TOOLS\port\ghidra\import_game.bat` (khoảng 5 phút).
 - Đọc hàm: `TOOLS\port\ghidra\decompile.bat <chương trình> <tệp ra> <khoá>...` với khoá `0xĐịaChỉ`, `s:chuỗi`,
   `x:0xĐịaChỉ`, `n:tên`, `l:tên`, `v:lớp`, `i:chuỗi`, `a:0xĐịaChỉ`, `e:0xĐịaChỉ` (giải thích ở đầu
   `TOOLS\port\ghidra\DecompileAt.java`). Dự án Ghidra bị khoá khi đang mở: chạy lần lượt.

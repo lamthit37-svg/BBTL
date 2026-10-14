@@ -299,7 +299,7 @@ kết luận ngay dưới mục đó chứ không xoá.
     `--backend d3d12` và `--backend d3d11`). D3D12: `gpu/d3d12/swapchain.cpp:304` không tạo được
     swapchain (0x887a0001). D3D11: `gpu/d3d11/resources.cpp:1057` không tạo được SRV. Cả hai lỗi
     xảy ra trước khi giao diện dựng; chưa xác định từ commit nào. Vulkan và GLES chạy sạch với lớp
-    kiểm tra. Nhánh `F2_DXBC` của `ui.ps.hlsl` (mặt nạ ở t1/s1) vì thế chưa chạy được lần nào.
+    kiểm tra. Nhánh `F2_DXBC` của `ui.ps.slang` (mặt nạ ở t1/s1) vì thế chưa chạy được lần nào.
 26. **Nhịp khung của backend GL** (2026-10-06, `gpu/gles/swapchain.cpp`). Desktop xin Mailbox và tự
     giữ nhịp 120 Hz; commit e404d1e đổi GL sang chờ quét cho mọi chế độ khác Immediate, từ đó PC
     GLES (WGL, màn 60 Hz) nhảy 7/16/32 ms: 120 trong 449 khung quá 20 ms khi có lượt ảnh đầu, 34
@@ -678,8 +678,8 @@ kết luận ngay dưới mục đó chứ không xoá.
     (e) `Window::adopt(ANativeWindow*)` và `adopted_size()` khai trong khối `__ANDROID__` của
     `SRC/window/window.hpp` mà không có định nghĩa nào trong `SRC/`.
     (f) Preset: `android-x86_64` kế thừa triplet vcpkg `arm64-android` và trên máy chưa có cây
-    dựng hay gói nào cho nó; nhánh iOS của `CMakeLists.txt` link `game_jobs` và `game_capture` là
-    hai target chỉ tạo khi `WIN32 OR ANDROID`. Cả hai chưa dựng thử.
+    dựng hay gói nào cho nó. Chưa dựng thử. (Nhánh iOS link `game_jobs` và `game_capture` mà hai
+    target chỉ tạo khi `WIN32 OR ANDROID`: ĐÃ SỬA 2026-10-13, mục 49.)
     (g) Cổng dựng của CMake yếu hơn cổng `check.py`: `config/warnings-*.txt` trong repo là bản
     2026-10-05 (17 cờ chung, 6 cờ GCC, 6 cờ Clang, tức 23 cờ mỗi trình dịch), bộ cpp23 hiện tại là
     29, 23, 32 (52 cờ với GCC, 61 với Clang, 84 cờ khác nhau); `cmake/GameSanitize.cmake` chưa có
@@ -763,3 +763,41 @@ kết luận ngay dưới mục đó chứ không xoá.
     `WaterCover`, `water_cover`, `pour_liquid`, `water_at`, `ray_water` không còn trong `src` (cây bị khôi phục ngày 2026-10-09 thiếu chúng); chuỗi
     `kTable` của ca `book_reads_clip_planes` còn bị hỏng dấu tab và xuống dòng, đã sửa 2026-10-13. Các test đỏ từ trước: `ui_panel`
     (`desk_paints_notice`), `ui_quest` (thiếu số vàng), `gui_sheet_tests` (không dịch được).
+
+49. **iOS: dọn nguồn 2026-10-13 và những gì chỉ kiểm được trên máy Apple** (`apple/HUONG-DAN.txt`). Máy phát triển
+    không có macOS nên không nhánh `IOS` nào qua trình dịch; mọi sửa dưới đây dựa trên đọc mã, header của miniaudio
+    và `FindVulkan.cmake` của CMake 4.4, rồi cấu hình lại preset Windows và Android để chắc phần chung không vỡ.
+    ĐÃ SỬA: (a) `game_jobs` và `game_capture` nay tạo cho cả iOS (mục 45f nêu lỗi này); (b) `project()` chỉ khai `CXX`
+    nên `.mm` không được dịch: nay `enable_language(OBJCXX)` và ARC khi `IOS`; (c) `engine/audio/detail/native.cpp`
+    include miniaudio, mà bản iOS của nó chứa `@interface` và `@autoreleasepool` và không nạp khung lúc chạy
+    (`MA_APPLE_MOBILE`): nay dịch thành Objective-C++ và link CoreFoundation, CoreAudio, AudioToolbox, AVFoundation;
+    (d) `gpu/vulkan/instance.cpp` đòi `VK_KHR_win32_surface` trên mọi nền không phải Android, nên trên MoltenVK
+    `has_surface` luôn sai: nay `VK_EXT_metal_surface` khi `__APPLE__`; (e) preset iOS không có toolchain vcpkg nên
+    `find_package(lz4)` sẽ đỏ: nay kế thừa preset ẩn `ios` (`$VCPKG_ROOT`, triplet `arm64-ios`, simulator
+    `arm64-ios-simulator`); (f) gói shader của Android và iOS ghim `build/clang-asan/shaders`, cây chẩn đoán bị xoá khi hết
+    đợt soi bug: nay `cmake/GameDeviceShaders.cmake` chọn cây có đủ gói; (g) `kAtlasEdge` dùng `__APPLE__` (cả macOS),
+    nay `ui::kPhone`; `has_loader()` của `surface_ios.mm` dlopen rồi trả true cả hai nhánh, nay trả true.
+    CÒN MỞ, cần máy Apple: (1) `find_package(Vulkan)` tìm thư viện tên `vulkan`, iOS chỉ có MoltenVK, nên phải đặt
+    `Vulkan_LIBRARY`, `Vulkan_INCLUDE_DIR` tay (đã ghi trong HUONG-DAN); chưa biết `Vulkan::Vulkan` có đủ cho
+    `vulkan_metal.h` không. (2) MoltenVK có đạt `append_capable` (Vulkan 1.3: `bufferDeviceAddress`, timeline semaphore,
+    dynamic rendering, synchronization2) không; chưa đo, nếu thiếu thì `Instance::devices()` trả `kUnsupported`.
+    (3) `VK_KHR_portability_subset` không được bật ở `gpu/vulkan/device.cpp`: spec đòi bật khi thiết bị công bố nó,
+    MoltenVK công bố. (4) `vcpkg.json` kéo `sdl3` và `libpq` cho mọi nền; chưa biết hai gói dựng được cho `arm64-ios`
+    không, nếu không thì thêm `"platform"` cho chúng. (5) Cảnh báo `-Werror` trên hai tệp `.mm` chưa từng chạy.
+    (6) `ITSAppUsesNonExemptEncryption=false` trong `Info.plist.in` và `PrivacyInfo.xcprivacy` rỗng: client có libsodium
+    (`seal`), dùng `stat` và đồng hồ đơn điệu; chủ dự án quyết khai báo mã hoá, và phần API cần lý do (FileTimestamp
+    `C617.1`, SystemBootTime `35F9.1`) đối chiếu khi App Store Connect báo. (7) `setpriority` của `core::sleep_until`
+    trên iOS luôn thất bại (không đặc quyền) và bị bỏ qua; vô hại nhưng thừa một lời gọi hệ thống mỗi lần ngủ.
+50. **Shader chuyển sang Slang 2026-10-13: các chỗ chưa kiểm** (`engine/shader/detail/slang.cpp`, `reconcile.cpp`).
+    Nguồn `src/client/render/shaders/*.slang`; Slang (`slang.dll` của Vulkan SDK 1.4.363) dịch ra SPIR-V, DXIL, DXBC;
+    DXC chỉ còn đọc phản chiếu DXIL; GLSL của GLES vẫn viết tay (`*.glsl`). Đã đo: băm phản chiếu của 7 gói × 4 đích
+    bằng bản DXC cũ; ảnh chụp Vulkan của `--bare` giống bản cũ từng điểm ảnh, ảnh có giao diện lệch ít hơn nhiễu giữa
+    hai lượt chạy cùng một bản. CHƯA KIỂM: (a) DXIL và DXBC do Slang sinh chưa chạy trên D3D12 và D3D11 thật (mục 25: hai
+    backend chưa hiển thị được); mới biết DXIL có chữ ký và phản chiếu của nó khớp SPIR-V. (b) DXIL to hơn bản DXC
+    (`model.vs` 7668 lên 11448 byte), chưa tìm cờ giảm; chỉ ảnh hưởng gói trên đĩa của D3D12. (c) Stage hull, domain,
+    geometry, compute, mesh, amplification và `Stage::kLibrary` chưa shader nào dùng, nhánh tương ứng của `stage_of`,
+    `profile_of` chưa chạy; `kLibrary` bị từ chối. (d) Append/Consume: Slang ghi bộ đếm thành biến `<buffer>.counter`
+    (đo bằng `slangc`), `reflect_spirv` từ chối tên ấy; chưa shader nào dùng. (e) Sinh GLSL của GLES bằng Slang
+    (`-target glsl`) để bỏ ba tệp `.glsl` viết tay chưa thử, chưa đo. (f) Mỗi lần dịch chạy 2 tới 3 lượt Slang (SPIR-V
+    và DXIL để đối chiếu, thêm DXBC); 7 gói × 4 đích mất 2,6 giây trên máy dựng, chưa so với DXC. Khoá cache của gói
+    gồm `kPipeline` trong `compiler.cpp`: đổi cách ghép phản chiếu thì tăng số này, không thì gói cũ vẫn "còn mới".

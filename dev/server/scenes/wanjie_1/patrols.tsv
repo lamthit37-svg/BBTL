@@ -1,0 +1,24 @@
+# schema 1
+# source: Public/Scene/wanjie_1_patrolpoint.ini
+# tool: TOOLS/server/export_scene.py; sửa tay sẽ mất ở lượt xuất sau
+# types: int	int	float	float	float	int	text	text	int	int	text	text	text	text
+patrol_index	point_index	position_x	position_y	position_z	settle_time	point_script_id	route_script_id	turns_back	teleport_to_respawn	speech_unread	speech_1	speech_2	speech_3
+0	0	27.5803	800.0000	14.6322				0	0				
+0	1	27.5917	800.0000	24.6220				0	0				
+0	2	25.9518	703.1132	32.9377				0	0				
+0	3	25.9652	600.0000	42.0445				0	0				
+0	4	21.8987	600.7965	56.0320				0	0				
+0	5	18.3418	663.8809	66.0501				0	0				
+0	6	17.4829	674.5984	72.9921				0	0				
+0	7	17.2562	671.8461	84.1372				0	0				
+0	8	17.2676	829.1746	91.9508				0	0				
+0	9	20.6991	862.1797	94.7506				0	0				
+0	10	29.8430	1023.5020	89.7734				0	0				
+0	11	33.1372	1031.9868	84.9176				0	0				
+0	12	40.8125	937.9897	76.7820				0	0				
+0	13	49.7772	973.9430	71.9026				0	0				
+0	14	62.4604	774.3237	73.4702				0	0				
+0	15	67.7638	721.1535	80.8387				0	0				
+0	16	67.0627	644.9711	89.5375				0	0				
+0	17	66.5887	654.2047	93.5757				0	0				
+0	18	63.4437	626.0177	94.4140	5000			0	0				

@@ -96,11 +96,12 @@ inline constexpr std::size_t kMaxNumberBytes = 20;
 // cột viết đủ bốn chữ số).
 [[nodiscard]] constexpr std::size_t snapshot_bound() noexcept {
     constexpr std::size_t kHead = 10; // "metrics 1\n"
-    constexpr std::size_t kTail = 4;  // "end\n"
+    constexpr std::size_t kTail = 4; // "end\n"
     constexpr std::size_t kCounterLine = 8 + kMaxNameBytes + 1 + kMaxNumberBytes + 1;
     constexpr std::size_t kGaugeLine = 6 + kMaxNameBytes + 1 + kMaxNumberBytes + 1;
     constexpr std::size_t kBucketField = 2 + 4 + 1 + kMaxNumberBytes; // " b" chỉ số "=" số
-    constexpr std::size_t kPhaseHead = 6 + kMaxNameBytes + 7 + kMaxNumberBytes + 8 + kMaxNumberBytes + 8 + kMaxNumberBytes;
+    constexpr std::size_t kPhaseHead =
+        6 + kMaxNameBytes + 7 + kMaxNumberBytes + 8 + kMaxNumberBytes + 8 + kMaxNumberBytes;
     constexpr std::size_t kPhaseLine = kPhaseHead + (kPhaseBucketCount * kBucketField) + 6 + kMaxNumberBytes + 1;
     return kHead + (kMaxCounters * kCounterLine) + (kMaxGauges * kGaugeLine) + (kMaxPhases * kPhaseLine) + kTail;
 }
@@ -154,8 +155,13 @@ inline constexpr std::array<std::string_view, kGaugeCount> kGaugeNames{
 };
 
 inline constexpr std::array<std::string_view, kPhaseCount> kPhaseNames{
-    "gate.phase.wait",  "gate.phase.resume",  "gate.phase.accept", "gate.phase.pump",
-    "gate.phase.advance", "gate.phase.flush", "gate.phase.tick",
+    "gate.phase.wait",
+    "gate.phase.resume",
+    "gate.phase.accept",
+    "gate.phase.pump",
+    "gate.phase.advance",
+    "gate.phase.flush",
+    "gate.phase.tick",
 };
 
 namespace detail {
@@ -312,8 +318,8 @@ enum class [[nodiscard]] SnapshotError : std::uint8_t {
 // là dữ liệu không tin được: mọi độ dài và số đều kiểm trước khi dùng, không cấp phát. Số được phép
 // có số 0 đứng đầu, miễn không quá kMaxNumberBytes ký tự (chỉ số cột: bốn). O(byte) cộng phép dò
 // trùng tên O(số dòng²), số dòng tối đa kMaxCounters.
-[[nodiscard]] std::expected<void, SnapshotError> parse_snapshot(std::string_view text, Snapshot& out) noexcept
-    GAME_NONALLOCATING;
+[[nodiscard]] std::expected<void, SnapshotError> parse_snapshot(std::string_view text,
+    Snapshot& out) noexcept GAME_NONALLOCATING;
 
 // Một phân vị rơi vào đâu.
 enum class Spread : std::uint8_t {

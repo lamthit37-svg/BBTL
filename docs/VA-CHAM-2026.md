@@ -3,12 +3,16 @@
 Độ cao mặt cầu, bậc thang, sàn đài dưới chân nhân vật, và tia chuột trúng các mặt đó. Gốc là lớp
 `BuildingCollision` của `PathLib.dll`; module port là `SRC/collision` (namespace `game::collision`).
 
-Phần đã có mã, đối chiếu ngày 2026-10-08: bộ đọc tệp (`building_file.*`), lưới sau nạp (`mesh.*`),
+Phần đã có mã, đối chiếu ngày 2026-10-13: bộ đọc tệp (`building_file.*`), lưới sau nạp (`mesh.*`),
 cây OPCODE (`opcode_tree.*`) và phép biến đổi đỉnh (`transform.hpp`), đều ở
-`game::collision::detail`; ngoài `detail` chỉ có `LoadError`, `describe` và hai hằng mã bản. API
-của mục "API port C chốt" (`Model`, `load`, `height`, `raycast`, `bounds`, `Hit`, `Aabb`) CHƯA có
-dòng mã nào, nên module chưa có truy vấn và client chưa dùng nó; `collision_tests` và
-`collision_alloc_tests` vì thế luôn báo Skipped ở ca "chờ Model".
+`game::collision::detail`; ngoài `detail` có `LoadError`, `describe`, hai hằng mã bản và API của mục
+"API port C chốt" (`Model`, `load`, `height`, `raycast`, `bounds`, `Hit`, `Aabb`; `model.cpp`). Client
+nạp `<cảnh>.WCollision` (`world::attach_buildings`) và nâng chân nhân vật bằng `Model::height`
+(`surface_y` ở `display/graphic/play.cpp`); `building_height_tests` xanh. Chưa có: tia chuột trúng mặt
+công trình trong client, và chưa nhìn thử tay mặt cầu, bậc thang. Đoạn này ngày 2026-10-08 ghi
+"CHƯA có dòng mã nào"; mã đã đi trước tài liệu (cây được ghép lại sau vụ mất 2026-10-09). Hai tệp
+`Test/Collision/collision_tests.cpp` và `collision_alloc_tests.cpp` mà `CMakeLists.txt` còn nhắc không có trên đĩa
+(nợ của vụ mất): bản đọc tệp chưa có test canh, `ctest` chỉ có `building_height_tests` cho module này.
 
 Mọi địa chỉ là của bản trong `F:\tl 2026\Bin64` (`PathLib.dll` và `Render.dll` base `0x180000000`,
 `Game.exe` base `0x140000000`). Tìm lại bằng `python TOOLS/port/pe_refs.py <tệp> func <địa chỉ>`;

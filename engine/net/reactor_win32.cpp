@@ -25,6 +25,8 @@
 #include <winerror.h>
 #include <winsock2.h>
 #include <ws2tcpip.h>
+
+// mswsock.h cần SOCKET của winsock2.h nên đứng sau, khối riêng để clang-format không xếp lại.
 #include <mswsock.h>
 
 namespace game::net {
@@ -194,8 +196,7 @@ void finish_op(ReactorNative& native, Op& op) noexcept {
     accept.op.kind = Kind::kAccept;
     accept.op.slot = &slot;
     DWORD got = 0;
-    const BOOL ok = native.accept_ex(
-        slot.fd, fresh, accept.buf.data(), 0, kAddrLen, kAddrLen, &got, &accept.op.ov);
+    const BOOL ok = native.accept_ex(slot.fd, fresh, accept.buf.data(), 0, kAddrLen, kAddrLen, &got, &accept.op.ov);
     if (ok == TRUE || WSAGetLastError() == WSA_IO_PENDING) {
         accept.op.posted = true;
         ++slot.posted;
@@ -294,14 +295,14 @@ struct Harvest {
     }
     std::array<OVERLAPPED_ENTRY, kBatch> entries{};
     ULONG got = 0;
-    const BOOL ok = GetQueuedCompletionStatusEx(
-        native.port, entries.data(), kBatch, &got, timeout, FALSE);
+    const BOOL ok = GetQueuedCompletionStatusEx(native.port, entries.data(), kBatch, &got, timeout, FALSE);
     if (ok == FALSE) {
         result.failed = GetLastError() != WAIT_TIMEOUT;
         return result;
     }
     result.count = got;
-    for (ULONG index = 0; index < got; ++index) apply(native, entries[index]);
+    for (ULONG index = 0; index < got; ++index)
+        apply(native, entries[index]);
     return result;
 }
 
@@ -401,9 +402,11 @@ ReactorNative::~ReactorNative() {
         // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast): HANDLE của socket
         static_cast<void>(CancelIoEx(reinterpret_cast<HANDLE>(slot.fd), nullptr));
     }
-    for (int spin = 0; spin < 100 && pending > 0; ++spin) static_cast<void>(harvest(*this, 20));
+    for (int spin = 0; spin < 100 && pending > 0; ++spin)
+        static_cast<void>(harvest(*this, 20));
     if (pending > 0) {
-        for (auto& item : slots) static_cast<void>(item.second.release());
+        for (auto& item : slots)
+            static_cast<void>(item.second.release());
     }
     slots.clear();
     if (port != nullptr) CloseHandle(port);

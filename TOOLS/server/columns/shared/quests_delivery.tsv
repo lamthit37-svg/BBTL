@@ -1,0 +1,93 @@
+# schema 1
+# source: client_2026/Mission_Delivery.txt
+# tool: TOOLS/server/export_tables.py; sửa tay sẽ mất ở lượt xuất sau
+# types: int	text	text	text	text
+index	original	name	type	note
+0	MissionIndex	mission_index	int	neo: cột gốc 0, khớp 100.0% (497/497 id); luật: M1
+1	MissionId	mission_id	int	neo: cột gốc 1, khớp 100.0% (497/497 id); luật: M1
+2	任务类型（客户端）	client_mission_kind	int	neo: cột gốc 2, khớp 99.0% (492/497 id); luật: nguyên văn
+3	是否精英（客户端）	client_is_elite	int	nội suy: cột gốc 3, khớp 100.0% (497/497 id); luật: nguyên văn
+4	是否显示完成（客户端）	client_shows_complete	int	nội suy: cột gốc 4, khớp 100.0% (497/497 id); luật: nguyên văn
+5	环数（客户端）	client_round_count	int	nội suy: cột gốc 5, khớp 100.0% (497/497 id); luật: nguyên văn
+6	是否循环任务	is_repeatable_mission	int	nội suy: cột gốc 6, khớp 100.0% (497/497 id); luật: nguyên văn
+7		column_7	int	mới ở 2026
+8		column_8	int	mới ở 2026
+9	任务名称$1$	mission_name	text	neo: cột gốc 9, khớp 97.2% (483/497 id); luật: nguyên văn
+10		column_10	text	mới ở 2026
+11		column_11	text	mới ở 2026
+12	是否有Continue	has_continue	int	nội suy: cột gốc 12, khớp 100.0% (497/497 id); luật: nguyên văn
+13	任务继续信息$1$	mission_continue_text	text	neo: cột gốc 13, khớp 99.4% (494/497 id); luật: nguyên văn
+14		column_14	text	mới ở 2026
+15	接受任务场景ID	accept_scene_id	int	neo: cột gốc 15, khớp 99.0% (492/497 id); luật: nguyên văn
+16		column_16	text	mới ở 2026
+17	完成任务场景ID	complete_scene_id	int	neo: cột gốc 17, khớp 99.4% (494/497 id); luật: nguyên văn
+18		column_18	text	mới ở 2026
+19	任务目标场景ID	objective_scene_id	int	neo: cột gốc 19, khớp 99.4% (494/497 id); luật: nguyên văn
+20		column_20	text	mới ở 2026
+21	任务目标NPC是否动态	objective_npc_is_dynamic	int	nội suy: cột gốc 21, khớp 100.0% (497/497 id); luật: nguyên văn
+22	任务目标NPC对白$1$	objective_npc_dialogue	text	neo: cột gốc 22, khớp 100.0% (497/497 id); luật: nguyên văn
+23	任务需求等级	required_level	int	neo: cột gốc 23, khớp 100.0% (497/497 id); luật: nguyên văn
+24	前续任务Id1	previous_mission_id_1	int	neo: cột gốc 24, khớp 99.4% (494/497 id); luật: mẫu {n}
+25	前续任务Id2	previous_mission_id_2	int	neo: cột gốc 25, khớp 99.8% (496/497 id); luật: mẫu {n}
+26	前续任务Id3	previous_mission_id_3	int	neo: cột gốc 26, khớp 100.0% (497/497 id); luật: mẫu {n}
+27		column_27	int	mới ở 2026
+28		column_28	int	mới ở 2026
+29		column_29	int	mới ở 2026
+30	关系值存储位置	relation_value_slot	int	neo: cột gốc 29, khớp 100.0% (497/497 id); luật: nguyên văn
+31		column_31	int	mới ở 2026
+32		column_32	text	mới ở 2026
+33		column_33	int	mới ở 2026
+34		column_34	text	mới ở 2026
+35		column_35	int	mới ở 2026
+36		column_36	int	mới ở 2026
+37		column_37	text	mới ở 2026
+38		column_38	int	mới ở 2026
+39		column_39	int	mới ở 2026
+40	固定物品奖励1	fixed_item_reward_1	int	neo: cột gốc 37, khớp 98.0% (487/497 id); luật: mẫu {n}
+41		column_41	int	mới ở 2026
+42		column_42	int	mới ở 2026
+43		column_43	int	mới ở 2026
+44		column_44	int	mới ở 2026
+45		column_45	int	mới ở 2026
+46		column_46	int	mới ở 2026
+47		column_47	int	mới ở 2026
+48	固定物品奖励2	fixed_item_reward_2	int	neo: cột gốc 39, khớp 96.6% (480/497 id); luật: mẫu {n}
+49		column_49	int	mới ở 2026
+50	可选物品奖励1	optional_item_reward_1	int	neo: cột gốc 47, khớp 97.0% (482/497 id); luật: mẫu {n}
+51	可选物品1奖励数量	optional_item_1_reward_count	int	nội suy: cột gốc 48, khớp 100.0% (497/497 id); luật: mẫu {n}
+52	可选物品奖励2	optional_item_reward_2	int	neo: cột gốc 49, khớp 97.0% (482/497 id); luật: mẫu {n}
+53	可选物品2奖励数量	optional_item_2_reward_count	int	nội suy: cột gốc 50, khớp 98.0% (487/497 id); luật: mẫu {n}
+54	可选物品奖励3	optional_item_reward_3	int	neo: cột gốc 51, khớp 99.0% (492/497 id); luật: mẫu {n}
+55		column_55	int	mới ở 2026
+56		column_56	int	mới ở 2026
+57		column_57	int	mới ở 2026
+58		column_58	int	mới ở 2026
+59		column_59	int	mới ở 2026
+60		column_60	int	mới ở 2026
+61		column_61	int	mới ở 2026
+62		column_62	int	mới ở 2026
+63		column_63	int	mới ở 2026
+64		column_64	int	mới ở 2026
+65		column_65	int	mới ở 2026
+66		column_66	int	mới ở 2026
+67		column_67	int	mới ở 2026
+68	送物种类数量（最多5）	delivery_kind_cap	int	neo: cột gốc 63, khớp 99.8% (496/497 id); luật: nguyên văn
+69	第一个物品ID	item_id_1	int	neo: cột gốc 64, khớp 99.8% (496/497 id); luật: nguyên văn
+70	第一个物品数量	item_count_1	int	nội suy: cột gốc 65, khớp 99.8% (496/497 id); luật: nguyên văn
+71	物品是否在接任务时由NPC给予	npc_gives_item_on_accept_1	int	nội suy: cột gốc 66, khớp 99.8% (496/497 id); luật: nguyên văn
+72	第二个物品ID	item_id_2	int	nội suy: cột gốc 67, khớp 100.0% (497/497 id); luật: nguyên văn
+73	第二个物品数量	item_count_2	int	nội suy: cột gốc 68, khớp 100.0% (497/497 id); luật: nguyên văn
+74	物品是否在接任务时由NPC给予	npc_gives_item_on_accept_2	int	nội suy: cột gốc 69, khớp 100.0% (497/497 id); luật: nguyên văn
+75	第三个物品ID	item_id_3	int	nội suy: cột gốc 70, khớp 100.0% (497/497 id); luật: nguyên văn
+76	第三个物品数量	item_count_3	int	nội suy: cột gốc 71, khớp 100.0% (497/497 id); luật: nguyên văn
+77	物品是否在接任务时由NPC给予	npc_gives_item_on_accept_3	int	nội suy: cột gốc 72, khớp 100.0% (497/497 id); luật: nguyên văn
+78	第四个物品ID	item_id_4	int	nội suy: cột gốc 73, khớp 100.0% (497/497 id); luật: nguyên văn
+79	第四个物品数量	item_count_4	int	nội suy: cột gốc 74, khớp 100.0% (497/497 id); luật: nguyên văn
+80	物品是否在接任务时由NPC给予	npc_gives_item_on_accept_4	int	nội suy: cột gốc 75, khớp 100.0% (497/497 id); luật: nguyên văn
+81	MissionItem_HashTable列号	mission_item_pool_column	int	nội suy: cột gốc 76, khớp 100.0% (497/497 id); luật: nguyên văn
+82	第五个物品数量	item_count_5	int	nội suy: cột gốc 77, khớp 100.0% (497/497 id); luật: nguyên văn
+83	物品是否在接任务时由NPC给予	npc_gives_item_on_accept_5	int	nội suy: cột gốc 78, khớp 100.0% (497/497 id); luật: nguyên văn
+84	后续任务INDEX	next_mission_index	int	neo: cột gốc 79, khớp 100.0% (497/497 id); luật: nguyên văn
+85		column_85	int	mới ở 2026
+86		column_86	int	mới ở 2026
+87		column_87	int	mới ở 2026

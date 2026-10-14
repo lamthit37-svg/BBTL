@@ -157,6 +157,29 @@ SPECS = (
         target="newbie_outfits.tsv",
         names={0: "id", 1: "name", 2: "body", 3: "foot", 4: "arm"},
     ),
+    # Vật phẩm, nguồn chữ của khoá table/<bảng>/<id>/<cột> trong assets/i18n (build_i18n.py): tên,
+    # mô tả và tên loại hiện ở ô tooltip. Vật phẩm thường (CommonItem), trang bị (EquipBase), bảo
+    # thạch (GemInfo), vật phẩm hoạt động (CampaignItem); các cột khác giữ tên column_<k>.
+    Spec(
+        source="CommonItem.txt",
+        target="items.tsv",
+        names={0: "id", 5: "icon", 6: "name", 7: "description", 19: "type_name"},
+    ),
+    Spec(
+        source="EquipBase.txt",
+        target="equips.tsv",
+        names={0: "id", 10: "name", 13: "description", 18: "icon", 19: "type_name"},
+    ),
+    Spec(
+        source="GemInfo.txt",
+        target="gems.tsv",
+        names={0: "id", 5: "icon", 7: "name", 8: "description"},
+    ),
+    Spec(
+        source="CampaignItem.txt",
+        target="campaign_items.tsv",
+        names={0: "id", 2: "icon", 3: "name", 4: "description", 6: "type_name"},
+    ),
 )
 
 # Bảng lên cấp của kỹ năng sống: ô level_table của life_skills.tsv là tên một tệp trong thư mục này;

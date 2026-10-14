@@ -28,7 +28,7 @@ using classic::TexOp;
 
 // Chất liệu không khai gì ngoài texture: mọi trường giữ mặc định của Ogre::Pass.
 void plain_pass_keeps_ogre_defaults(Context& context) {
-    const std::string_viewextras =
+    const std::string_view extras =
         R"({"ogre": {"defined": true, "script": "material 站佛像2\n{\n\ttechnique\n\t{\n\t}\n}",)"
         R"( "parents": [], "pass_count": 1, "settings": {}, "has_program": false}})";
     const std::optional<Classic> classic = classic::read_classic(extras);
@@ -48,7 +48,7 @@ void plain_pass_keeps_ogre_defaults(Context& context) {
 
 // 自然石柱: specular năm số (r g b a shininess) và emissive bốn số (r g b a).
 void reads_specular_and_emissive(Context& context) {
-    const std::string_viewextras =
+    const std::string_view extras =
         R"({"ogre": {"parents": [], "settings": {"specular": "0.588235 0.588235 0.588235 1 12.8",)"
         R"( "emissive": "0.15 0.15 0.15 1"}}})";
     const std::optional<Classic> classic = classic::read_classic(extras);
@@ -61,7 +61,7 @@ void reads_specular_and_emissive(Context& context) {
 
 // Dạng bốn số của Ogre: r g b shininess, không có alpha.
 void four_number_specular_ends_with_shininess(Context& context) {
-    const std::string_viewextras = R"({"ogre": {"settings": {"specular": "1 0.5 0.25 50"}}})";
+    const std::string_view extras = R"({"ogre": {"settings": {"specular": "1 0.5 0.25 50"}}})";
     const std::optional<Classic> classic = classic::read_classic(extras);
     context.expect(classic.has_value(), "đọc được");
     if (!classic) return;
@@ -72,9 +72,9 @@ void four_number_specular_ends_with_shininess(Context& context) {
 }
 
 void reads_lighting_and_fog(Context& context) {
-    const std::string_viewpixel = R"({"ogre": {"settings": {"lighting": "on pslit"}}})";
-    const std::string_viewoff = R"({"ogre": {"settings": {"lighting": "off", "fog_override": "true none"}}})";
-    const std::string_viewown_fog = R"({"ogre": {"settings": {"fog_override": "true linear 1 1 1 0 10 100"}}})";
+    const std::string_view pixel = R"({"ogre": {"settings": {"lighting": "on pslit"}}})";
+    const std::string_view off = R"({"ogre": {"settings": {"lighting": "off", "fog_override": "true none"}}})";
+    const std::string_view own_fog = R"({"ogre": {"settings": {"fog_override": "true linear 1 1 1 0 10 100"}}})";
     const std::optional<Classic> lit = classic::read_classic(pixel);
     const std::optional<Classic> dark = classic::read_classic(off);
     const std::optional<Classic> custom = classic::read_classic(own_fog);
@@ -85,8 +85,8 @@ void reads_lighting_and_fog(Context& context) {
 }
 
 void reads_colours_and_vertex_tracking(Context& context) {
-    const std::string_viewextras = R"({"ogre": {"settings": {"ambient": "0.5 0.25 0.125 1", "diffuse": "1 1 1 0.8"}}})";
-    const std::string_viewtracked = R"({"ogre": {"settings": {"diffuse": "vertexcolour"}}})";
+    const std::string_view extras = R"({"ogre": {"settings": {"ambient": "0.5 0.25 0.125 1", "diffuse": "1 1 1 0.8"}}})";
+    const std::string_view tracked = R"({"ogre": {"settings": {"diffuse": "vertexcolour"}}})";
     const std::optional<Classic> classic = classic::read_classic(extras);
     const std::optional<Classic> vertex = classic::read_classic(tracked);
     context.expect(classic.has_value() && vertex.has_value(), "đọc được");
@@ -101,10 +101,10 @@ void reads_colours_and_vertex_tracking(Context& context) {
 
 // 岩浆瀑布 kế thừa Mtl_Character_ColorX2; tóc đổi màu kế thừa họ ColourChangable.
 void parents_choose_the_texture_op(Context& context) {
-    const std::string_viewtwice = R"({"ogre": {"parents": ["Mtl_Character_ColorX2"], "settings": {}}})";
-    const std::string_viewfour = R"({"ogre": {"settings": {}, "parents": ["Mtl_Model_TwoTex_Tex1_ColorX4"]}})";
-    const std::string_viewadded = R"({"ogre": {"parents": ["AlphaBlend/ColourChangable/AlphaTemplate"]}})";
-    const std::string_viewsecond = R"({"ogre": {"parents": ["Mtl_Model_TwoTex_Tex2_ColorX4"]}})";
+    const std::string_view twice = R"({"ogre": {"parents": ["Mtl_Character_ColorX2"], "settings": {}}})";
+    const std::string_view four = R"({"ogre": {"settings": {}, "parents": ["Mtl_Model_TwoTex_Tex1_ColorX4"]}})";
+    const std::string_view added = R"({"ogre": {"parents": ["AlphaBlend/ColourChangable/AlphaTemplate"]}})";
+    const std::string_view second = R"({"ogre": {"parents": ["Mtl_Model_TwoTex_Tex2_ColorX4"]}})";
     const std::optional<Classic> lava = classic::read_classic(twice);
     const std::optional<Classic> bright = classic::read_classic(four);
     const std::optional<Classic> hair = classic::read_classic(added);
@@ -118,7 +118,7 @@ void parents_choose_the_texture_op(Context& context) {
 // Bản chép script nằm trước settings và chứa ngoặc nhọn, dấu nháy thoát, chữ Hán: phải nhảy qua
 // trọn chuỗi chứ không đếm ngoặc bên trong.
 void skips_strings_with_braces_and_quotes(Context& context) {
-    const std::string_viewextras = R"({"other": {"deep": [1, {"x": "}"}]}, "ogre": {"script": "pass \"a\" {\n}}}",)"
+    const std::string_view extras = R"({"other": {"deep": [1, {"x": "}"}]}, "ogre": {"script": "pass \"a\" {\n}}}",)"
                                    R"( "textures": [{"alias": "", "texture": "敦煌/jpg_彩绘.dds"}],)"
                                    R"( "settings": {"emissive": "0.2 0.2 0.2 1"}}})";
     const std::optional<Classic> classic = classic::read_classic(extras);
@@ -145,11 +145,11 @@ void missing_or_broken_json_has_no_material(Context& context) {
 // Cắt cụt giữa chừng: phần đọc được trước chỗ cắt vẫn giữ, phần sau là mặc định, không đọc ra
 // ngoài chuỗi (ca này chạy dưới ASan).
 void truncated_settings_keep_what_was_read(Context& context) {
-    const std::string_viewwhole = R"({"ogre": {"settings": {"emissive": "0.4 0.4 0.4", "specular": "1 1 1 30"}}})";
+    const std::string_view whole = R"({"ogre": {"settings": {"emissive": "0.4 0.4 0.4", "specular": "1 1 1 30"}}})";
     for (std::size_t length = 0; length < whole.size(); ++length) {
         static_cast<void>(classic::read_classic(whole.substr(0, length)));
     }
-    const std::string_viewcut = R"({"ogre": {"settings": {"emissive": "0.4 0.4 0.4", "spec)";
+    const std::string_view cut = R"({"ogre": {"settings": {"emissive": "0.4 0.4 0.4", "spec)";
     const std::optional<Classic> classic = classic::read_classic(cut);
     context.expect(classic.has_value(), "phần đầu còn nguyên");
     if (!classic) return;

@@ -1,0 +1,23 @@
+# schema 1
+# source: server_config/GeneralSets.txt
+# tool: TOOLS/server/import_legacy.py; sửa tay sẽ mất ở lượt xuất sau
+# types: int	text	text	text	text
+index	original	name	type	note
+0	索引	index	int	luật: nguyên văn
+1	描述	description	text	luật: nguyên văn
+2	Element0	element_0	int	luật: M1
+3	Element1	element_1	int	luật: M1
+4	Element2	element_2	int	luật: M1
+5	Element3	element_3	int	luật: M1
+6	Element4	element_4	int	luật: M1
+7	Element5	element_5	int	luật: M1
+8	Element6	element_6	int	luật: M1
+9	Element7	element_7	int	luật: M1
+10	Element8	element_8	int	luật: M1
+11	Element9	element_9	int	luật: M1
+12	Element10	element_10	int	luật: M1
+13	Element11	element_11	int	luật: M1
+14	Element12	element_12	int	luật: M1
+15	Element13	element_13	int	luật: M1
+16	Element14	element_14	int	luật: M1
+17	Element15	element_15	int	luật: M1

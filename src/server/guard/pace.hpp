@@ -19,9 +19,9 @@
 namespace game::guard {
 
 enum class [[nodiscard]] Verdict : std::uint8_t {
-    kOk,       // nhận bước, mốc dời tới đây
+    kOk, // nhận bước, mốc dời tới đây
     kRejected, // không nhận bước, chưa phạt: kéo về anchor()
-    kSpeed,    // không nhận bước và phạt: vượt tốc lặp lại
+    kSpeed, // không nhận bước và phạt: vượt tốc lặp lại
     kTeleport, // không nhận bước và phạt: dịch chuyển lặp lại
     kNoAnchor, // máy chủ chưa đặt mốc: không nhận bước nào
 };

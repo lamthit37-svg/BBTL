@@ -1,0 +1,10 @@
+# schema 1
+# source: Public/Scene/kaochang_monster_130.ini
+# tool: TOOLS/server/export_scene.py; sửa tay sẽ mất ở lượt xuất sau
+# types: int	int	text	text	float	float	int	int	int	int	int	int	int	int	int	int	int	int	int	int	int	int	text	int	int	int
+guid	type	name	title	position_x	position_z	direction	script_id	respawn_time	group_id	team_id	base_ai	ai_file	patrol_id	shop_0	shop_1	shop_2	shop_3	level	is_pet	script_timer	reputation_id	cshop	leader_id	is_npc	camp
+14944376	34052			31.000	31.000	0	-1	-1	-1	-1	0	-1	-1	-1	-1	-1	-1								
+14944437	34052			14.0000	17.0000	0	-1	-1	-1	-1	0	-1	-1	-1	-1	-1	-1								
+14944444	34052			51.0000	17.0000	0	-1	-1	-1	-1	0	-1	-1	-1	-1	-1	-1								
+14944532	34052			11.0000	49.0000	0	-1	-1	-1	-1	0	-1	-1	-1	-1	-1	-1								
+14944587	34052			50.0000	50.0000	0	-1	-1	-1	-1	0	-1	-1	-1	-1	-1	-1								

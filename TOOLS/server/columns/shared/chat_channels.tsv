@@ -1,0 +1,16 @@
+# schema 1
+# source: client_2026/ChatConfig.txt
+# tool: TOOLS/server/export_tables.py; sửa tay sẽ mất ở lượt xuất sau
+# types: int	text	text	text	text
+index	original	name	type	note
+0	ID	id	int	luật: M1; khớp 100.0% (13/13 id)
+1	频道名称$1$	channel_name	text	luật: nguyên văn; khớp 100.0% (13/13 id)
+2	前导字符$1$	leader_text	text	luật: nguyên văn; khớp 100.0% (13/13 id)
+3	发送时间间隔（毫秒）	send_interval_ms	int	luật: nguyên văn; khớp 84.6% (11/13 id)
+4	"消耗类型1(MP:0,精力1,活力:2,不需要:-1)"	cost_kind_1	int	luật: nguyên văn; khớp 100.0% (13/13 id)
+5	消耗数值1	cost_amount_1	int	luật: mẫu {n}; khớp 100.0% (13/13 id)
+6	消耗类型2	cost_kind_2	int	luật: mẫu {n}; khớp 100.0% (13/13 id)
+7	消耗数值2	cost_amount_2	int	luật: mẫu {n}; khớp 100.0% (13/13 id)
+8	消耗类型3	cost_kind_3	int	luật: mẫu {n}; khớp 100.0% (13/13 id)
+9	消耗数值3	cost_amount_3	int	luật: mẫu {n}; khớp 100.0% (13/13 id)
+10	等级限制	level_limit	int	luật: nguyên văn; khớp 100.0% (13/13 id)

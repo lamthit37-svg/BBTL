@@ -96,7 +96,10 @@ enum class CloseHow : std::uint8_t { kReset, kFinish };
     const std::string_view host = endpoint.host.text();
     const std::uint16_t port = endpoint.port.value();
     const std::string text = std::format("{}:{}", host, port);
-    return net::parse_endpoint(text, net::ZeroPort::kRefuse);
+    // Cổng 0 chỉ qua được bộ đọc cấu hình khi nghe đúng 127.0.0.1 (config::Port::any): hệ điều hành cấp
+    // cổng lúc nghe và dòng ready báo lại cổng thật.
+    const net::ZeroPort zero = port == 0 ? net::ZeroPort::kAllow : net::ZeroPort::kRefuse;
+    return net::parse_endpoint(text, zero);
 }
 
 void fail_listen(std::string_view name, net::NetError error) {
@@ -439,13 +442,29 @@ void catch_up(Loop& loop, TickSpan span) {
     return code == 0;
 }
 
-[[nodiscard]] int run_loop(Table& table, Listeners& listeners, std::vector<Held>& held) {
+// Hai cổng đang nghe thật: bằng cổng khai trong gate.toml, hoặc cổng hệ điều hành cấp khi khai 0.
+struct ListenPorts {
+    std::uint16_t game = 0;
+    std::uint16_t auth = 0;
+};
+
+[[nodiscard]] std::optional<ListenPorts> listen_ports(const Listeners& listeners) {
+    const net::NetResult<net::Endpoint> game = listeners.game.local();
+    const net::NetResult<net::Endpoint> auth = listeners.auth.local();
+    if (!game || !auth) {
+        std::println(stderr, "gate: không đọc được cổng đang nghe");
+        return std::nullopt;
+    }
+    return ListenPorts{.game = game->port, .auth = auth->port};
+}
+
+[[nodiscard]] int run_loop(Table& table, Listeners& listeners, std::vector<Held>& held, const ListenPorts& ports) {
     Loop loop{.table = table, .listeners = listeners, .held = held, .reactor = {}, .events = {}};
     loop.events.reserve(held.size() + 2);
     sync_listeners(listeners, loop.reactor, true);
     loop.deadline = steady_ns();
     loop.next_report = loop.deadline + kStatNs;
-    std::println("ready");
+    std::println("ready game={} auth={}", ports.game, ports.auth);
     static_cast<void>(std::fflush(stdout));
     int code = 0;
     while (keep_running(loop, code)) {
@@ -541,7 +560,8 @@ int write_identity(const std::filesystem::path& path) {
         return std::nullopt;
     }
     std::string error;
-    const std::optional<std::array<std::byte, account::kIpcKeyBytes>> key = account::load_ipc_key(account::ipc_key_path(config_dir), error);
+    const std::optional<std::array<std::byte, account::kIpcKeyBytes>> key =
+        account::load_ipc_key(account::ipc_key_path(config_dir), error);
     if (!key) {
         std::println(stderr, "gate: {}", error);
         return std::nullopt;
@@ -576,7 +596,9 @@ int serve(const std::filesystem::path& config_dir) {
     std::optional<account::Realm> realm = open_realm(config_dir);
     if (realm) table.set_realm(*realm);
     std::vector<Held> held(limits.max_connections);
-    return run_loop(table, opened.listeners, held);
+    const std::optional<ListenPorts> ports = listen_ports(opened.listeners);
+    if (!ports) return 1;
+    return run_loop(table, opened.listeners, held, *ports);
 }
 
 } // namespace game::gate
