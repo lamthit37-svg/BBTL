@@ -1,0 +1,30 @@
+# schema 1
+# source: made_up + client_2026/Interface/Packet/Packet.lua + server_2008/Common/GameDefine.h
+# tool: tay (TOOLS/server/import_item.py không sinh bảng này); mỗi dòng ghi cơ sở của con số ở cột basis
+# types: text	int	text	text
+key	value	basis	note
+capacity.base_bag	60	client_lua	Packet.lua: MaxNum=60 cho tab base; MAX_BAG_SIZE=60 của 2008
+capacity.material_bag	60	client_lua	Packet.lua: cùng đường mã với tab base
+capacity.quest_bag	60	made_up	Packet.lua gọi GetTaskBag_MaxNum nhưng không có số; lấy bằng túi đạo cụ
+capacity.bank	100	source_2008	MAX_BANK_SIZE trong GameDefine.h
+unlocked.base_bag	20	client_lua	Packet.lua: BaseNum=20, phần còn lại mở dần
+unlocked.material_bag	20	made_up	Packet.lua không phân biệt tab, lấy bằng túi đạo cụ
+unlocked.quest_bag	60	made_up	túi nhiệm vụ mở hết ngay
+unlocked.bank	100	made_up	mở hết ô kho; cơ chế thuê ô của client chưa có số liệu
+bank.gold_cap	10000000	source_2008	MAX_BANK_MONEY trong GameDefine.h
+currency_cap.1	100000000	made_up	trần vàng trước khi biết cấp; trần thật theo cấp ở money_caps_by_level.tsv
+currency_cap.2	2000000000	made_up	điểm thiện ác
+currency_cap.3	2000000000	made_up	điểm sư đức
+currency_cap.4	2000000000	made_up	tiền quan phiếu
+currency_cap.5	2000000000	made_up	nguyên bảo
+currency_cap.6	2000000000	made_up	điểm tặng
+currency_cap.7	2000000000	made_up	điểm cống hiến môn phái
+currency_cap.8	2000000000	made_up	giao tử
+currency_cap.9	2000000000	made_up	nguyên bảo khoá
+currency_cap.10	2000000000	made_up	phản quyển
+currency_cap.11	2000000000	made_up	lễ kim
+currency_cap.12	2000000000	made_up	điểm vinh dự
+currency_cap.13	2000000000	made_up	client không đặt tên, giữ ô để cửa hàng dùng được
+currency_cap.14	2000000000	made_up	cột loại tiền của ShopTable.txt có mã này
+currency_cap.15	2000000000	made_up	client không đặt tên
+currency_cap.16	2000000000	made_up	cột loại tiền của ShopTable.txt có mã này

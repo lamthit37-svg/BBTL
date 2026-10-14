@@ -128,6 +128,11 @@ mục ở mục 11.
   sổ mới hiện, hình con trỏ); chỉ soi vị trí con trỏ và danh sách cửa sổ là chưa đủ.
 - Kiểm ô nhập và phím bằng `TOOLS/run/click_shot.py --type X,Y,CHỮ` (bấm ô rồi gửi `WM_CHAR`;
   `\t`, `\r`, `\b` là Tab, Enter, xoá lùi), không viết công cụ gõ riêng.
+- Exe test dựng bằng MSVC thoát với `0xC0000409` (-1073740791) và KHÔNG in một dòng `[ca]` nào (đo 2026-10-14 ở
+  `forge_craft_tests`): đó là `std::abort()` của một đồ phụ test (`Bench::make` gọi abort khi Factory từ chối, ví dụ
+  `make(kGem, 3)` vì ngọc không chồng được), UCRT đổi abort thành fail-fast. Các dòng `[ca]` đã in bị mất vì stdout nối
+  ống thì đệm đầy đủ, nên trông như chết ở ca đầu. Tìm ca chết: thêm tạm `std::setvbuf(stdout, nullptr, _IONBF, 0)` đầu
+  `main`, chạy lại, dòng `[ca]` cuối cùng là ca ngay trước ca chết; xong thì bỏ dòng đó.
 
 ## Máy chủ
 
