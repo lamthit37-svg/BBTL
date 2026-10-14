@@ -1,0 +1,9 @@
+# schema 1
+# source: GameServer 2008 MenPai/*.cpp
+# tool: TOOLS/server/import_combat.py; sửa tay sẽ mất ở lượt xuất sau
+# types: int	text	int	int	text	text
+sect_id	trigger	multiplier	divisor	basis	note
+2	strike_spent	10	1	source_2008	GameServer 2008 GaiBang.cpp
+4	heal_done	1	20	source_2008	GameServer 2008 EMei.cpp
+8	trap_triggered	10	1	source_2008	GameServer 2008 XiaoYao.cpp
+13	heal_done	1	20	made_up	mượn luật của phái 4

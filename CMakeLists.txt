@@ -128,8 +128,9 @@ set(game_engine_names audio audiotool capture core fs gpu io jobs math net rende
 set(game_shared_names protocol secure table link nav collision ids)
 set(game_client_names anim avatar classic client control fx gui hero look motion ogre
     quest scene seal sealtool skill ui)
-set(game_server_names account authd billing billingd config content dice forge gate gated guard ipc item
-    linttool loot metrics process scenedata service shop store stored supervise supervisor worldd zone zoned)
+set(game_server_names account actor authd billing billingd combat config content dice forge gate gated guard ipc
+    item linttool loot metrics process scenedata service shop store stored supervise supervisor worldd zone
+    zoned)
 game_reject_foreign("${PROJECT_SOURCE_DIR}/engine" ${game_engine_names})
 game_reject_foreign("${PROJECT_SOURCE_DIR}/src/shared" ${game_engine_names} ${game_shared_names})
 game_reject_foreign("${PROJECT_SOURCE_DIR}/src/client" ${game_engine_names} ${game_shared_names}

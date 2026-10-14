@@ -1,0 +1,11 @@
+# schema 1
+# source: tự soạn: phái mới mượn phái mẫu
+# tool: TOOLS/server/import_combat.py; sửa tay sẽ mất ở lượt xuất sau
+# types: int	int	text	text
+sect_id	template_sect	basis	note
+10	6	made_up	Mộ Dung mượn Đại Lý
+11	7	made_up	Đường Môn mượn Thiên Sơn
+12	3	made_up	Quỷ Cốc mượn Võ Đang
+13	4	made_up	Đào Hoa Đảo mượn Nga Mi
+14	1	made_up	Thông Nhân Tông mượn Minh Giáo
+15	5	made_up	Nga Nhân Cốc mượn Tinh Túc

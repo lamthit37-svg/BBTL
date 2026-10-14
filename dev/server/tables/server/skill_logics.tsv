@@ -1,0 +1,135 @@
+# schema 1
+# source: GameServer 2008 Skills/*.cpp, tham số theo skill_levels.tsv
+# tool: TOOLS/server/import_combat.py; sửa tay sẽ mất ở lượt xuất sau
+# types: int	text	text	text	text
+logic_id	handler	roles	fidelity	note
+0	standard	0:target;1:target_tick;2:target;3:target_tick	full	đòn thường và kỹ năng chuẩn: hiệu ứng một lần và theo nhịp dẫn lên mục tiêu
+1	standard	0:self;1:target;2:self_tick;3:target_tick	full	hiệu ứng một lần và theo nhịp dẫn, mỗi loại cho bản thân và cho mục tiêu
+2	dash	0:self;1:self;2:self	core	lướt tới điểm chọn; ô 3 là hiệu ứng hình ảnh dịch chuyển, bỏ
+3	standard	0:target;1:self@2;3:target@4	core	hiệu ứng đánh, rồi hiệu ứng thêm cho bản thân và mục tiêu theo xác suất
+4	standard	0:target;2:target@3*1	core	hiệu ứng đánh, rồi hiệu ứng thêm cho mục tiêu theo xác suất và số lần
+5	standard	0:target;1:target_tick;2:target;3:target_tick	full	như logic 0; ô 4 là mã script, lõi không chạy Lua
+6	standard	0:target;1:target;2:target;3:target;4:target	core	năm hiệu ứng một lần lên mục tiêu
+7	standard	0:target;1:target_tick;2:target;3:target_tick	core	như logic 0
+8	passive_armor		full	bị động: cộng phần trăm điểm phòng thủ gốc của giáp
+9	passive_weapon		full	bị động: cộng phần trăm điểm công gốc của vũ khí theo loại vũ khí
+10	unsupported		event	bắt thú: cần module thú cưng
+11	unsupported		event	triệu hồi thú / võ hồn: cần module thú cưng
+12	standard	0:trap	core	đặt bẫy
+14	standard	0:dispel_self	full	gỡ buff biến thân và cưỡi
+15	standard		event	khinh công: di chuyển do zone xử lý, kỹ năng không gửi hiệu ứng
+16	standard	0:self	core	hiệu ứng về thành; ô 1..8 (vật phẩm xung đột) thuộc module vật phẩm
+17	unsupported		event	kỹ năng thú: cần module thú cưng
+18	standard	0:target;1:target_tick;2:target;3:target_tick	core	như logic 0
+19	unsupported		event	triệu gọi con cái: cần module xã hội
+52	standard	0:target;1:target_tick;2:target;3:target_tick	full	như logic 0
+77	standard	0:target;1:target_tick;2:target;3:target_tick	core	như logic 0
+80	standard	0:combo0;1:combo1;2:combo2	full	hiệu ứng theo số đoạn liên kích đã tiêu (1, 2, 3 đoạn)
+81	standard	0:combo0;1:combo1;2:combo2;3:combo3;4:target;5:target	full	như logic 80, thêm hiệu ứng cho lần không tiêu liên kích và hai hiệu ứng luôn có
+82	standard	0:self;1:self_tick;2:target;3:target_tick;4:self;5:self_tick;6:target;7:target_tick;8:self;9:self_tick;10:target;11:target_tick	full	ba bộ bốn ô: bản thân và mục tiêu, một lần và theo nhịp dẫn
+111	standard	0:target;1:target_tick;2:target;3:target_tick	core	như logic 0; ô 4 là tập buff khống chế được miễn, chưa dùng
+141	standard	0:friend;1:friend;2:enemy;3:enemy	full	hiệu ứng riêng cho bạn và cho địch trong vùng
+142	standard	0:friend0;1:friend_rest;3:enemy0;4:enemy_rest	core	chữa mục tiêu chính và phụ, đánh địch chính và phụ; ô 2, 5 (dây nối), 6, 7 (hệ số chữa thêm) chưa dùng
+143	standard	0:target;1:target	core	khiên hấp thụ và buff mệt mỏi cho mục tiêu
+144	standard	0:target;1:target;2:target;7:self;8:self	core	hiệu ứng lên mục tiêu, buff biến thân cho bản thân; ô 3..6 (thay kỹ năng) là việc của client
+145	standard	0:target;2:target	core	buff chữa và buff mệt mỏi; ô 1 (hệ số chữa thêm) chưa dùng
+146	standard	0:rank0;1:rank1;2:rank2	core	chữa ba mục tiêu theo thứ tự; ô 3..5 (hệ số, suy giảm), 6 (dây nối) chưa dùng
+147	standard	0:target;3:self	core	buff chữa cho mục tiêu, buff chữa cho bản thân; ô 1, 2 (hệ số chữa thêm theo nghìn) chưa dùng
+148	standard	0:target;1:target@2	full	hiệu ứng 1, rồi hiệu ứng 2 theo xác suất
+149	standard	0:target;1:target_tick;2:target;3:target_tick	core	như logic 0; ô 4 (phần trăm hồi máu) chưa dùng
+170	standard	0:self_male;1:self_female;2:self	full	biến thân theo giới tính và buff miễn khống chế
+171	standard	2:target@1	core	gây độc theo xác suất; ô 0 (cộng công độc) chưa dùng
+172	standard	0:target;2:target@1	full	buff sát thương và buff phong huyệt theo xác suất
+173	standard	0:trap;1:self_male;2:self_female;3:self	full	đặt bẫy, biến thân theo giới tính, buff miễn khống chế
+174	standard	0:target;1:summon	full	buff mù và triệu hồi vật
+175	standard	0:target;1:target	full	hiệu ứng và buff mệt mỏi
+176	unsupported	0:self;1:self;2:self;3:self;4:self;5:self;6:self;7:self;8:self;9:self;10:self;11:self;13:self;14:self	event	ngũ độc tụ đỉnh: chọn hiệu ứng theo loại và số độc trùng đã thả, lõi chưa theo dõi độc trùng
+177	standard	0:target;2:self@1	full	hiệu ứng đánh, rồi buff triệu hồi trăn theo xác suất
+178	standard	0:target	full	buff hộ thân
+179	standard	0:target	core	hiệu ứng đánh; ô 1..5 (khoá mục tiêu, hồi chiêu theo nộ khí) chưa dùng
+201	unsupported		event	chọn ngẫu nhiên một trong bốn hiệu ứng theo trọng số cho người/thú và quái
+202	standard	0:trap_tick	full	thả bẫy theo nhịp dẫn
+204	standard	0:target;2:dispel_self	core	sát thương thêm của nhị thức, rồi gỡ buff nhị thức; ô 1 (hệ số suy giảm) chưa dùng
+205	standard	0:target;2:target@1;5:self@3	core	hiệu ứng 1, hiệu ứng 2 theo xác suất, buff nhị thức theo xác suất; ô 4, 6 chưa dùng
+206	standard	0:target;2:target@1;3:self;4:dispel_self	full	hiệu ứng 1, hiệu ứng 2 theo xác suất, buff cho bản thân, gỡ buff nhị thức
+207	unsupported		event	trận pháp: cần cơ chế đội hình, bảng không có tham số hiệu ứng
+208	standard	0:dispel_self	full	gỡ buff nhị thức
+231	standard	0:target	core	hiệu ứng đóng băng; ô 1 (hiệu ứng hình ảnh dịch chuyển) bỏ
+260	standard	1:trap	core	đặt bẫy; ô 0 (buff ghi bẫy), 2 (trần số bẫy cùng loại) do zone xử lý
+261	standard	0:self	core	hiệu ứng tức thì; ô 1 (loại bẫy cần kích nổ) cần quản lý bẫy của zone
+262	standard	1:target	core	sát thương kích nổ; ô 0 (tập hiệu ứng kích nổ) cần quản lý bẫy của zone
+290	standard	0:target;1:target_tick;2:target;3:target_tick	core	như logic 0
+291	standard	1:target;2:target_tick;3:target;4:target_tick	core	như logic 0 sau ô buff mệt mỏi
+292	standard	1:self;2:target;3:self_tick;4:target_tick	core	như logic 1 sau ô buff mệt mỏi
+400	standard	0:self;1:target;2:target	core	buff cho bản thân và hai hiệu ứng lên mục tiêu
+641	standard	0:self;1:target	core	hiệu ứng cho bản thân và mục tiêu
+642	standard	0:target;1:target_tick;2:target;3:target_tick	core	như logic 0
+643	standard	0:target;3:target	core	tâm pháp thứ tám Thiếu Lâm: hai hiệu ứng lên mục tiêu; ô 1, 2, 4, 5 (cận dưới và cận trên phần trăm hiệu ứng) chưa dùng
+644	standard	0:target;3:target	core	tâm pháp thứ tám Thiếu Lâm, nhánh khống chế: như logic 643
+645	unsupported		event	kỹ năng thú theo tư chất: cần module thú cưng
+646	standard	0:trap_tick	core	thả bẫy theo nhịp dẫn
+647	standard	0:trap_tick;3:trap_tick	core	thả bẫy theo nhịp dẫn, kể cả bẫy tăng cường
+648	standard	0:target;1:target_tick;2:target;3:target_tick	core	như logic 0
+649	standard	0:target;1:target_tick;2:target;3:target_tick	core	như logic 0; ô 4 là mã script, lõi không chạy Lua
+670	unsupported	1:target;3:target;5:target;7:target;9:target;11:target;13:target	event	hiệu ứng theo tập khống chế mục tiêu đang mang: cần so tập buff của mục tiêu với từng cặp (tập, hiệu ứng)
+671	sect_mimic		core	hoá khí thức: phát kỹ năng cùng chiêu của môn phái mục tiêu (ô 0..14 là id kỹ năng theo phái), không có phái hợp lệ thì rút ngẫu nhiên; phát ở cấp cao nhất có dữ liệu
+672	standard	0:target;2:totem	core	hiệu ứng đánh và tượng; ô 1 (tầm dịch chuyển tới mục tiêu) chưa dùng
+700	unsupported		event	bí pháp tiến giai: tác dụng lên kỹ năng gốc qua điểm tiến giai, bảng không nối bí pháp với kỹ năng gốc (chỉ có tên; đo 59 trên 138 bí pháp trùng tên nhiều mẫu hoặc không có mẫu cùng tên)
+701	unsupported		event	bí pháp tiến giai: tác dụng lên kỹ năng gốc qua điểm tiến giai, bảng không nối bí pháp với kỹ năng gốc (chỉ có tên; đo 59 trên 138 bí pháp trùng tên nhiều mẫu hoặc không có mẫu cùng tên)
+702	unsupported		event	bí pháp tiến giai: tác dụng lên kỹ năng gốc qua điểm tiến giai, bảng không nối bí pháp với kỹ năng gốc (chỉ có tên; đo 59 trên 138 bí pháp trùng tên nhiều mẫu hoặc không có mẫu cùng tên)
+703	unsupported		event	bí pháp tiến giai: tác dụng lên kỹ năng gốc qua điểm tiến giai, bảng không nối bí pháp với kỹ năng gốc (chỉ có tên; đo 59 trên 138 bí pháp trùng tên nhiều mẫu hoặc không có mẫu cùng tên)
+704	unsupported	0:target@1	event	bí pháp tiến giai: tác dụng lên kỹ năng gốc qua điểm tiến giai, bảng không nối bí pháp với kỹ năng gốc (chỉ có tên; đo 59 trên 138 bí pháp trùng tên nhiều mẫu hoặc không có mẫu cùng tên) (bản này đã bỏ)
+705	unsupported		event	bí pháp tiến giai: tác dụng lên kỹ năng gốc qua điểm tiến giai, bảng không nối bí pháp với kỹ năng gốc (chỉ có tên; đo 59 trên 138 bí pháp trùng tên nhiều mẫu hoặc không có mẫu cùng tên)
+706	unsupported		event	bí pháp tiến giai: tác dụng lên kỹ năng gốc qua điểm tiến giai, bảng không nối bí pháp với kỹ năng gốc (chỉ có tên; đo 59 trên 138 bí pháp trùng tên nhiều mẫu hoặc không có mẫu cùng tên)
+707	unsupported		event	bí pháp tiến giai: tác dụng lên kỹ năng gốc qua điểm tiến giai, bảng không nối bí pháp với kỹ năng gốc (chỉ có tên; đo 59 trên 138 bí pháp trùng tên nhiều mẫu hoặc không có mẫu cùng tên)
+730	standard	0:totem;2:self	core	dựng tượng và hiệu ứng bất tử; ô 1 (máu tượng) do zone đọc từ tham số kỹ năng
+731	standard	0:self;1:self;2:totem;3:totem;4:totem	core	buff trễ, buff miễn khống chế, ba tượng; ô 5..7 (máu tượng) do zone đọc
+732	standard	0:target	core	hiệu ứng đánh; ô 1, 2 (giảm hồi chiêu khi hội tâm) chưa dùng
+734	unsupported		event	bí pháp tiến giai: tác dụng lên kỹ năng gốc qua điểm tiến giai, bảng không nối bí pháp với kỹ năng gốc (chỉ có tên; đo 59 trên 138 bí pháp trùng tên nhiều mẫu hoặc không có mẫu cùng tên)
+735	unsupported		event	bí pháp tiến giai: tác dụng lên kỹ năng gốc qua điểm tiến giai, bảng không nối bí pháp với kỹ năng gốc (chỉ có tên; đo 59 trên 138 bí pháp trùng tên nhiều mẫu hoặc không có mẫu cùng tên)
+736	standard	0:target	core	sát thương chính; ô 1..4 (nổ lan theo xác suất) chưa dùng
+760	dash	0:target;1:target_tick;2:target;3:target_tick	core	lướt tới điểm chọn, hiệu ứng như logic 0
+761	unsupported		event	trận pháp: cần cơ chế đội hình, bảng không có tham số hiệu ứng
+762	unsupported		event	trận pháp: cần cơ chế đội hình, bảng không có tham số hiệu ứng
+763	unsupported		event	trận pháp: cần cơ chế đội hình, bảng không có tham số hiệu ứng
+764	unsupported		event	trận pháp: cần cơ chế đội hình, bảng không có tham số hiệu ứng
+765	unsupported		event	trận pháp: cần cơ chế đội hình, bảng không có tham số hiệu ứng
+766	standard	0:totem	core	dựng tượng trận
+767	standard	1:self	core	buff bá thể; ô 0 (dây nối), 2..6 (bẫy gây sát thương cho đồng đội) chưa dùng
+768	unsupported	0:target;1:target;2:target;3:target;4:target;5:target;6:target;7:target;8:trap	event	sát thương và choáng chọn theo số mục tiêu bị trúng, cần chọn ô theo số lượng và bẫy cảnh báo
+769	standard	4:rank0;5:rank1;6:rank2;7:rank3;8:rank4;9:rank5;10:rank6	core	sát thương theo thứ tự mục tiêu; ô 0..3 (dây nối, cự ly đứt dây) chưa dùng
+770	standard	0:target;2:self	core	khiên trường sinh cho mục tiêu, buff hội tâm cho bản thân; ô 1 (phần trăm máu khiên) chưa dùng
+791	standard	0:self	core	hiệu ứng cho bản thân; ô 1 (tầm di chuyển tối đa của khôi lỗi) chưa dùng
+792	standard	0:target;1:target	core	hai hiệu ứng một lần
+793	dash	1:self;4:enemy;5:enemy	core	lướt, buff cho bản thân, hiệu ứng lên địch trên đường; ô 0, 2, 3 chưa dùng
+794	standard	0:self;1:self;2:self	core	ba buff cho bản thân
+795	standard	0:trap;2:self;3:self	core	đặt bẫy tại chỗ khôi lỗi thu về; ô 1, 4 chưa dùng
+797	standard	0:target	core	hiệu ứng một lần; ô 1 (buff bị động tầng 0) chưa dùng
+799	standard	0:target;1:target;2:self;5:self	core	hiệu ứng lên địch quanh khôi lỗi và buff cho khôi lỗi (coi là bản thân); ô 3, 4 chưa dùng
+800	standard	1:target;3:target;4:self;5:self	core	hiệu ứng theo nhánh quảng quân tửu; ô 0, 2 chưa dùng
+801	standard	0:self;1:target;2:self_tick;3:target_tick;4:self;5:trap	full	như logic 1, thêm hiệu ứng thứ hai cho bản thân và bẫy dưới chân
+802	standard	0:target	core	hiệu ứng một lần
+803	standard	0:target	core	hiệu ứng lên mục tiêu; ô 1 (số mục tiêu quanh) chưa dùng
+833	unsupported		event	sát thương thật theo tỉ lệ máu: ô không có id hiệu ứng, công thức chưa có nguồn
+835	standard	0:target	core	buff lên mục tiêu
+836	standard	0:target	core	hiệu ứng một lần
+837	standard	0:target	core	buff khống chế
+838	standard	0:target;1:target	core	buff khống chế và sát thương trực tiếp
+840	standard	4:self	core	buff dịch chuyển; ô 1 (bán kính bẫy), 3 (xác suất đao vực) chưa dùng
+841	standard	0:self;1:self;2:target	full	buff đao ý, buff dịch chuyển, hiệu ứng lên mục tiêu
+842	standard	0:target	core	hiệu ứng một lần
+862	standard	0:trap;1:self;2:self	core	đặt bẫy, buff dịch chuyển, hiệu ứng cho bản thân
+864	standard	0:self;1:target;2:target;3:cut_cooldown+4	core	hiệu ứng cho bản thân, mục tiêu, sát thương, rồi giảm hồi chiêu một nhóm
+865	standard	0:target	core	sát thương cơ bản; ô 1..9 (hệ số theo số hồn mất) chưa dùng. hệ ba hồn: cần trạng thái hồn của mục tiêu để chọn hiệu ứng, lõi chưa theo dõi
+866	standard	0:target;1:target;2:target	core	hiệu ứng một lần lên mục tiêu
+867	standard	0:target	core	sát thương cơ bản; ô 1..5 (hệ số theo số hồn mất, chém giết) chưa dùng. hệ ba hồn: cần trạng thái hồn của mục tiêu để chọn hiệu ứng, lõi chưa theo dõi
+868	standard	0:target	core	sát thương cơ bản; ô 1..11 (đốt hồn, tê liệt, xoá hồi chiêu) chưa dùng. hệ ba hồn: cần trạng thái hồn của mục tiêu để chọn hiệu ứng, lõi chưa theo dõi
+869	unsupported	0:self;1:self;2:self	event	hệ ba hồn: cần trạng thái hồn của mục tiêu để chọn hiệu ứng, lõi chưa theo dõi
+870	unsupported	1:self@0;2:self@0;3:self@0;4:self;5:self;6:self	event	hệ ba hồn: cần trạng thái hồn của mục tiêu để chọn hiệu ứng, lõi chưa theo dõi
+882	standard	0:self;1:target;2:self_tick;3:target_tick	full	như logic 1; ô 4 (xác suất hội tâm) chưa dùng
+883	unsupported		event	hiệu ứng theo mức máu mục tiêu (trên/dưới 40%): chưa có vai điều kiện máu
+884	standard	0:target	full	hiệu ứng một lần
+885	standard	1:target	core	hiệu ứng lên mục tiêu; ô 4..7 (hội tâm gây nổ lan) chưa dùng
+886	unsupported		event	không có tham số hiệu ứng trong bảng
+887	standard	0:target	core	sát thương; ô 1..6 (buff hội tâm chồng tầng) chưa dùng
+901	standard	0:target;1:target	core	sát thương và choáng lên mục tiêu
