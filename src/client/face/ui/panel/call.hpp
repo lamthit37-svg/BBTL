@@ -43,6 +43,19 @@ enum class Ask : std::uint8_t {
     kChangeToSelectRole,
     // GameLoginShowSystemInfo(chữ): hộp thông báo của thủ tục đăng nhập.
     kShowSystemInfo,
+    // Target:UpdateActionButton(): đối tượng đang chọn làm mới các ô action (Game.exe 0x140687a74).
+    kUpdateActionButton,
+    // DataPool:UnInstall_RMB_ChatAction_BarItem(vị trí): xoá bản ghi ô của thanh action ở vị trí (cùng số với
+    // DragName của ô, Game.exe 0x1402f3270). Chữ: vị trí.
+    kUninstallChatActionBarItem,
+    // DataPool:UnInstall_RMB_ChatAction(ô gói, cấp): gỡ gói hành động chat; cấp 0..5 đẩy sự kiện gỡ cho thanh kế,
+    // cấp 6 gửi gói tin xoá (Game.exe 0x1402f30d0). Chữ: ô gói, cấp.
+    kUninstallChatAction,
+    // DataPool:Set_RMB_ChatAction(ô gói, id, dữ liệu): ghi gói hành động chat mới vào ô (Game.exe 0x1402f3440).
+    kSetChatAction,
+    // DataPool:Clear_ChatAction_Bar(thanh, ô gói, id, dữ liệu): đẩy CLEAR_CHAT_ACTION_BAR cho thanh kế
+    // (Game.exe 0x1402f32d0). Chữ: thanh, ô gói, id, dữ liệu.
+    kClearChatActionBar,
 };
 
 struct Call {
@@ -71,6 +84,11 @@ struct Call {
     case Ask::kCreateRole: return "CreateRole";
     case Ask::kChangeToSelectRole: return "ChangeToSelectRoleDlgFromCreateRole";
     case Ask::kShowSystemInfo: return "GameLoginShowSystemInfo";
+    case Ask::kUpdateActionButton: return "UpdateActionButton";
+    case Ask::kUninstallChatActionBarItem: return "UnInstall_RMB_ChatAction_BarItem";
+    case Ask::kUninstallChatAction: return "UnInstall_RMB_ChatAction";
+    case Ask::kSetChatAction: return "Set_RMB_ChatAction";
+    case Ask::kClearChatActionBar: return "Clear_ChatAction_Bar";
     }
     return {};
 }

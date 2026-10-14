@@ -1,6 +1,6 @@
 -- Thanh kỹ năng thú cưng (MainMenuBar_3): thanh rỗng, một action, hai action, action rỗng xen kẽ, nhiều hơn
 -- hai ô, bấm nút khi làm được và khi bị chặn, ẩn hiện bằng HIDE_THIS_UI. Chạy: python -B TOOLS/port/lua_oracle.py
--- <Bin64> <MainMenuBar_3.lua> <layout> main_menu_bar_3_pet.lua <tệp ra> --lib main_menu_bar_3_api.lua
+-- <Bin64> <MainMenuBar_3.lua> <layout> main_menu_bar_3_pet.lua <tệp ra> --lib ui_common_api.lua --lib main_menu_bar_3_api.lua
 --@steps
 __event("CHANGE_PETSKILL_BAR")
 __dump("thanh rỗng")

@@ -88,6 +88,11 @@ mục ở mục 11.
 - Phần clang-tidy của `check.py` chỉ nhận thư mục include qua `CPP23_TIDY_ARGS`, không lấy từ `CPP23_G14`/`CPP23_C20`: đặt hai biến
   trình dịch mà quên biến này thì phần biên dịch xanh còn clang-tidy báo `'bus/bus.hpp' file not found` cho mọi tệp test cùng hàng chục
   lỗi giả đi theo (đo 2026-10-15). Đặt cả ba cùng một chuỗi, ví dụ `-Iengine -Isrc/shared -Isrc/server -ITest`, rồi chạy.
+- clang-tidy của `check.py` báo `engine\core/error.hpp: definition of type 'Message' conflicts with type alias` trên tệp include
+  `core/check.hpp` (hud.cpp, painter.cpp) trong khi g14/c20 sạch: bước tidy đặt `-I src` và `-I <cpp23>/tools/include` của chính
+  `check.py` TRƯỚC `CPP23_TIDY_ARGS`, nên `core/check.hpp` trỏ nhầm tệp mẫu của bộ cpp23 (`using Message = std::string_view`).
+  Đã sửa ở `~/.claude/cpp23/tools/check.py` ngày 2026-10-15 (cờ của dự án đứng trước như ở bước biên dịch); tái hiện ở bản cũ:
+  `bash TOOLS/port/ui_check.sh src/client/face/ui/painter.cpp`.
 
 ## Công cụ Python và git
 
