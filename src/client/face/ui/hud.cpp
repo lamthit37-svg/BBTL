@@ -13,6 +13,7 @@
 #include "table/tsv.hpp"
 #include "ui/pace.hpp"
 #include "ui/painter.hpp"
+#include "ui/panel/action_bar.hpp"
 #include "ui/panel/call.hpp"
 #include "ui/panel/can_do.hpp"
 #include "ui/panel/create_role.hpp"
@@ -22,6 +23,7 @@
 #include "ui/panel/login_flow.hpp"
 #include "ui/panel/logon.hpp"
 #include "ui/panel/main_menu_bar_3.hpp"
+#include "ui/panel/main_menu_bar_4.hpp"
 #include "ui/panel/maps.hpp"
 #include "ui/panel/menubar.hpp"
 #include "ui/panel/minimap.hpp"
@@ -462,6 +464,12 @@ struct Hud::State {
     // thanh do hệ thú cưng giữ, client chưa có hệ đó nên thanh chưa hiện (xem main_menu_bar_3.hpp).
     panel::MainMenuBar3 pet_bar;
     std::vector<panel::Call> pet_bar_calls;
+    // Thanh action phụ MainMenuBar_4 và việc nó nhờ ở lần xử lý gần nhất. bar_facts là điều game trả cho script của
+    // nhóm thanh action: client chưa có hệ action, hệ thú cưng và kho gói hành động chat nên để rỗng (xem
+    // action_bar.hpp).
+    panel::ActionBar menu_bar_4 = panel::make_main_menu_bar_4();
+    panel::BarFacts bar_facts;
+    std::vector<panel::Call> bar_calls;
     panel::SoftKeys keys;
     // Bảng chuyển cảnh, phần trăm đã đưa cho nó ở khung trước và lúc nó hiện ra.
     panel::SceneTrans trans;
@@ -539,6 +547,9 @@ struct Hud::State {
     void note_scroll(const HudView& view, float seconds);
     void press_login(std::string_view window, const HudView& view);
     void press_pet_bar(std::string_view window);
+    void press_action_bars(std::string_view window);
+    void report_bar_calls(std::string_view bar);
+    [[nodiscard]] bool can_do_action_now() const;
     [[nodiscard]] panel::LoginFacts login_facts(const HudView& view) const noexcept;
     void note_hover(const HudView& view);
     void note_text(const HudView& view);
@@ -745,6 +756,7 @@ void Hud::State::note_press(const HudView& view) {
     }
     panel::press_packet(packet, *window);
     press_pet_bar(*window);
+    press_action_bars(*window);
     note_board_press(*window, view);
     if (window == panel::kWorldWindow && view.pointer) world_press = view.pointer;
     if (window == kEquipTurnLeft) equip_spin = -kEquipSpin;
@@ -757,12 +769,33 @@ void Hud::State::press_pet_bar(std::string_view window) {
     const auto found = std::ranges::find(panel::kPetButtons, window);
     if (found == panel::kPetButtons.end()) return;
     const auto index = static_cast<std::int32_t>(found - panel::kPetButtons.begin()) + 1;
-    const bool can_do = panel::can_do_action([this](std::string_view name) { return hub->box(name).has_value(); });
     pet_bar_calls.clear();
-    panel::press_pet_skill_button(pet_bar, index, can_do, pet_bar_calls);
+    panel::press_pet_skill_button(pet_bar, index, can_do_action_now(), pet_bar_calls);
     for (const panel::Call& call : pet_bar_calls) {
         std::println(stderr, "Thanh kỹ năng thú cưng: việc nhờ {} chưa có ở HUD", static_cast<int>(call.ask));
     }
+}
+
+// DataPool:IsCanDoAction() (Game.exe 0x1402e7d70): IsWindowShow là cửa sổ có ô trên màn hình ở lần dàn trang trước.
+bool Hud::State::can_do_action_now() const {
+    return panel::can_do_action([this](std::string_view name) { return hub->box(name).has_value(); });
+}
+
+// Nhấn trái lên một ô của nhóm thanh action: <Thanh>_Clicked(id). Khác gốc: nhấn phải (RBClicked) chưa tới được HUD.
+void Hud::State::press_action_bars(std::string_view window) {
+    const std::optional<std::int32_t> id = panel::bar_button_id(menu_bar_4, window);
+    if (!id) return;
+    bar_calls.clear();
+    panel::press_bar_button(menu_bar_4, *id, can_do_action_now(), bar_calls);
+    report_bar_calls("MainMenuBar_4");
+}
+
+// Việc mà một thanh action nhờ game: HUD chưa làm việc nào (chưa có hệ action, kho gói hành động chat, máy chủ).
+void Hud::State::report_bar_calls(std::string_view bar) {
+    for (const panel::Call& call : bar_calls) {
+        std::println(stderr, "{}: việc nhờ {} chưa có ở HUD", bar, panel::name_of(call.ask));
+    }
+    bar_calls.clear();
 }
 
 // Lần nhấn này có phải lần thứ hai của một cú nhấn đúp không. Nhấn đúp xong thì lần nhấn kế bắt đầu
@@ -848,6 +881,13 @@ void Hud::State::step_panels(const HudView& view) {
         const panel::UiEvent event = ui_args.raise(posted.name, given);
         if (panel::is_delivered(panel::kProgressBarEvents, event.name, progress.is_shown))
             panel::progress_bar_event(progress, event);
+        if (panel::is_delivered(panel::kMainMenuBar3Events, event.name, pet_bar.is_shown))
+            panel::on_main_menu_bar_3_event(pet_bar, event, panel::PetSkillBar{});
+        if (panel::is_delivered(panel::kMainMenuBar4Events, event.name, menu_bar_4.is_shown)) {
+            bar_calls.clear();
+            panel::on_main_menu_bar_4_event(menu_bar_4, event, bar_facts, bar_calls);
+            report_bar_calls("MainMenuBar_4");
+        }
     }
     panel::progress_bar_fade(progress, panel_seconds);
 }
@@ -890,6 +930,7 @@ void Hud::State::fill_play(const HudView& view) {
     panel::paint_quest_book(deck, quests);
     panel::paint_progress_bar(deck, progress);
     panel::paint_main_menu_bar_3(deck, pet_bar);
+    panel::paint_action_bar(deck, menu_bar_4);
     fill_board(view);
     fill_world(view);
     if (panel::is_open(desk, panel::Board::kBag)) {

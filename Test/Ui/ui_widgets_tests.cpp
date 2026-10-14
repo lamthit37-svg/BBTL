@@ -9,6 +9,7 @@
 
 #include <algorithm>
 #include <array>
+#include <cstdint>
 #include <span>
 #include <string>
 #include <string_view>
@@ -178,6 +179,22 @@ void paint_copies_touched_state(Context& context) {
     context.expect(deck_value(deck, Key{.window = "F", .name = "Text"}).empty(), "cửa sổ chưa đụng không có dòng");
 }
 
+// Ô action chỉ vẽ icon khi Empty là False (FalagardActionButton::drawSelf); trước khi sửa, paint không bao giờ đặt
+// Empty nên mọi ô action của HUD vẽ như ô trống dù đã SetActionItem.
+void action_button_paints_empty_flag(Context& context) {
+    Widgets widgets;
+    widgets.set_action("Full", ui::panel::ActionFace{.id = 301, .icon = "set:S image:I"});
+    widgets.set_action("NoIcon", ui::panel::ActionFace{.id = 7, .icon = {}});
+    widgets.set_action("Blank", ui::panel::ActionFace{.id = ui::panel::kEmptyAction, .icon = {}});
+    Deck deck;
+    widgets.paint(deck);
+    context.expect(deck_value(deck, Key{.window = "Full", .name = "Empty"}) == "False", "ô có action không trống");
+    context.expect(deck_value(deck, Key{.window = "Full", .name = "NormalImage"}) == "set:S image:I", "icon của action");
+    context.expect(deck_value(deck, Key{.window = "NoIcon", .name = "Empty"}) == "False", "action chưa có icon vẫn không trống");
+    context.expect(deck_value(deck, Key{.window = "Blank", .name = "Empty"}) == "True", "SetActionItem(-1) là ô trống");
+    context.expect(deck_value(deck, Key{.window = "Untouched", .name = "Empty"}).empty(), "ô chưa đặt action giữ như layout");
+}
+
 // Nút đánh dấu CheckMode 1: bật một nút thì các nút cùng cha tắt, và nút nào trong nhóm cũng thành
 // "đã đụng tới" như trạng thái trọng tài ghi.
 void check_one_clears_the_group(Context& context) {
@@ -229,7 +246,7 @@ void clear_window_is_hidden_in_the_deck(Context& context) {
     context.expect(deck_value(deck, Key{.window = "Frame", .name = "Alpha"}) == "1", "thuộc tính vẫn chép sang deck");
 }
 
-constexpr std::array<Case, 11> kCases = {{
+constexpr std::array<Case, 12> kCases = {{
     {.name = "untouched_store_is_empty", .body = untouched_store_is_empty},
     {.name = "property_keeps_last_value", .body = property_keeps_last_value},
     {.name = "flags_record_both_states", .body = flags_record_both_states},
@@ -238,6 +255,7 @@ constexpr std::array<Case, 11> kCases = {{
     {.name = "list_pick_and_clear", .body = list_pick_and_clear},
     {.name = "elements_append_in_order", .body = elements_append_in_order},
     {.name = "paint_copies_touched_state", .body = paint_copies_touched_state},
+    {.name = "action_button_paints_empty_flag", .body = action_button_paints_empty_flag},
     {.name = "check_one_clears_the_group", .body = check_one_clears_the_group},
     {.name = "hidden_state_is_readable", .body = hidden_state_is_readable},
     {.name = "clear_window_is_hidden_in_the_deck", .body = clear_window_is_hidden_in_the_deck},

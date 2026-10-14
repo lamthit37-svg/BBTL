@@ -345,6 +345,11 @@ void Widgets::paint_entry(const Entry& entry, Deck& deck) {
     paint_flag(deck, Key{.window = window, .name = "Disabled"}, entry.is_disabled);
     paint_flag(deck, Key{.window = window, .name = "Selected"}, entry.is_checked);
     paint_flag(deck, Key{.window = window, .name = "Pushed"}, entry.is_pushed);
+    // Ô action (FalagardActionButton::drawSelf) chỉ vẽ icon khi thuộc tính Empty là False: SetActionItem(-1) đặt True,
+    // SetActionItem(id) có action đặt False rồi NormalImage (UI_CEGUI 0x180028d70, docs/GIAO-DIEN-2026.md 2.7).
+    if (entry.action) {
+        deck.set(gui::Override{.window = window, .name = "Empty", .value = entry.action->id == kEmptyAction ? "True" : "False"});
+    }
     const bool has_icon = entry.action && !entry.action->icon.empty();
     if (has_icon) deck.set(gui::Override{.window = window, .name = "NormalImage", .value = entry.action->icon});
     if (entry.progress) deck.bar(window, progress_of(*entry.progress));
