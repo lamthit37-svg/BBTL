@@ -51,6 +51,42 @@ CreateCharacter, DeleteCharacter, EnterGame. Trần nhân vật đang sống là
 
 Đã chạy: `account_tests` thoát 0; vòng thật trên PostgreSQL tạo tài khoản, từ chối trùng tên và sai
 mật khẩu, đổi vé một lần, tạo nhân vật `Lý Mộ`, từ chối trùng tên, vào game, xoá. Lệnh:
+## Giật khi di chuyển, nhịp khung, nhảy (2026-10-14)
+
+Chủ dự án báo: cây cối, trời đất nhảy loạn mỗi khi nhân vật đi, minimap giật, bảng đo báo TRƯỢT ở 60 FPS, animation
+nhảy sai. Đã sửa:
+
+- Bộ đệm GPU theo ảnh swapchain bị CPU ghi đè lúc GPU còn đọc (bẫy ở `docs/BAY-DA-BIET.md`): `gpu::Timeline` của khung
+  và `Display::State::wait_slot` ở `frame.cpp`. Đo `--scene-id 2 --walk`: trước 893/893 khung ghi vào bộ đệm còn dùng;
+  sau 871 khung, trung vị 16,7 ms, p95 17,4 ms, lớn nhất 33,5 ms, 0 lỗi lớp kiểm Vulkan.
+- Ngân sách của bảng đo khi trình Fifo là một nhịp quét (`frame_budget_ms`); màn của máy đặt 60 Hz (hỗ trợ tới 200 Hz).
+- Vòng cửa sổ nghỉ 1 ms thay 8 ms (`kInputPause` ở `viewer_win32.cpp`): chuột không còn tới thành chùm 8 ms, gần
+  `CInputSystem::MouseTick` của gốc đọc mỗi khung.
+- Bảng đo luôn hiện, bỏ F3 và `--pace`/`--no-pace` (chủ dự án: "cấm tắt"). Thêm `--walk` để đo lúc di chuyển.
+- Nhảy: clip `跑跳a`/`跑跳b` của ActionSet (hành động 9, 12) vào `anim_sets.tsv` của `dev` và `release` (28 dòng mỗi
+  bảng; `export_look.py` nay xuất hai hành động này), `avatar.files.tsv` thêm bốn GLB. `Gait::jump`/`land` theo
+  `CObject_Character::Jump`, `NotifyPhyEvent`, `FreshAnimation` của ref, đối chiếu Game.exe 2026 bằng Ghidra
+  (`0x1405ea2b0` Jump, `0x1405e2740` ChangeAction: phát một lần, tốc độ 1; `0x1405c5440` Tick).
+
+- Nhịp khung theo lúc ảnh lên màn (cùng ngày, chủ dự án: "cực mượt", "sự ổn định ngay lập tức khi vào game"):
+  `gpu::Swapchain::wait_shown` (Vulkan `VK_KHR_present_id` + `VK_KHR_present_wait`, GPU máy này có cả hai). Trình Fifo
+  thì `Display::State::await_shown` chờ khung trước nữa lên màn rồi mới bắt đầu khung mới; mốc `frame_time` đó dùng cho
+  mô phỏng, hoạt ảnh, HUD và bảng đo. Trước: chu kỳ khung 16,7 ms nhưng p95 18–19 ms, bước chân p5–p95 0–7,2 cm;
+  sau (`--scene-id 2 --walk`, sau khi cảnh hiện): 871 khung, p95 16,8 ms, lớn nhất 17,0 ms, bước chân 6,95–7,05 cm.
+  Bề mặt không báo được (D3D, GLES, driver thiếu phần mở rộng) thì giữ đo bằng đồng hồ CPU như cũ.
+- CPU của khung: hiệu ứng hạt 2,19 → 0,59 ms/khung (3500 quad, 124 lô): tra ảnh theo con trỏ `Paint` thay vì dựng chuỗi
+  khoá mỗi lô, `reserve` đỉnh, tái dùng bộ đệm khung, dò `SequenceFrame` một lần mỗi hệ, `axes_of` chỉ tính hướng cho kiểu
+  billboard cần nó, nạp trước ảnh hiệu ứng lúc `adopt`. Tổng CPU mỗi khung trên cảnh Đại Lý khoảng 1,3 ms.
+- Mũi tên minimap rung khi chạy: radar 119 px (MiniMap của 2026) có tâm ở nửa điểm ảnh; vị trí mũi tên suy lại từ u0
+  (sai số số thực 86,49994 rồi 86,50003) nên phép làm tròn lật 1 px qua lại mỗi khung. Nay `Radar::is_centred_u/v` và
+  `radar_mark` đặt thẳng vào tâm ô khi vùng thấy canh giữa người chơi. Test hồi quy `radar_arrow_steady` (đỏ trước sửa).
+- Khung chậm còn lại: vài khung ngay lúc mở cảnh (khung #3–#7, 22–48 ms) trước khi cảnh hiện; "GPU còn 0 khung" nên chặn
+  nằm ở phía trình bày của Windows lúc cửa sổ mới hiện. Tần số quét Windows đang đặt 60 Hz (màn hỗ trợ tới 200 Hz): client
+  khoá theo nhịp quét của màn nên 60 FPS là trần của cài đặt hiện tại; đặt 120 Hz trở lên thì client chạy theo.
+
+Chưa kiểm: nhìn tận mắt khi chạy và nhảy (agent không được điều khiển chuột, phím của máy); `PresentClock` (thời gian
+khung lượng tử theo nhịp quét) chưa làm: sau một nhịp quét bị lỡ, bước chân của hai khung kế không đều.
+
 `py -B TOOLS/server/setup_db.py start` rồi `thienlong_auth` và `thienlong_store --config SERVER/config`.
 
 ## Đã xong

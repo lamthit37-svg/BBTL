@@ -436,9 +436,24 @@ mục ở mục 11.
 - Bảng F3 (`ui/pace`) báo TRƯỢT với FPS đúng 60,0 trong cửa sổ thật không có nghĩa giao diện chậm: client trình Fifo
   (`frame.cpp`, commit `2953249`) nên khung khoá vào nhịp quét của màn, mà Windows đang đặt màn 1920x1080 ở 60 Hz
   (đo 2026-10-14 bằng `Win32_VideoController.CurrentRefreshRate` = 60, `MaxRefreshRate` = 200). Ngân sách 120 Hz là
-  8,3 ms nên mọi khung 16,7 ms đều "vượt". Số CPU của khung (ghi lệnh, nộp, dựng UI) cộng lại chỉ khoảng 0,4 ms, còn
+  8,3 ms nên mọi khung 16,7 ms đều "vượt". Đã sửa cùng ngày: trình Fifo thì ngân sách là một nhịp quét của màn đang
+  chứa cửa sổ (`frame_budget_ms` ở `face.cpp`, tần số từ chế độ hiển thị của SDL, đổi màn thì đọc lại), không biết
+  nhịp quét thì mới về `1000 / render_hz`. Số CPU của khung (ghi lệnh, nộp, dựng UI) cộng lại chỉ khoảng 0,4 ms, còn
   "Xin ảnh" 15–16 ms là chờ nhịp quét. Chạy `--pace --shot ... --frames 150` (không qua cửa sổ thật, "Xin ảnh" 0,0 ms)
-  thì màn chơi Đại Lý đứng im ra 1119 FPS, trung vị 0,3 ms, ĐẠT; màn đăng nhập 178 FPS, một khung đột biến 117,8 ms,
+  (cờ `--pace` nay đã bỏ: bảng luôn hiện) thì màn chơi Đại Lý đứng im ra 1119 FPS, trung vị 0,3 ms, ĐẠT; màn đăng nhập 178 FPS, một khung đột biến 117,8 ms,
   vượt ngân sách 6,7% nên TRƯỢT. Muốn thấy trên cửa sổ thật số lớn hơn 60 thì đặt tần số quét của Windows lên 120 Hz
   trở lên (nếu màn hỗ trợ). Đường `--shot` không cùng đường trình với cửa sổ thật và bảng chưa có mili-giây GPU, nên
-  đây là chặn trên của phía CPU; chưa đo lúc nhân vật di chuyển vì client chưa có cờ tự đi.
+  đây là chặn trên của phía CPU. Đo lúc di chuyển: `--walk` (nhân vật tự chạy vòng, lúc thoát in bước chân mỗi khung).
+- Chu kỳ khung đo bằng đồng hồ CPU quanh `present` không phải nhịp ảnh lên màn: sau một lần lỡ nhịp quét các mẫu dồn
+  lại (khung 33 ms rồi 0 ms) nên bước chân và hoạt ảnh không đều dù trung vị 16,7 ms. Dùng `Swapchain::wait_shown`
+  (`face.cpp`/`frame.cpp`, `await_shown`) làm mốc khung; đo p95 và lớn nhất, đừng chỉ nhìn trung vị.
+- Mũi tên minimap (và mọi thứ đặt ở nửa điểm ảnh) rung 1 px mỗi khung nếu vị trí suy lại từ phép chia số thực: đặt thẳng
+  vào tâm khi biết nó ở tâm (`Radar::is_centred_u`). Tái hiện: `gui_sheet_tests` ca `radar_arrow_steady`.
+- `vkAcquireNextImageKHR` trả số ảnh swapchain TRƯỚC khi GPU vẽ xong khung trước dùng ảnh đó: nó chỉ hứa báo semaphore
+  phía GPU. Mọi bộ đệm Upload ánh xạ sẵn mà CPU ghi theo số ảnh (UBO của khung, ma trận thế giới, bảng xương, đỉnh UI,
+  quad hạt) vì thế bị ghi đè lúc GPU còn đọc: cây cối, trời, đất "nhảy loạn" mỗi khi camera đi, minimap giật (đo
+  2026-10-14, Đại Lý, Fifo 3 ảnh, `--walk`: 893 trên 893 khung ghi vào bộ đệm GPU còn dùng, đều vì chính ảnh swapchain
+  đó). Sửa: `gpu::Timeline` của khung, mỗi lần nộp báo số thứ tự khung; trước khi ghi bộ đệm của ảnh nào thì
+  `wait_slot` chờ số của lần cuối dùng ảnh đó (và vòng `image_count` khung). Sau sửa 871 khung, trung vị 16,7 ms,
+  p95 17,4 ms, 0 lỗi lớp kiểm. Bộ đệm mới đánh số theo ảnh swapchain phải đi sau `wait_slot`; số khung phải chờ in ở
+  dòng "Khung phải chờ GPU nhả bộ đệm của ảnh" lúc thoát.

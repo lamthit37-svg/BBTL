@@ -17,8 +17,10 @@
   - Hình: vẽ được map (địa hình, vật thể tĩnh, hạt và hiệu ứng cộng sáng của bản 2026) và người
     chơi có xương trên PC và máy tính bảng, 60 fps ở map nhỏ. Nước và vòm trời đã có mã dựng và vẽ
     (`ensure_water`, `ensure_sky` ở `client/display/graphic/scene.cpp`, gọi từ `frame.cpp`); chưa
-    ai nhìn ảnh để đối chiếu với bản 2026. Chưa có NPC, quái, vật phẩm, người chơi khác, và chưa có
-    nhảy (không có mã `jump` nào trong `src/client`).
+    ai nhìn ảnh để đối chiếu với bản 2026. Chưa có NPC, quái, vật phẩm hay người chơi khác.
+    Nhảy đã có mã: `src/client/figure/motion/jump.cpp` (`can_jump`/`start_jump`, port `Game.exe`
+    64-bit), clip nhảy `跑跳a`/`跑跳b` đã vào `anim_sets.tsv`, `Gait::jump`/`land` theo
+    `CObject_Character::Jump` (`docs/TIEN-DO.md` mục 2026-10-14); chưa nhìn tận mắt khi chạy.
   - Backend: `gpu` có bốn backend (Vulkan, D3D12, D3D11, OpenGL/GLES). Windows dựng cả bốn, client
     tự chọn Vulkan phần cứng trước rồi tới các backend sau; Android dựng Vulkan và GLES. Vulkan
     và GLES đã vẽ lên cửa sổ; D3D12 và D3D11 chưa hiển thị được (`docs/NGHI-NGO.md` mục 25).
@@ -177,9 +179,9 @@
     luồng vẽ chỉ làm việc cần thiết bị. Việc mới thêm vào đường nạp phải giữ ngân sách ở mục "Ngân sách" và đo bằng
     `TOOLS/run/bench_load.py`; mốc `Mốc <ms> ms` của `core/timeline.hpp` là bảng đo của đường nạp.
   - Bảng đo nhịp khung để dev giao diện đạt 120 fps, theo bảng thông số dev của Crazy — chủ dự án giao ngày 2026-10-13 ("thêm bảng
-    đo giống crazy", "dịch sang tiếng Việt"): `ui/pace` (mặc định hiện ngay từ khung đầu trên PC, F3 bật tắt, `--no-pace` tắt từ đầu — chủ dự án chốt ngày 2026-10-14 ("hiển thị bảng thông số bật tắt bằng f3"); khi hiện, `--shot` chờ đủ 30 mẫu rồi mới chụp nên cần `--frames` từ 30, chụp ngắn hơn thì dùng `--no-pace`). Ba cột nhãn /
+    đo giống crazy", "dịch sang tiếng Việt"): `ui/pace` (luôn hiện ở màn chơi trên PC, không phím hay cờ nào tắt được — chủ dự án chốt ngày 2026-10-14 ("Bật bộ hiển thị đo lường đi . cấm tắt"), thay quyết định F3 bật tắt cùng ngày; `--shot` chờ đủ 30 mẫu rồi mới chụp nên cần `--frames` từ 30, ảnh không có bảng thì `--bare`). Ba cột nhãn /
     giá trị căn phải / đơn vị, bốn nhóm (nhịp, chặng của khung, tải, đích vẽ), nhãn tiếng Việt vì là công cụ dev, không phải chữ
-    người chơi. Kết luận ĐẠT khi không quá 5% khung vượt ngân sách `1000 / render_hz` cộng dung sai 10% (`meets_budget`). Số là
+    người chơi. Kết luận ĐẠT khi không quá 5% khung vượt ngân sách cộng dung sai 10% (`meets_budget`); ngân sách là một nhịp quét của màn khi trình Fifo, không biết nhịp quét thì `1000 / render_hz`. Số là
     cửa sổ 90 khung gần nhất. Chưa có mili-giây GPU thật: lớp `gpu` đã có `write_timestamp`/`read_queries` (`engine/gpu/command.hpp`)
     nhưng client chưa dùng lần nào và chưa đo trên backend nào; "Xin ảnh" cao là dấu hiệu GPU chưa kịp.
   - Màn chơi, chủ dự án giao ngày 2026-10-13 ("hoàn tất toàn bộ giao diện chính xác", "fix triệt để mọi thứ làm mất texture"): bản
@@ -573,7 +575,8 @@ Chỉ mục `docs/BAY-DA-BIET.md`: sắp làm một việc kể dưới đây th
   cảnh thiếu hiệu ứng hay gom lại `dev/client/assets/effect`; nạp texture và mip; thêm gói shader; dựng
   `thienlong_client` (cần Pillow); sửa đường nạp cảnh hay giao diện (đo bằng `bench_load.py`, ba bẫy đã đo);
   chụp bằng `--shot` (cần `--frames`, cửa sổ thu nhỏ, ảnh hai lượt không giống hệt); gom lại map cũ (thiếu
-  lưới đi `.path` và `.WCollision` nếu gom trước 2026-10-13).
+  lưới đi `.path` và `.WCollision` nếu gom trước 2026-10-13); ghi bộ đệm GPU đánh số theo ảnh swapchain (phải
+  sau `wait_slot`); đọc chữ TRƯỢT của bảng đo nhịp khung.
 
 ## 12. Sổ tay
 
