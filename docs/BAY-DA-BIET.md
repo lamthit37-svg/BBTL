@@ -88,6 +88,9 @@ mục ở mục 11.
 - Phần clang-tidy của `check.py` chỉ nhận thư mục include qua `CPP23_TIDY_ARGS`, không lấy từ `CPP23_G14`/`CPP23_C20`: đặt hai biến
   trình dịch mà quên biến này thì phần biên dịch xanh còn clang-tidy báo `'bus/bus.hpp' file not found` cho mọi tệp test cùng hàng chục
   lỗi giả đi theo (đo 2026-10-15). Đặt cả ba cùng một chuỗi, ví dụ `-Iengine -Isrc/shared -Isrc/server -ITest`, rồi chạy.
+- `-I` đưa cho clang-tidy phải là đường dẫn TUYỆT ĐỐI: với `-I` tương đối `misc-include-cleaner` không nối được header với
+  ký hiệu và báo hàng loạt "thừa/thiếu include" giả (đo 2026-10-15 ở `client/session`). `check.py` chỉ in 15 chẩn đoán đầu của
+  mỗi tệp: sửa hết 15 rồi chạy lại mới thấy phần còn lại, đừng kết luận "xong" khi chưa thấy `✓ clang-tidy`.
 
 ## Công cụ Python và git
 

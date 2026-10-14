@@ -45,8 +45,8 @@
     vào HUD (`face/ui/hud.cpp` gọi `press_quest_book`/`paint_quest_book`); module `skill`
     chưa được `ui` hay `client` dùng (`docs/NGHI-NGO.md` mục 43).
   - Đăng nhập (`--login`, chỉ bản Windows; Android và iOS vào thẳng cảnh của `Config/startup.id`):
-    cảnh nền 3D `erengu_DL` với camera cố định của bản gốc, gõ tài khoản và mật khẩu (không kiểm,
-    không lưu), nút "Vào Game" mở chọn nhân vật trên cảnh `tl3chuangjian` (tối đa 3; nhân vật mới
+    cảnh nền 3D `erengu_DL` với camera cố định của bản gốc, gõ tài khoản và mật khẩu (chế độ cục bộ không kiểm,
+    không lưu; máy chủ trực tuyến thì gửi lên máy chủ thật, xem bullet "Client đã nối máy chủ thật"), nút "Vào Game" mở chọn nhân vật trên cảnh `tl3chuangjian` (tối đa 3; nhân vật mới
     cấp 1, môn Vô Phái) rồi vào màn chơi bằng nhân vật đó. Bảng tạo là bản dịch của `CreateRole.lua`
     đối chiếu số vàng: 15 ảnh chân dung mỗi giới, kiểu tóc, kiểu mặt, ba bộ đồ tân thủ đúng phân bố
     bản 2026. Người mẫu đứng trong cảnh ở chỗ và tỉ lệ của bản gốc, camera là bản port của
@@ -65,7 +65,21 @@
     bằng `-DGAME_LANGUAGE=vi|en` khi chủ dự án cho phép. Chữ người chơi thấy là khoá `#{...}` hoặc tên
     gốc của cảnh; chữ nằm trong `assets/i18n/<mã>.tsv`, tệp riêng của ngôn ngữ (danh sách máy chủ
     đăng nhập, trang "Coming soon") ở `assets/i18n/<mã>/` và khai bằng dòng `file/` của tệp nguồn.
-  - Client chưa mở socket nào và chưa có module nối máy chủ.
+  - Client đã nối máy chủ thật ở bản PC (Windows), từ 2026-10-15: máy chủ nào trong bảng chọn có dòng ở
+    `Table/gates.tsv` (cột area, server, host, game_port, auth_port, key; công cụ `TOOLS/server/export_gates.py`
+    ghi từ cấu hình và khoá danh tính của gate; bảng không vào git vì mỗi máy chủ có khoá riêng) là máy chủ
+    trực tuyến, khoá công khai của gate được ghim từ bảng đó. Máy chủ không có dòng, hoặc không có
+    `gates.tsv`, giữ chế độ cục bộ cũ (sổ `Save/roles.tsv`, không mở socket). Mô-đun `client/session`
+    (luồng nền giữ `link::Link`, máy trạng thái thuần `machine.hpp`, hàng đợi có trần, mọi lần chờ có
+    hạn, `Timing` mặc định 10 s) và `client/online` (`Bridge`: dịch `OnlineAsk`/`OnlineReply` của
+    `ui/panel/online.hpp` sang lệnh/sự kiện của phiên); `viewer_win32.cpp` giữ `Bridge`, `Display` đưa lệnh
+    và trả lời qua hai kênh. Luồng: SignIn ở cổng auth, Login ở cổng game bằng vé, danh sách nhân vật từ máy
+    chủ, Create/Delete/EnterGame, `UiConfig` đè khung chân dung (`FrameStyle`) lên giá trị gắn lúc dựng,
+    `Position` (cm, chia 100 ra mét; id cảnh của máy chủ là resid của client) đặt nhân vật. Android và iOS
+    không đụng: vẫn vào thẳng cảnh. Chưa có: tin đi (không gửi `Move`, phiên chỉ giữ sống bằng `Ping`), vẽ
+    thực thể từ `Entity*`, bộ đồ và chân dung của nhân vật (protocol chưa mang, dùng mặc định theo giới),
+    báo người chơi khi mất kết nối giữa lúc chơi, xử lý `SceneEnter` khác cảnh đã nạp. Số đo và lệnh chạy
+    thật ở `docs/TIEN-DO.md` mục 2026-10-15.
   - `WEB/` là trang giới thiệu tĩnh (Vite, React, three.js), không có backend, không nối client
     hay máy chủ, không nằm trong CMake.
   - Máy chủ: bảy exe khởi động và dừng theo thứ tự dưới trình giám sát, gate nghe hai cổng và giữ
@@ -80,7 +94,7 @@
     nhưng chưa nối vào zone, world, gate hay protocol: `actor`, `combat`, `item`, `loot`, `shop`, `forge`,
     `ops`, `bus`, `ledger`, `mission`, `talk`, `handlers`, `social` (`docs/SERVER-COMBAT.md`,
     `SERVER-ITEM.md`, `SERVER-MISSION.md`, `SERVER-SOCIAL.md`). Chưa có migration nào của database,
-    client chưa nối máy chủ — mốc và số đo ở `docs/KE-HOACH-SERVER.md` mục 10 và `docs/TIEN-DO.md`.
+    client mới nối đăng nhập, chọn nhân vật và vào game (chưa gửi `Move`, chưa vẽ thực thể) — mốc và số đo ở `docs/KE-HOACH-SERVER.md` mục 10 và `docs/TIEN-DO.md`.
 - Nền tảng đích: Windows x64 (MSVC 19.51 là bản phát hành; GCC 16 MinGW và Clang 23 để kiểm chéo;
   GCC MinGW không dựng `fs`, `shader`, `gpu`, `resource`, `render`, module `ui` và phần hiển thị
   có GPU của client, còn `gui` và `ui/panel` thì có, nên `gcc-debug` chỉ kiểm chéo phần không có
@@ -99,7 +113,7 @@
   shadertool, gpu, resource, render, ogre, fx, anim, motion, nav, collision, table, look, avatar,
   control, audio,
   audiotool, seal, sealtool, gui, hero, quest (nhiệm vụ nhận được, sổ 20 ô, theo dõi), skill (bảng
-  và sách kỹ năng, action), ui (panel), client (stage, map, world, display, viewer);
+  và sách kỹ năng, action), ui (panel), client (stage, map, world, display, viewer, session, online);
   dùng chung ở `src/shared/`: protocol (tầng byte, khung, kênh, danh mục tin sinh từ bảng: 27 tin
   version 3 của năm nhóm phiên, nhân vật, di chuyển, thế giới, xác thực), secure (bắt tay
   và bản ghi mã hoá nằm dưới khung, gọi libsodium; `docs/SERVER-BAO-MAT.md`), table (TSV),
@@ -187,8 +201,8 @@
     `"square"`, bộ đọc `config::read_client`, lint bằng `lint_config.py`) do gate đọc lúc khởi động (thiếu hay
     sai thì gate không chạy). Sau `SessionStart` gate gửi tin `UiConfig` (0x8109, `since` 2, `protocol::kVersion`
     thành 2, nay là 3 vì có thêm nhóm thế giới) cho client có `Hello.version >= 2`; client khai phiên bản 1 không nhận vì coi tin lạ là vi phạm.
-    Client CHƯA nhận: chưa mở socket nào, nên exe vẫn dùng giá trị gắn lúc dựng ở `client.build.toml`; khi có module
-    nối máy chủ thì `UiConfig` đè lên giá trị gắn. Đã chạy thật bằng một probe tạm, không vào repo (`Table` thật với
+    Client nhận từ 2026-10-15 (bản trực tuyến, xem "Client đã nối máy chủ thật" ở trên): `UiConfig` đè lên giá trị gắn
+    lúc dựng ở `client.build.toml`; chế độ cục bộ vẫn dùng giá trị gắn. Đã chạy thật bằng một probe tạm, không vào repo (`Table` thật với
     auth và store giả): Hello 2, Login, EnterGame cho ra `SessionStart`, `UiConfig`, `Position` với khung đúng như
     `Ui` đã đặt; Hello 1 cho ra `SessionStart`, `Position`. Chưa có test trong `ctest` cho đường này: `serve_loop`
     của auth và store chạy tới khi `process::stop_requested()` đúng, hàm ấy cũng đúng khi stdin hết dòng (đọc

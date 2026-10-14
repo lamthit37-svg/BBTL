@@ -46,5 +46,5 @@
 ## Còn thiếu
 - Hook hồi sinh / dịch chuyển cố ý chưa có người gọi: `kPlace` đã là đường đi (zone → gate → `Motion::place`), khi thêm chỉ cần
   `Outbox::place`. Không reset `Pace` ở chỗ nào khác.
-- Client: gửi `Move` theo nhịp 30/giây, đếm tick từ `Position.tick`, khi nhận `Position` thì đặt lại vị trí và bộ đếm (client chưa mở socket).
+- Client: gửi `Move` theo nhịp 30/giây, đếm tick từ `Position.tick`, khi nhận `Position` thì đặt lại vị trí và bộ đếm (client đã mở socket từ 2026-10-15 nhưng mới nhận `Position` đầu để đặt chỗ vào game; chưa gửi `Move`).
 - Quét đoạn đường và trục Y (xem trên).
