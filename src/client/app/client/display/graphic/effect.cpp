@@ -86,7 +86,3 @@ void Display::State::draw_fx(const FxAsk& ask) const {
     fx_view->draw(*ask.list, ask.slot, *ask.camera);
 }
 } // namespace game::client
-
-#if defined(__clang__) && defined(__x86_64__)
-#pragma clang attribute pop
-#endif

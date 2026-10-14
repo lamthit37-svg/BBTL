@@ -1,0 +1,10 @@
+﻿CMD: cmake --build --preset msvc-release --target thienlong_lint ui_flow_tests -- -j 8
+SHA: 4622334805eb4bfa7da97b87643ec000675b6e0a
+STATUS: (sạch)
+JOBS: 8
+PID: 40872
+START: 2026-10-13 22:34:28 UTC+7
+[0/2] Re-checking globbed directories...
+ninja: no work to do.
+END: 2026-10-13 22:34:29 UTC+7
+EXIT: 0

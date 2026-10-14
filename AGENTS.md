@@ -168,7 +168,7 @@
     cũng hiện luôn nhanh vẫn nhanh hơn"). Mọi việc không cần thiết bị GPU (đọc giao diện, bảng chuỗi, phông, mesh, địa hình,
     nạp driver) chạy ở luồng riêng từ đầu tiến trình (`Display::preload`, `ui::HudPrep`, `Display::State::kick_loading`);
     luồng vẽ chỉ làm việc cần thiết bị. Việc mới thêm vào đường nạp phải giữ ngân sách ở mục "Ngân sách" và đo bằng
-    `TOOLS/run/bench_load.py`; mốc `Mốc <ms> ms` của `client/timeline.hpp` là bảng đo của đường nạp.
+    `TOOLS/run/bench_load.py`; mốc `Mốc <ms> ms` của `core/timeline.hpp` là bảng đo của đường nạp.
   - Bảng đo nhịp khung để dev giao diện đạt 120 fps, theo bảng thông số dev của Crazy — chủ dự án giao ngày 2026-10-13 ("thêm bảng
     đo giống crazy", "dịch sang tiếng Việt"): `ui/pace` (mặc định hiện ngay từ khung đầu trên PC, F3 bật tắt, `--no-pace` tắt từ đầu — chủ dự án chốt ngày 2026-10-14 ("hiển thị bảng thông số bật tắt bằng f3"); khi hiện, `--shot` chờ đủ 30 mẫu rồi mới chụp nên cần `--frames` từ 30, chụp ngắn hơn thì dùng `--no-pace`). Ba cột nhãn /
     giá trị căn phải / đơn vị, bốn nhóm (nhịp, chặng của khung, tải, đích vẽ), nhãn tiếng Việt vì là công cụ dev, không phải chữ

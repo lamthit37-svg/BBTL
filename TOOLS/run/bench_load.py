@@ -3,7 +3,7 @@ client này và client tham chiếu (G:\\TLBB), để so số với số.
 
 Mỗi lượt chạy chương trình từ đầu (đã tạo tiến trình mới), đo ba loại mốc, mọi mốc tính bằng ms từ lúc chạy lệnh:
   --mark <regex>        dòng stdout khớp đầu tiên có chữ "Mốc <ms> ms" (client này tự in, tính từ lúc hệ điều hành
-                        tạo tiến trình: chính xác nhất; xem src/client/app/client/timeline.hpp). Một mốc một metric.
+                        tạo tiến trình: chính xác nhất; xem engine/core/timeline.hpp). Một mốc một metric.
   --watch <thư mục>     thời điểm GHI của từng tệp mới xuất hiện (ảnh do chính chương trình chụp: mốc có bằng chứng
                         nhìn được). Dừng khi đủ --until-files tệp hoặc hết --limit giây.
   --background R,G,B    với --watch: ảnh nào có phần giữa màn hình khác màu nền này quá --world-fraction thì tính là

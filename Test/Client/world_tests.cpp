@@ -1,8 +1,8 @@
 // Test world: mở bảng SceneDefineEx, từ chối resid lạ và file cảnh thiếu. Không đụng GPU.
+#include "Nav/nav_sample.hpp"
 #include "client/world/world.hpp"
 #include "core/check.hpp"
 #include "nav/mesh.hpp"
-#include "nav_sample.hpp"
 #include "test.hpp"
 
 #include <algorithm>

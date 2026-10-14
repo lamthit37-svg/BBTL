@@ -10,7 +10,7 @@
 #include <print>
 #include <string_view>
 
-namespace game::client {
+namespace game::core {
 
 [[nodiscard]] inline double age_ms() noexcept {
     return std::chrono::duration<double, std::milli>(core::process_age()).count();
@@ -20,4 +20,4 @@ inline void mark(std::string_view what) {
     std::println("Mốc {:8.1f} ms  {}", age_ms(), what);
 }
 
-} // namespace game::client
+} // namespace game::core

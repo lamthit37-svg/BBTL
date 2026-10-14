@@ -390,7 +390,7 @@ struct LintRoots {
     std::vector<TextFile> ref_views;
     load_all(ref_data, ref_named);
     append_views(ref_views, ref_data);
-    LintSession session(ref_views);
+    LintSession session{ref_views};
     std::vector<Loaded> failures;
     feed_all(session, failures, tables);
     LintResult result = session.finish();

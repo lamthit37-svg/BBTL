@@ -1,0 +1,6 @@
+sha=b0f8904446a10c2725698758a18a78cf6c8c4b0b + fix (chua commit)
+worktree=D:\THIENLONG_wt\ff730cd-fix
+call "C:\Program Files\Microsoft Visual Studio\18\Community\VC\Auxiliary\Build\vcvars64.bat" >nul && cmake --preset msvc-release --fresh > docs\AUDIT\evidence\ff730cd_fix\configure.log 2>&1 && cmake --build --preset msvc-release > docs\AUDIT\evidence\ff730cd_fix\build.log 2>&1 && echo BUILD_OK
+call "C:\Program Files\Microsoft Visual Studio\18\Community\VC\Auxiliary\Build\vcvars64.bat" >nul && cmake --build --preset msvc-release -- -k 0 > docs\AUDIT\evidence\ff730cd_fix\build_k0.log 2>&1 & echo BUILD_RC=%ERRORLEVEL% & ctest --preset msvc-release --output-on-failure > docs\AUDIT\evidence\ff730cd_fix\ctest.log 2>&1 & echo CTEST_RC=%ERRORLEVEL%
+
+# iOS (--target=arm64-apple-ios15): chưa kiểm, máy thiếu Apple SDK. Dòng ios trong syntax_*.log không phải kết quả. Nợ: TL Kiến trúc C++, đóng khi kiểm cú pháp trên máy có Xcode. 'iOS arm64 sạch, simulator Intel được sửa' chỉ là SUY LUẬN từ điều kiện __x86_64__, không phải số đo.
