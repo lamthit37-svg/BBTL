@@ -2197,6 +2197,52 @@ luật hình dạng" tả cổng hình thức đã gỡ khỏi bộ cpp23 tối 
 Lỗ hổng thấy mà chưa sửa ghi ở `docs/NGHI-NGO.md` mục 44 (máy chủ) và mục 45 (hạ tầng và cổng
 dựng).
 
+## Gộp các mạch chưa commit về main (2026-10-14)
+
+**Việc:** chủ dự án giao "xem các mạch chưa commit, kiểm chứng từng mã, chỉ đúng và chất lượng hơn thì mới
+gộp, rồi dọn". Làm trong worktree `.worktrees/merge_all` từ `192f181`, chưa push.
+
+Đã gộp (mỗi mảnh dựng và chạy test trước khi nhận):
+
+1. Snapshot cây chính dơ lúc 08:50 (`8e13f0d`, nhánh `thay-doi-chua-commit`) cùng luồng `lint_uiflow`
+   (`e5f5027`: timeline sang `engine/core`, tầng `GameLayers.cmake`, API `linttool`, `ui_flow_tests`) và ba
+   sửa include test (`dbc6be1`, `8f861a4`, `4e22b54`): commit `d53698d`.
+2. `TOOLS/content`: `collect_avatar.py` đọc cột `choice` (`export_look.py` không còn ghi `creatable`) và có
+   `creation_ids`; `bake_image` không sập khi ảnh gốc hỏng (`df3326b`). Bốn lỗi test cũ của `TOOLS/content`
+   hết.
+3. `TOOLS/server`: `--digest-per-table` của `build_data.py`, `export_tables.py` (`95e8140`).
+4. Gate: `Table` nhận `Backing{identity, registry}`, mọi lý do từ chối đếm vào `metrics::Counter`, ca test số
+   đo và kiểm stderr chặt của `server_boot` được phục hồi (`d88ef03`).
+5. `gui_sheet_tests.cpp`: 39 ca thay cho 12 (`4aa55e3`); `hud.cpp` include trực tiếp `call.hpp`,
+   `quest_log.hpp` (`e820bab`).
+6. Lỗi mà chỉ Clang/GCC bắt (`d88ef03`, `2842a96`): xem thân hai commit. Đáng nhớ nhất: bộ đệm
+   `thread_local std::string` của `core/log.cpp`, `log_sink.cpp`, `thread.cpp` quay về dạng trần sau đợt khôi
+   phục 2026-10-09 (`docs/NGHI-NGO.md` mục 12), `log_tests` chết 21/30 lần dưới `gcc-debug`, nay 0/40.
+
+Không gộp: worktree `.worktrees/v97ed65b` (bản cũ hơn của khung chân dung/bảng đo nhịp đã nằm trong `69dd513`
+..`192f181`; mọi tệp trùng `69dd513` hoặc cũ hơn `main`). Log bằng chứng chưa theo dõi của các worktree (219
+tệp) nằm trong `D:\THIENLONG_wt\bang-chung-worktree-20261014.zip`; mọi trạng thái đã theo dõi có ref sao lưu
+`refs/backup/wt-*` và `refs/backup/main-dirty-20261014-1120`.
+
+Đã kiểm trên đầu nhánh gộp: `msvc-release` dựng 0 warning, `ctest` 86/86; `clang-asan` (ASan + UBSan +
+hardening STL) dựng 0 lỗi, `ctest` 86/86 (bỏ `audio_tests`, `window_modal_tests` vì đụng thiết bị);
+`gcc-debug` 0 lỗi biên dịch, `ctest` 70/74 (bốn test `audio_dsp_tests`, `world_tests`, `client_tests`,
+`boot_tests` không link được vì thư viện vcpkg dựng bằng MSVC; Clang và MSVC chạy chúng); `unittest`
+`TOOLS/content` 143, `TOOLS/server` 252 (8 bỏ qua).
+
+Còn lại, đã biết và chưa làm (không do đợt gộp gây ra):
+
+- Gate chưa nối kho số đo ở production: `front.cpp` dựng `Table` bằng constructor không có `Backing`, không
+  có luồng `metrics::serve::Server` và dòng `ready` không mang khoá `metrics=` như mục "Máy chủ: P2-2" ở
+  trên mô tả; phần đó mất cùng đợt khôi phục. Module `metrics`, `metrics/serve` và test của chúng nguyên vẹn.
+- Client chưa nhận `UiConfig` (chưa có module nối máy chủ); giá trị `avatar_frame` vẫn lấy từ
+  `src/client/client.build.toml` lúc dựng.
+- `check.py` (clang-tidy 438 check) còn đỏ ở mã của snapshot chưa chấm: `account/*`, `store/pg.cpp`,
+  `engine/net/reactor_win32.cpp` (include-cleaner, độ phức tạp, tên ngắn...), và ở mã Forge2 `core/log.cpp:180`
+  (`-Wexit-time-destructors` của `static Hub`), `core/thread.cpp:88` (`-Wcast-align` GCC), `thread.cpp:138`
+  (`-Wglobal-constructors`). Cổng biên dịch `-Werror` của hai trình dịch đã xanh trên mọi tệp đụng tới ở
+  lượt này.
+
 ## Còn lại
 
 Đối chiếu với mã ngày 2026-10-08, `main` ở `501743a`; các dòng "Giao diện", "Hình" và "Dựng lại cây chung"
