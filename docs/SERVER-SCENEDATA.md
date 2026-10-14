@@ -70,6 +70,20 @@ Không có client để vẽ nên nhập về cũng không dùng được.
 việc bỏ hay giữ là quyết định của chủ dự án): bianguan_1..4, city0, homeda, homeda_1, homexiao, homexiao_1, homezhong, homezhong_1,
 huanjing_1..4, jiaofei, luoyangsnow, PCity, protectguild, shengsileitai, talin. Cả 21 dùng `walk.nav` của 2008.
 
+Phân loại 21 cảnh này (kiểm 2026-10-15: `SceneInfo.ini` của 0859602 và XJL7457, 5 494 script XJL7457, chuỗi trong exe
+`ServerTest`/`World`/`Login`, bảng cảnh client 2026). Phó bản không mở lúc khởi động: script gọi `LuaFnSetSceneLoad_Map`
+(`_Area`, `_Monster`) rồi `LuaFnCreateCopyScene`, và map phải khai trong `SceneInfo.ini` (chú thích của chính script); client
+vẽ theo `clientres` của dòng khai đó.
+- Phó bản script XJL7457 còn nạp, client 2026 không có map: `jiaofei` 镜湖匪寨 (`efuben_jiaofei.lua`, res 230 không có ở
+  client), `protectguild` 帮会驻地 (`protect_guild.lua`, res 10001), `shengsileitai` 生死擂台 (`shaxing/shengsileitai.lua`,
+  res 546 không có), `bianguan_1..4` 边关阵地山头 (`emidautumn_fight.lua`, res 160..163 trỏ tài nguyên giữ chỗ `leitai_1`).
+- Phó bản chỉ 0859602 khai (id 113..116), XJL7457 không nạp: `huanjing_1..4` 三春/三夏/三秋/三冬幻境; XJL7457 dùng
+  `sanshenhuanjing` 三神幻境 (client 2026 có, res 662); res 156..159 ở client trỏ `leitai_1`.
+- Không khai ở `SceneInfo.ini` nào, không script hay exe nào nạp: `city0`, `homeda`, `homeda_1`, `homexiao`, `homexiao_1`,
+  `homezhong`, `homezhong_1`, `luoyangsnow`, `PCity`, `talin`. Phó bản 塔林 dùng `tongrenxiang_2.nav` chứ không dùng `talin`;
+  thành bang là 18 cảnh `PCity<vùng>`; chữ `city0` trong script chỉ là tên biến (`strCity0Name`). Script của 0859602 không còn
+  trên máy, nên với 0859602 bằng chứng duy nhất là `SceneInfo.ini`.
+
 **252 tài nguyên cảnh của client 2026 không có thư mục cảnh nào** (`scene_client_only.tsv`: tên tài nguyên, tên cảnh, các tệp
 `.Scene`/`.path`/`.WCollision`/vùng/độ cao). Cả 0859602 lẫn XJL7457 đều không dựng nó nên không có nguồn nào để điền (ví dụ
 new_yanziwu 擂台, fenghuangpingyuan 凤凰平原, gusufb_1 藏书水阁). Id cảnh của client mà máy chủ chưa phục vụ nằm ngoài `scene_ids.tsv`.

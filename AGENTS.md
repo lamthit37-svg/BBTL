@@ -150,6 +150,16 @@
     offline, máy phát triển là máy chủ thử online; bảng chỉ máy chủ giữ vào git; làm nội dung bản
     0859602 trước rồi mở lên 2026. Kế hoạch ở `docs/KE-HOACH-SERVER.md` — chủ dự án chốt ngày
     2026-10-06.
+  - Bảng TSV của máy chủ (`dev/server/tables`, ghi bằng `TOOLS/server/tsv_file.py`) căn cột thẳng hàng để mở bằng
+    trình soạn đọc cho dễ — chủ dự án chốt ngày 2026-10-15 ("fix lại bộ chuyển để file xuất ra căn cột tuyệt đối,
+    đẹp thoáng dễ nhìn", "thẳng đâu ta" khi mở `camp_relations.tsv` chưa căn). Dòng `# layout: aligned` đứng trước
+    dòng tên cột; mỗi ô trừ cột cuối đệm dấu cách tới ô rộng nhất của cột cộng 2 (chữ Hán 2 ô) rồi mới tới tab, nên
+    cột thẳng với mọi cỡ tab. Dấu cách cuối thật của dữ liệu ghi bằng `␣` (U+2423), dữ liệu không được chứa `␣`.
+    `write_table` mặc định `auto`: căn khi bảng sau căn không quá 1 MiB (`ALIGN_LIMIT`), bảng lớn ghi thường vì căn
+    hết mọi bảng làm 133 MB thành khoảng 660 MB (đo 2026-10-15; căn theo ngưỡng thì 849 tệp, 805 căn, 132,9 → 151,8 MB);
+    `lua_extract` ép `aligned` cho cả 15 bảng nhiệm vụ, hội thoại, op. Bốn bộ đọc cùng bỏ đệm theo `core/aligned.hpp`:
+    `read_table`, `table::parse_tsv`, `item::tsv::Rows`, `content::RecordReader`; bộ đọc TSV mới phải làm theo.
+    Bảng của client (`dev/client/assets/Table`, do `TOOLS/content`) chưa căn.
   - Tệp TOML của `dev/server/config` bố cục theo mẫu chủ dự án đưa: đầu tệp là khung tiêu đề in hoa
     kẹp giữa hai dòng `#====`, mỗi nhóm cài đặt một khung tiêu đề, các cài đặt nằm sát nhau, mỗi
     cài đặt có chú thích tiếng Việt ngang hàng (dài quá thì ngay dòng trên), không sót; dấu `=` và
@@ -218,6 +228,10 @@
     thông điệp di chuyển và tự nhả nút giả; cửa sổ được mở khoá và đưa lên trên cùng trong lúc dùng nút thật, client chạy với
     `SDL_MOUSE_FOCUS_CLICKTHROUGH=1`. CHỦ DỰ ÁN CẤM agent chạy công cụ này với bước chuột (2026-10-13: "ngừng ngay việc chiếm chuột tự
     test"): nó cướp con trỏ thật của người đang dùng máy. Agent dựng bản mới rồi chạy cho người chơi tự test, và nói rõ phần nào chưa kiểm.
+  - Script Lua gốc của client 2026 nằm trong cây mã client, văn bản UTF-8 (đổi từng dòng từ GBK): `src/client/script/` (3 173 tệp, Interface và Config,
+    tách từ gói `Data/*.axp` của client `D:\XTLBB` 3.71.9509, `NGUON.txt` và `MANIFEST.tsv` ở đó) — chủ dự án chốt ngày 2026-10-15
+    ("tách full đầy đủ ra, đặt 1 thư mục trong client source chúng ta"). Giải gói, gỡ vỏ CryptBox và giải mã script (Rijndael 192 bit
+    cho 24 byte đầu, XOR "AS" cho phần còn lại) và đổi UTF-8: `TOOLS/content/unpack_scripts.py --utf8`. Chưa nhúng máy Lua; lõi của client là Lua 5.0.1.
 - Thư viện ngoài (tên — nguồn): cgltf, stb, meshoptimizer, sse2neon (Android), lz4, zstd, xxhash
   (ba gói của `fs` và gói shader), opus (tải Opus của tệp âm thanh `.tla`), tomlplusplus 3.4.0
   (module `config`) — vcpkg manifest (`vcpkg.json`, `C:\dev\vcpkg`); libsodium 1.0.22 (`seal`,
@@ -244,7 +258,10 @@
   `docs/CHEP-FORGE2.md` (quy trình chép một tệp từ Forge2), `docs/DINH-DANG-TLA.md` (định dạng
   tệp âm thanh đã cook `.tla`), `docs/I18N-BAO-CAO-2026-10-13.md` (báo cáo bản địa hoá, bản cuối),
   `TAILIEU/` (phân tích mã máy mới: `DANG-NHAP-GOC`, `GOI-TIN-DANG-NHAP`, `MAY-CHU-SUY-RA`,
-  `MAN-CHOI-GIAO-DIEN-2026`, `TOC-DO-NAP-SO-VOI-TLBB`; chỉ mục ở `TAILIEU/README.md`),
+  `MAN-CHOI-GIAO-DIEN-2026`, `TOC-DO-NAP-SO-VOI-TLBB`; `TAILIEU/GAME-EXE-2026/` là bản trích đầy đủ của `Game.exe` 2026:
+  decompile mọi hàm, đồ thị gọi, lớp RTTI, opcode và trường 1 367 gói tin, bản đồ tệp nguồn, 6 055 hàm script Lua;
+  `TAILIEU/GAME-EXE-2026/SO-SANH.md` là bản so đã có / chưa có / sai với client hiện tại; chưa chứng minh tệp trích là đúng tệp
+  đã port: địa chỉ `0x14...` trong mã và tài liệu không tra thẳng được, `docs/NGHI-NGO.md` mục 53; chỉ mục ở `TAILIEU/README.md`),
   `dev/server/README.md` (bố cục runtime của máy chủ, lệnh chạy cụm),
   `docs/giao-viec/` (hồ sơ từng đợt giao việc cho phiên AI phụ; `KD-DOT-1/GHI-CHU.md` giữ các ý
   tối ưu đã hoãn), `docs/BAY-DA-BIET.md` (bẫy đã đo của từng vùng; chỉ mục ở mục 11).

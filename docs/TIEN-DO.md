@@ -1188,11 +1188,13 @@ Bảng nhân vật (`SelfEquip`) mở ra với đúng trạng thái mà script c
 thường, 226 tệp mã hoá (trong đó `SelfEquip`, `Packet`, `QuestLog`, `MainMenuBar`). Định dạng đã
 đo: 8 byte dấu hiệu `D2 D1 E2 E1 B2 B1 C2 C1`, ba số u32 (1, 2, 16), bảng số tới hết byte 0xFF;
 từ byte 0x100 là văn bản GBK XOR với khoá hai byte "AS" theo vị trí trong tệp (chẵn 'A', lẻ 'S').
-24 byte đầu của văn bản còn một lớp khoá riêng từng tệp chưa giải được (thường là dòng chú thích
-đầu tệp). Công cụ: `python TOOLS/content/lua_plain.py "F:/tl 2026/_raw" build/lua-2026` (đích
+24 byte đầu của văn bản là một khối Rijndael 192 bit (đã giải 2026-10-15, `TOOLS/content/script_crypt.py`;
+lúc viết đoạn này còn chưa giải được). Công cụ: `python TOOLS/content/lua_plain.py "F:/tl 2026/_raw" build/lua-2026` (đích
 không vào git; đây là script gốc của game, chỉ để đọc khi port). Bằng chứng khoá đúng: phần giải
 ra của `SelfEquip.lua` trùng từng byte với đầu tệp cùng tên của bản cũ từ byte thứ 24. Từ nay
-port hành vi cửa sổ theo cây `build/lua-2026`, không theo script bản cũ ở `G:\TLBB\_content`.
+port hành vi cửa sổ theo script 2026, không theo script bản cũ ở `G:\TLBB\_content`. Từ 2026-10-15 có đủ 3 173
+script của client `D:\XTLBB` (UTF-8, đã biên dịch thử hết bằng `LuaPlus.dll`) ở `src/client/script/`
+(`NGUON.txt`; `TOOLS/content/unpack_scripts.py --utf8`), nên đọc ở đó thay `build/lua-2026`.
 
 Hàm C++ mà script gọi, đọc từ mã máy của `F:\tl 2026\Bin64\Game.exe` (không đóng gói; hàm Lua
 đăng ký bằng `lea r8,[hàm]` ngay trước `lea rdx,[chuỗi tên]`; tháo bằng `llvm-objdump -d

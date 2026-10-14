@@ -377,9 +377,8 @@ kết luận ngay dưới mục đó chứ không xoá.
     in 20 dòng đầu, đủ thì xem `--report`) và mục 5a (24 tệp thiếu trong `ui.files.tsv`); máy khác gom lại dữ liệu sẽ không có con trỏ game (client
     rơi về mũi tên hệ thống). Chưa lần ra nguồn của các tệp này nên chưa viết bước gom.
 36. **Bảng nhân vật: phần chưa theo hết script 2026** (2026-10-08, `ui/panel/self_equip`,
-    `hero/hero.hpp`). (a) 24 byte đầu của mỗi script mã hoá chưa giải được (`lua_plain.py` thay
-    bằng một dòng chú thích); ở các tệp đã đọc thì đó là phần đầu của dòng chú thích đầu tệp, nhưng
-    chưa chứng minh được cho mọi tệp. (b) `ScriptGlobal_Format` nằm trong `Game.exe`, chưa tháo:
+    `hero/hero.hpp`). (a) [Đã giải 2026-10-15: 24 byte đầu là khối Rijndael 192 bit, `TOOLS/content/script_crypt.py`;
+    không phải lúc nào cũng là chú thích (QuestLog: `local bBeingRadio = 0;`).] (b) `ScriptGlobal_Format` nằm trong `Game.exe`, chưa tháo:
     `format_key` chỉ làm phần nhìn thấy ở dữ liệu (`%s0`..`%s9`); chưa biết nó còn xử lý gì khác
     (số, khoá lồng). (c) Chưa port: nhánh máy chủ Khinh Hưởng (`Is2606S`) và máy chủ PK
     (`IsPKServer_JD`) của dãy thẻ và nút lên cấp; nộ riêng của môn phái 13 (`ENG`); tooltip; chấm
@@ -840,6 +839,81 @@ kết luận ngay dưới mục đó chứ không xoá.
     (g) Dung lượng: `weapon_effects.tsv` 1,1 MB, `effect/all.effect` + `all.particle` 4,2 MB, clip đòn đánh 102 MB đi
     vào `avatar.files.tsv`: APK và bản điện thoại chưa đo lại; nạp đầu của cảnh Đại Lý đo 2026-10-14 trung vị 490 ms
     ở cả bản cũ lẫn bản mới (ngân sách 450 ms; máy hôm đó chậm hơn lúc đo 387 ms ngày 2026-10-13).
+52. **Xương/animation (figure/anim, avatar/rig, model clip): review sâu 2026-10-14 — đã xác minh và kẽ hở còn mở**.
+    Phạm vi đã đọc: `src/client/figure/anim/{asset,rig,pose}.hpp/cpp`, `src/client/figure/avatar/avatar.cpp:40-120,255-296`,
+    `src/client/figure/avatar/rig.cpp`, `engine/resource/model.cpp:1195-1241` (read_track), `engine/render/forward.cpp:672-700`
+    (add_joint/skin_of), `src/client/place/ogre/quat.hpp:19-23`, `src/client/app/client/display/graphic/scene.cpp:334-338`,
+    `Test/Anim/anim_tests.cpp`, `Test/Avatar/avatar_data_tests.cpp`. Không sửa code trong lượt này theo phạm vi.
+    Đã xác minh ĐÚNG (không phải lỗi, ghi để khỏi đào lại):
+    - `Quat{}` là đơn vị (x=y=z=0, w=1; `quat.hpp:19-23`) nên `accumulate` nlerp từ đơn vị đúng (`pose.cpp:110`).
+    - Ánh xạ skin-joint -> ma trận khớp: `add_joint` (`forward.cpp:672-684`) lấy `ready[joint]` theo chỉ số skin-joint;
+    loader ép identity (`avatar/rig.cpp:45-49` `check_bone`: `skins.front().joints.at(handle) != handle` thì `bad`), lưới
+    `.mesh` tự dựng identity (`ogre_mesh.cpp:881-883`).
+    - Toán bind/offset theo OGRE và có test: `anim_tests.cpp:297-331` (loop_time biên), `:468-473` (kBadBone/kBadTime),
+    `:485-534` (palette/retarget); `avatar_data_tests.cpp:109-119` (ma trận hữu hạn trên dữ liệu thật).
+    - `wrap_time` treo với +Inf (`pose.cpp:30-35`, `while (time > length)`) nhưng không tới được hôm nay: caller duy
+    nhất ngoài test là `accumulate` với thời gian đã quấn (`apply` chặn `!isfinite` ở `pose.cpp:161`); `sample` vẫn
+    công khai nên caller tương lai phải giữ hữu hạn.
+    - `loop_time` âm lớn đúng một lần cộng (`pose.cpp:136-141`); `bracket`/`interpolate`/`linked_scale` đúng nhánh OGRE đã port.
+    Lỗi/kẽ hở (mỗi điểm có evidence, đều cần ĐIỀU KIỆN dữ liệu mới nổ):
+    (a) Sampler input/output lệch số lượng -> ném `std::out_of_range` thay vì trả lỗi: `read_track`
+    (`model.cpp:1229-1241`) kiểm hiện diện/kiểu-rộng mà không kiểm số đếm input == output; `key_at`
+    (`avatar/rig.cpp:161-179`) trỏ `values.at(index*3|4)` theo chỉ số thời điểm. Tệp lệch -> `.at()` ném lúc
+    nạp, xuyên qua mọi lớp `Result`/`Status`, chỉ bị chặn ở `main.cpp:381-388` thành "Lỗi không lường trước"
+    exit 1. Cần để kết luận: một GLB sampler lệch đếm chạy qua `Avatar::load` xem có đúng exit 1 không
+    (chưa làm — cần tạo tệp hỏng, không dám đụng dữ liệu).
+    (b) Key times không sắp xếp -> sai thầm: không chỗ nào trên đường GLB kiểm/ép sắp xếp (đã grep
+    `sort|is_sorted` trong `model.cpp`, `avatar/rig.cpp`: 0 kết quả); `bracket` (`pose.cpp:53-62`) dùng `lower_bound`
+    đòi dãy sắp. Tệp vi phạm -> nội suy sai, không crash, không báo. Cần: quét một lượt `times` trên `Model/*.glb`
+    đã gom xem có tệp nào không tăng dần không.
+    (c) `check_same_bones` (`avatar.cpp:72-79`) chỉ so tiền tố chung: comment dòng 71 hứa "cùng handle và tên",
+    nhưng code lấy `min` độ dài rồi chỉ tìm lệch trong tiền tố. Clip-file dài hơn main mà khớp tiền tố ->
+    lọt; track xương thừa -> `apply` trả `kBadBone` MỖI KHUNG (`pose.cpp:162-164`); `PlayerActor::update` trả fail
+    (`avatar.cpp:286-287`); `compose_frame` in "Người chơi: ..." ra stderr mỗi khung rồi bỏ qua người chơi
+    (`scene.cpp:334-338`) — nhân vật tàng hình + spam log. Cần: liệt kê `bones.size()` của từng clip-file so với
+    main trên dữ liệu thật xem có ca nào dài hơn không.
+    (d) Asset suy biến -> Inf/NaN thầm: `Rig::create` và `key_at` không kiểm hữu hạn; scale bind 0 -> `div_vec3`
+    ra Inf (`rig.cpp:179`), NaN trong quaternion bind lan qua `rotation_matrix`. Test `is_finite_matrix` chỉ cover dữ
+    liệu thật đang có (`avatar_data_tests.cpp:109-119`). Cần: một ca test với bind scale 0 / NaN để chốt hành vi
+    (chưa viết — luật Test: sửa bug mới viết).
+    (e) Chưa tối ưu (đã đọc, chưa đo máy — không nhận là chậm): `apply` quét `any_of` toàn track mỗi khung
+    (`pose.cpp:162-164`) trong khi `pose.size()` (từ `bind_pose` của cùng rig) và `tracks` đều bất biến sau nạp ->
+    kết quả vòng-lặp-bất-biến, dời được ra lúc nạp; `make_transform` (`rig.cpp:149-155`) và `matrix_of`
+    (`avatar.cpp:113-119`) dùng `.at()` với chỉ số hằng trong đường nóng mỗi xương mỗi khung (không bao giờ ném
+    được — chỉ là rào biên dịch có thể chưa gấp). Cần: số đo khung trước/sau (chưa có workload đo) mới được kết luận.
+    Ghi chú trung thực: toán xương khớp OGRE và có test; 5 điểm trên đều cần điều kiện dữ liệu mới nổ,
+    dữ liệu hiện tại không nổ (test xanh trên dữ liệu thật là bằng chứng).
+53. **Địa chỉ `Game.exe` trong mã và tài liệu không khớp bản `Game.exe` đã trích** (2026-10-14,
+    `TAILIEU/GAME-EXE-2026/so-sanh/dia-chi-trich-dan.tsv`, sinh bằng `TOOLS/port/rea/compare_client.py`). Đo: lấy mọi địa
+    chỉ `0x14xxxxxxx` trong `src`, `engine`, `TOOLS`, `docs`, `TAILIEU`, `Test` (trừ dump máy và hồ sơ khôi phục) rồi đối với
+    `Game.exe` đã trích (SHA-256 `3f8bb47de0bc...`, dấu thời gian PE 2026-09-29) bằng quét lệnh capstone trong phạm vi hàm của
+    `.pdata`. Phần lớn địa chỉ trỏ vào hàm đúng đầu hàm hay đúng ranh giới lệnh (khoảng 90 đầu hàm, toàn bộ nhóm đăng nhập, gói tin
+    và `CGamePro_*`, lớp ảo khớp tên). Nhưng khoảng 180 địa chỉ nằm GIỮA một lệnh, nên không thể là mốc mã; hơn 130 trong số đó chia
+    hết cho 16, tức dạng đầu hàm của một bố cục khác (cột `detail` ghi lệnh chứa nó bắt đầu ở đâu). Bằng chứng hai chiều: (a)
+    `IsLMSJSecond`, `IsJYJYSecond`, `IsWJQFSecond` có nội dung ĐÚNG bản này (bảng id 821..826 ở 0x140b1f8f4, 827..834 ở 0x140b1fa54,
+    hàm cuối so 0x1171/0x1172) nhưng mã trích dẫn địa chỉ lệch đúng 0x500 so với hàm trong bản trích; (b)
+    `docs/AUDIT/evidence/jump_re.log` tháo 1405ea2f0 (viết không có 0x để công cụ quét không đếm lại) ra `add byte ptr [rax], al`,
+    mà byte tại đó giống bản này, nên địa chỉ ấy sai từ đầu chứ không phải bản khác. Hai hướng loại nhau, nên chưa kết luận được là
+    địa chỉ ghi sai (typo, tháo nhầm đầu hàm) hay các phiên port đã đọc một bản `Game.exe` khác (`F:\tl 2026\2026\Bin64\Game.exe`
+    đã bị xoá 2026-10-09; dự án Ghidra TLBB chỉ có một `Game.exe`). Đã sửa 9 chỗ chắc chắn ở 3 tệp nhờ nội dung đối chiếu được (bảng
+    tên loại action ở 0x140ed88d0 thay cho 140ed78d0, ba hàm `Is*Second`, `Jump` ở 0x1405ea2b0); còn lại không sửa vì không biết
+    địa chỉ đúng. Hệ quả: dùng địa chỉ trong mã/tài liệu để tra thẳng `decompile.zip` của bản trích có thể ra hàm
+    khác; cần tra bằng tên hàm script (`lua_api.tsv`), chuỗi assert hay lớp (`classes.tsv`). Cần để kết luận: một bản `Game.exe`
+    2026 khác nguồn (cài lại client, hay SHA-256 của bản đã port) để so từng địa chỉ; nếu cài lại được thì chạy lại
+    `compare_client.py` với tệp đó và xem số địa chỉ giữa lệnh về 0 hay không.
+    Đo thêm 2026-10-15, có bản thứ hai `D:\XTLBB\Bin64\Game.exe` (3.71.9509, SHA-256 `62e0174f…`, dấu thời gian PE 2026-08-11, đường PDB
+    cùng `Temp_Release_v3-71-9001`). (a) Dự án Ghidra TLBB: `Game.exe` có SHA-256 trùng bản trích, nhập từ `F:/tl 2026/2026/Bin64`. (b) Trên 229
+    địa chỉ khác nhau thuộc mã: 9 địa chỉ (19 dòng: `hero.hpp:197`, `create_role.cpp:371`, `role_cast.hpp:3`, `outline.hpp:7`,
+    `actions.hpp:73,81`, `book.hpp:74`, các tệp `TOOLS/port/oracle/*_api.lua` tương ứng, `docs/CAMERA-2026.md:182`,
+    `docs/TAO-NHAN-VAT-2026.md:32,68,69,76`, `docs/TIEN-DO.md:1145`) là đầu hàm `.pdata` của bản 11/08 mà không phải đầu hàm của bản 30/09.
+    Theo chữ ký 24 lệnh đầu, 6 trong số đó có đúng một hàm cùng mã ở bản 30/09 (địa chỉ bản 11/08 viết không có 0x để
+    `compare_client.py` không đếm lại): 14001d6a0→0x14001d9b0, 140017280→0x140017590, 140193f30→0x140194aa0, 1402cc5c0→0x1402cd4e0,
+    140343540→0x1403443b0, 14063df70→0x14063fb60. 1403954d0, 140342950, 140342a10 có nhiều ứng viên. Đầu hàm ngẫu nhiên chỉ trúng 0,4% (đo trên 3 000 địa chỉ ngẫu nhiên của `.text`), nên các phiên port
+    trước đã đọc bản 11/08 hay một bản rất gần nó. (c) 87 địa chỉ không hợp lệ ở cả hai bản. Cộng 0xc00 (chênh lệch VA và offset tệp của `.text`)
+    thì 6–7 địa chỉ thành đầu hàm, nên vài địa chỉ là offset tệp viết nhầm thành địa chỉ ảo. Phần còn lại chưa giải thích được. Trúng
+    "ranh giới lệnh" là bằng chứng yếu: địa chỉ ngẫu nhiên trúng 20,6%. Chưa sửa các dòng ở (b) vì chưa rõ dòng nào cố ý nói về bản 11/08
+    (số vàng của trọng tài có thể đã sinh trên `LuaPlus.dll` của bản đó). Cần để kết luận: biết bản nào nằm ở `F:\tl 2026\2026` trước ngày
+    2026-10-09, rồi ghi bản dựng cạnh từng địa chỉ.
 
 54. **Máy chủ gameplay 2026-10-15: các chỗ chưa kết luận được** (`src/server/zone/`, `src/server/scenedata/`, `docs/SERVER-SCENEDATA.md`,
     `docs/SERVER-DI-CHUYEN.md`)

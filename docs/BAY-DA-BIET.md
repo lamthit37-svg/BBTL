@@ -296,9 +296,12 @@ mục ở mục 11.
   trí, nên tìm được ngay `populateRenderCache`, `onMouseButtonUp`... của một widget mà không phải
   dò RTTI (`exports "FalagardSoftKeyBoard@"`). Hàm lớn bị `.pdata` chia mảnh: tháo bằng khoảng
   `func <đầu>..<địa chỉ hàm export kế tiếp>`.
-- Script Lua mã hoá của client (`lua_plain.py`) mất 24 byte đầu: chạy nó bằng trọng tài thì đưa
-  phần đầu đoán được qua `--head` (QuestLog bắt đầu bằng một dòng chú thích, CommonSkill bằng
-  `local COMMON_BUTTONS = {`). `TOOLS/port/lua_native.py` in địa chỉ hàm trung chuyển chung
+- Script Lua mã hoá của client: 24 byte đầu là một khối Rijndael 192 bit, đã giải được từ 2026-10-15
+  (`TOOLS/content/script_crypt.py`, `lua_plain.py` giải đủ). Trước đó công cụ thay 24 byte bằng một dòng
+  chú thích; byte ấy là mã thật (QuestLog mở đầu bằng `local bBeingRadio = 0;`), nên script cũ đưa cho
+  trọng tài thiếu dòng đó. Đo lại 2026-10-15: số vàng `quest_log_newcomer.tsv` và `create_role_newcomer.tsv`
+  vẫn giống từng byte khi chạy script đầy đủ (trên `LuaPlus.dll` của `D:\XTLBB\Bin64`). Cờ `--head` của
+  trọng tài không còn cần. `TOOLS/port/lua_native.py` in địa chỉ hàm trung chuyển chung
   (0x1406864e0) cho phương thức kiểu đối tượng (`DataPool:...`, `Player:...`); hàm thật là địa
   chỉ nạp vào `rcx` ngay trước lời đăng ký.
 - Trọng tài `lua_oracle.py` không có CEGUI: hành vi nào của widget mà script dựa vào thì phải mô
@@ -319,6 +322,22 @@ mục ở mục 11.
   `runtime_failure`), và dựng addon từ nguồn cần Linux + MinGW. `Game.exe` 2026 không còn trên đĩa (`F:\tl 2026\2026\Bin64` bị xoá
   2026-10-09): bản xuất lại từ chương trình đã nạp trong dự án Ghidra TLBB (`OriginalFileExporter`, 18 614 816 byte, SHA-256
   `3f8bb47de0bc...`) nằm ở `D:\rea\work\client\Game.exe`. Đo: `inspect` mất 5 phút 4 giây ở lượt đầu (58 035 hàm, 56 190 chuỗi, 9 đoạn).
+  Dùng qua MCP (`node scripts/rea.mjs mcp`, 170 công cụ; đo 2026-10-14): mỗi lần mở phiên Ghidra nạp lại ~308 s dù có `snapshot_path`, mà mặc định
+  `REA_GHIDRA_STARTUP_TIMEOUT_MS` chỉ 330 000 nên lượt đầu chết `provider_timeout` ở sát mốc — đặt 1 800 000 và giữ MỘT phiên sống (sau đó mỗi truy vấn
+  3 đến 140 ms; `batch_decompile` 100 hàm ~0,1 s). `callTool(params, options)` của SDK nhận `{timeout}` ở đối số THỨ HAI (đối số thứ ba bị bỏ, rơi về 60 s).
+  `list_procedures`/`list_names`/`list_strings` trên `Game.exe` vượt trần phản hồi stdio 10 MB (`resource_constraint`); kết quả vẫn được giữ, lấy bằng
+  `export_evidence_bundle` (150 đến 170 MB JSON, xoá sau khi trích). `mode` của `search_*` là `literal|regex` (không phải `substring`); `trace_feature` nối
+  chuỗi → xref → hàm chứa trong một lệnh gọi. PowerShell nuốt dấu nháy kép trong đối số JSON của lệnh native: đưa đối số qua tệp. `python -I` bỏ qua
+  `PYTHONUTF8`: dùng `python -X utf8 -I`. Gửi từng việc một qua tệp thì mỗi việc mất ~0,5 s (hai nhịp thăm dò); gửi cả plan một lượt thì 57 200
+  việc `procedure_callees` mất ~85 s. Decompiler của Ghidra bỏ cuộc ở 5 hàm lớn nhất (6 đến 34 nghìn lệnh) sau 72 đến 296 giây: dùng
+  `read_function_instructions`. Bộ công cụ và bản trích đầy đủ: `TOOLS/port/rea/`, `TAILIEU/GAME-EXE-2026/README.md`.
+  Bẫy tra địa chỉ (đo 2026-10-14): khoảng 180 địa chỉ `0x14...` trong mã và tài liệu của dự án rơi GIỮA một lệnh của bản trích (hơn 130 trong số đó chia hết cho 16,
+  như địa chỉ đầu hàm của một bố cục khác); tra thẳng `decompile.zip` bằng chúng có thể ra hàm khác. Kiểm một địa chỉ trước khi tin:
+  `python -X utf8 -I TOOLS/port/rea/compare_client.py` rồi đọc `so-sanh/dia-chi-trich-dan.tsv` (cột `boundary`, `detail`), hoặc tìm hàm theo
+  tên script (`lua_api.tsv`), chuỗi assert (`strings.tsv`), lớp (`classes.tsv`). Hàm script Lua của bản gốc chỉ có tên ở chuỗi, hàm cài đặt
+  nằm qua ba khuôn đăng ký (mô tả ở đầu bước `lua` của `game_exe_dump.py`); 143 hàm cài đặt không được Ghidra tạo hàm (mã ngắn: rỗng, chuyển
+  tiếp ô ảo) nên chỉ đọc được bằng byte. `.pdata` có 11 351 mục không phải hàm của Ghidra: phần lớn là funclet catch/cleanup của C++ EH.
+  Con số số import theo DLL: đo từ `imports.tsv`, không dùng số trong bản README cũ (135/48/36 là sai).
 
 ## Giao diện và bản địa hoá
 
