@@ -93,7 +93,7 @@ void default_figures_resolve(Context& context) {
     if (male) check_figure(context, *male);
 }
 
-// Avatar của một giới nạp được, Skinner ra đủ 56 ma trận hữu hạn cho thế đứng và thế chạy.
+// Avatar của một giới nạp được, Skinner ra đủ 56 ma trận hữu hạn cho thế đứng, thế chạy và thế nhảy.
 void check_avatar(Context& context, const look::Tables& tables, look::Race race) {
     const auto figure = default_figure(tables, race);
     context.expect(figure.has_value(), "giải được bộ mặc định");
@@ -111,6 +111,12 @@ void check_avatar(Context& context, const look::Tables& tables, look::Race race)
     const avatar::Playing running{.stance = avatar::Stance::kRun, .time = lengths.run * 0.5F};
     context.expect(skinner.update(*avatar, running).has_value(), "dựng được thế chạy");
     context.expect(std::ranges::all_of(skinner.joints(), is_finite_matrix), "thế chạy hữu hạn");
+    // Hành động 9 và 12 của ActionSet (跑跳a, 跑跳b) có ở cả hai giới.
+    context.expect(lengths.jump_stand.value_or(0.0F) > 0.2F, "có clip nhảy đứng");
+    context.expect(lengths.jump_run.value_or(0.0F) > 0.2F, "có clip nhảy chạy");
+    const avatar::Playing jumping{.stance = avatar::Stance::kJumpRun, .time = lengths.jump_run.value_or(0.0F) * 0.5F};
+    context.expect(skinner.update(*avatar, jumping).has_value(), "dựng được thế nhảy");
+    context.expect(std::ranges::all_of(skinner.joints(), is_finite_matrix), "thế nhảy hữu hạn");
 }
 
 void avatar_poses(Context& context) {

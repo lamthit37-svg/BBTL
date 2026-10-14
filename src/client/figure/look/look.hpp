@@ -77,6 +77,10 @@ struct Figure {
     std::optional<Clip> idle_alt;
     std::optional<Clip> idle_alt2;
     Clip run;
+    // Clip nhảy của BASE_ACTION_N_JUMP_N và N_JUMP_R; rỗng khi bảng không có dòng (ChangeAction của gốc
+    // khi đó giữ nguyên clip đang phát).
+    std::optional<Clip> jump_stand;
+    std::optional<Clip> jump_run;
     // Có thì áp lên clip đứng (xem resolve); người mẫu môn phái và nữ không có.
     std::optional<BoneTrim> idle_trim;
 };

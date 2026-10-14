@@ -33,8 +33,10 @@ RACES = {0: "female", 1: "male"}
 # ActionSetLine: cột của từng loại vũ khí trong client 2026 (bảy loại cầm tay đầu như bản 2008;
 # monster và npc dời sang 14, 15).
 WEAPON_COLUMNS = {"none": 1, "spear": 2, "blade": 3, "dual_short": 4, "short": 5, "fan": 6, "ring": 7}
-# Hành động cơ sở (ENUM_BASE_ACTION của ref) của sáu hành động có clip.
-ACTIONS = {"idle": 0, "idle_alt": 1, "idle_alt2": 2, "run": 4, "combat_idle": 14, "combat_run": 16}
+# Hành động cơ sở (ENUM_BASE_ACTION của ref) của tám hành động có clip. jump_stand là BASE_ACTION_N_JUMP_N (9),
+# jump_run là BASE_ACTION_N_JUMP_R (12) của CObject_Character::Jump.
+ACTIONS = {"idle": 0, "idle_alt": 1, "idle_alt2": 2, "run": 4, "jump_stand": 9, "jump_run": 12, "combat_idle": 14,
+           "combat_run": 16}
 MODEL_OBJECT_COLUMN = 1
 MODEL_ACTIONS_COLUMN = 20
 RACE_MODEL, RACE_FACE, RACE_HAIR, RACE_BODY, RACE_ARM, RACE_FOOT = 3, 4, 5, 6, 7, 8

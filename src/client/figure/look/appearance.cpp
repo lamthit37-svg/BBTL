@@ -35,9 +35,10 @@ struct WeaponName {
     Weapon weapon;
 };
 
-constexpr std::array<ActionName, 6> kActions{
+constexpr std::array<ActionName, 8> kActions{
     {{.name = "idle", .action = Action::kIdle}, {.name = "idle_alt", .action = Action::kIdleAlt},
         {.name = "idle_alt2", .action = Action::kIdleAlt2}, {.name = "run", .action = Action::kRun},
+        {.name = "jump_stand", .action = Action::kJumpStand}, {.name = "jump_run", .action = Action::kJumpRun},
         {.name = "combat_idle", .action = Action::kCombatIdle}, {.name = "combat_run", .action = Action::kCombatRun}}};
 
 constexpr std::array<WeaponName, 7> kWeapons{{{.name = "none", .weapon = Weapon::kNone},

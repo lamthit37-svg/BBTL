@@ -22,8 +22,9 @@ enum class Race : std::uint8_t { kFemale = 0, kMale = 1 };
 
 // Hành động cơ sở (ENUM_BASE_ACTION của ref, chỉ những cái có clip). kIdleAlt và kIdleAlt2 là hai
 // động tác nghỉ nhỏ N_IDLE_EX0 và N_IDLE_EX1 mà FreshAnimation chọn ngẫu nhiên. Không có "đi": di
-// chuyển luôn là chạy, cả người chơi lẫn NPC.
-enum class Action : std::uint8_t { kIdle, kIdleAlt, kIdleAlt2, kRun, kCombatIdle, kCombatRun };
+// chuyển luôn là chạy, cả người chơi lẫn NPC. kJumpStand và kJumpRun là BASE_ACTION_N_JUMP_N (9) và
+// BASE_ACTION_N_JUMP_R (12) mà CObject_Character::Jump chọn.
+enum class Action : std::uint8_t { kIdle, kIdleAlt, kIdleAlt2, kRun, kJumpStand, kJumpRun, kCombatIdle, kCombatRun };
 
 // Loại vũ khí theo thứ tự ENUM_WEAPON_TYPE của ref.
 enum class Weapon : std::uint8_t { kNone, kSpear, kBlade, kDualShort, kShort, kFan, kRing };

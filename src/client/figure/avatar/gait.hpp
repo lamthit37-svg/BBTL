@@ -6,6 +6,12 @@
 // mới rồi rand() % 2 + BASE_ACTION_N_IDLE_EX0 chọn một trong hai động tác nghỉ, không thì phát lại
 // clip đứng. Động tác không có clip thì phát clip đứng (ref về tư thế bind). Khoảng là
 // GetIdleInterval của đối tượng. Logic thuần, không I/O; mỗi nhân vật một Gait.
+// Nhảy theo CObject_Character::Jump và NotifyPhyEvent của ref, đối chiếu Game.exe 2026 (0x1405ea2b0,
+// ChangeAction 0x1405e2740): ChangeAction(N_JUMP_N hay N_JUMP_R, 1.f, FALSE) phát clip nhảy một lần từ
+// đầu, cờ nhảy bật. Lúc cờ bật, Start_Idle và Start_Move đổi logic nhưng không đổi clip. Hết clip nhảy
+// mà chưa chạm đất thì OnAnimationEnd gọi FreshAnimation: logic MOVE thì chạy lại từ đầu, IDLE thì như
+// lúc hết clip đứng. Chạm đất (PE_COLLISION_WITH_GROUND) thì tắt cờ rồi FreshAnimation một lần nữa.
+// Hành động không có clip thì ChangeAction của gốc bỏ qua: clip đang phát giữ nguyên.
 // Nguồn: TLBB Dev src/client_app/gait.hpp@e0d89a6. Khác gốc: namespace game::avatar; đồng hồ là
 // core::Clock; enumerator mang tiền tố k.
 
@@ -34,9 +40,12 @@ struct ClipLengths {
     // N_IDLE_EX1
     std::optional<float> idle_alt2;
     float run = 0.0F;
+    // BASE_ACTION_N_JUMP_N và N_JUMP_R.
+    std::optional<float> jump_stand;
+    std::optional<float> jump_run;
 };
 
-enum class Stance : std::uint8_t { kIdle = 1, kIdleAlt, kIdleAlt2, kRun };
+enum class Stance : std::uint8_t { kIdle = 1, kIdleAlt, kIdleAlt2, kRun, kJumpStand, kJumpRun };
 
 // Clip đang phát và thời điểm trong clip, giây, trong [0, độ dài).
 struct Playing {
@@ -52,6 +61,11 @@ public:
 
     // Clip lúc now khi đang đi hay đứng. now không được lùi.
     [[nodiscard]] Playing update(core::Clock::time_point now, bool is_moving, const ClipLengths& lengths);
+    // CObject_Character::Jump lúc now: stance là kJumpStand hay kJumpRun; stance khác thì không làm gì.
+    void jump(core::Clock::time_point now, Stance stance, const ClipLengths& lengths);
+    // Chạm đất lúc now: hết nhảy rồi FreshAnimation. Không đang nhảy thì không làm gì.
+    void land(core::Clock::time_point now, const ClipLengths& lengths);
+    [[nodiscard]] bool is_jumping() const noexcept { return is_jumping_; }
     // Phát stance ở khung kế, rồi về đứng. Dùng cho bài múa lúc người mẫu môn phái hiện.
     void cue(Stance stance) noexcept;
     // Sai thì hết bài không chọn động tác nghỉ. Mười hai môn đầu vẫn nghỉ bằng bài múa.
@@ -63,6 +77,7 @@ private:
     [[nodiscard]] Playing running(core::Clock::time_point now, const ClipLengths& lengths) const;
     void start_idle(core::Clock::time_point now);
     void fresh(core::Clock::time_point now, const ClipLengths& lengths);
+    void fresh_logic(core::Clock::time_point now, const ClipLengths& lengths);
     [[nodiscard]] float elapsed(core::Clock::time_point now) const;
     [[nodiscard]] static float length_of(Stance stance, const ClipLengths& lengths);
 
@@ -72,6 +87,9 @@ private:
     // Sai trước lần update đầu: lúc đó chưa có clip nào.
     bool is_started_ = false;
     bool fidget_ = true;
+    // Logic MOVE (đang đi) và m_bJumping của ref; clip đang phát là stance_.
+    bool is_moving_ = false;
+    bool is_jumping_ = false;
     std::optional<Stance> cued_;
     Stance stance_ = Stance::kIdle;
     core::Clock::time_point clip_started_;

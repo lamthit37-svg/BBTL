@@ -175,6 +175,8 @@ std::expected<Figure, LookError> resolve(const Tables& tables, Race race, const 
     figure.idle_alt = clip_of(tables, body->anim_set, Action::kIdleAlt, look.weapon);
     figure.idle_alt2 = clip_of(tables, body->anim_set, Action::kIdleAlt2, look.weapon);
     figure.run = std::move(*run);
+    figure.jump_stand = clip_of(tables, body->anim_set, Action::kJumpStand, look.weapon);
+    figure.jump_run = clip_of(tables, body->anim_set, Action::kJumpRun, look.weapon);
     if (race == Race::kMale && look.weapon == Weapon::kNone) {
         figure.idle_trim = BoneTrim{.bone = std::string(kMaleHeadBone), .turn = kMaleIdleHeadLower};
     }

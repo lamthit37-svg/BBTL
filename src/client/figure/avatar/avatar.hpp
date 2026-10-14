@@ -35,7 +35,7 @@ public:
     [[nodiscard]] const look::Figure& figure() const noexcept { return figure_; }
     [[nodiscard]] const anim::Rig& rig() const noexcept { return rig_; }
 
-    // Độ dài bốn clip cho Gait.
+    // Độ dài các clip cho Gait.
     [[nodiscard]] ClipLengths lengths() const noexcept;
     // Animation của thế đang phát; động tác nghỉ không có clip thì clip đứng.
     [[nodiscard]] const anim::Animation& animation(Stance stance) const noexcept;
@@ -51,6 +51,8 @@ private:
     std::optional<anim::Animation> idle_alt_;
     std::optional<anim::Animation> idle_alt2_;
     anim::Animation run_;
+    std::optional<anim::Animation> jump_stand_;
+    std::optional<anim::Animation> jump_run_;
     // Handle của xương cần chỉnh và phép xoay thêm quanh trục z của nó.
     struct Trim {
         std::size_t handle = 0;

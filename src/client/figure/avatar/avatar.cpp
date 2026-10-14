@@ -126,11 +126,17 @@ core::Result<Avatar> Avatar::load(const look::Figure& figure, const std::filesys
     if (!alt) return std::unexpected(alt.error());
     auto alt2 = optional_clip_of(loader, figure.idle_alt2, bones);
     if (!alt2) return std::unexpected(alt2.error());
+    auto jump_stand = optional_clip_of(loader, figure.jump_stand, bones);
+    if (!jump_stand) return std::unexpected(jump_stand.error());
+    auto jump_run = optional_clip_of(loader, figure.jump_run, bones);
+    if (!jump_run) return std::unexpected(jump_run.error());
     Avatar avatar(figure, std::move(*rig));
     avatar.idle_ = std::move(*idle);
     avatar.run_ = std::move(*run);
     avatar.idle_alt_ = std::move(*alt);
     avatar.idle_alt2_ = std::move(*alt2);
+    avatar.jump_stand_ = std::move(*jump_stand);
+    avatar.jump_run_ = std::move(*jump_run);
     if (figure.idle_trim) {
         const auto found = std::ranges::find(bones.bones, figure.idle_trim->bone, &anim::Bone::name);
         if (found == bones.bones.end()) {
@@ -155,6 +161,8 @@ ClipLengths Avatar::lengths() const noexcept {
     lengths.run = run_.length;
     if (idle_alt_) lengths.idle_alt = idle_alt_->length;
     if (idle_alt2_) lengths.idle_alt2 = idle_alt2_->length;
+    if (jump_stand_) lengths.jump_stand = jump_stand_->length;
+    if (jump_run_) lengths.jump_run = jump_run_->length;
     return lengths;
 }
 
@@ -164,6 +172,8 @@ const anim::Animation& Avatar::animation(Stance stance) const noexcept {
     case Stance::kIdleAlt: return idle_alt_ ? *idle_alt_ : idle_;
     case Stance::kIdleAlt2: return idle_alt2_ ? *idle_alt2_ : idle_;
     case Stance::kRun: return run_;
+    case Stance::kJumpStand: return jump_stand_ ? *jump_stand_ : idle_;
+    case Stance::kJumpRun: return jump_run_ ? *jump_run_ : idle_;
     }
     return idle_;
 }

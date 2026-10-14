@@ -2,7 +2,7 @@
 // clip đứng phát một lần rồi chọn lại, động tác nghỉ chỉ sau khoảng CalcIdleRandInterval, công
 // thức khoảng giữ đúng toán tử của ref; và hướng mặt xoay dần: mới thấy thì lấy thẳng hướng
 // logic, sau kTurnTime quay được 1 − 1/e phần góc, đi theo cung ngắn nhất qua ±π, không phụ thuộc
-// tốc độ khung, và bỏ đối tượng đã rời vùng nhìn.
+// tốc độ khung, và bỏ đối tượng đã rời vùng nhìn. Nhảy theo Jump và NotifyPhyEvent của ref (gait.hpp).
 // Nguồn: TLBB Dev tests/client_app/gait_test.cpp và turning_test.cpp@e0d89a6. Khác gốc: khung test
 // của dự án (Context::expect); core::Clock; id đối tượng là số nguyên không dấu.
 #include "avatar/gait.hpp"
@@ -229,12 +229,71 @@ void drops_unseen(Context& context) {
     context.expect(near_value(turning.face(2, 2.0F, start() + 32ms), 2.0F), "quay lại như mới thấy");
 }
 
+[[nodiscard]] ClipLengths lengths_with_jump() {
+    ClipLengths lengths = lengths_with_alt();
+    lengths.jump_stand = 0.8F;
+    lengths.jump_run = 0.6F;
+    return lengths;
+}
+
+// Jump của ref: clip nhảy phát một lần từ đầu; hết clip mà chưa chạm đất thì FreshAnimation theo logic
+// (đang chạy thì chạy lại từ đầu); chạm đất thì FreshAnimation một lần nữa.
+void jump_while_running(Context& context) {
+    Gait gait{1, avatar::kIdleInterval};
+    const ClipLengths lengths = lengths_with_jump();
+    static_cast<void>(gait.update(at(0.0F), true, lengths));
+    gait.jump(at(0.5F), Stance::kJumpRun, lengths);
+    const Playing flying = gait.update(at(0.7F), true, lengths);
+    context.expect(flying.stance == Stance::kJumpRun && near_value(flying.time, 0.2F), "đang nhảy: clip nhảy");
+    const Playing ended = gait.update(at(1.2F), true, lengths);
+    context.expect(ended.stance == Stance::kRun && near_value(ended.time, 0.0F), "hết clip nhảy: chạy từ đầu");
+    gait.land(at(1.5F), lengths);
+    const Playing landed = gait.update(at(1.5F), true, lengths);
+    context.expect(landed.stance == Stance::kRun && near_value(landed.time, 0.0F), "chạm đất: chạy lại từ đầu");
+    context.expect(!gait.is_jumping(), "chạm đất thì hết nhảy");
+}
+
+// Start_Idle và Start_Move lúc cờ nhảy bật giữ clip nhảy; chạm đất lúc đã dừng thì về clip đứng.
+void jump_keeps_clip_until_land(Context& context) {
+    Gait gait{1, avatar::kIdleInterval};
+    const ClipLengths lengths = lengths_with_jump();
+    static_cast<void>(gait.update(at(0.0F), true, lengths));
+    gait.jump(at(0.1F), Stance::kJumpStand, lengths);
+    const Playing stopped = gait.update(at(0.3F), false, lengths);
+    context.expect(stopped.stance == Stance::kJumpStand && near_value(stopped.time, 0.2F), "dừng giữa nhảy: giữ clip");
+    const Playing moved = gait.update(at(0.4F), true, lengths);
+    context.expect(moved.stance == Stance::kJumpStand, "đi tiếp giữa nhảy: giữ clip");
+    static_cast<void>(gait.update(at(0.5F), false, lengths));
+    gait.land(at(0.6F), lengths);
+    const Playing landed = gait.update(at(0.6F), false, lengths);
+    context.expect(landed.stance == Stance::kIdle && near_value(landed.time, 0.0F), "chạm đất lúc đứng: clip đứng");
+}
+
+// Hành động không có clip: ChangeAction của gốc bỏ qua, clip đang phát giữ nguyên, cờ nhảy vẫn bật.
+void jump_without_clip(Context& context) {
+    Gait gait{1, avatar::kIdleInterval};
+    const ClipLengths lengths = lengths_with_alt();
+    static_cast<void>(gait.update(at(0.0F), true, lengths));
+    gait.jump(at(0.25F), Stance::kJumpRun, lengths);
+    const Playing playing = gait.update(at(0.5F), true, lengths);
+    context.expect(playing.stance == Stance::kRun && near_value(playing.time, 0.5F), "không clip: chạy tiếp");
+    context.expect(gait.is_jumping(), "cờ nhảy vẫn bật");
+    gait.jump(at(0.5F), Stance::kIdle, lengths);
+    gait.land(at(0.6F), lengths);
+    gait.land(at(0.7F), lengths);
+    const Playing landed = gait.update(at(0.7F), true, lengths);
+    context.expect(landed.stance == Stance::kRun && near_value(landed.time, 0.1F), "chạm đất hai lần chỉ tính một");
+}
+
 constexpr std::array kCases{
     Case{.name = "interval_formula", .body = &interval_formula},
     Case{.name = "standing_plays_idle_once", .body = &standing_plays_idle_once},
     Case{.name = "moving_runs_looped", .body = &moving_runs_looped},
     Case{.name = "idle_alt_after_interval", .body = &idle_alt_after_interval},
     Case{.name = "demo_once", .body = &demo_once},
+    Case{.name = "jump_while_running", .body = &jump_while_running},
+    Case{.name = "jump_keeps_clip_until_land", .body = &jump_keeps_clip_until_land},
+    Case{.name = "jump_without_clip", .body = &jump_without_clip},
     Case{.name = "both_rests", .body = &both_rests},
     Case{.name = "first_sight", .body = &first_sight},
     Case{.name = "eases_in", .body = &eases_in},

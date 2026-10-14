@@ -33,7 +33,7 @@ void Gait::set_fidget(bool enabled) noexcept {
 }
 
 void Gait::take_cue(Clock::time_point now) {
-    if (!cued_ || stance_ == Stance::kRun) return;
+    if (!cued_ || is_moving_ || is_jumping_) return;
     stance_ = *cued_;
     clip_started_ = now;
     cued_.reset();
@@ -42,21 +42,56 @@ void Gait::take_cue(Clock::time_point now) {
 Playing Gait::update(Clock::time_point now, bool is_moving, const ClipLengths& lengths) {
     enter(now, is_moving);
     take_cue(now);
+    const bool is_jump_clip = stance_ == Stance::kJumpStand || stance_ == Stance::kJumpRun;
+    if (is_jump_clip && elapsed(now) >= length_of(stance_, lengths)) fresh_logic(now, lengths);
+    if (stance_ == Stance::kJumpStand || stance_ == Stance::kJumpRun) {
+        return Playing{.stance = stance_, .time = elapsed(now)};
+    }
     if (stance_ == Stance::kRun) return running(now, lengths);
     if (elapsed(now) >= length_of(stance_, lengths)) fresh(now, lengths);
     return Playing{.stance = stance_, .time = elapsed(now)};
 }
 
-// Đổi trạng thái theo chuyển động: bắt đầu đi thì phát clip chạy từ đầu, dừng (hay lần đầu) thì
-// Start_Idle.
+// Đổi logic theo chuyển động: bắt đầu đi thì Start_Move (clip chạy từ đầu), dừng (hay lần đầu) thì
+// Start_Idle. Đang nhảy thì cả hai giữ clip nhảy.
 void Gait::enter(Clock::time_point now, bool is_moving) {
-    const bool was_running = is_started_ && stance_ == Stance::kRun;
-    const bool starts_run = is_moving && !was_running;
-    if (starts_run) clip_started_ = now;
-    if (starts_run) stance_ = Stance::kRun;
-    const bool stops = !is_moving && (!is_started_ || was_running);
-    if (stops) start_idle(now);
+    const bool was_moving = is_started_ && is_moving_;
+    const bool starts_run = is_moving && !was_moving;
+    const bool stops = !is_moving && (!is_started_ || was_moving);
+    is_moving_ = is_moving;
     is_started_ = true;
+    if (starts_run && !is_jumping_) {
+        stance_ = Stance::kRun;
+        clip_started_ = now;
+    }
+    if (stops) start_idle(now);
+}
+
+void Gait::jump(Clock::time_point now, Stance stance, const ClipLengths& lengths) {
+    const bool is_stand = stance == Stance::kJumpStand;
+    if (!is_stand && stance != Stance::kJumpRun) return;
+    is_jumping_ = true;
+    const bool has_clip = is_stand ? lengths.jump_stand.has_value() : lengths.jump_run.has_value();
+    if (!has_clip) return;
+    stance_ = stance;
+    clip_started_ = now;
+}
+
+void Gait::land(Clock::time_point now, const ClipLengths& lengths) {
+    if (!is_jumping_) return;
+    is_jumping_ = false;
+    fresh_logic(now, lengths);
+}
+
+// FreshAnimation theo logic: MOVE thì ChangeAction(N_RUN, ..., TRUE) phát chạy lại từ đầu, IDLE thì
+// như lúc hết clip đứng.
+void Gait::fresh_logic(Clock::time_point now, const ClipLengths& lengths) {
+    if (!is_moving_) {
+        fresh(now, lengths);
+        return;
+    }
+    stance_ = Stance::kRun;
+    clip_started_ = now;
 }
 
 // Clip chạy lặp; không có clip chạy thì đứng ở đầu clip.
@@ -65,10 +100,12 @@ Playing Gait::running(Clock::time_point now, const ClipLengths& lengths) const {
     return Playing{.stance = Stance::kRun, .time = anim::loop_time(elapsed(now), lengths.run)};
 }
 
-// Start_Idle: clip đứng, mốc động tác nghỉ là lúc này, khoảng mới.
+// Start_Idle: clip đứng (trừ khi đang nhảy), mốc động tác nghỉ là lúc này, khoảng mới.
 void Gait::start_idle(Clock::time_point now) {
-    stance_ = Stance::kIdle;
-    clip_started_ = now;
+    if (!is_jumping_) {
+        stance_ = Stance::kIdle;
+        clip_started_ = now;
+    }
     last_motion_ = now;
     interval_ = idle_interval(random_(), idle_ms_);
 }
@@ -98,6 +135,8 @@ float Gait::length_of(Stance stance, const ClipLengths& lengths) {
     case Stance::kIdleAlt: return lengths.idle_alt.value_or(lengths.idle);
     case Stance::kIdleAlt2: return lengths.idle_alt2.value_or(lengths.idle);
     case Stance::kRun: return lengths.run;
+    case Stance::kJumpStand: return lengths.jump_stand.value_or(lengths.idle);
+    case Stance::kJumpRun: return lengths.jump_run.value_or(lengths.idle);
     }
     return lengths.idle;
 }
