@@ -3,6 +3,7 @@
 
 #include "gate/motion.hpp"
 
+#include "account/book.hpp"
 #include "account/realm.hpp"
 #include "ipc/link.hpp"
 #include "ipc/relay.hpp"
@@ -17,6 +18,7 @@
 #include <array>
 #include <atomic>
 #include <charconv>
+#include <cmath>
 #include <cstddef>
 #include <cstdint>
 #include <cstdio>
@@ -613,7 +615,18 @@ constexpr protocol::DisconnectReason disconnect_for(protocol::ErrorCode code) no
                                                     : protocol::DisconnectReason::kShutdown;
 }
 
-void on_zone_frame(Engine& state, const ipc::Frame& frame) {
+void send_position(Engine& state, Slot& slot, std::uint32_t index, const protocol::Position& position);
+
+// Zone buộc người chơi về (x, z): đặt mốc mới ở đúng chỗ đó rồi báo client. Mốc tính theo đồng hồ gate lúc này,
+// không phải seen_ns của ô: dùng mốc thời gian cũ thì người chơi đứng yên lâu rồi cố ý đi vào tường sẽ được cộng dồn
+// quãng đường cho phép của cả khoảng đứng yên.
+void on_zone_place(Engine& state, Slot& slot, std::uint32_t index, const ipc::Place& spot, std::int64_t now) {
+    constexpr auto kLimit = static_cast<float>(account::kSpotLimitCm);
+    if (std::abs(spot.x_cm) > kLimit || std::abs(spot.z_cm) > kLimit) return;
+    send_position(state, slot, index, slot.motion.place(guard::Anchor{.x_cm = spot.x_cm, .z_cm = spot.z_cm}, now));
+}
+
+void on_zone_frame(Engine& state, const ipc::Frame& frame, std::int64_t now) {
     const auto index = static_cast<std::uint32_t>(frame.session & 0xFFFFFFFFU);
     const auto generation = static_cast<std::uint32_t>(frame.session >> 32U);
     Slot* const slot = live_slot(state, Handle{.index = index, .generation = generation});
@@ -634,6 +647,11 @@ void on_zone_frame(Engine& state, const ipc::Frame& frame) {
         slot->attached = false;
         const auto reason = closed ? closed->reason : protocol::DisconnectReason::kShutdown;
         send_goodbye(state, *slot, index, reason, Drop::kLogout);
+        return;
+    }
+    case ipc::Relay::kPlace: {
+        const std::optional<ipc::Place> spot = ipc::decode_place(frame.body);
+        if (spot) on_zone_place(state, *slot, index, *spot, now);
         return;
     }
     case ipc::Relay::kAttach:
@@ -678,7 +696,7 @@ void pump_zone(Engine& state, std::int64_t now) {
     while (zone.link) {
         std::optional<ipc::Frame> frame = zone.link->next();
         if (!frame) break;
-        on_zone_frame(state, *frame);
+        on_zone_frame(state, *frame, now);
     }
     if (!zone.link) return;
     if (link_state != ipc::LinkState::kUp) {

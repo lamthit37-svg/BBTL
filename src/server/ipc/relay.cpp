@@ -50,6 +50,13 @@ std::vector<std::byte> encode_body(const Moved& message) {
     });
 }
 
+std::vector<std::byte> encode_body(const Place& message) {
+    return body_of([&](protocol::Writer& out) {
+        out.f32(message.x_cm);
+        out.f32(message.z_cm);
+    });
+}
+
 std::vector<std::byte> encode_body(const Refuse& message) {
     return body_of([&](protocol::Writer& out) { out.u16(static_cast<std::uint16_t>(message.code)); });
 }
@@ -82,6 +89,15 @@ std::optional<Attach> decode_attach(std::span<const std::byte> body) {
 std::optional<Moved> decode_moved(std::span<const std::byte> body) {
     protocol::Reader in{body};
     Moved out;
+    out.x_cm = in.f32();
+    out.z_cm = in.f32();
+    if (!in.finish() || !finite(out.x_cm) || !finite(out.z_cm)) return std::nullopt;
+    return out;
+}
+
+std::optional<Place> decode_place(std::span<const std::byte> body) {
+    protocol::Reader in{body};
+    Place out;
     out.x_cm = in.f32();
     out.z_cm = in.f32();
     if (!in.finish() || !finite(out.x_cm) || !finite(out.z_cm)) return std::nullopt;

@@ -12,6 +12,7 @@
 #include "zone/scene.hpp"
 
 #include <cstddef>
+#include <memory>
 #include <cstdint>
 #include <expected>
 #include <filesystem>
@@ -84,7 +85,20 @@ private:
     std::map<std::uint16_t, Range> ranges_;
 };
 
-using Seeder = std::function<std::vector<Seed>(std::uint16_t scene)>;
+// Luật đi của một cảnh từ lưới đi của dữ liệu cảnh (scenedata::Walk). Client đi bằng cùng lưới nên đứng trong nó;
+// độ lệch kWalkSlackCm chỉ để số thực làm tròn ở mép tam giác không đẩy người chơi ra ngoài (15,5 cm là một bước của
+// 30 bước mỗi giây ở tốc độ tối đa). Một điểm đi được khi nó hoặc điểm lệch kWalkSlackCm theo bốn hướng đi được.
+// Cảnh không có lưới đi (WalkSource::kNone) thì trả rỗng: đi đâu cũng được, thay vì chặn mọi bước.
+inline constexpr float kWalkSlackCm = 20.0F;
+[[nodiscard]] Walkable walkable_of(std::shared_ptr<const scenedata::Walk> walk);
+
+// Mọi thứ zone lấy từ dữ liệu cảnh khi tạo cảnh: thực thể đặt sẵn và luật đi.
+struct SceneContent {
+    std::vector<Seed> seeds;
+    Walkable walkable{};
+};
+
+using Seeder = std::function<SceneContent(std::uint16_t scene)>;
 
 struct DiskPaths {
     std::filesystem::path scenes;
@@ -93,7 +107,7 @@ struct DiskPaths {
     std::filesystem::path templates;
 };
 
-// Seeder đọc đĩa: thiếu bảng id hay thư mục cảnh thì cảnh để trống và nói ra stderr. `cap` là số thực thể tối đa
+// Seeder đọc đĩa: thiếu bảng id hay thư mục cảnh thì cảnh để trống (không quái, không luật đi) và nói ra stderr. `cap` là số thực thể tối đa
 // mỗi cảnh. Chỉ một luồng được gọi nó (luồng tick của zone); đọc một cảnh lớn tốn vài chục mili giây, lần đầu
 // có người vào cảnh đó.
 [[nodiscard]] Seeder disk_seeder(const DiskPaths& paths, std::size_t cap);

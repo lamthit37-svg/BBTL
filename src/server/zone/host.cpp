@@ -21,19 +21,24 @@ Scene* Host::find(std::uint16_t scene) noexcept {
 Scene* Host::scene_for(std::uint16_t id) {
     if (Scene* existing = find(id)) return existing;
     if (scenes_.size() >= config_.scene_max) return nullptr;
-    const Scene::Config made{.id = id, .grid = config_.grid, .player_max = config_.player_max};
-    Scene& created = scenes_.try_emplace(id, made).first->second;
-    seed(created);
+    SceneContent content = config_.seeder ? config_.seeder(id) : SceneContent{};
+    Scene& created = scenes_
+                         .try_emplace(id,
+                             Scene::Config{.id = id,
+                                 .grid = config_.grid,
+                                 .player_max = config_.player_max,
+                                 .walkable = std::move(content.walkable)})
+                         .first->second;
+    seed(created, content.seeds);
     return &created;
 }
 
-void Host::seed(Scene& scene) const {
-    if (!config_.seeder) return;
+void Host::seed(Scene& scene, const std::vector<Seed>& seeds) const {
     // Chưa có ai trong cảnh mới, nên thư báo hiện của spawn() không có người nhận: bỏ.
     Outbox nobody;
     const std::size_t room = kEntityMax - std::min<std::size_t>(config_.player_max, kEntityMax);
     std::size_t placed = 0;
-    for (const Seed& entry : config_.seeder(scene.id())) {
+    for (const Seed& entry : seeds) {
         if (placed >= room) break;
         if (scene.spawn(entry.what, nobody)) ++placed;
     }
@@ -83,7 +88,8 @@ void Host::handle(const ipc::Frame& frame, Outbox& out) {
     }
     case ipc::Relay::kDown:
     case ipc::Relay::kRefuse:
-    case ipc::Relay::kClose: ++ignored_; return;
+    case ipc::Relay::kClose:
+    case ipc::Relay::kPlace: ++ignored_; return;
     }
     ++ignored_;
 }

@@ -18,12 +18,16 @@
 
 #include <cstddef>
 #include <cstdint>
+#include <functional>
 #include <optional>
 #include <string>
 #include <unordered_map>
 #include <vector>
 
 namespace game::zone {
+
+// Điểm (x, z) tính bằng centimet có đứng được không, theo lưới đi của cảnh. Rỗng là cảnh không có lưới: đi đâu cũng được.
+using Walkable = std::function<bool(float x_cm, float z_cm)>;
 
 // Tốc độ chạy cơ bản của người chơi, centimet mỗi giây: ngưỡng 4,65 m/s của guard::Pace.
 inline constexpr std::uint16_t kPlayerSpeedCm = 465;
@@ -61,6 +65,8 @@ public:
         std::uint16_t id = 0;
         Grid::Spec grid{.cell_cm = 1000.0F, .radius = 2};
         std::size_t player_max = 4000;
+        // Luật đi: bước từ chỗ đi được sang chỗ không đi được bị hoàn lại bằng kPlace (xem moved).
+        Walkable walkable{};
     };
 
     struct Where {
@@ -75,7 +81,9 @@ public:
     // cảnh qua phiên khác thì phiên cũ bị đóng (kLoginElsewhere) và rời trước.
     [[nodiscard]] std::optional<protocol::ErrorCode> attach(std::uint64_t session, const ipc::Attach& arrival,
         Outbox& out);
-    // Vị trí gate đã chấp nhận. Phiên lạ thì bỏ.
+    // Vị trí gate đã chấp nhận. Phiên lạ thì bỏ. Có luật đi (Config::walkable) mà bước rơi vào chỗ không đi được từ
+    // chỗ đi được thì không dời người chơi mà gửi kPlace về vị trí cũ; người đang đứng ngoài lưới (điểm lưu cũ, lưới
+    // đổi) vẫn đi ra được, để không ai bị nhốt.
     void moved(std::uint64_t session, const ipc::Moved& step, Outbox& out);
     // Người chơi rời. Phiên lạ thì bỏ.
     void detach(std::uint64_t session, Outbox& out);
@@ -133,6 +141,7 @@ private:
     // Đưa thực thể vừa cấp vào lưới và báo hiện cho những người đang nhìn quanh nó.
     void enter_grid(std::uint32_t index, Outbox& out);
     void relocate(std::uint32_t index, float x_cm, float z_cm, Outbox& out);
+    [[nodiscard]] bool blocked(const Entity& who, const ipc::Moved& step) const;
     void save_spot(const Entity& who, Outbox& out) const;
     void remove(std::uint32_t index, Outbox& out);
     // Gửi `frame` cho mọi người chơi trong cửa sổ quanh `around`, trừ thực thể `skip`.

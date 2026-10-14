@@ -65,6 +65,13 @@ public:
             Letter{.kind = ipc::Relay::kClose, .session = session, .body = ipc::encode_body(ipc::Close{reason})});
     }
 
+    // Buộc người chơi về (x, z): gate đặt mốc mới cho guard::Pace rồi gửi Position cho client.
+    void place(std::uint64_t session, float x_cm, float z_cm) {
+        letters_.push_back(Letter{.kind = ipc::Relay::kPlace,
+            .session = session,
+            .body = ipc::encode_body(ipc::Place{.x_cm = x_cm, .z_cm = z_cm})});
+    }
+
     void save(const Save& spot) { saves_.push_back(spot); }
 
     [[nodiscard]] const std::vector<Letter>& letters() const noexcept { return letters_; }

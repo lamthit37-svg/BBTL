@@ -18,6 +18,7 @@
 #include <cstddef>
 #include <cstdint>
 #include <filesystem>
+#include <memory>
 #include <numbers>
 #include <optional>
 #include <mutex>
@@ -588,17 +589,17 @@ void host_seeds_scene_once_on_creation(Context& context) {
     Host::Config config;
     config.seeder = [&calls](std::uint16_t scene) {
         ++calls;
-        std::vector<zone::Seed> seeds;
-        if (scene != 1) return seeds;
+        zone::SceneContent content;
+        if (scene != 1) return content;
         for (const float x : {500.0F, 1500.0F, 90000.0F}) {
             zone::Spawn what;
             what.kind = protocol::EntityKind::kNpc;
             what.template_id = 7000 + static_cast<std::uint32_t>(x / 1000.0F);
             what.x_cm = x;
             what.z_cm = 500.0F;
-            seeds.push_back(zone::Seed{.what = what});
+            content.seeds.push_back(zone::Seed{.what = what});
         }
-        return seeds;
+        return content;
     };
     Host host{config};
     Outbox out;
@@ -621,14 +622,14 @@ void host_seeding_leaves_room_for_players(Context& context) {
     Host::Config config;
     config.player_max = zone::kEntityMax - 3;
     config.seeder = [](std::uint16_t) {
-        std::vector<zone::Seed> seeds;
+        zone::SceneContent content;
         for (int at = 0; at < 10; ++at) {
             zone::Spawn what;
             what.template_id = 1;
             what.x_cm = static_cast<float>(at) * 10.0F;
-            seeds.push_back(zone::Seed{.what = what});
+            content.seeds.push_back(zone::Seed{.what = what});
         }
-        return seeds;
+        return content;
     };
     Host host{config};
     Outbox out;
@@ -648,8 +649,20 @@ void real_scene_seeds(Context& context) {
             .ids_table = root / "tables" / "server" / "scene_ids.tsv",
             .templates = root / "tables" / "shared" / "monsters.tsv"},
         49000);
-    const std::vector<zone::Seed> seeds = seeder(2);
+    const zone::SceneContent dali = seeder(2);
+    const std::vector<zone::Seed>& seeds = dali.seeds;
     context.expect(!seeds.empty(), "Đại Lý có quái và NPC đặt sẵn");
+    context.expect(static_cast<bool>(dali.walkable), "Đại Lý có luật đi (lưới .path của client 2026)");
+    if (dali.walkable) {
+        // Đổi centimet sang đơn vị game sai thì gần như không điểm đặt nào nằm trong lưới; đúng thì đa số nằm trong.
+        std::size_t standing = 0;
+        for (const zone::Seed& one : seeds) {
+            if (dali.walkable(one.what.x_cm, one.what.z_cm)) ++standing;
+        }
+        // docs/SERVER-SCENEDATA.md mục 5: bảng quái 2008 lệch bố cục map 2026, Đại Lý có 50/164 điểm đặt ngoài lưới (khoảng 70% trong).
+        context.expect(standing * 10 >= seeds.size() * 6, "từ 60% quái và NPC đặt sẵn đứng trong lưới đi của cảnh");
+        context.expect(!dali.walkable(-5000000.0F, -5000000.0F), "điểm ngoài cảnh không đi được");
+    }
     std::size_t npcs = 0;
     bool inside = true;
     for (const zone::Seed& one : seeds) {
@@ -662,7 +675,7 @@ void real_scene_seeds(Context& context) {
         context.expect(npcs > 0, "có NPC trong số đó");
     }
     context.expect(inside, "toạ độ đổi ra centimet nằm trong khoảng hợp lý (0..1000 m)");
-    context.expect(seeder(65534).empty(), "id lạ không có cảnh nào");
+    context.expect(seeder(65534).seeds.empty() && !seeder(65534).walkable, "id lạ không có cảnh nào");
     Host::Config config;
     config.seeder = seeder;
     Host host{config};
@@ -673,6 +686,120 @@ void real_scene_seeds(Context& context) {
 #else
     static_cast<void>(context);
 #endif
+}
+
+// --- luật đi ---
+
+// Vùng đi được hình chữ nhật [0, 5000] x [0, 5000] cm.
+[[nodiscard]] bool in_yard(float x_cm, float z_cm) { return x_cm >= 0.0F && x_cm <= 5000.0F && z_cm >= 0.0F && z_cm <= 5000.0F; }
+
+[[nodiscard]] Scene make_walled_scene() {
+    return Scene{Scene::Config{
+        .id = 1, .grid = {.cell_cm = kCell, .radius = 2}, .player_max = 100, .walkable = &in_yard}};
+}
+
+[[nodiscard]] std::vector<ipc::Place> places_in(const Outbox& out, std::uint64_t session) {
+    std::vector<ipc::Place> found;
+    for (const zone::Letter& letter : out.letters()) {
+        if (letter.kind != ipc::Relay::kPlace || letter.session != session) continue;
+        if (const auto spot = ipc::decode_place(letter.body)) found.push_back(*spot);
+    }
+    return found;
+}
+
+void walkable_blocks_step_into_wall(Context& context) {
+    Scene scene = make_walled_scene();
+    Outbox out;
+    context.expect(!scene.attach(11, arrival(1, 1000.0F, 1000.0F), out).has_value(), "vào trong sân");
+    out.clear();
+    scene.moved(11, ipc::Moved{.x_cm = 1100.0F, .z_cm = 1000.0F}, out);
+    const std::optional<Scene::Where> inside = scene.where(*scene.entity_of(11));
+    context.expect(inside && inside->x_cm == 1100.0F && places_in(out, 11).empty(), "bước trong sân được nhận, không hoàn lại");
+
+    scene.moved(11, ipc::Moved{.x_cm = 5100.0F, .z_cm = 1000.0F}, out);
+    const std::optional<Scene::Where> held = scene.where(*scene.entity_of(11));
+    context.expect(held && held->x_cm == 1100.0F && held->z_cm == 1000.0F, "bước ra ngoài sân không dời người chơi");
+    const std::vector<ipc::Place> back = places_in(out, 11);
+    context.expect(back.size() == 1 && back[0] == ipc::Place{.x_cm = 1100.0F, .z_cm = 1000.0F},
+        "zone ra lệnh đặt lại đúng chỗ cũ");
+    context.expect(of_kind<protocol::EntityPos>(seen_in(out), 11).empty(), "không phát EntityPos của bước bị chặn");
+}
+
+void walkable_neighbour_does_not_see_blocked_step(Context& context) {
+    Scene scene = make_walled_scene();
+    Outbox out;
+    static_cast<void>(scene.attach(11, arrival(1, 1000.0F, 1000.0F), out));
+    static_cast<void>(scene.attach(22, arrival(2, 1200.0F, 1000.0F), out));
+    out.clear();
+    scene.moved(11, ipc::Moved{.x_cm = 5200.0F, .z_cm = 1000.0F}, out);
+    context.expect(of_kind<protocol::EntityPos>(seen_in(out), 22).empty(), "người đứng cạnh không thấy bước bị chặn");
+    context.expect(places_in(out, 22).empty() && places_in(out, 11).size() == 1, "chỉ người đi sai bị đặt lại");
+}
+
+void walkable_lets_trapped_player_leave(Context& context) {
+    Scene scene = make_walled_scene();
+    Outbox out;
+    // Điểm lưu cũ nằm ngoài lưới (lưới đổi sau khi lưu): vẫn vào được, vẫn đi ra được.
+    context.expect(!scene.attach(11, arrival(1, 6000.0F, 1000.0F), out).has_value(), "vào ở chỗ không đi được");
+    out.clear();
+    scene.moved(11, ipc::Moved{.x_cm = 6100.0F, .z_cm = 1000.0F}, out);
+    scene.moved(11, ipc::Moved{.x_cm = 5000.0F, .z_cm = 1000.0F}, out);
+    const std::optional<Scene::Where> now = scene.where(*scene.entity_of(11));
+    context.expect(now && now->x_cm == 5000.0F && places_in(out, 11).empty(), "đi từ ngoài vào trong sân, không bị hoàn lại");
+}
+
+void walkable_absent_allows_everything(Context& context) {
+    Scene scene = make_scene();
+    Outbox out;
+    static_cast<void>(scene.attach(11, arrival(1, 0.0F, 0.0F), out));
+    out.clear();
+    scene.moved(11, ipc::Moved{.x_cm = 9999999.0F, .z_cm = -9999999.0F}, out);
+    context.expect(places_in(out, 11).empty(), "cảnh không có lưới đi thì không chặn bước nào");
+}
+
+void walkable_of_keeps_the_edge_slack(Context& context) {
+    // Lưới ô 0,5 đơn vị (50 cm) 20 x 20, cột x >= 10 (x >= 500 cm) có trạng thái 15: không đi bộ được.
+    scenedata::LegacyGrid grid;
+    grid.width = 20;
+    grid.height = 20;
+    grid.state.assign(400, 0);
+    for (std::size_t row = 0; row < 20; ++row) {
+        for (std::size_t column = 10; column < 20; ++column) {
+            grid.state[(row * 20) + column] = 15;
+        }
+    }
+    scenedata::Walk walk;
+    walk.source = scenedata::WalkSource::kLegacyNav;
+    walk.grid = std::move(grid);
+    const zone::Walkable stands = zone::walkable_of(std::make_shared<const scenedata::Walk>(std::move(walk)));
+    context.expect(static_cast<bool>(stands), "cảnh có lưới thì có luật đi");
+    context.expect(stands(250.0F, 250.0F), "giữa vùng đi được");
+    context.expect(!stands(700.0F, 250.0F), "giữa vùng không đi được");
+    context.expect(stands(515.0F, 250.0F), "lệch ra mép dưới độ nới 20 cm vẫn nhận");
+    context.expect(!stands(525.0F, 250.0F), "quá độ nới 20 cm thì chặn");
+    context.expect(!stands(-30.0F, 250.0F), "ngoài lưới không đi được");
+    context.expect(!zone::walkable_of(std::make_shared<const scenedata::Walk>()), "cảnh không có lưới: không có luật đi");
+    context.expect(!zone::walkable_of(nullptr), "con trỏ rỗng: không có luật đi");
+}
+
+void host_ignores_place_from_gate(Context& context) {
+    Host host{Host::Config{}};
+    Outbox out;
+    host.handle(frame_of(ipc::Relay::kAttach, 11, ipc::encode_body(arrival(1, 0.0F, 0.0F, 1))), out);
+    const std::uint64_t before = host.ignored();
+    host.handle(frame_of(ipc::Relay::kPlace, 11, ipc::encode_body(ipc::Place{.x_cm = 9.0F, .z_cm = 9.0F})), out);
+    context.expect(host.ignored() == before + 1, "kPlace chỉ đi từ zone về gate, gửi ngược chiều thì bị bỏ và đếm");
+}
+
+void host_gives_scene_the_walkable_rule(Context& context) {
+    Host::Config config;
+    config.seeder = [](std::uint16_t) { return zone::SceneContent{.seeds = {}, .walkable = &in_yard}; };
+    Host host{config};
+    Outbox out;
+    host.handle(frame_of(ipc::Relay::kAttach, 11, ipc::encode_body(arrival(1, 1000.0F, 1000.0F, 1))), out);
+    out.clear();
+    host.handle(frame_of(ipc::Relay::kMoved, 11, ipc::encode_body(ipc::Moved{.x_cm = 7000.0F, .z_cm = 1000.0F})), out);
+    context.expect(places_in(out, 11).size() == 1, "luật đi của nguồn dữ liệu được áp cho cảnh mới tạo");
 }
 
 // --- relay codec ---
@@ -688,6 +815,14 @@ void relay_codec_round_trip(Context& context) {
     context.expect(!ipc::decode_attach(longer).has_value(), "thừa byte bị từ chối");
     const ipc::Moved step{.x_cm = 1.5F, .z_cm = -2.5F};
     context.expect(ipc::decode_moved(ipc::encode_body(step)) == step, "Moved đi về nguyên vẹn");
+    const ipc::Place spot{.x_cm = -3.5F, .z_cm = 4.25F};
+    context.expect(ipc::decode_place(ipc::encode_body(spot)) == spot, "Place đi về nguyên vẹn");
+    context.expect(!ipc::decode_place(std::vector<std::byte>(8, std::byte{0xFF})).has_value(), "Place NaN bị từ chối");
+    const std::vector<std::byte> place_body = ipc::encode_body(spot);
+    context.expect(!ipc::decode_place(std::span{place_body}.first(7)).has_value(), "Place thiếu byte bị từ chối");
+    std::vector<std::byte> long_place = place_body;
+    long_place.push_back(std::byte{0});
+    context.expect(!ipc::decode_place(long_place).has_value(), "Place thừa byte bị từ chối");
     context.expect(!ipc::decode_moved(std::vector<std::byte>(8, std::byte{0xFF})).has_value(), "Moved NaN bị từ chối");
     context.expect(ipc::decode_refuse(ipc::encode_body(ipc::Refuse{protocol::ErrorCode::kServerFull})).has_value(),
         "Refuse đi về");
@@ -724,6 +859,13 @@ constexpr std::array kCases{
     Case{"host_seeds_scene_once_on_creation", host_seeds_scene_once_on_creation},
     Case{"host_seeding_leaves_room_for_players", host_seeding_leaves_room_for_players},
     Case{"real_scene_seeds", real_scene_seeds},
+    Case{"walkable_blocks_step_into_wall", walkable_blocks_step_into_wall},
+    Case{"walkable_neighbour_does_not_see_blocked_step", walkable_neighbour_does_not_see_blocked_step},
+    Case{"walkable_lets_trapped_player_leave", walkable_lets_trapped_player_leave},
+    Case{"walkable_absent_allows_everything", walkable_absent_allows_everything},
+    Case{"walkable_of_keeps_the_edge_slack", walkable_of_keeps_the_edge_slack},
+    Case{"host_ignores_place_from_gate", host_ignores_place_from_gate},
+    Case{"host_gives_scene_the_walkable_rule", host_gives_scene_the_walkable_rule},
     Case{"detach_saves_final_spot", detach_saves_final_spot},
     Case{"autosave_writes_only_walkers", autosave_writes_only_walkers},
     Case{"host_autosaves_each_period", host_autosaves_each_period},

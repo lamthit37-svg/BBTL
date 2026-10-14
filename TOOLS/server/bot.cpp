@@ -3,7 +3,11 @@
 // nền cho bài đo tải thế giới. Mỗi khách một luồng, mỗi luồng một cặp kết nối (cổng auth rồi cổng game).
 //
 // Chạy: thienlong_bot --identity <identity.key> [--game 7000] [--auth 7001] [--count 4] [--seconds 6] [--prefix bot]
+//       [--straight 1]
 // Thoát 0 khi mọi khách vào được cảnh và thấy đủ những khách còn lại; khác 0 kèm lý do.
+// --straight 1: mỗi khách đi thẳng một hướng (chia đều 360 độ theo số khách) tới khi bị luật đi của zone chặn, rồi
+// đo việc server kéo về: phải có ít nhất một lần kéo về, và mỗi lần kéo về chỉ lùi vài bước so với chỗ khách tưởng
+// mình đang đứng (không nhảy đi đâu khác). Khi đó khách không cần thấy nhau (mỗi người đi một hướng, ra khỏi vùng nhìn).
 #include "io/platform.hpp"
 #include "link/link.hpp"
 #include "net/net.hpp"
@@ -47,6 +51,7 @@ struct Options {
     int count = 4;
     int seconds = 6;
     std::string prefix = "bot";
+    bool straight = false;
 };
 
 struct Tally {
@@ -58,6 +63,9 @@ struct Tally {
     std::atomic<int> disappear{0};
     std::atomic<int> position{0};
     std::atomic<int> failed{0};
+    // Chỉ chế độ --straight: số lần server kéo về, và số lần kéo về xa hơn vài bước so với chỗ khách đang tưởng mình đứng.
+    std::atomic<int> corrections{0};
+    std::atomic<int> drifted{0};
 };
 
 void report(std::string_view who, std::string_view what) { std::println(stderr, "[{}] {}", who, what); }
@@ -159,6 +167,44 @@ void note(const protocol::GameServerMessage& message, Seen& seen, Tally& tally) 
     if (std::holds_alternative<protocol::EntityPos>(message)) ++tally.position;
 }
 
+// Hướng đi (radian) và độ rẽ sau mỗi bước.
+struct Gait {
+    float heading = 0.0F;
+    float turn = 0.0F;
+};
+
+// Đi 10 cm mỗi bước, 30 bước mỗi giây, rẽ `gait.turn` radian sau mỗi bước (0 là đi thẳng; 0,05 là vòng tròn bán kính
+// 200 cm). Nhận Position thì đặt lại vị trí của mình như client thật phải làm (không thì bước sau bị gate coi là
+// nhảy vọt), đếm một lần kéo về và so với chỗ mình tưởng đang đứng: tới lúc Position đến, khách đã gửi thêm một hai
+// bước nữa vào chỗ bị chặn, nên điểm kéo về chỉ được cách vài bước (đi dọc tường thì điểm này trượt theo).
+void walk(link::Link& line, Seen& seen, Tally& tally, const protocol::Position& start, Gait gait, int seconds) {
+    constexpr float kStepCm = 10.0F;
+    constexpr float kMaxBehindCm = 45.0F;
+    float x = start.x_cm;
+    float z = start.z_cm;
+    const auto until = Clock::now() + std::chrono::seconds{seconds};
+    std::uint32_t tick = 0;
+    while (Clock::now() < until && !seen.refused) {
+        ++tick;
+        gait.heading += gait.turn;
+        x += kStepCm * std::cos(gait.heading);
+        z += kStepCm * std::sin(gait.heading);
+        if (!send(line, protocol::Move{.x_cm = x, .z_cm = z, .tick = tick})) return;
+        const auto frame_end = Clock::now() + std::chrono::milliseconds{33};
+        while (Clock::now() < frame_end) {
+            const auto message = read_game(line, net::Milliseconds{3});
+            if (!message) continue;
+            note(*message, seen, tally);
+            const auto* spot = std::get_if<protocol::Position>(&*message);
+            if (spot == nullptr) continue;
+            ++tally.corrections;
+            if (std::hypot(spot->x_cm - x, spot->z_cm - z) > kMaxBehindCm) ++tally.drifted;
+            x = spot->x_cm;
+            z = spot->z_cm;
+        }
+    }
+}
+
 void run_bot(const Options& options, const secure::PublicKey& server, int index, Tally& tally) {
     const std::string account = std::format("{}{}", options.prefix, index);
     const auto fail = [&](std::string_view why) {
@@ -201,24 +247,14 @@ void run_bot(const Options& options, const secure::PublicKey& server, int index,
     }
     if (!seen.position) return fail("EnterGame bị từ chối");
     std::println("[{}] vào tại x={:.0f} z={:.0f} (cm)", account, seen.position->x_cm, seen.position->z_cm);
-    // Đi một vòng tròn bán kính 200 cm đi qua điểm sinh, 30 bước mỗi giây, mỗi bước 10 cm (dưới trần 15,5 cm).
-    const float centre_x = seen.position->x_cm;
-    const float centre_z = seen.position->z_cm;
-    const auto until = Clock::now() + std::chrono::seconds{options.seconds};
-    std::uint32_t tick = 0;
-    while (Clock::now() < until) {
-        ++tick;
-        const float angle = static_cast<float>(tick) * 0.05F;
-        const protocol::Move move{.x_cm = centre_x + (200.0F * (std::cos(angle) - 1.0F)),
-            .z_cm = centre_z + (200.0F * std::sin(angle)), .tick = tick};
-        if (!send(*line, move)) return fail("gửi Move hỏng");
-        const auto frame_end = Clock::now() + std::chrono::milliseconds{33};
-        while (Clock::now() < frame_end) {
-            const auto message = read_game(*line, net::Milliseconds{3});
-            if (message) note(*message, seen, tally);
-            if (seen.refused) return fail("bị server đóng giữa chừng");
-        }
+    if (options.straight) {
+        const float heading = 2.0F * std::numbers::pi_v<float> * static_cast<float>(index) / static_cast<float>(options.count);
+        walk(*line, seen, tally, *seen.position, Gait{.heading = heading, .turn = 0.0F}, options.seconds);
+    } else {
+        // Vòng tròn bán kính 200 cm bắt đầu từ điểm sinh (mỗi bước 10 cm, dưới trần 15,5 cm của guard::Pace).
+        walk(*line, seen, tally, *seen.position, Gait{.heading = 0.0F, .turn = 0.05F}, options.seconds);
     }
+    if (seen.refused) return fail("bị server đóng giữa chừng");
     static_cast<void>(send(*line, protocol::Logout{}));
 }
 
@@ -261,6 +297,8 @@ void run_bot(const Options& options, const secure::PublicKey& server, int index,
             (key == "--count" ? options.count : options.seconds) = *number;
         } else if (key == "--prefix") {
             options.prefix = value;
+        } else if (key == "--straight") {
+            options.straight = value == "1";
         } else {
             return std::nullopt;
         }
@@ -277,7 +315,7 @@ int main(int argc, char** argv) {
         parse(std::span<const char* const>{argv, static_cast<std::size_t>(argc)});
     if (!options) {
         std::println(stderr, "dùng: thienlong_bot --identity <identity.key> [--game 7000] [--auth 7001] [--count 4] "
-                             "[--seconds 6] [--prefix bot]");
+                             "[--seconds 6] [--prefix bot] [--straight 1]");
         return 2;
     }
     const net::NetResult<net::Network> network = net::Network::start();
@@ -296,11 +334,12 @@ int main(int argc, char** argv) {
         }
     }
     const int want_seen = options->count - 1;
-    std::println("khách={} vào cảnh={} hiện={} biến mất={} vị trí={} npc={} quái={} lỗi={}", options->count,
-        tally.entered.load(), tally.appear.load(), tally.disappear.load(), tally.position.load(), tally.npcs.load(),
-        tally.monsters.load(), tally.failed.load());
+    std::println("khách={} vào cảnh={} hiện={} biến mất={} vị trí={} npc={} quái={} kéo về={} lệch={} lỗi={}",
+        options->count, tally.entered.load(), tally.appear.load(), tally.disappear.load(), tally.position.load(),
+        tally.npcs.load(), tally.monsters.load(), tally.corrections.load(), tally.drifted.load(), tally.failed.load());
     if (tally.failed.load() != 0) return 1;
     if (tally.entered.load() != options->count) return 1;
+    if (options->straight) return tally.corrections.load() > 0 && tally.drifted.load() == 0 ? 0 : 1;
     // Mỗi khách phải thấy mọi khách khác hiện ra ít nhất một lần.
     if (tally.appear.load() < options->count * want_seen) return 1;
     return 0;

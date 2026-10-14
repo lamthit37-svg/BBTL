@@ -1,5 +1,6 @@
 #include "zone/content.hpp"
 
+#include "core/ground_point.hpp"
 #include "io/file.hpp"
 #include "scenedata/disk.hpp"
 #include "table/tsv.hpp"
@@ -182,6 +183,19 @@ std::string_view SceneDirectory::dir_of(std::uint16_t scene) const noexcept {
     return scene <= range.last ? std::string_view{range.dir} : std::string_view{};
 }
 
+Walkable walkable_of(std::shared_ptr<const scenedata::Walk> walk) {
+    if (!walk || walk->source == scenedata::WalkSource::kNone) return {};
+    // Bảng cảnh tính bằng đơn vị game, zone bằng centimet (1 đơn vị = 100 cm).
+    constexpr float kUnitsPerCm = 0.01F;
+    return [grid = std::move(walk)](float x_cm, float z_cm) {
+        const auto stands = [&](float dx, float dz) {
+            return grid->walkable(core::GroundPoint{.x = (x_cm + dx) * kUnitsPerCm, .z = (z_cm + dz) * kUnitsPerCm});
+        };
+        return stands(0.0F, 0.0F) || stands(kWalkSlackCm, 0.0F) || stands(-kWalkSlackCm, 0.0F) ||
+            stands(0.0F, kWalkSlackCm) || stands(0.0F, -kWalkSlackCm);
+    };
+}
+
 namespace {
 
 // Trạng thái của DiskSeeder. Bảng id đọc ở lần hỏi đầu, không phải lúc dựng: cụm khởi động (và test cụm với thư mục
@@ -216,20 +230,21 @@ struct DiskState {
         if (paths.templates.empty()) return;
         const io::TextResult text = io::read_text(paths.templates);
         if (!text) return;
-        std::expected<TemplateTable, std::string> parsed = TemplateTable::parse(*text);
-        if (!parsed) {
+        // Dạng if có khởi tạo: với dạng "parsed rồi if (!parsed)" GCC 16 báo nhầm -Wfree-nonheap-object ở destructor của
+        // parsed khi open() được inline vào content().
+        if (std::expected<TemplateTable, std::string> parsed = TemplateTable::parse(*text)) {
+            templates = std::move(*parsed);
+        } else {
             std::println(stderr, "zone: {}: {}", paths.templates.string(), parsed.error());
-            return;
         }
-        templates = std::move(*parsed);
     }
 
-    [[nodiscard]] std::vector<Seed> seeds(std::uint16_t scene) {
+    [[nodiscard]] SceneContent content(std::uint16_t scene) {
         if (!tried) open();
         if (!directory) return {};
         const std::string_view name = directory->dir_of(scene);
         if (name.empty()) return {};
-        const scenedata::Loaded<scenedata::Scene> loaded = scenedata::load_scene(paths.scenes / std::string{name});
+        scenedata::Loaded<scenedata::Scene> loaded = scenedata::load_scene(paths.scenes / std::string{name});
         if (!loaded) {
             std::println(stderr, "zone: cảnh {} ({}): {}", scene, name, loaded.error().what);
             return {};
@@ -238,7 +253,8 @@ struct DiskState {
         if (seeding.over_cap > 0) {
             std::println(stderr, "zone: cảnh {} ({}): bỏ {} thực thể vượt trần {}", scene, name, seeding.over_cap, cap);
         }
-        return std::move(seeding.seeds);
+        return SceneContent{.seeds = std::move(seeding.seeds),
+            .walkable = walkable_of(std::make_shared<const scenedata::Walk>(std::move(loaded->walk)))};
     }
 };
 
@@ -246,7 +262,7 @@ struct DiskState {
 
 Seeder disk_seeder(const DiskPaths& paths, std::size_t cap) {
     auto state = std::make_shared<DiskState>(paths, cap);
-    return [state](std::uint16_t scene) { return state->seeds(scene); };
+    return [state](std::uint16_t scene) { return state->content(scene); };
 }
 
 } // namespace game::zone

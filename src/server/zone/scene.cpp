@@ -30,8 +30,8 @@ std::uint16_t direction_of(Delta step, std::uint16_t keep) noexcept {
     return static_cast<std::uint16_t>(static_cast<std::uint32_t>(scaled) & 0xFFFFU);
 }
 
-Scene::Scene(Config config) : config_(config), grid_(config.grid) {
-    core::check(config.player_max <= kEntityMax, "player_max vượt trần thực thể của cảnh");
+Scene::Scene(Config config) : config_(std::move(config)), grid_(config_.grid) {
+    core::check(config_.player_max <= kEntityMax, "player_max vượt trần thực thể của cảnh");
 }
 
 std::optional<std::uint32_t> Scene::allocate() {
@@ -162,7 +162,19 @@ void Scene::autosave(Outbox& out) {
 void Scene::moved(std::uint64_t session, const ipc::Moved& step, Outbox& out) {
     const auto found = players_.find(session);
     if (found == players_.end()) return;
+    const Entity& who = entities_[found->second];
+    if (blocked(who, step)) {
+        out.place(session, who.x_cm, who.z_cm);
+        return;
+    }
     relocate(found->second, step.x_cm, step.z_cm, out);
+}
+
+bool Scene::blocked(const Entity& who, const ipc::Moved& step) const {
+    if (!config_.walkable) return false;
+    // Phần lớn bước đi vào chỗ đi được: chỉ một lần tra. Tra chỗ đứng cũ chỉ khi bước mới không đi được.
+    if (config_.walkable(step.x_cm, step.z_cm)) return false;
+    return config_.walkable(who.x_cm, who.z_cm);
 }
 
 void Scene::detach(std::uint64_t session, Outbox& out) {

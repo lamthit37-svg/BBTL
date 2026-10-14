@@ -27,8 +27,24 @@
 - `Resume`: phiên rớt giữ mốc cuối server đã nhận (`Session.spot`); kết nối cũ còn sống thì lấy mốc của nó.
   Resume đặt lại đúng mốc đó (store chưa lưu vị trí giữa phiên). Không có mốc thì dùng điểm trong store.
 
+## Luật đi của zone (kiểm địa hình)
+- Gate chỉ biết tốc độ (`guard::Pace`); zone giữ dữ liệu cảnh nên zone kiểm ô đi được. Mỗi `Moved` gate chuyển sang, `Scene::moved` tra
+  luật đi của cảnh (`Scene::Config::walkable`, dựng từ lưới `.path` của client 2026 bằng `zone::walkable_of`, `src/server/zone/content.cpp`).
+- Bước từ chỗ đi được sang chỗ không đi được thì zone không dời người chơi mà gửi `ipc::Relay::kPlace` (zone → gate, thân hai `f32`
+  x, z cm) về vị trí cũ. Gate đặt mốc mới bằng `Motion::place` theo đồng hồ gate lúc nhận (không dùng `seen_ns` của ô: mốc thời gian cũ
+  sẽ cho người chơi đứng yên lâu cộng dồn quãng đường được phép) rồi gửi `Position`. Client thật phải đặt lại vị trí và bộ đếm khi nhận
+  `Position`; client không làm vậy thì bước kế bị `guard::Pace` coi là nhảy vọt và bị đá (đo bằng `thienlong_bot`, bot đầu tiên không đặt lại).
+- Người chơi đứng sẵn ngoài lưới (điểm lưu cũ, lưới đổi) vào được và đi ra được: chỉ chặn bước từ trong ra ngoài, để không ai bị nhốt.
+- Độ nới `kWalkSlackCm` = 20 cm: một điểm đi được khi nó hoặc điểm lệch 20 cm theo bốn hướng đi được. Client đi bằng cùng lưới nên đứng
+  trong nó; độ nới chỉ để số thực làm tròn ở mép tam giác không đẩy người chơi ra ngoài (một bước tối đa là 15,5 cm).
+- Cảnh không có lưới đi (`WalkSource::kNone`) hoặc không nạp được dữ liệu thì không có luật đi: đi đâu cũng được (thay vì chặn mọi bước).
+- Giới hạn đã biết: chỉ kiểm điểm đến, không quét đoạn đường (bước ≤ 15,5 cm nên chỉ xuyên được tường mỏng hơn thế); chưa kiểm trục Y; bảng
+  quái 2008 lệch bố cục map 2026 (Đại Lý 50/164 điểm đặt ngoài lưới, `docs/SERVER-SCENEDATA.md` mục 5) nên quái đặt ngoài lưới vẫn đứng đó.
+- Kiểm: `walkable_*` và `host_*` trong `zone_tests`; đầu cuối trên cụm thật bằng `thienlong_bot --straight 1` (mỗi bot đi một hướng cho tới khi
+  bị kéo về: Đại Lý, 8 bot, 20 giây cho 2.006 lần kéo về, không lần nào cách chỗ bot tưởng mình đứng quá 45 cm).
+
 ## Còn thiếu
-- Store chưa ghi vị trí khi rời game: đăng nhập lại (không Resume) về điểm lưu trong DB. `scene` đã về gate nhưng chưa dùng.
-- Hook hồi sinh / dịch chuyển chưa tồn tại; khi thêm phải gọi `Motion::place` (không reset Pace ở chỗ nào khác).
-- Client: gửi `Move` theo nhịp 30/giây, đếm tick từ `Position.tick`, khi nhận `Position` thì đặt lại vị trí và bộ đếm.
-- Chưa kiểm va chạm/địa hình (navmesh) và trục Y.
+- Hook hồi sinh / dịch chuyển cố ý chưa có người gọi: `kPlace` đã là đường đi (zone → gate → `Motion::place`), khi thêm chỉ cần
+  `Outbox::place`. Không reset `Pace` ở chỗ nào khác.
+- Client: gửi `Move` theo nhịp 30/giây, đếm tick từ `Position.tick`, khi nhận `Position` thì đặt lại vị trí và bộ đếm (client chưa mở socket).
+- Quét đoạn đường và trục Y (xem trên).
