@@ -1,4 +1,4 @@
-// Bộ đọc cấu hình. Ca đúng đọc nguyên văn tệp thật trong SERVER/config (đường dẫn do CMake đưa),
+// Bộ đọc cấu hình. Ca đúng đọc nguyên văn tệp thật trong dev/server/config (đường dẫn do CMake đưa),
 // trừ secrets: test không bao giờ mở secrets.local.toml. Ca sai là chuỗi trong config_samples.hpp.
 #include "config/admin.hpp"
 #include "config/auth.hpp"
@@ -41,7 +41,7 @@ using config::IssueList;
 constexpr View kConfigDir = GAME_SERVER_CONFIG;
 #else
 // check.py dịch tệp này không có định nghĩa của CMake; đường dẫn từ gốc dự án để tệp tự đứng được.
-constexpr View kConfigDir = "SERVER/config";
+constexpr View kConfigDir = "dev/server/config";
 #endif
 
 using IssueReader = IssueList (*)(View);

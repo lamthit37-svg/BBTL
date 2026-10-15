@@ -43,7 +43,7 @@ using Path = std::filesystem::path;
 #ifdef GAME_SERVER_CONFIG
 constexpr std::string_view kServerConfig = GAME_SERVER_CONFIG;
 #else
-constexpr std::string_view kServerConfig = "SERVER/config";
+constexpr std::string_view kServerConfig = "dev/server/config";
 #endif
 
 constexpr std::chrono::milliseconds kIo{2000};
