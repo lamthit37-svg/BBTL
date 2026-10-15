@@ -24,7 +24,7 @@ import math
 import re
 from dataclasses import dataclass, field
 
-from . import tree
+from .. import tree
 
 # Mọi giới hạn của lô xả SETLIST: LFIELDS_PER_FLUSH của lopcodes.h.
 LFIELDS_PER_FLUSH = 32
@@ -377,8 +377,9 @@ class FunctionEmitter:
         return f"self.constant({self.chunk.string_index(data)})"
 
     def var_name(self, var: tree.Var) -> str:
-        # Hai gạch dưới liền nhau là định danh dành riêng (bugprone-reserved-identifier); số thứ tự đã làm tên không trùng.
-        return f"l{var.serial}_{re.sub('_+', '_', var.name.lstrip('_'))[:24]}"
+        # Không lặp tên Lua: `value`, `object`... giống tên tham số của vm.hpp thì readability-suspicious-call-argument báo đối số
+        # đặt lẫn chỗ, và `_x` thành tên có hai gạch dưới. Số thứ tự trong hàm đã đủ để tên không trùng.
+        return f"l{var.serial}"
 
     def qualifiers(self, var: tree.Var) -> str:
         """Tiền tố khai báo: `[[maybe_unused]]` khi không bao giờ đọc, `const` khi không bao giờ gán lại."""

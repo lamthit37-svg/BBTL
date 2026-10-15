@@ -1,9 +1,9 @@
 #!/bin/bash
 # Cổng kiểm của mã sinh: check.py (GCC + Clang -Werror 84 cờ, clang-tidy 438 check) cho tệp C++ trong thư mục sinh.
-# Dùng:  bash TOOLS/port/luagen/check.sh <thư mục gốc của mã sinh: cha của luagen/> <tệp.cpp>...   (đối số thêm vào check.py)
+# Dùng:  bash TOOLS/port/luagen/ref_cpp/check.sh <thư mục gốc của mã sinh: cha của luagen/> <tệp.cpp>...   (đối số thêm vào check.py)
 # Khác ui_check.sh ở chỗ thêm -I<thư mục sinh> để `#include "luagen/units.hpp"` tìm được.
 set -eu
-root="$(cd "$(dirname "$0")/../../.." && pwd)"
+root="$(cd "$(dirname "$0")/../../../.." && pwd)"
 gen="$(cd "$1" && pwd -W)"
 shift
 cd "$root"

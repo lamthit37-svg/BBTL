@@ -1,7 +1,7 @@
 # Test của bộ phát C++ (emit.py) và bộ sinh (generate.py). Chỉ ca mà sai thì mã sinh hỏng thầm: literal số và chuỗi,
 # thứ tự đánh giá theo lparser.c 5.0.1, chia chunk vào các tệp, viết-nếu-đổi. Việc mã sinh biên dịch sạch và chạy đúng
 # do cổng check.py và bộ đối soát hàng loạt (thienlong_lua_mass) bảo đảm, không lặp lại ở đây.
-# Chạy: python -B -m unittest discover -s TOOLS/port/luagen -p "test_emit.py"
+# Chạy: python -B -m unittest discover -s TOOLS/port/luagen -p "test_emit.py"  (nằm ở ref_cpp/, tự được tìm thấy)
 from __future__ import annotations
 
 import math
@@ -13,10 +13,11 @@ import tempfile
 import unittest
 
 ROOT = pathlib.Path(__file__).resolve().parent
-sys.path.insert(0, str(ROOT.parent))
+sys.path.insert(0, str(ROOT.parents[1]))
 
-from luagen import generate, mass_units  # noqa: E402
-from luagen.emit import (  # noqa: E402
+from luagen import mass_units  # noqa: E402
+from luagen.ref_cpp import generate  # noqa: E402
+from luagen.ref_cpp.emit import (  # noqa: E402
     LFIELDS_PER_FLUSH,
     NESTED_IF_LIMIT,
     EmitError,
@@ -86,7 +87,7 @@ class EvaluationOrderTests(unittest.TestCase):
     def test_greater_than_swaps_operands_like_lua(self) -> None:
         # a > b là less(b, a): thứ tự đánh giá vẫn a trước b, chỉ lời gọi so sánh đổi chỗ.
         text = emit("local a, b = 1, 2 x = a > b")
-        self.assertIn("less(L, l1_b, l0_a)", text.replace("Value::number", "").replace("  ", " "))
+        self.assertIn("less(L, l1, l0)", text.replace("Value::number", "").replace("  ", " "))
 
     def test_table_size_hints_count_only_named_record_items(self) -> None:
         # lparser.c recfield chỉ tăng nh ở nhánh TK_NAME; `[khoá] = v` không đếm, làm thế sẽ lệch thứ tự pairs (đo trên DLL).
@@ -165,20 +166,29 @@ class ConstantFoldingTests(unittest.TestCase):
         self.assertIn("} else {", text)
         self.assertEqual(text.count("set_global("), 2)
 
-    def test_names_never_contain_double_underscore_or_simple_escapes(self) -> None:
-        text = emit('local _txt, a__b, __ = 1, 2, 3 x = _txt .. a__b .. __ .. "a\\\\b\\"c\\n"')
+    def test_locals_are_numbered_not_named(self) -> None:
+        # Tên Lua như `value`, `object` giống tên tham số vm.hpp (readability-suspicious-call-argument) và `_x` có hai gạch dưới.
+        text = emit("local _txt, value, a__b = 1, 2, 3 x = _txt .. value .. a__b")
+        for name in ("_txt", "value", "a__b"):
+            self.assertIsNone(re.search(rf"\b{name}\b", text), name)
         self.assertNotIn("__", text)
-        self.assertNotIn('\\"', text)
-        self.assertNotIn("\\n", text)
-        self.assertNotIn("\\\\", text)
+        self.assertIn("l0", text)
+
+    def test_special_characters_use_octal_escapes(self) -> None:
+        # Escape đơn giản (gạch chéo ngược, nháy kép, dấu hỏi) làm clang-tidy gợi ý raw string; bát phân mang đúng byte.
+        text = string_view_literal(b'a\\b"c??d\n')
+        for escape in ('\\\\', '\\"', "\\?", "\\n"):
+            self.assertNotIn(escape, text)
+        for octal in ("\\134", "\\042", "\\077", "\\012"):
+            self.assertIn(octal, text)
 
     def test_empty_string_is_default_constructed_view(self) -> None:
         self.assertEqual(string_view_literal(b""), "std::string_view{}")
 
     def test_self_assignment_of_a_local_emits_nothing(self) -> None:
         text = emit("local x = f() x = x")
-        self.assertNotIn("l0_x = l0_x", text)
-        self.assertNotIn("->value = l0_x->value", text)
+        self.assertNotIn("l0 = l0;", text)
+        self.assertNotIn("->value = l0->value", text)
 
 
 class ContinueTests(unittest.TestCase):

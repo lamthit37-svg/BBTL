@@ -1,6 +1,6 @@
 """Bộ sinh C++ của LUA-GEN: dịch mọi chunk của mass_units (và world.lua) thành các tệp .cpp và sổ đơn vị.
 
-    python -B TOOLS/port/luagen/generate.py --out <thư mục> [--buckets K] [--only Đơn vị,...] [--layout-root <Interface>]
+    python -B TOOLS/port/luagen/ref_cpp/generate.py --out <thư mục> [--buckets K] [--only Đơn vị,...] [--layout-root <Interface>]
 
 Đầu ra trong <thư mục> (cho CMake: <cây dựng>/gen/luagen):
 - units.hpp   : `game::lua::gen::UnitEntry`, `units()`, `world()` (hợp đồng với bộ chạy thienlong_lua_mass).
@@ -21,18 +21,18 @@ import pathlib
 import sys
 import time
 
-sys.path.insert(0, str(pathlib.Path(__file__).resolve().parents[1]))
+sys.path.insert(0, str(pathlib.Path(__file__).resolve().parents[2]))
 
 from luagen import mass_units  # noqa: E402
-from luagen.emit import ChunkOutput, EmitError, emit_chunk, string_view_literal  # noqa: E402
+from luagen.ref_cpp.emit import ChunkOutput, EmitError, emit_chunk, string_view_literal  # noqa: E402
 from luagen.lexer import LuaSyntaxError  # noqa: E402
 from luagen.parser import parse  # noqa: E402
 
 DEFAULT_BUCKETS = 48
 HERE = pathlib.Path(__file__).resolve().parent
-WORLD_SOURCE = HERE / "world.lua"
+WORLD_SOURCE = HERE.parent / "world.lua"
 
-BANNER = "// Sinh bởi TOOLS/port/luagen/generate.py từ script Lua của client 2026; không sửa tay, không vào git.\n"
+BANNER = "// Sinh bởi TOOLS/port/luagen/ref_cpp/generate.py từ script Lua của client 2026; không sửa tay, không vào git.\n"
 
 UNITS_HEADER = BANNER + """// Sổ chunk đã dịch cho bộ chạy đối soát (thienlong_lua_mass): đơn vị theo đúng thứ tự và tên của mass_units.units(),
 // mỗi đơn vị một dải Chunk theo thứ tự nạp; world() là world.lua.
@@ -57,6 +57,14 @@ struct UnitEntry {
 
 } // namespace game::lua::gen
 """
+
+
+# Literal chuỗi sinh dùng escape bát phân (gạch chéo ngược + 134, 042, 077...) để mang đúng byte và không bao giờ thành trigraph.
+# clang-tidy gợi ý raw string khi mọi escape của literal đều bắt đầu bằng một ký tự trong nhóm `'"\?x01`; raw string không đổi nghĩa,
+# chỉ làm mã sinh dài ra và phải né dấu ngoặc đóng. modernize-use-std-numbers gợi ý std::numbers cho hằng số của script chỉ "gần"
+# pi, 1/pi... (sai khác cỡ 1e-4): thay vào là đổi giá trị Lua, mà bộ dịch phải giữ đúng từng bit. Chỉ bỏ hai check này, chỉ trong tệp sinh.
+RAW_STRING_NOLINT_BEGIN = "// NOLINTBEGIN(modernize-raw-string-literal,modernize-use-std-numbers): mã sinh, lý do ở generate.py\n"
+RAW_STRING_NOLINT_END = "// NOLINTEND(modernize-raw-string-literal,modernize-use-std-numbers)\n"
 
 
 @dataclasses.dataclass
@@ -142,6 +150,7 @@ def translation_unit(units: list[UnitRecord]) -> str:
     parts = [BANNER, f'#include "{support_header()}"\n\n']
     if headers:
         parts.append("".join(f"#include {header}\n" for header in headers) + "\n")
+    parts.append(RAW_STRING_NOLINT_BEGIN)
     parts.append("namespace game::lua::gen {\n")
     if bodies:
         parts.append("namespace {\n\n")
@@ -149,6 +158,7 @@ def translation_unit(units: list[UnitRecord]) -> str:
         parts.append("} // namespace\n\n")
     parts.append(definitions)
     parts.append("\n} // namespace game::lua::gen\n")
+    parts.append(RAW_STRING_NOLINT_END)
     return "".join(parts)
 
 
