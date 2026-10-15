@@ -49,9 +49,11 @@
 #include "ui/panel/world_map.hpp"
 #include "ui/phone.hpp"
 #include "ui/radar.hpp"
+#include "ui/script/context.hpp"
 #include "ui/script/gui_screen.hpp"
 #include "ui/script/host.hpp"
 #include "ui/script/natives.hpp"
+#include "ui/script/xscript.hpp"
 #include "ui/text.hpp"
 #include "ui/view.hpp"
 
@@ -444,6 +446,8 @@ struct Hud::State {
     std::unique_ptr<gui::Hub> hub;
     // Màn của host trên loader và hub ở trên, và host chạy script các cửa sổ trong kScripted (không có thì còn bảng port tay).
     // host_press là cửa sổ dưới chuột lúc nhấn trái, để nhận ra Clicked.
+    // Trạng thái ghi được mà hàm game của script dùng chung (XSCRIPT, XParam); khai trước host để sống lâu hơn máy Lua.
+    script::Context script_context;
     std::optional<script::GuiScreen> screen;
     std::optional<script::Host> host;
     std::string host_press;
@@ -971,7 +975,7 @@ void Hud::State::open_host() {
     script::HostDesc desc;
     desc.data_root = client_root;
     desc.only.assign(kScripted.begin(), kScripted.end());
-    desc.natives = script::open_natives;
+    desc.natives = script::make_natives(script_context);
     auto opened = script::Host::open(desc, *screen);
     if (!opened) {
         std::println(stderr, "Giao diện: không mở được giao diện Lua: {}", opened.error());
@@ -995,6 +999,9 @@ void Hud::State::note_host(const HudView& view) {
     if (!host) return;
     host->set_client_size(script::ClientSize{.width = pixels_of(view.width), .height = pixels_of(view.height)});
     host->tick(view.clock);
+    // Send_XSCRIPT của script: gói CGExecuteScript chưa có trong protocol nên chưa có chỗ gửi; ghi để nhận ra script đang đòi.
+    for (const script::XScriptRecord& sent : script_context.xscript.take_sent())
+        std::println(stderr, "Giao diện Lua: Send_XSCRIPT {} (script {}) chưa có đường gửi tới máy chủ", sent.function(), sent.script_id);
     for (const std::string& note : host->take_notes())
         std::println(stderr, "Giao diện Lua: {}", note);
 }
