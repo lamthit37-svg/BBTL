@@ -314,6 +314,22 @@ function this:RegisterEvent(name, always)
     table.insert(__this.events, { name = name, always = always })
 end
 
+-- Hình học của cửa sổ do kịch bản đặt (CEGUI tính nó từ layout và màn hình): __geometry(tên, "Offset", x, y) là độ lệch của cửa sổ
+-- so với cửa sổ gốc của layout, trả bởi this:GetChildOffset (UI_CEGUI); trường khác (AbsoluteXPosition, AbsoluteWidth...) là thuộc
+-- tính mà GetProperty đọc nhưng không vào tệp ra (không đánh dấu đã đặt).
+__offsets = {}
+function __geometry(name, field, first, second)
+    if field == "Offset" then
+        __offsets[name] = { x = first, y = second }
+    else
+        __windows[name].props[field] = tostring(first)
+    end
+end
+function this:GetChildOffset(name)
+    local offset = __offsets[name]
+    return offset.x, offset.y
+end
+
 -- Biến toàn cục chưa định nghĩa: báo ngay tên, thay vì để script chạy tiếp với nil. Kịch bản kê
 -- vào __optional những tên mà chính script gốc đọc khi chưa gán (lỗi của script gốc, giá trị nil là
 -- hành vi thật), kèm lý do.

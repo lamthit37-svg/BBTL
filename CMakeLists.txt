@@ -1465,6 +1465,16 @@ if(NOT ANDROID AND TARGET ui_script_host_tests
         GAME_CLIENT_DATA="${PROJECT_SOURCE_DIR}/dev/client/assets"
         GAME_SCRIPT_SOURCE="${PROJECT_SOURCE_DIR}/src/client/script")
 endif()
+# Script gốc của các cửa sổ HUD đã có bản port tay, chạy qua host và widget thật bằng kịch bản của trọng tài (TOOLS/port/oracle) và so
+# với số vàng của bản port tay (Test/golden/panel). Cần layout đã gom và cây nguồn, nên chỉ có trên máy dựng.
+game_test(ui_script_golden game_ui_script game_gui game_io)
+if(NOT ANDROID AND TARGET ui_script_golden_tests
+        AND EXISTS "${PROJECT_SOURCE_DIR}/dev/client/assets/Interface/ProgressBar/ProgressBar.layout.xml")
+    target_compile_definitions(ui_script_golden_tests PRIVATE
+        GAME_PANEL_GOLDEN="${PROJECT_SOURCE_DIR}/Test/golden/panel"
+        GAME_CLIENT_DATA="${PROJECT_SOURCE_DIR}/dev/client/assets"
+        GAME_SCRIPT_SOURCE="${PROJECT_SOURCE_DIR}/src/client/script")
+endif()
 # Hàm game của script giao diện (tầng B): chạy đoạn Lua thật trên máy LuaPlus trần có open_natives.
 game_test(ui_script_natives game_ui_script)
 # XSCRIPT và XParam (tầng B): bản ghi gửi máy chủ và bản ghi tham số của sự kiện, qua hàm Lua thật.

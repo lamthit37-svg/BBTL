@@ -199,6 +199,33 @@ bảng "phương thức/hàm chưa có, số cửa sổ chạm" làm hàng đợ
    Ngân sách nạp đầu `≤ 450 ms` (AGENTS.md) quyết định có cần lười hay không; không làm khi chưa có số.
 6. P3 theo hàng đợi đo ở bước 4; xoá bảng port tay khi `hud.cpp` chạy bằng cửa sổ script (nửa chủ).
 
+### 3.1 Kết quả của phép kiểm số vàng (2026-10-15)
+
+`Test/Ui/ui_script_golden_tests.cpp` (ca `original_scripts_match_the_goldens`, ctest `ui_script_golden_tests`) chạy kịch bản của trọng tài và các `*_api.lua` NGUYÊN VĂN qua `Host`
+thật (`GuiScreen` trên layout thật, widget thật, script đã đổi chữ bằng `words.vi.tsv` khi bản port tay dùng bản Việt) rồi so từng khối với số vàng. **Bảy cửa sổ khớp từng dòng**, ở cả
+hai cách đưa sự kiện: trực tiếp (gọi `<Tên>_OnEvent` như trọng tài) và `Host::post` (luật gửi thật) — không khối nào khác nhau giữa hai cách.
+
+| Cửa sổ | Khối | Dòng số vàng |
+|---|---|---|
+| FunctionBarRight | 51 | 1 223 |
+| FunctionBarRight_2 | 44 | 996 |
+| MainMenuBar_2 | 62 | 2 812 |
+| MainMenuBar_3 | 11 | 92 |
+| MainMenuBar_4 | 42 | 959 |
+| LoginCreateRole (CreateRole.lua) | 30 | 2 363 |
+| QuestLog | 9 | 141 |
+
+ProgressBar và DebugListBox có ca riêng (`progress_bar_matches_the_golden`, `debug_list_box_matches_the_golden`). Keo của test: `__dump`, `__dump_events`, `__note`, `__fire`, `__post`,
+`__geometry` bằng C; `__event`, `__check`, `__toggle`, `__pick` bằng Lua trên phương thức widget. `__note` và `Call` của widget nối đúng thứ tự gọi.
+
+Hai chỗ widget lệch bị phép kiểm lộ ra, đã sửa trong `widget.cpp`: `GetProperty` không đọc giá trị khởi tạo của look (CheckMode của nút đánh dấu: nút ảnh chọn của CreateRole không tắt
+anh em) nên thêm `look_property`; `AbsoluteXPosition/YPosition/Width/Height` nay đọc từ `Services::window_box` (vị trí so với cửa sổ cha; **Khác gốc?**: cộng cả phần căn giữa/phải
+mà `getAbsoluteXPosition` 0x24bf0 không cộng). Một sửa ở trọng tài: hình học của `MainMenuBar_2_api.lua` đi qua `__geometry` (prelude `lua_oracle.lua` ghi vào props và
+`this:GetChildOffset`), số vàng sinh lại không đổi byte nào.
+
+Host chưa có `Host::load(tên)`: layout chỉ nạp khi hiện, nên test hiện rồi giấu cửa sổ để có widget (chạy `Shown`, `Hidden` của layout). Chưa phân biệt được nếu một cửa sổ có đoạn Lua gắn
+`Shown`/`Hidden` thì số vàng của trọng tài (không hiện) có còn khớp; bảy cửa sổ trên thì khớp.
+
 ## 6. Còn mở [?]
 
 - `DemiseWindow` 2026 (loại 1, 7, 2, 3, 4, 6, 0), `CloseAllWindow`, `OnEscape` — nửa chủ tháo.

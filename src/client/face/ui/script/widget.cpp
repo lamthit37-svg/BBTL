@@ -239,6 +239,22 @@ int other_kind(lua_State* state, const WindowRef& window) {
     return std::nullopt;
 }
 
+// Giá trị khởi tạo mà look của kiểu cửa sổ đặt (Property và initialValue của PropertyDefinition trong WidgetLook), cái cuối thắng.
+// CEGUI áp chúng lúc dựng cửa sổ nên getProperty thấy chúng khi layout không nêu (CheckMode của nút đánh dấu là ví dụ).
+[[nodiscard]] std::optional<std::string_view> look_property(
+    const gui::GuiAsset& asset, std::int32_t index, std::string_view name) noexcept {
+    const std::int32_t type = asset.windows[static_cast<std::size_t>(index)].type;
+    if (type < 0 || static_cast<std::size_t>(type) >= asset.types.size()) return std::nullopt;
+    const std::int32_t look = asset.types[static_cast<std::size_t>(type)].look;
+    if (look < 0 || static_cast<std::size_t>(look) >= asset.looks.size()) return std::nullopt;
+    const gui::GuiRange range = asset.looks[static_cast<std::size_t>(look)].properties;
+    for (std::uint32_t at = range.count; at > 0; --at) {
+        const gui::GuiProperty& property = asset.properties[range.first + at - 1];
+        if (property.name == name) return property.value;
+    }
+    return std::nullopt;
+}
+
 [[nodiscard]] bool is_false_text(std::string_view value) noexcept {
     return value == "False" || value == "false";
 }
@@ -276,12 +292,13 @@ int other_kind(lua_State* state, const WindowRef& window) {
     return false;
 }
 
-// Giá trị một thuộc tính: script đã đặt thì lấy, không thì giá trị layout.
+// Giá trị một thuộc tính: script đã đặt thì lấy, rồi giá trị layout, rồi giá trị khởi tạo của look.
 [[nodiscard]] std::optional<std::string> known_property(const WindowRef& window, std::string_view name) {
     if (const auto set = window.store->value({.window = window.name, .name = name})) return std::string{*set};
     const std::int32_t index = window_index(window);
     if (index < 0) return std::nullopt;
     if (const auto layout = layout_property(*window.asset, index, name)) return std::string{*layout};
+    if (const auto look = look_property(*window.asset, index, name)) return std::string{*look};
     return std::nullopt;
 }
 
@@ -325,9 +342,33 @@ int other_kind(lua_State* state, const WindowRef& window) {
     return value ? "True" : "False";
 }
 
-// GetProperty: giá trị script đã đặt, rồi của layout, rồi một vài mặc định của CEGUI; không biết thì rỗng
-// (getProperty của client 2008 bắt lỗi rồi trả chuỗi rỗng).
+// AbsoluteXPosition, AbsoluteYPosition, AbsoluteWidth, AbsoluteHeight: số đo điểm ảnh mà CEGUI tính từ layout và màn hình
+// (CEGUIBase.dll 2026: getAbsoluteXPosition 0x24bf0 là vị trí so với cửa sổ cha, getAbsoluteWidth là cỡ đã đệm d_pixelSize).
+// Đọc từ ô dàn trang của host; nullopt khi cửa sổ chưa có ô (khi đó rơi về giá trị layout như các thuộc tính khác).
+// Khác gốc?: vị trí lấy từ ô trên màn hình trừ ô của cha, nên cộng cả phần căn giữa/phải mà getAbsoluteXPosition không cộng.
+[[nodiscard]] std::optional<std::string> absolute_metric(const WindowRef& window, std::string_view name) {
+    const bool is_x = name == "AbsoluteXPosition";
+    const bool is_y = name == "AbsoluteYPosition";
+    const bool is_width = name == "AbsoluteWidth";
+    const bool is_height = name == "AbsoluteHeight";
+    if ((!is_x && !is_y && !is_width && !is_height) || window.services == nullptr) return std::nullopt;
+    const std::optional<PixelBox> box = window.services->window_box(window.name);
+    if (!box) return std::nullopt;
+    if (is_width) return std::format("{}", box->w);
+    if (is_height) return std::format("{}", box->h);
+    PixelBox origin;
+    const std::int32_t index = window_index(window);
+    if (index >= 0 && window.asset->windows[static_cast<std::size_t>(index)].parent >= 0) {
+        const std::int32_t parent = window.asset->windows[static_cast<std::size_t>(index)].parent;
+        origin = window.services->window_box(window.asset->windows[static_cast<std::size_t>(parent)].name).value_or(PixelBox{});
+    }
+    return std::format("{}", is_x ? box->x - origin.x : box->y - origin.y);
+}
+
+// GetProperty: số đo tuyệt đối từ ô dàn trang, rồi giá trị script đã đặt, rồi của layout, rồi một vài mặc định của CEGUI; không biết
+// thì rỗng (getProperty của client 2008 bắt lỗi rồi trả chuỗi rỗng).
 [[nodiscard]] std::string property_of(const WindowRef& window, std::string_view name) {
+    if (auto metric = absolute_metric(window, name)) return *std::move(metric);
     if (auto known = known_property(window, name)) return *std::move(known);
     if (auto derived = derived_position(window, name)) return *std::move(derived);
     if (name == "Visible") return truth(window.store->is_shown(window.name));
