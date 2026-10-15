@@ -77,6 +77,8 @@ struct Deadline {
     if (!got) return LinkError::kNetwork;
     if (*got > 0) {
         inbox.insert(inbox.end(), chunk.begin(), chunk.begin() + static_cast<std::ptrdiff_t>(*got));
+        // Peer flood: vượt trần thì đóng với kSecure, như gate đóng khi held tràn.
+        if (inbox.size() > kMaxInboxBytes) return LinkError::kSecure;
         return std::nullopt;
     }
     net::PollEvents events;

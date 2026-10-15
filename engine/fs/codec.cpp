@@ -7,6 +7,7 @@
 
 #include "core/check.hpp"
 #include "core/error.hpp"
+#include "core/thread_slot.hpp"
 #include "fs/buny.hpp"
 #include "fs/stream.hpp"
 
@@ -57,19 +58,24 @@ struct EncoderFree {
 };
 
 [[nodiscard]] ZSTD_DCtx* zstd_decoder() {
-    thread_local const std::unique_ptr<ZSTD_DCtx, DecoderFree> kContext(ZSTD_createDCtx());
-    return kContext.get();
+    // unique_ptr có destructor nên đi qua thread_slot, không khai thread_local thẳng (GCC MinGW,
+    // xem core/thread_slot.hpp).
+    const auto& context =
+        core::thread_slot([] { return std::unique_ptr<ZSTD_DCtx, DecoderFree>(ZSTD_createDCtx()); });
+    return context.get();
 }
 
 [[nodiscard]] ZSTD_CCtx* zstd_encoder() {
-    thread_local const std::unique_ptr<ZSTD_CCtx, EncoderFree> kContext(ZSTD_createCCtx());
-    return kContext.get();
+    const auto& context =
+        core::thread_slot([] { return std::unique_ptr<ZSTD_CCtx, EncoderFree>(ZSTD_createCCtx()); });
+    return context.get();
 }
 
 // Trạng thái nén của lz4, cấp một lần mỗi luồng; operator new căn 16 byte, đủ cho lz4.
+// Bytes giữ unique_ptr nên có destructor: đi qua thread_slot như ngữ cảnh zstd trên.
 [[nodiscard]] void* lz4_state(bool high) {
-    thread_local Bytes fast(static_cast<std::size_t>(LZ4_sizeofState()));
-    thread_local Bytes slow(static_cast<std::size_t>(LZ4_sizeofStateHC()));
+    Bytes& fast = core::thread_slot([] { return Bytes(static_cast<std::size_t>(LZ4_sizeofState())); });
+    Bytes& slow = core::thread_slot([] { return Bytes(static_cast<std::size_t>(LZ4_sizeofStateHC())); });
     return high ? slow.data() : fast.data();
 }
 

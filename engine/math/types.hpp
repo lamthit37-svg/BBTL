@@ -13,6 +13,8 @@
 // Nguồn: Forge2 src/math/types.hpp@d7fcd76. Khác gốc (so với Forge2): không.
 #pragma once
 
+#include "core/check.hpp"
+
 #include <array>
 #include <bit>
 #include <cmath>
@@ -117,7 +119,10 @@ struct Plain2 {
 private:
     [[nodiscard]] static constexpr T Plain2::* member(std::size_t i) noexcept {
         constexpr std::array<T Plain2::*, 2> kMembers{&Plain2::x, &Plain2::y};
-        return kMembers.at(i);
+        // at() ném trong hàm noexcept thành terminate: lỗi lập trình thì check rồi mới [].
+        core::check(i < kMembers.size(), "Plain2: chỉ số ngoài 0..1");
+        // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-constant-array-index): i đã check < size nên luôn trong miền (UB-04).
+        return kMembers[i];
     }
 };
 
@@ -155,7 +160,9 @@ struct Plain3 {
 private:
     [[nodiscard]] static constexpr T Plain3::* member(std::size_t i) noexcept {
         constexpr std::array<T Plain3::*, 3> kMembers{&Plain3::x, &Plain3::y, &Plain3::z};
-        return kMembers.at(i);
+        core::check(i < kMembers.size(), "Plain3: chỉ số ngoài 0..2");
+        // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-constant-array-index): i đã check < size nên luôn trong miền (UB-04).
+        return kMembers[i];
     }
 };
 
@@ -204,7 +211,9 @@ struct Plain4 {
 private:
     [[nodiscard]] static constexpr T Plain4::* member(std::size_t i) noexcept {
         constexpr std::array<T Plain4::*, 4> kMembers{&Plain4::x, &Plain4::y, &Plain4::z, &Plain4::w};
-        return kMembers.at(i);
+        core::check(i < kMembers.size(), "Plain4: chỉ số ngoài 0..3");
+        // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-constant-array-index): i đã check < size nên luôn trong miền (UB-04).
+        return kMembers[i];
     }
 };
 

@@ -127,12 +127,16 @@ struct Utf16Step {
 }
 
 // Thực thể số "#N" hoặc "#xH" (đã bỏ & và ;). Trả false khi không phải số hợp lệ.
+// Nửa cặp thay thế U+D800..U+DFFF không phải ký tự XML: mã hoá ra UTF-8 thành byte ED A0..BF
+// (CESU-8, UTF-8 sai chuẩn), nên từ chối như số 0 và số vượt trần.
 [[nodiscard]] bool append_numeric_entity(std::string& output, std::string_view body) {
     const bool is_hex = body.starts_with("#x") || body.starts_with("#X");
     const std::string_view digits = body.substr(is_hex ? 2 : 1);
     const auto number = core::parse_unsigned(digits, is_hex ? 16 : 10);
     const bool is_whole = number && number->length == digits.size();
     if (!is_whole || number->value == 0 || number->value > kMaxCodePoint) return false;
+    const bool is_surrogate = number->value >= 0xD800U && number->value <= 0xDFFFU;
+    if (is_surrogate) return false;
     append_utf8(output, number->value);
     return true;
 }

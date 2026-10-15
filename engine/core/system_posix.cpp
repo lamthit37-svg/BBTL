@@ -24,6 +24,7 @@
 #include <array>
 #include <cstdint>
 #include <fstream>
+#include <limits>
 #include <optional>
 #include <string>
 #include <string_view>
@@ -59,9 +60,19 @@ void take_cpu_field(CpuInfo& info, std::string_view line) {
     while (!line.empty() && line.front() == ' ') {
         line.remove_prefix(1);
     }
+    // CONFIRMED: value là int64 có dấu, không clamp; dòng crafted 19+ chữ số tràn có dấu là UB.
+    // Bão hoà ở trần và ăn hết chữ số còn lại để giữ vị trí đọc cho số kế tiếp.
+    constexpr std::int64_t kMax = std::numeric_limits<std::int64_t>::max();
     std::int64_t value = 0;
     while (!line.empty() && line.front() >= '0' && line.front() <= '9') {
-        value = value * 10 + static_cast<std::int64_t>(line.front() - '0');
+        const auto digit = static_cast<std::int64_t>(line.front() - '0');
+        if (value > (kMax - digit) / 10) {
+            value = kMax;
+            line.remove_prefix(1);
+            while (!line.empty() && line.front() >= '0' && line.front() <= '9') line.remove_prefix(1);
+            break;
+        }
+        value = value * 10 + digit;
         line.remove_prefix(1);
     }
     return value;

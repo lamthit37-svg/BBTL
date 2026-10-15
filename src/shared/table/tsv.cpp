@@ -2,6 +2,7 @@
 #include "table/tsv.hpp"
 
 #include "core/aligned.hpp"
+#include "core/check.hpp"
 #include "core/number.hpp"
 
 #include <algorithm>
@@ -125,10 +126,13 @@ std::optional<std::size_t> column_of(const Tsv& table, std::string_view name) {
 
 void RowReader::reject(std::string_view column, std::string_view what) {
     if (error_) return;
+    // row_ do nơi gọi truyền (chỉ số vòng lặp), không phải dữ liệu client: sai là lỗi lập trình.
+    core::check(row_ < table_->rows.size(), "dòng vượt số bản ghi");
     error_ = std::format("dòng {}, cột {}: {}", table_->lines.at(row_), column, what);
 }
 
 std::string_view RowReader::text(std::string_view column) {
+    core::check(row_ < table_->rows.size(), "dòng vượt số bản ghi");
     const std::optional<std::size_t> index = column_of(*table_, column);
     if (!index) {
         reject(column, "bảng không có cột này");

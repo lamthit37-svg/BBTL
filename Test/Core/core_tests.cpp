@@ -4,6 +4,7 @@
 #include "core/error.hpp"
 #include "core/function.hpp"
 #include "core/number.hpp"
+#include "core/range.hpp"
 #include "core/text.hpp"
 #include "test.hpp"
 
@@ -178,6 +179,17 @@ void whole_int_takes_the_entire_text(Context& context) noexcept {
         context.expect(core::parse_whole_int(item.text) == item.wanted, item.text);
 }
 
+// bytes + (page_size - 1) tràn uint64 khi bytes gần max: phép cộng quấn làm số trang tính ra 0.
+// Yêu cầu khổng lồ phải invalid, yêu cầu nhỏ vẫn được.
+void page_allocator_rejects_huge_request(Context& context) {
+    core::PageAllocator alloc(1024ULL * 1024ULL, 4096);
+    context.expect(!alloc.allocate(0).valid(), "0 byte không cấp");
+    constexpr std::uint64_t huge = (std::numeric_limits<std::uint64_t>::max)();
+    context.expect(!alloc.allocate(huge).valid(), "bytes gần max không quấn thành đoạn nhỏ");
+    context.expect(!alloc.allocate(huge - 4096).valid(), "bytes tràn phép cộng cũng từ chối");
+    context.expect(alloc.allocate(1).valid(), "1 byte vẫn được một trang");
+}
+
 constexpr std::array kCases{
     Case{.name = "text_round_trips_utf8_and_utf16", .body = &text_round_trips_utf8_and_utf16},
     Case{.name = "utf8_cut_keeps_whole_characters", .body = &utf8_cut_keeps_whole_characters},
@@ -188,6 +200,7 @@ constexpr std::array kCases{
     Case{.name = "error_maps_and_prints_system_codes", .body = &error_maps_and_prints_system_codes},
     Case{.name = "const_move_only_calls", .body = &const_move_only_calls},
     Case{.name = "whole_int_takes_the_entire_text", .body = &whole_int_takes_the_entire_text},
+    Case{.name = "page_allocator_rejects_huge_request", .body = &page_allocator_rejects_huge_request},
 };
 
 } // namespace

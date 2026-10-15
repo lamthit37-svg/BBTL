@@ -284,6 +284,9 @@ void PageAllocator::State::release(const Range& range) noexcept {
 
 PageAllocator::PageAllocator(std::uint64_t total_bytes, std::uint32_t page_size, bool deferred) {
     check(page_size > 0, "PageAllocator: page_size bằng 0");
+    // total_bytes + (page_size - 1) tràn uint64 khi tổng gần max: chặn trước khi cộng.
+    check(total_bytes <= (std::numeric_limits<std::uint64_t>::max)() - (page_size - 1U),
+        "PageAllocator: tổng byte tràn");
     const std::uint64_t pages = (total_bytes + page_size - 1) / page_size;
     // Khác gốc: check của THIENLONG không định dạng, nên thông điệp không kèm số trang.
     const bool is_in_range = pages > 0 && pages <= std::numeric_limits<std::uint32_t>::max();
@@ -292,8 +295,12 @@ PageAllocator::PageAllocator(std::uint64_t total_bytes, std::uint32_t page_size,
 }
 
 PageAllocator::Allocation PageAllocator::allocate(std::uint64_t bytes) {
+    if (bytes == 0) return {};
+    // bytes + (page_size - 1) tràn uint64 khi bytes gần max: phép cộng quấn làm số trang tính ra
+    // 0. Chặn tường minh trước khi cộng thay vì trông chờ allocate(0) trả rỗng.
+    if (bytes > (std::numeric_limits<std::uint64_t>::max)() - (state_->page_size - 1U)) return {};
     const std::uint64_t pages = (bytes + state_->page_size - 1) / state_->page_size;
-    if (bytes == 0 || pages > state_->total_pages) return {};
+    if (pages > state_->total_pages) return {};
     const std::scoped_lock hold(state_->lock);
     const std::optional<Range> range = state_->ranges.allocate(static_cast<std::uint32_t>(pages));
     if (!range) return {};

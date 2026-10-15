@@ -127,6 +127,17 @@ void parse_rejects_broken_utf16(Context& context) noexcept {
     context.expect(fails_with(utf16_file(u"<a/>", Order::kLittle).substr(0, 2), xml::XmlError::kNoRoot), "chỉ có BOM");
 }
 
+void parse_rejects_surrogate_entities(Context& context) noexcept {
+    context.expect(fails_with("<a>&#xD800;</a>", xml::XmlError::kBadEntity), "nửa đầu &#xD800; bị từ chối");
+    context.expect(fails_with("<a>&#xDFFF;</a>", xml::XmlError::kBadEntity), "nửa cuối &#xDFFF; bị từ chối");
+    context.expect(fails_with("<a>&#55296;</a>", xml::XmlError::kBadEntity), "thập phân 55296 bị từ chối");
+    context.expect(fails_with("<a>&#57343;</a>", xml::XmlError::kBadEntity), "thập phân 57343 bị từ chối");
+    context.expect(
+        fails_with("<a x=\"&#xDC00;\"/>", xml::XmlError::kBadEntity), "trong thuộc tính cũng bị từ chối");
+    context.expect(xml::parse("<a>&#xD7FF;</a>").has_value(), "&#xD7FF; kề dưới vẫn đọc được");
+    context.expect(xml::parse("<a>&#xE000;</a>").has_value(), "&#xE000; kề trên vẫn đọc được");
+}
+
 constexpr std::array kCases{
     Case{.name = "parse_builds_tree_in_file_order", .body = &parse_builds_tree_in_file_order},
     Case{.name = "parse_decodes_entities_and_text", .body = &parse_decodes_entities_and_text},
@@ -135,6 +146,7 @@ constexpr std::array kCases{
     Case{.name = "parse_reads_utf16_with_bom", .body = &parse_reads_utf16_with_bom},
     Case{.name = "parse_skips_utf8_bom", .body = &parse_skips_utf8_bom},
     Case{.name = "parse_rejects_broken_utf16", .body = &parse_rejects_broken_utf16},
+    Case{.name = "parse_rejects_surrogate_entities", .body = &parse_rejects_surrogate_entities},
 };
 
 } // namespace

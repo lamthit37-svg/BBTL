@@ -364,6 +364,9 @@ Result<std::vector<std::byte>> encode_png(const FrameView& frame, const PngOptio
         return fail(ErrorCode::kUnsupported, "PNG không ghi được điểm ảnh float");
     }
     Task task{.frame = frame, .layout = layout_of(frame, options), .options = options};
+    // Một hàng đã tới ~17 GB với ảnh rộng u32 max: pack_band cấp count * (row + 1) mà không chặn.
+    // Từ chối trước khi chia dải để trả fail thay vì ném bad_alloc.
+    if (task.layout.row > kMaxBand) return fail(ErrorCode::kOutOfMemory, "hàng PNG quá lớn");
     const std::size_t band_bytes = std::clamp<std::size_t>(options.band_bytes, 1, kMaxBand);
     const std::size_t rows = std::max<std::size_t>(band_bytes / (task.layout.row + 1), 1);
     task.band_rows = static_cast<std::uint32_t>(std::min<std::size_t>(rows, frame.height));

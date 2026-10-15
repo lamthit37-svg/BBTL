@@ -8,6 +8,8 @@
 // Nguồn: Forge2 src/math/simd.hpp@d7fcd76. Khác gốc (so với Forge2): không.
 #pragma once
 
+#include "core/check.hpp"
+
 #include <array>
 #include <cstddef>
 #include <cstdint>
@@ -94,13 +96,18 @@ template <int Lane>
 [[nodiscard]] inline float lane(__m128 v, std::size_t i) noexcept {
     alignas(16) std::array<float, 4> values{};
     _mm_store_ps(values.data(), v);
-    return values.at(i);
+    // at() ném trong hàm noexcept thành terminate: lỗi lập trình thì check rồi mới [].
+    core::check(i < values.size(), "lane: chỉ số ngoài 0..3");
+    // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-constant-array-index): i đã check < size nên luôn trong miền (UB-04).
+    return values[i];
 }
 
 [[nodiscard]] inline __m128 with_lane(__m128 v, std::size_t i, float value) noexcept {
     alignas(16) std::array<float, 4> values{};
     _mm_store_ps(values.data(), v);
-    values.at(i) = value;
+    core::check(i < values.size(), "with_lane: chỉ số ngoài 0..3");
+    // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-constant-array-index): i đã check < size nên luôn trong miền (UB-04).
+    values[i] = value;
     return _mm_load_ps(values.data());
 }
 

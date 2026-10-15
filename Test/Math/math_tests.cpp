@@ -494,6 +494,27 @@ void half_round_trips_every_pattern(Context& context) noexcept {
     context.expect(half_mismatches() == 0, "mọi mẫu half trừ NaN đổi qua float rồi về đúng mẫu cũ");
 }
 
+// operator[] của Plain2/3/4 và Vector3/4 đi qua con trỏ tới member và simd::lane: chỉ số ở
+// biên cuối phải đúng từng làn. Chỉ số ngoài miền là lỗi lập trình (core::check dừng ngay) nên
+// không có ca chạy qua nó.
+static_assert(math::Float2{.x = 1.0F, .y = 2.0F}[1] == 2.0F);
+static_assert(math::Float3{.x = 1.0F, .y = 2.0F, .z = 3.0F}[2] == 3.0F);
+static_assert(math::Float4{.x = 1.0F, .y = 2.0F, .z = 3.0F, .w = 4.0F}[3] == 4.0F);
+
+void indexing_reads_every_lane(Context& context) noexcept {
+    constexpr math::Float2 two{.x = 1.0F, .y = 2.0F};
+    context.expect(two[0] == 1.0F && two[1] == 2.0F, "Plain2 đủ hai làn");
+    constexpr math::Float3 three{.x = 1.0F, .y = 2.0F, .z = 3.0F};
+    context.expect(three[0] == 1.0F && three[2] == 3.0F, "Plain3 tới làn cuối");
+    constexpr math::Float4 four{.x = 1.0F, .y = 2.0F, .z = 3.0F, .w = 4.0F};
+    context.expect(four[0] == 1.0F && four[3] == 4.0F, "Plain4 tới làn cuối");
+    const Vector4 packed = Vector4(Vector3(1.0F, 2.0F, 3.0F), 4.0F);
+    context.expect(packed[0] == 1.0F && packed[3] == 4.0F, "Vector4 đọc qua simd::lane");
+    Vector4 change = packed;
+    change.set(3, 9.0F);
+    context.expect(change[3] == 9.0F && change[0] == 1.0F, "Vector4 ghi qua simd::with_lane");
+}
+
 constexpr std::array kCases{
     Case{.name = "trs_places_point_and_columns", .body = &trs_places_point_and_columns},
     Case{.name = "trs_inverse_round_trips", .body = &trs_inverse_round_trips},
@@ -519,6 +540,7 @@ constexpr std::array kCases{
     Case{.name = "decompose_recovers_trs", .body = &decompose_recovers_trs},
     Case{.name = "decompose_handles_mirror_and_flat", .body = &decompose_handles_mirror_and_flat},
     Case{.name = "half_round_trips_every_pattern", .body = &half_round_trips_every_pattern},
+    Case{.name = "indexing_reads_every_lane", .body = &indexing_reads_every_lane},
 };
 
 } // namespace

@@ -69,6 +69,16 @@ void unpad_cell(Context& context) {
     context.expect(lone.body.empty() && lone.trailing_spaces == 1, "chỉ một ký hiệu");
 }
 
+void row_reader_reads_last_row(Context& context) {
+    const table::TsvResult parsed = table::parse_tsv("id\tname\n1\tab\n22\tcd\n");
+    context.expect(parsed.has_value(), "bảng đọc được");
+    if (!parsed) return;
+    table::RowReader row(*parsed, 1);
+    context.expect(row.text("name") == "cd", "đọc ô của bản ghi cuối theo tên cột");
+    context.expect(row.number("id", 0, 99) == 22, "đọc số của bản ghi cuối trong miền");
+    context.expect(!row.error().has_value(), "không lỗi");
+}
+
 constexpr std::array kCases{
     Case{.name = "padding_is_dropped", .body = &padding_is_dropped},
     Case{.name = "space_mark_restores_trailing_spaces", .body = &space_mark_restores_trailing_spaces},
@@ -76,6 +86,7 @@ constexpr std::array kCases{
     Case{.name = "unknown_layout_is_refused", .body = &unknown_layout_is_refused},
     Case{.name = "short_row_is_still_refused", .body = &short_row_is_still_refused},
     Case{.name = "unpad_cell", .body = &unpad_cell},
+    Case{.name = "row_reader_reads_last_row", .body = &row_reader_reads_last_row},
 };
 
 } // namespace

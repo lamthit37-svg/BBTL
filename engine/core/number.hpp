@@ -52,6 +52,8 @@ using OptionalSigned = std::optional<ParsedSigned>;
 // Số nguyên không dấu theo cơ số base (2..36) ở đầu text; không có khi text không mở đầu bằng chữ
 // số hoặc số vượt 32 bit.
 [[nodiscard]] inline OptionalUnsigned parse_unsigned(std::string_view text, int base) noexcept {
+    // from_chars đòi base 2..36: ngoài miền là vi phạm tiền điều kiện (UB).
+    if (base < 2 || base > 36) return std::nullopt;
     const char* const first = std::to_address(text.begin());
     const char* const last = std::to_address(text.end());
     std::uint32_t value = 0;

@@ -191,7 +191,14 @@ bool migrate(PgConn& conn, const std::filesystem::path& dir, std::string& error)
         error = "không đọc được thư mục sql";
         return false;
     }
-    std::ranges::sort(files);
+    // Sắp theo số đầu tên (1 < 2 < 10), rồi theo tên khi cùng số: sắp từ điển thuần đặt
+    // "10_x.sql" trước "2_x.sql" khi qua file 10 không zero-pad. Hiện 001..005 nên thứ tự không đổi.
+    std::ranges::sort(files, [](const std::filesystem::path& left, const std::filesystem::path& right) {
+        const int first = leading_number(io::utf8_of(left.filename()));
+        const int second = leading_number(io::utf8_of(right.filename()));
+        if (first != second) return first < second;
+        return left < right;
+    });
     for (const std::filesystem::path& file : files) {
         const int version = leading_number(io::utf8_of(file.filename()));
         if (version <= 0) continue;

@@ -284,7 +284,9 @@ std::size_t SharedQueue::ring_pop(std::span<Job> out) noexcept {
 void SharedQueue::grow() {
     const std::size_t next = std::max<std::size_t>(spill_.size() * 2U, 64U);
     std::vector<Job> bigger(next);
-    const std::size_t mask = spill_.size() - 1U;
+    // spill_ rỗng ở lần lớn đầu tiên (spill_ rỗng, count_ 0): size() - 1 quấn. Không có gì để chép
+    // thì mặt nạ 0 vô hại vì vòng lặp không chạy.
+    const std::size_t mask = spill_.empty() ? 0 : spill_.size() - 1U;
     for (std::size_t i = 0; i < count_; ++i) {
         bigger.at(i) = spill_.at((head_ + i) & mask);
     }

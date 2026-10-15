@@ -7,6 +7,7 @@
 #include "secure/secure.hpp"
 
 #include <chrono>
+#include <cstddef>
 #include <cstdint>
 #include <expected>
 #include <span>
@@ -26,6 +27,11 @@ enum class [[nodiscard]] LinkError : std::uint8_t {
 
 template <typename T>
 using LinkResult = std::expected<T, LinkError>;
+
+// Trần inbox_: server độc hại flood tới hết timeout thì vượt trần và bị đóng với
+// LinkError::kSecure (gate giữ trần tương tự ở kHeldBytes). Vài bản ghi để khung
+// dồn kênh hợp lệ vẫn qua.
+inline constexpr std::size_t kMaxInboxBytes = 4 * secure::kMaxRecordBytes;
 
 // Một phiên đã bắt tay và đã nhận Welcome. Hết hạn là giờ tường vì đây là I/O, không phải luật game.
 class Link {
@@ -63,6 +69,7 @@ private:
     secure::RecordPipe pipe_;
     protocol::Welcome welcome_{};
     // Byte đã nhận mà chưa mở thành bản ghi: một lần đọc có thể mang nhiều bản ghi.
+    // Luôn giữ inbox_.size() <= kMaxInboxBytes (recv_some đóng với kSecure khi vượt trần).
     std::vector<std::byte> inbox_;
 };
 

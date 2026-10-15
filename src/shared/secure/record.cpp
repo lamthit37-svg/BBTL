@@ -127,7 +127,11 @@ bool RecordPipe::decrypt(std::span<std::byte> plain, Opened& opened) noexcept {
         return false;
     }
     const std::size_t plain_len = static_cast<std::size_t>(body_length()) - kTagBytes;
-    core::check(plain.size() >= opened.written + plain_len, "vùng rõ không đủ một bản ghi");
+    // body_length do peer khai: thiếu vùng là lỗi giao thức của peer, không phải lỗi lập trình.
+    if (plain.size() < opened.written + plain_len) {
+        break_with(Error::kProtocol);
+        return false;
+    }
     const std::array<std::byte, detail::kNonce> nonce = nonce_of(receive_counter_);
     const std::span<std::byte> held = std::span{pending_bytes_};
     const std::span<std::byte> cipher = held.subspan(kRecordHeaderBytes, body_length());

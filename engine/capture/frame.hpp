@@ -11,6 +11,7 @@
 
 #include <cstddef>
 #include <cstdint>
+#include <limits>
 #include <span>
 #include <vector>
 
@@ -55,10 +56,19 @@ struct FrameView {
     // Số byte điểm ảnh của một hàng, không tính phần đệm của stride.
     [[nodiscard]] constexpr std::size_t row_size() const noexcept { return width * pixel_size(format); }
 
-    // Kích thước khác 0, stride đủ một hàng và pixels đủ mọi hàng.
+    // Kích thước khác 0, stride đủ một hàng và pixels đủ mọi hàng. Mọi phép nhân cộng đều
+    // kiểm tràn trước: width/height u32 max với stride hostile quấn size_t làm needed tính ra nhỏ
+    // đi và view thiếu bộ nhớ thành valid() nhầm.
     [[nodiscard]] constexpr bool valid() const noexcept {
-        if (width == 0 || height == 0 || stride < row_size()) return false;
-        const std::size_t needed = (stride * (height - std::size_t{1})) + row_size();
+        if (width == 0 || height == 0) return false;
+        const std::size_t pixel = pixel_size(format);
+        if (pixel == 0) return false;
+        if (width > (std::numeric_limits<std::size_t>::max)() / pixel) return false;
+        const std::size_t row = static_cast<std::size_t>(width) * pixel;
+        if (stride < row) return false;
+        const std::size_t rest = static_cast<std::size_t>(height) - std::size_t{1};
+        if (rest > 0 && stride > ((std::numeric_limits<std::size_t>::max)() - row) / rest) return false;
+        const std::size_t needed = stride * rest + row;
         return pixels.size() >= needed;
     }
 
