@@ -41,6 +41,7 @@
 #include <jni.h>
 #include <sys/system_properties.h>
 
+#include <array>
 #include <chrono>
 #include <cstddef>
 #include <cstdint>
@@ -705,10 +706,60 @@ void feed_motion(Shell& shell, const AInputEvent* event) {
     return 1;
 }
 
+// Ký tự mà phím sinh ra theo bàn phím hiện hành và các phím bổ trợ (Shift, Alt): NDK không có hàm lấy ký tự, nên dựng
+// một android.view.KeyEvent cùng mã phím rồi hỏi getUnicodeChar, cách mà các trò dùng NativeActivity vẫn làm. 0 khi phím
+// không ra ký tự (mũi tên, Shift...) hay không hỏi được. Phím ghép dấu (bit COMBINING_ACCENT) bỏ: chữ Việt gõ kiểu Telex đi
+// thẳng qua các phím a, s, f... của IME.
+[[nodiscard]] char32_t unicode_of(android_app* app, const AInputEvent* event) {
+    constexpr jint kActionDown = 0;
+    constexpr jint kCombiningAccent = static_cast<jint>(0x80000000U);
+    JniEnv jni(app->activity->vm);
+    JNIEnv* env = jni.env;
+    if (env == nullptr) return 0;
+    const LocalRef type(env, env->FindClass("android/view/KeyEvent"));
+    if (!jni_ok(env) || type.held == nullptr) return 0;
+    const auto key_class = static_cast<jclass>(type.held);
+    const jmethodID make = method_of(env, key_class, "<init>", "(II)V");
+    const jmethodID unicode = method_of(env, key_class, "getUnicodeChar", "(I)I");
+    if (make == nullptr || unicode == nullptr) return 0;
+    const LocalRef key(env, env->NewObject(key_class, make, kActionDown, AKeyEvent_getKeyCode(event)));
+    if (!jni_ok(env) || key.held == nullptr) return 0;
+    const jint code = env->CallIntMethod(key.held, unicode, static_cast<jint>(AKeyEvent_getMetaState(event)));
+    if (!jni_ok(env) || code <= 0 || (code & kCombiningAccent) != 0) return 0;
+    return static_cast<char32_t>(code);
+}
+
+// Phím điều khiển của ô nhập (xoá lùi, Tab, Enter, Esc) như control_char của viewer PC; phím khác hỏi unicode_of.
+[[nodiscard]] char32_t typed_of(android_app* app, const AInputEvent* event) {
+    switch (AKeyEvent_getKeyCode(event)) {
+    case AKEYCODE_DEL: return 8;
+    case AKEYCODE_TAB: return 9;
+    case AKEYCODE_ENTER:
+    case AKEYCODE_NUMPAD_ENTER: return 13;
+    case AKEYCODE_ESCAPE: return 27;
+    default: return unicode_of(app, event);
+    }
+}
+
+// Phím gõ (bàn phím rời, IME gửi dạng sự kiện phím, adb input text) đi vào ô nhập của giao diện như bản PC.
+[[nodiscard]] int handle_key(android_app* app, const AInputEvent* event) {
+    Shell* shell = shell_of(app);
+    if (shell == nullptr || !shell->display) return 0;
+    if (AKeyEvent_getAction(event) != AKEY_EVENT_ACTION_DOWN) return 0;
+    const char32_t typed = typed_of(app, event);
+    if (typed == 0) return 0;
+    game::control::InputEvent text;
+    text.kind = game::control::InputKind::kText;
+    text.text = typed;
+    const std::array<game::control::InputEvent, 1> one{text};
+    shell->display->input(one);
+    return 1;
+}
+
 [[nodiscard]] int on_input(android_app* app, AInputEvent* event) {
     if (AInputEvent_getType(event) == AINPUT_EVENT_TYPE_MOTION) return handle_motion(app, event);
     if (AInputEvent_getType(event) != AINPUT_EVENT_TYPE_KEY) return 0;
-    if (AKeyEvent_getKeyCode(event) != AKEYCODE_BACK) return 0;
+    if (AKeyEvent_getKeyCode(event) != AKEYCODE_BACK) return handle_key(app, event);
     // Nhận cả lần nhấn: để lọt thì NativeActivity tự đóng activity trước lần nhả. Chỉ đóng khi
     // nhả thật (không bị huỷ, như cử chỉ back bị kéo ngược).
     if (AKeyEvent_getAction(event) != AKEY_EVENT_ACTION_UP) return 1;
