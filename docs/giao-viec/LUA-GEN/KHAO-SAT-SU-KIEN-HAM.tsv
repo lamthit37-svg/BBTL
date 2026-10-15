@@ -1,3 +1,5 @@
+# Khảo sát 2026-10-15 (sau tầng B đầu và hàm nhóm C của host), msvc-release. Sinh bằng `build/msvc-release/ui_script_survey.exe --events --out <tệp>` (Test/bench/ui_script_survey.cpp): hiện, gửi từng sự kiện đã đăng ký (không đối số), giấu mỗi cửa sổ.
+# Thay KHAO-SAT-HIEN-GIAU.tsv và KHAO-SAT-SU-KIEN.tsv cũ. Chưa có dữ liệu game nên lỗi nối tiếp (đối số nil) còn nhiều.
 # 1975 cửa sổ, mở 469 ms, hiện/giấu và 11766 sự kiện 32439 ms
 # bộ nhớ Lua 78440 KB
 # số lần	loại và tên	cửa sổ đầu tiên
