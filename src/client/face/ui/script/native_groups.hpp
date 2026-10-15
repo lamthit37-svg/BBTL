@@ -14,6 +14,11 @@ struct lua_State;
 
 namespace game::ui::script {
 
+// Hàm mà thân chỉ đẩy kết quả một hàm ảo (làn A, native_a_vcall.cpp, sinh bằng TOOLS/port/luagen/gen_a_vcall_natives.py): getter
+// ảo của CDataPool (DataPool:GetBaseBag_Num, Bank:GetNpcId, NpcShop:GetNpcId, StallSale:GetDefaultPage...) và EnumAction cùng
+// phương thức của ActionItem rỗng (GetID, GetName, GetDefineID...).
+void register_a_vcall(lua_State* lua);
+
 // XSCRIPT và XParam: cách script giao diện nói chuyện với script máy chủ (xscript.hpp). Get_XParam_INT, Get_XParam_UINT,
 // Get_XParam_STR, Get_XParam_INT_Count, Get_XParam_STR_Count, Set_XSCRIPT_ScriptID, Set_XSCRIPT_Function_Name,
 // Set_XSCRIPT_ParamCount, Set_XSCRIPT_Parameter, Clear_XSCRIPT, Send_XSCRIPT.
