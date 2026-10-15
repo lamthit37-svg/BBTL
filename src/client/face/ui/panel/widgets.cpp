@@ -254,6 +254,7 @@ bool Widgets::step_fade(std::string_view window, float seconds) {
 void Widgets::clear_list(std::string_view window) {
     Entry& entry = entry_of(window);
     entry.items.emplace();
+    entry.lives.clear();
     entry.selected.reset();
     if (entry.first) entry.first = 0;
 }
@@ -262,23 +263,60 @@ void Widgets::add_item(std::string_view window, ListItem item) {
     Entry& entry = entry_of(window);
     if (!entry.items) entry.items.emplace();
     entry.items->push_back(std::move(item));
+    if (entry.is_info) entry.lives.emplace_back();
 }
 
-void Widgets::add_info(std::string_view window, ListItem info, std::size_t limit) {
+void Widgets::erase_item(Entry& entry, std::size_t index) {
+    if (!entry.items) return;
+    entry.items->erase(entry.items->begin() + static_cast<std::ptrdiff_t>(index));
+    if (entry.is_info) entry.lives.erase(entry.lives.begin() + static_cast<std::ptrdiff_t>(index));
+    if (!entry.selected) return;
+    if (*entry.selected == index) {
+        entry.selected.reset();
+    } else if (*entry.selected > index) {
+        --*entry.selected;
+    }
+}
+
+void Widgets::add_info(std::string_view window, ListItem info, InfoLife life, std::size_t limit) {
     Entry& entry = entry_of(window);
     if (!entry.items) entry.items.emplace();
-    std::vector<ListItem>& items = *entry.items;
-    items.push_back(std::move(info));
-    const std::size_t surplus = items.size() > limit ? items.size() - limit : 0;
-    items.erase(items.begin(), items.begin() + static_cast<std::ptrdiff_t>(surplus));
-    if (entry.selected) {
-        if (*entry.selected < surplus) {
-            entry.selected.reset();
-        } else {
-            *entry.selected -= surplus;
-        }
-    }
+    // Mục có sẵn từ AddItem trước lần AddInfo đầu không có tuổi thọ.
+    if (!entry.is_info) entry.lives.assign(entry.items->size(), std::nullopt);
+    entry.is_info = true;
+    entry.items->push_back(std::move(info));
+    entry.lives.emplace_back(life);
+    while (entry.items->size() > limit) erase_item(entry, 0);
     entry.is_visible = true;
+}
+
+std::vector<std::string> Widgets::aging() const {
+    std::vector<std::string> names;
+    for (const Entry& entry : entries_) {
+        if (entry.is_info) names.push_back(entry.window);
+    }
+    return names;
+}
+
+void Widgets::tick_info(std::string_view window, float seconds) {
+    Entry& entry = entry_of(window);
+    if (!entry.is_info || !entry.items) return;
+    // updateSelf nhân thời gian với 1000 để ra ms (0x180135ab8) và chia tốc độ mờ cho 255 (0x180136544).
+    constexpr double kMillisecondsPerSecond = 1000.0;
+    constexpr float kFadeScale = 255.0F;
+    const float step = seconds > 0.0F ? seconds : 0.0F;
+    const auto elapsed = static_cast<std::int32_t>(
+        std::min(static_cast<double>(step) * kMillisecondsPerSecond, static_cast<double>(std::numeric_limits<std::int32_t>::max())));
+    for (std::size_t index = 0; index < entry.lives.size(); ++index) {
+        std::optional<InfoLife>& aged = entry.lives[index];
+        if (!aged) continue;
+        aged->life_ms = static_cast<std::int32_t>(std::max<std::int64_t>(
+            static_cast<std::int64_t>(aged->life_ms) - elapsed, std::numeric_limits<std::int32_t>::min()));
+        if (aged->life_ms >= 0) continue;
+        aged->alpha -= static_cast<float>(aged->fade_speed) * step / kFadeScale;
+        if (aged->alpha >= 0.0F) continue;
+        erase_item(entry, index);
+    }
 }
 
 void Widgets::select_item(std::string_view window, std::int32_t id) {
@@ -597,6 +635,15 @@ void Widgets::paint_entry(const Entry& entry, Deck& deck) {
     const bool has_icon = entry.action && !entry.action->icon.empty();
     if (has_icon) deck.set(gui::Override{.window = window, .name = "NormalImage", .value = entry.action->icon});
     if (entry.progress) deck.bar(window, progress_of(*entry.progress));
+    // InfoList (gui::Hub vẽ nó như SimpleText, docs/NGHI-NGO.md mục 18): các mục thành một khối chữ, mỗi mục một dòng. Chưa có độ
+    // trong của từng mục nên mục đang mờ vẫn đủ độ đục tới lúc bị bỏ.
+    if (entry.is_info && entry.items && !entry.items->empty()) {
+        std::string& text = deck.compose(Key{.window = window, .name = "Text"});
+        for (const ListItem& item : *entry.items) {
+            if (!text.empty()) text += '\n';
+            text += item.text;
+        }
+    }
 }
 
 void Widgets::paint(Deck& deck) const {

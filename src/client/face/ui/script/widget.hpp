@@ -117,7 +117,9 @@ void open_widget_classes(lua_State* state, Missing missing = Missing::kRaise);
 
 // Nhịp thời gian của các widget (FalagardSuperProgress::updateSelf): mọi cửa sổ của store có đoạn mờ dần (SetFadeState > 0)
 // và đang hiện thì trừ seconds khỏi thời gian còn, đặt Alpha = còn / tổng; hết giờ (còn < 0) thì giấu cửa sổ, và nếu nó là
-// cửa sổ gốc của layout (`this`) thì services.set_root_shown(false). seconds là giây từ đồng hồ khung.
+// cửa sổ gốc của layout (`this`) thì services.set_root_shown(false). Mọi danh sách InfoList có mục (AddInfo) chạy một nhịp
+// FalagardInfoList::updateSelf: mục trừ tuổi thọ Life, hết tuổi thọ thì mờ theo FadeSpeed rồi bị bỏ (Widgets::tick_info), bất kể
+// danh sách đang hiện hay giấu như bản port tay ui/panel/debug_list_box. seconds là giây từ đồng hồ khung.
 void advance_widgets(ui::panel::Widgets& store, const gui::GuiAsset& asset, Services& services, float seconds);
 
 // Các phương thức bị gọi mà chưa có từ lúc mở chế độ kRecord, theo tên tăng dần; rỗng khi state chưa từng mở chế độ ấy.

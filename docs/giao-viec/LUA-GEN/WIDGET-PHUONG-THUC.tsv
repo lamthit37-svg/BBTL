@@ -145,7 +145,7 @@ RemoveColumnByPos	P3	2	1	CtrlList		bỏ cột theo chỉ số	Widgets::remove_co
 GetAlpha	P3	2	1	Window		thuộc tính Alpha, mặc định 1	Widgets::value	xong
 GetColumnCount	P3	2	1	CtrlList		số cột	Widgets::column_count	xong
 UpdateSbgHumanFlag	P3	2	1	?				chưa
-AddInfo	P3	2	1	InfoList	chuỗi	thêm mục id 0, giữ 5 mục mới nhất, hiện danh sách	Widgets::add_info	xong
+AddInfo	P3	2	1	InfoList	chuỗi	thêm mục id 0 mang Life và FadeSpeed của cửa sổ (mặc định 5000 và 128), giữ 5 mục mới nhất, hiện danh sách; advance_widgets làm mục già đi (updateSelf), paint nối mục thành Text	Widgets::add_info	xong
 DelItem	P3	2	1	ListBox				chưa
 SetItemText	P3	2	1	CtrlList		chữ ô (hàng, cột); chỉ Kind::kCtrlList	Widgets::set_cell_text	xong
 SetFmInfo	P3	2	1	?				chưa
