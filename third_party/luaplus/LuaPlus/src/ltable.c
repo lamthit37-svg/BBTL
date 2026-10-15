@@ -195,7 +195,9 @@ static void computesizes  (int nums[], int ntotal, int *narray, int *nhash) {
   }
   lua_assert(na <= *narray && *narray <= ntotal);
   *nhash = ntotal - na;
-  *narray = (n == -1) ? 0 : twoto(n);
+  /* Khác gốc: gốc viết `(n == -1) ? 0 : twoto(n)`; MSVC 14.51 /O2 dịch sai, tính cả `1 << -1` rồi chọn nhầm
+     (docs/BAY-DA-BIET.md). `n < 0` cùng nghĩa vì n chỉ nhận -1 hoặc số không âm. */
+  *narray = (n < 0) ? 0 : twoto(n);
   lua_assert(na <= *narray && na >= *narray/2);
 }
 

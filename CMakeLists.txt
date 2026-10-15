@@ -239,6 +239,10 @@ if(NOT ANDROID AND NOT IOS)
         VERBATIM)
 endif()
 
+# LuaPlus (Lua 5.0.1) của client 2026: máy chạy script giao diện. Nguồn chép nguyên văn ở third_party/luaplus, mục "Khác gốc"
+# ở NGUON.txt. game_luaplus (tĩnh) cho client; luaplus_oracle (DLL, chỉ Windows) cho ctest lua_oracle.
+add_subdirectory(third_party/luaplus)
+
 # Niêm asset trên máy dựng. Client không liên kết game_seal: đường nạp và khung hình không đổi.
 if(NOT CMAKE_CROSSCOMPILING)
     add_subdirectory(third_party/libsodium)
@@ -1482,6 +1486,22 @@ if(TARGET game_luagen AND TARGET game_secure)
         target_link_libraries(thienlong_lua_mass PRIVATE shell32)
     endif()
     add_test(NAME lua_mass COMMAND thienlong_lua_mass --summary ${PROJECT_SOURCE_DIR}/Test/golden/lua_mass/oracle.tsv)
+endif()
+# lua_oracle: LuaPlus dựng từ third_party/luaplus (DLL cùng nguồn cùng cờ với game_luaplus) chạy 2 060 đơn vị giao diện cùng
+# thế giới giả world.lua; vết phải trùng sha256 với bảng vàng của LuaPlus.dll trong client 2026. Chứng minh bản dựng của dự
+# án (trình dịch, cờ, CRT) không làm lệch hành vi của máy gốc. Cần layout giao diện đã gom ở dev/client/assets/Interface.
+if(TARGET luaplus_oracle AND NOT CMAKE_CROSSCOMPILING AND EXISTS "${PROJECT_SOURCE_DIR}/dev/client/assets/Interface")
+    find_package(Python3 COMPONENTS Interpreter)
+    if(Python3_Interpreter_FOUND)
+        # Hai đơn vị in NaN bằng CRT của máy dựng ("-nan(ind)") khác MSVCR110 của DLL gốc ("-1.#IND"); bỏ khỏi --allow khi
+        # định dạng số của LuaPlus được thay bằng bản cố định (docs/giao-viec/LUA-GEN/THIET-KE.md).
+        add_test(NAME lua_oracle
+            COMMAND ${Python3_EXECUTABLE} -B TOOLS/port/luagen/mass_oracle.py $<TARGET_FILE_DIR:luaplus_oracle>
+                --traces ${CMAKE_BINARY_DIR}/luagen/oracle --check Test/golden/lua_mass/oracle.tsv
+                --allow SiXiangTu_Shop_Mbuy ThreeCity_WarmUp_MBuy
+            WORKING_DIRECTORY ${PROJECT_SOURCE_DIR})
+        set_tests_properties(lua_oracle PROPERTIES ENVIRONMENT "PYTHONUTF8=1")
+    endif()
 endif()
 # Include ngược tầng: bảng ở cmake/GameLayers.cmake (KTR-15).
 add_test(NAME layers COMMAND ${CMAKE_COMMAND} -DGAME_SOURCE_DIR=${PROJECT_SOURCE_DIR}

@@ -51,6 +51,7 @@ class Library:
     """Các hàm C của LuaPlus.dll mà bộ chạy cần."""
 
     def __init__(self, bin_folder: pathlib.Path) -> None:
+        bin_folder = bin_folder.resolve()
         os.add_dll_directory(str(bin_folder))
         dll = ctypes.CDLL(str(bin_folder / "LuaPlus.dll"))
         dll.lua_open.restype = ctypes.c_void_p
@@ -153,6 +154,10 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--only", nargs="*", default=[], help="chỉ chạy các đơn vị này (không ghi bảng tóm tắt)")
     parser.add_argument("--perturb", type=int, default=0,
                         help="số đối tượng rác giữ trước world để dời địa chỉ (đo vết phụ thuộc địa chỉ; bảng vàng dùng 0)")
+    parser.add_argument("--check", type=pathlib.Path, metavar="BẢNG_VÀNG",
+                        help="so bảng tóm tắt vừa chạy với bảng vàng này (không ghi đè nó); lệch thì mã thoát 1")
+    parser.add_argument("--allow", nargs="*", default=[], metavar="ĐƠN_VỊ",
+                        help="đơn vị được phép lệch khi --check (mỗi cái phải có lý do ghi ở nơi gọi)")
     args = parser.parse_args(argv)
     if not (args.bin / "LuaPlus.dll").is_file():
         print(f"không thấy LuaPlus.dll trong {args.bin}", file=sys.stderr)
@@ -177,11 +182,42 @@ def main(argv: list[str] | None = None) -> int:
         status = "timeout" if is_timeout else "ok"
         counts[status] += 1
         rows.append(f"{unit.name}\t{status}\t{data.count(b'\n')}\t{hashlib.sha256(data).hexdigest()}")
+    print(f"đơn vị: {len(found)}, ok: {counts['ok']}, timeout: {counts['timeout']}; vết ở {args.traces}")
+    if args.check:
+        return check_against(rows, args.check, set(args.allow), only=bool(args.only))
     if not args.only:
         args.summary.parent.mkdir(parents=True, exist_ok=True)
         args.summary.write_text("\n".join(rows) + "\n", encoding="utf-8", newline="\n")
-    print(f"đơn vị: {len(found)}, ok: {counts['ok']}, timeout: {counts['timeout']}; vết ở {args.traces}")
     return 0
+
+
+def table_of(lines: list[str]) -> dict[str, tuple[str, str]]:
+    """Bảng tóm tắt: đơn vị -> (trạng thái, sha256)."""
+    table = {}
+    for line in lines:
+        if not line or line.startswith("#") or line.startswith("unit\t"):
+            continue
+        unit, status, _count, digest = line.split("\t")
+        table[unit] = (status, digest)
+    return table
+
+
+def check_against(rows: list[str], golden: pathlib.Path, allowed: set[str], *, only: bool) -> int:
+    """So bảng vừa chạy với bảng vàng. Đơn vị gốc timeout không đối soát được (móc đếm lệnh khác nhau) nên bỏ qua."""
+    ours = table_of(rows)
+    expected = table_of(golden.read_text(encoding="utf-8").splitlines())
+    bad = [unit for unit, row in ours.items() if expected.get(unit, ("", ""))[0] != "timeout" and expected.get(unit) != row]
+    missing = [] if only else [unit for unit in expected if unit not in ours]
+    unexpected = [unit for unit in bad if unit not in allowed]
+    forgiven = [unit for unit in allowed if unit not in bad]
+    for unit in bad:
+        print(f"lệch{' (được phép)' if unit in allowed else ''}: {unit}")
+    for unit in missing:
+        print(f"thiếu: {unit}")
+    for unit in forgiven:
+        print(f"đơn vị được phép lệch mà đã khớp (bỏ khỏi --allow): {unit}")
+    print(f"đối soát: {len(ours) - len(bad)} khớp, {len(bad)} lệch ({len(bad) - len(unexpected)} được phép), {len(missing)} thiếu")
+    return 1 if unexpected or missing or forgiven else 0
 
 
 if __name__ == "__main__":
