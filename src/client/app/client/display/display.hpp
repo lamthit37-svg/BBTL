@@ -118,6 +118,9 @@ struct DisplayDesc {
     // Nơi ghi Save/roles.tsv. Rỗng thì dùng data_root. iOS để data_root là bundle chỉ đọc và
     // đưa thư mục Documents vào đây; Android giải nén vào bộ nhớ trong nên để rỗng.
     std::filesystem::path save_root;
+    // Màn điện thoại (nhỏ hơn 600 dp ở cạnh ngắn, hay iPhone): giao diện dùng layout Interface/phone. Máy tính bảng và PC
+    // để false: dùng giao diện PC.
+    bool uses_phone_layout = false;
     // Ghi ảnh chụp khung đầu tiên vẽ được ra tệp PNG này; rỗng thì không chụp.
     std::filesystem::path shot_path;
     // Không vẽ lớp giao diện (HUD, bảng đăng nhập, bảng đo): khung hình chỉ còn cảnh 3D và hiệu

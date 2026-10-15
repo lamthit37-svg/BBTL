@@ -35,6 +35,7 @@ bản duy nhất nằm ở `D:\CLAUDE\cpp23` (`~/.claude/cpp23` trỏ vào đó)
 - `VA-CHAM-2026.md` — mặt công trình `.WCollision`, `Model::height`/`raycast`.
 - `GIAO-DIEN-2026.md` — widget CEGUI của bản 2026.
 - `TAO-NHAN-VAT-2026.md` — màn tạo nhân vật, phân bố chân dung/mặt/tóc/đồ.
+- `UI-DIEN-THOAI.md` — giao diện điện thoại: vì sao không dùng lại giao diện PC, khung 1080, cỡ tối thiểu, bản phác thảo.
 - `NGUON-FORGE2.md` — từng tệp chép từ Forge2: nguồn, khác gốc, số đo.
 - `NGUON-TLBB.md` — từng tệp port từ TLBB Dev.
 - `CHEP-FORGE2.md` — quy trình chép một tệp từ Forge2.

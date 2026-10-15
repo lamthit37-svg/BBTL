@@ -64,7 +64,6 @@
 #include "ui/panel/start.hpp"
 #include "ui/panel/system_info.hpp"
 #include "ui/panel/world_map.hpp"
-#include "ui/phone.hpp"
 #include "ui/radar.hpp"
 #include "ui/script/context.hpp"
 #include "ui/script/gui_screen.hpp"
@@ -185,10 +184,6 @@ constexpr std::string_view kFontFile = "Schema/GBK12.bin";
 // Phông Việt (Tahoma 14 của dòng CodePage 1258): chữ có dấu mà GBK12 không có (tên cảnh, chuỗi i18n).
 constexpr std::string_view kViFontFile = "Schema/VTNAM14.bin";
 
-// Nạp mọi layout của HUD; lỗi đầu tiên được giữ lại.
-std::expected<void, std::string> add_layouts(gui::GuiLoader& loader) {
-    std::expected<void, std::string> status;
-    for (const std::string_view layout : kLayouts) {
 // Cỡ cửa sổ nhỏ nhất của client 2026 là 800 x 600 (hàm đặt độ phân giải của Game.exe, docs/TIEN-DO.md "Khung chơi trên PC"); bảng
 // đăng nhập cần cao khoảng 620 điểm ảnh (đo trên LDPlayer 960 x 540: ở 600 hàng nút dưới cùng bị cắt) nên khung ảo cao 640. Bản gốc không co giao diện (Imageset::notifyDisplaySizeChanged đặt hệ số co 1,0): từ cỡ này trở
 // lên mọi điểm ảnh là 1:1 nên ảnh và chữ bitmap sắc nét. Chỉ màn nhỏ hơn (LDPlayer 960 x 540, điện thoại) mới dàn trang trên
@@ -214,6 +209,10 @@ constexpr float kLayoutHeight = 640.0F;
     return local;
 }
 
+// Nạp mọi layout của HUD; lỗi đầu tiên được giữ lại.
+std::expected<void, std::string> add_layouts(gui::GuiLoader& loader) {
+    std::expected<void, std::string> status;
+    for (const std::string_view layout : kLayouts) {
         status = status ? loader.add_layout(layout) : status;
     }
     return status;
@@ -420,7 +419,7 @@ void Prepared::open_quests(const std::filesystem::path& data_root) {
 // Việc đọc đĩa của Hud::open, chạy được ở luồng nào cũng được (không đụng GPU, không đụng trạng thái chung).
 // Ba việc độc lập với bộ nạp giao diện (chuỗi, tên cảnh, hai phông) chạy ở luồng riêng cùng lúc với nó: đường dài
 // nhất còn lại là bộ nạp và 40 layout (đo 2026-10-13: 96 + 24 ms trên tổng 286 ms khi nối đuôi).
-core::Result<Prepared> prepare_hud(const std::filesystem::path& data_root) {
+core::Result<Prepared> prepare_hud(const std::filesystem::path& data_root, bool uses_phone_layout) {
     const std::filesystem::path root = data_root / "Interface";
     auto strings = std::async(std::launch::async, [&data_root] { return strings_of(data_root); });
     auto names = std::async(std::launch::async, [&data_root] { return scene_names(data_root); });
@@ -428,7 +427,7 @@ core::Result<Prepared> prepare_hud(const std::filesystem::path& data_root) {
         [&root] { return read_font(root / io::path_from_utf8(kFontFile), "phông chữ"); });
     auto vi_font = std::async(std::launch::async,
         [&root] { return read_font(root / io::path_from_utf8(kViFontFile), "phông Việt"); });
-    const gui::DiskSource files(root, kPhone);
+    const gui::DiskSource files(root, uses_phone_layout);
     gui::GuiSources sources;
     sources.files = &files;
     auto opened = gui::GuiLoader::open(sources);
@@ -580,21 +579,21 @@ struct Hud::State {
     float press_y = 0.0F;
     // Ảnh fake object của khung này; mượn của HudView, chỉ dùng trong prepare.
     std::span<const ViewPaint> views;
+    // Cỡ khung ảo của layout (điểm ảnh của layout) và số điểm ảnh của màn cho một điểm ảnh ấy (layout_scale).
     float width = 0.0F;
     float height = 0.0F;
+    float scale = 1.0F;
+    // Scale của lần dựng quad gần nhất: đổi thì chữ và lưới điểm ảnh phải dàn lại.
+    float built_scale = 1.0F;
     std::uint64_t still_stamp = 0;
     std::uint64_t live_stamp = 0;
     std::uint64_t text_stamp = 0;
     bool is_built = false;
     std::vector<render::UiVertex> joined_vertices;
     std::vector<render::UiBatch> joined_batches;
-    // Cỡ khung ảo của layout (điểm ảnh của layout) và số điểm ảnh của màn cho một điểm ảnh ấy (layout_scale).
 
     // Nối quad của extra vào sau quad của giao diện (painter), dời chỉ số quad của các lô thêm. Quad của extra tính
     // theo điểm ảnh của màn nên đổi sang khung ảo của layout: không co theo giao diện.
-    float scale = 1.0F;
-    // Scale của lần dựng quad gần nhất: đổi thì chữ và lưới điểm ảnh phải dàn lại.
-    float built_scale = 1.0F;
     void join(Hud::HudExtra extra) {
         const std::span<const render::UiVertex> own = painter.vertices();
         const std::span<const render::UiBatch> own_batches = painter.batches();
@@ -608,6 +607,8 @@ struct Hud::State {
         joined_batches.assign(own_batches.begin(), own_batches.end());
         for (render::UiBatch batch : extra.batches) {
             batch.first_quad += base;
+            batch.mask_box = render::UiRect{.x = batch.mask_box.x / scale, .y = batch.mask_box.y / scale,
+                .width = batch.mask_box.width / scale, .height = batch.mask_box.height / scale};
             joined_batches.push_back(batch);
         }
     }
@@ -616,8 +617,6 @@ struct Hud::State {
     [[nodiscard]] bool note_double(std::string_view window, const HudView& view);
     [[nodiscard]] panel::PlaceText place_under(const HudView& view);
     void enter(Phase next) noexcept;
-            batch.mask_box = render::UiRect{.x = batch.mask_box.x / scale, .y = batch.mask_box.y / scale,
-                .width = batch.mask_box.width / scale, .height = batch.mask_box.height / scale};
     void note_press(const HudView& view);
     void note_hold(const HudView& view);
     [[nodiscard]] float frame_seconds(std::chrono::milliseconds now);
@@ -1484,7 +1483,8 @@ HudPrep::~HudPrep() = default;
 
 HudPrep HudPrep::start(const HudDesc& desc) {
     auto work = std::make_unique<Work>();
-    work->done = std::async(std::launch::async, [root = desc.data_root] { return prepare_hud(root); });
+    work->done = std::async(std::launch::async,
+        [root = desc.data_root, phone = desc.uses_phone_layout] { return prepare_hud(root, phone); });
     return HudPrep(std::move(work));
 }
 
@@ -1507,6 +1507,8 @@ core::Result<Hud> Hud::open(render::UiPass& pass, const HudDesc& desc, HudPrep p
 
 void Hud::prepare(const HudView& screen_view) {
     State& state = *state_;
+    state.scale = layout_scale(screen_view.width, screen_view.height);
+    const HudView view = layout_view(screen_view, state.scale);
     state.views = view.views;
     state.enter(view.phase);
     state.note_hover(view);
@@ -1524,8 +1526,6 @@ void Hud::prepare(const HudView& screen_view) {
     }
     gui::Place place;
     place.width = view.width;
-    state.scale = layout_scale(screen_view.width, screen_view.height);
-    const HudView view = layout_view(screen_view, state.scale);
     place.height = view.height;
     place.roots = state.deck.roots();
     place.hidden = state.deck.hidden();

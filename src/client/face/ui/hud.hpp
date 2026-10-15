@@ -51,9 +51,12 @@ namespace game::ui {
 struct HudDesc {
     // Thư mục dữ liệu client (CLIENT/data); giao diện nằm ở Interface và Table dưới đó.
     std::filesystem::path data_root;
-};
     // Bản texture của thiết bị: điện thoại mở ảnh đã nấu (mobile/astc, mobile/etc2) thay DDS khi có.
     resource::TextureTier texture_tier = resource::TextureTier::kBc;
+    // Màn điện thoại: layout ở Interface/phone thắng layout PC cùng tên. Máy tính bảng và PC dùng layout PC (chủ dự án
+    // chốt 2026-10-15: máy tính bảng dùng giao diện PC là bình thường).
+    bool uses_phone_layout = false;
+};
 
 // Cảnh đang đứng, cho minimap. radar là token szSceneMap của bảng cảnh (rỗng thì minimap chỉ còn
 // khung); cỡ cảnh và vị trí người chơi theo đơn vị cảnh.

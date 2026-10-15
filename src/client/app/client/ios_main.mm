@@ -1,11 +1,26 @@
-// Điểm vào iOS. Cùng phiên đăng nhập với bản PC và Android (client/boot): erengu_DL, rồi
-// tl3chuangjian, rồi cảnh Config/startup.id khi vào game. Display vẽ qua MoltenVK
-// (VK_EXT_metal_surface, gpu/vulkan/surface_ios.mm). Apple đã gỡ OpenGL ES: thiếu Vulkan 1.3
-// thì nền màu đặc. Bundle đọc thẳng data/. Sổ nhân vật ghi ở Documents vì bundle chỉ đọc.
-// Chạm đi qua control::TouchGestures, cùng luật với Android (chạm hai ngón là nhảy). CADisplayLink
-// bơm mỗi khung: âm thanh màn chơi và mạng (client/host, cùng mã với Android), rồi lời nhờ của
-// giao diện. Phiên mạng sống qua các lần huỷ Display khi ứng dụng xuống nền. Trang Coming soon mở
-// trong ứng dụng vì ứng dụng khác không đọc được tệp trong bundle.
+/*==============================================================================
+ *  THIENLONG  |  GAME CLIENT
+ *------------------------------------------------------------------------------
+ *  TỆP       : src/client/app/client/ios_main.mm
+ *  PHÂN HỆ   : Client / Client / Ios Main
+ *  CHUẨN     : Objective-C++
+ *------------------------------------------------------------------------------
+ *  CHỨC NĂNG
+ *  - Điểm vào iOS. Cùng phiên đăng nhập với bản PC và Android (client/boot):
+ *    erengu_DL, rồi tl3chuangjian, rồi cảnh Config/startup.id khi vào game.
+ *    Display vẽ qua MoltenVK (VK_EXT_metal_surface, gpu/vulkan/surface_ios.mm).
+ *    Apple đã gỡ OpenGL ES: thiếu Vulkan 1.3 thì nền màu đặc. Bundle đọc thẳng
+ *    data/. Sổ nhân vật ghi ở Documents vì bundle chỉ đọc. Chạm đi qua
+ *    control::TouchGestures, cùng luật với Android (chạm hai ngón là nhảy).
+ *------------------------------------------------------------------------------
+ *  TÁC GIẢ   : HiepHoon
+ *  TELEGRAM  : @Hoon9xx
+ *============================================================================*/
+
+// CADisplayLink bơm mỗi khung: âm thanh màn chơi và mạng (client/host, cùng mã với Android), rồi lời nhờ của giao
+// diện. Phiên mạng sống qua các lần huỷ Display khi ứng dụng xuống nền. Trang Coming soon mở trong ứng dụng vì ứng
+// dụng khác không đọc được tệp trong bundle.
+
 #import <UIKit/UIKit.h>
 #import <WebKit/WebKit.h>
 
@@ -402,6 +417,7 @@ void open_page(game::client::WebLink link) {
         .height = static_cast<std::uint32_t>(drawable.height)};
     desc.data_root = session.boot.data_root;
     desc.save_root = session.save_root;
+    desc.uses_phone_layout = UIDevice.currentDevice.userInterfaceIdiom == UIUserInterfaceIdiomPhone;
     desc.restored = session.played;
     const bool playing = session.is_playing && session.boot.playing && session.boot.playing->current;
     if (playing) {

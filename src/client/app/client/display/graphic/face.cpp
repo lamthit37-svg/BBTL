@@ -43,10 +43,11 @@ void Display::State::open_hud(const DisplayDesc& desc) {
     ui_pass = std::make_unique<render::UiPass>(std::move(*made));
     ui::HudDesc hud_desc;
     hud_desc.data_root = desc.data_root;
+    hud_desc.texture_tier = texture_tier;
+    hud_desc.uses_phone_layout = desc.uses_phone_layout;
     // Phần đọc đĩa đã chạy từ trước thiết bị (kick_loading); chưa có thì Hud::open tự bắt đầu.
     core::Result<ui::Hud> opened =
         hud_prep ? ui::Hud::open(*ui_pass, hud_desc, std::move(*hud_prep)) : ui::Hud::open(*ui_pass, hud_desc);
-    hud_desc.texture_tier = texture_tier;
     hud_prep.reset();
     if (!opened) {
         std::println(stderr, "Giao diện: bỏ qua, không mở được dữ liệu: {}", opened.error());
@@ -77,6 +78,7 @@ void Display::State::kick_loading(const DisplayDesc& desc) {
     if (!hud_prep) {
         ui::HudDesc hud_desc;
         hud_desc.data_root = desc.data_root;
+        hud_desc.uses_phone_layout = desc.uses_phone_layout;
         hud_prep.emplace(ui::HudPrep::start(hud_desc));
     }
     // Cảnh đầu: lập bảng mesh rồi giao luồng đọc ngay. arm_scene chỉ còn dựng pipeline của cảnh (warm_scene) và

@@ -1,0 +1,68 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1920" height="1080" viewBox="0 0 1920 1080" font-family="Arial, sans-serif">
+<rect width="1920" height="1080" fill="#fafafa" stroke="#000" stroke-width="4"/>
+<text x="960" y="560" font-size="40" fill="#bbb" text-anchor="middle">Bảng toàn màn - mẫu túi đồ 8 x 5</text>
+<rect x="160.0" y="60.0" width="1600.0" height="960.0" fill="#eeeeee" fill-opacity="0.85" stroke="#555555" stroke-width="3"/>
+<text x="960.0" y="526.0" font-size="22" fill="#555555" text-anchor="middle" dominant-baseline="middle">Bảng mẫu: túi đồ</text>
+<text x="960.0" y="554.0" font-size="22" fill="#555555" text-anchor="middle" dominant-baseline="middle">1600x960</text>
+<rect x="192.0" y="84.0" width="600.0" height="72.0" fill="#eeeeee" fill-opacity="0.85" stroke="#555555" stroke-width="3"/>
+<text x="492.0" y="106.0" font-size="22" fill="#555555" text-anchor="middle" dominant-baseline="middle">Tiêu đề</text>
+<text x="492.0" y="134.0" font-size="22" fill="#555555" text-anchor="middle" dominant-baseline="middle">600x72</text>
+<rect x="1624.0" y="68.0" width="120.0" height="120.0" fill="#dbe7ff" fill-opacity="0.85" stroke="#2d6cdf" stroke-width="3"/>
+<text x="1684.0" y="114.0" font-size="22" fill="#2d6cdf" text-anchor="middle" dominant-baseline="middle">Đóng</text>
+<text x="1684.0" y="142.0" font-size="22" fill="#2d6cdf" text-anchor="middle" dominant-baseline="middle">120x120</text>
+<rect x="184.0" y="196.0" width="240.0" height="120.0" fill="#dbe7ff" fill-opacity="0.85" stroke="#2d6cdf" stroke-width="3"/>
+<text x="304.0" y="242.0" font-size="22" fill="#2d6cdf" text-anchor="middle" dominant-baseline="middle">Thẻ 1</text>
+<text x="304.0" y="270.0" font-size="22" fill="#2d6cdf" text-anchor="middle" dominant-baseline="middle">240x120</text>
+<rect x="184.0" y="348.0" width="240.0" height="120.0" fill="#dbe7ff" fill-opacity="0.85" stroke="#2d6cdf" stroke-width="3"/>
+<text x="304.0" y="394.0" font-size="22" fill="#2d6cdf" text-anchor="middle" dominant-baseline="middle">Thẻ 2</text>
+<text x="304.0" y="422.0" font-size="22" fill="#2d6cdf" text-anchor="middle" dominant-baseline="middle">240x120</text>
+<rect x="184.0" y="500.0" width="240.0" height="120.0" fill="#dbe7ff" fill-opacity="0.85" stroke="#2d6cdf" stroke-width="3"/>
+<text x="304.0" y="546.0" font-size="22" fill="#2d6cdf" text-anchor="middle" dominant-baseline="middle">Thẻ 3</text>
+<text x="304.0" y="574.0" font-size="22" fill="#2d6cdf" text-anchor="middle" dominant-baseline="middle">240x120</text>
+<rect x="184.0" y="652.0" width="240.0" height="120.0" fill="#dbe7ff" fill-opacity="0.85" stroke="#2d6cdf" stroke-width="3"/>
+<text x="304.0" y="698.0" font-size="22" fill="#2d6cdf" text-anchor="middle" dominant-baseline="middle">Thẻ 4</text>
+<text x="304.0" y="726.0" font-size="22" fill="#2d6cdf" text-anchor="middle" dominant-baseline="middle">240x120</text>
+<rect x="184.0" y="804.0" width="240.0" height="120.0" fill="#dbe7ff" fill-opacity="0.85" stroke="#2d6cdf" stroke-width="3"/>
+<text x="304.0" y="850.0" font-size="22" fill="#2d6cdf" text-anchor="middle" dominant-baseline="middle">Thẻ 5</text>
+<text x="304.0" y="878.0" font-size="22" fill="#2d6cdf" text-anchor="middle" dominant-baseline="middle">240x120</text>
+<rect x="472.0" y="220.0" width="120.0" height="120.0" fill="#dbe7ff" fill-opacity="0.85" stroke="#2d6cdf" stroke-width="3"/>
+<rect x="624.0" y="220.0" width="120.0" height="120.0" fill="#dbe7ff" fill-opacity="0.85" stroke="#2d6cdf" stroke-width="3"/>
+<rect x="776.0" y="220.0" width="120.0" height="120.0" fill="#dbe7ff" fill-opacity="0.85" stroke="#2d6cdf" stroke-width="3"/>
+<rect x="928.0" y="220.0" width="120.0" height="120.0" fill="#dbe7ff" fill-opacity="0.85" stroke="#2d6cdf" stroke-width="3"/>
+<rect x="1080.0" y="220.0" width="120.0" height="120.0" fill="#dbe7ff" fill-opacity="0.85" stroke="#2d6cdf" stroke-width="3"/>
+<rect x="1232.0" y="220.0" width="120.0" height="120.0" fill="#dbe7ff" fill-opacity="0.85" stroke="#2d6cdf" stroke-width="3"/>
+<rect x="1384.0" y="220.0" width="120.0" height="120.0" fill="#dbe7ff" fill-opacity="0.85" stroke="#2d6cdf" stroke-width="3"/>
+<rect x="1536.0" y="220.0" width="120.0" height="120.0" fill="#dbe7ff" fill-opacity="0.85" stroke="#2d6cdf" stroke-width="3"/>
+<rect x="472.0" y="372.0" width="120.0" height="120.0" fill="#dbe7ff" fill-opacity="0.85" stroke="#2d6cdf" stroke-width="3"/>
+<rect x="624.0" y="372.0" width="120.0" height="120.0" fill="#dbe7ff" fill-opacity="0.85" stroke="#2d6cdf" stroke-width="3"/>
+<rect x="776.0" y="372.0" width="120.0" height="120.0" fill="#dbe7ff" fill-opacity="0.85" stroke="#2d6cdf" stroke-width="3"/>
+<rect x="928.0" y="372.0" width="120.0" height="120.0" fill="#dbe7ff" fill-opacity="0.85" stroke="#2d6cdf" stroke-width="3"/>
+<rect x="1080.0" y="372.0" width="120.0" height="120.0" fill="#dbe7ff" fill-opacity="0.85" stroke="#2d6cdf" stroke-width="3"/>
+<rect x="1232.0" y="372.0" width="120.0" height="120.0" fill="#dbe7ff" fill-opacity="0.85" stroke="#2d6cdf" stroke-width="3"/>
+<rect x="1384.0" y="372.0" width="120.0" height="120.0" fill="#dbe7ff" fill-opacity="0.85" stroke="#2d6cdf" stroke-width="3"/>
+<rect x="1536.0" y="372.0" width="120.0" height="120.0" fill="#dbe7ff" fill-opacity="0.85" stroke="#2d6cdf" stroke-width="3"/>
+<rect x="472.0" y="524.0" width="120.0" height="120.0" fill="#dbe7ff" fill-opacity="0.85" stroke="#2d6cdf" stroke-width="3"/>
+<rect x="624.0" y="524.0" width="120.0" height="120.0" fill="#dbe7ff" fill-opacity="0.85" stroke="#2d6cdf" stroke-width="3"/>
+<rect x="776.0" y="524.0" width="120.0" height="120.0" fill="#dbe7ff" fill-opacity="0.85" stroke="#2d6cdf" stroke-width="3"/>
+<rect x="928.0" y="524.0" width="120.0" height="120.0" fill="#dbe7ff" fill-opacity="0.85" stroke="#2d6cdf" stroke-width="3"/>
+<rect x="1080.0" y="524.0" width="120.0" height="120.0" fill="#dbe7ff" fill-opacity="0.85" stroke="#2d6cdf" stroke-width="3"/>
+<rect x="1232.0" y="524.0" width="120.0" height="120.0" fill="#dbe7ff" fill-opacity="0.85" stroke="#2d6cdf" stroke-width="3"/>
+<rect x="1384.0" y="524.0" width="120.0" height="120.0" fill="#dbe7ff" fill-opacity="0.85" stroke="#2d6cdf" stroke-width="3"/>
+<rect x="1536.0" y="524.0" width="120.0" height="120.0" fill="#dbe7ff" fill-opacity="0.85" stroke="#2d6cdf" stroke-width="3"/>
+<rect x="472.0" y="676.0" width="120.0" height="120.0" fill="#dbe7ff" fill-opacity="0.85" stroke="#2d6cdf" stroke-width="3"/>
+<rect x="624.0" y="676.0" width="120.0" height="120.0" fill="#dbe7ff" fill-opacity="0.85" stroke="#2d6cdf" stroke-width="3"/>
+<rect x="776.0" y="676.0" width="120.0" height="120.0" fill="#dbe7ff" fill-opacity="0.85" stroke="#2d6cdf" stroke-width="3"/>
+<rect x="928.0" y="676.0" width="120.0" height="120.0" fill="#dbe7ff" fill-opacity="0.85" stroke="#2d6cdf" stroke-width="3"/>
+<rect x="1080.0" y="676.0" width="120.0" height="120.0" fill="#dbe7ff" fill-opacity="0.85" stroke="#2d6cdf" stroke-width="3"/>
+<rect x="1232.0" y="676.0" width="120.0" height="120.0" fill="#dbe7ff" fill-opacity="0.85" stroke="#2d6cdf" stroke-width="3"/>
+<rect x="1384.0" y="676.0" width="120.0" height="120.0" fill="#dbe7ff" fill-opacity="0.85" stroke="#2d6cdf" stroke-width="3"/>
+<rect x="1536.0" y="676.0" width="120.0" height="120.0" fill="#dbe7ff" fill-opacity="0.85" stroke="#2d6cdf" stroke-width="3"/>
+<rect x="472.0" y="828.0" width="120.0" height="120.0" fill="#dbe7ff" fill-opacity="0.85" stroke="#2d6cdf" stroke-width="3"/>
+<rect x="624.0" y="828.0" width="120.0" height="120.0" fill="#dbe7ff" fill-opacity="0.85" stroke="#2d6cdf" stroke-width="3"/>
+<rect x="776.0" y="828.0" width="120.0" height="120.0" fill="#dbe7ff" fill-opacity="0.85" stroke="#2d6cdf" stroke-width="3"/>
+<rect x="928.0" y="828.0" width="120.0" height="120.0" fill="#dbe7ff" fill-opacity="0.85" stroke="#2d6cdf" stroke-width="3"/>
+<rect x="1080.0" y="828.0" width="120.0" height="120.0" fill="#dbe7ff" fill-opacity="0.85" stroke="#2d6cdf" stroke-width="3"/>
+<rect x="1232.0" y="828.0" width="120.0" height="120.0" fill="#dbe7ff" fill-opacity="0.85" stroke="#2d6cdf" stroke-width="3"/>
+<rect x="1384.0" y="828.0" width="120.0" height="120.0" fill="#dbe7ff" fill-opacity="0.85" stroke="#2d6cdf" stroke-width="3"/>
+<rect x="1536.0" y="828.0" width="120.0" height="120.0" fill="#dbe7ff" fill-opacity="0.85" stroke="#2d6cdf" stroke-width="3"/>
+</svg>

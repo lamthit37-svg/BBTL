@@ -237,6 +237,15 @@ void prepare_shell(android_app* app, Shell& shell) {
     shell.online.emplace(std::move(gates.book));
 }
 
+// Màn điện thoại theo cách Android chia: cạnh ngắn nhỏ hơn 600 dp (sw600dp là máy tính bảng). Không hỏi được thì coi là
+// điện thoại, vì giao diện PC trên màn điện thoại không bấm được.
+[[nodiscard]] bool is_phone_screen(const android_app* app) noexcept {
+    constexpr int32_t kTabletDp = 600;
+    const int32_t smallest = AConfiguration_getSmallestScreenWidthDp(app->config);
+    if (smallest == ACONFIGURATION_SMALLEST_SCREEN_WIDTH_DP_ANY || smallest <= 0) return true;
+    return smallest < kTabletDp;
+}
+
 void fit_gestures(const android_app* app, Shell& shell) noexcept {
     if (app->window == nullptr) return;
     const auto width = static_cast<float>(ANativeWindow_getWidth(app->window));
@@ -324,6 +333,8 @@ void start_display(android_app* app) {
     desc.size = {.width = static_cast<std::uint32_t>(ANativeWindow_getWidth(app->window)),
         .height = static_cast<std::uint32_t>(ANativeWindow_getHeight(app->window))};
     arm_desc(*shell, desc);
+    desc.uses_phone_layout = is_phone_screen(app);
+    log_line(desc.uses_phone_layout ? "giao diện: layout điện thoại" : "giao diện: layout PC (máy tính bảng)");
     fit_gestures(app, *shell);
     desc.is_validated = game::client::validation_by_build();
     auto made = game::client::Display::create(desc);

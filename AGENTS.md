@@ -208,6 +208,11 @@
     sang Java. APK và iOS là cùng phía mobile. `world.toml` `[platform] pc_meets_mobile` mặc định
     tắt: PC chỉ gặp mobile khi cờ bật. Engine không biết luật này — chủ dự án chốt ngày 2026-10-12.
   - Layout điện thoại là `Interface/phone/`, Android và iOS dùng chung; thiếu tệp thì layout PC.
+  - Máy tính bảng dùng giao diện PC; chỉ điện thoại dùng `Interface/phone/` — chủ dự án chốt ngày 2026-10-15 ("ở
+    tablet dùng giao diện PC là hoàn toàn bình thường", "mobile ... nếu không thì tính toán cho tôi bản phác thảo tôi
+    thiết kế UI"). Điện thoại là màn có cạnh ngắn dưới 600 dp (Android `sw600dp`) hay iPhone
+    (`DisplayDesc::uses_phone_layout`). Giao diện PC không dùng lại được trên điện thoại (nút chat 1,7 mm, chữ 1,2 mm); khung,
+    cỡ tối thiểu và bản phác thảo để thiết kế ở `docs/UI-DIEN-THOAI.md`, số ở `TOOLS/content/phone_wireframe.py`.
     Texture PC là DDS. Bản điện thoại là `mobile/astc/` rồi `mobile/etc2/`, cùng đường tương đối,
     định dạng TLTX. GPU có ASTC thì chọn ASTC, không thì ETC2 — chủ dự án chốt ngày 2026-10-12.
   - Dạng khung chân dung của HUD (tròn hoặc vuông) chọn lúc dựng client trong `src/client/client.build.toml`
