@@ -1,16 +1,20 @@
-#include "ui/panel/lua_value.hpp"
+#include "lua/number.hpp"
+
+#include "lua/cformat.hpp"
 
 #include <algorithm>
+#include <array>
 #include <cerrno>
+#include <charconv>
 #include <cmath>
 #include <cstddef>
+#include <cstdint>
 #include <cstdlib>
-#include <format>
 #include <optional>
 #include <string>
 #include <string_view>
 
-namespace game::ui::panel {
+namespace game::lua {
 namespace {
 
 // isspace của locale "C".
@@ -50,7 +54,7 @@ namespace {
 
 } // namespace
 
-std::optional<double> lua_tonumber(std::string_view text) {
+std::optional<double> string_to_number(std::string_view text) {
     text = text.substr(0, text.find('\0'));
     std::size_t at = 0;
     while (at < text.size() && is_space(text[at]))
@@ -80,16 +84,17 @@ std::optional<double> lua_tonumber(std::string_view text) {
     return (errno == ERANGE && value == 0.0) ? 0.0 : value;
 }
 
-std::string lua_tostring(double value) {
-    if (std::isnan(value)) return std::signbit(value) ? "-1.#IND" : "1.#QNAN";
-    if (std::isinf(value)) return std::signbit(value) ? "-1.#INF" : "1.#INF";
-    std::string text = std::format("{:.14g}", value);
-    const std::size_t mark = text.find('e');
-    if (mark == std::string::npos) return text;
-    // Số mũ của MSVCR110 luôn có ít nhất ba chữ số; sau 'e' là dấu rồi các chữ số.
-    const std::size_t digits = text.size() - (mark + 2);
-    if (digits < 3) text.insert(mark + 2, 3 - digits, '0');
-    return text;
+std::string number_to_string(double value) {
+    // Số nguyên đủ nhỏ in thẳng như "%.14g" (không số mũ, không làm tròn): 14 chữ số là trần của %.14g.
+    if (std::fabs(value) < 1e14 && std::trunc(value) == value) {
+        if (value == 0.0 && std::signbit(value)) return "-0";
+        std::array<char, 24> buffer{};
+        // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-pointer-arithmetic): to_chars nhận cặp con trỏ đầu-cuối.
+        char* const buffer_end = buffer.data() + buffer.size();
+        const auto result = std::to_chars(buffer.data(), buffer_end, static_cast<std::int64_t>(value));
+        return {buffer.data(), result.ptr};
+    }
+    return format_double('g', FormatSpec{.precision = 14}, value);
 }
 
-} // namespace game::ui::panel
+} // namespace game::lua

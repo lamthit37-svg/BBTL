@@ -534,6 +534,25 @@ target_link_libraries(game_quest PUBLIC game_table game_core)
 # skill: bảng của sách võ công, sách kỹ năng của người chơi và hệ action, port từ mã máy client 2026.
 game_module(skill src/client/book/skill/tables.cpp src/client/book/skill/book.cpp src/client/book/skill/actions.cpp)
 target_link_libraries(game_skill PUBLIC game_table game_core)
+# lua: runtime Lua 5.0.1 của LuaPlus.dll bằng C++ (giá trị, chuỗi intern, bảng, máy ảo, thư viện chuẩn), chạy mã C++ do
+# TOOLS/port/luagen sinh từ script giao diện của client 2026. Bề mặt mã sinh ở vm.hpp, bề mặt chủ ở host.hpp;
+# thiết kế ở docs/giao-viec/LUA-GEN/THIET-KE.md.
+game_module(lua
+    src/client/face/lua/cformat.cpp
+    src/client/face/lua/host.cpp
+    src/client/face/lua/lib_base.cpp
+    src/client/face/lua/lib_common.cpp
+    src/client/face/lua/lib_math.cpp
+    src/client/face/lua/lib_string.cpp
+    src/client/face/lua/lib_table.cpp
+    src/client/face/lua/number.cpp
+    src/client/face/lua/ops.cpp
+    src/client/face/lua/state.cpp
+    src/client/face/lua/string.cpp
+    src/client/face/lua/table.cpp
+    src/client/face/lua/value.cpp)
+target_link_libraries(game_lua PUBLIC game_core)
+
 # ui/panel: logic của từng cửa sổ HUD, thay script Lua của client gốc (hiện, giấu, điền chữ, đặt
 # thanh). Thuần logic trên gui, không cần GPU; module ui (bộ vẽ) dùng nó.
 game_module(ui_panel
@@ -567,7 +586,6 @@ game_module(ui_panel
     src/client/face/ui/panel/select_server.cpp
     src/client/face/ui/panel/login_flow.cpp
     src/client/face/ui/panel/events.cpp
-    src/client/face/ui/panel/lua_value.cpp
     src/client/face/ui/panel/main_menu_bar_3.cpp
     src/client/face/ui/panel/action_bar.cpp
     src/client/face/ui/panel/main_menu_bar_4.cpp
@@ -579,7 +597,7 @@ game_module(ui_panel
     src/client/face/ui/panel/progress_bar.cpp
     src/client/face/ui/panel/data_pool.cpp
     src/client/face/ui/panel/debug_list_box.cpp)
-target_link_libraries(game_ui_panel PUBLIC game_gui game_hero game_quest game_table game_core)
+target_link_libraries(game_ui_panel PUBLIC game_gui game_hero game_lua game_quest game_table game_core)
 # Cấu hình dựng client nằm ở src/client/client.build.toml (chủ dự án chốt 2026-10-14: gắn thẳng vào
 # exe lúc dựng, không đọc tệp lúc chạy, không qua server hay protocol). CMake đọc khoá avatar_frame
 # bằng regex (chỉ nhận dạng `khoá = "giá trị"` trên một dòng) rồi đặt macro cho riêng player_frame.cpp,
@@ -1172,6 +1190,10 @@ function(game_test name)
     add_test(NAME ${name}_tests COMMAND ${name}_tests)
 endfunction()
 game_test(fx game_fx)
+game_test(lua game_lua game_io)
+if(NOT ANDROID AND TARGET lua_tests)
+    target_compile_definitions(lua_tests PRIVATE GAME_LUA_GOLDEN="${PROJECT_SOURCE_DIR}/Test/golden/lua")
+endif()
 game_test(io game_io)
 game_test(xml game_xml)
 game_test(audio game_audio)

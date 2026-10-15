@@ -81,7 +81,7 @@ set(game_layer_luamass "core io lua luagen secure luamass")
 set(game_layer_hero "core hero")
 set(game_layer_quest "core table quest")
 set(game_layer_skill "core table skill")
-set(game_layer_ui/panel "core table gui hero quest ui/panel")
+set(game_layer_ui/panel "core table gui hero quest lua ui/panel")
 # client/session: luồng nền giữ link::Link, máy trạng thái phiên và bảng cổng máy chủ. client/online: cầu nối giữa
 # chuỗi đăng nhập (ui/panel) và phiên mạng.
 set(game_layer_client/session "core net protocol secure link table client/session")
