@@ -1,8 +1,21 @@
-# cmake/GameLayers.cmake — kiểm tầng (KTR-01, KTR-15).
-# Chạy bằng ctest: cmake -DGAME_SOURCE_DIR=<gốc> -P <tệp này>.
-# Bảng tầng là dữ liệu: module → module được include.
-# Module mới PHẢI thêm một dòng. Module con viết "cha/con" (client/stage): thư mục con có nguồn
-# riêng là một module, bảng phải có dòng game_layer_cha/con cho nó.
+#===============================================================================
+#  THIENLONG  |  BUILD
+#-------------------------------------------------------------------------------
+#  TỆP       : cmake/GameLayers.cmake
+#  PHÂN HỆ   : Gamelayers
+#  CHUẨN     : CMake
+#-------------------------------------------------------------------------------
+#  CHỨC NĂNG
+#  - cmake/GameLayers.cmake — kiểm tầng (KTR-01, KTR-15). Chạy bằng ctest:
+#    cmake -DGAME_SOURCE_DIR=<gốc> -P <tệp này>. Bảng tầng là dữ liệu: module →
+#    module được include. Module mới PHẢI thêm một dòng. Module con viết
+#    "cha/con" (client/stage): thư mục con có nguồn riêng là một module, bảng
+#    phải có dòng game_layer_cha/con cho nó.
+#-------------------------------------------------------------------------------
+#  TÁC GIẢ   : HiepHoon
+#  TELEGRAM  : @Hoon9xx
+#===============================================================================
+
 set(game_layer_core "core")
 set(game_layer_io "core io")
 set(game_layer_xml "core xml")
@@ -88,7 +101,7 @@ set(game_layer_ui/script "core io table gui hero luanum lua ui/panel ui/script")
 # client/session: luồng nền giữ link::Link, máy trạng thái phiên và bảng cổng máy chủ. client/online: cầu nối giữa
 # chuỗi đăng nhập (ui/panel) và phiên mạng.
 set(game_layer_client/session "core net protocol secure link table client/session")
-set(game_layer_client/online "core protocol secure ui/panel client/session client/online")
+set(game_layer_client/online "core protocol secure ui/panel client/session client/cast client/online")
 set(game_layer_ui "core io table gpu resource render gui hero ui/panel ui/script ui")
 set(game_layer_control "core ogre control")
 set(game_layer_avatar "core io math ogre anim look resource classic avatar")
@@ -103,10 +116,12 @@ set(game_layer_render "core math shader gpu resource capture render")
 set(game_layer_client/stage "core xml scene client/stage")
 set(game_layer_client/map "core io xml scene client/map")
 set(game_layer_client/world "core io fs xml scene nav collision client/stage client/map client/world")
+# client/cast: thực thể trong cảnh (quái, NPC, người khác) và chuyển động mượt; không biết giao thức hay đồ hoạ.
+set(game_layer_client/cast "core client/cast")
 set(game_layer_client/display
-    "core io math scene gpu resource capture render shader avatar look anim ogre fx control motion nav hero gui ui/panel ui classic client/stage client/map client/world client/display")
+    "core io math scene gpu resource capture render shader avatar look anim ogre fx control motion nav hero gui ui/panel ui classic client/stage client/map client/world client/cast client/display")
 set(game_layer_client/viewer
-    "core io window control audio ui/panel client/stage client/display client/map client/world client/online client/session client/viewer")
+    "core io window control audio ui/panel client/stage client/display client/map client/world client/cast client/online client/session client/viewer")
 set(game_layer_client
     "core io xml scene control audio client/display client/stage client/map client/world client/viewer client")
 

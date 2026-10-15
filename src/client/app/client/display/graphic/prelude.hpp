@@ -1,5 +1,18 @@
-// Nội bộ phần đồ hoạ. Chỉ các tệp display/graphic được include.
-// Kiểu và hàm từng nằm trong một tệp: tách domain vẫn gọi chung, nên để inline ở đây.
+/*==============================================================================
+ *  THIENLONG  |  GAME CLIENT
+ *------------------------------------------------------------------------------
+ *  TỆP       : src/client/app/client/display/graphic/prelude.hpp
+ *  PHÂN HỆ   : Display / Graphic / Prelude
+ *  CHUẨN     : C++23
+ *------------------------------------------------------------------------------
+ *  CHỨC NĂNG
+ *  - Nội bộ phần đồ hoạ. Chỉ các tệp display/graphic được include. Kiểu và hàm
+ *    từng nằm trong một tệp: tách domain vẫn gọi chung, nên để inline ở đây.
+ *------------------------------------------------------------------------------
+ *  TÁC GIẢ   : HiepHoon
+ *  TELEGRAM  : @Hoon9xx
+ *============================================================================*/
+
 #pragma once
 // check.py dịch tệp này một mình, không kèm -msse4.1 mà CMake gắn vào game_math.
 // Chỉ cho x86-64: đích ARM không có tính năng này, clang in cảnh báo rồi bỏ qua.
@@ -21,6 +34,7 @@
 #include "client/map/sheet.hpp"
 #include "client/map/splat.hpp"
 #include "client/map/terrain.hpp"
+#include "client/cast/cast.hpp"
 #include "client/world/world.hpp"
 #include "control/char_camera.hpp"
 #include "fx/cast.hpp"
@@ -271,6 +285,9 @@ constexpr std::size_t kMaxWalkSamples = 1U << 19U;
 constexpr std::size_t kMaxQueued = 4096;
 // Trả lời của phần nối máy chủ chờ chuỗi đăng nhập tối đa giữa hai khung (mỗi việc nhờ có một trả lời, thêm UiConfig).
 constexpr std::size_t kMaxOnlineReplies = 64;
+// Trần tin thế giới chờ luồng vẽ. Một khung nhận cùng lắm vài trăm tin (hàng sự kiện của phiên có trần 256); trần này
+// chỉ chạm khi luồng vẽ đứng lâu.
+constexpr std::size_t kMaxWorldNotes = 4096;
 // Đơn vị toạ độ máy chủ là centimet; đơn vị game của client (kích thước cảnh, minimap) là mét.
 constexpr float kCmPerUnit = 100.0F;
 // Bước thời gian dài nhất của một khung, giây: máy khựng không làm điểm nhìn nhảy xa.

@@ -1,10 +1,26 @@
+/*==============================================================================
+ *  THIENLONG  |  TEST
+ *------------------------------------------------------------------------------
+ *  TỆP       : Test/support/fake_gate.hpp
+ *  PHÂN HỆ   : Support / Fake Gate
+ *  CHUẨN     : C++23
+ *------------------------------------------------------------------------------
+ *  CHỨC NĂNG
+ *  - Máy chủ giả cho test của client: nghe hai cổng loopback (xác thực và
+ *    game), bắt tay bảo mật thật, nói đúng khung và danh mục tin của protocol,
+ *    và giữ tài khoản, vé, nhân vật trong bộ nhớ theo đúng trình tự gate thật
+ *    (Hello, SignIn, Ticket; Hello, Login, CharacterList, CreateCharacter,
+ *    EnterGame, SessionStart, UiConfig, Position, SceneEnter). Không phải bản
+ *    sao của gate: không kiểm tốc độ đi, không zone.
+ *------------------------------------------------------------------------------
+ *  TÁC GIẢ   : HiepHoon
+ *  TELEGRAM  : @Hoon9xx
+ *============================================================================*/
+
+// Chế độ Mode cho test chèn lỗi (rác, sai trình tự, im lặng, đóng đột ngột, tràn tin) vào đúng chỗ máy chủ thật có
+// thể hỏng. Mọi cổng nghe 127.0.0.1 cổng 0 (bẫy mục 11 của AGENTS.md): hệ điều hành cấp, đọc lại bằng game()/auth().
+
 #pragma once
-// Máy chủ giả cho test của client: nghe hai cổng loopback (xác thực và game), bắt tay bảo mật thật, nói đúng khung và
-// danh mục tin của protocol, và giữ tài khoản, vé, nhân vật trong bộ nhớ theo đúng trình tự gate thật (Hello, SignIn,
-// Ticket; Hello, Login, CharacterList, CreateCharacter, EnterGame, SessionStart, UiConfig, Position, SceneEnter).
-// Không phải bản sao của gate: không kiểm tốc độ đi, không zone. Chế độ Mode cho test chèn lỗi (rác, sai trình tự,
-// im lặng, đóng đột ngột, tràn tin) vào đúng chỗ máy chủ thật có thể hỏng.
-// Mọi cổng nghe 127.0.0.1 cổng 0 (bẫy mục 11 của AGENTS.md): hệ điều hành cấp, đọc lại bằng game()/auth().
 
 #include "core/check.hpp"
 #include "net/net.hpp"
@@ -193,6 +209,10 @@ enum class Mode : std::uint8_t {
     kFloodDroppable,
     // Sau Position gửi 400 EntityAppear: hàng đợi sự kiện của client phải tràn.
     kFloodCritical,
+    // Sau SceneEnter (self_id 100) gửi một quái hiện, đi, mất sinh lực rồi biến mất, như zone thật.
+    kWorld,
+    // Như kNormal, nhưng Move đầu tiên bị kéo về bằng Position tick 1000, như gate khi Pace từ chối bước.
+    kPullBack,
 };
 
 class FakeGate {
@@ -221,11 +241,22 @@ public:
     // Số Ping và số Logout đã nhận, để test kiểm nhịp tim và lời chào tạm biệt.
     [[nodiscard]] int pings() const noexcept { return pings_.load(std::memory_order_relaxed); }
     [[nodiscard]] int logouts() const noexcept { return logouts_.load(std::memory_order_relaxed); }
+    // Move đã nhận theo thứ tự, và nền tảng khai trong Hello gần nhất của cổng game (0 khi chưa có).
+    [[nodiscard]] std::vector<protocol::Move> moves() {
+        const std::scoped_lock lock{guard_};
+        return moves_;
+    }
+    [[nodiscard]] std::uint8_t game_platform() {
+        const std::scoped_lock lock{guard_};
+        return game_platform_;
+    }
 
 private:
     static constexpr std::int32_t kScene = 2;
     static constexpr float kStartX = 16500.0F;
     static constexpr float kStartZ = 16900.0F;
+    static constexpr std::uint32_t kSelfId = 100;
+    static constexpr std::uint32_t kPulledTick = 1000;
 
     [[nodiscard]] static secure::Identity make_identity() {
         secure::Result<secure::Identity> made = secure::Identity::generate();
@@ -435,11 +466,54 @@ private:
             return true;
         }
         if (mode == Mode::kGoodbye) return line.send(protocol::Goodbye{.reason = protocol::DisconnectReason::kKicked});
-        return line.send(protocol::SceneEnter{.scene = static_cast<std::uint16_t>(kScene), .x_cm = kStartX, .z_cm = kStartZ, .direction = 0});
+        const protocol::SceneEnter entered{.scene = static_cast<std::uint16_t>(kScene),
+            .x_cm = kStartX,
+            .z_cm = kStartZ,
+            .direction = 0,
+            .self_id = kSelfId};
+        if (!line.send(entered)) return false;
+        return mode == Mode::kWorld ? send_world(line) : true;
+    }
+
+    // Một quái id 7 hiện ở (170 m, 170 m) hướng +Z, đi tới (171 m, 170 m), mất nửa sinh lực rồi biến mất.
+    [[nodiscard]] static bool send_world(ServerLine& line) {
+        protocol::EntityAppear shown;
+        shown.id = 7;
+        shown.kind = protocol::EntityKind::kMonster;
+        shown.template_id = 1234;
+        shown.level = 9;
+        shown.x_cm = 17000.0F;
+        shown.z_cm = 17000.0F;
+        shown.direction = 16384;
+        shown.speed_cm = 300;
+        shown.hp_percent = 100;
+        shown.state = protocol::EntityState::kIdle;
+        const protocol::EntityPos moved{.id = 7, .x_cm = 17100.0F, .z_cm = 17000.0F, .direction = 0, .tick = 5,
+            .state = protocol::EntityState::kWalk};
+        return line.send(shown) && line.send(moved) && line.send(protocol::EntityVitals{.id = 7, .hp_percent = 50}) &&
+               line.send(protocol::EntityDisappear{.id = 7});
+    }
+
+    [[nodiscard]] bool answer_move(ServerLine& line, const protocol::Move& move) {
+        bool is_first = false;
+        {
+            const std::scoped_lock lock{guard_};
+            is_first = moves_.empty();
+            moves_.push_back(move);
+        }
+        const bool pulls = is_first && mode_.load(std::memory_order_relaxed) == Mode::kPullBack;
+        return !pulls || line.send(protocol::Position{.x_cm = kStartX, .z_cm = kStartZ, .tick = kPulledTick});
     }
 
     [[nodiscard]] bool answer_game(ServerLine& line, std::string& account, const protocol::GameClientMessage& message) {
-        if (std::holds_alternative<protocol::Hello>(message)) return line.send(welcome());
+        if (const auto* hello = std::get_if<protocol::Hello>(&message)) {
+            {
+                const std::scoped_lock lock{guard_};
+                game_platform_ = static_cast<std::uint8_t>(hello->platform);
+            }
+            return line.send(welcome());
+        }
+        if (const auto* move = std::get_if<protocol::Move>(&message)) return answer_move(line, *move);
         if (const auto* login = std::get_if<protocol::Login>(&message)) return answer_login(line, account, *login);
         if (const auto* create = std::get_if<protocol::CreateCharacter>(&message)) return answer_create(line, account, *create);
         if (const auto* removed = std::get_if<protocol::DeleteCharacter>(&message)) return answer_delete(line, account, removed->character);
@@ -466,6 +540,8 @@ private:
     std::map<std::string, std::string> passwords_;
     std::map<std::string, std::string> tickets_;
     std::map<std::string, std::vector<protocol::CharacterSummary>> roster_;
+    std::vector<protocol::Move> moves_;
+    std::uint8_t game_platform_ = 0;
     std::uint64_t ticket_counter_ = 0;
     std::uint64_t next_character_ = 1;
     // Khai cuối: huỷ luồng (yêu cầu dừng rồi chờ) trước khi huỷ các thành viên mà luồng dùng.

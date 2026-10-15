@@ -1,5 +1,18 @@
-// Vòng khung của luồng vẽ: mở thiết bị, xin ảnh, ghi lệnh, nộp và trình bày.
-// Shot và cache pipeline nằm ở đây vì chúng đi cùng lệnh của khung.
+/*==============================================================================
+ *  THIENLONG  |  GAME CLIENT
+ *------------------------------------------------------------------------------
+ *  TỆP       : src/client/app/client/display/graphic/frame.cpp
+ *  PHÂN HỆ   : Display / Graphic / Frame
+ *  CHUẨN     : C++23
+ *------------------------------------------------------------------------------
+ *  CHỨC NĂNG
+ *  - Vòng khung của luồng vẽ: mở thiết bị, xin ảnh, ghi lệnh, nộp và trình bày.
+ *    Shot và cache pipeline nằm ở đây vì chúng đi cùng lệnh của khung.
+ *------------------------------------------------------------------------------
+ *  TÁC GIẢ   : HiepHoon
+ *  TELEGRAM  : @Hoon9xx
+ *============================================================================*/
+
 #include "client/display/graphic/state.hpp"
 
 #include "client/display/display.hpp"
@@ -155,6 +168,21 @@ void Display::post_online(const ui::panel::OnlineReply& reply) {
     std::vector<ui::panel::OnlineReply>& replies = state_->online_replies;
     if (replies.size() >= kMaxOnlineReplies) replies.erase(replies.begin());
     replies.push_back(reply);
+}
+
+void Display::post_world(std::span<const cast::Note> notes) {
+    const std::scoped_lock<std::mutex> locked(state_->world_guard);
+    std::vector<cast::Note>& queued = state_->world_notes;
+    for (const cast::Note& note : notes) {
+        const bool is_state = std::holds_alternative<cast::Moved>(note) || std::holds_alternative<cast::Hurt>(note);
+        if (is_state && queued.size() >= kMaxWorldNotes) continue;
+        queued.push_back(note);
+    }
+}
+
+std::optional<core::GroundPoint> Display::reported_spot() const {
+    const std::scoped_lock<std::mutex> locked(state_->spot_guard);
+    return state_->spot_report;
 }
 
 KeptRole Display::kept_role() const {

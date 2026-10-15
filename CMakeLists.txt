@@ -1,7 +1,22 @@
-# THIENLONG — client tự viết nạp tài nguyên Thiên Long Bát Bộ. Khung theo bộ quy cách C++23
-# (refs/14 BD-01..BD-17): cờ theo target, cảnh báo từ config/warnings-*.txt, preset cho từng trình
-# dịch và nền tảng, sanitizer, cứng hoá, tách symbol. Mã nguồn ở engine/ và src/, test ở Test/<domain>/, công
-# cụ Python ở TOOLS/, nguyên liệu ở assets/. Bản thử ở dev/, bản chính thức ở release/.
+#===============================================================================
+#  THIENLONG  |  GAME
+#-------------------------------------------------------------------------------
+#  TỆP       : CMakeLists.txt
+#  PHÂN HỆ   : Build / Cmake
+#  CHUẨN     : CMake
+#-------------------------------------------------------------------------------
+#  CHỨC NĂNG
+#  - THIENLONG — client tự viết nạp tài nguyên Thiên Long Bát Bộ. Khung theo bộ
+#    quy cách C++23 (refs/14 BD-01..BD-17): cờ theo target, cảnh báo từ
+#    config/warnings-*.txt, preset cho từng trình dịch và nền tảng, sanitizer,
+#    cứng hoá, tách symbol. Mã nguồn ở engine/ và src/, test ở Test/<domain>/,
+#    công cụ Python ở TOOLS/, nguyên liệu ở assets/. Bản thử ở dev/, bản chính
+#    thức ở release/.
+#-------------------------------------------------------------------------------
+#  TÁC GIẢ   : HiepHoon
+#  TELEGRAM  : @Hoon9xx
+#===============================================================================
+
 cmake_minimum_required(VERSION 3.28)
 project(thienlong VERSION 0.1.0 LANGUAGES CXX)
 
@@ -439,7 +454,7 @@ if(NOT CMAKE_CROSSCOMPILING)
     target_link_libraries(game_client_session PUBLIC game_core game_net game_protocol game_secure game_link game_table)
     # client/online: cầu nối giữa chuỗi đăng nhập (ui/panel) và phiên mạng; viewer của Windows gọi nó.
     game_module(client_online src/client/app/client/online/bridge.cpp)
-    target_link_libraries(game_client_online PUBLIC game_client_session game_ui_panel game_protocol game_core
+    target_link_libraries(game_client_online PUBLIC game_client_session game_client_cast game_ui_panel game_protocol game_core
         PRIVATE game_secure)
     if(TARGET game_config)
         game_module(gate src/server/gate/table.cpp src/server/gate/front.cpp src/server/gate/motion.cpp)
@@ -993,10 +1008,13 @@ target_link_libraries(game_client_world PUBLIC game_client_stage game_client_map
     game_collision)
 game_module(client_display ${game_client_screen})
 target_link_libraries(game_client_display PUBLIC game_core game_client_stage game_client_map
-    game_client_world game_control)
+    game_client_world game_client_cast game_control)
 if(GAME_HAS_GPU)
     target_link_libraries(game_client_display PRIVATE game_gpu game_render game_capture
         game_avatar game_look game_motion game_ui game_fx game_classic)
+# client/cast: thực thể máy chủ cho client thấy và cách chúng chuyển động mượt; thuần logic, dùng chung PC và điện thoại.
+game_module(client_cast src/client/app/client/cast/cast.cpp)
+target_link_libraries(game_client_cast PUBLIC game_core)
 endif()
 game_module(client_viewer ${game_client_loop})
 target_link_libraries(game_client_viewer PUBLIC game_core game_client_stage
@@ -1300,6 +1318,7 @@ endif()
 if(WIN32)
     game_test(window game_window)
     # Các ca vào vòng kéo thật của Windows. Luôn dựng, nhưng ctest chỉ chạy khi bật
+game_test(cast game_client_cast)
     # GAME_DESKTOP_TESTS: vòng kéo đổi hình và vùng giam con trỏ chuột của cả phiên đăng nhập, người
     # đang dùng máy thấy con trỏ nháy (Test/window_modal_tests.cpp).
     option(GAME_DESKTOP_TESTS "ctest chạy cả test đụng tới con trỏ chuột của phiên Windows" OFF)

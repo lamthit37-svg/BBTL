@@ -1,9 +1,24 @@
-// Bản Windows của cửa sổ xem cảnh: một cửa sổ của module window, phần hiển thị của nó
-// (client/display.hpp) và vòng thông điệp. Luồng vẽ nằm trong Display, tự vẽ lấy; luồng này chỉ
-// đọc sự kiện rồi chuyển cỡ vùng vẽ cho nó, nên kéo hay đổi cỡ cửa sổ không bao giờ đứng chờ GPU.
-// Người dùng đóng cửa sổ thì pump_messages trả Quit; phần hiển thị bị huỷ trước cửa sổ: luồng vẽ
-// dừng hẳn và GPU rỗi trước khi HWND biến mất.
+/*==============================================================================
+ *  THIENLONG  |  GAME CLIENT
+ *------------------------------------------------------------------------------
+ *  TỆP       : src/client/app/client/viewer/viewer_win32.cpp
+ *  PHÂN HỆ   : Client / Viewer / Viewer Win32
+ *  CHUẨN     : C++23
+ *------------------------------------------------------------------------------
+ *  CHỨC NĂNG
+ *  - Bản Windows của cửa sổ xem cảnh: một cửa sổ của module window, phần hiển
+ *    thị của nó (client/display.hpp) và vòng thông điệp. Luồng vẽ nằm trong
+ *    Display, tự vẽ lấy; luồng này chỉ đọc sự kiện rồi chuyển cỡ vùng vẽ cho
+ *    nó, nên kéo hay đổi cỡ cửa sổ không bao giờ đứng chờ GPU. Người dùng đóng
+ *    cửa sổ thì pump_messages trả Quit; phần hiển thị bị huỷ trước cửa sổ:
+ *    luồng vẽ dừng hẳn và GPU rỗi trước khi HWND biến mất.
+ *------------------------------------------------------------------------------
+ *  TÁC GIẢ   : HiepHoon
+ *  TELEGRAM  : @Hoon9xx
+ *============================================================================*/
+
 #include "audio/engine.hpp"
+#include "client/cast/note.hpp"
 #include "client/viewer/viewer.hpp"
 #include "client/world/world.hpp"
 
@@ -46,6 +61,7 @@
 #include <string_view>
 #include <thread>
 #include <utility>
+#include <variant>
 #include <vector>
 
 namespace game::client {
@@ -599,6 +615,34 @@ void serve_online(const Session& session) {
     for (const ui::panel::OnlineReply& reply : session.bridge->collect()) session.display->post_online(reply);
 }
 
+// Máy chủ đưa nhân vật sang cảnh khác cảnh đang chơi (SceneEnter): nạp cảnh đó và vào ở chỗ máy chủ đặt. Không nạp được
+// thì trả phiên như lúc không vào được cảnh đầu: ở lại cảnh cũ trong khi máy chủ tưởng người chơi đã sang cảnh mới là sai.
+void follow_scene(const Session& session, const cast::Arrive& arrive) {
+    const ViewerDesc& desc = *session.desc;
+    if (desc.playing == nullptr || !session.is_playing->load(std::memory_order_relaxed)) return;
+    if (world::current_scene(*desc.playing)->id == arrive.scene) return;
+    const world::EnterResult entered = world::enter(*desc.playing, arrive.scene, desc.data_folder / "Scene");
+    if (!entered) {
+        std::println(stderr, "Đổi cảnh {}: {}", arrive.scene, world::describe(entered.error()));
+        abandon_entry(session);
+        return;
+    }
+    session.display->play(world::current_scene(*desc.playing),
+        EntryPoint{.scene = arrive.scene, .x = arrive.x, .z = arrive.z});
+}
+
+// Tin thế giới của phiên mạng đi sang luồng vẽ; chỗ đứng luồng vẽ dự đoán đi ngược sang phiên để báo máy chủ. Không chặn.
+void serve_world(const Session& session) {
+    const std::vector<cast::Note> notes = session.bridge->take_notes();
+    for (const cast::Note& note : notes) {
+        if (const auto* arrive = std::get_if<cast::Arrive>(&note)) follow_scene(session, *arrive);
+    }
+    session.display->post_world(notes);
+    if (const std::optional<core::GroundPoint> spot = session.display->reported_spot()) {
+        session.bridge->report(spot->x, spot->z);
+    }
+}
+
 void one_frame(Session& session) {
     if (session.input != nullptr && session.controls != nullptr)
         drain_input(*session.input, *session.controls, session.actions);
@@ -606,6 +650,7 @@ void one_frame(Session& session) {
     play_due_sounds(session);
     serve_online(session);
     serve_requests(session);
+    serve_world(session);
     const bool has_world = session.desc->playing != nullptr && session.is_playing->load(std::memory_order_relaxed);
     if (has_world) {
         note_scene(session);

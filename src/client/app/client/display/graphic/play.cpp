@@ -1,5 +1,18 @@
-// Camera, đi lại và người mẫu. Đăng nhập dùng camera cố định hoặc camera chọn nhân vật.
-// Màn chơi dùng camera bám đất của client 2026.
+/*==============================================================================
+ *  THIENLONG  |  GAME CLIENT
+ *------------------------------------------------------------------------------
+ *  TỆP       : src/client/app/client/display/graphic/play.cpp
+ *  PHÂN HỆ   : Display / Graphic / Play
+ *  CHUẨN     : C++23
+ *------------------------------------------------------------------------------
+ *  CHỨC NĂNG
+ *  - Camera, đi lại và người mẫu. Đăng nhập dùng camera cố định hoặc camera
+ *    chọn nhân vật. Màn chơi dùng camera bám đất của client 2026.
+ *------------------------------------------------------------------------------
+ *  TÁC GIẢ   : HiepHoon
+ *  TELEGRAM  : @Hoon9xx
+ *============================================================================*/
+
 #include "client/display/graphic/state.hpp"
 
 #include "client/display/display.hpp"
@@ -43,11 +56,64 @@ void Display::State::place_at(int scene_id) {
     place_walk(walk, *ground, scene_id, stand);
 }
 
+// Máy chủ đặt lại chỗ đứng (kéo về sau bước bị từ chối, dịch chuyển): chỗ dự đoán của nơi này bị bỏ.
+void Display::State::pull_to(core::GroundPoint spot) {
+    if (ground == nullptr || !scale_ok(ground->file)) return;
+    const map::TerrainFile& file = ground->file;
+    walk.x = file.origin.x + (spot.x * file.scale.x);
+    walk.z = file.origin.z + (spot.z * file.scale.z);
+    prev_x = walk.x;
+    prev_z = walk.z;
+    shown_x = walk.x;
+    shown_z = walk.z;
+    order.reset();
+    is_player_running = false;
+}
+
+// Vào cảnh cùng cảnh đang đứng mà chỗ máy chủ nói cách xa chỗ dự đoán hơn chừng này (đơn vị game) là máy chủ đặt lại
+// chỗ đứng (hồi sinh, dịch chuyển trong cảnh); gần hơn thì chỉ là hai bên lệch vài bước.
+constexpr float kArriveSnap = 0.5F;
+
+void Display::State::apply_world() {
+    std::vector<cast::Note> notes;
+    {
+        const std::scoped_lock<std::mutex> locked(world_guard);
+        notes = std::exchange(world_notes, {});
+    }
+    for (const cast::Note& note : notes) {
+        if (const auto* pulled = std::get_if<cast::Pulled>(&note)) {
+            pull_to({.x = pulled->x, .z = pulled->z});
+            continue;
+        }
+        if (const auto* arrive = std::get_if<cast::Arrive>(&note)) {
+            const bool is_here = ground != nullptr && scale_ok(ground->file) && walk.scene_id == arrive->scene;
+            if (is_here) {
+                const core::GroundPoint now = game_of(ground->file, walk);
+                const float away = std::hypot(arrive->x - now.x, arrive->z - now.z);
+                if (away > kArriveSnap) pull_to({.x = arrive->x, .z = arrive->z});
+            }
+        }
+        people.apply(note);
+    }
+}
+
+void Display::State::publish_spot(bool is_live) {
+    std::optional<core::GroundPoint> spot;
+    const std::optional<std::uint16_t> online_scene = people.scene();
+    if (is_live && online_scene && ground != nullptr && scale_ok(ground->file) &&
+        walk.scene_id == static_cast<int>(*online_scene)) {
+        spot = game_of(ground->file, walk);
+    }
+    const std::scoped_lock<std::mutex> locked(spot_guard);
+    spot_report = spot;
+}
+
 // Khung không có người chơi (thủ tục đăng nhập, cảnh không có địa hình): camera là tư thế cố định
 // của màn đăng nhập, hoặc xoay quanh hộp bao thế giới; nút và vị trí chuột vẫn tới giao diện. Phím
 // và thao tác của màn chơi không có camera cảnh nào nhận nên bị bỏ; trước đây cả hàng chờ nằm lại,
 // giao diện không thấy cú bấm nào.
 render::Camera Display::State::idle_view(FrameAsk ask) {
+    publish_spot(false);
     const Taken taken = take_steering();
     view_size = ask.size;
     take_events(taken.events);
@@ -72,6 +138,7 @@ render::Camera Display::State::idle_view(FrameAsk ask) {
 // Thủ tục đăng nhập có cảnh nền và mặt đất nhưng không có người chơi: không dựng mặt đất cho camera
 // bám theo, nên compose_frame cũng không đặt nhân vật vào cảnh.
 render::Camera Display::State::frame_camera(FrameAsk ask) {
+    apply_world();
     if (procedure == Procedure::kLogin) return idle_view(ask);
     if (ground == nullptr || ground->heights.samples.empty()) return idle_view(ask);
     const int scene_id = held ? held->id : -1;
@@ -92,6 +159,8 @@ render::Camera Display::State::frame_camera(FrameAsk ask) {
     publish_cursor();
     simulate_motion(keys, now);
     note_walk_step();
+    people.advance(delta_seconds);
+    publish_spot(true);
     // NOLINTNEXTLINE(bugprone-unchecked-optional-access): terrain đã kiểm ở đầu hàm
     follow.set_look_at(*terrain, foot());
     const control::CameraPose& pose = follow.pose();

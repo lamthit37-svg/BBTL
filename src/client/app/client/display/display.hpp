@@ -1,21 +1,38 @@
-// Phần hiển thị của cửa sổ xem cảnh: một LUỒNG VẼ riêng giữ thiết bị đồ hoạ, màn hình vẽ và
-// render::Forward, quay đều mỗi khung cho tới khi bị dừng — lõi của mọi engine mượt (o3de, Wicked):
-// luồng thông điệp chỉ bơm thông điệp, không bao giờ chặn GPU, nên kéo hay đổi cỡ cửa sổ không bao
-// giờ giật. Nội dung stage được luồng vẽ nạp một lần lúc khởi tạo: mỗi mesh một GLB
-// (Model/<tên>.glb, ảnh ngoài giải trong thư mục dữ liệu), một upload, một Drawable; mỗi vật thể là
-// một Instance với ma trận thế giới T * R * S từ phép đặt gốc. Cảnh có địa hình thì camera là
-// camera cảnh của client 2026 (control/follow_camera), điều khiển bằng chuột, phím và chạm như
-// CGamePro_Main (control/player_input); không có thì luồng vẽ xoay camera quanh hộp bao thế giới
-// theo đồng hồ. Luồng vẽ vẽ đèn directional đầu
-// tiên và ambient của cảnh, và ghi PNG khung đầu (--shot). Hai bản cài đặt, CMake chọn một:
-// display/graphic chia luồng vẽ theo domain (khung, nạp, cảnh, chơi, giao diện, hiệu ứng) và dùng
-// module gpu, render. display_none.cpp cho cấu hình không dựng chuỗi đồ hoạ — không vẽ gì. Nhờ vậy
-// mã gọi không cần biết cấu hình nào đang dựng.
+/*==============================================================================
+ *  THIENLONG  |  GAME CLIENT
+ *------------------------------------------------------------------------------
+ *  TỆP       : src/client/app/client/display/display.hpp
+ *  PHÂN HỆ   : Client / Display / Display
+ *  CHUẨN     : C++23
+ *------------------------------------------------------------------------------
+ *  CHỨC NĂNG
+ *  - Phần hiển thị của cửa sổ xem cảnh: một LUỒNG VẼ riêng giữ thiết bị đồ hoạ,
+ *    màn hình vẽ và render::Forward, quay đều mỗi khung cho tới khi bị dừng —
+ *    lõi của mọi engine mượt (o3de, Wicked): luồng thông điệp chỉ bơm thông
+ *    điệp, không bao giờ chặn GPU, nên kéo hay đổi cỡ cửa sổ không bao giờ
+ *    giật.
+ *------------------------------------------------------------------------------
+ *  TÁC GIẢ   : HiepHoon
+ *  TELEGRAM  : @Hoon9xx
+ *============================================================================*/
+
+// Nội dung stage được luồng vẽ nạp một lần lúc khởi tạo: mỗi mesh một GLB (Model/<tên>.glb, ảnh ngoài giải trong thư
+// mục dữ liệu), một upload, một Drawable; mỗi vật thể là một Instance với ma trận thế giới T * R * S từ phép đặt gốc.
+
+// Cảnh có địa hình thì camera là camera cảnh của client 2026 (control/follow_camera), điều khiển bằng chuột, phím và
+// chạm như CGamePro_Main (control/player_input); không có thì luồng vẽ xoay camera quanh hộp bao thế giới theo đồng
+// hồ. Luồng vẽ vẽ đèn directional đầu tiên và ambient của cảnh, và ghi PNG khung đầu (--shot). Hai bản cài đặt, CMake
+// chọn một: display/graphic chia luồng vẽ theo domain (khung, nạp, cảnh, chơi, giao diện, hiệu ứng) và dùng module
+// gpu, render. display_none.cpp cho cấu hình không dựng chuỗi đồ hoạ — không vẽ gì. Nhờ vậy mã gọi không cần biết cấu
+// hình nào đang dựng.
+
 #pragma once
 
 #include "client/map/ground.hpp"
 #include "client/stage/stage.hpp"
+#include "client/cast/note.hpp"
 #include "client/world/world.hpp"
+#include "core/ground_point.hpp"
 #include "control/cursor_rules.hpp"
 #include "control/input.hpp"
 #include "core/error.hpp"
@@ -218,6 +235,14 @@ public:
     void post_online(const ui::panel::OnlineReply& reply);
     // Việc giao diện đã nhờ từ lần gọi trước (nút của bảng đăng nhập), theo thứ tự. An toàn mọi luồng.
     [[nodiscard]] std::vector<Request> take_requests();
+    // Tin thế giới của phiên mạng (vào cảnh, thực thể hiện, đi, biến mất, sinh lực, bị kéo về) cho luồng vẽ áp ở khung
+    // kế, theo thứ tự. Hàng chờ có trần: vượt trần thì bỏ tin vị trí và sinh lực mới tới (trạng thái tức thời, tin sau
+    // thay nó) chứ không bỏ tin hiện hay biến mất. An toàn mọi luồng.
+    void post_world(std::span<const cast::Note> notes);
+    // Chỗ đứng của nhân vật ở khung vừa mô phỏng, mét của game: cái phiên mạng báo cho máy chủ. Rỗng khi chưa ở màn chơi,
+    // chưa vào cảnh nào của máy chủ, hoặc cảnh máy chủ vừa đổi mà cảnh mới chưa nạp xong (báo chỗ của cảnh cũ lúc ấy
+    // là dịch chuyển giả). An toàn mọi luồng.
+    [[nodiscard]] std::optional<core::GroundPoint> reported_spot() const;
     // Đưa điều khiển bằng phím cho luồng vẽ; nó dùng ở khung kế. An toàn mọi luồng, không chặn lâu.
     void steer(const Steering& input) noexcept;
     // Đưa một thao tác chơi cho luồng vẽ; nó dùng ở bước mô phỏng kế. An toàn mọi luồng.

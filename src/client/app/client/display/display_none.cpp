@@ -1,5 +1,19 @@
-// Bản không có chuỗi đồ hoạ (cấu hình GCC MinGW): không tạo thiết bị, không luồng vẽ. Mọi hàm của
-// Display trở thành no-op; vòng lặp cửa sổ tự xoay theo nhịp nghỉ một khung hình.
+/*==============================================================================
+ *  THIENLONG  |  GAME CLIENT
+ *------------------------------------------------------------------------------
+ *  TỆP       : src/client/app/client/display/display_none.cpp
+ *  PHÂN HỆ   : Client / Display / Display None
+ *  CHUẨN     : C++23
+ *------------------------------------------------------------------------------
+ *  CHỨC NĂNG
+ *  - Bản không có chuỗi đồ hoạ (cấu hình GCC MinGW): không tạo thiết bị, không
+ *    luồng vẽ. Mọi hàm của Display trở thành no-op; vòng lặp cửa sổ tự xoay
+ *    theo nhịp nghỉ một khung hình.
+ *------------------------------------------------------------------------------
+ *  TÁC GIẢ   : HiepHoon
+ *  TELEGRAM  : @Hoon9xx
+ *============================================================================*/
+
 #include "client/display/display.hpp"
 #include "client/world/world.hpp"
 
@@ -110,6 +124,12 @@ std::vector<ui::panel::OnlineAsk> Display::take_online_asks() {
 }
 
 void Display::post_online(const ui::panel::OnlineReply& /*reply*/) {}
+
+void Display::post_world(std::span<const cast::Note> /*notes*/) {}
+
+std::optional<core::GroundPoint> Display::reported_spot() const {
+    return std::nullopt;
+}
 
 KeptRole Display::kept_role() const {
     return {};

@@ -1,3 +1,20 @@
+/*==============================================================================
+ *  THIENLONG  |  GAME CLIENT
+ *------------------------------------------------------------------------------
+ *  TỆP       : src/client/app/client/session/session.cpp
+ *  PHÂN HỆ   : Client / Session / Session
+ *  CHUẨN     : C++23
+ *------------------------------------------------------------------------------
+ *  CHỨC NĂNG
+ *  - Phiên mạng của client: luồng nền giữ link tới gate, máy trạng thái thuần
+ *    và hàng đợi hai chiều có trần.
+ *  - Lệnh từ luồng game qua Mailbox có trần; sự kiện về luồng game đầy thì bỏ
+ *    tin bỏ được rồi báo Lost kQueueFull.
+ *------------------------------------------------------------------------------
+ *  TÁC GIẢ   : HiepHoon
+ *  TELEGRAM  : @Hoon9xx
+ *============================================================================*/
+
 #include "client/session/session.hpp"
 
 #include "client/session/machine.hpp"
@@ -11,6 +28,7 @@
 #include <algorithm>
 #include <atomic>
 #include <chrono>
+#include <cmath>
 #include <condition_variable>
 #include <cstddef>
 #include <cstdint>
@@ -44,6 +62,24 @@ constexpr std::chrono::milliseconds kMaxBeat{5000};
 constexpr net::Milliseconds kFarewell{200};
 // Số bản dựng khai trong Hello. Gate chỉ kiểm phiên bản giao thức.
 constexpr std::uint32_t kBuild = 1;
+// Nền tảng khai trong Hello: máy chủ dùng nó để quyết định ai gặp ai (world.toml [platform]). Mọi máy tính để bàn là
+// Windows (dự án chỉ có bản PC Windows); iOS là nền Apple duy nhất của dự án.
+#if defined(__ANDROID__)
+constexpr protocol::Platform kPlatform = protocol::Platform::kAndroid;
+#elif defined(__APPLE__)
+constexpr protocol::Platform kPlatform = protocol::Platform::kIos;
+#else
+constexpr protocol::Platform kPlatform = protocol::Platform::kWindows;
+#endif
+// Sau khi máy chủ kéo về (Position khi đang chơi) bỏ qua chỗ đứng gửi lên chừng này: luồng vẽ chưa kịp áp vị trí mới
+// nên chỗ đứng nó báo vẫn là chỗ cũ, gửi đi chỉ bị kéo về lần nữa.
+constexpr std::chrono::milliseconds kPullQuiet{120};
+// Nhịp tick của client trong Move/Position (30 mỗi giây, cùng guard::Pace).
+constexpr std::int64_t kTicksPerSecond = 30;
+// Chỗ đứng chênh dưới chừng này (centimet) so với lần gửi trước là không đổi: không gửi lại.
+constexpr float kStillCm = 1.0F;
+// Đổi mét của game sang centimet của dây.
+constexpr float kCmPerMeter = 100.0F;
 
 // Xoá chữ nhạy cảm khỏi bộ nhớ trước khi giải phóng.
 void forget(std::string& secret) noexcept {
@@ -110,13 +146,37 @@ struct Framed {
     return text;
 }
 
+// Chỗ đứng luồng game báo, mét của game.
+struct Footing {
+    float x_m = 0.0F;
+    float z_m = 0.0F;
+};
+
+// Hai chỗ đứng chênh dưới kStillCm theo cả hai trục là cùng một chỗ.
+[[nodiscard]] bool is_same_spot(const Footing& left, const Footing& right) noexcept {
+    return std::abs((left.x_m - right.x_m) * kCmPerMeter) < kStillCm &&
+           std::abs((left.z_m - right.z_m) * kCmPerMeter) < kStillCm;
+}
+
 // Hộp thư giữa luồng game và luồng nền. Khoá chỉ bảo vệ việc đẩy và lấy, không có I/O dưới khoá.
 struct Mailbox {
     std::mutex guard;
     std::condition_variable_any wake;
     std::deque<Command> commands;
     std::vector<Event> events;
+    // Chỗ đứng mới nhất luồng game báo và luồng nền chưa gửi; bản sau đè bản trước.
+    std::optional<Footing> footing;
     std::atomic<std::uint8_t> phase{static_cast<std::uint8_t>(Phase::kIdle)};
+
+    void set_footing(Footing next) {
+        const std::scoped_lock lock{guard};
+        footing = next;
+    }
+
+    [[nodiscard]] std::optional<Footing> take_footing() {
+        const std::scoped_lock lock{guard};
+        return std::exchange(footing, std::nullopt);
+    }
 
     [[nodiscard]] bool submit(Command command) {
         {
@@ -210,7 +270,7 @@ private:
         desc.peer = peer;
         desc.server = key;
         desc.build = kBuild;
-        desc.platform = protocol::Platform::kWindows;
+        desc.platform = kPlatform;
         desc.timeout = kConnect;
         desc.stop = stop_;
         return desc;
@@ -408,6 +468,7 @@ private:
         }
         if (line_) check_deadlines(now);
         if (line_) ping_if_due(now);
+        if (line_) move_if_due(now);
     }
 
     [[nodiscard]] bool is_waiting() const noexcept {
@@ -430,6 +491,45 @@ private:
         if (!protocol::encode(frame, ping)) return;
         const link::LinkResult<void> sent = line_->send_frame(frame, kSend);
         if (!sent) lose(fault_of(sent.error()));
+    }
+
+    // Tick client (30 mỗi giây) của lúc now: tick máy chủ giao lần gần nhất cộng thời gian đã trôi, làm tròn lên để bước
+    // không bao giờ bị tính ít thời gian hơn thực tế (máy chủ cắt theo đồng hồ của nó nên khai dư không mua thêm quãng).
+    [[nodiscard]] std::uint32_t client_tick(Clock::time_point now) const noexcept {
+        constexpr std::int64_t kMillis = 1000;
+        const std::int64_t elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(now - tick_at_).count();
+        const std::int64_t ticks = ((std::max<std::int64_t>(elapsed, 0) * kTicksPerSecond) + kMillis - 1) / kMillis;
+        return static_cast<std::uint32_t>(static_cast<std::uint64_t>(tick_base_) + static_cast<std::uint64_t>(ticks));
+    }
+
+    // Máy chủ đặt chỗ đứng (vào game, kéo về, dịch chuyển): đổi gốc tick, bỏ chỗ đứng cũ chưa gửi.
+    void on_placed(const protocol::Position& spot, Clock::time_point now) {
+        tick_base_ = spot.tick;
+        tick_at_ = now;
+        static_cast<void>(box_->take_footing());
+        sent_ = Footing{.x_m = spot.x_cm / kCmPerMeter, .z_m = spot.z_cm / kCmPerMeter};
+        quiet_until_ = now + kPullQuiet;
+    }
+
+    // Gửi Move cho chỗ đứng mới nhất khi đã vào game, đủ nhịp và chỗ đứng đã đổi. Chỗ đứng không hữu hạn bị bỏ.
+    void move_if_due(Clock::time_point now) {
+        if (!line_ || phase_ != Phase::kInGame || now < next_move_ || now < quiet_until_) return;
+        const std::optional<Footing> latest = box_->take_footing();
+        if (!latest) return;
+        const float x_cm = latest->x_m * kCmPerMeter;
+        const float z_cm = latest->z_m * kCmPerMeter;
+        if (!std::isfinite(x_cm) || !std::isfinite(z_cm)) return;
+        if (sent_ && is_same_spot(*sent_, *latest)) return;
+        std::vector<std::byte> frame;
+        const protocol::Move move{.x_cm = x_cm, .z_cm = z_cm, .tick = client_tick(now)};
+        if (!protocol::encode(frame, move)) return;
+        const link::LinkResult<void> sent = line_->send_frame(frame, kSend);
+        if (!sent) {
+            lose(fault_of(sent.error()));
+            return;
+        }
+        sent_ = *latest;
+        next_move_ = now + kMoveEvery;
     }
 
     void on_frame(std::span<const std::byte> plain) {
@@ -466,6 +566,7 @@ private:
             return;
         }
         const auto* spot = std::get_if<protocol::Position>(&message);
+        if (spot != nullptr) on_placed(*spot, Clock::now());
         if (spot != nullptr && before == Phase::kEntering) {
             emit(Entered{.character = entering_, .position = *spot});
             return;
@@ -496,6 +597,13 @@ private:
     Clock::time_point heard_ = epoch_;
     Clock::time_point next_ping_ = epoch_;
     Clock::time_point reply_by_ = epoch_;
+    // Gốc tick của Move: tick trong Position gần nhất và lúc nhận nó.
+    std::uint32_t tick_base_ = 0;
+    Clock::time_point tick_at_ = epoch_;
+    // Chỗ đứng đã gửi hay máy chủ đã giao gần nhất; so để không gửi lại chỗ cũ.
+    std::optional<Footing> sent_;
+    Clock::time_point next_move_ = epoch_;
+    Clock::time_point quiet_until_ = epoch_;
 };
 
 } // namespace
@@ -519,6 +627,10 @@ bool Session::submit(Command command) {
 
 std::vector<Event> Session::drain() {
     return shared_->box.drain();
+}
+
+void Session::report(float x_m, float z_m) {
+    shared_->box.set_footing(Footing{.x_m = x_m, .z_m = z_m});
 }
 
 Phase Session::phase() const noexcept {

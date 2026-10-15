@@ -1,5 +1,22 @@
+/*==============================================================================
+ *  THIENLONG  |  GAME CLIENT
+ *------------------------------------------------------------------------------
+ *  TỆP       : src/client/app/client/online/bridge.cpp
+ *  PHÂN HỆ   : Client / Online / Bridge
+ *  CHUẨN     : C++23
+ *------------------------------------------------------------------------------
+ *  CHỨC NĂNG
+ *  - Nối OnlineAsk và OnlineReply của panel với lệnh và sự kiện của phiên.
+ *  - Dịch mã lỗi và ngắt kết nối của protocol sang OnlineFault; UiConfig đổi
+ *    FrameStyle; bí mật của việc nhờ được xoá sau khi chuyển.
+ *------------------------------------------------------------------------------
+ *  TÁC GIẢ   : HiepHoon
+ *  TELEGRAM  : @Hoon9xx
+ *============================================================================*/
+
 #include "client/online/bridge.hpp"
 
+#include "client/cast/note.hpp"
 #include "client/session/gates.hpp"
 #include "client/session/machine.hpp"
 #include "client/session/session.hpp"
@@ -9,7 +26,9 @@
 #include "ui/panel/player_frame.hpp"
 #include "ui/panel/roles.hpp"
 
+#include <cstddef>
 #include <cstdint>
+#include <numbers>
 #include <optional>
 #include <span>
 #include <string>
@@ -92,6 +111,97 @@ using ui::panel::OnlineReply;
     return std::nullopt;
 }
 
+// Trần hàng chờ tin thế giới khi luồng game không lấy. Tin vị trí và sinh lực là trạng thái tức thời nên bỏ được; tin
+// hiện, biến mất, vào cảnh và kéo về thì không.
+constexpr std::size_t kNoteCap = 4096;
+
+constexpr float kCmPerMeter = 100.0F;
+constexpr float kDirectionSteps = 65536.0F;
+
+[[nodiscard]] float meters(float centimeters) noexcept {
+    return centimeters / kCmPerMeter;
+}
+
+// Hướng của dây: 0..65535 ứng với 0..2π, 0 là +X và tăng dần quay về +Z, tức vectơ (cos a, sin a) trên (x, z). Hướng của
+// client là atan2(dx, dz) = π/2 - a.
+[[nodiscard]] float facing_of(std::uint16_t direction) noexcept {
+    const float angle = static_cast<float>(direction) * (2.0F * std::numbers::pi_v<float>) / kDirectionSteps;
+    return (std::numbers::pi_v<float> / 2.0F) - angle;
+}
+
+[[nodiscard]] cast::Kind kind_of(protocol::EntityKind kind) noexcept {
+    switch (kind) {
+    case protocol::EntityKind::kPlayer: return cast::Kind::kPlayer;
+    case protocol::EntityKind::kMonster: return cast::Kind::kMonster;
+    case protocol::EntityKind::kNpc: return cast::Kind::kNpc;
+    case protocol::EntityKind::kPet: return cast::Kind::kPet;
+    case protocol::EntityKind::kDrop: return cast::Kind::kDrop;
+    case protocol::EntityKind::kObject: return cast::Kind::kObject;
+    }
+    return cast::Kind::kObject;
+}
+
+[[nodiscard]] cast::Pose pose_of(protocol::EntityState state) noexcept {
+    switch (state) {
+    case protocol::EntityState::kIdle: return cast::Pose::kIdle;
+    case protocol::EntityState::kWalk: return cast::Pose::kWalk;
+    case protocol::EntityState::kDead: return cast::Pose::kDead;
+    }
+    return cast::Pose::kIdle;
+}
+
+[[nodiscard]] cast::Note spawn_note(const protocol::EntityAppear& shown) {
+    cast::Spawn spawn;
+    spawn.id = shown.id;
+    spawn.kind = kind_of(shown.kind);
+    spawn.template_id = shown.template_id;
+    spawn.name = shown.name;
+    spawn.level = shown.level;
+    spawn.x = meters(shown.x_cm);
+    spawn.z = meters(shown.z_cm);
+    spawn.facing = facing_of(shown.direction);
+    spawn.speed = meters(static_cast<float>(shown.speed_cm));
+    spawn.hp_percent = shown.hp_percent;
+    spawn.gender = shown.gender;
+    spawn.face = shown.face;
+    spawn.hair = shown.hair;
+    spawn.school = shown.school;
+    spawn.pose = pose_of(shown.state);
+    return spawn;
+}
+
+struct NotePick {
+    std::optional<cast::Note> operator()(const protocol::SceneEnter& entered) const {
+        return cast::Arrive{.scene = entered.scene,
+            .x = meters(entered.x_cm),
+            .z = meters(entered.z_cm),
+            .facing = facing_of(entered.direction),
+            .self_id = entered.self_id};
+    }
+    std::optional<cast::Note> operator()(const protocol::EntityAppear& shown) const { return spawn_note(shown); }
+    std::optional<cast::Note> operator()(const protocol::EntityDisappear& gone) const {
+        return cast::Vanish{.id = gone.id};
+    }
+    std::optional<cast::Note> operator()(const protocol::EntityPos& moved) const {
+        return cast::Moved{.id = moved.id,
+            .x = meters(moved.x_cm),
+            .z = meters(moved.z_cm),
+            .facing = facing_of(moved.direction),
+            .tick = moved.tick,
+            .pose = pose_of(moved.state)};
+    }
+    std::optional<cast::Note> operator()(const protocol::EntityVitals& vitals) const {
+        return cast::Hurt{.id = vitals.id, .hp_percent = vitals.hp_percent};
+    }
+    std::optional<cast::Note> operator()(const protocol::Position& spot) const {
+        return cast::Pulled{.x = meters(spot.x_cm), .z = meters(spot.z_cm)};
+    }
+    template <typename Other>
+    std::optional<cast::Note> operator()(const Other& /*message*/) const {
+        return std::nullopt;
+    }
+};
+
 // Xoá chữ nhạy cảm của việc nhờ sau khi đã chuyển đi.
 void forget(std::string& secret) noexcept {
     secure::wipe_bytes(std::as_writable_bytes(std::span{secret.data(), secret.size()}));
@@ -160,6 +270,12 @@ std::optional<OnlineReply> reply_of(const session::Event& event) {
     return std::visit(Pick{}, event);
 }
 
+std::optional<cast::Note> note_of(const session::Event& event) {
+    const auto* world = std::get_if<session::World>(&event);
+    if (world == nullptr) return std::nullopt;
+    return std::visit(NotePick{}, world->message);
+}
+
 Bridge::Bridge(session::GateBook book) : book_(std::move(book)) {}
 
 Bridge::~Bridge() = default;
@@ -208,8 +324,21 @@ std::vector<OnlineReply> Bridge::collect() {
     for (const session::Event& event : session_->drain()) {
         std::optional<OnlineReply> reply = reply_of(event);
         if (reply) replies.push_back(std::move(*reply));
+        std::optional<cast::Note> note = note_of(event);
+        if (!note) continue;
+        const bool is_state = std::holds_alternative<cast::Moved>(*note) || std::holds_alternative<cast::Hurt>(*note);
+        if (is_state && notes_.size() >= kNoteCap) continue;
+        notes_.push_back(std::move(*note));
     }
     return replies;
+}
+
+std::vector<cast::Note> Bridge::take_notes() {
+    return std::exchange(notes_, {});
+}
+
+void Bridge::report(float x_m, float z_m) {
+    if (session_) session_->report(x_m, z_m);
 }
 
 session::Phase Bridge::phase() const noexcept {

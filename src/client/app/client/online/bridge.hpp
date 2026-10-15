@@ -1,11 +1,26 @@
-// Cầu nối giữa giao diện đăng nhập và phiên mạng: nhận việc chuỗi đăng nhập nhờ (ui::panel::OnlineAsk) thành lệnh
-// của client/session, và đổi sự kiện của phiên thành trả lời cho chuỗi (ui::panel::OnlineReply). Giữ bảng cổng máy
-// chủ và phiên; phiên (một luồng) chỉ được dựng khi có lần đăng nhập đầu tiên, nên client không có máy chủ trực
-// tuyến nào thì không tốn luồng.
-// Gọi từ một luồng duy nhất (luồng cửa sổ): serve và collect không chặn, không I/O.
-// Bản mới của dự án.
+/*==============================================================================
+ *  THIENLONG  |  GAME CLIENT
+ *------------------------------------------------------------------------------
+ *  TỆP       : src/client/app/client/online/bridge.hpp
+ *  PHÂN HỆ   : Client / Online / Bridge
+ *  CHUẨN     : C++23
+ *------------------------------------------------------------------------------
+ *  CHỨC NĂNG
+ *  - Cầu nối giữa giao diện đăng nhập và phiên mạng: nhận việc chuỗi đăng nhập
+ *    nhờ (ui::panel::OnlineAsk) thành lệnh của client/session, và đổi sự kiện
+ *    của phiên thành trả lời cho chuỗi (ui::panel::OnlineReply). Giữ bảng cổng
+ *    máy chủ và phiên; phiên (một luồng) chỉ được dựng khi có lần đăng nhập đầu
+ *    tiên, nên client không có máy chủ trực tuyến nào thì không tốn luồng.
+ *------------------------------------------------------------------------------
+ *  TÁC GIẢ   : HiepHoon
+ *  TELEGRAM  : @Hoon9xx
+ *============================================================================*/
+
+// Gọi từ một luồng duy nhất (luồng cửa sổ): serve và collect không chặn, không I/O. Bản mới của dự án.
+
 #pragma once
 
+#include "client/cast/note.hpp"
 #include "client/session/gates.hpp"
 #include "client/session/session.hpp"
 #include "protocol/messages.hpp"
@@ -29,6 +44,11 @@ namespace game::client::online {
 // mà client chưa dùng).
 [[nodiscard]] std::optional<ui::panel::OnlineReply> reply_of(const session::Event& event);
 
+// Một sự kiện của phiên thành tin thế giới cho nơi vẽ (vào cảnh, thực thể hiện, đi, biến mất, sinh lực, bị kéo về); không có
+// khi sự kiện không phải tin thế giới. Đổi đơn vị ở đây: centimet của dây thành mét của game, hướng 0..65535 (0 là +X,
+// quay về +Z) thành góc của client (atan2(dx, dz)).
+[[nodiscard]] std::optional<cast::Note> note_of(const session::Event& event);
+
 class Bridge {
 public:
     explicit Bridge(session::GateBook book);
@@ -42,8 +62,12 @@ public:
     [[nodiscard]] std::vector<ui::panel::ServerName> servers() const;
     // Làm các việc chuỗi đăng nhập nhờ, theo thứ tự. Mật khẩu trong asks bị xoá sau khi chuyển cho phiên.
     void serve(std::span<ui::panel::OnlineAsk> asks);
-    // Trả lời đã sẵn cho chuỗi đăng nhập, theo thứ tự.
+    // Trả lời đã sẵn cho chuỗi đăng nhập, theo thứ tự. Cũng gom tin thế giới của cùng các sự kiện vào hàng chờ của take_notes.
     [[nodiscard]] std::vector<ui::panel::OnlineReply> collect();
+    // Tin thế giới đã gom ở các lần collect, theo thứ tự; lấy rồi thì hết.
+    [[nodiscard]] std::vector<cast::Note> take_notes();
+    // Chỗ đứng hiện tại của nhân vật, mét của game: phiên gửi Move khi đã vào game. Không có phiên thì bỏ.
+    void report(float x_m, float z_m);
     // Pha của phiên; kIdle khi phiên chưa dựng.
     [[nodiscard]] session::Phase phase() const noexcept;
 
@@ -55,6 +79,7 @@ private:
     std::optional<session::Session> session_;
     // Trả lời tạo ngay lúc serve (máy chủ không có trong bảng cổng, hàng đợi lệnh đầy).
     std::vector<ui::panel::OnlineReply> immediate_;
+    std::vector<cast::Note> notes_;
 };
 
 } // namespace game::client::online

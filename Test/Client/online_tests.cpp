@@ -1,6 +1,22 @@
-// Cầu nối giữa chuỗi đăng nhập và phiên mạng: bảng đổi (thuần) và cầu chạy thật với máy chủ giả trên loopback
-// (Test/support/fake_gate.hpp), đúng đường mà viewer đi: OnlineAsk vào, OnlineReply ra.
+/*==============================================================================
+ *  THIENLONG  |  TEST
+ *------------------------------------------------------------------------------
+ *  TỆP       : Test/Client/online_tests.cpp
+ *  PHÂN HỆ   : Client / Online Tests
+ *  CHUẨN     : C++23
+ *------------------------------------------------------------------------------
+ *  CHỨC NĂNG
+ *  - Cầu nối giữa chuỗi đăng nhập và phiên mạng: bảng đổi (thuần) và cầu chạy
+ *    thật với máy chủ giả trên loopback (Test/support/fake_gate.hpp), đúng
+ *    đường mà viewer đi: OnlineAsk vào, OnlineReply ra.
+ *------------------------------------------------------------------------------
+ *  TÁC GIẢ   : HiepHoon
+ *  TELEGRAM  : @Hoon9xx
+ *============================================================================*/
+
 #include "client/online/bridge.hpp"
+
+#include "client/cast/note.hpp"
 
 #include "client/session/gates.hpp"
 #include "client/session/machine.hpp"
@@ -16,10 +32,16 @@
 
 #include <array>
 #include <chrono>
+#include <cmath>
+#include <cstddef>
+#include <cstdint>
+#include <limits>
+#include <numbers>
 #include <optional>
 #include <string>
 #include <thread>
 #include <utility>
+#include <variant>
 #include <vector>
 
 namespace game::test {
@@ -271,6 +293,202 @@ void bridge_reports_refusal_and_loss(Context& context) {
     }
 }
 
+
+// ---------------------------------------------------------------------------------------------------------------
+// Tin thế giới và Move
+
+// Lấy tin thế giới của cầu trong khoảng thời gian span, giữ thứ tự; trả lời của chuỗi đăng nhập bỏ đi.
+void pump_for(Bridge& bridge, std::vector<client::cast::Note>& notes, std::chrono::milliseconds span) {
+    const auto until = std::chrono::steady_clock::now() + span;
+    while (std::chrono::steady_clock::now() < until) {
+        static_cast<void>(bridge.collect());
+        for (client::cast::Note& note : bridge.take_notes()) notes.push_back(std::move(note));
+        std::this_thread::sleep_for(2ms);
+    }
+}
+
+// Đăng nhập, tạo một nhân vật rồi vào game trên máy chủ giả; false khi một bước không tới được.
+[[nodiscard]] bool enter_fake_world(Bridge& bridge, std::vector<client::cast::Note>& notes) {
+    std::vector<OnlineReply> seen;
+    serve_one(bridge, sign_in_ask("bi-mat"));
+    if (!collect_until(bridge, seen, [](const OnlineReply& reply) { return is_kind(reply, OnlineReply::Kind::kRoster); })) return false;
+    seen.clear();
+    OnlineAsk create;
+    create.work = OnlineWork::kCreate;
+    create.role.name = "Lam";
+    serve_one(bridge, std::move(create));
+    if (!collect_until(bridge, seen, [](const OnlineReply& reply) { return is_kind(reply, OnlineReply::Kind::kRoster); })) return false;
+    if (seen.empty() || seen.back().roles.empty()) return false;
+    OnlineAsk enter;
+    enter.work = OnlineWork::kEnter;
+    enter.role = seen.back().roles.front();
+    seen.clear();
+    serve_one(bridge, std::move(enter));
+    const bool is_in = collect_until(bridge, seen, [](const OnlineReply& reply) { return is_kind(reply, OnlineReply::Kind::kEntered); });
+    for (client::cast::Note& note : bridge.take_notes()) notes.push_back(std::move(note));
+    return is_in;
+}
+
+template <typename Note>
+[[nodiscard]] const Note* find_note(const std::vector<client::cast::Note>& notes) {
+    for (const client::cast::Note& note : notes) {
+        if (const Note* held = std::get_if<Note>(&note)) return held;
+    }
+    return nullptr;
+}
+
+[[nodiscard]] bool near_value(float left, float right) {
+    return std::fabs(left - right) < 1e-3F;
+}
+
+void note_of_converts_units(Context& context) {
+    using client::session::Event;
+    using client::session::World;
+    namespace cast = client::cast;
+    constexpr float kHalfPi = std::numbers::pi_v<float> / 2.0F;
+
+    protocol::EntityAppear shown;
+    shown.id = 7;
+    shown.kind = protocol::EntityKind::kNpc;
+    shown.template_id = 55;
+    shown.level = 3;
+    shown.x_cm = 1650.0F;
+    shown.z_cm = 1690.0F;
+    shown.direction = 16384;
+    shown.speed_cm = 420;
+    shown.hp_percent = 80;
+    shown.state = protocol::EntityState::kWalk;
+    const auto appear = client::online::note_of(Event{World{.message = shown}});
+    const auto* spawn = appear ? std::get_if<cast::Spawn>(&*appear) : nullptr;
+    context.expect(spawn != nullptr, "EntityAppear thành Spawn");
+    if (spawn != nullptr) {
+        context.expect(spawn->kind == cast::Kind::kNpc && spawn->template_id == 55 && spawn->level == 3, "loại, mẫu, cấp");
+        context.expect(near_value(spawn->x, 16.5F) && near_value(spawn->z, 16.9F), "centimet thành mét");
+        context.expect(near_value(spawn->speed, 4.2F), "tốc độ centimet mỗi giây thành mét mỗi giây");
+        context.expect(spawn->pose == cast::Pose::kWalk && spawn->hp_percent == 80, "trạng thái và sinh lực");
+        context.expect(near_value(spawn->facing, 0.0F), "hướng dây π/2 (về +Z) là hướng client 0 (cũng +Z)");
+    }
+
+    protocol::EntityPos at_plus_x;
+    at_plus_x.id = 1;
+    at_plus_x.direction = 0;
+    const auto plus_x = client::online::note_of(Event{World{.message = at_plus_x}});
+    const auto* moved = plus_x ? std::get_if<cast::Moved>(&*plus_x) : nullptr;
+    context.expect(moved != nullptr && near_value(moved->facing, kHalfPi), "hướng dây 0 (+X) là hướng client π/2");
+    protocol::EntityPos at_minus_x;
+    at_minus_x.id = 1;
+    at_minus_x.direction = 32768;
+    const auto minus_x = client::online::note_of(Event{World{.message = at_minus_x}});
+    const auto* back = minus_x ? std::get_if<cast::Moved>(&*minus_x) : nullptr;
+    context.expect(back != nullptr && near_value(back->facing, -kHalfPi), "hướng dây π (-X) là hướng client -π/2");
+
+    const auto pulled = client::online::note_of(Event{World{.message = protocol::Position{.x_cm = 300.0F, .z_cm = 50.0F, .tick = 9}}});
+    const auto* back_to = pulled ? std::get_if<cast::Pulled>(&*pulled) : nullptr;
+    context.expect(back_to != nullptr && near_value(back_to->x, 3.0F) && near_value(back_to->z, 0.5F), "Position đang chơi là Pulled");
+
+    context.expect(!client::online::note_of(Event{World{.message = protocol::UiConfig{}}}), "UiConfig không phải tin thế giới");
+    context.expect(!client::online::note_of(Event{client::session::Roster{}}), "Roster không phải tin thế giới");
+}
+
+void bridge_delivers_world_notes(Context& context) {
+    namespace cast = client::cast;
+    FakeGate fake;
+    fake.set_mode(Mode::kWorld);
+    Bridge bridge{book_of(fake)};
+    std::vector<cast::Note> notes;
+    context.expect(enter_fake_world(bridge, notes), "vào game");
+    pump_for(bridge, notes, 400ms);
+
+    const auto* arrive = find_note<cast::Arrive>(notes);
+    context.expect(arrive != nullptr && arrive->scene == 2 && arrive->self_id == 100, "SceneEnter mang cảnh và id của mình");
+    context.expect(arrive != nullptr && near_value(arrive->x, 165.0F) && near_value(arrive->z, 169.0F), "chỗ đứng đầu");
+    context.expect(find_note<cast::Pulled>(notes) == nullptr, "Position đầu của phiên không phải kéo về");
+    const auto* spawn = find_note<cast::Spawn>(notes);
+    context.expect(spawn != nullptr && spawn->id == 7 && spawn->template_id == 1234 && spawn->kind == cast::Kind::kMonster, "quái hiện");
+    const auto* moved = find_note<cast::Moved>(notes);
+    context.expect(moved != nullptr && moved->pose == cast::Pose::kWalk && moved->tick == 5 && near_value(moved->x, 171.0F), "quái đi");
+    const auto* hurt = find_note<cast::Hurt>(notes);
+    context.expect(hurt != nullptr && hurt->hp_percent == 50, "mất sinh lực");
+    const auto* gone = find_note<cast::Vanish>(notes);
+    context.expect(gone != nullptr && gone->id == 7, "quái biến mất");
+    // Thứ tự của dây được giữ: hiện trước, biến mất sau.
+    std::size_t at_spawn = notes.size();
+    std::size_t at_vanish = 0;
+    for (std::size_t at = 0; at < notes.size(); ++at) {
+        if (std::holds_alternative<cast::Spawn>(notes[at])) at_spawn = at;
+        if (std::holds_alternative<cast::Vanish>(notes[at])) at_vanish = at;
+    }
+    context.expect(at_spawn < at_vanish, "giữ thứ tự hiện rồi mất");
+    context.expect(bridge.take_notes().empty(), "lấy rồi thì hết");
+}
+
+void report_sends_moves_at_a_steady_pace(Context& context) {
+    FakeGate fake;
+    Bridge bridge{book_of(fake)};
+    std::vector<client::cast::Note> notes;
+    context.expect(enter_fake_world(bridge, notes), "vào game");
+    context.expect(fake.game_platform() == static_cast<std::uint8_t>(protocol::Platform::kWindows), "Hello khai nền tảng của bản dựng");
+    // Qua khoảng im lặng sau khi máy chủ đặt chỗ đứng.
+    pump_for(bridge, notes, 250ms);
+
+    // Báo dồn dập trong 300 ms, mỗi lần một chỗ khác: nhịp 50 ms cho nhiều nhất bảy gói, gói cuối mang chỗ mới.
+    const auto begin = std::chrono::steady_clock::now();
+    float x_m = 165.0F;
+    while (std::chrono::steady_clock::now() - begin < 300ms) {
+        x_m += 0.01F;
+        bridge.report(x_m, 169.0F);
+        std::this_thread::sleep_for(2ms);
+    }
+    pump_for(bridge, notes, 150ms);
+    const std::vector<protocol::Move> sent = fake.moves();
+    context.expect(!sent.empty() && sent.size() <= 8, "nhịp gửi có trần, không mỗi lần báo một gói");
+    if (sent.empty()) return;
+    bool is_ordered = true;
+    for (std::size_t at = 1; at < sent.size(); ++at) is_ordered = is_ordered && sent[at].tick >= sent[at - 1].tick;
+    context.expect(is_ordered, "tick không lùi");
+    context.expect(sent.front().tick > 0, "tick tính từ lúc máy chủ đặt chỗ đứng, không phải 0");
+    context.expect(near_value(sent.back().z_cm, 16900.0F), "centimet");
+    context.expect(sent.back().x_cm > sent.front().x_cm, "gói sau mang chỗ mới hơn");
+
+    // Cùng một chỗ báo lại hay chỗ không hữu hạn thì không gửi thêm.
+    const float last_x = x_m;
+    pump_for(bridge, notes, 120ms);
+    const std::size_t before = fake.moves().size();
+    for (int again = 0; again < 40; ++again) {
+        bridge.report(last_x, 169.0F);
+        bridge.report(std::numeric_limits<float>::quiet_NaN(), 169.0F);
+        std::this_thread::sleep_for(5ms);
+    }
+    pump_for(bridge, notes, 150ms);
+    context.expect(fake.moves().size() <= before + 1, "chỗ cũ báo lại không sinh gói (chỉ chấp nhận gói đang chờ của lần báo trước)");
+    const std::size_t after = fake.moves().size();
+    bridge.report(std::numeric_limits<float>::infinity(), 169.0F);
+    pump_for(bridge, notes, 150ms);
+    context.expect(fake.moves().size() == after, "vô cực không đi ra dây");
+}
+
+void pull_back_rebases_the_tick(Context& context) {
+    namespace cast = client::cast;
+    FakeGate fake;
+    fake.set_mode(Mode::kPullBack);
+    Bridge bridge{book_of(fake)};
+    std::vector<cast::Note> notes;
+    context.expect(enter_fake_world(bridge, notes), "vào game");
+    pump_for(bridge, notes, 250ms);
+
+    bridge.report(166.0F, 169.0F);
+    pump_for(bridge, notes, 300ms);
+    const auto* pulled = find_note<cast::Pulled>(notes);
+    context.expect(pulled != nullptr && near_value(pulled->x, 165.0F) && near_value(pulled->z, 169.0F), "bị kéo về chỗ máy chủ giữ");
+    context.expect(fake.moves().size() == 1, "mới gửi một Move");
+
+    bridge.report(166.5F, 169.0F);
+    pump_for(bridge, notes, 400ms);
+    const std::vector<protocol::Move> sent = fake.moves();
+    context.expect(sent.size() == 2, "sau khoảng im lặng, chỗ đứng mới đi ra dây");
+    if (sent.size() == 2) context.expect(sent[1].tick >= 1000, "tick đếm tiếp từ tick máy chủ giao trong Position");
+}
+
 constexpr std::array kCases{
     Case{.name = "fault_of_error_codes", .body = &fault_of_error_codes},
     Case{.name = "fault_of_lost_reasons", .body = &fault_of_lost_reasons},
@@ -281,6 +499,10 @@ constexpr std::array kCases{
     Case{.name = "bridge_wipes_the_password", .body = &bridge_wipes_the_password},
     Case{.name = "bridge_walks_sign_in_create_enter", .body = &bridge_walks_sign_in_create_enter},
     Case{.name = "bridge_reports_refusal_and_loss", .body = &bridge_reports_refusal_and_loss},
+    Case{.name = "note_of_converts_units", .body = &note_of_converts_units},
+    Case{.name = "bridge_delivers_world_notes", .body = &bridge_delivers_world_notes},
+    Case{.name = "report_sends_moves_at_a_steady_pace", .body = &report_sends_moves_at_a_steady_pace},
+    Case{.name = "pull_back_rebases_the_tick", .body = &pull_back_rebases_the_tick},
 };
 
 } // namespace

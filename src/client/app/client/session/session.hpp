@@ -1,7 +1,20 @@
-// Phiên mạng của client: một luồng nền sở hữu link::Link (cổng xác thực lấy vé, rồi cổng game), nhận việc từ luồng
-// game qua hàng đợi lệnh và trả sự kiện qua hàng đợi sự kiện. Luồng game không bao giờ chờ mạng: submit và drain chỉ
-// giữ một khoá trong vài lệnh đẩy hay lấy, không I/O dưới khoá.
-//
+/*==============================================================================
+ *  THIENLONG  |  GAME CLIENT
+ *------------------------------------------------------------------------------
+ *  TỆP       : src/client/app/client/session/session.hpp
+ *  PHÂN HỆ   : Client / Session / Session
+ *  CHUẨN     : C++23
+ *------------------------------------------------------------------------------
+ *  CHỨC NĂNG
+ *  - Phiên mạng của client: một luồng nền sở hữu link::Link (cổng xác thực lấy
+ *    vé, rồi cổng game), nhận việc từ luồng game qua hàng đợi lệnh và trả sự
+ *    kiện qua hàng đợi sự kiện. Luồng game không bao giờ chờ mạng: submit và
+ *    drain chỉ giữ một khoá trong vài lệnh đẩy hay lấy, không I/O dưới khoá.
+ *------------------------------------------------------------------------------
+ *  TÁC GIẢ   : HiepHoon
+ *  TELEGRAM  : @Hoon9xx
+ *============================================================================*/
+
 // Cách hỏng đã tính trước (CL-03):
 //   mạng đứt giữa chừng           -> Lost{kUnreachable} và đóng link; lệnh kế tiếp là SignIn hay Drop.
 //   máy chủ gửi rác, khung hỏng   -> Lost{kProtocol} (record hỏng thì kSecure).
@@ -12,6 +25,7 @@
 //   thoát giữa lúc bắt tay        -> Link::open nhận stop_token nên huỷ trong khoảng 50 ms; hàm huỷ chờ luồng.
 //   mật khẩu                      -> chỉ nằm trong lệnh SignIn và khung gửi đi; cả hai bị xoá ngay sau khi gửi.
 // Bản mới của dự án.
+
 #pragma once
 
 #include "protocol/messages.hpp"
@@ -109,6 +123,10 @@ using Event = std::variant<Roster, Rejected, Entered, World, Lost>;
 inline constexpr std::size_t kCommandCap = 16;
 inline constexpr std::size_t kEventCap = 256;
 
+// Nhịp tối thiểu giữa hai Move. Máy chủ đo bước theo đồng hồ của nó (guard::Pace) nên nhịp chỉ quyết định độ mịn của
+// chuyển động người khác thấy và số gói gửi đi: 20 gói mỗi giây.
+inline constexpr std::chrono::milliseconds kMoveEvery{50};
+
 // Hạn chờ của phiên; mặc định là số chạy thật. Tách ra để test đo đường quá hạn mà không chờ cả chục giây.
 struct Timing {
     // Hạn chờ máy chủ đáp một việc (đăng nhập có băm Argon2 phía máy chủ nên không để quá ngắn).
@@ -135,6 +153,10 @@ public:
     [[nodiscard]] std::vector<Event> drain();
     // Pha hiện tại của luồng nền.
     [[nodiscard]] Phase phase() const noexcept;
+    // Chỗ đứng hiện tại của nhân vật, mét của game (cùng đơn vị với cảnh; máy chủ dùng centimet). Ghi đè bản chưa gửi,
+    // không xếp hàng: luồng nền chỉ gửi Move cho bản mới nhất, không quá một lần mỗi kMoveEvery, và chỉ khi đã vào game
+    // và chỗ đứng khác lần gửi trước. Không chặn, an toàn mọi luồng.
+    void report(float x_m, float z_m);
 
 private:
     struct Shared;

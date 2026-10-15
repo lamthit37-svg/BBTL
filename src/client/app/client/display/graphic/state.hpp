@@ -1,4 +1,17 @@
-// Trạng thái của luồng vẽ. Nằm ở header nội bộ để mỗi domain một tệp dịch.
+/*==============================================================================
+ *  THIENLONG  |  GAME CLIENT
+ *------------------------------------------------------------------------------
+ *  TỆP       : src/client/app/client/display/graphic/state.hpp
+ *  PHÂN HỆ   : Display / Graphic / State
+ *  CHUẨN     : C++23
+ *------------------------------------------------------------------------------
+ *  CHỨC NĂNG
+ *  - Trạng thái của luồng vẽ. Nằm ở header nội bộ để mỗi domain một tệp dịch.
+ *------------------------------------------------------------------------------
+ *  TÁC GIẢ   : HiepHoon
+ *  TELEGRAM  : @Hoon9xx
+ *============================================================================*/
+
 #pragma once
 #include "client/display/graphic/prelude.hpp"
 #include "motion/jump.hpp"
@@ -89,6 +102,12 @@ struct Display::State {
     void ensure_gates();
     // Resid đổi: điểm đến của cổng, không có điểm thì ô trống gần giữa map.
     void place_at(int scene_id);
+    // Áp tin thế giới tới từ phiên mạng: kéo về thì đặt lại chỗ đứng, còn lại cập nhật các thực thể.
+    void apply_world();
+    // Đặt nhân vật vào chỗ (đơn vị game) máy chủ nói: bỏ lệnh đi đang chạy.
+    void pull_to(core::GroundPoint spot);
+    // Ghi chỗ đứng cho luồng cửa sổ báo máy chủ (hoặc xoá khi không có gì để báo).
+    void publish_spot(bool is_live);
     [[nodiscard]] render::Camera frame_camera(FrameAsk ask);
     [[nodiscard]] render::Camera idle_view(FrameAsk ask);
     [[nodiscard]] bool shows_world_role() const;
@@ -359,6 +378,13 @@ struct Display::State {
     std::vector<ui::panel::OnlineAsk> online_asks;
     std::vector<ui::panel::OnlineReply> online_replies;
     std::optional<EntryPoint> online_entry;
+    // Tin thế giới của phiên mạng chờ luồng vẽ (world_guard), các thực thể đang thấy (chỉ luồng vẽ), và chỗ đứng cho
+    // phiên báo máy chủ (spot_guard: luồng vẽ ghi mỗi khung, luồng cửa sổ đọc).
+    std::mutex world_guard;
+    std::vector<cast::Note> world_notes;
+    cast::Cast people;
+    mutable std::mutex spot_guard;
+    std::optional<core::GroundPoint> spot_report;
     // Chỗ vào game cho lần place_at kế; spawn_guard bảo vệ (luồng cửa sổ ghi, luồng vẽ đọc).
     std::mutex spawn_guard;
     std::optional<EntryPoint> entry_spot;
