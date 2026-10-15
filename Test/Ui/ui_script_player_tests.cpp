@@ -125,7 +125,7 @@ void nothing_is_returned_without_data(Context& context) {
     context.expect(rig.eval("local v = Player:GetData('level') return type(v)") == "nil", "khoá phân biệt hoa thường");
     context.expect(rig.eval("local v = Player:GetData('LEVEL ') return type(v)") == "nil", "khoá thừa dấu cách");
     context.expect(rig.eval("local v = Player:GetData('LEV') return type(v)") == "nil", "khoá chỉ là tiền tố");
-    context.expect(rig.eval("local v = Player:GetData('GUILD') return type(v)") == "nil", "khoá hero::Hero chưa có dữ liệu");
+    context.expect(rig.eval("local v = Player:GetData('TODAYACTIVEPOINT') return type(v)") == "nil", "khoá hero::Hero chưa có dữ liệu");
     // Chuỗi C: NUL cắt khoá, nên "LEVEL\0rác" vẫn là LEVEL.
     context.expect(rig.eval(R"(return Player:GetData("LEVEL\0rac"))") == "1", "NUL cắt khoá");
 }
@@ -145,13 +145,35 @@ void level_and_name_follow_the_hero(Context& context) {
     context.expect(rig.eval("return Player:GetName()") == "Thiên Long", "GetName giữ nguyên byte UTF-8");
 }
 
-constexpr std::array<Case, 6> kCases = {{
+void leader_guild_and_zone_follow_their_facts(Context& context) {
+    hero::Hero who = hero::newcomer();
+    ui::script::Context script;
+    ScriptRig rig(script);
+    if (!rig.ok()) return;
+    context.expect(rig.eval("return DataPool:GetSelfZoneWorldID()") == "-1", "chưa có nhân vật thì id vùng là -1");
+    context.expect(rig.eval("local g, c = DataPool:GetGuildClanID() return g .. '|' .. c") == "-1|-1", "chưa có bang là -1 và -1");
+    script.facts.hero = &who;
+    context.expect(rig.eval("return Player:IsLeader()") == "0", "mặc định không phải đội trưởng");
+    who.is_leader = true;
+    context.expect(rig.eval("return Player:IsLeader()") == "1", "đội trưởng");
+    context.expect(rig.eval("return Player:GetData('GUILD')") == "-1", "GUILD mặc định -1");
+    context.expect(rig.eval("return Player:GetData('ZONEWORLDID')") == "0", "ZONEWORLDID mặc định 0");
+    script.facts.guild_id = 12;
+    script.facts.zone_world_id = 7;
+    context.expect(rig.eval("return Player:GetData('GUILD')") == "12", "GUILD đọc Facts");
+    context.expect(rig.eval("return Player:GetData('ZONEWORLDID')") == "7", "ZONEWORLDID đọc Facts");
+    context.expect(rig.eval("return DataPool:GetSelfZoneWorldID()") == "7", "GetSelfZoneWorldID");
+    context.expect(rig.eval("local g, c = DataPool:GetGuildClanID() return g .. '|' .. c") == "12|-1", "id bang rồi -1 cố định");
+}
+
+constexpr std::array<Case, 7> kCases = {{
     {.name = "mỗi khoá đọc đúng trường của nó", .body = every_key_reads_its_own_field},
     {.name = "MONEY tách vàng bạc đồng", .body = money_splits_into_gold_silver_copper},
     {.name = "EXP và NEEDEXP là chuỗi thập phân", .body = experience_is_decimal_text},
     {.name = "thanh máu vượt int32 kẹp biên", .body = gauges_saturate_instead_of_wrapping},
     {.name = "không có dữ liệu thì không trả gì", .body = nothing_is_returned_without_data},
     {.name = "GetLevel và GetName", .body = level_and_name_follow_the_hero},
+    {.name = "đội trưởng, bang, vùng", .body = leader_guild_and_zone_follow_their_facts},
 }};
 
 } // namespace

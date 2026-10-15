@@ -5,6 +5,7 @@
 
 #include "hero/hero.hpp"
 #include "ui/panel/call.hpp"
+#include "ui/panel/scene_table.hpp"
 #include "ui/script/variable.hpp"
 #include "ui/script/xscript.hpp"
 
@@ -48,6 +49,21 @@ struct Facts {
     // Đồng hồ đơn điệu của khung (HudView::clock); OSAPI:GetTickCount đọc ra. Khác gốc: gốc đọc đồng hồ hệ thống tính từ lúc máy
     // khởi động (GetTickCount, quấn vòng 32 bit); ở đây tính từ lúc đồng hồ khung bắt đầu, nên script chỉ nên dùng hiệu hai lần đọc.
     std::chrono::milliseconds clock{0};
+    // Bảng cảnh (Config/SceneDefineEx.txt) cho GetSceneMapByID, GetSceneSizeByID; nullptr khi chưa nạp (mọi id đều "không có").
+    const panel::SceneTable* scenes = nullptr;
+    // Cỡ cảnh đang đứng (GetSceneSize), đơn vị cảnh nguyên; nullopt khi chưa vào cảnh.
+    struct SceneSize {
+        std::int32_t width = 0;
+        std::int32_t depth = 0;
+    };
+    std::optional<SceneSize> scene_size;
+    // IsTBFinalServer: số nguyên ở đối tượng hệ thống (DAT_141034c40 + 0x5be0ec); 0 là không phải máy chủ chung kết.
+    std::int32_t tb_final_server = 0;
+    // Id bang của nhân vật (Player:GetData("GUILD"), DataPool:GetGuildClanID); -1 là không có bang, như script so sánh.
+    std::int32_t guild_id = -1;
+    // Id thế giới của vùng (Player:GetData("ZONEWORLDID"), DataPool:GetSelfZoneWorldID): số nguyên 16 bit có dấu ở CCharacterData +0xd8,
+    // máy chủ gửi.
+    std::int32_t zone_world_id = 0;
     // ZBS:IsViewerWatching: số ở đối tượng quan sát (+0x18) của máy chủ ZBS; 0 khi chưa có đối tượng đó, như gốc.
     std::int32_t viewer_watching = 0;
     // IsDfsSpeicalServer: số nguyên ở đối tượng hệ thống (DAT_141034c40 + 0x5eefcc); 0 là máy chủ thường.

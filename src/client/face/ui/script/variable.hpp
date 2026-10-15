@@ -8,6 +8,7 @@
 #pragma once
 
 #include <cstddef>
+#include <cstdint>
 #include <map>
 #include <optional>
 #include <string>
@@ -31,6 +32,10 @@ class VariableSystem {
 public:
     // Giá trị của biến; nullopt khi chưa có biến tên đó (khác biến có giá trị rỗng).
     [[nodiscard]] std::optional<std::string_view> get(std::string_view name) const;
+
+    // Giá trị số nguyên của biến như ô ảo 22 của CVariableSystem (Game.exe 0x1406af810): atoi(giá trị), 0 khi chưa có biến. atoi của MSVC bỏ
+    // khoảng trắng đầu, nhận dấu, đọc chữ số liền nhau, dừng ở ký tự đầu không phải số và kẹp ở biên int32 khi tràn.
+    [[nodiscard]] std::int32_t get_int(std::string_view name) const;
 
     // Ghi biến, tạo nếu chưa có (biến mới có giá trị cũ là chuỗi rỗng, nên ghi chuỗi rỗng lên biến mới tạo biến mà không phát sự kiện).
     // Tên rỗng, tên quá dài, giá trị quá dài hay bảng đầy: bỏ qua. Trả sự kiện khi giá trị khác giá trị cũ, trừ biến View_DefaultCamera*

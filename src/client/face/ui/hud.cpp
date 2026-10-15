@@ -833,6 +833,10 @@ void Hud::State::update_script_facts(const HudView& view) {
     facts.scene_id = view.phase == Phase::kPlay && view.scene.id >= 0 ? std::optional<std::int32_t>(view.scene.id) : std::nullopt;
     facts.hero = view.phase == Phase::kPlay ? view.hero : nullptr;
     facts.clock = view.clock;
+    facts.scenes = &scenes;
+    facts.scene_size = view.phase == Phase::kPlay && view.scene.id >= 0
+        ? std::optional<script::Facts::SceneSize>({static_cast<std::int32_t>(view.scene.width), static_cast<std::int32_t>(view.scene.depth)})
+        : std::nullopt;
 }
 
 // Việc script nhờ game sau một thao tác của người chơi: PushEvent (và lời nhắn) thành sự kiện mới đi qua mọi bảng như sự kiện của

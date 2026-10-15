@@ -67,6 +67,8 @@ constexpr std::array kNumbers = std::to_array<NumberKey>({
     {.key = "MISS", .read = [](const Facts&, const hero::Hero& self) noexcept { return self.combat.miss; }},                     // +0x63e8
     {.key = "CRITICALATTACK", .read = [](const Facts&, const hero::Hero& self) noexcept { return self.combat.critical_attack; }},    // +0x63ec
     {.key = "CRITICALDEFENCE", .read = [](const Facts&, const hero::Hero& self) noexcept { return self.combat.critical_defence; }}, // +0x63f0
+    {.key = "GUILD", .read = [](const Facts& facts, const hero::Hero&) noexcept { return facts.guild_id; }},               // +0x2b4, có dấu
+    {.key = "ZONEWORLDID", .read = [](const Facts& facts, const hero::Hero&) noexcept { return facts.zone_world_id; }}, // +0xd8, có dấu
     {.key = "VIGOR", .read = [](const Facts&, const hero::Hero& self) noexcept { return narrow(self.vigor.now); }},           // +0x6370
     {.key = "MAXVIGOR", .read = [](const Facts&, const hero::Hero& self) noexcept { return narrow(self.vigor.top); }},        // +0x6374
     {.key = "ENERGY", .read = [](const Facts&, const hero::Hero& self) noexcept { return narrow(self.energy.now); }},         // +0x6378
@@ -143,16 +145,44 @@ NativeResult get_name(lua_State* lua) {
     return 1;
 }
 
-constexpr std::array<native::Entry, 3> kPlayer = {{
+// Player:IsLeader() (Game.exe 0x140393f10): 1 khi nhân vật là đội trưởng (cặp id người chơi trùng cặp id đội trưởng của DataPool), 0
+// khi không. Chưa có nhân vật thì 0 (Khác gốc: gốc đọc đối tượng người chơi không kiểm null).
+NativeResult is_leader(lua_State* lua) {
+    const hero::Hero* const hero = native::context_of(lua).facts.hero;
+    lua_pushnumber(lua, hero != nullptr && hero->is_leader ? 1 : 0);
+    return 1;
+}
+
+// DataPool:GetSelfZoneWorldID() (0x1402ff7b0): id thế giới của vùng, -1 khi chưa có nhân vật.
+NativeResult get_self_zone_world_id(lua_State* lua) {
+    const Facts& facts = native::context_of(lua).facts;
+    lua_pushnumber(lua, facts.hero == nullptr ? -1 : facts.zone_world_id);
+    return 1;
+}
+
+// DataPool:GetGuildClanID() (0x1402ffd80): id bang rồi hằng -1 (id tộc, gốc đẩy -1.0 cố định). Khác gốc: không kiểm nhân vật.
+NativeResult get_guild_clan_id(lua_State* lua) {
+    lua_pushnumber(lua, native::context_of(lua).facts.guild_id);
+    lua_pushnumber(lua, -1);
+    return 2;
+}
+
+constexpr std::array<native::Entry, 4> kPlayer = {{
     {.name = "GetData", .function = &lua::adapt<get_data>},
     {.name = "GetLevel", .function = &lua::adapt<get_level>},
     {.name = "GetName", .function = &lua::adapt<get_name>},
+    {.name = "IsLeader", .function = &lua::adapt<is_leader>},
+}};
+constexpr std::array<native::Entry, 2> kDataPool = {{
+    {.name = "GetSelfZoneWorldID", .function = &lua::adapt<get_self_zone_world_id>},
+    {.name = "GetGuildClanID", .function = &lua::adapt<get_guild_clan_id>},
 }};
 
 } // namespace
 
 void register_player(lua_State* lua) {
     native::register_table(lua, "Player", kPlayer);
+    native::register_table(lua, "DataPool", kDataPool);
 }
 
 } // namespace game::ui::script

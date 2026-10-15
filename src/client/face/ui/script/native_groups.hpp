@@ -16,13 +16,14 @@ void register_variable(lua_State* lua);
 
 // Điều game biết về thế giới (Context::facts): DataPool:GetCurDialogNpcId, DataPool:LuaFnGetGMVisibleType, SystemSetup:IsClassic,
 // WuLinZhiDian:IsWuLinZhiDianScene, JueZhanWuLinZhiDian:IsJueZhanWuLinZhiDianScene, CSongliaoWarData:TSLGetLocalSceneID, GetSceneID,
-// IsZbs2018SpeicalServer.
+// IsZbs2018SpeicalServer, GetSceneSize, GetSceneSizeByID, GetSceneMapByID, IsInTServer, IsTBFinalServer, KVKInterface:IsInKVKServer,
+// TLCJ:IsInTLCJScene.
 void register_world(lua_State* lua);
 
 // ScriptGlobal_Format (message_format.hpp).
 void register_format(lua_State* lua);
 
-// Player:GetData, Player:GetLevel, Player:GetName (thuộc tính của nhân vật người chơi, Facts::hero).
+// Player:GetData, GetLevel, GetName, IsLeader; DataPool:GetSelfZoneWorldID, GetGuildClanID (nhân vật người chơi, Facts::hero).
 void register_player(lua_State* lua);
 
 // Hàm hệ thống nhỏ: OSAPI:GetTickCount, ZBS:IsViewerWatching, IsDfsSpeicalServer, Infant:GetMaxSkillNum, KaJi:LuaFnIsKaJiServer,

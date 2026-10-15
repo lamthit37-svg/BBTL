@@ -1,8 +1,10 @@
 // Bảng biến, điều game biết về thế giới và ScriptGlobal_Format của script giao diện (ui/script/variable, message_format,
 // native_variable, native_world, native_format): luật thuần của bảng biến và bố cục byte của lời nhắn, rồi chạy đoạn Lua thật. Sai ở
 // đây hỏng thầm (lời nhắn bị cắt hay lệch byte, sự kiện biến đổi không phát hay phát thừa, cửa sổ rẽ nhánh sai theo cảnh) nên có test.
+#include "hero/hero.hpp"
 #include "support/script_rig.hpp"
 #include "ui/panel/call.hpp"
+#include "ui/panel/scene_table.hpp"
 #include "ui/script/context.hpp"
 #include "ui/script/message_format.hpp"
 #include "ui/script/variable.hpp"
@@ -11,6 +13,7 @@
 
 #include <array>
 #include <cstddef>
+#include <cstdint>
 #include <optional>
 #include <span>
 #include <string>
@@ -180,7 +183,90 @@ void script_global_format_packs_or_reports(Context& context) {
     context.expect(empty_pattern.starts_with("LỖI: "), "mẫu rỗng kèm đối số là lỗi Lua, không chết");
 }
 
-constexpr std::array<Case, 7> kCases = {{
+// Một dòng của Config/SceneDefineEx.txt: 25 ô cách nhau bằng tab; chỉ đặt các ô mà bảng cảnh đọc (id, cỡ, token), ô còn lại là "0".
+std::string scene_line(int id, std::string_view name, int width, int depth, std::string_view token) {
+    std::array<std::string, 25> cells;
+    cells.fill("0");
+    cells.at(0) = std::to_string(id);
+    cells.at(1) = name;
+    cells.at(2) = std::to_string(width);
+    cells.at(3) = std::to_string(depth);
+    cells.at(10) = token;
+    std::string line;
+    for (const std::string& cell : cells) line += (line.empty() ? "" : "\t") + cell;
+    return line;
+}
+
+void scene_functions_read_the_scene_table(Context& context) {
+    ui::script::Context script;
+    ScriptRig rig(script);
+    if (!rig.ok()) return;
+    const std::string size_code = "local w, d = GetSceneSizeByID(2) return w .. '|' .. d";
+    context.expect(rig.eval("return GetSceneMapByID(2)").empty(), "chưa nạp bảng cảnh thì token rỗng");
+    context.expect(rig.eval(size_code) == "0|0", "chưa nạp bảng cảnh thì cỡ 0 và 0");
+    const ui::panel::SceneTable table =
+        ui::panel::SceneTable::from_text(scene_line(2, "dali", 512, 256, "dali_map") + "\n" + scene_line(753, "wulin", 300, 200, "wulin_map") + "\n");
+    script.facts.scenes = &table;
+    context.expect(rig.eval("return GetSceneMapByID(2)") == "dali_map", "token cảnh 2");
+    context.expect(rig.eval("return GetSceneMapByID('753')") == "wulin_map", "chuỗi số cũng được nhận (lua_tonumber không nghiêm)");
+    context.expect(rig.eval("return GetSceneMapByID(99)").empty(), "id lạ thì token rỗng");
+    context.expect(rig.eval("return GetSceneMapByID({})").empty(), "đối số không phải số thành id 0, không có dòng");
+    context.expect(rig.eval(size_code) == "512|256", "cỡ cảnh 2");
+    context.expect(rig.eval("local w, d = GetSceneSizeByID(99) return w .. '|' .. d") == "0|0", "id lạ thì cỡ 0 và 0");
+    const std::string current = "local w, d = GetSceneSize() return w .. '|' .. d";
+    context.expect(rig.eval(current) == "0|0", "chưa vào cảnh thì cỡ 0 và 0");
+    script.facts.scene_size = ui::script::Facts::SceneSize{.width = 512, .depth = 256};
+    context.expect(rig.eval(current) == "512|256", "cỡ cảnh đang đứng");
+}
+
+void server_and_scene_flags_follow_the_original(Context& context) {
+    ui::script::Context script;
+    ScriptRig rig(script);
+    if (!rig.ok()) return;
+    context.expect(rig.eval("return IsInTServer()") == "0", "mặc định không phải máy chủ T");
+    // IsTServer là atoi của biến: khác 0 thì 1, kể cả số có đuôi chữ; chữ thuần và "-0" là 0.
+    const std::array<std::pair<std::string_view, std::string_view>, 5> variables = {{{"abc", "0"}, {"-0", "0"}, {" 7x", "1"}, {"-3", "1"}, {"0", "0"}}};
+    for (const auto& [value, wanted] : variables) {
+        static_cast<void>(script.variables.set("IsTServer", value));
+        context.expect(rig.eval("return IsInTServer()") == wanted, "IsTServer = " + std::string(value));
+    }
+    static_cast<void>(script.variables.set("IsTServer", "0"));
+    for (const std::int32_t scene : {0x28a, 0x2d8, 0x2d9}) {
+        script.facts.scene_id = scene;
+        context.expect(rig.eval("return IsInTServer()") == "1", "cảnh T " + std::to_string(scene));
+    }
+    script.facts.scene_id = 0x28b;
+    context.expect(rig.eval("return IsInTServer()") == "0", "cảnh liền kề không phải");
+    // IsInKVKServer: atoi của biến, kẹp biên int32 như strtol.
+    context.expect(rig.eval("return KVKInterface:IsInKVKServer()") == "0", "chưa đặt IsKVKServer thì 0");
+    const std::array<std::pair<std::string_view, std::string_view>, 6> kvk = {{
+        {"12abc", "12"}, {"-5", "-5"}, {"+3", "3"}, {"  9", "9"}, {"99999999999", "2147483647"}, {"-99999999999", "-2147483648"}}};
+    for (const auto& [value, wanted] : kvk) {
+        static_cast<void>(script.variables.set("IsKVKServer", value));
+        context.expect(rig.eval("return KVKInterface:IsInKVKServer()") == wanted, "IsKVKServer = " + std::string(value));
+    }
+    script.facts.tb_final_server = 4;
+    context.expect(rig.eval("return IsTBFinalServer()") == "4", "IsTBFinalServer đọc Facts");
+}
+
+void tlcj_scene_needs_a_hero(Context& context) {
+    ui::script::Context script;
+    ScriptRig rig(script);
+    if (!rig.ok()) return;
+    const hero::Hero who = hero::newcomer();
+    script.facts.scene_id = 0x3e0;
+    context.expect(rig.eval("return TLCJ:IsInTLCJScene()") == "0", "không có nhân vật thì 0 dù đúng cảnh");
+    script.facts.hero = &who;
+    context.expect(rig.eval("return TLCJ:IsInTLCJScene()") == "1", "cảnh 0x3e0");
+    script.facts.scene_id = 0x3f7;
+    context.expect(rig.eval("return TLCJ:IsInTLCJScene()") == "1", "cảnh 0x3f7");
+    script.facts.scene_id = 0x3e1;
+    context.expect(rig.eval("return TLCJ:IsInTLCJScene()") == "0", "cảnh khác");
+    script.facts.scene_id.reset();
+    context.expect(rig.eval("return TLCJ:IsInTLCJScene()") == "0", "chưa vào cảnh");
+}
+
+constexpr std::array<Case, 10> kCases = {{
     {.name = "bảng biến theo luật của gốc", .body = variable_system_follows_the_original_rules},
     {.name = "bảng biến có trần", .body = variable_system_bounds_its_input},
     {.name = "Variable:GetVariable và SetVariable", .body = variable_natives_read_and_write},
@@ -188,6 +274,9 @@ constexpr std::array<Case, 7> kCases = {{
     {.name = "lời nhắn đóng gói đúng từng byte", .body = message_layout_is_byte_exact},
     {.name = "lời nhắn không đóng gói được", .body = message_rejects_what_cannot_be_packed},
     {.name = "ScriptGlobal_Format", .body = script_global_format_packs_or_reports},
+    {.name = "hàm cảnh đọc bảng cảnh", .body = scene_functions_read_the_scene_table},
+    {.name = "cờ máy chủ và cảnh đặc biệt", .body = server_and_scene_flags_follow_the_original},
+    {.name = "IsInTLCJScene cần nhân vật", .body = tlcj_scene_needs_a_hero},
 }};
 
 } // namespace
