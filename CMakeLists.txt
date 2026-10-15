@@ -539,6 +539,12 @@ target_link_libraries(game_skill PUBLIC game_table game_core)
 # thiết kế ở docs/giao-viec/LUA-GEN/THIET-KE.md.
 game_module(lua
     src/client/face/lua/cformat.cpp
+    src/client/face/lua/host.cpp
+    src/client/face/lua/lib_base.cpp
+    src/client/face/lua/lib_common.cpp
+    src/client/face/lua/lib_math.cpp
+    src/client/face/lua/lib_string.cpp
+    src/client/face/lua/lib_table.cpp
     src/client/face/lua/number.cpp
     src/client/face/lua/ops.cpp
     src/client/face/lua/state.cpp
