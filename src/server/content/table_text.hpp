@@ -60,6 +60,9 @@ struct Record {
 // Duyệt các bản ghi của một bảng đã qua read_head, hai lượt trên cùng thân bảng: trước là các dòng
 // thường theo thứ tự trong tệp, sau là các dòng có ô đầu bắt đầu bằng #. parse_tsv coi dòng # là
 // chú thích và nuốt mất bản ghi, nên mỗi dòng như vậy là một lỗi và vẫn được đọc như bản ghi.
+// Ngoại lệ duy nhất: tệp chữ .txt (tables/server/dialogue.zh.txt) có dòng nhóm "## <chủ> <nhãn>" giữa các câu; dòng đó
+// không phải bản ghi và không lỗi. Khoá của tệp chữ không mở đầu bằng # (TOOLS/server/dialogue_text.py), nên không bản ghi
+// nào bị nuốt.
 class RecordReader {
 public:
     // file và head phải sống lâu hơn bộ đọc.
@@ -79,6 +82,8 @@ private:
     TextView text_;
     const TableHead* head_ = nullptr;
     LinePlace place_;
+    // Tệp chữ .txt: dòng "## " là dòng nhóm, không phải bản ghi.
+    bool has_groups_ = false;
     Pass pass_ = Pass::kPlain;
     bool is_done_ = false;
     std::vector<TextView> cells_;

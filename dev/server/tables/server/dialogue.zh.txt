@@ -1,0 +1,3699 @@
+# schema 1
+# source: Public/Data/Script
+# tool: TOOLS/server/lua_extract.py; sửa tay sẽ mất ở lượt xuất sau
+# types: text	text
+# layout: aligned
+# Chữ thoại của máy chủ: lời NPC, lựa chọn và chuỗi nhiệm vụ viết thẳng trong script Lua gốc.
+# Nhà phát hành KHÔNG sửa tệp này (lần nâng bản sau ghi đè): chép dòng muốn đổi sang
+# config/text/dialogue.zh.txt, giữ nguyên khoá, sửa chữ. Khoá trùng thì câu của config thắng.
+# Mỗi dòng: khoá, dấu cách cho thẳng cột, MỘT tab, chữ. Dấu cách đầu chữ giữ nguyên; dấu cách cuối ghi bằng ␣.
+# Dòng "## <script>:<số>" hoặc "## quest:<số>" mở nhóm của một script NPC hay nhiệm vụ; phần sau là nhãn.
+key           	text
+## 2:-1  obj/luoyang/oluoyang_caibian.lua
+lua.194c7670  	同盟介绍
+lua.2e0572c5  	查看本盟详细资讯
+lua.a8fc61ad  	  西京洛阳乃是天下第一大城。来了洛阳，可别忘了去赏赏洛阳牡丹，去白马寺上一炷香。
+lua.d33f804b  	创建同盟
+lua.dcff812a  	查看同盟列表
+## 3:-1  obj/luoyang/oluoyang_gaoqiu.lua
+lua.aa689da1  	  童大人已经在端王面前举荐我了，我的机会来了，只要你跟着我，荣华富贵，以后可就享之不尽了，哈哈！
+## 4:-1  obj/luoyang/oluoyang_tongguan.lua
+lua.05f6c195  	  {0}姑娘，见到你真高兴啊！我现在负责蹴鞠大赛的工作。蹴鞠大赛在每个月第一个及第三个周日的晚上19点开始，到晚上23点结束。机会难得，不要错过哦！
+lua.14bc23f9  	横扫牡丹碗
+lua.37036cf5  	  {0}少侠，见到你真高兴啊！我现在负责蹴鞠大赛的工作。蹴鞠大赛在每个月第一个及第三个周日的晚上19点开始，到晚上23点结束。机会难得，不要错过哦！
+## 5:-1  obj/luoyang/oluoyang_lvhuiqing.lua
+lua.2392d729  	  我是吕惠卿。少侠与人为善，将来必堪大用。
+## 6:-1  obj/luoyang/oluoyang_zhangdun.lua
+lua.c0b395bd  	  如今天下动乱，贼兵四起。朝廷为了迅速平叛，给百姓一个太平盛世，特号召天下各位英雄帮助平叛。平叛有功者，将由本丞相给予一个尊贵的称号作为奖励。
+## 13:-1  obj/luoyang/oluoyang_zhoubangyan.lua
+lua.8341ad5c  	  听传言说师师小姐被送进了端王府，真不敢相信这是真的。
+## 14:-1  obj/luoyang/oluoyang_guotianxin.lua
+lua.cc3c13a8  	  最近将有水星淩日的神奇天象出现，有空去看看吧。
+## 16:-1  obj/luoyang/oluoyang_azi.lua
+lua.86185253  	阿紫任务
+## 17:-1  obj/luoyang/oluoyang_youtanzhi.lua
+lua.c54c56a1  	  阿紫小姐，美……美如天仙……真想……想天天都看见她……
+## 18:-1  obj/luoyang/oluoyang_kangmin.lua
+lua.c6ad32dd  	  小妇人现在守寡在家，生活孤苦啊，这日日夜夜也没个知心人说说话，唉！
+## 19:-1  obj/luoyang/oluoyang_batianshi.lua
+lua.b0436ea6  	  真巧{0}少侠，竟然又在这里见面了。大理每次参加蹴鞠大赛，都是陪太子读书而已。
+lua.ebd68612  	  真巧{0}姑娘，竟然又在这里见面了。大理每次参加蹴鞠大赛，都是陪太子读书而已。
+## 21:-1  obj/luoyang/oluoyang_xuzhanglao.lua
+lua.2d9d9bec  	  丐帮杏子林大会不久即将召开，到时候我要向大家宣布一件重大的事情，{0}姑娘，若有时间就一起来参加吧！
+lua.2db2dbe0  	送我去聚贤庄（夜间）
+lua.ddb78ff0  	送我去聚贤庄（白天）
+lua.e2e09540  	  丐帮杏子林大会不久即将召开，到时候我要向大家宣布一件重大的事情，{0}少侠，若有时间就一起来参加吧！
+## 25:-1  obj/luoyang/oluoyang_zhaoqiansun.lua
+lua.32bf63df  	  你也是来白马寺拜佛的吗？这里的佛祖可灵了，小娟前些日子给我来信了，一定是我的诚心感动了佛祖……
+## 26:-1  obj/luoyang/oluoyang_zongzan.lua
+lua.a55d2160  	  大宋在上届蹴鞠大赛上拿了冠军，这次该我们吐蕃拿冠军了。
+## 27:-1  obj/luoyang/oluoyang_lishishi.lua
+lua.634715f8  	#G坐骑进阶
+lua.c48f18f9  	  无可奈何花落去，似曾相识燕归来。小园香径独徘徊。
+## 27:6  obj/luoyang/oluoyang_lishishi.lua
+lua.2f39b49b  	#G评分第一进阶
+lua.a86a4dc5  	#G评分第二进阶
+lua.aabfb9a3  	请将待进阶的坐骑放到背包第一格
+lua.af90fc5f  	只有获得装备评分排行前三奖励的玩家可以进行操作
+lua.d003c890  	#G评分第三进阶
+## 28:-1  obj/luoyang/oluoyang_jinzuohuan.lua
+lua.32eed456  	  谁说我们高丽国进贡的国礼丢了，胡说，根本没有的事情。{0}少侠，要是再听见有人胡言乱语就带他来见我，我倒要好好问问他哪只眼睛看见国礼丢了。
+lua.786a6f4a  	  谁说我们高丽国进贡的国礼丢了，胡说，根本没有的事情。{0}姑娘，要是再听见有人胡言乱语就带他来见我，我倒要好好问问他哪只眼睛看见国礼丢了。
+## 29:-1  obj/luoyang/oluoyang_tengyuanzuowei.lua
+lua.efb9bda3  	  非常高兴见到你，大宋朝真是个美丽的国家。我很喜欢这里，希望以后还有机会再来。
+## 32:-1  obj/luoyang/oluoyang_xiaofengxian.lua
+lua.2a033374  	  太后让我们来宋朝好好进行蹴鞠比赛。
+## 33:-1  obj/luoyang/oluoyang_heliantieshu.lua
+lua.a2d1fa2a  	  这次蹴鞠大会来的人真多，大宋朝每年举办大会，难道真的是为了切磋蹴鞠技艺吗？
+lua.fdd09e77  	银川公主任务
+## 34:-1  obj/luoyang/oluoyang_yanqing.lua
+lua.6d665286  	#{FBYQ_090204_01}姑娘#{FBYQ_090204_02}
+lua.b040e03a  	#{FBYQ_090204_01}少侠#{FBYQ_090204_02}
+## 34:14  obj/luoyang/oluoyang_yanqing.lua
+lua.9ae711a1  	  学习暗器投掷手法需要#{_EXCHG20000}。
+## 34:15  obj/luoyang/oluoyang_yanqing.lua
+lua.571c604e  	  学习暗器打穴手法需要#{_EXCHG100000}。
+## 34:16  obj/luoyang/oluoyang_yanqing.lua
+lua.c3ea8238  	  学习暗器护体手法需要#{_EXCHG500000}。
+## 36:-1  obj/luoyang/oluoyang_shutong.lua
+lua.4b8613f5  	  老爷完成《资治通鉴》后，身体已经非常虚弱了，还经常为国事操劳，真让人担心啊。
+## 37:-1  obj/luoyang/oluoyang_nanpu.lua
+lua.6af68d1c  	  老爷正在休息，任何人不得打扰。
+## 39:-1  obj/luoyang/oluoyang_youzuo.lua
+lua.4df15db0  	  好久未见恩师，甚为挂念啊！#r  恩师对我们教诲有方，使得我们领悟很多世间的道理，今日特来看望恩师。
+## 41:-1  obj/luoyang/oluoyang_zongkada.lua
+lua.28163005  	  洛阳城的空气，远比逻些城的空气稠密。真不适应……
+## 42:-1  obj/luoyang/oluoyang_zongkaban.lua
+lua.927d2fbe  	  不知道今年的蹴鞠大会，哪方会赢，真是期待啊！
+## 44:-1  obj/luoyang/oluoyang_limama.lua
+lua.2d809ead  	  哎吆吆，这不是{0}少侠#{{OBJ_luoyang_0015}}
+lua.4ce499d9  	  哎吆吆，这不是{0}姑娘#{{OBJ_luoyang_0015}}
+## 45:-1  obj/luoyang/oluoyang_geji.lua
+lua.b377c910  	  我是小丫鬟，主子的事情我可不知道。
+## 46:-1  obj/luoyang/oluoyang_piaomingshan.lua
+lua.a250fcd0  	  洛阳的牡丹真是名不虚传啊，和我们高丽的山茶花有的一比。听说宋王朝的苏州城也漂亮的很，{0}姑娘，可曾去过？
+lua.ab577cc0  	  洛阳的牡丹真是名不虚传啊，和我们高丽的山茶花有的一比。听说宋王朝的苏州城也漂亮的很，{0}少侠，可曾去过？
+## 47:-1  obj/luoyang/oluoyang_beitiaosi.lua
+lua.e0d88625  	  听说高丽国进贡的国礼丢了，真的吗？
+## 48:-1  obj/luoyang/oluoyang_wutianxinxuan.lua
+lua.2eb1af09  	  大宋国有很多值得我们学习的东西，特别是《孙子兵法》，趁这次蹴鞠大会希望我们两国可以好好交流一下。
+## 50:-1  obj/luoyang/oluoyang_wangdegui.lua
+lua.46526f13  	资质鉴定
+lua.bfbbc517  	  来看看吧，我这里的兵器都是洛阳城最好的。
+## 53:-1  obj/luoyang/oluoyang_chenshouting.lua
+lua.cad7d2e2  	  现在商会缺货，你等些日子再来吧。
+## 55:-1  obj/luoyang/oluoyang_cuizongzhi.lua
+lua.b4d6f55e  	购买肉
+lua.f59c1dde  	  人们总我喝醉了之后的样子就像玉树临风，不知是也不是。
+## 59:-1  obj/luoyang/oluoyang_fantong.lua
+lua.0dbfa605  	  来尝尝茗珍楼的洛阳水席吧，包你吃了之后再也不想离开洛阳。
+lua.5b7ad8a1  	购买食物
+## 68:-1  obj/luoyang/oluoyang_zhiqing.lua
+lua.65f2564b  	  {0}#{{OBJ_luoyang_0021}}
+## 72:-1  obj/luoyang/oluoyang_biaotou.lua
+lua.d5929455  	  本镖局诚信第一，义薄云天，得黑白两道朋友赏脸，才能保证连续十年不丢镖。{0}姑娘，有什么需要的您尽管开口，上刀山，下火海，我盖千鸣眼都不眨一下。
+lua.e3d93ae5  	  本镖局诚信第一，义薄云天，得黑白两道朋友赏脸，才能保证连续十年不丢镖。{0}少侠，有什么需要的您尽管开口，上刀山，下火海，我盖千鸣眼都不眨一下。
+## 78:-1  obj/luoyang/oluoyang_zhangbozhi.lua
+lua.48b3e06c  	  你想要劫镖吗……哦，我是说你想要听音乐吗？
+## 80:-1  obj/luoyang/oluoyang_shibing.lua
+lua.36d462ec  	钱庄、当铺、元宝商人
+lua.4a8ddcbe  	骑乘
+lua.5c6729d9  	结拜
+lua.a17352f2  	帮派
+lua.a77c7727  	  {0}少侠，为了大宋国的安危，为了亲人们可以安心的生活，我们会勤加操练的！
+lua.af341b2b  	商会
+lua.b77e3506  	我要结婚
+lua.c7e9f647  	  {0}姑娘，为了大宋国的安危，为了亲人们可以安心的生活，我们会勤加操练的！
+## 81:-1  obj/luoyang/oluoyang_nuerhai.lua
+lua.a0d6773c  	送我去一品堂(白天)
+lua.e427ef74  	送我去一品堂(夜间)
+lua.f4120142  	  赫连将军的蹴鞠技术绝对一流。
+## 84:-1  obj/luoyang/oluoyang_baiyingming.lua
+lua.3dabdceb  	  你想学习药理技能么？
+lua.458fcb4f  	学习药理技能
+lua.65bbe001  	升级药理技能
+lua.6878c331  	药理介绍
+## 87:-1  obj/luoyang/oluoyang_helingzhi.lua
+lua.3345a697  	  只要你有染发剂就可以改变头发的颜色了。
+## 88:-1  obj/luoyang/oluoyang_yanruxue.lua
+lua.2301cc59  	  花自飘零水自流，淡淡青丝自言愁，春暖秋霜怜人袖，满月半弦月如钩。既然无处言愁，何不换个发型呢？
+## 89:-1  obj/luoyang/oluoyang_fuben_shuilao.lua
+lua.9269fb46  	  你快去白马寺吧，智清大师一定迫不及待的想见你呢！我这几日公务缠身，等我平定水牢的叛乱之后，一定去白马寺帮助智清大师赈济灾民。
+## 95:-1  obj/luoyang/oluoyang_yekong.lua
+lua.754d470d  	  施主，你终于来了。我师父正在等你呢。
+## 96:-1  obj/luoyang/oluoyang_yeliao.lua
+lua.2a6cc938  	  {0}姑娘，雁门关在打仗吗？怎么那么多难民呀？
+lua.3db7dc98  	  {0}少侠，雁门关在打仗吗？怎么那么多难民呀？
+## 97:-1  obj/luoyang/oluoyang_liufusheng.lua
+lua.84806a3e  	  放心，{0}姑娘，我一定会尽力参加比赛的。
+lua.b4366e6e  	  放心，{0}少侠，我一定会尽力参加比赛的。
+## 98:-1  obj/luoyang/oluoyang_zhangjun.lua
+lua.c09743d0  	  今年，我们大宋一定还会拿第一的。
+## 99:-1  obj/luoyang/oluoyang_ruifuxiang.lua
+lua.0abcbc08  	买卖杂货
+lua.4cff4588  	  众人熙熙，皆为利来，众人攘攘，皆为利往。
+## 100:-1  obj/luoyang/oluoyang_jinliuye.lua
+lua.6328a5d1  	前往钱庄总部
+lua.cc44ed17  	元宝摆摊介绍
+lua.e59341be  	  欢迎光临，一看您就是贵客，我已经通知总部那边做好接待工作了，您现在就要去我们的总部吗？
+## 101:-1  obj/luoyang/oluoyang_yunmiaomiao.lua
+lua.28dec627  	购买珍兽用品
+lua.2c168f0e  	珍兽洗点
+lua.47654427  	关于通灵御兽
+lua.5548ca10  	珍兽技能升级
+lua.7874af71  	珍兽驯养
+lua.a39044c0  	延长珍兽寿命
+lua.c7e9a0a3  	珍兽还童
+lua.f2b08372  	珍兽技能学习
+lua.fcabfc9d  	珍兽相关介绍
+## 101:10  obj/luoyang/oluoyang_yunmiaomiao.lua
+lua.53d32873  	#{function_help_056}#r
+lua.677d9a05  	珍兽技能学习介绍
+lua.6b12b45f  	珍兽繁殖介绍
+## 101:11  obj/luoyang/oluoyang_yunmiaomiao.lua
+lua.1645cad2  	#{function_help_057}#r
+## 101:12  obj/luoyang/oluoyang_yunmiaomiao.lua
+lua.8067d0d9  	#{function_help_058}#r
+## 101:13  obj/luoyang/oluoyang_yunmiaomiao.lua
+lua.a3dbff02  	#{JNHC_81015_01}#r
+## 101:14  obj/luoyang/oluoyang_yunmiaomiao.lua
+lua.e2002519  	#{YSSJ_140818_3}#r
+## 104:-1  obj/luoyang/oluoyang_tianxiaoming.lua
+lua.4a0ab9ef  	  如果你是九大门派的弟子，就可以找门派里的骑乘技能传授人学习骑术。
+## 110:-1  obj/luoyang/oluoyang_penghuaiyu.lua
+lua.051d7047  	宝石升级
+lua.2c647f8b  	#G宝石工坊
+lua.7c115679  	一键四孔
+lua.8367ae16  	#G材料点金
+lua.b5cab398  	#G装备工坊
+## 112:-1  obj/luoyang/oluoyang_chenfuzhi.lua
+lua.d7d28af1  	解除结拜
+## 112:100  obj/luoyang/oluoyang_chenfuzhi.lua
+lua.0d20727a  	修改个人称号
+## 113:-1  obj/luoyang/oluoyang_qiangwei.lua
+lua.1c791f03  	升级养生法技能
+lua.7e61d553  	  你想学习养生法技能么？
+lua.7f7170b9  	我想了解养生法
+lua.8e2ba59b  	养生介绍
+lua.c1fa87f5  	学习养生法技能
+## 118:-1  obj/luoyang/oluoyang_yunhaner.lua
+lua.08c81283  	我家小姐收集各种珍兽，人手不够，你要是能帮忙就可以得到酬劳的。
+lua.da02d611  	查询珍兽成长率
+lua.e1c3769a  	兑换上古珍兽技能书
+lua.f9638556  	如何获得雷麟和雏凤
+## 122:-1  obj/luoyang/oluoyang_qiuxingluo.lua
+lua.24e4fc7d  	捎口信
+lua.8d4ea3f9  	洛阳送信任务介绍
+lua.b79e3398  	关于蹴鞠大赛
+lua.c75b0d5e  	蹴鞠大赛马上就要开始了，忙死我了，你要是有空能不能帮我捎个话儿？
+## 122:11  obj/luoyang/oluoyang_qiuxingluo.lua
+lua.f5272b0d  	#B关于蹴鞠大赛
+## 124:-1  obj/luoyang/oluoyang_kongzongyuan.lua
+lua.0d496d2f  	  我乃大宋衍圣公，文圣人孔宗渊是也。如果你有多余的任务道具占用珍贵的背包空间，可以交给我来删除。但你在删除任务道具之前，一定要想清楚，它确实没有用途了。
+## 125:-1  obj/luoyang/oluoyang_guanhanshou.lua
+lua.04217cf3  	  我专门为江湖英雄主持金盆洗手的仪式。如果你想要删除角色，退出江湖，就可以来找我。
+lua.cfc1b161  	我想删除角色
+lua.ea56d747  	关于删除角色
+## 126:-1  obj/luoyang/oluoyang_qiaozhiguang.lua
+lua.40008a04  	福降天龙
+## 127:-1  obj/luoyang/oluoyang_xilaile.lua
+lua.53d77631  	拜天地
+lua.5b501316  	花车巡游
+lua.acba59bf  	参加婚礼
+## 129:-1  obj/luoyang/oluoyang_longbatian.lua
+lua.4dc4b8f6  	满怒治疗
+## 131:-1  obj/luoyang/oluoyang_yanruyu.lua
+lua.5c47115e  	  俗话说，相由心生，客官对自己的容貌可否满意呢，要不要稍稍做些改变？
+lua.71156a57  	修改头像框介绍
+lua.a4ee63c4  	修改头像框
+## 132:-1  obj/luoyang/oluoyang_gongcaili.lua
+lua.3a2d35e2  	关于兑换
+lua.3ac51053  	新兵夺宝：个人抽奖
+lua.6cd22c37  	我想兑换墨镜猫
+lua.8ff4c83e  	新兵夺宝：名师抽奖
+lua.a2989f9e  	关于暗金宝箱
+lua.a3adf195  	抽奖说明
+lua.a68d8486  	新兵夺宝：超爽大礼包
+## 132:1  obj/luoyang/oluoyang_gongcaili.lua
+lua.10a7d982  	兑换携带等级45级的流行猫
+lua.33aff8ec  	兑换携带等级85级的吉祥猫
+lua.48f5f6de  	兑换携带等级55级的时尚猫
+lua.501ada08  	兑换携带等级65级的偶像猫
+lua.5232b8f9  	兑换携带等级75级的冠军猫
+lua.607f0f14  	兑换携带等级5级的墨镜猫
+lua.6dda8ec2  	    您想兑换什么携带等级的珍兽？
+## 143:-1  obj/luoyang/oluoyang_fanyicheng.lua
+lua.0c3f645d  	我要更新夫妻称号
+lua.3e10cee2  	我要改帮会名字
+lua.694a1919  	我要更新师徒称号
+lua.8d1b7a43  	  我是移民接待使，如果你刚移民到此，有什么需要帮忙的尽管开口好了。
+lua.fe898de7  	我要改名字
+## 145:-1  obj/luoyang/oluoyang_yujiulian.lua
+lua.1f0438ad  	盟主铜腰带兑换盟主之印
+lua.35776e58  	升级为盟主银腰带
+lua.3dfa83b5  	  想要做武林盟主的英雄们，尽管去封禅台吧！
+lua.5d832c1a  	盟主金腰带兑换盟主之印
+lua.74d8d9b3  	盟主银腰带兑换盟主之印
+lua.94a16806  	升级为盟主铜腰带
+lua.b9233881  	升级为盟主金腰带
+lua.cd8a75b3  	升级为盟主七宝腰带
+## 152:-1  obj/luoyang/oluoyang_QiuBiTe.lua
+lua.660f2b5a  	关于爱神之吻活动
+lua.927e4ddb  	爱神之吻兑换奖励
+lua.94996d16  	领取爱神之箭
+## 153:1  obj/luoyang/oluoyang_cuiwei.lua
+lua.966ee2c6  	  你并没有变成羊啊。
+lua.e62ce350  	  我已经给你变回来了，以后可要好好做人。
+## 154:-1  obj/luoyang/oluoyang_zhouran.lua
+lua.d60cd856  	前往涿鹿古战场
+## 154:100  obj/luoyang/oluoyang_zhouran.lua
+lua.ec691bca  	#{BHXZ_081211_13}#{BHXZ_081211_4}#{BHXZ_081211_10}500#{BHXZ_081211_14}
+## 154:200  obj/luoyang/oluoyang_zhouran.lua
+lua.0bcdd839  	#{BHXZ_081211_13}#{BHXZ_081211_5}#{BHXZ_081211_10}1000#{BHXZ_081211_14}
+## 154:300  obj/luoyang/oluoyang_zhouran.lua
+lua.1a8105c8  	#{BHXZ_081211_13}#{BHXZ_081211_6}#{BHXZ_081211_10}10000#{BHXZ_081211_14}
+## 154:400  obj/luoyang/oluoyang_zhouran.lua
+lua.cb2196fb  	#{BHXZ_081211_13}#{BHXZ_081211_7}#{BHXZ_081211_10}10000#{BHXZ_081211_14}
+## 154:510  obj/luoyang/oluoyang_zhouran.lua
+lua.6b326c2e  	#{BHXZ_081211_13}#{BHXZ_081211_20}#{BHXZ_081211_30}
+## 154:520  obj/luoyang/oluoyang_zhouran.lua
+lua.7df523c9  	#{BHXZ_081211_13}#{BHXZ_081211_21}#{BHXZ_081211_30}
+## 154:530  obj/luoyang/oluoyang_zhouran.lua
+lua.00ce6b2c  	#{BHXZ_081211_13}#{BHXZ_081211_22}#{BHXZ_081211_30}
+## 154:540  obj/luoyang/oluoyang_zhouran.lua
+lua.e27bd90f  	#{BHXZ_081211_13}#{BHXZ_081211_23}#{BHXZ_081211_30}
+## 154:550  obj/luoyang/oluoyang_zhouran.lua
+lua.abe34372  	#{BHXZ_081211_13}#{BHXZ_081211_24}#{BHXZ_081211_30}
+## 154:560  obj/luoyang/oluoyang_zhouran.lua
+lua.d31a9a6d  	#{BHXZ_081211_13}#{BHXZ_081211_25}#{BHXZ_081211_30}
+## 154:570  obj/luoyang/oluoyang_zhouran.lua
+lua.7437a8f0  	#{BHXZ_081211_13}#{BHXZ_081211_26}#{BHXZ_081211_30}
+## 154:580  obj/luoyang/oluoyang_zhouran.lua
+lua.81ca5b23  	#{BHXZ_081211_13}#{BHXZ_081211_27}#{BHXZ_081211_30}
+## 154:590  obj/luoyang/oluoyang_zhouran.lua
+lua.9dc89346  	#{BHXZ_081211_13}#{BHXZ_081211_28}#{BHXZ_081211_30}
+## 155:-1  obj/luoyang/oluoyang_yitiancai.lua
+lua.009b178b  	关于人物时装工坊
+lua.21268aa0  	时装配饰工坊
+lua.c19b2f81  	关于时装配饰工坊
+lua.f2596392  	人物时装工坊
+## 155:4  obj/luoyang/oluoyang_yitiancai.lua
+lua.32026b8b  	功能暂未开放，后面持续开放
+## 157:-1  obj/luoyang/oluoyang_suhuanhuan.lua
+lua.b303be29  	关于易容阁
+## 158:-1  obj/luoyang/oluoyang_kongxiansheng.lua
+lua.b977a4d8  	#G满怒治疗
+## 511:2  obj/taohuadao/otaohuadao_lichangji.lua
+lua.b363b19e  	君还珠
+## 511:3  obj/taohuadao/otaohuadao_lichangji.lua
+lua.f0c275c2  	学习桃花岛战斗技能
+## 511:4  obj/taohuadao/otaohuadao_lichangji.lua
+lua.081f5c5e  	学习桃花岛生活技能
+## 511:5  obj/taohuadao/otaohuadao_lichangji.lua
+lua.4067c1f8  	学习桃花岛辅助技能
+## 511:7  obj/taohuadao/otaohuadao_lichangji.lua
+lua.98bd8256  	桃花岛任务
+## 511:8  obj/taohuadao/otaohuadao_lichangji.lua
+lua.0b24c5ba  	桃花岛传送人
+## 511:9  obj/taohuadao/otaohuadao_lichangji.lua
+lua.2435f116  	桃花岛轻功传授人
+## 559:-1  obj/taohuadao/otaohuadao_xiaotianqing.lua
+lua.a61c582e  	#{THD_190613_149}#r#{THD_190613_150}
+lua.f74ef4fd  	#{THD_190613_151}#r#{THD_190613_152}
+## 1000:-1  obj/suzhou/osuzhou_wanganshi.lua
+lua.cd9bc898  	  天变不足畏，祖宗不足法，流俗之言不足恤。
+## 1004:-1  obj/suzhou/osuzhou_zhanglei.lua
+lua.1aeef994  	  {0}姑娘，你也来参加考试？等考试结束我要去拜见老师，姑娘不如一起前往？
+lua.321cf9b0  	  {0}少侠，你也来参加考试？等考试结束我要去拜见老师，少侠不如一起前往？
+lua.41759290  	  {0}姑娘，你也来参加考试？等考试结束我要去拜见老师，少侠不如一起前往？
+lua.c7d694f4  	  {0}少侠，你也来参加考试？等考试结束我要去拜见老师，姑娘不如一起前往？
+## 1005:-1  obj/suzhou/osuzhou_chaobuzhi.lua
+lua.ef2484d0  	  张耒兄和贺年兄才华都远在我之上。
+## 1008:-1  obj/suzhou/osuzhou_wanggui.lua
+lua.20446736  	  楚大人，这次的配方比例应该没有错了吧？
+## 1011:-1  obj/suzhou/osuzhou_zhangzeduan.lua
+lua.88585b71  	  再过几日就是清明节了，那时候苏州码头肯定会热闹无比。若能把这苏州的美景付于丹青之中，那该多好啊！
+## 1013:-1  obj/suzhou/osuzhou_weihanjin.lua
+lua.75196b86  	  苏学士，琴声不在琴上，不在指上，而在心中。
+## 1014:-1  obj/suzhou/osuzhou_chuqian.lua
+lua.b3f75f52  	  上有天堂，下有苏杭。苏州的美景，你可曾见识过？
+## 1015:-1  obj/suzhou/osuzhou_murongfu.lua
+lua.b8c018ed  	慕容复任务
+lua.c47b79d5  	  这位少侠，你可曾在附近见过一位吐蕃喇嘛？
+lua.c8cc8505  	  这位姑娘，你可曾在附近见过一位吐蕃喇嘛？
+## 1016:-1  obj/suzhou/osuzhou_dengbaichuan.lua
+lua.c3c1d81e  	  公子爷举手投足都像极了老爷，只是年纪未到，有待成熟而已。
+## 1017:-1  obj/suzhou/osuzhou_gongyeqian.lua
+lua.b2120372  	  公子爷一向泰山崩于前而面不改色，这次一筹莫展，一定是遇上了什么非常重要的事情。
+## 1018:-1  obj/suzhou/osuzhou_baobutong.lua
+lua.19bf9fd4  	  非也非也，应该是“平芜尽处是春山，行人更在春山外。”才对。
+## 1019:-1  obj/suzhou/osuzhou_fengboe.lua
+lua.68910ed3  	  想打架吗？那边有个擂台，我们去比试一下，怎么？不敢吗？
+## 1021:-1  obj/suzhou/osuzhou_wangfuren.lua
+lua.28541a5c  	王语嫣任务
+lua.4760e8c7  	存储当前环数
+lua.80bd9e8b  	连环任务介绍
+lua.a043a050  	连环任务
+lua.c1d44629  	用善恶值换取连环任务物品
+lua.c455b3fb  	继续上次连环任务
+## 1022:-1  obj/suzhou/osuzhou_abi.lua
+lua.2c6763d8  	  不知道为什么，公子爷在苏州的日子里总是闷闷不乐。
+lua.b8e4db01  	阿碧任务
+## 1023:-1  obj/suzhou/osuzhou_sunshan.lua
+lua.1c24e828  	  哈哈，解名尽处是孙山，贤郎更在孙山外！
+## 1026:-1  obj/suzhou/osuzhou_bank.lua
+lua.b301b1db  	购买新的租赁箱
+lua.fe5f5793  	打开银行
+## 1027:-1  obj/suzhou/osuzhou_xieshang.lua
+lua.c927abda  	  九州商会马上就要正式开业了。
+## 1031:-1  obj/suzhou/osuzhou_aihu.lua
+lua.0bd9b226  	领取宠物战斗称号
+lua.3da9c0ed  	宠物称号介绍
+## 1033:-1  obj/suzhou/osuzhou_yanchasan.lua
+lua.cc387051  	  此次恩科，各地才子齐聚苏州，我这心里还真没谱。
+## 1034:-1  obj/suzhou/osuzhou_yumo.lua
+lua.bbcbe97c  	  我们公子才高八斗，一定会高中的。
+## 1035:-1  obj/suzhou/osuzhou_weizhen.lua
+lua.12edd3fe  	    {0}姑娘，梅花桩上比试才见功夫。
+lua.8d3a45ce  	    {0}少侠，梅花桩上比试才见功夫。
+## 1036:-1  obj/suzhou/osuzhou_xuezhulian.lua
+lua.4a265ad3  	清除所有杀气
+lua.8d7226c2  	清除1点杀气
+## 1038:-1  obj/suzhou/osuzhou_liujinchan.lua
+lua.2e94c323  	  有个来苏州考试的考生叫颜查散，他真好玩。
+## 1040:-1  obj/suzhou/osuzhou_panjun.lua
+lua.1d5ccc23  	我想想再说……
+lua.34360cb7  	决斗介绍
+lua.8d2856b7  	我要提出决斗
+lua.cb93b644  	  江湖中充满了恩怨，如果您不想直接以刀相向，也可以选择一种比较文明的方式，决斗。对方同意之后决斗将会开始，一个小时之后结束。在决斗中死亡也会有惩罚。
+## 1048:-1  obj/suzhou/osuzhou_zhengtianshou.lua
+lua.459f4079  	  {0}姑娘，是否是想切磋武艺？那就擂台上请吧！
+lua.7d680ed9  	  {0}少侠，是否是想切磋武艺？那就擂台上请吧！
+## 1054:-1  obj/suzhou/osuzhou_shibing.lua
+lua.2c1117fc  	我想学习生活技能
+lua.4b837377  	珍兽
+lua.6166848d  	如何领取双倍经验
+lua.727a9d5b  	  {0}少侠，为了大宋朝的安危，为了亲人们能够安心的生活,我们每天都认真操练。
+lua.917100bb  	  {0}姑娘，为了大宋朝的安危，为了亲人们能够安心的生活,我们每天都认真操练。
+lua.b1a500e0  	去除杀气
+lua.b95f2698  	装备强化与鉴定
+## 1055:-1  obj/suzhou/osuzhou_lileshi.lua
+lua.a4e61d7a  	  在我这里你可用善恶值换取打造图与鉴定符。
+lua.df98e196  	善恶值换打造图与鉴定符
+## 1057:-1  obj/suzhou/osuzhou_pangcong.lua
+lua.f7f75e37  	  我正在在师傅的指导下研制补药，等哪一天研制成功了，我可以以成本价卖给你。嘘——一般人我不告诉他。
+## 1062:-1  obj/suzhou/osuzhou_laogu.lua
+lua.92862365  	送我去燕子坞（白天）
+lua.bddba4fd  	送我去燕子坞（夜间）
+lua.e860da90  	  沿这条路一直走就能到燕子坞。
+## 1063:-1  obj/suzhou/osuzhou_suibaoming.lua
+lua.dc3443b0  	比武大会介绍
+lua.e543f9a6  	我要报名
+## 1066:-1  obj/suzhou/osuzhou_ouyezi.lua
+lua.0a45b959  	装备强化
+lua.29810f47  	装备加强相关介绍
+lua.2f084b68  	重新鉴定装备资质
+lua.3731dfae  	神器铸造
+lua.3fb8422a  	血浴神兵
+lua.e8d27aae  	装备刻铭
+## 1066:5  obj/suzhou/osuzhou_ouyezi.lua
+lua.687c9376  	#cfff263使用#G强化道具#cfff263强化装备
+lua.b95fc680  	#cfff263使用#G强化卷轴#cfff263强化装备
+lua.f20f0cb4  	#{ZBQHJ_130508_1}#r
+lua.f48aa8fb  	强化转移
+lua.fa5a9800  	强化转移介绍
+## 1066:10  obj/suzhou/osuzhou_ouyezi.lua
+lua.242baf03  	重新鉴定装备资质介绍
+lua.d97341f9  	装备刻铭介绍
+lua.ee9f3396  	装备强化介绍
+lua.f9c65654  	#{function_help_055}#r
+## 1066:11  obj/suzhou/osuzhou_ouyezi.lua
+lua.8f287d62  	#{function_help_044}#r
+## 1066:12  obj/suzhou/osuzhou_ouyezi.lua
+lua.19269570  	#{ZBQHJ_130508_5}#r
+## 1066:13  obj/suzhou/osuzhou_ouyezi.lua
+lua.72a775e4  	#{function_help_046}#r
+## 1066:15  obj/suzhou/osuzhou_ouyezi.lua
+lua.75755254  	#{ZBQH_130521_04}#r
+## 1066:105  obj/suzhou/osuzhou_ouyezi.lua
+lua.1b9ab6a1  	神器修理
+lua.32825243  	学习铸造神器
+lua.41e8d6e2  	重新冶炼神器
+## 1067:-1  obj/suzhou/osuzhou_liangshicheng.lua
+lua.0d053ed9  	物品兑换
+lua.4d835476  	战区重楼兑换
+lua.5baadbc8  	离开……
+lua.b8ef18f4  	魔兵天降介绍
+lua.c09f8108  	进阶真重楼
+## 1067:71  obj/suzhou/osuzhou_liangshicheng.lua
+lua.c82d68f9  	#G兑换#cFF0000重楼链·侯爵
+lua.c97c0728  	  #H魔尊血玉可以在我这兑换各种各样的重楼
+## 1067:81  obj/suzhou/osuzhou_liangshicheng.lua
+lua.40e69bf9  	兑换真·重楼肩
+lua.75b0c410  	兑换真·重楼戒
+lua.8462382b  	 #G相同#W的5个普通重楼可以兑换1个真重楼    #cFF0000注意#W：兑换前#G一定#W要#G拆除#W宝石雕文强化等等相关东西
+lua.c112ad0e  	兑换真·重楼链
+lua.da12bff7  	兑换真·重楼甲
+lua.df536f2c  	兑换真·重楼玉
+## 1067:12121  obj/suzhou/osuzhou_liangshicheng.lua
+lua.68c45c5a  	集齐一定数量长生草#W就可以兑换以下物品#r#r#G小提示：长生草产自各大副本宝箱#r#G␣
+lua.fb0fa84e  	紫金玉
+## 1067:12124  obj/suzhou/osuzhou_liangshicheng.lua
+lua.2d06bf5c  	 长生草数量不足，无法兑换！#r  #G小提示：可在各大副本箱子中获得此物品。
+## 1069:-1  obj/suzhou/osuzhou_zhufeng.lua
+lua.059998b1  	购买精工配方
+lua.128c19de  	制造介绍
+lua.86ad219d  	我要学习精制（缝纫）配方
+lua.acb2ca64  	我要学习精炼（锻造）配方
+lua.c2448049  	    十年磨一剑，我朱锋做出来的东西是天下最好的！
+lua.ec73aa3d  	我要学习精工（工艺）配方
+## 1070:-1  obj/suzhou/osuzhou_xiaogao.lua
+lua.e5d5efe2  	关于重购配方
+## 1082:-1  obj/suzhou/osuzhou_shenghuotan.lua
+lua.1590c5b8  	  熊熊圣火，强我中华！
+## 1083:-1  obj/suzhou/osuzhou_yunsier.lua
+lua.20df9150  	购买宠物技能书
+lua.d59d65b7  	灵兽丹合成
+## 1085:-1  obj/suzhou/osuzhou_ouyeyu.lua
+lua.444a0edc  	神器炼魂
+lua.7381082d  	关于神器炼魂
+## 1086:-1  obj/suzhou/osuzhou_liangdaoshi.lua
+lua.121a553c  	    每到仲夏大侠们是否酷热难耐？我梁道士自有消暑的良方。不知道#G{0}姑娘#W找我有何事？
+lua.31368d78  	许愿果兑换奖励
+lua.fda6d8d8  	    每到仲夏大侠们是否酷热难耐？我梁道士自有消暑的良方。不知道#G{0}少侠#W找我有何事？
+## 1086:300  obj/suzhou/osuzhou_liangdaoshi.lua
+lua.0cb998b5  	兑换至尊强化精华
+lua.13726aff  	兑换6级宝石兑换券
+lua.db5c45f3  	  #W10个#G许愿果#W兑换#G至尊强化精华#W5个#r  #W20个#G许愿果#W兑换#G6级宝石兑换券#W一张#r #r  请确保你的背包道具栏和材料栏至少有一个空位。
+## 1086:9991  obj/suzhou/osuzhou_liangdaoshi.lua
+lua.1792cc15  	    道具栏和材料栏至少需要1个空位！
+## 1100:-1  obj/loulangucheng/oloulan_ainiwaer.lua
+lua.7b5257b7  	城市 - 束河古镇
+## 1106:-1  obj/loulangucheng/oloulan_zhoushisan.lua
+lua.6dbad174  	装备修理介绍
+lua.97566252  	增加可修理次数
+## 1106:12  obj/loulangucheng/oloulan_zhoushisan.lua
+lua.700849e1  	#{function_help_043}#r
+## 1111:-1  obj/loulangucheng/oloulan_yunxixi.lua
+lua.039e7535  	使用根骨丹提升悟性
+lua.1fca58dd  	提升幻化珍兽灵性
+lua.22b80d84  	灵兽丹合成介绍
+lua.255cf1f6  	改变幻化珍兽外观
+lua.2d0ea827  	如何给珍兽快速升级
+lua.3cfee020  	关于提升幻化珍兽灵性
+lua.63736fa6  	关于珍兽幻化
+lua.c20c11d7  	珍兽幻化
+lua.ef0de245  	珍兽幻化丹合成
+## 1111:11  obj/loulangucheng/oloulan_yunxixi.lua
+lua.03259022  	合成
+## 1119:0  obj/loulangucheng/oloulan_kelimu.lua
+lua.051a739f  	#{function_help_104}#r
+## 1119:20  obj/loulangucheng/oloulan_kelimu.lua
+lua.bad587d0  	#{SJSJ_081021_003}#r
+## 1132:-1  obj/loulangucheng/oloulan_jialan.lua
+lua.a987a5d6  	修改发色介绍
+lua.ec47ff99  	修改发色
+## 1133:-1  obj/loulangucheng/oloulan_yisha.lua
+lua.203b71f8  	修改头像介绍
+lua.7055b3b3  	修改头像
+lua.71fa5b86  	修整容貌介绍
+lua.ae040b89  	修整容貌
+## 1134:-1  obj/loulangucheng/oloulan_guli.lua
+lua.2bfd6352  	修改发型
+lua.ea51b965  	修改发型介绍
+## 1157:-1  obj/loulangucheng/oloulan_shisao.lua
+lua.70682197  	寒玉合成介绍
+lua.7960687d  	  我游历天下，才收集到这些配方！
+lua.b153ea04  	寒玉合成
+## 1158:-1  obj/loulangucheng/oloulan_maxiaoming.lua
+lua.67ea9d3a  	购买骑乘
+lua.a6b15430  	  在西域，白骆驼是很稀有的。开始只有很少几个贵族才骑，后来一些富贾也花大量的钱财去搜寻。久而久之，人们把白骆驼当成财富的象征...#r我这恰好有一些白骆驼，大侠是否要买？
+## 1159:-1  obj/loulangucheng/oloulan_chenqingshuang.lua
+lua.0b70216d  	挑战缥缈峰
+lua.85794870  	   英雄，三十六洞七十二岛众贼子，获悉尊主失踪的消息后，居然率众攻打缥缈峰。#r    请带上你的队伍来缥缈峰吧！天山派需要你的救援！
+lua.8dd438bb  	兑换缥缈峰称号
+## 1163:-1  obj/dawan/odawan_lansuoan.lua
+lua.ff04b081  	  这地方终于太平了
+## 1168:-1  obj/loulangucheng/oloulan_jinjiuling.lua
+lua.2c0a5fae  	楼兰寻宝活动帮助
+lua.cefa0ce7  	楼兰寻宝
+## 1171:-1  obj/shuheguzhen/oshuhe_xuxiake.lua
+lua.3a05e2ec  	城市 - 苏州 - 铁匠铺
+lua.3ceb2f9e  	返回门派
+lua.803fb7f1  	城市 - #G金陵
+lua.b857b719  	带我去其它门派
+lua.d2065f27  	城市 - 洛阳 - 九州商会
+lua.faf440ac  	城市 - 楼兰
+## 1172:-1  obj/shuheguzhen/oshuhe_limingyang.lua
+lua.2977f10a  	前往苍山
+## 1178:-1  obj/shuheguzhen/oshuhe_xiongjian.lua
+lua.18e45b6a  	装备资质鉴定介绍
+lua.595a1885  	装备资质鉴定
+## 1194:-1  obj/shuheguzhen/oshuhe_jingqianshi.lua
+lua.0697e57b  	宝石摘除
+lua.0d062413  	宝石合成
+lua.0d1a2ec6  	宝石雕琢
+lua.31f89eb2  	宝石相关介绍
+lua.93a32e82  	宝石镶嵌
+lua.a3c19d56  	宝石熔炼
+lua.ee333f27  	材料合成介绍
+lua.f7c572d4  	材料合成
+lua.ffc0f27f  	装备打孔
+## 1194:0  obj/shuheguzhen/oshuhe_jingqianshi.lua
+lua.22c4b472  	胜利宝石介绍
+lua.4530d6b1  	宝石雕琢介绍
+lua.55770541  	宝石熔炼介绍
+lua.635682a4  	#{function_help_103}#r
+lua.77c80480  	宝石摘除介绍
+lua.8c95de15  	宝石镶嵌介绍
+lua.98e68258  	宝石合成介绍
+lua.fbd440ac  	装备打孔介绍
+## 1194:8  obj/shuheguzhen/oshuhe_jingqianshi.lua
+lua.b1e9d99a  	#{function_help_039}#r
+## 1194:9  obj/shuheguzhen/oshuhe_jingqianshi.lua
+lua.be30b7fe  	#{function_help_040}#r
+## 1194:10  obj/shuheguzhen/oshuhe_jingqianshi.lua
+lua.fb1eb1df  	#{function_help_041}#r
+## 1194:11  obj/shuheguzhen/oshuhe_jingqianshi.lua
+lua.81b11120  	#{function_help_042}#r
+## 1194:13  obj/shuheguzhen/oshuhe_jingqianshi.lua
+lua.04815c20  	#{INTERFACE_XML_GemCarve_6}#r
+## 1194:14  obj/shuheguzhen/oshuhe_jingqianshi.lua
+lua.ff6e8f4f  	#{JKBS_081021_022}#r
+## 1194:15  obj/shuheguzhen/oshuhe_jingqianshi.lua
+lua.c27f026e  	#{JKBS_081021_023}#r
+## 1194:20  obj/shuheguzhen/oshuhe_jingqianshi.lua
+lua.0a3cc4b4  	精铁的操作介绍
+lua.2b4fb894  	棉布的操作介绍
+lua.3c3462e0  	秘银的操作介绍
+lua.a88d5cd1  	#{SJSJ_081021_002}#r
+## 1194:21  obj/shuheguzhen/oshuhe_jingqianshi.lua
+lua.05da51b3  	#{SJSJ_081021_004}#r
+## 1194:22  obj/shuheguzhen/oshuhe_jingqianshi.lua
+lua.c84cf412  	#{SJSJ_081021_005}#r
+## 1194:23  obj/shuheguzhen/oshuhe_jingqianshi.lua
+lua.6175a1b5  	#{SJSJ_081021_006}#r
+## 2000:-1  obj/dali/odali_wangshao.lua
+lua.258a162e  	  戎马一生，富贵黄金，也不过是过眼烟云，只要大宋大理两国安好无恙，我也就心安了。
+## 2001:-1  obj/dali/odali_shenkuo.lua
+lua.9725b381  	领取称号
+lua.d793cf04  	  大理国有很多植物和矿藏极为罕见，也不枉我从汴京千里迢迢而来，真是不虚此行啊。
+## 2002:-1  obj/dali/odali_mifu.lua
+lua.e91f4c66  	  苍山不墨千秋画，洱海无弦万古琴。这大理国果然是个好地方，王大将军真有眼力，竟然会选此地隐居。
+## 2003:-1  obj/dali/odali_yeerniang.lua
+lua.08eb6b05  	虚竹任务
+lua.57b1e22a  	  {0}姑娘，我冷眼看你在这大理城来来去去，匆匆忙忙。总是忍不住想问你，你所做的，是为了你自己，还是为了别人？
+lua.b10d164a  	  {0}少侠，我冷眼看你在这大理城来来去去，匆匆忙忙。总是忍不住想问你，你所做的，是为了你自己，还是为了别人？
+## 2005:-1  obj/dali/odali_duanzhengming.lua
+lua.462f3a31  	  {0}少侠，见到你真高兴。唉！身为一国之君，终日国事缠身，要操劳的事情太多了，还不如去拈花寺清修的好啊。
+lua.bcc1fb51  	  {0}姑娘，见到你真高兴。唉！身为一国之君，终日国事缠身，要操劳的事情太多了，还不如去拈花寺清修的好啊。
+## 2006:-1  obj/dali/odali_daobaifeng.lua
+lua.0c3bbc4a  	  唉，誉儿走了这么久了还没回来，我是又担心又生气，江湖里的尔虞我诈哪是他这样的毛头小子可以应付的。
+## 2007:-1  obj/dali/odali_huangmeiseng.lua
+lua.4d66ef0e  	前往小木人巷
+lua.9456853c  	前往后花园
+## 2008:-1  obj/dali/odali_cuibaiquan.lua
+lua.d68e8ad7  	  大理国近年来民泰国安，王府也殷实的很。
+## 2011:-1  obj/dali/odali_chuwanli.lua
+lua.9cd2789a  	  想练就一身好的武功，和我们一样成为皇家护卫吗？{0}少侠，你可以拜入九大门派，玉华坛就有九大门派的指引人，你去各大门派去看看，没准会有意外的收获呢。
+lua.a18ed96a  	  想练就一身好的武功，和我们一样成为皇家护卫吗？{0}姑娘，你可以拜入九大门派，玉华坛就有九大门派的指引人，你去各大门派去看看，没准会有意外的收获呢。
+## 2012:-1  obj/dali/odali_guducheng.lua
+lua.539e1bbf  	  {0}姑娘，多日不见了，皇上正在等你呢。
+lua.53e0019f  	  {0}少侠，多日不见了，皇上正在等你呢。
+## 2014:-1  obj/dali/odali_huahegen.lua
+lua.a341eef6  	送我去万劫谷（白天）
+lua.b4d3708b  	  {0}少侠#{{OBJ_dali_0004}}
+lua.c2baa2ab  	  {0}姑娘#{{OBJ_dali_0004}}
+## 2015:-1  obj/dali/odali_fanhua.lua
+lua.4855be9c  	  {0}少侠#{{OBJ_dali_0005}}
+lua.563cf0bc  	  {0}姑娘#{{OBJ_dali_0005}}
+## 2018:-1  obj/dali/odali_gaoshengtai.lua
+lua.c78364cf  	  现在很多武林人士集聚大理城，{0}少侠，要是你为朝廷想做点什么，去找五华坛的李工部，他会给你些事情的，为朝廷做事会得到奖励的。
+lua.cd32a5df  	  现在很多武林人士集聚大理城，{0}姑娘，要是你为朝廷想做点什么，去找五华坛的李工部，他会给你些事情的，为朝廷做事会得到奖励的。
+## 2019:-1  obj/dali/odali_shangjin.lua
+lua.8f95a40c  	送我去万劫谷(夜间)
+lua.f621d39d  	{ID=shangjin_01}
+## 2020:-1  obj/dali/odali_duanyudezitiao.lua
+lua.47211973  	一张字条
+## 2022:-1  obj/dali/odali_menwei.lua
+lua.b30d8b7e  	  保卫大理城是我的职责！
+## 2023:-1  obj/dali/odali_puliang.lua
+lua.00839323  	  兵器这东西，要的就是锋利，要的就是合适，{0}少侠，看看我这里的兵器，肯定会有你合手的。
+lua.6e1c4c23  	  兵器这东西，要的就是锋利，要的就是合适，{0}姑娘，看看我这里的兵器，肯定会有你合手的。
+## 2025:-1  obj/dali/odali_wangying.lua
+lua.4a3c4289  	银行介绍
+## 2027:-1  obj/dali/odali_lusanqi.lua
+lua.39f98ba2  	购买药品
+## 2028:-1  obj/dali/odali_duziteng.lua
+lua.7dcc691f  	  {0}少侠，想不想尝尝我们大理的有名的小吃？包你吃了八碗又八碗，走也不想走了。
+lua.85ca46ff  	  {0}姑娘，想不想尝尝我们大理的有名的小吃？包你吃了八碗又八碗，走也不想走了。
+lua.cd3ab4c9  	购买食品
+## 2029:-1  obj/dali/odali_hanyongan.lua
+lua.35d196d9  	  我这家当铺是大理城最大的当铺。
+## 2030:-1  obj/dali/odali_xinshoutian.lua
+lua.0138a016  	  {0}妹妹#{{OBJ_dali_0012}}
+lua.059e506f  	天下武学
+lua.069f141c  	天下武学介绍
+lua.267d5f5f  	领取江湖指南
+lua.41c3e233  	  {0}兄弟#{{OBJ_dali_0011}}
+lua.42d157ab  	  {0}妹妹#{{OBJ_dali_0011}}
+lua.604b77b4  	  {0}兄弟#{{OBJ_dali_0054}}
+lua.94352001  	剧情任务介绍
+lua.d1be4583  	我如何才能去九大门派
+lua.d72cfbac  	  {0}妹妹#{{OBJ_dali_0054}}
+lua.fdaf2e9e  	  {0}兄弟#{{OBJ_dali_0012}}
+## 2030:10  obj/dali/odali_xinshoutian.lua
+lua.013c8c24  	我现在进行到哪里了？
+## 2030:199  obj/dali/odali_xinshoutian.lua
+lua.a8790f2f  	1百善恶值换取1封联名推荐信
+## 2031:-1  obj/dali/odali_xinshoulong.lua
+lua.480cfff9  	#{{OBJ_dali_0013}}{0}妹妹不想一试身手吗？
+lua.88408a9d  	第一次问答
+lua.a57f7e51  	#{{OBJ_dali_0013}}{0}兄弟不想一试身手吗？
+## 2033:-1  obj/dali/odali_xinshoubu.lua
+lua.162546ed  	  {0}姑娘#{{OBJ_dali_0015}}
+lua.7fb21d9d  	我要兑换企鹅蛋
+lua.94e2dc4d  	  {0}少侠#{{OBJ_dali_0015}}
+lua.9c0e3eac  	关于兑换企鹅蛋
+## 2036:-1  obj/dali/odali_chuansongxi.lua
+lua.0036775f  	  {0}少侠#{{OBJ_dali_0008}}
+lua.0e1f3c7f  	  {0}姑娘#{{OBJ_dali_0008}}
+lua.2d8607cb  	钱庄、当铺
+lua.3b67e052  	任务与副本
+lua.47da11c9  	拜师
+lua.4cd1e63f  	购买各种物品
+lua.701606dc  	如何加入门派
+lua.74f58e7c  	擂台
+lua.8335a3d1  	驿站
+lua.a0ed6048  	学习一些生活技能
+lua.d61b57e3  	九大门派传送人
+lua.ef4a2beb  	我想出城门去练习本领
+## 2037:-1  obj/dali/odali_fengchaoyang.lua
+lua.4a3aabd9  	  {0}少侠，如果你想和别人切磋武功的话，就上擂台吧。
+lua.514feaf5  	关于擂台
+lua.9ada4eb9  	  {0}姑娘，如果你想和别人切磋武功的话，就上擂台吧。
+## 2038:-1  obj/dali/odali_huiyi.lua
+lua.1e6795d2  	  好久没有见到你了，以你这样的天资，真可惜没有来我少林门下。
+lua.c19acd08  	去少林寺看看
+lua.f229a3fe  	  师妹，你的武功进步好快啊。#r#r  我也很久没有回到寺里，非常想念师父们和师兄弟们。
+lua.f6c510f2  	  师弟，你的武功进步好快啊。#r#r  我也很久没有回到寺里，非常想念师父们和师兄弟们。
+## 2039:-1  obj/dali/odali_jianning.lua
+lua.08089cd1  	  好久没有见到你了，以你这样的天资，真可惜没有成为我丐帮兄弟。
+lua.2f240172  	去丐帮看看
+lua.ddafdcb4  	  丫头，你的武功进步好快啊。#r#r  我丐帮真是长江后浪推前浪，人才辈出啊。#r#r  呵呵，看来我是真的老了。
+lua.f2b5b6c8  	  兄弟，你的武功进步好快啊。#r#r  我丐帮真是长江后浪推前浪，人才辈出啊。#r#r  呵呵，看来我是真的老了。
+## 2040:-1  obj/dali/odali_shibao.lua
+lua.2ca6492d  	去光明殿看看
+lua.87c37198  	  师妹，你的武功进步好快啊。#r#r  熊熊圣火佑我明教，万丈光明普照天下。
+lua.8b5aba4c  	  好久没有见到你了，以你这样的天资，真可惜不是我明教中人，终成碌碌之辈。
+lua.9faf2f04  	  师弟，你的武功进步好快啊。#r#r  熊熊圣火佑我明教，万丈光明普照天下。
+## 2041:-1  obj/dali/odali_zhanghuo.lua
+lua.0ebf2094  	去武当山看看
+lua.2546b2ba  	  师妹，你的武功进步好快啊。#r#r  看来真人教你不遗余力，恭喜恭喜。
+lua.49fa0867  	  好久没有见到你了，以你这样的天资，真可惜没有在武当以正道修行，打好基础。
+lua.721ae0d6  	  师弟，你的武功进步好快啊。#r#r  看来真人教你不遗余力，恭喜恭喜。
+## 2042:-1  obj/dali/odali_lusanniang.lua
+lua.0301d15c  	  师妹，让三娘看看。呵呵，你的武功进步好快，人也愈发俊俏，还是峨嵋山的水养人啊。
+lua.a2d9eaa8  	  师弟，让三娘看看。呵呵，你的武功进步好快，人也愈发俊俏，还是峨嵋山的水养人啊。
+lua.d27bc701  	去峨嵋山看看
+lua.f38e8b5b  	  好久没有见到你了，以你这样的天资，可惜不在峨嵋修行，终究周身戾气，可叹可惜。
+## 2043:-1  obj/dali/odali_haifengzi.lua
+lua.0d4c8ee6  	  师妹，你的武功进步好快啊。#r#r  我也很想回到星宿海，享受专心修行的日子。
+lua.19dfd0ef  	  好久没有见到你了，以你这样的天资，可惜不在我星宿，终究是没有前途。
+lua.831396f2  	  师弟，你的武功进步好快啊。#r#r  我也很想回到星宿海，享受专心修行的日子。
+lua.8af744b8  	去星宿海看看
+## 2044:-1  obj/dali/odali_potan.lua
+lua.0811c77f  	这是我师兄给你的信
+lua.29c9af48  	  好久没有见到你了，以你这样的天资，可惜没有入我大理天龙寺，还在江湖游荡。
+lua.c5778349  	去天龙寺看看
+lua.cee6f4df  	  师弟，你的武功进步好快，不费我的眼力啊。
+lua.de851c23  	  师妹，你的武功进步好快，不费我的眼力啊。
+## 2044:1  obj/dali/odali_potan.lua
+lua.2b6add1d  	请回去告诉慧方师兄，他的信我已经收到了，谢谢你
+## 2045:-1  obj/dali/odali_chengqingshuang.lua
+lua.96b64401  	  好久没有见到你了，以你这样的天资，真可惜不在我天山灵鹫宫。
+lua.adec186a  	  师弟，你的武功进步好快啊。#r#r  姥姥应该很器重你吧，真是羡慕。我也应该回宫拜见姥姥了。
+lua.e87af066  	  师妹，你的武功进步好快啊。#r#r  姥姥应该很器重你吧，真是羡慕。我也应该回宫拜见姥姥了。
+lua.f6eabd63  	去灵鹫宫看看
+## 2046:-1  obj/dali/odali_tantaiziyu.lua
+lua.b09788fe  	  师妹，你的武功进步好快，逍遥不修苦力，只讲灵气，看来你确实天资聪颖啊。
+lua.cfa37eea  	  师弟，你的武功进步好快，逍遥不修苦力，只讲灵气，看来你确实天资聪颖啊。
+lua.e91da222  	去淩波洞看看
+lua.ebaf6957  	  好久没有见到你了，以你这样的天资，可惜没有入我逍遥，什么样的武功还不是一介匹夫。
+## 2047:-1  obj/dali/odali_yahuan.lua
+lua.7a4774f8  	  我是个丫鬟
+## 2052:-1  obj/dali/odali_lanlan.lua
+lua.dad3a675  	  王妃每天吃不下，睡不好的，这样下去身子骨会垮掉的。
+## 2055:-1  obj/dali/odali_xiaochai.lua
+lua.4d2dfde4  	    本店有大量商品出售，欢迎选购！
+## 2058:-1  obj/dali/odali_baichongyi.lua
+lua.0a79df6c  	  #G$N#W英雄！来嵩山封禅台竞技场展示一下你的实力吧！#r  #G你在进入封禅台之前必须加入一支队伍，这支队伍中的所有人在进入封禅台后都和你属于同一个阵营，除了他们以外，在封禅台上的其他所有人都是你的对手。#W #r  怎么样，想来试试看吗？
+lua.85b4bd28  	什么是封禅台竞技
+lua.b6246e6b  	进入竞技场
+## 2059:-1  obj/dali/odali_jinwuye.lua
+lua.08f30a3a  	  行走江湖，当然是谁拳头硬谁就是大爷。但俗话说得好，有钱能使磨推鬼，手里有了元宝，就能使很多难办的事情变得简单起来。
+## 2069:-1  obj/dali/odali_shenqing.lua
+lua.10030a4d  	怎样提升宠物等级
+lua.325c79ce  	珍兽快乐度不足怎么办
+lua.35e736f6  	怎样捕捉宠物
+lua.4cc80215  	  {0}姑娘，要好好对待自己的珍兽哦。操作上有什么不明白的地方，我可以帮你解答哦。
+lua.9342efb5  	  {0}少侠，要好好对待自己的珍兽哦。操作上有什么不明白的地方，我可以帮你解答哦。
+lua.eafcbd37  	宠物生命值不足怎么办
+## 2070:-1  obj/dali/odali_qigai.lua
+lua.52674c89  	  呜呜呜……我好想爹娘啊，当年无量山的一场闹水灾，害得我流离失所，家破人亡！只好在大理城讨饭度日。
+lua.a968b67f  	给他一把矿锄
+lua.c80173e0  	给他一件布衣
+lua.ea6b5ac3  	给他一个馒头
+## 2070:0  obj/dali/odali_qigai.lua
+lua.7bd509e0  	馒头？馒头在哪里？
+lua.b6f7d749  	  太谢谢你了！#r<小乞丐三口两口吃掉了这个馒头>
+## 2070:1  obj/dali/odali_qigai.lua
+lua.3e3712a0  	布衣？布衣在哪里？
+lua.cba0d2c5  	  太谢谢你了！#r<小乞丐把布衣裹在身上>
+## 2070:2  obj/dali/odali_qigai.lua
+lua.04aa736d  	  厄……你为什么要给我矿锄呢？#r  好吧，我收下了，可是我还是不想去干活，天天这样要饭也挺好啊。
+lua.f3f40721  	矿锄？没有就算了，本来我也不想要的。
+## 2072:-1  obj/dali/odali_chengxiong.lua
+lua.23b38af2  	  {0}少侠，惩凶打图...
+lua.769f34a9  	了解九大门派特色
+lua.cdda80d2  	  {0}姑娘，惩凶打图...
+## 2075:-1  obj/dali/odali_zhangdaozhang.lua
+lua.321befae  	升级技能
+lua.458aba56  	什么也不做
+lua.4d37553a  	定位符介绍
+lua.62699f7d  	  我可以传授给你一种神奇的技能，利用这种技能制作出来的符文可以记录位置信息，以后你想再回到这个记录的地方，只要使用符文就可以了。
+lua.e801569a  	  请注意，越高级的符文可以使用的次数也会越来越多。
+lua.f68d01e8  	学习咫尺天涯
+## 2076:-1  obj/dali/odali_zhangshiping.lua
+lua.12ac41f8  	打开商店
+lua.823cbbd2  	商人介绍
+## 2076:2  obj/dali/odali_zhangshiping.lua
+lua.ad0d692e  	阁下并无商人银票，你我交易从何谈起？
+## 2077:-1  obj/dali/odali_chujiping.lua
+lua.3bd0ca60  	    本人出售独家秘制鉴定符，可以鉴定所有类型的装备，欢迎选购！
+## 2079:-1  obj/dali/odali_yangdiaoren2.lua
+lua.829cc9fd  	这里可以飞往大理城西门。
+lua.d787a076  	飞往西门
+## 2080:-1  obj/dali/odali_yangdiaoren3.lua
+lua.1bcc097e  	这里可以飞往大理城南门。
+lua.7fda409b  	飞往南门
+## 2081:-1  obj/dali/odali_yangdiaoren4.lua
+lua.1df817c1  	这里可以飞往大理城东门。
+lua.b1ec58a2  	飞往东门
+## 2082:-1  obj/dali/odali_yangdiaoren5.lua
+lua.c79ea8bb  	这里可以飞往大理城杂货店。
+lua.fbc934b0  	飞往杂货店
+## 2083:-1  obj/dali/odali_yangdiaoren6.lua
+lua.e0d99bc9  	飞往南门附近
+lua.f44acb6a  	你可以从这里飞到大理城南门附近。
+## 2085:-1  obj/dali/odali_ganbaobao.lua
+lua.08367c7f  	  哼，谁干卑鄙无耻之事，谁就卑鄙无耻，用不着我来骂！
+## 2086:-1  obj/dali/odali_zhongwanchou.lua
+lua.6d2df850  	  我夫人骂得好。段正淳这恶徒自逞风流，多造冤孽，到头来自己的亲生儿女相恋成奸，当真是卑鄙无耻之极了。
+## 2087:-1  obj/dali/odali_huangnafu.lua
+lua.2d7568db  	我已经40了，给我金钱
+lua.3399c6c9  	我已经40了，给我宝石
+lua.3765a373  	给我40级的装备一套
+lua.57efa7da  	提升我的等级到10级
+lua.999be240  	任务时间已过
+lua.a293df38  	  感谢大家一直以来对天龙八部的支持，因为测试新的游戏系统的需要，必须要进行清档处理。因此对因清档给大家带来的不便，深表歉意。我给大家带来了一些礼物，还请笑纳。
+lua.f29d1495  	提升我的等级到40级
+## 2087:3  obj/dali/odali_huangnafu.lua
+lua.664a1742  	 只有等级到达40级之后，才能领取补偿的宝石
+lua.8a5f361c  	虎眼石
+lua.e23ace97  	猫眼石
+lua.fdb9756b  	  您想领取什么宝石？只能领取以下两种宝石当中的一种
+## 2087:4  obj/dali/odali_huangnafu.lua
+lua.860094b1  	您可真贪心，把我的养老费都拿走了
+lua.b5327832  	 只有等级到达40级之后，才能领取补偿的金币
+lua.c211f989  	 我老头子还没糊涂，你不是已经领过了么？
+## 2087:6  obj/dali/odali_huangnafu.lua
+lua.d92789b7  	20个宝石，爽了吧您
+lua.f34e02dd  	 奖励的宝石为20个，您的背包空间不足，请整理背包之后再来找我
+## 2088:-1  obj/dali/odali_yuzhuzhi.lua
+lua.29edbad8  	我想删除所有的任务
+lua.e37baf9b  	  我是奉大理国皇帝陛下之命，在此帮助天下英雄清理任务的。如果您想删除任务列表中所有的任务，或者删除某个特定任务道具，都可以来找我帮忙。您想做什么呢？
+## 2088:100  obj/dali/odali_yuzhuzhi.lua
+lua.0f9d2cb9  	  删除任务将会删除身上所有的任务，是否确认要删除？
+lua.81406a31  	  你的身上根本没有任务啊！
+## 2092:-1  obj/dali/odali_liuzhongfu.lua
+lua.dfffe11f  	    刘某学棋至今凡五十二年，从未遇到敌手。只是数年之前，在一位骊山仙姥手下败过一次，那时才知天外有天，人上有人。
+## 2094:-1  obj/dali/odali_shenhanxiang.lua
+lua.7a8aa788  	  各种鲜花，低价甩卖。
+## 2100:-1  obj/dali/odali_ali.lua
+lua.2588fe03  	获得更多花肥和花种
+lua.356b0b3c  	领取花种
+lua.f2511076  	关于种花
+## 2100:99  obj/dali/odali_ali.lua
+lua.eb21e581  	   你可以通过副本或者从元宝商店购得#G鲜花的种子
+## 2101:-1  obj/dali/odali_bagaili.lua
+lua.102716de  	关于波斯玫瑰
+lua.1028198b  	80个波斯玫瑰兑换奖励
+lua.4e3e5aba  	30个波斯玫瑰兑换奖励
+lua.7ce4b04e  	70个波斯玫瑰兑换奖励
+lua.8bc86701  	60个波斯玫瑰兑换奖励
+lua.a0444edd  	    只要是喜爱鲜花的人，就是我最尊贵的朋友，你替我保存这些波斯玫瑰，现在是回报你的时候了。你有足够的波斯玫瑰的话，可以兑换如下的物品。
+## 2103:-1  obj/dali/odali_tangyu.lua
+lua.3530062e  	  师弟#{XMPTM_130123_16}
+lua.ec729297  	去唐家堡看看
+lua.fe0ae87a  	  师妹#{XMPTM_130123_16}
+## 2104:-1  obj/dali/odali_murongchuan.lua
+lua.8b373816  	  师妹#{GUSU_MENPAI_56}
+lua.975a07e2  	  师弟#{GUSU_MENPAI_56}
+lua.f0944a42  	去姑苏城看看
+## 2105:-1  obj/dali/odali_suqin.lua
+lua.0193bf1d  	  师妹#{GGXS_160620_02}
+lua.7eae7b99  	  师弟#{GGXS_160620_02}
+lua.a34cef03  	去鬼谷看看
+## 2107:-1  obj/dali/odali_fujieshen.lua
+lua.474ba6ab  	  你身上有银票，正在跑商！我不能帮助你。
+lua.5605e5fe  	#{TJL_xml_XX(02)}
+lua.c2e6d185  	#{TJL_xml_XX(03)}
+## 2109:-1  obj/dali/odali_liqingluo.lua
+lua.55916f92  	#G琅嬛福地
+lua.7e4b4e7d  	关于琅嬛福地
+## 2125:0  obj/gusu/ogusu_murongsuifeng.lua
+lua.2ef6cdf1  	学习慕容轻功需要先加入慕容世家！
+## 2126:-1  obj/gusu/ogusu_wangxihao.lua
+lua.8e60bb04  	磨砺术介绍
+## 2127:-1  obj/gusu/ogusu_murongsheng.lua
+lua.0974500d  	你不是本门的弟子，请速速走开！。
+lua.cd9f7684  	我是慕容胜，我发布慕容门派的师门任务。
+## 2128:-1  obj/gusu/ogusu_wangzhilin.lua
+lua.0b2c2e6c  	卜卦介绍
+## 2130:-1  obj/gusu/ogusu_gongyekun.lua
+lua.334b4835  	去击退窃贼！
+## 2131:-1  obj/gusu/ogusu_zhikeshi.lua
+lua.25485dd9  	加入慕容
+lua.7a1cda31  	学习慕容战斗技能
+lua.85c9481f  	慕容任务
+lua.87993117  	学习慕容辅助技能
+lua.8807b1fa  	在慕容山庄我负责指路的事宜。
+lua.9508ae0a  	藏书水阁
+lua.c2f8a6d2  	学习慕容轻功
+lua.ce855a65  	学习慕容生活技能
+lua.d4f7d321  	慕容传送人
+## 2925:-1  obj/dali/odali_gaoshipai.lua
+lua.501fb472  	    本告示牌由大理兵器店蒲老板出资设立，专供各路江湖人士在此发布或接取悬赏之用。现已天下太平，夜不闭户，无人发布悬赏，此告示牌就此闲置在此。
+## 3001:-1  obj/songshan/osongshan_chaijin.lua
+lua.b5129db3  	  鬼啊！！！哦，是你啊。抱歉，我最近已经被鬼吓得失魂落魄了。我不知道自己看到的到底是人还是鬼……
+## 3003:-1  obj/songshan/osongshan_lusong.lua
+lua.e18d8082  	  我是嵩阳书院的医生陆松，在这里行医已经三十年了，还从未出过医疗事故。
+## 3004:-1  obj/songshan/osongshan_luningshuang.lua
+lua.bd6504dd  	  柴大官人武功高强，知书达理，风度翩翩，要嫁人就要嫁柴大官人那样的。
+## 3005:-1  obj/songshan/osongshan_dingmian.lua
+lua.b8ed1995  	  自从发生那件事情后，我们家公子的精神一直不太好，可他倒底看到什么了呀？
+## 3006:-1  obj/songshan/osongshan_dingli.lua
+lua.3ef83b8d  	  听说太老爷还活着，怎么可能呢？当年太老爷去世的时候，我亲眼所见啊，这世上真会发生这种事情吗？太不可思议了……
+## 3008:-1  obj/songshan/osongshan_suolin.lua
+lua.dd59ac8f  	  这里就是嵩山了吧，你知道嵩阳书院在哪里吗？
+## 4001:-1  obj/taihu/otaihu_huyanqing.lua
+lua.03c74c82  	  我的兄弟呼延豹去苏州搬救兵去了，你看到他了吗？
+lua.0e24423b  	  你可以回苏州找我的兄弟呼延豹领取奖励了！
+lua.34394355  	水牢
+lua.7fa755ed  	  很遗憾，你的平定任务失败了！
+lua.90b816c4  	  {0} ，来吧。#r
+## 4002:-1  obj/taihu/otaihu_ligang.lua
+lua.795f6f99  	关于讨伐燕子坞
+lua.a1596406  	讨伐燕子坞
+## 4003:-1  obj/taihu/otaihu_caochun.lua
+lua.7720f12a  	我的身份是极端保密的，很少有人知道。
+## 4004:-1  obj/taihu/otaihu_kouxun.lua
+lua.e525a111  	  行军打仗虽然战术战略等各方面都很重要，但是我认为，人心更为重要，得人心者得天下啊！
+## 4005:-1  obj/taihu/otaihu_dicheng.lua
+lua.e66cb5b0  	  怎么来了那么多官兵，我都不敢出去抢东西了。
+## 4007:-1  obj/taihu/otaihu_songjiang.lua
+lua.fe940ac3  	  区区一个明教对我们呼延将军而言，都是小意思了。
+## 4008:-1  obj/taihu/otaihu_songbing.lua
+lua.1344c96e  	  也不知道我们倒底要等到什么，快点结束这里的事情，去玉门关支援杨将军吧。
+## 5002:-1  obj/jinghu/ojinghu_yahuan.lua
+lua.e57f6304  	  段老爷没来的时候，小姐天天都在哭，怎么劝都劝不住；可段老爷来了的时候，小姐一下子就高兴起来了。
+## 5113:-1  obj/jinghu/oJingHu_Qishayun.lua
+lua.1beb3e15  	送我去镜湖水寨
+lua.60fb338f  	  我从朝廷哪里接下来了剿灭镜湖水贼的任务，特招募天下各帮派的有志之士进行剿匪。
+lua.bb524be3  	关于镜湖剿匪
+## 5114:-1  obj/jinghu/oJiaofei_Gaotaigong.lua
+lua.3eeed8f6  	  我是个和平主义者。
+lua.5ec7e483  	送我去镜湖
+## 6001:-1  obj/wuliang/owuliang_zhongling.lua
+lua.2930b7ea  	钟灵任务
+lua.77d1496a  	  人家中了毒，不想跑来跑去的嘛。也不知道段哥哥有没有找到我娘亲，怎么还不来救我啊！
+## 6005:-1  obj/wuliang/owuliang_ganguanghao.lua
+lua.eb7b5d4c  	  我瞧那葛师妹对我也是暗中有意，嘿嘿，不如……
+## 6007:-1  obj/wuliang/owuliang_wuliangdizi.lua
+lua.c169d4b0  	  无量派正在#G剑湖宫#W举行五年一度的比武斗剑。
+## 6011:-1  obj/wuliang/owuliang_wangxiaoya.lua
+lua.dc8106e4  	  爹，我不要新衣服，我要娘，娘去哪里了，怎么还不回来啊？
+## 7112:-1  obj/jiange/ojiange_yingwuming.lua
+lua.0f7f5bb9  	兑换75级外功套装
+lua.0fa3c2b5  	兑换85级内功套装
+lua.3822b4e0  	兑换85级外功套装
+lua.932dfec0  	兑换75级内功套装
+## 7113:-1  obj/jiange/ojiange_longjia.lua
+lua.be6a7083  	传送到秦皇地宫
+## 8002:-1  obj/dunhuang/odunhuang_zhaoxingde.lua
+lua.544fa397  	好久不见了，现在我是西夏国的汉军团了。
+## 8003:-1  obj/dunhuang/odunhuang_zhuwangli.lua
+lua.fc903e07  	  好久不见了，身为一个汉人，我知道自己现在的处境有多么尴尬。但是这么多的汉人弟兄，我要保护他们啊！是非对错……谁又能说的明白呢？！
+## 8005:-1  obj/dunhuang/odunhuang_caoyanshou.lua
+lua.16057313  	  这#G玉门关#W一向是兵家必争之地，我哥哥这#G敦煌#W太守做的也很不容易啊！
+## 8008:-1  obj/dunhuang/odunhuang_lichonggui.lua
+lua.e8f78cb2  	  我们已经打败了回鹘和龟兹，攻进玉门关，攻占宋朝是早晚的事情。
+## 8009:-1  obj/dunhuang/odunhuang_xiabing.lua
+lua.6e50623e  	  不明白皇帝陛下为什么要编制汉人军团，我们党项军团的战斗力远远超过汉人啊。
+## 8011:-1  obj/dunhuang/odunhuang_jiumozhi.lua
+lua.43413fbc  	  施主风尘仆仆来到玉门关，是要去西夏国吗？恕小僧直言，施主印堂发暗，此去西夏国必然凶多吉少，还是及早返回中原，才是万全之策。
+lua.6d125721  	什么是关系值
+lua.968e6b68  	什么是剧情循环任务
+lua.c84086df  	交谈
+lua.d3c2e670  	我是谁？
+lua.eb221779  	鸠摩智任务
+## 8014:-1  obj/dunhuang/odunhuang_sundelong.lua
+lua.2e2a6674  	  不要和我说废话，老老实实完成你的试炼吧。
+## 8112:-1  obj/dunhuang/odunhuang_wangyan.lua
+lua.0daf339f  	{0}，一入阳关大漠飞沙，再往西去，就是火焰山了!途经火焰山能够到达高昌古国等地方。这一路凶险异常，只有#G90级以上#W的英雄才有资格前去冒险。
+lua.77fb35ce  	传送去火焰山
+## 9001:-1  obj/shaolin/oshaolin_yuangen.lua
+lua.610f6e07  	缘根
+## 9002:-1  obj/shaolin/oshaolin_xuannan.lua
+lua.f034fd2f  	老衲玄难，施主找贫僧有何事啊？
+## 9004:-1  obj/shaolin/oshaolin_xuandu.lua
+lua.8a3e3ee2  	升级开光技能
+lua.8cc4b646  	开光介绍
+lua.d147f275  	购买开光配方
+lua.ef9990b4  	学习开光技能
+## 9005:-1  obj/shaolin/oshaolin_xuanci.lua
+lua.b43e802a  	我觉得玄悲师弟圆寂，与大理段家并无干系。
+## 9006:-1  obj/shaolin/oshaolin_xiaoyuanshan.lua
+lua.be0d282f  	不让看，我偏要看！
+## 9007:-1  obj/shaolin/oshaolin_murongbo.lua
+lua.45e249af  	阿弥陀佛，施主来这藏经阁有何贵干？
+## 9008:-1  obj/shaolin/oshaolin_saoyuanlaoseng.lua
+lua.e1f772aa  	  施主在江湖上的大名，老衲早有耳闻。今日一见，果然是名不虚传。
+## 9012:-1  obj/shaolin/oshaolin_xuanming.lua
+lua.6a021f06  	学习佛法技能
+lua.80c837d0  	升级佛法技能
+lua.b67d0568  	佛法介绍
+## 9013:-1  obj/shaolin/oshaolin_huifang.lua
+lua.aceabe06  	我是慧方，我发布少林寺师门任务。
+## 9015:-1  obj/shaolin/oshaolin_pantiangeng.lua
+lua.56ac022e  	  最近总感觉力气不足。
+lua.eb2a14d0  	给你大力舍利
+## 9015:0  obj/shaolin/oshaolin_pantiangeng.lua
+lua.2eae1311  	大力舍利？在哪里？
+lua.5dc69ff2  	谢谢你的大力舍利
+## 9016:-1  obj/shaolin/oshaolin_fangtianlao.lua
+lua.045fabed  	给你壮骨舍利
+lua.c80579b2  	  最近总感觉骨质疏松。
+## 9016:0  obj/shaolin/oshaolin_fangtianlao.lua
+lua.8509200f  	谢谢你的壮骨舍利
+lua.9962d7a2  	壮骨舍利？在哪里？
+## 9017:-1  obj/shaolin/oshaolin_weitianwang.lua
+lua.69294821  	  最近总感觉诸事不爽。
+lua.7e39146c  	给你小佛舍利
+## 9017:0  obj/shaolin/oshaolin_weitianwang.lua
+lua.2361ed50  	佛光舍利？在哪里？
+lua.25756f06  	任务完成！
+lua.d02ee752  	谢谢你的小佛舍利
+## 9018:0  obj/shaolin/oshaolin_hongcaiyun.lua
+lua.87bc0d35  	你不是本门派的弟子，我是不能教你少林的轻功的
+lua.cda1ca2c  	学习少林轻功需要先加入少林派！
+## 9030:-1  obj/shaolin/oshaolin_dizi_1.lua
+lua.77d5628b  	  此处就是武林圣地少林寺。如果你需要帮助，请到寺门附近找知客僧帮忙。
+## 9033:-1  obj/shaolin/oshaolin_dizi_4.lua
+lua.87171033  	我是少林派弟子。
+## 9034:-1  obj/shaolin/oshaolin_zhikeseng.lua
+lua.20434a15  	学习少林轻功
+lua.24f24438  	少林派传送人
+lua.358a76c2  	学习少林生活技能
+lua.8c0f4fce  	学习少林战斗技能
+lua.8d54456c  	学习少林辅助技能
+lua.9659d94c  	少林派任务
+lua.b372e41a  	学习少林骑乘技能
+lua.b5715b2a  	加入少林派
+lua.dccb69b0  	啊弥陀佛，贫僧恭候多时。请让贫僧为施主指路。
+lua.dd50d656  	塔林
+## 9035:-1  obj/shaolin/oshaolin_xuanzheng.lua
+lua.5bdc39b1  	不知道是什么原因，木人巷中的木人一时无法控制，现在跑的寺中都是，看施主慈眉善目，给你个锻炼的机会，你可愿往？
+lua.d3f717ca  	打木人锻炼
+## 10000:-1  obj/gaibang/ogaibang_chenguyan.lua
+lua.d9369969  	  我是陈孤雁，阁下来找我有何事指教？
+## 10000:0  obj/gaibang/ogaibang_chenguyan.lua
+lua.0fa94a83  	你已是别的门派的高徒了，丐帮不收你。
+lua.8e91fe06  	你又来消遣为师了，你已是我丐帮弟子，还拜什么师呢。
+lua.b2fc3113  	我确定要拜入丐帮
+## 10000:6  obj/gaibang/ogaibang_chenguyan.lua
+lua.798d2e89  	奚三祁
+lua.91c1e094  	奚三祁（93，99）可以教给你我派战斗技能，他就在我旁边。
+## 10001:-1  obj/gaibang/ogaibang_baishijing.lua
+lua.62ba34eb  	我是白世镜，阁下来我丐帮何事？
+## 10003:-1  obj/gaibang/ogaibang_liuzhuzhuang.lua
+lua.e4f8b2e6  	全舵主在帮内的位置升得很快，我也要向他学习！
+## 10004:-1  obj/gaibang/ogaibang_quanguanqing.lua
+lua.da42f66b  	马副帮主的大仇一定要报，谁反对谁就是杀害马副帮主的帮凶。
+## 10005:-1  obj/gaibang/ogaibang_songzhanglao.lua
+lua.e68b464a  	丐帮想要发展壮大，还真不能只招收乞丐。我最近收了一个弟子，他以前是个和尚。
+## 10006:-1  obj/gaibang/ogaibang_wuchangfeng.lua
+lua.3ada3fa3  	升级酿酒技能
+lua.836f7c2d  	学习酿酒技能
+lua.ada2333f  	酿酒介绍
+lua.f0ba0a84  	购买酿酒配方
+## 10007:-1  obj/gaibang/ogaibang_xizhanglao.lua
+lua.37a1ee44  	你找我有何事啊？
+## 10009:-1  obj/gaibang/ogaibang_shangguanchangyu.lua
+lua.1bc05a1e  	升级莲花落技能
+lua.2c8043e4  	莲花落介绍
+lua.c0e12be8  	学习莲花落技能
+## 10011:-1  obj/gaibang/ogaibang_liriyue.lua
+lua.109e32ef  	  来看看吧，我这里有上好的坐骑。
+lua.f727190f  	骑术介绍
+## 10012:-1  obj/gaibang/ogaibang_hongtong.lua
+lua.7ad4dae4  	我是洪通，我发布丐帮师门任务。
+## 10013:0  obj/gaibang/ogaibang_wuxuehen.lua
+lua.c96cfaf8  	学习丐帮轻功需要先加入丐帮派！
+lua.f5eacc85  	你不是本门派的弟子，我是不能教你丐帮的轻功的
+## 10030:-1  obj/gaibang/ogaibang_dizi_1.lua
+lua.932306f9  	  这里是丐帮总舵。如果你需要帮助，请到院门附近找知客丐帮忙。
+## 10033:-1  obj/gaibang/ogaibang_dizi_4.lua
+lua.9e2887e3  	我是丐帮弟子。
+## 10034:-1  obj/gaibang/ogaibang_zhikeqigai.lua
+lua.3bc4690d  	学习丐帮轻功
+lua.52db409e  	加入丐帮
+lua.70dec33a  	学习丐帮生活技能
+lua.714367a8  	丐帮传送人
+lua.998b8fc4  	学习丐帮辅助技能
+lua.ad39da52  	学习丐帮骑乘技能
+lua.af619126  	学习丐帮战斗技能
+lua.bb70debc  	酒窖
+lua.e985b6bc  	丐帮任务
+## 10035:-1  obj/gaibang/ogaibang_ouyangguo.lua
+lua.9c4bbeac  	那些恶猴一贯进入我们酒窖偷酒，甚是可恶，我们教训过他们几次，竟不知进退的来攻丐帮总舵，要去给他们些颜色吗？
+lua.ba0b6d4d  	去抵挡恶猴
+## 11000:-1  obj/mingjiao/omingjiao_linshichang.lua
+lua.647ba569  	年轻人，你有什么事情吗？
+## 11002:0  obj/mingjiao/omingjiao_fangbaihua.lua
+lua.22f959ea  	学习明教轻功需要先加入明教！
+lua.4e8dd584  	你不是本门派的弟子，我是不能教你明教的轻功的
+## 11004:-1  obj/mingjiao/omingjiao_fangtianding.lua
+lua.8d77a9f1  	学习采火术技能
+lua.9c86ff6b  	升级采火术技能
+lua.ec3ca71d  	采火术介绍
+## 11007:-1  obj/mingjiao/omingjiao_mala.lua
+lua.e1ef110d  	百花妹妹说中土有座寒玉塔，里边有好多传说啊，真想去看看。
+## 11008:-1  obj/mingjiao/omingjiao_qiudaoren.lua
+lua.11c28eba  	圣火术介绍
+lua.8c44ece2  	学习圣火术技能
+lua.964bf058  	升级圣火术技能
+lua.c5f986e9  	购买圣火术配方
+## 11009:-1  obj/mingjiao/omingjiao_yudaoan.lua
+lua.ccc9e4ef  	圣女大人最近可能不大开心啊。
+## 11010:-1  obj/mingjiao/omingjiao_shibing.lua
+lua.fc452c35  	光明殿重地，不要乱跑！小心迷路！
+## 11013:-1  obj/mingjiao/omingjiao_linyan.lua
+lua.3b2d4bd7  	  我是林岩，我发布明教师门任务。
+## 11030:-1  obj/mingjiao/omingjiao_dizi_1.lua
+lua.538b7eea  	  光明殿重地，不得随意走动！如果你需要帮助，就去大门附近找知客使帮忙。
+## 11033:-1  obj/mingjiao/omingjiao_dizi_4.lua
+lua.0f204944  	我是明教弟子。
+## 11034:-1  obj/mingjiao/omingjiao_zhikehuwei.lua
+lua.01630bf4  	学习明教轻功
+lua.18bc3279  	学习明教辅助技能
+lua.1aca744d  	明教任务
+lua.31add65b  	拜见教主
+lua.483ba14f  	学习明教生活技能
+lua.6ba15076  	光明洞
+lua.8c201467  	学习明教骑乘技能
+lua.af2033b3  	学习明教战斗技能
+lua.f57df8af  	加入明教
+lua.f786fd57  	明教传送人
+## 11035:-1  obj/mingjiao/omingjiao_shigang.lua
+lua.212094d8  	去抵挡围剿
+lua.66cee7ed  	官兵又来围剿光明殿，真是麻烦，不过来的都是些无名小卒，你愿意去练练拳脚吗？
+## 12001:-1  obj/wudang/owudang_heyundaoren.lua
+lua.0746a9fc  	炼丹介绍
+lua.59559374  	升级炼丹技能
+lua.5a81bb93  	购买炼丹配方
+lua.5e1321f8  	  就是那个黄大人陷害了大师兄！小师妹还帮他说好话，真是看不过去。
+lua.a981ef56  	学习炼丹技能
+## 12002:-1  obj/wudang/owudang_huangchang.lua
+lua.e9082b49  	武当山最近道教发展兴隆，大有超过龙虎山，成为中华第一道教名山之势。
+## 12004:-1  obj/wudang/owudang_ningxusanren.lua
+lua.be60f8b9  	道法介绍
+lua.c7b926dd  	升级道法技能
+lua.e2d38733  	学习道法技能
+## 12005:-1  obj/wudang/owudang_zhanghanzhi.lua
+lua.b71ec3a7  	看你的样子，好像有点不大开心。要不要一起出去玩玩？
+## 12010:-1  obj/wudang/owudang_yuyuanshan.lua
+lua.214191c0  	你找我有什么事？
+## 12013:-1  obj/wudang/owudang_wujishenlu.lua
+lua.35382549  	<鹤鸣九皋，声闻于天>
+## 12014:-1  obj/wudang/owudang_zhangzhongxing.lua
+lua.b39a4025  	我是张中行，我发布武当派师门任务。
+## 12030:-1  obj/wudang/owudang_dizi_1.lua
+lua.f6e9e0ce  	  圆转如意，清静无为，这里就是武当山。如果你需要帮助，请到山门附近找知客道人帮忙。
+## 12033:-1  obj/wudang/owudang_dizi_4.lua
+lua.5e28d0b6  	我是武当派弟子。
+## 12034:-1  obj/wudang/owudang_zhikedaoren.lua
+lua.42b42df1  	武当任务
+lua.4d450feb  	加入武当
+lua.7cdce013  	学习武当骑乘技能
+lua.86129ceb  	武当传送人
+lua.90383747  	学习武当战斗技能
+lua.9a197de9  	灵性峰
+lua.a45039fb  	学习武当生活技能
+lua.fd393995  	学习武当辅助技能
+## 12035:-1  obj/wudang/owudang_xiaotianyi.lua
+lua.5a3a4a5b  	去挑战心魔
+lua.c5e0459f  	古来修炼之士，皆会遇到心魔之事，适天师在武当山布下大阵，可有机会战败心魔，你愿意试试自己的实力吗？
+## 12066:-1  obj/wudang/owudang_jinchushanren.lua
+lua.bc1ef710  	学习武当轻功
+## 12066:0  obj/wudang/owudang_jinchushanren.lua
+lua.d17b95ce  	学习武当轻功需要先加入武当派！
+lua.dc5be570  	你不是本门派的弟子，我是不能教你武当的轻功的
+## 13000:-1  obj/tianlong/otianlong_kurong.lua
+lua.b09583a4  	  阿弥陀佛！有常无常，双树枯荣，南北西东，非假非空！
+## 13002:-1  obj/tianlong/otianlong_bencan.lua
+lua.6ac262e5  	经脉百诀介绍
+lua.d1553170  	学习经脉百决技能
+lua.d1edad9a  	升级经脉百决技能
+## 13003:-1  obj/tianlong/otianlong_benguan.lua
+lua.4055c82c  	老衲本观，施主找贫僧有何事啊？
+## 13006:-1  obj/tianlong/otianlong_pochi.lua
+lua.f87664dd  	  小僧法号破痴，在大理城拈花寺出家，是来天龙寺挂单的。
+## 13007:-1  obj/tianlong/otianlong_benfan.lua
+lua.c346c45d  	我是本凡，我发布天龙寺师门任务。
+## 13008:-1  obj/tianlong/otianlong_linguoqing.lua
+lua.942c69c8  	  下官名叫林国清，是奉当今圣上之命，来看望老皇爷的。
+## 13009:-1  obj/tianlong/otianlong_wuzhong.lua
+lua.c6ccff54  	  下官名叫伍忠，是奉当今圣上之命，来看望老皇爷的。
+## 13010:-1  obj/tianlong/otianlong_qiguidie.lua
+lua.91ae643d  	  近日给本因大师做了一件新的袈裟，也不知他合身不合身。
+## 13011:-1  obj/tianlong/otianlong_shengrulan.lua
+lua.5459ec93  	学习大理派轻功
+## 13011:0  obj/tianlong/otianlong_shengrulan.lua
+lua.71ba709f  	学习天龙寺轻功需要先加入大理派！
+lua.e45965cc  	你不是本门派的弟子，我是不能教你大理派轻功的
+## 13012:-1  obj/tianlong/otianlong_hehongling.lua
+lua.93a96ab9  	  本相大师最近总向我提起他的一个后辈，此人是当今皇上的侄儿，名叫段誉。
+## 13013:-1  obj/tianlong/otianlong_renfeiyan.lua
+lua.dd61b55a  	  我陪着老皇爷们来到天龙寺已有两年了，但我还一直记得两年前在洛阳城里见到的那个年轻人。
+## 13030:-1  obj/tianlong/otianlong_dizi_1.lua
+lua.f41e144a  	  天龙寺乃是佛门清修之所。如果你需要帮助，请到寺门附近找知客僧帮忙。
+## 13033:-1  obj/tianlong/otianlong_dizi_4.lua
+lua.73c59147  	我是大理派弟子。
+## 13034:-1  obj/tianlong/otianlong_zhikeseng.lua
+lua.15e46cbd  	学习天龙派骑乘技能
+lua.1645aea6  	学习天龙派轻功
+lua.1896b44d  	天龙派任务
+lua.39473fb3  	加入天龙派
+lua.5f159b8d  	学习天龙派战斗技能
+lua.961d8929  	学习天龙派生活技能
+lua.a31dbd57  	天龙派传送人
+lua.b0b6b30b  	学习天龙派辅助技能
+lua.e8bc0c61  	塔底
+lua.f60c2a53  	拜见方丈
+## 13035:-1  obj/tianlong/otianlong_benming.lua
+lua.8a8c2e6e  	老僧最近参破了寒玉塔上的玄机，了因了果，无名无相，你想挑战传说中的魔道傀儡帝吗？
+lua.8f43eb10  	去大战傀儡
+## 14001:-1  obj/xiaoyao/oxiaoyao_kangguangling.lua
+lua.3a6191d7  	我是康广陵，你有何事啊？
+## 14002:-1  obj/xiaoyao/oxiaoyao_fanbailing.lua
+lua.8fe9c684  	送我去擂鼓山(白天)
+lua.9b649212  	  我是恩师的二弟子，棋迷范百龄。你有什么事情吗？
+lua.e8dbe10c  	送我去擂鼓山(夜间)
+## 14006:-1  obj/xiaoyao/oxiaoyao_shiqinglu.lua
+lua.47646f29  	升级六艺风骨技能
+lua.4f3d8461  	六艺风骨介绍
+lua.6b9944e3  	学习六艺风骨技能
+## 14008:-1  obj/xiaoyao/oxiaoyao_qinguan.lua
+lua.e3e3f590  	我是秦观，我发布逍遥派师门任务。
+## 14009:-1  obj/xiaoyao/oxiaoyao_kuileimuren.lua
+lua.f793a2eb  	  逍遥傀儡人F-874型正在进行数据动作处理：#r  10：伸出右侧手臂。#r  20：向左挥动。#r  30：向右挥动。#r  返回20，循环开始……
+## 14010:-1  obj/xiaoyao/oxiaoyao_kuileishiren.lua
+lua.a5ae688f  	  逍遥傀儡人F-16型已经从一个严重的系统错误中恢复。
+## 14011:-1  obj/xiaoyao/oxiaoyao_kuileitongren.lua
+lua.04a2b259  	  逍遥傀儡人F-17173型目前工作正常……良好……优秀……杰出……完美……哦耶……
+## 14012:-1  obj/xiaoyao/oxiaoyao_shiganlin.lua
+lua.a64d2eed  	学习逍遥轻功
+## 14012:0  obj/xiaoyao/oxiaoyao_shiganlin.lua
+lua.08eee423  	学习逍遥轻功需要先加入逍遥派哦。
+lua.3353bc7f  	你不是逍遥派的弟子，我是不能教你本门轻功的。
+## 14030:-1  obj/xiaoyao/oxiaoyao_dizi_1.lua
+lua.2fab4b35  	  小心，淩波洞中处处是机关，可不要走到禁地之中。如果你需要帮助，请到洞门附近找知客弟子帮忙。
+## 14033:-1  obj/xiaoyao/oxiaoyao_dizi_4.lua
+lua.2ae580bf  	我是逍遥派弟子。
+## 14034:-1  obj/xiaoyao/oxiaoyao_zhikeshi.lua
+lua.16d28f10  	学习逍遥派骑乘技能
+lua.1c7b6764  	逍遥派传送人
+lua.3f8f61d8  	学习逍遥派战斗技能
+lua.a9d43614  	谷底
+lua.aa869822  	加入逍遥派
+lua.b7144e18  	逍遥派任务
+lua.c5db5c6c  	学习逍遥派生活技能
+lua.d1f104e6  	学习逍遥派辅助技能
+lua.e2be76c7  	学习逍遥派轻功
+## 14035:-1  obj/xiaoyao/oxiaoyao_gongzhizichang.lua
+lua.34877cf9  	去见识天机傀儡
+lua.e803bd4a  	最近我无意中找到了本巧匠的奇书，依书所为，竟然做成了天机傀儡。它们功能非常，似乎还能思考，想去见识见识么？
+## 15002:-1  obj/emei/oemei_hanyinxue.lua
+lua.332fe02c  	学习制符技能
+lua.6e740ed9  	购买制符配方
+lua.927f44aa  	制符介绍
+lua.ba433746  	升级制符技能
+## 15003:-1  obj/emei/oemei_cuilvhua.lua
+lua.5ab4b33d  	我是崔绿华
+## 15004:-1  obj/emei/oemei_xiaoming.lua
+lua.da72fe0b  	  掌门姐姐从苏州回来之后，一连好几天都茶饭不思的，好像有很多的心事呢。
+## 15005:-1  obj/emei/oemei_xiaoshi.lua
+lua.b7b195db  	  掌门姐姐最近总是谈起一个叫做韩世忠的人，说他是不世出的大英雄，可以和“北乔峰”、“南慕容”并驾齐驱。
+## 15006:-1  obj/emei/oemei_husanniang.lua
+lua.165d3667  	灵心术介绍
+lua.38770fad  	升级灵心术技能
+lua.e47e8a37  	学习灵心术技能
+## 15009:-1  obj/emei/oemei_menglong.lua
+lua.a69eb6bd  	我是孟龙，我发布峨嵋派的师门任务。
+## 15014:0  obj/emei/oemei_sunerniang.lua
+lua.425f8cec  	学习峨嵋轻功需要先加入峨嵋派！
+lua.7ebd65bb  	你不是本门派的弟子，我是不能教你峨嵋的轻功的
+## 15030:-1  obj/emei/oemei_dizi_1.lua
+lua.64ad9871  	  欢迎你来到峨嵋山。如果你需要帮助，请到山门附近找知客使帮忙。
+## 15031:-1  obj/emei/oemei_dizi_2.lua
+lua.40599045  	我是峨嵋派弟子。
+## 15032:-1  obj/emei/oemei_dizi_3.lua
+lua.5740e749  	<花枝招展，妩媚动人>
+## 15033:-1  obj/emei/oemei_dizi_4.lua
+lua.d1c185a9  	<凤凰的鸣叫声响彻云端>
+## 15034:-1  obj/emei/oemei_zhikeshi.lua
+lua.0418a11f  	学习峨嵋轻功
+lua.1be875de  	学习峨嵋辅助技能
+lua.2b22f324  	学习峨嵋生活技能
+lua.2b821086  	峨嵋传送人
+lua.751216f0  	学习峨嵋战斗技能
+lua.d274bc42  	峨嵋任务
+lua.d2898f0e  	桃花阵
+lua.ddee3148  	学习峨嵋骑乘技能
+lua.e19e70ec  	加入峨嵋
+## 15035:-1  obj/emei/oemei_liusanmei.lua
+lua.3b2b7ef1  	去击退猿猱
+lua.e5c7f6f1  	峨嵋山自古都以猿猱为名，最近这些恶猿闹得越来越不成话，竟然来本派胡闹，你愿意试试去击退它们吗？
+## 16000:-1  obj/xingxiu/oxingxiu_dingchunqiu.lua
+lua.338f8aa1  	兑换物品
+lua.52826c98  	兑换称号
+lua.ba1a8d6c  	  老夫一直觉得，武林中人以刀斧枪棒相互搏杀，实在是残忍无比的事情。如果用毒功伤人，才能让人在平静、安逸、幸福、快乐之中死亡。所以这毒功真是功德无量的武功啊。
+lua.d9577071  	购买配方
+## 16003:-1  obj/xingxiu/oxingxiu_zhaixingzi.lua
+lua.0c6abcd6  	制毒介绍
+lua.2c57cfe4  	学习制毒技能
+lua.2fb5b8c5  	购买制毒配方
+lua.fed23a32  	升级制毒技能
+## 16004:-1  obj/xingxiu/oxingxiu_shihouzi.lua
+lua.4a7e4357  	引虫术介绍
+lua.829cf27c  	我的技能只教本派弟子。
+lua.b9870ea5  	升级引虫术技能
+lua.ce31cadf  	学习引虫术技能
+## 16005:-1  obj/xingxiu/oxingxiu_chuchenzi.lua
+lua.4e2780c9  	学习星宿轻功
+## 16005:0  obj/xingxiu/oxingxiu_chuchenzi.lua
+lua.466fd126  	你不是本门派的弟子，我是不能教你星宿轻功的
+lua.fe1ee0d8  	学习星宿轻功需要先加入星宿派！
+## 16006:11  obj/xingxiu/oxingxiu_tianlangzi.lua
+lua.aebc14bb  	门派 - 天山
+## 16007:-1  obj/xingxiu/oxingxiu_shiquan.lua
+lua.19b78402  	我是施全
+## 16010:-1  obj/xingxiu/oxingxiu_wangyan.lua
+lua.27db0fef  	我是王彦，我发布星宿派师门任务。
+## 16030:-1  obj/xingxiu/oxingxiu_dizi_1.lua
+lua.4b2426cc  	  想在星宿海平安出入，没点胆子是不行的。如果你需要帮助，请到大门附近找知客弟子帮忙。
+## 16033:-1  obj/xingxiu/oxingxiu_dizi_4.lua
+lua.ec4d629f  	我是星宿派弟子。
+## 16034:-1  obj/xingxiu/oxingxiu_zhikeshi.lua
+lua.21bcea68  	学习星宿派生活技能
+lua.43dced83  	学习星宿派轻功
+lua.8cb9c8e4  	星宿派传送人
+lua.b4239998  	星宿派任务
+lua.b6628b22  	加入星宿派
+lua.d3095eac  	学习星宿派战斗技能
+lua.ecb8b2fc  	学习星宿派骑乘技能
+lua.f8ae6002  	学习星宿派辅助技能
+lua.fc471c53  	五神洞
+## 16035:-1  obj/xingxiu/oxingxiu_tianxuanzi.lua
+lua.7a50088b  	打蜘蛛修炼
+lua.8896465a  	前日苍龙出现于天，师父的神木王鼎竟发出嗡嗡之声，引来无数巨大蜘蛛，此正是修炼的好时机，你可愿意去看看？
+## 17000:-1  obj/tianshan/otianshan_tianshantonglao.lua
+lua.52348e85  	……
+## 17002:-1  obj/tianshan/otianshan_lanjian.lua
+lua.5e710695  	  其实我是天山派弟子们的二师姐，梅剑姐姐才是大师姐。嘿嘿。
+## 17003:-1  obj/tianshan/otianshan_zhujian.lua
+lua.d1c70b01  	学习天山轻功
+## 17003:0  obj/tianshan/otianshan_zhujian.lua
+lua.71acb0b8  	学习天山轻功需要先加入天山门派！
+lua.b45288c5  	你不是本门派的弟子，我是不能教你天山的轻功的
+## 17005:-1  obj/tianshan/otianshan_wulaoda.lua
+lua.6ee51151  	洛阳 - 九州商会
+lua.9d030423  	我怎样才能去敦煌和嵩山
+lua.adbfa052  	苏州 - 铁匠铺
+lua.b25e5581  	去玄武岛
+lua.c7fedbc6  	带我去其他门派吧
+## 17005:11  obj/tianshan/otianshan_wulaoda.lua
+lua.016868e6  	门派 - 武当
+lua.34d886cf  	门派 - 唐门
+lua.3e45659d  	门派 - 峨嵋
+lua.47129aeb  	门派 - 星宿
+lua.5e637caa  	门派 - 明教
+lua.6669c08f  	门派 - 逍遥
+lua.a21619b0  	门派 - 天龙
+lua.ac9a0023  	门派 - 少林
+lua.e10c085b  	门派 - 丐帮
+## 17006:-1  obj/tianshan/otianshan_yupo.lua
+lua.47469993  	玄冰术介绍
+lua.68782613  	学习玄冰术技能
+lua.816eac69  	升级玄冰术技能
+lua.e9d29910  	购买玄冰术配方
+## 17007:-1  obj/tianshan/otianshan_shisao.lua
+lua.06449b1d  	学习采冰术技能
+lua.3c2d629b  	升级采冰术技能
+lua.a0e35aa5  	采冰术介绍
+lua.bef53134  	  我的技能只教本派弟子。
+## 17008:-1  obj/tianshan/otianshan_fuminyi.lua
+lua.9902de3f  	我是符敏仪，我发布天山派师门任务。
+## 17030:-1  obj/tianshan/otianshan_dizi_1.lua
+lua.be79e2d3  	  灵鹫宫里大多是女子，禁忌颇多。如果你需要帮助，请到山门附近找知客弟子帮忙。
+## 17033:-1  obj/tianshan/otianshan_dizi_4.lua
+lua.753d48ab  	我是天山派弟子。
+## 17034:-1  obj/tianshan/otianshan_zhikeshi.lua
+lua.1f6a2774  	学习天山派骑乘技能
+lua.2173328a  	折梅峰
+lua.2f729100  	学习天山派生活技能
+lua.5465e89b  	学习天山派轻功
+lua.5f525b94  	天山派任务
+lua.609cd2a4  	学习天山派战斗技能
+lua.9d5e1e00  	天山派传送人
+lua.b5791bde  	加入天山派
+lua.bfad6ffa  	学习天山派辅助技能
+## 17035:-1  obj/tianshan/otianshan_dengpo.lua
+lua.3faddecf  	我天山一向与那些雪怪井水不犯河水，可是这些家伙越来越暴虐，姥姥用了计谋将它们引到了灵鹫峰上，现在就看你的了。
+lua.e8407b6f  	去歼灭雪怪
+## 17505:0  obj/tangmen/otangmen_tangchun.lua
+lua.192b8494  	学习唐门轻功需要先加入唐门！
+lua.9943fb9a  	你不是本门派的弟子，我是不能教你唐门轻功的
+## 17508:-1  obj/tangmen/otangmen_tangqingqiu.lua
+lua.4c776395  	你不是唐门的弟子，请速速离开！。
+## 17511:-1  obj/tangmen/otangmen_zhikeshi.lua
+lua.1375b748  	学习唐门辅助技能
+lua.164f2e52  	学习唐门战斗技能
+lua.17a76b04  	唐门任务
+lua.275cd55e  	加入唐门
+lua.46122af0  	唐门传送人
+lua.67c54242  	拜见掌门
+lua.7aabc7ce  	学习唐门生活技能
+lua.86a40549  	我来为你指路。
+lua.d4b3f80b  	演武场
+lua.eb03d541  	学习唐门轻功
+## 17512:-1  obj/tangmen/otangmen_tangmuxiang.lua
+lua.595f5f1b  	唐家堡的演武场中收集了天下各派的武功秘籍，难易繁杂皆有，但最近频遭窃书贼困扰，你要进去查看一番吗？
+## 17514:-1  obj/tangmen/otangmen_tangmenlaolao.lua
+lua.d1635392  	编纳术介绍
+## 17515:-1  obj/tangmen/otangmen_tangruoxi.lua
+lua.6cf0d6d0  	百草识辨术介绍
+## 18000:-1  obj/yannan/oyannan_chongshiheng.lua
+lua.0a5ec83e  	就地正法
+lua.cc468686  	雁门关太守府
+lua.f5a14247  	送我去雁门关包围圈
+## 18001:-1  obj/yannan/oyannan_koufeng.lua
+lua.ec204857  	  宦官监军马承倩总是在雁门集市上抢夺百姓的东西，他手下的宦官将军骆奉先还经常带兵去抢劫契丹平民百姓，管这叫“打草谷”，有时候，还打汉族百姓的草谷。时间一长，我们的军队在百姓心目中有如恶鬼。
+## 18002:-1  obj/yannan/oyannan_machengqian.lua
+lua.c8a89d1e  	  这几匹布不错，这个盘子质地还可以，嗯，那两头小猪看来非常可口……你快去帮咱家抢来！
+## 18003:-1  obj/yannan/oyannan_mazhi.lua
+lua.280307a3  	  耶律将军，听说金国人不能满一万，满一万就天下无敌，是不是真的啊？
+## 18004:-1  obj/yannan/oyannan_yelvmoge.lua
+lua.6c8b0a16  	送我去苍茫山(白天)
+lua.c49178ef  	  萧大王此去南朝，凶多吉少啊……可为什么太后坚持要他去呢？
+lua.d1eaf8a0  	送我去苍茫山（白天）
+lua.efdffb86  	送我去苍茫山(夜间)
+## 18005:-1  obj/yannan/oyannan_zhouwuwei.lua
+lua.cdcb6a50  	  雁门关防务现在主要分为三部分：种世衡大帅负责对付雁门关以南的秦家寨盗匪；曲端副帅负责对付雁门关以北的辽兵；马承倩监军负责监督二位元帅的工作。
+## 18006:-1  obj/yannan/oyannan_shibing.lua
+lua.e9d9d4d5  	  跟着种世衡大帅，能建功立业；跟着马承倩监军，能升官发财。可这两件事总是感觉挺矛盾的。
+## 18007:-1  obj/yannan/oyannan_baixing.lua
+lua.45af20ca  	  我们都是好好的大宋百姓，住在雁门关已有几代了，金窝银窝，不如自家的土窝。我们是不会离开的。
+## 18112:-1  obj/moyadong/omoyadong_moyuntian.lua
+lua.26a6069c  	  这摩崖洞乃是秦家寨匪聚集之所，如果功力不够，最好多找几个同伴一同进入比较安全。
+## 19033:-1  obj/yanbei/oyanbei_mudao.lua
+lua.2508c85d  	兑换50级套装
+lua.4e758478  	兑换60级套装
+lua.63bd6d2b  	兑换70级套装
+lua.b8169113  	  你想换我的宝物？那你恐怕得准备一麻袋的燕弦玉才行，那东西古墓里多的是，就看你有没有命能拿出来了。
+## 20002:-1  obj/caoyuan/ocaoyuan_ruanshi.lua
+lua.e3a84954  	  你就是大侠{0}#{{OBJ_caoyuan_0003}}
+## 20003:-1  obj/caoyuan/ocaoyuan_xiaoqiang.lua
+lua.14cfc13d  	  {0}#{{OBJ_caoyuan_0004}}
+lua.ccb96624  	  你就是{0} ？#r  哥哥从#G雁北#W来信说你是个英雄，让我好好招待。我看你也不是很像个英雄嘛。
+lua.ddd0db34  	  我可不是别人说什么我就信什么的人哦，你如果真的是英雄，我自然会好好的款待你。
+## 20004:-1  obj/caoyuan/ocaoyuan_yahuan.lua
+lua.caa184b4  	  姑娘#{OBJ_caoyuan_0005}
+lua.f33105e4  	  少侠#{OBJ_caoyuan_0005}
+## 20006:-1  obj/caoyuan/ocaoyuan_laobing.lua
+lua.7d57fa3c  	  {0}#{{OBJ_caoyuan_0007}}
+## 20007:-1  obj/caoyuan/ocaoyuan_xinbing.lua
+lua.6032c811  	  {0}#{{OBJ_caoyuan_0008}}
+## 20008:-1  obj/caoyuan/ocaoyuan_liaobing.lua
+lua.41f274e0  	  离我远一点， 宋人不配和我说话。#r  吾皇万岁！ 大辽必胜！
+## 20009:-1  obj/caoyuan/ocaoyuan_laolietou.lua
+lua.ca96f758  	  姑娘#{OBJ_caoyuan_0009}
+lua.ed1e2df2  	  大侠#{OBJ_caoyuan_0009}
+## 21004:-1  obj/liaoxi/oliaoxi_yelvjin_kind.lua
+lua.0ca00300  	你好？《漕运任务之漕运使》
+## 21005:-1  obj/liaoxi/oliaoxi_cunmin.lua
+lua.cb773bf6  	  我们现在被马匪攻击，主要是因为现在我们蒙古人太少，而且不团结。总有一天，一位伟大的汗会领导蒙古人走向胜利的。
+## 21006:-1  obj/liaoxi/oliaoxi_liaobing.lua
+lua.434c7374  	  我大辽集中了大量精锐，对雁门关施加压力；辽西就只剩下我们这些老弱，应付那些神龙见首不见尾的马匪。
+## 21007:-1  obj/liaoxi/oliaoxi_wuji.lua
+lua.3d74fdc7  	    最近来我这里买打造图纸的客人越来越多了，怎么，中原又要打起来了？
+## 21008:-1  obj/liaoxi/oliaoxi_jianding.lua
+lua.1c625bd6  	    我自认在鉴定方面的造诣还过的去，有什么可以帮你的？
+## 21009:-1  obj/xueyuan/oliaoxi_zhouyou.lua
+lua.3bfac0ec  	提升一些冰抗
+lua.a22439fb  	    朋友，这银皑雪原上的怪物个个都拥有寒冰神力，只有#G冰抗#W足够高才能在这里横行无忌。在下可以帮你提升一些冰抗，但更多的冰抗还需要你自己来努力。
+## 21200:-1  obj/xueyuan/oxueyuan_ninglingge.lua
+lua.3a88885c  	你听说过得企鹅者得幸福这个传说吗？
+## 21201:-1  obj/xueyuan/oxueyuan_bola.lua
+lua.da6fa1d1  	银皑雪原到处危机重重，在这里活动可得小心啊。
+## 21202:-1  obj/xueyuan/oxueyuan_yuanping.lua
+lua.1097f7ab  	你见过被封在冰块里的巨人吗？真想知道他是怎么来的……
+## 21203:-1  obj/xueyuan/oxueyuan_doudou.lua
+lua.842beebf  	你是来找我的吗？博拉和袁平说我不是企鹅……
+## 22001:-1  obj/changbai/ochangbai_wanyaneguda.lua
+lua.cc5e4227  	  辽国人都传说，女真兵不可满一万，满一万则天下无敌。完颜部一定要统一女真，率领一万铁骑，推翻辽国的统治。
+## 22002:-1  obj/changbai/ochangbai_wanyanyingge.lua
+lua.1fa36143  	  现在辽国在北方的势力这么大，我们怎么可以和他们硬碰硬呢？凡事都要从长计议啊……
+## 22003:-1  obj/changbai/ochangbai_wanyanwuzhu.lua
+lua.04acde49  	  英勇、伟大、善良、热血的大英雄！你又来完颜部了啊，快坐下喝杯羊奶吧。
+## 22004:-1  obj/changbai/ochangbai_wanyanzhanmohe.lua
+lua.a0fb7ebe  	  兀术这小子，居然会把那么重要的东西弄丢，我以前一直以为他很聪明呢，看来和我也差不多啊。
+## 22005:-1  obj/changbai/ochangbai_wanyanwolibu.lua
+lua.70b6c038  	  叔叔的病都是纥石烈人害的，我一定要消灭纥石烈人，给叔叔报仇！
+## 22006:-1  obj/changbai/ochangbai_wanyanwoben.lua
+lua.61650e75  	找到完颜讹里朵
+lua.7ee3d921  	找到完颜粘没喝
+lua.96279108  	  爹和爷爷吵架了，然后就去外边打猎了，我好几天没见到爹了，真想他啊。
+lua.cd85e2cb  	找到完颜斡离不
+## 22007:-1  obj/changbai/ochangbai_wanyanwuqimai.lua
+lua.0e59132a  	  小鬼！狠毒的女人……啊，胖子？不要靠近我……有毒！……啊！该死的狗！
+## 22008:-1  obj/changbai/ochangbai_wanyanhelibo.lua
+lua.e65cf585  	  特使大人，完颜部落进贡的皮子都是最好的，比纥石烈部落的好多了。另外这些上等虎骨是给特使大人的，请您在大王面前多多美言，说完颜部落永远是辽国最忠诚的属国。
+## 22009:-1  obj/changbai/ochangbai_tudanfujin.lua
+lua.94f6c7fa  	  兀术还是个孩子，他决不是故意要害吴乞买的。神医的配方也一定还在长白山，如果能把它找回来就好了。
+## 22010:-1  obj/changbai/ochangbai_liaoguocuiliangguan.lua
+lua.34987715  	  大辽国永远不可战胜！
+## 22011:-1  obj/changbai/ochangbai_liaobing.lua
+lua.8a0ef10f  	  大辽万岁！
+## 23001:-1  obj/huanglong/ohuanglong_tuobawen.lua
+lua.b3297873  	  夕颜那天去北边的树林了，她做的事情，我都看到了……可是，如果把这件事情告诉慕容长老，他一定会处死夕颜的……我该怎么办……
+## 23002:-1  obj/huanglong/ohuanglong_yuwensu.lua
+lua.f2595873  	  阿文最近不知道怎么了，不吃饭，不睡觉，整天都在那里发呆……
+## 23003:-1  obj/huanglong/ohuanglong_xiyan.lua
+lua.3d4eac31  	  我在黄龙镇只生活了几天，但这几天我却觉得无比安逸温暖。比我以前地狱一般的生活，实在是好了不知多少倍。
+## 23004:-1  obj/huanglong/ohuanglong_murongtianlang.lua
+lua.6b12ac63  	  这个夕颜来路不明，非我族类，其心必异！我让阿文注意一下她的行动，阿文却每次都告诉我她的行为没有什么异常……我觉得我没有看错人，一定有什么别的问题发生了。
+## 23005:-1  obj/huanglong/ohuanglong_liuaotian.lua
+lua.be11fc01  	  你好，中原的英雄！我叫刘傲天。我是匈奴人的后裔，本姓栾提的，你也可以叫我栾提傲天。
+## 23006:-1  obj/huanglong/ohuanglong_cunmin.lua
+lua.3f32acda  	  最近黄龙镇不太平啊，据说圣物都被莽盖毁掉了，那我们马上就要面临灭顶之灾了吧……
+## 23007:-1  obj/huanglong/ohuanglong_hongba.lua
+lua.3dd42725  	看看你卖的什么
+lua.f365738a  	我这儿的卖价可比市价低多了，信不信由你。
+## 24001:-1  obj/erhai/oerhai_daorao.lua
+lua.529bf67e  	  年轻人，在这里可不要乱跑啊！#r  野人和狼人可都不是好惹的，看看我们村子现在的状况，你就知道那些侵略者有多凶狠了。#r  前面的那条大路叫茶马道，很多商人从这里运送茶叶去遥远的异国，以前时不时的就有马队从那里经过，马铃声可以传到好远好远……
+## 24002:-1  obj/erhai/oerhai_daolangxuan.lua
+lua.3c026c40  	  我一定会找到那些草药的，我要象阿爸一样，成为大家都尊敬的英雄！
+## 24003:-1  obj/erhai/oerhai_daoyinluo.lua
+lua.e1f9146e  	  我想回家，呜呜呜呜……好多野人，好可怕啊！
+## 24004:-1  obj/erhai/oerhai_shaning.lua
+lua.e0ed2312  	  我是个孤儿，从来没有见过阿爸和阿妈，是叔叔把我从小抚养长大的，叔叔对我就象亲生儿子一样，我一定要找到他。#r  我曾经在叔叔的卧房里见过一个姑姑的画像，那个姑姑好漂亮啊，叔叔每次喝醉了就会一直看着那幅画像，一直看。#r  叔叔会不会去找那个姑姑了？
+## 24005:-1  obj/erhai/oerhai_cunming.lua
+lua.be91da02  	  远方的客人，欢迎你来到上关村，出门的时候一定要注意狼人。
+## 24006:-1  obj/erhai/oerhai_jianding.lua
+lua.77e50370  	    没错，我就是卖鉴定符的，你要么？
+## 25001:-1  obj/cangshan/ocangshan_shadu.lua
+lua.96c9ba26  	  哼！只要有我在，谁也别想动萨桑大人！#r  萨鲁那死胖子要是敢来，来一个我杀一个，来两个我杀一对！
+## 25002:-1  obj/cangshan/ocangshan_shashang.lua
+lua.f7caeb19  	  这里是苍山的观月亭，前面就是洱海，每当月夜，洱海风停水静，皎洁的月色溶入湖面，犹如万点星光，泛起万顷银波。#r  对面的山崖是望雪崖，从那山崖上可以看到点苍山峰白雪皑皑，素裹银装，在阳光照耀下，洁白晶莹。#r  可是这么美丽的景色现在已经没有人敢来观赏了……
+## 25003:-1  obj/cangshan/ocangshan_shalu.lua
+lua.d26922c8  	  哈哈，再过不了多久，这里就全都是我的了！#r  所有的一切，所有的一切都是我的！#r  哈哈哈哈哈哈……
+## 25004:-1  obj/cangshan/ocangshan_shama.lua
+lua.83c8203c  	  苍山负雪，明烛天南。#r  自己的选择究竟是对还是错，谁又说的清楚呢？
+## 25006:-1  obj/cangshan/ocangshan_guanyutingshouwei.lua
+lua.7ea2fb4f  	  我们誓死保卫萨桑大人！
+## 25112:-1  obj/cangshan/ocangshan_saxue.lua
+lua.cb1d8606  	每年冬天，这里的雪无边无际，席卷而来。它在暗示着什么呢？呵！这真是一个奇妙又略显恐怖的世界！
+## 25113:-1  obj/cangshan/ocangshan_sunkun.lua
+lua.63ff8267  	前往束河古镇
+## 26000:-1  obj/shilin/oshilin_zhengxuan.lua
+lua.48df901e  	绝望之地的故事
+lua.db240283  	  你已经完成了这个任务。
+lua.eaced5b8  	  $N，我知道你，你的名字在大理已经传遍了，非常高兴能在石林这里看到你。但是，现在石林是个非常危险的地方，你凡事都要小心。
+## 26001:-1  obj/shilin/oshilin_qinhongmian.lua
+lua.793a4796  	    你就是从大理来的$N？那你一定见过段郎了？段郎？段郎你不知道？就是大理的镇南王段正淳！哼，那个该杀千刀的，等我见到他……有他好看的。
+## 26002:-1  obj/shilin/oshilin_liangapo.lua
+lua.50a981e2  	梁阿婆~~
+## 26003:-1  obj/shilin/oshilin_yanglianzi.lua
+lua.01b178b9  	  为什么……为什么……#r  我的阿毛啊……#r  娘对不起你啊……#r  阿毛……#r  呜呜呜呜呜……
+## 26004:-1  obj/shilin/oshilin_zhenge.lua
+lua.a4bb85d8  	不管发生什么事情，我都不会相信我相公会变为偃师，他是我最爱的人，也是我这个世界上唯一的亲人，他一定是有苦衷的，一定的。都是那些该死的偃师的错，都是他们的错！
+## 26005:-1  obj/shilin/oshilin_zhengjunke.lua
+lua.7b5922bc  	    我叫郑君可，爹爹和姑爹都出远门了。姑姑天天都在哭。其实她不用哭的啊，爹爹和姑爹总有一天会回来的啊。
+## 26006:-1  obj/shilin/oshilin_leimeng.lua
+lua.1b58df13  	雷蒙~~
+## 26007:-1  obj/shilin/oshilin_yangtiexin.lua
+lua.376dddfd  	    不要怕，我不会伤害你的。不过，你也要承诺不伤害我……
+## 26008:-1  obj/shilin/oshilin_cunmin.lua
+lua.7b27f764  	  圆月村，唉，村子里没有几家还是完整团圆的了。
+## 27001:-1  obj/yuxi/oyuxi_suomula.lua
+lua.7a1b5acc  	  老夫当年年轻气盛，曾经做了一个会捉老鼠的钟馗给沈大人看。不知道他是真觉得不错，还是故意寒碜我，这事情被他写进了《梦溪笔谈》之中。现在看那个钟馗，简直就是一个小孩子的玩意……#r  唉，人真是不可以不谨慎啊。
+## 27002:-1  obj/yuxi/oyuxi_gulula.lua
+lua.d4f3f986  	  那老鬼从来不管老婆孩子，一门心思都在那个萝卜身上。#r  唉，想当年追我的男子成千上万，我怎么会看上这么一个老鬼！
+## 27003:-1  obj/yuxi/oyuxi_luobo.lua
+lua.ac6fafa0  	  你好。#r  我的名字是萝卜。#r  我阿爸的名字是索姆拉。#r  我阿妈的名字是古鲁拉。#r  我妹妹的名字是阿依娜。#r  ……#r  处理完毕。
+## 27004:-1  obj/yuxi/oyuxi_ahei.lua
+lua.be3efd69  	  为什么从小青梅竹马，长大后就一定要在一起呢？#r  我很难理解，为什么大家都这样以为……是的，我是应该救出阿诗玛，她是我最好的朋友，但是……#r  为什么？为什么？为什么连阿依娜都觉得我和阿诗玛是金童玉女呢？
+## 27005:-1  obj/yuxi/oyuxi_ashima.lua
+lua.a0427824  	  是你救了我吗？阿黑，阿黑哥他在哪里？
+## 27006:-1  obj/yuxi/oyuxi_ayina.lua
+lua.e1bb0d11  	  阿妈到底什么时候才能原谅阿爸呀？如果阿妈和阿爸还能像以前一样在一起就好了，那我就可以天天见到萝卜哥哥了，多好呀！也不知道萝卜哥哥这几天在忙什么，都不来陪我玩。
+## 27007:-1  obj/yuxi/oyuxi_cunmin.lua
+lua.b8d87a75  	  古鲁拉婆婆是个神医啊，吃了她做的药，什么怪病都能好……虽然经常有些奇怪的副作用……
+## 28000:-1  obj/nanzhao/onanzhao_awa.lua
+lua.d798c9e7  	真怀念以前的家啊！
+## 28001:-1  obj/nanzhao/onanzhao_awang.lua
+lua.c11e1984  	我是阿旺
+## 28002:-1  obj/nanzhao/onanzhao_baijingwu.lua
+lua.c0db0ec7  	我是白景武
+## 28003:-1  obj/nanzhao/onanzhao_bailan.lua
+lua.683e8dda  	我是白兰
+## 28004:-1  obj/nanzhao/onanzhao_yangming.lua
+lua.60b98c8b  	我是扬明，最近真是有很多烦心事儿啊！
+## 29003:-1  obj/miaojiang/omiaojiang_shizhongyan.lua
+lua.c6d48a5b  	你有什么事情吗?
+## 29004:-1  obj/miaojiang/omiaojiang_shouwei.lua
+lua.3de45685  	勇闯寒玉塔
+lua.6241e479  	我是寒玉塔的守卫，你有什么事情吗?
+## 29005:-1  obj/miaojiang/omiaojiang_cunmin.lua
+lua.109b0fb0  	  今天我喝了新调出的黑苗酒，感觉真是太舒服了。古大师的调酒技艺真是叫人不得不叹为观止啊。
+## 29006:-1  obj/miaojiang/omiaojiang_hongtian.lua
+lua.76c6d9c1  	看看你有什么好货
+lua.ddb6febd  	看货可以，别想打听我这儿宝石的来路，我们兄弟几个可就这条生路了。
+## 30003:-1  obj/xihu/oxihu_sufei.lua
+lua.aa42d986  	  我们#R水鬼#W虽然不是人类，但是我们和人类一样有自己的思想有自己的生活，我们并不是凶猛好战的种族。
+## 30005:-1  obj/xihu/oxihu_cunmin.lua
+lua.a6da9885  	  虎跑村现在可不平静啊。
+## 30006:-1  obj/xihu/oxihu_songbin.lua
+lua.f9fc22d8  	  张将军用兵如神，水鬼的势力现在越来越弱小了。
+## 30007:-1  obj/xihu/oxihu_wangchao.lua
+lua.080c7753  	  我和虎跑村的马汉是生死兄弟。
+## 31003:-1  obj/longquan/oyanbei_wengjizhi.lua
+lua.f525255c  	  以前年少不懂事，以为只要喜欢就可以去争取，却不曾想铸下大错。#r  二哥为了成全我出家为僧，阿青为了二哥终身不嫁，我，我，我真是个罪人啊！
+## 31004:-1  obj/longquan/oyanbei_fanian.lua
+lua.3c097e18  	  爱欲于人，犹如执炬逆风而行，必有烧手之患。 #r  由爱故生忧，由爱故生怖，若离与爱，何忧何怖…… #r  施主你可明白？
+## 31005:-1  obj/longquan/oyanbei_aqing.lua
+lua.79f4fed1  	五月五日长生殿，夜半无人私语时。
+## 31006:-1  obj/longquan/oyanbei_fahe.lua
+lua.953045ec  	  听说法念师兄未出家前和那个有名的铸剑大师雷焕有不一般的关系，不知道是真是假。#r  不过，每年清明的时候都有个带面纱的女施主来找师兄，可师兄从不见她，唉，#r  孽债啊！
+## 31007:-1  obj/longquan/oyanbei_fahu.lua
+lua.9a0db7dc  	  施主，你可曾听说过离我们金山寺不远的雷峰塔？后来不知道怎么回事塔倒了，真是奇怪，难道是佛祖显灵？
+## 31008:-1  obj/longquan/oyanbei_fajiang.lua
+lua.c71031a1  	  阿弥陀佛，前些时候下山化缘，听说雁南雁北那边正在与辽兵激战，善哉善哉，国家战争，苦的是黎民百姓啊！
+## 31009:-1  obj/longquan/oyanbei_leihuan.lua
+lua.803373ff  	  女人，越是漂亮的女人，就越会骗人。只有一种东西不会骗人……嘿嘿，就是酒！
+## 31010:-1  obj/longquan/olongquan_cunmin.lua
+lua.24a465d8  	  龙井村的茶叶，配上虎跑村的泉水，就是闻名天下的龙井茶。
+## 32001:-1  obj/wuyi/owuyi_quyang.lua
+lua.b189db81  	  山越族的姐妹们都很优秀。#r  紫薇温柔善良，讨人喜欢。水仙清静雅致，沉稳聪颖，而芙蓉姐姐……
+## 32002:-1  obj/wuyi/owuyi_ziwei.lua
+lua.4c6e280a  	  欢迎你来到山越人的巡逻者营地，你可以在这里四处转转，但是千万不要伤害那些花花草草哦，它们可是我们山越人的好朋友呢。#r  那边是水仙姐姐，她可是我们营地最聪明的人呢。
+## 32003:-1  obj/wuyi/owuyi_shuixian.lua
+lua.1f61c5bd  	  你好，远方来的客人，祝你在武夷山玩得开心。
+## 32004:-1  obj/wuyi/owuyi_shouwei.lua
+lua.45d85ebf  	  这里是山越人的巡逻者营地，如果你不是山越人，请马上离开。
+## 32005:-1  obj/wuyi/owuyi_furong.lua
+lua.c75509f5  	你好，远方来的客人，祝你在武夷山玩得开心。
+## 32006:-1  obj/wuyi/owuyi_jianding.lua
+lua.8602413f  	购买鉴定符
+lua.8a8fda81  	    我这里有一些可以鉴定装备的书卷，你不看看么？
+## 32112:-1  obj/wuyi/owuyi_wangchen.lua
+lua.809a9c6e  	  人生不过百年都将走向终点，无论帝王将相还是平民百姓。那么人生在世究竟是为了什么？阿弥陀佛，施主，这个问题是否也在困扰着你呢？
+## 33001:-1  obj/meiling/omeiling_shenwansan.lua
+lua.5559ef4e  	  没想到这批胭脂水粉卖的这么快，看来这次来对了。途经草原的时候，兰陵郡主还对我的货物大加赞许，我得好好计算一下这次可以赚多少……
+## 33002:-1  obj/meiling/omeiling_taiyanghua.lua
+lua.c3968ffe  	  男人？在山越部族，男人就是奴仆，男人生来就只能做护法，是被我们祭司使唤的。这个风俗从几千年前开始就是这样的，这是神的旨意，不可以违抗的！
+## 33003:-1  obj/meiling/omeiling_jingji.lua
+lua.762ad9c2  	  哪里有压迫，哪里就有反抗。我们山越护法不能再和我们的祖辈父辈一样，受山越女祭司的压迫了！即使我们这一代人失败了，我们的子子孙孙，也会反抗下去的！
+## 33004:-1  obj/meiling/omeiling_gancao.lua
+lua.3e5b6619  	  荆棘大护法说得好，梅岭的大事小情，无不在大护法的算计之中。我们都照着大护法的意思去做，就算死一万次，也比稀里糊涂活着快活得多。
+## 33005:-1  obj/meiling/omeiling_dongci.lua
+lua.b066acbb  	  我觉得我用了沈先生的胭脂水粉，也挺好看的啊，要加点腮红就更好了。嗯，睫毛也应该再修一修了。
+## 33006:-1  obj/meiling/omeiling_yinye.lua
+lua.70825e63  	  听了荆棘大护法一席话，才知道过去几十年全是白活了。以后大家跟着荆棘大护法，上刀山下油锅，都心甘情愿。
+## 33007:-1  obj/meiling/omeiling_jisi.lua
+lua.c397e7c3  	  听说武夷山紫薇姐姐那边出了不少事情，好多姐妹都死了……啊，我只知道这些。
+## 33008:-1  obj/meiling/omeiling_hufa.lua
+lua.c4a67a84  	  翻身了！翻身了！我们要当家作主了！
+## 33009:-1  obj/meiling/omeiling_yueji.lua
+lua.f61f9dea  	  最近太阳花姐姐总是莫明其妙的发脾气，好奇怪啊！也不知道紫薇妹妹那边有没有什么事情，好久没她们的消息了。#r  也不知道荆棘在做什么，这几天感觉很压抑，像是要有什么事情发生似的。唉，可能是我又多心了吧。
+## 33010:-1  obj/meiling/omeiling_shangdui.lua
+lua.f2776099  	  商队在梅岭已经停了好多天了，货物差不多已经卖光了，这一趟下来大家都能分到不少吧。#r  沈老板真的是个商业天才啊，跟着他做事真是前世积德了。
+## 33011:-1  obj/meiling/omeiling_chris.lua
+lua.28d80a48  	  亲爱的朋友！快来帮帮我啊！
+## 34001:-1  obj/nanhai/onanhai_yeliufan.lua
+lua.03ca60fb  	  究竟是谁干的！我一定会查出凶手来的，我要用他的头颅来祭拜师傅、师娘和南海剑派所有的人！#r  最可怜的就是九师妹了，她一定很伤心……她的心里，只有，大师兄啊……
+## 34002:-1  obj/nanhai/onanhai_dinglianyi.lua
+lua.441eff3c  	  师父、师娘……还有大师兄……就这样，就这样，都已经不在了吗？呜呜……别来管我，我不要活了……
+## 34003:-1  obj/nanhai/onanhai_yuezhongqiu.lua
+lua.101c9695  	得到一块异种树皮
+lua.498be40d  	  以前的时候，鳄鱼帮也挺好的，只是行为乖张一些罢了，没做过什么大的坏事。可是，渐渐的，不知道怎么回事，那些孩子开始总是惹祸，做错了事情还不认错，唉……真是造孽啊……
+## 34003:666  obj/nanhai/onanhai_yuezhongqiu.lua
+lua.64c5d216  	#Y你的任务背包已经满了。
+## 34004:-1  obj/nanhai/onanhai_cunmin.lua
+lua.62a156d4  	  鳄鱼帮的小伙子们越来越不像话了，比比人家李老太太的儿子，简直一个天上，一个地下。
+## 34005:-1  obj/nanhai/onanhai_shigandang.lua
+lua.67d340ba  	  <一个巨大的石人，孤零零的站在桥边>
+## 35001:-1  obj/qiongzhou/oqiongzhou_youyou.lua
+lua.39f003df  	  呜呜……这里有好多的鳄鱼啊，难道子衿哥哥天天就是生活在这样的环境里吗？
+## 35002:-1  obj/qiongzhou/oqiongzhou_yuanzijin.lua
+lua.240ad231  	  我们南海鳄鱼帮帮主，就是号称“南海鳄神”的岳老三。这次我是奉三哥之命，去琉球岛把三嫂接来琼州。现在三嫂已经到了，我们略做修整，就去鳄鱼帮找三哥。
+## 35003:-1  obj/qiongzhou/oqiongzhou_lingyici.lua
+lua.719d80e5  	  老三总是想要我来琼州，可是琉球的百姓正在遭受瘟疫之苦，我实在不能舍他们而去。#r  这次我来琼州，主要是听子衿说南海有一位神医岳仲秋，用异种树皮治愈了瘟疫。等我掌握了这门技术之后，我还要赶回琉球，治疗那里的百姓的。
+## 35004:-1  obj/qiongzhou/oqiongzhou_yuelaosan.lua
+lua.fcf5d58c  	  最近我在大理新拜了一位师父，本事非同小可。不说别的，单是这位师父的“淩波微步”绝技，相信世上便无第二人会得。#r  这次回琼州，主要就是来接我老婆的。
+## 35005:-1  obj/qiongzhou/oqiongzhou_bangzhong.lua
+lua.26a41661  	  我们帮主武功盖世，天下无敌，文成武德，鸟生鱼汤！
+## 35006:-1  obj/qiongzhou/oqiongzhou_liuji.lua
+lua.0e0420a1  	    呃……快挑了你想要的东西走吧，别让其它人知道我在这里。
+lua.1b6a407d  	看看你卖的东西
+## 35007:-1  obj/qiongzhou/oqiongzhou_honglong.lua
+lua.4815219f  	看看你卖的石头
+lua.92deea15  	为了卖几颗破石头我们兄弟整天东奔西跑的，你说我容易嘛我。
+## 36010:-1  obj/juqing_06/xumuhua.lua
+lua.5deddd62  	血战聚贤庄
+## 39001:-1  obj/baozangdong/obaozang_yaodian.lua
+lua.90678ff1  	  宝藏洞里宝藏无数，可是也凶险万分，大侠你一定要准备周全啊！
+## 40001:-1  obj/yanwanggumu/oyanwanggumu_yanbieqiu.lua
+lua.ac2e1920  	  就算生前为帝王，死后也不过一杯黄土而已。
+## 42500:-1  obj/huoyanshan/ohuoyanshan_baiyingzhong.lua
+lua.56c4b953  	  $N，#{HYS_20071224_02}
+## 44507:-1  obj/talimu/otalimu_lande.lua
+lua.87400ab3  	楼兰城可是沙漠中的一颗明珠，不过最近风沙似乎越来越大了……
+## 44700:-1  obj/seektreasure/oseektreasure_jinjiumiao.lua
+lua.363012e7  	真的要出去吗？
+## 50001:-1  obj/suzhou/osuzhou_yuechangyuan.lua
+lua.0be3aa2f  	    苏学士有一句词写得好，人有悲欢离合，月有阴晴圆缺，此事古难全。现在虽然不是花好月圆之夜，但在我心中，月亮和人一样，永远是团圆的。
+lua.6920072b  	我要领取团圆月饼
+## 50002:-1  obj/festival/midautumn/omidautumn_sushi.lua
+lua.2f2dac17  	换取中秋佳食
+lua.9f15d0e7  	    明月几时有，把酒问青天。不知天上宫阙，今夕是何年。我欲乘风归去，又恐琼楼玉宇，高处不胜寒。起舞弄清影，何似在人间。转朱阁，低绮户，照无眠。不应有恨，何事长向别时圆。人有悲欢离合，月有阴晴圆缺，此事古难全。但愿人长久，千里共婵娟。
+## 50003:-1  obj/festival/midautumn/omidautumn_huangtingjian.lua
+lua.5da5dae6  	减字木兰花
+lua.85159b28  	    中秋无雨。醉送月衔西岭去。笑口须开。几度中秋见月来。前年江外。儿女传杯兄弟会。此夜登楼。小谢清吟慰白头。
+## 50004:-1  obj/festival/midautumn/omidautumn_chaoduanli.lua
+lua.3e541ff7  	南歌子
+lua.8b8385a9  	    月到中秋夜，还胜别夜圆。高河瑟瑟转金盘。三十六宫深处、卷帘看。香雾云鬟湿，清辉玉臂寒。寻常岂是不婵娟。吟赏莫辞终夕、动经年。
+## 50005:-1  obj/festival/midautumn/omidautumn_liguang.lua
+lua.d988aac4  	    独步长桥上，今夕是中秋。群黎怪我何事，流转古儋州。风定潮平如练，云散月明如昼，孤兴在扁舟。笑尽一杯酒，水调杂蛮讴。少年场，金兰契，尽白头。相望万里，悲我已是十年流。晚遇玉霄仙子，授我王屋奇书，归路指蓬邱。不用乘风御，八极可神游。
+## 50006:-1  obj/festival/midautumn/omidautumn_zhudunru.lua
+lua.a85e5418  	水调歌头
+lua.f2a7e78c  	    偏赏中秋月，从古到如今。金风玉露相间，别做一般清。是处帘栊争卷，谁家管弦不动，乐世足欢情。莫指关山路，空使翠蛾颦。水精盘，鲈鱼脍，点新橙。鹅黄酒暖，纤手传杯任频斟。须惜晓参横后，直到来年今夕，十二数亏盈。未必来年看，得似此回明。
+## 50007:-1  obj/festival/midautumn/omidautumn_xiaofan.lua
+lua.9fd666f5  	购买中秋礼花
+lua.b2eb5b0b  	    这位大侠，来买个礼花玩玩吧！
+## 50008:-1  obj/festival/midautumn/omidautumn_qunzhong.lua
+lua.10f86bba  	    我这月饼是枣泥馅的，你要不要来一个？
+lua.111da761  	    今年中秋不收礼，收礼还收大月饼！
+lua.19bbe15f  	    月亮月亮圆又圆，挂在天上像玉盘。如果月亮变月饼，最好能是豆沙馅！
+lua.1b7528ef  	    好美的月光啊！
+lua.1de45689  	    好美的流星雨啊！
+lua.2a113c2c  	    但愿人长久，千里共婵娟~~~
+lua.2b5ff326  	    我看到焰火啦！中，秋，快，乐~~~
+lua.356eecdf  	    我这月饼是薄荷馅的，你要不要来一个？
+lua.487bb9df  	    你有没有豆沙馅的月饼，我好想吃啊~~~
+lua.8ba1ebb1  	    你瞧，你瞧，好多帅哥来西湖赏月啊！
+lua.9dcac650  	    今晚的月饼好圆啊，哦，我是说今晚的月亮好圆啊~~~
+lua.9fcd39e4  	    你爱吃碱的月饼，还是甜的？
+lua.9fce9a13  	    你有没有桂圆馅的月饼，我好想吃啊~~~
+lua.a1cdb5e0  	    你瞧，你瞧，好多美女来西湖赏月啊！
+lua.a7bffb4f  	    东风夜放花千树，更吹落，星如雨~~~
+lua.b130b21e  	    天上的月亮这样圆，又这样白。
+lua.c6fbcfee  	    月亮月亮白又白，挂在天上下不来。如果月亮变月饼，最好……还是能下来！
+lua.db1264b6  	    一闪一闪亮晶晶，满天都是小月饼！
+## 50014:-1  obj/DynamicNPC/oDynamicNPC_ThiefSoldier_JiangLi.lua
+lua.30a52f2a  	关于领取帮会自订称号
+lua.4fc24134  	离开......
+lua.876fceaf  	领取帮会自订称号
+lua.a4b2ea72  	我要兑换我的称号
+lua.a6898cd9  	如今天下动乱，贼兵四起，朝廷为了迅速平息混乱，特号召各位帮助平叛。平叛有功者，将给予一定的称号奖励。
+lua.ed18ec2d  	我想查询我的积分
+## 50015:2
+lua.cd365925  	 阁下目前的积分为{0}，请继续努力。
+## 50109:-1  obj/lanqiuchang/olanqiuchang_sufei.lua
+lua.999c7312  	我可以将您传送出去，是否要传送？
+## 50111:-1  obj/loulangucheng/oloulan_liudun.lua
+lua.1f913ed9  	关于玄佛珠
+lua.2b6faa06  	玄佛珠
+## 50112:-1  obj/dumuchang/odumuchang_rendaoqing.lua
+lua.13ef7a53  	我想删除任务道具
+lua.30293087  	我想删除引魔珠
+lua.993f3e25  	  我可以帮助各位英雄删除多余的任务道具。如果某些任务道具让你感到苦恼，就来找我吧！
+## 50112:100  obj/dumuchang/odumuchang_rendaoqing.lua
+lua.489f0be7  	  删除身上所有的引魔珠，是否确认要删除？
+lua.a18752f1  	确认
+lua.b441d57c  	  你身上并没有可以删除的引魔珠啊！
+## 50200:-1  obj/xihu/oxihu_xueren.lua
+lua.d8ba6e42  	    我……我是个雪人哎！
+## 50202:-1  obj/xihu/oxihu_qunzhong.lua
+lua.04bdbdb0  	    月上柳梢头，人约黄昏后~~~
+lua.362b3c89  	    梨花院落溶溶月，柳絮池塘淡淡风~~~
+lua.378c3c8a  	    那个小贩的绿豆汤不错，喝了真是凉透心脾啊，你要不要来一碗？
+lua.3f029649  	    回去我就告诉朋友们，都来夜西湖乘凉！
+lua.59e5925f  	    你瞧，你瞧，好多美女来西湖纳凉啊！
+lua.858680ff  	    看这里！看这里！看这里！
+lua.8b74873f  	    今年夏天不乘凉，乘凉还来夜西湖！
+lua.8d701235  	    世间清爽凉快的地方，首屈一指的还是这夜西湖啊！
+lua.909e8e3e  	    明年夏天，我还来要夜西湖乘凉。
+lua.a463a1bd  	    心里头有些思念，思念着你的脸。
+lua.c349a39f  	    夜西湖真是人间仙境啊，外边都三伏天了，听说这里还有雪人呢！
+lua.cae55982  	    你瞧，你瞧，好多帅哥来西湖纳凉啊！
+lua.cc192a20  	    今年夏天真是爽，一天十碗绿豆汤。晚风吹得全身醉，夜西湖上好乘凉。
+lua.cddd9ed2  	    只消山水光中，无事过这一夏。
+lua.cfcae1de  	    这阵小风吹得人真是惬意啊！
+lua.d0bfad3e  	    今年夏天真是帅，酷暑闷热都不在。天龙八部夜西湖，能把桃源仙境赛！
+lua.e7dcdf9c  	    我在那个小贩那里买了份绿豆汤，喝着还不错，你要不要来一碗？
+lua.ecab5ee0  	    你爱喝冰镇的绿豆汤，还是常温的？
+lua.ee07d1b6  	    这里是夏天，这里又有雪人，真可谓是夏雪宜啊。
+lua.ef27ceb6  	    宁静的夏天，天空中繁星点点。
+## 77001:-1  obj/siwang/osiwang_mengpo.lua
+lua.5261157d  	束河古镇
+lua.8b1272d4  	#G凤鸣镇
+lua.bdad9f03  	年轻人，再见！再见就是不见，回去后一切小心。你想去哪里？
+## 77011:-1  obj/prison/oprison_jailer.lua
+lua.30de4c94  	这里是哪儿？
+lua.4d1d452a  	我要伸冤
+lua.683c656f  	什么是伸冤？
+lua.d706b04d  	我要出去
+lua.ea69bc28  	我有特赦令
+## 80003:-1  obj/guigu/oguigu_wangxuanfeng.lua
+lua.7948e230  	师门任务
+lua.96b9d148  	同门相助
+lua.e962e7f6  	    #Y你不是鬼谷的弟子，不要打扰我的清静，请速速离开！。
+## 80004:-1  obj/guigu/oguigu_sumuran.lua
+lua.90a17463  	击退山匪
+## 80005:0  obj/guigu/oguigu_wupeng.lua
+lua.094be94a  	学习鬼谷轻功需要先加入鬼谷门派！
+lua.84424c3c  	你不是本门派的弟子，我是不能教你鬼谷的轻功的
+## 80016:-1  obj/guigu/oguigu_gaoyangfei.lua
+lua.1d44fa4f  	加入鬼谷
+lua.22f9ed25  	鬼谷任务
+lua.2a737b95  	购买坐骑
+lua.6bab643e  	学习鬼谷生活辅助技能
+lua.b071814b  	学习鬼谷战斗技能
+lua.d3471b2f  	鬼谷传送人
+lua.e47a6452  	阴阳天
+lua.f6b0506c  	学习鬼谷轻功
+lua.f8fcc6a6  	拜见掌门人
+lua.f92a6ea7  	学习鬼谷生活技能
+## 80017:-1  obj/guigu/oguigu_zhangyi.lua
+lua.0c3fa38d  	鬼谷符箓介绍
+lua.2644591b  	学习鬼谷符箓技能
+lua.5ce6bfc2  	购买鬼谷符箓配方
+lua.7bbbdeb9  	升级鬼谷符箓技能
+## 80018:-1  obj/guigu/oguigu_xiaoxianer.lua
+lua.01b73696  	升级灵玉术技能
+lua.bf5044f4  	灵玉术介绍
+lua.f700e318  	学习灵玉术技能
+## 113006:-1  obj/juqing_05/luren_4.lua
+lua.3304548c  	错误。。。。。。。
+## 115003:-1  obj/juqing_11/tianshantonglao.lua
+lua.fcf931f7  	一笑人间万事
+## 116003:-1  obj/juqing_09/dingchunqiu.lua
+lua.1009a59f  	挑战丁春秋
+## 117026:-1  obj/juqing_10/fanbeiling.lua
+lua.173dc0f4  	离开这里
+## 118008:-1  obj/juqing_02/muwanqing.lua
+lua.c7159d53  	没有对白
+## 118012:-1  obj/juqing_02/huahegen.lua
+lua.389f10a6  	送我到门口去
+## 118019:-1  obj/juqing_02/zhongling.lua
+lua.d65165db  	没有什么好说的，别找我！
+## 119001:-1  obj/juqing_01/muren.lua
+lua.cbc40aa6  	送我进去
+## 120007:-1  obj/juqing_08/xiaofeng_1.lua
+lua.39c867ce  	金戈荡寇鏖兵
+## 121005:-1  obj/juqing_07/yelvmoge.lua
+lua.186162a6  	送我去雁南
+## 122001:-1  obj/cangjing/ocangjing_wuming.lua
+lua.487a1893  	城市 - 苏州
+lua.6573335a  	城市 - 大理
+lua.7f4c2f1c  	城市 - 洛阳
+lua.b1d70138  	  阿弥陀佛，善哉善哉。#r  一切有为法，为梦幻泡影。#r  如露亦如电，当作如是观。#r  $N曾去之处，本是虚幻，不若老僧指点与你。
+lua.e92d23b8  	返回雁南
+## 125001:-1  obj/huashan/ohuashan_Npc_1.lua
+lua.eef9fb12  	请让我入场为师门出力吧！！！
+lua.efa16214  	  想要进入战场吗？你准备好了没有？
+## 125002:-1  obj/huashan/ohuashan_Npc_2.lua
+lua.b03b0423  	被杀的郁闷了，跑人
+lua.efe18df9  	  想要离开这里了？
+## 125003:-1  obj/huashan/ohuashan_Npc_3.lua
+lua.366f6c1b  	购买药与食物
+lua.58fe70ed  	购买珍兽口粮
+lua.7350c3b2  	  你需要点什么啊？我这里很多吃喝的。价格还和洛阳城同步哦。
+## 125004:-1  obj/huashan/ohuashan_Npc_4.lua
+lua.6528c3a0  	治疗
+lua.941ef298  	给珍兽恢复气血
+## 125012:-1  obj/jingji/ojingji_Npc_2.lua
+lua.11e2c838  	你要把你的复活点设置到我这里吗？
+lua.917099a9  	把我的复活点设在这里
+## 125013:-1  obj/jingji/ojingji_Npc_3.lua
+lua.44512959  	送我去大理
+lua.5a21c9c4  	送我去束河古镇
+lua.5cbb3c30  	  你要离开嵩山封禅台，前往大理吗？
+lua.7a281390  	送我去苏州
+lua.84072d69  	  你要离开嵩山封禅台，前往苏州吗？
+lua.8423131d  	  你要离开嵩山封禅台，前往束河古镇吗？
+lua.9cbb4a63  	送我去洛阳
+lua.b9fbf69e  	  你要离开嵩山封禅台，前往洛阳吗？
+lua.cd28b8bd  	  十分抱歉，你的等级未满20级不能去束河古镇！
+## 125014:-1  obj/jingji/ojingji_Npc_4.lua
+lua.1f88c7ee  	我可以修理所有的40级以上的装备、不管是武器、防具还是饰品。不过也正是因为我当年学艺的时候对什么都感兴趣，所以造成我对哪一方面都不算精通。所以我修理的时候成功率不是100％哦。如果你没有什么异议的话，就找我帮你修理吧。
+lua.d7097061  	我要修理装备
+## 125020:2
+lua.c797b341  	#B什么是封禅台竞技
+## 125021:1
+lua.d9d5c020  	  1个盟主铜腰带可以兑换1个盟主之印
+lua.dd4ac3ee  	#B盟主铜腰带兑换盟主之印
+## 125021:2
+lua.1dff17e6  	  1个盟主银腰带可以兑换10个盟主之印
+lua.c8c5c22c  	#B盟主银腰带兑换盟主之印
+## 125021:3
+lua.d6afeed3  	  1个盟主金腰带可以兑换100个盟主之印
+lua.e67ebbb1  	#B盟主金腰带兑换盟主之印
+## 125021:4
+lua.41c09cfd  	#B升级为盟主银腰带
+lua.5e3ba339  	  升级成为盟主银腰带需要消耗：#r#G    1个盟主铜腰带#r    9个盟主之印#r    你确定要升级吗？
+## 125021:5
+lua.998fddd1  	  升级成为盟主金腰带需要消耗：#r#G    1个盟主银腰带#r    90个盟主之印#r    #{_EXCHG500000}#W#r  你确定要升级吗？
+lua.b6445254  	#B升级为盟主金腰带
+## 125021:6
+lua.53cccb4c  	#B升级为盟主七宝腰带
+lua.a294248b  	  升级成为盟主七宝腰带需要消耗：#r#G    1个盟主金腰带#r    400个盟主之印#r    #{_EXCHG1000000}#W#r  你确定要升级吗？
+## 125021:7
+lua.0874c686  	  升级成为盟主铜腰带需要消耗：#r#G    40个盟主铜腰带碎片#W#r  你确定要升级吗？
+lua.e299c94f  	#B升级为盟主铜腰带
+## 155001:-1  obj/hunqing/ohunqing_yuelao.lua
+lua.8b6f783e  	如果你有了喜欢的人，可以一起来找我。我可以帮你们主持婚礼。
+## 155002:-1  obj/hunqing/ohunqing_yahuan.lua
+lua.806f5455  	恭祝二位新人，百年好合，早得贵子！
+## 155003:-1  obj/hunqing/ohunqing_meipo.lua
+lua.e3f203c3  	这位英雄，有没有意中人了？没有的话，我帮你介绍一个吧？
+## 155004:-1  obj/hunqing/ohunqing_yunv.lua
+lua.59c938fd  	你看那新郎，多帅气啊！希望哪一天我也能做新娘。
+## 155006:-1  obj/hunqing/ohunqing_jintong.lua
+lua.88fbf20d  	你看那新娘，多漂亮啊！希望哪一天我也能做新郎。
+## 155007:-1  obj/hunqing/ohunqing_yizhang.lua
+lua.dfdff709  	恭祝二位新人，郎才女貌，白头偕老！
+## 181000:-1  obj/qianzhuang/oqianzhuang_yuanbao.lua
+lua.0b116be6  	赠点商店
+lua.1f6c825d  	    有钱能使鬼推磨，虽然江湖之中以武力为上，但是有了钱可能会使原来很多比较难办的事情变简单起來，您想做些什么呢？
+lua.2371a749  	我想购买商品
+lua.4a3c044c  	将#G点数#Y兑换成#G元宝
+lua.f0778b2f  	元宝和赠点商店介绍
+## 181000:2  obj/qianzhuang/oqianzhuang_yuanbao.lua
+lua.a7795cc7  	请将道具栏空出至少两个位置
+## 181000:4  obj/qianzhuang/oqianzhuang_yuanbao.lua
+lua.0688aff1  	四級材料␣
+lua.0b40cf89  	六級材料␣
+lua.21f25bf1  	返回上一页
+lua.274a28e2  	二級材料␣
+lua.2fc3ea45  	十級材料␣
+lua.4382ce24  	一級材料␣
+lua.45f871d6  	九級材料␣
+lua.4ecfea49  	七級材料␣
+lua.9d26b6cf  	普通赠点商品
+lua.b0a6109a  	五級材料␣
+lua.d59d614f  	三級材料␣
+lua.e3655e03  	八級材料␣
+lua.f1b60fde  	  请根据要求选择不同的赠点商店：
+## 181001:-1  obj/qianzhuang/oqianzhuang_chuansong.lua
+lua.2799d671  	返回洛阳
+lua.bb3e4f5e  	    您想做些什么呢？
+## 181002:-1  obj/qianzhuang/oqianzhuang_remai.lua
+lua.71afb4b1  	购买热卖商品
+lua.a3ce7362  	#G#{TJMZYCL_130322_02}
+lua.c5cbb7ba  	    快来看一看啦，全城最畅销的商品，最便宜的价格，客官您赶紧挑几件吧，绝对超值，包您买回去后今夜做梦都会笑呢~
+## 181003:-1  obj/qianzhuang/oqianzhuang_suishenyuanbao.lua
+lua.b6800951  	内部错误
+## 181004:-1  obj/qianzhuang/oqianzhuang_moxun.lua
+lua.00ef72e6  	打造图
+lua.21bb758a  	    珍奇材料，各种打造图，客官请随便挑选！
+lua.c71d4909  	元宝介绍
+## 200004:-1  恶贯满盈
+lua.3eee23e7  	  这，这，我马上把这件事情通知皇兄。
+## 200006:-1  大战万劫谷
+lua.14f2d9d1  	  你已经打败了叶二娘、南海鳄神和云中鹤了吗？
+lua.f147f85f  	大战万劫谷
+## 200008:-1  虎啸龙吟
+lua.2fd138d2  	  你已经救出誉儿了吗？
+lua.e2402486  	虎啸龙吟
+## 200012:-1  独战双雄
+lua.58e788ae  	  你已经打败司马林和姚伯当，拿到雷公轰和五虎断门刀了吗？
+lua.c2cb10d9  	独战双雄
+## 200013:-1  夜长梦多
+lua.43bfbb84  	夜长梦多
+lua.d3cc5f04  	  是表妹让你给我带的信吗？他们现在是不是已经平安无事了？我先看看信。
+## 200021:-1  顶天立地
+lua.af803aa3  	顶天立地
+lua.f0733620  	  你已经打败鲍千灵、祁六、向望海他们三个人了吗？
+## 200022:-1  虽万千人吾往矣
+lua.9cdb5d10  	虽万千人吾往矣
+## 200031:-1  天时不如地利
+lua.9d5b1bcd  	天时不如地利
+lua.cf200974  	  你已经探索到皇太叔御帐、楚王大营、苍茫山左山道，苍茫山右山道的情况了吗？
+## 200038:-1  六军辟易
+lua.161a3066  	  耶律洪基重见天日，全靠义弟萧峰和$N大侠之力。二位请受耶律洪基一拜！
+lua.dbf47bea  	萧峰
+lua.e1c4cc98  	六军辟易
+## 200052:-1  环佩空归月夜魂
+lua.4206bc82  	环佩空归月夜魂
+lua.8d2f040f  	  啊，皇太妃竟然薨于道路……皇上必定悲痛欲绝啊。
+## 200053:-1  酒罢问君三语
+lua.577e5182  	酒罢问君三语
+lua.fbb6d169  	  你不是$N吗？我们公主也常常提起你呢！快请坐，快请坐。
+## 200056:-1  一生有你
+lua.1032ce17  	一生有你
+lua.3645f0b9  	虚竹
+lua.f3a041cc  	  谢谢你，$N。我和梦郎以后就在这里幸福的生活下去了。
+## 200080:-1  谁家子弟谁家院
+lua.7842bee3  	谁家子弟谁家院
+## 200081:-1  青衫磊落险峰行
+lua.5657d171  	    啊，你不就是$N吗？你是来找段誉哥哥的吗？
+lua.6cd4b786  	青衫磊落险峰行
+## 200083:-1  姑苏慕容
+lua.5e9e8a8f  	  $N，你终于来了，我等你好久了。
+## 200084:-1  还施水阁
+lua.70fd01e1  	还施水阁
+lua.f8c496cd  	  原来是你，$N！一定是表哥要你来的吧……
+## 200085:-1  一品堂
+lua.42906af5  	  $N，你终于来救我们了！
+lua.b4c7452b  	一品堂
+## 200086:-1  四海为家
+lua.210e2495  	四海为家
+lua.3770c7cc  	  久仰少侠大名，今日一见果然名不虚传，失敬失敬！
+## 200087:-1  群龙无首
+lua.0b060725  	  呵呵，少侠好久不见了啊，近来可好？来我大理有事吗？
+lua.ec2bd00e  	群龙无首
+## 200088:-1  共同进退
+lua.1de61828  	  想不到镇南王竟置民族大义于不顾，真是令人痛心啊。
+lua.ef191c24  	共同进退
+## 200089:-1  天下武功出少林
+lua.f9ea83ae  	天下武功出少林
+lua.fc3503a1  	  阿弥陀佛，施主来我少林的目的老衲已经猜到了。可惜老衲身在红尘外，不问红尘事了，阿弥陀佛……
+## 200090:-1  聚贤庄
+lua.703cba49  	聚贤庄
+lua.edd1f064  	  既然玄难大师和玄寂大师两位高僧要来聚贤庄，那天下英雄就不会群龙无首了。$N，多谢你了。你近日如果无事，可以和聚贤庄内的英雄们结交一下。
+## 200091:-1  保护马夫人
+lua.38063350  	  大侠远道而来，不妨进屋喝杯茶，歇歇脚
+lua.8b103123  	保护马夫人
+## 200092:-1  一盘散沙
+lua.241ae35a  	一盘散沙
+lua.31b49bf7  	  竟是小康要你来找我的……她现在好吗？这一晃多少年没有见了啊！
+## 200093:-1  远赴苍茫山
+lua.7200a958  	  $N，什么风把你吹来了？真是想煞哥哥了！
+lua.76d9c6a5  	远赴苍茫山
+## 200094:-1  珍珑棋会
+lua.350a5616  	  久闻$N大侠之名，今日一见果真是仪表非凡，长江后浪推前浪啊！
+lua.5e4dab7d  	珍珑棋会
+## 200096:-1  一剑上天山
+lua.8e1b2e53  	一剑上天山
+lua.fc181bf8  	  李秋水，前几天老尊主一直在提到这个名字。但她究竟是什么人，我们也不大清楚。
+## 200097:-1  虽危实安
+lua.499b0b3d  	  $N，梅剑这小丫头不简单啊。我这招大笨棋，能骗得过李秋水，却骗不过她。看来我选她做代掌门，没有看错人。
+lua.fb17f841  	虽危实安
+## 200100:1
+lua.c5f6b06c  	#Y我是谁？
+## 200100:2
+lua.e3257f28  	#Y什么是剧情循环任务？
+## 200100:3
+lua.df1ff32b  	#Y什么是关系值？
+## 200100:4
+lua.d83774db  	#Y#{help_JQXH_030}
+## 210200:-1  第一把武器
+lua.5cf43cb9  	第一把武器
+lua.6d1889e2  	  这不是#R{0}少侠#{{event_dali_0001}}
+lua.87f72326  	  这不是#R{0}姑娘#{{event_dali_0001}}
+## 210201:-1  第一次送货
+lua.33c40fb2  	第一次送货
+lua.34b8fa61  	把#Y一箱厨具#W送给#G大理城西边西大街#Y酒店#W的老板#R杜子腾#W#{_INFOAIM110,159,2,杜子腾}。#b#G（请用左键点选带下划线的坐标，帮助您找到该NPC）#l
+lua.6a0f3ff5  	  你真是解了我的燃眉之急啊，我正急需这箱#Y厨具#W呢！
+## 210202:-1  第一个馒头
+lua.155836a1  	  #R{0}姑娘#{{event_dali_0004}}
+lua.342e53bb  	你已经把#Y馒头#W做出来了吗？
+lua.e5dcaa46  	第一个馒头
+lua.f648c115  	  #R{0}少侠#{{event_dali_0004}}
+## 210203:-1  第一份药品
+lua.513675ca  	在#G大理城西大街#W的#Y药店#W里找到#R卢三七#W#{_INFOAIM103,132,2,卢三七}。#b#G（请用左键点选带下划线的坐标，帮助您找到该NPC）#l
+lua.6cd4a6b7  	  想不到你对医道有这样浓厚的兴趣，和你聊天真是畅快。这些#Y药品#W你选一样吧，就当是我送你的见面礼。
+lua.ac2b0725  	第一份药品
+## 210204:-1  第一封推荐信
+lua.1d66b851  	第一封推荐信
+lua.6bbdfed8  	回#G大理城五华坛#W找到#G赵天师#W#{_INFOAIM160,157,2,赵天师}。#b#G（请用左键点选带下划线的坐标，帮助您找到该NPC）#l
+## 210205:-1  认识新朋友
+lua.99a8f556  	在#G大理城五华坛#W找到四大善人之一的#R钱龙#W#{_INFOAIM145,139,2,钱龙}。#b#G（请用左键点选带下划线的坐标，帮助您找到该NPC）#l
+lua.d7ee2c6e  	认识新朋友
+## 210208:-1  第二封推荐信
+lua.682af71b  	  在#R钱龙#W那里学到了不少东西吧？我已经代表四大善人，又给你写了#Y一封推荐信#W。
+lua.a33670fd  	回#G大理城五华坛#W找到#R赵天师#W#{_INFOAIM160,157,2,赵天师}。#b#G（请用左键点选带下划线的坐标，帮助您找到该NPC）#l
+lua.a5ded46f  	第二封推荐信
+## 210209:13  学习技能
+lua.2f7a7f88  	学习技能
+lua.7f606dd3  	你将学会一项新的技能
+lua.e91749f2  	  既然你拿来了推荐信，那我就教给你一项新手技能，要好好学习，多多练习才可以。
+## 210210:-1  做一次大侠
+lua.6fff2336  	做一次大侠
+lua.b1e76fe0  	  哎呀，我的老朋友，我就知道你会来帮我的。
+lua.f7e88e7a  	#{{event_dali_0012}}{0}#W，难道你不应该去帮帮他吗？
+lua.fc19d69c  	在#G大理城五华坛#W找到四大善人之一的#R孙八爷#W#{_INFOAIM296,239,2,孙八爷}。#b#G（请用左键点选带下划线的坐标，帮助您找到该NPC）#l
+## 210211:-1  放焰火啦
+lua.0c32ab3b  	放焰火啦
+lua.5eba8d44  	  焰火已经放了吗？
+## 210212:-1  第三封推荐信
+lua.d01426d2  	第三封推荐信
+lua.ff5e14f1  	    回#G大理城五华坛#W找到#R赵天师#W#{_INFOAIM282,253,2,赵天师}。#b#G（请用左键点选带下划线的坐标，帮助您找到该NPC）#l
+## 210213:-1  第一次杀怪
+lua.7ef4c9c7  	你已经杀死8只#R蜀道白猿#W了吗？
+lua.cbe0e306  	第一次杀怪
+## 210214:-1  第一只珍兽
+lua.8fda698a  	第一只珍兽
+lua.c21dc6a8  	去#G大理城东边东大街#W的#Y虫鸟坊#W找到坊主#R云飘飘#W#{_INFOAIM400,218,2,云飘飘}。#b#G（请用左键点选带下划线的坐标，帮助您找到该NPC）#l
+lua.ef949533  	  我可不是随便和一般的人做朋友的，不过你是四大善人的朋友，那我就告诉你点好玩的事情吧。
+## 210216:-1  第五封推荐信
+lua.1782655a  	  你越来越像个大侠了，我真是看在眼里，喜在心头啊。
+lua.a6d298f7  	第五封推荐信
+## 210217:-1  杀更多的怪
+lua.15d48da3  	杀更多的怪
+lua.c983edde  	  你已经杀死了8只#R山蛛#W了吗？
+## 210220:-1  怎么捉珍兽啊
+lua.94cea6aa  	怎么捉珍兽啊
+lua.cfd82682  	    去#G大理城东的东大街#W的#Y虫鸟坊#W找到坊主#R云飘飘#W#{_INFOAIM400,218,2,云飘飘}。#b#G（请用左键点选带下划线的坐标，帮助您找到该NPC）#l
+## 210223:-1  第七封推荐信
+lua.db1b2ad0  	第七封推荐信
+lua.fb05a668  	    回#G大理城五华坛#W找到#G赵天师#W#{_INFOAIM160,157,2,赵天师}。#b#G（请用左键点选带下划线的坐标，帮助您找到该NPC）#l
+lua.fdc4101e  	  越来越多的人成为你的朋友了，他们都对你评价很高，我已经代表四大善人，又给你写了#Y一封推荐信#W。
+## 210224:-1  去看看布告
+lua.651821a8  	阅读#G大理皇宫门口#W的#R布告牌#W#{_INFOAIM269,83,2,-1}，然后回#G大理城五华坛#W找#R赵天师#W#{_INFOAIM282,253,2,赵天师}。#b#G（请用左键点选带下划线的坐标，帮助您找到该NPC）#l
+lua.8d7cd4c7  	  你已经看过#Y布告牌#W了吗？
+lua.fca9bf5d  	去看看布告
+## 210225:-1  段延庆
+lua.bcfbf2e8  	在#G大理城东南方的玉洱巷#W找到#R段延庆#W#{_INFOAIM402,358,2,段延庆}。#b#G（请用左键点选带下划线的坐标，帮助您找到该NPC）#l
+## 210226:-1  送馒头
+lua.b5d8ead5  	送馒头
+lua.c364c5b3  	  [原来你是为了那告示来的。我不跟你废话。那边有个#R小乞丐#W快要饿死了，你去找个#Y馒头#W送给他。]
+lua.e89ad037  	  [你已经把#Y馒头#W送到#R小乞丐#W手中了吗？]
+## 210227:-1  送布衣
+lua.17e0d3bb  	  [你已经把#Y布衣#W送到#R小乞丐#W手中了吗？]
+lua.5f01d491  	送布衣
+## 210228:-1  送矿锄
+lua.0e1e557f  	  [你已经把#Y矿锄#W送到#R小乞丐#W手中了吗？]
+lua.973f7526  	  [有吃的，有穿的，那个#R小乞丐#W还是不能生活啊。去找一把#Y矿锄#W送给他吧，让他以后能够自食其力。]#r  #e00f000小提示：#e000000你可以找边上的 #gfff0f0养雕人 #g000000直接飞到杂货铺附近。#r
+lua.cf5a147d  	送矿锄
+## 210229:-1  再去找赵天师
+lua.36eedf33  	  你回来了？最近#R段延庆#W行凶害人的传闻好像少了很多了。这一定是你的功劳！
+lua.f7abf661  	再去找赵天师
+## 210230:-1  打木人巷啦
+lua.cef003e4  	  施主，我们又见面了。请施主准备好修炼用的装备和药品，进入#G小木人巷#W。
+lua.e045ddf0  	去#G大理城东北角的拈花寺#W找到#R黄眉僧#W#{_INFOAIM435,202,2,黄眉僧}。#b#G（请用左键点选带下划线的坐标，帮助您找到该NPC）#l
+lua.ec7f7fec  	打木人巷啦
+## 210231:-1  小木人巷
+lua.0e4672d0  	你已经杀死了5个木头人了吗？
+lua.2a2adadd  	  施主，这小木人巷虽然比不得少林寺木人巷，但里边的怪物也是骁勇异常。请施主修炼时量力而行。#r  施主只要杀死5只木头人，就完成了这次修炼。一次没有打完也不要紧，施主可以反复出入木人巷，直到完成为止。
+lua.7cdde2d3  	在#G小木人巷#W中杀死5只#R木头人#W，然后回到#R黄眉僧#W#{_INFOAIM275,49,2,黄眉僧}那里。#b#G（请用左键点选带下划线的坐标，帮助您找到该NPC）#l
+lua.e41cb0a0  	小木人巷
+## 210232:-1  我能入门派啦
+lua.07dd9ced  	    回#G大理城五华坛#W找到#R赵天师#W#{_INFOAIM160,157,2,赵天师}。#b#G（请用左键点选带下划线的坐标，帮助您找到该NPC）#l
+lua.af7f2841  	我能入门派啦
+## 210233:-1  御赐精纺帽（只有一种状态）
+lua.371fb994  	御赐精纺帽
+## 210234:-1  御赐精纺鞋（只有一种状态）
+lua.7f91ec10  	御赐精纺鞋
+## 210235:-1  御赐精纺护手（只有一种状态）
+lua.87a27c2e  	御赐精纺护手
+## 210236:-1  御赐精纺衣（只有一种状态）
+lua.6055d624  	御赐精纺衣
+## 210237:-9
+lua.d23c8775  	海风子
+## 210237:-8
+lua.83776f8e  	澹台子羽
+## 210237:-7
+lua.5387dcb3  	张获
+## 210237:-6
+lua.8b9f2350  	程青霜
+## 210237:-5
+lua.85d44584  	慧易
+## 210237:-4
+lua.88091cc2  	石宝
+## 210237:-3
+lua.09c571ee  	简宁
+## 210237:-2
+lua.37d655e7  	路三娘
+## 210237:-1
+lua.bd5de86c  	破贪
+## 210237:9
+lua.7f7382c4  	送我去见传送人
+## 210237:100
+lua.0a27d125  	【峨嵋】
+lua.17182e2b  	【少林】
+lua.29007e73  	【天山】
+lua.45ff32ac  	【武当】
+lua.889efba6  	【天龙】
+lua.9a9febef  	【逍遥】
+lua.a50a6f08  	【明教】
+lua.a90c9d93  	【丐帮】
+lua.b6ffc193  	【星宿】
+lua.eb7a4788  	  了解九大门派特色：
+## 210238:-1  十年
+lua.090421f3  	    这样吧，等你达到10级，就来找我赵天师，我们几个老家伙会给你准备一份很特殊的礼物。
+lua.1797a2c4  	    我们四大善人老哥儿几个一看到你，就觉得你是百年一遇的武学奇才，若得到名师传授，前途不可限量啊。
+lua.56d67033  	  你已经达到10级吗？
+lua.68c6c123  	    不过你现在最主要的事情，还是先把武学根基打好。根基扎好了之后，就可以找一位名师，学习高深武功，以后成为一代大英雄，大侠士！
+lua.8e9a7900  	十年
+## 210240:-1
+lua.66507ef8  	  您的背包已满,请留出空位再来找我吧
+lua.741cb829  	  你不是已经有一本江湖指南了吗？
+lua.d3dc98ed  	您获得了一本江湖指南
+## 210241:1010
+lua.2297de30  	少林派
+lua.2bf1723b  	武当派
+lua.3543e36c  	星宿派
+lua.7050cefa  	峨嵋派
+lua.7b093031  	天龙派
+lua.cf99dfec  	逍遥派
+lua.ede039a8  	天山派
+## 210242:-1
+lua.0181484f  	#Y兑换企鹅
+lua.0e856b5c  	    活动已经过期。
+## 210242:1
+lua.4a085165  	  一只可爱的企鹅！
+lua.68b8d7f1  	  炎热的夏天里，你想不想要一阵凉风？想不想要一杯冷饮？想不想要一丝清爽？
+lua.8177c7e8  	  一位不知名的长者，可以使用这些碎片来让天龙八部的世界变得更加清爽，而作为奖励，他还托我送给收集七星碎片的人一件最清爽的礼物！
+lua.853ed045  	  只要有全部七颗七星碎片，你就都可以获得啦！
+lua.e2bb744e  	  您确认要兑换企鹅蛋吗？
+## 212100:-1  苏飞的世界
+lua.4c7c702a  	苏飞的世界
+lua.88a0b704  	  你已经杀死#W麦友仁#W了？
+## 212102:-1  诚意的考验
+lua.00ab228c  	  雁北的鲁平#{_INFOAIM271,49,19,鲁平}要求你战胜小胖。小心，只要鲁平一声令下，#R小胖#W就会出现。
+lua.45615f49  	  你已经打败小胖了吗？
+lua.af8cafe2  	诚意的考验
+## 212103:-1  绝望之地
+lua.baa7594e  	听郑玄#{_INFOAIM182,163,26,郑玄}讲他的故事。
+lua.ede70461  	.....
+lua.fddf0252  	绝望之地
+## 212104:-1  可怕的真相
+lua.61f83304  	  你有什么事吗？
+lua.738a9126  	  把#Y阿支的头颅#W交给#G圆月村#W的村长#R郑玄#W#{_INFOAIM182,163,26,郑玄}。
+lua.91c8c910  	可怕的真相
+## 212107:-1  驱赶黑蜂
+lua.5b657afb  	  你已经驱赶完黑蜂了吗？
+lua.83ea653e  	驱赶黑蜂
+lua.9b852d38  	  杀死#R白狼王#W#{_INFOAIM161,268,21,-1}，得到干狼粪。用火折子点燃干狼粪，驱赶黑蜂，然后回到#G广宁镇#W，向#R伯颜#W#{_INFOAIM164,199,21,伯颜}报告你的发现。
+## 212108:-1  重建牧场
+lua.2dac9d80  	  你找到足够的材料了吗？
+lua.45f67b00  	重建牧场
+lua.481162ad  	  找到10块寒铁矿石和10块金矿石，以及10个金币，把他们交给#G辽西广宁镇#W的#R耶律金#W#{_INFOAIM170,206,21,耶律金}。
+## 212109:-1  最后一击
+lua.2ac87fe3  	#G龙泉断桥#W的#R阿青#W#{_INFOAIM51,115,31,阿青}要求你杀死#R通天#W。#R通天#W#{_INFOAIM48,51,31,-1}经常在#G归云亭#W附近出现。
+lua.38509b9f  	最后一击
+lua.5d79f2cb  	  你已经杀死通天了吗？
+## 212110:-1  捉迷藏
+lua.307d4b0f  	捉迷藏
+lua.8b6c21f9  	  #G长白山完颜部#W的完颜兀术#{_INFOAIM118,107,22,完颜兀术}让你找到#R完颜粘没喝#W#{_INFOAIM147,120,22,完颜粘没喝}、#R完颜斡离不#W#{_INFOAIM166,94,22,完颜斡离不}、#R完颜讹里朵#W#{_INFOAIM178,113,22,完颜讹里朵}。
+lua.f6b6414b  	  你找到我的哥哥们了吗？
+## 212111:-1  英雄救美
+lua.3fe311d9  	  我还是……还是做一块石头，永远的做一块石头吧……
+lua.45216efc  	英雄救美
+lua.5377e6e5  	  杀死玉溪的热布巴拉#{_INFOAIM254,147,27,-1}，救出阿诗玛。
+## 212112:-1  勇士的家书
+lua.16b489b0  	  你找我有什么事情吗？
+lua.2e860bd5  	  把#Y勇士的家书#W交给#G南海#W的#R李老太太#W#{_INFOAIM214,243,34,李老太太}。
+lua.87b0fbd0  	勇士的家书
+## 212113:-1  罪魁祸首
+lua.1f866607  	    梅岭的月季#{_INFOAIM192,70,33,月季}要求你杀死严白虎。小心，只要月季开始祭祀，#R严白虎#W就会出现。
+lua.31f22055  	  你已经杀死严白虎了吗？
+lua.644bac11  	罪魁祸首
+## 212114:-1  第二块血迹
+lua.1d005db6  	  把#Y血衣#W送给#G南海剑派#W的#R叶流凡#W#{_INFOAIM115,58,34,叶流凡}。
+lua.a41ee7e8  	  这……这件血衣……好像是一件南诏白苗人的衣服。
+lua.e5aad29c  	第二块血迹
+## 212117:-1  尽点人事
+lua.e30c16d7  	  把#G5个金币#W交给大理城修文台#W的#R王韶#W#{_INFOAIM217,255,2,王韶}。
+lua.e9fffd8a  	尽点人事
+## 212119:-1  曾经痴狂少年时
+lua.73ef576d  	  生命如果能够重来一次，我会怎么选择呢？既然真实和虚幻无从分辨，为何不听从心灵的召唤做出抉择呢。
+lua.e8a139bb  	    把翁季之的忏悔信送给龙泉金山寺的法念#{_INFOAIM207,63,31,法念}。
+lua.f652a7b6  	曾经痴狂少年时
+## 212120:-1  私通辽国
+lua.0fc2fafd  	  我听说大宋的官员都很贪财，不知道是不是真的。
+lua.69be4d83  	    把马承倩密函送给雁南的耶律莫哥#{_INFOAIM128,50,18,耶律莫哥}。
+lua.9dc93407  	私通辽国
+## 212121:-1  狼穴大营
+lua.0c5547ba  	狼穴大营
+lua.b374a6ea  	    苍山的萨玛#{_INFOAIM155,205,25,萨玛}要你去探索狼穴大营。
+lua.df874916  	  你已经侦查了狼穴大营吗？
+## 212122:-1  清除熊患
+lua.99d60716  	清除熊患
+lua.d43772a6  	  你已经杀死20只红枫熊了么？
+lua.dbb3addc  	    雁北的曲端#{_INFOAIM233,192,19,曲端}要你去杀死20只红枫熊#{_INFOAIM233,93,19,-1}。
+## 212123:-1  受人之托
+lua.450e90ad  	    把曲端的信函送给武夷山巡逻者营地的曲阳#{_INFOAIM194,52,32,曲阳}。
+lua.5728ca3f  	  我忽然想起了雁北的大哥……
+lua.f5db53b1  	受人之托
+## 212124:-1  深情的遥望
+lua.0b4b0875  	  我丈夫一定会回来的，一定的，我相信！
+lua.930de3f6  	    护送杨铁信回到圆月村，然后找到石林圆月村的郑圆#{_INFOAIM183,167,26,郑圆}。
+lua.c77dca00  	深情的遥望
+## 212125:-1  草原的劫匪
+lua.057c2cf3  	  你已经杀了30个弯刀马匪了吗？
+lua.80334981  	    草原兰陵郡的萧蔷#{_INFOAIM163,158,20,萧蔷}让你杀死30个弯刀马匪#{_INFOAIM273,156,20,-1}。
+lua.b95da77f  	草原的劫匪
+## 212128:-1  英雄不怕远征难
+lua.a18047e4  	  博览天下群书，踏遍五湖四海，是我毕生的追求。古往今来只有智者才能成为英雄。
+lua.ed3df61d  	英雄不怕远征难
+## 212129:-1  古来英雄皆寂寞
+lua.0abe18c6  	古来英雄皆寂寞
+lua.a8a40bf4  	  历史是条长河，波涛滚滚，奔流不息。那些雄姿勃发的英雄，轰轰烈烈的豪情都随着滔滔流水一去不返了……
+## 212130:-1  天下英雄谁敌手
+lua.62c28ec4  	天下英雄谁敌手
+lua.91907b48  	  国富兵强，百姓安居乐业是我一生的夙愿。和这个理想比起来，个人的荣辱得失还算得了什么呢！
+## 212131:-1  行者无双
+lua.82c90696  	  你的见识和阅历都已经独步江湖，距离英雄的称号也越来越近了。。
+lua.e6243682  	行者无双
+lua.fa3bab25  	    在大理城找到沈括#{_INFOAIM222,103,2,沈括}。
+## 212132:-1  寂寞高手
+lua.2e6fb69b  	寂寞高手
+lua.7765fb44  	  你的交际和名位都已经独步江湖，距离英雄的称号也越来越近了。
+lua.7e90043d  	    在洛阳城找到司马光#{_INFOAIM207,212,0,司马光}。
+## 212133:-1  无敌侠客
+lua.3450003c  	    在苏州城找到王安石#{_INFOAIM267,116,1,王安石}。
+lua.4efb79e4  	无敌侠客
+lua.92c118e1  	  你的武功和声望都已经独步江湖，距离英雄的称号也越来越近了。
+## 212134:-1  盖世英雄
+lua.00be3223  	盖世英雄
+lua.5f370c19  	    在大理城找到李工部#{_INFOAIM160,128,2,李工部}。
+lua.c7993118  	  呵呵，年轻人，你果然不负众望。行万里路，识万千人，除万种妖，集聪明才智与勇猛果敢于一身，这个盖世英雄的称号赠与你当之无愧！
+## 212140:-1  少林旧事
+lua.10d59c86  	  你是少林派的弟子啊，你们方丈玄慈大师还好吗？
+lua.b77f6968  	在#G大理城修文台#W找到#R王韶#W#{_INFOAIM217,255,2,王韶}。
+lua.ebb3650f  	少林旧事
+## 212141:-1  困兽犹斗
+lua.398d5e93  	#G雁门关#W的#R种世衡#W#{_INFOAIM263,46,18,种世衡}要你在雁门关包围圈中杀死二十名秦家寨败兵。
+lua.4b696f6a  	  你已经干掉所有的秦家寨败兵了吗？
+lua.c3dceed5  	困兽犹斗
+## 212144:-1  灭此朝食
+lua.04b111f0  	  看好了，这一招就传给你了，以后要好好使用。
+lua.1b2c5ad3  	  把5个金币交给大理城修文台#W的#R王韶#W#{_INFOAIM217,255,2,王韶}。
+lua.b1d01651  	灭此朝食
+## 212220:50
+lua.225f4eea  	你如果舍得将15个燕弦玉交给我就可以从下面装备中挑选一件：
+## 212220:60
+lua.998e95d9  	你如果舍得将30个燕弦玉交给我就可以从下面装备中挑选一件：
+## 212220:70
+lua.968603e6  	你如果舍得将60个燕弦玉交给我就可以从下面装备中挑选一件：
+## 220900:-1  为师门而战
+lua.ac9bc3a7  	    在少林寺找到慧方#{_INFOAIM96,82,9,慧方}。
+## 221900:-1  为师门而战
+lua.894d96c1  	    在丐帮大院找到洪通#{_INFOAIM92,77,10,洪通}。
+## 222900:-1  为师门而战
+lua.bdd19301  	    在光明殿找到林岩#{_INFOAIM98,105,11,林岩}。
+## 223900:-1  为师门而战
+lua.e2ec637b  	    在武当山找到张中行#{_INFOAIM78,95,12,张中行}。
+## 224900:-1  为师门而战
+lua.7145690a  	    在天龙寺找到本凡#{_INFOAIM95,88,13,本凡}。
+## 225900:-1  为师门而战
+lua.01dd050b  	    在淩波洞找到秦观#{_INFOAIM119,152,14,秦观}。
+## 226900:-1  为师门而战
+lua.8edf4bda  	    在峨嵋山找到孟龙#{_INFOAIM95,86,15,孟龙}。
+## 227900:-1  为师门而战
+lua.38f330be  	    在星宿海找到王彦#{_INFOAIM96,92,16,王彦}。
+## 228900:-1  为师门而战
+lua.459c0863  	  你是新来的同门吧，你来得太好了，我这里有很多事情需要你帮忙呢。
+lua.6aacf66d  	    在灵鹫宫找到符敏仪#{_INFOAIM95,60,17,符敏仪}
+## 228902:-1  自立门户
+lua.54d70d1a  	自立门户
+lua.c862d8b8  	    在#G大理城修文台#W找到#R王韶#W#{_INFOAIM217,255,2,王韶}。
+## 228903:-1
+lua.7559ec99  	    #G雁门关#W的#R种世衡#W#{_INFOAIM263,46,18,种世衡}要你在雁门关太守府中杀死秦伯光和四名秦家寨路霸。
+## 228904:-1  游山玩水
+lua.4358bafb  	    把5个金币交给大理城修文台#W的#R王韶#W#{_INFOAIM217,255,2,王韶}。
+lua.50229be4  	游山玩水
+lua.680e814e  	#{M_SHOUHUO}#r
+## 228905:-1  为师门而战
+lua.04316bbe  	为师门而战
+## 228911:-1  #cFF0000为师门而战
+lua.1857d19c  	在#G鬼谷#W找到#R王玄风#{_INFOAIM96,82,615, 王玄风}。
+lua.339879e4  	#cFF0000为师门而战
+lua.82139252  	你已经是本门派的弟子了，随着你对师门的贡献度的上升，你就可以学到更高深的武功，获得更尊崇的称号。#r  怎么提升自己的师门贡献度呢？去找王玄风，完成他的任务就行了。
+lua.c93dddfb  	你是新来的同门吧，你来得太好了，我这里有很多事情需要你帮忙呢。
+## 229009:-1
+lua.2d05096e  	你不是本门派弟子，我只为本门派弟子服务。
+## 229012:2
+lua.0780a464  	3级配方
+lua.3a00f607  	4级配方
+lua.3f7cdf43  	8级配方
+lua.5f3a1621  	2级配方
+lua.86ea29bd  	6级配方
+lua.8e95da0e  	9级配方
+lua.9f48f602  	5级配方
+lua.d97454de  	10级配方
+lua.f74725a0  	7级配方
+## 232002:-1
+lua.253bb29c  	  你是否已经杀死10个凶悍的犯人头目，以及诸多小怪物？
+lua.8c87c540  	  准备好了吗？
+lua.c27d001b  	  太湖水寨的呼延庆#{_INFOAIM67,77,4,呼延庆}让你杀死10个犯人头目和50个小怪物。
+## 311000:-1  obj/luoyang/oluoyang_shumi.lua
+lua.042fcd0f  	  {0}，朝廷现在正是用人之际，年轻人应该来报效国家啊。我已经通知刘健明，给你这样江湖上的英雄们提供双倍经验，以提升你们的效率。你可以去府前广场找他领取。
+## 311002:-1  obj/luoyang/oluoyang_liujianming.lua
+lua.7910745a  	我想领四小时双倍经验时间
+lua.835d2885  	我想领二小时双倍经验时间
+lua.b014174a  	#cfff263我想#G冻结#cfff263双倍经验时间
+lua.b2e033cb  	领双介绍
+lua.d3e55667  	我想领一小时双倍经验时间
+lua.e5b2332f  	#cfff263我想#G解冻#cfff263双倍经验时间
+lua.feb38407  	我想查询我本周双倍经验时间
+## 350013:-1  obj/jueqinggu/ojueqinggu_xingyan.lua
+lua.270d146f  	如何学习门派技能
+lua.3bb20023  	加入门派
+lua.5c163752  	  我是丹英，绝情谷派代理掌门，我正在帮师父寻找一个真正的绝情谷派掌门。
+lua.c1335d52  	门派介绍
+## 350013:0  obj/jueqinggu/ojueqinggu_xingyan.lua
+lua.0b5f3fa1  	我暂时还不想拜入门派
+lua.52ab0d26  	你已是别的门派的高徒了，我们不收你。
+lua.e8601fad  	你又来消遣为师了，你已是我绝情谷弟子，还拜什么师呢。
+lua.fd98c170  	我确定要拜入绝情谷派
+## 350013:1  obj/jueqinggu/ojueqinggu_xingyan.lua
+lua.0a0171ad  	    劈、砍、撩、起……此乃绝情谷刀法至简至繁之玄机，因而绝情谷武学不止于迅疾巧捷之势，更在于从刀势中体悟刀意，从而塑就自我境界。
+## 350013:6  obj/jueqinggu/ojueqinggu_xingyan.lua
+lua.14e0a414  	云骁
+lua.1fc504fb  	云骁（231，170）可以教给你我派战斗技能，他就在我旁边。
+## 350014:-1  obj/jueqinggu/ojueqinggu_yunxiao.lua
+lua.4626fbc3  	关于心法的介绍
+lua.c25c13ba  	我是云骁，你有何事啊？
+## 350015:-1  obj/jueqinggu/ojueqinggu_linzhuo.lua
+lua.944a6726  	学习绝情谷轻功
+lua.b6a233e8  	  我可以传授给你本派的独门轻功，不过需要花费1#-15。
+## 350015:0  obj/jueqinggu/ojueqinggu_linzhuo.lua
+lua.221154a1  	学习绝情谷轻功需要先加入绝情谷派哦。
+lua.ce6c5062  	你不是绝情谷派的弟子，我是不能教你本门轻功的。
+lua.f87134db  	你不是已经学会了吗？
+## 350017:-1  obj/jueqinggu/ojueqinggu_dongyong.lua
+lua.ebc362b1  	  找我有事吗？
+## 350018:-1  obj/jueqinggu/ojueqinggu_jinglan.lua
+lua.efe4d430  	 我是观景管理 ，找我有事吗？
+## 350019:-1  obj/jueqinggu/ojueqinggu_yihen.lua
+lua.351e9780  	 我是焚心技能传授人 ，找我有事吗？
+## 350020:-1  obj/jueqinggu/ojueqinggu_wuzhi.lua
+lua.eb31e468  	 我是通刃术技能传授人，找我有事吗？
+## 350021:-1  obj/jueqinggu/ojueqinggu_luyuan.lua
+lua.8c319c18  	 我是坐骑讲解员 ，找我有事吗？
+## 350023:-1  obj/jueqinggu/ojueqinggu_danyin.lua
+lua.fcf47711  	 我是兑换称号物品，找我有事吗？
+## 350999:-1  obj/dali/odali_zhengyi.lua
+lua.084f30bd  	逍遥派生活特色
+lua.0b4ad585  	唐门战斗特色
+lua.12dffa89  	天山派生活特色
+lua.1d494684  	慕容派生活特色
+lua.1f97b618  	明教战斗特色
+lua.20cb79bc  	绝情谷生活特色
+lua.221c4266  	天山派来由
+lua.26bd27e8  	慕容派战斗特色
+lua.27e16436  	唐门来由
+lua.27e7869b  	大光明殿
+lua.384266be  	少林派来由
+lua.3e5ed6bc  	鬼谷生活特色
+lua.45f446d7  	峨嵋派战斗特色
+lua.4988f88f  	鬼谷来由
+lua.4d01f618  	天龙派战斗特色
+lua.5349b7e0  	绝情谷战斗特色
+lua.62f8f8f4  	星宿春秋
+lua.632e1a3a  	    aaaaaaa在下黄时雨，绝情谷接引使。#r    一川烟草，满城风絮。#r    我绝情谷门人如天海明玉，攻击时身法万千，容止绝艳，攻势如天人合一，桃花漫天，可诗可画。#r    离人偶乃是绝情谷武技核心，兼之以箫剑为武器，对敌可以不威加于身，但不可不风雅。
+lua.6aee5203  	峨嵋天下秀
+lua.70dd14e0  	鬼谷战斗特色
+lua.72384b01  	星宿派战斗特色
+lua.72afb818  	峨嵋派来由
+lua.735e8874  	姑苏慕容
+lua.76dfbc14  	明教生活特色
+lua.7ad4c311  	少林派生活特色
+lua.7bdb56ab  	武当仙风
+lua.7ef509af  	去绝情谷看看
+lua.87b77839  	唐门生活特色
+lua.8afde781  	逍遥派战斗特色
+lua.9188ef6b  	蜀中唐门
+lua.954f4b83  	峨嵋派生活特色
+lua.96b0618e  	丐帮来由
+lua.97162307  	慕容派来由
+lua.9b1d754e  	武当派生活特色
+lua.a449fc14  	天龙派生活特色
+lua.a5ea163d  	星宿派生活特色
+lua.a65be977  	天龙派来由
+lua.a88fa977  	明教来由
+lua.ab9b8209  	武当派来由
+lua.abf6fb59  	天门鬼谷
+lua.ae5709e7  	天龙风情
+lua.b28821dc  	少林古刹
+lua.b8ce070d  	淩波逍遥
+lua.b9027599  	绝情谷
+lua.bab06c42  	星宿派来由
+lua.be983bed  	丐帮战斗特色
+lua.c4d39d56  	  #R师妹#W，许久不久，你的武功又精进不少。
+lua.ce10c6ce  	  #R师弟#W，许久不久，你的武功又精进不少。
+lua.ce785b01  	丐帮生活特色
+lua.d196555f  	缥缈天山
+lua.e211738f  	绝情谷来由
+lua.e91991f5  	天山派战斗特色
+lua.eb4292c2  	逍遥派来由
+lua.eebbcc1d  	少林派战斗特色
+lua.f2e3c4de  	丐帮总舵
+lua.f81c840a  	武当派战斗特色
+lua.ff545706  	      好久没有见到你了，以你这样的天资，真可惜不在我东海绝情谷。
+lua.ffe8087e  	引荐加入门派
+## 400962:-1  obj/changbai/ochangbai_chargetransfer.lua
+lua.f3f92cca  	洛阳
+## 402000:-1  obj/fuben/ofuben_1_zhenlong.lua
+lua.84e4d575  	  {0} ，赶快来吧。␣
+## 402001:-1  obj/fuben/ofuben_1_zhenlongRest.lua
+lua.2c43a5a4  	棋局介绍
+lua.527c6f5c  	离开休息室
+lua.72242338  	如何在刷棋中获得更多的经验
+## 402001:11  obj/fuben/ofuben_1_zhenlongRest.lua
+lua.271e4b44  	确定
+lua.5dfd5bdd  	  如果你的队友都在休息室中，而你却独自离开的话，他们会因此无法进入棋局。你确认要离开吗？
+lua.9cdb9be3  	取消
+## 402040:2
+lua.352b0900  	横扫牡丹碗[普通模式]
+lua.a5945244  	    普通模式和快速模式所获得的#G收益完全相同#W，但#G快速模式#W中球#G刷新速度明显较快#W，如果您对自己的实力有信心，可以选择快速战斗模式。#r    #G小提示：普通模式和快速模式每天只能选择其一进行挑战。
+lua.cda18653  	#G横扫牡丹碗[快速模式]
+lua.eb771486  	关于横扫牡丹碗快速模式
+## 402047:2
+lua.2feff4ae  	超级旗手
+lua.3f88a2c6  	连斩狂客
+lua.bd4b23f9  	搜宝专家
+## 402056:-1  obj/luoyang/oluoyang_chargetransfer.lua
+lua.416e644d  	苏州
+lua.60281ece  	南诏
+lua.7194c222  	楼兰
+lua.94052350  	大理
+lua.a5e7cb9c  	长白山
+lua.cee06496  	南海
+## 402101:-1  obj/huodong/huodong_yezhu_1.lua
+lua.e2e320ee  	  ～#r  <可怜的灵兽瞪大了双眼望着你……>
+## 402104:-1  obj/huodong/huodong_yezhu_3.lua
+lua.c386d282  	追捕野猪王
+lua.d9669909  	  可恶的野猪王逃走了！不知你们有没有得到一些可以找到野猪王的线索呢？
+## 402106:-1  obj/huodong/oHanYuBed_NPC.lua
+lua.a3243832  	购买古墓行功要诀
+lua.d5f7c4ec  	夫妻行功要诀使用说明
+lua.faea01f5  	在寒玉谷中修行的四项注意
+## 402305:24
+lua.3ca211ad  	我要兑换
+## 500000:1
+lua.214db89f  	刘健明
+lua.2362a07c  	如何领取双倍经验：
+lua.f471b07f  	请到洛阳的广场（150，91）刘健明处领取双倍经验。
+## 500000:3
+lua.a55d2627  	杂货商人
+lua.da3e3629  	珠宝商人
+## 500000:4
+lua.1db9d685  	商会传送人
+## 500000:5
+lua.05b3cb9f  	钱庄、当铺、元宝商人：
+lua.5e04080e  	元宝商
+## 500000:7
+lua.0344935f  	药理学大师
+lua.81b68d33  	养生法大师
+## 500000:8
+lua.7ab605a6  	洛阳漕运使
+lua.a63d1bd1  	珍珑棋局
+## 500000:9
+lua.4fce9263  	月下老人
+lua.e0324bdd  	我要结婚：
+## 500000:10
+lua.8be5c381  	帮派：
+## 500000:11
+lua.fee15dbe  	商会：
+## 500000:12
+lua.08ba8415  	骑乘：
+## 500000:13
+lua.a0fa914c  	洛阳校场
+## 500000:14
+lua.3f65df26  	宝石合成：
+## 500000:15
+lua.9e605a80  	结拜：
+## 500001:1
+lua.dc9af08e  	兵器店老板王德贵（210，154）在东市的兵器铺中。按下TAB键，地图上会有闪烁的标识的。
+lua.dcb8d576  	王德贵
+## 500001:2
+lua.71735f45  	杂货商人芮福祥（254，146）在东门内。按下TAB键，地图上会有闪烁的标识的。
+lua.ae5b1d22  	芮福祥
+## 500001:3
+lua.3f155f44  	服饰店掌柜甄唯思（182，183）在南大街的服饰店。按下TAB键，地图上会有闪烁的标识的。
+lua.618c3049  	甄唯思
+## 500001:4
+lua.43b3be94  	饰品店掌柜贾作珍（178，177）在南大街的服饰店。按下TAB键，地图上会有闪烁的标识的。
+lua.55a2e5e7  	贾作珍
+## 500001:5
+lua.1a7bedc0  	白萌生
+lua.43d2e9aa  	药店掌柜白萌生（135，164）在南大街的药店。按下TAB键，地图上会有闪烁的标识的。
+## 500001:6
+lua.0a7827a5  	范统
+lua.a876ae57  	酒店掌柜范统（138，140）在西大街路南。按下TAB键，地图上会有闪烁的标识的。
+## 500001:7
+lua.0910bb3d  	珠宝商人郎夫人（63，147）在西门内。按下TAB键，地图上会有闪烁的标识的。
+lua.a7076ee7  	郎夫人
+## 500002:1
+lua.68f23b3c  	驿站老板吴德昌（139，182）在南大街和西市之间的驿站里。按下TAB键，地图上会有闪烁的标识的。
+lua.7a6e816e  	吴德昌
+## 500002:2
+lua.7bf93b1c  	汪旱
+lua.cd66fc6e  	商会传送人汪旱（230，129）在东大街。按下TAB键，地图上会有闪烁的标识的。
+## 500003:1
+lua.2db31d3c  	当铺老板何生财（95，152）在西门内的当铺里。按下TAB键，地图上会有闪烁的标识的。
+lua.6c299ef7  	何生财
+## 500003:2
+lua.1e710271  	钱庄老板杨熙平（80，152）在西门内的钱庄内，他的伙计可以帮你存储物品和金钱。按下TAB键，地图上会有闪烁的标识的。
+lua.ffe456f7  	杨熙平
+## 500003:3
+lua.271cdb8b  	金六爷
+lua.2e91b33a  	元宝商人金六爷（206，172）在东市。按下TAB键，地图上会有闪烁的标识的。
+## 500004:1
+lua.68e9aa3e  	南门通往嵩山，建议15~20级的玩家前往。
+## 500004:2
+lua.a0961555  	东门通往雁南，建议30~36级的玩家前往。
+## 500004:3
+lua.896ca65a  	西门通往敦煌，建议9~16级的玩家前往。
+## 500005:1
+lua.a4eb42c6  	走出洛阳南门，在过桥之前向东走，就会在农田中找到种植大师刘亦农（219，262）。按下TAB键，地图上会有闪烁的标识的。
+lua.fb4fcf91  	刘亦农
+## 500005:2
+lua.1aa863c7  	薛铜锤
+lua.59b474fd  	采矿大师薛铜锤（212，151）在东市的兵器铺中。按下TAB键，地图上会有闪烁的标识的。
+## 500005:3
+lua.05541c40  	严百草
+lua.5e992c2f  	采药大师严百草（120，169）在西市路东，按下TAB键，地图上会有闪烁的标识的。
+## 500005:4
+lua.1f34e27b  	姜渔
+lua.c6caa7e3  	渔夫姜渔（207，184）在东市南口，按下TAB键，地图上会有闪烁的标识的。
+## 500005:5
+lua.60355b6c  	龙三少
+lua.f0c8ccdd  	工艺大师龙三少（60，146）在西门内。按下TAB键，地图上会有闪烁的标识的。
+## 500005:6
+lua.8285d7f2  	符敏之
+lua.8c4988de  	缝纫大师符敏之（193，172）在东市。按下TAB键，地图上会有闪烁的标识的。
+## 500005:7
+lua.a5dea7d9  	王德富
+lua.bcf621f8  	铸造大师王德富（213，160）在东市的兵器铺内。按下TAB键，地图上会有闪烁的标识的。
+## 500005:8
+lua.90e17ec3  	李大嘴
+lua.aceb71ed  	烹饪大师李大嘴（134，152）在西市与西大街交汇处的酒店内。按下TAB键，地图上会有闪烁的标识的。
+## 500005:9
+lua.19deaa63  	制药大师张明景（138，164）在西市与南大街之间的药店内。按下TAB键，地图上会有闪烁的标识的。
+lua.6a7593c6  	张明景
+## 500005:10
+lua.160a9f95  	蔷薇
+lua.9614af41  	养生法大师蔷薇（132，156）在西市与西大街交汇处的酒店内。按下TAB键，地图上会有闪烁的标识的。
+## 500005:11
+lua.aae3f265  	药理学大师白颖明（136，169）在西市与南大街之间的药店内。按下TAB键，地图上会有闪烁的标识的。
+lua.f0c8161d  	白颖明
+## 500005:13
+lua.36ad2e08  	冯铸铁
+## 500006:1
+lua.3c87feb6  	洛阳漕运使赵明诚在东市南口路东的大院里。按下TAB键，地图上会有闪烁的标识的。
+lua.4be84f80  	赵明诚
+## 500006:2
+lua.8ab0ec98  	王积薪
+lua.961cf6b4  	找到洛阳城内东北方的王府内的棋圣王积薪（366，228）。按下TAB键，地图上会有闪烁的标识的。
+## 500007:1
+lua.88a8df6c  	月老
+lua.f497f00b  	月下老人在洛阳城内的西北角。想举行婚礼的新人就去找他。按下TAB键，地图上会有闪烁的标识的。
+## 500008:1
+lua.8b862188  	范纯仁
+lua.df589f23  	兵部尚书范纯仁管理帮派的创建等事务。
+## 500009:1
+lua.351e395e  	商会总管乔复盛（230，156）在东大街路南的商会里。按下TAB键，地图上会有闪烁的标识的。
+lua.4d37bd49  	乔复盛
+## 500010:1
+lua.3b3feb8e  	田骁鸣
+lua.6f6134d0  	在西市和南大街中间的驿站内找到田骁鸣，可以购买初级骑乘。
+## 500011:1
+lua.252f6750  	想切磋武艺就到洛阳校场去吧。右键点击对手，选择挑战。
+## 500012:1
+lua.88955740  	彭怀玉
+lua.95bfccbb  	宝石合成工匠彭怀玉（177，184）在南大街与东市之间的服饰店内。按下TAB键，地图上会有闪烁的标识的。
+## 500013:1
+lua.095ffd8d  	户部尚书陈夫之（144，68）在西京府内，如果想结拜就去找他。按下TAB键，地图上会有闪烁的标识的。
+lua.ab869e77  	陈夫之
+## 500020:2
+lua.ad66c5eb  	你可以向沈澄（164,80）领取双倍经验，他在苏州北门附近。按下TAB键，地图上会有闪烁的标识的。
+lua.f097694d  	沈澄
+## 500020:3
+lua.13286468  	宝石商人
+## 500020:4
+lua.af7e31a7  	北门
+## 500020:5
+lua.ba84a3ae  	钓鱼大师
+lua.bdc686cf  	我想学习生活技能：
+## 500020:6
+lua.043d4e4f  	连环副本
+lua.08f4ecd7  	棋局
+lua.584e32f1  	华山论剑
+lua.cc9d1e75  	惩凶任务
+lua.f21cf547  	苏州漕运使
+## 500020:7
+lua.737e655c  	虫鸟坊坊主
+lua.a7910af2  	珍兽：
+## 500020:8
+lua.507d6d17  	李乘风
+## 500020:9
+lua.ca217009  	钱庄：
+lua.d18718e4  	王氏钱庄老板
+## 500020:10
+lua.7c6e09b2  	大宗师
+lua.b71d7e83  	装备强化与鉴定：
+## 500020:11
+lua.26a75d4b  	去除杀气：
+## 500021:1
+lua.2857d914  	服饰店老板左季高（217,88）在北市靠近码头附近。按下TAB键，地图上会有闪烁的标识的。
+lua.4287c340  	左季高
+## 500021:2
+lua.0d5f6a5e  	左无双
+lua.f608cbb5  	饰品店老板左无双（217,81）在北市靠近码头附近。按下TAB键，地图上会有闪烁的标识的。
+## 500021:4
+lua.567b6f3b  	药店老板胡繁（99,155）在西市南口。按下TAB键，地图上会有闪烁的标识的。
+lua.74414b0e  	胡繁
+## 500021:5
+lua.3ba0740e  	酒店老板包世荣（190,168）在状元场南边的酒店门口。按下TAB键，地图上会有闪烁的标识的。
+lua.723a9125  	包世荣
+## 500021:6
+lua.1987d351  	杂货店老板孙子羽（128,173）在枫桥街向南。按下TAB键，地图上会有闪烁的标识的。
+lua.4f3c97f4  	孙子羽
+## 500021:7
+lua.936b7d5a  	范大成
+lua.956b1639  	宝石商人范大成（110,133）在西市路东。按下TAB键，地图上会有闪烁的标识的。
+## 500022:1
+lua.68ba0192  	南门通往西湖。
+## 500022:2
+lua.ff43b0b7  	西门通往镜湖。
+## 500022:3
+lua.d87fdb06  	北门通往太湖。
+## 500023:1
+lua.0bad93f9  	走出苏州西门向南走，过了一座小桥就看到种植大师林和靖（64，200）。按下TAB键，地图上会有闪烁的标识的。
+lua.5a4680c9  	林和靖
+## 500023:2
+lua.9feb482e  	采矿大师张小河（259，132）在城东的兵器铺中。按下TAB键，地图上会有闪烁的标识的。
+lua.d252adf3  	张小河
+## 500023:3
+lua.96031db6  	王审芝
+lua.ca56186b  	采药大师王审芝（106，109）在西市。按下TAB键，地图上会有闪烁的标识的。
+## 500023:4
+lua.9d846a36  	钓鱼大师蒋平（238，77）在城东北角码头那里。按下TAB键，地图上会有闪烁的标识的。
+lua.b0f6a7af  	蒋平
+## 500023:5
+lua.2fdd1c00  	工艺大师曾三省（109，130）在西市。按下TAB键，地图上会有闪烁的标识的。
+lua.b74ff5af  	曾三省
+## 500023:6
+lua.97e4ebd4  	余化龙
+lua.e496a9c5  	缝纫大师余化龙（211，90）在北市靠近码头附近。按下TAB键，地图上会有闪烁的标识的。
+## 500023:7
+lua.00fedae3  	薛烛
+lua.8e6f68fc  	铸造大师薛烛（251，151）在城东的兵器铺中。按下TAB键，地图上会有闪烁的标识的。
+## 500023:8
+lua.7f6e96c3  	智化
+lua.e476ee2e  	烹饪大师智化（189，173）在状元场南边的酒店门口。按下TAB键，地图上会有闪烁的标识的。
+## 500024:1
+lua.138e808a  	苏州漕运使陆士铮（331，169）在苏州城东北角的码头旁边。按下TAB键，地图上会有闪烁的标识的。
+lua.74747fea  	陆士铮
+## 500024:2
+lua.79a19942  	呼延豹（342，311）在城东南的府衙前，找到他可以接受平反水牢叛乱任务。按下TAB键，地图上会有闪烁的标识的。
+lua.e62bcd39  	呼延豹
+## 500024:3
+lua.185112d7  	吴玠
+lua.da7392a5  	苏州总捕头吴玠（224，226）在枫侨街，他正在找人帮他惩治凶徒，有可能得到藏宝图哦。按下TAB键，地图上会有闪烁的标识的。
+## 500024:4
+lua.c3d5c1a8  	棋局活动使者张弈国（267，243）在状元场中。按下TAB键，地图上会有闪烁的标识的。
+lua.eabbf1fe  	张弈国
+## 500024:5
+lua.14939e70  	苏剑岭
+lua.524ced9c  	华山论剑使者苏剑岭（294，234）在状元场中。按下TAB键，地图上会有闪烁的标识的。
+## 500024:6
+lua.ae138805  	苏州校尉钱宏宇（134，260）在苏州城西门外，可以找他领取连环副本任务。按下TAB键，地图上会有闪烁的标识的。
+lua.dc79bb69  	钱宏宇
+## 500025:1
+lua.36b1b372  	云霏霏
+lua.83c9ecae  	虫鸟坊坊主云霏霏（87,142）在西门内向北的虫鸟坊内。按下TAB键，地图上会有闪烁的标识的。
+## 500026:1
+lua.abc2f079  	驿站老板李乘风（111，160）在西市南口向东的街上。按下TAB键，地图上会有闪烁的标识的。
+## 500027:1
+lua.72bd2736  	钱庄老板王夫人（93，177）在苏州西门内向南的钱庄内，她的活计可以帮你保存物品和金钱。按下TAB键，地图上会有闪烁的标识的。
+lua.9acd594f  	王夫人
+## 500028:1
+lua.316200a1  	欧冶子（266,139）可以帮你强化装备和对装备进行资质鉴定。按下TAB键，地图上会有闪烁的标识的。
+lua.c05bc80b  	欧冶子
+## 500029:1
+lua.3ef77e1e  	雪竹莲
+lua.489589c2  	雪竹莲（201，82）在靠近北门附近。按下TAB键，地图上会有闪烁的标识的。
+## 500040:1
+lua.0b9d18a9  	请到各城市的驿站处（按Tab可以打开地图查看#G驿#W字样）传送到您想拜师的门派。到了门派之后点击#G门派指路人#W就可以询问拜师的位置了。或者按tab键打开地图找#G师#W字样。
+lua.3844f86f  	如何加入门派：
+## 500040:2
+lua.196d17a8  	逍遥
+lua.1d4af031  	明教
+lua.38517560  	丐帮
+lua.57ba6afa  	峨嵋
+lua.78b6af28  	星宿
+lua.8fffe315  	武当
+lua.b54c3956  	九大门派传送人：
+lua.bf6106b4  	天山
+lua.d50672fc  	少林
+lua.e1603637  	天龙
+## 500040:3
+lua.0c782369  	珍兽店
+lua.19fdaad0  	服饰店
+lua.47a6ff1a  	购买各种物品：
+lua.4eb5c11c  	饰品店
+lua.640947ad  	酒店
+lua.78fd4bed  	药店
+lua.b133fdfd  	杂货店
+lua.b9c593f8  	兵器店
+## 500040:4
+lua.dc6edc58  	驿站：
+## 500040:5
+lua.0c137fca  	当铺
+lua.80186b9e  	钱庄、当铺：
+lua.f7aba11a  	钱庄
+## 500040:6
+lua.31055ab4  	南门
+lua.67fbfe7e  	我想出城门去练习本领：
+lua.7a5e3bd1  	西门
+lua.b99c2b6d  	东门
+## 500040:7
+lua.04cfc513  	学习一些生活技能：
+lua.19f14dd7  	重购配方
+lua.2ec6b164  	材料加工介绍
+lua.2fe427eb  	铸造大师
+lua.3a674a92  	种植大师
+lua.4767e87b  	制药大师
+lua.59fa6e13  	烹饪大师
+lua.6402293c  	采矿大师
+lua.8f132445  	渔夫
+lua.c103e966  	工艺大师
+lua.c4565d0b  	采药大师
+lua.ff0e7598  	缝纫大师
+## 500040:8
+lua.0aa406a1  	任务与副本：
+lua.b2417bd4  	大理漕运使
+## 500040:9
+lua.37c0054f  	擂台：
+lua.6da5cb9d  	武馆馆主
+## 500040:10
+lua.d00d9a10  	拜师：
+## 500041:1
+lua.9486df81  	少林派接引僧慧易（187，122）就在大理中央五华坛的东北角，按下TAB键，地图上会有闪烁的标识的。
+## 500041:2
+lua.d8f5b95e  	天龙派接引僧破贪（189，124）就在大理中央五华坛的东北角，按下TAB键，地图上会有闪烁的标识的。
+## 500041:3
+lua.01f247bd  	逍遥派接引使澹台子羽（188，133）就在大理中央五华坛的东北角，按下TAB键，地图上会有闪烁的标识的。
+## 500041:4
+lua.cd8db83a  	峨嵋派接引姑姑路三娘（192，129）就在大理中央五华坛的东北角，按下TAB键，地图上会有闪烁的标识的。
+## 500041:5
+lua.359c8e63  	天山派接引使称青霜（131，124）就在大理中央五华坛的西北角，距离拜师介绍人聂政不远。按下TAB键，地图上会有闪烁的标识的。
+## 500041:6
+lua.2923fd32  	星宿派接引弟子海风子（131，124）就在大理中央五华坛的西北角，距离拜师介绍人聂政不远。按下TAB键，地图上会有闪烁的标识的。
+## 500041:7
+lua.8bf87104  	明教接引使石宝（131，124）就在大理中央五华坛的西北角，距离拜师介绍人聂政不远。按下TAB键，地图上会有闪烁的标识的。
+## 500041:8
+lua.7af34c4f  	武当接引道长张获（131，124）就在大理中央五华坛的西北角，距离拜师介绍人聂政不远。按下TAB键，地图上会有闪烁的标识的。
+## 500041:9
+lua.0b1386c3  	丐帮接引长老简宁（131，124）就在大理中央五华坛的西北角，距离拜师介绍人聂政不远。按下TAB键，地图上会有闪烁的标识的。
+## 500042:1
+lua.1a5d83c9  	兵器店就在东大街路北。按下TAB键，地图上会有闪烁的标识的。
+## 500042:2
+lua.bb2e57fa  	黄公道
+lua.eab9dbfc  	服饰店就在东大街路南。按下TAB键，地图上会有闪烁的标识的。
+## 500042:3
+lua.0d93e280  	饰品店就在东大街路南。按下TAB键，地图上会有闪烁的标识的。
+lua.529df897  	小钗
+## 500042:4
+lua.ca2115e1  	珍兽店就在东大街路北，驿站的东北方向。按下TAB键，地图上会有闪烁的标识的。
+## 500042:5
+lua.826ff350  	药店在西大街路北。按下TAB键，地图上会有闪烁的标识的。
+## 500042:6
+lua.bda7247b  	酒店在西大街路南，那里可以买到各种用于回复的食品。按下TAB键，地图上会有闪烁的标识的。
+## 500042:7
+lua.49736cf9  	高升祥
+lua.cbdefbba  	杂货店在西门内，向北走的农田旁边。按下TAB键，地图上会有闪烁的标识的。
+## 500043:1
+lua.1af7ef45  	行万里路，破万卷书，想去其他地方看看，驿站是最方便的。驿站的老崔就在东大街的路北，按下TAB键，地图上会有闪烁的标识的。
+lua.c299e3bd  	崔逢九
+## 500044:1
+lua.5ebf347b  	王老板的钱庄在距离五华坛不远的东大街路南，按下TAB键，地图上会有闪烁的标识的。钱庄的伙计可以帮你存储物品和金钱。
+lua.bf01aeb0  	王颖
+## 500044:2
+lua.4a3be648  	当铺老板韩永安在西大街路南。按下TAB键，地图上会有闪烁的标识的。
+lua.57e4a8d8  	韩永安
+## 500045:1
+lua.727933b5  	南门通往洱海，如果没到25级，还是先不要去那里为好。
+## 500045:2
+lua.5909873d  	东门通往无量山，10级以下的玩家去这里正好。
+## 500045:3
+lua.6339eafb  	西门通往剑阁，10级以下的玩家去这里正好。
+## 500046:1
+lua.67be54fc  	公孙大叔
+lua.c84c2774  	想学种地就到东门内靠近农田的公孙大叔，他总在那里。按下TAB键，地图上会有闪烁的标识的。
+## 500046:2
+lua.6bd4ba0d  	学采矿要找童化铁，他在兵器铺的后面，按TAB地图上写着铁字的地方就是。
+lua.adbd3f8a  	童化铁
+## 500046:3
+lua.42225f33  	采药大师刘寄奴在西大街路北药店里。按下TAB键，地图上会有闪烁的标识的。
+lua.7e843dea  	刘寄奴
+## 500046:4
+lua.8c7af864  	渔夫穆子陵在西大街路南，酒店旁边。按下TAB键，地图上会有闪烁的标识的。
+lua.9a314e3a  	穆子陵
+## 500046:5
+lua.72dc98c3  	工艺大师鲁明月在钱庄后面。按下TAB键，地图上会有闪烁的标识的。
+lua.dc167c13  	鲁明月
+## 500046:6
+lua.0a34641a  	缝纫大师黄绫波在东大街路南。按下TAB键，地图上会有闪烁的标识的。
+lua.122ae5ad  	黄绫波
+## 500046:7
+lua.0ab8822b  	过三锤
+lua.b9f037e0  	铸造大师过三锤在兵器铺后面。按下TAB键，地图上会有闪烁的标识的。
+## 500046:8
+lua.11fbbdf8  	杜子飞
+lua.2398fb6e  	烹饪大师杜子飞在西大街路南。按下TAB键，地图上会有闪烁的标识的。
+## 500046:9
+lua.15fce0a4  	傅当归
+lua.5db2e30f  	制药大师傅当归在西大街路北。按下TAB键，地图上会有闪烁的标识的。
+## 500046:10
+lua.c4787331  	#G重购配方：#W因某种不可控原因造成玩家已学会的#G加工材料类配方、馒头配方、初/中/高级食材类配方、咫尺天涯配方#W丢失，可以到#G苏州#W的#G小高（96，127）#W购买重#G购配方#W，其出售价格#G统一为1银#W。
+lua.cdb61387  	小高
+## 500047:1
+lua.7addef96  	大理漕运使王若禹在西门内，向南走就看到了。可以按TAB打开地图，写着漕的地方就是。
+## 500048:1
+lua.5ed28cb2  	凤朝阳
+lua.e585a342  	擂台是切磋武艺的地方，你可以找馆主凤朝阳了解一下，他就在尚武台。按下TAB键，地图上会有闪烁的标识的。
+## 500049:1
+lua.3eed9017  	聂政
+lua.5f6ba872  	拜师介绍人就在五华坛，按下TAB键，地图上会有闪烁的标识的。
+## 500061:1
+lua.9121f907  	你想拜见玄慈大师，他就在达摩院。按下TAB键，地图上会有闪烁的标识的。
+## 500061:2
+lua.bc05af0a  	少林监寺玄寂
+## 500061:3
+lua.d5ce0bc7  	学习门派战斗技能
+lua.df1f85df  	少林绝技名扬天下，玄难大师可以教给你，他在大雄宝殿门口。按下TAB键，地图上会有闪烁的标识的。
+## 500061:4
+lua.2ab26c7b  	学习门派生活技能
+lua.d9ceea10  	玄渡大师可以教给你少林独有的开光技能，他在龙树院。按下TAB键，地图上会有闪烁的标识的。
+## 500061:5
+lua.a0672548  	玄鸣大师可以教给你佛法技能，他在龙树院。按下TAB键，地图上会有闪烁的标识的。
+lua.c2035c15  	学习门派辅助技能
+## 500061:6
+lua.0941a492  	玄灭大师可以教你骑乘老虎的本领，他在钟楼的南边。按下TAB键，地图上会有闪烁的标识的。
+## 500061:7
+lua.d158626e  	你可以向玄生大师购买老虎，他在钟楼的南边。按下TAB键，地图上会有闪烁的标识的。
+## 500061:8
+lua.2668abb9  	门派任务
+lua.f3595215  	如果你想找些事做就找慧方师兄吧，他在大雄宝殿南边。按下TAB键，地图上会有闪烁的标识的。
+## 500061:9
+lua.664f7c13  	门派传送人
+lua.9978d72a  	山门内的慧轮师兄可以带你去洛阳、大理、苏州和其他门派。按下TAB键，地图上会有闪烁的标识的。
+## 500061:10
+lua.a89c42ab  	塔林守护人
+lua.afbf44b3  	想挑战塔林就钟楼找玄澄大师。按下TAB键，地图上会有闪烁的标识的。
+## 500061:11
+lua.384ea154  	少林轻功传授人
+lua.b59fc311  	学习轻功去达摩院找彩云妹妹。按下TAB键，地图上会有闪烁的标识的。
+## 500062:1
+lua.6985f3b7  	请不要随便打扰他，如果你真的想见他就去明尊坛吧。按下TAB键，地图上会有闪烁的标识的。
+lua.97658a58  	教主
+## 500062:3
+lua.3104503a  	学习明教战斗技能请到明尊坛去找庞万春。按下TAB键，地图上会有闪烁的标识的。
+## 500062:4
+lua.af5ba67b  	在明尊坛的仇道人可以教给你明教独有的圣火术。按下TAB键，地图上会有闪烁的标识的。
+## 500062:5
+lua.de5b1421  	在明尊坛的方天定可以教给你明教独有的采火术。按下TAB键，地图上会有闪烁的标识的。
+## 500062:6
+lua.5c60fb29  	在白金旗北边的厉天佑可以教会你骑乘狮子。按下TAB键，地图上会有闪烁的标识的。
+## 500062:7
+lua.f24a14ce  	你可以在白金旗北边找到邓元觉，向他购买狮子。按下TAB键，地图上会有闪烁的标识的。
+## 500062:8
+lua.09aa26f3  	圣火台的林岩正在找人帮忙做一些教内的事务。按下TAB键，地图上会有闪烁的标识的。
+## 500062:9
+lua.ff37ed92  	大门口的明教传送使方七佛可以带你去洛阳、大理、苏州或者其他门派。按下TAB键，地图上会有闪烁的标识的。
+## 500062:10
+lua.2b47200c  	明尊坛的光明左使方腊可以带你去挑战光明洞。按下TAB键，地图上会有闪烁的标识的。
+## 500062:11
+lua.78c39ad3  	明教轻功传授人
+lua.d25ffefe  	想学习轻功要找青木旗北边的方百花。按下TAB键，地图上会有闪烁的标识的。
+## 500063:1
+lua.3f17b1c8  	陈孤雁
+## 500063:2
+lua.855bf081  	奚三祁长老可以教给你本帮的技能，它在聚义堂门口。按下TAB键，地图上会有闪烁的标识的。
+## 500063:3
+lua.19a66cb2  	忠烈堂门口的吴长风长老可以教给你酿酒技能。按下TAB键，地图上会有闪烁的标识的。
+## 500063:4
+lua.512259b8  	到桃园去，舵主就在那里，你问问他会不会教你莲花落。按下TAB键，地图上会有闪烁的标识的。
+## 500063:5
+lua.38e07355  	西厢房的蒋光亭可以教你怎样骑乘狼。按下TAB键，地图上会有闪烁的标识的。
+## 500063:6
+lua.b2efed54  	购买坐骑找西厢房的李日越。按下TAB键，地图上会有闪烁的标识的。
+## 500063:7
+lua.54e43ff4  	洪通在聚义堂后面，他正在找人帮忙。按下TAB键，地图上会有闪烁的标识的。
+## 500063:8
+lua.5df6ac1e  	聚义堂外的张全祥可以带你去洛阳、大理、苏州或者其他门派。按下TAB键，地图上会有闪烁的标识的。
+## 500063:9
+lua.e7740667  	酒窖有人捣乱，去小桃园找佛印带你去赶跑他们。按下TAB键，地图上会有闪烁的标识的。
+## 500063:10
+lua.0dd98b8b  	忠烈堂门口的吴雪娇可以教给你本帮轻功。按下TAB键，地图上会有闪烁的标识的。
+lua.1fed9630  	丐帮轻功传授人
+## 500064:1
+lua.819da834  	掌门在紫霄大殿里，你想去拜见他么？按下TAB键，地图上会有闪烁的标识的。
+## 500064:2
+lua.790479c0  	张玄素
+## 500064:3
+lua.21b3726b  	紫霄大殿里的俞远山可以教你武当派的的技能。按下TAB键，地图上会有闪烁的标识的。
+## 500064:4
+lua.87e1fa81  	鹤云道人可以教你炼丹，通过天阶就能找到他了。按下TAB键，地图上会有闪烁的标识的。
+## 500064:5
+lua.840c57b1  	宁虚散人可以教你道法，通过天阶就能找到他了。按下TAB键，地图上会有闪烁的标识的。
+## 500064:6
+lua.278846fe  	岩义殿的张君羡会教给你骑鹤的本领。按下TAB键，地图上会有闪烁的标识的。
+## 500064:7
+lua.4d3816ca  	你可以向张君慕购买仙鹤坐骑，他就在岩义殿。按下TAB键，地图上会有闪烁的标识的。
+## 500064:8
+lua.57d1ee84  	如果你想为本派做些事情，就到紫霄大殿前去找张中行。按下TAB键，地图上会有闪烁的标识的。
+## 500064:9
+lua.df5b96a6  	剑河桥北的莫太冲可以带你去洛阳、大理、苏州或者其他门派。按下TAB键，地图上会有闪烁的标识的。
+## 500064:10
+lua.35105efc  	大师兄林灵素管理灵性峰的进入，他在天阶和紫霄大殿中间。按下TAB键，地图上会有闪烁的标识的。
+## 500064:11
+lua.d2cf66bf  	武当轻功传授人
+lua.db06d91d  	三清殿的静初散人可以交给你本派轻功。按下TAB键，地图上会有闪烁的标识的。
+## 500065:1
+lua.4ccd1ed8  	掌门在双桥北面，一直向里走就看到她了。按下TAB键，地图上会有闪烁的标识的。
+## 500065:2
+lua.f5e41b4e  	李十二娘
+## 500065:3
+lua.6b90ff18  	我们都是向崔绿华姐姐学习武艺的，她她在清音阁前。按下TAB键，地图上会有闪烁的标识的。
+## 500065:4
+lua.0a28cae1  	韩姐姐会使用我派独有的制符技能，你可以到萝峰晴云去找她。按下TAB键，地图上会有闪烁的标识的。
+## 500065:5
+lua.9f543afe  	灵心术是制符的辅助技能，萝峰晴云的扈三娘会教给你的。按下TAB键，地图上会有闪烁的标识的。
+## 500065:6
+lua.94af88b7  	白水秋风的萧湘水会教给你骑乘凤凰的本领。按下TAB键，地图上会有闪烁的标识的。
+## 500065:7
+lua.15f4e66a  	如果想买一只凤凰就到白水秋风找萧香玉。按下TAB键，地图上会有闪烁的标识的。
+## 500065:8
+lua.af831893  	在双桥的孟龙师兄正在找人帮忙。按下TAB键，地图上会有闪烁的标识的。
+## 500065:9
+lua.b23df19a  	听月桥南的杨四娘可以带你去洛阳、大理、苏州或者其他门派。按下TAB键，地图上会有闪烁的标识的。
+## 500065:10
+lua.2ec394a8  	想进入桃花阵就要到双桥北面找掌门。按下TAB键，地图上会有闪烁的标识的。
+## 500065:11
+lua.20ac59aa  	峨嵋轻功传授人
+lua.70951a51  	学习我派轻功到双桥北面找孙二娘。按下TAB键，地图上会有闪烁的标识的。
+## 500066:1
+lua.b4eda878  	方丈
+lua.f7356c96  	你想拜见本因大师，他正在大雄宝殿。按下TAB键，地图上会有闪烁的标识的。
+## 500066:2
+lua.7c962217  	本因
+## 500066:3
+lua.8853ecc9  	大雄宝殿门口的本观会教你本派武功。按下TAB键，地图上会有闪烁的标识的。
+## 500066:4
+lua.9a9a6113  	空山禅房的本相大师可以教你制蛊技能。按下TAB键，地图上会有闪烁的标识的。
+## 500066:5
+lua.281b1403  	千寻台的本参可以教给你经脉百决技能。按下TAB键，地图上会有闪烁的标识的。
+## 500066:6
+lua.2cc62606  	想学习骑马就找杨青牛吧，他在天马厩。按下TAB键，地图上会有闪烁的标识的。
+## 500066:7
+lua.d0ef242e  	想买一匹漂亮的马？到天马厩找杨白牛。按下TAB键，地图上会有闪烁的标识的。
+## 500066:8
+lua.533a676e  	本凡大师正需要本派弟子帮忙，他大雄宝殿南边。按下TAB键，地图上会有闪烁的标识的。
+## 500066:9
+lua.bf25536a  	山门处的破嗔可以带你去洛阳、大理、苏州或者其他门派。按下TAB键，地图上会有闪烁的标识的。
+## 500066:10
+lua.9d792c90  	本派弟子才允许进入的塔底，找空山禅房的本相大师。按下TAB键，地图上会有闪烁的标识的。
+## 500066:11
+lua.2073f21d  	妙香别院的盛如兰可以教给你本派轻功。按下TAB键，地图上会有闪烁的标识的。
+lua.91a45ad3  	天龙派轻功传授人
+## 500067:1
+lua.06fadaf0  	星宿老仙，德配天地，威震寰宇，古今无比。老仙在神木鼎，去拜见他要小心，小心他把你制成药篓子。按下TAB键，地图上会有闪烁的标识的。
+## 500067:2
+lua.1fa63cc6  	韩世忠
+## 500067:3
+lua.555c0572  	找万仙宫的施全学习星宿派武功。按下TAB键，地图上会有闪烁的标识的。
+## 500067:4
+lua.1956b178  	加入星宿哪能不会制毒，快到瀛洲殿找摘星子。按下TAB键，地图上会有闪烁的标识的。
+## 500067:5
+lua.bc165d64  	瀛洲殿的狮吼子可以教给你引虫术。按下TAB键，地图上会有闪烁的标识的。
+## 500067:6
+lua.020adca2  	日月宫的破军子可以教你骑牦牛。放心吧，牦牛身上没有毒。按下TAB键，地图上会有闪烁的标识的。
+## 500067:7
+lua.28a1bc13  	如果想拥有一只牦牛坐骑就到日月宫找天鹰子，少给钱他可不答应，小心他给你一只带毒的牛。按下TAB键，地图上会有闪烁的标识的。
+## 500067:8
+lua.228862d4  	任务发布人在方丈殿和瀛洲殿中间，他正需要人帮忙呢。按下TAB键，地图上会有闪烁的标识的。
+## 500067:9
+lua.d5a68c9c  	最南边门口的天狼子可以带你去洛阳、大理、苏州或者其他门派。按下TAB键，地图上会有闪烁的标识的。
+## 500067:10
+lua.a39802c6  	蓬莱殿的红玉师妹，蓬莱殿的红玉师妹。。。红玉师妹。。。呵呵，呵呵 。。。哦，对，去五神洞就找她好了。按下TAB键，地图上会有闪烁的标识的。
+## 500067:11
+lua.11a2d784  	方丈店门口的出尘子可以教给你本派轻功。按下TAB键，地图上会有闪烁的标识的。
+lua.d7349c24  	星宿派轻功传授人
+## 500068:1
+lua.3ac6d8e0  	掌门人不在，暂由梅剑代理日常事务。她在灵鹫宫。按下TAB键，地图上会有闪烁的标识的。
+## 500068:2
+lua.03271ab5  	梅剑
+## 500068:3
+lua.b5f7a3b9  	灵鹫宫的兰剑可以教给你本派武功。按下TAB键，地图上会有闪烁的标识的。
+## 500068:4
+lua.bf10506f  	在碎冰戽北边的余婆会教给本派弟子玄冰术。按下TAB键，地图上会有闪烁的标识的。
+## 500068:5
+lua.d484cfb0  	在碎冰戽北边的石嫂会教给本派弟子采冰术。按下TAB键，地图上会有闪烁的标识的。
+## 500068:6
+lua.33c7d080  	灵泉北面的芦雨亭可以教你骑乘雕的本领。按下TAB键，地图上会有闪烁的标识的。
+lua.e7e6f7fb  	学习骑乘技能
+## 500068:7
+lua.393755ab  	灵泉北面的任飞虹可以卖给你本派的坐骑：雕。按下TAB键，地图上会有闪烁的标识的。
+## 500068:8
+lua.338df91a  	符敏仪正在找本派弟子帮忙，他就在灵鹫宫南边的玄女雕像下。按下TAB键，地图上会有闪烁的标识的。
+## 500068:9
+lua.0e03d7b5  	天山派传送人乌老大可以带你去洛阳、大理、苏州或者其他门派。按下TAB键，地图上会有闪烁的标识的。
+## 500068:10
+lua.9020e1b4  	菊剑是折梅峰的守护人，她在灵鹫宫。按下TAB键，地图上会有闪烁的标识的。
+## 500068:11
+lua.0243bb68  	天山派轻功传授人
+lua.1d7d67a8  	学习天山派轻功要找竹剑，她在灵鹫宫。按下TAB键，地图上会有闪烁的标识的。
+## 500069:1
+lua.d2e22b6c  	代理掌门人苏星河在听香那里。按下TAB键，地图上会有闪烁的标识的。
+## 500069:2
+lua.23511521  	苏星河
+## 500069:3
+lua.c2110f87  	康广陵可以交给你本派武功，他在听香。按下TAB键，地图上会有闪烁的标识的。
+## 500069:4
+lua.2b06699f  	大观的冯阿三可以交给你奇门遁甲术。按下TAB键，地图上会有闪烁的标识的。
+## 500069:5
+lua.333f3cba  	学习逍遥派辅助技能需要到思恩找石清露。按下TAB键，地图上会有闪烁的标识的。
+## 500069:6
+lua.d38dc1db  	吴领军会教给你骑乘技能，他在书房那里。按下TAB键，地图上会有闪烁的标识的。
+## 500069:7
+lua.dd9f7c33  	神鹿管理员茍读出售坐骑，他在书房旁边。按下TAB键，地图上会有闪烁的标识的。
+## 500069:8
+lua.64e2ed8a  	逍遥派任务发布人秦观在听香。按下TAB键，地图上会有闪烁的标识的。
+## 500069:9
+lua.b0a3e25e  	凤凰琴东边的李傀儡可以带你去洛阳、大理、苏州或者其他门派。小心他的眼神哦。按下TAB键，地图上会有闪烁的标识的。
+## 500069:10
+lua.b2ddf275  	大观的冯阿三可以带本派弟子到逍遥谷底。按下TAB键，地图上会有闪烁的标识的。
+## 500069:11
+lua.13fc68a4  	逍遥派轻功传授人
+lua.4ed42a44  	学习逍遥派轻功要到思恩那里找石甘霖。按下TAB键，地图上会有闪烁的标识的。
+## 500070:2
+lua.6d2d8d2e  	慕容杰
+## 500070:10
+lua.5d805dd1  	慕容轻功传授人
+## 500071:1
+lua.80620a61  	掌门
+## 500071:2
+lua.2e51c92a  	唐亦风
+## 500071:3
+lua.5432412b  	唐岳冲
+## 500071:4
+lua.a931382a  	唐门姥姥
+## 500071:5
+lua.36d6ec28  	唐若兮
+## 500071:6
+lua.11f1eecf  	唐楮机
+## 500071:7
+lua.8b7fd830  	唐清秋
+## 500071:8
+lua.3a10ae2b  	唐予诚
+## 500071:9
+lua.91c725f8  	唐暮翔
+## 500071:10
+lua.5b26812d  	唐春
+## 500072:1
+lua.e0997de6  	王栩之
+## 500072:2
+lua.e6900975  	王禅一
+## 500072:4
+lua.ee0c1447  	张遗
+## 500072:5
+lua.eab0884f  	小仙儿
+## 500072:6
+lua.8f014bce  	苏芩
+## 500072:7
+lua.214a568a  	王玄风
+## 500072:8
+lua.86237e66  	九日通
+## 500072:9
+lua.4baa9c8c  	李继隆
+## 500072:10
+lua.8128550a  	吴澎
+## 500500:-1  寻宝
+lua.250c8f7f  	␣
+lua.63d79851  	找到宝藏交给何执中
+lua.bd5502bc  	你找到宝藏了么？点击任务道具中的探测器就可以找到宝藏的位置了
+lua.d5d529da  	需要物品：
+lua.d84cebf4  	寻宝
+## 500617:-1
+lua.5169dd97  	1级新人权杖兑换20级师门套
+lua.dbeac2c5  	2级新人权杖兑换30级师门套
+lua.fedc468b  	3级新人权杖兑换40级师门套
+## 500618:-1  太湖水寨
+lua.b5c4ba46  	接受任务失败
+## 502019:3  obj/fuben/oSongliaoXiuxishi_liubo.lua
+lua.691d1691  	还是算了
+lua.937f0015  	我确定取消保护
+## 502020:-1  obj/fuben/oSongliao_yiliao.lua
+lua.0020ad7b  	恢复血气
+lua.e2cd9e9b  	  我这可以为你治疗
+## 502021:-1  obj/fuben/oSongliao_chuansong.lua
+lua.07f2b8bd  	确定回到苏州
+lua.327b9d2f  	  我可以带你回城
+## 502023:3  obj/suzhou/osuzhou_liubo.lua
+lua.0f372f16  	兑换六博腰带
+lua.69ea7d95  	兑换六博护肩
+lua.adf33766  	兑换六博护腕
+## 714006:-1  obj/tianlong/otianlong_tongren_1.lua
+lua.1ccd9f67  	  手太阴肺经要穴如下：中府、云门、天府、侠白、尺泽、孔最、列缺、经渠、太渊、鱼际、少商。
+## 714007:-1  obj/tianlong/otianlong_tongren_2.lua
+lua.5d6b8b1c  	  手阳明大肠经要穴如下：商阳、合谷、阳溪、偏历、温溜、手三里、曲池、手五里、巨骨、天鼎、迎香。
+## 714008:-1  obj/tianlong/otianlong_tongren_3.lua
+lua.48d03e78  	  足阳明胃经要穴如下：隐白、大都、太白、公孙、商丘、三阴交、漏谷、血海、箕门、冲门、大横、天溪、大包。
+## 714009:-1  obj/tianlong/otianlong_tongren_4.lua
+lua.ba476d6f  	  足阳明胃经要穴如下：承泣、四白、颊车、下关、气户、梁门、关门、太乙、天枢、伏兔、阴市、足三里、内庭。
+## 714013:-1  obj/tianlong/otianlong_xiuluo_4.lua
+lua.9d077a0d  	天仙妹妹~~
+## 714014:-1  obj/dali/odali_gonggao.lua
+lua.8542d41b  	  大理城居民注意！晚上城里出现神秘人杀害无辜，专门挑单身女子、小孩下手，请大家注意安全。
+lua.b0154b93  	距离武林大会开幕还有 7 天。
+## 714201:-1  obj/zhongzhi/oloulan_zhongzhipai1.lua
+lua.10fb7e63  	你先去学习种植技能吧
+lua.68168fcb  	种植晚产植物
+lua.77ef142f  	你先提升种植等级到7级再来吧
+lua.9d59a20e  	种植早产植物
+lua.e0311d14  	每种作物都可以分为晚产和早产两种，早产的成熟期大概为5分钟，晚产的大概为70分钟左右，但是单次收获较多。您要选择种植哪种作物？
+## 760100:-1  obj/fengming/ofengming_caoruxing.lua
+lua.087e1d6f  	逆袭钧天城
+lua.2c1a7bc2  	关于研磨九黎骨粉
+lua.4378aeda  	关于逆袭九黎
+lua.4ff08d8c  	逆袭潮京城
+lua.af05ff0b  	研磨九黎骨粉
+lua.ff7f4315  	逆袭罗浮城
+## 760101:-1  obj/fengming/ofengming_caoyunzhao.lua
+lua.1ee9b528  	蛊惑灵谷
+lua.2c5c3e43  	灭世火窟
+lua.7b61083c  	待添加文案
+lua.ca773d0d  	寒冰海域
+## 760102:-1  obj/fengming/ofengming_wangguan.lua
+lua.19c633f4  	10份骨粉兑换1个龙纹
+lua.2ad6b967  	关于九黎骨粉
+lua.4760afef  	18份骨粉兑换10个净云水
+lua.9d9864fa  	20份骨粉兑换1个缀龙石·伤
+lua.a39eae92  	20份骨粉兑换1个缀龙石·暴
+lua.d44b9e8b  	30份骨粉兑换1个铸纹血玉
+lua.d7f737a9  	20份骨粉兑换1个缀龙石·元
+lua.e7ceff34  	60份骨粉兑换1个铸纹精玉
+lua.fa289001  	99份骨粉兑换1个铸纹龙玉
+## 760108:-1  obj/fengming/ofengming_xiaofanli.lua
+lua.cdeaf6b4  	     跑啊跑，跳啊跳，粒粒有个好姥姥……可姥姥为何不见了？#r    娘亲说她变成了天上的星星呢。星星，又在哪儿，好远好远啊！#r    姥姥什么时候才能回来？给小粒粒带糖糖吃……
+## 760109:-1  obj/fengming/ofengming_youzigui.lua
+lua.4c92b72c  	     #G林海溪谷#W？不、不，我们美丽富饶的天荒胜景，在曾经的一场大阴谋中消失殆尽。少侠一探便知，天降劫火，紫火燃烧，林海溪谷早已只剩下一片荒芜的陨坑。#r    #Y刚玉矿石#W、#Y七彩玄晶#W也随之消散无踪，仅剩于世的也再无价值了！少侠若是再有所得，不妨直接售于#G商贾#W，换些零用的钱币吧。␣
+## 760110:-1  obj/fengming/ofengming_xiaochengshu.lua
+lua.f70dc18a  	     东方青木，生命之力已然在荒野废墟中重新萌动。所有的苦难、哀恸都如土壤之中沉积的养分，终会成为建木之树破后而立的绵绵生息。#r    你看，那些带来灾厄的九黎之人已经退去。而信仰者澎湃生命之力的#G不归城#W之人也涌现了出来。他们就如同我们#G罗浮遗脉#W一样善良纯真，是热爱自然的隐士。
+## 760111:-1  obj/fengming/ofengming_jiulimitan.lua
+lua.1a65c5d7  	     有巢氏的走狗，不要妄想从吾这里问出什么！！#r    想吾九黎一族个个英雄了得，如何会向尔等蝼蚁投降。#r    #G小提示：九黎俘虏冥顽不灵，或许用些特殊物品，能够让他开口。␣
+## 760112:-1  obj/fengming/ofengming_jiulixizuo.lua
+lua.820471f4  	     滚开，蝼蚁！！待我九黎一族的战士踏入这凤鸣镇，便是尔等死期！#r    #G小提示：九黎俘虏冥顽不灵，或许用些特殊物品，能够让他开口。␣
+## 801001:-1  obj/shaolin/oshaolin_texiaonpc.lua
+lua.14ea5a17  	金刚伏魔圈
+lua.2b7dbab2  	罗汉阵
+lua.4081d1f1  	一拍两散
+lua.4dd32267  	气贯全身
+lua.6112607c  	礼敬如来
+lua.6d721c87  	般若掌
+lua.6eddddbb  	韦陀杵
+lua.8cd6678e  	一苇渡江
+lua.97fdb6c6  	铁布衫
+lua.a935d80a  	多罗叶指
+lua.b2cbe71b  	无相劫指
+lua.b93c9072  	狮子吼
+lua.bc3c8b01  	摩诃无量
+lua.c20e90ef  	金钟罩
+lua.e15250a4  	慈航普渡
+## 801002:-1  obj/mingjiao/omingjiao_texiaonpc.lua
+lua.0fd5a57c  	义愤填膺
+lua.1153ebb1  	迁怒于人
+lua.32ca188c  	神行百变
+lua.4a32e14a  	催心裂脾
+lua.4f41b298  	金石俱焚
+lua.51ea3947  	雷霆之怒
+lua.5bf4df4a  	天地同寿
+lua.650fc3b3  	七星落长空
+lua.7044f082  	火星冲日
+lua.95b48162  	偷梁换柱
+lua.a81f6b92  	怒发冲冠
+lua.c60eca11  	五星连珠
+lua.d9b04edb  	玄阴至阳
+lua.efed824a  	厚积薄发
+lua.f64532ef  	指鹿为马
+## 801003:-1  obj/gaibang/ogaibang_texiaonpc.lua
+lua.0b104f9d  	李代桃僵
+lua.25f19d8b  	神龙摆尾
+lua.37653e7e  	沛然有雨
+lua.3a57a28b  	先下手为强
+lua.4120c330  	飞龙在天
+lua.6a1ae347  	见龙在田
+lua.74655ade  	金蝉脱壳
+lua.7e58ee16  	拨狗朝天
+lua.9e21de03  	压扁狗背
+lua.a1b08051  	隔岸观火
+lua.a5002ab2  	瞒天过海
+lua.b1f56c9c  	亢龙有悔
+lua.d108bfd3  	遨游东海
+lua.d218e9c5  	抱残守缺
+lua.f80919b8  	天下无狗
+## 801004:-1  obj/wudang/owudang_texiaonpc.lua
+lua.0af333db  	白鹤亮翅
+lua.1ad86423  	如封似闭
+lua.2653d7a0  	寒梅映雪
+lua.4753769a  	燕子抄水
+lua.52aeee66  	虎抱头
+lua.574193b5  	三环套月
+lua.5b2875c5  	梯云纵
+lua.5b4064f4  	游刃有余
+lua.67eac1fa  	玉女穿梭
+lua.a16b94c1  	大魁星
+lua.c4d335fc  	揽雀尾
+lua.c4e085d5  	真武七截阵
+lua.c952d4f8  	野马分鬃
+lua.d384a55f  	双峰贯耳
+lua.ff60306c  	相濡以沫
+## 801005:-1  obj/emei/oemei_texiaonpc.lua
+lua.392497ae  	生命之泉
+lua.3fd110f4  	延年益寿
+lua.46512a59  	九阴神爪
+lua.4c018f5d  	万岳朝宗
+lua.53f87129  	环佩归魂
+lua.5c2ea63d  	起死回生
+lua.82bee470  	移魂大法
+lua.8b4216f6  	宁静之雨
+lua.97139eae  	佛光普照
+lua.9ec15517  	妙笔生花
+lua.aab759a6  	易筋锻骨
+lua.abc26070  	冲虚养气
+lua.ae80d856  	太阿倒持
+lua.bac077e5  	经脉逆行
+lua.f7496562  	金针渡劫
+## 801006:-1  obj/xingxiu/oxingxiu_texiaonpc.lua
+lua.19161df8  	笑语解颐
+lua.1b038fae  	移花接木
+lua.1ff58857  	连珠腐尸毒
+lua.36d9d8b2  	七星透骨
+lua.4113856f  	行尸走肉
+lua.47da1e58  	饮鸩止渴
+lua.48a47dd2  	四面楚歌
+lua.4fe06e34  	笑口常开
+lua.7c490646  	水淹七军
+lua.a4b49991  	焦头烂额
+lua.be177693  	恶贯满盈
+lua.c3b43b90  	含沙射影
+lua.c6a36f1b  	拖泥带水
+lua.c826b027  	呆若木鸡
+lua.d5ddb8ba  	笑里藏刀
+## 801007:-1  obj/dali/odali_texiaonpc.lua
+lua.05f4de18  	非枯非荣
+lua.3a278b4c  	快活三
+lua.4c78e045  	微服私访
+lua.4f148769  	白驹过隙
+lua.61372a29  	立地成佛
+lua.7e681409  	丹凤朝阳
+lua.8440f68c  	回风拂柳
+lua.8a093564  	万国来朝
+lua.8e6f44f8  	商阳剑
+lua.90d8b90b  	白虹贯日
+lua.9c3c38b8  	少泽剑
+lua.a046c473  	金玉满堂
+lua.aac1c981  	有常无常
+lua.b51a17b2  	少商剑
+lua.f4f04a2d  	无众生相
+## 801008:-1  obj/tianshan/otianshan_texiaonpc.lua
+lua.19fa1394  	静影沉璧
+lua.3077dddc  	阳歌天钧
+lua.31a05295  	归去来兮
+lua.31b8e472  	踏雪无痕
+lua.39f7d979  	龟息功
+lua.440c91da  	大象无形
+lua.48b9eb7c  	落木萧萧
+lua.54b918a9  	唇亡齿寒
+lua.718f3c62  	望梅止渴
+lua.7fe7b3b5  	阳关三叠
+lua.8b6d3549  	越俎代庖
+lua.a37fdae8  	十面埋伏
+lua.aa56b83d  	阳春白雪
+lua.bc29dd47  	凭虚御风
+lua.ddd2f3c7  	阳奉阴违
+## 801009:-1  obj/xiaoyao/oxiaoyao_texiaonpc.lua
+lua.04c0826e  	望洋兴叹
+lua.1048f814  	众妙之门
+lua.33f2ced6  	八阵图
+lua.348cd882  	欲擒故纵
+lua.3aff6ecf  	蝴蝶阵
+lua.69b30045  	淩波微步
+lua.7114ec16  	    欢迎光临。请选择想要观看的技能。
+lua.8600a959  	退避三舍
+lua.911eb040  	履霜冰至
+lua.98deb849  	八门金锁
+lua.c3fe07c7  	火眼金睛
+lua.d818db80  	一呼百应
+lua.e1a06f21  	一字长蛇
+lua.eddf08d9  	太乙三才
+lua.f84f94cf  	神光离合
+lua.fd0d9cfa  	朝三暮四
+## 804006:-1
+lua.2388ec88  	你并没有任务道具20001001
+lua.3a833e77  	离此地不远的终南山,据说可以挖到千年人参
+lua.57f55fc3  	知道人参的奇妙功效?
+lua.70c79cdd  	挖出四品叶人参
+## 804007:-1
+lua.12268f2a  	水鬼号角
+lua.245a7e25  	号角,水鬼的号角
+lua.af2c4873  	水鬼出没的水域
+## 804008:-1
+lua.51b9b363  	青石板,青石板
+lua.712d4b55  	入宝山而空手归
+lua.b1a1ba98  	青石板
+## 804009:-1
+lua.44115fdd  	玩家的名字是:{0}␣
+lua.4e8d53c9  	紫檀木
+lua.a3673545  	没有任务道具20001003
+lua.b72b58a6  	掘地三尺
+lua.e6246806  	紫檀木,可药用的紫檀木
+## 808064:101
+lua.4726c36e  	夫妻关系领取
+lua.524b1194  	结拜关系领取
+lua.58be4ca6  	师徒关系领取
+lua.70f896d8  	我要领取
+## 808131:-1  一千零一个愿望
+lua.47c7568e  	#{M_MUBIAO}#r
+## 808138:-1
+lua.c815065d  	除恶天劫楼
+## 888093:-1  obj/luoyang/oluoyang_penghuaiyu1.lua
+lua.020cf927  	②丨嵌入6级宝石-火
+lua.1c432ede  	#cFF0000一键镶嵌：#r#gfff0f0镶嵌前需要把装备放至背包上三排#r然后一键4孔，再选择对应属性宝石镶嵌，宝石等级为6级#r#G注意：一键镶嵌只有一次机会，请谨慎选择！
+lua.6180f9bb  	①丨一键4孔）
+lua.6b82b49d  	②丨嵌入6级宝石-毒
+lua.811c9dc5  	
+lua.b926c9b9  	②丨嵌入6级宝石-玄
+lua.d2ec2b87  	②丨嵌入6级宝石-冰
+## 890070:-1  obj/shaoshishan/ohadaba.lua
+lua.30e18add  	少室山乃门派重地。为何还来闯荡，速速来受死。
+lua.5d57143a  	战斗
+## 890071:-1  obj/shaoshishan/osangtugong.lua
+lua.7cccb9a7  	鸠摩智真是没有用。我可不会放过你们的。
+## 890072:-1  obj/shaoshishan/owulaoda.lua
+lua.02759464  	兴复大燕无望，你们还来打扰我。天堂有路你不走，地狱无门送上来！
+lua.1ddec224  	挑战
+## 892938:100  obj/luoyang/oluoyang_suzhe.lua
+lua.4d6b20de  	    少侠为国出力，得此封赏理所应当！若是少侠愿意缴上#G10个#Y乱匪密函#W，便可将其收入囊中。
+## 892938:101  obj/luoyang/oluoyang_suzhe.lua
+lua.91ab8e86  	    少侠为国出力，得此封赏理所应当！若是少侠愿意缴上#G32个#Y乱匪密函#W，便可将其收入囊中。
+## 892938:102  obj/luoyang/oluoyang_suzhe.lua
+lua.f8f1ae67  	    少侠为国出力，得此封赏理所应当！若是少侠愿意缴上#G42个#Y乱匪密函#W，便可将其收入囊中。
+## 892938:103  obj/luoyang/oluoyang_suzhe.lua
+lua.759d2368  	    少侠为国出力，得此封赏理所应当！若是少侠愿意缴上#G45个#Y乱匪密函#W，便可将其收入囊中。
+## 892938:104  obj/luoyang/oluoyang_suzhe.lua
+lua.bc32bc33  	    少侠为国出力，得此封赏理所应当！若是少侠愿意缴上#G60个#Y乱匪密函#W，便可将其收入囊中。
+## 892938:201  obj/luoyang/oluoyang_suzhe.lua
+lua.63ecaf09  	    若要获得#G#{YWBOSS_140117_91}#W称号，需要交予我#G20个#Y乱匪密函#W，以便我向朝廷请功为你赐封，您确定要获封此称号吗？
+## 892938:202  obj/luoyang/oluoyang_suzhe.lua
+lua.81c61a3f  	    若要获得#G#{YWBOSS_140117_92}#W称号，需要交予我#G300个#Y乱匪密函#W，以便我向朝廷请功为你赐封，您确定要获封此称号吗？
+## 892938:403  obj/luoyang/oluoyang_suzhe.lua
+lua.b7a43c94  	    若要获得#G#{YWBOSS_140117_93}#W称号，需要交予我#G4#W个#Y乱匪密匣#W，以便我向朝廷请功为你赐封，您#G确定#W要获封此称号吗？
+## 892938:404  obj/luoyang/oluoyang_suzhe.lua
+lua.d2696688  	    若要获得#G#{YWBOSS_140117_94}#W称号，需要交予我#G12#W个#Y乱匪密匣#W，以便我向朝廷请功为你赐封，您#G确定#W要获封此称号吗？
+## 892938:405  obj/luoyang/oluoyang_suzhe.lua
+lua.5e168758  	    若要获得#G#{YWBOSS_140117_95}#W称号，需要交予我#G28#W个#Y乱匪密匣#W，以便我向朝廷请功为你赐封，您#G确定#W要获封此称号吗？
+## 893080:-1  obj/sijuezhuang/panqinqin.lua
+lua.a28f24a9  	#c00ff00我要隐身
+## 893080:200  obj/sijuezhuang/panqinqin.lua
+lua.260857fd  	我已经成功给你使用隐身粉末，注意要将珍兽收起来，否则没有隐身效果！
+## 893081:-1  obj/sijuezhuang/zhong.lua
+lua.c842f592  	敲钟
+lua.f715d79a  	四绝殿内有很多护卫，但只要听到殿内的四绝钟声，就会离开。
+## 895068:-1  obj/bingshensmall/xiaoruwei.lua
+lua.147ac5d1  	      天堂有路君不走，地狱无门送上来！
+lua.c4f31630  	#c00ff00战斗
+## 895068:200  obj/bingshensmall/xiaoruwei.lua
+lua.5932ac8b  	  兄弟连心，其利断金，点击我上面的兄弟，我们才能同时和你们战斗！
+## quest:2091
+lua.18c90303  	阿里
+lua.e648721b  	#Y接受任务：完好的玄丝
+lua.f49dd523  	#Y完好的玄丝#G任务完成。#R除基本奖励，另外奖励你12万的经验和5金币的奖励！
+## quest:200002
+lua.be403aae  	#Y完成任务：相会在万劫谷
+## quest:200004
+lua.2807e9b6  	#Y接受任务：恶贯满盈
+lua.ddbe3861  	#Y完成任务：恶贯满盈
+## quest:200006
+lua.4202e9ed  	#Y完成任务：大战万劫谷
+## quest:200012
+lua.518366d7  	#Y完成任务：独战双雄
+## quest:200013
+lua.40a5c6d2  	#Y完成任务：夜长梦多
+lua.9242adc5  	#Y接受任务：夜长梦多
+## quest:200015
+lua.6220ca47  	#Y完成任务：指点群豪戏
+## quest:200021
+lua.3b743785  	#Y完成任务：顶天立地
+## quest:200022
+lua.6e868b50  	#Y接受任务：四海为家
+lua.e1cd727b  	#Y完成任务：四海为家
+## quest:200026
+lua.1e15d77a  	#Y完成任务：后会有期
+lua.dd6aeb45  	#Y接受任务：后会有期
+## quest:200031
+lua.b468b77c  	#Y接受任务：天时不如地利
+## quest:200032
+lua.874c94fd  	#Y完成任务：勤王
+## quest:200035
+lua.723f56fb  	#Y接受任务：四面楚歌
+## quest:200043
+lua.afe377f3  	#Y完成任务：择日再战
+## quest:200052
+lua.720da841  	#Y接受任务：环佩空归月夜魂
+lua.cb63ece0  	#Y完成任务：环佩空归月夜魂
+## quest:200053
+lua.631902e3  	#Y接受任务：酒罢问君三语
+## quest:200055
+lua.9ab28041  	#Y完成任务：我的爱情不是梦
+## quest:200080
+lua.2cc7f714  	#Y接受任务：谁家子弟谁家院
+lua.fdb2f2c1  	#Y完成任务：谁家子弟谁家院
+## quest:200081
+lua.22dc58ac  	#Y完成任务：青衫磊落险峰行
+lua.5880342d  	#Y接受任务：青衫磊落险峰行
+## quest:200083
+lua.a13a2131  	#Y接受任务：姑苏慕容
+lua.a9d63722  	#Y完成任务：姑苏慕容
+## quest:200084
+lua.101b775b  	#Y完成任务：还施水阁
+lua.590a87f8  	#Y接受任务：还施水阁
+## quest:200085
+lua.20660821  	#Y完成任务：一品堂
+lua.d72e1a38  	#Y接受任务：一品堂
+## quest:200087
+lua.722c854b  	#Y接受任务：群龙无首
+lua.a265e614  	#Y完成任务：群龙无首
+## quest:200088
+lua.6bf92a5e  	#Y完成任务：共同进退
+lua.79aea5b9  	#Y接受任务：共同进退
+## quest:200089
+lua.4e4f0eec  	#Y完成任务：天下武功出少林
+lua.c0290245  	#Y接受任务：天下武功出少林
+## quest:200090
+lua.c6f05d46  	#Y接受任务：聚贤庄
+lua.d3fe3caf  	#Y完成任务：聚贤庄
+## quest:200091
+lua.1119abb8  	#Y接受任务：保护马夫人
+lua.bc226ca1  	#Y完成任务：保护马夫人
+## quest:200092
+lua.651a3094  	#Y完成任务：一盘散沙
+lua.75b09f9f  	#Y接受任务：一盘散沙
+## quest:200093
+lua.179fef4f  	#Y完成任务：远赴苍茫山
+lua.b132da0e  	#Y接受任务：远赴苍茫山
+## quest:200094
+lua.290cf1d4  	#Y接受任务：珍珑棋会
+lua.6f753d47  	#Y完成任务：珍珑棋会
+## quest:200096
+lua.023b38e5  	#Y完成任务：一剑上天山
+lua.e5d7a9a4  	#Y接受任务：一剑上天山
+## quest:200097
+lua.1149a867  	#Y完成任务：虽危实安
+lua.158767f8  	#Y接受任务：虽危实安
+## quest:210200
+lua.0d2e92ef  	#Y完成任务：第一把武器
+lua.567e4439  	蒲良
+lua.8c653e06  	#Y接受任务：第一把武器
+## quest:210201
+lua.48fbae1c  	#Y完成任务：第一次送货
+lua.86bbe6cd  	杜子腾
+lua.e2250375  	#Y接受任务：第一次送货
+## quest:210202
+lua.7a44a151  	#Y接受任务：第一个馒头
+lua.a064be5c  	#Y完成任务：第一个馒头
+## quest:210203
+lua.3c11c492  	#Y接受任务：第一份药品
+lua.597effbb  	#Y完成任务：第一份药品
+lua.aa16d6bb  	卢三七
+## quest:210204
+lua.1074211a  	赵天师
+lua.2b92710b  	#Y完成任务：第一封推荐信
+lua.4a7f2784  	#Y接受任务：第一封推荐信
+## quest:210205
+lua.028392f9  	钱龙
+lua.49da4e39  	#Y接受任务：认识新朋友
+lua.66cb5a30  	#Y完成任务：认识新朋友
+## quest:210207
+lua.bbe6dbd7  	#Y完成任务：第一次问答
+## quest:210208
+lua.c94c27dd  	#Y完成任务：第二封推荐信
+lua.ff1f4d72  	#Y接受任务：第二封推荐信
+## quest:210209
+lua.7a6412ed  	#Y接受任务：学习技能
+## quest:210210
+lua.388bcab3  	孙八爷
+lua.436a9f3d  	#Y接受任务：做一次大侠
+lua.5fa188f4  	#Y完成任务：做一次大侠
+## quest:210211
+lua.72ec2815  	#Y完成任务：放焰火啦
+## quest:210212
+lua.29c738f4  	#Y完成任务：第三封推荐信
+lua.98c80cdb  	#Y接受任务：第三封推荐信
+## quest:210213
+lua.8b811ad0  	#Y完成任务：第一次杀怪
+lua.b872616c  	白猿
+lua.f917a77d  	#Y接受任务：第一次杀怪
+## quest:210214
+lua.3bcc2714  	#Y完成任务：第一只珍兽
+lua.4f6c8cee  	云飘飘
+lua.fda5a05d  	#Y接受任务：第一只珍兽
+## quest:210216
+lua.20e984a5  	#Y完成任务：第五封推荐信
+lua.3a57040a  	#Y接受任务：第五封推荐信
+## quest:210217
+lua.67818378  	#Y接受任务：杀更多的怪
+lua.89c09bb1  	#Y完成任务：杀更多的怪
+lua.e18a1f78  	山蛛
+## quest:210220
+lua.198ca31c  	#Y完成任务：怎么捉珍兽啊
+lua.2e1f34ef  	#Y接受任务：怎么捉珍兽啊
+## quest:210221
+lua.7062f0ee  	#Y接受任务：捉住珍兽啦
+lua.bae91f9c  	黄眉僧
+## quest:210223
+lua.1e3ee0c6  	#Y完成任务：第七封推荐信
+lua.62bf9195  	#Y接受任务：第七封推荐信
+## quest:210224
+lua.09b30173  	#Y完成任务：去看看布告
+lua.b3217a6e  	#Y接受任务：去看看布告
+lua.df821f85  	布告牌
+## quest:210225
+lua.3e219a43  	#Y完成任务：段延庆
+lua.5ce48695  	段延庆
+lua.9273f932  	#Y接受任务：段延庆
+## quest:210226
+lua.2b13bc62  	#Y接受任务：送馒头
+lua.5ce6b8eb  	#Y完成任务：送馒头
+lua.cab0ba5c  	小乞丐
+## quest:210227
+lua.273670e6  	#Y接受任务：送布衣
+lua.f0c7a567  	#Y完成任务：送布衣
+## quest:210228
+lua.019b943f  	#Y完成任务：送矿锄
+lua.58971f6a  	#Y接受任务：送矿锄
+## quest:210229
+lua.56ce5dc4  	#Y接受任务：再去找赵天师
+lua.cc65d52f  	#Y完成任务：再去找赵天师
+## quest:210230
+lua.00fe8a41  	#Y接受任务：打小木人巷啦
+lua.64faa24a  	#Y完成任务：打小木人巷啦
+## quest:210231
+lua.48349e7a  	#Y完成任务：小木人巷
+lua.b2290275  	#Y接受任务：小木人巷
+## quest:210232
+lua.5517806b  	#Y完成任务：我能入门派啦
+lua.6b993464  	#Y接受任务：我能入门派啦
+## quest:210233
+lua.5311b9fe  	#Y完成任务：御赐精纺帽
+## quest:210234
+lua.dbd4a4b2  	#Y完成任务：御赐精纺鞋
+## quest:210235
+lua.0311c2cc  	#Y完成任务：御赐精纺护手
+## quest:210236
+lua.b655725a  	#Y完成任务：御赐精纺衣
+## quest:210238
+lua.ff94ad58  	接受任务:#Y十年
+## quest:212103
+lua.e400e1d8  	#Y接受任务 绝望之地
+## quest:212107
+lua.817dfdcc  	#Y接受任务 驱赶黑蜂
+## quest:212108
+lua.a2a83052  	#Y接受任务 重建牧场
+## quest:212109
+lua.5ef39277  	#Y接受任务最后一击
+## quest:212110
+lua.56297239  	#Y接受任务 捉迷藏
+## quest:212111
+lua.20e0ed01  	#Y接受任务：英雄救美
+## quest:212114
+lua.3bb99e4b  	#Y接受任务：第二块血迹
+## quest:212117
+lua.62b62a3b  	#Y接受任务：尽点人事
+## quest:212119
+lua.936a1ca4  	#Y完成任务：曾经痴狂少年时
+## quest:212120
+lua.5e53ca0d  	#Y完成任务：私通辽国
+## quest:212121
+lua.7013410c  	#Y完成任务：狼穴大营
+## quest:212122
+lua.2993d804  	#Y完成任务：清除熊患
+## quest:212123
+lua.b999da8b  	#Y完成任务：受人之托
+## quest:212124
+lua.bb2341a5  	#Y完成任务：深情的遥望。
+## quest:212125
+lua.95f95589  	#Y完成任务：草原的劫匪
+## quest:212128
+lua.7d88e3ef  	#Y完成任务：英雄不怕远征难
+## quest:212129
+lua.3921e490  	#Y完成任务：古来英雄皆寂寞
+## quest:212130
+lua.2f93d1fa  	#Y完成任务：天下英雄谁敌手
+## quest:212140
+lua.d81797b9  	#Y完成任务：少林旧事
+## quest:212141
+lua.3bec4e67  	#Y完成任务：困兽犹斗
+lua.537f28af  	#Y接受任务：困兽犹斗。
+## quest:212144
+lua.303c2ac4  	#Y接受任务：灭此朝食
+## quest:220900
+lua.7688f038  	#Y完成任务：为师门而战
+lua.894e6f1d  	#Y接受任务：为师门而战
+## quest:228902
+lua.20e842f4  	#Y完成任务：自立门户
+## quest:808131
+lua.64a7d59e  	#Y完成任务：一千零一个愿望

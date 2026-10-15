@@ -1,5 +1,5 @@
 // Đọc phần đầu, kiểm hình dạng rồi duyệt từng bản ghi của một bảng TSV. Dòng bắt đầu bằng # sau
-// tiêu đề vẫn là bản ghi, đọc ở lượt thứ hai của RecordReader.
+// tiêu đề vẫn là bản ghi, đọc ở lượt thứ hai của RecordReader (trừ dòng nhóm "## " của tệp chữ .txt).
 #include "content/table_text.hpp"
 
 #include "content/detail/scan.hpp"
@@ -241,6 +241,17 @@ void read_types(TableHead& head, TextView type_text, const Blame& blame) {
     return match_float(cell) && finite_float(cell);
 }
 
+// Dòng nhóm của tệp chữ .txt (xem RecordReader).
+constexpr TextView kGroupPrefix = "## ";
+
+// Tệp chữ: đuôi .txt, tức bảng mà is_table_extension nhận còn is_tsv_extension thì không.
+[[nodiscard]] bool is_text_table(TextView path) noexcept {
+    const std::size_t dot = path.rfind('.');
+    if (dot == TextView::npos) return false;
+    const TextView extension = path.substr(dot);
+    return is_table_extension(extension) && !is_tsv_extension(extension);
+}
+
 } // namespace
 
 void read_preamble(Preamble& preamble, TextView text) {
@@ -286,7 +297,7 @@ TableHead read_head(const TextFile& file, IssueList& issues) {
 }
 
 RecordReader::RecordReader(const TextFile& file, const TableHead& head) noexcept
-    : path_(file.path), text_(file.text), head_(&head), place_(head.body) {}
+    : path_(file.path), text_(file.text), head_(&head), place_(head.body), has_groups_(is_text_table(file.path)) {}
 
 // Hết lượt dòng thường thì đọc lại thân bảng cho lượt dòng #; hết lượt đó là hết bản ghi.
 void RecordReader::end_pass() noexcept {
@@ -305,6 +316,7 @@ bool RecordReader::take_line(Record& record, IssueList& issues) {
     if (line.text.empty()) return false;
     const bool is_hash = line.text.front() == '#';
     if (is_hash != (pass_ == Pass::kHash)) return false;
+    if (is_hash && has_groups_ && line.text.starts_with(kGroupPrefix)) return false;
     if (is_hash) add_issue(issues, path_, line.number, "ô đầu bắt đầu bằng #");
     split_tabs(line.text, cells_);
     // Chỉ dòng # mới có thể lệch số ô ở đây: rows_fit đã bỏ qua chúng như parse_tsv.

@@ -33,7 +33,6 @@ SPECS = {
     "talk_entries": "script:int num:int block:int status:text reason:text",
     "talk_npc_roles": "script:int path:text events:int",
     "talk_npc_events": "script:int seq:int event:int",
-    "mission_strings": "key:text id:text text:text owner:text",  # id là fnv1a32 (u32): vượt miền int32 của bộ kiểm bảng
 }
 
 

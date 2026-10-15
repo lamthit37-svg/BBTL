@@ -38,10 +38,12 @@ người chơi tượng trưng. Cái hạ được thành điều kiện và hi�
 bỏ im. Danh bạ nhiệm vụ của client 2026 là thẩm quyền cao nhất cho tên, cấp, NPC giao/trả, loại; Lua chỉ quyết định logic.
 
 Bảng sinh ra ở `dev/server/tables/server/` (đầu tệp ghi "sửa tay sẽ mất ở lượt xuất sau"): `mission_quests`, `mission_objectives`,
-`mission_rewards`, `mission_prereqs`, `mission_hooks`, `mission_auto`, `mission_npcs`, `mission_name_groups`, `mission_strings`;
-`talk_entries`, `talk_blocks`, `talk_npc_events`, `talk_npc_roles`; `ops_conditions`, `ops_effects`. Sinh lại: `python -X utf8 -I
+`mission_rewards`, `mission_prereqs`, `mission_hooks`, `mission_auto`, `mission_npcs`, `mission_name_groups`;
+`talk_entries`, `talk_blocks`, `talk_npc_events`, `talk_npc_roles`; `ops_conditions`, `ops_effects`; và tệp chữ thoại
+`dialogue.zh.txt` (thay `mission_strings.tsv` từ 2026-10-15; định dạng ở `docs/SERVER-DU-LIEU.md` mục 6). Sinh lại: `python -X utf8
 TOOLS/server/lua_extract.py --lua <Public/Data> --tables dev/server/tables --out dev/server/tables/server` (`--check` chạy hết nhưng
-không ghi, in báo cáo). `mission_strings.id` là fnv1a32 (u32) nên kiểu cột là `text`; khai `int` làm `thienlong_lint` báo 1278 lỗi.
+không ghi, in báo cáo). Không thêm cờ `-I`: nó bỏ thư mục của script khỏi đường tìm module nên công cụ không nạp được các module
+cạnh nó (đo 2026-10-15: `ModuleNotFoundError`). Mã chuỗi của một câu là `ops::string_id(khoá)` (fnv1a32 của khoá).
 
 ## 3. Số đo (bảng thật, lúc commit `9e0cc4d0`)
 

@@ -93,8 +93,8 @@
     pha; `docs/SERVER-BILLING.md`); `world` còn in `ready` rồi chờ. Lõi gameplay thuần đã có và có test
     nhưng chưa nối vào zone, world, gate hay protocol: `actor`, `combat`, `item`, `loot`, `shop`, `forge`,
     `ops`, `bus`, `ledger`, `mission`, `talk`, `handlers`, `social` (`docs/SERVER-COMBAT.md`,
-    `SERVER-ITEM.md`, `SERVER-MISSION.md`, `SERVER-SOCIAL.md`). Chưa có migration nào của database,
-    client mới nối đăng nhập, chọn nhân vật và vào game (chưa gửi `Move`, chưa vẽ thực thể) — mốc và số đo ở `docs/KE-HOACH-SERVER.md` mục 10 và `docs/TIEN-DO.md`.
+    `SERVER-ITEM.md`, `SERVER-MISSION.md`, `SERVER-SOCIAL.md`). Database mới có 8 tệp migration (auth 2,
+    billing 5, game 1 là nhân vật), áp lúc khởi động bằng `store::migrate`; client mới nối đăng nhập, chọn nhân vật và vào game (chưa gửi `Move`, chưa vẽ thực thể) — mốc và số đo ở `docs/KE-HOACH-SERVER.md` mục 10 và `docs/TIEN-DO.md`.
 - Nền tảng đích: Windows x64 (MSVC 19.51 là bản phát hành; GCC 16 MinGW và Clang 23 để kiểm chéo;
   GCC MinGW không dựng `fs`, `shader`, `gpu`, `resource`, `render`, module `ui` và phần hiển thị
   có GPU của client, còn `gui` và `ui/panel` thì có, nên `gcc-debug` chỉ kiểm chéo phần không có
@@ -174,6 +174,15 @@
     `lua_extract` ép `aligned` cho cả 15 bảng nhiệm vụ, hội thoại, op. Bốn bộ đọc cùng bỏ đệm theo `core/aligned.hpp`:
     `read_table`, `table::parse_tsv`, `item::tsv::Rows`, `content::RecordReader`; bộ đọc TSV mới phải làm theo.
     Bảng của client (`dev/client/assets/Table`, do `TOOLS/content`) chưa căn.
+  - Dữ liệu máy chủ phân rõ nhà phát hành (NPH, không có source) và nhà phát triển (NPT); `dev/` chỉ chứa thứ cho NPH; ưu
+    tiên bảo mật và an toàn, rồi tiện, nhanh, hiệu năng; thứ lộ ra cũng không sao thì không cần giấu — chủ dự án giao ngày
+    2026-10-15 ("để cho bạn lựa chọn định dạng dữ liệu ở sv", "sẽ phân rõ NPH và NPT", "Gom lại chỉ để SERVER ở trong dev
+    chứa THỨ CHO nph", "CLIENT CŨNG VẬY", "Phải bảo mật là cao nhất"). Đã chọn (`docs/SERVER-DU-LIEU.md`): NPH chỉ sửa trong
+    `config/`, mọi thư mục khác của `dev/server` là của NPT và bị thay khi nâng bản; NPH đổi nội dung bằng tệp đè
+    `config/tables/<tên>.tsv` và `config/text/dialogue.<ngôn ngữ>.txt` (chưa có bộ nạp); TOML cho cài đặt, TSV cho bản
+    ghi, `.txt` hai cột `key`/`text` cho câu chữ (`tables/server/dialogue.zh.txt` thay `mission_strings.tsv`, chủ dự án
+    gợi ý cùng ngày: "phần thoại có thể đẩy ra txt sẽ tiện hơn"), PostgreSQL cho dữ liệu người chơi; bí mật chỉ ở
+    `secrets.local.toml` và `data/`, mọi thứ khác là chữ thường không mã hoá.
   - Tệp TOML của `dev/server/config` bố cục theo mẫu chủ dự án đưa: đầu tệp là khung tiêu đề in hoa
     kẹp giữa hai dòng `#====`, mỗi nhóm cài đặt một khung tiêu đề, các cài đặt nằm sát nhau, mỗi
     cài đặt có chú thích tiếng Việt ngang hàng (dài quá thì ngay dòng trên), không sót; dấu `=` và
@@ -278,6 +287,7 @@
   từ mã máy CEGUI: listbox, thanh cuộn, cửa sổ phức hợp, nút action, ô tiền, phông và thẻ chữ),
   `docs/SERVER-BAO-MAT.md` (thiết kế bắt tay, bản ghi mã hoá và mặt trước của gate),
   `docs/SERVER-DI-CHUYEN.md` (di chuyển do server làm chủ),
+  `docs/SERVER-DU-LIEU.md` (định dạng dữ liệu máy chủ, thư mục nào của nhà phát hành, tệp đè, tệp chữ thoại),
   `docs/CHEP-FORGE2.md` (quy trình chép một tệp từ Forge2), `docs/DINH-DANG-TLA.md` (định dạng
   tệp âm thanh đã cook `.tla`), `docs/I18N-BAO-CAO-2026-10-13.md` (báo cáo bản địa hoá, bản cuối),
   `TAILIEU/` (phân tích mã máy mới: `DANG-NHAP-GOC`, `GOI-TIN-DANG-NHAP`, `MAY-CHU-SUY-RA`,

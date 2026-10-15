@@ -328,6 +328,22 @@ void tsv_extension_case(Context& context) {
     context.expect(content::is_tsv_extension(".Tsv"), "đuôi lẫn hoa thường vẫn là tsv");
     context.expect(!content::is_tsv_extension(".txt"), "đuôi txt không phải tsv");
     context.expect(!content::is_tsv_extension("tsv"), "thiếu dấu chấm thì không phải đuôi");
+    context.expect(content::is_table_extension(".tsv") && content::is_table_extension(".TXT"), "lint đọc cả tsv lẫn txt");
+    context.expect(!content::is_table_extension(".toml") && !content::is_table_extension("txt"), "đuôi khác không phải bảng");
+}
+
+// Tệp chữ .txt (dialogue.zh.txt) được có dòng nhóm "## " giữa các câu; cùng nội dung ở .tsv thì vẫn là lỗi, và dòng # khác
+// trong .txt vẫn là bản ghi bị nuốt.
+void text_group_lines(Context& context) {
+    const std::string grouped = sheet("text\ttext", "key\ttext", "## 2:-1  obj/a.lua\nlua.a\tchữ\n## quest:7\nlua.b\tcâu\n");
+    const std::string refs(ref_header());
+    const LintResult text = lint_one("tables/server/dialogue.zh.txt", grouped, refs);
+    context.expect(text.stats.errors == 0 && text.stats.records == 2, "dòng nhóm của tệp chữ không phải bản ghi, không lỗi");
+    const LintResult table = lint_one("tables/server/dialogue.tsv", grouped, refs);
+    context.expect(has_message(table, "ô đầu bắt đầu bằng #"), "bảng .tsv vẫn cấm dòng # sau tiêu đề");
+    const std::string stray = sheet("text\ttext", "key\ttext", "## 2:-1\nlua.a\tchữ\n#lua.b\tcâu\n");
+    const LintResult swallowed = lint_one("tables/server/dialogue.zh.txt", stray, refs);
+    context.expect(has_message(swallowed, "ô đầu bắt đầu bằng #"), "dòng # không phải dòng nhóm trong tệp chữ vẫn lỗi");
 }
 
 void hash_data_row(Context& context) {
@@ -438,6 +454,7 @@ constexpr std::array kCases{
     Case{.name = "feed_matches_batch", .body = &feed_matches_batch},
     Case{.name = "tsv_extension_case", .body = &tsv_extension_case},
     Case{.name = "hash_data_row", .body = &hash_data_row},
+    Case{.name = "text_group_lines", .body = &text_group_lines},
     Case{.name = "child_types_differ", .body = &child_types_differ},
     Case{.name = "parent_column_type", .body = &parent_column_type},
 };

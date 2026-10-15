@@ -69,13 +69,25 @@ LintResult lint_texts(const LintSources& sources) {
     return session.finish();
 }
 
-bool is_tsv_extension(std::string_view extension) noexcept {
-    constexpr std::string_view kLower = ".tsv";
+namespace {
+
+// extension trùng lower (chữ thường), không phân biệt hoa thường của extension.
+[[nodiscard]] bool same_extension(std::string_view extension, std::string_view lower) noexcept {
     const auto same = [](char left, char right) {
         const bool is_upper = left >= 'A' && left <= 'Z';
         return (is_upper ? static_cast<char>(left - 'A' + 'a') : left) == right;
     };
-    return std::ranges::equal(extension, kLower, same);
+    return std::ranges::equal(extension, lower, same);
+}
+
+} // namespace
+
+bool is_tsv_extension(std::string_view extension) noexcept {
+    return same_extension(extension, ".tsv");
+}
+
+bool is_table_extension(std::string_view extension) noexcept {
+    return same_extension(extension, ".tsv") || same_extension(extension, ".txt");
 }
 
 } // namespace game::content

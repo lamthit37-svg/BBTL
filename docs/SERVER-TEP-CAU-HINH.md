@@ -116,7 +116,9 @@ tên cột.
 
 ## 2. Cây thư mục
 
-`SERVER/` nằm ngang `CLIENT/` và chứa trọn runtime của máy chủ. Cột phải ghi thứ nào vào git.
+Từ 2026-10-12 runtime máy chủ nằm ở `dev/server/` (máy chủ thử) và `release/server/` (bản chính thức), cùng hình;
+tài liệu này viết `SERVER/` cho gốc đó (thư mục `SERVER/` ở gốc dự án đã gỡ ngày 2026-10-15). Ai được sửa thư mục
+nào (nhà phát hành chỉ sửa `config/`) ở `docs/SERVER-DU-LIEU.md`. Cột phải ghi thứ nào vào git.
 
 ```text
 SERVER/
@@ -126,7 +128,7 @@ SERVER/
   config/              TOML của tiến trình (mục 3); vào git, trừ secrets.local.toml
     rules/             TOML luật chơi (mục 4); vào git
   tables/
-    server/            bảng chỉ máy chủ giữ (mục 5); vào git
+    server/            bảng chỉ máy chủ giữ (mục 5) và tệp chữ thoại dialogue.zh.txt; vào git
     shared/            bảng dùng chung, xuất từ client (mục 6, mục 9); git bỏ qua
     variants/<khoá>/   bảng thay theo loại máy chủ (mục 9, cuối); git bỏ qua
   scenes/<scene>/      dữ liệu máy chủ của từng cảnh (mục 7); tệp chữ vào git, .nav và .bin thì không

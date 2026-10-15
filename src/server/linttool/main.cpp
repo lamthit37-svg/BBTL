@@ -38,7 +38,7 @@ constexpr std::size_t kShownPerFile = 20;
 
 constexpr std::string_view kUsage =
     "cách dùng: thienlong_lint --root <gốc SERVER> --refs <thư mục refs> [--report <tệp>]\n"
-    "Đọc mọi tsv dưới tables và scenes. Mỗi lỗi một dòng đường/dẫn:dòng: nội dung.\n";
+    "Đọc mọi tsv và txt (tệp chữ) dưới tables và scenes. Mỗi lỗi một dòng đường/dẫn:dòng: nội dung.\n";
 
 struct Request {
     std::string root;
@@ -107,11 +107,11 @@ void apply_flag(Request& request, FlagValue pair) {
     return !request.root.empty() && !request.refs.empty();
 }
 
-void take_tsv(std::vector<Path>& files, const std::filesystem::directory_entry& entry) {
+void take_table(std::vector<Path>& files, const std::filesystem::directory_entry& entry) {
     std::error_code error;
     if (!entry.is_regular_file(error) || error) return;
     const std::string extension = entry.path().extension().string();
-    if (!game::content::is_tsv_extension(extension)) return;
+    if (!game::content::is_table_extension(extension)) return;
     files.push_back(entry.path());
 }
 
@@ -122,7 +122,7 @@ void take_tsv(std::vector<Path>& files, const std::filesystem::directory_entry& 
     if (error) return false;
     const auto end = std::filesystem::recursive_directory_iterator{};
     while (cursor != end && !error) {
-        take_tsv(files, *cursor);
+        take_table(files, *cursor);
         cursor.increment(error);
     }
     return !error;
@@ -134,7 +134,7 @@ void take_tsv(std::vector<Path>& files, const std::filesystem::directory_entry& 
     if (error) return false;
     const auto end = std::filesystem::directory_iterator{};
     while (cursor != end && !error) {
-        take_tsv(files, *cursor);
+        take_table(files, *cursor);
         cursor.increment(error);
     }
     return !error;

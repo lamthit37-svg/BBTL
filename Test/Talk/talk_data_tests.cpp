@@ -16,12 +16,17 @@
 #include "support/mission_fakes.hpp"
 #include "support/talk_data.hpp"
 #include "table/tsv.hpp"
+#include "talk/handler.hpp"
 #include "talk/script.hpp"
 #include "talk/service.hpp"
+#include "talk/view.hpp"
 
 #include <algorithm>
 #include <cstddef>
 #include <cstdint>
+#include <cstdio>
+#include <fstream>
+#include <ios>
 #include <map>
 #include <memory>
 #include <optional>
@@ -29,6 +34,7 @@
 #include <set>
 #include <string>
 #include <string_view>
+#include <utility>
 #include <vector>
 
 #endif
@@ -58,6 +64,7 @@ std::optional<Loaded> read_all() {
 }
 
 // Danh mục + chương trình hội thoại thật. Catalog giữ ops::Program mà Script đã kiểm tham chiếu.
+// NOLINTNEXTLINE(bugprone-exception-escape): giả dương của STL MSVC (HP-07)
 struct World {
     std::optional<mission::Catalog> catalog;
     std::optional<talk::Script> script;
@@ -68,12 +75,13 @@ World load_world(const Loaded& all, Context& context) {
     auto program = ops::Program::load(all.conditions, all.effects);
     context.expect(program.has_value(), "ops::Program nạp bảng thật");
     if (!program) return world;
-    const mission::Tables tables{all.quests, all.objectives, all.rewards, all.prereqs, all.hooks, all.npcs, all.autos, all.groups};
+    const mission::Tables tables{.quests = all.quests, .objectives = all.objectives, .rewards = all.rewards, .prereqs = all.prereqs,
+        .hooks = all.hooks, .npcs = all.npcs, .autos = all.autos, .name_groups = all.groups};
     auto catalog = mission::Catalog::load(std::move(*program), tables, {});
     context.expect(catalog.has_value(), "danh mục nhiệm vụ nạp bảng thật");
     if (!catalog) return world;
     world.catalog = std::move(*catalog);
-    auto script = talk::Script::load(world.catalog->program(), talk::Tables{all.blocks, all.entries, all.roles, all.events});
+    auto script = talk::Script::load(world.catalog->program(), talk::Tables{.blocks = all.blocks, .entries = all.entries, .roles = all.roles, .events = all.events});
     context.expect(script.has_value(), "chương trình hội thoại nạp bảng thật");
     if (!script) {
         std::print(stderr, "{}: {}\n", script.error().table, script.error().detail);
@@ -90,7 +98,7 @@ void real_script_loads(Context& context) {
         return;
     }
     const World world = load_world(*all, context);
-    if (!world.script) return;
+    if (!world.script || !world.catalog) return;
     const talk::ScriptReport& report = world.script->report();
     context.expect(report.entries == all->entries.rows.size() && report.ok + report.no_dialog + report.unsupported == report.entries,
         "mọi điểm vào rơi vào đúng một nhóm");
@@ -114,11 +122,11 @@ void every_npc_script_walks(Context& context) {
     const auto all = read_all();
     if (!all) return;
     const World world = load_world(*all, context);
-    if (!world.script) return;
+    if (!world.script || !world.catalog) return;
     dice::Dice dice(3);
     mission::Engine engine(*world.catalog, dice);
     talk::Service service(*world.script, engine, {}, talk::Options{});
-    FakeTalkWorld place;
+    const FakeTalkWorld place;
     ops::Calendar calendar;
     calendar.day = 100;
     calendar.hour = 12;
@@ -136,9 +144,9 @@ void every_npc_script_walks(Context& context) {
     };
     for (const auto& row : all->roles.rows) {
         const auto script_id = static_cast<std::uint32_t>(std::stoul(row[0]));
-        const talk::NpcRef npc{9000, 3, 0, script_id};
+        const talk::NpcRef npc{.guid = 9000, .scene = 3, .name = 0, .script = script_id};
         for (const std::int32_t level : levels) {
-            auto hero = fresh_hero(level);
+            const auto hero = fresh_hero(level);
             const talk::Result root = service.talk(*hero, npc, place, ids::Tick{1}, calendar);
             if (!root) {
                 ++outcomes[std::string("mở: ") + std::string(talk::describe(root.error().error))];
@@ -147,7 +155,7 @@ void every_npc_script_walks(Context& context) {
             ++opened;
             const std::size_t count = root->view.choices.size();
             for (std::uint32_t index = 0; index < count; ++index) {
-                auto chooser = fresh_hero(level);
+                const auto chooser = fresh_hero(level);
                 const talk::Result again = service.talk(*chooser, npc, place, ids::Tick{1}, calendar);
                 if (!again) continue;
                 const talk::Result chosen = service.choose(*chooser, again->session, index, place, ids::Tick{1}, calendar);
@@ -178,7 +186,7 @@ void mission_panels_name_their_quests(Context& context) {
     const auto all = read_all();
     if (!all) return;
     const World world = load_world(*all, context);
-    if (!world.script) return;
+    if (!world.script || !world.catalog) return;
     std::size_t panels = 0;
     std::size_t known = 0;
     std::size_t unknown = 0;
@@ -233,22 +241,34 @@ bool has_text(const talk::View& view, std::uint32_t text_id) {
     return std::ranges::any_of(view.choices, [&](const talk::Choice& choice) { return choice.text.id == text_id; });
 }
 
+// Mã chuỗi của câu text trong nhóm của script (chủ "<script>:<số>"), đọc từ tables/server/dialogue.zh.txt: dòng "## <chủ> ..."
+// mở nhóm, dòng câu là khoá đệm dấu cách, một tab, chữ (TOOLS/server/dialogue_text.py). Nhiều dòng khớp thì lấy dòng cuối.
+std::optional<std::uint32_t> dialogue_id(std::string_view text, std::uint32_t script) {
+    std::ifstream stream(std::string(GAME_SERVER_TABLES) + "/server/dialogue.zh.txt", std::ios::binary);
+    const std::string owner_prefix = std::to_string(script) + ":";
+    std::string owner;
+    std::optional<std::uint32_t> found;
+    for (std::string line; std::getline(stream, line);) {
+        if (line.starts_with("## ")) {
+            owner = line.substr(3, line.find(' ', 3) - 3);
+            continue;
+        }
+        const std::size_t tab = line.find('\t');
+        if (line.starts_with('#') || tab == std::string::npos || !owner.starts_with(owner_prefix)) continue;
+        if (std::string_view(line).substr(tab + 1) != text) continue;
+        std::string_view key = std::string_view(line).substr(0, tab);
+        while (key.ends_with(' ')) key.remove_suffix(1);
+        found = ops::string_id(key);
+    }
+    return found;
+}
+
 void ring_quest_npc_menu(Context& context) {
     const auto all = read_all();
-    const auto strings = read_server_table("mission_strings");
-    if (!all || !strings) return;
+    if (!all) return;
     const World world = load_world(*all, context);
-    if (!world.script) return;
-    const auto text_column = table::column_of(*strings, "text");
-    const auto id_column = table::column_of(*strings, "id");
-    const auto owner_column = table::column_of(*strings, "owner");
-    if (!text_column || !id_column || !owner_column) return context.expect(false, "bảng chuỗi thiếu cột");
-    std::optional<std::uint32_t> menu_text;
-    for (const auto& row : strings->rows) {
-        if (row[*text_column] == "阿碧任务" && row[*owner_column].starts_with("1022:")) {
-            menu_text = static_cast<std::uint32_t>(std::stoul(row[*id_column]));
-        }
-    }
+    if (!world.script || !world.catalog) return;
+    const std::optional<std::uint32_t> menu_text = dialogue_id("阿碧任务", 1022);
     const auto own = script_of_ring_quest(*all, "阿碧任务");
     const auto other = script_of_ring_quest(*all, "阿朱任务");
     if (!menu_text || !own || !other) return context.expect(false, "bảng thật có nhiệm vụ vòng của A Bích và A Châu");
@@ -263,7 +283,7 @@ void ring_quest_npc_menu(Context& context) {
         hero.level_value = 60;
         hero.bundle.items.capacity = 60;
         prepare(hero);
-        const talk::NpcRef npc{9001, 3, ops::name_id(npc_name), 1022};
+        const talk::NpcRef npc{.guid = 9001, .scene = 3, .name = ops::name_id(npc_name), .script = 1022};
         const talk::Result root = service.talk(hero, npc, place, ids::Tick{1}, calendar);
         context.expect(root.has_value(), "hộp thoại gốc của NPC mở được");
         return root.has_value() && has_text(root->view, *menu_text);

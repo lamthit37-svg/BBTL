@@ -12,26 +12,32 @@ Trạng thái theo mã ngày 2026-10-14 (chi tiết ở mục 0 của `AGENTS.md
   (`client.toml` `[hud] avatar_frame`) và `Position`; sau đó mới xử lý ba tin mức
   phiên `Hello`, `Ping`, `Logout`; mọi tin khác bị ngắt.
 - Đã có logic tài khoản/nhân vật dùng chung (`src/server/account/`: sổ, luật, vé,
-  RPC loopback, bản SQL) và `serve_auth`/`serve_game` qua ipc; `thienlong_store`,
-  `_auth`, `_billing`, `_world`, `_zone` ngoài `ready` vẫn chờ lệnh dừng: chưa có
-  migration nào; client PC đã nối đăng nhập, chọn nhân vật và vào game (xem "Client nối vào đâu").
+  RPC loopback, bản SQL) và `serve_auth`/`serve_game` qua ipc; `zone` và `billing` chạy thật,
+  `world` ngoài `ready` vẫn chờ lệnh dừng. Migration áp lúc khởi động bằng `store::migrate`
+  (auth ở `authd`, game ở `store`, billing ở `billingd`); client PC đã nối đăng nhập, chọn nhân
+  vật và vào game (xem "Client nối vào đâu").
 - Chưa có tài khoản, nhân vật hay cảnh nào chạy sẵn (tài khoản tự tạo lúc đăng nhập vì
   `auth.toml` `[register] auto_register = true`); client chưa gửi `Move` và chưa vẽ thực thể.
 
 ## Bố cục
+
+Nhà phát hành (vận hành máy chủ, không có source) chỉ sửa trong `config/`. Mọi thư mục khác là của
+nhà phát triển, bị thay ở lần nâng bản sau: sửa ở đó là mất. Định dạng từng loại dữ liệu, tệp đè và
+bảo mật ở `docs/SERVER-DU-LIEU.md`.
 
 - `config/` — mười một tệp TOML của các tiến trình và tệp mẫu `secrets.example.toml`. Vào git,
   trừ `secrets.local.toml`.
 - `config/rules/` — TOML luật chơi, công cụ của mốc P1 sinh từ tệp ini gốc. Vào git. Mới có 6
   trên 13 tệp của kế hoạch: `global`, `combat`, `character`, `new_character`, `monster`,
   `instances`.
-- `tables/server/` — 71 bảng chỉ máy chủ giữ. Vào git.
+- `tables/server/` — 105 bảng chỉ máy chủ giữ và tệp chữ thoại `dialogue.zh.txt` (2.507 câu viết
+  thẳng trong script Lua gốc, nhóm theo NPC). Vào git.
 - `tables/shared/` (574 bảng), `tables/variants/` (61 bảng, sáu bộ) — bảng xuất từ client. Git bỏ
   qua, sinh lại bằng công cụ.
 - `scenes/<scene>/` — dữ liệu máy chủ của 244 cảnh: `scene.toml`, các bảng `.tsv` và lưới đi
   `walk.nav`. Tệp chữ vào git; `.nav` và `.bin` thì không.
-- `sql/auth`, `sql/billing`, `sql/game` — migration của ba database. Vào git. Ba thư mục còn
-  trống: chưa có migration nào (việc của mốc P3).
+- `sql/auth`, `sql/billing`, `sql/game` — migration của ba database. Vào git. Có 8 tệp: auth 2,
+  billing 5, game 1 (`001_character.sql`); tiến trình sở hữu database áp chúng lúc khởi động.
 - `bin/` — exe do `cmake --install` chép vào. Git bỏ qua.
 - `pgsql/` — nhị phân PostgreSQL 18.6. Git bỏ qua, `setup_db.py fetch` tải lại được.
 - `data/` — cụm PostgreSQL (`data/pg`), khoá danh tính của gate (`data/gate/identity.key`), nhật

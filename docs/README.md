@@ -19,6 +19,8 @@ bản duy nhất nằm ở `D:\CLAUDE\cpp23` (`~/.claude/cpp23` trỏ vào đó)
   dính nằm ở mục 11 của `AGENTS.md`, mỗi bẫy chỉ nằm một nơi.
 - `KE-HOACH-SERVER.md` — kế hoạch máy chủ (mười ba mốc); mục 10 là mốc và số đo.
 - `SERVER-TEP-CAU-HINH.md` — từng tệp cấu hình và bảng của máy chủ.
+- `SERVER-DU-LIEU.md` — định dạng dữ liệu máy chủ, ai sở hữu thư mục nào (nhà phát hành chỉ sửa `config/`),
+  tệp đè, bảo mật, tệp chữ thoại `dialogue.zh.txt`.
 - `PROTOCOL-TIN.md` — danh mục tin (tệp sinh, không sửa tay; sửa bảng ở
   `src/shared/protocol/catalog/*.tsv` rồi chạy `TOOLS/server/gen_protocol.py`).
 - `SERVER-BAO-MAT.md` — bắt tay, bản ghi mã hoá, mặt trước của gate.

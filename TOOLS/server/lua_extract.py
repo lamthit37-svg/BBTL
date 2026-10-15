@@ -17,6 +17,7 @@ import sys
 from dataclasses import dataclass, field
 from pathlib import Path
 
+import dialogue_text as DT
 import lua_auto
 import lua_build as BU
 import lua_dialog as D
@@ -105,9 +106,9 @@ def group_rows(ctx: Context) -> list:
     return rows
 
 
-def string_rows(ctx: Context) -> list:
+def string_entries(ctx: Context) -> list:
     strings = ctx.regs.strings
-    return [(key, E.fnv1a32(key), text, strings.owners.get(key, "")) for key, text in sorted(strings.literal.items())]
+    return [DT.Entry(key, O.clean(text), strings.owners.get(key, "")) for key, text in sorted(strings.literal.items())]
 
 
 def role_rows(ctx: Context) -> tuple[list, list]:
@@ -135,9 +136,13 @@ def write_tables(ctx: Context, out_dir: Path) -> dict:
         "talk_entries": sorted(entries),
         "talk_npc_roles": roles,
         "talk_npc_events": events,
-        "mission_strings": string_rows(ctx),
     }
-    return {name: O.emit(out_dir, name, rows) for name, rows in tables.items()}
+    written = {name: O.emit(out_dir, name, rows) for name, rows in tables.items()}
+    # Chữ thoại là tệp văn bản riêng (dialogue_text.py); nhãn nhóm đọc từ bảng vừa ghi ở trên.
+    strings = string_entries(ctx)
+    DT.write(out_dir / DT.FILE_NAME, strings, DT.labels_of(strings, out_dir))
+    written["dialogue"] = len(strings)
+    return written
 
 
 def parse_args(argv: list) -> argparse.Namespace:

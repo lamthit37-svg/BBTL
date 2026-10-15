@@ -98,4 +98,8 @@ private:
 // Đuôi tệp .tsv, không phân biệt hoa thường.
 [[nodiscard]] bool is_tsv_extension(std::string_view extension) noexcept;
 
+// Đuôi của tệp theo hợp đồng bảng mà thienlong_lint đọc: .tsv, và .txt cho tệp chữ hai cột key, text
+// (tables/server/dialogue.zh.txt; đuôi txt để nhà phát hành mở bằng trình soạn chữ chứ không phải Excel).
+[[nodiscard]] bool is_table_extension(std::string_view extension) noexcept;
+
 } // namespace game::content
