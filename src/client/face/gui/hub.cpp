@@ -3,14 +3,17 @@
 // chuột đổi; trang động (thanh, radar) dựng lại khi thanh hay vị trí người chơi đổi. Mỗi lần dựng
 // lại tăng một mốc (stamp) để bộ vẽ biết có phải đẩy lại bộ đệm GPU không.
 // Thanh trượt như FalagardSuperProgress: người gọi nêu mức muốn tới, Hub giữ mức đang chạy của
-// từng thanh và đưa nó tới đích tối đa MoveSpeed mỗi giây; phần vẽ ra là mức lớn hơn trong hai mức
-// (thanh tăng thì nhảy ngay, thanh giảm thì rút dần).
+// từng thanh và đưa nó tới đích tối đa MoveSpeed mỗi giây (updateSelf 0x18007a760), cùng màu mà hàm
+// vẽ nhân vào thanh (bar_tint.hpp); paint.cpp vẽ theo cả mức muốn tới lẫn mức đang chạy
+// (populateRenderCache 0x180078870).
 // Nguồn: TLBB Dev src/gui/sheet.cpp@e0d89a6 (Hub, draw_order, hit). Khác gốc: thứ tự vẽ dựng bằng
 // ngăn xếp thay cho đệ quy; anh em luôn-trên-cùng xếp theo thứ tự khai như CEGUI (bản Dev xếp
 // ngược); hit nhận loại dò để nút trái xuyên MouseLButtonHollow; vòng lặp viết theo luật độ lồng;
-// chỉ số nút nóng thay cho phép trừ con trỏ; Hub tự trượt thanh (bản Dev để người gọi trượt); dải
-// hiệu ứng lúc trượt vẽ cùng màu với thanh (docs/NGHI-NGO.md mục 18).
+// chỉ số nút nóng thay cho phép trừ con trỏ; Hub tự trượt thanh (bản Dev để người gọi trượt); mức đang
+// chạy của thanh mới bắt đầu ở CurrentProgress (bản 2026 bắt đầu ở 0 rồi chạy tới, nhưng cửa sổ của nó có
+// từ lúc nạp giao diện nên đã chạy xong trước khi người gọi nêu mức: docs/NGHI-NGO.md mục 18).
 #include "gui/asset.hpp"
+#include "gui/detail/bar_tint.hpp"
 #include "gui/detail/draw.hpp"
 #include "gui/detail/softkey.hpp"
 #include "gui/scroll.hpp"
@@ -43,12 +46,14 @@ using detail::Placed;
 
 namespace {
 
-// Một thanh đang được người gọi đặt mức: đích, mức đang chạy và MoveSpeed của cửa sổ.
+// Một thanh đang được người gọi đặt mức: đích, mức đang chạy, MoveSpeed của cửa sổ, cách chọn màu và màu hiện hành.
 struct Glide {
     std::string window;
     float target = 1.0F;
     float shown = 1.0F;
     float speed = 1.0F;
+    detail::BarTint style;
+    std::uint32_t tint = kWhiteArgb;
 };
 
 // Mặt nạ của một cửa sổ chủ: texture (chỉ số trong GuiAsset, -1 là không có) và ô màn hình mà
@@ -99,7 +104,7 @@ struct Hub::Body {
     std::vector<std::string> hidden;
     // Các thanh của lần update gần nhất, cùng thứ tự với Place::bars, và mức vẽ ra của chúng.
     std::vector<Glide> glides;
-    std::vector<float> bar_fills;
+    std::vector<detail::BarLevel> bar_levels;
     // Đồng hồ của lần update trước; chưa có thì lần đầu không trượt.
     std::optional<std::chrono::milliseconds> clock;
     // Bản chép của Place::overrides: dòng chữ mượn chuỗi ở đây, không mượn của người gọi.
@@ -413,6 +418,12 @@ struct HubOps {
         return std::ranges::equal(body.glides, bars, same);
     }
 
+    // Các thuộc tính mà look khai cho cửa sổ (PropertyInitialiser); rỗng khi cửa sổ không có look.
+    static std::span<const GuiProperty> look_properties(const GuiAsset& asset, const Placed& placed) {
+        if (placed.look == nullptr || !detail::in_range(asset.properties.size(), placed.look->properties)) return {};
+        return std::span(asset.properties).subspan(placed.look->properties.first, placed.look->properties.count);
+    }
+
     // Số không âm của thuộc tính property trên cửa sổ (layout rồi look); không có hay hỏng thì 1.
     static float number_of(const Hub::Body& body, const Placed& placed, std::string_view property) {
         const auto text = prop_of(*body.asset, placed, property);
@@ -430,6 +441,7 @@ struct HubOps {
         if (found == body.placed.end()) return fresh;
         fresh.shown = std::min(number_of(body, *found, "CurrentProgress"), 1.0F);
         fresh.speed = number_of(body, *found, "MoveSpeed");
+        fresh.style = detail::read_bar_tint(look_properties(*body.asset, *found), detail::window_properties(*body.asset, *found));
         return fresh;
     }
 
@@ -448,22 +460,26 @@ struct HubOps {
         next.reserve(bars.size());
         std::ranges::transform(bars, std::back_inserter(next), kept);
         body.glides = std::move(next);
-        body.bar_fills.assign(bars.size(), -1.0F);
+        body.bar_levels.assign(bars.size(), detail::BarLevel{.target = -1.0F, .shown = -1.0F, .tint = 0});
     }
 
-    // Trượt thanh thứ slot về đích mới của nó; true khi mức vẽ ra của nó đổi.
+    // Trượt thanh thứ slot về đích mới của nó; true khi mức vẽ ra của nó đổi. Như updateSelf: chỉ khi mức đang chạy
+    // chưa tới đích mới chạy và tính lại màu (hàm 0x18007a250 chỉ có chỗ gọi đó), nên thanh đứng yên giữ màu cũ.
     static bool step_glide(Hub::Body& body, const BarTick& tick, std::size_t slot) {
         Glide& glide = body.glides.at(slot);
         glide.target = std::clamp(tick.bars[slot].amount, 0.0F, 1.0F);
-        BarMove move;
-        move.shown = glide.shown;
-        move.target = glide.target;
-        move.speed = glide.speed;
-        move.seconds = tick.seconds;
-        glide.shown = bar_step(move);
-        const float fill = std::max(glide.shown, glide.target);
-        const bool is_changed = fill != body.bar_fills.at(slot);
-        body.bar_fills.at(slot) = fill;
+        if (glide.shown != glide.target) {
+            BarMove move;
+            move.shown = glide.shown;
+            move.target = glide.target;
+            move.speed = glide.speed;
+            move.seconds = tick.seconds;
+            glide.shown = bar_step(move);
+            glide.tint = glide.style.at(glide.shown);
+        }
+        const detail::BarLevel level{.target = glide.target, .shown = glide.shown, .tint = glide.tint};
+        const bool is_changed = level != body.bar_levels.at(slot);
+        body.bar_levels.at(slot) = level;
         return is_changed;
     }
 
@@ -551,7 +567,7 @@ struct HubOps {
         ctx.sheet = &sheet;
         ctx.images = &body.images;
         ctx.hot = hot;
-        ctx.bar_fills = body.bar_fills;
+        ctx.bar_levels = body.bar_levels;
         ctx.is_live_pass = is_live;
         ctx.is_down = input.pointer && input.pointer->is_down;
         for (const std::size_t index : body.order) {

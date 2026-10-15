@@ -257,21 +257,27 @@ kết luận ngay dưới mục đó chứ không xoá.
 17. **Nhãn thẻ kênh chat bị cắt sau khi dịch** (2026-10-06). Thẻ rộng khoảng 40 điểm ảnh, vừa hai
     chữ Hán; "Tổng hợp", "Hệ thống", "Cá nhân" rộng hơn nên bị cắt hai đầu. Script gốc tự đặt tên
     thẻ lúc chạy, nên chỗ sửa đúng là bảng chat của `ui/panel` (nới thẻ hoặc dùng nhãn ngắn).
-18. **Dải hiệu ứng của thanh trượt vẽ cùng màu với thanh** (2026-10-06, `gui/hub.cpp`). Hub trượt
-    thanh theo `FalagardSuperProgress::updateSelf` của mã 2008 (đích nhảy ngay khi tăng, rút dần
-    theo `MoveSpeed` khi giảm) và vẽ phần lớn hơn trong hai mức. Bản gốc vẽ thêm dải giữa hai mức
-    bằng `EffectColor`; 243/251 thanh của 2.034 layout để màu trắng nên không thấy khác, 6 thanh
-    (không thuộc HUD) có màu riêng thì hiện chưa tô. Thuộc tính chỉ có ở layout 2026
-    (`UseUninterruptedEffectColor`, `FlashPoint`, `FlashSetting`, `EffectColorType` của thanh nộ)
-    chưa đọc: mã 2026 của SuperProgress chưa tháo. (Cập nhật 2026-10-15, từ bảng `ProgressBar`: vtable
-    của `FalagardSuperProgress` ở `CEGUIFalagard.dll` 0x1801385c8, `updateSelf` là mục 64 (0x18007a760,
-    đã port cho phần mờ dần ở `ui/panel/progress_bar`), vẽ là mục 66 (0x180078870, 2 922 byte): state
-    `Background`, `Enabled`/`Disabled` trong vùng `ProgressArea`, state `LightEnable` ở `LightArea`,
-    `Effect`, chữ của cửa sổ qua `Font::drawText` và độ trong `setAlpha`. `gui::draw_progress` mới vẽ
-    đúng state `Enabled` rộng bằng mức trên cả cửa sổ, nên ảnh chụp `--ui-event "PROGRESSBAR_SHOW|..."`
-    của bảng `ProgressBar` chỉ có dải màu vàng: thiếu khung nền, thiếu lề 17x6 của `ProgressArea`,
-    thiếu đầu sáng, thiếu chữ và chưa có độ trong khi mờ dần. Cần: port hàm ở 0x180078870 vào
-    `gui/paint.cpp` rồi chụp lại cả HUD để chắc các thanh máu khác không đổi.)
+18. **`FalagardSuperProgress`: đã port từ mã máy 2026, còn năm chỗ khác gốc** (2026-10-06, viết lại 2026-10-15;
+    `gui/paint.cpp` `draw_progress`, `gui/hub.cpp`, `gui/bar_tint.cpp`, `gui/text.cpp` `progress_text`). Hub trước
+    đây theo mã 2008 (thanh tăng thì nhảy ngay, thanh giảm thì rút dần, vẽ mức lớn hơn); mã máy
+    `CEGUIFalagard.dll` 2026 ngược lại. Trường: +0x3f0 mức muốn tới p, +0x91c mức đang chạy q (hàm tạo đặt 0),
+    +0x918 `MoveSpeed`, +0x940 `LightEnable`, +0xa78 kiểu màu, +0xadc màu hiện hành (trắng), +0x3f8 mười một màu
+    tầng. `updateSelf` (0x18007a760) đưa q tới p tối đa `MoveSpeed` mỗi giây và chỉ khi q ≠ p mới gọi hàm tính màu
+    0x18007a250. `populateRenderCache` (0x180078870) vẽ theo min(p, q): thanh giảm thì rơi ngay, thanh tăng thì
+    chạy theo `MoveSpeed`. Có `LightEnable`: state `Background` cả cửa sổ, `Enabled`/`Disabled` rộng bằng p trong
+    `ProgressArea`, state `LightEnable` ở mép phải phần đầy (cỡ `LightArea`, không có thì vuông bằng cao
+    `ProgressArea`), chữ của cửa sổ canh giữa; không có: chỉ `Enabled` rộng min(p, q) nhân màu hiện hành. Ảnh trước
+    và sau của HUD cảnh 2: thanh máu, nội y nguyên (đầy); thanh nộ và thanh kinh nghiệm của nhân vật mẫu là 0 nên
+    nay rỗng ngay (bản cũ còn đang rút dần từ 1 ở khung 60); thanh luyện công (`PROGRESSBAR_SHOW`) có nền, lề
+    17x6, đầu sáng và chữ. Khác gốc: (1) dải state `Effect` (rộng bằng |p − q|, nhân `EffectColor`) chưa vẽ vì
+    không look nào của kho 2026 khai `NamedArea` tên `Effect` (0 trên 46 look) nên hàm gốc không vẽ gì; (2) một
+    `ColourRect` có bốn góc mà quad chỉ mang một màu, nên lấy trung bình bốn góc (mọi layout của khung nhân vật
+    dùng bốn góc cùng màu); (3) `startpoint` trùng `endpoint` ở kiểu `uninterrupted` thì hàm gốc chia cho 0
+    ra NaN, bản này lấy màu đầu; (4) `FlashPoint`, `FlashSetting` (nháy khi mức qua mốc, 0x180077f40) chưa port;
+    (5) q của thanh mới bắt đầu ở `CurrentProgress` (bản 2026 bắt đầu ở 0, nhưng cửa sổ của nó có từ lúc nạp giao
+    diện nên đã chạy tới 1 trước khi game nêu mức). Giả định chưa đo: độ trong của ảnh lấy theo
+    `Window::getEffectiveAlpha` chuẩn của Falagard (nhân với cha, trừ `InheritsAlpha` tắt), chữ chỉ theo
+    `Alpha` của chính cửa sổ (hàm gốc đọc cửa sổ + 0xec).
 19. **Sáu cửa sổ con của khung nhân vật bị giấu theo suy đoán** (2026-10-06,
     `ui/panel/player_frame.cpp`). `PlayerFrame_HPHDSandBoxHPBK`, `PlayerFrame_GQ`,
     `PlayerFrame_DaoYi`, `PlayerFrame_XingLingDian`, `PlayerFrame_ERenSoulHit` (thanh và hàng điểm

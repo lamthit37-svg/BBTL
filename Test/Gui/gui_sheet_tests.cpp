@@ -18,6 +18,7 @@
 #include <cmath>
 #include <cstddef>
 #include <cstdint>
+#include <format>
 #include <numbers>
 #include <optional>
 #include <span>
@@ -449,8 +450,8 @@ void hub_keeps_still(Context& context) {
     hub.update(input);
     context.expect(hub.still_stamp() == still, "đổi máu không đụng trang tĩnh");
     context.expect(hub.live_stamp() != live, "đổi máu dựng lại thanh");
-    const bool is_raised = !hub.live().empty() && near_value(hub.live().front().dest.w, 96.0F);
-    context.expect(is_raised, "thanh tăng thì nhảy ngay tới ba phần tư");
+    const bool is_held = !hub.live().empty() && near_value(hub.live().front().dest.w, 64.0F);
+    context.expect(is_held, "thanh tăng thì mức chạy chưa nhúc nhích nên còn ở một nửa");
 }
 
 // Bề rộng của quad đầu trang động (thanh máu của bar_asset, rộng 128).
@@ -458,8 +459,9 @@ float bar_width(const Hub& hub) {
     return hub.live().empty() ? -1.0F : hub.live().front().dest.w;
 }
 
-// FalagardSuperProgress: thanh giảm thì rút dần theo MoveSpeed (1 mỗi giây), bắt đầu từ
-// CurrentProgress của cửa sổ; tăng thì nhảy ngay. Trượt xong thì không dựng lại nữa.
+// FalagardSuperProgress (CEGUIFalagard.dll 0x180078870): thanh thường vẽ tới mức NHỎ hơn trong mức muốn tới và mức
+// đang chạy, mức đang chạy bắt đầu ở CurrentProgress và tới đích tối đa MoveSpeed mỗi giây (updateSelf 0x18007a760).
+// Nên thanh giảm thì rơi ngay, thanh tăng thì chạy dần. Trượt xong thì không dựng lại nữa.
 void bar_glides(Context& context) {
     const GuiAsset asset = bar_asset();
     Hub hub(asset);
@@ -467,13 +469,13 @@ void bar_glides(Context& context) {
     const gui::Bar low{.window = "PlayerFrame_HP", .amount = 0.25F};
     input.bars = std::span{&low, 1};
     hub.update(input);
-    context.expect(near_value(bar_width(hub), 64.0F), "lần đầu còn ở CurrentProgress 0,5");
+    context.expect(near_value(bar_width(hub), 32.0F), "đích 0,25 nhỏ hơn mức chạy 0,5 nên rơi ngay");
     input.clock = std::chrono::milliseconds{125};
     hub.update(input);
-    context.expect(near_value(bar_width(hub), 48.0F), "sau 125 ms rút 0,125");
+    context.expect(near_value(bar_width(hub), 32.0F), "mức chạy rút dần thì thanh vẫn ở đích");
     input.clock = std::chrono::milliseconds{100};
     hub.update(input);
-    context.expect(near_value(bar_width(hub), 48.0F), "đồng hồ lùi thì đứng yên");
+    context.expect(near_value(bar_width(hub), 32.0F), "đồng hồ lùi thì đứng yên");
     input.clock = std::chrono::milliseconds{2100};
     hub.update(input);
     context.expect(near_value(bar_width(hub), 32.0F), "trượt xong dừng ở đích");
@@ -484,11 +486,187 @@ void bar_glides(Context& context) {
     const gui::Bar high{.window = "PlayerFrame_HP", .amount = 0.75F};
     input.bars = std::span{&high, 1};
     hub.update(input);
-    context.expect(near_value(bar_width(hub), 96.0F), "tăng thì nhảy ngay");
+    context.expect(near_value(bar_width(hub), 32.0F), "tăng: mức chạy chưa nhúc nhích nên thanh chưa đổi");
+    input.clock = std::chrono::milliseconds{5250};
+    hub.update(input);
+    context.expect(near_value(bar_width(hub), 64.0F), "tăng thì chạy 0,25 sau 250 ms");
+    input.clock = std::chrono::milliseconds{8000};
+    hub.update(input);
+    context.expect(near_value(bar_width(hub), 96.0F), "chạy tới đích");
     input.bars = std::span{&low, 1};
     const Sheet still = gui::place(asset, input);
     const bool is_settled = !still.quads.empty() && near_value(still.quads.front().dest.w, 32.0F);
     context.expect(is_settled, "place trả trang đã yên");
+}
+
+// Màu của thanh (hàm 0x18007a250) chỉ tính lại ở nhịp updateSelf thấy mức chạy chưa tới đích, rồi giữ nguyên.
+void bar_tint_follows_updates(Context& context) {
+    GuiAsset asset = bar_asset();
+    add_property(asset, "EffectColorLevel", "index:0 tl:FF0000FF tr:FF0000FF bl:FF0000FF br:FF0000FF");
+    Hub hub(asset);
+    Place input = screen_of(200.0F, 200.0F);
+    const gui::Bar rest{.window = "PlayerFrame_HP", .amount = 0.5F};
+    input.bars = std::span{&rest, 1};
+    hub.update(input);
+    context.expect(!hub.live().empty() && hub.live().front().colour == gui::kWhiteArgb,
+        "thanh đứng yên chưa có nhịp nào tính màu nên còn trắng");
+    const gui::Bar moved{.window = "PlayerFrame_HP", .amount = 0.25F};
+    input.bars = std::span{&moved, 1};
+    input.clock = std::chrono::milliseconds{50};
+    hub.update(input);
+    context.expect(!hub.live().empty() && hub.live().front().colour == 0xFF0000FFU, "mức chạy lệch đích thì nhân màu tầng");
+    input.clock = std::chrono::milliseconds{5000};
+    hub.update(input);
+    context.expect(!hub.live().empty() && hub.live().front().colour == 0xFF0000FFU, "yên rồi vẫn giữ màu của nhịp cuối");
+}
+
+// Bốn góc cùng một màu theo cú pháp của thuộc tính UseUninterruptedEffectColor, như "(tl:FF000000 tr:... bl:... br:...)".
+std::string corners_of(std::string_view colour) {
+    return std::format("(tl:{0} tr:{0} bl:{0} br:{0})", colour);
+}
+
+// Màu của quad thanh sau khi nó rơi từ 0,5 xuống target trong step, khi thanh đặt kiểu màu "uninterrupted" với các điểm
+// và màu points.
+std::uint32_t uninterrupted_tint(const std::string& points, float target, std::chrono::milliseconds step) {
+    GuiAsset asset = bar_asset();
+    add_property(asset, "EffectColorType", "uninterrupted");
+    add_property(asset, "UseUninterruptedEffectColor", points);
+    Hub hub(asset);
+    Place input = screen_of(200.0F, 200.0F);
+    const gui::Bar rest{.window = "PlayerFrame_HP", .amount = 0.5F};
+    input.bars = std::span{&rest, 1};
+    hub.update(input);
+    const gui::Bar moved{.window = "PlayerFrame_HP", .amount = target};
+    input.bars = std::span{&moved, 1};
+    input.clock = step;
+    hub.update(input);
+    return hub.live().empty() ? 0U : hub.live().front().colour;
+}
+
+// Kiểu "uninterrupted" (hàm 0x18007a250): trong [startpoint, endpoint] theo phần trăm của mức đang chạy thì nội suy giữa
+// startcolor và endcolor, ngoài khoảng là defcolor; startpoint trùng endpoint thì lấy startcolor (hàm gốc chia cho 0).
+void bar_tint_uninterrupted(Context& context) {
+    const std::string black = corners_of("FF000000");
+    const std::string red = corners_of("FFFF0000");
+    const std::string green = corners_of("FF00FF00");
+    const auto spec = [&](int start, int end) {
+        return std::format("defcolor={} startpoint:{} startcolor={} endpoint:{} endcolor={}", green, start, black, end, red);
+    };
+    // Mức đang chạy rơi từ 0,5 xuống 0,4 (đích 0,25): 40% nằm giữa 30 và 50 nên đỏ ở khoảng 0,45 đến 0,5.
+    const std::uint32_t mixed = uninterrupted_tint(spec(30, 50), 0.25F, std::chrono::milliseconds{100});
+    const std::uint32_t red_part = (mixed >> 16U) & 0xFFU;
+    context.expect(red_part >= 110U && red_part <= 130U && (mixed & 0xFF00FFFFU) == 0xFF000000U, "trong khoảng thì nội suy");
+    context.expect(uninterrupted_tint(spec(60, 90), 0.25F, std::chrono::milliseconds{100}) == 0xFF00FF00U,
+        "dưới startpoint thì defcolor");
+    context.expect(uninterrupted_tint(spec(0, 20), 0.25F, std::chrono::milliseconds{100}) == 0xFF00FF00U,
+        "trên endpoint thì defcolor");
+    context.expect(uninterrupted_tint(spec(0, 0), 0.0F, std::chrono::hours{1}) == 0xFF000000U,
+        "startpoint trùng endpoint thì startcolor, không NaN");
+}
+
+// Thanh có đầu sáng (LightEnable): cửa sổ 204 x 24, ProgressArea lùi 17 và 6, LightArea 20 x 24.
+GuiAsset light_asset() {
+    GuiAsset asset;
+    for (const char* name : {"Back", "Fill", "Head"}) {
+        GuiImage image = image_of("Common", name, 4.0F);
+        image.texture = 0;
+        asset.images.push_back(image);
+    }
+    asset.textures.emplace_back("Common/Bar.dds");
+    for (std::int32_t slot = 0; slot < 3; ++slot) {
+        gui::GuiFrame frame;
+        fill_area(asset, frame.area);
+        frame.images.at(0) = slot;
+        asset.frames.push_back(frame);
+        gui::GuiSection section;
+        section.name = std::string("part") + std::to_string(slot);
+        section.frames = range_of(static_cast<std::uint32_t>(slot), 1);
+        asset.sections.push_back(section);
+        asset.specs.push_back(gui::GuiSpec{.section = slot, .overrides = false, .colour = {}});
+    }
+    add_layer_state(asset, "Background", 0);
+    add_layer_state(asset, "Enabled", 1);
+    add_layer_state(asset, "LightEnable", 2);
+    const auto area_of = [&asset](std::string name, std::array<std::int32_t, 4> dims) {
+        gui::GuiNamedArea named;
+        named.name = std::move(name);
+        named.area.dims = dims;
+        named.area.types = {GuiDimType::kLeftEdge, GuiDimType::kTopEdge, GuiDimType::kWidth, GuiDimType::kHeight};
+        asset.areas.push_back(std::move(named));
+    };
+    const auto inset = [&asset](GuiDimType what, float offset) {
+        GuiDim dim;
+        dim.kind = GuiDimKind::kUnified;
+        dim.what = what;
+        dim.unified = GuiUDim{.scale = 1.0F, .offset = offset};
+        return add_dim(asset, dim);
+    };
+    const std::int32_t left = absolute(asset, 17.0F);
+    const std::int32_t top = absolute(asset, 6.0F);
+    const std::int32_t progress_width = inset(GuiDimType::kWidth, -34.0F);
+    const std::int32_t progress_height = inset(GuiDimType::kHeight, -12.0F);
+    area_of("ProgressArea", {left, top, progress_width, progress_height});
+    area_of("TextArea", {left, top, progress_width, progress_height});
+    const std::int32_t zero = absolute(asset, 0.0F);
+    const std::int32_t light_width = absolute(asset, 20.0F);
+    const std::int32_t light_height = absolute(asset, 24.0F);
+    area_of("LightArea", {zero, zero, light_width, light_height});
+    gui::GuiLook look;
+    look.name = "Light";
+    look.states = range_of(0, 3);
+    look.areas = range_of(0, 3);
+    asset.looks.push_back(look);
+    gui::GuiType bar;
+    bar.name = "TLBB_ProgressSkill";
+    bar.renderer = "Falagard/SuperProgress";
+    bar.look = 0;
+    asset.types.push_back(bar);
+    add_window(asset, "ProgressBar_Progress", Slot{.type = 0, .parent = -1});
+    add_property(asset, "AbsoluteSize", "w:204 h:24");
+    add_property(asset, "LightEnable", "true");
+    add_property(asset, "Text", "Luyện công");
+    return asset;
+}
+
+// Thanh có đầu sáng vẽ Background phủ cả cửa sổ, Enabled trên phần ProgressArea rộng bằng mức muốn tới (170 x 0,5), rồi
+// LightEnable cỡ LightArea, giữa theo chiều dọc ProgressArea và nằm trên mép phải của phần đã đầy.
+void light_bar_draws_every_part(Context& context) {
+    const GuiAsset asset = light_asset();
+    Place input = screen_of(400.0F, 400.0F);
+    const gui::Bar half{.window = "ProgressBar_Progress", .amount = 0.5F};
+    input.bars = std::span{&half, 1};
+    const Sheet sheet = gui::place(asset, input);
+    context.expect(sheet.quads.size() == 3, "ba ảnh: nền, phần đầy, đầu sáng");
+    if (sheet.quads.size() != 3) return;
+    context.expect(same_box(sheet.quads.at(0).dest, Box{.x = 0.0F, .y = 0.0F, .w = 204.0F, .h = 24.0F}), "nền phủ cả cửa sổ");
+    context.expect(same_box(sheet.quads.at(1).dest, Box{.x = 17.0F, .y = 6.0F, .w = 85.0F, .h = 12.0F}),
+        "phần đầy trong ProgressArea");
+    context.expect(same_box(sheet.quads.at(2).dest, Box{.x = 92.0F, .y = 0.0F, .w = 20.0F, .h = 24.0F}),
+        "đầu sáng cỡ LightArea trên mép phải phần đầy");
+    context.expect(sheet.texts.size() == 1, "thanh có chữ thì vẽ chữ");
+    if (sheet.texts.size() != 1) return;
+    const TextRun& label = sheet.texts.front();
+    context.expect(label.text == "Luyện công", "chữ của cửa sổ");
+    context.expect(same_box(label.box, Box{.x = 17.0F, .y = 6.0F, .w = 170.0F, .h = 12.0F}), "chữ trong TextArea");
+    context.expect(label.colour == gui::kWhiteArgb, "chữ trắng đục hẳn khi cửa sổ không có Alpha");
+    context.expect(label.horz == std::to_underlying(gui::GuiTextHorz::kCentreAligned), "chữ canh giữa ngang");
+}
+
+// Alpha của cửa sổ nhân vào ảnh và vào chữ (chữ chỉ theo Alpha của chính cửa sổ, hàm gốc đọc cửa sổ + 0xec).
+void light_bar_follows_alpha(Context& context) {
+    GuiAsset asset = light_asset();
+    add_property(asset, "Alpha", "0.5");
+    Place input = screen_of(400.0F, 400.0F);
+    const gui::Bar full_bar{.window = "ProgressBar_Progress", .amount = 1.0F};
+    input.bars = std::span{&full_bar, 1};
+    const Sheet sheet = gui::place(asset, input);
+    const auto is_half = [](std::uint32_t colour) {
+        const std::uint32_t alpha = colour >> 24U;
+        return alpha >= 0x7EU && alpha <= 0x7FU && (colour & 0x00FFFFFFU) == 0x00FFFFFFU;
+    };
+    context.expect(std::ranges::all_of(sheet.quads, [&](const Quad& quad) { return is_half(quad.colour); }),
+        "ảnh mờ một nửa");
+    context.expect(sheet.texts.size() == 1 && is_half(sheet.texts.front().colour), "chữ mờ một nửa");
 }
 
 // Khung của mũi tên 30 khung (Minimap_arrow của client 2026) khi mặt quay về facing.
@@ -1342,6 +1520,10 @@ constexpr std::array kCases{
     Case{.name = "round_map", .body = &round_map},
     Case{.name = "hub_keeps_still", .body = &hub_keeps_still},
     Case{.name = "bar_glides", .body = &bar_glides},
+    Case{.name = "bar_tint_follows_updates", .body = &bar_tint_follows_updates},
+    Case{.name = "bar_tint_uninterrupted", .body = &bar_tint_uninterrupted},
+    Case{.name = "light_bar_draws_every_part", .body = &light_bar_draws_every_part},
+    Case{.name = "light_bar_follows_alpha", .body = &light_bar_follows_alpha},
     Case{.name = "arrow_frames", .body = &arrow_frames},
     Case{.name = "radar_arrow", .body = &radar_arrow},
     Case{.name = "radar_arrow_steady", .body = &radar_arrow_steady},

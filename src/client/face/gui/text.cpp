@@ -21,6 +21,7 @@ namespace game::gui::detail {
 namespace {
 
 constexpr std::uint8_t kCentredVert = 1;
+constexpr float kChannelMax = 255.0F;
 
 // Tên của FalagardSimpleText, cùng thứ tự với GuiTextHorz và GuiTextVert.
 constexpr std::array<std::string_view, 8> kSimpleHorz = {"LeftAligned", "RightAligned", "HorzCentred", "HorzJustified",
@@ -135,6 +136,26 @@ void simple_text(const Ctx& ctx, const Placed& self) {
     ctx.sheet->texts.push_back(run);
 }
 
+// FalagardSuperProgress::populateRenderCache (CEGUIFalagard.dll 0x180078870) vẽ chữ của cửa sổ bằng Font::drawText khi
+// cửa sổ có phông và chữ: màu trắng nhân Alpha của chính cửa sổ (cửa sổ + 0xec, không phải TextColor), canh giữa theo
+// chiều ngang, canh giữa theo chiều dọc bằng (cao ô - cao khối) / 2 + 0,5 cắt về số nguyên (đúng quy tắc kSimpleText), ô
+// là TextArea của look (không khai thì cả cửa sổ) và cắt theo chính ô đó.
+void progress_text(const Ctx& ctx, const Placed& self) {
+    const auto prop = effective(ctx, self, "Text");
+    const std::string_view body = prop ? resolved(ctx, *prop) : std::string_view{};
+    if (body.empty()) return;
+    const auto alpha = static_cast<std::uint32_t>(own_alpha(ctx, self) * kChannelMax);
+    TextRun run;
+    run.text = body;
+    run.box = named_area(ctx, self, "TextArea").value_or(self.screen);
+    run.rule = TextRule::kSimpleText;
+    run.colour = (alpha << 24U) | (kWhiteArgb & 0x00FFFFFFU);
+    run.horz = static_cast<std::uint8_t>(GuiTextHorz::kCentreAligned);
+    run.vert = kCentredVert;
+    run.font = window_font(ctx, self);
+    ctx.sheet->texts.push_back(run);
+}
+
 // Cửa sổ con tên của look nút phần tử (__auto_AchievementCatalogName__, __auto_AchievementTextName__):
 // nơi SetAchievementCatalogName và SetAchievementTextName đặt chữ.
 const GuiChild* name_child(const GuiAsset& asset, const Placed& button) {
@@ -234,6 +255,8 @@ void texts_of(const Ctx& ctx, const Placed& self) {
         world_texts(ctx, self);
     } else if (self.kind == Kind::kEdit) {
         edit_text(ctx, self);
+    } else if (self.kind == Kind::kProgress) {
+        progress_text(ctx, self);
     } else if (self.kind == Kind::kSoftKeys) {
         soft_key_texts(ctx, self);
     } else {
