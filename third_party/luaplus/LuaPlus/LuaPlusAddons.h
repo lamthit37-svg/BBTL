@@ -27,6 +27,8 @@ typedef void* (*lua_ReallocFunction)(void* ptr, int oldsize, int size, void* dat
 typedef void (*lua_FreeFunction)(void* ptr, int oldsize, void* data);
 LUA_API void lua_getdefaultmemoryfunctions(lua_ReallocFunction* reallocFunc, lua_FreeFunction* freeFunc, void** data);
 LUA_API void lua_setdefaultmemoryfunctions(lua_ReallocFunction reallocFunc, lua_FreeFunction freeFunc, void* data);
+/* Khác gốc: thêm. Như lua_open nhưng state (và mọi luồng của nó) cấp phát qua hàm đã cho, không qua mặc định toàn tiến trình. */
+LUA_API lua_State *lua_openwithmemory(lua_ReallocFunction reallocFunc, lua_FreeFunction freeFunc, void* data);
 
 LUA_API void lua_setusergcfunction(lua_State *L, void (*userGCFunction)(void*));
 

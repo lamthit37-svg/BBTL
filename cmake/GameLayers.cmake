@@ -76,6 +76,8 @@ set(game_layer_look "core table look")
 set(game_layer_gui "core io xml table gui")
 # luanum: số của script theo MSVCR110, lá của tầng; ui/panel dùng, LuaPlus (C, third_party/luaplus) gọi qua luanum.h.
 set(game_layer_luanum "luanum")
+# lua: vỏ C++ của LuaPlus (state RAII, trần bộ nhớ và lệnh, native an toàn); LuaPlus (C) là game_luaplus, không phải module.
+set(game_layer_lua "core luanum lua")
 set(game_layer_hero "core hero")
 set(game_layer_quest "core table quest")
 set(game_layer_skill "core table skill")

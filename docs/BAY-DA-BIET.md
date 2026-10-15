@@ -111,6 +111,16 @@ mục ở mục 11.
   -fsanitize=address,undefined -fno-sanitize-recover=all` cho lượt Clang (UBSan mặc định chỉ báo rồi chạy tiếp, `check.py` chỉ in
   đầu ra khi lượt chạy đỏ nên báo UB bị nuốt), rồi nối các `.o` vào cuối chuỗi `CPP23_G14` và `CPP23_C20`. LuaPlus không định
   nghĩa `NDEBUG` ở bản không phải release thì `lua_assert` là `assert` thật: lượt GCC debug mode cũng chạy assert của Lua.
+- Mã C++ gọi C API của LuaPlus (đo 2026-10-15 ở `src/client/face/lua`, `lua_shell_tests`): (1) include qua `lua/capi.hpp` (bọc
+  `extern "C"`, các `#include` đánh dấu `IWYU pragma: export` thì `misc-include-cleaner` mới coi ký hiệu Lua là của nó). `LuaPlusAddons.h`
+  phải đứng SAU `lua.h` trong đó: nó dùng `LUA_API` do `lua.h` định nghĩa, include trước thì cả `check.py` lẫn trình soạn báo
+  "unknown type name 'LUA_API'". (2) LuaPlus báo lỗi bằng `longjmp`: lời gọi API nào cũng có thể nhảy (hết trần bộ nhớ làm
+  `lua_pushstring` nhảy), nên mọi đối tượng có destructor sống qua lời gọi API trong hàm native bị bỏ rơi lặng lẽ (rò, không
+  lỗi): viết native theo `lua/native.hpp`. (3) Gọi API ngoài vùng bảo vệ khi hết bộ nhớ hay sai kiểu là panic, vỏ dừng bằng
+  `core::fail` thay vì `exit(1)` của LuaPlus; mọi hàm của `lua::State` đã nằm trong `lua_pcall`/`lua_cpcall`. (4) Traceback
+  của LuaPlus ghi hàm cục bộ (`local function f`) là `in function <tệp:dòng>`, không có tên; chỉ hàm toàn cục mới có
+  "in function `tên'". (5) `error()` không đối số là lỗi "bad argument #1 to `error' (value expected)", muốn thử đối tượng lỗi
+  nil thì `error(nil)`.
 
 ## Công cụ Python và git
 

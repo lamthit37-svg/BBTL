@@ -5,6 +5,7 @@
 */
 
 
+#include <limits.h>
 #include <stdlib.h>
 
 #define lmem_c
@@ -73,7 +74,9 @@ void *luaM_realloc (lua_State *L, void *block, lu_mem oldsize, lu_mem size) {
     }
     else return NULL;  /* avoid `nblocks' computations when oldsize==size==0 */
   }
-  else if (size >= MAX_SIZET)
+  /* Khác gốc: thêm `size > INT_MAX`. Hàm cấp phát của LuaPlus (lua_ReallocFunction) nhận kích thước kiểu int, nên khối lớn hơn
+  ** 2 GiB bị cắt âm thầm (4 GiB + 100 thành 100 byte: cấp ít mà Lua tin có nhiều, ghi tràn heap). */
+  else if (size >= MAX_SIZET || size > INT_MAX)
     luaG_runerror(L, "memory allocation error: block too big");
   else {
 #ifdef _DEBUG
