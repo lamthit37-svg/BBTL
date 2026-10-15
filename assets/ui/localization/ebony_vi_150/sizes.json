@@ -1,0 +1,44 @@
+[
+  {
+    "name": "BtnCancel_Normal",
+    "text": "Hủy xem",
+    "original": [
+      132,
+      55
+    ],
+    "export": [
+      198,
+      83
+    ],
+    "scale": 1.5,
+    "rounding": "nearest integer; halves rounded up"
+  },
+  {
+    "name": "EnterGame_Normal",
+    "text": "Vào game",
+    "original": [
+      132,
+      54
+    ],
+    "export": [
+      198,
+      81
+    ],
+    "scale": 1.5,
+    "rounding": "nearest integer; halves rounded up"
+  },
+  {
+    "name": "CreateRole_Normal",
+    "text": "Tạo vai",
+    "original": [
+      132,
+      54
+    ],
+    "export": [
+      198,
+      81
+    ],
+    "scale": 1.5,
+    "rounding": "nearest integer; halves rounded up"
+  }
+]

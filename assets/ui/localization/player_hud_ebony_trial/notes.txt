@@ -1,0 +1,1 @@
+Bản thiết kế thử cụm HUD: avatar, tên, môn phái, cấp độ, sinh lực, nội lực, nộ khí, biểu tượng hiệu ứng, cài đặt. Nhân vật và các số chỉ để minh họa; chưa tích hợp game, chưa tách lớp tài nguyên. Tạo bằng imagegen tích hợp; mô tả ở prompt.txt.

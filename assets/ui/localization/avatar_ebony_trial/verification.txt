@@ -1,0 +1,1 @@
+Khung avatar thử gỗ mun + kim loại vàng. PNG RGBA 512,256,128; ảnh HD giữ riêng. Đã kiểm tâm và bốn cạnh trong suốt, không cắt đầu nhọn. Kích thước mẫu chưa gắn với TSV/runtime. Công cụ imagegen tích hợp, prompt.txt lưu kèm. Chưa tích hợp game.

@@ -1,0 +1,1 @@
+3 PNG RGBA: 198×83,198×81,198×81. Hai đầu nhọn tái tạo đầy đủ. Mép ngoài cả 4 cạnh alpha=0 đã kiểm bằng số, chừa đệm trong suốt trong kích thước xuất. Loại điểm đỏ thừa trên mép do ảnh sinh; giữ bản generated_master.png để đối chiếu. Dùng imagegen tích hợp. Chưa kiểm trong game.
