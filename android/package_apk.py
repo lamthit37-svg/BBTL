@@ -176,6 +176,15 @@ def ui_paths(data: Path) -> list[str]:
     return paths
 
 
+def script_paths(data: Path) -> list[str]:
+    # Script giao diện gốc và sổ cửa sổ (TOOLS/content/stage_scripts.py, target thienlong_scripts). Không có danh sách
+    # thì APK không có script, giao diện Lua không nạp được cửa sổ nào.
+    listing = data / "Script" / "script.files.tsv"
+    if not listing.is_file():
+        return []
+    return listed_paths(listing)
+
+
 def config_paths(data: Path) -> list[str]:
     # Bảng của client 2026 mà client đọc lúc chạy ngoài bảng cảnh: trần kinh nghiệm theo cấp (HUD).
     # Do TOOLS/content/collect_sound.py chép vào. Thiếu thì client giữ trần cấp 1 và in lỗi.
@@ -204,6 +213,7 @@ def scene_paths(data: Path, has_cooked_sound: bool) -> list[str]:
     extend_unique(paths, seen, avatar_paths(data))
     extend_unique(paths, seen, audio_paths(data, has_cooked_sound))
     extend_unique(paths, seen, ui_paths(data))
+    extend_unique(paths, seen, script_paths(data))
     extend_unique(paths, seen, web_paths(data))
     extend_unique(paths, seen, config_paths(data))
     return paths

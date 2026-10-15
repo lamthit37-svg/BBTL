@@ -262,6 +262,14 @@ struct GuiAnimate {
     GuiFade fade = GuiFade::kRiseFall;
 };
 
+// Đoạn Lua mà layout nối vào một sự kiện CEGUI của cửa sổ (<Event Name="Clicked" Function="..."/>): name là tên sự
+// kiện, function là đoạn Lua nguyên văn (đã giải thực thể XML). Client gốc chạy đoạn đó trong môi trường của cửa sổ chủ
+// (CUIWindowItem::FireUIEvent), phần chủ của giao diện Lua (ui/script) làm như vậy.
+struct GuiEvent {
+    std::string name;
+    std::string function;
+};
+
 // Cửa sổ của layout, cha đứng trước con; properties là nguyên văn các <Property> của layout.
 // Cửa sổ con mà look tự dựng (WidgetComponent: thanh cuộn, nút và thumb của nó, vùng nội dung của
 // cửa sổ phức hợp) cũng nằm ở đây, sau các cửa sổ của layout chứa cha nó: tên là tên cha cộng hậu
@@ -271,6 +279,8 @@ struct GuiWindow {
     std::int32_t type = -1;
     std::int32_t parent = -1;
     GuiRange properties;
+    // Các <Event> của cửa sổ theo thứ tự trong tệp, trong GuiAsset::events; cửa sổ dựng từ <Child> của look không có.
+    GuiRange events;
     // -1 là cửa sổ khai trong layout.
     std::int32_t child = -1;
 };
@@ -299,6 +309,7 @@ struct GuiAsset {
     std::vector<GuiLook> looks;
     std::vector<GuiType> types;
     std::vector<GuiWindow> windows;
+    std::vector<GuiEvent> events;
     std::vector<GuiLayout> layouts;
     std::vector<GuiAnimate> animates;
     // Chỉ số ảnh của từng khung hình, nối liền theo từng hoạt ảnh.

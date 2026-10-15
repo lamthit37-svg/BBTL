@@ -1033,6 +1033,20 @@ game_split_debug(thienlong_client)
 install(TARGETS thienlong_client RUNTIME DESTINATION client/bin BUNDLE DESTINATION client/IOS)
 # Bản địa hoá (chữ, tên cảnh, ảnh thay) dựng cùng client từ assets/i18n.
 include(cmake/GameI18n.cmake)
+# Script giao diện gốc và sổ cửa sổ (src/client/script) vào dev/client/assets/Script, nơi ui/script đọc lúc chạy, ở mỗi
+# lượt dựng client (công cụ bỏ qua tệp không đổi). GAME_SCRIPTS_STAMP chỉ ghi lại khi bản trong dữ liệu đổi: bước đóng APK
+# khai nó làm đầu vào như GAME_I18N_STAMP.
+if(Python3_Interpreter_FOUND)
+    set(GAME_SCRIPTS_STAMP "${PROJECT_SOURCE_DIR}/build/scripts/staged.stamp")
+    add_custom_target(thienlong_scripts ALL
+        COMMAND ${CMAKE_COMMAND} -E env PYTHONUTF8=1 "${Python3_EXECUTABLE}" -B
+            TOOLS/content/stage_scripts.py src/client/script dev/client/assets --stamp "${GAME_SCRIPTS_STAMP}"
+        BYPRODUCTS "${GAME_SCRIPTS_STAMP}"
+        WORKING_DIRECTORY "${PROJECT_SOURCE_DIR}"
+        COMMENT "script: đưa script giao diện vào dev/client/assets/Script"
+        VERBATIM)
+    add_dependencies(thienlong_client thienlong_scripts)
+endif()
 # iOS chỉ chạy được exe nằm trong gói ứng dụng. Chưa build trên macOS (máy phát triển là Windows).
 if(IOS)
     set_target_properties(thienlong_client PROPERTIES
@@ -1118,6 +1132,8 @@ if(ANDROID)
             # Mốc của bước i18n (cmake/GameI18n.cmake; rỗng khi không có Python): APK đóng sau khi
             # chữ và ảnh của ngôn ngữ đã chọn nằm trong assets/client, và đóng lại khi chúng đổi.
             ${GAME_I18N_STAMP}
+            # Mốc của bước đưa script giao diện (thienlong_scripts; rỗng khi không có Python).
+            ${GAME_SCRIPTS_STAMP}
         # Dữ liệu đóng vào APK (danh sách cảnh, từng tệp, thư mục đã quét) do package_apk.py tự kê:
         # tệp nào đổi thì APK đóng lại.
         DEPFILE "${game_apk}.d"

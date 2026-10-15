@@ -67,8 +67,11 @@ class Dbc:
 
 def read(path: str, name: str | None = None) -> Dbc:
     with open(path, "rb") as stream:
-        data = stream.read()
-    label = name or path
+        return parse(stream.read(), name or path)
+
+
+# Bảng từ byte đã đọc (tệp lấy ra khỏi gói .axp, đã gỡ vỏ CryptBox); label là tên để báo lỗi.
+def parse(data: bytes, label: str) -> Dbc:
     if len(data) < HEAD_BYTES or struct.unpack_from("<I", data, 0)[0] != MAGIC:
         raise DbcError(f"{label}: không phải bảng nhị phân DBC")
     columns, rows, strings = struct.unpack_from("<III", data, 4)

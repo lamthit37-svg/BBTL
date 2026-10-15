@@ -30,6 +30,12 @@ Kiểm: mọi tệp mã hoá qua CRC-32 ở đầu tệp; mọi tệp (sau khi �
 của client (Lua 5.0.1): 3 173 trên 3 173 qua; hai số vàng của trọng tài (QuestLog, CreateRole) chạy trên chính cây này vẫn giống
 từng byte. MANIFEST.tsv ghi cỡ, sha256, cách lưu trong gói, số dòng hỏng và kết quả kiểm của từng tệp.
 
+Sổ cửa sổ windows.tsv (UTF-8, không phải script): Config.axp/InterfaceEx.txt của cùng bản 3.71.9509 (gỡ vỏ CryptBox), 1 975 dòng,
+mỗi dòng một cửa sổ, một layout, một script dưới Interface/; 19 750 ô kiểm khớp bảng gốc, script nào sổ nêu cũng có ở đây. Xuất lại:
+  python -B TOOLS/content/export_windows.py D:/XTLBB/Data src/client/script [--check]
+Client đọc bản chép ở dev/client/assets/Script (sổ và đúng 1 975 script sổ nêu, kèm Script/script.files.tsv cho APK): target CMake
+thienlong_scripts chạy TOOLS/content/stage_scripts.py ở mỗi lượt dựng client.
+
 Bản căn cột để đọc (dấu `=` và chú thích thẳng cột, chỉ đổi khoảng trắng, mã trung gian LuaPlus khớp từng byte):
   python -B TOOLS/content/script_align.py src/client/script <thư mục đích> --luaplus D:/XTLBB/Bin64
 Thư mục này giữ bản gốc, không căn tại chỗ.

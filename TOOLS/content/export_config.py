@@ -295,6 +295,8 @@ class Source:
 
     def __init__(self, raw_root: Path) -> None:
         self.config = raw_root / "Config"
+        # Dòng đầu của tệp sinh: công cụ nào sinh, từ đâu.
+        self.note = NOTE
         self.cache: dict[str, Loaded] = {}
         self.indexes: dict[str, dict[int, int]] = {}
 
@@ -342,7 +344,7 @@ def table_text(source: Source, spec: Spec) -> str:
     names = column_names(spec, table.columns)
     kinds = [KINDS[kind] for kind in table.types] + ["text"] * len(spec.joins)
     lines = [
-        f"# {NOTE}",
+        f"# {source.note}",
         f"# Nguồn: Config/{spec.source}, {table.rows} dòng x {table.columns} cột, sha256 {loaded.digest}",
         "# Kiểu: " + "\t".join(kinds),
         "\t".join(names),
@@ -398,7 +400,7 @@ def bundle_text(source: Source, bundle: Bundle) -> str:
     total = sum(item.table.rows for _, item in loaded)
     digest = hashlib.sha256("".join(item.digest for _, item in loaded).encode("ascii")).hexdigest()
     lines = [
-        f"# {NOTE}",
+        f"# {source.note}",
         f"# Nguồn: Config/{bundle.folder}, {len(loaded)} tệp, {total} dòng x {first.columns} cột, sha256 {digest}",
         "# Kiểu: " + "\t".join(kinds),
         "\t".join(names),

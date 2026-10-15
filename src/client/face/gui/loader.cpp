@@ -357,7 +357,18 @@ void take_mask_value(Cook& cook, const GuiProperty& property) {
     take_imageset(cook, property.value);
 }
 
-void window_part(Cook& cook, std::vector<GuiProperty>& properties, const Node& child) {
+// Thuộc tính và sự kiện khai trong một <Window> của layout.
+struct WindowParts {
+    std::vector<GuiProperty> properties;
+    std::vector<GuiEvent> events;
+};
+
+void window_part(Cook& cook, WindowParts& parts, const Node& child) {
+    if (child.name() == "Event") {
+        parts.events.push_back(GuiEvent{.name = std::string(child.attr("Name", "")),
+                                        .function = std::string(child.attr("Function", ""))});
+        return;
+    }
     if (child.name() != "Property") return;
     GuiProperty property;
     property.name = child.attr("Name", "");
@@ -365,7 +376,7 @@ void window_part(Cook& cook, std::vector<GuiProperty>& properties, const Node& c
     take_image_value(cook, property.value);
     take_animate_value(cook, property);
     take_mask_value(cook, property);
-    properties.push_back(std::move(property));
+    parts.properties.push_back(std::move(property));
 }
 
 // Thêm một cửa sổ cùng thuộc tính của nó (chưa thêm con); trả chỉ số.
@@ -374,12 +385,15 @@ std::int32_t add_window(Cook& cook, const Node& element, std::int32_t parent) {
     window.name = element.attr("Name", "");
     window.parent = parent;
     window.type = type_of(cook, element.attr("Type", "DefaultWindow"));
-    std::vector<GuiProperty> properties;
+    WindowParts parts;
     for (const Node child : element.children())
-        window_part(cook, properties, child);
+        window_part(cook, parts, child);
     window.properties.first = static_cast<std::uint32_t>(cook.asset.properties.size());
-    window.properties.count = static_cast<std::uint32_t>(properties.size());
-    std::ranges::move(properties, std::back_inserter(cook.asset.properties));
+    window.properties.count = static_cast<std::uint32_t>(parts.properties.size());
+    std::ranges::move(parts.properties, std::back_inserter(cook.asset.properties));
+    window.events.first = static_cast<std::uint32_t>(cook.asset.events.size());
+    window.events.count = static_cast<std::uint32_t>(parts.events.size());
+    std::ranges::move(parts.events, std::back_inserter(cook.asset.events));
     const auto index = static_cast<std::int32_t>(cook.asset.windows.size());
     cook.asset.windows.push_back(std::move(window));
     return index;
