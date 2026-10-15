@@ -53,6 +53,8 @@ struct Missing {
 };
 
 [[nodiscard]] Missing classify(std::string_view note) {
+    // Lỗi chạy của lua::State kèm traceback ở các dòng sau; chỉ dòng đầu là lời lỗi.
+    note = note.substr(0, note.find('\n'));
     constexpr std::string_view kMark = "attempt to ";
     const std::size_t at = note.find(kMark);
     if (at == std::string_view::npos) return {};
@@ -185,6 +187,7 @@ int main(const int argc, const char* const* const argv) {
     std::ostream& out = options.out.empty() ? std::cout : file;
     out << std::format("# {} cửa sổ, mở {} ms, hiện/giấu {}{} ms\n", host.window_count(), millis(begin, opened_at),
         options.is_events ? std::format("và {} sự kiện ", events) : std::string(), millis(opened_at, done));
+    out << std::format("# bộ nhớ Lua {} KB\n", lua_getgccount(host.lua()));
     out << "# số lần\tloại và tên\tcửa sổ đầu tiên\n";
     tally.print(out);
     out << "# phương thức widget còn thiếu (số lần gọi, tên)\n";

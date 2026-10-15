@@ -371,7 +371,7 @@ void instruction_limit_stops_runaway(Context& context) {
     static_cast<void>(host.take_notes());
     post(host, "ALWAYS", {"spin"});
     const std::vector<std::string> notes = host.take_notes();
-    context.expect(notes.size() == 1 && notes.front().contains("lệnh Lua"), "báo quá trần");
+    context.expect(notes.size() == 1 && notes.front().contains("vượt giới hạn"), "báo quá trần");
     post(host, "ALWAYS", {"after"});
     context.expect(global(host, "trace").ends_with("|ALWAYS=after"), "chạy tiếp được");
 }

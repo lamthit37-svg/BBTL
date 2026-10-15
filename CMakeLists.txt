@@ -605,7 +605,7 @@ game_module(ui_script
     src/client/face/ui/script/host.cpp
     src/client/face/ui/script/natives.cpp
     src/client/face/ui/script/widget.cpp)
-target_link_libraries(game_ui_script PUBLIC game_ui_panel game_gui game_table game_io game_luaplus game_luanum game_core)
+target_link_libraries(game_ui_script PUBLIC game_ui_panel game_gui game_table game_io game_lua game_luaplus game_luanum game_core)
 # Cấu hình dựng client nằm ở src/client/client.build.toml (chủ dự án chốt 2026-10-14: gắn thẳng vào
 # exe lúc dựng, không đọc tệp lúc chạy, không qua server hay protocol). CMake đọc khoá avatar_frame
 # bằng regex (chỉ nhận dạng `khoá = "giá trị"` trên một dòng) rồi đặt macro cho riêng player_frame.cpp,

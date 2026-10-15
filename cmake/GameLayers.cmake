@@ -84,7 +84,7 @@ set(game_layer_skill "core table skill")
 set(game_layer_ui/panel "core table gui hero quest luanum ui/panel")
 # ui/script: sổ cửa sổ, phần chủ và widget của script giao diện trên LuaPlus. LuaPlus (C, third_party/luaplus) không có thư mục trong
 # bảng vì mã của ta chỉ include lua.h, lauxlib.h (không có dấu gạch chéo); số của script qua luanum.
-set(game_layer_ui/script "core io table gui luanum ui/panel ui/script")
+set(game_layer_ui/script "core io table gui luanum lua ui/panel ui/script")
 # client/session: luồng nền giữ link::Link, máy trạng thái phiên và bảng cổng máy chủ. client/online: cầu nối giữa
 # chuỗi đăng nhập (ui/panel) và phiên mạng.
 set(game_layer_client/session "core net protocol secure link table client/session")

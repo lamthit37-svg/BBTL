@@ -5,6 +5,7 @@
 
 #include "gui/asset.hpp"
 #include "io/file.hpp"
+#include "lua/state.hpp"
 #include "luanum/luanum.h"
 #include "ui/panel/call.hpp"
 #include "ui/panel/deck.hpp"
@@ -37,8 +38,6 @@ extern "C" {
 #include "lauxlib.h"
 #include "lua.h"
 #include "lualib.h"
-// luaopen_wstring (lua.h cũng kéo tệp này vào).
-#include "LuaPlusAddons.h"
 }
 
 namespace game::ui::script {
@@ -48,8 +47,6 @@ constexpr const char* kItemMeta = "MetaTable_UIWindowItem";
 constexpr const char* kEventMeta = "CEGUIEventMetaTable";
 constexpr const char* kEventArg = "CEArg";
 constexpr const char* kEventTable = "eventTable";
-// Số lệnh giữa hai lần móc đếm kiểm trần lệnh.
-constexpr int kHookStep = 1000;
 constexpr std::size_t kNoteLimit = 512;
 // Trần số đối số của một sự kiện được đưa vào arg<k> (gốc không có trần; sự kiện của game mang vài đối số).
 constexpr std::size_t kArgLimit = 64;
@@ -64,13 +61,6 @@ constexpr std::array<std::string_view, 2> kKeptEvents = {"VIEW_RESOLUTION_CHANGE
 // CloseAllWindow không giấu cửa sổ này mà đẩy sự kiện EUS_SHOW_RESULT (id 0xbf1) để script của nó tự đóng (0x18007643c).
 constexpr std::string_view kEquipEducation = "EquipEducation_Upstage";
 constexpr std::string_view kEquipEducationEvent = "EUS_SHOW_RESULT";
-
-// Khoá trong sổ đăng ký Lua trỏ tới Core, cho móc đếm lệnh (Lua 5.0 không có chỗ riêng của state): địa chỉ của một biến
-// tĩnh, như thói quen của C API Lua.
-[[nodiscard]] void* core_key() noexcept {
-    static char key = 0;
-    return &key;
-}
 
 // Tên bảng môi trường của một cửa sổ (<Tên>_Env).
 struct Env {
@@ -145,11 +135,14 @@ struct Core {
     Core& operator=(Core&&) = delete;
     // Đóng máy Lua trước khi huỷ thứ mà userdata trỏ tới.
     ~Core() {
-        if (lua != nullptr) lua_close(lua);
+        lua = nullptr;
+        state.reset();
     }
 
     Screen* screen = nullptr;
     std::filesystem::path script_root;
+    std::optional<lua::State> state;
+    // state->raw(): luồng chính, hợp lệ suốt đời state (State move không đổi nó).
     lua_State* lua = nullptr;
     std::vector<std::unique_ptr<Item>> items;
     std::map<std::string, std::uint32_t, std::less<>> by_name;
@@ -178,9 +171,6 @@ struct Core {
     std::chrono::milliseconds now{0};
     // Đã có nhịp nào chưa: nhịp đầu không tính thời gian trôi (đồng hồ khung của người gọi bắt đầu ở đâu cũng được).
     bool has_ticked = false;
-    std::uint32_t limit = kDefaultInstructionLimit;
-    std::int64_t budget = 0;
-    int depth = 0;
 };
 
 // Userdata của `this` (BoxPointer của CUIWindowItem).
@@ -196,52 +186,30 @@ void add_note(Core& core, std::string text) {
         ++core.dropped_notes;
 }
 
-// Thông điệp lỗi trên đỉnh ngăn xếp (đặt bởi lua_cpcall), rồi bỏ nó. Không đổi số thành chuỗi tại chỗ (cấp phát).
-[[nodiscard]] std::string pop_error(lua_State* lua) {
-    std::string text = lua_type(lua, -1) == LUA_TSTRING ? std::string(lua_tostring(lua, -1), lua_strlen(lua, -1))
-                                                         : std::format("lỗi kiểu {}", lua_typename(lua, lua_type(lua, -1)));
-    lua_pop(lua, 1);
-    return text;
-}
-
 // Thân của một vùng bảo vệ: chỉ gọi API Lua, không dựng đối tượng C++ có destructor.
 struct GuardCall {
     void* body;
     void (*invoke)(void* body, lua_State* lua);
 };
 
-int guard_entry(lua_State* lua) {
-    const auto* call = static_cast<const GuardCall*>(lua_touserdata(lua, 1));
-    lua_settop(lua, 0);
+// lua::protect đòi thân tự cân bằng ngăn xếp; thân của host không bảo đảm điều đó (ngăn xếp trước đây bỏ cả khi cpcall về).
+// NOLINTNEXTLINE(misc-const-correctness): chữ ký cố định của lua::ProtectedBody (void*, không const)
+void guard_entry(lua_State* lua, void* data) {
+    const auto* call = static_cast<const GuardCall*>(data);
+    const int top = lua_gettop(lua);
     call->invoke(call->body, lua);
-    return 0;
+    lua_settop(lua, top);
 }
 
-// Chạy body(lua) trong lua_cpcall, đếm trần lệnh từ lời gọi ngoài cùng. Lỗi Lua: một dòng notes "<where>: <thông điệp>".
+// Chạy body(lua) trong lua::protect (trần lệnh tính từ lời gọi ngoài cùng, trần độ sâu của các vùng lồng nhau). Lỗi Lua hay vượt
+// trần: một dòng notes "<where>: <thông điệp>", lỗi chạy kèm traceback.
 template <class Body>
 bool guard(Core& core, std::string_view where, Body& body) {
-    if (core.depth == 0) core.budget = core.limit;
     GuardCall call{.body = &body, .invoke = [](void* raw, lua_State* lua) { (*static_cast<Body*>(raw))(lua); }};
-    ++core.depth;
-    const int status = lua_cpcall(core.lua, &guard_entry, &call);
-    --core.depth;
-    if (status == 0) return true;
-    add_note(core, std::format("{}: {}", where, pop_error(core.lua)));
+    const std::expected<void, lua::Failure> done = lua::protect(core.lua, &guard_entry, &call);
+    if (done) return true;
+    add_note(core, std::format("{}: {}", where, done.error().message));
     return false;
-}
-
-void count_hook(lua_State* lua, lua_Debug* /*where*/) {
-    lua_pushlightuserdata(lua, core_key());
-    lua_rawget(lua, LUA_REGISTRYINDEX);
-    auto* core = static_cast<Core*>(lua_touserdata(lua, -1));
-    lua_pop(lua, 1);
-    if (core == nullptr) return;
-    core->budget -= kHookStep;
-    if (core->budget >= 0) return;
-    lua_pushliteral(lua, "quá ");
-    lua_pushnumber(lua, static_cast<lua_Number>(core->limit));
-    lua_pushliteral(lua, " lệnh Lua trong một lời gọi");
-    raise_pushed(lua, 3);
 }
 
 [[nodiscard]] Core* core_of(lua_State* lua) {
@@ -766,15 +734,12 @@ void push_closure(lua_State* lua, Core& core, lua_CFunction function) {
     lua_pushcclosure(lua, function, 1);
 }
 
-// Thư viện chuẩn như LuaState::Init(true) của LuaPlus, trừ loadlib (nạp thư viện native; kho script không gọi lần nào) và
-// các hàm LOG, _ALERT, LuaDump* (kho script không gọi). io và os có vì Agreement*.lua đọc tệp bằng io.open, vài script gọi
-// os.time, os.date.
+// lua::State đã mở base, table, string, math; thêm io (kèm os) vì Agreement*.lua đọc tệp bằng io.open và vài script gọi os.time,
+// os.date. Khác LuaState::Init(true) của gốc: không loadlib (nạp thư viện native), debug (debug.sethook gỡ được móc trần lệnh),
+// wstring và các hàm LOG, _ALERT, LuaDump*; không script nào của kho gọi chúng (grep 2026-10-15 trên src/client/script).
 void open_libraries(lua_State* lua) {
-    for (const lua_CFunction open : {&luaopen_base, &luaopen_table, &luaopen_io, &luaopen_string, &luaopen_wstring,
-             &luaopen_math, &luaopen_debug}) {
-        open(lua);
-        lua_settop(lua, 0);
-    }
+    luaopen_io(lua);
+    lua_settop(lua, 0);
 }
 
 struct Method {
@@ -814,9 +779,6 @@ int make_class(lua_State* lua, Core& core, const char* name, std::span<const Met
 }
 
 void open_host(lua_State* lua, Core& core) {
-    lua_pushlightuserdata(lua, core_key());
-    lua_pushlightuserdata(lua, &core);
-    lua_rawset(lua, LUA_REGISTRYINDEX);
     core.item_meta_ref = make_class(lua, core, kItemMeta, kThisMethods);
     constexpr std::array<Method, 1> event_methods = {{{.name = "GetValue", .function = &event_get_value}}};
     const int event_meta = make_class(lua, core, kEventMeta, event_methods);
@@ -917,10 +879,12 @@ std::expected<Host, std::string> Host::open(const HostDesc& desc, Screen& screen
     }
     core.screen = &screen;
     core.script_root = desc.data_root / "Script" / "Interface";
-    core.limit = desc.instruction_limit;
-    core.lua = lua_open();
-    if (core.lua == nullptr) return std::unexpected("không mở được máy Lua");
-    lua_sethook(core.lua, &count_hook, LUA_MASKCOUNT, kHookStep);
+    lua::Limits limits;
+    limits.instructions = static_cast<std::int32_t>(std::min<std::uint32_t>(desc.instruction_limit, std::numeric_limits<std::int32_t>::max()));
+    auto machine = lua::State::open(limits);
+    if (!machine) return std::unexpected(std::format("không mở được máy Lua: {}", machine.error().message));
+    core.state.emplace(std::move(*machine));
+    core.lua = core.state->raw();
     auto open_all = [&core](lua_State* lua) {
         open_libraries(lua);
         open_host(lua, core);
