@@ -1,0 +1,21 @@
+LuaPlus (Lua 5.0.1) — máy Lua của script giao diện client 2026.
+
+Nguồn: G:\TLBB\_ref\client\Game\Client\LuaPlus\Src\LuaPlus (mã client TLBB của chủ dự án; cùng bản ở
+D:\TÀI LIỆU TLBB\tlbb_client\天龙八部客户端\Client\LuaPlus, so `diff -rq` không khác). Chép ngày 2026-10-15. Chủ dự án
+chốt cùng ngày: "Cái đó là mã của tôi lấy thẳng source sang có gì cải tiến thì cải tiến luôn".
+Thư mục `!Scripts` (tệp dự án VC7.1, VC8.0) không chép.
+
+Thành phần: Lua 5.0.1 của Tecgraf/PUC-Rio (giấy phép MIT ở cuối include/lua.h); LuaPlus của Joshua C. Jensen 2001-2004
+("may be used in any environment it is acceptable to use Lua", đầu mỗi tệp Lua*.h/.cpp); `break N`/`continue N` của
+Leszek Buczkowski (đầu src/llex.c, src/lparser.c); OP_POW của hai số là XOR 32 bit không dấu (src/lvm.c).
+
+Đối chiếu với LuaPlus.dll của client 2026 (D:\XTLBB\Bin64), đo 2026-10-15 bằng TOOLS/port/luagen/mass_oracle.py trên một
+DLL dựng từ đúng các tệp này (MSVC, /Od, NDEBUG): 2 058/2 060 đơn vị giao diện cho vết trùng sha256 với bảng vàng
+Test/golden/lua_mass/oracle.tsv; 2 đơn vị lệch (SiXiangTu_Shop_Mbuy, ThreeCity_WarmUp_MBuy) chỉ ở chuỗi của số NaN:
+CRT của DLL gốc (MSVCR110) in `-1.#IND`, UCRT in `-nan(ind)`.
+
+MANIFEST.sha256: sha256 của từng tệp lúc chép (dòng CRLF như ở nguồn; kho lưu LF theo .gitattributes).
+Commit đầu của thư mục này là bản nguyên văn; mọi sửa đổi sau đó liệt kê ở mục "Khác gốc" dưới đây.
+
+Khác gốc:
+(chưa có)
