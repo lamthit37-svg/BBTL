@@ -1447,6 +1447,12 @@ if(NOT ANDROID AND TARGET ui_script_host_tests
         GAME_CLIENT_DATA="${PROJECT_SOURCE_DIR}/dev/client/assets"
         GAME_SCRIPT_SOURCE="${PROJECT_SOURCE_DIR}/src/client/script")
 endif()
+# Lượt chạy hàng loạt (không phải test): mở cả sổ cửa sổ, hiện/giấu từng cửa sổ và kê hàm game, phương thức widget mà script
+# đòi mà client chưa có, để xếp việc cho tầng B và widget (Test/bench/ui_script_survey.cpp).
+if(NOT ANDROID AND NOT IOS AND TARGET game_ui_script)
+    add_executable(ui_script_survey Test/bench/ui_script_survey.cpp)
+    target_link_libraries(ui_script_survey PRIVATE game_ui_script game_gui game_io game::warnings)
+endif()
 # Bảng port từ script Lua của client 2026 (đợt UI-PORT): test so trạng thái cửa sổ với số vàng của
 # TOOLS/port/lua_oracle.py. Thiết bị Android không thấy cây nguồn nên ca số vàng ở đó tự bỏ qua.
 function(game_panel_golden_test name)

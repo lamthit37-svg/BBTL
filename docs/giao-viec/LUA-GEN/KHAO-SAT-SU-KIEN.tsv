@@ -1,0 +1,614 @@
+# Khảo sát ngày 2026-10-15, msvc-release: hiện, gửi từng sự kiện đã đăng ký (không đối số), giấu. Sinh bằng `build/msvc-release/ui_script_survey.exe --events --out <tệp>` (Test/bench/ui_script_survey.cpp).
+# Hàm game (tầng B) và phương thức widget mà script gọi lúc chạy mà client chưa có; chưa có dữ liệu game nên lỗi nối tiếp (đối số nil) còn nhiều.
+# 1975 cửa sổ, mở 477 ms, hiện/giấu và 11766 sự kiện 10841 ms
+# số lần	loại và tên	cửa sổ đầu tiên
+25656	call method GetCurDialogNpcId	ActionSkill,Agname,ChatFrame,CommonSkill,MainMenuBar
+18905	call method LuaFnGetGMVisibleType	ActionSkill,ActionSkillsStudy,Agname,ChatFrame,CommonSkill
+18210	call method GetData	ActionSkill,ActionSkillsStudy,Agname,ChatFrame,CommonSkill
+14084	call global IsWindowShow	ActionSkill,ActionSkillsStudy,Agname,ChatFrame,CommonSkill
+10386	call method GetVariable	ActionSkill,Agname,CommonSkill,GameSetup,LoginLogOn
+7991	call global PushEvent	Agname,CommonSkill,Exchange,MainMenuBar,MessageBox_Other
+6177	call global GetCurClientSize	ActionSkill,ActionSkillsStudy,Agname,ChatFrame,CommonSkill
+6015	call method IsClassic	(mở),ActionSkill,Agname,ChatFrame,CommonSkill
+5032	call method IsWuLinZhiDianScene	Exchange,MessageBox_Other,MessageBox_Self,OtherInfo,QuitRelative
+4561	call method SetProperty	Agname,CommonSkill,MainMenuBar,MessageBox_Self,Relive
+4255	call global IsZbs2018SpeicalServer	ActionSkill,ActionSkillsStudy,Agname,ChatFrame,CommonSkill
+4085	call global Get_XParam_INT	ActionSkill,Agname,ChatFrame,CommonSkill,MainMenuBar
+2986	call global GetSceneID	Exchange,MainMenuBar,MessageBox_Other,MessageBox_Self,Operation
+2616	call global ScriptGlobal_Format	ActionSkill,ActionSkillsStudy,Exchange,MessageBox_Other,MessageBox_Self
+2516	call method IsJueZhanWuLinZhiDianScene	Exchange,MessageBox_Other,MessageBox_Self,OtherInfo,QuitRelative
+2361	call method SetVariable	ActionSkill,Agname,CommonSkill,InfoBrowser,MainMenuBar
+1869	perform arithmetic on local nHeight	ActionSkill,ActionSkillsStudy,Agname,ChatFrame,CommonSkill
+1783	call global CloseWindow	Exchange,LoginLogOn,MainMenuBar,MessageBox_Other,MessageBox_Self
+1382	call method GetMenPai	ActionSkill,Agname,ChatFrame,CommonSkill,MainMenuBar
+1259	call method Play	Exchange,MessageBox_Other,MessageBox_Self,OtherInfo,QuitRelative
+1258	call method TSLGetLocalSceneID	Exchange,MessageBox_Other,MessageBox_Self,OtherInfo,QuitRelative
+1084	call method GetLevel	ActionSkillsStudy,MainMenuBar,OtherInfo,Pet,Ride
+593	call method Close	Quest,Bank,Packet,Banghui_Bank,BigBank
+424	call global CloseMessageBoxCommon	Exchange,MessageBox_Other,MessageBox_Self,OtherInfo,QuitRelative
+342	call global Clear_XSCRIPT	ActionSkill,ChatFrame,MainMenuBar,Pet,LoginSelectServer
+306	call method CancelPlayerWatchPosDirection	MainMenuBar,MiniMap,SceneMap,SceneTrans,ScrollInfo
+225	call method ShowPetList	PetProcreate,PetSavvy,PetSavvyGGD,PetXingGe,PetLevelup
+217	call method IsViewerWatching	ActionSkillsStudy,MainMenuBar,Pet,SelfEquip,MiniMap
+165	call method GetPetList_Appoint	Exchange,MissionReply,Pet,PetList,Quest
+154	call global IMDressCleanUpPayBox	ChatFrame,MainMenuBar,MessageBox_Self,Pet,LoginSelectServer
+154	call method GetPlayerMission_DataRound	MessageBox_Self,SceneTrans,ProgressBar,WuhunQuest,SongliaoWarSingle
+147	call method Lua_GetUpdateTipsFlag	MainMenuBar,SelfEquip,Huoyuehaoli,VIP_Shop,PlayerQuicklyEnter
+121	call global AskServerTimeAgain	MainMenuBar,MiniMap,SceneMap,SceneTrans,ScrollInfo
+121	call method SetCanUseHotKey	MessageBox_Self,SceneTrans,ProgressBar,WuhunQuest,SongliaoWarSingle
+112	call method Lua_ClearZiDianZengYingHaoActionItem	MessageBox_Self,SceneTrans,ProgressBar,WuhunQuest,SongliaoWarSingle
+104	call global KillFuncAllTimer	Huoyuehaoli,SelfMiji,Infant
+101	call method ClearHuaShanGRMatchScore	MainMenuBar,MiniMap,SceneMap,SceneTrans,ScrollInfo
+101	call method ClearPhoenixPlainWarScore	MainMenuBar,MiniMap,SceneMap,SceneTrans,ScrollInfo
+101	call method IsInTLCJScene	Exchange,MessageBox_Self,MissionReply,PetList,Quest
+100	call method CloseStallMessage	StallBuy,StallSale,LargeMap
+99	call global IsNGRunning	Memo
+98	call global GetJingMaiFenYeFlag	SelfJingMai
+98	call method TargetEquip_DestroyUIModel	TargetEquip
+91	call global EnumAction	LootPacket,EquipBind,Packet,EquipRepair,EquipStrengthen
+78	call method GetInfantCount	OtherInfo,Pet,Ride,SelfData,SelfEquip
+71	call method GetPet_Count	ChatFrame,MainMenuBar,MissionReply,Pet,PetList
+69	call method Lock_Packet_Item	ActionSkill,MissionObjDel,SuperWeaponUpNEW,PetEquipSuitUp,PetEquipSuitDepart
+64	call method Lua_IsHaveMission	MainMenuBar,SceneMap,QuestLog,MissionTrack,PlayerQuicklyEnter
+61	call global GetFreshManGuideOwner	ActionSkill,ChatFrame,CommonSkill,MainMenuBar,Pet
+55	call method LuaFnGetCurrentExteriorSetInfo	NewExterior_Facestyle,NewExterior_HairStyle,NewExterior_PetPossJian,NewExterior_PlayerFrame,NewExterior_Ride
+49	call global SetDefaultMouse	SelfEquip,Shop_Fitting,RecycleShop,DressPaint,XuanFitting
+44	call method GetMinWindowInfo	ChatFrame,MainMenuBar,Pet,LoginSelectServer,SceneMap
+39	call method OpenMessageSale	StallSale,Packet,DressPaint,DressWash,Dress_Stiletto
+37	call method GetPet_Count_PetBank	MissionReply,Pet,PetList,PetFrame,PetSavvy
+36	call global RestoreShopFitting	Shop_Fitting,XuanFitting,ShopPet_Fitting,Shop_Fitting2,Shop_InfantFitting
+35	call method CancelGMWatch	MsgButton_MenpaiBook,BieYeGuide,Anniversary,NewExterior_Facestyle,NewExterior_HairStyle
+33	call global QuitApplication	MessageBox_Self
+32	call method GetNPCIDByServerID	MessageBox_Self,RecycleShop,JinBiJiaoZi,YuanbaoBangdingExchange,Dress_Transfer
+32	call method SetPetLocation	Pet,PetList,PetSavvy,PetSkillStudy,PetSavvyGGD
+30	call method SendMessage	MainMenuBar,Pet,SceneMap,PlayerFrame,Friend
+26	call method IsBHSDZDGameOver	Operation,Relive,BangHui_Fight_Score,BangHui_Fight_ResultShow,NoDiffMatch_Score
+25	call method IsPresent	MissionReply,PetFrame,PlayerFrame,TargetFrame,PartyFrame
+21	call global PushDebugMessage	InfoEdit,Quest,PetProcreate,PlayerZhengyouPT,PetStudyNewSkill
+21	call method GetDoubleExp	MainMenuBar,OtherInfo,QuestLog,VIP_Shop,YouLongKa
+18	call method SetActionItem	EquipBaoshiCheck,TargetEquipBaoshiCheck,EquipLingPai_OperatingSJ,EquipLingPai_OperatingXQ,EquipLingPai_OperatingZC
+17	call method GetPetLocation	MissionReply,PetProcreate,PetSavvy,PetSkillStudy,PetSavvyGGD
+17	call method IsBieYeScene	NewNpcChat,BieYeWarehome,BieYe_Mini,BieYeFurnitureReplenish,BieYe_QiYu
+16	call method GetShopType	Shop_BulkBuying,Shop,Packet,ZdShop_BulkBuying,Shop_MGift
+15	call global GetAuthorizedSafeFlag	Exchange,PetList,PetSavvy,Packet,PetSavvyGGD
+13	call method IsWeGameClient	LoginLogOn,MessageBox_Self,MiniMap,FangChenMi,MessageBox_CYG
+12	call global IMDressLoadPayBox	Shop_BulkBuying,Shop,YuanbaoShop,ZdShop_BulkBuying,XuanPayed
+12	call method SetCheck	OtherPet,SelfMiji,YuShou_QingLong,YuShou_ZhuQue,YuShou_XuanWu
+11	call method CreateActionItemForShow	ActionSkill,JiuJiuXiaoHan_Summer,BieYeCutePetProcreate,Fuli_ZhanLing_Choose,CRWarmUp_BuyMiXin
+11	call method LuaFnIsKaJiServer	Quest,SheJian_Activity,SpringFestival_CaiQiuEnter,SpringFestival_CaidengmiEnter,HuaZhaoJie_TopList
+10	call method CountAvailableItemByIDTable	EquipEducation_JinJie,JiuJiuXiaoHan_Summer,PinTuanNeiGou,Anniversary_XunBao,XiGua_FashionShop
+10	call method EnumPneumaItem	ZhenYuan,ZhenYuanNingLian,ZhenYuanConvert
+10	call method GetBieYeBaseInfo	BieYeBank,BieYeFurniture,BieYeDecoration,BieYeWarehome,BieYe_Mini
+10	call method GetServerDayTime	EquipStrengthen,SelfJunXian,TargetJunXian,Anniversary,BS_CreatTeamList
+9	call global CloseFreshManGuide	SelfMiji,WLBook,SuperWeapon9_TuPo,SuperWeapon9_ShengJie,SuperWeapon9_DIYSkill
+9	call method ?	ActionSkill,MessageBox_Self,LoginSelectServerQuest,WuhunQuest,MessageBox_Self2
+9	call method FittingOnDress	SelfEquip,Shop_Fitting,DressPaint,ChangeSex,Shop_Fitting2
+9	call method GetBaseBag_Num	PetList,Packet,PetShopList,SafeCenter_LockUnlock
+9	call method GetMyUIDirInfo	BW_Match_Fight,BW_Match_FightMiNi,BW_Match_End,BW_Match_JieSuan
+9	call method GetName	Exchange,Quest,TeamPTFind,SeventhFestivalTopList,ValentineRoseTopList
+8	call global Lua_GetTeSeServerData	MissionTrack,PlayerQuicklyEnter,Valentine,CoupleQuest,Martial_WuYi
+8	call method GetCorpsMemberPost	NoDiffMatch_CreateManger,NoDiffMatch_CreateTeamInfo,NoDiffMatch_TeamManger,NoDiffMatch_TeamInfo
+8	call method GetMyGuildName	NewBangHui_Redenvelope,NewBangHui_Hygl,NewBangHui_Bhxx,NewBangHui_Tmxx,NewBangHui_Xuanzhan
+8	call method GetOthersName	ExchangeSafe
+8	call method GetTypeDesc	SuperTooltip_Compare,SuperTooltip_Compare2,SuperTooltip2_Compare,SuperTooltip2_Compare2,SuperToolTip_AttrCompare
+8	call method GetZbsStage	NoDiffMatch_CreateManger,NoDiffMatch_CreateTeamInfo,NoDiffMatch_TeamManger,NoDiffMatch_TeamInfo
+8	call method LuaFnGetExteriorRaceID	NewExterior_DressStyle,NewExterior_GemEffect
+8	call method LuaFnGetKaJiType	Quest,YuanbaoShop,ServerNew,Jueqing_Fuchi,JiuJiuXiaoHan_Spring
+7	call method GetBattleBaseInfo	Frozen_PVPResult,Frozen_PVPScore,Frozen_PVPScoreMini,Frozen_PVPDaoJuBao,Frozen_PVPDaoJuBaoMini
+7	call method GetCurSelectRole	LoginSelectRole,YuanbaoShop,XuanShop,XianShiHuoDongTiShi1,EquipLingPai_Update
+7	call method GetFriend	FriendInfo,Friend,ContexMenu,FriendInfo_KVK,BeiZhu
+7	call method GetLastDayMonster	ZhenYuan,Martial_ZhaoHui,HuanLing,PetNeidan
+7	call method GetMySelfIMDress	XuanFitting,XuanShop,VIP_XuanShop
+7	call method GetPlayerMission_Name	MainMenuBar,SceneMap,QuestLog,MissionTrack,Valentine
+7	call method GetServerId2ClientId	BankLockFast,WeddingDaySet,NoDiffMatch_ShowStateOne,NoDiffMatch_ShowStateTwo,GuiShi_Shop
+7	call method LuaFnInitExteriorList	SelectHairstyle,SelectFacestyle,SelectHeadstyle,PetHuanSe
+7	call method LuaFnInitZhanTuanData	NewBangHui_Redenvelope,NewBangHui_Hygl,NewBangHui_Bhxx,NewBangHui_Tmxx,NewBangHui_Jieshao
+7	call method LuaFnIsCanMeltCangPinChip	ZhenYuan,YuShou_QingLong,YuShou_ZhuQue,YuShou_XuanWu,YuShou_BaiHu
+7	call method LuaFnUpdateDressPreviewPlayerData	DressPreview
+7	call method SetCurRentIndex	Bank,Banghui_Bank,BigBank,BieYeFurnitureBank
+6	call global IsInTServer	ActionSkill,NewFriend_GFSF,BS_CheckPromoted,BS_CheckPromotedShow
+6	call method GetAttrCmpStr	SuperTooltip_Compare2,SuperTooltip2_Compare,SuperTooltip2_Compare2,SuperToolTip_AttrCompare2,SuperToolTip2_AttrCompare
+6	call method GetCurrentFreshManGuideItemValue	FreshManGuide,FreshManGuide_2013,PointChoise,WordChoise,NewNpcChat
+6	call method GetShowWuhunObj	SelfEquip,Wuhun,EquipBaoshiChange,EquipBaoshiCheck,EquipBaoshizhaichu
+6	call method GetTickCount	Exchange,EquipEducation_Temper,Infant,HeXinChun,ZhanJiangHu
+6	call method IsLock	PetEquipSuitDepart,Pethuantong,PetPropagateSingle,Songliao_EquipLevel,CardCompose
+6	call method LuaFnHavePetNeiDanChipCanCompound	YuShou_QingLong,YuShou_ZhuQue,YuShou_XuanWu,YuShou_BaiHu,HuanLing
+6	call method TSLGetMyCamp	SongliaoKuafu_Fight,SongliaoKuafu_Score,SongliaoKuafu_Image,SongliaoKuafu_FightMini
+6	concatenate local CurValue	BieYe_QiYu,BieYe_QiYu_Mini
+5	call global Lua_IsInTXiongBa	Relive,CampPVP2023_Relive,WorldBoss_Relive,ZM_Boss_Relive,XiaKeTL_Relive
+5	call method EnumItemPrice	Shop_MBuy,ShowShop_MBuy,NewDungeon_DaibiShop_MBuy
+5	call method GetBagItemName	WuhunQuest
+5	call method GetBuyDirectly	YuanbaoShop,XiGua_Fashion,YuanXiao_ShopBuy,PickOne
+5	call method GetGuildContri	BangHui_Shop,EquipLingPai_ShengJie,NEWShop_MBuy
+5	call method GetItemName	MessageBox_Self,WuhunQuest
+5	call method GetLeftProtectTime	GemChange,Dress_Gem,PetLianHua,GuiShi_Shop,FeiyuShow
+5	call method GetMF	ZhenYuanNingLian,Newserver_Hongbao
+5	call method GetMengChongXiaoWoIndex	BieYeCutePetBank,BieYeCutePetPreview1,BieYeCutePetPreview2,BieYeCutePet_IN
+5	call method GetNpcId	LifeSkillsStudy,PS_CreateShop,PS_Message,Banghui_Bank,New_Input
+5	call method GetStallOfflineState	Huoyuehaoli,SelfMiji,Infant
+5	call method LuaFnGetGuiShiYinPiao	GuiShi_Shop
+5	call method Lua_IsBagItemRL	EquipLingPai_OperatingXQ,EquipLingPai_SkillQH,EquipLingPai_Star
+5	call method Lua_IsBagItemRS	EquipLingPai_OperatingSJ,EquipLingPai_OperatingXQ,EquipLingPai_OperatingZC
+5	call method SetIsConfigChanged	GameSetup
+5	call method lua_GetJSRankingListDataCount	BingSheng_RankingList,TianBoFu_RankingList,RouGe_RankingList,ZhouchangPVE_RankingList
+4	call global MsgBall	NewMessageBall,NewMessageBall2
+4	call method ClosePetSkillStudyMsgBox	PetSkillStudy,PetStudyNewSkill
+4	call method CreateBindActionItemForShow	ChunXingDaSong_Activity,TeQuanShop_Mbuy,XiGuaDraw_Shop_Award,XiGuaDraw_ShopPreview
+4	call method GetBieYeMengChongCurCount	BieYeCutePetBank,BieYeCutePetPreview1,BieYeCutePetPreview2,BieYeCutePet_IN
+4	call method GetCopyScenePlayerInfoByIdx	BangHui_Fight_Score,BangHui_Fight_Score_Tiny
+4	call method GetCurWeekAwardState	CRWarmUp_Shop
+4	call method GetFriendNumber	Friend,Relation,XuanPresent_ChooseFriend,MailTarget
+4	call method GetInfantMaxCount	ActionSkill,TargetInfant
+4	call method GetMyPost	BT_CreateManager,BT_TeamInfo
+4	call method GetNewHuaShanMenPaiRank	HuaShanCompetition_ZhanKuang,HuaShanCompetition_Mini
+4	call method GetOtherPetMasterPointState	OtherYuShou_QingLong,OtherYuShou_ZhuQue,OtherYuShou_XuanWu,OtherYuShou_BaiHu
+4	call method GetPetMasterPointState	YuShou_QingLong,YuShou_ZhuQue,YuShou_XuanWu,YuShou_BaiHu
+4	call method GetPhoenixPlainWarScore	PhoenixPlainWarSingle,PhoenixPlainWarMulti
+4	call method GetPlayerMission_InUse	QuestLog
+4	call method GetTeamMemberCount	PartyFrame
+4	call method GetWTeamMemberPost	BS_CreateManger,BS_TeamInfo
+4	call method Hide	BangHui_Fight_Score,BangHui_Fight_Score_Tiny,BangHui_Fight_ResultShow
+4	call method IsWeGameServer	GameSetup,ViewSetup,SoundSetup,AcceSetup
+4	call method LuaFnEnumPetNeiDanPosType	PetNeidan,NeidanUpgrade,NeidanDowngrade,PetNeidan_Breakup
+4	call method LuaFnGetSJTXSceneMatchType	BS_SeaMatch_DoubleKill,BS_SeaMatch_DoubleKill_Jx
+4	call method Lua_GetNewServerBroadcastInfo	ServerNew
+4	call method Lua_GetRecoinNum	LongwenPropertyResetNEW,EquipAttributeChange
+4	call method PrepareMembersInfomation	ConfraternityFirstMan,NewBangHui_Hygl,ConfraternityCommander_Name,ConfraternityCommander_Select
+4	call method ReadSendMail	WuhunQuest,MailEdit,MailBrowse
+4	call method UnlockSelItem	InputMoney,InputYuanbao
+4	perform arithmetic on local pheight	ActionSkill
+4	perform arithmetic on local posX	SuperTooltip2_Compare,SuperTooltip2_Compare2,SuperToolTip2_AttrCompare,SuperToolTip2_AttrCompare2
+3	call global GetSecKillFuBenCount	ActionSkill,SweepPage
+3	call global Lua_IsChangeBroship	WorldReference,NewFriend_Jiebai,JieBaiZF
+3	call global OpenWindow	JinBiJiaoZi,Logon_FZKCheckFail,Dahua_Incom_Feipinhuishou
+3	call method AcquireListWithCangKuHC	BieYeWarehome,BieYeDecoration_InBank,BieYeFurnitureTransfer
+3	call method ClearFittingProperty	InfantSelectHairColor,InfantSelectHairStyle,GXHInfantcolorstyle
+3	call method CloseBuyConfrim	CommisionStall
+3	call method GMChat_StopChat	GMChat,GMConnectInfo
+3	call method GetAvailableActPoint	FengYun_PVE_Talent
+3	call method GetBattleTeamData	HuaShanLunJian2_ResultShow,HuaShanLunJian2_ZhanKuang
+3	call method GetComboBookInfo	MainMenuBar,MainMenuBar_4,SelfMiji
+3	call method GetFriendByGUID	FriendPresent,Shop_MBuy,Shop_MGift
+3	call method GetGUID	ZM_Boss_MiNi,ZM_Boss,Frozen_GeCao_PersonalTopList
+3	call method GetGroupingNameByIndex	Friend,XuanPresent_ChooseFriend,MailTarget
+3	call method GetGuildFuliPoint	NewBangHui_Fuli,NewBangHui_Fuben,NewBangHui_Guanshanhai
+3	call method GetHuaShanGRMatchScore	HuaShanGRMatchSingle,HuaShanGRMatchMulti
+3	call method GetMaritiaAttrInfo	ActionSkill,OtherMartial_WuYi
+3	call method GetMyPos	QingMing_Treasure,Soujijunxu_Treasure,MengTuNaoXiJing
+3	call method GetMyScore	SongliaoWarSingle,SongliaoWarMulti
+3	call method GetMySelfEquipMasterFlag	FightScore
+3	call method GetReturnItemPageTatol	Compensate
+3	call method GetServerOpen	PS_ShopMag,PS_ShopList,Packet
+3	call method GetSubItem	NewExterior_DressBox,WuLin_Awards_New,CangPin_List
+3	call method IsInBattleScene	Frozen_PVPDaoJuBao,Frozen_PVPDaoJuBaoMini,HuaShanLunJian2_ZhanKuang
+3	call method IsSaleOut	PS_ShopMag
+3	call method LuaFnGetExteriorInUse	NewExterior_Ride,NewExterior_Headdress,NewExterior_Widget
+3	call method LuaFnGetFashionAuctionBiddingInfo	Fashion_AuctionBidding
+3	call method LuaFnGetToyInfo	ToyCollection
+3	call method LuaFnSetCurrentExteriorSetInfo	NewExterior_DressBox,NewExterior_DressStyle,NewExterior_GemEffect
+3	call method LuaFn_MouseCmd_Cancel_PND_HQ	PetNeidan,OtherPetNeidan,PetNeidan_Tujian
+3	call method Lua_InitPetHuanLingList	HuanLing
+3	call method RestoreDressEnchaseFitting	Dress_Transfer,Dress_SplitGem
+3	call method SendAskItemInfoMsg	Cardtip,CangPin_tip_4,CangPin_tip_Show
+3	call method TSLGetBattleData	SongliaoKuafu_Fight,SongliaoKuafu_FightMini
+3	call method UpdateCaptchaData	TextValidate
+2	call global AppWareGetLeftCheckTime	SafeCenter_SafeCheck
+2	call global CheckPhoneMibaoAndMinorPassword	PetHuanhua,LongwenExtraPropertyStudy
+2	call global GetActionNum	CommonSkill,LifeSkill
+2	call global GetApprovedPhoneFlag	SafeCenter_SafeScore,SafeCenter_MobilePhone
+2	call global GetHuoYueShopData	ActivitySchedule_MBuy,ActivitySchedule_MBuy2
+2	call global IsTBFinalServer	XuanShop,Martial_WuYi
+2	call global Lua_GetXinFuHongBaoDataInfo	Newserver_Hongbao_JSB_Buy,Newserver_Hongbao_MBuy
+2	call global Lua_IsPrintMemMode	LoginSelectServer
+2	call global Lua_TDU_Log	ActionSkill,XinShouNew_HXL
+2	call global OpenBooth	BieYe_MCJBShop,BieYe_MCKLShop
+2	call global WRCollectVisiableContexEx	Quest,WorldReference
+2	call global tonumner	WuLin_StartEnd_New
+2	call method AskGuildMembersInfo	NewBangHui_Hygl,NewBangHui_Bhxx
+2	call method ClearUpPetJianColorRate	PetPossJian,PetHuanSeJian
+2	call method CloseCmp2WindowMain	SuperTooltip2,DressSuperToolTip2
+2	call method CloseCmpWindowMain	SuperTooltip,DressSuperToolTip
+2	call method CloseHuaShanGRMatchScoreMultiTable	HuaShanGRMatchSingle,HuaShanGRMatchMulti
+2	call method ClosePhoenixPlainWarScoreMultiTable	PhoenixPlainWarSingle,PhoenixPlainWarMulti
+2	call method CloseSendNewMail	MailEdit,MailReply
+2	call method ConfigTabFinish	ChannelCustomization
+2	call method CreateFYPVEItemAction	FengYun_PVE_Backpack,FengYun_PVE_Pickup
+2	call method EnumRecycleItemAction	PS_ShopList,Packet
+2	call method GetAbilityInfo	Synthesize
+2	call method GetAccVipLevel	YuanbaoShop,VIP_Shop
+2	call method GetBrotherCount	NewFriend_Jiebai,JiebaiManage
+2	call method GetCfgByLv	Pretty_Achievement
+2	call method GetConvertUT	MainMenuBar,Phony_InfoBrowser
+2	call method GetCurInner	BieYeFurnitureBank,BieYeFurnitureReplenish
+2	call method GetCustomPlayerList	LieBiaoSetup
+2	call method GetFightPairCount	NoDiffMatch_YXSFBList,BS_GMRecord
+2	call method GetGuildGiftSingleLog	Redenvelope
+2	call method GetInfantCard_EnhanceLevel	CardStrengthen,CardTransfer
+2	call method GetItemTableIndex	WuhunQuest,MessageBox_Self2
+2	call method GetItem_Cur	CRWarmUp_Shop
+2	call method GetMailNumber	InfoBrowser
+2	call method GetMaritiaExp	Martial_WuYi
+2	call method GetMissionDemand_Num	Quest
+2	call method GetMyGuildDetailInfo	ConfraternityInfo2,BangHuiFuLi
+2	call method GetMyGuildInfo	MessageBox_Self,ConfraternityPosition
+2	call method GetMySellBoxItemAuctionInfo	WuhunQuest,YB_Modify
+2	call method GetPetSkillBarItemCount	MainMenuBar_3,AutoAttackSkill
+2	call method GetPingBiNum	ScreenList
+2	call method GetPneumaExp	ZhenYuanNingLian,ZhenYuanConvert
+2	call method GetProvincesNum	ChannelCustomization,ChannelSetFenping
+2	call method GetRankType	BW_RankingList,BW_RankingList_Across
+2	call method GetSelfZoneWorldID	ActionSkill,FriendSearch
+2	call method GetServerAreaCount	ChatFrame,LoginSelectServer
+2	call method GetShopCoinFst	CJ_Shop
+2	call method GetShopNum	PS_ShopList
+2	call method GetStallNum	PS_ShopList
+2	call method GetStallType	StallSale,Packet
+2	call method GetTeamBoardGoalNum	PS_ShopList
+2	call method GetTeamLeaderInfo	WuLin_Difficulty
+2	call method GetTotalCount	PlayerGuide
+2	call method GetTujianInfo_All	Tujian_Handbook,Tujian_HandCard
+2	call method GetUIColor	DebugListBox,SuperWeaponUpNEW
+2	call method IsInGSService	GSEvaluate,NEWGSEvaluate
+2	call method IshaveGSIMMsg	Friend_IMWindowMin,GSChat
+2	call method LuaFnGetBJBToken	BianJingNew_Auction,BianJingNew_AuctionZhiPai
+2	call method LuaFnGetChildExteriorInUse	NewExterior_InfantDressBox,NewExterior_InfantHairStyle
+2	call method LuaFnGetExteriorPlayerFittingCount	NewExterior_HairStyle,NewExterior_PetPossJian
+2	call method LuaFnIsHaveExteriorShowTip	NewExterior_InfantDressBox,NewExterior_InfantHairStyle
+2	call method LuaFnIsHaveToyShowTip	ZhenYuan,Martial_WuYi
+2	call method Lua_GetAnniversaryButtonState	Anniversary_Guide,LuckyBag
+2	call method Lua_GetItemNameByIndex	LoginSelectServerQuest,MessageBox_Self2
+2	call method Lua_GetJinLiInfoByIndex	JinLiMain,JinLiInfo
+2	call method Lua_GetUnLockItemCount	WuhunQuest,Miji_Shop
+2	call method Lua_IsBagItemBelongZZType	EquipEducation_JinJie
+2	call method Lua_IsBagItemHXY	HaoXiaYin_Update
+2	call method Lua_IsPaoShangSvr	ConfraternityCustomPosition,CheckCustomPosition
+2	call method Lua_SetGemComposeNotify	Gemcompose
+2	call method Lua_ZYPVPVGetMyCamp	CampPVP2023_Progress,CampPVP2023_TopList
+2	call method OpenMessageFrame	StallBuy,StallSale
+2	call method SetEquipTransferSP	EquipEducation_Transfer,VIP_EquipEducation_Transfer
+2	call method SkillStudy_MenPaiSkill_Clear	PetSkillStudy,PetStudyNewSkill
+2	call method WTeam_Dismiss	BS_CreateManger,BT_CreateManager
+2	call method WTeam_Leave	BS_CreateManger,BT_CreateManager
+2	call method Wear_Equip_SetStopState	SuperWeapon9_Change
+2	concatenate local g_Num1	BieYe_QiYu,BieYe_QiYu2
+2	concatenate local g_Num1Mini	BieYe_QiYu_Mini,BieYe_QiYu2_Mini
+2	perform arithmetic on local num	ThreeCityZhanBao,ThreeCityZhanBao2
+1	call global ANSI2TM	YouLongKa
+1	call global AskFYJCPVPMapBaseInfo	FengYun_JianJiSceneFb
+1	call global AskWeekPveMapBaseInfo	ZhouchangPVE_SceneFb
+1	call global AutoRuntoTargetExWithName	AutoAttackSkill
+1	call global CleanUpPreIMDressMailBox	IMShowGift
+1	call global CloseTitleList	SelfEquip
+1	call global CollectMissionOutline	QuestLog
+1	call global ConvenientBulkBuyItem	WuhunQuest
+1	call global CreateChar_RenameNote_Ret	LoginSelectServerQuest
+1	call global EnterQuitWait	MessageBox_Self2
+1	call global GetCurrentSceneName	Fenxian
+1	call global GetCurrentTime	ActionSkill
+1	call global GetDictionaryString	ActionSkill
+1	call global GetMasterName	Evaluate
+1	call global GetMountID	Shop_Fitting
+1	call global GetPlayerQuickEnterCount	ActionSkill
+1	call global GetSceneServerID	T3BianJing_Guide
+1	call global GetSceneSize	ActionSkill
+1	call global GetSceneSizeByID	SceneMap
+1	call global GetZongMenShopDataByID	MessageBox_Self2
+1	call global IMDressChestGetSelIndex	XuanFitting
+1	call global InitSecKillHuoDong	SweepAll
+1	call global IsAppWareProtectSetup	SafeCenter_SafeCheck
+1	call global IsInStall	GemEffectPreview
+1	call global IsInYaoTaServer	KVK_ShengQiPVP_ZhiYing
+1	call global LuaFnXinShouZhanLing_GetLevel	FreshMan_GamePass
+1	call global Lua_BXJWuHuiShowAllIconByType	Frozen_Dance_Map
+1	call global Lua_GetDaHuaQiXiShop_GetDaibiCount	DaHuaQiXi_Shop
+1	call global Lua_GetGouWuCheMaxPool	ShopingCart
+1	call global Lua_GetGuanHuaiJueQingGuRedPoint	Jueqing_Fuchi
+1	call global Lua_GetHuiLiu2022_ShouCeHuiLiuLevel	HuiLiuHuoDong
+1	call global Lua_GetNeiDanShopPages	PetNeidan_Shop
+1	call global Lua_GetSecKillInfoByFuBenIndexID	WuhunQuest
+1	call global Lua_GetXiaKeConfData	Xiake_Shop_Preview
+1	call global Lua_GetXiaKeShopData	Xiake_Shop_DbBuy
+1	call global Lua_SendMemoCountMsg	Memo
+1	call global Lua_SetNeiGuaMemoId	(mở)
+1	call global Lua_ShowQuickEnterPointTip	Chengzhan_Jiangli
+1	call global MessageBoxCommon	WuLin_Team
+1	call global MessageBoxSelf3	AutoAttackSkill
+1	call global NG_GetInt	Sancai
+1	call global SCItemSet_Update	FreshManMission_JLYH
+1	call global SafeBox	BankLockFast
+1	call global SendSecKillDataMsg	SweepAll
+1	call global ThreeCity_WangQuan_Up_OnHiden	ThreeCity_WangQuan_Up
+1	call global ToggleAutoSearch	SceneMap
+1	call method AskBattleList	NewBangHui_Xuanzhan
+1	call method AskGuildBattleHisInfo	NewBangHui_Chronicle
+1	call method AskMyBagList	Packet
+1	call method CallOf	Relive
+1	call method Campaign_GetItemData	CampaignItemTip
+1	call method CancelRotationFurniture	BieYeFurnitureTurn
+1	call method CancelSplitItem	SplitItem
+1	call method Change_MyHairColor	SelectHairColor
+1	call method ClearCompareTarget	AchievementCompare
+1	call method ClearHeroObj	Infant_HeroChoice
+1	call method ClearStore	AutoPickUp
+1	call method CloseMissionFrame	MissionReply
+1	call method CloseShopMag	PS_ShopMag
+1	call method CloseSongliaoWarMulti	SongliaoWarMulti
+1	call method CloseUpItemWindow	YbMarket
+1	call method Close_Before_TargetEquip_UI	TargetFightScore
+1	call method Corps_DismissCorps	NoDiffMatch_CreateManger
+1	call method Corps_LeaveCorps	NoDiffMatch_CreateManger
+1	call method CreateFYPVESkillAction	FengYun_PVE_Skill
+1	call method DismissTeam	Team_Frame
+1	call method EnumItemMaxOverlay	Shop_MBuy
+1	call method EnumKAllianceShopCommodityInfo	ZhanMengShop_MBuy
+1	call method EnumKMSDShopCommodityInfo	MingshiShop_MBuy
+1	call method GMChat_Connect	GMConnectInfo
+1	call method GameLoginShowSystemInfo	LoginLogOn
+1	call method GetAchvStatusByID	AchievementFrame
+1	call method GetActiveAchvCount	AchievementFrame
+1	call method GetAnyGuildMembersInfo	Confraternity_OfficialPositionList
+1	call method GetApplyGuildCount	GuildLeagueApply
+1	call method GetAttackGuildName	ConfraternityTiaozhan
+1	call method GetBWTroopsPK_LeftTimes2018	BW_Match_Fight
+1	call method GetBagPosByItemIndex	EquipBind
+1	call method GetBattleMyInfo	QiXi_PVPTopList
+1	call method GetBattlePlayerRankInfo	Frozen_PVPTopList
+1	call method GetBattleRankListNum	NewBangHui_RankingList
+1	call method GetBattleRankListNum_K	NewBangHui_RankingList
+1	call method GetBattleTeamInfo	ZBS_Score
+1	call method GetBattleType	ZBS_ResultShow
+1	call method GetBieYeMengChongInfo	BieYeCutePetPreview1
+1	call method GetBieYeScenePlayerCount	BieYePersonnelManage
+1	call method GetBieYeStyleInfo	ActionSkill
+1	call method GetBrotherShip	ZhenfaSkill
+1	call method GetBudgetPlanGemInfoCount	BudgetPlanGem
+1	call method GetCJMaxCur	Pretty_Shop
+1	call method GetChallengeTeamMemberCount	Challenge
+1	call method GetCharSaletimeCyg	LoginSelectRole
+1	call method GetChatGroupName	Friend_IMCreateGroup
+1	call method GetChatSetting	Friend_IMSetting
+1	call method GetCityShopInfo	CityShop
+1	call method GetCommanderLevel	WarMarker
+1	call method GetCommodityTypesNum	ZhanMengShop
+1	call method GetCompeMarrySponsorInfo	MartialArtslist
+1	call method GetCurWeekActPoint	FengYun_PVE
+1	call method GetDarkSkillNewDesc	AnqiShuxingNEW
+1	call method GetDataByUI	Anniversary_Rich
+1	call method GetDefaultPage	StallSale
+1	call method GetDirectory_TujianCard	Tujian_HandCard
+1	call method GetDressDesc	DressJian
+1	call method GetEnemyNum	NewBangHui_Xuanzhan
+1	call method GetEquipZiZhiRefreshDesc	IdentifyTwice
+1	call method GetExp_IfSmeltAll	LoginSelectServerQuest
+1	call method GetFengMingShopDaiBi	FengmingShop
+1	call method GetFieldBossNumber	ServerNew
+1	call method GetFinalCorpsInfoByIdx	NoDiffMatch_ZJSGMList
+1	call method GetForeverLock	SafeCenter_SafeTime
+1	call method GetFormatTimeString	GMChat
+1	call method GetFriendPageNumber	FriendSearch
+1	call method GetFurCntInCangku	BieYeFurnitureDestroy
+1	call method GetFurCreateInfo	(mở)
+1	call method GetFurnitureNews	ActionSkill
+1	call method GetGSIMChatCount	GSRecord
+1	call method GetGSName	Friend_IMWindowMin
+1	call method GetGroupingName	Friend_IMGroupInvite
+1	call method GetGuildBattleScore	ConfraternityCount
+1	call method GetGuildClanID	Chengzhan_ZhanTuan_TopList
+1	call method GetHistroyNumber	HistoryCorrespondence
+1	call method GetInvitationCount	UnionChoose
+1	call method GetIsForbidName	LoginCreateRole
+1	call method GetIsReturnAllSubject	Compensate
+1	call method GetJinCanSi_Buy_Flag	Jincanxianli
+1	call method GetKFSNewSkillDesc	NewWuhunSkillStudy
+1	call method GetLYDarkStarAddDataInBag	AnqiChongxi
+1	call method GetLeagueCount	GuildLeagueList
+1	call method GetMLZDRankingListMemberInfo	WuLin_TeamDet
+1	call method GetMailCount	MailBox
+1	call method GetMemberIndexByGUID	UnionFrame
+1	call method GetMemberInfoByIdx	NewBangHui_FightGroup_Compare
+1	call method GetMessageType	PS_Message
+1	call method GetMobileApproveStatus	Captcha
+1	call method GetMood	InputMood
+1	call method GetMsgNum	NewMsgBallHistory
+1	call method GetMySellBoxItemName	WuhunQuest
+1	call method GetMySex	SelfJingMai
+1	call method GetMySquadMemCount	PartyFrame
+1	call method GetMyTeamLockedFlag	BW_CreateManager
+1	call method GetMyTeamMemberInfo	BW_LockTeam
+1	call method GetNewGSIMChatCount	NEWGSRecord
+1	call method GetNewGSName	Friend_IMWindowMin
+1	call method GetNewGSState	NEWGSChat
+1	call method GetNewHuaShanGeRenRank	HuaShanCompetition_PersonalTopList
+1	call method GetNpcTalk	StoryBustTips
+1	call method GetPetEquipZiZhiNewDesc	PetIdentifyTwice
+1	call method GetPetsOneTypeNum	PetJian
+1	call method GetPlayerMission_DelActivePos	QuestLog
+1	call method GetPlayerMsgNum	ZhengyouMessage
+1	call method GetPneumaSet	ZhenYuanSetTips
+1	call method GetPortInfo	ConfraternityList
+1	call method GetPos	MessageBox_Self
+1	call method GetRankListInfo	WuLin_TeamDet
+1	call method GetRankNodeCount	BT_CreatTeamList
+1	call method GetRecycleItemClassCount	SelRecycleItem
+1	call method GetRefreshInfantSkillInfo	Infant_SkillReset
+1	call method GetRestBattleInfo	ZBS_YXSFBList
+1	call method GetRestTeamInfo	ZBS_ZJSGMList
+1	call method GetReturnResultCount	Compensate
+1	call method GetRoleCount	LoginSelectRole
+1	call method GetRoomWTeamInfoByIdx	BT_CreatTeam_List_Lb
+1	call method GetServerMinuteTime	ServerNew
+1	call method GetShiMenInfoByIdx	NewFriend_GF
+1	call method GetShowUITitleCnt	Agname
+1	call method GetSpecialDressDesc	DressJian_sp
+1	call method GetSplitSum	SplitItem
+1	call method GetSystemHistroyNumber	HistoryCorrespondence
+1	call method GetTableAchievementNum	FengYun_PVE_Ach
+1	call method GetTableItemNum	FengYun_PVE_Collect
+1	call method GetTrustFriendNumber	TrustFriendList
+1	call method GetVoteInfoNum	VotedPlayer
+1	call method GetZMSectUsePlanIndex	ZongMenSkill_Share
+1	call method GetZWNpcInfo	T3ZhanGongGet
+1	call method GetZhenfareturnback	WuhunQuest
+1	call method GetZhengZhaoFubenCount	EnlistTeammate
+1	call method GetZhengZhaoFubenID	EnlistTeammate
+1	call method Get_SetAccess	Banghui_Bank
+1	call method Infant_GetCardData	Cardtip
+1	call method InputSetupSwitch	AcceSetup
+1	call method IsDoubleAwardTime	WuLin
+1	call method IsGemOnDressByType	Dress_Gem
+1	call method IsInKVKServer	NewBangHui_RankingList
+1	call method IsInRaid	BieYeFurnitureCreate
+1	call method IsMissionAcc	LoginSelectServerQuest
+1	call method IsSendSelfToDest	Exchange
+1	call method IsTeamLeader	WuLin_Difficulty
+1	call method IsWorking	AutoAttackSkill
+1	call method IsYBMarketCanSwitchPage	YbMarket
+1	call method IshaveGSIMMsgNew	NEWGSChat
+1	call method LeaveAddFlag	WarMarker
+1	call method LuaFnCleanEquipUpstageResult	EquipEducation_Upstage
+1	call method LuaFnGet2023XiGuaShopInfoCount	XiGuaDraw_ShopBox
+1	call method LuaFnGetCangPinSetEffectLevel	SweepPageQuest
+1	call method LuaFnGetChatSymbolData	ChatSign
+1	call method LuaFnGetDailyShopSelectNum	DailyShop_LiBao
+1	call method LuaFnGetDfsSceneMatchType	BT_SeaMatch_DoubleKill_Jx
+1	call method LuaFnGetGetTotalGuildActValue	T3WarmUpBangHui
+1	call method LuaFnGetGuildSaoLeiMapIndex	Minesweeper
+1	call method LuaFnGetLuckyLineChoujiangItemInfo	RichFlip_Reward
+1	call method LuaFnGetNPCShopRepoListNum	GuiShi_Shop
+1	call method LuaFnGetSkillCardInfo	Rune_Stars_Cardtip3
+1	call method LuaFnGetSnowShopCJItemInfo	Frozen_WheelCJAwardPreview
+1	call method LuaFnGetT3ShopToken	T3DaibiShop
+1	call method LuaFnGetXFSJHumanInfoValidCount	ServerNew_XFSJ
+1	call method LuaFnGetXingZhen_JiBanAwardRange	Fetter_Award
+1	call method LuaFnGetZhanTuanMaxNum	ChatFrame
+1	call method LuaFnIsCangPinClassShowTip	CangPin_ShuXing
+1	call method LuaFnRestoreFashionDepot	DressClosetFrame
+1	call method LuaFnSetCurrentJingMaiPage	SelfJingMai
+1	call method LuaFnSortPlayerPetNeiDanList	PetNeidan
+1	call method LuaFnUpdateDressGemEffect	GemEffectPreview
+1	call method LuaFnUpdateExteriorYiRongGeData	NewExterior_Show
+1	call method Lua_21Q3SignInAct_GetPlayerExperienceCount	CRWarmUp_GetTogther
+1	call method Lua_ClearSXKH_NixiActionItem	SummerVacation
+1	call method Lua_GetCatMissionDataByIndex	CatGift
+1	call method Lua_GetChallengeRoomFilterMemberCount	TJiaochang_PK_List2
+1	call method Lua_GetEnchanceMinLevel	EquipEffectSelfTips
+1	call method Lua_GetGuildAuctionCount	NewBangHui_AuctionShelve
+1	call method Lua_GetHuaZhaoJieButtonState	HuaZhaoJie_Guide
+1	call method Lua_GetJiebanHuiliuFlag	JieBan_GetPartner
+1	call method Lua_GetPetHuanLingInfo	HuanyuJian
+1	call method Lua_GetQiXiGuideShopTable	QiXi_Guide_2026_Shop
+1	call method Lua_GetQueryBrotherSpiritInfo	WuhunQuest
+1	call method Lua_GetSpouseGuid	Friend_IMHistory
+1	call method Lua_GetSuperRecoinNum	SuperWeaponUpNEW
+1	call method Lua_GetTargetEnchanceMinLevel	EquipEffectTargetTips
+1	call method Lua_GetWuShenTanShopTable	WuShenTan_Guide_Shop
+1	call method Lua_GetXbwData_2018	BW_Match_Stage
+1	call method Lua_GetXinShouCarnButtonState	XinShouNew
+1	call method Lua_IsRedPointInUIShow	Xuanshang_Prize
+1	call method Lua_SetCCShopActionItem	Alcohol_Shop
+1	call method Lua_TianXiaDiYi_Data	ServerNew
+1	call method Lw_Op_Do	LongwenLevelUp
+1	call method ModifStallName	StallSale
+1	call method MoneyChallengeClose	MoneyChallenge
+1	call method OpenRaidSquadWindowByIdx	UnionFrame
+1	call method PacketSend_Search	PS_ShopSearch
+1	call method RecycleShop_GetShopDesc	Recycle_InputBox
+1	call method RequestApplyList	GuildLeagueApply
+1	call method RequestList	GuildLeagueList
+1	call method RespondChallenge	Challenge
+1	call method SaveGameSetup	GameSetup
+1	call method SellCurrItem	WuhunQuest
+1	call method SendAgreeJoinTeam_Apply	AutoAttackSkill
+1	call method SendRejectJoinTeam_TeamMemberInvite	TeamMessageBox1
+1	call method SetBieYeCreatePetType	BieYeCutePetProcreateSingle
+1	call method SetCanFanzhiPet	BieYeCutePetProcreate
+1	call method SetCurrentNameBoardExSetInfo	NameBoardEx_Visual
+1	call method SetEquipUpdatePro	EquipEducation_Update
+1	call method SetEvent	NewBW_TopList
+1	call method SetGuildShopBuyDirectly	ActionSkill
+1	call method SetLastDayMonsterTip	Martial_WuYi
+1	call method SetPageItemSelect	PS_ShopSearch
+1	call method SetPetJianColorRateByFitValue	PetHuanSeJian
+1	call method SetProcreate_Other_Model	PetProcreate
+1	call method SetServerOpen	PS_ShopList
+1	call method SetSpecialObjProperty	InfantDressJian
+1	call method SetText	SelfMiji
+1	call method Show	JBZFMessageBall
+1	call method ShowFoeRelation	Relation
+1	call method SortAnyGuildMembersByPosition	Confraternity_OfficialPositionList
+1	call method TSLGetBossData	SongliaoKuafu_Fight
+1	call method TSLGetTowerData	SongliaoKuafu_Fight
+1	call method Target_GetStage	TargetInfant2
+1	call method UpdatePetList	MissionReply
+1	call method UpdateProductAction	GemChange
+1	call method View_SetData	ViewSetup
+1	call method WriteUserGUID	FriendPresent
+1	call method haveReadGSIMMsg	GSChat
+1	call method haveReadGSIMMsgNew	NEWGSChat
+1	call method lua_GetJSRankingListMyInfo	WuShenTan_Guide_ShenLi
+1	call method lua_GetNormalRankingListRedPoint	FightLevel_TopList
+1	concatenate field ?	LoginLogOn
+1	concatenate global arg1	MessageBox_Self
+1	concatenate local nLevel	AccusationStudio
+1	concatenate local nPercent	WuhunQuest
+1	concatenate local pos	ChannelCustomization
+1	concatenate local szMountName	MessageBox_Other
+1	perform arithmetic on field ?	WuhunQuest
+1	perform arithmetic on local Ind	WuhunQuest
+1	perform arithmetic on local freecount	WuhunQuest
+1	perform arithmetic on local g_CDTimeAndCount	ConfraternityPKStart
+1	perform arithmetic on local lefttime	SceneTransB
+1	perform arithmetic on local nElementsIndex	WuhunQuest
+1	perform arithmetic on local nMD	MessageBox_Self
+1	perform arithmetic on local nMaxMonster	WuhunQuest
+1	perform arithmetic on local nNeedBindYuanbao	MessageBox_Self2
+1	perform arithmetic on local nOld	Martial_WuYi
+1	perform arithmetic on local nPosY	FreshManGuideNew
+1	perform arithmetic on local nRowId	TeamPT
+1	perform arithmetic on local nSelect	WuhunQuest
+1	perform arithmetic on local nTeamTotal	BW_CreatTeamList
+1	perform arithmetic on local nType	WuLin_List
+1	perform arithmetic on local scale	AutoPickUpSet
+1	perform arithmetic on local sheight	ActionSkill
+1	perform arithmetic on local slot	Dress_Materalcompose
+1	perform arithmetic on local squadIdx	UnionFrame
+# lỗi dạng khác (đối số nil, chuỗi, cú pháp...): 6695
+# phương thức widget còn thiếu (số lần gọi, tên)
+35	AddChild
+4	AddColumn
+1	AddOptionElement
+347	AddTextItem
+9	AttachWindowEx
+4	CenterWindow
+626	CleanAllElement
+1968	Clear
+6	ClearListBoxEx
+1	CloseSceneMap
+163	ComboBoxAddItem
+650	DetachWindowEx
+3	GetCurrentSelect
+1	GetCurrentSelectScene
+1	GetItemCount
+1	GetListCount
+2	GetScrollPosition
+1883	GetWindowSize
+4	InsertChatString
+1	PageEnd
+147	RefreshLayout
+18	RemoveAllChatString
+40	RemoveAllItem
+16	RemoveAllText
+111	ResetLastSelectIndex
+153	ResetList
+111	ResetText
+1	SetAimEditBox
+6	SetClippedByParent
+364	SetCurrentSelect
+99	SetEvent
+53	SetImage
+11	SetSelected
+101	SetVertScrollbarHide
+6	Tween_AddCurveVec3
+2449	Tween_Reset
+48	Tween_SetInfo
+2	Tween_Stop
