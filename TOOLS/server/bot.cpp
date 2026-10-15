@@ -192,6 +192,8 @@ struct Seen {
     std::optional<protocol::Position> position;
     std::optional<protocol::CharacterList> roster;
     bool refused = false;
+    // Chế độ --talk: một Reject (lựa chọn chưa có hội thoại, nhiệm vụ chưa nhận được) không kết thúc phiên thử.
+    bool tolerate_reject = false;
 };
 
 void note(const protocol::GameServerMessage& message, Seen& seen, Tally& tally) {
@@ -204,7 +206,8 @@ void note(const protocol::GameServerMessage& message, Seen& seen, Tally& tally) 
     }
     if (const auto* list = std::get_if<protocol::CharacterList>(&message)) seen.roster = *list;
     if (const auto* spot = std::get_if<protocol::Position>(&message)) seen.position = *spot;
-    if (std::holds_alternative<protocol::Reject>(message) || std::holds_alternative<protocol::Goodbye>(message)) {
+    if ((std::holds_alternative<protocol::Reject>(message) && !seen.tolerate_reject) ||
+        std::holds_alternative<protocol::Goodbye>(message)) {
         seen.refused = true;
     }
     if (std::holds_alternative<protocol::SceneEnter>(message)) ++tally.entered;
@@ -369,8 +372,9 @@ void converse(link::Link& line, Seen& seen, Tally& tally, std::uint32_t npc, std
     ++tally.dialogs;
     std::println("  hộp thoại: {} dòng, {} lựa chọn", seen.dialog->lines.size(), seen.dialog->choices.size());
     const protocol::DialogOpen root = *seen.dialog;
+    std::uint64_t session = root.session;
     for (const protocol::DialogChoice& choice : root.choices) {
-        if (!ask(protocol::DialogChoose{.session = root.session, .index = choice.index})) return;
+        if (!ask(protocol::DialogChoose{.session = session, .index = choice.index})) return;
         listen(line, seen, tally, kReply, [&] { return seen.dialog.has_value(); });
         if (seen.dialog && seen.dialog->mode == protocol::DialogMode::kMissionInfo && seen.dialog->panel_quest >= 0) {
             ++tally.offers;
@@ -388,6 +392,7 @@ void converse(link::Link& line, Seen& seen, Tally& tally, std::uint32_t npc, std
         if (!ask(protocol::Talk{.npc = npc})) return;
         listen(line, seen, tally, kReply, [&] { return seen.dialog.has_value(); });
         if (!seen.dialog) return;
+        session = seen.dialog->session;
         ++tick;
     }
 }
@@ -399,6 +404,7 @@ void talk(link::Link& line, Seen& seen, Tally& tally, const protocol::Position& 
     seen.x_cm = start.x_cm;
     seen.z_cm = start.z_cm;
     std::uint32_t tick = 0;
+    seen.tolerate_reject = true;
     go(line, seen, tally, goal, kCloseCm, tick);
     listen(line, seen, tally, std::chrono::milliseconds{1500}, [] { return false; });
     const auto target = nearest_talkable(seen);

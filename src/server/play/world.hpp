@@ -62,7 +62,7 @@ public:
     [[nodiscard]] const item::Catalog& items() const noexcept;
     [[nodiscard]] const item::Limits& item_limits() const noexcept;
     [[nodiscard]] std::span<const talk::HandlerSpec> handlers() const noexcept;
-    // Script NPC này có hội thoại chạy được không: zone đặt cờ "nói chuyện được" lên NPC theo câu trả lời này.
+    // Script NPC này có hộp thoại gốc chạy được không: zone đặt cờ "nói chuyện được" lên NPC theo câu trả lời này.
     [[nodiscard]] bool speaks(std::uint32_t script) const noexcept;
 
 private:

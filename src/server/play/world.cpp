@@ -175,7 +175,11 @@ const actor::Rules& World::rules() const noexcept { return *data_->rules; }
 const actor::BodyLimits& World::body_limits() const noexcept { return data_->body_limits; }
 const item::Catalog& World::items() const noexcept { return *data_->items; }
 const item::Limits& World::item_limits() const noexcept { return data_->item_limits; }
-bool World::speaks(std::uint32_t script) const noexcept { return data_->script->is_npc_script(script); }
+bool World::speaks(std::uint32_t script) const noexcept {
+    // Chỉ NPC có hộp thoại gốc chạy được mới bấm được: điểm vào gốc chưa trích được thì Talk chỉ trả "không có hội thoại".
+    const talk::Entry* const root = data_->script->entry(script, -1);
+    return root != nullptr && root->status == talk::EntryStatus::kOk;
+}
 std::span<const talk::HandlerSpec> World::handlers() const noexcept { return handlers::registry(); }
 
 } // namespace game::play
