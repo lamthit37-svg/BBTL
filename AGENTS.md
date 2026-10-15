@@ -192,6 +192,13 @@
     cùng lệnh không có `--fix` thì kiểm; công cụ sinh TOML dùng `config_style.render`. Hai luật
     "không comment cuối dòng" và "không căn thẳng cột" nới riêng cho các tệp này — chủ dự án
     chốt ngày 2026-10-06.
+  - Khung đầu tệp theo mẫu EngineHP của chủ dự án (khối `/*====*/` 80 cột: tên sản phẩm, TỆP, PHÂN HỆ, CHUẨN, CHỨC NĂNG, TÁC GIẢ
+    HiepHoon, TELEGRAM @Hoon9xx; tệp `#`, `--`, `::` cùng bố cục với ký hiệu đầu dòng) — chủ dự án chốt ngày 2026-10-15 ("Động tới
+    bất kể file nào. sửa header file đó chuẩn"; mẫu `engine/core/clock.cpp`). Thay khung hộp `// +----` làm buổi đầu cùng ngày. Chạm
+    tệp nào thì chạy `python -B TOOLS/source_headers/source_headers.py --fix <tệp>` cho tệp đó (tệp chưa có comment đầu tệp thì
+    đưa `--describe m.json`, `{"đường/dẫn": ["ý 1", ...]}`); không dọn hàng loạt cây. Ngoài phạm vi: `third_party/`, `docs/`, dữ liệu,
+    script Lua gốc của client 2026, TOML cấu hình (bố cục tiêu đề do `lint_config.py` giữ). Tệp sinh thì bộ sinh xuất khung. Trần 18
+    dòng theo mẫu (lệnh miệng ban đầu là 15). Test của công cụ: `python -B -m unittest discover -s TOOLS/source_headers`.
   - Bản địa hoá dựng cùng client từ một tệp nguồn cho mỗi ngôn ngữ; ngôn ngữ chọn lúc dựng, bản
     triển khai chỉ mang chữ và ảnh của ngôn ngữ đó (không giữ hai bộ ảnh), client không chọn ngôn
     ngữ lúc chạy — chủ dự án chốt ngày 2026-10-08. Chủ dự án chốt ngày 2026-10-13 ("chỉ tiếng Trung
