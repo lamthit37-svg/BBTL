@@ -23,4 +23,13 @@ void Context::push_event(std::string_view event, std::span<const std::string_vie
     calls.push_back(panel::Call{.ask = panel::Ask::kPushEvent, .text = std::move(text)});
 }
 
+// NOLINTNEXTLINE(bugprone-exception-escape)
+void Context::push_call(panel::Ask ask, std::string text) noexcept {
+    if (calls.size() >= kCallLimit) {
+        ++dropped_calls;
+        return;
+    }
+    calls.push_back(panel::Call{.ask = ask, .text = std::move(text)});
+}
+
 } // namespace game::ui::script

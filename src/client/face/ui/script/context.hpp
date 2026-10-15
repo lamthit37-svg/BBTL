@@ -16,6 +16,7 @@
 #include <cstdint>
 #include <optional>
 #include <span>
+#include <string>
 #include <string_view>
 #include <utility>
 #include <vector>
@@ -24,6 +25,8 @@ namespace game::ui::script {
 
 // Trần số việc chờ lấy: một script lặp vô hạn trong trần lệnh vẫn đẩy được hàng triệu sự kiện trước khi HUD lấy ra.
 inline constexpr std::size_t kCallLimit = 4096;
+// Trần độ dài chủ lớp hướng dẫn tân thủ (tên cửa sổ, ngắn); gốc dùng std::string không trần.
+inline constexpr std::size_t kGuideOwnerLimit = 255;
 
 // Điều game biết về thế giới mà hàm native đọc (phía game ghi, script chỉ đọc). Mỗi trường là nguồn của một hàm; chủ host đặt lại
 // từ trạng thái thật mỗi khung.
@@ -74,6 +77,12 @@ struct Facts {
     std::int32_t dfs_server = 0;
     // DataPool:Lua_GetUpdateTipsFlag(chỉ số): 100 cờ nhắc cập nhật do máy chủ gửi (DAT_141034c10 + 0x2db4); chưa nhận thì 0.
     std::array<std::int32_t, 100> update_tips{};
+    // GameProduceLogin:IsWeGameClient, IsWeGameServer: hai byte toàn cục của gốc (DAT_14103ff71, DAT_14103e814) do tham số khởi động đặt;
+    // 0 là không phải.
+    std::int32_t we_game_client = 0;
+    std::int32_t we_game_server = 0;
+    // DataPool:Lua_IsRedPointInUIShow(chỉ số 0..42): 43 cờ chấm đỏ do máy chủ gửi (DAT_141034c10 + 0x1a70); chưa nhận thì 0.
+    std::array<std::int32_t, 43> red_points{};
     // Ảnh bộ nhớ CDataPool cho hàm chỉ đọc một trường số (native_pool.cpp): phía mạng ghi theo offset, chưa ghi thì giá trị của hàm dựng.
     PoolImage pool;
 };
@@ -88,6 +97,11 @@ struct Context {
     // Giá trị mới nhất mà script đặt bằng DataPool:SetCanUseHotKey (gốc cất ở DAT_141034c40 + 0x5c1a48); nullopt khi chưa đặt. Phía
     // game đọc để bật hay tắt phím tắt.
     std::optional<std::int32_t> can_use_hotkey;
+    // Chủ lớp hướng dẫn tân thủ đang mở (OpenFreshManGuideNew đặt, CloseFreshManGuide xoá, GetFreshManGuideOwner đọc; gốc cất ở
+    // DAT_141034c10 + 0x550). Rỗng khi không có lớp. Khác gốc: cắt ở kGuideOwnerLimit byte.
+    std::string guide_owner;
+    // Số trang thanh menu chính do SetMenuBarPageNumber đặt (gốc ghi int vào DAT_141034678 + 0x78); nullopt khi chưa đặt. Phía game đọc.
+    std::optional<std::int32_t> menu_bar_page;
     // Bảng biến toàn cục (Variable:GetVariable / SetVariable).
     VariableSystem variables;
     // Việc native nhờ game (PushEvent của hàm nào đó): chủ host lấy ra bằng take_calls cùng chỗ với Host::take_calls.
@@ -98,6 +112,8 @@ struct Context {
     // Quá kCallLimit việc chưa lấy thì bỏ và đếm dropped_calls. noexcept: chạy dưới hàm C mà Lua gọi nên ngoại lệ C++ không được
     // thoát; cấp phát thất bại thì dừng tiến trình.
     void push_event(std::string_view event, std::span<const std::string_view> args) noexcept;
+    // Nhờ game một việc không phải sự kiện (panel::Ask khác kPushEvent); chung hàng đợi và trần với push_event.
+    void push_call(panel::Ask ask, std::string text) noexcept;
     [[nodiscard]] std::vector<panel::Call> take_calls() noexcept { return std::exchange(calls, {}); }
 };
 

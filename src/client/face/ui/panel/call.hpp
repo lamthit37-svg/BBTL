@@ -78,6 +78,8 @@ enum class Ask : std::uint8_t {
     kMeshRestPosition,
     kMeshSetCamera,
     kMeshZoom,
+    // AskServerTimeAgain(): xin máy chủ gửi lại giờ (gói CGAskServerTime, Game.exe 0x140246fe0).
+    kAskServerTime,
 };
 
 struct Call {
@@ -123,6 +125,7 @@ struct Call {
     case Ask::kMeshRestPosition: return "RestPositonEx";
     case Ask::kMeshSetCamera: return "SetCameraEx";
     case Ask::kMeshZoom: return "ChangeCameraDistanceEx";
+    case Ask::kAskServerTime: return "AskServerTimeAgain";
     }
     return {};
 }

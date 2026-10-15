@@ -38,4 +38,8 @@ void register_events(lua_State* lua);
 // TOOLS/port/luagen/gen_pool_natives.py vào native_pool.cpp, đọc từ Facts::pool.
 void register_pool(lua_State* lua);
 
+// Hàm đọc trạng thái nhỏ và hàm nhờ game (GetCurrentTime, Player:IsVaild, GetHumanExpRatioToNeedExp, Lua_IsRedPointInUIShow, lớp hướng dẫn
+// tân thủ, SetMenuBarPageNumber, AskServerTimeAgain...) cùng những hàm xoá trạng thái mà client chưa có.
+void register_state(lua_State* lua);
+
 } // namespace game::ui::script
