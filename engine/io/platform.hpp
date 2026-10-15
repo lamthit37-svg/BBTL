@@ -3,11 +3,18 @@
 #pragma once
 
 #include <filesystem>
+#include <string>
+#include <vector>
 
 namespace game::io {
 
 // Đặt console sang UTF-8 để chữ tiếng Việt và tên tệp chữ Hán in ra đúng. Gọi một lần ở đầu main.
 void use_utf8_console() noexcept;
+
+// Các đối số dòng lệnh sau tên exe, dạng UTF-8; argc và argv là của main. argv của CRT trên Windows theo bảng mã ANSI
+// nên làm rơi chữ ngoài bảng mã đó thành '?' (đường dẫn có dấu, chữ Hán): Windows lấy dòng lệnh UTF-16 bằng
+// CommandLineToArgvW rồi đổi sang UTF-8, và chỉ dùng argv khi dòng lệnh đó không đọc được. Nền khác: argv (đã là UTF-8).
+[[nodiscard]] std::vector<std::string> command_arguments(int argc, const char* const* argv);
 
 // Thư mục chứa exe đang chạy; rỗng khi hệ điều hành không cho biết. Dữ liệu của client được tìm
 // tương đối với thư mục này, không theo thư mục làm việc.

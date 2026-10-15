@@ -4,13 +4,22 @@
 
 #include <mach-o/dyld.h>
 
+#include <cstddef>
 #include <cstdint>
+#include <span>
 #include <string>
+#include <vector>
 
 namespace game::io {
 
 // Terminal của macOS và console của Xcode đã là UTF-8.
 void use_utf8_console() noexcept {}
+
+std::vector<std::string> command_arguments(int argc, const char* const* argv) {
+    if (argc < 1 || argv == nullptr) return {};
+    const std::span<const char* const> given(argv, static_cast<std::size_t>(argc));
+    return {given.begin() + 1, given.end()};
+}
 
 // Trên iOS exe nằm ở gốc gói ứng dụng, nên thư mục này cũng là gốc dữ liệu đóng kèm.
 std::filesystem::path executable_directory() {

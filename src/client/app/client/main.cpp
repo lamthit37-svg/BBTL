@@ -16,9 +16,7 @@
 #include "client/world/world.hpp"
 #include "control/char_camera.hpp"
 #include "control/login_view.hpp"
-#include "core/text.hpp"
 #include "core/timeline.hpp"
-#include "core/win32.hpp" // IWYU pragma: keep
 #include "io/file.hpp"
 #include "io/platform.hpp"
 #include "scene/placement.hpp"
@@ -42,12 +40,6 @@
 #include <system_error>
 #include <utility>
 #include <vector>
-
-#if defined(_WIN32)
-#include <processenv.h>
-#include <shellapi.h>
-#include <winbase.h>
-#endif
 
 namespace {
 
@@ -371,48 +363,10 @@ void report_named(const client::NamedScene& named, std::string_view label) {
     return client::run_viewer(viewer);
 }
 
-#if defined(_WIN32)
-// Giải phóng danh sách đối số của CommandLineToArgvW.
-struct WideCommand {
-    wchar_t** list = nullptr;
-
-    WideCommand() = default;
-    WideCommand(const WideCommand&) = delete;
-    WideCommand& operator=(const WideCommand&) = delete;
-    WideCommand(WideCommand&&) = delete;
-    WideCommand& operator=(WideCommand&&) = delete;
-    ~WideCommand() {
-        if (list != nullptr) LocalFree(static_cast<void*>(list));
-    }
-};
-#endif
-
-// Đối số dòng lệnh dạng UTF-8, kể cả tên exe ở đầu. argv của CRT trên Windows theo bảng mã ANSI nên làm rơi chữ ngoài bảng
-// mã đó thành '?' (đối số `--ui-event` mang chữ Hán, `--data` mang đường dẫn có dấu); Windows nên lấy dòng lệnh UTF-16
-// rồi đổi sang UTF-8, còn argv cho các nền khác (đã là UTF-8) và khi dòng lệnh không đọc được.
-[[nodiscard]] std::vector<std::string> command_arguments(int argc, char** argv) {
-#if defined(_WIN32)
-    int count = 0;
-    WideCommand command;
-    command.list = CommandLineToArgvW(GetCommandLineW(), &count);
-    if (command.list != nullptr && count > 0) {
-        const std::span<wchar_t* const> wide(command.list, static_cast<std::size_t>(count));
-        std::vector<std::string> texts;
-        texts.reserve(wide.size());
-        for (const wchar_t* one : wide) texts.push_back(core::narrow(one));
-        return texts;
-    }
-#endif
-    const std::span<char* const> native(argv, static_cast<std::size_t>(argc));
-    return {native.begin(), native.end()};
-}
-
 [[nodiscard]] int start(std::span<const std::string> arguments) {
     io::use_utf8_console();
     core::mark("main bắt đầu");
-    // Bỏ tên exe ở đầu; hệ điều hành được phép chạy một tiến trình không có đối số nào.
-    const std::span<const std::string> rest = arguments.subspan(arguments.empty() ? 0 : 1);
-    const std::vector<std::string_view> texts(rest.begin(), rest.end());
+    const std::vector<std::string_view> texts(arguments.begin(), arguments.end());
     const auto options = client::parse_options(texts);
     if (options) return run(*options);
     std::println(stderr, "{}", client::kUsage);
@@ -422,9 +376,9 @@ struct WideCommand {
 } // namespace
 
 // Thư viện chuẩn (std::print, std::filesystem) có thể ném; main chặn lại để tiến trình thoát có mã.
-int main(int argc, char** argv) {
+int main(const int argc, const char* const* const argv) {
     try {
-        const std::vector<std::string> arguments = command_arguments(argc, argv);
+        const std::vector<std::string> arguments = io::command_arguments(argc, argv);
         return start(arguments);
     } catch (const std::exception& error) {
         static_cast<void>(std::fputs("Lỗi không lường trước: ", stderr));

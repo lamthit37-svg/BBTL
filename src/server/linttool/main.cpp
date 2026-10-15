@@ -1,8 +1,7 @@
 // thienlong_lint — đọc cây SERVER và báo bảng lệch hợp đồng hoặc lệch tham chiếu.
 //   thienlong_lint --root <gốc SERVER> --refs <thư mục refs> [--report <tệp>]
-// Mã thoát: 0 không lỗi, 1 dữ liệu có lỗi, 2 cách dùng. Đối số Windows lấy bằng CommandLineToArgvW.
+// Mã thoát: 0 không lỗi, 1 dữ liệu có lỗi, 2 cách dùng. Đối số lấy bằng io::command_arguments (Windows: dòng lệnh UTF-16).
 #include "content/lint.hpp"
-#include "core/win32.hpp" // IWYU pragma: keep
 #include "io/file.hpp"
 #include "io/platform.hpp"
 #include "linttool/config_lint.hpp"
@@ -22,11 +21,6 @@
 #include <utility>
 #include <vector>
 
-#if defined(_WIN32)
-#include <processenv.h>
-#include <shellapi.h>
-#include <winbase.h>
-#endif
 #if defined(_MSC_VER)
 #include <malloc.h>
 #endif
@@ -59,21 +53,6 @@ struct Loaded {
     std::string text;
     bool failed = false;
 };
-
-#if defined(_WIN32)
-struct WideCommand {
-    wchar_t** list = nullptr;
-
-    WideCommand() = default;
-    WideCommand(const WideCommand&) = delete;
-    WideCommand& operator=(const WideCommand&) = delete;
-    WideCommand(WideCommand&&) = delete;
-    WideCommand& operator=(WideCommand&&) = delete;
-    ~WideCommand() {
-        if (list != nullptr) LocalFree(static_cast<void*>(list));
-    }
-};
-#endif
 
 [[nodiscard]] int fail_usage(std::string_view message) {
     std::println(stderr, "thienlong_lint: {}", message);
@@ -422,48 +401,10 @@ struct LintRoots {
 
 } // namespace
 
-#if defined(_WIN32)
-namespace {
-
-[[nodiscard]] std::vector<std::string> command_arguments() {
-    int count = 0;
-    WideCommand command;
-    command.list = CommandLineToArgvW(GetCommandLineW(), &count);
-    if (command.list == nullptr || count < 1) return {};
-    const auto size = static_cast<std::size_t>(count);
-    const std::span<wchar_t*> args(command.list, size);
-    std::vector<std::string> texts;
-    for (std::size_t index = 1; index < args.size(); ++index) {
-        const std::filesystem::path path(args[index]);
-        texts.push_back(game::io::utf8_of(path));
-    }
-    return texts;
-}
-
-} // namespace
-#else
-namespace {
-
-[[nodiscard]] std::vector<std::string> command_arguments(int argc, const char* const* argv) {
-    std::vector<std::string> texts;
-    for (int index = 1; index < argc; ++index)
-        texts.push_back(argv[index]);
-    return texts;
-}
-
-} // namespace
-#endif
-
 // NOLINTNEXTLINE(bugprone-exception-escape): giả dương của STL MSVC (HP-07)
 int main(const int argc, const char* const* const argv) {
     game::io::use_utf8_console();
-#if defined(_WIN32)
-    static_cast<void>(argc);
-    static_cast<void>(argv);
-    const std::vector<std::string> args = command_arguments();
-#else
-    const std::vector<std::string> args = command_arguments(argc, argv);
-#endif
+    const std::vector<std::string> args = game::io::command_arguments(argc, argv);
     Request request;
     if (!take_arguments(request, args)) return fail_usage("đối số không hợp lệ");
     if (request.help) {

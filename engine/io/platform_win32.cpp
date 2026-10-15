@@ -1,15 +1,22 @@
 // windows.h lấy từ core/win32.hpp; header con của Win32 include trực tiếp.
 #include "io/platform.hpp"
 
+#include "core/text.hpp"
 #include "core/win32.hpp" // IWYU pragma: keep
 
+#include <basetsd.h>
 #include <libloaderapi.h>
+#include <processenv.h>
 #include <shellapi.h>
+#include <winbase.h>
 #include <winuser.h>
 
+#include <cstddef>
 #include <filesystem>
+#include <span>
 #include <string>
 #include <system_error>
+#include <vector>
 
 namespace game::io {
 namespace {
@@ -20,7 +27,44 @@ constexpr DWORD kMaxPathChars = 32768;
 // ShellExecuteExW báo thành công bằng một HINSTANCE lớn hơn 32 (quy ước còn lại từ Windows 16 bit).
 constexpr INT_PTR kShellSucceeded = 32;
 
+// Danh sách đối số của CommandLineToArgvW; giải phóng bằng LocalFree.
+class WideCommand {
+public:
+    WideCommand() noexcept : list_(CommandLineToArgvW(GetCommandLineW(), &count_)) {}
+    WideCommand(const WideCommand&) = delete;
+    WideCommand& operator=(const WideCommand&) = delete;
+    WideCommand(WideCommand&&) = delete;
+    WideCommand& operator=(WideCommand&&) = delete;
+    ~WideCommand() {
+        if (list_ != nullptr) static_cast<void>(LocalFree(static_cast<void*>(list_)));
+    }
+
+    // Rỗng khi dòng lệnh không đọc được.
+    [[nodiscard]] std::span<wchar_t* const> arguments() const noexcept {
+        if (list_ == nullptr || count_ < 1) return {};
+        return {list_, static_cast<std::size_t>(count_)};
+    }
+
+private:
+    int count_ = 0;
+    wchar_t** list_ = nullptr;
+};
+
 } // namespace
+
+std::vector<std::string> command_arguments(int argc, const char* const* argv) {
+    const WideCommand command;
+    const std::span<wchar_t* const> wide = command.arguments();
+    if (!wide.empty()) {
+        std::vector<std::string> texts;
+        texts.reserve(wide.size() - 1);
+        for (const wchar_t* const one : wide.subspan(1)) texts.push_back(core::narrow(one));
+        return texts;
+    }
+    if (argc < 1 || argv == nullptr) return {};
+    const std::span<const char* const> given(argv, static_cast<std::size_t>(argc));
+    return {given.begin() + 1, given.end()};
+}
 
 // SEE_MASK_FLAG_NO_UI: lỗi trả về bằng mã, không bằng hộp thoại chặn luồng cửa sổ của game.
 bool open_in_browser(const std::filesystem::path& page) {
