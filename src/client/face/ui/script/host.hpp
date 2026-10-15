@@ -50,6 +50,12 @@ struct Spot {
     float y = 0.0F;
 };
 
+// Cỡ vùng khách của cửa sổ chương trình, pixel.
+struct ClientSize {
+    std::uint32_t width = 0;
+    std::uint32_t height = 0;
+};
+
 // Phía giao diện mà host cần (HUD nối với gui::GuiLoader và gui::Hub; test dùng bản giả). Một luồng, như Host.
 class Screen {
 public:
@@ -121,6 +127,9 @@ public:
     void pressed(Spot spot);
     // Đồng hồ đơn điệu của khung: nổ các hẹn giờ tới hạn, mỗi hẹn giờ tối đa một lần mỗi lượt.
     void tick(std::chrono::milliseconds now);
+
+    // Cỡ vùng khách của cửa sổ chương trình, pixel, cho GetCurClientSize (không trả nhỏ hơn 800x600; 0 là chưa biết).
+    void set_client_size(ClientSize size) noexcept;
 
     // Hiện hay giấu một cửa sổ theo tên sổ như this:Show() / this:Hide() (kể cả nhường chỗ khi hiện). false khi không có.
     bool set_shown(std::string_view name, bool is_shown);

@@ -983,9 +983,17 @@ void Hud::State::open_host() {
         std::println(stderr, "Giao diện Lua: {}", note);
 }
 
+// Số pixel nguyên của một cỡ thực; âm, NaN thành 0, quá 65535 thì kẹp.
+namespace {
+[[nodiscard]] std::uint32_t pixels_of(float extent) noexcept {
+    return extent > 0.0F ? static_cast<std::uint32_t>(std::min(extent, 65535.0F)) : 0U;
+}
+} // namespace
+
 // Nhịp của khung cho host: đồng hồ hẹn giờ, rồi lỗi script kể từ khung trước.
 void Hud::State::note_host(const HudView& view) {
     if (!host) return;
+    host->set_client_size(script::ClientSize{.width = pixels_of(view.width), .height = pixels_of(view.height)});
     host->tick(view.clock);
     for (const std::string& note : host->take_notes())
         std::println(stderr, "Giao diện Lua: {}", note);

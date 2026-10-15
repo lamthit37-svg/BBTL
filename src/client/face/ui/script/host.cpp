@@ -61,6 +61,13 @@ constexpr std::array<std::string_view, 2> kKeptEvents = {"VIEW_RESOLUTION_CHANGE
 // CloseAllWindow không giấu cửa sổ này mà đẩy sự kiện EUS_SHOW_RESULT (id 0xbf1) để script của nó tự đóng (0x18007643c).
 constexpr std::string_view kEquipEducation = "EquipEducation_Upstage";
 constexpr std::string_view kEquipEducationEvent = "EUS_SHOW_RESULT";
+// Sự kiện mà hàm game của script đẩy: OpenWindow (0x176), CloseWindow không ép (0x177), PushDebugMessage (0x85).
+constexpr std::string_view kOpenWindowEvent = "OPEN_WINDOW";
+constexpr std::string_view kCloseWindowEvent = "CLOSE_WINDOW";
+constexpr std::string_view kDebugMessageEvent = "NEW_DEBUGMESSAGE";
+// GetCurClientSize không trả nhỏ hơn cỡ tối thiểu của client gốc.
+constexpr std::uint32_t kMinClientWidth = 800;
+constexpr std::uint32_t kMinClientHeight = 600;
 
 // Tên bảng môi trường của một cửa sổ (<Tên>_Env).
 struct Env {
@@ -171,6 +178,8 @@ struct Core {
     std::chrono::milliseconds now{0};
     // Đã có nhịp nào chưa: nhịp đầu không tính thời gian trôi (đồng hồ khung của người gọi bắt đầu ở đâu cũng được).
     bool has_ticked = false;
+    // Vùng khách của cửa sổ chương trình (GetCurClientSize); 0 khi người gọi chưa báo.
+    ClientSize client_size;
 };
 
 // Userdata của `this` (BoxPointer của CUIWindowItem).
@@ -729,6 +738,87 @@ int lua_kill_timer(lua_State* lua) {
     return 1;
 }
 
+// Đẩy sự kiện lên hàng đợi của game (CEventSystem, id 0xd8 của vtable): hàng đợi Call, HUD đưa lại cho mọi cửa sổ.
+// Đối số cách nhau bằng tab (ui/panel/call.hpp).
+void push_event(Core& core, std::string_view event, std::span<const std::string_view> args) {
+    std::string text(event);
+    for (const std::string_view arg : args) {
+        text += '\t';
+        text += arg;
+    }
+    core.calls.push_back(panel::Call{.ask = panel::Ask::kPushEvent, .text = std::move(text)});
+}
+
+// PushEvent(tên[, đối số...]) (Game.exe 0x140255060): tên là chuỗi hay số (lua_isstring), các đối số sau gom tới đối số đầu tiên
+// không phải chuỗi hay số (nil, boolean, bảng...). Khác gốc: đối số chứa ký tự tab tách thành nhiều đối số (Call ngăn đối số
+// bằng tab); trần kArgLimit đối số.
+int lua_push_event(lua_State* lua) {
+    Core& core = *core_of(lua);
+    // Chính tả "PushEvnet" là của gốc.
+    if (lua_isstring(lua, 1) == 0) return raise(lua, "Lua_PushEvnet Wrong Param1");
+    std::array<std::string_view, kArgLimit + 1> given;
+    std::size_t count = 0;
+    const int top = lua_gettop(lua);
+    for (int index = 1; index <= top && count < given.size() && lua_isstring(lua, index) != 0; ++index)
+        given.at(count++) = std::string_view(lua_tostring(lua, index), lua_strlen(lua, index));
+    push_event(core, given.front(), std::span(given).subspan(1, count - 1));
+    return 0;
+}
+
+// PushDebugMessage(chữ) (0x140233920): chữ là chuỗi hay số; sự kiện NEW_DEBUGMESSAGE (0x85) rồi FUN_14007af80(3).
+// Khác gốc: FUN_14007af80(3) chưa đọc, không làm gì.
+int lua_push_debug_message(lua_State* lua) {
+    Core& core = *core_of(lua);
+    if (lua_isstring(lua, 1) == 0) return raise(lua, "LUA: Lua_PushDebugMessage Wrong Param");
+    const std::array<std::string_view, 1> text = {std::string_view(lua_tostring(lua, 1), lua_strlen(lua, 1))};
+    push_event(core, kDebugMessageEvent, text);
+    return 0;
+}
+
+// OpenWindow(tên) (0x140246320): sự kiện OPEN_WINDOW (0x176) với tên cửa sổ. Khác gốc: tên không phải chuỗi hay số thì bỏ qua
+// (gốc đưa con trỏ rỗng); FUN_140229d50 (cờ khoá) chưa đọc, coi như không khoá.
+int lua_open_window(lua_State* lua) {
+    Core& core = *core_of(lua);
+    if (lua_isstring(lua, 1) == 0) return 0;
+    const std::array<std::string_view, 1> name = {std::string_view(lua_tostring(lua, 1), lua_strlen(lua, 1))};
+    push_event(core, kOpenWindowEvent, name);
+    return 0;
+}
+
+// CloseWindow(tên[, ép]) (0x140246390): ép là boolean true thì đóng ngay (CUISystem vtable 0xe0), không thì sự kiện CLOSE_WINDOW
+// (0x177). Khác gốc: đóng ngay một cửa sổ của host là giấu nó như this:Hide(); cửa sổ ngoài host (bảng port tay) chưa có phía
+// nhận.
+int lua_close_window(lua_State* lua) {
+    Core& core = *core_of(lua);
+    if (lua_isstring(lua, 1) == 0) return 0;
+    const std::string_view name(lua_tostring(lua, 1), lua_strlen(lua, 1));
+    if (lua_type(lua, 2) == LUA_TBOOLEAN && lua_toboolean(lua, 2) != 0) {
+        if (const auto found = core.by_name.find(name); found != core.by_name.end()) show_item(core, found->second, false);
+        return 0;
+    }
+    push_event(core, kCloseWindowEvent, std::array<std::string_view, 1>{name});
+    return 0;
+}
+
+// IsWindowShow(tên) (0x140237f50): CUISystem vtable 0xc0. Khác gốc: chỉ biết cửa sổ của host; cửa sổ khác (bảng port tay chưa
+// chuyển sang script) trả false.
+int lua_is_window_show(lua_State* lua) {
+    const Core& core = *core_of(lua);
+    if (lua_isstring(lua, 1) == 0) return raise(lua, "LUA: Lua_IsWindowShow Wrong Param");
+    const std::string_view name(lua_tostring(lua, 1), lua_strlen(lua, 1));
+    const auto found = core.by_name.find(name);
+    lua_pushboolean(lua, found != core.by_name.end() && core.items[found->second]->is_shown ? 1 : 0);
+    return 1;
+}
+
+// GetCurClientSize() (0x140248ba0): rộng và cao vùng khách của cửa sổ chương trình, không nhỏ hơn 800x600.
+int lua_get_client_size(lua_State* lua) {
+    const Core& core = *core_of(lua);
+    lua_pushnumber(lua, static_cast<lua_Number>(std::max(core.client_size.width, kMinClientWidth)));
+    lua_pushnumber(lua, static_cast<lua_Number>(std::max(core.client_size.height, kMinClientHeight)));
+    return 2;
+}
+
 void push_closure(lua_State* lua, Core& core, lua_CFunction function) {
     lua_pushlightuserdata(lua, &core);
     lua_pushcclosure(lua, function, 1);
@@ -759,6 +849,18 @@ constexpr std::array<Method, 10> kThisMethods = {{
     {.name = "ClickHide", .function = &this_click_hide},
     {.name = "GetChildOffset", .function = &this_get_child_offset},
     {.name = "Activate", .function = &this_activate},
+}};
+
+// Hàm toàn cục của game mà host làm chủ vì chúng đụng hàng đợi sự kiện, cửa sổ và hẹn giờ của chính nó (nhóm C của TANG-B.md).
+constexpr std::array<Method, 8> kGlobals = {{
+    {.name = "SetTimer", .function = &lua_set_timer},
+    {.name = "KillTimer", .function = &lua_kill_timer},
+    {.name = "PushEvent", .function = &lua_push_event},
+    {.name = "PushDebugMessage", .function = &lua_push_debug_message},
+    {.name = "OpenWindow", .function = &lua_open_window},
+    {.name = "CloseWindow", .function = &lua_close_window},
+    {.name = "IsWindowShow", .function = &lua_is_window_show},
+    {.name = "GetCurClientSize", .function = &lua_get_client_size},
 }};
 
 // Bảng toàn cục name (__index là chính nó) với các phương thức, giữ một tham chiếu trong sổ đăng ký.
@@ -793,12 +895,11 @@ void open_host(lua_State* lua, Core& core) {
     lua_pushvalue(lua, -2);
     lua_settable(lua, LUA_GLOBALSINDEX);
     core.event_table_ref = luaL_ref(lua, LUA_REGISTRYINDEX);
-    lua_pushliteral(lua, "SetTimer");
-    push_closure(lua, core, &lua_set_timer);
-    lua_settable(lua, LUA_GLOBALSINDEX);
-    lua_pushliteral(lua, "KillTimer");
-    push_closure(lua, core, &lua_kill_timer);
-    lua_settable(lua, LUA_GLOBALSINDEX);
+    for (const Method& global : kGlobals) {
+        lua_pushstring(lua, global.name);
+        push_closure(lua, core, global.function);
+        lua_settable(lua, LUA_GLOBALSINDEX);
+    }
     open_widget_classes(lua);
 }
 
@@ -849,6 +950,17 @@ void ItemServices::set_root_shown(bool is_shown) {
         raise_to_top(*core_, index_);
     else
         std::erase(core_->stack, index_);
+}
+
+// OPEN_WINDOW và CLOSE_WINDOW (id 0x176, 0x177) do cửa sổ nào của host mang tên ở đối số đầu: hiện như this:Show() hay giấu như
+// this:Hide(). Khác gốc: nơi xử lý hai sự kiện này trong UI_CEGUI.dll chưa tìm thấy; giả định như CUISystem đóng/mở theo tên.
+void open_close_by_event(Core& core, std::string_view event, std::span<const std::string_view> args) {
+    const bool is_open = event == kOpenWindowEvent;
+    if ((!is_open && event != kCloseWindowEvent) || args.empty()) return;
+    const auto found = core.by_name.find(args.front());
+    if (found == core.by_name.end()) return;
+    if (is_open) demise(core, found->second);
+    show_item(core, found->second, is_open);
 }
 
 } // namespace
@@ -908,6 +1020,7 @@ std::expected<Host, std::string> Host::open(const HostDesc& desc, Screen& screen
 
 void Host::post(std::string_view event, std::span<const std::string_view> args) {
     Core& core = state_->core;
+    open_close_by_event(core, event, args);
     const auto found = core.subscribers.find(event);
     if (found == core.subscribers.end()) return;
     const std::vector<std::uint32_t> targets = found->second;
@@ -965,6 +1078,10 @@ void Host::tick(std::chrono::milliseconds now) {
         const std::string label = std::format("hẹn giờ {}", id);
         run_code_in(core, Env{env}, Chunk{.code = code, .label = label});
     }
+}
+
+void Host::set_client_size(ClientSize size) noexcept {
+    state_->core.client_size = size;
 }
 
 bool Host::set_shown(std::string_view name, bool is_shown) {

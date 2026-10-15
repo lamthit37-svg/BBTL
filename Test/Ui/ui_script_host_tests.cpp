@@ -530,7 +530,54 @@ void real_registry_opens(Context& context) {
         context.expect(note.contains("_PreLoad: "), note);
 }
 
-constexpr std::array<Case, 11> kCases = {{
+// Hàm toàn cục của game mà host làm chủ (Game.exe 0x140255060, 0x140233920, 0x140246320, 0x140246390, 0x140237f50, 0x140248ba0):
+// việc đẩy sự kiện đi qua hàng đợi Call, OPEN_WINDOW và CLOSE_WINDOW tới host thì hiện và giấu cửa sổ của nó.
+void game_globals_follow_original(Context& context) {
+    Probe probe(context);
+    if (!probe.host) return;
+    Host& host = *probe.host;
+    static_cast<void>(host.take_notes());
+    context.expect(host.run(R"lua(PushEvent("A", "b", 3, nil, "bỏ"))lua"), "PushEvent");
+    context.expect(host.run(R"lua(PushDebugMessage("chào"))lua") && host.run("PushDebugMessage(7)"), "PushDebugMessage nhận chuỗi và số");
+    std::vector<ui::panel::Call> calls = host.take_calls();
+    context.expect(calls.size() == 3 && calls[0].ask == ui::panel::Ask::kPushEvent && calls[0].text == "A\tb\t3",
+        "đối số gom tới nil đầu tiên");
+    context.expect(calls.size() == 3 && calls[1].text == "NEW_DEBUGMESSAGE\tchào" && calls[2].text == "NEW_DEBUGMESSAGE\t7", "lời nhắn là sự kiện");
+    context.expect(!host.run("PushEvent({})") && !host.run("PushDebugMessage(nil)") && !host.run("IsWindowShow(nil)"), "sai kiểu là lỗi Lua");
+    const std::vector<std::string> notes = host.take_notes();
+    context.expect(notes.size() == 3 && notes[0].contains("PushEvnet Wrong Param1") && notes[1].contains("PushDebugMessage Wrong Param") &&
+                       notes[2].contains("IsWindowShow Wrong Param"), "câu lỗi như gốc");
+    context.expect(host.take_calls().empty(), "lỗi không đẩy gì");
+
+    post(host, "ALWAYS", {"show"});
+    context.expect(host.run(R"lua(shown = IsWindowShow("Probe"); other = IsWindowShow("Nobody"))lua"), "IsWindowShow");
+    context.expect(global(host, "shown") == "true" && global(host, "other") == "false", "cửa sổ của host; tên lạ là false");
+    context.expect(host.run(R"lua(CloseWindow("Probe"))lua") && host.is_shown("Probe"), "CloseWindow không ép chỉ đẩy sự kiện");
+    calls = host.take_calls();
+    context.expect(calls.size() == 1 && calls.front().text == "CLOSE_WINDOW\tProbe", "sự kiện CLOSE_WINDOW");
+    post(host, "CLOSE_WINDOW", {"Probe"});
+    context.expect(!host.is_shown("Probe"), "CLOSE_WINDOW tới host thì giấu");
+    context.expect(host.run(R"lua(OpenWindow("Mate"))lua"), "OpenWindow");
+    calls = host.take_calls();
+    context.expect(calls.size() == 1 && calls.front().text == "OPEN_WINDOW\tMate", "sự kiện OPEN_WINDOW");
+    post(host, "OPEN_WINDOW", {"Mate"});
+    context.expect(host.is_shown("Mate"), "OPEN_WINDOW tới host thì hiện");
+    context.expect(host.run(R"lua(CloseWindow("Mate", true))lua") && !host.is_shown("Mate") && host.take_calls().empty(),
+        "ép boolean true thì đóng ngay, không qua sự kiện");
+    context.expect(host.run(R"lua(OpenWindow("Mate"))lua") && host.run(R"lua(CloseWindow("Mate", 1))lua") && host.take_calls().size() == 2,
+        "ép không phải boolean true thì vẫn là sự kiện");
+    post(host, "OPEN_WINDOW", {});
+    post(host, "OPEN_WINDOW", {"Nobody"});
+
+    context.expect(host.run("w, h = GetCurClientSize()") && global(host, "w") == "800" && global(host, "h") == "600", "chưa báo cỡ thì 800x600");
+    host.set_client_size(ui::script::ClientSize{.width = 1920, .height = 1080});
+    context.expect(host.run("w, h = GetCurClientSize()") && global(host, "w") == "1920" && global(host, "h") == "1080", "cỡ đã báo");
+    host.set_client_size(ui::script::ClientSize{.width = 640, .height = 1200});
+    context.expect(host.run("w, h = GetCurClientSize()") && global(host, "w") == "800" && global(host, "h") == "1200", "mỗi chiều kẹp riêng");
+    context.expect(host.take_notes().empty(), "không lỗi");
+}
+
+constexpr std::array<Case, 12> kCases = {{
     {.name = "sổ nhận dấu \\ của bản gốc", .body = registry_accepts_backslash},
     {.name = "sổ thật mở được", .body = real_registry_opens},
     {.name = "mở chạy PreLoad theo sổ", .body = open_runs_preload},
@@ -542,6 +589,7 @@ constexpr std::array<Case, 11> kCases = {{
     {.name = "trần lệnh chặn vòng lặp vô tận", .body = instruction_limit_stops_runaway},
     {.name = "ProgressBar.lua gốc khớp số vàng", .body = progress_bar_matches_original},
     {.name = "ProgressBar mờ dần theo nhịp", .body = progress_bar_fades_with_ticks},
+    {.name = "hàm toàn cục của game: sự kiện, cửa sổ, cỡ màn", .body = game_globals_follow_original},
 }};
 
 } // namespace
