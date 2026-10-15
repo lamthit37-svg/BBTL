@@ -1,12 +1,36 @@
+/*==============================================================================
+ *  THIENLONG  |  GAME SERVER
+ *------------------------------------------------------------------------------
+ *  TỆP       : src/server/zone/content.cpp
+ *  PHÂN HỆ   : Server / Zone / Content
+ *  CHUẨN     : C++23
+ *------------------------------------------------------------------------------
+ *  CHỨC NĂNG
+ *  - Cài đặt đọc dữ liệu cảnh cho zone: bảng mẫu quái, bảng loại AI, bảng id
+ *    cảnh, luật đi, đổi dòng spawns thành Seed.
+ *  - Đổi đơn vị một chỗ: bảng cảnh tính bằng đơn vị game (1 = 100 cm), AI tính
+ *    bằng mili giây thành tick.
+ *------------------------------------------------------------------------------
+ *  TÁC GIẢ   : HiepHoon
+ *  TELEGRAM  : @Hoon9xx
+ *============================================================================*/
+
 #include "zone/content.hpp"
 
 #include "core/ground_point.hpp"
+#include "ids/ids.hpp"
 #include "io/file.hpp"
+#include "protocol/messages.hpp"
 #include "scenedata/disk.hpp"
+#include "scenedata/types.hpp"
 #include "table/tsv.hpp"
+#include "zone/mind.hpp"
+#include "zone/scene.hpp"
 
 #include <algorithm>
 #include <charconv>
+#include <cstddef>
+#include <cstdint>
 #include <cstdio>
 #include <expected>
 #include <format>
@@ -14,7 +38,11 @@
 #include <memory>
 #include <optional>
 #include <print>
+#include <string>
+#include <string_view>
+#include <system_error>
 #include <utility>
+#include <vector>
 
 namespace game::zone {
 namespace {
@@ -75,6 +103,8 @@ std::expected<TemplateTable, std::string> TemplateTable::parse(std::string_view 
     std::size_t id_at = 0;
     std::size_t level_at = 0;
     std::size_t interact_at = 0;
+    std::size_t ai_at = 0;
+    std::size_t speed_at = 0;
     std::size_t columns = 0;
     std::size_t line_number = 0;
     while (!text.empty()) {
@@ -93,6 +123,8 @@ std::expected<TemplateTable, std::string> TemplateTable::parse(std::string_view 
             id_at = find("monster_id");
             level_at = find("level");
             interact_at = find("can_interact");
+            ai_at = find("base_ai");
+            speed_at = find("move_speed");
             if (std::max({id_at, level_at, interact_at}) >= columns) {
                 return std::unexpected(template_fault(line_number, "thiếu cột monster_id, level hoặc can_interact"));
             }
@@ -105,10 +137,19 @@ std::expected<TemplateTable, std::string> TemplateTable::parse(std::string_view 
         if (!id || *id < 0 || *id > 0xFFFFFFFFLL || !level || *level < 0 || *level > 0xFFFF || !interact) {
             return std::unexpected(template_fault(line_number, "id, level hoặc can_interact không phải số hợp lệ"));
         }
-        const bool fresh = table.by_id_
-                               .try_emplace(static_cast<std::uint32_t>(*id),
-                                   TemplateInfo{.level = static_cast<std::uint16_t>(*level), .interactive = *interact == 1})
-                               .second;
+        TemplateInfo info{.level = static_cast<std::uint16_t>(*level), .interactive = *interact == 1};
+        // Hai cột làm giàu có thể vắng hoặc có ô lạ: khi đó quái không có AI, không phải lỗi bảng.
+        if (ai_at < columns) {
+            if (const auto ai = whole_number(cells[ai_at]); ai && *ai >= -1 && *ai <= 0x7FFFFFFFLL) {
+                info.base_ai = static_cast<std::int32_t>(*ai);
+            }
+        }
+        if (speed_at < columns) {
+            if (const auto speed = whole_number(cells[speed_at]); speed && *speed >= 0 && *speed <= 0xFFFFLL * 1000) {
+                info.move_speed = static_cast<std::int32_t>(*speed);
+            }
+        }
+        const bool fresh = table.by_id_.try_emplace(static_cast<std::uint32_t>(*id), info).second;
         if (!fresh) return std::unexpected(template_fault(line_number, "monster_id trùng"));
     }
     if (columns == 0) return std::unexpected(template_fault(line_number, "không có dòng tên cột"));
@@ -120,7 +161,58 @@ const TemplateInfo* TemplateTable::find(std::uint32_t template_id) const noexcep
     return found == by_id_.end() ? nullptr : &found->second;
 }
 
-Seeding seeds_of(const scenedata::Scene& scene, std::size_t cap, const TemplateTable& templates) {
+std::expected<AiTypeTable, std::string> AiTypeTable::parse(std::string_view text) {
+    const table::TsvResult parsed = table::parse_tsv(text);
+    if (!parsed) return std::unexpected(parsed.error());
+    AiTypeTable result;
+    constexpr std::int32_t kLow = -1;
+    constexpr std::int32_t kHigh = 100'000'000;
+    for (std::size_t row = 0; row < parsed->rows.size(); ++row) {
+        table::RowReader reader{*parsed, row};
+        const std::int32_t ai_id = reader.integer("ai_id", 0, 0x7FFFFFFF);
+        const AiType type{.scan_ms = reader.integer("aiparam0", kLow, kHigh),
+            .wander_ms = reader.integer("aiparam1", kLow, kHigh),
+            .return_mm = reader.integer("aiparam3", kLow, kHigh),
+            .scan_mm = reader.integer("aiparam4", kLow, kHigh)};
+        if (reader.error()) return std::unexpected(*reader.error());
+        if (!result.by_id_.try_emplace(ai_id, type).second) return std::unexpected("monster_ai_types: ai_id trùng");
+    }
+    return result;
+}
+
+const AiType* AiTypeTable::find(std::int32_t ai_id) const noexcept {
+    const auto found = by_id_.find(ai_id);
+    return found == by_id_.end() ? nullptr : &found->second;
+}
+
+namespace {
+
+[[nodiscard]] std::uint32_t ticks_of(std::int32_t milliseconds) noexcept {
+    return static_cast<std::uint32_t>(ids::to_ticks(milliseconds, kTickHz).count);
+}
+
+// Tính nết của một quái/NPC đặt sẵn, hoặc nullopt khi thiếu bảng AI hay chẳng có hành vi nào (đứng yên mãi).
+[[nodiscard]] std::optional<Temperament> nature_of(const scenedata::Spawn& row, protocol::EntityKind kind,
+    const TemplateInfo* info, const AiTypeTable* ai_types) {
+    if (info == nullptr || ai_types == nullptr || info->move_speed <= 0) return std::nullopt;
+    const AiType* const type = ai_types->find(row.base_ai.value_or(info->base_ai));
+    if (type == nullptr) return std::nullopt;
+    Temperament nature;
+    nature.walk_cm = static_cast<std::uint16_t>(std::min<std::int32_t>(info->move_speed / 10, 0xFFFF));
+    nature.wander_ticks = ticks_of(type->wander_ms);
+    nature.range_cm = kWanderRangeCm;
+    // Chỉ quái mới tự đuổi người; NPC và thú cưng nhiều lắm chỉ đi lang thang.
+    if (kind == protocol::EntityKind::kMonster) {
+        nature.scan_ticks = ticks_of(type->scan_ms);
+        nature.scan_cm = static_cast<std::uint32_t>(std::max(type->scan_mm, 0) / 10);
+        nature.return_cm = static_cast<std::uint32_t>(std::max(type->return_mm, 0) / 10);
+    }
+    return nature;
+}
+
+} // namespace
+
+Seeding seeds_of(const scenedata::Scene& scene, std::size_t cap, const SeedTables& tables) {
     Seeding result;
     result.seeds.reserve(std::min(scene.spawns.size(), cap));
     for (const scenedata::Spawn& row : scene.spawns) {
@@ -132,7 +224,7 @@ Seeding seeds_of(const scenedata::Scene& scene, std::size_t cap, const TemplateT
             ++result.over_cap;
             continue;
         }
-        const TemplateInfo* const info = templates.find(row.type.value());
+        const TemplateInfo* const info = tables.templates == nullptr ? nullptr : tables.templates->find(row.type.value());
         Spawn what;
         what.kind = kind_of(row, info);
         what.template_id = row.type.value();
@@ -147,6 +239,8 @@ Seeding seeds_of(const scenedata::Scene& scene, std::size_t cap, const TemplateT
         what.x_cm = row.position.x * 100.0F;
         what.z_cm = row.position.z * 100.0F;
         what.direction = direction_of_degrees(row.heading_degrees());
+        what.nature = nature_of(row, what.kind, info, tables.ai_types);
+        if (what.nature) what.speed_cm = what.nature->walk_cm;
         result.seeds.push_back(Seed{.what = std::move(what), .respawn_ms = row.respawn_ms});
     }
     return result;
@@ -208,6 +302,8 @@ struct DiskState {
     bool tried = false;
     std::optional<SceneDirectory> directory;
     TemplateTable templates;
+    AiTypeTable ai_types;
+    bool has_ai_types = false;
 
     void open() {
         tried = true;
@@ -223,6 +319,20 @@ struct DiskState {
         }
         directory = std::move(*parsed);
         open_templates();
+        open_ai_types();
+    }
+
+    // Như bảng mẫu: vắng thì im lặng, có mà hỏng thì nói.
+    void open_ai_types() {
+        if (paths.ai_types.empty()) return;
+        const io::TextResult text = io::read_text(paths.ai_types);
+        if (!text) return;
+        if (std::expected<AiTypeTable, std::string> parsed = AiTypeTable::parse(*text)) {
+            ai_types = std::move(*parsed);
+            has_ai_types = true;
+        } else {
+            std::println(stderr, "zone: {}: {}", paths.ai_types.string(), parsed.error());
+        }
     }
 
     // Bảng mẫu là phần làm giàu, không bắt buộc: vắng thì im lặng, có mà hỏng thì nói.
@@ -249,19 +359,20 @@ struct DiskState {
             std::println(stderr, "zone: cảnh {} ({}): {}", scene, name, loaded.error().what);
             return {};
         }
-        Seeding seeding = seeds_of(*loaded, cap, templates);
+        const SeedTables tables{.templates = &templates, .ai_types = has_ai_types ? &ai_types : nullptr};
+        Seeding seeding = seeds_of(*loaded, cap, tables);
         if (seeding.over_cap > 0) {
             std::println(stderr, "zone: cảnh {} ({}): bỏ {} thực thể vượt trần {}", scene, name, seeding.over_cap, cap);
         }
-        return SceneContent{.seeds = std::move(seeding.seeds),
-            .walkable = walkable_of(std::make_shared<const scenedata::Walk>(std::move(loaded->walk)))};
+        Walkable walkable = walkable_of(std::make_shared<const scenedata::Walk>(std::move(loaded->walk)));
+        return SceneContent{.seeds = std::move(seeding.seeds), .walkable = std::move(walkable)};
     }
 };
 
 } // namespace
 
 Seeder disk_seeder(const DiskPaths& paths, std::size_t cap) {
-    auto state = std::make_shared<DiskState>(paths, cap);
+    const auto state = std::make_shared<DiskState>(paths, cap);
     return [state](std::uint16_t scene) { return state->content(scene); };
 }
 

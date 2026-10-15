@@ -1,20 +1,47 @@
+/*==============================================================================
+ *  THIENLONG  |  GAME SERVER
+ *------------------------------------------------------------------------------
+ *  TỆP       : src/server/zone/serve.cpp
+ *  PHÂN HỆ   : Server / Zone / Serve
+ *  CHUẨN     : C++23
+ *------------------------------------------------------------------------------
+ *  CHỨC NĂNG
+ *  - Vòng chạy của thienlong_zone: nghe kênh ipc của gate, nạp cảnh lười, tick
+ *    20 Hz, ghi điểm đứng qua store.
+ *  - Mỗi tick chặn số khung xử lý; kênh chậm quá trần thì bỏ phần dư, gate nối
+ *    lại sẽ mất phiên.
+ *------------------------------------------------------------------------------
+ *  TÁC GIẢ   : HiepHoon
+ *  TELEGRAM  : @Hoon9xx
+ *============================================================================*/
+
 #include "zone/serve.hpp"
 
+#include "account/book.hpp"
 #include "account/ipc_key.hpp"
 #include "account/rpc.hpp"
 #include "config/cluster.hpp"
+#include "config/issue.hpp"
+#include "config/types.hpp"
 #include "config/zone.hpp"
 #include "io/file.hpp"
 #include "ipc/link.hpp"
+#include "ipc/relay.hpp"
 #include "net/net.hpp"
 #include "process/process.hpp"
+#include "secure/secure.hpp"
+#include "zone/content.hpp"
 #include "zone/host.hpp"
+#include "zone/outbox.hpp"
 #include "zone/saver.hpp"
+#include "zone/scene.hpp"
 
 #include <array>
 #include <chrono>
+#include <cstddef>
 #include <cstdint>
 #include <cstdio>
+#include <filesystem>
 #include <format>
 #include <memory>
 #include <optional>
@@ -90,7 +117,8 @@ struct Settings {
     settings.host.seeder = disk_seeder(
         DiskPaths{.scenes = data_root / "scenes",
             .ids_table = data_root / "tables" / "server" / "scene_ids.tsv",
-            .templates = data_root / "tables" / "shared" / "monsters.tsv"},
+            .templates = data_root / "tables" / "shared" / "monsters.tsv",
+            .ai_types = data_root / "tables" / "server" / "monster_ai_types.tsv"},
         static_cast<std::size_t>(zone->monsters));
     bool found = false;
     for (const config::ProcessBlock& block : cluster->processes) {
@@ -123,6 +151,7 @@ struct Session {
 // Đẩy thư của một lượt lên kênh rồi bật quan tâm ghi nếu còn byte chờ. Kênh đầy thì bỏ phần dư: bên nhận
 // chậm tới trần 8 MiB là gate hỏng, và gate nối lại sẽ mất phiên.
 void flush(Session& session, Outbox& out) {
+    if (!session.link) return;
     ipc::Link& link = *session.link;
     for (Letter& letter : out.take()) {
         if (!link.send(ipc::value_of(letter.kind), letter.session, letter.body)) break;
@@ -177,6 +206,7 @@ void accept_gate(net::TcpListener& listener, World& world, secure::ByteView key)
 
 // Kéo khung từ kênh vào Host. false khi kênh đã hỏng hay đóng.
 [[nodiscard]] bool drain(World& world) {
+    if (!world.session.link) return false;
     ipc::Link& link = *world.session.link;
     const ipc::LinkState state = link.pump();
     std::size_t budget = kFramesPerTick;

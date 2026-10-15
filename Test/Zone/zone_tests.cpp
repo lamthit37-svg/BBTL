@@ -25,6 +25,7 @@
 #include "zone/saver.hpp"
 #include "zone/scene.hpp"
 
+#include <algorithm>
 #include <array>
 #include <atomic>
 #include <chrono>
@@ -354,6 +355,207 @@ void spawned_entities_are_seen(Context& context) {
     context.expect(scene.has_session(11), "despawn không gỡ được người chơi");
 }
 
+// --- trí khôn của quái ---
+
+[[nodiscard]] zone::Temperament lively_nature() {
+    return zone::Temperament{.scan_ticks = 10,
+        .wander_ticks = 20,
+        .scan_cm = 800,
+        .return_cm = 2000,
+        .range_cm = 500,
+        .walk_cm = 180};
+}
+
+[[nodiscard]] std::uint32_t spawn_monster(Scene& scene, float x_cm, float z_cm, const zone::Temperament& nature,
+    Outbox& out) {
+    zone::Spawn wolf;
+    wolf.kind = protocol::EntityKind::kMonster;
+    wolf.template_id = 42;
+    wolf.x_cm = x_cm;
+    wolf.z_cm = z_cm;
+    wolf.speed_cm = nature.walk_cm;
+    wolf.nature = nature;
+    const std::optional<std::uint32_t> id = scene.spawn(wolf, out);
+    return id.value_or(0);
+}
+
+[[nodiscard]] float gap_cm(const Scene::Where& from, const Scene::Where& to) {
+    return std::sqrt(zone::Point{.x_cm = from.x_cm, .z_cm = from.z_cm}.distance_squared(
+        zone::Point{.x_cm = to.x_cm, .z_cm = to.z_cm}));
+}
+
+void monster_wanders_inside_its_range(Context& context) {
+    Scene scene = make_scene();
+    Outbox out;
+    static_cast<void>(scene.attach(11, arrival(1, 300.0F, 0.0F), out));
+    zone::Temperament nature = lively_nature();
+    nature.scan_ticks = 0;
+    const std::uint32_t wolf = spawn_monster(scene, 0.0F, 0.0F, nature, out);
+    context.expect(wolf != 0, "đặt được quái có tính nết");
+    out.clear();
+
+    std::vector<protocol::EntityPos> seen;
+    for (int tick = 0; tick < 600; ++tick) {
+        scene.advance(out);
+        for (const protocol::EntityPos& pos : of_kind<protocol::EntityPos>(seen_in(out), 11)) {
+            if (pos.id == wolf) seen.push_back(pos);
+        }
+        out.clear();
+    }
+    context.expect(seen.size() > 20, "quái đi lang thang trong 30 giây");
+    float farthest = 0.0F;
+    float longest_hop = 0.0F;
+    bool resting = false;
+    for (std::size_t at = 0; at < seen.size(); ++at) {
+        farthest = std::max({farthest, std::abs(seen[at].x_cm), std::abs(seen[at].z_cm)});
+        if (at > 0 && seen[at].state == protocol::EntityState::kWalk && seen[at - 1].state == protocol::EntityState::kWalk) {
+            longest_hop = std::max(longest_hop, std::hypot(seen[at].x_cm - seen[at - 1].x_cm, seen[at].z_cm - seen[at - 1].z_cm));
+        }
+        resting = resting || seen[at].state == protocol::EntityState::kIdle;
+    }
+    context.expect(farthest <= 500.0F, "không ra khỏi ô vuông lang thang quanh chỗ sinh");
+    context.expect(longest_hop > 5.0F && longest_hop <= 19.0F, "mỗi bước đúng tốc độ đi bộ 180 cm/s trong 2 tick");
+    context.expect(resting, "tới nơi thì báo đứng lại");
+}
+
+void monster_respects_walk_rule(Context& context) {
+    // Chỉ nửa x >= 0 đi được: quái ở sát mép không được lang thang sang nửa kia.
+    Scene scene{Scene::Config{.id = 1,
+        .grid = {.cell_cm = kCell, .radius = 2},
+        .player_max = 10,
+        .walkable = [](float x_cm, float) { return x_cm >= 0.0F; }}};
+    Outbox out;
+    static_cast<void>(scene.attach(11, arrival(1, 300.0F, 0.0F), out));
+    zone::Temperament nature = lively_nature();
+    nature.scan_ticks = 0;
+    const std::uint32_t wolf = spawn_monster(scene, 50.0F, 0.0F, nature, out);
+    out.clear();
+    float leftmost = 1e9F;
+    for (int tick = 0; tick < 1200; ++tick) {
+        scene.advance(out);
+        for (const protocol::EntityPos& pos : of_kind<protocol::EntityPos>(seen_in(out), 11)) {
+            if (pos.id == wolf) leftmost = std::min(leftmost, pos.x_cm);
+        }
+        out.clear();
+    }
+    context.expect(leftmost < 1e8F, "quái vẫn đi lại ở nửa đi được");
+    context.expect(leftmost >= 0.0F, "luật đi chặn mọi bước sang nửa kia");
+}
+
+void monster_chases_then_gives_up_and_goes_home(Context& context) {
+    Scene scene = make_scene();
+    Outbox out;
+    static_cast<void>(scene.attach(11, arrival(1, 600.0F, 0.0F), out));
+    zone::Temperament nature = lively_nature();
+    nature.wander_ticks = 0;
+    const std::uint32_t wolf = spawn_monster(scene, 0.0F, 0.0F, nature, out);
+    out.clear();
+
+    bool closed_in = false;
+    for (int tick = 0; tick < 200 && !closed_in; ++tick) {
+        scene.advance(out);
+        out.clear();
+        const std::optional<Scene::Where> here = scene.where(wolf);
+        const std::optional<Scene::Where> prey = scene.where(*scene.entity_of(11));
+        closed_in = here && prey && gap_cm(*here, *prey) <= zone::kMeleeCm;
+    }
+    context.expect(closed_in, "quái phát hiện người trong tầm và áp sát");
+    const std::optional<Scene::Where> parked = scene.where(wolf);
+    for (int tick = 0; tick < 40; ++tick) {
+        scene.advance(out);
+        out.clear();
+    }
+    const std::optional<Scene::Where> still = scene.where(wolf);
+    context.expect(parked && still && gap_cm(*parked, *still) < 1.0F, "áp sát rồi thì đứng chờ, không xô vào người");
+
+    // Người chạy xa quá khoảng bỏ cuộc (2000 cm tính từ chỗ quái bắt đầu đuổi): quái chạy về chỗ sinh.
+    scene.moved(11, ipc::Moved{.x_cm = 6000.0F, .z_cm = 0.0F}, out);
+    out.clear();
+    for (int tick = 0; tick < 1200; ++tick) {
+        scene.advance(out);
+        out.clear();
+    }
+    const std::optional<Scene::Where> home = scene.where(wolf);
+    context.expect(home && std::hypot(home->x_cm, home->z_cm) < 1.0F, "bỏ cuộc rồi về đúng chỗ sinh");
+}
+
+void passive_monster_ignores_players(Context& context) {
+    Scene scene = make_scene();
+    Outbox out;
+    static_cast<void>(scene.attach(11, arrival(1, 300.0F, 0.0F), out));
+    zone::Temperament nature = lively_nature();
+    nature.scan_ticks = 0;
+    nature.wander_ticks = 0;
+    const std::uint32_t wolf = spawn_monster(scene, 0.0F, 0.0F, nature, out);
+    context.expect(wolf != 0, "đặt được quái bị động");
+    out.clear();
+    for (int tick = 0; tick < 200; ++tick) scene.advance(out);
+    const std::optional<Scene::Where> here = scene.where(wolf);
+    context.expect(here && here->x_cm == 0.0F && here->z_cm == 0.0F, "quái không chủ động, không lang thang thì đứng yên");
+}
+
+void monster_ai_replays_identically(Context& context) {
+    const auto run = [] {
+        Scene scene = make_scene();
+        Outbox out;
+        static_cast<void>(scene.attach(11, arrival(1, 300.0F, 0.0F), out));
+        for (int slot = 0; slot < 5; ++slot) static_cast<void>(spawn_monster(scene, 100.0F * static_cast<float>(slot), 0.0F, lively_nature(), out));
+        std::vector<std::byte> bytes;
+        for (int tick = 0; tick < 400; ++tick) {
+            scene.advance(out);
+            for (const zone::Letter& letter : out.take()) bytes.insert(bytes.end(), letter.body.begin(), letter.body.end());
+        }
+        return bytes;
+    };
+    const std::vector<std::byte> first = run();
+    context.expect(!first.empty() && first == run(), "cùng dãy gọi cho cùng từng byte gửi đi");
+}
+
+void ai_type_table_and_nature(Context& context) {
+    const std::expected<zone::AiTypeTable, std::string> types = zone::AiTypeTable::parse(
+        "ai_id\tdesc\taiparam0\taiparam1\taiparam2\taiparam3\taiparam4\n"
+        "0\tchủ động\t2000\t10000\t0\t30000\t6000\n"
+        "3\tđứng yên\t-1\t-1\t1\t30000\t6000\n");
+    context.expect(types.has_value() && types->size() == 2, "bảng AI đọc được hai dòng");
+    context.expect(!zone::AiTypeTable::parse("ai_id\taiparam0\n0\t1\n"), "thiếu cột aiparam1");
+    context.expect(!zone::AiTypeTable::parse("ai_id\taiparam0\taiparam1\taiparam3\taiparam4\n0\t1\t1\t1\t1\n0\t1\t1\t1\t1\n"),
+        "ai_id trùng");
+    if (!types) return;
+
+    const std::expected<zone::TemplateTable, std::string> templates = zone::TemplateTable::parse(
+        "monster_id\tlevel\tcan_interact\tmove_speed\tbase_ai\n101\t5\t0\t1800\t0\n202\t60\t1\t1800\t0\n303\t3\t0\t0\t0\n"
+        "404\t3\t0\t1800\t3\n");
+    context.expect(templates.has_value(), "bảng mẫu có cột tốc độ và AI");
+    if (!templates) return;
+    scenedata::Scene scene;
+    const auto row_at = [](std::uint32_t type, float x_game, float z_game, bool npc = false) {
+        scenedata::Spawn row;
+        row.type = ids::MonsterTemplateId{type};
+        row.position = core::GroundPoint{.x = x_game, .z = z_game};
+        row.position_given = true;
+        row.is_npc = npc;
+        return row;
+    };
+    scene.spawns.push_back(row_at(101, 1.0F, 1.0F));
+    scene.spawns.push_back(row_at(202, 2.0F, 2.0F, true));
+    scene.spawns.push_back(row_at(303, 3.0F, 3.0F));
+    scene.spawns.push_back(row_at(404, 4.0F, 4.0F));
+    const zone::Seeding seeds = zone::seeds_of(scene, 100, zone::SeedTables{.templates = &*templates, .ai_types = &*types});
+    context.expect(seeds.seeds.size() == 4, "bốn dòng được đặt");
+    const auto& active = seeds.seeds[0].what;
+    context.expect(active.nature.has_value() && active.nature->scan_ticks == 40 && active.nature->wander_ticks == 200 &&
+            active.nature->scan_cm == 600 && active.nature->return_cm == 3000 && active.nature->walk_cm == 180 &&
+            active.nature->range_cm == zone::kWanderRangeCm && active.speed_cm == 180,
+        "AI loại 0: quét 2 s = 40 tick, lang thang 10 s = 200 tick, tầm 6 m, bỏ cuộc 30 m, 1,8 m/s");
+    const auto& talker = seeds.seeds[1].what;
+    context.expect(talker.kind == protocol::EntityKind::kNpc && talker.nature.has_value() && talker.nature->scan_ticks == 0,
+        "NPC có thể lang thang nhưng không bao giờ quét người");
+    context.expect(!seeds.seeds[2].what.nature.has_value(), "mẫu không có tốc độ thì đứng yên");
+    context.expect(seeds.seeds[3].what.nature.has_value() && seeds.seeds[3].what.nature->scan_ticks == 0 &&
+            seeds.seeds[3].what.nature->wander_ticks == 0,
+        "AI loại 3: không quét, không lang thang");
+}
+
 // --- host ---
 
 [[nodiscard]] ipc::Frame frame_of(ipc::Relay kind, std::uint64_t session, std::vector<std::byte> body) {
@@ -563,7 +765,7 @@ void seeds_convert_units_and_skip_unplaced(Context& context) {
     scene.spawns.push_back(pet);
     scene.spawns.push_back(row_at(505, 5.0F, 5.0F));
 
-    const zone::Seeding all = zone::seeds_of(scene, 100, zone::TemplateTable{});
+    const zone::Seeding all = zone::seeds_of(scene, 100, zone::SeedTables{});
     context.expect(all.seeds.size() == 4 && all.unplaced == 1 && all.over_cap == 0, "bốn dòng có vị trí, một dòng bỏ trống");
     const zone::Seed& monster = all.seeds[0];
     context.expect(monster.what.kind == protocol::EntityKind::kMonster && monster.what.template_id == 101 &&
@@ -576,17 +778,17 @@ void seeds_convert_units_and_skip_unplaced(Context& context) {
         "NPC giữ tên, cấp 0 nghĩa là lấy theo mẫu");
     context.expect(all.seeds[2].what.kind == protocol::EntityKind::kPet, "trân thú hoang");
 
-    const zone::Seeding capped = zone::seeds_of(scene, 2, zone::TemplateTable{});
+    const zone::Seeding capped = zone::seeds_of(scene, 2, zone::SeedTables{});
     context.expect(capped.seeds.size() == 2 && capped.over_cap == 2 && capped.unplaced == 1,
         "trần chặn từ dòng thứ ba, dòng thừa được đếm");
-    context.expect(zone::seeds_of(scene, 0, zone::TemplateTable{}).seeds.empty(), "trần 0 không đặt gì");
+    context.expect(zone::seeds_of(scene, 0, zone::SeedTables{}).seeds.empty(), "trần 0 không đặt gì");
 
     // Bảng mẫu làm giàu: can_interact = 1 thành NPC, cấp mẫu thay cấp 0 của bảng cảnh, cấp bảng cảnh vẫn thắng.
     const auto templates = zone::TemplateTable::parse(
         "# schema 1\nmonster_id\tname\tlevel\tcan_interact\n101\tNhện\t30\t0\n202\tThợ rèn\t60\t1\n505\tChó\t5\t-1\n");
     context.expect(templates.has_value() && templates->size() == 3, "bảng mẫu đọc được ba dòng");
     if (!templates) return;
-    const zone::Seeding enriched = zone::seeds_of(scene, 100, *templates);
+    const zone::Seeding enriched = zone::seeds_of(scene, 100, zone::SeedTables{.templates = &*templates});
     context.expect(enriched.seeds[0].what.level == 40 && enriched.seeds[0].what.kind == protocol::EntityKind::kMonster,
         "cấp trong bảng cảnh thắng cấp của mẫu");
     context.expect(enriched.seeds[1].what.kind == protocol::EntityKind::kNpc && enriched.seeds[1].what.level == 60,
@@ -704,7 +906,8 @@ void real_scene_seeds(Context& context) {
     const zone::Seeder seeder = zone::disk_seeder(
         zone::DiskPaths{.scenes = root / "scenes",
             .ids_table = root / "tables" / "server" / "scene_ids.tsv",
-            .templates = root / "tables" / "shared" / "monsters.tsv"},
+            .templates = root / "tables" / "shared" / "monsters.tsv",
+            .ai_types = root / "tables" / "server" / "monster_ai_types.tsv"},
         49000);
     const zone::SceneContent dali = seeder(2);
     const std::vector<zone::Seed>& seeds = dali.seeds;
@@ -927,6 +1130,12 @@ constexpr std::array kCases{
     Case{"autosave_writes_only_walkers", autosave_writes_only_walkers},
     Case{"scene_enter_names_self", scene_enter_names_self},
     Case{"walker_rests_after_idle_ticks", walker_rests_after_idle_ticks},
+    Case{"monster_wanders_inside_its_range", monster_wanders_inside_its_range},
+    Case{"monster_respects_walk_rule", monster_respects_walk_rule},
+    Case{"monster_chases_then_gives_up_and_goes_home", monster_chases_then_gives_up_and_goes_home},
+    Case{"passive_monster_ignores_players", passive_monster_ignores_players},
+    Case{"monster_ai_replays_identically", monster_ai_replays_identically},
+    Case{"ai_type_table_and_nature", ai_type_table_and_nature},
     Case{"host_autosaves_each_period", host_autosaves_each_period},
     Case{"saver_keeps_newest_and_retries", saver_keeps_newest_and_retries},
     Case{"saver_flushes_on_destruction", saver_flushes_on_destruction},

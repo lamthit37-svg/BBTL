@@ -26,8 +26,10 @@
 
 #pragma once
 
+#include "dice/dice.hpp"
 #include "ipc/relay.hpp"
 #include "zone/aoi.hpp"
+#include "zone/mind.hpp"
 #include "zone/outbox.hpp"
 
 #include <cstddef>
@@ -51,6 +53,17 @@ inline constexpr std::int64_t kTickHz = 20;
 // Số tick không có bước mới thì một thực thể đang đi được coi là đã dừng: lớn hơn khoảng cách hai Move liên tiếp của
 // client (30 bước/giây, ngắn hơn một tick) để không nhấp nháy Walk/Idle giữa chừng.
 inline constexpr std::uint32_t kIdleAfterTicks = 3;
+// Quái đi một bước mỗi kMoveEvery tick (10 EntityPos mỗi giây), bước dài gấp đôi nên mắt client vẫn thấy mượt.
+inline constexpr std::uint32_t kMoveEvery = 2;
+// Trần số con được nghĩ mỗi tick mỗi cảnh; con nào tới giờ mà hết lượt thì sang tick sau (vòng tròn, không bỏ đói).
+inline constexpr std::size_t kThinkBudget = 512;
+// Chạy nhanh gấp rưỡi đi bộ (Obj_Monster::GetMoveSpeed, MOVE_MODE_RUN).
+inline constexpr std::uint32_t kRunPercent = 150;
+// Coi là áp sát khi cách mục tiêu chừng này; hết hạn chờ Hold khi mục tiêu xa hơn chừng này cộng kHoldSlackCm.
+inline constexpr float kMeleeCm = 150.0F;
+inline constexpr float kHoldSlackCm = 100.0F;
+// Số bước liền bị luật đi chặn thì bỏ cuộc (kMoveEvery tick một bước, nên chừng một giây).
+inline constexpr std::uint8_t kStuckSteps = 10;
 
 [[nodiscard]] constexpr std::uint32_t id_of(std::uint32_t index, std::uint16_t generation) noexcept {
     return (static_cast<std::uint32_t>(generation) << 16U) | (index + 1U);
@@ -60,6 +73,12 @@ inline constexpr std::uint32_t kIdleAfterTicks = 3;
 struct Point {
     float x_cm = 0.0F;
     float z_cm = 0.0F;
+
+    [[nodiscard]] constexpr float distance_squared(Point other) const noexcept {
+        const float along = x_cm - other.x_cm;
+        const float across = z_cm - other.z_cm;
+        return (along * along) + (across * across);
+    }
 };
 
 // Đổi sinh lực theo phần trăm của một thực thể.
@@ -86,6 +105,8 @@ struct Spawn {
     std::uint16_t direction = 0;
     std::uint16_t speed_cm = 0;
     std::uint8_t hp_percent = 100;
+    // Có giá trị thì thực thể tự đứng, đi, đuổi theo mind.hpp; chỗ sinh là x_cm, z_cm.
+    std::optional<Temperament> nature;
 };
 
 class Scene {
@@ -124,8 +145,8 @@ public:
     void move_entity(std::uint32_t id, Point to, Outbox& out);
     void set_hp_percent(HpChange change, Outbox& out);
 
-    // Sang tick kế. Thực thể đã đi mà không có bước mới suốt kIdleAfterTicks tick thì được báo dừng (EntityPos kIdle).
-    // O(số thực thể đang đi).
+    // Sang tick kế: chạy trí khôn của quái tới giờ (tối đa kThinkBudget con), rồi báo dừng (EntityPos kIdle) cho
+    // thực thể đã đi mà không có bước mới suốt kIdleAfterTicks tick. O(số quái tới giờ + số thực thể đang đi).
     void advance(Outbox& out);
     // Ghi điểm đứng của mọi người chơi đã đi kể từ lần ghi trước (định kỳ, để sập tiến trình không mất quá một chu kỳ).
     void autosave(Outbox& out);
@@ -161,6 +182,7 @@ private:
         std::uint32_t moved_at = 0;
         // Vị trí trong moving_ khi state là kWalk (kNotMoving nếu không).
         std::uint32_t moving_slot = kNotMoving;
+        [[nodiscard]] Point spot() const noexcept { return Point{.x_cm = x_cm, .z_cm = z_cm}; }
         // Chỉ người chơi: ô gate và nhân vật.
         std::uint64_t session = 0;
         std::uint64_t character = 0;
@@ -170,6 +192,30 @@ private:
     };
 
     static constexpr std::uint32_t kNotMoving = 0xFFFFFFFFU;
+
+    static constexpr std::uint32_t kNoSlot = 0xFFFFFFFFU;
+    enum class Step : std::uint8_t { kMoved, kArrived, kBlocked };
+
+    // --- trí khôn của quái (zone/mind.cpp) ---
+    void start_thinking(std::uint32_t index, const Temperament& nature);
+    void stop_thinking(std::uint32_t index);
+    void think(Outbox& out);
+    void think_one(std::uint32_t index, Outbox& out);
+    void think_idle(std::uint32_t index, Outbox& out);
+    void think_chase(std::uint32_t index, Outbox& out);
+    void think_hold(std::uint32_t index);
+    void think_home(std::uint32_t index, Outbox& out);
+    // Quét người trong tầm; vào trạng thái đuổi nếu thấy. true khi bắt đầu đuổi.
+    [[nodiscard]] bool scan_for_prey(std::uint32_t index);
+    // Người chơi gần nhất trong tầm quét của con `index`; nullopt khi không có ai.
+    [[nodiscard]] std::optional<std::uint32_t> nearest_prey(std::uint32_t index) const;
+    void begin_wander(std::uint32_t index);
+    void give_up(std::uint32_t index);
+    [[nodiscard]] bool passable(Point at) const;
+    // Đoạn thẳng from→to đi được: mọi điểm cách nhau chừng kSampleCm đều đi được.
+    [[nodiscard]] bool clear_line(Point from, Point to) const;
+    // Một bước kMoveEvery tick về phía goal với tốc độ speed_cm; trượt dọc trục khi bước chéo bị chặn.
+    [[nodiscard]] Step step_toward(std::uint32_t index, Point goal, std::uint32_t speed_cm, Outbox& out);
 
     [[nodiscard]] std::optional<std::uint32_t> allocate();
     void start_walking(std::uint32_t index);
@@ -196,6 +242,12 @@ private:
     std::vector<std::uint32_t> free_;
     // Chỉ số các thực thể đang ở trạng thái kWalk; thứ tự theo lần bắt đầu đi (xoá bằng chép phần tử cuối).
     std::vector<std::uint32_t> moving_;
+    // Trí khôn song song với entities_ (cùng chỉ số); thinkers_ là chỉ số các con đang chạy, think_cursor_ là chỗ
+    // bắt đầu vòng của tick kế để mọi con đều tới lượt khi quá trần kThinkBudget.
+    std::vector<Mind> minds_;
+    std::vector<std::uint32_t> thinkers_;
+    std::size_t think_cursor_ = 0;
+    dice::Dice rng_;
     std::unordered_map<std::uint64_t, std::uint32_t> players_;
     std::unordered_map<std::uint64_t, std::uint32_t> by_character_;
 };

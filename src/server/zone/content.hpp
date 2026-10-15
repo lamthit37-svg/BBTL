@@ -1,12 +1,27 @@
-#pragma once
-// Quái và NPC đặt sẵn của cảnh, lấy từ dữ liệu cảnh (dev/server/scenes/<tên>/spawns.tsv, do module scenedata
-// nạp). Host tạo cảnh lười khi người chơi đầu tiên vào; lúc đó nó hỏi Seeder danh sách thực thể cần đặt.
-//
+/*==============================================================================
+ *  THIENLONG  |  GAME SERVER
+ *------------------------------------------------------------------------------
+ *  TỆP       : src/server/zone/content.hpp
+ *  PHÂN HỆ   : Server / Zone / Content
+ *  CHUẨN     : C++23
+ *------------------------------------------------------------------------------
+ *  CHỨC NĂNG
+ *  - Quái và NPC đặt sẵn của cảnh, lấy từ dữ liệu cảnh
+ *    (dev/server/scenes/<tên>/spawns.tsv, do module scenedata nạp). Host tạo
+ *    cảnh lười khi người chơi đầu tiên vào; lúc đó nó hỏi Seeder danh sách thực
+ *    thể cần đặt.
+ *------------------------------------------------------------------------------
+ *  TÁC GIẢ   : HiepHoon
+ *  TELEGRAM  : @Hoon9xx
+ *============================================================================*/
+
 // Tách làm hai phần: seeds_of là phép đổi THUẦN từ Scene của scenedata sang danh sách đặt (test được không cần
 // đĩa), DiskSeeder là chỗ duy nhất chạm đĩa (bảng scene_ids.tsv, thư mục cảnh) và chỉ được gọi từ serve.cpp.
 //
 // Chỉ bảng quái gốc (spawns.tsv) được đặt. Các bảng theo cấp người chơi (spawns.level_*.tsv, chọn qua
 // spawn_operates) và luật AI/tuần tra thuộc bước sau: cảnh dựng xong thì quái đứng yên đúng chỗ đặt.
+
+#pragma once
 
 #include "scenedata/types.hpp"
 #include "zone/scene.hpp"
@@ -46,8 +61,13 @@ struct TemplateInfo {
     std::uint16_t level = 0;
     // can_interact == 1: đứng đó để nói chuyện/mua bán, không phải để đánh.
     bool interactive = false;
+    // base_ai: loại AI mặc định của mẫu (khoá của AiTypeTable); -1 khi bảng không có cột hay ô.
+    std::int32_t base_ai = -1;
+    // move_speed: nghìn mét mỗi giây (1800 là 1,8 m/s), nhân 1,5 khi chạy (Obj_Monster::GetMoveSpeed).
+    std::int32_t move_speed = 0;
 };
 
+// NOLINTNEXTLINE(bugprone-exception-escape): ctor ngầm định của map chuẩn ném bad_alloc; không dùng ngoại lệ (LH-07)
 class TemplateTable {
 public:
     // Đọc bằng cách tách theo tab, không dựng bảng ô: bảng thật 29 nghìn dòng × 70 cột. Lỗi trả câu tiếng Việt kèm số dòng.
@@ -60,13 +80,46 @@ private:
     std::unordered_map<std::uint32_t, TemplateInfo> by_id_;
 };
 
+// Một dòng của tables/server/monster_ai_types.tsv (MonsterAITable của máy chủ 2008). Giá trị thô: mili giây, hoặc nghìn
+// mét (aiparam / 1000 là mét), âm là "tắt" (scan -1 là quái không chủ động).
+struct AiType {
+    std::int32_t scan_ms = -1;
+    std::int32_t wander_ms = -1;
+    std::int32_t return_mm = -1;
+    std::int32_t scan_mm = -1;
+};
+
+// NOLINTNEXTLINE(bugprone-exception-escape): ctor ngầm định của map chuẩn ném bad_alloc; không dùng ngoại lệ (LH-07)
+class AiTypeTable {
+public:
+    // Cột ai_id và aiparam0, aiparam1, aiparam3, aiparam4 (ý nghĩa: AIPARAM_* của GameDefine2.h). Lỗi trả câu tiếng Việt.
+    [[nodiscard]] static std::expected<AiTypeTable, std::string> parse(std::string_view text);
+
+    [[nodiscard]] const AiType* find(std::int32_t ai_id) const noexcept;
+    [[nodiscard]] std::size_t size() const noexcept { return by_id_.size(); }
+
+private:
+    std::unordered_map<std::int32_t, AiType> by_id_;
+};
+
+// Hai bảng làm giàu cho seeds_of; con trỏ rỗng là bảng vắng (quái đứng yên như trước).
+struct SeedTables {
+    const TemplateTable* templates = nullptr;
+    const AiTypeTable* ai_types = nullptr;
+};
+
+// Bán kính lang thang quanh chỗ sinh, cm: bằng default_position_range của config/rules/monster.toml (10 m); zone chưa có
+// bộ đọc luật quái nên số này viết ở đây.
+inline constexpr std::uint32_t kWanderRangeCm = 1000;
+
 // Đơn vị toạ độ của bảng cảnh là đơn vị game (một đơn vị là một ô lưới); zone dùng centimet, 1 đơn vị = 100 cm
 // (cùng phép đổi như điểm sinh của nhân vật, docs/SERVER-DI-CHUYEN.md).
 // Hướng: bảng ghi độ (Spawn::heading_degrees); đổi sang 0..65535 ứng với 0..2π. Quy ước gốc của góc (từ trục nào,
 // chiều nào) chưa đối chiếu với client 2026 (docs/NGHI-NGO.md), nên hướng NPC có thể lệch một góc cố định.
-[[nodiscard]] Seeding seeds_of(const scenedata::Scene& scene, std::size_t cap, const TemplateTable& templates);
+[[nodiscard]] Seeding seeds_of(const scenedata::Scene& scene, std::size_t cap, const SeedTables& tables);
 
 // Cầu từ id cảnh của client sang thư mục cảnh.
+// NOLINTNEXTLINE(bugprone-exception-escape): ctor ngầm định của map chuẩn ném bad_alloc; không dùng ngoại lệ (LH-07)
 class SceneDirectory {
 public:
     // Đọc scene_ids.tsv (cột client_id_first, client_id_last, scene_dir). Lỗi trả câu tiếng Việt.
@@ -105,6 +158,8 @@ struct DiskPaths {
     std::filesystem::path ids_table;
     // Có thể vắng: xem TemplateTable.
     std::filesystem::path templates;
+    // tables/server/monster_ai_types.tsv; có thể vắng (quái đứng yên).
+    std::filesystem::path ai_types;
 };
 
 // Seeder đọc đĩa: thiếu bảng id hay thư mục cảnh thì cảnh để trống (không quái, không luật đi) và nói ra stderr. `cap` là số thực thể tối đa

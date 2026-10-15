@@ -55,7 +55,10 @@ std::uint16_t direction_of(Delta step, std::uint16_t keep) noexcept {
     return static_cast<std::uint16_t>(static_cast<std::uint32_t>(scaled) & 0xFFFFU);
 }
 
-Scene::Scene(Config config) : config_(std::move(config)), grid_(config_.grid) {
+// Hạt giống ngẫu nhiên của cảnh: mỗi cảnh một dòng riêng, cùng id cho cùng dòng (phát lại được).
+constexpr std::uint64_t kSeedBase = 0x5A17'E000'0000'0000ULL;
+
+Scene::Scene(Config config) : config_(std::move(config)), grid_(config_.grid), rng_(kSeedBase + config_.id) {
     core::check(config_.player_max <= kEntityMax, "player_max vượt trần thực thể của cảnh");
 }
 
@@ -67,6 +70,7 @@ std::optional<std::uint32_t> Scene::allocate() {
     }
     if (entities_.size() >= kEntityMax) return std::nullopt;
     entities_.emplace_back();
+    minds_.emplace_back();
     return static_cast<std::uint32_t>(entities_.size() - 1);
 }
 
@@ -230,6 +234,7 @@ std::optional<std::uint32_t> Scene::spawn(const Spawn& what, Outbox& out) {
     who.speed_cm = what.speed_cm;
     who.hp_percent = std::min<std::uint8_t>(what.hp_percent, 100);
     enter_grid(index, out);
+    if (what.nature) start_thinking(index, *what.nature);
     return id_at(index);
 }
 
@@ -283,6 +288,7 @@ void Scene::stop_walking(std::uint32_t index) {
 
 void Scene::advance(Outbox& out) {
     ++tick_;
+    think(out);
     // Duyệt ngược: stop_walking chép phần tử cuối vào chỗ vừa xoá, mà phần tử cuối đã được xét.
     for (std::size_t at = moving_.size(); at > 0; --at) {
         const std::uint32_t index = moving_[at - 1];
@@ -370,6 +376,7 @@ void Scene::remove(std::uint32_t index, Outbox& out) {
         by_character_.erase(who.character);
     }
     stop_walking(index);
+    stop_thinking(index);
     who.dirty = false;
     who.live = false;
     who.name.clear();
