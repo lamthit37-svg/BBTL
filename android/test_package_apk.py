@@ -17,6 +17,7 @@ from __future__ import annotations
 
 import tempfile
 import unittest
+import zipfile
 from pathlib import Path
 
 import package_apk
@@ -96,6 +97,41 @@ class PackageList(unittest.TestCase):
             write(root / "Table" / "mobile.files.tsv", "kind\tpath\nx\t../secret\n")
             with self.assertRaises(SystemExit):
                 package_apk.scene_files(root, False)
+
+    def test_every_interface_layout_is_packed_even_when_the_trace_missed_it(self) -> None:
+        with tempfile.TemporaryDirectory() as raw:
+            root = Path(raw)
+            closure(root, "Scene/a.Scene")
+            write(root / "Interface/Quest/Quest.layout.xml", "<GUILayout/>")
+            write(root / "Interface/phone/Quest/Quest.layout.xml", "<GUILayout/>")
+            write(root / "Interface/Quest/readme.txt", "không phải layout")
+            files = names(package_apk.scene_files(root, False))
+            self.assertIn("Interface/Quest/Quest.layout.xml", files)
+            self.assertIn("Interface/phone/Quest/Quest.layout.xml", files)
+            self.assertNotIn("Interface/Quest/readme.txt", files)
+
+    def test_cooked_sound_replaces_the_original_sound_folder(self) -> None:
+        with tempfile.TemporaryDirectory() as raw:
+            root = Path(raw)
+            closure(root, "sound/sound_table.xml", "sound/UI/click.wav", "Scene/a.Scene")
+            files = names(package_apk.scene_files(root, True))
+            self.assertNotIn("sound/sound_table.xml", files)
+            self.assertNotIn("sound/UI/click.wav", files)
+            self.assertIn("Scene/a.Scene", files)
+
+    def test_a_name_packed_twice_is_an_error(self) -> None:
+        with tempfile.TemporaryDirectory() as raw:
+            root = Path(raw)
+            write(root / "a.txt", "a")
+            with zipfile.ZipFile(root / "x.zip", "w") as archive:
+                package_apk.add_asset(archive, root / "a.txt", "data", "D", "a.txt")
+                with self.assertRaises(SystemExit):
+                    package_apk.add_asset(archive, root / "a.txt", "data", "D", "a.txt")
+
+    def test_text_is_deflated_and_compressed_formats_are_stored(self) -> None:
+        self.assertEqual(package_apk.compression_of(Path("Table/a.tsv")), zipfile.ZIP_DEFLATED)
+        self.assertEqual(package_apk.compression_of(Path("Material/a.PNG")), zipfile.ZIP_STORED)
+        self.assertEqual(package_apk.compression_of(Path("sound/a.tla")), zipfile.ZIP_STORED)
 
 
 class GateHost(unittest.TestCase):

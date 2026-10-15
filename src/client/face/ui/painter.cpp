@@ -134,12 +134,14 @@ template <typename Item>
 
 } // namespace
 
-Painter::Painter(render::UiPass& pass, std::filesystem::path root) : pass_(&pass), root_(std::move(root)) {}
+Painter::Painter(render::UiPass& pass, std::filesystem::path data_root, resource::TextureTier tier)
+    : pass_(&pass), root_(std::move(data_root)), tier_(tier) {}
 
-// Đọc đúng tệp Imagefile của imageset gốc (dds, tga, png, jpg) rồi đưa lên GPU. Không nối
+// Đọc đúng tệp Imagefile của imageset gốc (dds, tga, png, jpg), hay bản đã nấu của tier, rồi đưa lên GPU. Không nối
 // ".png" và không lấy bản ghép hay bản chữ tiếng Việt. Lỗi thì ghi một dòng và trả bản hỏng.
 Painter::Loaded Painter::load(const std::string& name) {
-    const std::filesystem::path file = root_ / io::path_from_utf8(name);
+    const std::string chosen = resource::texture_file(io::utf8_of(root_), "Interface/" + name, tier_);
+    const std::filesystem::path file = io::path_from_utf8(chosen);
     const io::TextResult bytes = io::read_text(file);
     if (!bytes) {
         std::println(stderr, "Giao diện: không đọc được {}: {}", name, io::describe(bytes.error()));

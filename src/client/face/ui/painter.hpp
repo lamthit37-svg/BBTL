@@ -2,7 +2,9 @@
 // ba danh sách của Hub theo lớp (cửa sổ gốc): ảnh tĩnh, ảnh động rồi chữ của một gốc vẽ xong mới
 // tới gốc kế, nên bảng mở sau đè trọn lên bảng dưới nó. Ô nguồn theo điểm ảnh đổi sang toạ độ ảnh
 // 0..1; quad liền nhau cùng texture gom thành một lô; texture gốc tải lên GPU khi gặp lần đầu.
-// Texture của asset là tên Imagefile gốc ("Common/Button.dds"), mở đúng tệp đó dưới Interface.
+// Texture của asset là tên Imagefile gốc ("Common/Button.dds"), mở đúng tệp đó dưới Interface; điện
+// thoại mở bản đã nấu cùng tên dưới mobile/astc hay mobile/etc2 (resource::texture_file) khi có, vì
+// GPU điện thoại không đọc khối BC của DDS.
 // Quad ảnh cảnh (kSceneMap) vẽ bằng atlas minimap của PaintKit; quad tròn (LookLikeRound) thành
 // quạt 16 tam giác, ghép đôi thành 8 quad có chung đỉnh tâm.
 // Nguồn: bản mới của dự án, tương ứng pc_hud.cpp của TLBB Dev (bgfx) ở phần đưa quad lên thiết bị.
@@ -11,6 +13,7 @@
 #include "gui/asset.hpp"
 #include "gui/sheet.hpp"
 #include "render/ui.hpp"
+#include "resource/tier.hpp"
 #include "ui/text.hpp"
 #include "ui/view.hpp"
 
@@ -61,8 +64,9 @@ struct PaintKit {
 
 class Painter {
 public:
-    // pass và thư mục root (CLIENT/data/Interface) phải sống lâu hơn Painter.
-    Painter(render::UiPass& pass, std::filesystem::path root);
+    // pass phải sống lâu hơn Painter. data_root là thư mục dữ liệu client (ảnh nằm ở Interface dưới đó); tier là
+    // bản texture của thiết bị (kBc: tệp gốc).
+    Painter(render::UiPass& pass, std::filesystem::path data_root, resource::TextureTier tier);
 
     // Dựng lại đỉnh và lô của khung. Gọi ngoài begin_rendering vì có thể tải texture. Texture không
     // tải được thì quad của nó bị bỏ và đếm vào missing().
@@ -116,7 +120,9 @@ private:
     void close_batch(Open open);
 
     render::UiPass* pass_;
+    // Thư mục dữ liệu client; ảnh của asset nằm ở Interface dưới đó.
     std::filesystem::path root_;
+    resource::TextureTier tier_ = resource::TextureTier::kBc;
     std::map<std::string, Loaded, std::less<>> cache_;
     std::vector<render::UiVertex> vertices_;
     std::vector<render::UiBatch> batches_;

@@ -26,6 +26,7 @@
 #include "client/assets.hpp"
 #include "client/boot.hpp"
 #include "client/display/display.hpp"
+#include "client/host/host.hpp"
 #include "client/mobile.hpp"
 #include "control/input.hpp"
 #include "control/touch.hpp"
@@ -40,6 +41,7 @@
 #include <jni.h>
 #include <sys/system_properties.h>
 
+#include <chrono>
 #include <cstddef>
 #include <cstdint>
 #include <cstdio>
@@ -175,9 +177,13 @@ void extract_assets(android_app* app, const std::filesystem::path& data_root) {
     log_line("đã giải nén " + counts + " tệp assets đổi ra " + data_root.string());
 }
 
-// Display huỷ trước boot: nó giữ shared_ptr cảnh cắt từ boot.
+// Display huỷ trước boot và online: nó giữ shared_ptr cảnh cắt từ boot. online sống qua các lần huỷ Display (ứng dụng
+// xuống nền): phiên mạng không đứt khi người chơi tạm rời ứng dụng.
 struct Shell {
     game::client::BootLoad boot;
+    std::optional<game::client::host::Online> online;
+    game::client::host::Soundscape sounds;
+    std::chrono::steady_clock::time_point last_serve{};
     std::optional<game::client::Display> display;
     game::control::TouchGestures gestures;
     std::vector<game::control::InputEvent> events;
@@ -204,6 +210,14 @@ void log_boot(const game::client::BootLoad& boot) {
     }
 }
 
+void log_notes(game::client::host::Notes& notes) {
+    for (const game::client::host::Note& note : notes) {
+        if (note.is_problem) log_error(note.text);
+        if (!note.is_problem) log_line(note.text);
+    }
+    notes.clear();
+}
+
 void prepare_shell(android_app* app, Shell& shell) {
     const std::filesystem::path root = shell.boot.data_root;
     extract_assets(app, root);
@@ -217,6 +231,9 @@ void prepare_shell(android_app* app, Shell& shell) {
         return;
     }
     log_boot(shell.boot);
+    game::client::host::GateBookLoad gates = game::client::host::load_gate_book(root);
+    log_notes(gates.notes);
+    shell.online.emplace(std::move(gates.book));
 }
 
 void fit_gestures(const android_app* app, Shell& shell) noexcept {
@@ -241,8 +258,12 @@ void start_speaker(Shell& shell) {
         shell.speaker.reset();
         return;
     }
-    static_cast<void>(shell.speaker->play_music(game::audio::kLoginMusicId, 0.F));
-    static_cast<void>(shell.speaker->play_flat(game::audio::kButtonClickId, 1.F));
+    // Loa mở lại (sau tạm dừng) giữa màn chơi: sounds phát lại nhạc cảnh, không về nhạc đăng nhập.
+    shell.sounds = {};
+    if (!shell.is_playing) {
+        static_cast<void>(shell.speaker->play_music(game::audio::kLoginMusicId, 0.F));
+        static_cast<void>(shell.speaker->play_flat(game::audio::kButtonClickId, 1.F));
+    }
     const char* text = "âm thanh: không mở được thiết bị";
     if (shell.speaker->device_is_open()) text = "âm thanh: thiết bị mở";
     log_line(text);
@@ -268,6 +289,7 @@ void arm_desc(const Shell& shell, game::client::DisplayDesc& desc) {
     desc.procedure = game::client::Procedure::kLogin;
     desc.scene = shell.boot.backdrop;
     desc.role_scene = shell.boot.role_scene;
+    if (shell.online) desc.online_servers = shell.online->servers();
 }
 
 // Chẩn đoán trên thiết bị: `adb shell setprop debug.thienlong.backend gles` ép backend đồ hoạ (giả lập hay driver có
@@ -283,6 +305,9 @@ void arm_desc(const Shell& shell, game::client::DisplayDesc& desc) {
     }
     return std::string(name);
 }
+
+// Tần số quét của màn đang chứa activity, Hz; định nghĩa cạnh các hàm JNI bên dưới.
+[[nodiscard]] double refresh_rate(android_app* app);
 
 void start_display(android_app* app) {
     Shell* shell = shell_of(app);
@@ -308,6 +333,9 @@ void start_display(android_app* app) {
     }
     shell->display.emplace(std::move(*made));
     log_line("phần hiển thị đã chạy: " + shell->display->description());
+    shell->display->set_refresh(refresh_rate(app));
+    if (shell->online) shell->online->on_display_made(*shell->display, shell->is_playing);
+    shell->last_serve = std::chrono::steady_clock::now();
 }
 
 // Lời nhờ còn nằm trên phần hiển thị sắp huỷ: vào game phải kịp đặt is_playing, không thì lần
@@ -320,7 +348,9 @@ void absorb_requests(Shell& shell) {
     for (const game::client::Request& request : requests) {
         if (request.kind != game::client::RequestKind::kEnterGame) continue;
         const game::client::HostStep step = game::client::host_step(shell.boot, shell.is_playing, request);
-        if (!step.detail.empty()) log_error("Vào game: " + step.detail);
+        if (step.detail.empty()) continue;
+        log_error("Vào game: " + step.detail);
+        if (request.entry && shell.online) shell.online->abandon(*shell.display);
     }
 }
 
@@ -384,6 +414,47 @@ struct JniEnv {
     const jmethodID method = env->GetStaticMethodID(type, name, signature);
     if (!jni_ok(env)) return nullptr;
     return method;
+}
+
+// Local ref của một lời gọi JNI; trả lại khi ra khỏi tầm (luồng của vỏ có thể đã gắn sẵn với máy ảo, khi ấy ref không tự
+// mất lúc gỡ).
+struct LocalRef {
+    JNIEnv* env = nullptr;
+    jobject held = nullptr;
+    LocalRef(JNIEnv* owner, jobject object) noexcept : env(owner), held(object) {}
+    LocalRef(const LocalRef&) = delete;
+    LocalRef& operator=(const LocalRef&) = delete;
+    ~LocalRef() {
+        if (held != nullptr) env->DeleteLocalRef(held);
+    }
+};
+
+// Activity.getWindowManager().getDefaultDisplay().getRefreshRate(): còn dùng được ở API 29 (Activity.getDisplay từ API
+// 30). 0 khi không hỏi được: bảng đo giữ ngân sách của trần render_hz như Display::set_refresh nói.
+double refresh_rate(android_app* app) {
+    JniEnv jni(app->activity->vm);
+    JNIEnv* env = jni.env;
+    if (env == nullptr) return 0.0;
+    jobject activity = app->activity->clazz;
+    const LocalRef activity_class(env, env->GetObjectClass(activity));
+    const jmethodID manager_of = method_of(
+        env, static_cast<jclass>(activity_class.held), "getWindowManager", "()Landroid/view/WindowManager;");
+    if (manager_of == nullptr) return 0.0;
+    const LocalRef manager(env, env->CallObjectMethod(activity, manager_of));
+    if (!jni_ok(env) || manager.held == nullptr) return 0.0;
+    const LocalRef manager_class(env, env->GetObjectClass(manager.held));
+    const jmethodID display_of = method_of(
+        env, static_cast<jclass>(manager_class.held), "getDefaultDisplay", "()Landroid/view/Display;");
+    if (display_of == nullptr) return 0.0;
+    const LocalRef display(env, env->CallObjectMethod(manager.held, display_of));
+    if (!jni_ok(env) || display.held == nullptr) return 0.0;
+    const LocalRef display_class(env, env->GetObjectClass(display.held));
+    const jmethodID rate_of = method_of(env, static_cast<jclass>(display_class.held), "getRefreshRate", "()F");
+    if (rate_of == nullptr) return 0.0;
+    const jfloat rate = env->CallFloatMethod(display.held, rate_of);
+    if (!jni_ok(env)) return 0.0;
+    log_line("màn hình: " + std::to_string(rate) + " Hz");
+    return static_cast<double>(rate);
 }
 
 // Mở Coming soon bằng Intent. file:// sang ứng dụng khác có thể ném FileUriExposedException;
@@ -487,8 +558,10 @@ void apply_request(android_app* app, Shell& shell, game::client::Request request
     if (!shell.display) return;
     const game::client::HostStep step = game::client::host_step(shell.boot, shell.is_playing, request);
     if (!step.detail.empty()) log_error("Vào game: " + step.detail);
+    // Trực tuyến mà không vào được cảnh máy chủ nói: trả phiên, không để máy chủ tưởng người chơi đã vào.
+    if (!step.detail.empty() && request.entry && shell.online) shell.online->abandon(*shell.display);
     const bool entered = step.ask == game::client::HostAsk::kEntered && shell.boot.playing;
-    if (entered) shell.display->play(game::client::world::current_scene(*shell.boot.playing));
+    if (entered) shell.display->play(game::client::world::current_scene(*shell.boot.playing), step.entry);
     if (step.ask == game::client::HostAsk::kOpenWeb) {
         const std::filesystem::path page = shell.boot.data_root / "Web" / "coming_soon.html";
         open_web(app, page, game::client::web_link_name(step.link));
@@ -503,8 +576,27 @@ void show_playing(Shell& shell) {
     if (scene) shell.display->show(scene);
 }
 
+// Âm thanh và mạng (đăng nhập, tin thế giới, chỗ đứng) của mỗi vòng, trước lời nhờ của giao diện như vòng của viewer PC.
+void serve_host(Shell& shell) {
+    const auto now = std::chrono::steady_clock::now();
+    const float seconds = std::chrono::duration<float>(now - shell.last_serve).count();
+    shell.last_serve = now;
+    game::client::host::Notes notes;
+    const bool is_playing = shell.is_playing && shell.boot.playing;
+    const std::shared_ptr<const game::client::world::ShownScene> scene =
+        is_playing ? game::client::world::current_scene(*shell.boot.playing) : nullptr;
+    game::audio::Engine* speaker = shell.speaker ? &*shell.speaker : nullptr;
+    shell.sounds.on_frame(speaker, *shell.display, scene.get(), notes);
+    if (shell.online) {
+        game::client::world::World* playing = is_playing ? &*shell.boot.playing : nullptr;
+        shell.online->on_frame(*shell.display, playing, shell.boot.data_root / "Scene", seconds, notes);
+    }
+    log_notes(notes);
+}
+
 void serve(android_app* app, Shell& shell) {
     if (!shell.display) return;
+    serve_host(shell);
     const std::vector<game::client::Request> requests = shell.display->take_requests();
     for (const game::client::Request& request : requests) {
         apply_request(app, shell, request);
@@ -574,10 +666,10 @@ void move_fingers(Shell& shell, const AInputEvent* event, game::control::TouchTi
     }
 }
 
-void lift_fingers(Shell& shell, const AInputEvent* event) {
+void lift_fingers(Shell& shell, const AInputEvent* event, game::control::TouchTime now) {
     const std::size_t count = AMotionEvent_getPointerCount(event);
     for (std::size_t index = 0; index < count; ++index) {
-        shell.gestures.up(finger_of(event, index), touch_point(event, index, shell.per_dp), shell.events);
+        shell.gestures.up(finger_of(event, index), touch_point(event, index, shell.per_dp), now, shell.events);
     }
 }
 
@@ -592,10 +684,10 @@ void feed_motion(Shell& shell, const AInputEvent* event) {
         break;
     case AMOTION_EVENT_ACTION_UP:
     case AMOTION_EVENT_ACTION_POINTER_UP:
-        shell.gestures.up(finger_of(event, index), touch_point(event, index, shell.per_dp), shell.events);
+        shell.gestures.up(finger_of(event, index), touch_point(event, index, shell.per_dp), now, shell.events);
         break;
     case AMOTION_EVENT_ACTION_MOVE: move_fingers(shell, event, now); break;
-    case AMOTION_EVENT_ACTION_CANCEL: lift_fingers(shell, event); break;
+    case AMOTION_EVENT_ACTION_CANCEL: lift_fingers(shell, event, now); break;
     default: break;
     }
 }
@@ -606,6 +698,10 @@ void feed_motion(Shell& shell, const AInputEvent* event) {
     shell->events.clear();
     feed_motion(*shell, event);
     shell->display->input(shell->events);
+    // Chạm hai ngón là nhảy (Space của bản PC); ngoài màn chơi Display bỏ thao tác này.
+    for (std::uint32_t taps = shell->gestures.take_pair_taps(); taps > 0; --taps) {
+        shell->display->act(game::client::PlayAct::kJump);
+    }
     return 1;
 }
 

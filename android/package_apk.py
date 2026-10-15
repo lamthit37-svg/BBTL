@@ -56,6 +56,41 @@ def listed_paths(listing: Path) -> list[str]:
     return paths
 
 
+def creature_paths(data: Path) -> list[str]:
+    # Quái và NPC (TOOLS/content/export_creatures.py rồi collect_creatures.py): bốn bảng nằm trong Table (thư mục mang
+    # nguyên), lưới, xương, clip và ảnh do Table/creature.files.tsv liệt kê. Không có danh sách thì APK không vẽ quái, NPC
+    # (client ghi log), không phải lỗi đóng gói.
+    listing = data / "Table" / "creature.files.tsv"
+    if not listing.is_file():
+        return []
+    return listed_paths(listing)
+
+
+# Thư mục mang nguyên: nhỏ, nhiều nơi đọc theo bảng nên vết của trace_assets.py khó phủ hết. Quét lúc đóng gói, không theo
+# ảnh chụp lúc trace: bảng mới thêm (như bảng quái) vào gói ngay.
+WHOLE_FOLDERS = ("Table", "Config", "Script", "effect", "Web")
+# Layout giao diện (3,6 MB, 2 071 tệp): HUD nạp cố định 34 layout nhưng host Lua nạp thêm theo sổ cửa sổ, và danh sách
+# layout của HUD đổi theo phiên bản (Quest.layout.xml thêm sau lượt trace làm HUD không mở được trên điện thoại).
+WHOLE_PATTERNS = ("Interface/**/*.layout.xml",)
+
+
+def folder_paths(data: Path) -> list[str]:
+    found: list[str] = []
+    for pattern in WHOLE_PATTERNS:
+        found.extend(path.relative_to(data).as_posix() for path in sorted(data.glob(pattern)) if path.is_file())
+    for folder in WHOLE_FOLDERS:
+        root = data / folder
+        if not root.is_dir():
+            continue
+        read_inputs.append(root)
+        for path in sorted(root.rglob("*")):
+            if path.is_file():
+                found.append(path.relative_to(data).as_posix())
+            else:
+                read_inputs.append(path)
+    return found
+
+
 def avatar_paths(data: Path) -> list[str]:
     # Người chơi mặc định của hai giới (export_look.py rồi collect_avatar.py): năm bảng Table/*.tsv
     # và mọi GLB, ảnh mà Table/avatar.files.tsv liệt kê. Không có danh sách thì APK không có người
@@ -94,9 +129,8 @@ def extend_unique(paths: list[str], seen: set[str], more: list[str]) -> None:
 
 
 def closure_paths(data: Path) -> list[str]:
-    # Bao đóng của gói: những tệp dữ liệu client PC thật sự mở khi chạy đăng nhập và màn chơi, cộng cả thư mục Table, Config,
-    # Script, effect, Web (TOOLS/run/trace_assets.py). Không có danh sách thì không biết đóng gì: dừng, không đóng một APK
-    # thiếu tệp.
+    # Bao đóng của gói: những tệp dữ liệu client PC thật sự mở khi chạy đăng nhập và màn chơi (TOOLS/run/trace_assets.py).
+    # Không có danh sách thì không biết đóng gì: dừng, không đóng một APK thiếu tệp.
     listing = data / "Table" / "mobile.files.tsv"
     if not listing.is_file():
         raise SystemExit(f"đóng gói: thiếu {listing}. Chạy python -B TOOLS/run/trace_assets.py trước.")
@@ -135,8 +169,14 @@ def scene_files(data: Path, has_cooked_sound: bool, baked: Path | None = None,
     paths: list[str] = []
     seen: set[str] = set()
     extend_unique(paths, seen, closure_paths(data))
+    extend_unique(paths, seen, folder_paths(data))
     extend_unique(paths, seen, avatar_paths(data))
+    extend_unique(paths, seen, creature_paths(data))
     extend_unique(paths, seen, audio_paths(data, has_cooked_sound))
+    if has_cooked_sound:
+        # Cây đã cook (cooked_sound_files) thay cả thư mục sound/ gốc: bao đóng có tệp gốc đã mở lúc trace (sound_table.xml,
+        # tiếng bấm), đóng cả hai là trùng tên trong gói.
+        paths = [relative for relative in paths if not relative.startswith("sound/")]
     cooked = baked_files(baked, tiers)
     replaced = baked_sources(cooked)
     files = [(relative, data / relative) for relative in paths if relative not in replaced]
@@ -144,32 +184,50 @@ def scene_files(data: Path, has_cooked_sound: bool, baked: Path | None = None,
     return files
 
 
+# Định dạng đã nén sẵn: deflate thêm không bớt được gì mà tốn thời gian giải ở lần chạy đầu.
+PRECOMPRESSED = frozenset({".png", ".jpg", ".jpeg", ".mp3", ".ogg", ".tla", ".opus"})
+
+
+def compression_of(source: Path) -> int:
+    # Vỏ Android giải mọi tệp ra bộ nhớ trong ở lần chạy đầu (AAsset đọc được tệp nén), nên tệp không cần nằm STORED để
+    # mmap. Bảng, script, XML, mesh và khối texture nén deflate thì APK nhỏ hẳn (đo ở báo cáo 2026-10-15).
+    return zipfile.ZIP_STORED if source.suffix.lower() in PRECOMPRESSED else zipfile.ZIP_DEFLATED
+
+
 def add_asset(archive: zipfile.ZipFile, source: Path, folder: str, group: str,
               relative: str) -> str:
     # Đưa một tệp vào assets/<folder>/ và trả dòng sổ "<nhóm> <dấu> <đường dẫn>". Dấu là CRC và
     # cỡ tệp: vỏ Android chỉ chép lại tệp có dấu khác sổ nó đã giữ (client/assets.hpp).
     name = f"assets/{folder}/{relative}"
+    if name in archive.NameToInfo:
+        # zipfile chỉ cảnh báo; apksigner từ chối gói có hai mục cùng tên.
+        raise SystemExit(f"đóng gói: {name} được đóng hai lần")
     read_inputs.append(source)
-    archive.write(source, name, compress_type=zipfile.ZIP_STORED)
+    archive.write(source, name, compress_type=compression_of(source))
     info = archive.getinfo(name)
     return f"{group} {info.CRC:08x}-{info.file_size} {relative}"
 
 
-def add_cooked_sound(archive: zipfile.ZipFile, cooked: Path, manifest: list[str]) -> int:
+def cooked_sound_files(cooked: Path) -> list[tuple[str, Path]]:
     # Cây sound do thienlong_audio cook (.tla 48 kHz và bảng id). Trên thiết bị nó nằm đúng chỗ
-    # của sound/ gốc: bộ âm thanh thử tệp .tla cùng tên trước tệp gốc.
+    # của sound/ gốc: bộ âm thanh thử tệp .tla cùng tên trước tệp gốc. Trả cặp (đường dẫn trong gói, tệp nguồn).
     if not (cooked / "sound_table.xml").is_file():
         raise SystemExit(f"đóng gói: {cooked} chưa có bản cook. Chạy thienlong_audio cook trước.")
-    count = 0
+    found: list[tuple[str, Path]] = []
     read_inputs.append(cooked)
     for path in sorted(cooked.rglob("*")):
         if not path.is_file():
             read_inputs.append(path)
             continue
-        relative = "sound/" + path.relative_to(cooked).as_posix()
+        found.append(("sound/" + path.relative_to(cooked).as_posix(), path))
+    return found
+
+
+def add_cooked_sound(archive: zipfile.ZipFile, cooked: Path, manifest: list[str]) -> int:
+    files = cooked_sound_files(cooked)
+    for relative, path in files:
         manifest.append(add_asset(archive, path, "data", "D", relative))
-        count += 1
-    return count
+    return len(files)
 
 
 def require_files(files: list[tuple[str, Path]]) -> None:
@@ -245,9 +303,17 @@ def run(command: list[str]) -> None:
     raise SystemExit(result.stdout + result.stderr + f"\nandroid: lệnh thoát {result.returncode}")
 
 
-def debug_keystore(folder: Path) -> Path:
-    store = folder / "debug.keystore"
+def debug_keystore(work: Path) -> Path:
+    # Khoá ký bản dev nằm ngoài cây dựng, chung mọi preset Android: khoá đổi thì APK mới không cập nhật được bản đã cài
+    # (INSTALL_FAILED_UPDATE_INCOMPATIBLE) và người thử phải gỡ ứng dụng, mất dữ liệu trong máy. Trước đây mỗi cây
+    # build/<preset>/apk-work tự sinh một khoá, xoá cây là đổi khoá; khoá cũ của cây (nếu có) được chuyển sang chỗ chung.
+    store = Path.home() / ".android" / "thienlong-debug.keystore"
     if store.exists():
+        return store
+    store.parent.mkdir(parents=True, exist_ok=True)
+    legacy = work / "debug.keystore"
+    if legacy.is_file():
+        shutil.copyfile(legacy, store)
         return store
     run(
         [
@@ -332,14 +398,18 @@ def main() -> None:
                         help="thư mục texture đã nấu (bake_mobile_textures.py), thay DDS gốc bằng ASTC và ETC2")
     parser.add_argument("--gate-host", default="",
                         help="địa chỉ IPv4 máy chủ mà thiết bị thấy, thay cột host của Table/gates.tsv")
+    parser.add_argument("--strip", default="",
+                        help="llvm-strip của NDK: APK mang bản .so đã bỏ ký hiệu gỡ lỗi, bản đủ ở lại cây dựng")
     parser.add_argument("--depfile", default="", help="ghi depfile của --out cho Ninja")
     args = parser.parse_args()
     baked = Path(args.baked) if args.baked else None
     if args.stage:
         if not args.data:
             raise SystemExit("đóng gói: --stage cần --data")
-        # iOS: mọi máy có ASTC, không mang ETC2.
-        staged = scene_files(Path(args.data), False, baked, ("astc",))
+        # iOS: mọi máy có ASTC, không mang ETC2. Sound đã cook như APK.
+        staged = scene_files(Path(args.data), bool(args.sound), baked, ("astc",))
+        if args.sound:
+            staged.extend(cooked_sound_files(Path(args.sound)))
         stage_scene(with_gate_host(staged, args.gate_host, Path(args.stage).parent / "gates-work"), Path(args.stage))
         return
     if not args.library or not args.abi or not args.out or not args.manifest:
@@ -355,7 +425,6 @@ def main() -> None:
     work = out.parent / "apk-work"
     work.mkdir(parents=True, exist_ok=True)
     unsigned = work / "unsigned.apk"
-    packed = work / "packed.apk"
     aligned = work / "aligned.apk"
     run(
         [
@@ -369,11 +438,17 @@ def main() -> None:
             str(platform / "android.jar"),
         ]
     )
+    shipped = library
+    if args.strip:
+        # Bản RelWithDebInfo mang DWARF (đo 2026-10-15: 122 MiB). Thiết bị không cần; ndk-stack và llvm-symbolizer đọc
+        # bản đủ ở cây dựng, cùng build id.
+        shipped = work / "libthienlong.so"
+        run([args.strip, "--strip-unneeded", "-o", str(shipped), str(library)])
     files = 0
     manifest: list[str] = []
     with zipfile.ZipFile(unsigned, "a") as archive:
         archive.write(
-            library,
+            shipped,
             f"lib/{args.abi}/libthienlong.so",
             compress_type=zipfile.ZIP_STORED,
         )
@@ -400,8 +475,8 @@ def main() -> None:
                              compress_type=zipfile.ZIP_STORED)
     if args.data or args.shaders:
         print(f"android: đóng {files} tệp assets")
-    packed.write_bytes(unsigned.read_bytes())
-    run([str(build_tools / "zipalign.exe"), "-p", "-f", "4", str(packed), str(aligned)])
+    # zipalign đọc thẳng bản chưa ký: chép qua một tệp trung gian là thêm một lượt đọc và ghi cả gói (hơn 1 GB) vào RAM.
+    run([str(build_tools / "zipalign.exe"), "-p", "-f", "4", str(unsigned), str(aligned)])
     store = debug_keystore(work)
     if out.exists():
         out.unlink()

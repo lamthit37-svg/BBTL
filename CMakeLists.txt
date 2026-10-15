@@ -273,8 +273,11 @@ game_module(lua src/client/face/lua/state.cpp)
 target_link_libraries(game_lua PUBLIC game_luaplus game_luanum game_core)
 
 # Niêm asset trên máy dựng. Client không liên kết game_seal: đường nạp và khung hình không đổi.
-if(NOT CMAKE_CROSSCOMPILING)
+if(NOT CMAKE_CROSSCOMPILING OR ANDROID OR IOS)
+    # module secure của client điện thoại (bắt tay, bản ghi mã hoá tới máy chủ) cũng liên kết libsodium.
     add_subdirectory(third_party/libsodium)
+endif()
+if(NOT CMAKE_CROSSCOMPILING)
     game_module(seal
         src/client/pack/seal/key.cpp
         src/client/pack/seal/package.cpp
@@ -406,7 +409,10 @@ endif()
 # chờ, nơi duy nhất include header mạng của hệ điều hành. Hai module không include nhau và không cần
 # tomlplusplus. messages.cpp (và messages.hpp) sinh bởi TOOLS/server/gen_protocol.py từ
 # src/shared/protocol/catalog/*.tsv; socket_win32.cpp và socket_posix.cpp là hai nền của net.
-if(NOT CMAKE_CROSSCOMPILING)
+# Khối này dựng cả cho Android và iOS: client điện thoại nối máy chủ thật bằng cùng protocol, net, secure, link và
+# client/session như bản PC. Phần dành riêng cho máy chủ (guard, metrics, gate, account...) ở khối NOT CMAKE_CROSSCOMPILING
+# dưới secure/link.
+if(NOT CMAKE_CROSSCOMPILING OR ANDROID OR IOS)
     game_module(protocol src/shared/protocol/wire.cpp src/shared/protocol/channel.cpp src/shared/protocol/messages.cpp)
     target_link_libraries(game_protocol PUBLIC game_core)
     if(WIN32)
@@ -417,19 +423,6 @@ if(NOT CMAKE_CROSSCOMPILING)
     target_link_libraries(game_net PUBLIC game_core)
     if(WIN32)
         target_link_libraries(game_net PRIVATE ws2_32 mswsock)
-    endif()
-    # metrics: bộ đếm, mức đo, biểu đồ thời gian từng pha và ảnh chụp văn bản có trần; chỉ cần core,
-    # nên đứng ngoài khối cần tomlplusplus. Cổng đọc qua loopback là module con metrics/serve.
-    game_module(guard src/server/guard/pace.cpp)
-    target_link_libraries(game_guard PUBLIC game_core)
-    game_module(metrics src/server/metrics/metrics.cpp)
-    target_link_libraries(game_metrics PUBLIC game_core)
-    game_module(metrics_serve src/server/metrics/serve/serve.cpp)
-    target_link_libraries(game_metrics_serve PUBLIC game_core game_metrics game_net)
-    # Chụp ảnh số đo của một tiến trình qua cổng metrics của nó (kịch bản kiểm gọi exe này).
-    if(TARGET game_process)
-        add_executable(thienlong_metrics_snap TOOLS/server/metrics_snap.cpp)
-        target_link_libraries(thienlong_metrics_snap PRIVATE game_metrics game_net game_process game_io game::warnings)
     endif()
     # secure: bắt tay và bản ghi. Header C của libsodium đi qua include SYSTEM của
     # game_sodium, nên cảnh báo của thư viện không vào sodium.cpp.
@@ -447,17 +440,32 @@ if(NOT CMAKE_CROSSCOMPILING)
     target_link_libraries(game_secure PUBLIC game_core PRIVATE game_secure_sodium)
     game_module(link src/shared/link/link.cpp)
     target_link_libraries(game_link PUBLIC game_core game_net game_protocol game_secure)
-    # client/session: phiên mạng của client (luồng nền giữ link::Link, máy trạng thái, bảng cổng máy chủ). Chỉ máy tính,
-    # như net và link: Android và iOS vào thẳng cảnh, không có thủ tục đăng nhập trực tuyến.
+    # client/session: phiên mạng của client (luồng nền giữ link::Link, máy trạng thái, bảng cổng máy chủ). Dùng chung PC,
+    # Android và iOS.
     game_module(client_session
         src/client/app/client/session/gates.cpp
         src/client/app/client/session/machine.cpp
         src/client/app/client/session/session.cpp)
     target_link_libraries(game_client_session PUBLIC game_core game_net game_protocol game_secure game_link game_table)
-    # client/online: cầu nối giữa chuỗi đăng nhập (ui/panel) và phiên mạng; viewer của Windows gọi nó.
+    # client/online: cầu nối giữa chuỗi đăng nhập (ui/panel) và phiên mạng; viewer của Windows và vỏ điện thoại gọi nó.
     game_module(client_online src/client/app/client/online/bridge.cpp)
     target_link_libraries(game_client_online PUBLIC game_client_session game_client_cast game_ui_panel game_protocol game_core
         PRIVATE game_secure)
+endif()
+if(NOT CMAKE_CROSSCOMPILING)
+    # metrics: bộ đếm, mức đo, biểu đồ thời gian từng pha và ảnh chụp văn bản có trần; chỉ cần core,
+    # nên đứng ngoài khối cần tomlplusplus. Cổng đọc qua loopback là module con metrics/serve.
+    game_module(guard src/server/guard/pace.cpp)
+    target_link_libraries(game_guard PUBLIC game_core)
+    game_module(metrics src/server/metrics/metrics.cpp)
+    target_link_libraries(game_metrics PUBLIC game_core)
+    game_module(metrics_serve src/server/metrics/serve/serve.cpp)
+    target_link_libraries(game_metrics_serve PUBLIC game_core game_metrics game_net)
+    # Chụp ảnh số đo của một tiến trình qua cổng metrics của nó (kịch bản kiểm gọi exe này).
+    if(TARGET game_process)
+        add_executable(thienlong_metrics_snap TOOLS/server/metrics_snap.cpp)
+        target_link_libraries(thienlong_metrics_snap PRIVATE game_metrics game_net game_process game_io game::warnings)
+    endif()
     if(TARGET game_config)
         game_module(gate src/server/gate/table.cpp src/server/gate/front.cpp src/server/gate/motion.cpp)
         target_link_libraries(game_gate PUBLIC game_core game_net game_protocol game_secure game_config game_guard
@@ -1012,15 +1020,15 @@ target_link_libraries(game_client_stage PUBLIC game_core game_xml game_scene)
 game_module(client_world src/client/app/client/world/world.cpp)
 target_link_libraries(game_client_world PUBLIC game_client_stage game_client_map game_io game_nav game_fs
     game_collision)
+# client/cast: thực thể máy chủ cho client thấy và cách chúng chuyển động mượt; thuần logic, dùng chung PC và điện thoại.
+game_module(client_cast src/client/app/client/cast/cast.cpp)
+target_link_libraries(game_client_cast PUBLIC game_core)
 game_module(client_display ${game_client_screen})
 target_link_libraries(game_client_display PUBLIC game_core game_client_stage game_client_map
     game_client_world game_client_cast game_control)
 if(GAME_HAS_GPU)
     target_link_libraries(game_client_display PRIVATE game_gpu game_render game_capture
         game_avatar game_look game_motion game_ui game_fx game_classic)
-# client/cast: thực thể máy chủ cho client thấy và cách chúng chuyển động mượt; thuần logic, dùng chung PC và điện thoại.
-game_module(client_cast src/client/app/client/cast/cast.cpp)
-target_link_libraries(game_client_cast PUBLIC game_core)
 endif()
 game_module(client_viewer ${game_client_loop})
 target_link_libraries(game_client_viewer PUBLIC game_core game_client_stage
@@ -1041,6 +1049,13 @@ target_link_libraries(game_client PUBLIC game_core game_io game_client_map game_
 
 # iOS: điểm vào UIKit. Chưa build trên máy này (không có macOS). Android giữ main.cpp cho exe adb;
 # APK là thư viện riêng bên dưới.
+# client/host: việc mỗi khung của vỏ điện thoại (Android, iOS): đăng nhập trực tuyến, tin thế giới, nhạc cảnh. Dựng cả trên
+# máy tính để lỗi dịch lộ ở lượt dựng thường ngày; viewer PC không dùng nó.
+if(TARGET game_client_online)
+    game_module(client_host src/client/app/client/host/host.cpp)
+    target_link_libraries(game_client_host PUBLIC game_client_display game_client_online game_client_session
+        game_client_cast game_client_world game_audio game_io game_core)
+endif()
 if(IOS)
     add_executable(thienlong_client src/client/app/client/ios_main.mm src/client/app/client/mobile_probe.cpp)
 else()
@@ -1066,7 +1081,7 @@ if(TARGET game_client_shaders)
 endif()
 if(IOS)
     target_link_libraries(thienlong_client PRIVATE "-framework UIKit" "-framework Foundation"
-        "-framework WebKit" game_audio)
+        "-framework WebKit" game_audio game_client_host)
     target_sources(thienlong_client PRIVATE
         "${PROJECT_SOURCE_DIR}/apple/LaunchScreen.storyboard"
         "${PROJECT_SOURCE_DIR}/apple/PrivacyInfo.xcprivacy")
@@ -1097,6 +1112,19 @@ endif()
 # iOS chỉ chạy được exe nằm trong gói ứng dụng. Chưa build trên macOS (máy phát triển là Windows).
 if(IOS)
     set_target_properties(thienlong_client PROPERTIES
+# Texture đã nấu ASTC 4x4 và ETC2 (TLTX) cho APK và bundle iOS, thay ảnh của vật liệu: GPU điện thoại không đọc BC, và
+# PNG giải ra RGBA8 tốn gấp bốn bộ nhớ GPU. Nấu tăng dần theo Table/mobile.files.tsv (TOOLS/run/trace_assets.py); tệp
+# không đổi thì bỏ qua.
+if(ANDROID OR IOS)
+    set(GAME_MOBILE_TEXTURES "${PROJECT_SOURCE_DIR}/build/mobile-textures" CACHE PATH
+        "Thư mục texture điện thoại đã nấu (bake_mobile_textures.py), đóng thay ảnh gốc.")
+    add_custom_target(thienlong_mobile_textures
+        COMMAND ${CMAKE_COMMAND} -E env PYTHONUTF8=1 python -B TOOLS/content/bake_mobile_textures.py
+            --data dev/client/assets --out "${GAME_MOBILE_TEXTURES}"
+        WORKING_DIRECTORY "${PROJECT_SOURCE_DIR}"
+        COMMENT "Nấu texture ASTC và ETC2 cho điện thoại"
+        VERBATIM)
+endif()
         MACOSX_BUNDLE TRUE
         MACOSX_BUNDLE_GUI_IDENTIFIER vn.thienlong.client
         MACOSX_BUNDLE_BUNDLE_NAME "Thiên Long Bát Bộ"
@@ -1115,12 +1143,20 @@ if(IOS)
     add_custom_command(TARGET thienlong_client POST_BUILD
         COMMAND ${CMAKE_COMMAND} -E env PYTHONUTF8=1
             python "${PROJECT_SOURCE_DIR}/android/package_apk.py"
+    # Sound đã cook (.tla Opus, target cook_sound của preset PC) như APK; chưa cook thì bundle mang tệp gốc.
+    set(game_ios_sound)
+    if(EXISTS "${PROJECT_SOURCE_DIR}/build/cooked/sound/sound_table.xml")
+        set(game_ios_sound --sound "${PROJECT_SOURCE_DIR}/build/cooked/sound")
+    endif()
             --stage "$<TARGET_BUNDLE_CONTENT_DIR:thienlong_client>/data"
             --data "${PROJECT_SOURCE_DIR}/dev/client/assets"
         COMMAND ${CMAKE_COMMAND} -E copy_directory
             "${GAME_IOS_SHADERS}"
             "$<TARGET_BUNDLE_CONTENT_DIR:thienlong_client>/data/shaders"
-        COMMENT "Chép cảnh startup.id và shader PC vào bundle iOS")
+            --baked "${GAME_MOBILE_TEXTURES}"
+            ${game_ios_sound}
+        COMMENT "Chép dữ liệu điện thoại và shader PC vào bundle iOS")
+    add_dependencies(thienlong_client thienlong_mobile_textures)
 endif()
 
 # APK NativeActivity: cùng Display với bản PC (Vulkan 1.3, rồi GLES). Glue của NDK là C,
@@ -1141,7 +1177,7 @@ if(ANDROID)
     target_compile_features(thienlong_activity PRIVATE cxx_std_23)
     target_link_libraries(thienlong_activity PRIVATE
         game_client game_client_display game_client_stage game_client_world game_client_map game_io
-        game_audio android_native_app_glue android log game::warnings)
+        game_audio game_client_host android_native_app_glue android log game::warnings)
     set_target_properties(thienlong_activity PROPERTIES OUTPUT_NAME thienlong)
     target_link_options(thienlong_activity PRIVATE "-u" "ANativeActivity_onCreate")
     set(game_apk "${CMAKE_BINARY_DIR}/thienlong.apk")
@@ -1160,16 +1196,6 @@ if(ANDROID)
     if(EXISTS "${GAME_ANDROID_SOUND}/sound_table.xml")
         list(APPEND game_apk_assets --sound "${GAME_ANDROID_SOUND}")
     endif()
-    # Texture đã nấu ASTC 4x4 và ETC2 (TLTX) thay DDS của vật liệu: GPU điện thoại không đọc BC. Nấu tăng dần theo
-    # Table/mobile.files.tsv (TOOLS/run/trace_assets.py); tệp không đổi thì bỏ qua.
-    set(GAME_MOBILE_TEXTURES "${PROJECT_SOURCE_DIR}/build/mobile-textures" CACHE PATH
-        "Thư mục texture điện thoại đã nấu (bake_mobile_textures.py), đóng thay DDS gốc.")
-    add_custom_target(thienlong_mobile_textures
-        COMMAND ${CMAKE_COMMAND} -E env PYTHONUTF8=1 python -B TOOLS/content/bake_mobile_textures.py
-            --data dev/client/assets --out "${GAME_MOBILE_TEXTURES}"
-        WORKING_DIRECTORY "${PROJECT_SOURCE_DIR}"
-        COMMENT "Nấu texture ASTC và ETC2 cho điện thoại"
-        VERBATIM)
     list(APPEND game_apk_assets --baked "${GAME_MOBILE_TEXTURES}")
     # Thiết bị không thấy 127.0.0.1 của máy chủ thử: địa chỉ IPv4 mà thiết bị tới được (IP LAN của máy dựng với tablet,
     # cổng NAT với giả lập) thay cột host của Table/gates.tsv trong APK.
@@ -1180,6 +1206,10 @@ if(ANDROID)
     add_custom_command(
         OUTPUT "${game_apk}"
         COMMAND ${CMAKE_COMMAND} -E env PYTHONUTF8=1
+    # APK mang .so đã bỏ ký hiệu gỡ lỗi; bản đủ ở lại cây dựng cho ndk-stack.
+    if(CMAKE_STRIP)
+        list(APPEND game_apk_assets --strip "${CMAKE_STRIP}")
+    endif()
             python "${PROJECT_SOURCE_DIR}/android/package_apk.py"
             --library "$<TARGET_FILE:thienlong_activity>"
             --abi "${ANDROID_ABI}"
@@ -1318,6 +1348,7 @@ game_test(map game_client_map)
 if(NOT ANDROID AND EXISTS "${PROJECT_SOURCE_DIR}/dev/client/assets/Config/ScenePosDefineEx.txt")
     target_compile_definitions(map_tests PRIVATE
         "GAME_CLIENT_DATA=\"${PROJECT_SOURCE_DIR}/dev/client/assets\"")
+game_test(cast game_client_cast)
 endif()
 game_test(world game_client_world)
 game_test(transform game_scene)
@@ -1331,6 +1362,7 @@ if(WIN32 OR ANDROID)
     game_test(log game_core)
     game_test(thread_slot game_core)
     game_test(function_fallback game_core)
+    game_test(gbk game_core)
 endif()
 # Test chép kèm mã từ Forge2 ở các bước B2, B3. Chỉ Windows: fs_tests dùng disk, file, watcher (bản
 # Win32), shader_tests đi cùng chuỗi đồ hoạ; math_tests thuần nhưng chưa dựng thử cho Android.
@@ -1346,7 +1378,6 @@ endif()
 if(WIN32)
     game_test(window game_window)
     # Các ca vào vòng kéo thật của Windows. Luôn dựng, nhưng ctest chỉ chạy khi bật
-game_test(cast game_client_cast)
     # GAME_DESKTOP_TESTS: vòng kéo đổi hình và vùng giam con trỏ chuột của cả phiên đăng nhập, người
     # đang dùng máy thấy con trỏ nháy (Test/window_modal_tests.cpp).
     option(GAME_DESKTOP_TESTS "ctest chạy cả test đụng tới con trỏ chuột của phiên Windows" OFF)
@@ -1362,7 +1393,6 @@ endif()
 if(GAME_HAS_GPU AND NOT ANDROID)
     if(WIN32)
         game_test(gpu game_gpu user32)
-    game_test(gbk game_core)
     else()
         game_test(gpu game_gpu)
     endif()

@@ -1,11 +1,27 @@
-// HUD của game: gom bộ nạp giao diện gốc (gui::GuiLoader), dàn trang (gui::Hub), bảng chuỗi, bảng
-// tên cảnh, bảng chân dung, phông chữ, ảnh minimap và bộ vẽ (Painter) cho các cửa sổ HUD của client
-// gốc, và cho bảng nhập tài khoản của thủ tục đăng nhập (HudView::phase). Dữ liệu là cây Interface
-// do TOOLS/content/collect_ui.py gom vào CLIENT/data (XML gốc của client 2026, chưa nấu, không
-// Lua). Mỗi khung: prepare ghi chỉ thị của các bảng (ui/panel) vào Deck, dàn trang theo cỡ màn hình
-// và dựng đỉnh (ngoài begin_rendering, vì có thể tải texture); draw ghi lệnh vẽ vào danh sách đang
-// ghi. Client gốc để script Lua hiện, giấu và điền từng cửa sổ; ở đây việc đó là của ui/panel.
-// Nguồn: bản mới của dự án, tương ứng pc_hud.cpp của TLBB Dev (Deck hud_) ở phần dựng và vẽ.
+/*==============================================================================
+ *  THIENLONG  |  GAME CLIENT
+ *------------------------------------------------------------------------------
+ *  TỆP       : src/client/face/ui/hud.hpp
+ *  PHÂN HỆ   : Face / Ui / Hud
+ *  CHUẨN     : C++23
+ *------------------------------------------------------------------------------
+ *  CHỨC NĂNG
+ *  - HUD của game: gom bộ nạp giao diện gốc (gui::GuiLoader), dàn trang
+ *    (gui::Hub), bảng chuỗi, bảng tên cảnh, bảng chân dung, phông chữ, ảnh
+ *    minimap và bộ vẽ (Painter) cho các cửa sổ HUD của client gốc, và cho bảng
+ *    nhập tài khoản của thủ tục đăng nhập (HudView::phase). Dữ liệu là cây
+ *    Interface do TOOLS/content/collect_ui.py gom vào CLIENT/data (XML gốc của
+ *    client 2026, chưa nấu, không Lua).
+ *------------------------------------------------------------------------------
+ *  TÁC GIẢ   : HiepHoon
+ *  TELEGRAM  : @Hoon9xx
+ *============================================================================*/
+
+// Mỗi khung: prepare ghi chỉ thị của các bảng (ui/panel) vào Deck, dàn trang theo cỡ màn hình và dựng đỉnh (ngoài
+// begin_rendering, vì có thể tải texture); draw ghi lệnh vẽ vào danh sách đang ghi. Client gốc để script Lua hiện,
+// giấu và điền từng cửa sổ; ở đây việc đó là của ui/panel. Nguồn: bản mới của dự án, tương ứng pc_hud.cpp của TLBB
+// Dev (Deck hud_) ở phần dựng và vẽ.
+
 #pragma once
 
 #include "core/error.hpp"
@@ -13,6 +29,7 @@
 #include "gui/sheet.hpp"
 #include "hero/hero.hpp"
 #include "render/ui.hpp"
+#include "resource/tier.hpp"
 #include "ui/panel/events.hpp"
 #include "ui/panel/login_flow.hpp"
 #include "ui/panel/online.hpp"
@@ -35,6 +52,8 @@ struct HudDesc {
     // Thư mục dữ liệu client (CLIENT/data); giao diện nằm ở Interface và Table dưới đó.
     std::filesystem::path data_root;
 };
+    // Bản texture của thiết bị: điện thoại mở ảnh đã nấu (mobile/astc, mobile/etc2) thay DDS khi có.
+    resource::TextureTier texture_tier = resource::TextureTier::kBc;
 
 // Cảnh đang đứng, cho minimap. radar là token szSceneMap của bảng cảnh (rỗng thì minimap chỉ còn
 // khung); cỡ cảnh và vị trí người chơi theo đơn vị cảnh.
@@ -136,10 +155,12 @@ public:
     Hud& operator=(const Hud&) = delete;
     ~Hud();
 
-    // Dàn trang lại khi cần và dựng đỉnh cho khung. Gọi ngoài begin_rendering.
+    // Dàn trang lại khi cần và dựng đỉnh cho khung. Gọi ngoài begin_rendering. Màn nhỏ hơn 800 x 640 (gần cỡ cửa sổ nhỏ nhất
+    // của client 2026) thì dàn trên khung ảo 800 x 640 rồi co cả giao diện cho vừa màn; mọi toạ độ vào và ra API này vẫn là
+    // điểm ảnh của màn.
     void prepare(const HudView& view);
 
-    // Quad vẽ thêm cùng lượt HUD (bảng nhịp). Rỗng thì chỉ vẽ giao diện.
+    // Quad vẽ thêm cùng lượt HUD (bảng nhịp), theo điểm ảnh của màn và không co theo giao diện. Rỗng thì chỉ vẽ giao diện.
     struct HudExtra {
         std::span<const render::UiVertex> vertices;
         std::span<const render::UiBatch> batches;

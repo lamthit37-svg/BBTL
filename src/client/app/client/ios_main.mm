@@ -2,26 +2,31 @@
 // tl3chuangjian, rồi cảnh Config/startup.id khi vào game. Display vẽ qua MoltenVK
 // (VK_EXT_metal_surface, gpu/vulkan/surface_ios.mm). Apple đã gỡ OpenGL ES: thiếu Vulkan 1.3
 // thì nền màu đặc. Bundle đọc thẳng data/. Sổ nhân vật ghi ở Documents vì bundle chỉ đọc.
-// Chạm đi qua control::TouchGestures, cùng luật với Android. CADisplayLink bơm lời nhờ của
-// giao diện mỗi khung. Trang Coming soon mở trong ứng dụng vì ứng dụng khác không đọc được
-// tệp trong bundle.
+// Chạm đi qua control::TouchGestures, cùng luật với Android (chạm hai ngón là nhảy). CADisplayLink
+// bơm mỗi khung: âm thanh màn chơi và mạng (client/host, cùng mã với Android), rồi lời nhờ của
+// giao diện. Phiên mạng sống qua các lần huỷ Display khi ứng dụng xuống nền. Trang Coming soon mở
+// trong ứng dụng vì ứng dụng khác không đọc được tệp trong bundle.
 #import <UIKit/UIKit.h>
 #import <WebKit/WebKit.h>
 
 #include "audio/engine.hpp"
 #include "client/boot.hpp"
 #include "client/display/display.hpp"
+#include "client/host/host.hpp"
 #include "client/mobile.hpp"
 #include "control/input.hpp"
 #include "control/touch.hpp"
 
 #include <os/log.h>
 
+#include <algorithm>
+#include <chrono>
 #include <cmath>
 #include <cstdint>
 #include <cstdlib>
 #include <exception>
 #include <filesystem>
+#include <memory>
 #include <optional>
 #include <string>
 #include <string_view>
@@ -45,9 +50,12 @@ void log_error(const std::string& text) noexcept {
     return std::filesystem::path(resource.UTF8String) / "data";
 }
 
-// Display huỷ trước boot. save_root là Documents, nơi ghi Save/roles.tsv.
+// Display huỷ trước boot và online. save_root là Documents, nơi ghi Save/roles.tsv.
 struct Session {
     game::client::BootLoad boot;
+    std::optional<game::client::host::Online> online;
+    game::client::host::Soundscape sounds;
+    std::chrono::steady_clock::time_point last_serve{};
     std::optional<game::client::Display> display;
     game::control::TouchGestures gestures;
     std::vector<game::control::InputEvent> events;
@@ -72,6 +80,9 @@ void start_speaker() {
         session.speaker.reset();
         return;
     }
+    // Loa mở lại (về trước màn hình) giữa màn chơi: sounds phát lại nhạc cảnh, không về nhạc đăng nhập.
+    session.sounds = {};
+    if (session.is_playing) return;
     static_cast<void>(session.speaker->play_music(game::audio::kLoginMusicId, 0.F));
     static_cast<void>(session.speaker->play_flat(game::audio::kButtonClickId, 1.F));
 }
@@ -91,6 +102,14 @@ void log_boot(const game::client::BootLoad& boot) {
     }
 }
 
+void log_notes(game::client::host::Notes& notes) {
+    for (const game::client::host::Note& note : notes) {
+        if (note.is_problem) log_error(note.text);
+        if (!note.is_problem) log_info(note.text);
+    }
+    notes.clear();
+}
+
 void absorb_requests() {
     if (!session.display) return;
     const game::client::KeptRole live = session.display->kept_role();
@@ -99,7 +118,9 @@ void absorb_requests() {
     for (const game::client::Request& request : requests) {
         if (request.kind != game::client::RequestKind::kEnterGame) continue;
         const game::client::HostStep step = game::client::host_step(session.boot, session.is_playing, request);
-        if (!step.detail.empty()) log_error("Vào game: " + step.detail);
+        if (step.detail.empty()) continue;
+        log_error("Vào game: " + step.detail);
+        if (request.entry && session.online) session.online->abandon(*session.display);
     }
 }
 
@@ -124,7 +145,7 @@ void one_touch(UITouch* touch, UIView* view, TouchPhase phase) {
     const game::control::TouchTime now{nanos};
     if (phase == TouchPhase::kDown) session.gestures.down(finger, point, now, session.events);
     if (phase == TouchPhase::kMove) session.gestures.move(finger, point, now, session.events);
-    if (phase == TouchPhase::kUp) session.gestures.up(finger, point, session.events);
+    if (phase == TouchPhase::kUp) session.gestures.up(finger, point, now, session.events);
 }
 
 void feed_touches(NSSet* touches, UIView* view, TouchPhase phase) {
@@ -136,6 +157,10 @@ void feed_touches(NSSet* touches, UIView* view, TouchPhase phase) {
         one_touch(touch, view, phase);
     }
     session.display->input(session.events);
+    // Chạm hai ngón là nhảy (Space của bản PC); ngoài màn chơi Display bỏ thao tác này.
+    for (std::uint32_t taps = session.gestures.take_pair_taps(); taps > 0; --taps) {
+        session.display->act(game::client::PlayAct::kJump);
+    }
 }
 
 } // namespace
@@ -149,12 +174,25 @@ ThienlongDelegate* delegate_ref = nil;
 void leave_client();
 void open_page(game::client::WebLink link);
 
+// Nhịp quét mà lớp Metal thật sự trình được, Hz. iPhone giới hạn 60 cho tới khi Info.plist khai
+// CADisableMinimumFrameDurationOnPhone (chưa khai: 120 Hz tốn pin, chưa có số đo trên máy); iPad
+// ProMotion không bị giới hạn ấy. 0 khi không biết màn.
+[[nodiscard]] double refresh_rate(UIScreen* screen) noexcept {
+    if (screen == nil) return 0.0;
+    const NSInteger most = screen.maximumFramesPerSecond;
+    const bool is_phone = UIDevice.currentDevice.userInterfaceIdiom == UIUserInterfaceIdiomPhone;
+    const NSInteger shown = is_phone ? std::min<NSInteger>(most, 60) : most;
+    return static_cast<double>(shown);
+}
+
 void apply_request(game::client::Request request) {
     if (!session.display) return;
     const game::client::HostStep step = game::client::host_step(session.boot, session.is_playing, request);
-    if (!step.detail.empty()) log_info("Vào game: " + step.detail);
+    if (!step.detail.empty()) log_error("Vào game: " + step.detail);
+    // Trực tuyến mà không vào được cảnh máy chủ nói: trả phiên, không để máy chủ tưởng người chơi đã vào.
+    if (!step.detail.empty() && request.entry && session.online) session.online->abandon(*session.display);
     const bool entered = step.ask == game::client::HostAsk::kEntered && session.boot.playing && session.display;
-    if (entered) session.display->play(game::client::world::current_scene(*session.boot.playing));
+    if (entered) session.display->play(game::client::world::current_scene(*session.boot.playing), step.entry);
     if (step.ask == game::client::HostAsk::kOpenWeb) open_page(step.link);
     if (step.ask == game::client::HostAsk::kLeave) leave_client();
 }
@@ -166,8 +204,27 @@ void show_playing() {
     if (scene) session.display->show(scene);
 }
 
+// Âm thanh và mạng (đăng nhập, tin thế giới, chỗ đứng) của mỗi khung, trước lời nhờ của giao diện như vòng của viewer PC.
+void serve_host() {
+    const auto now = std::chrono::steady_clock::now();
+    const float seconds = std::chrono::duration<float>(now - session.last_serve).count();
+    session.last_serve = now;
+    game::client::host::Notes notes;
+    const bool is_playing = session.is_playing && session.boot.playing;
+    const std::shared_ptr<const game::client::world::ShownScene> scene =
+        is_playing ? game::client::world::current_scene(*session.boot.playing) : nullptr;
+    game::audio::Engine* speaker = session.speaker ? &*session.speaker : nullptr;
+    session.sounds.on_frame(speaker, *session.display, scene.get(), notes);
+    if (session.online) {
+        game::client::world::World* playing = is_playing ? &*session.boot.playing : nullptr;
+        session.online->on_frame(*session.display, playing, session.boot.data_root / "Scene", seconds, notes);
+    }
+    log_notes(notes);
+}
+
 void serve_session() {
     if (!session.display) return;
+    serve_host();
     const std::vector<game::client::Request> requests = session.display->take_requests();
     for (const game::client::Request& request : requests) {
         apply_request(request);
@@ -330,6 +387,9 @@ void open_page(game::client::WebLink link) {
             log_info(error.what());
         }
         log_boot(session.boot);
+        game::client::host::GateBookLoad gates = game::client::host::load_gate_book(session.boot.data_root);
+        log_notes(gates.notes);
+        session.online.emplace(std::move(gates.book));
         session.is_prepared = true;
     }
     start_speaker();
@@ -351,6 +411,7 @@ void open_page(game::client::WebLink link) {
         desc.procedure = game::client::Procedure::kLogin;
         desc.scene = session.boot.backdrop;
         desc.role_scene = session.boot.role_scene;
+        if (session.online) desc.online_servers = session.online->servers();
     }
     desc.is_validated = game::client::validation_by_build();
     auto made = game::client::Display::create(desc);
@@ -363,6 +424,9 @@ void open_page(game::client::WebLink link) {
     }
     session.display.emplace(std::move(*made));
     log_info("phần hiển thị đã chạy: " + session.display->description());
+    session.display->set_refresh(refresh_rate(self.window.screen));
+    if (session.online) session.online->on_display_made(*session.display, session.is_playing);
+    session.last_serve = std::chrono::steady_clock::now();
 }
 
 - (void)stopDisplay {

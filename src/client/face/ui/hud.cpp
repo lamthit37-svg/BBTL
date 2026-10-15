@@ -1,3 +1,20 @@
+/*==============================================================================
+ *  THIENLONG  |  GAME CLIENT
+ *------------------------------------------------------------------------------
+ *  TỆP       : src/client/face/ui/hud.cpp
+ *  PHÂN HỆ   : Face / Ui / Hud
+ *  CHUẨN     : C++23
+ *------------------------------------------------------------------------------
+ *  CHỨC NĂNG
+ *  - HUD của client: nạp layout, dựng bảng port tay (ui/panel) và bảng chạy
+ *    bằng script Lua, rồi kê vào deck để vẽ.
+ *  - Nhận chuột, bàn phím và tin hội thoại NPC từ Display; trả lại việc người
+ *    chơi nhờ máy chủ.
+ *------------------------------------------------------------------------------
+ *  TÁC GIẢ   : HiepHoon
+ *  TELEGRAM  : @Hoon9xx
+ *============================================================================*/
+
 #include "ui/hud.hpp"
 
 #include "core/error.hpp"
@@ -172,6 +189,31 @@ constexpr std::string_view kViFontFile = "Schema/VTNAM14.bin";
 std::expected<void, std::string> add_layouts(gui::GuiLoader& loader) {
     std::expected<void, std::string> status;
     for (const std::string_view layout : kLayouts) {
+// Cỡ cửa sổ nhỏ nhất của client 2026 là 800 x 600 (hàm đặt độ phân giải của Game.exe, docs/TIEN-DO.md "Khung chơi trên PC"); bảng
+// đăng nhập cần cao khoảng 620 điểm ảnh (đo trên LDPlayer 960 x 540: ở 600 hàng nút dưới cùng bị cắt) nên khung ảo cao 640. Bản gốc không co giao diện (Imageset::notifyDisplaySizeChanged đặt hệ số co 1,0): từ cỡ này trở
+// lên mọi điểm ảnh là 1:1 nên ảnh và chữ bitmap sắc nét. Chỉ màn nhỏ hơn (LDPlayer 960 x 540, điện thoại) mới dàn trang trên
+// khung ảo 800 x 640 rồi co cho vừa màn, thay vì cắt bảng. PC mặc định 1280 x 720 vẫn là 1:1.
+constexpr float kLayoutWidth = 800.0F;
+constexpr float kLayoutHeight = 640.0F;
+
+// Số điểm ảnh của màn cho một điểm ảnh của layout: 1 khi màn không nhỏ hơn khung ảo, nhỏ hơn 1 khi màn nhỏ hơn.
+[[nodiscard]] float layout_scale(float width, float height) noexcept {
+    if (!(width > 0.0F) || !(height > 0.0F)) return 1.0F;
+    return std::min({width / kLayoutWidth, height / kLayoutHeight, 1.0F});
+}
+
+// Đầu vào của khung đổi từ điểm ảnh của màn sang điểm ảnh của layout: cỡ và con trỏ chia cho scale.
+[[nodiscard]] HudView layout_view(const HudView& view, float scale) {
+    HudView local = view;
+    local.width = view.width / scale;
+    local.height = view.height / scale;
+    if (local.pointer) {
+        local.pointer->x /= scale;
+        local.pointer->y /= scale;
+    }
+    return local;
+}
+
         status = status ? loader.add_layout(layout) : status;
     }
     return status;
@@ -421,10 +463,10 @@ core::Result<Prepared> prepare_hud(const std::filesystem::path& data_root) {
 // NOLINTNEXTLINE(clang-analyzer-optin.performance.Padding)
 struct Hud::State {
     // Lấy đi mọi phần của ready trừ hai phông: chúng chờ seat_fonts đưa lên GPU.
-    State(Prepared& ready, render::UiPass& target, const std::filesystem::path& data_root)
+    State(Prepared& ready, render::UiPass& target, const std::filesystem::path& data_root, resource::TextureTier tier)
         : loader(std::move(ready.loader)),
           pass(&target),
-          painter(target, data_root / "Interface"),
+          painter(target, data_root, tier),
           strings(std::move(ready.strings)),
           scene_names(std::move(ready.scene_names)),
           portraits(std::move(ready.portraits)),
@@ -546,14 +588,21 @@ struct Hud::State {
     bool is_built = false;
     std::vector<render::UiVertex> joined_vertices;
     std::vector<render::UiBatch> joined_batches;
+    // Cỡ khung ảo của layout (điểm ảnh của layout) và số điểm ảnh của màn cho một điểm ảnh ấy (layout_scale).
 
-    // Nối quad của extra vào sau quad của giao diện (painter), dời chỉ số quad của các lô thêm.
+    // Nối quad của extra vào sau quad của giao diện (painter), dời chỉ số quad của các lô thêm. Quad của extra tính
+    // theo điểm ảnh của màn nên đổi sang khung ảo của layout: không co theo giao diện.
+    float scale = 1.0F;
     void join(Hud::HudExtra extra) {
         const std::span<const render::UiVertex> own = painter.vertices();
         const std::span<const render::UiBatch> own_batches = painter.batches();
         const auto base = static_cast<std::uint32_t>(own.size() / 4);
         joined_vertices.assign(own.begin(), own.end());
-        joined_vertices.insert(joined_vertices.end(), extra.vertices.begin(), extra.vertices.end());
+        for (render::UiVertex vertex : extra.vertices) {
+            vertex.x /= scale;
+            vertex.y /= scale;
+            joined_vertices.push_back(vertex);
+        }
         joined_batches.assign(own_batches.begin(), own_batches.end());
         for (render::UiBatch batch : extra.batches) {
             batch.first_quad += base;
@@ -565,6 +614,8 @@ struct Hud::State {
     [[nodiscard]] bool note_double(std::string_view window, const HudView& view);
     [[nodiscard]] panel::PlaceText place_under(const HudView& view);
     void enter(Phase next) noexcept;
+            batch.mask_box = render::UiRect{.x = batch.mask_box.x / scale, .y = batch.mask_box.y / scale,
+                .width = batch.mask_box.width / scale, .height = batch.mask_box.height / scale};
     void note_press(const HudView& view);
     void note_hold(const HudView& view);
     [[nodiscard]] float frame_seconds(std::chrono::milliseconds now);
@@ -1440,7 +1491,7 @@ core::Result<Hud> Hud::open(render::UiPass& pass, const HudDesc& desc) {
 core::Result<Hud> Hud::open(render::UiPass& pass, const HudDesc& desc, HudPrep prep) {
     core::Result<Prepared> ready = prep.work_->done.get();
     if (!ready) return std::unexpected(ready.error());
-    auto state = std::make_unique<State>(*ready, pass, desc.data_root);
+    auto state = std::make_unique<State>(*ready, pass, desc.data_root, desc.texture_tier);
     state->seat_fonts(*ready);
     state->hub = std::make_unique<gui::Hub>(state->loader.asset());
     for (const std::string& note : state->loader.notes()) {
@@ -1450,7 +1501,7 @@ core::Result<Hud> Hud::open(render::UiPass& pass, const HudDesc& desc, HudPrep p
     return Hud(std::move(state));
 }
 
-void Hud::prepare(const HudView& view) {
+void Hud::prepare(const HudView& screen_view) {
     State& state = *state_;
     state.views = view.views;
     state.enter(view.phase);
@@ -1469,6 +1520,8 @@ void Hud::prepare(const HudView& view) {
     }
     gui::Place place;
     place.width = view.width;
+    state.scale = layout_scale(screen_view.width, screen_view.height);
+    const HudView view = layout_view(screen_view, state.scale);
     place.height = view.height;
     place.roots = state.deck.roots();
     place.hidden = state.deck.hidden();
@@ -1521,11 +1574,11 @@ core::Status Hud::draw(gpu::CommandList& list, std::uint32_t slot, HudExtra extr
 }
 
 bool Hud::contains(float across, float down) const {
-    return state_->hub->hit(across, down, gui::Probe::kAny).has_value();
+    return state_->hub->hit(across / state_->scale, down / state_->scale, gui::Probe::kAny).has_value();
 }
 
 bool Hud::takes_wheel(float across, float down) const {
-    return state_->is_on_scroll(across, down);
+    return state_->is_on_scroll(across / state_->scale, down / state_->scale);
 }
 
 float Hud::equip_spin() const noexcept {

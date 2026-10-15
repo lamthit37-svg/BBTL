@@ -123,7 +123,11 @@ set(game_layer_client/display
 set(game_layer_client/viewer
     "core io window control audio ui/panel client/stage client/display client/map client/world client/cast client/online client/session client/viewer")
 set(game_layer_client
-    "core io xml scene control audio client/display client/stage client/map client/world client/viewer client")
+# client/host: việc mỗi khung của vỏ điện thoại (nối đăng nhập với phiên mạng, nhạc cảnh, bảng cổng máy chủ); không API
+# hệ điều hành.
+set(game_layer_client/host
+    "core io audio ui/panel client/cast client/display client/world client/session client/online client/host")
+    "core io xml scene control audio client/display client/stage client/map client/world client/viewer client/host client")
 
 # Engine không biết game. Phần game nằm ở src/client, src/server, src/shared.
 set(game_source_roots

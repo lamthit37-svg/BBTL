@@ -6,7 +6,7 @@
 #  CHUẨN     : Python 3.13
 #-------------------------------------------------------------------------------
 #  CHỨC NĂNG
-#  - Nấu texture DDS (BC1/BC2/BC3) của vật liệu thành TLTX cho điện thoại: ASTC
+#  - Nấu texture của vật liệu và giao diện (DDS, PNG, TGA) thành TLTX cho điện thoại: ASTC
 #    4x4 (mobile/astc/<đường dẫn>) và ETC2 (mobile/etc2/<đường dẫn>), đúng
 #    định dạng engine/resource/tier.cpp đọc.
 #  - Đọc danh sách Table/mobile.files.tsv (trace_assets.py), ghi vào thư mục
@@ -48,6 +48,15 @@ MAX_MIPS = 16
 ASTC_ROOT = "mobile/astc"
 ETC2_ROOT = "mobile/etc2"
 STAMP_NAME = "bake.version"
+# Ảnh mà client tìm bản nấu (resource::texture_file): vật liệu của mesh OGRE, GLB người chơi, quái và NPC (Material/), và
+# ảnh của imageset giao diện (Interface/, ui/painter.cpp). Không nấu thì DDS (khối BC) không lên được GPU điện thoại, còn
+# PNG, TGA giải ra RGBA8 tốn gấp bốn bộ nhớ GPU của ASTC 4x4 và tốn CPU lúc nạp. Brush địa hình đi đường nạp khác.
+BAKED_SUFFIXES = (".dds", ".png", ".tga", ".jpg", ".jpeg")
+BAKED_ROOTS = ("Material/", "Interface/")
+# Giao diện vẽ 2D không mip (sampler chỉ lấy mức 0): chuỗi mip chỉ tốn thêm một phần ba dung lượng.
+FLAT_ROOTS = ("Interface/",)
+# Danh sách tệp mà client đọc: bao đóng đo được, người chơi, quái và NPC.
+LISTINGS = ("mobile.files.tsv", "avatar.files.tsv", "creature.files.tsv")
 
 
 def mip_chain(base: Image.Image) -> list[Image.Image]:
@@ -95,14 +104,14 @@ def header(kind: int, base: Image.Image, mips: int) -> bytes:
     return MAGIC + struct.pack("<HHIII", 1, kind, base.width, base.height, mips)
 
 
-def bake_one(source: str, astc_out: str, etc2_out: str) -> str | None:
-    # Trả None khi xong, câu lỗi khi không nấu được.
+def bake_one(source: str, astc_out: str, etc2_out: str, is_flat: bool) -> str | None:
+    # Trả None khi xong, câu lỗi khi không nấu được. is_flat: chỉ mức 0.
     try:
         with Image.open(source) as opened:
             base = opened.convert("RGBA")
     except (OSError, ValueError, NotImplementedError) as error:
         return f"{source}: {error}"
-    levels = mip_chain(base)
+    levels = [base] if is_flat else mip_chain(base)
     is_alpha = has_alpha(base)
     config = astc.ASTCConfig(astc.ASTCProfile.LDR, 4, 4, 1, astc.ASTCQualityPreset.MEDIUM)
     context = astc.ASTCContext(config)
@@ -118,18 +127,22 @@ def bake_one(source: str, astc_out: str, etc2_out: str) -> str | None:
     return None
 
 
-def listed_textures(data: Path, listing: Path) -> list[str]:
-    if not listing.is_file():
-        raise SystemExit(f"nấu texture: thiếu {listing}. Chạy TOOLS/run/trace_assets.py trước.")
-    found = []
-    for line in listing.read_text(encoding="utf-8").splitlines()[1:]:
-        cells = line.split("\t")
-        if len(cells) < 2:
+def listed_textures(listings: list[Path]) -> list[str]:
+    # Bao đóng (listings[0]) bắt buộc; các danh sách khác có thì đọc. Mỗi đường dẫn một lần, giữ thứ tự gặp.
+    if not listings[0].is_file():
+        raise SystemExit(f"nấu texture: thiếu {listings[0]}. Chạy TOOLS/run/trace_assets.py trước.")
+    found: dict[str, None] = {}
+    for listing in listings:
+        if not listing.is_file():
             continue
-        relative = cells[1]
-        if relative.startswith("Material/") and relative.lower().endswith(".dds"):
-            found.append(relative)
-    return found
+        for line in listing.read_text(encoding="utf-8").splitlines()[1:]:
+            cells = line.split("\t")
+            if len(cells) < 2:
+                continue
+            relative = cells[1].replace("\\", "/")
+            if relative.startswith(BAKED_ROOTS) and relative.lower().endswith(BAKED_SUFFIXES):
+                found[relative] = None
+    return list(found)
 
 
 def is_stale(source: Path, targets: list[Path]) -> bool:
@@ -148,19 +161,19 @@ def main() -> None:
     args = parser.parse_args()
     data = Path(args.data)
     out = Path(args.out)
-    listing = Path(args.list) if args.list else data / "Table" / "mobile.files.tsv"
+    listings = [Path(args.list)] if args.list else [data / "Table" / name for name in LISTINGS]
     out.mkdir(parents=True, exist_ok=True)
     stamp = out / STAMP_NAME
     is_current = stamp.is_file() and stamp.read_text(encoding="utf-8").strip() == str(BAKE_VERSION)
     jobs = []
-    for relative in listed_textures(data, listing):
+    for relative in listed_textures(listings):
         source = data / relative
         targets = [out / ASTC_ROOT / relative, out / ETC2_ROOT / relative]
         if not source.is_file():
             raise SystemExit(f"nấu texture: danh sách có {relative} mà dữ liệu không có")
         if is_current and not is_stale(source, targets):
             continue
-        jobs.append((str(source), str(targets[0]), str(targets[1])))
+        jobs.append((str(source), str(targets[0]), str(targets[1]), relative.startswith(FLAT_ROOTS)))
     print(f"nấu texture: {len(jobs)} tệp cần nấu")
     failures = []
     if jobs:

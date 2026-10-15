@@ -4,6 +4,8 @@
     android:versionCode="1"
     android:versionName="0.1.0">
     <uses-sdk android:minSdkVersion="29" android:targetSdkVersion="29" />
+    <!-- Nối máy chủ thật (client/session): socket TCP tới gate. Không có quyền này thì connect trả EACCES. -->
+    <uses-permission android:name="android.permission.INTERNET" />
     <application
         android:hasCode="false"
         android:label="Thiên Long Bát Bộ"

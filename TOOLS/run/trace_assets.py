@@ -19,7 +19,8 @@
 # Cách dùng: python -B TOOLS/run/trace_assets.py [--exe build/msvc-release/thienlong_client.exe]
 #            [--data dev/client/assets] [--frames 600]
 # Bao đóng chỉ đủ cho những gì kịch bản đi qua (mỗi bảng giao diện mở bằng chuột sẽ lộ ra nếu kịch bản chạm tới nó). Tệp
-# thiếu trên thiết bị hiện ở logcat dưới dạng lỗi "không mở được"; thêm kịch bản hoặc tệp tay vào EXTRA_FOLDERS bên dưới.
+# thiếu trên thiết bị hiện ở logcat dưới dạng lỗi "không mở được"; thêm kịch bản ở đây, hoặc thư mục mang nguyên ở
+# WHOLE_FOLDERS của android/package_apk.py (Table, Config, Script, effect, Web: quét lúc đóng gói, không ghi vào đây).
 # Chạy client thật: cửa sổ thu nhỏ không giành focus, không đụng chuột hay bàn phím của người đang dùng máy.
 
 from __future__ import annotations
@@ -30,9 +31,6 @@ import subprocess
 import sys
 import tempfile
 from pathlib import Path
-
-# Thư mục dữ liệu của client mà gói mang nguyên cả thư mục (nhỏ, nhiều nơi đọc theo bảng nên vết khó phủ hết).
-EXTRA_FOLDERS = ("Table", "Config", "Script", "effect", "Web")
 
 # Chỉ những phần này của dữ liệu đi vào gói; vết có cả tệp sinh lúc chạy và tệp của người chơi.
 SKIPPED_PREFIXES = ("Save/", "cache/pipeline-", "dev/")
@@ -101,18 +99,6 @@ def traced_paths(trace: Path, data: Path) -> set[str]:
     return found
 
 
-def folder_paths(data: Path) -> set[str]:
-    found: set[str] = set()
-    for folder in EXTRA_FOLDERS:
-        root = data / folder
-        if not root.is_dir():
-            continue
-        for path in root.rglob("*"):
-            if path.is_file():
-                found.add(path.relative_to(data).as_posix())
-    return found
-
-
 def write_list(out: Path, paths: set[str]) -> None:
     rows = ["kind\tpath"]
     for relative in sorted(paths):
@@ -144,7 +130,6 @@ def main() -> None:
             found = traced_paths(trace, data)
             print(f"trace: {name}: {len(found)} tệp")
             paths |= found
-    paths |= folder_paths(data)
     write_list(out, paths)
     print(f"trace: ghi {len(paths)} tệp vào {out}")
 
