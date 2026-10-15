@@ -116,10 +116,11 @@ def read_events() -> dict[int, str]:
     return names
 
 
-def implemented() -> set[str]:
+def implemented(skip: pathlib.Path = OUT) -> set[str]:
+    """Tên hàm đã có native ở các native_*.cpp, trừ tệp skip (tệp sinh của chính bộ sinh đang chạy)."""
     done: set[str] = set()
     for path in SCRIPT_DIR.glob("native_*.cpp"):
-        if path == OUT:
+        if path == skip:
             continue
         done.update(re.findall(r'\.name\s*=\s*"([A-Za-z0-9_]+)"', path.read_text(encoding="utf-8")))
     return done

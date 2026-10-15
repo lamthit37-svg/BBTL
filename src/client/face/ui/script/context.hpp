@@ -6,6 +6,7 @@
 #include "hero/hero.hpp"
 #include "ui/panel/call.hpp"
 #include "ui/panel/scene_table.hpp"
+#include "ui/script/pool_image.hpp"
 #include "ui/script/variable.hpp"
 #include "ui/script/xscript.hpp"
 
@@ -73,6 +74,8 @@ struct Facts {
     std::int32_t dfs_server = 0;
     // DataPool:Lua_GetUpdateTipsFlag(chỉ số): 100 cờ nhắc cập nhật do máy chủ gửi (DAT_141034c10 + 0x2db4); chưa nhận thì 0.
     std::array<std::int32_t, 100> update_tips{};
+    // Ảnh bộ nhớ CDataPool cho hàm chỉ đọc một trường số (native_pool.cpp): phía mạng ghi theo offset, chưa ghi thì giá trị của hàm dựng.
+    PoolImage pool;
 };
 
 struct Context {

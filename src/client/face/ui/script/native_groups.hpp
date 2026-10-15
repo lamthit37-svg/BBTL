@@ -34,4 +34,8 @@ void register_system(lua_State* lua);
 // TOOLS/port/luagen/gen_event_natives.py vào native_events.cpp.
 void register_events(lua_State* lua);
 
+// Hàm chỉ đọc một hay hai trường số của CDataPool (GetImMsgNumber, GetTimeToPeace, GetVipLevel...): sinh bằng
+// TOOLS/port/luagen/gen_pool_natives.py vào native_pool.cpp, đọc từ Facts::pool.
+void register_pool(lua_State* lua);
+
 } // namespace game::ui::script
