@@ -29,7 +29,9 @@ constexpr std::uint32_t kHeaderBytes = 0xA4;
 constexpr std::uint32_t kIndexEntries = 65536;
 constexpr std::uint32_t kNoGlyph = 0xFFFFFFFFU;
 constexpr std::uint32_t kMagic = 0x54465841U;
-constexpr int kAtlasColumns = 32;
+// Cạnh lớn nhất của atlas phông. Tablet PowerVR GE8320 (GLES) chỉ nhận texture tới 4096; bản cũ xếp 32 cột nên GBK12 cao 9192
+// điểm và bị từ chối ("vượt cỡ lớn nhất của thiết bị"), cả giao diện mất chữ. Atlas nay gần vuông: mỗi cạnh ~sqrt(số ô) * cỡ ô.
+constexpr int kMaxAtlasSide = 4096;
 // Đặc hẳn: pha màu của lớp giao diện chạy trong không gian tuyến tính, nên nền 94% vẫn để cảnh sáng lộ qua và
 // chữ khó đọc.
 constexpr std::uint32_t kPanel = 0xFF101418U;
@@ -249,22 +251,34 @@ struct CodeSlot {
     std::uint32_t offset = 0;
 };
 
-void consider_code(std::vector<PlacedGlyph>& glyphs, CodeSlot slot, std::uint32_t& cell) {
+void consider_code(std::vector<PlacedGlyph>& glyphs, CodeSlot slot, std::uint32_t& cell, std::uint32_t columns) {
     if (slot.offset == kNoGlyph) return;
     PlacedGlyph glyph;
     glyph.code = static_cast<char32_t>(slot.code);
-    glyph.column = static_cast<std::uint16_t>(cell % kAtlasColumns);
-    glyph.row = static_cast<std::uint16_t>(cell / kAtlasColumns);
+    glyph.column = static_cast<std::uint16_t>(cell % columns);
+    glyph.row = static_cast<std::uint16_t>(cell / columns);
     ++cell;
     glyphs.push_back(glyph);
 }
 
-[[nodiscard]] std::vector<PlacedGlyph> place_glyphs(const std::vector<std::uint32_t>& index) {
+// Số mã có glyph trong chỉ mục (tối đa kIndexEntries).
+[[nodiscard]] std::uint32_t count_glyphs(const std::vector<std::uint32_t>& index) noexcept {
+    return static_cast<std::uint32_t>(std::ranges::count_if(index, [](std::uint32_t offset) { return offset != kNoGlyph; }));
+}
+
+// Số cột nhỏ nhất để cells ô nằm gọn trong hình vuông columns x columns; cells >= 1.
+[[nodiscard]] std::uint32_t atlas_columns(std::uint32_t cells) noexcept {
+    std::uint32_t columns = 1;
+    while (static_cast<std::uint64_t>(columns) * columns < cells) ++columns;
+    return columns;
+}
+
+[[nodiscard]] std::vector<PlacedGlyph> place_glyphs(const std::vector<std::uint32_t>& index, std::uint32_t columns) {
     std::vector<PlacedGlyph> glyphs;
     std::uint32_t cell = 0;
     for (std::uint32_t code = 0; code < kIndexEntries; ++code) {
         const CodeSlot slot{.code = code, .offset = index.at(code)};
-        consider_code(glyphs, slot, cell);
+        consider_code(glyphs, slot, cell, columns);
     }
     return glyphs;
 }
@@ -583,21 +597,28 @@ core::Result<BitmapFont> BitmapFont::open(const std::filesystem::path& file) {
     if (!layout) return std::unexpected(layout.error());
     const std::uint32_t index_at = layout->glyphs_at - (4U * kIndexEntries);
     const std::vector<std::uint32_t> index = index_of(*text, index_at);
-    std::vector<PlacedGlyph> glyphs = place_glyphs(index);
-    if (glyphs.empty()) return core::fail(core::ErrorCode::kInvalidArgument, "phông AXFT không có glyph");
-    fill_advances(glyphs, *text, *layout, index);
+    const std::uint32_t glyph_count = count_glyphs(index);
+    if (glyph_count == 0) return core::fail(core::ErrorCode::kInvalidArgument, "phông AXFT không có glyph");
     // Thêm một ô sau glyph cuối cho ô vuông rỗng của mã không có trong phông (append_missing).
+    const std::uint32_t columns = atlas_columns(glyph_count + 1U);
+    const std::uint32_t rows = (glyph_count + columns) / columns;
+    const auto cell_side = static_cast<std::uint64_t>(layout->pixel_size);
+    if (cell_side == 0 || std::max<std::uint64_t>(columns, rows) * cell_side > static_cast<std::uint64_t>(kMaxAtlasSide)) {
+        return core::fail(core::ErrorCode::kInvalidArgument, "atlas phông vượt cạnh lớn nhất",
+            std::format("{} cột x {} hàng, ô {} điểm", columns, rows, layout->pixel_size));
+    }
+    std::vector<PlacedGlyph> glyphs = place_glyphs(index, columns);
+    fill_advances(glyphs, *text, *layout, index);
     const int missing = static_cast<int>(glyphs.size());
-    const int rows = (missing + kAtlasColumns) / kAtlasColumns;
     BitmapFont font;
     font.pixel_size_ = layout->pixel_size;
-    font.columns_ = kAtlasColumns;
+    font.columns_ = static_cast<int>(columns);
     font.atlas_.name = "ui.pace.font";
-    font.atlas_.width = static_cast<std::uint32_t>(kAtlasColumns * layout->pixel_size);
-    font.atlas_.height = static_cast<std::uint32_t>(rows * layout->pixel_size);
+    font.atlas_.width = columns * static_cast<std::uint32_t>(layout->pixel_size);
+    font.atlas_.height = rows * static_cast<std::uint32_t>(layout->pixel_size);
     font.atlas_.rgba.assign(static_cast<std::size_t>(font.atlas_.width) * font.atlas_.height * 4, 0);
     fill_atlas(font.atlas_, glyphs, *text, *layout, index);
-    const GlyphCell box{.column = missing % kAtlasColumns, .row = missing / kAtlasColumns};
+    const GlyphCell box{.column = missing % font.columns_, .row = missing / font.columns_};
     paint_missing(font.atlas_, layout->pixel_size, box);
     font.glyphs_.reserve(glyphs.size());
     for (const PlacedGlyph& glyph : glyphs) {
