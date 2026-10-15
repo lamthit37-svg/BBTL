@@ -596,7 +596,20 @@ void widget_geometry_reads_the_screen(Context& context) {
     context.expect(host.take_notes().empty(), "không lỗi");
 }
 
-constexpr std::array<Case, 13> kCases = {{
+// Host::load nạp layout và chạy OnLoad mà không hiện cửa sổ; gọi lại thì không nạp lần hai.
+void load_runs_onload_without_showing(Context& context) {
+    Probe probe(context);
+    if (!probe.host) return;
+    Host& host = *probe.host;
+    static_cast<void>(host.take_notes());
+    context.expect(host.load("Probe") && global(host, "trace") == "pre|load", "OnLoad đã chạy");
+    context.expect(!host.is_shown("Probe") && probe.screen.loads() == 1, "chưa hiện, nạp một layout");
+    context.expect(host.load("Probe") && global(host, "trace") == "pre|load" && probe.screen.loads() == 1, "nạp lại thì không chạy lại");
+    context.expect(!host.load("Nobody"), "tên lạ là false");
+    context.expect(host.take_notes().empty(), "không lỗi");
+}
+
+constexpr std::array<Case, 14> kCases = {{
     {.name = "sổ nhận dấu \\ của bản gốc", .body = registry_accepts_backslash},
     {.name = "sổ thật mở được", .body = real_registry_opens},
     {.name = "mở chạy PreLoad theo sổ", .body = open_runs_preload},
@@ -610,6 +623,7 @@ constexpr std::array<Case, 13> kCases = {{
     {.name = "ProgressBar mờ dần theo nhịp", .body = progress_bar_fades_with_ticks},
     {.name = "hàm toàn cục của game: sự kiện, cửa sổ, cỡ màn", .body = game_globals_follow_original},
     {.name = "hình học của widget đọc ô của màn", .body = widget_geometry_reads_the_screen},
+    {.name = "Host::load nạp mà không hiện", .body = load_runs_onload_without_showing},
 }};
 
 } // namespace

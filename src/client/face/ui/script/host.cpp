@@ -1101,6 +1101,12 @@ void Host::set_client_size(ClientSize size) noexcept {
     state_->core.client_size = size;
 }
 
+bool Host::load(std::string_view name) {
+    Core& core = state_->core;
+    const auto found = core.by_name.find(name);
+    return found != core.by_name.end() && load_window(core, found->second);
+}
+
 bool Host::set_shown(std::string_view name, bool is_shown) {
     Core& core = state_->core;
     const auto found = core.by_name.find(name);

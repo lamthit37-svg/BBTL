@@ -135,6 +135,9 @@ public:
     // Cỡ vùng khách của cửa sổ chương trình, pixel, cho GetCurClientSize (không trả nhỏ hơn 800x600; 0 là chưa biết).
     void set_client_size(ClientSize size) noexcept;
 
+    // Nạp layout của cửa sổ và chạy OnLoad mà không hiện nó (không phát Shown hay Hidden): cho test và khảo sát cần widget của cửa sổ.
+    // false khi không có cửa sổ đó hay layout không nạp được (một dòng notes); đã nạp rồi thì true.
+    bool load(std::string_view name);
     // Hiện hay giấu một cửa sổ theo tên sổ như this:Show() / this:Hide() (kể cả nhường chỗ khi hiện). false khi không có.
     bool set_shown(std::string_view name, bool is_shown);
     // CloseAllWindow (0x1800763f0): giấu mọi cửa sổ đang hiện trừ loại kKeep và kCloseAllKept; true khi đã giấu ít nhất một.
