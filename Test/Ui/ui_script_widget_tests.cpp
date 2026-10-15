@@ -270,6 +270,25 @@ void bad_arguments_are_dropped_quietly(Context& context) {
     context.expect(!lab.run("Action:KhongCo()").empty(), "phương thức không có là lỗi Lua");
 }
 
+void missing_methods_are_recorded_on_request(Context& context) {
+    const Lab lab;
+    context.expect(ui::script::missing_methods(lab.lua.get()).empty(), "chưa mở chế độ đo thì chưa có gì để kể");
+    context.expect(!lab.run("Child:NoSuch()").empty(), "mặc định phương thức lạ là lỗi Lua");
+    ui::script::open_widget_classes(lab.lua.get(), ui::script::Missing::kRecord);
+    context.expect(lab.run("r = Child:NoSuch(1) .. 'x' Child:NoSuch() List:Other('a', 2) n = Child:Third() + 1 Child:SetText('vẫn chạy')").empty(),
+        "chế độ đo: phương thức lạ trả 0 và hàm xử lý chạy tiếp");
+    context.expect(lab.global("r") == "0x" && lab.global("n") == "1", "phương thức lạ trả số 0");
+    context.expect(lab.text_of("Child", "Text") == "vẫn chạy", "phương thức có sẵn vẫn chạy thật");
+    context.expect(lab.run("e = Child.NoSuch ~= nil f = Child[1] == nil").empty() && lab.global("e") == "true" && lab.global("f") == "true",
+        "khoá chuỗi lạ cho hàm đo, khoá không phải chuỗi cho nil");
+    const std::vector<ui::script::MissingMethod> missing = ui::script::missing_methods(lab.lua.get());
+    context.expect(missing.size() == 3 && missing[0].name == "NoSuch" && missing[0].calls == 3 && missing[1].name == "Other"
+            && missing[1].calls == 1 && missing[2].name == "Third" && missing[2].calls == 1,
+        "kê đúng tên và số lần, theo tên tăng dần");
+    ui::script::open_widget_classes(lab.lua.get());
+    context.expect(!lab.run("Child:NoSuch()").empty(), "mở lại chế độ mặc định thì phương thức lạ là lỗi");
+}
+
 void action_button_keeps_the_action(Context& context) {
     Lab lab;
     context.expect(lab.run("r = Action:GetActionItem()").empty() && lab.global("r") == "-1", "ô chưa đặt là -1");
@@ -432,7 +451,7 @@ void progress_bar_matches_the_golden(Context& context) {
     settle(11, host.lab.run("Progress_close()"));
 }
 
-constexpr std::array<Case, 10> kCases = {{
+constexpr std::array<Case, 11> kCases = {{
     {.name = "kind_follows_the_falagard_type", .body = kind_follows_the_falagard_type},
     {.name = "text_follows_the_original_rules", .body = text_follows_the_original_rules},
     {.name = "set_property_special_cases", .body = set_property_special_cases},
@@ -440,6 +459,7 @@ constexpr std::array<Case, 10> kCases = {{
     {.name = "visibility_walks_the_parents", .body = visibility_walks_the_parents},
     {.name = "check_buttons_group_in_mode_one", .body = check_buttons_group_in_mode_one},
     {.name = "bad_arguments_are_dropped_quietly", .body = bad_arguments_are_dropped_quietly},
+    {.name = "missing_methods_are_recorded_on_request", .body = missing_methods_are_recorded_on_request},
     {.name = "action_button_keeps_the_action", .body = action_button_keeps_the_action},
     {.name = "lists_and_elements", .body = lists_and_elements},
     {.name = "progress_bar_matches_the_golden", .body = progress_bar_matches_the_golden},

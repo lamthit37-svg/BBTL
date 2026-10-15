@@ -35,14 +35,15 @@ struct WindowRef {                  // trivially copyable; sao vào userdata Lua
     std::int32_t window = -1;       // chỉ số trong asset->windows; -1 thì widget tìm theo tên (chậm, sai khi hai layout trùng tên)
     Services* services = nullptr;   // null: icon giữ nguyên tên, gốc coi là đang hiện
 };
-void open_widget_classes(lua_State*);                // một lần sau khi mở state
+void open_widget_classes(lua_State*, Missing = Missing::kRaise);  // sau khi mở state; gọi lại được, đổi được chế độ
+std::vector<MissingMethod> missing_methods(lua_State*);          // chế độ kRecord: phương thức bị gọi mà chưa có (tên, số lần)
 void push_widget(lua_State*, const WindowRef&);      // userdata + metatable chung; seed_hidden khi layout khai Visible=False
 }
 ```
 
 Điều kiện sống: `store`, `calls`, `asset`, `name`, `services` sống lâu hơn `lua_State`. Chỉ dùng C API thô (`lua.h` của LuaPlus), không phụ thuộc vỏ `lua::State` của e2.
 Bảng phương thức đã viết và hàng đợi còn lại: `WIDGET-PHUONG-THUC.tsv` (44 xong, 6 của `this` thuộc host, còn lại chưa). Kiểm: `Test/Ui/ui_script_widget_tests.cpp`
-(10 ca; ca cuối chạy `ProgressBar.lua` gốc qua một host tối thiểu của test và khớp 12/12 khối `progress_bar_flow.tsv`). Lưu ý LuaPlus 5.0.1: `luaL_checkudata` trả NULL
+(11 ca; ca cuối chạy `ProgressBar.lua` gốc qua một host tối thiểu của test và khớp 12/12 khối `progress_bar_flow.tsv`). Lưu ý LuaPlus 5.0.1: `luaL_checkudata` trả NULL
 chứ không báo lỗi; `lua_getmetatable` chết khi ngăn xếp không có chỉ số; `lua_dobuffer` in lỗi ra stderr qua `_ALERT` (dùng `luaL_loadbuffer` + `lua_pcall`).
 
 ## 1. Client gốc nạp một cửa sổ thế nào
