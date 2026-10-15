@@ -141,6 +141,19 @@ Bề mặt mà mã sinh gọi là `src/client/face/lua/vm.hpp` (hợp đồng, �
   không làm lệch vết của kho này; đơn vị mới hay world.lua đổi thì đo lại. Chạy lại không xáo thì trùng từng byte (2 lượt).
 - Mục tiêu: mọi cửa sổ khớp. Mỗi cửa sổ lệch là một lỗi của bộ dịch hay runtime, sửa tại gốc rồi chạy lại toàn bộ.
 
+## Cỡ mã sinh — ngân sách trước khi nối vào client
+
+- Đo 2026-10-15 trên bộ phát đầu (`140dc88b`): cả kho 2 060 đơn vị, 24 943 chunk, 77 330 hàm ra 4,39 triệu dòng C++ (187 MB)
+  trong 16 s; MSVC `msvc-release` dựng 49 TU trong 408 s tường (khoảng 10 phút CPU), `.text` khoảng 3,2 MB mỗi TU, tức
+  155-170 MB mã nếu nối cả kho. Để so: nguồn Lua cả kho 27,5 MB, `Game.exe` 2026 cả tệp 18,6 MB.
+- Quyết định: chưa nối mã sinh vào `thienlong_client` cho tới khi `.text` của mã sinh cả kho ≤ 40 MB ở `msvc-release` (cộng
+  `.text` của obj dựng không `/Zi`) và `game_luagen` dựng ≤ 3 phút tường ở `-j20`. Lý do: client chạy cả trên điện thoại
+  (APK), và cây dựng hằng ngày không được trả 10 phút CPU mỗi lần dựng.
+- Đúng trước, gọn sau: giảm mật độ (một nhãn lỗi chung mỗi hàm, gộp `get_global` + `call` ngoài dòng, hằng không kiểm biên
+  vì chỉ số biết lúc sinh, tránh `Results` trả theo giá trị ở chỗ chỉ dùng kết quả đầu) làm sau khi `lua_mass` xanh, và mỗi
+  bước giảm phải giữ `lua_mass` xanh; đo `.text` trước và sau mỗi bước.
+- `game_luagen`, `thienlong_lua_mass` và ctest `lua_mass` chỉ dựng khi cấu hình với `-DGAME_LUA_MASS=ON` (mặc định tắt).
+
 ## Thứ tự
 
 1. thienlong-2d: `vm.hpp` và tài liệu này (xong), rồi `world.lua`, `mass_oracle.py`, `oracle.tsv`.
