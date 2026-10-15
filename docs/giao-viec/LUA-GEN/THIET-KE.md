@@ -1,4 +1,4 @@
-# LUA-GEN — sinh C++ từ toàn bộ script giao diện, đối soát hàng loạt với LuaPlus.dll (điều phối: thienlong-2d)
+# LUA-GEN — đưa toàn bộ script giao diện của client 2026 vào client (máy: LuaPlus gốc), đối soát hàng loạt với LuaPlus.dll (điều phối: thienlong-2d)
 
 Chủ dự án chốt ngày 2026-10-15: thay việc port tay từng cửa sổ (`docs/giao-viec/UI-PORT`) bằng đường dây công nghiệp —
 "Bạn tiến hành sinh mã và đối soát hàng loạt chuẩn nhất có thể làm trong sức mình đi" — sau khi được báo đánh đổi: mã sinh
