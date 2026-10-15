@@ -1,7 +1,6 @@
 // Bề mặt runtime Lua mà mã C++ sinh từ script giao diện của client 2026 gọi tới: hợp đồng giữa bộ dịch
-// (TOOLS/port/luagen, thienlong-c8) và runtime (module lua, thienlong-e7). Thiết kế và phân công ở
-// docs/giao-viec/LUA-GEN/THIET-KE.md. Đổi một tên hay chữ ký ở mục "BỀ MẶT MÃ SINH" là đổi hợp đồng: báo bên kia
-// và thienlong-2d trong cùng lượt.
+// (TOOLS/port/luagen) và runtime (module lua). Thiết kế và phân công ở docs/giao-viec/LUA-GEN/THIET-KE.md. Đổi một
+// tên hay chữ ký ở mục "BỀ MẶT MÃ SINH" là đổi hợp đồng: báo bên kia và phiên điều phối trong cùng lượt.
 //
 // Ngữ nghĩa là của LuaPlus.dll trong client 2026 (_VERSION "Lua 5.0.1"; mã tham chiếu
 // C:\dev\third_party\reference\lua-5.0.1). Mỗi op làm đúng việc của lệnh máy ảo tương ứng trong lvm.c, lvm.h,
@@ -131,11 +130,13 @@ struct Proto {
 };
 
 // Một chunk đã dịch (một tệp .lua, hay một đoạn Lua nối vào sự kiện của layout). strings là bảng hằng chuỗi: mọi
-// hàm của chunk đọc hằng thứ i bằng self.constant(i). Chuỗi có thể chứa byte 0.
+// hàm của chunk đọc hằng thứ i bằng self.constant(i). Chuỗi có thể chứa byte 0. Chunk mà chính LuaPlus.dll báo lỗi cú
+// pháp (21 đoạn "();" của layout gốc) vẫn có mặt để chủ biết: main là nullptr, syntax_error là câu lỗi của bộ dịch.
 struct Chunk {
     std::string_view name;
     std::span<const std::string_view> strings;
     const Proto* main = nullptr;
+    std::string_view syntax_error;
 };
 
 class Function {
