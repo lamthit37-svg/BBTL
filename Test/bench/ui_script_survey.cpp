@@ -7,6 +7,7 @@
 // Không đụng chuột, bàn phím hay cửa sổ. Báo cáo ra stdout nếu không có --out.
 #include "gui/loader.hpp"
 #include "io/file.hpp"
+#include "io/platform.hpp"
 #include "ui/script/gui_screen.hpp"
 #include "ui/script/host.hpp"
 #include "ui/script/widget.hpp"
@@ -54,7 +55,7 @@ struct Missing {
     constexpr std::string_view kMark = "attempt to ";
     const std::size_t at = note.find(kMark);
     if (at == std::string_view::npos) return {};
-    std::string_view rest = note.substr(at + kMark.size());
+    const std::string_view rest = note.substr(at + kMark.size());
     const std::size_t open = rest.find('`');
     const std::size_t close = rest.find('\'', open == std::string_view::npos ? 0 : open);
     if (open == std::string_view::npos || close == std::string_view::npos || !rest.substr(close).contains("nil value")) return {};
@@ -96,13 +97,13 @@ private:
     std::uint32_t other_ = 0;
 };
 
-bool parse(int argc, char** argv, Options& options) {
-    for (int at = 1; at < argc; ++at) {
-        const std::string_view arg = argv[at];
+bool parse(const std::vector<std::string>& args, Options& options) {
+    for (std::size_t at = 0; at < args.size(); ++at) {
+        const std::string_view arg = args[at];
         if (arg == "--events") {
             options.is_events = true;
-        } else if ((arg == "--data" || arg == "--out") && at + 1 < argc) {
-            (arg == "--data" ? options.data : options.out) = game::io::path_from_utf8(argv[++at]);
+        } else if ((arg == "--data" || arg == "--out") && at + 1 < args.size()) {
+            (arg == "--data" ? options.data : options.out) = game::io::path_from_utf8(args[++at]);
         } else {
             std::cerr << "Cách dùng: ui_script_survey [--data <thư mục>] [--events] [--out <tệp>]\n";
             return false;
@@ -118,9 +119,11 @@ void drain(Host& host, const std::string& window, Tally& tally) {
 
 } // namespace
 
-int main(int argc, char** argv) {
+// NOLINTNEXTLINE(bugprone-exception-escape): giả dương của STL MSVC (HP-07)
+int main(const int argc, const char* const* const argv) {
+    game::io::use_utf8_console();
     Options options;
-    if (!parse(argc, argv, options)) return 2;
+    if (!parse(game::io::command_arguments(argc, argv), options)) return 2;
     const game::io::TextResult registry = game::io::read_text(options.data / "Script" / "windows.tsv");
     if (!registry) {
         std::cerr << "không đọc được Script/windows.tsv: " << game::io::describe(registry.error()) << '\n';

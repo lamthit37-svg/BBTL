@@ -405,32 +405,47 @@ constexpr std::array<std::array<FlowStep, 2>, 10> kFlow = {{
     return panel_lines(host.is_shown("ProgressBar"), *widgets, calls);
 }
 
+// Host chạy ProgressBar.lua gốc trên layout thật của dữ liệu client (nạp bằng GuiLoader thật qua GuiScreen). host rỗng khi máy dựng
+// không có dữ liệu cần (ca bỏ qua) hay mở hỏng (ca đã báo lỗi).
+struct ProgressRig {
+    explicit ProgressRig(Context& context) {
+        if (kClientData.empty() || kScriptSource.empty()) return;
+        const io::TextResult script =
+            io::read_text(io::path_from_utf8(kScriptSource) / "Interface" / "ProgressBar" / "ProgressBar.lua");
+        context.expect(script.has_value(), "đọc được ProgressBar.lua");
+        if (!script) return;
+        context.expect(root.write("windows.tsv", kProgressRegistry) && root.write("Interface/ProgressBar/ProgressBar.lua", *script),
+            "ghi được dữ liệu thử");
+        sources.files = &files;
+        auto opened_loader = gui::GuiLoader::open(sources);
+        context.expect(opened_loader.has_value(), "mở được giao diện của kho");
+        if (!opened_loader) return;
+        loader.emplace(std::move(*opened_loader));
+        screen.emplace(*loader);
+        auto opened = Host::open(ui::script::HostDesc{.data_root = root.path(), .only = {},
+                                     .instruction_limit = ui::script::kDefaultInstructionLimit, .natives = {}},
+            *screen);
+        context.expect(opened.has_value(), opened ? "mở host" : opened.error());
+        if (opened) host.emplace(std::move(*opened));
+    }
+
+    TempRoot root{"ui_script_progress"};
+    gui::DiskSource files{io::path_from_utf8(kClientData) / "Interface"};
+    gui::GuiSources sources;
+    std::optional<gui::GuiLoader> loader;
+    std::optional<ui::script::GuiScreen> screen;
+    std::optional<Host> host;
+};
+
 // ProgressBar.lua gốc qua host và widget cho ra đúng trạng thái của LuaPlus.dll gốc.
 void progress_bar_matches_original(Context& context) {
-    if (kPanelGolden.empty() || kClientData.empty() || kScriptSource.empty()) return;
+    if (kPanelGolden.empty()) return;
     const std::vector<GoldenBlock> blocks = read_golden("progress_bar_flow.tsv");
     context.expect(blocks.size() == kFlow.size() + 2, "số vàng có khối sự kiện, các bước và Progress_close");
     if (blocks.size() != kFlow.size() + 2) return;
-    const io::TextResult script = io::read_text(
-        io::path_from_utf8(kScriptSource) / "Interface" / "ProgressBar" / "ProgressBar.lua");
-    context.expect(script.has_value(), "đọc được ProgressBar.lua");
-    if (!script) return;
-    const TempRoot root("ui_script_progress");
-    context.expect(root.write("windows.tsv", kProgressRegistry) && root.write("Interface/ProgressBar/ProgressBar.lua", *script),
-        "ghi được dữ liệu thử");
-    const gui::DiskSource files(io::path_from_utf8(kClientData) / "Interface");
-    gui::GuiSources sources;
-    sources.files = &files;
-    auto loader = gui::GuiLoader::open(sources);
-    context.expect(loader.has_value(), "mở được giao diện của kho");
-    if (!loader) return;
-    ui::script::GuiScreen screen(*loader);
-    auto opened = Host::open(ui::script::HostDesc{.data_root = root.path(), .only = {}, .instruction_limit = ui::script::kDefaultInstructionLimit,
-                                 .natives = {}},
-        screen);
-    context.expect(opened.has_value(), opened ? "mở host" : opened.error());
-    if (!opened) return;
-    Host& host = *opened;
+    ProgressRig rig(context);
+    if (!rig.host) return;
+    Host& host = *rig.host;
     std::vector<std::string> events;
     for (const ui::script::Registration& one : host.registrations("ProgressBar"))
         events.push_back(std::format("event\t{}\t{}", one.name, one.is_always ? "True" : "False"));
@@ -445,6 +460,32 @@ void progress_bar_matches_original(Context& context) {
     }
     context.expect(host.run("Progress_close()"), "Progress_close");
     expect_block(context, blocks.at(index), progress_lines(host));
+    for (const std::string& note : host.take_notes())
+        context.expect(false, note);
+}
+
+// FalagardSuperProgress::updateSelf qua Host::tick: PROGRESSBAR_BREAK cho mờ dần hai giây (SetFadeState 2) rồi giấu cả bảng; nhịp
+// đầu không tính thời gian trôi, đồng hồ lùi không trừ, đúng 0 thì chưa giấu (như bản port tay ui/panel/progress_bar).
+void progress_bar_fades_with_ticks(Context& context) {
+    ProgressRig rig(context);
+    if (!rig.host) return;
+    Host& host = *rig.host;
+    post(host, "PROGRESSBAR_SHOW", {"x"});
+    post(host, "PROGRESSBAR_BREAK");
+    host.tick(10'000ms);
+    context.expect(host.is_shown("ProgressBar"), "nhịp đầu không tính thời gian đã trôi của đồng hồ khung");
+    host.tick(11'000ms);
+    context.expect(host.is_shown("ProgressBar"), "giữa chừng vẫn hiện");
+    const ui::panel::Widgets* widgets = host.widgets("ProgressBar");
+    context.expect(widgets != nullptr && widgets->value({.window = "ProgressBar_Progress", .name = "Alpha"}) == "0.5", "độ trong 0,5");
+    host.tick(10'500ms);
+    context.expect(host.is_shown("ProgressBar"), "đồng hồ lùi thì không trôi");
+    host.tick(11'500ms);
+    context.expect(host.is_shown("ProgressBar"), "đúng 0 thì chưa giấu");
+    host.tick(12'000ms);
+    context.expect(!host.is_shown("ProgressBar"), "hết thời gian thì giấu cả bảng");
+    post(host, "PROGRESSBAR_SHOW", {"y"});
+    context.expect(host.is_shown("ProgressBar"), "SHOW hiện lại");
     for (const std::string& note : host.take_notes())
         context.expect(false, note);
 }
@@ -489,7 +530,7 @@ void real_registry_opens(Context& context) {
         context.expect(note.contains("_PreLoad: "), note);
 }
 
-constexpr std::array<Case, 10> kCases = {{
+constexpr std::array<Case, 11> kCases = {{
     {.name = "sổ nhận dấu \\ của bản gốc", .body = registry_accepts_backslash},
     {.name = "sổ thật mở được", .body = real_registry_opens},
     {.name = "mở chạy PreLoad theo sổ", .body = open_runs_preload},
@@ -500,6 +541,7 @@ constexpr std::array<Case, 10> kCases = {{
     {.name = "danh sách only", .body = only_limits_the_windows},
     {.name = "trần lệnh chặn vòng lặp vô tận", .body = instruction_limit_stops_runaway},
     {.name = "ProgressBar.lua gốc khớp số vàng", .body = progress_bar_matches_original},
+    {.name = "ProgressBar mờ dần theo nhịp", .body = progress_bar_fades_with_ticks},
 }};
 
 } // namespace

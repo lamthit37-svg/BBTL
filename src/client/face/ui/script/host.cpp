@@ -175,6 +175,8 @@ struct Core {
     std::map<std::int32_t, Timer> timers;
     std::int32_t next_timer = 1;
     std::chrono::milliseconds now{0};
+    // Đã có nhịp nào chưa: nhịp đầu không tính thời gian trôi (đồng hồ khung của người gọi bắt đầu ở đâu cũng được).
+    bool has_ticked = false;
     std::uint32_t limit = kDefaultInstructionLimit;
     std::int64_t budget = 0;
     int depth = 0;
@@ -988,7 +990,16 @@ void Host::pressed(Spot spot) {
 
 void Host::tick(std::chrono::milliseconds now) {
     Core& core = state_->core;
-    core.now = now;
+    const std::chrono::milliseconds before = std::exchange(core.now, now);
+    // Nhịp của widget có đồng hồ riêng (mờ dần của SuperProgress), mỗi cửa sổ đã nạp với thời gian trôi từ nhịp trước; đồng hồ
+    // lùi thì coi như không trôi.
+    const bool is_forward = std::exchange(core.has_ticked, true) && now >= before;
+    const float seconds = is_forward ? std::chrono::duration<float>(now - before).count() : 0.0F;
+    if (seconds > 0.0F) {
+        for (const std::unique_ptr<Item>& item : core.items) {
+            if (item->is_loaded) advance_widgets(item->widgets, core.screen->asset(), item->services, seconds);
+        }
+    }
     std::vector<std::pair<std::chrono::milliseconds, std::int32_t>> due;
     for (const auto& [id, timer] : core.timers) {
         if (timer.is_live && timer.due <= now) due.emplace_back(timer.due, id);
