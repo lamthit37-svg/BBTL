@@ -8,6 +8,7 @@
 
 #include "gui/asset.hpp"
 #include "ui/panel/call.hpp"
+#include "ui/panel/deck.hpp"
 #include "ui/panel/widgets.hpp"
 #include "ui/script/script_text.hpp"
 
@@ -46,6 +47,14 @@ bool Services::root_shown() const {
 
 void Services::set_root_shown(bool /*is_shown*/) {}
 
+std::optional<PixelBox> Services::window_box(std::string_view /*window*/) const {
+    return std::nullopt;
+}
+
+std::optional<PixelBox> Services::screen_box() const {
+    return std::nullopt;
+}
+
 namespace {
 
 using panel::Ask;
@@ -53,6 +62,7 @@ using panel::Call;
 using panel::GridCell;
 using panel::GridColumn;
 using panel::InfoLife;
+using panel::Key;
 using panel::kEmptyAction;
 using panel::ListItem;
 
@@ -1069,6 +1079,382 @@ int list_add_info(lua_State* state) {
     return 0;
 }
 
+// ---- Nhận và bỏ qua (hiệu ứng chỉ để nhìn) ----
+
+// Phương thức của bản 2026 mà tác dụng chỉ nằm ở hình vẽ hay ở danh sách cửa sổ con động (hoạt ảnh Tween, cuộn, thanh cuộn
+// ẩn hiện, dấu chọn nhiều mục, nháy của danh sách, xoá phần tử con...): script không đọc lại được gì và gui tự bố trí, nên
+// nhận mọi đối số rồi không làm gì. Khác gốc: cửa sổ con tạo lúc chạy (AddChild, Clear...) chưa có ở host.
+int visual_only(lua_State* /*state*/) {
+    return 0;
+}
+
+// IsActive (0x180028ad0): Window::isActive, true sau khi cửa sổ được kích hoạt (bấm vào, đưa lên trước). Khác gốc: chưa theo dõi
+// kích hoạt nên luôn false.
+int window_is_active(lua_State* state) {
+    static_cast<void>(self(state));
+    lua_pushboolean(state, 0);
+    return 1;
+}
+
+// ---- Hình học ----
+
+// Ô điểm ảnh của cửa sổ theo lần dàn trang gần nhất của host; ô rỗng (mọi số đo 0) khi host chưa dàn trang.
+[[nodiscard]] PixelBox box_of(const WindowRef& window) {
+    if (window.services == nullptr) return {};
+    return window.services->window_box(window.name).value_or(PixelBox{});
+}
+
+// Cỡ màn hình (cửa sổ gốc của CEGUI); nullopt khi host không biết, khi đó phép kẹp theo màn hình bị bỏ.
+[[nodiscard]] std::optional<PixelBox> screen_of(const WindowRef& window) {
+    if (window.services == nullptr) return std::nullopt;
+    return window.services->screen_box();
+}
+
+void push_pixels(lua_State* state, float value) {
+    lua_pushnumber(state, luanum_to_int32(static_cast<double>(value)));
+}
+
+void push_float(lua_State* state, float value) {
+    lua_pushnumber(state, static_cast<double>(value));
+}
+
+// Đặt vị trí hay cỡ bằng điểm ảnh: Override của thuộc tính hình học mà gui::layout đọc (UnifiedXPosition, AbsolutePosition...).
+void put_pair(const WindowRef& window, std::string_view name, float first, float second) {
+    window.store->set({.window = window.name, .name = name, .value = std::format("{{{},{}}}", first, second)});
+}
+
+// GetWindowSize (0x1800278f0): cỡ điểm ảnh của cửa sổ, hai số nguyên (int).
+int window_get_size(lua_State* state) {
+    const PixelBox box = box_of(self(state));
+    push_pixels(state, box.w);
+    push_pixels(state, box.h);
+    return 2;
+}
+
+// GetPixelRect (0x1800270a0): bốn số nguyên theo thứ tự trái, phải, trên, dưới (Rect của CEGUI 0.4 giữ trên, dưới, trái,
+// phải; hàm đẩy trái, phải, trên, dưới). Khác gốc: ô chưa cắt theo cửa sổ cha.
+int window_get_pixel_rect(lua_State* state) {
+    const PixelBox box = box_of(self(state));
+    push_pixels(state, box.x);
+    push_pixels(state, box.x + box.w);
+    push_pixels(state, box.y);
+    push_pixels(state, box.y + box.h);
+    return 4;
+}
+
+// GetAbsolutePositionToScreen (0x1800255f0): vị trí trên trái so với màn hình, cộng vị trí so với cha của chính nó và của
+// các cha (tối đa 50 cấp), nên bằng toạ độ trên màn hình; hai số thực.
+int window_get_screen_position(lua_State* state) {
+    const PixelBox box = box_of(self(state));
+    push_float(state, box.x);
+    push_float(state, box.y);
+    return 2;
+}
+
+// SetWindowSize (0x18003bf40): cỡ điểm ảnh (rộng, cao), lấy phần nguyên; số không phải số tính là 0.
+int window_set_size(lua_State* state) {
+    const WindowRef& window = self(state);
+    put_pair(window, "AbsoluteSize", static_cast<float>(int_at(state, 2)), static_cast<float>(int_at(state, 3)));
+    return 0;
+}
+
+// SetWindowCenter (0x18003be50): đặt tâm cửa sổ ở (x, y) so với cha, điểm ảnh. Cần cả hai là số.
+int window_set_center(lua_State* state) {
+    const WindowRef& window = self(state);
+    if (!is_number(state, 2) || !is_number(state, 3)) return 0;
+    const PixelBox box = box_of(window);
+    constexpr float kHalf = 0.5F;
+    put_pair(window, "AbsolutePosition", static_cast<float>(int_at(state, 2)) - box.w * kHalf,
+        static_cast<float>(int_at(state, 3)) - box.h * kHalf);
+    return 0;
+}
+
+// CenterWindow (0x180022f80): đặt giữa cửa sổ cha (cửa sổ gốc của layout nằm giữa màn hình). Bản gốc lấy tâm của ô tuyệt đối
+// của cha để đặt vị trí so với cha, nên chỉ đúng khi cha ở gốc toạ độ; giữ nguyên phép tính. Không làm gì khi host chưa dàn trang.
+int window_center(lua_State* state) {
+    const WindowRef& window = self(state);
+    const std::int32_t index = window_index(window);
+    if (index < 0 || window.services == nullptr) return 0;
+    const std::int32_t parent = window.asset->windows[static_cast<std::size_t>(index)].parent;
+    const std::optional<PixelBox> around =
+        parent < 0 ? window.services->screen_box()
+                   : window.services->window_box(window.asset->windows[static_cast<std::size_t>(parent)].name);
+    if (!around) return 0;
+    const PixelBox box = box_of(window);
+    constexpr float kHalf = 0.5F;
+    put_pair(window, "AbsolutePosition", (around->x + around->x + around->w) * kHalf - box.w * kHalf,
+        (around->y + around->y + around->h) * kHalf - box.h * kHalf);
+    return 0;
+}
+
+// SetXAttachPos(điểm neo, khoảng cách, cờ) (0x18003bfc0): đặt cửa sổ cạnh một điểm neo theo chiều ngang. Cờ 0 hay
+// cửa sổ tràn màn hình nếu đặt bên phải thì nằm bên trái điểm neo (neo - rộng), không thì neo + khoảng cách. Trả vị trí x.
+int window_set_x_attach(lua_State* state) {
+    const WindowRef& window = self(state);
+    if (!is_text(state, 2) || !is_text(state, 3) || !is_number(state, 4)) return 0;
+    const float anchor = to_float(lua_tonumber(state, 2));
+    const float gap = to_float(lua_tonumber(state, 3));
+    const float width = box_of(window).w;
+    const std::optional<PixelBox> screen = screen_of(window);
+    float across = anchor - width;
+    if (int_at(state, 4) != 0) {
+        const float beside = gap + anchor;
+        const bool is_overflow = screen && beside + width > screen->w;
+        if (!is_overflow) across = beside;
+    }
+    window.store->set({.window = window.name, .name = "UnifiedXPosition", .value = std::format("{{0,{}}}", across)});
+    push_float(state, across);
+    return 1;
+}
+
+// AutoMousePosition(x, y) (0x180022c40): đặt cửa sổ ở điểm (x, y), kéo vào trong khi tràn mép phải hay mép dưới màn hình.
+int window_auto_mouse_position(lua_State* state) {
+    const WindowRef& window = self(state);
+    if (!is_text(state, 2) || !is_text(state, 3)) return 0;
+    float across = to_float(lua_tonumber(state, 2));
+    float down = to_float(lua_tonumber(state, 3));
+    const PixelBox box = box_of(window);
+    if (const std::optional<PixelBox> screen = screen_of(window)) {
+        if (screen->w <= across) across = screen->w - box.w;
+        if (screen->h <= down) down = screen->h - box.h;
+    }
+    put_pair(window, "AbsolutePosition", across, down);
+    return 0;
+}
+
+// PositionSelf(x, y, dời x, dời y) (0x180029580): đặt cửa sổ cạnh điểm (x, y), mỗi chiều: nếu còn chỗ (cỡ + dời + 5 không quá
+// màn hình) thì nằm ở dời + 0,5, không thì lùi về phía trước điểm (điểm - cỡ); không âm. Trả hai vị trí. Khác gốc: bản gốc gọi một
+// hàm ảo của đối tượng con của cửa sổ (trước phép đo) mà chưa biết là gì; không biết cỡ màn hình thì coi là còn chỗ.
+int window_position_self(lua_State* state) {
+    const WindowRef& window = self(state);
+    if (!is_text(state, 2) || !is_text(state, 3)) return 0;
+    constexpr float kMargin = 5.0F;
+    constexpr float kHalfPixel = 0.5F;
+    const float point_x = to_float(lua_tonumber(state, 2));
+    const float point_y = to_float(lua_tonumber(state, 3));
+    const float shift_x = to_float(lua_tonumber(state, 4));
+    const float shift_y = to_float(lua_tonumber(state, 5));
+    const PixelBox box = box_of(window);
+    const std::optional<PixelBox> screen = screen_of(window);
+    float across = point_x - box.w;
+    if (!screen || box.w + shift_x + kMargin <= screen->w) across = shift_x + kHalfPixel;
+    float down = point_y - box.h;
+    if (!screen || box.h + shift_y + kMargin <= screen->h) down = shift_y + kHalfPixel;
+    if (across < 0.0F) across = 0.0F;
+    if (down < 0.0F) down = 0.0F;
+    window.store->set({.window = window.name, .name = "UnifiedXPosition", .value = std::format("{{0,{}}}", across)});
+    window.store->set({.window = window.name, .name = "UnifiedYPosition", .value = std::format("{{0,{}}}", down)});
+    push_float(state, across);
+    push_float(state, down);
+    return 2;
+}
+
+// SetPopMenuPos(x, y) (0x18003a190): đặt menu bật lên ở (x, y), lùi về phía trước điểm khi tràn mép phải hay mép dưới; vị trí
+// đặt theo tỉ lệ của màn hình. Không làm gì khi không biết cỡ màn hình.
+int menu_set_position(lua_State* state) {
+    const WindowRef& window = self(state);
+    if (!is_text(state, 2) || !is_text(state, 3)) return 0;
+    const std::optional<PixelBox> screen = screen_of(window);
+    if (!screen) return 0;
+    float across = to_float(lua_tonumber(state, 2));
+    float down = to_float(lua_tonumber(state, 3));
+    const PixelBox box = box_of(window);
+    if (screen->w < box.w + across) across -= box.w;
+    if (screen->h < box.h + down) down -= box.h;
+    window.store->set({.window = window.name, .name = "UnifiedXPosition", .value = std::format("{{{},0}}", across / screen->w)});
+    window.store->set({.window = window.name, .name = "UnifiedYPosition", .value = std::format("{{{},0}}", down / screen->h)});
+    return 0;
+}
+
+// OpenPopMenu và ClosePopMenu (0x1800294e0, 0x1800236e0): PopupMenu::openPopupMenu / closePopupMenu là hiện và giấu menu.
+int menu_open(lua_State* state) {
+    const WindowRef& window = self(state);
+    window.store->show(window.name);
+    return 0;
+}
+
+int menu_close(lua_State* state) {
+    const WindowRef& window = self(state);
+    window.store->hide(window.name);
+    return 0;
+}
+
+// SetClippedByParent(số) (0x180037a40): 0 thì không cắt theo cha và luôn nằm trên cùng, số khác thì cắt theo cha.
+int window_set_clipped(lua_State* state) {
+    const WindowRef& window = self(state);
+    if (!is_number(state, 2)) return 0;
+    const bool is_clipped = int_at(state, 2) != 0;
+    window.store->set({.window = window.name, .name = "ClippedByParent", .value = truth(is_clipped)});
+    if (!is_clipped) window.store->set({.window = window.name, .name = "AlwaysOnTop", .value = "True"});
+    return 0;
+}
+
+// ---- Nháy, thanh cuộn dọc ----
+
+// FlashMe(số) (0x180025470): thuộc tính Flash là "1" khi số là 1, không thì "0".
+int window_flash_me(lua_State* state) {
+    const WindowRef& window = self(state);
+    if (!is_number(state, 2)) return 0;
+    window.store->set({.window = window.name, .name = "Flash", .value = int_at(state, 2) == 1 ? "1" : "0"});
+    return 0;
+}
+
+// SetFlash(số) (0x180029190): thuộc tính Flash là "1" khi số dương, không thì "0". Hai số (mục, cờ) là nháy một mục của danh sách
+// (0x180038860): chỉ thấy được ở hình vẽ nên bỏ qua.
+int window_set_flash(lua_State* state) {
+    const WindowRef& window = self(state);
+    if (!is_number(state, 2) || is_number(state, 3)) return 0;
+    window.store->set({.window = window.name, .name = "Flash", .value = int_at(state, 2) > 0 ? "1" : "0"});
+    return 0;
+}
+
+// SetVertScrollbarPosition(số) (0x18003bdb0) và GetVertScrollbarPosition() (0x1800278a0): vị trí thanh cuộn dọc của vùng chứa.
+// Khác gốc: giữ nguyên số script đưa, chưa kẹp theo cỡ tài liệu của vùng chứa.
+int container_set_scroll(lua_State* state) {
+    const WindowRef& window = self(state);
+    if (!is_number(state, 2)) return 0;
+    window.store->set({.window = window.name, .name = "VertScrollbarPosition", .value = std::format("{}", to_float(lua_tonumber(state, 2)))});
+    return 0;
+}
+
+int container_get_scroll(lua_State* state) {
+    const WindowRef& window = self(state);
+    lua_pushnumber(state, number_property(state, window, "VertScrollbarPosition", 0.0));
+    return 1;
+}
+
+// GetListItemCount() (0x180026780, 0x1800267d0): số mục của danh sách; cửa sổ không phải danh sách trả số cửa sổ con khai trong
+// layout (Window::getChildCount).
+int container_item_count(lua_State* state) {
+    const WindowRef& window = self(state);
+    switch (window.kind) {
+    case Kind::kListBox:
+    case Kind::kComboBox:
+    case Kind::kInfoList:
+    case Kind::kCtrlList: lua_pushnumber(state, static_cast<double>(window.store->item_count(window.name))); return 1;
+    default: break;
+    }
+    const std::int32_t index = window_index(window);
+    lua_pushnumber(state, static_cast<double>(index < 0 ? 0 : std::ranges::count(window.asset->windows, index, &gui::GuiWindow::parent)));
+    return 1;
+}
+
+// ---- Sự kiện nối lúc chạy ----
+
+// SetEvent(sự kiện, hàm[, số]) (0x180038240): nối hàm Lua tên `hàm` vào sự kiện CEGUI của cửa sổ (Window::setdEvent). Cần hai
+// chuỗi; số thứ ba không phải số tính là 0. Host đọc danh sách nối bằng Widgets::event_bindings.
+int window_set_event(lua_State* state) {
+    const WindowRef& window = self(state);
+    if (!is_text(state, 2) || !is_text(state, 3)) return 0;
+    window.store->bind_event(window.name,
+        panel::EventBinding{.event = std::string{text_at(state, 2)},
+            .handler = std::string{text_at(state, 3)},
+            .flag = is_number(state, 4) ? int_at(state, 4) : 0});
+    return 0;
+}
+
+// RemoveEvent(sự kiện) (0x180032ce0): EventSet::removeEvent bỏ sự kiện cùng mọi hàm nối vào nó. Hàm gốc trả 1 mà không đẩy gì
+// nên script nhận giá trị trên cùng của ngăn xếp (chính chuỗi tên sự kiện); thiếu chuỗi thì không trả gì.
+int window_remove_event(lua_State* state) {
+    const WindowRef& window = self(state);
+    if (!is_text(state, 2)) return 0;
+    window.store->unbind_event(Key{.window = window.name, .name = text_at(state, 2)});
+    return 1;
+}
+
+// ---- Cửa sổ mô hình (UI model manager của Game.exe: DAT_1800b6250 cho FakeObject, DAT_1800b6258 cho cửa sổ) ----
+
+// Việc nhờ game: tên cửa sổ rồi các đối số, cách nhau tab.
+void ask_mesh(const WindowRef& window, Ask what, const std::string& arguments) {
+    if (window.calls != nullptr) window.calls->push_back(Call{.ask = what, .text = arguments});
+}
+
+// RotateBegin(tốc độ) (0x180033090): quay FakeObject của cửa sổ (thuộc tính FakeObject) với tốc độ bằng nửa số đưa vào.
+int mesh_rotate_begin(lua_State* state) {
+    const WindowRef& window = self(state);
+    if (!is_number(state, 2)) return 0;
+    ask_mesh(window, Ask::kMeshRotateBegin, std::format("{}\t{}", property_of(window, "FakeObject"), to_float(lua_tonumber(state, 2)) * 0.5F));
+    return 0;
+}
+
+// RotateEnd() (0x180033250): thôi quay FakeObject của cửa sổ.
+int mesh_rotate_end(lua_State* state) {
+    const WindowRef& window = self(state);
+    ask_mesh(window, Ask::kMeshRotateEnd, property_of(window, "FakeObject"));
+    return 0;
+}
+
+// RotateBeginEx(tên, tốc độ) (0x1800331c0): quay mô hình `tên` của hệ cửa sổ với tốc độ bằng nửa số đưa vào.
+int mesh_rotate_begin_ex(lua_State* state) {
+    const WindowRef& window = self(state);
+    if (!is_text(state, 2) || !is_number(state, 3)) return 0;
+    ask_mesh(window, Ask::kMeshRotateBeginEx, std::format("{}\t{}", text_at(state, 2), to_float(lua_tonumber(state, 3)) * 0.5F));
+    return 0;
+}
+
+// RotateEndEx() (0x180033330): thôi quay mô hình của cửa sổ.
+int mesh_rotate_end_ex(lua_State* state) {
+    const WindowRef& window = self(state);
+    ask_mesh(window, Ask::kMeshRotateEndEx, std::string{window.name});
+    return 0;
+}
+
+// AttachWindowEx(tên) (0x180022ac0): gắn mô hình `tên` vào cửa sổ, kèm cỡ điểm ảnh của cửa sổ (rộng, cao).
+int mesh_attach(lua_State* state) {
+    const WindowRef& window = self(state);
+    if (!is_text(state, 2)) return 0;
+    const PixelBox box = box_of(window);
+    ask_mesh(window, Ask::kMeshAttach,
+        std::format("{}\t{}\t{}\t{}", window.name, text_at(state, 2), luanum_to_int32(static_cast<double>(box.w)),
+            luanum_to_int32(static_cast<double>(box.h))));
+    return 0;
+}
+
+// DetachWindowEx() (0x180024e60) và RestPositonEx() (0x180033060): gỡ mô hình khỏi cửa sổ; đưa mô hình về chỗ cũ.
+int mesh_detach(lua_State* state) {
+    const WindowRef& window = self(state);
+    ask_mesh(window, Ask::kMeshDetach, std::string{window.name});
+    return 0;
+}
+
+int mesh_rest_position(lua_State* state) {
+    const WindowRef& window = self(state);
+    ask_mesh(window, Ask::kMeshRestPosition, std::string{window.name});
+    return 0;
+}
+
+// SetCameraEx(x, y, z[, w]) (0x180036d70): đặt camera của mô hình trong cửa sổ; w mặc định 0. Số cuối giữ lại để GetCameraEx đọc.
+int mesh_set_camera(lua_State* state) {
+    const WindowRef& window = self(state);
+    if (!is_number(state, 2) || !is_number(state, 3) || !is_number(state, 4)) return 0;
+    const float eye_x = to_float(lua_tonumber(state, 2));
+    const float eye_y = to_float(lua_tonumber(state, 3));
+    const float eye_z = to_float(lua_tonumber(state, 4));
+    const float extra = is_number(state, 5) ? to_float(lua_tonumber(state, 5)) : 0.0F;
+    window.store->set({.window = window.name, .name = "CameraExX", .value = std::format("{}", eye_x)});
+    window.store->set({.window = window.name, .name = "CameraExY", .value = std::format("{}", eye_y)});
+    window.store->set({.window = window.name, .name = "CameraExZ", .value = std::format("{}", eye_z)});
+    ask_mesh(window, Ask::kMeshSetCamera, std::format("{}\t{}\t{}\t{}\t{}", window.name, eye_x, eye_y, eye_z, extra));
+    return 0;
+}
+
+// GetCameraEx() (0x180025770): camera hiện tại của mô hình, ba số. Khác gốc: hỏi hệ cửa sổ của game; bản này trả số script đã đặt
+// bằng SetCameraEx (ba thuộc tính CameraExX, CameraExY, CameraExZ), chưa đặt thì 0 0 0.
+int mesh_get_camera(lua_State* state) {
+    const WindowRef& window = self(state);
+    for (const char* axis : {"CameraExX", "CameraExY", "CameraExZ"}) lua_pushnumber(state, number_property(state, window, axis, 0.0));
+    return 3;
+}
+
+// ChangeCameraDistanceEx(tên, hướng, mức) (0x1800230d0): nhờ hệ cửa sổ của game dời camera của mô hình `tên` lại gần hay ra xa.
+int mesh_change_camera_distance(lua_State* state) {
+    const WindowRef& window = self(state);
+    if (!is_text(state, 2) || !is_number(state, 3) || !is_number(state, 4)) return 0;
+    ask_mesh(window, Ask::kMeshZoom,
+        std::format("{}\t{}\t{}\t{}", window.name, text_at(state, 2), int_at(state, 3), to_float(lua_tonumber(state, 4))));
+    return 0;
+}
+
 struct Method {
     const char* name;
     lua_CFunction function;
@@ -1148,6 +1534,55 @@ constexpr std::array kMethods = {
     Method{.name = "SetSelectItem", .function = &grid_select},
     Method{.name = "SetVertScollPosition", .function = &grid_scroll},
     Method{.name = "RemoveColumnByPos", .function = &grid_remove_column},
+    Method{.name = "Tween_AddCurveVec3", .function = &visual_only},
+    Method{.name = "Tween_SetInfo", .function = &visual_only},
+    Method{.name = "Tween_Play", .function = &visual_only},
+    Method{.name = "Tween_Stop", .function = &visual_only},
+    Method{.name = "Tween_Reset", .function = &visual_only},
+    Method{.name = "RefreshLayout", .function = &visual_only},
+    Method{.name = "SetElementsInView", .function = &visual_only},
+    Method{.name = "SetVertScrollbarHide", .function = &visual_only},
+    Method{.name = "SetVertScrollbarShow", .function = &visual_only},
+    Method{.name = "PageEnd", .function = &visual_only},
+    Method{.name = "ScrollToEnd", .function = &visual_only},
+    Method{.name = "SetScrollPosition4Index", .function = &visual_only},
+    Method{.name = "Flash", .function = &visual_only},
+    Method{.name = "SetVScrollbarAlpha", .function = &visual_only},
+    Method{.name = "Clear", .function = &visual_only},
+    Method{.name = "CleanAllElement", .function = &visual_only},
+    Method{.name = "SetSelected", .function = &visual_only},
+    Method{.name = "SetSelect", .function = &visual_only},
+    Method{.name = "IsActive", .function = &window_is_active},
+    Method{.name = "GetWindowSize", .function = &window_get_size},
+    Method{.name = "GetPixelRect", .function = &window_get_pixel_rect},
+    Method{.name = "GetAbsolutePositionToScreen", .function = &window_get_screen_position},
+    Method{.name = "SetWindowSize", .function = &window_set_size},
+    Method{.name = "SetWindowCenter", .function = &window_set_center},
+    Method{.name = "CenterWindow", .function = &window_center},
+    Method{.name = "SetXAttachPos", .function = &window_set_x_attach},
+    Method{.name = "AutoMousePosition", .function = &window_auto_mouse_position},
+    Method{.name = "PositionSelf", .function = &window_position_self},
+    Method{.name = "SetPopMenuPos", .function = &menu_set_position},
+    Method{.name = "OpenPopMenu", .function = &menu_open},
+    Method{.name = "ClosePopMenu", .function = &menu_close},
+    Method{.name = "SetClippedByParent", .function = &window_set_clipped},
+    Method{.name = "FlashMe", .function = &window_flash_me},
+    Method{.name = "SetFlash", .function = &window_set_flash},
+    Method{.name = "SetVertScrollbarPosition", .function = &container_set_scroll},
+    Method{.name = "GetVertScrollbarPosition", .function = &container_get_scroll},
+    Method{.name = "GetListItemCount", .function = &container_item_count},
+    Method{.name = "SetEvent", .function = &window_set_event},
+    Method{.name = "RemoveEvent", .function = &window_remove_event},
+    Method{.name = "RotateBegin", .function = &mesh_rotate_begin},
+    Method{.name = "RotateEnd", .function = &mesh_rotate_end},
+    Method{.name = "RotateBeginEx", .function = &mesh_rotate_begin_ex},
+    Method{.name = "RotateEndEx", .function = &mesh_rotate_end_ex},
+    Method{.name = "AttachWindowEx", .function = &mesh_attach},
+    Method{.name = "DetachWindowEx", .function = &mesh_detach},
+    Method{.name = "RestPositonEx", .function = &mesh_rest_position},
+    Method{.name = "SetCameraEx", .function = &mesh_set_camera},
+    Method{.name = "GetCameraEx", .function = &mesh_get_camera},
+    Method{.name = "ChangeCameraDistanceEx", .function = &mesh_change_camera_distance},
     Method{.name = "SetImage", .function = &image_set},
     Method{.name = "SetImageColor", .function = &image_set_colour},
     Method{.name = "SetPosition", .function = &scrollbar_set_position},

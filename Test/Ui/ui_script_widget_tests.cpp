@@ -19,9 +19,13 @@
 #include <cstdint>
 #include <filesystem>
 #include <format>
+#include <functional>
 #include <initializer_list>
 #include <limits>
+#include <map>
 #include <memory>
+#include <optional>
+#include <span>
 #include <string>
 #include <string_view>
 #include <utility>
@@ -68,8 +72,17 @@ public:
     [[nodiscard]] std::string action_icon(std::int32_t action) const override { return std::format("action{}", action); }
     [[nodiscard]] bool root_shown() const override { return root; }
     void set_root_shown(bool is_shown) override { root = is_shown; }
+    [[nodiscard]] std::optional<ui::script::PixelBox> window_box(std::string_view window) const override {
+        const auto found = boxes.find(window);
+        if (found == boxes.end()) return std::nullopt;
+        return found->second;
+    }
+    [[nodiscard]] std::optional<ui::script::PixelBox> screen_box() const override { return screen; }
 
     bool root = false;
+    // Ô trên màn hình của từng cửa sổ và cỡ màn hình; trống thì host "chưa dàn trang".
+    std::map<std::string, ui::script::PixelBox, std::less<>> boxes{};
+    std::optional<ui::script::PixelBox> screen{};
 };
 
 using PropertyList = std::initializer_list<std::pair<std::string_view, std::string_view>>;
@@ -569,6 +582,124 @@ void info_list_edge_cases(Context& context) {
     context.expect(lab.run("Child:AddInfo('không phải danh sách') Child:AddInfo(5)").empty(), "cửa sổ khác cũng nhận AddInfo (flat)");
 }
 
+// Hình học qua Services: cỡ và vị trí đọc từ ô host đưa; chỗ đặt là Override của thuộc tính hình học mà gui::layout đọc. Không có ô
+// của host thì mọi số đo là 0 và phép kẹp theo màn hình bị bỏ.
+void geometry_follows_the_original(Context& context) {
+    Lab lab;
+    context.expect(lab.run("a, b = Child:GetWindowSize() l, r, t, d = Child:GetPixelRect() x, y = Child:GetAbsolutePositionToScreen()").empty()
+            && lab.global("a") == "0" && lab.global("b") == "0" && lab.global("l") == "0" && lab.global("x") == "0",
+        "host chưa dàn trang thì mọi số đo là 0");
+    context.expect(lab.run("Child:SetWindowCenter(10, 20) Child:AutoMousePosition(2000, 3000)").empty()
+            && lab.text_of("Child", "AbsolutePosition") == "{2000,3000}",
+        "không biết cỡ màn hình thì không kẹp");
+    lab.services.boxes["Child"] = ui::script::PixelBox{.x = 10.0F, .y = 20.0F, .w = 100.0F, .h = 50.0F};
+    lab.services.boxes["Root"] = ui::script::PixelBox{.x = 0.0F, .y = 0.0F, .w = 1024.0F, .h = 768.0F};
+    lab.services.screen = ui::script::PixelBox{.x = 0.0F, .y = 0.0F, .w = 1024.0F, .h = 768.0F};
+    context.expect(lab.run("a, b = Child:GetWindowSize() l, r, t, d = Child:GetPixelRect() x, y = Child:GetAbsolutePositionToScreen()").empty()
+            && lab.global("a") == "100" && lab.global("b") == "50" && lab.global("l") == "10" && lab.global("r") == "110"
+            && lab.global("t") == "20" && lab.global("d") == "70" && lab.global("x") == "10" && lab.global("y") == "20",
+        "cỡ, ô (trái, phải, trên, dưới) và vị trí trên màn hình");
+    context.expect(lab.run("Child:SetWindowSize(300.9, 40)").empty() && lab.text_of("Child", "AbsoluteSize") == "{300,40}", "SetWindowSize lấy phần nguyên");
+    context.expect(lab.run("Child:SetWindowCenter(500, 400)").empty() && lab.text_of("Child", "AbsolutePosition") == "{450,375}",
+        "SetWindowCenter đặt tâm");
+    context.expect(lab.run("Child:SetWindowCenter(500, 'x')").empty() && lab.text_of("Child", "AbsolutePosition") == "{450,375}", "thiếu số thì bỏ qua");
+    context.expect(lab.run("Child:CenterWindow()").empty() && lab.text_of("Child", "AbsolutePosition") == "{462,359}", "CenterWindow giữa cửa sổ cha");
+    context.expect(lab.run("Root:CenterWindow()").empty() && lab.text_of("Root", "AbsolutePosition") == "{0,0}", "cửa sổ gốc giữa màn hình");
+    context.expect(lab.run("r1 = Child:SetXAttachPos(500, 20, 1) r2 = Child:SetXAttachPos(500, 20, 0) r3 = Child:SetXAttachPos(1000, 20, 1)").empty()
+            && lab.global("r1") == "520" && lab.global("r2") == "400" && lab.global("r3") == "900"
+            && lab.text_of("Child", "UnifiedXPosition") == "{0,900}",
+        "SetXAttachPos: bên phải điểm neo khi còn chỗ, không thì bên trái");
+    context.expect(lab.run("r = Child:SetXAttachPos(1, 2)").empty() && lab.global("r").empty(), "thiếu cờ thì không trả gì");
+    context.expect(lab.run("Child:AutoMousePosition(1000, 760)").empty() && lab.text_of("Child", "AbsolutePosition") == "{1000,760}", "còn chỗ thì giữ nguyên");
+    context.expect(lab.run("Child:AutoMousePosition(1024, 768)").empty() && lab.text_of("Child", "AbsolutePosition") == "{924,718}", "tràn thì kéo vào");
+    context.expect(lab.run("x, y = Child:PositionSelf(100, 100, 10, 10)").empty() && lab.global("x") == "10.5" && lab.global("y") == "10.5"
+            && lab.text_of("Child", "UnifiedXPosition") == "{0,10.5}" && lab.text_of("Child", "UnifiedYPosition") == "{0,10.5}",
+        "PositionSelf còn chỗ: dời cộng nửa điểm ảnh");
+    context.expect(lab.run("x, y = Child:PositionSelf(1000, 740, 950, 740)").empty() && lab.global("x") == "900" && lab.global("y") == "690",
+        "PositionSelf tràn: lùi về phía trước điểm");
+    context.expect(lab.run("x, y = Child:PositionSelf(5, 5, -100, -100)").empty() && lab.global("x") == "0" && lab.global("y") == "0", "không âm");
+    context.expect(lab.run("Child:SetPopMenuPos(900, 384)").empty() && lab.text_of("Child", "UnifiedXPosition") == "{0.87890625,0}"
+            && lab.text_of("Child", "UnifiedYPosition") == "{0.5,0}",
+        "SetPopMenuPos đặt theo tỉ lệ màn hình");
+    context.expect(lab.run("Child:SetPopMenuPos(1000, 384)").empty() && lab.text_of("Child", "UnifiedXPosition") == "{0.87890625,0}", "tràn thì lùi một cỡ");
+    lab.services.screen.reset();
+    context.expect(lab.run("Child:SetPopMenuPos(10, 10)").empty() && lab.text_of("Child", "UnifiedXPosition") == "{0.87890625,0}",
+        "không biết cỡ màn hình thì không làm gì");
+
+    context.expect(lab.run("Child:SetClippedByParent(0)").empty() && lab.text_of("Child", "ClippedByParent") == "False"
+            && lab.text_of("Child", "AlwaysOnTop") == "True",
+        "không cắt theo cha thì luôn nằm trên");
+    context.expect(lab.run("Child:SetClippedByParent(1)").empty() && lab.text_of("Child", "ClippedByParent") == "True", "cắt theo cha");
+    context.expect(lab.run("Child:OpenPopMenu()").empty() && lab.widgets.is_shown("Child") && lab.run("Child:ClosePopMenu()").empty()
+            && lab.widgets.is_hidden("Child"),
+        "OpenPopMenu hiện, ClosePopMenu giấu");
+}
+
+// SetEvent, nháy, thanh cuộn dọc, đếm mục và nhóm nhận-rồi-bỏ-qua.
+void events_flash_and_scroll(Context& context) {
+    const Lab lab;
+    context.expect(lab.run("Child:SetEvent('Clicked', 'OnClick', 3) Child:SetEvent('Clicked', 'Other') Child:SetEvent('Hidden') Child:SetEvent({}, 'x')")
+                .empty(),
+        "SetEvent");
+    const std::span<const ui::panel::EventBinding> bound = lab.widgets.event_bindings("Child");
+    context.expect(bound.size() == 2 && bound[0].event == "Clicked" && bound[0].handler == "OnClick" && bound[0].flag == 3
+            && bound[1].handler == "Other" && bound[1].flag == 0,
+        "hai hàm nối vào cùng sự kiện, theo thứ tự nối; thiếu hàm thì bỏ qua");
+    context.expect(lab.run("r = Child:RemoveEvent('Clicked')").empty() && lab.global("r") == "Clicked" && lab.widgets.event_bindings("Child").empty(),
+        "RemoveEvent bỏ cả hai, trả chuỗi trên cùng của ngăn xếp như hàm gốc");
+    context.expect(lab.run("r = Child:RemoveEvent()").empty() && lab.global("r").empty(), "thiếu chuỗi thì không trả gì");
+
+    context.expect(lab.run("Child:FlashMe(1)").empty() && lab.text_of("Child", "Flash") == "1", "FlashMe(1)");
+    context.expect(lab.run("Child:FlashMe(2)").empty() && lab.text_of("Child", "Flash") == "0", "FlashMe(khác 1)");
+    context.expect(lab.run("Child:SetFlash(5)").empty() && lab.text_of("Child", "Flash") == "1", "SetFlash(dương)");
+    context.expect(lab.run("Child:SetFlash(0)").empty() && lab.text_of("Child", "Flash") == "0", "SetFlash(0)");
+    context.expect(lab.run("Child:SetFlash(1, 1) Child:SetFlash('x')").empty() && lab.text_of("Child", "Flash") == "0", "nháy một mục hay sai kiểu: bỏ qua");
+
+    context.expect(lab.run("a = List:GetVertScrollbarPosition() List:SetVertScrollbarPosition(3.5) b = List:GetVertScrollbarPosition()").empty()
+            && lab.global("a") == "0" && lab.global("b") == "3.5",
+        "thanh cuộn dọc giữ vị trí");
+    context.expect(lab.run("n = Root:GetListItemCount() Combo:AddTextItem('một', 1) Combo:AddTextItem('hai', 2) m = Combo:GetListItemCount()").empty()
+            && lab.global("n") == "11" && lab.global("m") == "2",
+        "danh sách đếm mục, cửa sổ thường đếm cửa sổ con của layout");
+
+    context.expect(lab.run("Child:Tween_Reset(1, 2, 3) Child:Tween_SetInfo() Child:Tween_Play('x') Child:Tween_Stop() Child:Tween_AddCurveVec3(1)"
+                           " Child:Clear() Child:CleanAllElement('x') Child:RefreshLayout() Child:SetElementsInView(3) Child:SetVertScrollbarHide()"
+                           " Child:SetVertScrollbarShow() Child:PageEnd() Child:ScrollToEnd() Child:SetScrollPosition4Index(2) Child:Flash()"
+                           " Child:SetSelected({1, 2}) Child:SetSelect(1) Child:SetVScrollbarAlpha('0.5') r = Child:IsActive()")
+                .empty()
+            && lab.global("r") == "false",
+        "nhóm nhận-rồi-bỏ-qua chạy không lỗi; IsActive luôn false");
+}
+
+// Cửa sổ mô hình nhờ game qua Call; camera đặt bằng SetCameraEx đọc lại được.
+void mesh_asks_the_game(Context& context) {
+    Lab lab;
+    lab.services.boxes["Child"] = ui::script::PixelBox{.x = 10.0F, .y = 20.0F, .w = 100.0F, .h = 50.0F};
+    const auto last = [&lab](Ask ask, std::string_view text) {
+        return !lab.calls.empty() && lab.calls.back().ask == ask && lab.calls.back().text == text;
+    };
+    context.expect(lab.run("Child:SetFakeObject('npc') Child:RotateBegin(3)").empty() && last(Ask::kMeshRotateBegin, "npc\t1.5"), "RotateBegin: nửa tốc độ");
+    context.expect(lab.run("Child:RotateEnd()").empty() && last(Ask::kMeshRotateEnd, "npc"), "RotateEnd");
+    context.expect(lab.run("Child:RotateBeginEx('mô hình', 4)").empty() && last(Ask::kMeshRotateBeginEx, "mô hình\t2"), "RotateBeginEx");
+    context.expect(lab.run("Child:RotateEndEx()").empty() && last(Ask::kMeshRotateEndEx, "Child"), "RotateEndEx");
+    context.expect(lab.run("Child:AttachWindowEx('model')").empty() && last(Ask::kMeshAttach, "Child\tmodel\t100\t50"), "AttachWindowEx kèm cỡ cửa sổ");
+    context.expect(lab.run("Child:DetachWindowEx()").empty() && last(Ask::kMeshDetach, "Child"), "DetachWindowEx");
+    context.expect(lab.run("Child:RestPositonEx()").empty() && last(Ask::kMeshRestPosition, "Child"), "RestPositonEx");
+    context.expect(lab.run("Child:ChangeCameraDistanceEx('Tujian', 1, 2.5)").empty() && last(Ask::kMeshZoom, "Child\tTujian\t1\t2.5"),
+        "ChangeCameraDistanceEx");
+    context.expect(lab.run("a, b, c = Child:GetCameraEx()").empty() && lab.global("a") == "0" && lab.global("b") == "0" && lab.global("c") == "0",
+        "chưa đặt camera thì 0 0 0");
+    context.expect(lab.run("Child:SetCameraEx(1, 2.5, -3)").empty() && last(Ask::kMeshSetCamera, "Child\t1\t2.5\t-3\t0"), "SetCameraEx, w mặc định 0");
+    context.expect(lab.run("a, b, c = Child:GetCameraEx()").empty() && lab.global("a") == "1" && lab.global("b") == "2.5" && lab.global("c") == "-3",
+        "GetCameraEx đọc lại camera đã đặt");
+    context.expect(lab.run("Child:SetCameraEx(1, 2, 3, 4.5)").empty() && last(Ask::kMeshSetCamera, "Child\t1\t2\t3\t4.5"), "SetCameraEx có w");
+    const std::size_t before = lab.calls.size();
+    context.expect(lab.run("Child:SetCameraEx(1, 2) Child:RotateBegin('x') Child:RotateBeginEx(1, 'x') Child:AttachWindowEx() Child:ChangeCameraDistanceEx('a', 1)")
+                .empty()
+            && lab.calls.size() == before,
+        "thiếu hay sai đối số thì bỏ qua");
+}
+
 // ---- ProgressBar.lua gốc qua host tối thiểu ----
 
 // Phần của host mà ProgressBar.lua dùng: `this` có Show, Hide, IsVisible, RegisterEvent; sự kiện chỉ tới hàm
@@ -754,7 +885,7 @@ void debug_list_box_matches_the_golden(Context& context) {
     context.expect(host.lab.widgets.item_count("DebugListBox_ListBox") == 0, "nhịp sau bỏ nốt");
 }
 
-constexpr std::array<Case, 19> kCases = {{
+constexpr std::array<Case, 22> kCases = {{
     {.name = "kind_follows_the_falagard_type", .body = kind_follows_the_falagard_type},
     {.name = "text_follows_the_original_rules", .body = text_follows_the_original_rules},
     {.name = "set_property_special_cases", .body = set_property_special_cases},
@@ -773,6 +904,9 @@ constexpr std::array<Case, 19> kCases = {{
     {.name = "progress_bar_matches_the_golden", .body = progress_bar_matches_the_golden},
     {.name = "info_list_ages_and_fades", .body = info_list_ages_and_fades},
     {.name = "info_list_edge_cases", .body = info_list_edge_cases},
+    {.name = "geometry_follows_the_original", .body = geometry_follows_the_original},
+    {.name = "events_flash_and_scroll", .body = events_flash_and_scroll},
+    {.name = "mesh_asks_the_game", .body = mesh_asks_the_game},
     {.name = "debug_list_box_matches_the_golden", .body = debug_list_box_matches_the_golden},
 }};
 

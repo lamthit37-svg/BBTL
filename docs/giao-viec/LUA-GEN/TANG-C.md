@@ -25,6 +25,8 @@ class Services {                    // phía host/game mà widget hỏi; mọi h
     virtual std::string action_icon(std::int32_t action) const;           // SetActionItem
     virtual bool root_shown() const;                                       // cờ hiện của `this`: gốc layout = this
     virtual void set_root_shown(bool);                                     // SetFadeState <= 0 trên cửa sổ gốc
+    virtual std::optional<PixelBox> window_box(std::string_view) const;    // ô trên màn hình theo lần dàn trang gần nhất (GetWindowSize, CenterWindow...); mặc định nullopt = 0
+    virtual std::optional<PixelBox> screen_box() const;                    // cỡ màn hình để kẹp (AutoMousePosition, PositionSelf...); mặc định nullopt = không kẹp
 };
 struct WindowRef {                  // trivially copyable; sao vào userdata Lua
     panel::Widgets* store;          // Widgets của cửa sổ chủ (CUIWindowItem)
@@ -43,8 +45,8 @@ void advance_widgets(Widgets&, const gui::GuiAsset&, Services&, float seconds); 
 ```
 
 Điều kiện sống: `store`, `calls`, `asset`, `name`, `services` sống lâu hơn `lua_State`. Chỉ dùng C API thô (`lua.h` của LuaPlus), không phụ thuộc vỏ `lua::State` của e2.
-Bảng phương thức đã viết và hàng đợi còn lại: `WIDGET-PHUONG-THUC.tsv` (76 xong, 6 của `this` thuộc host, còn lại chưa). Kiểm: `Test/Ui/ui_script_widget_tests.cpp`
-(16 ca; ca cuối chạy `ProgressBar.lua` gốc qua một host tối thiểu của test và khớp 12/12 khối `progress_bar_flow.tsv`). Lưu ý LuaPlus 5.0.1: `luaL_checkudata` trả NULL
+Bảng phương thức đã viết và hàng đợi còn lại: `WIDGET-PHUONG-THUC.tsv` (125 xong, 6 của `this` thuộc host, còn lại chưa). Kiểm: `Test/Ui/ui_script_widget_tests.cpp`
+(22 ca; chạy `ProgressBar.lua` và `DebugListBox.lua` gốc qua một host tối thiểu của test, khớp 12/12 khối `progress_bar_flow.tsv` và 11/11 khối `debug_list_box_flow.tsv`). Lưu ý LuaPlus 5.0.1: `luaL_checkudata` trả NULL
 chứ không báo lỗi; `lua_getmetatable` chết khi ngăn xếp không có chỉ số; `lua_dobuffer` in lỗi ra stderr qua `_ALERT` (dùng `luaL_loadbuffer` + `lua_pcall`).
 
 ## 1. Client gốc nạp một cửa sổ thế nào
