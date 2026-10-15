@@ -243,10 +243,12 @@
     nhưng client chưa dùng lần nào và chưa đo trên backend nào; "Xin ảnh" cao là dấu hiệu GPU chưa kịp.
   - Trần khung trên cửa sổ thật là nhịp quét của màn, giữ Fifo: mailbox đo 2026-10-13 làm nhân vật
     chạy giật vì khung lệch pha nhịp quét. Lúc mở cửa sổ, `window::raise_refresh` nâng Hz của đúng màn
-    đó lên mức cao nhất cùng độ phân giải (CDS_TEST rồi CDS_FULLSCREEN, không ghi registry, trả lại khi
-    thoát). Dirty rect, cache ảnh tĩnh và GPU-driven indirect không làm: đo 2026-10-14 CPU một khung
-    khoảng 0,4 ms, "Xin ảnh" 15–16 ms là chờ vblank — chủ dự án giao ngày 2026-10-15 ("giải quyết vấn
-    đề trần cứng đang là 60 fps", "chỉ làm những điểm chắc chắn").
+    đó nhưng không quá `loop_plan` (dưới 8 luồng thì 60, từ 8 luồng thì 120) — không lấy Hz tối đa của
+    tấm nền, máy yếu bị kéo lên 144/200 sẽ lỡ nhịp quét (CDS_TEST rồi CDS_FULLSCREEN, không ghi registry,
+    trả lại khi thoát). Dirty rect, cache ảnh tĩnh và GPU-driven indirect không làm: đo 2026-10-14 CPU
+    một khung khoảng 0,4 ms, "Xin ảnh" 15–16 ms là chờ vblank — chủ dự án giao ngày 2026-10-15 ("giải
+    quyết vấn đề trần cứng đang là 60 fps", "chỉ làm những điểm chắc chắn", "phải nghĩ tới cả dòng đời
+    máy thấp").
   - Màn chơi, chủ dự án giao ngày 2026-10-13 ("hoàn tất toàn bộ giao diện chính xác", "fix triệt để mọi thứ làm mất texture"): bản
     đồ lớn (SceneMap) và bản đồ thế giới (LargeMap, widget WorldMap) port từ mã máy, hòm đồ và ô tiền, xoay người mẫu bảng nhân vật,
     con trỏ chuột của game (22 con trỏ đọc từ tài nguyên của `Game.exe`, `TOOLS/content/export_cursors.py`), phông Việt cho chữ có dấu

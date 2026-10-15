@@ -1031,6 +1031,12 @@ if(WIN32)
 endif()
 target_link_libraries(thienlong_client PRIVATE game_client game_client_viewer game_client_stage
     game_io game_scene game::warnings)
+# Đo nhịp màn hình thật bằng DXGI Desktop Duplication (TOOLS/run/screen_pace.cpp): kiểm thay đổi về nhịp khung bằng cái
+# người chơi thấy, không chỉ bằng bảng đo phía CPU của client.
+if(WIN32 AND NOT MINGW)
+    add_executable(thienlong_screen_pace TOOLS/run/screen_pace.cpp)
+    target_link_libraries(thienlong_screen_pace PRIVATE game_io game_core d3d11 dxgi dxguid game::warnings)
+endif()
 if(TARGET game_client_shaders)
     add_dependencies(thienlong_client game_client_shaders)
 endif()

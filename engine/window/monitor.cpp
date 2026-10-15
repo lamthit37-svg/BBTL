@@ -403,19 +403,22 @@ std::uint32_t display_refresh_hz(void* window) noexcept {
     return mode.dmDisplayFrequency;
 }
 
-core::Result<RefreshLift> raise_refresh(void* window) {
+core::Result<RefreshLift> raise_refresh(void* window, std::uint32_t ceiling) {
     if (window == nullptr) return core::fail(core::ErrorCode::kInvalidArgument, "không có cửa sổ để nâng tần số quét");
     const std::optional<CurrentMode> current = current_of(static_cast<HWND>(window));
     if (!current) return core::fail(core::ErrorCode::kNotFound, "không đọc được tần số quét của màn hình");
     RefreshLift lift;
     lift.device = core::narrow(current->device);
     lift.before_hz = current->mode.dmDisplayFrequency;
+    lift.ceiling_hz = ceiling;
     std::array<std::uint32_t, kMaxModeRows> listed{};
     std::size_t listed_count = 0;
     collect_refresh(*current, listed, listed_count);
-    std::array<std::uint32_t, kMaxRefreshRanks> ranked{};
     const std::span<const std::uint32_t> offered(listed.data(), listed_count);
-    const std::size_t ranks = rank_refresh(lift.before_hz, offered, ranked);
+    std::array<std::uint32_t, 1> panel{};
+    if (rank_refresh({.current = lift.before_hz, .ceiling = 0}, offered, panel) == 1) lift.panel_hz = panel[0];
+    std::array<std::uint32_t, kMaxRefreshRanks> ranked{};
+    const std::size_t ranks = rank_refresh({.current = lift.before_hz, .ceiling = ceiling}, offered, ranked);
     const std::span<const std::uint32_t> order(ranked.data(), ranks);
     if (!order.empty()) lift.offered_hz = order.front();
     for (const std::uint32_t hz : order) {

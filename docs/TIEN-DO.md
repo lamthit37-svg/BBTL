@@ -21,12 +21,27 @@ cập nhật một phần, tái sử dụng command list, chỉ vẽ lại khi �
   quét. Present1 / `VK_KHR_incremental_present` chỉ là gợi ý cho compositor; ảnh present vẫn phải đủ pixel.
 
 Việc đã làm: `window::rank_refresh` + `raise_refresh` nâng Hz cùng độ phân giải (CDS_TEST, rồi
-CDS_FULLSCREEN, không ghi registry). Viewer gọi trước khi tạo swapchain và trả lại khi thoát. Ngân sách
-bảng đo đọc Hz từ DEVMODE, không từ cache SDL còn 60.
+CDS_FULLSCREEN, không ghi registry), không vượt trần máy. Trần là `loop_plan`: dưới 8 luồng logic thì
+60 Hz (không nâng), từ 8 luồng thì 120 Hz (bỏ 144/200 của tấm nền). Viewer gọi trước khi tạo swapchain
+và trả lại khi thoát. Ngân sách bảng đo đọc Hz từ DEVMODE, không từ cache SDL còn 60.
 
 Đo 2026-10-15, `thienlong_client --login --backend vulkan --frames 240`, RTX 5060, cửa sổ thật:
 `Tần số quét: 60 Hz lên 200 Hz`, trình fifo, 0 lỗi GPU. 214 khung sau khi cảnh hiện: trung vị 5,0 ms,
-p95 5,3 ms, max 10,5 ms (trước đó trần Fifo là 16,7 ms). Thoát xong `CurrentRefreshRate` về 60.
+p95 5,3 ms, max 10,5 ms (trước đó trần Fifo là 16,7 ms). Thoát xong `CurrentRefreshRate` về 60. Đó là nhịp
+phía CPU; bản ấy (nâng thẳng lên Hz tối đa, commit `f8ce0494`) đã vào `dev/client/bin` lúc 13:56.
+
+Đo phía màn hình cùng ngày bằng `thienlong_screen_pace` (`TOOLS/run/screen_pace.cpp`: DXGI Desktop Duplication
+ghi mốc mỗi lần màn chính nhận ảnh mới, không lưu ảnh, không đụng chuột), client `--walk --backend vulkan`
+để mỗi khung đổi hình, đo 5 giây sau 4 giây đầu, i5-14600KF (20 luồng) + RTX 5060:
+
+| Bản | Hz | Trung vị | p95 | p99 | Lớn nhất | Ảnh mới/giây | Đúng 1 nhịp quét |
+|---|---|---|---|---|---|---|---|
+| nâng thẳng lên Hz tối đa (`f8ce0494`) | 200 | 5,00 ms | 45,15 ms | 145,14 ms | 534,89 ms | 68,4 | 87,5% (10,2% từ 3 nhịp) |
+| trần theo `loop_plan` | 120 | 8,31 ms | 8,58 ms | 8,71 ms | 16,63 ms | 119,6 | 99,8% |
+
+Ở 200 Hz vòng vẽ (trần `render_hz` 120) không theo kịp nhịp quét nên Fifo hiện lặp khung: nhân vật chạy
+giật dù bảng đo phía CPU đẹp. Khoảng có ảnh gộp (vòng đo của công cụ chậm một nhịp, hai ảnh dồn một lần đọc)
+không tính vào thống kê. Rủi ro chưa đo: máy từ 8 luồng mà GPU yếu (`docs/NGHI-NGO.md` mục 55).
 
 ## Máy chủ: gameplay đợt 2 — vật phẩm, chiến đấu, xã hội, nhiệm vụ (2026-10-15)
 

@@ -69,44 +69,62 @@ constexpr std::array<std::uint32_t, 6> kOffered{60, 0, 1, 200, 120, 200};
 
 constexpr bool ranks_highest_first() {
     std::array<std::uint32_t, 4> out{};
-    const std::size_t count = window::rank_refresh(60, kOffered, out);
+    const std::size_t count = window::rank_refresh({.current = 60, .ceiling = 0}, kOffered, out);
     return count == 2 && out[0] == 200 && out[1] == 120;
 }
 
 constexpr bool never_lowers() {
     constexpr std::array<std::uint32_t, 4> offered{50, 60, 144, 60};
     std::array<std::uint32_t, 4> out{};
-    return window::rank_refresh(144, offered, out) == 0;
+    return window::rank_refresh({.current = 144, .ceiling = 0}, offered, out) == 0;
 }
 
 constexpr bool keeps_highest_when_the_list_is_short() {
     constexpr std::array<std::uint32_t, 3> offered{100, 200, 150};
     std::array<std::uint32_t, 1> out{};
-    const std::size_t count = window::rank_refresh(60, offered, out);
+    const std::size_t count = window::rank_refresh({.current = 60, .ceiling = 0}, offered, out);
     return count == 1 && out[0] == 200;
 }
 
 constexpr bool treats_driver_default_as_absent() {
     constexpr std::array<std::uint32_t, 3> offered{0, 1, 165};
     std::array<std::uint32_t, 2> out{};
-    const std::size_t count = window::rank_refresh(0, offered, out);
+    const std::size_t count = window::rank_refresh({.current = 0, .ceiling = 0}, offered, out);
     return count == 1 && out[0] == 165;
+}
+
+// Máy yếu vẽ tới 60: không kéo lên 200. Máy vẽ tới 120: lấy 120, bỏ 144 và 200.
+constexpr bool respects_machine_ceiling() {
+    constexpr std::array<std::uint32_t, 5> offered{60, 75, 120, 144, 200};
+    std::array<std::uint32_t, 4> low{};
+    if (window::rank_refresh({.current = 60, .ceiling = 60}, offered, low) != 0) return false;
+    std::array<std::uint32_t, 4> mid{};
+    const std::size_t count = window::rank_refresh({.current = 60, .ceiling = 120}, offered, mid);
+    if (count != 2 || mid[0] != 120 || mid[1] != 75) return false;
+    constexpr std::array<std::uint32_t, 2> only_fast{144, 200};
+    std::array<std::uint32_t, 2> skipped{};
+    return window::rank_refresh({.current = 60, .ceiling = 120}, only_fast, skipped) == 0;
 }
 
 static_assert(ranks_highest_first());
 static_assert(never_lowers());
 static_assert(keeps_highest_when_the_list_is_short());
 static_assert(treats_driver_default_as_absent());
+static_assert(respects_machine_ceiling());
 
 void rank_refresh_orders_higher_rates_only(Context& context) {
     std::array<std::uint32_t, 4> out{};
-    const std::size_t count = window::rank_refresh(60, kOffered, out);
-    context.expect(count == 2 && out[0] == 200 && out[1] == 120, "200 rồi 120, bỏ 0, 1 và trùng");
-    context.expect(window::rank_refresh(200, kOffered, out) == 0, "không hạ xuống dưới mức đang dùng");
+    const std::size_t count = window::rank_refresh({.current = 60, .ceiling = 0}, kOffered, out);
+    context.expect(count == 2 && out[0] == 200 && out[1] == 120, "không trần thì 200 rồi 120");
+    context.expect(window::rank_refresh({.current = 200, .ceiling = 0}, kOffered, out) == 0, "không hạ xuống dưới mức đang dùng");
+    constexpr std::array<std::uint32_t, 5> offered{60, 75, 120, 144, 200};
+    context.expect(window::rank_refresh({.current = 60, .ceiling = 60}, offered, out) == 0, "trần 60 không nâng máy yếu");
+    const std::size_t capped = window::rank_refresh({.current = 60, .ceiling = 120}, offered, out);
+    context.expect(capped == 2 && out[0] == 120 && out[1] == 75, "trần 120 bỏ 144 và 200");
 }
 
 void raise_refresh_rejects_null_window(Context& context) {
-    const core::Result<window::RefreshLift> lifted = window::raise_refresh(nullptr);
+    const core::Result<window::RefreshLift> lifted = window::raise_refresh(nullptr, 60);
     context.expect(!lifted.has_value(), "không có cửa sổ thì không đổi màn");
     if (lifted.has_value()) return;
     context.expect(lifted.error().code() == core::ErrorCode::kInvalidArgument, "thiếu cửa sổ là đối số sai");

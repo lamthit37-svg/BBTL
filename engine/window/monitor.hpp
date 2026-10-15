@@ -69,25 +69,35 @@ struct Monitor {
 [[nodiscard]] core::Status restore_display_mode(const Monitor& monitor);
 
 // Kết quả nâng tần số quét. changed khi desktop đang ở after_hz và khác trước đó. offered_hz là
-// mức cao nhất cùng độ phân giải mà driver liệt kê, 0 khi không có mức nào cao hơn before_hz.
+// mức cao nhất còn trong trần máy, 0 khi không có. panel_hz là mức cao nhất của tấm nền cùng độ
+// phân giải, kể cả mức vượt trần máy. ceiling_hz là trần người gọi đưa (0 = không trần).
 // device là tên Windows ("\\.\DISPLAY1") để restore_display_mode trả lại chế độ trong registry.
 struct RefreshLift {
     std::string device;
     std::uint32_t before_hz = 0;
     std::uint32_t after_hz = 0;
     std::uint32_t offered_hz = 0;
+    std::uint32_t panel_hz = 0;
+    std::uint32_t ceiling_hz = 0;
     bool changed = false;
 };
 
-// Xếp các tần số còn cao hơn current, giảm dần, không trùng. 0 và 1 là "mặc định của driver"
-// trong DEVMODE, không phải số Hertz. out đầy thì giữ các mức cao nhất. Trả số đã ghi.
-// O(n · out.size()) với n = offered.size(); n của một độ phân giải là vài chục, trần liệt kê ở
-// raise_refresh là 512.
-[[nodiscard]] constexpr std::size_t rank_refresh(std::uint32_t current, std::span<const std::uint32_t> offered,
+// Khoảng xếp của rank_refresh: cao hơn current (không hạ) và không vượt ceiling; ceiling dưới 2 là không
+// trần. Hai số cùng kiểu nên gói lại để nơi gọi nêu tên, đổi chỗ nhau là sai thầm.
+struct RefreshBounds {
+    std::uint32_t current = 0;
+    std::uint32_t ceiling = 0;
+};
+
+// Xếp các tần số trong bounds, giảm dần, không trùng. 0 và 1 là "mặc định của driver" trong DEVMODE,
+// không phải số Hertz. out đầy thì giữ các mức cao nhất. Trả số đã ghi. O(n · out.size()) với
+// n = offered.size(); n của một độ phân giải là vài chục, trần liệt kê ở raise_refresh là 512.
+[[nodiscard]] constexpr std::size_t rank_refresh(RefreshBounds bounds, std::span<const std::uint32_t> offered,
     std::span<std::uint32_t> out) noexcept {
     std::size_t filled = 0;
     for (const std::uint32_t hz : offered) {
-        if (hz < 2 || hz <= current) continue;
+        if (hz < 2 || hz <= bounds.current) continue;
+        if (bounds.ceiling >= 2 && hz > bounds.ceiling) continue;
         std::size_t slot = 0;
         bool is_seen = false;
         while (slot < filled) {
@@ -112,11 +122,13 @@ struct RefreshLift {
 // Hz của màn đang chứa cửa sổ; 0 khi không đọc được. Không đổi chế độ.
 [[nodiscard]] std::uint32_t display_refresh_hz(void* window) noexcept;
 
-// Nâng tần số quét của màn đang chứa cửa sổ lên mức cao nhất cùng độ phân giải và cùng bpp,
-// bỏ chế độ xen kẽ. Thử CDS_TEST trước rồi mới CDS_FULLSCREEN, nên mức driver từ chối không
-// làm nhấp màn. Không đổi độ phân giải, không hạ tần số, không ghi registry. Mức đã áp dụng
-// được hệ điều hành trả lại khi tiến trình thoát; gọi restore_display_mode khi thoát chủ động
-// để desktop về sớm hơn. Không có mức cao hơn thì changed = false và vẫn thành công.
-[[nodiscard]] core::Result<RefreshLift> raise_refresh(void* window);
+// Nâng tần số quét của màn đang chứa cửa sổ lên mức cao nhất cùng độ phân giải, cùng bpp, không
+// vượt ceiling và không xen kẽ. ceiling dưới 2 là không trần; client đưa render_hz của loop_plan
+// để máy yếu (vẽ tới 60) không bị kéo lên Hz tối đa của tấm nền. Thử CDS_TEST trước rồi mới
+// CDS_FULLSCREEN, nên mức driver từ chối không làm nhấp màn. Không đổi độ phân giải, không hạ
+// tần số, không ghi registry. Mức đã áp dụng được hệ điều hành trả lại khi tiến trình thoát; gọi
+// restore_display_mode khi thoát chủ động để desktop về sớm hơn. Không có mức trong trần thì
+// changed = false và vẫn thành công.
+[[nodiscard]] core::Result<RefreshLift> raise_refresh(void* window, std::uint32_t ceiling);
 
 } // namespace game::window

@@ -121,6 +121,16 @@ mục ở mục 11.
   của LuaPlus ghi hàm cục bộ (`local function f`) là `in function <tệp:dòng>`, không có tên; chỉ hàm toàn cục mới có
   "in function `tên'". (5) `error()` không đối số là lỗi "bad argument #1 to `error' (value expected)", muốn thử đối tượng lỗi
   nil thì `error(nil)`.
+- `check.py --run` cho test của `engine/window` (đo 2026-10-15 ở `Test/Window/window_tests.cpp`): `--with` chỉ nhận một tệp mỗi
+  cờ nên lặp cờ cho `engine/window/{monitor,system,window,cursor}.cpp` và `engine/core/{error,text,system,clock,log,log_sink,thread,
+  handle,range,uarch}.cpp`; thư viện Windows đưa qua `CPP23_G14/G15/C20` vì `check.py` không có cờ liên kết. Clang: `-Wno-unused-command-line-argument
+  -luser32 -lgdi32 -ldwmapi -lshcore -lntdll -ladvapi32 -lshell32 -lsynchronization` (thiếu cờ đầu thì `-Werror` biến `-l` thừa thành lỗi
+  ở lượt dịch). GCC: cờ `-l` đứng trước tệp nên `ld` bỏ qua thư viện nhập; `-Wl,--whole-archive` kéo cả hàm không có ở `user32.dll`
+  của máy và exe chết `0xC0000139` ngay khi chạy, còn nhiều thư viện chung ký hiệu (`shcore` với `shell32`, `advapi32` với `ntdll`) thì
+  "multiple definition". Dùng `-Wl,-u,<ký hiệu>` cho đúng ký hiệu `ld` báo thiếu (`CreateDCW DeleteDC DeleteObject DwmSetWindowAttribute
+  GetDeviceCaps GetDpiForMonitor GetStockObject CreateDIBSection CreateBitmap RtlGetVersion NtQuerySystemInformationEx WaitOnAddress
+  WakeByAddressSingle WakeByAddressAll`) cộng `-lgdi32 -ldwmapi -lshcore -lntdll -lsynchronization`, và `PATH` đặt thư mục `bin` của WinLibs
+  lên trước (`libstdc++-6.dll` của Git cũ hơn).
 
 ## Công cụ Python và git
 
@@ -519,9 +529,14 @@ mục ở mục 11.
   nhịp quét thì mới về `1000 / render_hz`. Số CPU của khung (ghi lệnh, nộp, dựng UI) cộng lại chỉ khoảng 0,4 ms, còn
   "Xin ảnh" 15–16 ms là chờ nhịp quét. Chạy `--pace --shot ... --frames 150` (không qua cửa sổ thật, "Xin ảnh" 0,0 ms)
   (cờ `--pace` nay đã bỏ: bảng luôn hiện) thì màn chơi Đại Lý đứng im ra 1119 FPS, trung vị 0,3 ms, ĐẠT; màn đăng nhập 178 FPS, một khung đột biến 117,8 ms,
-  vượt ngân sách 6,7% nên TRƯỢT. Từ 2026-10-15 client không còn để desktop ở 60 Hz: `window::raise_refresh`
-  (`viewer_win32.cpp`, trước khi tạo swapchain) nâng Hz của màn đang chứa cửa sổ lên mức cao nhất cùng độ
-  phân giải, thử `CDS_TEST` rồi `CDS_FULLSCREEN`, trả lại bằng `restore_display_mode` khi thoát. Vẫn Fifo.
+  vượt ngân sách 6,7% nên TRƯỢT. Từ 2026-10-15 client không còn để desktop ở 60 Hz khi máy vẽ tới 120:
+  `window::raise_refresh` (`viewer_win32.cpp`, trước khi tạo swapchain) nâng Hz của màn đang chứa cửa sổ
+  lên mức cao nhất cùng độ phân giải mà không vượt `loop_plan` (dưới 8 luồng logic thì trần 60, từ 8 luồng
+  thì trần 120 — không lấy 144/200 của tấm nền), thử `CDS_TEST` rồi `CDS_FULLSCREEN`, trả lại bằng
+  `restore_display_mode` khi thoát. Vẫn Fifo. Máy yếu ở lại 60 dù màn ghi 200.
+  Đổi gì chạm tới nhịp khung thì đo cái màn hiện bằng `thienlong_screen_pace --delay 4 --seconds 5` chạy cùng
+  client `--walk` (`docs/TIEN-DO.md` mục "Nhịp khung"): bảng đo phía CPU không thấy khung bị hiện lặp. Đo 2026-10-15,
+  bản nâng thẳng lên 200 Hz: CPU trung vị 5,0 ms đều, màn thì p95 45 ms, chỉ 68 ảnh mới mỗi giây.
   Mailbox không dùng lại: đo 2026-10-13, 893 khung 8,3 ms trên màn 60 Hz làm bước đi lúc một lúc hai nhịp
   mô phỏng. Dirty rect và vẽ lại theo vùng bẩn không phá trần này — ảnh 3D đổi cả khung khi camera hoặc
   người đi, và "Xin ảnh" là chờ vblank chứ không phải tô pixel. Chạy client, kể cả `--frames`, làm màn

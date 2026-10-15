@@ -948,3 +948,10 @@ kết luận ngay dưới mục đó chứ không xoá.
     (d) Lệch giữa dữ liệu 2008 và lưới đi 2026: điểm đặt quái nằm ngoài lưới `.path` của client 2026 ở nhiều cảnh (`dali` 50/164, `kunlunshan`
     143/325, `guigu` 80/234; bảng đầy đủ ở `docs/SERVER-SCENEDATA.md`). Quái đặt ở đó đứng ngoài lưới và người chơi không tới được. Chưa biết
     là dữ liệu đặt quái 2008 cũ hơn bản đồ hay bản đồ 2026 đổi bố cục; không đoán vị trí mới.
+
+55. **Trần tần số quét theo hạng CPU, chưa theo GPU** (2026-10-15, `viewer_win32.cpp` `RaisedRefresh`, `core::loop_plan`).
+    Viewer nâng Hz của màn lên tối đa `loop_plan(cpu_count()).render_hz`: từ 8 luồng logic là 120. Máy laptop 8–16 luồng mà chỉ có GPU
+    tích hợp có thể không vẽ kịp 8,3 ms một khung; khi đó Fifo ở 120 Hz hiện lặp khung (giật), tệ hơn đứng ở 60 Hz. `gpu::DeviceInfo` có
+    `is_discrete` nhưng thiết bị GPU tạo trong `Display`, sau chỗ nâng Hz (cố ý: nâng trước khi tạo swapchain). Chưa đo được vì máy phát
+    triển không có GPU tích hợp (i5-14600KF). Cần để kết luận: chạy `thienlong_screen_pace` cùng client `--walk` trên một máy GPU tích hợp
+    có màn 120 Hz trở lên; nếu tỉ lệ "đúng 1 nhịp quét" thấp hơn ở 60 Hz thì đưa `is_discrete` (hoặc số đo khung thật) vào trần.

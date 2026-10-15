@@ -16,7 +16,9 @@
 #include "control/cursor_rules.hpp"
 #include "control/input.hpp"
 #include "core/clock.hpp"
+#include "core/thread.hpp"
 #include "core/error.hpp"
+#include "core/log.hpp"
 #include "core/timeline.hpp"
 #include "io/file.hpp"
 #include "io/platform.hpp"
@@ -756,27 +758,37 @@ void begin_speaker(audio::Engine& speaker, const std::filesystem::path& data_roo
 class RaisedRefresh {
 public:
     explicit RaisedRefresh(void* window) {
-        core::Result<window::RefreshLift> lifted = window::raise_refresh(window);
+        // Cùng hạng máy với nhịp vẽ: dưới 8 luồng thì 60, từ 8 luồng thì 120. Không lấy Hz tối
+        // đa của tấm nền — máy yếu bị kéo lên 144/200 sẽ lỡ nhịp quét và chạy giật.
+        const std::uint32_t ceiling = core::loop_plan(core::cpu_count()).render_hz;
+        core::Result<window::RefreshLift> lifted = window::raise_refresh(window, ceiling);
         if (!lifted) {
             std::println(stderr, "Tần số quét: {}", lifted.error());
             return;
         }
-        lift_ = std::move(*lifted);
-        if (lift_->changed) {
-            std::println("Tần số quét: {} Hz lên {} Hz", lift_->before_hz, lift_->after_hz);
+        const window::RefreshLift& lift = *lifted;
+        if (lift.changed) {
+            raised_.emplace();
+            raised_->device = lift.device;
+            std::println("Tần số quét: {} Hz lên {} Hz, trần máy {} Hz", lift.before_hz, lift.after_hz,
+                lift.ceiling_hz);
             return;
         }
-        if (lift_->offered_hz > lift_->before_hz) {
-            std::println("Tần số quét: giữ {} Hz, driver không nhận {} Hz", lift_->before_hz, lift_->offered_hz);
+        if (lift.panel_hz > lift.ceiling_hz && lift.ceiling_hz >= 2) {
+            std::println("Tần số quét: giữ {} Hz, trần máy {} Hz, màn có {} Hz", lift.before_hz, lift.ceiling_hz,
+                lift.panel_hz);
+            return;
+        }
+        if (lift.offered_hz > lift.before_hz) {
+            std::println("Tần số quét: giữ {} Hz, driver không nhận {} Hz", lift.before_hz, lift.offered_hz);
         }
     }
 
+    // Hàm huỷ không được ném: màn dựng sẵn lúc nâng, lỗi báo qua core::warn (noexcept).
     ~RaisedRefresh() {
-        if (!lift_ || !lift_->changed) return;
-        window::Monitor monitor;
-        monitor.device = lift_->device;
-        const core::Status restored = window::restore_display_mode(monitor);
-        if (!restored) std::println(stderr, "Tần số quét: {}", restored.error());
+        if (!raised_) return;
+        const core::Status restored = window::restore_display_mode(*raised_);
+        if (!restored) core::warn("Tần số quét: {}", restored.error());
     }
 
     RaisedRefresh(const RaisedRefresh&) = delete;
@@ -785,7 +797,8 @@ public:
     RaisedRefresh& operator=(RaisedRefresh&&) = delete;
 
 private:
-    std::optional<window::RefreshLift> lift_;
+    // Màn đã đổi tần số; trống khi không đổi gì nên không có gì để trả.
+    std::optional<window::Monitor> raised_;
 };
 
 } // namespace
