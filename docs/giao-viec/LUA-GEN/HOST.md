@@ -12,8 +12,8 @@ Bổ sung cho `TANG-C.md` (do nửa widget giữ). Địa chỉ **[M]** là củ
 - Gửi sự kiện (`post`: luật 0x180079310 và `_OnGameEvent` 0x18007b8e0), đoạn Lua của layout (`fire`), `Show`/`Hide`/`TogleShow` với
   `DemiseWindow` (loại 0..7) và `CloseAllWindow`, cửa sổ bật lên đóng khi bấm ra ngoài (`pressed`, cờ `ClickHide`), hẹn giờ `SetTimer`/
   `KillTimer` theo đồng hồ khung (`tick`), `CEArg:GetValue`, `GetChildOffset`, `CareObject` (Call `kCareObject`).
-- Trần: 50 triệu lệnh Lua mỗi lời gọi ngoài cùng (móc đếm mỗi 1000 lệnh), 512 dòng `notes`, 4096 hẹn giờ, 64 đối số sự kiện.
-- Mọi lời gọi từ host vào Lua đi qua `lua_cpcall` (LuaPlus báo lỗi bằng longjmp); hàm C gọi từ Lua chỉ báo lỗi ở đầu hàm bằng
+- Trần: 50 triệu lệnh Lua mỗi lời gọi ngoài cùng, 128 MiB bộ nhớ, 16 tầng gọi bảo vệ lồng nhau (đều của `lua::State`, E3), 512 dòng `notes`, 4096 hẹn giờ, 64 đối số sự kiện.
+- Mọi lời gọi từ host vào Lua đi qua `lua::protect` (LuaPlus báo lỗi bằng longjmp; lỗi chạy kèm traceback); hàm C gọi từ Lua chỉ báo lỗi ở đầu hàm bằng
   `luaL_where` + `lua_concat` (không `luaL_error` vararg, không đối tượng C++ có destructor qua lời gọi có thể báo lỗi).
 
 ## Khác gốc
@@ -28,14 +28,15 @@ Bổ sung cho `TANG-C.md` (do nửa widget giữ). Địa chỉ **[M]** là củ
 ## Nối HUD (2026-10-15)
 
 - `ui/hud.cpp`: `Hud::State::open_host` mở host ngay sau Hub, chỉ cho các cửa sổ trong `kScripted` (`HostDesc::only`: cửa sổ ngoài danh sách
-  không được nạp, nên nhóm nhường chỗ chỉ tính trong cửa sổ có mặt). Hiện `ProgressBar`; bản port tay `ui/panel/progress_bar` không còn
-  dùng ở HUD (module và test còn làm bản đối chiếu thứ hai cho tới khi chuyển hết).
+  không được nạp, nên nhóm nhường chỗ chỉ tính trong cửa sổ có mặt). Hiện `ProgressBar` và `DebugListBox` (hàm game `DataPool:GetUIColor`/
+  `Check_StringCode` ở `ui/script/natives`, qua `HostDesc::natives`); bản port tay `ui/panel/progress_bar` và `debug_list_box` không còn dùng ở
+  HUD (module và test còn làm bản đối chiếu thứ hai cho tới khi chuyển hết). `--ui-event "NEW_DEBUGMESSAGE|chữ"` ra đúng ba dòng như bản port tay.
 - Sự kiện: `dispatch` gửi từng sự kiện của hàng đợi cho bảng port tay rồi `Host::post`; `Call::kPushEvent` của script quay lại hàng đợi.
   Nhấn trái: `MouseButtonDown`/`MouseLButtonDown` lên cửa sổ dưới chuột và `Host::pressed`; nhả: `MouseButtonUp`, và `Clicked` khi nhả
   trên chính cửa sổ đã nhấn. Chưa có: nhấn phải, `MouseEnter`/`MouseLeave`, nhấn đúp, phím, bánh xe, `OnEscape`.
 - `Host::paint` ghi gốc layout đang hiện và trạng thái widget vào Deck ngay sau các bảng port tay. Layout mà host nạp thêm lúc chạy làm
   `GuiScreen::take_grown()` báo, `prepare` dựng lại Hub.
-- Mờ dần của `SuperProgress` (`updateSelf`) chưa có ở widget: đã nhờ 09 `advance_widgets`; tới lúc đó `PROGRESSBAR_BREAK` để thanh nằm lại.
+- `Host::tick` chạy `advance_widgets` (mờ dần của `SuperProgress`, vòng đời mục của `InfoList`).
 - Kiểm bằng mắt: `thienlong_client --scene-id 2 --frames 60 --shot <png> --ui-event "PROGRESSBAR_SHOW|<chữ>" --ui-event "PROGRESSBAR_WIDTH|0.6"`:
   thanh vàng 60% như bản port tay (phần vẽ thiếu khung nền và chữ là của `gui::draw_progress`, `NGHI-NGO.md` mục 18).
 - Nạp đầu (`bench_load.py`, 12 lượt, máy đang bận nhiều phiên): bản mới trung vị 504 ms, bản ngay trước 584 ms; không thấy host làm chậm,
@@ -58,5 +59,4 @@ Bổ sung cho `TANG-C.md` (do nửa widget giữ). Địa chỉ **[M]** là củ
 
 - Chuyển thêm cửa sổ vào `kScripted` theo từng cửa sổ khi hàm game của nó có (cần tầng B); khi hết bảng port tay thì bỏ `kScripted` và `only`.
 - Esc, phím, nhấn phải, MouseEnter/Leave; mở host cả sổ cần PreLoad lười hoặc bytecode dựng sẵn để giữ ngân sách nạp đầu.
-- Tầng B qua `HostDesc::natives`; chuyển sang `lua::State` của E3 (trần bộ nhớ, móc lệnh, pcall có traceback).
 - Lượt đo phương thức widget còn thiếu trên 1 975 cửa sổ bằng `Missing::kRecord` của widget (cần post sự kiện + hiện từng cửa sổ).

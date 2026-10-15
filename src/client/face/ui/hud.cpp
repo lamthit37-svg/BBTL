@@ -19,8 +19,6 @@
 #include "ui/panel/call_events.hpp"
 #include "ui/panel/can_do.hpp"
 #include "ui/panel/create_role.hpp"
-#include "ui/panel/data_pool.hpp"
-#include "ui/panel/debug_list_box.hpp"
 #include "ui/panel/deck.hpp"
 #include "ui/panel/desk.hpp"
 #include "ui/panel/events.hpp"
@@ -131,7 +129,7 @@ constexpr std::array<std::string_view, 40> kLayouts = {
 // Cửa sổ chạy bằng script Lua gốc của client 2026 qua ui/script (docs/giao-viec/LUA-GEN/HOST.md). Cửa sổ khác còn là bảng
 // port tay (ui/panel) cho tới khi hàm game mà script của nó gọi (tầng B) có đủ; hết bảng port tay thì danh sách này bỏ và host
 // chạy cả sổ.
-constexpr std::array<std::string_view, 1> kScripted = {"ProgressBar"};
+constexpr std::array<std::string_view, 2> kScripted = {"ProgressBar", "DebugListBox"};
 
 // Trần số sự kiện giao diện xử lý mỗi khung, kể cả sự kiện do các bảng tự đẩy (xem Hud::State::step_panels và EventQueue:
 // gốc không có trần, đây là chốt an toàn).
@@ -497,14 +495,9 @@ struct Hud::State {
     panel::SceneTrans trans;
     std::int32_t trans_percent = -1;
     std::chrono::milliseconds trans_since{0};
-    // Các bảng port từ script (UI-PORT): trạng thái của từng bảng. panel_clock là đồng hồ khung trước để tính
-    // panel_seconds, thời gian của khung này; tách khỏi last_clock vì frame_seconds chỉ trả được một lần mỗi khung.
-    // ui_args là kho arg<k> dùng chung của mọi bảng (xem ui/panel/events.hpp).
+    // Các bảng port từ script (UI-PORT): ui_args là kho arg<k> dùng chung của mọi bảng (xem ui/panel/events.hpp).
     panel::EventArgs ui_args;
     bool is_app_inited = false;
-    panel::DebugListBox debug_list;
-    std::optional<std::chrono::milliseconds> panel_clock;
-    float panel_seconds = 0.0F;
     // Lần nhấn trước trong thủ tục đăng nhập (cửa sổ, lúc nhấn, điểm nhấn: press_x, press_y đứng cạnh
     // held_x), để nhận ra nhấn đúp.
     std::string press_window;
@@ -940,8 +933,6 @@ void Hud::State::dispatch(std::span<const panel::PostedEvent> first) {
         const panel::PostedEvent& posted = *posted_event;
         const std::vector<std::string_view> given = posted.arguments();
         const panel::UiEvent event = ui_args.raise(posted.name, given);
-        if (panel::is_delivered(panel::kDebugListBoxEvents, event.name, debug_list.is_shown))
-            panel::debug_list_box_event(debug_list, event, panel::kUiColourMissing);
         if (panel::is_delivered(panel::kMainMenuBar3Events, event.name, pet_bar.is_shown))
             panel::on_main_menu_bar_3_event(pet_bar, event, panel::PetSkillBar{});
         bar_calls.clear();
@@ -1006,13 +997,8 @@ void Hud::State::push_debug_message(std::string_view text) {
     dispatch(message);
 }
 
-// Thời gian của khung cho các bảng port từ script, rồi sự kiện của game tới từng bảng đã đăng ký nghe, và nhịp
-// updateSelf của các cửa sổ có hoạt ảnh riêng.
+// Sự kiện của game tới từng bảng đã đăng ký nghe, rồi nhịp của host (hẹn giờ và updateSelf của widget).
 void Hud::State::step_panels(const HudView& view) {
-    const std::optional<std::chrono::milliseconds> before = panel_clock;
-    panel_clock = view.clock;
-    const bool is_forward = before.has_value() && view.clock >= *before;
-    panel_seconds = is_forward ? std::chrono::duration<float>(view.clock - *before).count() : 0.0F;
     if (!is_app_inited) {
         // Game gốc phát APPLICATION_INITED một lần khi giao diện nạp xong.
         is_app_inited = true;
@@ -1033,7 +1019,6 @@ void Hud::State::step_panels(const HudView& view) {
     first.insert(first.end(), view.events.begin(), view.events.end());
     dispatch(first);
     note_host(view);
-    panel::debug_list_box_tick(debug_list, panel_seconds);
 }
 
 // Chỉ thị của khung theo thủ tục đang chạy (thay các script Lua của client gốc). Bảng chuyển cảnh
@@ -1073,7 +1058,6 @@ void Hud::State::fill_play(const HudView& view) {
     panel::paint_desk(deck, desk);
     panel::paint_quest_book(deck, quests);
     if (host) host->paint(deck);
-    panel::paint_debug_list_box(deck, debug_list);
     panel::paint_main_menu_bar_3(deck, pet_bar);
     action_bars.paint(deck);
     fill_board(view);
