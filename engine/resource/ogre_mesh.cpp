@@ -16,17 +16,13 @@
 
 #include "resource/ogre_mesh.hpp"
 
+#include "core/gbk.hpp"
 #include "core/text.hpp"
-#include "core/win32.hpp"
 #include "fs/disk.hpp"
 #include "fs/file.hpp"
 #include "fs/path.hpp"
 #include "resource/dds.hpp"
 #include "resource/image.hpp"
-
-#if defined(_WIN32)
-#include <windows.h>
-#endif
 
 #include <meshoptimizer.h>
 
@@ -743,19 +739,11 @@ void paint_rule(MaterialLook& look, const MaterialRule& rule) {
 }
 
 // all.material của client gốc ghi đường dẫn bằng GBK. fs mở tệp bằng UTF-8. Để nguyên thì
-// CreateFileW trượt và shader nhận ảnh trắng thay cho vỏ cây, đá, lá.
+// tệp không mở được và shader nhận ảnh trắng thay cho vỏ cây, đá, lá (trên Android và iOS trước
+// khi có core::utf8_from_gbk: mọi ảnh dưới thư mục tên chữ Hán). Không phải GBK thì giữ nguyên.
 [[nodiscard]] std::string utf8_path(std::string_view stored) {
     if (stored.empty() || core::is_valid_utf8(stored)) return std::string(stored);
-#if defined(_WIN32)
-    const int bytes = static_cast<int>(stored.size());
-    const int wide_count = MultiByteToWideChar(936, MB_ERR_INVALID_CHARS, stored.data(), bytes, nullptr, 0);
-    if (wide_count <= 0) return std::string(stored);
-    std::wstring wide(static_cast<std::size_t>(wide_count), L'\0');
-    MultiByteToWideChar(936, MB_ERR_INVALID_CHARS, stored.data(), bytes, wide.data(), wide_count);
-    return core::narrow(wide);
-#else
-    return std::string(stored);
-#endif
+    return core::utf8_from_gbk(stored).value_or(std::string(stored));
 }
 
 [[nodiscard]] bool attach_texture(Model& model, Material& material, std::string_view root, const std::string& texture,

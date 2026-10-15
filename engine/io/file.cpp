@@ -17,13 +17,9 @@
 
 #include "io/file.hpp"
 
+#include "core/gbk.hpp"
 #include "core/text.hpp"
 #include "core/trace.hpp"
-#if defined(_WIN32)
-#include "core/win32.hpp" // IWYU pragma: keep
-
-#include <stringapiset.h>
-#endif
 
 #include <algorithm>
 #include <cstddef>
@@ -32,7 +28,7 @@
 #include <filesystem>
 #include <fstream>
 #include <ios>
-#include <limits>
+#include <optional>
 #include <string>
 #include <string_view>
 #include <system_error>
@@ -124,28 +120,18 @@ TextResult read_text(const std::filesystem::path& path) {
 
 // all.material ghi "jpg_" rồi tên GBK. path(u8string) của MSVC ném "No mapping for the Unicode
 // character" với byte đó. Exception trên luồng vẽ không có ai bắt, tiến trình abort khi dựng nước
-// của cảnh chọn nhân vật. UTF-8 hợp lệ không đổi, để đường dẫn tiếng Việt không bị đọc lại theo 936.
-#if defined(_WIN32)
-[[nodiscard]] static std::wstring wide_of_stored(std::string_view text) {
-    if (text.empty()) return {};
-    if (core::is_valid_utf8(text)) return core::widen(text);
-    const std::size_t bytes = text.size();
-    if (bytes > static_cast<std::size_t>(std::numeric_limits<int>::max())) return {};
-    const int size = static_cast<int>(bytes);
-    const int count = MultiByteToWideChar(936, MB_ERR_INVALID_CHARS, text.data(), size, nullptr, 0);
-    if (count <= 0) return core::widen(text);
-    std::wstring wide(static_cast<std::size_t>(count), L'\0');
-    MultiByteToWideChar(936, MB_ERR_INVALID_CHARS, text.data(), size, wide.data(), count);
-    return wide;
-}
-#endif
-
+// của cảnh chọn nhân vật; Android và iOS thì không ném mà mở trượt vì tên tệp trên máy là UTF-8.
+// UTF-8 hợp lệ không đổi, để đường dẫn tiếng Việt không bị đọc lại theo 936. Không phải GBK thì
+// giữ byte gốc (Windows: widen thay byte hỏng bằng U+FFFD).
 std::filesystem::path path_from_utf8(std::string_view text) {
+    const std::optional<std::string> decoded =
+        core::is_valid_utf8(text) ? std::nullopt : core::utf8_from_gbk(text);
+    const std::string_view utf8 = decoded ? std::string_view(*decoded) : text;
 #if defined(_WIN32)
-    return std::filesystem::path(wide_of_stored(text));
+    return {core::widen(utf8)};
 #else
-    const std::u8string utf8(text.begin(), text.end());
-    return std::filesystem::path(utf8);
+    const std::u8string bytes(utf8.begin(), utf8.end());
+    return std::filesystem::path(bytes);
 #endif
 }
 

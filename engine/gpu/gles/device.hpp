@@ -50,7 +50,15 @@ struct GlTexture {
     // Đích màu: hàng 0 của RHI là đỉnh ảnh, GL để đỉnh ở toạ độ y cao. Đọc ngược phải lật.
     bool is_target = false;
     std::uint32_t target = 0;
+    // Định dạng trong GL; với khối nén nó là tham số format của glCompressedTexSubImage2D.
+    std::uint32_t internal = 0;
+    bool is_compressed = false;
+    // Phần đã cộng vào used_bytes_ lúc tạo, trừ lại lúc huỷ.
+    std::uint64_t bytes = 0;
 };
+
+// Khối nén (BC1-3, ETC2, ASTC 4x4, cả bản khai sRGB) mà context lấy mẫu được. Định dạng không nén trả false.
+[[nodiscard]] bool samples_blocks(const GlProfile& profile, Format format) noexcept;
 
 struct GlView {
     TextureHandle texture{};

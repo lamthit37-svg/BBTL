@@ -159,6 +159,7 @@ game_reject_foreign("${PROJECT_SOURCE_DIR}/src/server" ${game_engine_names} ${ga
 set(game_core_sources
     engine/core/clock.cpp
     engine/core/error.cpp
+    engine/core/gbk.cpp
     engine/core/log.cpp
     engine/core/log_sink.cpp
     engine/core/range.cpp
@@ -920,7 +921,7 @@ if(GAME_HAS_GPU)
             engine/resource/upload.cpp)
         target_include_directories(game_resource PRIVATE ${CGLTF_INCLUDE_DIR} ${Stb_INCLUDE_DIR})
         target_link_libraries(game_resource
-            PUBLIC game_core game_math game_fs game_gpu
+            PUBLIC game_core game_math game_fs game_gpu game_io
             PRIVATE meshoptimizer::meshoptimizer)
         # Forward đọc gói .f2s và vẽ model đã tải lên. Header của nó kéo math và resource.
         target_sources(game_render PRIVATE engine/render/camera.cpp engine/render/catalog.cpp
@@ -1361,6 +1362,7 @@ endif()
 if(GAME_HAS_GPU AND NOT ANDROID)
     if(WIN32)
         game_test(gpu game_gpu user32)
+    game_test(gbk game_core)
     else()
         game_test(gpu game_gpu)
     endif()

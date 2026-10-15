@@ -176,6 +176,14 @@ inline constexpr std::uint32_t GL_NEAREST_MIPMAP_LINEAR = 0x2702;
 inline constexpr std::uint32_t GL_NEAREST_MIPMAP_NEAREST = 0x2700;
 inline constexpr std::uint32_t GL_COLOR = 0x1800;
 inline constexpr std::uint32_t GL_DEPTH = 0x1801;
+inline constexpr std::uint32_t GL_TEXTURE_BASE_LEVEL = 0x813C;
+inline constexpr std::uint32_t GL_TEXTURE_MAX_LEVEL = 0x813D;
+inline constexpr std::uint32_t GL_COMPRESSED_RGBA_S3TC_DXT1_EXT = 0x83F1;
+inline constexpr std::uint32_t GL_COMPRESSED_RGBA_S3TC_DXT3_EXT = 0x83F2;
+inline constexpr std::uint32_t GL_COMPRESSED_RGBA_S3TC_DXT5_EXT = 0x83F3;
+inline constexpr std::uint32_t GL_COMPRESSED_RGB8_ETC2 = 0x9274;
+inline constexpr std::uint32_t GL_COMPRESSED_RGBA8_ETC2_EAC = 0x9278;
+inline constexpr std::uint32_t GL_COMPRESSED_RGBA_ASTC_4x4_KHR = 0x93B0;
 // NOLINTEND(readability-identifier-naming)
 
 struct GlFunctions {
@@ -221,6 +229,9 @@ struct GlFunctions {
     using TexSubImage2D = void(GL_APIENTRY*)(std::uint32_t, int, int, int, int, int, std::uint32_t, std::uint32_t,
         const void*);
     using TexImage2DMultisample = void(GL_APIENTRY*)(std::uint32_t, int, std::uint32_t, int, int, std::uint8_t);
+    using TexStorage2D = void(GL_APIENTRY*)(std::uint32_t, int, std::uint32_t, int, int);
+    using CompressedTexSubImage2D = void(GL_APIENTRY*)(std::uint32_t, int, int, int, int, int, std::uint32_t, int,
+        const void*);
     using TexParameteri = void(GL_APIENTRY*)(std::uint32_t, std::uint32_t, int);
     using PixelStorei = void(GL_APIENTRY*)(std::uint32_t, int);
     using ActiveTexture = void(GL_APIENTRY*)(std::uint32_t);
@@ -317,6 +328,9 @@ struct GlFunctions {
     TexImage2DMultisample tex_image_multisample = nullptr;
     // GLES 3.1 có glTexStorage2DMultisample, không có glTexImage2DMultisample của desktop.
     TexImage2DMultisample tex_storage_multisample = nullptr;
+    // Lõi của GL 4.2 và ES 3.0. Chỉ texture khối nén dùng hai hàm này; thiếu thì không có khối nén nào.
+    TexStorage2D tex_storage = nullptr;
+    CompressedTexSubImage2D compressed_tex_sub_image = nullptr;
     TexParameteri tex_parameter = nullptr;
     PixelStorei pixel_store = nullptr;
     ActiveTexture active_texture = nullptr;
@@ -376,8 +390,8 @@ struct GlFunctions {
 // không được lấy nhầm module của nhau.
 using ProcAddress = void* (*)(const char* name, void* library);
 
-// false khi thiếu hàm mà upload, shot hoặc shader gọi. buffer_storage, clip_control và
-// polygon_mode được phép null.
+// false khi thiếu hàm mà upload, shot hoặc shader gọi. buffer_storage, clip_control,
+// polygon_mode, tex_storage và compressed_tex_sub_image được phép null.
 [[nodiscard]] bool load_functions(GlFunctions& functions, ProcAddress proc, void* library);
 
 } // namespace game::gpu::gles

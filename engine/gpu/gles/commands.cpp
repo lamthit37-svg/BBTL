@@ -180,6 +180,54 @@ void bind_sampler_once(GlDevice& device, std::uint32_t index, std::uint32_t name
 // này không có trong lõi, bật là INVALID_ENUM và driver có thể bỏ lệnh xoá độ sâu.
 void encode_again(GlDevice&) {}
 
+
+// Nguồn của một lần nạp ảnh: con trỏ map của buffer, hoặc null khi buffer đang gắn làm PBO (lúc ấy GL đọc tham số
+// con trỏ như độ lệch trong PBO).
+struct Unpack {
+    const std::byte* mapped = nullptr;
+    std::uint64_t offset = 0;
+
+    [[nodiscard]] const void* at(std::uint64_t extra) const noexcept {
+        // Độ lệch trong PBO đi qua tham số con trỏ của GL: đặc tả buộc đổi số thành con trỏ.
+        // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast,performance-no-int-to-ptr)
+        if (mapped == nullptr) return reinterpret_cast<const void*>(std::uintptr_t{offset + extra});
+        // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-pointer-arithmetic)
+        return mapped + offset + extra;
+    }
+};
+
+// Cỡ vùng ảnh tính bằng điểm ảnh và bước dòng của nó trong buffer, tính bằng byte.
+struct BlockRect {
+    std::uint32_t width = 0;
+    std::uint32_t height = 0;
+    std::uint32_t pitch = 0;
+};
+
+// glCompressedTexSubImage2D không có bước dòng trên GLES (GL_UNPACK_COMPRESSED_BLOCK_* chỉ có ở desktop): bước dòng
+// bằng hàng khối khít thì một lời gọi cho cả vùng, không thì mỗi hàng khối một lời gọi. Chỉ mức mip có hàng khối hẹp
+// hơn kTextureRowAlignment mới bị đệm (padded_row_bytes), và những mức ấy có ít hàng.
+void upload_blocks(GlFunctions& api, const GlTexture& texture, const BufferTextureCopy& region, BlockRect rect,
+    const Unpack& source) {
+    const std::uint64_t tight = row_bytes(texture.format, rect.width);
+    const std::uint32_t rows = row_count(texture.format, rect.height);
+    const std::uint32_t block_height = info(texture.format).block_height;
+    const auto level = static_cast<int>(region.mip);
+    const auto left = static_cast<int>(region.x);
+    if (tight == rect.pitch) {
+        api.compressed_tex_sub_image(texture.target, level, left, static_cast<int>(region.y),
+            static_cast<int>(rect.width), static_cast<int>(rect.height), texture.internal,
+            static_cast<int>(tight * rows), source.at(0));
+        return;
+    }
+    for (std::uint32_t index = 0; index < rows; ++index) {
+        const std::uint32_t top = index * block_height;
+        const std::uint32_t height = std::min(block_height, rect.height - top);
+        api.compressed_tex_sub_image(texture.target, level, left, static_cast<int>(region.y + top),
+            static_cast<int>(rect.width), static_cast<int>(height), texture.internal, static_cast<int>(tight),
+            source.at(std::uint64_t{rect.pitch} * index));
+    }
+}
+
 } // namespace
 
 GlCommands::GlCommands(GlDevice& device, QueueType queue) : device_(&device), queue_(queue) {}
@@ -677,8 +725,8 @@ void GlCommands::copy_buffer_to_texture(BufferHandle source, TextureHandle targe
         return;
     }
     const bool is_rgba = texture->format == Format::kRgba8Unorm || texture->format == Format::kRgba8UnormSrgb;
-    if (texture->samples != 1 || !is_rgba) {
-        reject(fail(ErrorCode::kUnsupported, "upload GL chỉ nhận RGBA8"));
+    if (texture->samples != 1 || (!is_rgba && !texture->is_compressed)) {
+        reject(fail(ErrorCode::kUnsupported, "upload GL chỉ nhận RGBA8 và khối nén"));
         return;
     }
     GlFunctions& api = device_->api();
@@ -695,16 +743,17 @@ void GlCommands::copy_buffer_to_texture(BufferHandle source, TextureHandle targe
         const std::uint32_t row = region.row_bytes == 0
             ? static_cast<std::uint32_t>(padded_row_bytes(texture->format, width))
             : region.row_bytes;
-        api.pixel_store(GL_UNPACK_ROW_LENGTH, static_cast<int>(row / 4));
-        const void* pointer = nullptr;
-        if (is_mapped) {
-            pointer = static_cast<const std::byte*>(buffer->mapped) + region.buffer_offset;
-        } else {
-            pointer = reinterpret_cast<const void*>(static_cast<std::uintptr_t>(region.buffer_offset));
+        const Unpack unpack{.mapped = is_mapped ? static_cast<const std::byte*>(buffer->mapped) : nullptr,
+            .offset = region.buffer_offset};
+        if (texture->is_compressed) {
+            api.pixel_store(GL_UNPACK_ROW_LENGTH, 0);
+            upload_blocks(api, *texture, region, BlockRect{.width = width, .height = height, .pitch = row}, unpack);
+            continue;
         }
+        api.pixel_store(GL_UNPACK_ROW_LENGTH, static_cast<int>(row / 4));
         api.tex_sub_image(texture->target, static_cast<int>(region.mip), static_cast<int>(region.x),
             static_cast<int>(region.y), static_cast<int>(width), static_cast<int>(height), GL_RGBA, GL_UNSIGNED_BYTE,
-            pointer);
+            unpack.at(0));
     }
     api.pixel_store(GL_UNPACK_ROW_LENGTH, 0);
     api.bind_buffer(GL_PIXEL_UNPACK_BUFFER, 0);

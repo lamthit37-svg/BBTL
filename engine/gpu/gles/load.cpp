@@ -60,6 +60,8 @@ bool load_functions(GlFunctions& functions, ProcAddress proc, void* library) {
     store(functions.tex_sub_image, proc, library, "glTexSubImage2D");
     store(functions.tex_image_multisample, proc, library, "glTexImage2DMultisample");
     store(functions.tex_storage_multisample, proc, library, "glTexStorage2DMultisample");
+    store(functions.tex_storage, proc, library, "glTexStorage2D");
+    store(functions.compressed_tex_sub_image, proc, library, "glCompressedTexSubImage2D");
     store(functions.tex_parameter, proc, library, "glTexParameteri");
     store(functions.pixel_store, proc, library, "glPixelStorei");
     store(functions.active_texture, proc, library, "glActiveTexture");

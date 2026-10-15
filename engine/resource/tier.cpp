@@ -3,11 +3,13 @@
 
 #include "fs/disk.hpp"
 #include "fs/path.hpp"
+#include "io/file.hpp"
 #include "resource/dds.hpp"
 #include "resource/image.hpp"
 
 #include <cstdint>
 #include <cstring>
+#include <filesystem>
 #include <string>
 
 namespace game::resource {
@@ -76,6 +78,10 @@ std::string texture_file(std::string_view root, std::string_view relative, Textu
     if (tier == TextureTier::kBc) return plain;
     const std::string side = fs::join(root, tier_relative(relative, tier));
     if (fs::is_file(side)) return side;
+    // Tên trong dữ liệu gốc lệch hoa thường so với tệp thật ("tga_Background.dds" so với "tga_background.dds"): Windows
+    // bỏ qua, Android thì không, nên bản nấu bị bỏ sót và client rơi về DDS khối BC mà GPU điện thoại không đọc.
+    const std::filesystem::path like = io::find_ignoring_case(io::path_from_utf8(side));
+    if (!like.empty()) return io::utf8_of(like);
     return plain;
 }
 

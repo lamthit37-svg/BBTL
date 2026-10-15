@@ -17,7 +17,13 @@ struct TexFormat {
     std::uint32_t type = GL_UNSIGNED_BYTE;
     bool srgb = false;
     bool depth = false;
+    // Khối nén: cấp bằng glTexStorage2D, nạp bằng glCompressedTexSubImage2D; format và type không dùng.
+    bool compressed = false;
 };
+
+[[nodiscard]] constexpr TexFormat blocks(std::uint32_t internal, bool srgb) noexcept {
+    return {internal, GL_NONE, GL_NONE, srgb, false, true};
+}
 
 [[nodiscard]] TexFormat tex_format(Format format) noexcept {
     switch (format) {
@@ -27,8 +33,33 @@ struct TexFormat {
     case Format::kRgba8UnormSrgb: return {GL_RGBA8, GL_RGBA, GL_UNSIGNED_BYTE, true, false};
     case Format::kD32Float: return {GL_DEPTH_COMPONENT32F, GL_DEPTH_COMPONENT, GL_FLOAT, false, true};
     case Format::kD24UnormS8Uint: return {GL_DEPTH24_STENCIL8, GL_DEPTH_COMPONENT, GL_FLOAT, false, true};
+    // Khối nén khai sRGB cũng cất bằng định dạng thường, cùng lý do. BC1 của D3D có alpha một bit: bản RGBA của DXT1.
+    case Format::kBc1Unorm: return blocks(GL_COMPRESSED_RGBA_S3TC_DXT1_EXT, false);
+    case Format::kBc1UnormSrgb: return blocks(GL_COMPRESSED_RGBA_S3TC_DXT1_EXT, true);
+    case Format::kBc2Unorm: return blocks(GL_COMPRESSED_RGBA_S3TC_DXT3_EXT, false);
+    case Format::kBc2UnormSrgb: return blocks(GL_COMPRESSED_RGBA_S3TC_DXT3_EXT, true);
+    case Format::kBc3Unorm: return blocks(GL_COMPRESSED_RGBA_S3TC_DXT5_EXT, false);
+    case Format::kBc3UnormSrgb: return blocks(GL_COMPRESSED_RGBA_S3TC_DXT5_EXT, true);
+    case Format::kEtc2Rgb8Unorm: return blocks(GL_COMPRESSED_RGB8_ETC2, false);
+    case Format::kEtc2Rgb8UnormSrgb: return blocks(GL_COMPRESSED_RGB8_ETC2, true);
+    case Format::kEtc2Rgba8Unorm: return blocks(GL_COMPRESSED_RGBA8_ETC2_EAC, false);
+    case Format::kEtc2Rgba8UnormSrgb: return blocks(GL_COMPRESSED_RGBA8_ETC2_EAC, true);
+    case Format::kAstc4x4Unorm: return blocks(GL_COMPRESSED_RGBA_ASTC_4x4_KHR, false);
+    case Format::kAstc4x4UnormSrgb: return blocks(GL_COMPRESSED_RGBA_ASTC_4x4_KHR, true);
     default: return {};
     }
+}
+
+// Số byte mọi mức mip chiếm trên GPU, theo cỡ khối của định dạng. check_texture đã chặn mip_levels quá log2 cạnh.
+[[nodiscard]] std::uint64_t texture_bytes(const TextureDesc& desc) noexcept {
+    std::uint64_t total = 0;
+    const std::uint32_t levels = std::max(desc.mip_levels, 1U);
+    for (std::uint32_t level = 0; level < levels; ++level) {
+        const std::uint32_t width = std::max(desc.width >> level, 1U);
+        const std::uint32_t height = std::max(desc.height >> level, 1U);
+        total += row_bytes(desc.format, width) * row_count(desc.format, height);
+    }
+    return total * desc.samples;
 }
 
 [[nodiscard]] std::uint32_t address_of(AddressMode mode) noexcept {
@@ -48,7 +79,47 @@ struct TexFormat {
     return GL_LINEAR_MIPMAP_LINEAR;
 }
 
+// Cấp mọi mức mip của texture một mẫu đang bind ở target, rồi đặt khoảng mip và sampler mặc định.
+void allocate_levels(GlFunctions& api, std::uint32_t target, const TextureDesc& desc, const TexFormat& format) {
+    const std::uint32_t levels = std::max(desc.mip_levels, 1U);
+    if (format.compressed) {
+        // glTexImage2D không nhận định dạng nén, glCompressedTexImage2D đòi dữ liệu: cấp cả chuỗi mip một lần.
+        api.tex_storage(target, static_cast<int>(levels), format.internal, static_cast<int>(desc.width),
+            static_cast<int>(desc.height));
+    }
+    for (std::uint32_t level = 0; level < levels && !format.compressed; ++level) {
+        const int mip_width = std::max(static_cast<int>(desc.width >> level), 1);
+        const int mip_height = std::max(static_cast<int>(desc.height >> level), 1);
+        api.tex_image(target, static_cast<int>(level), static_cast<int>(format.internal), mip_width, mip_height, 0,
+            format.format, format.type, nullptr);
+    }
+    api.tex_parameter(target, GL_TEXTURE_BASE_LEVEL, 0);
+    api.tex_parameter(target, GL_TEXTURE_MAX_LEVEL, static_cast<int>(levels - 1));
+    api.tex_parameter(target, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    api.tex_parameter(target, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    api.tex_parameter(target, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    api.tex_parameter(target, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+}
+
 } // namespace
+
+bool samples_blocks(const GlProfile& profile, Format format) noexcept {
+    switch (format) {
+    case Format::kBc1Unorm:
+    case Format::kBc1UnormSrgb: return profile.has_bc1;
+    case Format::kBc2Unorm:
+    case Format::kBc2UnormSrgb: return profile.has_bc2;
+    case Format::kBc3Unorm:
+    case Format::kBc3UnormSrgb: return profile.has_bc3;
+    case Format::kEtc2Rgb8Unorm:
+    case Format::kEtc2Rgb8UnormSrgb:
+    case Format::kEtc2Rgba8Unorm:
+    case Format::kEtc2Rgba8UnormSrgb: return profile.has_etc2;
+    case Format::kAstc4x4Unorm:
+    case Format::kAstc4x4UnormSrgb: return profile.has_astc;
+    default: return false;
+    }
+}
 
 Result<TextureHandle> GlDevice::create_texture(const TextureDesc& desc) {
     const core::Status checked = check_texture(desc, caps_);
@@ -58,6 +129,12 @@ Result<TextureHandle> GlDevice::create_texture(const TextureDesc& desc) {
     }
     const TexFormat format = tex_format(desc.format);
     if (format.internal == 0) return fail(ErrorCode::kUnsupported, "định dạng texture GL chưa có");
+    if (format.compressed && !samples_blocks(profile(), desc.format)) {
+        return fail(ErrorCode::kUnsupported, "GPU này không lấy mẫu được khối nén", name(desc.format));
+    }
+    if (format.compressed && (desc.samples != 1 || has(desc.usage, TextureUsage::kColorTarget))) {
+        return fail(ErrorCode::kUnsupported, "khối nén GL chỉ làm ảnh lấy mẫu một mẫu");
+    }
     if (!lock_context()) return fail(ErrorCode::kUnsupported, "context GL không current");
     GlTexture texture;
     texture.kind = desc.kind;
@@ -71,6 +148,9 @@ Result<TextureHandle> GlDevice::create_texture(const TextureDesc& desc) {
     texture.srgb = format.srgb;
     texture.is_target = has(desc.usage, TextureUsage::kColorTarget);
     texture.target = desc.samples > 1 ? GL_TEXTURE_2D_MULTISAMPLE : GL_TEXTURE_2D;
+    texture.internal = format.internal;
+    texture.is_compressed = format.compressed;
+    texture.bytes = texture_bytes(desc);
     api().gen_textures(1, &texture.name);
     api().bind_texture(texture.target, texture.name);
     // Tạo texture gắn nó vào đơn vị đang bật: bộ nhớ đệm trạng thái vẽ không còn đúng.
@@ -93,23 +173,10 @@ Result<TextureHandle> GlDevice::create_texture(const TextureDesc& desc) {
                 GL_TRUE);
         }
     } else {
-        const std::uint32_t levels = std::max(desc.mip_levels, 1U);
-        for (std::uint32_t level = 0; level < levels; ++level) {
-            const int mip_width = std::max(static_cast<int>(desc.width >> level), 1);
-            const int mip_height = std::max(static_cast<int>(desc.height >> level), 1);
-            api().tex_image(texture.target, static_cast<int>(level), static_cast<int>(format.internal), mip_width,
-                mip_height, 0, format.format, format.type, nullptr);
-        }
-        api().tex_parameter(texture.target, 0x813C, 0);
-        api().tex_parameter(texture.target, 0x813D, static_cast<int>(levels - 1));
-        api().tex_parameter(texture.target, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-        api().tex_parameter(texture.target, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-        api().tex_parameter(texture.target, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-        api().tex_parameter(texture.target, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+        allocate_levels(api(), texture.target, desc, format);
     }
     texture_names_.push_back(texture.name);
-    const std::uint64_t bytes = static_cast<std::uint64_t>(desc.width) * desc.height * 4U * desc.samples;
-    used_bytes_ += bytes;
+    used_bytes_ += texture.bytes;
     const TextureHandle handle = textures_.insert(std::move(texture));
     unlock_context();
     if (!handle) return fail(ErrorCode::kOutOfMemory, "hết chỗ bảng texture GL");

@@ -21,6 +21,12 @@ struct GlProfile {
     bool has_srgb = false;
     bool has_debug = false;
     bool has_compute = false;
+    // Khối nén lấy mẫu được (probe.cpp đọc): BC1, BC2, BC3 của DDS, ETC2 và ASTC 4x4 của bản nấu cho điện thoại.
+    bool has_bc1 = false;
+    bool has_bc2 = false;
+    bool has_bc3 = false;
+    bool has_etc2 = false;
+    bool has_astc = false;
     std::uint32_t max_texture = 0;
     std::uint32_t max_anisotropy = 1;
     std::uint32_t max_samples = 1;

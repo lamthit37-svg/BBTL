@@ -66,6 +66,24 @@ void read_anisotropy(GlProfile& profile, const GlFunctions& api) {
     clear_error(api);
 }
 
+// Khối nén lấy mẫu được. ETC2 nằm trong lõi của ES 3.0 và GL 4.3 (ARB_ES3_compatibility); ASTC và S3TC chỉ có qua
+// extension. ANGLE và vài driver ES khai ba phần của S3TC thành ba extension riêng. Một lượt qua danh sách extension.
+void read_blocks(GlProfile& profile, const GlFunctions& api) {
+    if (api.tex_storage == nullptr || api.compressed_tex_sub_image == nullptr || api.get_stringi == nullptr) return;
+    profile.has_etc2 = profile.is_es ? profile.major >= 3 : profile.major > 4 || (profile.major == 4 && profile.minor >= 3);
+    const int count = integer_of(api, GL_NUM_EXTENSIONS);
+    for (int index = 0; index < count; ++index) {
+        const std::string_view name = text_of(api.get_stringi(GL_EXTENSIONS, static_cast<std::uint32_t>(index)));
+        const bool is_s3tc = name == "GL_EXT_texture_compression_s3tc";
+        profile.has_bc1 = profile.has_bc1 || is_s3tc || name == "GL_EXT_texture_compression_dxt1";
+        profile.has_bc2 = profile.has_bc2 || is_s3tc || name == "GL_ANGLE_texture_compression_dxt3";
+        profile.has_bc3 = profile.has_bc3 || is_s3tc || name == "GL_ANGLE_texture_compression_dxt5";
+        profile.has_astc = profile.has_astc || name == "GL_KHR_texture_compression_astc_ldr" ||
+            name == "GL_OES_texture_compression_astc";
+    }
+    clear_error(api);
+}
+
 // probe.renderer phải có trước: tên card quyết định is_discrete và is_software.
 void read_profile(GlProbe& probe, const GlFunctions& api, GlFlavor flavor) {
     GlProfile& profile = probe.profile;
@@ -89,6 +107,7 @@ void read_profile(GlProbe& probe, const GlFunctions& api, GlFlavor flavor) {
     profile.max_storage_blocks = static_cast<std::uint32_t>(storage_blocks);
     clear_error(api);
     apply_storage_floor(profile);
+    read_blocks(profile, api);
     // Chỉ context desktop hỏi anisotropy; bản EGL chưa từng hỏi nên ES giữ mặc định 1.
     if (flavor == GlFlavor::kDesktop) read_anisotropy(profile, api);
 }

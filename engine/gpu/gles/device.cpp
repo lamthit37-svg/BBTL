@@ -110,7 +110,9 @@ FormatSupport GlDevice::format_support(Format format) const {
             FormatSupport::kBlendable;
     case Format::kD32Float:
     case Format::kD24UnormS8Uint: return FormatSupport::kDepthTarget;
-    default: return FormatSupport::kNone;
+    default:
+        if (samples_blocks(profile(), format)) return FormatSupport::kSampled | FormatSupport::kFiltered;
+        return FormatSupport::kNone;
     }
 }
 
@@ -463,6 +465,7 @@ void GlDevice::destroy(BufferHandle handle) {
 void GlDevice::destroy(TextureHandle handle) {
     std::optional<GlTexture> taken = textures_.remove(handle);
     if (!taken) return;
+    used_bytes_ -= std::min(used_bytes_, taken->bytes);
     retire(RetiredKind::kTexture, taken->name);
 }
 
