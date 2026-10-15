@@ -10,18 +10,21 @@
 //   là kéo phải (xoay); ngón thứ ba trở đi bị bỏ;
 // - cần gạt ảo: ngón chạm vùng cần khi chưa có cần thì thành cần, đế nổi ở chỗ chạm (lùi khỏi
 //   mép), mỗi lần dời là một Stick, nhấc là StickEnd. Ngón của cần không tính vào cử chỉ, nên tay
-//   kia vẫn chạm để đi hay kéo xoay.
+//   kia vẫn chạm để đi hay kéo xoay;
+// - chạm hai ngón (hai ngón cùng đặt rồi nhấc ngón đầu trong kPairTapTime, không ngón nào dời quá
+//   kDragSlop) là một cú nhảy: vỏ đọc take_pair_taps rồi gọi Display::act(PlayAct::kJump).
 // Toạ độ vào tính bằng điểm (point) của cửa sổ; InputEvent ra theo quy ước của input.hpp. Logic
 // thuần, không biết hệ cửa sổ, để test được trên PC.
 // Nguồn: TLBB Dev src/render/touch.hpp và touch.cpp@e0d89a6. Khác gốc: namespace game::control;
 // enumerator theo kCamelCase; các hàm phát nhiều sự kiện dùng emit thay cho push_back lồng
-// at_event.
+// at_event; chạm hai ngón để nhảy (bản gốc không có nút nhảy cho cảm ứng) nên up nhận thêm now.
 
 #include "control/input.hpp"
 
 #include <chrono>
 #include <cstdint>
 #include <optional>
+#include <utility>
 #include <vector>
 
 namespace game::control {
@@ -35,6 +38,8 @@ using TouchTime = std::chrono::nanoseconds;
 inline constexpr TouchTime kHoldTime = std::chrono::milliseconds{1000};
 // Dời xa chỗ chạm hơn chừng này điểm trước kHoldTime là kéo xoay camera, không phải rung tay.
 inline constexpr float kDragSlop = 16.0F;
+// Hai ngón đặt rồi nhấc trong chừng này là chạm hai ngón (nhảy); lâu hơn là giữ camera.
+inline constexpr TouchTime kPairTapTime = std::chrono::milliseconds{300};
 
 // Vùng cần gạt: góc trái dưới, x dưới kStickZoneWidth và y trên kStickZoneTop, theo tỉ lệ khung.
 inline constexpr float kStickZoneWidth = 0.4F;
@@ -57,7 +62,9 @@ public:
     // Mỗi hàm thêm các InputEvent sinh ra vào out (không xoá out).
     void down(std::uint64_t finger, TouchPoint where, TouchTime now, std::vector<InputEvent>& out);
     void move(std::uint64_t finger, TouchPoint where, TouchTime now, std::vector<InputEvent>& out);
-    void up(std::uint64_t finger, TouchPoint where, std::vector<InputEvent>& out);
+    void up(std::uint64_t finger, TouchPoint where, TouchTime now, std::vector<InputEvent>& out);
+    // Số lần chạm hai ngón từ lần gọi trước; lấy rồi thì về 0.
+    [[nodiscard]] std::uint32_t take_pair_taps() noexcept { return std::exchange(pair_taps_, 0U); }
 
 private:
     // Pointer: một ngón như chuột trái; Turn: một ngón kéo xoay như chuột phải; Camera: hai ngón.
@@ -106,6 +113,14 @@ private:
     // Độ đổi khoảng cách hai ngón chưa thành nấc, và khoảng cách hai ngón ở lần trước.
     float pinch_ = 0.0F;
     float spread_ = 0.0F;
+    // Cặp ngón đang mở có thể còn là một cú chạm hai ngón: lúc ngón thứ hai chạm, chỗ hai ngón lúc ấy, đã dời quá
+    // kDragSlop chưa.
+    bool is_pair_open_ = false;
+    bool has_pair_moved_ = false;
+    TouchTime pair_at_{};
+    TouchPoint pair_first_;
+    TouchPoint pair_second_;
+    std::uint32_t pair_taps_ = 0;
 };
 
 } // namespace game::control

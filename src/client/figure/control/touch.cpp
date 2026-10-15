@@ -1,5 +1,6 @@
 // Máy trạng thái của cử chỉ chạm, luật ghi ở touch.hpp: Idle, Pointer (một ngón như chuột trái),
-// Turn (một ngón kéo sớm: kéo phải), Camera (hai ngón: kéo phải và nấc lăn; giữ tới khi nhấc hết).
+// Turn (một ngón kéo sớm: kéo phải), Camera (hai ngón: kéo phải và nấc lăn; giữ tới khi nhấc hết; đặt rồi nhấc
+// nhanh là chạm hai ngón).
 // Ngón của cần gạt đi riêng (stick_), không vào fingers_ nên không đổi chế độ của cử chỉ.
 #include "control/touch.hpp"
 
@@ -84,6 +85,11 @@ void TouchGestures::down(std::uint64_t finger, TouchPoint where, TouchTime now, 
     if (fingers_.size() >= 2) return;
     fingers_.push_back(Finger{.id = finger, .at = where});
     if (fingers_.size() == 2) {
+        is_pair_open_ = true;
+        has_pair_moved_ = false;
+        pair_at_ = now;
+        pair_first_ = fingers_.front().at;
+        pair_second_ = fingers_.back().at;
         begin_camera(out);
         return;
     }
@@ -104,6 +110,9 @@ void TouchGestures::move(std::uint64_t finger, TouchPoint where, TouchTime now, 
     tracked->at = where;
     const bool is_pair = mode_ == Mode::kCamera && fingers_.size() == 2;
     if (is_pair) {
+        const bool is_far = distance(fingers_.front().at, pair_first_) > kDragSlop ||
+                            distance(fingers_.back().at, pair_second_) > kDragSlop;
+        if (is_far) has_pair_moved_ = true;
         follow_camera(out);
         return;
     }
@@ -121,12 +130,17 @@ void TouchGestures::move(std::uint64_t finger, TouchPoint where, TouchTime now, 
     push_drag(MouseButton::kLeft, from, where, out);
 }
 
-void TouchGestures::up(std::uint64_t finger, TouchPoint where, std::vector<InputEvent>& out) {
+void TouchGestures::up(std::uint64_t finger, TouchPoint where, TouchTime now, std::vector<InputEvent>& out) {
     if (is_stick_finger(finger)) {
         end_stick(out);
         return;
     }
     if (find(finger) == nullptr) return;
+    // Ngón đầu nhấc khỏi cặp quyết định cú chạm hai ngón; ngón còn lại nhấc sau không tính lần nữa.
+    if (is_pair_open_ && mode_ == Mode::kCamera && fingers_.size() == 2) {
+        if (!has_pair_moved_ && now - pair_at_ <= kPairTapTime) ++pair_taps_;
+        is_pair_open_ = false;
+    }
     std::erase_if(fingers_, [finger](const Finger& tracked) { return tracked.id == finger; });
     if (mode_ == Mode::kPointer) emit(out, InputKind::kRelease, MouseButton::kLeft, where);
     if (mode_ == Mode::kTurn) end_turn(where, out);

@@ -67,7 +67,7 @@ void one_finger(Context& context) {
     context.expect(is_moved && near_value(out[0].x, 0.11F), "rung dưới ngưỡng là di con trỏ");
     context.expect(is_moved && near_value(out[0].dx, 10.0F), "độ dời tính bằng điểm");
     out.clear();
-    gestures.up(1, at(110.0F, 50.0F), out);
+    gestures.up(1, at(110.0F, 50.0F), after(2000), out);
     const bool is_released = out.size() == 1 && is_at(out[0], InputKind::kRelease, MouseButton::kLeft, at(0.11F, 0.1F));
     context.expect(is_released, "nhấc là nhả trái: chạm để đi");
 }
@@ -93,7 +93,7 @@ void one_finger_turns(Context& context) {
     gestures.move(1, at(150.0F, 60.0F), after(300), out);
     context.expect(out.size() == 1 && near_value(out[0].dx, -50.0F), "kéo tiếp là kéo phải");
     out.clear();
-    gestures.up(1, at(150.0F, 60.0F), out);
+    gestures.up(1, at(150.0F, 60.0F), after(2000), out);
     const bool is_released =
         out.size() == 1 && is_at(out[0], InputKind::kRelease, MouseButton::kRight, at(0.15F, 0.12F));
     context.expect(is_released, "nhấc là nhả phải, không ra lệnh đi");
@@ -109,7 +109,7 @@ void hold_then_steer(Context& context) {
     const bool is_steered = out.size() == 1 && out[0].kind == InputKind::kMove;
     context.expect(is_steered && out[0].button == MouseButton::kLeft, "giữ lâu rồi kéo là lái");
     out.clear();
-    gestures.up(1, at(300.0F, 50.0F), out);
+    gestures.up(1, at(300.0F, 50.0F), after(2000), out);
     context.expect(out.size() == 1 && out[0].kind == InputKind::kRelease, "nhấc là nhả trái");
 }
 
@@ -134,12 +134,12 @@ void second_finger(Context& context) {
     const bool is_second = out[2].kind == InputKind::kWheel && near_value(out[2].wheel, 1.0F);
     context.expect(is_second, "nấc hai, dư 4 điểm");
     out.clear();
-    gestures.up(2, at(400.0F, 100.0F), out);
+    gestures.up(2, at(400.0F, 100.0F), after(2000), out);
     context.expect(out.size() == 1 && out[0].kind == InputKind::kRelease, "còn một ngón thì nhả");
     context.expect(out.size() == 1 && out[0].button == MouseButton::kRight, "đúng nút phải");
     out.clear();
     gestures.move(1, at(150.0F, 100.0F), after(0), out);
-    gestures.up(1, at(150.0F, 100.0F), out);
+    gestures.up(1, at(150.0F, 100.0F), after(2000), out);
     context.expect(out.empty(), "sau camera không ra lệnh đi tới khi nhấc hết");
     gestures.down(3, at(100.0F, 50.0F), after(0), out);
     const bool is_again = out.size() == 1 && out[0].kind == InputKind::kPress;
@@ -173,7 +173,7 @@ void third_finger(Context& context) {
     out.clear();
     gestures.down(3, at(500.0F, 400.0F), after(0), out);
     gestures.move(3, at(600.0F, 400.0F), after(0), out);
-    gestures.up(3, at(600.0F, 400.0F), out);
+    gestures.up(3, at(600.0F, 400.0F), after(2000), out);
     context.expect(out.empty(), "ngón thứ ba bị bỏ");
 }
 
@@ -206,7 +206,7 @@ void stick_hold(Context& context) {
     const StickAt full{.base = at(0.2F, 0.6F), .tilt = at(0.0F, -1.0F)};
     context.expect(out.size() == 1 && is_stick(out[0], full), "quá bán kính là hết cỡ");
     out.clear();
-    gestures.up(1, at(200.0F, 100.0F), out);
+    gestures.up(1, at(200.0F, 100.0F), after(2000), out);
     const bool is_ended = out.size() == 1 && out[0].kind == InputKind::kStickEnd;
     context.expect(is_ended, "nhấc là nhả cần");
 }
@@ -244,7 +244,7 @@ void stick_with_gestures(Context& context) {
     const bool is_mouse = out.size() == 1 && is_at(out[0], InputKind::kPress, MouseButton::kLeft, at(0.7F, 0.2F));
     context.expect(is_mouse, "ngón ngoài vùng là chuột trái");
     out.clear();
-    gestures.up(2, at(700.0F, 100.0F), out);
+    gestures.up(2, at(700.0F, 100.0F), after(2000), out);
     context.expect(out.size() == 1 && out[0].kind == InputKind::kRelease, "chạm để đi khi giữ cần");
     out.clear();
     gestures.down(3, at(100.0F, 400.0F), after(0), out);
@@ -255,8 +255,36 @@ void stick_with_gestures(Context& context) {
     later.down(2, at(200.0F, 300.0F), after(0), out);
     context.expect(out.size() == 2 && out[1].kind == InputKind::kStick, "cần chạm sau không huỷ");
     out.clear();
-    later.up(1, at(700.0F, 100.0F), out);
+    later.up(1, at(700.0F, 100.0F), after(2000), out);
     context.expect(out.size() == 1 && out[0].kind == InputKind::kRelease, "ngón chuột vẫn nhả");
+}
+
+// Chạm hai ngón là nhảy: đặt hai ngón rồi nhấc trong kPairTapTime, không ngón nào dời quá kDragSlop. Giữ lâu hay kéo
+// (xoay, chụm) không phải chạm; ngón còn lại nhấc sau không tính thêm lần nữa.
+void pair_tap(Context& context) {
+    TouchGestures gestures = screen();
+    std::vector<InputEvent> out;
+    gestures.down(1, at(500.0F, 100.0F), after(0), out);
+    gestures.down(2, at(700.0F, 100.0F), after(40), out);
+    gestures.move(2, at(705.0F, 103.0F), after(80), out);
+    gestures.up(1, at(500.0F, 100.0F), after(200), out);
+    gestures.up(2, at(705.0F, 103.0F), after(220), out);
+    context.expect(gestures.take_pair_taps() == 1, "đặt hai ngón rồi nhấc nhanh là một cú nhảy");
+    context.expect(gestures.take_pair_taps() == 0, "lấy rồi thì hết");
+    gestures.down(1, at(500.0F, 100.0F), after(1000), out);
+    gestures.down(2, at(700.0F, 100.0F), after(1000), out);
+    gestures.up(2, at(700.0F, 100.0F), after(1000 + 301), out);
+    gestures.up(1, at(500.0F, 100.0F), after(1000 + 302), out);
+    context.expect(gestures.take_pair_taps() == 0, "giữ quá kPairTapTime là giữ camera");
+    gestures.down(1, at(500.0F, 100.0F), after(2000), out);
+    gestures.down(2, at(700.0F, 100.0F), after(2000), out);
+    gestures.move(2, at(740.0F, 100.0F), after(2050), out);
+    gestures.up(2, at(740.0F, 100.0F), after(2100), out);
+    gestures.up(1, at(500.0F, 100.0F), after(2110), out);
+    context.expect(gestures.take_pair_taps() == 0, "chụm mở quá kDragSlop là camera, không phải nhảy");
+    gestures.down(1, at(500.0F, 100.0F), after(3000), out);
+    gestures.up(1, at(500.0F, 100.0F), after(3050), out);
+    context.expect(gestures.take_pair_taps() == 0, "một ngón chạm là đi, không phải nhảy");
 }
 
 constexpr std::array kCases{
@@ -270,6 +298,7 @@ constexpr std::array kCases{
     Case{.name = "stick_edge", .body = &stick_edge},
     Case{.name = "stick_density", .body = &stick_density},
     Case{.name = "stick_with_gestures", .body = &stick_with_gestures},
+    Case{.name = "pair_tap", .body = &pair_tap},
 };
 
 } // namespace
