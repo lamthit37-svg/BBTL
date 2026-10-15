@@ -560,7 +560,8 @@ void bar_tint_uninterrupted(Context& context) {
         "dưới startpoint thì defcolor");
     context.expect(uninterrupted_tint(spec(0, 20), 0.25F, std::chrono::milliseconds{100}) == 0xFF00FF00U,
         "trên endpoint thì defcolor");
-    context.expect(uninterrupted_tint(spec(0, 0), 0.0F, std::chrono::hours{1}) == 0xFF000000U,
+    // Mức 0 không có quad để đọc màu, nên điểm trùng đặt ở 25% và thanh dừng đúng 0,25.
+    context.expect(uninterrupted_tint(spec(25, 25), 0.25F, std::chrono::hours{1}) == 0xFF000000U,
         "startpoint trùng endpoint thì startcolor, không NaN");
 }
 
