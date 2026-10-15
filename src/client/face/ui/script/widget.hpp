@@ -52,6 +52,9 @@ enum class Kind : std::uint8_t {
 // "Falagard/SuperProgress" -> kProgressBar; tên lạ -> kWindow.
 [[nodiscard]] Kind kind_of(std::string_view falagard_type) noexcept;
 
+// Tên lớp để in ("ProgressBar", "CtrlList"...).
+[[nodiscard]] std::string_view kind_name(Kind kind) noexcept;
+
 // Thứ widget cần hỏi hay nhờ phía game/host mà Widgets không có. Mọi hàm có mặc định để chỗ dùng chỉ ghi đè
 // phần mình có.
 class Services {
@@ -111,6 +114,11 @@ struct MissingMethod {
 
 // Dựng metatable và bảng phương thức sau khi mở state. Gọi lại là vô hại, và đổi được chế độ `missing` của state.
 void open_widget_classes(lua_State* state, Missing missing = Missing::kRaise);
+
+// Nhịp thời gian của các widget (FalagardSuperProgress::updateSelf): mọi cửa sổ của store có đoạn mờ dần (SetFadeState > 0)
+// và đang hiện thì trừ seconds khỏi thời gian còn, đặt Alpha = còn / tổng; hết giờ (còn < 0) thì giấu cửa sổ, và nếu nó là
+// cửa sổ gốc của layout (`this`) thì services.set_root_shown(false). seconds là giây từ đồng hồ khung.
+void advance_widgets(ui::panel::Widgets& store, const gui::GuiAsset& asset, Services& services, float seconds);
 
 // Các phương thức bị gọi mà chưa có từ lúc mở chế độ kRecord, theo tên tăng dần; rỗng khi state chưa từng mở chế độ ấy.
 [[nodiscard]] std::vector<MissingMethod> missing_methods(lua_State* state);

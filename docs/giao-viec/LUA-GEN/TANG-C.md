@@ -38,12 +38,13 @@ struct WindowRef {                  // trivially copyable; sao vào userdata Lua
 void open_widget_classes(lua_State*, Missing = Missing::kRaise);  // sau khi mở state; gọi lại được, đổi được chế độ
 std::vector<MissingMethod> missing_methods(lua_State*);          // chế độ kRecord: phương thức bị gọi mà chưa có (tên, số lần)
 void push_widget(lua_State*, const WindowRef&);      // userdata + metatable chung; seed_hidden khi layout khai Visible=False
+void advance_widgets(Widgets&, const gui::GuiAsset&, Services&, float seconds);  // nhịp thời gian: SetFadeState > 0 mờ dần rồi giấu
 }
 ```
 
 Điều kiện sống: `store`, `calls`, `asset`, `name`, `services` sống lâu hơn `lua_State`. Chỉ dùng C API thô (`lua.h` của LuaPlus), không phụ thuộc vỏ `lua::State` của e2.
-Bảng phương thức đã viết và hàng đợi còn lại: `WIDGET-PHUONG-THUC.tsv` (44 xong, 6 của `this` thuộc host, còn lại chưa). Kiểm: `Test/Ui/ui_script_widget_tests.cpp`
-(11 ca; ca cuối chạy `ProgressBar.lua` gốc qua một host tối thiểu của test và khớp 12/12 khối `progress_bar_flow.tsv`). Lưu ý LuaPlus 5.0.1: `luaL_checkudata` trả NULL
+Bảng phương thức đã viết và hàng đợi còn lại: `WIDGET-PHUONG-THUC.tsv` (76 xong, 6 của `this` thuộc host, còn lại chưa). Kiểm: `Test/Ui/ui_script_widget_tests.cpp`
+(16 ca; ca cuối chạy `ProgressBar.lua` gốc qua một host tối thiểu của test và khớp 12/12 khối `progress_bar_flow.tsv`). Lưu ý LuaPlus 5.0.1: `luaL_checkudata` trả NULL
 chứ không báo lỗi; `lua_getmetatable` chết khi ngăn xếp không có chỉ số; `lua_dobuffer` in lỗi ra stderr qua `_ALERT` (dùng `luaL_loadbuffer` + `lua_pcall`).
 
 ## 1. Client gốc nạp một cửa sổ thế nào
@@ -140,6 +141,18 @@ AbsoluteYPosition 211, AbsoluteHeight 179, AbsoluteWidth 167 → cần giá tr�
 Theo [N] mỗi phương thức kiểm kiểu đối số và `return 0` im lặng khi sai (ví dụ `SetProgress` không nhận số thì không làm gì; `SetText` nhận số thì `sprintf("%d")`, nhận
 chuỗi thì phân tích thẻ màu; `CareObject` sai đối số thì `TDThrow`). Mỗi phương thức khi viết đối chiếu [N] rồi [M] (hàm 2026 qua `docs/GIAO-DIEN-2026.md` hoặc tháo), ghi dòng `Khác gốc:` nếu lệch.
 Lỗi Lua của lời gọi: host ghi nhật ký một dòng tiếng Việt (cửa sổ, hàm, thông điệp), bỏ lời gọi đó, không đổi môi trường (**khác gốc**: gốc hiện hộp thoại).
+
+### 2.4 Đọc mã máy của `UI_CEGUI.dll` để port phương thức widget
+Hàm Lua của mỗi phương thức là hàm đăng ký trong một hàm lớn duy nhất (9509: chứa 0x18002ba00), mỗi lời gọi đăng ký nạp con trỏ hàm
+vào RCX hay RSI rồi tên vào RDX. `TOOLS/port/ghidra/DecompileAt.java` có các khoá `m:<địa chỉ trong hàm đó>` (in `0xhàm tên` theo thứ tự đăng
+ký, tên lớp và `__index` xen giữa là nhãn của lớp, con trỏ đứng cạnh chúng không có nghĩa), `d:` (mọi lệnh máy của hàm, khi decompile làm
+mất đối số dấu phẩy động như `lua_pushnumber(L)`), `r:` (16 byte dữ liệu: hằng số). Hàm tên phương thức đăng ký là hàm Lua thật, không phải
+thunk: nó đọc đối số bằng `lua_type`/`lua_isstring`/`lua_tonumber` rồi gọi thẳng lớp CEGUI (ví dụ `Combobox::addItem`).
+Hai bản mã máy cho cùng một mã: dự án Ghidra TLBB (`decompile.bat UI_CEGUI.dll ...`) và `D:\XTLBB\Bin64\UI_CEGUI.dll` 3.71.9509 (nhập vào dự án
+riêng: `analyzeHeadless <thư mục> <tên dự án> -import D:\XTLBB\Bin64\UI_CEGUI.dll`, rồi `-process UI_CEGUI.dll -noanalysis -readOnly -scriptPath
+TOOLS/port/ghidra -postScript DecompileAt.java <tệp xuất> <khoá>...`). Cả hai có đúng 384 tên phương thức, và 31 hàm đã port (hộp thả,
+CtrlList, `SetImage`, thanh cuộn) cho bản decompile giống từng dòng sau khi bỏ địa chỉ và tên biến (địa chỉ lệch nhau vài trăm byte); chú
+thích trong `widget.cpp` ghi địa chỉ 9509.
 
 ## 3. Kiểm bằng số vàng của chín cửa sổ port tay
 

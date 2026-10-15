@@ -16,29 +16,29 @@ CareObject	P0	1213	604	this		phương thức của CUIWindowItem (nửa host)	-	
 GetText	P1	568	207	Window		chữ script đặt, không thì chữ layout	Widgets::value	xong
 Play	P1	547	109	AnimateWindow	boolean	Playing = lặp	Widgets::play	xong
 AddTextElement	P1	515	29	ComplexWindow	chuỗi[, chuỗi]	phần tử text	Widgets::add_element	xong
-AddTextItem	P1	426	64	?				chưa
+AddTextItem	P1	426	64	ComboBox		như ComboBoxAddItem (qua bộ phân tích thẻ ở bản gốc)	Widgets::add_item	xong
 DoAction	P1	386	24	ActionButton		ô có action: nhờ game (Call kDoAction)	calls	xong
-AddNewItem	P1	384	49	CtrlList				chưa
+AddNewItem	P1	384	49	CtrlList		ô (chữ, id cột, hàng[, màu]); hàng có ô cột 0 thì ô vào hàng đó, không thì mở hàng	Widgets::put_cell	xong
 SetFakeObject	P1	364	82	MeshWindow	chuỗi	thuộc tính FakeObject	Widgets::set	xong
 GetCheck	P1	249	100	CheckButton		1 hay 0	Widgets::is_checked	xong
 AddChild	P1	183	135	?				chưa
-SetCurrentSelect	P2	180	65	ComboBox				chưa
+SetCurrentSelect	P2	180	65	ComboBox		chọn mục theo chỉ số, đặt chữ ô nhập; ngoài danh sách thì bỏ qua	Widgets::select_index	xong
 RotateEnd	P2	178	76	MeshWindow				chưa
 RotateBegin	P2	172	76	MeshWindow				chưa
-GetCurrentSelect	P2	171	83	ComboBox				chưa
+GetCurrentSelect	P2	171	83	ComboBox		(chữ, id) mục đang chọn; chưa chọn: ("-1", -1)	Widgets::chosen_item	xong
 Clear	P2	162	109	?				chưa
 GetChildOffset	P2	159	48	this		phương thức của CUIWindowItem (nửa host)	-	host
 AddItem	P2	159	45	ListBox	chuỗi, số[, chuỗi]	chữ, id, màu AARRGGBB	Widgets::add_item	xong
 ClearAllElement	P2	143	32	ComplexWindow		bỏ mọi phần tử	Widgets::clear_elements	xong
 SetProgress	P2	123	49	ProgressBar	số, số	chỉ khi cả hai là số; mức = tử / mẫu	Widgets::set_progress	xong
-ComboBoxAddItem	P2	118	21	ComboBox				chưa
+ComboBoxAddItem	P2	118	21	ComboBox		thêm mục (chữ, id); id thiếu là 0	Widgets::add_item	xong
 Flash	P2	110	39	?				chưa
-ResetList	P2	108	61	ComboBox				chưa
+ResetList	P2	108	61	ComboBox		bỏ mọi mục	Widgets::clear_list	xong
 SetSelected	P2	107	77	?				chưa
-SetImage	P2	106	27	StaticImage				chưa
+SetImage	P2	106	27	StaticImage		Image = icon đầy đủ, hoặc set:<a> image:<b>	Widgets::set	xong
 GetFirstSelectItem	P2	100	45	ListBox		id mục chọn, -1 khi không có	Widgets::selected_item	xong
-GetSelectItem	P2	86	38	CtrlList				chưa
-RemoveAllItem	P2	83	52	CtrlList				chưa
+GetSelectItem	P2	86	38	CtrlList		id ô cột 0 của hàng chọn, -1 khi không; chỉ Kind::kCtrlList	Widgets::selected_row	xong
+RemoveAllItem	P2	83	52	CtrlList		bỏ hàng, giữ cột; chỉ Kind::kCtrlList	Widgets::clear_rows	xong
 AddItemElement	P2	79	41	ComplexWindow				chưa
 PlayWarning	P2	79	9	ActionButton		không có trạng thái: nhận lời gọi	-	xong
 CleanAllElement	P2	74	39	?				chưa
@@ -49,7 +49,7 @@ SetPopMenuPos	P2	69	1	PopMenu				chưa
 ClearListBox	P2	62	42	ListBox		bỏ mục, bỏ chọn, về đầu	Widgets::clear_list	xong
 DetachWindowEx	P2	57	34	?				chưa
 AttachWindowEx	P2	50	35	?				chưa
-SetPosition	P2	50	6	ScrollBar				chưa
+SetPosition	P2	50	6	ScrollBar		kẹp 0..max(DocumentSize - PageSize, 0)	Widgets::set (ScrollPosition)	xong
 GetWindowSize	P2	42	30	?				chưa
 Activate	P2	41	38	this		phương thức của CUIWindowItem (nửa host)	-	host
 RefreshLayout	P2	41	28	?				chưa
@@ -60,14 +60,14 @@ PositionSelf	P2	36	27	SuperTooltip				chưa
 GetCameraEx	P2	36	21	?				chưa
 SetTextOriginal	P3	34	16	Window	chuỗi	giữ ở thuộc tính TextOriginal	Widgets::set	xong
 SetVertScrollbarPosition	P3	30	17	?				chưa
-GetPosition	P3	28	6	ScrollBar				chưa
+GetPosition	P3	28	6	ScrollBar		vị trí hiện tại	Widgets::value (ScrollPosition)	xong
 AddChatBoardElement	P3	27	3	?				chưa
 SetEvent	P3	22	9	?				chưa
 RemoveAllChatString	P3	22	4	ChatHistory				chưa
 AddOptionElement	P3	22	4	ComplexWindow				chưa
 SetScrollPosition	P3	21	17	ComplexWindow		giữ chỗ cuộn	Widgets::keep_scroll	xong
 AddItemExWithoutLayout	P3	19	4	?				chưa
-SetSelectItem	P3	18	14	?				chưa
+SetSelectItem	P3	18	14	CtrlList		chọn hàng; chỉ Kind::kCtrlList	Widgets::select_row	xong
 SetForce	P3	17	16	Window		không có trạng thái: nhận lời gọi	-	xong
 SetItemTooltip	P3	17	10	ListBox				chưa
 SetVertScrollbarHide	P3	16	8	?				chưa
@@ -80,23 +80,23 @@ SetAimEditBox	P3	14	4	SoftKeyWindow				chưa
 Tween_SetInfo	P3	13	9	?				chưa
 CenterWindow	P3	13	7	Window				chưa
 SetPushed	P3	13	3	ActionButton	số	Pushed = n == 1	Widgets::push	xong
-AddColumn	P3	12	3	CtrlList				chưa
+AddColumn	P3	12	3	CtrlList		cột (chữ, id, bề rộng)	Widgets::add_column	xong
 GetItemNumByItemId	P3	12	2	?				chưa
 GetListItemAt	P3	12	2	?				chưa
 GetActionItem	P3	11	6	ActionButton		id đang giữ, -1 khi trống	Widgets::action_item	xong
 TogleShow	P3	11	6	this		phương thức của CUIWindowItem (nửa host)	-	host
-SetTextItemText	P3	11	5	?				chưa
+SetTextItemText	P3	11	5	ComboBox		đổi chữ mục theo chỉ số	Widgets::set_item_text	xong
 SetListItemText	P3	11	4	ListBox				chưa
 AddActionElement	P3	11	2	ComplexWindow	số, số, số[, any]	phần tử action	Widgets::add_element	xong
 PageEnd	P3	11	2	ComplexWindow				chưa
-ResetLastSelectIndex	P3	10	8	?				chưa
+ResetLastSelectIndex	P3	10	8	ComboBox		không có trạng thái script thấy được	-	xong
 ScrollToEnd	P3	10	1	ChatHistory				chưa
 GetScrollPosition	P3	8	8	?				chưa
 SetElementsInView	P3	8	7	?				chưa
 DoScroll	P3	8	1	?				chưa
 InitWorldMap	P3	8	1	Scenemap				chưa
 Tween_Reset	P3	7	5	?				chưa
-ResetText	P3	7	5	?				chưa
+ResetText	P3	7	5	ComboBox		chữ ô nhập về rỗng	Widgets::set_text	xong
 StartFade	P3	7	2	Window	số, số, số	tới đích ngay (chưa có đồng hồ)	Widgets::set	xong
 GetPixelRect	P3	7	2	?				chưa
 GetClickedButtonItem	P3	6	4	?				chưa
@@ -114,7 +114,7 @@ GetItemElementsString	P3	5	1	?				chưa
 SetXAttachPos	P3	4	4	?				chưa
 GetVertScrollbarPosition	P3	4	4	?				chưa
 DoSubAction	P3	4	3	ActionButton				chưa
-SetImageColor	P3	4	2	StaticImage				chưa
+SetImageColor	P3	4	2	StaticImage		ImageColours bốn góc cùng màu	Widgets::set	xong
 replayEffect	P3	4	2	?				chưa
 AddMoneyElement	P3	4	2	ComplexWindow	số|chuỗi	phần tử money	Widgets::add_element	xong
 AddJiaoZiElement	P3	4	2	ComplexWindow	số|chuỗi	phần tử jiaozi	Widgets::add_element	xong
@@ -136,29 +136,29 @@ SetSFZAimEditBox	P3	3	1	?				chưa
 ChangeCameraDistanceEx	P3	3	1	?				chưa
 SetBuffImageShow	P3	3	1	?				chưa
 SetCityCurrentScene	P3	3	1	?				chưa
-SetRowTooltip	P3	2	2	?				chưa
+SetRowTooltip	P3	2	2	CtrlList		gợi ý của hàng	Widgets::set_row_tooltip	xong
 GetItem	P3	2	2	ListBox				chưa
 ClearSelectState	P3	2	2	?				chưa
 UpdateFlag	P3	2	2	Minimap				chưa
-ClearAllSelections	P3	2	2	?				chưa
-RemoveColumnByPos	P3	2	1	?				chưa
+ClearAllSelections	P3	2	2	ComboBox		bỏ dấu chọn	Widgets::clear_selection	xong
+RemoveColumnByPos	P3	2	1	CtrlList		bỏ cột theo chỉ số	Widgets::remove_column	xong
 GetAlpha	P3	2	1	Window		thuộc tính Alpha, mặc định 1	Widgets::value	xong
-GetColumnCount	P3	2	1	CtrlList				chưa
+GetColumnCount	P3	2	1	CtrlList		số cột	Widgets::column_count	xong
 UpdateSbgHumanFlag	P3	2	1	?				chưa
 AddInfo	P3	2	1	InfoList	chuỗi	thêm mục id 0, giữ 5 mục mới nhất, hiện danh sách	Widgets::add_info	xong
 DelItem	P3	2	1	ListBox				chưa
-SetItemText	P3	2	1	CtrlList				chưa
+SetItemText	P3	2	1	CtrlList		chữ ô (hàng, cột); chỉ Kind::kCtrlList	Widgets::set_cell_text	xong
 SetFmInfo	P3	2	1	?				chưa
 ShowBuleCircle	P3	2	1	?				chưa
 UpdateWorldMapInfoFoGuildDomain	P3	2	1	?				chưa
-GetTextItemId	P3	1	1	?				chưa
+GetTextItemId	P3	1	1	ComboBox		id của mục theo chỉ số	Widgets::item_at	xong
 CloseSceneMap	P3	1	1	Scenemap				chưa
 SetItemElementsString	P3	1	1	?				chưa
 GetCurrentSelectScene	P3	1	1	Scenemap				chưa
-GetItemCount	P3	1	1	CtrlList				chưa
+GetItemCount	P3	1	1	CtrlList		số hàng; chỉ Kind::kCtrlList	Widgets::row_count	xong
 GetListItemCount	P3	1	1	?				chưa
-GetItemText	P3	1	1	CtrlList				chưa
-GetListCount	P3	1	1	?				chưa
+GetItemText	P3	1	1	CtrlList		chữ ô (hàng, cột); ô không có: đối số cuối (lệch kỳ dị của gốc)	Widgets::cell_text	xong
+GetListCount	P3	1	1	ComboBox		số mục	Widgets::item_count	xong
 HideBuleCircle	P3	1	1	?				chưa
 SetScrollInfo	P3	1	1	?				chưa
 SetScrollInfoFirst	P3	1	1	?				chưa
@@ -170,7 +170,7 @@ GetItemUserData	P3	1	1	?				chưa
 RestPositonEx	P3	1	1	?				chưa
 AddChild2Item	P3	1	1	?				chưa
 ClearAllChannel	P3	1	1	ChatChannel				chưa
-SetVertScollPosition	P3	1	1	?				chưa
+SetVertScollPosition	P3	1	1	CtrlList		cuộn tới hàng 0..số hàng; chỉ Kind::kCtrlList	Widgets::scroll_rows	xong
 ActionEnable	P3	1	1	?				chưa
 GetItemNumByMissionId	P3	1	1	?				chưa
 RemoveTopElement	P3	1	1	?				chưa
@@ -188,11 +188,13 @@ RemoveAllText	P3	0	0	?				chưa
 Bright	P3	0	0	ActionButton		Gloom False	Widgets::gloom	xong
 SetAnimateID	P3	0	0	?				chưa
 GetThumbPositionX	P3	0	0	?				chưa
-SetRowUserData	P3	0	0	?				chưa
+SetRowUserData	P3	0	0	CtrlList		dữ liệu hàng (cất giá trị + 1)	Widgets::set_row_data	xong
 GetAbsolutePositionToScreen	P3	0	0	?				chưa
 GetName	P3	0	0	Window				chưa
-GetRowUserData	P3	0	0	?				chưa
-InsertColumn	P3	0	0	CtrlList				chưa
+GetRowUserData	P3	0	0	CtrlList		dữ liệu hàng, -1 khi chưa đặt	Widgets::row_data	xong
+InsertColumn	P3	0	0	CtrlList		cột tại vị trí	Widgets::add_column	xong
 TransText	-	0	0	Window		TextOriginal thành Text	Widgets::set_text	xong
 CaptureInput	-	0	0	Window		không có trạng thái: nhận lời gọi	-	xong
 Gloom	-	0	0	ActionButton		Gloom True	Widgets::gloom	xong
+AddNewItemTooltips	P3	0	0	CtrlList		như AddNewItem, đối số 5 là gợi ý	Widgets::put_cell	xong
+DeleteItem	P3	0	0	CtrlList		xoá hàng; chỉ Kind::kCtrlList	Widgets::remove_row	xong
