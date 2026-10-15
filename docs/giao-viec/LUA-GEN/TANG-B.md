@@ -1,7 +1,9 @@
 # LUA-GEN tầng B — API game mà script gọi: khảo sát và thiết kế (thienlong-e7, 2026-10-15)
 
-Trạng thái: THIẾT KẾ CHỜ DUYỆT. Chưa sửa `vm.hpp`, `host.hpp`, chưa viết mã tầng B. Mọi số dưới đây đo lại được bằng
-`python -B TOOLS/port/luagen/api_survey.py --layouts <Interface của cây chính>` (đo 2026-10-15); chỗ nào chưa đo ghi ở mục 6.
+Trạng thái (2026-10-15): phần khảo sát (mục 1, 3-6) còn đúng; phần thiết kế phía C++ (mục 2: module `gameapi`, `vm.hpp`, `GameHost`,
+`raise_error`) đã THAY bằng cách làm ở mục 8: LuaPlus gốc chạy thẳng, hàm game là hàm C (`lua_CFunction`) viết theo
+`src/client/face/lua/native.hpp`, đăng ký qua `open_natives`. Mục 8 là hiện trạng; đọc mục 2 như lịch sử. Mọi số dưới đây đo lại
+được bằng `python -B TOOLS/port/luagen/api_survey.py --layouts <Interface của cây chính>` (đo 2026-10-15); chỗ nào chưa đo ghi ở mục 6.
 
 Nguồn: `docs/giao-viec/LUA-GEN/API-TAN-SUAT.tsv`, `TAILIEU/GAME-EXE-2026/` (decompile, `lua_api.tsv`, `classes.tsv`, `packets.tsv`,
 disasm), script ở `src/client/script/Interface`. Bản trích là `Game.exe` 9001 (`D:\rea\work\client\Game.exe`); script là của 3.71.9509.
@@ -333,3 +335,48 @@ Game.exe chạy thật là thứ cần nhất. Ba bậc, từ rẻ đến đắt
 3. `api_contract.py` + `Test/golden/gameapi/contract.tsv` (bậc 1).
 4. 60 hàm đầu (mục 3), nối `hero` cho `Player:*`; sau đó theo thứ tự tham lam.
 5. Quyết định bậc 2/3 của mục 5 trước khi mở lô lớn.
+
+## 8. Hiện trạng đã làm (cách làm thật, thay mục 2)
+
+Tệp: `src/client/face/ui/script/`. Hàm game là `lua_CFunction` thật của LuaPlus 5.0.1, không có VM tự viết ở giữa.
+
+- `native_support.{hpp,cpp}` — nền chung của mọi nhóm: `native::Entry`, `register_globals` (hàm toàn cục), `register_table` (bảng như
+  `DataPool`, nhiều nhóm góp chung một bảng), `attach`/`context_of` (Context gắn vào registry của state bằng lightuserdata),
+  `strict_number` (số NGHIÊM: `lua_type == LUA_TNUMBER`, chuỗi số "5" không qua), `text_arg` (`lua_isstring`: chuỗi hay số), `to_int`
+  (`luanum_to_int32`, tức `(int)` của x64: ngoài miền ra INT32_MIN), `type_at`.
+- `context.hpp` — `Context`: trạng thái ghi được mà hàm native chia sẻ; HUD giữ một cái (`Hud::State::script_context`, khai trước `host`)
+  và đưa cho host bằng `HostDesc::natives = make_natives(context)` (= `open_natives(lua)` rồi `native::attach(lua, context)`). Hiện có `xscript` (bản ghi đang soạn và hàng đợi ra) và `xparam` (bản ghi tham số của sự kiện
+  đang chạy; `nullptr` khi sự kiện không mang). Nhóm sau cần thêm trạng thái (Facts của `Player:GetData`...) thì thêm trường vào đây.
+- `native_groups.hpp` + `native_<nhóm>.cpp` — mỗi nhóm một tệp, một hàm `register_<nhóm>(lua_State*)`, gọi từ `open_natives`
+  (`natives.cpp`). Thêm nhóm: viết tệp, khai hàm đăng ký ở `native_groups.hpp`, thêm vào `game_module(ui_script ...)`, gọi trong `open_natives`.
+- Thân hàm viết `lua::NativeResult body(lua_State*)` rồi đăng ký `lua::adapt<body>`: lỗi trả bằng `std::unexpected(NativeError::of/format(...))`,
+  không `luaL_error`, không để đối tượng có destructor sống qua một lời gọi API Lua (LuaPlus báo lỗi bằng longjmp).
+- Lời lỗi: mỗi hàm có câu riêng của Game.exe (`tThrowStringException`), KHÔNG có câu chung. Dạng phổ biến `LUA: Lua_<Tên> Wrong Param`,
+  nhưng không phải mọi hàm: `Check_StringCode` ném `LUA:Check_StringCode Param error` (không dấu cách sau `LUA:`), các hàm khác thêm
+  `[type=%d]`, `[type=%d,sid=%d]`... Phải đọc decompile từng hàm; không tự suy câu lỗi từ tên.
+- Booleans game trả cho script là số 1/0, không phải `true`/`false` của Lua.
+
+Nhóm đã port:
+
+| Nhóm | Hàm | Ghi chú |
+|---|---|---|
+| DataPool (`natives.cpp`) | `GetUIColor`, `Check_StringCode` | `GetUIColor` chưa có bảng màu nên trả "-1" "-1" (Khác gốc, ghi tại chỗ). |
+| XSCRIPT/XParam (`native_xscript.cpp`, `xscript.{hpp,cpp}`) | `Get_XParam_INT/UINT/STR/INT_Count/STR_Count`, `Set_XSCRIPT_ScriptID/Function_Name/ParamCount/Parameter`, `Clear_XSCRIPT`, `Send_XSCRIPT` | Dùng trong khoảng 1 100 cửa sổ. |
+
+XSCRIPT (bản ghi 128 byte ở `CDataPool + 0x138dc`): id 4 byte (+0), độ dài tên 1 byte (+4), tên 63 byte (+5), đếm tham số (+0x45), 14 tham số
+4 byte (+0x48). `Clear_XSCRIPT` đặt id -1 và xoá phần còn lại. `Set_XSCRIPT_Function_Name` chép tối đa 63 byte và dừng ở NUL đầu tiên.
+`Set_XSCRIPT_Parameter(i, v)` lấy 8 bit thấp của i (256 là ô 0), ngoài 14 ô thì bỏ qua không lỗi. `Set_XSCRIPT_ParamCount` giữ 8 bit thấp.
+`Send_XSCRIPT` đóng bản ghi vào gói `CGExecuteScript` (opcode 2219) cho `CNetManager`; protocol của dự án chưa có tin này nên bản ghi vào hàng
+đợi ra của `XScript` (trần 1 024, quá thì bỏ và đếm `dropped()`); HUD lấy ra mỗi khung và ghi một dòng stderr cho mỗi bản ghi.
+`Send` không xoá bản ghi đang soạn.
+
+XParam (bản ghi server gắn vào sự kiện, tối đa 16 số và 16 chuỗi): chưa có nguồn cấp (chưa có tin máy chủ mang tham số), nên `Context::xparam`
+luôn `nullptr`: `Get_XParam_INT`/`UINT` trả -1, `STR` trả "", hai hàm đếm trả 0. Khi có bản ghi: chỉ số ngoài đếm cho 0 hay "", `UINT` đọc
+số `int32` thành không dấu. Bên đưa sự kiện vào host đặt `xparam` trước `Host::post` và trả về `nullptr` sau đó.
+
+Khác gốc: câu lỗi của `Set_XSCRIPT_Function_Name` và `Set_XSCRIPT_ScriptID` gốc kèm tên môi trường giao diện đang chạy (`uiEnv=%s`); native
+không biết nó nên bỏ trường này. Câu lỗi của `Set_XSCRIPT_Parameter` gốc có `<%s>` mà decompile không thấy đối số; bỏ phần đó.
+
+Kiểm: `Test/Ui/ui_script_xscript_tests.cpp` (năm ca: chuỗi lệnh điền và gửi, giới hạn tên và chỉ số, trần hàng đợi, đọc XParam, câu lỗi);
+`ui_script_natives_tests` (DataPool). Chạy dưới ASan + UBSan (Clang) và debug mode (GCC) bằng `check.py --run`. Đã thử gài lỗi
+(bỏ cắt NUL, bỏ mặt nạ 8 bit) để xem test đỏ.

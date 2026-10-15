@@ -1,14 +1,16 @@
 #include "ui/script/natives.hpp"
 
+#include "lua/capi.hpp"
+#include "lua/native.hpp"
 #include "ui/panel/data_pool.hpp"
-#include "ui/script/raise.hpp"
+#include "ui/script/native_groups.hpp"
+#include "ui/script/native_support.hpp"
 
 #include <array>
+#include <expected>
+#include <functional>
+#include <optional>
 #include <string_view>
-
-extern "C" {
-#include "lua.h"
-}
 
 namespace game::ui::script {
 namespace {
@@ -21,37 +23,32 @@ int datapool_get_ui_colour(lua_State* lua) {
     return 2;
 }
 
-// DataPool:Check_StringCode(chuỗi) (Game.exe 0x1402e5db0, UI_CEGUI.dll 0x180055430): 1 khi chuỗi hợp lệ, 0 khi kết thúc giữa một
-// ký tự hay có byte sai (kiểm theo UTF-8, ui/panel/data_pool.hpp).
-// Khác gốc: tham số không phải chuỗi là lỗi Lua (chưa đo hành vi gốc, kho script luôn đưa chuỗi).
-int datapool_check_string_code(lua_State* lua) {
-    if (lua_isstring(lua, 2) == 0) return raise(lua, "DataPool:Check_StringCode: tham số 1 phải là chuỗi");
-    const std::string_view text(lua_tostring(lua, 2), lua_strlen(lua, 2));
-    lua_pushnumber(lua, panel::check_string_code(text) ? 1 : 0);
+// DataPool:Check_StringCode(chuỗi) (Game.exe 0x1402e6cd0 và 0x1402e5db0, UI_CEGUI.dll 0x180055430): 1 khi chuỗi hợp lệ, 0 khi
+// kết thúc giữa một ký tự hay có byte sai (kiểm theo UTF-8, ui/panel/data_pool.hpp). Đối số không phải chuỗi hay số: câu lỗi của gốc.
+lua::NativeResult datapool_check_string_code(lua_State* lua) {
+    const std::optional<std::string_view> text = native::text_arg(lua, 2);
+    if (!text) return std::unexpected(lua::NativeError::of("LUA:Check_StringCode Param error"));
+    lua_pushnumber(lua, panel::check_string_code(*text) ? 1 : 0);
     return 1;
 }
 
-struct Method {
-    const char* name;
-    lua_CFunction function;
-};
-
-constexpr std::array<Method, 2> kDataPool = {{
+constexpr std::array<native::Entry, 2> kDataPool = {{
     {.name = "GetUIColor", .function = &datapool_get_ui_colour},
-    {.name = "Check_StringCode", .function = &datapool_check_string_code},
+    {.name = "Check_StringCode", .function = &lua::adapt<datapool_check_string_code>},
 }};
 
 } // namespace
 
 void open_natives(lua_State* lua) {
-    lua_pushliteral(lua, "DataPool");
-    lua_newtable(lua);
-    for (const Method& method : kDataPool) {
-        lua_pushstring(lua, method.name);
-        lua_pushcfunction(lua, method.function);
-        lua_rawset(lua, -3);
-    }
-    lua_settable(lua, LUA_GLOBALSINDEX);
+    native::register_table(lua, "DataPool", kDataPool);
+    register_xscript(lua);
+}
+
+std::function<void(lua_State*)> make_natives(Context& context) {
+    return [&context](lua_State* lua) {
+        open_natives(lua);
+        native::attach(lua, context);
+    };
 }
 
 } // namespace game::ui::script
