@@ -1,3 +1,12 @@
+# +---------------------------------------------------------------+
+# | THIENLONG                                                     |
+# | Tệp: TOOLS/port/luagen/gen_pool_natives.py                    |
+# | - Sinh src/client/face/ui/script/native_pool.cpp: hàm game    |
+# |   của Game.exe 2026 mà thân chỉ đọc một (hay hai) trường số   |
+# |   của CDataPool.                                              |
+# | Dev : HiepHoon   Tele : @Hoon9xx                              |
+# +---------------------------------------------------------------+
+
 """Sinh src/client/face/ui/script/native_pool.cpp: hàm game của Game.exe 2026 mà thân chỉ đọc một (hay hai) trường số của CDataPool.
 
 CDataPool (DAT_141034c40) là kho dữ liệu máy chủ cấp cho giao diện: số thú cưng, số thư, cấp VIP, thời gian... Hàm Lua đọc thẳng một
@@ -28,12 +37,16 @@ import sys
 import zipfile
 
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
+sys.path.insert(0, str(pathlib.Path(__file__).resolve().parents[2] / "source_headers"))
+import source_frame  # noqa: E402  (TOOLS/source_headers: khung đầu tệp theo mẫu ENGINEHP)
 import gen_event_natives as events  # noqa: E402  (dùng chung bộ đọc bảng API, thân hàm và danh sách đã port)
 
 PROJECT = events.PROJECT
 GAME = events.GAME
 OUT = events.SCRIPT_DIR / "native_pool.cpp"
-CTOR = "0x1400dec40"
+CTOR = "0x1400dec40"  # hàm dựng CDataPool (DAT_141034c40)
+UI_CTOR = "0x1400a7be0"  # hàm dựng CUIDataPool (DAT_141034c10)
+GLOBALS = {"DAT_141034c40": False, "DAT_141034c10": True}  # tên toàn cục -> là kho giao diện
 
 TYPES = {"int": (4, True), "uint": (4, False), "short": (2, True), "ushort": (2, False), "byte": (1, False), "char": (1, True)}
 STORE_SIZES = {
@@ -43,12 +56,18 @@ STORE_SIZES = {
 }
 WIDTH_NAMES = {("int", 4): "kI32", ("uint", 4): "kU32", ("short", 2): "kI16", ("ushort", 2): "kU16", ("byte", 1): "kU8", ("char", 1): "kI8"}
 
-LOAD = r"\*\((int|uint|short|ushort|byte|char) ?\*\)\(DAT_141034c40 \+ (0x[0-9a-f]+)\)"
-NULL_GUARD = r"(?:if \(DAT_141034c40 == -0x[0-9a-f]+\) \{ return 0; \} )?"
-ONE = re.compile(rf"^{NULL_GUARD}lua_pushnumber\(\*param_(\d),\(double\){LOAD}\); lua_gettop\(\*param_\1\); return 1;$")
+POOL_NAMES = "|".join(GLOBALS)
+
+
+def load(number: int) -> str:
+    return rf"\*\((?P<t{number}>int|uint|short|ushort|byte|char) ?\*\)\((?P<g{number}>{POOL_NAMES}) \+ (?P<o{number}>0x[0-9a-f]+)\)"
+
+
+NULL_GUARD = rf"(?:if \((?:{POOL_NAMES}) == -0x[0-9a-f]+\) \{{ return 0; \}} )?"
+ONE = re.compile(rf"^{NULL_GUARD}lua_pushnumber\(\*param_(?P<p>\d),\(double\){load(1)}\); lua_gettop\(\*param_(?P=p)\); return 1;$")
 TWO = re.compile(
-    rf"^{NULL_GUARD}lua_pushnumber\(\*param_(\d),\(double\){LOAD}\); lua_gettop\(\*param_\1\); "
-    rf"lua_pushnumber\(\*param_\1,\(double\){LOAD}\); lua_gettop\(\*param_\1\); return 2;$"
+    rf"^{NULL_GUARD}lua_pushnumber\(\*param_(?P<p>\d),\(double\){load(1)}\); lua_gettop\(\*param_(?P=p)\); "
+    rf"lua_pushnumber\(\*param_(?P=p),\(double\){load(2)}\); lua_gettop\(\*param_(?P=p)\); return 2;$"
 )
 VIA = re.compile(r"^int (\w+); \1 = FUN_([0-9a-f]+)\(DAT_141034c40\); lua_pushnumber\(\*param_(\d),\(double\)\1\); lua_gettop\(\*param_\3\); return 1;$")
 SINGLE_LOAD = re.compile(
@@ -60,6 +79,7 @@ SINGLE_LOAD = re.compile(
 class Source:
     offset: int
     type: str
+    ui: bool = False  # đọc CUIDataPool (DAT_141034c10) thay vì CDataPool
 
 
 @dataclasses.dataclass(frozen=True)
@@ -114,20 +134,21 @@ class ConstructorImage:
     có vòng lặp bao quanh trường đang dùng đã rà tay ngày 2026-10-15, đều ghi 0 ở đúng các trường đó. Thêm hàm đọc ở vùng nhớ mới thì rà lại.
     """
 
-    def __init__(self) -> None:
+    def __init__(self, ctor: str = CTOR) -> None:
+        self.ctor = int(ctor, 16)
         self.bodies: dict[int, str] = {}
         seen: set[int] = set()
-        pending = {int(CTOR, 16)}
+        pending = {self.ctor}
         while pending:
             found = events.bodies_of({f"{address:#x}" for address in pending})
             seen |= pending
             self.bodies.update({int(address, 16): normalise(body) for address, body in found.items()})
             pending = {address for address in self._called({int(address, 16) for address in found}) if address not in seen}
-        assert int(CTOR, 16) in self.bodies, "không thấy hàm dựng CDataPool"
+        assert self.ctor in self.bodies, f"không thấy hàm dựng {ctor}"
         self.memory: dict[int, int] = {}
         self.opaque: set[int] = set()  # byte được ghi bằng biểu thức không phải số (con trỏ, giá trị tính)
         self.writer: dict[int, str] = {}
-        self._run(int(CTOR, 16), 0, 0)
+        self._run(self.ctor, 0, 0)
 
     def _called(self, parents: set[int]) -> set[int]:
         """Hàm con mà thân của `parents` gọi với đối số đầu dẫn xuất từ param_1 (hay bị Ghidra bỏ mất, xem LOST_ARGUMENT)."""
@@ -217,7 +238,7 @@ class ConstructorImage:
         written = [self.writer[position] for position in span if position in self.writer]
         if not written:
             return value, "không có trong hàm dựng, coi là 0"
-        direct = all(name == f"FUN_{int(CTOR, 16):x}" for name in written)
+        direct = all(name == f"FUN_{self.ctor:x}" for name in written)
         return value, "hàm dựng ghi" if direct else f"hàm dựng con {written[0]} ghi"
 
 
@@ -225,10 +246,11 @@ def parse(table: str, name: str, address: str, body: str, callees: dict[str, str
     text = inner(normalise(body))
     found = ONE.match(text)
     if found:
-        return PoolRow(table, name, address, (Source(int(found.group(3), 16), found.group(2)),))
+        return PoolRow(table, name, address, (Source(int(found["o1"], 16), found["t1"], GLOBALS[found["g1"]]),))
     found = TWO.match(text)
-    if found:
-        return PoolRow(table, name, address, (Source(int(found.group(3), 16), found.group(2)), Source(int(found.group(5), 16), found.group(4))))
+    if found and found["g1"] == found["g2"]:
+        ui = GLOBALS[found["g1"]]
+        return PoolRow(table, name, address, (Source(int(found["o1"], 16), found["t1"], ui), Source(int(found["o2"], 16), found["t2"], ui)))
     found = VIA.match(text)
     if found:
         callee = SINGLE_LOAD.match(normalise(callees.get("0x" + found.group(2), "")))
@@ -248,12 +270,12 @@ def callee_addresses(bodies: dict[str, str]) -> set[str]:
     return wanted
 
 
-def generate() -> tuple[list[PoolRow], ConstructorImage, list[str]]:
+def generate() -> tuple[list[PoolRow], dict[bool, ConstructorImage], list[str]]:
     done = events.implemented(OUT)
     candidates = events.missing_functions(done)
     bodies = events.bodies_of({address for _, _, address in candidates})
     callees = events.bodies_of(callee_addresses(bodies))
-    image = ConstructorImage()
+    images = {False: ConstructorImage(CTOR), True: ConstructorImage(UI_CTOR)}
     rows: list[PoolRow] = []
     skipped: list[str] = []
     seen: set[tuple[str, str]] = set()
@@ -264,13 +286,13 @@ def generate() -> tuple[list[PoolRow], ConstructorImage, list[str]]:
         row = parse(table, name, address, body, callees)
         if row is None:
             continue
-        if any(image.initial(source) is None for source in row.sources):
+        if any(images[source.ui].initial(source) is None for source in row.sources):
             skipped.append(f"{table}:{name}" if table else name)
             continue
         seen.add((table, name))
         rows.append(row)
     rows.sort(key=lambda row: (row.table, row.name))
-    return rows, image, skipped
+    return rows, images, skipped
 
 
 def render_source(source: Source) -> str:
@@ -278,17 +300,28 @@ def render_source(source: Source) -> str:
     return f"{{.offset = {source.offset:#x}, .width = Width::{WIDTH_NAMES[(source.type, size)]}}}"
 
 
-def render(rows: list[PoolRow], image: ConstructorImage) -> str:
-    offsets = sorted({source for row in rows for source in row.sources}, key=lambda s: (s.offset, s.type))
-    initial_lines = []
+def initial_lines_of(rows: list[PoolRow], image: ConstructorImage, ui: bool) -> list[str]:
+    """Dòng PoolInitial khác 0 cho các trường của một kho."""
+    offsets = sorted({source for row in rows for source in row.sources if source.ui == ui}, key=lambda s: (s.offset, s.type))
+    lines = []
     for source in offsets:
         value, note = image.initial(source)  # type: ignore[misc]
         if value != 0:
-            initial_lines.append(f"    {{.offset = {source.offset:#x}, .width = Width::{WIDTH_NAMES[(source.type, TYPES[source.type][0])]}, .value = {value}}}, // {note}")
+            lines.append(f"    {{.offset = {source.offset:#x}, .width = Width::{WIDTH_NAMES[(source.type, TYPES[source.type][0])]}, .value = {value}}}, // {note}")
+    return lines
+
+
+def render(rows: list[PoolRow], images: dict[bool, ConstructorImage]) -> str:
+    initial_lines = initial_lines_of(rows, images[False], False)
+    ui_initial_lines = initial_lines_of(rows, images[True], True)
+    frame = source_frame.render_frame("//", "src/client/face/ui/script/native_pool.cpp", [
+        "Sinh bằng gen_pool_natives.py từ decompile Game.exe 2026; không sửa tay (sửa bộ sinh rồi sinh lại).",
+        "Hàm game chỉ đọc một hay hai trường số của CDataPool hay CUIDataPool rồi lua_pushnumber.",
+        "Giá trị là ảnh bộ nhớ Facts::pool hay Facts::ui_pool (mạng ghi theo offset), chưa ghi thì giá trị của hàm dựng kho (0x1400dec40, 0x1400a7be0).",
+    ])
     lines = [
-        "// Sinh bằng TOOLS/port/luagen/gen_pool_natives.py từ decompile của Game.exe 2026; không sửa tay (sửa bộ sinh rồi sinh lại).",
-        "// Hàm game mà thân chỉ đọc một hay hai trường số của CDataPool (DAT_141034c40) rồi lua_pushnumber. Client chưa có kho đó:",
-        "// giá trị là ảnh bộ nhớ Facts::pool (phía mạng ghi theo offset), không có thì giá trị mà hàm dựng CDataPool (0x1400dec40) đặt.",
+        *frame,
+        "",
         '#include "lua/capi.hpp"',
         '#include "lua/native.hpp"',
         '#include "ui/script/context.hpp"',
@@ -311,6 +344,7 @@ def render(rows: list[PoolRow], image: ConstructorImage) -> str:
         "    const char* name = nullptr;",
         "    std::array<PoolField, 2> fields{}; // lần đẩy thứ nhất và thứ hai",
         "    int count = 0; // số lần đẩy",
+        "    bool ui = false; // đọc CUIDataPool (Facts::ui_pool) thay vì CDataPool (Facts::pool)",
         "};",
         "",
         f"constexpr std::array<Getter, {len(rows)}> kGetters = {{{{",
@@ -319,9 +353,10 @@ def render(rows: list[PoolRow], image: ConstructorImage) -> str:
         fields = [render_source(source) for source in row.sources]
         fields += ["{}"] * (2 - len(fields))
         table_text = events.cpp_string(row.table) if row.table else "nullptr"
+        ui_text = ", .ui = true" if row.sources[0].ui else ""
         lines.append(
             f"    {{.table = {table_text}, .name = {events.cpp_string(row.name)}, .fields = {{{{{', '.join(fields)}}}}}, "
-            f".count = {len(row.sources)}}}, // {row.address}"
+            f".count = {len(row.sources)}{ui_text}}}, // {row.address}"
         )
     lines += [
         "}};",
@@ -330,14 +365,20 @@ def render(rows: list[PoolRow], image: ConstructorImage) -> str:
         f"constexpr std::array<PoolInitial, {len(initial_lines)}> kInitial = {{{{",
         *initial_lines,
         "}};",
+        "// Như trên theo hàm dựng CUIDataPool.",
+        f"constexpr std::array<PoolInitial, {len(ui_initial_lines)}> kUiInitial = {{{{",
+        *ui_initial_lines,
+        "}};",
         "",
         "// Một hàm Lua cho mỗi dòng của kGetters: lua_CFunction không mang dữ liệu đi kèm nên chỉ số dòng là tham số mẫu.",
         "template <std::size_t Index>",
         "NativeResult pool_number(lua_State* lua) {",
         "    constexpr const Getter& getter = kGetters.at(Index);",
-        "    const PoolImage& pool = native::context_of(lua).facts.pool;",
+        "    const Facts& facts = native::context_of(lua).facts;",
+        "    const PoolImage& image = getter.ui ? facts.ui_pool : facts.pool;",
+        "    const std::span<const PoolInitial> initial = getter.ui ? std::span<const PoolInitial>(kUiInitial) : std::span<const PoolInitial>(kInitial);",
         "    for (int pushed = 0; pushed < getter.count; ++pushed) {",
-        "        lua_pushnumber(lua, static_cast<double>(pool.read(getter.fields.at(static_cast<std::size_t>(pushed)), kInitial)));",
+        "        lua_pushnumber(lua, static_cast<double>(image.read(getter.fields.at(static_cast<std::size_t>(pushed)), initial)));",
         "    }",
         "    return getter.count;",
         "}",
@@ -372,10 +413,10 @@ def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument("--write", action="store_true", help="ghi native_pool.cpp")
     args = parser.parse_args()
-    rows, image, skipped = generate()
+    rows, images, skipped = generate()
     print(f"{len(rows)} hàm đọc trường CDataPool; bỏ {len(skipped)} vì hàm dựng ghi giá trị không phải hằng: {', '.join(skipped)}")
     if args.write:
-        OUT.write_text(render(rows, image), encoding="utf-8", newline="\n")
+        OUT.write_text(render(rows, images), encoding="utf-8", newline="\n")
     return 0
 
 

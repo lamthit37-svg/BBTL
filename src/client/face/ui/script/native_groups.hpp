@@ -1,5 +1,13 @@
-// Các nhóm hàm game của script giao diện (tầng B của LUA-GEN). Mỗi nhóm một native_<nhóm>.cpp, có một hàm đăng ký gọi từ
-// open_natives. Đều chạy trong lua_cpcall và dùng Context đã attach (native_support.hpp).
+// +---------------------------------------------------------------+
+// | THIENLONG                                                     |
+// | Tệp: src/client/face/ui/script/native_groups.hpp              |
+// | - Các nhóm hàm game của script giao diện (tầng B của          |
+// |   LUA-GEN). Mỗi nhóm một native_<nhóm>.cpp, có một hàm đăng   |
+// |   ký gọi từ open_natives. Đều chạy trong lua_cpcall và dùng   |
+// |   Context đã attach (native_support.hpp).                     |
+// | Dev : HiepHoon   Tele : @Hoon9xx                              |
+// +---------------------------------------------------------------+
+
 #pragma once
 
 struct lua_State;

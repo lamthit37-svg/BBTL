@@ -1,5 +1,19 @@
-// Cấu trúc và hàm dùng chung của dàn trang: layout.cpp đặt cửa sổ và đo kích thước, paint.cpp ra
-// lệnh vẽ ảnh, text.cpp ra dòng chữ, hub.cpp giữ bộ nhớ đệm và thăm dò chuột. Nội bộ module gui.
+/*==============================================================================
+ *  THIENLONG  |  GAME CLIENT
+ *------------------------------------------------------------------------------
+ *  TỆP       : src/client/face/gui/detail/draw.hpp
+ *  PHÂN HỆ   : Gui / Detail / Draw
+ *  CHUẨN     : C++23
+ *------------------------------------------------------------------------------
+ *  CHỨC NĂNG
+ *  - Cấu trúc và hàm dùng chung của dàn trang: layout.cpp đặt cửa sổ và đo kích
+ *    thước, paint.cpp ra lệnh vẽ ảnh, text.cpp ra dòng chữ, hub.cpp giữ bộ nhớ
+ *    đệm và thăm dò chuột. Nội bộ module gui.
+ *------------------------------------------------------------------------------
+ *  TÁC GIẢ   : HiepHoon
+ *  TELEGRAM  : @Hoon9xx
+ *============================================================================*/
+
 #pragma once
 
 #include "gui/asset.hpp"
@@ -199,6 +213,8 @@ struct ScrollView {
 void draw_list(const Ctx& ctx, const Placed& self);
 void list_texts(const Ctx& ctx, const Placed& self);
 void draw_complex(const Ctx& ctx, const Placed& self);
+// Số lựa chọn của nút Option của cửa sổ phức hợp self dưới điểm pointer (sau khi cuộn); nullopt khi điểm không nằm trên nút nào.
+[[nodiscard]] std::optional<std::uint32_t> complex_option_under(const Ctx& ctx, const Placed& self, Pointer pointer);
 void complex_texts(const Ctx& ctx, const Placed& self);
 void draw_action(const Ctx& ctx, const Placed& self);
 

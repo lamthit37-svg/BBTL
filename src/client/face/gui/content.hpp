@@ -1,8 +1,23 @@
-// Nội dung động của danh sách và cửa sổ phức hợp đi vào bộ dàn trang qua Override, thay các lời gọi
-// AddItem, AddTextElement, AddActionElement... mà script gốc gọi lên cửa sổ CEGUI. Một thuộc tính
-// mang cả dãy bản ghi; bản ghi cách nhau bằng kRecordMark, trường trong bản ghi bằng kFieldMark (hai
-// ký tự điều khiển không có trong chữ giao diện). Người dựng (ui/panel/widgets) và người đọc
-// (gui/widgets.cpp) cùng dùng các hằng ở đây.
+/*==============================================================================
+ *  THIENLONG  |  GAME CLIENT
+ *------------------------------------------------------------------------------
+ *  TỆP       : src/client/face/gui/content.hpp
+ *  PHÂN HỆ   : Face / Gui / Content
+ *  CHUẨN     : C++23
+ *------------------------------------------------------------------------------
+ *  CHỨC NĂNG
+ *  - Nội dung động của danh sách và cửa sổ phức hợp đi vào bộ dàn trang qua
+ *    Override, thay các lời gọi AddItem, AddTextElement, AddActionElement... mà
+ *    script gốc gọi lên cửa sổ CEGUI. Một thuộc tính mang cả dãy bản ghi; bản
+ *    ghi cách nhau bằng kRecordMark, trường trong bản ghi bằng kFieldMark (hai
+ *    ký tự điều khiển không có trong chữ giao diện).
+ *------------------------------------------------------------------------------
+ *  TÁC GIẢ   : HiepHoon
+ *  TELEGRAM  : @Hoon9xx
+ *============================================================================*/
+
+// Người dựng (ui/panel/widgets) và người đọc (gui/widgets.cpp) cùng dùng các hằng ở đây.
+
 #pragma once
 
 #include <string_view>
@@ -25,11 +40,14 @@ inline constexpr std::string_view kScrollProperty = "ScrollPosition";
 //   money   số tiền (AddMoneyElement)
 //   jiaozi  số giao tử (AddJiaoZiElement)
 //   action  tên đầy đủ của icon "set:... image:...", rồi "1" khi reArrange (AddActionElement)
+//   option  chữ, số lựa chọn trả về cho nơi gọi (Hub::option_at), chỉ số biểu tượng (AddOptionElement): dòng bấm được
+//           vẽ bằng nút TLBB_QuestButton của look, biểu tượng theo thuộc tính QuestButtonImage
 inline constexpr std::string_view kElementsProperty = "Elements";
 inline constexpr std::string_view kTextElement = "text";
 inline constexpr std::string_view kMoneyElement = "money";
 inline constexpr std::string_view kJiaoZiElement = "jiaozi";
 inline constexpr std::string_view kActionElement = "action";
+inline constexpr std::string_view kOptionElement = "option";
 
 // Falagard/AchievementWindow: "Elements" là các nút theo thứ tự thêm (AddItemElement). Bản ghi gồm
 // bốn trường: khoá ChildItem của look ("SelectServerCatalog", "SelectServerText"), cờ ('h' là ẩn,

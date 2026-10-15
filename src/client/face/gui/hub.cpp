@@ -1,17 +1,31 @@
-// Hub: trung tâm dàn trang giữ bộ nhớ đệm của vòng vẽ. Chỉ dàn lại cửa sổ khi cỡ màn hình, danh
-// sách cửa sổ gốc hay giá trị đặt lúc chạy đổi; trang tĩnh (ảnh, chữ) chỉ dựng lại khi nút dưới
-// chuột đổi; trang động (thanh, radar) dựng lại khi thanh hay vị trí người chơi đổi. Mỗi lần dựng
-// lại tăng một mốc (stamp) để bộ vẽ biết có phải đẩy lại bộ đệm GPU không.
-// Thanh trượt như FalagardSuperProgress: người gọi nêu mức muốn tới, Hub giữ mức đang chạy của
-// từng thanh và đưa nó tới đích tối đa MoveSpeed mỗi giây (updateSelf 0x18007a760), cùng màu mà hàm
-// vẽ nhân vào thanh (bar_tint.hpp); paint.cpp vẽ theo cả mức muốn tới lẫn mức đang chạy
-// (populateRenderCache 0x180078870).
-// Nguồn: TLBB Dev src/gui/sheet.cpp@e0d89a6 (Hub, draw_order, hit). Khác gốc: thứ tự vẽ dựng bằng
-// ngăn xếp thay cho đệ quy; anh em luôn-trên-cùng xếp theo thứ tự khai như CEGUI (bản Dev xếp
-// ngược); hit nhận loại dò để nút trái xuyên MouseLButtonHollow; vòng lặp viết theo luật độ lồng;
-// chỉ số nút nóng thay cho phép trừ con trỏ; Hub tự trượt thanh (bản Dev để người gọi trượt); mức đang
-// chạy của thanh mới bắt đầu ở CurrentProgress (bản 2026 bắt đầu ở 0 rồi chạy tới, nhưng cửa sổ của nó có
-// từ lúc nạp giao diện nên đã chạy xong trước khi người gọi nêu mức: docs/NGHI-NGO.md mục 18).
+/*==============================================================================
+ *  THIENLONG  |  GAME CLIENT
+ *------------------------------------------------------------------------------
+ *  TỆP       : src/client/face/gui/hub.cpp
+ *  PHÂN HỆ   : Face / Gui / Hub
+ *  CHUẨN     : C++23
+ *------------------------------------------------------------------------------
+ *  CHỨC NĂNG
+ *  - Hub: trung tâm dàn trang giữ bộ nhớ đệm của vòng vẽ. Chỉ dàn lại cửa sổ
+ *    khi cỡ màn hình, danh sách cửa sổ gốc hay giá trị đặt lúc chạy đổi; trang
+ *    tĩnh (ảnh, chữ) chỉ dựng lại khi nút dưới chuột đổi; trang động (thanh,
+ *    radar) dựng lại khi thanh hay vị trí người chơi đổi. Mỗi lần dựng lại tăng
+ *    một mốc (stamp) để bộ vẽ biết có phải đẩy lại bộ đệm GPU không.
+ *------------------------------------------------------------------------------
+ *  TÁC GIẢ   : HiepHoon
+ *  TELEGRAM  : @Hoon9xx
+ *============================================================================*/
+
+// Thanh trượt như FalagardSuperProgress: người gọi nêu mức muốn tới, Hub giữ mức đang chạy của từng thanh và đưa nó
+// tới đích tối đa MoveSpeed mỗi giây (updateSelf 0x18007a760), cùng màu mà hàm vẽ nhân vào thanh (bar_tint.hpp);
+// paint.cpp vẽ theo cả mức muốn tới lẫn mức đang chạy (populateRenderCache 0x180078870). Nguồn: TLBB Dev
+// src/gui/sheet.cpp@e0d89a6 (Hub, draw_order, hit). Khác gốc: thứ tự vẽ dựng bằng ngăn xếp thay cho đệ quy; anh em
+// luôn-trên-cùng xếp theo thứ tự khai như CEGUI (bản Dev xếp ngược); hit nhận loại dò để nút trái xuyên
+// MouseLButtonHollow; vòng lặp viết theo luật độ lồng; chỉ số nút nóng thay cho phép trừ con trỏ; Hub tự trượt thanh
+// (bản Dev để người gọi trượt); mức đang chạy của thanh mới bắt đầu ở CurrentProgress (bản 2026 bắt đầu ở 0 rồi chạy
+// tới, nhưng cửa sổ của nó có từ lúc nạp giao diện nên đã chạy xong trước khi người gọi nêu mức: docs/NGHI-NGO.md mục
+// 18).
+
 #include "gui/asset.hpp"
 #include "gui/detail/bar_tint.hpp"
 #include "gui/detail/draw.hpp"
@@ -819,6 +833,13 @@ std::optional<std::size_t> Hub::list_item(std::string_view window, Pointer point
     if (found == nullptr) return std::nullopt;
     const Place input = HubOps::kept_input(*body_);
     return detail::list_item_under(HubOps::query(*body_, input), *found, pointer);
+}
+
+std::optional<std::uint32_t> Hub::option_at(std::string_view window, Pointer pointer) const {
+    const Placed* found = shown_window(body_->placed, window);
+    if (found == nullptr) return std::nullopt;
+    const Place input = HubOps::kept_input(*body_);
+    return detail::complex_option_under(HubOps::query(*body_, input), *found, pointer);
 }
 
 std::optional<std::size_t> Hub::element_at(std::string_view window, Pointer pointer) const {

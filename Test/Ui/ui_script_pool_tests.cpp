@@ -1,5 +1,13 @@
-// Hàm game chỉ đọc trường số của CDataPool (native_pool.cpp, sinh): giá trị đầu theo hàm dựng của gốc, ghi đè theo offset, cắt theo
-// độ rộng của lần đọc, trần số trường ghi đè.
+// +---------------------------------------------------------------+
+// | THIENLONG                                                     |
+// | Tệp: Test/Ui/ui_script_pool_tests.cpp                         |
+// | - Hàm game chỉ đọc trường số của CDataPool (native_pool.cpp,  |
+// |   sinh): giá trị đầu theo hàm dựng của gốc, ghi đè theo       |
+// |   offset, cắt theo độ rộng của lần đọc, trần số trường ghi    |
+// |   đè.                                                         |
+// | Dev : HiepHoon   Tele : @Hoon9xx                              |
+// +---------------------------------------------------------------+
+
 #include "support/script_rig.hpp"
 #include "ui/script/context.hpp"
 #include "ui/script/pool_image.hpp"

@@ -1,6 +1,15 @@
-// Trạng thái ghi được mà hàm game (native_*.cpp) của script giao diện dùng chung. Chủ của host (HUD) dựng một Context, đưa cho
-// HostDesc::natives bằng make_natives, cập nhật facts mỗi khung và lấy việc ra khỏi nó (calls, xscript); hàm native tìm Context bằng
-// native::context_of(lua_State*). Một luồng, như Host.
+// +---------------------------------------------------------------+
+// | THIENLONG                                                     |
+// | Tệp: src/client/face/ui/script/context.hpp                    |
+// | - Trạng thái ghi được mà hàm game (native_*.cpp) của script   |
+// |   giao diện dùng chung. Chủ của host (HUD) dựng một Context,  |
+// |   đưa cho HostDesc::natives bằng make_natives, cập nhật facts |
+// |   mỗi khung và lấy việc ra khỏi nó (calls, xscript); hàm      |
+// |   native tìm Context bằng native::context_of(lua_State*). Một |
+// |   luồng, như Host.                                            |
+// | Dev : HiepHoon   Tele : @Hoon9xx                              |
+// +---------------------------------------------------------------+
+
 #pragma once
 
 #include "hero/hero.hpp"
@@ -85,6 +94,8 @@ struct Facts {
     std::array<std::int32_t, 43> red_points{};
     // Ảnh bộ nhớ CDataPool cho hàm chỉ đọc một trường số (native_pool.cpp): phía mạng ghi theo offset, chưa ghi thì giá trị của hàm dựng.
     PoolImage pool;
+    // Như trên cho CUIDataPool (DAT_141034c10 của gốc, kho dữ liệu của giao diện: cờ ngày, số lần trộm, kỹ năng cuối...).
+    PoolImage ui_pool;
 };
 
 struct Context {

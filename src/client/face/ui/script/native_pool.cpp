@@ -1,6 +1,22 @@
-// Sinh bằng TOOLS/port/luagen/gen_pool_natives.py từ decompile của Game.exe 2026; không sửa tay (sửa bộ sinh rồi sinh lại).
-// Hàm game mà thân chỉ đọc một hay hai trường số của CDataPool (DAT_141034c40) rồi lua_pushnumber. Client chưa có kho đó:
-// giá trị là ảnh bộ nhớ Facts::pool (phía mạng ghi theo offset), không có thì giá trị mà hàm dựng CDataPool (0x1400dec40) đặt.
+/*==============================================================================
+ *  THIENLONG  |  GAME CLIENT
+ *------------------------------------------------------------------------------
+ *  TỆP       : src/client/face/ui/script/native_pool.cpp
+ *  PHÂN HỆ   : Ui / Script / Native Pool
+ *  CHUẨN     : C++23
+ *------------------------------------------------------------------------------
+ *  CHỨC NĂNG
+ *  - Sinh bằng gen_pool_natives.py từ decompile Game.exe 2026; không sửa tay
+ *    (sửa bộ sinh rồi sinh lại).
+ *  - Hàm game chỉ đọc một hay hai trường số của CDataPool hay CUIDataPool rồi
+ *    lua_pushnumber.
+ *  - Giá trị là ảnh bộ nhớ Facts::pool hay Facts::ui_pool (mạng ghi theo
+ *    offset), chưa ghi thì giá trị của hàm dựng kho (0x1400dec40, 0x1400a7be0).
+ *------------------------------------------------------------------------------
+ *  TÁC GIẢ   : HiepHoon
+ *  TELEGRAM  : @Hoon9xx
+ *============================================================================*/
+
 #include "lua/capi.hpp"
 #include "lua/native.hpp"
 #include "ui/script/context.hpp"
@@ -23,15 +39,19 @@ struct Getter {
     const char* name = nullptr;
     std::array<PoolField, 2> fields{}; // lần đẩy thứ nhất và thứ hai
     int count = 0; // số lần đẩy
+    bool ui = false; // đọc CUIDataPool (Facts::ui_pool) thay vì CDataPool (Facts::pool)
 };
 
-constexpr std::array<Getter, 130> kGetters = {{
+constexpr std::array<Getter, 135> kGetters = {{
     {.table = nullptr, .name = "AppWareGetLeftCheckTime", .fields = {{{.offset = 0x5c11d4, .width = Width::kI32}, {}}}, .count = 1}, // 0x140244960
     {.table = nullptr, .name = "AskFYJCPVPMapBaseInfo", .fields = {{{.offset = 0x6bac14, .width = Width::kI32}, {.offset = 0x6bac18, .width = Width::kI32}}}, .count = 2}, // 0x140254b30
     {.table = nullptr, .name = "GetCampaignIsShow", .fields = {{{.offset = 0x5eef6c, .width = Width::kI32}, {}}}, .count = 1}, // 0x14025f630
     {.table = nullptr, .name = "GetClientVersionType", .fields = {{{.offset = 0x5df288, .width = Width::kI32}, {}}}, .count = 1}, // 0x1402655e0
     {.table = nullptr, .name = "GetCurCampaignID", .fields = {{{.offset = 0x5eef70, .width = Width::kI32}, {}}}, .count = 1}, // 0x14025f590
     {.table = nullptr, .name = "GetHuoYueShopDaiBiInfo", .fields = {{{.offset = 0x676500, .width = Width::kI32}, {.offset = 0x676504, .width = Width::kI32}}}, .count = 2}, // 0x140279680
+    {.table = nullptr, .name = "GetLastRestStealNum", .fields = {{{.offset = 0x2d8c, .width = Width::kI32}, {}}}, .count = 1, .ui = true}, // 0x140285e20
+    {.table = nullptr, .name = "GetLastSkill_UI", .fields = {{{.offset = 0x1f8, .width = Width::kI32}, {}}}, .count = 1, .ui = true}, // 0x140232610
+    {.table = nullptr, .name = "GetNeedStealNum", .fields = {{{.offset = 0x2d90, .width = Width::kI32}, {}}}, .count = 1, .ui = true}, // 0x140285de0
     {.table = nullptr, .name = "IMDressChestGetSelIndex", .fields = {{{.offset = 0x16058, .width = Width::kI32}, {}}}, .count = 1}, // 0x140259740
     {.table = nullptr, .name = "IsZbsSpeicalServer", .fields = {{{.offset = 0x632c08, .width = Width::kI32}, {}}}, .count = 1}, // 0x14026aac0
     {.table = nullptr, .name = "LuaFnCameraVisualGetActive", .fields = {{{.offset = 0x6f57d0, .width = Width::kI32}, {}}}, .count = 1}, // 0x14023a370
@@ -87,6 +107,7 @@ constexpr std::array<Getter, 130> kGetters = {{
     {.table = "DataPool", .name = "GetVipAccProgress", .fields = {{{.offset = 0x5df00c, .width = Width::kI32}, {.offset = 0x5df010, .width = Width::kI32}}}, .count = 2}, // 0x1402ffe70
     {.table = "DataPool", .name = "GetVipLevel", .fields = {{{.offset = 0x5deeb8, .width = Width::kI32}, {}}}, .count = 1}, // 0x1402ffdf0
     {.table = "DataPool", .name = "GetXiuChangRoomCount", .fields = {{{.offset = 0x5f8798, .width = Width::kI32}, {}}}, .count = 1}, // 0x14030edd0
+    {.table = "DataPool", .name = "GetZhengZhaoFubenID", .fields = {{{.offset = 0x574, .width = Width::kI32}, {}}}, .count = 1, .ui = true}, // 0x1402d81b0
     {.table = "DataPool", .name = "IsZhuJiVipShopOpen", .fields = {{{.offset = 0x5c0d00, .width = Width::kI32}, {}}}, .count = 1}, // 0x1402ea580
     {.table = "DataPool", .name = "LuaFnGetGMMathcType", .fields = {{{.offset = 0x632bd9, .width = Width::kU8}, {}}}, .count = 1}, // 0x14031b700
     {.table = "DataPool", .name = "LuaFnGetGuildBiddingItemCount", .fields = {{{.offset = 0x6dfed0, .width = Width::kI32}, {}}}, .count = 1}, // 0x14031e050
@@ -99,6 +120,7 @@ constexpr std::array<Getter, 130> kGetters = {{
     {.table = "DataPool", .name = "Lua_GetChallengeRoomFilterMemberCount", .fields = {{{.offset = 0x60b46c, .width = Width::kI32}, {}}}, .count = 1}, // 0x140309eb0
     {.table = "DataPool", .name = "Lua_GetCurTimeWaveMarkNum", .fields = {{{.offset = 0x5b8c0c, .width = Width::kI32}, {}}}, .count = 1}, // 0x14030b980
     {.table = "DataPool", .name = "Lua_GetCurXiaKeBossType", .fields = {{{.offset = 0x5b8c08, .width = Width::kI32}, {}}}, .count = 1}, // 0x14030b9c0
+    {.table = "DataPool", .name = "Lua_GetDailySeckillFlag", .fields = {{{.offset = 0x2db0, .width = Width::kI32}, {}}}, .count = 1, .ui = true}, // 0x14028caf0
     {.table = "DataPool", .name = "Lua_GetJiebanHuiliuFlag", .fields = {{{.offset = 0x679b9c, .width = Width::kI32}, {}}}, .count = 1}, // 0x1403130a0
     {.table = "DataPool", .name = "Lua_GetRecoinNum", .fields = {{{.offset = 0x60b4d4, .width = Width::kI32}, {}}}, .count = 1}, // 0x14030bcc0
     {.table = "DataPool", .name = "Lua_GetShamHpBossDataId", .fields = {{{.offset = 0x5b8b5c, .width = Width::kI32}, {}}}, .count = 1}, // 0x14030b790
@@ -167,14 +189,20 @@ constexpr std::array<PoolInitial, 6> kInitial = {{
     {.offset = 0x5ef9f0, .width = Width::kI32, .value = -1}, // hàm dựng con FUN_140153ec0 ghi
     {.offset = 0x64a63c, .width = Width::kI32, .value = -1}, // hàm dựng con FUN_1400a1d50 ghi
 }};
+// Như trên theo hàm dựng CUIDataPool.
+constexpr std::array<PoolInitial, 1> kUiInitial = {{
+    {.offset = 0x1f8, .width = Width::kI32, .value = -1}, // hàm dựng ghi
+}};
 
 // Một hàm Lua cho mỗi dòng của kGetters: lua_CFunction không mang dữ liệu đi kèm nên chỉ số dòng là tham số mẫu.
 template <std::size_t Index>
 NativeResult pool_number(lua_State* lua) {
     constexpr const Getter& getter = kGetters.at(Index);
-    const PoolImage& pool = native::context_of(lua).facts.pool;
+    const Facts& facts = native::context_of(lua).facts;
+    const PoolImage& image = getter.ui ? facts.ui_pool : facts.pool;
+    const std::span<const PoolInitial> initial = getter.ui ? std::span<const PoolInitial>(kUiInitial) : std::span<const PoolInitial>(kInitial);
     for (int pushed = 0; pushed < getter.count; ++pushed) {
-        lua_pushnumber(lua, static_cast<double>(pool.read(getter.fields.at(static_cast<std::size_t>(pushed)), kInitial)));
+        lua_pushnumber(lua, static_cast<double>(image.read(getter.fields.at(static_cast<std::size_t>(pushed)), initial)));
     }
     return getter.count;
 }

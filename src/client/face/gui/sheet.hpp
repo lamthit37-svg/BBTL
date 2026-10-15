@@ -1,19 +1,32 @@
-// Dàn trang giao diện gốc (CEGUI 0.4.1 và Falagard của _ref) từ GuiAsset. Cửa sổ đặt theo UDim như
-// Window::setWindowArea_impl chế độ Inherited: PixelAligned(cha * scale) + offset, gốc trái trên.
-// Ảnh tĩnh và nút kéo giãn cả cửa sổ (StaticImage, FalagardButton::drawNormal). Nút còn vẽ state
-// BackgroundImage (ActionBK) trước icon. Khung và ảnh của look vẽ theo FrameComponent và
-// ImageryComponent. Thanh máu là Falagard/SuperProgress: rộng bằng CurrentProgress nhân rộng cửa
-// sổ. Radar là FalagardSceneMap không toàn màn hình, tỉ lệ 4 điểm ảnh một đơn vị cảnh, tâm là
-// người chơi. RoundEnabled vẽ quạt 16 miếng (LookLikeRound). Chữ là TextComponent; #{id} tra bảng
-// chuỗi (strings.hpp), không có thì bỏ.
-// Bộ vẽ có ba bộ phụ: Falagard/CheckBox (FalagardCheckButton: đang chọn mà không bị nhấn thì vẽ
-// Pushed), Falagard/SimpleText (chữ của cửa sổ, màu TextColor, canh HorzFormatting và
-// VertFormatting) và các EditBox (khung Enabled hoặc Normal, chữ trong vùng TextArea); thêm bàn phím
-// ảo Falagard/SoftKeyWindow (gui/softkey.hpp). Lua của client gốc đặt chữ, ảnh, ẩn hiện lúc chạy;
-// bản này bỏ Lua nên người gọi đưa Override.
-// Nguồn: TLBB Dev src/gui/sheet.hpp@e0d89a6. Khác gốc: namespace game::gui; hoạt ảnh Animate
-// (ngoài mũi tên của radar) và gợi ý chưa có. Danh sách, cửa sổ phức hợp, ô action, thanh cuộn và
-// MeshWindow đã có: bảng loại widget ở gui/layout.cpp (làm dần cho tới đủ mọi widget của client).
+/*==============================================================================
+ *  THIENLONG  |  GAME CLIENT
+ *------------------------------------------------------------------------------
+ *  TỆP       : src/client/face/gui/sheet.hpp
+ *  PHÂN HỆ   : Face / Gui / Sheet
+ *  CHUẨN     : C++23
+ *------------------------------------------------------------------------------
+ *  CHỨC NĂNG
+ *  - Dàn trang giao diện gốc (CEGUI 0.4.1 và Falagard của _ref) từ GuiAsset.
+ *    Cửa sổ đặt theo UDim như Window::setWindowArea_impl chế độ Inherited:
+ *    PixelAligned(cha * scale) + offset, gốc trái trên. Ảnh tĩnh và nút kéo
+ *    giãn cả cửa sổ (StaticImage, FalagardButton::drawNormal). Nút còn vẽ state
+ *    BackgroundImage (ActionBK) trước icon. Khung và ảnh của look vẽ theo
+ *    FrameComponent và ImageryComponent.
+ *------------------------------------------------------------------------------
+ *  TÁC GIẢ   : HiepHoon
+ *  TELEGRAM  : @Hoon9xx
+ *============================================================================*/
+
+// Thanh máu là Falagard/SuperProgress: rộng bằng CurrentProgress nhân rộng cửa sổ. Radar là FalagardSceneMap không
+// toàn màn hình, tỉ lệ 4 điểm ảnh một đơn vị cảnh, tâm là người chơi. RoundEnabled vẽ quạt 16 miếng (LookLikeRound).
+// Chữ là TextComponent; #{id} tra bảng chuỗi (strings.hpp), không có thì bỏ. Bộ vẽ có ba bộ phụ: Falagard/CheckBox
+// (FalagardCheckButton: đang chọn mà không bị nhấn thì vẽ Pushed), Falagard/SimpleText (chữ của cửa sổ, màu
+// TextColor, canh HorzFormatting và VertFormatting) và các EditBox (khung Enabled hoặc Normal, chữ trong vùng
+// TextArea); thêm bàn phím ảo Falagard/SoftKeyWindow (gui/softkey.hpp). Lua của client gốc đặt chữ, ảnh, ẩn hiện lúc
+// chạy; bản này bỏ Lua nên người gọi đưa Override. Nguồn: TLBB Dev src/gui/sheet.hpp@e0d89a6. Khác gốc: namespace
+// game::gui; hoạt ảnh Animate (ngoài mũi tên của radar) và gợi ý chưa có. Danh sách, cửa sổ phức hợp, ô action, thanh
+// cuộn và MeshWindow đã có: bảng loại widget ở gui/layout.cpp (làm dần cho tới đủ mọi widget của client).
+
 #pragma once
 
 #include "gui/asset.hpp"
@@ -402,6 +415,10 @@ public:
     // gần nhất; nullopt khi cửa sổ không có, đang ẩn, không phải danh sách, hay điểm nằm ngoài vùng
     // mục hoặc trên chỗ trống.
     [[nodiscard]] std::optional<std::size_t> list_item(std::string_view window, Pointer pointer) const;
+    // Số lựa chọn (trường thứ hai của phần tử "option" trong thuộc tính Elements) của nút Option dưới điểm pointer trong cửa
+    // sổ phức hợp window (Falagard/ComplexWindow) theo lần update gần nhất; nullopt khi cửa sổ không có, đang ẩn, không phải
+    // cửa sổ phức hợp, hay điểm không nằm trên nút Option nào.
+    [[nodiscard]] std::optional<std::uint32_t> option_at(std::string_view window, Pointer pointer) const;
     // Chỉ số bản ghi (trong thuộc tính Elements, tính cả bản ghi ẩn) của nút phần tử dưới điểm pointer
     // trong cửa sổ thành tích window (Falagard/AchievementWindow) theo lần update gần nhất; nullopt
     // khi cửa sổ không có, đang ẩn, không phải kiểu ấy, hay điểm nằm trên chỗ trống.

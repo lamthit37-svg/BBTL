@@ -1,12 +1,28 @@
+/*==============================================================================
+ *  THIENLONG  |  GAME CLIENT
+ *------------------------------------------------------------------------------
+ *  TỆP       : src/client/face/gui/widgets.cpp
+ *  PHÂN HỆ   : Face / Gui / Widgets
+ *  CHUẨN     : C++23
+ *------------------------------------------------------------------------------
+ *  CHỨC NĂNG
+ *  - Bộ vẽ danh sách, cửa sổ phức hợp và ô action của gui (port từ CEGUI của
+ *    client 2026).
+ *------------------------------------------------------------------------------
+ *  TÁC GIẢ   : HiepHoon
+ *  TELEGRAM  : @Hoon9xx
+ *============================================================================*/
+
 // Bộ vẽ của danh sách (Falagard/Listbox), cửa sổ phức hợp (Falagard/ComplexWindow) và ô action
 // (Falagard/ActionButton), cùng phần cuộn của chúng. Port từ mã máy CEGUIBase.dll và
 // CEGUIFalagard.dll của client 2026 (docs/GIAO-DIEN-2026.md; địa chỉ hàm gốc ghi ở từng hàm).
 // Nội dung (mục, phần tử, vị trí cuộn) đi vào qua Override theo gui/content.hpp; số đo chữ lấy ở
 // Place::meter, không có thì danh sách và cửa sổ phức hợp không có mục nào.
 // Khác gốc: mục danh sách chỉ có kiểu một dòng (tham số định dạng thứ tư của AddItem chưa có nơi
-// dùng); cửa sổ phức hợp mới có phần tử chữ, tiền, giao tử và nút action (Option, Item, ChatBoard,
+// dùng); cửa sổ phức hợp mới có phần tử chữ, tiền, giao tử, nút action và Option (Item, ChatBoard,
 // HyperLink chưa có script nào trong phạm vi gọi); ô tiền mới giữ chỗ, chưa vẽ; nút action chưa có
 // chữ góc, hoạt ảnh hồi chiêu và nháy.
+
 #include "core/number.hpp"
 #include "gui/asset.hpp"
 #include "gui/content.hpp"
@@ -16,6 +32,8 @@
 #include "gui/value.hpp"
 
 #include <algorithm>
+#include <array>
+#include <cmath>
 #include <cstddef>
 #include <cstdint>
 #include <format>
@@ -24,6 +42,7 @@
 #include <span>
 #include <string>
 #include <string_view>
+#include <type_traits>
 #include <utility>
 #include <vector>
 
@@ -40,6 +59,16 @@ constexpr std::uint8_t kWrapLeft = 4;
 // Ô tiền cao lineSpacing x 1,4 (Fal 0x180137e60).
 constexpr float kMoneyRatio = 1.4F;
 constexpr std::string_view kParentSuffix = "__auto_parent__";
+// Nút Option của cửa sổ phức hợp (FalagardComplexWindow::performWindowLayout, nhánh CT_Option; đọc từ mã nguồn client 2008 cùng
+// dòng, chưa đối chiếu mã máy 2026): nút cao lineSpacing x 1,7, mục kế cách (int)(cao x 1,08), và sau phần tử không phải
+// Option thì chừa thêm lineSpacing x 2.
+constexpr float kOptionRatio = 1.7F;
+constexpr float kOptionPitch = 1.08F;
+constexpr float kOptionGapRatio = 2.0F;
+// Lề trái của nhãn trong look TLBB_Look_QuestButton (AbsoluteDim 10), và bề ngang chừa cho biểu tượng khi look không cho ảnh.
+// Khác gốc: chỗ đặt biểu tượng trong nút chưa đo trên mã máy, biểu tượng nằm sát lề trái và chữ dời sang phải bằng bề ngang của nó.
+constexpr float kOptionLabelLeft = 10.0F;
+constexpr float kOptionIconLeft = 2.0F;
 
 // Các bản ghi của một thuộc tính nội dung; chuỗi rỗng là không có bản ghi nào.
 std::vector<std::string_view> records_of(std::string_view blob) {
@@ -187,7 +216,7 @@ std::optional<Box> complex_area(const Ctx& ctx, const Placed& self) {
     return Box{.x = self.screen.x + local.x, .y = self.screen.y + local.y, .w = local.w, .h = local.h};
 }
 
-enum class PartKind : std::uint8_t { kText, kMoney, kAction, kOther };
+enum class PartKind : std::uint8_t { kText, kMoney, kAction, kOption, kOther };
 
 // Một phần tử đã xếp: ô trong vùng nội dung khi chưa cuộn (d_rectClient), và đối số đầu của nó (chữ
 // của phần tử chữ, tên icon của nút action).
@@ -195,6 +224,11 @@ struct Part {
     PartKind kind = PartKind::kOther;
     Box box;
     std::string_view body;
+    // Chỉ với Option: số lựa chọn trả về cho nơi gọi và chỉ số biểu tượng.
+    std::uint32_t option = 0;
+    std::int32_t icon = 0;
+    // Chỉ với ô tiền: giao tử (AddJiaoZiElement) thay vì tiền thường.
+    bool is_jiaozi = false;
 };
 
 struct ComplexPlan {
@@ -205,6 +239,7 @@ struct ComplexPlan {
 PartKind part_kind(std::string_view name) noexcept {
     if (name == kTextElement) return PartKind::kText;
     if (name == kMoneyElement || name == kJiaoZiElement) return PartKind::kMoney;
+    if (name == kOptionElement) return PartKind::kOption;
     return name == kActionElement ? PartKind::kAction : PartKind::kOther;
 }
 
@@ -252,6 +287,28 @@ Box flow_money(const TextMeter& meter, Flow& flow) {
     return box;
 }
 
+// Số nguyên của một trường bản ghi; 0 khi trường rỗng hay hỏng.
+template <typename Number>
+Number number_field(std::string_view field) noexcept {
+    if constexpr (std::is_signed_v<Number>) {
+        const core::OptionalSigned parsed = core::parse_signed(field);
+        return parsed && parsed->length == field.size() ? static_cast<Number>(parsed->value) : Number{};
+    } else {
+        const core::OptionalUnsigned parsed = core::parse_unsigned(field, 10);
+        return parsed && parsed->length == field.size() ? static_cast<Number>(parsed->value) : Number{};
+    }
+}
+
+// Một nút Option: cao lineSpacing x 1,7, xuống hàng; sau phần tử khác loại thì chừa lineSpacing x 2 phía trên.
+Box flow_option(const TextMeter& meter, Flow& flow) {
+    if (flow.has_before && flow.before != PartKind::kOption) flow.down += meter.line_spacing() * kOptionGapRatio;
+    const float height = meter.line_spacing() * kOptionRatio;
+    const Box box{.x = 0.0F, .y = flow.down, .w = flow.width, .h = height};
+    flow.across = 0.0F;
+    flow.down += std::floor(height * kOptionPitch);
+    return box;
+}
+
 // Một nút action: nối hàng với nút trước khi còn chỗ, không thì xuống hàng; nút cuối cùng của cả
 // cửa sổ bỏ khoảng cách thừa bên dưới.
 Box flow_action(Flow& flow, std::string_view record, bool is_last) {
@@ -274,8 +331,16 @@ Part flow_part(const TextMeter& meter, Flow& flow, std::string_view record, bool
     part.kind = part_kind(field_of(record, 0));
     part.body = part.kind == PartKind::kText ? tail_of(record) : field_of(record, 1);
     if (part.kind == PartKind::kText) part.box = flow_text(meter, flow, part.body);
-    if (part.kind == PartKind::kMoney) part.box = flow_money(meter, flow);
+    if (part.kind == PartKind::kMoney) {
+        part.box = flow_money(meter, flow);
+        part.is_jiaozi = field_of(record, 0) == kJiaoZiElement;
+    }
     if (part.kind == PartKind::kAction) part.box = flow_action(flow, record, is_last);
+    if (part.kind == PartKind::kOption) {
+        part.box = flow_option(meter, flow);
+        part.option = number_field<std::uint32_t>(field_of(record, 2));
+        part.icon = number_field<std::int32_t>(field_of(record, 3));
+    }
     if (part.kind == PartKind::kOther) return part;
     flow.before = part.kind;
     flow.has_before = true;
@@ -415,6 +480,24 @@ std::string_view after_fields(std::string_view record, std::size_t count) noexce
     return record;
 }
 
+// Ảnh biểu tượng của nút Option theo chỉ số (thuộc tính QuestButtonImage "index:<n> set:<bộ> image:<tên>" của look cửa sổ
+// phức hợp); nullptr khi look không khai chỉ số đó.
+const GuiImage* option_icon(const Ctx& ctx, const Placed& self, std::int32_t index) {
+    if (self.look == nullptr || !in_range(ctx.asset->properties.size(), self.look->properties)) return nullptr;
+    const GuiRange range = self.look->properties;
+    const auto properties = std::span(ctx.asset->properties).subspan(range.first, range.count);
+    for (const GuiProperty& property : properties) {
+        if (property.name != "QuestButtonImage") continue;
+        const TagValue wanted = tagged_value(property.value, "index:");
+        if (!wanted || number_field<std::int32_t>(*wanted) != index) continue;
+        const std::size_t set_at = property.value.find("set:");
+        if (set_at == std::string::npos) return nullptr;
+        const std::optional<ImageName> name = parse_image(std::string_view(property.value).substr(set_at));
+        return name ? named_image(ctx, *name) : nullptr;
+    }
+    return nullptr;
+}
+
 // Cửa sổ giả đứng cho nút của phần tử: look của kiểu ChildItem, ô đã xếp. Look vắng thì look
 // nullptr và mọi lệnh vẽ trên nó không làm gì.
 Placed button_of(const Ctx& ctx, const Placed& self, std::string_view key, const Box& box) {
@@ -471,11 +554,23 @@ struct MoneyPlan {
     std::uint32_t colour = kWhiteArgb;
 };
 
-// Một phần chưa đặt chỗ: giá trị đã đổi thành chữ và icon của nó.
+// Ba đồng tiền theo thứ tự vàng, bạc, đồng: chỉ số vào MoneyLayout::icons và tên thuộc tính giữ icon của chúng.
+inline constexpr std::size_t kGoldCoin = 0;
+inline constexpr std::size_t kSilverCoin = 1;
+inline constexpr std::size_t kCopperCoin = 2;
+inline constexpr std::array<std::string_view, 3> kCoinProperties = {"GoldIcon", "SilverIcon", "CopperIcon"};
+// Icon mặc định của look TLBB_Look_Money (TLBBLook_StaticText.looknfeel.xml:259) và TLBB_Look_JiaoZi (dòng 809), cho ô tiền
+// con của cửa sổ phức hợp (AddMoneyElement, AddJiaoZiElement).
+inline constexpr std::array<std::string_view, 3> kMoneyLookIcons = {
+    "set:Button2 image:Icon_GoldCoin", "set:Button2 image:Icon_SilverCoin", "set:Button2 image:Icon_CopperCoin"};
+inline constexpr std::array<std::string_view, 3> kJiaoZiLookIcons = {
+    "set:Button6 image:Lace_JiaoziJin", "set:Button6 image:Lace_JiaoziYin", "set:Button6 image:Lace_JiaoziTong"};
+
+// Một phần chưa đặt chỗ: giá trị đã đổi thành chữ và đồng tiền của nó.
 struct MoneyShare {
     std::int32_t value = 0;
     bool is_padded = false;
-    std::string_view icon_property;
+    std::size_t coin = kCopperCoin;
 };
 
 // Phần vàng chỉ hiện khi dương, bạc khi bạc hay vàng dương, đồng luôn hiện. AlignFix đệm bạc và đồng
@@ -485,10 +580,9 @@ std::vector<MoneyShare> money_shares(std::int32_t money, bool is_aligned) {
     const std::int32_t silver = (money % kCopperPerGold) / kCopperPerSilver;
     const std::int32_t copper = money % kCopperPerSilver;
     std::vector<MoneyShare> shares;
-    if (gold > 0) shares.push_back(MoneyShare{.value = gold, .is_padded = false, .icon_property = "GoldIcon"});
-    if (gold > 0 || silver > 0)
-        shares.push_back(MoneyShare{.value = silver, .is_padded = is_aligned, .icon_property = "SilverIcon"});
-    shares.push_back(MoneyShare{.value = copper, .is_padded = is_aligned, .icon_property = "CopperIcon"});
+    if (gold > 0) shares.push_back(MoneyShare{.value = gold, .is_padded = false, .coin = kGoldCoin});
+    if (gold > 0 || silver > 0) shares.push_back(MoneyShare{.value = silver, .is_padded = is_aligned, .coin = kSilverCoin});
+    shares.push_back(MoneyShare{.value = copper, .is_padded = is_aligned, .coin = kCopperCoin});
     return shares;
 }
 
@@ -501,23 +595,30 @@ std::uint32_t money_colour(const Ctx& ctx, const Placed& self, std::int32_t mone
     return tint ? parse_colour(*tint).value_or(kWhiteArgb) : kWhiteArgb;
 }
 
-// Xếp các phần từ trái sang phải trong cửa sổ, chạm đáy. Không có số đo chữ thì không xếp gì.
-MoneyPlan plan_money(const Ctx& ctx, const Placed& self) {
+// Mọi thứ phần xếp ô tiền cần: số tiền, kiểu canh và đệm, màu, ô màn hình của cửa sổ tiền và ba icon.
+struct MoneyLayout {
+    std::int32_t money = 0;
+    bool is_aligned = false;
+    bool is_right = false;
+    std::uint32_t colour = kWhiteArgb;
+    Box area;
+    std::array<const GuiImage*, 3> icons{};
+};
+
+// Xếp các phần từ trái sang phải trong ô area, chạm đáy.
+MoneyPlan lay_money(const TextMeter& meter, const MoneyLayout& layout) {
     MoneyPlan plan;
-    const TextMeter* meter = ctx.input->meter;
-    if (meter == nullptr) return plan;
-    const auto number = effective(ctx, self, "MoneyNumber");
-    const std::int32_t money = number ? core::parse_whole_int(*number).value_or(0) : 0;
-    plan.colour = money_colour(ctx, self, money);
-    const std::vector<MoneyShare> shares = money_shares(money, flag(ctx, self, "AlignFix"));
-    const float window_height = self.screen.h;
+    plan.colour = layout.colour;
+    const std::vector<MoneyShare> shares = money_shares(layout.money, layout.is_aligned);
+    const Box& screen = layout.area;
+    const float window_height = screen.h;
     float total = 0.0F;
     plan.pieces.reserve(shares.size());
     for (const MoneyShare& share : shares) {
         MoneyPiece piece;
         piece.text = share.is_padded ? std::format("{:2}", share.value) : std::format("{}", share.value);
-        piece.icon = property_image(ctx, self, share.icon_property);
-        const TextSize size = meter->formatted_size(piece.text, self.screen.w, 0);
+        piece.icon = layout.icons.at(share.coin);
+        const TextSize size = meter.formatted_size(piece.text, screen.w, 0);
         const float icon_w = piece.icon != nullptr ? piece.icon->width : 0.0F;
         const float icon_h = piece.icon != nullptr ? piece.icon->height : 0.0F;
         piece.text_box = Box{.x = total, .y = window_height - size.height, .w = size.width, .h = size.height};
@@ -525,17 +626,34 @@ MoneyPlan plan_money(const Ctx& ctx, const Placed& self) {
         total += size.width + icon_w;
         plan.pieces.push_back(std::move(piece));
     }
-    const auto horz = effective(ctx, self, "HorzFormatting");
-    const float start = (horz && *horz == kRightAligned) ? self.screen.w - total - kMoneyEdge : 0.0F;
-    const auto place = [&self, start](Box& box) {
-        box.x += self.screen.x + start;
-        box.y += self.screen.y;
+    const float start = layout.is_right ? screen.w - total - kMoneyEdge : 0.0F;
+    const auto place = [&screen, start](Box& box) {
+        box.x += screen.x + start;
+        box.y += screen.y;
     };
     for (MoneyPiece& piece : plan.pieces) {
         place(piece.text_box);
         place(piece.icon_box);
     }
     return plan;
+}
+
+// Ô tiền của một cửa sổ Falagard/Money: số, màu, canh và icon đều là thuộc tính của cửa sổ. Không có số đo chữ thì không xếp gì.
+MoneyPlan plan_money(const Ctx& ctx, const Placed& self) {
+    const TextMeter* meter = ctx.input->meter;
+    if (meter == nullptr) return {};
+    const auto number = effective(ctx, self, "MoneyNumber");
+    MoneyLayout layout;
+    layout.money = number ? core::parse_whole_int(*number).value_or(0) : 0;
+    layout.is_aligned = flag(ctx, self, "AlignFix");
+    const auto horz = effective(ctx, self, "HorzFormatting");
+    layout.is_right = horz && *horz == kRightAligned;
+    layout.colour = money_colour(ctx, self, layout.money);
+    layout.area = self.screen;
+    for (std::size_t coin = 0; coin < kCoinProperties.size(); ++coin) {
+        layout.icons.at(coin) = property_image(ctx, self, kCoinProperties.at(coin));
+    }
+    return lay_money(*meter, layout);
 }
 
 } // namespace
@@ -619,7 +737,50 @@ void list_texts(const Ctx& ctx, const Placed& self) {
     }
 }
 
-// Cửa sổ phức hợp không có nền riêng; ảnh của nó là các nút action của phần tử, đặt ở vị trí đã làm
+namespace {
+
+// Ô trên màn hình của một phần tử đã xếp, sau khi cuộn.
+Box part_screen_box(const Box& area, const Part& part, float scroll) {
+    return Box{.x = area.x + pixel_align(part.box.x),
+        .y = area.y + pixel_align(part.box.y - scroll),
+        .w = part.box.w,
+        .h = part.box.h};
+}
+
+// Ô tiền con của cửa sổ phức hợp (AddMoneyElement): cửa sổ TLBB_Money với icon mặc định của look, canh trái, chữ trắng.
+MoneyPlan plan_part_money(const Ctx& ctx, const Box& content, const Part& part, float scroll) {
+    const TextMeter* meter = ctx.input->meter;
+    if (meter == nullptr) return {};
+    MoneyLayout layout;
+    layout.money = core::parse_whole_int(part.body).value_or(0);
+    layout.area = part_screen_box(content, part, scroll);
+    const std::array<std::string_view, 3>& look = part.is_jiaozi ? kJiaoZiLookIcons : kMoneyLookIcons;
+    for (std::size_t coin = 0; coin < look.size(); ++coin) {
+        const std::optional<ImageName> name = parse_image(look.at(coin));
+        layout.icons.at(coin) = name ? named_image(ctx, *name) : nullptr;
+    }
+    return lay_money(*meter, layout);
+}
+
+// Nút Option: state Normal, Hover khi trỏ vào, Pushed khi đang nhấn (look TLBB_Look_QuestButton), rồi biểu tượng.
+void draw_option_button(const Ctx& ctx, const Placed& self, const Part& part, const Box& box) {
+    const Placed button = button_of(ctx, self, "Option", box);
+    const bool is_hot = ctx.input->pointer && contains(box, *ctx.input->pointer);
+    const std::string_view state = is_hot ? (ctx.is_down ? "Pushed" : "Hover") : "Normal";
+    if (!render_state(ctx, button, state, box)) render_state(ctx, button, "Normal", box);
+    const GuiImage* icon = option_icon(ctx, self, part.icon);
+    if (icon == nullptr) return;
+    const float height = std::min(icon->height, box.h);
+    const Box dest{.x = box.x + kOptionIconLeft,
+        .y = box.y + ((box.h - height) * 0.5F),
+        .w = icon->width,
+        .h = height};
+    push_whole(*ctx.sheet, *icon, dest, kWhiteArgb);
+}
+
+} // namespace
+
+// Cửa sổ phức hợp không có nền riêng; ảnh của nó là các nút action và nút Option của phần tử, đặt ở vị trí đã làm
 // tròn như Window::setPosition chế độ Absolute và cắt theo vùng nội dung.
 void draw_complex(const Ctx& ctx, const Placed& self) {
     const std::optional<Box> area = complex_area(ctx, self);
@@ -627,14 +788,62 @@ void draw_complex(const Ctx& ctx, const Placed& self) {
     const ComplexPlan plan = plan_complex(ctx, self, *area);
     const std::size_t first = ctx.sheet->quads.size();
     for (const Part& part : plan.parts) {
-        if (part.kind != PartKind::kAction) continue;
-        Box box = part.box;
-        box.x = area->x + pixel_align(part.box.x);
-        box.y = area->y + pixel_align(part.box.y - self.scroll);
-        draw_part_button(ctx, self, part, box);
+        if (part.kind == PartKind::kMoney) {
+            for (const MoneyPiece& piece : plan_part_money(ctx, *area, part, self.scroll).pieces) {
+                if (piece.icon != nullptr) push_whole(*ctx.sheet, *piece.icon, piece.icon_box, kWhiteArgb);
+            }
+            continue;
+        }
+        if (part.kind != PartKind::kAction && part.kind != PartKind::kOption) continue;
+        const Box box = part_screen_box(*area, part, self.scroll);
+        if (part.kind == PartKind::kAction) draw_part_button(ctx, self, part, box);
+        if (part.kind == PartKind::kOption) draw_option_button(ctx, self, part, box);
     }
     clip_quads(*ctx.sheet, first, *area);
 }
+
+std::optional<std::uint32_t> complex_option_under(const Ctx& ctx, const Placed& self, Pointer pointer) {
+    if (self.kind != Kind::kComplex) return std::nullopt;
+    const std::optional<Box> area = complex_area(ctx, self);
+    if (!area || !contains(*area, pointer)) return std::nullopt;
+    const ComplexPlan plan = plan_complex(ctx, self, *area);
+    for (const Part& part : plan.parts) {
+        if (part.kind == PartKind::kOption && contains(part_screen_box(*area, part, self.scroll), pointer)) {
+            return part.option;
+        }
+    }
+    return std::nullopt;
+}
+
+namespace {
+
+// Nhãn của nút Option: một dòng canh trái vào ô nút (lề trái của section label), canh giữa theo chiều dọc, chừa chỗ cho biểu
+// tượng; trắng khi thường, màu HoverTextColour của look nút khi trỏ vào hay đang nhấn.
+void option_text(const Ctx& ctx, const Placed& self, const Part& part, const Box& area, std::string_view font) {
+    const Box box = part_screen_box(area, part, self.scroll);
+    const Placed button = button_of(ctx, self, "Option", box);
+    const bool is_hot = ctx.input->pointer && contains(box, *ctx.input->pointer);
+    std::uint32_t colour = kWhiteArgb;
+    if (is_hot && button.look != nullptr) {
+        const auto tint = effective(ctx, button, ctx.is_down ? "PushedTextColour" : "HoverTextColour");
+        if (tint) colour = parse_colour(*tint).value_or(kWhiteArgb);
+    }
+    const GuiImage* icon = option_icon(ctx, self, part.icon);
+    const float left = kOptionLabelLeft + (icon != nullptr ? icon->width : 0.0F);
+    TextRun run;
+    run.text = part.body;
+    run.box = Box{.x = box.x + left, .y = box.y, .w = std::max(box.w - left, 0.0F), .h = box.h};
+    run.clip = intersect(box, area);
+    // Nhãn của nút là TextComponent của look: canh giữa theo chiều dọc ngang tâm biểu tượng (kRaw sẽ vẽ từ mép trên của ô).
+    run.rule = TextRule::kComponent;
+    run.horz = kWrapLeft;
+    run.vert = std::to_underlying(GuiTextVert::kCentreAligned);
+    run.colour = colour;
+    run.font = font;
+    ctx.sheet->texts.push_back(run);
+}
+
+} // namespace
 
 // ParentWindow::populateRenderCache (Fal 0x180074c70): mỗi phần tử chữ một lời drawText bẻ dòng
 // canh trái, màu TextColor; chỉ mép trên của ô dời theo vị trí cuộn. Chữ cắt theo vùng nội dung.
@@ -648,7 +857,28 @@ void complex_texts(const Ctx& ctx, const Placed& self) {
     for (const Part& part : plan.parts) {
         const float top = part.box.y - self.scroll;
         const bool is_seen = top < area->h && part.box.y + part.box.h - self.scroll > 0.0F;
-        if (part.kind != PartKind::kText || !is_seen) continue;
+        if (!is_seen) continue;
+        if (part.kind == PartKind::kMoney) {
+            const MoneyPlan money = plan_part_money(ctx, *area, part, self.scroll);
+            for (const MoneyPiece& piece : money.pieces) {
+                ctx.sheet->made.push_back(piece.text);
+                TextRun number;
+                number.text = ctx.sheet->made.back();
+                number.box = piece.text_box;
+                number.clip = *area;
+                number.rule = TextRule::kRaw;
+                number.colour = money.colour;
+                number.is_plain = true;
+                number.font = font;
+                ctx.sheet->texts.push_back(number);
+            }
+            continue;
+        }
+        if (part.kind != PartKind::kText && part.kind != PartKind::kOption) continue;
+        if (part.kind == PartKind::kOption) {
+            option_text(ctx, self, part, *area, font);
+            continue;
+        }
         TextRun run;
         run.text = part.body;
         run.box = Box{.x = area->x, .y = area->y + top, .w = part.box.w, .h = part.box.h + self.scroll};
