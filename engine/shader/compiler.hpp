@@ -34,7 +34,7 @@ struct CompileOptions {
     // Hiến pháp I.3: cảnh báo là lỗi.
     bool strict = true;
     // Môi trường đích của SPIR-V: vulkan1.<vulkan_minor>.
-    std::uint8_t vulkan_minor = 3;
+    std::uint8_t vulkan_minor = 1;
 };
 
 struct Compiled {

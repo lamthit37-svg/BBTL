@@ -40,6 +40,10 @@ public:
     [[nodiscard]] Status resize(std::uint32_t width, std::uint32_t height) override;
     [[nodiscard]] Format format() const noexcept override { return format_; }
     [[nodiscard]] PresentMode present_mode() const noexcept override { return mode_; }
+    // Cỡ đã xin, không phải cỡ bề mặt chốt: bề mặt có thể chốt cỡ khác, và so với nó thì vòng không dứt.
+    [[nodiscard]] bool is_current(std::uint32_t width, std::uint32_t height) const noexcept override {
+        return swapchain_ != VK_NULL_HANDLE && !is_stale_ && desc_.width == width && desc_.height == height;
+    }
     [[nodiscard]] std::uint32_t width() const noexcept override { return extent_.width; }
     [[nodiscard]] std::uint32_t height() const noexcept override { return extent_.height; }
     [[nodiscard]] bool reports_shown() const noexcept override { return device_->traits().present_wait; }
@@ -87,10 +91,15 @@ private:
     // Semaphore acquire và ảnh của khung đang vẽ.
     std::size_t turn_ = 0;
     std::uint32_t current_ = 0;
+    // Ghi nhận VK_SUBOPTIMAL_KHR: dựng lại đúng một lần cho tới khi một present báo VK_SUCCESS.
+    void note_suboptimal() noexcept;
     bool is_acquired_ = false;
     bool is_submitted_ = false;
     // Bề mặt đã đổi (cỡ, xoay): phải resize trước lần acquire kế.
     bool is_stale_ = false;
+    // Đã dựng lại một lần vì VK_SUBOPTIMAL_KHR mà bề mặt vẫn báo suboptimal: trạng thái bền của bề mặt
+    // (Android: màn xoay, preTransform khác currentTransform), không phải thay đổi mới; bỏ qua.
+    bool has_rebuilt_for_suboptimal_ = false;
     // Số present đã nộp với swapchain_ hiện tại; cũng là presentId (VkPresentIdKHR) của lần cuối.
     std::uint64_t presents_ = 0;
 };

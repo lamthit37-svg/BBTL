@@ -36,9 +36,12 @@ SamplerState light_sampler : register(s2);
 static const uint kTableWidth = 1024u;
 static const uint kFlipStride = 16u;
 
-// Số 16 bit từ hai kênh 8 bit (cao, thấp) của texel UNORM, về [0, 1].
+// Số 16 bit từ hai kênh 8 bit (cao, thấp) của texel UNORM, về [0, 1]: (cao * 255 * 256 + thấp * 255) / 65535 viết
+// thành hai nhân và một cộng. Không làm tròn từng kênh về số nguyên như bản đầu: kết quả là toạ độ UV, sai số chừng
+// 1e-7 không thấy được, còn `round` trên PowerVR (GE8320) là chuỗi lệnh dài và hàm này chạy 16 lần mỗi điểm ảnh
+// (đo 2026-10-16 trên TB-X306F: địa hình 61 ms xuống 35 ms mỗi khung ở 1280 x 800).
 float word16(float high, float low) {
-    return ((round(high * 255.0) * 256.0) + round(low * 255.0)) / 65535.0;
+    return (high * (65280.0 / 65535.0)) + (low * (255.0 / 65535.0));
 }
 
 // Màu (đã nhân alpha) của một lớp tại điểm along trong ô, lọc theo đạo hàm của toạ độ ô.

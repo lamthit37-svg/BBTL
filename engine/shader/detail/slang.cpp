@@ -143,6 +143,10 @@ void add_define(std::vector<std::string>& args, std::string_view define) {
         args.emplace_back("-O3");
     }
     if (options.target == Target::kSpirV) {
+        // Chỉ capability của chính mức SPIR-V đích: không có nó Slang bật mọi tiện ích mở rộng nó biết và đổi `discard`
+        // thành OpDemoteToHelperInvocation, thứ thiết bị Vulkan 1.1 (PowerVR GE8320) không khai.
+        args.emplace_back("-capability");
+        args.emplace_back(spirv_profile(options.vulkan_minor));
         args.emplace_back("-fvk-use-dx-layout");
         args.emplace_back("-fvk-use-entrypoint-name");
         args.emplace_back("-default-image-format-unknown");

@@ -3,7 +3,9 @@
 // nộp lệnh), resources.cpp (buffer, texture, view, sampler, truy vấn, bộ nhớ) và programs.cpp
 // (shader, bố cục, pipeline, nhóm gắn). Khác gốc:
 // - bộ nhớ chia từ khối lớn (gpu/memory.hpp) thay vì mỗi tài nguyên một vkAllocateMemory;
-// - mỗi hàng đợi có một timeline nội bộ đếm lần nộp, làm mốc cho huỷ hoãn và thu hồi command list;
+// - mỗi hàng đợi đếm lần nộp bằng fence (không dùng timeline semaphore: thiết bị Vulkan 1.1 không có),
+//   làm mốc cho huỷ hoãn và thu hồi command list; Timeline của chỗ gọi là bộ đếm phía CPU, tiến lên
+//   khi fence của lần nộp mang tín hiệu của nó xong;
 // - descriptor set layout và pipeline layout dựng từ phản chiếu shader, dùng chung theo băm.
 // Nguồn: Forge2 src/gpu/vulkan/device.hpp@d7fcd76. Khác gốc (so với Forge2): enumerator mang tiền
 // tố k.
@@ -16,9 +18,12 @@
 #include "gpu/slots.hpp"
 #include "gpu/vulkan/api.hpp"
 #include "gpu/vulkan/instance.hpp"
+#include "gpu/vulkan/passes.hpp"
 
 #include <array>
 #include <atomic>
+#include <chrono>
+#include <deque>
 #include <memory>
 #include <mutex>
 #include <unordered_map>
@@ -143,6 +148,27 @@ struct Traits {
     // VK_KHR_present_id và VK_KHR_present_wait cùng bật (cả phần mở rộng lẫn tính năng): swapchain gắn số cho
     // mỗi lần present và chờ được tới lúc nó lên màn.
     bool present_wait = false;
+    // VK_ATTACHMENT_STORE_OP_NONE (lõi 1.3 hay VK_EXT_load_store_op_none): độ sâu chỉ đọc khỏi ghi lại.
+    bool store_none = false;
+};
+
+// Giá trị đã đạt của một Timeline của chỗ gọi. Chia sẻ với các lần nộp còn bay: Timeline bị huỷ trước
+// khi GPU chạy xong thì lần nộp vẫn cập nhật một trạng thái còn sống.
+struct TimelineState {
+    std::atomic<std::uint64_t> value{0};
+};
+
+// Tín hiệu mà một lần nộp báo cho một Timeline khi xong.
+struct FlightSignal {
+    std::shared_ptr<TimelineState> state;
+    std::uint64_t value = 0;
+};
+
+// Một lần nộp chưa được ghi nhận là xong: fence của nó và các tín hiệu Timeline mang theo.
+struct Flight {
+    std::uint64_t value = 0;
+    VkFence fence = VK_NULL_HANDLE;
+    std::vector<FlightSignal> signals;
 };
 
 // Một hàng đợi vật lý. Hàng đợi thiếu trên thiết bị dùng chung hàng Graphics.
@@ -151,11 +177,16 @@ struct Queue {
     std::uint32_t family = 0;
     // Số bit hợp lệ của dấu thời gian; 0 là hàng đợi không ghi được.
     std::uint32_t timestamp_bits = 0;
-    // Timeline nội bộ: lần nộp thứ n phát giá trị n.
-    VkSemaphore progress = VK_NULL_HANDLE;
     // vkQueueSubmit và vkQueuePresentKHR đòi đồng bộ ngoài; mutex cũng bảo vệ việc tăng submitted.
     std::mutex mutex;
     std::atomic<std::uint64_t> submitted{0};
+    // Lần nộp mới nhất mà GPU đã chạy xong; chỉ tăng, do poll cập nhật.
+    std::atomic<std::uint64_t> done{0};
+    // flight_mutex bảo vệ flights (theo thứ tự nộp) và spare (fence đã đặt lại, dùng lại được). Thứ tự
+    // khoá: mutex rồi flight_mutex. Fence của một Flight chỉ được đặt lại hay huỷ dưới khoá này.
+    std::mutex flight_mutex;
+    std::deque<Flight> flights;
+    std::vector<VkFence> spare;
 };
 
 // Adapter đạt mức tối thiểu của backend, theo thứ tự ưu tiên (gpu::enumerate_adapters).
@@ -240,8 +271,14 @@ public:
     // Gỡ ảnh và view của swapchain khỏi bảng ngay (swapchain đã chờ GPU rỗi).
     void release(TextureHandle handle);
     void release(TextureViewHandle handle);
-    // Số thứ tự lần nộp mới nhất mà GPU đã chạy xong trên hàng đợi của type.
-    [[nodiscard]] std::uint64_t completed(QueueType type) const noexcept;
+    // Số thứ tự lần nộp mới nhất mà GPU đã chạy xong trên hàng đợi của type (hỏi fence, không chờ).
+    [[nodiscard]] std::uint64_t completed(QueueType type);
+    // Chờ tối đa timeout tới khi state đạt value: kTimeout khi hết hạn, kDeviceLost khi mất thiết bị.
+    [[nodiscard]] Status wait_state(const TimelineState& state, std::uint64_t value,
+        std::chrono::nanoseconds timeout);
+    // Hỏi fence của mọi hàng đợi và ghi nhận các lần nộp đã xong.
+    void poll_all();
+    [[nodiscard]] Passes& passes() noexcept { return *passes_; }
 
     // Gắn tên cho một đối tượng Vulkan; không làm gì khi không có VK_EXT_debug_utils.
     void set_name(VkObjectType type, std::uint64_t object, std::string_view name) const;
@@ -251,6 +288,7 @@ public:
     [[nodiscard]] QueueMarks marks() const noexcept;
     void retire(Retired::Action action) { retired_.push(marks(), std::move(action)); }
     [[nodiscard]] const Traits& traits() const noexcept { return traits_; }
+    [[nodiscard]] VkDeviceAddress address_of(VkBuffer buffer) const noexcept;
     [[nodiscard]] const VkPhysicalDeviceLimits& limits() const noexcept { return limits_; }
 
 private:
@@ -262,8 +300,17 @@ private:
     [[nodiscard]] Status create_queues();
     void read_caps(const VkPhysicalDeviceVulkan12Properties& indexing);
     void create_cache(std::span<const std::byte> data);
-    [[nodiscard]] QueueMarks completed() const noexcept;
+    [[nodiscard]] QueueMarks completed();
     void recycle(const QueueMarks& done);
+    // Ghi nhận các lần nộp đã xong ở đầu hàng; gọi khi đang giữ queue.flight_mutex.
+    std::uint64_t retire_done(Queue& queue);
+    // Chờ một lát fence của lần nộp mang tín hiệu (state, value) trên queue; true khi hàng có lần nộp ấy.
+    [[nodiscard]] bool wait_flight(Queue& queue, const TimelineState& state, std::uint64_t value,
+        std::chrono::nanoseconds slice);
+    [[nodiscard]] Result<VkFence> take_fence(Queue& queue);
+    // Hỏi fence của một hàng đợi và ghi nhận các lần nộp đã xong; trả lần nộp mới nhất đã xong.
+    std::uint64_t poll(Queue& queue);
+    void destroy_fences() noexcept;
     [[nodiscard]] Result<std::unique_ptr<Commands>> create_commands(QueueType queue);
 
     // Giải phóng ngay các đối tượng Vulkan của một tài nguyên đã rời bảng. Gọi từ hàng huỷ hoãn khi
@@ -313,6 +360,10 @@ private:
     DeviceCaps caps_{};
     DebugApi debug_{};
     PFN_vkWaitForPresentKHR wait_for_present_ = nullptr;
+    // vkGetBufferDeviceAddress (lõi 1.2): xin qua device vì bộ nạp Android không xuất tĩnh; null khi thiếu.
+    PFN_vkGetBufferDeviceAddress buffer_address_ = nullptr;
+    // Phiên bản chức năng lõi dùng được: nhỏ hơn trong phiên bản thiết bị và instance.
+    std::uint32_t api_ = 0;
     VkPhysicalDeviceMemoryProperties memory_{};
     VkPhysicalDeviceLimits limits_{};
     Traits traits_{};
@@ -346,6 +397,7 @@ private:
     std::size_t set_cursor_ = 0;
     VkPipelineCache cache_ = VK_NULL_HANDLE;
 
+    std::unique_ptr<Passes> passes_;
     std::unique_ptr<Contexts> contexts_;
     // Số list đang mở trên từng hàng logic. marks() cộng số này vào mốc đã nộp.
     std::array<std::atomic<std::uint32_t>, kQueueCount> recording_{};

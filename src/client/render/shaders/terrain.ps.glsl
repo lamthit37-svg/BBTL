@@ -81,7 +81,8 @@ vec3 gloss(vec3 facing, vec3 place) {
 }
 
 float word16(float high, float low) {
-    return ((round(high * 255.0) * 256.0) + round(low * 255.0)) / 65535.0;
+    // Cùng công thức tuyến tính với terrain.ps.slang (không làm tròn từng kênh).
+    return (high * (65280.0 / 65535.0)) + (low * (255.0 / 65535.0));
 }
 
 vec4 layer_sample(uint pixmap, uint turn, uint flip, vec2 along, vec2 cell_dx, vec2 cell_dy) {

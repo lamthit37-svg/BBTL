@@ -261,10 +261,7 @@ Result<BufferHandle> VulkanDevice::create_buffer(const BufferDesc& desc) {
     const Status bound = memory ? bind(buffer) : Status(std::unexpected(memory.error()));
     if (!bound) discard(buffer);
     if (!bound) return std::unexpected(bound.error());
-    VkBufferDeviceAddressInfo address{};
-    address.sType = VK_STRUCTURE_TYPE_BUFFER_DEVICE_ADDRESS_INFO;
-    address.buffer = buffer.handle;
-    if (wants_address) buffer.address = buffer_address(device_, &address);
+    if (wants_address) buffer.address = address_of(buffer.handle);
     set_name(VK_OBJECT_TYPE_BUFFER, std::bit_cast<std::uint64_t>(buffer.handle), desc.name);
     const BufferHandle handle = buffers_.insert(buffer);
     if (handle) return handle;
@@ -387,6 +384,8 @@ Result<TextureViewHandle> VulkanDevice::create_view(const TextureViewDesc& desc)
 }
 
 void VulkanDevice::discard(View& view) noexcept {
+    // Framebuffer giữ view này phải đi trước: tay nắm VkImageView có thể được cấp lại cho view khác.
+    if (view.handle != VK_NULL_HANDLE && passes_) passes_->forget(view.handle);
     if (view.handle != VK_NULL_HANDLE) vkDestroyImageView(device_, view.handle, nullptr);
     view = {};
 }

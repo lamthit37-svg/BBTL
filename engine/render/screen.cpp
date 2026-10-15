@@ -252,6 +252,7 @@ core::Status Screen::present() {
 core::Status Screen::resize(std::uint32_t width, std::uint32_t height) {
     State& state = *state_;
     if (width == 0 || height == 0) return bad("cỡ màn hình vẽ bằng 0");
+    if (state.swapchain->is_current(width, height)) return core::ok();
     const core::Status resized = state.swapchain->resize(width, height);
     if (!resized) return resized;
     return state.make_targets();

@@ -90,7 +90,6 @@ struct GraphicsState {
     std::vector<VkVertexInputBindingDescription> bindings;
     std::vector<VkVertexInputAttributeDescription> attributes;
     std::vector<VkPipelineColorBlendAttachmentState> blends;
-    std::vector<VkFormat> color_formats;
     std::vector<VkDynamicState> dynamics;
     VkPipelineVertexInputStateCreateInfo input{};
     VkPipelineInputAssemblyStateCreateInfo assembly{};
@@ -103,7 +102,6 @@ struct GraphicsState {
     VkPipelineDepthStencilStateCreateInfo depth{};
     VkPipelineColorBlendStateCreateInfo blend{};
     VkPipelineDynamicStateCreateInfo dynamic{};
-    VkPipelineRenderingCreateInfo rendering{};
 };
 
 void fill_input(GraphicsState& state, const GraphicsPipelineDesc& desc) {
@@ -203,20 +201,11 @@ void fill_depth(GraphicsState& state, const GraphicsPipelineDesc& desc) {
 
 void fill_targets(GraphicsState& state, const GraphicsPipelineDesc& desc) {
     for (std::size_t index = 0; index < desc.color_formats.size(); ++index) {
-        state.color_formats.push_back(to_vk(desc.color_formats.subspan(index, 1).front()));
         state.blends.push_back(blend_of(blend_at(desc.blends, index)));
     }
     state.blend.sType = VK_STRUCTURE_TYPE_PIPELINE_COLOR_BLEND_STATE_CREATE_INFO;
     state.blend.attachmentCount = static_cast<std::uint32_t>(state.blends.size());
     state.blend.pAttachments = state.blends.data();
-    const Format depth = desc.depth.format;
-    const VkFormat depth_format = has_depth(depth) ? to_vk(depth) : VK_FORMAT_UNDEFINED;
-    const VkFormat stencil_format = has_stencil(depth) ? depth_format : VK_FORMAT_UNDEFINED;
-    state.rendering.sType = VK_STRUCTURE_TYPE_PIPELINE_RENDERING_CREATE_INFO;
-    state.rendering.colorAttachmentCount = static_cast<std::uint32_t>(state.color_formats.size());
-    state.rendering.pColorAttachmentFormats = state.color_formats.data();
-    state.rendering.depthAttachmentFormat = depth_format;
-    state.rendering.stencilAttachmentFormat = stencil_format;
     state.dynamics = {VK_DYNAMIC_STATE_VIEWPORT, VK_DYNAMIC_STATE_SCISSOR, VK_DYNAMIC_STATE_STENCIL_REFERENCE,
         VK_DYNAMIC_STATE_BLEND_CONSTANTS};
     if (desc.depth.is_bounds_tested) state.dynamics.push_back(VK_DYNAMIC_STATE_DEPTH_BOUNDS);
@@ -557,7 +546,6 @@ Result<PipelineHandle> VulkanDevice::create_pipeline(const GraphicsPipelineDesc&
     fill_targets(state, desc);
     VkGraphicsPipelineCreateInfo info{};
     info.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
-    info.pNext = &state.rendering;
     info.stageCount = static_cast<std::uint32_t>(state.stages.size());
     info.pStages = state.stages.data();
     info.pVertexInputState = &state.input;
@@ -570,6 +558,12 @@ Result<PipelineHandle> VulkanDevice::create_pipeline(const GraphicsPipelineDesc&
     info.pColorBlendState = &state.blend;
     info.pDynamicState = &state.dynamic;
     info.layout = (*layout)->handle;
+    // Render pass tương thích với mọi pass sẽ vẽ bằng pipeline này (định dạng và số mẫu khớp).
+    const Result<VkRenderPass> pass =
+        passes_->compatible({.colors = desc.color_formats, .depth = desc.depth.format, .samples = desc.samples});
+    if (!pass) return std::unexpected(pass.error());
+    info.renderPass = *pass;
+    info.subpass = 0;
     Pipeline pipeline{.point = VK_PIPELINE_BIND_POINT_GRAPHICS, .layout = *layout};
     const VkResult created = vkCreateGraphicsPipelines(device_, cache_, 1, &info, nullptr, &pipeline.handle);
     if (created != VK_SUCCESS) return failed(created, "không tạo được pipeline đồ hoạ");

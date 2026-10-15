@@ -24,6 +24,7 @@
 #include "gpu/vulkan/api.hpp"
 #include "gpu/vulkan/convert.hpp"
 #include "gpu/vulkan/device.hpp"
+#include "gpu/vulkan/passes.hpp"
 
 #include <vulkan/vulkan_core.h>
 
@@ -72,12 +73,10 @@ struct Families {
     return {.source = source, .target = target};
 }
 
-[[nodiscard]] VkMemoryBarrier2 global_barrier(const GlobalBarrier& item) noexcept {
-    VkMemoryBarrier2 barrier{};
-    barrier.sType = VK_STRUCTURE_TYPE_MEMORY_BARRIER_2;
-    barrier.srcStageMask = to_vk(item.stage_before);
+[[nodiscard]] VkMemoryBarrier global_barrier(const GlobalBarrier& item) noexcept {
+    VkMemoryBarrier barrier{};
+    barrier.sType = VK_STRUCTURE_TYPE_MEMORY_BARRIER;
     barrier.srcAccessMask = to_vk(item.access_before);
-    barrier.dstStageMask = to_vk(item.stage_after);
     barrier.dstAccessMask = to_vk(item.access_after);
     return barrier;
 }
@@ -111,28 +110,6 @@ struct Families {
     return value;
 }
 // NOLINTEND(cppcoreguidelines-pro-type-union-access)
-
-// Attachment độ sâu của một lần vẽ. Chỉ đọc thì không ghi lại: trên GPU chia ô đó là một lần ghi
-// attachment ra bộ nhớ được bỏ hẳn.
-[[nodiscard]] VkRenderingAttachmentInfo depth_info(const DepthTarget& target, const View& view) {
-    const TextureLayout layout = target.is_read_only ? TextureLayout::kDepthRead : TextureLayout::kDepthWrite;
-    VkRenderingAttachmentInfo info{};
-    info.sType = VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_INFO;
-    info.imageView = view.handle;
-    info.imageLayout = to_vk(layout);
-    info.loadOp = to_vk(target.load);
-    info.storeOp = target.is_read_only ? VK_ATTACHMENT_STORE_OP_NONE : to_vk(target.store);
-    info.clearValue = clear_depth(target.clear);
-    return info;
-}
-
-[[nodiscard]] VkRenderingAttachmentInfo stencil_info(const DepthTarget& target,
-    const VkRenderingAttachmentInfo& depth) noexcept {
-    VkRenderingAttachmentInfo info = depth;
-    info.loadOp = to_vk(target.stencil_load);
-    info.storeOp = target.is_read_only ? VK_ATTACHMENT_STORE_OP_NONE : to_vk(target.stencil_store);
-    return info;
-}
 
 [[nodiscard]] VkRect2D to_rect(const Scissor& scissor) noexcept {
     const VkOffset2D offset{.x = scissor.x, .y = scissor.y};
@@ -217,35 +194,6 @@ template <class Step>
     return is_whole ? whole : wanted;
 }
 
-// Khác gốc: gói những thứ begin_rendering đã kiểm và gom xong, đầu vào của begin_pass.
-struct Pass {
-    // kMaxColorTargets ô; desc.colors.size() ô đầu đã điền.
-    std::span<const VkRenderingAttachmentInfo> colors;
-    // nullptr khi lần vẽ không có attachment độ sâu.
-    const View* depth_view = nullptr;
-    Scissor area{};
-};
-
-// Khác gốc: phần dựng attachment độ sâu, stencil và VkRenderingInfo của begin_rendering tách ra
-// đây, kèm lời gọi vkCmdBeginRendering; giá trị và thứ tự gán như gốc.
-void begin_pass(VkCommandBuffer buffer, const RenderingDesc& desc, const Pass& pass) {
-    const DepthTarget depth_target = desc.depth.value_or(DepthTarget{});
-    const View* const depth_view = pass.depth_view;
-    const Format depth_format = depth_view == nullptr ? Format::kUnknown : depth_view->range.format;
-    VkRenderingAttachmentInfo depth{};
-    if (depth_view != nullptr) depth = depth_info(depth_target, *depth_view);
-    const VkRenderingAttachmentInfo stencil = stencil_info(depth_target, depth);
-    VkRenderingInfo info{};
-    info.sType = VK_STRUCTURE_TYPE_RENDERING_INFO;
-    info.renderArea = to_rect(pass.area);
-    info.layerCount = desc.layers;
-    info.colorAttachmentCount = static_cast<std::uint32_t>(desc.colors.size());
-    info.pColorAttachments = pass.colors.data();
-    info.pDepthAttachment = has_depth(depth_format) ? &depth : nullptr;
-    info.pStencilAttachment = has_stencil(depth_format) ? &stencil : nullptr;
-    cmd_begin_rendering(buffer, &info);
-}
-
 } // namespace
 
 Commands::~Commands() {
@@ -278,7 +226,7 @@ Status Commands::open() {
 }
 
 void Commands::discard() noexcept {
-    if (state_ == State::kRecording && is_rendering_) cmd_end_rendering(buffer_);
+    if (state_ == State::kRecording && is_rendering_) vkCmdEndRenderPass(buffer_);
     if (state_ == State::kRecording) std::ignore = vkEndCommandBuffer(buffer_);
     state_ = State::kIdle;
     is_live_ = false;
@@ -419,32 +367,32 @@ void Commands::insert_label(std::string_view name) {
     debug.insert_label(buffer_, &label);
 }
 
+// Sync1 chỉ có một cặp giai đoạn cho cả lần barrier: gộp giai đoạn của mọi phần tử (đúng nhưng chặt
+// hơn sync2; mỗi phần tử vẫn giữ mask truy cập riêng).
 void Commands::add_barrier(const BufferBarrier& item) {
     const Buffer* const buffer = need(item.buffer, BufferUsage::kNone, "barrier: buffer đã chết");
     if (buffer == nullptr) return;
     const Families moved = families(*device_, item.queue);
-    VkBufferMemoryBarrier2 barrier{};
-    barrier.sType = VK_STRUCTURE_TYPE_BUFFER_MEMORY_BARRIER_2;
-    barrier.srcStageMask = to_vk(item.stage_before);
+    VkBufferMemoryBarrier barrier{};
+    barrier.sType = VK_STRUCTURE_TYPE_BUFFER_MEMORY_BARRIER;
     barrier.srcAccessMask = to_vk(item.access_before);
-    barrier.dstStageMask = to_vk(item.stage_after);
     barrier.dstAccessMask = to_vk(item.access_after);
     barrier.srcQueueFamilyIndex = moved.source;
     barrier.dstQueueFamilyIndex = moved.target;
     barrier.buffer = buffer->handle;
     barrier.size = VK_WHOLE_SIZE;
     buffer_barriers_.push_back(barrier);
+    barrier_src_ |= to_vk(item.stage_before);
+    barrier_dst_ |= to_vk(item.stage_after);
 }
 
 void Commands::add_barrier(const TextureBarrier& item) {
     const Texture* const texture = need(item.texture, TextureUsage::kNone, "barrier: texture đã chết");
     if (texture == nullptr) return;
     const Families moved = families(*device_, item.queue);
-    VkImageMemoryBarrier2 barrier{};
-    barrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER_2;
-    barrier.srcStageMask = to_vk(item.stage_before);
+    VkImageMemoryBarrier barrier{};
+    barrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
     barrier.srcAccessMask = to_vk(item.access_before);
-    barrier.dstStageMask = to_vk(item.stage_after);
     barrier.dstAccessMask = to_vk(item.access_after);
     barrier.oldLayout = to_vk(item.layout_before);
     barrier.newLayout = to_vk(item.layout_after);
@@ -457,6 +405,8 @@ void Commands::add_barrier(const TextureBarrier& item) {
     barrier.subresourceRange.baseArrayLayer = item.first_layer;
     barrier.subresourceRange.layerCount = item.layer_count;
     image_barriers_.push_back(barrier);
+    barrier_src_ |= to_vk(item.stage_before);
+    barrier_dst_ |= to_vk(item.stage_after);
 }
 
 void Commands::barrier(std::span<const BufferBarrier> buffers, std::span<const TextureBarrier> textures,
@@ -469,6 +419,8 @@ void Commands::barrier(std::span<const BufferBarrier> buffers, std::span<const T
     buffer_barriers_.clear();
     image_barriers_.clear();
     memory_barriers_.clear();
+    barrier_src_ = 0;
+    barrier_dst_ = 0;
     for (const BufferBarrier& item : buffers) {
         add_barrier(item);
     }
@@ -477,50 +429,49 @@ void Commands::barrier(std::span<const BufferBarrier> buffers, std::span<const T
     }
     for (const GlobalBarrier& item : memory) {
         memory_barriers_.push_back(global_barrier(item));
+        barrier_src_ |= to_vk(item.stage_before);
+        barrier_dst_ |= to_vk(item.stage_after);
     }
     const bool is_empty = buffers.empty() && textures.empty() && memory.empty();
     if (!is_live_ || is_empty) return;
-    VkDependencyInfo info{};
-    info.sType = VK_STRUCTURE_TYPE_DEPENDENCY_INFO;
-    info.memoryBarrierCount = static_cast<std::uint32_t>(memory_barriers_.size());
-    info.pMemoryBarriers = memory_barriers_.data();
-    info.bufferMemoryBarrierCount = static_cast<std::uint32_t>(buffer_barriers_.size());
-    info.pBufferMemoryBarriers = buffer_barriers_.data();
-    info.imageMemoryBarrierCount = static_cast<std::uint32_t>(image_barriers_.size());
-    info.pImageMemoryBarriers = image_barriers_.data();
-    cmd_pipeline_barrier2(buffer_, &info);
+    // Giai đoạn rỗng (SyncStage::kNone) là đầu hay cuối đường ống tuỳ vế.
+    const VkPipelineStageFlags source = barrier_src_ != 0 ? barrier_src_ : VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT;
+    const VkPipelineStageFlags target = barrier_dst_ != 0 ? barrier_dst_ : VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT;
+    vkCmdPipelineBarrier(buffer_, source, target, 0, static_cast<std::uint32_t>(memory_barriers_.size()),
+        memory_barriers_.data(), static_cast<std::uint32_t>(buffer_barriers_.size()), buffer_barriers_.data(),
+        static_cast<std::uint32_t>(image_barriers_.size()), image_barriers_.data());
 }
 
+// Cỡ chung của mọi attachment là cỡ nhỏ nhất: framebuffer không được lớn hơn attachment nào.
 void Commands::note_extent(const View& view) noexcept {
-    if (extent_.width != 0) return;
-    extent_ = {.width = view.width, .height = view.height};
+    if (extent_.width == 0) extent_ = {.width = view.width, .height = view.height};
+    extent_.width = std::min(extent_.width, view.width);
+    extent_.height = std::min(extent_.height, view.height);
 }
 
 // false khi view của target đã chết hay không dùng được (lỗi đã được giữ lại). Tay nắm rỗng là ô
 // attachment bỏ trống, hợp lệ.
-bool Commands::fill_color(VkRenderingAttachmentInfo& info, const ColorTarget& target) {
-    info.sType = VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_INFO;
+bool Commands::fill_color(ColorAttach& attach, const ColorTarget& target) {
     if (!target.view) return true;
     const View* const view = need(target.view, "begin_rendering: view màu đã chết");
     if (view == nullptr) return false;
     const Format format = view->range.format;
     if (has_depth(format)) reject(fail(kBad, "begin_rendering: view độ sâu ở ô attachment màu"));
-    info.imageView = view->handle;
-    info.imageLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
-    info.loadOp = to_vk(target.load);
-    info.storeOp = to_vk(target.store);
-    info.clearValue = clear_color(target.clear, format);
+    attach.view = view->handle;
+    attach.format = to_vk(format);
+    attach.load = to_vk(target.load);
+    attach.store = to_vk(target.store);
+    attach.clear = clear_color(target.clear, format);
     note_extent(*view);
     if (!target.resolve) return is_live_;
     const View* const resolved = need(target.resolve, "begin_rendering: view resolve đã chết");
     if (resolved == nullptr) return false;
     const bool is_resolvable = view->samples > 1 && resolved->samples == 1;
     if (!is_resolvable) reject(fail(kBad, "resolve cần nguồn đa mẫu và đích một mẫu"));
-    // Định dạng số nguyên không lấy trung bình được: lấy mẫu số 0.
+    // Render pass resolve bằng trung bình; định dạng số nguyên không lấy trung bình được.
     const bool is_integer = is_uint(format) || is_sint(format);
-    info.resolveMode = is_integer ? VK_RESOLVE_MODE_SAMPLE_ZERO_BIT : VK_RESOLVE_MODE_AVERAGE_BIT;
-    info.resolveImageView = resolved->handle;
-    info.resolveImageLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+    if (is_integer) reject(fail(kBad, "resolve định dạng số nguyên không hỗ trợ"));
+    attach.resolve = resolved->handle;
     return is_live_;
 }
 
@@ -530,6 +481,21 @@ const View* Commands::need_depth(TextureViewHandle handle) {
     const bool is_depth = has_depth(view->range.format);
     if (!is_depth) reject(fail(kBad, "begin_rendering: view màu ở ô attachment độ sâu"));
     return is_depth ? view : nullptr;
+}
+
+// Attachment độ sâu của một lần vẽ. Chỉ đọc thì phải LOAD (CLEAR ở bố cục chỉ đọc là sai) và không
+// ghi lại (Passes đặt STORE_OP_NONE khi thiết bị có).
+DepthAttach Commands::depth_of(const DepthTarget& target, const View& view) const noexcept {
+    DepthAttach attach;
+    attach.view = view.handle;
+    attach.format = to_vk(view.range.format);
+    attach.is_read_only = target.is_read_only;
+    attach.load = target.is_read_only ? VK_ATTACHMENT_LOAD_OP_LOAD : to_vk(target.load);
+    attach.store = to_vk(target.store);
+    attach.stencil_load = target.is_read_only ? VK_ATTACHMENT_LOAD_OP_LOAD : to_vk(target.stencil_load);
+    attach.stencil_store = to_vk(target.stencil_store);
+    attach.clear = clear_depth(target.clear);
+    return attach;
 }
 
 void Commands::begin_rendering(const RenderingDesc& desc) {
@@ -544,29 +510,42 @@ void Commands::begin_rendering(const RenderingDesc& desc) {
         return;
     }
     extent_ = {};
-    std::array<VkRenderingAttachmentInfo, kMaxColorTargets> colors{};
+    PassTargets targets;
+    targets.color_count = static_cast<std::uint32_t>(desc.colors.size());
+    targets.layers = desc.layers;
     const auto fill = [&](std::size_t index) {
-        return fill_color(colors.at(index), desc.colors.subspan(index, 1).front());
+        return fill_color(targets.colors.at(index), desc.colors.subspan(index, 1).front());
     };
     if (!run_each(desc.colors.size(), fill)) return;
     const DepthTarget depth_target = desc.depth.value_or(DepthTarget{});
     const View* const depth_view = desc.depth ? need_depth(depth_target.view) : nullptr;
     if (desc.depth && depth_view == nullptr) return;
-    // Khác gốc: gốc dựng attachment độ sâu rồi mới ghi cỡ; phần dựng nay ở begin_pass, thuần tính
-    // toán, nên thứ tự giữa hai việc không đổi kết quả.
     if (depth_view != nullptr) note_extent(*depth_view);
+    if (depth_view != nullptr) targets.depth = depth_of(depth_target, *depth_view);
+    const bool has_color = !desc.colors.empty();
+    const View* const color_view = has_color ? device_->find(desc.colors.front().view) : nullptr;
+    const View* const first = depth_view != nullptr ? depth_view : color_view;
+    if (first == nullptr) {
+        reject(fail(kBad, "begin_rendering: không có attachment nào còn sống"));
+        return;
+    }
+    targets.samples = to_samples(first->samples);
+    targets.width = extent_.width;
+    targets.height = extent_.height;
     const Scissor area = area_of(desc.area, extent_);
-    const Pass pass{.colors = colors, .depth_view = depth_view, .area = area};
-    begin_pass(buffer_, desc, pass);
+    const VkRect2D rect = to_rect(area);
+    const Status begun = device_->passes().begin(buffer_, targets, rect);
+    if (!begun) {
+        reject(std::unexpected(begun.error()));
+        return;
+    }
     is_rendering_ = true;
     // Viewport và scissor phủ trọn vùng vẽ; chỗ gọi đặt lại khi cần vùng khác.
-    const auto left = static_cast<float>(area.x);
-    const auto top = static_cast<float>(area.y);
-    const auto width = static_cast<float>(area.width);
-    const auto height = static_cast<float>(area.height);
-    const Viewport whole{.x = left, .y = top, .width = width, .height = height};
+    const Viewport whole{.x = static_cast<float>(area.x),
+        .y = static_cast<float>(area.y),
+        .width = static_cast<float>(area.width),
+        .height = static_cast<float>(area.height)};
     const VkViewport viewport = to_viewport(whole);
-    const VkRect2D rect = to_rect(area);
     vkCmdSetViewport(buffer_, 0, 1, &viewport);
     vkCmdSetScissor(buffer_, 0, 1, &rect);
 }
@@ -577,7 +556,7 @@ void Commands::end_rendering() {
         reject(fail(kState, "end_rendering không có begin_rendering"));
         return;
     }
-    cmd_end_rendering(buffer_);
+    vkCmdEndRenderPass(buffer_);
     is_rendering_ = false;
 }
 
@@ -878,7 +857,10 @@ void Commands::write_timestamp(QueryPoolHandle pool, std::uint32_t index, SyncSt
         reject(fail(kBad, "write_timestamp: nhiều giai đoạn hoặc sai hàng đợi"));
         return;
     }
-    cmd_write_timestamp2(buffer_, to_vk(stage), checked->handle, index);
+    // Sync1 không có giai đoạn rỗng: None là đầu đường ống.
+    const VkPipelineStageFlags bits = to_vk(stage);
+    const auto at = bits == 0 ? VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT : static_cast<VkPipelineStageFlagBits>(bits);
+    vkCmdWriteTimestamp(buffer_, at, checked->handle, index);
 }
 
 void Commands::begin_occlusion(QueryPoolHandle pool, std::uint32_t index) {

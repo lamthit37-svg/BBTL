@@ -32,7 +32,7 @@ struct BuildOptions {
     bool debug = false;
     // Dịch lại cả gói còn mới.
     bool force = false;
-    std::uint8_t vulkan_minor = 3;
+    std::uint8_t vulkan_minor = 1;
 };
 
 enum class Outcome : std::uint8_t {

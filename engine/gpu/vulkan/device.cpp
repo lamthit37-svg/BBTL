@@ -1,4 +1,6 @@
-// Vòng đời thiết bị, hàng đợi, timeline, nộp lệnh và ranh giới khung hình của backend Vulkan.
+// Vòng đời thiết bị, hàng đợi, fence, timeline, nộp lệnh và ranh giới khung hình của backend Vulkan.
+// Mức tối thiểu 1.1 (api.hpp): không timeline semaphore, nên "lần nộp thứ n đã xong" là fence của lần
+// nộp ấy (Queue::flights), và Timeline của chỗ gọi là bộ đếm CPU tiến lên theo các fence đó.
 // Nguồn: Forge2 src/gpu/vulkan/device.cpp@d7fcd76. Khác gốc: enumerator mang tiền tố k; include
 // trực tiếp header của mọi tên dùng tới; hàm dài hoặc có nhánh trong thân vòng lặp tách hàm ở ranh
 // giới câu lệnh, thứ tự lời gọi Vulkan và phép kiểm lỗi giữ nguyên (ghi tại chỗ): fill đưa điều
@@ -35,6 +37,7 @@
 #include <span>
 #include <string>
 #include <string_view>
+#include <thread>
 #include <utility>
 #include <vector>
 
@@ -88,21 +91,17 @@ using core::ok;
     return std::ranges::any_of(list, matches);
 }
 
-// Chuỗi tính năng của Vulkan 1.0 tới 1.3, nối sẵn qua pNext.
+// Chuỗi tính năng: lõi 1.0, tham số draw của 1.1, và bộ 1.2 chỉ khi thiết bị và instance đạt 1.2 (bộ
+// 1.2 trong pNext của thiết bị 1.1 là cấu trúc lạ). Nối bằng link(), không nối sẵn: struct không dời.
 struct Features {
     VkPhysicalDeviceFeatures2 base{};
-    VkPhysicalDeviceVulkan11Features v11{};
+    VkPhysicalDeviceShaderDrawParametersFeatures draw{};
     VkPhysicalDeviceVulkan12Features v12{};
-    VkPhysicalDeviceVulkan13Features v13{};
 
     Features() noexcept {
         base.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FEATURES_2;
-        v11.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_1_1_FEATURES;
+        draw.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_DRAW_PARAMETERS_FEATURES;
         v12.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_1_2_FEATURES;
-        v13.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_1_3_FEATURES;
-        base.pNext = &v11;
-        v11.pNext = &v12;
-        v12.pNext = &v13;
     }
     // pNext trỏ vào chính đối tượng: chép hay dời là trỏ sai.
     Features(const Features&) = delete;
@@ -110,6 +109,12 @@ struct Features {
     Features(Features&&) = delete;
     Features& operator=(Features&&) = delete;
     ~Features() = default;
+
+    // Nối base, draw và (khi has_v12) v12; trả đầu chuỗi.
+    void link(bool has_v12) noexcept {
+        base.pNext = &draw;
+        draw.pNext = has_v12 ? static_cast<void*>(&v12) : nullptr;
+    }
 };
 
 // Phần lõi của 1.0 mà engine dùng khi thiết bị có. robustBufferAccess cố ý không bật: nó chèn kiểm
@@ -147,16 +152,8 @@ void enable_base(VkPhysicalDeviceFeatures& wanted, const VkPhysicalDeviceFeature
 }
 
 void enable_v12(VkPhysicalDeviceVulkan12Features& wanted, const VkPhysicalDeviceVulkan12Features& has) noexcept {
-    wanted.timelineSemaphore = has.timelineSemaphore;
     wanted.bufferDeviceAddress = has.bufferDeviceAddress;
-    wanted.drawIndirectCount = has.drawIndirectCount;
     wanted.scalarBlockLayout = has.scalarBlockLayout;
-    wanted.hostQueryReset = has.hostQueryReset;
-    wanted.shaderInt8 = has.shaderInt8;
-    wanted.shaderFloat16 = has.shaderFloat16;
-    wanted.shaderOutputLayer = has.shaderOutputLayer;
-    wanted.shaderOutputViewportIndex = has.shaderOutputViewportIndex;
-    wanted.separateDepthStencilLayouts = has.separateDepthStencilLayouts;
     wanted.descriptorIndexing = has.descriptorIndexing;
     wanted.runtimeDescriptorArray = has.runtimeDescriptorArray;
     wanted.descriptorBindingPartiallyBound = has.descriptorBindingPartiallyBound;
@@ -170,19 +167,6 @@ void enable_v12(VkPhysicalDeviceVulkan12Features& wanted, const VkPhysicalDevice
     wanted.shaderStorageImageArrayNonUniformIndexing = has.shaderStorageImageArrayNonUniformIndexing;
     wanted.shaderStorageBufferArrayNonUniformIndexing = has.shaderStorageBufferArrayNonUniformIndexing;
     wanted.shaderUniformBufferArrayNonUniformIndexing = has.shaderUniformBufferArrayNonUniformIndexing;
-}
-
-void enable_v13(VkPhysicalDeviceVulkan13Features& wanted, const VkPhysicalDeviceVulkan13Features& has) noexcept {
-    wanted.dynamicRendering = has.dynamicRendering;
-    wanted.synchronization2 = has.synchronization2;
-    wanted.maintenance4 = has.maintenance4;
-    wanted.shaderDemoteToHelperInvocation = has.shaderDemoteToHelperInvocation;
-    wanted.shaderTerminateInvocation = has.shaderTerminateInvocation;
-    wanted.shaderZeroInitializeWorkgroupMemory = has.shaderZeroInitializeWorkgroupMemory;
-    wanted.shaderIntegerDotProduct = has.shaderIntegerDotProduct;
-    wanted.subgroupSizeControl = has.subgroupSizeControl;
-    wanted.computeFullSubgroups = has.computeFullSubgroups;
-    wanted.textureCompressionASTC_HDR = has.textureCompressionASTC_HDR;
 }
 
 // Mảng không chặn dùng được khi đủ cả bộ tính năng của descriptor indexing.
@@ -239,91 +223,48 @@ struct CacheHeader {
     return header.size == sizeof(header) && is_known && is_same_device && is_same_driver;
 }
 
+// Timeline của chỗ gọi: bộ đếm CPU (TimelineState) do các fence của lần nộp đẩy tiến.
 class TimelineVk final : public Timeline {
 public:
-    TimelineVk(VulkanDevice& device, VkSemaphore semaphore) noexcept : device_(&device), semaphore_(semaphore) {}
-    // retire cấp phát, ném
-    // là terminate (LH-07).
-    // NOLINTNEXTLINE(bugprone-exception-escape)
-    ~TimelineVk() override {
-        auto* const device = device_->handle();
-        auto* const semaphore = semaphore_;
-        device_->retire([device, semaphore] { vkDestroySemaphore(device, semaphore, nullptr); });
-    }
+    TimelineVk(VulkanDevice& device, std::shared_ptr<TimelineState> state) noexcept
+        : device_(&device), state_(std::move(state)) {}
+    ~TimelineVk() override = default;
     TimelineVk(const TimelineVk&) = delete;
     TimelineVk& operator=(const TimelineVk&) = delete;
     TimelineVk(TimelineVk&&) = delete;
     TimelineVk& operator=(TimelineVk&&) = delete;
 
-    [[nodiscard]] VkSemaphore handle() const noexcept { return semaphore_; }
+    [[nodiscard]] const std::shared_ptr<TimelineState>& state() const noexcept { return state_; }
 
     [[nodiscard]] std::uint64_t completed() const noexcept override {
-        std::uint64_t value = 0;
-        semaphore_counter(device_->handle(), semaphore_, &value);
-        return value;
+        device_->poll_all();
+        return state_->value.load();
     }
 
     [[nodiscard]] Status wait(std::uint64_t value, std::chrono::nanoseconds timeout) override {
-        VkSemaphoreWaitInfo info{};
-        info.sType = VK_STRUCTURE_TYPE_SEMAPHORE_WAIT_INFO;
-        info.semaphoreCount = 1;
-        info.pSemaphores = &semaphore_;
-        info.pValues = &value;
-        const auto nanos = static_cast<std::uint64_t>(std::max<std::int64_t>(timeout.count(), 0));
-        const VkResult waited = wait_semaphores(device_->handle(), &info, nanos);
-        if (waited == VK_SUCCESS) return ok();
-        return device_->failed(waited, "chờ timeline không xong");
+        return device_->wait_state(*state_, value, timeout);
     }
 
     void signal(std::uint64_t value) override {
-        VkSemaphoreSignalInfo info{};
-        info.sType = VK_STRUCTURE_TYPE_SEMAPHORE_SIGNAL_INFO;
-        info.semaphore = semaphore_;
-        info.value = value;
-        const VkResult signalled = signal_semaphore(device_->handle(), &info);
-        if (signalled != VK_SUCCESS) core::error("vulkan: signal semaphore: {}", name(signalled));
+        std::uint64_t seen = state_->value.load();
+        while (seen < value && !state_->value.compare_exchange_weak(seen, value)) {
+        }
     }
 
 private:
     VulkanDevice* device_;
-    VkSemaphore semaphore_;
+    std::shared_ptr<TimelineState> state_;
 };
-
-[[nodiscard]] Result<VkSemaphore> create_timeline_semaphore(VkDevice device, std::uint64_t initial) {
-    VkSemaphoreTypeCreateInfo type{};
-    type.sType = VK_STRUCTURE_TYPE_SEMAPHORE_TYPE_CREATE_INFO;
-    type.semaphoreType = VK_SEMAPHORE_TYPE_TIMELINE;
-    type.initialValue = initial;
-    VkSemaphoreCreateInfo info{};
-    info.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
-    info.pNext = &type;
-    VkSemaphore semaphore = VK_NULL_HANDLE;
-    const VkResult created = vkCreateSemaphore(device, &info, nullptr, &semaphore);
-    if (created != VK_SUCCESS) return fail_vk(created, "không tạo được timeline semaphore");
-    return semaphore;
-}
 
 // Mọi thứ của một lần nộp, dựng xong rồi mới khoá hàng đợi.
 struct Submission {
-    std::vector<VkSemaphoreSubmitInfo> waits;
-    std::vector<VkSemaphoreSubmitInfo> signals;
-    std::vector<VkCommandBufferSubmitInfo> buffers;
+    std::vector<VkSemaphore> waits;
+    std::vector<VkPipelineStageFlags> wait_stages;
+    std::vector<VkSemaphore> signals;
+    std::vector<VkCommandBuffer> buffers;
     std::vector<Commands*> lists;
+    std::vector<FlightSignal> flight_signals;
 };
-
-// Giá trị rồi giai đoạn như VkSemaphoreSubmitInfo;
-// hai kiểu đều là số 64 bit (lệch API-03).
-// NOLINTBEGIN(bugprone-easily-swappable-parameters)
-[[nodiscard]] VkSemaphoreSubmitInfo semaphore_info(VkSemaphore semaphore, std::uint64_t value,
-    VkPipelineStageFlags2 stages) noexcept {
-    VkSemaphoreSubmitInfo info{};
-    info.sType = VK_STRUCTURE_TYPE_SEMAPHORE_SUBMIT_INFO;
-    info.semaphore = semaphore;
-    info.value = value;
-    info.stageMask = stages;
-    return info;
-}
-// NOLINTEND(bugprone-easily-swappable-parameters)
 
 [[nodiscard]] Status add_list(Submission& submission, CommandList* list, QueueType queue) {
     auto* const commands = dynamic_cast<Commands*>(list);
@@ -336,26 +277,24 @@ struct Submission {
     }
     const Status closed = commands->close();
     if (!closed) return closed;
-    VkCommandBufferSubmitInfo info{};
-    info.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_SUBMIT_INFO;
-    info.commandBuffer = commands->buffer();
-    submission.buffers.push_back(info);
+    submission.buffers.push_back(commands->buffer());
     submission.lists.push_back(commands);
     return ok();
 }
 
-[[nodiscard]] Status add_wait(Submission& submission, const SubmitWait& wait) {
-    const auto* const timeline = dynamic_cast<const TimelineVk*>(wait.timeline);
+// Không có timeline semaphore: chờ một Timeline là chờ CPU tới khi nó đạt giá trị, rồi mới nộp. Đúng
+// cho tín hiệu của lần nộp trước và của CPU; chưa dùng ở đâu trong engine.
+[[nodiscard]] Status add_wait(const SubmitWait& wait) {
+    auto* const timeline = dynamic_cast<TimelineVk*>(wait.timeline);
     if (timeline == nullptr) return fail(ErrorCode::kInvalidArgument, "submit: timeline chờ lạ");
-    submission.waits.push_back(semaphore_info(timeline->handle(), wait.value, to_vk(wait.stage)));
-    return ok();
+    constexpr std::chrono::seconds kWaitPatience{10};
+    return timeline->wait(wait.value, kWaitPatience);
 }
 
 [[nodiscard]] Status add_signal(Submission& submission, const SubmitSignal& signal) {
     const auto* const timeline = dynamic_cast<const TimelineVk*>(signal.timeline);
     if (timeline == nullptr) return fail(ErrorCode::kInvalidArgument, "submit: timeline báo lạ");
-    const VkPipelineStageFlags2 all = VK_PIPELINE_STAGE_2_ALL_COMMANDS_BIT;
-    submission.signals.push_back(semaphore_info(timeline->handle(), signal.value, all));
+    submission.flight_signals.push_back({.state = timeline->state(), .value = signal.value});
     return ok();
 }
 
@@ -367,7 +306,7 @@ struct Submission {
         added = add_list(submission, *list, queue);
     }
     for (auto wait = desc.waits.begin(); wait != desc.waits.end() && added; ++wait) {
-        added = add_wait(submission, *wait);
+        added = add_wait(*wait);
     }
     for (auto signal = desc.signals.begin(); signal != desc.signals.end() && added; ++signal) {
         added = add_signal(submission, *signal);
@@ -409,7 +348,7 @@ using Names = std::vector<const char*>;
 
 // Khác gốc: khối chọn phần mở rộng của create_device tách ra đây (hàm gốc dài quá 40 dòng). Ghi
 // vào caps và traits phần mở rộng thiết bị có, trả tên các phần mở rộng sẽ bật.
-[[nodiscard]] Names pick_extensions(DeviceCaps& caps, Traits& traits, VkPhysicalDevice device) {
+[[nodiscard]] Names pick_extensions(DeviceCaps& caps, Traits& traits, VkPhysicalDevice device, std::uint32_t api) {
     const std::vector<VkExtensionProperties> known = device_extensions(device);
     const char* const conservative = VK_EXT_CONSERVATIVE_RASTERIZATION_EXTENSION_NAME;
     traits.swapchain = has_extension(known, VK_KHR_SWAPCHAIN_EXTENSION_NAME);
@@ -417,7 +356,11 @@ using Names = std::vector<const char*>;
     caps.conservative_raster = has_extension(known, conservative);
     traits.present_wait = traits.swapchain && has_extension(known, VK_KHR_PRESENT_ID_EXTENSION_NAME) &&
         has_extension(known, VK_KHR_PRESENT_WAIT_EXTENSION_NAME);
+    // STORE_OP_NONE là lõi từ 1.3; dưới đó cần VK_EXT_load_store_op_none.
+    const bool has_store_ext = has_extension(known, VK_EXT_LOAD_STORE_OP_NONE_EXTENSION_NAME);
+    traits.store_none = api >= VK_API_VERSION_1_3 || has_store_ext;
     std::vector<const char*> extensions;
+    if (api < VK_API_VERSION_1_3 && has_store_ext) extensions.push_back(VK_EXT_LOAD_STORE_OP_NONE_EXTENSION_NAME);
     if (traits.swapchain) extensions.push_back(VK_KHR_SWAPCHAIN_EXTENSION_NAME);
     if (traits.memory_budget) extensions.push_back(VK_EXT_MEMORY_BUDGET_EXTENSION_NAME);
     if (caps.conservative_raster) extensions.push_back(conservative);
@@ -441,14 +384,9 @@ struct PresentWaitFeatures {
     PresentWaitFeatures& operator=(PresentWaitFeatures&&) = delete;
 };
 
-// Khác gốc: thân vòng lặp của create_queues tách ra đây:
-// lấy hàng đợi rồi tạo timeline nội bộ của nó.
-[[nodiscard]] Status start_queue(VkDevice device, Queue& queue) {
+// Khác gốc: thân vòng lặp của create_queues tách ra đây: lấy hàng đợi.
+void start_queue(VkDevice device, Queue& queue) {
     vkGetDeviceQueue(device, queue.family, 0, &queue.handle);
-    Result<VkSemaphore> progress = create_timeline_semaphore(device, 0);
-    if (!progress) return std::unexpected(std::move(progress).error());
-    queue.progress = *progress;
-    return ok();
 }
 
 // Khác gốc: thân vòng lặp của wait_idle tách ra đây;
@@ -541,6 +479,9 @@ Status VulkanDevice::start(const PhysicalDevice& physical, const DeviceDesc& des
     physical_ = physical.handle;
     adapter_ = physical.info;
     vkGetPhysicalDeviceMemoryProperties(physical_, &memory_);
+    VkPhysicalDeviceProperties base{};
+    vkGetPhysicalDeviceProperties(physical_, &base);
+    api_ = std::min(base.apiVersion, instance_->api_version());
     // Struct của SDK: enum của nó thiếu giá trị
     // 0, trình điều khiển ghi đè (lệch KG-06).
     // NOLINTNEXTLINE(bugprone-invalid-enum-default-initialization)
@@ -548,7 +489,8 @@ Status VulkanDevice::start(const PhysicalDevice& physical, const DeviceDesc& des
     indexing.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_1_2_PROPERTIES;
     VkPhysicalDeviceProperties2 chain{};
     chain.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PROPERTIES_2;
-    chain.pNext = &indexing;
+    // Bộ thuộc tính 1.2 chỉ nối khi thiết bị đạt 1.2: thiết bị 1.1 không biết cấu trúc ấy.
+    if (api_ >= VK_API_VERSION_1_2) chain.pNext = &indexing;
     vkGetPhysicalDeviceProperties2(physical_, &chain);
     const VkPhysicalDeviceProperties& properties = chain.properties;
     limits_ = properties.limits;
@@ -561,6 +503,7 @@ Status VulkanDevice::start(const PhysicalDevice& physical, const DeviceDesc& des
     read_caps(indexing);
     if (is_cache_usable(desc.pipeline_cache, properties)) create_cache(desc.pipeline_cache);
     if (cache_ == VK_NULL_HANDLE) create_cache({});
+    passes_ = std::make_unique<Passes>(device_, traits_.store_none);
     contexts_ = std::make_unique<Contexts>();
     return ok();
 }
@@ -588,22 +531,18 @@ Status VulkanDevice::pick_queues() {
 }
 
 Status VulkanDevice::create_device() {
+    const bool has_v12 = api_ >= VK_API_VERSION_1_2;
     Features has;
+    has.link(has_v12);
     vkGetPhysicalDeviceFeatures2(physical_, &has.base);
-    const bool is_enough = has.v13.dynamicRendering != VK_FALSE && has.v13.synchronization2 != VK_FALSE &&
-        has.v12.timelineSemaphore != VK_FALSE;
-    if (!is_enough) {
-        return fail(ErrorCode::kUnsupported,
-            "thiết bị thiếu dynamic rendering, synchronization2 hoặc timeline semaphore");
-    }
     Features wanted;
+    wanted.link(has_v12);
     enable_base(wanted.base.features, has.base.features);
-    wanted.v11.shaderDrawParameters = has.v11.shaderDrawParameters;
-    enable_v12(wanted.v12, has.v12);
-    enable_v13(wanted.v13, has.v13);
+    wanted.draw.shaderDrawParameters = has.draw.shaderDrawParameters;
+    if (has_v12) enable_v12(wanted.v12, has.v12);
     read_features(caps_, traits_, has);
 
-    std::vector<const char*> extensions = pick_extensions(caps_, traits_, physical_);
+    std::vector<const char*> extensions = pick_extensions(caps_, traits_, physical_, api_);
     // Phần mở rộng có mà tính năng tắt thì không bật: chỉ hỏi tính năng khi thiết bị có phần mở rộng.
     PresentWaitFeatures present_wait;
     if (traits_.present_wait) {
@@ -616,7 +555,9 @@ Status VulkanDevice::create_device() {
     if (traits_.present_wait) {
         extensions.push_back(VK_KHR_PRESENT_ID_EXTENSION_NAME);
         extensions.push_back(VK_KHR_PRESENT_WAIT_EXTENSION_NAME);
-        wanted.v13.pNext = &present_wait.id;
+        // Nối cuối chuỗi: sau v12 nếu có, không thì sau draw.
+        void*& tail = has_v12 ? wanted.v12.pNext : wanted.draw.pNext;
+        tail = &present_wait.id;
     }
 
     const float priority = 1.0F;
@@ -641,11 +582,13 @@ Status VulkanDevice::create_device() {
 }
 
 Status VulkanDevice::create_queues() {
-    Status started = ok();
-    for (std::uint32_t index = 0; index < queue_count_ && started; ++index) {
-        started = start_queue(device_, queues_.at(index));
+    for (std::uint32_t index = 0; index < queue_count_; ++index) {
+        start_queue(device_, queues_.at(index));
     }
-    if (!started) return started;
+    if (traits_.address) {
+        buffer_address_ = device_function<PFN_vkGetBufferDeviceAddress>(device_, "vkGetBufferDeviceAddress");
+        traits_.address = buffer_address_ != nullptr;
+    }
     if (traits_.present_wait) {
         wait_for_present_ = device_function<PFN_vkWaitForPresentKHR>(device_, "vkWaitForPresentKHR");
         traits_.present_wait = wait_for_present_ != nullptr;
@@ -727,10 +670,9 @@ VulkanDevice::~VulkanDevice() {
     discard_all(textures_);
     discard_all(buffers_);
     discard_layouts();
+    passes_.reset();
     if (cache_ != VK_NULL_HANDLE) vkDestroyPipelineCache(device_, cache_, nullptr);
-    for (const Queue& queue : queues_) {
-        vkDestroySemaphore(device_, queue.progress, nullptr);
-    }
+    destroy_fences();
     // Khối bộ nhớ phải trả trước khi thiết bị bị huỷ.
     pools_ = {};
     vkDestroyDevice(device_, nullptr);
@@ -762,30 +704,140 @@ QueueMarks VulkanDevice::marks() const noexcept {
     return marks;
 }
 
-std::uint64_t VulkanDevice::completed(QueueType type) const noexcept {
-    const Queue& queue = queues_.at(queue_index_.at(std::to_underlying(type)));
-    std::uint64_t value = 0;
-    semaphore_counter(device_, queue.progress, &value);
-    return value;
+VkDeviceAddress VulkanDevice::address_of(VkBuffer buffer) const noexcept {
+    if (buffer_address_ == nullptr) return 0;
+    VkBufferDeviceAddressInfo info{};
+    info.sType = VK_STRUCTURE_TYPE_BUFFER_DEVICE_ADDRESS_INFO;
+    info.buffer = buffer;
+    return buffer_address_(device_, &info);
+}
+
+std::uint64_t VulkanDevice::completed(QueueType type) {
+    return poll(queue(type));
+}
+
+// Ghi nhận các lần nộp đã xong: fence theo thứ tự nộp nên dừng ở lần đầu chưa xong. Mất thiết bị thì
+// ghi nhận qua failed() và dừng; completed không tiến nữa, begin_commands và submit báo kDeviceLost.
+std::uint64_t VulkanDevice::retire_done(Queue& queue) {
+    while (!queue.flights.empty()) {
+        Flight& front = queue.flights.front();
+        const VkResult status = vkGetFenceStatus(device_, front.fence);
+        if (status == VK_NOT_READY) break;
+        if (status != VK_SUCCESS) {
+            std::ignore = failed(status, "không hỏi được fence của lần nộp");
+            break;
+        }
+        for (const FlightSignal& signal : front.signals) {
+            std::uint64_t seen = signal.state->value.load();
+            while (seen < signal.value && !signal.state->value.compare_exchange_weak(seen, signal.value)) {
+            }
+        }
+        vkResetFences(device_, 1, &front.fence);
+        queue.spare.push_back(front.fence);
+        queue.done.store(front.value);
+        queue.flights.pop_front();
+    }
+    return queue.done.load();
+}
+
+std::uint64_t VulkanDevice::poll(Queue& queue) {
+    const std::scoped_lock lock(queue.flight_mutex);
+    return retire_done(queue);
+}
+
+void VulkanDevice::poll_all() {
+    for (std::uint32_t index = 0; index < queue_count_; ++index) {
+        std::ignore = poll(queues_.at(index));
+    }
+}
+
+bool VulkanDevice::wait_flight(Queue& queue, const TimelineState& state, std::uint64_t value,
+    std::chrono::nanoseconds slice) {
+    const std::scoped_lock lock(queue.flight_mutex);
+    const auto signals = [&](const Flight& flight) {
+        const auto matches = [&](const FlightSignal& signal) {
+            return signal.state.get() == &state && signal.value >= value;
+        };
+        return std::ranges::any_of(flight.signals, matches);
+    };
+    const auto found = std::ranges::find_if(queue.flights, signals);
+    if (found == queue.flights.end()) return false;
+    // Giữ khoá suốt lúc chờ: fence không được đặt lại hay huỷ khi đang có luồng chờ nó.
+    const auto nanos = static_cast<std::uint64_t>(std::max<std::int64_t>(slice.count(), 0));
+    VkFence fence = found->fence;
+    const VkResult waited = vkWaitForFences(device_, 1, &fence, VK_TRUE, nanos);
+    if (waited != VK_SUCCESS && waited != VK_TIMEOUT) std::ignore = failed(waited, "chờ fence không xong");
+    retire_done(queue);
+    return true;
+}
+
+Status VulkanDevice::wait_state(const TimelineState& state, std::uint64_t value, std::chrono::nanoseconds timeout) {
+    constexpr std::chrono::nanoseconds kSlice{2'000'000};
+    constexpr std::chrono::microseconds kIdle{200};
+    const auto deadline = std::chrono::steady_clock::now() + timeout;
+    for (;;) {
+        poll_all();
+        if (state.value.load() >= value) return ok();
+        if (loss() != DeviceLoss::kNone) return fail(ErrorCode::kDeviceLost, "thiết bị đã mất");
+        const auto left = deadline - std::chrono::steady_clock::now();
+        if (left <= std::chrono::nanoseconds::zero()) return fail(ErrorCode::kTimeout, "chờ timeline hết hạn");
+        const std::chrono::nanoseconds slice = std::min(kSlice, std::chrono::duration_cast<std::chrono::nanoseconds>(left));
+        bool is_flying = false;
+        for (std::uint32_t index = 0; index < queue_count_ && !is_flying; ++index) {
+            is_flying = wait_flight(queues_.at(index), state, value, slice);
+        }
+        // Chưa có lần nộp nào mang giá trị ấy: đợi CPU signal hoặc lần nộp sắp tới.
+        if (!is_flying) std::this_thread::sleep_for(kIdle);
+    }
+}
+
+Result<VkFence> VulkanDevice::take_fence(Queue& queue) {
+    {
+        const std::scoped_lock lock(queue.flight_mutex);
+        if (!queue.spare.empty()) {
+            VkFence fence = queue.spare.back();
+            queue.spare.pop_back();
+            return fence;
+        }
+    }
+    VkFenceCreateInfo info{};
+    info.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
+    VkFence fence = VK_NULL_HANDLE;
+    const VkResult created = vkCreateFence(device_, &info, nullptr, &fence);
+    if (created != VK_SUCCESS) return failed(created, "không tạo được fence");
+    return fence;
+}
+
+// Gọi khi GPU đã rỗi (destructor): mọi fence, đang bay hay để dành, đều huỷ được.
+void VulkanDevice::destroy_fences() noexcept {
+    for (Queue& queue : queues_) {
+        for (const Flight& flight : queue.flights) {
+            vkDestroyFence(device_, flight.fence, nullptr);
+        }
+        for (VkFence const fence : queue.spare) {
+            vkDestroyFence(device_, fence, nullptr);
+        }
+        queue.flights.clear();
+        queue.spare.clear();
+    }
 }
 
 Result<std::unique_ptr<Swapchain>> VulkanDevice::create_swapchain(const SwapchainDesc& desc) {
     return SwapchainVk::create(*this, desc);
 }
 
-QueueMarks VulkanDevice::completed() const noexcept {
+QueueMarks VulkanDevice::completed() {
     QueueMarks done{};
     for (std::size_t type = 0; type < kQueueCount; ++type) {
-        const Queue& queue = queues_.at(queue_index_.at(type));
-        semaphore_counter(device_, queue.progress, &done.at(type));
+        done.at(type) = poll(queues_.at(queue_index_.at(type)));
     }
     return done;
 }
 
 Result<std::unique_ptr<Timeline>> VulkanDevice::create_timeline(std::uint64_t initial) {
-    Result<VkSemaphore> semaphore = create_timeline_semaphore(device_, initial);
-    if (!semaphore) return std::unexpected(std::move(semaphore).error());
-    return std::make_unique<TimelineVk>(*this, *semaphore);
+    auto state = std::make_shared<TimelineState>();
+    state->value.store(initial);
+    return std::make_unique<TimelineVk>(*this, std::move(state));
 }
 
 // Một danh sách lệnh mới: pool riêng kèm một buffer.
@@ -843,25 +895,37 @@ Status VulkanDevice::submit(QueueType queue, const SubmitDesc& desc) {
     Result<SwapchainVk*> found = find_target(queue, desc);
     if (!found) return std::unexpected(std::move(found).error());
     SwapchainVk* const target = *found;
-    const VkPipelineStageFlags2 all = VK_PIPELINE_STAGE_2_ALL_COMMANDS_BIT;
+    const VkPipelineStageFlags all = VK_PIPELINE_STAGE_ALL_COMMANDS_BIT;
     // Semaphore nhị phân của WSI: chờ ảnh vừa acquire, báo cho lần present.
-    if (target != nullptr) submission.waits.push_back(semaphore_info(target->acquired(), 0, all));
-    if (target != nullptr) submission.signals.push_back(semaphore_info(target->rendered(), 0, all));
+    if (target != nullptr) submission.waits.push_back(target->acquired());
+    if (target != nullptr) submission.wait_stages.push_back(all);
+    if (target != nullptr) submission.signals.push_back(target->rendered());
 
     Queue& physical = this->queue(queue);
+    Result<VkFence> fence = take_fence(physical);
+    if (!fence) return std::unexpected(std::move(fence).error());
     const std::scoped_lock lock(physical.mutex);
     const std::uint64_t value = physical.submitted.load() + 1;
-    submission.signals.push_back(semaphore_info(physical.progress, value, all));
-    VkSubmitInfo2 info{};
-    info.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO_2;
-    info.waitSemaphoreInfoCount = static_cast<std::uint32_t>(submission.waits.size());
-    info.pWaitSemaphoreInfos = submission.waits.data();
-    info.commandBufferInfoCount = static_cast<std::uint32_t>(submission.buffers.size());
-    info.pCommandBufferInfos = submission.buffers.data();
-    info.signalSemaphoreInfoCount = static_cast<std::uint32_t>(submission.signals.size());
-    info.pSignalSemaphoreInfos = submission.signals.data();
-    const VkResult submitted = submit2(physical.handle, 1, &info, VK_NULL_HANDLE);
-    if (submitted != VK_SUCCESS) return failed(submitted, "nộp lệnh thất bại");
+    VkSubmitInfo info{};
+    info.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+    info.waitSemaphoreCount = static_cast<std::uint32_t>(submission.waits.size());
+    info.pWaitSemaphores = submission.waits.data();
+    info.pWaitDstStageMask = submission.wait_stages.data();
+    info.commandBufferCount = static_cast<std::uint32_t>(submission.buffers.size());
+    info.pCommandBuffers = submission.buffers.data();
+    info.signalSemaphoreCount = static_cast<std::uint32_t>(submission.signals.size());
+    info.pSignalSemaphores = submission.signals.data();
+    const VkResult submitted = vkQueueSubmit(physical.handle, 1, &info, *fence);
+    if (submitted != VK_SUCCESS) {
+        // Fence chưa vào hàng đợi nên vẫn chưa báo hiệu: để dành lại.
+        const std::scoped_lock spare_lock(physical.flight_mutex);
+        physical.spare.push_back(*fence);
+        return failed(submitted, "nộp lệnh thất bại");
+    }
+    {
+        const std::scoped_lock flight_lock(physical.flight_mutex);
+        physical.flights.push_back({.value = value, .fence = *fence, .signals = std::move(submission.flight_signals)});
+    }
     physical.submitted.store(value);
     if (target != nullptr) target->mark_submitted(value);
 

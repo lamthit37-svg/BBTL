@@ -11,6 +11,7 @@
 #include "gpu/command.hpp"
 #include "gpu/vulkan/api.hpp"
 #include "gpu/vulkan/device.hpp"
+#include "gpu/vulkan/passes.hpp"
 
 #include <array>
 #include <string>
@@ -108,7 +109,8 @@ private:
     [[nodiscard]] bool can_dispatch();
     void add_barrier(const BufferBarrier& item);
     void add_barrier(const TextureBarrier& item);
-    [[nodiscard]] bool fill_color(VkRenderingAttachmentInfo& info, const ColorTarget& target);
+    [[nodiscard]] bool fill_color(ColorAttach& attach, const ColorTarget& target);
+    [[nodiscard]] DepthAttach depth_of(const DepthTarget& target, const View& view) const noexcept;
     // View của attachment độ sâu; nullptr khi đã chết hoặc không phải định dạng độ sâu.
     [[nodiscard]] const View* need_depth(TextureViewHandle handle);
     // Vùng vẽ mặc định: cỡ của attachment đầu tiên.
@@ -134,9 +136,12 @@ private:
     std::uint32_t bound_ = 0;
     VkExtent2D extent_{};
     // Vùng tạm dùng lại giữa các lệnh.
-    std::vector<VkBufferMemoryBarrier2> buffer_barriers_;
-    std::vector<VkImageMemoryBarrier2> image_barriers_;
-    std::vector<VkMemoryBarrier2> memory_barriers_;
+    std::vector<VkBufferMemoryBarrier> buffer_barriers_;
+    std::vector<VkImageMemoryBarrier> image_barriers_;
+    std::vector<VkMemoryBarrier> memory_barriers_;
+    // Giai đoạn gộp của lần barrier đang dựng (sync1 chỉ có một cặp).
+    VkPipelineStageFlags barrier_src_ = 0;
+    VkPipelineStageFlags barrier_dst_ = 0;
     std::vector<VkBufferImageCopy> regions_;
     std::string label_;
 };

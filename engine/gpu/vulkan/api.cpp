@@ -70,25 +70,4 @@ core::Failure fail_vk(VkResult result, core::Message message) noexcept {
     return core::fail(code_of(result), message, name(result));
 }
 
-#if defined(__ANDROID__)
-void load_core_late(VkInstance instance) noexcept {
-    CoreLate& loaded = core_late();
-    loaded.semaphore_counter =
-        instance_function<PFN_vkGetSemaphoreCounterValue>(instance, "vkGetSemaphoreCounterValue");
-    loaded.wait_semaphores = instance_function<PFN_vkWaitSemaphores>(instance, "vkWaitSemaphores");
-    loaded.signal_semaphore = instance_function<PFN_vkSignalSemaphore>(instance, "vkSignalSemaphore");
-    loaded.submit2 = instance_function<PFN_vkQueueSubmit2>(instance, "vkQueueSubmit2");
-    loaded.buffer_address = instance_function<PFN_vkGetBufferDeviceAddress>(instance, "vkGetBufferDeviceAddress");
-    loaded.cmd_pipeline_barrier2 = instance_function<PFN_vkCmdPipelineBarrier2>(instance, "vkCmdPipelineBarrier2");
-    loaded.cmd_begin_rendering = instance_function<PFN_vkCmdBeginRendering>(instance, "vkCmdBeginRendering");
-    loaded.cmd_end_rendering = instance_function<PFN_vkCmdEndRendering>(instance, "vkCmdEndRendering");
-    loaded.cmd_write_timestamp2 = instance_function<PFN_vkCmdWriteTimestamp2>(instance, "vkCmdWriteTimestamp2");
-}
-
-CoreLate& core_late() noexcept {
-    static CoreLate loaded;
-    return loaded;
-}
-#endif
-
 } // namespace game::gpu::vulkan

@@ -418,8 +418,9 @@ inline constexpr std::uint32_t kPhoneTriangleCap = 300'000;
     // Phần đầu cho lượt vẽ màn hình, rồi một phần cho ảnh đầu và một phần cho toàn thân.
     pass.slots = screen.image_count() * 3;
     pass.samples = screen.samples();
-    // Backend GLES là chế độ di động (tablet PowerVR): ánh sáng tính ở đỉnh để giữ nhịp khung.
-    pass.lights_at_vertices = device.adapter().backend == gpu::Backend::kGles;
+    // Điện thoại và tablet (kể cả PowerVR GE8320 chạy Vulkan 1.1) và backend GLES dự phòng: ánh sáng
+    // tính ở đỉnh để giữ nhịp khung.
+    pass.lights_at_vertices = ui::kPhone || device.adapter().backend == gpu::Backend::kGles;
     pass.triangle_cap = ui::kPhone ? kPhoneTriangleCap : 0U;
     pass.shader_dir = std::move(shaders);
     const std::array solid{catalog.get(render::Pso::kModelSolid), catalog.get(render::Pso::kModelSolidTwoSided)};

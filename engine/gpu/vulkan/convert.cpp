@@ -157,37 +157,40 @@ constexpr std::array kTextureUsage{
     TextureRow{.flag = TextureUsage::kTransient, .bits = VK_IMAGE_USAGE_TRANSIENT_ATTACHMENT_BIT},
 };
 
-using StageRow = FlagRow<SyncStage, VkPipelineStageFlags2>;
+// Bit sync1 (vkCmdPipelineBarrier của Vulkan 1.0): thiết bị 1.1 không có synchronization2. Một lần
+// barrier sync1 chỉ có một cặp giai đoạn cho mọi phần tử, nên commands.cpp gộp giai đoạn của cả lô.
+using StageRow = FlagRow<SyncStage, VkPipelineStageFlags>;
 constexpr std::array kStages{
-    StageRow{.flag = SyncStage::kDrawIndirect, .bits = VK_PIPELINE_STAGE_2_DRAW_INDIRECT_BIT},
-    StageRow{.flag = SyncStage::kVertexInput, .bits = VK_PIPELINE_STAGE_2_VERTEX_INPUT_BIT},
-    StageRow{.flag = SyncStage::kVertexShader, .bits = VK_PIPELINE_STAGE_2_VERTEX_SHADER_BIT},
-    StageRow{.flag = SyncStage::kPixelShader, .bits = VK_PIPELINE_STAGE_2_FRAGMENT_SHADER_BIT},
-    StageRow{.flag = SyncStage::kComputeShader, .bits = VK_PIPELINE_STAGE_2_COMPUTE_SHADER_BIT},
-    StageRow{.flag = SyncStage::kEarlyDepth, .bits = VK_PIPELINE_STAGE_2_EARLY_FRAGMENT_TESTS_BIT},
-    StageRow{.flag = SyncStage::kLateDepth, .bits = VK_PIPELINE_STAGE_2_LATE_FRAGMENT_TESTS_BIT},
-    StageRow{.flag = SyncStage::kColorOutput, .bits = VK_PIPELINE_STAGE_2_COLOR_ATTACHMENT_OUTPUT_BIT},
-    StageRow{.flag = SyncStage::kCopy, .bits = VK_PIPELINE_STAGE_2_COPY_BIT},
-    StageRow{.flag = SyncStage::kResolve, .bits = VK_PIPELINE_STAGE_2_RESOLVE_BIT},
-    StageRow{.flag = SyncStage::kAll, .bits = VK_PIPELINE_STAGE_2_ALL_COMMANDS_BIT},
+    StageRow{.flag = SyncStage::kDrawIndirect, .bits = VK_PIPELINE_STAGE_DRAW_INDIRECT_BIT},
+    StageRow{.flag = SyncStage::kVertexInput, .bits = VK_PIPELINE_STAGE_VERTEX_INPUT_BIT},
+    StageRow{.flag = SyncStage::kVertexShader, .bits = VK_PIPELINE_STAGE_VERTEX_SHADER_BIT},
+    StageRow{.flag = SyncStage::kPixelShader, .bits = VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT},
+    StageRow{.flag = SyncStage::kComputeShader, .bits = VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT},
+    StageRow{.flag = SyncStage::kEarlyDepth, .bits = VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT},
+    StageRow{.flag = SyncStage::kLateDepth, .bits = VK_PIPELINE_STAGE_LATE_FRAGMENT_TESTS_BIT},
+    StageRow{.flag = SyncStage::kColorOutput, .bits = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT},
+    // Sync1 gộp chép và resolve (vkCmdResolveImage) vào giai đoạn TRANSFER.
+    StageRow{.flag = SyncStage::kCopy, .bits = VK_PIPELINE_STAGE_TRANSFER_BIT},
+    StageRow{.flag = SyncStage::kResolve, .bits = VK_PIPELINE_STAGE_TRANSFER_BIT},
+    StageRow{.flag = SyncStage::kAll, .bits = VK_PIPELINE_STAGE_ALL_COMMANDS_BIT},
 };
 
-using AccessRow = FlagRow<Access, VkAccessFlags2>;
+using AccessRow = FlagRow<Access, VkAccessFlags>;
 constexpr std::array kAccess{
-    AccessRow{.flag = Access::kIndirectRead, .bits = VK_ACCESS_2_INDIRECT_COMMAND_READ_BIT},
-    AccessRow{.flag = Access::kIndexRead, .bits = VK_ACCESS_2_INDEX_READ_BIT},
-    AccessRow{.flag = Access::kVertexRead, .bits = VK_ACCESS_2_VERTEX_ATTRIBUTE_READ_BIT},
-    AccessRow{.flag = Access::kUniformRead, .bits = VK_ACCESS_2_UNIFORM_READ_BIT},
-    AccessRow{.flag = Access::kShaderRead, .bits = VK_ACCESS_2_SHADER_READ_BIT},
-    AccessRow{.flag = Access::kShaderWrite, .bits = VK_ACCESS_2_SHADER_WRITE_BIT},
-    AccessRow{.flag = Access::kColorRead, .bits = VK_ACCESS_2_COLOR_ATTACHMENT_READ_BIT},
-    AccessRow{.flag = Access::kColorWrite, .bits = VK_ACCESS_2_COLOR_ATTACHMENT_WRITE_BIT},
-    AccessRow{.flag = Access::kDepthRead, .bits = VK_ACCESS_2_DEPTH_STENCIL_ATTACHMENT_READ_BIT},
-    AccessRow{.flag = Access::kDepthWrite, .bits = VK_ACCESS_2_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT},
-    AccessRow{.flag = Access::kCopyRead, .bits = VK_ACCESS_2_TRANSFER_READ_BIT},
-    AccessRow{.flag = Access::kCopyWrite, .bits = VK_ACCESS_2_TRANSFER_WRITE_BIT},
-    AccessRow{.flag = Access::kResolveRead, .bits = VK_ACCESS_2_TRANSFER_READ_BIT},
-    AccessRow{.flag = Access::kResolveWrite, .bits = VK_ACCESS_2_TRANSFER_WRITE_BIT},
+    AccessRow{.flag = Access::kIndirectRead, .bits = VK_ACCESS_INDIRECT_COMMAND_READ_BIT},
+    AccessRow{.flag = Access::kIndexRead, .bits = VK_ACCESS_INDEX_READ_BIT},
+    AccessRow{.flag = Access::kVertexRead, .bits = VK_ACCESS_VERTEX_ATTRIBUTE_READ_BIT},
+    AccessRow{.flag = Access::kUniformRead, .bits = VK_ACCESS_UNIFORM_READ_BIT},
+    AccessRow{.flag = Access::kShaderRead, .bits = VK_ACCESS_SHADER_READ_BIT},
+    AccessRow{.flag = Access::kShaderWrite, .bits = VK_ACCESS_SHADER_WRITE_BIT},
+    AccessRow{.flag = Access::kColorRead, .bits = VK_ACCESS_COLOR_ATTACHMENT_READ_BIT},
+    AccessRow{.flag = Access::kColorWrite, .bits = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT},
+    AccessRow{.flag = Access::kDepthRead, .bits = VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_READ_BIT},
+    AccessRow{.flag = Access::kDepthWrite, .bits = VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT},
+    AccessRow{.flag = Access::kCopyRead, .bits = VK_ACCESS_TRANSFER_READ_BIT},
+    AccessRow{.flag = Access::kCopyWrite, .bits = VK_ACCESS_TRANSFER_WRITE_BIT},
+    AccessRow{.flag = Access::kResolveRead, .bits = VK_ACCESS_TRANSFER_READ_BIT},
+    AccessRow{.flag = Access::kResolveWrite, .bits = VK_ACCESS_TRANSFER_WRITE_BIT},
 };
 
 } // namespace
@@ -391,11 +394,11 @@ VkImageViewType to_view_type(TextureKind kind) noexcept {
     return VK_IMAGE_VIEW_TYPE_2D;
 }
 
-VkPipelineStageFlags2 to_vk(SyncStage stages) noexcept {
+VkPipelineStageFlags to_vk(SyncStage stages) noexcept {
     return map_flags(stages, kStages);
 }
 
-VkAccessFlags2 to_vk(Access access) noexcept {
+VkAccessFlags to_vk(Access access) noexcept {
     return map_flags(access, kAccess);
 }
 

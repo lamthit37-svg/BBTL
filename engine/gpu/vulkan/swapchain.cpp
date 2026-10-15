@@ -66,14 +66,23 @@ constexpr ErrorCode kState = ErrorCode::kInvalidState;
     return format.colorSpace == VK_COLOR_SPACE_SRGB_NONLINEAR_KHR;
 }
 
-// Định dạng chỗ gọi xin nếu bề mặt có; không thì định dạng đầu tiên mà engine biết. Chỉ nhận không
-// gian màu sRGB: HDR là mốc sau.
+// Định dạng chỗ gọi xin nếu bề mặt có; không thì một định dạng 8 bit mã hoá sRGB (thứ tự kênh khác);
+// không thì định dạng đầu tiên mà engine biết. Chỉ nhận không gian màu sRGB: HDR là mốc sau. Bước giữa
+// là chỗ Android hay rơi vào: PowerVR chỉ liệt kê R8G8B8A8, còn chỗ gọi xin B8G8R8A8; rơi thẳng xuống
+// định dạng đầu tiên là R8G8B8A8_UNORM, phần cứng không mã hoá sRGB và cả khung hình tối đi.
 [[nodiscard]] Format pick_format(std::span<const VkSurfaceFormatKHR> list, Format wanted) noexcept {
     const VkFormat exact = to_vk(wanted);
     const auto is_wanted = [exact](const VkSurfaceFormatKHR& item) {
         return item.format == exact && is_srgb_space(item);
     };
     if (std::ranges::any_of(list, is_wanted)) return wanted;
+    const auto is_encoding = [](const VkSurfaceFormatKHR& item) {
+        const Format known = from_vk(item.format);
+        const bool is_srgb_format = known == Format::kRgba8UnormSrgb || known == Format::kBgra8UnormSrgb;
+        return is_srgb_format && is_srgb_space(item);
+    };
+    const auto encoding = std::ranges::find_if(list, is_encoding);
+    if (encoding != list.end()) return from_vk(encoding->format);
     const auto is_known = [](const VkSurfaceFormatKHR& item) {
         return from_vk(item.format) != Format::kUnknown && is_srgb_space(item);
     };
@@ -344,9 +353,9 @@ Result<std::uint32_t> SwapchainVk::acquire() {
     const VkResult acquired =
         vkAcquireNextImageKHR(device_->handle(), swapchain_, kAcquireWaitNs, semaphore, VK_NULL_HANDLE, &index);
     if (acquired == VK_TIMEOUT) return fail(ErrorCode::kTimeout, "hết hạn chờ ảnh swapchain");
-    // SUBOPTIMAL: ảnh vẫn vẽ được cho khung này, khung sau phải dựng lại.
-    const bool is_changed = acquired == VK_ERROR_OUT_OF_DATE_KHR || acquired == VK_SUBOPTIMAL_KHR;
-    if (is_changed) is_stale_ = true;
+    // SUBOPTIMAL: ảnh vẫn vẽ được cho khung này, khung sau dựng lại một lần (note_suboptimal).
+    if (acquired == VK_ERROR_OUT_OF_DATE_KHR) is_stale_ = true;
+    if (acquired == VK_SUBOPTIMAL_KHR) note_suboptimal();
     if (acquired == VK_ERROR_OUT_OF_DATE_KHR) return fail(kState, "bề mặt đã đổi cỡ, cần resize");
     const bool has_image = acquired == VK_SUCCESS || acquired == VK_SUBOPTIMAL_KHR;
     if (!has_image) return device_->failed(acquired, "không lấy được ảnh của swapchain");
@@ -398,10 +407,22 @@ Status SwapchainVk::present() {
     const VkResult presented = present_locked(device_->queue(QueueType::kGraphics), info);
     is_acquired_ = false;
     // Bề mặt đổi ngay lúc present: khung này coi như đã trình bày, lần acquire kế báo cần resize.
+    if (presented == VK_ERROR_OUT_OF_DATE_KHR) is_stale_ = true;
+    if (presented == VK_SUBOPTIMAL_KHR) note_suboptimal();
+    // Chỉ present sạch mới xoá nợ: acquire báo SUCCESS còn present báo SUBOPTIMAL (Android) là trạng thái bền.
+    if (presented == VK_SUCCESS) has_rebuilt_for_suboptimal_ = false;
     const bool is_changed = presented == VK_ERROR_OUT_OF_DATE_KHR || presented == VK_SUBOPTIMAL_KHR;
-    if (is_changed) is_stale_ = true;
     if (is_changed || presented == VK_SUCCESS) return ok();
     return device_->failed(presented, "present thất bại");
+}
+
+// Android 10 trả VK_SUBOPTIMAL_KHR ở mọi khung khi màn xoay mà swapchain không xoay sẵn (pick_transform):
+// dựng lại mỗi lần là ~85 ms mỗi khung (đo trên TB-X306F). Dựng lại một lần để bắt thay đổi thật; còn
+// suboptimal sau đó thì hệ điều hành tự xoay ảnh, vẽ tiếp. Cỡ đổi vẫn tới qua OUT_OF_DATE và posted_size.
+void SwapchainVk::note_suboptimal() noexcept {
+    if (has_rebuilt_for_suboptimal_) return;
+    has_rebuilt_for_suboptimal_ = true;
+    is_stale_ = true;
 }
 
 // vkWaitForPresentKHR đòi đồng bộ ngoài trên swapchain như present: chỉ gọi từ luồng vẽ (lớp này không an
@@ -413,8 +434,8 @@ Status SwapchainVk::wait_shown(std::uint64_t count, std::chrono::nanoseconds tim
     const auto nanoseconds = static_cast<std::uint64_t>(std::max<std::int64_t>(timeout.count(), 0));
     const VkResult waited = device_->wait_for_present()(device_->handle(), swapchain_, count, nanoseconds);
     if (waited == VK_TIMEOUT) return fail(ErrorCode::kTimeout, "hết hạn chờ ảnh lên màn");
-    const bool is_changed = waited == VK_ERROR_OUT_OF_DATE_KHR || waited == VK_SUBOPTIMAL_KHR;
-    if (is_changed) is_stale_ = true;
+    if (waited == VK_ERROR_OUT_OF_DATE_KHR) is_stale_ = true;
+    if (waited == VK_SUBOPTIMAL_KHR) note_suboptimal();
     if (waited == VK_SUCCESS || waited == VK_SUBOPTIMAL_KHR) return ok();
     if (waited == VK_ERROR_OUT_OF_DATE_KHR) return fail(kState, "bề mặt đã đổi cỡ, cần resize");
     return device_->failed(waited, "không chờ được ảnh lên màn");

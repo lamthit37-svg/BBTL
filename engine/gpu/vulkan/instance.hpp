@@ -42,17 +42,20 @@ public:
     [[nodiscard]] bool has_debug_utils() const noexcept { return has_debug_utils_; }
     // Phần mở rộng bề mặt của nền tảng có mặt: tạo được swapchain.
     [[nodiscard]] bool has_surface() const noexcept { return has_surface_; }
+    // Phiên bản Vulkan mà instance đã xin (1.1 tới 1.3, theo bộ nạp): trần của chức năng lõi dùng được.
+    [[nodiscard]] std::uint32_t api_version() const noexcept { return api_version_; }
     [[nodiscard]] bool is_validated() const noexcept { return messenger_ != VK_NULL_HANDLE; }
     // Số thông điệp mức lỗi của lớp kiểm tra từ lúc tạo instance.
     [[nodiscard]] std::uint64_t errors() const noexcept { return errors_.load(); }
 
-    // Thiết bị đạt Vulkan 1.3, theo thứ tự ưu tiên: rời, rồi tích hợp, rồi phần mềm; trong cùng
+    // Thiết bị đạt Vulkan 1.1, theo thứ tự ưu tiên: rời, rồi tích hợp, rồi phần mềm; trong cùng
     // loại thì nhiều bộ nhớ trước. Unsupported khi không có thiết bị nào đạt.
     [[nodiscard]] core::Result<std::vector<PhysicalDevice>> devices() const;
 
 private:
     VkInstance instance_ = VK_NULL_HANDLE;
     VkDebugUtilsMessengerEXT messenger_ = VK_NULL_HANDLE;
+    std::uint32_t api_version_ = 0;
     bool has_debug_utils_ = false;
     bool has_surface_ = false;
     // Hàm gọi lại của lớp kiểm tra tăng bộ đếm này từ luồng bất kỳ.

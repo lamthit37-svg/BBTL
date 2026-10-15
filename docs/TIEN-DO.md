@@ -2794,3 +2794,16 @@ Preset `android-arm64` chạy test trên thiết bị qua adb; không có thiế
 - Phần GPU chưa có nên chưa có gì bị loại khỏi GCC, Android, iOS. Module `window` dựng trên cả ba
   trình dịch của Windows; Android và iOS dựng bản client không cửa sổ (`viewer_none.cpp`).
 - Phần cửa sổ và log giữ bản Forge2 sau khi so với Platium (bảng ở `docs/NGUON-FORGE2.md`).
+
+## Backend Vulkan hạ xuống 1.1 và chạy trên tablet PowerVR (2026-10-16)
+
+Tablet Lenovo TB-X306F (PowerVR Rogue GE8320, Android 10) chỉ báo Vulkan 1.1.100 nên backend 1.3 cũ rơi về GLES. Nay backend chạy trên lõi 1.1:
+- `render pass` và `framebuffer` có bảng nhớ (`gpu/vulkan/passes.cpp`) thay dynamic rendering; barrier sync1 gộp stage thay synchronization2; mỗi lần nộp một fence (`Queue::flights`) thay timeline semaphore, `Timeline` của chỗ gọi là bộ đếm phía CPU tiến theo fence. Instance xin phiên bản bộ nạp (kẹp ở 1.3); địa chỉ buffer và descriptor indexing chỉ bật khi thiết bị từ 1.2. Slang biên dịch SPIR-V profile `spirv_1_3` kèm `-capability spirv_1_3` (không có cờ này Slang đổi `discard` thành `DemoteToHelperInvocation`, thứ thiết bị 1.1 không khai).
+- Máy PC: `--validate` 0 lỗi, ảnh đăng nhập giống bản 1.3; `shader_tests`, `gpu_tests`, `resource_tests`, `resource_upload_tests` xanh.
+
+Ba lỗi chỉ lộ trên thiết bị thật (cả ba sống được trên PC vì NVIDIA/AMD khoan dung):
+1. **Dựng lại swapchain mỗi khung (85 ms mỗi khung).** Màn xoay, swapchain xin `preTransform` IDENTITY nên Android trả `VK_SUBOPTIMAL_KHR` ở mọi present; backend coi đó là "cần dựng lại" và `Screen::resize` chờ GPU rỗi rồi dựng lại ảnh, rồi Android báo đổi cỡ, vòng lặp. Sửa: `SwapchainVk::note_suboptimal` dựng lại đúng một lần cho tới khi một present báo `VK_SUCCESS` (acquire báo SUCCESS còn present báo SUBOPTIMAL là trạng thái bền, không phải thay đổi mới); `Swapchain::is_current` cho `Screen::resize` bỏ qua lệnh đổi cỡ trùng cỡ đã xin.
+2. **Cả hình tối đi (UI nhạt, cảnh 3D tối cỡ 6 lần).** Chỗ gọi xin `B8G8R8A8_SRGB`, PowerVR chỉ liệt kê `R8G8B8A8` (UNORM và SRGB); `pick_format` rơi xuống định dạng đầu tiên là UNORM nên phần cứng không mã hoá sRGB. Sửa: không có đúng định dạng thì chọn định dạng 8 bit sRGB khác thứ tự kênh trước khi chịu UNORM.
+3. **Địa hình chậm hơn GLES gấp 4 lần.** Bằng công tắc tạm tắt từng phần (system property, đã gỡ) đo ra: bỏ địa hình khung 54 ms xuống 33 ms; trong địa hình, riêng `word16` (16 lần mỗi điểm ảnh, mỗi lần hai `round`) tốn 28 ms ở 1280 x 800. `round` trên PowerVR là chuỗi lệnh dài; kết quả là toạ độ UV nên viết thành `cao * 65280/65535 + thấp * 255/65535` (sai số ~1e-7). Địa hình riêng 61 xuống 35 ms. Cùng sửa cho `terrain.ps.glsl` để hai backend cho cùng kết quả. Thử không giúp: bỏ sương cao độ, chỉ mục vector động (`pick`), bỏ trần mip atlas, đổi ánh sáng đỉnh/điểm ảnh.
+
+Số đo cuối (TB-X306F, màn đăng nhập, 1280x800, mục tiêu 30 Hz): Vulkan 1.1 khung 43,9 ms (22,8 FPS); GLES 42 ms (23,7 FPS); trước sửa Vulkan 85 ms (13 FPS). Còn lại nằm ở GPU: địa hình ~15 ms, mô hình ~13 ms, UI ~20 ms (lớp nền của khung).

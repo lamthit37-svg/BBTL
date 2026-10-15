@@ -40,8 +40,9 @@ namespace game::gpu::vulkan {
 [[nodiscard]] VkImageType to_image_type(TextureKind kind) noexcept;
 [[nodiscard]] VkImageViewType to_view_type(TextureKind kind) noexcept;
 
-[[nodiscard]] VkPipelineStageFlags2 to_vk(SyncStage stages) noexcept;
-[[nodiscard]] VkAccessFlags2 to_vk(Access access) noexcept;
+// Bit sync1; SyncStage::kNone ra 0 (chỗ gọi đổi thành TOP_OF_PIPE hay BOTTOM_OF_PIPE theo vế).
+[[nodiscard]] VkPipelineStageFlags to_vk(SyncStage stages) noexcept;
+[[nodiscard]] VkAccessFlags to_vk(Access access) noexcept;
 [[nodiscard]] VkImageLayout to_vk(TextureLayout layout) noexcept;
 
 [[nodiscard]] VkShaderStageFlagBits to_vk(shader::Stage stage) noexcept;

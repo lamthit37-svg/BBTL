@@ -76,6 +76,18 @@ constexpr const char* kPlatformSurface = "VK_KHR_win32_surface";
     return std::ranges::any_of(list, matches);
 }
 
+// Phiên bản cao nhất mà bộ nạp nhận, kẹp ở 1.3: instance xin phiên bản nào thì chức năng lõi của
+// phiên bản ấy mới dùng được trên thiết bị (bản 1.2 và 1.3 của timeline semaphore, địa chỉ buffer...).
+// vkEnumerateInstanceVersion có từ bộ nạp 1.1; bộ nạp 1.0 không có hàm ấy nên báo 1.0.
+[[nodiscard]] std::uint32_t loader_version() noexcept {
+    using Enumerate = PFN_vkEnumerateInstanceVersion;
+    const auto enumerate = instance_function<Enumerate>(VK_NULL_HANDLE, "vkEnumerateInstanceVersion");
+    if (enumerate == nullptr) return VK_API_VERSION_1_0;
+    std::uint32_t version = VK_API_VERSION_1_0;
+    if (enumerate(&version) != VK_SUCCESS) return VK_API_VERSION_1_0;
+    return std::min(version, std::uint32_t{VK_API_VERSION_1_3});
+}
+
 // Khác gốc: ba cờ này là biến cục bộ của Instance::create ở gốc; gom lại để tách hàm.
 struct Support {
     bool has_validation = false;
@@ -200,7 +212,7 @@ void destroy_messenger(VkInstance instance, VkDebugUtilsMessengerEXT messenger) 
 }
 
 // Khác gốc: thân vòng lặp của Instance::devices tách ra đây (gốc: câu bảo vệ continue rồi
-// push_back một aggregate khởi tạo ngay trong tham số). Thiết bị dưới Vulkan 1.3 bị bỏ qua.
+// push_back một aggregate khởi tạo ngay trong tham số). Thiết bị dưới Vulkan 1.1 bị bỏ qua.
 void append_capable(std::vector<PhysicalDevice>& list, VkPhysicalDevice handle) {
     if (!reaches_api(handle)) return;
     PhysicalDevice device{.handle = handle, .info = describe(handle)};
@@ -232,6 +244,10 @@ core::Result<std::unique_ptr<Instance>> Instance::create(bool is_validated) {
         return core::fail(core::ErrorCode::kUnsupported, "máy không có Vulkan (thiếu thư viện nạp)");
     }
     const Support support = probe_support(is_validated);
+    const std::uint32_t version = loader_version();
+    if (version < kApiVersion) {
+        return core::fail(core::ErrorCode::kUnsupported, "bộ nạp Vulkan dưới 1.1");
+    }
     std::vector<const char*> wanted_layers;
     if (support.has_validation) wanted_layers.push_back(kValidationLayer);
     const std::vector<const char*> wanted = wanted_extensions(support);
@@ -240,7 +256,7 @@ core::Result<std::unique_ptr<Instance>> Instance::create(bool is_validated) {
     application.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
     application.pApplicationName = "Forge2";
     application.pEngineName = "Forge2";
-    application.apiVersion = kApiVersion;
+    application.apiVersion = version;
     auto instance = std::make_unique<Instance>(Key{});
     // Messenger gắn vào pNext để lỗi phát sinh ngay trong lúc tạo instance cũng được báo.
     const VkDebugUtilsMessengerCreateInfoEXT debug = messenger_info(instance->errors_);
@@ -255,10 +271,7 @@ core::Result<std::unique_ptr<Instance>> Instance::create(bool is_validated) {
 
     const VkResult created = vkCreateInstance(&info, nullptr, &instance->instance_);
     if (created != VK_SUCCESS) return fail_vk(created, "không tạo được instance Vulkan");
-#if defined(__ANDROID__)
-    // Loader Android API cũ không xuất tĩnh hàm lõi 1.2/1.3; xin qua instance (xem api.hpp).
-    load_core_late(instance->instance_);
-#endif
+    instance->api_version_ = version;
     instance->has_debug_utils_ = support.has_debug;
     instance->has_surface_ = support.has_surface;
     if (!support.has_validation || !support.has_debug) return instance;
@@ -279,7 +292,7 @@ core::Result<std::vector<PhysicalDevice>> Instance::devices() const {
         append_capable(list, handle);
     }
     if (list.empty()) {
-        return core::fail(core::ErrorCode::kUnsupported, "không thiết bị nào đạt Vulkan 1.3");
+        return core::fail(core::ErrorCode::kUnsupported, "không thiết bị nào đạt Vulkan 1.1");
     }
     std::ranges::stable_sort(list, ranks_before);
     return list;

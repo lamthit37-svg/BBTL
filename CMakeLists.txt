@@ -241,6 +241,10 @@ if(TARGET Opus::opus)
     if(CMAKE_MSVC_RUNTIME_LIBRARY STREQUAL "MultiThreadedDLL")
         set_target_properties(Opus::opus PROPERTIES MAP_IMPORTED_CONFIG_DEBUG Release)
     endif()
+    # RelWithDebInfo và MinSizeRel không có bản riêng trong gói vcpkg: không ánh xạ thì CMake lấy bản Debug
+    # (cây msvc-release dựng RelWithDebInfo link ra lỗi __imp__CrtDbgReportW, đo 2026-10-16).
+    set_target_properties(Opus::opus PROPERTIES MAP_IMPORTED_CONFIG_RELWITHDEBINFO Release
+        MAP_IMPORTED_CONFIG_MINSIZEREL Release)
     target_link_libraries(game_audio PRIVATE Opus::opus)
     target_compile_definitions(game_audio PRIVATE GAME_AUDIO_OPUS)
 endif()
@@ -822,6 +826,7 @@ if(GAME_HAS_GPU)
             engine/gpu/vulkan/convert.cpp
             engine/gpu/vulkan/device.cpp
             engine/gpu/vulkan/instance.cpp
+            engine/gpu/vulkan/passes.cpp
             engine/gpu/vulkan/programs.cpp
             engine/gpu/vulkan/resources.cpp
             engine/gpu/vulkan/surface_android.cpp
@@ -851,6 +856,7 @@ if(GAME_HAS_GPU)
             engine/gpu/vulkan/convert.cpp
             engine/gpu/vulkan/device.cpp
             engine/gpu/vulkan/instance.cpp
+            engine/gpu/vulkan/passes.cpp
             engine/gpu/vulkan/programs.cpp
             engine/gpu/vulkan/resources.cpp
             engine/gpu/vulkan/surface_ios.mm
@@ -879,6 +885,7 @@ if(GAME_HAS_GPU)
             engine/gpu/vulkan/convert.cpp
             engine/gpu/vulkan/device.cpp
             engine/gpu/vulkan/instance.cpp
+            engine/gpu/vulkan/passes.cpp
             engine/gpu/vulkan/programs.cpp
             engine/gpu/vulkan/resources.cpp
             engine/gpu/vulkan/surface_win32.cpp
