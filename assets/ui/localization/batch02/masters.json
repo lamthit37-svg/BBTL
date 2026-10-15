@@ -1,0 +1,222 @@
+[
+  {
+    "family": "small",
+    "row": 0,
+    "atlas": "CommonItem",
+    "name": "Chongzhibtn_Normal",
+    "width": 43,
+    "height": 21,
+    "zh": "充值",
+    "vi": "Nạp",
+    "en": "Top up"
+  },
+  {
+    "family": "small",
+    "row": 1,
+    "atlas": "CommonItem",
+    "name": "Duihuanbtn_Normal",
+    "width": 43,
+    "height": 21,
+    "zh": "兑换",
+    "vi": "Đổi",
+    "en": "Trade"
+  },
+  {
+    "family": "small",
+    "row": 2,
+    "atlas": "tga_CreateRole1",
+    "name": "BtnRandom_Normal",
+    "width": 111,
+    "height": 18,
+    "zh": "随机形象",
+    "vi": "Ngẫu nhiên",
+    "en": "Random"
+  },
+  {
+    "family": "small",
+    "row": 3,
+    "atlas": "tga_MainFrameLuo04",
+    "name": "Next_Create_Normal",
+    "width": 53,
+    "height": 18,
+    "zh": "下一页",
+    "vi": "Trang sau",
+    "en": "Next"
+  },
+  {
+    "family": "login",
+    "row": 0,
+    "atlas": "CommonFrame28",
+    "name": "Logon_EnterHouzhui_Normal",
+    "width": 88,
+    "height": 17,
+    "zh": "输入后缀登录",
+    "vi": "Nhập hậu tố",
+    "en": "Type suffix"
+  },
+  {
+    "family": "login",
+    "row": 1,
+    "atlas": "CommonFrame28",
+    "name": "Logon_Erweima_Normal",
+    "width": 88,
+    "height": 17,
+    "zh": "二维码登录",
+    "vi": "Quét mã QR",
+    "en": "Scan QR"
+  },
+  {
+    "family": "login",
+    "row": 2,
+    "atlas": "CommonFrame28",
+    "name": "Logon_Houzhui_Normal",
+    "width": 88,
+    "height": 17,
+    "zh": "选择后缀登录",
+    "vi": "Chọn hậu tố",
+    "en": "Pick suffix"
+  },
+  {
+    "family": "login",
+    "row": 3,
+    "atlas": "CommonFrame20",
+    "name": "CustomMail_Normal",
+    "width": 130,
+    "height": 22,
+    "zh": "选择后缀登录",
+    "vi": "Chọn hậu tố",
+    "en": "Pick suffix"
+  },
+  {
+    "family": "login",
+    "row": 4,
+    "atlas": "CommonFrame20",
+    "name": "ZidingyiMail_Normal",
+    "width": 130,
+    "height": 22,
+    "zh": "输入后缀登录",
+    "vi": "Nhập hậu tố",
+    "en": "Type suffix"
+  },
+  {
+    "family": "labels",
+    "row": 0,
+    "atlas": "tga_MainFrameLuo04",
+    "name": "SelectCloth",
+    "width": 59,
+    "height": 13,
+    "zh": "选择衣着",
+    "vi": "Y phục",
+    "en": "Outfit"
+  },
+  {
+    "family": "labels",
+    "row": 1,
+    "atlas": "tga_MainFrameLuo04",
+    "name": "SelectFace",
+    "width": 59,
+    "height": 13,
+    "zh": "选择脸型",
+    "vi": "Khuôn mặt",
+    "en": "Face"
+  },
+  {
+    "family": "labels",
+    "row": 2,
+    "atlas": "tga_MainFrameLuo04",
+    "name": "SelectHair",
+    "width": 59,
+    "height": 13,
+    "zh": "选择发型",
+    "vi": "Kiểu tóc",
+    "en": "Hair"
+  },
+  {
+    "family": "labels",
+    "row": 3,
+    "atlas": "tga_MainFrameLuo04",
+    "name": "SelectHead",
+    "width": 59,
+    "height": 13,
+    "zh": "选择头像",
+    "vi": "Chân dung",
+    "en": "Portrait"
+  },
+  {
+    "family": "labels",
+    "row": 4,
+    "atlas": "tga_MainFrameLuo04",
+    "name": "SelectSex",
+    "width": 59,
+    "height": 13,
+    "zh": "选择性别",
+    "vi": "Giới tính",
+    "en": "Gender"
+  },
+  {
+    "family": "labels",
+    "row": 5,
+    "atlas": "tga_MainFrameLuo01",
+    "name": "Softkeyboard",
+    "width": 52,
+    "height": 18,
+    "zh": "软键盘",
+    "vi": "Bàn phím",
+    "en": "Keyboard"
+  },
+  {
+    "family": "vertical",
+    "row": 0,
+    "atlas": "png_AutoFight",
+    "name": "AutoFight_Normal",
+    "width": 28,
+    "height": 80,
+    "zh": "自动战斗",
+    "vi": "Tự đánh",
+    "en": "Auto"
+  },
+  {
+    "family": "vertical",
+    "row": 1,
+    "atlas": "png_AutoFight",
+    "name": "NotAutoFight_Normal",
+    "width": 28,
+    "height": 80,
+    "zh": "非自动战斗",
+    "vi": "Đánh tay",
+    "en": "Manual"
+  },
+  {
+    "family": "titles",
+    "row": 0,
+    "atlas": "tga_CreateRole2",
+    "name": "CreateRole_Name2",
+    "width": 120,
+    "height": 20,
+    "zh": "角色名称",
+    "vi": "Tên nhân vật",
+    "en": "Character name"
+  },
+  {
+    "family": "titles",
+    "row": 1,
+    "atlas": "tga_CreateRole1",
+    "name": "Icon_Menpai",
+    "width": 219,
+    "height": 44,
+    "zh": "门派介绍",
+    "vi": "Môn phái",
+    "en": "Sect info"
+  },
+  {
+    "family": "titles",
+    "row": 2,
+    "atlas": "tga_MainFrameLuo05",
+    "name": "MenpaiShow",
+    "width": 207,
+    "height": 46,
+    "zh": "门派预览",
+    "vi": "Xem môn phái",
+    "en": "Sect preview"
+  }
+]

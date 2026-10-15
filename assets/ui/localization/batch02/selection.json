@@ -1,0 +1,462 @@
+[
+  {
+    "family": "small",
+    "row": 0,
+    "atlas": "CommonItem",
+    "name": "Chongzhibtn_Disabled",
+    "width": 43,
+    "height": 21,
+    "board_y": 15922,
+    "state": "Disabled"
+  },
+  {
+    "family": "small",
+    "row": 0,
+    "atlas": "CommonItem",
+    "name": "Chongzhibtn_Hover",
+    "width": 43,
+    "height": 21,
+    "board_y": 15990,
+    "state": "Hover"
+  },
+  {
+    "family": "small",
+    "row": 0,
+    "atlas": "CommonItem",
+    "name": "Chongzhibtn_Normal",
+    "width": 43,
+    "height": 21,
+    "board_y": 16058,
+    "state": "Normal"
+  },
+  {
+    "family": "small",
+    "row": 0,
+    "atlas": "CommonItem",
+    "name": "Chongzhibtn_Pushed",
+    "width": 43,
+    "height": 21,
+    "board_y": 16126,
+    "state": "Pushed"
+  },
+  {
+    "family": "small",
+    "row": 1,
+    "atlas": "CommonItem",
+    "name": "Duihuanbtn_Disabled",
+    "width": 43,
+    "height": 21,
+    "board_y": 19594,
+    "state": "Disabled"
+  },
+  {
+    "family": "small",
+    "row": 1,
+    "atlas": "CommonItem",
+    "name": "Duihuanbtn_Hover",
+    "width": 43,
+    "height": 21,
+    "board_y": 19662,
+    "state": "Hover"
+  },
+  {
+    "family": "small",
+    "row": 1,
+    "atlas": "CommonItem",
+    "name": "Duihuanbtn_Normal",
+    "width": 43,
+    "height": 21,
+    "board_y": 19730,
+    "state": "Normal"
+  },
+  {
+    "family": "small",
+    "row": 1,
+    "atlas": "CommonItem",
+    "name": "Duihuanbtn_Pushed",
+    "width": 43,
+    "height": 21,
+    "board_y": 19798,
+    "state": "Pushed"
+  },
+  {
+    "family": "small",
+    "row": 2,
+    "atlas": "tga_CreateRole1",
+    "name": "BtnRandom_Disable",
+    "width": 111,
+    "height": 18,
+    "board_y": 12498,
+    "state": "Disable"
+  },
+  {
+    "family": "small",
+    "row": 2,
+    "atlas": "tga_CreateRole1",
+    "name": "BtnRandom_Hover",
+    "width": 111,
+    "height": 18,
+    "board_y": 12566,
+    "state": "Hover"
+  },
+  {
+    "family": "small",
+    "row": 2,
+    "atlas": "tga_CreateRole1",
+    "name": "BtnRandom_Normal",
+    "width": 111,
+    "height": 18,
+    "board_y": 12634,
+    "state": "Normal"
+  },
+  {
+    "family": "small",
+    "row": 2,
+    "atlas": "tga_CreateRole1",
+    "name": "BtnRandom_Pushed",
+    "width": 111,
+    "height": 18,
+    "board_y": 12702,
+    "state": "Pushed"
+  },
+  {
+    "family": "small",
+    "row": 3,
+    "atlas": "tga_MainFrameLuo04",
+    "name": "Next_Create_Disabled",
+    "width": 53,
+    "height": 18,
+    "board_y": 26394,
+    "state": "Disabled"
+  },
+  {
+    "family": "small",
+    "row": 3,
+    "atlas": "tga_MainFrameLuo04",
+    "name": "Next_Create_Hover",
+    "width": 53,
+    "height": 18,
+    "board_y": 26462,
+    "state": "Hover"
+  },
+  {
+    "family": "small",
+    "row": 3,
+    "atlas": "tga_MainFrameLuo04",
+    "name": "Next_Create_Normal",
+    "width": 53,
+    "height": 18,
+    "board_y": 26530,
+    "state": "Normal"
+  },
+  {
+    "family": "small",
+    "row": 3,
+    "atlas": "tga_MainFrameLuo04",
+    "name": "Next_Create_Pushed",
+    "width": 53,
+    "height": 18,
+    "board_y": 26598,
+    "state": "Pushed"
+  },
+  {
+    "family": "login",
+    "row": 0,
+    "atlas": "CommonFrame28",
+    "name": "Logon_EnterHouzhui_Hover",
+    "width": 88,
+    "height": 17,
+    "board_y": 24014,
+    "state": "Hover"
+  },
+  {
+    "family": "login",
+    "row": 0,
+    "atlas": "CommonFrame28",
+    "name": "Logon_EnterHouzhui_Normal",
+    "width": 88,
+    "height": 17,
+    "board_y": 24082,
+    "state": "Normal"
+  },
+  {
+    "family": "login",
+    "row": 0,
+    "atlas": "CommonFrame28",
+    "name": "Logon_EnterHouzhui_Pushed",
+    "width": 88,
+    "height": 17,
+    "board_y": 24150,
+    "state": "Pushed"
+  },
+  {
+    "family": "login",
+    "row": 1,
+    "atlas": "CommonFrame28",
+    "name": "Logon_Erweima_Hover",
+    "width": 88,
+    "height": 17,
+    "board_y": 24218,
+    "state": "Hover"
+  },
+  {
+    "family": "login",
+    "row": 1,
+    "atlas": "CommonFrame28",
+    "name": "Logon_Erweima_Normal",
+    "width": 88,
+    "height": 17,
+    "board_y": 24286,
+    "state": "Normal"
+  },
+  {
+    "family": "login",
+    "row": 1,
+    "atlas": "CommonFrame28",
+    "name": "Logon_Erweima_Pushed",
+    "width": 88,
+    "height": 17,
+    "board_y": 24354,
+    "state": "Pushed"
+  },
+  {
+    "family": "login",
+    "row": 2,
+    "atlas": "CommonFrame28",
+    "name": "Logon_Houzhui_Hover",
+    "width": 88,
+    "height": 17,
+    "board_y": 24422,
+    "state": "Hover"
+  },
+  {
+    "family": "login",
+    "row": 2,
+    "atlas": "CommonFrame28",
+    "name": "Logon_Houzhui_Normal",
+    "width": 88,
+    "height": 17,
+    "board_y": 24490,
+    "state": "Normal"
+  },
+  {
+    "family": "login",
+    "row": 2,
+    "atlas": "CommonFrame28",
+    "name": "Logon_Houzhui_Pushed",
+    "width": 88,
+    "height": 17,
+    "board_y": 24558,
+    "state": "Pushed"
+  },
+  {
+    "family": "login",
+    "row": 3,
+    "atlas": "CommonFrame20",
+    "name": "CustomMail_Hover",
+    "width": 130,
+    "height": 22,
+    "board_y": 18914,
+    "state": "Hover"
+  },
+  {
+    "family": "login",
+    "row": 3,
+    "atlas": "CommonFrame20",
+    "name": "CustomMail_Normal",
+    "width": 130,
+    "height": 22,
+    "board_y": 18982,
+    "state": "Normal"
+  },
+  {
+    "family": "login",
+    "row": 3,
+    "atlas": "CommonFrame20",
+    "name": "CustomMail_Pushed",
+    "width": 130,
+    "height": 22,
+    "board_y": 19050,
+    "state": "Pushed"
+  },
+  {
+    "family": "login",
+    "row": 4,
+    "atlas": "CommonFrame20",
+    "name": "ZidingyiMail_Hover",
+    "width": 130,
+    "height": 22,
+    "board_y": 32060,
+    "state": "Hover"
+  },
+  {
+    "family": "login",
+    "row": 4,
+    "atlas": "CommonFrame20",
+    "name": "ZidingyiMail_Normal",
+    "width": 130,
+    "height": 22,
+    "board_y": 32128,
+    "state": "Normal"
+  },
+  {
+    "family": "login",
+    "row": 4,
+    "atlas": "CommonFrame20",
+    "name": "ZidingyiMail_Pushed",
+    "width": 130,
+    "height": 22,
+    "board_y": 32196,
+    "state": "Pushed"
+  },
+  {
+    "family": "labels",
+    "row": 0,
+    "atlas": "tga_MainFrameLuo04",
+    "name": "SelectCloth",
+    "width": 59,
+    "height": 13,
+    "board_y": 42202,
+    "state": "Normal"
+  },
+  {
+    "family": "labels",
+    "row": 1,
+    "atlas": "tga_MainFrameLuo04",
+    "name": "SelectFace",
+    "width": 59,
+    "height": 13,
+    "board_y": 42270,
+    "state": "Normal"
+  },
+  {
+    "family": "labels",
+    "row": 2,
+    "atlas": "tga_MainFrameLuo04",
+    "name": "SelectHair",
+    "width": 59,
+    "height": 13,
+    "board_y": 42338,
+    "state": "Normal"
+  },
+  {
+    "family": "labels",
+    "row": 3,
+    "atlas": "tga_MainFrameLuo04",
+    "name": "SelectHead",
+    "width": 59,
+    "height": 13,
+    "board_y": 42406,
+    "state": "Normal"
+  },
+  {
+    "family": "labels",
+    "row": 4,
+    "atlas": "tga_MainFrameLuo04",
+    "name": "SelectSex",
+    "width": 59,
+    "height": 13,
+    "board_y": 42474,
+    "state": "Normal"
+  },
+  {
+    "family": "labels",
+    "row": 5,
+    "atlas": "tga_MainFrameLuo01",
+    "name": "Softkeyboard",
+    "width": 52,
+    "height": 18,
+    "board_y": 42542,
+    "state": "Normal"
+  },
+  {
+    "family": "vertical",
+    "row": 0,
+    "atlas": "png_AutoFight",
+    "name": "AutoFight_Disabled",
+    "width": 28,
+    "height": 80,
+    "board_y": 6464,
+    "state": "Disabled"
+  },
+  {
+    "family": "vertical",
+    "row": 0,
+    "atlas": "png_AutoFight",
+    "name": "AutoFight_Hover",
+    "width": 28,
+    "height": 80,
+    "board_y": 6554,
+    "state": "Hover"
+  },
+  {
+    "family": "vertical",
+    "row": 0,
+    "atlas": "png_AutoFight",
+    "name": "AutoFight_Normal",
+    "width": 28,
+    "height": 80,
+    "board_y": 6644,
+    "state": "Normal"
+  },
+  {
+    "family": "vertical",
+    "row": 1,
+    "atlas": "png_AutoFight",
+    "name": "NotAutoFight_Disabled",
+    "width": 28,
+    "height": 80,
+    "board_y": 26666,
+    "state": "Disabled"
+  },
+  {
+    "family": "vertical",
+    "row": 1,
+    "atlas": "png_AutoFight",
+    "name": "NotAutoFight_Hover",
+    "width": 28,
+    "height": 80,
+    "board_y": 26756,
+    "state": "Hover"
+  },
+  {
+    "family": "vertical",
+    "row": 1,
+    "atlas": "png_AutoFight",
+    "name": "NotAutoFight_Normal",
+    "width": 28,
+    "height": 80,
+    "board_y": 26846,
+    "state": "Normal"
+  },
+  {
+    "family": "titles",
+    "row": 0,
+    "atlas": "tga_CreateRole2",
+    "name": "CreateRole_Name2",
+    "width": 120,
+    "height": 20,
+    "board_y": 528,
+    "state": "Normal"
+  },
+  {
+    "family": "titles",
+    "row": 1,
+    "atlas": "tga_CreateRole1",
+    "name": "Icon_Menpai",
+    "width": 219,
+    "height": 44,
+    "board_y": 35224,
+    "state": "Normal"
+  },
+  {
+    "family": "titles",
+    "row": 2,
+    "atlas": "tga_MainFrameLuo05",
+    "name": "MenpaiShow",
+    "width": 207,
+    "height": 46,
+    "board_y": 3250,
+    "state": "Normal"
+  }
+]
