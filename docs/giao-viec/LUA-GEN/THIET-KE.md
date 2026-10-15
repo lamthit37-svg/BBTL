@@ -25,6 +25,27 @@ giao diện này, có thể nâng cấp lua đời mới hay cái gì bớt côn
 - Ngân sách: bytecode cả kho và máy thông dịch nhỏ hơn nguồn Lua (27,5 MB); `thienlong_lua_mass` chạy cả kho không chậm hơn
   trọng tài trên LuaPlus.dll (6,7 s cả phần Python, đo 2026-10-15). Đo bằng số, ghi vào đây.
 
+### Tối ưu kết hợp tốc độ, dung lượng, bộ nhớ (chủ dự án hỏi "cách tối ưu nhất cả về tốc độ, dung lượng, hiệu năng có thể kết hợp")
+
+Mỗi điểm dưới là hướng thiết kế; điểm nào đổi chi phí thì đo trước và sau, không làm theo cảm giác.
+
+- Dung lượng: lệnh thanh ghi 32 bit (chọn theo số đo trần hằng, thanh ghi, nhánh mỗi proto; vượt trần thì lệnh mở rộng, như
+  Lua 5.x); một bảng chuỗi chung cho cả gói (gộp 423 387 chuỗi hằng của kho, hiện 10,4 MB chưa gộp); bảng dòng tách riêng,
+  chỉ đọc khi cần câu lỗi; gói nén zstd (đã có trong vcpkg) trong APK. Đoán trước khi đo: vài MB.
+- Tốc độ thông dịch: đường nhanh ngay trong vòng lặp cho số học và so sánh số, đọc trường bằng khoá chuỗi hằng, đọc biến toàn
+  cục (một phần tư số phép của kho là `get_global`, một phần tư là `call`): ô nhớ đệm trong lệnh (inline cache, như
+  GETGLOBAL/GETTABLEKS của Luau) giữ vị trí khe băm lần trước, kiểm lại rồi dùng, sai thì đi đường chung của `vm.hpp`.
+  Phát lệnh: `switch` trên MSVC; trên Clang (Android, iOS) thử `goto` tính toán hay `[[clang::musttail]]`, giữ cái nào nhanh
+  hơn có số.
+- Lời gọi: đối số là cửa sổ thanh ghi liền nhau, đưa thẳng thành `Args` (span), không chép; kết quả ghi thẳng vào thanh ghi
+  đích. Hàm game (lớp B) nhận đúng cửa sổ ấy.
+- Bộ nhớ: nạp gói một lần, chuỗi intern dùng chung; dịch cửa sổ nào nạp cửa sổ đó (lười theo đơn vị) nếu đo thấy nạp đầu
+  chậm hơn ngân sách nạp của client; GC chạy giữa hai khung có trần thời gian.
+- Biểu diễn `Value` 16 byte (`std::variant`) hay NaN-boxing 8 byte: đo trước trên vòng thông dịch đã chạy đúng; chỉ đổi khi
+  số đo cho thấy đáng, vì runtime đã đối soát 10 835 ca với dạng hiện tại.
+- Mã máy chỉ cho hàm nóng: bộ đo của client (bảng nhịp khung) chỉ ra hàm Lua nào tốn thời gian khung; chỉ khi ấy mới dùng bộ
+  phát C++ ở `ref_cpp/` cho đúng các hàm đó.
+
 Các mục dưới đây nói "mã sinh", "bộ phát C++" là của hướng cũ; phần ngôn ngữ nguồn, runtime, đối soát, lớp B và C vẫn đúng.
 
 ## Ba lớp
