@@ -43,7 +43,11 @@ Chưa có: `ScriptGlobal_Format` (0x140233f50, 2 616 lần gọi trong khảo s�
   HUD (module và test còn làm bản đối chiếu thứ hai cho tới khi chuyển hết). `--ui-event "NEW_DEBUGMESSAGE|chữ"` ra đúng ba dòng như bản port tay.
 - Sự kiện: `dispatch` gửi từng sự kiện của hàng đợi cho bảng port tay rồi `Host::post`; `Call::kPushEvent` của script quay lại hàng đợi.
   Nhấn trái: `MouseButtonDown`/`MouseLButtonDown` lên cửa sổ dưới chuột và `Host::pressed`; nhả: `MouseButtonUp`, và `Clicked` khi nhả
-  trên chính cửa sổ đã nhấn. Chưa có: nhấn phải, `MouseEnter`/`MouseLeave`, nhấn đúp, phím, bánh xe, `OnEscape`.
+  trên chính cửa sổ đã nhấn. Nhấn phải: `MouseButtonDown`/`Up` (nút phải), và `RBClicked` + `MouseRClick` khi nhả trên chính cửa sổ đã nhấn.
+  `MouseLeave` rồi `MouseEnter` khi cửa sổ dưới chuột đổi (CEGUI 0.4 chỉ báo cửa sổ sâu nhất). Việc script nhờ sau mỗi thao tác và sau
+  mỗi nhịp (`PushEvent`, lời nhắn) thành sự kiện mới đi qua mọi bảng (`Hud::State::drain_host_calls`). Chưa có: nhấn đúp, phím, bánh xe,
+  `CaptureLost`, `MouseLClick`/`MouseClick` (nghĩa trong CEGUIBase.dll 2026 chưa đối chiếu; layout dùng 337 và 53 lần). Esc: kho script không
+  có `OnEscape`; việc của phím Esc nằm ở phía game (`CloseAllWindow`).
 - `Host::paint` ghi gốc layout đang hiện và trạng thái widget vào Deck ngay sau các bảng port tay. Layout mà host nạp thêm lúc chạy làm
   `GuiScreen::take_grown()` báo, `prepare` dựng lại Hub.
 - `Host::tick` chạy `advance_widgets` (mờ dần của `SuperProgress`, vòng đời mục của `InfoList`).
@@ -68,5 +72,8 @@ Chưa có: `ScriptGlobal_Format` (0x140233f50, 2 616 lần gọi trong khảo s�
 ## Còn lại
 
 - Chuyển thêm cửa sổ vào `kScripted` theo từng cửa sổ khi hàm game của nó có (cần tầng B); khi hết bảng port tay thì bỏ `kScripted` và `only`.
-- Esc, phím, nhấn phải, MouseEnter/Leave; mở host cả sổ cần PreLoad lười hoặc bytecode dựng sẵn để giữ ngân sách nạp đầu.
+- Phím, bánh xe, nhấn đúp. Mở host cả sổ tốn 480 ms (đo 2026-10-15) mà chưa nằm trên đường nạp đầu vì HUD chỉ mở cửa sổ trong `kScripted`. Khi bỏ
+  `kScripted`, chạy `Host::open` ở luồng chuẩn bị (HudPrep, trùng với tạo thiết bị GPU) thay vì ở luồng vẽ: `Host` chỉ giữ `Screen*` để nạp layout
+  lười, PreLoad không đụng nó, nên cần thêm bước gắn `Screen` sau khi mở. PreLoad lười theo bảng sự kiện dựng sẵn bị loại: script này gọi hàm
+  của script kia (cùng `_G`), chưa nạp thì hàm chưa có.
 - Lượt đo phương thức widget còn thiếu trên 1 975 cửa sổ bằng `Missing::kRecord` của widget (cần post sự kiện + hiện từng cửa sổ).
