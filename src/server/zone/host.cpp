@@ -113,8 +113,6 @@ public:
         const std::optional<Info> seen = scene->info(place.entity);
         if (!seen || seen->session == 0) return;
         scene->revive(place.entity, Point{.x_cm = static_cast<float>(x_cm), .z_cm = static_cast<float>(z_cm)}, percent, *out_);
-        // Gate đặt mốc mới cho guard::Pace rồi gửi Position: client dời nhân vật về chỗ hồi sinh.
-        out_->place(seen->session, static_cast<float>(x_cm), static_cast<float>(z_cm));
     }
 
     void promote(Place place, std::uint16_t level) override {
@@ -176,6 +174,10 @@ const Scene* Host::scene_of(std::uint64_t session) const noexcept {
 // Đổ kết quả của gameplay vào Outbox: tin xuống client, và trạng thái chơi cần ghi kèm điểm đứng hiện tại.
 void Host::deliver(play::Output& output, Outbox& out) {
     for (const play::Output::Frame& frame : output.frames) out.down_frame(frame.session, frame.bytes);
+    // Gate đặt mốc mới cho guard::Pace rồi gửi Position: client dời nhân vật về chỗ hồi sinh, sau mọi tin của lượt.
+    for (const play::Output::Place& spot : output.places) {
+        out.place(spot.session, static_cast<float>(spot.x_cm), static_cast<float>(spot.z_cm));
+    }
     for (play::Output::Keep& keep : output.keeps) {
         const Scene* scene = scene_of(keep.session);
         const std::optional<std::uint32_t> self = scene != nullptr ? scene->entity_of(keep.session) : std::nullopt;

@@ -104,7 +104,8 @@ public:
     virtual void hurt(Place place, std::uint8_t percent) = 0;
     // Thực thể chết: nằm lại, quái hồi sinh theo bảng. EntityDied do nơi gọi phát qua tell.
     virtual void fell(Place place) = 0;
-    // Người chơi hồi sinh tại (x_cm, z_cm) với sinh lực `percent`.
+    // Người chơi hồi sinh tại (x_cm, z_cm) với sinh lực `percent`. Việc dời chính người ấy (Position) do nơi gọi đẩy qua
+    // Output::place để đi sau SelfVitals.
     virtual void raise(Place place, std::int32_t x_cm, std::int32_t z_cm, std::uint8_t percent) = 0;
     // Người chơi lên cấp: cảnh nhớ cấp mới cho người nhìn sau này.
     virtual void promote(Place place, std::uint16_t level) = 0;
@@ -126,8 +127,17 @@ struct Output {
         account::PlayRecord record;
     };
 
+    // Lệnh buộc người chơi về một chỗ (gate gửi Position). Đi sau mọi frame của cùng lượt để client nhận SelfVitals
+    // trước khi bị dời.
+    struct Place {
+        std::uint64_t session = 0;
+        std::int32_t x_cm = 0;
+        std::int32_t z_cm = 0;
+    };
+
     std::vector<Frame> frames;
     std::vector<Keep> keeps;
+    std::vector<Place> places;
     // Tin không mã hoá được (trường quá trần): scene luôn điền trong trần, nên đây là lỗi lập trình lộ ra bằng số.
     std::size_t encode_failures = 0;
 
@@ -139,6 +149,9 @@ struct Output {
             return;
         }
         frames.push_back(Frame{.session = session, .bytes = std::move(bytes)});
+    }
+    void place(std::uint64_t session, std::int32_t x_cm, std::int32_t z_cm) {
+        places.push_back(Place{.session = session, .x_cm = x_cm, .z_cm = z_cm});
     }
     void reject(std::uint64_t session, std::uint16_t request, protocol::ErrorCode code) {
         down(session, protocol::Reject{.request = request, .code = code});

@@ -537,7 +537,10 @@ void Battle::on_player_death(const combat::Event& event, const Env& env) {
     const std::uint64_t session = owner->second;
     Member& who = members_.at(session);
     Player& player = *who.player;
-    tell(stage, *env.out, place_of(entity), protocol::EntityDied{.id = entity, .killer = event.actor.index}, true);
+    // Người quanh nhận EntityDied ngay; chính người chết nhận sau DeathNotice và SelfVitals (hp 0) để client dựng bảng hồi sinh
+    // đúng thứ tự (cả ba cùng nằm trong Output nên giữ nguyên thứ tự).
+    const protocol::EntityDied died{.id = entity, .killer = event.actor.index};
+    tell(stage, *env.out, place_of(entity), died, false);
     stage.fell(place_of(entity));
 
     protocol::DeathNotice notice;
@@ -551,6 +554,7 @@ void Battle::on_player_death(const combat::Event& event, const Env& env) {
     }
     env.out->down(session, notice);
     push_vitals(session, who, env, true);
+    env.out->down(session, died);
     env.report->changed.push_back(session);
 }
 
@@ -575,6 +579,8 @@ void Battle::respawn(std::uint64_t session, const protocol::Respawn& message, co
     who.sent_percent = percent_of(me->body);
     env.stage->raise(place_of(who.entity), x_cm, z_cm, who.sent_percent);
     push_vitals(session, who, env, true);
+    // Position đi sau SelfVitals (hp > 0): client coi hp <= 0 là đang chết.
+    out.place(session, x_cm, z_cm);
     env.report->changed.push_back(session);
 }
 
