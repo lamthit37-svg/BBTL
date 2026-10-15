@@ -8,7 +8,10 @@
 #include "model.inc.slang"
 
 // Đường cong sRGB chính xác, hai chiều.
+// Thiết bị màu thô (frame.rules.w = 1, DeviceCaps::is_raw_color): texture và đích đều là số gamma, hai đường cong
+// này triệt tiêu nhau nên bỏ cả hai (mỗi lần là ba pow ở từng điểm ảnh, đắt trên PowerVR).
 float3 to_gamma(float3 linear_color) {
+    if (frame.rules.w > 0.5) return linear_color;
     const float3 value = max(linear_color, float3(0.0, 0.0, 0.0));
     const float3 low = value * 12.92;
     const float3 high = (1.055 * pow(value, float3(1.0, 1.0, 1.0) / 2.4)) - 0.055;
@@ -16,6 +19,7 @@ float3 to_gamma(float3 linear_color) {
 }
 
 float3 to_linear(float3 gamma_color) {
+    if (frame.rules.w > 0.5) return gamma_color;
     const float3 value = saturate(gamma_color);
     const float3 low = value / 12.92;
     const float3 high = pow((value + 0.055) / 1.055, float3(2.4, 2.4, 2.4));

@@ -478,6 +478,8 @@ Result<std::unique_ptr<Device>> VulkanDevice::create(const DeviceDesc& desc) {
 Status VulkanDevice::start(const PhysicalDevice& physical, const DeviceDesc& desc) {
     physical_ = physical.handle;
     adapter_ = physical.info;
+    is_raw_color_ = desc.is_raw_color;
+    caps_.is_raw_color = desc.is_raw_color;
     vkGetPhysicalDeviceMemoryProperties(physical_, &memory_);
     VkPhysicalDeviceProperties base{};
     vkGetPhysicalDeviceProperties(physical_, &base);
@@ -503,7 +505,7 @@ Status VulkanDevice::start(const PhysicalDevice& physical, const DeviceDesc& des
     read_caps(indexing);
     if (is_cache_usable(desc.pipeline_cache, properties)) create_cache(desc.pipeline_cache);
     if (cache_ == VK_NULL_HANDLE) create_cache({});
-    passes_ = std::make_unique<Passes>(device_, traits_.store_none);
+    passes_ = std::make_unique<Passes>(device_, traits_.store_none, is_raw_color_);
     contexts_ = std::make_unique<Contexts>();
     return ok();
 }

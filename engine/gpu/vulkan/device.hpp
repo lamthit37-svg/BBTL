@@ -17,6 +17,7 @@
 #include "gpu/retire.hpp"
 #include "gpu/slots.hpp"
 #include "gpu/vulkan/api.hpp"
+#include "gpu/vulkan/convert.hpp"
 #include "gpu/vulkan/instance.hpp"
 #include "gpu/vulkan/passes.hpp"
 
@@ -289,6 +290,11 @@ public:
     void retire(Retired::Action action) { retired_.push(marks(), std::move(action)); }
     [[nodiscard]] const Traits& traits() const noexcept { return traits_; }
     [[nodiscard]] VkDeviceAddress address_of(VkBuffer buffer) const noexcept;
+    // VkFormat của định dạng engine; thiết bị màu thô đổi sRGB sang UNORM ở đây, một chỗ duy nhất.
+    [[nodiscard]] VkFormat vk_format(Format format) const noexcept {
+        return to_vk(is_raw_color_ ? raw_of(format) : format);
+    }
+    [[nodiscard]] bool is_raw_color() const noexcept { return is_raw_color_; }
     [[nodiscard]] const VkPhysicalDeviceLimits& limits() const noexcept { return limits_; }
 
 private:
@@ -362,6 +368,7 @@ private:
     PFN_vkWaitForPresentKHR wait_for_present_ = nullptr;
     // vkGetBufferDeviceAddress (lõi 1.2): xin qua device vì bộ nạp Android không xuất tĩnh; null khi thiếu.
     PFN_vkGetBufferDeviceAddress buffer_address_ = nullptr;
+    bool is_raw_color_ = false;
     // Phiên bản chức năng lõi dùng được: nhỏ hơn trong phiên bản thiết bị và instance.
     std::uint32_t api_ = 0;
     VkPhysicalDeviceMemoryProperties memory_{};

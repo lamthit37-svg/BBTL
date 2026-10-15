@@ -251,6 +251,8 @@ std::optional<control::CursorKind> Display::cursor_choice() const noexcept {
 core::Status Display::State::open_gpu(const DisplayDesc& desc) {
     gpu::DeviceDesc device_desc;
     device_desc.is_validated = desc.is_validated;
+    // Điện thoại: màu thô như GLES (gpu/gles/device.hpp), bỏ pow gamma từng điểm ảnh; PC giữ sRGB của phần cứng.
+    device_desc.is_raw_color = ui::kPhone;
     const core::Status backend = apply_backend(device_desc, desc);
     if (!backend) return backend;
     const std::string shaders = shader_dir_of(desc.data_root);

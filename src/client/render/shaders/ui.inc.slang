@@ -8,7 +8,7 @@
 
 struct Screen {
     // Rộng và cao của vùng vẽ, điểm ảnh; z là 1 khi ảnh của lô chứa màu đã nhân alpha (ảnh Canvas có
-    // nền trong suốt), 0 khi là ảnh thẳng; w để đủ 16 byte.
+    // nền trong suốt), 0 khi là ảnh thẳng; w là 1 trên thiết bị màu thô: màu đỉnh giữ nguyên số gamma.
     float4 size;
     // Ô màn hình (trái, trên, rộng, cao theo điểm ảnh) mà texture mặt nạ của lô phủ kín.
     float4 mask;

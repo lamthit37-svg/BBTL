@@ -48,7 +48,7 @@ constexpr std::uint32_t kMaskSlot = 1;
 // Khớp struct Screen của ui.inc.slang.
 struct ScreenBlock {
     // Rộng, cao của vùng vẽ; thành phần z là 1 khi ảnh của lô chứa màu đã nhân alpha, 0 khi là ảnh
-    // thẳng (UiTexture::is_premultiplied).
+    // thẳng (UiTexture::is_premultiplied); w là 1 trên thiết bị màu thô (DeviceCaps::is_raw_color).
     std::array<float, 4> size{};
     // Ô mặt nạ của lô: trái, trên, rộng, cao.
     std::array<float, 4> mask{0.0F, 0.0F, 1.0F, 1.0F};
@@ -291,7 +291,8 @@ void UiPass::State::draw_batch(gpu::CommandList& list, const UiBatch& batch, UiS
     if (!group) return;
     const std::uint32_t texture = batch.texture < textures.size() ? batch.texture : kUiWhite;
     const float premultiplied = textures.at(texture).is_premultiplied ? 1.0F : 0.0F;
-    const ScreenBlock block{.size = {screen.width, screen.height, premultiplied, 0.0F},
+    const float raw = device->caps().is_raw_color ? 1.0F : 0.0F;
+    const ScreenBlock block{.size = {screen.width, screen.height, premultiplied, raw},
         .mask = {box.x, box.y, box.width, box.height}};
     list.push_constants(std::as_bytes(std::span(&block, 1)), 0);
     list.bind_group(kTextureSpace, *group);

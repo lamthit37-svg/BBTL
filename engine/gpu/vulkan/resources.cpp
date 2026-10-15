@@ -203,7 +203,7 @@ void VulkanDevice::free(const Allocation& allocation) noexcept {
 
 FormatSupport VulkanDevice::format_support(Format format) const {
     VkFormatProperties properties{};
-    vkGetPhysicalDeviceFormatProperties(physical_, to_vk(format), &properties);
+    vkGetPhysicalDeviceFormatProperties(physical_, vk_format(format), &properties);
     FormatSupport support = FormatSupport::kNone;
     for (const SupportRow& row : kSupport) {
         const bool is_present = (properties.optimalTilingFeatures & row.feature) != 0;
@@ -296,7 +296,7 @@ Result<TextureHandle> VulkanDevice::create_texture(const TextureDesc& desc) {
     info.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
     info.flags = image_flags(desc);
     info.imageType = to_image_type(desc.kind);
-    info.format = to_vk(desc.format);
+    info.format = vk_format(desc.format);
     info.extent = {.width = desc.width, .height = desc.height, .depth = depth_of(desc)};
     info.mipLevels = desc.mip_levels;
     info.arrayLayers = layer_count(desc);
@@ -364,7 +364,7 @@ Result<TextureViewHandle> VulkanDevice::create_view(const TextureViewDesc& desc)
     info.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
     info.image = texture->handle;
     info.viewType = to_view_type(desc.kind);
-    info.format = to_vk(range->format);
+    info.format = vk_format(range->format);
     info.subresourceRange.aspectMask = view_aspect(*range);
     info.subresourceRange.baseMipLevel = range->first_mip;
     info.subresourceRange.levelCount = range->mip_count;

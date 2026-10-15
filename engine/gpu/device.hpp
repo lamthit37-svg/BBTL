@@ -102,6 +102,9 @@ struct DeviceCaps {
     std::array<bool, kQueueCount> has_timestamps{};
     std::uint32_t max_texture_size = 0;
     std::uint32_t max_anisotropy = 1;
+    // Thiết bị màu thô (DeviceDesc::is_raw_color; GLES luôn thô): định dạng sRGB không mã hoá giải mã gì, màu xoá
+    // tuyến tính được mã hoá ở CPU, và shader phải tính thẳng trên số gamma.
+    bool is_raw_color = false;
 };
 
 enum class FormatSupport : std::uint8_t {
@@ -136,6 +139,9 @@ struct DeviceDesc {
     // Nội dung Device::pipeline_cache của một lần chạy trước; sai thiết bị hay sai bản trình điều
     // khiển thì bị bỏ qua.
     std::span<const std::byte> pipeline_cache;
+    // Màu thô như GLES (xem gles/device.hpp): định dạng khai sRGB được lấy mẫu, trộn và ghi như UNORM, nên shader
+    // khỏi đổi gamma từng điểm ảnh. Chỉ Vulkan đọc cờ này; GLES luôn thô, D3D luôn theo phần cứng.
+    bool is_raw_color = false;
 };
 
 // Mất thiết bị làm mọi tay nắm, command list và timeline hết hiệu lực; cách duy nhất đi tiếp là

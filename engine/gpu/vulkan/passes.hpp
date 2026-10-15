@@ -69,7 +69,9 @@ class Passes {
 public:
     // store_none: thiết bị có VK_ATTACHMENT_STORE_OP_NONE (1.3 hay VK_EXT_load_store_op_none) để độ sâu
     // chỉ đọc khỏi bị ghi lại ra bộ nhớ; không có thì độ sâu chỉ đọc vẫn STORE (đúng, tốn băng thông).
-    Passes(VkDevice device, bool store_none) noexcept : device_(device), store_none_(store_none) {}
+    // is_raw: thiết bị màu thô (DeviceDesc::is_raw_color): định dạng sRGB của pipeline đổi sang UNORM như mọi tài nguyên.
+    Passes(VkDevice device, bool store_none, bool is_raw) noexcept
+        : device_(device), store_none_(store_none), is_raw_(is_raw) {}
     // Gọi khi GPU đã rỗi.
     ~Passes();
     Passes(const Passes&) = delete;
@@ -126,6 +128,7 @@ private:
 
     VkDevice device_;
     bool store_none_;
+    bool is_raw_;
     // Bảo vệ passes_ và framebuffers_: nhiều luồng ghi lệnh cùng lúc.
     std::mutex mutex_;
     std::map<PassKey, VkRenderPass> passes_;

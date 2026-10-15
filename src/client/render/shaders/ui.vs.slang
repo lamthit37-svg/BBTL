@@ -20,7 +20,9 @@ Varying main(Vertex vertex) {
     const float3 rgb = float3(float((vertex.color >> 16u) & 255u), float((vertex.color >> 8u) & 255u),
                            float(vertex.color & 255u)) / 255.0;
     const float alpha = float((vertex.color >> 24u) & 255u) / 255.0;
-    output.color = float4(pow(rgb, float3(2.2, 2.2, 2.2)), alpha);
+    // Thiết bị màu thô (screen.size.w = 1): texture và đích đều là số gamma, màu đỉnh không đổi.
+    const bool is_raw = screen.size.w > 0.5;
+    output.color = float4(is_raw ? rgb : pow(rgb, float3(2.2, 2.2, 2.2)), alpha);
     output.mask_uv = (vertex.position - screen.mask.xy) / screen.mask.zw;
     output.premultiplied = screen.size.z;
     return output;

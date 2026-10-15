@@ -708,6 +708,7 @@ Result<std::unique_ptr<Device>> create(const DeviceDesc& desc) {
     caps.has_queue[static_cast<std::size_t>(QueueType::kGraphics)] = true;
     caps.max_texture_size = profile.max_texture;
     caps.max_anisotropy = profile.max_anisotropy == 0 ? 1 : profile.max_anisotropy;
+    caps.is_raw_color = true;
     auto device = std::make_unique<GlDevice>(std::move(*context), std::move(info), caps, desc.is_validated);
     if (desc.adapter && *desc.adapter != 0) {
         return fail(kBad, "GLES chỉ thấy một context của process");

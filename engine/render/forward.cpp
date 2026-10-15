@@ -1108,6 +1108,7 @@ core::Status Forward::State::write(Slot& slot, const Camera& camera, const Light
     write_fog(block, lights.fog);
     block.rules.x = lights.is_overbright ? 1.0F : 0.0F;
     block.rules.y = lights.seconds;
+    block.rules.w = device->caps().is_raw_color ? 1.0F : 0.0F;
     block.hfog = lights.hfog;
     block.dfog = lights.dfog;
     block.hfog_color = lights.hfog_color;

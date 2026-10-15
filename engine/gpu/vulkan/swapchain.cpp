@@ -70,19 +70,19 @@ constexpr ErrorCode kState = ErrorCode::kInvalidState;
 // không thì định dạng đầu tiên mà engine biết. Chỉ nhận không gian màu sRGB: HDR là mốc sau. Bước giữa
 // là chỗ Android hay rơi vào: PowerVR chỉ liệt kê R8G8B8A8, còn chỗ gọi xin B8G8R8A8; rơi thẳng xuống
 // định dạng đầu tiên là R8G8B8A8_UNORM, phần cứng không mã hoá sRGB và cả khung hình tối đi.
-[[nodiscard]] Format pick_format(std::span<const VkSurfaceFormatKHR> list, Format wanted) noexcept {
-    const VkFormat exact = to_vk(wanted);
-    const auto is_wanted = [exact](const VkSurfaceFormatKHR& item) {
-        return item.format == exact && is_srgb_space(item);
+// Thiết bị màu thô (is_raw) khai định dạng sRGB nhưng cất UNORM: bề mặt có R8G8B8A8_UNORM thì định dạng khai là
+// R8G8B8A8_SRGB, để lệnh xoá còn mã hoá màu tuyến tính ở CPU (xem Commands::fill_color).
+[[nodiscard]] Format pick_format(std::span<const VkSurfaceFormatKHR> list, Format wanted, bool is_raw) noexcept {
+    const auto has = [list, is_raw](Format candidate) {
+        const VkFormat stored = to_vk(is_raw ? raw_of(candidate) : candidate);
+        const auto is_stored = [stored](const VkSurfaceFormatKHR& item) {
+            return item.format == stored && is_srgb_space(item);
+        };
+        return std::ranges::any_of(list, is_stored);
     };
-    if (std::ranges::any_of(list, is_wanted)) return wanted;
-    const auto is_encoding = [](const VkSurfaceFormatKHR& item) {
-        const Format known = from_vk(item.format);
-        const bool is_srgb_format = known == Format::kRgba8UnormSrgb || known == Format::kBgra8UnormSrgb;
-        return is_srgb_format && is_srgb_space(item);
-    };
-    const auto encoding = std::ranges::find_if(list, is_encoding);
-    if (encoding != list.end()) return from_vk(encoding->format);
+    if (has(wanted)) return wanted;
+    if (has(Format::kRgba8UnormSrgb)) return Format::kRgba8UnormSrgb;
+    if (has(Format::kBgra8UnormSrgb)) return Format::kBgra8UnormSrgb;
     const auto is_known = [](const VkSurfaceFormatKHR& item) {
         return from_vk(item.format) != Format::kUnknown && is_srgb_space(item);
     };
@@ -142,7 +142,9 @@ constexpr ErrorCode kState = ErrorCode::kInvalidState;
 // nó tách thành hàm (build của gốc dài hơn 40 dòng).
 struct Picked {
     VkExtent2D extent{};
+    // Định dạng khai (có thể sRGB) và VkFormat cất thật của ảnh (UNORM trên thiết bị màu thô).
     Format format = Format::kUnknown;
+    VkFormat stored = VK_FORMAT_UNDEFINED;
     PresentMode mode = PresentMode::kFifo;
     TextureUsage usage = TextureUsage::kNone;
     // Số ảnh chỗ gọi xin, chưa kẹp theo bề mặt.
@@ -160,7 +162,7 @@ struct Picked {
     info.sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;
     info.surface = surface;
     info.minImageCount = pick_count(caps, picked.image_count);
-    info.imageFormat = to_vk(picked.format);
+    info.imageFormat = picked.stored;
     info.imageColorSpace = VK_COLOR_SPACE_SRGB_NONLINEAR_KHR;
     info.imageExtent = picked.extent;
     info.imageArrayLayers = 1;
@@ -235,7 +237,7 @@ Status SwapchainVk::build() {
     const VkResult read = vkGetPhysicalDeviceSurfaceCapabilitiesKHR(physical, surface_, &caps);
     if (read != VK_SUCCESS) return device_->failed(read, "không đọc được khả năng của bề mặt");
     const VkExtent2D extent = pick_extent(caps, desc_);
-    const Format format = pick_format(surface_formats(physical, surface_), desc_.format);
+    const Format format = pick_format(surface_formats(physical, surface_), desc_.format, device_->is_raw_color());
     const PresentMode mode = pick_mode(surface_modes(physical, surface_), desc_.present_mode);
     const TextureUsage usage = pick_usage(caps);
     const bool is_hidden = extent.width == 0 || extent.height == 0;
@@ -244,8 +246,12 @@ Status SwapchainVk::build() {
     }
 
     // Khác gốc: gốc điền VkSwapchainCreateInfoKHR tại đây; nay ở swapchain_info.
-    const Picked picked{
-        .extent = extent, .format = format, .mode = mode, .usage = usage, .image_count = desc_.image_count};
+    const Picked picked{.extent = extent,
+        .format = format,
+        .stored = device_->vk_format(format),
+        .mode = mode,
+        .usage = usage,
+        .image_count = desc_.image_count};
     const VkSwapchainCreateInfoKHR info = swapchain_info(surface_, swapchain_, caps, picked);
     VkSwapchainKHR created = VK_NULL_HANDLE;
     auto* const device = device_->handle();

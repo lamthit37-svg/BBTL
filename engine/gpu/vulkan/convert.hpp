@@ -14,6 +14,10 @@ namespace game::gpu::vulkan {
 [[nodiscard]] VkFormat to_vk(Format format) noexcept;
 // Ngược của to_vk cho định dạng bề mặt; Unknown khi engine không có định dạng ấy.
 [[nodiscard]] Format from_vk(VkFormat format) noexcept;
+// Định dạng cùng bố cục byte nhưng không mã hoá sRGB (UNORM); định dạng khác trả nguyên. Cho thiết bị màu thô.
+[[nodiscard]] Format raw_of(Format format) noexcept;
+// Định dạng khai sRGB: màu xoá tuyến tính phải mã hoá ở CPU khi thiết bị màu thô.
+[[nodiscard]] bool is_srgb(Format format) noexcept;
 // Màu, độ sâu, hoặc độ sâu cộng stencil.
 [[nodiscard]] VkImageAspectFlags aspect_of(Format format) noexcept;
 

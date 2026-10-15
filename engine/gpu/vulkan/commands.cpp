@@ -31,6 +31,7 @@
 #include <algorithm>
 #include <array>
 #include <bit>
+#include <cmath>
 #include <cstddef>
 #include <cstdint>
 #include <expected>
@@ -102,6 +103,22 @@ struct Families {
     if (is_sint(format)) std::ranges::transform(channels, std::begin(value.color.int32), to_sint);
     if (!is_integer) std::ranges::copy(channels, std::begin(value.color.float32));
     return value;
+}
+
+// Thiết bị màu thô cất định dạng sRGB như UNORM, phần cứng không mã hoá lúc xoá, nên màu xoá (số tuyến tính theo hợp
+// đồng chung của ClearColor) mã hoá ở CPU. NaN và số ngoài [0, 1] kẹp về hai đầu: màu xoá do bên gọi đưa.
+[[nodiscard]] float encode_srgb(float linear) noexcept {
+    if (!(linear > 0.0F)) return 0.0F;
+    if (linear >= 1.0F) return 1.0F;
+    if (linear <= 0.0031308F) return linear * 12.92F;
+    return (1.055F * std::pow(linear, 1.0F / 2.4F)) - 0.055F;
+}
+
+[[nodiscard]] ClearColor encoded(const ClearColor& color) noexcept {
+    return {.red = encode_srgb(color.red),
+        .green = encode_srgb(color.green),
+        .blue = encode_srgb(color.blue),
+        .alpha = color.alpha};
 }
 
 [[nodiscard]] VkClearValue clear_depth(const ClearDepth& clear) noexcept {
@@ -458,10 +475,11 @@ bool Commands::fill_color(ColorAttach& attach, const ColorTarget& target) {
     const Format format = view->range.format;
     if (has_depth(format)) reject(fail(kBad, "begin_rendering: view độ sâu ở ô attachment màu"));
     attach.view = view->handle;
-    attach.format = to_vk(format);
+    attach.format = device_->vk_format(format);
     attach.load = to_vk(target.load);
     attach.store = to_vk(target.store);
-    attach.clear = clear_color(target.clear, format);
+    const bool is_encoded = device_->is_raw_color() && is_srgb(format);
+    attach.clear = clear_color(is_encoded ? encoded(target.clear) : target.clear, format);
     note_extent(*view);
     if (!target.resolve) return is_live_;
     const View* const resolved = need(target.resolve, "begin_rendering: view resolve đã chết");
@@ -488,7 +506,7 @@ const View* Commands::need_depth(TextureViewHandle handle) {
 DepthAttach Commands::depth_of(const DepthTarget& target, const View& view) const noexcept {
     DepthAttach attach;
     attach.view = view.handle;
-    attach.format = to_vk(view.range.format);
+    attach.format = device_->vk_format(view.range.format);
     attach.is_read_only = target.is_read_only;
     attach.load = target.is_read_only ? VK_ATTACHMENT_LOAD_OP_LOAD : to_vk(target.load);
     attach.store = to_vk(target.store);

@@ -199,6 +199,38 @@ VkFormat to_vk(Format format) noexcept {
     return kFormats.at(std::to_underlying(format));
 }
 
+namespace {
+
+// (định dạng sRGB, định dạng cùng bố cục byte không mã hoá).
+constexpr std::array<std::pair<Format, Format>, 15> kRawPairs{{
+    {Format::kRgba8UnormSrgb, Format::kRgba8Unorm},
+    {Format::kBgra8UnormSrgb, Format::kBgra8Unorm},
+    {Format::kBc1UnormSrgb, Format::kBc1Unorm},
+    {Format::kBc2UnormSrgb, Format::kBc2Unorm},
+    {Format::kBc3UnormSrgb, Format::kBc3Unorm},
+    {Format::kBc7UnormSrgb, Format::kBc7Unorm},
+    {Format::kEtc2Rgb8UnormSrgb, Format::kEtc2Rgb8Unorm},
+    {Format::kEtc2Rgb8A1UnormSrgb, Format::kEtc2Rgb8A1Unorm},
+    {Format::kEtc2Rgba8UnormSrgb, Format::kEtc2Rgba8Unorm},
+    {Format::kAstc4x4UnormSrgb, Format::kAstc4x4Unorm},
+    {Format::kAstc5x5UnormSrgb, Format::kAstc5x5Unorm},
+    {Format::kAstc6x6UnormSrgb, Format::kAstc6x6Unorm},
+    {Format::kAstc8x8UnormSrgb, Format::kAstc8x8Unorm},
+    {Format::kAstc10x10UnormSrgb, Format::kAstc10x10Unorm},
+    {Format::kAstc12x12UnormSrgb, Format::kAstc12x12Unorm},
+}};
+
+} // namespace
+
+Format raw_of(Format format) noexcept {
+    const auto found = std::ranges::find(kRawPairs, format, &std::pair<Format, Format>::first);
+    return found == kRawPairs.end() ? format : found->second;
+}
+
+bool is_srgb(Format format) noexcept {
+    return raw_of(format) != format;
+}
+
 Format from_vk(VkFormat format) noexcept {
     const auto found = std::ranges::find(kFormats, format);
     if (found == kFormats.end()) return Format::kUnknown;

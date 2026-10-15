@@ -192,7 +192,8 @@ core::Result<VkRenderPass> Passes::compatible(const PassFormats& formats) {
     key.color_count = static_cast<std::uint32_t>(formats.colors.size());
     key.samples = to_samples(formats.samples);
     for (std::uint32_t slot = 0; slot < key.color_count; ++slot) {
-        key.colors.at(slot).format = to_vk(formats.colors.subspan(slot, 1).front());
+        const Format color = formats.colors.subspan(slot, 1).front();
+        key.colors.at(slot).format = to_vk(is_raw_ ? raw_of(color) : color);
     }
     if (has_depth(formats.depth)) key.depth = to_vk(formats.depth);
     const std::scoped_lock lock(mutex_);
