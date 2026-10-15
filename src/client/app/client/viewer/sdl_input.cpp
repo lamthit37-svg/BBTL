@@ -1,9 +1,24 @@
-// Dịch sự kiện SDL3 sang SdlAction. Toạ độ chuột chia cho cỡ cửa sổ SDL, gốc trái trên.
+/*==============================================================================
+ *  THIENLONG  |  GAME CLIENT
+ *------------------------------------------------------------------------------
+ *  TỆP       : src/client/app/client/viewer/sdl_input.cpp
+ *  PHÂN HỆ   : Client / Viewer / Sdl Input
+ *  CHUẨN     : C++23
+ *------------------------------------------------------------------------------
+ *  CHỨC NĂNG
+ *  - Dịch sự kiện SDL3 sang SdlAction. Toạ độ chuột chia cho cỡ cửa sổ SDL, gốc
+ *    trái trên.
+ *------------------------------------------------------------------------------
+ *  TÁC GIẢ   : HiepHoon
+ *  TELEGRAM  : @Hoon9xx
+ *============================================================================*/
+
 #include "client/viewer/sdl_input.hpp"
 
 #include "control/input.hpp"
 #include "core/error.hpp"
 
+#include <SDL3/SDL_clipboard.h>
 #include <SDL3/SDL_error.h>
 #include <SDL3/SDL_events.h>
 #include <SDL3/SDL_gamepad.h>
@@ -146,17 +161,56 @@ void push_key(std::vector<SdlAction>& out, SdlKey key, bool is_down, bool is_rep
     out.push_back(action);
 }
 
+void push_point(std::vector<SdlAction>& out, char32_t point) {
+    control::InputEvent typed;
+    typed.kind = control::InputKind::kText;
+    typed.text = point;
+    push_event(out, typed);
+}
+
 void push_text(std::vector<SdlAction>& out, std::string_view bytes) {
     std::size_t at = 0;
     while (at < bytes.size()) {
         const Utf8 code = read_utf8(bytes.substr(at));
         if (code.units == 0) return;
         at += code.units;
-        control::InputEvent typed;
-        typed.kind = control::InputKind::kText;
-        typed.text = code.point;
-        push_event(out, typed);
+        push_point(out, code.point);
     }
+}
+
+// Trần số điểm mã một lần dán: chữ trong clipboard là dữ liệu từ ngoài, không để một clipboard khổng lồ đẩy cả triệu sự kiện
+// vào một khung.
+constexpr std::size_t kMostPasted = 256;
+
+// Dán như gõ từng chữ, nhưng chỉ lấy dòng đầu (tài khoản hay mật khẩu chép kèm xuống dòng không được bấm Enter hộ) và bỏ
+// ký tự điều khiển khác. Gặp byte UTF-8 hỏng thì dừng, giống push_text.
+void push_pasted(std::vector<SdlAction>& out, std::string_view bytes) {
+    std::size_t at = 0;
+    std::size_t count = 0;
+    while (at < bytes.size() && count < kMostPasted) {
+        const Utf8 code = read_utf8(bytes.substr(at));
+        if (code.units == 0 || code.point == U'\r' || code.point == U'\n') return;
+        at += code.units;
+        const bool is_control = code.point < U' ' || code.point == 0x7F;
+        if (is_control) continue;
+        push_point(out, code.point);
+        ++count;
+    }
+}
+
+// Clipboard của hệ điều hành; rỗng khi không có chữ. SDL luôn trả chuỗi cấp phát (rỗng khi lỗi) và người gọi giải phóng.
+void paste_clipboard(std::vector<SdlAction>& out) {
+    char* const text = SDL_GetClipboardText();
+    if (text == nullptr) return;
+    push_pasted(out, text);
+    SDL_free(text);
+}
+
+// Ctrl+V và Shift+Insert, hai phím dán chuẩn của Windows.
+[[nodiscard]] bool is_paste_key(const SDL_KeyboardEvent& key) noexcept {
+    const bool is_ctrl_v = key.key == SDLK_V && (key.mod & SDL_KMOD_CTRL) != 0;
+    const bool is_shift_insert = key.key == SDLK_INSERT && (key.mod & SDL_KMOD_SHIFT) != 0;
+    return is_ctrl_v || is_shift_insert;
 }
 
 [[nodiscard]] Pad* find_pad(std::vector<Pad>& pads, SDL_JoystickID id) noexcept {
@@ -233,7 +287,12 @@ void on_wheel(std::vector<SdlAction>& out, const SDL_MouseWheelEvent& wheel) {
     push_event(out, event);
 }
 
+// Phím dán không đi tiếp thành phím điều khiển: Ctrl+V không được đưa camera về chỗ cũ (V là phím "về nhà").
 void on_keyboard(std::vector<SdlAction>& out, const SDL_KeyboardEvent& key) {
+    if (is_paste_key(key)) {
+        if (key.down && !key.repeat) paste_clipboard(out);
+        return;
+    }
     push_key(out, key_of(key.key), key.down, key.repeat);
 }
 

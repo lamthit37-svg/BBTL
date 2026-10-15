@@ -31,6 +31,7 @@
 #include "resource/image.hpp"
 #include "resource/model.hpp"
 #include "resource/ogre_mesh.hpp"
+#include "resource/tier.hpp"
 
 #include <algorithm>
 #include <chrono>
@@ -86,9 +87,10 @@ constexpr std::size_t kNewAssetsPerFrame = 1;
 
 // Thay ảnh nền của mọi material trong mô hình bằng ảnh của material chồng, với cách trộn của nó. Sai khi không đọc được ảnh.
 [[nodiscard]] bool apply_skin(resource::Model& model, const look::CreatureMaterial& skin,
-    const std::filesystem::path& data_root) {
+    const std::filesystem::path& data_root, resource::TextureTier tier) {
+    // Điện thoại có bản nấu ASTC/ETC2 của ảnh thì lấy nó (nhỏ hơn RGBA8 bốn lần trên GPU); PC giữ đường dẫn gốc.
     core::Result<resource::Image> image =
-        resource::load_image_file(io::utf8_of(data_root / io::path_from_utf8(skin.texture)));
+        resource::load_image_file(resource::texture_file(io::utf8_of(data_root), skin.texture, tier));
     if (!image) {
         std::println(stderr, "Quái/NPC: không đọc được ảnh {}: {}", skin.texture, image.error());
         return false;
@@ -122,7 +124,7 @@ std::size_t Display::State::load_skinned_mesh(const std::string& mesh, const loo
         std::println(stderr, "Bỏ mesh {}: {}", mesh, model.error());
         return kMissing;
     }
-    if (!apply_skin(*model, skin, data_root)) return kMissing;
+    if (!apply_skin(*model, skin, data_root, texture_tier)) return kMissing;
     return keep_model(key, baked_mesh(std::move(*model)));
 }
 
