@@ -26,6 +26,15 @@ Dựng:
 Bundle nằm trong build/ios-arm64; cmake --install chép vào release/client/IOS.
 Mã vn.thienlong.client. Cửa sổ là toàn màn, nằm ngang.
 Layout dùng chung với Android ở Interface/phone. Texture ưu tiên mobile/astc.
+Cùng một mã client với PC và Android (src/client/app/client/host dùng chung hai vỏ điện thoại):
+  - Mạng: nối máy chủ thật qua Table/gates.tsv như bản PC (engine/net/socket_posix.cpp, TCP không chặn). Muốn máy thật
+    tới được máy chủ thì gates.tsv phải trỏ địa chỉ LAN của máy chủ, không phải 127.0.0.1.
+  - Texture: --stage của package_apk.py mang bản nấu ASTC (build/mobile-textures do bake_mobile_textures.py; CMake chạy
+    target thienlong_mobile_textures trước) và sound đã cook (build/cooked/sound, có thì mang). Thiếu bản nấu thì bundle
+    mang DDS gốc và MoltenVK không đọc được khối BC.
+  - Nhảy: chạm nhanh hai ngón. Tần số quét: lấy từ UIScreen; iPhone chỉ 60 Hz trừ khi khai
+    CADisableMinimumFrameDurationOnPhone trong Info.plist.
+  - Giao diện co lại khi màn nhỏ hơn 800 x 640 điểm ảnh; iPad và iPhone ngang đều lớn hơn nên 1:1.
 apple/Info.plist khai mạng nội bộ và màn mở LaunchScreen. PrivacyInfo không
 theo dõi và chưa khai API bắt buộc lý do: chưa có lượt dịch trên máy Apple để
 đối chiếu. Bundle đọc data/ tại chỗ. Sổ nhân vật ghi ở Documents.

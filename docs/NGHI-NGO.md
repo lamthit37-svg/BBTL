@@ -816,6 +816,18 @@ kết luận ngay dưới mục đó chứ không xoá.
     (`seal`), dùng `stat` và đồng hồ đơn điệu; chủ dự án quyết khai báo mã hoá, và phần API cần lý do (FileTimestamp
     `C617.1`, SystemBootTime `35F9.1`) đối chiếu khi App Store Connect báo. (7) `setpriority` của `core::sleep_until`
     trên iOS luôn thất bại (không đặc quyền) và bị bỏ qua; vô hại nhưng thừa một lời gọi hệ thống mỗi lần ngủ.
+    ĐÃ LÀM THÊM 2026-10-15 để iOS có đủ đường như PC (chỉ viết và kiểm bằng trình dịch NDK, KHÔNG phải bản dựng Apple):
+    `ios_main.mm` giữ `host::Online` và `host::Soundscape` như `android_main.cpp` (cùng `client/host`, một mã cho hai vỏ):
+    nối máy chủ thật (bảng cổng `Table/gates.tsv`, `online::Bridge`, thực thể máy chủ qua `cast`), nhạc cảnh, chỗ đứng máy
+    chủ đặt (`HostStep::entry`), chạm hai ngón là nhảy, Hz màn (`UIScreen.maximumFramesPerSecond`; iPhone chỉ 60 vì chưa khai
+    `CADisableMinimumFrameDurationOnPhone`, iPad lấy mức cao nhất), ảnh giao diện đọc bản nấu ASTC (`Painter` theo tier).
+    `--stage` của `package_apk.py` mang bản nấu `--baked` (chỉ ASTC) và sound đã cook như APK. CÒN MỞ, cần máy Apple:
+    (8) `ios_main.mm` chưa qua Apple Clang: phần Objective-C++ mới (đọc `maximumFramesPerSecond`, chạm hai ngón) chỉ do đọc
+    mã; phần C++ dùng chung với Android (`host.cpp`, `touch.cpp`, `painter.cpp`) đã dịch bằng NDK không cảnh báo. (9) `Info.plist`
+    chưa khai `NSAppTransportSecurity` cho TCP thô: socket POSIX trực tiếp không đi qua ATS, nhưng iOS 14+ đòi
+    `NSLocalNetworkUsageDescription` khi nối máy chủ trong mạng LAN (đã có), còn lên Internet thì chưa thử. (10) `socket_posix.cpp`
+    dùng `SO_NOSIGPIPE` và `poll`; chưa chạy trên Darwin. (11) Bản nấu ASTC trên iOS bỏ ETC2: máy không có ASTC (iPhone 5s trở về trước)
+    không chạy, vô hại vì iOS tối thiểu của dự án có A8 trở lên.
 50. **Shader chuyển sang Slang 2026-10-13: các chỗ chưa kiểm** (`engine/shader/detail/slang.cpp`, `reconcile.cpp`).
     Nguồn `src/client/render/shaders/*.slang`; Slang (`slang.dll` của Vulkan SDK 1.4.363) dịch ra SPIR-V, DXIL, DXBC;
     DXC chỉ còn đọc phản chiếu DXIL; GLSL của GLES vẫn viết tay (`*.glsl`). Đã đo: băm phản chiếu của 7 gói × 4 đích
