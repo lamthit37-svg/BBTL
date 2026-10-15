@@ -539,7 +539,12 @@ target_link_libraries(game_skill PUBLIC game_table game_core)
 # thiết kế ở docs/giao-viec/LUA-GEN/THIET-KE.md.
 game_module(lua
     src/client/face/lua/cformat.cpp
-    src/client/face/lua/number.cpp)
+    src/client/face/lua/number.cpp
+    src/client/face/lua/ops.cpp
+    src/client/face/lua/state.cpp
+    src/client/face/lua/string.cpp
+    src/client/face/lua/table.cpp
+    src/client/face/lua/value.cpp)
 target_link_libraries(game_lua PUBLIC game_core)
 
 # ui/panel: logic của từng cửa sổ HUD, thay script Lua của client gốc (hiện, giấu, điền chữ, đặt

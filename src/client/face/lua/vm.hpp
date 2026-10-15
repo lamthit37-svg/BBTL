@@ -101,7 +101,7 @@ public:
     void push(Value value);
     // Nối mọi giá trị của other (lời gọi cuối trong danh sách đối số hay hàm dựng bảng).
     void append(const Results& other);
-    void append(std::span<const Value> values);
+    void append(std::span<const Value> more);
 
 private:
     std::array<Value, kInline> inline_{};
@@ -142,11 +142,11 @@ struct Chunk {
 
 class Function {
 public:
-    [[nodiscard]] const Proto& proto() const noexcept;
+    [[nodiscard]] inline const Proto& proto() const noexcept;
     // Hằng chuỗi thứ index của chunk đã tạo closure này (đã intern lúc nạp chunk).
-    [[nodiscard]] Value constant(std::size_t index) const noexcept;
+    [[nodiscard]] inline Value constant(std::size_t index) const noexcept;
     // Upvalue thứ index (bộ dịch đánh số theo thứ tự trong Proto).
-    [[nodiscard]] Cell& upvalue(std::size_t index) const noexcept;
+    [[nodiscard]] inline Cell& upvalue(std::size_t index) const noexcept;
 
 private:
     friend class State;
@@ -163,12 +163,13 @@ private:
     Cell() = default;
 };
 
-// Đường nóng: cờ lỗi. Định nghĩa ở state.hpp; mã sinh include gen_support.hpp có cả hai.
-[[nodiscard]] bool failed(const State& state) noexcept;
+// Đường nóng: cờ lỗi. Các hàm khai `inline` ở đây (proto, constant, upvalue, failed, tick) định nghĩa inline ở state.hpp;
+// mã sinh include gen_support.hpp có cả hai (dùng mà không include nó là lỗi biên dịch "inline function not defined").
+[[nodiscard]] inline bool failed(const State& state) noexcept;
 
 // Ngân sách vòng lặp: mã sinh gọi ở mỗi lần quay lại đầu vòng while/repeat/for. Trả false (và ghi lỗi) khi một lần
 // gọi từ chủ đã quay quá trần của State (Khác gốc: LuaPlus không có trần, script lặp vô hạn làm treo client).
-[[nodiscard]] bool tick(State& state) noexcept;
+[[nodiscard]] inline bool tick(State& state) noexcept;
 
 // OP_GETTABLE / OP_SETTABLE (luaV_gettable, luaV_settable): đi qua __index, __newindex; chuỗi đi qua bảng meta
 // của chuỗi.
@@ -205,8 +206,10 @@ void set_global(State& state, Value name, Value value);
 [[nodiscard]] bool less(State& state, Value left, Value right);
 [[nodiscard]] bool less_equal(State& state, Value left, Value right);
 
-// OP_NEWTABLE: list_items và record_items là số mục danh sách và số mục có khoá của hàm dựng bảng trong mã nguồn;
-// runtime tự mã hoá như lparser.c (luaO_int2fb, luaO_log2 + 1) và cấp như luaH_new, để thứ tự duyệt khớp gốc.
+// OP_NEWTABLE: list_items là số mục danh sách của hàm dựng bảng trong mã nguồn; record_items là số mục dạng `Tên = giá trị`
+// (KHÔNG tính mục `[khoá] = giá trị`: recfield của lparser.c chỉ tăng cc->nh ở nhánh TK_NAME; đo trên LuaPlus.dll bằng
+// pairs của `{a = 1, b = 2, c = 3, [10] = 4, "x", "y"}`). Runtime tự mã hoá như lparser.c (luaO_int2fb, luaO_log2 + 1) và
+// cấp như luaH_new, để thứ tự duyệt khớp gốc.
 [[nodiscard]] Value new_table(State& state, std::size_t list_items, std::size_t record_items);
 // OP_SETLIST: table[first + i] = items[i] (rawset). Bộ dịch xả mục danh sách theo lô 32 (LFIELDS_PER_FLUSH) đúng
 // chỗ lparser.c xả, còn mục có khoá thì gán ngay khi gặp (set_index).
