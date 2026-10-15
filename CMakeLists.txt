@@ -1130,6 +1130,7 @@ if(ANDROID)
     set_property(TARGET android_native_app_glue PROPERTY COMPILE_WARNING_AS_ERROR OFF)
     add_library(thienlong_activity SHARED
         src/client/app/client/android_main.cpp
+        src/client/app/client/android_stdio.cpp
         src/client/app/client/mobile_probe.cpp)
     target_include_directories(thienlong_activity PRIVATE "${game_glue}")
     target_compile_features(thienlong_activity PRIVATE cxx_std_23)

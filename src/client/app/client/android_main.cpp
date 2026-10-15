@@ -1,11 +1,28 @@
-// Vỏ NativeActivity của Android. Cùng phiên đăng nhập với bản PC (client/boot): bảng tài khoản
-// trên erengu_DL, chọn nhân vật trên tl3chuangjian, nút vào game mới nạp cảnh Config/startup.id.
-// Vulkan 1.3 phần cứng, không có thì GLES. Luồng này chỉ bơm sự kiện. Cảm ứng đi qua
-// control::TouchGestures rồi Display::input. Vòng chờ 8 ms khi đang vẽ, cùng nhịp luồng cửa sổ
-// PC, để lời nhờ của nút (xử lý ở luồng vẽ) không bị ngủ đến lần chạm sau. Mỗi lần chạy so sổ
-// assets với sổ đã giữ và chép những tệp đổi. Màu đặc chỉ khi không dựng được phần hiển thị.
+/*==============================================================================
+ *  THIENLONG  |  GAME CLIENT
+ *------------------------------------------------------------------------------
+ *  TỆP       : src/client/app/client/android_main.cpp
+ *  PHÂN HỆ   : Client / Client / Android Main
+ *  CHUẨN     : C++23
+ *------------------------------------------------------------------------------
+ *  CHỨC NĂNG
+ *  - Vỏ NativeActivity của Android. Cùng phiên đăng nhập với bản PC
+ *    (client/boot): bảng tài khoản trên erengu_DL, chọn nhân vật trên
+ *    tl3chuangjian, nút vào game mới nạp cảnh Config/startup.id. Vulkan 1.3
+ *    phần cứng, không có thì GLES. Luồng này chỉ bơm sự kiện. Cảm ứng đi qua
+ *    control::TouchGestures rồi Display::input.
+ *------------------------------------------------------------------------------
+ *  TÁC GIẢ   : HiepHoon
+ *  TELEGRAM  : @Hoon9xx
+ *============================================================================*/
+
+// Vòng chờ 8 ms khi đang vẽ, cùng nhịp luồng cửa sổ PC, để lời nhờ của nút (xử lý ở luồng vẽ) không bị ngủ đến lần
+// chạm sau. Mỗi lần chạy so sổ assets với sổ đã giữ và chép những tệp đổi. Màu đặc chỉ khi không dựng được phần hiển
+// thị.
+
 #if defined(__ANDROID__)
 #include "audio/engine.hpp"
+#include "client/android_stdio.hpp"
 #include "client/assets.hpp"
 #include "client/boot.hpp"
 #include "client/display/display.hpp"
@@ -21,6 +38,7 @@
 #include <android/native_window.h>
 #include <android_native_app_glue.h>
 #include <jni.h>
+#include <sys/system_properties.h>
 
 #include <cstddef>
 #include <cstdint>
@@ -252,6 +270,20 @@ void arm_desc(const Shell& shell, game::client::DisplayDesc& desc) {
     desc.role_scene = shell.boot.role_scene;
 }
 
+// Chẩn đoán trên thiết bị: `adb shell setprop debug.thienlong.backend gles` ép backend đồ hoạ (giả lập hay driver có
+// Vulkan hỏng thì thử GLES). Không đặt hoặc tên lạ thì tự chọn, như bản PC không có --backend.
+[[nodiscard]] std::optional<std::string> backend_override() {
+    char value[PROP_VALUE_MAX] = {};
+    const int length = __system_property_get("debug.thienlong.backend", value);
+    if (length <= 0) return std::nullopt;
+    const std::string_view name(value, static_cast<std::size_t>(length));
+    if (name != "vulkan" && name != "gles") {
+        log_error("debug.thienlong.backend: chỉ nhận vulkan hoặc gles");
+        return std::nullopt;
+    }
+    return std::string(name);
+}
+
 void start_display(android_app* app) {
     Shell* shell = shell_of(app);
     if (shell == nullptr || app->window == nullptr || shell->display || !shell->is_resumed) return;
@@ -261,6 +293,7 @@ void start_display(android_app* app) {
     }
     start_speaker(*shell);
     game::client::DisplayDesc desc;
+    desc.backend = backend_override();
     desc.window = app->window;
     desc.size = {.width = static_cast<std::uint32_t>(ANativeWindow_getWidth(app->window)),
         .height = static_cast<std::uint32_t>(ANativeWindow_getHeight(app->window))};
@@ -608,6 +641,8 @@ void feed_motion(Shell& shell, const AInputEvent* event) {
 } // namespace
 
 extern "C" void android_main(android_app* app) {
+    // Trước mọi dòng in: stdout và stderr (std::println của client) về logcat trong suốt vòng đời của vỏ.
+    const game::client::AndroidStdio stdio;
     const char* internal = app->activity->internalDataPath;
     if (internal == nullptr) {
         log_error("không có thư mục dữ liệu của ứng dụng");
