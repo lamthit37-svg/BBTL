@@ -1,5 +1,19 @@
-# Sinh mã giao thức từ bốn bảng src/shared/protocol/catalog/*.tsv (DE-BAI P2-DOT-2 §3.5): messages.hpp và
-# messages.cpp, mẫu cho test, tài liệu tin. Bảng sai một luật G1–G11 thì in mọi lỗi và không ghi gì.
+#===============================================================================
+#  THIENLONG  |  TOOLS
+#-------------------------------------------------------------------------------
+#  TỆP       : TOOLS/server/gen_protocol.py
+#  PHÂN HỆ   : Server / Gen Protocol
+#  CHUẨN     : Python 3.13
+#-------------------------------------------------------------------------------
+#  CHỨC NĂNG
+#  - Sinh mã giao thức từ bốn bảng src/shared/protocol/catalog/*.tsv (DE-BAI
+#    P2-DOT-2 §3.5): messages.hpp và messages.cpp, mẫu cho test, tài liệu tin.
+#    Bảng sai một luật G1–G11 thì in mọi lỗi và không ghi gì.
+#-------------------------------------------------------------------------------
+#  TÁC GIẢ   : HiepHoon
+#  TELEGRAM  : @Hoon9xx
+#===============================================================================
+
 """Cách chạy: python -B TOOLS/server/gen_protocol.py [--catalog DIR] [--out DIR] [--check]
 
 --catalog  thư mục bốn bảng, mặc định src/shared/protocol/catalog
@@ -16,6 +30,9 @@ import sys
 from collections.abc import Callable
 from pathlib import Path
 
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "source_headers"))
+
+import source_frame  # noqa: E402  (TOOLS/source_headers, đường dẫn thêm ngay trên)
 from protocol_cpp_hpp import render_header
 from protocol_cpp_src import render_source
 from protocol_doc import render_doc
@@ -51,8 +68,34 @@ def load_catalog(directory: Path) -> Catalog:
     return catalog
 
 
+FRAMED = ("src/shared/protocol/messages.hpp", "src/shared/protocol/messages.cpp", "Test/Protocol/protocol_samples.hpp")
+
+
+def with_frame(name: str, text: str) -> str:
+    """Thay khối comment `//` đầu tệp sinh bằng khung đầu tệp của dự án (TOOLS/source_headers).
+
+    Các dòng NOTICE của protocol_cxx thành ý đầu, phần mô tả vai trò của tệp thành ý sau; kiểm của
+    source_headers và protocol_catalog_fresh thấy cùng một khung vì khung đến từ chính bộ sinh.
+    """
+    lines = text.split(chr(10))
+    count = 0
+    while count < len(lines) and lines[count].startswith("// "):
+        count += 1
+    notice, role = lines[:2], lines[2:count]
+    items = [
+        "Tệp sinh bởi gen_protocol.py từ các bảng .tsv trong catalog/; không sửa tay.",
+        "Sửa bảng rồi chạy: python -B TOOLS/server/gen_protocol.py",
+        " ".join(line.removeprefix("// ") for line in role),
+    ]
+    if len(notice) != 2 or not role:
+        raise ValueError(f"{name}: đầu tệp sinh không có hai dòng NOTICE và dòng mô tả")
+    frame = source_frame.render_frame("//", name, items)
+    return chr(10).join([*frame, "", *lines[count:]])
+
+
 def render_all(catalog: Catalog) -> dict[str, str]:
-    return {name: render(catalog) for name, render in RENDERERS}
+    files = {name: render(catalog) for name, render in RENDERERS}
+    return {name: with_frame(name, text) if name in FRAMED else text for name, text in files.items()}
 
 
 def stale_files(out: Path, files: dict[str, str]) -> list[str]:

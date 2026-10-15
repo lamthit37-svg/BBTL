@@ -56,3 +56,6 @@ EntityKind	u8	3	Npc
 EntityKind	u8	4	Pet	
 EntityKind	u8	5	Drop	
 EntityKind	u8	6	Object	
+EntityState	u8	1	Idle	
+EntityState	u8	2	Walk	
+EntityState	u8	3	Dead	

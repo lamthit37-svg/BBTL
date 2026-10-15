@@ -1,6 +1,6 @@
 # schema 1
 # source: TLBB Dev src/protocol/protocol.hpp @e0d89a6 (bản 2026-10-05, nhóm 01, 02, 05)
-# version 3
+# version 4
 # types: kind	ident	port	int	text
 kind	name	port	since	summary
 record	CharacterSummary			Tóm tắt một nhân vật trong danh sách chọn nhân vật.
@@ -25,9 +25,9 @@ record	CharacterSummary			Tóm tắt một nhân vật trong danh sách chọn n
 0x8109	UiConfig	game	2	Cấu hình giao diện do nhà phát hành đặt ở server (client.toml): gửi sau SessionStart, chỉ cho client khai phiên bản giao thức từ 2.
 0x8201	CharacterList	game	1	Danh sách nhân vật của tài khoản để chọn vào game.
 0x8301	Position	game	1	Vị trí server làm chủ: gửi khi vào game (mốc đầu), khi dịch chuyển hợp lệ, và khi bước của client bị từ chối (kéo về).
-0x8401	SceneEnter	game	3	Server báo nhân vật đã vào một cảnh: id cảnh, vị trí và hướng đầu tiên. Gửi lúc vào game và mỗi lần đổi cảnh.
-0x8402	EntityAppear	game	3	Một thực thể (người, quái, NPC...) bước vào vùng nhìn của client.
-0x8403	EntityDisappear	game	3	Một thực thể rời vùng nhìn của client hoặc biến mất khỏi cảnh.
-0x8404	EntityPos	game	3	Vị trí mới của một thực thể trong vùng nhìn; client nội suy giữa hai lần nhận.
-0x8405	EntityVitals	game	3	Sinh lực của một thực thể trong vùng nhìn, theo phần trăm.
+0x8401	SceneEnter	game	4	Server báo nhân vật đã vào một cảnh: id cảnh, vị trí và hướng đầu tiên. Gửi lúc vào game và mỗi lần đổi cảnh.
+0x8402	EntityAppear	game	4	Một thực thể (người, quái, NPC...) bước vào vùng nhìn của client.
+0x8403	EntityDisappear	game	4	Một thực thể rời vùng nhìn của client hoặc biến mất khỏi cảnh.
+0x8404	EntityPos	game	4	Vị trí mới của một thực thể trong vùng nhìn; client nội suy giữa hai lần nhận.
+0x8405	EntityVitals	game	4	Sinh lực của một thực thể trong vùng nhìn, theo phần trăm.
 0x8501	Ticket	auth	1	Vé vào cổng game do cổng xác thực cấp sau khi đăng nhập đúng.

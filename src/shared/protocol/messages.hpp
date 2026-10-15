@@ -1,7 +1,22 @@
-// Tệp sinh bởi TOOLS/server/gen_protocol.py từ src/shared/protocol/catalog/*.tsv; không sửa tay.
-// Sửa bảng rồi chạy lại: python -B TOOLS/server/gen_protocol.py
-// Danh mục tin của protocol (DE-BAI P2 đợt 2 §3): enum, hằng trần, struct của từng tin, encode và bốn bộ giải mã theo
-// cổng (game, auth) và chiều (client gửi, server gửi).
+/*==============================================================================
+ *  THIENLONG  |  SHARED
+ *------------------------------------------------------------------------------
+ *  TỆP       : src/shared/protocol/messages.hpp
+ *  PHÂN HỆ   : Shared / Protocol / Messages
+ *  CHUẨN     : C++23
+ *------------------------------------------------------------------------------
+ *  CHỨC NĂNG
+ *  - Tệp sinh bởi gen_protocol.py từ các bảng .tsv trong catalog/; không sửa
+ *    tay.
+ *  - Sửa bảng rồi chạy: python -B TOOLS/server/gen_protocol.py
+ *  - Danh mục tin của protocol (DE-BAI P2 đợt 2 §3): enum, hằng trần, struct
+ *    của từng tin, encode và bốn bộ giải mã theo cổng (game, auth) và chiều
+ *    (client gửi, server gửi).
+ *------------------------------------------------------------------------------
+ *  TÁC GIẢ   : HiepHoon
+ *  TELEGRAM  : @Hoon9xx
+ *============================================================================*/
+
 #pragma once
 
 #include "protocol/wire.hpp"
@@ -18,7 +33,7 @@
 namespace game::protocol {
 
 // Bản của danh mục; tin có since lớn hơn bản bên kia đang chạy thì bên kia chưa hiểu.
-inline constexpr std::uint16_t kVersion = 3;
+inline constexpr std::uint16_t kVersion = 4;
 
 enum class AvatarFrame : std::uint8_t {
     kRound = 1,
@@ -44,6 +59,12 @@ enum class EntityKind : std::uint8_t {
     kPet = 4,
     kDrop = 5,
     kObject = 6,
+};
+
+enum class EntityState : std::uint8_t {
+    kIdle = 1,
+    kWalk = 2,
+    kDead = 3,
 };
 
 // NOLINTNEXTLINE(performance-enum-size): cỡ trên dây theo bảng, giữ byte của Dev (HP-07)
@@ -97,6 +118,7 @@ enum class Platform : std::uint8_t {
 [[nodiscard]] bool is_valid(AvatarFrame value) noexcept;
 [[nodiscard]] bool is_valid(DisconnectReason value) noexcept;
 [[nodiscard]] bool is_valid(EntityKind value) noexcept;
+[[nodiscard]] bool is_valid(EntityState value) noexcept;
 [[nodiscard]] bool is_valid(ErrorCode value) noexcept;
 [[nodiscard]] bool is_valid(Gender value) noexcept;
 [[nodiscard]] bool is_valid(Platform value) noexcept;
@@ -345,7 +367,7 @@ struct Position {
     friend bool operator==(const Position&, const Position&) = default;
 };
 
-// 0x8401, server gửi, cổng game, từ bản 3: Server báo nhân vật đã vào một cảnh: id cảnh, vị trí và hướng đầu tiên. Gửi
+// 0x8401, server gửi, cổng game, từ bản 4: Server báo nhân vật đã vào một cảnh: id cảnh, vị trí và hướng đầu tiên. Gửi
 // lúc vào game và mỗi lần đổi cảnh.
 struct SceneEnter {
     static constexpr std::uint16_t kKind = 0x8401;
@@ -355,12 +377,15 @@ struct SceneEnter {
     float x_cm = 0.0F;
     // Toạ độ Z đầu tiên, centimet.
     float z_cm = 0.0F;
-    // Hướng nhìn: 0..65535 ứng với 0..2π.
+    // Hướng nhìn: 0..65535 ứng với 0..2π; 0 là hướng +X, tăng dần quay về phía +Z.
     std::uint16_t direction = 0;
+    // Id thực thể của chính nhân vật trong cảnh này (cùng không gian id với EntityAppear.id): client dùng để chọn mục
+    // tiêu và nhận ra mình trong EntityPos/EntityVitals. Đổi mỗi lần vào cảnh.
+    std::uint32_t self_id = 0;
     friend bool operator==(const SceneEnter&, const SceneEnter&) = default;
 };
 
-// 0x8402, server gửi, cổng game, từ bản 3: Một thực thể (người, quái, NPC...) bước vào vùng nhìn của client.
+// 0x8402, server gửi, cổng game, từ bản 4: Một thực thể (người, quái, NPC...) bước vào vùng nhìn của client.
 struct EntityAppear {
     static constexpr std::uint16_t kKind = 0x8402;
     // Id thực thể trong cảnh; không dùng lại ngay sau khi thực thể biến mất (có số thế hệ).
@@ -375,7 +400,7 @@ struct EntityAppear {
     float x_cm = 0.0F;
     // Toạ độ Z, centimet.
     float z_cm = 0.0F;
-    // Hướng nhìn: 0..65535 ứng với 0..2π.
+    // Hướng nhìn: 0..65535 ứng với 0..2π; 0 là hướng +X, tăng dần quay về phía +Z.
     std::uint16_t direction = 0;
     // Tốc độ chạy, centimet mỗi giây.
     std::uint16_t speed_cm = 0;
@@ -389,10 +414,13 @@ struct EntityAppear {
     std::uint16_t hair = 0;
     // Môn phái 0..15; chỉ có nghĩa với người chơi.
     std::uint8_t school = 0;
+    // Trạng thái lúc hiện: Idle, Walk (đang đi, EntityPos tiếp theo sẽ tới) hay Dead (xác còn nằm lại, hp_percent là
+    // 0).
+    EntityState state = EntityState::kIdle;
     friend bool operator==(const EntityAppear&, const EntityAppear&) = default;
 };
 
-// 0x8403, server gửi, cổng game, từ bản 3: Một thực thể rời vùng nhìn của client hoặc biến mất khỏi cảnh.
+// 0x8403, server gửi, cổng game, từ bản 4: Một thực thể rời vùng nhìn của client hoặc biến mất khỏi cảnh.
 struct EntityDisappear {
     static constexpr std::uint16_t kKind = 0x8403;
     // Id thực thể.
@@ -400,7 +428,7 @@ struct EntityDisappear {
     friend bool operator==(const EntityDisappear&, const EntityDisappear&) = default;
 };
 
-// 0x8404, server gửi, cổng game, từ bản 3: Vị trí mới của một thực thể trong vùng nhìn; client nội suy giữa hai lần
+// 0x8404, server gửi, cổng game, từ bản 4: Vị trí mới của một thực thể trong vùng nhìn; client nội suy giữa hai lần
 // nhận.
 struct EntityPos {
     static constexpr std::uint16_t kKind = 0x8404;
@@ -410,14 +438,17 @@ struct EntityPos {
     float x_cm = 0.0F;
     // Toạ độ Z, centimet.
     float z_cm = 0.0F;
-    // Hướng nhìn: 0..65535 ứng với 0..2π.
+    // Hướng nhìn: 0..65535 ứng với 0..2π; 0 là hướng +X, tăng dần quay về phía +Z.
     std::uint16_t direction = 0;
-    // Tick của cảnh lúc ghi nhận, 20 tick mỗi giây.
+    // Tick của cảnh lúc ghi nhận, 20 tick mỗi giây (50 ms một tick); khác bộ đếm tick 30/giây của Move/Position. Client
+    // nội suy giữa hai gói theo hiệu hai tick.
     std::uint32_t tick = 0;
+    // Walk khi đang di chuyển; gói cuối của một chặng đi mang Idle cùng toạ độ đích. Dead khi chết.
+    EntityState state = EntityState::kIdle;
     friend bool operator==(const EntityPos&, const EntityPos&) = default;
 };
 
-// 0x8405, server gửi, cổng game, từ bản 3: Sinh lực của một thực thể trong vùng nhìn, theo phần trăm.
+// 0x8405, server gửi, cổng game, từ bản 4: Sinh lực của một thực thể trong vùng nhìn, theo phần trăm.
 struct EntityVitals {
     static constexpr std::uint16_t kKind = 0x8405;
     // Id thực thể.

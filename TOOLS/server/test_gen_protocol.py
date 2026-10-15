@@ -1,5 +1,19 @@
-# Test của gen_protocol.py: mỗi luật G1–G11 một test, sinh tất định, --check bắt bảng đã sửa, và một
-# danh mục thử phủ mọi kiểu của DE-BAI §3.2 (kể cả list của record, optional của enum).
+#===============================================================================
+#  THIENLONG  |  TOOLS
+#-------------------------------------------------------------------------------
+#  TỆP       : TOOLS/server/test_gen_protocol.py
+#  PHÂN HỆ   : Server / Test Gen Protocol
+#  CHUẨN     : Python 3.13
+#-------------------------------------------------------------------------------
+#  CHỨC NĂNG
+#  - Test của gen_protocol.py: mỗi luật G1–G11 một test, sinh tất định, --check
+#    bắt bảng đã sửa, và một danh mục thử phủ mọi kiểu của DE-BAI §3.2 (kể cả
+#    list của record, optional của enum).
+#-------------------------------------------------------------------------------
+#  TÁC GIẢ   : HiepHoon
+#  TELEGRAM  : @Hoon9xx
+#===============================================================================
+
 from __future__ import annotations
 
 import contextlib
@@ -317,8 +331,9 @@ class OutputTests(Scratch):
     def test_generated_files_start_with_notice(self) -> None:
         self.run_rows(copy_rows())
         for name in GENERATED:
-            first = (self.folder / "out" / name).read_text(encoding="utf-8").split("\n", 1)[0]
-            self.assertIn("gen_protocol.py", first, name)
+            # Ba tệp C++ mang khung đầu tệp (ý đầu nói tệp sinh); tài liệu thì dòng đầu là tiêu đề.
+            head = "\n".join((self.folder / "out" / name).read_text(encoding="utf-8").split("\n")[:12])
+            self.assertIn("gen_protocol.py", head, name)
             self.assertNotIn(b"\r", (self.folder / "out" / name).read_bytes(), name)
 
     def test_generated_functions_fit_limits(self) -> None:

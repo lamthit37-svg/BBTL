@@ -1,11 +1,36 @@
+/*==============================================================================
+ *  THIENLONG  |  GAME SERVER
+ *------------------------------------------------------------------------------
+ *  TỆP       : src/server/zone/scene.cpp
+ *  PHÂN HỆ   : Server / Zone / Scene
+ *  CHUẨN     : C++23
+ *------------------------------------------------------------------------------
+ *  CHỨC NĂNG
+ *  - Cài đặt Scene: bảng thực thể, lưới vùng nhìn, báo hiện, ẩn, di chuyển,
+ *    dừng và sinh lực cho người đang nhìn.
+ *  - Thuần: không I/O, không đồng hồ thật, không ngẫu nhiên; thứ tự duyệt cố
+ *    định để kết quả tất định.
+ *------------------------------------------------------------------------------
+ *  TÁC GIẢ   : HiepHoon
+ *  TELEGRAM  : @Hoon9xx
+ *============================================================================*/
+
 #include "zone/scene.hpp"
 
 #include "core/check.hpp"
+#include "ipc/relay.hpp"
+#include "protocol/messages.hpp"
+#include "zone/aoi.hpp"
+#include "zone/outbox.hpp"
 
 #include <algorithm>
 #include <cmath>
+#include <cstddef>
+#include <cstdint>
 #include <numbers>
+#include <optional>
 #include <utility>
+#include <vector>
 
 namespace game::zone {
 namespace {
@@ -73,6 +98,7 @@ protocol::EntityAppear Scene::appear_of(std::uint32_t index) const {
     out.face = who.face;
     out.hair = who.hair;
     out.school = who.school;
+    out.state = who.state;
     return out;
 }
 
@@ -137,6 +163,7 @@ std::optional<protocol::ErrorCode> Scene::attach(std::uint64_t session, const ip
     entered.x_cm = who.x_cm;
     entered.z_cm = who.z_cm;
     entered.direction = who.direction;
+    entered.self_id = id_at(index);
     out.down(session, entered);
     enter_grid(index, out);
     show_neighbours(index, entities_[index].cell, out);
@@ -167,7 +194,7 @@ void Scene::moved(std::uint64_t session, const ipc::Moved& step, Outbox& out) {
         out.place(session, who.x_cm, who.z_cm);
         return;
     }
-    relocate(found->second, step.x_cm, step.z_cm, out);
+    relocate(found->second, Point{.x_cm = step.x_cm, .z_cm = step.z_cm}, out);
 }
 
 bool Scene::blocked(const Entity& who, const ipc::Moved& step) const {
@@ -212,17 +239,18 @@ void Scene::despawn(std::uint32_t id, Outbox& out) {
     remove(*index, out);
 }
 
-void Scene::move_entity(std::uint32_t id, float x_cm, float z_cm, Outbox& out) {
+void Scene::move_entity(std::uint32_t id, Point to, Outbox& out) {
     const std::optional<std::uint32_t> index = index_of(id);
     if (!index || entities_[*index].session != 0) return;
-    relocate(*index, x_cm, z_cm, out);
+    relocate(*index, to, out);
 }
 
-void Scene::set_hp_percent(std::uint32_t id, std::uint8_t percent, Outbox& out) {
+void Scene::set_hp_percent(HpChange change, Outbox& out) {
+    const std::uint32_t id = change.id;
     const std::optional<std::uint32_t> index = index_of(id);
     if (!index) return;
     Entity& who = entities_[*index];
-    const std::uint8_t clamped = std::min<std::uint8_t>(percent, 100);
+    const std::uint8_t clamped = std::min<std::uint8_t>(change.percent, 100);
     if (who.hp_percent == clamped) return;
     who.hp_percent = clamped;
     protocol::EntityVitals vitals;
@@ -234,10 +262,48 @@ void Scene::set_hp_percent(std::uint32_t id, std::uint8_t percent, Outbox& out) 
     if (who.session != 0) out.down_frame(who.session, frame);
 }
 
-void Scene::relocate(std::uint32_t index, float x_cm, float z_cm, Outbox& out) {
+void Scene::start_walking(std::uint32_t index) {
     Entity& who = entities_[index];
-    const float target_x = clamp_cm(x_cm);
-    const float target_z = clamp_cm(z_cm);
+    who.state = protocol::EntityState::kWalk;
+    if (who.moving_slot != kNotMoving) return;
+    who.moving_slot = static_cast<std::uint32_t>(moving_.size());
+    moving_.push_back(index);
+}
+
+void Scene::stop_walking(std::uint32_t index) {
+    Entity& who = entities_[index];
+    who.state = protocol::EntityState::kIdle;
+    if (who.moving_slot == kNotMoving) return;
+    const std::uint32_t last = moving_.back();
+    moving_[who.moving_slot] = last;
+    entities_[last].moving_slot = who.moving_slot;
+    moving_.pop_back();
+    who.moving_slot = kNotMoving;
+}
+
+void Scene::advance(Outbox& out) {
+    ++tick_;
+    // Duyệt ngược: stop_walking chép phần tử cuối vào chỗ vừa xoá, mà phần tử cuối đã được xét.
+    for (std::size_t at = moving_.size(); at > 0; --at) {
+        const std::uint32_t index = moving_[at - 1];
+        const Entity& who = entities_[index];
+        if (tick_ - who.moved_at < kIdleAfterTicks) continue;
+        stop_walking(index);
+        protocol::EntityPos rest;
+        rest.id = id_at(index);
+        rest.x_cm = who.x_cm;
+        rest.z_cm = who.z_cm;
+        rest.direction = who.direction;
+        rest.tick = tick_;
+        rest.state = protocol::EntityState::kIdle;
+        broadcast(who.cell, index, out.frame_of(rest), out);
+    }
+}
+
+void Scene::relocate(std::uint32_t index, Point to, Outbox& out) {
+    Entity& who = entities_[index];
+    const float target_x = clamp_cm(to.x_cm);
+    const float target_z = clamp_cm(to.z_cm);
     who.direction = direction_of(Delta{.x_cm = target_x - who.x_cm, .z_cm = target_z - who.z_cm}, who.direction);
     who.x_cm = target_x;
     who.z_cm = target_z;
@@ -252,6 +318,9 @@ void Scene::relocate(std::uint32_t index, float x_cm, float z_cm, Outbox& out) {
     pos.z_cm = target_z;
     pos.direction = who.direction;
     pos.tick = tick_;
+    pos.state = protocol::EntityState::kWalk;
+    start_walking(index);
+    who.moved_at = tick_;
     const std::vector<std::byte> moving = out.frame_of(pos);
     if (before == after) {
         broadcast(after, index, moving, out);
@@ -300,6 +369,7 @@ void Scene::remove(std::uint32_t index, Outbox& out) {
         players_.erase(who.session);
         by_character_.erase(who.character);
     }
+    stop_walking(index);
     who.dirty = false;
     who.live = false;
     who.name.clear();

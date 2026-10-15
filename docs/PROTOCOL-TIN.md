@@ -2,7 +2,7 @@
 
 # Danh mục tin của giao thức
 
-Bản danh mục 3: 27 tin, 1 record, 6 enum.
+Bản danh mục 4: 27 tin, 1 record, 7 enum.
 Khung có 8 byte đầu (u32 số byte thân, u16 kind, u16 flags bằng 0), little-endian; thân tối đa 65 536 byte, tin client gửi tối đa 4 096 byte.
 Byte cao của kind là nhóm, bit 15 bật là tin server gửi. Trần của text tính bằng byte UTF-8, trần của list tính bằng số phần tử.
 
@@ -254,30 +254,31 @@ Thế giới: người chơi vào cảnh, thực thể xuất hiện, di chuyể
 
 | Kind | Tin | Cổng | Chiều | Từ bản | Thân tối đa (byte) |
 |---|---|---|---|---|---|
-| `0x8401` | SceneEnter | game | server | 3 | 12 |
-| `0x8402` | EntityAppear | game | server | 3 | 80 |
-| `0x8403` | EntityDisappear | game | server | 3 | 4 |
-| `0x8404` | EntityPos | game | server | 3 | 18 |
-| `0x8405` | EntityVitals | game | server | 3 | 5 |
+| `0x8401` | SceneEnter | game | server | 4 | 16 |
+| `0x8402` | EntityAppear | game | server | 4 | 81 |
+| `0x8403` | EntityDisappear | game | server | 4 | 4 |
+| `0x8404` | EntityPos | game | server | 4 | 19 |
+| `0x8405` | EntityVitals | game | server | 4 | 5 |
 
 ### SceneEnter (0x8401)
 
 Server báo nhân vật đã vào một cảnh: id cảnh, vị trí và hướng đầu tiên. Gửi lúc vào game và mỗi lần đổi cảnh.
 
-Cổng game, server gửi, có từ bản 3. Thân tối đa 12 byte.
+Cổng game, server gửi, có từ bản 4. Thân tối đa 16 byte.
 
 | Thứ tự | Trường | Kiểu | Trần | Ghi chú |
 |---|---|---|---|---|
 | 1 | `scene` | `u16` | – | Id cảnh (SceneAttr của client 2026). |
 | 2 | `x_cm` | `f32` | – | Toạ độ X đầu tiên, centimet. |
 | 3 | `z_cm` | `f32` | – | Toạ độ Z đầu tiên, centimet. |
-| 4 | `direction` | `u16` | – | Hướng nhìn: 0..65535 ứng với 0..2π. |
+| 4 | `direction` | `u16` | – | Hướng nhìn: 0..65535 ứng với 0..2π; 0 là hướng +X, tăng dần quay về phía +Z. |
+| 5 | `self_id` | `u32` | – | Id thực thể của chính nhân vật trong cảnh này (cùng không gian id với EntityAppear.id): client dùng để chọn mục tiêu và nhận ra mình trong EntityPos/EntityVitals. Đổi mỗi lần vào cảnh. |
 
 ### EntityAppear (0x8402)
 
 Một thực thể (người, quái, NPC...) bước vào vùng nhìn của client.
 
-Cổng game, server gửi, có từ bản 3. Thân tối đa 80 byte.
+Cổng game, server gửi, có từ bản 4. Thân tối đa 81 byte.
 
 | Thứ tự | Trường | Kiểu | Trần | Ghi chú |
 |---|---|---|---|---|
@@ -288,19 +289,20 @@ Cổng game, server gửi, có từ bản 3. Thân tối đa 80 byte.
 | 5 | `level` | `u16` | – | – |
 | 6 | `x_cm` | `f32` | – | Toạ độ X, centimet. |
 | 7 | `z_cm` | `f32` | – | Toạ độ Z, centimet. |
-| 8 | `direction` | `u16` | – | Hướng nhìn: 0..65535 ứng với 0..2π. |
+| 8 | `direction` | `u16` | – | Hướng nhìn: 0..65535 ứng với 0..2π; 0 là hướng +X, tăng dần quay về phía +Z. |
 | 9 | `speed_cm` | `u16` | – | Tốc độ chạy, centimet mỗi giây. |
 | 10 | `hp_percent` | `u8` | – | Sinh lực theo phần trăm 0..100. |
 | 11 | `gender` | `u8` | – | 1 nữ, 2 nam; 0 với thực thể không phải người. |
 | 12 | `face` | `u16` | – | Id mặt trong faces.tsv; chỉ có nghĩa với người chơi. |
 | 13 | `hair` | `u16` | – | Id tóc trong hairs.tsv; chỉ có nghĩa với người chơi. |
 | 14 | `school` | `u8` | – | Môn phái 0..15; chỉ có nghĩa với người chơi. |
+| 15 | `state` | `enum:EntityState` | – | Trạng thái lúc hiện: Idle, Walk (đang đi, EntityPos tiếp theo sẽ tới) hay Dead (xác còn nằm lại, hp_percent là 0). |
 
 ### EntityDisappear (0x8403)
 
 Một thực thể rời vùng nhìn của client hoặc biến mất khỏi cảnh.
 
-Cổng game, server gửi, có từ bản 3. Thân tối đa 4 byte.
+Cổng game, server gửi, có từ bản 4. Thân tối đa 4 byte.
 
 | Thứ tự | Trường | Kiểu | Trần | Ghi chú |
 |---|---|---|---|---|
@@ -310,21 +312,22 @@ Cổng game, server gửi, có từ bản 3. Thân tối đa 4 byte.
 
 Vị trí mới của một thực thể trong vùng nhìn; client nội suy giữa hai lần nhận.
 
-Cổng game, server gửi, có từ bản 3. Thân tối đa 18 byte.
+Cổng game, server gửi, có từ bản 4. Thân tối đa 19 byte.
 
 | Thứ tự | Trường | Kiểu | Trần | Ghi chú |
 |---|---|---|---|---|
 | 1 | `id` | `u32` | – | Id thực thể. |
 | 2 | `x_cm` | `f32` | – | Toạ độ X, centimet. |
 | 3 | `z_cm` | `f32` | – | Toạ độ Z, centimet. |
-| 4 | `direction` | `u16` | – | Hướng nhìn: 0..65535 ứng với 0..2π. |
-| 5 | `tick` | `u32` | – | Tick của cảnh lúc ghi nhận, 20 tick mỗi giây. |
+| 4 | `direction` | `u16` | – | Hướng nhìn: 0..65535 ứng với 0..2π; 0 là hướng +X, tăng dần quay về phía +Z. |
+| 5 | `tick` | `u32` | – | Tick của cảnh lúc ghi nhận, 20 tick mỗi giây (50 ms một tick); khác bộ đếm tick 30/giây của Move/Position. Client nội suy giữa hai gói theo hiệu hai tick. |
+| 6 | `state` | `enum:EntityState` | – | Walk khi đang di chuyển; gói cuối của một chặng đi mang Idle cùng toạ độ đích. Dead khi chết. |
 
 ### EntityVitals (0x8405)
 
 Sinh lực của một thực thể trong vùng nhìn, theo phần trăm.
 
-Cổng game, server gửi, có từ bản 3. Thân tối đa 5 byte.
+Cổng game, server gửi, có từ bản 4. Thân tối đa 5 byte.
 
 | Thứ tự | Trường | Kiểu | Trần | Ghi chú |
 |---|---|---|---|---|
@@ -427,6 +430,14 @@ Giá trị ngoài bảng là lỗi kBadEnum ở cả hai chiều.
 | 4 | `kPet` | – |
 | 5 | `kDrop` | – |
 | 6 | `kObject` | – |
+
+### EntityState (u8)
+
+| Giá trị | Tên | Ghi chú |
+|---|---|---|
+| 1 | `kIdle` | – |
+| 2 | `kWalk` | – |
+| 3 | `kDead` | – |
 
 ### ErrorCode (u16)
 

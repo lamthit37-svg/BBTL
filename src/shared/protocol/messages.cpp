@@ -1,7 +1,22 @@
-// Tệp sinh bởi TOOLS/server/gen_protocol.py từ src/shared/protocol/catalog/*.tsv; không sửa tay.
-// Sửa bảng rồi chạy lại: python -B TOOLS/server/gen_protocol.py
-// Mã hoá và giải mã của danh mục tin: mỗi tin một hàm ghi và một hàm đọc từng trường theo order. Mọi byte đi qua Writer
-// và Reader của wire.hpp, nên trần, UTF-8 và byte thừa chỉ kiểm ở một chỗ.
+/*==============================================================================
+ *  THIENLONG  |  SHARED
+ *------------------------------------------------------------------------------
+ *  TỆP       : src/shared/protocol/messages.cpp
+ *  PHÂN HỆ   : Shared / Protocol / Messages
+ *  CHUẨN     : C++23
+ *------------------------------------------------------------------------------
+ *  CHỨC NĂNG
+ *  - Tệp sinh bởi gen_protocol.py từ các bảng .tsv trong catalog/; không sửa
+ *    tay.
+ *  - Sửa bảng rồi chạy: python -B TOOLS/server/gen_protocol.py
+ *  - Mã hoá và giải mã của danh mục tin: mỗi tin một hàm ghi và một hàm đọc
+ *    từng trường theo order. Mọi byte đi qua Writer và Reader của wire.hpp, nên
+ *    trần, UTF-8 và byte thừa chỉ kiểm ở một chỗ.
+ *------------------------------------------------------------------------------
+ *  TÁC GIẢ   : HiepHoon
+ *  TELEGRAM  : @Hoon9xx
+ *============================================================================*/
+
 #include "protocol/messages.hpp"
 
 #include "protocol/wire.hpp"
@@ -77,6 +92,17 @@ void put_entity_kind(Writer& writer, EntityKind value) {
 
 [[nodiscard]] EntityKind get_entity_kind(Reader& reader) {
     const auto value = static_cast<EntityKind>(reader.u8());
+    if (!is_valid(value)) reader.fail(WireError::kBadEnum);
+    return value;
+}
+
+void put_entity_state(Writer& writer, EntityState value) {
+    if (!is_valid(value)) writer.fail(WireError::kBadEnum);
+    writer.u8(std::to_underlying(value));
+}
+
+[[nodiscard]] EntityState get_entity_state(Reader& reader) {
+    const auto value = static_cast<EntityState>(reader.u8());
     if (!is_valid(value)) reader.fail(WireError::kBadEnum);
     return value;
 }
@@ -393,6 +419,7 @@ void put_scene_enter(Writer& writer, const SceneEnter& message) {
     writer.f32(message.x_cm);
     writer.f32(message.z_cm);
     writer.u16(message.direction);
+    writer.u32(message.self_id);
 }
 
 [[nodiscard]] SceneEnter get_scene_enter(Reader& reader) {
@@ -401,6 +428,7 @@ void put_scene_enter(Writer& writer, const SceneEnter& message) {
     message.x_cm = reader.f32();
     message.z_cm = reader.f32();
     message.direction = reader.u16();
+    message.self_id = reader.u32();
     return message;
 }
 
@@ -419,6 +447,7 @@ void put_entity_appear(Writer& writer, const EntityAppear& message) {
     writer.u16(message.face);
     writer.u16(message.hair);
     writer.u8(message.school);
+    put_entity_state(writer, message.state);
 }
 
 [[nodiscard]] EntityAppear get_entity_appear(Reader& reader) {
@@ -437,6 +466,7 @@ void put_entity_appear(Writer& writer, const EntityAppear& message) {
     message.face = reader.u16();
     message.hair = reader.u16();
     message.school = reader.u8();
+    message.state = get_entity_state(reader);
     return message;
 }
 
@@ -456,6 +486,7 @@ void put_entity_pos(Writer& writer, const EntityPos& message) {
     writer.f32(message.z_cm);
     writer.u16(message.direction);
     writer.u32(message.tick);
+    put_entity_state(writer, message.state);
 }
 
 [[nodiscard]] EntityPos get_entity_pos(Reader& reader) {
@@ -465,6 +496,7 @@ void put_entity_pos(Writer& writer, const EntityPos& message) {
     message.z_cm = reader.f32();
     message.direction = reader.u16();
     message.tick = reader.u32();
+    message.state = get_entity_state(reader);
     return message;
 }
 
@@ -513,6 +545,11 @@ bool is_valid(DisconnectReason value) noexcept {
 bool is_valid(EntityKind value) noexcept {
     const auto raw = std::to_underlying(value);
     return raw >= 1 && raw <= 6;
+}
+
+bool is_valid(EntityState value) noexcept {
+    const auto raw = std::to_underlying(value);
+    return raw >= 1 && raw <= 3;
 }
 
 bool is_valid(ErrorCode value) noexcept {

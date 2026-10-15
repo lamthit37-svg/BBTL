@@ -1,6 +1,33 @@
+/*==============================================================================
+ *  THIENLONG  |  GAME SERVER
+ *------------------------------------------------------------------------------
+ *  TỆP       : src/server/zone/host.cpp
+ *  PHÂN HỆ   : Server / Zone / Host
+ *  CHUẨN     : C++23
+ *------------------------------------------------------------------------------
+ *  CHỨC NĂNG
+ *  - Cài đặt Host: nhận khung ipc của gate, chọn hoặc tạo cảnh theo id, chuyển
+ *    Attach, Detach, Moved vào Scene.
+ *  - Cảnh tạo lười lúc có người đầu tiên vào; trần scene_max chặn Attach với id
+ *    lạ làm phình bộ nhớ.
+ *------------------------------------------------------------------------------
+ *  TÁC GIẢ   : HiepHoon
+ *  TELEGRAM  : @Hoon9xx
+ *============================================================================*/
+
 #include "zone/host.hpp"
 
+#include "ipc/link.hpp"
+#include "ipc/relay.hpp"
+#include "protocol/messages.hpp"
+#include "zone/content.hpp"
+#include "zone/outbox.hpp"
+#include "zone/scene.hpp"
+
 #include <algorithm>
+#include <cstddef>
+#include <cstdint>
+#include <optional>
 #include <utility>
 #include <vector>
 
@@ -98,7 +125,7 @@ void Host::advance(Outbox& out) {
     ++ticks_;
     const bool save_now = ticks_ % kAutosaveTicks == 0;
     for (auto& [id, scene] : scenes_) {
-        scene.advance();
+        scene.advance(out);
         if (save_now) scene.autosave(out);
     }
 }

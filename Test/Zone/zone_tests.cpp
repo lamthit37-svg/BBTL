@@ -1,5 +1,19 @@
-// Vùng nhìn, cảnh và host của zone: lưới ô, ai thấy ai khi vào/đi/rời, id thực thể không dùng lại ngay,
-// trần người chơi và cảnh, khung hỏng từ gate. Không mạng: đưa thẳng ipc::Frame và đọc Outbox.
+/*==============================================================================
+ *  THIENLONG  |  TEST
+ *------------------------------------------------------------------------------
+ *  TỆP       : Test/Zone/zone_tests.cpp
+ *  PHÂN HỆ   : Zone / Zone Tests
+ *  CHUẨN     : C++23
+ *------------------------------------------------------------------------------
+ *  CHỨC NĂNG
+ *  - Vùng nhìn, cảnh và host của zone: lưới ô, ai thấy ai khi vào/đi/rời, id
+ *    thực thể không dùng lại ngay, trần người chơi và cảnh, khung hỏng từ gate.
+ *    Không mạng: đưa thẳng ipc::Frame và đọc Outbox.
+ *------------------------------------------------------------------------------
+ *  TÁC GIẢ   : HiepHoon
+ *  TELEGRAM  : @Hoon9xx
+ *============================================================================*/
+
 #include "ipc/relay.hpp"
 #include "protocol/messages.hpp"
 #include "protocol/wire.hpp"
@@ -81,7 +95,7 @@ template <typename Message>
     attach.face = 3;
     attach.hair = 4;
     attach.school = 5;
-    attach.client_version = 3;
+    attach.client_version = 4;
     return attach;
 }
 
@@ -155,6 +169,49 @@ void attach_shows_neighbours_both_ways(Context& context) {
         "hồ sơ hiển thị đi theo");
     context.expect(to_first[0].id != 0 && to_first[0].id != to_second[0].id, "id thực thể khác 0 và khác nhau");
     context.expect(scene.player_count() == 2 && scene.entity_count() == 2, "hai người trong cảnh");
+}
+
+void scene_enter_names_self(Context& context) {
+    Scene scene = make_scene();
+    Outbox out;
+    static_cast<void>(scene.attach(11, arrival(1, 500.0F, 500.0F), out));
+    const auto entered = of_kind<protocol::SceneEnter>(seen_in(out), 11);
+    context.expect(entered.size() == 1 && entered[0].self_id != 0 && entered[0].self_id == scene.entity_of(11),
+        "SceneEnter mang id thực thể của chính người vào");
+}
+
+void walker_rests_after_idle_ticks(Context& context) {
+    Scene scene = make_scene();
+    Outbox out;
+    static_cast<void>(scene.attach(11, arrival(1, 0.0F, 0.0F), out));
+    static_cast<void>(scene.attach(22, arrival(2, 500.0F, 0.0F), out));
+    out.clear();
+
+    scene.moved(22, ipc::Moved{.x_cm = 600.0F, .z_cm = 0.0F}, out);
+    const auto walking = of_kind<protocol::EntityPos>(seen_in(out), 11);
+    context.expect(walking.size() == 1 && walking[0].state == protocol::EntityState::kWalk, "bước đi mang trạng thái Walk");
+    out.clear();
+
+    for (std::uint32_t tick = 1; tick < zone::kIdleAfterTicks; ++tick) scene.advance(out);
+    context.expect(out.letters().empty(), "chưa đủ số tick thì chưa báo dừng");
+    scene.advance(out);
+    const auto seen = seen_in(out);
+    const auto rest = of_kind<protocol::EntityPos>(seen, 11);
+    context.expect(rest.size() == 1 && rest[0].state == protocol::EntityState::kIdle && rest[0].x_cm == 600.0F,
+        "đủ số tick thì báo dừng đúng chỗ đứng");
+    context.expect(of_kind<protocol::EntityPos>(seen, 22).empty(), "không báo dừng cho chính mình");
+    out.clear();
+    scene.advance(out);
+    context.expect(out.letters().empty(), "báo dừng đúng một lần");
+
+    scene.moved(22, ipc::Moved{.x_cm = 700.0F, .z_cm = 0.0F}, out);
+    out.clear();
+    scene.moved(22, ipc::Moved{.x_cm = 800.0F, .z_cm = 0.0F}, out);
+    out.clear();
+    scene.detach(22, out);
+    out.clear();
+    for (std::uint32_t tick = 0; tick < zone::kIdleAfterTicks + 1; ++tick) scene.advance(out);
+    context.expect(out.letters().empty(), "người đã rời thì không còn gì để báo dừng");
 }
 
 void far_players_do_not_see_each_other(Context& context) {
@@ -277,15 +334,15 @@ void spawned_entities_are_seen(Context& context) {
     context.expect(appeared.size() == 1 && appeared[0].template_id == 42 && appeared[0].id == *wolf_id, "người chơi thấy quái");
     out.clear();
 
-    scene.set_hp_percent(*wolf_id, 40, out);
+    scene.set_hp_percent(zone::HpChange{.id = *wolf_id, .percent = 40}, out);
     seen = seen_in(out);
     const auto vitals = of_kind<protocol::EntityVitals>(seen, 11);
     context.expect(vitals.size() == 1 && vitals[0].hp_percent == 40, "sinh lực đổi được báo");
-    scene.set_hp_percent(*wolf_id, 40, out);
+    scene.set_hp_percent(zone::HpChange{.id = *wolf_id, .percent = 40}, out);
     context.expect(of_kind<protocol::EntityVitals>(seen_in(out), 11).size() == 1, "đặt cùng giá trị không báo lại");
     out.clear();
 
-    scene.move_entity(*wolf_id, 9000.0F, 0.0F, out);
+    scene.move_entity(*wolf_id, zone::Point{.x_cm = 9000.0F, .z_cm = 0.0F}, out);
     context.expect(of_kind<protocol::EntityDisappear>(seen_in(out), 11).size() == 1, "quái đi xa khỏi tầm thấy");
     out.clear();
     scene.despawn(*wolf_id, out);
@@ -868,6 +925,8 @@ constexpr std::array kCases{
     Case{"host_gives_scene_the_walkable_rule", host_gives_scene_the_walkable_rule},
     Case{"detach_saves_final_spot", detach_saves_final_spot},
     Case{"autosave_writes_only_walkers", autosave_writes_only_walkers},
+    Case{"scene_enter_names_self", scene_enter_names_self},
+    Case{"walker_rests_after_idle_ticks", walker_rests_after_idle_ticks},
     Case{"host_autosaves_each_period", host_autosaves_each_period},
     Case{"saver_keeps_newest_and_retries", saver_keeps_newest_and_retries},
     Case{"saver_flushes_on_destruction", saver_flushes_on_destruction},

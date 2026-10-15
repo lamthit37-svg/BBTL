@@ -50,7 +50,8 @@ Position	3	tick	u32		Tick client mới làm gốc: client đặt bộ đếm tic
 SceneEnter	1	scene	u16		Id cảnh (SceneAttr của client 2026).
 SceneEnter	2	x_cm	f32		Toạ độ X đầu tiên, centimet.
 SceneEnter	3	z_cm	f32		Toạ độ Z đầu tiên, centimet.
-SceneEnter	4	direction	u16		Hướng nhìn: 0..65535 ứng với 0..2π.
+SceneEnter	4	direction	u16		Hướng nhìn: 0..65535 ứng với 0..2π; 0 là hướng +X, tăng dần quay về phía +Z.
+SceneEnter	5	self_id	u32		Id thực thể của chính nhân vật trong cảnh này (cùng không gian id với EntityAppear.id): client dùng để chọn mục tiêu và nhận ra mình trong EntityPos/EntityVitals. Đổi mỗi lần vào cảnh.
 EntityAppear	1	id	u32		Id thực thể trong cảnh; không dùng lại ngay sau khi thực thể biến mất (có số thế hệ).
 EntityAppear	2	kind	enum:EntityKind		
 EntityAppear	3	template_id	u32		Id mẫu: quái (monsters.tsv), NPC; 0 với người chơi.
@@ -58,18 +59,20 @@ EntityAppear	4	name	text	48	Tên hiển thị của người chơi; rỗng với
 EntityAppear	5	level	u16		
 EntityAppear	6	x_cm	f32		Toạ độ X, centimet.
 EntityAppear	7	z_cm	f32		Toạ độ Z, centimet.
-EntityAppear	8	direction	u16		Hướng nhìn: 0..65535 ứng với 0..2π.
+EntityAppear	8	direction	u16		Hướng nhìn: 0..65535 ứng với 0..2π; 0 là hướng +X, tăng dần quay về phía +Z.
 EntityAppear	9	speed_cm	u16		Tốc độ chạy, centimet mỗi giây.
 EntityAppear	10	hp_percent	u8		Sinh lực theo phần trăm 0..100.
 EntityAppear	11	gender	u8		1 nữ, 2 nam; 0 với thực thể không phải người.
 EntityAppear	12	face	u16		Id mặt trong faces.tsv; chỉ có nghĩa với người chơi.
 EntityAppear	13	hair	u16		Id tóc trong hairs.tsv; chỉ có nghĩa với người chơi.
 EntityAppear	14	school	u8		Môn phái 0..15; chỉ có nghĩa với người chơi.
+EntityAppear	15	state	enum:EntityState		Trạng thái lúc hiện: Idle, Walk (đang đi, EntityPos tiếp theo sẽ tới) hay Dead (xác còn nằm lại, hp_percent là 0).
 EntityDisappear	1	id	u32		Id thực thể.
 EntityPos	1	id	u32		Id thực thể.
 EntityPos	2	x_cm	f32		Toạ độ X, centimet.
 EntityPos	3	z_cm	f32		Toạ độ Z, centimet.
-EntityPos	4	direction	u16		Hướng nhìn: 0..65535 ứng với 0..2π.
-EntityPos	5	tick	u32		Tick của cảnh lúc ghi nhận, 20 tick mỗi giây.
+EntityPos	4	direction	u16		Hướng nhìn: 0..65535 ứng với 0..2π; 0 là hướng +X, tăng dần quay về phía +Z.
+EntityPos	5	tick	u32		Tick của cảnh lúc ghi nhận, 20 tick mỗi giây (50 ms một tick); khác bộ đếm tick 30/giây của Move/Position. Client nội suy giữa hai gói theo hiệu hai tick.
+EntityPos	6	state	enum:EntityState		Walk khi đang di chuyển; gói cuối của một chặng đi mang Idle cùng toạ độ đích. Dead khi chết.
 EntityVitals	1	id	u32		Id thực thể.
 EntityVitals	2	hp_percent	u8		Sinh lực theo phần trăm 0..100.

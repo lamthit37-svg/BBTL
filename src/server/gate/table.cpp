@@ -1,4 +1,18 @@
-// Bảng kết nối của gate. Mọi số lấy từ byte nhận được đều kiểm trước khi dùng.
+/*==============================================================================
+ *  THIENLONG  |  GAME SERVER
+ *------------------------------------------------------------------------------
+ *  TỆP       : src/server/gate/table.cpp
+ *  PHÂN HỆ   : Server / Gate / Table
+ *  CHUẨN     : C++23
+ *------------------------------------------------------------------------------
+ *  CHỨC NĂNG
+ *  - Bảng kết nối của gate. Mọi số lấy từ byte nhận được đều kiểm trước khi
+ *    dùng.
+ *------------------------------------------------------------------------------
+ *  TÁC GIẢ   : HiepHoon
+ *  TELEGRAM  : @Hoon9xx
+ *============================================================================*/
+
 #include "gate/table.hpp"
 
 #include "gate/motion.hpp"
@@ -524,8 +538,8 @@ void send_goodbye(Engine& state, Slot& slot, std::uint32_t index, protocol::Disc
     slot.drain_as = reason;
 }
 
-// Tin thế giới (SceneEnter, EntityAppear...) có từ phiên bản giao thức 3: client cũ coi tin lạ là vi phạm.
-constexpr std::uint16_t kWorldSince = 3;
+// Tin thế giới (SceneEnter, EntityAppear...) có từ phiên bản giao thức 4 (bản 3 chưa có trạng thái và self_id): client cũ coi tin lạ là vi phạm.
+constexpr std::uint16_t kWorldSince = 4;
 // Trần khung zone chờ gửi cho một client. Vượt là client đọc chậm hơn zone ghi: đóng như mọi client chậm.
 constexpr std::size_t kDownBacklogMax = std::size_t{256} * 1024;
 constexpr std::int64_t kZoneRetryNs = kNsPerSecond;
