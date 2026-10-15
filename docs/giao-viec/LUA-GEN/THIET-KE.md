@@ -1,0 +1,129 @@
+# LUA-GEN — sinh C++ từ toàn bộ script giao diện, đối soát hàng loạt với LuaPlus.dll (điều phối: thienlong-2d)
+
+Chủ dự án chốt ngày 2026-10-15: thay việc port tay từng cửa sổ (`docs/giao-viec/UI-PORT`) bằng đường dây công nghiệp —
+"Bạn tiến hành sinh mã và đối soát hàng loạt chuẩn nhất có thể làm trong sức mình đi" — sau khi được báo đánh đổi: mã sinh
+mang ngữ nghĩa Lua (kiểu động), không phải C++ viết tay; không nhúng máy Lua. Bảy cửa sổ đã port tay giữ nguyên; số vàng
+của chúng thành ca kiểm thêm.
+
+## Ba lớp
+
+| Lớp | Việc | Thế nào là đúng |
+|---|---|---|
+| A. Dịch | Mọi chunk Lua (2 043 tệp `src/client/script/Interface`, mọi đoạn Lua nối sự kiện trong 2 033 layout) thành C++ chạy trên runtime `lua` | Vết đối soát của mọi cửa sổ khớp từng byte với chính script đó chạy trên `LuaPlus.dll` |
+| B. API của game | 1 654 hàm `Đối tượng:Hàm` mà script gọi (836 hàm chiếm 90% lượt gọi; đo 2026-10-15), port từ mã máy `Game.exe` theo thứ tự tần suất | Test từng hàm theo mã máy (`TAILIEU/GAME-EXE-2026/lua_api.tsv`, `decompile.zip`) |
+| C. Chủ | Nạp layout, đặt `this`, `arg0..`, đẩy sự kiện, nối widget `gui`; thay các panel port tay | Chạy client, nhìn ảnh, như UI-PORT |
+
+Tách A khỏi B là chỗ then chốt: đối soát lớp A chạy với một "thế giới giả" chung cho cả hai phía, nên chứng minh được bản dịch
+đúng cho mọi cửa sổ mà không cần API thật nào.
+
+## Ngôn ngữ nguồn (đo trên `D:\XTLBB\Bin64\LuaPlus.dll` ngày 2026-10-15)
+
+- `_VERSION` là `Lua 5.0.1`. Mã tham chiếu: `C:\dev\third_party\reference\lua-5.0.1` (`NGUON.txt` ở đó).
+- Có `continue` (`for i=1,5 do if i==3 then continue end s=s+i end` ra 12). Không có `#`, `%` (lỗi cú pháp), không có
+  `select`, `string.gmatch` (có `string.gfind`). Có `loadstring`, `setfenv`, `unpack`; script giao diện không dùng ba hàm
+  đầu (quét 2 043 tệp: 0 lần `loadstring`, `dofile`, `setfenv`, `setmetatable`, `coroutine`).
+- Chuỗi có bảng meta: `("abc"):len()` ra 3.
+- `^` gọi hàm toàn cục `__pow` (lvm.c 5.0 làm vậy với số), và `__pow` của LuaPlus là XOR trên số nguyên 32 bit không dấu:
+  `2^10` ra 8, `2.5^2` ra 0, `5^-1` ra 4294967290, `1e300^2` ra 2, `2^3^2` ra 3 (kết hợp phải). `math.pow(2,10)` vẫn 1024.
+- `table.getn({1,2,nil,4})` ra 2; `math.mod(-7,3)` ra -1; `tostring(1e15)` là `1e+015`, `1/0` là `1.#INF`;
+  `string.format('%5.2f|%d|%s|%x|%g', 3.14159, 42.9, 'x', 255, 1e20)` là ` 3.14|42|x|ff|1e+020`.
+- So sánh chuỗi theo byte: `'a' < 'B'` là false.
+- Thứ tự `pairs` theo bảng băm của ltable.c: `t.b=1 t.a=2 t[10]=3 t.zz=4 t[1]=5 t[2.5]=6` duyệt ra `10,1,b,2.5,a,zz`.
+- Game.exe tạo máy bằng `LuaPlus::LuaState::Create` (imports của `Game.exe`). Script dùng `os.` ở 6 tệp, `io.` ở 3 tệp.
+
+Lệnh đo lại: `TOOLS/port/lua_oracle.py` có lớp `Machine` chạy một đoạn Lua trên DLL đó.
+
+## Runtime — module `lua` (`src/client/face/lua/`, `game::lua`) — thienlong-e7
+
+Bề mặt mà mã sinh gọi là `src/client/face/lua/vm.hpp` (hợp đồng, đã dịch sạch trên MSVC, GCC, Clang). Phần còn lại
+(`state.hpp`, `table.hpp`, `string.hpp`, thư viện) do e7 thiết kế; không đổi bề mặt khi chưa báo c8 và 2d.
+
+- Port đúng từ bản tham chiếu, giữ thứ tự thao tác (HP-07, ghi `Khác gốc:` khi lệch):
+  - lstring: intern mọi chuỗi, hàm băm của `luaS_newlstr`.
+  - ltable toàn bộ: phần mảng, phần node, `mainposition`, `luaH_next`, `rehash`/`computesizes`/`numuse*`, `luaH_new` theo
+    hai số của OP_NEWTABLE (`luaO_int2fb`, `luaO_log2 + 1`). Thứ tự `pairs` phải khớp gốc ở mọi dãy chèn, xoá, đổi cỡ.
+  - ltm, lvm: arith (ép chuỗi theo `luaO_str2d`), `__pow` toàn cục, concat, equal/lessthan/lessequal (chuỗi theo
+    `l_strcmp`), gettable/settable qua metamethod, OP_FORLOOP, gọi qua `__call`.
+  - lbaselib, lstrlib (mẫu Lua, `format`), ltablib (`sort` là `auxsort` của gốc: thứ tự phần tử bằng nhau phải khớp),
+    lmathlib (`__pow` XOR như đo ở trên), getn/setn của lauxlib.
+  - Số ↔ chuỗi: dùng lại `ui/panel/lua_value` (đã đo `%.14g` và `strtod` của MSVCR110); dời nó vào module `lua` nếu cần.
+- Thu gom rác mark-sweep, chỉ chạy ở `State::collect()` khi độ sâu gọi là 0; gốc là bảng toàn cục, registry, giá trị chủ ghim.
+- Trần (Khác gốc, để client không treo hay tràn ngăn xếp C 1 MB): độ sâu gọi 200 ("stack overflow"), số lần quay vòng mỗi
+  lần gọi từ chủ, byte heap ("not enough memory").
+- `tostring` của bảng và hàm: không có địa chỉ (gốc in địa chỉ, không tất định). Khoá là bảng hay hàm băm theo số thứ tự tạo
+  (gốc băm theo địa chỉ, cũng không tất định).
+- Test `Test/Lua/lua_tests.cpp` theo luật Test (logic thuần, sai thì hỏng thầm): số vàng từ LuaPlus.dll qua
+  `TOOLS/port/oracle/lua_rt_*.lua` cho thứ tự `pairs`, `string.format/find/gsub/gfind/sub/byte/rep`, `tostring/tonumber`,
+  `table.sort/insert/remove/getn/concat`, so sánh chuỗi, `__pow`, vòng `for` số thực.
+- CMake: `game_module(lua ...)`, dòng `set(game_layer_lua "core lua")` ở `cmake/GameLayers.cmake`.
+
+## Bộ dịch — `TOOLS/port/luagen/` (Python) — thienlong-c8
+
+- Lexer, parser cho phương ngữ ở trên, AST, phân giải phạm vi (cục bộ, upvalue, toàn cục; biến cục bộ bị hàm con bắt
+  thành `Cell`, biến khác là `Value` trong biến C++), phát C++ gọi `vm.hpp`.
+- Parse 100% của 2 043 tệp và mọi đoạn Lua của layout. Tệp mà chính LuaPlus.dll cũng báo lỗi cú pháp thì liệt kê, xác
+  nhận bằng `luaL_loadbuffer` của DLL.
+- Giữ thứ tự của lparser.c và lcode.c 5.0.1 (đọc mã, không đoán):
+  - biểu thức tính trái sang phải;
+  - gán nhiều đích: tính đích và vế phải trước, gán từ phải sang trái (`restassign`);
+  - hàm dựng bảng: `new_table(số mục danh sách, số mục có khoá)`, mục có khoá gán ngay khi gặp, mục danh sách xả bằng
+    `set_list` theo lô 32 đúng chỗ `closelistfield`/`lastlistfield`, mục cuối là lời gọi thì mở rộng;
+  - `a > b` là `less(b, a)`, `a >= b` là `less_equal(b, a)`;
+  - chuỗi `a .. b .. c` gộp thành một `concat`;
+  - `and`/`or` ngắn mạch và trả giá trị; `not`;
+  - `for` số: `index = sub(init, step)` rồi `for_next` mỗi vòng; `for ... in`: gọi `f(s, c)` mỗi vòng, nhận đúng số biến,
+    dừng khi biến đầu là nil;
+  - `continue`: đo nghĩa trên LuaPlus.dll cho cả `while`, `for`, `repeat ... until` (biến cục bộ của thân có còn thấy
+    trong `until` không) trước khi phát;
+  - `local function f` khai `f` trước khi tạo closure; biến bị bắt trong thân vòng tạo `Cell` mới mỗi lượt;
+  - `return f(x)` trả mọi kết quả.
+- Sau mỗi op có thể lỗi: `if (failed(L)) return {};`. Đầu mỗi lượt vòng: `if (!tick(L)) return {};`.
+- Số: hex float literal của C++ (đúng từng bit với `float.hex()` của Python). Chuỗi: giải escape của Lua 5.0 (`\ddd` thập
+  phân, `\n`, `\\`, xuống dòng sau `\`...), phát dạng `std::string_view` có độ dài (chuỗi có byte 0).
+- Đầu ra: mỗi chunk một tệp C++, một tệp sổ cho mỗi cửa sổ (tên → `Chunk`). Sinh lúc dựng bằng CMake (lệnh tuỳ chỉnh phụ
+  thuộc mọi `.lua`, layout và mã bộ dịch), vào `<cây dựng>/gen/luagen/`; mã sinh không vào git. 0 cảnh báo dưới
+  `game::warnings` trên MSVC, GCC, Clang.
+- Đo và báo trước khi nối vào client: số dòng C++, cỡ `.obj`/`.lib`, thời gian dịch MSVC release.
+- Test Python `TOOLS/port/luagen/test_luagen.py` cho lexer và parser (ca biên của phương ngữ).
+
+## Đối soát hàng loạt — thienlong-2d
+
+- `TOOLS/port/luagen/world.lua`: thế giới giả viết bằng Lua. Phía gốc chạy nguyên văn trên LuaPlus.dll, phía C++ chạy bản
+  dịch của chính nó. Như vậy hai phía dùng một thế giới, khác nhau chỉ ở bản dịch và runtime.
+  - `_G` có bảng meta: đọc một tên toàn cục chưa có thì ra đối tượng giả mang tên đó. Gọi phương thức trên đối tượng giả thì
+    ghi vết `call Tên:Hàm đối số...` và trả giá trị từ dãy tất định (Park–Miller, số nguyên dưới 2^46 nên đúng tuyệt đối
+    trong double).
+  - `this` là đối tượng giả; `RegisterEvent` ghi tên sự kiện.
+  - Bộ chạy: `PreLoad`, `OnLoad`, mỗi sự kiện đã đăng ký với ba bộ đối số (`arg0..` là chuỗi), mỗi đoạn Lua của layout,
+    rồi mọi hàm toàn cục script đã định nghĩa (theo thứ tự định nghĩa). Mỗi bước chạy trong `pcall`; lỗi ghi `!err`
+    (không so câu lỗi).
+- Chunk layout: một hàm Python sinh từ `layout.xml` một đoạn Lua dữ liệu (cửa sổ, cha, sự kiện → `function() <đoạn> end`),
+  dùng chung cho cả hai phía.
+- Phía gốc: `TOOLS/port/luagen/mass_oracle.py` ghi vết từng cửa sổ vào `build/luagen/oracle/<cửa sổ>.trace` và bảng tóm
+  `Test/golden/lua_mass/oracle.tsv` (cửa sổ, số dòng, sha256) — bảng tóm vào git, vết đầy đủ thì không.
+- Phía C++: exe `thienlong_lua_mass` chạy mọi cửa sổ (mỗi cửa sổ một State mới), ghi cùng vết, so với `oracle.tsv`; ctest
+  `lua_mass`. Lệch thì in dòng lệch đầu tiên (vết đầy đủ của phía gốc lấy bằng `mass_oracle.py`).
+- Mục tiêu: mọi cửa sổ khớp. Mỗi cửa sổ lệch là một lỗi của bộ dịch hay runtime, sửa tại gốc rồi chạy lại toàn bộ.
+
+## Thứ tự
+
+1. thienlong-2d: `vm.hpp` và tài liệu này (xong), rồi `world.lua`, `mass_oracle.py`, `oracle.tsv`.
+2. thienlong-e7: commit FalagardSuperProgress đang làm (như đã giao), rồi runtime. thienlong-c8: dừng MainMenuBar, sang bộ dịch
+   (lexer, parser, phân giải chạy được trên toàn bộ tệp trước, rồi phát C++).
+3. Khi c8 phát được một tệp nhỏ (ProgressBar) dịch sạch với `vm.hpp` và e7 có đủ runtime để chạy nó: 2d nối
+   `thienlong_lua_mass`, đối soát ProgressBar, rồi mở ra toàn bộ.
+4. Xong A thì sang B theo bảng tần suất, rồi C.
+
+## Khác gốc đã biết
+
+- Script đã đổi GBK sang UTF-8 (`src/client/script/NGUON.txt`): `string.len/sub/byte` trên chữ Hán ra số byte khác gốc
+  (125 tệp dùng ba hàm này). Đối soát chạy cùng bản UTF-8 ở hai phía nên không lộ; lớp C phải xét từng chỗ.
+- Khoá bảng là bảng hay hàm: thứ tự duyệt theo số thứ tự tạo. `tostring` của bảng, hàm: không địa chỉ.
+- Trần độ sâu gọi, số lần quay vòng, byte heap.
+- Số trong mã nguồn đọc bằng `float()` của Python (làm tròn đúng); `strtod` của MSVCR110 có thể khác ở chuỗi rất nhiều chữ
+  số. Đối soát sẽ lộ nếu có.
+
+## Luật làm việc
+
+Như `docs/giao-viec/UI-PORT/GIAO-VIEC.md` mục "Luật chung" và bước 5, 7: worktree riêng, mỗi phần một commit dựng được và
+xanh, `check.py` xanh trên tệp C++ đã đổi, báo thienlong-2d mã commit; 2d gộp, dựng lại, chạy `ctest`. Không push.

@@ -1,5 +1,8 @@
 # UI-PORT — port script giao diện của client 2026 sang C++ (điều phối: phiên thienlong-2d)
 
+Từ tối 2026-10-15 việc port tay dừng ở bảy cửa sổ đã gộp (`TIEN-DO.tsv`). Chủ dự án chọn đường dây sinh mã và đối soát
+hàng loạt: `docs/giao-viec/LUA-GEN/THIET-KE.md`. Số vàng của bảy cửa sổ đó thành ca kiểm thêm cho mã sinh.
+
 Chủ dự án giao ngày 2026-10-15: chuyển toàn bộ script `src/client/script/Interface` (2 032 cửa sổ, 784 828 dòng Lua 5.0)
 sang C++23 thuần, production grade, đối chứng với script gốc; cửa sổ nào cần máy chủ thì làm luôn phần máy chủ; commit
 từng phần. Được dựng công cụ chuyển đổi hoặc tải công cụ ngoài khi cần (chủ dự án cho phép ngày 2026-10-15).
