@@ -661,6 +661,40 @@ int mesh_set_fake_object(lua_State* state) {
     return 0;
 }
 
+// Khoá bảng đếm phương thức còn thiếu (tên -> số lần gọi) trong sổ đăng ký Lua; chỉ có từ khi mở Missing::kRecord.
+constexpr const char* kMissingName = "thienlong.ui.widget.missing";
+
+// Phương thức giả của chế độ đo: trả 0 để phép tính và phép nối chuỗi sau lời gọi không lỗi.
+int missing_stub(lua_State* state) {
+    lua_pushnumber(state, 0);
+    return 1;
+}
+
+// __index của chế độ đo. Upvalue 1 là bảng phương thức thật, upvalue 2 là missing_stub; tên chưa có thì đếm rồi trả
+// missing_stub, khoá không phải chuỗi thì trả nil.
+int index_recording(lua_State* state) {
+    if (lua_gettop(state) < 2 || lua_type(state, 2) != LUA_TSTRING) {
+        lua_pushnil(state);
+        return 1;
+    }
+    lua_pushvalue(state, 2);
+    lua_rawget(state, lua_upvalueindex(1));
+    if (lua_type(state, -1) != LUA_TNIL) return 1;
+    lua_pop(state, 1);
+    lua_pushstring(state, kMissingName);
+    lua_rawget(state, LUA_REGISTRYINDEX);
+    lua_pushvalue(state, 2);
+    lua_pushvalue(state, 2);
+    lua_rawget(state, -3);
+    const lua_Number seen = lua_type(state, -1) == LUA_TNUMBER ? lua_tonumber(state, -1) : 0;
+    lua_pop(state, 1);
+    lua_pushnumber(state, seen + 1);
+    lua_rawset(state, -3);
+    lua_pop(state, 1);
+    lua_pushvalue(state, lua_upvalueindex(2));
+    return 1;
+}
+
 struct Method {
     const char* name;
     lua_CFunction function;
@@ -721,19 +755,48 @@ Kind kind_of(std::string_view falagard_type) noexcept {
     return found == kKinds.end() ? Kind::kWindow : found->kind;
 }
 
-void open_widget_classes(lua_State* state) {
-    const bool is_new = luaL_newmetatable(state, kMetaName) != 0;
-    if (is_new) {
-        lua_pushstring(state, "__index");
-        lua_newtable(state);
-        for (const Method& method : kMethods) {
-            lua_pushstring(state, method.name);
-            lua_pushcclosure(state, method.function, 0);
-            lua_rawset(state, -3);
-        }
+void open_widget_classes(lua_State* state, Missing missing) {
+    luaL_newmetatable(state, kMetaName);
+    lua_pushstring(state, "__index");
+    lua_newtable(state);
+    for (const Method& method : kMethods) {
+        lua_pushstring(state, method.name);
+        lua_pushcclosure(state, method.function, 0);
         lua_rawset(state, -3);
     }
+    if (missing == Missing::kRecord) {
+        lua_pushcclosure(state, &missing_stub, 0);
+        lua_pushcclosure(state, &index_recording, 2);
+        lua_pushstring(state, kMissingName);
+        lua_rawget(state, LUA_REGISTRYINDEX);
+        if (lua_type(state, -1) == LUA_TNIL) {
+            lua_pushstring(state, kMissingName);
+            lua_newtable(state);
+            lua_rawset(state, LUA_REGISTRYINDEX);
+        }
+        lua_pop(state, 1);
+    }
+    lua_rawset(state, -3);
     lua_pop(state, 1);
+}
+
+std::vector<MissingMethod> missing_methods(lua_State* state) {
+    std::vector<MissingMethod> found;
+    lua_pushstring(state, kMissingName);
+    lua_rawget(state, LUA_REGISTRYINDEX);
+    if (lua_type(state, -1) == LUA_TTABLE) {
+        lua_pushnil(state);
+        while (lua_next(state, -2) != 0) {
+            if (lua_type(state, -2) == LUA_TSTRING) {
+                found.push_back({.name = lua_tostring(state, -2),
+                    .calls = static_cast<std::uint32_t>(luanum_to_int32(lua_tonumber(state, -1)))});
+            }
+            lua_pop(state, 1);
+        }
+    }
+    lua_pop(state, 1);
+    std::ranges::sort(found, {}, &MissingMethod::name);
+    return found;
 }
 
 void push_widget(lua_State* state, const WindowRef& window) {

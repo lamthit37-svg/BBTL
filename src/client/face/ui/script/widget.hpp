@@ -94,8 +94,26 @@ struct WindowRef {
 };
 static_assert(std::is_trivially_copyable_v<WindowRef>);
 
-// Dựng metatable và bảng phương thức một lần sau khi mở state. Gọi lại là vô hại.
-void open_widget_classes(lua_State* state);
+// Việc làm khi script gọi một phương thức mà bảng phương thức chưa có.
+enum class Missing : std::uint8_t {
+    // Như bản gốc gặp phương thức lạ: Lua báo lỗi "attempt to call", hàm xử lý sự kiện dừng ở đó.
+    kRaise,
+    // Chế độ đo (lượt chạy hàng loạt hàm xử lý của mọi cửa sổ để kê phương thức còn thiếu): ghi tên và số lần gọi,
+    // rồi trả 0 như một phương thức không làm gì để hàm xử lý chạy tiếp. Không dùng khi chạy thật.
+    kRecord,
+};
+
+// Một phương thức bị gọi mà chưa có, kèm số lần (chế độ Missing::kRecord).
+struct MissingMethod {
+    std::string name;
+    std::uint32_t calls = 0;
+};
+
+// Dựng metatable và bảng phương thức sau khi mở state. Gọi lại là vô hại, và đổi được chế độ `missing` của state.
+void open_widget_classes(lua_State* state, Missing missing = Missing::kRaise);
+
+// Các phương thức bị gọi mà chưa có từ lúc mở chế độ kRecord, theo tên tăng dần; rỗng khi state chưa từng mở chế độ ấy.
+[[nodiscard]] std::vector<MissingMethod> missing_methods(lua_State* state);
 
 // Đẩy một đối tượng widget lên đỉnh ngăn xếp. Cửa sổ mà layout khai Visible=False được ghi nhận là giấu theo
 // layout (Widgets::seed_hidden) để IsVisible đúng trước khi script gọi Show.
