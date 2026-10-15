@@ -22,5 +22,12 @@ Khác gốc (mỗi mục có chú thích `Khác gốc:` ngay tại chỗ sửa t
   cả `1 << -1`, ra INT32_MIN; docs/BAY-DA-BIET.md), assert của chính Lua bắt được ở bản không NDEBUG. Cùng nghĩa vì n chỉ nhận
   -1 hay số không âm.
 
+- luaplus_compat.h (tệp thêm, KHÔNG sửa tệp nào của LuaPlus/): buộc include bằng `-include` cho mọi trình dịch không phải
+  MSVC (Android, Linux, iOS, MinGW, clang giao diện GNU). Nguồn gốc gọi hàm ký tự rộng mà không include <wchar.h>, <wctype.h>
+  (MSVC kéo vào qua header khác), dùng `_snwprintf` của Microsoft, và lwstrlib.c tự định nghĩa `wmemchr`/`wmemcmp` mâu thuẫn
+  với libc: tệp đổi `_snwprintf` thành `swprintf` ngoài Windows và đổi tên hai hàm ấy. Kèm `LUAPLUS_HAS_WCHAR_T` (lua_WChar là
+  wchar_t, đúng với các hàm w* của libc; MSVC giữ unsigned short). Đo 2026-10-15: cả 31 tệp C dịch sạch bằng Android NDK
+  (arm64, x86_64), Clang và GCC; ctest lua_oracle trên bản dựng GCC và Clang: 2 058/2 060 khớp, cùng hai đơn vị NaN như MSVC.
+
 Dựng: third_party/luaplus/CMakeLists.txt (lõi C, không dịch lớp bọc C++ cũ, ltests.c, luiolib.c, lua.c, luac.c): game_luaplus
 (tĩnh, cho client) và luaplus_oracle (DLL, chỉ Windows, cho ctest lua_oracle).

@@ -34,7 +34,10 @@ function(luaplus_configure target)
         target_compile_options(${target} PRIVATE /W0)
         target_compile_definitions(${target} PRIVATE _CRT_SECURE_NO_WARNINGS)
     else()
-        target_compile_options(${target} PRIVATE -w)
+        # Ngoài MSVC: header vá luaplus_compat.h (ký tự rộng, _snwprintf) buộc include vào mọi tệp C của LuaPlus.
+        target_compile_options(${target} PRIVATE -w -include "${CMAKE_CURRENT_SOURCE_DIR}/luaplus_compat.h")
+        # lua_WChar là wchar_t (4 byte ở Android, Linux, iOS) như các hàm w* của libc mà lwstrlib.c gọi; MSVC giữ unsigned short.
+        target_compile_definitions(${target} PUBLIC LUAPLUS_HAS_WCHAR_T)
     endif()
 endfunction()
 
@@ -49,7 +52,7 @@ if(WIN32)
     add_library(luaplus_oracle SHARED ${luaplus_sources})
     luaplus_configure(luaplus_oracle)
     target_compile_definitions(luaplus_oracle PRIVATE LUAPLUS_BUILDDLL)
-    set_target_properties(luaplus_oracle PROPERTIES OUTPUT_NAME LuaPlus
+    set_target_properties(luaplus_oracle PROPERTIES OUTPUT_NAME LuaPlus PREFIX ""
         RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/luaplus"
         LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/luaplus"
         ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/luaplus")
