@@ -54,6 +54,9 @@ Khác gốc (mỗi mục có chú thích `Khác gốc:` ngay tại chỗ sửa t
     còn lại (LUA_MAXCALLS 4096, LUA_MAXCCALLS 200, 200 biến cục bộ, 32 upvalue, 200 tầng cú pháp, 250 đối số) đo khớp DLL.
   - src/ltable.c: lua_number2int (int)(n) thành luanum_to_int32; số ngoài miền int hay NaN ép sang int là UB, giờ cho INT32_MIN
     như cvttsd2si 32 bit của x64 (kết quả duy nhất mà bản MSVC x64 đã cho).
+  - src/lobject.h getstr, getwstr: `(ts) + 1` thành cộng sizeof(union TString) trên `const char *`. Cùng địa chỉ; dạng gốc trên
+    `&gc->ts` cho __builtin_object_size kiểu 1 bằng 0 dưới Clang của NDK, nên FORTIFY mức 2 của Android dừng tiến trình ở
+    strchr của traversetable (lần thu gom rác đầu gặp bảng có __mode). Đo 2026-10-15: tệp thử nhỏ, dạng gốc cho 0, dạng mới -1.
   - src/lobject.h hvalue và src/lstate.h ngcotouv: `&gc->h`, `&gc->uv` trên con trỏ NULL (bảng meta mặc định chưa đặt, hết danh sách
     upvalue mở) thành ép kiểu con trỏ; cùng địa chỉ vì h, uv là thành viên đầu của union.
   - src/lobject.c luaO_pushvfstring: nhánh `default: lua_assert(0)` thành `break`; câu "malformed pattern (ends with `%')" của

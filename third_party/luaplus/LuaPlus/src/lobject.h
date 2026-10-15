@@ -286,9 +286,13 @@ typedef union TString {
 } TString;
 
 
-#define getstr(ts)	cast(const char *, (ts) + 1)
+/* Khác gốc: gốc là cast(const char *, (ts) + 1). Cùng địa chỉ, nhưng ts thường là &gc->ts (thành viên của union GCObject) nên
+   với FORTIFY mức 2 của Android, Clang tính cỡ còn lại của (ts) + 1 là 0 và strchr(svalue(mode), 'k') trong traversetable
+   dừng tiến trình ("FORTIFY: strchr: prevented read past end of buffer", đo 2026-10-15 trên LDPlayer x86_64). Cộng trên
+   char * thì cỡ là "không biết", như mọi chuỗi trên heap. */
+#define getstr(ts)	(cast(const char *, (ts)) + sizeof(union TString))
 #define svalue(o)       getstr(tsvalue(o))
-#define getwstr(ts)	cast(const lua_WChar *, (ts) + 1)
+#define getwstr(ts)	cast(const lua_WChar *, cast(const char *, (ts)) + sizeof(union TString))
 #define wsvalue(o)       getwstr(tsvalue(o))
 
 
