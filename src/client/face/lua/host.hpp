@@ -74,6 +74,16 @@ void put_global(State& state, std::string_view name, Value value);
 // Hàm C++ không upvalue; proto.body là hàm C++ nhận (State&, self, đối số). proto phải sống lâu hơn State.
 [[nodiscard]] Value native(State& state, const Proto& proto);
 
+// Hàm C++ của chủ báo lỗi cho script: đặt cờ lỗi của State với đúng message, không thêm "chunk:dòng:" (tThrowStringException
+// của Game.exe không mang vị trí). Hàm C++ trả Results rỗng ngay sau đó; mọi op sau chỗ lỗi bị mã sinh bỏ qua như lỗi runtime
+// thường, và lỗi đi tới protected_call/run của chủ. Cờ lỗi đã bật thì giữ lỗi đầu, lời gọi này không làm gì.
+void raise_error(State& state, std::string_view message);
+
+// setmetatable(table, meta) từ phía chủ, không qua kiểm `__metatable` của thư viện: table phải là bảng, meta là bảng hoặc nil
+// (nil trả bảng về bảng meta mặc định như setmetatable(t, nil)). Cho đối tượng "action" của Game.exe: mọi handle chung một bảng
+// meta mà `__index` trỏ tới bảng hàm của handle.
+void set_metatable(State& state, Value table, Value meta);
+
 // Nạp và chạy một chunk đã dịch (intern hằng chuỗi, tạo closure của main, gọi không đối số). chunk.main là nullptr
 // (chunk lỗi cú pháp) là lỗi lập trình: chủ hỏi trước.
 [[nodiscard]] Outcome run(State& state, const Chunk& chunk);

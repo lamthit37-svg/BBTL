@@ -30,12 +30,15 @@ function(luaplus_configure target)
     target_compile_features(${target} PRIVATE c_std_11)
     target_include_directories(${target} SYSTEM PUBLIC "${luaplus_root}/include" "${luaplus_root}")
     target_include_directories(${target} PRIVATE "${luaplus_root}/src")
+    # Số của script đi qua module luanum (định dạng, strtod, rand, ép số nguyên theo MSVCR110): NGUON.txt, mục "Khác gốc".
+    target_link_libraries(${target} PUBLIC game_luanum)
     if(MSVC)
         target_compile_options(${target} PRIVATE /W0)
         target_compile_definitions(${target} PRIVATE _CRT_SECURE_NO_WARNINGS)
     else()
         # Ngoài MSVC: header vá luaplus_compat.h (ký tự rộng, _snwprintf) buộc include vào mọi tệp C của LuaPlus.
-        target_compile_options(${target} PRIVATE -w -include "${CMAKE_CURRENT_SOURCE_DIR}/luaplus_compat.h")
+        # -ffp-contract=off: trình dịch GCC/Clang không được gộp a * b + c thành FMA (ARM64 làm mặc định), kết quả lệch một ulp.
+        target_compile_options(${target} PRIVATE -w -ffp-contract=off -include "${CMAKE_CURRENT_SOURCE_DIR}/luaplus_compat.h")
         # lua_WChar là wchar_t (4 byte ở Android, Linux, iOS) như các hàm w* của libc mà lwstrlib.c gọi; MSVC giữ unsigned short.
         target_compile_definitions(${target} PUBLIC LUAPLUS_HAS_WCHAR_T)
     endif()
@@ -52,7 +55,8 @@ if(WIN32)
     add_library(luaplus_oracle SHARED ${luaplus_sources})
     luaplus_configure(luaplus_oracle)
     target_compile_definitions(luaplus_oracle PRIVATE LUAPLUS_BUILDDLL)
-    set_target_properties(luaplus_oracle PROPERTIES OUTPUT_NAME LuaPlus PREFIX ""
+    # Phần luanum là C++: DLL liên kết bằng trình liên kết C++.
+    set_target_properties(luaplus_oracle PROPERTIES OUTPUT_NAME LuaPlus PREFIX "" LINKER_LANGUAGE CXX
         RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/luaplus"
         LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/luaplus"
         ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/luaplus")

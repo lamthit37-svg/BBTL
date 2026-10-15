@@ -13,6 +13,7 @@
 #include <stdio.h>
 
 #include "lua.h"
+#include "luanum/luanum.h"  /* Khác gốc: số theo MSVCR110 (xem NGUON.txt) */
 
 
 #ifndef LUALIB_API
@@ -74,10 +75,12 @@ LUALIB_API int luaL_loadbuffer (lua_State *L, const char *buff, size_t sz,
                                                luaL_argerror(L, numarg,extramsg)
 #define luaL_checkstring(L,n)	(luaL_checklstring(L, (n), NULL))
 #define luaL_optstring(L,n,d)	(luaL_optlstring(L, (n), (d), NULL))
-#define luaL_checkint(L,n)	((int)luaL_checknumber(L, n))
-#define luaL_checklong(L,n)	((long)luaL_checknumber(L, n))
-#define luaL_optint(L,n,d)	((int)luaL_optnumber(L, n,(lua_Number)(d)))
-#define luaL_optlong(L,n,d)	((long)luaL_optnumber(L, n,(lua_Number)(d)))
+/* Khác gốc: ép double sang số nguyên qua luanum_to_int32 (cvttsd2si 32 bit của x64). Gốc ép bằng (int) và (long): ngoài miền
+** int32 hay NaN, x64 cho INT32_MIN còn ARM64 dồn về hai đầu miền; long là 32 bit trên Windows, 64 bit trên Android và iOS. */
+#define luaL_checkint(L,n)	(luanum_to_int32(luaL_checknumber(L, n)))
+#define luaL_checklong(L,n)	(luanum_to_int32(luaL_checknumber(L, n)))
+#define luaL_optint(L,n,d)	(luanum_to_int32(luaL_optnumber(L, n,(lua_Number)(d))))
+#define luaL_optlong(L,n,d)	(luanum_to_int32(luaL_optnumber(L, n,(lua_Number)(d))))
 
 
 /*

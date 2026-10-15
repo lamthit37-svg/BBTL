@@ -126,7 +126,7 @@ endfunction()
 set(game_engine_names audio audiotool capture core fs gpu io jobs math net render resource shader
     shadertool window xml)
 set(game_shared_names protocol secure table link nav collision ids)
-set(game_client_names anim avatar classic client control fx gui hero look lua luagen luamass motion ogre
+set(game_client_names anim avatar classic client control fx gui hero look lua luagen luamass luanum motion ogre
     quest scene seal sealtool skill ui)
 set(game_server_names account actor authd billing billingd bus combat config content dice forge gate gated guard handlers ipc
     ledger linttool metrics mission item loot ops process scenedata service shop social store stored supervise supervisor talk
@@ -238,6 +238,13 @@ if(NOT ANDROID AND NOT IOS)
         COMMENT "Cook âm thanh ra build/cooked/sound"
         VERBATIM)
 endif()
+
+# luanum: số của script giao diện theo MSVCR110 (định dạng, strtod, rand, ép số nguyên), module lá không phụ thuộc gì.
+# LuaPlus (C) gọi nó qua luanum.h; ui/panel và runtime tự viết cũ dùng number.hpp, cformat.hpp.
+game_module(luanum
+    src/client/face/luanum/cformat.cpp
+    src/client/face/luanum/luanum.cpp
+    src/client/face/luanum/number.cpp)
 
 # LuaPlus (Lua 5.0.1) của client 2026: máy chạy script giao diện. Nguồn chép nguyên văn ở third_party/luaplus, mục "Khác gốc"
 # ở NGUON.txt. game_luaplus (tĩnh) cho client; luaplus_oracle (DLL, chỉ Windows) cho ctest lua_oracle.
@@ -542,20 +549,18 @@ target_link_libraries(game_skill PUBLIC game_table game_core)
 # TOOLS/port/luagen sinh từ script giao diện của client 2026. Bề mặt mã sinh ở vm.hpp, bề mặt chủ ở host.hpp;
 # thiết kế ở docs/giao-viec/LUA-GEN/THIET-KE.md.
 game_module(lua
-    src/client/face/lua/cformat.cpp
     src/client/face/lua/host.cpp
     src/client/face/lua/lib_base.cpp
     src/client/face/lua/lib_common.cpp
     src/client/face/lua/lib_math.cpp
     src/client/face/lua/lib_string.cpp
     src/client/face/lua/lib_table.cpp
-    src/client/face/lua/number.cpp
     src/client/face/lua/ops.cpp
     src/client/face/lua/state.cpp
     src/client/face/lua/string.cpp
     src/client/face/lua/table.cpp
     src/client/face/lua/value.cpp)
-target_link_libraries(game_lua PUBLIC game_core)
+target_link_libraries(game_lua PUBLIC game_luanum game_core)
 
 # ui/panel: logic của từng cửa sổ HUD, thay script Lua của client gốc (hiện, giấu, điền chữ, đặt
 # thanh). Thuần logic trên gui, không cần GPU; module ui (bộ vẽ) dùng nó.
@@ -601,7 +606,7 @@ game_module(ui_panel
     src/client/face/ui/panel/progress_bar.cpp
     src/client/face/ui/panel/data_pool.cpp
     src/client/face/ui/panel/debug_list_box.cpp)
-target_link_libraries(game_ui_panel PUBLIC game_gui game_hero game_lua game_quest game_table game_core)
+target_link_libraries(game_ui_panel PUBLIC game_gui game_hero game_luanum game_quest game_table game_core)
 # Cấu hình dựng client nằm ở src/client/client.build.toml (chủ dự án chốt 2026-10-14: gắn thẳng vào
 # exe lúc dựng, không đọc tệp lúc chạy, không qua server hay protocol). CMake đọc khoá avatar_frame
 # bằng regex (chỉ nhận dạng `khoá = "giá trị"` trên một dòng) rồi đặt macro cho riêng player_frame.cpp,
@@ -1493,12 +1498,11 @@ endif()
 if(TARGET luaplus_oracle AND NOT CMAKE_CROSSCOMPILING AND EXISTS "${PROJECT_SOURCE_DIR}/dev/client/assets/Interface")
     find_package(Python3 COMPONENTS Interpreter)
     if(Python3_Interpreter_FOUND)
-        # Hai đơn vị in NaN bằng CRT của máy dựng ("-nan(ind)") khác MSVCR110 của DLL gốc ("-1.#IND"); bỏ khỏi --allow khi
-        # định dạng số của LuaPlus được thay bằng bản cố định (docs/giao-viec/LUA-GEN/THIET-KE.md).
+        # Số của LuaPlus (định dạng, strtod, rand, ép số nguyên) đi qua module luanum nên chuỗi NaN ("-1.#IND") khớp MSVCR110 của
+        # DLL gốc, không còn đơn vị nào được phép lệch.
         add_test(NAME lua_oracle
             COMMAND ${Python3_EXECUTABLE} -B TOOLS/port/luagen/mass_oracle.py $<TARGET_FILE_DIR:luaplus_oracle>
                 --traces ${CMAKE_BINARY_DIR}/luagen/oracle --check Test/golden/lua_mass/oracle.tsv
-                --allow SiXiangTu_Shop_Mbuy ThreeCity_WarmUp_MBuy
             WORKING_DIRECTORY ${PROJECT_SOURCE_DIR})
         set_tests_properties(lua_oracle PROPERTIES ENVIRONMENT "PYTHONUTF8=1")
     endif()

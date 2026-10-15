@@ -73,13 +73,16 @@ using game::lua::new_table;
 using game::lua::number_to_string;
 using game::lua::open_standard;
 using game::lua::pow;
+using game::lua::protected_call;
 using game::lua::Proto;
 using game::lua::put_global;
+using game::lua::raise_error;
 using game::lua::raw_equal;
 using game::lua::Results;
 using game::lua::set_host;
 using game::lua::set_index;
 using game::lua::set_list;
+using game::lua::set_metatable;
 using game::lua::State;
 using game::lua::StatePtr;
 using game::lua::sub;
@@ -809,7 +812,76 @@ void library_matches_luaplus(Context& context) {
     context.expect(mismatches == 0, std::format("{} ca lệch trên {}", mismatches, cases));
 }
 
-constexpr std::array<Case, 1> kCases = {{{.name = "thư viện chuẩn và phép toán máy ảo khớp LuaPlus.dll", .body = &library_matches_luaplus}}};
+// ---- raise_error và set_metatable của host.hpp: bề mặt mà hàm game (module gameapi) dùng từ ngoài module lua ----
+
+// Hàm game sai tham số: ném đúng một câu rồi trả rỗng, như tThrowStringException của Game.exe.
+Results raising(State& state, const Function& /*self*/, Args /*args*/) {
+    raise_error(state, "LUA: Lua_Get_XParam_INT Wrong Param");
+    raise_error(state, "lỗi thứ hai bị bỏ");
+    return {};
+}
+
+Results returning_seven(State& /*state*/, const Function& /*self*/, Args /*args*/) {
+    return {Value::number(7)};
+}
+
+constexpr Proto kRaising{.body = &raising, .name = "Get_XParam_INT"};
+constexpr Proto kSeven{.body = &returning_seven, .name = "GetID"};
+
+void host_raises_errors(Context& context) {
+    const StatePtr state = new_state(Limits{});
+    open_standard(*state);
+    const Value raiser = native(*state, kRaising);
+
+    const game::lua::Outcome failed = protected_call(*state, raiser, {});
+    context.expect(!failed.has_value(), "raise_error làm protected_call trả lỗi");
+    if (!failed.has_value()) context.expect(failed.error().message == "LUA: Lua_Get_XParam_INT Wrong Param", failed.error().message);
+    // Cờ lỗi đã xoá: lời gọi sau chạy bình thường.
+    const game::lua::Outcome fine = protected_call(*state, native(*state, kSeven), {});
+    context.expect(fine.has_value() && fine->first().as_number() == 7, "lỗi không dính sang lời gọi sau");
+
+    // pcall của script bắt lỗi của hàm game với đúng câu ấy (khác Game.exe, nơi ngoại lệ C++ lan qua pcall: không script nào
+    // dùng pcall).
+    const Value pcall = game::lua::find_global(*state, "pcall");
+    const std::array<Value, 1> arguments = {raiser};
+    const game::lua::Outcome through_pcall = protected_call(*state, pcall, arguments);
+    context.expect(through_pcall.has_value() && !through_pcall->at_or_nil(0).truthy(), "pcall trả false");
+    if (through_pcall.has_value())
+        context.expect(game::lua::bytes_of(through_pcall->at_or_nil(1)) == "LUA: Lua_Get_XParam_INT Wrong Param", "câu lỗi qua pcall");
+}
+
+void host_sets_metatables(Context& context) {
+    const StatePtr state = new_state(Limits{});
+    open_standard(*state);
+    State& machine = *state;
+    // Mô hình đối tượng action: handle là bảng, mọi handle chung một bảng meta mà __index là bảng hàm.
+    const Value methods = new_table(machine, 0, 1);
+    set_index(machine, methods, game::lua::intern(machine, "GetID"), native(machine, kSeven));
+    const Value meta = new_table(machine, 0, 1);
+    set_index(machine, meta, game::lua::intern(machine, "__index"), methods);
+    const Value handle = new_table(machine, 0, 0);
+    const Value other = new_table(machine, 0, 0);
+    set_metatable(machine, handle, meta);
+    set_metatable(machine, other, meta);
+
+    const Value method = index(machine, handle, game::lua::intern(machine, "GetID"));
+    context.expect(method.type() == Type::kFunction, "__index của bảng meta tìm ra hàm");
+    if (method.type() == Type::kFunction) {
+        const std::array<Value, 1> self = {handle};
+        context.expect(call(machine, method, self).first().as_number() == 7, "gọi qua handle:GetID()");
+    }
+    context.expect(index(machine, other, game::lua::intern(machine, "GetID")).type() == Type::kFunction, "handle thứ hai cùng bảng meta");
+
+    // Bảng meta có __metatable: setmetatable của script bị chặn, chủ thì không.
+    set_index(machine, meta, game::lua::intern(machine, "__metatable"), Value::boolean(true));
+    set_metatable(machine, handle, Value());
+    context.expect(index(machine, handle, game::lua::intern(machine, "GetID")).is_nil(), "nil gỡ bảng meta, kể cả bảng meta được bảo vệ");
+    context.expect(!machine.failed(), "không lỗi");
+}
+
+constexpr std::array<Case, 3> kCases = {{{.name = "thư viện chuẩn và phép toán máy ảo khớp LuaPlus.dll", .body = &library_matches_luaplus},
+    {.name = "host: raise_error đặt lỗi đúng câu, một lần", .body = &host_raises_errors},
+    {.name = "host: set_metatable cho handle dùng chung bảng meta", .body = &host_sets_metatables}}};
 
 } // namespace
 } // namespace game::test

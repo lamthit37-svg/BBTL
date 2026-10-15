@@ -840,6 +840,8 @@ static const char *scanformat (lua_State *L, const char *strfrmt,
 }
 
 
+/* Khác gốc: string.format định dạng bằng luanum_format_* (sprintf của MSVCR110: số mũ ba chữ số, "1.#INF", cờ '0' đệm cả %s
+** và %c) thay sprintf của CRT máy dựng; %x, %o, %u ép double sang unsigned qua luanum_to_uint32. */
 int str_format_helper (luaL_Buffer* b, lua_State *L, int arg) {
   size_t sfl;
   const char *strfrmt = luaL_checklstring(L, arg, &sfl);
@@ -860,16 +862,16 @@ int str_format_helper (luaL_Buffer* b, lua_State *L, int arg) {
       strfrmt = scanformat(L, strfrmt, form, &hasprecision);
       switch (*strfrmt++) {
         case 'c':  case 'd':  case 'i': {
-          sprintf(buff, form, luaL_checkint(L, arg));
+          luanum_format_int(buff, sizeof(buff), form, luaL_checkint(L, arg));
           break;
         }
         case 'o':  case 'u':  case 'x':  case 'X': {
-          sprintf(buff, form, (unsigned int)(luaL_checknumber(L, arg)));
+          luanum_format_uint(buff, sizeof(buff), form, luanum_to_uint32(luaL_checknumber(L, arg)));
           break;
         }
         case 'e':  case 'E': case 'f':
         case 'g': case 'G': {
-          sprintf(buff, form, luaL_checknumber(L, arg));
+          luanum_format_double(buff, sizeof(buff), form, luaL_checknumber(L, arg));
           break;
         }
         case 'q': {
@@ -891,7 +893,7 @@ int str_format_helper (luaL_Buffer* b, lua_State *L, int arg) {
             continue;  /* skip the `addsize' at the end */
           }
           else {
-            sprintf(buff, form, s);
+            luanum_format_text(buff, sizeof(buff), form, s);
             break;
           }
         }

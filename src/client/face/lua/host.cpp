@@ -70,6 +70,16 @@ Value native(State& state, const Proto& proto) {
     return state.make_native(proto);
 }
 
+void raise_error(State& state, std::string_view message) {
+    state.raise_text(message);
+}
+
+void set_metatable(State& state, Value table, Value meta) {
+    core::check(table.type() == Type::kTable, "set_metatable: đối tượng phải là bảng");
+    core::check(meta.is_nil() || meta.type() == Type::kTable, "set_metatable: bảng meta phải là bảng hoặc nil");
+    table.as_table().set_metatable(meta.is_nil() ? state.default_meta() : &meta.as_table());
+}
+
 Outcome run(State& state, const Chunk& chunk) {
     core::check(chunk.main != nullptr, "run: chunk lỗi cú pháp không chạy được");
     if (state.depth() == 0) state.reset_ticks();

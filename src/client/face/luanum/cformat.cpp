@@ -1,4 +1,4 @@
-#include "lua/cformat.hpp"
+#include "luanum/cformat.hpp"
 
 #include <algorithm>
 #include <array>
@@ -9,7 +9,7 @@
 #include <string>
 #include <string_view>
 
-namespace game::lua {
+namespace game::luanum {
 namespace {
 
 // Số chữ số có nghĩa mà CRT sinh ra trước khi làm tròn về độ chính xác cần in.
@@ -241,4 +241,4 @@ std::string format_text(const FormatSpec& spec, std::string_view text) {
     return pad("", shown, spec, spec.zero);
 }
 
-} // namespace game::lua
+} // namespace game::luanum

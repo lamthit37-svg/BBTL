@@ -25,7 +25,10 @@
 
 /* function to convert a string to a lua_Number */
 #ifndef lua_str2number
-#define lua_str2number(s,p)     strtod((s), (p))
+/* Khác gốc: strtod của MSVCR110 (luanum_strtod) thay strtod của CRT máy dựng: UCRT, bionic và libSystem nhận thêm thập lục
+** phân, "inf", "nan" mà MSVCR110 không nhận. Chuỗi rộng (lua_WChar) không vá: script giao diện không dùng. */
+#include "luanum/luanum.h"
+#define lua_str2number(s,p)     luanum_strtod((s), (p))
 #define lua_wstr2number(s,p)    wcstod((s), (p))
 #endif
 
