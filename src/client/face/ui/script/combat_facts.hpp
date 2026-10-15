@@ -38,7 +38,34 @@ private:
     std::vector<std::int32_t> ids_;
 };
 
+// Một buff của nhân vật người chơi trong kho của gốc (std::map ở CDataPool + 0x5b94e0, cỡ ở + 0x5b94e8; FUN_1400d2d40 lấy phần tử thứ i
+// theo thứ tự khoá của map): id hiệu ứng là short ở + 8, thời gian còn lại (ms) là int ở + 0x18.
+struct SelfBuff {
+    std::int16_t impact = 0;
+    std::int32_t remain_ms = 0;
+};
+
+// Trần số buff giữ; Khác gốc: map của gốc không trần.
+inline constexpr std::size_t kBuffLimit = 256;
+
+// Danh sách buff theo đúng thứ tự khoá map của gốc (phía mạng xếp sẵn). Thêm quá trần thì bỏ.
+class BuffList {
+public:
+    bool push(const SelfBuff buff) {
+        if (buffs_.size() >= kBuffLimit) return false;
+        buffs_.push_back(buff);
+        return true;
+    }
+    void clear() noexcept { buffs_.clear(); }
+    [[nodiscard]] const std::vector<SelfBuff>& items() const noexcept { return buffs_; }
+
+private:
+    std::vector<SelfBuff> buffs_;
+};
+
 struct CombatFacts {
+    // Buff của nhân vật người chơi (Player:GetBuffNumber, Player:CheckBuffImpactExist).
+    BuffList self_buffs;
     // Hiệu ứng của nhân vật người chơi (đối tượng ObjectManager + 0xb8 của gốc); rỗng khi chưa vào cảnh.
     ImpactSet self_impacts;
     // Số CActionItem đang có theo mã loại (action_type.hpp), cái mà GetActionNum đếm bằng cách duyệt map hành động; chỉ số là mã loại.

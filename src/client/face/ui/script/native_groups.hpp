@@ -67,4 +67,8 @@ void register_target(lua_State* lua);
 // DataPool:GetCurrentFreshManGuideItemValue, Sound:PlayUISound (native_battle.cpp, Facts::combat).
 void register_battle(lua_State* lua);
 
+// Nhân vật và mục tiêu cho khung nhân vật/mục tiêu/hiệu ứng (làn B): Target/CachedTarget:GetBuffNumber, IsTransferMode,
+// CheckBuffImpactExist, GetData; Player:GetBuffNumber, CheckBuffImpactExist, IsTransferMode (native_character.cpp, Facts::combat).
+void register_character(lua_State* lua);
+
 } // namespace game::ui::script
