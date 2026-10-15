@@ -27,6 +27,7 @@
 #include <iostream>
 #include <map>
 #include <ostream>
+#include <set>
 #include <span>
 #include <string>
 #include <string_view>
@@ -70,10 +71,13 @@ struct Missing {
 class Tally {
 public:
     void add(const Missing& missing, const std::string& window) {
+        Window& seen = by_window_[window];
         if (missing.kind.empty()) {
             ++other_;
+            ++seen.others;
             return;
         }
+        seen.missing.insert(std::format("{} {}", missing.kind, missing.name));
         Row& row = rows_[std::format("{} {}", missing.kind, missing.name)];
         ++row.count;
         if (row.windows.size() < 5 && !std::ranges::contains(row.windows, window)) row.windows.push_back(window);
@@ -93,12 +97,45 @@ public:
         out << std::format("# lỗi dạng khác (đối số nil, chuỗi, cú pháp...): {}\n", other_);
     }
 
+    // Từng cửa sổ chưa chạy trọn: số hàm thiếu, số lỗi dạng khác và tên hàm thiếu; ít thiếu nhất lên đầu. Cửa sổ chạy sạch (không có
+    // dòng lỗi nào khi hiện, nhận sự kiện và giấu) in thành một dòng cuối.
+    void print_windows(std::ostream& out, const std::vector<std::string>& all) const {
+        std::vector<const std::pair<const std::string, Window>*> rows;
+        for (const auto& entry : by_window_)
+            rows.push_back(&entry);
+        std::ranges::sort(rows, [](const auto* left, const auto* right) {
+            const std::size_t left_total = left->second.missing.size() + (left->second.others > 0 ? 1U : 0U);
+            const std::size_t right_total = right->second.missing.size() + (right->second.others > 0 ? 1U : 0U);
+            return left_total != right_total ? left_total < right_total : left->first < right->first;
+        });
+        out << "# cửa sổ chưa chạy trọn: tên, số hàm thiếu, số lỗi dạng khác, hàm thiếu\n";
+        for (const auto* row : rows) {
+            std::string names;
+            for (const std::string& name : row->second.missing)
+                names += (names.empty() ? "" : "; ") + name;
+            out << std::format("{}\t{}\t{}\t{}\n", row->first, row->second.missing.size(), row->second.others, names);
+        }
+        std::string clean;
+        std::size_t count = 0;
+        for (const std::string& name : all) {
+            if (by_window_.contains(name)) continue;
+            clean += (clean.empty() ? "" : ",") + name;
+            ++count;
+        }
+        out << std::format("# cửa sổ chạy sạch ({}): {}\n", count, clean);
+    }
+
 private:
     struct Row {
         std::uint32_t count = 0;
         std::vector<std::string> windows;
     };
+    struct Window {
+        std::set<std::string> missing;
+        std::uint32_t others = 0;
+    };
     std::map<std::string, Row> rows_;
+    std::map<std::string, Window> by_window_;
     std::uint32_t other_ = 0;
 };
 
@@ -194,6 +231,10 @@ int main(const int argc, const char* const* const argv) {
     out << std::format("# bộ nhớ Lua {} KB\n", lua_getgccount(host.lua()));
     out << "# số lần\tloại và tên\tcửa sổ đầu tiên\n";
     tally.print(out);
+    std::vector<std::string> names;
+    for (const game::ui::script::WindowDef& window : *windows)
+        names.push_back(window.name);
+    tally.print_windows(out, names);
     out << "# phương thức widget còn thiếu (số lần gọi, tên)\n";
     for (const game::ui::script::MissingMethod& method : game::ui::script::missing_methods(host.lua()))
         out << std::format("{}\t{}\n", method.calls, method.name);
