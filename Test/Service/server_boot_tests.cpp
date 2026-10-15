@@ -157,12 +157,13 @@ struct Finished {
 // Dòng stderr mà cấu hình test (support/loopback_config.hpp: không chép *.local.toml, mọi cổng ipc là 0)
 // in ra khi stderr gộp vào (Mode::kCommand): so nguyên dòng, mỗi dòng tối đa một lần. Hai dòng của auth và store
 // chỉ có ở bản dựng có libpq (GAME_HAS_LIBPQ); bản không có libpq (gcc-debug) không in chúng, nên vắng là hợp lệ.
-constexpr std::array<std::string_view, 5> kExpectedNoise{
+constexpr std::array<std::string_view, 6> kExpectedNoise{
     "auth: chưa có secrets.local.toml, bỏ qua database", // account/serve.cpp:296
     "store: chưa có secrets.local.toml, bỏ qua database", // account/serve.cpp:364
     "gate: cổng ipc của auth hoặc store là 0, đăng ký trả bận", // gate/front.cpp:540 (ở 4e22b54)
     "gate: cổng ipc của zone là 0, không nối thế giới", // gate/front.cpp open_zone
     "zone: cổng ipc của store là 0, không ghi được điểm đứng", // zone/serve.cpp run
+    "zone: không có bảng nhiệm vụ: chạy không có hội thoại và nhiệm vụ", // zone/serve.cpp load_world (cây bảng tạm không có tables/)
 };
 
 // Dòng báo tick của gate (gate/front.cpp report: mỗi giây một lần, tám cặp khoá=số, số đổi theo máy). Có hay

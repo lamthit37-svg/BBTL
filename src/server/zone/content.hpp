@@ -106,6 +106,8 @@ private:
 struct SeedTables {
     const TemplateTable* templates = nullptr;
     const AiTypeTable* ai_types = nullptr;
+    // Script này có hội thoại chạy được không (play::World); rỗng thì không NPC nào có cờ nói chuyện.
+    std::function<bool(std::uint32_t script)> talks{};
 };
 
 // Bán kính lang thang quanh chỗ sinh, cm: bằng default_position_range của config/rules/monster.toml (10 m); zone chưa có
@@ -165,6 +167,7 @@ struct DiskPaths {
 // Seeder đọc đĩa: thiếu bảng id hay thư mục cảnh thì cảnh để trống (không quái, không luật đi) và nói ra stderr. `cap` là số thực thể tối đa
 // mỗi cảnh. Chỉ một luồng được gọi nó (luồng tick của zone); đọc một cảnh lớn tốn vài chục mili giây, lần đầu
 // có người vào cảnh đó.
-[[nodiscard]] Seeder disk_seeder(const DiskPaths& paths, std::size_t cap);
+[[nodiscard]] Seeder disk_seeder(const DiskPaths& paths, std::size_t cap,
+    std::function<bool(std::uint32_t script)> talks = {});
 
 } // namespace game::zone

@@ -573,6 +573,11 @@ void lose_zone(Engine& state) {
 void queue_down(Engine& state, Slot& slot, std::uint32_t index, secure::ByteView frame) {
     if (!slot.pipe || slot.draining || slot.client_version < kWorldSince) return;
     if (frame.size() > secure::kMaxPlainBytes) return;
+    // Tin có since lớn hơn bản client khai thì client coi là vi phạm giao thức: lọc ở đây, zone không cần biết bản của từng người.
+    const protocol::FrameResult head = protocol::peek_frame(frame, secure::kMaxPlainBytes);
+    if (!head) return;
+    const std::optional<protocol::Frame>& parsed = *head;
+    if (!parsed || protocol::since_of(parsed->kind) > slot.client_version) return;
     const bool nothing_waiting = slot.down_from == slot.down.size();
     if (nothing_waiting && outbox_has_room(slot, frame.size())) {
         if (!seal_to(state, slot, index, frame)) release(state, slot, index, Drop::kSlow);
@@ -670,6 +675,7 @@ void on_zone_frame(Engine& state, const ipc::Frame& frame, std::int64_t now) {
     }
     case ipc::Relay::kAttach:
     case ipc::Relay::kDetach:
+    case ipc::Relay::kUp:
     case ipc::Relay::kMoved: return;
     }
 }
@@ -729,6 +735,38 @@ void relay_move(Engine& state, const Slot& slot, std::uint32_t index) {
     const std::vector<std::byte> body = ipc::encode_body(ipc::Moved{.x_cm = at.x_cm, .z_cm = at.z_cm});
     const bool sent =
         state.zone.link->send(ipc::value_of(ipc::Relay::kMoved), zone_session(index, slot.generation), body);
+    if (!sent) state.zone.lost = true;
+}
+
+// Tin hội thoại và nhiệm vụ của client (từ bản 5): gate đã giải mã và kiểm hình dạng, phần còn lại (khoảng cách, phiên,
+// luật nhiệm vụ) là việc của zone. Dựng lại khung từ tin đã giải mã thay vì chuyển nguyên byte của client.
+constexpr std::uint16_t kPlaySince = 5;
+
+void send_reject(Engine& state, Slot& slot, std::uint32_t index, std::uint16_t request, protocol::ErrorCode code);
+
+[[nodiscard]] constexpr bool is_play_kind(std::uint16_t kind) noexcept {
+    return kind == protocol::Talk::kKind || kind == protocol::DialogChoose::kKind ||
+           kind == protocol::QuestAccept::kKind || kind == protocol::QuestTurnIn::kKind ||
+           kind == protocol::QuestAbandon::kKind || kind == protocol::DialogClose::kKind;
+}
+
+void relay_up(Engine& state, Slot& slot, std::uint32_t index, const protocol::GameClientMessage& message) {
+    if (slot.client_version < kPlaySince) {
+        send_goodbye(state, slot, index, protocol::DisconnectReason::kProtocolViolation, Drop::kProtocol);
+        return;
+    }
+    if (!slot.attached || !state.zone.link) {
+        send_reject(state, slot, index, std::visit([](const auto& held) { return held.kKind; }, message),
+            protocol::ErrorCode::kOutOfOrder);
+        return;
+    }
+    std::vector<std::byte> frame;
+    const bool encoded = std::visit([&](const auto& held) { return protocol::encode(frame, held).has_value(); }, message);
+    if (!encoded) {
+        send_goodbye(state, slot, index, protocol::DisconnectReason::kProtocolViolation, Drop::kProtocol);
+        return;
+    }
+    const bool sent = state.zone.link->send(ipc::value_of(ipc::Relay::kUp), zone_session(index, slot.generation), frame);
     if (!sent) state.zone.lost = true;
 }
 
@@ -1339,8 +1377,9 @@ void dispatch_game(SlotNow in, protocol::Frame frame, secure::ByteView body) {
     const bool is_remove = frame.kind == protocol::DeleteCharacter::kKind;
     const bool is_enter = frame.kind == protocol::EnterGame::kKind;
     const bool is_move = frame.kind == protocol::Move::kKind;
-    const bool known =
-        is_hello || is_ping || is_logout || is_login || is_resume || is_create || is_remove || is_enter || is_move;
+    const bool is_play = is_play_kind(frame.kind);
+    const bool known = is_hello || is_ping || is_logout || is_login || is_resume || is_create || is_remove || is_enter ||
+                       is_move || is_play;
     if (!known) {
         send_goodbye(in.state, in.slot, in.index, protocol::DisconnectReason::kProtocolViolation, Drop::kForeign);
         return;
@@ -1367,6 +1406,7 @@ void dispatch_game(SlotNow in, protocol::Frame frame, secure::ByteView body) {
     }
     if (const auto* enter = std::get_if<protocol::EnterGame>(&*decoded)) on_enter(in.state, in.slot, in.index, *enter);
     if (const auto* move = std::get_if<protocol::Move>(&*decoded)) on_move(in.state, in.slot, in.index, *move, in.now);
+    if (is_play) relay_up(in.state, in.slot, in.index, *decoded);
 }
 
 void dispatch(SlotNow in, protocol::Frame frame, secure::ByteView body) {

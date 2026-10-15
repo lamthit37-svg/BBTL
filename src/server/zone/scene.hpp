@@ -105,6 +105,11 @@ struct Spawn {
     std::uint16_t direction = 0;
     std::uint16_t speed_cm = 0;
     std::uint8_t hp_percent = 100;
+    // Mã script hội thoại của NPC (0 là không có) và cờ EntityFlags gửi cho client (bit 0: bấm vào để nói chuyện).
+    std::uint32_t script = 0;
+    std::uint8_t flags = 0;
+    // GUID của dòng bảng cảnh (khoá của bảng nhiệm vụ theo NPC; không duy nhất, nhiều NPC dùng chung một GUID).
+    std::uint32_t guid = 0;
     // Có giá trị thì thực thể tự đứng, đi, đuổi theo mind.hpp; chỗ sinh là x_cm, z_cm.
     std::optional<Temperament> nature;
 };
@@ -159,6 +164,14 @@ public:
     // Id thực thể của phiên; nullopt khi phiên không ở cảnh này.
     [[nodiscard]] std::optional<std::uint32_t> entity_of(std::uint64_t session) const noexcept;
     [[nodiscard]] std::optional<Where> where(std::uint32_t id) const noexcept;
+    // NPC nói chuyện được (kind kNpc, có script, cờ bit 0) theo id thực thể; nullopt khi id lạ hay không phải NPC như thế.
+    struct Npc {
+        std::uint32_t guid = 0;
+        std::uint32_t script = 0;
+        std::string name;
+        Where at;
+    };
+    [[nodiscard]] std::optional<Npc> npc(std::uint32_t id) const;
 
 private:
     struct Entity {
@@ -173,6 +186,9 @@ private:
         std::uint16_t direction = 0;
         std::uint16_t speed_cm = 0;
         std::uint8_t hp_percent = 100;
+        std::uint32_t script = 0;
+        std::uint8_t flags = 0;
+        std::uint32_t guid = 0;
         std::uint8_t gender = 0;
         std::uint16_t face = 0;
         std::uint16_t hair = 0;
@@ -223,6 +239,10 @@ private:
     [[nodiscard]] std::uint32_t id_at(std::uint32_t index) const noexcept;
     [[nodiscard]] std::optional<std::uint32_t> index_of(std::uint32_t id) const noexcept;
     [[nodiscard]] protocol::EntityAppear appear_of(std::uint32_t index) const;
+    // Khung EntityFlags của thực thể; rỗng khi cờ bằng 0 (client mặc định cờ 0 nên không cần gửi).
+    [[nodiscard]] std::vector<std::byte> flags_frame(std::uint32_t index, Outbox& out) const;
+    // Gửi cho người chơi `session` EntityAppear của thực thể, kèm EntityFlags khi có.
+    void show_to(std::uint64_t session, std::uint32_t index, Outbox& out) const;
     // Đưa thực thể vừa cấp vào lưới và báo hiện cho những người đang nhìn quanh nó.
     void enter_grid(std::uint32_t index, Outbox& out);
     void relocate(std::uint32_t index, Point to, Outbox& out);

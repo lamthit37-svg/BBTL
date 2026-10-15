@@ -144,7 +144,7 @@ set(game_shared_names protocol secure table link nav collision ids)
 set(game_client_names anim avatar classic client control fx gui hero look lua luanum motion ogre
     quest scene seal sealtool skill ui)
 set(game_server_names account actor authd billing billingd bus combat config content dice forge gate gated guard handlers ipc
-    ledger linttool metrics mission item loot ops process scenedata service shop social store stored supervise supervisor talk
+    ledger linttool metrics mission item loot ops play process scenedata service shop social store stored supervise supervisor talk
     worldd zone zoned)
 game_reject_foreign("${PROJECT_SOURCE_DIR}/engine" ${game_engine_names})
 game_reject_foreign("${PROJECT_SOURCE_DIR}/src/shared" ${game_engine_names} ${game_shared_names})

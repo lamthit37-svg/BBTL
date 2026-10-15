@@ -106,6 +106,17 @@ protocol::EntityAppear Scene::appear_of(std::uint32_t index) const {
     return out;
 }
 
+std::vector<std::byte> Scene::flags_frame(std::uint32_t index, Outbox& out) const {
+    const Entity& who = entities_[index];
+    if (who.flags == 0) return {};
+    return out.frame_of(protocol::EntityFlags{.id = id_at(index), .flags = who.flags});
+}
+
+void Scene::show_to(std::uint64_t session, std::uint32_t index, Outbox& out) const {
+    out.down(session, appear_of(index));
+    out.down_frame(session, flags_frame(index, out));
+}
+
 void Scene::broadcast(Cell around, std::uint32_t skip, const std::vector<std::byte>& frame, Outbox& out) const {
     grid_.for_each_in_window(around, [&](std::uint32_t index) {
         if (index == skip) return;
@@ -117,7 +128,7 @@ void Scene::broadcast(Cell around, std::uint32_t skip, const std::vector<std::by
 void Scene::show_neighbours(std::uint32_t viewer, Cell around, Outbox& out) const {
     const std::uint64_t session = entities_[viewer].session;
     grid_.for_each_in_window(around, [&](std::uint32_t index) {
-        if (index != viewer) out.down(session, appear_of(index));
+        if (index != viewer) show_to(session, index, out);
     });
 }
 
@@ -126,6 +137,7 @@ void Scene::enter_grid(std::uint32_t index, Outbox& out) {
     who.cell = grid_.cell_of(who.x_cm, who.z_cm);
     const std::vector<std::byte> shown = out.frame_of(appear_of(index));
     broadcast(who.cell, index, shown, out);
+    broadcast(who.cell, index, flags_frame(index, out), out);
     grid_.insert(index, who.cell);
     ++live_;
 }
@@ -179,7 +191,8 @@ void Scene::save_spot(const Entity& who, Outbox& out) const {
     out.save(Save{.character = who.character,
         .scene = config_.id,
         .x_cm = static_cast<std::int32_t>(std::lround(who.x_cm)),
-        .z_cm = static_cast<std::int32_t>(std::lround(who.z_cm))});
+        .z_cm = static_cast<std::int32_t>(std::lround(who.z_cm)),
+        .play = std::nullopt});
 }
 
 void Scene::autosave(Outbox& out) {
@@ -233,6 +246,9 @@ std::optional<std::uint32_t> Scene::spawn(const Spawn& what, Outbox& out) {
     who.direction = what.direction;
     who.speed_cm = what.speed_cm;
     who.hp_percent = std::min<std::uint8_t>(what.hp_percent, 100);
+    who.script = what.script;
+    who.flags = what.flags;
+    who.guid = what.guid;
     enter_grid(index, out);
     if (what.nature) start_thinking(index, *what.nature);
     return id_at(index);
@@ -336,12 +352,15 @@ void Scene::relocate(std::uint32_t index, Point to, Outbox& out) {
     protocol::EntityDisappear gone;
     gone.id = id;
     const std::vector<std::byte> hidden = out.frame_of(gone);
+    const std::vector<std::byte> marked = flags_frame(index, out);
     // Người thấy tôi cả trước lẫn sau chỉ nhận vị trí; người mới thấy nhận hiện ra.
     grid_.for_each_in_window(after, [&](std::uint32_t other) {
         if (other == index) return;
         const Entity& viewer = entities_[other];
         if (viewer.session == 0) return;
-        out.down_frame(viewer.session, grid_.sees(before, viewer.cell) ? moving : shown);
+        const bool kept = grid_.sees(before, viewer.cell);
+        out.down_frame(viewer.session, kept ? moving : shown);
+        if (!kept) out.down_frame(viewer.session, marked);
     });
     grid_.for_each_left(before, after, [&](std::uint32_t other) {
         const Entity& viewer = entities_[other];
@@ -349,7 +368,7 @@ void Scene::relocate(std::uint32_t index, Point to, Outbox& out) {
     });
     if (who.session != 0) {
         grid_.for_each_entered(before, after, [&](std::uint32_t other) {
-            out.down(who.session, appear_of(other));
+            show_to(who.session, other, out);
         });
         grid_.for_each_left(before, after, [&](std::uint32_t other) {
             if (other == index) return;
@@ -380,6 +399,9 @@ void Scene::remove(std::uint32_t index, Outbox& out) {
     who.dirty = false;
     who.live = false;
     who.name.clear();
+    who.script = 0;
+    who.flags = 0;
+    who.guid = 0;
     who.session = 0;
     who.character = 0;
     // Thế hệ quấn sau 65536 lần cấp lại cùng ô; id vẫn khác 0 vì phần chỉ số cộng 1.
@@ -392,6 +414,17 @@ std::optional<std::uint32_t> Scene::entity_of(std::uint64_t session) const noexc
     const auto found = players_.find(session);
     if (found == players_.end()) return std::nullopt;
     return id_at(found->second);
+}
+
+std::optional<Scene::Npc> Scene::npc(std::uint32_t id) const {
+    const std::optional<std::uint32_t> index = index_of(id);
+    if (!index) return std::nullopt;
+    const Entity& who = entities_[*index];
+    if (who.kind != protocol::EntityKind::kNpc || who.script == 0 || (who.flags & 1U) == 0) return std::nullopt;
+    return Npc{.guid = who.guid,
+        .script = who.script,
+        .name = who.name,
+        .at = Where{.x_cm = who.x_cm, .z_cm = who.z_cm, .direction = who.direction}};
 }
 
 std::optional<Scene::Where> Scene::where(std::uint32_t id) const noexcept {

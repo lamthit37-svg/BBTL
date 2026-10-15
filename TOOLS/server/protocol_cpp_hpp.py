@@ -125,6 +125,23 @@ def render_api(catalog: Catalog) -> list[str]:
     return lines
 
 
+def render_since(catalog: Catalog) -> list[str]:
+    """Bảng kind -> bản danh mục đầu tiên có tin đó, để gate lọc tin mà client cũ chưa hiểu."""
+    lines = ["// Bản danh mục đầu tiên có tin mang mã `kind`; 0 với mã không có trong danh mục.",
+             "[[nodiscard]] constexpr std::uint16_t since_of(std::uint16_t kind) noexcept {",
+             "    switch (kind) {"]
+    # Gom các mã cùng bản thành một nhánh: clang-tidy coi chuỗi nhánh giống hệt là bugprone-branch-clone.
+    by_version: dict[int, list[str]] = {}
+    for message in catalog.messages:
+        by_version.setdefault(message.since, []).append(message.kind_text())
+    for version, kinds in sorted(by_version.items()):
+        # clang-format nối nhãn cuối với return của nó.
+        lines.extend(f"    case {kind}:" for kind in kinds[:-1])
+        lines.append(f"    case {kinds[-1]}: return {version};")
+    lines.extend(["    default: return 0;", "    }", "}"])
+    return lines
+
+
 def render_header(catalog: Catalog) -> str:
     """Nội dung SRC/protocol/messages.hpp."""
     lines = [*NOTICE, *wrap_comment(
@@ -141,5 +158,6 @@ def render_header(catalog: Catalog) -> str:
         lines.extend([*limits, ""])
     for owner in (*catalog.records, *catalog.messages):
         lines.extend(render_struct(catalog, owner))
-    lines.extend([*variant_lines(catalog), "", *render_api(catalog), "", "} // namespace game::protocol"])
+    lines.extend([*variant_lines(catalog), "", *render_api(catalog), "", *render_since(catalog), "",
+                  "} // namespace game::protocol"])
     return "\n".join(lines) + "\n"

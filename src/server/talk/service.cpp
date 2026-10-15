@@ -1,4 +1,18 @@
-// Dịch vụ hội thoại: phiên do máy chủ giữ, tính lại hộp thoại trước khi chạy lựa chọn, dấu nhiệm vụ của NPC. Xem service.hpp cho hợp đồng.
+/*==============================================================================
+ *  THIENLONG  |  GAME SERVER
+ *------------------------------------------------------------------------------
+ *  TỆP       : src/server/talk/service.cpp
+ *  PHÂN HỆ   : Server / Talk / Service
+ *  CHUẨN     : C++23
+ *------------------------------------------------------------------------------
+ *  CHỨC NĂNG
+ *  - Dịch vụ hội thoại: phiên do máy chủ giữ, tính lại hộp thoại trước khi chạy
+ *    lựa chọn, dấu nhiệm vụ của NPC. Xem service.hpp cho hợp đồng.
+ *------------------------------------------------------------------------------
+ *  TÁC GIẢ   : HiepHoon
+ *  TELEGRAM  : @Hoon9xx
+ *============================================================================*/
+
 #include "talk/service.hpp"
 
 #include "ids/ids.hpp"
@@ -153,7 +167,11 @@ std::expected<Service::Built, Failure> Service::run(mission::Character& hero, co
     if (root) collect_marks(engine_, hero, npc, calendar, dialogue);
     // Bảng nhiệm vụ của script nhiệm vụ: hộp thoại này nói về nhiệm vụ nào (để client biết nhận/nộp cái nào).
     if (ran && panel_mode(dialogue.view().mode)) {
-        if (const mission::Quest* const quest = engine_.catalog().by_script(script)) dialogue.set_panel(quest->quest);
+        if (const mission::Quest* const quest = engine_.catalog().by_script(script)) {
+            // Nhiệm vụ chưa chạy được (không có trong danh bạ client, chưa hỗ trợ): không mời, vì nút Nhận sẽ chỉ báo lỗi.
+            if (!quest->runnable()) return fail(Error::kNoDialog);
+            dialogue.set_panel(quest->quest);
+        }
     }
     Built built;
     built.options = dialogue.options();

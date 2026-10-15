@@ -768,4 +768,50 @@ using AuthServerResult = std::expected<AuthServerMessage, WireError>;
 [[nodiscard]] AuthClientResult decode_auth_client(const Frame& frame, ByteView body);
 [[nodiscard]] AuthServerResult decode_auth_server(const Frame& frame, ByteView body);
 
+// Bản danh mục đầu tiên có tin mang mã `kind`; 0 với mã không có trong danh mục.
+[[nodiscard]] constexpr std::uint16_t since_of(std::uint16_t kind) noexcept {
+    switch (kind) {
+    case 0x0101:
+    case 0x0102:
+    case 0x0103:
+    case 0x0104:
+    case 0x0105:
+    case 0x0201:
+    case 0x0202:
+    case 0x0203:
+    case 0x0301:
+    case 0x0501:
+    case 0x0502:
+    case 0x8101:
+    case 0x8102:
+    case 0x8103:
+    case 0x8104:
+    case 0x8106:
+    case 0x8107:
+    case 0x8108:
+    case 0x8201:
+    case 0x8301:
+    case 0x8501: return 1;
+    case 0x8109: return 2;
+    case 0x8401:
+    case 0x8402:
+    case 0x8403:
+    case 0x8404:
+    case 0x8405: return 4;
+    case 0x0601:
+    case 0x0602:
+    case 0x0603:
+    case 0x0604:
+    case 0x0605:
+    case 0x0606:
+    case 0x8406:
+    case 0x8601:
+    case 0x8602:
+    case 0x8603:
+    case 0x8604:
+    case 0x8701: return 5;
+    default: return 0;
+    }
+}
+
 } // namespace game::protocol

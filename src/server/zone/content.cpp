@@ -34,6 +34,7 @@
 #include <cstdio>
 #include <expected>
 #include <format>
+#include <functional>
 #include <iterator>
 #include <memory>
 #include <optional>
@@ -228,6 +229,7 @@ Seeding seeds_of(const scenedata::Scene& scene, std::size_t cap, const SeedTable
         Spawn what;
         what.kind = kind_of(row, info);
         what.template_id = row.type.value();
+        what.guid = row.guid;
         what.name = row.name;
         // Cấp trong bảng cảnh ghi đè cấp của mẫu; 0 nghĩa là client lấy theo mẫu (Spawn mặc định cấp 1).
         what.level = 0;
@@ -239,6 +241,10 @@ Seeding seeds_of(const scenedata::Scene& scene, std::size_t cap, const SeedTable
         what.x_cm = row.position.x * 100.0F;
         what.z_cm = row.position.z * 100.0F;
         what.direction = direction_of_degrees(row.heading_degrees());
+        if (what.kind == protocol::EntityKind::kNpc && row.script_id > 0) {
+            what.script = static_cast<std::uint32_t>(row.script_id);
+            if (tables.talks && tables.talks(what.script)) what.flags = 1;
+        }
         what.nature = nature_of(row, what.kind, info, tables.ai_types);
         if (what.nature) what.speed_cm = what.nature->walk_cm;
         result.seeds.push_back(Seed{.what = std::move(what), .respawn_ms = row.respawn_ms});
@@ -295,10 +301,12 @@ namespace {
 // Trạng thái của DiskSeeder. Bảng id đọc ở lần hỏi đầu, không phải lúc dựng: cụm khởi động (và test cụm với thư mục
 // cấu hình tạm) không đọc đĩa khi chưa có cảnh nào. Chỉ luồng tick của zone gọi, nên không cần khoá.
 struct DiskState {
-    DiskState(DiskPaths where, std::size_t limit) : paths(std::move(where)), cap(limit) {}
+    DiskState(DiskPaths where, std::size_t limit, std::function<bool(std::uint32_t)> speaks)
+        : paths(std::move(where)), cap(limit), talks(std::move(speaks)) {}
 
     DiskPaths paths;
     std::size_t cap = 0;
+    std::function<bool(std::uint32_t)> talks;
     bool tried = false;
     std::optional<SceneDirectory> directory;
     TemplateTable templates;
@@ -359,7 +367,7 @@ struct DiskState {
             std::println(stderr, "zone: cảnh {} ({}): {}", scene, name, loaded.error().what);
             return {};
         }
-        const SeedTables tables{.templates = &templates, .ai_types = has_ai_types ? &ai_types : nullptr};
+        const SeedTables tables{.templates = &templates, .ai_types = has_ai_types ? &ai_types : nullptr, .talks = talks};
         Seeding seeding = seeds_of(*loaded, cap, tables);
         if (seeding.over_cap > 0) {
             std::println(stderr, "zone: cảnh {} ({}): bỏ {} thực thể vượt trần {}", scene, name, seeding.over_cap, cap);
@@ -371,8 +379,8 @@ struct DiskState {
 
 } // namespace
 
-Seeder disk_seeder(const DiskPaths& paths, std::size_t cap) {
-    const auto state = std::make_shared<DiskState>(paths, cap);
+Seeder disk_seeder(const DiskPaths& paths, std::size_t cap, std::function<bool(std::uint32_t script)> talks) {
+    const auto state = std::make_shared<DiskState>(paths, cap, std::move(talks));
     return [state](std::uint16_t scene) { return state->content(scene); };
 }
 

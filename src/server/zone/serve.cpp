@@ -28,6 +28,7 @@
 #include "ipc/link.hpp"
 #include "ipc/relay.hpp"
 #include "net/net.hpp"
+#include "play/world.hpp"
 #include "process/process.hpp"
 #include "secure/secure.hpp"
 #include "zone/content.hpp"
@@ -41,12 +42,14 @@
 #include <cstddef>
 #include <cstdint>
 #include <cstdio>
+#include <expected>
 #include <filesystem>
 #include <format>
 #include <memory>
 #include <optional>
 #include <print>
 #include <string>
+#include <system_error>
 #include <utility>
 
 namespace game::zone {
@@ -68,6 +71,8 @@ struct Settings {
     std::optional<net::Endpoint> store;
     std::int64_t hz = kTickHz;
     Host::Config host{};
+    // Dữ liệu chơi; rỗng khi cây bảng không có (cụm thử cấu hình tạm): zone vẫn chạy nhưng không có hội thoại.
+    std::shared_ptr<const play::World> world;
 };
 
 [[nodiscard]] std::optional<net::Endpoint> endpoint_of(const config::ProcessBlock& block) {
@@ -97,6 +102,32 @@ struct Settings {
     return true;
 }
 
+// Nạp dữ liệu chơi. Cây bảng nhiệm vụ vắng hẳn thì chạy không gameplay (nói ra stderr); có mà hỏng thì dừng: nửa vời
+// còn tệ hơn không có.
+struct Roots {
+    Path data;
+    Path config;
+};
+
+[[nodiscard]] bool load_world(const Roots& roots, Settings& settings, std::string& error) {
+    const Path tables = roots.data / "tables";
+    std::error_code missing;
+    if (!std::filesystem::exists(tables / "server" / "mission_quests.tsv", missing)) {
+        std::println(stderr, "zone: không có bảng nhiệm vụ: chạy không có hội thoại và nhiệm vụ");
+        return true;
+    }
+    const Path base = roots.config.has_filename() ? roots.config : roots.config.parent_path();
+    std::expected<play::World, std::string> loaded =
+        play::World::load(play::Paths{.tables = tables, .text_override = base / "text", .language = "zh"});
+    if (!loaded) {
+        error = "dữ liệu chơi: " + loaded.error();
+        return false;
+    }
+    settings.world = std::make_shared<const play::World>(std::move(*loaded));
+    settings.host.world = settings.world.get();
+    return true;
+}
+
 [[nodiscard]] std::optional<Settings> load_settings(const Path& config_dir, std::string& error) {
     const io::TextResult cluster_text = io::read_text(config_dir / "cluster.toml");
     const io::TextResult zone_text = io::read_text(config_dir / "zone.toml");
@@ -114,12 +145,15 @@ struct Settings {
     if (!tune(*zone, settings, error)) return std::nullopt;
     // Bố cục dev/server và release/server: config, scenes và tables là anh em.
     const Path data_root = (config_dir.has_filename() ? config_dir : config_dir.parent_path()).parent_path();
+    if (!load_world(Roots{.data = data_root, .config = config_dir}, settings, error)) return std::nullopt;
+    const std::shared_ptr<const play::World> world = settings.world;
     settings.host.seeder = disk_seeder(
         DiskPaths{.scenes = data_root / "scenes",
             .ids_table = data_root / "tables" / "server" / "scene_ids.tsv",
             .templates = data_root / "tables" / "shared" / "monsters.tsv",
             .ai_types = data_root / "tables" / "server" / "monster_ai_types.tsv"},
-        static_cast<std::size_t>(zone->monsters));
+        static_cast<std::size_t>(zone->monsters),
+        [world](std::uint32_t script) { return world != nullptr && world->speaks(script); });
     bool found = false;
     for (const config::ProcessBlock& block : cluster->processes) {
         if (block.id.value() != 0) continue;
@@ -272,6 +306,8 @@ void accept_gate(net::TcpListener& listener, World& world, secure::ByteView key)
         }
         if (world.session.link && !drain(world)) lose(world);
         if (Clock::now() < deadline) continue;
+        world.host.set_unix_time(std::chrono::duration_cast<std::chrono::seconds>(
+            std::chrono::system_clock::now().time_since_epoch()).count());
         world.host.advance(world.out);
         if (world.session.link) flush(world.session, world.out);
         world.out.clear();

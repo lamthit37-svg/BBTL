@@ -17,7 +17,7 @@
  *============================================================================*/
 
 // Chạy: thienlong_bot --identity <identity.key> [--game 7000] [--auth 7001] [--count 4] [--seconds 6] [--prefix bot]
-//       [--straight 1] [--hunt <x_m>,<z_m>]
+//       [--straight 1] [--hunt <x_m>,<z_m>] [--talk <x_m>,<z_m>]
 // Thoát 0 khi mọi khách vào được cảnh và thấy đủ những khách còn lại; khác 0 kèm lý do.
 // --straight 1: mỗi khách đi thẳng một hướng (chia đều 360 độ theo số khách) tới khi bị luật đi của zone chặn, rồi
 // đo việc server kéo về: phải có ít nhất một lần kéo về, và mỗi lần kéo về chỉ lùi vài bước so với chỗ khách tưởng
@@ -79,6 +79,8 @@ struct Options {
     bool straight = false;
     // Điểm tới của --hunt, centimet.
     std::optional<std::pair<float, float>> hunt;
+    // Điểm tới của --talk, centimet.
+    std::optional<std::pair<float, float>> talk;
 };
 
 struct Tally {
@@ -97,6 +99,11 @@ struct Tally {
     std::atomic<int> monster_walking{0};
     std::atomic<int> monster_resting{0};
     std::atomic<int> closest_cm{1'000'000};
+    // Chỉ chế độ --talk: NPC bấm được thấy, hộp thoại mở, bảng nhận nhiệm vụ gặp, và nhiệm vụ vào sổ.
+    std::atomic<int> talkable{0};
+    std::atomic<int> dialogs{0};
+    std::atomic<int> offers{0};
+    std::atomic<int> accepted{0};
 };
 
 void report(std::string_view who, std::string_view what) { std::println(stderr, "[{}] {}", who, what); }
@@ -165,9 +172,21 @@ template <typename Message>
     return std::nullopt;
 }
 
+struct Npc {
+    std::string name;
+    float x_cm = 0.0F;
+    float z_cm = 0.0F;
+};
+
 struct Seen {
     // Loại của từng thực thể đã hiện, và chỗ khách đang đứng (để đo khoảng tới quái).
     std::unordered_map<std::uint32_t, protocol::EntityKind> kinds;
+    // NPC chưa có cờ bấm được, và NPC đã có cờ bit 0 (bấm vào để nói chuyện).
+    std::unordered_map<std::uint32_t, Npc> npcs;
+    std::unordered_map<std::uint32_t, Npc> talkable;
+    // Tin hội thoại và sổ nhiệm vụ mới nhất.
+    std::optional<protocol::DialogOpen> dialog;
+    std::optional<protocol::QuestBook> book;
     float x_cm = 0.0F;
     float z_cm = 0.0F;
     std::optional<protocol::Position> position;
@@ -191,6 +210,9 @@ void note(const protocol::GameServerMessage& message, Seen& seen, Tally& tally) 
     if (std::holds_alternative<protocol::SceneEnter>(message)) ++tally.entered;
     if (const auto* shown = std::get_if<protocol::EntityAppear>(&message)) {
         seen.kinds[shown->id] = shown->kind;
+        if (shown->kind == protocol::EntityKind::kNpc) {
+            seen.npcs[shown->id] = Npc{.name = shown->name, .x_cm = shown->x_cm, .z_cm = shown->z_cm};
+        }
         if (shown->kind == protocol::EntityKind::kPlayer) {
             ++tally.appear;
         } else if (shown->kind == protocol::EntityKind::kNpc) {
@@ -199,6 +221,14 @@ void note(const protocol::GameServerMessage& message, Seen& seen, Tally& tally) 
             ++tally.monsters;
         }
     }
+    if (const auto* flags = std::get_if<protocol::EntityFlags>(&message)) {
+        const auto npc = seen.npcs.find(flags->id);
+        if ((flags->flags & 1U) != 0 && npc != seen.npcs.end() && seen.talkable.emplace(flags->id, npc->second).second) {
+            ++tally.talkable;
+        }
+    }
+    if (const auto* dialog = std::get_if<protocol::DialogOpen>(&message)) seen.dialog = *dialog;
+    if (const auto* book = std::get_if<protocol::QuestBook>(&message)) seen.book = *book;
     if (std::holds_alternative<protocol::EntityDisappear>(message)) ++tally.disappear;
     if (const auto* moved = std::get_if<protocol::EntityPos>(&message)) {
         ++tally.position;
@@ -251,17 +281,12 @@ void walk(link::Link& line, Seen& seen, Tally& tally, const protocol::Position& 
     }
 }
 
-// Đi thẳng tới `goal` (10 cm mỗi bước, 30 bước mỗi giây) rồi đứng lại `seconds` giây, vẫn đọc mọi tin và gửi Ping mỗi
-// giây để giữ phiên. Position kéo về thì đặt lại vị trí như client thật.
-void hunt(link::Link& line, Seen& seen, Tally& tally, const protocol::Position& start, std::pair<float, float> goal,
-    int seconds) {
+// Đi thẳng tới khi cách `goal` không quá `close_cm` (10 cm mỗi bước, 30 bước mỗi giây), vẫn đọc mọi tin. Position kéo
+// về thì đặt lại vị trí như client thật.
+void go(link::Link& line, Seen& seen, Tally& tally, std::pair<float, float> goal, float close_cm, std::uint32_t& tick) {
     constexpr float kStepCm = 10.0F;
-    constexpr float kCloseCm = 300.0F;
-    seen.x_cm = start.x_cm;
-    seen.z_cm = start.z_cm;
-    std::uint32_t tick = 0;
     const auto give_up = Clock::now() + std::chrono::seconds{120};
-    while (Clock::now() < give_up && !seen.refused && std::hypot(goal.first - seen.x_cm, goal.second - seen.z_cm) > kCloseCm) {
+    while (Clock::now() < give_up && !seen.refused && std::hypot(goal.first - seen.x_cm, goal.second - seen.z_cm) > close_cm) {
         ++tick;
         const float heading = std::atan2(goal.second - seen.z_cm, goal.first - seen.x_cm);
         seen.x_cm += kStepCm * std::cos(heading);
@@ -279,6 +304,16 @@ void hunt(link::Link& line, Seen& seen, Tally& tally, const protocol::Position& 
             }
         }
     }
+}
+
+// Đi thẳng tới `goal` rồi đứng lại `seconds` giây, vẫn đọc mọi tin và gửi Ping mỗi giây để giữ phiên.
+void hunt(link::Link& line, Seen& seen, Tally& tally, const protocol::Position& start, std::pair<float, float> goal,
+    int seconds) {
+    constexpr float kCloseCm = 300.0F;
+    seen.x_cm = start.x_cm;
+    seen.z_cm = start.z_cm;
+    std::uint32_t tick = 0;
+    go(line, seen, tally, goal, kCloseCm, tick);
     std::println("  tới ({:.0f}, {:.0f}) cm, còn cách đích {:.0f} cm", seen.x_cm, seen.z_cm,
         std::hypot(goal.first - seen.x_cm, goal.second - seen.z_cm));
     const auto until = Clock::now() + std::chrono::seconds{seconds};
@@ -291,6 +326,91 @@ void hunt(link::Link& line, Seen& seen, Tally& tally, const protocol::Position& 
         const auto message = read_game(line, net::Milliseconds{20});
         if (message) note(*message, seen, tally);
     }
+}
+
+// Đọc mọi tin tới khi `done()` đúng hoặc hết `wait`.
+template <typename Done>
+void listen(link::Link& line, Seen& seen, Tally& tally, std::chrono::milliseconds wait, Done done) {
+    const auto until = Clock::now() + wait;
+    while (Clock::now() < until && !seen.refused && !done()) {
+        const auto message = read_game(line, net::Milliseconds{20});
+        if (message) note(*message, seen, tally);
+    }
+}
+
+// NPC bấm được gần `from` nhất.
+[[nodiscard]] std::optional<std::pair<std::uint32_t, Npc>> nearest_talkable(const Seen& seen) {
+    std::optional<std::pair<std::uint32_t, Npc>> best;
+    float best_gap = 0.0F;
+    for (const auto& [id, npc] : seen.talkable) {
+        const float gap = std::hypot(npc.x_cm - seen.x_cm, npc.z_cm - seen.z_cm);
+        if (!best || gap < best_gap) {
+            best = std::pair{id, npc};
+            best_gap = gap;
+        }
+    }
+    return best;
+}
+
+// Nói chuyện với NPC bấm được gần nhất: duyệt từng lựa chọn (chọn, rồi nói lại với NPC để về hộp thoại gốc) tới khi gặp
+// bảng nhận nhiệm vụ, nhận, và chờ sổ nhiệm vụ có ô mới.
+void converse(link::Link& line, Seen& seen, Tally& tally, std::uint32_t npc, std::uint32_t& tick) {
+    constexpr std::chrono::milliseconds kReply{1500};
+    // Mỗi tin cách nhau hơn nhịp 100 ms để không chạm trần mười ý định mỗi giây của server.
+    const auto pace = [] { std::this_thread::sleep_for(std::chrono::milliseconds{150}); };
+    const auto ask = [&](const auto& message) {
+        pace();
+        seen.dialog.reset();
+        return send(line, message);
+    };
+    if (!ask(protocol::Talk{.npc = npc})) return;
+    listen(line, seen, tally, kReply, [&] { return seen.dialog.has_value(); });
+    if (!seen.dialog) return;
+    ++tally.dialogs;
+    std::println("  hộp thoại: {} dòng, {} lựa chọn", seen.dialog->lines.size(), seen.dialog->choices.size());
+    const protocol::DialogOpen root = *seen.dialog;
+    for (const protocol::DialogChoice& choice : root.choices) {
+        if (!ask(protocol::DialogChoose{.session = root.session, .index = choice.index})) return;
+        listen(line, seen, tally, kReply, [&] { return seen.dialog.has_value(); });
+        if (seen.dialog && seen.dialog->mode == protocol::DialogMode::kMissionInfo && seen.dialog->panel_quest >= 0) {
+            ++tally.offers;
+            const auto quest = static_cast<std::uint16_t>(seen.dialog->panel_quest);
+            std::println("  gặp bảng nhận nhiệm vụ {}", quest);
+            seen.book.reset();
+            if (!ask(protocol::QuestAccept{.session = seen.dialog->session, .quest = quest})) return;
+            listen(line, seen, tally, kReply, [&] { return seen.book.has_value(); });
+            if (seen.book && !seen.book->slots.empty()) {
+                ++tally.accepted;
+                std::println("  nhiệm vụ {} đã vào sổ ({} ô)", seen.book->slots.front().quest, seen.book->slots.size());
+            }
+            return;
+        }
+        if (!ask(protocol::Talk{.npc = npc})) return;
+        listen(line, seen, tally, kReply, [&] { return seen.dialog.has_value(); });
+        if (!seen.dialog) return;
+        ++tick;
+    }
+}
+
+// Đi tới `goal`, chờ NPC bấm được hiện ra, đi tới sát NPC gần nhất rồi nói chuyện (xem converse).
+void talk(link::Link& line, Seen& seen, Tally& tally, const protocol::Position& start, std::pair<float, float> goal) {
+    constexpr float kCloseCm = 300.0F;
+    constexpr float kTalkCm = 150.0F;
+    seen.x_cm = start.x_cm;
+    seen.z_cm = start.z_cm;
+    std::uint32_t tick = 0;
+    go(line, seen, tally, goal, kCloseCm, tick);
+    listen(line, seen, tally, std::chrono::milliseconds{1500}, [] { return false; });
+    const auto target = nearest_talkable(seen);
+    if (!target) {
+        std::println("  không thấy NPC bấm được quanh ({:.0f}, {:.0f})", seen.x_cm, seen.z_cm);
+        return;
+    }
+    std::println("  NPC gần nhất: {} (id {:#x}), cách {:.0f} cm", target->second.name, target->first,
+        std::hypot(target->second.x_cm - seen.x_cm, target->second.z_cm - seen.z_cm));
+    go(line, seen, tally, std::pair{target->second.x_cm, target->second.z_cm}, kTalkCm, tick);
+    listen(line, seen, tally, std::chrono::milliseconds{300}, [] { return false; });
+    converse(line, seen, tally, target->first, tick);
 }
 
 void run_bot(const Options& options, const secure::PublicKey& server, int index, Tally& tally) {
@@ -335,7 +455,9 @@ void run_bot(const Options& options, const secure::PublicKey& server, int index,
     }
     if (!seen.position) return fail("EnterGame bị từ chối");
     std::println("[{}] vào tại x={:.0f} z={:.0f} (cm)", account, seen.position->x_cm, seen.position->z_cm);
-    if (options.hunt) {
+    if (options.talk) {
+        talk(*line, seen, tally, *seen.position, *options.talk);
+    } else if (options.hunt) {
         hunt(*line, seen, tally, *seen.position, *options.hunt, options.seconds);
     } else if (options.straight) {
         const float heading = 2.0F * std::numbers::pi_v<float> * static_cast<float>(index) / static_cast<float>(options.count);
@@ -389,13 +511,14 @@ void run_bot(const Options& options, const secure::PublicKey& server, int index,
             options.prefix = value;
         } else if (key == "--straight") {
             options.straight = value == "1";
-        } else if (key == "--hunt") {
+        } else if (key == "--hunt" || key == "--talk") {
             const std::size_t comma = value.find(',');
             if (comma == std::string_view::npos) return std::nullopt;
             const std::optional<int> east = whole_number(value.substr(0, comma));
             const std::optional<int> south = whole_number(value.substr(comma + 1));
             if (!east || !south) return std::nullopt;
-            options.hunt = std::pair{static_cast<float>(*east) * 100.0F, static_cast<float>(*south) * 100.0F};
+            (key == "--hunt" ? options.hunt : options.talk) =
+                std::pair{static_cast<float>(*east) * 100.0F, static_cast<float>(*south) * 100.0F};
         } else {
             return std::nullopt;
         }
@@ -413,7 +536,7 @@ int main(int argc, char** argv) {
         parse(std::span<const char* const>{argv, static_cast<std::size_t>(argc)});
     if (!options) {
         std::println(stderr, "dùng: thienlong_bot --identity <identity.key> [--game 7000] [--auth 7001] [--count 4] "
-                             "[--seconds 6] [--prefix bot] [--straight 1] [--hunt <x_m>,<z_m>]");
+                             "[--seconds 6] [--prefix bot] [--straight 1] [--hunt <x_m>,<z_m>] [--talk <x_m>,<z_m>]");
         return 2;
     }
     const net::NetResult<net::Network> network = net::Network::start();
@@ -438,6 +561,11 @@ int main(int argc, char** argv) {
         tally.npcs.load(), tally.monsters.load(), tally.corrections.load(), tally.drifted.load(), tally.failed.load());
     if (tally.failed.load() != 0) return 1;
     if (tally.entered.load() != options->count) return 1;
+    if (options->talk) {
+        std::println("hội thoại: NPC bấm được={} hộp thoại={} bảng nhận={} đã nhận={}", tally.talkable.load(),
+            tally.dialogs.load(), tally.offers.load(), tally.accepted.load());
+        return tally.accepted.load() > 0 ? 0 : 1;
+    }
     if (options->hunt) {
         std::println("quái đi: Walk={} Idle={}, gần nhất {} cm", tally.monster_walking.load(), tally.monster_resting.load(),
             tally.closest_cm.load());

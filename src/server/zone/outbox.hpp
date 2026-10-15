@@ -96,6 +96,8 @@ public:
     [[nodiscard]] std::vector<Letter> take() noexcept { return std::exchange(letters_, {}); }
     [[nodiscard]] std::vector<Save> take_saves() noexcept { return std::exchange(saves_, {}); }
     [[nodiscard]] std::size_t failures() const noexcept { return failures_; }
+    // Gameplay mã hoá tin riêng (play::Output); số tin hỏng của nó cộng vào cùng bộ đếm.
+    void count_failures(std::size_t more) noexcept { failures_ += more; }
     // Bỏ thư chưa gửi. Điểm đứng cần ghi thì không bao giờ bị bỏ ở đây: lấy bằng take_saves().
     void clear() noexcept { letters_.clear(); }
 
