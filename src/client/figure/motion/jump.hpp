@@ -1,6 +1,6 @@
 #pragma once
 // Nhảy của nhân vật theo client 2026 (Game.exe 64 bit, tháo bằng TOOLS/port/pe_refs.py):
-// - CObject_Character::Jump (0x1405ea2f0..0x1405ea4b8, có bản thu gọn 0x1405ea4d0): từ chối khi chết,
+// - CObject_Character::Jump (0x1405ea2b0..0x1405ea4b8, có bản thu gọn 0x1405ea4d0): từ chối khi chết,
 //   bị khoá di chuyển, đang nhảy hay logic không cho; đang chạy mà không cưỡi thì rand() % 4 == 0 chọn
 //   BASE_ACTION_N_JUMP_R (12), còn lại BASE_ACTION_N_JUMP_N (9); đứng yên luôn là 9; bật vật lý và cộng
 //   vận tốc đứng 12 (hằng 0x140c1cdb8).

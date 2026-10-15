@@ -25,7 +25,7 @@
 
 namespace game::skill {
 
-// Loại action. Số loại của bảng tên trong Game.exe (0x140ed78d0): "skill" 1, "life" 2, "xinfa" 7,
+// Loại action. Số loại của bảng tên trong Game.exe (0x140ed88d0): "skill" 1, "life" 2, "xinfa" 7,
 // "zhenfaskill" 102; action thú cưng không có tên loại.
 enum class ActionKind : std::uint8_t { kSkill, kLifeSkill, kInnerArt, kPet, kFormation };
 
@@ -143,8 +143,8 @@ inline constexpr std::array<PetFace, kPetActions> kPetFaces = {{
     {.icon = "FightSkillXinShou_12", .name_key = "ZSHT_BC_1008_11"},
 }};
 
-// IsLMSJSecond (0x14023f8f0: id 821..826), IsJYJYSecond (0x14023f980: 827..834) và IsWJQFSecond
-// (0x14023fa10: 4465, 4466) gộp lại: id là bản thứ hai của một kỹ năng. Script luôn hỏi cả ba cùng
+// IsLMSJSecond (0x14023fdf0: id 821..826), IsJYJYSecond (0x14023fe80: 827..834) và IsWJQFSecond
+// (0x14023ff10: 4465, 4466) gộp lại: id là bản thứ hai của một kỹ năng. Script luôn hỏi cả ba cùng
 // lúc và không liệt kê bản thứ hai ở trang nào.
 [[nodiscard]] constexpr bool is_second_form(std::int32_t id) noexcept {
     constexpr std::int32_t kFirstPaired = 821;
