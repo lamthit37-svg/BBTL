@@ -143,17 +143,20 @@ HostStep host_step(BootLoad& boot, bool& is_playing, Request request) {
         return step;
     }
     if (request.kind != RequestKind::kEnterGame || is_playing) return step;
-    if (!boot.playing || !boot.first_scene) {
+    // Trực tuyến: cảnh máy chủ đặt thắng startup.id (cùng viewer PC, enter_game).
+    const std::optional<int> resid = request.entry ? std::optional<int>{request.entry->scene} : boot.first_scene;
+    if (!boot.playing || !resid) {
         step.detail = "thư mục dữ liệu không có bảng cảnh hay cảnh đầu tiên";
         return step;
     }
-    const EnterNote entered = enter_startup(*boot.playing, *boot.first_scene, boot.data_root);
+    const EnterNote entered = enter_startup(*boot.playing, *resid, boot.data_root);
     if (!entered.ok) {
         step.detail = entered.detail;
         return step;
     }
     is_playing = true;
     step.ask = HostAsk::kEntered;
+    step.entry = request.entry;
     return step;
 }
 

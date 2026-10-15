@@ -73,9 +73,13 @@ struct HostStep {
     HostAsk ask = HostAsk::kNone;
     WebLink link = WebLink::kHelp;
     std::string detail;
+    // kEntered trực tuyến: chỗ đứng máy chủ đặt, vỏ đưa cho Display::play. Rỗng khi vào cảnh khởi đầu cục bộ.
+    std::optional<EntryPoint> entry;
 };
 
-// KEnterGame khi chưa chơi: enter_startup resid first_scene. Đang chơi thì bỏ lời vào game.
+// KEnterGame khi chưa chơi: trực tuyến (request.entry) thì vào cảnh máy chủ đặt, cục bộ thì enter_startup resid
+// first_scene. Thất bại thì detail nói lý do; trực tuyến thì vỏ phải trả phiên (máy chủ tưởng người chơi đã vào). Đang
+// chơi thì bỏ lời vào game.
 // kind lạ (không phải ba giá trị của RequestKind) là kNone, không đổi is_playing.
 [[nodiscard]] HostStep host_step(BootLoad& boot, bool& is_playing, Request request);
 

@@ -193,6 +193,34 @@ void host_step_stays_when_the_book_or_the_file_is_missing(Context& context) {
     context.expect(!no_file.detail.empty(), "lỗi enter có một dòng");
 }
 
+// Trực tuyến: máy chủ đặt cảnh và chỗ đứng (request.entry); vỏ vào đúng cảnh đó chứ không vào startup.id, và chuyển chỗ
+// đứng cho Display::play. Cảnh máy chủ nói mà gói không có thì ở lại, có lý do để vỏ trả phiên.
+void host_step_enters_the_scene_the_server_placed(Context& context) {
+    const Scratch dir = scratch_of("thienlong-boot-entry");
+    constexpr std::string_view kTable = "251\thuoyangu\t128\t128\thuoyangu.Scene\n2\tdali\t128\t128\tdali.Scene\n"
+                                        "7\tkhongco\t128\t128\tkhongco.Scene\n";
+    context.expect(write_text(dir.root / "Config" / "SceneDefineEx.txt", kTable), "ghi bảng cảnh");
+    context.expect(write_text(dir.root / "Config" / "startup.id", "251\n"), "ghi startup.id");
+    context.expect(write_text(dir.root / "Scene" / "huoyangu.Scene", kScene), "ghi cảnh khởi đầu");
+    context.expect(write_text(dir.root / "Scene" / "dali.Scene", kScene), "ghi cảnh máy chủ đặt");
+    client::BootLoad boot = client::load_login(dir.root);
+    bool is_playing = false;
+    client::Request absent;
+    absent.kind = client::RequestKind::kEnterGame;
+    absent.entry = client::EntryPoint{.scene = 7, .x = 1.0F, .z = 2.0F};
+    const client::HostStep refused = client::host_step(boot, is_playing, absent);
+    context.expect(refused.ask == client::HostAsk::kNone && !is_playing, "cảnh không có trong gói thì ở lại");
+    context.expect(!refused.detail.empty() && !refused.entry, "có lý do, không có chỗ vào");
+    client::Request placed;
+    placed.kind = client::RequestKind::kEnterGame;
+    placed.entry = client::EntryPoint{.scene = 2, .x = 10.5F, .z = 20.25F};
+    const client::HostStep step = client::host_step(boot, is_playing, placed);
+    context.expect(step.ask == client::HostAsk::kEntered && is_playing, "vào game");
+    context.expect(boot.playing && boot.playing->current && boot.playing->current->id == 2, "vào cảnh máy chủ đặt");
+    context.expect(step.entry && step.entry->scene == 2 && step.entry->x == 10.5F && step.entry->z == 20.25F,
+        "chỗ đứng máy chủ đặt đi tiếp cho Display::play");
+}
+
 void unknown_web_link_has_a_name(Context& context) {
     context.expect(client::web_link_name(client::WebLink::kRegister) == "đăng ký tài khoản", "tên trang đăng ký");
     const auto strange = static_cast<client::WebLink>(255);
@@ -213,6 +241,7 @@ constexpr std::array kCases{
         .body = &host_step_enters_once_and_ignores_a_strange_request},
     Case{.name = "host_step_stays_when_the_book_or_the_file_is_missing",
         .body = &host_step_stays_when_the_book_or_the_file_is_missing},
+    Case{.name = "host_step_enters_the_scene_the_server_placed", .body = &host_step_enters_the_scene_the_server_placed},
     Case{.name = "unknown_web_link_has_a_name", .body = &unknown_web_link_has_a_name},
 };
 
