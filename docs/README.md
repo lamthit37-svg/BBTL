@@ -1,7 +1,7 @@
 # Chỉ mục tài liệu THIENLONG
 
 Mọi phân tích, quyết định và số đo của dự án nằm ở hai chỗ sống: `docs/` (tài liệu
-dự án) và `TAILIEU/` (phân tích mã máy client gốc 2026). Mục 0 của `AGENTS.md` là
+dự án) và `docs/TAILIEU/` (phân tích mã máy client gốc 2026). Mục 0 của `AGENTS.md` là
 trạng thái hiện tại theo mã; `docs/TIEN-DO.md` là nhật ký theo phiên.
 
 Ngày 2026-10-14 đã dọn một lượt theo đúng mã hiện tại (`main` ở `1ff6703`):
@@ -41,7 +41,7 @@ bản duy nhất nằm ở `D:\CLAUDE\cpp23` (`~/.claude/cpp23` trỏ vào đó)
 - `CHEP-FORGE2.md` — quy trình chép một tệp từ Forge2.
 - `DINH-DANG-TLA.md` — định dạng tệp âm thanh đã cook `.tla`.
 - `I18N-BAO-CAO-2026-10-13.md` — báo cáo bản địa hoá ba ngôn ngữ (bản cuối).
-- `TAILIEU/README.md` — chỉ mục phân tích mã máy mới (đăng nhập gốc, gói tin,
+- `docs/TAILIEU/README.md` — chỉ mục phân tích mã máy mới (đăng nhập gốc, gói tin,
   tốc độ nạp, giao diện màn chơi) và chỉ mục tài liệu cũ ở `docs/`.
 - `AUDIT-2026-10-14/` — audit kỹ thuật theo mã ở `1ff6703` (inventory đã đo,
   kiến trúc AS-IS, findings `AUD-*` có evidence, gap + quality gates, metrics,
@@ -53,7 +53,7 @@ bản duy nhất nằm ở `D:\CLAUDE\cpp23` (`~/.claude/cpp23` trỏ vào đó)
 ## Tệp đã biết thiếu
 
 - `docs/NHIEM-VU-VO-CONG-2026.md` — code (`src/client/book/*`, `Test/Quest`,
-  `Test/Skill`, `TOOLS/port/oracle/*`) và `TAILIEU/README.md` còn trỏ tới, nhưng
+  `Test/Skill`, `TOOLS/port/oracle/*`) và `docs/TAILIEU/README.md` còn trỏ tới, nhưng
   tệp không còn ở `docs/` sau vụ mất cây 2026-10-09. Bản cũ (165 KB) còn ở
   `docs/KHOI-PHUC-2026-10-09/chua-du/docs/NHIEM-VU-VO-CONG-2026.md`, kém bản cuối
   khoảng 223/6226 dòng theo `BAO-CAO-GHEP.tsv`. Chưa khôi phục vì bản cũ khác bản

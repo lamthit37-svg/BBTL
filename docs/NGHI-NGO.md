@@ -968,6 +968,23 @@ kết luận ngay dưới mục đó chứ không xoá.
     triển không có GPU tích hợp (i5-14600KF). Cần để kết luận: chạy `thienlong_screen_pace` cùng client `--walk` trên một máy GPU tích hợp
     có màn 120 Hz trở lên; nếu tỉ lệ "đúng 1 nhịp quét" thấp hơn ở 60 Hz thì đưa `is_discrete` (hoặc số đo khung thật) vào trần.
 
+56. **Bản tiếng Việt của chữ thoại máy chủ 2026-10-15: các chỗ chưa kết luận được** (`dev/server/tables/server/dialogue.vi.txt`,
+    `server_strings.vi.tsv`; `docs/SERVER-DU-LIEU.md` mục 6).
+    (a) `server_strings.11` tới `.16` là các mẩu một chữ (二 三 四 五 六 之) mà máy chủ ghép vào câu khác; bản dịch "hai ba bốn năm
+    sáu của" đọc đúng nghĩa từng mẩu nhưng chưa biết ghép ra câu nào, và máy chủ mới chưa dùng id đó (`grep server_strings` trong
+    `src/server` không có kết quả). Cần để kết luận: nơi dùng 11–16 trong máy chủ gốc, hoặc khi máy chủ mới đọc `server_strings`.
+    (b) Tám chuỗi (`lua.e3a84954`, `lua.14cfc13d`, `lua.caa184b4`, `lua.f33105e4`, `lua.7d57fa3c`, `lua.6032c811`, `lua.ca96f758`,
+    `lua.ed1e2df2`) trong nhóm cảnh thảo nguyên chỉ có tiền tố và ghép với mục từ điển `OBJ_caoyuan_*` của client (Config/StrDictionary,
+    không có trong `assets/i18n/*.tsv`). Bản dịch mục từ điển Việt sau này phải mở bằng dấu câu hoặc chữ nối được với tiền tố
+    Việt, và xưng "ngài" (mục từ gốc dùng 您).
+    (c) Câu gốc có lỗi chữ, đã dịch theo nghĩa hợp lý nhất: 枫侨街 (枫桥街), 碱 (咸) ở `lua.9fcd39e4`, `lua.48d03e78` ghi kinh Túc
+    Dương Minh Vị trong khi các huyệt thuộc kinh Túc Thái Âm Tỳ (dịch sát gốc), 玉华坛 (五华坛), 称青霜 (程青霜, đã gộp thành
+    "Trình Thanh Sương"). Nếu bản chuẩn của Lua gốc đúng là 称青霜 thì đổi lại.
+    (d) Một số tên NPC và kỹ năng không có trong sách Kim Dung hay trong bảng của client được đọc Hán-Việt từng chữ (ví dụ 慧易 "Tuệ
+    Dịch", khoảng 90 kỹ năng của NPC "texiaonpc"); đọc sai âm thì sửa ở bản vi, giữ nhất quán trong mọi câu nhắc tới.
+    (e) 路霸 "lộ bá" và 饮鸩止渴 "Ẩm Chậm Chỉ Khát" (theo tên kỹ năng client đang hiển thị, 鸩 có thể đọc "trậm") còn khó hiểu với người
+    chơi; chỉ sửa cùng lúc với bảng của client.
+
 57. **Chiến đấu máy chủ lát cắt 3 (2026-10-15): các chỗ chưa kết luận được hoặc làm tạm** (`src/server/play/battle.cpp`, `src/server/zone/scene.cpp`).
     (a) Kỹ năng ban đầu là luật tạm của bản thử: đòn thường (id 0) cộng mọi chiêu chủ động cấp 1 của môn phái nhân vật (`starting_skills`), vì chưa có học kỹ năng ở NPC; thay khi làm học kỹ năng.
     (b) Chưa có trang bị: mọi người chơi coi như `weapon_type = 0`; `item::Inventory` thay `play::Bag` tạm ở lát cắt sau, nên thuộc tính vật phẩm đang bị mất khi nhặt.
@@ -975,3 +992,14 @@ kết luận ngay dưới mục đó chứ không xoá.
     (d) Đấu trường của một cảnh chỉ chạy tick khi có người chơi trong cảnh; cảnh vắng thì quái đứng yên (chỉ vật rơi vẫn hết hạn). Chấp nhận được khi quái không phản công; xem lại khi quái đuổi và đánh.
     (e) Chuyển cảnh qua cổng truyền tống chưa làm: bot thử đặt nhân vật sang cảnh có quái bằng cách sửa bảng `player` trong PostgreSQL (`scene`, `position_x`, `position_z`).
     (f) Ngày giờ và lịch (sự kiện theo ngày) vẫn UTC+8 cố định; chưa nối đồng hồ máy chủ thật.
+
+58. **Chiến đấu phía client lát cắt 3 (2026-10-15): các chỗ chưa làm hoặc chưa chạy thật** (`src/client/app/client/fight`, `display/graphic/fight.cpp`).
+    (a) Chưa chạy client thật với cụm v6: đăng nhập chỉ đi được bằng giao diện (chuột), mà agent bị cấm chiếm chuột. Đường mạng kiểm bằng `online_tests` (bridge hai chiều) và `fight_tests` (logic); đường vẽ và vòng đánh kiểm bằng `--talk-demo fight|fall` (máy chủ giả đúng hình tin, `graphic/fight_demo.cpp`), có ảnh chụp. Hai đường chưa gặp nhau trên một lần chạy duy nhất.
+    (b) HUD chưa có thanh kỹ năng, khung mục tiêu, tên và thanh máu quái, chỉ báo mục tiêu đang chọn, cửa sổ hồi sinh. Tạm: phím 1–9 là ô kỹ năng, nhấp quái là chọn và đuổi đánh, khi chết phím 1 hồi sinh ở thành và phím 2 tại chỗ, lời nhắc hồi sinh là chữ Hán vẽ bằng phông giao diện giữa màn.
+    (c) Số bay dùng phông bitmap GBK12 phóng 2 lần (3 lần khi hội tâm), không phải ảnh số của client 2026; màu, độ cao và nhịp bay chọn theo mắt, chưa port từ mã máy.
+    (d) Lời từ chối của máy chủ (`Declined`) chỉ chỉnh logic đánh tự động (hồi chiêu, quá tầm, chưa học...), không có dòng thông báo cho người chơi.
+    (e) `SelfBag` chưa dùng (không có hành trang). Vật rơi chọn được khi có cờ nhặt (bit 1 của `EntityFlags`), chưa có tên theo template, chưa có con trỏ riêng khi rê chuột.
+    (f) Xác quái không vẽ (`show_creature` bỏ tư thế chết, đã có từ lát cắt 1) và chưa có clip chết; người chơi chết cũng chưa có động tác chết.
+    (g) Tầm tiếp cận chung 2,5 m (`fight::kReach`) cho mọi chiêu, thu ngắn mỗi lần máy chủ báo quá tầm; chiêu tầm xa vẫn đi tới 2,5 m rồi mới đánh. Máy chủ mới là nơi kiểm tầm từng chiêu.
+    (h) Ô kỹ năng k là kỹ năng học thứ k của `SelfSkills`, chưa có thanh action để kéo thả; danh sách đổi thì người chơi dựng lại một lần để nạp clip.
+    (i) Cổng `check.py`/clang-tidy: phần của lát cắt sạch (đo bằng clang-tidy với `--header-filter` rỗng cho từng tệp, `check.py --run` cho `fight_tests`). Cả nhóm `display/graphic` vẫn không qua `check.py` nguyên tệp vì lỗi có sẵn ở HEAD: `misc-include-cleaner` hàng loạt (các tệp dựa vào `prelude.hpp`), `State` đệm 125 byte, `sky_mesh.hpp`/`water_mesh.hpp` khởi tạo không chỉ định tên.

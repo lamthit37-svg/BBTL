@@ -68,6 +68,9 @@ AGENTS.override.md
 # Bí mật
 *.local.toml
 /.env
+# Bảng gate của từng máy chủ mang khoá danh tính riêng, không bao giờ vào git
+# (TOOLS/server/export_gates.py sinh Table/gates.tsv).
+**/gates.tsv
 
 # Rác OS
 Thumbs.db

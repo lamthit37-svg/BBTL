@@ -5,6 +5,28 @@ hiện tại của cả dự án đọc ở ba chỗ: mục "Khảo sát theo m�
 tệp này, và dòng "Trạng thái" ở mục 0 của `AGENTS.md`. Tên cũ của tệp là "cửa sổ, Vulkan và 57 vật
 thể tĩnh của map huoyangu": đó là đích của sáu bước B1 tới B6 đầu tiên, tả ngay dưới.
 
+## Chữ thoại máy chủ bản tiếng Việt (2026-10-15)
+
+Chủ dự án giao: "Toàn bộ thoại sv dịch chuẩn tuyệt đối tiếng việt có dấu . ngôn ngữ văn phong chuẩn tuyệt đối classic tlbb fpt".
+Kết quả: `dev/server/tables/server/dialogue.vi.txt` (2.507 câu, 1.181 nhóm) và sáu bảng `<bảng>.vi.tsv` (312 + 79 câu hệ thống,
+thông báo, lời NPC nói thầm). Định dạng, quy ước và cổng ở `docs/SERVER-DU-LIEU.md` mục 6.
+
+Cách làm: bản gốc chia 12 phần thoại (khoảng 220 câu) và 2 phần chuỗi hệ thống; mỗi phần một biên dịch viên theo `STYLE.md`
+(văn phong, thẻ phải giữ, tên theo glossary và tên client), tự chạy `dialogue_i18n.py check` tới 0 lỗi; sau đó một biên tập viên
+khác rà từng câu so với tiếng Trung (khoảng 250 câu được sửa: sai nghĩa, giọng hiện đại, sai tên, dấu thanh). Lượt cuối thống nhất
+tên giữa các phần (1.128 tên Hán; 85 tên viết khác nhau giữa các phần, phần lớn là hoa thường của tên nhiệm vụ; 18 tên lệch tên
+client) rồi dựng bằng `build` và `tables`.
+
+Đã đo: `dialogue_i18n.py check` 0 lỗi trên 2.507 câu; `dialogue_text.py check` không lỗi; `thienlong_lint` 5.083 tệp, 0 lỗi (thêm
+7 tệp vi); `python -B -m unittest discover -s TOOLS/server -p "test_dialogue_*.py"` 27 ca xanh; 0 cặp câu hai giới lệch (`Thiếu hiệp
+{0}` 32, `Cô nương {0}` 32). Bẫy đã gặp: (1) chữ Hán nằm trong `#{_INFOAIM...,tên NPC}` là tham số của client, giữ nguyên; (2) `$N`,
+`{ID=...}`, `#-15` cũng là chỗ điền/thẻ; (3) `assets/i18n/vi.tsv` lẫn dấu kiểu mới ở 8 chỗ (Thủy, Hỏa, Tọa) — đã đưa về kiểu cũ như
+phần còn lại của bảng.
+
+Quyết định theo đa số của client: 耶律 "Gia Luật" (14 so với 3), 交子 "Giao tử" (59 so với 22), sự kiện 横扫牡丹碗 "Hoành Tảo Mẫu Đơn Oản"
+(như `vi.tsv`), vật phẩm 布衣, 矿锄, 馒头 trong lời thoại dùng đúng tên item ("Bố Y", "Khoáng Sừ", "Màn Thầu"), 称青霜 và 程青霜 là
+một người: "Trình Thanh Sương". Chỗ chưa chắc và việc còn lại ở `docs/NGHI-NGO.md` mục 56.
+
 ## Máy chủ nối vào client: hội thoại và nhiệm vụ (lát cắt 2, 2026-10-15)
 
 Module `src/server/play` (World nạp bảng, Player, Bag tạm, Gameplay) nối `talk`, `mission`, `ledger`, `actor`, `item` vào zone. Đường đi: client gửi `Talk`/`DialogChoose`/`QuestAccept`/`QuestTurnIn`/`QuestAbandon`/`DialogClose` (protocol v5) -> gate giải mã và chuyển `Relay::kUp` -> `Host` -> `Gameplay::intent`; kết quả là `DialogOpen`/`DialogClosed`/`QuestBook`/`QuestNotice`/`SelfStats`/`Reject` quay về qua `Outbox`. Chữ do máy chủ dựng (`play/text`), không để client tra bảng. NPC bấm được nhận `EntityFlags` bit 0 (script có hộp thoại gốc chạy được: `World::speaks`). Trạng thái chơi (`PlayRecord`: thân thể, sổ nhiệm vụ, túi) đi Enter -> Attach -> Save, migration game 002.
@@ -26,6 +48,16 @@ Zone: `Scene` thêm `kill`/`revive`/`set_level`/`info`/`for_each_near`/`tell_nea
 Đã chạy thật (cụm dev cài lại, `thienlong_bot --fight`): Đại Lý (cảnh 2), đòn thường id 0, 14 chiêu hạ 12 quái hồi sinh liên tục, kinh nghiệm +330; Kiếm Các (cảnh 7, quái cấp 1 có bảng rơi), 2 quái chết, 1 vật rơi, nhặt vào túi (`SelfBag` 1 ô), kinh nghiệm +30. `play_tests` 11 ca (kèm đòn thường, đầu vào thù địch, nhặt từ xa), `zone_tests` +3 ca (xác, hồi sinh, info), `protocol_tests`, `gate_tests`, `combat_tests` xanh; `check.py` xanh trên các tệp mã đã đổi (trừ hai tệp test cũ chưa từng sạch clang-tidy).
 
 Lỗi gốc đã sửa trên đường đi: (1) `combat::Catalog::level_of` trả null cho bảy kỹ năng chung có cả 16 ô cấp bằng 0 (id 0, 196 …) nên đòn thường báo `kUnknownSkill`; (2) `send_role_effect` bỏ mọi `effect_id <= 0` nên đòn thường (tham số 0 = dòng sát thương mặc định) không gây sát thương — nay chỉ đòn thường chung được gửi effect 0 (hơn 300 dòng logic 0 khác dùng 0 làm ô chưa dùng, đã đo); (3) `PlayRecord.hp` mặc định 1 bị coi là nhân vật sắp chết, nay `hp <= 1` nghĩa là nhân vật mới; (4) Rule quan hệ phe của `camp_relation` không cho người đánh quái, thay bằng luật người–quái thù địch riêng ở `play/battle`.
+
+## Client nối chiến đấu (lát cắt 3 phía client, 2026-10-15)
+
+Protocol v6 từ phía client: `online::Bridge` dịch `SkillCast`/`SkillCastEnd`/`CombatEvent`/`EntityDied` thành `cast::Casting`/`CastEnded`/`Struck`/`Died` (mét của game, không biết giao thức) và `SelfVitals`/`SelfSkills`/`SkillCooldown`/`DeathNotice`/lời từ chối (`ErrorCode` 31–40, `Busy`, `NoSuchEntity`) thành `talk::Vitals`/`Skills`/`Cooldown`/`Slain`/`Declined`; việc người chơi nhờ `Cast`/`Revive`/`PickUp` thành `CastSkill`/`Respawn`/`PickUp`. `SelfBag` bỏ qua.
+
+Module mới `client/fight` (`fight::Combat`, thuần logic, dùng chung PC và điện thoại): mục tiêu, kỹ năng đã học và hồi chiêu, chiêu chờ xác nhận (số thứ tự khác 0, quá `kCastWait` 1,5 s thì coi như mất), đánh tự động (đi tới tầm 2,5 m rồi ra chiêu đầu tiên của `SelfSkills`), trạng thái chết, số bay (trần 64). Client không đoán kết quả: động tác nhân vật chỉ chạy khi máy chủ gửi `SkillCast` mang đúng số thứ tự; số bay hẹn tới mốc đòn trúng của clip (`PlayerActor::hit_after`). Nối vào `Display::State` ở `graphic/fight.cpp`: phím 1–9 gửi chiêu (đang đi, nhảy hay giữa đòn thì bỏ phím như chơi tại chỗ), nhấp quái là chọn và đuổi đánh, nhấp vật rơi là đi tới nhặt (`PickUp` trong 1,5 m, máy chủ nhận 3 m), người chơi tự đi hay nhấp đất thì thôi đánh tự động, đã chết thì đứng yên và phím 1/2 hồi sinh. Chữ bay và lời nhắc hồi sinh vẽ bằng phông GBK12 của HUD (`Hud::extra_font`) qua `HudExtra`, nối cuối bảng đo.
+
+Kiểm: `fight_tests` 10 ca (kể cả `check.py --run`: GCC debug mode và Clang ASan+UBSan sạch), `online_tests` +3 ca (`note_of_fight`, `hear_of_fight`, `speech_of_fight`), `control_tests` +1 ca (`screen_projection`), 44 test client của `ctest` xanh, build `msvc-release` 0 cảnh báo. Đường vẽ: công cụ thử mới `--talk-demo fight|fall` (cùng `--creature`; `graphic/fight_demo.cpp` đóng vai máy chủ v6: SkillCast, trượt, hội tâm, hồi, quái chết, và ở `fall` người chơi bị đánh chết ở chiêu đầu): `thienlong_client.exe --data dev/client/assets --scene-id 2 --creature 11158,11154,11158 --talk-demo fight --shot a.png --frames 700` (`--shot` chờ có số bay mới chụp). Đã nhìn ảnh: số vàng trên quái, số đỏ trên người chơi, lời nhắc hồi sinh.
+
+Chưa chạy: client thật với cụm v6 (đăng nhập cần giao diện; xem `docs/NGHI-NGO.md` mục 58). Thử cụm thật: đặt nhân vật vào cảnh có quái bằng `UPDATE` bảng `player` (`scene`, `position_x`, `position_z` mét) ở `thienlong_game_1`; Kiếm Các (cảnh 7) có quái cấp 1 quanh (117, 261) m.
 
 ## Nhịp khung: trần 60 Hz của desktop (2026-10-15)
 

@@ -381,7 +381,7 @@ mục ở mục 11.
   chuỗi → xref → hàm chứa trong một lệnh gọi. PowerShell nuốt dấu nháy kép trong đối số JSON của lệnh native: đưa đối số qua tệp. `python -I` bỏ qua
   `PYTHONUTF8`: dùng `python -X utf8 -I`. Gửi từng việc một qua tệp thì mỗi việc mất ~0,5 s (hai nhịp thăm dò); gửi cả plan một lượt thì 57 200
   việc `procedure_callees` mất ~85 s. Decompiler của Ghidra bỏ cuộc ở 5 hàm lớn nhất (6 đến 34 nghìn lệnh) sau 72 đến 296 giây: dùng
-  `read_function_instructions`. Bộ công cụ và bản trích đầy đủ: `TOOLS/port/rea/`, `TAILIEU/GAME-EXE-2026/README.md`.
+  `read_function_instructions`. Bộ công cụ và bản trích đầy đủ: `TOOLS/port/rea/`, `docs/TAILIEU/GAME-EXE-2026/README.md`.
   Bẫy tra địa chỉ (đo 2026-10-14): khoảng 180 địa chỉ `0x14...` trong mã và tài liệu của dự án rơi GIỮA một lệnh của bản trích (hơn 130 trong số đó chia hết cho 16,
   như địa chỉ đầu hàm của một bố cục khác); tra thẳng `decompile.zip` bằng chúng có thể ra hàm khác. Kiểm một địa chỉ trước khi tin:
   `python -X utf8 -I TOOLS/port/rea/compare_client.py` rồi đọc `so-sanh/dia-chi-trich-dan.tsv` (cột `boundary`, `detail`), hoặc tìm hàm theo

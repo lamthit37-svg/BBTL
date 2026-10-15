@@ -80,8 +80,13 @@
     `Position` (cm, chia 100 ra mét; id cảnh của máy chủ là resid của client) đặt nhân vật. Android và iOS
     không đụng: vẫn vào thẳng cảnh. Gửi `Move` mỗi 50 ms (`Session::report`) và vẽ quái, NPC từ `Entity*`. Chưa có: vẽ
     người chơi khác, bộ đồ và chân dung của nhân vật (protocol chưa mang, dùng mặc định theo giới), báo người chơi khi
-    mất kết nối giữa lúc chơi, xử lý `SceneEnter` khác cảnh đã nạp. Số đo và lệnh chạy thật ở `docs/TIEN-DO.md` mục
-    2026-10-15.
+    mất kết nối giữa lúc chơi, xử lý `SceneEnter` khác cảnh đã nạp. Chiến đấu (protocol v6, lát cắt 3): module
+    `client/fight` (`fight::Combat`, thuần logic) và `display/graphic/fight.cpp`: phím 1–9 gửi `CastSkill`, nhấp quái
+    là chọn và đuổi đánh tự động bằng kỹ năng đầu tiên của `SelfSkills`, nhấp vật rơi là đi tới nhặt, đã chết thì
+    phím 1 và 2 hồi sinh; động tác và số bay chỉ có khi máy chủ xác nhận (client không đoán). Chưa chạy client thật
+    với cụm v6 (đăng nhập cần chuột); đường vẽ kiểm bằng `--talk-demo fight|fall` (cùng `--creature`, máy chủ giả
+    đúng hình tin), chưa có thanh kỹ năng, khung mục tiêu hay cửa sổ hồi sinh (`docs/NGHI-NGO.md` mục 58). Số đo và
+    lệnh chạy thật ở `docs/TIEN-DO.md` mục 2026-10-15.
   - `WEB/` là trang giới thiệu tĩnh (Vite, React, three.js), không có backend, không nối client
     hay máy chủ, không nằm trong CMake.
   - Máy chủ: bảy exe khởi động và dừng theo thứ tự dưới trình giám sát, gate nghe hai cổng và giữ
@@ -139,7 +144,7 @@
 - Ngân sách (ghi bằng số, hoặc "chưa có"): nạp đầu của cảnh Đại Lý (resid 2) trên PC, tính từ lúc chạy lệnh tới khung đầu
   đã có đủ cảnh lẫn HUD: trung vị ≤ 450 ms (đo 2026-10-13: 387 ms, 15 lượt, i5-14600KF, RTX 5060, Vulkan; G:\TLBB cùng máy:
   khung ổn định trung vị 1239 ms). Đo lại bằng `TOOLS/run/bench_load.py`, số liệu và điều kiện hai bên ở
-  `TAILIEU/TOC-DO-NAP-SO-VOI-TLBB.md`. Các ngân sách khác (khung hình, bộ nhớ, dung lượng): chưa có.
+  `docs/TAILIEU/TOC-DO-NAP-SO-VOI-TLBB.md`. Các ngân sách khác (khung hình, bộ nhớ, dung lượng): chưa có.
 - Quyết định đã chốt (mỗi dòng: quyết định — lý do):
   - Mã nguồn client là C++23, C11 chỉ khi một thư viện C buộc phải thế; công cụ xử lý dữ liệu ở
     `TOOLS/` viết bằng Python — chủ dự án chốt ngày 2026-10-05.
@@ -185,6 +190,13 @@
     ghi, `.txt` hai cột `key`/`text` cho câu chữ (`tables/server/dialogue.zh.txt` thay `mission_strings.tsv`, chủ dự án
     gợi ý cùng ngày: "phần thoại có thể đẩy ra txt sẽ tiện hơn"), PostgreSQL cho dữ liệu người chơi; bí mật chỉ ở
     `secrets.local.toml` và `data/`, mọi thứ khác là chữ thường không mã hoá.
+  - Chữ thoại máy chủ có bản tiếng Việt: `tables/server/dialogue.vi.txt` (cùng 2.507 khoá, 1.181 nhóm với bản zh) và sáu bảng chuỗi
+    hệ thống anh em `<bảng>.vi.tsv` (`server_strings`, `notices_*`, `rolling_announcements`, `npc_chat_lines`) — chủ dự án giao ngày
+    2026-10-15 ("Toàn bộ thoại sv dịch chuẩn tuyệt đối tiếng việt có dấu . ngôn ngữ văn phong chuẩn tuyệt đối classic tlbb fpt").
+    Văn phong võ hiệp cổ điển, dấu thanh kiểu cũ như `assets/i18n/vi.tsv` (hoà, thuỷ, tuỳ), tên theo `glossary.tsv` và theo tên mà
+    client đang hiển thị. Cổng `TOOLS/server/dialogue_i18n.py check|terms|build|tables`; test `test_dialogue_i18n.py` giữ bản vi khớp
+    bản zh từng khoá khi `lua_extract.py` sinh lại. Máy chủ chưa nạp ngôn ngữ nào (chưa có bộ nạp tệp chữ, `docs/SERVER-DU-LIEU.md`
+    mục 6).
   - Tệp TOML của `dev/server/config` bố cục theo mẫu chủ dự án đưa: đầu tệp là khung tiêu đề in hoa
     kẹp giữa hai dòng `#====`, mỗi nhóm cài đặt một khung tiêu đề, các cài đặt nằm sát nhau, mỗi
     cài đặt có chú thích tiếng Việt ngang hàng (dài quá thì ngay dòng trên), không sót; dấu `=` và
@@ -267,7 +279,7 @@
     (GBK12 cho chữ gốc, VTNAM14 khi cả run có chữ Việt), mặt đất nướng lọc tam tuyến 16 điểm ảnh mỗi ô (trần 8192 trên PC, 2048 trên điện
     thoại), hệ hạt thêm `SequenceFrame`, `DirectionRandomiser` và kiểu trộn `zero one_minus_src_colour`. Dữ liệu cần chạy theo thứ tự:
     `collect_map.py` rồi `collect_fx.py` (thiếu bước sau thì tên hệ hạt của cảnh "không có trong thư viện" và hiệu ứng biến mất), rồi
-    `export_worldmap.py` (ghép `jpg_WorldMap00..19.dds` thành `Interface/LargeMap/WorldMap.png`). Tài liệu đo ở `TAILIEU/MAN-CHOI-GIAO-DIEN-2026.md`.
+    `export_worldmap.py` (ghép `jpg_WorldMap00..19.dds` thành `Interface/LargeMap/WorldMap.png`). Tài liệu đo ở `docs/TAILIEU/MAN-CHOI-GIAO-DIEN-2026.md`.
   - `TOOLS/run/click_shot.py` (chụp giao diện sau thao tác, chỉ Windows): SDL lấy vị trí nhấn từ CON TRỎ THẬT nên công cụ đặt con trỏ thật lên
     điểm bấm và trả lại khi xong; kéo (`--turn`, `--tilt`) và giữ (`--hold`) dùng nút thật `mouse_event` vì SDL hỏi `GetAsyncKeyState` khi gặp
     thông điệp di chuyển và tự nhả nút giả; cửa sổ được mở khoá và đưa lên trên cùng trong lúc dùng nút thật, client chạy với
@@ -312,11 +324,11 @@
   `docs/SERVER-DU-LIEU.md` (định dạng dữ liệu máy chủ, thư mục nào của nhà phát hành, tệp đè, tệp chữ thoại),
   `docs/CHEP-FORGE2.md` (quy trình chép một tệp từ Forge2), `docs/DINH-DANG-TLA.md` (định dạng
   tệp âm thanh đã cook `.tla`), `docs/I18N-BAO-CAO-2026-10-13.md` (báo cáo bản địa hoá, bản cuối),
-  `TAILIEU/` (phân tích mã máy mới: `DANG-NHAP-GOC`, `GOI-TIN-DANG-NHAP`, `MAY-CHU-SUY-RA`,
-  `MAN-CHOI-GIAO-DIEN-2026`, `TOC-DO-NAP-SO-VOI-TLBB`; `TAILIEU/GAME-EXE-2026/` là bản trích đầy đủ của `Game.exe` 2026:
+  `docs/TAILIEU/` (phân tích mã máy mới: `DANG-NHAP-GOC`, `GOI-TIN-DANG-NHAP`, `MAY-CHU-SUY-RA`,
+  `MAN-CHOI-GIAO-DIEN-2026`, `TOC-DO-NAP-SO-VOI-TLBB`; `docs/TAILIEU/GAME-EXE-2026/` là bản trích đầy đủ của `Game.exe` 2026:
   decompile mọi hàm, đồ thị gọi, lớp RTTI, opcode và trường 1 367 gói tin, bản đồ tệp nguồn, 6 055 hàm script Lua;
-  `TAILIEU/GAME-EXE-2026/SO-SANH.md` là bản so đã có / chưa có / sai với client hiện tại; chưa chứng minh tệp trích là đúng tệp
-  đã port: địa chỉ `0x14...` trong mã và tài liệu không tra thẳng được, `docs/NGHI-NGO.md` mục 53; chỉ mục ở `TAILIEU/README.md`),
+  `docs/TAILIEU/GAME-EXE-2026/SO-SANH.md` là bản so đã có / chưa có / sai với client hiện tại; chưa chứng minh tệp trích là đúng tệp
+  đã port: địa chỉ `0x14...` trong mã và tài liệu không tra thẳng được, `docs/NGHI-NGO.md` mục 53; chỉ mục ở `docs/TAILIEU/README.md`),
   `dev/server/README.md` (bố cục runtime của máy chủ, lệnh chạy cụm),
   `docs/giao-viec/` (hồ sơ từng đợt giao việc cho phiên AI phụ; `KD-DOT-1/GHI-CHU.md` giữ các ý
   tối ưu đã hoãn), `docs/BAY-DA-BIET.md` (bẫy đã đo của từng vùng; chỉ mục ở mục 11).
