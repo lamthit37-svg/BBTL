@@ -603,9 +603,15 @@ game_module(ui_script
     src/client/face/ui/script/gui_screen.cpp
     src/client/face/ui/script/windows.cpp
     src/client/face/ui/script/host.cpp
+    src/client/face/ui/script/context.cpp
+    src/client/face/ui/script/message_format.cpp
+    src/client/face/ui/script/native_format.cpp
     src/client/face/ui/script/native_support.cpp
+    src/client/face/ui/script/native_variable.cpp
+    src/client/face/ui/script/native_world.cpp
     src/client/face/ui/script/native_xscript.cpp
     src/client/face/ui/script/natives.cpp
+    src/client/face/ui/script/variable.cpp
     src/client/face/ui/script/widget.cpp
     src/client/face/ui/script/xscript.cpp)
 target_link_libraries(game_ui_script PUBLIC game_ui_panel game_gui game_table game_io game_lua game_luaplus game_luanum game_core)
@@ -1479,6 +1485,8 @@ endif()
 game_test(ui_script_natives game_ui_script)
 # XSCRIPT và XParam (tầng B): bản ghi gửi máy chủ và bản ghi tham số của sự kiện, qua hàm Lua thật.
 game_test(ui_script_xscript game_ui_script)
+# Bảng biến, hàm cảnh và cờ, ScriptGlobal_Format (tầng B): luật của bảng biến, bố cục byte của lời nhắn, rồi chạy đoạn Lua thật.
+game_test(ui_script_world game_ui_script)
 # Lượt chạy hàng loạt (không phải test): mở cả sổ cửa sổ, hiện/giấu từng cửa sổ và kê hàm game, phương thức widget mà script
 # đòi mà client chưa có, để xếp việc cho tầng B và widget (Test/bench/ui_script_survey.cpp).
 if(NOT ANDROID AND NOT IOS AND TARGET game_ui_script)

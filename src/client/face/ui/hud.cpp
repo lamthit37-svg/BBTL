@@ -589,6 +589,8 @@ struct Hud::State {
     void note_host_release(const HudView& view);
     void note_host_pointer(const HudView& view);
     void drain_host_calls();
+    [[nodiscard]] std::vector<panel::Call> take_script_calls();
+    void update_script_facts(const HudView& view);
     void open_host();
     void push_debug_message(std::string_view text);
     [[nodiscard]] core::Status add_map();
@@ -815,12 +817,28 @@ void Hud::State::note_host_press(std::string_view window, const HudView& view) {
     drain_host_calls();
 }
 
+// Việc script nhờ game kể từ lần lấy trước: của host (PushEvent, OpenWindow...) rồi của hàm native (VARIABLE_CHANGED, lời nhắn của
+// ScriptGlobal_Format).
+std::vector<panel::Call> Hud::State::take_script_calls() {
+    std::vector<panel::Call> calls;
+    if (host) calls = host->take_calls();
+    for (panel::Call& call : script_context.take_calls()) calls.push_back(std::move(call));
+    return calls;
+}
+
+// Điều game biết về thế giới mà hàm native của script đọc (Context::facts), đặt lại từ đầu vào của khung. Khác gốc: chưa có NPC hội
+// thoại, loại hiện của GM và máy chủ đặc biệt 2018 nên giữ mặc định của máy chủ thường.
+void Hud::State::update_script_facts(const HudView& view) {
+    script::Facts& facts = script_context.facts;
+    facts.scene_id = view.phase == Phase::kPlay && view.scene.id >= 0 ? std::optional<std::int32_t>(view.scene.id) : std::nullopt;
+}
+
 // Việc script nhờ game sau một thao tác của người chơi: PushEvent (và lời nhắn) thành sự kiện mới đi qua mọi bảng như sự kiện của
 // game; việc khác chưa có phía game để làm nên ghi một dòng.
 void Hud::State::drain_host_calls() {
     if (!host) return;
     std::vector<panel::PostedEvent> events;
-    for (const panel::Call& call : host->take_calls()) {
+    for (const panel::Call& call : take_script_calls()) {
         if (std::optional<panel::PostedEvent> next = panel::event_of(call)) {
             events.push_back(std::move(*next));
         } else {
@@ -977,7 +995,7 @@ void Hud::State::post_to_host(panel::EventQueue& queue, const panel::PostedEvent
     if (!host) return;
     const std::vector<std::string_view> given = posted.arguments();
     host->post(posted.name, given);
-    for (const panel::Call& call : host->take_calls()) {
+    for (const panel::Call& call : take_script_calls()) {
         if (std::optional<panel::PostedEvent> next = panel::event_of(call)) {
             queue.push(std::move(*next));
         } else {
@@ -1073,6 +1091,7 @@ void Hud::State::push_debug_message(std::string_view text) {
 
 // Sự kiện của game tới từng bảng đã đăng ký nghe, rồi nhịp của host (hẹn giờ và updateSelf của widget).
 void Hud::State::step_panels(const HudView& view) {
+    update_script_facts(view);
     if (!is_app_inited) {
         // Game gốc phát APPLICATION_INITED một lần khi giao diện nạp xong.
         is_app_inited = true;

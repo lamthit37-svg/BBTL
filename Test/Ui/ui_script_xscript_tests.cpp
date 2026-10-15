@@ -1,11 +1,8 @@
 // XSCRIPT và XParam của script giao diện (ui/script/native_xscript, xscript): chạy đoạn Lua thật trên lua::State có open_natives, rồi
 // đọc bản ghi bên C++ hay giá trị script nhận. Sai ở đây hỏng thầm (script máy chủ nhận tham số lệch, cửa sổ đọc nhầm tham số của sự kiện)
 // và không thấy khi chạy, nên có test.
-#include "lua/capi.hpp"
-#include "lua/state.hpp"
+#include "support/script_rig.hpp"
 #include "ui/script/context.hpp"
-#include "ui/script/native_support.hpp"
-#include "ui/script/natives.hpp"
 #include "ui/script/xscript.hpp"
 
 #include "test.hpp"
@@ -13,7 +10,6 @@
 #include <array>
 #include <cstddef>
 #include <cstdint>
-#include <expected>
 #include <string>
 #include <string_view>
 #include <vector>
@@ -24,40 +20,9 @@ namespace {
 using ui::script::XParamRecord;
 using ui::script::XScriptRecord;
 
-// Máy Lua của vỏ lua::State với open_natives gắn Context của test.
-class Rig {
-public:
-    explicit Rig(ui::script::Context& script) : state_(lua::State::open()) {
-        if (!state_) return;
-        const auto registered = lua::protect(
-            state_->raw(), [](lua_State* lua, void* data) {
-                ui::script::open_natives(lua);
-                ui::script::native::attach(lua, *static_cast<ui::script::Context*>(data));
-            }, &script);
-        if (!registered) state_ = std::unexpected(registered.error());
-    }
-
-    [[nodiscard]] bool ok() const noexcept { return state_.has_value(); }
-
-    // Chạy code (kết thúc bằng `return <biểu thức>`) và trả giá trị đầu dưới dạng chuỗi, hay "LỖI: <thông điệp>".
-    [[nodiscard]] std::string eval(std::string_view code) {
-        auto loaded = state_->load(code, "=thử");
-        if (loaded) loaded = state_->call(0, 1);
-        if (!loaded) return "LỖI: " + loaded.error().message;
-        lua_State* const lua = state_->raw();
-        std::string text;
-        if (lua_isstring(lua, -1) != 0) text.assign(lua_tostring(lua, -1), lua_strlen(lua, -1));
-        lua_settop(lua, 0);
-        return text;
-    }
-
-private:
-    std::expected<lua::State, lua::Failure> state_;
-};
-
 void script_fills_and_sends_a_record(Context& context) {
     ui::script::Context script;
-    Rig rig(script);
+    ScriptRig rig(script);
     context.expect(rig.ok(), "mở được máy Lua");
     if (!rig.ok()) return;
     context.expect(rig.eval(R"(
@@ -87,7 +52,7 @@ void script_fills_and_sends_a_record(Context& context) {
 
 void names_and_indexes_follow_the_original_limits(Context& context) {
     ui::script::Context script;
-    Rig rig(script);
+    ScriptRig rig(script);
     if (!rig.ok()) return;
     // Tên dài hơn 63 byte bị cắt; byte NUL cắt tên ở đó (strncpy rồi strlen); số đổi thành chuỗi như lua_isstring.
     const std::string sixty_four(64, 'a');
@@ -112,7 +77,7 @@ void names_and_indexes_follow_the_original_limits(Context& context) {
 
 void outbox_is_bounded(Context& context) {
     ui::script::Context script;
-    Rig rig(script);
+    ScriptRig rig(script);
     if (!rig.ok()) return;
     context.expect(rig.eval("Set_XSCRIPT_ScriptID(1) for i = 1, 2000 do Send_XSCRIPT() end return 'ok'") == "ok", "gửi 2000 lần");
     context.expect(script.xscript.pending() == ui::script::kXScriptOutboxLimit, "hàng đợi dừng ở trần");
@@ -123,7 +88,7 @@ void outbox_is_bounded(Context& context) {
 
 void xparam_reads_the_current_record(Context& context) {
     ui::script::Context script;
-    Rig rig(script);
+    ScriptRig rig(script);
     if (!rig.ok()) return;
     // Không có bản ghi: số -1 (INT và UINT), chuỗi rỗng, đếm 0.
     context.expect(rig.eval("return Get_XParam_INT(0) .. '|' .. Get_XParam_UINT(0) .. '|' .. Get_XParam_STR(0) .. '|' .. Get_XParam_INT_Count() "
@@ -149,7 +114,7 @@ void xparam_reads_the_current_record(Context& context) {
 
 void wrong_arguments_throw_the_original_messages(Context& context) {
     ui::script::Context script;
-    Rig rig(script);
+    ScriptRig rig(script);
     if (!rig.ok()) return;
     // Số nghiêm: chuỗi số "1" không qua lua_type == LUA_TNUMBER.
     const std::string get_int = rig.eval("return Get_XParam_INT('1')");

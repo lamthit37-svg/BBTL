@@ -42,6 +42,9 @@ constexpr std::array<native::Entry, 2> kDataPool = {{
 void open_natives(lua_State* lua) {
     native::register_table(lua, "DataPool", kDataPool);
     register_xscript(lua);
+    register_variable(lua);
+    register_world(lua);
+    register_format(lua);
 }
 
 std::function<void(lua_State*)> make_natives(Context& context) {

@@ -362,6 +362,9 @@ Nhóm đã port:
 |---|---|---|
 | DataPool (`natives.cpp`) | `GetUIColor`, `Check_StringCode` | `GetUIColor` chưa có bảng màu nên trả "-1" "-1" (Khác gốc, ghi tại chỗ). |
 | XSCRIPT/XParam (`native_xscript.cpp`, `xscript.{hpp,cpp}`) | `Get_XParam_INT/UINT/STR/INT_Count/STR_Count`, `Set_XSCRIPT_ScriptID/Function_Name/ParamCount/Parameter`, `Clear_XSCRIPT`, `Send_XSCRIPT` | Dùng trong khoảng 1 100 cửa sổ. |
+| Biến (`native_variable.cpp`, `variable.{hpp,cpp}`) | `Variable:GetVariable`, `Variable:SetVariable` | Bảng chuỗi=>chuỗi (CVariableSystem). Đổi giá trị thì phát VARIABLE_CHANGED (0x13c) qua `Context::calls`. Bảng bắt đầu rỗng (Khác gốc: chưa nạp biến mặc định). Trần 4096 biến, tên 255 byte, giá trị 5199 byte (trần là Khác gốc). |
+| Thế giới (`native_world.cpp`, `Context::facts`) | `DataPool:GetCurDialogNpcId`, `DataPool:LuaFnGetGMVisibleType`, `SystemSetup:IsClassic`, `WuLinZhiDian:IsWuLinZhiDianScene`, `JueZhanWuLinZhiDian:IsJueZhanWuLinZhiDianScene`, `CSongliaoWarData:TSLGetLocalSceneID`, `GetSceneID`, `IsZbs2018SpeicalServer` | Facts do HUD đặt mỗi khung (hiện chỉ `scene_id`). Ba cảnh Võ Lâm Chi Điên là id 0x2f1..0x2f3. |
+| Lời nhắn (`native_format.cpp`, `message_format.{hpp,cpp}`) | `ScriptGlobal_Format` | KHÔNG phải printf: đóng gói mẫu và đối số thành chuỗi mà lớp lời nhắn của game tách lại (bố cục byte ở `message_format.hpp`). Không đối số thì phát NEW_DEBUGMESSAGE. |
 
 XSCRIPT (bản ghi 128 byte ở `CDataPool + 0x138dc`): id 4 byte (+0), độ dài tên 1 byte (+4), tên 63 byte (+5), đếm tham số (+0x45), 14 tham số
 4 byte (+0x48). `Clear_XSCRIPT` đặt id -1 và xoá phần còn lại. `Set_XSCRIPT_Function_Name` chép tối đa 63 byte và dừng ở NUL đầu tiên.

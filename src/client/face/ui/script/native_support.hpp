@@ -43,6 +43,8 @@ void attach(lua_State* lua, Context& context);
 // Đối số index là chuỗi hoặc số (lua_isstring), trả về nội dung (số được đổi thành chuỗi tại chỗ như lua_tostring); nullopt nếu
 // không. string_view trỏ vào chuỗi do Lua giữ, hợp lệ tới khi giá trị rời ngăn xếp.
 [[nodiscard]] std::optional<std::string_view> text_arg(lua_State* lua, int index);
+// Phần đầu của chuỗi tới byte NUL đầu tiên: các hàm của gốc lấy chuỗi bằng GetString (char*) nên NUL nhúng trong chuỗi Lua cắt nó.
+[[nodiscard]] inline std::string_view c_string(std::string_view text) noexcept { return text.substr(0, text.find('\0')); }
 // Ép double sang int32 như (int) của C trên x64 (cvttsd2si): ngoài miền hay NaN ra INT32_MIN.
 [[nodiscard]] std::int32_t to_int(double value) noexcept;
 // Câu "sai tham số" kèm kiểu Lua của đối số index (số theo lua_type: nil 0, boolean 1, lightuserdata 2, number 3, string 4, table 5,
