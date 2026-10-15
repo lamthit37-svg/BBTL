@@ -164,6 +164,7 @@ struct Display::State {
     void hold_pace(double spent_ms);
     // Điện thoại: trần khung theo năng lực đo được (core::RateGovernor). Gọi mỗi khung sau khi có khoảng cách khung.
     void govern_rate(double interval_ms);
+    void adapt_detail(double interval_ms);
     void hold_governed_rate();
     // Ngân sách một khung của bảng đo, ms; 0 khi chưa biết gì.
     [[nodiscard]] float frame_budget_ms() const noexcept;
@@ -543,6 +544,8 @@ struct Display::State {
     std::optional<core::FixedStep> frame_clock;
     // Điện thoại: bộ chọn trần khung, dựng lại khi tần số quét hay trần hạng máy đổi. Chỉ luồng vẽ đụng.
     std::optional<core::RateGovernor> governor;
+    // Điện thoại: trần tam giác của cảnh theo thời gian khung thực. Chỉ luồng vẽ đụng.
+    std::optional<render::DetailGovernor> detail;
     double governed_refresh = 0.0;
     std::uint32_t governed_ceiling = 0;
     // Mốc khung kế tiếp được phép bắt đầu khi trần thấp hơn nhịp quét.

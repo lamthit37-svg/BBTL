@@ -324,6 +324,7 @@ core::Status Display::State::open_gpu(const DisplayDesc& desc) {
     core::mark("GPU: lượt vẽ và pipeline xong");
     open_hud(desc);
     core::mark("HUD: Hud::open xong");
+    std::println("Bộ nhớ GPU {:.1f} MB (texture và buffer)", static_cast<double>(device->memory_budget().used_bytes) / 1048576.0);
     return core::ok();
 }
 
@@ -415,7 +416,10 @@ bool Display::State::turn(core::Clock::time_point& previous) {
     note.interval = std::chrono::duration<double, std::milli>(now - previous).count();
     note.render_ms = render_ms;
     note.pace_ms = pace_ms;
-    if constexpr (ui::kPhone) govern_rate(note.interval);
+    if constexpr (ui::kPhone) {
+        govern_rate(note.interval);
+        adapt_detail(note.interval);
+    }
     record_interval(note);
     previous = now;
     publish();
@@ -559,7 +563,8 @@ core::Status Display::State::draw_world(gpu::CommandList& list, std::uint32_t sl
     FrameAsk ask;
     ask.elapsed = elapsed;
     ask.size = render::ViewSize{.width = screen->width(), .height = screen->height()};
-    const render::Camera camera = ask.size.height > 0 ? frame_camera(ask) : render::Camera{};
+    render::Camera camera = ask.size.height > 0 ? frame_camera(ask) : render::Camera{};
+    camera.pixels_high = static_cast<float>(ask.size.height);
     advance_fx(elapsed);
     compose_frame();
     ensure_sky();

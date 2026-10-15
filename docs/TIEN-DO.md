@@ -5,6 +5,28 @@ hiện tại của cả dự án đọc ở ba chỗ: mục "Khảo sát theo m�
 tệp này, và dòng "Trạng thái" ở mục 0 của `AGENTS.md`. Tên cũ của tệp là "cửa sổ, Vulkan và 57 vật
 thể tĩnh của map huoyangu": đó là đích của sáu bước B1 tới B6 đầu tiên, tả ngay dưới.
 
+## Treo đơ, ms cao trên APK và iOS: màn đăng nhập (2026-10-16)
+
+Máy thử: Lenovo TB-X306F (PowerVR Rogue GE8320, GLES, 1280x800). Màn đăng nhập/chọn máy chủ (núi nền 1,05–1,3 triệu tam
+giác, ~300 lệnh vẽ) từ 271 ms/khung (3,7 fps) xuống ~42 ms (23,5 fps) trên chính máy đó. Chưa đạt đích 30 Hz. Nguyên nhân
+đã đo, theo thứ tự công:
+- Pixel shader có `discard` tắt hidden-surface removal của PowerVR (TBDR): `terrain.ps` phủ cả màn nên riêng nó làm 44 ms ở
+  sàn chi tiết. Đã bỏ `discard` ở `terrain.ps.glsl` và `terrain.ps.slang`; lỗ địa hình cắt khỏi lưới (`drop_holes`) thay vì
+  loại điểm ảnh. Thứ tự vẽ: đặc không `discard` → cắt alpha → pha trộn (`draws_before`).
+- Địa hình là một lệnh vẽ 131k tam giác không cắt: nay chia khối 16 ô (`resource::build_tiles`), khối nhìn thấy liền nhau gộp
+  một lệnh vẽ (cắt theo hình cầu bao, như `TerrainTile` của bộ vẽ F:\Dev).
+- Chi phí GPU ≈ 0,13 ms mỗi nghìn tam giác trên GE8320. Điện thoại: `resource::build_lods` (meshopt, ba mức, chỉ lưới tĩnh)
+  + chọn mức theo diện tích bao thật của từng primitive (`Drawable::part_extents_`, bán kính cả model không dùng được) + trần
+  tam giác mỗi khung (`Forward::set_triangle_cap`, `kPhoneTriangleCap` 300k), `render/detail_governor.hpp` hạ/nâng trần theo
+  nhịp khung (sàn 120k, trần 1,6M). PC không bật (`triangle_cap = 0`).
+- Mesh nạp hỏng bị nạp lại mỗi khung kèm log: nay nhớ lỗi (`kMissing`) ở `scene.cpp`, `stream.cpp`, `creature.cpp`.
+Còn lại: ghi lệnh vẽ ~26–30 ms trên render thread, phần lớn là driver GLES (~50–80 µs mỗi lệnh × ~300 lệnh) và mô phỏng
+fx (12–20%). Hướng tiếp: gộp lệnh vẽ (batch tĩnh/instancing giữa các mesh), giảm chi phí cập nhật fx. DVFS của MT8768 đổi
+xung CPU 0,9–2,3 GHz theo tải GPU nên số đo có nhiễu; pin 24% cắm USB lúc đo.
+iOS: dùng chung mã (`ui::kPhone`) và shader đã biên dịch cho spirv/dxil/dxbc/glsl, nhưng chưa build và chưa chạy vì máy này
+không có macOS. Kiểm: `lod_tests` 5 ca, `detail_tests` 5 ca xanh; PC Vulkan `--login` 315 lệnh vẽ, 0 lỗi lớp kiểm tra, ảnh
+đúng (địa hình còn đủ, không lỗ lạ).
+
 ## Chữ thoại máy chủ bản tiếng Việt (2026-10-15)
 
 Chủ dự án giao: "Toàn bộ thoại sv dịch chuẩn tuyệt đối tiếng việt có dấu . ngôn ngữ văn phong chuẩn tuyệt đối classic tlbb fpt".

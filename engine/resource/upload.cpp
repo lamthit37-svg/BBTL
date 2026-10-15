@@ -1,16 +1,31 @@
-// Trung chuyển lưới và RGBA8 lên GPU. Buffer Upload nhận byte từ CPU, lệnh chép đưa sang bộ nhớ
-// thiết bị, rồi một rào để lần vẽ sau đọc được. Texture mới tạo ở bố cục chưa định, nên phải
-// chuyển sang CopyDest trước lệnh chép và sang ShaderRead sau đó. Nướng chuỗi mip là việc thuần CPU
-// và không đụng thiết bị (stage_image), nên gọi được ở luồng nạp trước khi tới lượt tải lên GPU.
-// Khác gốc: ngữ cảnh của một lần tải (thiết bị, danh sách lệnh, model, buffer trung chuyển, tay nắm
-// đã tạo) gom vào lớp Transfer và các bước tải thành hàm thành viên của nó, thay cho hàm tự do
-// chuyền năm tới bảy tham số; stage_buffer trả tay nắm thay cho tham số ra. byte_view của gốc thành
-// bytes_of nhận vector có kiểu (hết con trỏ void kèm hai số), pack_level nhận cả Source, window_end
-// nhập vào write_texel. Nướng mip đọc và ghi qua std::span thay cho cộng con trỏ (add_row của gốc
-// thành add_run nhận một đoạn hàng). Đo 2026-10-08 trên i5-14600KF, stage_images bốn ảnh cỡ 2048,
-// trung vị 135 tới 165 vòng: chậm hơn bản con trỏ 1 tới 2,4% với MSVC /O2, 0,6 tới 1,5% với Clang
-// -O2, dưới ngưỡng 3% đã định. downsample_into bỏ noexcept vì nó cấp phát. Thứ tự lời gọi thiết bị,
-// công thức và thông điệp lỗi giữ nguyên; tests/resource_upload_tests.cpp canh các điều này.
+/*==============================================================================
+ *  ENGINEHP  |  HIGH-PERFORMANCE GAME ENGINE
+ *------------------------------------------------------------------------------
+ *  TỆP       : engine/resource/upload.cpp
+ *  PHÂN HỆ   : Resource / Upload
+ *  CHUẨN     : C++23
+ *------------------------------------------------------------------------------
+ *  CHỨC NĂNG
+ *  - Trung chuyển lưới và RGBA8 lên GPU. Buffer Upload nhận byte từ CPU, lệnh
+ *    chép đưa sang bộ nhớ thiết bị, rồi một rào để lần vẽ sau đọc được. Texture
+ *    mới tạo ở bố cục chưa định, nên phải chuyển sang CopyDest trước lệnh chép
+ *    và sang ShaderRead sau đó. Nướng chuỗi mip là việc thuần CPU và không đụng
+ *    thiết bị (stage_image), nên gọi được ở luồng nạp trước khi tới lượt tải
+ *    lên GPU.
+ *------------------------------------------------------------------------------
+ *  TÁC GIẢ   : HiepHoon
+ *  TELEGRAM  : @Hoon9xx
+ *============================================================================*/
+
+// Khác gốc: ngữ cảnh của một lần tải (thiết bị, danh sách lệnh, model, buffer trung chuyển, tay nắm đã tạo) gom vào
+// lớp Transfer và các bước tải thành hàm thành viên của nó, thay cho hàm tự do chuyền năm tới bảy tham số;
+// stage_buffer trả tay nắm thay cho tham số ra. byte_view của gốc thành bytes_of nhận vector có kiểu (hết con trỏ
+// void kèm hai số), pack_level nhận cả Source, window_end nhập vào write_texel. Nướng mip đọc và ghi qua std::span
+// thay cho cộng con trỏ (add_row của gốc thành add_run nhận một đoạn hàng). Đo 2026-10-08 trên i5-14600KF,
+// stage_images bốn ảnh cỡ 2048, trung vị 135 tới 165 vòng: chậm hơn bản con trỏ 1 tới 2,4% với MSVC /O2, 0,6 tới 1,5%
+// với Clang -O2, dưới ngưỡng 3% đã định. downsample_into bỏ noexcept vì nó cấp phát. Thứ tự lời gọi thiết bị, công
+// thức và thông điệp lỗi giữ nguyên; tests/resource_upload_tests.cpp canh các điều này.
+
 #include "resource/upload.hpp"
 
 #include "core/error.hpp"
@@ -286,6 +301,37 @@ struct ImageCopy {
     return core::ok();
 }
 
+// Mức 0 rồi các mức thô của Primitive::lods nối tiếp trong một buffer chỉ số; GpuPrimitive::lods ghi đoạn của từng mức.
+[[nodiscard]] std::vector<std::uint32_t> joined_indices(const Primitive& source, GpuPrimitive& out) {
+    std::vector<std::uint32_t> joined = source.indices;
+    for (const std::vector<std::uint32_t>& level : source.lods) {
+        out.lods.push_back(IndexRange{.first = static_cast<std::uint32_t>(joined.size()),
+            .count = static_cast<std::uint32_t>(level.size())});
+        joined.insert(joined.end(), level.begin(), level.end());
+    }
+    return joined;
+}
+
+[[nodiscard]] core::Status stage_indices(gpu::Device& device, gpu::CommandList& commands, Scratch& scratch,
+    const Primitive& source, GpuPrimitive& out) {
+    std::size_t total = source.indices.size();
+    for (const std::vector<std::uint32_t>& level : source.lods) {
+        total += level.size();
+    }
+    const core::Status fits = fit_count(total);
+    if (!fits) return fits;
+    const std::vector<std::uint32_t> joined = source.lods.empty() ? std::vector<std::uint32_t>() : joined_indices(source, out);
+    const std::vector<std::uint32_t>& all = source.lods.empty() ? source.indices : joined;
+    auto indices = byte_view(all.data(), all.size(), sizeof(std::uint32_t));
+    if (!indices) return std::unexpected(indices.error());
+    const gpu::BufferUsage index_usage =
+        gpu::BufferUsage::kIndex | gpu::BufferUsage::kCopyDest | gpu::BufferUsage::kCopySource;
+    const core::Status staged = stage_buffer(device, commands, scratch, *indices, index_usage, "indices", out.indices);
+    if (!staged) return staged;
+    out.index_count = static_cast<std::uint32_t>(source.indices.size());
+    return core::ok();
+}
+
 [[nodiscard]] core::Status stage_primitive(gpu::Device& device, gpu::CommandList& commands, Scratch& scratch,
     const Primitive& source, GpuPrimitive& out) {
     const core::Status vertices_fit = fit_count(source.vertices.size());
@@ -300,14 +346,9 @@ struct ImageCopy {
         stage_buffer(device, commands, scratch, *vertices, vertex_usage, "vertices", out.vertices);
     if (!staged) return staged;
     out.vertex_count = static_cast<std::uint32_t>(source.vertices.size());
-    auto indices = byte_view(source.indices.data(), source.indices.size(), sizeof(std::uint32_t));
-    if (!indices) return std::unexpected(indices.error());
-    const gpu::BufferUsage index_usage =
-        gpu::BufferUsage::kIndex | gpu::BufferUsage::kCopyDest | gpu::BufferUsage::kCopySource;
-    const core::Status staged_indices =
-        stage_buffer(device, commands, scratch, *indices, index_usage, "indices", out.indices);
+    const core::Status staged_indices = stage_indices(device, commands, scratch, source, out);
     if (!staged_indices) return staged_indices;
-    out.index_count = static_cast<std::uint32_t>(source.indices.size());
+    out.tiles = source.tiles;
     return stage_morphs(device, commands, scratch, source, out);
 }
 
@@ -398,11 +439,13 @@ void add_regions(ImageCopy& copy, const StagedImage& staged) {
     scratch.add(*buffer);
     const core::Status written = device.write_buffer(*buffer, 0, staged->bytes);
     if (!written) return written;
+    if (staged->mips.empty()) return core::fail(core::ErrorCode::kCorrupt, "ảnh không có mức mip", source.name);
+    // Chuỗi đã nướng có thể bỏ các mức đầu (stage_image, max_edge): cỡ texture là cỡ mức đầu còn lại.
     gpu::TextureDesc desc;
     desc.name = source.name;
     desc.format = format;
-    desc.width = source.width;
-    desc.height = source.height;
+    desc.width = staged->mips.front().width;
+    desc.height = staged->mips.front().height;
     desc.mip_levels = static_cast<std::uint32_t>(staged->mips.size());
     desc.usage = gpu::TextureUsage::kSampled | gpu::TextureUsage::kCopyDest | gpu::TextureUsage::kCopySource;
     auto texture = device.create_texture(desc);
@@ -410,8 +453,8 @@ void add_regions(ImageCopy& copy, const StagedImage& staged) {
     GpuImage image;
     image.texture = *texture;
     image.format = desc.format;
-    image.width = source.width;
-    image.height = source.height;
+    image.width = desc.width;
+    image.height = desc.height;
     image.mips = desc.mip_levels;
     gpu::TextureViewDesc view;
     view.name = source.name;
@@ -677,12 +720,25 @@ void write_blocked_row(std::byte* dest, std::span<const std::byte> source, std::
     return core::ok();
 }
 
-[[nodiscard]] core::Result<StagedImage> stage_blocks(const Image& image) {
+// Số mức đầu bỏ đi để cạnh dài nhất của mức đầu còn lại không quá max_edge; luôn chừa ít nhất một mức.
+[[nodiscard]] std::uint32_t skipped_levels(const Image& image, std::uint32_t max_edge) noexcept {
+    if (max_edge == 0 || !image.has_mips) return 0;
+    const auto count = static_cast<std::uint32_t>(image.levels.size());
+    std::uint32_t skip = 0;
+    while (skip + 1 < count) {
+        const std::uint32_t edge = std::max(gpu::mip_size(image.width, skip), gpu::mip_size(image.height, skip));
+        if (edge <= max_edge) break;
+        ++skip;
+    }
+    return skip;
+}
+
+[[nodiscard]] core::Result<StagedImage> stage_blocks(const Image& image, std::uint32_t max_edge) {
     const core::Status checked = check_blocks(image);
     if (!checked) return std::unexpected(checked.error());
     StagedImage staged;
     const std::size_t kept = image.has_mips ? image.levels.size() : 1U;
-    for (std::uint32_t level = 0; level < kept; ++level) {
+    for (std::uint32_t level = skipped_levels(image, max_edge); level < kept; ++level) {
         const std::uint32_t width = gpu::mip_size(image.width, level);
         const std::uint32_t height = gpu::mip_size(image.height, level);
         const std::span<const std::byte> tight = image.levels[level];
@@ -954,8 +1010,8 @@ core::Result<std::vector<std::byte>> stage_rgba(const Image& image) {
     return pack_level(whole);
 }
 
-core::Result<StagedImage> stage_image(const Image& image, ColorSpace space) {
-    if (is_blocked(image)) return stage_blocks(image);
+core::Result<StagedImage> stage_image(const Image& image, ColorSpace space, std::uint32_t max_edge) {
+    if (is_blocked(image)) return stage_blocks(image, max_edge);
     const core::Status checked = check_image(image);
     if (!checked) return std::unexpected(checked.error());
     const bool as_srgb = space == ColorSpace::kSrgb;
@@ -999,12 +1055,12 @@ gpu::Format image_format(const Model& model, std::uint32_t index) noexcept {
     return gpu::Format::kRgba8Unorm;
 }
 
-core::Result<std::vector<StagedImage>> stage_images(const Model& model) {
+core::Result<std::vector<StagedImage>> stage_images(const Model& model, std::uint32_t max_edge) {
     std::vector<StagedImage> baked;
     baked.reserve(model.images.size());
     for (std::uint32_t index = 0; index < model.images.size(); ++index) {
         const bool is_srgb = image_format(model, index) == gpu::Format::kRgba8UnormSrgb;
-        auto staged = stage_image(model.images[index], is_srgb ? ColorSpace::kSrgb : ColorSpace::kLinear);
+        auto staged = stage_image(model.images[index], is_srgb ? ColorSpace::kSrgb : ColorSpace::kLinear, max_edge);
         if (!staged) return std::unexpected(staged.error());
         baked.push_back(std::move(*staged));
     }

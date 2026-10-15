@@ -75,11 +75,15 @@ void note_required(const Entry& entry, const core::Error& error, std::optional<c
     required = error;
 }
 
-// Bit chất liệu của PSO model; địa hình là đục hai mặt (như chất liệu "dia-hinh" của nó).
+// Bit chất liệu của PSO model; địa hình là đục hai mặt (như chất liệu "dia-hinh" của nó), model đục không discard
+// giữ bit hai mặt của chỉ số và không bao giờ trộn.
 [[nodiscard]] constexpr std::uint32_t model_kind(Pso pso) noexcept {
     if (pso == Pso::kTerrain) return kModelTwoSided;
+    const bool is_solid = pso == Pso::kModelSolid || pso == Pso::kModelSolidTwoSided;
+    if (is_solid) return static_cast<std::uint32_t>(pso) & kModelTwoSided;
     return static_cast<std::uint32_t>(pso);
 }
+static_assert(model_kind(Pso::kModelSolid) == 0 && model_kind(Pso::kModelSolidTwoSided) == kModelTwoSided);
 
 [[nodiscard]] core::Result<gpu::PipelineHandle> make_model(gpu::Device& device, const CatalogDesc& desc,
     const Entry& entry, std::span<const gpu::ShaderHandle> shaders) {
@@ -261,7 +265,9 @@ core::Result<gpu::PipelineHandle> Catalog::build(const Entry& entry, std::span<c
     case Pso::kModelTwoSided:
     case Pso::kModelBlend:
     case Pso::kModelBlendTwoSided:
-    case Pso::kTerrain: return make_model(*device_, desc_, entry, shaders);
+    case Pso::kTerrain:
+    case Pso::kModelSolid:
+    case Pso::kModelSolidTwoSided: return make_model(*device_, desc_, entry, shaders);
     case Pso::kUi: return make_ui(*device_, desc_, shaders);
     case Pso::kFx: return make_fx(*device_, desc_, shaders, add_blend(), entry.name);
     case Pso::kFxBlend: return make_fx(*device_, desc_, shaders, alpha_blend(), entry.name);

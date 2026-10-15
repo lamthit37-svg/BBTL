@@ -1,5 +1,5 @@
-// Bảng catalog không cần GPU: ui ở tầng 0, bốn biến thể model ở nhóm Character tầng 1, mặt đất lớp cọ ở nhóm
-// World tầng 1, fx ở tầng 2. Tên không trùng. Thêm dòng mà quên nhóm hoặc tầng thì ca nhóm trống hoặc ca tầng đỏ.
+// Bảng catalog không cần GPU: ui ở tầng 0, bốn biến thể model ở nhóm Character tầng 1, mặt đất lớp cọ và hai model
+// đục không discard ở nhóm World tầng 1, fx ở tầng 2. Tên không trùng. Thêm dòng mà quên nhóm hoặc tầng thì ca nhóm trống hoặc ca tầng đỏ.
 #include "core/check.hpp"
 #include "gpu/device.hpp"
 #include "render/catalog.hpp"
@@ -99,21 +99,26 @@ void optional_tier_follows_the_gpu(Context& context) {
     context.expect(!render::optional_tier_allowed(adapter, caps), "GPU phần mềm không mở tầng 3");
 }
 
-// Mặt đất lớp cọ là dòng duy nhất của nhóm World: đỉnh của model, điểm ảnh riêng, cùng hai khối hằng với model.
-void terrain_is_the_world_group(Context& context) {
+// Nhóm World là mặt đất lớp cọ và hai model đục không discard: đỉnh của model, điểm ảnh riêng, cùng hai khối hằng
+// với model, tầng 1 (vẽ ngay khung đầu), không bắt buộc (thiếu gói thì vẽ bằng biến thể model thường).
+void world_group_extends_the_model(Context& context) {
     std::size_t terrain = 0;
+    std::size_t solid = 0;
     for (const Entry& entry : render::entries()) {
         if (entry.group != Group::kWorld) continue;
-        ++terrain;
-        context.expect(entry.pso == Pso::kTerrain, "nhóm World chỉ có mặt đất");
-        context.expect(entry.tier == Tier::kEssential, "mặt đất thuộc tầng 1 (vẽ ngay khung đầu)");
-        context.expect(same(entry.vertex, "model.vs"), "mặt đất dùng đỉnh của model");
-        context.expect(same(entry.pixel, "terrain.ps"), "mặt đất có điểm ảnh riêng");
-        context.expect(!entry.is_required, "thiếu terrain.ps thì mặt đất vẽ như chất liệu thường");
-        context.expect(entry.frame_bytes == render::kModelFrameBytes, "khối khung của mặt đất là của model");
-        context.expect(entry.draw_bytes == render::kModelDrawBytes, "khối lệnh vẽ của mặt đất là của model");
+        const bool is_terrain = entry.pso == Pso::kTerrain;
+        const bool is_solid = entry.pso == Pso::kModelSolid || entry.pso == Pso::kModelSolidTwoSided;
+        terrain += is_terrain ? 1U : 0U;
+        solid += is_solid ? 1U : 0U;
+        context.expect(is_terrain || is_solid, "nhóm World chỉ có mặt đất và model đục");
+        context.expect(same(entry.pixel, is_terrain ? "terrain.ps" : "model_solid.ps"), "điểm ảnh đúng gói");
+        context.expect(entry.tier == Tier::kEssential, "nhóm World thuộc tầng 1");
+        context.expect(same(entry.vertex, "model.vs"), "nhóm World dùng đỉnh của model");
+        context.expect(!entry.is_required, "thiếu gói thì vẽ như chất liệu thường");
+        context.expect(entry.frame_bytes == render::kModelFrameBytes, "khối khung là của model");
+        context.expect(entry.draw_bytes == render::kModelDrawBytes, "khối lệnh vẽ là của model");
     }
-    context.expect(terrain == 1, "đúng một dòng nhóm World");
+    context.expect(terrain == 1 && solid == 2, "một mặt đất và hai model đục");
 }
 
 void idle_groups_stay_empty(Context& context) {
@@ -131,7 +136,7 @@ constexpr std::array<Case, 7> kCases{{
     {.name = "model_variants_are_character", .body = &model_variants_are_character},
     {.name = "fx_waits_for_the_scene", .body = &fx_waits_for_the_scene},
     {.name = "optional_tier_follows_the_gpu", .body = &optional_tier_follows_the_gpu},
-    {.name = "terrain_is_the_world_group", .body = &terrain_is_the_world_group},
+    {.name = "world_group_extends_the_model", .body = &world_group_extends_the_model},
     {.name = "idle_groups_stay_empty", .body = &idle_groups_stay_empty},
 }};
 

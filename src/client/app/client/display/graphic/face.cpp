@@ -441,6 +441,14 @@ void Display::State::govern_rate(double interval_ms) {
     }
 }
 
+// Điện thoại: chi tiết hình học của cảnh theo sức máy. Khung chậm hơn 30 khung/giây thì Forward chuyển lưới sang mức thô
+// hơn (trần tam giác hạ), máy dư sức thì trần nâng dần (render/detail_governor.hpp).
+void Display::State::adapt_detail(double interval_ms) {
+    if (!forward) return;
+    if (!detail) detail.emplace(render::DetailConfig{.start_cap = forward->triangle_cap()});
+    if (detail->note_frame(interval_ms)) forward->set_triangle_cap(detail->cap());
+}
+
 // Trần thấp hơn nhịp quét thì ngủ tới mốc kế tiếp (lưới đều, không trôi); bằng nhịp quét thì để Fifo khoá nhịp.
 void Display::State::hold_governed_rate() {
     if (!governor) return;

@@ -1,4 +1,5 @@
 // Cùng công thức với model.ps.slang. Ảnh và sampler dùng chung texture unit 0.
+// TL_SOLID (gói model_solid.ps, thienlong_shader chèn #define lên đầu) bỏ nhánh cắt alpha.
 struct Lamp {
     vec4 place;
     vec4 color;
@@ -34,36 +35,14 @@ layout(location = 2) in vec4 varying_color;
 layout(location = 3) in vec3 varying_place;
 layout(location = 4) in vec3 varying_light;
 layout(location = 5) flat in highp uint varying_lamp;
+// Sương gộp từ đỉnh (xem fog_terms của model.vs.glsl): màu_cuối = màu * w + rgb.
+layout(location = 6) in vec4 varying_fog;
 
 layout(location = 0) out vec4 out_color;
 
 // Khác bản HLSL: không có to_gamma và to_linear. Backend GL là thiết bị màu thô
 // (gpu/gles/device.hpp): sampler trả đúng số đã mã hoá và đích nhận đúng số ghi ra, nên công thức
 // gamma tính thẳng.
-
-float fog_share(float depth) {
-    float thick = depth * frame.fog_range.x;
-    if (frame.fog_kind.w > 0.5) return clamp((frame.fog_range.z - depth) * frame.fog_range.w, 0.0, 1.0);
-    if (frame.fog_kind.y > 0.5) return exp(-thick);
-    if (frame.fog_kind.z > 0.5) return exp(-(thick * thick));
-    return 1.0;
-}
-
-// HeightFog_ps.hlsl, như height_fog của model_ps.inc.slang.
-vec3 height_fog(vec3 color, vec3 place) {
-    if (frame.hfog_color.a < 0.5) return color;
-    vec3 to_point = place - frame.eye.xyz;
-    float ray_length = sqrt(max(dot(to_point, to_point), 1.0e-12));
-    float above = max(0.0, place.y - frame.hfog.y);
-    float by_height = frame.hfog.x * exp((-frame.hfog.z / 1000.0) * above);
-    by_height = pow(max(by_height, 0.0), frame.hfog.w);
-    float span = max(0.0, ray_length - frame.dfog.z);
-    float by_depth = 1.0 - (frame.dfog.x * exp((-frame.dfog.y / 1000.0) * span));
-    float facing = clamp(dot(to_point / ray_length, frame.sun_toward[0].xyz), 0.0, 1.0);
-    float scattered = pow(facing, frame.hfog_scatter.w);
-    vec3 tint = clamp(mix(frame.hfog_color.rgb, frame.hfog_scatter.rgb, scattered), 0.0, 1.0);
-    return mix(color, tint, by_height * by_depth);
-}
 
 vec3 lamp_light(vec3 facing, vec3 place, uint which) {
     // Ô 31 là đèn tắt; kẹp để không bao giờ đọc mảng ngoài biên.
@@ -108,7 +87,9 @@ void main() {
     vec4 mask = has_mask ? texture(mask_map, varying_uv) : vec4(1.0);
     vec4 tint = (flags & 256u) != 0u ? varying_color : vec4(1.0);
     float alpha = texel.a * mask.a * base_color.a * tint.a;
+#ifndef TL_SOLID
     if (alpha < alpha_cutoff) discard;
+#endif
     vec3 color = texel.rgb * mask.rgb * base_color.rgb * tint.rgb;
     // ColorX2 và ColorX4 kẹp sau khi nhân hệ số, chỉ với chất liệu có mặt nạ (như model.ps.slang).
     if (has_mask) color = clamp(color, 0.0, 1.0);
@@ -118,10 +99,6 @@ void main() {
         color = (flags & 128u) != 0u ? color + light : color * light;
         if ((flags & 64u) != 0u) color += gloss(facing, varying_place);
     }
-    if ((flags & 16u) == 0u) {
-        float depth = dot(frame.depth_row, vec4(varying_place, 1.0));
-        color = mix(frame.fog_color.rgb, color, fog_share(depth));
-    }
     if ((flags & 1024u) != 0u) alpha = 1.0;
-    out_color = vec4(height_fog(color, varying_place), alpha);
+    out_color = vec4((color * varying_fog.w) + varying_fog.rgb, alpha);
 }

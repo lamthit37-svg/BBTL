@@ -83,8 +83,9 @@ float4 main(Varying input) : SV_Target0 {
     const uint base_id = ground.r | ((ground.b & 3u) << 8u);
     const uint cover_id = ground.g | (((ground.b >> 2u) & 3u) << 8u);
     const uint flip = (ground.b >> 4u) & 1u;
-    // Ô không có cọ nền là lỗ của địa hình.
-    if (base_id == 0u) discard;
+    // Không discard: shader có discard làm GPU tile (PowerVR) mất khử che khuất, mặt đất phủ cả màn hình nên tốn gấp đôi
+    // (đo 2026-10-16 trên GE8320: khung 90 ms xuống 44 ms). Ô không có cọ nền (lỗ địa hình) đã bị bỏ khỏi lưới lúc dựng
+    // (cắt lỗ ở prelude.hpp: drop_holes), nên ở đây base_id luôn khác 0.
     const float4 under = layer_sample(base_id, ground.a & 15u, flip, along, cell_dx, cell_dy);
     // Cọ nền luôn đục: màu thẳng, bỏ alpha.
     float3 color = (under.a > 0.0) ? (under.rgb / under.a) : float3(0.0, 0.0, 0.0);
@@ -94,14 +95,14 @@ float4 main(Varying input) : SV_Target0 {
         color = over.rgb + (color * (1.0 - over.a));
     }
     // Lightmap nhân thẳng trong không gian gamma; trục z lật vì hàng đầu ảnh là biên z lớn. Lấy mẫu theo đạo
-    // hàm đã tính trước: sau discard ở trên đạo hàm ngầm của cụm bốn điểm không còn đáng tin.
+    // hàm đã tính trước, như mọi lần lấy mẫu trong hàm này.
     const float2 light_at = float2(place.x / grid.x, 1.0 - (place.y / grid.y));
     const float2 light_dx = float2(cell_dx.x / grid.x, -cell_dx.y / grid.y);
     const float2 light_dy = float2(cell_dy.x / grid.x, -cell_dy.y / grid.y);
     color *= light_map.SampleGrad(light_sampler, light_at, light_dx, light_dy).rgb;
     const bool has_tint = (draw.flags & kVertexColor) != 0u;
     const float4 tint = has_tint ? input.color : float4(1.0, 1.0, 1.0, 1.0);
+    // Mặt đất luôn đục: alpha 1, nên ngưỡng cắt alpha không bao giờ cắt và không có nhánh discard.
     const float alpha = draw.base_color.a * tint.a;
-    if (alpha < draw.diffuse.a) discard;
     return finish_pixel(color * draw.base_color.rgb * tint.rgb, alpha, input);
 }

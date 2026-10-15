@@ -67,6 +67,7 @@
 #include "core/error.hpp"
 #include "core/ground_point.hpp"
 #include "core/hash.hpp"
+#include "core/heap.hpp"
 #include "core/system.hpp"
 #include "core/text.hpp"
 #include "core/thread.hpp"
@@ -95,12 +96,14 @@
 #include "ogre/vec3.hpp"
 #include "render/camera.hpp"
 #include "render/catalog.hpp"
+#include "render/detail_governor.hpp"
 #include "render/forward.hpp"
 #include "render/screen.hpp"
 #include "render/shade.hpp"
 #include "render/ui.hpp"
 #include "render/view_size.hpp"
 #include "resource/image.hpp"
+#include "resource/lod.hpp"
 #include "resource/model.hpp"
 #include "resource/ogre_mesh.hpp"
 #include "resource/tier.hpp"
@@ -268,7 +271,8 @@ inline void say_steady(std::span<const double> frames, std::size_t from) {
 }
 // Khử răng cưa đa mẫu 4x: cảnh đá chi tiết quay chậm mà không có nó thì cạnh và hoạ tiết lăn tăn
 // từng khung, nhìn như giật dù nhịp khung đều (đã đo: median 16,6 ms). Resolve chạy trên chip.
-constexpr std::uint32_t kSamples = 4;
+// Điện thoại một mẫu: GLES dựng MSAA bằng texture đa mẫu rồi blit resolve, GPU tile phải ghi cả bốn mẫu ra RAM.
+constexpr std::uint32_t kSamples = ui::kPhone ? 1 : 4;
 // Trần nộp mesh trong một khung. Dev dùng 8 ms: 2 ms thì cảnh lớn hiện chậm vì việc bị xé vụn,
 // quá 8 ms thì khung 120 Hz trượt một nhịp. Địa hình ngồi một khung riêng, không cộng vào đây.
 inline constexpr std::chrono::milliseconds kLoadSlice{8};
@@ -402,6 +406,10 @@ using PackedSize = std::uint64_t;
     return std::filesystem::exists(packaged, ignored) ? packaged.string() : std::string{};
 }
 
+// Trần tam giác khởi đầu mỗi khung trên điện thoại; DetailGovernor chỉnh tiếp theo thời gian khung thực. Đo 2026-10-16 trên
+// tablet GE8320 (cảnh đăng nhập, 1,05 triệu tam giác: 142 ms mỗi khung): trần 300 nghìn cho 44 ms, 600 nghìn cho 90 ms.
+inline constexpr std::uint32_t kPhoneTriangleCap = 300'000;
+
 [[nodiscard]] inline ForwardResult make_forward(gpu::Device& device, const render::Screen& screen, std::string shaders,
     const render::Catalog& catalog) {
     render::ForwardDesc pass;
@@ -412,8 +420,10 @@ using PackedSize = std::uint64_t;
     pass.samples = screen.samples();
     // Backend GLES là chế độ di động (tablet PowerVR): ánh sáng tính ở đỉnh để giữ nhịp khung.
     pass.lights_at_vertices = device.adapter().backend == gpu::Backend::kGles;
+    pass.triangle_cap = ui::kPhone ? kPhoneTriangleCap : 0U;
     pass.shader_dir = std::move(shaders);
-    return render::Forward::create(device, pass, catalog.models(), catalog.get(render::Pso::kTerrain));
+    const std::array solid{catalog.get(render::Pso::kModelSolid), catalog.get(render::Pso::kModelSolidTwoSided)};
+    return render::Forward::create(device, pass, catalog.models(), catalog.get(render::Pso::kTerrain), solid);
 }
 
 // Lượt vẽ 2D của giao diện: cùng đích vẽ và thư mục shader với Forward.
@@ -807,6 +817,42 @@ inline void push_height_vertex(resource::Primitive& primitive, const game::clien
     primitive.vertices.push_back(vertex);
 }
 
+// Bỏ tam giác của ô không có cọ nền (lỗ địa hình): terrain.ps không discard (xem chú thích đầu terrain.ps.slang) nên lỗ
+// phải nằm ngoài lưới. Bố cục texel ô: R là 8 bit thấp của pixmap nền, B bit 0-1 là 2 bit cao. Mỗi ô là hai tam giác nằm
+// trọn trong ô, nên trọng tâm tam giác cho biết ô của nó.
+inline void drop_holes(resource::Primitive& primitive, const game::client::map::Picture& cells) {
+    const std::size_t width = cells.width;
+    const std::size_t height = cells.height;
+    if (width == 0 || height == 0 || cells.rgba.size() < width * height * 4U) return;
+    const auto cell_of = [](float along, std::size_t count) {
+        if (!(along > 0.0F)) return std::size_t{0};
+        return std::min(static_cast<std::size_t>(along), count - 1U);
+    };
+    std::vector<std::uint32_t> kept;
+    kept.reserve(primitive.indices.size());
+    for (std::size_t corner = 0; corner + 2 < primitive.indices.size(); corner += 3) {
+        float u = 0.0F;
+        float v = 0.0F;
+        for (std::size_t k = 0; k < 3; ++k) {
+            const std::uint32_t index = primitive.indices[corner + k];
+            if (index >= primitive.vertices.size()) return;
+            u += primitive.vertices[index].uv.x;
+            v += primitive.vertices[index].uv.y;
+        }
+        const std::size_t column = cell_of(u / 3.0F * static_cast<float>(width), width);
+        const std::size_t row = cell_of(v / 3.0F * static_cast<float>(height), height);
+        const std::size_t texel = ((row * width) + column) * 4U;
+        const std::uint32_t base_id = cells.rgba[texel] | ((std::uint32_t{cells.rgba[texel + 2]} & 3U) << 8U);
+        if (base_id == 0U) continue;
+        kept.insert(kept.end(), primitive.indices.begin() + static_cast<std::ptrdiff_t>(corner),
+            primitive.indices.begin() + static_cast<std::ptrdiff_t>(corner + 3));
+    }
+    primitive.indices = std::move(kept);
+}
+
+// Số ô mỗi cạnh của một khối địa hình khi vẽ.
+inline constexpr float kTerrainTileCells = 16.0F;
+
 // Lưới địa hình thành một model một nút. Không có cọ thì màu đỉnh theo độ cao.
 [[nodiscard]] inline resource::Model model_of(const MapGround& ground, GroundPaint paint) {
     resource::Model model;
@@ -822,6 +868,9 @@ inline void push_height_vertex(resource::Primitive& primitive, const game::clien
     }
     if (has_paint) lay_paint(primitive, ground);
     primitive.indices = ground.sheet.indices;
+    if (has_paint) drop_holes(primitive, paint.splat.cells);
+    // Khối 16 ô mỗi cạnh: Forward bỏ khối ngoài khung nhìn thay vì vẽ cả bản đồ mỗi khung (như TerrainTile của OGRE).
+    resource::build_tiles(primitive, kTerrainTileCells * ground.file.scale.x);
     mesh.primitives.push_back(std::move(primitive));
     model.meshes.push_back(std::move(mesh));
     resource::Material material;
@@ -906,18 +955,53 @@ struct ReadMesh {
     std::vector<resource::StagedImage> baked;
 };
 
-[[nodiscard]] inline ReadMesh baked_mesh(resource::Model model) {
+// Cạnh lớn nhất của texture vật thể trên điện thoại. Đo 2026-10-15 trên tablet GE8320, cảnh erengu_DL: 136 texture ASTC
+// 1024x1024 chiếm 181 trong 313 MB texture, trình điều khiển chép từng mức mip trên CPU nên đặt 170 mesh mất 14 giây,
+// và bộ nhớ đồ hoạ đẩy máy 2 GB tới chỗ lmkd giết tiến trình. Mức 512 bằng một phần tư số byte. PC giữ nguyên cỡ gốc.
+inline constexpr std::uint32_t kMobileTextureEdge = ui::kPhone ? 512U : 0U;
+
+// with_lods: sinh mức chi tiết thấp cho lưới tĩnh của vật thể cảnh (chỉ điện thoại, nơi số tam giác là thứ giới hạn
+// khung hình). Mặt đất, trời, nước, hạt và nhân vật không dùng: chúng không giản lược được theo từng vật.
+[[nodiscard]] inline ReadMesh baked_mesh(resource::Model model, bool with_lods = false) {
     classic::note(model);
+    if (ui::kPhone && with_lods) resource::build_lods(model);
     ReadMesh read;
-    auto baked = resource::stage_images(model);
+    auto baked = resource::stage_images(model, kMobileTextureEdge);
     if (baked) read.baked = std::move(*baked);
     read.model = std::move(model);
     return read;
 }
 
+// Số byte ảnh mà một ReadMesh đang giữ: bản giải mã của model cộng chuỗi mip đã nướng. Đây là phần nặng của hàng đợi
+// mesh chưa được luồng vẽ lấy.
+[[nodiscard]] inline std::size_t held_bytes(const ReadMesh& read) noexcept {
+    std::size_t total = 0;
+    for (const resource::Image& image : read.model.images) {
+        total += image.rgba.size();
+        for (const std::vector<std::byte>& level : image.levels) {
+            total += level.size();
+        }
+    }
+    for (const resource::StagedImage& staged : read.baked) {
+        total += staged.bytes.size();
+    }
+    return total;
+}
+
+// Sau khi ảnh đã lên GPU, bản CPU không ai đọc nữa (Forward::prepare chỉ đếm images): thả byte, giữ tên, cỡ, định dạng.
+// 170 mesh của một cảnh giữ ~300 MB bản giải mã nếu không thả, quá sức máy 2 GB.
+inline void drop_pixels(resource::Model& model) noexcept {
+    for (resource::Image& image : model.images) {
+        std::vector<std::uint8_t>().swap(image.rgba);
+        std::vector<std::vector<std::byte>>().swap(image.levels);
+    }
+}
+
 struct SlotBox {
     SlotMark mark = SlotMark::kWait;
     std::optional<ReadMesh> mesh;
+    // held_bytes lúc ô sẵn sàng; trừ khỏi Feed::pending_bytes khi luồng vẽ lấy.
+    std::size_t bytes = 0;
 };
 
 struct Need {
@@ -941,12 +1025,21 @@ struct FeedJob {
     resource::TextureTier tier = resource::TextureTier::kBc;
 };
 
+// Trần byte của mesh đã đọc mà luồng vẽ chưa lấy. Máy 2 GB bị lmkd giết khi cả 170 mesh cùng giữ bản nướng (đo 2026-10-15:
+// 830 MB anon sau 2,3 giây); đầu đọc chờ khi hàng đợi đầy. PC không cần trần chặt.
+inline constexpr std::size_t kPendingBudget = ui::kPhone ? (std::size_t{96} << 20U) : (std::size_t{1} << 30U);
+
 struct Feed {
     std::mutex mu;
     std::condition_variable cv;
+    // Đầu đọc chờ chỗ trong hàng đợi (pending_bytes); đánh thức khi luồng vẽ lấy mesh, đổi việc hoặc dừng.
+    std::condition_variable_any room;
     std::uint64_t epoch = 0;
     std::optional<FeedJob> job;
     std::vector<SlotBox> slots;
+    // Byte ảnh của các ô kReady chưa kTaken, và ô đầu tiên chưa kTaken (luồng vẽ lấy ô theo thứ tự). Cả hai dưới mu.
+    std::size_t pending_bytes = 0;
+    std::size_t next_untaken = 0;
     std::optional<ReadMesh> ground;
     bool ground_ready = false;
     bool quit = false;
@@ -964,6 +1057,7 @@ struct Feed {
     [[nodiscard]] std::optional<ReadMesh> take_ground(std::uint64_t current);
     [[nodiscard]] MeshReady take_mesh(std::uint64_t current, std::size_t slot);
     [[nodiscard]] std::optional<FeedJob> wait_job(const std::stop_token& stop);
+    [[nodiscard]] bool wait_room(const std::stop_token& stop, std::uint64_t current, std::size_t index);
     [[nodiscard]] bool serve_next(const std::stop_token& stop);
     void run(const std::stop_token& stop);
 };
@@ -995,21 +1089,19 @@ inline void bake_job(const FeedJob& job, Feed& feed) {
     return count;
 }
 
-[[nodiscard]] inline bool epoch_matches(Feed& feed, std::uint64_t epoch) {
-    const std::scoped_lock<std::mutex> lock(feed.mu);
-    return feed.epoch == epoch;
-}
-
 inline void store_read(Feed& feed, const FeedJob& job, const Need& need) {
     auto loaded = resource::load_named_model(need.name, io::utf8_of(job.root), job.tier);
     if (!loaded) std::println(stderr, "Bỏ mesh {}: {}", need.name, loaded.error());
     std::optional<ReadMesh> read;
-    if (loaded) read = baked_mesh(std::move(*loaded));
+    if (loaded) read = baked_mesh(std::move(*loaded), true);
+    const std::size_t bytes = read ? held_bytes(*read) : 0;
     const std::scoped_lock<std::mutex> lock(feed.mu);
     if (feed.epoch != job.epoch) return;
     SlotBox& box = feed.slots.at(need.slot);
     box.mark = read ? SlotMark::kReady : SlotMark::kFailed;
     box.mesh = std::move(read);
+    box.bytes = bytes;
+    feed.pending_bytes += bytes;
 }
 
 // Con trỏ việc đang đọc. Nhiều luồng lấy chỉ số qua next, không chia nhau một Model.
@@ -1022,7 +1114,8 @@ struct ReadCursor {
 
 [[nodiscard]] inline bool next_need(ReadCursor& cursor, std::size_t& index) {
     if (cursor.stop.stop_requested()) return false;
-    if (!epoch_matches(*cursor.feed, cursor.job->epoch)) return false;
+    const std::size_t upcoming = cursor.next.load(std::memory_order_relaxed);
+    if (!cursor.feed->wait_room(cursor.stop, cursor.job->epoch, upcoming)) return false;
     index = cursor.next.fetch_add(1, std::memory_order_relaxed);
     return index < cursor.job->needs.size();
 }
@@ -1081,6 +1174,7 @@ inline Feed::~Feed() {
         quit = true;
     }
     cv.notify_all();
+    room.notify_all();
 }
 
 inline std::uint64_t Feed::post(FeedJob next) {
@@ -1088,10 +1182,13 @@ inline std::uint64_t Feed::post(FeedJob next) {
     ++epoch;
     next.epoch = epoch;
     slots.assign(slot_span(next.needs), {});
+    pending_bytes = 0;
+    next_untaken = 0;
     ground.reset();
     ground_ready = false;
     job = std::move(next);
     cv.notify_all();
+    room.notify_all();
     return epoch;
 }
 
@@ -1102,7 +1199,10 @@ inline void Feed::cancel() {
     ground.reset();
     ground_ready = false;
     slots.clear();
+    pending_bytes = 0;
+    next_untaken = 0;
     cv.notify_all();
+    room.notify_all();
 }
 
 inline std::optional<ReadMesh> Feed::take_ground(std::uint64_t current) {
@@ -1121,7 +1221,22 @@ inline MeshReady Feed::take_mesh(std::uint64_t current, std::size_t slot) {
     ready.is_ready = true;
     ready.mesh = std::move(box.mesh);
     box.mark = SlotMark::kTaken;
+    pending_bytes -= std::min(pending_bytes, box.bytes);
+    box.bytes = 0;
+    while (next_untaken < slots.size() && slots.at(next_untaken).mark == SlotMark::kTaken) {
+        ++next_untaken;
+    }
+    room.notify_all();
     return ready;
+}
+
+// Cổng của đầu đọc: qua khi hàng đợi còn chỗ, hoặc khi ô sắp đọc đã là ô luồng vẽ đang chờ (index <= next_untaken), nên
+// đầu đọc không bao giờ nghẽn luồng vẽ: luồng vẽ lấy ô theo thứ tự và đầu đọc nhận ô theo thứ tự. Sai khi đổi việc hay dừng.
+inline bool Feed::wait_room(const std::stop_token& stop, std::uint64_t current, std::size_t index) {
+    std::unique_lock<std::mutex> lock(mu);
+    const bool is_open = room.wait(
+        lock, stop, [&] { return epoch != current || pending_bytes < kPendingBudget || index <= next_untaken; });
+    return is_open && epoch == current;
 }
 
 inline std::optional<FeedJob> Feed::wait_job(const std::stop_token& stop) {
@@ -1229,6 +1344,7 @@ struct SeatTarget {
         std::println(stderr, "Bỏ nội dung (tải lên GPU): {}", uploaded.error());
         return false;
     }
+    drop_pixels(loaded.model);
     loaded.uploaded = std::move(*uploaded);
     auto drawable = target.forward->prepare(loaded.model, loaded.uploaded);
     if (!drawable) {

@@ -230,13 +230,16 @@ std::size_t Display::State::load_painted_mesh(const std::string& mesh, std::stri
     const std::string key = std::format("{}\n{}", mesh, material);
     const auto found = kept_by_name.find(key);
     if (found != kept_by_name.end()) return found->second;
+    // Ghi nhớ cả lần hỏng: không thì mỗi khung nạp lại tệp, ghi lại dòng lỗi (đo trên tablet: 7% CPU luồng vẽ và 7 dòng log mỗi khung).
     auto model = resource::load_named_model(mesh, io::utf8_of(data_root), texture_tier);
     if (!model) {
         std::println(stderr, "Bỏ mesh {}: {}", mesh, model.error());
+        kept_by_name.emplace(key, kMissing);
         return kMissing;
     }
     if (!paint_particle(*model, paint, data_root)) {
         std::println(stderr, "Bỏ hạt mesh {}: thiếu ảnh {}", mesh, paint.image);
+        kept_by_name.emplace(key, kMissing);
         return kMissing;
     }
     return keep_model(key, baked_mesh(std::move(*model)));

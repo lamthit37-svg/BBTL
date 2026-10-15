@@ -1,15 +1,30 @@
-// Mô hình glTF, dạng nhị phân GLB là tệp người dùng đưa vào. Một tệp chứa lưới, morph, chất liệu
-// PBR (kể cả extension Khronos mà cgltf đã tách), sampler, ảnh PNG hoặc JPEG, nút, xương, clip,
-// camera, đèn và biến thể chất liệu. Ảnh giải ra RGBA8. Đầu ra của gltfpack nạp được: lưới lượng
-// tử (KHR_mesh_quantization) và buffer view nén (EXT_meshopt_compression). Ảnh DDS ngoài (DXT1,
-// DXT3, DXT5, A8R8G8B8) nạp thẳng. Không nạp KTX2, Draco; tệp đòi extension lớp này thì từ chối.
-// Nguồn: Forge2 src/resource/model.hpp@d7fcd76. Khác gốc: thêm ImageScope, image_path và tham số
-// root của load_glb_file, để ảnh ngoài được nằm ngoài thư mục của tệp GLB miễn là vẫn trong thư mục
-// gốc dữ liệu (THIENLONG đặt GLB ở Model/, ảnh ở Material/; gốc chỉ nhận ảnh trong thư mục của tệp
-// GLB); Vertex::joints là std::array thay mảng kiểu C; khởi tạo Float2, Float3, Float4 ghi tên
-// thành viên; bỏ {} thừa của các thành viên string, vector, optional và Matrix4; include thêm
-// <array> và <cstddef>; Node thêm parts (tịnh tiến, xoay, tỉ lệ đúng như tệp khai) cho hệ xương
-// của anim/, nơi dấu của quaternion gốc không được mất qua ma trận.
+/*==============================================================================
+ *  ENGINEHP  |  HIGH-PERFORMANCE GAME ENGINE
+ *------------------------------------------------------------------------------
+ *  TỆP       : engine/resource/model.hpp
+ *  PHÂN HỆ   : Resource / Model
+ *  CHUẨN     : C++23
+ *------------------------------------------------------------------------------
+ *  CHỨC NĂNG
+ *  - Mô hình glTF, dạng nhị phân GLB là tệp người dùng đưa vào. Một tệp chứa
+ *    lưới, morph, chất liệu PBR (kể cả extension Khronos mà cgltf đã tách),
+ *    sampler, ảnh PNG hoặc JPEG, nút, xương, clip, camera, đèn và biến thể chất
+ *    liệu. Ảnh giải ra RGBA8. Đầu ra của gltfpack nạp được: lưới lượng tử
+ *    (KHR_mesh_quantization) và buffer view nén (EXT_meshopt_compression). Ảnh
+ *    DDS ngoài (DXT1, DXT3, DXT5, A8R8G8B8) nạp thẳng.
+ *------------------------------------------------------------------------------
+ *  TÁC GIẢ   : HiepHoon
+ *  TELEGRAM  : @Hoon9xx
+ *============================================================================*/
+
+// Không nạp KTX2, Draco; tệp đòi extension lớp này thì từ chối. Nguồn: Forge2 src/resource/model.hpp@d7fcd76. Khác
+// gốc: thêm ImageScope, image_path và tham số root của load_glb_file, để ảnh ngoài được nằm ngoài thư mục của tệp GLB
+// miễn là vẫn trong thư mục gốc dữ liệu (THIENLONG đặt GLB ở Model/, ảnh ở Material/; gốc chỉ nhận ảnh trong thư mục
+// của tệp GLB); Vertex::joints là std::array thay mảng kiểu C; khởi tạo Float2, Float3, Float4 ghi tên thành viên; bỏ
+// {} thừa của các thành viên string, vector, optional và Matrix4; include thêm <array> và <cstddef>; Node thêm parts
+// (tịnh tiến, xoay, tỉ lệ đúng như tệp khai) cho hệ xương của anim/, nơi dấu của quaternion gốc không được mất qua ma
+// trận.
+
 #pragma once
 
 #include "core/error.hpp"
@@ -77,9 +92,22 @@ enum class Topology : std::uint8_t {
     kTriangleFan,
 };
 
+// Một khối của primitive lớn (địa hình): đoạn chỉ số liền nhau và hình cầu bao của các đỉnh nó dùng. Renderer chỉ vẽ khối
+// nào chạm khung nhìn, như OGRE loại TerrainTile theo hộp bao.
+struct Tile {
+    std::uint32_t first_index = 0;
+    std::uint32_t index_count = 0;
+    math::Float3 centre{};
+    float radius = 0.0F;
+};
+
 struct Primitive {
     std::vector<Vertex> vertices;
     std::vector<std::uint32_t> indices;
+    // Các mức chi tiết thấp hơn của indices, thô dần, cùng dùng vertices. Rỗng khi không sinh (build_lods ở lod.hpp).
+    std::vector<std::vector<std::uint32_t>> lods;
+    // Chia indices thành các khối liền nhau (build_tiles). Rỗng nghĩa là vẽ nguyên primitive.
+    std::vector<Tile> tiles;
     std::vector<MorphTarget> targets;
     std::optional<std::uint32_t> material;
     std::vector<VariantUse> variants;

@@ -203,6 +203,15 @@ struct BlockRect {
     std::uint32_t pitch = 0;
 };
 
+// Byte cuối mà một vùng chép đọc tính từ đầu buffer (một quá cuối). GL chỉ tự kiểm khi nguồn là PBO; nguồn đã map
+// là con trỏ CPU nên phải kiểm ở đây, nếu không là đọc ngoài vùng.
+[[nodiscard]] std::uint64_t region_end(const GlTexture& texture, const BufferTextureCopy& region, BlockRect rect) noexcept {
+    const std::uint64_t tight = texture.is_compressed ? row_bytes(texture.format, rect.width) : std::uint64_t{rect.width} * 4U;
+    const std::uint32_t rows = texture.is_compressed ? row_count(texture.format, rect.height) : rect.height;
+    if (rows == 0) return region.buffer_offset;
+    return region.buffer_offset + (std::uint64_t{rect.pitch} * (rows - 1U)) + tight;
+}
+
 // glCompressedTexSubImage2D không có bước dòng trên GLES (GL_UNPACK_COMPRESSED_BLOCK_* chỉ có ở desktop): bước dòng
 // bằng hàng khối khít thì một lời gọi cho cả vùng, không thì mỗi hàng khối một lời gọi. Chỉ mức mip có hàng khối hẹp
 // hơn kTextureRowAlignment mới bị đệm (padded_row_bytes), và những mức ấy có ít hàng.
@@ -745,9 +754,14 @@ void GlCommands::copy_buffer_to_texture(BufferHandle source, TextureHandle targe
             : region.row_bytes;
         const Unpack unpack{.mapped = is_mapped ? static_cast<const std::byte*>(buffer->mapped) : nullptr,
             .offset = region.buffer_offset};
+        const BlockRect rect{.width = width, .height = height, .pitch = row};
+        if (is_mapped && region_end(*texture, region, rect) > buffer->size) {
+            reject(fail(kBad, "copy_buffer_to_texture: vùng chép vượt buffer"));
+            break;
+        }
         if (texture->is_compressed) {
             api.pixel_store(GL_UNPACK_ROW_LENGTH, 0);
-            upload_blocks(api, *texture, region, BlockRect{.width = width, .height = height, .pitch = row}, unpack);
+            upload_blocks(api, *texture, region, rect, unpack);
             continue;
         }
         api.pixel_store(GL_UNPACK_ROW_LENGTH, static_cast<int>(row / 4));

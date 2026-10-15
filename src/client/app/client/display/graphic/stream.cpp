@@ -1,5 +1,18 @@
-// Nạp cảnh theo lát: luồng nền đọc đĩa, luồng vẽ chỉ đưa lên GPU phần đã xong.
-// Prefetch cảnh chọn nhân vật không đổi cảnh đang vẽ.
+/*==============================================================================
+ *  THIENLONG  |  GAME CLIENT
+ *------------------------------------------------------------------------------
+ *  TỆP       : src/client/app/client/display/graphic/stream.cpp
+ *  PHÂN HỆ   : Display / Graphic / Stream
+ *  CHUẨN     : C++23
+ *------------------------------------------------------------------------------
+ *  CHỨC NĂNG
+ *  - Nạp cảnh theo lát: luồng nền đọc đĩa, luồng vẽ chỉ đưa lên GPU phần đã
+ *    xong. Prefetch cảnh chọn nhân vật không đổi cảnh đang vẽ.
+ *------------------------------------------------------------------------------
+ *  TÁC GIẢ   : HiepHoon
+ *  TELEGRAM  : @Hoon9xx
+ *============================================================================*/
+
 #include "client/display/graphic/state.hpp"
 namespace game::client {
 
@@ -183,6 +196,9 @@ void Display::State::finish_stream() {
     const std::string loaded = "Nạp cảnh resid " + std::to_string(id) + " xong trong " + millis_text;
     const std::string loaded_tail = " ms, " + meshes_text + " mesh nhớ, " + props_text + " vật thể";
     std::println("{}", loaded + loaded_tail);
+    // Mesh đã lên GPU và bản nướng đã thả: trả trang heap còn giữ cho hệ điều hành trước khi lmkd đo.
+    core::trim_heap();
+    std::println("Bộ nhớ GPU {:.1f} MB (texture và buffer)", static_cast<double>(device->memory_budget().used_bytes) / 1048576.0);
     core::mark("cảnh nạp xong (mọi mesh đã đặt)");
     const std::string ground_ms = std::format("{:.1f}", arrival->ground_ms);
     const std::string seat_ms = std::format("{:.1f}", arrival->seat_ms);
@@ -278,6 +294,9 @@ void Display::State::settle_first_scene(const std::stop_token& stop) {
             core::sleep_for(kWaitPause);
             continue;
         }
+        // Điện thoại: mặt đất xong là vẽ khung đầu, mesh vào dần qua pump_load. Tablet GE8320 (đo 2026-10-15) mất hơn
+        // 10 giây đặt 170 mesh, suốt lúc đó màn trắng.
+        if (ui::kPhone) break;
         while (loading.cursor < loading.table.meshes.size() && !stop.stop_requested()) {
             if (!step_mesh(loading)) core::sleep_for(kWaitPause);
         }
@@ -314,9 +333,10 @@ std::size_t Display::State::load_mesh(const std::string& mesh) {
     auto model = resource::load_named_model(mesh, io::utf8_of(data_root), texture_tier);
     if (!model) {
         std::println(stderr, "Bỏ mesh {}: {}", mesh, model.error());
+        kept_by_name.emplace(mesh, kMissing);
         return kMissing;
     }
-    return keep_model(mesh, baked_mesh(std::move(*model)));
+    return keep_model(mesh, baked_mesh(std::move(*model), true));
 }
 
 std::size_t Display::State::keep_model(const std::string& mesh, ReadMesh read) {

@@ -14,6 +14,7 @@
 #include <algorithm>
 #include <format>
 #include <optional>
+#include <span>
 #include <utility>
 
 namespace game::shader {
@@ -115,6 +116,22 @@ struct Work {
     return path;
 }
 
+// "#define TÊN GIÁ_TRỊ" cho mỗi define dạng TÊN hoặc TÊN=GIÁ_TRỊ. GLSL không có cờ -D: backend GL chèn #version
+// lên trước code của gói, nên các dòng này đứng ngay sau #version như GLSL đòi.
+[[nodiscard]] std::string glsl_defines(const Work& work, const std::vector<std::string>& variant) {
+    std::string text;
+    const auto add = [&text](const std::string& define) {
+        const std::size_t equals = define.find('=');
+        text += "#define ";
+        text += equals == std::string::npos ? define : define.substr(0, equals) + " " + define.substr(equals + 1);
+        text += '\n';
+    };
+    std::ranges::for_each(work.manifest->defines, add);
+    std::ranges::for_each(work.spec->defines, add);
+    std::ranges::for_each(variant, add);
+    return text;
+}
+
 [[nodiscard]] Status attach_glsl(Work& work, const std::vector<std::string>& variant) {
     const PackageVariant* spirv = nullptr;
     for (const PackageVariant& item : work.source.variants) {
@@ -130,7 +147,10 @@ struct Work {
     glsl.target = Target::kGlsl;
     glsl.defines = variant;
     glsl.reflection = spirv->reflection;
-    glsl.code.assign(file->span().begin(), file->span().end());
+    const std::string defines = glsl_defines(work, variant);
+    const std::span head = std::as_bytes(std::span(defines));
+    glsl.code.assign(head.begin(), head.end());
+    glsl.code.insert(glsl.code.end(), file->span().begin(), file->span().end());
     work.files.push_back(path);
     work.source.variants.push_back(std::move(glsl));
     return ok();

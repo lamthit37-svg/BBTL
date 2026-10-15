@@ -39,35 +39,13 @@ layout(location = 2) in vec4 varying_color;
 layout(location = 3) in vec3 varying_place;
 layout(location = 4) in vec3 varying_light;
 layout(location = 5) flat in highp uint varying_lamp;
+// Sương gộp từ đỉnh (xem fog_terms của model.vs.glsl): màu_cuối = màu * w + rgb.
+layout(location = 6) in vec4 varying_fog;
 
 layout(location = 0) out vec4 out_color;
 
 const uint kTableWidth = 1024u;
 const uint kFlipStride = 16u;
-
-float fog_share(float depth) {
-    float thick = depth * frame.fog_range.x;
-    if (frame.fog_kind.w > 0.5) return clamp((frame.fog_range.z - depth) * frame.fog_range.w, 0.0, 1.0);
-    if (frame.fog_kind.y > 0.5) return exp(-thick);
-    if (frame.fog_kind.z > 0.5) return exp(-(thick * thick));
-    return 1.0;
-}
-
-// HeightFog_ps.hlsl, như height_fog của model_ps.inc.slang.
-vec3 height_fog(vec3 color, vec3 place) {
-    if (frame.hfog_color.a < 0.5) return color;
-    vec3 to_point = place - frame.eye.xyz;
-    float ray_length = sqrt(max(dot(to_point, to_point), 1.0e-12));
-    float above = max(0.0, place.y - frame.hfog.y);
-    float by_height = frame.hfog.x * exp((-frame.hfog.z / 1000.0) * above);
-    by_height = pow(max(by_height, 0.0), frame.hfog.w);
-    float span = max(0.0, ray_length - frame.dfog.z);
-    float by_depth = 1.0 - (frame.dfog.x * exp((-frame.dfog.y / 1000.0) * span));
-    float facing = clamp(dot(to_point / ray_length, frame.sun_toward[0].xyz), 0.0, 1.0);
-    float scattered = pow(facing, frame.hfog_scatter.w);
-    vec3 tint = clamp(mix(frame.hfog_color.rgb, frame.hfog_scatter.rgb, scattered), 0.0, 1.0);
-    return mix(color, tint, by_height * by_depth);
-}
 
 vec3 lamp_light(vec3 facing, vec3 place, uint which) {
     // Ô 31 là đèn tắt; kẹp để không bao giờ đọc mảng ngoài biên.
@@ -144,7 +122,7 @@ void main() {
     uint base_id = ground.r | ((ground.b & 3u) << 8u);
     uint cover_id = ground.g | (((ground.b >> 2u) & 3u) << 8u);
     uint flip = (ground.b >> 4u) & 1u;
-    if (base_id == 0u) discard;
+    // Không discard (xem terrain.ps.slang): lỗ địa hình đã bị bỏ khỏi lưới lúc dựng.
     vec4 under = layer_sample(base_id, ground.a & 15u, flip, along, cell_dx, cell_dy);
     vec3 color = (under.a > 0.0) ? (under.rgb / under.a) : vec3(0.0);
     if (cover_id != 0u) {
@@ -156,10 +134,8 @@ void main() {
     vec2 light_dy = vec2(cell_dy.x / grid.x, -cell_dy.y / grid.y);
     color *= textureGrad(light_map, light_at, light_dx, light_dy).rgb;
     vec4 base_color = uintBitsToFloat(tl_push[3]);
-    float alpha_cutoff = uintBitsToFloat(tl_push[5].w);
     vec4 tint = (flags & 256u) != 0u ? varying_color : vec4(1.0);
     float alpha = base_color.a * tint.a;
-    if (alpha < alpha_cutoff) discard;
     color *= base_color.rgb * tint.rgb;
     if ((flags & 1u) == 0u) {
         vec3 facing = varying_normal * inversesqrt(max(dot(varying_normal, varying_normal), 1.0e-12));
@@ -167,11 +143,7 @@ void main() {
         color = (flags & 128u) != 0u ? color + light : color * light;
         if ((flags & 64u) != 0u) color += gloss(facing, varying_place);
     }
-    if ((flags & 16u) == 0u) {
-        float depth = dot(frame.depth_row, vec4(varying_place, 1.0));
-        color = mix(frame.fog_color.rgb, color, fog_share(depth));
-    }
     // kOpaqueAlpha (1024), như finish_pixel của model_ps.inc.slang.
     if ((flags & 1024u) != 0u) alpha = 1.0;
-    out_color = vec4(height_fog(color, varying_place), alpha);
+    out_color = vec4((color * varying_fog.w) + varying_fog.rgb, alpha);
 }

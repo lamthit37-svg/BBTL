@@ -1,7 +1,8 @@
 // Catalog pipeline: mỗi PSO một nhóm và một tầng. Nhóm là chỗ quản lý, tầng là lúc prepare.
 // Forward, UiPass và FxView mượn handle; catalog huỷ chúng. prepare tạo mục của tầng chưa có.
 // Model hỏng thì prepare trả lỗi. Giao diện và hiệu ứng hỏng thì handle rỗng, lỗi nằm ở fault.
-// Đường vẽ không tạo PSO. Nhà và địa hình đang vẽ bằng họ model của nhóm Character.
+// Đường vẽ không tạo PSO. Vật có ngưỡng cắt alpha vẽ bằng họ model của nhóm Character; vật đục không cắt vẽ bằng
+// model_solid.ps của nhóm World khi gói có mặt.
 #pragma once
 
 #include "core/error.hpp"
@@ -51,7 +52,7 @@ enum class Tier : std::uint8_t { kBootstrap, kEssential, kScene, kOptional };
     return caps.mesh_shader || caps.ray_query;
 }
 
-// Tám PSO đang có. Bốn ô model trùng bit chất liệu: bit 0 hai mặt, bit 1 trộn alpha.
+// Mười PSO đang có. Bốn ô model trùng bit chất liệu: bit 0 hai mặt, bit 1 trộn alpha.
 // kFxBlend dùng cùng shader với kFx; khác ở hệ số trộn src_alpha / one_minus_src_alpha.
 // kTerrain là mặt đất lớp cọ: đỉnh của model, điểm ảnh của terrain.ps; đục, hai mặt.
 enum class Pso : std::uint8_t {
@@ -63,6 +64,10 @@ enum class Pso : std::uint8_t {
     kFx = 5,
     kFxBlend = 6,
     kTerrain = 7,
+    // Model đục không cắt alpha (model_solid.ps, không discard): discard làm GPU tile mất khử che khuất. Đo 2026-10-15
+    // trên PowerVR GE8320: vật đục ăn 160 trong 217 ms mỗi khung. Không bắt buộc: thiếu gói thì vẽ bằng kModelOpaque.
+    kModelSolid = 8,
+    kModelSolidTwoSided = 9,
 };
 
 inline constexpr std::uint32_t kModelTwoSided = 1;
@@ -71,8 +76,8 @@ inline constexpr std::uint32_t kModelBlended = 2;
 inline constexpr std::uint32_t kModelFrameBytes = 1344;
 inline constexpr std::uint32_t kModelDrawBytes = gpu::kMaxPushBytes;
 inline constexpr std::size_t kModelVariants = 4;
-inline constexpr std::size_t kPackageCount = 7;
-inline constexpr std::size_t kSlotCount = 8;
+inline constexpr std::size_t kPackageCount = 8;
+inline constexpr std::size_t kSlotCount = 10;
 
 // Bố cục đỉnh hạt. fx_view giữ struct cùng các số này; catalog dựng pipeline theo chúng.
 inline constexpr std::uint32_t kFxStride = 36;
@@ -81,7 +86,7 @@ inline constexpr std::uint32_t kFxColour = 20;
 
 // Mọi gói .f2s catalog có thể nạp. Hash cache đĩa đi theo danh sách này, mỗi tên một lần.
 inline constexpr std::array<std::string_view, kPackageCount> kPackageNames{
-    "model.vs", "model.ps", "ui.vs", "ui.ps", "fx.vs", "fx.ps", "terrain.ps"};
+    "model.vs", "model.ps", "ui.vs", "ui.ps", "fx.vs", "fx.ps", "terrain.ps", "model_solid.ps"};
 
 // Một dòng của bảng. is_required: thiếu PSO ấy thì prepare của tầng trả lỗi.
 // frame_bytes và draw_bytes là cỡ khối hằng mà mã ghi. 0 nghĩa là không kiểm khối đó.
@@ -163,6 +168,24 @@ inline constexpr std::array<Entry, kSlotCount> kEntries{{
         .pso = Pso::kTerrain,
         .vertex = "model.vs",
         .pixel = "terrain.ps",
+        .is_required = false,
+        .frame_bytes = kModelFrameBytes,
+        .draw_bytes = kModelDrawBytes},
+    {.name = "render.model.solid",
+        .group = Group::kWorld,
+        .tier = Tier::kEssential,
+        .pso = Pso::kModelSolid,
+        .vertex = "model.vs",
+        .pixel = "model_solid.ps",
+        .is_required = false,
+        .frame_bytes = kModelFrameBytes,
+        .draw_bytes = kModelDrawBytes},
+    {.name = "render.model.solid_two_sided",
+        .group = Group::kWorld,
+        .tier = Tier::kEssential,
+        .pso = Pso::kModelSolidTwoSided,
+        .vertex = "model.vs",
+        .pixel = "model_solid.ps",
         .is_required = false,
         .frame_bytes = kModelFrameBytes,
         .draw_bytes = kModelDrawBytes},

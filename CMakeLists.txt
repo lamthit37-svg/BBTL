@@ -635,8 +635,8 @@ game_module(ui_script
     src/client/face/ui/script/host.cpp
     src/client/face/ui/script/context.cpp
     src/client/face/ui/script/message_format.cpp
-    src/client/face/ui/script/native_a_trade.cpp
     src/client/face/ui/script/native_a_vcall.cpp
+    src/client/face/ui/script/native_a_trade.cpp
     src/client/face/ui/script/native_events.cpp
     src/client/face/ui/script/native_format.cpp
     src/client/face/ui/script/native_pet.cpp
@@ -932,6 +932,7 @@ if(GAME_HAS_GPU)
             engine/resource/tier.cpp
             engine/resource/ogre_mesh.cpp
             engine/resource/image.cpp
+            engine/resource/lod.cpp
             engine/resource/model.cpp
             engine/resource/upload.cpp)
         target_include_directories(game_resource PRIVATE ${CGLTF_INCLUDE_DIR} ${Stb_INCLUDE_DIR})
@@ -1416,6 +1417,7 @@ if(GAME_HAS_GPU AND NOT ANDROID)
         game_test(resource game_resource)
         game_test(dds game_resource)
         game_test(ogre_mesh game_resource)
+        game_test(lod game_resource)
         if(EXISTS "${PROJECT_SOURCE_DIR}/dev/client/assets/Model")
             target_compile_definitions(ogre_mesh_tests PRIVATE
                 GAME_CLIENT_DATA="${PROJECT_SOURCE_DIR}/dev/client/assets")
@@ -1675,6 +1677,7 @@ endif()
 if(TARGET game_render)
     game_test(camera game_render)
     game_test(catalog game_render)
+    game_test(detail game_render)
 endif()
 if(TARGET game_ui AND NOT ANDROID
         AND EXISTS "${PROJECT_SOURCE_DIR}/dev/client/assets/Interface/Schema/VTNAM14.bin")

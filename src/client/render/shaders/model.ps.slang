@@ -35,9 +35,11 @@ float4 main(Varying input) : SV_Target0 {
     const bool has_tint = (draw.flags & kVertexColor) != 0u;
     const float4 tint = has_tint ? input.color : float4(1.0, 1.0, 1.0, 1.0);
     const float alpha = texel.a * mask_alpha * draw.base_color.a * tint.a;
+#ifndef TL_SOLID
     if (alpha < draw.diffuse.a) {
         discard;
     }
+#endif
     float3 color = to_gamma(texel.rgb) * mask_rgb * draw.base_color.rgb * tint.rgb;
     // ColorX2 và ColorX4 kẹp sau khi nhân hệ số. Chất liệu không mặt nạ giữ nguyên, không kẹp thêm.
     if (has_mask) color = saturate(color);

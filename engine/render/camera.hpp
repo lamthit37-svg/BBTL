@@ -1,12 +1,27 @@
-// Camera của một khung hình: nhìn từ mắt tới điểm nhìn (look_camera), đặt bằng vị trí và hướng
-// (posed_camera), quay quanh một điểm (orbit_camera), hay lùi vừa một khung bao (frame_camera); cắt
-// khuất hộp và hình cầu; cùng hai tiện ích model: ma trận nút ở tư thế nghỉ và hộp bao ở một tư thế.
-// Quy ước của gpu: hệ tay phải như glTF (camera nhìn theo -Z), NDC có Y hướng lên, độ sâu đảo
-// (mặt gần ra 1, mặt xa ra 0).
-// Nguồn: Forge2 src/render/camera.hpp@d7fcd76 (Camera, rest_nodes, bounds_of); TLBB Dev
-// src/render/camera.hpp và camera.cpp@e0d89a6 (frame_camera, orbit, look, box_in_view, frustum).
-// Khác gốc: không có bgfx nên bỏ cờ homogeneous_depth; phép chiếu luôn là độ sâu đảo; mặt xa của
-// cắt khuất là z >= 0 thay cho w - z; cooked::MeshBounds thành SceneBounds.
+/*==============================================================================
+ *  ENGINEHP  |  HIGH-PERFORMANCE GAME ENGINE
+ *------------------------------------------------------------------------------
+ *  TỆP       : engine/render/camera.hpp
+ *  PHÂN HỆ   : Render / Camera
+ *  CHUẨN     : C++23
+ *------------------------------------------------------------------------------
+ *  CHỨC NĂNG
+ *  - Camera của một khung hình: nhìn từ mắt tới điểm nhìn (look_camera), đặt
+ *    bằng vị trí và hướng (posed_camera), quay quanh một điểm (orbit_camera),
+ *    hay lùi vừa một khung bao (frame_camera); cắt khuất hộp và hình cầu; cùng
+ *    hai tiện ích model: ma trận nút ở tư thế nghỉ và hộp bao ở một tư thế. Quy
+ *    ước của gpu: hệ tay phải như glTF (camera nhìn theo -Z), NDC có Y hướng
+ *    lên, độ sâu đảo (mặt gần ra 1, mặt xa ra 0).
+ *------------------------------------------------------------------------------
+ *  TÁC GIẢ   : HiepHoon
+ *  TELEGRAM  : @Hoon9xx
+ *============================================================================*/
+
+// Nguồn: Forge2 src/render/camera.hpp@d7fcd76 (Camera, rest_nodes, bounds_of); TLBB Dev src/render/camera.hpp và
+// camera.cpp@e0d89a6 (frame_camera, orbit, look, box_in_view, frustum). Khác gốc: không có bgfx nên bỏ cờ
+// homogeneous_depth; phép chiếu luôn là độ sâu đảo; mặt xa của cắt khuất là z >= 0 thay cho w - z; cooked::MeshBounds
+// thành SceneBounds.
+
 #pragma once
 
 #include "math/geometry.hpp"
@@ -27,6 +42,9 @@ struct Camera {
     math::Matrix4 view = math::Matrix4::identity();
     // Không gian camera sang clip space, độ sâu đảo.
     math::Matrix4 projection = math::Matrix4::identity();
+    // Chiều cao khung dựng theo điểm ảnh, để Forward chọn mức chi tiết theo kích thước trên màn hình. 0 thì luôn vẽ mức
+    // đủ chi tiết.
+    float pixels_high = 0.0F;
 };
 
 // Ma trận không gian mô hình của mọi nút ở tư thế nghỉ của tệp, theo chỉ số nút.

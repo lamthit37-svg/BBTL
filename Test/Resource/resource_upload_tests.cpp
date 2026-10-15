@@ -486,7 +486,44 @@ void staged_images_follow_image_format(Context& context) {
     context.expect(hash_of(baked->at(3).bytes) == mixed, "ảnh vừa màu vừa dữ liệu nướng tuyến tính");
 }
 
+// Ảnh BC1 64x32 đủ bảy mức, mức k tô toàn byte k để biết mức nào đứng đầu chuỗi đã nướng.
+[[nodiscard]] resource::Image block_chain() {
+    resource::Image image;
+    image.name = "khoi";
+    image.width = 64;
+    image.height = 32;
+    image.blocks = gpu::Format::kBc1Unorm;
+    for (std::uint32_t level = 0; level < 7; ++level) {
+        const std::uint32_t across = std::max(1U, ((image.width >> level) + 3U) / 4U);
+        const std::uint32_t down = std::max(1U, ((image.height >> level) + 3U) / 4U);
+        const std::size_t bytes = std::size_t{across} * down * 8U;
+        image.levels.emplace_back(bytes, static_cast<std::byte>(level));
+    }
+    return image;
+}
+
+// max_edge bỏ các mức đầu tới khi cạnh dài nhất không quá giới hạn, giữ ít nhất một mức; 0 và ảnh không mip giữ nguyên.
+void max_edge_skips_top_levels(Context& context) {
+    const resource::Image image = block_chain();
+    const auto whole = resource::stage_image(image, resource::ColorSpace::kLinear);
+    context.expect(whole.has_value() && whole->mips.size() == 7, "không giới hạn thì đủ bảy mức");
+    const auto capped = resource::stage_image(image, resource::ColorSpace::kLinear, 16);
+    context.expect(capped.has_value() && capped->mips.size() == 5, "giới hạn 16 bỏ hai mức đầu");
+    if (!capped || capped->mips.empty()) return;
+    const resource::StagedMip& top = capped->mips.front();
+    context.expect(top.width == 16 && top.height == 8, "mức đầu còn lại là 16x8");
+    context.expect(capped->bytes.at(top.offset) == std::byte{2}, "byte của mức đầu là của mức 2 gốc");
+    const auto tiny = resource::stage_image(image, resource::ColorSpace::kLinear, 1);
+    context.expect(tiny.has_value() && tiny->mips.size() == 1, "giới hạn 1 vẫn giữ mức 1x1");
+    resource::Image flat = image;
+    flat.has_mips = false;
+    const auto single = resource::stage_image(flat, resource::ColorSpace::kLinear, 16);
+    const bool is_whole_top = single.has_value() && single->mips.size() == 1 && single->mips.front().width == 64;
+    context.expect(is_whole_top, "ảnh không mip giữ mức 0");
+}
+
 constexpr std::array kCases{
+    Case{.name = "max_edge_skips_top_levels", .body = &max_edge_skips_top_levels},
     Case{.name = "success_issues_expected_calls", .body = &success_issues_expected_calls},
     Case{.name = "destroying_releases_in_order", .body = &destroying_releases_in_order},
     Case{.name = "moving_keeps_one_owner", .body = &moving_keeps_one_owner},

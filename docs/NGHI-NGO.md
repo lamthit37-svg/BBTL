@@ -1003,3 +1003,11 @@ kết luận ngay dưới mục đó chứ không xoá.
     (g) Tầm tiếp cận chung 2,5 m (`fight::kReach`) cho mọi chiêu, thu ngắn mỗi lần máy chủ báo quá tầm; chiêu tầm xa vẫn đi tới 2,5 m rồi mới đánh. Máy chủ mới là nơi kiểm tầm từng chiêu.
     (h) Ô kỹ năng k là kỹ năng học thứ k của `SelfSkills`, chưa có thanh action để kéo thả; danh sách đổi thì người chơi dựng lại một lần để nạp clip.
     (i) Cổng `check.py`/clang-tidy: phần của lát cắt sạch (đo bằng clang-tidy với `--header-filter` rỗng cho từng tệp, `check.py --run` cho `fight_tests`). Cả nhóm `display/graphic` vẫn không qua `check.py` nguyên tệp vì lỗi có sẵn ở HEAD: `misc-include-cleaner` hàng loạt (các tệp dựa vào `prelude.hpp`), `State` đệm 125 byte, `sky_mesh.hpp`/`water_mesh.hpp` khởi tạo không chỉ định tên.
+
+59. **Treo đơ trên điện thoại, màn đăng nhập (2026-10-16): các chỗ chưa kết luận được** (`engine/render/forward.cpp`, `engine/resource/lod.cpp`, `engine/render/detail_governor.hpp`).
+    (a) Chưa đạt 30 Hz trên TB-X306F (23,5 fps, ~42 ms/khung): còn ~300 lệnh vẽ mỗi lệnh tốn 50–80 µs ở driver GLES. Cần gộp lệnh vẽ giữa các mesh; chưa làm.
+    (b) Số đo có nhiễu: DVFS của MT8768 đổi xung CPU 0,9–2,3 GHz theo tải GPU, pin 24% cắm USB. Cần đo lại với pin đầy hoặc khoá xung để kết luận mức cải thiện chính xác.
+    (c) iOS chưa build và chưa chạy (không có macOS); đường MoltenVK dùng chung mã nhưng hành vi TBDR của GPU Apple chưa đo, `discard` ở shader khác (cây, hiệu ứng) vẫn có thể tắt HSR ở đó.
+    (d) `kPhoneTriangleCap` 300k và các hệ số của `DetailGovernor` chọn theo một máy; máy mạnh hơn nâng trần tự động, máy yếu hơn bị kẹp ở sàn 120k mà vẫn có thể chậm.
+    (e) LOD chỉ cho lưới tĩnh (không skin, không morph): nhân vật và quái skin vẫn vẽ đủ tam giác.
+    (f) `lod_tests` chưa chạy dưới sanitizer (`check.py --run`); chỉ chạy bản `msvc-release`.

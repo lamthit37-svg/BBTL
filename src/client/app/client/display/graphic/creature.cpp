@@ -122,9 +122,13 @@ std::size_t Display::State::load_skinned_mesh(const std::string& mesh, const loo
     auto model = resource::load_named_model(mesh, io::utf8_of(data_root), texture_tier);
     if (!model) {
         std::println(stderr, "Bỏ mesh {}: {}", mesh, model.error());
+        kept_by_name.emplace(key, kMissing);
         return kMissing;
     }
-    if (!apply_skin(*model, skin, data_root, texture_tier)) return kMissing;
+    if (!apply_skin(*model, skin, data_root, texture_tier)) {
+        kept_by_name.emplace(key, kMissing);
+        return kMissing;
+    }
     return keep_model(key, baked_mesh(std::move(*model)));
 }
 

@@ -2,6 +2,8 @@
 # nằm cạnh exe, trong thư mục shaders. Engine chỉ nạp gói theo tên, không giữ nguồn.
 shader model.vs model.vs.slang
 shader model.ps model.ps.slang
+# Vật đục không cắt alpha: không có discard, để GPU tile (PowerVR) giữ khử che khuất. render::Pso::kModelSolid.
+shader model_solid.ps model.ps.slang define=TL_SOLID=1
 shader terrain.ps terrain.ps.slang
 shader ui.vs ui.vs.slang
 shader ui.ps ui.ps.slang

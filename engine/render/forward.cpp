@@ -1,5 +1,19 @@
-// check.py dịch tệp này một mình, không kèm -msse4.1 mà CMake gắn vào game_math.
-// Chỉ cho x86-64: đích ARM không có tính năng này, clang in cảnh báo rồi bỏ qua.
+/*==============================================================================
+ *  ENGINEHP  |  HIGH-PERFORMANCE GAME ENGINE
+ *------------------------------------------------------------------------------
+ *  TỆP       : engine/render/forward.cpp
+ *  PHÂN HỆ   : Render / Forward
+ *  CHUẨN     : C++23
+ *------------------------------------------------------------------------------
+ *  CHỨC NĂNG
+ *  - check.py dịch tệp này một mình, không kèm -msse4.1 mà CMake gắn vào
+ *    game_math. Chỉ cho x86-64: đích ARM không có tính năng này, clang in cảnh
+ *    báo rồi bỏ qua.
+ *------------------------------------------------------------------------------
+ *  TÁC GIẢ   : HiepHoon
+ *  TELEGRAM  : @Hoon9xx
+ *============================================================================*/
+
 #if defined(__clang__) && defined(__x86_64__)
 #pragma clang attribute push(__attribute__((target("sse4.1"))), apply_to = function)
 #elif defined(__GNUC__) && defined(__x86_64__)
@@ -59,9 +73,12 @@ namespace game::render {
 namespace {
 
 constexpr std::uint32_t kNone = std::numeric_limits<std::uint32_t>::max();
-// Bốn biến thể model rồi pipeline địa hình lớp cọ (ô cuối, đục một mặt).
-constexpr std::size_t kPipelines = kModelVariants + 1;
+// Bốn biến thể model, pipeline địa hình lớp cọ, rồi hai ô model đục không discard ở 8 và 9: chỉ số giữ đúng
+// bit hai mặt (bit 0) và không đụng bit trộn (bit 1), vì draws_before và cờ kOpaqueAlpha đọc bit của chỉ số.
+constexpr std::size_t kPipelines = 10;
 constexpr std::uint32_t kTerrainPipeline = static_cast<std::uint32_t>(kModelVariants);
+constexpr std::uint32_t kSolidPipeline = 8;
+static_assert(kTerrainPipeline < kSolidPipeline && (kSolidPipeline & 3U) == 0 && std::size_t{kSolidPipeline} + 1 < kPipelines);
 // Cùng bit với Pso của catalog: 0 đục một mặt, 1 đục hai mặt, 2 trộn một mặt, 3 trộn hai mặt.
 constexpr std::uint32_t kTwoSided = kModelTwoSided;
 constexpr std::uint32_t kBlended = kModelBlended;
@@ -255,19 +272,54 @@ struct Item {
     std::uint32_t instances = 1;
     // Khoảng cách dọc hướng nhìn, để xếp lưới trộn alpha từ xa tới gần.
     float distance = 0.0F;
+    // Số tam giác tối đa đáng vẽ cho lệnh này (mỗi tam giác phủ ít nhất kPixelsPerTriangle điểm ảnh); âm là không biết,
+    // luôn vẽ mức đủ chi tiết.
+    float budget = -1.0F;
+    // Đoạn chỉ số sẽ vẽ, do choose_lods đặt từ budget và trần tam giác của khung.
+    resource::IndexRange range{};
+    // Khối của primitive chia khối (Primitive::tiles): range đã cố định, choose_lods không đổi.
+    bool is_tile = false;
 };
 
-// Lệnh nào vẽ trước: lưới đục trước lưới trộn; trong lưới trộn thì xa trước; lưới đục gom theo
-// pipeline để ít lần đổi trạng thái.
+// Pipeline có discard (cắt alpha). GPU tile như PowerVR chỉ khử che khuất được cho những gì vẽ trước chúng, nên chúng
+// vẽ sau vật đục không discard.
+[[nodiscard]] bool cuts_alpha(std::uint32_t pipeline) noexcept {
+    return pipeline == 0 || pipeline == kTwoSided;
+}
+
+// Lệnh nào vẽ trước: lưới đục không discard, rồi lưới cắt alpha, rồi lưới trộn; trong lưới trộn thì xa trước; lưới đục
+// gom theo pipeline để ít lần đổi trạng thái.
 [[nodiscard]] bool draws_before(const Item& left, const Item& right) noexcept {
     const bool left_blended = (left.pipeline & kBlended) != 0;
     const bool right_blended = (right.pipeline & kBlended) != 0;
     if (left_blended != right_blended) return right_blended;
     if (left_blended) return left.distance > right.distance;
+    const bool left_cuts = cuts_alpha(left.pipeline);
+    const bool right_cuts = cuts_alpha(right.pipeline);
+    if (left_cuts != right_cuts) return right_cuts;
     return left.pipeline < right.pipeline;
 }
 
-void draw_item(gpu::CommandList& list, const resource::GpuPrimitive& part, std::uint32_t instances) {
+
+// Mật độ tam giác đích: mỗi tam giác phủ ít nhất chừng này điểm ảnh màn hình. Đo trên GE8320: cảnh đầy đủ ~1 tam giác
+// mỗi điểm ảnh làm khung 280 ms, giữ 20% tam giác thì 60 khung/giây.
+constexpr float kPixelsPerTriangle = 12.0F;
+// Hệ số thô hoá lớn nhất: ở đó mọi lưới đã xuống mức thô nhất, tăng nữa không đổi gì.
+constexpr float kMaxLodBias = 1.0e6F;
+
+// Đoạn chỉ số của mức chi tiết đầu tiên có không quá budget tam giác; hết mức thì lấy mức thô nhất.
+[[nodiscard]] resource::IndexRange lod_range(const resource::GpuPrimitive& part, float budget) noexcept {
+    resource::IndexRange range{.first = 0, .count = part.index_count};
+    if (budget < 0.0F) return range;
+    for (const resource::IndexRange& level : part.lods) {
+        if (static_cast<float>(range.count) <= budget * 3.0F) break;
+        range = level;
+    }
+    return range;
+}
+
+void draw_item(gpu::CommandList& list, const resource::GpuPrimitive& part, std::uint32_t instances,
+    const resource::IndexRange& range) {
     list.bind_vertex_buffer(0, part.vertices, 0);
     if (part.index_count == 0) {
         gpu::DrawArguments plain;
@@ -277,10 +329,18 @@ void draw_item(gpu::CommandList& list, const resource::GpuPrimitive& part, std::
         return;
     }
     gpu::DrawIndexedArguments indexed;
-    indexed.index_count = part.index_count;
+    indexed.index_count = range.count;
+    indexed.first_index = range.first;
     indexed.instance_count = instances;
     list.bind_index_buffer(part.indices, gpu::IndexType::kUint32, 0);
     list.draw_indexed(indexed);
+}
+
+// Tiêu cự theo điểm ảnh của camera phối cảnh; 0 khi camera trực giao hoặc không khai chiều cao khung dựng.
+[[nodiscard]] float focal_of(const Camera& camera) noexcept {
+    const bool is_perspective = camera.projection.at(3, 3) == 0.0F;
+    if (!is_perspective || camera.pixels_high <= 0.0F) return 0.0F;
+    return std::abs(camera.projection.at(1, 1)) * 0.5F * camera.pixels_high;
 }
 
 // Một instance đang được gom.
@@ -303,6 +363,8 @@ struct Pass {
 struct Placed {
     std::uint32_t mesh = 0;
     math::Matrix4 world = math::Matrix4::identity();
+    // Ma trận cục bộ của nút; với bản sao instanced, thế giới của bản i là copies[i] * node.
+    math::Matrix4 node = math::Matrix4::identity();
     Item base{};
 };
 
@@ -378,6 +440,44 @@ constexpr float kNeutralEpsilon = 2.0e-3F;
     return true;
 }
 
+// Khoảng cách xa nhất từ center tới một đỉnh của primitive.
+[[nodiscard]] float radius_about(const resource::Primitive& primitive, const math::Vector3& center) noexcept {
+    float farthest = 0.0F;
+    for (const resource::Vertex& vertex : primitive.vertices) {
+        const math::Vector3 point(vertex.position.x, vertex.position.y, vertex.position.z);
+        farthest = std::max(farthest, math::length(point - center));
+    }
+    return farthest;
+}
+
+// Tổng diện tích tam giác của mức đủ chi tiết, trong không gian của lưới.
+[[nodiscard]] float surface_area(const resource::Primitive& primitive) noexcept {
+    const auto point = [&](std::uint32_t index) {
+        const math::Float3& at = primitive.vertices[index].position;
+        return math::Vector3(at.x, at.y, at.z);
+    };
+    double area = 0.0;
+    for (std::size_t corner = 0; corner + 2 < primitive.indices.size(); corner += 3) {
+        const std::uint32_t first = primitive.indices[corner];
+        const std::uint32_t second = primitive.indices[corner + 1];
+        const std::uint32_t third = primitive.indices[corner + 2];
+        if (std::max({first, second, third}) >= primitive.vertices.size()) continue;
+        const math::Vector3 start = point(first);
+        area += 0.5 * static_cast<double>(math::length(math::cross(point(second) - start, point(third) - start)));
+    }
+    return static_cast<float>(area);
+}
+
+[[nodiscard]] std::vector<PartExtent> extents_of(const resource::Mesh& mesh, std::span<const math::Vector3> centers) {
+    std::vector<PartExtent> extents;
+    extents.reserve(mesh.primitives.size());
+    for (std::size_t part = 0; part < mesh.primitives.size(); ++part) {
+        const resource::Primitive& primitive = mesh.primitives[part];
+        extents.push_back(PartExtent{.radius = radius_about(primitive, centers[part]), .area = surface_area(primitive)});
+    }
+    return extents;
+}
+
 [[nodiscard]] std::vector<math::Vector3> centers_of(const resource::Mesh& mesh) {
     std::vector<math::Vector3> centers;
     centers.reserve(mesh.primitives.size());
@@ -437,6 +537,10 @@ struct Forward::State {
     [[nodiscard]] static bool is_flat_copy(const Pass& pass) noexcept;
     void add_joint(const Pass& pass, const resource::Skin& skin, std::size_t joint);
     void add_item(const Pass& pass, const Placed& placed, std::size_t part);
+    void push_item(const Item& item, const Placed& placed, bool is_copied);
+    void push_tile_run(const Item& item, const resource::IndexRange& run);
+    [[nodiscard]] float budget_of(const Pass& pass, const Placed& placed, const math::Vector3& center,
+        const PartExtent& extent) const;
     void take_instance(Take take);
     [[nodiscard]] core::Status write(Slot& slot, const Camera& camera, const Lighting& lights) const;
     [[nodiscard]] core::Status write_palette(const Slot& slot) const;
@@ -449,6 +553,9 @@ struct Forward::State {
     void bind_changed(Emit emit, const Item& item) const;
     void draw_one(Emit emit, const Item& item) const;
     void note_gap() const;
+    // Gán Item::range cho mọi lệnh: mức chi tiết theo budget, nâng bias cho tới khi tổng tam giác nằm trong trần.
+    void choose_lods();
+    [[nodiscard]] std::uint64_t assign_ranges(float bias);
     void emit(gpu::CommandList& list, const Slot& slot) const;
 
     gpu::Device* device = nullptr;
@@ -465,6 +572,12 @@ struct Forward::State {
     std::vector<std::uint32_t> skin_bases;
     // Khung nhìn của lần draw đang chạy.
     Frustum frustum{};
+    // Tiêu cự theo điểm ảnh của lần draw đang chạy (focal_of). 0 là không chọn LOD.
+    float focal_px = 0.0F;
+    // Hệ số thô hoá mức chi tiết của khung trước (>= 1): giảm từ từ để cảnh không nhấp nháy giữa hai mức.
+    float lod_bias = 1.0F;
+    // Tổng tam giác của khung vừa chọn mức (đã nhân bản sao), để báo cáo.
+    std::uint64_t drawn_triangles = 0;
     // Bản sao còn thấy của instance đang gom, theo thứ tự ghi vào buffer worlds, kèm đèn của từng
     // bản.
     std::vector<SeenCopy> seen;
@@ -756,6 +869,7 @@ void Forward::State::append_copies(Pass& pass, const math::Matrix4& node) {
 void Forward::State::place_world(Pass& pass, std::size_t index, Skinning skinning, Placed& placed) {
     const math::Matrix4 node = skinning.is_flat ? math::Matrix4::identity() : core::at(pass.nodes, index);
     pass.is_copied = !pass.instance->copies.empty() && skinning.count == 0;
+    placed.node = node;
     if (!pass.is_copied) {
         const math::Matrix4& own = pass.instance->world;
         placed.world = skinning.count > 0 ? own : own * node;
@@ -764,6 +878,43 @@ void Forward::State::place_world(Pass& pass, std::size_t index, Skinning skinnin
     append_copies(pass, node);
     // Mốc xếp lưới trộn alpha của cả đám: bản còn thấy đầu tiên (enters_frame bảo đảm seen khác rỗng).
     placed.world = pass.instance->copies[seen.front().index] * node;
+}
+
+namespace {
+
+// Số tam giác mà bề mặt area (đã ở thế giới) cần khi nhìn từ depth: diện tích chiếu lên màn hình là area * (focal / depth)²
+// điểm ảnh, mỗi tam giác nên phủ ít nhất kPixelsPerTriangle trong đó. depth lấy gần hơn tâm (trừ nửa bán kính, không dưới
+// 35%): primitive lớn vắt từ gần ra xa, đo ở tâm thì phần gần camera bị thô.
+struct Sight {
+    float focal_px = 0.0F;
+    float depth = 0.0F;
+};
+
+[[nodiscard]] float triangle_budget(Sight sight, const PartExtent& extent, const math::Matrix4& world) noexcept {
+    const float scale = reach_at(world, 1.0F).radius;
+    const float reachable = std::max(sight.depth - 0.5F * extent.radius * scale, sight.depth * 0.35F);
+    const float screen_scale = sight.focal_px / std::max(reachable, 0.5F);
+    return extent.area * scale * scale * screen_scale * screen_scale / kPixelsPerTriangle;
+}
+
+} // namespace
+
+// Bản sao instanced dùng chung một lệnh vẽ nên ngân sách theo bản có nhiều điểm ảnh nhất. part là primitive trong không
+// gian nút, tâm center.
+float Forward::State::budget_of(const Pass& pass, const Placed& placed, const math::Vector3& center,
+    const PartExtent& extent) const {
+    if (focal_px <= 0.0F) return -1.0F;
+    if (!pass.is_copied) {
+        const math::Point3 middle((placed.world * math::Point3(center)).xyz());
+        return triangle_budget({.focal_px = focal_px, .depth = -(pass.camera->view * middle).z()}, extent, placed.world);
+    }
+    float largest = 0.0F;
+    for (const SeenCopy& copy : seen) {
+        const math::Matrix4 world = pass.instance->copies[copy.index] * placed.node;
+        const math::Point3 middle((world * math::Point3(center)).xyz());
+        largest = std::max(largest, triangle_budget({.focal_px = focal_px, .depth = -(pass.camera->view * middle).z()}, extent, world));
+    }
+    return largest;
 }
 
 void Forward::State::add_item(const Pass& pass, const Placed& placed, std::size_t part) {
@@ -787,6 +938,8 @@ void Forward::State::add_item(const Pass& pass, const Placed& placed, std::size_
     if (item.pipeline == kTerrainPipeline && !pipelines.at(kTerrainPipeline)) item.pipeline = kTwoSided;
     // Tay phải: phía trước camera là z âm.
     item.distance = -(pass.camera->view * placed_center).z();
+    item.budget = budget_of(pass, placed, drawable.centers_.at(placed.mesh).at(part),
+        drawable.part_extents_.at(placed.mesh).at(part));
     const ShadeAsk ask{.material = material, .lighting = pass.lighting, .is_actor = pass.instance->is_actor};
     const Shade shade = shade_of(ask);
     item.block.base_color = shade.base_color;
@@ -794,6 +947,10 @@ void Forward::State::add_item(const Pass& pass, const Placed& placed, std::size_
     item.block.diffuse = shade.diffuse;
     item.block.specular = shade.specular;
     item.block.flags = desc.lights_at_vertices ? shade.flags & ~kPixelLit : shade.flags;
+    // Ngưỡng cắt 0 thì nhánh discard không bao giờ cắt: vẽ bằng biến thể không discard cho ra cùng điểm ảnh.
+    const bool is_plain = item.pipeline == 0 || item.pipeline == kTwoSided;
+    const std::uint32_t solid = kSolidPipeline | (item.pipeline & kTwoSided);
+    if (is_plain && shade.diffuse.w <= 0.0F && pipelines.at(solid)) item.pipeline = solid;
     if ((item.pipeline & kBlended) == 0) item.block.flags |= kOpaqueAlpha;
     if (pass.is_copied) {
         // Đèn của từng bản nằm trong buffer worlds; Draw::lamp giữ ô đèn tắt.
@@ -803,7 +960,37 @@ void Forward::State::add_item(const Pass& pass, const Placed& placed, std::size_
     } else {
         item.block.lamp = lamp_slot(pass.lamp);
     }
-    items.push_back(item);
+    push_item(item, placed, pass.is_copied);
+}
+
+// Primitive chia khối chỉ vẽ khối chạm khung nhìn; khối liên tiếp trong thứ tự lưu thì chỉ số liền nhau nên gộp thành một
+// lệnh (mỗi lệnh vẽ tốn ~80 µs CPU trên máy yếu). Bản sao instanced và primitive thường một lệnh cho cả primitive.
+void Forward::State::push_item(const Item& item, const Placed& placed, bool is_copied) {
+    const std::span<const resource::Tile> tiles = item.primitive->tiles;
+    if (tiles.empty() || is_copied) {
+        items.push_back(item);
+        return;
+    }
+    resource::IndexRange run{};
+    for (const resource::Tile& tile : tiles) {
+        const math::Point3 middle(math::Vector3(tile.centre.x, tile.centre.y, tile.centre.z));
+        const math::Vector3 centre = (placed.world * middle).xyz();
+        const bool is_seen = sphere_in_view(frustum, centre, reach_at(placed.world, tile.radius).radius);
+        if (is_seen && run.count != 0 && run.first + run.count == tile.first_index) {
+            run.count += tile.index_count;
+            continue;
+        }
+        if (run.count != 0) push_tile_run(item, run);
+        run = is_seen ? resource::IndexRange{.first = tile.first_index, .count = tile.index_count} : resource::IndexRange{};
+    }
+    if (run.count != 0) push_tile_run(item, run);
+}
+
+void Forward::State::push_tile_run(const Item& item, const resource::IndexRange& run) {
+    Item one = item;
+    one.range = run;
+    one.is_tile = true;
+    items.push_back(one);
 }
 
 // Mỗi primitive của lưới một lệnh vẽ; lưới vẽ bằng bản sao thì lệnh ấy vẽ mọi bản còn thấy.
@@ -970,7 +1157,35 @@ void Forward::State::draw_one(Emit emit, const Item& item) const {
     emit.list->bind_group(1, item.material);
     const auto bytes = std::as_bytes(std::span(&item.block, 1));
     emit.list->push_constants(bytes, 0);
-    draw_item(*emit.list, *item.primitive, item.instances);
+    draw_item(*emit.list, *item.primitive, item.instances, item.range);
+}
+
+std::uint64_t Forward::State::assign_ranges(float bias) {
+    std::uint64_t total = 0;
+    for (Item& item : items) {
+        if (item.is_tile) {
+            total += std::uint64_t{item.range.count} / 3U * std::max(item.instances, 1U);
+            continue;
+        }
+        const resource::GpuPrimitive& part = *item.primitive;
+        item.range = lod_range(part, item.budget < 0.0F ? -1.0F : item.budget / bias);
+        const std::uint32_t count = part.index_count != 0 ? item.range.count : part.vertex_count;
+        total += std::uint64_t{count} / 3U * std::max(item.instances, 1U);
+    }
+    return total;
+}
+
+void Forward::State::choose_lods() {
+    const std::uint32_t cap = desc.triangle_cap;
+    // Mỗi khung thử từ hệ số nhỏ hơn khung trước một chút, nên cảnh nhẹ lại thì chi tiết trở về dần.
+    float bias = std::max(1.0F, lod_bias * 0.9F);
+    std::uint64_t total = assign_ranges(bias);
+    while (cap != 0 && total > cap && bias < kMaxLodBias) {
+        bias *= 1.15F;
+        total = assign_ranges(bias);
+    }
+    lod_bias = bias;
+    drawn_triangles = total;
 }
 
 void Forward::State::emit(gpu::CommandList& list, const Slot& slot) const {
@@ -992,7 +1207,8 @@ Drawable::Drawable(Drawable&& other) noexcept
       rest_(std::move(other.rest_)),
       is_rest_neutral_(other.is_rest_neutral_),
       radius_(other.radius_),
-      centers_(std::move(other.centers_)) {}
+      centers_(std::move(other.centers_)),
+      part_extents_(std::move(other.part_extents_)) {}
 
 Drawable& Drawable::operator=(Drawable&& other) noexcept {
     if (this == &other) return *this;
@@ -1005,6 +1221,7 @@ Drawable& Drawable::operator=(Drawable&& other) noexcept {
     is_rest_neutral_ = other.is_rest_neutral_;
     radius_ = other.radius_;
     centers_ = std::move(other.centers_);
+    part_extents_ = std::move(other.part_extents_);
     return *this;
 }
 
@@ -1027,7 +1244,7 @@ Forward& Forward::operator=(Forward&&) noexcept = default;
 Forward::~Forward() = default;
 
 core::Result<Forward> Forward::create(gpu::Device& device, const ForwardDesc& desc,
-    std::array<gpu::PipelineHandle, 4> pipelines, gpu::PipelineHandle terrain) {
+    std::array<gpu::PipelineHandle, 4> pipelines, gpu::PipelineHandle terrain, std::array<gpu::PipelineHandle, 2> solid) {
     if (desc.slots == 0) return bad("renderer cần ít nhất một slot");
     for (const gpu::PipelineHandle pipeline : pipelines) {
         if (!pipeline) return bad("pipeline model chưa chuẩn bị");
@@ -1037,6 +1254,8 @@ core::Result<Forward> Forward::create(gpu::Device& device, const ForwardDesc& de
     state->desc = desc;
     std::ranges::copy(pipelines, state->pipelines.begin());
     state->pipelines.at(kTerrainPipeline) = terrain;
+    state->pipelines.at(kSolidPipeline) = solid[0];
+    state->pipelines.at(kSolidPipeline | kTwoSided) = solid[1];
     state->slots.resize(desc.slots);
     core::Status filled = core::ok();
     for (Slot& slot : state->slots) {
@@ -1066,8 +1285,10 @@ core::Result<Drawable> Forward::prepare(const resource::Model& model, const reso
     drawable.is_rest_neutral_ = skins_are_neutral(model, drawable.rest_);
     drawable.radius_ = radius_of(model, drawable.rest_);
     drawable.centers_.reserve(model.meshes.size());
+    drawable.part_extents_.reserve(model.meshes.size());
     for (const resource::Mesh& mesh : model.meshes) {
         drawable.centers_.push_back(centers_of(mesh));
+        drawable.part_extents_.push_back(extents_of(mesh, drawable.centers_.back()));
     }
     drawable.materials_.reserve(model.materials.size() + 1);
     core::Status status = core::ok();
@@ -1104,6 +1325,7 @@ core::Status Forward::draw(gpu::CommandList& list, std::uint32_t slot, const Cam
     state.palette.clear();
     state.world_words.clear();
     state.frustum = frustum_of(camera.projection * camera.view);
+    state.focal_px = focal_of(camera);
     core::Status status = core::ok();
     for (const Instance& instance : instances) {
         State::Take take;
@@ -1120,6 +1342,7 @@ core::Status Forward::draw(gpu::CommandList& list, std::uint32_t slot, const Cam
     const core::Status written = state.write(frame, camera, lighting);
     if (!written) return written;
     std::ranges::stable_sort(state.items, draws_before);
+    state.choose_lods();
     state.emit(list, frame);
     return core::ok();
 }
@@ -1131,6 +1354,14 @@ void Forward::State::take_instance(Take take) {
 
 std::uint32_t Forward::draw_count() const noexcept {
     return static_cast<std::uint32_t>(state_->items.size());
+}
+
+void Forward::set_triangle_cap(std::uint32_t cap) noexcept {
+    state_->desc.triangle_cap = cap;
+}
+
+std::uint32_t Forward::triangle_cap() const noexcept {
+    return state_->desc.triangle_cap;
 }
 
 } // namespace game::render

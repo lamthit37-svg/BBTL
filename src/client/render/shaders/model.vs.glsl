@@ -56,6 +56,43 @@ layout(location = 3) out vec3 varying_place;
 layout(location = 4) out vec3 varying_light;
 // Chỉ số đèn điểm của vật thể (của lệnh vẽ, hoặc của bản sao instanced); cả tam giác một số.
 layout(location = 5) flat out highp uint varying_lamp;
+layout(location = 6) out vec4 varying_fog;
+
+float fog_share(float depth) {
+    float thick = depth * frame.fog_range.x;
+    if (frame.fog_kind.w > 0.5) return clamp((frame.fog_range.z - depth) * frame.fog_range.w, 0.0, 1.0);
+    if (frame.fog_kind.y > 0.5) return exp(-thick);
+    if (frame.fog_kind.z > 0.5) return exp(-(thick * thick));
+    return 1.0;
+}
+
+// Sương độ cao (HeightFog_ps.hlsl, như height_fog của model_ps.inc.slang): trả (màu sương, hệ số trộn).
+vec4 height_fog_terms(vec3 place) {
+    if (frame.hfog_color.a < 0.5) return vec4(0.0);
+    vec3 to_point = place - frame.eye.xyz;
+    float ray_length = sqrt(max(dot(to_point, to_point), 1.0e-12));
+    float above = max(0.0, place.y - frame.hfog.y);
+    float by_height = frame.hfog.x * exp((-frame.hfog.z / 1000.0) * above);
+    by_height = pow(max(by_height, 0.0), frame.hfog.w);
+    float span = max(0.0, ray_length - frame.dfog.z);
+    float by_depth = 1.0 - (frame.dfog.x * exp((-frame.dfog.y / 1000.0) * span));
+    float facing = clamp(dot(to_point / ray_length, frame.sun_toward[0].xyz), 0.0, 1.0);
+    float scattered = pow(facing, frame.hfog_scatter.w);
+    vec3 tint = clamp(mix(frame.hfog_color.rgb, frame.hfog_scatter.rgb, scattered), 0.0, 1.0);
+    return vec4(tint, by_height * by_depth);
+}
+
+// Sương tính ở đỉnh cho GLES (máy yếu): hai phép trộn sương khoảng cách rồi sương độ cao của bản gốc gộp thành
+// màu_cuối = màu * A + B, với A = share * (1 - k) và B = fog * (1 - share) * (1 - k) + tint * k. Trả (B, A).
+// Khác bản HLSL ở chỗ nội suy tuyến tính trên tam giác thay vì tính từng điểm ảnh (như sương đỉnh của GPU cố định),
+// đổi lại điểm ảnh bỏ ba exp, hai pow và một sqrt: đo trên PowerVR GE8320 là chỗ nặng nhất của pixel shader.
+vec4 fog_terms(vec3 place, uint flags) {
+    float share = 1.0;
+    if ((flags & 16u) == 0u) share = fog_share(dot(frame.depth_row, vec4(place, 1.0)));
+    vec4 height = height_fog_terms(place);
+    float keep = 1.0 - height.w;
+    return vec4((frame.fog_color.rgb * (1.0 - share) * keep) + (height.rgb * height.w), share * keep);
+}
 
 vec3 lamp_light(vec3 facing, vec3 place, uint which) {
     // Ô 31 là đèn tắt; kẹp để không bao giờ đọc mảng ngoài biên.
@@ -133,4 +170,5 @@ void main() {
     varying_place = place;
     varying_light = (flags & 9u) == 0u ? diffuse_light(facing, place, lamp) : vec3(1.0);
     varying_lamp = lamp;
+    varying_fog = fog_terms(place, flags);
 }
