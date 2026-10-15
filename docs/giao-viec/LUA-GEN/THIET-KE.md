@@ -60,9 +60,33 @@ Bề mặt mà mã sinh gọi là `src/client/face/lua/vm.hpp` (hợp đồng, �
   lần gọi từ chủ, byte heap ("not enough memory").
 - `tostring` của bảng và hàm: không có địa chỉ (gốc in địa chỉ, không tất định). Khoá là bảng hay hàm băm theo số thứ tự tạo
   (gốc băm theo địa chỉ, cũng không tất định).
-- Test `Test/Lua/lua_tests.cpp` theo luật Test (logic thuần, sai thì hỏng thầm): số vàng từ LuaPlus.dll qua
-  `TOOLS/port/oracle/lua_rt_*.lua` cho thứ tự `pairs`, `string.format/find/gsub/gfind/sub/byte/rep`, `tostring/tonumber`,
-  `table.sort/insert/remove/getn/concat`, so sánh chuỗi, `__pow`, vòng `for` số thực.
+- Test `Test/Lua/lua_tests.cpp` (logic thuần, sai thì hỏng thầm): số vàng sinh từ chính LuaPlus.dll bằng
+  `python -B TOOLS/port/lua_rt_golden.py "D:/XTLBB/Bin64" Test/golden/lua/lib_cases.tsv` (không sửa tay), 10 835 ca chạy trong
+  CÙNG MỘT State và so từng ký tự: mọi hàm base/string/table/math (kể cả câu lỗi, đối số sau lời gọi, vết hàm gọi lại, thứ tự
+  `pairs` của mọi bảng thư viện và `_G`), rồi phép toán VM (số học và ép chuỗi, `^` XOR, `__pow`, concat, so sánh, mọi
+  metamethod, index và set trên mọi kiểu, call, vòng `for` số, vararg, 40 hình dạng hàm dựng bảng). Bên DLL mỗi ca VM là một
+  hàm Lua nhỏ; bên runtime là mã C++ dựng tay đúng như bộ dịch sinh (`op_*` trong tệp test).
+- Khác gốc (đo trên LuaPlus.dll hoặc không thể giống; mỗi mục có `Khác gốc:` ở đầu tệp nguồn tương ứng):
+  - Hàm toán `sin cos tan asin acos atan atan2 exp log log10 pow` lấy từ UCRT/libm của máy dựng, chữ số thứ 17 của vài kết quả
+    lệch MSVCR110 của DLL tối đa một ulp (`sin(-2.5)`, `cos(1)`, `tan(-2.5)`); chuỗi `tostring` 14 chữ số vẫn khớp. Test chỉ
+    nới một ulp cho đúng các hàm này. Các hàm còn lại (`deg` chia cho `PI/180`, `frexp`, `ldexp`, `mod`, `random`, NaN âm, ...) khớp
+    từng bit.
+  - `string.dump`, `string.lualex`, `loadstring`, `loadfile`, `dofile`, `require`, `coroutine.*`, `newproxy`, `towstring`: có đủ tên
+    (thứ tự `pairs` của `_G` và các bảng thư viện khớp DLL) nhưng báo "not supported" — không có trình biên dịch Lua lúc chạy.
+  - `xpcall`: hàm xử lý lỗi chạy sau khi ngăn xếp gọi đã gỡ; hàm xử lý tự lỗi thì ra ngay "error in error handling" (gốc gọi lại nó
+    đệ quy ~200 lần rồi mới ra câu ấy).
+  - Câu lỗi "malformed pattern (ends with `%')" của `find/gfind/gsub` bắt chước đúng lỗi của DLL: giá trị trên cùng của ngăn xếp
+    hàm C bị nối vào đầu câu và cặp "%'" mất (`pcall(string.find, "abc", "b%")` ra `b%malformed pattern (ends with `)`).
+  - Câu lỗi kiểu không có tên biến (`attempt to index local `a' (a nil value)` của DLL thành `attempt to index a nil value`): phép
+    toán của runtime không biết tên biến; trọng tài bỏ phần tên khi sinh số vàng.
+  - `tostring` của bảng/hàm in số thứ tự tạo thay địa chỉ; khoá bảng/hàm băm theo số thứ tự tạo (đo bằng `mass_oracle --perturb`:
+    2 060/2 060 vết không phụ thuộc địa chỉ).
+  - Trần: độ sâu 200, `loop_budget` 100 000 000 lần quay mỗi lần gọi từ chủ, heap 256 MiB mặc định (kẹp tối đa 512 MiB để cỡ
+    bảng không vượt `Table::kMaxBits`).
+  - `new_table(list_items, record_items)`: `record_items` CHỈ đếm mục `Tên = giá trị`, không đếm `[khoá] = giá trị` (recfield của
+    lparser.c chỉ tăng `cc->nh` ở nhánh TK_NAME). Bộ dịch phải đếm đúng như vậy, nếu không thứ tự `pairs` lệch.
+  - Không đưa vào số vàng `string.format("% ", 1)`/`("%-", 1)` (định dạng kết thúc ngay sau cờ): vòng quét cờ của gốc đọc quá NUL nên
+    DLL cho kết quả khác nhau giữa các lần chạy.
 - CMake: `game_module(lua ...)`, dòng `set(game_layer_lua "core lua")` ở `cmake/GameLayers.cmake`.
 
 ## Bộ dịch — `TOOLS/port/luagen/` (Python) — thienlong-c8

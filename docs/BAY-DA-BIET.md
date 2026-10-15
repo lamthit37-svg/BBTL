@@ -96,6 +96,13 @@ mục ở mục 11.
 - `-I` đưa cho clang-tidy phải là đường dẫn TUYỆT ĐỐI: với `-I` tương đối `misc-include-cleaner` không nối được header với
   ký hiệu và báo hàng loạt "thừa/thiếu include" giả (đo 2026-10-15 ở `client/session`). `check.py` chỉ in 15 chẩn đoán đầu của
   mỗi tệp: sửa hết 15 rồi chạy lại mới thấy phần còn lại, đừng kết luận "xong" khi chưa thấy `✓ clang-tidy`.
+- MSVC 14.51 `/O2` dịch sai `best == -1 ? 0 : (1 << best)` (đo 2026-10-15 ở `computesizes` trong `src/client/face/lua/table.cpp`):
+  nhánh lẽ ra cho 0 lại ra `INT32_MIN`, tức `1 << -1` vẫn được tính. Viết điều kiện là `best < 0` thì đúng. Tái hiện: đổi
+  lại `narray = best == -1 ? 0 : twoto(best);`, dựng `lua_tests` ở `msvc-release`: exe thoát `0xC0000409` (-1073740791) ngay
+  khi chạy, không in dòng nào (chưa thử dạng cũ ở GCC và Clang).
+- Cổng `check.py --run` bật `float-divide-by-zero` của UBSan cho Clang: mọi `x / 0.0` bằng số thực đều bị báo "division by
+  zero" dù IEEE 754 xác định kết quả (đo 2026-10-15 ở `lua::div`). Mã cần ngữ nghĩa IEEE (Lua: `1/0` là `inf`) phải rẽ nhánh
+  `right == 0` tường minh như `divide` trong `src/client/face/lua/ops.cpp`, không tắt cờ.
 
 ## Công cụ Python và git
 
