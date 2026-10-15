@@ -606,6 +606,7 @@ game_module(ui_script
     src/client/face/ui/script/host.cpp
     src/client/face/ui/script/context.cpp
     src/client/face/ui/script/message_format.cpp
+    src/client/face/ui/script/native_events.cpp
     src/client/face/ui/script/native_format.cpp
     src/client/face/ui/script/native_player.cpp
     src/client/face/ui/script/native_support.cpp

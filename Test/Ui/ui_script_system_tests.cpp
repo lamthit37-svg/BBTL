@@ -11,6 +11,8 @@
 #include <chrono>
 #include <cstdint>
 #include <string>
+#include <string_view>
+#include <utility>
 
 namespace game::test {
 namespace {
@@ -74,11 +76,32 @@ void constants_and_flags_follow_the_original(Context& context) {
     context.expect(rig.eval("return ZBS:IsViewerWatching() .. '|' .. IsDfsSpeicalServer()") == "3|2", "cờ đọc từ Facts");
 }
 
-constexpr std::array<Case, 4> kCases = {{
+// native_events.cpp là mã sinh: ba dạng đối số (không có, chuỗi hằng, số in %d kể cả -1) qua hàm toàn cục và hàm của bảng.
+void generated_event_pushes_carry_their_arguments(Context& context) {
+    ui::script::Context script;
+    ScriptRig rig(script);
+    if (!rig.ok()) return;
+    const std::array<std::pair<std::string_view, std::string_view>, 5> cases = {{
+        {"OpenSafeScore()", "OPEN_SAFECENTER_SAFESCORE"},
+        {"ToggleYuanbaoShop()", "TOGGLE_YUANBAOSHOP\tnormal"},
+        {"SystemSetup:OpenOtherJingMai()", "OPEN_OTHERPLAYER_JINGMAI\t-1"},
+        {"City:OpenPhoenixPlainWarScoreMultiTable()", "SHOW_PHOENIXPLAINWAR_SCORE_M\t1"},
+        {"City:ClosePhoenixPlainWarScoreMultiTable()", "SHOW_PHOENIXPLAINWAR_SCORE_M\t0"},
+    }};
+    for (const auto& [call, wanted] : cases) {
+        script.calls.clear();
+        context.expect(rig.eval(std::string(call) + " return 'ok'") == "ok", std::string(call) + " chạy được");
+        context.expect(script.calls.size() == 1 && script.calls.front().ask == ui::panel::Ask::kPushEvent && script.calls.front().text == wanted,
+            std::string(call) + " đẩy " + std::string(wanted));
+    }
+}
+
+constexpr std::array<Case, 5> kCases = {{
     {.name = "GetTickCount quấn như (int)", .body = tick_count_wraps_like_the_original_int_cast},
     {.name = "cờ nhắc cập nhật có biên", .body = update_tip_flags_are_bounds_checked},
     {.name = "việc nhờ game được ghi lại", .body = requests_to_the_game_are_recorded},
     {.name = "hằng và cờ theo gốc", .body = constants_and_flags_follow_the_original},
+    {.name = "hàm đẩy sự kiện sinh tự động", .body = generated_event_pushes_carry_their_arguments},
 }};
 
 } // namespace

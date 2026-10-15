@@ -30,4 +30,8 @@ void register_player(lua_State* lua);
 // KaJi:LuaFnGetKaJiType, CloseMessageBoxCommon, DataPool:SetCanUseHotKey, DataPool:Lua_GetUpdateTipsFlag.
 void register_system(lua_State* lua);
 
+// Hàm mà thân chỉ đẩy một sự kiện giao diện (OpenSafeScore, ToggleXuanShop, CloseTitleList...): sinh bằng
+// TOOLS/port/luagen/gen_event_natives.py vào native_events.cpp.
+void register_events(lua_State* lua);
+
 } // namespace game::ui::script
