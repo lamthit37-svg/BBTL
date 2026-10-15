@@ -111,6 +111,10 @@ Bề mặt mà mã sinh gọi là `src/client/face/lua/vm.hpp` (hợp đồng, �
   `Test/golden/lua_mass/oracle.tsv` (cửa sổ, số dòng, sha256) — bảng tóm vào git, vết đầy đủ thì không.
 - Phía C++: exe `thienlong_lua_mass` chạy mọi cửa sổ (mỗi cửa sổ một State mới), ghi cùng vết, so với `oracle.tsv`; ctest
   `lua_mass`. Lệch thì in dòng lệch đầu tiên (vết đầy đủ của phía gốc lấy bằng `mass_oracle.py`).
+- Vết không phụ thuộc địa chỉ (đo 2026-10-15): `mass_oracle.py --perturb N` giữ N bảng và chuỗi rác trước world để dời địa
+  chỉ mọi đối tượng sau đó. Với N = 37 và 1013, 2 060/2 060 sha256 trùng bảng vàng (N = 0), trong khi cùng phép xáo đổi thứ
+  tự `pairs` trên tám khoá là bảng (`12837645`, `13458672`, `15387426`). Vậy thứ tự băm theo địa chỉ của runtime (khác gốc)
+  không làm lệch vết của kho này; đơn vị mới hay world.lua đổi thì đo lại. Chạy lại không xáo thì trùng từng byte (2 lượt).
 - Mục tiêu: mọi cửa sổ khớp. Mỗi cửa sổ lệch là một lỗi của bộ dịch hay runtime, sửa tại gốc rồi chạy lại toàn bộ.
 
 ## Thứ tự

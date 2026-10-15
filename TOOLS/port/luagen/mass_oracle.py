@@ -31,12 +31,19 @@ WORLD = pathlib.Path(__file__).with_name("world.lua")
 LUA_GLOBALSINDEX = -10001
 # Trần lệnh máy ảo của một đơn vị ở phía gốc. Đơn vị bình thường dùng dưới 10^6 (đo khi chạy toàn bộ).
 BUDGET = 200_000_000
-HOOK = (
-    "local stop, fail = __timeout, error\n"
-    f"debug.sethook(function() stop() fail('vượt trần lệnh của trọng tài') end, '', {BUDGET})\n"
-    "debug = nil\n"
-    "__timeout = nil\n"
-)
+
+
+def hook(perturb: int) -> str:
+    """Chunk móc đếm lệnh. perturb > 0: giữ thêm perturb bảng và chuỗi cỡ khác nhau qua upvalue của móc (không lộ ra
+    _G) để dời địa chỉ mọi đối tượng tạo sau đó; đơn vị nào đổi vết khi đổi perturb là vết phụ thuộc địa chỉ (thứ tự
+    pairs trên khoá là bảng hay hàm), phía C++ không thể khớp từng byte."""
+    return (
+        "local stop, fail, keep = __timeout, error, {}\n"
+        f"for i = 1, {perturb} do keep[i] = {{ i, string.rep('x', i) }} end\n"
+        f"debug.sethook(function() stop() fail(keep and 'vượt trần lệnh của trọng tài') end, '', {BUDGET})\n"
+        "debug = nil\n"
+        "__timeout = nil\n"
+    )
 CALLBACK = ctypes.CFUNCTYPE(ctypes.c_int, ctypes.c_void_p)
 
 
@@ -121,11 +128,11 @@ class Run:
         self.dll.lua_close(self.state)
 
 
-def trace(library: Library, unit: mass_units.Unit, world: str) -> tuple[bytes, bool]:
+def trace(library: Library, unit: mass_units.Unit, world: str, perturb: int = 0) -> tuple[bytes, bool]:
     run = Run(library)
     try:
         run.lines.append(b"unit\t" + unit.name.encode("utf-8"))
-        run.chunk("hook", HOOK, quiet=True)
+        run.chunk("hook", hook(perturb), quiet=True)
         run.chunk("world", world)
         for item in unit.chunks:
             run.chunk(item.name, item.source)
@@ -144,6 +151,8 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--traces", type=pathlib.Path, default=mass_units.PROJECT / "build/luagen/oracle")
     parser.add_argument("--summary", type=pathlib.Path, default=mass_units.PROJECT / "Test/golden/lua_mass/oracle.tsv")
     parser.add_argument("--only", nargs="*", default=[], help="chỉ chạy các đơn vị này (không ghi bảng tóm tắt)")
+    parser.add_argument("--perturb", type=int, default=0,
+                        help="số đối tượng rác giữ trước world để dời địa chỉ (đo vết phụ thuộc địa chỉ; bảng vàng dùng 0)")
     args = parser.parse_args(argv)
     if not (args.bin / "LuaPlus.dll").is_file():
         print(f"không thấy LuaPlus.dll trong {args.bin}", file=sys.stderr)
@@ -163,7 +172,7 @@ def main(argv: list[str] | None = None) -> int:
             "unit\tstatus\tlines\tsha256"]
     counts = {"ok": 0, "timeout": 0}
     for unit in found:
-        data, is_timeout = trace(library, unit, world)
+        data, is_timeout = trace(library, unit, world, args.perturb)
         (args.traces / f"{unit.name}.trace").write_bytes(data)
         status = "timeout" if is_timeout else "ok"
         counts[status] += 1
