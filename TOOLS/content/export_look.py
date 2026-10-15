@@ -1,14 +1,27 @@
-# Xuất bảng ngoại hình người chơi cho client từ Config nhị phân của chính client 2026 (_raw) và cây
-# GLB (_glb): player_bodies, faces, hairs, outfits, anim_sets, ghi vào <dữ liệu client>/Table/*.tsv.
-# Logic đọc bảng port từ TLBB Dev tools/export/looks.cpp, action_sets.cpp, model_template.cpp
-# @e0d89a6 (đọc lại bằng Python); khác: tên tệp giữ nguyên tên gốc (Model/<tên>.mesh,
-# Model/<tên>.skeleton) thay cho tên sạch đã nấu, và mọi số liệu lấy từ dữ liệu của chính client này.
-# Chuỗi clip của một hành động: CharModelEx (cột 20) -> ActionSet (hành động cơ sở) ->
-# ActionSetLine (cột theo loại vũ khí) -> ActionSetKV (tên hành động) -> tên là skill của
-# Effect/all.skill thì lấy dòng Animation của skill, không thì chính tên đó -> tệp chứa animation:
-# skeleton chính của giới nếu nó có animation cùng tên, không thì tệp mà khối Skeletons của mẫu
-# trong Model/all.obj ghi cho tên đó (cái đầu tiên, như emplace của bản gốc).
-# Quyết định:
+#===============================================================================
+#  THIENLONG  |  TOOLS
+#-------------------------------------------------------------------------------
+#  TỆP       : TOOLS/content/export_look.py
+#  PHÂN HỆ   : Content / Export Look
+#  CHUẨN     : Python 3.13
+#-------------------------------------------------------------------------------
+#  CHỨC NĂNG
+#  - Xuất bảng ngoại hình người chơi cho client từ Config nhị phân của chính
+#    client 2026 (_raw) và cây GLB (_glb): player_bodies, faces, hairs,
+#    outfits, anim_sets, ghi vào <dữ liệu client>/Table/*.tsv.
+#-------------------------------------------------------------------------------
+#  TÁC GIẢ   : HiepHoon
+#  TELEGRAM  : @Hoon9xx
+#===============================================================================
+
+# Logic đọc bảng port từ TLBB Dev tools/export/looks.cpp, action_sets.cpp, model_template.cpp @e0d89a6 (đọc lại bằng
+# Python); khác: tên tệp giữ nguyên tên gốc (Model/<tên>.mesh, Model/<tên>.skeleton) thay cho tên sạch đã nấu, và mọi
+# số liệu lấy từ dữ liệu của chính client này.
+
+# Chuỗi clip của một hành động: CharModelEx (cột 20) -> ActionSet (hành động cơ sở) -> ActionSetLine (cột theo loại vũ
+# khí) -> ActionSetKV (tên hành động) -> tên là skill của Effect/all.skill thì lấy dòng Animation của skill, không thì
+# chính tên đó -> tệp chứa animation: skeleton chính của giới nếu nó có animation cùng tên, không thì tệp mà khối
+# Skeletons của mẫu trong Model/all.obj ghi cho tên đó (cái đầu tiên, như emplace của bản gốc). Quyết định:
 # - Dòng cao mô (cờ chọn -1, id là id thường cộng 10000) của mặt, tóc được giữ: màn tạo nhân vật
 #   của client gốc vẽ người mẫu bằng chúng (docs/TAO-NHAN-VAT-2026.md). Dòng cờ -1 mà tệp lưới không
 #   có trong _glb thì bỏ và đếm; trang phục mà tệp lưới không có trong _glb bị bỏ và được đếm trong
@@ -295,7 +308,7 @@ def find_clip(sources: Sources, main: str, links: dict, animation: str) -> tuple
     return linked, animation
 
 
-def read_action_tables(sources: Sources, wanted: set) -> tuple:
+def read_action_tables(sources: Sources, wanted: set, extra_columns=()) -> tuple:
     sets = sources.table("ActionSet/ActionSet.txt")
     lines = sources.table("ActionSet/ActionSetLine.txt")
     names = sources.table("ActionSet/ActionSetKV.txt")
@@ -308,7 +321,7 @@ def read_action_tables(sources: Sources, wanted: set) -> tuple:
         line = sets.integer(row, 3)
         if index.setdefault(key, line) != line:
             raise ExportError(f"ActionSet dòng {row}: hai dòng khác nhau cho {key}")
-    columns = sorted(WEAPON_COLUMNS.values())
+    columns = sorted({*WEAPON_COLUMNS.values(), *extra_columns})
     line_cells = {}
     for row in range(lines.rows):
         line_cells[lines.integer(row, 0)] = {column: lines.integer(row, column) for column in columns}
