@@ -662,6 +662,17 @@ void events_flash_and_scroll(Context& context) {
             && lab.global("n") == "11" && lab.global("m") == "2",
         "danh sách đếm mục, cửa sổ thường đếm cửa sổ con của layout");
 
+    context.expect(lab.run("Child:InsertChatString('xin chào') Child:InsertChatString({}) Child:SetAimEditBox('ChatEdit') Child:ClearListBoxEx()"
+                           " Child:RemoveAllChatString() Child:RemoveAllText() Child:CloseSceneMap() s = Child:GetScrollPosition()").empty()
+            && lab.global("s") == "0" && lab.text_of("Child", "AimEditBox") == "ChatEdit",
+        "khung chat: chèn, xoá, ô nhập đích, vị trí cuộn");
+    context.expect(lab.run("Child:InsertChatString('một') Child:InsertChatString('hai')").empty()
+            && lab.run("Child:RemoveAllChatString()").empty() && lab.run("Child:InsertChatString('ba')").empty(),
+        "chèn, xoá rồi chèn lại");
+    std::vector<std::string> lines;
+    lab.widgets.describe(lines);
+    context.expect(std::ranges::count(lines, "Child\tElements\t1") == 1 && std::ranges::count(lines, "Child\tElement1\ttext\tba") == 1,
+        "khung chat còn đúng một dòng");
     context.expect(lab.run("Child:Tween_Reset(1, 2, 3) Child:Tween_SetInfo() Child:Tween_Play('x') Child:Tween_Stop() Child:Tween_AddCurveVec3(1)"
                            " Child:Clear() Child:CleanAllElement('x') Child:RefreshLayout() Child:SetElementsInView(3) Child:SetVertScrollbarHide()"
                            " Child:SetVertScrollbarShow() Child:PageEnd() Child:ScrollToEnd() Child:SetScrollPosition4Index(2) Child:Flash()"

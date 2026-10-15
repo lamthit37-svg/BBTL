@@ -63,7 +63,7 @@ SetVertScrollbarPosition	P3	30	17	?		giữ số script đưa (thuộc tính Vert
 GetPosition	P3	28	6	ScrollBar		vị trí hiện tại	Widgets::value (ScrollPosition)	xong
 AddChatBoardElement	P3	27	3	?				chưa
 SetEvent	P3	22	9	?		nối hàm vào sự kiện (host đọc Widgets::event_bindings)	Widgets::bind_event	xong
-RemoveAllChatString	P3	22	4	ChatHistory				chưa
+RemoveAllChatString	P3	22	4	ChatHistory		như ClearAllElement: bỏ mọi dòng chat	Widgets::clear_elements	xong
 AddOptionElement	P3	22	4	ComplexWindow				chưa
 SetScrollPosition	P3	21	17	ComplexWindow		giữ chỗ cuộn	Widgets::keep_scroll	xong
 AddItemExWithoutLayout	P3	19	4	?				chưa
@@ -71,12 +71,12 @@ SetSelectItem	P3	18	14	CtrlList		chọn hàng; chỉ Kind::kCtrlList	Widgets::se
 SetForce	P3	17	16	Window		không có trạng thái: nhận lời gọi	-	xong
 SetItemTooltip	P3	17	10	ListBox				chưa
 SetVertScrollbarHide	P3	16	8	?		nhận mọi đối số, không làm gì (hiệu ứng chỉ để nhìn hay cửa sổ con động)	-	xong
-ClearListBoxEx	P3	16	7	?				chưa
+ClearListBoxEx	P3	16	7	?		như ClearListBox: bỏ mọi mục	Widgets::clear_list	xong
 GetCurrentFirstItem	P3	16	7	ListBox		mục đầu đang thấy, 0 khi chưa đặt	Widgets::first_item	xong
-InsertChatString	P3	16	4	ChatHistory				chưa
+InsertChatString	P3	16	4	ChatHistory		thêm một dòng chat vào cuối (phần tử text)	Widgets::add_element	xong
 SetCurrentFirstItem	P3	15	7	ListBox	số	đặt mục đầu đang thấy	Widgets::set_first_item	xong
 Tween_Play	P3	14	9	?		nhận mọi đối số, không làm gì (hiệu ứng chỉ để nhìn hay cửa sổ con động)	-	xong
-SetAimEditBox	P3	14	4	SoftKeyWindow				chưa
+SetAimEditBox	P3	14	4	SoftKeyWindow		thuộc tính AimEditBox	Widgets::set	xong
 Tween_SetInfo	P3	13	9	?		nhận mọi đối số, không làm gì (hiệu ứng chỉ để nhìn hay cửa sổ con động)	-	xong
 CenterWindow	P3	13	7	Window		Override AbsolutePosition giữa cửa sổ cha (gốc: giữa màn hình)	Widgets::set	xong
 SetPushed	P3	13	3	ActionButton	số	Pushed = n == 1	Widgets::push	xong
@@ -91,7 +91,7 @@ AddActionElement	P3	11	2	ComplexWindow	số, số, số[, any]	phần tử actio
 PageEnd	P3	11	2	ComplexWindow		nhận mọi đối số, không làm gì (hiệu ứng chỉ để nhìn hay cửa sổ con động)	-	xong
 ResetLastSelectIndex	P3	10	8	ComboBox		không có trạng thái script thấy được	-	xong
 ScrollToEnd	P3	10	1	ChatHistory		nhận mọi đối số, không làm gì (hiệu ứng chỉ để nhìn hay cửa sổ con động)	-	xong
-GetScrollPosition	P3	8	8	?				chưa
+GetScrollPosition	P3	8	8	?		thuộc tính ScrollPosition, mặc định 0	Widgets::value	xong
 SetElementsInView	P3	8	7	?		nhận mọi đối số, không làm gì (hiệu ứng chỉ để nhìn hay cửa sổ con động)	-	xong
 DoScroll	P3	8	1	?				chưa
 InitWorldMap	P3	8	1	Scenemap				chưa
@@ -152,7 +152,7 @@ SetFmInfo	P3	2	1	?				chưa
 ShowBuleCircle	P3	2	1	?				chưa
 UpdateWorldMapInfoFoGuildDomain	P3	2	1	?				chưa
 GetTextItemId	P3	1	1	ComboBox		id của mục theo chỉ số	Widgets::item_at	xong
-CloseSceneMap	P3	1	1	Scenemap				chưa
+CloseSceneMap	P3	1	1	Scenemap		nhận và bỏ qua	-	xong
 SetItemElementsString	P3	1	1	?				chưa
 GetCurrentSelectScene	P3	1	1	Scenemap				chưa
 GetItemCount	P3	1	1	CtrlList		số hàng; chỉ Kind::kCtrlList	Widgets::row_count	xong
@@ -184,7 +184,7 @@ FlashMe	P3	0	0	?		thuộc tính Flash 1 khi số là 1 không thì 0	Widgets::se
 InsertText	P3	0	0	?				chưa
 ActionDisable	P3	0	0	?				chưa
 SetNewFlash	P3	0	0	ActionButton		có action thì nháy	Widgets::flash	xong
-RemoveAllText	P3	0	0	?				chưa
+RemoveAllText	P3	0	0	?		như ClearAllElement: bỏ mọi phần tử	Widgets::clear_elements	xong
 Bright	P3	0	0	ActionButton		Gloom False	Widgets::gloom	xong
 SetAnimateID	P3	0	0	?				chưa
 GetThumbPositionX	P3	0	0	?				chưa
