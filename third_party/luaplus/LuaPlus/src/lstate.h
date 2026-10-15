@@ -216,8 +216,10 @@ union GCObject {
 #define gcotoh(o)	check_exp((o)->gch.tt == LUA_TTABLE, &((o)->h))
 #define gcotop(o)	check_exp((o)->gch.tt == LUA_TPROTO, &((o)->p))
 #define gcotouv(o)	check_exp((o)->gch.tt == LUA_TUPVAL, &((o)->uv))
+/* Khác gốc: &((o)->uv) thành ép kiểu con trỏ. Với o == NULL (hết danh sách upvalue mở) `&NULL->uv` là hành vi không xác định,
+** UBSan báo ở luaF_findupval; uv là thành viên đầu của union nên hai dạng cùng địa chỉ. */
 #define ngcotouv(o) \
-	check_exp((o) == NULL || (o)->gch.tt == LUA_TUPVAL, &((o)->uv))
+	check_exp((o) == NULL || (o)->gch.tt == LUA_TUPVAL, cast(struct UpVal *, (o)))
 #define gcototh(o)	check_exp((o)->gch.tt == LUA_TTHREAD, &((o)->th))
 
 /* macro to convert any value into a GCObject */

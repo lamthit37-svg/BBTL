@@ -126,7 +126,7 @@ endfunction()
 set(game_engine_names audio audiotool capture core fs gpu io jobs math net render resource shader
     shadertool window xml)
 set(game_shared_names protocol secure table link nav collision ids)
-set(game_client_names anim avatar classic client control fx gui hero look lua luagen luamass luanum motion ogre
+set(game_client_names anim avatar classic client control fx gui hero look lua luanum motion ogre
     quest scene seal sealtool skill ui)
 set(game_server_names account actor authd billing billingd bus combat config content dice forge gate gated guard handlers ipc
     ledger linttool metrics mission item loot ops process scenedata service shop social store stored supervise supervisor talk
@@ -545,22 +545,6 @@ target_link_libraries(game_quest PUBLIC game_table game_core)
 # skill: bảng của sách võ công, sách kỹ năng của người chơi và hệ action, port từ mã máy client 2026.
 game_module(skill src/client/book/skill/tables.cpp src/client/book/skill/book.cpp src/client/book/skill/actions.cpp)
 target_link_libraries(game_skill PUBLIC game_table game_core)
-# lua: runtime Lua 5.0.1 của LuaPlus.dll bằng C++ (giá trị, chuỗi intern, bảng, máy ảo, thư viện chuẩn), chạy mã C++ do
-# TOOLS/port/luagen sinh từ script giao diện của client 2026. Bề mặt mã sinh ở vm.hpp, bề mặt chủ ở host.hpp;
-# thiết kế ở docs/giao-viec/LUA-GEN/THIET-KE.md.
-game_module(lua
-    src/client/face/lua/host.cpp
-    src/client/face/lua/lib_base.cpp
-    src/client/face/lua/lib_common.cpp
-    src/client/face/lua/lib_math.cpp
-    src/client/face/lua/lib_string.cpp
-    src/client/face/lua/lib_table.cpp
-    src/client/face/lua/ops.cpp
-    src/client/face/lua/state.cpp
-    src/client/face/lua/string.cpp
-    src/client/face/lua/table.cpp
-    src/client/face/lua/value.cpp)
-target_link_libraries(game_lua PUBLIC game_luanum game_core)
 
 # ui/panel: logic của từng cửa sổ HUD, thay script Lua của client gốc (hiện, giấu, điền chữ, đặt
 # thanh). Thuần logic trên gui, không cần GPU; module ui (bộ vẽ) dùng nó.
@@ -1215,9 +1199,11 @@ function(game_test name)
     add_test(NAME ${name}_tests COMMAND ${name}_tests)
 endfunction()
 game_test(fx game_fx)
-game_test(lua game_lua game_io)
-if(NOT ANDROID AND TARGET lua_tests)
-    target_compile_definitions(lua_tests PRIVATE GAME_LUA_GOLDEN="${PROJECT_SOURCE_DIR}/Test/golden/lua")
+# Thư viện chuẩn và máy ảo của game_luaplus so với LuaPlus.dll của client 2026 (số vàng do TOOLS/port/lua_rt_golden.py sinh).
+# Thiết bị Android không thấy cây nguồn nên ca số vàng ở đó tự bỏ qua.
+game_test(lua_golden game_luaplus game_io)
+if(NOT ANDROID AND TARGET lua_golden_tests)
+    target_compile_definitions(lua_golden_tests PRIVATE GAME_LUA_GOLDEN="${PROJECT_SOURCE_DIR}/Test/golden/lua")
 endif()
 game_test(io game_io)
 game_test(xml game_xml)
@@ -1495,18 +1481,6 @@ if(TARGET game_ui AND NOT ANDROID
     game_test(pace game_ui)
     target_compile_definitions(pace_tests PRIVATE
         GAME_CLIENT_DATA="${PROJECT_SOURCE_DIR}/dev/client/assets")
-endif()
-# luamass: đối soát hàng loạt LUA-GEN. Chạy mọi đơn vị mà bộ dịch sinh vào game_luagen trên runtime lua, so sha256 vết với
-# vết LuaPlus.dll ở Test/golden/lua_mass/oracle.tsv (docs/giao-viec/LUA-GEN/THIET-KE.md). Chưa có mã sinh thì không dựng.
-if(TARGET game_luagen AND TARGET game_secure)
-    game_module(luamass src/client/face/luamass/trace.cpp)
-    target_link_libraries(game_luamass PUBLIC game_lua game_core)
-    add_executable(thienlong_lua_mass src/client/face/luamass/main.cpp)
-    target_link_libraries(thienlong_lua_mass PRIVATE game_luamass game_luagen game_io game_secure game::warnings)
-    if(WIN32)
-        target_link_libraries(thienlong_lua_mass PRIVATE shell32)
-    endif()
-    add_test(NAME lua_mass COMMAND thienlong_lua_mass --summary ${PROJECT_SOURCE_DIR}/Test/golden/lua_mass/oracle.tsv)
 endif()
 # lua_oracle: LuaPlus dựng từ third_party/luaplus (DLL cùng nguồn cùng cờ với game_luaplus) chạy 2 060 đơn vị giao diện cùng
 # thế giới giả world.lua; vết phải trùng sha256 với bảng vàng của LuaPlus.dll trong client 2026. Chứng minh bản dựng của dự

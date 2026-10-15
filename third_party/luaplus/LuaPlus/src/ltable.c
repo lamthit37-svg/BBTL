@@ -26,6 +26,7 @@
 #define ltable_c
 
 #include "lua.h"
+#include "luanum/luanum.h"
 
 #include "ldebug.h"
 #include "ldo.h"
@@ -50,8 +51,10 @@
 
 
 /* function to convert a lua_Number to int (with any rounding method) */
+/* Khác gốc: (int)(n) thành luanum_to_int32 (module luanum). Số ngoài miền int hay NaN ép sang int là hành vi không xác định
+** (UBSan báo float-cast-overflow); luanum_to_int32 cho đúng kết quả của cvttsd2si 32 bit trên x64 (INT32_MIN) ở mọi nền tảng. */
 #ifndef lua_number2int
-#define lua_number2int(i,n)	((i)=(int)(n))
+#define lua_number2int(i,n)	((i)=luanum_to_int32(n))
 #endif
 
 

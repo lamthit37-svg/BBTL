@@ -34,8 +34,8 @@ có `continue`, OP_POW là XOR). Dựng thử thành DLL và chạy trọng tài
   và tương đương mức "V1" mà e2 đề xuất (5,8 ns tính riêng phần gọi); script giao diện chạy theo sự kiện nên không phải điểm nghẽn.
 - Giữ làm mã tham khảo (không dựng): bộ phát C++ và bộ sinh (`TOOLS/port/luagen/ref_cpp/`), runtime tự viết
   (`TOOLS/port/luagen/ref_cpp/runtime/`). Giữ làm công cụ kiểm: bộ phân tích Python (khớp `luaL_loadbuffer` 24 942/24 942 chunk),
-  `mass_units`, `mass_oracle`, `world.lua`, số vàng 10 835 ca của thư viện chuẩn.
-- Kiểm bản dựng của dự án so với DLL gốc: ctest `lua_oracle` (2 060 đơn vị, vết từng byte) và `lua_golden` (10 835 ca thư viện),
+  `mass_units`, `mass_oracle`, `world.lua`, số vàng 10 851 ca của thư viện chuẩn và máy ảo (`Test/golden/lua/lib_cases.{tsv,lua}`).
+- Kiểm bản dựng của dự án so với DLL gốc: ctest `lua_oracle` (2 060 đơn vị, vết từng byte) và `lua_golden_tests` (10 851 ca thư viện và máy ảo, chạy lib_cases.lua trên game_luaplus bằng C API),
   chạy ở mọi trình dịch và nền tảng dựng được.
 - Lớp B và C của bảng "Ba lớp" dưới đây vẫn là việc còn lại và là chỗ giá trị nằm; lớp A không còn việc (máy là hàng có sẵn).
   Hàm game viết theo đúng Lua C API như `Game.exe` (không cần đổi quy ước gọi). Các mục "Runtime", "Bộ dịch", "Cỡ mã sinh",
@@ -78,6 +78,9 @@ Tách A khỏi B là chỗ then chốt: đối soát lớp A chạy với một 
 Lệnh đo lại: `TOOLS/port/lua_oracle.py` có lớp `Machine` chạy một đoạn Lua trên DLL đó.
 
 ## Runtime — module `lua` (`src/client/face/lua/`, `game::lua`) — thienlong-e7
+
+> Hướng đã bỏ: mã này nay ở `TOOLS/port/luagen/ref_cpp/runtime/` (không dựng); `src/client/face/lua/` và `Test/Lua/lua_tests.cpp` dưới đây
+> chỉ là đường dẫn cũ. Xem `ref_cpp/runtime/GHI-CHU.md`.
 
 Bề mặt mà mã sinh gọi là `src/client/face/lua/vm.hpp` (hợp đồng, đã dịch sạch trên MSVC, GCC, Clang). Phần còn lại
 (`state.hpp`, `table.hpp`, `string.hpp`, thư viện) do e7 thiết kế; không đổi bề mặt khi chưa báo c8 và 2d.

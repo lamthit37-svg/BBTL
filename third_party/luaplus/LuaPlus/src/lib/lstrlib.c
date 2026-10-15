@@ -820,7 +820,9 @@ static void luaI_addquotedbinary (lua_State *L, luaL_Buffer *b, int arg) {
 static const char *scanformat (lua_State *L, const char *strfrmt,
                                  char *form, int *hasprecision) {
   const char *p = strfrmt;
-  while (strchr("-+ #0", *p)) p++;  /* skip flags */
+  /* Khác gốc: thêm `*p != '\0'`. strchr coi byte 0 là thuộc chuỗi cờ, nên "%" đứng cuối đặc tả làm vòng chạy qua byte 0 và
+  ** đọc ra ngoài chuỗi (ASan báo heap-buffer-overflow ở string.format("%")). */
+  while (*p != '\0' && strchr("-+ #0", *p)) p++;  /* skip flags */
   if (isdigit(uchar(*p))) p++;  /* skip width */
   if (isdigit(uchar(*p))) p++;  /* (2 digits at most) */
   if (*p == '.') {

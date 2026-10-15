@@ -609,7 +609,7 @@ Chỉ mục `docs/BAY-DA-BIET.md`: sắp làm một việc kể dưới đây th
   `UNICODE` và `NOMINMAX` dưới `check.py`, header con mà `misc-include-cleaner` đòi, `<jobapi2.h>`,
   `WaitOnAddress`); đọc biến môi trường; khởi tạo ghi tên cho struct có thành viên kiểu lớp; khai
   `thread_local` cho kiểu có destructor; viết `if constexpr` không có `else`; gắn `target("sse4.1")`
-  bằng pragma; thêm tệp `.rc`; chạy `check.py` trên tệp include header của Vulkan SDK (`dxcapi.h`,
+  bằng pragma; thêm tệp `.rc`; chạy `check.py` hay sanitizer cho tệp include header của LuaPlus (`lua.h`, mã C dịch trước); chạy `check.py` trên tệp include header của Vulkan SDK (`dxcapi.h`,
   `slang.h`); đổi cách trình dịch shader ghép phản chiếu (`kPipeline`); ép con trỏ hàm lấy từ DLL; dựng
   `gcc-debug` trên Windows (SDL3, test `Not Run` vì thư viện vcpkg dựng bằng MSVC); đặt tên biến
   `far`/`near` trong tệp include `core/win32.hpp`; chạy phần clang-tidy của `check.py` (cần

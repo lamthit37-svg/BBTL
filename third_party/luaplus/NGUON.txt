@@ -46,8 +46,22 @@ Khác gốc (mỗi mục có chú thích `Khác gốc:` ngay tại chỗ sửa t
   - src/lib/liolib.c: io.write số in "%.14g" của MSVCR110.
   Không vá, có chủ ý: chuỗi rộng (lua_WChar, lwstrlib.c, wcstod; script giao diện không dùng), io.read("*n") (fscanf),
   tostring của bảng và hàm ("%p"; không tất định ở gốc), sin, cos, tan, asin, acos, atan, atan2, exp, log, log10, pow, fmod lấy
-  từ thư viện toán của máy dựng (chữ số thứ 17 của vài kết quả lệch MSVCR110 một ulp; chuỗi 14 chữ số không đổi), ltable.c
-  lua_number2int (kết quả ngoài miền int32 chỉ dùng để so với chính số đó nên mọi nền tảng cho cùng nhánh).
+  từ thư viện toán của máy dựng (chữ số thứ 17 của vài kết quả lệch MSVCR110 một ulp; chuỗi 14 chữ số không đổi).
+- Giới hạn khác DLL và hành vi không xác định (đo 2026-10-15 bằng ctest lua_golden_tests, chạy cả dưới ASan/UBSan của Clang và
+  Lua assert của GCC; mỗi chỗ có chú thích `Khác gốc:` tại chỗ):
+  - src/llimits.h: LUA_MAXCSTACK 8192 thành 2048. LuaPlus.dll của client 2026 từ chối lua_checkstack khi top - base + size > 2048
+    (unpack bảng n = 2048 và gọi hàm với 2048 đối số đều báo "stack overflow"); nguồn chép từ mã client TLBB ghi 8192. Các giới hạn
+    còn lại (LUA_MAXCALLS 4096, LUA_MAXCCALLS 200, 200 biến cục bộ, 32 upvalue, 200 tầng cú pháp, 250 đối số) đo khớp DLL.
+  - src/ltable.c: lua_number2int (int)(n) thành luanum_to_int32; số ngoài miền int hay NaN ép sang int là UB, giờ cho INT32_MIN
+    như cvttsd2si 32 bit của x64 (kết quả duy nhất mà bản MSVC x64 đã cho).
+  - src/lobject.h hvalue và src/lstate.h ngcotouv: `&gc->h`, `&gc->uv` trên con trỏ NULL (bảng meta mặc định chưa đặt, hết danh sách
+    upvalue mở) thành ép kiểu con trỏ; cùng địa chỉ vì h, uv là thành viên đầu của union.
+  - src/lobject.c luaO_pushvfstring: nhánh `default: lua_assert(0)` thành `break`; câu "malformed pattern (ends with `%')" của
+    lstrlib.c đi qua đó, bản có assert dừng tiến trình, bản NDEBUG bỏ cặp `%'` (giữ nguyên hành vi này, trùng DLL).
+  - src/lib/lstrlib.c scanformat: vòng bỏ cờ thêm `*p != '\0'`; strchr khớp byte 0 nên string.format("%") đọc ra ngoài chuỗi
+    (ASan: heap-buffer-overflow). Câu lỗi của ca đó là "invalid option to `format'" như DLL.
+  - luanum_strtoul (tonumber(chuỗi, cơ số)): tràn 32 bit trả ULONG_MAX rồi vẫn đảo dấu theo "-" ra 1, như strtoul của MSVCR110
+    ("-100000000" cơ số 16 ra 1); bản đầu trả 0xFFFFFFFF, ctest lua_golden_tests bắt được.
 - CMake: game_luaplus và luaplus_oracle liên kết game_luanum; không gộp a * b + c thành FMA (-ffp-contract=off) trên GCC, Clang.
 
 Dựng: third_party/luaplus/CMakeLists.txt (lõi C, không dịch lớp bọc C++ cũ, ltests.c, luiolib.c, lua.c, luac.c): game_luaplus

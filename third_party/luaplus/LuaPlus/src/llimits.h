@@ -135,8 +135,11 @@ typedef unsigned long Instruction;
 
 
 /* maximum size for the C stack */
+/* Khác gốc: 8192 thành 2048. LuaPlus.dll của client 2026 từ chối lua_checkstack khi top - base + size > 2048 (đo 2026-10-15:
+** unpack bảng n = 2048 và gọi hàm với 2048 đối số đều báo "stack overflow"); nguồn chép từ mã client TLBB ghi 8192. Các giới
+** hạn còn lại (LUA_MAXCALLS 4096, LUA_MAXCCALLS 200, 200 biến cục bộ, 32 upvalue, 200 tầng cú pháp) khớp DLL. */
 #ifndef LUA_MAXCSTACK
-#define LUA_MAXCSTACK        8192
+#define LUA_MAXCSTACK        2048
 #endif
 
 

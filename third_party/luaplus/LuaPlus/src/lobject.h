@@ -131,7 +131,10 @@ typedef struct lua_TObject {
 #define tsvalue(o)	check_exp(ttisstring(o), &(o)->value.gc->ts)
 #define uvalue(o)	check_exp(ttisuserdata(o), &(o)->value.gc->u)
 #define clvalue(o)	check_exp(ttisfunction(o), &(o)->value.gc->cl)
-#define hvalue(o)	check_exp(ttistable(o), &(o)->value.gc->h)
+/* Khác gốc: &(o)->value.gc->h thành ép kiểu con trỏ. Bảng meta mặc định (defaultmetatypes của LuaPlus) có thể chưa đặt, khi đó
+** value.gc là NULL và `&NULL->h` là hành vi không xác định (UBSan báo ở luaH_new, luaT_gettm); h là thành viên đầu của union
+** GCObject nên hai dạng cùng địa chỉ. */
+#define hvalue(o)	check_exp(ttistable(o), cast(struct Table *, (o)->value.gc))
 #define bvalue(o)	check_exp(ttisboolean(o), (o)->value.b)
 #define thvalue(o)	check_exp(ttisthread(o), &(o)->value.gc->th)
 #define twsvalue(o)	check_exp(ttiswstring(o), &(o)->value.gc->ts)

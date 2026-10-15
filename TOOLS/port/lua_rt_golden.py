@@ -1,15 +1,20 @@
-# Sinh số vàng cho test của runtime Lua (Test/Lua/lua_tests.cpp): chạy các lời gọi thư viện chuẩn
-# (base, string, table, math) trên CHÍNH LuaPlus.dll của client 2026 và ghi kết quả thành Test/golden/lua/lib_cases.tsv.
-# Test C++ chạy đúng các lời gọi đó trên runtime mới (src/client/face/lua) và so từng ký tự.
+# Sinh số vàng cho ctest lua_golden (Test/Lua/lua_golden_tests.cpp): chạy các lời gọi thư viện chuẩn (base, string, table,
+# math) và phép toán của máy ảo trên CHÍNH LuaPlus.dll của client 2026, ghi kết quả thành Test/golden/lua/lib_cases.tsv và
+# ghi đúng chương trình Lua đã chạy thành lib_cases.lua cạnh nó. Test C++ chạy lib_cases.lua trên game_luaplus (LuaPlus dựng
+# từ third_party/luaplus) bằng C API và so từng dòng __emit với cột kết quả của .tsv.
 # Chạy ở gốc dự án:
 #   python -B TOOLS/port/lua_rt_golden.py <Bin64> Test/golden/lua/lib_cases.tsv
-# Không sửa tay tệp số vàng: sửa danh sách ca ở đây rồi sinh lại.
+# Không sửa tay hai tệp số vàng: sửa danh sách ca ở đây rồi sinh lại.
+#
+# lib_cases.lua gồm hai đoạn cách nhau một dòng MARKER: đoạn thứ nhất chụp thứ tự duyệt của _G trước mọi định nghĩa khác (tên
+# đoạn "golden-first"), đoạn thứ hai là PRELUDE và mọi lời gọi `case(...)` (tên đoạn "golden", để câu lỗi có tiền tố
+# `golden:DÒNG:` mà PRELUDE gỡ đi). Mỗi đoạn nạp bằng luaL_loadbuffer rồi lua_pcall trên cùng một máy Lua.
 #
 # Mỗi dòng tệp ra: id <tab> đường dẫn hàm <tab> danh sách đối số <tab> kết quả. Các ca chạy theo thứ tự, CÙNG MỘT máy Lua
 # (hạt math.random, bảng __log của hàm gọi lại là trạng thái chung); ca đầu (globals-order) chụp thứ tự duyệt của _G, string,
 # math, table trước khi có thứ gì khác.
 #
-# Đối số viết theo văn phạm mà test C++ đọc (mỗi giá trị cách nhau một dấu cách):
+# Cột đối số của .tsv (để người đọc, test C++ không phân tích) viết theo văn phạm (mỗi giá trị cách nhau một dấu cách):
 #   nil | true | false | n:SỐ (inf, -inf, nan, -0 hoặc thập phân) | s:"CHUỖI" (byte ngoài 0x20..0x7E, '"' và '\' là \xNN)
 #   | @tên (hàm gọi lại có sẵn) | $tên (biến toàn cục) | { khoá giá trị khoá giá trị ... } (bảng dựng bằng gán lần lượt,
 #   giá trị nil được gán thật nên khoá chết vẫn còn như khi script gán nil).
@@ -143,7 +148,7 @@ def lua_value(value):
     raise TypeError(value)
 
 
-# Hàm gọi lại có sẵn (cùng tên và nghĩa với bản C++ ở Test/Lua/lua_tests.cpp) và hàm giúp việc.
+# Hàm gọi lại có sẵn (bảng F của PRELUDE) và hàm giúp việc.
 HELPERS = ("gfind_all", "id", "setup_ops")
 
 PRELUDE = r'''
@@ -261,10 +266,7 @@ F.setup_ops = function()
   fn_index = setmetatable({}, {__index = function(t, k) return "fi:" .. tostring(k) end})
 end
 local function strip(message)
-  message = string.gsub(message, "golden:%d+: ", "")
-  -- Câu lỗi kiểu của LuaPlus kèm tên biến ("on local `a' (a nil value)"); runtime mới không có tên biến.
-  message = string.gsub(message, " %a+ `[^']*' %((a %a+ value)%)", " %1")
-  return message
+  return (string.gsub(message, "golden:%d+: ", ""))
 end
 local function case(id, build, call_name)
   local args = pack(build())
@@ -868,6 +870,12 @@ def build_cases():
     add("collectgarbage")
     add("collectgarbage", "collect")
     build_op_cases()
+    # Ca thêm sau cùng (không làm lệch số thứ tự trong id của các ca trên): tonumber(chuỗi, cơ số) đi qua strtoul 32 bit của
+    # MSVCR110 (luanum_strtoul), nên tràn 32 bit, số âm, tiền tố và cơ số ngoài miền int32 là chỗ CRT của máy dựng có thể lệch.
+    for s, base in [("-100000000", 16.0), ("fffffffff", 16.0), ("zzzzzzzz", 36.0), ("4294967296", 10.0), ("-4294967295", 10.0),
+                    ("+5", 10.0), ("-0", 10.0), ("0", 2.0), (" -ff", 16.0), ("7fffffff", 16.0), ("80000000", 16.0), ("ff", 16.5),
+                    ("ff", -16.0), ("ff", 0.0), ("ff", 4294967312.0)]:
+        add("tonumber", s, base)
 
 
 def ctor_lua(items):
@@ -998,17 +1006,24 @@ def lua_chunk():
     return "\n".join(parts) + "\n"
 
 
-def run(bin_folder, output):
-    build_cases()
-    machine = lua_oracle.Machine(pathlib.Path(bin_folder))
-    # Thứ tự duyệt của _G chụp trước mọi định nghĩa khác (chỉ __emit đã có).
-    first = r'''
+# Thứ tự duyệt của _G chụp trước mọi định nghĩa khác (chỉ __emit đã có).
+FIRST = r'''
 local keys = {}
 for k in pairs(_G) do keys[table.getn(keys) + 1] = k end
 __emit("globals-order\t" .. table.concat(keys, " "))
 '''
-    machine.run(first, "golden-first")
-    machine.run(lua_chunk(), "golden")
+# Dòng ngăn hai đoạn trong lib_cases.lua; test C++ tách theo đúng chuỗi này.
+MARKER = "-- ==== golden"
+
+
+def run(bin_folder, output):
+    build_cases()
+    machine = lua_oracle.Machine(pathlib.Path(bin_folder))
+    chunk = lua_chunk()
+    machine.run(FIRST, "golden-first")
+    machine.run(chunk, "golden")
+    program = FIRST.lstrip("\n") + MARKER + "\n" + chunk
+    pathlib.Path(output).with_suffix(".lua").write_text(program, encoding="utf-8", newline="\n")
     lines = machine.lines
     out = [
         "# Số vàng của runtime Lua (TOOLS/port/lua_rt_golden.py chạy lời gọi thư viện chuẩn trên LuaPlus.dll). Không sửa tay.",

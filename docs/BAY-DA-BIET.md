@@ -96,13 +96,21 @@ mục ở mục 11.
 - `-I` đưa cho clang-tidy phải là đường dẫn TUYỆT ĐỐI: với `-I` tương đối `misc-include-cleaner` không nối được header với
   ký hiệu và báo hàng loạt "thừa/thiếu include" giả (đo 2026-10-15 ở `client/session`). `check.py` chỉ in 15 chẩn đoán đầu của
   mỗi tệp: sửa hết 15 rồi chạy lại mới thấy phần còn lại, đừng kết luận "xong" khi chưa thấy `✓ clang-tidy`.
-- MSVC 14.51 `/O2` dịch sai `best == -1 ? 0 : (1 << best)` (đo 2026-10-15 ở `computesizes` trong `src/client/face/lua/table.cpp`):
+- MSVC 14.51 `/O2` dịch sai `best == -1 ? 0 : (1 << best)` (đo 2026-10-15 ở `computesizes` trong runtime tự viết, nay ở `TOOLS/port/luagen/ref_cpp/runtime/lua/table.cpp`; cùng
+  lỗi ở `ltable.c` của LuaPlus, đã vá, `third_party/luaplus/NGUON.txt`):
   nhánh lẽ ra cho 0 lại ra `INT32_MIN`, tức `1 << -1` vẫn được tính. Viết điều kiện là `best < 0` thì đúng. Tái hiện: đổi
   lại `narray = best == -1 ? 0 : twoto(best);`, dựng `lua_tests` ở `msvc-release`: exe thoát `0xC0000409` (-1073740791) ngay
   khi chạy, không in dòng nào (chưa thử dạng cũ ở GCC và Clang).
 - Cổng `check.py --run` bật `float-divide-by-zero` của UBSan cho Clang: mọi `x / 0.0` bằng số thực đều bị báo "division by
   zero" dù IEEE 754 xác định kết quả (đo 2026-10-15 ở `lua::div`). Mã cần ngữ nghĩa IEEE (Lua: `1/0` là `inf`) phải rẽ nhánh
-  `right == 0` tường minh như `divide` trong `src/client/face/lua/ops.cpp`, không tắt cờ.
+  `right == 0` tường minh như `divide` trong `TOOLS/port/luagen/ref_cpp/runtime/lua/ops.cpp`, không tắt cờ.
+- Cổng máy cho LuaPlus (`third_party/luaplus`, mã C, đo 2026-10-15 với `Test/Lua/lua_golden_tests.cpp`): header `lua.h`, `lauxlib.h`
+  không có `extern "C"` (bọc quanh `#include`) và có `#endif TÊN` thừa token (`-Werror=endif-labels`, `-Wextra-tokens`), nên đưa
+  `third_party/luaplus/LuaPlus/include` và `third_party/luaplus/LuaPlus` vào `CPP23_G14/G15/C20/TIDY_ARGS` bằng `-isystem`, không `-I`
+  (CMake đã để SYSTEM). `check.py --run` chỉ dịch C++: phần C dịch trước từng tệp, `gcc -c` cho lượt GCC và `clang -c
+  -fsanitize=address,undefined -fno-sanitize-recover=all` cho lượt Clang (UBSan mặc định chỉ báo rồi chạy tiếp, `check.py` chỉ in
+  đầu ra khi lượt chạy đỏ nên báo UB bị nuốt), rồi nối các `.o` vào cuối chuỗi `CPP23_G14` và `CPP23_C20`. LuaPlus không định
+  nghĩa `NDEBUG` ở bản không phải release thì `lua_assert` là `assert` thật: lượt GCC debug mode cũng chạy assert của Lua.
 
 ## Công cụ Python và git
 

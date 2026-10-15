@@ -136,7 +136,7 @@ def used_headers(text: str) -> list[str]:
 
 def support_header() -> str:
     """Header mã sinh include: runtime đã gộp có gen_support.hpp (failed, tick, proto... inline cho đường nóng); chưa thì vm.hpp."""
-    present = (mass_units.PROJECT / "src/client/face/lua/gen_support.hpp").is_file()
+    present = (mass_units.PROJECT / "TOOLS/port/luagen/ref_cpp/runtime/lua/gen_support.hpp").is_file()
     return "lua/gen_support.hpp" if present else "lua/vm.hpp"
 
 

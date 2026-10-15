@@ -118,10 +118,12 @@ uint32_t luanum_strtoul(const char* text, char** end, int base) {
     const std::uint64_t raw = std::strtoull(text, &stop, base);
     if (end != nullptr) *end = stop;
     if (stop == text) return 0;
-    if (errno == ERANGE) return static_cast<uint32_t>(kLimit);
+    // Tràn thì MSVCR110 đặt ULONG_MAX rồi vẫn đảo dấu theo "-": "-100000000" cơ số 16 ra 1, không phải 0xFFFFFFFF.
+    constexpr std::uint32_t kOverflow = std::numeric_limits<std::uint32_t>::max();
+    if (errno == ERANGE) return negative ? std::uint32_t{0} - kOverflow : kOverflow;
     // strtoull đảo dấu theo 64 bit; lấy độ lớn ra để so với trần 32 bit rồi đảo lại theo số học 32 bit.
     const std::uint64_t magnitude = negative ? std::uint64_t{0} - raw : raw;
-    if (magnitude > kLimit) return static_cast<uint32_t>(kLimit);
+    if (magnitude > kLimit) return negative ? std::uint32_t{0} - kOverflow : kOverflow;
     const auto low = static_cast<std::uint32_t>(magnitude);
     return negative ? std::uint32_t{0} - low : low;
 }

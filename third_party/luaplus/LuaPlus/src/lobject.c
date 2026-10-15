@@ -156,7 +156,10 @@ const char *luaO_pushvfstring (lua_State *L, const char *fmt, va_list argp) {
       case '%':
         pushstr(L, "%");
         break;
-      default: lua_assert(0);
+      /* Khác gốc: `lua_assert(0)` thành `break`. Câu "malformed pattern (ends with `%')" của lstrlib.c đi qua đây: bản
+      ** phát hành (NDEBUG) bỏ cặp `%'` khỏi câu, bản có assert thì dừng tiến trình vì một mẫu chuỗi của script. Hành vi của
+      ** bản phát hành giữ nguyên. */
+      default: break;
     }
     n += 2;
     fmt = e+2;
