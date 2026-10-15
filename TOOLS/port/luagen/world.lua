@@ -71,7 +71,8 @@ local function answer(name)
     if find(name, ".Is", 1, true) or find(name, ".Has", 1, true) or find(name, ".Can", 1, true) then
         return mod(pick, 2)
     end
-    return mod(pick, 10), mod(roll(), 100)
+    -- Bốn giá trị: script hay nhận nhiều kết quả một lúc (local a, b, c = DataPool:Get...()).
+    return mod(pick, 10), mod(roll(), 100), mod(roll(), 10), mod(roll(), 1000)
 end
 
 -- Trần lời gọi vào thế giới của một bước: vòng lặp chờ giá trị giả làm điều kiện dừng đúng thì dừng ở đây bằng lỗi,
@@ -107,6 +108,12 @@ proxy_meta.__index = function(proxy, key)
     end
     rawset(proxy, key, method)
     return method
+end
+
+-- Gọi thẳng một đối tượng giả: hàm toàn cục của game (PushEvent, OpenWindow...) chưa có thì là đối tượng giả mang tên
+-- đó; Lua 5.0 đưa chính đối tượng làm đối số đầu của __call, arg là các đối số của lời gọi.
+proxy_meta.__call = function(proxy, ...)
+    return record(names[proxy], arg)
 end
 
 -- Hàm cơ sở có kết quả không tất định hay ra ngoài máy: thay bằng bản tất định ghi vết.
