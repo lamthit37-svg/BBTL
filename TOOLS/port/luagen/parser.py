@@ -399,7 +399,7 @@ class Parser:
                 else:
                     name = self.str_checkname()
                     self.check("=")
-                    items.append(tree.RecordItem(tree.Str(name.encode("utf-8")), self.expr()))
+                    items.append(tree.RecordItem(tree.Str(name.encode("utf-8")), self.expr(), True))
             elif kind == "[":
                 self.next()
                 key = self.expr()

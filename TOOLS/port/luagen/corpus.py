@@ -18,12 +18,10 @@ from luagen.dll import DEFAULT_BIN, LuaDll  # noqa: E402
 from luagen.lexer import LuaSyntaxError  # noqa: E402
 from luagen.parser import parse  # noqa: E402
 
-MAIN_LAYOUT_ROOT = pathlib.Path("D:/THIENLONG/dev/client/assets/Interface")
-
 
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--layout-root", type=pathlib.Path, default=MAIN_LAYOUT_ROOT)
+    parser.add_argument("--layout-root", type=pathlib.Path, default=mass_units.LAYOUT_ROOT)
     parser.add_argument("--bin", type=pathlib.Path, default=DEFAULT_BIN)
     parser.add_argument("--list-rejected", action="store_true")
     args = parser.parse_args(argv)

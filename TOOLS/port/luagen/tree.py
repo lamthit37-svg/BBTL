@@ -133,6 +133,8 @@ class ListItem:
 class RecordItem:
     key: "Expr"
     value: "Expr"
+    # Khoá viết bằng tên (`x = 1`), không phải `[e] = 1`: lparser.c chỉ đếm loại này vào kích thước bảng (nh).
+    named: bool = False
 
 
 @dataclass(eq=False, slots=True)
