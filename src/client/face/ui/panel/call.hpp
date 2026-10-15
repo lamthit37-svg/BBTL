@@ -61,6 +61,9 @@ enum class Ask : std::uint8_t {
     kOpenFreshManGuide,
     // CloseFreshManGuide(): đóng lớp hướng dẫn tân thủ (Game.exe 0x140262120).
     kCloseFreshManGuide,
+    // this:CareObject(id, cờ) của một cửa sổ: cờ khác 0 nhờ hệ đối tượng theo dõi khoảng cách tới đối tượng id, xa quá thì
+    // đóng cửa sổ (UI_CEGUI.dll 3.71.9509 0x180077870; cờ 0 thì gốc không làm gì nên không ghi). Chữ: id, tên cửa sổ.
+    kCareObject,
 };
 
 struct Call {
@@ -96,6 +99,7 @@ struct Call {
     case Ask::kClearChatActionBar: return "Clear_ChatAction_Bar";
     case Ask::kOpenFreshManGuide: return "OpenFreshManGuideNew";
     case Ask::kCloseFreshManGuide: return "CloseFreshManGuide";
+    case Ask::kCareObject: return "CareObject";
     }
     return {};
 }
