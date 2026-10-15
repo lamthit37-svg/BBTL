@@ -60,6 +60,9 @@ struct PaintKit {
     // Ảnh nền bản đồ thế giới (quad kWorldBoard): texture riêng, uv là phần của ảnh nguyên.
     std::optional<MapPaint> world;
     std::span<const ViewPaint> views;
+    // Số điểm ảnh của màn cho một điểm ảnh của layout (1 khi không co). Dưới 1 thì chữ dàn trực tiếp ở cỡ điểm ảnh của
+    // màn và quad dính vào lưới điểm ảnh, để giao diện co lại vẫn nét.
+    float scale = 1.0F;
 };
 
 class Painter {

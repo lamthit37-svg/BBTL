@@ -593,6 +593,8 @@ struct Hud::State {
     // Nối quad của extra vào sau quad của giao diện (painter), dời chỉ số quad của các lô thêm. Quad của extra tính
     // theo điểm ảnh của màn nên đổi sang khung ảo của layout: không co theo giao diện.
     float scale = 1.0F;
+    // Scale của lần dựng quad gần nhất: đổi thì chữ và lưới điểm ảnh phải dàn lại.
+    float built_scale = 1.0F;
     void join(Hud::HudExtra extra) {
         const std::span<const render::UiVertex> own = painter.vertices();
         const std::span<const render::UiBatch> own_batches = painter.batches();
@@ -1443,7 +1445,7 @@ void Hud::State::upload_board(const resource::Image& image) {
 
 bool Hud::State::is_current() const noexcept {
     const bool is_same_quads = still_stamp == hub->still_stamp() && live_stamp == hub->live_stamp();
-    return is_built && is_same_quads && text_stamp == hub->text_stamp();
+    return is_built && is_same_quads && text_stamp == hub->text_stamp() && built_scale == scale;
 }
 
 void Hud::State::rebuild() {
@@ -1457,10 +1459,12 @@ void Hud::State::rebuild() {
     kit.board = board_map;
     kit.world = world_paint;
     kit.views = views;
+    kit.scale = scale;
     painter.build(loader.asset(), parts, kit);
     still_stamp = hub->still_stamp();
     live_stamp = hub->live_stamp();
     text_stamp = hub->text_stamp();
+    built_scale = scale;
     is_built = true;
 }
 

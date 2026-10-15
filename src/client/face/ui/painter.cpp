@@ -14,6 +14,7 @@
 #include <array>
 #include <cstddef>
 #include <cstdint>
+#include <cmath>
 #include <cstdio>
 #include <filesystem>
 #include <iterator>
@@ -130,6 +131,33 @@ template <typename Item>
 [[nodiscard]] std::uint16_t head_layer(std::span<const Item> items) noexcept {
     if (items.empty()) return std::numeric_limits<std::uint16_t>::max();
     return items.front().layer;
+}
+
+// Ô theo điểm ảnh của layout đổi sang điểm ảnh của màn (nhân scale).
+gui::Box shrink(const gui::Box& box, float scale) {
+    return gui::Box{.x = box.x * scale, .y = box.y * scale, .w = box.w * scale, .h = box.h * scale};
+}
+
+// Ngược lại: ô theo điểm ảnh của màn đổi về điểm ảnh của layout.
+gui::Box grow(const gui::Box& box, float scale) {
+    return gui::Box{.x = box.x / scale, .y = box.y / scale, .w = box.w / scale, .h = box.h / scale};
+}
+
+// Đỉnh theo điểm ảnh của màn đổi về điểm ảnh của layout. Dính vào lưới điểm ảnh của màn trước: mép nằm lệch nửa
+// điểm ảnh làm chữ và đường kẻ nhoè.
+void expand(std::span<render::UiVertex> vertices, float scale) {
+    for (render::UiVertex& vertex : vertices) {
+        vertex.x = std::round(vertex.x) / scale;
+        vertex.y = std::round(vertex.y) / scale;
+    }
+}
+
+// Quad ảnh và màu đặc theo điểm ảnh của layout: dính vào lưới điểm ảnh của màn. Chữ đã dính sẵn nên đi qua đây không đổi.
+void snap(std::span<render::UiVertex> vertices, float scale) {
+    for (render::UiVertex& vertex : vertices) {
+        vertex.x = std::round(vertex.x * scale) / scale;
+        vertex.y = std::round(vertex.y * scale) / scale;
+    }
 }
 
 } // namespace
@@ -273,7 +301,20 @@ void Painter::add_text(const Job& job, const gui::TextRun& run) {
     }
     TextWriter& writer = is_alt ? *job.kit->alt_writer : *job.kit->writer;
     const std::size_t first = vertices_.size();
-    const std::optional<gui::Box> caret = writer.write(run, vertices_);
+    // Phông bitmap chỉ nét ở cỡ gốc: khi giao diện co (scale < 1) dàn chữ trong ô đã co, theo điểm ảnh của màn, rồi đổi
+    // lại sang toạ độ layout; lúc vẽ pass co lần nữa nên mỗi điểm ảnh phông ra đúng một điểm ảnh màn.
+    const float scale = job.kit->scale;
+    const bool is_shrunk = scale > 0.0F && scale < 1.0F;
+    gui::TextRun placed = run;
+    if (is_shrunk) {
+        placed.box = shrink(run.box, scale);
+        if (run.clip) placed.clip = shrink(*run.clip, scale);
+    }
+    std::optional<gui::Box> caret = writer.write(placed, vertices_);
+    if (is_shrunk) {
+        expand(std::span(vertices_).subspan(first), scale);
+        if (caret) caret = grow(*caret, scale);
+    }
     close_batch({.texture = is_alt ? job.kit->alt_font_texture : job.kit->font_texture, .first_vertex = first});
     if (!caret) return;
     const std::size_t caret_first = vertices_.size();
@@ -313,6 +354,7 @@ void Painter::build(const gui::GuiAsset& asset, const FrameParts& parts, const P
     while (cursor.still + cursor.live + cursor.text < total) {
         add_layer(job, cursor);
     }
+    if (kit.scale > 0.0F && kit.scale < 1.0F) snap(vertices_, kit.scale);
 }
 
 } // namespace game::ui
