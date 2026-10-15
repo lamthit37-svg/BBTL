@@ -143,6 +143,12 @@ NativeResult tlcj_is_in_scene(lua_State* lua) {
     return 1;
 }
 
+// IsInHell() (0x140232890): 1 khi đang ở cảnh địa ngục (Facts::in_hell), còn lại 0.
+NativeResult is_in_hell(lua_State* lua) {
+    lua_pushnumber(lua, native::context_of(lua).facts.in_hell() ? 1 : 0);
+    return 1;
+}
+
 constexpr std::array<native::Entry, 2> kDataPool = {{
     {.name = "GetCurDialogNpcId", .function = &lua::adapt<get_cur_dialog_npc_id>},
     {.name = "LuaFnGetGMVisibleType", .function = &lua::adapt<get_gm_visible_type>},
@@ -153,7 +159,7 @@ constexpr std::array<native::Entry, 1> kJueZhan = {{{.name = "IsJueZhanWuLinZhiD
 constexpr std::array<native::Entry, 1> kSongliao = {{{.name = "TSLGetLocalSceneID", .function = &lua::adapt<tsl_get_local_scene_id>}}};
 constexpr std::array<native::Entry, 1> kKvk = {{{.name = "IsInKVKServer", .function = &lua::adapt<kvk_is_in_server>}}};
 constexpr std::array<native::Entry, 1> kTlcj = {{{.name = "IsInTLCJScene", .function = &lua::adapt<tlcj_is_in_scene>}}};
-constexpr std::array<native::Entry, 7> kGlobals = {{
+constexpr std::array<native::Entry, 8> kGlobals = {{
     {.name = "GetSceneID", .function = &lua::adapt<get_scene_id>},
     {.name = "IsZbs2018SpeicalServer", .function = &lua::adapt<is_zbs2018_special_server>},
     {.name = "GetSceneSize", .function = &lua::adapt<get_scene_size>},
@@ -161,6 +167,7 @@ constexpr std::array<native::Entry, 7> kGlobals = {{
     {.name = "GetSceneMapByID", .function = &lua::adapt<get_scene_map_by_id>},
     {.name = "IsInTServer", .function = &lua::adapt<is_in_t_server>},
     {.name = "IsTBFinalServer", .function = &lua::adapt<is_tb_final_server>},
+    {.name = "IsInHell", .function = &lua::adapt<is_in_hell>},
 }};
 
 } // namespace

@@ -29,6 +29,9 @@ inline constexpr std::size_t kCallLimit = 4096;
 struct Facts {
     // Id cảnh đang đứng (cột 0 của bảng cảnh); nullopt khi chưa vào cảnh (GetSceneID, IsWuLinZhiDianScene...).
     std::optional<std::int32_t> scene_id;
+    // Cảnh "địa ngục" (id 0x4d, 0x242, 0x337): Game.exe 0x140229d50, hàm mà IsInHell bọc, báo khoá ở đó và mọi hàm mở cửa sổ có
+    // kiểm khoá (ToggleContainer, OpenEquip...) im lặng bỏ qua. Chưa vào cảnh thì không khoá.
+    [[nodiscard]] bool in_hell() const noexcept { return scene_id && (*scene_id == 0x4d || *scene_id == 0x242 || *scene_id == 0x337); }
     // Id NPC đang hội thoại (DataPool:GetCurDialogNpcId); nullopt khi không có hội thoại (gốc trả -1).
     std::optional<std::int32_t> dialog_npc_id;
     // DataPool:LuaFnGetGMVisibleType: loại hiện của GM (byte ở DataPool + 0x632bd8).

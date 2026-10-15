@@ -96,12 +96,55 @@ void generated_event_pushes_carry_their_arguments(Context& context) {
     }
 }
 
-constexpr std::array<Case, 5> kCases = {{
+// Hàm mở cửa sổ có kiểm khoá cảnh địa ngục (IsInHell) và đối số số lấy từ script: thứ tự "ném trước khoá" / "khoá trước ném" khác
+// nhau theo từng hàm của gốc, đối số không phải số (chuỗi số cũng không) hoặc bị bỏ qua im lặng hoặc ném câu riêng của hàm.
+void locked_pushes_follow_the_hell_scene_and_arguments(Context& context) {
+    ui::script::Context script;
+    ScriptRig rig(script);
+    if (!rig.ok()) return;
+    const auto pushed = [&](std::string_view code) {
+        script.calls.clear();
+        const std::string result = rig.eval(code);
+        if (script.calls.empty()) return result.starts_with("LỖI") ? result : std::string("không đẩy");
+        return script.calls.front().text;
+    };
+    context.expect(rig.eval("return IsInHell()") == "0", "chưa vào cảnh thì không phải địa ngục");
+    for (const std::int32_t scene : {0x4d, 0x242, 0x337}) {
+        script.facts.scene_id = scene;
+        context.expect(rig.eval("return IsInHell()") == "1", "cảnh địa ngục " + std::to_string(scene));
+    }
+    script.facts.scene_id = 0x4e;
+    context.expect(rig.eval("return IsInHell()") == "0", "cảnh liền kề không phải địa ngục");
+    context.expect(pushed("ToggleContainer()") == "TOGLE_CONTAINER", "ngoài địa ngục thì đẩy");
+    context.expect(pushed("DataPool:OpenFriendList()") == "TOGLE_FRIEND\t2", "đối số chuỗi hằng của gốc là \"2\"");
+    context.expect(pushed("OpenEquip(7)") == "OPEN_EQUIP\t7", "đối số số được chuyển");
+    context.expect(pushed("OpenEquip(1e20)") == "OPEN_EQUIP\t-2147483648", "ép (int) ngoài miền ra INT32_MIN");
+    context.expect(pushed("OpenEquip('7')") == "không đẩy", "chuỗi số không phải số nghiêm: bỏ qua im lặng");
+    context.expect(pushed("OpenEquip()") == "không đẩy", "thiếu đối số: bỏ qua im lặng");
+    script.facts.scene_id = 0x242;
+    context.expect(pushed("ToggleContainer()") == "không đẩy", "trong địa ngục thì không đẩy");
+    context.expect(pushed("OpenEquip(7)") == "không đẩy", "trong địa ngục thì không đẩy, có đối số");
+    // LuaFnOpenCangPin: gốc kiểm (và ném) đối số TRƯỚC khi kiểm khoá.
+    script.facts.scene_id = 0x4e;
+    context.expect(pushed("LuaFnOpenCangPin(3)") == "OPEN_CANGPIN\t3", "đối số hợp lệ");
+    context.expect(pushed("LuaFnOpenCangPin('3')").contains("LUA:LuaFnOpenCangPin Param 1 Error"), "sai kiểu thì ném câu của hàm");
+    script.facts.scene_id = 0x242;
+    context.expect(pushed("LuaFnOpenCangPin(3)") == "không đẩy", "trong địa ngục không đẩy");
+    context.expect(pushed("LuaFnOpenCangPin()").contains("LUA:LuaFnOpenCangPin Param 1 Error"), "trong địa ngục vẫn ném trước khi kiểm khoá");
+    // PlayerPackage:OpenLockFrame: gốc kiểm khoá TRƯỚC, nên trong địa ngục sai kiểu cũng không ném.
+    context.expect(pushed("PlayerPackage:OpenLockFrame()") == "không đẩy", "trong địa ngục: khoá trước, không ném");
+    script.facts.scene_id.reset();
+    context.expect(pushed("PlayerPackage:OpenLockFrame(5)") == "OPEN_ITEM_COFFER\t5", "bảng:hàm lấy đối số ở chỉ số 2");
+    context.expect(pushed("PlayerPackage:OpenLockFrame()").contains("OpenLockFrame Wrong Param1"), "ngoài địa ngục sai kiểu thì ném");
+}
+
+constexpr std::array<Case, 6> kCases = {{
     {.name = "GetTickCount quấn như (int)", .body = tick_count_wraps_like_the_original_int_cast},
     {.name = "cờ nhắc cập nhật có biên", .body = update_tip_flags_are_bounds_checked},
     {.name = "việc nhờ game được ghi lại", .body = requests_to_the_game_are_recorded},
     {.name = "hằng và cờ theo gốc", .body = constants_and_flags_follow_the_original},
     {.name = "hàm đẩy sự kiện sinh tự động", .body = generated_event_pushes_carry_their_arguments},
+    {.name = "khoá cảnh địa ngục và đối số số", .body = locked_pushes_follow_the_hell_scene_and_arguments},
 }};
 
 } // namespace
