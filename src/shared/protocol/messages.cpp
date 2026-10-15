@@ -85,6 +85,17 @@ void put_bonus_kind(Writer& writer, BonusKind value) {
     return value;
 }
 
+void put_combat_kind(Writer& writer, CombatKind value) {
+    if (!is_valid(value)) writer.fail(WireError::kBadEnum);
+    writer.u8(std::to_underlying(value));
+}
+
+[[nodiscard]] CombatKind get_combat_kind(Reader& reader) {
+    const auto value = static_cast<CombatKind>(reader.u8());
+    if (!is_valid(value)) reader.fail(WireError::kBadEnum);
+    return value;
+}
+
 void put_dialog_close_reason(Writer& writer, DialogCloseReason value) {
     if (!is_valid(value)) writer.fail(WireError::kBadEnum);
     writer.u8(std::to_underlying(value));
@@ -195,6 +206,33 @@ void put_quest_notice_kind(Writer& writer, QuestNoticeKind value) {
     return value;
 }
 
+void put_respawn_place(Writer& writer, RespawnPlace value) {
+    if (!is_valid(value)) writer.fail(WireError::kBadEnum);
+    writer.u8(std::to_underlying(value));
+}
+
+[[nodiscard]] RespawnPlace get_respawn_place(Reader& reader) {
+    const auto value = static_cast<RespawnPlace>(reader.u8());
+    if (!is_valid(value)) reader.fail(WireError::kBadEnum);
+    return value;
+}
+
+void put_bag_slot(Writer& writer, const BagSlot& message) {
+    writer.u16(message.slot);
+    writer.u32(message.item);
+    writer.u16(message.count);
+    writer.boolean(message.bound);
+}
+
+[[nodiscard]] BagSlot get_bag_slot(Reader& reader) {
+    BagSlot message;
+    message.slot = reader.u16();
+    message.item = reader.u32();
+    message.count = reader.u16();
+    message.bound = reader.boolean();
+    return message;
+}
+
 void put_character_summary(Writer& writer, const CharacterSummary& message) {
     writer.u64(message.id);
     writer.text(message.name, kCharacterSummaryNameBytes);
@@ -302,6 +340,20 @@ void put_quest_slot(Writer& writer, const QuestSlot& message) {
     message.script = reader.i32();
     message.flags = reader.u8();
     message.params = get_list_1(reader);
+    return message;
+}
+
+void put_skill_entry(Writer& writer, const SkillEntry& message) {
+    writer.u16(message.skill);
+    writer.u8(message.level);
+    writer.u32(message.cooldown_ms);
+}
+
+[[nodiscard]] SkillEntry get_skill_entry(Reader& reader) {
+    SkillEntry message;
+    message.skill = reader.u16();
+    message.level = reader.u8();
+    message.cooldown_ms = reader.u32();
     return message;
 }
 
@@ -490,6 +542,44 @@ void put_dialog_close(Writer& writer, const DialogClose& message) {
 [[nodiscard]] DialogClose get_dialog_close(Reader& reader) {
     DialogClose message;
     message.session = reader.u64();
+    return message;
+}
+
+void put_cast_skill(Writer& writer, const CastSkill& message) {
+    writer.u16(message.seq);
+    writer.u16(message.skill);
+    writer.u32(message.target);
+    writer.f32(message.x_cm);
+    writer.f32(message.z_cm);
+}
+
+[[nodiscard]] CastSkill get_cast_skill(Reader& reader) {
+    CastSkill message;
+    message.seq = reader.u16();
+    message.skill = reader.u16();
+    message.target = reader.u32();
+    message.x_cm = reader.f32();
+    message.z_cm = reader.f32();
+    return message;
+}
+
+void put_respawn(Writer& writer, const Respawn& message) {
+    put_respawn_place(writer, message.place);
+}
+
+[[nodiscard]] Respawn get_respawn(Reader& reader) {
+    Respawn message;
+    message.place = get_respawn_place(reader);
+    return message;
+}
+
+void put_pick_up(Writer& writer, const PickUp& message) {
+    writer.u32(message.drop);
+}
+
+[[nodiscard]] PickUp get_pick_up(Reader& reader) {
+    PickUp message;
+    message.drop = reader.u32();
     return message;
 }
 
@@ -915,6 +1005,174 @@ void put_self_stats(Writer& writer, const SelfStats& message) {
     return message;
 }
 
+void put_self_vitals(Writer& writer, const SelfVitals& message) {
+    writer.i32(message.hp);
+    writer.i32(message.hp_max);
+    writer.i32(message.mp);
+    writer.i32(message.mp_max);
+    writer.i32(message.rage);
+    writer.i32(message.rage_max);
+}
+
+[[nodiscard]] SelfVitals get_self_vitals(Reader& reader) {
+    SelfVitals message;
+    message.hp = reader.i32();
+    message.hp_max = reader.i32();
+    message.mp = reader.i32();
+    message.mp_max = reader.i32();
+    message.rage = reader.i32();
+    message.rage_max = reader.i32();
+    return message;
+}
+
+// list:record:BagSlot, tối đa kSelfBagSlotsCount phần tử.
+void put_list_8(Writer& writer, const std::vector<BagSlot>& values) {
+    writer.count(values.size(), kSelfBagSlotsCount);
+    for (const auto& value : values) {
+        put_bag_slot(writer, value);
+    }
+}
+
+[[nodiscard]] std::vector<BagSlot> get_list_8(Reader& reader) {
+    const std::size_t count = reader.count(kSelfBagSlotsCount);
+    std::vector<BagSlot> values;
+    values.reserve(count);
+    for (std::size_t i = 0; i < count && reader.is_ok(); ++i) {
+        values.push_back(get_bag_slot(reader));
+    }
+    return values;
+}
+
+void put_self_bag(Writer& writer, const SelfBag& message) {
+    put_list_8(writer, message.slots);
+}
+
+[[nodiscard]] SelfBag get_self_bag(Reader& reader) {
+    SelfBag message;
+    message.slots = get_list_8(reader);
+    return message;
+}
+
+void put_skill_cast(Writer& writer, const SkillCast& message) {
+    writer.u16(message.seq);
+    writer.u32(message.source);
+    writer.u16(message.skill);
+    writer.u32(message.target);
+    writer.f32(message.x_cm);
+    writer.f32(message.z_cm);
+    writer.u8(message.level);
+}
+
+[[nodiscard]] SkillCast get_skill_cast(Reader& reader) {
+    SkillCast message;
+    message.seq = reader.u16();
+    message.source = reader.u32();
+    message.skill = reader.u16();
+    message.target = reader.u32();
+    message.x_cm = reader.f32();
+    message.z_cm = reader.f32();
+    message.level = reader.u8();
+    return message;
+}
+
+void put_skill_cast_end(Writer& writer, const SkillCastEnd& message) {
+    writer.u32(message.source);
+    writer.u16(message.skill);
+    writer.boolean(message.interrupted);
+}
+
+[[nodiscard]] SkillCastEnd get_skill_cast_end(Reader& reader) {
+    SkillCastEnd message;
+    message.source = reader.u32();
+    message.skill = reader.u16();
+    message.interrupted = reader.boolean();
+    return message;
+}
+
+void put_combat_event(Writer& writer, const CombatEvent& message) {
+    writer.u32(message.source);
+    writer.u32(message.target);
+    writer.u16(message.skill);
+    put_combat_kind(writer, message.kind);
+    writer.i32(message.value);
+    writer.u8(message.flags);
+}
+
+[[nodiscard]] CombatEvent get_combat_event(Reader& reader) {
+    CombatEvent message;
+    message.source = reader.u32();
+    message.target = reader.u32();
+    message.skill = reader.u16();
+    message.kind = get_combat_kind(reader);
+    message.value = reader.i32();
+    message.flags = reader.u8();
+    return message;
+}
+
+void put_entity_died(Writer& writer, const EntityDied& message) {
+    writer.u32(message.id);
+    writer.u32(message.killer);
+}
+
+[[nodiscard]] EntityDied get_entity_died(Reader& reader) {
+    EntityDied message;
+    message.id = reader.u32();
+    message.killer = reader.u32();
+    return message;
+}
+
+void put_death_notice(Writer& writer, const DeathNotice& message) {
+    writer.u64(message.exp_lost);
+    writer.u64(message.money_lost);
+}
+
+[[nodiscard]] DeathNotice get_death_notice(Reader& reader) {
+    DeathNotice message;
+    message.exp_lost = reader.u64();
+    message.money_lost = reader.u64();
+    return message;
+}
+
+// list:record:SkillEntry, tối đa kSelfSkillsSkillsCount phần tử.
+void put_list_9(Writer& writer, const std::vector<SkillEntry>& values) {
+    writer.count(values.size(), kSelfSkillsSkillsCount);
+    for (const auto& value : values) {
+        put_skill_entry(writer, value);
+    }
+}
+
+[[nodiscard]] std::vector<SkillEntry> get_list_9(Reader& reader) {
+    const std::size_t count = reader.count(kSelfSkillsSkillsCount);
+    std::vector<SkillEntry> values;
+    values.reserve(count);
+    for (std::size_t i = 0; i < count && reader.is_ok(); ++i) {
+        values.push_back(get_skill_entry(reader));
+    }
+    return values;
+}
+
+void put_self_skills(Writer& writer, const SelfSkills& message) {
+    put_list_9(writer, message.skills);
+}
+
+[[nodiscard]] SelfSkills get_self_skills(Reader& reader) {
+    SelfSkills message;
+    message.skills = get_list_9(reader);
+    return message;
+}
+
+void put_skill_cooldown(Writer& writer, const SkillCooldown& message) {
+    writer.u16(message.skill);
+    writer.u32(message.ms);
+}
+
+[[nodiscard]] SkillCooldown get_skill_cooldown(Reader& reader) {
+    SkillCooldown message;
+    message.skill = reader.u16();
+    message.ms = reader.u32();
+    return message;
+}
+
 // Thân phải hết đúng lúc đọc xong trường cuối; lỗi đầu tiên của reader được giữ.
 template <class Message>
 [[nodiscard]] std::expected<Message, WireError> checked(const Reader& reader, Message message) {
@@ -933,6 +1191,11 @@ bool is_valid(AvatarFrame value) noexcept {
 bool is_valid(BonusKind value) noexcept {
     const auto raw = std::to_underlying(value);
     return raw >= 1 && raw <= 5;
+}
+
+bool is_valid(CombatKind value) noexcept {
+    const auto raw = std::to_underlying(value);
+    return raw >= 1 && raw <= 4;
 }
 
 bool is_valid(DialogCloseReason value) noexcept {
@@ -962,7 +1225,7 @@ bool is_valid(EntityState value) noexcept {
 
 bool is_valid(ErrorCode value) noexcept {
     const auto raw = std::to_underlying(value);
-    return raw >= 1 && raw <= 32;
+    return raw >= 1 && raw <= 40;
 }
 
 bool is_valid(Gender value) noexcept {
@@ -983,6 +1246,11 @@ bool is_valid(Platform value) noexcept {
 bool is_valid(QuestNoticeKind value) noexcept {
     const auto raw = std::to_underlying(value);
     return raw >= 1 && raw <= 12;
+}
+
+bool is_valid(RespawnPlace value) noexcept {
+    const auto raw = std::to_underlying(value);
+    return raw >= 1 && raw <= 2;
 }
 
 WireStatus encode(std::vector<std::byte>& out, const Hello& message) {
@@ -1084,6 +1352,24 @@ WireStatus encode(std::vector<std::byte>& out, const DialogClose& message) {
     Writer writer{out};
     put_dialog_close(writer, message);
     return writer.finish(DialogClose::kKind);
+}
+
+WireStatus encode(std::vector<std::byte>& out, const CastSkill& message) {
+    Writer writer{out};
+    put_cast_skill(writer, message);
+    return writer.finish(CastSkill::kKind);
+}
+
+WireStatus encode(std::vector<std::byte>& out, const Respawn& message) {
+    Writer writer{out};
+    put_respawn(writer, message);
+    return writer.finish(Respawn::kKind);
+}
+
+WireStatus encode(std::vector<std::byte>& out, const PickUp& message) {
+    Writer writer{out};
+    put_pick_up(writer, message);
+    return writer.finish(PickUp::kKind);
 }
 
 WireStatus encode(std::vector<std::byte>& out, const Welcome& message) {
@@ -1218,6 +1504,60 @@ WireStatus encode(std::vector<std::byte>& out, const SelfStats& message) {
     return writer.finish(SelfStats::kKind);
 }
 
+WireStatus encode(std::vector<std::byte>& out, const SelfVitals& message) {
+    Writer writer{out};
+    put_self_vitals(writer, message);
+    return writer.finish(SelfVitals::kKind);
+}
+
+WireStatus encode(std::vector<std::byte>& out, const SelfBag& message) {
+    Writer writer{out};
+    put_self_bag(writer, message);
+    return writer.finish(SelfBag::kKind);
+}
+
+WireStatus encode(std::vector<std::byte>& out, const SkillCast& message) {
+    Writer writer{out};
+    put_skill_cast(writer, message);
+    return writer.finish(SkillCast::kKind);
+}
+
+WireStatus encode(std::vector<std::byte>& out, const SkillCastEnd& message) {
+    Writer writer{out};
+    put_skill_cast_end(writer, message);
+    return writer.finish(SkillCastEnd::kKind);
+}
+
+WireStatus encode(std::vector<std::byte>& out, const CombatEvent& message) {
+    Writer writer{out};
+    put_combat_event(writer, message);
+    return writer.finish(CombatEvent::kKind);
+}
+
+WireStatus encode(std::vector<std::byte>& out, const EntityDied& message) {
+    Writer writer{out};
+    put_entity_died(writer, message);
+    return writer.finish(EntityDied::kKind);
+}
+
+WireStatus encode(std::vector<std::byte>& out, const DeathNotice& message) {
+    Writer writer{out};
+    put_death_notice(writer, message);
+    return writer.finish(DeathNotice::kKind);
+}
+
+WireStatus encode(std::vector<std::byte>& out, const SelfSkills& message) {
+    Writer writer{out};
+    put_self_skills(writer, message);
+    return writer.finish(SelfSkills::kKind);
+}
+
+WireStatus encode(std::vector<std::byte>& out, const SkillCooldown& message) {
+    Writer writer{out};
+    put_skill_cooldown(writer, message);
+    return writer.finish(SkillCooldown::kKind);
+}
+
 GameClientResult decode_game_client(const Frame& frame, ByteView body) {
     Reader reader{body};
     switch (frame.kind) {
@@ -1236,6 +1576,9 @@ GameClientResult decode_game_client(const Frame& frame, ByteView body) {
     case QuestTurnIn::kKind: return checked(reader, get_quest_turn_in(reader));
     case QuestAbandon::kKind: return checked(reader, get_quest_abandon(reader));
     case DialogClose::kKind: return checked(reader, get_dialog_close(reader));
+    case CastSkill::kKind: return checked(reader, get_cast_skill(reader));
+    case Respawn::kKind: return checked(reader, get_respawn(reader));
+    case PickUp::kKind: return checked(reader, get_pick_up(reader));
     default: return std::unexpected(WireError::kUnknownKind);
     }
 }
@@ -1264,6 +1607,15 @@ GameServerResult decode_game_server(const Frame& frame, ByteView body) {
     case QuestBook::kKind: return checked(reader, get_quest_book(reader));
     case QuestNotice::kKind: return checked(reader, get_quest_notice(reader));
     case SelfStats::kKind: return checked(reader, get_self_stats(reader));
+    case SelfVitals::kKind: return checked(reader, get_self_vitals(reader));
+    case SelfBag::kKind: return checked(reader, get_self_bag(reader));
+    case SkillCast::kKind: return checked(reader, get_skill_cast(reader));
+    case SkillCastEnd::kKind: return checked(reader, get_skill_cast_end(reader));
+    case CombatEvent::kKind: return checked(reader, get_combat_event(reader));
+    case EntityDied::kKind: return checked(reader, get_entity_died(reader));
+    case DeathNotice::kKind: return checked(reader, get_death_notice(reader));
+    case SelfSkills::kKind: return checked(reader, get_self_skills(reader));
+    case SkillCooldown::kKind: return checked(reader, get_skill_cooldown(reader));
     default: return std::unexpected(WireError::kUnknownKind);
     }
 }

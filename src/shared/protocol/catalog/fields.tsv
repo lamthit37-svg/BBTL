@@ -123,3 +123,47 @@ SelfStats	1	level	u16
 SelfStats	2	exp	u64		Kinh nghiệm hiện có trong cấp.
 SelfStats	3	money	u64		Tiền thường.
 SelfStats	4	bound_money	u64		Tiền khoá.
+SkillEntry	1	skill	u16		Id kỹ năng (cột id của skills.tsv).
+SkillEntry	2	level	u8		Cấp kỹ năng.
+SkillEntry	3	cooldown_ms	u32		Hồi chiêu còn lại, mili giây; 0 là dùng được.
+BagSlot	1	slot	u16		Chỉ số ô trong túi.
+BagSlot	2	item	u32		Mẫu vật phẩm.
+BagSlot	3	count	u16		Số lượng chồng.
+BagSlot	4	bound	bool		Đã khoá (ràng buộc).
+CastSkill	1	seq	u16		Số thứ tự client gán; server chép lại vào SkillCast gửi cho chính người ra chiêu (seq khác 0). Reject không mang seq.
+CastSkill	2	skill	u16		Id kỹ năng.
+CastSkill	3	target	u32		EntityAppear.id của mục tiêu; 0 là không có.
+CastSkill	4	x_cm	f32		Điểm nhắm đất, centimet; chỉ dùng cho chiêu nhắm đất.
+CastSkill	5	z_cm	f32		Điểm nhắm đất, centimet.
+Respawn	1	place	enum:RespawnPlace		
+PickUp	1	drop	u32		EntityAppear.id của vật rơi.
+SelfVitals	1	hp	i32		
+SelfVitals	2	hp_max	i32		
+SelfVitals	3	mp	i32		
+SelfVitals	4	mp_max	i32		
+SelfVitals	5	rage	i32		
+SelfVitals	6	rage_max	i32		
+SelfBag	1	slots	list:record:BagSlot	256	Các ô có đồ; ô trống không gửi.
+SkillCast	1	seq	u16		0 nếu không phải chiêu của chính client nhận tin.
+SkillCast	2	source	u32		Id thực thể ra chiêu.
+SkillCast	3	skill	u16		
+SkillCast	4	target	u32		Id mục tiêu; 0 là không có.
+SkillCast	5	x_cm	f32		Điểm nhắm đất, centimet; bằng toạ độ mục tiêu khi nhắm vào thực thể.
+SkillCast	6	z_cm	f32		
+SkillCast	7	level	u8		Cấp kỹ năng của người ra chiêu.
+SkillCastEnd	1	source	u32		
+SkillCastEnd	2	skill	u16		
+SkillCastEnd	3	interrupted	bool		Bị ngắt giữa chừng.
+CombatEvent	1	source	u32		Id thực thể gây ra; 0 nếu không rõ (hiệu ứng treo).
+CombatEvent	2	target	u32		
+CombatEvent	3	skill	u16		
+CombatEvent	4	kind	enum:CombatKind		
+CombatEvent	5	value	i32		Lượng sát thương hay hồi; 0 với Miss và Immune.
+CombatEvent	6	flags	u8		Bit 0: hội tâm (chí mạng). Bit 1 chừa cho chí mạng phụ.
+EntityDied	1	id	u32		
+EntityDied	2	killer	u32		Id kẻ hạ gục; 0 nếu không rõ.
+DeathNotice	1	exp_lost	u64		
+DeathNotice	2	money_lost	u64		
+SelfSkills	1	skills	list:record:SkillEntry	128	
+SkillCooldown	1	skill	u16		
+SkillCooldown	2	ms	u32		Hồi chiêu mới, mili giây.

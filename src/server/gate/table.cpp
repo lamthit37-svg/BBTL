@@ -738,26 +738,26 @@ void relay_move(Engine& state, const Slot& slot, std::uint32_t index) {
     if (!sent) state.zone.lost = true;
 }
 
-// Tin hội thoại và nhiệm vụ của client (từ bản 5): gate đã giải mã và kiểm hình dạng, phần còn lại (khoảng cách, phiên,
-// luật nhiệm vụ) là việc của zone. Dựng lại khung từ tin đã giải mã thay vì chuyển nguyên byte của client.
-constexpr std::uint16_t kPlaySince = 5;
-
+// Tin chơi của client (hội thoại và nhiệm vụ từ bản 5, chiến đấu từ bản 6): gate đã giải mã và kiểm hình dạng, phần còn
+// lại (khoảng cách, phiên, luật nhiệm vụ, kỹ năng) là việc của zone. Dựng lại khung từ tin đã giải mã thay vì chuyển
+// nguyên byte của client; client khai phiên bản thấp hơn bản đưa ra tin đó là vi phạm.
 void send_reject(Engine& state, Slot& slot, std::uint32_t index, std::uint16_t request, protocol::ErrorCode code);
 
 [[nodiscard]] constexpr bool is_play_kind(std::uint16_t kind) noexcept {
     return kind == protocol::Talk::kKind || kind == protocol::DialogChoose::kKind ||
            kind == protocol::QuestAccept::kKind || kind == protocol::QuestTurnIn::kKind ||
-           kind == protocol::QuestAbandon::kKind || kind == protocol::DialogClose::kKind;
+           kind == protocol::QuestAbandon::kKind || kind == protocol::DialogClose::kKind ||
+           kind == protocol::CastSkill::kKind || kind == protocol::Respawn::kKind || kind == protocol::PickUp::kKind;
 }
 
 void relay_up(Engine& state, Slot& slot, std::uint32_t index, const protocol::GameClientMessage& message) {
-    if (slot.client_version < kPlaySince) {
+    const std::uint16_t kind = std::visit([](const auto& held) { return held.kKind; }, message);
+    if (slot.client_version < protocol::since_of(kind)) {
         send_goodbye(state, slot, index, protocol::DisconnectReason::kProtocolViolation, Drop::kProtocol);
         return;
     }
     if (!slot.attached || !state.zone.link) {
-        send_reject(state, slot, index, std::visit([](const auto& held) { return held.kKind; }, message),
-            protocol::ErrorCode::kOutOfOrder);
+        send_reject(state, slot, index, kind, protocol::ErrorCode::kOutOfOrder);
         return;
     }
     std::vector<std::byte> frame;

@@ -2,7 +2,7 @@
 
 # Danh mục tin của giao thức
 
-Bản danh mục 5: 39 tin, 6 record, 12 enum.
+Bản danh mục 6: 51 tin, 8 record, 14 enum.
 Khung có 8 byte đầu (u32 số byte thân, u16 kind, u16 flags bằng 0), little-endian; thân tối đa 65 536 byte, tin client gửi tối đa 4 096 byte.
 Byte cao của kind là nhóm, bit 15 bật là tin server gửi. Trần của text tính bằng byte UTF-8, trần của list tính bằng số phần tử.
 
@@ -529,6 +529,8 @@ Trạng thái của chính nhân vật: cấp, kinh nghiệm, tiền.
 | Kind | Tin | Cổng | Chiều | Từ bản | Thân tối đa (byte) |
 |---|---|---|---|---|---|
 | `0x8701` | SelfStats | game | server | 5 | 26 |
+| `0x8702` | SelfVitals | game | server | 6 | 24 |
+| `0x8703` | SelfBag | game | server | 6 | 2 306 |
 
 ### SelfStats (0x8701)
 
@@ -543,7 +545,182 @@ Cổng game, server gửi, có từ bản 5. Thân tối đa 26 byte.
 | 3 | `money` | `u64` | – | Tiền thường. |
 | 4 | `bound_money` | `u64` | – | Tiền khoá. |
 
+### SelfVitals (0x8702)
+
+Sinh lực, nội lực và nộ khí thật của chính nhân vật (người khác chỉ thấy phần trăm ở EntityVitals). Gộp, tối đa 5 lần mỗi giây.
+
+Cổng game, server gửi, có từ bản 6. Thân tối đa 24 byte.
+
+| Thứ tự | Trường | Kiểu | Trần | Ghi chú |
+|---|---|---|---|---|
+| 1 | `hp` | `i32` | – | – |
+| 2 | `hp_max` | `i32` | – | – |
+| 3 | `mp` | `i32` | – | – |
+| 4 | `mp_max` | `i32` | – | – |
+| 5 | `rage` | `i32` | – | – |
+| 6 | `rage_max` | `i32` | – | – |
+
+### SelfBag (0x8703)
+
+Ảnh chụp toàn bộ túi đồ của chính nhân vật. Gửi sau SceneEnter và mỗi khi túi đổi.
+
+Cổng game, server gửi, có từ bản 6. Thân tối đa 2 306 byte.
+
+| Thứ tự | Trường | Kiểu | Trần | Ghi chú |
+|---|---|---|---|---|
+| 1 | `slots` | `list:record:BagSlot` | 256 | Các ô có đồ; ô trống không gửi. |
+
+## Nhóm 08: combat
+
+Chiến đấu: ra chiêu, hồi sinh, nhặt đồ; chiêu, số bay, cái chết, sinh lực, kỹ năng và túi của chính nhân vật.
+
+| Kind | Tin | Cổng | Chiều | Từ bản | Thân tối đa (byte) |
+|---|---|---|---|---|---|
+| `0x0801` | CastSkill | game | client | 6 | 16 |
+| `0x0802` | Respawn | game | client | 6 | 1 |
+| `0x0803` | PickUp | game | client | 6 | 4 |
+| `0x8801` | SkillCast | game | server | 6 | 21 |
+| `0x8802` | SkillCastEnd | game | server | 6 | 7 |
+| `0x8803` | CombatEvent | game | server | 6 | 16 |
+| `0x8804` | EntityDied | game | server | 6 | 8 |
+| `0x8805` | DeathNotice | game | server | 6 | 16 |
+| `0x8806` | SelfSkills | game | server | 6 | 898 |
+| `0x8807` | SkillCooldown | game | server | 6 | 6 |
+
+### CastSkill (0x0801)
+
+Ra chiêu (đánh thường cũng là một kỹ năng). Chỉ là ý định: server kiểm đã học, hồi chiêu, tiêu hao, tầm, mục tiêu rồi mới tính; lỗi trả Reject.
+
+Cổng game, client gửi, có từ bản 6. Thân tối đa 16 byte.
+
+| Thứ tự | Trường | Kiểu | Trần | Ghi chú |
+|---|---|---|---|---|
+| 1 | `seq` | `u16` | – | Số thứ tự client gán; server chép lại vào SkillCast gửi cho chính người ra chiêu (seq khác 0). Reject không mang seq. |
+| 2 | `skill` | `u16` | – | Id kỹ năng. |
+| 3 | `target` | `u32` | – | EntityAppear.id của mục tiêu; 0 là không có. |
+| 4 | `x_cm` | `f32` | – | Điểm nhắm đất, centimet; chỉ dùng cho chiêu nhắm đất. |
+| 5 | `z_cm` | `f32` | – | Điểm nhắm đất, centimet. |
+
+### Respawn (0x0802)
+
+Xin hồi sinh khi đã chết, ở thành hay tại chỗ; server áp phạt chết và đặt lại máu.
+
+Cổng game, client gửi, có từ bản 6. Thân tối đa 1 byte.
+
+| Thứ tự | Trường | Kiểu | Trần | Ghi chú |
+|---|---|---|---|---|
+| 1 | `place` | `enum:RespawnPlace` | – | – |
+
+### PickUp (0x0803)
+
+Nhặt một vật rơi trong tầm 3 m; server kiểm luật chủ nhặt.
+
+Cổng game, client gửi, có từ bản 6. Thân tối đa 4 byte.
+
+| Thứ tự | Trường | Kiểu | Trần | Ghi chú |
+|---|---|---|---|---|
+| 1 | `drop` | `u32` | – | EntityAppear.id của vật rơi. |
+
+### SkillCast (0x8801)
+
+Một thực thể bắt đầu ra chiêu: client chạy hành động và hiệu ứng, đạn tự nội suy từ nguồn tới đích. seq khác 0 chỉ khi là chiêu của chính client.
+
+Cổng game, server gửi, có từ bản 6. Thân tối đa 21 byte.
+
+| Thứ tự | Trường | Kiểu | Trần | Ghi chú |
+|---|---|---|---|---|
+| 1 | `seq` | `u16` | – | 0 nếu không phải chiêu của chính client nhận tin. |
+| 2 | `source` | `u32` | – | Id thực thể ra chiêu. |
+| 3 | `skill` | `u16` | – | – |
+| 4 | `target` | `u32` | – | Id mục tiêu; 0 là không có. |
+| 5 | `x_cm` | `f32` | – | Điểm nhắm đất, centimet; bằng toạ độ mục tiêu khi nhắm vào thực thể. |
+| 6 | `z_cm` | `f32` | – | – |
+| 7 | `level` | `u8` | – | Cấp kỹ năng của người ra chiêu. |
+
+### SkillCastEnd (0x8802)
+
+Chiêu gom khí hay dẫn khí kết thúc hoặc bị ngắt.
+
+Cổng game, server gửi, có từ bản 6. Thân tối đa 7 byte.
+
+| Thứ tự | Trường | Kiểu | Trần | Ghi chú |
+|---|---|---|---|---|
+| 1 | `source` | `u32` | – | – |
+| 2 | `skill` | `u16` | – | – |
+| 3 | `interrupted` | `bool` | – | Bị ngắt giữa chừng. |
+
+### CombatEvent (0x8803)
+
+Kết quả của một chiêu lên một mục tiêu: sát thương, hồi, trượt hay miễn nhiễm. Chiêu nhiều mục tiêu gửi nhiều tin.
+
+Cổng game, server gửi, có từ bản 6. Thân tối đa 16 byte.
+
+| Thứ tự | Trường | Kiểu | Trần | Ghi chú |
+|---|---|---|---|---|
+| 1 | `source` | `u32` | – | Id thực thể gây ra; 0 nếu không rõ (hiệu ứng treo). |
+| 2 | `target` | `u32` | – | – |
+| 3 | `skill` | `u16` | – | – |
+| 4 | `kind` | `enum:CombatKind` | – | – |
+| 5 | `value` | `i32` | – | Lượng sát thương hay hồi; 0 với Miss và Immune. |
+| 6 | `flags` | `u8` | – | Bit 0: hội tâm (chí mạng). Bit 1 chừa cho chí mạng phụ. |
+
+### EntityDied (0x8804)
+
+Một thực thể chết; xác còn lại một lúc rồi mới có EntityDisappear.
+
+Cổng game, server gửi, có từ bản 6. Thân tối đa 8 byte.
+
+| Thứ tự | Trường | Kiểu | Trần | Ghi chú |
+|---|---|---|---|---|
+| 1 | `id` | `u32` | – | – |
+| 2 | `killer` | `u32` | – | Id kẻ hạ gục; 0 nếu không rõ. |
+
+### DeathNotice (0x8805)
+
+Gửi riêng người chơi vừa chết: kinh nghiệm và tiền mất, để dựng bảng hồi sinh.
+
+Cổng game, server gửi, có từ bản 6. Thân tối đa 16 byte.
+
+| Thứ tự | Trường | Kiểu | Trần | Ghi chú |
+|---|---|---|---|---|
+| 1 | `exp_lost` | `u64` | – | – |
+| 2 | `money_lost` | `u64` | – | – |
+
+### SelfSkills (0x8806)
+
+Các kỹ năng đã học của chính nhân vật kèm hồi chiêu còn lại. Gửi sau SceneEnter và mỗi khi đổi.
+
+Cổng game, server gửi, có từ bản 6. Thân tối đa 898 byte.
+
+| Thứ tự | Trường | Kiểu | Trần | Ghi chú |
+|---|---|---|---|---|
+| 1 | `skills` | `list:record:SkillEntry` | 128 | – |
+
+### SkillCooldown (0x8807)
+
+Hồi chiêu mới của một kỹ năng sau khi ra chiêu thành công, để client vẽ nhịp hồi.
+
+Cổng game, server gửi, có từ bản 6. Thân tối đa 6 byte.
+
+| Thứ tự | Trường | Kiểu | Trần | Ghi chú |
+|---|---|---|---|---|
+| 1 | `skill` | `u16` | – | – |
+| 2 | `ms` | `u32` | – | Hồi chiêu mới, mili giây. |
+
 ## Record
+
+### BagSlot
+
+Một ô của túi đồ.
+
+Thân tối đa 9 byte.
+
+| Thứ tự | Trường | Kiểu | Trần | Ghi chú |
+|---|---|---|---|---|
+| 1 | `slot` | `u16` | – | Chỉ số ô trong túi. |
+| 2 | `item` | `u32` | – | Mẫu vật phẩm. |
+| 3 | `count` | `u16` | – | Số lượng chồng. |
+| 4 | `bound` | `bool` | – | Đã khoá (ràng buộc). |
 
 ### CharacterSummary
 
@@ -621,6 +798,18 @@ Thân tối đa 41 byte.
 | 3 | `flags` | `u8` | – | Bit 1 giết, 2 vùng, 4 vật phẩm: loại sự kiện nhiệm vụ này theo dõi. |
 | 4 | `params` | `list:u32` | 8 | Tám tham số của ô; nhiệm vụ bảng: tham số 0 là cờ đủ điều kiện nộp, 1 + i là tiến độ mục tiêu i. |
 
+### SkillEntry
+
+Một kỹ năng đã học của chính nhân vật, kèm hồi chiêu còn lại.
+
+Thân tối đa 7 byte.
+
+| Thứ tự | Trường | Kiểu | Trần | Ghi chú |
+|---|---|---|---|---|
+| 1 | `skill` | `u16` | – | Id kỹ năng (cột id của skills.tsv). |
+| 2 | `level` | `u8` | – | Cấp kỹ năng. |
+| 3 | `cooldown_ms` | `u32` | – | Hồi chiêu còn lại, mili giây; 0 là dùng được. |
+
 ## Enum
 
 Giá trị ngoài bảng là lỗi kBadEnum ở cả hai chiều.
@@ -641,6 +830,15 @@ Giá trị ngoài bảng là lỗi kBadEnum ở cả hai chiều.
 | 3 | `kRadio` | – |
 | 4 | `kRandom` | – |
 | 5 | `kDemand` | – |
+
+### CombatKind (u8)
+
+| Giá trị | Tên | Ghi chú |
+|---|---|---|
+| 1 | `kDamage` | – |
+| 2 | `kHeal` | – |
+| 3 | `kMiss` | – |
+| 4 | `kImmune` | – |
 
 ### DialogCloseReason (u8)
 
@@ -735,6 +933,14 @@ Giá trị ngoài bảng là lỗi kBadEnum ở cả hai chiều.
 | 30 | `kBadChoice` | – |
 | 31 | `kOutOfRange` | – |
 | 32 | `kCannotAttack` | – |
+| 33 | `kNotLearned` | – |
+| 34 | `kCooldown` | – |
+| 35 | `kNotEnoughMana` | – |
+| 36 | `kNotEnoughRage` | – |
+| 37 | `kBadTarget` | – |
+| 38 | `kDead` | – |
+| 39 | `kNotDead` | – |
+| 40 | `kNotYours` | – |
 
 ### Gender (u8)
 
@@ -775,3 +981,10 @@ Giá trị ngoài bảng là lỗi kBadEnum ở cả hai chiều.
 | 10 | `kRewardMoney` | – |
 | 11 | `kRewardItem` | – |
 | 12 | `kRelation` | – |
+
+### RespawnPlace (u8)
+
+| Giá trị | Tên | Ghi chú |
+|---|---|---|
+| 1 | `kTown` | – |
+| 2 | `kHere` | – |

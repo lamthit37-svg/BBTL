@@ -33,7 +33,7 @@
 namespace game::protocol {
 
 // Bản của danh mục; tin có since lớn hơn bản bên kia đang chạy thì bên kia chưa hiểu.
-inline constexpr std::uint16_t kVersion = 5;
+inline constexpr std::uint16_t kVersion = 6;
 
 enum class AvatarFrame : std::uint8_t {
     kRound = 1,
@@ -46,6 +46,13 @@ enum class BonusKind : std::uint8_t {
     kRadio = 3,
     kRandom = 4,
     kDemand = 5,
+};
+
+enum class CombatKind : std::uint8_t {
+    kDamage = 1,
+    kHeal = 2,
+    kMiss = 3,
+    kImmune = 4,
 };
 
 enum class DialogCloseReason : std::uint8_t {
@@ -129,6 +136,14 @@ enum class ErrorCode : std::uint16_t {
     kBadChoice = 30,
     kOutOfRange = 31,
     kCannotAttack = 32,
+    kNotLearned = 33,
+    kCooldown = 34,
+    kNotEnoughMana = 35,
+    kNotEnoughRage = 36,
+    kBadTarget = 37,
+    kDead = 38,
+    kNotDead = 39,
+    kNotYours = 40,
 };
 
 enum class Gender : std::uint8_t {
@@ -163,9 +178,15 @@ enum class QuestNoticeKind : std::uint8_t {
     kRelation = 12,
 };
 
+enum class RespawnPlace : std::uint8_t {
+    kTown = 1,
+    kHere = 2,
+};
+
 // Giá trị có trong bảng enum; giải mã gặp giá trị lạ là kBadEnum, mã hoá cũng vậy.
 [[nodiscard]] bool is_valid(AvatarFrame value) noexcept;
 [[nodiscard]] bool is_valid(BonusKind value) noexcept;
+[[nodiscard]] bool is_valid(CombatKind value) noexcept;
 [[nodiscard]] bool is_valid(DialogCloseReason value) noexcept;
 [[nodiscard]] bool is_valid(DialogMode value) noexcept;
 [[nodiscard]] bool is_valid(DisconnectReason value) noexcept;
@@ -176,6 +197,7 @@ enum class QuestNoticeKind : std::uint8_t {
 [[nodiscard]] bool is_valid(MarkStage value) noexcept;
 [[nodiscard]] bool is_valid(Platform value) noexcept;
 [[nodiscard]] bool is_valid(QuestNoticeKind value) noexcept;
+[[nodiscard]] bool is_valid(RespawnPlace value) noexcept;
 
 // Trần của từng trường: số byte của text và bytes, số phần tử của list.
 inline constexpr std::size_t kCharacterSummaryNameBytes = 48;
@@ -203,6 +225,21 @@ inline constexpr std::size_t kDialogOpenBonusesCount = 24;
 inline constexpr std::size_t kQuestBookSlotsCount = 20;
 inline constexpr std::size_t kQuestBookDoneBytes = 512;
 inline constexpr std::size_t kQuestNoticeTextBytes = 512;
+inline constexpr std::size_t kSelfBagSlotsCount = 256;
+inline constexpr std::size_t kSelfSkillsSkillsCount = 128;
+
+// Record: Một ô của túi đồ.
+struct BagSlot {
+    // Chỉ số ô trong túi.
+    std::uint16_t slot = 0;
+    // Mẫu vật phẩm.
+    std::uint32_t item = 0;
+    // Số lượng chồng.
+    std::uint16_t count = 0;
+    // Đã khoá (ràng buộc).
+    bool bound = false;
+    friend bool operator==(const BagSlot&, const BagSlot&) = default;
+};
 
 // Record: Tóm tắt một nhân vật trong danh sách chọn nhân vật.
 struct CharacterSummary {
@@ -271,6 +308,17 @@ struct QuestSlot {
     // Tám tham số của ô; nhiệm vụ bảng: tham số 0 là cờ đủ điều kiện nộp, 1 + i là tiến độ mục tiêu i.
     std::vector<std::uint32_t> params;
     friend bool operator==(const QuestSlot&, const QuestSlot&) = default;
+};
+
+// Record: Một kỹ năng đã học của chính nhân vật, kèm hồi chiêu còn lại.
+struct SkillEntry {
+    // Id kỹ năng (cột id của skills.tsv).
+    std::uint16_t skill = 0;
+    // Cấp kỹ năng.
+    std::uint8_t level = 0;
+    // Hồi chiêu còn lại, mili giây; 0 là dùng được.
+    std::uint32_t cooldown_ms = 0;
+    friend bool operator==(const SkillEntry&, const SkillEntry&) = default;
 };
 
 // 0x0101, client gửi, cổng both, từ bản 1: Tin đầu tiên của mọi kết nối, báo phiên bản giao thức, nền tảng và bản dựng
@@ -433,6 +481,40 @@ struct DialogClose {
     static constexpr std::uint16_t kKind = 0x0606;
     std::uint64_t session = 0;
     friend bool operator==(const DialogClose&, const DialogClose&) = default;
+};
+
+// 0x0801, client gửi, cổng game, từ bản 6: Ra chiêu (đánh thường cũng là một kỹ năng). Chỉ là ý định: server kiểm đã
+// học, hồi chiêu, tiêu hao, tầm, mục tiêu rồi mới tính; lỗi trả Reject.
+struct CastSkill {
+    static constexpr std::uint16_t kKind = 0x0801;
+    // Số thứ tự client gán; server chép lại vào SkillCast gửi cho chính người ra chiêu (seq khác 0). Reject không mang
+    // seq.
+    std::uint16_t seq = 0;
+    // Id kỹ năng.
+    std::uint16_t skill = 0;
+    // EntityAppear.id của mục tiêu; 0 là không có.
+    std::uint32_t target = 0;
+    // Điểm nhắm đất, centimet; chỉ dùng cho chiêu nhắm đất.
+    float x_cm = 0.0F;
+    // Điểm nhắm đất, centimet.
+    float z_cm = 0.0F;
+    friend bool operator==(const CastSkill&, const CastSkill&) = default;
+};
+
+// 0x0802, client gửi, cổng game, từ bản 6: Xin hồi sinh khi đã chết, ở thành hay tại chỗ; server áp phạt chết và đặt
+// lại máu.
+struct Respawn {
+    static constexpr std::uint16_t kKind = 0x0802;
+    RespawnPlace place = RespawnPlace::kTown;
+    friend bool operator==(const Respawn&, const Respawn&) = default;
+};
+
+// 0x0803, client gửi, cổng game, từ bản 6: Nhặt một vật rơi trong tầm 3 m; server kiểm luật chủ nhặt.
+struct PickUp {
+    static constexpr std::uint16_t kKind = 0x0803;
+    // EntityAppear.id của vật rơi.
+    std::uint32_t drop = 0;
+    friend bool operator==(const PickUp&, const PickUp&) = default;
 };
 
 // 0x8101, server gửi, cổng both, từ bản 1: Server đáp Hello: phiên bản giao thức, giờ server và chu kỳ nhịp tim.
@@ -708,12 +790,116 @@ struct SelfStats {
     friend bool operator==(const SelfStats&, const SelfStats&) = default;
 };
 
+// 0x8702, server gửi, cổng game, từ bản 6: Sinh lực, nội lực và nộ khí thật của chính nhân vật (người khác chỉ thấy
+// phần trăm ở EntityVitals). Gộp, tối đa 5 lần mỗi giây.
+struct SelfVitals {
+    static constexpr std::uint16_t kKind = 0x8702;
+    std::int32_t hp = 0;
+    std::int32_t hp_max = 0;
+    std::int32_t mp = 0;
+    std::int32_t mp_max = 0;
+    std::int32_t rage = 0;
+    std::int32_t rage_max = 0;
+    friend bool operator==(const SelfVitals&, const SelfVitals&) = default;
+};
+
+// 0x8703, server gửi, cổng game, từ bản 6: Ảnh chụp toàn bộ túi đồ của chính nhân vật. Gửi sau SceneEnter và mỗi khi
+// túi đổi.
+struct SelfBag {
+    static constexpr std::uint16_t kKind = 0x8703;
+    // Các ô có đồ; ô trống không gửi.
+    std::vector<BagSlot> slots;
+    friend bool operator==(const SelfBag&, const SelfBag&) = default;
+};
+
+// 0x8801, server gửi, cổng game, từ bản 6: Một thực thể bắt đầu ra chiêu: client chạy hành động và hiệu ứng, đạn tự nội
+// suy từ nguồn tới đích. seq khác 0 chỉ khi là chiêu của chính client.
+struct SkillCast {
+    static constexpr std::uint16_t kKind = 0x8801;
+    // 0 nếu không phải chiêu của chính client nhận tin.
+    std::uint16_t seq = 0;
+    // Id thực thể ra chiêu.
+    std::uint32_t source = 0;
+    std::uint16_t skill = 0;
+    // Id mục tiêu; 0 là không có.
+    std::uint32_t target = 0;
+    // Điểm nhắm đất, centimet; bằng toạ độ mục tiêu khi nhắm vào thực thể.
+    float x_cm = 0.0F;
+    float z_cm = 0.0F;
+    // Cấp kỹ năng của người ra chiêu.
+    std::uint8_t level = 0;
+    friend bool operator==(const SkillCast&, const SkillCast&) = default;
+};
+
+// 0x8802, server gửi, cổng game, từ bản 6: Chiêu gom khí hay dẫn khí kết thúc hoặc bị ngắt.
+struct SkillCastEnd {
+    static constexpr std::uint16_t kKind = 0x8802;
+    std::uint32_t source = 0;
+    std::uint16_t skill = 0;
+    // Bị ngắt giữa chừng.
+    bool interrupted = false;
+    friend bool operator==(const SkillCastEnd&, const SkillCastEnd&) = default;
+};
+
+// 0x8803, server gửi, cổng game, từ bản 6: Kết quả của một chiêu lên một mục tiêu: sát thương, hồi, trượt hay miễn
+// nhiễm. Chiêu nhiều mục tiêu gửi nhiều tin.
+struct CombatEvent {
+    static constexpr std::uint16_t kKind = 0x8803;
+    // Id thực thể gây ra; 0 nếu không rõ (hiệu ứng treo).
+    std::uint32_t source = 0;
+    std::uint32_t target = 0;
+    std::uint16_t skill = 0;
+    CombatKind kind = CombatKind::kDamage;
+    // Lượng sát thương hay hồi; 0 với Miss và Immune.
+    std::int32_t value = 0;
+    // Bit 0: hội tâm (chí mạng). Bit 1 chừa cho chí mạng phụ.
+    std::uint8_t flags = 0;
+    friend bool operator==(const CombatEvent&, const CombatEvent&) = default;
+};
+
+// 0x8804, server gửi, cổng game, từ bản 6: Một thực thể chết; xác còn lại một lúc rồi mới có EntityDisappear.
+struct EntityDied {
+    static constexpr std::uint16_t kKind = 0x8804;
+    std::uint32_t id = 0;
+    // Id kẻ hạ gục; 0 nếu không rõ.
+    std::uint32_t killer = 0;
+    friend bool operator==(const EntityDied&, const EntityDied&) = default;
+};
+
+// 0x8805, server gửi, cổng game, từ bản 6: Gửi riêng người chơi vừa chết: kinh nghiệm và tiền mất, để dựng bảng hồi
+// sinh.
+struct DeathNotice {
+    static constexpr std::uint16_t kKind = 0x8805;
+    std::uint64_t exp_lost = 0;
+    std::uint64_t money_lost = 0;
+    friend bool operator==(const DeathNotice&, const DeathNotice&) = default;
+};
+
+// 0x8806, server gửi, cổng game, từ bản 6: Các kỹ năng đã học của chính nhân vật kèm hồi chiêu còn lại. Gửi sau
+// SceneEnter và mỗi khi đổi.
+struct SelfSkills {
+    static constexpr std::uint16_t kKind = 0x8806;
+    std::vector<SkillEntry> skills;
+    friend bool operator==(const SelfSkills&, const SelfSkills&) = default;
+};
+
+// 0x8807, server gửi, cổng game, từ bản 6: Hồi chiêu mới của một kỹ năng sau khi ra chiêu thành công, để client vẽ nhịp
+// hồi.
+struct SkillCooldown {
+    static constexpr std::uint16_t kKind = 0x8807;
+    std::uint16_t skill = 0;
+    // Hồi chiêu mới, mili giây.
+    std::uint32_t ms = 0;
+    friend bool operator==(const SkillCooldown&, const SkillCooldown&) = default;
+};
+
 using GameClientMessage = std::variant<Hello, Login, Resume, Ping, Logout, CreateCharacter, DeleteCharacter, EnterGame,
-    Move, Talk, DialogChoose, QuestAccept, QuestTurnIn, QuestAbandon, DialogClose>;
+    Move, Talk, DialogChoose, QuestAccept, QuestTurnIn, QuestAbandon, DialogClose, CastSkill, Respawn, PickUp>;
 using GameClientResult = std::expected<GameClientMessage, WireError>;
 using GameServerMessage = std::variant<Welcome, SessionStart, ContentKey, Pong, Reject, Goodbye, ContentStamp, UiConfig,
     CharacterList, Position, SceneEnter, EntityAppear, EntityDisappear, EntityPos, EntityVitals, EntityFlags,
-    DialogOpen, DialogClosed, QuestBook, QuestNotice, SelfStats>;
+    DialogOpen, DialogClosed, QuestBook, QuestNotice, SelfStats, SelfVitals, SelfBag, SkillCast, SkillCastEnd,
+    CombatEvent, EntityDied, DeathNotice, SelfSkills, SkillCooldown>;
 using GameServerResult = std::expected<GameServerMessage, WireError>;
 using AuthClientMessage = std::variant<Hello, CreateAccount, SignIn>;
 using AuthClientResult = std::expected<AuthClientMessage, WireError>;
@@ -738,6 +924,9 @@ using AuthServerResult = std::expected<AuthServerMessage, WireError>;
 [[nodiscard]] WireStatus encode(std::vector<std::byte>& out, const QuestTurnIn& message);
 [[nodiscard]] WireStatus encode(std::vector<std::byte>& out, const QuestAbandon& message);
 [[nodiscard]] WireStatus encode(std::vector<std::byte>& out, const DialogClose& message);
+[[nodiscard]] WireStatus encode(std::vector<std::byte>& out, const CastSkill& message);
+[[nodiscard]] WireStatus encode(std::vector<std::byte>& out, const Respawn& message);
+[[nodiscard]] WireStatus encode(std::vector<std::byte>& out, const PickUp& message);
 [[nodiscard]] WireStatus encode(std::vector<std::byte>& out, const Welcome& message);
 [[nodiscard]] WireStatus encode(std::vector<std::byte>& out, const SessionStart& message);
 [[nodiscard]] WireStatus encode(std::vector<std::byte>& out, const ContentKey& message);
@@ -760,6 +949,15 @@ using AuthServerResult = std::expected<AuthServerMessage, WireError>;
 [[nodiscard]] WireStatus encode(std::vector<std::byte>& out, const QuestBook& message);
 [[nodiscard]] WireStatus encode(std::vector<std::byte>& out, const QuestNotice& message);
 [[nodiscard]] WireStatus encode(std::vector<std::byte>& out, const SelfStats& message);
+[[nodiscard]] WireStatus encode(std::vector<std::byte>& out, const SelfVitals& message);
+[[nodiscard]] WireStatus encode(std::vector<std::byte>& out, const SelfBag& message);
+[[nodiscard]] WireStatus encode(std::vector<std::byte>& out, const SkillCast& message);
+[[nodiscard]] WireStatus encode(std::vector<std::byte>& out, const SkillCastEnd& message);
+[[nodiscard]] WireStatus encode(std::vector<std::byte>& out, const CombatEvent& message);
+[[nodiscard]] WireStatus encode(std::vector<std::byte>& out, const EntityDied& message);
+[[nodiscard]] WireStatus encode(std::vector<std::byte>& out, const DeathNotice& message);
+[[nodiscard]] WireStatus encode(std::vector<std::byte>& out, const SelfSkills& message);
+[[nodiscard]] WireStatus encode(std::vector<std::byte>& out, const SkillCooldown& message);
 
 // Giải mã thân của một khung đã tách bằng peek_frame. Kind không thuộc cổng hoặc chiều của bộ giải mã là kUnknownKind;
 // còn byte sau trường cuối là kTrailingBytes.
@@ -810,6 +1008,18 @@ using AuthServerResult = std::expected<AuthServerMessage, WireError>;
     case 0x8603:
     case 0x8604:
     case 0x8701: return 5;
+    case 0x0801:
+    case 0x0802:
+    case 0x0803:
+    case 0x8702:
+    case 0x8703:
+    case 0x8801:
+    case 0x8802:
+    case 0x8803:
+    case 0x8804:
+    case 0x8805:
+    case 0x8806:
+    case 0x8807: return 6;
     default: return 0;
     }
 }

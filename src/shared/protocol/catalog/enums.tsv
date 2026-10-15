@@ -39,6 +39,14 @@ ErrorCode	u16	29	CannotAbandon
 ErrorCode	u16	30	BadChoice	
 ErrorCode	u16	31	OutOfRange	
 ErrorCode	u16	32	CannotAttack	
+ErrorCode	u16	33	NotLearned	
+ErrorCode	u16	34	Cooldown	
+ErrorCode	u16	35	NotEnoughMana	
+ErrorCode	u16	36	NotEnoughRage	
+ErrorCode	u16	37	BadTarget	
+ErrorCode	u16	38	Dead	
+ErrorCode	u16	39	NotDead	
+ErrorCode	u16	40	NotYours	
 DisconnectReason	u8	1	LoggedOut	
 DisconnectReason	u8	2	LoginElsewhere	
 DisconnectReason	u8	3	Idle	
@@ -93,3 +101,9 @@ QuestNoticeKind	u8	9	RewardExp
 QuestNoticeKind	u8	10	RewardMoney	
 QuestNoticeKind	u8	11	RewardItem	
 QuestNoticeKind	u8	12	Relation	
+CombatKind	u8	1	Damage	
+CombatKind	u8	2	Heal	
+CombatKind	u8	3	Miss	
+CombatKind	u8	4	Immune	
+RespawnPlace	u8	1	Town	
+RespawnPlace	u8	2	Here	
