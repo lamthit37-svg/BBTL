@@ -5,6 +5,28 @@ Chủ dự án chốt ngày 2026-10-15: thay việc port tay từng cửa sổ (
 mang ngữ nghĩa Lua (kiểu động), không phải C++ viết tay; không nhúng máy Lua. Bảy cửa sổ đã port tay giữ nguyên; số vàng
 của chúng thành ca kiểm thêm.
 
+## Đổi hướng 2026-10-15: máy ảo bytecode thay mã C++ sinh
+
+Chủ dự án chốt cùng ngày, sau khi xem số đo cỡ mã (mục "Cỡ mã sinh"): "Quyết định lại của tôi là tối ưu lua. cho phần xử lý
+giao diện này, có thể nâng cấp lua đời mới hay cái gì bớt công sức thì làm và tốt hơn"; "cái đã làm giữ lại vào mã ref".
+
+- Lớp A không sinh C++ nữa. Script dịch lúc dựng (Python, bộ phân tích của `TOOLS/port/luagen`) ra bytecode gọn; client chạy
+  bytecode bằng một vòng thông dịch C++ trong module `lua`, gọi đúng các phép của `vm.hpp` mà runtime đã đối soát (10 835 ca).
+  Không trình biên dịch Lua nào trong client (0 script dùng `loadstring`, `dofile`).
+- Vì sao không nâng lên Lua đời mới (Lua 5.4, LuaJIT, Luau): script là phương ngữ LuaPlus 5.0.1 (`continue`, `^` là XOR,
+  bảng `arg`, `table.getn`, `string.gfind`, `math.mod`, đọc trường trên nil không lỗi). Lên bản mới phải viết lại nghĩa của
+  3 173 tệp và mất phép đối soát từng byte: thứ tự `pairs`, định dạng số, thư viện chuẩn đều khác. Phần đã có (bộ phân tích
+  khớp 24 942/24 942 chunk, runtime khớp 10 835 ca, trọng tài 2 060 đơn vị) chỉ dùng được cho đúng phương ngữ này.
+  Kiến trúc thì như cách hiện đại (Luau, Unreal sau khi bỏ Blueprint Nativization): bytecode và máy thông dịch cho mọi script,
+  mã máy chỉ cho hàm nóng đã đo — bộ phát C++ giữ ở mã tham khảo làm tầng ấy nếu cần.
+- Mã tham khảo: bộ phát C++ (`emit.py`, `generate.py`, test của nó) dời vào `TOOLS/port/luagen/ref_cpp/`, không dựng, không
+  vào ctest; ghi chú trạng thái và số đo ở `ref_cpp/GHI-CHU.md`.
+- Đối soát giữ nguyên: `thienlong_lua_mass` chạy bytecode thay mã sinh, cùng vết, cùng `oracle.tsv`.
+- Ngân sách: bytecode cả kho và máy thông dịch nhỏ hơn nguồn Lua (27,5 MB); `thienlong_lua_mass` chạy cả kho không chậm hơn
+  trọng tài trên LuaPlus.dll (6,7 s cả phần Python, đo 2026-10-15). Đo bằng số, ghi vào đây.
+
+Các mục dưới đây nói "mã sinh", "bộ phát C++" là của hướng cũ; phần ngôn ngữ nguồn, runtime, đối soát, lớp B và C vẫn đúng.
+
 ## Ba lớp
 
 | Lớp | Việc | Thế nào là đúng |
