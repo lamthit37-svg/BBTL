@@ -74,6 +74,39 @@ void put_avatar_frame(Writer& writer, AvatarFrame value) {
     return value;
 }
 
+void put_bonus_kind(Writer& writer, BonusKind value) {
+    if (!is_valid(value)) writer.fail(WireError::kBadEnum);
+    writer.u8(std::to_underlying(value));
+}
+
+[[nodiscard]] BonusKind get_bonus_kind(Reader& reader) {
+    const auto value = static_cast<BonusKind>(reader.u8());
+    if (!is_valid(value)) reader.fail(WireError::kBadEnum);
+    return value;
+}
+
+void put_dialog_close_reason(Writer& writer, DialogCloseReason value) {
+    if (!is_valid(value)) writer.fail(WireError::kBadEnum);
+    writer.u8(std::to_underlying(value));
+}
+
+[[nodiscard]] DialogCloseReason get_dialog_close_reason(Reader& reader) {
+    const auto value = static_cast<DialogCloseReason>(reader.u8());
+    if (!is_valid(value)) reader.fail(WireError::kBadEnum);
+    return value;
+}
+
+void put_dialog_mode(Writer& writer, DialogMode value) {
+    if (!is_valid(value)) writer.fail(WireError::kBadEnum);
+    writer.u8(std::to_underlying(value));
+}
+
+[[nodiscard]] DialogMode get_dialog_mode(Reader& reader) {
+    const auto value = static_cast<DialogMode>(reader.u8());
+    if (!is_valid(value)) reader.fail(WireError::kBadEnum);
+    return value;
+}
+
 void put_disconnect_reason(Writer& writer, DisconnectReason value) {
     if (!is_valid(value)) writer.fail(WireError::kBadEnum);
     writer.u8(std::to_underlying(value));
@@ -129,6 +162,17 @@ void put_gender(Writer& writer, Gender value) {
     return value;
 }
 
+void put_mark_stage(Writer& writer, MarkStage value) {
+    if (!is_valid(value)) writer.fail(WireError::kBadEnum);
+    writer.u8(std::to_underlying(value));
+}
+
+[[nodiscard]] MarkStage get_mark_stage(Reader& reader) {
+    const auto value = static_cast<MarkStage>(reader.u8());
+    if (!is_valid(value)) reader.fail(WireError::kBadEnum);
+    return value;
+}
+
 void put_platform(Writer& writer, Platform value) {
     if (!is_valid(value)) writer.fail(WireError::kBadEnum);
     writer.u8(std::to_underlying(value));
@@ -136,6 +180,17 @@ void put_platform(Writer& writer, Platform value) {
 
 [[nodiscard]] Platform get_platform(Reader& reader) {
     const auto value = static_cast<Platform>(reader.u8());
+    if (!is_valid(value)) reader.fail(WireError::kBadEnum);
+    return value;
+}
+
+void put_quest_notice_kind(Writer& writer, QuestNoticeKind value) {
+    if (!is_valid(value)) writer.fail(WireError::kBadEnum);
+    writer.u8(std::to_underlying(value));
+}
+
+[[nodiscard]] QuestNoticeKind get_quest_notice_kind(Reader& reader) {
+    const auto value = static_cast<QuestNoticeKind>(reader.u8());
     if (!is_valid(value)) reader.fail(WireError::kBadEnum);
     return value;
 }
@@ -161,6 +216,92 @@ void put_character_summary(Writer& writer, const CharacterSummary& message) {
     message.hair = reader.u16();
     message.school = reader.u8();
     message.scene = reader.u16();
+    return message;
+}
+
+void put_dialog_bonus(Writer& writer, const DialogBonus& message) {
+    put_bonus_kind(writer, message.kind);
+    writer.i32(message.a);
+    writer.i32(message.b);
+    writer.i32(message.c);
+}
+
+[[nodiscard]] DialogBonus get_dialog_bonus(Reader& reader) {
+    DialogBonus message;
+    message.kind = get_bonus_kind(reader);
+    message.a = reader.i32();
+    message.b = reader.i32();
+    message.c = reader.i32();
+    return message;
+}
+
+void put_dialog_choice(Writer& writer, const DialogChoice& message) {
+    writer.u16(message.index);
+    writer.i32(message.icon);
+    writer.text(message.text, kDialogChoiceTextBytes);
+}
+
+[[nodiscard]] DialogChoice get_dialog_choice(Reader& reader) {
+    DialogChoice message;
+    message.index = reader.u16();
+    message.icon = reader.i32();
+    message.text = reader.text(kDialogChoiceTextBytes);
+    return message;
+}
+
+void put_dialog_line(Writer& writer, const DialogLine& message) {
+    writer.text(message.text, kDialogLineTextBytes);
+}
+
+[[nodiscard]] DialogLine get_dialog_line(Reader& reader) {
+    DialogLine message;
+    message.text = reader.text(kDialogLineTextBytes);
+    return message;
+}
+
+void put_dialog_mark(Writer& writer, const DialogMark& message) {
+    writer.u16(message.quest);
+    put_mark_stage(writer, message.stage);
+}
+
+[[nodiscard]] DialogMark get_dialog_mark(Reader& reader) {
+    DialogMark message;
+    message.quest = reader.u16();
+    message.stage = get_mark_stage(reader);
+    return message;
+}
+
+// list:u32, tối đa kQuestSlotParamsCount phần tử.
+void put_list_1(Writer& writer, const std::vector<std::uint32_t>& values) {
+    writer.count(values.size(), kQuestSlotParamsCount);
+    for (const auto& value : values) {
+        writer.u32(value);
+    }
+}
+
+[[nodiscard]] std::vector<std::uint32_t> get_list_1(Reader& reader) {
+    const std::size_t count = reader.count(kQuestSlotParamsCount);
+    std::vector<std::uint32_t> values;
+    values.reserve(count);
+    for (std::size_t i = 0; i < count && reader.is_ok(); ++i) {
+        values.push_back(reader.u32());
+    }
+    return values;
+}
+
+void put_quest_slot(Writer& writer, const QuestSlot& message) {
+    writer.u16(message.quest);
+    writer.i32(message.script);
+    writer.u8(message.flags);
+    put_list_1(writer, message.params);
+}
+
+[[nodiscard]] QuestSlot get_quest_slot(Reader& reader) {
+    QuestSlot message;
+    message.quest = reader.u16();
+    message.script = reader.i32();
+    message.flags = reader.u8();
+    message.params = get_list_1(reader);
     return message;
 }
 
@@ -284,6 +425,74 @@ void put_sign_in(Writer& writer, const SignIn& message) {
     return message;
 }
 
+void put_talk(Writer& writer, const Talk& message) {
+    writer.u32(message.npc);
+}
+
+[[nodiscard]] Talk get_talk(Reader& reader) {
+    Talk message;
+    message.npc = reader.u32();
+    return message;
+}
+
+void put_dialog_choose(Writer& writer, const DialogChoose& message) {
+    writer.u64(message.session);
+    writer.u16(message.index);
+}
+
+[[nodiscard]] DialogChoose get_dialog_choose(Reader& reader) {
+    DialogChoose message;
+    message.session = reader.u64();
+    message.index = reader.u16();
+    return message;
+}
+
+void put_quest_accept(Writer& writer, const QuestAccept& message) {
+    writer.u64(message.session);
+    writer.u16(message.quest);
+}
+
+[[nodiscard]] QuestAccept get_quest_accept(Reader& reader) {
+    QuestAccept message;
+    message.session = reader.u64();
+    message.quest = reader.u16();
+    return message;
+}
+
+void put_quest_turn_in(Writer& writer, const QuestTurnIn& message) {
+    writer.u64(message.session);
+    writer.u16(message.quest);
+    writer.i32(message.reward);
+}
+
+[[nodiscard]] QuestTurnIn get_quest_turn_in(Reader& reader) {
+    QuestTurnIn message;
+    message.session = reader.u64();
+    message.quest = reader.u16();
+    message.reward = reader.i32();
+    return message;
+}
+
+void put_quest_abandon(Writer& writer, const QuestAbandon& message) {
+    writer.u16(message.quest);
+}
+
+[[nodiscard]] QuestAbandon get_quest_abandon(Reader& reader) {
+    QuestAbandon message;
+    message.quest = reader.u16();
+    return message;
+}
+
+void put_dialog_close(Writer& writer, const DialogClose& message) {
+    writer.u64(message.session);
+}
+
+[[nodiscard]] DialogClose get_dialog_close(Reader& reader) {
+    DialogClose message;
+    message.session = reader.u64();
+    return message;
+}
+
 void put_welcome(Writer& writer, const Welcome& message) {
     writer.u16(message.version);
     put_millis64(writer, message.server_time);
@@ -373,14 +582,14 @@ void put_ui_config(Writer& writer, const UiConfig& message) {
 }
 
 // list:record:CharacterSummary, tối đa kCharacterListCharactersCount phần tử.
-void put_list_1(Writer& writer, const std::vector<CharacterSummary>& values) {
+void put_list_2(Writer& writer, const std::vector<CharacterSummary>& values) {
     writer.count(values.size(), kCharacterListCharactersCount);
     for (const auto& value : values) {
         put_character_summary(writer, value);
     }
 }
 
-[[nodiscard]] std::vector<CharacterSummary> get_list_1(Reader& reader) {
+[[nodiscard]] std::vector<CharacterSummary> get_list_2(Reader& reader) {
     const std::size_t count = reader.count(kCharacterListCharactersCount);
     std::vector<CharacterSummary> values;
     values.reserve(count);
@@ -391,12 +600,12 @@ void put_list_1(Writer& writer, const std::vector<CharacterSummary>& values) {
 }
 
 void put_character_list(Writer& writer, const CharacterList& message) {
-    put_list_1(writer, message.characters);
+    put_list_2(writer, message.characters);
 }
 
 [[nodiscard]] CharacterList get_character_list(Reader& reader) {
     CharacterList message;
-    message.characters = get_list_1(reader);
+    message.characters = get_list_2(reader);
     return message;
 }
 
@@ -512,6 +721,18 @@ void put_entity_vitals(Writer& writer, const EntityVitals& message) {
     return message;
 }
 
+void put_entity_flags(Writer& writer, const EntityFlags& message) {
+    writer.u32(message.id);
+    writer.u8(message.flags);
+}
+
+[[nodiscard]] EntityFlags get_entity_flags(Reader& reader) {
+    EntityFlags message;
+    message.id = reader.u32();
+    message.flags = reader.u8();
+    return message;
+}
+
 void put_ticket(Writer& writer, const Ticket& message) {
     writer.bytes(message.token);
 }
@@ -519,6 +740,178 @@ void put_ticket(Writer& writer, const Ticket& message) {
 [[nodiscard]] Ticket get_ticket(Reader& reader) {
     Ticket message;
     reader.bytes(message.token);
+    return message;
+}
+
+// list:record:DialogLine, tối đa kDialogOpenLinesCount phần tử.
+void put_list_3(Writer& writer, const std::vector<DialogLine>& values) {
+    writer.count(values.size(), kDialogOpenLinesCount);
+    for (const auto& value : values) {
+        put_dialog_line(writer, value);
+    }
+}
+
+[[nodiscard]] std::vector<DialogLine> get_list_3(Reader& reader) {
+    const std::size_t count = reader.count(kDialogOpenLinesCount);
+    std::vector<DialogLine> values;
+    values.reserve(count);
+    for (std::size_t i = 0; i < count && reader.is_ok(); ++i) {
+        values.push_back(get_dialog_line(reader));
+    }
+    return values;
+}
+
+// list:record:DialogChoice, tối đa kDialogOpenChoicesCount phần tử.
+void put_list_4(Writer& writer, const std::vector<DialogChoice>& values) {
+    writer.count(values.size(), kDialogOpenChoicesCount);
+    for (const auto& value : values) {
+        put_dialog_choice(writer, value);
+    }
+}
+
+[[nodiscard]] std::vector<DialogChoice> get_list_4(Reader& reader) {
+    const std::size_t count = reader.count(kDialogOpenChoicesCount);
+    std::vector<DialogChoice> values;
+    values.reserve(count);
+    for (std::size_t i = 0; i < count && reader.is_ok(); ++i) {
+        values.push_back(get_dialog_choice(reader));
+    }
+    return values;
+}
+
+// list:record:DialogMark, tối đa kDialogOpenMarksCount phần tử.
+void put_list_5(Writer& writer, const std::vector<DialogMark>& values) {
+    writer.count(values.size(), kDialogOpenMarksCount);
+    for (const auto& value : values) {
+        put_dialog_mark(writer, value);
+    }
+}
+
+[[nodiscard]] std::vector<DialogMark> get_list_5(Reader& reader) {
+    const std::size_t count = reader.count(kDialogOpenMarksCount);
+    std::vector<DialogMark> values;
+    values.reserve(count);
+    for (std::size_t i = 0; i < count && reader.is_ok(); ++i) {
+        values.push_back(get_dialog_mark(reader));
+    }
+    return values;
+}
+
+// list:record:DialogBonus, tối đa kDialogOpenBonusesCount phần tử.
+void put_list_6(Writer& writer, const std::vector<DialogBonus>& values) {
+    writer.count(values.size(), kDialogOpenBonusesCount);
+    for (const auto& value : values) {
+        put_dialog_bonus(writer, value);
+    }
+}
+
+[[nodiscard]] std::vector<DialogBonus> get_list_6(Reader& reader) {
+    const std::size_t count = reader.count(kDialogOpenBonusesCount);
+    std::vector<DialogBonus> values;
+    values.reserve(count);
+    for (std::size_t i = 0; i < count && reader.is_ok(); ++i) {
+        values.push_back(get_dialog_bonus(reader));
+    }
+    return values;
+}
+
+void put_dialog_open(Writer& writer, const DialogOpen& message) {
+    writer.u64(message.session);
+    writer.u32(message.npc);
+    put_dialog_mode(writer, message.mode);
+    put_list_3(writer, message.lines);
+    put_list_4(writer, message.choices);
+    put_list_5(writer, message.marks);
+    writer.i32(message.panel_quest);
+    put_list_6(writer, message.bonuses);
+}
+
+[[nodiscard]] DialogOpen get_dialog_open(Reader& reader) {
+    DialogOpen message;
+    message.session = reader.u64();
+    message.npc = reader.u32();
+    message.mode = get_dialog_mode(reader);
+    message.lines = get_list_3(reader);
+    message.choices = get_list_4(reader);
+    message.marks = get_list_5(reader);
+    message.panel_quest = reader.i32();
+    message.bonuses = get_list_6(reader);
+    return message;
+}
+
+void put_dialog_closed(Writer& writer, const DialogClosed& message) {
+    writer.u64(message.session);
+    put_dialog_close_reason(writer, message.reason);
+}
+
+[[nodiscard]] DialogClosed get_dialog_closed(Reader& reader) {
+    DialogClosed message;
+    message.session = reader.u64();
+    message.reason = get_dialog_close_reason(reader);
+    return message;
+}
+
+// list:record:QuestSlot, tối đa kQuestBookSlotsCount phần tử.
+void put_list_7(Writer& writer, const std::vector<QuestSlot>& values) {
+    writer.count(values.size(), kQuestBookSlotsCount);
+    for (const auto& value : values) {
+        put_quest_slot(writer, value);
+    }
+}
+
+[[nodiscard]] std::vector<QuestSlot> get_list_7(Reader& reader) {
+    const std::size_t count = reader.count(kQuestBookSlotsCount);
+    std::vector<QuestSlot> values;
+    values.reserve(count);
+    for (std::size_t i = 0; i < count && reader.is_ok(); ++i) {
+        values.push_back(get_quest_slot(reader));
+    }
+    return values;
+}
+
+void put_quest_book(Writer& writer, const QuestBook& message) {
+    put_list_7(writer, message.slots);
+    writer.bytes(message.done);
+}
+
+[[nodiscard]] QuestBook get_quest_book(Reader& reader) {
+    QuestBook message;
+    message.slots = get_list_7(reader);
+    reader.bytes(message.done);
+    return message;
+}
+
+void put_quest_notice(Writer& writer, const QuestNotice& message) {
+    put_quest_notice_kind(writer, message.kind);
+    writer.i32(message.quest);
+    writer.text(message.text, kQuestNoticeTextBytes);
+    writer.i64(message.value);
+    writer.i32(message.ref);
+}
+
+[[nodiscard]] QuestNotice get_quest_notice(Reader& reader) {
+    QuestNotice message;
+    message.kind = get_quest_notice_kind(reader);
+    message.quest = reader.i32();
+    message.text = reader.text(kQuestNoticeTextBytes);
+    message.value = reader.i64();
+    message.ref = reader.i32();
+    return message;
+}
+
+void put_self_stats(Writer& writer, const SelfStats& message) {
+    writer.u16(message.level);
+    writer.u64(message.exp);
+    writer.u64(message.money);
+    writer.u64(message.bound_money);
+}
+
+[[nodiscard]] SelfStats get_self_stats(Reader& reader) {
+    SelfStats message;
+    message.level = reader.u16();
+    message.exp = reader.u64();
+    message.money = reader.u64();
+    message.bound_money = reader.u64();
     return message;
 }
 
@@ -535,6 +928,21 @@ template <class Message>
 bool is_valid(AvatarFrame value) noexcept {
     const auto raw = std::to_underlying(value);
     return raw >= 1 && raw <= 2;
+}
+
+bool is_valid(BonusKind value) noexcept {
+    const auto raw = std::to_underlying(value);
+    return raw >= 1 && raw <= 5;
+}
+
+bool is_valid(DialogCloseReason value) noexcept {
+    const auto raw = std::to_underlying(value);
+    return raw >= 1 && raw <= 8;
+}
+
+bool is_valid(DialogMode value) noexcept {
+    const auto raw = std::to_underlying(value);
+    return raw >= 1 && raw <= 6;
 }
 
 bool is_valid(DisconnectReason value) noexcept {
@@ -562,9 +970,19 @@ bool is_valid(Gender value) noexcept {
     return raw >= 1 && raw <= 2;
 }
 
+bool is_valid(MarkStage value) noexcept {
+    const auto raw = std::to_underlying(value);
+    return raw >= 1 && raw <= 3;
+}
+
 bool is_valid(Platform value) noexcept {
     const auto raw = std::to_underlying(value);
     return raw >= 1 && raw <= 3;
+}
+
+bool is_valid(QuestNoticeKind value) noexcept {
+    const auto raw = std::to_underlying(value);
+    return raw >= 1 && raw <= 12;
 }
 
 WireStatus encode(std::vector<std::byte>& out, const Hello& message) {
@@ -630,6 +1048,42 @@ WireStatus encode(std::vector<std::byte>& out, const SignIn& message) {
     Writer writer{out};
     put_sign_in(writer, message);
     return writer.finish(SignIn::kKind);
+}
+
+WireStatus encode(std::vector<std::byte>& out, const Talk& message) {
+    Writer writer{out};
+    put_talk(writer, message);
+    return writer.finish(Talk::kKind);
+}
+
+WireStatus encode(std::vector<std::byte>& out, const DialogChoose& message) {
+    Writer writer{out};
+    put_dialog_choose(writer, message);
+    return writer.finish(DialogChoose::kKind);
+}
+
+WireStatus encode(std::vector<std::byte>& out, const QuestAccept& message) {
+    Writer writer{out};
+    put_quest_accept(writer, message);
+    return writer.finish(QuestAccept::kKind);
+}
+
+WireStatus encode(std::vector<std::byte>& out, const QuestTurnIn& message) {
+    Writer writer{out};
+    put_quest_turn_in(writer, message);
+    return writer.finish(QuestTurnIn::kKind);
+}
+
+WireStatus encode(std::vector<std::byte>& out, const QuestAbandon& message) {
+    Writer writer{out};
+    put_quest_abandon(writer, message);
+    return writer.finish(QuestAbandon::kKind);
+}
+
+WireStatus encode(std::vector<std::byte>& out, const DialogClose& message) {
+    Writer writer{out};
+    put_dialog_close(writer, message);
+    return writer.finish(DialogClose::kKind);
 }
 
 WireStatus encode(std::vector<std::byte>& out, const Welcome& message) {
@@ -722,10 +1176,46 @@ WireStatus encode(std::vector<std::byte>& out, const EntityVitals& message) {
     return writer.finish(EntityVitals::kKind);
 }
 
+WireStatus encode(std::vector<std::byte>& out, const EntityFlags& message) {
+    Writer writer{out};
+    put_entity_flags(writer, message);
+    return writer.finish(EntityFlags::kKind);
+}
+
 WireStatus encode(std::vector<std::byte>& out, const Ticket& message) {
     Writer writer{out};
     put_ticket(writer, message);
     return writer.finish(Ticket::kKind);
+}
+
+WireStatus encode(std::vector<std::byte>& out, const DialogOpen& message) {
+    Writer writer{out};
+    put_dialog_open(writer, message);
+    return writer.finish(DialogOpen::kKind);
+}
+
+WireStatus encode(std::vector<std::byte>& out, const DialogClosed& message) {
+    Writer writer{out};
+    put_dialog_closed(writer, message);
+    return writer.finish(DialogClosed::kKind);
+}
+
+WireStatus encode(std::vector<std::byte>& out, const QuestBook& message) {
+    Writer writer{out};
+    put_quest_book(writer, message);
+    return writer.finish(QuestBook::kKind);
+}
+
+WireStatus encode(std::vector<std::byte>& out, const QuestNotice& message) {
+    Writer writer{out};
+    put_quest_notice(writer, message);
+    return writer.finish(QuestNotice::kKind);
+}
+
+WireStatus encode(std::vector<std::byte>& out, const SelfStats& message) {
+    Writer writer{out};
+    put_self_stats(writer, message);
+    return writer.finish(SelfStats::kKind);
 }
 
 GameClientResult decode_game_client(const Frame& frame, ByteView body) {
@@ -740,6 +1230,12 @@ GameClientResult decode_game_client(const Frame& frame, ByteView body) {
     case DeleteCharacter::kKind: return checked(reader, get_delete_character(reader));
     case EnterGame::kKind: return checked(reader, get_enter_game(reader));
     case Move::kKind: return checked(reader, get_move(reader));
+    case Talk::kKind: return checked(reader, get_talk(reader));
+    case DialogChoose::kKind: return checked(reader, get_dialog_choose(reader));
+    case QuestAccept::kKind: return checked(reader, get_quest_accept(reader));
+    case QuestTurnIn::kKind: return checked(reader, get_quest_turn_in(reader));
+    case QuestAbandon::kKind: return checked(reader, get_quest_abandon(reader));
+    case DialogClose::kKind: return checked(reader, get_dialog_close(reader));
     default: return std::unexpected(WireError::kUnknownKind);
     }
 }
@@ -762,6 +1258,12 @@ GameServerResult decode_game_server(const Frame& frame, ByteView body) {
     case EntityDisappear::kKind: return checked(reader, get_entity_disappear(reader));
     case EntityPos::kKind: return checked(reader, get_entity_pos(reader));
     case EntityVitals::kKind: return checked(reader, get_entity_vitals(reader));
+    case EntityFlags::kKind: return checked(reader, get_entity_flags(reader));
+    case DialogOpen::kKind: return checked(reader, get_dialog_open(reader));
+    case DialogClosed::kKind: return checked(reader, get_dialog_closed(reader));
+    case QuestBook::kKind: return checked(reader, get_quest_book(reader));
+    case QuestNotice::kKind: return checked(reader, get_quest_notice(reader));
+    case SelfStats::kKind: return checked(reader, get_self_stats(reader));
     default: return std::unexpected(WireError::kUnknownKind);
     }
 }

@@ -76,3 +76,50 @@ EntityPos	5	tick	u32		Tick của cảnh lúc ghi nhận, 20 tick mỗi giây (50
 EntityPos	6	state	enum:EntityState		Walk khi đang di chuyển; gói cuối của một chặng đi mang Idle cùng toạ độ đích. Dead khi chết.
 EntityVitals	1	id	u32		Id thực thể.
 EntityVitals	2	hp_percent	u8		Sinh lực theo phần trăm 0..100.
+DialogLine	1	text	text	1024	Chữ đã dựng (tham số tên, cấp... đã thay), UTF-8; có thẻ màu #R #W... của game.
+DialogChoice	1	index	u16		Số client gửi lại trong DialogChoose; không phải id script.
+DialogChoice	2	icon	i32		Biểu tượng của mục; 0 là không có.
+DialogChoice	3	text	text	256	Chữ của lựa chọn.
+DialogMark	1	quest	u16		Id nhiệm vụ (0..4095).
+DialogMark	2	stage	enum:MarkStage		
+DialogBonus	1	kind	enum:BonusKind		Money: a là số tiền. Item, Radio, Random, Demand: a là mẫu vật phẩm, b là số lượng.
+DialogBonus	2	a	i32		
+DialogBonus	3	b	i32		
+DialogBonus	4	c	i32		
+QuestSlot	1	quest	u16		Id nhiệm vụ của client 2026.
+QuestSlot	2	script	i32		Id script của nhiệm vụ; -1 nếu không có.
+QuestSlot	3	flags	u8		Bit 1 giết, 2 vùng, 4 vật phẩm: loại sự kiện nhiệm vụ này theo dõi.
+QuestSlot	4	params	list:u32	8	Tám tham số của ô; nhiệm vụ bảng: tham số 0 là cờ đủ điều kiện nộp, 1 + i là tiến độ mục tiêu i.
+Talk	1	npc	u32		EntityAppear.id của NPC.
+DialogChoose	1	session	u64		Mã phiên trong DialogOpen.
+DialogChoose	2	index	u16		DialogChoice.index.
+QuestAccept	1	session	u64		
+QuestAccept	2	quest	u16		
+QuestTurnIn	1	session	u64		
+QuestTurnIn	2	quest	u16		
+QuestTurnIn	3	reward	i32		Mẫu vật phẩm đã chọn trong nhóm thưởng chọn một; -1 nếu nhiệm vụ không có nhóm đó.
+QuestAbandon	1	quest	u16		
+DialogClose	1	session	u64		
+EntityFlags	1	id	u32		Id thực thể.
+EntityFlags	2	flags	u8		Bit 0: bấm vào được để nói chuyện (Talk).
+DialogOpen	1	session	u64		Mã phiên, tăng ngặt, không dùng lại; gửi lại trong mọi tin sau của hộp thoại này.
+DialogOpen	2	npc	u32		EntityAppear.id của NPC; 0 với hộp thoại không gắn NPC.
+DialogOpen	3	mode	enum:DialogMode		
+DialogOpen	4	lines	list:record:DialogLine	16	
+DialogOpen	5	choices	list:record:DialogChoice	48	
+DialogOpen	6	marks	list:record:DialogMark	16	
+DialogOpen	7	panel_quest	i32		Nhiệm vụ của bảng (MissionInfo, Continue, Demand, Tips); -1 nếu không có.
+DialogOpen	8	bonuses	list:record:DialogBonus	24	
+DialogClosed	1	session	u64		
+DialogClosed	2	reason	enum:DialogCloseReason		
+QuestBook	1	slots	list:record:QuestSlot	20	
+QuestBook	2	done	bytes	512	128 từ u32 little-endian: bit (id % 32) của từ (id / 32) bật là nhiệm vụ id đã xong (id 0..4095).
+QuestNotice	1	kind	enum:QuestNoticeKind		
+QuestNotice	2	quest	i32		Id nhiệm vụ; -1 nếu không gắn nhiệm vụ.
+QuestNotice	3	text	text	512	Chữ đã dựng; rỗng với kind không có chữ.
+QuestNotice	4	value	i64		RewardExp: kinh nghiệm. RewardMoney: số tiền. RewardItem: số lượng. Relation: giá trị mới.
+QuestNotice	5	ref	i32		RewardMoney: 1 nếu tiền khoá. RewardItem: mẫu vật phẩm. Relation: chỉ số quan hệ.
+SelfStats	1	level	u16		
+SelfStats	2	exp	u64		Kinh nghiệm hiện có trong cấp.
+SelfStats	3	money	u64		Tiền thường.
+SelfStats	4	bound_money	u64		Tiền khoá.

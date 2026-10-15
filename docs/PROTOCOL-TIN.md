@@ -2,7 +2,7 @@
 
 # Danh mục tin của giao thức
 
-Bản danh mục 4: 27 tin, 1 record, 7 enum.
+Bản danh mục 5: 39 tin, 6 record, 12 enum.
 Khung có 8 byte đầu (u32 số byte thân, u16 kind, u16 flags bằng 0), little-endian; thân tối đa 65 536 byte, tin client gửi tối đa 4 096 byte.
 Byte cao của kind là nhóm, bit 15 bật là tin server gửi. Trần của text tính bằng byte UTF-8, trần của list tính bằng số phần tử.
 
@@ -259,6 +259,7 @@ Thế giới: người chơi vào cảnh, thực thể xuất hiện, di chuyể
 | `0x8403` | EntityDisappear | game | server | 4 | 4 |
 | `0x8404` | EntityPos | game | server | 4 | 19 |
 | `0x8405` | EntityVitals | game | server | 4 | 5 |
+| `0x8406` | EntityFlags | game | server | 5 | 5 |
 
 ### SceneEnter (0x8401)
 
@@ -334,6 +335,17 @@ Cổng game, server gửi, có từ bản 4. Thân tối đa 5 byte.
 | 1 | `id` | `u32` | – | Id thực thể. |
 | 2 | `hp_percent` | `u8` | – | Sinh lực theo phần trăm 0..100. |
 
+### EntityFlags (0x8406)
+
+Cờ của một thực thể trong vùng nhìn; gửi ngay sau EntityAppear khi cờ khác 0 và mỗi khi cờ đổi.
+
+Cổng game, server gửi, có từ bản 5. Thân tối đa 5 byte.
+
+| Thứ tự | Trường | Kiểu | Trần | Ghi chú |
+|---|---|---|---|---|
+| 1 | `id` | `u32` | – | Id thực thể. |
+| 2 | `flags` | `u8` | – | Bit 0: bấm vào được để nói chuyện (Talk). |
+
 ## Nhóm 05: auth
 
 Cổng xác thực: tạo tài khoản, đăng nhập bằng mật khẩu và cấp vé vào cổng game.
@@ -376,6 +388,161 @@ Cổng auth, server gửi, có từ bản 1. Thân tối đa 204 byte.
 |---|---|---|---|---|
 | 1 | `token` | `bytes` | 204 | Vé vào cổng game (kConnectTokenBytes của Dev). |
 
+## Nhóm 06: dialogue
+
+Hội thoại với NPC và nhiệm vụ: mở hộp thoại, chọn mục, nhận, nộp, bỏ nhiệm vụ và sổ nhiệm vụ.
+
+| Kind | Tin | Cổng | Chiều | Từ bản | Thân tối đa (byte) |
+|---|---|---|---|---|---|
+| `0x0601` | Talk | game | client | 5 | 4 |
+| `0x0602` | DialogChoose | game | client | 5 | 10 |
+| `0x0603` | QuestAccept | game | client | 5 | 10 |
+| `0x0604` | QuestTurnIn | game | client | 5 | 14 |
+| `0x0605` | QuestAbandon | game | client | 5 | 2 |
+| `0x0606` | DialogClose | game | client | 5 | 8 |
+| `0x8601` | DialogOpen | game | server | 5 | 29 473 |
+| `0x8602` | DialogClosed | game | server | 5 | 9 |
+| `0x8603` | QuestBook | game | server | 5 | 1 334 |
+| `0x8604` | QuestNotice | game | server | 5 | 531 |
+
+### Talk (0x0601)
+
+Bấm vào NPC để nói chuyện: mở phiên hội thoại. Server kiểm khoảng cách, cảnh và NPC còn đó.
+
+Cổng game, client gửi, có từ bản 5. Thân tối đa 4 byte.
+
+| Thứ tự | Trường | Kiểu | Trần | Ghi chú |
+|---|---|---|---|---|
+| 1 | `npc` | `u32` | – | EntityAppear.id của NPC. |
+
+### DialogChoose (0x0602)
+
+Chọn một lựa chọn của hộp thoại đang mở (theo index server đã gửi, không phải id script).
+
+Cổng game, client gửi, có từ bản 5. Thân tối đa 10 byte.
+
+| Thứ tự | Trường | Kiểu | Trần | Ghi chú |
+|---|---|---|---|---|
+| 1 | `session` | `u64` | – | Mã phiên trong DialogOpen. |
+| 2 | `index` | `u16` | – | DialogChoice.index. |
+
+### QuestAccept (0x0603)
+
+Nhận nhiệm vụ mà hộp thoại đang mời.
+
+Cổng game, client gửi, có từ bản 5. Thân tối đa 10 byte.
+
+| Thứ tự | Trường | Kiểu | Trần | Ghi chú |
+|---|---|---|---|---|
+| 1 | `session` | `u64` | – | – |
+| 2 | `quest` | `u16` | – | – |
+
+### QuestTurnIn (0x0604)
+
+Nộp nhiệm vụ đang làm, kèm phần thưởng chọn một nếu có.
+
+Cổng game, client gửi, có từ bản 5. Thân tối đa 14 byte.
+
+| Thứ tự | Trường | Kiểu | Trần | Ghi chú |
+|---|---|---|---|---|
+| 1 | `session` | `u64` | – | – |
+| 2 | `quest` | `u16` | – | – |
+| 3 | `reward` | `i32` | – | Mẫu vật phẩm đã chọn trong nhóm thưởng chọn một; -1 nếu nhiệm vụ không có nhóm đó. |
+
+### QuestAbandon (0x0605)
+
+Bỏ nhiệm vụ đang làm; bấm từ sổ nhiệm vụ nên không cần phiên hội thoại.
+
+Cổng game, client gửi, có từ bản 5. Thân tối đa 2 byte.
+
+| Thứ tự | Trường | Kiểu | Trần | Ghi chú |
+|---|---|---|---|---|
+| 1 | `quest` | `u16` | – | – |
+
+### DialogClose (0x0606)
+
+Client đóng hộp thoại; server đóng phiên.
+
+Cổng game, client gửi, có từ bản 5. Thân tối đa 8 byte.
+
+| Thứ tự | Trường | Kiểu | Trần | Ghi chú |
+|---|---|---|---|---|
+| 1 | `session` | `u64` | – | – |
+
+### DialogOpen (0x8601)
+
+Server mở hay thay hộp thoại của phiên: lời NPC, lựa chọn, dấu nhiệm vụ, bảng nhiệm vụ và phần thưởng.
+
+Cổng game, server gửi, có từ bản 5. Thân tối đa 29 473 byte.
+
+| Thứ tự | Trường | Kiểu | Trần | Ghi chú |
+|---|---|---|---|---|
+| 1 | `session` | `u64` | – | Mã phiên, tăng ngặt, không dùng lại; gửi lại trong mọi tin sau của hộp thoại này. |
+| 2 | `npc` | `u32` | – | EntityAppear.id của NPC; 0 với hộp thoại không gắn NPC. |
+| 3 | `mode` | `enum:DialogMode` | – | – |
+| 4 | `lines` | `list:record:DialogLine` | 16 | – |
+| 5 | `choices` | `list:record:DialogChoice` | 48 | – |
+| 6 | `marks` | `list:record:DialogMark` | 16 | – |
+| 7 | `panel_quest` | `i32` | – | Nhiệm vụ của bảng (MissionInfo, Continue, Demand, Tips); -1 nếu không có. |
+| 8 | `bonuses` | `list:record:DialogBonus` | 24 | – |
+
+### DialogClosed (0x8602)
+
+Server đóng phiên hội thoại và nêu lý do.
+
+Cổng game, server gửi, có từ bản 5. Thân tối đa 9 byte.
+
+| Thứ tự | Trường | Kiểu | Trần | Ghi chú |
+|---|---|---|---|---|
+| 1 | `session` | `u64` | – | – |
+| 2 | `reason` | `enum:DialogCloseReason` | – | – |
+
+### QuestBook (0x8603)
+
+Toàn bộ sổ nhiệm vụ: ô đang giữ và tập nhiệm vụ đã xong. Gửi sau SceneEnter và mỗi khi sổ đổi.
+
+Cổng game, server gửi, có từ bản 5. Thân tối đa 1 334 byte.
+
+| Thứ tự | Trường | Kiểu | Trần | Ghi chú |
+|---|---|---|---|---|
+| 1 | `slots` | `list:record:QuestSlot` | 20 | – |
+| 2 | `done` | `bytes` | 512 | 128 từ u32 little-endian: bit (id % 32) của từ (id / 32) bật là nhiệm vụ id đã xong (id 0..4095). |
+
+### QuestNotice (0x8604)
+
+Thông báo của hệ nhiệm vụ cho người chơi: nhận, tiến độ, đủ điều kiện nộp, thưởng, chữ.
+
+Cổng game, server gửi, có từ bản 5. Thân tối đa 531 byte.
+
+| Thứ tự | Trường | Kiểu | Trần | Ghi chú |
+|---|---|---|---|---|
+| 1 | `kind` | `enum:QuestNoticeKind` | – | – |
+| 2 | `quest` | `i32` | – | Id nhiệm vụ; -1 nếu không gắn nhiệm vụ. |
+| 3 | `text` | `text` | 512 | Chữ đã dựng; rỗng với kind không có chữ. |
+| 4 | `value` | `i64` | – | RewardExp: kinh nghiệm. RewardMoney: số tiền. RewardItem: số lượng. Relation: giá trị mới. |
+| 5 | `ref` | `i32` | – | RewardMoney: 1 nếu tiền khoá. RewardItem: mẫu vật phẩm. Relation: chỉ số quan hệ. |
+
+## Nhóm 07: self
+
+Trạng thái của chính nhân vật: cấp, kinh nghiệm, tiền.
+
+| Kind | Tin | Cổng | Chiều | Từ bản | Thân tối đa (byte) |
+|---|---|---|---|---|---|
+| `0x8701` | SelfStats | game | server | 5 | 26 |
+
+### SelfStats (0x8701)
+
+Cấp, kinh nghiệm và tiền của chính nhân vật. Gửi sau SceneEnter và mỗi khi đổi.
+
+Cổng game, server gửi, có từ bản 5. Thân tối đa 26 byte.
+
+| Thứ tự | Trường | Kiểu | Trần | Ghi chú |
+|---|---|---|---|---|
+| 1 | `level` | `u16` | – | – |
+| 2 | `exp` | `u64` | – | Kinh nghiệm hiện có trong cấp. |
+| 3 | `money` | `u64` | – | Tiền thường. |
+| 4 | `bound_money` | `u64` | – | Tiền khoá. |
+
 ## Record
 
 ### CharacterSummary
@@ -395,6 +562,65 @@ Thân tối đa 68 byte.
 | 7 | `school` | `u8` | – | Môn phái; 0 là chưa vào môn phái, giữ giá trị canh của Dev thay cho optional. |
 | 8 | `scene` | `u16` | – | SceneId của Dev: cảnh nhân vật đang đứng. |
 
+### DialogBonus
+
+Một dòng phần thưởng hay yêu cầu của bảng nhiệm vụ.
+
+Thân tối đa 13 byte.
+
+| Thứ tự | Trường | Kiểu | Trần | Ghi chú |
+|---|---|---|---|---|
+| 1 | `kind` | `enum:BonusKind` | – | Money: a là số tiền. Item, Radio, Random, Demand: a là mẫu vật phẩm, b là số lượng. |
+| 2 | `a` | `i32` | – | – |
+| 3 | `b` | `i32` | – | – |
+| 4 | `c` | `i32` | – | – |
+
+### DialogChoice
+
+Một lựa chọn của hộp thoại.
+
+Thân tối đa 264 byte.
+
+| Thứ tự | Trường | Kiểu | Trần | Ghi chú |
+|---|---|---|---|---|
+| 1 | `index` | `u16` | – | Số client gửi lại trong DialogChoose; không phải id script. |
+| 2 | `icon` | `i32` | – | Biểu tượng của mục; 0 là không có. |
+| 3 | `text` | `text` | 256 | Chữ của lựa chọn. |
+
+### DialogLine
+
+Một dòng lời NPC trong hộp thoại, đã dựng thành chữ.
+
+Thân tối đa 1 026 byte.
+
+| Thứ tự | Trường | Kiểu | Trần | Ghi chú |
+|---|---|---|---|---|
+| 1 | `text` | `text` | 1024 | Chữ đã dựng (tham số tên, cấp... đã thay), UTF-8; có thẻ màu #R #W... của game. |
+
+### DialogMark
+
+Dấu nhiệm vụ của một nhiệm vụ gắn với NPC đang nói chuyện.
+
+Thân tối đa 3 byte.
+
+| Thứ tự | Trường | Kiểu | Trần | Ghi chú |
+|---|---|---|---|---|
+| 1 | `quest` | `u16` | – | Id nhiệm vụ (0..4095). |
+| 2 | `stage` | `enum:MarkStage` | – | – |
+
+### QuestSlot
+
+Một ô của sổ nhiệm vụ.
+
+Thân tối đa 41 byte.
+
+| Thứ tự | Trường | Kiểu | Trần | Ghi chú |
+|---|---|---|---|---|
+| 1 | `quest` | `u16` | – | Id nhiệm vụ của client 2026. |
+| 2 | `script` | `i32` | – | Id script của nhiệm vụ; -1 nếu không có. |
+| 3 | `flags` | `u8` | – | Bit 1 giết, 2 vùng, 4 vật phẩm: loại sự kiện nhiệm vụ này theo dõi. |
+| 4 | `params` | `list:u32` | 8 | Tám tham số của ô; nhiệm vụ bảng: tham số 0 là cờ đủ điều kiện nộp, 1 + i là tiến độ mục tiêu i. |
+
 ## Enum
 
 Giá trị ngoài bảng là lỗi kBadEnum ở cả hai chiều.
@@ -405,6 +631,40 @@ Giá trị ngoài bảng là lỗi kBadEnum ở cả hai chiều.
 |---|---|---|
 | 1 | `kRound` | – |
 | 2 | `kSquare` | – |
+
+### BonusKind (u8)
+
+| Giá trị | Tên | Ghi chú |
+|---|---|---|
+| 1 | `kMoney` | – |
+| 2 | `kItem` | – |
+| 3 | `kRadio` | – |
+| 4 | `kRandom` | – |
+| 5 | `kDemand` | – |
+
+### DialogCloseReason (u8)
+
+| Giá trị | Tên | Ghi chú |
+|---|---|---|
+| 1 | `kDone` | – |
+| 2 | `kFar` | – |
+| 3 | `kSceneChanged` | – |
+| 4 | `kNpcGone` | – |
+| 5 | `kExpired` | – |
+| 6 | `kReplaced` | – |
+| 7 | `kDead` | – |
+| 8 | `kClient` | – |
+
+### DialogMode (u8)
+
+| Giá trị | Tên | Ghi chú |
+|---|---|---|
+| 1 | `kList` | – |
+| 2 | `kBox` | – |
+| 3 | `kMissionInfo` | – |
+| 4 | `kContinue` | – |
+| 5 | `kDemand` | – |
+| 6 | `kTips` | – |
 
 ### DisconnectReason (u8)
 
@@ -483,6 +743,14 @@ Giá trị ngoài bảng là lỗi kBadEnum ở cả hai chiều.
 | 1 | `kFemale` | – |
 | 2 | `kMale` | – |
 
+### MarkStage (u8)
+
+| Giá trị | Tên | Ghi chú |
+|---|---|---|
+| 1 | `kAvailable` | – |
+| 2 | `kInProgress` | – |
+| 3 | `kReady` | – |
+
 ### Platform (u8)
 
 | Giá trị | Tên | Ghi chú |
@@ -490,3 +758,20 @@ Giá trị ngoài bảng là lỗi kBadEnum ở cả hai chiều.
 | 1 | `kWindows` | – |
 | 2 | `kAndroid` | – |
 | 3 | `kIos` | – |
+
+### QuestNoticeKind (u8)
+
+| Giá trị | Tên | Ghi chú |
+|---|---|---|
+| 1 | `kAdded` | – |
+| 2 | `kUpdated` | – |
+| 3 | `kReady` | – |
+| 4 | `kRemoved` | – |
+| 5 | `kDone` | – |
+| 6 | `kFailed` | – |
+| 7 | `kText` | – |
+| 8 | `kAnnounce` | – |
+| 9 | `kRewardExp` | – |
+| 10 | `kRewardMoney` | – |
+| 11 | `kRewardItem` | – |
+| 12 | `kRelation` | – |

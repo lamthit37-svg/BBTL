@@ -33,11 +33,39 @@
 namespace game::protocol {
 
 // Bản của danh mục; tin có since lớn hơn bản bên kia đang chạy thì bên kia chưa hiểu.
-inline constexpr std::uint16_t kVersion = 4;
+inline constexpr std::uint16_t kVersion = 5;
 
 enum class AvatarFrame : std::uint8_t {
     kRound = 1,
     kSquare = 2,
+};
+
+enum class BonusKind : std::uint8_t {
+    kMoney = 1,
+    kItem = 2,
+    kRadio = 3,
+    kRandom = 4,
+    kDemand = 5,
+};
+
+enum class DialogCloseReason : std::uint8_t {
+    kDone = 1,
+    kFar = 2,
+    kSceneChanged = 3,
+    kNpcGone = 4,
+    kExpired = 5,
+    kReplaced = 6,
+    kDead = 7,
+    kClient = 8,
+};
+
+enum class DialogMode : std::uint8_t {
+    kList = 1,
+    kBox = 2,
+    kMissionInfo = 3,
+    kContinue = 4,
+    kDemand = 5,
+    kTips = 6,
 };
 
 enum class DisconnectReason : std::uint8_t {
@@ -108,23 +136,52 @@ enum class Gender : std::uint8_t {
     kMale = 2,
 };
 
+enum class MarkStage : std::uint8_t {
+    kAvailable = 1,
+    kInProgress = 2,
+    kReady = 3,
+};
+
 enum class Platform : std::uint8_t {
     kWindows = 1,
     kAndroid = 2,
     kIos = 3,
 };
 
+enum class QuestNoticeKind : std::uint8_t {
+    kAdded = 1,
+    kUpdated = 2,
+    kReady = 3,
+    kRemoved = 4,
+    kDone = 5,
+    kFailed = 6,
+    kText = 7,
+    kAnnounce = 8,
+    kRewardExp = 9,
+    kRewardMoney = 10,
+    kRewardItem = 11,
+    kRelation = 12,
+};
+
 // Giá trị có trong bảng enum; giải mã gặp giá trị lạ là kBadEnum, mã hoá cũng vậy.
 [[nodiscard]] bool is_valid(AvatarFrame value) noexcept;
+[[nodiscard]] bool is_valid(BonusKind value) noexcept;
+[[nodiscard]] bool is_valid(DialogCloseReason value) noexcept;
+[[nodiscard]] bool is_valid(DialogMode value) noexcept;
 [[nodiscard]] bool is_valid(DisconnectReason value) noexcept;
 [[nodiscard]] bool is_valid(EntityKind value) noexcept;
 [[nodiscard]] bool is_valid(EntityState value) noexcept;
 [[nodiscard]] bool is_valid(ErrorCode value) noexcept;
 [[nodiscard]] bool is_valid(Gender value) noexcept;
+[[nodiscard]] bool is_valid(MarkStage value) noexcept;
 [[nodiscard]] bool is_valid(Platform value) noexcept;
+[[nodiscard]] bool is_valid(QuestNoticeKind value) noexcept;
 
 // Trần của từng trường: số byte của text và bytes, số phần tử của list.
 inline constexpr std::size_t kCharacterSummaryNameBytes = 48;
+inline constexpr std::size_t kDialogChoiceTextBytes = 256;
+inline constexpr std::size_t kDialogLineTextBytes = 1024;
+inline constexpr std::size_t kQuestSlotParamsCount = 8;
 inline constexpr std::size_t kLoginAccountBytes = 64;
 inline constexpr std::size_t kLoginTicketBytes = 512;
 inline constexpr std::size_t kResumeTokenBytes = 16;
@@ -139,6 +196,13 @@ inline constexpr std::size_t kContentStampStampBytes = 32;
 inline constexpr std::size_t kCharacterListCharactersCount = 8;
 inline constexpr std::size_t kEntityAppearNameBytes = 48;
 inline constexpr std::size_t kTicketTokenBytes = 204;
+inline constexpr std::size_t kDialogOpenLinesCount = 16;
+inline constexpr std::size_t kDialogOpenChoicesCount = 48;
+inline constexpr std::size_t kDialogOpenMarksCount = 16;
+inline constexpr std::size_t kDialogOpenBonusesCount = 24;
+inline constexpr std::size_t kQuestBookSlotsCount = 20;
+inline constexpr std::size_t kQuestBookDoneBytes = 512;
+inline constexpr std::size_t kQuestNoticeTextBytes = 512;
 
 // Record: Tóm tắt một nhân vật trong danh sách chọn nhân vật.
 struct CharacterSummary {
@@ -158,6 +222,55 @@ struct CharacterSummary {
     // SceneId của Dev: cảnh nhân vật đang đứng.
     std::uint16_t scene = 0;
     friend bool operator==(const CharacterSummary&, const CharacterSummary&) = default;
+};
+
+// Record: Một dòng phần thưởng hay yêu cầu của bảng nhiệm vụ.
+struct DialogBonus {
+    // Money: a là số tiền. Item, Radio, Random, Demand: a là mẫu vật phẩm, b là số lượng.
+    BonusKind kind = BonusKind::kMoney;
+    std::int32_t a = 0;
+    std::int32_t b = 0;
+    std::int32_t c = 0;
+    friend bool operator==(const DialogBonus&, const DialogBonus&) = default;
+};
+
+// Record: Một lựa chọn của hộp thoại.
+struct DialogChoice {
+    // Số client gửi lại trong DialogChoose; không phải id script.
+    std::uint16_t index = 0;
+    // Biểu tượng của mục; 0 là không có.
+    std::int32_t icon = 0;
+    // Chữ của lựa chọn.
+    std::string text;
+    friend bool operator==(const DialogChoice&, const DialogChoice&) = default;
+};
+
+// Record: Một dòng lời NPC trong hộp thoại, đã dựng thành chữ.
+struct DialogLine {
+    // Chữ đã dựng (tham số tên, cấp... đã thay), UTF-8; có thẻ màu #R #W... của game.
+    std::string text;
+    friend bool operator==(const DialogLine&, const DialogLine&) = default;
+};
+
+// Record: Dấu nhiệm vụ của một nhiệm vụ gắn với NPC đang nói chuyện.
+struct DialogMark {
+    // Id nhiệm vụ (0..4095).
+    std::uint16_t quest = 0;
+    MarkStage stage = MarkStage::kAvailable;
+    friend bool operator==(const DialogMark&, const DialogMark&) = default;
+};
+
+// Record: Một ô của sổ nhiệm vụ.
+struct QuestSlot {
+    // Id nhiệm vụ của client 2026.
+    std::uint16_t quest = 0;
+    // Id script của nhiệm vụ; -1 nếu không có.
+    std::int32_t script = 0;
+    // Bit 1 giết, 2 vùng, 4 vật phẩm: loại sự kiện nhiệm vụ này theo dõi.
+    std::uint8_t flags = 0;
+    // Tám tham số của ô; nhiệm vụ bảng: tham số 0 là cờ đủ điều kiện nộp, 1 + i là tiến độ mục tiêu i.
+    std::vector<std::uint32_t> params;
+    friend bool operator==(const QuestSlot&, const QuestSlot&) = default;
 };
 
 // 0x0101, client gửi, cổng both, từ bản 1: Tin đầu tiên của mọi kết nối, báo phiên bản giao thức, nền tảng và bản dựng
@@ -268,6 +381,58 @@ struct SignIn {
     // Mật khẩu, chỉ đi qua cổng xác thực.
     std::string password;
     friend bool operator==(const SignIn&, const SignIn&) = default;
+};
+
+// 0x0601, client gửi, cổng game, từ bản 5: Bấm vào NPC để nói chuyện: mở phiên hội thoại. Server kiểm khoảng cách, cảnh
+// và NPC còn đó.
+struct Talk {
+    static constexpr std::uint16_t kKind = 0x0601;
+    // EntityAppear.id của NPC.
+    std::uint32_t npc = 0;
+    friend bool operator==(const Talk&, const Talk&) = default;
+};
+
+// 0x0602, client gửi, cổng game, từ bản 5: Chọn một lựa chọn của hộp thoại đang mở (theo index server đã gửi, không
+// phải id script).
+struct DialogChoose {
+    static constexpr std::uint16_t kKind = 0x0602;
+    // Mã phiên trong DialogOpen.
+    std::uint64_t session = 0;
+    // DialogChoice.index.
+    std::uint16_t index = 0;
+    friend bool operator==(const DialogChoose&, const DialogChoose&) = default;
+};
+
+// 0x0603, client gửi, cổng game, từ bản 5: Nhận nhiệm vụ mà hộp thoại đang mời.
+struct QuestAccept {
+    static constexpr std::uint16_t kKind = 0x0603;
+    std::uint64_t session = 0;
+    std::uint16_t quest = 0;
+    friend bool operator==(const QuestAccept&, const QuestAccept&) = default;
+};
+
+// 0x0604, client gửi, cổng game, từ bản 5: Nộp nhiệm vụ đang làm, kèm phần thưởng chọn một nếu có.
+struct QuestTurnIn {
+    static constexpr std::uint16_t kKind = 0x0604;
+    std::uint64_t session = 0;
+    std::uint16_t quest = 0;
+    // Mẫu vật phẩm đã chọn trong nhóm thưởng chọn một; -1 nếu nhiệm vụ không có nhóm đó.
+    std::int32_t reward = 0;
+    friend bool operator==(const QuestTurnIn&, const QuestTurnIn&) = default;
+};
+
+// 0x0605, client gửi, cổng game, từ bản 5: Bỏ nhiệm vụ đang làm; bấm từ sổ nhiệm vụ nên không cần phiên hội thoại.
+struct QuestAbandon {
+    static constexpr std::uint16_t kKind = 0x0605;
+    std::uint16_t quest = 0;
+    friend bool operator==(const QuestAbandon&, const QuestAbandon&) = default;
+};
+
+// 0x0606, client gửi, cổng game, từ bản 5: Client đóng hộp thoại; server đóng phiên.
+struct DialogClose {
+    static constexpr std::uint16_t kKind = 0x0606;
+    std::uint64_t session = 0;
+    friend bool operator==(const DialogClose&, const DialogClose&) = default;
 };
 
 // 0x8101, server gửi, cổng both, từ bản 1: Server đáp Hello: phiên bản giao thức, giờ server và chu kỳ nhịp tim.
@@ -458,6 +623,17 @@ struct EntityVitals {
     friend bool operator==(const EntityVitals&, const EntityVitals&) = default;
 };
 
+// 0x8406, server gửi, cổng game, từ bản 5: Cờ của một thực thể trong vùng nhìn; gửi ngay sau EntityAppear khi cờ khác 0
+// và mỗi khi cờ đổi.
+struct EntityFlags {
+    static constexpr std::uint16_t kKind = 0x8406;
+    // Id thực thể.
+    std::uint32_t id = 0;
+    // Bit 0: bấm vào được để nói chuyện (Talk).
+    std::uint8_t flags = 0;
+    friend bool operator==(const EntityFlags&, const EntityFlags&) = default;
+};
+
 // 0x8501, server gửi, cổng auth, từ bản 1: Vé vào cổng game do cổng xác thực cấp sau khi đăng nhập đúng.
 struct Ticket {
     static constexpr std::uint16_t kKind = 0x8501;
@@ -466,11 +642,78 @@ struct Ticket {
     friend bool operator==(const Ticket&, const Ticket&) = default;
 };
 
-using GameClientMessage =
-    std::variant<Hello, Login, Resume, Ping, Logout, CreateCharacter, DeleteCharacter, EnterGame, Move>;
+// 0x8601, server gửi, cổng game, từ bản 5: Server mở hay thay hộp thoại của phiên: lời NPC, lựa chọn, dấu nhiệm vụ,
+// bảng nhiệm vụ và phần thưởng.
+struct DialogOpen {
+    static constexpr std::uint16_t kKind = 0x8601;
+    // Mã phiên, tăng ngặt, không dùng lại; gửi lại trong mọi tin sau của hộp thoại này.
+    std::uint64_t session = 0;
+    // EntityAppear.id của NPC; 0 với hộp thoại không gắn NPC.
+    std::uint32_t npc = 0;
+    DialogMode mode = DialogMode::kList;
+    std::vector<DialogLine> lines;
+    std::vector<DialogChoice> choices;
+    std::vector<DialogMark> marks;
+    // Nhiệm vụ của bảng (MissionInfo, Continue, Demand, Tips); -1 nếu không có.
+    std::int32_t panel_quest = 0;
+    std::vector<DialogBonus> bonuses;
+    friend bool operator==(const DialogOpen&, const DialogOpen&) = default;
+};
+
+// 0x8602, server gửi, cổng game, từ bản 5: Server đóng phiên hội thoại và nêu lý do.
+struct DialogClosed {
+    static constexpr std::uint16_t kKind = 0x8602;
+    std::uint64_t session = 0;
+    DialogCloseReason reason = DialogCloseReason::kDone;
+    friend bool operator==(const DialogClosed&, const DialogClosed&) = default;
+};
+
+// 0x8603, server gửi, cổng game, từ bản 5: Toàn bộ sổ nhiệm vụ: ô đang giữ và tập nhiệm vụ đã xong. Gửi sau SceneEnter
+// và mỗi khi sổ đổi.
+struct QuestBook {
+    static constexpr std::uint16_t kKind = 0x8603;
+    std::vector<QuestSlot> slots;
+    // 128 từ u32 little-endian: bit (id % 32) của từ (id / 32) bật là nhiệm vụ id đã xong (id 0..4095).
+    std::array<std::byte, kQuestBookDoneBytes> done{};
+    friend bool operator==(const QuestBook&, const QuestBook&) = default;
+};
+
+// 0x8604, server gửi, cổng game, từ bản 5: Thông báo của hệ nhiệm vụ cho người chơi: nhận, tiến độ, đủ điều kiện nộp,
+// thưởng, chữ.
+struct QuestNotice {
+    static constexpr std::uint16_t kKind = 0x8604;
+    QuestNoticeKind kind = QuestNoticeKind::kAdded;
+    // Id nhiệm vụ; -1 nếu không gắn nhiệm vụ.
+    std::int32_t quest = 0;
+    // Chữ đã dựng; rỗng với kind không có chữ.
+    std::string text;
+    // RewardExp: kinh nghiệm. RewardMoney: số tiền. RewardItem: số lượng. Relation: giá trị mới.
+    std::int64_t value = 0;
+    // RewardMoney: 1 nếu tiền khoá. RewardItem: mẫu vật phẩm. Relation: chỉ số quan hệ.
+    std::int32_t ref = 0;
+    friend bool operator==(const QuestNotice&, const QuestNotice&) = default;
+};
+
+// 0x8701, server gửi, cổng game, từ bản 5: Cấp, kinh nghiệm và tiền của chính nhân vật. Gửi sau SceneEnter và mỗi khi
+// đổi.
+struct SelfStats {
+    static constexpr std::uint16_t kKind = 0x8701;
+    std::uint16_t level = 0;
+    // Kinh nghiệm hiện có trong cấp.
+    std::uint64_t exp = 0;
+    // Tiền thường.
+    std::uint64_t money = 0;
+    // Tiền khoá.
+    std::uint64_t bound_money = 0;
+    friend bool operator==(const SelfStats&, const SelfStats&) = default;
+};
+
+using GameClientMessage = std::variant<Hello, Login, Resume, Ping, Logout, CreateCharacter, DeleteCharacter, EnterGame,
+    Move, Talk, DialogChoose, QuestAccept, QuestTurnIn, QuestAbandon, DialogClose>;
 using GameClientResult = std::expected<GameClientMessage, WireError>;
 using GameServerMessage = std::variant<Welcome, SessionStart, ContentKey, Pong, Reject, Goodbye, ContentStamp, UiConfig,
-    CharacterList, Position, SceneEnter, EntityAppear, EntityDisappear, EntityPos, EntityVitals>;
+    CharacterList, Position, SceneEnter, EntityAppear, EntityDisappear, EntityPos, EntityVitals, EntityFlags,
+    DialogOpen, DialogClosed, QuestBook, QuestNotice, SelfStats>;
 using GameServerResult = std::expected<GameServerMessage, WireError>;
 using AuthClientMessage = std::variant<Hello, CreateAccount, SignIn>;
 using AuthClientResult = std::expected<AuthClientMessage, WireError>;
@@ -489,6 +732,12 @@ using AuthServerResult = std::expected<AuthServerMessage, WireError>;
 [[nodiscard]] WireStatus encode(std::vector<std::byte>& out, const Move& message);
 [[nodiscard]] WireStatus encode(std::vector<std::byte>& out, const CreateAccount& message);
 [[nodiscard]] WireStatus encode(std::vector<std::byte>& out, const SignIn& message);
+[[nodiscard]] WireStatus encode(std::vector<std::byte>& out, const Talk& message);
+[[nodiscard]] WireStatus encode(std::vector<std::byte>& out, const DialogChoose& message);
+[[nodiscard]] WireStatus encode(std::vector<std::byte>& out, const QuestAccept& message);
+[[nodiscard]] WireStatus encode(std::vector<std::byte>& out, const QuestTurnIn& message);
+[[nodiscard]] WireStatus encode(std::vector<std::byte>& out, const QuestAbandon& message);
+[[nodiscard]] WireStatus encode(std::vector<std::byte>& out, const DialogClose& message);
 [[nodiscard]] WireStatus encode(std::vector<std::byte>& out, const Welcome& message);
 [[nodiscard]] WireStatus encode(std::vector<std::byte>& out, const SessionStart& message);
 [[nodiscard]] WireStatus encode(std::vector<std::byte>& out, const ContentKey& message);
@@ -504,7 +753,13 @@ using AuthServerResult = std::expected<AuthServerMessage, WireError>;
 [[nodiscard]] WireStatus encode(std::vector<std::byte>& out, const EntityDisappear& message);
 [[nodiscard]] WireStatus encode(std::vector<std::byte>& out, const EntityPos& message);
 [[nodiscard]] WireStatus encode(std::vector<std::byte>& out, const EntityVitals& message);
+[[nodiscard]] WireStatus encode(std::vector<std::byte>& out, const EntityFlags& message);
 [[nodiscard]] WireStatus encode(std::vector<std::byte>& out, const Ticket& message);
+[[nodiscard]] WireStatus encode(std::vector<std::byte>& out, const DialogOpen& message);
+[[nodiscard]] WireStatus encode(std::vector<std::byte>& out, const DialogClosed& message);
+[[nodiscard]] WireStatus encode(std::vector<std::byte>& out, const QuestBook& message);
+[[nodiscard]] WireStatus encode(std::vector<std::byte>& out, const QuestNotice& message);
+[[nodiscard]] WireStatus encode(std::vector<std::byte>& out, const SelfStats& message);
 
 // Giải mã thân của một khung đã tách bằng peek_frame. Kind không thuộc cổng hoặc chiều của bộ giải mã là kUnknownKind;
 // còn byte sau trường cuối là kTrailingBytes.

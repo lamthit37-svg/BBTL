@@ -7,3 +7,5 @@ id	name	summary
 03	move	Di chuyển: client xin bước, server làm chủ vị trí và kéo về mốc khi không nhận.
 04	world	Thế giới: người chơi vào cảnh, thực thể xuất hiện, di chuyển và biến mất trong vùng nhìn.
 05	auth	Cổng xác thực: tạo tài khoản, đăng nhập bằng mật khẩu và cấp vé vào cổng game.
+06	dialogue	Hội thoại với NPC và nhiệm vụ: mở hộp thoại, chọn mục, nhận, nộp, bỏ nhiệm vụ và sổ nhiệm vụ.
+07	self	Trạng thái của chính nhân vật: cấp, kinh nghiệm, tiền.
