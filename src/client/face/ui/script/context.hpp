@@ -3,6 +3,7 @@
 // native::context_of(lua_State*). Một luồng, như Host.
 #pragma once
 
+#include "hero/hero.hpp"
 #include "ui/panel/call.hpp"
 #include "ui/script/variable.hpp"
 #include "ui/script/xscript.hpp"
@@ -31,6 +32,17 @@ struct Facts {
     std::uint8_t gm_visible_type = 0;
     // IsZbs2018SpeicalServer: số nguyên ở DataPool + 0x632c0c (máy chủ đặc biệt 2018); 0 là máy chủ thường.
     std::int32_t zbs2018_server = 0;
+    // Nhân vật người chơi đang điều khiển (Player:GetData...); nullptr khi chưa vào cảnh, như gốc chưa có đối tượng người chơi.
+    // Chủ host đặt lại mỗi khung; con trỏ chỉ dùng trong lúc script chạy, không giữ qua khung.
+    const hero::Hero* hero = nullptr;
+    // Cờ loại máy chủ ở đối tượng hệ thống của gốc (DAT_141034c40 + 0x6f5868, 0x6f586c, 0x6f5874), Player:GetData đọc ra bằng
+    // "IsPKServer_JD", "IsOriginalJD", "Is2606S". Máy chủ ghi; hàm dựng của gốc đặt 0 (Game.exe 0x1400d1120 vùng khởi tạo).
+    struct ServerFlags {
+        std::int32_t pk_jd = 0;
+        std::int32_t original_jd = 0;
+        std::int32_t s2606 = 0;
+    };
+    ServerFlags server;
 };
 
 struct Context {

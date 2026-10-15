@@ -22,4 +22,7 @@ void register_world(lua_State* lua);
 // ScriptGlobal_Format (message_format.hpp).
 void register_format(lua_State* lua);
 
+// Player:GetData (thuộc tính của nhân vật người chơi, Facts::hero).
+void register_player(lua_State* lua);
+
 } // namespace game::ui::script

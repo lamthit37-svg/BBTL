@@ -831,6 +831,7 @@ std::vector<panel::Call> Hud::State::take_script_calls() {
 void Hud::State::update_script_facts(const HudView& view) {
     script::Facts& facts = script_context.facts;
     facts.scene_id = view.phase == Phase::kPlay && view.scene.id >= 0 ? std::optional<std::int32_t>(view.scene.id) : std::nullopt;
+    facts.hero = view.phase == Phase::kPlay ? view.hero : nullptr;
 }
 
 // Việc script nhờ game sau một thao tác của người chơi: PushEvent (và lời nhắn) thành sự kiện mới đi qua mọi bảng như sự kiện của
