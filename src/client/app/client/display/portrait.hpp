@@ -39,8 +39,10 @@ struct HeadShotDesc {
     gpu::Format color_format = gpu::Format::kRgba8UnormSrgb;
     gpu::Format depth_format = gpu::Format::kD32Float;
     std::uint32_t samples = 1;
-    // Cạnh của texture theo điểm ảnh.
-    std::uint32_t pixels = 128;
+    // Cạnh của texture theo điểm ảnh. Client gốc dùng cỡ cửa sổ làm tròn lên luỹ thừa 2 (ô 80 thành 128) và giao diện phủ
+    // cả texture lên cửa sổ nên ảnh bị lấy mẫu lại và mờ; mặc định gấp đôi mỗi chiều (256 cho ô 80), giao diện lấy mẫu
+    // tuyến tính xuống gần đúng 2:1 nên ảnh nét như khử răng cưa. Ảnh toàn thân (play.cpp) dùng 512 cho cửa sổ 246.
+    std::uint32_t pixels = 256;
     // Toàn thân cho vòng xem của bảng nhân vật. Không bật thì là ảnh đầu của khung người chơi.
     bool is_body = false;
 };

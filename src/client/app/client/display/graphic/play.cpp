@@ -611,7 +611,10 @@ void Display::State::load_head(const PlayerDesc& desc, const MeshLoader& loader)
     head.emplace(std::move(*made));
     keep_view(*head, ui::kPlayerHead);
     shot.is_body = true;
-    shot.pixels = 256;
+    // Cửa sổ ảnh toàn thân của bảng nhân vật rộng 246 điểm ảnh, client gốc dùng texture 256 (cỡ cửa sổ làm tròn lên luỹ
+    // thừa 2) và giao diện phủ cả texture lên cửa sổ, nên mô hình bị lấy mẫu lại và mờ. 512 là vẽ gấp đôi mỗi chiều rồi
+    // lấy mẫu tuyến tính xuống gần đúng 2:1, tức khử răng cưa tại chỗ.
+    shot.pixels = 512;
     core::Result<HeadShot> whole = HeadShot::create(*device, shot, loader);
     if (!whole) {
         std::println(stderr, "Chân dung: không dựng được toàn thân: {}", whole.error());
