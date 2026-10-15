@@ -635,6 +635,7 @@ game_module(ui_script
     src/client/face/ui/script/host.cpp
     src/client/face/ui/script/context.cpp
     src/client/face/ui/script/message_format.cpp
+    src/client/face/ui/script/native_a_trade.cpp
     src/client/face/ui/script/native_a_vcall.cpp
     src/client/face/ui/script/native_events.cpp
     src/client/face/ui/script/native_format.cpp

@@ -19,6 +19,10 @@ namespace game::ui::script {
 // phương thức của ActionItem rỗng (GetID, GetName, GetDefineID...).
 void register_a_vcall(lua_State* lua);
 
+// Hàm đóng của ngân hàng, cửa hàng, giao dịch, quầy hàng (làn A, native_a_trade.cpp): Bank:Close, CloseBooth, RestoreShopFitting,
+// Exchange:ExchangeCancel, StallSale:CloseStallMessage, DataPool:AskMyBagList.
+void register_a_trade(lua_State* lua);
+
 // XSCRIPT và XParam: cách script giao diện nói chuyện với script máy chủ (xscript.hpp). Get_XParam_INT, Get_XParam_UINT,
 // Get_XParam_STR, Get_XParam_INT_Count, Get_XParam_STR_Count, Set_XSCRIPT_ScriptID, Set_XSCRIPT_Function_Name,
 // Set_XSCRIPT_ParamCount, Set_XSCRIPT_Parameter, Clear_XSCRIPT, Send_XSCRIPT.
