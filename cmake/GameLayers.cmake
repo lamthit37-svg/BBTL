@@ -74,6 +74,8 @@ set(game_layer_gated "service gated")
 set(game_layer_classic "core math resource render classic")
 set(game_layer_look "core table look")
 set(game_layer_gui "core io xml table gui")
+# lua: runtime Lua 5.0.1 (LuaPlus của client 2026) cho mã C++ sinh từ script giao diện (docs/giao-viec/LUA-GEN).
+set(game_layer_lua "core lua")
 set(game_layer_hero "core hero")
 set(game_layer_quest "core table quest")
 set(game_layer_skill "core table skill")

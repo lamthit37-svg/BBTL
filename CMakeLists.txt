@@ -126,7 +126,7 @@ endfunction()
 set(game_engine_names audio audiotool capture core fs gpu io jobs math net render resource shader
     shadertool window xml)
 set(game_shared_names protocol secure table link nav collision ids)
-set(game_client_names anim avatar classic client control fx gui hero look motion ogre
+set(game_client_names anim avatar classic client control fx gui hero look lua motion ogre
     quest scene seal sealtool skill ui)
 set(game_server_names account actor authd billing billingd bus combat config content dice forge gate gated guard handlers ipc
     ledger linttool metrics mission item loot ops process scenedata service shop social store stored supervise supervisor talk

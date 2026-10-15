@@ -218,6 +218,11 @@ void set_list(State& state, Value table, std::size_t first, Args items);
 // rồi trường n.
 [[nodiscard]] Value vararg_table(State& state, Args extra);
 
+// OP_TFORPREP của `for ... in explist do` (lvm.c 5.0.1, "for compatibility only"): generator là bảng thì
+// invariant = bảng đó và generator = next lấy THÔ từ bảng toàn cục (luaH_getstr, không qua bảng meta của _G). Bộ dịch gọi
+// một lần sau khi tính explist, trước vòng đầu. Không lỗi.
+void for_prep(State& state, Value& generator, Value& invariant);
+
 // OP_FORLOOP: kiểm index là số, ép limit và step sang số (lỗi "`for' ... must be a number"), cộng step vào index
 // rồi trả có chạy thân vòng nữa không. Bộ dịch khởi đầu bằng index = sub(init, step) như fornum của lparser.c.
 [[nodiscard]] bool for_next(State& state, Value& index, Value& limit, Value& step);
