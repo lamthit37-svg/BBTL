@@ -511,6 +511,7 @@ game_module(avatar src/client/figure/avatar/gait.cpp src/client/figure/avatar/tu
 target_link_libraries(game_avatar PUBLIC game_anim game_core game_look)
 
 # control: mặt đất của cảnh (độ cao, tia chạm đất, va chạm của mắt camera), tia từ màn hình, camera
+    src/client/figure/look/creature.cpp
 # bám theo, lệnh đi bằng chuột, chọn thứ dưới chuột, cử chỉ chạm và cần gạt ảo; port từ TLBB Dev.
 game_module(control
     src/client/figure/control/char_camera.cpp
@@ -994,6 +995,8 @@ else()
     set(game_client_screen src/client/app/client/display/display_none.cpp)
 endif()
 if(WIN32)
+        src/client/app/client/display/graphic/creature.cpp
+        src/client/app/client/display/creature.cpp
     set(game_client_loop src/client/app/client/viewer/viewer_win32.cpp src/client/app/client/viewer/cursors.cpp
         src/client/app/client/viewer/sdl_input.cpp)
 else()
@@ -1399,6 +1402,12 @@ endif()
 # (so-do/b-dinh-dang-tsv.md) và 435 tệp thật; collision_alloc_tests là G3 (Test/collision_hostile.hpp), H1, H2.
 # Thứ tự dò byte nguồn số vàng: dòng file, rồi GAME_CLIENT_DATA/Scene/<cảnh>.WCollision, rồi
 # GAME_RAW_SCENE/<cảnh>.WCollision (lingxingfeng, xihu_Valentine đọc GAME_CLIENT_DATA rồi GAME_RAW_SCENE trước);
+        # Bốn bảng quái và NPC (TOOLS/content/export_creatures.py) với bộ đọc của client.
+        if(EXISTS "${PROJECT_SOURCE_DIR}/dev/client/assets/Table/creature_templates.tsv")
+            game_test(creature_data game_avatar game_look game_io)
+            target_compile_definitions(creature_data_tests PRIVATE
+                GAME_CLIENT_DATA="${PROJECT_SOURCE_DIR}/dev/client/assets")
+        endif()
 # không có gì thì trả 77. Chưa có Model của C cũng trả 77 (CTest báo Skipped); ca hỏng vẫn trả 1. Đường dẫn là của
 # máy dựng nên Android tự bỏ qua.
 if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/Test/Collision/collision_tests.cpp")
@@ -1471,6 +1480,7 @@ if(NOT ANDROID AND EXISTS "${PROJECT_SOURCE_DIR}/dev/client/assets/Table/life_sk
         AND EXISTS "${PROJECT_SOURCE_DIR}/dev/client/assets/Table/formation_levels.tsv"
         AND EXISTS "${PROJECT_SOURCE_DIR}/dev/client/assets/Table/icons.tsv")
     target_compile_definitions(skill_tests PRIVATE
+game_test(creature game_look)
         GAME_CLIENT_DATA="${PROJECT_SOURCE_DIR}/dev/client/assets")
 endif()
 game_test(gui_value game_gui)

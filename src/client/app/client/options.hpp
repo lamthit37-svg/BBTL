@@ -1,5 +1,19 @@
-// Tuỳ chọn dòng lệnh của thienlong_client, tách khỏi main để kiểm được bằng test. Mỗi tuỳ chọn là
-// một cặp "--khoá giá trị"; sai cách dùng thì không có kết quả, main in hướng dẫn và thoát mã 2.
+/*==============================================================================
+ *  THIENLONG  |  GAME CLIENT
+ *------------------------------------------------------------------------------
+ *  TỆP       : src/client/app/client/options.hpp
+ *  PHÂN HỆ   : Client / Client / Options
+ *  CHUẨN     : C++23
+ *------------------------------------------------------------------------------
+ *  CHỨC NĂNG
+ *  - Tuỳ chọn dòng lệnh của thienlong_client, tách khỏi main để kiểm được bằng
+ *    test. Mỗi tuỳ chọn là một cặp "--khoá giá trị"; sai cách dùng thì không có
+ *    kết quả, main in hướng dẫn và thoát mã 2.
+ *------------------------------------------------------------------------------
+ *  TÁC GIẢ   : HiepHoon
+ *  TELEGRAM  : @Hoon9xx
+ *============================================================================*/
+
 #pragma once
 
 #include "client/viewer/client_size.hpp"
@@ -88,6 +102,9 @@ struct Options {
     std::uint32_t auto_strike_from = 0;
     // --ui-event: sự kiện giao diện phát ở khung màn chơi đầu tiên, theo thứ tự. Công cụ thử của dự án.
     std::vector<std::string> ui_events;
+    // --creature: id mẫu quái hay NPC đứng thành lưới trước mặt nhân vật ở màn chơi, để nhìn hình mà không cần máy chủ.
+    // Công cụ thử của dự án.
+    std::vector<std::uint32_t> creatures;
 };
 
 using Arguments = std::span<const std::string_view>;

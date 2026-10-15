@@ -2555,6 +2555,32 @@ Chưa làm: vũ khí mặc định trong `Slot` của locator (hai trong 130 mô
 (`wild_pets.tsv`, bảng `PetAttrTable` khác), entity có `condition` (chỉ đếm; 0 ở hai cảnh, 6 ở cả 325 cảnh), hành động kỹ
 năng ngoài `attack*`, chưa nhìn tận mắt vì client chưa vẽ.
 
+## Client vẽ quái và NPC (2026-10-15)
+
+Lát cắt 1 phía client: `Move` đã gửi (`49666572`), nay thêm phần hình. Mô-đun `client/cast` giữ thực thể máy chủ báo và làm
+mượt chuyển động; `look/creature` đọc bốn bảng `creature_*.tsv` rồi giải một template ra hình (lưới, xương, clip, tỉ lệ ba
+trục); `display/creature` có `CreatureAsset` (dùng chung theo template) và `CreatureActor` (clip đang phát, ma trận đặt, phóng
+theo từng trục); `display/graphic/creature.cpp` nối vào `Display::State`: bảng đọc ở luồng riêng từ lúc thấy thực thể đầu
+tiên, mỗi khung nạp tối đa một hình mới, da chồng (`Entity material`) thay ảnh nền của lưới, chân đứng theo địa hình và mặt
+công trình như người chơi.
+
+Công cụ thử `--creature <id,id,...>` (tối đa 32): đặt các mẫu thành lưới tám cột trước mặt nhân vật ở màn chơi, để nhìn hình
+không cần máy chủ. Ví dụ: `thienlong_client.exe --data dev/client/assets --scene-id 2 --creature 6,9,36,185,305,339,340,341,361,475,477,598 --shot a.png --frames 240`.
+
+Đã đo (MSVC `msvc-release`, 0 warning): `cast_tests`, `creature_tests`, `creature_data_tests` (bốn bảng thật: mọi template giải
+ra hình, mọi lưới và ảnh có tệp, avatar nạp được xương và clip của mọi mô hình có xương), `online_tests`, `client_tests`,
+`layers` xanh; `check.py` xanh trên `look/creature.*`, `display/creature.*`, `options.*`, `client_tests.cpp`. Chạy thật
+12 mẫu ở Đại Lý (resid 2): ảnh chụp thấy voi có người cưỡi, phượng hoàng, rùa, thỏ, bù nhìn và các NPC đúng da, đứng trên
+mặt đất, mặt quay về phía nhân vật; 242 khung, trung vị 8,3 ms, p95 8,4 ms, không dòng "Quái/NPC" lỗi nào.
+
+Chưa kiểm: chạy với máy chủ thật (đường mạng chỉ kiểm bằng `FakeGate`, đường vẽ bằng `--creature`; hai đường gặp nhau ở
+`people.apply`, chưa bấm thật giao diện đăng nhập vì cấm điều khiển chuột); chuyển động đi/đứng và clip nghỉ nhìn bằng mắt
+(ảnh chụp chỉ một khung); thời gian nạp trọn 138 template của Đại Lý khi mỗi khung một hình (chưa đo); `check.py` đầy đủ
+trên `display/graphic/*.cpp` (header `state.hpp`, `prelude.hpp` đã có lỗi clang-tidy cũ: đệm `State`, tham số dễ nhầm).
+Chưa làm: xác (`Pose::kDead` không vẽ; clip `death`/`corpse` đã có trong `CreatureFigure`), người chơi khác (`Kind::kPlayer`
+cần `PlayerActor`), bảng tên trên đầu, thú, Android và iOS (gói điện thoại cần đóng `creature.files.tsv`, bốn bảng, lưới,
+xương và ảnh material).
+
 ## Còn lại
 
 Đối chiếu với mã ngày 2026-10-08, `main` ở `501743a`; các dòng "Giao diện", "Hình" và "Dựng lại cây chung"

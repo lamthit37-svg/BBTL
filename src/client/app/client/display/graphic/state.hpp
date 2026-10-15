@@ -240,6 +240,18 @@ struct Display::State {
     void bind_ground(const KeptGround* slot);
     [[nodiscard]] KeptGround* make_ground(int scene_id);
     [[nodiscard]] std::size_t load_mesh(const std::string& mesh);
+    // Quái và NPC (graphic/creature.cpp): bảng đọc ở luồng riêng từ lúc thấy thực thể đầu tiên, hình dùng chung theo
+    // template, rồi từng thực thể dựng tư thế mỗi khung. budget là số hình mới còn được nạp ở khung này.
+    void append_creatures();
+    void seed_creature_demo(int scene_id);
+    void show_creature(const cast::Actor& actor, std::size_t& budget);
+    [[nodiscard]] math::Point3 stand_of(const cast::Actor& actor) const;
+    [[nodiscard]] const look::CreatureTables* ready_creature_tables();
+    [[nodiscard]] std::shared_ptr<const CreatureAsset> build_creature_asset(std::uint32_t template_id);
+    [[nodiscard]] std::shared_ptr<const CreatureAsset> creature_asset(std::uint32_t template_id, std::size_t& budget);
+    [[nodiscard]] const render::Drawable* load_creature_mesh(const std::string& mesh, const look::CreatureMaterial* skin);
+    // Lưới tô bằng material chồng của quái; khoá nhớ là tên lưới và tên material.
+    [[nodiscard]] std::size_t load_skinned_mesh(const std::string& mesh, const look::CreatureMaterial& skin);
     // Mesh của hạt, tô bằng material hạt. Khoá nhớ là tên mesh và tên material, không dùng chung BaseWhite.
     [[nodiscard]] std::size_t load_painted_mesh(const std::string& mesh, std::string_view material,
         const fx::Paint& paint);
@@ -383,6 +395,20 @@ struct Display::State {
     std::mutex world_guard;
     std::vector<cast::Note> world_notes;
     cast::Cast people;
+    // Quái và NPC đang vẽ: bảng (rỗng tới khi luồng đọc xong), hình theo template (nullptr là template hỏng, đã ghi log), và
+    // từng thực thể theo id. seen là số thứ tự khung thấy gần nhất; thực thể không còn trong cast thì bị xoá cuối khung.
+    struct CreatureSlot {
+        std::uint32_t template_id = 0;
+        std::uint64_t seen = 0;
+        bool is_broken = false;
+        CreatureActor actor;
+    };
+    CreatureTablesJob creature_job;
+    std::shared_ptr<const look::CreatureTables> creature_tables;
+    bool creature_tables_failed = false;
+    std::unordered_map<std::uint32_t, std::shared_ptr<const CreatureAsset>> creature_assets;
+    std::unordered_map<std::uint32_t, CreatureSlot> creatures;
+    std::uint64_t creature_epoch = 0;
     mutable std::mutex spot_guard;
     std::optional<core::GroundPoint> spot_report;
     // Chỗ vào game cho lần place_at kế; spawn_guard bảo vệ (luồng cửa sổ ghi, luồng vẽ đọc).
@@ -446,6 +472,8 @@ struct Display::State {
     // DisplayDesc::auto_strike_from, và số khung màn chơi đã chạy để đếm nhịp.
     std::uint32_t auto_strike_from = 0;
     std::uint32_t play_frames = 0;
+    // DisplayDesc::creatures còn chờ khung màn chơi đầu tiên có chỗ đứng của nhân vật.
+    std::vector<std::uint32_t> creature_demo;
     // DisplayDesc::ui_events đã phân tích, còn chờ khung màn chơi đầu tiên; hud_events là phần HUD nhận ở khung
     // đó (rỗng ở các khung khác).
     std::vector<ui::panel::PostedEvent> posted_events;

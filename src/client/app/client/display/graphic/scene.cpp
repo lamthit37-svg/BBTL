@@ -1,5 +1,18 @@
-// Nội dung một khung của cảnh: trời, nước, địa hình và vật thể tĩnh.
-// Mesh hạt tô material hạt cũng ở đây vì nó vào cùng danh sách instance.
+/*==============================================================================
+ *  THIENLONG  |  GAME CLIENT
+ *------------------------------------------------------------------------------
+ *  TỆP       : src/client/app/client/display/graphic/scene.cpp
+ *  PHÂN HỆ   : Display / Graphic / Scene
+ *  CHUẨN     : C++23
+ *------------------------------------------------------------------------------
+ *  CHỨC NĂNG
+ *  - Nội dung một khung của cảnh: trời, nước, địa hình và vật thể tĩnh. Mesh
+ *    hạt tô material hạt cũng ở đây vì nó vào cùng danh sách instance.
+ *------------------------------------------------------------------------------
+ *  TÁC GIẢ   : HiepHoon
+ *  TELEGRAM  : @Hoon9xx
+ *============================================================================*/
+
 #include "client/display/graphic/state.hpp"
 namespace game::client {
 
@@ -324,6 +337,7 @@ void Display::State::compose_frame() {
     frame_instances = instances;
     append_login_role();
     if (!player || ground == nullptr || !terrain) return;
+    append_creatures();
     Stand stand;
     stand.foot = point_of(foot());
     stand.facing = facing;

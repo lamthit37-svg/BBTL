@@ -1,7 +1,21 @@
-// Test của client: tuỳ chọn dòng lệnh, việc chọn cảnh và sổ assets của bản di động. Sai cách dùng
-// (khoá lạ, khoá không có giá trị, số vòng lặp không phải số nguyên dương) phải bị từ chối thay vì
-// chạy với giá trị đoán. Chạy không đối số (bấm đúp exe) là hợp lệ: cảnh được chọn là cảnh duy nhất
-// của thư mục dữ liệu.
+/*==============================================================================
+ *  THIENLONG  |  TEST
+ *------------------------------------------------------------------------------
+ *  TỆP       : Test/Client/client_tests.cpp
+ *  PHÂN HỆ   : Client / Client Tests
+ *  CHUẨN     : C++23
+ *------------------------------------------------------------------------------
+ *  CHỨC NĂNG
+ *  - Test của client: tuỳ chọn dòng lệnh, việc chọn cảnh và sổ assets của bản
+ *    di động. Sai cách dùng (khoá lạ, khoá không có giá trị, số vòng lặp không
+ *    phải số nguyên dương) phải bị từ chối thay vì chạy với giá trị đoán. Chạy
+ *    không đối số (bấm đúp exe) là hợp lệ: cảnh được chọn là cảnh duy nhất của
+ *    thư mục dữ liệu.
+ *------------------------------------------------------------------------------
+ *  TÁC GIẢ   : HiepHoon
+ *  TELEGRAM  : @Hoon9xx
+ *============================================================================*/
+
 #include "client/assets.hpp"
 #include "client/display/display.hpp"
 #include "client/options.hpp"
@@ -13,6 +27,7 @@
 
 #include <array>
 #include <cstddef>
+#include <cstdint>
 #include <optional>
 #include <span>
 #include <string>
@@ -189,6 +204,25 @@ void options_take_bare_flag(Context& context) {
     context.expect(!client::parse_options(kValued).has_value(), "--bare không nhận giá trị");
 }
 
+// --creature nhận danh sách id mẫu cách nhau dấu phẩy; phần rỗng, chữ hay quá nhiều id là sai cách dùng.
+void options_take_creature_list(Context& context) {
+    constexpr std::array<Text, 2> kList{"--creature", "6,9,36"};
+    const std::optional<client::Options> list = client::parse_options(kList);
+    context.expect(list.has_value(), "danh sách id hợp lệ");
+    if (list) context.expect(list->creatures == std::vector<std::uint32_t>({6, 9, 36}), "id giữ thứ tự");
+    constexpr std::array<Text, 2> kTrailing{"--creature", "7,"};
+    const std::optional<client::Options> trailing = client::parse_options(kTrailing);
+    context.expect(trailing.has_value() && trailing->creatures == std::vector<std::uint32_t>({7}), "dấu phẩy cuối được bỏ");
+    for (const Text bad : {Text{""}, Text{","}, Text{"6,,9"}, Text{"6,x"}, Text{"-1"}, Text{"12x"}}) {
+        const std::array<Text, 2> arguments{"--creature", bad};
+        context.expect(!client::parse_options(arguments).has_value(), "danh sách sai bị từ chối");
+    }
+    std::string many;
+    for (int at = 0; at < 33; ++at) many += at == 0 ? "1" : ",1";
+    const std::array<Text, 2> too_many{"--creature", many};
+    context.expect(!client::parse_options(too_many).has_value(), "quá ba mươi hai id bị từ chối");
+}
+
 void options_allow_launch_without_arguments(Context& context) {
     const std::optional<client::Options> bare = client::parse_options({});
     context.expect(bare.has_value(), "không đối số nào (bấm đúp exe) là hợp lệ");
@@ -267,6 +301,7 @@ constexpr std::array kCases{
     Case{.name = "options_take_bare_validate_flag", .body = &options_take_bare_validate_flag},
     Case{.name = "options_take_bare_login_flag", .body = &options_take_bare_login_flag},
     Case{.name = "options_take_bare_flag", .body = &options_take_bare_flag},
+    Case{.name = "options_take_creature_list", .body = &options_take_creature_list},
     Case{.name = "asset_book_reads_group_stamp_and_path", .body = &asset_book_reads_group_stamp_and_path},
     Case{.name = "assets_copy_only_what_changed", .body = &assets_copy_only_what_changed},
 };

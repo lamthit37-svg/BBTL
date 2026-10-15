@@ -20,7 +20,7 @@
     màn; lúc mở cửa sổ client nâng tần số đó lên mức cao nhất cùng độ phân giải rồi trả lại khi thoát.
     Nước và vòm trời đã có mã dựng và vẽ
     (`ensure_water`, `ensure_sky` ở `client/display/graphic/scene.cpp`, gọi từ `frame.cpp`); chưa
-    ai nhìn ảnh để đối chiếu với bản 2026. Chưa có NPC, quái, vật phẩm hay người chơi khác. Vũ khí cầm tay, đòn đánh,
+    ai nhìn ảnh để đối chiếu với bản 2026. NPC và quái vẽ được từ tin máy chủ (`client/cast`, `look/creature`, `display/creature`; nhìn hình không cần máy chủ bằng `--creature <id,...>`, `docs/TIEN-DO.md` mục "Client vẽ quái và NPC"); chưa có vật phẩm, người chơi khác hay xác. Vũ khí cầm tay, đòn đánh,
     tuyệt chiêu và hiệu ứng đồ (đá quý gắn vũ khí) đã chạy bằng công cụ thử `--weapon`, `--skill`, `--gem`, `--auto-strike`
     (hành trang, skill, đá quý chưa nối máy chủ; phần chưa làm ở `docs/NGHI-NGO.md` mục 51).
     Nhảy đã có mã: `src/client/figure/motion/jump.cpp` (`can_jump`/`start_jump`, port `Game.exe`
@@ -78,10 +78,10 @@
     và trả lời qua hai kênh. Luồng: SignIn ở cổng auth, Login ở cổng game bằng vé, danh sách nhân vật từ máy
     chủ, Create/Delete/EnterGame, `UiConfig` đè khung chân dung (`FrameStyle`) lên giá trị gắn lúc dựng,
     `Position` (cm, chia 100 ra mét; id cảnh của máy chủ là resid của client) đặt nhân vật. Android và iOS
-    không đụng: vẫn vào thẳng cảnh. Chưa có: tin đi (không gửi `Move`, phiên chỉ giữ sống bằng `Ping`), vẽ
-    thực thể từ `Entity*`, bộ đồ và chân dung của nhân vật (protocol chưa mang, dùng mặc định theo giới),
-    báo người chơi khi mất kết nối giữa lúc chơi, xử lý `SceneEnter` khác cảnh đã nạp. Số đo và lệnh chạy
-    thật ở `docs/TIEN-DO.md` mục 2026-10-15.
+    không đụng: vẫn vào thẳng cảnh. Gửi `Move` mỗi 50 ms (`Session::report`) và vẽ quái, NPC từ `Entity*`. Chưa có: vẽ
+    người chơi khác, bộ đồ và chân dung của nhân vật (protocol chưa mang, dùng mặc định theo giới), báo người chơi khi
+    mất kết nối giữa lúc chơi, xử lý `SceneEnter` khác cảnh đã nạp. Số đo và lệnh chạy thật ở `docs/TIEN-DO.md` mục
+    2026-10-15.
   - `WEB/` là trang giới thiệu tĩnh (Vite, React, three.js), không có backend, không nối client
     hay máy chủ, không nằm trong CMake.
   - Máy chủ: bảy exe khởi động và dừng theo thứ tự dưới trình giám sát, gate nghe hai cổng và giữ

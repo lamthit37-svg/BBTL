@@ -1,4 +1,18 @@
-// Giao diện 2D trên khung: bảng đăng nhập, nhịp khung và việc nút nhờ vòng cửa sổ.
+/*==============================================================================
+ *  THIENLONG  |  GAME CLIENT
+ *------------------------------------------------------------------------------
+ *  TỆP       : src/client/app/client/display/graphic/face.cpp
+ *  PHÂN HỆ   : Display / Graphic / Face
+ *  CHUẨN     : C++23
+ *------------------------------------------------------------------------------
+ *  CHỨC NĂNG
+ *  - Giao diện 2D trên khung: bảng đăng nhập, nhịp khung và việc nút nhờ vòng
+ *    cửa sổ.
+ *------------------------------------------------------------------------------
+ *  TÁC GIẢ   : HiepHoon
+ *  TELEGRAM  : @Hoon9xx
+ *============================================================================*/
+
 #include "client/display/graphic/state.hpp"
 
 #include "client/display/display.hpp"
@@ -86,6 +100,7 @@ void Display::State::arm_scene(const DisplayDesc& desc) {
     is_auto_walk = desc.is_auto_walk;
     auto_strike_from = desc.auto_strike_from;
     seed_ui_events(desc.ui_events);
+    creature_demo = desc.creatures;
     weapon_item = desc.weapon_item;
     weapon_gem = desc.weapon_gem;
     skill_id = desc.skill_id;

@@ -1,10 +1,25 @@
-// thienlong_client: điểm vào của client. Nạp tệp cảnh của một map từ thư mục dữ liệu, in tóm tắt
-// (số vật thể theo kiểu, hộp bao vị trí, vài phép đặt đầu) để đối chiếu với tệp gốc, rồi mở cửa sổ
-// và vẽ mọi vật thể tĩnh của cảnh (GLB nạp từ thư mục dữ liệu, đúng phép đặt gốc); --shot ghi ảnh
-// chụp khung đầu tiên ra PNG. Dữ liệu tìm ở <thư mục chứa exe>/../assets (dev/client/bin và
-// dev/client/assets, hoặc release/client), đổi bằng --data. Không nêu --scene thì mở cảnh duy nhất của thư mục
-// dữ liệu. Mã thoát: 0 xong, 1 lỗi dữ liệu hoặc không mở được cửa sổ, 2 sai cách dùng hoặc không
-// biết mở cảnh nào.
+/*==============================================================================
+ *  THIENLONG  |  GAME CLIENT
+ *------------------------------------------------------------------------------
+ *  TỆP       : src/client/app/client/main.cpp
+ *  PHÂN HỆ   : Client / Client / Main
+ *  CHUẨN     : C++23
+ *------------------------------------------------------------------------------
+ *  CHỨC NĂNG
+ *  - thienlong_client: điểm vào của client. Nạp tệp cảnh của một map từ thư mục
+ *    dữ liệu, in tóm tắt (số vật thể theo kiểu, hộp bao vị trí, vài phép đặt
+ *    đầu) để đối chiếu với tệp gốc, rồi mở cửa sổ và vẽ mọi vật thể tĩnh của
+ *    cảnh (GLB nạp từ thư mục dữ liệu, đúng phép đặt gốc); --shot ghi ảnh chụp
+ *    khung đầu tiên ra PNG.
+ *------------------------------------------------------------------------------
+ *  TÁC GIẢ   : HiepHoon
+ *  TELEGRAM  : @Hoon9xx
+ *============================================================================*/
+
+// Dữ liệu tìm ở <thư mục chứa exe>/../assets (dev/client/bin và dev/client/assets, hoặc release/client), đổi bằng
+// --data. Không nêu --scene thì mở cảnh duy nhất của thư mục dữ liệu. Mã thoát: 0 xong, 1 lỗi dữ liệu hoặc không mở
+// được cửa sổ, 2 sai cách dùng hoặc không biết mở cảnh nào.
+
 #include "client/boot.hpp"
 #include "client/display/display.hpp"
 #include "client/map/book.hpp"
@@ -214,6 +229,7 @@ void print_visit(const world::ShownScene& shown) {
     viewer.is_auto_walk = options.is_auto_walk;
     viewer.auto_strike_from = options.auto_strike_from;
     viewer.ui_events = options.ui_events;
+    viewer.creatures = options.creatures;
     viewer.weapon_item = options.weapon_item;
     viewer.weapon_gem = options.weapon_gem;
     viewer.skill_id = options.skill_id;

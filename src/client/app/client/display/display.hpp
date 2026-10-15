@@ -133,6 +133,9 @@ struct DisplayDesc {
     // Công cụ thử của dự án (--ui-event), client gốc không có: sự kiện giao diện "TÊN|arg0|...|arg3" phát cho các bảng ở
     // khung màn chơi đầu tiên, theo thứ tự, như PushEvent của game gốc.
     std::vector<std::string> ui_events;
+    // Công cụ thử của dự án (--creature), client gốc không có: id mẫu quái hay NPC đứng thành lưới trước mặt nhân vật ở
+    // khung màn chơi đầu tiên, như máy chủ vừa báo chúng vào vùng nhìn. Để nhìn hình mà không cần máy chủ.
+    std::vector<std::uint32_t> creatures;
     // Công cụ thử của dự án (--weapon): vật phẩm khe 0 mà nhân vật ở màn chơi cầm; không có thì tay không
     // (hay ngoại hình đã chọn). Hành trang thật nối vào ngoại hình sau (docs/NGHI-NGO.md).
     std::optional<std::uint32_t> weapon_item;

@@ -1,5 +1,19 @@
-// Cửa sổ xem cảnh của client. Mỗi nền tảng một tệp cài đặt, CMake chọn một: viewer_win32.cpp dùng
-// module window, viewer_none.cpp cho nền tảng chưa có cửa sổ.
+/*==============================================================================
+ *  THIENLONG  |  GAME CLIENT
+ *------------------------------------------------------------------------------
+ *  TỆP       : src/client/app/client/viewer/viewer.hpp
+ *  PHÂN HỆ   : Client / Viewer / Viewer
+ *  CHUẨN     : C++23
+ *------------------------------------------------------------------------------
+ *  CHỨC NĂNG
+ *  - Cửa sổ xem cảnh của client. Mỗi nền tảng một tệp cài đặt, CMake chọn một:
+ *    viewer_win32.cpp dùng module window, viewer_none.cpp cho nền tảng chưa có
+ *    cửa sổ.
+ *------------------------------------------------------------------------------
+ *  TÁC GIẢ   : HiepHoon
+ *  TELEGRAM  : @Hoon9xx
+ *============================================================================*/
+
 #pragma once
 
 #include "client/display/display.hpp"
@@ -52,6 +66,8 @@ struct ViewerDesc {
     std::uint32_t auto_strike_from = 0;
     // --ui-event: sự kiện giao diện phát ở khung màn chơi đầu tiên (DisplayDesc::ui_events).
     std::vector<std::string> ui_events;
+    // --creature: id mẫu quái hay NPC đứng trước mặt nhân vật ở màn chơi (DisplayDesc::creatures).
+    std::vector<std::uint32_t> creatures;
     // --weapon: vật phẩm khe 0 mà nhân vật ở màn chơi cầm (DisplayDesc::weapon_item).
     std::optional<std::uint32_t> weapon_item;
     // --gem: đá quý gắn vào vũ khí (DisplayDesc::weapon_gem).

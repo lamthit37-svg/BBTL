@@ -151,6 +151,7 @@ render::Camera Display::State::frame_camera(FrameAsk ask) {
     take_events(taken.events);
     const float delta_seconds = step_clock(ask.elapsed);
     enter_camera(scene_id);
+    if (!creature_demo.empty()) seed_creature_demo(scene_id);
     Steering keys = is_auto_walk ? auto_walk(taken.keys, delta_seconds) : taken.keys;
     if (auto_strike_from != 0) note_auto_strike(keys);
     steer_camera(keys);

@@ -1,3 +1,20 @@
+/*==============================================================================
+ *  THIENLONG  |  GAME CLIENT
+ *------------------------------------------------------------------------------
+ *  TỆP       : src/client/app/client/options.cpp
+ *  PHÂN HỆ   : Client / Client / Options
+ *  CHUẨN     : C++23
+ *------------------------------------------------------------------------------
+ *  CHỨC NĂNG
+ *  - Đọc tuỳ chọn dòng lệnh của thienlong_client: từng cặp "--khoá giá trị" và
+ *    cờ đơn, kiểm giá trị trước khi nhận.
+ *  - Sai cách dùng (khoá lạ, thiếu giá trị, số không hợp lệ) thì không có kết
+ *    quả, để main in hướng dẫn thay vì chạy với giá trị đoán.
+ *------------------------------------------------------------------------------
+ *  TÁC GIẢ   : HiepHoon
+ *  TELEGRAM  : @Hoon9xx
+ *============================================================================*/
+
 #include "client/options.hpp"
 
 #include "client/viewer/client_size.hpp"
@@ -9,6 +26,8 @@
 #include <optional>
 #include <string>
 #include <string_view>
+#include <utility>
+#include <vector>
 
 namespace game::client {
 namespace {
@@ -90,6 +109,25 @@ struct Argument {
     return true;
 }
 
+// Số mẫu tối đa của --creature: lưới tám cột bốn hàng trước mặt nhân vật.
+constexpr std::size_t kMostDemoCreatures = 32;
+
+// Danh sách id mẫu cách nhau dấu phẩy; mỗi id là số nguyên không âm chiếm trọn phần của nó, không quá kMostDemoCreatures id.
+[[nodiscard]] bool set_creatures(Options& options, std::string_view text) {
+    std::vector<std::uint32_t> ids;
+    while (!text.empty()) {
+        const std::size_t cut = text.find(',');
+        const std::string_view item = text.substr(0, cut);
+        const core::OptionalUnsigned parsed = core::parse_unsigned(item, 10);
+        if (!parsed || parsed->length != item.size() || ids.size() >= kMostDemoCreatures) return false;
+        ids.push_back(parsed->value);
+        text = cut == std::string_view::npos ? std::string_view{} : text.substr(cut + 1);
+    }
+    if (ids.empty()) return false;
+    options.creatures = std::move(ids);
+    return true;
+}
+
 // resid: số nguyên không âm chiếm trọn chuỗi. 0 là Lạc Dương trong bảng gốc.
 [[nodiscard]] bool set_scene_id(Options& options, std::string_view text) noexcept {
     const std::optional<int> resid = core::parse_whole_int(text);
@@ -130,6 +168,7 @@ struct Argument {
     if (argument.key == "--data") options.data_folder = io::path_from_utf8(argument.value);
     if (argument.key == "--shot") options.shot_path = io::path_from_utf8(argument.value);
     if (argument.key == "--ui-event") return add_ui_event(options, argument.value);
+    if (argument.key == "--creature") return set_creatures(options, argument.value);
     return argument.key == "--scene" || argument.key == "--data" || argument.key == "--shot";
 }
 

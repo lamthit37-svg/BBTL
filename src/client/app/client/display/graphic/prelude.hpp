@@ -45,6 +45,7 @@
 #include "capture/frame.hpp"
 #include "capture/png.hpp"
 #include "classic/bake.hpp"
+#include "client/display/creature.hpp"
 #include "client/display/player.hpp"
 #include "client/display/portrait.hpp"
 #include "client/display/role_preview.hpp"
