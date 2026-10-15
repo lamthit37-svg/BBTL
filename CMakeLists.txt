@@ -126,7 +126,7 @@ endfunction()
 set(game_engine_names audio audiotool capture core fs gpu io jobs math net render resource shader
     shadertool window xml)
 set(game_shared_names protocol secure table link nav collision ids)
-set(game_client_names anim avatar classic client control fx gui hero look lua motion ogre
+set(game_client_names anim avatar classic client control fx gui hero look lua luagen luamass motion ogre
     quest scene seal sealtool skill ui)
 set(game_server_names account actor authd billing billingd bus combat config content dice forge gate gated guard handlers ipc
     ledger linttool metrics mission item loot ops process scenedata service shop social store stored supervise supervisor talk
@@ -1448,6 +1448,18 @@ if(TARGET game_ui AND NOT ANDROID
     game_test(pace game_ui)
     target_compile_definitions(pace_tests PRIVATE
         GAME_CLIENT_DATA="${PROJECT_SOURCE_DIR}/dev/client/assets")
+endif()
+# luamass: đối soát hàng loạt LUA-GEN. Chạy mọi đơn vị mà bộ dịch sinh vào game_luagen trên runtime lua, so sha256 vết với
+# vết LuaPlus.dll ở Test/golden/lua_mass/oracle.tsv (docs/giao-viec/LUA-GEN/THIET-KE.md). Chưa có mã sinh thì không dựng.
+if(TARGET game_luagen AND TARGET game_secure)
+    game_module(luamass src/client/face/luamass/trace.cpp)
+    target_link_libraries(game_luamass PUBLIC game_lua game_core)
+    add_executable(thienlong_lua_mass src/client/face/luamass/main.cpp)
+    target_link_libraries(thienlong_lua_mass PRIVATE game_luamass game_luagen game_io game_secure game::warnings)
+    if(WIN32)
+        target_link_libraries(thienlong_lua_mass PRIVATE shell32)
+    endif()
+    add_test(NAME lua_mass COMMAND thienlong_lua_mass --summary ${PROJECT_SOURCE_DIR}/Test/golden/lua_mass/oracle.tsv)
 endif()
 # Include ngược tầng: bảng ở cmake/GameLayers.cmake (KTR-15).
 add_test(NAME layers COMMAND ${CMAKE_COMMAND} -DGAME_SOURCE_DIR=${PROJECT_SOURCE_DIR}
