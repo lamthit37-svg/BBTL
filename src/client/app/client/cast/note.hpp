@@ -86,6 +86,58 @@ struct Pulled {
     float z = 0.0F;
 };
 
-using Note = std::variant<Arrive, Spawn, Vanish, Moved, Hurt, Pulled>;
+// Cờ của thực thể (EntityFlags). Bit 0: bấm vào được để nói chuyện. Bit 1: vật rơi nhặt được.
+inline constexpr std::uint8_t kFlagTalk = 1;
+inline constexpr std::uint8_t kFlagPick = 2;
+
+// Cờ mới của một thực thể đang thấy; thay cờ cũ, không cộng dồn.
+struct Flagged {
+    std::uint32_t id = 0;
+    std::uint8_t flags = 0;
+};
+
+// Một thực thể bắt đầu ra chiêu (đánh thường cũng là một kỹ năng). seq khác 0 chỉ khi là chiêu do chính client nhờ: lúc đó
+// nơi vẽ chạy động tác của nhân vật mình; client không đoán trước chiêu khi máy chủ chưa xác nhận. Điểm nhắm theo mét của
+// game; bằng chỗ mục tiêu khi nhắm vào một thực thể.
+struct Casting {
+    std::uint32_t source = 0;
+    std::uint16_t skill = 0;
+    // 0 là không có mục tiêu thực thể.
+    std::uint32_t target = 0;
+    float x = 0.0F;
+    float z = 0.0F;
+    std::uint8_t level = 0;
+    std::uint16_t seq = 0;
+};
+
+// Chiêu gom khí hay dẫn khí kết thúc hoặc bị ngắt giữa chừng.
+struct CastEnded {
+    std::uint32_t source = 0;
+    std::uint16_t skill = 0;
+    bool is_interrupted = false;
+};
+
+enum class Blow : std::uint8_t { kDamage, kHeal, kMiss, kImmune };
+
+// Kết quả của một chiêu lên một mục tiêu; chiêu nhiều mục tiêu đến thành nhiều tin. value là lượng sát thương hay hồi, 0
+// với kMiss và kImmune. source là 0 khi không rõ kẻ gây (hiệu ứng treo).
+struct Struck {
+    std::uint32_t source = 0;
+    std::uint32_t target = 0;
+    std::uint16_t skill = 0;
+    Blow kind = Blow::kDamage;
+    std::int32_t value = 0;
+    // Hội tâm (chí mạng).
+    bool is_critical = false;
+};
+
+// Một thực thể chết (có thể là chính nhân vật). Xác còn lại một lúc rồi mới có Vanish.
+struct Died {
+    std::uint32_t id = 0;
+    // Kẻ hạ gục; 0 nếu không rõ.
+    std::uint32_t killer = 0;
+};
+
+using Note = std::variant<Arrive, Spawn, Vanish, Moved, Hurt, Pulled, Flagged, Casting, CastEnded, Struck, Died>;
 
 } // namespace game::client::cast

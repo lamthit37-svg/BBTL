@@ -127,6 +127,12 @@ void Display::post_online(const ui::panel::OnlineReply& /*reply*/) {}
 
 void Display::post_world(std::span<const cast::Note> /*notes*/) {}
 
+void Display::post_talk(std::span<const ui::panel::talk::Hear> /*heard*/) {}
+
+std::vector<ui::panel::talk::Say> Display::take_says() {
+    return {};
+}
+
 std::optional<core::GroundPoint> Display::reported_spot() const {
     return std::nullopt;
 }

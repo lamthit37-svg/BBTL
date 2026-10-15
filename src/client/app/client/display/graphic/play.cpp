@@ -86,7 +86,10 @@ void Display::State::apply_world() {
             continue;
         }
         if (const auto* arrive = std::get_if<cast::Arrive>(&note)) {
-            const bool is_here = ground != nullptr && scale_ok(ground->file) && walk.scene_id == arrive->scene;
+            // Sang cảnh khác thì hộp thoại và việc đi tới NPC cũ hết nghĩa (máy chủ cũng đóng phiên với SceneChanged).
+            talk_goal.reset();
+            if (hud) hud->drop_talk();
+            const bool is_here = ground != nullptr && scale_ok(ground->file) && std::cmp_equal(walk.scene_id, arrive->scene);
             if (is_here) {
                 const core::GroundPoint now = game_of(ground->file, walk);
                 const float away = std::hypot(arrive->x - now.x, arrive->z - now.z);
@@ -94,6 +97,7 @@ void Display::State::apply_world() {
             }
         }
         people.apply(note);
+        note_fight(note);
     }
 }
 
@@ -101,7 +105,7 @@ void Display::State::publish_spot(bool is_live) {
     std::optional<core::GroundPoint> spot;
     const std::optional<std::uint16_t> online_scene = people.scene();
     if (is_live && online_scene && ground != nullptr && scale_ok(ground->file) &&
-        walk.scene_id == static_cast<int>(*online_scene)) {
+        std::cmp_equal(walk.scene_id, *online_scene)) {
         spot = game_of(ground->file, walk);
     }
     const std::scoped_lock<std::mutex> locked(spot_guard);
@@ -153,6 +157,8 @@ render::Camera Display::State::frame_camera(FrameAsk ask) {
     enter_camera(scene_id);
     if (!creature_demo.empty()) seed_creature_demo(scene_id);
     Steering keys = is_auto_walk ? auto_walk(taken.keys, delta_seconds) : taken.keys;
+    walk_to_talk(keys, now);
+    pursue_target(now, keys);
     if (auto_strike_from != 0) note_auto_strike(keys);
     steer_camera(keys);
     pilot_frame(now, delta_seconds);
@@ -229,10 +235,19 @@ void Display::State::pilot_frame(core::Clock::time_point now, float seconds) {
     frame.mouse = mouse_sample();
     frame.now = now;
     frame.seconds = seconds;
-    frame.is_over_ui = is_hud_press || is_on_hud(pointer);
+    const control::Ground& shape = *terrain;
+    const bool is_over_hud = is_hud_press || is_on_hud(pointer);
+    pick_npc(is_over_hud);
+    pick_foe(is_over_hud);
+    frame.is_over_ui = is_over_hud || is_npc_press;
     frame.is_player_moving = is_player_running;
     frame.under_cursor = pick_at(pointer);
-    const control::PilotStep step = pilot.frame(follow, *terrain, frame);
+    const control::PilotStep step = pilot.frame(follow, shape, frame);
+    // Nhấp lên mặt đất là lệnh đi mới: bỏ việc đi tới NPC đang chờ.
+    if (step.move_to) {
+        talk_goal.reset();
+        combat.disengage();
+    }
     order_move(step.move_to, pilot.auto_run() ? nav::MoveMode::kStraight : nav::MoveMode::kFind);
     close_mouse_frame();
 }
@@ -245,7 +260,10 @@ void Display::State::close_mouse_frame() noexcept {
     is_wheel_up = false;
     is_wheel_down = false;
     has_button_changed = {};
-    if (!is_button_down[static_cast<std::size_t>(control::MouseButton::kLeft)]) is_hud_press = false;
+    if (!is_button_down[static_cast<std::size_t>(control::MouseButton::kLeft)]) {
+        is_hud_press = false;
+        is_npc_press = false;
+    }
 }
 
 // Mặt đất để camera bám theo và để chọn điểm bằng tia: cùng gốc, tỉ lệ, độ cao và đường chéo với
@@ -345,6 +363,8 @@ void Display::State::publish_cursor() noexcept {
     state.auto_run = pilot.auto_run();
     state.primary_down = is_button_down[static_cast<std::size_t>(control::MouseButton::kLeft)];
     state.camera_held = pilot.holds_cursor();
+    if (hovered_npc) state.hover = control::HoverKind::kNpc;
+    if (hovered_foe) state.hover = control::HoverKind::kMonster;
     const std::optional<control::CursorKind> kind = control::choose_cursor(state);
     const auto hidden = static_cast<std::uint8_t>(control::kCursorKinds);
     const std::uint8_t bits = kind ? static_cast<std::uint8_t>(*kind) : hidden;
@@ -419,9 +439,11 @@ void Display::State::ensure_sim() {
 void Display::State::simulate_motion(const Steering& keys, core::Clock::time_point now) {
     ensure_sim();
     if (!sim_clock) return;
-    begin_strike(keys.strike_slot);
-    const std::uint32_t due = sim_clock->advance(now);
-    const float step = static_cast<float>(sim_clock->step_seconds());
+    core::FixedStep& clock = *sim_clock;
+    if (!is_online_play) begin_strike(keys.strike_slot);
+    if (is_online_play && keys.strike_slot) press_slot(*keys.strike_slot);
+    const std::uint32_t due = clock.advance(now);
+    const auto step = static_cast<float>(clock.step_seconds());
     std::uint32_t index = 0;
     while (index < due) {
         prev_x = walk.x;
@@ -430,7 +452,7 @@ void Display::State::simulate_motion(const Steering& keys, core::Clock::time_poi
         step_jump(keys.wants_jump && index == 0, step);
         ++index;
     }
-    const float alpha = sim_clock->alpha();
+    const float alpha = clock.alpha();
     shown_x = prev_x + ((walk.x - prev_x) * alpha);
     shown_z = prev_z + ((walk.z - prev_z) * alpha);
     has_shown = true;
@@ -537,6 +559,12 @@ void Display::State::move_player(const Steering& keys, float dt) {
     // DoSimulantCommand trả RC_WAIT tới BreakTime của đòn đang phát: không đi, lệnh đi còn nguyên chờ sau đòn.
     if (player && player->is_locked(frame_time)) {
         is_player_running = false;
+        return;
+    }
+    // Đã chết thì đứng yên tới khi hồi sinh (máy chủ cũng không nhận bước đi của xác).
+    if (is_online_play && combat.is_dead()) {
+        is_player_running = false;
+        order.reset();
         return;
     }
     const bool is_asked = keys.walk_forward != 0.0F || keys.walk_right != 0.0F;

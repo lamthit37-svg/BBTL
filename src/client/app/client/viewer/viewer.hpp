@@ -68,6 +68,8 @@ struct ViewerDesc {
     std::vector<std::string> ui_events;
     // --creature: id mẫu quái hay NPC đứng trước mặt nhân vật ở màn chơi (DisplayDesc::creatures).
     std::vector<std::uint32_t> creatures;
+    // --talk-demo: NPC của --creature bấm được, hộp thoại đáp bằng kịch bản có sẵn (DisplayDesc::talk_demo).
+    std::string talk_demo;
     // --weapon: vật phẩm khe 0 mà nhân vật ở màn chơi cầm (DisplayDesc::weapon_item).
     std::optional<std::uint32_t> weapon_item;
     // --gem: đá quý gắn vào vũ khí (DisplayDesc::weapon_gem).

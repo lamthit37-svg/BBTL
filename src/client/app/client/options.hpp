@@ -105,6 +105,12 @@ struct Options {
     // --creature: id mẫu quái hay NPC đứng thành lưới trước mặt nhân vật ở màn chơi, để nhìn hình mà không cần máy chủ.
     // Công cụ thử của dự án.
     std::vector<std::uint32_t> creatures;
+    // --talk-demo <click|menu|offer|turn|fight|fall>: NPC của --creature bấm được và hộp thoại được đáp bằng kịch bản có sẵn thay cho
+    // máy chủ. click chờ người chơi bấm NPC; menu, offer, turn mở sẵn hộp tương ứng ở khung đầu (để chụp). fight: quái của
+    // --creature đánh được, chiêu của người chơi được đáp bằng sát thương giả như máy chủ v6 và tự đánh quái đầu; fall như fight
+    // nhưng người chơi bị đánh chết ở chiêu đầu (để xem lời nhắc hồi sinh). Rỗng là tắt.
+    // Công cụ thử của dự án.
+    std::string talk_demo;
 };
 
 using Arguments = std::span<const std::string_view>;

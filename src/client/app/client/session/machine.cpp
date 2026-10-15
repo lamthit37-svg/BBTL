@@ -1,3 +1,19 @@
+/*==============================================================================
+ *  THIENLONG  |  GAME CLIENT
+ *------------------------------------------------------------------------------
+ *  TỆP       : src/client/app/client/session/machine.cpp
+ *  PHÂN HỆ   : Client / Session / Machine
+ *  CHUẨN     : C++23
+ *------------------------------------------------------------------------------
+ *  CHỨC NĂNG
+ *  - Máy trạng thái thuần của phiên mạng: bảng chuyển pha theo tin của máy chủ
+ *    và việc người chơi nhờ.
+ *  - Không I/O; luồng phiên gọi để biết việc nào được phép ở pha nào.
+ *------------------------------------------------------------------------------
+ *  TÁC GIẢ   : HiepHoon
+ *  TELEGRAM  : @Hoon9xx
+ *============================================================================*/
+
 #include "client/session/machine.hpp"
 #include "protocol/messages.hpp"
 
@@ -103,6 +119,7 @@ bool allows(Phase phase, Ask ask) noexcept {
     case Ask::kDelete:
     case Ask::kEnter: return phase == Phase::kChoosing;
     case Ask::kDrop: return true;
+    case Ask::kSpeak: return phase == Phase::kInGame;
     }
     return false;
 }
@@ -114,6 +131,7 @@ Phase begin(Phase phase, Ask ask) noexcept {
     case Ask::kDelete: return Phase::kEditing;
     case Ask::kEnter: return Phase::kEntering;
     case Ask::kDrop: return Phase::kIdle;
+    case Ask::kSpeak: return phase;
     }
     return phase;
 }

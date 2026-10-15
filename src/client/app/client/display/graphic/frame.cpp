@@ -180,6 +180,20 @@ void Display::post_world(std::span<const cast::Note> notes) {
     }
 }
 
+void Display::post_talk(std::span<const ui::panel::talk::Hear> heard) {
+    const std::scoped_lock<std::mutex> locked(state_->talk_guard);
+    std::vector<ui::panel::talk::Hear>& queued = state_->talk_heard;
+    for (const ui::panel::talk::Hear& note : heard) {
+        if (queued.size() >= kMaxTalkNotes) queued.erase(queued.begin());
+        queued.push_back(note);
+    }
+}
+
+std::vector<ui::panel::talk::Say> Display::take_says() {
+    const std::scoped_lock<std::mutex> locked(state_->talk_guard);
+    return std::exchange(state_->talk_says, {});
+}
+
 std::optional<core::GroundPoint> Display::reported_spot() const {
     const std::scoped_lock<std::mutex> locked(state_->spot_guard);
     return state_->spot_report;
@@ -559,6 +573,7 @@ core::Status Display::State::draw_world(gpu::CommandList& list, std::uint32_t sl
     if (!drawn) return drawn;
     const FxAsk effects{.list = &list, .camera = &camera, .slot = slot, .elapsed = elapsed};
     draw_fx(effects);
+    build_extras();
     return paint_hud(list, slot);
 }
 
@@ -604,6 +619,8 @@ std::optional<ShotPlan> Display::State::record_shot(gpu::CommandList& list, std:
     // Bảng đo luôn hiện (khi có phông và có vẽ giao diện): chờ đủ mẫu, khung đầu chưa có số nào để chụp.
     constexpr std::size_t kSamplesForShot = 30;
     if (pace_font && !is_bare && pace_filled < kSamplesForShot) return std::nullopt;
+    // --talk-demo fight hay fall: chờ tới khi có số bay trên màn, nếu không ảnh chụp ở khung 30 chỉ thấy nhân vật đang chạy tới quái.
+    if (is_fight_demo() && !has_floated) return std::nullopt;
     shot_taken = true;
     const gpu::Format colour = screen->color_format();
     const std::uint32_t width = screen->width();

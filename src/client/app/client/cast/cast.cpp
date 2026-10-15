@@ -151,6 +151,28 @@ void Cast::on(const Hurt& note) {
     if (found != index_.end()) actors_[found->second].hp_percent = note.hp_percent;
 }
 
+void Cast::on(const Flagged& note) {
+    const auto found = index_.find(note.id);
+    if (found != index_.end()) actors_[found->second].flags = note.flags;
+}
+
+// Chết là đứng tại chỗ rồi biến mất khỏi khung: đặt cả đích lẫn dáng hiện tại, không chờ advance, để khung kế đã không vẽ.
+// Chính nhân vật không nằm trong danh sách; nơi vẽ tự giữ trạng thái chết của mình.
+void Cast::on(const Died& note) {
+    if (note.id == self_id_) self_hp_ = std::uint8_t{0};
+    const auto found = index_.find(note.id);
+    if (found == index_.end()) return;
+    Actor& shown = actors_[found->second];
+    Goal& goal = goals_[found->second];
+    shown.hp_percent = 0;
+    shown.pose = Pose::kDead;
+    shown.flags = 0;
+    goal.pose = Pose::kDead;
+    goal.x = shown.x;
+    goal.z = shown.z;
+    goal.facing = shown.facing;
+}
+
 void Cast::advance(float seconds) {
     if (!(seconds > 0.0F)) return;
     seconds = std::min(seconds, kLongestStep);

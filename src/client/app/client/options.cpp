@@ -128,6 +128,14 @@ constexpr std::size_t kMostDemoCreatures = 32;
     return true;
 }
 
+// Kiểu chạy thử hộp thoại hay chiến đấu: một trong sáu chữ đã biết.
+[[nodiscard]] bool set_talk_demo(Options& options, std::string_view text) {
+    const bool is_known = text == "click" || text == "menu" || text == "offer" || text == "turn" || text == "fight" ||
+        text == "fall";
+    if (is_known) options.talk_demo = std::string(text);
+    return is_known;
+}
+
 // resid: số nguyên không âm chiếm trọn chuỗi. 0 là Lạc Dương trong bảng gốc.
 [[nodiscard]] bool set_scene_id(Options& options, std::string_view text) noexcept {
     const std::optional<int> resid = core::parse_whole_int(text);
@@ -169,6 +177,7 @@ constexpr std::size_t kMostDemoCreatures = 32;
     if (argument.key == "--shot") options.shot_path = io::path_from_utf8(argument.value);
     if (argument.key == "--ui-event") return add_ui_event(options, argument.value);
     if (argument.key == "--creature") return set_creatures(options, argument.value);
+    if (argument.key == "--talk-demo") return set_talk_demo(options, argument.value);
     return argument.key == "--scene" || argument.key == "--data" || argument.key == "--shot";
 }
 

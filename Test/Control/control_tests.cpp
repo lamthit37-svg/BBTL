@@ -1,10 +1,25 @@
-// Test của mặt đất (control/ground), tia từ màn hình (control/view_ray), luật con trỏ và chọn thứ
-// dưới chuột. Số mong đợi tính tay theo công thức của TerrainData.cpp, OgreMath.cpp và
-// Camera_Scene.cpp trong ref, ghi ngay cạnh phép kiểm để người đọc tự đối chiếu. Camera cảnh và
-// chuột của người chơi theo bản 2026 có test riêng ở pilot_tests.cpp.
-// Nguồn: TLBB Dev tests/control/control_test.cpp@e0d89a6. Khác gốc: khung test của dự án;
-// GroundShape thay cho dữ liệu đã nấu; thêm ca tia màn hình, ca luật con trỏ (names và rules) và ca
-// chọn thứ dưới chuột.
+/*==============================================================================
+ *  THIENLONG  |  TEST
+ *------------------------------------------------------------------------------
+ *  TỆP       : Test/Control/control_tests.cpp
+ *  PHÂN HỆ   : Control / Control Tests
+ *  CHUẨN     : C++23
+ *------------------------------------------------------------------------------
+ *  CHỨC NĂNG
+ *  - Test của mặt đất (control/ground), tia từ màn hình (control/view_ray),
+ *    luật con trỏ và chọn thứ dưới chuột. Số mong đợi tính tay theo công thức
+ *    của TerrainData.cpp, OgreMath.cpp và Camera_Scene.cpp trong ref, ghi ngay
+ *    cạnh phép kiểm để người đọc tự đối chiếu. Camera cảnh và chuột của người
+ *    chơi theo bản 2026 có test riêng ở pilot_tests.cpp. Nguồn: TLBB Dev
+ *    tests/control/control_test.cpp@e0d89a6.
+ *------------------------------------------------------------------------------
+ *  TÁC GIẢ   : HiepHoon
+ *  TELEGRAM  : @Hoon9xx
+ *============================================================================*/
+
+// Khác gốc: khung test của dự án; GroundShape thay cho dữ liệu đã nấu; thêm ca tia màn hình, ca luật con trỏ (names
+// và rules) và ca chọn thứ dưới chuột.
+
 #include "control/char_camera.hpp"
 #include "control/cursor_rules.hpp"
 #include "control/ground.hpp"
@@ -12,6 +27,7 @@
 #include "control/view_ray.hpp"
 #include "core/check.hpp"
 #include "core/ground_point.hpp"
+#include "ogre/quat.hpp"
 #include "ogre/vec3.hpp"
 #include "test.hpp"
 
@@ -244,6 +260,48 @@ void screen_rays(Context& context) {
         "nửa rộng mặt gần bằng tan(fov / 2) nhân tỉ lệ khung");
 }
 
+// Phép chiếu ngược của tia: điểm trên tia qua một điểm màn hình phải chiếu về đúng điểm ấy, ở mọi độ sâu; điểm sau lưng mắt không
+// có chỗ trên màn hình. Lệch ở đây làm chữ bay trên đầu thực thể rơi sai chỗ mà không báo lỗi nào.
+void screen_projection(Context& context) {
+    const control::Lens lens = lens_looking_down();
+    const std::array<control::ScreenPoint, 4> points{{{.x = 0.5F, .y = 0.5F}, {.x = 0.1F, .y = 0.9F}, {.x = 0.8F, .y = 0.2F}, {.x = 1.0F, .y = 0.0F}}};
+    bool is_round_trip = true;
+    for (const control::ScreenPoint& point : points) {
+        const Ray ray = control::screen_ray(lens, point);
+        for (const float distance : {1.0F, 7.5F, 40.0F}) {
+            const Vec3 spot = ogre::add_vec3(ray.origin, ogre::scale_vec3(ray.direction, distance));
+            const auto back = control::project_point(lens, spot);
+            is_round_trip = is_round_trip && back && near_value(back->x, point.x) && near_value(back->y, point.y);
+        }
+    }
+    context.expect(is_round_trip, "điểm trên tia chiếu về đúng điểm màn hình ở mọi độ sâu");
+    const Vec3 behind = ogre::sub_vec3(lens.eye, lens.forward);
+    context.expect(!control::project_point(lens, behind), "điểm sau lưng mắt không có chỗ trên màn hình");
+    context.expect(!control::project_point(lens, lens.eye), "điểm đúng ở mắt không có chỗ trên màn hình");
+}
+
+// Tia và hộp trục thẳng: trúng từ phía trước (khoảng cách tới mặt gần), gốc nằm trong hộp (0), lướt qua, hộp nằm sau lưng, tia
+// song song một mặt và nằm ngoài tấm, và tia song song nằm trong tấm vẫn trúng.
+void ray_boxes(Context& context) {
+    const Vec3 low{.x = -1.0F, .y = 0.0F, .z = 4.0F};
+    const Vec3 high{.x = 1.0F, .y = 2.0F, .z = 6.0F};
+    const Ray ahead{.origin = Vec3{.x = 0.0F, .y = 1.0F, .z = 0.0F}, .direction = Vec3{.x = 0.0F, .y = 0.0F, .z = 1.0F}};
+    const auto front = control::ray_box_distance(ahead, low, high);
+    context.expect(front && near_value(*front, 4.0F), "tia thẳng vào mặt gần ở khoảng cách 4");
+    const Ray inside{.origin = Vec3{.x = 0.0F, .y = 1.0F, .z = 5.0F}, .direction = Vec3{.x = 0.0F, .y = 0.0F, .z = 1.0F}};
+    const auto from_inside = control::ray_box_distance(inside, low, high);
+    context.expect(from_inside && near_value(*from_inside, 0.0F), "gốc tia trong hộp thì khoảng cách 0");
+    const Ray aside{.origin = Vec3{.x = 3.0F, .y = 1.0F, .z = 0.0F}, .direction = Vec3{.x = 0.0F, .y = 0.0F, .z = 1.0F}};
+    context.expect(!control::ray_box_distance(aside, low, high), "tia song song nằm ngoài tấm x thì lướt qua");
+    const Ray behind{.origin = Vec3{.x = 0.0F, .y = 1.0F, .z = 8.0F}, .direction = Vec3{.x = 0.0F, .y = 0.0F, .z = 1.0F}};
+    context.expect(!control::ray_box_distance(behind, low, high), "hộp nằm sau gốc tia thì không trúng");
+    const Ray slanted{.origin = Vec3{.x = 0.0F, .y = 10.0F, .z = 0.0F}, .direction = Vec3{.x = 0.0F, .y = -1.0F, .z = 0.2F}};
+    context.expect(!control::ray_box_distance(slanted, low, high), "tia xiên đáp xuống trước hộp thì lướt qua");
+    const Ray falling{.origin = Vec3{.x = 0.0F, .y = 10.0F, .z = 5.0F}, .direction = Vec3{.x = 0.0F, .y = -1.0F, .z = 0.0F}};
+    const auto from_above = control::ray_box_distance(falling, low, high);
+    context.expect(from_above && near_value(*from_above, 8.0F), "tia rơi thẳng xuống đỉnh hộp ở khoảng cách 8");
+}
+
 // Số đỉnh của map vuông 20 x 20 ô.
 constexpr std::size_t kCorners = 441;
 
@@ -464,6 +522,8 @@ constexpr std::array kCases{
     Case{.name = "ray_flat", .body = &ray_flat},
     Case{.name = "ray_hill", .body = &ray_hill},
     Case{.name = "screen_rays", .body = &screen_rays},
+    Case{.name = "screen_projection", .body = &screen_projection},
+    Case{.name = "ray_boxes", .body = &ray_boxes},
     Case{.name = "ground_pick", .body = &ground_pick},
     Case{.name = "ground_sphere", .body = &ground_sphere},
     Case{.name = "cursor_names", .body = &cursor_names},

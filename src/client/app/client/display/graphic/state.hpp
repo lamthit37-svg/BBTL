@@ -124,6 +124,10 @@ struct Display::State {
     void open_login();
     void store_roles() const;
     void apply_role();
+    // Cấp, kinh nghiệm và tiền máy chủ báo cho chính nhân vật (SelfStats): ghi vào hero, trần kinh nghiệm tra theo cấp.
+    void apply_stats(const ui::panel::talk::Stats& stats);
+    // Kinh nghiệm cần để lên từ cấp level (Config/PlayerExpLevel.txt, đọc một lần); nullopt khi bảng hỏng hay thiếu cấp.
+    [[nodiscard]] std::optional<std::int64_t> exp_need_at(std::int32_t level);
     // Gieo vật phẩm của công cụ thử (weapon_item) vào hero.equipment; gọi lại mỗi lần hero dựng mới.
     void seed_equipment();
     // Phím ô thao tác thành lệnh dùng skill (CAI_MySelf::UseSkill): chọn bước liên hoàn kế của skill ở ô đó.
@@ -250,6 +254,52 @@ struct Display::State {
     void seed_creature_demo(int scene_id);
     void show_creature(const cast::Actor& actor, std::size_t& budget);
     [[nodiscard]] math::Point3 stand_of(const cast::Actor& actor) const;
+    // Chân thực thể trong toạ độ thế giới (stand_of ở dạng ogre::Vec3, cho phép thử tia). Cần ground và terrain đã có.
+    [[nodiscard]] ogre::Vec3 world_foot(const cast::Actor& actor) const;
+    // Chiến đấu (graphic/fight.cpp). hear_fight nhận tin của phiên mạng về chiêu thức (true khi tin thuộc nhóm đó, HUD không
+    // cần thấy); note_fight nhận tin thế giới về chiêu và đòn trúng (apply_world gọi sau khi Cast đã áp tin).
+    [[nodiscard]] bool hear_fight(const ui::panel::talk::Hear& note);
+    void note_fight(const cast::Note& note);
+    void apply_vitals(const ui::panel::talk::Vitals& vitals);
+    void apply_skills(const ui::panel::talk::Skills& skills);
+    // Đưa sinh lực và danh sách kỹ năng máy chủ đã báo vào hero: lúc tin tới, và sau apply_role vì hero dựng mới đè mất chúng.
+    void show_fight();
+    // Phím ô thao tác lúc chơi nối máy chủ: ra chiêu ở ô đó lên mục tiêu đang chọn; đã chết thì ô 1 và 2 là hồi sinh.
+    void press_slot(std::uint32_t slot);
+    void send_say(const ui::panel::talk::Say& say);
+    // Phát động tác của chiêu mà máy chủ vừa xác nhận cho chính mình: quay mặt về mục tiêu rồi chọn bước (cùng đường với
+    // phím ô thao tác khi chơi tại chỗ). Trả độ trễ tới lúc đòn trúng trong động tác (0 khi không có clip).
+    [[nodiscard]] std::chrono::milliseconds play_confirmed(const cast::Casting& casting);
+    // Đánh tự động của khung: đi tới mục tiêu hay ra chiêu; bỏ khi người chơi tự đi.
+    void pursue_target(core::Clock::time_point now, const Steering& keys);
+    // Chuột trên quái hay vật rơi: hover cho con trỏ, nhấn trái lên quái thì đuổi và đánh, lên vật rơi thì đi tới nhặt.
+    void pick_foe(bool is_over_hud);
+    // Quái còn sống hay vật rơi nhặt được dưới điểm màn hình, cùng cách thử tia với talkable_at.
+    [[nodiscard]] const cast::Actor* foe_at(control::ScreenPoint point) const;
+    [[nodiscard]] const cast::Actor* pick_actor(control::ScreenPoint point, bool (*wanted)(const cast::Actor&)) const;
+    // --talk-demo fight hay fall (graphic/fight_demo.cpp): máy chủ giả cho chiến đấu. start_fight_demo vào chế độ chơi nối máy chủ với
+    // sinh lực, kỹ năng giả và tự đánh quái first; answer_fight_demo đáp chiêu bằng tin thế giới đúng hình protocol v6.
+    void start_fight_demo(std::uint32_t first);
+    [[nodiscard]] bool is_fight_demo() const noexcept { return talk_demo == "fight" || talk_demo == "fall"; }
+    void answer_fight_demo(const ui::panel::talk::Say& said);
+    void fall_in_demo(std::vector<cast::Note>& notes, std::uint32_t killer);
+    // Chữ bay (số sát thương, hồi, trượt) và lời nhắc hồi sinh của khung, nối vào cuối bảng đo (pace_board). Gọi sau
+    // frame_camera: cần lens của khung.
+    void build_extras();
+    // Đầu thực thể (hay chính nhân vật) trong toạ độ thế giới để đặt chữ bay; rỗng khi thực thể không còn trong cảnh.
+    [[nodiscard]] std::optional<ogre::Vec3> head_of(std::uint32_t id) const;
+    // Pump hội thoại NPC (graphic/talk.cpp): tin của phiên mạng vào giao diện trước khung, việc giao diện nhờ ra hàng chờ sau khung.
+    void pump_talk();
+    void drain_says();
+    // --talk-demo: đáp một việc người chơi nhờ bằng kịch bản có sẵn (graphic/talk_demo.cpp), tin đáp vào talk_heard.
+    void answer_demo(const ui::panel::talk::Say& said);
+    // Mở sẵn hộp của kịch bản (talk_demo khác "click") trên NPC đầu tiên vừa dựng.
+    void open_demo(std::uint32_t npc);
+    // NPC bấm được dưới điểm màn hình (tia vào hộp quanh chân thực thể); nullptr khi không có.
+    [[nodiscard]] const cast::Actor* talkable_at(control::ScreenPoint point) const;
+    // Chuột trên NPC: ghi hover cho con trỏ, và nhấn trái lên NPC thì đi tới nó để nói chuyện (hoặc nói ngay khi đã đủ gần).
+    void pick_npc(bool is_over_hud);
+    void walk_to_talk(const Steering& keys, core::Clock::time_point now);
     [[nodiscard]] const look::CreatureTables* ready_creature_tables();
     [[nodiscard]] std::shared_ptr<const CreatureAsset> build_creature_asset(std::uint32_t template_id);
     [[nodiscard]] std::shared_ptr<const CreatureAsset> creature_asset(std::uint32_t template_id, std::size_t& budget);
@@ -394,6 +444,56 @@ struct Display::State {
     std::vector<ui::panel::OnlineAsk> online_asks;
     std::vector<ui::panel::OnlineReply> online_replies;
     std::optional<EntryPoint> online_entry;
+    // Hội thoại NPC: tin của phiên mạng chờ luồng vẽ và việc người chơi nhờ chờ vòng cửa sổ (talk_guard bảo vệ cả hai).
+    // talk_title là tên NPC của hộp đang mở. hovered_npc là NPC bấm được dưới chuột ở khung này; is_npc_press: nhấn trái bắt
+    // đầu trên NPC, quái hay vật rơi thì không thành lệnh đi tới khi nhả. talk_goal là NPC hay vật rơi người chơi vừa bấm và đang
+    // đi tới (chỉ luồng vẽ chạm).
+    // is_pickup: đích là vật rơi (tới nơi thì gửi PickUp) chứ không phải NPC (tới nơi thì gửi Talk).
+    struct TalkGoal {
+        std::uint32_t npc = 0;
+        core::Clock::time_point until;
+        bool is_pickup = false;
+    };
+    std::string talk_demo;
+    // Phiên và NPC của hộp mà kịch bản --talk-demo đang đáp; chỉ luồng vẽ chạm.
+    std::uint64_t demo_session = 0;
+    std::uint32_t demo_npc = 0;
+    std::mutex talk_guard;
+    std::vector<ui::panel::talk::Hear> talk_heard;
+    std::vector<ui::panel::talk::Say> talk_says;
+    std::string talk_title;
+    std::optional<std::uint32_t> hovered_npc;
+    bool is_npc_press = false;
+    std::optional<TalkGoal> talk_goal;
+    // Chiến đấu của chính người chơi (mục tiêu, hồi chiêu, đánh tự động, số bay); chỉ luồng vẽ chạm.
+    fight::Combat combat;
+    // Sinh lực lần cuối máy chủ báo, để dựng lại hero sau apply_role.
+    std::optional<ui::panel::talk::Vitals> vitals_seen;
+    // Đã vào game qua máy chủ (chuỗi đăng nhập báo kEntered, tới khi mất phiên): ô thao tác gửi CastSkill thay vì phát đòn tại
+    // chỗ, và chọn quái, nhặt đồ có nghĩa. Công cụ thử và chế độ cục bộ giữ đường tại chỗ.
+    bool is_online_play = false;
+    // Chiêu của mình vừa được xác nhận: số bay của đòn trúng tới trước mốc until hiện sau delay (đòn trúng giữa động tác chứ
+    // không phải lúc chiêu bắt đầu).
+    struct HitWindow {
+        core::Clock::time_point until;
+        std::chrono::milliseconds delay{0};
+    };
+    std::optional<HitWindow> hit_window;
+    // Quái hay vật rơi dưới chuột ở khung này (pick_foe), và nơi đánh tự động đã đặt lệnh đi lần cuối để không tìm đường lại
+    // mỗi khung.
+    std::optional<std::uint32_t> hovered_foe;
+    // since là lúc bắt đầu đuổi (không đổi qua các lần tìm đường lại), để bỏ cuộc sau kChasePatience.
+    struct ChaseLeg {
+        core::GroundPoint point;
+        core::Clock::time_point at;
+        core::Clock::time_point since;
+    };
+    std::optional<ChaseLeg> chase_leg;
+    // Kịch bản --talk-demo fight: số chiêu đã đáp (quyết định trượt, hội tâm, hồi) và sinh lực còn lại của từng quái.
+    std::uint32_t demo_hits = 0;
+    std::unordered_map<std::uint32_t, std::int32_t> demo_life;
+    // Đã vẽ ít nhất một số bay: --shot của chế độ fight chờ tới đó mới chụp.
+    bool has_floated = false;
     // Tin thế giới của phiên mạng chờ luồng vẽ (world_guard), các thực thể đang thấy (chỉ luồng vẽ), và chỗ đứng cho
     // phiên báo máy chủ (spot_guard: luồng vẽ ghi mỗi khung, luồng cửa sổ đọc).
     std::mutex world_guard;
@@ -509,6 +609,8 @@ struct Display::State {
     std::optional<ui::BitmapFont> pace_font;
     // Nhân vật HUD. Có người vừa chọn thì là người đó; vào thẳng cảnh thì nhân vật mới mặc định.
     hero::Hero hero = hero::newcomer();
+    std::optional<hero::ExpTable> exp_table;
+    bool has_exp_table_failed = false;
     look::Look role_look{};
     look::Race role_race = look::Race::kFemale;
     bool has_role_look = false;

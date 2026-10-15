@@ -9,6 +9,8 @@
  *  - Nối OnlineAsk và OnlineReply của panel với lệnh và sự kiện của phiên.
  *  - Dịch mã lỗi và ngắt kết nối của protocol sang OnlineFault; UiConfig đổi
  *    FrameStyle; bí mật của việc nhờ được xoá sau khi chuyển.
+ *  - Dịch hai chiều tin hội thoại NPC, sổ nhiệm vụ và chỉ số bản thân (nhóm 06,
+ *    07 của protocol) sang cast::talk.
  *------------------------------------------------------------------------------
  *  TÁC GIẢ   : HiepHoon
  *  TELEGRAM  : @Hoon9xx
@@ -17,6 +19,7 @@
 #include "client/online/bridge.hpp"
 
 #include "client/cast/note.hpp"
+#include "ui/panel/talk.hpp"
 #include "client/session/gates.hpp"
 #include "client/session/machine.hpp"
 #include "client/session/session.hpp"
@@ -41,6 +44,7 @@ namespace {
 
 using ui::panel::OnlineFault;
 using ui::panel::OnlineReply;
+namespace talk = ui::panel::talk;
 
 [[nodiscard]] OnlineFault fault_of_goodbye(protocol::DisconnectReason reason) noexcept {
     switch (reason) {
@@ -150,6 +154,19 @@ constexpr float kDirectionSteps = 65536.0F;
     return cast::Pose::kIdle;
 }
 
+// CombatEvent::flags bit 0: hội tâm (chí mạng).
+constexpr std::uint8_t kCriticalFlag = 1;
+
+[[nodiscard]] cast::Blow blow_of(protocol::CombatKind kind) noexcept {
+    switch (kind) {
+    case protocol::CombatKind::kDamage: return cast::Blow::kDamage;
+    case protocol::CombatKind::kHeal: return cast::Blow::kHeal;
+    case protocol::CombatKind::kMiss: return cast::Blow::kMiss;
+    case protocol::CombatKind::kImmune: return cast::Blow::kImmune;
+    }
+    return cast::Blow::kMiss;
+}
+
 [[nodiscard]] cast::Note spawn_note(const protocol::EntityAppear& shown) {
     cast::Spawn spawn;
     spawn.id = shown.id;
@@ -196,11 +213,279 @@ struct NotePick {
     std::optional<cast::Note> operator()(const protocol::Position& spot) const {
         return cast::Pulled{.x = meters(spot.x_cm), .z = meters(spot.z_cm)};
     }
+    std::optional<cast::Note> operator()(const protocol::EntityFlags& flagged) const {
+        return cast::Flagged{.id = flagged.id, .flags = flagged.flags};
+    }
+    std::optional<cast::Note> operator()(const protocol::SkillCast& cast) const {
+        return cast::Casting{.source = cast.source,
+            .skill = cast.skill,
+            .target = cast.target,
+            .x = meters(cast.x_cm),
+            .z = meters(cast.z_cm),
+            .level = cast.level,
+            .seq = cast.seq};
+    }
+    std::optional<cast::Note> operator()(const protocol::SkillCastEnd& end) const {
+        return cast::CastEnded{.source = end.source, .skill = end.skill, .is_interrupted = end.interrupted};
+    }
+    std::optional<cast::Note> operator()(const protocol::CombatEvent& blow) const {
+        return cast::Struck{.source = blow.source,
+            .target = blow.target,
+            .skill = blow.skill,
+            .kind = blow_of(blow.kind),
+            .value = blow.value,
+            .is_critical = (blow.flags & kCriticalFlag) != 0};
+    }
+    std::optional<cast::Note> operator()(const protocol::EntityDied& died) const {
+        return cast::Died{.id = died.id, .killer = died.killer};
+    }
     template <typename Other>
     std::optional<cast::Note> operator()(const Other& /*message*/) const {
         return std::nullopt;
     }
 };
+
+// Các enum của dây và của cast::talk cùng số nhưng khác kiểu; đổi bằng switch để thêm giá trị vào một bên là biên dịch báo.
+[[nodiscard]] talk::Mode mode_of(protocol::DialogMode mode) noexcept {
+    switch (mode) {
+    case protocol::DialogMode::kList: return talk::Mode::kList;
+    case protocol::DialogMode::kBox: return talk::Mode::kBox;
+    case protocol::DialogMode::kMissionInfo: return talk::Mode::kMissionInfo;
+    case protocol::DialogMode::kContinue: return talk::Mode::kContinue;
+    case protocol::DialogMode::kDemand: return talk::Mode::kDemand;
+    case protocol::DialogMode::kTips: return talk::Mode::kTips;
+    }
+    return talk::Mode::kList;
+}
+
+[[nodiscard]] talk::Stage stage_of(protocol::MarkStage stage) noexcept {
+    switch (stage) {
+    case protocol::MarkStage::kAvailable: return talk::Stage::kAvailable;
+    case protocol::MarkStage::kInProgress: return talk::Stage::kInProgress;
+    case protocol::MarkStage::kReady: return talk::Stage::kReady;
+    }
+    return talk::Stage::kAvailable;
+}
+
+[[nodiscard]] talk::BonusKind bonus_of(protocol::BonusKind kind) noexcept {
+    switch (kind) {
+    case protocol::BonusKind::kMoney: return talk::BonusKind::kMoney;
+    case protocol::BonusKind::kItem: return talk::BonusKind::kItem;
+    case protocol::BonusKind::kRadio: return talk::BonusKind::kRadio;
+    case protocol::BonusKind::kRandom: return talk::BonusKind::kRandom;
+    case protocol::BonusKind::kDemand: return talk::BonusKind::kDemand;
+    }
+    return talk::BonusKind::kMoney;
+}
+
+[[nodiscard]] talk::Reason reason_of(protocol::DialogCloseReason reason) noexcept {
+    switch (reason) {
+    case protocol::DialogCloseReason::kDone: return talk::Reason::kDone;
+    case protocol::DialogCloseReason::kFar: return talk::Reason::kFar;
+    case protocol::DialogCloseReason::kSceneChanged: return talk::Reason::kSceneChanged;
+    case protocol::DialogCloseReason::kNpcGone: return talk::Reason::kNpcGone;
+    case protocol::DialogCloseReason::kExpired: return talk::Reason::kExpired;
+    case protocol::DialogCloseReason::kReplaced: return talk::Reason::kReplaced;
+    case protocol::DialogCloseReason::kDead: return talk::Reason::kDead;
+    case protocol::DialogCloseReason::kClient: return talk::Reason::kClient;
+    }
+    return talk::Reason::kDone;
+}
+
+[[nodiscard]] talk::NoticeKind notice_kind_of(protocol::QuestNoticeKind kind) noexcept {
+    switch (kind) {
+    case protocol::QuestNoticeKind::kAdded: return talk::NoticeKind::kAdded;
+    case protocol::QuestNoticeKind::kUpdated: return talk::NoticeKind::kUpdated;
+    case protocol::QuestNoticeKind::kReady: return talk::NoticeKind::kReady;
+    case protocol::QuestNoticeKind::kRemoved: return talk::NoticeKind::kRemoved;
+    case protocol::QuestNoticeKind::kDone: return talk::NoticeKind::kDone;
+    case protocol::QuestNoticeKind::kFailed: return talk::NoticeKind::kFailed;
+    case protocol::QuestNoticeKind::kText: return talk::NoticeKind::kText;
+    case protocol::QuestNoticeKind::kAnnounce: return talk::NoticeKind::kAnnounce;
+    case protocol::QuestNoticeKind::kRewardExp: return talk::NoticeKind::kRewardExp;
+    case protocol::QuestNoticeKind::kRewardMoney: return talk::NoticeKind::kRewardMoney;
+    case protocol::QuestNoticeKind::kRewardItem: return talk::NoticeKind::kRewardItem;
+    case protocol::QuestNoticeKind::kRelation: return talk::NoticeKind::kRelation;
+    }
+    return talk::NoticeKind::kText;
+}
+
+[[nodiscard]] talk::Refusal refusal_of(protocol::ErrorCode code) noexcept {
+    switch (code) {
+    case protocol::ErrorCode::kNoSession: return talk::Refusal::kNoSession;
+    case protocol::ErrorCode::kStaleSession: return talk::Refusal::kStaleSession;
+    case protocol::ErrorCode::kBadOption: return talk::Refusal::kBadOption;
+    case protocol::ErrorCode::kTooFar: return talk::Refusal::kTooFar;
+    case protocol::ErrorCode::kNoSuchEntity: return talk::Refusal::kNoSuchEntity;
+    case protocol::ErrorCode::kQuestUnavailable: return talk::Refusal::kQuestUnavailable;
+    case protocol::ErrorCode::kQuestLogFull: return talk::Refusal::kQuestLogFull;
+    case protocol::ErrorCode::kQuestState: return talk::Refusal::kQuestState;
+    case protocol::ErrorCode::kBagFull: return talk::Refusal::kBagFull;
+    case protocol::ErrorCode::kNotEnoughMoney: return talk::Refusal::kNotEnoughMoney;
+    case protocol::ErrorCode::kNotEnoughItems: return talk::Refusal::kNotEnoughItems;
+    case protocol::ErrorCode::kBadChoice: return talk::Refusal::kBadChoice;
+    case protocol::ErrorCode::kCannotAbandon: return talk::Refusal::kCannotAbandon;
+    case protocol::ErrorCode::kRateLimited: return talk::Refusal::kRateLimited;
+    default: return talk::Refusal::kOther;
+    }
+}
+
+[[nodiscard]] talk::Decline decline_of(protocol::ErrorCode code) noexcept {
+    switch (code) {
+    case protocol::ErrorCode::kNotLearned: return talk::Decline::kNotLearned;
+    case protocol::ErrorCode::kCooldown: return talk::Decline::kCooldown;
+    case protocol::ErrorCode::kNotEnoughMana: return talk::Decline::kNotEnoughMana;
+    case protocol::ErrorCode::kNotEnoughRage: return talk::Decline::kNotEnoughRage;
+    case protocol::ErrorCode::kBadTarget: return talk::Decline::kBadTarget;
+    case protocol::ErrorCode::kOutOfRange: return talk::Decline::kOutOfRange;
+    case protocol::ErrorCode::kCannotAttack: return talk::Decline::kCannotAttack;
+    case protocol::ErrorCode::kNoSuchEntity: return talk::Decline::kGone;
+    case protocol::ErrorCode::kDead: return talk::Decline::kDead;
+    case protocol::ErrorCode::kNotDead: return talk::Decline::kNotDead;
+    case protocol::ErrorCode::kNotYours: return talk::Decline::kNotYours;
+    case protocol::ErrorCode::kBusy: return talk::Decline::kBusy;
+    default: return talk::Decline::kOther;
+    }
+}
+
+// Reject của một việc thuộc hộp thoại hay sổ nhiệm vụ (mã tin 0x0601..0x0606).
+[[nodiscard]] bool is_speech_request(std::uint16_t request) noexcept {
+    return request >= protocol::Talk::kKind && request <= protocol::DialogClose::kKind;
+}
+
+// Reject của một việc chiêu thức: ra chiêu, hồi sinh, nhặt đồ (mã tin 0x0801..0x0803).
+[[nodiscard]] bool is_fight_request(std::uint16_t request) noexcept {
+    return request >= protocol::CastSkill::kKind && request <= protocol::PickUp::kKind;
+}
+
+[[nodiscard]] talk::Dialog dialog_of(const protocol::DialogOpen& open) {
+    talk::Dialog dialog;
+    dialog.session = open.session;
+    dialog.npc = open.npc;
+    dialog.mode = mode_of(open.mode);
+    dialog.panel_quest = open.panel_quest;
+    dialog.lines.reserve(open.lines.size());
+    for (const protocol::DialogLine& line : open.lines) dialog.lines.push_back(line.text);
+    dialog.choices.reserve(open.choices.size());
+    for (const protocol::DialogChoice& choice : open.choices) {
+        dialog.choices.push_back(talk::Choice{.index = choice.index, .icon = choice.icon, .text = choice.text});
+    }
+    dialog.marks.reserve(open.marks.size());
+    for (const protocol::DialogMark& mark : open.marks) {
+        dialog.marks.push_back(talk::Mark{.quest = mark.quest, .stage = stage_of(mark.stage)});
+    }
+    dialog.bonuses.reserve(open.bonuses.size());
+    for (const protocol::DialogBonus& bonus : open.bonuses) {
+        dialog.bonuses.push_back(talk::Bonus{.kind = bonus_of(bonus.kind), .a = bonus.a, .b = bonus.b, .c = bonus.c});
+    }
+    return dialog;
+}
+
+// Mảng "đã xong" của dây là 128 từ 32 bit little-endian; ghép từng byte nên không phụ thuộc thứ tự byte của máy.
+[[nodiscard]] talk::Book book_of(const protocol::QuestBook& book) {
+    constexpr std::size_t kBytesPerWord = 4;
+    static_assert(protocol::kQuestBookDoneBytes == talk::kDoneWords * kBytesPerWord);
+    talk::Book made;
+    made.slots.reserve(book.slots.size());
+    for (const protocol::QuestSlot& slot : book.slots) {
+        made.slots.push_back(
+            talk::Slot{.quest = slot.quest, .script = slot.script, .flags = slot.flags, .params = slot.params});
+    }
+    for (std::size_t word = 0; word < talk::kDoneWords; ++word) {
+        std::uint32_t value = 0;
+        for (std::size_t byte = 0; byte < kBytesPerWord; ++byte) {
+            const auto part = static_cast<std::uint32_t>(book.done.at((word * kBytesPerWord) + byte));
+            value |= part << (8U * byte);
+        }
+        made.done.at(word) = value;
+    }
+    return made;
+}
+
+struct HearPick {
+    std::optional<talk::Hear> operator()(const protocol::DialogOpen& open) const { return dialog_of(open); }
+    std::optional<talk::Hear> operator()(const protocol::DialogClosed& closed) const {
+        return talk::Closed{.session = closed.session, .reason = reason_of(closed.reason)};
+    }
+    std::optional<talk::Hear> operator()(const protocol::QuestBook& book) const { return book_of(book); }
+    std::optional<talk::Hear> operator()(const protocol::QuestNotice& notice) const {
+        return talk::Notice{.kind = notice_kind_of(notice.kind),
+            .quest = notice.quest,
+            .text = notice.text,
+            .value = notice.value,
+            .ref = notice.ref};
+    }
+    std::optional<talk::Hear> operator()(const protocol::SelfStats& stats) const {
+        return talk::Stats{
+            .level = stats.level, .exp = stats.exp, .money = stats.money, .bound_money = stats.bound_money};
+    }
+    std::optional<talk::Hear> operator()(const protocol::SelfVitals& vitals) const {
+        return talk::Vitals{.hp = vitals.hp,
+            .hp_max = vitals.hp_max,
+            .mp = vitals.mp,
+            .mp_max = vitals.mp_max,
+            .rage = vitals.rage,
+            .rage_max = vitals.rage_max};
+    }
+    std::optional<talk::Hear> operator()(const protocol::SelfSkills& list) const {
+        talk::Skills skills;
+        skills.learned.reserve(list.skills.size());
+        for (const protocol::SkillEntry& entry : list.skills) {
+            skills.learned.push_back(
+                talk::Learned{.skill = entry.skill, .level = entry.level, .cooldown_ms = entry.cooldown_ms});
+        }
+        return skills;
+    }
+    std::optional<talk::Hear> operator()(const protocol::SkillCooldown& cooldown) const {
+        return talk::Cooldown{.skill = cooldown.skill, .ms = cooldown.ms};
+    }
+    std::optional<talk::Hear> operator()(const protocol::DeathNotice& notice) const {
+        return talk::Slain{.exp_lost = notice.exp_lost, .money_lost = notice.money_lost};
+    }
+    std::optional<talk::Hear> operator()(const protocol::Reject& refused) const {
+        if (is_fight_request(refused.request)) return talk::Declined{.why = decline_of(refused.code)};
+        if (!is_speech_request(refused.request)) return std::nullopt;
+        return talk::Refused{.why = refusal_of(refused.code)};
+    }
+    template <typename Other>
+    std::optional<talk::Hear> operator()(const Other& /*message*/) const {
+        return std::nullopt;
+    }
+};
+
+struct SpeechPick {
+    session::Speech operator()(const talk::Talk& said) const noexcept { return protocol::Talk{.npc = said.npc}; }
+    session::Speech operator()(const talk::Choose& said) const noexcept {
+        return protocol::DialogChoose{.session = said.session, .index = said.index};
+    }
+    session::Speech operator()(const talk::Accept& said) const noexcept {
+        return protocol::QuestAccept{.session = said.session, .quest = said.quest};
+    }
+    session::Speech operator()(const talk::TurnIn& said) const noexcept {
+        return protocol::QuestTurnIn{.session = said.session, .quest = said.quest, .reward = said.reward};
+    }
+    session::Speech operator()(const talk::Abandon& said) const noexcept {
+        return protocol::QuestAbandon{.quest = said.quest};
+    }
+    session::Speech operator()(const talk::Close& said) const noexcept {
+        return protocol::DialogClose{.session = said.session};
+    }
+    session::Speech operator()(const talk::Cast& said) const noexcept {
+        return protocol::CastSkill{.seq = said.seq,
+            .skill = said.skill,
+            .target = said.target,
+            .x_cm = said.x * kCmPerMeter,
+            .z_cm = said.z * kCmPerMeter};
+    }
+    session::Speech operator()(const talk::Revive& said) const noexcept {
+        const bool is_here = said.place == talk::Place::kHere;
+        return protocol::Respawn{.place = is_here ? protocol::RespawnPlace::kHere : protocol::RespawnPlace::kTown};
+    }
+    session::Speech operator()(const talk::PickUp& said) const noexcept { return protocol::PickUp{.drop = said.drop}; }
+};
+
+// Trần hàng chờ tin hội thoại khi luồng game không lấy; quá thì bỏ tin cũ nhất (bản mới của sổ và hộp thay bản cũ).
+constexpr std::size_t kHeardCap = 256;
 
 // Xoá chữ nhạy cảm của việc nhờ sau khi đã chuyển đi.
 void forget(std::string& secret) noexcept {
@@ -259,6 +544,8 @@ std::optional<OnlineReply> reply_of(const session::Event& event) {
     struct Pick {
         std::optional<OnlineReply> operator()(const session::Roster& roster) const { return roster_reply(roster); }
         std::optional<OnlineReply> operator()(const session::Rejected& rejected) const {
+            // Việc hộp thoại bị từ chối không liên quan chuỗi đăng nhập.
+            if (rejected.ask == session::Ask::kSpeak) return std::nullopt;
             return fault_reply(OnlineReply::Kind::kRefused, fault_of(rejected.code));
         }
         std::optional<OnlineReply> operator()(const session::Entered& entered) const { return entered_reply(entered); }
@@ -274,6 +561,16 @@ std::optional<cast::Note> note_of(const session::Event& event) {
     const auto* world = std::get_if<session::World>(&event);
     if (world == nullptr) return std::nullopt;
     return std::visit(NotePick{}, world->message);
+}
+
+std::optional<talk::Hear> hear_of(const session::Event& event) {
+    const auto* world = std::get_if<session::World>(&event);
+    if (world == nullptr) return std::nullopt;
+    return std::visit(HearPick{}, world->message);
+}
+
+session::Speech speech_of(const talk::Say& say) {
+    return std::visit(SpeechPick{}, say);
 }
 
 Bridge::Bridge(session::GateBook book) : book_(std::move(book)) {}
@@ -324,6 +621,10 @@ std::vector<OnlineReply> Bridge::collect() {
     for (const session::Event& event : session_->drain()) {
         std::optional<OnlineReply> reply = reply_of(event);
         if (reply) replies.push_back(std::move(*reply));
+        if (std::optional<talk::Hear> heard = hear_of(event)) {
+            if (heard_.size() >= kHeardCap) heard_.erase(heard_.begin());
+            heard_.push_back(std::move(*heard));
+        }
         std::optional<cast::Note> note = note_of(event);
         if (!note) continue;
         const bool is_state = std::holds_alternative<cast::Moved>(*note) || std::holds_alternative<cast::Hurt>(*note);
@@ -335,6 +636,17 @@ std::vector<OnlineReply> Bridge::collect() {
 
 std::vector<cast::Note> Bridge::take_notes() {
     return std::exchange(notes_, {});
+}
+
+void Bridge::speak(std::span<const talk::Say> says) {
+    if (!session_) return;
+    for (const talk::Say& say : says) {
+        if (!session_->submit(session::Speak{.speech = speech_of(say)})) return;
+    }
+}
+
+std::vector<talk::Hear> Bridge::take_heard() {
+    return std::exchange(heard_, {});
 }
 
 void Bridge::report(float x_m, float z_m) {

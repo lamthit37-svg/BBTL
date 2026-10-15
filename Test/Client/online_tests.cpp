@@ -29,6 +29,7 @@
 #include "ui/panel/online.hpp"
 #include "ui/panel/player_frame.hpp"
 #include "ui/panel/roles.hpp"
+#include "ui/panel/talk.hpp"
 
 #include <array>
 #include <chrono>
@@ -489,7 +490,295 @@ void pull_back_rebases_the_tick(Context& context) {
     if (sent.size() == 2) context.expect(sent[1].tick >= 1000, "tick đếm tiếp từ tick máy chủ giao trong Position");
 }
 
+// Tin hội thoại v5 của máy chủ thành kiểu của giao diện: chữ giữ nguyên, enum đổi đúng, danh sách giữ thứ tự.
+void hear_of_converts_dialogue(Context& context) {
+    using client::session::Event;
+    using client::session::World;
+    namespace talk = ui::panel::talk;
+
+    protocol::DialogOpen open;
+    open.session = 42;
+    open.npc = 7;
+    open.mode = protocol::DialogMode::kMissionInfo;
+    open.lines = {protocol::DialogLine{.text = "#R第一行#W"}, protocol::DialogLine{.text = "第二行"}};
+    open.choices = {protocol::DialogChoice{.index = 4, .icon = 6, .text = "接受"}};
+    open.marks = {protocol::DialogMark{.quest = 1201, .stage = protocol::MarkStage::kReady}};
+    open.panel_quest = 1201;
+    open.bonuses = {protocol::DialogBonus{.kind = protocol::BonusKind::kRadio, .a = 10100001, .b = 2, .c = 3}};
+    const auto heard = client::online::hear_of(Event{World{.message = open}});
+    const auto* dialog = heard ? std::get_if<talk::Dialog>(&*heard) : nullptr;
+    context.expect(dialog != nullptr, "DialogOpen thành Dialog");
+    if (dialog == nullptr) return;
+    context.expect(dialog->session == 42 && dialog->npc == 7 && dialog->mode == talk::Mode::kMissionInfo, "phiên, NPC, chế độ");
+    context.expect(dialog->lines.size() == 2 && dialog->lines[0] == "#R第一行#W", "dòng giữ nguyên chữ và thẻ màu");
+    context.expect(dialog->choices.size() == 1 && dialog->choices[0].index == 4 && dialog->choices[0].icon == 6 &&
+            dialog->choices[0].text == "接受",
+        "lựa chọn");
+    context.expect(dialog->marks.size() == 1 && dialog->marks[0].quest == 1201 && dialog->marks[0].stage == talk::Stage::kReady, "dấu");
+    context.expect(dialog->panel_quest == 1201, "nhiệm vụ của bảng");
+    context.expect(dialog->bonuses.size() == 1 && dialog->bonuses[0].kind == talk::BonusKind::kRadio &&
+            dialog->bonuses[0].a == 10100001 && dialog->bonuses[0].b == 2 && dialog->bonuses[0].c == 3,
+        "phần thưởng");
+
+    const auto closed = client::online::hear_of(
+        Event{World{.message = protocol::DialogClosed{.session = 42, .reason = protocol::DialogCloseReason::kFar}}});
+    const auto* gone = closed ? std::get_if<talk::Closed>(&*closed) : nullptr;
+    context.expect(gone != nullptr && gone->session == 42 && gone->reason == talk::Reason::kFar, "DialogClosed");
+}
+
+// Sổ nhiệm vụ: mảng "đã xong" 512 byte thành 128 từ little-endian, bit id % 32 của từ id / 32.
+void hear_of_decodes_the_quest_book(Context& context) {
+    using client::session::Event;
+    using client::session::World;
+    namespace talk = ui::panel::talk;
+
+    protocol::QuestBook book;
+    book.slots = {protocol::QuestSlot{.quest = 1201, .script = 5001, .flags = 3, .params = {1, 2, 3}}};
+    // Nhiệm vụ 37 -> từ 1, bit 5; nhiệm vụ 4095 -> từ 127, bit 31; nhiệm vụ 0 -> từ 0, bit 0.
+    const auto set_done = [&book](std::size_t quest) {
+        const std::size_t word = quest / 32;
+        const std::size_t bit = quest % 32;
+        const std::size_t byte = (word * 4) + (bit / 8);
+        book.done.at(byte) = static_cast<std::byte>(std::to_integer<unsigned>(book.done.at(byte)) | (1U << (bit % 8)));
+    };
+    set_done(0);
+    set_done(37);
+    set_done(4095);
+    const auto heard = client::online::hear_of(Event{World{.message = book}});
+    const auto* made = heard ? std::get_if<talk::Book>(&*heard) : nullptr;
+    context.expect(made != nullptr, "QuestBook thành Book");
+    if (made == nullptr) return;
+    context.expect(made->slots.size() == 1 && made->slots[0].quest == 1201 && made->slots[0].script == 5001 &&
+            made->slots[0].flags == 3 && made->slots[0].params == std::vector<std::uint32_t>({1, 2, 3}),
+        "ô nhiệm vụ giữ tham số");
+    context.expect(made->done[0] == 1U, "nhiệm vụ 0 là bit 0 của từ 0");
+    context.expect(made->done[1] == (1U << 5), "nhiệm vụ 37 là bit 5 của từ 1");
+    context.expect(made->done[127] == (1U << 31), "nhiệm vụ 4095 là bit 31 của từ 127");
+    context.expect(made->done[2] == 0U && made->done[126] == 0U, "các từ khác trống");
+}
+
+void hear_of_stats_notices_and_refusals(Context& context) {
+    using client::session::Event;
+    using client::session::World;
+    namespace talk = ui::panel::talk;
+
+    const auto stats = client::online::hear_of(Event{World{.message = protocol::SelfStats{.level = 7, .exp = 900, .money = 12345, .bound_money = 6}}});
+    const auto* mine = stats ? std::get_if<talk::Stats>(&*stats) : nullptr;
+    context.expect(mine != nullptr && mine->level == 7 && mine->exp == 900 && mine->money == 12345 && mine->bound_money == 6, "SelfStats");
+
+    protocol::QuestNotice notice;
+    notice.kind = protocol::QuestNoticeKind::kRewardMoney;
+    notice.quest = 1201;
+    notice.text = "得到银两";
+    notice.value = 500;
+    notice.ref = 1;
+    const auto noted = client::online::hear_of(Event{World{.message = notice}});
+    const auto* line = noted ? std::get_if<talk::Notice>(&*noted) : nullptr;
+    context.expect(line != nullptr && line->kind == talk::NoticeKind::kRewardMoney && line->quest == 1201 && line->value == 500 &&
+            line->ref == 1 && line->text == "得到银两",
+        "QuestNotice");
+
+    const auto refused = client::online::hear_of(Event{World{.message = protocol::Reject{
+        .request = protocol::QuestAccept::kKind, .code = protocol::ErrorCode::kQuestLogFull}}});
+    const auto* no = refused ? std::get_if<talk::Refused>(&*refused) : nullptr;
+    context.expect(no != nullptr && no->why == talk::Refusal::kQuestLogFull, "Reject của việc nhận nhiệm vụ");
+    const auto elsewhere = client::online::hear_of(Event{World{.message = protocol::Reject{
+        .request = protocol::Move::kKind, .code = protocol::ErrorCode::kMoveBlocked}}});
+    context.expect(!elsewhere, "Reject của việc ngoài hộp thoại không thuộc nhóm này");
+    const auto unrelated = client::online::hear_of(Event{World{.message = protocol::EntityVitals{.id = 1, .hp_percent = 3}}});
+    context.expect(!unrelated, "tin thế giới khác không phải tin hội thoại");
+}
+
+void speech_of_maps_every_request(Context& context) {
+    namespace talk = ui::panel::talk;
+    using client::online::speech_of;
+
+    const auto said = speech_of(talk::Talk{.npc = 9});
+    const auto* hello = std::get_if<protocol::Talk>(&said);
+    context.expect(hello != nullptr && hello->npc == 9, "Talk");
+    const auto chose = speech_of(talk::Choose{.session = 8, .index = 3});
+    const auto* choice = std::get_if<protocol::DialogChoose>(&chose);
+    context.expect(choice != nullptr && choice->session == 8 && choice->index == 3, "DialogChoose");
+    const auto accepted = speech_of(talk::Accept{.session = 8, .quest = 1201});
+    const auto* accept = std::get_if<protocol::QuestAccept>(&accepted);
+    context.expect(accept != nullptr && accept->session == 8 && accept->quest == 1201, "QuestAccept");
+    const auto turned = speech_of(talk::TurnIn{.session = 8, .quest = 1201, .reward = 10100002});
+    const auto* turn = std::get_if<protocol::QuestTurnIn>(&turned);
+    context.expect(turn != nullptr && turn->session == 8 && turn->quest == 1201 && turn->reward == 10100002, "QuestTurnIn");
+    const auto dropped = speech_of(talk::Abandon{.quest = 1201});
+    const auto* abandon = std::get_if<protocol::QuestAbandon>(&dropped);
+    context.expect(abandon != nullptr && abandon->quest == 1201, "QuestAbandon");
+    const auto ended = speech_of(talk::Close{.session = 8});
+    const auto* close = std::get_if<protocol::DialogClose>(&ended);
+    context.expect(close != nullptr && close->session == 8, "DialogClose");
+}
+
+// Việc hộp thoại bị phiên từ chối (chưa vào game) không được trôi sang chuỗi đăng nhập như một lỗi đăng nhập.
+void reply_of_ignores_refused_speech(Context& context) {
+    using client::session::Ask;
+    using client::session::Event;
+    using client::session::Rejected;
+    const auto reply = client::online::reply_of(
+        Event{Rejected{.ask = Ask::kSpeak, .request = 0, .code = protocol::ErrorCode::kOutOfOrder}});
+    context.expect(!reply, "Rejected của kSpeak không thành trả lời cho chuỗi đăng nhập");
+    const auto other = client::online::reply_of(
+        Event{Rejected{.ask = Ask::kEnter, .request = 0, .code = protocol::ErrorCode::kOutOfOrder}});
+    context.expect(other.has_value(), "Rejected của việc đăng nhập vẫn là trả lời");
+}
+
+void note_of_flags(Context& context) {
+    using client::session::Event;
+    using client::session::World;
+    namespace cast = client::cast;
+    const auto note = client::online::note_of(Event{World{.message = protocol::EntityFlags{.id = 7, .flags = 1}}});
+    const auto* flagged = note ? std::get_if<cast::Flagged>(&*note) : nullptr;
+    context.expect(flagged != nullptr && flagged->id == 7 && flagged->flags == cast::kFlagTalk, "EntityFlags thành Flagged");
+}
+
+// Protocol v6: chiêu, đòn trúng và cái chết đổi sang mét của game và kiểu của cast; chữ "centimet" của dây không được lọt ra.
+void note_of_fight(Context& context) {
+    using client::session::Event;
+    using client::session::World;
+    namespace cast = client::cast;
+
+    protocol::SkillCast started;
+    started.seq = 3;
+    started.source = 11;
+    started.skill = 281;
+    started.target = 21;
+    started.x_cm = 1250.0F;
+    started.z_cm = -300.0F;
+    started.level = 4;
+    const auto casting = client::online::note_of(Event{World{.message = started}});
+    const auto* cast_note = casting ? std::get_if<cast::Casting>(&*casting) : nullptr;
+    context.expect(cast_note != nullptr && cast_note->source == 11 && cast_note->skill == 281 && cast_note->target == 21 &&
+            cast_note->seq == 3 && cast_note->level == 4 && std::fabs(cast_note->x - 12.5F) < 1e-4F &&
+            std::fabs(cast_note->z + 3.0F) < 1e-4F,
+        "SkillCast: id, số thứ tự, cấp và điểm nhắm centimet thành mét");
+
+    const auto ended = client::online::note_of(Event{World{.message = protocol::SkillCastEnd{.source = 11, .skill = 281, .interrupted = true}}});
+    const auto* end_note = ended ? std::get_if<cast::CastEnded>(&*ended) : nullptr;
+    context.expect(end_note != nullptr && end_note->source == 11 && end_note->skill == 281 && end_note->is_interrupted, "SkillCastEnd");
+
+    const std::array<std::pair<protocol::CombatKind, cast::Blow>, 4> kinds{{
+        {protocol::CombatKind::kDamage, cast::Blow::kDamage},
+        {protocol::CombatKind::kHeal, cast::Blow::kHeal},
+        {protocol::CombatKind::kMiss, cast::Blow::kMiss},
+        {protocol::CombatKind::kImmune, cast::Blow::kImmune},
+    }};
+    for (const auto& [wire, expected] : kinds) {
+        protocol::CombatEvent event;
+        event.source = 11;
+        event.target = 21;
+        event.skill = 281;
+        event.kind = wire;
+        event.value = 345;
+        event.flags = 1;
+        const auto blow = client::online::note_of(Event{World{.message = event}});
+        const auto* struck = blow ? std::get_if<cast::Struck>(&*blow) : nullptr;
+        context.expect(struck != nullptr && struck->kind == expected && struck->value == 345 && struck->is_critical &&
+                struck->source == 11 && struck->target == 21,
+            "CombatEvent giữ loại, giá trị và cờ hội tâm");
+    }
+    protocol::CombatEvent plain;
+    plain.flags = 2;
+    const auto quiet = client::online::note_of(Event{World{.message = plain}});
+    const auto* quiet_blow = quiet ? std::get_if<cast::Struck>(&*quiet) : nullptr;
+    context.expect(quiet_blow != nullptr && !quiet_blow->is_critical, "chỉ bit 0 là hội tâm");
+
+    const auto died = client::online::note_of(Event{World{.message = protocol::EntityDied{.id = 21, .killer = 11}}});
+    const auto* gone = died ? std::get_if<cast::Died>(&*died) : nullptr;
+    context.expect(gone != nullptr && gone->id == 21 && gone->killer == 11, "EntityDied");
+}
+
+void hear_of_fight(Context& context) {
+    using client::session::Event;
+    using client::session::World;
+    namespace talk = ui::panel::talk;
+
+    const auto vitals = client::online::hear_of(Event{World{.message = protocol::SelfVitals{
+        .hp = 90, .hp_max = 100, .mp = 30, .mp_max = 60, .rage = 5, .rage_max = 100}}});
+    const auto* mine = vitals ? std::get_if<talk::Vitals>(&*vitals) : nullptr;
+    context.expect(mine != nullptr && mine->hp == 90 && mine->hp_max == 100 && mine->mp == 30 && mine->mp_max == 60 &&
+            mine->rage == 5 && mine->rage_max == 100,
+        "SelfVitals");
+
+    protocol::SelfSkills list;
+    list.skills.push_back(protocol::SkillEntry{.skill = 281, .level = 1, .cooldown_ms = 0});
+    list.skills.push_back(protocol::SkillEntry{.skill = 282, .level = 2, .cooldown_ms = 1500});
+    const auto learned = client::online::hear_of(Event{World{.message = list}});
+    const auto* skills = learned ? std::get_if<talk::Skills>(&*learned) : nullptr;
+    context.expect(skills != nullptr && skills->learned.size() == 2 && skills->learned[1].skill == 282 && skills->learned[1].level == 2 &&
+            skills->learned[1].cooldown_ms == 1500,
+        "SelfSkills giữ thứ tự, cấp và hồi chiêu còn lại");
+
+    const auto cooled = client::online::hear_of(Event{World{.message = protocol::SkillCooldown{.skill = 281, .ms = 2400}}});
+    const auto* cooldown = cooled ? std::get_if<talk::Cooldown>(&*cooled) : nullptr;
+    context.expect(cooldown != nullptr && cooldown->skill == 281 && cooldown->ms == 2400, "SkillCooldown");
+
+    const auto lost = client::online::hear_of(Event{World{.message = protocol::DeathNotice{.exp_lost = 70, .money_lost = 8}}});
+    const auto* slain = lost ? std::get_if<talk::Slain>(&*lost) : nullptr;
+    context.expect(slain != nullptr && slain->exp_lost == 70 && slain->money_lost == 8, "DeathNotice");
+
+    const std::array<std::pair<protocol::ErrorCode, talk::Decline>, 12> codes{{
+        {protocol::ErrorCode::kNotLearned, talk::Decline::kNotLearned},
+        {protocol::ErrorCode::kCooldown, talk::Decline::kCooldown},
+        {protocol::ErrorCode::kNotEnoughMana, talk::Decline::kNotEnoughMana},
+        {protocol::ErrorCode::kNotEnoughRage, talk::Decline::kNotEnoughRage},
+        {protocol::ErrorCode::kBadTarget, talk::Decline::kBadTarget},
+        {protocol::ErrorCode::kOutOfRange, talk::Decline::kOutOfRange},
+        {protocol::ErrorCode::kCannotAttack, talk::Decline::kCannotAttack},
+        {protocol::ErrorCode::kNoSuchEntity, talk::Decline::kGone},
+        {protocol::ErrorCode::kDead, talk::Decline::kDead},
+        {protocol::ErrorCode::kNotDead, talk::Decline::kNotDead},
+        {protocol::ErrorCode::kNotYours, talk::Decline::kNotYours},
+        {protocol::ErrorCode::kBusy, talk::Decline::kBusy},
+    }};
+    for (const auto& [wire, expected] : codes) {
+        const auto refused = client::online::hear_of(Event{World{.message = protocol::Reject{
+            .request = protocol::CastSkill::kKind, .code = wire}}});
+        const auto* declined = refused ? std::get_if<talk::Declined>(&*refused) : nullptr;
+        context.expect(declined != nullptr && declined->why == expected, "Reject của CastSkill thành Declined theo mã lỗi");
+    }
+    for (const std::uint16_t request : {protocol::Respawn::kKind, protocol::PickUp::kKind}) {
+        const auto refused = client::online::hear_of(Event{World{.message = protocol::Reject{
+            .request = request, .code = protocol::ErrorCode::kNotDead}}});
+        context.expect(refused && std::holds_alternative<talk::Declined>(*refused), "Reject của hồi sinh và nhặt đồ cũng là Declined");
+    }
+    const auto other = client::online::hear_of(Event{World{.message = protocol::Reject{
+        .request = protocol::CastSkill::kKind, .code = protocol::ErrorCode::kMalformed}}});
+    const auto* odd = other ? std::get_if<talk::Declined>(&*other) : nullptr;
+    context.expect(odd != nullptr && odd->why == talk::Decline::kOther, "mã lỗi lạ thành kOther, không thành Refused của hộp thoại");
+    const auto talk_refusal = client::online::hear_of(Event{World{.message = protocol::Reject{
+        .request = protocol::Talk::kKind, .code = protocol::ErrorCode::kDead}}});
+    context.expect(talk_refusal && std::holds_alternative<talk::Refused>(*talk_refusal), "Reject của hộp thoại vẫn là Refused");
+}
+
+void speech_of_fight(Context& context) {
+    namespace talk = ui::panel::talk;
+    using client::online::speech_of;
+
+    const auto cast = speech_of(talk::Cast{.seq = 9, .skill = 281, .target = 21, .x = 12.5F, .z = -3.0F});
+    const auto* send = std::get_if<protocol::CastSkill>(&cast);
+    context.expect(send != nullptr && send->seq == 9 && send->skill == 281 && send->target == 21 &&
+            std::fabs(send->x_cm - 1250.0F) < 1e-3F && std::fabs(send->z_cm + 300.0F) < 1e-3F,
+        "CastSkill: mét của game thành centimet của dây");
+    const auto town = speech_of(talk::Revive{.place = talk::Place::kTown});
+    const auto here = speech_of(talk::Revive{.place = talk::Place::kHere});
+    const auto* town_send = std::get_if<protocol::Respawn>(&town);
+    const auto* here_send = std::get_if<protocol::Respawn>(&here);
+    context.expect(town_send != nullptr && town_send->place == protocol::RespawnPlace::kTown && here_send != nullptr &&
+            here_send->place == protocol::RespawnPlace::kHere,
+        "Respawn giữ nơi hồi sinh");
+    const auto pick = speech_of(talk::PickUp{.drop = 4001});
+    const auto* pick_send = std::get_if<protocol::PickUp>(&pick);
+    context.expect(pick_send != nullptr && pick_send->drop == 4001, "PickUp");
+}
+
 constexpr std::array kCases{
+    Case{.name = "note_of_fight", .body = &note_of_fight},
+    Case{.name = "hear_of_fight", .body = &hear_of_fight},
+    Case{.name = "speech_of_fight", .body = &speech_of_fight},
     Case{.name = "fault_of_error_codes", .body = &fault_of_error_codes},
     Case{.name = "fault_of_lost_reasons", .body = &fault_of_lost_reasons},
     Case{.name = "role_of_keeps_server_facts", .body = &role_of_keeps_server_facts},
@@ -503,6 +792,12 @@ constexpr std::array kCases{
     Case{.name = "bridge_delivers_world_notes", .body = &bridge_delivers_world_notes},
     Case{.name = "report_sends_moves_at_a_steady_pace", .body = &report_sends_moves_at_a_steady_pace},
     Case{.name = "pull_back_rebases_the_tick", .body = &pull_back_rebases_the_tick},
+    Case{.name = "hear_of_converts_dialogue", .body = &hear_of_converts_dialogue},
+    Case{.name = "hear_of_decodes_the_quest_book", .body = &hear_of_decodes_the_quest_book},
+    Case{.name = "hear_of_stats_notices_and_refusals", .body = &hear_of_stats_notices_and_refusals},
+    Case{.name = "speech_of_maps_every_request", .body = &speech_of_maps_every_request},
+    Case{.name = "reply_of_ignores_refused_speech", .body = &reply_of_ignores_refused_speech},
+    Case{.name = "note_of_flags", .body = &note_of_flags},
 };
 
 } // namespace

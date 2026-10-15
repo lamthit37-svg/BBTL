@@ -230,6 +230,7 @@ void print_visit(const world::ShownScene& shown) {
     viewer.auto_strike_from = options.auto_strike_from;
     viewer.ui_events = options.ui_events;
     viewer.creatures = options.creatures;
+    viewer.talk_demo = options.talk_demo;
     viewer.weapon_item = options.weapon_item;
     viewer.weapon_gem = options.weapon_gem;
     viewer.skill_id = options.skill_id;

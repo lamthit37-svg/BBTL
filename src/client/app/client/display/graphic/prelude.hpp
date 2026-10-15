@@ -35,6 +35,7 @@
 #include "client/map/splat.hpp"
 #include "client/map/terrain.hpp"
 #include "client/cast/cast.hpp"
+#include "client/fight/combat.hpp"
 #include "client/world/world.hpp"
 #include "control/char_camera.hpp"
 #include "fx/cast.hpp"
@@ -289,6 +290,8 @@ constexpr std::size_t kMaxOnlineReplies = 64;
 // Trần tin thế giới chờ luồng vẽ. Một khung nhận cùng lắm vài trăm tin (hàng sự kiện của phiên có trần 256); trần này
 // chỉ chạm khi luồng vẽ đứng lâu.
 constexpr std::size_t kMaxWorldNotes = 4096;
+// Trần hàng chờ tin hội thoại của phiên mạng và việc người chơi nhờ gửi đi.
+constexpr std::size_t kMaxTalkNotes = 256;
 // Đơn vị toạ độ máy chủ là centimet; đơn vị game của client (kích thước cảnh, minimap) là mét.
 constexpr float kCmPerUnit = 100.0F;
 // Bước thời gian dài nhất của một khung, giây: máy khựng không làm điểm nhìn nhảy xa.

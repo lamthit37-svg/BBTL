@@ -1,9 +1,25 @@
+/*==============================================================================
+ *  THIENLONG  |  GAME CLIENT
+ *------------------------------------------------------------------------------
+ *  TỆP       : src/client/app/client/display/player.hpp
+ *  PHÂN HỆ   : Client / Display / Player
+ *  CHUẨN     : C++23
+ *------------------------------------------------------------------------------
+ *  CHỨC NĂNG
+ *  - Người chơi trên màn hình: ngoại hình đã giải từ bảng, các lưới bộ phận đã
+ *    tải lên GPU, tư thế theo clip (đứng, nghỉ, chạy) và hướng mặt xoay mượt.
+ *    Nơi vẽ nạp lưới giúp qua MeshLoader, nên lớp này không giữ tài nguyên GPU:
+ *    chỉ trỏ vào drawable do nơi vẽ sở hữu. Hướng mặt 0 là +z (quy ước của
+ *    client gốc: hướng = atan2(dx, dz), mô hình quay quanh +y bằng
+ *    Quaternion::FromAngleAxis).
+ *------------------------------------------------------------------------------
+ *  TÁC GIẢ   : HiepHoon
+ *  TELEGRAM  : @Hoon9xx
+ *============================================================================*/
+
+// Bản mới của dự án, theo client_app/world_view.cpp của TLBB Dev (đặt nút mẫu, Gait, Turning).
+
 #pragma once
-// Người chơi trên màn hình: ngoại hình đã giải từ bảng, các lưới bộ phận đã tải lên GPU, tư thế
-// theo clip (đứng, nghỉ, chạy) và hướng mặt xoay mượt. Nơi vẽ nạp lưới giúp qua MeshLoader, nên lớp
-// này không giữ tài nguyên GPU: chỉ trỏ vào drawable do nơi vẽ sở hữu. Hướng mặt 0 là +z (quy ước
-// của client gốc: hướng = atan2(dx, dz), mô hình quay quanh +y bằng Quaternion::FromAngleAxis). Bản
-// mới của dự án, theo client_app/world_view.cpp của TLBB Dev (đặt nút mẫu, Gait, Turning).
 
 #include "avatar/avatar.hpp"
 #include "avatar/gait.hpp"
@@ -18,6 +34,7 @@
 #include "ogre/vec3.hpp"
 #include "render/forward.hpp"
 
+#include <chrono>
 #include <cstddef>
 #include <cstdint>
 #include <filesystem>
@@ -142,6 +159,9 @@ public:
     [[nodiscard]] const look::Figure& figure() const noexcept { return avatar_.figure(); }
     // Số bước đã nạp clip của skill, theo thứ tự bước; rỗng khi skill không có đòn cho người chơi này.
     [[nodiscard]] std::vector<std::uint32_t> steps_of(std::uint32_t skill) const;
+    // Từ lúc bắt đầu bước call tới mốc đòn trúng đầu tiên của clip (HitTime), theo tốc độ phát thật; 0 khi bước không có clip
+    // hay kịch bản không có mốc trúng.
+    [[nodiscard]] std::chrono::milliseconds hit_after(const StrikeCall& call) const;
     // Đang trong đòn mà chưa tới BreakTime: lệnh đi, nhảy, đòn khác phải chờ (Gait::is_locked).
     [[nodiscard]] bool is_locked(core::Clock::time_point now) const;
     // Chuyển các khối vừa tới mốc ở update gần nhất sang out (cộng thêm), rồi xoá khỏi người chơi.
@@ -157,6 +177,7 @@ private:
     PlayerActor(avatar::Avatar avatar, std::vector<const render::Drawable*> parts, std::vector<HeldMesh> held,
         bool fidget, bool demo);
 
+    [[nodiscard]] avatar::StrikePlan plan_of(std::size_t index) const;
     void begin_strike(core::Clock::time_point now, const StrikeCall& call);
     void fire_cues(const avatar::Playing& playing, const Stand& drawn);
     void place_gear(const Stand& drawn);

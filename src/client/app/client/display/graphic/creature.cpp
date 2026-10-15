@@ -176,15 +176,19 @@ std::shared_ptr<const CreatureAsset> Display::State::creature_asset(std::uint32_
 }
 
 // Chân đứng của thực thể ở toạ độ game (x, z): địa hình, nâng lên mặt công trình nếu có (như chân người chơi). Cần ground
-// và terrain đã có; append_creatures kiểm trước khi gọi.
-math::Point3 Display::State::stand_of(const cast::Actor& actor) const {
+// và terrain đã có; append_creatures và talkable_at kiểm trước khi gọi.
+ogre::Vec3 Display::State::world_foot(const cast::Actor& actor) const {
     const map::TerrainFile& file = ground->file;
     const float world_x = file.origin.x + (actor.x * file.scale.x);
     const float world_z = file.origin.z + (actor.z * file.scale.z);
-    // NOLINTNEXTLINE(bugprone-unchecked-optional-access): append_creatures đã kiểm terrain trước khi gọi
+    // NOLINTNEXTLINE(bugprone-unchecked-optional-access): append_creatures và talkable_at đã kiểm terrain trước khi gọi
     const float terrain_y = terrain->height_at(world_x, world_z);
     const float world_y = surface_y(held.get(), ground, world_x, world_z, terrain_y);
-    return point_of(ogre::Vec3{.x = world_x, .y = world_y, .z = world_z});
+    return ogre::Vec3{.x = world_x, .y = world_y, .z = world_z};
+}
+
+math::Point3 Display::State::stand_of(const cast::Actor& actor) const {
+    return point_of(world_foot(actor));
 }
 
 void Display::State::show_creature(const cast::Actor& actor, std::size_t& budget) {
@@ -224,6 +228,8 @@ void Display::State::seed_creature_demo(int scene_id) {
     constexpr float kFirstRow = 5.0F;
     constexpr std::uint32_t kFirstId = 1000;
     const core::GroundPoint here = game_of(ground->file, walk);
+    const bool is_fight = is_fight_demo();
+    const bool is_talk = !talk_demo.empty() && !is_fight;
     people.apply(cast::Arrive{.scene = static_cast<std::uint16_t>(scene_id), .x = here.x, .z = here.z, .self_id = 1});
     for (std::size_t at = 0; at < creature_demo.size(); ++at) {
         const auto column = static_cast<float>(at % kColumns) - kCenter;
@@ -234,8 +240,12 @@ void Display::State::seed_creature_demo(int scene_id) {
         spawn.x = here.x + (column * kSpacing);
         spawn.z = here.z + kFirstRow + (static_cast<float>(line) * kSpacing);
         spawn.facing = std::numbers::pi_v<float>;
+        if (is_talk) spawn.kind = cast::Kind::kNpc;
         people.apply(spawn);
+        if (is_talk) people.apply(cast::Flagged{.id = spawn.id, .flags = cast::kFlagTalk});
     }
+    if (is_talk && !creature_demo.empty()) open_demo(kFirstId);
+    if (is_fight && !creature_demo.empty()) start_fight_demo(kFirstId);
     creature_demo.clear();
 }
 

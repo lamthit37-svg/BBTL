@@ -638,6 +638,9 @@ void serve_world(const Session& session) {
         if (const auto* arrive = std::get_if<cast::Arrive>(&note)) follow_scene(session, *arrive);
     }
     session.display->post_world(notes);
+    // Hộp thoại NPC, sổ nhiệm vụ: tin của máy chủ xuống giao diện, việc người chơi nhờ lên máy chủ.
+    session.display->post_talk(session.bridge->take_heard());
+    session.bridge->speak(session.display->take_says());
     if (const std::optional<core::GroundPoint> spot = session.display->reported_spot()) {
         session.bridge->report(spot->x, spot->z);
     }
@@ -879,6 +882,7 @@ int run_viewer(const ViewerDesc& desc) {
     shown.auto_strike_from = desc.auto_strike_from;
     shown.ui_events = desc.ui_events;
     shown.creatures = desc.creatures;
+    shown.talk_demo = desc.talk_demo;
     shown.weapon_item = desc.weapon_item;
     shown.weapon_gem = desc.weapon_gem;
     shown.skill_id = desc.skill_id;

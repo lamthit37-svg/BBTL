@@ -37,6 +37,7 @@
 #include "control/input.hpp"
 #include "core/error.hpp"
 #include "ui/panel/online.hpp"
+#include "ui/panel/talk.hpp"
 
 #include <cstdint>
 #include <filesystem>
@@ -139,6 +140,11 @@ struct DisplayDesc {
     // Công cụ thử của dự án (--creature), client gốc không có: id mẫu quái hay NPC đứng thành lưới trước mặt nhân vật ở
     // khung màn chơi đầu tiên, như máy chủ vừa báo chúng vào vùng nhìn. Để nhìn hình mà không cần máy chủ.
     std::vector<std::uint32_t> creatures;
+    // Công cụ thử của dự án (--talk-demo), client gốc không có: NPC của --creature mang cờ bấm được, và việc người chơi nhờ
+    // ở hộp thoại được đáp bằng kịch bản có sẵn (graphic/talk_demo.cpp) thay cho máy chủ. "click" chờ người chơi bấm NPC;
+    // "menu", "offer", "turn" mở sẵn hộp tương ứng ở khung màn chơi đầu. "fight": quái của --creature đánh được và chiêu được
+    // đáp bằng sát thương giả (graphic/fight_demo.cpp); "fall" như "fight" nhưng người chơi chết ở chiêu đầu. Rỗng là tắt.
+    std::string talk_demo;
     // Công cụ thử của dự án (--weapon): vật phẩm khe 0 mà nhân vật ở màn chơi cầm; không có thì tay không
     // (hay ngoại hình đã chọn). Hành trang thật nối vào ngoại hình sau (docs/NGHI-NGO.md).
     std::optional<std::uint32_t> weapon_item;
@@ -245,6 +251,12 @@ public:
     // kế, theo thứ tự. Hàng chờ có trần: vượt trần thì bỏ tin vị trí và sinh lực mới tới (trạng thái tức thời, tin sau
     // thay nó) chứ không bỏ tin hiện hay biến mất. An toàn mọi luồng.
     void post_world(std::span<const cast::Note> notes);
+    // Tin hội thoại NPC, sổ nhiệm vụ và chỉ số bản thân của phiên mạng cho luồng vẽ áp ở khung kế, theo thứ tự. Hàng chờ có trần:
+    // vượt trần thì bỏ tin cũ nhất (sổ và hộp mới thay bản cũ). An toàn mọi luồng.
+    void post_talk(std::span<const ui::panel::talk::Hear> heard);
+    // Việc hộp thoại và sổ nhiệm vụ mà người chơi đã nhờ từ lần gọi trước (bấm NPC, chọn dòng, nhận, nộp, đóng), theo thứ tự; lấy
+    // rồi thì hết. An toàn mọi luồng.
+    [[nodiscard]] std::vector<ui::panel::talk::Say> take_says();
     // Chỗ đứng của nhân vật ở khung vừa mô phỏng, mét của game: cái phiên mạng báo cho máy chủ. Rỗng khi chưa ở màn chơi,
     // chưa vào cảnh nào của máy chủ, hoặc cảnh máy chủ vừa đổi mà cảnh mới chưa nạp xong (báo chỗ của cảnh cũ lúc ấy
     // là dịch chuyển giả). An toàn mọi luồng.

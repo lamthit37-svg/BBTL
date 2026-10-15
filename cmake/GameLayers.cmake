@@ -119,15 +119,18 @@ set(game_layer_client/map "core io xml scene client/map")
 set(game_layer_client/world "core io fs xml scene nav collision client/stage client/map client/world")
 # client/cast: thực thể trong cảnh (quái, NPC, người khác) và chuyển động mượt; không biết giao thức hay đồ hoạ.
 set(game_layer_client/cast "core client/cast")
+# client/fight: chiến đấu của chính người chơi (mục tiêu, hồi chiêu, đánh tự động, số bay); thuần logic, chỉ đọc kiểu của
+# ui/panel/talk.hpp và tin của client/cast.
+set(game_layer_client/fight "core ui/panel client/cast client/fight")
 set(game_layer_client/display
-    "core io math scene gpu resource capture render shader avatar look anim ogre fx control motion nav hero gui ui/panel ui classic client/stage client/map client/world client/cast client/display")
+    "core io math scene gpu resource capture render shader avatar look anim ogre fx control motion nav hero gui ui/panel ui classic client/stage client/map client/world client/cast client/fight client/display")
 set(game_layer_client/viewer
     "core io window control audio ui/panel client/stage client/display client/map client/world client/cast client/online client/session client/viewer")
-set(game_layer_client
 # client/host: việc mỗi khung của vỏ điện thoại (nối đăng nhập với phiên mạng, nhạc cảnh, bảng cổng máy chủ); không API
 # hệ điều hành.
 set(game_layer_client/host
     "core io audio ui/panel client/cast client/display client/world client/session client/online client/host")
+set(game_layer_client
     "core io xml scene control audio client/display client/stage client/map client/world client/viewer client/host client")
 
 # Engine không biết game. Phần game nằm ở src/client, src/server, src/shared.

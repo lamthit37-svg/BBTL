@@ -1,4 +1,17 @@
-// Người chơi trên màn hình (xem player.hpp).
+/*==============================================================================
+ *  THIENLONG  |  GAME CLIENT
+ *------------------------------------------------------------------------------
+ *  TỆP       : src/client/app/client/display/player.cpp
+ *  PHÂN HỆ   : Client / Display / Player
+ *  CHUẨN     : C++23
+ *------------------------------------------------------------------------------
+ *  CHỨC NĂNG
+ *  - Người chơi trên màn hình (xem player.hpp).
+ *------------------------------------------------------------------------------
+ *  TÁC GIẢ   : HiepHoon
+ *  TELEGRAM  : @Hoon9xx
+ *============================================================================*/
+
 #include "client/display/player.hpp"
 
 #include "anim/rig.hpp"
@@ -18,6 +31,7 @@
 #include "render/forward.hpp"
 
 #include <algorithm>
+#include <chrono>
 #include <cmath>
 #include <cstddef>
 #include <cstdint>
@@ -286,25 +300,43 @@ void PlayerActor::take_cues(std::vector<SkillCue>& out) {
     cues_.clear();
 }
 
-// Start_MagicSend: ChangeAction với tốc độ logic (chưa có tốc độ đánh nên 1). Skill kiểu kRandom có m_nSendTime thì clip
-// dài hơn thời gian phát được chạy nhanh lên cho vừa (Game.exe 2026 0x1405ee920: rate *= clip ms / send ms). BreakTime
-// đầu tiên là mốc OnAnimationCanBreak.
-void PlayerActor::begin_strike(core::Clock::time_point now, const StrikeCall& call) {
-    const std::optional<std::size_t> index = avatar_.strike_index(call.skill, call.step);
-    if (!index) return;
-    const look::Strike& strike = avatar_.strikes()[*index];
+// Kế hoạch phát của một bước: Start_MagicSend ChangeAction với tốc độ logic (chưa có tốc độ đánh nên 1). Skill kiểu kRandom
+// có m_nSendTime thì clip dài hơn thời gian phát được chạy nhanh lên cho vừa (Game.exe 2026 0x1405ee920: rate *= clip ms /
+// send ms). BreakTime đầu tiên là mốc OnAnimationCanBreak.
+avatar::StrikePlan PlayerActor::plan_of(std::size_t index) const {
+    const look::Strike& strike = avatar_.strikes()[index];
     avatar::StrikePlan plan;
-    plan.index = *index;
-    plan.length = avatar_.strike_length(*index);
+    plan.index = index;
+    plan.length = avatar_.strike_length(index);
     const float clip_ms = plan.length * 1000.0F;
     const auto send_ms = static_cast<float>(strike.send_ms);
     if (strike.kind == look::ActionKind::kRandom && send_ms > 0.0F && send_ms < clip_ms) plan.rate = clip_ms / send_ms;
     const auto earliest = std::ranges::min_element(strike.break_times);
     if (earliest != strike.break_times.end() && *earliest <= 1.0F) plan.break_at = *earliest;
+    return plan;
+}
+
+void PlayerActor::begin_strike(core::Clock::time_point now, const StrikeCall& call) {
+    const std::optional<std::size_t> index = avatar_.strike_index(call.skill, call.step);
+    if (!index) return;
+    const look::Strike& strike = avatar_.strikes()[*index];
+    const avatar::StrikePlan plan = plan_of(*index);
     gait_.strike(now, plan);
     active_ = Active{.index = *index, .fraction = 0.0F};
     std::println("Đòn: skill {} bước {} là {} ({:.2f} s, tốc độ {:.2f}, {} khối con)", call.skill, call.step, strike.script,
         plan.length, plan.rate, strike.events.size());
+}
+
+std::chrono::milliseconds PlayerActor::hit_after(const StrikeCall& call) const {
+    const std::optional<std::size_t> index = avatar_.strike_index(call.skill, call.step);
+    if (!index) return std::chrono::milliseconds{0};
+    const look::Strike& strike = avatar_.strikes()[*index];
+    const auto first = std::ranges::find_if(strike.hit_times, [](float part) { return part > 0.0F && part <= 1.0F; });
+    if (first == strike.hit_times.end()) return std::chrono::milliseconds{0};
+    const avatar::StrikePlan plan = plan_of(*index);
+    if (!(plan.rate > 0.0F)) return std::chrono::milliseconds{0};
+    const float seconds = (*first * plan.length) / plan.rate;
+    return std::chrono::milliseconds{std::lround(seconds * 1000.0F)};
 }
 
 void PlayerActor::drop_follow(std::uint32_t token) {

@@ -21,6 +21,7 @@
 #pragma once
 
 #include "client/cast/note.hpp"
+#include "ui/panel/talk.hpp"
 #include "client/session/gates.hpp"
 #include "client/session/session.hpp"
 #include "protocol/messages.hpp"
@@ -49,6 +50,13 @@ namespace game::client::online {
 // quay về +Z) thành góc của client (atan2(dx, dz)).
 [[nodiscard]] std::optional<cast::Note> note_of(const session::Event& event);
 
+// Một sự kiện của phiên thành tin hội thoại, sổ nhiệm vụ hay chỉ số bản thân; không có khi sự kiện không thuộc nhóm đó. Tin
+// Reject của việc ngoài hộp thoại (mã tin ngoài 0x0601..0x0606) không phải của nhóm này. Chữ giữ nguyên như máy chủ dựng.
+[[nodiscard]] std::optional<ui::panel::talk::Hear> hear_of(const session::Event& event);
+
+// Việc người chơi nhờ thành lệnh gửi lên máy chủ.
+[[nodiscard]] session::Speech speech_of(const ui::panel::talk::Say& say);
+
 class Bridge {
 public:
     explicit Bridge(session::GateBook book);
@@ -66,6 +74,11 @@ public:
     [[nodiscard]] std::vector<ui::panel::OnlineReply> collect();
     // Tin thế giới đã gom ở các lần collect, theo thứ tự; lấy rồi thì hết.
     [[nodiscard]] std::vector<cast::Note> take_notes();
+    // Chuyển việc hộp thoại và sổ nhiệm vụ cho phiên, theo thứ tự. Không có phiên hay hàng đợi lệnh đầy thì bỏ (người chơi
+    // bấm lại được): đây là thao tác tức thời, không có gì để báo lỗi cho chuỗi đăng nhập.
+    void speak(std::span<const ui::panel::talk::Say> says);
+    // Tin hội thoại đã gom ở các lần collect, theo thứ tự; lấy rồi thì hết.
+    [[nodiscard]] std::vector<ui::panel::talk::Hear> take_heard();
     // Chỗ đứng hiện tại của nhân vật, mét của game: phiên gửi Move khi đã vào game. Không có phiên thì bỏ.
     void report(float x_m, float z_m);
     // Pha của phiên; kIdle khi phiên chưa dựng.
@@ -80,6 +93,7 @@ private:
     // Trả lời tạo ngay lúc serve (máy chủ không có trong bảng cổng, hàng đợi lệnh đầy).
     std::vector<ui::panel::OnlineReply> immediate_;
     std::vector<cast::Note> notes_;
+    std::vector<ui::panel::talk::Hear> heard_;
 };
 
 } // namespace game::client::online

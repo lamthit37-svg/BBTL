@@ -583,6 +583,7 @@ target_link_libraries(game_skill PUBLIC game_table game_core)
 # ui/panel: logic của từng cửa sổ HUD, thay script Lua của client gốc (hiện, giấu, điền chữ, đặt
 # thanh). Thuần logic trên gui, không cần GPU; module ui (bộ vẽ) dùng nó.
 game_module(ui_panel
+    src/client/face/ui/panel/npc_talk.cpp
     src/client/face/ui/panel/online.cpp
     src/client/face/ui/panel/deck.cpp
     src/client/face/ui/panel/desk.cpp
@@ -999,6 +1000,10 @@ if(GAME_HAS_GPU)
         src/client/app/client/display/graphic/face.cpp
         src/client/app/client/display/graphic/effect.cpp
         src/client/app/client/display/graphic/creature.cpp
+        src/client/app/client/display/graphic/talk.cpp
+        src/client/app/client/display/graphic/talk_demo.cpp
+        src/client/app/client/display/graphic/fight.cpp
+        src/client/app/client/display/graphic/fight_demo.cpp
         src/client/app/client/display/creature.cpp
         src/client/app/client/display/player.cpp
         src/client/app/client/display/portrait.cpp src/client/app/client/display/role_preview.cpp src/client/app/client/display/fx_view.cpp
@@ -1021,12 +1026,15 @@ target_link_libraries(game_client_stage PUBLIC game_core game_xml game_scene)
 # client/cast: thực thể máy chủ cho client thấy và cách chúng chuyển động mượt; thuần logic, dùng chung PC và điện thoại.
 game_module(client_cast src/client/app/client/cast/cast.cpp)
 target_link_libraries(game_client_cast PUBLIC game_core)
+# client/fight: chiến đấu của chính người chơi; thuần logic, dùng chung PC và điện thoại.
+game_module(client_fight src/client/app/client/fight/combat.cpp)
+target_link_libraries(game_client_fight PUBLIC game_core game_client_cast)
 game_module(client_world src/client/app/client/world/world.cpp)
 target_link_libraries(game_client_world PUBLIC game_client_stage game_client_map game_io game_nav game_fs
     game_collision)
 game_module(client_display ${game_client_screen})
 target_link_libraries(game_client_display PUBLIC game_core game_client_stage game_client_map
-    game_client_world game_client_cast game_control)
+    game_client_world game_client_cast game_client_fight game_control)
 if(GAME_HAS_GPU)
     target_link_libraries(game_client_display PRIVATE game_gpu game_render game_capture
         game_avatar game_look game_motion game_ui game_fx game_classic)
@@ -1347,6 +1355,7 @@ endif()
 game_test(scene game_scene)
 game_test(map game_client_map)
 game_test(cast game_client_cast)
+game_test(fight game_client_fight)
 if(NOT ANDROID AND EXISTS "${PROJECT_SOURCE_DIR}/dev/client/assets/Config/ScenePosDefineEx.txt")
     target_compile_definitions(map_tests PRIVATE
         "GAME_CLIENT_DATA=\"${PROJECT_SOURCE_DIR}/dev/client/assets\"")
@@ -1536,6 +1545,7 @@ game_test(ui_widgets game_ui_panel)
 # TOOLS/port/lua_oracle.py sinh). Thiết bị Android không thấy cây nguồn nên ở đó ca số vàng tự bỏ qua.
 game_test(ui_quest game_ui_panel game_io)
 game_test(ui_quest_book game_ui_panel game_io)
+game_test(ui_npc_talk game_ui_panel)
 if(NOT ANDROID)
     target_compile_definitions(ui_quest_tests PRIVATE
         GAME_PANEL_GOLDEN="${PROJECT_SOURCE_DIR}/Test/golden/panel")

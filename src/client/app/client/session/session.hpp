@@ -68,7 +68,16 @@ struct Enter {
 // Trả phiên: đóng link, về kIdle.
 struct Drop {};
 
-using Command = std::variant<SignIn, Create, Delete, Enter, Drop>;
+// Việc của hộp thoại NPC, sổ nhiệm vụ và chiêu thức lúc đang chơi. Chỉ nhận ở kInGame và không đổi pha; máy chủ từ chối
+// thì tin Reject đến như tin thế giới.
+using Speech = std::variant<protocol::Talk, protocol::DialogChoose, protocol::QuestAccept, protocol::QuestTurnIn,
+    protocol::QuestAbandon, protocol::DialogClose, protocol::CastSkill, protocol::Respawn, protocol::PickUp>;
+
+struct Speak {
+    Speech speech;
+};
+
+using Command = std::variant<SignIn, Create, Delete, Enter, Drop, Speak>;
 
 // Vì sao một phiên mất.
 enum class Fault : std::uint8_t {

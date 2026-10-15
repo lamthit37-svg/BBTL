@@ -33,6 +33,7 @@
 #include "ui/panel/events.hpp"
 #include "ui/panel/login_flow.hpp"
 #include "ui/panel/online.hpp"
+#include "ui/panel/talk.hpp"
 #include "ui/view.hpp"
 
 #include <chrono>
@@ -47,6 +48,8 @@
 #include <vector>
 
 namespace game::ui {
+
+class BitmapFont;
 
 struct HudDesc {
     // Thư mục dữ liệu client (CLIENT/data); giao diện nằm ở Interface và Table dưới đó.
@@ -109,6 +112,8 @@ struct HudView {
     std::optional<SceneLoad> loading;
     // Sự kiện mà game phát cho các bảng kể từ khung trước (PushEvent của game gốc), theo thứ tự phát.
     std::span<const panel::PostedEvent> events;
+    // Tên NPC đang nói chuyện (tiêu đề hộp thoại); rỗng khi không có hộp hay chưa tra được tên.
+    std::string_view talk_title;
 };
 
 // Việc một nút của giao diện nhờ client làm ngoài giao diện (vào game, mở trang web, rời bảng).
@@ -169,6 +174,14 @@ public:
         std::span<const render::UiBatch> batches;
     };
 
+    // Phông Hán của giao diện (GBK12) và texture của nó trong UiPass, để nơi gọi vẽ chữ riêng qua HudExtra (số sát thương bay
+    // trên đầu thực thể) mà không nạp phông lần hai. font rỗng khi HUD không mở được phông; con trỏ sống đến khi Hud bị huỷ.
+    struct ExtraFont {
+        const BitmapFont* font = nullptr;
+        std::uint32_t texture = render::kUiWhite;
+    };
+    [[nodiscard]] ExtraFont extra_font() const noexcept;
+
     // Ghi lệnh vẽ HUD vào list, giữa begin_rendering và end_rendering, sau các lượt vẽ 3D.
     [[nodiscard]] core::Status draw(gpu::CommandList& list, std::uint32_t slot, HudExtra extra);
 
@@ -208,6 +221,18 @@ public:
     void deliver_online(const panel::OnlineReply& reply);
     // Người mẫu của bảng chọn hay màn tạo ở khung vừa prepare.
     [[nodiscard]] const panel::ShownModel& role_model() const noexcept;
+
+    // Tin hội thoại NPC, sổ nhiệm vụ hay chỉ số của máy chủ; áp ở lần prepare kế (hộp thoại mở ngay trong lời gọi).
+    void deliver_talk(const panel::talk::Hear& heard);
+    // Nhờ máy chủ làm một việc của hộp thoại (nơi chọn NPC nhờ Talk). Việc của chính các bảng (chọn dòng, nhận, nộp,
+    // đóng) tự vào cùng hàng chờ.
+    void say(const panel::talk::Say& said);
+    // Việc chờ gửi lên máy chủ theo thứ tự; lấy rồi thì hết.
+    [[nodiscard]] std::vector<panel::talk::Say> take_says() noexcept;
+    // Id thực thể của NPC đang có hộp thoại mở; rỗng khi không có hộp.
+    [[nodiscard]] std::optional<std::uint32_t> talking_with() const noexcept;
+    // Bỏ hộp thoại ngay phía client (rời cảnh, mất phiên mạng) mà không báo máy chủ.
+    void drop_talk() noexcept;
 
     // Số quad của khung vừa prepare, và số quad bỏ vì texture thiếu từ lúc mở.
     [[nodiscard]] std::size_t quad_count() const noexcept;

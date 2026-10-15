@@ -45,6 +45,8 @@
 #include "ui/panel/maps.hpp"
 #include "ui/panel/menubar.hpp"
 #include "ui/panel/minimap.hpp"
+#include "ui/panel/npc_talk.hpp"
+#include "ui/panel/talk.hpp"
 #include "ui/panel/online.hpp"
 #include "ui/panel/packet.hpp"
 #include "ui/panel/player_frame.hpp"
@@ -93,6 +95,7 @@
 #include <string_view>
 #include <system_error>
 #include <utility>
+#include <variant>
 #include <vector>
 
 namespace game::ui {
@@ -101,7 +104,7 @@ namespace {
 // Layout của HUD, của ba bảng mở từ thanh menu chính, của các bảng đăng nhập (chọn máy chủ, tài khoản,
 // chọn và tạo nhân vật) và bàn phím ảo của chúng
 // (đường dẫn tương đối với Interface).
-constexpr std::array<std::string_view, 40> kLayouts = {
+constexpr std::array<std::string_view, 41> kLayouts = {
     "PlayerFrame/PlayerFrame.layout.xml",
     "MiniMap/MiniMap.layout.xml",
     "MainMenuBar/MainMenuBar.layout.xml",
@@ -117,6 +120,7 @@ constexpr std::array<std::string_view, 40> kLayouts = {
     "SelfEquip/SelfEquip.layout.xml",
     "Packet/Packet.layout.xml",
     "QuestLog/QuestLog.layout.xml",
+    "Quest/Quest.layout.xml",
     "YuanbaoShop/YuanbaoShop.layout.xml",
     "Operation/Operation.layout.xml",
     "ViewSetup/ViewSetup.layout.xml",
@@ -527,6 +531,10 @@ struct Hud::State {
     // Sổ nhiệm vụ (QuestLog_Frame) và việc nó nhờ ở lần nhấn gần nhất.
     panel::QuestBook quests;
     std::vector<panel::Call> quest_calls;
+    // Hộp thoại NPC (Quest_Frame) và tên vật phẩm cho phần thưởng của nó (đọc Table/items.tsv ở lần đầu cần).
+    panel::NpcTalk talk;
+    panel::ItemNames item_names;
+    bool has_item_names_failed = false;
     // Thanh kỹ năng thú cưng (MainMenuBar_3) và việc nó nhờ ở lần nhấn gần nhất. Danh sách action của
     // thanh do hệ thú cưng giữ, client chưa có hệ đó nên thanh chưa hiện (xem main_menu_bar_3.hpp).
     panel::MainMenuBar3 pet_bar;
@@ -635,6 +643,7 @@ struct Hud::State {
     void fill_play(const HudView& view);
     void step_panels(const HudView& view);
     void dispatch(std::span<const panel::PostedEvent> first);
+    void ensure_item_names();
     void post_to_host(panel::EventQueue& queue, const panel::PostedEvent& posted);
     void note_host(const HudView& view);
     void note_host_press(std::string_view window, const HudView& view);
@@ -845,6 +854,10 @@ void Hud::State::note_press(const HudView& view) {
     for (const panel::Call& call : quest_calls) {
         std::println(stderr, "Sổ nhiệm vụ: việc nhờ {} chưa có ở HUD", static_cast<int>(call.ask));
     }
+    panel::press_talk(talk, *window, view.clock);
+    if (const std::optional<std::uint32_t> option = hub->option_at(panel::kTalkDesc, spot)) {
+        panel::pick_talk_option(talk, *option, view.clock);
+    }
     panel::press_packet(packet, *window);
     press_pet_bar(*window);
     press_action_bars(*window);
@@ -887,7 +900,8 @@ void Hud::State::update_script_facts(const HudView& view) {
     facts.clock = view.clock;
     facts.scenes = &scenes;
     facts.scene_size = view.phase == Phase::kPlay && view.scene.id >= 0
-        ? std::optional<script::Facts::SceneSize>({static_cast<std::int32_t>(view.scene.width), static_cast<std::int32_t>(view.scene.depth)})
+        ? std::optional<script::Facts::SceneSize>(script::Facts::SceneSize{
+              .width = static_cast<std::int32_t>(view.scene.width), .depth = static_cast<std::int32_t>(view.scene.depth)})
         : std::nullopt;
 }
 
@@ -1211,6 +1225,9 @@ void Hud::State::fill_play(const HudView& view) {
     if (host) host->paint(deck);
     panel::paint_main_menu_bar_3(deck, pet_bar);
     action_bars.paint(deck);
+    panel::step_talk(talk, view.clock);
+    for (const std::string& notice : std::exchange(talk.notices, {})) push_debug_message(notice);
+    panel::paint_talk(deck, talk, view.talk_title, item_names);
     fill_board(view);
     fill_world(view);
     if (panel::is_open(desk, panel::Board::kBag)) {
@@ -1595,6 +1612,61 @@ std::optional<RunTo> Hud::take_run_to() noexcept {
     return run;
 }
 
+// Bảng tên vật phẩm đọc ở lần đầu một phần thưởng hay yêu cầu cần tên; hỏng thì thôi, phần thưởng hiện theo số mẫu.
+void Hud::State::ensure_item_names() {
+    if (item_names.is_loaded() || has_item_names_failed) return;
+    const io::TextResult text = io::read_text(client_root / "Table" / "items.tsv");
+    if (!text || !item_names.load(*text)) {
+        has_item_names_failed = true;
+        std::println(stderr, "Hộp thoại: không đọc được Table/items.tsv, phần thưởng hiện theo số mẫu");
+    }
+}
+
+void Hud::deliver_talk(const panel::talk::Hear& heard) {
+    struct Apply {
+        State* state;
+        void operator()(const panel::talk::Dialog& dialog) const {
+            const auto is_item = [](const panel::talk::Bonus& bonus) { return bonus.kind != panel::talk::BonusKind::kMoney; };
+            if (std::ranges::any_of(dialog.bonuses, is_item)) state->ensure_item_names();
+            panel::open_talk(state->talk, dialog);
+        }
+        void operator()(const panel::talk::Closed& closed) const { panel::close_talk(state->talk, closed); }
+        void operator()(const panel::talk::Refused& refused) const { panel::refuse_talk(state->talk, refused.why); }
+        void operator()(const panel::talk::Book& book) const { state->quests.log = panel::log_of(book); }
+        void operator()(const panel::talk::Notice& notice) const {
+            if (notice.kind == panel::talk::NoticeKind::kRewardItem) state->ensure_item_names();
+            panel::note_notice(state->talk, notice, state->item_names);
+        }
+        // Cấp, kinh nghiệm và tiền thuộc về hero của Display (Display::State::apply_stats); HUD không giữ bản nào.
+        void operator()(const panel::talk::Stats& /*stats*/) const {}
+        // Chiêu thức (sinh lực thật, kỹ năng, hồi chiêu, cái chết, lời từ chối) thuộc về Display::State (graphic/fight.cpp):
+        // nó lọc những tin này trước khi đưa cho HUD, nên đây chỉ để visit phủ hết các loại.
+        void operator()(const panel::talk::Vitals& /*vitals*/) const {}
+        void operator()(const panel::talk::Skills& /*skills*/) const {}
+        void operator()(const panel::talk::Cooldown& /*cooldown*/) const {}
+        void operator()(const panel::talk::Slain& /*slain*/) const {}
+        void operator()(const panel::talk::Declined& /*declined*/) const {}
+    };
+    std::visit(Apply{state_.get()}, heard);
+}
+
+void Hud::say(const panel::talk::Say& said) {
+    state_->talk.says.push_back(said);
+}
+
+std::vector<panel::talk::Say> Hud::take_says() noexcept {
+    return std::exchange(state_->talk.says, {});
+}
+
+std::optional<std::uint32_t> Hud::talking_with() const noexcept {
+    if (!state_->talk.is_open) return std::nullopt;
+    return state_->talk.dialog.npc;
+}
+
+void Hud::drop_talk() noexcept {
+    panel::drop_talk(state_->talk);
+}
+
 std::optional<Action> Hud::take_action() noexcept {
     if (state_->asked) {
         const Action asked = *state_->asked;
@@ -1655,6 +1727,11 @@ void Hud::deliver_online(const panel::OnlineReply& reply) {
 
 const panel::ShownModel& Hud::role_model() const noexcept {
     return state_->shown;
+}
+
+Hud::ExtraFont Hud::extra_font() const noexcept {
+    if (!state_->font) return {};
+    return ExtraFont{.font = &*state_->font, .texture = state_->font_texture};
 }
 
 std::size_t Hud::quad_count() const noexcept {

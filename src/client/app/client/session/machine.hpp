@@ -1,11 +1,25 @@
-// Máy trạng thái thuần của phiên mạng client: pha hiện tại, việc nào được nhờ ở pha nào, và tin của máy chủ
-// ở pha nào thì làm gì. Không socket, không luồng, không đồng hồ: luồng mạng (session.cpp) hỏi nó trước mỗi
-// bước nên mọi chuyển pha nằm ở một chỗ và kiểm được bằng bảng ca.
-// Trình tự hợp lệ (bot.cpp và gate/table.cpp là phía kia): kSigningIn gửi SignIn qua cổng xác thực lấy vé rồi
-// Login qua cổng game; máy chủ đáp CharacterList (kChoosing). Từ kChoosing: CreateCharacter hoặc
-// DeleteCharacter (kEditing, máy chủ đáp CharacterList mới hay Reject), hoặc EnterGame (kEntering, máy chủ đáp
-// SessionStart, UiConfig, Position rồi các tin thế giới). Goodbye ở mọi pha là kLost.
-// Bản mới của dự án.
+/*==============================================================================
+ *  THIENLONG  |  GAME CLIENT
+ *------------------------------------------------------------------------------
+ *  TỆP       : src/client/app/client/session/machine.hpp
+ *  PHÂN HỆ   : Client / Session / Machine
+ *  CHUẨN     : C++23
+ *------------------------------------------------------------------------------
+ *  CHỨC NĂNG
+ *  - Máy trạng thái thuần của phiên mạng client: pha hiện tại, việc nào được
+ *    nhờ ở pha nào, và tin của máy chủ ở pha nào thì làm gì. Không socket,
+ *    không luồng, không đồng hồ: luồng mạng (session.cpp) hỏi nó trước mỗi bước
+ *    nên mọi chuyển pha nằm ở một chỗ và kiểm được bằng bảng ca.
+ *------------------------------------------------------------------------------
+ *  TÁC GIẢ   : HiepHoon
+ *  TELEGRAM  : @Hoon9xx
+ *============================================================================*/
+
+// Trình tự hợp lệ (bot.cpp và gate/table.cpp là phía kia): kSigningIn gửi SignIn qua cổng xác thực lấy vé rồi Login
+// qua cổng game; máy chủ đáp CharacterList (kChoosing). Từ kChoosing: CreateCharacter hoặc DeleteCharacter (kEditing,
+// máy chủ đáp CharacterList mới hay Reject), hoặc EnterGame (kEntering, máy chủ đáp SessionStart, UiConfig, Position
+// rồi các tin thế giới). Goodbye ở mọi pha là kLost. Bản mới của dự án.
+
 #pragma once
 
 #include "protocol/messages.hpp"
@@ -32,10 +46,10 @@ enum class Phase : std::uint8_t {
 };
 
 // Việc người chơi nhờ phiên làm.
-enum class Ask : std::uint8_t { kSignIn, kCreate, kDelete, kEnter, kDrop };
+enum class Ask : std::uint8_t { kSignIn, kCreate, kDelete, kEnter, kDrop, kSpeak };
 
 // Việc ask có được nhận ở pha phase không. kSignIn nhận ở kIdle và kLost (nối lại sau khi hỏng không cần Drop),
-// kDrop nhận ở mọi pha.
+// kDrop nhận ở mọi pha, kSpeak chỉ nhận ở kInGame.
 [[nodiscard]] bool allows(Phase phase, Ask ask) noexcept;
 
 // Pha ngay sau khi nhận ask ở pha phase (đã qua allows).

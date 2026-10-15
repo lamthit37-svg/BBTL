@@ -109,6 +109,7 @@ void forget(std::vector<std::byte>& bytes) noexcept {
         Ask operator()(const Delete&) const noexcept { return Ask::kDelete; }
         Ask operator()(const Enter&) const noexcept { return Ask::kEnter; }
         Ask operator()(const Drop&) const noexcept { return Ask::kDrop; }
+        Ask operator()(const Speak&) const noexcept { return Ask::kSpeak; }
     };
     return std::visit(Pick{}, command);
 }
@@ -321,6 +322,23 @@ private:
         farewell();
         close_link();
         set_phase(Phase::kIdle);
+    }
+
+    // Hộp thoại và sổ nhiệm vụ: gửi một khung rồi thôi, không chờ trả lời (máy chủ trả bằng tin thế giới hay Reject).
+    void perform(Speak& request) {
+        std::vector<std::byte> frame;
+        const bool is_encoded = std::visit([&frame](const auto& message) { return protocol::encode(frame, message).has_value(); },
+            request.speech);
+        if (!is_encoded) {
+            reject(Ask::kSpeak, 0, protocol::ErrorCode::kMalformed);
+            return;
+        }
+        if (!line_) {
+            reject(Ask::kSpeak, 0, protocol::ErrorCode::kOutOfOrder);
+            return;
+        }
+        const link::LinkResult<void> sent = line_->send_frame(frame, kSend);
+        if (!sent) lose(fault_of(sent.error()));
     }
 
     void close_link() {

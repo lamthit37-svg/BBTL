@@ -57,6 +57,8 @@ struct Actor {
     std::uint16_t hair = 0;
     std::uint8_t school = 0;
     Pose pose = Pose::kIdle;
+    // kFlagTalk...; Spawn mới đặt lại về 0, máy chủ gửi Flagged ngay sau khi hiện.
+    std::uint8_t flags = 0;
 };
 
 class Cast {
@@ -98,6 +100,12 @@ private:
     void on(const Moved& note);
     void on(const Hurt& note);
     void on(const Pulled& /*note*/) noexcept {}
+    void on(const Flagged& note);
+    void on(const Died& note);
+    // Ra chiêu và kết quả đòn không đổi trạng thái thực thể: nơi vẽ đọc chúng từ Note, Cast bỏ qua.
+    void on(const Casting& /*note*/) noexcept {}
+    void on(const CastEnded& /*note*/) noexcept {}
+    void on(const Struck& /*note*/) noexcept {}
     static void step(Actor& shown, Goal& goal, float seconds) noexcept;
     // Dời shown về phía đích; trả khoảng cách còn lại TRƯỚC khi dời (thực thể có đang đi hay không).
     [[nodiscard]] static float chase(Actor& shown, const Goal& goal, float seconds) noexcept;

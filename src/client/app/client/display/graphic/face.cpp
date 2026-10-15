@@ -20,7 +20,10 @@
 #include "ui/panel/online.hpp"
 
 #include <algorithm>
+#include <cstdint>
 #include <iterator>
+#include <limits>
+#include <optional>
 #include <utility>
 #include <vector>
 namespace game::client {
@@ -104,6 +107,7 @@ void Display::State::arm_scene(const DisplayDesc& desc) {
     auto_strike_from = desc.auto_strike_from;
     seed_ui_events(desc.ui_events);
     creature_demo = desc.creatures;
+    talk_demo = desc.talk_demo;
     weapon_item = desc.weapon_item;
     weapon_gem = desc.weapon_gem;
     skill_id = desc.skill_id;
@@ -182,17 +186,13 @@ void Display::State::apply_role() {
     if (role == nullptr) return;
     hero = hero::newcomer();
     seed_equipment();
+    show_fight();
     hero.name = role->name;
     hero.level = role->level;
     hero.portrait = hero::PortraitId{role->portrait};
     hero.sect = static_cast<hero::Sect>(role->sect);
     // Trần kinh nghiệm theo cấp thật của nhân vật (Config/PlayerExpLevel.txt), không giữ số của cấp 1.
-    const std::filesystem::path levels = data_root / "Config" / "PlayerExpLevel.txt";
-    const auto table = hero::read_exp_table(read_save_text(levels));
-    if (!table) std::println(stderr, "Nhân vật: {}: {}", io::utf8_of(levels), table.error());
-    const std::optional<std::int64_t> need = table ? hero::exp_need(*table, hero.level) : std::nullopt;
-    if (table && !need) std::println(stderr, "Nhân vật: cấp {} không có trong bảng kinh nghiệm", hero.level);
-    if (need) hero.experience.top = *need;
+    if (const std::optional<std::int64_t> need = exp_need_at(hero.level)) hero.experience.top = *need;
     role_look = {};
     role_look.face = role->face;
     role_look.hair = role->hair;
@@ -214,6 +214,33 @@ void Display::State::apply_role() {
     played_role = std::move(copy);
 }
 
+std::optional<std::int64_t> Display::State::exp_need_at(std::int32_t level) {
+    if (!exp_table && !has_exp_table_failed) {
+        const std::filesystem::path levels = data_root / "Config" / "PlayerExpLevel.txt";
+        auto table = hero::read_exp_table(read_save_text(levels));
+        if (table) {
+            exp_table = std::move(*table);
+        } else {
+            has_exp_table_failed = true;
+            std::println(stderr, "Nhân vật: {}: {}", io::utf8_of(levels), table.error());
+        }
+    }
+    if (!exp_table) return std::nullopt;
+    const std::optional<std::int64_t> need = hero::exp_need(*exp_table, level);
+    if (!need) std::println(stderr, "Nhân vật: cấp {} không có trong bảng kinh nghiệm", level);
+    return need;
+}
+
+// Số máy chủ gửi là u64; ô tiền của client gốc chỉ nhận int (FalagardMoney::setMoneyNumber) nên kẹp về trần int32.
+void Display::State::apply_stats(const ui::panel::talk::Stats& stats) {
+    constexpr auto kMoneyCap = static_cast<std::uint64_t>(std::numeric_limits<std::int32_t>::max());
+    hero.level = stats.level;
+    hero.experience.now = static_cast<std::int64_t>(std::min<std::uint64_t>(stats.exp, std::numeric_limits<std::int64_t>::max()));
+    if (const std::optional<std::int64_t> need = exp_need_at(hero.level)) hero.experience.top = *need;
+    hero.purse.money = static_cast<std::int32_t>(std::min(stats.money, kMoneyCap));
+    hero.purse.money_voucher = static_cast<std::int32_t>(std::min(stats.bound_money, kMoneyCap));
+}
+
 void Display::State::apply_kept(const KeptRole& restored) {
     if (!restored.has) return;
     role_look = {};
@@ -233,7 +260,9 @@ void Display::State::prepare_hud() {
     // Sự kiện thử chờ khung màn chơi đầu tiên; HUD nhận chúng đúng một lần (posted_events rỗng từ khung sau).
     if (procedure == Procedure::kPlay) hud_events.swap(posted_events);
     pump_online();
+    pump_talk();
     hud->prepare(hud_view());
+    drain_says();
     hud_events.clear();
     typed.clear();
     hud_wheel = 0;
@@ -272,6 +301,12 @@ void Display::State::pump_online() {
     for (const ui::panel::OnlineReply& reply : replies) {
         if (reply.kind == ui::panel::OnlineReply::Kind::kEntered) {
             online_entry = EntryPoint{.scene = reply.scene, .x = reply.x_cm / kCmPerUnit, .z = reply.z_cm / kCmPerUnit};
+            is_online_play = true;
+        }
+        if (reply.kind == ui::panel::OnlineReply::Kind::kLost) {
+            is_online_play = false;
+            chase_leg.reset();
+            combat.leave();
         }
         hud->deliver_online(reply);
     }
@@ -307,6 +342,7 @@ ui::HudView Display::State::hud_view() const {
     view.wheel = hud_wheel;
     view.loading = scene_load();
     view.events = hud_events;
+    view.talk_title = talk_title;
     if (!held || !terrain) return view;
     const core::GroundPoint feet = terrain->to_game(foot());
     view.scene.radar = held->radar;
