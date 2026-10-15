@@ -5,6 +5,29 @@ hiện tại của cả dự án đọc ở ba chỗ: mục "Khảo sát theo m�
 tệp này, và dòng "Trạng thái" ở mục 0 của `AGENTS.md`. Tên cũ của tệp là "cửa sổ, Vulkan và 57 vật
 thể tĩnh của map huoyangu": đó là đích của sáu bước B1 tới B6 đầu tiên, tả ngay dưới.
 
+## Nhịp khung: trần 60 Hz của desktop (2026-10-15)
+
+Audit đường vẽ so với các kỹ thuật GPU-copy, dirty rect, render cache, culling, indirect, async compute,
+cập nhật một phần, tái sử dụng command list, chỉ vẽ lại khi đổi. Điểm chắc, đã đo:
+
+- Trần 60 fps trên cửa sổ thật không phải lượng việc GPU. Fifo (`frame.cpp`) khoá khung vào nhịp quét.
+  Windows để 1920x1080 ở 60 Hz trong khi tấm nền lên 200 Hz (`docs/BAY-DA-BIET.md`, đo 2026-10-14).
+  CPU một khung khoảng 0,4 ms; "Xin ảnh" 15–16 ms là chờ vblank. `--shot` không present ra 1119 FPS.
+- Mailbox đã thử 2026-10-13: 893 khung 8,3 ms nhưng màn 60 Hz hiện lệch pha, nhân vật chạy giật. Giữ Fifo.
+- Đã có: copy GPU→GPU (`vkCmdCopyBuffer`/`vkCmdCopyImage`, `CopyBufferRegion`/`CopyTextureRegion`),
+  frustum `sphere_in_view`/`see_copies`, cull mặt sau, nội suy chân giữa các bước mô phỏng 60 Hz.
+- Không làm dirty rect, cache ảnh tĩnh, occlusion/indirect GPU, async compute, bỏ khung khi "không đổi":
+  cảnh 3D và hoạt ảnh đổi gần như mọi khung, và không kỹ thuật nào trong số đó nâng được fps quá nhịp
+  quét. Present1 / `VK_KHR_incremental_present` chỉ là gợi ý cho compositor; ảnh present vẫn phải đủ pixel.
+
+Việc đã làm: `window::rank_refresh` + `raise_refresh` nâng Hz cùng độ phân giải (CDS_TEST, rồi
+CDS_FULLSCREEN, không ghi registry). Viewer gọi trước khi tạo swapchain và trả lại khi thoát. Ngân sách
+bảng đo đọc Hz từ DEVMODE, không từ cache SDL còn 60.
+
+Đo 2026-10-15, `thienlong_client --login --backend vulkan --frames 240`, RTX 5060, cửa sổ thật:
+`Tần số quét: 60 Hz lên 200 Hz`, trình fifo, 0 lỗi GPU. 214 khung sau khi cảnh hiện: trung vị 5,0 ms,
+p95 5,3 ms, max 10,5 ms (trước đó trần Fifo là 16,7 ms). Thoát xong `CurrentRefreshRate` về 60.
+
 ## Máy chủ: gameplay đợt 2 — vật phẩm, chiến đấu, xã hội, nhiệm vụ (2026-10-15)
 
 Bốn phiên con làm song song trong các thư mục riêng (một phiên mỗi vai); phiên điều phối chỉ nghiệm thu rồi commit từng phase. Chủ dự án

@@ -22,6 +22,7 @@
 #include "io/platform.hpp"
 #include "ui/panel/online.hpp"
 #include "window/cursor.hpp"
+#include "window/monitor.hpp"
 #include "window/system.hpp"
 #include "window/types.hpp"
 #include "window/window.hpp"
@@ -56,6 +57,9 @@ constexpr std::chrono::milliseconds kFramePause{8};
 // khung 16,7 ms, khung nhận hai cụm, khung nhận ba, camera kéo bằng chuột phải xoay lúc 16 lúc 24 ms
 // đường chuột (lệch 50%). Nghỉ 1 ms đưa phần lệch xuống dưới 1 ms mỗi khung; vòng rỗi tốn vài µs.
 constexpr std::chrono::milliseconds kInputPause{1};
+
+[[nodiscard]] double refresh_now(const window::Window& opened, double sdl_hz) noexcept;
+
 struct LoopStats {
     std::uint32_t frames = 0;
     std::uint32_t resizes = 0;
@@ -453,7 +457,9 @@ void drain_input(SdlInput& input, Controls& controls, std::vector<SdlAction>& ac
     for (const SdlAction& action : actions)
         apply_action(controls, action);
     const auto is_display = [](const SdlAction& action) { return action.kind == SdlAction::Kind::kDisplay; };
-    if (std::ranges::any_of(actions, is_display)) controls.display->set_refresh(input.refresh_hz());
+    if (std::ranges::any_of(actions, is_display)) {
+        controls.display->set_refresh(refresh_now(*controls.opened, input.refresh_hz()));
+    }
 }
 
 // Thời gian chuyển nhạc khi đổi cảnh, giây: nhạc cũ nhỏ dần trong lúc nhạc mới lên.
@@ -688,7 +694,7 @@ void begin_speaker(audio::Engine& speaker, const std::filesystem::path& data_roo
         std::println(stderr, "SDL: {}", input.error());
         return 1;
     }
-    const double refresh = input->refresh_hz();
+    const double refresh = refresh_now(opened, input->refresh_hz());
     display.set_refresh(refresh);
     std::println("Màn hình: {:.2f} Hz", refresh);
     Session session;
@@ -737,6 +743,51 @@ void begin_speaker(audio::Engine& speaker, const std::filesystem::path& data_roo
     return config;
 }
 
+// Hz mà bảng ngân sách dùng. DEVMODE là số nguyên vừa đọc từ màn chứa cửa sổ; SDL có thể còn
+// giữ mức cũ một lúc sau ChangeDisplaySettings.
+[[nodiscard]] double refresh_now(const window::Window& opened, double sdl_hz) noexcept {
+    const std::uint32_t os_hz = window::display_refresh_hz(opened.native_handle());
+    if (os_hz >= 2) return static_cast<double>(os_hz);
+    return sdl_hz;
+}
+
+// Nâng tần số quét lúc cửa sổ đã có, trả lại khi hàm chạy xong. CDS_FULLSCREEN không ghi registry
+// và hệ điều hành cũng trả lại nếu tiến trình chết giữa chừng.
+class RaisedRefresh {
+public:
+    explicit RaisedRefresh(void* window) {
+        core::Result<window::RefreshLift> lifted = window::raise_refresh(window);
+        if (!lifted) {
+            std::println(stderr, "Tần số quét: {}", lifted.error());
+            return;
+        }
+        lift_ = std::move(*lifted);
+        if (lift_->changed) {
+            std::println("Tần số quét: {} Hz lên {} Hz", lift_->before_hz, lift_->after_hz);
+            return;
+        }
+        if (lift_->offered_hz > lift_->before_hz) {
+            std::println("Tần số quét: giữ {} Hz, driver không nhận {} Hz", lift_->before_hz, lift_->offered_hz);
+        }
+    }
+
+    ~RaisedRefresh() {
+        if (!lift_ || !lift_->changed) return;
+        window::Monitor monitor;
+        monitor.device = lift_->device;
+        const core::Status restored = window::restore_display_mode(monitor);
+        if (!restored) std::println(stderr, "Tần số quét: {}", restored.error());
+    }
+
+    RaisedRefresh(const RaisedRefresh&) = delete;
+    RaisedRefresh& operator=(const RaisedRefresh&) = delete;
+    RaisedRefresh(RaisedRefresh&&) = delete;
+    RaisedRefresh& operator=(RaisedRefresh&&) = delete;
+
+private:
+    std::optional<window::RefreshLift> lift_;
+};
+
 } // namespace
 
 int run_viewer(const ViewerDesc& desc) {
@@ -750,6 +801,10 @@ int run_viewer(const ViewerDesc& desc) {
     // Lần ShowWindow đầu của tiến trình bị Windows đổi theo STARTUPINFO: lối tắt "Run: Minimized" cho cửa sổ ra thu
     // nhỏ với vùng vẽ 0x0, mà swapchain không tạo được ở cỡ 0 ("texture: rộng hoặc cao bằng 0"). Đưa nó về cỡ thường.
     if (opened->is_minimized()) opened->restore();
+    // Trước swapchain: Fifo khoá vào nhịp quét, nên trần khung là Hz của desktop chứ không phải
+    // lượng việc GPU. Mailbox không dùng — đo 2026-10-13, khung lệch pha nhịp quét, nhân vật chạy giật.
+    const RaisedRefresh refresh(opened->native_handle());
+    static_cast<void>(window::pump_messages());
     const window::Size initial = opened->client_size();
     DisplayDesc shown;
     shown.window = opened->native_handle();

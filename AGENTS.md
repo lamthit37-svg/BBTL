@@ -16,7 +16,9 @@
     đã dựng được (`build/msvc-release/` có đủ exe và lib) và `ctest` đã chạy; hồ sơ vụ mất
     (danh sách từng tệp, lịch sử git 25 commit đầu) ở `docs/KHOI-PHUC-2026-10-09/`. Các dòng dưới tả mã hiện tại.
   - Hình: vẽ được map (địa hình, vật thể tĩnh, hạt và hiệu ứng cộng sáng của bản 2026) và người
-    chơi có xương trên PC và máy tính bảng, 60 fps ở map nhỏ. Nước và vòm trời đã có mã dựng và vẽ
+    chơi có xương trên PC và máy tính bảng. Nhịp khung trên cửa sổ khoá Fifo vào tần số quét của
+    màn; lúc mở cửa sổ client nâng tần số đó lên mức cao nhất cùng độ phân giải rồi trả lại khi thoát.
+    Nước và vòm trời đã có mã dựng và vẽ
     (`ensure_water`, `ensure_sky` ở `client/display/graphic/scene.cpp`, gọi từ `frame.cpp`); chưa
     ai nhìn ảnh để đối chiếu với bản 2026. Chưa có NPC, quái, vật phẩm hay người chơi khác. Vũ khí cầm tay, đòn đánh,
     tuyệt chiêu và hiệu ứng đồ (đá quý gắn vũ khí) đã chạy bằng công cụ thử `--weapon`, `--skill`, `--gem`, `--auto-strike`
@@ -239,6 +241,12 @@
     người chơi. Kết luận ĐẠT khi không quá 5% khung vượt ngân sách cộng dung sai 10% (`meets_budget`); ngân sách là một nhịp quét của màn khi trình Fifo, không biết nhịp quét thì `1000 / render_hz`. Số là
     cửa sổ 90 khung gần nhất. Chưa có mili-giây GPU thật: lớp `gpu` đã có `write_timestamp`/`read_queries` (`engine/gpu/command.hpp`)
     nhưng client chưa dùng lần nào và chưa đo trên backend nào; "Xin ảnh" cao là dấu hiệu GPU chưa kịp.
+  - Trần khung trên cửa sổ thật là nhịp quét của màn, giữ Fifo: mailbox đo 2026-10-13 làm nhân vật
+    chạy giật vì khung lệch pha nhịp quét. Lúc mở cửa sổ, `window::raise_refresh` nâng Hz của đúng màn
+    đó lên mức cao nhất cùng độ phân giải (CDS_TEST rồi CDS_FULLSCREEN, không ghi registry, trả lại khi
+    thoát). Dirty rect, cache ảnh tĩnh và GPU-driven indirect không làm: đo 2026-10-14 CPU một khung
+    khoảng 0,4 ms, "Xin ảnh" 15–16 ms là chờ vblank — chủ dự án giao ngày 2026-10-15 ("giải quyết vấn
+    đề trần cứng đang là 60 fps", "chỉ làm những điểm chắc chắn").
   - Màn chơi, chủ dự án giao ngày 2026-10-13 ("hoàn tất toàn bộ giao diện chính xác", "fix triệt để mọi thứ làm mất texture"): bản
     đồ lớn (SceneMap) và bản đồ thế giới (LargeMap, widget WorldMap) port từ mã máy, hòm đồ và ô tiền, xoay người mẫu bảng nhân vật,
     con trỏ chuột của game (22 con trỏ đọc từ tài nguyên của `Game.exe`, `TOOLS/content/export_cursors.py`), phông Việt cho chữ có dấu

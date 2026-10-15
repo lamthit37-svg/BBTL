@@ -519,9 +519,16 @@ mục ở mục 11.
   nhịp quét thì mới về `1000 / render_hz`. Số CPU của khung (ghi lệnh, nộp, dựng UI) cộng lại chỉ khoảng 0,4 ms, còn
   "Xin ảnh" 15–16 ms là chờ nhịp quét. Chạy `--pace --shot ... --frames 150` (không qua cửa sổ thật, "Xin ảnh" 0,0 ms)
   (cờ `--pace` nay đã bỏ: bảng luôn hiện) thì màn chơi Đại Lý đứng im ra 1119 FPS, trung vị 0,3 ms, ĐẠT; màn đăng nhập 178 FPS, một khung đột biến 117,8 ms,
-  vượt ngân sách 6,7% nên TRƯỢT. Muốn thấy trên cửa sổ thật số lớn hơn 60 thì đặt tần số quét của Windows lên 120 Hz
-  trở lên (nếu màn hỗ trợ). Đường `--shot` không cùng đường trình với cửa sổ thật và bảng chưa có mili-giây GPU, nên
-  đây là chặn trên của phía CPU. Đo lúc di chuyển: `--walk` (nhân vật tự chạy vòng, lúc thoát in bước chân mỗi khung).
+  vượt ngân sách 6,7% nên TRƯỢT. Từ 2026-10-15 client không còn để desktop ở 60 Hz: `window::raise_refresh`
+  (`viewer_win32.cpp`, trước khi tạo swapchain) nâng Hz của màn đang chứa cửa sổ lên mức cao nhất cùng độ
+  phân giải, thử `CDS_TEST` rồi `CDS_FULLSCREEN`, trả lại bằng `restore_display_mode` khi thoát. Vẫn Fifo.
+  Mailbox không dùng lại: đo 2026-10-13, 893 khung 8,3 ms trên màn 60 Hz làm bước đi lúc một lúc hai nhịp
+  mô phỏng. Dirty rect và vẽ lại theo vùng bẩn không phá trần này — ảnh 3D đổi cả khung khi camera hoặc
+  người đi, và "Xin ảnh" là chờ vblank chứ không phải tô pixel. Chạy client, kể cả `--frames`, làm màn
+  nhấp sang Hz cao hơn rồi về mức cũ lúc thoát; đó là chủ ý, không phải hỏng chế độ hiển thị. Driver từ
+  chối thì log `giữ N Hz, driver không nhận M Hz` và khung ở lại N. Đường `--shot` không cùng đường trình
+  với cửa sổ thật và bảng chưa có mili-giây GPU, nên đây là chặn trên của phía CPU. Đo lúc di chuyển:
+  `--walk` (nhân vật tự chạy vòng, lúc thoát in bước chân mỗi khung).
 - Chu kỳ khung đo bằng đồng hồ CPU quanh `present` không phải nhịp ảnh lên màn: sau một lần lỡ nhịp quét các mẫu dồn
   lại (khung 33 ms rồi 0 ms) nên bước chân và hoạt ảnh không đều dù trung vị 16,7 ms. Dùng `Swapchain::wait_shown`
   (`face.cpp`/`frame.cpp`, `await_shown`) làm mốc khung; đo p95 và lớn nhất, đừng chỉ nhìn trung vị.
