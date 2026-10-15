@@ -250,6 +250,11 @@ game_module(luanum
 # ở NGUON.txt. game_luaplus (tĩnh) cho client; luaplus_oracle (DLL, chỉ Windows) cho ctest lua_oracle.
 add_subdirectory(third_party/luaplus)
 
+# lua: vỏ C++ của game_luaplus — State RAII với trần bộ nhớ, móc đếm lệnh cắt vòng lặp vô hạn, trần độ sâu, nạp và gọi trả
+# std::expected, hàm native không để lại đối tượng có destructor khi LuaPlus nhảy (lua/native.hpp).
+game_module(lua src/client/face/lua/state.cpp)
+target_link_libraries(game_lua PUBLIC game_luaplus game_luanum game_core)
+
 # Niêm asset trên máy dựng. Client không liên kết game_seal: đường nạp và khung hình không đổi.
 if(NOT CMAKE_CROSSCOMPILING)
     add_subdirectory(third_party/libsodium)
@@ -1211,6 +1216,15 @@ game_test(fx game_fx)
 # Thư viện chuẩn và máy ảo của game_luaplus so với LuaPlus.dll của client 2026 (số vàng do TOOLS/port/lua_rt_golden.py sinh).
 # Thiết bị Android không thấy cây nguồn nên ca số vàng ở đó tự bỏ qua.
 game_test(lua_golden game_luaplus game_io)
+# Vỏ lua::State: trần bộ nhớ, trần lệnh, trần độ sâu, traceback, native an toàn, và script ProgressBar thật của client 2026.
+game_test(lua_shell game_lua game_io)
+if(TARGET lua_shell_tests)
+    # State đóng mà bộ đếm còn byte là rò bộ nhớ của LuaPlus: vỏ chỉ ghi log lỗi, test thì coi là đỏ.
+    set_tests_properties(lua_shell_tests PROPERTIES FAIL_REGULAR_EXPRESSION "chưa trả về bộ cấp phát")
+    if(NOT ANDROID)
+        target_compile_definitions(lua_shell_tests PRIVATE GAME_SCRIPT_ROOT="${PROJECT_SOURCE_DIR}/src/client/script")
+    endif()
+endif()
 if(NOT ANDROID AND TARGET lua_golden_tests)
     target_compile_definitions(lua_golden_tests PRIVATE GAME_LUA_GOLDEN="${PROJECT_SOURCE_DIR}/Test/golden/lua")
 endif()

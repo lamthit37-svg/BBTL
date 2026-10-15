@@ -62,9 +62,21 @@ Khác gốc (mỗi mục có chú thích `Khác gốc:` ngay tại chỗ sửa t
     (ASan: heap-buffer-overflow). Câu lỗi của ca đó là "invalid option to `format'" như DLL.
   - luanum_strtoul (tonumber(chuỗi, cơ số)): tràn 32 bit trả ULONG_MAX rồi vẫn đảo dấu theo "-" ra 1, như strtoul của MSVCR110
     ("-100000000" cơ số 16 ra 1); bản đầu trả 0xFFFFFFFF, ctest lua_golden_tests bắt được.
-  - src/lstate.c close_state, f_luaopen, lua_open: `luaState.allocFlags = 0` và, ở close_state, `globalState.nblocks` giả như hai hàm
-    kia. Gốc để hai trường ấy chưa khởi tạo mà luaM_realloc đọc (nblocks trong lua_assert, allocFlags đưa cho hàm cấp phát); bản không
-    NDEBUG dịch bằng Clang chết ở assert khi rác bằng 0 (đo 2026-10-15, đóng state trong ui_script_widget_tests dưới ASan+UBSan).
+- Cho vỏ C++ lua::State (src/client/face/lua; mỗi chỗ có chú thích `Khác gốc:` tại chỗ):
+  - src/lstate.c, LuaPlusAddons.h: lua_open tách thành lua_openwithmemory(reallocFunc, freeFunc, memData); hàm cấp phát đi theo
+    từng state thay vì biến tĩnh của tiến trình, nên mỗi lua::State có trần bộ nhớ riêng mà không đổi mặc định chung. lua_open giữ
+    nguyên hành vi (gọi lua_openwithmemory với mặc định).
+  - src/lstate.c, bước dựng và đóng state: gốc cấp phát lua_State, global_State và giải phóng chúng qua một lua_State giả để trên
+    ngăn xếp có errorJmp, allocFlags, nblocks chưa khởi tạo; close_state còn đọc G(L) trước khi kiểm NULL. Gốc không bao giờ chạm
+    tới (hàm cấp phát mặc định không thất bại), nhưng với trần bộ nhớ thì cấp phát đầu tiên thất bại: luaD_throw đọc errorJmp rác
+    (UBSan: truy cập thành viên ở địa chỉ lệch), lua_assert(nblocks > 0) dừng bản GCC. Nay gọi thẳng hàm cấp phát/giải phóng của
+    state; lua_openwithmemory tự giải phóng lua_State khi chưa có global_State. ctest lua_shell_tests (dựng dưới trần tăng dần) bắt.
+    Cùng gốc lỗi bắt riêng ở ui_script_widget_tests (2026-10-15, ASan+UBSan): bản không NDEBUG dịch bằng Clang chết ở
+    lua_assert(nblocks > 0) lúc đóng state khi nblocks rác bằng 0; chỗ đó nay không còn state giả.
+  - src/lstate.c luaE_newthread: luồng mới thừa hưởng móc (hook, mask, đếm) của luồng tạo ra nó, như Lua 5.1. Gốc để trống nên một
+    coroutine chạy ngoài móc đếm lệnh của vỏ và vòng lặp vô hạn trong đó không bị cắt.
+  - src/lmem.c luaM_realloc: từ chối khối lớn hơn INT_MAX ("memory allocation error: block too big"). lua_ReallocFunction nhận kích
+    thước kiểu int nên khối 4 GiB + 100 bị cắt còn 100 byte mà Lua tin có đủ chỗ (ghi tràn heap).
 - CMake: game_luaplus và luaplus_oracle liên kết game_luanum; không gộp a * b + c thành FMA (-ffp-contract=off) trên GCC, Clang.
 
 Dựng: third_party/luaplus/CMakeLists.txt (lõi C, không dịch lớp bọc C++ cũ, ltests.c, luiolib.c, lua.c, luac.c): game_luaplus

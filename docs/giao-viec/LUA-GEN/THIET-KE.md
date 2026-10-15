@@ -22,7 +22,12 @@ có `continue`, OP_POW là XOR). Dựng thử thành DLL và chạy trọng tài
   1. Sửa lỗi trình dịch: `computesizes` ở MSVC /O2 (đã làm, `ltable.c`).
   2. Định dạng số cố định theo MSVCR110, độc lập CRT từng nền tảng (`luanum`): tostring/nối chuỗi, string.format, strtod,
      math.random cho cùng chuỗi ở PC, Android, iOS.
-  3. Vỏ C++ hiện đại (RAII `lua::State`): trần heap, móc đếm lệnh cắt vòng lặp vô hạn, trần độ sâu, nạp/gọi trả `std::expected`.
+  3. Vỏ C++ hiện đại (RAII `lua::State`, `src/client/face/lua`, đã làm — E3): trần heap riêng mỗi state (hàm cấp phát đi theo
+     state, `lua_openwithmemory`; GC bị ép chạy từ móc khi dùng quá 3/4 trần vì GC của Lua 5.0 chỉ chạy ở điểm an toàn), móc đếm
+     lệnh cắt vòng lặp vô hạn kể cả qua `pcall` và coroutine (luồng mới thừa hưởng móc), trần độ sâu của lần gọi bảo vệ lồng nhau,
+     nạp/gọi/`protect` trả `std::expected<void, Failure>` với lời lỗi kèm traceback, native viết dạng `NativeResult` an toàn với
+     longjmp (`native.hpp`). Chứng minh bằng ctest `lua_shell_tests` (dưới sanitizer qua `check.py --run`), gồm `ProgressBar.lua`
+     thật của client 2026 chạy qua vỏ cho vết khớp từng dòng với LuaPlus.dll.
   4. Sau khi chạy đúng, đo thật rồi mới tối ưu: `TObject` đóng gói 1 byte (`pshpack1`) có chậm không; GC dừng-toàn-bộ chạy giữa
      hai khung có ngân sách thời gian; script nạp lười theo cửa sổ. Không làm khi chưa có số.
 - Số đo nền của LuaPlus gốc dựng bằng MSVC `/O2` (i5-14600KF, 2026-10-15, nhỏ nhất trong 7 lượt, bộ đo tạm không vào repo):

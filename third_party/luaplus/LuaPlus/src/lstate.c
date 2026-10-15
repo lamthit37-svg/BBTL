@@ -214,23 +214,22 @@ static void freestack (lua_State *L, lua_State *L1) {
 /*
 ** open parts that may cause memory-allocation errors
 */
+/* Khác gốc: hàm cấp phát của một state đi theo tham số thay vì đọc biến tĩnh luaHelper_* (xem lua_openwithmemory). */
+typedef struct OpenMemory {
+  lua_ReallocFunction reallocFunc;
+  lua_FreeFunction freeFunc;
+  void *memData;
+} OpenMemory;
+
+
 static void f_luaopen (lua_State *L, void *ud) {
+  const OpenMemory *memory = cast(const OpenMemory *, ud);
   int i;
-  global_State globalState;
-  lua_State luaState;
   global_State *g;
-#ifdef _DEBUG
-  luaState.allocName = "Lua_global_State";
-#endif _DEBUG
-  luaState.l_G = &globalState;
-  luaState.allocFlags = 0;  /* Khác gốc: luaM_realloc đọc allocFlags (xem close_state) */
-  globalState.reallocFunc = luaHelper_Realloc;
-  globalState.freeFunc = luaHelper_Free;
-  globalState.memData = luaHelper_memData;
-  globalState.nblocks = sizeof(lua_State) + sizeof(global_State);	// Bogus.
-  /* create a new global state */
-  g = luaM_new(&luaState, global_State);
-  UNUSED(ud);
+  /* Khác gốc: gốc cấp phát qua luaM_new trên một lua_State giả để trên ngăn xếp, mà errorJmp, allocFlags và nblocks của nó chưa
+  ** khởi tạo: cấp phát thất bại thì luaD_throw đọc errorJmp rác. Hàm cấp phát chỉ thất bại khi hết bộ nhớ (trần của lua::State),
+  ** nên gốc không bao giờ chạm tới lỗi đó. Nay gọi thẳng hàm cấp phát; bộ đếm nblocks đặt ngay dưới. */
+  g = cast(global_State *, (*memory->reallocFunc)(NULL, 0, cast(int, sizeof(global_State)), memory->memData, NULL, 0));
   if (g == NULL) luaD_throw(L, LUA_ERRMEM);
   L->l_G = g;
   g->mainthread = L;
@@ -285,9 +284,9 @@ static void f_luaopen (lua_State *L, void *ud) {
   g->dummynode->next = NULL;
   g->nblocks = sizeof(lua_State) + sizeof(global_State);
 
-  g->reallocFunc = luaHelper_Realloc;
-  g->freeFunc = luaHelper_Free;
-  g->memData = luaHelper_memData;
+  g->reallocFunc = memory->reallocFunc;
+  g->freeFunc = memory->freeFunc;
+  g->memData = memory->memData;
   g->fatalErrorFunc = defaultFatalErrorFunc;
 #ifdef LUA_MTSUPPORT
   g->lockData = NULL;
@@ -356,39 +355,25 @@ static void preinit_state (lua_State *L) {
 }
 
 
+/* Khác gốc: gốc giải phóng global_State và lua_State qua một lua_State giả trên ngăn xếp có nblocks chưa khởi tạo (lua_assert đọc
+** nó), và đọc G(L) trước khi kiểm NULL. Nay gọi thẳng hàm giải phóng của state; G(L) phải khác NULL (lua_openwithmemory tự giải
+** phóng lua_State khi chưa có global_State). */
 static void close_state (lua_State *L) {
-  global_State globalState;
-  lua_State luaState;
+  global_State *const g = G(L);
+  const lua_FreeFunction freeFunc = g->freeFunc;
+  void *const memData = g->memData;
 
   luaF_close(L, L->stack);  /* close all upvalues for this thread */
-
-  luaState.l_G = &globalState;
-  globalState.reallocFunc = G(L)->reallocFunc;
-  globalState.freeFunc = G(L)->freeFunc;
-  globalState.memData = G(L)->memData;
-  /* Khác gốc: nblocks và allocFlags của hai biến cục bộ này để chưa khởi tạo. luaM_realloc đọc cả hai: nblocks trong
-  ** lua_assert (> 0), allocFlags đưa cho hàm cấp phát. Bản không NDEBUG chết ở assert khi rác bằng 0 (Clang, bước đóng state);
-  ** đặt giá trị giả như f_luaopen và lua_open. */
-  globalState.nblocks = sizeof(lua_State) + sizeof(global_State);
-  luaState.allocFlags = 0;
-
-  if (G(L)) {  /* close global state */
-    luaC_sweep(L, 1);  /* collect all elements */
+  luaC_sweep(L, 1);  /* collect all elements */
 #if !LUA_REFCOUNT
-    lua_assert(G(L)->rootgc == NULL);
-    lua_assert(G(L)->rootudata == NULL);
+  lua_assert(g->rootgc == NULL);
+  lua_assert(g->rootudata == NULL);
 #endif LUA_REFCOUNT
-    luaS_freeall(L);
-    luaZ_freebuffer(L, &G(L)->buff);
-  }
+  luaS_freeall(L);
+  luaZ_freebuffer(L, &g->buff);
   freestack(L, L);
-  if (G(L)) {
-//jj This check doesn't work anymore, because LuaState variables are allocated through the
-//jj memory interface, too.
-//jj    lua_assert(G(L)->nblocks == sizeof(lua_State) + sizeof(global_State));
-    luaM_freelem(&luaState, G(L));
-  }
-  freestate(&luaState, L);
+  (*freeFunc)(g, cast(int, sizeof(global_State)), memData);
+  (*freeFunc)(cast(lu_byte *, L) - EXTRASPACE, cast(int, sizeof(lua_State) + EXTRASPACE), memData);
 }
 
 
@@ -412,6 +397,12 @@ lua_State *luaE_newthread (lua_State *L) {
 #endif LUA_REFCOUNT
   stack_init(L1, L);  /* init stack */
   setobj2n(gt(L1), gt(L));  /* share table of globals */
+  /* Khác gốc: luồng mới thừa hưởng móc của luồng tạo ra nó (như Lua 5.1). Gốc để trống nên một coroutine chạy ngoài móc đếm lệnh
+  ** của vỏ C++ và vòng lặp vô hạn trong đó không bị cắt. */
+  L1->hookmask = L->hookmask;
+  L1->basehookcount = L->basehookcount;
+  L1->hook = L->hook;
+  resethookcount(L1);
   return L1;
 }
 
@@ -424,20 +415,18 @@ void luaE_freethread (lua_State *L, lua_State *L1) {
 }
 
 
-LUA_API lua_State *lua_open (void) {
+/* Khác gốc: thân của lua_open tách thành lua_openwithmemory, nhận hàm cấp phát của riêng state này. lua_open vẫn dùng mặc định
+** toàn tiến trình (lua_setdefaultmemoryfunctions). Vỏ C++ (src/client/face/lua) cấp mỗi state một ngân sách bộ nhớ riêng mà
+** không phải đổi mặc định toàn tiến trình, vốn không an toàn khi hai luồng cùng mở state. */
+LUA_API lua_State *lua_openwithmemory (lua_ReallocFunction reallocFunc, lua_FreeFunction freeFunc, void *memData) {
+  OpenMemory memory;
   lua_State *L;
-  global_State globalState;
-  lua_State luaState;
-#ifdef _DEBUG
-  luaState.allocName = "Lua_lua_State";
-#endif _DEBUG
-  luaState.l_G = &globalState;
-  luaState.allocFlags = 0;  /* Khác gốc: luaM_realloc đọc allocFlags (xem close_state) */
-  globalState.reallocFunc = luaHelper_Realloc;
-  globalState.freeFunc = luaHelper_Free;
-  globalState.memData = luaHelper_memData;
-  globalState.nblocks = sizeof(lua_State) + sizeof(global_State);	// Bogus.
-  L = mallocstate(&luaState);
+  lu_byte *block;
+  memory.reallocFunc = reallocFunc;
+  memory.freeFunc = freeFunc;
+  memory.memData = memData;
+  block = cast(lu_byte *, (*reallocFunc)(NULL, 0, cast(int, sizeof(lua_State) + EXTRASPACE), memData, NULL, 0));
+  L = block == NULL ? NULL : cast(lua_State *, block + EXTRASPACE);
   if (L) {  /* allocation OK? */
     L->tt = LUA_TTHREAD;
     L->marked = 0;
@@ -460,14 +449,20 @@ LUA_API lua_State *lua_open (void) {
 #endif LUA_REFCOUNT
     preinit_state(L);
     L->l_G = NULL;
-    if (luaD_rawrunprotected(L, f_luaopen, NULL) != 0) {
+    if (luaD_rawrunprotected(L, f_luaopen, &memory) != 0) {
       /* memory allocation error: free partial state */
-      close_state(L);
+      if (L->l_G != NULL) close_state(L);
+      else (*freeFunc)(block, cast(int, sizeof(lua_State) + EXTRASPACE), memData);  /* chưa có global_State */
       L = NULL;
     }
   }
   lua_userstateopen(L);
   return L;
+}
+
+
+LUA_API lua_State *lua_open (void) {
+  return lua_openwithmemory(luaHelper_Realloc, luaHelper_Free, luaHelper_memData);
 }
 
 
