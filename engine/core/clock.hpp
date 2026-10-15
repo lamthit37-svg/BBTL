@@ -1,10 +1,26 @@
-// Đồng hồ, giấc ngủ, lịch tick. Thay ITime/WindowsTime.c/Timer.c và threadSleep của _Ref.
-// steady_clock của MSVC đọc QueryPerformanceCounter, nên getUSec, getTimerFrequency, int64MulDiv
-// không cần bản riêng; thời gian thực dùng system_clock (getTimeSinceStart của gốc trả time(NULL)).
-// Timer mili giây (timeGetTime, quấn sau 49,7 ngày) và HiresTimer gộp thành Stopwatch. threadSleep
-// của gốc là Sleep(ms), tròn theo nhịp 15,6 ms; ở đây có sleep_for chỉ hẹn giờ và sleep_until quay
-// đoạn cuối. FixedStep là lịch tick số hữu tỉ như VnS và No1, _Ref không có.
-// Nguồn: Forge2 src/core/clock.hpp@d7fcd76. Khác gốc: bỏ {} thừa của thành viên anchor_.
+/*==============================================================================
+ *  ENGINEHP  |  HIGH-PERFORMANCE GAME ENGINE
+ *------------------------------------------------------------------------------
+ *  TỆP       : engine/core/clock.hpp
+ *  PHÂN HỆ   : Core / Clock
+ *  CHUẨN     : C++23
+ *------------------------------------------------------------------------------
+ *  CHỨC NĂNG
+ *  - Đồng hồ, giấc ngủ, lịch tick. Thay ITime/WindowsTime.c/Timer.c và
+ *    threadSleep của _Ref. steady_clock của MSVC đọc QueryPerformanceCounter,
+ *    nên getUSec, getTimerFrequency, int64MulDiv không cần bản riêng; thời gian
+ *    thực dùng system_clock (getTimeSinceStart của gốc trả time(NULL)). Timer
+ *    mili giây (timeGetTime, quấn sau 49,7 ngày) và HiresTimer gộp thành
+ *    Stopwatch. threadSleep của gốc là Sleep(ms), tròn theo nhịp 15,6 ms; ở đây
+ *    có sleep_for chỉ hẹn giờ và sleep_until quay đoạn cuối. FixedStep là lịch
+ *    tick số hữu tỉ như VnS và No1, _Ref không có.
+ *  - Nguồn: Forge2 src/core/clock.hpp@d7fcd76. Khác gốc: bỏ {} thừa của thành
+ *    viên anchor_.
+ *------------------------------------------------------------------------------
+ *  TÁC GIẢ   : HiepHoon
+ *  TELEGRAM  : @Hoon9xx
+ *============================================================================*/
+
 #pragma once
 
 #include "core/error.hpp"

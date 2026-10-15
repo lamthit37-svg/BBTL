@@ -1,13 +1,30 @@
-// Một luồng mỗi thư mục như gốc. Luồng chờ cùng lúc sự kiện I/O và sự kiện dừng; jthread yêu cầu
-// dừng thì stop_callback đặt sự kiện dừng. Trước khi thoát, I/O còn treo bị CancelIoEx và luồng chờ
-// nó hoàn tất, vì nhân còn ghi vào bộ đệm và OVERLAPPED nằm trong State. Bản ghi
-// FILE_NOTIFY_INFORMATION được chép ra từng trường, kiểm biên với số byte nhân đã ghi, không ép con
-// trỏ vào giữa bộ đệm.
-// Nguồn: Forge2 src/fs/watcher.cpp@d7fcd76. Khác gốc (so với Forge2): macro của windows.h lấy từ
-// core/win32.hpp (gốc khai ở CMake), header con của Win32 include trực tiếp; vòng lặp của run tách
-// thành pump, thân vòng của dispatch tách thành dispatch_one (ghi tại chỗ, dãy lời gọi Win32 và thứ
-// tự huỷ không đổi); ThreadConfig khai biến rồi gán tên; tham số at của read_record thành rest; bỏ
-// {} thừa của các thành viên Record và State; return kèm lời gọi hàm void tách làm hai.
+/*==============================================================================
+ *  ENGINEHP  |  HIGH-PERFORMANCE GAME ENGINE
+ *------------------------------------------------------------------------------
+ *  TỆP       : engine/fs/watcher.cpp
+ *  PHÂN HỆ   : Fs / Watcher
+ *  CHUẨN     : C++23
+ *------------------------------------------------------------------------------
+ *  CHỨC NĂNG
+ *  - Cài đặt fs/watcher.hpp.
+ *  - Một luồng mỗi thư mục như gốc. Luồng chờ cùng lúc sự kiện I/O và sự kiện
+ *    dừng; jthread yêu cầu dừng thì stop_callback đặt sự kiện dừng. Trước khi
+ *    thoát, I/O còn treo bị CancelIoEx và luồng chờ nó hoàn tất, vì nhân còn
+ *    ghi vào bộ đệm và OVERLAPPED nằm trong State. Bản ghi
+ *    FILE_NOTIFY_INFORMATION được chép ra từng trường, kiểm biên với số byte
+ *    nhân đã ghi, không ép con trỏ vào giữa bộ đệm.
+ *  - Nguồn: Forge2 src/fs/watcher.cpp@d7fcd76. Khác gốc (so với Forge2): macro
+ *    của windows.h lấy từ core/win32.hpp (gốc khai ở CMake), header con của
+ *    Win32 include trực tiếp; vòng lặp của run tách thành pump, thân vòng của
+ *    dispatch tách thành dispatch_one (ghi tại chỗ, dãy lời gọi Win32 và thứ tự
+ *    huỷ không đổi); ThreadConfig khai biến rồi gán tên; tham số at của
+ *    read_record thành rest; bỏ {} thừa của các thành viên Record và State;
+ *    return kèm lời gọi hàm void tách làm hai.
+ *------------------------------------------------------------------------------
+ *  TÁC GIẢ   : HiepHoon
+ *  TELEGRAM  : @Hoon9xx
+ *============================================================================*/
+
 #include "fs/watcher.hpp"
 
 #include "core/error.hpp"

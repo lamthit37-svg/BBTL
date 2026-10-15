@@ -1,5 +1,21 @@
-// Bản cho macOS và iOS. CHƯA BIÊN DỊCH: máy phát triển không có macOS; viết theo tài liệu dyld(3)
-// (int _NSGetExecutablePath(char* buf, uint32_t* bufsize), trả -1 và ghi cỡ cần khi bộ đệm thiếu).
+/*==============================================================================
+ *  ENGINEHP  |  HIGH-PERFORMANCE GAME ENGINE
+ *------------------------------------------------------------------------------
+ *  TỆP       : engine/io/platform_apple.cpp
+ *  PHÂN HỆ   : Io / Platform
+ *  CHUẨN     : C++23
+ *------------------------------------------------------------------------------
+ *  CHỨC NĂNG
+ *  - Cài đặt io/platform.hpp cho macOS và iOS: thư mục exe qua
+ *    _NSGetExecutablePath, open_in_browser chưa làm.
+ *  - CHƯA BIÊN DỊCH: máy phát triển không có macOS; viết theo tài liệu dyld(3)
+ *    (int _NSGetExecutablePath(char* buf, uint32_t* bufsize), trả -1 và ghi cỡ
+ *    cần khi bộ đệm thiếu).
+ *------------------------------------------------------------------------------
+ *  TÁC GIẢ   : HiepHoon
+ *  TELEGRAM  : @Hoon9xx
+ *============================================================================*/
+
 #include "io/platform.hpp"
 
 #include <mach-o/dyld.h>

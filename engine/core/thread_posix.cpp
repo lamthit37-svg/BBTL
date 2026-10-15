@@ -1,9 +1,25 @@
-// Luồng POSIX: tên đầy đủ ở thread_local, pthread chỉ nhận 15 byte; ưu tiên là nice của đúng luồng
-// (gettid, không phải cả tiến trình); ghim bằng sched_setaffinity. Chờ trên địa chỉ dùng futex 4
-// byte. Nhân 4.9 của máy kiểm chứng không có futex_waitv (Linux 5.16), nên atomic 8 byte chờ nửa
-// thấp little-endian: park cho phép thức giả, tail của log tăng từng dòng chứ không nhảy 4 GiB.
-// iOS dùng __ulock_wait (darwin-xnu bsd/sys/ulock.h, cùng số với libc++ atomic.cpp). Không biên C
-// riêng: park là template và ThreadBody là MoveOnlyFunction.
+/*==============================================================================
+ *  ENGINEHP  |  HIGH-PERFORMANCE GAME ENGINE
+ *------------------------------------------------------------------------------
+ *  TỆP       : engine/core/thread_posix.cpp
+ *  PHÂN HỆ   : Core / Thread
+ *  CHUẨN     : C++23
+ *------------------------------------------------------------------------------
+ *  CHỨC NĂNG
+ *  - Cài đặt core/thread.hpp cho nền không phải Windows.
+ *  - Luồng POSIX: tên đầy đủ ở thread_local, pthread chỉ nhận 15 byte; ưu tiên
+ *    là nice của đúng luồng (gettid, không phải cả tiến trình); ghim bằng
+ *    sched_setaffinity. Chờ trên địa chỉ dùng futex 4 byte. Nhân 4.9 của máy
+ *    kiểm chứng không có futex_waitv (Linux 5.16), nên atomic 8 byte chờ nửa
+ *    thấp little-endian: park cho phép thức giả, tail của log tăng từng dòng
+ *    chứ không nhảy 4 GiB. iOS dùng __ulock_wait (darwin-xnu bsd/sys/ulock.h,
+ *    cùng số với libc++ atomic.cpp). Không biên C riêng: park là template và
+ *    ThreadBody là MoveOnlyFunction.
+ *------------------------------------------------------------------------------
+ *  TÁC GIẢ   : HiepHoon
+ *  TELEGRAM  : @Hoon9xx
+ *============================================================================*/
+
 #if !defined(_WIN32)
 
 #include "core/thread.hpp"

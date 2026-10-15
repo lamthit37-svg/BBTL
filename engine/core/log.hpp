@@ -1,14 +1,31 @@
-// Log của Forge2, thay ILog/Log.c/WindowsLog.c của _Ref, mạnh hơn log bất đồng bộ của VnS. Luồng
-// gọi định dạng vào bộ đệm riêng của luồng rồi đặt chỗ trong một vòng đệm tĩnh 4 MiB bằng một CAS,
-// không mutex, không cấp phát; luồng "log" của đối tượng Log xả ra các đích. Bộ đệm đầy: dòng dưới
-// Error bị bỏ và đếm, Error chờ chỗ. Dòng dài hơn 64 KiB bị cắt đúng ký tự UTF-8. Chưa có Log thì
-// ghi thẳng stderr. Crash (core/check.hpp) xả nốt vòng đệm trước khi ghi báo cáo. Sửa so với _Ref:
-// lọc theo từng mức (gốc so mặt nạ toàn cục với cả mặt nạ nên lọt mức đã tắt); không in ngoài mutex
-// nên các luồng không xen dòng; không bộ đệm 1 KiB cắt câm và tràn âm; std::format kiểm kiểu lúc
-// dịch thay printf. Ghi log không bao giờ ném; gọi log từ trong sink hay formatter không tự khoá
-// chết: lần lồng ra stderr kèm chuỗi định dạng gốc.
-// Nguồn: Forge2 src/core/log.hpp@d7fcd76. Khác gốc: enumerator mang tiền tố k; tham số của
-// constructor Format và tham số at của LogHistory đổi tên (trùng tên trường, tên dưới ba ký tự).
+/*==============================================================================
+ *  ENGINEHP  |  HIGH-PERFORMANCE GAME ENGINE
+ *------------------------------------------------------------------------------
+ *  TỆP       : engine/core/log.hpp
+ *  PHÂN HỆ   : Core / Log
+ *  CHUẨN     : C++23
+ *------------------------------------------------------------------------------
+ *  CHỨC NĂNG
+ *  - Log của Forge2, thay ILog/Log.c/WindowsLog.c của _Ref, mạnh hơn log bất
+ *    đồng bộ của VnS. Luồng gọi định dạng vào bộ đệm riêng của luồng rồi đặt
+ *    chỗ trong một vòng đệm tĩnh 4 MiB bằng một CAS, không mutex, không cấp
+ *    phát; luồng "log" của đối tượng Log xả ra các đích. Bộ đệm đầy: dòng dưới
+ *    Error bị bỏ và đếm, Error chờ chỗ. Dòng dài hơn 64 KiB bị cắt đúng ký tự
+ *    UTF-8. Chưa có Log thì ghi thẳng stderr. Crash (core/check.hpp) xả nốt
+ *    vòng đệm trước khi ghi báo cáo. Sửa so với _Ref: lọc theo từng mức (gốc so
+ *    mặt nạ toàn cục với cả mặt nạ nên lọt mức đã tắt); không in ngoài mutex
+ *    nên các luồng không xen dòng; không bộ đệm 1 KiB cắt câm và tràn âm;
+ *    std::format kiểm kiểu lúc dịch thay printf. Ghi log không bao giờ ném; gọi
+ *    log từ trong sink hay formatter không tự khoá chết: lần lồng ra stderr kèm
+ *    chuỗi định dạng gốc.
+ *  - Nguồn: Forge2 src/core/log.hpp@d7fcd76. Khác gốc: enumerator mang tiền tố
+ *    k; tham số của constructor Format và tham số at của LogHistory đổi tên
+ *    (trùng tên trường, tên dưới ba ký tự).
+ *------------------------------------------------------------------------------
+ *  TÁC GIẢ   : HiepHoon
+ *  TELEGRAM  : @Hoon9xx
+ *============================================================================*/
+
 #pragma once
 
 #include "core/error.hpp"

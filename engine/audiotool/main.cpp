@@ -1,8 +1,23 @@
-// thienlong_audio — cook cây âm thanh gốc thành tệp .tla trên máy dựng. Game không gọi công cụ này.
-//   thienlong_audio cook <thư mục sound gốc> <thư mục ra>
-// Tệp .wav và .mp3 thành .tla cùng đường dẫn tương đối; tệp khác (bảng id) chép nguyên. Tệp ra
-// không cũ hơn tệp gốc thì bỏ qua, nên chạy lại chỉ cook phần đổi. Chạy song song trên mọi nhân.
-// Mã thoát: 0 xong, 1 có tệp lỗi, 2 sai cách dùng.
+/*==============================================================================
+ *  ENGINEHP  |  HIGH-PERFORMANCE GAME ENGINE
+ *------------------------------------------------------------------------------
+ *  TỆP       : engine/audiotool/main.cpp
+ *  PHÂN HỆ   : Audiotool / Main
+ *  CHUẨN     : C++23
+ *------------------------------------------------------------------------------
+ *  CHỨC NĂNG
+ *  - Công cụ dòng lệnh thienlong_audio: cook cây âm thanh gốc thành tệp .tla
+ *    trên máy dựng; game không gọi công cụ này. Cách dùng: thienlong_audio cook
+ *    <thư mục sound gốc> <thư mục ra>.
+ *  - Tệp .wav và .mp3 thành .tla cùng đường dẫn tương đối; tệp khác (bảng id)
+ *    chép nguyên. Tệp ra không cũ hơn tệp gốc thì bỏ qua, nên chạy lại chỉ cook
+ *    phần đổi; chạy song song trên mọi nhân.
+ *  - Mã thoát: 0 xong, 1 có tệp lỗi, 2 sai cách dùng.
+ *------------------------------------------------------------------------------
+ *  TÁC GIẢ   : HiepHoon
+ *  TELEGRAM  : @Hoon9xx
+ *============================================================================*/
+
 #include "audio/cook.hpp"
 #include "audio/pack.hpp"
 #include "core/error.hpp"

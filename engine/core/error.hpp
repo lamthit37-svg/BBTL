@@ -1,11 +1,27 @@
-// Lỗi vận hành của engine: hàm thất bại vì môi trường (tệp thiếu, hết chỗ, dữ liệu hỏng) trả
-// Result<T> hay Status, dựng trên std::expected. Lỗi lập trình thì dùng check (core/check.hpp).
-// Thay FSErrorCode và FS_ERR_CTX của _Ref (mã lỗi để trong biến thread_local, hàm sau ghi đè hàm
-// trước, người gọi phải nhớ đọc ngay) theo khuôn 128 B của VnS: không cấp phát tới 88 B chi tiết.
-// Thêm so với VnS: giữ mã lỗi hệ điều hành và tự suy ErrorCode từ nó; không macro lan truyền, dùng
-// and_then/or_else của std::expected hay một dòng if.
-// Nguồn: Forge2 src/core/error.hpp@d7fcd76. Khác gốc: enumerator mang tiền tố k; thông điệp rỗng bị
-// chặn bằng core::check của THIENLONG thay cho throw trong constructor consteval.
+/*==============================================================================
+ *  ENGINEHP  |  HIGH-PERFORMANCE GAME ENGINE
+ *------------------------------------------------------------------------------
+ *  TỆP       : engine/core/error.hpp
+ *  PHÂN HỆ   : Core / Error
+ *  CHUẨN     : C++23
+ *------------------------------------------------------------------------------
+ *  CHỨC NĂNG
+ *  - Lỗi vận hành của engine: hàm thất bại vì môi trường (tệp thiếu, hết chỗ,
+ *    dữ liệu hỏng) trả Result<T> hay Status, dựng trên std::expected. Lỗi lập
+ *    trình thì dùng check (core/check.hpp). Thay FSErrorCode và FS_ERR_CTX của
+ *    _Ref (mã lỗi để trong biến thread_local, hàm sau ghi đè hàm trước, người
+ *    gọi phải nhớ đọc ngay) theo khuôn 128 B của VnS: không cấp phát tới 88 B
+ *    chi tiết. Thêm so với VnS: giữ mã lỗi hệ điều hành và tự suy ErrorCode từ
+ *    nó; không macro lan truyền, dùng and_then/or_else của std::expected hay
+ *    một dòng if.
+ *  - Nguồn: Forge2 src/core/error.hpp@d7fcd76. Khác gốc: enumerator mang tiền
+ *    tố k; thông điệp rỗng bị chặn bằng core::check của THIENLONG thay cho
+ *    throw trong constructor consteval.
+ *------------------------------------------------------------------------------
+ *  TÁC GIẢ   : HiepHoon
+ *  TELEGRAM  : @Hoon9xx
+ *============================================================================*/
+
 #pragma once
 
 #include "core/check.hpp"

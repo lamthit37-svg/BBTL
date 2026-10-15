@@ -1,11 +1,24 @@
-// Đọc tệp dữ liệu của client từ đĩa. Tên mesh và map trong mã là UTF-8. all.material và script hạt
-// ghi tên ảnh bằng GBK (trang 936): path_from_utf8 nhận cả hai, không đi qua bảng mã ANSI.
-// Quyết định: tệp là dữ liệu ngoài nên mọi lỗi đọc trả về qua std::expected, không dừng tiến trình;
-// có trần cỡ để một tệp hỏng không nuốt hết bộ nhớ.
-// Tên tệp tra không phân biệt hoa thường ASCII, như client gốc (nó hạ chữ thường tên trước khi tra
-// gói): bảng cảnh ghi "shuhe.scene" cho tệp "shuhe.Scene". Windows tự bỏ qua khác biệt đó, Android
-// thì không, nên read_text tra lại từng đoạn đường dẫn khi tên trần không có (đo: 186 trên 219
-// cảnh).
+/*==============================================================================
+ *  ENGINEHP  |  HIGH-PERFORMANCE GAME ENGINE
+ *------------------------------------------------------------------------------
+ *  TỆP       : engine/io/file.hpp
+ *  PHÂN HỆ   : Io / File
+ *  CHUẨN     : C++23
+ *------------------------------------------------------------------------------
+ *  CHỨC NĂNG
+ *  - API đọc tệp dữ liệu của client từ đĩa. Tên mesh và map trong mã là UTF-8;
+ *    all.material và script hạt ghi tên ảnh bằng GBK (trang 936):
+ *    path_from_utf8 nhận cả hai, không qua bảng mã ANSI.
+ *  - Tệp là dữ liệu ngoài: mọi lỗi đọc trả qua std::expected, không dừng tiến
+ *    trình; có trần cỡ để tệp hỏng không nuốt hết bộ nhớ.
+ *  - Tên tệp tra không phân biệt hoa thường ASCII như client gốc (bảng cảnh ghi
+ *    "shuhe.scene" cho tệp "shuhe.Scene"); Android phân biệt nên read_text tra
+ *    lại từng đoạn đường dẫn (đo: 186 trên 219 cảnh).
+ *------------------------------------------------------------------------------
+ *  TÁC GIẢ   : HiepHoon
+ *  TELEGRAM  : @Hoon9xx
+ *============================================================================*/
+
 #pragma once
 
 #include <cstdint>

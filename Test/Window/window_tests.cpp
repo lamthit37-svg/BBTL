@@ -1,9 +1,18 @@
-// Test của window: hình học số nguyên, cỡ cửa sổ nên dùng theo danh sách chế độ của màn hình, và
-// một cửa sổ ẩn thật: tạo đúng cỡ vùng vẽ, đổi cỡ sinh sự kiện, tiêu đề UTF-8, yêu cầu đóng không
-// tự huỷ cửa sổ, huỷ Window thì HWND mất, yêu cầu thoát kết thúc vòng thông điệp. Cần phiên làm
-// việc có desktop; cửa sổ ẩn nên không hiện gì lên màn hình. Các ca vào vòng kéo thật của Windows
-// nằm riêng ở window_modal_tests.cpp vì chúng đụng tới con trỏ chuột của người đang dùng máy.
-// Chỉ dựng trên Windows.
+// +---------------------------------------------------------------+
+// | THIENLONG                                                     |
+// | Tệp: Test/Window/window_tests.cpp                             |
+// | - Test của window: hình học số nguyên, cỡ cửa sổ nên dùng     |
+// |   theo danh sách chế độ của màn hình, và một cửa sổ ẩn thật:  |
+// |   tạo đúng cỡ vùng vẽ, đổi cỡ sinh sự kiện, tiêu đề UTF-8,    |
+// |   yêu cầu đóng không tự huỷ cửa sổ, huỷ Window thì HWND mất,  |
+// |   yêu cầu thoát kết thúc vòng thông điệp. Cần phiên làm việc  |
+// |   có desktop; cửa sổ ẩn nên không hiện gì lên màn hình. Các   |
+// |   ca vào vòng kéo thật của Windows nằm riêng ở                |
+// |   window_modal_tests.cpp vì chúng đụng tới con trỏ chuột của  |
+// |   người đang dùng máy. Chỉ dựng trên Windows.                 |
+// | Dev : HiepHoon   Tele : @Hoon9xx                              |
+// +---------------------------------------------------------------+
+
 #include "core/check.hpp"
 #include "core/error.hpp"
 #include "core/win32.hpp" // IWYU pragma: keep

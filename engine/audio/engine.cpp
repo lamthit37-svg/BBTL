@@ -1,11 +1,28 @@
-// Bộ trộn của client. Khác AudioSystem Loong: không FMOD, không khoá, fade theo số mẫu đã render.
-// Bộ trộn chạy ngay trong callback của thiết bị: mỗi lần gọi được chia thành khối không quá
-// kBlockFrames khung, đầu mỗi khối nhận lệnh của luồng game qua hàng đợi một ghi một đọc. Bản
-// trước trộn ở luồng riêng vào vòng đệm 4096 khung; tablet GE8320 xin 4104 khung mỗi lần nên mỗi
-// 85 ms hụt 8 khung (tiếng rè). Callback không cấp phát và không giải phóng: mẫu của clip do
-// luồng API giữ và chỉ xoá sau khi bộ trộn báo đã thôi dùng; nhạc do audio/detail/music giải mã ở
-// luồng riêng. Không có thiết bị (test) thì render() chạy đúng các khối ấy trên luồng gọi.
-// Tắt: đóng thiết bị (hết callback), dừng luồng giải mã, rồi mới xoá mẫu.
+/*==============================================================================
+ *  ENGINEHP  |  HIGH-PERFORMANCE GAME ENGINE
+ *------------------------------------------------------------------------------
+ *  TỆP       : engine/audio/engine.cpp
+ *  PHÂN HỆ   : Audio / Engine
+ *  CHUẨN     : C++23
+ *------------------------------------------------------------------------------
+ *  CHỨC NĂNG
+ *  - Bộ trộn của client: khác AudioSystem Loong, không FMOD, không khoá, fade
+ *    theo số mẫu đã render.
+ *  - Mỗi callback chia thành khối không quá kBlockFrames; đầu mỗi khối nhận
+ *    lệnh luồng game qua hàng đợi một ghi một đọc. Bản cũ trộn ở luồng riêng
+ *    (vòng đệm 4096 khung) làm tablet GE8320 (xin 4104 khung) hụt 8 khung mỗi
+ *    85 ms.
+ *  - Callback không cấp phát/giải phóng: mẫu clip do luồng API giữ, chỉ xoá sau
+ *    khi bộ trộn báo thôi dùng; nhạc do audio/detail/music giải mã ở luồng
+ *    riêng. Không có thiết bị (test) thì render() chạy các khối ấy trên luồng
+ *    gọi.
+ *  - Thứ tự tắt: đóng thiết bị (hết callback), dừng luồng giải mã, rồi mới xoá
+ *    mẫu.
+ *------------------------------------------------------------------------------
+ *  TÁC GIẢ   : HiepHoon
+ *  TELEGRAM  : @Hoon9xx
+ *============================================================================*/
+
 #include "audio/engine.hpp"
 
 #include "audio/catalog.hpp"

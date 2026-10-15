@@ -1,19 +1,35 @@
-// Vectơ tính toán: Vector3, Vector4, Point3 trên một __m128 (16 B, căn lề 16), và Vector2, Point2
-// vô hướng — sse/vector.hpp và vec2d.hpp của ModifiedSonyMath trong _Ref. Lưu trữ và dữ liệu GPU
-// dùng Float2/3/4 (math/types.hpp); load và store đổi qua lại. Ánh xạ tên ở docs/modules/math.md.
-// Khác gốc:
-// - phần tử trả float thẳng, không qua FloatInVec/BoolInVec/VecIdx (trình dịch hiện nay giữ float
-//   trong thanh ghi XMM sẵn);
-// - một quy ước lerp(a, b, t) và slerp(a, b, t), t đứng cuối;
-// - mặc định là vectơ 0, gốc để rác;
-// - normalize chia cho căn chính xác (sqrt, div); gốc dùng rsqrt cộng một bước Newton, lệch vài
-//   ulp nên vectơ "đơn vị" có độ dài khác 1. Bản ước lượng vẫn còn: normalize_estimate;
-// - recip chia chính xác; gốc gọi recipPerElem nhưng trả ước lượng 12 bit của RCPPS. Bản ước
-//   lượng: recip_estimate;
-// - Vector2 là Float2 (gốc tách hai kiểu cùng hai float rồi viết hàm đổi qua lại); IVector và
-//   UVector là Int2..4, Uint2..4.
-// Nguồn: Forge2 src/math/vector.hpp@d7fcd76. Khác gốc (so với Forge2): Point2 và Vector2 trong
-// các phép toán của Point2 khởi tạo bằng tên thành viên.
+/*==============================================================================
+ *  ENGINEHP  |  HIGH-PERFORMANCE GAME ENGINE
+ *------------------------------------------------------------------------------
+ *  TỆP       : engine/math/vector.hpp
+ *  PHÂN HỆ   : Math / Vector
+ *  CHUẨN     : C++23
+ *------------------------------------------------------------------------------
+ *  CHỨC NĂNG
+ *  - Vectơ tính toán: Vector3, Vector4, Point3 trên một __m128 (16 B, căn lề
+ *    16), và Vector2, Point2 vô hướng — sse/vector.hpp và vec2d.hpp của
+ *    ModifiedSonyMath trong _Ref. Lưu trữ và dữ liệu GPU dùng Float2/3/4
+ *    (math/types.hpp); load và store đổi qua lại. Ánh xạ tên ở
+ *    docs/modules/math.md. Khác gốc:
+ *  - phần tử trả float thẳng, không qua FloatInVec/BoolInVec/VecIdx (trình dịch
+ *    hiện nay giữ float trong thanh ghi XMM sẵn);
+ *  - một quy ước lerp(a, b, t) và slerp(a, b, t), t đứng cuối;
+ *  - mặc định là vectơ 0, gốc để rác;
+ *  - normalize chia cho căn chính xác (sqrt, div); gốc dùng rsqrt cộng một bước
+ *    Newton, lệch vài ulp nên vectơ "đơn vị" có độ dài khác 1. Bản ước lượng
+ *    vẫn còn: normalize_estimate;
+ *  - recip chia chính xác; gốc gọi recipPerElem nhưng trả ước lượng 12 bit của
+ *    RCPPS. Bản ước lượng: recip_estimate;
+ *  - Vector2 là Float2 (gốc tách hai kiểu cùng hai float rồi viết hàm đổi qua
+ *    lại); IVector và UVector là Int2..4, Uint2..4.
+ *  - Nguồn: Forge2 src/math/vector.hpp@d7fcd76. Khác gốc (so với Forge2):
+ *    Point2 và Vector2 trong các phép toán của Point2 khởi tạo bằng tên thành
+ *    viên.
+ *------------------------------------------------------------------------------
+ *  TÁC GIẢ   : HiepHoon
+ *  TELEGRAM  : @Hoon9xx
+ *============================================================================*/
+
 #pragma once
 
 #include "math/scalar.hpp"

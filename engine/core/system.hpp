@@ -1,10 +1,24 @@
-// Thông tin máy: CPU, tải từng CPU logic, hệ điều hành. Thay CPUConfig (_Ref, dựa thư viện
-// cpu_features chép vào gốc) bằng __cpuid trực tiếp có kiểm hệ điều hành bật trạng thái AVX
-// (XGETBV); PerformanceStats (WMI qua COM, gọi CoInitializeSecurity cho cả tiến trình, chờ 15 ms
-// mỗi CPU) bằng NtQuerySystemInformation; OSInfo ("Unknown" cứng cho tên máy) bằng RtlGetVersion và
-// tên máy thật.
-// Nguồn: Forge2 src/core/system.hpp@d7fcd76. Khác gốc: enumerator mang tiền tố k; bỏ {} thừa của
-// các thành viên chuỗi và bitset trong CpuInfo, OsInfo.
+/*==============================================================================
+ *  ENGINEHP  |  HIGH-PERFORMANCE GAME ENGINE
+ *------------------------------------------------------------------------------
+ *  TỆP       : engine/core/system.hpp
+ *  PHÂN HỆ   : Core / System
+ *  CHUẨN     : C++23
+ *------------------------------------------------------------------------------
+ *  CHỨC NĂNG
+ *  - Thông tin máy: CPU, tải từng CPU logic, hệ điều hành. Thay CPUConfig
+ *    (_Ref, dựa thư viện cpu_features chép vào gốc) bằng __cpuid trực tiếp có
+ *    kiểm hệ điều hành bật trạng thái AVX (XGETBV); PerformanceStats (WMI qua
+ *    COM, gọi CoInitializeSecurity cho cả tiến trình, chờ 15 ms mỗi CPU) bằng
+ *    NtQuerySystemInformation; OSInfo ("Unknown" cứng cho tên máy) bằng
+ *    RtlGetVersion và tên máy thật.
+ *  - Nguồn: Forge2 src/core/system.hpp@d7fcd76. Khác gốc: enumerator mang tiền
+ *    tố k; bỏ {} thừa của các thành viên chuỗi và bitset trong CpuInfo, OsInfo.
+ *------------------------------------------------------------------------------
+ *  TÁC GIẢ   : HiepHoon
+ *  TELEGRAM  : @Hoon9xx
+ *============================================================================*/
+
 #pragma once
 
 #include "core/error.hpp"

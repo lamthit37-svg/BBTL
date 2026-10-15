@@ -1,6 +1,20 @@
-// Xem resample.hpp. Mỗi hàng của bảng là bộ hệ số cho một pha lẻ của vị trí đọc; hàng được chuẩn
-// hoá tổng bằng 1 để mức một chiều không gợn theo pha. Khi mẫu số của tỉ số tần số không quá
-// kMaxPhases thì mỗi pha có đúng một hàng; tỉ số lạ hơn thì trộn hai hàng kề nhau.
+/*==============================================================================
+ *  ENGINEHP  |  HIGH-PERFORMANCE GAME ENGINE
+ *------------------------------------------------------------------------------
+ *  TỆP       : engine/audio/resample.cpp
+ *  PHÂN HỆ   : Audio / Resample
+ *  CHUẨN     : C++23
+ *------------------------------------------------------------------------------
+ *  CHỨC NĂNG
+ *  - Dựng bảng hệ số đa pha và lọc; mỗi hàng là một pha lẻ của vị trí đọc,
+ *    chuẩn hoá tổng bằng 1 để mức một chiều không gợn theo pha.
+ *  - Mẫu số tỉ số không quá kMaxPhases thì mỗi pha một hàng; tỉ số lạ hơn thì
+ *    trộn hai hàng kề nhau.
+ *------------------------------------------------------------------------------
+ *  TÁC GIẢ   : HiepHoon
+ *  TELEGRAM  : @Hoon9xx
+ *============================================================================*/
+
 #include "audio/resample.hpp"
 
 #include "core/check.hpp"

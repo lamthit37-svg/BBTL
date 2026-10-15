@@ -1,12 +1,30 @@
-// Luồng byte — thay IFileSystem (bảng con trỏ hàm), FileStream (48 byte dữ liệu riêng chép theo giá
-// trị) và các shortcut fs*Stream của _Ref. Stream là lớp trừu tượng move-only, sở hữu bằng giá trị
-// hay unique_ptr, đóng bằng RAII; lỗi trả qua core::Result thay FS_ERR_CTX thread_local. Ba bản cài
-// đặt: File (fs/file.hpp), MemoryStream (fs/memory_stream.hpp), ArchiveStream (fs/archive.hpp).
-// Ngữ nghĩa thống nhất cho mọi bản, chỗ gốc mỗi backend một kiểu:
-// - đọc ở EOF trả 0 byte, không lỗi (gốc: bộ nhớ báo INVALID_STATE, tệp thì không);
-// - at_end đúng ngay khi vị trí chạm cỡ (gốc: tệp dùng feof, chỉ đúng sau lần đọc chạm đáy);
-// - map trả đúng cỡ dữ liệu (gốc: bộ nhớ trả capacity).
-// Nguồn: Forge2 src/fs/stream.hpp@d7fcd76. Khác gốc: bỏ {} thừa của thành viên data_ trong Bytes.
+/*==============================================================================
+ *  ENGINEHP  |  HIGH-PERFORMANCE GAME ENGINE
+ *------------------------------------------------------------------------------
+ *  TỆP       : engine/fs/stream.hpp
+ *  PHÂN HỆ   : Fs / Stream
+ *  CHUẨN     : C++23
+ *------------------------------------------------------------------------------
+ *  CHỨC NĂNG
+ *  - Luồng byte — thay IFileSystem (bảng con trỏ hàm), FileStream (48 byte dữ
+ *    liệu riêng chép theo giá trị) và các shortcut fs*Stream của _Ref. Stream
+ *    là lớp trừu tượng move-only, sở hữu bằng giá trị hay unique_ptr, đóng bằng
+ *    RAII; lỗi trả qua core::Result thay FS_ERR_CTX thread_local. Ba bản cài
+ *    đặt: File (fs/file.hpp), MemoryStream (fs/memory_stream.hpp),
+ *    ArchiveStream (fs/archive.hpp). Ngữ nghĩa thống nhất cho mọi bản, chỗ gốc
+ *    mỗi backend một kiểu:
+ *  - đọc ở EOF trả 0 byte, không lỗi (gốc: bộ nhớ báo INVALID_STATE, tệp thì
+ *    không);
+ *  - at_end đúng ngay khi vị trí chạm cỡ (gốc: tệp dùng feof, chỉ đúng sau lần
+ *    đọc chạm đáy);
+ *  - map trả đúng cỡ dữ liệu (gốc: bộ nhớ trả capacity).
+ *  - Nguồn: Forge2 src/fs/stream.hpp@d7fcd76. Khác gốc: bỏ {} thừa của thành
+ *    viên data_ trong Bytes.
+ *------------------------------------------------------------------------------
+ *  TÁC GIẢ   : HiepHoon
+ *  TELEGRAM  : @Hoon9xx
+ *============================================================================*/
+
 #pragma once
 
 #include "core/error.hpp"

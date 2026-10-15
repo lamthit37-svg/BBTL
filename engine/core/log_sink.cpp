@@ -1,11 +1,27 @@
-// Các đích ghi của log và LogHistory. Chạy trên luồng log (hay luồng đang flush, đang báo crash),
-// mỗi lúc một luồng, nên đích không tự khoá — trừ LogHistory, vì UI đọc nó từ luồng khác.
-// So với _Ref: tệp ghi gộp 256 KiB mỗi lần WriteFile thay vì fwrite+fflush từng dòng; console đúng
-// Unicode không cần đổi code page; debugger chỉ khi đang gắn.
-// Nguồn: Forge2 src/core/log_sink.cpp@d7fcd76. Khác gốc: enumerator mang tiền tố k; macro của
-// windows.h lấy từ core/win32.hpp (gốc khai ở CMake); header con của Win32 include trực tiếp; tham
-// số và biến tên at đổi thành position, cursor; struct Step ra khỏi thân human_time; handle cục bộ
-// viết auto* const; lệnh return kèm lời gọi hàm void tách làm hai.
+/*==============================================================================
+ *  ENGINEHP  |  HIGH-PERFORMANCE GAME ENGINE
+ *------------------------------------------------------------------------------
+ *  TỆP       : engine/core/log_sink.cpp
+ *  PHÂN HỆ   : Core / Log
+ *  CHUẨN     : C++23
+ *------------------------------------------------------------------------------
+ *  CHỨC NĂNG
+ *  - Cài đặt core/log.hpp.
+ *  - Các đích ghi của log và LogHistory. Chạy trên luồng log (hay luồng đang
+ *    flush, đang báo crash), mỗi lúc một luồng, nên đích không tự khoá — trừ
+ *    LogHistory, vì UI đọc nó từ luồng khác. So với _Ref: tệp ghi gộp 256 KiB
+ *    mỗi lần WriteFile thay vì fwrite+fflush từng dòng; console đúng Unicode
+ *    không cần đổi code page; debugger chỉ khi đang gắn.
+ *  - Nguồn: Forge2 src/core/log_sink.cpp@d7fcd76. Khác gốc: enumerator mang
+ *    tiền tố k; macro của windows.h lấy từ core/win32.hpp (gốc khai ở CMake);
+ *    header con của Win32 include trực tiếp; tham số và biến tên at đổi thành
+ *    position, cursor; struct Step ra khỏi thân human_time; handle cục bộ viết
+ *    auto* const; lệnh return kèm lời gọi hàm void tách làm hai.
+ *------------------------------------------------------------------------------
+ *  TÁC GIẢ   : HiepHoon
+ *  TELEGRAM  : @Hoon9xx
+ *============================================================================*/
+
 #include "core/error.hpp"
 #include "core/handle.hpp"
 #include "core/log.hpp"

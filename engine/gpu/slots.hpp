@@ -1,12 +1,27 @@
-// Bảng tài nguyên có thế hệ đứng sau mỗi loại Handle: chỉ số trỏ vào ô, thế hệ nói ô ấy còn là
-// tài nguyên lúc cấp tay nắm hay không. Dùng nội bộ trong hai backend. Platium viết một bảng riêng
-// cho từng loại tài nguyên của từng backend, khoá mutex ở cả lần tra; ở đây một bản mẫu, và tra
-// (find) không khoá: ô nằm trong các khối cấp một lần không dời chỗ, thế hệ là số nguyên tử, lẻ khi
-// ô đang sống. Thêm và gỡ đi qua một mutex. Tra song song với gỡ CHÍNH tay nắm ấy là lỗi của chỗ
-// gọi (huỷ tài nguyên khi luồng khác còn ghi lệnh dùng nó); tra song song với mọi thao tác khác
-// thì an toàn.
-// Nguồn: Forge2 src/gpu/slots.hpp@d7fcd76. Khác gốc: bỏ {} thừa của Slot::value; NOLINT cho ba chỗ
-// đọc value sau khi kiểm thế hệ (clang-tidy chỉ báo khi bản mẫu được dựng với kiểu thật).
+/*==============================================================================
+ *  ENGINEHP  |  HIGH-PERFORMANCE GAME ENGINE
+ *------------------------------------------------------------------------------
+ *  TỆP       : engine/gpu/slots.hpp
+ *  PHÂN HỆ   : Gpu / Slots
+ *  CHUẨN     : C++23
+ *------------------------------------------------------------------------------
+ *  CHỨC NĂNG
+ *  - Bảng tài nguyên có thế hệ đứng sau mỗi loại Handle: chỉ số trỏ vào ô, thế
+ *    hệ nói ô ấy còn là tài nguyên lúc cấp tay nắm hay không. Dùng nội bộ trong
+ *    hai backend. Platium viết một bảng riêng cho từng loại tài nguyên của từng
+ *    backend, khoá mutex ở cả lần tra; ở đây một bản mẫu, và tra (find) không
+ *    khoá: ô nằm trong các khối cấp một lần không dời chỗ, thế hệ là số nguyên
+ *    tử, lẻ khi ô đang sống. Thêm và gỡ đi qua một mutex. Tra song song với gỡ
+ *    CHÍNH tay nắm ấy là lỗi của chỗ gọi (huỷ tài nguyên khi luồng khác còn ghi
+ *    lệnh dùng nó); tra song song với mọi thao tác khác thì an toàn.
+ *  - Nguồn: Forge2 src/gpu/slots.hpp@d7fcd76. Khác gốc: bỏ {} thừa của
+ *    Slot::value; NOLINT cho ba chỗ đọc value sau khi kiểm thế hệ (clang-tidy
+ *    chỉ báo khi bản mẫu được dựng với kiểu thật).
+ *------------------------------------------------------------------------------
+ *  TÁC GIẢ   : HiepHoon
+ *  TELEGRAM  : @Hoon9xx
+ *============================================================================*/
+
 #pragma once
 
 #include "gpu/handle.hpp"

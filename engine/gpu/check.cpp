@@ -1,9 +1,25 @@
-// Kiểm mô tả texture, buffer, view và pipeline trước khi GPU tạo chúng.
-// Cube đúng 6 lớp, CubeArray bội của 6; samples chỉ là 1, 2, 4 hoặc 8.
-// Nguồn: Forge2 src/gpu/check.cpp@d7fcd76. Khác gốc: enumerator mang tiền tố k; thân vòng lặp của
-// check_inputs và check_pipeline tách hàm; check_features tách thêm check_patches và
-// check_fill_and_blend; hai phép kiểm kind cuối resolve_view gom vào check_view_shape (đều ghi tại
-// chỗ); khởi tạo Box ghi tên thành viên; include trực tiếp header của mọi tên dùng tới.
+/*==============================================================================
+ *  ENGINEHP  |  HIGH-PERFORMANCE GAME ENGINE
+ *------------------------------------------------------------------------------
+ *  TỆP       : engine/gpu/check.cpp
+ *  PHÂN HỆ   : Gpu / Check
+ *  CHUẨN     : C++23
+ *------------------------------------------------------------------------------
+ *  CHỨC NĂNG
+ *  - Cài đặt gpu/check.hpp.
+ *  - Kiểm mô tả texture, buffer, view và pipeline trước khi GPU tạo chúng. Cube
+ *    đúng 6 lớp, CubeArray bội của 6; samples chỉ là 1, 2, 4 hoặc 8.
+ *  - Nguồn: Forge2 src/gpu/check.cpp@d7fcd76. Khác gốc: enumerator mang tiền tố
+ *    k; thân vòng lặp của check_inputs và check_pipeline tách hàm;
+ *    check_features tách thêm check_patches và check_fill_and_blend; hai phép
+ *    kiểm kind cuối resolve_view gom vào check_view_shape (đều ghi tại chỗ);
+ *    khởi tạo Box ghi tên thành viên; include trực tiếp header của mọi tên dùng
+ *    tới.
+ *------------------------------------------------------------------------------
+ *  TÁC GIẢ   : HiepHoon
+ *  TELEGRAM  : @Hoon9xx
+ *============================================================================*/
+
 #include "gpu/check.hpp"
 
 #include "core/error.hpp"

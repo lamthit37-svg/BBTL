@@ -1,12 +1,24 @@
-// Tệp âm thanh đã cook (.tla). Công cụ thienlong_audio đưa mọi tệp gốc (WAV, MP3 ở 22,05 hay 44,1
-// kHz) về một miền duy nhất 48 kHz: lúc chạy không còn đổi tần số. Hai kiểu tải:
-// - PCM16: hiệu ứng ngắn, nạp là dùng.
-// - Opus: hiệu ứng dài, lời thoại (giải mã một lần lúc nạp) và nhạc, ambience (phát luồng).
-// Opus nằm trong bảng gói riêng thay cho Ogg: gói thứ n bắt đầu ở khung n * packet_frames nên tua
-// và lặp không cần dò, và lúc chạy chỉ cần libopus. Đầu luồng có lead_in khung dẫn (với nhạc là
-// đuôi của chính bài) để bộ giải mã hội tụ trước khung đầu tiên: quay vòng không lách tách.
-// Bố cục nhị phân (little-endian) ghi ở docs/DINH-DANG-TLA.md. Dữ liệu đọc từ đĩa: mọi trường
-// được kiểm trước khi dùng.
+/*==============================================================================
+ *  ENGINEHP  |  HIGH-PERFORMANCE GAME ENGINE
+ *------------------------------------------------------------------------------
+ *  TỆP       : engine/audio/pack.hpp
+ *  PHÂN HỆ   : Audio / Pack
+ *  CHUẨN     : C++23
+ *------------------------------------------------------------------------------
+ *  CHỨC NĂNG
+ *  - Định dạng tệp âm thanh đã cook (.tla), một miền 48 kHz: lúc chạy không đổi
+ *    tần số. Hai kiểu tải: PCM16 (hiệu ứng ngắn) và Opus (hiệu ứng dài, lời
+ *    thoại, nhạc, ambience).
+ *  - Opus nằm trong bảng gói riêng thay Ogg: gói n bắt đầu ở khung n *
+ *    packet_frames nên tua/lặp không cần dò, lúc chạy chỉ cần libopus; lead_in
+ *    khung dẫn giúp quay vòng không lách tách.
+ *  - Bố cục nhị phân little-endian ở docs/DINH-DANG-TLA.md; mọi trường đọc từ
+ *    đĩa được kiểm trước khi dùng.
+ *------------------------------------------------------------------------------
+ *  TÁC GIẢ   : HiepHoon
+ *  TELEGRAM  : @Hoon9xx
+ *============================================================================*/
+
 #pragma once
 
 #include "audio/limits.hpp"

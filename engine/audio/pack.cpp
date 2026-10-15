@@ -1,4 +1,18 @@
-// Xem pack.hpp. Đầu tệp 24 byte, rồi bảng cỡ gói (Opus, mỗi gói một uint16), rồi vùng tải.
+/*==============================================================================
+ *  ENGINEHP  |  HIGH-PERFORMANCE GAME ENGINE
+ *------------------------------------------------------------------------------
+ *  TỆP       : engine/audio/pack.cpp
+ *  PHÂN HỆ   : Audio / Pack
+ *  CHUẨN     : C++23
+ *------------------------------------------------------------------------------
+ *  CHỨC NĂNG
+ *  - Đọc, kiểm và ghi tệp .tla: đầu tệp 24 byte, rồi bảng cỡ gói (Opus, mỗi gói
+ *    một uint16), rồi vùng tải.
+ *------------------------------------------------------------------------------
+ *  TÁC GIẢ   : HiepHoon
+ *  TELEGRAM  : @Hoon9xx
+ *============================================================================*/
+
 #include "audio/pack.hpp"
 
 #include "audio/limits.hpp"

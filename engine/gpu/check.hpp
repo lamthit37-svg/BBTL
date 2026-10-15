@@ -1,8 +1,24 @@
-// Kiểm mô tả tài nguyên và dựng chương trình shader, dùng chung cho hai backend: phép kiểm như
-// nhau ở mọi API, và hai bản chép của cùng một phép kiểm là hai chỗ để lệch. _Ref kiểm bằng ASSERT
-// (bản Release bỏ, mô tả sai đi thẳng xuống trình điều khiển); Platium kiểm lẻ trong từng backend.
-// Ở đây mô tả sai là InvalidArgument kèm tên trường, trước khi chạm API. Dùng nội bộ trong module.
-// Nguồn: Forge2 src/gpu/check.hpp@d7fcd76. Khác gốc: enumerator mang tiền tố k.
+/*==============================================================================
+ *  ENGINEHP  |  HIGH-PERFORMANCE GAME ENGINE
+ *------------------------------------------------------------------------------
+ *  TỆP       : engine/gpu/check.hpp
+ *  PHÂN HỆ   : Gpu / Check
+ *  CHUẨN     : C++23
+ *------------------------------------------------------------------------------
+ *  CHỨC NĂNG
+ *  - Kiểm mô tả tài nguyên và dựng chương trình shader, dùng chung cho hai
+ *    backend: phép kiểm như nhau ở mọi API, và hai bản chép của cùng một phép
+ *    kiểm là hai chỗ để lệch. _Ref kiểm bằng ASSERT (bản Release bỏ, mô tả sai
+ *    đi thẳng xuống trình điều khiển); Platium kiểm lẻ trong từng backend. Ở
+ *    đây mô tả sai là InvalidArgument kèm tên trường, trước khi chạm API. Dùng
+ *    nội bộ trong module.
+ *  - Nguồn: Forge2 src/gpu/check.hpp@d7fcd76. Khác gốc: enumerator mang tiền tố
+ *    k.
+ *------------------------------------------------------------------------------
+ *  TÁC GIẢ   : HiepHoon
+ *  TELEGRAM  : @Hoon9xx
+ *============================================================================*/
+
 #pragma once
 
 #include "core/error.hpp"

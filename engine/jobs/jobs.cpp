@@ -1,29 +1,50 @@
-// Điều phối việc: ai lấy job nào, khi nào ngủ, khi nào thức, khi nào xong. Hàng ở queue.cpp.
-//
-// Lấy từ VnS (src/core/jobs.cpp): đánh thức là hàng rào Dekker — bên đẩy ghi job, hàng rào seq_cst,
-// đọc số người ngủ; bên ngủ tăng số đó, hàng rào seq_cst, nhìn lại hàng; ít nhất một bên thấy bên
-// kia. Job cuối không chạm bộ đếm sau lần trừ về 0. Thợ ấm chờ 2 ms. Thêm ở Forge2:
-// - Chờ bộ đếm không đi qua epoch chung: lần trừ về 0 chỉ đánh thức bên chờ đúng bộ đếm đó. Thợ
-//   chờ lồng nhau ngủ trên ô cờ của nó, và bên đẩy việc gọi nó dậy để giúp như gọi thợ ngủ sâu.
-// - Thợ cộng dồn lượt hoàn tất của các job liên tiếp cùng bộ đếm, xả một lần khi đổi bộ đếm, khi
-//   hết việc, khi vào wait. Xả trước mọi job khác bộ đếm, nên không job nào phải chờ một lượt trừ
-//   còn giữ ở luồng đang chạy nó.
-// - wait_idle quét hàng, rồi cờ busy của thợ và số luồng đang giúp, rồi quét hàng lần nữa, cách
-//   nhau bằng hàng rào seq_cst. Thợ chỉ bật tắt cờ khi vào ra trạng thái rỗi, không phải mỗi job.
-// - Dừng drain, abandon, detach. State sống bằng shared_ptr để thợ tách rời giữ được nó; hàm huỷ
-//   của State bỏ mọi job còn sót với lỗi Cancelled.
-// Nguồn: Forge2 src/jobs/jobs.cpp@d7fcd76. Khác gốc: enumerator mang tiền tố k; check là bản của
-// THIENLONG; std::lock_guard thành std::scoped_lock (một mutex, cùng nghĩa); tham số constructor
-// trùng tên thành viên đổi tên (own_flags, thread_count); bỏ {} thừa của warm và error; tham số
-// State&, Worker& của các hàm chỉ chạm atomic qua con trỏ thành const (notify_idle, wake_everyone,
-// sleep_until_work, wait_warm, idle, mark_busy, rest, park_worker, rest_on, await_idle), biến cục
-// bộ jobs của grab thêm const; lệnh return kèm lời gọi hàm void tách làm hai; hai hàm nhận tham số
-// dễ đảo mang NOLINT kèm lý do; vòng lặp có nhánh trong thân đổi hình dạng, ghi tại
-// chỗ, từng phép đọc, ghi atomic, memory order và thứ tự của chúng giữ nguyên: CounterAccess::add,
-// steal_from (thêm steal_once), steal_any (thêm steal_unless_self), wake, spin_for_work (thêm
-// work_or_yield), spin_on (thêm done_or_relax), nth_cpu, JobSystem::wait không hạn (thêm
-// help_or_rest) và có hạn (thêm wait_step, Timed), wait_idle không hạn (thêm help_or_await) và có
-// hạn (thêm await_idle_before).
+/*==============================================================================
+ *  ENGINEHP  |  HIGH-PERFORMANCE GAME ENGINE
+ *------------------------------------------------------------------------------
+ *  TỆP       : engine/jobs/jobs.cpp
+ *  PHÂN HỆ   : Jobs / Jobs
+ *  CHUẨN     : C++23
+ *------------------------------------------------------------------------------
+ *  CHỨC NĂNG
+ *  - Điều phối việc: ai lấy job nào, khi nào ngủ, khi nào thức, khi nào xong.
+ *    Hàng ở queue.cpp.
+ *  - Lấy từ VnS (src/core/jobs.cpp): đánh thức là hàng rào Dekker — bên đẩy ghi
+ *    job, hàng rào seq_cst, đọc số người ngủ; bên ngủ tăng số đó, hàng rào
+ *    seq_cst, nhìn lại hàng; ít nhất một bên thấy bên kia. Job cuối không chạm
+ *    bộ đếm sau lần trừ về 0. Thợ ấm chờ 2 ms.
+ *  - Forge2 thêm: chờ bộ đếm không đi qua epoch chung: lần trừ về 0 chỉ đánh
+ *    thức bên chờ đúng bộ đếm đó. Thợ chờ lồng nhau ngủ trên ô cờ của nó, và
+ *    bên đẩy việc gọi nó dậy để giúp như gọi thợ ngủ sâu.
+ *  - Forge2 thêm: thợ cộng dồn lượt hoàn tất của các job liên tiếp cùng bộ đếm,
+ *    xả một lần khi đổi bộ đếm, khi hết việc, khi vào wait. Xả trước mọi job
+ *    khác bộ đếm, nên không job nào phải chờ một lượt trừ còn giữ ở luồng đang
+ *    chạy nó.
+ *  - Forge2 thêm: wait_idle quét hàng, rồi cờ busy của thợ và số luồng đang
+ *    giúp, rồi quét hàng lần nữa, cách nhau bằng hàng rào seq_cst. Thợ chỉ bật
+ *    tắt cờ khi vào ra trạng thái rỗi, không phải mỗi job.
+ *  - Forge2 thêm: dừng drain, abandon, detach. State sống bằng shared_ptr để
+ *    thợ tách rời giữ được nó; hàm huỷ của State bỏ mọi job còn sót với lỗi
+ *    Cancelled.
+ *  - Nguồn: Forge2 src/jobs/jobs.cpp@d7fcd76. Khác gốc: enumerator mang tiền tố
+ *    k; check là bản của THIENLONG; std::lock_guard thành std::scoped_lock (một
+ *    mutex, cùng nghĩa); tham số constructor trùng tên thành viên đổi tên
+ *    (own_flags, thread_count); bỏ {} thừa của warm và error; tham số State&,
+ *    Worker& của các hàm chỉ chạm atomic qua con trỏ thành const (notify_idle,
+ *    wake_everyone, sleep_until_work, wait_warm, idle, mark_busy, rest,
+ *    park_worker, rest_on, await_idle), biến cục bộ jobs của grab thêm const;
+ *    lệnh return kèm lời gọi hàm void tách làm hai; hai hàm nhận tham số dễ đảo
+ *    mang NOLINT kèm lý do.
+ *  - Khác gốc (tiếp): vòng lặp có nhánh trong thân đổi hình dạng, ghi tại chỗ,
+ *    từng phép đọc, ghi atomic, memory order và thứ tự của chúng giữ nguyên:
+ *    CounterAccess::add, steal_from (thêm steal_once), steal_any (thêm
+ *    steal_unless_self), wake, spin_for_work (thêm work_or_yield), spin_on
+ *    (thêm done_or_relax), nth_cpu, JobSystem::wait không hạn (thêm
+ *    help_or_rest) và có hạn (thêm wait_step, Timed), wait_idle không hạn (thêm
+ *    help_or_await) và có hạn (thêm await_idle_before).
+ *------------------------------------------------------------------------------
+ *  TÁC GIẢ   : HiepHoon
+ *  TELEGRAM  : @Hoon9xx
+ *============================================================================*/
 
 #include "jobs/jobs.hpp"
 

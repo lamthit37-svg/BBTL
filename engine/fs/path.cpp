@@ -1,10 +1,26 @@
-// Chuẩn hoá theo từng đoạn thay cho con trỏ chạy lùi của fsNormalizePathContinue (gốc lùi con trỏ
-// tới trước đầu bộ đệm và lấy UINTPTR_MAX làm cuối bộ đệm, cả hai là UB). Kết quả trùng gốc trên
-// mọi đường dẫn tương đối; bài đo bench/fs đối chiếu hai bản trên cùng bộ mẫu.
-// Nguồn: Forge2 src/fs/path.cpp@d7fcd76. Khác gốc (so với Forge2): check là bản của THIENLONG; thân
-// vòng lặp của resolve tách thành end_segment với trạng thái trong Splitter; câu if trong vòng của
-// assemble thành append có số lần 0 hoặc 1 (ghi tại chỗ); tham số c của is_letter thành unit; bỏ {}
-// thừa của Segments::parts; return kèm lời gọi hàm void tách làm hai.
+/*==============================================================================
+ *  ENGINEHP  |  HIGH-PERFORMANCE GAME ENGINE
+ *------------------------------------------------------------------------------
+ *  TỆP       : engine/fs/path.cpp
+ *  PHÂN HỆ   : Fs / Path
+ *  CHUẨN     : C++23
+ *------------------------------------------------------------------------------
+ *  CHỨC NĂNG
+ *  - Cài đặt fs/path.hpp.
+ *  - Chuẩn hoá theo từng đoạn thay cho con trỏ chạy lùi của
+ *    fsNormalizePathContinue (gốc lùi con trỏ tới trước đầu bộ đệm và lấy
+ *    UINTPTR_MAX làm cuối bộ đệm, cả hai là UB). Kết quả trùng gốc trên mọi
+ *    đường dẫn tương đối; bài đo bench/fs đối chiếu hai bản trên cùng bộ mẫu.
+ *  - Nguồn: Forge2 src/fs/path.cpp@d7fcd76. Khác gốc (so với Forge2): check là
+ *    bản của THIENLONG; thân vòng lặp của resolve tách thành end_segment với
+ *    trạng thái trong Splitter; câu if trong vòng của assemble thành append có
+ *    số lần 0 hoặc 1 (ghi tại chỗ); tham số c của is_letter thành unit; bỏ {}
+ *    thừa của Segments::parts; return kèm lời gọi hàm void tách làm hai.
+ *------------------------------------------------------------------------------
+ *  TÁC GIẢ   : HiepHoon
+ *  TELEGRAM  : @Hoon9xx
+ *============================================================================*/
+
 #include "fs/path.hpp"
 
 #include "core/check.hpp"

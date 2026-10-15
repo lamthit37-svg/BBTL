@@ -1,10 +1,26 @@
-// Kiểm hợp đồng cho mọi module: check luôn bật, kể cả bản phát hành; debug_check chỉ chạy khi
-// định nghĩa GAME_DEBUG_CHECKS; fail dừng vô điều kiện; assume hứa với trình dịch một điều đã
-// chứng minh. Điều kiện sai thì in file:dòng rồi std::abort() — fail-fast: trạng thái hỏng không
-// được đi tiếp thành UB, gói tin rác hay bản ghi bẩn trong cơ sở dữ liệu.
-// - constexpr: vi phạm khi tính hằng biểu thức thành lỗi biên dịch (check_failed không constexpr);
-// - noexcept, không cấp phát: gọi được trong hàm noexcept và trên đường nóng;
-// - nhánh lỗi nằm trong hàm [[noreturn]] riêng, nơi gọi chỉ còn một phép so và một bước nhảy.
+/*==============================================================================
+ *  ENGINEHP  |  HIGH-PERFORMANCE GAME ENGINE
+ *------------------------------------------------------------------------------
+ *  TỆP       : engine/core/check.hpp
+ *  PHÂN HỆ   : Core / Check
+ *  CHUẨN     : C++23
+ *------------------------------------------------------------------------------
+ *  CHỨC NĂNG
+ *  - Kiểm hợp đồng cho mọi module: check luôn bật, kể cả bản phát hành;
+ *    debug_check chỉ chạy khi định nghĩa GAME_DEBUG_CHECKS; fail dừng vô điều
+ *    kiện; assume hứa với trình dịch một điều đã chứng minh. Điều kiện sai thì
+ *    in file:dòng rồi std::abort() — fail-fast: trạng thái hỏng không được đi
+ *    tiếp thành UB, gói tin rác hay bản ghi bẩn trong cơ sở dữ liệu.
+ *  - constexpr: vi phạm khi tính hằng biểu thức thành lỗi biên dịch
+ *    (check_failed không constexpr);
+ *  - noexcept, không cấp phát: gọi được trong hàm noexcept và trên đường nóng;
+ *  - nhánh lỗi nằm trong hàm [[noreturn]] riêng, nơi gọi chỉ còn một phép so và
+ *    một bước nhảy.
+ *------------------------------------------------------------------------------
+ *  TÁC GIẢ   : HiepHoon
+ *  TELEGRAM  : @Hoon9xx
+ *============================================================================*/
+
 #pragma once
 
 #include <cstdio>

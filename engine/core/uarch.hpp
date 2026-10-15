@@ -1,8 +1,22 @@
-// Tên vi kiến trúc từ họ, model, stepping của CPUID — GetX86Microarchitecture của cpu_features mà
-// CPUConfig (_Ref) chép vào gốc. Bảng của _Ref dừng ở Zen 3 và Raptor Lake đời đầu; bảng ở đây theo
-// arch/x86/include/asm/intel-family.h và arch/x86/kernel/cpu/amd.c của Linux cùng cpu_features bản
-// 2026, tra ngày 2026-10-01.
-// Nguồn: Forge2 src/core/uarch.hpp@d7fcd76. Khác gốc: không.
+/*==============================================================================
+ *  ENGINEHP  |  HIGH-PERFORMANCE GAME ENGINE
+ *------------------------------------------------------------------------------
+ *  TỆP       : engine/core/uarch.hpp
+ *  PHÂN HỆ   : Core / Uarch
+ *  CHUẨN     : C++23
+ *------------------------------------------------------------------------------
+ *  CHỨC NĂNG
+ *  - Tên vi kiến trúc từ họ, model, stepping của CPUID —
+ *    GetX86Microarchitecture của cpu_features mà CPUConfig (_Ref) chép vào gốc.
+ *    Bảng của _Ref dừng ở Zen 3 và Raptor Lake đời đầu; bảng ở đây theo
+ *    arch/x86/include/asm/intel-family.h và arch/x86/kernel/cpu/amd.c của Linux
+ *    cùng cpu_features bản 2026, tra ngày 2026-10-01.
+ *  - Nguồn: Forge2 src/core/uarch.hpp@d7fcd76. Khác gốc: không.
+ *------------------------------------------------------------------------------
+ *  TÁC GIẢ   : HiepHoon
+ *  TELEGRAM  : @Hoon9xx
+ *============================================================================*/
+
 #pragma once
 
 #include <cstdint>

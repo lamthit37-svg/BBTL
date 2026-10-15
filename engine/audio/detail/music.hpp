@@ -1,8 +1,23 @@
-// Nhạc luồng. Mỗi bàn giữ một tệp nén, bộ giải mã, bộ đổi tần số và một vòng đệm 48 kHz stereo.
-// Ba vai, mỗi vai một luồng: luồng gọi API nạp byte vào bàn trống; luồng giải mã (hoặc pump() gọi
-// thẳng khi không có thiết bị) mở bộ giải mã, giữ vòng đệm đầy và thu dọn bàn đã trả; bộ trộn chỉ
-// đọc vòng đệm và trả bàn. Trạng thái bàn là một atomic và mỗi bước chuyển chỉ một vai được làm,
-// nên không cần khoá và bộ trộn không bao giờ chờ việc giải mã.
+/*==============================================================================
+ *  ENGINEHP  |  HIGH-PERFORMANCE GAME ENGINE
+ *------------------------------------------------------------------------------
+ *  TỆP       : engine/audio/detail/music.hpp
+ *  PHÂN HỆ   : Audio / Music
+ *  CHUẨN     : C++23
+ *------------------------------------------------------------------------------
+ *  CHỨC NĂNG
+ *  - Nhạc luồng: mỗi bàn giữ tệp nén, bộ giải mã, bộ đổi tần số và vòng đệm 48
+ *    kHz stereo.
+ *  - Ba vai, mỗi vai một luồng: luồng API nạp byte vào bàn trống; luồng giải mã
+ *    (hoặc pump() khi không có thiết bị) mở bộ giải mã, giữ vòng đệm đầy, thu
+ *    dọn bàn; bộ trộn chỉ đọc và trả bàn.
+ *  - Trạng thái bàn là một atomic và mỗi bước chuyển chỉ một vai được làm, nên
+ *    không cần khoá và bộ trộn không bao giờ chờ việc giải mã.
+ *------------------------------------------------------------------------------
+ *  TÁC GIẢ   : HiepHoon
+ *  TELEGRAM  : @Hoon9xx
+ *============================================================================*/
+
 #pragma once
 
 #include <cstddef>

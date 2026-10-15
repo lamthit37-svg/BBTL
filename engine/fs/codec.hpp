@@ -1,11 +1,25 @@
-// Nén, giải nén và băm khối cho archive — gói lz4, zstd, xxhash (vcpkg) sau một mặt phẳng nhỏ:
-// archive không gọi thẳng thư viện ngoài, và checksum chuyển được xuống core sau này mà không đổi
-// định dạng. Ngữ cảnh zstd và trạng thái lz4 là thread_local, dùng lại giữa mọi lần gọi (gốc cấp
-// một ZSTD_DCtx cho mỗi mục mở, bộ ghi một ZSTD_CCtx mỗi luồng). Mức nén giữ luật của bộ ghi buny:
-// lz4 mặc định HC 9, mức <= 0 là chế độ nhanh với acceleration = -mức, 1 và 2 kẹp lên 3; zstd mặc
-// định 3.
-// Nguồn: Forge2 src/fs/codec.hpp@d7fcd76. Khác gốc: hết bộ nhớ cho trạng thái XXH3 thì core::check,
-// không ném std::bad_alloc.
+/*==============================================================================
+ *  ENGINEHP  |  HIGH-PERFORMANCE GAME ENGINE
+ *------------------------------------------------------------------------------
+ *  TỆP       : engine/fs/codec.hpp
+ *  PHÂN HỆ   : Fs / Codec
+ *  CHUẨN     : C++23
+ *------------------------------------------------------------------------------
+ *  CHỨC NĂNG
+ *  - Nén, giải nén và băm khối cho archive — gói lz4, zstd, xxhash (vcpkg) sau
+ *    một mặt phẳng nhỏ: archive không gọi thẳng thư viện ngoài, và checksum
+ *    chuyển được xuống core sau này mà không đổi định dạng. Ngữ cảnh zstd và
+ *    trạng thái lz4 là thread_local, dùng lại giữa mọi lần gọi (gốc cấp một
+ *    ZSTD_DCtx cho mỗi mục mở, bộ ghi một ZSTD_CCtx mỗi luồng). Mức nén giữ
+ *    luật của bộ ghi buny: lz4 mặc định HC 9, mức <= 0 là chế độ nhanh với
+ *    acceleration = -mức, 1 và 2 kẹp lên 3; zstd mặc định 3.
+ *  - Nguồn: Forge2 src/fs/codec.hpp@d7fcd76. Khác gốc: hết bộ nhớ cho trạng
+ *    thái XXH3 thì core::check, không ném std::bad_alloc.
+ *------------------------------------------------------------------------------
+ *  TÁC GIẢ   : HiepHoon
+ *  TELEGRAM  : @Hoon9xx
+ *============================================================================*/
+
 #pragma once
 
 #include "fs/buny.hpp"

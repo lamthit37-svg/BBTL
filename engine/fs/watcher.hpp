@@ -1,11 +1,25 @@
-// Theo dõi thư mục — thay fsCreateFileWatcher/fsFreeFileWatcher (WindowsToolsFileSystem.cpp) của
-// _Ref. Gốc: tên dài hơn 99 byte UTF-8 làm luồng quay vô hạn 100% CPU; tràn bộ đệm 1 KiB thì đọc
-// lại bộ đệm cũ; đóng handle khi I/O overlapped còn treo; thư mục không mở được vẫn trả watcher như
-// thường. Ở đây: bộ đệm 64 KiB căn DWORD, tràn thì báo Change::kOverflow để người dùng quét lại,
-// dừng bằng CancelIoEx rồi chờ I/O xong, lỗi mở trả qua Result. Đổi tên báo thành Deleted rồi
-// Created như gốc.
-// Nguồn: Forge2 src/fs/watcher.hpp@d7fcd76. Khác gốc (so với Forge2): bỏ include <functional> mà
-// header không dùng trực tiếp.
+/*==============================================================================
+ *  ENGINEHP  |  HIGH-PERFORMANCE GAME ENGINE
+ *------------------------------------------------------------------------------
+ *  TỆP       : engine/fs/watcher.hpp
+ *  PHÂN HỆ   : Fs / Watcher
+ *  CHUẨN     : C++23
+ *------------------------------------------------------------------------------
+ *  CHỨC NĂNG
+ *  - Theo dõi thư mục — thay fsCreateFileWatcher/fsFreeFileWatcher
+ *    (WindowsToolsFileSystem.cpp) của _Ref. Gốc: tên dài hơn 99 byte UTF-8 làm
+ *    luồng quay vô hạn 100% CPU; tràn bộ đệm 1 KiB thì đọc lại bộ đệm cũ; đóng
+ *    handle khi I/O overlapped còn treo; thư mục không mở được vẫn trả watcher
+ *    như thường. Ở đây: bộ đệm 64 KiB căn DWORD, tràn thì báo Change::kOverflow
+ *    để người dùng quét lại, dừng bằng CancelIoEx rồi chờ I/O xong, lỗi mở trả
+ *    qua Result. Đổi tên báo thành Deleted rồi Created như gốc.
+ *  - Nguồn: Forge2 src/fs/watcher.hpp@d7fcd76. Khác gốc (so với Forge2): bỏ
+ *    include <functional> mà header không dùng trực tiếp.
+ *------------------------------------------------------------------------------
+ *  TÁC GIẢ   : HiepHoon
+ *  TELEGRAM  : @Hoon9xx
+ *============================================================================*/
+
 #pragma once
 
 #include "core/function.hpp"

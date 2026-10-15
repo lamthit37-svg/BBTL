@@ -1,6 +1,19 @@
-// Vòng đệm khung stereo float cho đúng một luồng ghi và một luồng đọc, không khoá. Luồng giải mã
-// nhạc ghi, bộ trộn (callback thiết bị) đọc. Chép theo đoạn liền, không theo từng khung: bộ trộn
-// trả giá hai lần chép cho một khối dù thiết bị xin bao nhiêu khung.
+/*==============================================================================
+ *  ENGINEHP  |  HIGH-PERFORMANCE GAME ENGINE
+ *------------------------------------------------------------------------------
+ *  TỆP       : engine/audio/ring.hpp
+ *  PHÂN HỆ   : Audio / Ring
+ *  CHUẨN     : C++23
+ *------------------------------------------------------------------------------
+ *  CHỨC NĂNG
+ *  - Vòng đệm khung stereo float không khoá cho đúng một luồng ghi (giải mã
+ *    nhạc) và một luồng đọc (bộ trộn trong callback).
+ *  - Chép theo đoạn liền, không theo từng khung: tối đa hai lần chép mỗi khối.
+ *------------------------------------------------------------------------------
+ *  TÁC GIẢ   : HiepHoon
+ *  TELEGRAM  : @Hoon9xx
+ *============================================================================*/
+
 #pragma once
 
 #include "core/check.hpp"

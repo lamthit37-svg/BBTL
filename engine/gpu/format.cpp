@@ -1,6 +1,20 @@
-// Tên chữ của enum Format, và chiều ngược từ chuỗi về giá trị.
-// kNames cùng thứ tự enum; chỉ số lạ trả "unknown", tên lạ trả nullopt.
-// Nguồn: Forge2 src/gpu/format.cpp@d7fcd76. Khác gốc: không.
+/*==============================================================================
+ *  ENGINEHP  |  HIGH-PERFORMANCE GAME ENGINE
+ *------------------------------------------------------------------------------
+ *  TỆP       : engine/gpu/format.cpp
+ *  PHÂN HỆ   : Gpu / Format
+ *  CHUẨN     : C++23
+ *------------------------------------------------------------------------------
+ *  CHỨC NĂNG
+ *  - Cài đặt gpu/format.hpp.
+ *  - Tên chữ của enum Format, và chiều ngược từ chuỗi về giá trị. kNames cùng
+ *    thứ tự enum; chỉ số lạ trả "unknown", tên lạ trả nullopt.
+ *  - Nguồn: Forge2 src/gpu/format.cpp@d7fcd76. Khác gốc: không.
+ *------------------------------------------------------------------------------
+ *  TÁC GIẢ   : HiepHoon
+ *  TELEGRAM  : @Hoon9xx
+ *============================================================================*/
+
 #include "gpu/format.hpp"
 
 #include <algorithm>

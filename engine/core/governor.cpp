@@ -1,3 +1,20 @@
+/*==============================================================================
+ *  ENGINEHP  |  HIGH-PERFORMANCE GAME ENGINE
+ *------------------------------------------------------------------------------
+ *  TỆP       : engine/core/governor.cpp
+ *  PHÂN HỆ   : Core / Governor
+ *  CHUẨN     : C++23
+ *------------------------------------------------------------------------------
+ *  CHỨC NĂNG
+ *  - Cài đặt RateGovernor (core/governor.hpp): dựng các mức trần từ tần số
+ *    quét, đếm khung trễ và khung nặng theo cửa sổ, lùi mức khi trễ, thăm dò
+ *    lên khi vững và còn dư sức, lùi gấp đôi thời gian chờ sau lần thăm dò
+ *    hỏng.
+ *------------------------------------------------------------------------------
+ *  TÁC GIẢ   : HiepHoon
+ *  TELEGRAM  : @Hoon9xx
+ *============================================================================*/
+
 #include "core/governor.hpp"
 
 #include <algorithm>

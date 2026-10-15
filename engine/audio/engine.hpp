@@ -1,8 +1,24 @@
-// Bộ phát nhạc và hiệu ứng. Một luồng gọi API. Bộ trộn chạy ngay trong callback của thiết bị nên
-// thiết bị xin bao nhiêu khung cũng có đủ; callback không khoá, không cấp phát, không giải mã.
-// Nhạc giải mã ở luồng riêng vào vòng đệm. Mọi thứ trộn ở 48 kHz; tệp và thiết bị ở tần số khác
-// đi qua audio/resample.hpp. Đầu ra qua bộ hạn biên, không cắt cụt.
-// Thiết bị lỗi thì open vẫn thành công: client chạy tiếp, device_is_open báo không có loa.
+/*==============================================================================
+ *  ENGINEHP  |  HIGH-PERFORMANCE GAME ENGINE
+ *------------------------------------------------------------------------------
+ *  TỆP       : engine/audio/engine.hpp
+ *  PHÂN HỆ   : Audio / Engine
+ *  CHUẨN     : C++23
+ *------------------------------------------------------------------------------
+ *  CHỨC NĂNG
+ *  - API bộ phát nhạc và hiệu ứng; một luồng gọi API.
+ *  - Bộ trộn chạy ngay trong callback thiết bị (không khoá, không cấp phát,
+ *    không giải mã) nên thiết bị xin bao nhiêu khung cũng đủ; nhạc giải mã ở
+ *    luồng riêng vào vòng đệm.
+ *  - Trộn ở 48 kHz, tệp và thiết bị khác tần số đi qua audio/resample.hpp; đầu
+ *    ra qua bộ hạn biên, không cắt cụt.
+ *  - Thiết bị lỗi thì open vẫn thành công: client chạy tiếp, device_is_open báo
+ *    không có loa.
+ *------------------------------------------------------------------------------
+ *  TÁC GIẢ   : HiepHoon
+ *  TELEGRAM  : @Hoon9xx
+ *============================================================================*/
+
 #pragma once
 
 #include "audio/gain.hpp"

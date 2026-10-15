@@ -1,9 +1,26 @@
-// Bộ chọn trần khung hình theo năng lực đo được của máy, cho vòng vẽ không có ngân sách cố định (điện thoại, máy tính
-// bảng). Màn 120 Hz không có nghĩa máy vẽ nổi 120 khung: vẽ không kịp thì mỗi khung trễ kéo giật cả cảnh, nên trần bắt đầu
-// ở mức vững (tối đa 60) rồi mới thăm dò lên các mức cao hơn khi khung đo được còn dư sức, và lùi xuống khi trễ.
-// Quyết định: các mức là phần nguyên của tần số quét (refresh, refresh/2, /3, /4; không dưới 30) để mỗi khung rơi đúng nhịp
-// quét, không xen kẽ nhịp dài nhịp ngắn như 90 fps trên màn 120 Hz. Phán xét theo cửa sổ khung, không theo giây, nên không
-// phụ thuộc đồng hồ và kiểm được bằng số liệu giả. Thăm dò hỏng thì lần thử lại kế tiếp lùi gấp đôi (tối đa 16 cửa sổ).
+/*==============================================================================
+ *  ENGINEHP  |  HIGH-PERFORMANCE GAME ENGINE
+ *------------------------------------------------------------------------------
+ *  TỆP       : engine/core/governor.hpp
+ *  PHÂN HỆ   : Core / Governor
+ *  CHUẨN     : C++23
+ *------------------------------------------------------------------------------
+ *  CHỨC NĂNG
+ *  - Bộ chọn trần khung hình theo năng lực đo được của máy, cho vòng vẽ không
+ *    có ngân sách cố định (điện thoại, máy tính bảng). Màn 120 Hz không có
+ *    nghĩa máy vẽ nổi 120 khung: vẽ không kịp thì mỗi khung trễ kéo giật cả
+ *    cảnh, nên trần bắt đầu ở mức vững (tối đa 60) rồi mới thăm dò lên các mức
+ *    cao hơn khi khung đo được còn dư sức, và lùi xuống khi trễ. Quyết định:
+ *    các mức là phần nguyên của tần số quét (refresh, refresh/2, /3, /4; không
+ *    dưới 30) để mỗi khung rơi đúng nhịp quét, không xen kẽ nhịp dài nhịp ngắn
+ *    như 90 fps trên màn 120 Hz. Phán xét theo cửa sổ khung, không theo giây,
+ *    nên không phụ thuộc đồng hồ và kiểm được bằng số liệu giả. Thăm dò hỏng
+ *    thì lần thử lại kế tiếp lùi gấp đôi (tối đa 16 cửa sổ).
+ *------------------------------------------------------------------------------
+ *  TÁC GIẢ   : HiepHoon
+ *  TELEGRAM  : @Hoon9xx
+ *============================================================================*/
+
 #pragma once
 
 #include <array>

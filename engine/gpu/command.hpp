@@ -1,17 +1,37 @@
-// Danh sách lệnh: ghi lệnh cho GPU, chưa thực thi — Cmd và các hàm cmd* của IGraphics.h trong _Ref,
-// rhi/command.hpp của Platium, phần lệnh của GraphicsDevice trong Wicked. Device cấp một
-// CommandList cho một luồng, luồng ghi xong thì nộp (Device::submit), Device thu hồi khi GPU chạy
-// xong; chỗ gọi không huỷ và không giữ qua lần nộp. Một CommandList thuộc đúng một luồng: nhiều
-// luồng ghi song song thì mỗi luồng xin một cái. Khác gốc:
-// - không begin/end tay và không pool lệnh lộ ra ngoài (initCmdPool, beginCmd, endCmd của _Ref);
-// - vẽ vào attachment khai tại chỗ, load và store bắt khai, resolve đa mẫu ngay trong lần vẽ;
-// - buffer đỉnh không nhận bước: bước nằm trong pipeline (gốc khai ở cả hai nơi, lệch là sai câm);
-// - kết quả truy vấn phải resolve bằng lệnh rồi mới đọc (D3D12 đòi; Vulkan bỏ qua lệnh ấy).
-// Lệnh ghi sai (tay nắm chết, thiếu cờ, sai trạng thái) không đi xuống trình điều khiển: lỗi đầu
-// tiên được giữ lại, các lệnh sau của danh sách bị bỏ, và Device::submit trả lỗi ấy. Trạng thái
-// động khi danh sách mới mở: stencil reference 0, hằng trộn 0, khoảng độ sâu [0, 1].
-// Nguồn: Forge2 src/gpu/command.hpp@d7fcd76. Khác gốc (so với Forge2): enumerator mang tiền tố k;
-// bỏ {} thừa của RenderingDesc::colors và RenderingDesc::depth.
+/*==============================================================================
+ *  ENGINEHP  |  HIGH-PERFORMANCE GAME ENGINE
+ *------------------------------------------------------------------------------
+ *  TỆP       : engine/gpu/command.hpp
+ *  PHÂN HỆ   : Gpu / Command
+ *  CHUẨN     : C++23
+ *------------------------------------------------------------------------------
+ *  CHỨC NĂNG
+ *  - Danh sách lệnh: ghi lệnh cho GPU, chưa thực thi — Cmd và các hàm cmd* của
+ *    IGraphics.h trong _Ref, rhi/command.hpp của Platium, phần lệnh của
+ *    GraphicsDevice trong Wicked. Device cấp một CommandList cho một luồng,
+ *    luồng ghi xong thì nộp (Device::submit), Device thu hồi khi GPU chạy xong;
+ *    chỗ gọi không huỷ và không giữ qua lần nộp. Một CommandList thuộc đúng một
+ *    luồng: nhiều luồng ghi song song thì mỗi luồng xin một cái. Khác gốc:
+ *  - không begin/end tay và không pool lệnh lộ ra ngoài (initCmdPool, beginCmd,
+ *    endCmd của _Ref);
+ *  - vẽ vào attachment khai tại chỗ, load và store bắt khai, resolve đa mẫu
+ *    ngay trong lần vẽ;
+ *  - buffer đỉnh không nhận bước: bước nằm trong pipeline (gốc khai ở cả hai
+ *    nơi, lệch là sai câm);
+ *  - kết quả truy vấn phải resolve bằng lệnh rồi mới đọc (D3D12 đòi; Vulkan bỏ
+ *    qua lệnh ấy).
+ *  - Lệnh ghi sai (tay nắm chết, thiếu cờ, sai trạng thái) không đi xuống trình
+ *    điều khiển: lỗi đầu tiên được giữ lại, các lệnh sau của danh sách bị bỏ,
+ *    và Device::submit trả lỗi ấy. Trạng thái động khi danh sách mới mở:
+ *    stencil reference 0, hằng trộn 0, khoảng độ sâu [0, 1].
+ *  - Nguồn: Forge2 src/gpu/command.hpp@d7fcd76. Khác gốc (so với Forge2):
+ *    enumerator mang tiền tố k; bỏ {} thừa của RenderingDesc::colors và
+ *    RenderingDesc::depth.
+ *------------------------------------------------------------------------------
+ *  TÁC GIẢ   : HiepHoon
+ *  TELEGRAM  : @Hoon9xx
+ *============================================================================*/
+
 #pragma once
 
 #include "gpu/barrier.hpp"

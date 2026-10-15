@@ -36,7 +36,8 @@
 - PHÂN HỆ do người viết sửa tay được (công cụ giữ nguyên khi khung đã có); khi tạo mới thì suy từ đường dẫn.
 - Tên sản phẩm (dòng 2) theo thư mục: engine/ là ENGINEHP, còn lại là THIENLONG kèm phần của dự án (client, server...).
 
-Bộ sinh mã (gen_protocol.py, config_style.py) gọi render_frame() để tệp sinh ra đã đúng khung.
+Tệp sinh bởi bộ sinh mã chưa mang khung (gen_protocol.py hiện ghi comment thường):
+muốn check xanh thì bộ sinh phải gọi render_frame(), hoặc đưa đầu ra của nó vào EXCLUDED_PREFIXES.
 """
 from __future__ import annotations
 

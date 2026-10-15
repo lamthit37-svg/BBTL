@@ -1,5 +1,20 @@
-// Nén deflate theo RFC 1951 cho dòng zlib của PNG.
-// Chuỗi lặp ngắn nhất bộ dò nhận là 4 byte, dù định dạng cho phép chuỗi 3 byte.
+/*==============================================================================
+ *  ENGINEHP  |  HIGH-PERFORMANCE GAME ENGINE
+ *------------------------------------------------------------------------------
+ *  TỆP       : engine/capture/deflate.cpp
+ *  PHÂN HỆ   : Capture / Deflate
+ *  CHUẨN     : C++23
+ *------------------------------------------------------------------------------
+ *  CHỨC NĂNG
+ *  - Cài đặt nén deflate theo RFC 1951 cho dòng zlib của PNG, cùng Adler-32 và
+ *    CRC-32.
+ *  - Chuỗi lặp ngắn nhất bộ dò nhận là 4 byte, dù định dạng cho phép chuỗi 3
+ *    byte.
+ *------------------------------------------------------------------------------
+ *  TÁC GIẢ   : HiepHoon
+ *  TELEGRAM  : @Hoon9xx
+ *============================================================================*/
+
 #include "capture/deflate.hpp"
 
 #include <algorithm>

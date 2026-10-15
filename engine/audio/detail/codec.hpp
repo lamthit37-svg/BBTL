@@ -1,6 +1,20 @@
-// Mã hoá và giải mã tệp cook (audio/pack.hpp). libopus chỉ có trong codec.cpp. Bản build không có
-// libopus (GAME_AUDIO_OPUS không được định nghĩa: preset GCC không lấy được gói vcpkg) vẫn đọc được
-// tệp PCM; tệp Opus báo kUnsupported.
+/*==============================================================================
+ *  ENGINEHP  |  HIGH-PERFORMANCE GAME ENGINE
+ *------------------------------------------------------------------------------
+ *  TỆP       : engine/audio/detail/codec.hpp
+ *  PHÂN HỆ   : Audio / Codec
+ *  CHUẨN     : C++23
+ *------------------------------------------------------------------------------
+ *  CHỨC NĂNG
+ *  - Mã hoá và giải mã tệp cook (audio/pack.hpp); libopus chỉ có trong
+ *    codec.cpp.
+ *  - Bản build không có libopus (thiếu GAME_AUDIO_OPUS, ví dụ preset GCC) vẫn
+ *    đọc được tệp PCM; tệp Opus báo kUnsupported.
+ *------------------------------------------------------------------------------
+ *  TÁC GIẢ   : HiepHoon
+ *  TELEGRAM  : @Hoon9xx
+ *============================================================================*/
+
 #pragma once
 
 #include "audio/detail/native.hpp"

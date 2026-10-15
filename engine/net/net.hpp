@@ -1,13 +1,23 @@
+/*==============================================================================
+ *  ENGINEHP  |  HIGH-PERFORMANCE GAME ENGINE
+ *------------------------------------------------------------------------------
+ *  TỆP       : engine/net/net.hpp
+ *  PHÂN HỆ   : Net
+ *  CHUẨN     : C++23
+ *------------------------------------------------------------------------------
+ *  CHỨC NĂNG
+ *  - Hợp đồng TCP chung của máy chủ và client, không lộ kiểu hệ điều hành
+ *    (header mạng chỉ ở socket_win32/socket_posix).
+ *  - Socket không chặn từ lúc tạo, chặn duy nhất ở PollSet::wait có hạn; chỉ
+ *    IPv4, không phân giải tên; bật TCP_NODELAY; đóng êm do bên gọi.
+ *  - TLBB Dev src/platform/socket*; khác: Endpoint, accept trả Endpoint, nối
+ *    hai bước, thêm abort/local/nodelay, bỏ poll rời.
+ *------------------------------------------------------------------------------
+ *  TÁC GIẢ   : HiepHoon
+ *  TELEGRAM  : @Hoon9xx
+ *============================================================================*/
+
 #pragma once
-// Socket TCP không chặn và tập chờ của máy chủ. Header này không lộ kiểu nào của hệ điều hành;
-// header mạng của hệ điều hành chỉ nằm trong socket_win32.cpp và socket_posix.cpp.
-// Quyết định: mọi socket không chặn từ lúc tạo, lời gọi chặn duy nhất là PollSet::wait có hạn;
-// chỉ IPv4, địa chỉ đọc bằng inet_pton, không phân giải tên; mọi luồng bật TCP_NODELAY; đóng êm
-// là việc của bên gọi (gửi, shutdown_send, nhận tới kClosed).
-// Nguồn: TLBB Dev src/platform/socket.hpp, socket.cpp, socket_win32.cpp, socket_posix.cpp.
-// Khác gốc: namespace game::net, tên lỗi kCamelCase; Endpoint thay cặp chuỗi host và cổng;
-// accept trả kèm Endpoint bên kia; chỉ có nối hai bước (bỏ connect chặn và getaddrinfo); thêm
-// abort (RST), local, nodelay; bỏ hàm poll rời, chỉ giữ PollSet.
 
 #include <array>
 #include <chrono>

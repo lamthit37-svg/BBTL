@@ -1,10 +1,26 @@
-// Định dạng điểm ảnh của tầng đồ hoạ và số học bố cục của chúng (bước dòng, số hàng khối, cỡ một
-// mức mip). Thay TinyImageFormat của _Ref (bảng sinh máy 239 định dạng) và Format của Wicked bằng
-// tập có ánh xạ sang cả VkFormat lẫn DXGI_FORMAT; riêng ETC2, EAC và ASTC chỉ Vulkan có (GPU điện
-// thoại), D3D12 báo không hỗ trợ qua Device::format_support. Platium chỉ có 31 định dạng và không
-// có nhánh mobile. Hàm ở đây là constexpr và không phụ thuộc backend, nên pipeline asset tính cỡ
-// dữ liệu bằng đúng công thức mà tầng đồ hoạ dùng lúc chép.
-// Nguồn: Forge2 src/gpu/format.hpp@d7fcd76. Khác gốc: enumerator mang tiền tố k.
+/*==============================================================================
+ *  ENGINEHP  |  HIGH-PERFORMANCE GAME ENGINE
+ *------------------------------------------------------------------------------
+ *  TỆP       : engine/gpu/format.hpp
+ *  PHÂN HỆ   : Gpu / Format
+ *  CHUẨN     : C++23
+ *------------------------------------------------------------------------------
+ *  CHỨC NĂNG
+ *  - Định dạng điểm ảnh của tầng đồ hoạ và số học bố cục của chúng (bước dòng,
+ *    số hàng khối, cỡ một mức mip). Thay TinyImageFormat của _Ref (bảng sinh
+ *    máy 239 định dạng) và Format của Wicked bằng tập có ánh xạ sang cả
+ *    VkFormat lẫn DXGI_FORMAT; riêng ETC2, EAC và ASTC chỉ Vulkan có (GPU điện
+ *    thoại), D3D12 báo không hỗ trợ qua Device::format_support. Platium chỉ có
+ *    31 định dạng và không có nhánh mobile. Hàm ở đây là constexpr và không phụ
+ *    thuộc backend, nên pipeline asset tính cỡ dữ liệu bằng đúng công thức mà
+ *    tầng đồ hoạ dùng lúc chép.
+ *  - Nguồn: Forge2 src/gpu/format.hpp@d7fcd76. Khác gốc: enumerator mang tiền
+ *    tố k.
+ *------------------------------------------------------------------------------
+ *  TÁC GIẢ   : HiepHoon
+ *  TELEGRAM  : @Hoon9xx
+ *============================================================================*/
+
 #pragma once
 
 #include "gpu/types.hpp"

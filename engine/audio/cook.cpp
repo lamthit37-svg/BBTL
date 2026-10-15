@@ -1,6 +1,21 @@
-// Xem cook.hpp. Bitrate chọn theo hướng giữ tiếng: nguồn đã là MP3 (nhạc gốc 192 kbit/s) nên mã lại
-// ở mức thấp sẽ cộng méo của hai bộ mã. Sin thuần qua Opus 160 kbit/s đo được phần lạ -44 dB, ở 96
-// kbit/s là -38 dB; nhạc thật che phần đó tốt hơn sin nhiều.
+/*==============================================================================
+ *  ENGINEHP  |  HIGH-PERFORMANCE GAME ENGINE
+ *------------------------------------------------------------------------------
+ *  TỆP       : engine/audio/cook.cpp
+ *  PHÂN HỆ   : Audio / Cook
+ *  CHUẨN     : C++23
+ *------------------------------------------------------------------------------
+ *  CHỨC NĂNG
+ *  - Cài đặt cook: giải mã, đổi tần số về 48 kHz, chọn PCM16 hay Opus và ghi
+ *    gói .tla.
+ *  - Bitrate chọn theo hướng giữ tiếng: nguồn đã là MP3 (192 kbit/s) nên mã lại
+ *    thấp sẽ cộng méo hai bộ mã; sin thuần qua Opus 160 kbit/s đo phần lạ -44
+ *    dB, 96 kbit/s là -38 dB.
+ *------------------------------------------------------------------------------
+ *  TÁC GIẢ   : HiepHoon
+ *  TELEGRAM  : @Hoon9xx
+ *============================================================================*/
+
 #include "audio/cook.hpp"
 
 #include "audio/detail/codec.hpp"

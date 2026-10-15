@@ -1,8 +1,22 @@
-// Đổi UTF-8 ↔ UTF-16 ở biên Win32. Forge2 giữ UTF-8 trong toàn bộ mã và chỉ đổi ngay tại lời gọi
-// API bản W. _Ref đổi bằng mbstowcs theo code page ANSI, nên tên luồng và thông báo assert có dấu
-// thành rác. Byte UTF-8 hỏng thành U+FFFD thay vì báo lỗi: hai hàm này dành cho log, tên, đường dẫn
-// hiển thị, không dành cho kiểm tra dữ liệu.
-// Nguồn: Forge2 src/core/text.hpp@d7fcd76. Khác gốc: không.
+/*==============================================================================
+ *  ENGINEHP  |  HIGH-PERFORMANCE GAME ENGINE
+ *------------------------------------------------------------------------------
+ *  TỆP       : engine/core/text.hpp
+ *  PHÂN HỆ   : Core / Text
+ *  CHUẨN     : C++23
+ *------------------------------------------------------------------------------
+ *  CHỨC NĂNG
+ *  - Đổi UTF-8 ↔ UTF-16 ở biên Win32. Forge2 giữ UTF-8 trong toàn bộ mã và chỉ
+ *    đổi ngay tại lời gọi API bản W. _Ref đổi bằng mbstowcs theo code page
+ *    ANSI, nên tên luồng và thông báo assert có dấu thành rác. Byte UTF-8 hỏng
+ *    thành U+FFFD thay vì báo lỗi: hai hàm này dành cho log, tên, đường dẫn
+ *    hiển thị, không dành cho kiểm tra dữ liệu.
+ *  - Nguồn: Forge2 src/core/text.hpp@d7fcd76. Khác gốc: không.
+ *------------------------------------------------------------------------------
+ *  TÁC GIẢ   : HiepHoon
+ *  TELEGRAM  : @Hoon9xx
+ *============================================================================*/
+
 #pragma once
 
 #include <algorithm>

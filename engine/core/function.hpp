@@ -1,8 +1,22 @@
-// Hàm chỉ chuyển, không sao chép. Thư viện có std::move_only_function thì bọc một lớp mỏng: gọi lúc
-// rỗng, operator() của thư viện ném bad_function_call. libc++ của NDK r30 tắt
-// __cpp_lib_move_only_function, nên nhánh kia tự cài cho chữ ký không const và chữ ký const.
-// Nguồn: Forge2 src/core/function.hpp@d7fcd76. Khác gốc: gọi lúc rỗng là core::check, không ném
-// bad_function_call.
+/*==============================================================================
+ *  ENGINEHP  |  HIGH-PERFORMANCE GAME ENGINE
+ *------------------------------------------------------------------------------
+ *  TỆP       : engine/core/function.hpp
+ *  PHÂN HỆ   : Core / Function
+ *  CHUẨN     : C++23
+ *------------------------------------------------------------------------------
+ *  CHỨC NĂNG
+ *  - Hàm chỉ chuyển, không sao chép. Thư viện có std::move_only_function thì
+ *    bọc một lớp mỏng: gọi lúc rỗng, operator() của thư viện ném
+ *    bad_function_call. libc++ của NDK r30 tắt __cpp_lib_move_only_function,
+ *    nên nhánh kia tự cài cho chữ ký không const và chữ ký const.
+ *  - Nguồn: Forge2 src/core/function.hpp@d7fcd76. Khác gốc: gọi lúc rỗng là
+ *    core::check, không ném bad_function_call.
+ *------------------------------------------------------------------------------
+ *  TÁC GIẢ   : HiepHoon
+ *  TELEGRAM  : @Hoon9xx
+ *============================================================================*/
+
 #pragma once
 
 #include "core/check.hpp"

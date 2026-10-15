@@ -1,13 +1,29 @@
-// Dựng bảng giữ đúng thứ tự thử và cách đếm bộ nhớ khoá của bunyArHashTableConstruct, vì thứ tự đó
-// quyết định seed và salt được chọn: seed bắt đầu từ 0, xô nhiều va chạm xử lý trước, xô cùng cỡ
-// theo chỉ số ô, salt bắt đầu từ seed + 1, và seed bị bỏ khi tổng khoá đã chép vượt số ô. Gốc dùng
-// một vùng nhớ khoá chép đi chép lại; ở đây mảng phẳng cấp một lần mỗi seed, nhanh hơn gốc (đo ở
-// docs/modules/fs.md) mà ra cùng bảng.
-// Nguồn: Forge2 src/fs/buny.cpp@d7fcd76. Khác gốc (so với Forge2): các vòng lặp có câu if trong
-// thân (has_twins, any_twins, salted_slots, displace, place_collisions, try_seed, is_safe_name,
-// build) đưa điều kiện dừng lên điều kiện lặp hoặc tách thân thành hàm, thứ tự thử seed, salt và ô
-// giữ nguyên (ghi tại chỗ); bỏ {} thừa của thành viên Draft, Draft khởi tạo bằng gán trường; Miss
-// có kiểu nền.
+/*==============================================================================
+ *  ENGINEHP  |  HIGH-PERFORMANCE GAME ENGINE
+ *------------------------------------------------------------------------------
+ *  TỆP       : engine/fs/buny.cpp
+ *  PHÂN HỆ   : Fs / Buny
+ *  CHUẨN     : C++23
+ *------------------------------------------------------------------------------
+ *  CHỨC NĂNG
+ *  - Cài đặt fs/buny.hpp.
+ *  - Dựng bảng giữ đúng thứ tự thử và cách đếm bộ nhớ khoá của
+ *    bunyArHashTableConstruct, vì thứ tự đó quyết định seed và salt được chọn:
+ *    seed bắt đầu từ 0, xô nhiều va chạm xử lý trước, xô cùng cỡ theo chỉ số ô,
+ *    salt bắt đầu từ seed + 1, và seed bị bỏ khi tổng khoá đã chép vượt số ô.
+ *    Gốc dùng một vùng nhớ khoá chép đi chép lại; ở đây mảng phẳng cấp một lần
+ *    mỗi seed, nhanh hơn gốc (đo ở docs/modules/fs.md) mà ra cùng bảng.
+ *  - Nguồn: Forge2 src/fs/buny.cpp@d7fcd76. Khác gốc (so với Forge2): các vòng
+ *    lặp có câu if trong thân (has_twins, any_twins, salted_slots, displace,
+ *    place_collisions, try_seed, is_safe_name, build) đưa điều kiện dừng lên
+ *    điều kiện lặp hoặc tách thân thành hàm, thứ tự thử seed, salt và ô giữ
+ *    nguyên (ghi tại chỗ); bỏ {} thừa của thành viên Draft, Draft khởi tạo bằng
+ *    gán trường; Miss có kiểu nền.
+ *------------------------------------------------------------------------------
+ *  TÁC GIẢ   : HiepHoon
+ *  TELEGRAM  : @Hoon9xx
+ *============================================================================*/
+
 #include "fs/buny.hpp"
 
 #include "core/error.hpp"

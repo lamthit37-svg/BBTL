@@ -1,5 +1,19 @@
-// Xem limiter.hpp. Nhả theo hàm mũ với hằng thời gian 150 ms: sau khoảng nửa giây yên thì hệ số về
-// lại đúng 1.
+/*==============================================================================
+ *  ENGINEHP  |  HIGH-PERFORMANCE GAME ENGINE
+ *------------------------------------------------------------------------------
+ *  TỆP       : engine/audio/limiter.cpp
+ *  PHÂN HỆ   : Audio / Limiter
+ *  CHUẨN     : C++23
+ *------------------------------------------------------------------------------
+ *  CHỨC NĂNG
+ *  - Cài đặt Limiter theo từng khung stereo.
+ *  - Nhả theo hàm mũ hằng thời gian 150 ms: sau khoảng nửa giây yên thì hệ số
+ *    về lại đúng 1.
+ *------------------------------------------------------------------------------
+ *  TÁC GIẢ   : HiepHoon
+ *  TELEGRAM  : @Hoon9xx
+ *============================================================================*/
+
 #include "audio/limiter.hpp"
 
 #include "audio/limits.hpp"

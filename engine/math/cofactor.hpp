@@ -1,9 +1,23 @@
-// Nghịch đảo ma trận 4x4 theo phần phụ đại số, viết một lần cho mọi kiểu phần tử: double của
-// Matrix4d (math/double.hpp) và Vector4 — bốn ma trận song song — của SoaMatrix4 (math/soa.hpp).
-// Công thức và thứ tự phép tính theo Invert của soa/float4x4.hpp trong _Ref (từ ozz-animation).
-// Nguồn: Forge2 src/math/cofactor.hpp@d7fcd76. Khác gốc (so với Forge2): mười tám định thức con
-// 2x2 của cofactors tính ở hàm riêng minors2x2 (hàm gốc dài 56 dòng), từng công thức và thứ tự
-// của chúng giữ nguyên.
+/*==============================================================================
+ *  ENGINEHP  |  HIGH-PERFORMANCE GAME ENGINE
+ *------------------------------------------------------------------------------
+ *  TỆP       : engine/math/cofactor.hpp
+ *  PHÂN HỆ   : Math / Cofactor
+ *  CHUẨN     : C++23
+ *------------------------------------------------------------------------------
+ *  CHỨC NĂNG
+ *  - Nghịch đảo ma trận 4x4 theo phần phụ đại số, viết một lần cho mọi kiểu
+ *    phần tử: double của Matrix4d (math/double.hpp) và Vector4 — bốn ma trận
+ *    song song — của SoaMatrix4 (math/soa.hpp). Công thức và thứ tự phép tính
+ *    theo Invert của soa/float4x4.hpp trong _Ref (từ ozz-animation).
+ *  - Nguồn: Forge2 src/math/cofactor.hpp@d7fcd76. Khác gốc (so với Forge2):
+ *    mười tám định thức con 2x2 của cofactors tính ở hàm riêng minors2x2 (hàm
+ *    gốc dài 56 dòng), từng công thức và thứ tự của chúng giữ nguyên.
+ *------------------------------------------------------------------------------
+ *  TÁC GIẢ   : HiepHoon
+ *  TELEGRAM  : @Hoon9xx
+ *============================================================================*/
+
 #pragma once
 
 #include <array>

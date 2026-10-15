@@ -1,10 +1,26 @@
-// Cờ 0 cho MultiByteToWideChar và WideCharToMultiByte: chuỗi hỏng được thay bằng U+FFFD thay vì
-// làm cả lời gọi thất bại, nên số ký tự của lượt đo luôn khớp lượt ghi.
-// POSIX: wchar_t là UTF-32; dãy hỏng thành một U+FFFD; trần INT_MAX giữ nguyên.
-// Nguồn: Forge2 src/core/text.cpp@d7fcd76. Khác gốc: macro của windows.h lấy từ core/win32.hpp (gốc
-// khai ở CMake); header con của Win32 include trực tiếp; vòng của is_valid_utf8 tách thành
-// next_sequence để thân vòng lặp không còn nhánh; chuỗi dài hơn INT_MAX là lỗi lập trình,
-// checked_size gọi core::check thay vì ném std::length_error.
+/*==============================================================================
+ *  ENGINEHP  |  HIGH-PERFORMANCE GAME ENGINE
+ *------------------------------------------------------------------------------
+ *  TỆP       : engine/core/text.cpp
+ *  PHÂN HỆ   : Core / Text
+ *  CHUẨN     : C++23
+ *------------------------------------------------------------------------------
+ *  CHỨC NĂNG
+ *  - Cài đặt core/text.hpp.
+ *  - Cờ 0 cho MultiByteToWideChar và WideCharToMultiByte: chuỗi hỏng được thay
+ *    bằng U+FFFD thay vì làm cả lời gọi thất bại, nên số ký tự của lượt đo luôn
+ *    khớp lượt ghi. POSIX: wchar_t là UTF-32; dãy hỏng thành một U+FFFD; trần
+ *    INT_MAX giữ nguyên.
+ *  - Nguồn: Forge2 src/core/text.cpp@d7fcd76. Khác gốc: macro của windows.h lấy
+ *    từ core/win32.hpp (gốc khai ở CMake); header con của Win32 include trực
+ *    tiếp; vòng của is_valid_utf8 tách thành next_sequence để thân vòng lặp
+ *    không còn nhánh; chuỗi dài hơn INT_MAX là lỗi lập trình, checked_size gọi
+ *    core::check thay vì ném std::length_error.
+ *------------------------------------------------------------------------------
+ *  TÁC GIẢ   : HiepHoon
+ *  TELEGRAM  : @Hoon9xx
+ *============================================================================*/
+
 #include "core/text.hpp"
 
 #include "core/check.hpp"

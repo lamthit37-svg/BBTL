@@ -1,14 +1,32 @@
-// Mô tả tài nguyên: buffer, texture, view, sampler — BufferDesc, TextureDesc, RenderTargetDesc,
-// SamplerDesc của IGraphics.h trong _Ref và rhi/resource.hpp của Platium. Mọi struct ở đây là mô tả
-// thuần, không giữ tài nguyên: Device nhận mô tả và trả tay nắm. Khác gốc:
-// - render target không phải loại tài nguyên riêng: là texture có TextureUsage::kColorTarget hay
-//   kDepthStencilTarget cộng một view (gốc dựng sẵn descriptor cho từng mip và từng lát);
-// - mục đích dùng khai bằng cờ ngay lúc tạo, vì Vulkan bắt vậy; D3D12 suy cờ tài nguyên từ đó;
-// - TextureUsage::kTransient cho attachment chỉ sống trong một render pass: GPU chia ô không phải
-//   cấp bộ nhớ thật cho nó (gốc và Platium không có);
-// - bộ nhớ chọn theo ba miền Device, Upload, Readback thay cho ResourceMemoryUsage bốn giá trị.
-// Nguồn: Forge2 src/gpu/resource.hpp@d7fcd76. Khác gốc (so với Forge2): enumerator mang tiền tố k;
-// bỏ {} thừa của thành viên name ở bốn struct mô tả.
+/*==============================================================================
+ *  ENGINEHP  |  HIGH-PERFORMANCE GAME ENGINE
+ *------------------------------------------------------------------------------
+ *  TỆP       : engine/gpu/resource.hpp
+ *  PHÂN HỆ   : Gpu / Resource
+ *  CHUẨN     : C++23
+ *------------------------------------------------------------------------------
+ *  CHỨC NĂNG
+ *  - Mô tả tài nguyên: buffer, texture, view, sampler — BufferDesc,
+ *    TextureDesc, RenderTargetDesc, SamplerDesc của IGraphics.h trong _Ref và
+ *    rhi/resource.hpp của Platium. Mọi struct ở đây là mô tả thuần, không giữ
+ *    tài nguyên: Device nhận mô tả và trả tay nắm. Khác gốc:
+ *  - render target không phải loại tài nguyên riêng: là texture có
+ *    TextureUsage::kColorTarget hay kDepthStencilTarget cộng một view (gốc dựng
+ *    sẵn descriptor cho từng mip và từng lát);
+ *  - mục đích dùng khai bằng cờ ngay lúc tạo, vì Vulkan bắt vậy; D3D12 suy cờ
+ *    tài nguyên từ đó;
+ *  - TextureUsage::kTransient cho attachment chỉ sống trong một render pass:
+ *    GPU chia ô không phải cấp bộ nhớ thật cho nó (gốc và Platium không có);
+ *  - bộ nhớ chọn theo ba miền Device, Upload, Readback thay cho
+ *    ResourceMemoryUsage bốn giá trị.
+ *  - Nguồn: Forge2 src/gpu/resource.hpp@d7fcd76. Khác gốc (so với Forge2):
+ *    enumerator mang tiền tố k; bỏ {} thừa của thành viên name ở bốn struct mô
+ *    tả.
+ *------------------------------------------------------------------------------
+ *  TÁC GIẢ   : HiepHoon
+ *  TELEGRAM  : @Hoon9xx
+ *============================================================================*/
+
 #pragma once
 
 #include "gpu/format.hpp"

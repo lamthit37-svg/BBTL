@@ -1,9 +1,21 @@
-// Socket TCP không chặn và tập chờ trên Winsock. Header mạng của Windows chỉ có ở tệp này.
-// Nguồn: TLBB Dev src/platform/socket_win32.cpp.
-// Khác gốc: WSASocketW với WSA_FLAG_NO_HANDLE_INHERIT thay socket(); chỉ IPv4 qua sockaddr_in,
-// địa chỉ đọc bằng inet_pton, không getaddrinfo; accept trả địa chỉ bên kia; bật TCP_NODELAY
-// ngay lúc tạo socket nối; thêm abort (SO_LINGER 0), local, nodelay; send và receive tự hỏi
-// kết quả nối khi còn đang nối; tập rỗng ngủ bằng core::sleep_for thay std::this_thread.
+/*==============================================================================
+ *  ENGINEHP  |  HIGH-PERFORMANCE GAME ENGINE
+ *------------------------------------------------------------------------------
+ *  TỆP       : engine/net/socket_win32.cpp
+ *  PHÂN HỆ   : Net / Socket
+ *  CHUẨN     : C++23
+ *------------------------------------------------------------------------------
+ *  CHỨC NĂNG
+ *  - Cài net.hpp trên Winsock; header mạng Windows chỉ có ở tệp này. Nguồn:
+ *    TLBB Dev src/platform/socket_win32.cpp.
+ *  - Khác gốc: WSASocketW với WSA_FLAG_NO_HANDLE_INHERIT; chỉ IPv4, inet_pton,
+ *    không getaddrinfo; accept trả địa chỉ bên kia; TCP_NODELAY lúc tạo; thêm
+ *    abort (SO_LINGER 0), local, nodelay; send/receive tự hỏi kết quả nối; tập
+ *    rỗng ngủ bằng core::sleep_for.
+ *------------------------------------------------------------------------------
+ *  TÁC GIẢ   : HiepHoon
+ *  TELEGRAM  : @Hoon9xx
+ *============================================================================*/
 
 #include "net/net.hpp"
 

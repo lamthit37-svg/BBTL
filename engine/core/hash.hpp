@@ -1,9 +1,24 @@
-// Băm không mật mã cho bảng băm, khoá tài nguyên và phát hiện thay đổi. Không dùng cho chữ ký hay
-// mật khẩu: việc đó của sha256.hpp và siphash.hpp. Nguồn: core/hash của No1, trùng từng bit với bản
-// transport/wire đã dùng (fnv1a, mix64, hash_combine) nên dữ liệu đã băm vẫn khớp. fnv1_hash 32 bit
-// của _Ref (tf_mem_hash) ở math/scalar.hpp, vì nó giữ đúng giá trị cũ cho dữ liệu đã có.
-// Nguồn: Forge2 src/core/hash.hpp@d7fcd76. Khác gốc: bỏ phép ép std::size_t trong std::hash của
-// NameId mà GCC báo thừa (kèm static_assert nền 64 bit).
+/*==============================================================================
+ *  ENGINEHP  |  HIGH-PERFORMANCE GAME ENGINE
+ *------------------------------------------------------------------------------
+ *  TỆP       : engine/core/hash.hpp
+ *  PHÂN HỆ   : Core / Hash
+ *  CHUẨN     : C++23
+ *------------------------------------------------------------------------------
+ *  CHỨC NĂNG
+ *  - Băm không mật mã cho bảng băm, khoá tài nguyên và phát hiện thay đổi.
+ *    Không dùng cho chữ ký hay mật khẩu: việc đó của sha256.hpp và siphash.hpp.
+ *    Nguồn: core/hash của No1, trùng từng bit với bản transport/wire đã dùng
+ *    (fnv1a, mix64, hash_combine) nên dữ liệu đã băm vẫn khớp. fnv1_hash 32 bit
+ *    của _Ref (tf_mem_hash) ở math/scalar.hpp, vì nó giữ đúng giá trị cũ cho dữ
+ *    liệu đã có.
+ *  - Nguồn: Forge2 src/core/hash.hpp@d7fcd76. Khác gốc: bỏ phép ép std::size_t
+ *    trong std::hash của NameId mà GCC báo thừa (kèm static_assert nền 64 bit).
+ *------------------------------------------------------------------------------
+ *  TÁC GIẢ   : HiepHoon
+ *  TELEGRAM  : @Hoon9xx
+ *============================================================================*/
+
 #pragma once
 
 #include <cstddef>

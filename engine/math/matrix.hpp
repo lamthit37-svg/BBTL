@@ -1,17 +1,34 @@
-// Ma trận cột: Matrix2 (vô hướng), Matrix3, Matrix4, Transform3 (3x4 affine), AffineTransform —
-// sse/matrix.hpp và vec2d.hpp của ModifiedSonyMath trong _Ref. Vectơ là cột, M * v; m[c] là cột c.
-// Phép chiếu theo quy ước D3D và Vulkan: z của NDC trong [0, 1]. Khác gốc:
-// - inverse của Matrix3 và Transform3 (kéo theo affine_inverse), frustum_lh và orthographic_lh chia
-//   chính xác; gốc nhân với nghịch đảo ước lượng 12 bit của RCPPS;
-// - frustum_lh giữ hai hệ số lệch tâm; gốc đặt chúng về 0 nên chỉ đúng với khối nhìn đối xứng;
-// - clip_planes lấy mặt gần ở z = 0; gốc lấy z = -w (quy ước OpenGL) dù ma trận chiếu của chính nó
-//   cho z trong [0, 1];
-// - cột nằm trong std::array; gốc cộng con trỏ qua các member (UB);
-// - góc vô hướng tính bằng std::sin, std::cos thay đa thức xấp xỉ.
-// Nguồn: Forge2 src/math/matrix.hpp@d7fcd76. Khác gốc (so với Forge2): enumerator của CubeFace
-// mang tiền tố k; transpose3 trả struct Rows3 thay std::array<__m128, 3> (GCC báo
-// -Wignored-attributes); bỏ {} thừa của AffineTransform::translation; Matrix2 khởi tạo bằng tên
-// thành viên; NOLINT kèm lý do cho minors (hai cột đúng thứ tự như cross).
+/*==============================================================================
+ *  ENGINEHP  |  HIGH-PERFORMANCE GAME ENGINE
+ *------------------------------------------------------------------------------
+ *  TỆP       : engine/math/matrix.hpp
+ *  PHÂN HỆ   : Math / Matrix
+ *  CHUẨN     : C++23
+ *------------------------------------------------------------------------------
+ *  CHỨC NĂNG
+ *  - Ma trận cột: Matrix2 (vô hướng), Matrix3, Matrix4, Transform3 (3x4
+ *    affine), AffineTransform — sse/matrix.hpp và vec2d.hpp của
+ *    ModifiedSonyMath trong _Ref. Vectơ là cột, M * v; m[c] là cột c. Phép
+ *    chiếu theo quy ước D3D và Vulkan: z của NDC trong [0, 1]. Khác gốc:
+ *  - inverse của Matrix3 và Transform3 (kéo theo affine_inverse), frustum_lh và
+ *    orthographic_lh chia chính xác; gốc nhân với nghịch đảo ước lượng 12 bit
+ *    của RCPPS;
+ *  - frustum_lh giữ hai hệ số lệch tâm; gốc đặt chúng về 0 nên chỉ đúng với
+ *    khối nhìn đối xứng;
+ *  - clip_planes lấy mặt gần ở z = 0; gốc lấy z = -w (quy ước OpenGL) dù ma
+ *    trận chiếu của chính nó cho z trong [0, 1];
+ *  - cột nằm trong std::array; gốc cộng con trỏ qua các member (UB);
+ *  - góc vô hướng tính bằng std::sin, std::cos thay đa thức xấp xỉ.
+ *  - Nguồn: Forge2 src/math/matrix.hpp@d7fcd76. Khác gốc (so với Forge2):
+ *    enumerator của CubeFace mang tiền tố k; transpose3 trả struct Rows3 thay
+ *    std::array<__m128, 3> (GCC báo -Wignored-attributes); bỏ {} thừa của
+ *    AffineTransform::translation; Matrix2 khởi tạo bằng tên thành viên; NOLINT
+ *    kèm lý do cho minors (hai cột đúng thứ tự như cross).
+ *------------------------------------------------------------------------------
+ *  TÁC GIẢ   : HiepHoon
+ *  TELEGRAM  : @Hoon9xx
+ *============================================================================*/
+
 #pragma once
 
 #include "math/quat.hpp"

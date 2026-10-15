@@ -1,10 +1,25 @@
-// Luồng: tên, ưu tiên, luồng chính, số CPU, lõi hiệu năng, tạo luồng có tên và affinity, chờ trên
-// địa chỉ có hạn — phần IThread/WindowsThread.c của _Ref không có sẵn trong STL. Phần còn lại dùng
-// thẳng STL: Mutex/MutexLock là std::mutex và std::scoped_lock, ConditionVariable là
-// std::condition_variable, callOnce là std::call_once, initThread/joinThread/detachThread là
-// std::jthread. threadSleep là sleep_for ở core/clock.hpp; tải từng core ở core/system.hpp.
-// Nguồn: Forge2 src/core/thread.hpp@d7fcd76. Khác gốc: enumerator mang tiền tố k; bỏ khởi tạo {}
-// thừa của thành viên có constructor mặc định.
+/*==============================================================================
+ *  ENGINEHP  |  HIGH-PERFORMANCE GAME ENGINE
+ *------------------------------------------------------------------------------
+ *  TỆP       : engine/core/thread.hpp
+ *  PHÂN HỆ   : Core / Thread
+ *  CHUẨN     : C++23
+ *------------------------------------------------------------------------------
+ *  CHỨC NĂNG
+ *  - Luồng: tên, ưu tiên, luồng chính, số CPU, lõi hiệu năng, tạo luồng có tên
+ *    và affinity, chờ trên địa chỉ có hạn — phần IThread/WindowsThread.c của
+ *    _Ref không có sẵn trong STL. Phần còn lại dùng thẳng STL: Mutex/MutexLock
+ *    là std::mutex và std::scoped_lock, ConditionVariable là
+ *    std::condition_variable, callOnce là std::call_once,
+ *    initThread/joinThread/detachThread là std::jthread. threadSleep là
+ *    sleep_for ở core/clock.hpp; tải từng core ở core/system.hpp.
+ *  - Nguồn: Forge2 src/core/thread.hpp@d7fcd76. Khác gốc: enumerator mang tiền
+ *    tố k; bỏ khởi tạo {} thừa của thành viên có constructor mặc định.
+ *------------------------------------------------------------------------------
+ *  TÁC GIẢ   : HiepHoon
+ *  TELEGRAM  : @Hoon9xx
+ *============================================================================*/
+
 #pragma once
 
 #include "core/function.hpp"

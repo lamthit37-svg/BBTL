@@ -1,13 +1,32 @@
-// Hệ thống việc song song, thay ThreadSystem của _Ref (Utilities/Threading). Mỗi thợ một hàng
-// Chase-Lev; luồng ngoài nộp vào hàng chung không khoá; luồng chờ chạy giúp rồi mới ngủ. Phần đã đo
-// lấy từ VnS (src/core/jobs.*, job_queue.*). Forge2 thêm: nộp lô O(1) — run_batch và parallel_for
-// là một bản ghi, các bản sao giành chỉ số theo khúc; thợ cộng dồn lượt hoàn tất của cùng một bộ
-// đếm rồi xả một lần; wait_idle không tốn gì trên đường nóng; chờ có hạn; dừng drain, abandon,
-// detach; nhiều hệ thống trên một luồng, huỷ từ luồng nào cũng được. Ánh xạ API _Ref và lỗi gốc đã
-// sửa ở docs/modules/jobs.md; thứ tự bộ nhớ lập luận tại chỗ ở jobs.cpp và queue.cpp.
-// Nguồn: Forge2 src/jobs/jobs.hpp@d7fcd76. Khác gốc: enumerator mang tiền tố k; bỏ {} thừa của các
-// thành viên mutex, exception_ptr, CpuSet, string_view; tham số body của constructor Batch đổi tên
-// thành work (trùng tên thành viên); vòng chặt trong khối try của call_from tách thành call_each.
+/*==============================================================================
+ *  ENGINEHP  |  HIGH-PERFORMANCE GAME ENGINE
+ *------------------------------------------------------------------------------
+ *  TỆP       : engine/jobs/jobs.hpp
+ *  PHÂN HỆ   : Jobs / Jobs
+ *  CHUẨN     : C++23
+ *------------------------------------------------------------------------------
+ *  CHỨC NĂNG
+ *  - Hệ thống việc song song, thay ThreadSystem của _Ref (Utilities/Threading).
+ *    Mỗi thợ một hàng Chase-Lev; luồng ngoài nộp vào hàng chung không khoá;
+ *    luồng chờ chạy giúp rồi mới ngủ. Phần đã đo lấy từ VnS (src/core/jobs.*,
+ *    job_queue.*).
+ *  - Forge2 thêm: nộp lô O(1) (run_batch và parallel_for là một bản ghi, các
+ *    bản sao giành chỉ số theo khúc); thợ cộng dồn lượt hoàn tất của cùng một
+ *    bộ đếm rồi xả một lần; wait_idle không tốn gì trên đường nóng; chờ có hạn;
+ *    dừng drain, abandon, detach; nhiều hệ thống trên một luồng, huỷ từ luồng
+ *    nào cũng được.
+ *  - Ánh xạ API _Ref và lỗi gốc đã sửa ở docs/modules/jobs.md; thứ tự bộ nhớ
+ *    lập luận tại chỗ ở jobs.cpp và queue.cpp.
+ *  - Nguồn: Forge2 src/jobs/jobs.hpp@d7fcd76. Khác gốc: enumerator mang tiền tố
+ *    k; bỏ {} thừa của các thành viên mutex, exception_ptr, CpuSet,
+ *    string_view; tham số body của constructor Batch đổi tên thành work (trùng
+ *    tên thành viên); vòng chặt trong khối try của call_from tách thành
+ *    call_each.
+ *------------------------------------------------------------------------------
+ *  TÁC GIẢ   : HiepHoon
+ *  TELEGRAM  : @Hoon9xx
+ *============================================================================*/
+
 #pragma once
 
 #include "core/thread.hpp"

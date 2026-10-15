@@ -1,9 +1,25 @@
-// Mỗi dòng: hãng, họ, dải model, dải stepping, tên. Dòng đầu tiên khớp thắng, nên dòng hẹp
-// (stepping riêng, model lẻ) đứng trước dải rộng cùng họ. Họ AMD cũ trùng với vi kiến trúc (0Fh là
-// K8, 10h là K10...) nên cả họ là một dòng; cpu_features liệt kê từng model và trả "không rõ" cho
-// model khác.
-// Nguồn: Forge2 src/core/uarch.cpp@d7fcd76. Khác gốc: Row dựng bằng khởi tạo ghi tên thành viên
-// (gốc khởi tạo theo vị trí, cùng giá trị từng trường); bỏ {} thừa của các thành viên string_view.
+/*==============================================================================
+ *  ENGINEHP  |  HIGH-PERFORMANCE GAME ENGINE
+ *------------------------------------------------------------------------------
+ *  TỆP       : engine/core/uarch.cpp
+ *  PHÂN HỆ   : Core / Uarch
+ *  CHUẨN     : C++23
+ *------------------------------------------------------------------------------
+ *  CHỨC NĂNG
+ *  - Cài đặt core/uarch.hpp.
+ *  - Mỗi dòng: hãng, họ, dải model, dải stepping, tên. Dòng đầu tiên khớp
+ *    thắng, nên dòng hẹp (stepping riêng, model lẻ) đứng trước dải rộng cùng
+ *    họ. Họ AMD cũ trùng với vi kiến trúc (0Fh là K8, 10h là K10...) nên cả họ
+ *    là một dòng; cpu_features liệt kê từng model và trả "không rõ" cho model
+ *    khác.
+ *  - Nguồn: Forge2 src/core/uarch.cpp@d7fcd76. Khác gốc: Row dựng bằng khởi tạo
+ *    ghi tên thành viên (gốc khởi tạo theo vị trí, cùng giá trị từng trường);
+ *    bỏ {} thừa của các thành viên string_view.
+ *------------------------------------------------------------------------------
+ *  TÁC GIẢ   : HiepHoon
+ *  TELEGRAM  : @Hoon9xx
+ *============================================================================*/
+
 #include "core/uarch.hpp"
 
 #include <algorithm>

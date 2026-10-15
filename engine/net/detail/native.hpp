@@ -1,7 +1,21 @@
+/*==============================================================================
+ *  ENGINEHP  |  HIGH-PERFORMANCE GAME ENGINE
+ *------------------------------------------------------------------------------
+ *  TỆP       : engine/net/detail/native.hpp
+ *  PHÂN HỆ   : Net / Detail
+ *  CHUẨN     : C++23
+ *------------------------------------------------------------------------------
+ *  CHỨC NĂNG
+ *  - Phần chung giữa net.cpp và hai tệp nền socket_*: đổi Ipv4 với số 32 bit và
+ *    đọc chuỗi IPv4 bằng inet_pton, để mỗi nền không tự chép lại.
+ *  - Không include header mạng của hệ điều hành. Không có ở Dev (Dev đọc địa
+ *    chỉ ngay trong từng tệp nền bằng getaddrinfo).
+ *------------------------------------------------------------------------------
+ *  TÁC GIẢ   : HiepHoon
+ *  TELEGRAM  : @Hoon9xx
+ *============================================================================*/
+
 #pragma once
-// Phần chung giữa net.cpp và hai tệp nền: đổi Ipv4 với số 32 bit, đọc chuỗi IPv4 bằng inet_pton.
-// Không include header mạng của hệ điều hành.
-// Nguồn: không có ở Dev (Dev đọc địa chỉ ngay trong từng tệp nền bằng getaddrinfo).
 
 #include "net/net.hpp"
 

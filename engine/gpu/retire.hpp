@@ -1,10 +1,25 @@
-// Hàng huỷ hoãn: tài nguyên bị destroy chỉ được giải phóng khi GPU đã chạy xong mọi lần nộp có thể
-// còn dùng nó. Dùng nội bộ trong hai backend. Platium hoãn theo số khung hình cố định
-// (frames_in_flight): khung nào không nộp gì vẫn phải chờ, và nộp nhiều hơn số khung đã định trong
-// một khung là giải phóng sớm. Ở đây mốc là số thứ tự lần nộp của từng hàng đợi lúc huỷ: việc được
-// chạy đúng khi mọi hàng đợi đã qua mốc ấy, không sớm hơn và không muộn hơn. An toàn đa luồng.
-// Nguồn: Forge2 src/gpu/retire.hpp@d7fcd76. Khác gốc: thân vòng lặp của take_due tách thành
-// sort_entry; bỏ {} thừa của Entry::action.
+/*==============================================================================
+ *  ENGINEHP  |  HIGH-PERFORMANCE GAME ENGINE
+ *------------------------------------------------------------------------------
+ *  TỆP       : engine/gpu/retire.hpp
+ *  PHÂN HỆ   : Gpu / Retire
+ *  CHUẨN     : C++23
+ *------------------------------------------------------------------------------
+ *  CHỨC NĂNG
+ *  - Hàng huỷ hoãn: tài nguyên bị destroy chỉ được giải phóng khi GPU đã chạy
+ *    xong mọi lần nộp có thể còn dùng nó. Dùng nội bộ trong hai backend.
+ *    Platium hoãn theo số khung hình cố định (frames_in_flight): khung nào
+ *    không nộp gì vẫn phải chờ, và nộp nhiều hơn số khung đã định trong một
+ *    khung là giải phóng sớm. Ở đây mốc là số thứ tự lần nộp của từng hàng đợi
+ *    lúc huỷ: việc được chạy đúng khi mọi hàng đợi đã qua mốc ấy, không sớm hơn
+ *    và không muộn hơn. An toàn đa luồng.
+ *  - Nguồn: Forge2 src/gpu/retire.hpp@d7fcd76. Khác gốc: thân vòng lặp của
+ *    take_due tách thành sort_entry; bỏ {} thừa của Entry::action.
+ *------------------------------------------------------------------------------
+ *  TÁC GIẢ   : HiepHoon
+ *  TELEGRAM  : @Hoon9xx
+ *============================================================================*/
+
 #pragma once
 
 #include "gpu/types.hpp"

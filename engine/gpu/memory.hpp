@@ -1,11 +1,27 @@
-// Chia các khối bộ nhớ GPU lớn thành vùng cho từng tài nguyên, dùng chung cho hai backend (khối là
-// VkDeviceMemory hay ID3D12Heap, do backend dựng). Platium xin hệ điều hành một lần cấp phát cho
-// MỖI buffer và texture: Vulkan chỉ bảo đảm 4096 lần cấp phát cùng lúc, và mỗi lần là một lời gọi
-// xuống trình điều khiển. _Ref và Wicked dùng VMA và D3D12MA (hai thư viện ngoài, khoảng 20.000
-// dòng). Ở đây vùng lấy từ core::RangeAllocator (TLSF, cấp và trả O(1)); tài nguyên lớn hơn nửa
-// khối nhận một khối riêng; khối trống hẳn được trả lại, giữ một khối dự phòng. An toàn đa luồng.
-// Nguồn: Forge2 src/gpu/memory.hpp@d7fcd76. Khác gốc: enumerator mang tiền tố k; câu if trong vòng
-// for của allocate chuyển thành điều kiện dừng của vòng.
+/*==============================================================================
+ *  ENGINEHP  |  HIGH-PERFORMANCE GAME ENGINE
+ *------------------------------------------------------------------------------
+ *  TỆP       : engine/gpu/memory.hpp
+ *  PHÂN HỆ   : Gpu / Memory
+ *  CHUẨN     : C++23
+ *------------------------------------------------------------------------------
+ *  CHỨC NĂNG
+ *  - Chia các khối bộ nhớ GPU lớn thành vùng cho từng tài nguyên, dùng chung
+ *    cho hai backend (khối là VkDeviceMemory hay ID3D12Heap, do backend dựng).
+ *    Platium xin hệ điều hành một lần cấp phát cho MỖI buffer và texture:
+ *    Vulkan chỉ bảo đảm 4096 lần cấp phát cùng lúc, và mỗi lần là một lời gọi
+ *    xuống trình điều khiển. _Ref và Wicked dùng VMA và D3D12MA (hai thư viện
+ *    ngoài, khoảng 20.000 dòng). Ở đây vùng lấy từ core::RangeAllocator (TLSF,
+ *    cấp và trả O(1)); tài nguyên lớn hơn nửa khối nhận một khối riêng; khối
+ *    trống hẳn được trả lại, giữ một khối dự phòng. An toàn đa luồng.
+ *  - Nguồn: Forge2 src/gpu/memory.hpp@d7fcd76. Khác gốc: enumerator mang tiền
+ *    tố k; câu if trong vòng for của allocate chuyển thành điều kiện dừng của
+ *    vòng.
+ *------------------------------------------------------------------------------
+ *  TÁC GIẢ   : HiepHoon
+ *  TELEGRAM  : @Hoon9xx
+ *============================================================================*/
+
 #pragma once
 
 #include "core/error.hpp"

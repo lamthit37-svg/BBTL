@@ -1,7 +1,23 @@
+/*==============================================================================
+ *  ENGINEHP  |  HIGH-PERFORMANCE GAME ENGINE
+ *------------------------------------------------------------------------------
+ *  TỆP       : engine/gpu/com.hpp
+ *  PHÂN HỆ   : Gpu / Com
+ *  CHUẨN     : C++23
+ *------------------------------------------------------------------------------
+ *  CHỨC NĂNG
+ *  - Tra IID của giao diện COM (iid_of, com_iid) cho các backend Direct3D và
+ *    DXGI.
+ *  - IID của Direct3D và DXGI lấy từ hằng IID_* của SDK. Không dùng __uuidof.
+ *    Include sau header D3D của tệp .cpp: specialization chỉ hiện khi macro
+ *    giao diện đã có. Khuôn IidOf cố ý không định nghĩa. Thiếu specialization
+ *    là lỗi dịch, không phải IID rỗng.
+ *------------------------------------------------------------------------------
+ *  TÁC GIẢ   : HiepHoon
+ *  TELEGRAM  : @Hoon9xx
+ *============================================================================*/
+
 #pragma once
-// IID của Direct3D và DXGI lấy từ hằng IID_* của SDK. Không dùng __uuidof.
-// Include sau header D3D của tệp .cpp: specialization chỉ hiện khi macro giao diện đã có.
-// Khuôn IidOf cố ý không định nghĩa. Thiếu specialization là lỗi dịch, không phải IID rỗng.
 #include "core/win32.hpp"
 
 #include <wrl/client.h>

@@ -1,9 +1,23 @@
+/*==============================================================================
+ *  ENGINEHP  |  HIGH-PERFORMANCE GAME ENGINE
+ *------------------------------------------------------------------------------
+ *  TỆP       : engine/net/reactor.hpp
+ *  PHÂN HỆ   : Net / Reactor
+ *  CHUẨN     : C++23
+ *------------------------------------------------------------------------------
+ *  CHỨC NĂNG
+ *  - Một lần chờ cho nhiều kết nối, để máy chủ không phải quét mọi socket mỗi
+ *    vòng như PollSet (WSAPoll). Windows: cổng hoàn thành, AcceptEx nhận sẵn,
+ *    WSASend chồng bản sao tối đa 2 KiB.
+ *  - Một luồng gọi wait/watch/submit; wake() gọi từ luồng khác, chỉ đăng một
+ *    gói đánh thức. Reactor không sở hữu socket dữ liệu; gỡ nhãn trước khi
+ *    đóng.
+ *------------------------------------------------------------------------------
+ *  TÁC GIẢ   : HiepHoon
+ *  TELEGRAM  : @Hoon9xx
+ *============================================================================*/
+
 #pragma once
-// Một lần chờ cho nhiều kết nối. Trên Windows là cổng hoàn thành: GetQueuedCompletionStatusEx
-// trả đúng các socket vừa xong, AcceptEx nhận sẵn, WSASend chồng bản sao tối đa 2 KiB.
-// PollSet quét mọi socket (WSAPoll). Seastar gộp hoàn thành ở epoll/io_uring; GNS gom poll group.
-// Một luồng gọi wait/watch/submit. wake() được gọi từ luồng khác và chỉ đăng một gói đánh thức.
-// Hợp đồng socket giống PollSet: reactor không sở hữu socket dữ liệu; gỡ nhãn trước khi đóng.
 
 #include "net/net.hpp"
 

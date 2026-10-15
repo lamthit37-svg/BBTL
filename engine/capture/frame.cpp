@@ -1,6 +1,21 @@
-// Sao chép khung hình thành bản sở hữu, các hàng xếp sát nhau.
-// Mỗi hàng chỉ chép đúng row_size, nên phần đệm stride của view không lọt vào bản sao.
-// Nguồn: Forge2 src/capture/frame.cpp@d7fcd76. Khác gốc: không (chỉ thêm include đủ).
+/*==============================================================================
+ *  ENGINEHP  |  HIGH-PERFORMANCE GAME ENGINE
+ *------------------------------------------------------------------------------
+ *  TỆP       : engine/capture/frame.cpp
+ *  PHÂN HỆ   : Capture / Frame
+ *  CHUẨN     : C++23
+ *------------------------------------------------------------------------------
+ *  CHỨC NĂNG
+ *  - Sao chép khung hình thành bản sở hữu, các hàng xếp sát nhau.
+ *  - Mỗi hàng chỉ chép đúng row_size, nên phần đệm stride của view không lọt
+ *    vào bản sao.
+ *  - Nguồn: Forge2 src/capture/frame.cpp@d7fcd76. Khác gốc: không (chỉ thêm
+ *    include đủ).
+ *------------------------------------------------------------------------------
+ *  TÁC GIẢ   : HiepHoon
+ *  TELEGRAM  : @Hoon9xx
+ *============================================================================*/
+
 #include "capture/frame.hpp"
 
 #include <algorithm>

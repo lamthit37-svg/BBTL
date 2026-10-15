@@ -1,10 +1,26 @@
-// Gom phản chiếu shader thành bố cục chỗ gắn dùng chung giữa các chương trình.
-// Tên tài nguyên không vào băm: khác tên mà cùng bố cục vẫn chung một nhóm.
-// Mảng không chặn phải là chỗ gắn cuối và chỉ một; cbuffer không được không chặn.
-// Nguồn: Forge2 src/gpu/layout.cpp@d7fcd76. Khác gốc: enumerator mang tiền tố k; thân vòng lặp có
-// nhánh của check_unique, check_complete, make_layout, check_entries tách hàm hoặc đổi thành phép
-// tìm (ghi tại chỗ); ProgramLayout trong make_layout khai rồi gán trường; include trực tiếp header
-// của mọi tên dùng tới.
+/*==============================================================================
+ *  ENGINEHP  |  HIGH-PERFORMANCE GAME ENGINE
+ *------------------------------------------------------------------------------
+ *  TỆP       : engine/gpu/layout.cpp
+ *  PHÂN HỆ   : Gpu / Layout
+ *  CHUẨN     : C++23
+ *------------------------------------------------------------------------------
+ *  CHỨC NĂNG
+ *  - Cài đặt gpu/layout.hpp.
+ *  - Gom phản chiếu shader thành bố cục chỗ gắn dùng chung giữa các chương
+ *    trình. Tên tài nguyên không vào băm: khác tên mà cùng bố cục vẫn chung một
+ *    nhóm. Mảng không chặn phải là chỗ gắn cuối và chỉ một; cbuffer không được
+ *    không chặn.
+ *  - Nguồn: Forge2 src/gpu/layout.cpp@d7fcd76. Khác gốc: enumerator mang tiền
+ *    tố k; thân vòng lặp có nhánh của check_unique, check_complete,
+ *    make_layout, check_entries tách hàm hoặc đổi thành phép tìm (ghi tại chỗ);
+ *    ProgramLayout trong make_layout khai rồi gán trường; include trực tiếp
+ *    header của mọi tên dùng tới.
+ *------------------------------------------------------------------------------
+ *  TÁC GIẢ   : HiepHoon
+ *  TELEGRAM  : @Hoon9xx
+ *============================================================================*/
+
 #include "gpu/layout.hpp"
 
 #include "core/error.hpp"

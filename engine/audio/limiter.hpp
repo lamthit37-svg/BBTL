@@ -1,8 +1,20 @@
-// Bộ hạn biên ở đầu ra của bộ trộn, thay cho việc cắt cụt ở +-1. Tổng nhiều tiếng vượt trần thì cả
-// khung (hai kênh cùng hệ số) được kéo xuống vừa đủ, giữ nguyên dạng sóng; cắt cụt thì bẻ gãy
-// từng đỉnh và sinh hài nghe rõ. Không trễ: hệ số hạ ngay tại mẫu vượt trần, giữ 20 ms rồi nhả
-// dần, nên đỉnh nối đỉnh (mọi tần số trên 25 Hz) được ép bằng một hệ số không đổi. Tín hiệu chưa
-// chạm trần đi qua nguyên vẹn từng bit.
+/*==============================================================================
+ *  ENGINEHP  |  HIGH-PERFORMANCE GAME ENGINE
+ *------------------------------------------------------------------------------
+ *  TỆP       : engine/audio/limiter.hpp
+ *  PHÂN HỆ   : Audio / Limiter
+ *  CHUẨN     : C++23
+ *------------------------------------------------------------------------------
+ *  CHỨC NĂNG
+ *  - Bộ hạn biên ở đầu ra bộ trộn thay cho cắt cụt ở +-1: cả khung (hai kênh
+ *    cùng hệ số) kéo xuống vừa đủ, giữ dạng sóng, không sinh hài.
+ *  - Không trễ: hạ ngay tại mẫu vượt trần, giữ 20 ms rồi nhả dần; tín hiệu chưa
+ *    chạm trần đi qua nguyên vẹn từng bit.
+ *------------------------------------------------------------------------------
+ *  TÁC GIẢ   : HiepHoon
+ *  TELEGRAM  : @Hoon9xx
+ *============================================================================*/
+
 #pragma once
 
 #include "audio/limits.hpp"

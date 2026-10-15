@@ -1,11 +1,26 @@
-// Tên luồng giữ trong biến thread_local (thread_name() của _Ref cũng vậy) và đồng thời gửi cho hệ
-// điều hành để debugger và công cụ đo hiện đúng. _Ref chỉ đặt tên hệ điều hành cho luồng do nó tạo,
-// dùng mbstowcs nên tên có dấu thành rác, và tìm SetThreadDescription qua GetProcAddress cho
-// Windows 7.
-// Nguồn: Forge2 src/core/thread.cpp@d7fcd76. Khác gốc: enumerator mang tiền tố k; macro của
-// windows.h lấy từ core/win32.hpp (gốc khai ở CMake); header con của Win32 include trực tiếp; thân
-// vòng lặp có nhánh tách thành hàm (ghi tại chỗ); bỏ reserve_crash_stack vì core/check của
-// THIENLONG không có trình báo crash; lệnh return kèm lời gọi hàm void tách làm hai.
+/*==============================================================================
+ *  ENGINEHP  |  HIGH-PERFORMANCE GAME ENGINE
+ *------------------------------------------------------------------------------
+ *  TỆP       : engine/core/thread.cpp
+ *  PHÂN HỆ   : Core / Thread
+ *  CHUẨN     : C++23
+ *------------------------------------------------------------------------------
+ *  CHỨC NĂNG
+ *  - Cài đặt core/thread.hpp.
+ *  - Tên luồng giữ trong biến thread_local (thread_name() của _Ref cũng vậy) và
+ *    đồng thời gửi cho hệ điều hành để debugger và công cụ đo hiện đúng. _Ref
+ *    chỉ đặt tên hệ điều hành cho luồng do nó tạo, dùng mbstowcs nên tên có dấu
+ *    thành rác, và tìm SetThreadDescription qua GetProcAddress cho Windows 7.
+ *  - Nguồn: Forge2 src/core/thread.cpp@d7fcd76. Khác gốc: enumerator mang tiền
+ *    tố k; macro của windows.h lấy từ core/win32.hpp (gốc khai ở CMake); header
+ *    con của Win32 include trực tiếp; thân vòng lặp có nhánh tách thành hàm
+ *    (ghi tại chỗ); bỏ reserve_crash_stack vì core/check của THIENLONG không có
+ *    trình báo crash; lệnh return kèm lời gọi hàm void tách làm hai.
+ *------------------------------------------------------------------------------
+ *  TÁC GIẢ   : HiepHoon
+ *  TELEGRAM  : @Hoon9xx
+ *============================================================================*/
+
 #include "core/thread.hpp"
 
 #include "core/log.hpp"

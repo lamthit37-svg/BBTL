@@ -1,5 +1,21 @@
-// Phần của io phụ thuộc hệ điều hành; mỗi nền tảng một tệp cài đặt (platform_win32.cpp,
-// platform_posix.cpp cho Linux và Android), CMake chọn một. Header này không kéo header hệ thống.
+/*==============================================================================
+ *  ENGINEHP  |  HIGH-PERFORMANCE GAME ENGINE
+ *------------------------------------------------------------------------------
+ *  TỆP       : engine/io/platform.hpp
+ *  PHÂN HỆ   : Io / Platform
+ *  CHUẨN     : C++23
+ *------------------------------------------------------------------------------
+ *  CHỨC NĂNG
+ *  - Phần io phụ thuộc hệ điều hành: console UTF-8, đối số dòng lệnh UTF-8, thư
+ *    mục exe, mở tệp bằng chương trình mặc định.
+ *  - Mỗi nền tảng một tệp cài đặt (platform_win32.cpp, platform_posix.cpp cho
+ *    Linux và Android, platform_apple.cpp), CMake chọn một; header không kéo
+ *    header hệ thống.
+ *------------------------------------------------------------------------------
+ *  TÁC GIẢ   : HiepHoon
+ *  TELEGRAM  : @Hoon9xx
+ *============================================================================*/
+
 #pragma once
 
 #include <filesystem>

@@ -1,17 +1,34 @@
-// Hình học cho chọn vật, va chạm thô và cắt khối nhìn: Ray, Plane, Aabb, Obb, Frustum và các phép
-// giao — phần "intersection helpers" và "matrix helpers" của common.hpp trong _Ref. Khác gốc:
-// - MỘT quy ước mặt phẳng: normal . x + d = 0, giống mặt phẳng dạng Vector4 (a, b, c, d). Gốc cho
-//   Plane(normal, point) lưu d = normal . point (tức normal . x - d = 0) nhưng rayPlaneDistance lại
-//   giải theo dấu cộng, rồi rayIntersectsPlane bù bằng cách đảo dấu t: điểm chạm ra sai phía;
-// - phép giao trả std::optional thay bool cộng con trỏ ra;
-// - đỉnh khối nhìn lấy z của NDC trong [0, 1] (D3D, Vulkan); gốc dùng [-1, 1] của OpenGL;
-// - decompose là một hàm, trả optional: gốc có hai bản, bản decomposeMatrix tính ma trận đã bỏ tỉ
-//   lệ rồi không dùng và thiếu khôi phục dấu; bản decompose chỉ đổi dấu một hàng khi hệ toạ độ lật
-//   và lặng lẽ bỏ dở khi ma trận suy biến.
-// Nguồn: Forge2 src/math/geometry.hpp@d7fcd76. Khác gốc (so với Forge2): enumerator của
-// FrustumTest mang tiền tố k; bỏ {} thừa ở thành viên Vector3 của Ray, Plane, Obb; Float2 của
-// frustum_size_fov_x/y khởi tạo bằng tên thành viên; NOLINT kèm lý do cho plane_from_point và
-// frustum_size_fov_x/y.
+/*==============================================================================
+ *  ENGINEHP  |  HIGH-PERFORMANCE GAME ENGINE
+ *------------------------------------------------------------------------------
+ *  TỆP       : engine/math/geometry.hpp
+ *  PHÂN HỆ   : Math / Geometry
+ *  CHUẨN     : C++23
+ *------------------------------------------------------------------------------
+ *  CHỨC NĂNG
+ *  - Hình học cho chọn vật, va chạm thô và cắt khối nhìn: Ray, Plane, Aabb,
+ *    Obb, Frustum và các phép giao — phần "intersection helpers" và "matrix
+ *    helpers" của common.hpp trong _Ref. Khác gốc:
+ *  - MỘT quy ước mặt phẳng: normal . x + d = 0, giống mặt phẳng dạng Vector4
+ *    (a, b, c, d). Gốc cho Plane(normal, point) lưu d = normal . point (tức
+ *    normal . x - d = 0) nhưng rayPlaneDistance lại giải theo dấu cộng, rồi
+ *    rayIntersectsPlane bù bằng cách đảo dấu t: điểm chạm ra sai phía;
+ *  - phép giao trả std::optional thay bool cộng con trỏ ra;
+ *  - đỉnh khối nhìn lấy z của NDC trong [0, 1] (D3D, Vulkan); gốc dùng [-1, 1]
+ *    của OpenGL;
+ *  - decompose là một hàm, trả optional: gốc có hai bản, bản decomposeMatrix
+ *    tính ma trận đã bỏ tỉ lệ rồi không dùng và thiếu khôi phục dấu; bản
+ *    decompose chỉ đổi dấu một hàng khi hệ toạ độ lật và lặng lẽ bỏ dở khi ma
+ *    trận suy biến.
+ *  - Nguồn: Forge2 src/math/geometry.hpp@d7fcd76. Khác gốc (so với Forge2):
+ *    enumerator của FrustumTest mang tiền tố k; bỏ {} thừa ở thành viên Vector3
+ *    của Ray, Plane, Obb; Float2 của frustum_size_fov_x/y khởi tạo bằng tên
+ *    thành viên; NOLINT kèm lý do cho plane_from_point và frustum_size_fov_x/y.
+ *------------------------------------------------------------------------------
+ *  TÁC GIẢ   : HiepHoon
+ *  TELEGRAM  : @Hoon9xx
+ *============================================================================*/
+
 #pragma once
 
 #include "math/matrix.hpp"

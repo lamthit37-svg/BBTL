@@ -1,12 +1,27 @@
-// Bố cục căn cột của bảng TSV (chủ dự án giao 2026-10-15): dòng kAlignedLayout nằm trước dòng tên cột
-// báo rằng mọi ô (cả tên cột) có thể mang dấu cách đệm ở cuối để cột thẳng hàng khi mở bằng trình
-// soạn. Dấu cách cuối ô khi đó là đệm, không phải dữ liệu; dấu cách cuối thật được ghi bằng kSpaceMark,
-// mỗi dấu cách một ký hiệu, và dữ liệu của bảng căn cột không chứa kSpaceMark (bộ ghi
-// TOOLS/server/tsv_file.py từ chối). Dấu cách ở đầu và giữa ô vẫn là dữ liệu. Dòng "# layout: <khác>"
-// trước dòng tên cột là lỗi, để một dòng gõ sai không biến đệm thành dữ liệu. Bảng không có dòng đó đọc
-// nguyên văn như trước.
-// Gom ở core vì mọi bộ đọc TSV của dự án (table::parse_tsv, item::tsv::Rows, content::RecordReader)
-// phải bỏ đệm theo đúng một luật, mà module item không phụ thuộc module table.
+/*==============================================================================
+ *  ENGINEHP  |  HIGH-PERFORMANCE GAME ENGINE
+ *------------------------------------------------------------------------------
+ *  TỆP       : engine/core/aligned.hpp
+ *  PHÂN HỆ   : Core / Aligned
+ *  CHUẨN     : C++23
+ *------------------------------------------------------------------------------
+ *  CHỨC NĂNG
+ *  - Bố cục căn cột của bảng TSV (chủ dự án giao 2026-10-15): dòng
+ *    kAlignedLayout nằm trước dòng tên cột báo rằng mọi ô (cả tên cột) có thể
+ *    mang dấu cách đệm ở cuối để cột thẳng hàng khi mở bằng trình soạn. Dấu
+ *    cách cuối ô khi đó là đệm, không phải dữ liệu; dấu cách cuối thật được ghi
+ *    bằng kSpaceMark, mỗi dấu cách một ký hiệu, và dữ liệu của bảng căn cột
+ *    không chứa kSpaceMark (bộ ghi TOOLS/server/tsv_file.py từ chối). Dấu cách
+ *    ở đầu và giữa ô vẫn là dữ liệu. Dòng "# layout: <khác>" trước dòng tên cột
+ *    là lỗi, để một dòng gõ sai không biến đệm thành dữ liệu. Bảng không có
+ *    dòng đó đọc nguyên văn như trước. Gom ở core vì mọi bộ đọc TSV của dự án
+ *    (table::parse_tsv, item::tsv::Rows, content::RecordReader) phải bỏ đệm
+ *    theo đúng một luật, mà module item không phụ thuộc module table.
+ *------------------------------------------------------------------------------
+ *  TÁC GIẢ   : HiepHoon
+ *  TELEGRAM  : @Hoon9xx
+ *============================================================================*/
+
 #pragma once
 
 #include <cstddef>

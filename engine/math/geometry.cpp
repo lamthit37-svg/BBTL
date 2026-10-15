@@ -1,11 +1,26 @@
-// Phép giao và phân rã ma trận. Công thức giữ như common.hpp của _Ref, trừ các chỗ đã ghi ở
-// geometry.hpp. Slab của tia với hộp theo Real-Time Collision Detection (Ericson); phân rã ma trận
-// theo GLM và TransformationMatrix của WebCore.
-// Nguồn: Forge2 src/math/geometry.cpp@d7fcd76. Khác gốc (so với Forge2): enumerator của
-// FrustumTest mang tiền tố k; header dùng trực tiếp được include đủ; hai vòng for có câu if trong
-// thân (intersect của tia với Aabb, aabb_touches_frustum) đưa điều kiện dừng lên điều kiện lặp,
-// thứ tự xét trục giữ nguyên; Vector2 khởi tạo bằng tên thành viên; NOLINT kèm lý do cho
-// clip_axis và corners_beyond.
+/*==============================================================================
+ *  ENGINEHP  |  HIGH-PERFORMANCE GAME ENGINE
+ *------------------------------------------------------------------------------
+ *  TỆP       : engine/math/geometry.cpp
+ *  PHÂN HỆ   : Math / Geometry
+ *  CHUẨN     : C++23
+ *------------------------------------------------------------------------------
+ *  CHỨC NĂNG
+ *  - Cài đặt phép giao và phân rã ma trận của math/geometry.hpp. Công thức giữ
+ *    như common.hpp của _Ref, trừ các chỗ đã ghi ở geometry.hpp. Slab của tia
+ *    với hộp theo Real-Time Collision Detection (Ericson); phân rã ma trận theo
+ *    GLM và TransformationMatrix của WebCore.
+ *  - Nguồn: Forge2 src/math/geometry.cpp@d7fcd76. Khác gốc (so với Forge2):
+ *    enumerator của FrustumTest mang tiền tố k; header dùng trực tiếp được
+ *    include đủ; hai vòng for có câu if trong thân (intersect của tia với Aabb,
+ *    aabb_touches_frustum) đưa điều kiện dừng lên điều kiện lặp, thứ tự xét
+ *    trục giữ nguyên; Vector2 khởi tạo bằng tên thành viên; NOLINT kèm lý do
+ *    cho clip_axis và corners_beyond.
+ *------------------------------------------------------------------------------
+ *  TÁC GIẢ   : HiepHoon
+ *  TELEGRAM  : @Hoon9xx
+ *============================================================================*/
+
 #include "math/geometry.hpp"
 
 #include "math/matrix.hpp"

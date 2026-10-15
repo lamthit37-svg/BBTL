@@ -1,10 +1,24 @@
-// Số học dấu thời gian của GPU, không phụ thuộc API — rhi/timestamp.hpp của Platium. Bộ đếm của
-// một hàng đợi có thể hẹp hơn 64 bit (Vulkan báo timestampValidBits theo từng queue family), các
-// bit cao khi ấy là rác chứ không phải 0, và bộ đếm quay vòng. _Ref đọc thẳng giá trị thô rồi nhân
-// với chu kỳ, đúng trên máy có 64 bit và ra một khoảng hàng nghìn năm trên máy có 32 bit. Tách khỏi
-// backend để phép thử gọi thẳng: trên máy phát triển mọi hàng đợi đều cho 64 bit nên nhánh che
-// không bao giờ chạy qua GPU thật.
-// Nguồn: Forge2 src/gpu/timestamp.hpp@d7fcd76. Khác gốc: không.
+/*==============================================================================
+ *  ENGINEHP  |  HIGH-PERFORMANCE GAME ENGINE
+ *------------------------------------------------------------------------------
+ *  TỆP       : engine/gpu/timestamp.hpp
+ *  PHÂN HỆ   : Gpu / Timestamp
+ *  CHUẨN     : C++23
+ *------------------------------------------------------------------------------
+ *  CHỨC NĂNG
+ *  - Số học dấu thời gian của GPU, không phụ thuộc API — rhi/timestamp.hpp của
+ *    Platium. Bộ đếm của một hàng đợi có thể hẹp hơn 64 bit (Vulkan báo
+ *    timestampValidBits theo từng queue family), các bit cao khi ấy là rác chứ
+ *    không phải 0, và bộ đếm quay vòng. _Ref đọc thẳng giá trị thô rồi nhân với
+ *    chu kỳ, đúng trên máy có 64 bit và ra một khoảng hàng nghìn năm trên máy
+ *    có 32 bit. Tách khỏi backend để phép thử gọi thẳng: trên máy phát triển
+ *    mọi hàng đợi đều cho 64 bit nên nhánh che không bao giờ chạy qua GPU thật.
+ *  - Nguồn: Forge2 src/gpu/timestamp.hpp@d7fcd76. Khác gốc: không.
+ *------------------------------------------------------------------------------
+ *  TÁC GIẢ   : HiepHoon
+ *  TELEGRAM  : @Hoon9xx
+ *============================================================================*/
+
 #pragma once
 
 #include <cstdint>

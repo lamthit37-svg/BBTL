@@ -1,9 +1,22 @@
-// Đổi tần số lấy mẫu bằng bộ lọc sinc cửa sổ Kaiser đa pha: 96 hệ số cho mỗi mẫu ra khi nâng tần
-// số, dải chắn sâu hơn 100 dB. Tệp của client gốc là 22,05 hoặc 44,1 kHz còn bộ trộn chạy 48 kHz;
-// nội suy tuyến tính của miniaudio để ảnh phổ gập vào dải nghe (đo: sin 10 kHz ở 44,1 kHz ra kèm
-// thành phần lạ -21 dB), nên việc đổi tần số làm ở đây. Tỉ số hai tần số là số hữu tỉ: vị trí đọc
-// tính bằng số nguyên nên không trôi dù chạy bao lâu. Dùng ở ba chỗ: hiệu ứng lúc nạp (một lần),
-// nhạc luồng (theo khối, ở luồng giải mã) và đầu ra khi thiết bị không chạy 48 kHz.
+/*==============================================================================
+ *  ENGINEHP  |  HIGH-PERFORMANCE GAME ENGINE
+ *------------------------------------------------------------------------------
+ *  TỆP       : engine/audio/resample.hpp
+ *  PHÂN HỆ   : Audio / Resample
+ *  CHUẨN     : C++23
+ *------------------------------------------------------------------------------
+ *  CHỨC NĂNG
+ *  - Đổi tần số lấy mẫu bằng sinc cửa sổ Kaiser đa pha: 96 hệ số mỗi mẫu ra khi
+ *    nâng tần số, dải chắn sâu hơn 100 dB (nội suy tuyến tính của miniaudio để
+ *    lại thành phần lạ -21 dB).
+ *  - Tỉ số tần số là số hữu tỉ, vị trí đọc tính bằng số nguyên nên không trôi.
+ *  - Dùng cho hiệu ứng lúc nạp, nhạc luồng (ở luồng giải mã) và đầu ra khi
+ *    thiết bị không chạy 48 kHz.
+ *------------------------------------------------------------------------------
+ *  TÁC GIẢ   : HiepHoon
+ *  TELEGRAM  : @Hoon9xx
+ *============================================================================*/
+
 #pragma once
 
 #include "audio/limits.hpp"

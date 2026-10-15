@@ -1,11 +1,27 @@
-// Chia một dải đơn vị liên tục thành các đoạn: RangeAllocator (TLSF hai tầng, cấp và trả O(1), gộp
-// đoạn rỗi kề nhau, không cấp phát khi chạy) và PageAllocator dựng trên nó (tính theo byte và
-// trang, an toàn đa luồng, đoạn đếm tham chiếu, trả hoãn theo khung cho bộ nhớ GPU). Nguồn:
-// PageAllocator của Wicked (bọc OffsetAllocator của Aaltonen); thuật toán TLSF dựng lại từ mô tả
-// của nó, không chép mã. Dùng để chia nhỏ một khối bộ nhớ GPU lớn, một buffer staging hay một tệp
-// ánh xạ thành vùng cho từng tài nguyên: khác Arena ở chỗ trả lẻ được, khác Pool ở chỗ cỡ tuỳ ý.
-// RangeAllocator không an toàn đa luồng; PageAllocator có mutex riêng.
-// Nguồn: Forge2 src/core/range.hpp@d7fcd76. Khác gốc: constructor của PageAllocator thêm explicit.
+/*==============================================================================
+ *  ENGINEHP  |  HIGH-PERFORMANCE GAME ENGINE
+ *------------------------------------------------------------------------------
+ *  TỆP       : engine/core/range.hpp
+ *  PHÂN HỆ   : Core / Range
+ *  CHUẨN     : C++23
+ *------------------------------------------------------------------------------
+ *  CHỨC NĂNG
+ *  - Chia một dải đơn vị liên tục thành các đoạn: RangeAllocator (TLSF hai
+ *    tầng, cấp và trả O(1), gộp đoạn rỗi kề nhau, không cấp phát khi chạy) và
+ *    PageAllocator dựng trên nó (tính theo byte và trang, an toàn đa luồng,
+ *    đoạn đếm tham chiếu, trả hoãn theo khung cho bộ nhớ GPU). Nguồn:
+ *    PageAllocator của Wicked (bọc OffsetAllocator của Aaltonen); thuật toán
+ *    TLSF dựng lại từ mô tả của nó, không chép mã. Dùng để chia nhỏ một khối bộ
+ *    nhớ GPU lớn, một buffer staging hay một tệp ánh xạ thành vùng cho từng tài
+ *    nguyên: khác Arena ở chỗ trả lẻ được, khác Pool ở chỗ cỡ tuỳ ý.
+ *    RangeAllocator không an toàn đa luồng; PageAllocator có mutex riêng.
+ *  - Nguồn: Forge2 src/core/range.hpp@d7fcd76. Khác gốc: constructor của
+ *    PageAllocator thêm explicit.
+ *------------------------------------------------------------------------------
+ *  TÁC GIẢ   : HiepHoon
+ *  TELEGRAM  : @Hoon9xx
+ *============================================================================*/
+
 #pragma once
 
 #include <array>

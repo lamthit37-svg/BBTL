@@ -1,7 +1,20 @@
-// Giải mã WAV/MP3 và thiết bị phát. Header này không kéo miniaudio.h: header_check dịch mọi
-// header trong SRC, còn miniaudio chỉ nằm trong bản dịch native.cpp. Mọi thứ ở đây giữ tần số gốc
-// của tệp và của thiết bị: đổi tần số là việc của audio/resample.hpp, không phải của miniaudio
-// (bộ đổi tuyến tính của nó để ảnh phổ gập vào dải nghe).
+/*==============================================================================
+ *  ENGINEHP  |  HIGH-PERFORMANCE GAME ENGINE
+ *------------------------------------------------------------------------------
+ *  TỆP       : engine/audio/detail/native.hpp
+ *  PHÂN HỆ   : Audio / Native
+ *  CHUẨN     : C++23
+ *------------------------------------------------------------------------------
+ *  CHỨC NĂNG
+ *  - Giải mã WAV/MP3 và thiết bị phát; header không kéo miniaudio.h
+ *    (header_check dịch mọi header, miniaudio chỉ nằm trong native.cpp).
+ *  - Giữ tần số gốc của tệp và thiết bị; đổi tần số là việc của
+ *    audio/resample.hpp.
+ *------------------------------------------------------------------------------
+ *  TÁC GIẢ   : HiepHoon
+ *  TELEGRAM  : @Hoon9xx
+ *============================================================================*/
+
 #pragma once
 
 #include "audio/limits.hpp"

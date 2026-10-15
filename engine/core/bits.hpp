@@ -1,10 +1,26 @@
-// Căn lề, số nguyên little/big-endian trên vùng byte, zigzag. Nguồn: core/bits của No1 và
-// transport/wire của Forge2 (hai bản đọc/ghi little-endian y hệt nhau), gộp một chỗ để mọi module
-// dùng chung. Phép bit đơn giản đã có trong STL (<bit>: has_single_bit, bit_ceil, popcount,
-// countl_zero) thì dùng thẳng, không bọc lại. Mọi vi phạm tiền điều kiện dừng ở mọi cấu hình: ghi
-// ngoài vùng byte hay căn lề không phải luỹ thừa hai là lỗi bộ nhớ chứ không phải lỗi dữ liệu.
-// Nguồn: Forge2 src/core/bits.hpp@d7fcd76. Khác gốc: check là bản của THIENLONG, không định dạng,
-// nên thông điệp của mọi check trong tệp không kèm số (căn lề, giá trị, cỡ vùng, chỉ số).
+/*==============================================================================
+ *  ENGINEHP  |  HIGH-PERFORMANCE GAME ENGINE
+ *------------------------------------------------------------------------------
+ *  TỆP       : engine/core/bits.hpp
+ *  PHÂN HỆ   : Core / Bits
+ *  CHUẨN     : C++23
+ *------------------------------------------------------------------------------
+ *  CHỨC NĂNG
+ *  - Căn lề, số nguyên little/big-endian trên vùng byte, zigzag. Nguồn:
+ *    core/bits của No1 và transport/wire của Forge2 (hai bản đọc/ghi little-
+ *    endian y hệt nhau), gộp một chỗ để mọi module dùng chung. Phép bit đơn
+ *    giản đã có trong STL (<bit>: has_single_bit, bit_ceil, popcount,
+ *    countl_zero) thì dùng thẳng, không bọc lại. Mọi vi phạm tiền điều kiện
+ *    dừng ở mọi cấu hình: ghi ngoài vùng byte hay căn lề không phải luỹ thừa
+ *    hai là lỗi bộ nhớ chứ không phải lỗi dữ liệu.
+ *  - Nguồn: Forge2 src/core/bits.hpp@d7fcd76. Khác gốc: check là bản của
+ *    THIENLONG, không định dạng, nên thông điệp của mọi check trong tệp không
+ *    kèm số (căn lề, giá trị, cỡ vùng, chỉ số).
+ *------------------------------------------------------------------------------
+ *  TÁC GIẢ   : HiepHoon
+ *  TELEGRAM  : @Hoon9xx
+ *============================================================================*/
+
 #pragma once
 
 #include "core/check.hpp"

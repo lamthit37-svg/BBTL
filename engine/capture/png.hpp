@@ -1,12 +1,27 @@
-// Ghi ảnh PNG từ một khung hình. _Ref chụp màn hình bằng stbi_write_png_to_mem (mức nén 4, một
-// luồng) ngay trên luồng vẽ, sau khi chép cả ảnh sang bộ đệm khác để bỏ alpha. Ở đây ảnh chia thành
-// các dải hàng; mỗi dải tự lọc (filter của PNG) và tự nén deflate trên một luồng của JobSystem, rồi
-// các dải ghép lại thành một dòng zlib duy nhất (capture/deflate.hpp). Tệp ra là PNG chuẩn, mở được
-// bằng mọi trình đọc; tests/capture_tests.cpp giải lại bằng bộ inflate viết riêng trong test và so
-// từng byte điểm ảnh.
-// Nguồn: Forge2 src/capture/png.hpp@d7fcd76. Khác gốc: enumerator mang tiền tố k; comment về phép
-// thử và về Rgba32F nói theo THIENLONG (gốc thử bằng WIC, ảnh float đi qua capture/hdr.hpp chưa
-// chép).
+/*==============================================================================
+ *  ENGINEHP  |  HIGH-PERFORMANCE GAME ENGINE
+ *------------------------------------------------------------------------------
+ *  TỆP       : engine/capture/png.hpp
+ *  PHÂN HỆ   : Capture / Png
+ *  CHUẨN     : C++23
+ *------------------------------------------------------------------------------
+ *  CHỨC NĂNG
+ *  - Ghi ảnh PNG từ một khung hình. _Ref chụp màn hình bằng
+ *    stbi_write_png_to_mem (mức nén 4, một luồng) ngay trên luồng vẽ, sau khi
+ *    chép cả ảnh sang bộ đệm khác để bỏ alpha.
+ *  - Ở đây ảnh chia thành các dải hàng; mỗi dải tự lọc (filter của PNG) và tự
+ *    nén deflate trên một luồng của JobSystem, rồi các dải ghép lại thành một
+ *    dòng zlib duy nhất (capture/deflate.hpp).
+ *  - Tệp ra là PNG chuẩn, mở được bằng mọi trình đọc; tests/capture_tests.cpp
+ *    giải lại bằng bộ inflate viết riêng trong test và so từng byte điểm ảnh.
+ *  - Nguồn: Forge2 src/capture/png.hpp@d7fcd76. Khác gốc: enumerator mang tiền
+ *    tố k; comment về phép thử và về Rgba32F nói theo THIENLONG (gốc thử bằng
+ *    WIC, ảnh float đi qua capture/hdr.hpp chưa chép).
+ *------------------------------------------------------------------------------
+ *  TÁC GIẢ   : HiepHoon
+ *  TELEGRAM  : @Hoon9xx
+ *============================================================================*/
+
 #pragma once
 
 #include "capture/deflate.hpp"

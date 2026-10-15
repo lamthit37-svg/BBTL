@@ -1,18 +1,38 @@
-// Thiết bị đồ hoạ: cửa duy nhất để tạo tài nguyên, nộp lệnh và trình bày — Renderer, Queue, Fence,
-// Semaphore, SwapChain, QueryPool của IGraphics.h trong _Ref; rhi/device.hpp của Platium;
-// GraphicsDevice của Wicked. Khác gốc:
-// - đồng bộ chỉ bằng Timeline (bộ đếm u64 đơn điệu: ID3D12Fence, timeline semaphore của Vulkan);
-//   semaphore nhị phân mà WSI của Vulkan đòi bị giấu sau Swapchain. _Ref lộ cả Fence lẫn Semaphore;
-// - huỷ tài nguyên là hoãn: tay nắm mất hiệu lực ngay, tài nguyên biến mất khi GPU chạy xong mọi
-//   lần nộp đã có lúc huỷ. _Ref huỷ ngay, chỗ gọi phải tự waitQueueIdle;
-// - mất thiết bị là trạng thái hỏi được (loss()), không phải một mã lỗi lẫn trong đám khác;
-// - ghi và đọc buffer bằng write_buffer, read_buffer, không trao con trỏ map ra ngoài;
-// - mọi hàm tạo và huỷ an toàn đa luồng: hệ thống job nạp tài nguyên trên nhiều luồng.
-// Hàm vận hành trả Result hoặc Status; dùng sai (tay nắm chết, tham số ngoài hợp đồng) là
-// InvalidArgument chứ không sập.
-// Nguồn: Forge2 src/gpu/device.hpp@d7fcd76. Khác gốc (so với Forge2): enumerator mang tiền tố k; bỏ
-// {} thừa của các thành viên string, string_view, optional và span ở AdapterInfo, DeviceDesc,
-// SubmitDesc, QueryPoolDesc.
+/*==============================================================================
+ *  ENGINEHP  |  HIGH-PERFORMANCE GAME ENGINE
+ *------------------------------------------------------------------------------
+ *  TỆP       : engine/gpu/device.hpp
+ *  PHÂN HỆ   : Gpu / Device
+ *  CHUẨN     : C++23
+ *------------------------------------------------------------------------------
+ *  CHỨC NĂNG
+ *  - Thiết bị đồ hoạ: cửa duy nhất để tạo tài nguyên, nộp lệnh và trình bày —
+ *    Renderer, Queue, Fence, Semaphore, SwapChain, QueryPool của IGraphics.h
+ *    trong _Ref; rhi/device.hpp của Platium; GraphicsDevice của Wicked. Khác
+ *    gốc:
+ *  - đồng bộ chỉ bằng Timeline (bộ đếm u64 đơn điệu: ID3D12Fence, timeline
+ *    semaphore của Vulkan); semaphore nhị phân mà WSI của Vulkan đòi bị giấu
+ *    sau Swapchain. _Ref lộ cả Fence lẫn Semaphore;
+ *  - huỷ tài nguyên là hoãn: tay nắm mất hiệu lực ngay, tài nguyên biến mất khi
+ *    GPU chạy xong mọi lần nộp đã có lúc huỷ. _Ref huỷ ngay, chỗ gọi phải tự
+ *    waitQueueIdle;
+ *  - mất thiết bị là trạng thái hỏi được (loss()), không phải một mã lỗi lẫn
+ *    trong đám khác;
+ *  - ghi và đọc buffer bằng write_buffer, read_buffer, không trao con trỏ map
+ *    ra ngoài;
+ *  - mọi hàm tạo và huỷ an toàn đa luồng: hệ thống job nạp tài nguyên trên
+ *    nhiều luồng.
+ *  - Hàm vận hành trả Result hoặc Status; dùng sai (tay nắm chết, tham số ngoài
+ *    hợp đồng) là InvalidArgument chứ không sập.
+ *  - Nguồn: Forge2 src/gpu/device.hpp@d7fcd76. Khác gốc (so với Forge2):
+ *    enumerator mang tiền tố k; bỏ {} thừa của các thành viên string,
+ *    string_view, optional và span ở AdapterInfo, DeviceDesc, SubmitDesc,
+ *    QueryPoolDesc.
+ *------------------------------------------------------------------------------
+ *  TÁC GIẢ   : HiepHoon
+ *  TELEGRAM  : @Hoon9xx
+ *============================================================================*/
+
 #pragma once
 
 #include "core/error.hpp"

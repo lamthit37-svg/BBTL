@@ -1,15 +1,25 @@
-// Màn hình và chế độ hiển thị — MonitorDesc, collectMonitorInfo, getMonitor*,
-// getRecommendedResolution, setResolution, getResolutionSupport của _Ref (WindowsWindow.cpp,
-// WindowSystem.cpp). Khác gốc:
-// - monitors() liệt kê lại ở mỗi lần gọi, mỗi vùng màn hình của desktop một mục. Gốc liệt kê một
-//   lần lúc khởi động vào mảng toàn cục: cắm, rút hay đổi độ phân giải bằng tay là danh sách cũ;
-// - tên là UTF-8 dài tuỳ ý; gốc giữ WCHAR[32] và WCHAR[128];
-// - dpi là DPI hiệu dụng của Windows (tỉ lệ người dùng chọn). Gốc tính DPI từ cỡ vật lý và chia
-//   cho 0 khi màn hình ảo báo cỡ 0; bản an toàn là physical_dpi;
+// +---------------------------------------------------------------+
+// | THIENLONG                                                     |
+// | Tệp: engine/window/monitor.hpp                                |
+// | - Màn hình và chế độ hiển thị — MonitorDesc,                  |
+// |   collectMonitorInfo, getMonitor*, getRecommendedResolution,  |
+// |   setResolution, getResolutionSupport của _Ref                |
+// |   (WindowsWindow.cpp, WindowSystem.cpp). Khác gốc:            |
+// | - monitors() liệt kê lại ở mỗi lần gọi, mỗi vùng màn hình của |
+// |   desktop một mục. Gốc liệt kê một lần lúc khởi động vào mảng |
+// |   toàn cục: cắm, rút hay đổi độ phân giải bằng tay là danh    |
+// |   sách cũ;                                                    |
+// | - tên là UTF-8 dài tuỳ ý; gốc giữ WCHAR[32] và WCHAR[128];    |
+// | - dpi là DPI hiệu dụng của Windows (tỉ lệ người dùng chọn).   |
+// | Dev : HiepHoon   Tele : @Hoon9xx                              |
+// +---------------------------------------------------------------+
+
+// Gốc tính DPI từ cỡ vật lý và chia cho 0 khi màn hình ảo báo cỡ 0; bản an toàn là physical_dpi;
 // - chế độ hiện tại luôn có trong modes; gốc ASSERT rồi dùng chỉ số UINT32_MAX ở Release;
 // - set_display_mode trả lỗi của hệ thống và có restore_display_mode; gốc bỏ kết quả và không có
 //   lối về.
 // Nguồn: Forge2 src/window/monitor.hpp@d7fcd76. Khác gốc (so với Forge2): không.
+
 #pragma once
 
 #include "core/error.hpp"

@@ -1,11 +1,25 @@
-// Quaternion (x, y, z, w) trên một __m128 — sse/quaternion.hpp của ModifiedSonyMath trong _Ref.
-// Phép nhân và rotate giữ đúng thứ tự phép tính của gốc. Khác gốc:
-// - normalize chia cho căn chính xác; gốc nhân với RSQRTPS trần, sai số 3e-4 nên quaternion "đơn
-//   vị" làm ma trận quay co giãn;
-// - rotation(unit0, unit1) cũng dùng căn chính xác thay RSQRTPS;
-// - góc vô hướng tính bằng std::sin, std::cos thay đa thức xấp xỉ;
-// - slerp, squad, lerp nhận t ở cuối.
-// Nguồn: Forge2 src/math/quat.hpp@d7fcd76. Khác gốc (so với Forge2): không.
+/*==============================================================================
+ *  ENGINEHP  |  HIGH-PERFORMANCE GAME ENGINE
+ *------------------------------------------------------------------------------
+ *  TỆP       : engine/math/quat.hpp
+ *  PHÂN HỆ   : Math / Quat
+ *  CHUẨN     : C++23
+ *------------------------------------------------------------------------------
+ *  CHỨC NĂNG
+ *  - Quaternion (x, y, z, w) trên một __m128 — sse/quaternion.hpp của
+ *    ModifiedSonyMath trong _Ref. Phép nhân và rotate giữ đúng thứ tự phép tính
+ *    của gốc. Khác gốc:
+ *  - normalize chia cho căn chính xác; gốc nhân với RSQRTPS trần, sai số 3e-4
+ *    nên quaternion "đơn vị" làm ma trận quay co giãn;
+ *  - rotation(unit0, unit1) cũng dùng căn chính xác thay RSQRTPS;
+ *  - góc vô hướng tính bằng std::sin, std::cos thay đa thức xấp xỉ;
+ *  - slerp, squad, lerp nhận t ở cuối.
+ *  - Nguồn: Forge2 src/math/quat.hpp@d7fcd76. Khác gốc (so với Forge2): không.
+ *------------------------------------------------------------------------------
+ *  TÁC GIẢ   : HiepHoon
+ *  TELEGRAM  : @Hoon9xx
+ *============================================================================*/
+
 #pragma once
 
 #include "math/vector.hpp"

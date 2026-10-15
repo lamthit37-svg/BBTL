@@ -1,6 +1,20 @@
-// TỆP SINH bởi TOOLS/content/gen_gbk_table.py từ MultiByteToWideChar(936) của Windows; không sửa tay.
-// Ô của cặp (lead, trail) nằm ở (lead - kGbkLeadFirst) * kGbkTrails + (trail - kGbkTrailFirst); 0 là cặp không
-// có trong trang mã. Mọi điểm mã đều trong BMP.
+/*==============================================================================
+ *  ENGINEHP  |  HIGH-PERFORMANCE GAME ENGINE
+ *------------------------------------------------------------------------------
+ *  TỆP       : engine/core/detail/gbk_table.hpp
+ *  PHÂN HỆ   : Core / Gbk
+ *  CHUẨN     : C++23
+ *------------------------------------------------------------------------------
+ *  CHỨC NĂNG
+ *  - TỆP SINH bởi TOOLS/content/gen_gbk_table.py từ MultiByteToWideChar(936)
+ *    của Windows; không sửa tay. Ô của cặp (lead, trail) nằm ở (lead -
+ *    kGbkLeadFirst) * kGbkTrails + (trail - kGbkTrailFirst); 0 là cặp không có
+ *    trong trang mã. Mọi điểm mã đều trong BMP.
+ *------------------------------------------------------------------------------
+ *  TÁC GIẢ   : HiepHoon
+ *  TELEGRAM  : @Hoon9xx
+ *============================================================================*/
+
 #pragma once
 
 #include <array>

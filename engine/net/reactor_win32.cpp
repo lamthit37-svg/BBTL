@@ -1,7 +1,20 @@
-// Reactor trên Windows: một cổng hoàn thành cho mọi socket của luồng.
-// Đọc là WSARecv 0 byte (không nuốt dữ liệu) để biết lúc nào recv() có việc.
-// Gửi là WSASend bản sao, nên outbox của gate được dịch chuyển trong lúc kernel còn giữ bản sao.
-// Nhận kết nối là AcceptEx đăng sẵn, khỏi đánh thức rồi mới accept.
+/*==============================================================================
+ *  ENGINEHP  |  HIGH-PERFORMANCE GAME ENGINE
+ *------------------------------------------------------------------------------
+ *  TỆP       : engine/net/reactor_win32.cpp
+ *  PHÂN HỆ   : Net / Reactor
+ *  CHUẨN     : C++23
+ *------------------------------------------------------------------------------
+ *  CHỨC NĂNG
+ *  - Reactor trên Windows: một cổng hoàn thành cho mọi socket của luồng.
+ *  - Đọc là WSARecv 0 byte (không nuốt dữ liệu) để biết lúc recv() có việc; gửi
+ *    là WSASend bản sao, nên outbox của gate dịch chuyển được khi kernel còn
+ *    giữ bản sao.
+ *  - Nhận kết nối là AcceptEx đăng sẵn, khỏi đánh thức rồi mới accept.
+ *------------------------------------------------------------------------------
+ *  TÁC GIẢ   : HiepHoon
+ *  TELEGRAM  : @Hoon9xx
+ *============================================================================*/
 
 #include "net/reactor.hpp"
 

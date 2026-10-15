@@ -1,20 +1,38 @@
-// Vòng đệm dùng chung: mảng tĩnh 4 MiB gồm các word atomic (vùng BSS, không cấp phát, còn nguyên
-// khi heap hỏng lúc crash). Vị trí là số byte tăng mãi, 64 bit không bao giờ quấn; chỉ số trong
-// mảng là vị trí chia lấy dư. Bản ghi = một word đầu + văn bản đóng gói 8 byte một word, không vắt
-// qua cuối mảng (thiếu chỗ thì một bản ghi Skip lấp phần còn lại).
-//   head: luồng gọi đặt chỗ bằng CAS relaxed — không dữ liệu nào đi qua head.
-//   word đầu: luồng gọi chép văn bản (relaxed) rồi ghi word đầu (release); bên xả đọc nó (acquire).
-//   tail: chỉ bên xả ghi, dưới khoá consumer, sau khi đã xoá về 0 mọi word đã đọc; luồng gọi đọc
-//   tail (acquire) trước khi ghi đè, nên vùng nó ghi luôn đã sạch. Word đầu bằng 0 nghĩa là chưa
-//   xong.
-// So với VnS và No1: không mutex, không biến đếm "đang bay" toàn cục (hai RMW seq_cst mỗi dòng),
-// không State bị huỷ dưới tay luồng gọi — vòng đệm và phần điều phối đều tĩnh, sống tới khi tiến
-// trình thoát.
-// Nguồn: Forge2 src/core/log.cpp@d7fcd76. Khác gốc: enumerator mang tiền tố k; macro của windows.h
-// lấy từ core/win32.hpp (gốc khai ở CMake); header con của Win32 include trực tiếp; check là bản
-// của THIENLONG; thân vòng lặp của reserve, deliver, deliver_flushed, run_writer tách thành hàm một
-// lượt (ghi tại chỗ); bỏ phép ép Word sang size_t mà GCC báo thừa; lệnh return kèm lời gọi hàm void
-// tách làm hai; không tạo được luồng thì create trả Status, không ném system_error.
+/*==============================================================================
+ *  ENGINEHP  |  HIGH-PERFORMANCE GAME ENGINE
+ *------------------------------------------------------------------------------
+ *  TỆP       : engine/core/log.cpp
+ *  PHÂN HỆ   : Core / Log
+ *  CHUẨN     : C++23
+ *------------------------------------------------------------------------------
+ *  CHỨC NĂNG
+ *  - Cài đặt core/log.hpp.
+ *  - Vòng đệm dùng chung: mảng tĩnh 4 MiB gồm các word atomic (vùng BSS, không
+ *    cấp phát, còn nguyên khi heap hỏng lúc crash). Vị trí là số byte tăng mãi,
+ *    64 bit không bao giờ quấn; chỉ số trong mảng là vị trí chia lấy dư. Bản
+ *    ghi = một word đầu + văn bản đóng gói 8 byte một word, không vắt qua cuối
+ *    mảng (thiếu chỗ thì một bản ghi Skip lấp phần còn lại).
+ *  - head: luồng gọi đặt chỗ bằng CAS relaxed — không dữ liệu nào đi qua head.
+ *  - word đầu: luồng gọi chép văn bản (relaxed) rồi ghi word đầu (release); bên
+ *    xả đọc nó (acquire).
+ *  - tail: chỉ bên xả ghi, dưới khoá consumer, sau khi đã xoá về 0 mọi word đã
+ *    đọc; luồng gọi đọc tail (acquire) trước khi ghi đè, nên vùng nó ghi luôn
+ *    đã sạch. Word đầu bằng 0 nghĩa là chưa xong.
+ *  - So với VnS và No1: không mutex, không biến đếm "đang bay" toàn cục (hai
+ *    RMW seq_cst mỗi dòng), không State bị huỷ dưới tay luồng gọi — vòng đệm và
+ *    phần điều phối đều tĩnh, sống tới khi tiến trình thoát.
+ *  - Nguồn: Forge2 src/core/log.cpp@d7fcd76. Khác gốc: enumerator mang tiền tố
+ *    k; macro của windows.h lấy từ core/win32.hpp (gốc khai ở CMake); header
+ *    con của Win32 include trực tiếp; check là bản của THIENLONG; thân vòng lặp
+ *    của reserve, deliver, deliver_flushed, run_writer tách thành hàm một lượt
+ *    (ghi tại chỗ); bỏ phép ép Word sang size_t mà GCC báo thừa; lệnh return
+ *    kèm lời gọi hàm void tách làm hai; không tạo được luồng thì create trả
+ *    Status, không ném system_error.
+ *------------------------------------------------------------------------------
+ *  TÁC GIẢ   : HiepHoon
+ *  TELEGRAM  : @Hoon9xx
+ *============================================================================*/
+
 #include "core/log.hpp"
 
 #include "core/check.hpp"

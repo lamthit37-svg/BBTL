@@ -1,4 +1,18 @@
-// Xem gain.hpp. Doppler dùng tốc độ âm 34300 cm/s và kẹp tỷ lệ trong [0.25, 4].
+/*==============================================================================
+ *  ENGINEHP  |  HIGH-PERFORMANCE GAME ENGINE
+ *------------------------------------------------------------------------------
+ *  TỆP       : engine/audio/gain.cpp
+ *  PHÂN HỆ   : Audio / Gain
+ *  CHUẨN     : C++23
+ *------------------------------------------------------------------------------
+ *  CHỨC NĂNG
+ *  - Cài đặt các hàm hệ số âm lượng, pan, fade và Doppler.
+ *  - Doppler dùng tốc độ âm 34300 cm/s và kẹp tỷ lệ trong [0.25, 4].
+ *------------------------------------------------------------------------------
+ *  TÁC GIẢ   : HiepHoon
+ *  TELEGRAM  : @Hoon9xx
+ *============================================================================*/
+
 #include "audio/gain.hpp"
 
 #include "audio/limits.hpp"

@@ -1,4 +1,19 @@
-// windows.h lấy từ core/win32.hpp; header con của Win32 include trực tiếp.
+/*==============================================================================
+ *  ENGINEHP  |  HIGH-PERFORMANCE GAME ENGINE
+ *------------------------------------------------------------------------------
+ *  TỆP       : engine/io/platform_win32.cpp
+ *  PHÂN HỆ   : Io / Platform
+ *  CHUẨN     : C++23
+ *------------------------------------------------------------------------------
+ *  CHỨC NĂNG
+ *  - Cài đặt io/platform.hpp cho Windows: console UTF-8, đối số UTF-8 qua
+ *    CommandLineToArgvW, thư mục exe, mở tệp bằng ShellExecuteExW.
+ *  - windows.h lấy từ core/win32.hpp; header con của Win32 include trực tiếp.
+ *------------------------------------------------------------------------------
+ *  TÁC GIẢ   : HiepHoon
+ *  TELEGRAM  : @Hoon9xx
+ *============================================================================*/
+
 #include "io/platform.hpp"
 
 #include "core/text.hpp"

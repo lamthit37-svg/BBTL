@@ -1,15 +1,31 @@
-// Bốn số nguyên 32 bit trên một __m128i: phép toán số nguyên và mặt nạ từng làn cho Vector4 —
-// Vector4Int cùng namespace vector4int của ModifiedSonyMath trong _Ref (SimdInt4 của ozz). Mặt nạ:
-// làn "đúng" là toàn bit 1, làn "sai" là 0. Ánh xạ tên ở docs/modules/math.md. Khác gốc:
-// - kiểu riêng thay typedef của __m128i: min, max, abs, clamp... nạp chồng cạnh bản float, và mặt
-//   nạ không lẫn với dữ liệu thô;
-// - not_equal so số nguyên. Gốc (CmpNe) ép sang float rồi so: hai số bằng nhau mà mẫu bit là NaN
-//   thành "khác", còn 0 và INT_MIN (đều là ±0 của float) thành "bằng";
-// - nạp và lưu qua Int4 theo giá trị; Load1Ptr của gốc đọc 8 byte từ con trỏ tới một int, các bản
-//   LoadPtr, StorePtr đòi căn lề 16 mà chỉ ghi trong comment;
-// - min, max, abs dùng PMINSD, PMAXSD, PABSD của SSE4.1 thay so sánh rồi chọn.
-// Nguồn: Forge2 src/math/vector_int.hpp@d7fcd76. Khác gốc (so với Forge2): lanes() khởi tạo Int4
-// bằng tên thành viên.
+/*==============================================================================
+ *  ENGINEHP  |  HIGH-PERFORMANCE GAME ENGINE
+ *------------------------------------------------------------------------------
+ *  TỆP       : engine/math/vector_int.hpp
+ *  PHÂN HỆ   : Math / Vector Int
+ *  CHUẨN     : C++23
+ *------------------------------------------------------------------------------
+ *  CHỨC NĂNG
+ *  - Bốn số nguyên 32 bit trên một __m128i: phép toán số nguyên và mặt nạ từng
+ *    làn cho Vector4 — Vector4Int cùng namespace vector4int của
+ *    ModifiedSonyMath trong _Ref (SimdInt4 của ozz). Mặt nạ: làn "đúng" là toàn
+ *    bit 1, làn "sai" là 0. Ánh xạ tên ở docs/modules/math.md. Khác gốc:
+ *  - kiểu riêng thay typedef của __m128i: min, max, abs, clamp... nạp chồng
+ *    cạnh bản float, và mặt nạ không lẫn với dữ liệu thô;
+ *  - not_equal so số nguyên. Gốc (CmpNe) ép sang float rồi so: hai số bằng nhau
+ *    mà mẫu bit là NaN thành "khác", còn 0 và INT_MIN (đều là ±0 của float)
+ *    thành "bằng";
+ *  - nạp và lưu qua Int4 theo giá trị; Load1Ptr của gốc đọc 8 byte từ con trỏ
+ *    tới một int, các bản LoadPtr, StorePtr đòi căn lề 16 mà chỉ ghi trong
+ *    comment;
+ *  - min, max, abs dùng PMINSD, PMAXSD, PABSD của SSE4.1 thay so sánh rồi chọn.
+ *  - Nguồn: Forge2 src/math/vector_int.hpp@d7fcd76. Khác gốc (so với Forge2):
+ *    lanes() khởi tạo Int4 bằng tên thành viên.
+ *------------------------------------------------------------------------------
+ *  TÁC GIẢ   : HiepHoon
+ *  TELEGRAM  : @Hoon9xx
+ *============================================================================*/
+
 #pragma once
 
 #include "core/check.hpp"

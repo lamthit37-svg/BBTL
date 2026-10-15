@@ -1,14 +1,21 @@
-// Socket TCP không chặn và tập chờ trên POSIX (Linux, Android, macOS, iOS). Header mạng của POSIX chỉ
-// có ở tệp này.
-// Nguồn: TLBB Dev src/platform/socket_posix.cpp.
-// Khác gốc: chỉ IPv4 qua sockaddr_in, địa chỉ đọc bằng inet_pton, không getaddrinfo; accept trả
-// địa chỉ bên kia; bật TCP_NODELAY ngay lúc tạo socket nối; thêm abort (SO_LINGER 0), local,
-// nodelay; send và receive tự hỏi kết quả nối khi còn đang nối; tập rỗng ngủ bằng core::sleep_for;
-// mọi socket có FD_CLOEXEC (tiến trình con không giữ cổng của cha); Apple chặn SIGPIPE bằng
-// SO_NOSIGPIPE vì không có MSG_NOSIGNAL.
-// Khôi phục 2026-10-15: bản ghép sau vụ mất 2026-10-09 chỉ còn 148 dòng, thiếu nửa đầu (tạo socket,
-// nối, gửi, nhận, nghe) nên không dịch được; viết lại theo đúng hợp đồng của net.hpp và cấu trúc của
-// socket_win32.cpp (bản đang chạy trên PC), lời gọi hệ thống theo bản POSIX của TLBB Dev.
+/*==============================================================================
+ *  ENGINEHP  |  HIGH-PERFORMANCE GAME ENGINE
+ *------------------------------------------------------------------------------
+ *  TỆP       : engine/net/socket_posix.cpp
+ *  PHÂN HỆ   : Net / Socket
+ *  CHUẨN     : C++23
+ *------------------------------------------------------------------------------
+ *  CHỨC NĂNG
+ *  - Cài net.hpp trên POSIX (Linux, Android, macOS, iOS); header mạng POSIX chỉ
+ *    có ở tệp này. Nguồn: TLBB Dev src/platform/socket_posix.cpp.
+ *  - Khác gốc giống bản Win32; thêm FD_CLOEXEC (tiến trình con không giữ cổng
+ *    của cha), Apple chặn SIGPIPE bằng SO_NOSIGPIPE vì thiếu MSG_NOSIGNAL.
+ *  - Khôi phục 2026-10-15 theo hợp đồng net.hpp và cấu trúc socket_win32.cpp
+ *    (bản ghép sau vụ mất 2026-10-09 thiếu nửa đầu).
+ *------------------------------------------------------------------------------
+ *  TÁC GIẢ   : HiepHoon
+ *  TELEGRAM  : @Hoon9xx
+ *============================================================================*/
 
 #include "net/net.hpp"
 

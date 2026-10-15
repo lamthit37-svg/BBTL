@@ -1,14 +1,33 @@
-// Toán học SoA cho hệ hoạt hình: mỗi kiểu giữ BỐN giá trị song song, mỗi thành phần là một Vector4
-// (bốn làn) — soa/*.hpp của ModifiedSonyMath trong _Ref (từ ozz-animation). SoaFloat3 là bốn vectơ
-// 3 chiều, SoaQuat bốn quaternion, SoaTransform bốn bộ (tịnh tiến, quay, tỉ lệ), SoaMatrix4 bốn ma
-// trận. Phép so sánh trả mặt nạ từng làn (Vector4i). Giữ thứ tự phép tính của gốc. Khác gốc:
-// - so sánh là hàm có tên (less, equal...). Gốc nạp chồng operator<, operator== trả mặt nạ: đọc
-//   như phép so thường nhưng `if (a == b)` không biên dịch;
-// - lerp(a, b, t) và clamp(v, low, high) cùng thứ tự tham số với phần còn lại của module;
-// - transpose trả mảng mới thay vì ghi qua con trỏ; transpose4x3 của gốc khai out[4] mà chỉ ghi 3;
-// - một bản mẫu cho cả SoaFloat2, 3, 4 thay ba bản chép tay của mỗi hàm.
-// Nguồn: Forge2 src/math/soa.hpp@d7fcd76. Khác gốc (so với Forge2): SoaFloat2, SoaFloat3,
-// SoaFloat4 và SoaQuat ở mã không phải bản mẫu khởi tạo bằng tên thành viên.
+/*==============================================================================
+ *  ENGINEHP  |  HIGH-PERFORMANCE GAME ENGINE
+ *------------------------------------------------------------------------------
+ *  TỆP       : engine/math/soa.hpp
+ *  PHÂN HỆ   : Math / Soa
+ *  CHUẨN     : C++23
+ *------------------------------------------------------------------------------
+ *  CHỨC NĂNG
+ *  - Toán học SoA cho hệ hoạt hình: mỗi kiểu giữ BỐN giá trị song song, mỗi
+ *    thành phần là một Vector4 (bốn làn) — soa/*.hpp của ModifiedSonyMath trong
+ *    _Ref (từ ozz-animation). SoaFloat3 là bốn vectơ 3 chiều, SoaQuat bốn
+ *    quaternion, SoaTransform bốn bộ (tịnh tiến, quay, tỉ lệ), SoaMatrix4 bốn
+ *    ma trận. Phép so sánh trả mặt nạ từng làn (Vector4i). Giữ thứ tự phép tính
+ *    của gốc. Khác gốc:
+ *  - so sánh là hàm có tên (less, equal...). Gốc nạp chồng operator<,
+ *    operator== trả mặt nạ: đọc như phép so thường nhưng `if (a == b)` không
+ *    biên dịch;
+ *  - lerp(a, b, t) và clamp(v, low, high) cùng thứ tự tham số với phần còn lại
+ *    của module;
+ *  - transpose trả mảng mới thay vì ghi qua con trỏ; transpose4x3 của gốc khai
+ *    out[4] mà chỉ ghi 3;
+ *  - một bản mẫu cho cả SoaFloat2, 3, 4 thay ba bản chép tay của mỗi hàm.
+ *  - Nguồn: Forge2 src/math/soa.hpp@d7fcd76. Khác gốc (so với Forge2):
+ *    SoaFloat2, SoaFloat3, SoaFloat4 và SoaQuat ở mã không phải bản mẫu khởi
+ *    tạo bằng tên thành viên.
+ *------------------------------------------------------------------------------
+ *  TÁC GIẢ   : HiepHoon
+ *  TELEGRAM  : @Hoon9xx
+ *============================================================================*/
+
 #pragma once
 
 #include "math/cofactor.hpp"

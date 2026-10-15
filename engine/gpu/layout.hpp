@@ -1,10 +1,25 @@
-// Bố cục gắn tài nguyên của một pipeline, dựng từ phản chiếu shader và không phụ thuộc backend: mỗi
-// register space một nhóm, cộng khối push constant. Hai backend đọc cùng cấu trúc này để dựng
-// descriptor set layout (Vulkan) và root signature (D3D12), và để kiểm BindEntry lúc tạo nhóm. Thay
-// macro SRT của _Ref (bố cục khai tay ở cả C++ lẫn shader, lệch nhau là sai lúc chạy) và root
-// signature viết tay của Wicked. Dùng nội bộ trong module.
-// Nguồn: Forge2 src/gpu/layout.hpp@d7fcd76. Khác gốc: enumerator mang tiền tố k; bỏ {} thừa của các
-// thành viên vector và StageSet ở SpaceLayout, ProgramLayout.
+/*==============================================================================
+ *  ENGINEHP  |  HIGH-PERFORMANCE GAME ENGINE
+ *------------------------------------------------------------------------------
+ *  TỆP       : engine/gpu/layout.hpp
+ *  PHÂN HỆ   : Gpu / Layout
+ *  CHUẨN     : C++23
+ *------------------------------------------------------------------------------
+ *  CHỨC NĂNG
+ *  - Bố cục gắn tài nguyên của một pipeline, dựng từ phản chiếu shader và không
+ *    phụ thuộc backend: mỗi register space một nhóm, cộng khối push constant.
+ *    Hai backend đọc cùng cấu trúc này để dựng descriptor set layout (Vulkan)
+ *    và root signature (D3D12), và để kiểm BindEntry lúc tạo nhóm. Thay macro
+ *    SRT của _Ref (bố cục khai tay ở cả C++ lẫn shader, lệch nhau là sai lúc
+ *    chạy) và root signature viết tay của Wicked. Dùng nội bộ trong module.
+ *  - Nguồn: Forge2 src/gpu/layout.hpp@d7fcd76. Khác gốc: enumerator mang tiền
+ *    tố k; bỏ {} thừa của các thành viên vector và StageSet ở SpaceLayout,
+ *    ProgramLayout.
+ *------------------------------------------------------------------------------
+ *  TÁC GIẢ   : HiepHoon
+ *  TELEGRAM  : @Hoon9xx
+ *============================================================================*/
+
 #pragma once
 
 #include "core/error.hpp"

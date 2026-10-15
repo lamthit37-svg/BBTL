@@ -1,7 +1,20 @@
-// Phần không phụ thuộc nền của game::net: câu mô tả lỗi và đọc Endpoint từ chữ.
-// Nguồn: TLBB Dev src/platform/socket.cpp (describe).
-// Khác gốc: tên lỗi kCamelCase; parse_endpoint mới, thay việc truyền host và cổng rời rồi gọi
-// getaddrinfo của Dev.
+/*==============================================================================
+ *  ENGINEHP  |  HIGH-PERFORMANCE GAME ENGINE
+ *------------------------------------------------------------------------------
+ *  TỆP       : engine/net/net.cpp
+ *  PHÂN HỆ   : Net
+ *  CHUẨN     : C++23
+ *------------------------------------------------------------------------------
+ *  CHỨC NĂNG
+ *  - Phần không phụ thuộc nền của game::net: câu mô tả lỗi và đọc Endpoint từ
+ *    chữ, viết một lần cho mọi nền.
+ *  - Nguồn: TLBB Dev src/platform/socket.cpp (describe). Khác gốc: tên lỗi
+ *    kCamelCase; parse_endpoint mới, thay việc truyền host và cổng rời rồi gọi
+ *    getaddrinfo của Dev.
+ *------------------------------------------------------------------------------
+ *  TÁC GIẢ   : HiepHoon
+ *  TELEGRAM  : @Hoon9xx
+ *============================================================================*/
 
 #include "net/net.hpp"
 

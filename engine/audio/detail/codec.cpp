@@ -1,6 +1,19 @@
-// Xem codec.hpp. Bộ mã Opus trễ đầu ra một khoảng lookahead; cộng với phần dẫn 80 ms thành
-// pre_skip, số khung bộ giải mã bỏ trước khung đầu tiên của âm thanh. Gói cuối được đệm im lặng,
-// PackInfo::frames cho biết chỗ dừng chính xác.
+/*==============================================================================
+ *  ENGINEHP  |  HIGH-PERFORMANCE GAME ENGINE
+ *------------------------------------------------------------------------------
+ *  TỆP       : engine/audio/detail/codec.cpp
+ *  PHÂN HỆ   : Audio / Codec
+ *  CHUẨN     : C++23
+ *------------------------------------------------------------------------------
+ *  CHỨC NĂNG
+ *  - Cài đặt mã hoá/giải mã Opus và PCM cho tệp cook.
+ *  - pre_skip = lookahead của bộ mã + phần dẫn 80 ms; gói cuối đệm im lặng,
+ *    PackInfo::frames cho biết chỗ dừng chính xác.
+ *------------------------------------------------------------------------------
+ *  TÁC GIẢ   : HiepHoon
+ *  TELEGRAM  : @Hoon9xx
+ *============================================================================*/
+
 #include "audio/detail/codec.hpp"
 
 #include "audio/detail/native.hpp"

@@ -1,12 +1,28 @@
-// Hai hàng của hệ thống việc (jobs.hpp), tách ra để phép thử và bài đo chạm được từng hàng.
-//
-// WorkQueue là hàng Chase-Lev của một thợ: chủ đẩy và lấy ở đáy, mới nhất trước để việc vừa sinh
-// còn nóng trong cache; luồng khác trộm ở đỉnh, cũ nhất trước. Sức chứa cố định.
-// SharedQueue là hàng của những bên không có hàng riêng: luồng ngoài hệ thống, job tràn khỏi hàng
-// thợ. Vòng không khoá kiểu Vyukov, đầy thì tràn sang vòng có khoá. Cả hai lấy từ VnS
-// (src/core/job_queue.*, đã đo cạnh No1, Platium, Wicked). Forge2 thêm pop_batch: một CAS nhận
-// nhiều ô liền nhau đã sẵn, thay vì mỗi job một lần giành con trỏ đọc với mọi thợ khác.
-// Nguồn: Forge2 src/jobs/queue.hpp@d7fcd76. Khác gốc: enumerator mang tiền tố k.
+/*==============================================================================
+ *  ENGINEHP  |  HIGH-PERFORMANCE GAME ENGINE
+ *------------------------------------------------------------------------------
+ *  TỆP       : engine/jobs/queue.hpp
+ *  PHÂN HỆ   : Jobs / Queue
+ *  CHUẨN     : C++23
+ *------------------------------------------------------------------------------
+ *  CHỨC NĂNG
+ *  - Hai hàng của hệ thống việc (jobs.hpp), tách ra để phép thử và bài đo chạm
+ *    được từng hàng.
+ *  - WorkQueue là hàng Chase-Lev của một thợ: chủ đẩy và lấy ở đáy, mới nhất
+ *    trước để việc vừa sinh còn nóng trong cache; luồng khác trộm ở đỉnh, cũ
+ *    nhất trước. Sức chứa cố định.
+ *  - SharedQueue là hàng của những bên không có hàng riêng (luồng ngoài hệ
+ *    thống, job tràn khỏi hàng thợ): vòng không khoá kiểu Vyukov, đầy thì tràn
+ *    sang vòng có khoá. Cả hai lấy từ VnS (src/core/job_queue.*, đã đo cạnh
+ *    No1, Platium, Wicked). Forge2 thêm pop_batch: một CAS nhận nhiều ô liền
+ *    nhau đã sẵn, thay vì mỗi job một lần giành con trỏ đọc với mọi thợ khác.
+ *  - Nguồn: Forge2 src/jobs/queue.hpp@d7fcd76. Khác gốc: enumerator mang tiền
+ *    tố k.
+ *------------------------------------------------------------------------------
+ *  TÁC GIẢ   : HiepHoon
+ *  TELEGRAM  : @Hoon9xx
+ *============================================================================*/
+
 #pragma once
 
 #include "jobs/jobs.hpp"

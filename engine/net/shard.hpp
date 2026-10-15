@@ -1,10 +1,23 @@
+/*==============================================================================
+ *  ENGINEHP  |  HIGH-PERFORMANCE GAME ENGINE
+ *------------------------------------------------------------------------------
+ *  TỆP       : engine/net/shard.hpp
+ *  PHÂN HỆ   : Net / Shard
+ *  CHUẨN     : C++23
+ *------------------------------------------------------------------------------
+ *  CHỨC NĂNG
+ *  - Chuyển việc giữa các luồng máy chủ không khoá, không cấp phát trên đường
+ *    nóng: giá trị nằm ngay trong ô, một store release cho cả lô, chỉ đánh thức
+ *    khi bên nhận đã ngủ (Seastar đẩy con trỏ cấp phát, lô 16, eventfd mỗi lô).
+ *  - Xếp lượt lane trong một luồng: ưu tiên chặt (số nhỏ trước) rồi deficit
+ *    round-robin số nguyên, không quét lane rỗng (GNS dùng virtual time số
+ *    thực, quét hết lane).
+ *------------------------------------------------------------------------------
+ *  TÁC GIẢ   : HiepHoon
+ *  TELEGRAM  : @Hoon9xx
+ *============================================================================*/
+
 #pragma once
-// Hàng đợi giữa hai luồng và hàng lane trong một luồng.
-// Seastar (smp_message_queue) đẩy con trỏ cấp phát, lô 16, rồi đánh thức bằng eventfd mỗi lô,
-// sức chứa 128. Hàng ở đây giữ giá trị ngay trong ô, một store release cho cả lô, chỉ đánh thức
-// khi bên nhận đã ngủ, sức chứa do bên gọi chọn và không cấp phát trên đường nóng.
-// GameNetworkingSockets xếp lane bằng virtual time số thực rồi quét hết lane. Ở đây ưu tiên chặt
-// (số nhỏ chạy trước) rồi deficit round-robin bằng số nguyên, con trỏ lane không quét lane rỗng.
 
 #include "core/check.hpp"
 

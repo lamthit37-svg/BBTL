@@ -1,4 +1,19 @@
-// Xem catalog.hpp. Chỉ nhận XML mà module xml đọc được; không tự viết parser.
+/*==============================================================================
+ *  ENGINEHP  |  HIGH-PERFORMANCE GAME ENGINE
+ *------------------------------------------------------------------------------
+ *  TỆP       : engine/audio/catalog.cpp
+ *  PHÂN HỆ   : Audio / Catalog
+ *  CHUẨN     : C++23
+ *------------------------------------------------------------------------------
+ *  CHỨC NĂNG
+ *  - Cài đặt Catalog: đọc các thẻ <item name value> qua module xml, không tự
+ *    viết parser.
+ *  - Giữ mục đầu tiên khi tên lặp; tra tên tuyến tính.
+ *------------------------------------------------------------------------------
+ *  TÁC GIẢ   : HiepHoon
+ *  TELEGRAM  : @Hoon9xx
+ *============================================================================*/
+
 #include "audio/catalog.hpp"
 
 #include "core/error.hpp"

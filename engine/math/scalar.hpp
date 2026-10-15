@@ -1,12 +1,29 @@
-// Hằng và hàm vô hướng — phần "float operations" của common.hpp trong ModifiedSonyMath của _Ref.
-// Giữ nguyên toán tử của gốc ở lerp, cerp, s_curve, smoothstep. Khác gốc:
-// - một quy ước lerp(a, b, t) duy nhất; gốc có cả lerp(t, a, b) của Sony lẫn lerp(u, v, x), và
-//   chính noise của gốc gọi nhầm thứ tự;
-// - các hàm luỹ thừa 2 của gốc lặp vô hạn khi x > 2^31 (biến đếm tràn về 0), ở đây dùng <bit>;
-// - round_up của gốc chia cho 0 khi multiple = 0 và tràn khi value + multiple - 1 vượt trần;
-// - clamp, min, max, abs vô hướng dùng thẳng STL (std::clamp, std::min, std::max, std::abs).
-// Nguồn: Forge2 src/math/scalar.hpp@d7fcd76. Khác gốc (so với Forge2): NOLINT
-// bugprone-easily-swappable-parameters kèm lý do cho cerp.
+/*==============================================================================
+ *  ENGINEHP  |  HIGH-PERFORMANCE GAME ENGINE
+ *------------------------------------------------------------------------------
+ *  TỆP       : engine/math/scalar.hpp
+ *  PHÂN HỆ   : Math / Scalar
+ *  CHUẨN     : C++23
+ *------------------------------------------------------------------------------
+ *  CHỨC NĂNG
+ *  - Hằng và hàm vô hướng — phần "float operations" của common.hpp trong
+ *    ModifiedSonyMath của _Ref. Giữ nguyên toán tử của gốc ở lerp, cerp,
+ *    s_curve, smoothstep. Khác gốc:
+ *  - một quy ước lerp(a, b, t) duy nhất; gốc có cả lerp(t, a, b) của Sony lẫn
+ *    lerp(u, v, x), và chính noise của gốc gọi nhầm thứ tự;
+ *  - các hàm luỹ thừa 2 của gốc lặp vô hạn khi x > 2^31 (biến đếm tràn về 0), ở
+ *    đây dùng <bit>;
+ *  - round_up của gốc chia cho 0 khi multiple = 0 và tràn khi value + multiple
+ *    - 1 vượt trần;
+ *  - clamp, min, max, abs vô hướng dùng thẳng STL (std::clamp, std::min,
+ *    std::max, std::abs).
+ *  - Nguồn: Forge2 src/math/scalar.hpp@d7fcd76. Khác gốc (so với Forge2):
+ *    NOLINT bugprone-easily-swappable-parameters kèm lý do cho cerp.
+ *------------------------------------------------------------------------------
+ *  TÁC GIẢ   : HiepHoon
+ *  TELEGRAM  : @Hoon9xx
+ *============================================================================*/
+
 #pragma once
 
 #include "core/check.hpp"

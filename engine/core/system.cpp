@@ -1,12 +1,29 @@
-// Vị trí bit CPUID theo Intel SDM tập 2A (lệnh CPUID) và AMD APM tập 3. Một cờ AVX chỉ bật khi hệ
-// điều hành lưu thanh ghi YMM (hay ZMM cho AVX-512) lúc đổi luồng: CPU có AVX mà Windows chưa bật
-// XSAVE thì lệnh AVX là lỗi #UD. mSimd của _Ref suy từ cờ CPU; cpu_features mới kiểm XCR0,
-// CPUConfig không.
-// Nguồn: Forge2 src/core/system.cpp@d7fcd76. Khác gốc: enumerator mang tiền tố k; macro của
-// windows.h lấy từ core/win32.hpp (gốc khai ở CMake); header con của Win32 include trực tiếp; check
-// là bản của THIENLONG; enabled_states mang thuộc tính target xsave cho GCC và để auto cho xcr0;
-// thân vòng lặp của require_cpu và exe_path tách thành hàm một lượt (ghi tại chỗ); lệnh return kèm
-// lời gọi hàm void tách làm hai; hai biến cục bộ của brand thêm const.
+/*==============================================================================
+ *  ENGINEHP  |  HIGH-PERFORMANCE GAME ENGINE
+ *------------------------------------------------------------------------------
+ *  TỆP       : engine/core/system.cpp
+ *  PHÂN HỆ   : Core / System
+ *  CHUẨN     : C++23
+ *------------------------------------------------------------------------------
+ *  CHỨC NĂNG
+ *  - Cài đặt core/system.hpp.
+ *  - Vị trí bit CPUID theo Intel SDM tập 2A (lệnh CPUID) và AMD APM tập 3. Một
+ *    cờ AVX chỉ bật khi hệ điều hành lưu thanh ghi YMM (hay ZMM cho AVX-512)
+ *    lúc đổi luồng: CPU có AVX mà Windows chưa bật XSAVE thì lệnh AVX là lỗi
+ *    #UD. mSimd của _Ref suy từ cờ CPU; cpu_features mới kiểm XCR0, CPUConfig
+ *    không.
+ *  - Nguồn: Forge2 src/core/system.cpp@d7fcd76. Khác gốc: enumerator mang tiền
+ *    tố k; macro của windows.h lấy từ core/win32.hpp (gốc khai ở CMake); header
+ *    con của Win32 include trực tiếp; check là bản của THIENLONG;
+ *    enabled_states mang thuộc tính target xsave cho GCC và để auto cho xcr0;
+ *    thân vòng lặp của require_cpu và exe_path tách thành hàm một lượt (ghi tại
+ *    chỗ); lệnh return kèm lời gọi hàm void tách làm hai; hai biến cục bộ của
+ *    brand thêm const.
+ *------------------------------------------------------------------------------
+ *  TÁC GIẢ   : HiepHoon
+ *  TELEGRAM  : @Hoon9xx
+ *============================================================================*/
+
 #include "core/system.hpp"
 
 #include "core/check.hpp"

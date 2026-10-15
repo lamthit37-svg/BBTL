@@ -1,13 +1,28 @@
-// Đường dẫn UTF-8 — thay phần "Minor filename manipulation" của IToolFileSystem.h (_Ref). Mọi hàm
-// làm việc trên chuỗi UTF-8, không giới hạn FS_MAX_PATH 512, không cắt im lặng, không ghi vào bộ
-// đệm của người gọi. normalize giữ luật của fsNormalizePathContinue vì tên trong archive Buny được
-// bộ ghi chuẩn hoá bằng chính luật đó: "./" bỏ, "//" gộp, "a/../b" thành "b", ".." không giải được
-// thì giữ, "a/.." thành ".", '/' cuối giữ. Khác gốc, có chủ ý: gốc ổ đĩa "C:/.." ra "C:/" (gốc ra
-// "."), UNC "//máy/chia sẻ" giữ hai dấu đầu, join để tên tuyệt đối thắng, parent("/a") ra "/" (gốc
-// ra ""). Không dùng std::filesystem::path cho đường dẫn ảo: nó đi qua wchar_t và lexically_normal
-// giải ".." sau gốc khác gốc.
-// Nguồn: Forge2 src/fs/path.hpp@d7fcd76. Khác gốc (so với Forge2): tham số c của is_separator thành
-// unit; bỏ {} thừa của ba thành viên PathParts.
+/*==============================================================================
+ *  ENGINEHP  |  HIGH-PERFORMANCE GAME ENGINE
+ *------------------------------------------------------------------------------
+ *  TỆP       : engine/fs/path.hpp
+ *  PHÂN HỆ   : Fs / Path
+ *  CHUẨN     : C++23
+ *------------------------------------------------------------------------------
+ *  CHỨC NĂNG
+ *  - Đường dẫn UTF-8 — thay phần "Minor filename manipulation" của
+ *    IToolFileSystem.h (_Ref). Mọi hàm làm việc trên chuỗi UTF-8, không giới
+ *    hạn FS_MAX_PATH 512, không cắt im lặng, không ghi vào bộ đệm của người
+ *    gọi. normalize giữ luật của fsNormalizePathContinue vì tên trong archive
+ *    Buny được bộ ghi chuẩn hoá bằng chính luật đó: "./" bỏ, "//" gộp, "a/../b"
+ *    thành "b", ".." không giải được thì giữ, "a/.." thành ".", '/' cuối giữ.
+ *    Khác gốc, có chủ ý: gốc ổ đĩa "C:/.." ra "C:/" (gốc ra "."), UNC
+ *    "//máy/chia sẻ" giữ hai dấu đầu, join để tên tuyệt đối thắng, parent("/a")
+ *    ra "/" (gốc ra ""). Không dùng std::filesystem::path cho đường dẫn ảo: nó
+ *    đi qua wchar_t và lexically_normal giải ".." sau gốc khác gốc.
+ *  - Nguồn: Forge2 src/fs/path.hpp@d7fcd76. Khác gốc (so với Forge2): tham số c
+ *    của is_separator thành unit; bỏ {} thừa của ba thành viên PathParts.
+ *------------------------------------------------------------------------------
+ *  TÁC GIẢ   : HiepHoon
+ *  TELEGRAM  : @Hoon9xx
+ *============================================================================*/
+
 #pragma once
 
 #include <optional>

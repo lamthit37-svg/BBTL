@@ -1,5 +1,20 @@
-// Hằng của bộ trộn. Mọi thứ trộn ở 48 kHz stereo cho cả PC và mobile; tệp ở tần số khác được đổi
-// bằng audio/resample.hpp lúc nạp (hiệu ứng) hoặc ở luồng giải mã (nhạc).
+/*==============================================================================
+ *  ENGINEHP  |  HIGH-PERFORMANCE GAME ENGINE
+ *------------------------------------------------------------------------------
+ *  TỆP       : engine/audio/limits.hpp
+ *  PHÂN HỆ   : Audio / Limits
+ *  CHUẨN     : C++23
+ *------------------------------------------------------------------------------
+ *  CHỨC NĂNG
+ *  - Hằng của bộ trộn: tần số 48 kHz stereo cho cả PC và mobile, giới hạn
+ *    voice, khối, lệnh, clip, bàn nhạc, ambience và cỡ vòng đệm.
+ *  - Tệp ở tần số khác được đổi bằng audio/resample.hpp lúc nạp (hiệu ứng) hoặc
+ *    ở luồng giải mã (nhạc).
+ *------------------------------------------------------------------------------
+ *  TÁC GIẢ   : HiepHoon
+ *  TELEGRAM  : @Hoon9xx
+ *============================================================================*/
+
 #pragma once
 
 #include <cstdint>

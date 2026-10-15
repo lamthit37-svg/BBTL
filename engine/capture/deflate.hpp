@@ -1,11 +1,28 @@
-// Nén deflate (RFC 1951) cùng hai tổng kiểm mà PNG và zlib cần. Viết riêng cho đường ghi ảnh: dữ
-// liệu là hàng điểm ảnh đã lọc, cần nhanh và chia được cho nhiều luồng. _Ref nén PNG bằng
-// stb_image_write trên luồng vẽ, một luồng, mức 4. Ở đây một dòng deflate ghép từ nhiều đoạn nén
-// độc lập: đoạn không phải cuối kết bằng một khối stored rỗng nên dừng đúng biên byte, các đoạn nén
-// song song rồi nối lại vẫn là một dòng hợp lệ (cách của pigz), và Adler-32 của cả dòng ghép từ
-// Adler-32 của từng đoạn. Mỗi khối chọn rẻ nhất trong ba cách mã hoá: Huffman động, Huffman cố
-// định, để thô. Chưa có bộ giải nén: đọc PNG là việc của pipeline asset.
-// Nguồn: Forge2 src/capture/deflate.hpp@d7fcd76. Khác gốc: enumerator mang tiền tố k.
+/*==============================================================================
+ *  ENGINEHP  |  HIGH-PERFORMANCE GAME ENGINE
+ *------------------------------------------------------------------------------
+ *  TỆP       : engine/capture/deflate.hpp
+ *  PHÂN HỆ   : Capture / Deflate
+ *  CHUẨN     : C++23
+ *------------------------------------------------------------------------------
+ *  CHỨC NĂNG
+ *  - Nén deflate (RFC 1951) cùng hai tổng kiểm mà PNG và zlib cần (Adler-32,
+ *    CRC-32), viết riêng cho đường ghi ảnh: dữ liệu là hàng điểm ảnh đã lọc,
+ *    cần nhanh và chia được cho nhiều luồng. _Ref nén PNG bằng stb_image_write
+ *    trên luồng vẽ, một luồng, mức 4.
+ *  - Một dòng deflate ghép từ nhiều đoạn nén độc lập: đoạn không phải cuối kết
+ *    bằng một khối stored rỗng nên dừng đúng biên byte, các đoạn nén song song
+ *    rồi nối lại vẫn là một dòng hợp lệ (cách của pigz), và Adler-32 của cả
+ *    dòng ghép từ Adler-32 của từng đoạn.
+ *  - Mỗi khối chọn rẻ nhất trong ba cách mã hoá: Huffman động, Huffman cố định,
+ *    để thô. Chưa có bộ giải nén: đọc PNG là việc của pipeline asset.
+ *  - Nguồn: Forge2 src/capture/deflate.hpp@d7fcd76. Khác gốc: enumerator mang
+ *    tiền tố k.
+ *------------------------------------------------------------------------------
+ *  TÁC GIẢ   : HiepHoon
+ *  TELEGRAM  : @Hoon9xx
+ *============================================================================*/
+
 #pragma once
 
 #include <cstddef>

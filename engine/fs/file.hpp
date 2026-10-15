@@ -1,15 +1,31 @@
-// Tệp của hệ điều hành — thay WindowsFileStream (FILE* của CRT kèm HANDLE) và các bước "mở, hỏi cỡ,
-// tf_malloc, đọc" mà _Ref để người gọi tự ghép. Gọi thẳng CreateFileW, ReadFile, WriteFile:
-// - bộ đệm riêng 64 KiB, không khoá (FILE* khoá CRT mỗi lần gọi, đệm 4 KiB); đọc ghi từ 64 KiB trở
-//   lên đi thẳng xuống hệ điều hành;
-// - vị trí giữ ở tầng người dùng, mọi lần đọc ghi mang offset trong OVERLAPPED: seek không tốn lời
-//   gọi hệ thống, read_at an toàn đa luồng;
-// - đường dẫn UTF-8, dài quá giới hạn thì thành dạng \\?\ (gốc: wchar_t[512] chỉ ASSERT);
-// - size() tính cả byte chờ trong bộ đệm (gốc hỏi handle nên thấy 0 sau khi ghi qua FILE*);
-// - map() trên tệp rỗng trả vùng rỗng (gốc: CreateFileMappingW lỗi 1006).
-// Nguồn: Forge2 src/fs/file.hpp@d7fcd76. Khác gốc (so với Forge2): bỏ {} thừa của các thành viên
-// view_, handle_, buffer_, mapped_; include thêm <cstddef>, <cstdint>, <span> mà header dùng trực
-// tiếp.
+/*==============================================================================
+ *  ENGINEHP  |  HIGH-PERFORMANCE GAME ENGINE
+ *------------------------------------------------------------------------------
+ *  TỆP       : engine/fs/file.hpp
+ *  PHÂN HỆ   : Fs / File
+ *  CHUẨN     : C++23
+ *------------------------------------------------------------------------------
+ *  CHỨC NĂNG
+ *  - Tệp của hệ điều hành — thay WindowsFileStream (FILE* của CRT kèm HANDLE)
+ *    và các bước "mở, hỏi cỡ, tf_malloc, đọc" mà _Ref để người gọi tự ghép. Gọi
+ *    thẳng CreateFileW, ReadFile, WriteFile:
+ *  - bộ đệm riêng 64 KiB, không khoá (FILE* khoá CRT mỗi lần gọi, đệm 4 KiB);
+ *    đọc ghi từ 64 KiB trở lên đi thẳng xuống hệ điều hành;
+ *  - vị trí giữ ở tầng người dùng, mọi lần đọc ghi mang offset trong
+ *    OVERLAPPED: seek không tốn lời gọi hệ thống, read_at an toàn đa luồng;
+ *  - đường dẫn UTF-8, dài quá giới hạn thì thành dạng \\?\ (gốc: wchar_t[512]
+ *    chỉ ASSERT);
+ *  - size() tính cả byte chờ trong bộ đệm (gốc hỏi handle nên thấy 0 sau khi
+ *    ghi qua FILE*);
+ *  - map() trên tệp rỗng trả vùng rỗng (gốc: CreateFileMappingW lỗi 1006).
+ *  - Nguồn: Forge2 src/fs/file.hpp@d7fcd76. Khác gốc (so với Forge2): bỏ {}
+ *    thừa của các thành viên view_, handle_, buffer_, mapped_; include thêm
+ *    <cstddef>, <cstdint>, <span> mà header dùng trực tiếp.
+ *------------------------------------------------------------------------------
+ *  TÁC GIẢ   : HiepHoon
+ *  TELEGRAM  : @Hoon9xx
+ *============================================================================*/
+
 #pragma once
 
 #include "core/handle.hpp"

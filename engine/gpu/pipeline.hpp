@@ -1,18 +1,33 @@
-// Shader và pipeline — BinaryShaderDesc, PipelineDesc, RasterizerStateDesc, DepthStateDesc,
-// BlendStateDesc, VertexLayout của IGraphics.h trong _Ref và rhi/pipeline.hpp của Platium. Khác
-// gốc:
-// - shader vào bằng shader::Variant (mã kèm phản chiếu) của module shader; bố cục gắn tài nguyên
-//   của pipeline dựng từ phản chiếu ấy. _Ref bắt khai bố cục bằng macro SRT ở cả C++ lẫn shader,
-//   Platium chỉ có một bố cục bindless toàn cục;
-// - tên ngữ nghĩa mà D3D12 cần cho từng thuộc tính đỉnh lấy từ phản chiếu của vertex shader theo
-//   location; Platium bắt chỗ gọi khai lại tên, _Ref khai enum ShaderSemantic;
-// - không có đối tượng render pass hay framebuffer: pipeline chỉ cần định dạng của attachment
-//   (dynamic rendering của Vulkan 1.3, và D3D12 vốn vậy);
-// - chữ ký giữa các stage được kiểm lúc tạo pipeline (shader::check_interface), trước khi D3D12
-//   trả một HRESULT không tên.
-// Nguồn: Forge2 src/gpu/pipeline.hpp@d7fcd76. Khác gốc (so với Forge2): enumerator mang tiền tố k;
-// bỏ {} thừa của các thành viên string_view và span ở ShaderDesc, GraphicsPipelineDesc,
-// ComputePipelineDesc.
+/*==============================================================================
+ *  ENGINEHP  |  HIGH-PERFORMANCE GAME ENGINE
+ *------------------------------------------------------------------------------
+ *  TỆP       : engine/gpu/pipeline.hpp
+ *  PHÂN HỆ   : Gpu / Pipeline
+ *  CHUẨN     : C++23
+ *------------------------------------------------------------------------------
+ *  CHỨC NĂNG
+ *  - Shader và pipeline — BinaryShaderDesc, PipelineDesc, RasterizerStateDesc,
+ *    DepthStateDesc, BlendStateDesc, VertexLayout của IGraphics.h trong _Ref và
+ *    rhi/pipeline.hpp của Platium. Khác gốc:
+ *  - shader vào bằng shader::Variant (mã kèm phản chiếu) của module shader; bố
+ *    cục gắn tài nguyên của pipeline dựng từ phản chiếu ấy. _Ref bắt khai bố
+ *    cục bằng macro SRT ở cả C++ lẫn shader, Platium chỉ có một bố cục bindless
+ *    toàn cục;
+ *  - tên ngữ nghĩa mà D3D12 cần cho từng thuộc tính đỉnh lấy từ phản chiếu của
+ *    vertex shader theo location; Platium bắt chỗ gọi khai lại tên, _Ref khai
+ *    enum ShaderSemantic;
+ *  - không có đối tượng render pass hay framebuffer: pipeline chỉ cần định dạng
+ *    của attachment (dynamic rendering của Vulkan 1.3, và D3D12 vốn vậy);
+ *  - chữ ký giữa các stage được kiểm lúc tạo pipeline
+ *    (shader::check_interface), trước khi D3D12 trả một HRESULT không tên.
+ *  - Nguồn: Forge2 src/gpu/pipeline.hpp@d7fcd76. Khác gốc (so với Forge2):
+ *    enumerator mang tiền tố k; bỏ {} thừa của các thành viên string_view và
+ *    span ở ShaderDesc, GraphicsPipelineDesc, ComputePipelineDesc.
+ *------------------------------------------------------------------------------
+ *  TÁC GIẢ   : HiepHoon
+ *  TELEGRAM  : @Hoon9xx
+ *============================================================================*/
+
 #pragma once
 
 #include "gpu/format.hpp"

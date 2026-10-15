@@ -1,10 +1,19 @@
-// Liệt kê qua EnumDisplayMonitors: mỗi HMONITOR là một vùng của desktop ảo, đúng thứ cửa sổ có thể
-// nằm lên. Tên card và tên màn hình tra thêm bằng EnumDisplayDevicesW. Gốc đi theo chiều ngược
-// (thiết bị trước, vùng sau) nên máy không có thiết bị hiển thị nào phải rẽ sang nhánh dự phòng.
-// Nguồn: Forge2 src/window/monitor.cpp@d7fcd76. Khác gốc (so với Forge2): enumerator mang tiền tố
-// k; macro của windows.h lấy từ core/win32.hpp (gốc khai ở CMake); header con của Win32
-// include trực tiếp; thân vòng lặp có nhánh tách thành hàm (ghi tại chỗ); khởi tạo aggregate ghi
+// +---------------------------------------------------------------+
+// | THIENLONG                                                     |
+// | Tệp: engine/window/monitor.cpp                                |
+// | - Liệt kê qua EnumDisplayMonitors: mỗi HMONITOR là một vùng   |
+// |   của desktop ảo, đúng thứ cửa sổ có thể nằm lên. Tên card và |
+// |   tên màn hình tra thêm bằng EnumDisplayDevicesW. Gốc đi theo |
+// |   chiều ngược (thiết bị trước, vùng sau) nên máy không có     |
+// |   thiết bị hiển thị nào phải rẽ sang nhánh dự phòng. Nguồn:   |
+// |   Forge2 src/window/monitor.cpp@d7fcd76.                      |
+// | Dev : HiepHoon   Tele : @Hoon9xx                              |
+// +---------------------------------------------------------------+
+
+// Khác gốc (so với Forge2): enumerator mang tiền tố k; macro của windows.h lấy từ core/win32.hpp (gốc khai ở CMake);
+// header con của Win32 include trực tiếp; thân vòng lặp có nhánh tách thành hàm (ghi tại chỗ); khởi tạo aggregate ghi
 // tên thành viên; biến tên at đổi thành slot.
+
 #include "window/monitor.hpp"
 
 #include "core/error.hpp"

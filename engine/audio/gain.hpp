@@ -1,5 +1,20 @@
-// Hệ số khoảng cách, fade, pan và Doppler. Hàm thuần, không chạm thiết bị.
-// Rolloff tuyến tính như Loong. min >= max thì đẩy max thêm 1 để không chia cho 0.
+/*==============================================================================
+ *  ENGINEHP  |  HIGH-PERFORMANCE GAME ENGINE
+ *------------------------------------------------------------------------------
+ *  TỆP       : engine/audio/gain.hpp
+ *  PHÂN HỆ   : Audio / Gain
+ *  CHUẨN     : C++23
+ *------------------------------------------------------------------------------
+ *  CHỨC NĂNG
+ *  - Hàm thuần tính hệ số khoảng cách, fade, pan và Doppler; không chạm thiết
+ *    bị.
+ *  - Rolloff tuyến tính như Loong; min >= max thì đẩy max thêm 1 để không chia
+ *    cho 0.
+ *------------------------------------------------------------------------------
+ *  TÁC GIẢ   : HiepHoon
+ *  TELEGRAM  : @Hoon9xx
+ *============================================================================*/
+
 #pragma once
 
 namespace game::audio {

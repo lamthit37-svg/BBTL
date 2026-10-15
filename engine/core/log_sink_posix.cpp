@@ -1,8 +1,24 @@
-// Đích ghi log trên POSIX. stdout/stderr là byte UTF-8; tệp gộp 256 KiB qua write; debugger là
-// logcat (Android, chỉ khi TracerPid khác 0) hoặc os_log (Apple, chỉ khi P_TRACED). FileSink giữ fd
-// đã mã hoá fd+1 trong UniqueHandle, cùng công thức handle_posix.cpp.
-// Nguồn: Forge2 src/core/log_sink_android.cpp@d7fcd76. Khác gốc: enumerator mang tiền tố k; Apple
-// dùng os_log. LogHistory nằm ở log_sink.cpp vì không phụ thuộc hệ điều hành.
+/*==============================================================================
+ *  ENGINEHP  |  HIGH-PERFORMANCE GAME ENGINE
+ *------------------------------------------------------------------------------
+ *  TỆP       : engine/core/log_sink_posix.cpp
+ *  PHÂN HỆ   : Core / Log
+ *  CHUẨN     : C++23
+ *------------------------------------------------------------------------------
+ *  CHỨC NĂNG
+ *  - Cài đặt core/log.hpp cho nền không phải Windows.
+ *  - Đích ghi log trên POSIX. stdout/stderr là byte UTF-8; tệp gộp 256 KiB qua
+ *    write; debugger là logcat (Android, chỉ khi TracerPid khác 0) hoặc os_log
+ *    (Apple, chỉ khi P_TRACED). FileSink giữ fd đã mã hoá fd+1 trong
+ *    UniqueHandle, cùng công thức handle_posix.cpp.
+ *  - Nguồn: Forge2 src/core/log_sink_android.cpp@d7fcd76. Khác gốc: enumerator
+ *    mang tiền tố k; Apple dùng os_log. LogHistory nằm ở log_sink.cpp vì không
+ *    phụ thuộc hệ điều hành.
+ *------------------------------------------------------------------------------
+ *  TÁC GIẢ   : HiepHoon
+ *  TELEGRAM  : @Hoon9xx
+ *============================================================================*/
+
 #if !defined(_WIN32)
 
 #include "core/log.hpp"

@@ -1,3 +1,19 @@
+/*==============================================================================
+ *  ENGINEHP  |  HIGH-PERFORMANCE GAME ENGINE
+ *------------------------------------------------------------------------------
+ *  TỆP       : engine/io/platform_posix.cpp
+ *  PHÂN HỆ   : Io / Platform
+ *  CHUẨN     : C++23
+ *------------------------------------------------------------------------------
+ *  CHỨC NĂNG
+ *  - Cài đặt io/platform.hpp cho Linux và Android: console đã là UTF-8, đối số
+ *    lấy thẳng từ argv, thư mục exe đọc từ /proc/self/exe.
+ *  - open_in_browser chưa làm, luôn trả false (docs/NGHI-NGO.md).
+ *------------------------------------------------------------------------------
+ *  TÁC GIẢ   : HiepHoon
+ *  TELEGRAM  : @Hoon9xx
+ *============================================================================*/
+
 #include "io/platform.hpp"
 
 #include <cstddef>

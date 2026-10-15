@@ -1,9 +1,24 @@
-// Chi tiết dài hơn chỗ nội tuyến lên heap qua make_unique_for_overwrite; hết bộ nhớ thì giữ phần
-// đuôi vừa chỗ nội tuyến và đánh dấu đã cắt, vì Error phải tạo được cả khi nguyên nhân chính là hết
-// bộ nhớ. Cắt luôn lùi tới đầu một ký tự UTF-8.
-// Nguồn: Forge2 src/core/error.cpp@d7fcd76. Khác gốc: enumerator mang tiền tố k; macro của
-// windows.h lấy từ core/win32.hpp (gốc khai ở CMake); header con của Win32 include trực tiếp; biến
-// một chữ c đổi thành unit.
+/*==============================================================================
+ *  ENGINEHP  |  HIGH-PERFORMANCE GAME ENGINE
+ *------------------------------------------------------------------------------
+ *  TỆP       : engine/core/error.cpp
+ *  PHÂN HỆ   : Core / Error
+ *  CHUẨN     : C++23
+ *------------------------------------------------------------------------------
+ *  CHỨC NĂNG
+ *  - Cài đặt core/error.hpp.
+ *  - Chi tiết dài hơn chỗ nội tuyến lên heap qua make_unique_for_overwrite; hết
+ *    bộ nhớ thì giữ phần đuôi vừa chỗ nội tuyến và đánh dấu đã cắt, vì Error
+ *    phải tạo được cả khi nguyên nhân chính là hết bộ nhớ. Cắt luôn lùi tới đầu
+ *    một ký tự UTF-8.
+ *  - Nguồn: Forge2 src/core/error.cpp@d7fcd76. Khác gốc: enumerator mang tiền
+ *    tố k; macro của windows.h lấy từ core/win32.hpp (gốc khai ở CMake); header
+ *    con của Win32 include trực tiếp; biến một chữ c đổi thành unit.
+ *------------------------------------------------------------------------------
+ *  TÁC GIẢ   : HiepHoon
+ *  TELEGRAM  : @Hoon9xx
+ *============================================================================*/
+
 #include "core/error.hpp"
 
 #include "core/text.hpp"

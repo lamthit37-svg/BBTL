@@ -1,10 +1,26 @@
-// Rào đồng bộ: giai đoạn đường ống, kiểu truy cập, bố cục ảnh — rhi/barrier.hpp của Platium, thay
-// ResourceState và cmdResourceBarrier của _Ref. Gốc dùng một enum trạng thái gộp (kiểu
-// D3D12_RESOURCE_STATES cũ) rồi backend Vulkan phải suy ngược ra stage và access bằng bảng. Ba trục
-// ở đây là đúng hình dạng mà synchronization2 của Vulkan và Enhanced Barriers của D3D12 cùng có,
-// nên hai backend ánh xạ thẳng, không máy trạng thái. Tầng này không tự theo dõi trạng thái tài
-// nguyên: chỗ gọi (render graph) biết trước và sau, và theo dõi ngầm là thứ che lỗi thứ tự pass.
-// Nguồn: Forge2 src/gpu/barrier.hpp@d7fcd76. Khác gốc: enumerator mang tiền tố k.
+/*==============================================================================
+ *  ENGINEHP  |  HIGH-PERFORMANCE GAME ENGINE
+ *------------------------------------------------------------------------------
+ *  TỆP       : engine/gpu/barrier.hpp
+ *  PHÂN HỆ   : Gpu / Barrier
+ *  CHUẨN     : C++23
+ *------------------------------------------------------------------------------
+ *  CHỨC NĂNG
+ *  - Rào đồng bộ: giai đoạn đường ống, kiểu truy cập, bố cục ảnh —
+ *    rhi/barrier.hpp của Platium, thay ResourceState và cmdResourceBarrier của
+ *    _Ref. Gốc dùng một enum trạng thái gộp (kiểu D3D12_RESOURCE_STATES cũ) rồi
+ *    backend Vulkan phải suy ngược ra stage và access bằng bảng. Ba trục ở đây
+ *    là đúng hình dạng mà synchronization2 của Vulkan và Enhanced Barriers của
+ *    D3D12 cùng có, nên hai backend ánh xạ thẳng, không máy trạng thái. Tầng
+ *    này không tự theo dõi trạng thái tài nguyên: chỗ gọi (render graph) biết
+ *    trước và sau, và theo dõi ngầm là thứ che lỗi thứ tự pass.
+ *  - Nguồn: Forge2 src/gpu/barrier.hpp@d7fcd76. Khác gốc: enumerator mang tiền
+ *    tố k.
+ *------------------------------------------------------------------------------
+ *  TÁC GIẢ   : HiepHoon
+ *  TELEGRAM  : @Hoon9xx
+ *============================================================================*/
+
 #pragma once
 
 #include "gpu/handle.hpp"

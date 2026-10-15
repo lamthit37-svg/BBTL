@@ -1,6 +1,20 @@
-// Xem music.hpp. Nhạc lặp vô hạn: hết tệp thì tua về đầu và đọc tiếp, dòng mẫu đi qua bộ đổi tần
-// số không ngắt nên chỗ nối không lách tách. Luồng giải mã ngủ 5 ms giữa hai lượt; vòng đệm 0,68
-// giây nên lượt ngủ dài gấp chục lần cũng chưa làm bộ trộn đói.
+/*==============================================================================
+ *  ENGINEHP  |  HIGH-PERFORMANCE GAME ENGINE
+ *------------------------------------------------------------------------------
+ *  TỆP       : engine/audio/detail/music.cpp
+ *  PHÂN HỆ   : Audio / Music
+ *  CHUẨN     : C++23
+ *------------------------------------------------------------------------------
+ *  CHỨC NĂNG
+ *  - Cài đặt nhạc luồng lặp vô hạn: hết tệp tua về đầu, dòng mẫu qua bộ đổi tần
+ *    số không ngắt nên chỗ nối không lách tách.
+ *  - Luồng giải mã ngủ 5 ms giữa hai lượt; vòng đệm 0,68 giây nên ngủ dài gấp
+ *    chục lần vẫn chưa làm bộ trộn đói.
+ *------------------------------------------------------------------------------
+ *  TÁC GIẢ   : HiepHoon
+ *  TELEGRAM  : @Hoon9xx
+ *============================================================================*/
+
 #include "audio/detail/music.hpp"
 
 #include "audio/detail/codec.hpp"

@@ -1,11 +1,27 @@
-// Kiểu nền của tầng đồ hoạ (RHI): backend, cờ, phép so sánh, trộn màu, hình học lời gọi vẽ — phần
-// không gắn với tài nguyên nào. Fork từ rhi/types.hpp của Platium; phủ các enum tương ứng trong
-// Graphics/Interfaces/IGraphics.h của _Ref và wiGraphics.h của Wicked. Không tên nào lấy của Vulkan
-// hay D3D12: khái niệm chỉ một phía có thì nằm sau một khả năng của thiết bị (DeviceCaps). Quy ước
-// chốt một lần cho cả hai backend: NDC có Y hướng lên, độ sâu [0, 1], mặt trước ngược chiều kim
-// đồng hồ, độ sâu đảo (gần là 1, xa là 0). Backend Vulkan bù trục Y bằng viewport chiều cao âm, nên
-// ma trận chiếu của module math dùng chung cho cả hai mà không lật gì.
-// Nguồn: Forge2 src/gpu/types.hpp@d7fcd76. Khác gốc: enumerator mang tiền tố k.
+/*==============================================================================
+ *  ENGINEHP  |  HIGH-PERFORMANCE GAME ENGINE
+ *------------------------------------------------------------------------------
+ *  TỆP       : engine/gpu/types.hpp
+ *  PHÂN HỆ   : Gpu / Types
+ *  CHUẨN     : C++23
+ *------------------------------------------------------------------------------
+ *  CHỨC NĂNG
+ *  - Kiểu nền của tầng đồ hoạ (RHI): backend, cờ, phép so sánh, trộn màu, hình
+ *    học lời gọi vẽ — phần không gắn với tài nguyên nào. Fork từ rhi/types.hpp
+ *    của Platium; phủ các enum tương ứng trong Graphics/Interfaces/IGraphics.h
+ *    của _Ref và wiGraphics.h của Wicked. Không tên nào lấy của Vulkan hay
+ *    D3D12: khái niệm chỉ một phía có thì nằm sau một khả năng của thiết bị
+ *    (DeviceCaps). Quy ước chốt một lần cho cả hai backend: NDC có Y hướng lên,
+ *    độ sâu [0, 1], mặt trước ngược chiều kim đồng hồ, độ sâu đảo (gần là 1, xa
+ *    là 0). Backend Vulkan bù trục Y bằng viewport chiều cao âm, nên ma trận
+ *    chiếu của module math dùng chung cho cả hai mà không lật gì.
+ *  - Nguồn: Forge2 src/gpu/types.hpp@d7fcd76. Khác gốc: enumerator mang tiền tố
+ *    k.
+ *------------------------------------------------------------------------------
+ *  TÁC GIẢ   : HiepHoon
+ *  TELEGRAM  : @Hoon9xx
+ *============================================================================*/
+
 #pragma once
 
 #include <cstddef>

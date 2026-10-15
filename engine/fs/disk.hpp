@@ -1,11 +1,26 @@
-// Thao tác trên hệ tệp của hệ điều hành — thay phần còn lại của IToolFileSystem.h: fsCheckPath,
-// fsFileExist, fsRemoveFile, fsRenameFile, fsCopyFile, fsCreateDirectory, fsGetLastModifiedTime và
-// duyệt thư mục (fsDirectoryIterator*, fsGetSubDirectories, fsGetFilesWithExtension). Mọi hàm nhận
-// đường dẫn UTF-8 (gốc: fsCheckPath gọi GetFileAttributesA, iterator đổi mã bằng mbstowcs_s, nên
-// đường dẫn tiếng Việt hỏng) và báo lỗi bằng Result (gốc: tạo thư mục coi ACCESS_DENIED là thành
-// công). Gốc nhận (thư mục tài nguyên, tên); ở đây ghép trước bằng FileSystem::resolve.
-// Nguồn: Forge2 src/fs/disk.hpp@d7fcd76. Khác gốc (so với Forge2): bỏ {} thừa của
-// PathInfo::modified và DirectoryEntry::name.
+/*==============================================================================
+ *  ENGINEHP  |  HIGH-PERFORMANCE GAME ENGINE
+ *------------------------------------------------------------------------------
+ *  TỆP       : engine/fs/disk.hpp
+ *  PHÂN HỆ   : Fs / Disk
+ *  CHUẨN     : C++23
+ *------------------------------------------------------------------------------
+ *  CHỨC NĂNG
+ *  - Thao tác trên hệ tệp của hệ điều hành — thay phần còn lại của
+ *    IToolFileSystem.h: fsCheckPath, fsFileExist, fsRemoveFile, fsRenameFile,
+ *    fsCopyFile, fsCreateDirectory, fsGetLastModifiedTime và duyệt thư mục
+ *    (fsDirectoryIterator*, fsGetSubDirectories, fsGetFilesWithExtension). Mọi
+ *    hàm nhận đường dẫn UTF-8 (gốc: fsCheckPath gọi GetFileAttributesA,
+ *    iterator đổi mã bằng mbstowcs_s, nên đường dẫn tiếng Việt hỏng) và báo lỗi
+ *    bằng Result (gốc: tạo thư mục coi ACCESS_DENIED là thành công). Gốc nhận
+ *    (thư mục tài nguyên, tên); ở đây ghép trước bằng FileSystem::resolve.
+ *  - Nguồn: Forge2 src/fs/disk.hpp@d7fcd76. Khác gốc (so với Forge2): bỏ {}
+ *    thừa của PathInfo::modified và DirectoryEntry::name.
+ *------------------------------------------------------------------------------
+ *  TÁC GIẢ   : HiepHoon
+ *  TELEGRAM  : @Hoon9xx
+ *============================================================================*/
+
 #pragma once
 
 #include "fs/stream.hpp"

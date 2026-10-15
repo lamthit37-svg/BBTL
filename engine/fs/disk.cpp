@@ -1,11 +1,27 @@
-// Một lời gọi GetFileAttributesExW cho cả loại, cỡ và thời điểm sửa (gốc: _wstat cho tồn tại,
-// GetFileAttributesA cho loại, stat bản hẹp cho thời gian). Duyệt thư mục bằng FindFirstFileExW với
-// FindExInfoBasic (bỏ tên 8.3) và FIND_FIRST_EX_LARGE_FETCH (bộ đệm lớn, ít lời gọi nhân).
-// Nguồn: Forge2 src/fs/disk.cpp@d7fcd76. Khác gốc (so với Forge2): macro của windows.h lấy từ
-// core/win32.hpp (gốc khai ở CMake), header con của Win32 include trực tiếp; các câu if trong vòng
-// của make_tree, collect và DirectoryReader::next lên điều kiện lặp, câu if (keep) của collect tách
-// thành keep_name (ghi tại chỗ); tham số c của lambda lower thành unit; bỏ {} thừa của State::find
-// và State::name.
+/*==============================================================================
+ *  ENGINEHP  |  HIGH-PERFORMANCE GAME ENGINE
+ *------------------------------------------------------------------------------
+ *  TỆP       : engine/fs/disk.cpp
+ *  PHÂN HỆ   : Fs / Disk
+ *  CHUẨN     : C++23
+ *------------------------------------------------------------------------------
+ *  CHỨC NĂNG
+ *  - Cài đặt fs/disk.hpp.
+ *  - Một lời gọi GetFileAttributesExW cho cả loại, cỡ và thời điểm sửa (gốc:
+ *    _wstat cho tồn tại, GetFileAttributesA cho loại, stat bản hẹp cho thời
+ *    gian). Duyệt thư mục bằng FindFirstFileExW với FindExInfoBasic (bỏ tên
+ *    8.3) và FIND_FIRST_EX_LARGE_FETCH (bộ đệm lớn, ít lời gọi nhân).
+ *  - Nguồn: Forge2 src/fs/disk.cpp@d7fcd76. Khác gốc (so với Forge2): macro của
+ *    windows.h lấy từ core/win32.hpp (gốc khai ở CMake), header con của Win32
+ *    include trực tiếp; các câu if trong vòng của make_tree, collect và
+ *    DirectoryReader::next lên điều kiện lặp, câu if (keep) của collect tách
+ *    thành keep_name (ghi tại chỗ); tham số c của lambda lower thành unit; bỏ
+ *    {} thừa của State::find và State::name.
+ *------------------------------------------------------------------------------
+ *  TÁC GIẢ   : HiepHoon
+ *  TELEGRAM  : @Hoon9xx
+ *============================================================================*/
+
 #include "fs/disk.hpp"
 
 #include "core/error.hpp"

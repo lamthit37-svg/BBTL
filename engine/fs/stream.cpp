@@ -1,10 +1,26 @@
-// find và rfind quét theo khúc 64 KiB bằng std::ranges::search và find_end, chồng m-1 byte giữa hai
-// khúc để không lọt chỗ khớp nằm vắt qua biên. Gốc đọc từng byte qua con trỏ hàm, bản lùi
-// seek-đọc-seek mỗi byte (mỗi fseek bỏ bộ đệm CRT), và giới hạn mẫu dưới 1024 byte bằng ASSERT —
-// Release tràn stack.
-// Nguồn: Forge2 src/fs/stream.cpp@d7fcd76. Khác gốc (so với Forge2): vòng for (;;) của scan_forward
-// và scan_backward thành hàm bước gọi lặp, hai câu if trong vòng của read_full lên điều kiện lặp
-// (ghi tại chỗ); bỏ phép ép uint64 sang size_t mà GCC báo thừa.
+/*==============================================================================
+ *  ENGINEHP  |  HIGH-PERFORMANCE GAME ENGINE
+ *------------------------------------------------------------------------------
+ *  TỆP       : engine/fs/stream.cpp
+ *  PHÂN HỆ   : Fs / Stream
+ *  CHUẨN     : C++23
+ *------------------------------------------------------------------------------
+ *  CHỨC NĂNG
+ *  - Cài đặt fs/stream.hpp.
+ *  - find và rfind quét theo khúc 64 KiB bằng std::ranges::search và find_end,
+ *    chồng m-1 byte giữa hai khúc để không lọt chỗ khớp nằm vắt qua biên. Gốc
+ *    đọc từng byte qua con trỏ hàm, bản lùi seek-đọc-seek mỗi byte (mỗi fseek
+ *    bỏ bộ đệm CRT), và giới hạn mẫu dưới 1024 byte bằng ASSERT — Release tràn
+ *    stack.
+ *  - Nguồn: Forge2 src/fs/stream.cpp@d7fcd76. Khác gốc (so với Forge2): vòng
+ *    for (;;) của scan_forward và scan_backward thành hàm bước gọi lặp, hai câu
+ *    if trong vòng của read_full lên điều kiện lặp (ghi tại chỗ); bỏ phép ép
+ *    uint64 sang size_t mà GCC báo thừa.
+ *------------------------------------------------------------------------------
+ *  TÁC GIẢ   : HiepHoon
+ *  TELEGRAM  : @Hoon9xx
+ *============================================================================*/
+
 #include "fs/stream.hpp"
 
 #include "core/error.hpp"

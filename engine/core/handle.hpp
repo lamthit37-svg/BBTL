@@ -1,8 +1,22 @@
-// HANDLE của Win32 sở hữu độc quyền, đóng bằng CloseHandle khi huỷ (hiến pháp III.4: RAII cho mọi
-// tài nguyên, kể cả HANDLE). _Ref giữ HANDLE trần trong struct C và đóng tay, có chỗ đóng HANDLE
-// NULL (WindowsFileSystem.cpp:315) và chỗ quên đóng khi lỗi. Không include windows.h: HANDLE là
-// void*.
-// Nguồn: Forge2 src/core/handle.hpp@d7fcd76. Khác gốc: không.
+/*==============================================================================
+ *  ENGINEHP  |  HIGH-PERFORMANCE GAME ENGINE
+ *------------------------------------------------------------------------------
+ *  TỆP       : engine/core/handle.hpp
+ *  PHÂN HỆ   : Core / Handle
+ *  CHUẨN     : C++23
+ *------------------------------------------------------------------------------
+ *  CHỨC NĂNG
+ *  - HANDLE của Win32 sở hữu độc quyền, đóng bằng CloseHandle khi huỷ (hiến
+ *    pháp III.4: RAII cho mọi tài nguyên, kể cả HANDLE). _Ref giữ HANDLE trần
+ *    trong struct C và đóng tay, có chỗ đóng HANDLE NULL
+ *    (WindowsFileSystem.cpp:315) và chỗ quên đóng khi lỗi. Không include
+ *    windows.h: HANDLE là void*.
+ *  - Nguồn: Forge2 src/core/handle.hpp@d7fcd76. Khác gốc: không.
+ *------------------------------------------------------------------------------
+ *  TÁC GIẢ   : HiepHoon
+ *  TELEGRAM  : @Hoon9xx
+ *============================================================================*/
+
 #pragma once
 
 #include <utility>

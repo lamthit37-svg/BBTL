@@ -1,4 +1,19 @@
-// Bảng ở core/detail/gbk_table.hpp là tệp sinh; mọi điểm mã trong đó thuộc BMP nên mỗi ký tự ra một tới ba byte UTF-8.
+/*==============================================================================
+ *  ENGINEHP  |  HIGH-PERFORMANCE GAME ENGINE
+ *------------------------------------------------------------------------------
+ *  TỆP       : engine/core/gbk.cpp
+ *  PHÂN HỆ   : Core / Gbk
+ *  CHUẨN     : C++23
+ *------------------------------------------------------------------------------
+ *  CHỨC NĂNG
+ *  - Cài đặt core/gbk.hpp.
+ *  - Bảng ở core/detail/gbk_table.hpp là tệp sinh; mọi điểm mã trong đó thuộc
+ *    BMP nên mỗi ký tự ra một tới ba byte UTF-8.
+ *------------------------------------------------------------------------------
+ *  TÁC GIẢ   : HiepHoon
+ *  TELEGRAM  : @Hoon9xx
+ *============================================================================*/
+
 #include "core/gbk.hpp"
 
 #include "core/detail/gbk_table.hpp"

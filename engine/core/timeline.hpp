@@ -1,7 +1,22 @@
-// Mốc nạp: mỗi mốc là một dòng log "Mốc <ms> ms  <tên>", ms tính từ lúc hệ điều hành tạo tiến trình
-// (core::process_age), nên cộng được với phần nạp thư viện và đọc trực tiếp so với số đo từ ngoài của
-// TOOLS/run/launch_timeline.py. Các mốc là bảng đo của đường nạp (AGENTS.md, mục Ngân sách): đổi tên mốc thì đổi
-// cả công cụ đọc chúng (TOOLS/run/bench_load.py).
+/*==============================================================================
+ *  ENGINEHP  |  HIGH-PERFORMANCE GAME ENGINE
+ *------------------------------------------------------------------------------
+ *  TỆP       : engine/core/timeline.hpp
+ *  PHÂN HỆ   : Core / Timeline
+ *  CHUẨN     : C++23
+ *------------------------------------------------------------------------------
+ *  CHỨC NĂNG
+ *  - Mốc nạp: mỗi mốc là một dòng log "Mốc <ms> ms  <tên>", ms tính từ lúc hệ
+ *    điều hành tạo tiến trình (core::process_age), nên cộng được với phần nạp
+ *    thư viện và đọc trực tiếp so với số đo từ ngoài của
+ *    TOOLS/run/launch_timeline.py. Các mốc là bảng đo của đường nạp (AGENTS.md,
+ *    mục Ngân sách): đổi tên mốc thì đổi cả công cụ đọc chúng
+ *    (TOOLS/run/bench_load.py).
+ *------------------------------------------------------------------------------
+ *  TÁC GIẢ   : HiepHoon
+ *  TELEGRAM  : @Hoon9xx
+ *============================================================================*/
+
 #pragma once
 
 #include "core/clock.hpp"

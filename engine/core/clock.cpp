@@ -1,14 +1,31 @@
-// Giấc ngủ và lịch tick. Mỗi luồng một bộ hẹn giờ độ phân giải cao, đóng khi luồng kết thúc; dùng
-// chung một handle thì luồng này xoá tín hiệu của luồng kia. Pha quay dùng YieldProcessor (pause),
-// không yield như VnS và No1: SwitchToThread trao lõi cho luồng khác đang chờ rồi phải đợi nó hết
-// lượt, nên p99 lệch hạn cao hơn (docs/modules/core.md). Lịch tick tách giây và phần dư để phép
-// nhân không tràn. Phần lẻ alpha tính từ phần dư hữu tỉ thay vì từ hai mốc tick đã làm tròn lên
-// nano giây như VnS và No1: lệch nhau dưới 10^-7, nhỏ hơn bước của float.
-// Nguồn: Forge2 src/core/clock.cpp@d7fcd76. Khác gốc: enumerator mang tiền tố k; macro của
-// windows.h lấy từ core/win32.hpp (gốc khai ở CMake); header con của Win32 include trực tiếp; đổi
-// tên cho đủ 3 ký tự (hz thành hertz, at thành spot) và hằng static thành kTimer; const HANDLE viết
-// thành auto* const; alias TickOffset cho kiểu trả của offset_of; lệnh return kèm lời gọi hàm void
-// tách làm hai.
+/*==============================================================================
+ *  ENGINEHP  |  HIGH-PERFORMANCE GAME ENGINE
+ *------------------------------------------------------------------------------
+ *  TỆP       : engine/core/clock.cpp
+ *  PHÂN HỆ   : Core / Clock
+ *  CHUẨN     : C++23
+ *------------------------------------------------------------------------------
+ *  CHỨC NĂNG
+ *  - Cài đặt core/clock.hpp.
+ *  - Giấc ngủ và lịch tick. Mỗi luồng một bộ hẹn giờ độ phân giải cao, đóng khi
+ *    luồng kết thúc; dùng chung một handle thì luồng này xoá tín hiệu của luồng
+ *    kia. Pha quay dùng YieldProcessor (pause), không yield như VnS và No1:
+ *    SwitchToThread trao lõi cho luồng khác đang chờ rồi phải đợi nó hết lượt,
+ *    nên p99 lệch hạn cao hơn (docs/modules/core.md). Lịch tick tách giây và
+ *    phần dư để phép nhân không tràn. Phần lẻ alpha tính từ phần dư hữu tỉ thay
+ *    vì từ hai mốc tick đã làm tròn lên nano giây như VnS và No1: lệch nhau
+ *    dưới 10^-7, nhỏ hơn bước của float.
+ *  - Nguồn: Forge2 src/core/clock.cpp@d7fcd76. Khác gốc: enumerator mang tiền
+ *    tố k; macro của windows.h lấy từ core/win32.hpp (gốc khai ở CMake); header
+ *    con của Win32 include trực tiếp; đổi tên cho đủ 3 ký tự (hz thành hertz,
+ *    at thành spot) và hằng static thành kTimer; const HANDLE viết thành auto*
+ *    const; alias TickOffset cho kiểu trả của offset_of; lệnh return kèm lời
+ *    gọi hàm void tách làm hai.
+ *------------------------------------------------------------------------------
+ *  TÁC GIẢ   : HiepHoon
+ *  TELEGRAM  : @Hoon9xx
+ *============================================================================*/
+
 #include "core/clock.hpp"
 
 #include "core/error.hpp"

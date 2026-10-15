@@ -1,7 +1,21 @@
-// Phần của fs mà thiết bị (Android, iOS) cần: đọc cả tệp, ghi nguyên tử, hỏi tệp và tạo thư mục. Bản
-// Win32 (file.cpp, disk.cpp) gọi thẳng CreateFileW; ở đây dùng open/read/write của POSIX và
-// std::filesystem, cùng hợp đồng như khai báo ở file.hpp và disk.hpp. Mọi đường dẫn là UTF-8.
-// Chỉ làm đúng năm hàm mà resource và world gọi; thêm hàm khác của disk.hpp khi nơi gọi cần.
+/*==============================================================================
+ *  ENGINEHP  |  HIGH-PERFORMANCE GAME ENGINE
+ *------------------------------------------------------------------------------
+ *  TỆP       : engine/fs/posix.cpp
+ *  PHÂN HỆ   : Fs / Posix
+ *  CHUẨN     : C++23
+ *------------------------------------------------------------------------------
+ *  CHỨC NĂNG
+ *  - Phần của fs mà thiết bị (Android, iOS) cần: đọc cả tệp, ghi nguyên tử, hỏi
+ *    tệp và tạo thư mục. Bản Win32 (file.cpp, disk.cpp) gọi thẳng CreateFileW;
+ *    ở đây dùng open/read/write của POSIX và std::filesystem, cùng hợp đồng như
+ *    khai báo ở file.hpp và disk.hpp. Mọi đường dẫn là UTF-8. Chỉ làm đúng năm
+ *    hàm mà resource và world gọi; thêm hàm khác của disk.hpp khi nơi gọi cần.
+ *------------------------------------------------------------------------------
+ *  TÁC GIẢ   : HiepHoon
+ *  TELEGRAM  : @Hoon9xx
+ *============================================================================*/
+
 #include "core/error.hpp"
 #include "fs/disk.hpp"
 #include "fs/file.hpp"

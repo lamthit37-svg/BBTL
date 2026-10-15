@@ -1,6 +1,20 @@
-// Giải mã và thiết bị. miniaudio chỉ có trong tệp này. Header ấy là include SYSTEM.
-// Bộ giải mã và thiết bị đều chạy ở tần số riêng của chúng (sampleRate = 0): miniaudio không đổi
-// tần số ở đâu cả.
+/*==============================================================================
+ *  ENGINEHP  |  HIGH-PERFORMANCE GAME ENGINE
+ *------------------------------------------------------------------------------
+ *  TỆP       : engine/audio/detail/native.cpp
+ *  PHÂN HỆ   : Audio / Native
+ *  CHUẨN     : C++23
+ *------------------------------------------------------------------------------
+ *  CHỨC NĂNG
+ *  - Cài đặt giải mã và thiết bị bằng miniaudio (chỉ có trong tệp này, include
+ *    SYSTEM).
+ *  - Bộ giải mã và thiết bị chạy ở tần số riêng (sampleRate = 0): miniaudio
+ *    không đổi tần số ở đâu cả.
+ *------------------------------------------------------------------------------
+ *  TÁC GIẢ   : HiepHoon
+ *  TELEGRAM  : @Hoon9xx
+ *============================================================================*/
+
 #include "audio/detail/native.hpp"
 
 #include "audio/limits.hpp"

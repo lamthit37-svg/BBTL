@@ -1,6 +1,20 @@
-// Reactor trên POSIX: cùng hợp đồng với bản Windows, phía dưới vẫn là PollSet.
-// Đánh thức từ luồng khác bằng một pipe không chặn, gộp nhiều lần thành một byte.
-// Chưa chạy trên Linux thật: máy phát triển dịch nhánh này bằng NDK khi cần.
+/*==============================================================================
+ *  ENGINEHP  |  HIGH-PERFORMANCE GAME ENGINE
+ *------------------------------------------------------------------------------
+ *  TỆP       : engine/net/reactor_posix.cpp
+ *  PHÂN HỆ   : Net / Reactor
+ *  CHUẨN     : C++23
+ *------------------------------------------------------------------------------
+ *  CHỨC NĂNG
+ *  - Reactor trên POSIX: cùng hợp đồng với bản Windows, phía dưới vẫn là
+ *    PollSet.
+ *  - Đánh thức từ luồng khác bằng một pipe không chặn, gộp nhiều lần thành một
+ *    byte.
+ *  - Chưa chạy trên Linux thật: máy phát triển dịch nhánh này bằng NDK khi cần.
+ *------------------------------------------------------------------------------
+ *  TÁC GIẢ   : HiepHoon
+ *  TELEGRAM  : @Hoon9xx
+ *============================================================================*/
 
 #include "net/reactor.hpp"
 

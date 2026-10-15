@@ -1,4 +1,18 @@
-// Bảng id SoundInfo trong sound_table.xml. Thiếu id là dữ liệu, không phải lỗi lập trình.
+/*==============================================================================
+ *  ENGINEHP  |  HIGH-PERFORMANCE GAME ENGINE
+ *------------------------------------------------------------------------------
+ *  TỆP       : engine/audio/catalog.hpp
+ *  PHÂN HỆ   : Audio / Catalog
+ *  CHUẨN     : C++23
+ *------------------------------------------------------------------------------
+ *  CHỨC NĂNG
+ *  - Bảng tra id SoundInfo (tên -> đường dẫn) đọc từ sound_table.xml.
+ *  - Thiếu id là dữ liệu, không phải lỗi lập trình: find() trả chuỗi rỗng.
+ *------------------------------------------------------------------------------
+ *  TÁC GIẢ   : HiepHoon
+ *  TELEGRAM  : @Hoon9xx
+ *============================================================================*/
+
 #pragma once
 
 #include "core/error.hpp"

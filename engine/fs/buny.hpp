@@ -1,12 +1,28 @@
-// Định dạng archive Buny v0 — thay phần "Buny Archive format definitions" của IFileSystem.h và các
-// hàm bunyAr* trong FileSystem.c (_Ref). Tương thích từng byte với archive do công cụ buny của The
-// Forge ghi: header 80 B, node 40 B, mục LZ4/ZSTD chia khối với bảng con trỏ 64 bit (1 bit nén, 40
-// bit offset, 23 bit cỡ trừ 1), bảng băm hoàn hảo MurmurHash64A hai tầng. Hash, mã hoá con trỏ và
-// dựng bảng port nguyên toán tử: cùng danh sách tên ra cùng bảng như gốc. Khác gốc: đọc khoá qua
-// memcpy (gốc ép const uint64_t* lên byte không căn lề, UB), bảng băm đọc từ tệp được kiểm cỡ khớp
-// số ô trước khi tra (gốc chỉ kiểm khi bật validation, không thì tra ngoài mảng).
-// Nguồn: Forge2 src/fs/buny.hpp@d7fcd76. Khác gốc (so với Forge2): thêm NOLINT cho kiểu nền 64 bit
-// của Format.
+/*==============================================================================
+ *  ENGINEHP  |  HIGH-PERFORMANCE GAME ENGINE
+ *------------------------------------------------------------------------------
+ *  TỆP       : engine/fs/buny.hpp
+ *  PHÂN HỆ   : Fs / Buny
+ *  CHUẨN     : C++23
+ *------------------------------------------------------------------------------
+ *  CHỨC NĂNG
+ *  - Định dạng archive Buny v0 — thay phần "Buny Archive format definitions"
+ *    của IFileSystem.h và các hàm bunyAr* trong FileSystem.c (_Ref). Tương
+ *    thích từng byte với archive do công cụ buny của The Forge ghi: header 80
+ *    B, node 40 B, mục LZ4/ZSTD chia khối với bảng con trỏ 64 bit (1 bit nén,
+ *    40 bit offset, 23 bit cỡ trừ 1), bảng băm hoàn hảo MurmurHash64A hai tầng.
+ *    Hash, mã hoá con trỏ và dựng bảng port nguyên toán tử: cùng danh sách tên
+ *    ra cùng bảng như gốc. Khác gốc: đọc khoá qua memcpy (gốc ép const
+ *    uint64_t* lên byte không căn lề, UB), bảng băm đọc từ tệp được kiểm cỡ
+ *    khớp số ô trước khi tra (gốc chỉ kiểm khi bật validation, không thì tra
+ *    ngoài mảng).
+ *  - Nguồn: Forge2 src/fs/buny.hpp@d7fcd76. Khác gốc (so với Forge2): thêm
+ *    NOLINT cho kiểu nền 64 bit của Format.
+ *------------------------------------------------------------------------------
+ *  TÁC GIẢ   : HiepHoon
+ *  TELEGRAM  : @Hoon9xx
+ *============================================================================*/
+
 #pragma once
 
 #include "fs/stream.hpp"

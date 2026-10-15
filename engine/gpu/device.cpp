@@ -1,10 +1,25 @@
-// Cửa chọn backend của tầng đồ hoạ: tên và phép phân tích của các enum công khai, danh sách backend
-// có trong bản dựng, liệt kê adapter và tạo thiết bị. Tệp duy nhất của phần chung biết tên các
-// backend; mọi thứ khác đi qua giao diện Device.
-// Nguồn: Forge2 src/gpu/device.cpp@d7fcd76. Khác gốc: enumerator mang tiền tố k; CMake của
-// game_gpu định nghĩa GAME_GPU_D3D12 và GAME_GPU_D3D11; thiếu macro thì backend đó trả
-// kUnsupported; tham số c của lower thành letter; tham số lambda của is_same_word đổi tên
-// vì trùng tên tham số của hàm.
+/*==============================================================================
+ *  ENGINEHP  |  HIGH-PERFORMANCE GAME ENGINE
+ *------------------------------------------------------------------------------
+ *  TỆP       : engine/gpu/device.cpp
+ *  PHÂN HỆ   : Gpu / Device
+ *  CHUẨN     : C++23
+ *------------------------------------------------------------------------------
+ *  CHỨC NĂNG
+ *  - Cửa chọn backend của tầng đồ hoạ: tên và phép phân tích của các enum công
+ *    khai, danh sách backend có trong bản dựng, liệt kê adapter và tạo thiết
+ *    bị. Tệp duy nhất của phần chung biết tên các backend; mọi thứ khác đi qua
+ *    giao diện Device.
+ *  - Nguồn: Forge2 src/gpu/device.cpp@d7fcd76. Khác gốc: enumerator mang tiền
+ *    tố k; CMake của game_gpu định nghĩa GAME_GPU_D3D12 và GAME_GPU_D3D11;
+ *    thiếu macro thì backend đó trả kUnsupported; tham số c của lower thành
+ *    letter; tham số lambda của is_same_word đổi tên vì trùng tên tham số của
+ *    hàm.
+ *------------------------------------------------------------------------------
+ *  TÁC GIẢ   : HiepHoon
+ *  TELEGRAM  : @Hoon9xx
+ *============================================================================*/
+
 #include "gpu/device.hpp"
 
 #include "core/error.hpp"

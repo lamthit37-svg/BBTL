@@ -1,14 +1,31 @@
-// Nhóm gắn tài nguyên (bind group): các tài nguyên của một register space, gắn vào pipeline bằng
-// một lệnh — DescriptorSet, DescriptorData, updateDescriptorSet của _Ref; BindlessTable của
-// Platium; BindResource và GetDescriptorIndex của Wicked. Bố cục của nhóm không khai ở đây: nó là
-// phần phản chiếu shader của register space ấy, nên chỗ gọi chỉ nói "t3 là view này" đúng như viết
-// trong HLSL. Một nhóm là descriptor set của Vulkan và một hoặc hai descriptor table của D3D12.
-// Mảng không chặn trong shader (Texture2D bảng[] : register(t0, space2)) là bảng bindless: cùng cơ
-// chế, thêm sức chứa khai lúc tạo và được cập nhật khi đang dùng. Ba bản tham chiếu mỗi bản chỉ có
-// một trong hai đường (nhóm thường, hoặc bindless); thiết bị điện thoại thiếu descriptor indexing
-// vẫn chạy được đường nhóm thường (DeviceCaps::bindless).
-// Nguồn: Forge2 src/gpu/binding.hpp@d7fcd76. Khác gốc: enumerator mang tiền tố k; bỏ {} thừa của
-// BindEntry::resource, BindGroupDesc::name và BindGroupDesc::entries.
+/*==============================================================================
+ *  ENGINEHP  |  HIGH-PERFORMANCE GAME ENGINE
+ *------------------------------------------------------------------------------
+ *  TỆP       : engine/gpu/binding.hpp
+ *  PHÂN HỆ   : Gpu / Binding
+ *  CHUẨN     : C++23
+ *------------------------------------------------------------------------------
+ *  CHỨC NĂNG
+ *  - Nhóm gắn tài nguyên (bind group): các tài nguyên của một register space,
+ *    gắn vào pipeline bằng một lệnh — DescriptorSet, DescriptorData,
+ *    updateDescriptorSet của _Ref; BindlessTable của Platium; BindResource và
+ *    GetDescriptorIndex của Wicked. Bố cục của nhóm không khai ở đây: nó là
+ *    phần phản chiếu shader của register space ấy, nên chỗ gọi chỉ nói "t3 là
+ *    view này" đúng như viết trong HLSL. Một nhóm là descriptor set của Vulkan
+ *    và một hoặc hai descriptor table của D3D12. Mảng không chặn trong shader
+ *    (Texture2D bảng[] : register(t0, space2)) là bảng bindless: cùng cơ chế,
+ *    thêm sức chứa khai lúc tạo và được cập nhật khi đang dùng. Ba bản tham
+ *    chiếu mỗi bản chỉ có một trong hai đường (nhóm thường, hoặc bindless);
+ *    thiết bị điện thoại thiếu descriptor indexing vẫn chạy được đường nhóm
+ *    thường (DeviceCaps::bindless).
+ *  - Nguồn: Forge2 src/gpu/binding.hpp@d7fcd76. Khác gốc: enumerator mang tiền
+ *    tố k; bỏ {} thừa của BindEntry::resource, BindGroupDesc::name và
+ *    BindGroupDesc::entries.
+ *------------------------------------------------------------------------------
+ *  TÁC GIẢ   : HiepHoon
+ *  TELEGRAM  : @Hoon9xx
+ *============================================================================*/
+
 #pragma once
 
 #include "gpu/handle.hpp"
