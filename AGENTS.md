@@ -245,7 +245,16 @@
   - Script Lua gốc của client 2026 nằm trong cây mã client, văn bản UTF-8 (đổi từng dòng từ GBK): `src/client/script/` (3 173 tệp, Interface và Config,
     tách từ gói `Data/*.axp` của client `D:\XTLBB` 3.71.9509, `NGUON.txt` và `MANIFEST.tsv` ở đó) — chủ dự án chốt ngày 2026-10-15
     ("tách full đầy đủ ra, đặt 1 thư mục trong client source chúng ta"). Giải gói, gỡ vỏ CryptBox và giải mã script (Rijndael 192 bit
-    cho 24 byte đầu, XOR "AS" cho phần còn lại) và đổi UTF-8: `TOOLS/content/unpack_scripts.py --utf8`. Chưa nhúng máy Lua; lõi của client là Lua 5.0.1.
+    cho 24 byte đầu, XOR "AS" cho phần còn lại) và đổi UTF-8: `TOOLS/content/unpack_scripts.py --utf8`. Đã nhúng máy Lua (xem dòng kế).
+  - Giao diện chạy bằng chính script Lua của client 2026 trên LuaPlus 5.0.1 gốc (`third_party/luaplus`, C; `game_luaplus`) — chủ dự án
+    chốt ngày 2026-10-15 ("Làm trọn vẹn xử lý giao diện bằng lua luôn đi nào"; "lấy thẳng source sang có gì cải tiến thì cải tiến
+    luôn"; "việc viết mã chừa đường IOS APK"). Ba tầng: máy Lua và số của script (`luanum`, khớp `LuaPlus.dll` 2 060/2 060 đơn vị
+    và 10 851 ca thư viện), hàm game cho script (tầng B, e2), cửa sổ (tầng C: `src/client/face/ui/script/`: `host` là phần chủ
+    port `CUIWindowMng`/`CUIWindowItem`, `widget` là lớp `UILuaControl`, `gui_screen` nối `gui::GuiLoader`/`Hub`; số đo, khác gốc và
+    việc còn lại ở `docs/giao-viec/LUA-GEN/HOST.md` và `TANG-C.md`). Sổ cửa sổ `src/client/script/windows.tsv` (1 975 dòng) và script đi
+    vào `dev/client/assets/Script` qua target `thienlong_scripts`. HUD chuyển dần từng cửa sổ từ bảng port tay (`ui/panel`) sang script
+    theo danh sách `kScripted` ở `ui/hud.cpp` (hiện: `ProgressBar`); cửa sổ chỉ vào danh sách khi hàm game mà script của nó gọi đã có.
+    Mã mới của phần này phải dựng được cho Android và iOS (chỉ C API Lua, `io::read_text`, đồng hồ khung từ ngoài vào).
 - Thư viện ngoài (tên — nguồn): cgltf, stb, meshoptimizer, sse2neon (Android), lz4, zstd, xxhash
   (ba gói của `fs` và gói shader), opus (tải Opus của tệp âm thanh `.tla`), tomlplusplus 3.4.0
   (module `config`) — vcpkg manifest (`vcpkg.json`, `C:\dev\vcpkg`); libsodium 1.0.22 (`seal`,

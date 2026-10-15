@@ -81,6 +81,10 @@ inline constexpr std::uint32_t kDefaultInstructionLimit = 50'000'000;
 struct HostDesc {
     // Thư mục dữ liệu client: Script/windows.tsv và Script/Interface/<cửa sổ>/<tên>.lua.
     std::filesystem::path data_root;
+    // Chỉ những cửa sổ này (tên trong sổ) được nạp script, PreLoad và nhận sự kiện; rỗng là cả sổ. Dành cho lúc HUD chuyển
+    // dần từng cửa sổ từ bảng port tay sang script: cửa sổ ngoài danh sách chưa tồn tại với host, nên nhóm nhường chỗ
+    // (Demise) chỉ tính trong các cửa sổ có mặt. Tên không có trong sổ ghi một dòng notes.
+    std::vector<std::string> only;
     std::uint32_t instruction_limit = kDefaultInstructionLimit;
     // Đăng ký hàm của game (tầng B: DataPool, Player, PushEvent...) sau thư viện chuẩn và hàm của host, trước khi chạy
     // script nào. Chạy trong lua_cpcall: lỗi Lua bên trong được bắt; hàm này không được giữ đối tượng C++ có destructor

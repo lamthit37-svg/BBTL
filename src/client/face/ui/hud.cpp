@@ -34,7 +34,6 @@
 #include "ui/panel/packet.hpp"
 #include "ui/panel/player_frame.hpp"
 #include "ui/panel/portraits.hpp"
-#include "ui/panel/progress_bar.hpp"
 #include "ui/panel/quest_book.hpp"
 #include "ui/panel/quest_log.hpp"
 #include "ui/panel/role_cast.hpp"
@@ -52,6 +51,8 @@
 #include "ui/panel/world_map.hpp"
 #include "ui/phone.hpp"
 #include "ui/radar.hpp"
+#include "ui/script/gui_screen.hpp"
+#include "ui/script/host.hpp"
 #include "ui/text.hpp"
 #include "ui/view.hpp"
 
@@ -125,6 +126,11 @@ constexpr std::array<std::string_view, 40> kLayouts = {
     panel::kSoftKeysLayout,
     panel::kSceneTransLayout,
 };
+
+// Cửa sổ chạy bằng script Lua gốc của client 2026 qua ui/script (docs/giao-viec/LUA-GEN/HOST.md). Cửa sổ khác còn là bảng
+// port tay (ui/panel) cho tới khi hàm game mà script của nó gọi (tầng B) có đủ; hết bảng port tay thì danh sách này bỏ và host
+// chạy cả sổ.
+constexpr std::array<std::string_view, 1> kScripted = {"ProgressBar"};
 
 // Trần số sự kiện giao diện xử lý mỗi khung, kể cả sự kiện do các bảng tự đẩy (xem Hud::State::step_panels và EventQueue:
 // gốc không có trần, đây là chốt an toàn).
@@ -437,6 +443,11 @@ struct Hud::State {
     panel::Portraits portraits;
     panel::RoleCast cast;
     std::unique_ptr<gui::Hub> hub;
+    // Màn của host trên loader và hub ở trên, và host chạy script các cửa sổ trong kScripted (không có thì còn bảng port tay).
+    // host_press là cửa sổ dưới chuột lúc nhấn trái, để nhận ra Clicked.
+    std::optional<script::GuiScreen> screen;
+    std::optional<script::Host> host;
+    std::string host_press;
     panel::Deck deck;
     panel::Maps maps;
     panel::Desk desk;
@@ -490,7 +501,6 @@ struct Hud::State {
     // ui_args là kho arg<k> dùng chung của mọi bảng (xem ui/panel/events.hpp).
     panel::EventArgs ui_args;
     bool is_app_inited = false;
-    panel::ProgressBar progress;
     panel::DebugListBox debug_list;
     std::optional<std::chrono::milliseconds> panel_clock;
     float panel_seconds = 0.0F;
@@ -571,6 +581,11 @@ struct Hud::State {
     void fill_play(const HudView& view);
     void step_panels(const HudView& view);
     void dispatch(std::span<const panel::PostedEvent> first);
+    void post_to_host(panel::EventQueue& queue, const panel::PostedEvent& posted);
+    void note_host(const HudView& view);
+    void note_host_press(std::string_view window, const HudView& view);
+    void note_host_release(const HudView& view);
+    void open_host();
     void push_debug_message(std::string_view text);
     [[nodiscard]] core::Status add_map();
     void upload_map();
@@ -743,11 +758,13 @@ void Hud::State::note_press(const HudView& view) {
     if (is_release && view.phase == Phase::kPlay) {
         note_board_release(view);
         note_world_release(view);
+        note_host_release(view);
         equip_spin = 0.0F;
     }
     if (!is_press || !hub || !view.pointer) return;
     const gui::Pointer spot = *view.pointer;
     const auto window = hub->hit(spot.x, spot.y, gui::Probe::kLeftButton);
+    if (view.phase == Phase::kPlay) note_host_press(window.value_or(std::string_view{}), view);
     if (!window) return;
     if (const std::optional<Action> next = panel::menu_action(*window)) {
         asked = next;
@@ -777,6 +794,35 @@ void Hud::State::note_press(const HudView& view) {
     if (window == panel::kWorldWindow && view.pointer) world_press = view.pointer;
     if (window == kEquipTurnLeft) equip_spin = -kEquipSpin;
     if (window == kEquipTurnRight) equip_spin = kEquipSpin;
+}
+
+// Nhấn trái lên cửa sổ window (rỗng là khoảng trống) của màn chơi: MouseButtonDown và MouseLButtonDown của layout, rồi cửa sổ
+// bật lên nào ở ngoài chỗ nhấn thì tự đóng (CUIWindowMng sau injectMouseButtonDown). Việc script nhờ game: ghi một dòng.
+// Khác gốc: nhấn phải, MouseEnter/MouseLeave và nhấn đúp chưa tới được host; CEGUI chỉ phát lên cửa sổ dưới chuột, chưa đối
+// chiếu với CEGUIBase.dll 2026 xem có lan lên cửa sổ cha không.
+void Hud::State::note_host_press(std::string_view window, const HudView& view) {
+    if (!host || !view.pointer) return;
+    host_press = window;
+    if (!window.empty()) {
+        static_cast<void>(host->fire(window, "MouseButtonDown", script::MouseButton::kLeft));
+        static_cast<void>(host->fire(window, "MouseLButtonDown", script::MouseButton::kLeft));
+    }
+    host->pressed(script::Spot{.x = view.pointer->x, .y = view.pointer->y});
+    for (const panel::Call& call : host->take_calls())
+        std::println(stderr, "Script giao diện: việc nhờ {} chưa có ở HUD", panel::name_of(call.ask));
+}
+
+// Nhả trái: MouseButtonUp lên cửa sổ dưới chuột, và Clicked khi nhả trên đúng cửa sổ đã nhấn (nút của CEGUI).
+void Hud::State::note_host_release(const HudView& view) {
+    const std::string pressed = std::move(host_press);
+    host_press.clear();
+    if (!host || !hub || !view.pointer) return;
+    const auto window = hub->hit(view.pointer->x, view.pointer->y, gui::Probe::kLeftButton);
+    if (!window) return;
+    static_cast<void>(host->fire(*window, "MouseButtonUp", script::MouseButton::kLeft));
+    if (*window == pressed) static_cast<void>(host->fire(*window, "Clicked", script::MouseButton::kLeft));
+    for (const panel::Call& call : host->take_calls())
+        std::println(stderr, "Script giao diện: việc nhờ {} chưa có ở HUD", panel::name_of(call.ask));
 }
 
 // Nhấn trái lên một ô của thanh kỹ năng thú cưng: MainMenuBar_3_Clicked(index). Khác gốc: nhấn phải
@@ -893,8 +939,6 @@ void Hud::State::dispatch(std::span<const panel::PostedEvent> first) {
         const panel::PostedEvent& posted = *posted_event;
         const std::vector<std::string_view> given = posted.arguments();
         const panel::UiEvent event = ui_args.raise(posted.name, given);
-        if (panel::is_delivered(panel::kProgressBarEvents, event.name, progress.is_shown))
-            panel::progress_bar_event(progress, event);
         if (panel::is_delivered(panel::kDebugListBoxEvents, event.name, debug_list.is_shown))
             panel::debug_list_box_event(debug_list, event, panel::kUiColourMissing);
         if (panel::is_delivered(panel::kMainMenuBar3Events, event.name, pet_bar.is_shown))
@@ -908,7 +952,50 @@ void Hud::State::dispatch(std::span<const panel::PostedEvent> first) {
                 std::println(stderr, "Thanh action: việc nhờ {} chưa có ở HUD", panel::name_of(call.ask));
             }
         }
+        post_to_host(queue, posted);
     }
+}
+
+// Sự kiện tới các cửa sổ chạy bằng script. Việc script nhờ game trả về hàng đợi: PushEvent thành sự kiện kế tiếp của lượt này
+// (như bảng port tay), việc khác chưa có phía game để làm nên ghi một dòng.
+void Hud::State::post_to_host(panel::EventQueue& queue, const panel::PostedEvent& posted) {
+    if (!host) return;
+    const std::vector<std::string_view> given = posted.arguments();
+    host->post(posted.name, given);
+    for (const panel::Call& call : host->take_calls()) {
+        if (std::optional<panel::PostedEvent> next = panel::event_of(call)) {
+            queue.push(std::move(*next));
+        } else {
+            std::println(stderr, "Script giao diện: việc nhờ {} chưa có ở HUD", panel::name_of(call.ask));
+        }
+    }
+}
+
+// Mở host cho các cửa sổ trong kScripted. Thiếu dữ liệu script (Script/windows.tsv) thì HUD chạy tiếp mà không có chúng; lỗi
+// của script ghi vào stderr, không dừng khung.
+void Hud::State::open_host() {
+    screen.emplace(loader);
+    screen->bind(hub.get());
+    script::HostDesc desc;
+    desc.data_root = client_root;
+    desc.only.assign(kScripted.begin(), kScripted.end());
+    auto opened = script::Host::open(desc, *screen);
+    if (!opened) {
+        std::println(stderr, "Giao diện: không mở được giao diện Lua: {}", opened.error());
+        screen.reset();
+        return;
+    }
+    host.emplace(std::move(*opened));
+    for (const std::string& note : host->take_notes())
+        std::println(stderr, "Giao diện Lua: {}", note);
+}
+
+// Nhịp của khung cho host: đồng hồ hẹn giờ, rồi lỗi script kể từ khung trước.
+void Hud::State::note_host(const HudView& view) {
+    if (!host) return;
+    host->tick(view.clock);
+    for (const std::string& note : host->take_notes())
+        std::println(stderr, "Giao diện Lua: {}", note);
 }
 
 // PushDebugMessage(text) của script: sự kiện NEW_DEBUGMESSAGE với arg0 là lời nhắn.
@@ -943,7 +1030,7 @@ void Hud::State::step_panels(const HudView& view) {
     }
     first.insert(first.end(), view.events.begin(), view.events.end());
     dispatch(first);
-    panel::progress_bar_fade(progress, panel_seconds);
+    note_host(view);
     panel::debug_list_box_tick(debug_list, panel_seconds);
 }
 
@@ -983,7 +1070,7 @@ void Hud::State::fill_play(const HudView& view) {
     panel::paint_maps(deck, maps, seen.title, resolution);
     panel::paint_desk(deck, desk);
     panel::paint_quest_book(deck, quests);
-    panel::paint_progress_bar(deck, progress);
+    if (host) host->paint(deck);
     panel::paint_debug_list_box(deck, debug_list);
     panel::paint_main_menu_bar_3(deck, pet_bar);
     action_bars.paint(deck);
@@ -1274,6 +1361,7 @@ core::Result<Hud> Hud::open(render::UiPass& pass, const HudDesc& desc, HudPrep p
     for (const std::string& note : state->loader.notes()) {
         std::println(stderr, "Giao diện: {}", note);
     }
+    state->open_host();
     return Hud(std::move(state));
 }
 
@@ -1287,6 +1375,12 @@ void Hud::prepare(const HudView& view) {
     state.note_hold(view);
     state.note_loading(view);
     state.fill_panels(view);
+    // Layout mà host vừa nạp thêm: Hub dựng từ asset lúc đó nên dựng lại để có cửa sổ của nó.
+    if (state.screen && state.screen->take_grown()) {
+        state.hub = std::make_unique<gui::Hub>(state.loader.asset());
+        state.screen->bind(state.hub.get());
+        state.is_built = false;
+    }
     gui::Place place;
     place.width = view.width;
     place.height = view.height;

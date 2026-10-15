@@ -87,7 +87,7 @@ set(game_layer_ui/script "core io table gui luanum ui/panel ui/script")
 # chuỗi đăng nhập (ui/panel) và phiên mạng.
 set(game_layer_client/session "core net protocol secure link table client/session")
 set(game_layer_client/online "core protocol secure ui/panel client/session client/online")
-set(game_layer_ui "core io table gpu resource render gui hero ui/panel ui")
+set(game_layer_ui "core io table gpu resource render gui hero ui/panel ui/script ui")
 set(game_layer_control "core ogre control")
 set(game_layer_avatar "core io math ogre anim look resource classic avatar")
 set(game_layer_jobs "core jobs")

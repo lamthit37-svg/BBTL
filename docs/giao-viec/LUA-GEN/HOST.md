@@ -25,6 +25,22 @@ Bổ sung cho `TANG-C.md` (do nửa widget giữ). Địa chỉ **[M]** là củ
   không cửa sổ nào của 9509 mang), `HyperLinkName`/`MousePosition`/`MouseClickCount` của `CEArg` (không script nào dùng).
 - `KillTimer(id)` để dòng đã tắt nằm lại bảng như gốc (`KillTimer(đoạn lệnh)` vẫn xoá được); bảng chạm 2 × 4096 dòng thì bỏ dòng đã tắt.
 
+## Nối HUD (2026-10-15)
+
+- `ui/hud.cpp`: `Hud::State::open_host` mở host ngay sau Hub, chỉ cho các cửa sổ trong `kScripted` (`HostDesc::only`: cửa sổ ngoài danh sách
+  không được nạp, nên nhóm nhường chỗ chỉ tính trong cửa sổ có mặt). Hiện `ProgressBar`; bản port tay `ui/panel/progress_bar` không còn
+  dùng ở HUD (module và test còn làm bản đối chiếu thứ hai cho tới khi chuyển hết).
+- Sự kiện: `dispatch` gửi từng sự kiện của hàng đợi cho bảng port tay rồi `Host::post`; `Call::kPushEvent` của script quay lại hàng đợi.
+  Nhấn trái: `MouseButtonDown`/`MouseLButtonDown` lên cửa sổ dưới chuột và `Host::pressed`; nhả: `MouseButtonUp`, và `Clicked` khi nhả
+  trên chính cửa sổ đã nhấn. Chưa có: nhấn phải, `MouseEnter`/`MouseLeave`, nhấn đúp, phím, bánh xe, `OnEscape`.
+- `Host::paint` ghi gốc layout đang hiện và trạng thái widget vào Deck ngay sau các bảng port tay. Layout mà host nạp thêm lúc chạy làm
+  `GuiScreen::take_grown()` báo, `prepare` dựng lại Hub.
+- Mờ dần của `SuperProgress` (`updateSelf`) chưa có ở widget: đã nhờ 09 `advance_widgets`; tới lúc đó `PROGRESSBAR_BREAK` để thanh nằm lại.
+- Kiểm bằng mắt: `thienlong_client --scene-id 2 --frames 60 --shot <png> --ui-event "PROGRESSBAR_SHOW|<chữ>" --ui-event "PROGRESSBAR_WIDTH|0.6"`:
+  thanh vàng 60% như bản port tay (phần vẽ thiếu khung nền và chữ là của `gui::draw_progress`, `NGHI-NGO.md` mục 18).
+- Nạp đầu (`bench_load.py`, 12 lượt, máy đang bận nhiều phiên): bản mới trung vị 504 ms, bản ngay trước 584 ms; không thấy host làm chậm,
+  nhưng cả hai trên ngân sách 450 ms của AGENTS.md (đo 2026-10-13 là 387 ms): chưa tìm nguyên nhân, cần đo lúc máy rảnh.
+
 ## Số đo (msvc-release, i5-14600KF, 2026-10-15)
 
 - `Host::open` trên sổ thật (1 975 cửa sổ, không native tầng B, không nạp layout): **522 ms**, 3 lỗi PreLoad, đều là hàm game chưa có:
@@ -40,6 +56,7 @@ Bổ sung cho `TANG-C.md` (do nửa widget giữ). Địa chỉ **[M]** là củ
 
 ## Còn lại
 
-- Nối `hud.cpp`: `Screen` trên `GuiLoader`/`Hub` (`offset`, `hits` từ lần dàn trang gần nhất), đưa sự kiện/click/Esc/đồng hồ khung, thay bảng port tay từng cửa sổ.
+- Chuyển thêm cửa sổ vào `kScripted` theo từng cửa sổ khi hàm game của nó có (cần tầng B); khi hết bảng port tay thì bỏ `kScripted` và `only`.
+- Esc, phím, nhấn phải, MouseEnter/Leave; mở host cả sổ cần PreLoad lười hoặc bytecode dựng sẵn để giữ ngân sách nạp đầu.
 - Tầng B qua `HostDesc::natives`; chuyển sang `lua::State` của E3 (trần bộ nhớ, móc lệnh, pcall có traceback).
 - Lượt đo phương thức widget còn thiếu trên 1 975 cửa sổ bằng `Missing::kRecord` của widget (cần post sự kiện + hiện từng cửa sổ).

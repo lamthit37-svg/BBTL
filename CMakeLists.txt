@@ -595,6 +595,7 @@ target_link_libraries(game_ui_panel PUBLIC game_gui game_hero game_luanum game_q
 # sổ (Script/windows.tsv), host.cpp là phần chủ (môi trường <Tên>_Env, `this`, gửi sự kiện, nhường chỗ, hẹn giờ), widget.cpp là
 # các lớp Lua của widget (SetText, Show, AddItem...), ghi vào ui/panel::Widgets và hàng Call; không đụng GPU, dựng ở mọi nền tảng.
 game_module(ui_script
+    src/client/face/ui/script/gui_screen.cpp
     src/client/face/ui/script/windows.cpp
     src/client/face/ui/script/host.cpp
     src/client/face/ui/script/widget.cpp)
@@ -891,7 +892,7 @@ if(GAME_HAS_GPU)
         # và bảng chuỗi (cần gui, render, resource).
         game_module(ui src/client/face/ui/painter.cpp src/client/face/ui/hud.cpp src/client/face/ui/pace.cpp src/client/face/ui/text.cpp
             src/client/face/ui/radar.cpp)
-        target_link_libraries(game_ui PUBLIC game_gui game_ui_panel game_render game_resource
+        target_link_libraries(game_ui PUBLIC game_gui game_ui_panel game_ui_script game_render game_resource
             game_gpu game_io game_table game_core)
     endif()
 endif()

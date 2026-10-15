@@ -2,6 +2,7 @@
 // của layout, hẹn giờ và trần lệnh, chạy trên script thử nhỏ viết ngay trong tệp (sai thì cả giao diện lệch mà không báo gì);
 // rồi sổ thật mở được, và ProgressBar.lua gốc của client 2026 chạy qua host và widget phải để lại đúng trạng thái mà trọng tài
 // ghi (Test/golden/panel/progress_bar_flow.tsv, cùng số vàng với ui_progress_bar_tests).
+#include "ui/script/gui_screen.hpp"
 #include "ui/script/host.hpp"
 
 #include "gui/asset.hpp"
@@ -215,14 +216,15 @@ struct Probe {
     ProbeScreen screen;
     std::optional<Host> host;
 
-    explicit Probe(Context& context, std::uint32_t limit = ui::script::kDefaultInstructionLimit) {
+    explicit Probe(Context& context, std::uint32_t limit = ui::script::kDefaultInstructionLimit,
+        std::vector<std::string> only = {}) {
         const bool is_written = root.write("windows.tsv", kProbeRegistry) &&
                                 root.write("Interface/Probe/Probe.lua", kProbeScript) &&
                                 root.write("Interface/Mate/Mate.lua", kMateScript) &&
                                 root.write("Interface/Pop/Pop.lua", kPopScript) &&
                                 root.write("Interface/Broken/Broken.lua", "this is not lua");
         context.expect(is_written, "ghi được dữ liệu thử");
-        auto opened = Host::open(ui::script::HostDesc{.data_root = root.path(), .instruction_limit = limit, .natives = {}}, screen);
+        auto opened = Host::open(ui::script::HostDesc{.data_root = root.path(), .only = std::move(only), .instruction_limit = limit, .natives = {}}, screen);
         context.expect(opened.has_value(), opened ? "mở" : opened.error());
         if (opened) host.emplace(std::move(*opened));
     }
@@ -347,6 +349,20 @@ void timers_follow_game(Context& context) {
     context.expect(host.take_notes().empty(), "không lỗi");
 }
 
+// HostDesc::only: cửa sổ ngoài danh sách không có script, PreLoad, sự kiện hay chỗ trong nhóm nhường chỗ; tên lạ ghi notes.
+void only_limits_the_windows(Context& context) {
+    Probe probe(context, ui::script::kDefaultInstructionLimit, {"Mate", "Nobody"});
+    if (!probe.host) return;
+    Host& host = *probe.host;
+    context.expect(host.window_count() == 1, "chỉ Mate");
+    context.expect(global(host, "trace") == "nil", "script của Probe không chạy");
+    const std::vector<std::string> notes = host.take_notes();
+    context.expect(notes.size() == 1 && notes.front().contains("Nobody"), "tên lạ có một dòng notes");
+    post(host, "ALWAYS", {"mate"});
+    context.expect(host.is_shown("Mate"), "Mate vẫn nhận sự kiện");
+    context.expect(!host.set_shown("Probe", true) && host.widgets("Probe") == nullptr, "Probe không tồn tại với host");
+}
+
 // Vòng lặp vô tận trong script chạm trần lệnh, ghi notes, host chạy tiếp.
 void instruction_limit_stops_runaway(Context& context) {
     Probe probe(context, 200'000);
@@ -359,29 +375,6 @@ void instruction_limit_stops_runaway(Context& context) {
     post(host, "ALWAYS", {"after"});
     context.expect(global(host, "trace").ends_with("|ALWAYS=after"), "chạy tiếp được");
 }
-
-// Màn trên GuiLoader thật: chỉ cần nạp layout; ProgressBar không hỏi toạ độ.
-class LoaderScreen final : public ui::script::Screen {
-public:
-    explicit LoaderScreen(gui::GuiLoader& loader) noexcept : loader_(&loader) {}
-
-    [[nodiscard]] std::expected<gui::GuiRange, std::string> load_layout(std::string_view layout) override {
-        auto added = loader_->add_layout(layout);
-        if (!added) return std::unexpected(std::move(added.error()));
-        for (const gui::GuiLayout& one : loader_->asset().layouts) {
-            if (one.file == layout) return one.windows;
-        }
-        return std::unexpected(std::format("không thấy layout {} sau khi nạp", layout));
-    }
-    [[nodiscard]] const gui::GuiAsset& asset() const noexcept override { return loader_->asset(); }
-    [[nodiscard]] std::optional<Spot> offset(std::string_view /*window*/, std::string_view /*root*/) const override {
-        return std::nullopt;
-    }
-    [[nodiscard]] bool hits(std::string_view /*window*/, Spot /*spot*/) const override { return false; }
-
-private:
-    gui::GuiLoader* loader_;
-};
 
 constexpr std::string_view kProgressRegistry = "id\tname\tlayout\tscript\tdemise\n"
                                                "123\tProgressBar\tProgressBar/ProgressBar.layout.xml\tProgressBar/ProgressBar.lua\t0\n";
@@ -431,8 +424,8 @@ void progress_bar_matches_original(Context& context) {
     auto loader = gui::GuiLoader::open(sources);
     context.expect(loader.has_value(), "mở được giao diện của kho");
     if (!loader) return;
-    LoaderScreen screen(*loader);
-    auto opened = Host::open(ui::script::HostDesc{.data_root = root.path(), .instruction_limit = ui::script::kDefaultInstructionLimit,
+    ui::script::GuiScreen screen(*loader);
+    auto opened = Host::open(ui::script::HostDesc{.data_root = root.path(), .only = {}, .instruction_limit = ui::script::kDefaultInstructionLimit,
                                  .natives = {}},
         screen);
     context.expect(opened.has_value(), opened ? "mở host" : opened.error());
@@ -487,7 +480,7 @@ void real_registry_opens(Context& context) {
     if (!windows) return;
     ProbeScreen screen;
     auto opened = Host::open(
-        ui::script::HostDesc{.data_root = data, .instruction_limit = ui::script::kDefaultInstructionLimit, .natives = {}}, screen);
+        ui::script::HostDesc{.data_root = data, .only = {}, .instruction_limit = ui::script::kDefaultInstructionLimit, .natives = {}}, screen);
     context.expect(opened.has_value(), opened ? "mở" : opened.error());
     if (!opened) return;
     context.expect(opened->window_count() == windows->size(), "đủ cửa sổ của sổ");
@@ -496,7 +489,7 @@ void real_registry_opens(Context& context) {
         context.expect(note.contains("_PreLoad: "), note);
 }
 
-constexpr std::array<Case, 9> kCases = {{
+constexpr std::array<Case, 10> kCases = {{
     {.name = "sổ nhận dấu \\ của bản gốc", .body = registry_accepts_backslash},
     {.name = "sổ thật mở được", .body = real_registry_opens},
     {.name = "mở chạy PreLoad theo sổ", .body = open_runs_preload},
@@ -504,6 +497,7 @@ constexpr std::array<Case, 9> kCases = {{
     {.name = "nhường chỗ và cửa sổ bật lên", .body = demise_and_popups},
     {.name = "đoạn Lua của layout chạy trong môi trường chủ", .body = layout_snippets_run_in_owner},
     {.name = "hẹn giờ như Game.exe", .body = timers_follow_game},
+    {.name = "danh sách only", .body = only_limits_the_windows},
     {.name = "trần lệnh chặn vòng lặp vô tận", .body = instruction_limit_stops_runaway},
     {.name = "ProgressBar.lua gốc khớp số vàng", .body = progress_bar_matches_original},
 }};

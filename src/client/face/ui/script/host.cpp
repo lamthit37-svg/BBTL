@@ -919,6 +919,13 @@ std::expected<Host, std::string> Host::open(const HostDesc& desc, Screen& screen
     if (!windows) return std::unexpected(std::format("{}: {}", io::utf8_of(registry), windows.error()));
     auto state = std::make_unique<State>();
     Core& core = state->core;
+    for (const std::string& name : desc.only) {
+        const auto same = [&name](const WindowDef& window) { return window.name == name; };
+        if (!std::ranges::any_of(*windows, same)) add_note(core, std::format("{}: không có trong sổ cửa sổ", name));
+    }
+    if (!desc.only.empty()) {
+        std::erase_if(*windows, [&desc](const WindowDef& window) { return !std::ranges::contains(desc.only, window.name); });
+    }
     core.screen = &screen;
     core.script_root = desc.data_root / "Script" / "Interface";
     core.limit = desc.instruction_limit;
