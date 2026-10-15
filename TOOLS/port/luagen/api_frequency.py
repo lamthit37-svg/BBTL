@@ -1,6 +1,6 @@
 """Bảng tần suất cho lớp B của LUA-GEN (docs/giao-viec/LUA-GEN/THIET-KE.md): mỗi hàm của game và mỗi phương thức
 widget mà script giao diện gọi, xếp theo số cửa sổ (đơn vị) gọi nó, rồi số lần gọi trong vết đối soát, rồi số chỗ gọi trong mã, kèm địa chỉ hàm C
-của Game.exe 2026 (TAILIEU/GAME-EXE-2026/lua_api.tsv). Thứ tự port lớp B là thứ tự của bảng này.
+của Game.exe 2026 (docs/TAILIEU/GAME-EXE-2026/lua_api.tsv). Thứ tự port lớp B là thứ tự của bảng này.
 
 cách dùng (ở gốc dự án, sau mass_oracle.py):
     python -B TOOLS/port/luagen/api_frequency.py [--layouts <thư mục Interface của layout>]
@@ -25,7 +25,7 @@ import xml.etree.ElementTree as ElementTree
 
 import mass_units
 
-API = mass_units.PROJECT / "TAILIEU/GAME-EXE-2026/lua_api.tsv"
+API = mass_units.PROJECT / "docs/TAILIEU/GAME-EXE-2026/lua_api.tsv"
 LONG_COMMENT = re.compile(r"--\[\[.*?\]\]", re.S)
 LINE_COMMENT = re.compile(r"--[^\n]*")
 STRING = re.compile(r'"(?:[^"\\\n]|\\.)*"|\'(?:[^\'\\\n]|\\.)*\'|\[\[.*?\]\]', re.S)

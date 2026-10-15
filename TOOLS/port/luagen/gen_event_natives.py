@@ -15,7 +15,7 @@ Nguồn: decompile.zip, lua_api.tsv/API-TAN-SUAT.tsv (hàm nào còn thiếu nat
 (disasm/0x140a10cd0.asm, 0x140a18c10.asm, 0x140a272b0.asm: mỗi sự kiện `MOV dword ptr [..], id` rồi `LEA RAX, [tên]`; tên tra ở strings.tsv).
 
 cách dùng (ở gốc dự án):
-    python -B TOOLS/port/luagen/gen_event_natives.py [--events-out TAILIEU/SU-KIEN-GAME.tsv]
+    python -B TOOLS/port/luagen/gen_event_natives.py [--events-out docs/TAILIEU/SU-KIEN-GAME.tsv]
 Không đối số thì chỉ in số hàm sinh được; có --write thì ghi native_events.cpp và (nếu có --events-out) bảng sự kiện đầy đủ.
 """
 
@@ -29,7 +29,7 @@ import sys
 import zipfile
 
 PROJECT = pathlib.Path(__file__).resolve().parents[3]
-GAME = PROJECT / "TAILIEU/GAME-EXE-2026"
+GAME = PROJECT / "docs/TAILIEU/GAME-EXE-2026"
 API_TABLE = PROJECT / "docs/giao-viec/LUA-GEN/API-TAN-SUAT.tsv"
 SCRIPT_DIR = PROJECT / "src/client/face/ui/script"
 OUT = SCRIPT_DIR / "native_events.cpp"

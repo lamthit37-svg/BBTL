@@ -1,4 +1,4 @@
-# In thân hàm decompile của Game.exe 2026 theo địa chỉ, từ TAILIEU/GAME-EXE-2026/decompile.zip.
+# In thân hàm decompile của Game.exe 2026 theo địa chỉ, từ docs/TAILIEU/GAME-EXE-2026/decompile.zip.
 # Dùng:  python -X utf8 -I TOOLS/port/rea/show_func.py 0x1402e7d70 [0x... ...] [--str 0x140b49460 ...]
 # - Mỗi địa chỉ hàm in khối "// ==== 0x<địa chỉ> ..." của nó (tới khối kế).
 # - --str: tra chuỗi/dữ liệu ở địa chỉ trong strings.tsv (cột address), vì pseudo-code chỉ ghi &DAT_<địa chỉ>.
@@ -13,7 +13,7 @@ import struct
 import sys
 import zipfile
 
-DUMP = pathlib.Path(__file__).resolve().parents[3] / "TAILIEU" / "GAME-EXE-2026"
+DUMP = pathlib.Path(__file__).resolve().parents[3] / "docs" / "TAILIEU" / "GAME-EXE-2026"
 RANGE = re.compile(r"decompile/([0-9a-f]+)-([0-9a-f]+)\.c$")
 SECTION_HEADER = 40
 

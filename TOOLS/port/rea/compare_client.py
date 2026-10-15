@@ -1,6 +1,6 @@
-"""So bản trích Game.exe 2026 (TAILIEU/GAME-EXE-2026) với mã client hiện tại, từng mục một.
+"""So bản trích Game.exe 2026 (docs/TAILIEU/GAME-EXE-2026) với mã client hiện tại, từng mục một.
 
-Sinh ra TAILIEU/GAME-EXE-2026/so-sanh/*.tsv và SO-SANH.md. Nhóm nào so được từng mục thì có bảng riêng (mỗi hàng một mục của bản gốc,
+Sinh ra docs/TAILIEU/GAME-EXE-2026/so-sanh/*.tsv và SO-SANH.md. Nhóm nào so được từng mục thì có bảng riêng (mỗi hàng một mục của bản gốc,
 có trạng thái và bằng chứng):
   bang-du-lieu.tsv   692 tên tệp dữ liệu client gốc đọc     <- tìm tên trong TOOLS/content, src/client, src/shared, engine, cmake
   goi-tin.tsv        1 367 gói tin Packets::*                <- client chưa mở socket; ghép theo bảng tương đương chức năng
@@ -30,7 +30,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))  # chạy với -I thì
 from game_exe_dump import WORK, PeImage  # noqa: E402
 
 REPO = Path(__file__).resolve().parents[3]
-DUMP = REPO / "TAILIEU" / "GAME-EXE-2026"
+DUMP = REPO / "docs" / "TAILIEU" / "GAME-EXE-2026"
 OUT = DUMP / "so-sanh"
 
 CLIENT_ROOTS = ["src/client", "src/shared", "engine", "TOOLS/content", "cmake", "CMakeLists.txt", "android", "apple"]
@@ -408,9 +408,9 @@ def compare_lua(corpus):
 
 
 # --- 5b. địa chỉ Game.exe mà mã và tài liệu của dự án trích dẫn --------------------------------------------------------------
-CITE_ROOTS = ["src", "engine", "TOOLS", "docs", "TAILIEU", "Test", "android", "apple", "cmake", "CMakeLists.txt", "AGENTS.md"]
+CITE_ROOTS = ["src", "engine", "TOOLS", "docs", "Test", "android", "apple", "cmake", "CMakeLists.txt", "AGENTS.md"]
 CITE_EXT = {".cpp", ".hpp", ".h", ".mm", ".md", ".py", ".lua", ".tsv", ".cmake", ".txt", ".java", ".kt"}
-CITE_SKIP = ("TAILIEU/GAME-EXE-2026/", "TAILIEU/ghidra/", "docs/KHOI-PHUC-2026-10-09/", "docs/AUDIT/evidence/", "TOOLS/port/rea/", "/__pycache__/", "build/", ".worktrees/")
+CITE_SKIP = ("docs/TAILIEU/GAME-EXE-2026/", "docs/TAILIEU/ghidra/", "docs/KHOI-PHUC-2026-10-09/", "docs/AUDIT/evidence/", "TOOLS/port/rea/", "/__pycache__/", "build/", ".worktrees/")
 NAME_BEFORE = re.compile(r"([A-Za-z_][A-Za-z0-9_]*)[ (:]*$")
 
 
@@ -625,7 +625,7 @@ def collect_open_suspicions():
 # --- 9. đối chiếu dump thủ công cũ với dump tự động -------------------------------------------------------------------------------
 
 def check_login_packet_doc():
-    text = (REPO / "TAILIEU" / "GOI-TIN-DANG-NHAP.md").read_text(encoding="utf-8")
+    text = (REPO / "docs" / "TAILIEU" / "GOI-TIN-DANG-NHAP.md").read_text(encoding="utf-8")
     sections = re.split(r"\n## Packets::", text)[1:]
     _, packets = read_tsv(DUMP / "packets.tsv")
     auto = {row[0]: row for row in packets}
@@ -710,7 +710,7 @@ EXTRAS = [
     ("Bố cục layout điện thoại `Interface/phone/` và texture ASTC/ETC2", "src/client"),
     ("Công cụ chụp ảnh khung (`--shot`) và công cụ thử `--weapon`, `--skill`, `--gem`, `--auto-strike`", "src/client/app"),
     ("Trọng tài Lua (`lua_oracle.py`) sinh số vàng từ script gốc chạy trên LuaPlus.dll của bản gốc", "TOOLS/port/lua_oracle.py"),
-    ("Chuỗi công cụ phân tích Game.exe (REA/Ghidra) và bản trích đầy đủ trong TAILIEU/GAME-EXE-2026", "TOOLS/port/rea"),
+    ("Chuỗi công cụ phân tích Game.exe (REA/Ghidra) và bản trích đầy đủ trong docs/TAILIEU/GAME-EXE-2026", "TOOLS/port/rea"),
 ]
 
 
@@ -743,7 +743,7 @@ def write_report(tables, packets, classes, sources, lua, imports, deviations, su
 
     add("# So sánh Game.exe 2026 với client hiện tại — đã có, chưa có, sai")
     add("")
-    add("Sinh bằng `TOOLS/port/rea/compare_client.py` từ bản trích `TAILIEU/GAME-EXE-2026` và mã hiện tại; không sửa tay. Mỗi mục của bản gốc "
+    add("Sinh bằng `TOOLS/port/rea/compare_client.py` từ bản trích `docs/TAILIEU/GAME-EXE-2026` và mã hiện tại; không sửa tay. Mỗi mục của bản gốc "
         "có một hàng trong các bảng ở `so-sanh/*.tsv` (đủ từng mục, kể cả nhỏ nhất); tệp này là bản đọc được của cùng dữ liệu.")
     add("")
     add("## 0. Cách đọc và độ tin cậy")
@@ -925,7 +925,7 @@ def write_report(tables, packets, classes, sources, lua, imports, deviations, su
     add("")
     add("### 4.1 Đã sửa trong lượt này (kiểm bằng bản trích)")
     add("")
-    add("- `TAILIEU/GOI-TIN-DANG-NHAP.md`: `LCRetCreateChar` (opcode 440) và `LCRetDeleteChar` (707) ghi sai hàm `Read` và kích thước; đã sửa theo `FUN_14077de90` (đọc +0x18, 4 byte, `GetPacketSize` 4) và ghi chú giới hạn của `packet_fields.py` (hàm `Read` dùng chung chỉ hiện ở lớp đầu tiên).")
+    add("- `docs/TAILIEU/GOI-TIN-DANG-NHAP.md`: `LCRetCreateChar` (opcode 440) và `LCRetDeleteChar` (707) ghi sai hàm `Read` và kích thước; đã sửa theo `FUN_14077de90` (đọc +0x18, 4 byte, `GetPacketSize` 4) và ghi chú giới hạn của `packet_fields.py` (hàm `Read` dùng chung chỉ hiện ở lớp đầu tiên).")
     add("- `AGENTS.md`: danh mục protocol ghi 22 tin version 2; thực tế 27 tin version 3 của năm nhóm (`docs/PROTOCOL-TIN.md`, `kVersion` = 3).")
     add("- `src/client/book/skill/actions.hpp`, `TOOLS/port/oracle/skill_api.lua`: bảng tên loại action ghi `0x140ed78d0` (nằm ngoài mọi đoạn), đúng là `0x140ed88d0` (16 con trỏ chuỗi `skill`, `life`, `packageitem`... đọc từ byte).")
     add("- `src/client/book/skill/actions.hpp`, `TOOLS/port/oracle/skill_api.lua`: `IsLMSJSecond`/`IsJYJYSecond`/`IsWJQFSecond` ghi `0x14023f8f0`/`0x14023f980`/`0x14023fa10`, đúng là `0x14023fdf0`/`0x14023fe80`/`0x14023ff10` (bảng id 821..826, 827..834 ở `0x140b1f8f4`, `0x140b1fa54`; hàm cuối so với 0x1171 và 0x1172).")

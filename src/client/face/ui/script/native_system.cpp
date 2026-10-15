@@ -18,7 +18,7 @@ namespace {
 
 using lua::NativeResult;
 
-// Sự kiện MESSAGEBOX_COMMON_CLOSE (id 0x23a) mà CloseMessageBoxCommon đẩy (TAILIEU/SU-KIEN-GAME.tsv).
+// Sự kiện MESSAGEBOX_COMMON_CLOSE (id 0x23a) mà CloseMessageBoxCommon đẩy (docs/TAILIEU/SU-KIEN-GAME.tsv).
 constexpr std::string_view kMessageBoxCommonClose = "MESSAGEBOX_COMMON_CLOSE";
 // Số cờ nhắc cập nhật của Lua_GetUpdateTipsFlag (Game.exe 0x14028cb90 so chỉ số không dấu với 100).
 constexpr std::size_t kUpdateTipCount = 100;

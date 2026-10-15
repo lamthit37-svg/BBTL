@@ -2,7 +2,7 @@
 
 cách dùng:
     python -B TOOLS/port/ui_inventory.py [--script src/client/script/Interface] [--hud src/client/face/ui/hud.cpp]
-        [--panel src/client/face/ui/panel] [--api TAILIEU/GAME-EXE-2026/lua_api.tsv] [--out tệp.tsv]
+        [--panel src/client/face/ui/panel] [--api docs/TAILIEU/GAME-EXE-2026/lua_api.tsv] [--out tệp.tsv]
 
 Mỗi dòng một cửa sổ (thư mục con của Interface): số dòng Lua, số hàm, sự kiện đăng ký (this:RegisterEvent),
 sự kiện tự đẩy (PushEvent), đối tượng API của Game.exe được gọi (Tên:Hàm), đã có bản port trong ui/panel chưa.
@@ -106,7 +106,7 @@ def main() -> int:
     parser.add_argument("--script", type=Path, default=PROJECT / "src/client/script/Interface")
     parser.add_argument("--hud", type=Path, default=PROJECT / "src/client/face/ui/hud.cpp")
     parser.add_argument("--panel", type=Path, default=PROJECT / "src/client/face/ui/panel")
-    parser.add_argument("--api", type=Path, default=PROJECT / "TAILIEU/GAME-EXE-2026/lua_api.tsv")
+    parser.add_argument("--api", type=Path, default=PROJECT / "docs/TAILIEU/GAME-EXE-2026/lua_api.tsv")
     parser.add_argument("--out", type=Path, default=PROJECT / "docs/giao-viec/UI-PORT/HANG-DOI.tsv")
     args = parser.parse_args()
 

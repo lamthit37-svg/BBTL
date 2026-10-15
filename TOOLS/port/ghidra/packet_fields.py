@@ -54,7 +54,7 @@ def main() -> int:
     sys.stdout.reconfigure(encoding="utf-8")
     source = Path(sys.argv[1]).read_text(encoding="utf-8")
     out = ["# Trường của gói tin đăng nhập (suy từ hàm Read trong Game.exe)\n",
-           "Sinh bằng `TOOLS/port/ghidra/packet_fields.py` từ `TAILIEU/ghidra/login_packets.txt`.\n"]
+           "Sinh bằng `TOOLS/port/ghidra/packet_fields.py` từ `docs/TAILIEU/ghidra/login_packets.txt`.\n"]
     for name, body in blocks(source).items():
         if not name.startswith("v:"):
             continue

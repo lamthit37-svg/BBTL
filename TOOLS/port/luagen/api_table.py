@@ -1,5 +1,5 @@
 """Bảng đăng ký hàm game của lớp B (src/client/face/gameapi, docs/giao-viec/LUA-GEN/TANG-B.md): mỗi hàm Lua mà Game.exe 2026
-đăng ký (TAILIEU/GAME-EXE-2026/lua_api.tsv) thành một dòng {khoá, độ dài chủ, địa chỉ impl, trạng thái}, sinh vào
+đăng ký (docs/TAILIEU/GAME-EXE-2026/lua_api.tsv) thành một dòng {khoá, độ dài chủ, địa chỉ impl, trạng thái}, sinh vào
 src/client/face/gameapi/api_rows.inc. Trạng thái:
 
     kPort     đã có bản C++: tên nằm trong một bảng `{"Chủ:Tên", &hàm}` ở src/client/face/gameapi/natives_*.cpp
@@ -25,7 +25,7 @@ import re
 import sys
 
 PROJECT = pathlib.Path(__file__).resolve().parents[3]
-DUMP = PROJECT / "TAILIEU/GAME-EXE-2026"
+DUMP = PROJECT / "docs/TAILIEU/GAME-EXE-2026"
 MODULE = PROJECT / "src/client/face/gameapi"
 OUTPUT = MODULE / "api_rows.inc"
 # Hàm chuyển tiếp "ô ảo N" của ba bảng này nhảy tới ô ảo N của lớp SCRIPT_SANDBOX tương ứng; địa chỉ có nghĩa là của ô đó.
@@ -108,7 +108,7 @@ def build_rows() -> tuple[list[Row], int]:
 def render(rows: list[Row], hidden: int) -> str:
     counts = {name: sum(1 for row in rows if row.status == name) for name in STATUS_NAME}
     lines = [
-        "// Sinh bằng TOOLS/port/luagen/api_table.py từ TAILIEU/GAME-EXE-2026/lua_api.tsv, classes.tsv và các bảng ở natives_*.cpp;",
+        "// Sinh bằng TOOLS/port/luagen/api_table.py từ docs/TAILIEU/GAME-EXE-2026/lua_api.tsv, classes.tsv và các bảng ở natives_*.cpp;",
         "// không sửa tay. Mỗi dòng: khoá (`Tên` hay `Chủ:Tên`), độ dài của `Chủ`, địa chỉ impl trong Game.exe 2026, trạng thái.",
         f"// {len(rows)} dòng: {counts['port']} đã port, {counts['empty']} rỗng thật, {counts['pending']} chưa port;"
         f" {hidden} hàm của bảng meta không có tên toàn cục chưa vào bảng.",

@@ -1,5 +1,5 @@
 """Khảo sát lớp B của LUA-GEN (docs/giao-viec/LUA-GEN/TANG-B.md): các số mà tài liệu ấy trích, đo lại từ bản trích
-Game.exe 2026 (TAILIEU/GAME-EXE-2026) và từ script của client. Mỗi mục in ra một nhóm số; không ghi tệp.
+Game.exe 2026 (docs/TAILIEU/GAME-EXE-2026) và từ script của client. Mỗi mục in ra một nhóm số; không ghi tệp.
 
 cách dùng (ở gốc dự án):
     python -B TOOLS/port/luagen/api_survey.py [--layouts <thư mục Interface của layout>]
@@ -21,7 +21,7 @@ import zipfile
 import api_frequency
 import mass_units
 
-DUMP = mass_units.PROJECT / "TAILIEU/GAME-EXE-2026"
+DUMP = mass_units.PROJECT / "docs/TAILIEU/GAME-EXE-2026"
 HEADER = re.compile(r"^// ==== (0x[0-9a-f]+) ", re.M)
 FORWARD = re.compile(r"ô ảo (\d+)")
 LUA_CALL = re.compile(r"\b(lua_\w+|luaL_\w+|tThrow\w+|LuaPlus::[\w:~]+)\s*\(")

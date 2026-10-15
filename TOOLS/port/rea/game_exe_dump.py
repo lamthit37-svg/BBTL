@@ -1,10 +1,10 @@
-"""Trích toàn bộ dữ liệu phân tích của Game.exe 2026 ra TAILIEU/GAME-EXE-2026 từ một phiên REA (Ghidra).
+"""Trích toàn bộ dữ liệu phân tích của Game.exe 2026 ra docs/TAILIEU/GAME-EXE-2026 từ một phiên REA (Ghidra).
 
-Dòng chảy (README.md trong TAILIEU/GAME-EXE-2026 ghi lệnh đầy đủ):
+Dòng chảy (README.md trong docs/TAILIEU/GAME-EXE-2026 ghi lệnh đầy đủ):
   1. rea_server.mjs giữ phiên; rea_bulk.mjs plan_a.json (mở, danh sách hàm/tên/chuỗi, đoạn, tài nguyên, xuất bundle).
   2. game_exe_dump.py core      -> sinh plan_vt, plan_callees_*, plan_xrefs_*, plan_dec_* trong <work>/plans.
   3. rea_bulk.mjs trên các plan đó; game_exe_dump.py hier -> sinh plan_hb, plan_hc; rea_bulk.mjs hai plan này.
-  4. game_exe_dump.py assemble  -> ghi các bảng vào TAILIEU/GAME-EXE-2026 (nếu còn hàm decompile hỏng thì sinh plan_dec_retry
+  4. game_exe_dump.py assemble  -> ghi các bảng vào docs/TAILIEU/GAME-EXE-2026 (nếu còn hàm decompile hỏng thì sinh plan_dec_retry
      rồi dừng với mã 3; chạy plan đó và assemble lại).
 
 Mọi quan hệ "chuỗi/xref -> hàm" suy bằng bisect trên địa chỉ vào hàm gần nhất phía trước: gần đúng ở chỗ Ghidra để dữ liệu
@@ -26,7 +26,7 @@ from pathlib import Path
 
 IMAGE_BASE = 0x140000000
 REPO = Path(__file__).resolve().parents[3]
-OUT_DIR = REPO / "TAILIEU" / "GAME-EXE-2026"
+OUT_DIR = REPO / "docs" / "TAILIEU" / "GAME-EXE-2026"
 WORK = Path(os.environ.get("REA_WORK", "D:/rea/work"))
 PLANS = WORK / "plans"
 BULK = WORK / "out"
