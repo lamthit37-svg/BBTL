@@ -18,6 +18,8 @@
 
 #include <fcntl.h>
 #include <poll.h>
+#include <sys/socket.h>
+#include <sys/types.h>
 #include <unistd.h>
 
 namespace game::net {
@@ -76,9 +78,11 @@ struct ReactorNative {
 
 namespace {
 
+// Xoá cờ TRƯỚC khi rút pipe: wake() tới sau lúc xoá ghi thêm một byte, lần wait sau thức ngay. Thứ tự ngược lại
+// (rút rồi mới xoá) làm mất lần wake() rơi vào giữa hai bước: nó thấy cờ còn 1 nên không ghi, rồi cờ bị xoá.
 void consume_wake(ReactorNative& native) noexcept {
-    drain_fd(native.wake_read);
     native.wake_flag.store(0, std::memory_order_release);
+    drain_fd(native.wake_read);
 }
 
 } // namespace

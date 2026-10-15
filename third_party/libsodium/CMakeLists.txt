@@ -65,6 +65,17 @@ if(ANDROID OR CMAKE_SYSTEM_NAME STREQUAL "Linux")
         HAVE_CATCHABLE_SEGV=1 TLS=_Thread_local ASM_HIDE_SYMBOL=.hidden)
 endif()
 
+# iOS (và macOS): nền Apple lấy ngẫu nhiên từ arc4random_buf/getentropy, không có sys/auxv.h và pthread priority inherit.
+# CHƯA dựng được trên máy này (không có macOS): bộ cờ theo cấu hình autotools của upstream cho Apple, kiểm khi có máy Apple
+# (apple/HUONG-DAN.txt).
+if(APPLE)
+    target_compile_definitions(game_sodium PRIVATE HAVE_CLOCK_GETTIME=1 HAVE_GETPID=1 HAVE_MADVISE=1 HAVE_MLOCK=1
+        HAVE_MMAP=1 HAVE_MPROTECT=1 HAVE_NANOSLEEP=1 HAVE_POSIX_MEMALIGN=1 HAVE_PTHREAD=1 HAVE_RAISE=1 HAVE_SYSCONF=1
+        HAVE_SYS_MMAN_H=1 HAVE_SYS_PARAM_H=1 HAVE_SYS_RANDOM_H=1 HAVE_ARC4RANDOM=1 HAVE_ARC4RANDOM_BUF=1
+        HAVE_GETENTROPY=1 HAVE_WEAK_SYMBOLS=1 HAVE_CATCHABLE_ABRT=1 HAVE_CATCHABLE_SEGV=1 TLS=_Thread_local
+        ASM_HIDE_SYMBOL=.private_extern)
+endif()
+
 if(NOT MSVC AND CMAKE_SYSTEM_PROCESSOR MATCHES "x86_64|AMD64|amd64")
     target_compile_definitions(game_sodium PRIVATE HAVE_CPUID=1 HAVE_MMINTRIN_H=1 HAVE_EMMINTRIN_H=1
         HAVE_PMMINTRIN_H=1 HAVE_TMMINTRIN_H=1 HAVE_SMMINTRIN_H=1 HAVE_AVXINTRIN_H=1
