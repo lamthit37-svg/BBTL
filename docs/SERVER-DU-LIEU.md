@@ -60,10 +60,22 @@ thoại. Bộ nạp làm cùng lúc với tính năng đầu tiên đọc một 
 
 ## 4. Bảo mật và an toàn
 
-- Bí mật chỉ ở `config/secrets.local.toml` và `data/` (khoá danh tính của gate, khoá ipc): không vào git, không vào
-  log. Khoá ipc được đặt ACL chặn tài khoản thường (`src/server/account/ipc_key.cpp`); `secrets.local.toml` và khoá
-  danh tính chưa có mã đặt ACL (đọc mã 2026-10-15). Mọi tệp khác là chữ thường, không mã hoá, không ký: NPH có quyền
-  máy chủ nên chữ ký không chặn được ai, và chữ thoại hay bảng vật phẩm lộ ra không gây hại.
+- Bí mật chỉ ở `config/secrets.local.toml`, khoá HMAC của nhà cung cấp thanh toán trong `config/`, và `data/` (khoá
+  danh tính của gate, khoá ipc, cụm PostgreSQL): không vào git, không vào log. Mọi tệp bí mật phải **riêng**: Windows
+  chỉ SYSTEM, Administrators và tài khoản chạy máy chủ (DACL không kế thừa), POSIX 0600 của chủ
+  (`src/shared/secure/private_file.hpp`). Tiến trình đọc bí mật kiểm trước khi đọc và từ chối chạy nếu tệp lỏng hơn,
+  không tự sửa quyền: auth, store, billing với `secrets.local.toml` (thoát 1), gate với khoá danh tính (thoát 2,
+  `secure::Error::kExposed`), mọi tiến trình với `ipc.key`, billing với khoá nhà cung cấp. Gate `--gen-key` và tiến
+  trình tạo `ipc.key` tạo tệp kèm quyền riêng ngay lúc tạo. `TOOLS/server/setup_db.py init` ghi `secrets.local.toml`
+  qua tệp tạm đã khoá quyền rồi đổi tên, và khoá cả thư mục `data/` kèm kế thừa trước khi initdb ghi vào đó; chạy lại
+  `init` trên cụm đã có thì giữ mật khẩu và khoá lại quyền.
+- Đo 2026-10-15 trước khi sửa: trên máy chủ thử ở ổ D, `secrets.local.toml` và `data/gate/identity.key` mang quyền kế
+  thừa của ổ (Authenticated Users được sửa, Users được đọc). Ngoài chủ máy còn hai tài khoản đang bật là
+  `CodexSandboxOffline`, `CodexSandboxOnline` (sandbox của Codex CLI) đọc được hai tệp đó. Sau sửa, các tài khoản này
+  không đọc được bí mật và `data/` nữa: phiên Codex chạy trong sandbox sẽ thấy test PostgreSQL tự bỏ qua và tiến trình
+  máy chủ từ chối chạy.
+- Mọi tệp khác là chữ thường, không mã hoá, không ký: NPH có quyền máy chủ nên chữ ký không chặn được ai, và chữ thoại
+  hay bảng vật phẩm lộ ra không gây hại.
 - Mọi tệp NPH sửa là đầu vào không tin: bộ đọc kiểm kiểu, miền, số cột, trần cỡ; không có gì trong dữ liệu được
   thực thi; sai thì dừng khởi động (fail-closed) thay vì chạy với giá trị đoán.
 - Máy chủ làm chủ mọi luật; client chỉ hiện. Chữ máy chủ gửi xuống chỉ là chữ (không có lệnh).

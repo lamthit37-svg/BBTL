@@ -15,6 +15,7 @@
 #include "config/types.hpp"
 #include "io/file.hpp"
 #include "net/net.hpp"
+#include "secure/private_file.hpp"
 #include "secure/secure.hpp"
 #include "store/pg.hpp"
 
@@ -91,7 +92,7 @@ template <typename Value>
     // Tệp thiếu thì file_private cũng sai; xét riêng để câu lỗi nói đúng nguyên nhân.
     if (std::filesystem::is_regular_file(secret_path, probe)) {
         std::string why;
-        if (!account::file_private(secret_path, declared.secret_file, why)) {
+        if (!secure::file_private(secret_path, declared.secret_file, why)) {
             return fault(1, std::format("tệp khoá của nhà cung cấp '{}': {}", declared.key, why));
         }
     }
@@ -144,8 +145,11 @@ std::expected<Setup, SetupFault> load_setup(const std::filesystem::path& config_
     const std::expected<config::Billing, SetupFault> billing =
         read_cfg(config_dir / "billing.toml", config::read_billing, "billing.toml");
     if (!billing) return std::unexpected(billing.error());
+    // Mật khẩu database là bí mật: tệp mà tài khoản khác đọc được thì không chạy (secure/private_file.hpp).
+    const Path secrets_path = config_dir / "secrets.local.toml";
+    if (std::string why; !secure::file_private(secrets_path, "secrets.local.toml", why)) return fault(1, std::move(why));
     std::expected<config::Secrets, SetupFault> secrets =
-        read_cfg(config_dir / "secrets.local.toml", config::read_secrets, "secrets.local.toml");
+        read_cfg(secrets_path, config::read_secrets, "secrets.local.toml");
     if (!secrets) return std::unexpected(secrets.error());
     if (secrets->billing.empty()) return fault(1, "thiếu mật khẩu database billing");
     if (cluster->postgres.host.text() != "127.0.0.1") return fault(1, "postgres chỉ được ở 127.0.0.1");

@@ -3,6 +3,7 @@
 // không cần include của thư viện. Cỡ khoá khoá với hằng của thư viện ở sodium.cpp.
 
 #include <cstddef>
+#include <cstdint>
 #include <span>
 #include <string_view>
 
@@ -86,7 +87,7 @@ void wipe(std::span<std::byte> region) noexcept;
 struct PasswordRequest {
     std::span<char> out;
     std::string_view password;
-    unsigned long long ops = 0;
+    std::uint64_t ops = 0;
     std::size_t mem_bytes = 0;
 };
 

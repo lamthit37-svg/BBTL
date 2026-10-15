@@ -41,7 +41,7 @@ public:
     [[nodiscard]] EnterResult standing(std::uint64_t account);
 
 private:
-    store::PgConn& conn_;
+    store::PgConn* conn_;
     AuthOptions options_;
 };
 
@@ -58,7 +58,7 @@ public:
     [[nodiscard]] EnterResult save_spot(const SaveSpot& spot);
 
 private:
-    store::PgConn& conn_;
+    store::PgConn* conn_;
     CharacterPolicy policy_;
 };
 

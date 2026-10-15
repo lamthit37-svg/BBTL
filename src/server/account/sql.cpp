@@ -1,14 +1,24 @@
 #include "account/sql.hpp"
 
+#include "account/book.hpp"
 #include "account/rules.hpp"
 #include "account/starter.hpp"
+#include "protocol/messages.hpp"
 #include "secure/secure.hpp"
+#include "store/pg.hpp"
 
 #include <array>
 #include <charconv>
 #include <chrono>
+#include <cstddef>
+#include <cstdint>
 #include <format>
+#include <memory>
 #include <optional>
+#include <span>
+#include <string>
+#include <string_view>
+#include <system_error>
 #include <utility>
 #include <vector>
 
@@ -34,38 +44,40 @@ using game::store::PgExec;
 struct Args {
     std::vector<std::optional<std::string>> values;
 
-    void text(std::string value) { values.push_back(std::move(value)); }
-    void i64(std::int64_t value) { values.push_back(pg_i64(value)); }
+    void text(std::string value) { values.emplace_back(std::move(value)); }
+    void i64(std::int64_t value) { values.emplace_back(pg_i64(value)); }
     void null() { values.emplace_back(); }
 
     [[nodiscard]] std::span<const std::optional<std::string>> span() const { return values; }
 };
 
 struct Tx {
-    PgConn& conn;
+    PgConn* conn;
     bool open = false;
 
-    explicit Tx(PgConn& connection) : conn(connection) {}
+    explicit Tx(PgConn& connection) : conn(&connection) {}
     ~Tx() {
-        if (open) static_cast<void>(conn.exec("ROLLBACK"));
+        if (open) static_cast<void>(conn->exec("ROLLBACK"));
     }
     Tx(const Tx&) = delete;
     Tx& operator=(const Tx&) = delete;
+    Tx(Tx&&) = delete;
+    Tx& operator=(Tx&&) = delete;
 
     [[nodiscard]] bool begin() {
-        const PgExec started = conn.exec("BEGIN");
+        const PgExec started = conn->exec("BEGIN");
         open = started.ok;
         if (!open) return false;
-        const PgExec timeout = conn.exec("SET LOCAL statement_timeout = '5s'");
+        const PgExec timeout = conn->exec("SET LOCAL statement_timeout = '5s'");
         if (timeout.ok) return true;
-        static_cast<void>(conn.exec("ROLLBACK"));
+        static_cast<void>(conn->exec("ROLLBACK"));
         open = false;
         return false;
     }
 
     [[nodiscard]] bool commit() {
         if (!open) return false;
-        const PgExec done = conn.exec("COMMIT");
+        const PgExec done = conn->exec("COMMIT");
         open = false;
         return done.ok;
     }
@@ -75,6 +87,7 @@ struct Tx {
     return exec.sqlstate == "23505";
 }
 
+// NOLINTNEXTLINE(bugprone-easily-swappable-parameters): dòng rồi cột như PgExec::rows, mọi nơi gọi cùng thứ tự (HP-07)
 [[nodiscard]] const std::string* cell(const PgExec& exec, std::size_t row, std::size_t col) {
     if (row >= exec.rows.size()) return nullptr;
     const store::PgRow& line = exec.rows[row];
@@ -85,8 +98,9 @@ struct Tx {
 
 [[nodiscard]] std::optional<std::int64_t> as_i64(std::string_view text) {
     std::int64_t value = 0;
-    const auto parsed = std::from_chars(text.data(), text.data() + text.size(), value);
-    if (parsed.ec != std::errc{} || parsed.ptr != text.data() + text.size()) return std::nullopt;
+    const char* const last = std::to_address(text.end());
+    const auto parsed = std::from_chars(std::to_address(text.begin()), last, value);
+    if (parsed.ec != std::errc{} || parsed.ptr != last) return std::nullopt;
     return value;
 }
 
@@ -136,6 +150,7 @@ void burn_dummy(const AuthOptions& options, std::string_view password) {
     return static_cast<int>(*value);
 }
 
+// NOLINTNEXTLINE(bugprone-easily-swappable-parameters): tên đã gấp rồi ip, như cột của login_attempt (HP-07)
 [[nodiscard]] bool note_attempt(PgConn& conn, std::optional<std::int64_t> account, std::string_view fold,
     std::string_view ip, bool ok) {
     Args args;
@@ -207,7 +222,7 @@ struct Loaded {
     if (!secure::fill_random(raw)) return std::nullopt;
     std::array<std::byte, 32> digest{};
     const bool hashed = secure::sha256(raw, digest);
-    const std::string hex = secure::hex_encode(raw);
+    std::string hex = secure::hex_encode(raw);
     const std::string stored = secure::hex_encode(digest);
     secure::wipe_bytes(raw);
     secure::wipe_bytes(digest);
@@ -230,10 +245,11 @@ struct Loaded {
 }
 
 [[nodiscard]] std::optional<std::int64_t> insert_account(PgConn& conn, const AuthOptions& options,
+    // NOLINTNEXTLINE(bugprone-easily-swappable-parameters): tên, tên đã gấp, mật khẩu như cột của account (HP-07)
     std::string_view name, std::string_view fold, std::string_view password) {
     const std::size_t mem_bytes = static_cast<std::size_t>(options.mem_limit_kib) * 1024U;
     const secure::PasswordPolicy policy{
-        .ops = static_cast<unsigned long long>(options.ops_limit),
+        .ops = static_cast<std::uint64_t>(options.ops_limit),
         .mem_bytes = mem_bytes,
     };
     std::string hash;
@@ -319,11 +335,12 @@ struct Loaded {
 }
 
 [[nodiscard]] bool grant_starter(PgConn& conn, std::int64_t player) {
-    for (std::size_t slot = 0; slot < starter::kSkills.size(); ++slot) {
+    std::int64_t slot = 0;
+    for (const auto skill : starter::kSkills) {
         Args args;
         args.i64(player);
-        args.i64(static_cast<std::int64_t>(slot));
-        args.i64(starter::kSkills[slot]);
+        args.i64(slot++);
+        args.i64(skill);
         const PgExec wrote =
             conn.exec("INSERT INTO player_skill (player_id, slot, skill_id) VALUES ($1, $2, $3)", args.span());
         if (!wrote.ok) return false;
@@ -362,51 +379,53 @@ struct Loaded {
 
 [[nodiscard]] std::string format_double(double value) {
     std::array<char, 64> buffer{};
-    const auto written = std::to_chars(buffer.data(), buffer.data() + buffer.size(), value, std::chars_format::general);
+    const auto written =
+        std::to_chars(std::to_address(buffer.begin()), std::to_address(buffer.end()), value, std::chars_format::general);
     if (written.ec != std::errc{}) return "0";
-    return std::string{buffer.data(), written.ptr};
+    return std::string{std::to_address(buffer.begin()), written.ptr};
 }
 
 } // namespace
 
-AuthDb::AuthDb(PgConn& conn, AuthOptions options) : conn_(conn), options_(options) {}
+AuthDb::AuthDb(PgConn& conn, AuthOptions options) : conn_(&conn), options_(std::move(options)) {}
 
+// NOLINTNEXTLINE(bugprone-easily-swappable-parameters): tên, mật khẩu, ip như Op::kCreateAccount trên dây (HP-07)
 TicketResult AuthDb::create_account(std::string_view name, std::string_view password, std::string_view ip) {
     if (!ipv4_ok(ip)) return fail_ticket(protocol::ErrorCode::kBadCredentials);
     const NameFault fault = account_fault(name, password);
     const std::string fold = fold_ascii(name);
     const std::string ip_key = std::string("ip:") + std::string{ip};
-    Tx tx{conn_};
-    if (!tx.begin() || !lock_name(conn_, ip_key) || !lock_name(conn_, fold)) return {};
-    const std::optional<int> by_ip = failure_count_ip(conn_, ip);
+    Tx tx{*conn_};
+    if (!tx.begin() || !lock_name(*conn_, ip_key) || !lock_name(*conn_, fold)) return {};
+    const std::optional<int> by_ip = failure_count_ip(*conn_, ip);
     if (!by_ip) return {};
     if (*by_ip >= kIpFailLimit) return fail_ticket(protocol::ErrorCode::kRateLimited);
     if (fault != NameFault::kOk) {
-        if (!note_attempt(conn_, std::nullopt, fold, ip, false) || !tx.commit()) return {};
+        if (!note_attempt(*conn_, std::nullopt, fold, ip, false) || !tx.commit()) return {};
         return fail_ticket(fault_code(fault));
     }
-    Loaded existing = load_account(conn_, fold);
+    Loaded existing = load_account(*conn_, fold);
     secure::wipe_bytes(std::as_writable_bytes(std::span{existing.password_hash.data(), existing.password_hash.size()}));
     if (existing.failed) return {};
     if (existing.found) {
         // Tên đã có trả cùng mã và cùng thời gian băm như đăng nhập sai: không dò được tài khoản nào
         // tồn tại. Vẫn là một lần thử hỏng của IP này, nên tổng số lần dò có trần kIpFailLimit.
         burn_dummy(options_, password);
-        if (!note_attempt(conn_, std::nullopt, fold, ip, false) || !tx.commit()) return {};
+        if (!note_attempt(*conn_, std::nullopt, fold, ip, false) || !tx.commit()) return {};
         return fail_ticket(protocol::ErrorCode::kBadCredentials);
     }
-    const std::optional<std::int64_t> id = insert_account(conn_, options_, name, fold, password);
+    const std::optional<std::int64_t> id = insert_account(*conn_, options_, name, fold, password);
     if (!id) return {};
     if (*id < 0) {
         // Đua với một lệnh tạo khác cùng tên: cùng câu trả lời như tên đã có (đã băm một lần).
-        Tx again{conn_};
+        Tx again{*conn_};
         tx.open = false;
-        static_cast<void>(conn_.exec("ROLLBACK"));
-        if (!again.begin() || !note_attempt(conn_, std::nullopt, fold, ip, false) || !again.commit()) return {};
+        static_cast<void>(conn_->exec("ROLLBACK"));
+        if (!again.begin() || !note_attempt(*conn_, std::nullopt, fold, ip, false) || !again.commit()) return {};
         return fail_ticket(protocol::ErrorCode::kBadCredentials);
     }
-    if (!note_attempt(conn_, *id, fold, ip, true)) return {};
-    const std::optional<std::string> hex = issue_ticket(conn_, *id, options_.ttl_seconds);
+    if (!note_attempt(*conn_, *id, fold, ip, true)) return {};
+    const std::optional<std::string> hex = issue_ticket(*conn_, *id, options_.ttl_seconds);
     if (!hex || !tx.commit()) return {};
     TicketResult result;
     result.ok = true;
@@ -414,6 +433,7 @@ TicketResult AuthDb::create_account(std::string_view name, std::string_view pass
     return result;
 }
 
+// NOLINTNEXTLINE(bugprone-easily-swappable-parameters): tên, mật khẩu, ip như Op::kSignIn trên dây (HP-07)
 TicketResult AuthDb::sign_in(std::string_view name, std::string_view password, std::string_view ip) {
     if (!sign_in_shape_ok(name, password) || !ipv4_ok(ip)) {
         burn_dummy(options_, password);
@@ -421,13 +441,13 @@ TicketResult AuthDb::sign_in(std::string_view name, std::string_view password, s
     }
     const std::string fold = fold_ascii(name);
     const std::string ip_key = std::string("ip:") + std::string{ip};
-    Tx tx{conn_};
-    if (!tx.begin() || !lock_name(conn_, ip_key) || !lock_name(conn_, fold)) return {};
-    const std::optional<int> failures = failure_count(conn_, fold);
-    const std::optional<int> by_ip = failure_count_ip(conn_, ip);
+    Tx tx{*conn_};
+    if (!tx.begin() || !lock_name(*conn_, ip_key) || !lock_name(*conn_, fold)) return {};
+    const std::optional<int> failures = failure_count(*conn_, fold);
+    const std::optional<int> by_ip = failure_count_ip(*conn_, ip);
     if (!failures || !by_ip) return {};
     if (*failures >= kFailLimit || *by_ip >= kIpFailLimit) return fail_ticket(protocol::ErrorCode::kRateLimited);
-    Loaded loaded = load_account(conn_, fold);
+    Loaded loaded = load_account(*conn_, fold);
     if (loaded.failed) return {};
     bool matched = false;
     if (loaded.found) {
@@ -440,13 +460,13 @@ TicketResult AuthDb::sign_in(std::string_view name, std::string_view password, s
         const NameFault fault = account_fault(name, password);
         if (fault != NameFault::kOk) {
             burn_dummy(options_, password);
-            if (!note_attempt(conn_, std::nullopt, fold, ip, false) || !tx.commit()) return {};
+            if (!note_attempt(*conn_, std::nullopt, fold, ip, false) || !tx.commit()) return {};
             return fail_ticket(protocol::ErrorCode::kBadCredentials);
         }
-        const std::optional<std::int64_t> id = insert_account(conn_, options_, name, fold, password);
+        const std::optional<std::int64_t> id = insert_account(*conn_, options_, name, fold, password);
         if (!id) return {};
         if (*id < 0) {
-            if (!note_attempt(conn_, std::nullopt, fold, ip, false) || !tx.commit()) return {};
+            if (!note_attempt(*conn_, std::nullopt, fold, ip, false) || !tx.commit()) return {};
             return fail_ticket(protocol::ErrorCode::kBadCredentials);
         }
         loaded.id = *id;
@@ -455,11 +475,11 @@ TicketResult AuthDb::sign_in(std::string_view name, std::string_view password, s
     if (step != SignStep::kOk && step != SignStep::kCreate) {
         if (!loaded.found) burn_dummy(options_, password);
         const std::optional<std::int64_t> who = loaded.found ? std::optional<std::int64_t>{loaded.id} : std::nullopt;
-        if (!note_attempt(conn_, who, fold, ip, false) || !tx.commit()) return {};
+        if (!note_attempt(*conn_, who, fold, ip, false) || !tx.commit()) return {};
         return fail_ticket(protocol::ErrorCode::kBadCredentials);
     }
-    if (!note_attempt(conn_, loaded.id, fold, ip, true)) return {};
-    const std::optional<std::string> hex = issue_ticket(conn_, loaded.id, options_.ttl_seconds);
+    if (!note_attempt(*conn_, loaded.id, fold, ip, true)) return {};
+    const std::optional<std::string> hex = issue_ticket(*conn_, loaded.id, options_.ttl_seconds);
     if (!hex || !tx.commit()) return {};
     TicketResult result;
     result.ok = true;
@@ -479,18 +499,18 @@ RedeemResult AuthDb::redeem(std::string_view ticket_hex) {
     const std::string stored = secure::hex_encode(digest);
     secure::wipe_bytes(raw);
     secure::wipe_bytes(digest);
-    Tx tx{conn_};
+    Tx tx{*conn_};
     if (!tx.begin()) return {};
     Args args;
     args.text(stored);
     const PgExec used =
-        conn_.exec("UPDATE ticket SET used_at = now() WHERE token_hash = $1 AND used_at IS NULL AND expires_at > now() "
+        conn_->exec("UPDATE ticket SET used_at = now() WHERE token_hash = $1 AND used_at IS NULL AND expires_at > now() "
                    "RETURNING account_id::text",
             args.span());
     if (!used.ok) return {};
     if (used.rows.empty()) {
         const PgExec prior =
-            conn_.exec("SELECT (used_at IS NOT NULL OR expires_at <= now())::text FROM ticket WHERE token_hash = $1",
+            conn_->exec("SELECT (used_at IS NOT NULL OR expires_at <= now())::text FROM ticket WHERE token_hash = $1",
                 args.span());
         RedeemResult result;
         result.code = prior.ok && !prior.rows.empty() ? protocol::ErrorCode::kSessionExpired
@@ -502,7 +522,7 @@ RedeemResult AuthDb::redeem(std::string_view ticket_hex) {
     if (!id) return {};
     Args who;
     who.i64(*id);
-    const PgExec account = conn_.exec(
+    const PgExec account = conn_->exec(
         "SELECT name, (disabled_at IS NOT NULL OR EXISTS (SELECT 1 FROM ban WHERE ban.account_id = account.id "
         "AND (ban.until_at IS NULL OR ban.until_at > now())))::text FROM account WHERE id = $1",
         who.span());
@@ -528,7 +548,7 @@ EnterResult AuthDb::standing(std::uint64_t account) {
     Args who;
     who.i64(static_cast<std::int64_t>(account));
     const PgExec found =
-        conn_.exec("SELECT (disabled_at IS NOT NULL OR EXISTS (SELECT 1 FROM ban WHERE ban.account_id = account.id "
+        conn_->exec("SELECT (disabled_at IS NOT NULL OR EXISTS (SELECT 1 FROM ban WHERE ban.account_id = account.id "
                    "AND (ban.until_at IS NULL OR ban.until_at > now())))::text FROM account WHERE id = $1",
             who.span());
     if (!found.ok) return result;
@@ -545,10 +565,10 @@ EnterResult AuthDb::standing(std::uint64_t account) {
     return result;
 }
 
-GameDb::GameDb(PgConn& conn, CharacterPolicy policy) : conn_(conn), policy_(std::move(policy)) {}
+GameDb::GameDb(PgConn& conn, CharacterPolicy policy) : conn_(&conn), policy_(std::move(policy)) {}
 
 ListResult GameDb::list(std::uint64_t account) {
-    return list_players(conn_, account);
+    return list_players(*conn_, account);
 }
 
 ListResult GameDb::create_character(std::uint64_t account, std::string_view name, protocol::Gender gender,
@@ -561,18 +581,18 @@ ListResult GameDb::create_character(std::uint64_t account, std::string_view name
     const std::optional<std::string> canonical = canonical_character_name(name);
     if (!canonical) return fail_list(protocol::ErrorCode::kNameInvalid);
     const std::string fold = fold_character_name(*canonical);
-    Tx tx{conn_};
+    Tx tx{*conn_};
     if (!tx.begin()) return {};
     Args lock;
     lock.i64(static_cast<std::int64_t>(account));
-    const PgExec locked = conn_.exec("SELECT pg_advisory_xact_lock($1)", lock.span());
+    const PgExec locked = conn_->exec("SELECT pg_advisory_xact_lock($1)", lock.span());
     if (!locked.ok) return {};
     // Khoá theo tên: chỗ giữ tên đã xoá không có chỉ mục duy nhất nào canh, phải tuần tự hoá ở đây.
-    if (!lock_name(conn_, std::string("player:") + fold)) return {};
+    if (!lock_name(*conn_, std::string("player:") + fold)) return {};
     Args count_args;
     count_args.i64(static_cast<std::int64_t>(account));
     const PgExec counted =
-        conn_.exec("SELECT count(*)::text FROM player WHERE account_id = $1 AND deleted_at IS NULL", count_args.span());
+        conn_->exec("SELECT count(*)::text FROM player WHERE account_id = $1 AND deleted_at IS NULL", count_args.span());
     const std::string* count_text = cell(counted, 0, 0);
     if (!counted.ok || count_text == nullptr) return {};
     const std::optional<std::int64_t> live = as_i64(*count_text);
@@ -584,7 +604,7 @@ ListResult GameDb::create_character(std::uint64_t account, std::string_view name
     taken_args.i64(policy_.name_reserve.count());
     // Tên đang sống của bất kỳ ai, hoặc tên tài khoản khác vừa xoá mềm còn trong hạn giữ chỗ.
     const PgExec taken =
-        conn_.exec("SELECT 1 FROM player WHERE name_fold = $1 AND (deleted_at IS NULL OR "
+        conn_->exec("SELECT 1 FROM player WHERE name_fold = $1 AND (deleted_at IS NULL OR "
                    "(account_id <> $2 AND deleted_at > now() - make_interval(secs => $3::int))) LIMIT 1",
             taken_args.span());
     if (!taken.ok) return {};
@@ -622,7 +642,7 @@ ListResult GameDb::create_character(std::uint64_t account, std::string_view name
     insert.i64(starter::kDexterity);
     insert.i64(starter::kActualAge);
     insert.text(std::string{starter::kMotto});
-    const PgExec wrote = conn_.exec(
+    const PgExec wrote = conn_->exec(
         "INSERT INTO player (account_id, name, name_fold, gender, face, hair, school, level, exp, scene, "
         "position_x, position_z, hp, mp, camp, money, vigor, max_vigor, energy, max_energy, strength, spirit, "
         "constitution, intellect, dexterity, actual_age, motto) "
@@ -637,8 +657,8 @@ ListResult GameDb::create_character(std::uint64_t account, std::string_view name
     const std::string* id_text = cell(wrote, 0, 0);
     const std::optional<std::int64_t> id = id_text == nullptr ? std::nullopt : as_i64(*id_text);
     if (!wrote.ok || !id) return {};
-    if (!grant_starter(conn_, *id) || !tx.commit()) return {};
-    return list_players(conn_, account);
+    if (!grant_starter(*conn_, *id) || !tx.commit()) return {};
+    return list_players(*conn_, account);
 }
 
 ListResult GameDb::remove_character(std::uint64_t account, std::uint64_t character) {
@@ -646,7 +666,7 @@ ListResult GameDb::remove_character(std::uint64_t account, std::uint64_t charact
     args.i64(static_cast<std::int64_t>(character));
     args.i64(static_cast<std::int64_t>(account));
     const PgExec wrote =
-        conn_.exec("UPDATE player SET deleted_at = now() WHERE id = $1 AND account_id = $2 AND deleted_at IS NULL",
+        conn_->exec("UPDATE player SET deleted_at = now() WHERE id = $1 AND account_id = $2 AND deleted_at IS NULL",
             args.span());
     if (!wrote.ok) return {};
     if (wrote.affected != 1) {
@@ -654,7 +674,7 @@ ListResult GameDb::remove_character(std::uint64_t account, std::uint64_t charact
         result.code = protocol::ErrorCode::kNoSuchCharacter;
         return result;
     }
-    return list_players(conn_, account);
+    return list_players(*conn_, account);
 }
 
 EnterResult GameDb::enter(std::uint64_t account, std::uint64_t character) {
@@ -663,7 +683,7 @@ EnterResult GameDb::enter(std::uint64_t account, std::uint64_t character) {
     args.i64(static_cast<std::int64_t>(account));
     // position_x/position_z lưu mét; gate làm việc bằng centimet nguyên.
     const PgExec found =
-        conn_.exec("SELECT id::text, name, level::text, gender::text, face::text, hair::text, school::text, "
+        conn_->exec("SELECT id::text, name, level::text, gender::text, face::text, hair::text, school::text, "
                    "scene::text, round(position_x * 100)::bigint::text, round(position_z * 100)::bigint::text "
                    "FROM player WHERE id = $1 AND account_id = $2 AND deleted_at IS NULL",
             args.span());
@@ -704,7 +724,7 @@ EnterResult GameDb::save_spot(const SaveSpot& spot) {
     args.text(std::format("{:.2f}", static_cast<double>(spot.x_cm) / 100.0));
     args.text(std::format("{:.2f}", static_cast<double>(spot.z_cm) / 100.0));
     const PgExec wrote =
-        conn_.exec("UPDATE player SET scene = $2, position_x = $3::double precision, position_z = $4::double precision "
+        conn_->exec("UPDATE player SET scene = $2, position_x = $3::double precision, position_z = $4::double precision "
                    "WHERE id = $1 AND deleted_at IS NULL",
             args.span());
     if (!wrote.ok) return result;

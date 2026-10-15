@@ -28,6 +28,8 @@ enum class [[nodiscard]] Error : std::uint8_t {
     kCorrupt,
     kExists,
     kIo,
+    // Tệp khoá danh tính mà tài khoản khác đọc được (secure/private_file.hpp).
+    kExposed,
 };
 
 // Câu tiếng Việt cho log của gate. Không chứa vật liệu khoá.
@@ -80,7 +82,8 @@ struct SessionKeys {
     ~SessionKeys();
 };
 
-// Khoá danh tính Ed25519. Tệp là đúng 64 byte bí mật của libsodium. store_new không ghi đè.
+// Khoá danh tính Ed25519. Tệp là đúng 64 byte bí mật của libsodium. store_new tạo tệp riêng và không ghi đè;
+// load từ chối tệp không riêng (kExposed) trước khi đọc nội dung.
 class Identity {
 public:
     [[nodiscard]] static Result<Identity> generate();

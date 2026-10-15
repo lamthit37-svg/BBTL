@@ -15,6 +15,7 @@
 #include "io/platform.hpp"
 #include "net/net.hpp"
 #include "process/process.hpp"
+#include "secure/private_file.hpp"
 #include "store/pg.hpp"
 
 #include "billing_pg_support.hpp"
@@ -79,6 +80,8 @@ struct StageOptions {
     std::string key_file_text;
     // Mở quyền đọc tệp khoá cho mọi người (thử billing từ chối khoá lỏng quyền).
     bool lax_key_file = false;
+    // Mở quyền đọc secrets.local.toml cho mọi người (thử billing từ chối mật khẩu database lỏng quyền).
+    bool lax_secrets = false;
     // Khác rỗng: đè mật khẩu database (thử sai mật khẩu).
     std::string password_override;
 };
@@ -186,13 +189,13 @@ private:
         return static_cast<bool>(out);
     }
 
-    // Khoá nhà cung cấp phải riêng ngay lúc tạo: billing từ chối khoá mà tài khoản khác đọc được (account::file_private),
-    // và quyền kế thừa từ cây dựng thì không chắc đã riêng.
-    [[nodiscard]] static bool write_key_file(const Path& file, std::string_view text, bool lax) {
+    // Tệp bí mật (khoá nhà cung cấp, secrets.local.toml) phải riêng ngay lúc tạo: billing từ chối tệp mà tài khoản khác
+    // đọc được (secure::file_private), và quyền kế thừa từ cây dựng thì không chắc đã riêng.
+    [[nodiscard]] static bool write_secret_file(const Path& file, std::string_view text, bool lax) {
         if (lax) return write_world_readable(file, text);
         bool existed = false;
         std::string error;
-        return account::create_private_file(file, std::as_bytes(std::span{text}), "alpha.key", existed, error);
+        return secure::create_private_file(file, std::as_bytes(std::span{text}), "tệp bí mật", existed, error);
     }
 
     // Các giá trị billing.toml bị đổi.
@@ -285,15 +288,16 @@ private:
         bool ok = write_text(config_ / "billing.toml", billing_toml(*billing, edits));
         ok = write_text(config_ / "cluster.toml", cluster_toml(*cluster)) && ok;
         const std::string key_text = options.key_file_text.empty() ? provider_key_hex() + "\n" : options.key_file_text;
-        ok = write_key_file(config_ / "alpha.key", key_text, options.lax_key_file) && ok;
+        ok = write_secret_file(config_ / "alpha.key", key_text, options.lax_key_file) && ok;
         if (options.write_secrets) {
             const std::string password =
                 options.password_override.empty() ? access_->billing.password : options.password_override;
-            ok = write_text(config_ / "secrets.local.toml",
+            ok = write_secret_file(config_ / "secrets.local.toml",
                      std::format("schema = 1\n\n[database.postgres]\npassword = \"\"\n\n[database.thienlong_auth]\n"
                                  "password = \"\"\n\n[database.thienlong_billing]\npassword = \"{}\"\n\n"
                                  "[database.thienlong_store]\npassword = \"\"\n",
-                         password)) &&
+                         password),
+                     options.lax_secrets) &&
                 ok;
         }
         if (!ok) why = "không ghi được tệp cấu hình tạm";

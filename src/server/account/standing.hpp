@@ -31,8 +31,9 @@ class StandingCache {
 public:
     using Clock = std::chrono::steady_clock;
 
-    // ttl từ store.toml [security] standing_cache_ms; 0 là không nhớ.
-    explicit StandingCache(std::chrono::milliseconds ttl = kStandingTtl) noexcept : ttl_(ttl) {}
+    // ttl từ store.toml [security] standing_cache_ms; 0 là không nhớ. Không noexcept: unordered_map của MSVC cấp
+    // phát ngay lúc dựng, hết bộ nhớ ở đây phải là ngoại lệ chứ không phải std::terminate.
+    explicit StandingCache(std::chrono::milliseconds ttl = kStandingTtl) : ttl_(ttl) {}
     [[nodiscard]] std::chrono::milliseconds ttl() const noexcept { return ttl_; }
 
     [[nodiscard]] std::optional<Standing> find(std::uint64_t account, Clock::time_point now) {

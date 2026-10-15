@@ -18,7 +18,8 @@
 
 namespace game::account {
 
-enum class Op : std::uint16_t {
+// Hai byte trên dây (rpc.cpp). Kiểu nền giữ u16: hẹp hơn thì mã 257 ép thành 1 (kCreateAccount) lúc đọc.
+enum class Op : std::uint16_t { // NOLINT(performance-enum-size): kiểu nền khớp trường u16 của khung ipc
     kCreateAccount = 1,
     kSignIn = 2,
     kRedeem = 3,

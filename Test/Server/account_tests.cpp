@@ -5,6 +5,8 @@
 #include "account/rpc.hpp"
 #include "account/rules.hpp"
 #include "account/standing.hpp"
+#include "secure/private_file.hpp"
+#include "protocol/messages.hpp"
 #include "secure/secure.hpp"
 
 #include "support/lax_file.hpp"
@@ -13,10 +15,14 @@
 #include <array>
 #include <chrono>
 #include <cstddef>
+#include <cstdint>
 #include <filesystem>
+#include <optional>
 #include <span>
 #include <string>
+#include <string_view>
 #include <system_error>
+#include <utility>
 
 namespace game::test {
 namespace {
@@ -214,7 +220,7 @@ void names_are_canonical(Context& context) {
     const std::optional<std::string> ohorn = account::canonical_character_name(horn);
     context.expect(ohorn && *ohorn == "ớ", "o + sừng + sắc thành ớ");
     context.expect(!account::canonical_character_name("a\u200b"), "ký tự rộng zero bị từ chối");
-    context.expect(!account::canonical_character_name("a\u202e"), "đảo hướng bị từ chối");
+    context.expect(!account::canonical_character_name("a\u202e\u202c"), "đảo hướng bị từ chối");
     context.expect(account::ipv4_ok("127.0.0.1"), "ipv4 đúng");
     context.expect(!account::ipv4_ok("127.00.0.1"), "ipv4 không nhận số 0 thừa");
 }
@@ -323,7 +329,7 @@ void look_follows_configured_policy(Context& context) {
     context.expect(!account::look_ok(policy, Gender::kMale, 7, 8), "id của giới khác bị chặn");
     context.expect(!account::look_ok(account::LookPolicy{}, Gender::kFemale, 1, 1), "danh sách rỗng chặn hết");
     BookConfig config = test_config(false);
-    config.look = policy;
+    config.look = std::move(policy);
     MemoryBook book{config};
     const Clock::time_point now = Clock::time_point{std::chrono::seconds{7'000}};
     const account::ListResult who = book.login(book.create_account("policy", "longenough", now).hex, now);
@@ -399,26 +405,26 @@ void secret_files_must_be_private(Context& context) {
     const fs::path mine = dir / "alpha.key";
     std::string error;
     bool existed = true;
-    context.expect(account::create_private_file(mine, bytes, "alpha.key", existed, error) && !existed,
+    context.expect(secure::create_private_file(mine, bytes, "alpha.key", existed, error) && !existed,
         "tạo tệp riêng thành công");
-    context.expect(account::file_private(mine, "alpha.key", error), "tệp vừa tạo là riêng");
+    context.expect(secure::file_private(mine, "alpha.key", error), "tệp vừa tạo là riêng");
     context.expect(account::ipc_key_private(mine, error), "ipc_key_private vẫn là cùng phép kiểm");
 
     error.clear();
-    context.expect(!account::create_private_file(mine, bytes, "alpha.key", existed, error) && existed && error.empty(),
+    context.expect(!secure::create_private_file(mine, bytes, "alpha.key", existed, error) && existed && error.empty(),
         "tệp đã có: không ghi đè, báo existed");
 
     const fs::path lax = dir / "beta.key";
     context.expect(write_world_readable(lax, "x"), "dựng được tệp mọi người đọc");
     error.clear();
-    context.expect(!account::file_private(lax, "beta.key", error), "tệp mọi người đọc bị từ chối");
+    context.expect(!secure::file_private(lax, "beta.key", error), "tệp mọi người đọc bị từ chối");
     context.expect(error.contains("beta.key"), "câu lỗi nêu đúng tên tệp, không nhầm ipc.key");
     error.clear();
     context.expect(!account::ipc_key_private(lax, error) && error.contains("ipc.key"),
         "ipc_key_private vẫn nêu ipc.key");
 
     error.clear();
-    context.expect(!account::file_private(dir / "khong-co.key", "khong-co.key", error) && !error.empty(),
+    context.expect(!secure::file_private(dir / "khong-co.key", "khong-co.key", error) && !error.empty(),
         "tệp thiếu: sai kèm lý do");
     fs::remove_all(dir, ignored);
 }

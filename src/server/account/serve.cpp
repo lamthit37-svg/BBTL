@@ -1,5 +1,6 @@
 #include "account/serve.hpp"
 
+#include "account/book.hpp"
 #include "account/cap.hpp"
 #include "account/ipc_key.hpp"
 #include "account/rpc.hpp"
@@ -8,17 +9,24 @@
 #include "account/standing.hpp"
 #include "config/auth.hpp"
 #include "config/cluster.hpp"
+#include "config/issue.hpp"
 #include "config/secrets.hpp"
 #include "config/store.hpp"
+#include "config/types.hpp"
 #include "io/file.hpp"
 #include "net/net.hpp"
 #include "process/process.hpp"
+#include "protocol/messages.hpp"
+#include "secure/private_file.hpp"
 #include "secure/secure.hpp"
+#include "store/pg.hpp"
 
 #include <array>
 #include <chrono>
+#include <cstddef>
 #include <cstdint>
 #include <cstdio>
+#include <filesystem>
 #include <format>
 #include <optional>
 #include <print>
@@ -27,6 +35,7 @@
 #include <string_view>
 #include <thread>
 #include <utility>
+#include <vector>
 
 namespace game::account {
 namespace {
@@ -84,7 +93,7 @@ template <typename Value>
         return false;
     }
     const secure::PasswordPolicy policy{
-        .ops = static_cast<unsigned long long>(options.ops_limit),
+        .ops = static_cast<std::uint64_t>(options.ops_limit),
         .mem_bytes = static_cast<std::size_t>(options.mem_limit_kib) * 1024U,
     };
     std::string hash;
@@ -196,14 +205,14 @@ struct OpenedCap {
 }
 
 Reply on_auth(void* ctx, const Call& call) {
-    auto* box = static_cast<AuthCtx*>(ctx);
+    const auto* box = static_cast<AuthCtx*>(ctx);
     if (call.op == Op::kCreateAccount || call.op == Op::kSignIn) {
         std::string name;
         std::string password;
         std::string ip;
         if (!read_account_call(call, name, password, ip)) return reply_of(TicketResult{});
         const bool create = call.op == Op::kCreateAccount;
-        TicketResult result =
+        const TicketResult result =
             create ? box->db->create_account(name, password, ip) : box->db->sign_in(name, password, ip);
         wipe_secret(password);
         return reply_of(result);
@@ -309,6 +318,11 @@ int serve_auth(const Path& config_dir) {
         return 0;
     }
     std::string error;
+    // Mật khẩu database là bí mật: tệp mà tài khoản khác đọc được thì không chạy (secure/private_file.hpp).
+    if (!secure::file_private(secrets_path, "secrets.local.toml", error)) {
+        std::println(stderr, "auth: {}", error);
+        return 1;
+    }
     const std::optional<config::Cluster> cluster =
         read_cfg(config_dir / "cluster.toml", config::read_cluster, error, "cluster.toml");
     const std::optional<config::Auth> auth = read_cfg(config_dir / "auth.toml", config::read_auth, error, "auth.toml");
@@ -366,7 +380,7 @@ int serve_auth(const Path& config_dir) {
         return 1;
     }
     AuthDb db{*conn, options};
-    AuthCtx ctx{&db, &*key};
+    AuthCtx ctx{.db = &db, .key = &*key};
     std::println("ready ipc={}", opened->port);
     static_cast<void>(std::fflush(stdout));
     return serve_loop(opened->listener, &on_auth, &ctx, *key);
@@ -380,6 +394,10 @@ int serve_game(const Path& config_dir) {
         return 0;
     }
     std::string error;
+    if (!secure::file_private(secrets_path, "secrets.local.toml", error)) {
+        std::println(stderr, "store: {}", error);
+        return 1;
+    }
     const std::optional<config::Cluster> cluster =
         read_cfg(config_dir / "cluster.toml", config::read_cluster, error, "cluster.toml");
     const std::optional<config::Store> store_cfg =

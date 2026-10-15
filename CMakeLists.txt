@@ -417,7 +417,11 @@ if(NOT CMAKE_CROSSCOMPILING)
     # secure: bắt tay và bản ghi. Header C của libsodium đi qua include SYSTEM của
     # game_sodium, nên cảnh báo của thư viện không vào sodium.cpp.
     game_module(secure src/shared/secure/identity.cpp src/shared/secure/handshake.cpp src/shared/secure/record.cpp
-        src/shared/secure/password.cpp)
+        src/shared/secure/password.cpp src/shared/secure/private_file.cpp)
+    # private_file.cpp: kiểm và đặt quyền riêng (DACL) cho tệp bí mật.
+    if(WIN32)
+        target_link_libraries(game_secure PRIVATE advapi32)
+    endif()
     add_library(game_secure_sodium STATIC src/shared/secure/detail/sodium.cpp)
     target_include_directories(game_secure_sodium PUBLIC ${PROJECT_SOURCE_DIR}/engine
         ${PROJECT_SOURCE_DIR}/src/shared)
@@ -452,10 +456,6 @@ if(NOT CMAKE_CROSSCOMPILING)
         target_link_libraries(game_account PUBLIC game_core game_net game_protocol game_secure game_config
             game_io game_process)
         target_link_libraries(game_gate PUBLIC game_account game_ipc)
-        # ipc_key.cpp: kiểm và đặt quyền riêng (DACL) cho ipc.key.
-        if(WIN32)
-            target_link_libraries(game_account PRIVATE advapi32)
-        endif()
         if(CMAKE_TOOLCHAIN_FILE MATCHES "[Vv]cpkg")
             find_package(PostgreSQL REQUIRED)
             game_module(store src/server/store/pg.cpp)

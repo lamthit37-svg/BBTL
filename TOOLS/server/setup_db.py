@@ -2,7 +2,8 @@
 
 Nhị phân ở dev/server/pgsql (git bỏ qua), dữ liệu ở dev/server/data/pg, mật khẩu ở
 dev/server/config/secrets.local.toml (git bỏ qua). Không cài dịch vụ Windows, không cần quyền
-quản trị. Địa chỉ, cổng và đường dẫn của cụm đọc từ dev/server/config/cluster.toml; tên database và
+quản trị. Tệp bí mật và thư mục dev/server/data được khoá quyền: chỉ SYSTEM, Administrators và tài khoản đang
+chạy (POSIX: 0600 và 0700), cùng phép kiểm mà máy chủ đòi lúc đọc (src/shared/secure/private_file.hpp). Địa chỉ, cổng và đường dẫn của cụm đọc từ dev/server/config/cluster.toml; tên database và
 role đọc từ auth.toml, billing.toml, store.toml: một nguồn sự thật với máy chủ.
 
   python TOOLS/server/setup_db.py fetch [--zip <tệp>]   tải gói nhị phân, kiểm SHA-256, giải nén
@@ -10,8 +11,10 @@ role đọc từ auth.toml, billing.toml, store.toml: một nguồn sự thật 
   python TOOLS/server/setup_db.py start | stop | status
 """
 import argparse
+import csv
 import hashlib
 import os
+import re
 import secrets
 import subprocess
 import sys
@@ -26,6 +29,10 @@ ROOT = Path(__file__).resolve().parents[2]
 SERVER = ROOT / "dev" / "server"
 CONFIG = SERVER / "config"
 SECRETS = CONFIG / "secrets.local.toml"
+DATA = SERVER / "data"
+# SID cố định của Windows: LocalSystem và nhóm Administrators.
+SYSTEM_SID = "S-1-5-18"
+ADMINS_SID = "S-1-5-32-544"
 
 # Gói nhị phân Windows x64 của EDB. Đổi phiên bản thì đổi cả ba hằng.
 PG_VERSION = "18.6-5"
@@ -87,6 +94,51 @@ def run(command: list[str], env: dict | None = None, text: str | None = None) ->
         detail = (done.stderr or done.stdout).strip()
         raise SetupError(f"{Path(command[0]).name} thoát {done.returncode}: {detail}")
     return done.stdout
+
+
+def user_sid() -> str:
+    """SID của tài khoản đang chạy, đọc bằng whoami: không phụ thuộc ngôn ngữ của Windows như tên nhóm."""
+    done = subprocess.run(["whoami", "/user", "/fo", "csv", "/nh"], capture_output=True, text=True,
+                          errors="replace", check=False)
+    rows = list(csv.reader(done.stdout.splitlines()))
+    sid = rows[0][-1] if done.returncode == 0 and rows and rows[0] else ""
+    if not re.fullmatch(r"S-1-\d+(-\d+)+", sid):
+        raise SetupError(f"whoami /user không cho SID của tài khoản đang chạy: {done.stdout.strip()!r}")
+    return sid
+
+
+def restrict(path: Path) -> None:
+    """Chỉ tài khoản đang chạy (cùng SYSTEM, Administrators trên Windows) chạm được path.
+
+    Windows: bỏ quyền kế thừa từ cha rồi cấp toàn quyền cho ba SID; thư mục cấp kèm kế thừa (OI)(CI), nên mọi tệp
+    trong đó không có quyền riêng thì nhận lại quyền này. POSIX: 0600, thư mục 0700.
+    """
+    if os.name != "nt":
+        os.chmod(path, 0o700 if path.is_dir() else 0o600)
+        return
+    inherit = "(OI)(CI)" if path.is_dir() else ""
+    grants = [f"*{sid}:{inherit}F" for sid in (user_sid(), SYSTEM_SID, ADMINS_SID)]
+    run(["icacls", str(path), "/inheritance:r", "/grant:r", *grants, "/q"])
+
+
+def write_private(path: Path, text: str) -> None:
+    """Ghi tệp bí mật: tệp tạm cùng thư mục được khoá quyền khi còn rỗng, rồi mới có nội dung và thay tệp đích.
+
+    Đổi tên trên cùng ổ giữ quyền của tệp tạm, nên tệp đích không lúc nào mang chữ bí mật với quyền lỏng.
+    """
+    temp = path.with_name(f".{path.name}.{secrets.token_hex(4)}.tmp")
+    descriptor = os.open(temp, os.O_WRONLY | os.O_CREAT | os.O_EXCL | getattr(os, "O_BINARY", 0), 0o600)
+    os.close(descriptor)
+    try:
+        restrict(temp)
+        with temp.open("r+b") as stream:
+            stream.write(text.encode("utf-8"))
+            stream.flush()
+            os.fsync(stream.fileno())
+        os.replace(temp, path)
+    except BaseException:
+        temp.unlink(missing_ok=True)
+        raise
 
 
 def sha256_of(path: Path) -> str:
@@ -156,12 +208,17 @@ def service_databases() -> list[tuple[str, str]]:
     return pairs
 
 
+def read_secrets() -> dict[str, str]:
+    """Mật khẩu đã có trong secrets.local.toml (tệp thiếu thì rỗng); chỉ đọc, không in mật khẩu."""
+    if not SECRETS.is_file():
+        return {}
+    stored = read_toml(SECRETS).get("database", {})
+    return {role: str(entry["password"]) for role, entry in stored.items() if entry.get("password")}
+
+
 def load_or_create_secrets(roles: list[str]) -> dict[str, str]:
-    """Mật khẩu của từng role. Tệp đã có thì dùng lại, role thiếu thì thêm; không in mật khẩu."""
-    passwords: dict[str, str] = {}
-    if SECRETS.is_file():
-        stored = read_toml(SECRETS).get("database", {})
-        passwords = {role: str(entry["password"]) for role, entry in stored.items() if entry.get("password")}
+    """Mật khẩu của từng role. Tệp đã có thì dùng lại, role thiếu thì thêm; ghi lại tệp với quyền riêng."""
+    passwords = read_secrets()
     for role in roles:
         passwords.setdefault(role, secrets.token_urlsafe(24))
     owners = {role: Path(name).stem for name, (_, role) in zip(SERVICE_FILES, service_databases())}
@@ -179,7 +236,7 @@ def load_or_create_secrets(roles: list[str]) -> dict[str, str]:
     intro = ["Tệp: secrets.local.toml. Sinh bởi TOOLS/server/setup_db.py; mỗi tiến trình chỉ đọc mục của mình.",
              "Git bỏ qua tệp này. Không chép ra ngoài máy chủ, không dán vào log hay tin nhắn."]
     text = render("BÍ MẬT CỦA MÁY CHỦ", intro, sections)
-    SECRETS.write_text(text, encoding="utf-8", newline="\n")
+    write_private(SECRETS, text)
     return passwords
 
 
@@ -226,12 +283,15 @@ def init(cluster: Cluster) -> None:
         if not name.replace("_", "").isalnum() or not name.isascii():
             raise SetupError(f"tên {name!r} không phải định danh ASCII đơn giản")
     passwords = load_or_create_secrets(roles)
+    # Cụm, khoá danh tính của gate và khoá ipc nằm dưới data/: khoá cả cây trước khi initdb ghi gì vào đó.
+    for root in dict.fromkeys((DATA, cluster.data_dir.parent)):
+        root.mkdir(parents=True, exist_ok=True)
+        restrict(root)
     if (cluster.data_dir / "PG_VERSION").is_file():
         print(f"đã có cụm ở {cluster.data_dir}; giữ nguyên dữ liệu")
     else:
-        cluster.data_dir.parent.mkdir(parents=True, exist_ok=True)
         password_file = cluster.data_dir.parent / "pg.pwfile"
-        password_file.write_text(passwords["postgres"], encoding="ascii")
+        write_private(password_file, passwords["postgres"])
         try:
             run([cluster.tool("initdb"), "-D", str(cluster.data_dir), "-U", "postgres",
                  f"--pwfile={password_file}", "-E", "UTF8", "--locale-provider=builtin",
@@ -262,7 +322,7 @@ def status(cluster: Cluster) -> None:
     if not is_running(cluster):
         print("cụm không chạy")
         return
-    passwords = load_or_create_secrets([])
+    passwords = read_secrets()
     if "postgres" not in passwords:
         raise SetupError(f"{SECRETS} thiếu mật khẩu của postgres")
     version = psql(cluster, passwords["postgres"], "select current_setting('server_version');").strip()

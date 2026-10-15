@@ -204,6 +204,14 @@ void serve_bad_config(Context& context) {
     if (!third) return;
     const std::optional<int> lax_code = sv::Daemon::start_and_wait_exit(*third);
     context.expect(lax_code && *lax_code == 1, "khoá nhà cung cấp lỏng quyền: thoát mã 1");
+
+    // Hồi quy: secrets.local.toml ai cũng đọc được thì billing không chạy (ai đọc được là có mật khẩu database billing).
+    sv::StageOptions lax_secrets;
+    lax_secrets.lax_secrets = true;
+    const std::unique_ptr<sv::Stage> fourth = sv::Stage::create(*access, lax_secrets, why);
+    if (!fourth) return;
+    const std::optional<int> secrets_code = sv::Daemon::start_and_wait_exit(*fourth);
+    context.expect(secrets_code && *secrets_code == 1, "secrets.local.toml lỏng quyền: thoát mã 1");
 }
 
 // ---- webhook --------------------------------------------------------------------------------------------
@@ -425,6 +433,8 @@ struct StormPlan {
     std::uint16_t port;
     int orders;
     std::uint64_t seed;
+    // Số đơn đã gửi xong, cho luồng giết billing chọn lúc giết theo tiến độ chứ không theo đồng hồ.
+    std::atomic<int>* progress;
 };
 
 void run_storm(const StormPlan& plan, Tally& tally) {
@@ -465,6 +475,7 @@ void run_storm(const StormPlan& plan, Tally& tally) {
         case 4: expect_status(tally, noise, send(noise, noise_body, Fault::kTamperedBody), 401); break;
         default: break;
         }
+        plan.progress->store(index);
     }
 }
 
@@ -476,16 +487,22 @@ void serve_storm_with_crashes(Context& context) {
     constexpr int kOrders = 1000;
     Tally tally;
     std::atomic<bool> storming{true};
+    std::atomic<int> progress{0};
     std::atomic<int> crashes{0};
     std::atomic<int> failed_restarts{0};
     std::mutex swap;
     {
-        // Luồng giết billing ba lần ở những lúc ngẫu nhiên rồi chạy lại ngay; luồng gửi chỉ thấy kết nối bị từ chối
-        // hoặc bị cắt và gọi lại.
+        // Luồng giết billing ba lần, khi luồng gửi qua các mốc số đơn ngẫu nhiên ngay trước 1/4, 1/2 và 3/4 đợt,
+        // rồi chạy lại ngay; luồng gửi chỉ thấy kết nối bị từ chối hoặc bị cắt và gọi lại. Mốc theo tiến độ chứ không
+        // theo đồng hồ: trước đây luồng giết ngủ 1,2 tới 3,7 giây, máy nhanh thì đợt gửi xong trước và không lần giết
+        // nào xảy ra (đo 2026-10-15: đỏ 2 trên 7 lượt).
         const std::jthread killer{[&] {
             script::Rng rng(0xC0FFEEULL);
             while (crashes < 3 && storming) {
-                std::this_thread::sleep_for(std::chrono::milliseconds{1200 + static_cast<std::int64_t>(rng.below(2500))});
+                const int quarter = kOrders / 4;
+                const auto jitter = static_cast<int>(rng.below(static_cast<std::uint64_t>(quarter / 2)));
+                const int mark = (quarter * (crashes + 1)) - (quarter / 2) + jitter;
+                while (storming && progress.load() < mark) std::this_thread::sleep_for(std::chrono::milliseconds{2});
                 if (!storming) break;
                 const std::scoped_lock lock{swap};
                 rig->daemon->crash();
@@ -502,11 +519,12 @@ void serve_storm_with_crashes(Context& context) {
                 rig->daemon = std::move(next);
             }
         }};
-        run_storm(StormPlan{.port = rig->stage->webhook_port(), .orders = kOrders, .seed = 20261014}, tally);
+        run_storm(StormPlan{.port = rig->stage->webhook_port(), .orders = kOrders, .seed = 20261014, .progress = &progress},
+            tally);
         storming = false;
     }
     context.expect(failed_restarts == 0, "billing chạy lại được sau mỗi lần bị giết");
-    context.expect(crashes >= 1, std::format("billing đã bị giết {} lần trong lúc gửi", crashes.load()));
+    context.expect(crashes == 3, std::format("billing đã bị giết {} lần trong lúc gửi (cần 3)", crashes.load()));
     context.expect(tally.wrong == 0, std::format("{} trả lời sai: {}", tally.wrong, tally.first_wrong));
     context.expect(tally.paid_orders > 800 && tally.failed_orders > 30, "đợt đơn có cả đơn trả và đơn hỏng");
     context.expect(rig->daemon->alive(), "billing đang chạy sau đợt thử");

@@ -61,6 +61,10 @@ lấy từ `config/cluster.toml`. Ba database, mỗi cái một role riêng: `th
 `thienlong_billing`, `thienlong_game_1` (role `thienlong_store`). Mật khẩu nằm ở
 `config/secrets.local.toml`.
 
+`secrets.local.toml` và cả thư mục `data/` chỉ tài khoản chạy máy chủ đọc được (cùng SYSTEM và Administrators).
+`init` đặt quyền đó; auth, store, billing và gate từ chối chạy khi tệp bí mật lỏng hơn, kèm một dòng nói tệp nào
+(`docs/SERVER-DU-LIEU.md` mục 4). Chạy lại `init` thì giữ nguyên mật khẩu và khoá lại quyền.
+
 Không xoá `data/pg`: đó là mọi tài khoản và nhân vật. Sao lưu bằng `pgsql/bin/pg_dump.exe` hoặc
 `pg_basebackup.exe`.
 

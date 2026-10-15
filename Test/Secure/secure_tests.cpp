@@ -2,7 +2,10 @@
 // hạ phiên bản, hai chiều, bộ đếm cạn, tệp khoá. Không ngủ và không mở socket.
 #include "secure/secure.hpp"
 
+#include "secure/private_file.hpp"
+
 #include "core/check.hpp"
+#include "support/lax_file.hpp"
 #include "test.hpp"
 
 #include <algorithm>
@@ -344,13 +347,37 @@ void missing_key_is_not_found(Context& context) {
 void short_key_is_corrupt(Context& context) {
     const std::filesystem::path dir = scratch_dir();
     const std::filesystem::path file = dir / "identity.key";
-    const std::array<char, 8> bytes{};
-    std::ofstream output{file, std::ios::binary};
-    output.write(bytes.data(), static_cast<std::streamsize>(bytes.size()));
-    output.close();
-    core::check(static_cast<bool>(output), "ghi đủ tệp ngắn");
+    const std::array<std::byte, 8> bytes{};
+    bool existed = false;
+    std::string error;
+    // Tệp riêng để phép kiểm quyền qua, chỉ còn cỡ sai.
+    core::check(secure::create_private_file(file, bytes, "identity.key", existed, error), "ghi đủ tệp ngắn");
     const secure::Result<Identity> loaded = Identity::load(file);
     context.expect(!loaded.has_value() && loaded.error() == Error::kCorrupt, "sai cỡ là tệp hỏng");
+    remove_scratch(dir);
+}
+
+// Hồi quy: store_new từng ghi tệp bằng ofstream, nên khoá danh tính mang quyền kế thừa của thư mục (máy chủ thử ở ổ D:
+// Authenticated Users được sửa, Users được đọc). Thư mục ở đây cho mọi người toàn quyền: tệp vẫn phải ra riêng.
+void stored_key_is_private(Context& context) {
+    const std::filesystem::path dir = scratch_dir();
+    context.expect(game::test::open_dir_to_everyone(dir), "mở được thư mục thử cho mọi người");
+    const std::filesystem::path file = dir / "identity.key";
+    const Identity identity = make_identity();
+    context.expect(identity.store_new(file).has_value(), "ghi được tệp khoá");
+    std::string error;
+    context.expect(secure::file_private(file, "identity.key", error), "tệp khoá vừa ghi là riêng");
+    context.expect(Identity::load(file).has_value(), "đọc lại được tệp khoá");
+    remove_scratch(dir);
+}
+
+// Hồi quy: load từng đọc tệp khoá mà ai cũng đọc được. Quyền xét trước nội dung, nên 64 byte rác cũng ra kExposed.
+void exposed_key_is_refused(Context& context) {
+    const std::filesystem::path dir = scratch_dir();
+    const std::filesystem::path file = dir / "identity.key";
+    context.expect(game::test::write_world_readable(file, std::string(secure::kSecretBytes, 'x')), "dựng được tệp lỏng");
+    const secure::Result<Identity> loaded = Identity::load(file);
+    context.expect(!loaded.has_value() && loaded.error() == Error::kExposed, "tệp khoá lỏng quyền bị từ chối");
     remove_scratch(dir);
 }
 
@@ -424,6 +451,8 @@ constexpr std::array kCases{
     Case{.name = "key_file_round_trip", .body = key_file_round_trip},
     Case{.name = "missing_key_is_not_found", .body = missing_key_is_not_found},
     Case{.name = "short_key_is_corrupt", .body = short_key_is_corrupt},
+    Case{.name = "stored_key_is_private", .body = stored_key_is_private},
+    Case{.name = "exposed_key_is_refused", .body = exposed_key_is_refused},
     Case{.name = "flipped_key_is_corrupt", .body = flipped_key_is_corrupt},
     Case{.name = "wiped_after_destroy", .body = wiped_after_destroy},
     Case{.name = "public_hex_is_lowercase", .body = public_hex_is_lowercase},
