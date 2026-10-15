@@ -1,34 +1,59 @@
-// Khách giả nối vào cụm máy chủ thật: tạo tài khoản, tạo nhân vật, vào game, đi quanh điểm sinh rồi thoát.
-// Kiểm đường đi đầy đủ gate -> zone -> gate (SceneEnter, EntityAppear, EntityPos, EntityDisappear) và dùng làm
-// nền cho bài đo tải thế giới. Mỗi khách một luồng, mỗi luồng một cặp kết nối (cổng auth rồi cổng game).
-//
+/*==============================================================================
+ *  THIENLONG  |  TOOLS
+ *------------------------------------------------------------------------------
+ *  TỆP       : TOOLS/server/bot.cpp
+ *  PHÂN HỆ   : Server / Bot
+ *  CHUẨN     : C++23
+ *------------------------------------------------------------------------------
+ *  CHỨC NĂNG
+ *  - Khách giả nối vào cụm máy chủ thật: tạo tài khoản, tạo nhân vật, vào game,
+ *    đi quanh điểm sinh rồi thoát. Kiểm đường đi đầy đủ gate -> zone -> gate
+ *    (SceneEnter, EntityAppear, EntityPos, EntityDisappear) và dùng làm nền cho
+ *    bài đo tải thế giới. Mỗi khách một luồng, mỗi luồng một cặp kết nối (cổng
+ *    auth rồi cổng game).
+ *------------------------------------------------------------------------------
+ *  TÁC GIẢ   : HiepHoon
+ *  TELEGRAM  : @Hoon9xx
+ *============================================================================*/
+
 // Chạy: thienlong_bot --identity <identity.key> [--game 7000] [--auth 7001] [--count 4] [--seconds 6] [--prefix bot]
-//       [--straight 1]
+//       [--straight 1] [--hunt <x_m>,<z_m>]
 // Thoát 0 khi mọi khách vào được cảnh và thấy đủ những khách còn lại; khác 0 kèm lý do.
 // --straight 1: mỗi khách đi thẳng một hướng (chia đều 360 độ theo số khách) tới khi bị luật đi của zone chặn, rồi
 // đo việc server kéo về: phải có ít nhất một lần kéo về, và mỗi lần kéo về chỉ lùi vài bước so với chỗ khách tưởng
 // mình đang đứng (không nhảy đi đâu khác). Khi đó khách không cần thấy nhau (mỗi người đi một hướng, ra khỏi vùng nhìn).
+// --hunt X,Z: mỗi khách đi thẳng tới điểm (X, Z) mét (cảnh vào game) rồi đứng đó --seconds giây, đếm quái hiện ra, quái
+// di chuyển (EntityPos Walk/Idle) và khoảng gần nhất quái tới khách: kiểm AI quái của zone trên cụm thật. Đạt khi thấy
+// quái hiện ra và quái có đi.
+
 #include "io/platform.hpp"
 #include "link/link.hpp"
 #include "net/net.hpp"
 #include "protocol/messages.hpp"
+#include "protocol/wire.hpp"
 #include "secure/secure.hpp"
 
 #include <atomic>
+#include <charconv>
 #include <chrono>
 #include <cmath>
+#include <cstddef>
 #include <cstdint>
 #include <cstdio>
 #include <cstdlib>
 #include <filesystem>
 #include <format>
+#include <iterator>
 #include <numbers>
 #include <optional>
 #include <print>
 #include <span>
 #include <string>
 #include <string_view>
+#include <system_error>
 #include <thread>
+#include <unordered_map>
+#include <utility>
 #include <variant>
 #include <vector>
 
@@ -52,6 +77,8 @@ struct Options {
     int seconds = 6;
     std::string prefix = "bot";
     bool straight = false;
+    // Điểm tới của --hunt, centimet.
+    std::optional<std::pair<float, float>> hunt;
 };
 
 struct Tally {
@@ -66,6 +93,10 @@ struct Tally {
     // Chỉ chế độ --straight: số lần server kéo về, và số lần kéo về xa hơn vài bước so với chỗ khách đang tưởng mình đứng.
     std::atomic<int> corrections{0};
     std::atomic<int> drifted{0};
+    // Chỉ chế độ --hunt: EntityPos của quái theo trạng thái, và khoảng gần nhất (cm) từ quái tới khách.
+    std::atomic<int> monster_walking{0};
+    std::atomic<int> monster_resting{0};
+    std::atomic<int> closest_cm{1'000'000};
 };
 
 void report(std::string_view who, std::string_view what) { std::println(stderr, "[{}] {}", who, what); }
@@ -135,6 +166,10 @@ template <typename Message>
 }
 
 struct Seen {
+    // Loại của từng thực thể đã hiện, và chỗ khách đang đứng (để đo khoảng tới quái).
+    std::unordered_map<std::uint32_t, protocol::EntityKind> kinds;
+    float x_cm = 0.0F;
+    float z_cm = 0.0F;
     std::optional<protocol::Position> position;
     std::optional<protocol::CharacterList> roster;
     bool refused = false;
@@ -155,6 +190,7 @@ void note(const protocol::GameServerMessage& message, Seen& seen, Tally& tally) 
     }
     if (std::holds_alternative<protocol::SceneEnter>(message)) ++tally.entered;
     if (const auto* shown = std::get_if<protocol::EntityAppear>(&message)) {
+        seen.kinds[shown->id] = shown->kind;
         if (shown->kind == protocol::EntityKind::kPlayer) {
             ++tally.appear;
         } else if (shown->kind == protocol::EntityKind::kNpc) {
@@ -164,7 +200,17 @@ void note(const protocol::GameServerMessage& message, Seen& seen, Tally& tally) 
         }
     }
     if (std::holds_alternative<protocol::EntityDisappear>(message)) ++tally.disappear;
-    if (std::holds_alternative<protocol::EntityPos>(message)) ++tally.position;
+    if (const auto* moved = std::get_if<protocol::EntityPos>(&message)) {
+        ++tally.position;
+        const auto kind = seen.kinds.find(moved->id);
+        if (kind != seen.kinds.end() && kind->second == protocol::EntityKind::kMonster) {
+            ++(moved->state == protocol::EntityState::kWalk ? tally.monster_walking : tally.monster_resting);
+            const auto gap = static_cast<int>(std::hypot(moved->x_cm - seen.x_cm, moved->z_cm - seen.z_cm));
+            int best = tally.closest_cm.load();
+            while (gap < best && !tally.closest_cm.compare_exchange_weak(best, gap)) {
+            }
+        }
+    }
 }
 
 // Hướng đi (radian) và độ rẽ sau mỗi bước.
@@ -202,6 +248,48 @@ void walk(link::Link& line, Seen& seen, Tally& tally, const protocol::Position& 
             x = spot->x_cm;
             z = spot->z_cm;
         }
+    }
+}
+
+// Đi thẳng tới `goal` (10 cm mỗi bước, 30 bước mỗi giây) rồi đứng lại `seconds` giây, vẫn đọc mọi tin và gửi Ping mỗi
+// giây để giữ phiên. Position kéo về thì đặt lại vị trí như client thật.
+void hunt(link::Link& line, Seen& seen, Tally& tally, const protocol::Position& start, std::pair<float, float> goal,
+    int seconds) {
+    constexpr float kStepCm = 10.0F;
+    constexpr float kCloseCm = 300.0F;
+    seen.x_cm = start.x_cm;
+    seen.z_cm = start.z_cm;
+    std::uint32_t tick = 0;
+    const auto give_up = Clock::now() + std::chrono::seconds{120};
+    while (Clock::now() < give_up && !seen.refused && std::hypot(goal.first - seen.x_cm, goal.second - seen.z_cm) > kCloseCm) {
+        ++tick;
+        const float heading = std::atan2(goal.second - seen.z_cm, goal.first - seen.x_cm);
+        seen.x_cm += kStepCm * std::cos(heading);
+        seen.z_cm += kStepCm * std::sin(heading);
+        if (!send(line, protocol::Move{.x_cm = seen.x_cm, .z_cm = seen.z_cm, .tick = tick})) return;
+        const auto frame_end = Clock::now() + std::chrono::milliseconds{33};
+        while (Clock::now() < frame_end) {
+            const auto message = read_game(line, net::Milliseconds{3});
+            if (!message) continue;
+            note(*message, seen, tally);
+            if (const auto* spot = std::get_if<protocol::Position>(&*message)) {
+                ++tally.corrections;
+                seen.x_cm = spot->x_cm;
+                seen.z_cm = spot->z_cm;
+            }
+        }
+    }
+    std::println("  tới ({:.0f}, {:.0f}) cm, còn cách đích {:.0f} cm", seen.x_cm, seen.z_cm,
+        std::hypot(goal.first - seen.x_cm, goal.second - seen.z_cm));
+    const auto until = Clock::now() + std::chrono::seconds{seconds};
+    auto next_ping = Clock::now();
+    while (Clock::now() < until && !seen.refused) {
+        if (Clock::now() >= next_ping) {
+            static_cast<void>(send(line, protocol::Ping{.client_time = std::chrono::milliseconds{0}}));
+            next_ping += std::chrono::seconds{1};
+        }
+        const auto message = read_game(line, net::Milliseconds{20});
+        if (message) note(*message, seen, tally);
     }
 }
 
@@ -247,7 +335,9 @@ void run_bot(const Options& options, const secure::PublicKey& server, int index,
     }
     if (!seen.position) return fail("EnterGame bị từ chối");
     std::println("[{}] vào tại x={:.0f} z={:.0f} (cm)", account, seen.position->x_cm, seen.position->z_cm);
-    if (options.straight) {
+    if (options.hunt) {
+        hunt(*line, seen, tally, *seen.position, *options.hunt, options.seconds);
+    } else if (options.straight) {
         const float heading = 2.0F * std::numbers::pi_v<float> * static_cast<float>(index) / static_cast<float>(options.count);
         walk(*line, seen, tally, *seen.position, Gait{.heading = heading, .turn = 0.0F}, options.seconds);
     } else {
@@ -299,6 +389,13 @@ void run_bot(const Options& options, const secure::PublicKey& server, int index,
             options.prefix = value;
         } else if (key == "--straight") {
             options.straight = value == "1";
+        } else if (key == "--hunt") {
+            const std::size_t comma = value.find(',');
+            if (comma == std::string_view::npos) return std::nullopt;
+            const std::optional<int> east = whole_number(value.substr(0, comma));
+            const std::optional<int> south = whole_number(value.substr(comma + 1));
+            if (!east || !south) return std::nullopt;
+            options.hunt = std::pair{static_cast<float>(*east) * 100.0F, static_cast<float>(*south) * 100.0F};
         } else {
             return std::nullopt;
         }
@@ -309,13 +406,14 @@ void run_bot(const Options& options, const secure::PublicKey& server, int index,
 
 } // namespace
 
+// NOLINTNEXTLINE(bugprone-exception-escape): công cụ thử, hết bộ nhớ thì dừng tiến trình là đủ.
 int main(int argc, char** argv) {
     io::use_utf8_console();
     const std::optional<Options> options =
         parse(std::span<const char* const>{argv, static_cast<std::size_t>(argc)});
     if (!options) {
         std::println(stderr, "dùng: thienlong_bot --identity <identity.key> [--game 7000] [--auth 7001] [--count 4] "
-                             "[--seconds 6] [--prefix bot] [--straight 1]");
+                             "[--seconds 6] [--prefix bot] [--straight 1] [--hunt <x_m>,<z_m>]");
         return 2;
     }
     const net::NetResult<net::Network> network = net::Network::start();
@@ -329,6 +427,7 @@ int main(int argc, char** argv) {
     Tally tally;
     {
         std::vector<std::jthread> bots;
+        bots.reserve(static_cast<std::size_t>(options->count));
         for (int index = 0; index < options->count; ++index) {
             bots.emplace_back([&, index] { run_bot(*options, server, index, tally); });
         }
@@ -339,6 +438,11 @@ int main(int argc, char** argv) {
         tally.npcs.load(), tally.monsters.load(), tally.corrections.load(), tally.drifted.load(), tally.failed.load());
     if (tally.failed.load() != 0) return 1;
     if (tally.entered.load() != options->count) return 1;
+    if (options->hunt) {
+        std::println("quái đi: Walk={} Idle={}, gần nhất {} cm", tally.monster_walking.load(), tally.monster_resting.load(),
+            tally.closest_cm.load());
+        return tally.monsters.load() > 0 && tally.monster_walking.load() > 0 ? 0 : 1;
+    }
     if (options->straight) return tally.corrections.load() > 0 && tally.drifted.load() == 0 ? 0 : 1;
     // Mỗi khách phải thấy mọi khách khác hiện ra ít nhất một lần.
     if (tally.appear.load() < options->count * want_seen) return 1;
