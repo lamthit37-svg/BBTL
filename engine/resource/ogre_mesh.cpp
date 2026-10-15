@@ -1,5 +1,19 @@
-// Bộ đọc theo TOOLS/glb/ogre_mesh.py: độ dài chunk M_MESH của client sai, nên chỉ dùng độ dài
-// để nhảy qua edge list, pose, animation và extremes. Gán xương là bản ghi 16 byte xếp khít.
+/*==============================================================================
+ *  ENGINEHP  |  HIGH-PERFORMANCE GAME ENGINE
+ *------------------------------------------------------------------------------
+ *  TỆP       : engine/resource/ogre_mesh.cpp
+ *  PHÂN HỆ   : Resource / Ogre Mesh
+ *  CHUẨN     : C++23
+ *------------------------------------------------------------------------------
+ *  CHỨC NĂNG
+ *  - Bộ đọc theo TOOLS/glb/ogre_mesh.py: độ dài chunk M_MESH của client sai,
+ *    nên chỉ dùng độ dài để nhảy qua edge list, pose, animation và extremes.
+ *    Gán xương là bản ghi 16 byte xếp khít.
+ *------------------------------------------------------------------------------
+ *  TÁC GIẢ   : HiepHoon
+ *  TELEGRAM  : @Hoon9xx
+ *============================================================================*/
+
 #include "resource/ogre_mesh.hpp"
 
 #include "core/text.hpp"
@@ -899,6 +913,8 @@ void ensure_static_root(Model& model) {
 
 [[nodiscard]] bool cache_fresh(std::string_view source, std::string_view cache) {
     if (!fs::is_file(cache)) return false;
+    // Gói điện thoại (APK, iOS) chỉ mang cache đã nấu, không mang .mesh nguồn: nguồn vắng thì cache là bản duy nhất.
+    if (!fs::is_file(source)) return true;
     const auto source_time = fs::last_write(source);
     const auto cache_time = fs::last_write(cache);
     if (!source_time || !cache_time) return false;

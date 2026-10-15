@@ -1,15 +1,30 @@
-# Đóng APK native (NativeActivity, không Gradle) từ libthienlong.so.
-# --data là thư mục dev/client/assets: đóng Config, cảnh Config/startup.id, hai cảnh của thủ tục
-# đăng nhập (erengu_DL, tl3chuangjian — tên đọc từ header C++), giao diện Interface/ui.files.tsv
-# và Web/coming_soon.html khi tệp đó có.
-# Cả cây data vượt 4 GB, zipalign không mở được ZIP64.
-# --shaders đóng gói .f2s vào assets/shaders. --stage chép cùng tập cảnh ra một thư mục (bundle iOS).
-# Thiết bị giải nén hai thư mục này ra bộ nhớ nội bộ ở lần chạy đầu.
-# --depfile ghi mọi tệp và thư mục đã đọc theo cú pháp depfile của Ninja: thiếu nó thì hệ dựng không
-# biết dữ liệu đổi và giữ APK cũ (đã gặp: thêm tệp vào danh sách cảnh mà APK không đóng lại).
+#===============================================================================
+#  THIENLONG  |  ANDROID SHELL
+#-------------------------------------------------------------------------------
+#  TỆP       : android/package_apk.py
+#  PHÂN HỆ   : Package Apk
+#  CHUẨN     : Python 3.13
+#-------------------------------------------------------------------------------
+#  CHỨC NĂNG
+#  - Đóng APK native (NativeActivity, không Gradle) từ libthienlong.so và dựng
+#    thư mục bundle iOS (--stage) từ cùng một danh sách tệp.
+#  - Danh sách tệp là bao đóng Table/mobile.files.tsv (trace_assets.py): texture
+#    đã nấu (bake_mobile_textures.py) thay DDS gốc; thiếu tệp là lỗi.
+#  - --gate-host thay địa chỉ máy chủ trong Table/gates.tsv cho thiết bị.
+#-------------------------------------------------------------------------------
+#  TÁC GIẢ   : HiepHoon
+#  TELEGRAM  : @Hoon9xx
+#===============================================================================
+
+# Cả cây data vượt 4 GB, zipalign không mở được ZIP64. --shaders đóng gói .f2s vào assets/shaders. --stage chép cùng
+# tập cảnh ra một thư mục (bundle iOS). Thiết bị giải nén hai thư mục này ra bộ nhớ nội bộ ở lần chạy đầu. --depfile
+# ghi mọi tệp và thư mục đã đọc theo cú pháp depfile của Ninja: thiếu nó thì hệ dựng không biết dữ liệu đổi và giữ APK
+# cũ (đã gặp: thêm tệp vào danh sách cảnh mà APK không đóng lại).
+
 from __future__ import annotations
 
 import argparse
+import ipaddress
 import os
 import shutil
 import subprocess
@@ -19,41 +34,6 @@ from pathlib import Path
 
 # Mọi tệp và thư mục lần chạy này đã đọc, cho --depfile.
 read_inputs: list[Path] = []
-
-
-def read_resid(data: Path) -> str:
-    path = data / "Config" / "startup.id"
-    if not path.is_file():
-        raise SystemExit(f"đóng gói: không có {path}")
-    text = path.read_text(encoding="utf-8").strip()
-    if not text.isdigit():
-        raise SystemExit(f"đóng gói: Config/startup.id không phải resid ({text})")
-    return text
-
-
-def scene_file_of(data: Path, resid: str) -> str:
-    table = data / "Config" / "SceneDefineEx.txt"
-    if not table.is_file():
-        raise SystemExit(f"đóng gói: không có {table}")
-    for raw in table.read_bytes().splitlines():
-        if not raw or raw.startswith(b"#"):
-            continue
-        cells = raw.split(b"\t")
-        if len(cells) < 5:
-            continue
-        if cells[0] in (b"INT", b"STRING"):
-            continue
-        try:
-            label = cells[0].decode("ascii")
-        except UnicodeDecodeError:
-            continue
-        if label != resid:
-            continue
-        try:
-            return cells[4].decode("ascii")
-        except UnicodeDecodeError as error:
-            raise SystemExit("đóng gói: tên file cảnh không phải ASCII") from error
-    raise SystemExit(f"đóng gói: bảng cảnh không có resid {resid}")
 
 
 AVATAR_TABLES = ("player_bodies", "faces", "hairs", "outfits", "anim_sets")
@@ -105,48 +85,6 @@ def audio_paths(data: Path, has_cooked_sound: bool) -> list[str]:
     return found
 
 
-def quoted_constant(path: Path, symbol: str) -> str:
-    # inline constexpr std::string_view <symbol> = "..."; trong header C++. Đọc ở đây để APK
-    # không lệch tên cảnh mà client nạp.
-    read_inputs.append(path)
-    marker = f"constexpr std::string_view {symbol} = \""
-    name = ""
-    for raw in path.read_text(encoding="utf-8").splitlines():
-        line = raw.strip()
-        if line == "" or line.startswith("//"):
-            continue
-        at = line.find(marker)
-        if at < 0:
-            continue
-        start = at + len(marker)
-        end = line.find("\"", start)
-        if end < 0:
-            raise SystemExit(f"đóng gói: {symbol} không có chuỗi đóng")
-        name = line[start:end]
-        break
-    if name == "" and marker not in path.read_text(encoding="utf-8"):
-        raise SystemExit(f"đóng gói: không thấy {symbol} trong {path}")
-    if name == "" or "/" in name or "\\" in name or ":" in name or name in (".", ".."):
-        raise SystemExit(f"đóng gói: {symbol} không phải tên cảnh ({name})")
-    return name
-
-
-def login_scene_stems() -> list[str]:
-    # Tệp này nằm ở android/, một cấp dưới gốc repo.
-    root = Path(__file__).resolve().parents[1]
-    control = root / "src" / "client" / "figure" / "control"
-    login = quoted_constant(control / "login_view.hpp", "kLoginScene")
-    role = quoted_constant(control / "char_camera.hpp", "kRoleScene")
-    return [login, role]
-
-
-def scene_listing(data: Path, stem: str) -> list[str]:
-    listing = data / "Scene" / f"{stem}.files.tsv"
-    if not listing.is_file():
-        raise SystemExit(f"đóng gói: thiếu {listing}. Chạy collect_map cho cảnh {stem} trước.")
-    return listed_paths(listing)
-
-
 def extend_unique(paths: list[str], seen: set[str], more: list[str]) -> None:
     for relative in more:
         if relative in seen:
@@ -155,68 +93,55 @@ def extend_unique(paths: list[str], seen: set[str], more: list[str]) -> None:
         paths.append(relative)
 
 
-def web_paths(data: Path) -> list[str]:
-    relative = "Web/coming_soon.html"
-    path = data / relative
-    if not path.is_file():
-        return []
-    read_inputs.append(path)
-    return [relative]
-
-
-def ui_paths(data: Path) -> list[str]:
-    # Giao diện HUD (collect_ui.py). Không có danh sách thì APK không có bảng, client vẫn chạy.
-    listing = data / "Interface" / "ui.files.tsv"
+def closure_paths(data: Path) -> list[str]:
+    # Bao đóng của gói: những tệp dữ liệu client PC thật sự mở khi chạy đăng nhập và màn chơi, cộng cả thư mục Table, Config,
+    # Script, effect, Web (TOOLS/run/trace_assets.py). Không có danh sách thì không biết đóng gì: dừng, không đóng một APK
+    # thiếu tệp.
+    listing = data / "Table" / "mobile.files.tsv"
     if not listing.is_file():
-        return []
-    paths = listed_paths(listing)
-    font = "Interface/Schema/VTNAM14.bin"
-    if font not in paths and (data / font).is_file():
-        paths.append(font)
-    return paths
-
-
-def script_paths(data: Path) -> list[str]:
-    # Script giao diện gốc và sổ cửa sổ (TOOLS/content/stage_scripts.py, target thienlong_scripts). Không có danh sách
-    # thì APK không có script, giao diện Lua không nạp được cửa sổ nào.
-    listing = data / "Script" / "script.files.tsv"
-    if not listing.is_file():
-        return []
+        raise SystemExit(f"đóng gói: thiếu {listing}. Chạy python -B TOOLS/run/trace_assets.py trước.")
     return listed_paths(listing)
 
 
-def config_paths(data: Path) -> list[str]:
-    # Bảng của client 2026 mà client đọc lúc chạy ngoài bảng cảnh: trần kinh nghiệm theo cấp (HUD).
-    # Do TOOLS/content/collect_sound.py chép vào. Thiếu thì client giữ trần cấp 1 và in lỗi.
-    found = []
-    for relative in ("Config/PlayerExpLevel.txt",):
-        path = data / relative
-        if path.is_file():
-            read_inputs.append(path)
-            found.append(relative)
+def baked_files(baked: Path | None, tiers: tuple[str, ...]) -> list[tuple[str, Path]]:
+    # Texture đã nấu (TOOLS/content/bake_mobile_textures.py): mobile/<tier>/<đường dẫn> dưới thư mục nấu. Trả cặp (đường
+    # dẫn trong gói, tệp nguồn).
+    if baked is None:
+        return []
+    found: list[tuple[str, Path]] = []
+    for tier in tiers:
+        root = baked / "mobile" / tier
+        if not root.is_dir():
+            raise SystemExit(f"đóng gói: thiếu {root}. Chạy python -B TOOLS/content/bake_mobile_textures.py trước.")
+        read_inputs.append(root)
+        for path in sorted(root.rglob("*")):
+            if path.is_file():
+                found.append((path.relative_to(baked).as_posix(), path))
+            else:
+                read_inputs.append(path)
     return found
 
 
-def scene_paths(data: Path, has_cooked_sound: bool) -> list[str]:
-    # Cả thư mục data là mọi map (hàng GB). APK và bundle mang cảnh startup.id cộng hai cảnh
-    # thủ tục đăng nhập. Danh sách mỗi cảnh là Scene/<tên>.files.tsv do collect_map ghi.
-    resid = read_resid(data)
-    scene_file = scene_file_of(data, resid)
-    stems = [Path(scene_file).stem]
-    for stem in login_scene_stems():
-        if stem not in stems:
-            stems.append(stem)
-    paths = ["Config/startup.id", "Config/SceneDefineEx.txt"]
-    seen = set(paths)
-    for stem in stems:
-        extend_unique(paths, seen, scene_listing(data, stem))
+def baked_sources(baked: list[tuple[str, Path]]) -> set[str]:
+    # DDS gốc của texture đã nấu thì không cần mang: tier có tệp riêng và engine/resource/tier.cpp chỉ rơi về tệp gốc khi
+    # thiếu bản nấu. tier_relative thêm tiền tố mobile/<tier>/ vào đường dẫn gốc.
+    return {name.split("/", 2)[2] for name, _ in baked}
+
+
+def scene_files(data: Path, has_cooked_sound: bool, baked: Path | None = None,
+                tiers: tuple[str, ...] = ("astc", "etc2")) -> list[tuple[str, Path]]:
+    # Cả thư mục data là mọi map (hàng GB). APK và bundle mang đúng bao đóng của client (closure_paths), người chơi mặc
+    # định (avatar.files.tsv) và âm thanh; texture đã nấu thay DDS gốc. Trả cặp (đường dẫn trong gói, tệp nguồn).
+    paths: list[str] = []
+    seen: set[str] = set()
+    extend_unique(paths, seen, closure_paths(data))
     extend_unique(paths, seen, avatar_paths(data))
     extend_unique(paths, seen, audio_paths(data, has_cooked_sound))
-    extend_unique(paths, seen, ui_paths(data))
-    extend_unique(paths, seen, script_paths(data))
-    extend_unique(paths, seen, web_paths(data))
-    extend_unique(paths, seen, config_paths(data))
-    return paths
+    cooked = baked_files(baked, tiers)
+    replaced = baked_sources(cooked)
+    files = [(relative, data / relative) for relative in paths if relative not in replaced]
+    files.extend(cooked)
+    return files
 
 
 def add_asset(archive: zipfile.ZipFile, source: Path, folder: str, group: str,
@@ -247,29 +172,27 @@ def add_cooked_sound(archive: zipfile.ZipFile, cooked: Path, manifest: list[str]
     return count
 
 
-def add_listed(archive: zipfile.ZipFile, data: Path, manifest: list[str],
-               has_cooked_sound: bool) -> int:
-    count = 0
-    for relative in scene_paths(data, has_cooked_sound):
-        source = data / relative
-        if not source.is_file():
-            raise SystemExit(f"đóng gói: thiếu tệp cảnh {source}")
+def require_files(files: list[tuple[str, Path]]) -> None:
+    missing = [str(source) for _, source in files if not source.is_file()]
+    if missing:
+        shown = "\n  ".join(missing[:20])
+        raise SystemExit(f"đóng gói: thiếu {len(missing)} tệp trong danh sách:\n  {shown}")
+
+
+def add_listed(archive: zipfile.ZipFile, files: list[tuple[str, Path]], manifest: list[str]) -> int:
+    require_files(files)
+    for relative, source in files:
         manifest.append(add_asset(archive, source, "data", "D", relative))
-        count += 1
-    return count
+    return len(files)
 
 
-def stage_scene(data: Path, dest: Path) -> None:
-    count = 0
-    for relative in scene_paths(data, False):
-        source = data / relative
-        if not source.is_file():
-            raise SystemExit(f"đóng gói: thiếu tệp cảnh {source}")
+def stage_scene(files: list[tuple[str, Path]], dest: Path) -> None:
+    require_files(files)
+    for relative, source in files:
         target = dest / relative
         target.parent.mkdir(parents=True, exist_ok=True)
         shutil.copyfile(source, target)
-        count += 1
-    print(f"đóng gói: đã dựng {count} tệp cảnh vào {dest}")
+    print(f"đóng gói: đã dựng {len(files)} tệp cảnh vào {dest}")
 
 
 def add_tree(archive: zipfile.ZipFile, source: Path, in_assets: str, prefix: str,
@@ -351,6 +274,48 @@ def debug_keystore(folder: Path) -> Path:
     return store
 
 
+GATE_FILE = "Table/gates.tsv"
+
+
+def rewritten_gates(source: Path, address: ipaddress.IPv4Address, work: Path) -> Path:
+    lines = source.read_text(encoding="utf-8").splitlines()
+    rows = [line for line in lines if line and not line.startswith("#")]
+    if not rows:
+        raise SystemExit(f"đóng gói: {source} trống")
+    columns = rows[0].split("\t")
+    if "host" not in columns:
+        raise SystemExit(f"đóng gói: {source} không có cột host")
+    column = columns.index("host")
+    rewritten: list[str] = []
+    seen_header = False
+    for line in lines:
+        cells = line.split("\t")
+        is_data = bool(line) and not line.startswith("#")
+        if is_data and seen_header and len(cells) > column:
+            cells[column] = str(address)
+        seen_header = seen_header or is_data
+        rewritten.append("\t".join(cells))
+    work.mkdir(parents=True, exist_ok=True)
+    target = work / "gates.tsv"
+    target.write_text("\n".join(rewritten) + "\n", encoding="utf-8", newline="\n")
+    return target
+
+
+def with_gate_host(files: list[tuple[str, Path]], host: str, work: Path) -> list[tuple[str, Path]]:
+    # Thiết bị không thấy 127.0.0.1 của máy chủ thử: --gate-host thay cột host của bảng cổng (client/session/gates.hpp)
+    # bằng địa chỉ mà thiết bị tới được (LAN của máy dựng, hoặc cổng NAT của giả lập). Không nêu thì giữ nguyên bảng.
+    if not host:
+        return files
+    try:
+        address = ipaddress.IPv4Address(host)
+    except ValueError as error:
+        raise SystemExit(f"đóng gói: --gate-host không phải IPv4: {host}") from error
+    return [
+        (relative, rewritten_gates(source, address, work) if relative == GATE_FILE else source)
+        for relative, source in files
+    ]
+
+
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--library", default="")
@@ -363,12 +328,19 @@ def main() -> None:
                         help="cây sound đã cook bằng thienlong_audio, đóng thay cho data/sound")
     parser.add_argument("--stage", default="",
                         help="chép cảnh startup.id và hai cảnh đăng nhập ra thư mục này")
+    parser.add_argument("--baked", default="",
+                        help="thư mục texture đã nấu (bake_mobile_textures.py), thay DDS gốc bằng ASTC và ETC2")
+    parser.add_argument("--gate-host", default="",
+                        help="địa chỉ IPv4 máy chủ mà thiết bị thấy, thay cột host của Table/gates.tsv")
     parser.add_argument("--depfile", default="", help="ghi depfile của --out cho Ninja")
     args = parser.parse_args()
+    baked = Path(args.baked) if args.baked else None
     if args.stage:
         if not args.data:
             raise SystemExit("đóng gói: --stage cần --data")
-        stage_scene(Path(args.data), Path(args.stage))
+        # iOS: mọi máy có ASTC, không mang ETC2.
+        staged = scene_files(Path(args.data), False, baked, ("astc",))
+        stage_scene(with_gate_host(staged, args.gate_host, Path(args.stage).parent / "gates-work"), Path(args.stage))
         return
     if not args.library or not args.abi or not args.out or not args.manifest:
         raise SystemExit("đóng gói: thiếu --library, --abi, --out hoặc --manifest")
@@ -406,7 +378,9 @@ def main() -> None:
             compress_type=zipfile.ZIP_STORED,
         )
         if args.data:
-            files += add_listed(archive, Path(args.data), manifest, bool(args.sound))
+            listed = scene_files(Path(args.data), bool(args.sound), baked)
+            listed = with_gate_host(listed, args.gate_host, work / "gates")
+            files += add_listed(archive, listed, manifest)
         if args.sound:
             files += add_cooked_sound(archive, Path(args.sound), manifest)
         if args.shaders:

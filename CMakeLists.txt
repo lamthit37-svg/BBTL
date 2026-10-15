@@ -1154,6 +1154,23 @@ if(ANDROID)
     if(EXISTS "${GAME_ANDROID_SOUND}/sound_table.xml")
         list(APPEND game_apk_assets --sound "${GAME_ANDROID_SOUND}")
     endif()
+    # Texture đã nấu ASTC 4x4 và ETC2 (TLTX) thay DDS của vật liệu: GPU điện thoại không đọc BC. Nấu tăng dần theo
+    # Table/mobile.files.tsv (TOOLS/run/trace_assets.py); tệp không đổi thì bỏ qua.
+    set(GAME_MOBILE_TEXTURES "${PROJECT_SOURCE_DIR}/build/mobile-textures" CACHE PATH
+        "Thư mục texture điện thoại đã nấu (bake_mobile_textures.py), đóng thay DDS gốc.")
+    add_custom_target(thienlong_mobile_textures
+        COMMAND ${CMAKE_COMMAND} -E env PYTHONUTF8=1 python -B TOOLS/content/bake_mobile_textures.py
+            --data dev/client/assets --out "${GAME_MOBILE_TEXTURES}"
+        WORKING_DIRECTORY "${PROJECT_SOURCE_DIR}"
+        COMMENT "Nấu texture ASTC và ETC2 cho điện thoại"
+        VERBATIM)
+    list(APPEND game_apk_assets --baked "${GAME_MOBILE_TEXTURES}")
+    # Thiết bị không thấy 127.0.0.1 của máy chủ thử: địa chỉ IPv4 mà thiết bị tới được (IP LAN của máy dựng với tablet,
+    # cổng NAT với giả lập) thay cột host của Table/gates.tsv trong APK.
+    set(GAME_ANDROID_GATE_HOST "" CACHE STRING "IPv4 của máy chủ mà thiết bị thấy; rỗng thì giữ host trong gates.tsv.")
+    if(GAME_ANDROID_GATE_HOST)
+        list(APPEND game_apk_assets --gate-host "${GAME_ANDROID_GATE_HOST}")
+    endif()
     add_custom_command(
         OUTPUT "${game_apk}"
         COMMAND ${CMAKE_COMMAND} -E env PYTHONUTF8=1
@@ -1166,7 +1183,7 @@ if(ANDROID)
             ${game_apk_assets}
         COMMAND ${CMAKE_COMMAND} -E make_directory "${CMAKE_INSTALL_PREFIX}/client/APK"
         COMMAND ${CMAKE_COMMAND} -E copy "${game_apk}" "${CMAKE_INSTALL_PREFIX}/client/APK/thienlong.apk"
-        DEPENDS thienlong_activity
+        DEPENDS thienlong_activity thienlong_mobile_textures
             "${PROJECT_SOURCE_DIR}/android/package_apk.py"
             "${PROJECT_SOURCE_DIR}/android/AndroidManifest.xml"
             "${GAME_ANDROID_SHADERS}/model.vs.f2s"
@@ -1219,6 +1236,10 @@ if(NOT TARGET game_net)
 endif()
 list(FILTER game_headers EXCLUDE REGEX "/engine/render/target\\.hpp$")
 list(FILTER game_headers EXCLUDE REGEX "/engine/shader/library\\.hpp$")
+# detail/library.hpp nạp lại gói shader bằng winbase.h; ngoài Windows không có header ấy.
+if(NOT WIN32)
+    list(FILTER game_headers EXCLUDE REGEX "/engine/shader/detail/library\\.hpp$")
+endif()
 foreach(header IN LISTS game_headers)
   file(RELATIVE_PATH relative "${PROJECT_SOURCE_DIR}" "${header}")
   string(MAKE_C_IDENTIFIER "${relative}" stem)
