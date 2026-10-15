@@ -1,4 +1,23 @@
+/*==============================================================================
+ *  THIENLONG  |  GAME SERVER
+ *------------------------------------------------------------------------------
+ *  TỆP       : src/server/zone/saver.cpp
+ *  PHÂN HỆ   : Server / Zone / Saver
+ *  CHUẨN     : C++23
+ *------------------------------------------------------------------------------
+ *  CHỨC NĂNG
+ *  - Luồng ghi điểm đứng và trạng thái chơi của người chơi vào store, tách khỏi
+ *    tick của zone.
+ *  - Nhiều lần ghi của cùng một nhân vật gộp thành lần mới nhất; trạng thái
+ *    chơi đang chờ không bị lần ghi chỉ có điểm đứng xoá.
+ *------------------------------------------------------------------------------
+ *  TÁC GIẢ   : HiepHoon
+ *  TELEGRAM  : @Hoon9xx
+ *============================================================================*/
+
 #include "zone/saver.hpp"
+
+#include "account/play.hpp"
 
 #include <cstdio>
 #include <optional>
@@ -29,7 +48,15 @@ Saver::~Saver() {
 void Saver::push(const Save& spot) {
     {
         const std::scoped_lock guard{lock_};
-        waiting_.insert_or_assign(spot.character, spot);
+        const auto older = waiting_.find(spot.character);
+        if (older == waiting_.end()) {
+            waiting_.emplace(spot.character, spot);
+        } else {
+            // Lần ghi điểm đứng không mang trạng thái chơi không được xoá trạng thái đang chờ của lần trước.
+            std::optional<account::PlayRecord> kept = std::move(older->second.play);
+            older->second = spot;
+            if (!older->second.play) older->second.play = std::move(kept);
+        }
     }
     wake_.notify_one();
 }
@@ -70,7 +97,12 @@ void Saver::run(const std::stop_token& stop) {
         }
         ++failures_;
         // Một lần ghi mới hơn đã tới trong lúc gửi thì giữ bản mới; không thì đặt lại bản này.
-        waiting_.try_emplace(job.character, job);
+        const auto newer = waiting_.find(job.character);
+        if (newer == waiting_.end()) {
+            waiting_.emplace(job.character, job);
+        } else if (!newer->second.play) {
+            newer->second.play = std::move(job.play);
+        }
         if (stop.stop_requested()) {
             if (!give_up) give_up = Clock::now() + waits_.flush;
             if (Clock::now() >= *give_up) {

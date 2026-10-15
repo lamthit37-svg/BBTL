@@ -1,3 +1,20 @@
+/*==============================================================================
+ *  THIENLONG  |  GAME SERVER
+ *------------------------------------------------------------------------------
+ *  TỆP       : src/server/account/book.cpp
+ *  PHÂN HỆ   : Server / Account / Book
+ *  CHUẨN     : C++23
+ *------------------------------------------------------------------------------
+ *  CHỨC NĂNG
+ *  - Cài đặt MemoryBook: sổ tài khoản và nhân vật trong bộ nhớ, cùng thứ tự
+ *    quyết định với bản PostgreSQL.
+ *  - Bản chạy thật không dùng lớp này; test dùng nó để khoá luật mà không cần
+ *    database.
+ *------------------------------------------------------------------------------
+ *  TÁC GIẢ   : HiepHoon
+ *  TELEGRAM  : @Hoon9xx
+ *============================================================================*/
+
 #include "account/book.hpp"
 
 #include "account/starter.hpp"
@@ -215,6 +232,9 @@ EnterResult MemoryBook::enter(std::uint64_t account, std::uint64_t character) {
             result.x_cm = static_cast<std::int32_t>(starter::kPositionX * 100.0);
             result.z_cm = static_cast<std::int32_t>(starter::kPositionZ * 100.0);
             result.summary = row.summary;
+            result.play.level = row.summary.level;
+            result.play.hp = starter::kHp;
+            result.play.mp = starter::kMp;
             return result;
         }
     }

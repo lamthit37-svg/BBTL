@@ -1,13 +1,27 @@
-#pragma once
-// Luồng ghi điểm đứng của người chơi vào store. Tick của zone không được chờ một lời gọi mạng, nên mọi
-// lần ghi đi qua đây: tick đẩy vào bảng chờ, một luồng riêng gửi từng cái.
-//
+/*==============================================================================
+ *  THIENLONG  |  GAME SERVER
+ *------------------------------------------------------------------------------
+ *  TỆP       : src/server/zone/saver.hpp
+ *  PHÂN HỆ   : Server / Zone / Saver
+ *  CHUẨN     : C++23
+ *------------------------------------------------------------------------------
+ *  CHỨC NĂNG
+ *  - Luồng ghi điểm đứng của người chơi vào store. Tick của zone không được chờ
+ *    một lời gọi mạng, nên mọi lần ghi đi qua đây: tick đẩy vào bảng chờ, một
+ *    luồng riêng gửi từng cái.
+ *------------------------------------------------------------------------------
+ *  TÁC GIẢ   : HiepHoon
+ *  TELEGRAM  : @Hoon9xx
+ *============================================================================*/
+
 // Bảng chờ khoá theo nhân vật: nhiều lần ghi của cùng một nhân vật gộp thành lần mới nhất, nên bộ nhớ bị chặn
 // bởi số nhân vật chứ không bởi thời gian store ngừng. Gửi hỏng (store chưa lên, mạng đứt) thì giữ lại và
 // thử sau; lần ghi mới hơn của cùng nhân vật thay lần cũ đang chờ.
 //
 // Huỷ đối tượng là dừng êm: luồng cố gửi nốt phần còn lại tới hạn kFlushWait rồi bỏ phần chưa gửi được (nói ra
 // stderr) — dừng zone không được kẹt vì store chết.
+
+#pragma once
 
 #include "zone/outbox.hpp"
 

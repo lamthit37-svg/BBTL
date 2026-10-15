@@ -1,9 +1,22 @@
-#pragma once
-// Khung trên kênh ipc giữa gate và zone. Gate là cửa duy nhất tới client: nó giữ phiên mã hoá, tốc độ và
-// quyền làm chủ vị trí (guard::Pace); zone giữ thế giới. `session` của khung ipc là khoá của ô gate
-// (chỉ số và thế hệ), nên zone gửi trả đúng người chơi mà không biết gì về socket.
-//
-// Gate → zone: kAttach (người chơi vào cảnh), kDetach (rời hay rớt), kMoved (vị trí gate đã chấp nhận).
+/*==============================================================================
+ *  THIENLONG  |  GAME SERVER
+ *------------------------------------------------------------------------------
+ *  TỆP       : src/server/ipc/relay.hpp
+ *  PHÂN HỆ   : Server / Ipc / Relay
+ *  CHUẨN     : C++23
+ *------------------------------------------------------------------------------
+ *  CHỨC NĂNG
+ *  - Khung trên kênh ipc giữa gate và zone. Gate là cửa duy nhất tới client: nó
+ *    giữ phiên mã hoá, tốc độ và quyền làm chủ vị trí (guard::Pace); zone giữ
+ *    thế giới. `session` của khung ipc là khoá của ô gate (chỉ số và thế hệ),
+ *    nên zone gửi trả đúng người chơi mà không biết gì về socket.
+ *------------------------------------------------------------------------------
+ *  TÁC GIẢ   : HiepHoon
+ *  TELEGRAM  : @Hoon9xx
+ *============================================================================*/
+
+// Gate → zone: kAttach (người chơi vào cảnh), kDetach (rời hay rớt), kMoved (vị trí gate đã chấp nhận), kUp (tin hội thoại
+// và chiến đấu của client: thân là đúng một khung protocol, zone giải mã lại bằng protocol::decode_game_client).
 // Zone → gate: kDown (đúng một khung protocol đã mã hoá, gate niêm phong và gửi cho client), kRefuse (zone
 // không nhận người chơi này), kClose (zone đóng phiên, ví dụ nhân vật đã đứng trong cảnh), kPlace (zone đặt lại
 // vị trí người chơi: gate đặt mốc mới cho guard::Pace và gửi Position; dùng khi bước đi vào chỗ không đi được,
@@ -11,6 +24,8 @@
 //
 // Thân mọi khung dùng cùng bộ đọc/ghi của protocol (little-endian, text có trần). Bộ giải mã không tin
 // byte nào: thân thiếu, thừa hay sai miền đều là nullopt.
+
+#pragma once
 
 #include "ipc/link.hpp"
 #include "protocol/messages.hpp"
@@ -24,10 +39,15 @@
 
 namespace game::ipc {
 
+// Trần khối trạng thái chơi trong Attach (khớp account::kMaxPackedPlay, ipc không phụ thuộc account).
+inline constexpr std::size_t kPlayMax = std::size_t{60} * 1024;
+
 enum class Relay : std::uint16_t {
     kAttach = 0x0001,
     kDetach = 0x0002,
     kMoved = 0x0003,
+    // Một khung protocol đầy đủ của client (đầu 8 byte + thân) mà gate đã giải mã, kiểm phiên bản và tốc độ rồi chuyển cho zone.
+    kUp = 0x0004,
     kDown = 0x0101,
     kRefuse = 0x0102,
     kClose = 0x0103,
@@ -52,6 +72,8 @@ struct Attach {
     std::uint8_t school = 0;
     // Phiên bản giao thức client khai: zone chỉ biết để bỏ tin client không hiểu; 0 là chưa rõ.
     std::uint16_t client_version = 0;
+    // Trạng thái chơi store giữ, dạng đã đóng gói của account::pack (rỗng là gate không có: zone dựng mới từ `level`).
+    std::vector<std::byte> play;
 
     friend bool operator==(const Attach&, const Attach&) = default;
 };

@@ -821,6 +821,7 @@ void wipe_answer(Answer& answer) noexcept {
 void post_ask(Engine& state, Slot& slot, std::uint32_t index, Ask& ask, std::uint16_t request) {
     ask.handle = Handle{.index = index, .generation = slot.generation};
     if (state.asks.try_push(ask)) {
+        wipe_ask(ask);
         slot.asking = true;
         return;
     }
@@ -1158,6 +1159,7 @@ void finish_enter(Engine& state, Slot& slot, std::uint32_t index, std::uint16_t 
     arrival.hair = entered.summary.hair;
     arrival.school = entered.summary.school;
     arrival.client_version = slot.client_version;
+    arrival.play = entered.play;
     const bool attached = state.zone.link->send(ipc::value_of(ipc::Relay::kAttach),
         zone_session(index, slot.generation), ipc::encode_body(arrival));
     if (!attached) {

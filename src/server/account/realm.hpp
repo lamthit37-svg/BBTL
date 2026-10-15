@@ -1,7 +1,20 @@
+/*==============================================================================
+ *  THIENLONG  |  GAME SERVER
+ *------------------------------------------------------------------------------
+ *  TỆP       : src/server/account/realm.hpp
+ *  PHÂN HỆ   : Server / Account / Realm
+ *  CHUẨN     : C++23
+ *------------------------------------------------------------------------------
+ *  CHỨC NĂNG
+ *  - Phía gate nói với auth (vé) và store (nhân vật). Không mở database. Vé
+ *    trên dây của protocol là 204 byte: 64 byte đầu là hex thường của 32 byte
+ *    ngẫu nhiên, phần còn lại là 0. Login.ticket mang đúng 64 chữ hex đó, không
+ *    mang cả 204 byte vì trường ticket là text.
+ *------------------------------------------------------------------------------
+ *  TÁC GIẢ   : HiepHoon
+ *  TELEGRAM  : @Hoon9xx
+ *============================================================================*/
 #pragma once
-// Phía gate nói với auth (vé) và store (nhân vật). Không mở database.
-// Vé trên dây của protocol là 204 byte: 64 byte đầu là hex thường của 32 byte ngẫu nhiên, phần còn
-// lại là 0. Login.ticket mang đúng 64 chữ hex đó, không mang cả 204 byte vì trường ticket là text.
 
 #include "account/cap.hpp"
 #include "account/ipc_key.hpp"
@@ -41,6 +54,8 @@ struct EnterReply {
     float z_cm = 0.0F;
     // Hồ sơ hiển thị của nhân vật; zone dựng EntityAppear từ đây.
     protocol::CharacterSummary summary{};
+    // Trạng thái chơi store giữ, đã đóng gói (account::pack); gate chuyển nguyên cho zone, không giải mã.
+    std::vector<std::byte> play;
 };
 
 class Realm {

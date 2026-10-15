@@ -1,6 +1,23 @@
+/*==============================================================================
+ *  THIENLONG  |  GAME SERVER
+ *------------------------------------------------------------------------------
+ *  TỆP       : src/server/account/sql.cpp
+ *  PHÂN HỆ   : Server / Account / Sql
+ *  CHUẨN     : C++23
+ *------------------------------------------------------------------------------
+ *  CHỨC NĂNG
+ *  - Bản PostgreSQL của sổ tài khoản (AuthDb) và sổ nhân vật (GameDb).
+ *  - Khối nhị phân của trạng thái chơi đi vào và ra database bằng chữ hex vì
+ *    thư viện chỉ có tham số chữ.
+ *------------------------------------------------------------------------------
+ *  TÁC GIẢ   : HiepHoon
+ *  TELEGRAM  : @Hoon9xx
+ *============================================================================*/
+
 #include "account/sql.hpp"
 
 #include "account/book.hpp"
+#include "account/play.hpp"
 #include "account/rules.hpp"
 #include "account/starter.hpp"
 #include "protocol/messages.hpp"
@@ -13,6 +30,7 @@
 #include <cstddef>
 #include <cstdint>
 #include <format>
+#include <limits>
 #include <memory>
 #include <optional>
 #include <span>
@@ -102,6 +120,37 @@ struct Tx {
     const auto parsed = std::from_chars(std::to_address(text.begin()), last, value);
     if (parsed.ec != std::errc{} || parsed.ptr != last) return std::nullopt;
     return value;
+}
+
+// Khối nhị phân đi vào/ra PostgreSQL bằng chữ hex (`\\x...` khi ghi, encode(.., 'hex') khi đọc): thư viện chỉ có tham số chữ.
+[[nodiscard]] std::string hex_literal(const std::vector<std::byte>& blob) {
+    constexpr std::string_view kDigits = "0123456789abcdef";
+    std::string text = "\\x";
+    text.reserve(2 + (blob.size() * 2));
+    for (const std::byte value : blob) {
+        const auto byte = std::to_integer<unsigned>(value);
+        text.push_back(kDigits[byte >> 4U]);
+        text.push_back(kDigits[byte & 0xFU]);
+    }
+    return text;
+}
+
+[[nodiscard]] std::optional<std::vector<std::byte>> from_hex(std::string_view text) {
+    if (text.size() % 2 != 0) return std::nullopt;
+    const auto digit = [](char c) -> int {
+        if (c >= '0' && c <= '9') return c - '0';
+        if (c >= 'a' && c <= 'f') return c - 'a' + 10;
+        return -1;
+    };
+    std::vector<std::byte> blob;
+    blob.reserve(text.size() / 2);
+    for (std::size_t at = 0; at < text.size(); at += 2) {
+        const int high = digit(text[at]);
+        const int low = digit(text[at + 1]);
+        if (high < 0 || low < 0) return std::nullopt;
+        blob.push_back(static_cast<std::byte>((high << 4) | low));
+    }
+    return blob;
 }
 
 [[nodiscard]] bool as_flag(std::string_view text) noexcept {
@@ -677,6 +726,47 @@ ListResult GameDb::remove_character(std::uint64_t account, std::uint64_t charact
     return list_players(*conn_, account);
 }
 
+namespace {
+
+// Cột 10.. của câu SELECT trong GameDb::enter. Số hỏng hay khối hex hỏng: nullopt (không cho vào thay vì đoán).
+constexpr std::int64_t kInt32Max = std::numeric_limits<std::int32_t>::max();
+
+[[nodiscard]] std::optional<PlayRecord> read_play(const PgExec& found, std::size_t row, std::uint16_t level) {
+    const auto number = [&](std::size_t col) -> std::optional<std::int64_t> {
+        const std::string* text = cell(found, row, col);
+        return text == nullptr ? std::nullopt : as_i64(*text);
+    };
+    const auto blob = [&](std::size_t col) -> std::optional<std::vector<std::byte>> {
+        const std::string* text = cell(found, row, col);
+        return text == nullptr ? std::nullopt : from_hex(*text);
+    };
+    const std::optional<std::int64_t> exp = number(10);
+    const std::optional<std::int64_t> money = number(11);
+    const std::optional<std::int64_t> bound = number(12);
+    const std::optional<std::int64_t> hp = number(13);
+    const std::optional<std::int64_t> mp = number(14);
+    std::optional<std::vector<std::byte>> body = blob(15);
+    std::optional<std::vector<std::byte>> mission = blob(16);
+    std::optional<std::vector<std::byte>> bag = blob(17);
+    if (!exp || !money || !bound || !hp || !mp || !body || !mission || !bag || *exp < 0 || *money < 0 || *bound < 0 ||
+        *hp < 0 || *mp < 0 || *hp > kInt32Max || *mp > kInt32Max) {
+        return std::nullopt;
+    }
+    PlayRecord play;
+    play.level = level;
+    play.exp = static_cast<std::uint64_t>(*exp);
+    play.money = static_cast<std::uint64_t>(*money);
+    play.bound = static_cast<std::uint64_t>(*bound);
+    play.hp = static_cast<std::int32_t>(*hp);
+    play.mp = static_cast<std::int32_t>(*mp);
+    play.body = std::move(*body);
+    play.mission = std::move(*mission);
+    play.bag = std::move(*bag);
+    return play;
+}
+
+} // namespace
+
 EnterResult GameDb::enter(std::uint64_t account, std::uint64_t character) {
     Args args;
     args.i64(static_cast<std::int64_t>(character));
@@ -684,7 +774,10 @@ EnterResult GameDb::enter(std::uint64_t account, std::uint64_t character) {
     // position_x/position_z lưu mét; gate làm việc bằng centimet nguyên.
     const PgExec found =
         conn_->exec("SELECT id::text, name, level::text, gender::text, face::text, hair::text, school::text, "
-                   "scene::text, round(position_x * 100)::bigint::text, round(position_z * 100)::bigint::text "
+                   "scene::text, round(position_x * 100)::bigint::text, round(position_z * 100)::bigint::text, "
+                   "exp::text, money::text, bound_coin::text, hp::text, mp::text, "
+                   "coalesce(encode(body, 'hex'), ''), coalesce(encode(mission, 'hex'), ''), "
+                   "coalesce(encode(bag, 'hex'), '') "
                    "FROM player WHERE id = $1 AND account_id = $2 AND deleted_at IS NULL",
             args.span());
     EnterResult result;
@@ -703,11 +796,17 @@ EnterResult GameDb::enter(std::uint64_t account, std::uint64_t character) {
         result.code = protocol::ErrorCode::kBusy;
         return result;
     }
+    std::optional<PlayRecord> play = read_play(found, 0, summary->level);
+    if (!play) {
+        result.code = protocol::ErrorCode::kBusy;
+        return result;
+    }
     result.ok = true;
     result.scene = summary->scene;
     result.x_cm = static_cast<std::int32_t>(*x_value);
     result.z_cm = static_cast<std::int32_t>(*z_value);
     result.summary = *summary;
+    result.play = std::move(*play);
     return result;
 }
 
@@ -723,10 +822,29 @@ EnterResult GameDb::save_spot(const SaveSpot& spot) {
     // Cột lưu mét (số thực); trên dây là centimet nguyên.
     args.text(std::format("{:.2f}", static_cast<double>(spot.x_cm) / 100.0));
     args.text(std::format("{:.2f}", static_cast<double>(spot.z_cm) / 100.0));
-    const PgExec wrote =
-        conn_->exec("UPDATE player SET scene = $2, position_x = $3::double precision, position_z = $4::double precision "
-                   "WHERE id = $1 AND deleted_at IS NULL",
+    PgExec wrote;
+    if (!spot.play) {
+        wrote = conn_->exec("UPDATE player SET scene = $2, position_x = $3::double precision, position_z = $4::double precision "
+                           "WHERE id = $1 AND deleted_at IS NULL",
             args.span());
+    } else {
+        // Một câu UPDATE cho điểm đứng và trạng thái chơi: ghi nửa vời không xảy ra.
+        const PlayRecord& play = *spot.play;
+        args.i64(play.level);
+        args.i64(static_cast<std::int64_t>(play.exp));
+        args.i64(static_cast<std::int64_t>(play.money));
+        args.i64(static_cast<std::int64_t>(play.bound));
+        args.i64(play.hp);
+        args.i64(play.mp);
+        args.text(hex_literal(play.body));
+        args.text(hex_literal(play.mission));
+        args.text(hex_literal(play.bag));
+        wrote = conn_->exec(
+            "UPDATE player SET scene = $2, position_x = $3::double precision, position_z = $4::double precision, "
+            "level = $5, exp = $6, money = $7, bound_coin = $8, hp = $9, mp = $10, body = $11::bytea, "
+            "mission = $12::bytea, bag = $13::bytea WHERE id = $1 AND deleted_at IS NULL",
+            args.span());
+    }
     if (!wrote.ok) return result;
     if (wrote.affected != 1) {
         result.code = protocol::ErrorCode::kNoSuchCharacter;

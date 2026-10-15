@@ -1,12 +1,27 @@
+/*==============================================================================
+ *  THIENLONG  |  GAME SERVER
+ *------------------------------------------------------------------------------
+ *  TỆP       : src/server/zone/outbox.hpp
+ *  PHÂN HỆ   : Server / Zone / Outbox
+ *  CHUẨN     : C++23
+ *------------------------------------------------------------------------------
+ *  CHỨC NĂNG
+ *  - Thư gửi đi của một lượt xử lý zone: mỗi mục là một khung ipc gửi về gate.
+ *    Scene không biết socket; nó chỉ ghi vào Outbox rồi host đẩy lên kênh. Mọi
+ *    mục có `session` của ô gate nhận.
+ *------------------------------------------------------------------------------
+ *  TÁC GIẢ   : HiepHoon
+ *  TELEGRAM  : @Hoon9xx
+ *============================================================================*/
 #pragma once
-// Thư gửi đi của một lượt xử lý zone: mỗi mục là một khung ipc gửi về gate. Scene không biết socket;
-// nó chỉ ghi vào Outbox rồi host đẩy lên kênh. Mọi mục có `session` của ô gate nhận.
 
+#include "account/play.hpp"
 #include "ipc/relay.hpp"
 #include "protocol/messages.hpp"
 
 #include <cstddef>
 #include <cstdint>
+#include <optional>
 #include <utility>
 #include <vector>
 
@@ -18,6 +33,8 @@ struct Save {
     std::uint16_t scene = 0;
     std::int32_t x_cm = 0;
     std::int32_t z_cm = 0;
+    // Có thì ghi kèm trạng thái chơi (nhân vật có gì đó đổi); vắng thì chỉ ghi điểm đứng.
+    std::optional<account::PlayRecord> play;
 
     friend bool operator==(const Save&, const Save&) = default;
 };

@@ -1,3 +1,20 @@
+/*==============================================================================
+ *  THIENLONG  |  GAME SERVER
+ *------------------------------------------------------------------------------
+ *  TỆP       : src/server/ipc/relay.cpp
+ *  PHÂN HỆ   : Server / Ipc / Relay
+ *  CHUẨN     : C++23
+ *------------------------------------------------------------------------------
+ *  CHỨC NĂNG
+ *  - Mã hoá và giải mã thân các khung ipc giữa gate và zone (Attach, Moved,
+ *    Place, Refuse, Close).
+ *  - Bộ giải mã không tin byte nào: thân thiếu, thừa hay sai miền đều là
+ *    nullopt.
+ *------------------------------------------------------------------------------
+ *  TÁC GIẢ   : HiepHoon
+ *  TELEGRAM  : @Hoon9xx
+ *============================================================================*/
+
 #include "ipc/relay.hpp"
 
 #include "protocol/wire.hpp"
@@ -40,6 +57,8 @@ std::vector<std::byte> encode_body(const Attach& message) {
         out.u16(message.hair);
         out.u8(message.school);
         out.u16(message.client_version);
+        out.u32(static_cast<std::uint32_t>(message.play.size()));
+        out.bytes(message.play);
     });
 }
 
@@ -81,6 +100,12 @@ std::optional<Attach> decode_attach(std::span<const std::byte> body) {
     out.hair = in.u16();
     out.school = in.u8();
     out.client_version = in.u16();
+    const std::uint32_t play_bytes = in.u32();
+    if (play_bytes > kPlayMax) return std::nullopt;
+    if (play_bytes > 0 && in.is_ok()) {
+        out.play.resize(play_bytes);
+        in.bytes(out.play);
+    }
     if (!in.finish() || !finite(out.x_cm) || !finite(out.z_cm)) return std::nullopt;
     if (out.gender != 1 && out.gender != 2) return std::nullopt;
     return out;

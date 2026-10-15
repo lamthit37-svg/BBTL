@@ -1,11 +1,31 @@
+/*==============================================================================
+ *  THIENLONG  |  GAME SERVER
+ *------------------------------------------------------------------------------
+ *  TỆP       : src/server/account/realm.cpp
+ *  PHÂN HỆ   : Server / Account / Realm
+ *  CHUẨN     : C++23
+ *------------------------------------------------------------------------------
+ *  CHỨC NĂNG
+ *  - Phía gate nói với auth (vé) và store (nhân vật) qua rpc loopback.
+ *  - Trả lời vào game mang cả khối trạng thái chơi đã đóng gói để gate chuyển
+ *    nguyên cho zone.
+ *------------------------------------------------------------------------------
+ *  TÁC GIẢ   : HiepHoon
+ *  TELEGRAM  : @Hoon9xx
+ *============================================================================*/
+
 #include "account/realm.hpp"
 
+#include "account/play.hpp"
 #include "account/rpc.hpp"
 #include "account/rules.hpp"
 #include "secure/secure.hpp"
 
 #include <chrono>
+#include <cstddef>
+#include <expected>
 #include <utility>
+#include <vector>
 
 namespace game::account {
 namespace {
@@ -121,6 +141,13 @@ EnterReply Realm::enter(std::span<const std::byte, kCapBytes> cap, std::uint64_t
     out.x_cm = static_cast<float>(result.x_cm);
     out.z_cm = static_cast<float>(result.z_cm);
     out.summary = result.summary;
+    std::expected<std::vector<std::byte>, PlayError> packed = pack(result.play);
+    if (!packed) {
+        out.ok = false;
+        out.code = protocol::ErrorCode::kBusy;
+        return out;
+    }
+    out.play = std::move(*packed);
     return out;
 }
 

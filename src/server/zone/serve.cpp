@@ -223,9 +223,18 @@ void accept_gate(net::TcpListener& listener, World& world, secure::ByteView key)
 
 // Ghi một điểm đứng tới store. true khi store báo đã ghi.
 [[nodiscard]] bool send_to_store(const net::Endpoint& store, secure::ByteView key, const Save& spot) {
-    const account::SaveSpot wire{
-        .character = spot.character, .scene = spot.scene, .x_cm = spot.x_cm, .z_cm = spot.z_cm};
-    const std::optional<account::Reply> reply = account::exchange(store, account::save_call(wire), kStoreWait, key);
+    const account::SaveSpot wire{.character = spot.character,
+        .scene = spot.scene,
+        .x_cm = spot.x_cm,
+        .z_cm = spot.z_cm,
+        .play = spot.play};
+    const std::optional<account::Call> call = account::save_call(wire);
+    if (!call) {
+        // Trạng thái chơi ngoài miền: gửi lại cũng hỏng như vậy, nên bỏ lần ghi này thay vì kẹt hàng chờ.
+        std::println(stderr, "zone: bỏ lần ghi của nhân vật {}: trạng thái chơi không đóng gói được", spot.character);
+        return true;
+    }
+    const std::optional<account::Reply> reply = account::exchange(store, *call, kStoreWait, key);
     return reply.has_value() && account::enter_from(*reply).ok;
 }
 

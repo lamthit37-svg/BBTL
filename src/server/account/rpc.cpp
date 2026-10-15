@@ -1,3 +1,20 @@
+/*==============================================================================
+ *  THIENLONG  |  GAME SERVER
+ *------------------------------------------------------------------------------
+ *  TỆP       : src/server/account/rpc.cpp
+ *  PHÂN HỆ   : Server / Account / Rpc
+ *  CHUẨN     : C++23
+ *------------------------------------------------------------------------------
+ *  CHỨC NĂNG
+ *  - Khung rpc một yêu cầu một kết nối giữa gate/zone và auth/store: mã hoá
+ *    khung, đọc và dựng từng loại thân.
+ *  - Thân tối đa theo khung protocol vì Op::kEnter và Op::kSave mang khối trạng
+ *    thái chơi.
+ *------------------------------------------------------------------------------
+ *  TÁC GIẢ   : HiepHoon
+ *  TELEGRAM  : @Hoon9xx
+ *============================================================================*/
+
 #include "account/rpc.hpp"
 
 #include "net/reactor.hpp"
@@ -8,13 +25,17 @@
 #include <array>
 #include <atomic>
 #include <chrono>
+#include <cstddef>
+#include <expected>
 #include <thread>
 #include <utility>
+#include <vector>
 
 namespace game::account {
 namespace {
 
-constexpr std::uint32_t kPayloadMax = 8192;
+// Trả lời Op::kEnter và Op::kSave mang khối trạng thái chơi (account/play.hpp) nên trần theo khung protocol, không còn 8 KiB.
+constexpr std::uint32_t kPayloadMax = 80 * 1024;
 constexpr std::uint64_t kTag = 1;
 using Clock = std::chrono::steady_clock;
 
@@ -36,6 +57,11 @@ struct Out {
     void u64(std::uint64_t value) {
         u32(static_cast<std::uint32_t>(value));
         u32(static_cast<std::uint32_t>(value >> 32U));
+    }
+
+    void blob(std::span<const std::byte> value) {
+        u32(static_cast<std::uint32_t>(value.size()));
+        bytes.insert(bytes.end(), value.begin(), value.end());
     }
 
     void text(std::string_view value) {
@@ -86,6 +112,18 @@ struct In {
         }
         if (size == 0) return {};
         std::string value(reinterpret_cast<const char*>(rest.data()), size);
+        rest = rest.subspan(size);
+        return value;
+    }
+
+    // Khối có tiền tố độ dài u32, tối đa `max` byte; vượt trần hay thiếu byte thì ok = false và không cấp phát.
+    [[nodiscard]] std::vector<std::byte> blob(std::size_t max) {
+        const std::uint32_t size = u32();
+        if (!ok || size > max || rest.size() < size) {
+            ok = false;
+            return {};
+        }
+        std::vector<std::byte> value(rest.begin(), rest.begin() + static_cast<std::ptrdiff_t>(size));
         rest = rest.subspan(size);
         return value;
     }
@@ -284,12 +322,18 @@ Call id_call(Op op, std::span<const std::byte, kCapBytes> cap, std::uint64_t cha
     return Call{.op = op, .body = std::move(out.bytes)};
 }
 
-Call save_call(const SaveSpot& spot) {
+std::optional<Call> save_call(const SaveSpot& spot) {
     Out out;
     out.u64(spot.character);
     out.u16(spot.scene);
     out.u32(static_cast<std::uint32_t>(spot.x_cm));
     out.u32(static_cast<std::uint32_t>(spot.z_cm));
+    out.u8(spot.play ? 1 : 0);
+    if (spot.play) {
+        const std::expected<std::vector<std::byte>, PlayError> packed = pack(*spot.play);
+        if (!packed) return std::nullopt;
+        out.blob(*packed);
+    }
     return Call{.op = Op::kSave, .body = std::move(out.bytes)};
 }
 
@@ -299,6 +343,16 @@ bool read_save_call(const Call& call, SaveSpot& spot) {
     spot.scene = in.u16();
     spot.x_cm = static_cast<std::int32_t>(in.u32());
     spot.z_cm = static_cast<std::int32_t>(in.u32());
+    const std::uint8_t has_play = in.u8();
+    spot.play.reset();
+    if (has_play == 1) {
+        const std::vector<std::byte> packed = in.blob(kMaxPackedPlay);
+        std::expected<PlayRecord, PlayError> record = unpack(packed);
+        if (!in.ok || !record) return false;
+        spot.play = std::move(*record);
+    } else if (has_play != 0) {
+        return false;
+    }
     return in.ok && in.rest.empty() && spot_fits(spot.x_cm) && spot_fits(spot.z_cm);
 }
 
@@ -378,6 +432,9 @@ Reply enter_reply_of(const EnterResult& result) {
     out.u32(static_cast<std::uint32_t>(result.x_cm));
     out.u32(static_cast<std::uint32_t>(result.z_cm));
     write_summary(out, result.summary);
+    const std::expected<std::vector<std::byte>, PlayError> packed = pack(result.play);
+    if (!packed) return error_reply(protocol::ErrorCode::kBusy);
+    out.blob(*packed);
     return ok_reply(std::move(out.bytes));
 }
 
@@ -457,10 +514,13 @@ EnterResult entered_from(const Reply& reply) {
     const auto z_cm = static_cast<std::int32_t>(in.u32());
     protocol::CharacterSummary summary;
     const bool summary_ok = read_summary(in, summary);
-    if (!in.ok || !summary_ok || !in.rest.empty() || !spot_fits(x_cm) || !spot_fits(z_cm)) {
+    const std::vector<std::byte> packed = in.blob(kMaxPackedPlay);
+    std::expected<PlayRecord, PlayError> play = unpack(packed);
+    if (!in.ok || !summary_ok || !in.rest.empty() || !spot_fits(x_cm) || !spot_fits(z_cm) || !play) {
         result.code = protocol::ErrorCode::kBusy;
         return result;
     }
+    result.play = std::move(*play);
     result.ok = true;
     result.scene = scene;
     result.x_cm = x_cm;

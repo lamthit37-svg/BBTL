@@ -1,8 +1,20 @@
-#pragma once
-// Kênh nội bộ bền giữa hai tiến trình máy chủ (gate ↔ zone, gate ↔ world, zone ↔ world), chỉ trên
-// loopback. Khác account::rpc (một yêu cầu một kết nối): ở đây một kết nối sống lâu, hai chiều, mang
-// nhiều khung xen kẽ; mỗi khung gắn một `session` để bên nhận biết nó thuộc người chơi nào.
-//
+/*==============================================================================
+ *  THIENLONG  |  GAME SERVER
+ *------------------------------------------------------------------------------
+ *  TỆP       : src/server/ipc/link.hpp
+ *  PHÂN HỆ   : Server / Ipc / Link
+ *  CHUẨN     : C++23
+ *------------------------------------------------------------------------------
+ *  CHỨC NĂNG
+ *  - Kênh nội bộ bền giữa hai tiến trình máy chủ (gate ↔ zone, gate ↔ world,
+ *    zone ↔ world), chỉ trên loopback. Khác account::rpc (một yêu cầu một kết
+ *    nối): ở đây một kết nối sống lâu, hai chiều, mang nhiều khung xen kẽ; mỗi
+ *    khung gắn một `session` để bên nhận biết nó thuộc người chơi nào.
+ *------------------------------------------------------------------------------
+ *  TÁC GIẢ   : HiepHoon
+ *  TELEGRAM  : @Hoon9xx
+ *============================================================================*/
+
 // Trên dây: u32 độ dài (little-endian) rồi hộp kín. Hộp kín = secure::ipc_seal(khoá cụm, kind u16,
 // session u64, thân). Khung không mở được (sai khoá, bị sửa) hay sai cỡ làm kênh hỏng hẳn và bên gọi
 // phải đóng. Kênh không chống phát lại: nó chỉ nằm trên loopback và dựa vào TCP; khoá cụm là thứ ngăn
@@ -10,6 +22,8 @@
 //
 // Không chặn và không luồng: bên gọi chờ socket bằng PollSet/Reactor của mình rồi gọi pump(). Mọi hàng
 // có trần (UB-13): hàng gửi vượt trần thì send từ chối, bên nhận chậm không làm phình bộ nhớ.
+
+#pragma once
 
 #include "net/net.hpp"
 #include "secure/secure.hpp"
@@ -25,7 +39,8 @@ namespace game::ipc {
 
 inline constexpr std::size_t kKeyBytes = 32;
 // Thân một khung. Một thông điệp lớn hơn (danh sách dài) phải do bên gọi tách.
-inline constexpr std::size_t kBodyMax = std::size_t{16} * 1024;
+// Đủ cho khung Attach mang khối trạng thái chơi (account/play.hpp, tối đa chừng 51 KiB) và cho một khung protocol (64 KiB).
+inline constexpr std::size_t kBodyMax = std::size_t{80} * 1024;
 // Byte chờ gửi tối đa; vượt thì send trả false.
 inline constexpr std::size_t kOutboxMax = std::size_t{8} << 20U;
 // Khung đã giải mã chờ bên gọi lấy; đầy thì pump ngừng đọc socket (TCP tự kìm bên gửi).

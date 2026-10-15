@@ -475,6 +475,7 @@ if(NOT CMAKE_CROSSCOMPILING)
         if(CMAKE_TOOLCHAIN_FILE MATCHES "[Vv]cpkg")
             find_package(PostgreSQL REQUIRED)
             game_module(store src/server/store/pg.cpp)
+            src/server/account/play.cpp
             target_link_libraries(game_store PUBLIC game_core PostgreSQL::PostgreSQL)
             if(WIN32)
                 target_link_libraries(game_store PUBLIC ws2_32)

@@ -1,7 +1,21 @@
-// Luật tên, vé một lần và trần nhân vật. Bản nhớ, không cần PostgreSQL.
+/*==============================================================================
+ *  THIENLONG  |  TEST
+ *------------------------------------------------------------------------------
+ *  TỆP       : Test/Server/account_tests.cpp
+ *  PHÂN HỆ   : Server / Account Tests
+ *  CHUẨN     : C++23
+ *------------------------------------------------------------------------------
+ *  CHỨC NĂNG
+ *  - Luật tên, vé một lần và trần nhân vật. Bản nhớ, không cần PostgreSQL.
+ *------------------------------------------------------------------------------
+ *  TÁC GIẢ   : HiepHoon
+ *  TELEGRAM  : @Hoon9xx
+ *============================================================================*/
+
 #include "account/book.hpp"
 #include "account/cap.hpp"
 #include "account/ipc_key.hpp"
+#include "account/play.hpp"
 #include "account/rpc.hpp"
 #include "account/rules.hpp"
 #include "account/standing.hpp"
@@ -23,6 +37,7 @@
 #include <string_view>
 #include <system_error>
 #include <utility>
+#include <vector>
 
 namespace game::test {
 namespace {
@@ -142,7 +157,10 @@ void three_characters_then_one_slot(Context& context) {
 void save_call_round_trip(Context& context) {
     const account::SaveSpot sent{.character = 0x1122334455667788ULL, .scene = 71, .x_cm = -12345, .z_cm = 16900};
     account::SaveSpot got;
-    const account::Call call = account::save_call(sent);
+    const std::optional<account::Call> made = account::save_call(sent);
+    context.expect(made.has_value(), "đóng gói được");
+    if (!made) return;
+    const account::Call& call = *made;
     context.expect(call.op == account::Op::kSave && account::read_save_call(call, got), "thân đọc lại được");
     context.expect(got.character == sent.character && got.scene == 71 && got.x_cm == -12345 && got.z_cm == 16900,
         "giá trị nguyên vẹn");
@@ -153,9 +171,96 @@ void save_call_round_trip(Context& context) {
     longer.body.push_back(std::byte{0});
     context.expect(!account::read_save_call(longer, got), "thừa byte bị từ chối");
     const account::SaveSpot beyond{.character = 1, .scene = 1, .x_cm = account::kSpotLimitCm + 1, .z_cm = 0};
-    context.expect(!account::read_save_call(account::save_call(beyond), got), "toạ độ ngoài trần bị từ chối");
+    context.expect(!account::read_save_call(*account::save_call(beyond), got), "toạ độ ngoài trần bị từ chối");
     const account::SaveSpot edge{.character = 1, .scene = 1, .x_cm = account::kSpotLimitCm, .z_cm = -account::kSpotLimitCm};
-    context.expect(account::read_save_call(account::save_call(edge), got), "đúng trần vẫn nhận");
+    context.expect(account::read_save_call(*account::save_call(edge), got), "đúng trần vẫn nhận");
+}
+
+[[nodiscard]] account::PlayRecord sample_play() {
+    account::PlayRecord play;
+    play.level = 12;
+    play.exp = 345'678;
+    play.money = 9'000;
+    play.bound = 120;
+    play.hp = 777;
+    play.mp = 55;
+    play.body = {std::byte{1}, std::byte{2}, std::byte{3}};
+    play.mission.assign(5000, std::byte{0x5A});
+    play.bag = {std::byte{9}};
+    return play;
+}
+
+// Khối trạng thái chơi: đóng gói rồi mở ra giữ nguyên; mọi dạng hỏng bị từ chối chứ không đoán.
+void play_record_round_trip_and_hostile(Context& context) {
+    const account::PlayRecord play = sample_play();
+    const auto packed = account::pack(play);
+    context.expect(packed.has_value(), "đóng gói được");
+    if (!packed) return;
+    const auto back = account::unpack(*packed);
+    context.expect(back.has_value() && *back == play, "mở ra giống hệt");
+    std::vector<std::byte> cut = *packed;
+    cut.pop_back();
+    context.expect(!account::unpack(cut).has_value(), "thiếu byte bị từ chối");
+    std::vector<std::byte> longer = *packed;
+    longer.push_back(std::byte{0});
+    context.expect(!account::unpack(longer).has_value(), "thừa byte bị từ chối");
+    std::vector<std::byte> wrong_kind = *packed;
+    wrong_kind[0] = std::byte{0x02};
+    context.expect(!account::unpack(wrong_kind).has_value(), "sai loại khung bị từ chối");
+    context.expect(!account::unpack({}).has_value(), "rỗng bị từ chối");
+
+    account::PlayRecord zero_level = play;
+    zero_level.level = 0;
+    context.expect(!account::pack(zero_level).has_value(), "cấp 0 không đóng gói");
+    account::PlayRecord rich = play;
+    rich.money = account::kMoneyLimit + 1;
+    context.expect(!account::pack(rich).has_value(), "tiền quá trần không đóng gói");
+    account::PlayRecord fat = play;
+    fat.mission.assign(account::kMaxMissionBlob + 1, std::byte{1});
+    context.expect(!account::pack(fat).has_value(), "khối quá trần không đóng gói");
+    account::PlayRecord full = play;
+    full.body.assign(account::kMaxBodyBlob, std::byte{1});
+    full.mission.assign(account::kMaxMissionBlob, std::byte{2});
+    full.bag.assign(account::kMaxBagBlob, std::byte{3});
+    const auto biggest = account::pack(full);
+    context.expect(biggest.has_value() && biggest->size() <= account::kMaxPackedPlay, "ba khối đầy vẫn dưới trần khung");
+
+    // Độ dài khối khai quá trần: không cấp phát, từ chối ngay.
+    std::vector<std::byte> lying = *packed;
+    constexpr std::size_t kBodyLenAt = protocol::kHeaderBytes + 2 + 2 + 8 + 8 + 8 + 4 + 4;
+    for (std::size_t i = 0; i < 4; ++i) lying[kBodyLenAt + i] = std::byte{0xFF};
+    context.expect(!account::unpack(lying).has_value(), "độ dài khối nói dối bị từ chối");
+}
+
+// Op::kSave mang trạng thái chơi và Op::kEnter trả nó về nguyên vẹn qua bốn chặng mã hoá/giải mã.
+void play_travels_through_save_and_enter(Context& context) {
+    const account::SaveSpot sent{.character = 5, .scene = 2, .x_cm = 100, .z_cm = 200, .play = sample_play()};
+    account::SaveSpot got;
+    const std::optional<account::Call> call = account::save_call(sent);
+    context.expect(call.has_value() && account::read_save_call(*call, got) && got.play == sent.play, "Save mang play");
+    if (call) {
+        account::Call cut = *call;
+        cut.body.pop_back();
+        context.expect(!account::read_save_call(cut, got), "Save cụt bị từ chối");
+        account::Call flag = *call;
+        flag.body[8 + 2 + 4 + 4] = std::byte{2};
+        context.expect(!account::read_save_call(flag, got), "cờ play lạ bị từ chối");
+    }
+    account::SaveSpot bad = sent;
+    bad.play->level = 0;
+    context.expect(!account::save_call(bad).has_value(), "play ngoài miền không thành Call");
+
+    account::EnterResult enter;
+    enter.ok = true;
+    enter.scene = 2;
+    enter.summary.id = 5;
+    enter.summary.name = "A";
+    enter.play = sample_play();
+    const account::EnterResult back = account::entered_from(account::enter_reply_of(enter));
+    context.expect(back.ok && back.play == enter.play, "Enter mang play về");
+    account::EnterResult broken = enter;
+    broken.play.level = 0;
+    context.expect(!account::entered_from(account::enter_reply_of(broken)).ok, "store không trả play ngoài miền");
 }
 
 // Trả lời Op::kEnter mang điểm vào; thân hỏng hoặc toạ độ ngoài trần thì không vào.
@@ -438,6 +543,8 @@ constexpr std::array kCases{
     Case{.name = "three_characters_then_one_slot", .body = &three_characters_then_one_slot},
     Case{.name = "enter_reply_carries_spot", .body = &enter_reply_carries_spot},
     Case{.name = "save_call_round_trip", .body = &save_call_round_trip},
+    Case{.name = "play_record_round_trip_and_hostile", .body = &play_record_round_trip_and_hostile},
+    Case{.name = "play_travels_through_save_and_enter", .body = &play_travels_through_save_and_enter},
     Case{.name = "sign_in_hides_unknown_name", .body = &sign_in_hides_unknown_name},
     Case{.name = "names_are_canonical", .body = &names_are_canonical},
     Case{.name = "cap_rejects_tamper", .body = &cap_rejects_tamper},

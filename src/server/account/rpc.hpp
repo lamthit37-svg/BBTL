@@ -1,6 +1,19 @@
+/*==============================================================================
+ *  THIENLONG  |  GAME SERVER
+ *------------------------------------------------------------------------------
+ *  TỆP       : src/server/account/rpc.hpp
+ *  PHÂN HỆ   : Server / Account / Rpc
+ *  CHUẨN     : C++23
+ *------------------------------------------------------------------------------
+ *  CHỨC NĂNG
+ *  - Một yêu cầu, một kết nối, chỉ trên loopback. Gate đóng vai client; auth và
+ *    store là server. Mã 0 là thành công. Mã khác là protocol::ErrorCode. Thân
+ *    tối đa 8 KiB.
+ *------------------------------------------------------------------------------
+ *  TÁC GIẢ   : HiepHoon
+ *  TELEGRAM  : @Hoon9xx
+ *============================================================================*/
 #pragma once
-// Một yêu cầu, một kết nối, chỉ trên loopback. Gate đóng vai client; auth và store là server.
-// Mã 0 là thành công. Mã khác là protocol::ErrorCode. Thân tối đa 8 KiB.
 
 #include "account/book.hpp"
 #include "account/cap.hpp"
@@ -51,7 +64,8 @@ struct Reply {
     protocol::Gender gender, std::uint16_t face, std::uint16_t hair);
 [[nodiscard]] Call standing_call(std::span<const std::byte, kCapBytes> cap);
 [[nodiscard]] Call id_call(Op op, std::span<const std::byte, kCapBytes> cap, std::uint64_t character);
-[[nodiscard]] Call save_call(const SaveSpot& spot);
+// nullopt khi trạng thái chơi đi kèm không đóng gói được (số ngoài miền, khối quá trần): gọi lại cũng vậy, nên không có Call.
+[[nodiscard]] std::optional<Call> save_call(const SaveSpot& spot);
 
 [[nodiscard]] bool read_account_call(const Call& call, std::string& name, std::string& password, std::string& ip);
 [[nodiscard]] bool read_text_call(const Call& call, std::string& text);

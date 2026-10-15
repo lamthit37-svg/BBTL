@@ -1,13 +1,28 @@
+/*==============================================================================
+ *  THIENLONG  |  GAME SERVER
+ *------------------------------------------------------------------------------
+ *  TỆP       : src/server/account/book.hpp
+ *  PHÂN HỆ   : Server / Account / Book
+ *  CHUẨN     : C++23
+ *------------------------------------------------------------------------------
+ *  CHỨC NĂNG
+ *  - Sổ tài khoản và nhân vật trong bộ nhớ. Cùng thứ tự quyết định với bản
+ *    PostgreSQL ở sql.cpp: hình dạng, rồi trần lần sai, rồi tạo hoặc đối mật
+ *    khẩu, rồi vé một lần. Test khoá thứ tự này. Bản chạy thật không dùng lớp
+ *    này.
+ *------------------------------------------------------------------------------
+ *  TÁC GIẢ   : HiepHoon
+ *  TELEGRAM  : @Hoon9xx
+ *============================================================================*/
 #pragma once
-// Sổ tài khoản và nhân vật trong bộ nhớ. Cùng thứ tự quyết định với bản PostgreSQL ở sql.cpp:
-// hình dạng, rồi trần lần sai, rồi tạo hoặc đối mật khẩu, rồi vé một lần. Test khoá thứ tự này.
-// Bản chạy thật không dùng lớp này.
 
+#include "account/play.hpp"
 #include "account/rules.hpp"
 #include "protocol/messages.hpp"
 
 #include <chrono>
 #include <cstdint>
+#include <optional>
 #include <span>
 #include <string>
 #include <string_view>
@@ -61,6 +76,8 @@ struct SaveSpot {
     std::uint16_t scene = 0;
     std::int32_t x_cm = 0;
     std::int32_t z_cm = 0;
+    // Có thì ghi kèm trạng thái chơi (thân thể, sổ nhiệm vụ, túi, tiền); vắng thì chỉ ghi điểm đứng.
+    std::optional<PlayRecord> play;
 };
 
 // Kết quả vào game. scene/x_cm/z_cm là điểm vào do store giữ (cột position_x/position_z, đơn vị mét,
@@ -73,6 +90,8 @@ struct EnterResult {
     std::int32_t z_cm = 0;
     // Hồ sơ hiển thị của nhân vật vào game (Op::kEnter); zone dựng EntityAppear từ đây.
     protocol::CharacterSummary summary{};
+    // Trạng thái chơi store giữ (Op::kEnter); khối rỗng là nhân vật chưa từng vào game từ bản có play.
+    PlayRecord play{};
 };
 
 class MemoryBook {
