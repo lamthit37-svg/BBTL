@@ -1,0 +1,1303 @@
+{
+  "completed_items": 48,
+  "cumulative_items": 162,
+  "pending_items": 420,
+  "files": [
+    {
+      "language": "zh",
+      "atlas": "Button02",
+      "name": "BtnA_Disable",
+      "width": 17,
+      "height": 17,
+      "path": "zh/Button02/BtnA_Disable.png",
+      "sha256": "ae9fbe0b1d9c6b828b1c73c1a2a1790665d0f115de0d4f5163365424172c775b"
+    },
+    {
+      "language": "vi",
+      "atlas": "Button02",
+      "name": "BtnA_Disable",
+      "width": 17,
+      "height": 17,
+      "path": "vi/Button02/BtnA_Disable.png",
+      "sha256": "ae9fbe0b1d9c6b828b1c73c1a2a1790665d0f115de0d4f5163365424172c775b"
+    },
+    {
+      "language": "en",
+      "atlas": "Button02",
+      "name": "BtnA_Disable",
+      "width": 17,
+      "height": 17,
+      "path": "en/Button02/BtnA_Disable.png",
+      "sha256": "ae9fbe0b1d9c6b828b1c73c1a2a1790665d0f115de0d4f5163365424172c775b"
+    },
+    {
+      "language": "zh",
+      "atlas": "Button02",
+      "name": "BtnA_Hover",
+      "width": 17,
+      "height": 17,
+      "path": "zh/Button02/BtnA_Hover.png",
+      "sha256": "2d236329d089baf8f6b12eb49ff9fcc3797c7d1bec33a8e8515b7ecf56ac6ba8"
+    },
+    {
+      "language": "vi",
+      "atlas": "Button02",
+      "name": "BtnA_Hover",
+      "width": 17,
+      "height": 17,
+      "path": "vi/Button02/BtnA_Hover.png",
+      "sha256": "2d236329d089baf8f6b12eb49ff9fcc3797c7d1bec33a8e8515b7ecf56ac6ba8"
+    },
+    {
+      "language": "en",
+      "atlas": "Button02",
+      "name": "BtnA_Hover",
+      "width": 17,
+      "height": 17,
+      "path": "en/Button02/BtnA_Hover.png",
+      "sha256": "2d236329d089baf8f6b12eb49ff9fcc3797c7d1bec33a8e8515b7ecf56ac6ba8"
+    },
+    {
+      "language": "zh",
+      "atlas": "Button02",
+      "name": "BtnA_Normal",
+      "width": 17,
+      "height": 17,
+      "path": "zh/Button02/BtnA_Normal.png",
+      "sha256": "aa59e96a76eb0c27fd35b0d69d6005014b060a09a9d714f5c70100b921973c8c"
+    },
+    {
+      "language": "vi",
+      "atlas": "Button02",
+      "name": "BtnA_Normal",
+      "width": 17,
+      "height": 17,
+      "path": "vi/Button02/BtnA_Normal.png",
+      "sha256": "aa59e96a76eb0c27fd35b0d69d6005014b060a09a9d714f5c70100b921973c8c"
+    },
+    {
+      "language": "en",
+      "atlas": "Button02",
+      "name": "BtnA_Normal",
+      "width": 17,
+      "height": 17,
+      "path": "en/Button02/BtnA_Normal.png",
+      "sha256": "aa59e96a76eb0c27fd35b0d69d6005014b060a09a9d714f5c70100b921973c8c"
+    },
+    {
+      "language": "zh",
+      "atlas": "Button02",
+      "name": "BtnA_Pushed",
+      "width": 17,
+      "height": 17,
+      "path": "zh/Button02/BtnA_Pushed.png",
+      "sha256": "5ae57d6d284bdeda4ac5cdd0dfbc6f0936ffb851a366f11fb214c2b2152400ac"
+    },
+    {
+      "language": "vi",
+      "atlas": "Button02",
+      "name": "BtnA_Pushed",
+      "width": 17,
+      "height": 17,
+      "path": "vi/Button02/BtnA_Pushed.png",
+      "sha256": "5ae57d6d284bdeda4ac5cdd0dfbc6f0936ffb851a366f11fb214c2b2152400ac"
+    },
+    {
+      "language": "en",
+      "atlas": "Button02",
+      "name": "BtnA_Pushed",
+      "width": 17,
+      "height": 17,
+      "path": "en/Button02/BtnA_Pushed.png",
+      "sha256": "5ae57d6d284bdeda4ac5cdd0dfbc6f0936ffb851a366f11fb214c2b2152400ac"
+    },
+    {
+      "language": "zh",
+      "atlas": "Button02",
+      "name": "BtnAdd_Disable",
+      "width": 17,
+      "height": 17,
+      "path": "zh/Button02/BtnAdd_Disable.png",
+      "sha256": "bd6d2c58f0f824d87e65e452b90777191f883f2a75dc9299c0062d94ee43bdbe"
+    },
+    {
+      "language": "vi",
+      "atlas": "Button02",
+      "name": "BtnAdd_Disable",
+      "width": 17,
+      "height": 17,
+      "path": "vi/Button02/BtnAdd_Disable.png",
+      "sha256": "bd6d2c58f0f824d87e65e452b90777191f883f2a75dc9299c0062d94ee43bdbe"
+    },
+    {
+      "language": "en",
+      "atlas": "Button02",
+      "name": "BtnAdd_Disable",
+      "width": 17,
+      "height": 17,
+      "path": "en/Button02/BtnAdd_Disable.png",
+      "sha256": "bd6d2c58f0f824d87e65e452b90777191f883f2a75dc9299c0062d94ee43bdbe"
+    },
+    {
+      "language": "zh",
+      "atlas": "Button02",
+      "name": "BtnAdd_Hover",
+      "width": 17,
+      "height": 17,
+      "path": "zh/Button02/BtnAdd_Hover.png",
+      "sha256": "dfc61f06825a478d6ce59c18220eb6812702d3450c88cd463eba796decf71c87"
+    },
+    {
+      "language": "vi",
+      "atlas": "Button02",
+      "name": "BtnAdd_Hover",
+      "width": 17,
+      "height": 17,
+      "path": "vi/Button02/BtnAdd_Hover.png",
+      "sha256": "dfc61f06825a478d6ce59c18220eb6812702d3450c88cd463eba796decf71c87"
+    },
+    {
+      "language": "en",
+      "atlas": "Button02",
+      "name": "BtnAdd_Hover",
+      "width": 17,
+      "height": 17,
+      "path": "en/Button02/BtnAdd_Hover.png",
+      "sha256": "dfc61f06825a478d6ce59c18220eb6812702d3450c88cd463eba796decf71c87"
+    },
+    {
+      "language": "zh",
+      "atlas": "Button02",
+      "name": "BtnAdd_Normal",
+      "width": 17,
+      "height": 17,
+      "path": "zh/Button02/BtnAdd_Normal.png",
+      "sha256": "65cc87901834510a984fbeca8274ef58564d0de4c4aa9b002769652c1b7a1a7e"
+    },
+    {
+      "language": "vi",
+      "atlas": "Button02",
+      "name": "BtnAdd_Normal",
+      "width": 17,
+      "height": 17,
+      "path": "vi/Button02/BtnAdd_Normal.png",
+      "sha256": "65cc87901834510a984fbeca8274ef58564d0de4c4aa9b002769652c1b7a1a7e"
+    },
+    {
+      "language": "en",
+      "atlas": "Button02",
+      "name": "BtnAdd_Normal",
+      "width": 17,
+      "height": 17,
+      "path": "en/Button02/BtnAdd_Normal.png",
+      "sha256": "65cc87901834510a984fbeca8274ef58564d0de4c4aa9b002769652c1b7a1a7e"
+    },
+    {
+      "language": "zh",
+      "atlas": "Button02",
+      "name": "BtnAdd_Pushed",
+      "width": 17,
+      "height": 17,
+      "path": "zh/Button02/BtnAdd_Pushed.png",
+      "sha256": "0f3a03d0f2560869e86c178653a4ebcc0b6d2f4e0fb260052cc25dc6ebdc4f6f"
+    },
+    {
+      "language": "vi",
+      "atlas": "Button02",
+      "name": "BtnAdd_Pushed",
+      "width": 17,
+      "height": 17,
+      "path": "vi/Button02/BtnAdd_Pushed.png",
+      "sha256": "0f3a03d0f2560869e86c178653a4ebcc0b6d2f4e0fb260052cc25dc6ebdc4f6f"
+    },
+    {
+      "language": "en",
+      "atlas": "Button02",
+      "name": "BtnAdd_Pushed",
+      "width": 17,
+      "height": 17,
+      "path": "en/Button02/BtnAdd_Pushed.png",
+      "sha256": "0f3a03d0f2560869e86c178653a4ebcc0b6d2f4e0fb260052cc25dc6ebdc4f6f"
+    },
+    {
+      "language": "zh",
+      "atlas": "Button02",
+      "name": "BtnBack_Disable",
+      "width": 17,
+      "height": 17,
+      "path": "zh/Button02/BtnBack_Disable.png",
+      "sha256": "26e293277ecfbf57142a8ade623092ba83f1331459d5bb1805115b700e21b45a"
+    },
+    {
+      "language": "vi",
+      "atlas": "Button02",
+      "name": "BtnBack_Disable",
+      "width": 17,
+      "height": 17,
+      "path": "vi/Button02/BtnBack_Disable.png",
+      "sha256": "26e293277ecfbf57142a8ade623092ba83f1331459d5bb1805115b700e21b45a"
+    },
+    {
+      "language": "en",
+      "atlas": "Button02",
+      "name": "BtnBack_Disable",
+      "width": 17,
+      "height": 17,
+      "path": "en/Button02/BtnBack_Disable.png",
+      "sha256": "26e293277ecfbf57142a8ade623092ba83f1331459d5bb1805115b700e21b45a"
+    },
+    {
+      "language": "zh",
+      "atlas": "Button02",
+      "name": "BtnBack_Hover",
+      "width": 17,
+      "height": 17,
+      "path": "zh/Button02/BtnBack_Hover.png",
+      "sha256": "837ab82e0ce6ce7c4bd4fcb38c79b8491b7d03f8cf0f1a8f0c141df394c97363"
+    },
+    {
+      "language": "vi",
+      "atlas": "Button02",
+      "name": "BtnBack_Hover",
+      "width": 17,
+      "height": 17,
+      "path": "vi/Button02/BtnBack_Hover.png",
+      "sha256": "837ab82e0ce6ce7c4bd4fcb38c79b8491b7d03f8cf0f1a8f0c141df394c97363"
+    },
+    {
+      "language": "en",
+      "atlas": "Button02",
+      "name": "BtnBack_Hover",
+      "width": 17,
+      "height": 17,
+      "path": "en/Button02/BtnBack_Hover.png",
+      "sha256": "837ab82e0ce6ce7c4bd4fcb38c79b8491b7d03f8cf0f1a8f0c141df394c97363"
+    },
+    {
+      "language": "zh",
+      "atlas": "Button02",
+      "name": "BtnBack_Normal",
+      "width": 17,
+      "height": 17,
+      "path": "zh/Button02/BtnBack_Normal.png",
+      "sha256": "5323fc840d363c69f95f647663f5192118cd82fb3826f64c814fc5603eb9d157"
+    },
+    {
+      "language": "vi",
+      "atlas": "Button02",
+      "name": "BtnBack_Normal",
+      "width": 17,
+      "height": 17,
+      "path": "vi/Button02/BtnBack_Normal.png",
+      "sha256": "5323fc840d363c69f95f647663f5192118cd82fb3826f64c814fc5603eb9d157"
+    },
+    {
+      "language": "en",
+      "atlas": "Button02",
+      "name": "BtnBack_Normal",
+      "width": 17,
+      "height": 17,
+      "path": "en/Button02/BtnBack_Normal.png",
+      "sha256": "5323fc840d363c69f95f647663f5192118cd82fb3826f64c814fc5603eb9d157"
+    },
+    {
+      "language": "zh",
+      "atlas": "Button02",
+      "name": "BtnBack_Pushed",
+      "width": 17,
+      "height": 17,
+      "path": "zh/Button02/BtnBack_Pushed.png",
+      "sha256": "dcf0469de95a689f8a9134d693f8427c7eef148e33393159f550494e2c59b292"
+    },
+    {
+      "language": "vi",
+      "atlas": "Button02",
+      "name": "BtnBack_Pushed",
+      "width": 17,
+      "height": 17,
+      "path": "vi/Button02/BtnBack_Pushed.png",
+      "sha256": "dcf0469de95a689f8a9134d693f8427c7eef148e33393159f550494e2c59b292"
+    },
+    {
+      "language": "en",
+      "atlas": "Button02",
+      "name": "BtnBack_Pushed",
+      "width": 17,
+      "height": 17,
+      "path": "en/Button02/BtnBack_Pushed.png",
+      "sha256": "dcf0469de95a689f8a9134d693f8427c7eef148e33393159f550494e2c59b292"
+    },
+    {
+      "language": "zh",
+      "atlas": "Button02",
+      "name": "BtnClose_Disable",
+      "width": 17,
+      "height": 17,
+      "path": "zh/Button02/BtnClose_Disable.png",
+      "sha256": "cdd6d63f98bb7b374806bfc8abdbad8c787e4a4810c0aac27b7ae750b1419dbd"
+    },
+    {
+      "language": "vi",
+      "atlas": "Button02",
+      "name": "BtnClose_Disable",
+      "width": 17,
+      "height": 17,
+      "path": "vi/Button02/BtnClose_Disable.png",
+      "sha256": "cdd6d63f98bb7b374806bfc8abdbad8c787e4a4810c0aac27b7ae750b1419dbd"
+    },
+    {
+      "language": "en",
+      "atlas": "Button02",
+      "name": "BtnClose_Disable",
+      "width": 17,
+      "height": 17,
+      "path": "en/Button02/BtnClose_Disable.png",
+      "sha256": "cdd6d63f98bb7b374806bfc8abdbad8c787e4a4810c0aac27b7ae750b1419dbd"
+    },
+    {
+      "language": "zh",
+      "atlas": "Button02",
+      "name": "BtnClose_Hover",
+      "width": 17,
+      "height": 17,
+      "path": "zh/Button02/BtnClose_Hover.png",
+      "sha256": "a8cd2645c2b6edd1a00229b17bd92e9cfcd9156f96748a89bce65be02bd2cf37"
+    },
+    {
+      "language": "vi",
+      "atlas": "Button02",
+      "name": "BtnClose_Hover",
+      "width": 17,
+      "height": 17,
+      "path": "vi/Button02/BtnClose_Hover.png",
+      "sha256": "a8cd2645c2b6edd1a00229b17bd92e9cfcd9156f96748a89bce65be02bd2cf37"
+    },
+    {
+      "language": "en",
+      "atlas": "Button02",
+      "name": "BtnClose_Hover",
+      "width": 17,
+      "height": 17,
+      "path": "en/Button02/BtnClose_Hover.png",
+      "sha256": "a8cd2645c2b6edd1a00229b17bd92e9cfcd9156f96748a89bce65be02bd2cf37"
+    },
+    {
+      "language": "zh",
+      "atlas": "Button02",
+      "name": "BtnClose_Normal",
+      "width": 17,
+      "height": 17,
+      "path": "zh/Button02/BtnClose_Normal.png",
+      "sha256": "92ad24a12ced0cefcca0e30671d7fef9768da90f0d97790f9ade899bdcc1b443"
+    },
+    {
+      "language": "vi",
+      "atlas": "Button02",
+      "name": "BtnClose_Normal",
+      "width": 17,
+      "height": 17,
+      "path": "vi/Button02/BtnClose_Normal.png",
+      "sha256": "92ad24a12ced0cefcca0e30671d7fef9768da90f0d97790f9ade899bdcc1b443"
+    },
+    {
+      "language": "en",
+      "atlas": "Button02",
+      "name": "BtnClose_Normal",
+      "width": 17,
+      "height": 17,
+      "path": "en/Button02/BtnClose_Normal.png",
+      "sha256": "92ad24a12ced0cefcca0e30671d7fef9768da90f0d97790f9ade899bdcc1b443"
+    },
+    {
+      "language": "zh",
+      "atlas": "Button02",
+      "name": "BtnClose_Pushed",
+      "width": 17,
+      "height": 17,
+      "path": "zh/Button02/BtnClose_Pushed.png",
+      "sha256": "94bc812631aa15ce53e55ebfd42e79ac36d10b19d741314b00debdd8c18723dc"
+    },
+    {
+      "language": "vi",
+      "atlas": "Button02",
+      "name": "BtnClose_Pushed",
+      "width": 17,
+      "height": 17,
+      "path": "vi/Button02/BtnClose_Pushed.png",
+      "sha256": "94bc812631aa15ce53e55ebfd42e79ac36d10b19d741314b00debdd8c18723dc"
+    },
+    {
+      "language": "en",
+      "atlas": "Button02",
+      "name": "BtnClose_Pushed",
+      "width": 17,
+      "height": 17,
+      "path": "en/Button02/BtnClose_Pushed.png",
+      "sha256": "94bc812631aa15ce53e55ebfd42e79ac36d10b19d741314b00debdd8c18723dc"
+    },
+    {
+      "language": "zh",
+      "atlas": "Button02",
+      "name": "BtnE_Disable",
+      "width": 17,
+      "height": 17,
+      "path": "zh/Button02/BtnE_Disable.png",
+      "sha256": "14f6c117c705289bb48aff3203de74fa588bf891085aa731822fad9d6802a03c"
+    },
+    {
+      "language": "vi",
+      "atlas": "Button02",
+      "name": "BtnE_Disable",
+      "width": 17,
+      "height": 17,
+      "path": "vi/Button02/BtnE_Disable.png",
+      "sha256": "14f6c117c705289bb48aff3203de74fa588bf891085aa731822fad9d6802a03c"
+    },
+    {
+      "language": "en",
+      "atlas": "Button02",
+      "name": "BtnE_Disable",
+      "width": 17,
+      "height": 17,
+      "path": "en/Button02/BtnE_Disable.png",
+      "sha256": "14f6c117c705289bb48aff3203de74fa588bf891085aa731822fad9d6802a03c"
+    },
+    {
+      "language": "zh",
+      "atlas": "Button02",
+      "name": "BtnE_Hover",
+      "width": 17,
+      "height": 17,
+      "path": "zh/Button02/BtnE_Hover.png",
+      "sha256": "aa4903ec409fc8c22d297da53b8c86f31516f3e4a66198f588367f5bf1baddc0"
+    },
+    {
+      "language": "vi",
+      "atlas": "Button02",
+      "name": "BtnE_Hover",
+      "width": 17,
+      "height": 17,
+      "path": "vi/Button02/BtnE_Hover.png",
+      "sha256": "aa4903ec409fc8c22d297da53b8c86f31516f3e4a66198f588367f5bf1baddc0"
+    },
+    {
+      "language": "en",
+      "atlas": "Button02",
+      "name": "BtnE_Hover",
+      "width": 17,
+      "height": 17,
+      "path": "en/Button02/BtnE_Hover.png",
+      "sha256": "aa4903ec409fc8c22d297da53b8c86f31516f3e4a66198f588367f5bf1baddc0"
+    },
+    {
+      "language": "zh",
+      "atlas": "Button02",
+      "name": "BtnE_Normal",
+      "width": 17,
+      "height": 17,
+      "path": "zh/Button02/BtnE_Normal.png",
+      "sha256": "525e4cd4b459aef51dcb0a8cc4e9eebf0e826a742060b077f61aa2dc562873a8"
+    },
+    {
+      "language": "vi",
+      "atlas": "Button02",
+      "name": "BtnE_Normal",
+      "width": 17,
+      "height": 17,
+      "path": "vi/Button02/BtnE_Normal.png",
+      "sha256": "525e4cd4b459aef51dcb0a8cc4e9eebf0e826a742060b077f61aa2dc562873a8"
+    },
+    {
+      "language": "en",
+      "atlas": "Button02",
+      "name": "BtnE_Normal",
+      "width": 17,
+      "height": 17,
+      "path": "en/Button02/BtnE_Normal.png",
+      "sha256": "525e4cd4b459aef51dcb0a8cc4e9eebf0e826a742060b077f61aa2dc562873a8"
+    },
+    {
+      "language": "zh",
+      "atlas": "Button02",
+      "name": "BtnE_Pushed",
+      "width": 17,
+      "height": 17,
+      "path": "zh/Button02/BtnE_Pushed.png",
+      "sha256": "f0997f7ee8379fbafca4286902a6a4d523ca4bcf95b392fa05e32bd9228157c6"
+    },
+    {
+      "language": "vi",
+      "atlas": "Button02",
+      "name": "BtnE_Pushed",
+      "width": 17,
+      "height": 17,
+      "path": "vi/Button02/BtnE_Pushed.png",
+      "sha256": "f0997f7ee8379fbafca4286902a6a4d523ca4bcf95b392fa05e32bd9228157c6"
+    },
+    {
+      "language": "en",
+      "atlas": "Button02",
+      "name": "BtnE_Pushed",
+      "width": 17,
+      "height": 17,
+      "path": "en/Button02/BtnE_Pushed.png",
+      "sha256": "f0997f7ee8379fbafca4286902a6a4d523ca4bcf95b392fa05e32bd9228157c6"
+    },
+    {
+      "language": "zh",
+      "atlas": "Button02",
+      "name": "BtnEdit_Disable",
+      "width": 17,
+      "height": 17,
+      "path": "zh/Button02/BtnEdit_Disable.png",
+      "sha256": "3adc0226958c5d7804d150a7862dbc7b30397b3266f53b4cf67afa28a28d5f9f"
+    },
+    {
+      "language": "vi",
+      "atlas": "Button02",
+      "name": "BtnEdit_Disable",
+      "width": 17,
+      "height": 17,
+      "path": "vi/Button02/BtnEdit_Disable.png",
+      "sha256": "3adc0226958c5d7804d150a7862dbc7b30397b3266f53b4cf67afa28a28d5f9f"
+    },
+    {
+      "language": "en",
+      "atlas": "Button02",
+      "name": "BtnEdit_Disable",
+      "width": 17,
+      "height": 17,
+      "path": "en/Button02/BtnEdit_Disable.png",
+      "sha256": "3adc0226958c5d7804d150a7862dbc7b30397b3266f53b4cf67afa28a28d5f9f"
+    },
+    {
+      "language": "zh",
+      "atlas": "Button02",
+      "name": "BtnEdit_Hover",
+      "width": 17,
+      "height": 17,
+      "path": "zh/Button02/BtnEdit_Hover.png",
+      "sha256": "5c4192b273af61b7881872d6b9162bc66ef16dac8349f9713533d7acb4252652"
+    },
+    {
+      "language": "vi",
+      "atlas": "Button02",
+      "name": "BtnEdit_Hover",
+      "width": 17,
+      "height": 17,
+      "path": "vi/Button02/BtnEdit_Hover.png",
+      "sha256": "5c4192b273af61b7881872d6b9162bc66ef16dac8349f9713533d7acb4252652"
+    },
+    {
+      "language": "en",
+      "atlas": "Button02",
+      "name": "BtnEdit_Hover",
+      "width": 17,
+      "height": 17,
+      "path": "en/Button02/BtnEdit_Hover.png",
+      "sha256": "5c4192b273af61b7881872d6b9162bc66ef16dac8349f9713533d7acb4252652"
+    },
+    {
+      "language": "zh",
+      "atlas": "Button02",
+      "name": "BtnEdit_Normal",
+      "width": 17,
+      "height": 17,
+      "path": "zh/Button02/BtnEdit_Normal.png",
+      "sha256": "cdf2b2ca0f8bcdac52cb9399623ac08c778ee0510ab09c687893a28da8be8191"
+    },
+    {
+      "language": "vi",
+      "atlas": "Button02",
+      "name": "BtnEdit_Normal",
+      "width": 17,
+      "height": 17,
+      "path": "vi/Button02/BtnEdit_Normal.png",
+      "sha256": "cdf2b2ca0f8bcdac52cb9399623ac08c778ee0510ab09c687893a28da8be8191"
+    },
+    {
+      "language": "en",
+      "atlas": "Button02",
+      "name": "BtnEdit_Normal",
+      "width": 17,
+      "height": 17,
+      "path": "en/Button02/BtnEdit_Normal.png",
+      "sha256": "cdf2b2ca0f8bcdac52cb9399623ac08c778ee0510ab09c687893a28da8be8191"
+    },
+    {
+      "language": "zh",
+      "atlas": "Button02",
+      "name": "BtnEdit_Pushed",
+      "width": 17,
+      "height": 17,
+      "path": "zh/Button02/BtnEdit_Pushed.png",
+      "sha256": "696afefc58bc9bf0228801b900438461fb90a497a6d470f519a390068fcf3d12"
+    },
+    {
+      "language": "vi",
+      "atlas": "Button02",
+      "name": "BtnEdit_Pushed",
+      "width": 17,
+      "height": 17,
+      "path": "vi/Button02/BtnEdit_Pushed.png",
+      "sha256": "696afefc58bc9bf0228801b900438461fb90a497a6d470f519a390068fcf3d12"
+    },
+    {
+      "language": "en",
+      "atlas": "Button02",
+      "name": "BtnEdit_Pushed",
+      "width": 17,
+      "height": 17,
+      "path": "en/Button02/BtnEdit_Pushed.png",
+      "sha256": "696afefc58bc9bf0228801b900438461fb90a497a6d470f519a390068fcf3d12"
+    },
+    {
+      "language": "zh",
+      "atlas": "Button02",
+      "name": "BtnFace_Disable",
+      "width": 17,
+      "height": 17,
+      "path": "zh/Button02/BtnFace_Disable.png",
+      "sha256": "3d909fcfcedfb2cd5e92b4942f614521648bd7a2791180c877c1dbf15f63a4ee"
+    },
+    {
+      "language": "vi",
+      "atlas": "Button02",
+      "name": "BtnFace_Disable",
+      "width": 17,
+      "height": 17,
+      "path": "vi/Button02/BtnFace_Disable.png",
+      "sha256": "3d909fcfcedfb2cd5e92b4942f614521648bd7a2791180c877c1dbf15f63a4ee"
+    },
+    {
+      "language": "en",
+      "atlas": "Button02",
+      "name": "BtnFace_Disable",
+      "width": 17,
+      "height": 17,
+      "path": "en/Button02/BtnFace_Disable.png",
+      "sha256": "3d909fcfcedfb2cd5e92b4942f614521648bd7a2791180c877c1dbf15f63a4ee"
+    },
+    {
+      "language": "zh",
+      "atlas": "Button02",
+      "name": "BtnFace_Hover",
+      "width": 17,
+      "height": 17,
+      "path": "zh/Button02/BtnFace_Hover.png",
+      "sha256": "d34b05688500c0f07708e79c9ac3adcc00ea2675c74fded695f049d3a61fca52"
+    },
+    {
+      "language": "vi",
+      "atlas": "Button02",
+      "name": "BtnFace_Hover",
+      "width": 17,
+      "height": 17,
+      "path": "vi/Button02/BtnFace_Hover.png",
+      "sha256": "d34b05688500c0f07708e79c9ac3adcc00ea2675c74fded695f049d3a61fca52"
+    },
+    {
+      "language": "en",
+      "atlas": "Button02",
+      "name": "BtnFace_Hover",
+      "width": 17,
+      "height": 17,
+      "path": "en/Button02/BtnFace_Hover.png",
+      "sha256": "d34b05688500c0f07708e79c9ac3adcc00ea2675c74fded695f049d3a61fca52"
+    },
+    {
+      "language": "zh",
+      "atlas": "Button02",
+      "name": "BtnFace_Normal",
+      "width": 17,
+      "height": 17,
+      "path": "zh/Button02/BtnFace_Normal.png",
+      "sha256": "2c70b70ed13b0be513b79fcc79e045fe11e76c469936c916f6167159ba2eb8e8"
+    },
+    {
+      "language": "vi",
+      "atlas": "Button02",
+      "name": "BtnFace_Normal",
+      "width": 17,
+      "height": 17,
+      "path": "vi/Button02/BtnFace_Normal.png",
+      "sha256": "2c70b70ed13b0be513b79fcc79e045fe11e76c469936c916f6167159ba2eb8e8"
+    },
+    {
+      "language": "en",
+      "atlas": "Button02",
+      "name": "BtnFace_Normal",
+      "width": 17,
+      "height": 17,
+      "path": "en/Button02/BtnFace_Normal.png",
+      "sha256": "2c70b70ed13b0be513b79fcc79e045fe11e76c469936c916f6167159ba2eb8e8"
+    },
+    {
+      "language": "zh",
+      "atlas": "Button02",
+      "name": "BtnFace_Pushed",
+      "width": 17,
+      "height": 17,
+      "path": "zh/Button02/BtnFace_Pushed.png",
+      "sha256": "85b8eb049c435b8860fdfd9bb6e16afbf763733b4f61c06588c4a697aedaf0fc"
+    },
+    {
+      "language": "vi",
+      "atlas": "Button02",
+      "name": "BtnFace_Pushed",
+      "width": 17,
+      "height": 17,
+      "path": "vi/Button02/BtnFace_Pushed.png",
+      "sha256": "85b8eb049c435b8860fdfd9bb6e16afbf763733b4f61c06588c4a697aedaf0fc"
+    },
+    {
+      "language": "en",
+      "atlas": "Button02",
+      "name": "BtnFace_Pushed",
+      "width": 17,
+      "height": 17,
+      "path": "en/Button02/BtnFace_Pushed.png",
+      "sha256": "85b8eb049c435b8860fdfd9bb6e16afbf763733b4f61c06588c4a697aedaf0fc"
+    },
+    {
+      "language": "zh",
+      "atlas": "Button02",
+      "name": "BtnNearBy_Disable",
+      "width": 17,
+      "height": 17,
+      "path": "zh/Button02/BtnNearBy_Disable.png",
+      "sha256": "300a1adaa5396a11db8dfbc64f832933cbe520f794a15503318d86e558ebf9ed"
+    },
+    {
+      "language": "vi",
+      "atlas": "Button02",
+      "name": "BtnNearBy_Disable",
+      "width": 17,
+      "height": 17,
+      "path": "vi/Button02/BtnNearBy_Disable.png",
+      "sha256": "9bd0302fa5c48a99f6c99981d345ef7e984387f880132aafaf2af316c0b89992"
+    },
+    {
+      "language": "en",
+      "atlas": "Button02",
+      "name": "BtnNearBy_Disable",
+      "width": 17,
+      "height": 17,
+      "path": "en/Button02/BtnNearBy_Disable.png",
+      "sha256": "b013c5ac85dae47850acfdaebb38ebf83c6c35c598b74ecd6e947dee717ebe86"
+    },
+    {
+      "language": "zh",
+      "atlas": "Button02",
+      "name": "BtnNearBy_Hover",
+      "width": 17,
+      "height": 17,
+      "path": "zh/Button02/BtnNearBy_Hover.png",
+      "sha256": "b06e7543dbf511ebf0f357ddeb36750b588bcd5db9013d67f2ef0eadf15033a1"
+    },
+    {
+      "language": "vi",
+      "atlas": "Button02",
+      "name": "BtnNearBy_Hover",
+      "width": 17,
+      "height": 17,
+      "path": "vi/Button02/BtnNearBy_Hover.png",
+      "sha256": "6ef27f64f2f3e07f5dcda20c3291267df009731224f985221a280424c9d8f43b"
+    },
+    {
+      "language": "en",
+      "atlas": "Button02",
+      "name": "BtnNearBy_Hover",
+      "width": 17,
+      "height": 17,
+      "path": "en/Button02/BtnNearBy_Hover.png",
+      "sha256": "362d6d915c130575ce476826a66dbf3f086cdba7718bf210d3e97dd8b4b2283c"
+    },
+    {
+      "language": "zh",
+      "atlas": "Button02",
+      "name": "BtnNearBy_Normal",
+      "width": 17,
+      "height": 17,
+      "path": "zh/Button02/BtnNearBy_Normal.png",
+      "sha256": "118343102775e8d843f8da4c284a2ef476da79971a9a0c11c371924b388a5236"
+    },
+    {
+      "language": "vi",
+      "atlas": "Button02",
+      "name": "BtnNearBy_Normal",
+      "width": 17,
+      "height": 17,
+      "path": "vi/Button02/BtnNearBy_Normal.png",
+      "sha256": "6d60b56f1060dc56ebb4f1c77e1d4fe324a9da481dc191f541c33c3ee8ab8173"
+    },
+    {
+      "language": "en",
+      "atlas": "Button02",
+      "name": "BtnNearBy_Normal",
+      "width": 17,
+      "height": 17,
+      "path": "en/Button02/BtnNearBy_Normal.png",
+      "sha256": "6d8c71fed21f4e9bea34b8bbb369e40f0d0bad4a59d5729650b50cd3cd467059"
+    },
+    {
+      "language": "zh",
+      "atlas": "Button02",
+      "name": "BtnNearBy_Pushed",
+      "width": 17,
+      "height": 17,
+      "path": "zh/Button02/BtnNearBy_Pushed.png",
+      "sha256": "e77be8107e6db1511cf6f6425499a7dad50c929f35836afb1bd4d82c9691c333"
+    },
+    {
+      "language": "vi",
+      "atlas": "Button02",
+      "name": "BtnNearBy_Pushed",
+      "width": 17,
+      "height": 17,
+      "path": "vi/Button02/BtnNearBy_Pushed.png",
+      "sha256": "aa3279e033fb4b8ee103a409d63a3a1c242c4bb9cefe5593b6eb9407a4c6d16d"
+    },
+    {
+      "language": "en",
+      "atlas": "Button02",
+      "name": "BtnNearBy_Pushed",
+      "width": 17,
+      "height": 17,
+      "path": "en/Button02/BtnNearBy_Pushed.png",
+      "sha256": "b5026a738da0ff7dfa4432a6d05e94ac00b603e203e7a4188913b0bbf851250a"
+    },
+    {
+      "language": "zh",
+      "atlas": "Button02",
+      "name": "BtnRepair_Disable",
+      "width": 17,
+      "height": 17,
+      "path": "zh/Button02/BtnRepair_Disable.png",
+      "sha256": "224484408d1aa624b4f60dcc39a66d7bc6649b8bab1ac26829aa7d39d1934c9f"
+    },
+    {
+      "language": "vi",
+      "atlas": "Button02",
+      "name": "BtnRepair_Disable",
+      "width": 17,
+      "height": 17,
+      "path": "vi/Button02/BtnRepair_Disable.png",
+      "sha256": "224484408d1aa624b4f60dcc39a66d7bc6649b8bab1ac26829aa7d39d1934c9f"
+    },
+    {
+      "language": "en",
+      "atlas": "Button02",
+      "name": "BtnRepair_Disable",
+      "width": 17,
+      "height": 17,
+      "path": "en/Button02/BtnRepair_Disable.png",
+      "sha256": "224484408d1aa624b4f60dcc39a66d7bc6649b8bab1ac26829aa7d39d1934c9f"
+    },
+    {
+      "language": "zh",
+      "atlas": "Button02",
+      "name": "BtnRepair_Hover",
+      "width": 17,
+      "height": 17,
+      "path": "zh/Button02/BtnRepair_Hover.png",
+      "sha256": "09a8d10d490897c1789e3847f57cfa838b1c8044e9e6810d5297c286044339e9"
+    },
+    {
+      "language": "vi",
+      "atlas": "Button02",
+      "name": "BtnRepair_Hover",
+      "width": 17,
+      "height": 17,
+      "path": "vi/Button02/BtnRepair_Hover.png",
+      "sha256": "09a8d10d490897c1789e3847f57cfa838b1c8044e9e6810d5297c286044339e9"
+    },
+    {
+      "language": "en",
+      "atlas": "Button02",
+      "name": "BtnRepair_Hover",
+      "width": 17,
+      "height": 17,
+      "path": "en/Button02/BtnRepair_Hover.png",
+      "sha256": "09a8d10d490897c1789e3847f57cfa838b1c8044e9e6810d5297c286044339e9"
+    },
+    {
+      "language": "zh",
+      "atlas": "Button02",
+      "name": "BtnRepair_Normal",
+      "width": 17,
+      "height": 17,
+      "path": "zh/Button02/BtnRepair_Normal.png",
+      "sha256": "cb1c87ec302d165420cafb36e03ef7360d6262b065b939f2ff3af734de8af229"
+    },
+    {
+      "language": "vi",
+      "atlas": "Button02",
+      "name": "BtnRepair_Normal",
+      "width": 17,
+      "height": 17,
+      "path": "vi/Button02/BtnRepair_Normal.png",
+      "sha256": "cb1c87ec302d165420cafb36e03ef7360d6262b065b939f2ff3af734de8af229"
+    },
+    {
+      "language": "en",
+      "atlas": "Button02",
+      "name": "BtnRepair_Normal",
+      "width": 17,
+      "height": 17,
+      "path": "en/Button02/BtnRepair_Normal.png",
+      "sha256": "cb1c87ec302d165420cafb36e03ef7360d6262b065b939f2ff3af734de8af229"
+    },
+    {
+      "language": "zh",
+      "atlas": "Button02",
+      "name": "BtnRepair_Pushed",
+      "width": 17,
+      "height": 17,
+      "path": "zh/Button02/BtnRepair_Pushed.png",
+      "sha256": "4d6027f4b2c07a8ea2ecfbd650ef2581bd26e4117469d6f6803b34d4cd211a6d"
+    },
+    {
+      "language": "vi",
+      "atlas": "Button02",
+      "name": "BtnRepair_Pushed",
+      "width": 17,
+      "height": 17,
+      "path": "vi/Button02/BtnRepair_Pushed.png",
+      "sha256": "4d6027f4b2c07a8ea2ecfbd650ef2581bd26e4117469d6f6803b34d4cd211a6d"
+    },
+    {
+      "language": "en",
+      "atlas": "Button02",
+      "name": "BtnRepair_Pushed",
+      "width": 17,
+      "height": 17,
+      "path": "en/Button02/BtnRepair_Pushed.png",
+      "sha256": "4d6027f4b2c07a8ea2ecfbd650ef2581bd26e4117469d6f6803b34d4cd211a6d"
+    },
+    {
+      "language": "zh",
+      "atlas": "Button02",
+      "name": "BtnRun_Disable",
+      "width": 17,
+      "height": 17,
+      "path": "zh/Button02/BtnRun_Disable.png",
+      "sha256": "d7a207ea9970307c8c3b5ccefba9cbf6516390fdd838f3e83e8dfa94a31b754d"
+    },
+    {
+      "language": "vi",
+      "atlas": "Button02",
+      "name": "BtnRun_Disable",
+      "width": 17,
+      "height": 17,
+      "path": "vi/Button02/BtnRun_Disable.png",
+      "sha256": "d7a207ea9970307c8c3b5ccefba9cbf6516390fdd838f3e83e8dfa94a31b754d"
+    },
+    {
+      "language": "en",
+      "atlas": "Button02",
+      "name": "BtnRun_Disable",
+      "width": 17,
+      "height": 17,
+      "path": "en/Button02/BtnRun_Disable.png",
+      "sha256": "d7a207ea9970307c8c3b5ccefba9cbf6516390fdd838f3e83e8dfa94a31b754d"
+    },
+    {
+      "language": "zh",
+      "atlas": "Button02",
+      "name": "BtnRun_Hover",
+      "width": 17,
+      "height": 17,
+      "path": "zh/Button02/BtnRun_Hover.png",
+      "sha256": "39f4dab9c600b9f8695a6215530a9b9eca5f853917543fb406b1996fdfe05d45"
+    },
+    {
+      "language": "vi",
+      "atlas": "Button02",
+      "name": "BtnRun_Hover",
+      "width": 17,
+      "height": 17,
+      "path": "vi/Button02/BtnRun_Hover.png",
+      "sha256": "39f4dab9c600b9f8695a6215530a9b9eca5f853917543fb406b1996fdfe05d45"
+    },
+    {
+      "language": "en",
+      "atlas": "Button02",
+      "name": "BtnRun_Hover",
+      "width": 17,
+      "height": 17,
+      "path": "en/Button02/BtnRun_Hover.png",
+      "sha256": "39f4dab9c600b9f8695a6215530a9b9eca5f853917543fb406b1996fdfe05d45"
+    },
+    {
+      "language": "zh",
+      "atlas": "Button02",
+      "name": "BtnRun_Normal",
+      "width": 17,
+      "height": 17,
+      "path": "zh/Button02/BtnRun_Normal.png",
+      "sha256": "17a7bc7e147f86c66f85829058a0f349e47fdbc41615fc31c3d82db1ef6c1cb4"
+    },
+    {
+      "language": "vi",
+      "atlas": "Button02",
+      "name": "BtnRun_Normal",
+      "width": 17,
+      "height": 17,
+      "path": "vi/Button02/BtnRun_Normal.png",
+      "sha256": "17a7bc7e147f86c66f85829058a0f349e47fdbc41615fc31c3d82db1ef6c1cb4"
+    },
+    {
+      "language": "en",
+      "atlas": "Button02",
+      "name": "BtnRun_Normal",
+      "width": 17,
+      "height": 17,
+      "path": "en/Button02/BtnRun_Normal.png",
+      "sha256": "17a7bc7e147f86c66f85829058a0f349e47fdbc41615fc31c3d82db1ef6c1cb4"
+    },
+    {
+      "language": "zh",
+      "atlas": "Button02",
+      "name": "BtnRun_Pushed",
+      "width": 17,
+      "height": 17,
+      "path": "zh/Button02/BtnRun_Pushed.png",
+      "sha256": "2b125ed53d3eb6319d713864d5b9a1a772edfefcbd3288e2c509b2bed5b0e211"
+    },
+    {
+      "language": "vi",
+      "atlas": "Button02",
+      "name": "BtnRun_Pushed",
+      "width": 17,
+      "height": 17,
+      "path": "vi/Button02/BtnRun_Pushed.png",
+      "sha256": "2b125ed53d3eb6319d713864d5b9a1a772edfefcbd3288e2c509b2bed5b0e211"
+    },
+    {
+      "language": "en",
+      "atlas": "Button02",
+      "name": "BtnRun_Pushed",
+      "width": 17,
+      "height": 17,
+      "path": "en/Button02/BtnRun_Pushed.png",
+      "sha256": "2b125ed53d3eb6319d713864d5b9a1a772edfefcbd3288e2c509b2bed5b0e211"
+    },
+    {
+      "language": "zh",
+      "atlas": "Button02",
+      "name": "BtnSave_Disable",
+      "width": 17,
+      "height": 17,
+      "path": "zh/Button02/BtnSave_Disable.png",
+      "sha256": "04d6e7def5b091fc1bef0c0846afc93cb425066ae84fcd44cde493543a5b36b5"
+    },
+    {
+      "language": "vi",
+      "atlas": "Button02",
+      "name": "BtnSave_Disable",
+      "width": 17,
+      "height": 17,
+      "path": "vi/Button02/BtnSave_Disable.png",
+      "sha256": "04d6e7def5b091fc1bef0c0846afc93cb425066ae84fcd44cde493543a5b36b5"
+    },
+    {
+      "language": "en",
+      "atlas": "Button02",
+      "name": "BtnSave_Disable",
+      "width": 17,
+      "height": 17,
+      "path": "en/Button02/BtnSave_Disable.png",
+      "sha256": "04d6e7def5b091fc1bef0c0846afc93cb425066ae84fcd44cde493543a5b36b5"
+    },
+    {
+      "language": "zh",
+      "atlas": "Button02",
+      "name": "BtnSave_Hover",
+      "width": 17,
+      "height": 17,
+      "path": "zh/Button02/BtnSave_Hover.png",
+      "sha256": "2c2602aab8900dce04fa28bce7612f3cc5e430d96f43a872cc8eb2f7aa6871a0"
+    },
+    {
+      "language": "vi",
+      "atlas": "Button02",
+      "name": "BtnSave_Hover",
+      "width": 17,
+      "height": 17,
+      "path": "vi/Button02/BtnSave_Hover.png",
+      "sha256": "2c2602aab8900dce04fa28bce7612f3cc5e430d96f43a872cc8eb2f7aa6871a0"
+    },
+    {
+      "language": "en",
+      "atlas": "Button02",
+      "name": "BtnSave_Hover",
+      "width": 17,
+      "height": 17,
+      "path": "en/Button02/BtnSave_Hover.png",
+      "sha256": "2c2602aab8900dce04fa28bce7612f3cc5e430d96f43a872cc8eb2f7aa6871a0"
+    },
+    {
+      "language": "zh",
+      "atlas": "Button02",
+      "name": "BtnSave_Normal",
+      "width": 17,
+      "height": 17,
+      "path": "zh/Button02/BtnSave_Normal.png",
+      "sha256": "6011ac7e7bf79267260fe2fccdd783ef1b4d35649c8419f3f5141eef97e74be5"
+    },
+    {
+      "language": "vi",
+      "atlas": "Button02",
+      "name": "BtnSave_Normal",
+      "width": 17,
+      "height": 17,
+      "path": "vi/Button02/BtnSave_Normal.png",
+      "sha256": "6011ac7e7bf79267260fe2fccdd783ef1b4d35649c8419f3f5141eef97e74be5"
+    },
+    {
+      "language": "en",
+      "atlas": "Button02",
+      "name": "BtnSave_Normal",
+      "width": 17,
+      "height": 17,
+      "path": "en/Button02/BtnSave_Normal.png",
+      "sha256": "6011ac7e7bf79267260fe2fccdd783ef1b4d35649c8419f3f5141eef97e74be5"
+    },
+    {
+      "language": "zh",
+      "atlas": "Button02",
+      "name": "BtnSave_Pushed",
+      "width": 17,
+      "height": 17,
+      "path": "zh/Button02/BtnSave_Pushed.png",
+      "sha256": "9c1ce970dc04f918ab0c12342470045e3c40600fe6d5033a12b01fa277842a58"
+    },
+    {
+      "language": "vi",
+      "atlas": "Button02",
+      "name": "BtnSave_Pushed",
+      "width": 17,
+      "height": 17,
+      "path": "vi/Button02/BtnSave_Pushed.png",
+      "sha256": "9c1ce970dc04f918ab0c12342470045e3c40600fe6d5033a12b01fa277842a58"
+    },
+    {
+      "language": "en",
+      "atlas": "Button02",
+      "name": "BtnSave_Pushed",
+      "width": 17,
+      "height": 17,
+      "path": "en/Button02/BtnSave_Pushed.png",
+      "sha256": "9c1ce970dc04f918ab0c12342470045e3c40600fe6d5033a12b01fa277842a58"
+    },
+    {
+      "language": "zh",
+      "atlas": "Button02",
+      "name": "BtnSub_Disable",
+      "width": 17,
+      "height": 17,
+      "path": "zh/Button02/BtnSub_Disable.png",
+      "sha256": "b9a7ffe57dadfeb74b77d5265109a8cbae0fdefbd6c304989e6e5a15b5d6f88d"
+    },
+    {
+      "language": "vi",
+      "atlas": "Button02",
+      "name": "BtnSub_Disable",
+      "width": 17,
+      "height": 17,
+      "path": "vi/Button02/BtnSub_Disable.png",
+      "sha256": "b9a7ffe57dadfeb74b77d5265109a8cbae0fdefbd6c304989e6e5a15b5d6f88d"
+    },
+    {
+      "language": "en",
+      "atlas": "Button02",
+      "name": "BtnSub_Disable",
+      "width": 17,
+      "height": 17,
+      "path": "en/Button02/BtnSub_Disable.png",
+      "sha256": "b9a7ffe57dadfeb74b77d5265109a8cbae0fdefbd6c304989e6e5a15b5d6f88d"
+    },
+    {
+      "language": "zh",
+      "atlas": "Button02",
+      "name": "BtnSub_Hover",
+      "width": 17,
+      "height": 17,
+      "path": "zh/Button02/BtnSub_Hover.png",
+      "sha256": "a3a7311f06cb7cd364d72f0074fd071fa3af3b054a3f44c9b71b1a7190a0c9c0"
+    },
+    {
+      "language": "vi",
+      "atlas": "Button02",
+      "name": "BtnSub_Hover",
+      "width": 17,
+      "height": 17,
+      "path": "vi/Button02/BtnSub_Hover.png",
+      "sha256": "a3a7311f06cb7cd364d72f0074fd071fa3af3b054a3f44c9b71b1a7190a0c9c0"
+    },
+    {
+      "language": "en",
+      "atlas": "Button02",
+      "name": "BtnSub_Hover",
+      "width": 17,
+      "height": 17,
+      "path": "en/Button02/BtnSub_Hover.png",
+      "sha256": "a3a7311f06cb7cd364d72f0074fd071fa3af3b054a3f44c9b71b1a7190a0c9c0"
+    },
+    {
+      "language": "zh",
+      "atlas": "Button02",
+      "name": "BtnSub_Normal",
+      "width": 17,
+      "height": 17,
+      "path": "zh/Button02/BtnSub_Normal.png",
+      "sha256": "344368cf2b53e802fe267cead29de7a90d4e1adf511a2fbce258b164e6e0de18"
+    },
+    {
+      "language": "vi",
+      "atlas": "Button02",
+      "name": "BtnSub_Normal",
+      "width": 17,
+      "height": 17,
+      "path": "vi/Button02/BtnSub_Normal.png",
+      "sha256": "344368cf2b53e802fe267cead29de7a90d4e1adf511a2fbce258b164e6e0de18"
+    },
+    {
+      "language": "en",
+      "atlas": "Button02",
+      "name": "BtnSub_Normal",
+      "width": 17,
+      "height": 17,
+      "path": "en/Button02/BtnSub_Normal.png",
+      "sha256": "344368cf2b53e802fe267cead29de7a90d4e1adf511a2fbce258b164e6e0de18"
+    },
+    {
+      "language": "zh",
+      "atlas": "Button02",
+      "name": "BtnSub_Pushed",
+      "width": 17,
+      "height": 17,
+      "path": "zh/Button02/BtnSub_Pushed.png",
+      "sha256": "969ebfb0ccbf0883429fd75d17f5352ccb2e25524532c8ce1f3f21fdc08300cb"
+    },
+    {
+      "language": "vi",
+      "atlas": "Button02",
+      "name": "BtnSub_Pushed",
+      "width": 17,
+      "height": 17,
+      "path": "vi/Button02/BtnSub_Pushed.png",
+      "sha256": "969ebfb0ccbf0883429fd75d17f5352ccb2e25524532c8ce1f3f21fdc08300cb"
+    },
+    {
+      "language": "en",
+      "atlas": "Button02",
+      "name": "BtnSub_Pushed",
+      "width": 17,
+      "height": 17,
+      "path": "en/Button02/BtnSub_Pushed.png",
+      "sha256": "969ebfb0ccbf0883429fd75d17f5352ccb2e25524532c8ce1f3f21fdc08300cb"
+    }
+  ]
+}

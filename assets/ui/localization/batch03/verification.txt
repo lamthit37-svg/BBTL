@@ -1,0 +1,8 @@
+144/144 PNG RGBA, đúng 17 × 17 px theo parts.tsv.
+48 trạng thái nguồn, 3 bộ ngôn ngữ; biểu tượng không chữ dùng chung hình.
+Alpha khớp giữa các trạng thái cùng nút.
+Board 2070 × 42857, không đổi pixel ngoài vùng cập nhật so với batch02.
+Cộng dồn 162/582 mục; còn 420.
+Đã xem ảnh đối chiếu kích thước thật và phóng 2 lần. Gần/Near nhỏ do giới hạn 17 px.
+Dùng công cụ imagegen tích hợp; prompt.txt lưu mô tả.
+Chưa tích hợp hay kiểm trong game; không xác nhận font trùng gốc hoặc độ sắc nét vượt trội tuyệt đối.
