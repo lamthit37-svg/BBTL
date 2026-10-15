@@ -52,6 +52,7 @@ using panel::Ask;
 using panel::Call;
 using panel::GridCell;
 using panel::GridColumn;
+using panel::InfoLife;
 using panel::kEmptyAction;
 using panel::ListItem;
 
@@ -60,6 +61,10 @@ constexpr const char* kMetaName = "thienlong.ui.widget";
 
 // InfoList giữ tối đa chừng này mục (NormalizeItemNumber, mặc định 0x18006b676 của CEGUIFalagard.dll).
 constexpr std::size_t kInfoLimit = 5;
+// Tuổi thọ và tốc độ mờ của mục khi layout không khai Life và FadeSpeed: giá trị DebugListBox.layout.xml, layout duy nhất của
+// bản 2026 có InfoList (mặc định trong hàm dựng FalagardInfoList chưa đọc).
+constexpr std::int32_t kInfoLifeMs = 5000;
+constexpr std::int32_t kInfoFadeSpeed = 128;
 
 struct Box {
     WindowRef ref;
@@ -600,15 +605,6 @@ int list_add_item(lua_State* state) {
     return 0;
 }
 
-// AddInfo (FalagardInfoList::AddInfo, CEGUIFalagard.dll 0x18006b940): thêm mục chữ id 0, giữ tối đa kInfoLimit mục, hiện
-// danh sách. Tuổi thọ và độ mờ của mục không vào trạng thái ghi.
-int list_add_info(lua_State* state) {
-    const WindowRef& window = self(state);
-    if (!is_text(state, 2)) return 0;
-    window.store->add_info(window.name, ListItem{.text = from_script(text_at(state, 2)), .id = 0, .colour = {}}, kInfoLimit);
-    return 0;
-}
-
 int list_first_selected(lua_State* state) {
     const WindowRef& window = self(state);
     lua_pushnumber(state, window.store->selected_item(window.name));
@@ -1060,6 +1056,19 @@ int scrollbar_get_position(lua_State* state) {
     return 1;
 }
 
+// AddInfo (FalagardInfoList::AddInfo, CEGUIFalagard.dll 0x18006b940): thêm mục chữ id 0, giữ tối đa kInfoLimit mục, hiện
+// danh sách. Mục mang tuổi thọ Life và tốc độ mờ FadeSpeed của cửa sổ (thuộc tính script đặt, không thì của layout); nhịp thời
+// gian của chúng là advance_widgets. Tuổi thọ và độ trong của mục không vào trạng thái ghi (describe).
+int list_add_info(lua_State* state) {
+    const WindowRef& window = self(state);
+    if (!is_text(state, 2)) return 0;
+    const InfoLife life{.life_ms = luanum_to_int32(number_property(state, window, "Life", kInfoLifeMs)),
+        .fade_speed = luanum_to_int32(number_property(state, window, "FadeSpeed", kInfoFadeSpeed)),
+        .alpha = 1.0F};
+    window.store->add_info(window.name, ListItem{.text = from_script(text_at(state, 2)), .id = 0, .colour = {}}, life, kInfoLimit);
+    return 0;
+}
+
 struct Method {
     const char* name;
     lua_CFunction function;
@@ -1173,6 +1182,7 @@ void advance_widgets(ui::panel::Widgets& store, const gui::GuiAsset& asset, Serv
         const std::int32_t index = window_index(window);
         if (index >= 0 && is_this_window(asset, index)) services.set_root_shown(false);
     }
+    for (const std::string& name : store.aging()) store.tick_info(name, seconds);
 }
 
 void open_widget_classes(lua_State* state, Missing missing) {

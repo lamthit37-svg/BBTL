@@ -72,6 +72,14 @@ struct GridRowData {
     std::int32_t value = 0;
 };
 
+// Tuổi thọ của một mục InfoList (FalagardInfoList::AddInfo): thời gian sống còn lại (ms, âm là đang mờ), tốc độ mờ
+// (thuộc tính FadeSpeed của layout) và độ trong 1..0.
+struct InfoLife {
+    std::int32_t life_ms = 0;
+    std::int32_t fade_speed = 0;
+    float alpha = 1.0F;
+};
+
 class Widgets {
 public:
     // SetProperty(name, value) của cửa sổ said.window; SetToolTip là thuộc tính "Tooltip".
@@ -119,9 +127,17 @@ public:
     // AddItem(text, id, colour).
     void add_item(std::string_view window, ListItem item);
     // AddInfo(text) của danh sách TLBB_InfoList (FalagardInfoList::AddInfo, CEGUIFalagard.dll 0x18006b940): thêm mục info (script
-    // đưa chữ, id 0, không màu), bỏ mục cũ nhất cho tới khi còn tối đa limit mục (mục đang chọn dời theo, mất khi bị bỏ), rồi
-    // hiện chính danh sách.
-    void add_info(std::string_view window, ListItem info, std::size_t limit);
+    // đưa chữ, id 0, không màu) mang tuổi thọ life, bỏ mục cũ nhất cho tới khi còn tối đa limit mục (mục đang chọn dời theo, mất
+    // khi bị bỏ), rồi hiện chính danh sách. Từ đây cửa sổ là danh sách có tuổi thọ: tick_info làm các mục già đi và paint nối
+    // chữ các mục thành thuộc tính Text.
+    void add_info(std::string_view window, ListItem info, InfoLife life, std::size_t limit);
+    // Tên các cửa sổ là danh sách có tuổi thọ (đã AddInfo ít nhất một lần).
+    [[nodiscard]] std::vector<std::string> aging() const;
+    // Một nhịp FalagardInfoList::updateSelf (0x18006bd60) trong seconds giây: mỗi mục có tuổi thọ bị trừ; tuổi thọ âm thì độ
+    // trong giảm fade_speed / 255 mỗi giây; độ trong âm thì bỏ mục. Bỏ một mục thì mục kế dồn vào chỗ đó và bị bỏ qua tới nhịp
+    // sau. Thời gian âm hay NaN tính là 0, vô hạn hay quá lớn tính là mức int32 lớn nhất. Cửa sổ không phải danh sách có tuổi
+    // thọ: không làm gì.
+    void tick_info(std::string_view window, float seconds);
     // SetItemSelectByItemID: chọn mục đầu tiên mang id; không có mục nào mang id thì giữ nguyên.
     void select_item(std::string_view window, std::int32_t id);
     // Người chơi bấm mục mang id: mục đó thành mục đang chọn (không có thì bỏ chọn) và mục vừa
@@ -266,10 +282,16 @@ private:
         std::optional<bool> keeps_scroll;
         std::optional<Grid> grid;
         std::optional<Fade> fade;
+        // Danh sách có tuổi thọ (AddInfo đã gọi): mỗi mục của items có đúng một ô ở đây, nullopt là mục thêm bằng AddItem
+        // (không già đi). Rỗng khi không phải danh sách ấy.
+        std::vector<std::optional<InfoLife>> lives;
+        bool is_info = false;
     };
 
     [[nodiscard]] Entry& entry_of(std::string_view window);
     [[nodiscard]] const Entry* find(std::string_view window) const noexcept;
+    // Bỏ mục thứ index của danh sách (cùng ô tuổi thọ); mục đang chọn dời theo, mất khi chính nó bị bỏ.
+    static void erase_item(Entry& entry, std::size_t index);
     // id của mục đang chọn; nullopt khi không có danh sách hay không có mục nào được chọn.
     [[nodiscard]] static std::optional<std::int32_t> chosen_id(const Entry& entry) noexcept;
     static void describe_properties(const Entry& entry, std::vector<std::string>& lines);

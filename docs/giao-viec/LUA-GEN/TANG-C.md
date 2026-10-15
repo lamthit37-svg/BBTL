@@ -38,7 +38,7 @@ struct WindowRef {                  // trivially copyable; sao vào userdata Lua
 void open_widget_classes(lua_State*, Missing = Missing::kRaise);  // sau khi mở state; gọi lại được, đổi được chế độ
 std::vector<MissingMethod> missing_methods(lua_State*);          // chế độ kRecord: phương thức bị gọi mà chưa có (tên, số lần)
 void push_widget(lua_State*, const WindowRef&);      // userdata + metatable chung; seed_hidden khi layout khai Visible=False
-void advance_widgets(Widgets&, const gui::GuiAsset&, Services&, float seconds);  // nhịp thời gian: SetFadeState > 0 mờ dần rồi giấu
+void advance_widgets(Widgets&, const gui::GuiAsset&, Services&, float seconds);  // nhịp thời gian: SetFadeState > 0 mờ dần rồi giấu; mục InfoList (AddInfo) già đi, mờ và bị bỏ
 }
 ```
 

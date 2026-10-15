@@ -5,6 +5,7 @@
 #include "ui/script/widget.hpp"
 
 #include "gui/asset.hpp"
+#include "gui/sheet.hpp"
 #include "io/file.hpp"
 #include "panel_golden.hpp"
 #include "test.hpp"
@@ -19,6 +20,7 @@
 #include <filesystem>
 #include <format>
 #include <initializer_list>
+#include <limits>
 #include <memory>
 #include <string>
 #include <string_view>
@@ -95,6 +97,7 @@ gui::GuiAsset small_layout() {
     asset.types.push_back(gui::GuiType{.name = "Dropdown", .renderer = "Falagard/Combobox", .look = -1});
     asset.types.push_back(gui::GuiType{.name = "Table", .renderer = "Falagard/MultiColumnList", .look = -1});
     asset.types.push_back(gui::GuiType{.name = "Slider", .renderer = "Falagard/Scrollbar", .look = -1});
+    asset.types.push_back(gui::GuiType{.name = "Notice", .renderer = "Falagard/InfoList", .look = -1});
     add_window(asset, "Root", 0, -1, {});
     add_window(asset, "Child", 0, 0,
         {{"Visible", "False"}, {"Text", "chữ layout"}, {"UnifiedAreaRect", "{{0.1,5},{0.2,6},{0.9,-5},{0.8,-6}}"}});
@@ -106,6 +109,8 @@ gui::GuiAsset small_layout() {
     add_window(asset, "Combo", 2, 0, {});
     add_window(asset, "Grid", 3, 0, {});
     add_window(asset, "Bar", 4, 0, {{"DocumentSize", "10"}, {"PageSize", "3"}});
+    add_window(asset, "Info", 5, 0, {{"Life", "3000"}, {"FadeSpeed", "255"}});
+    add_window(asset, "InfoPlain", 5, 0, {});
     return asset;
 }
 
@@ -474,6 +479,96 @@ void fade_follows_super_progress(Context& context) {
     context.expect(lab.widgets.is_hidden("Child") && lab.services.root, "cửa sổ con hết giờ thì chỉ giấu nó");
 }
 
+// Chữ mà Widgets::paint đặt cho thuộc tính Text của window (dòng sau thắng); "<không có>" khi không đặt.
+std::string painted_text(const Lab& lab, std::string_view window) {
+    ui::panel::Deck deck;
+    lab.widgets.paint(deck);
+    std::string text = "<không có>";
+    for (const gui::Override& said : deck.overrides()) {
+        if (said.window == window && said.name == "Text") text = std::string(said.value);
+    }
+    return text;
+}
+
+// FalagardInfoList: AddInfo mang Life và FadeSpeed của cửa sổ (script đặt hay layout; không khai thì 5000 và 128), advance_widgets chạy
+// updateSelf (trừ tuổi thọ; âm thì mờ FadeSpeed/255 mỗi giây; độ trong âm thì bỏ mục, mục dồn lên bị bỏ qua tới nhịp sau) và
+// paint nối chữ các mục thành Text.
+void info_list_ages_and_fades(Context& context) {
+    Lab lab;
+    const auto tick = [&lab](float seconds) { ui::script::advance_widgets(lab.widgets, lab.asset, lab.services, seconds); };
+    const auto count = [&lab](std::string_view window) { return lab.widgets.item_count(window); };
+    context.expect(painted_text(lab, "Info") == "<không có>", "chưa có mục thì không đặt Text");
+    context.expect(lab.run("Info:AddInfo('một') Info:AddInfo('hai')").empty() && count("Info") == 2 && lab.widgets.is_shown("Info"),
+        "AddInfo thêm mục và hiện danh sách");
+    context.expect(painted_text(lab, "Info") == "một\nhai", "mỗi mục một dòng của Text");
+    tick(3.0F);
+    context.expect(count("Info") == 2, "hết đúng tuổi thọ (0) thì chưa mờ");
+    tick(0.5F);
+    context.expect(count("Info") == 2, "mờ còn một nửa");
+    tick(0.6F);
+    context.expect(count("Info") == 1 && lab.widgets.item_at("Info", 0)->text == "hai", "mục đầu hết độ trong thì bỏ");
+    tick(0.4F);
+    context.expect(count("Info") == 1, "mục dồn lên bị bỏ qua ở nhịp bỏ mục kia nên còn 0,1 độ trong");
+    tick(0.2F);
+    context.expect(count("Info") == 0 && painted_text(lab, "Info") == "<không có>", "hết độ trong thì bỏ nốt, Text về layout");
+
+    context.expect(lab.run("InfoPlain:AddInfo('x')").empty(), "danh sách không khai Life và FadeSpeed");
+    tick(5.0F);
+    tick(1.0F);
+    context.expect(count("InfoPlain") == 1, "mặc định 5000 ms và 128: sau 6 giây còn gần nửa độ trong");
+    tick(2.0F);
+    context.expect(count("InfoPlain") == 0, "sau 8 giây hết độ trong");
+
+    context.expect(lab.run("Info:SetProperty('Life', 100) Info:AddInfo('a') Info:SetProperty('Life', 'xyz') Info:AddInfo('b')").empty()
+            && count("Info") == 2,
+        "Life đọc lúc AddInfo; chữ không phải số thì mặc định");
+    tick(0.2F);
+    tick(0.1F);
+    context.expect(count("Info") == 2, "mục a mờ dần nhưng chưa hết, mục b còn tuổi thọ");
+}
+
+// Mục thêm bằng AddItem không già đi; ClearListBox xoá cả tuổi thọ; mục đang chọn dời theo khi mục trước nó bị bỏ.
+void info_list_edge_cases(Context& context) {
+    Lab lab;
+    const auto tick = [&lab](float seconds) { ui::script::advance_widgets(lab.widgets, lab.asset, lab.services, seconds); };
+    context.expect(lab.run("Info:AddItem('trước', 7) Info:AddInfo('a') Info:AddItem('sau', 8)").empty() && lab.widgets.item_count("Info") == 3,
+        "AddItem lẫn AddInfo");
+    tick(100.0F);
+    context.expect(lab.widgets.item_count("Info") == 2 && lab.widgets.item_at("Info", 0)->text == "trước"
+            && lab.widgets.item_at("Info", 1)->text == "sau",
+        "chỉ mục info già đi và bị bỏ");
+    context.expect(lab.run("Info:ClearListBox() Info:AddInfo('mới')").empty() && lab.widgets.item_count("Info") == 1, "xoá rồi thêm lại");
+    tick(100.0F);
+    context.expect(lab.widgets.item_count("Info") == 0, "mục sau ClearListBox vẫn già đi");
+
+    context.expect(lab.run("Info:AddInfo('a') Info:AddInfo('b') Info:AddInfo('c')").empty() && lab.widgets.select_index("Info", 1),
+        "chọn mục b");
+    tick(4.0F);
+    tick(1.0F);
+    context.expect(lab.widgets.item_count("Info") == 1 && lab.widgets.chosen_item("Info") != nullptr
+            && lab.widgets.chosen_item("Info")->text == "b",
+        "mục a và c bị bỏ, mục b (dồn lên bị bỏ qua) vẫn được chọn");
+    tick(10.0F);
+    context.expect(lab.widgets.item_count("Info") == 0 && lab.widgets.chosen_item("Info") == nullptr
+            && lab.widgets.selected_item("Info") == ui::panel::kNoItem,
+        "mục đang chọn bị bỏ thì mất lựa chọn");
+
+    context.expect(lab.run("Info:AddInfo('x')").empty(), "thêm mục");
+    tick(-3.0F);
+    tick(std::numeric_limits<float>::quiet_NaN());
+    context.expect(lab.widgets.item_count("Info") == 1, "thời gian âm hay NaN tính là 0");
+    tick(std::numeric_limits<float>::infinity());
+    context.expect(lab.widgets.item_count("Info") == 0, "thời gian vô hạn hết tuổi thọ và độ trong mà không tràn số");
+    context.expect(lab.run("Info:AddInfo('y')").empty(), "thêm mục");
+    tick(1e30F);
+    context.expect(lab.widgets.item_count("Info") == 0, "thời gian cực lớn cũng vậy");
+
+    context.expect(lab.run("Info:AddInfo('1') Info:AddInfo('2') Info:AddInfo('3') Info:AddInfo('4') Info:AddInfo('5') Info:AddInfo('6')").empty()
+            && lab.widgets.item_count("Info") == 5 && lab.widgets.item_at("Info", 0)->text == "2",
+        "tối đa 5 mục, bỏ mục cũ nhất");
+    context.expect(lab.run("Child:AddInfo('không phải danh sách') Child:AddInfo(5)").empty(), "cửa sổ khác cũng nhận AddInfo (flat)");
+}
+
 // ---- ProgressBar.lua gốc qua host tối thiểu ----
 
 // Phần của host mà ProgressBar.lua dùng: `this` có Show, Hide, IsVisible, RegisterEvent; sự kiện chỉ tới hàm
@@ -492,6 +587,8 @@ struct MiniHost {
     };
 
     Lab lab;
+    // Tên hàm xử lý sự kiện của script ("<Cửa sổ>_OnEvent").
+    std::string handler;
     std::vector<Registered> events{};
 
     static MiniHost& host_of(lua_State* state) {
@@ -513,7 +610,7 @@ struct MiniHost {
         return 0;
     }
 
-    MiniHost() : lab(progress_layout()) {
+    MiniHost(gui::GuiAsset layout, std::string handler_name) : lab(std::move(layout)), handler(std::move(handler_name)) {
         lua_State* state = lab.lua.get();
         lua_newtable(state);
         const std::array<std::pair<const char*, lua_CFunction>, 3> methods = {{
@@ -534,7 +631,7 @@ struct MiniHost {
     std::string fire(std::string_view event) {
         const auto found = std::ranges::find(events, event, &Registered::name);
         if (found == events.end() || (!found->is_always && !lab.services.root)) return {};
-        return lab.run(std::format("ProgressBar_OnEvent(\"{}\")", event));
+        return lab.run(std::format("{}(\"{}\")", handler, event));
     }
 
     // Đặt đối số arg0 của sự kiện kế tiếp (biến toàn cục arg0, như _OnGameEvent); trả chính host để nối với fire.
@@ -555,7 +652,7 @@ void progress_bar_matches_the_golden(Context& context) {
     context.expect(script.has_value(), "thấy src/client/script/Interface/ProgressBar/ProgressBar.lua");
     if (!script) return;
 
-    MiniHost host;
+    MiniHost host(progress_layout(), "ProgressBar_OnEvent");
     context.expect(host.lab.run(*script).empty(), "nạp ProgressBar.lua");
     context.expect(host.lab.run("ProgressBar_PreLoad()").empty(), "PreLoad");
     context.expect(blocks.size() == 12, "số vàng có 12 khối (1 khối sự kiện đăng ký + 11 bước)");
@@ -588,7 +685,76 @@ void progress_bar_matches_the_golden(Context& context) {
     settle(11, host.lab.run("Progress_close()"));
 }
 
-constexpr std::array<Case, 16> kCases = {{
+// DebugListBox.layout.xml: gốc và danh sách TLBB_InfoList khai Life 5000, FadeSpeed 128.
+gui::GuiAsset debug_layout() {
+    gui::GuiAsset asset;
+    asset.types.push_back(gui::GuiType{.name = "Plain", .renderer = "Falagard/StaticImage", .look = -1});
+    asset.types.push_back(gui::GuiType{.name = "Notice", .renderer = "Falagard/InfoList", .look = -1});
+    add_window(asset, "DebugListBox", 0, -1, {});
+    add_window(asset, "DebugListBox_ListBox", 1, 0, {{"Text", ""}, {"Life", "5000"}, {"FadeSpeed", "128"}});
+    return asset;
+}
+
+// DebugListBox.lua gốc qua host tối thiểu và InfoList: cho ra đúng trạng thái của LuaPlus.dll gốc (số vàng của trọng tài, sinh với
+// cùng thư viện DataPool ở TOOLS/port/oracle/debug_list_box_api.lua), và vẽ các mục thành Text.
+void debug_list_box_matches_the_golden(Context& context) {
+    const std::vector<GoldenBlock> blocks = read_golden("debug_list_box_flow.tsv");
+    if (blocks.empty()) return;
+    const std::filesystem::path root = io::path_from_utf8(kPanelGolden).parent_path().parent_path().parent_path();
+    const io::TextResult script = io::read_text(root / "src/client/script/Interface/DebugListBox/DebugListBox.lua");
+    const io::TextResult library = io::read_text(root / "TOOLS/port/oracle/debug_list_box_api.lua");
+    context.expect(script.has_value() && library.has_value(), "thấy DebugListBox.lua và debug_list_box_api.lua");
+    if (!script || !library) return;
+
+    MiniHost host(debug_layout(), "DebugListBox_OnEvent");
+    context.expect(host.lab.run(*library).empty(), "nạp DataPool của trọng tài");
+    context.expect(host.lab.run(*script).empty(), "nạp DebugListBox.lua");
+    context.expect(host.lab.run("DebugListBox_PreLoad()").empty(), "PreLoad");
+    context.expect(blocks.size() == 11, "số vàng có 11 khối (1 khối sự kiện đăng ký + 10 bước)");
+    if (blocks.size() != 11) return;
+
+    std::vector<std::string> registered;
+    registered.reserve(host.events.size());
+    for (const MiniHost::Registered& event : host.events) {
+        registered.push_back(std::format("event\t{}\t{}", event.name, event.is_always ? "True" : "False"));
+    }
+    expect_block(context, blocks[0], registered);
+
+    const auto settle = [&](std::size_t block, const std::string& failure) {
+        context.expect(failure.empty(), std::format("[{}] {}", blocks[block].label, failure));
+        expect_block(context, blocks[block], panel_lines(host.lab.services.root, host.lab.widgets, host.lab.calls));
+    };
+    const auto message = [&host](std::string_view text) { return host.with_arg(text).fire("NEW_DEBUGMESSAGE"); };
+    settle(1, host.fire("APPLICATION_INITED"));
+    settle(2, message("Bạn chưa có bang hội"));
+    for (const std::string_view line : {"Dòng hai", "Dòng ba", "Dòng bốn"}) context.expect(message(line).empty(), "thêm dòng");
+    settle(3, message("Dòng năm"));
+    context.expect(message("Dòng sáu").empty(), "thêm dòng");
+    settle(4, message("Dòng bảy"));
+    settle(5, message(std::string(400, 'a')));
+    settle(6, message(std::string(401, 'b')));
+    settle(7, message(std::string(399, 'c') + "ă"));
+    settle(8, message(std::string(399, 'd') + "ế"));
+    std::string two_byte_fit;
+    for (int count = 0; count < 200; ++count) two_byte_fit += "đ";
+    settle(9, message(two_byte_fit + "e"));
+    context.expect(painted_text(host.lab, "DebugListBox_ListBox").starts_with("#c00FFFF#e010101"), "danh sách vẽ thành Text từ các mục");
+    settle(10, host.fire("APPLICATION_INITED"));
+    context.expect(painted_text(host.lab, "DebugListBox_ListBox") == "<không có>", "danh sách rỗng thì không vẽ Text");
+
+    context.expect(message("Một").empty() && message("Hai").empty(), "hai dòng cuối");
+    context.expect(painted_text(host.lab, "DebugListBox_ListBox") == "#c00FFFF#e010101Một\n#c00FFFF#e010101Hai",
+        "Text là các mục nối bằng xuống dòng");
+    const auto tick = [&host](float seconds) { ui::script::advance_widgets(host.lab.widgets, host.lab.asset, host.lab.services, seconds); };
+    tick(5.0F);
+    tick(0.5F);
+    tick(2.0F);
+    context.expect(host.lab.widgets.item_count("DebugListBox_ListBox") == 1, "bản gốc: nhịp mờ bỏ mục đầu, mục dồn lên bị bỏ qua");
+    tick(2.0F);
+    context.expect(host.lab.widgets.item_count("DebugListBox_ListBox") == 0, "nhịp sau bỏ nốt");
+}
+
+constexpr std::array<Case, 19> kCases = {{
     {.name = "kind_follows_the_falagard_type", .body = kind_follows_the_falagard_type},
     {.name = "text_follows_the_original_rules", .body = text_follows_the_original_rules},
     {.name = "set_property_special_cases", .body = set_property_special_cases},
@@ -605,6 +771,9 @@ constexpr std::array<Case, 16> kCases = {{
     {.name = "image_and_scrollbar", .body = image_and_scrollbar},
     {.name = "fade_follows_super_progress", .body = fade_follows_super_progress},
     {.name = "progress_bar_matches_the_golden", .body = progress_bar_matches_the_golden},
+    {.name = "info_list_ages_and_fades", .body = info_list_ages_and_fades},
+    {.name = "info_list_edge_cases", .body = info_list_edge_cases},
+    {.name = "debug_list_box_matches_the_golden", .body = debug_list_box_matches_the_golden},
 }};
 
 } // namespace
