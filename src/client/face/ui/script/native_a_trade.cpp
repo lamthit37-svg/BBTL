@@ -1,5 +1,5 @@
 // Hàm game của ngân hàng, cửa hàng, giao dịch và quầy hàng mà cửa sổ làn A gọi khi đóng (Bank:Close, CloseBooth, RestoreShopFitting,
-// Exchange:ExchangeCancel, StallSale:CloseStallMessage, DataPool:AskMyBagList) của Game.exe 2026 (bản 9001).
+// Exchange:ExchangeCancel, StallSale:CloseStallMessage, DataPool:AskMyBagList, NotifyPacketStatus và các hàm thử đồ) của Game.exe 2026 (bản 9001).
 // Gốc gửi gói lên máy chủ (CGShopClose, CGExchangeCancel, CGAskMyBagList) và hỏi CUISystem cửa sổ nào đang hiện. Client này chưa có
 // đường gửi gói từ script và Context chưa biết cửa sổ nào hiện, nên phần đó bỏ (ghi Khác gốc ở từng hàm; gói cần máy chủ ghi ở
 // docs/giao-viec/UI-FULL/A-CAN-MAY-CHU.md). Phần sự kiện giữ đúng thứ tự gốc.
@@ -10,6 +10,7 @@
 #include "ui/script/native_support.hpp"
 
 #include <array>
+#include <cstdint>
 #include <expected>
 #include <string_view>
 
@@ -65,10 +66,52 @@ NativeResult datapool_ask_my_bag_list(lua_State* lua) {
     return 1;
 }
 
-constexpr std::array<native::Entry, 2> kGlobals = {{
+// NotifyPacketStatus(n) (0x140249250): n không phải số thì ném "LUA: Lua_NotifyPacketStatus Wrong Param1"; (int)n so không dấu lớn hơn 1 thì
+// ném "LUA: Lua_NotifyPacketStatus invalid status"; rồi đẩy PACKET_OPENED (0x315) kèm n.
+NativeResult notify_packet_status(lua_State* lua) {
+    if (lua_type(lua, 1) != LUA_TNUMBER) return std::unexpected(NativeError::of("LUA: Lua_NotifyPacketStatus Wrong Param1"));
+    const std::int32_t status = native::to_int(lua_tonumber(lua, 1));
+    if (status != 0 && status != 1) return std::unexpected(NativeError::of("LUA: Lua_NotifyPacketStatus invalid status"));
+    const std::array<std::string_view, 1> args = {status == 0 ? "0" : "1"};
+    native::context_of(lua).push_event("PACKET_OPENED", args);
+    return 0;
+}
+
+// GetMySelfRaceId() (0x14025a400): int ở +0x1c của dữ liệu nhân vật (đối tượng người chơi + 0x228, rồi + 8). Gốc không kiểm người chơi.
+// Khác gốc: client chưa giữ race id của nhân vật (Hero không có trường này) nên trả 0; chưa có nhân vật cũng trả 0 thay vì đọc con trỏ rỗng.
+NativeResult get_my_self_race_id(lua_State* lua) {
+    lua_pushnumber(lua, 0);
+    return 1;
+}
+
+// ChangeShopFittingRaceID(n) (0x14023ce80): n không phải số thì ném "LUA: Lua_ChangeShopFittingRaceID Wrong Param"; có người chơi thì đổi
+// hình thử đồ sang race n (0x1405fb000). Khác gốc: client chưa có hình thử đồ nên chỉ kiểm đối số.
+NativeResult change_shop_fitting_race_id(lua_State* lua) {
+    if (lua_type(lua, 1) != LUA_TNUMBER) return std::unexpected(NativeError::of("LUA: Lua_ChangeShopFittingRaceID Wrong Param"));
+    return 0;
+}
+
+// ClearCurFittingItemByType(n) (0x14023cef0): n là số thì gọi CDataPool ô 0x490 với (int)n (xoá món đang thử theo loại); khác thì bỏ qua.
+// Khác gốc: client chưa có danh sách món đang thử nên không còn gì để xoá.
+NativeResult clear_cur_fitting_item_by_type(lua_State* /*lua*/) {
+    return 0;
+}
+
+// Infant:ClearInfantFittingData([n]) (0x140440950): n là số thì lấy (int)n, không thì -1, rồi xoá dữ liệu thử đồ của thú con (0x1400c1900).
+// Khác gốc: client chưa có dữ liệu thử đồ của thú con nên không còn gì để xoá.
+NativeResult infant_clear_fitting_data(lua_State* /*lua*/) {
+    return 0;
+}
+
+constexpr std::array<native::Entry, 6> kGlobals = {{
     {.name = "CloseBooth", .function = &lua::adapt<close_booth>},
     {.name = "RestoreShopFitting", .function = &lua::adapt<restore_shop_fitting>},
+    {.name = "NotifyPacketStatus", .function = &lua::adapt<notify_packet_status>},
+    {.name = "GetMySelfRaceId", .function = &lua::adapt<get_my_self_race_id>},
+    {.name = "ChangeShopFittingRaceID", .function = &lua::adapt<change_shop_fitting_race_id>},
+    {.name = "ClearCurFittingItemByType", .function = &lua::adapt<clear_cur_fitting_item_by_type>},
 }};
+constexpr std::array<native::Entry, 1> kInfant = {{{.name = "ClearInfantFittingData", .function = &lua::adapt<infant_clear_fitting_data>}}};
 constexpr std::array<native::Entry, 1> kBank = {{{.name = "Close", .function = &lua::adapt<bank_close>}}};
 constexpr std::array<native::Entry, 1> kExchange = {{{.name = "ExchangeCancel", .function = &lua::adapt<exchange_cancel>}}};
 constexpr std::array<native::Entry, 1> kStallSale = {{{.name = "CloseStallMessage", .function = &lua::adapt<stall_close_message>}}};
@@ -82,6 +125,7 @@ void register_a_trade(lua_State* lua) {
     native::register_table(lua, "Exchange", kExchange);
     native::register_table(lua, "StallSale", kStallSale);
     native::register_table(lua, "DataPool", kDataPool);
+    native::register_table(lua, "Infant", kInfant);
 }
 
 } // namespace game::ui::script
