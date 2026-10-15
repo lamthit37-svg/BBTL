@@ -42,4 +42,11 @@ void register_pool(lua_State* lua);
 // tân thủ, SetMenuBarPageNumber, AskServerTimeAgain...) cùng những hàm xoá trạng thái mà client chưa có.
 void register_state(lua_State* lua);
 
+// Thú cưng và thú con trên kho dữ liệu máy chủ mà client chưa có: Pet:GetPet_Count, Pet:IsPresent, Pet:GetPetList_Appoint, Pet:ShowPetList,
+// TargetPet:IsPresent, Infant:GetInfantCount, Infant:GetInfantSkillInfo, Infant:ToggleInfantPage... (native_pet.cpp).
+void register_pet(lua_State* lua);
+
+// Mục tiêu đang chọn khi chưa có mục tiêu: Target/CachedTarget:GetMenPai, IsPresent, Lua_CheckMainTargetHaveMaskBuff (native_target.cpp).
+void register_target(lua_State* lua);
+
 } // namespace game::ui::script

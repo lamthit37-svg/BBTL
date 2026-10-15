@@ -21,6 +21,9 @@ void initial_values_follow_the_constructor(Context& context) {
     context.expect(rig.eval("return DataPool:GetIsBaiBing()") == "-1", "GetIsBaiBing đầu là -1");
     context.expect(rig.eval("return DataPool:GetImMsgNumber()") == "0", "GetImMsgNumber đầu là 0");
     context.expect(rig.eval("local a, b = GetHuoYueShopDaiBiInfo() return a .. '|' .. b") == "0|0", "hàm đọc hai trường trả hai số");
+    // Hai trường nằm trong đối tượng con mà hàm dựng CDataPool dựng qua hàm dựng con (FUN_140153ec0, FUN_1400a1d50): -1, không phải 0.
+    context.expect(rig.eval("return DataPool:LuaFnGetIcePrizeDrawNowId()") == "-1", "LuaFnGetIcePrizeDrawNowId đầu là -1 (hàm dựng con)");
+    context.expect(rig.eval("return CorpsUI_2018:GetCorpsPK_Result_Info()") == "-1", "GetCorpsPK_Result_Info đầu là -1 (hàm dựng con)");
 }
 
 void written_fields_override_and_narrow(Context& context) {

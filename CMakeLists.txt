@@ -608,11 +608,13 @@ game_module(ui_script
     src/client/face/ui/script/message_format.cpp
     src/client/face/ui/script/native_events.cpp
     src/client/face/ui/script/native_format.cpp
+    src/client/face/ui/script/native_pet.cpp
     src/client/face/ui/script/native_player.cpp
     src/client/face/ui/script/native_pool.cpp
     src/client/face/ui/script/native_state.cpp
     src/client/face/ui/script/native_support.cpp
     src/client/face/ui/script/native_system.cpp
+    src/client/face/ui/script/native_target.cpp
     src/client/face/ui/script/native_variable.cpp
     src/client/face/ui/script/native_world.cpp
     src/client/face/ui/script/native_xscript.cpp
@@ -1502,6 +1504,8 @@ game_test(ui_script_system game_ui_script)
 game_test(ui_script_pool game_ui_script)
 # Hàm trạng thái nhỏ và hàm nhờ game (tầng B): giờ thế giới, tỉ lệ kinh nghiệm, chấm đỏ, lớp hướng dẫn tân thủ, trang menu.
 game_test(ui_script_state game_ui_script)
+# Hàm thú cưng, thú con và mục tiêu trên kho chưa có (tầng B): kho trống, khoá cảnh địa ngục, ngưỡng cấp, ô thú cưng không dấu.
+game_test(ui_script_pet game_ui_script)
 # Lượt chạy hàng loạt (không phải test): mở cả sổ cửa sổ, hiện/giấu từng cửa sổ và kê hàm game, phương thức widget mà script
 # đòi mà client chưa có, để xếp việc cho tầng B và widget (Test/bench/ui_script_survey.cpp).
 if(NOT ANDROID AND NOT IOS AND TARGET game_ui_script)

@@ -159,11 +159,13 @@ constexpr std::array<Getter, 130> kGetters = {{
 }};
 
 // Giá trị đầu khác 0 của các trường trên theo hàm dựng CDataPool (trường không có ở đây là 0).
-constexpr std::array<PoolInitial, 4> kInitial = {{
+constexpr std::array<PoolInitial, 6> kInitial = {{
     {.offset = 0x5c0cf4, .width = Width::kI32, .value = -1}, // hàm dựng ghi
     {.offset = 0x5df054, .width = Width::kI32, .value = -1}, // hàm dựng ghi
     {.offset = 0x5df288, .width = Width::kI32, .value = 2}, // hàm dựng ghi
     {.offset = 0x5eef70, .width = Width::kI32, .value = -1}, // hàm dựng ghi
+    {.offset = 0x5ef9f0, .width = Width::kI32, .value = -1}, // hàm dựng con FUN_140153ec0 ghi
+    {.offset = 0x64a63c, .width = Width::kI32, .value = -1}, // hàm dựng con FUN_1400a1d50 ghi
 }};
 
 // Một hàm Lua cho mỗi dòng của kGetters: lua_CFunction không mang dữ liệu đi kèm nên chỉ số dòng là tham số mẫu.

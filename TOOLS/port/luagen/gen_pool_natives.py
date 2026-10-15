@@ -38,7 +38,8 @@ CTOR = "0x1400dec40"
 TYPES = {"int": (4, True), "uint": (4, False), "short": (2, True), "ushort": (2, False), "byte": (1, False), "char": (1, True)}
 STORE_SIZES = {
     "undefined8": 8, "undefined4": 4, "undefined2": 2, "undefined1": 1, "int": 4, "uint": 4, "short": 2, "ushort": 2, "byte": 1,
-    "char": 1, "longlong": 8, "ulonglong": 8, "bool": 1,
+    "char": 1, "longlong": 8, "ulonglong": 8, "bool": 1, "float": 4, "double": 8, "undefined": 1, "undefined3": 3, "undefined5": 5,
+    "undefined6": 6, "undefined7": 7,
 }
 WIDTH_NAMES = {("int", 4): "kI32", ("uint", 4): "kU32", ("short", 2): "kI16", ("ushort", 2): "kU16", ("byte", 1): "kU8", ("char", 1): "kI8"}
 
@@ -79,43 +80,145 @@ def inner(text: str) -> str:
     return found.group(1).strip() if found else text
 
 
+POINTEE_SIZES = {
+    "undefined8": 8, "ulonglong": 8, "longlong": 8, "double": 8, "undefined4": 4, "int": 4, "uint": 4, "float": 4,
+    "undefined2": 2, "short": 2, "ushort": 2, "undefined1": 1, "undefined": 1, "char": 1, "byte": 1, "void": 1, "bool": 1,
+}
+NUMBER = r"-?(?:0x[0-9a-f]+|\d+)"
+MAX_DEPTH = 8
+ARRAY_HELPER = 0x140008360  # FUN_140008360(đích, cỡ, số, hàm dựng): dựng mảng, xử lý như _eh_vector_constructor_iterator_
+# Ghidra bỏ đối số rcx ở lời gọi `FUN_x();` trong chuỗi hàm dựng (hàm gọi không nhận ra rcx là con trỏ đối tượng). Mặc định là chính param_1
+# của hàm gọi (offset 0); các lời gọi dưới đây rcx là param_1 cộng offset, hoặc đối tượng không phải số (None: bỏ qua). Đo từ lệnh máy của
+# Game.exe ngày 2026-10-15 bằng cách theo dõi mov/lea/add trên rcx từ đầu hàm gọi tới lệnh call.
+_CTOR = int(CTOR, 16)
+LOST_ARGUMENT: dict[tuple[int, int], int | None] = {
+    (0x1400A19E0, 0x1400A6250): 0x90,
+    (0x14014F1F0, 0x1400DBC10): 0x90,
+    (0x14014F820, 0x140088880): 8,
+    (0x14014F900, 0x140153490): 8,
+    (_CTOR, 0x14015D550): 0x5B8F10,
+    (_CTOR, 0x14015E690): 0x14074,
+    (_CTOR, 0x1401D5A20): None,
+    (_CTOR, 0x140166C90): None,
+    (0x14014E9A0, 0x140030ED0): None,
+    (0x140168D70, 0x140164B50): None,
+}
+
+
 class ConstructorImage:
-    """Các lệnh ghi hằng của hàm dựng CDataPool, tra giá trị đầu của một trường."""
+    """Ảnh bộ nhớ của CDataPool ngay sau hàm dựng: các lệnh ghi hằng của hàm dựng và mọi hàm dựng con nó gọi.
+
+    Đi theo `FUN_x(param_1 + OFF)`, `_eh_vector_constructor_iterator_(param_1 + OFF, cỡ, số, FUN_ctor, ...)` và `FUN_140008360(param_1 + OFF,
+    cỡ, số, FUN_ctor)`; offset trong hàm con tính theo kiểu con trỏ của tham số đầu (`undefined8 *` thì `param_1 + 3` là byte 24).
+    Giới hạn: vòng lặp ghi qua con trỏ dẫn xuất (`p = param_1 + K; do { p[-1] = ...; p += 6; } while`) không được tính; các hàm dựng con
+    có vòng lặp bao quanh trường đang dùng đã rà tay ngày 2026-10-15, đều ghi 0 ở đúng các trường đó. Thêm hàm đọc ở vùng nhớ mới thì rà lại.
+    """
 
     def __init__(self) -> None:
-        with zipfile.ZipFile(GAME / "decompile.zip") as archive:
-            entry = next(name for name in archive.namelist() if name.startswith("decompile/1400d1120"))
-            text = archive.read(entry).decode("utf-8", "replace")
-        head = re.search(rf"^// ==== {CTOR}[^\n]*$", text, re.M)
-        assert head, "không thấy hàm dựng CDataPool"
-        rest = text[head.end():]
-        following = re.search(r"^// ==== 0x[0-9a-f]+", rest, re.M)
-        body = rest[: following.start()] if following else rest
-        self.stores: list[tuple[int, int, str]] = []
-        for found in re.finditer(r"\*\(([A-Za-z0-9_]+) ?\*\)\(param_1 \+ (0x[0-9a-f]+)\) = ([^;]+);", body):
-            if found.group(1) in STORE_SIZES:
-                self.stores.append((int(found.group(2), 16), STORE_SIZES[found.group(1)], found.group(3).strip()))
-        for found in re.finditer(r"memset\(param_1 \+ (0x[0-9a-f]+),0,(0x[0-9a-f]+|\d+)\)", body):
-            self.stores.append((int(found.group(1), 16), int(found.group(2), 0), "0"))
+        self.bodies: dict[int, str] = {}
+        seen: set[int] = set()
+        pending = {int(CTOR, 16)}
+        while pending:
+            found = events.bodies_of({f"{address:#x}" for address in pending})
+            seen |= pending
+            self.bodies.update({int(address, 16): normalise(body) for address, body in found.items()})
+            pending = {address for address in self._called({int(address, 16) for address in found}) if address not in seen}
+        assert int(CTOR, 16) in self.bodies, "không thấy hàm dựng CDataPool"
+        self.memory: dict[int, int] = {}
+        self.opaque: set[int] = set()  # byte được ghi bằng biểu thức không phải số (con trỏ, giá trị tính)
+        self.writer: dict[int, str] = {}
+        self._run(int(CTOR, 16), 0, 0)
+
+    def _called(self, parents: set[int]) -> set[int]:
+        """Hàm con mà thân của `parents` gọi với đối số đầu dẫn xuất từ param_1 (hay bị Ghidra bỏ mất, xem LOST_ARGUMENT)."""
+        result: set[int] = set()
+        for parent in parents:
+            body = self.bodies.get(parent, "")
+            for found in re.finditer(r"FUN_([0-9a-f]+)\(\(?(?:longlong\))?param_1\b", body):
+                result.add(int(found.group(1), 16))
+            for found in re.finditer(r"(?:_eh_vector_constructor_iterator_|FUN_140008360) ?\([^;]*?,(?:0x[0-9a-f]+|\d+),(?:0x[0-9a-f]+|\d+),FUN_([0-9a-f]+)", body):
+                result.add(int(found.group(1), 16))
+            for found in re.finditer(r"FUN_([0-9a-f]+)\(\)", body):
+                result.add(int(found.group(1), 16))
+        return result
+
+    @staticmethod
+    def _scale(body: str) -> int:
+        """Số byte mỗi đơn vị của `param_1 + n`: 1 khi param_1 là số nguyên hay kiểu cấu trúc, cỡ kiểu trỏ tới khi là con trỏ trần."""
+        found = re.search(r"FUN_[0-9a-f]+\(((?:const )?\w+) ?(\*+) ?param_1\b", body)
+        if not found:
+            return 1
+        return 8 if len(found.group(2)) > 1 else POINTEE_SIZES.get(found.group(1).removeprefix("const "), 1)
+
+    def _store(self, offset: int, length: int, literal: str, function: int) -> None:
+        for position in range(offset, offset + length):
+            self.writer[position] = f"FUN_{function:x}"
+        if not re.fullmatch(NUMBER, literal.strip()):
+            self.opaque.update(range(offset, offset + length))
+            return
+        self.opaque.difference_update(range(offset, offset + length))
+        data = (int(literal, 0) & ((1 << (8 * length)) - 1)).to_bytes(length, "little")
+        for index, byte in enumerate(data):
+            self.memory[offset + index] = byte
+
+    def _run(self, function: int, base: int, depth: int) -> None:
+        body = self.bodies.get(function)
+        if body is None or depth > MAX_DEPTH:
+            return
+        scale = self._scale(body)
+        statement = re.compile(
+            rf"\*\((\w+) ?\*\)\(\(longlong\)param_1 \+ ({NUMBER})\) = ([^;]+);"
+            rf"|\*\((\w+) ?\*\)\(param_1 \+ ({NUMBER})\) = ([^;]+);"
+            rf"|\*\((\w+) ?\*\)param_1 = ([^;]+);"
+            rf"|\bparam_1\[(\d+)\] = ([^;]+);"
+            rf"|\*param_1 = ([^;]+);"
+            rf"|memset\((?:\(void \*\)\()?param_1(?: \+ ({NUMBER}))?\)?,0,({NUMBER})\)"
+            rf"|(?:_eh_vector_constructor_iterator_|FUN_140008360) ?\(\(?(?:longlong\))?param_1(?: \+ ({NUMBER}))?,({NUMBER}),({NUMBER}),FUN_([0-9a-f]+)"
+            rf"|FUN_([0-9a-f]+)\(\(?(?:longlong\))?param_1(?: \+ ({NUMBER}))?[,)]"
+            rf"|FUN_([0-9a-f]+)\(\)",
+            re.I,
+        )
+        for found in statement.finditer(body):
+            groups = found.groups()
+            if groups[0] and groups[0] in STORE_SIZES:
+                self._store(base + int(groups[1], 0), STORE_SIZES[groups[0]], groups[2], function)
+            elif groups[3] and groups[3] in STORE_SIZES:
+                self._store(base + int(groups[4], 0) * scale, STORE_SIZES[groups[3]], groups[5], function)
+            elif groups[6] and groups[6] in STORE_SIZES:
+                self._store(base, STORE_SIZES[groups[6]], groups[7], function)
+            elif groups[8] is not None and scale > 1:
+                self._store(base + int(groups[8]) * scale, scale, groups[9], function)
+            elif groups[10] is not None and scale > 1:
+                self._store(base, scale, groups[10], function)
+            elif groups[12] is not None:
+                length = int(groups[12], 0)
+                self._store(base + int(groups[11] or "0", 0) * scale, length, "0", function)
+            elif groups[16] is not None:
+                start = base + int(groups[13] or "0", 0) * scale
+                size, count = int(groups[14], 0), int(groups[15], 0)
+                for index in range(count):
+                    self._run(int(groups[16], 16), start + index * size, depth + 1)
+            elif groups[17] is not None and int(groups[17], 16) != ARRAY_HELPER:
+                self._run(int(groups[17], 16), base + int(groups[18] or "0", 0) * (1 if "(longlong)" in found.group(0) else scale), depth + 1)
+            elif groups[19] is not None:
+                callee = int(groups[19], 16)
+                target = self.bodies.get(callee, "")
+                if re.search(r"FUN_[0-9a-f]+\((?!void\))[^)]*\bparam_1\b", target) and LOST_ARGUMENT.get((function, callee), 0) is not None:
+                    self._run(callee, base + (LOST_ARGUMENT.get((function, callee)) or 0), depth + 1)
 
     def initial(self, source: Source) -> tuple[int, str] | None:
         """(giá trị đầu, ghi chú) hoặc None khi hàm dựng ghi bằng biểu thức không phải số."""
         size, signed = TYPES[source.type]
-        raw = bytearray(size)
-        covered = [False] * size
-        for offset, length, literal in self.stores:
-            lo, hi = max(offset, source.offset), min(offset + length, source.offset + size)
-            if lo >= hi:
-                continue
-            if not re.fullmatch(r"-?(?:0x[0-9a-f]+|\d+)", literal):
-                return None
-            value = int(literal, 0) & ((1 << (8 * length)) - 1)
-            data = value.to_bytes(length, "little")
-            for position in range(lo, hi):
-                raw[position - source.offset] = data[position - offset]
-                covered[position - source.offset] = True
-        value = int.from_bytes(bytes(raw), "little", signed=signed)
-        return value, "hàm dựng ghi" if any(covered) else "không có trong hàm dựng, coi là 0"
+        span = range(source.offset, source.offset + size)
+        if any(position in self.opaque for position in span):
+            return None
+        raw = bytes(self.memory.get(position, 0) for position in span)
+        value = int.from_bytes(raw, "little", signed=signed)
+        written = [self.writer[position] for position in span if position in self.writer]
+        if not written:
+            return value, "không có trong hàm dựng, coi là 0"
+        direct = all(name == f"FUN_{int(CTOR, 16):x}" for name in written)
+        return value, "hàm dựng ghi" if direct else f"hàm dựng con {written[0]} ghi"
 
 
 def parse(table: str, name: str, address: str, body: str, callees: dict[str, str]) -> PoolRow | None:
