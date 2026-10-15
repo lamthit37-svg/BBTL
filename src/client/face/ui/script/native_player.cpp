@@ -10,6 +10,7 @@
 #include <charconv>
 #include <cstddef>
 #include <cstdint>
+#include <expected>
 #include <iterator>
 #include <limits>
 #include <memory>
@@ -125,7 +126,28 @@ NativeResult get_data(lua_State* lua) {
     return 1;
 }
 
-constexpr std::array<native::Entry, 1> kPlayer = {{{.name = "GetData", .function = &lua::adapt<get_data>}}};
+// Player:GetLevel() (Game.exe 0x140396650): cấp của người chơi. Chưa có nhân vật thì gốc ném ngoại lệ assert `pMyself`
+// (GMGameInterface_Script_PlayerMySelf.cpp dòng 0x1c04); ở đây là lỗi Lua mang cùng tên điều kiện (Khác gốc: câu lỗi không có
+// đường dẫn đầy đủ của máy dựng).
+NativeResult get_level(lua_State* lua) {
+    const hero::Hero* const hero = native::context_of(lua).facts.hero;
+    if (hero == nullptr) return std::unexpected(lua::NativeError::of("GMGameInterface_Script_PlayerMySelf.cpp(7172): pMyself"));
+    lua_pushnumber(lua, hero->level);
+    return 1;
+}
+
+// Player:GetName() (PlayerMySelf slot 1, Game.exe 0x1403872f0): tên nhân vật, chuỗi rỗng khi chưa có nhân vật.
+NativeResult get_name(lua_State* lua) {
+    const hero::Hero* const hero = native::context_of(lua).facts.hero;
+    lua_pushstring(lua, hero == nullptr ? "" : hero->name.c_str());
+    return 1;
+}
+
+constexpr std::array<native::Entry, 3> kPlayer = {{
+    {.name = "GetData", .function = &lua::adapt<get_data>},
+    {.name = "GetLevel", .function = &lua::adapt<get_level>},
+    {.name = "GetName", .function = &lua::adapt<get_name>},
+}};
 
 } // namespace
 

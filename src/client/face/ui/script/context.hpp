@@ -8,6 +8,8 @@
 #include "ui/script/variable.hpp"
 #include "ui/script/xscript.hpp"
 
+#include <array>
+#include <chrono>
 #include <cstddef>
 #include <cstdint>
 #include <optional>
@@ -43,6 +45,15 @@ struct Facts {
         std::int32_t s2606 = 0;
     };
     ServerFlags server;
+    // Đồng hồ đơn điệu của khung (HudView::clock); OSAPI:GetTickCount đọc ra. Khác gốc: gốc đọc đồng hồ hệ thống tính từ lúc máy
+    // khởi động (GetTickCount, quấn vòng 32 bit); ở đây tính từ lúc đồng hồ khung bắt đầu, nên script chỉ nên dùng hiệu hai lần đọc.
+    std::chrono::milliseconds clock{0};
+    // ZBS:IsViewerWatching: số ở đối tượng quan sát (+0x18) của máy chủ ZBS; 0 khi chưa có đối tượng đó, như gốc.
+    std::int32_t viewer_watching = 0;
+    // IsDfsSpeicalServer: số nguyên ở đối tượng hệ thống (DAT_141034c40 + 0x5eefcc); 0 là máy chủ thường.
+    std::int32_t dfs_server = 0;
+    // DataPool:Lua_GetUpdateTipsFlag(chỉ số): 100 cờ nhắc cập nhật do máy chủ gửi (DAT_141034c10 + 0x2db4); chưa nhận thì 0.
+    std::array<std::int32_t, 100> update_tips{};
 };
 
 struct Context {
@@ -52,6 +63,9 @@ struct Context {
     // trả về nullptr sau đó; con trỏ phải sống suốt lời gọi.
     const XParamRecord* xparam = nullptr;
     Facts facts;
+    // Giá trị mới nhất mà script đặt bằng DataPool:SetCanUseHotKey (gốc cất ở DAT_141034c40 + 0x5c1a48); nullopt khi chưa đặt. Phía
+    // game đọc để bật hay tắt phím tắt.
+    std::optional<std::int32_t> can_use_hotkey;
     // Bảng biến toàn cục (Variable:GetVariable / SetVariable).
     VariableSystem variables;
     // Việc native nhờ game (PushEvent của hàm nào đó): chủ host lấy ra bằng take_calls cùng chỗ với Host::take_calls.

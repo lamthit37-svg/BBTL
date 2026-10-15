@@ -22,7 +22,11 @@ void register_world(lua_State* lua);
 // ScriptGlobal_Format (message_format.hpp).
 void register_format(lua_State* lua);
 
-// Player:GetData (thuộc tính của nhân vật người chơi, Facts::hero).
+// Player:GetData, Player:GetLevel, Player:GetName (thuộc tính của nhân vật người chơi, Facts::hero).
 void register_player(lua_State* lua);
+
+// Hàm hệ thống nhỏ: OSAPI:GetTickCount, ZBS:IsViewerWatching, IsDfsSpeicalServer, Infant:GetMaxSkillNum, KaJi:LuaFnIsKaJiServer,
+// KaJi:LuaFnGetKaJiType, CloseMessageBoxCommon, DataPool:SetCanUseHotKey, DataPool:Lua_GetUpdateTipsFlag.
+void register_system(lua_State* lua);
 
 } // namespace game::ui::script

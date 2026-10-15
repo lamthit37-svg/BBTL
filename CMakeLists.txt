@@ -609,6 +609,7 @@ game_module(ui_script
     src/client/face/ui/script/native_format.cpp
     src/client/face/ui/script/native_player.cpp
     src/client/face/ui/script/native_support.cpp
+    src/client/face/ui/script/native_system.cpp
     src/client/face/ui/script/native_variable.cpp
     src/client/face/ui/script/native_world.cpp
     src/client/face/ui/script/native_xscript.cpp
@@ -1491,6 +1492,8 @@ game_test(ui_script_xscript game_ui_script)
 game_test(ui_script_world game_ui_script)
 # Player:GetData (tầng B): ánh xạ khoá sang trường của hero::Hero, tách tiền, chuỗi kinh nghiệm, ca không trả gì.
 game_test(ui_script_player game_ui_script)
+# Hàm hệ thống nhỏ (tầng B): đồng hồ, cờ nhắc cập nhật có biên, việc nhờ game, hằng của gốc.
+game_test(ui_script_system game_ui_script)
 # Lượt chạy hàng loạt (không phải test): mở cả sổ cửa sổ, hiện/giấu từng cửa sổ và kê hàm game, phương thức widget mà script
 # đòi mà client chưa có, để xếp việc cho tầng B và widget (Test/bench/ui_script_survey.cpp).
 if(NOT ANDROID AND NOT IOS AND TARGET game_ui_script)

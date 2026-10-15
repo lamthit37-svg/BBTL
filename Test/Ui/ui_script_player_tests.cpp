@@ -130,12 +130,28 @@ void nothing_is_returned_without_data(Context& context) {
     context.expect(rig.eval(R"(return Player:GetData("LEVEL\0rac"))") == "1", "NUL cắt khoá");
 }
 
-constexpr std::array<Case, 5> kCases = {{
+void level_and_name_follow_the_hero(Context& context) {
+    hero::Hero who = hero::newcomer();
+    who.level = 88;
+    who.name = "Thiên Long";
+    ui::script::Context script;
+    ScriptRig rig(script);
+    if (!rig.ok()) return;
+    // Chưa có nhân vật: tên rỗng, cấp là lỗi assert `pMyself` như gốc.
+    context.expect(rig.eval("return Player:GetName()").empty(), "chưa có nhân vật thì tên rỗng");
+    context.expect(rig.eval("return Player:GetLevel()").contains("pMyself"), "chưa có nhân vật thì GetLevel báo assert pMyself");
+    script.facts.hero = &who;
+    context.expect(rig.eval("return Player:GetLevel()") == "88", "GetLevel");
+    context.expect(rig.eval("return Player:GetName()") == "Thiên Long", "GetName giữ nguyên byte UTF-8");
+}
+
+constexpr std::array<Case, 6> kCases = {{
     {.name = "mỗi khoá đọc đúng trường của nó", .body = every_key_reads_its_own_field},
     {.name = "MONEY tách vàng bạc đồng", .body = money_splits_into_gold_silver_copper},
     {.name = "EXP và NEEDEXP là chuỗi thập phân", .body = experience_is_decimal_text},
     {.name = "thanh máu vượt int32 kẹp biên", .body = gauges_saturate_instead_of_wrapping},
     {.name = "không có dữ liệu thì không trả gì", .body = nothing_is_returned_without_data},
+    {.name = "GetLevel và GetName", .body = level_and_name_follow_the_hero},
 }};
 
 } // namespace

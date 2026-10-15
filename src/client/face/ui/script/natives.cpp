@@ -46,6 +46,7 @@ void open_natives(lua_State* lua) {
     register_world(lua);
     register_format(lua);
     register_player(lua);
+    register_system(lua);
 }
 
 std::function<void(lua_State*)> make_natives(Context& context) {
