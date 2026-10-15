@@ -17,7 +17,7 @@
  *============================================================================*/
 
 // Chạy: thienlong_bot --identity <identity.key> [--game 7000] [--auth 7001] [--count 4] [--seconds 6] [--prefix bot]
-//       [--straight 1] [--hunt <x_m>,<z_m>] [--talk <x_m>,<z_m>]
+//       [--straight 1] [--hunt <x_m>,<z_m>] [--talk <x_m>,<z_m>] [--fight <x_m>,<z_m>]
 // Thoát 0 khi mọi khách vào được cảnh và thấy đủ những khách còn lại; khác 0 kèm lý do.
 // --straight 1: mỗi khách đi thẳng một hướng (chia đều 360 độ theo số khách) tới khi bị luật đi của zone chặn, rồi
 // đo việc server kéo về: phải có ít nhất một lần kéo về, và mỗi lần kéo về chỉ lùi vài bước so với chỗ khách tưởng
@@ -25,6 +25,8 @@
 // --hunt X,Z: mỗi khách đi thẳng tới điểm (X, Z) mét (cảnh vào game) rồi đứng đó --seconds giây, đếm quái hiện ra, quái
 // di chuyển (EntityPos Walk/Idle) và khoảng gần nhất quái tới khách: kiểm AI quái của zone trên cụm thật. Đạt khi thấy
 // quái hiện ra và quái có đi.
+// --fight X,Z: đi tới điểm (X, Z) mét, chọn quái gần nhất còn sống, đi sát và ra chiêu đầu tiên trong SelfSkills tới khi
+// nó chết, rồi nhặt vật rơi (nếu có). Đạt khi có SkillCast mang seq của mình, sát thương, EntityDied và kinh nghiệm tăng.
 
 #include "io/platform.hpp"
 #include "link/link.hpp"
@@ -81,6 +83,8 @@ struct Options {
     std::optional<std::pair<float, float>> hunt;
     // Điểm tới của --talk, centimet.
     std::optional<std::pair<float, float>> talk;
+    // Điểm tới của --fight, centimet.
+    std::optional<std::pair<float, float>> fight;
 };
 
 struct Tally {
@@ -104,6 +108,14 @@ struct Tally {
     std::atomic<int> dialogs{0};
     std::atomic<int> offers{0};
     std::atomic<int> accepted{0};
+    // Chỉ chế độ --fight: chiêu của mình được SkillCast xác nhận (seq khác 0), sát thương, quái chết, vật rơi thấy, vật nhặt
+    // được, và kinh nghiệm tăng.
+    std::atomic<int> casts{0};
+    std::atomic<int> damage_events{0};
+    std::atomic<int> deaths{0};
+    std::atomic<int> drops{0};
+    std::atomic<int> picked{0};
+    std::atomic<std::int64_t> exp_gained{0};
 };
 
 void report(std::string_view who, std::string_view what) { std::println(stderr, "[{}] {}", who, what); }
@@ -187,6 +199,12 @@ struct Seen {
     // Tin hội thoại và sổ nhiệm vụ mới nhất.
     std::optional<protocol::DialogOpen> dialog;
     std::optional<protocol::QuestBook> book;
+    // Chế độ --fight: kỹ năng đã học, quái và vật rơi đang thấy, kinh nghiệm mới nhất và túi đồ mới nhất.
+    std::vector<protocol::SkillEntry> skills;
+    std::unordered_map<std::uint32_t, Npc> monsters;
+    std::unordered_map<std::uint32_t, Npc> loot;
+    std::optional<std::uint64_t> exp;
+    std::optional<protocol::SelfBag> bag;
     float x_cm = 0.0F;
     float z_cm = 0.0F;
     std::optional<protocol::Position> position;
@@ -216,6 +234,13 @@ void note(const protocol::GameServerMessage& message, Seen& seen, Tally& tally) 
         if (shown->kind == protocol::EntityKind::kNpc) {
             seen.npcs[shown->id] = Npc{.name = shown->name, .x_cm = shown->x_cm, .z_cm = shown->z_cm};
         }
+        if (shown->kind == protocol::EntityKind::kMonster && shown->state != protocol::EntityState::kDead) {
+            seen.monsters[shown->id] = Npc{.name = shown->name, .x_cm = shown->x_cm, .z_cm = shown->z_cm};
+        }
+        if (shown->kind == protocol::EntityKind::kDrop) {
+            seen.loot[shown->id] = Npc{.name = shown->name, .x_cm = shown->x_cm, .z_cm = shown->z_cm};
+            ++tally.drops;
+        }
         if (shown->kind == protocol::EntityKind::kPlayer) {
             ++tally.appear;
         } else if (shown->kind == protocol::EntityKind::kNpc) {
@@ -232,9 +257,31 @@ void note(const protocol::GameServerMessage& message, Seen& seen, Tally& tally) 
     }
     if (const auto* dialog = std::get_if<protocol::DialogOpen>(&message)) seen.dialog = *dialog;
     if (const auto* book = std::get_if<protocol::QuestBook>(&message)) seen.book = *book;
-    if (std::holds_alternative<protocol::EntityDisappear>(message)) ++tally.disappear;
+    if (const auto* gone = std::get_if<protocol::EntityDisappear>(&message)) {
+        ++tally.disappear;
+        seen.monsters.erase(gone->id);
+        seen.loot.erase(gone->id);
+    }
+    if (const auto* skills = std::get_if<protocol::SelfSkills>(&message)) seen.skills = skills->skills;
+    if (const auto* bag = std::get_if<protocol::SelfBag>(&message)) seen.bag = *bag;
+    if (const auto* stats = std::get_if<protocol::SelfStats>(&message)) {
+        if (seen.exp && stats->exp > *seen.exp) tally.exp_gained += static_cast<std::int64_t>(stats->exp - *seen.exp);
+        seen.exp = stats->exp;
+    }
+    if (const auto* cast = std::get_if<protocol::SkillCast>(&message); cast != nullptr && cast->seq != 0) ++tally.casts;
+    if (const auto* hit = std::get_if<protocol::CombatEvent>(&message);
+        hit != nullptr && hit->kind == protocol::CombatKind::kDamage && hit->value > 0) {
+        ++tally.damage_events;
+    }
+    if (const auto* died = std::get_if<protocol::EntityDied>(&message)) {
+        if (seen.monsters.erase(died->id) != 0) ++tally.deaths;
+    }
     if (const auto* moved = std::get_if<protocol::EntityPos>(&message)) {
         ++tally.position;
+        if (const auto known = seen.monsters.find(moved->id); known != seen.monsters.end()) {
+            known->second.x_cm = moved->x_cm;
+            known->second.z_cm = moved->z_cm;
+        }
         const auto kind = seen.kinds.find(moved->id);
         if (kind != seen.kinds.end() && kind->second == protocol::EntityKind::kMonster) {
             ++(moved->state == protocol::EntityState::kWalk ? tally.monster_walking : tally.monster_resting);
@@ -419,6 +466,85 @@ void talk(link::Link& line, Seen& seen, Tally& tally, const protocol::Position& 
     converse(line, seen, tally, target->first, tick);
 }
 
+// Quái còn sống gần khách nhất.
+[[nodiscard]] std::optional<std::pair<std::uint32_t, Npc>> nearest_monster(const Seen& seen) {
+    std::optional<std::pair<std::uint32_t, Npc>> best;
+    float best_gap = 0.0F;
+    for (const auto& [id, monster] : seen.monsters) {
+        const float gap = std::hypot(monster.x_cm - seen.x_cm, monster.z_cm - seen.z_cm);
+        if (!best || gap < best_gap) {
+            best = std::pair{id, monster};
+            best_gap = gap;
+        }
+    }
+    return best;
+}
+
+// Đi tới vật rơi gần nhất, nhặt, chờ túi đổi. Trả đúng khi túi đổi.
+[[nodiscard]] bool collect(link::Link& line, Seen& seen, Tally& tally, std::uint32_t& tick) {
+    constexpr float kPickCm = 120.0F;
+    std::optional<std::pair<std::uint32_t, Npc>> best;
+    float best_gap = 0.0F;
+    for (const auto& [id, drop] : seen.loot) {
+        const float gap = std::hypot(drop.x_cm - seen.x_cm, drop.z_cm - seen.z_cm);
+        if (!best || gap < best_gap) {
+            best = std::pair{id, drop};
+            best_gap = gap;
+        }
+    }
+    if (!best) return false;
+    go(line, seen, tally, std::pair{best->second.x_cm, best->second.z_cm}, kPickCm, tick);
+    const std::optional<protocol::SelfBag> before = seen.bag;
+    seen.bag.reset();
+    if (!send(line, protocol::PickUp{.drop = best->first})) return false;
+    listen(line, seen, tally, std::chrono::milliseconds{1500}, [&] { return seen.bag.has_value(); });
+    const bool changed = seen.bag.has_value() && (!before || *seen.bag != *before);
+    if (changed) ++tally.picked;
+    return changed;
+}
+
+// Săn quái ở `goal`: giết tối đa kMaxKills con (dừng sớm khi đã nhặt được một món), mỗi con đánh bằng kỹ năng đầu tiên
+// trong SelfSkills.
+void fight(link::Link& line, Seen& seen, Tally& tally, const protocol::Position& start, std::pair<float, float> goal) {
+    constexpr float kCloseCm = 300.0F;
+    constexpr float kReachCm = 150.0F;
+    constexpr int kMaxKills = 12;
+    constexpr int kMaxCasts = 40;
+    seen.x_cm = start.x_cm;
+    seen.z_cm = start.z_cm;
+    seen.tolerate_reject = true;
+    std::uint32_t tick = 0;
+    std::uint16_t seq = 0;
+    go(line, seen, tally, goal, kCloseCm, tick);
+    listen(line, seen, tally, std::chrono::milliseconds{1500}, [] { return false; });
+    if (seen.skills.empty()) {
+        std::println("  SelfSkills rỗng: nhân vật chưa có kỹ năng");
+        return;
+    }
+    const std::uint16_t skill = seen.skills.front().skill;
+    std::println("  ra chiêu {} (cấp {})", skill, seen.skills.front().level);
+    for (int kills = 0; kills < kMaxKills && tally.picked.load() == 0 && !seen.refused; ++kills) {
+        const auto target = nearest_monster(seen);
+        if (!target) {
+            std::println("  không còn quái sống quanh ({:.0f}, {:.0f})", seen.x_cm, seen.z_cm);
+            break;
+        }
+        const int deaths_before = tally.deaths.load();
+        for (int round = 0; round < kMaxCasts && tally.deaths.load() == deaths_before && !seen.refused; ++round) {
+            const auto current = seen.monsters.find(target->first);
+            if (current == seen.monsters.end()) break;
+            go(line, seen, tally, std::pair{current->second.x_cm, current->second.z_cm}, kReachCm, tick);
+            if (!send(line, protocol::CastSkill{.seq = ++seq, .skill = skill, .target = target->first})) return;
+            // 1,4 giây giữa hai chiêu: đủ hồi chiêu cơ bản và dưới trần mười ý định mỗi giây của server.
+            listen(line, seen, tally, std::chrono::milliseconds{1400}, [&] { return tally.deaths.load() != deaths_before; });
+        }
+        if (tally.deaths.load() == deaths_before) continue;
+        std::println("  quái {:#x} chết sau {} chiêu", target->first, seq);
+        listen(line, seen, tally, std::chrono::milliseconds{800}, [] { return false; });
+        if (collect(line, seen, tally, tick)) std::println("  nhặt được vật rơi, túi có {} ô", seen.bag ? seen.bag->slots.size() : 0U);
+    }
+}
+
 void run_bot(const Options& options, const secure::PublicKey& server, int index, Tally& tally) {
     const std::string account = std::format("{}{}", options.prefix, index);
     const auto fail = [&](std::string_view why) {
@@ -461,7 +587,9 @@ void run_bot(const Options& options, const secure::PublicKey& server, int index,
     }
     if (!seen.position) return fail("EnterGame bị từ chối");
     std::println("[{}] vào tại x={:.0f} z={:.0f} (cm)", account, seen.position->x_cm, seen.position->z_cm);
-    if (options.talk) {
+    if (options.fight) {
+        fight(*line, seen, tally, *seen.position, *options.fight);
+    } else if (options.talk) {
         talk(*line, seen, tally, *seen.position, *options.talk);
     } else if (options.hunt) {
         hunt(*line, seen, tally, *seen.position, *options.hunt, options.seconds);
@@ -517,14 +645,20 @@ void run_bot(const Options& options, const secure::PublicKey& server, int index,
             options.prefix = value;
         } else if (key == "--straight") {
             options.straight = value == "1";
-        } else if (key == "--hunt" || key == "--talk") {
+        } else if (key == "--hunt" || key == "--talk" || key == "--fight") {
             const std::size_t comma = value.find(',');
             if (comma == std::string_view::npos) return std::nullopt;
             const std::optional<int> east = whole_number(value.substr(0, comma));
             const std::optional<int> south = whole_number(value.substr(comma + 1));
             if (!east || !south) return std::nullopt;
-            (key == "--hunt" ? options.hunt : options.talk) =
-                std::pair{static_cast<float>(*east) * 100.0F, static_cast<float>(*south) * 100.0F};
+            const std::pair goal{static_cast<float>(*east) * 100.0F, static_cast<float>(*south) * 100.0F};
+            if (key == "--hunt") {
+                options.hunt = goal;
+            } else if (key == "--talk") {
+                options.talk = goal;
+            } else {
+                options.fight = goal;
+            }
         } else {
             return std::nullopt;
         }
@@ -542,7 +676,8 @@ int main(int argc, char** argv) {
         parse(std::span<const char* const>{argv, static_cast<std::size_t>(argc)});
     if (!options) {
         std::println(stderr, "dùng: thienlong_bot --identity <identity.key> [--game 7000] [--auth 7001] [--count 4] "
-                             "[--seconds 6] [--prefix bot] [--straight 1] [--hunt <x_m>,<z_m>] [--talk <x_m>,<z_m>]");
+                             "[--seconds 6] [--prefix bot] [--straight 1] [--hunt <x_m>,<z_m>] [--talk <x_m>,<z_m>] "
+                             "[--fight <x_m>,<z_m>]");
         return 2;
     }
     const net::NetResult<net::Network> network = net::Network::start();
@@ -567,6 +702,14 @@ int main(int argc, char** argv) {
         tally.npcs.load(), tally.monsters.load(), tally.corrections.load(), tally.drifted.load(), tally.failed.load());
     if (tally.failed.load() != 0) return 1;
     if (tally.entered.load() != options->count) return 1;
+    if (options->fight) {
+        std::println("chiến đấu: chiêu của mình={} sát thương={} quái chết={} vật rơi thấy={} đã nhặt={} kinh nghiệm +{}",
+            tally.casts.load(), tally.damage_events.load(), tally.deaths.load(), tally.drops.load(), tally.picked.load(),
+            tally.exp_gained.load());
+        return tally.casts.load() > 0 && tally.damage_events.load() > 0 && tally.deaths.load() > 0 && tally.exp_gained.load() > 0
+            ? 0
+            : 1;
+    }
     if (options->talk) {
         std::println("hội thoại: NPC bấm được={} hộp thoại={} bảng nhận={} đã nhận={}", tally.talkable.load(),
             tally.dialogs.load(), tally.offers.load(), tally.accepted.load());

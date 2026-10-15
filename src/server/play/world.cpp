@@ -17,10 +17,14 @@
 
 #include "actor/body.hpp"
 #include "actor/rules.hpp"
+#include "combat/catalog.hpp"
 #include "handlers/registry.hpp"
 #include "io/file.hpp"
 #include "item/catalog.hpp"
+#include "item/factory.hpp"
 #include "item/limits.hpp"
+#include "item/roll.hpp"
+#include "loot/tables.hpp"
 #include "mission/catalog.hpp"
 #include "ops/ops.hpp"
 #include "play/text.hpp"
@@ -52,6 +56,10 @@ struct World::Data {
     actor::BodyLimits body_limits;
     std::unique_ptr<item::Catalog> items;
     item::Limits item_limits;
+    std::unique_ptr<combat::Catalog> combat;
+    std::unique_ptr<item::RollTables> rolls;
+    std::unique_ptr<item::Factory> factory;
+    std::unique_ptr<loot::LootTables> loot;
 };
 
 namespace {
@@ -165,6 +173,50 @@ std::expected<World, std::string> World::load(const Paths& paths) {
     if (!limits) return std::unexpected("item_limits: " + limits.error());
     data->item_limits = std::move(*limits);
 
+    // ---- chiến đấu: bảy bảng của combat::CatalogText ----
+    const std::array<std::string_view, 7> combat_files{"shared/skills.tsv", "shared/skill_levels.tsv", "server/effects.tsv",
+        "shared/id_collections.tsv", "server/camp_relations.tsv", "server/skill_logics.tsv", "server/effect_logics.tsv"};
+    std::array<std::string, 7> combat_text;
+    for (std::size_t at = 0; at < combat_files.size(); ++at) {
+        std::expected<std::string, std::string> text = read(paths.tables, combat_files.at(at));
+        if (!text) return std::unexpected(text.error());
+        combat_text.at(at) = std::move(*text);
+    }
+    auto combat = combat::load_catalog(combat::CatalogText{.skills = combat_text[0], .skill_levels = combat_text[1],
+        .effects = combat_text[2], .id_collections = combat_text[3], .camp_relations = combat_text[4],
+        .skill_logics = combat_text[5], .effect_logics = combat_text[6]});
+    if (!combat) return std::unexpected("combat: " + combat.error().what);
+    data->combat = std::make_unique<combat::Catalog>(std::move(*combat));
+
+    // ---- tạo và rơi vật phẩm ----
+    const std::array<std::string_view, 6> roll_files{"shared/item_segment_values.tsv", "server/item_segment_values_xjl.tsv",
+        "server/item_segment_values.tsv", "server/item_segment_distributions_xjl.tsv",
+        "server/item_segment_quality_rules_xjl.tsv", "shared/item_aptitude_rates.tsv"};
+    std::array<std::string, 6> roll_text;
+    for (std::size_t at = 0; at < roll_files.size(); ++at) {
+        std::expected<std::string, std::string> text = read(paths.tables, roll_files.at(at));
+        if (!text) return std::unexpected(text.error());
+        roll_text.at(at) = std::move(*text);
+    }
+    auto rolls = item::RollTables::load(item::RollSources{.values_shared = roll_text[0], .values_xjl = roll_text[1],
+        .values_server = roll_text[2], .affects = roll_text[3], .quality_rules = roll_text[4], .apt_rates = roll_text[5]});
+    if (!rolls) return std::unexpected("item_roll: " + rolls.error());
+    data->rolls = std::make_unique<item::RollTables>(std::move(*rolls));
+    data->factory = std::make_unique<item::Factory>(*data->items, *data->rolls);
+
+    const std::array<std::string_view, 5> loot_files{"server/drop_packages.tsv", "server/monster_drops.tsv",
+        "server/drop_level_gap_factors.tsv", "server/item_drop_rates.tsv", "server/loot_box_entries.tsv"};
+    std::array<std::string, 5> loot_text;
+    for (std::size_t at = 0; at < loot_files.size(); ++at) {
+        std::expected<std::string, std::string> text = read(paths.tables, loot_files.at(at));
+        if (!text) return std::unexpected(text.error());
+        loot_text.at(at) = std::move(*text);
+    }
+    auto loot = loot::LootTables::load(loot::LootSources{.packs = loot_text[0], .monsters = loot_text[1],
+        .level_gaps = loot_text[2], .rate_items = loot_text[3], .boxes = loot_text[4]}, *data->items);
+    if (!loot) return std::unexpected("loot: " + loot.error());
+    data->loot = std::make_unique<loot::LootTables>(std::move(*loot));
+
     return World{std::move(data)};
 }
 
@@ -175,6 +227,9 @@ const actor::Rules& World::rules() const noexcept { return *data_->rules; }
 const actor::BodyLimits& World::body_limits() const noexcept { return data_->body_limits; }
 const item::Catalog& World::items() const noexcept { return *data_->items; }
 const item::Limits& World::item_limits() const noexcept { return data_->item_limits; }
+const combat::Catalog& World::combat() const noexcept { return *data_->combat; }
+const loot::LootTables& World::loot() const noexcept { return *data_->loot; }
+const item::Factory& World::factory() const noexcept { return *data_->factory; }
 bool World::speaks(std::uint32_t script) const noexcept {
     // Chỉ NPC có hộp thoại gốc chạy được mới bấm được: điểm vào gốc chưa trích được thì Talk chỉ trả "không có hội thoại".
     const talk::Entry* const root = data_->script->entry(script, -1);

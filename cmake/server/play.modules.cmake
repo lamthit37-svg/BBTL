@@ -7,9 +7,10 @@ if(TARGET game_account)
         src/server/play/bag.cpp
         src/server/play/world.cpp
         src/server/play/player.cpp
+        src/server/play/battle.cpp
         src/server/play/gameplay.cpp)
     target_link_libraries(game_play
         PUBLIC game_core game_table game_ids game_dice game_protocol game_ops game_ledger game_mission game_talk game_handlers
-               game_actor game_item game_account game_ipc
+               game_actor game_item game_combat game_loot game_account game_ipc
         PRIVATE game_io)
 endif()

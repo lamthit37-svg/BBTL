@@ -16,6 +16,7 @@
 #include "play/gameplay.hpp"
 
 #include "account/play.hpp"
+#include "bus/bus.hpp"
 #include "ids/ids.hpp"
 #include "ipc/relay.hpp"
 #include "ledger/ledger.hpp"
@@ -23,7 +24,10 @@
 #include "mission/engine.hpp"
 #include "mission/hero.hpp"
 #include "ops/ops.hpp"
+#include "play/bag.hpp"
+#include "play/battle.hpp"
 #include "play/player.hpp"
+#include "play/stage.hpp"
 #include "play/text.hpp"
 #include "play/world.hpp"
 #include "protocol/messages.hpp"
@@ -217,20 +221,6 @@ void put_done(protocol::QuestBook& out, const mission::Book& book) {
 
 } // namespace
 
-template <typename Message>
-void Output::down(std::uint64_t session, const Message& message) {
-    std::vector<std::byte> bytes;
-    if (!protocol::encode(bytes, message)) {
-        ++encode_failures;
-        return;
-    }
-    frames.push_back(Frame{.session = session, .bytes = std::move(bytes)});
-}
-
-void Output::reject(std::uint64_t session, std::uint16_t request, protocol::ErrorCode code) {
-    down(session, protocol::Reject{.request = request, .code = code});
-}
-
 Gameplay::Gameplay(const World& world, const Settings& settings)
     : world_(&world),
       settings_(settings),
@@ -273,7 +263,15 @@ bool Gameplay::allow(Entry& who) const noexcept {
     return ++who.window_count <= settings_.intents_per_second;
 }
 
-bool Gameplay::attach(std::uint64_t session, const ipc::Attach& arrival, Output& out) {
+Battle& Gameplay::battle(std::uint16_t scene) {
+    std::unique_ptr<Battle>& slot = battles_[scene];
+    // Hạt riêng mỗi cảnh: hai cảnh không rút chung dãy số, và chạy lại ra đúng dãy cũ.
+    if (!slot) slot = std::make_unique<Battle>(*world_, scene, settings_.seed ^ (0x9E3779B97F4A7C15ULL * (scene + 1ULL)));
+    return *slot;
+}
+
+bool Gameplay::attach(const Arrival& arrived, const ipc::Attach& arrival, Surroundings& around, Output& out) {
+    const std::uint64_t session = arrived.session;
     // Gate gửi Attach lần hai cho cùng phiên: bỏ người chơi cũ trước, như Host với cảnh.
     detach(session, out);
     account::PlayRecord saved;
@@ -290,7 +288,17 @@ bool Gameplay::attach(std::uint64_t session, const ipc::Attach& arrival, Output&
     Entry& entry = players_[session];
     entry.player = std::move(*made);
     entry.character = arrival.character;
+    entry.scene = arrival.scene;
+    entry.entity = arrived.entity;
     entry.window_start = tick_;
+    Report report;
+    const Env env{.stage = &around, .out = &out, .report = &report};
+    const Seat seat{.session = session, .entity = arrived.entity, .player = entry.player.get(),
+        .x_cm = static_cast<std::int32_t>(arrival.x_cm), .z_cm = static_cast<std::int32_t>(arrival.z_cm)};
+    if (!battle(arrival.scene).join(seat, env)) {
+        players_.erase(session);
+        return false;
+    }
     // Cái vừa đọc từ store là cái đã ghi: so với nó để biết khi nào có gì mới cần ghi.
     entry.saved = entry.player->record();
     sync(session, entry, out);
@@ -302,6 +310,8 @@ void Gameplay::detach(std::uint64_t session, Output& out) {
     if (found == players_.end()) return;
     const Entry& entry = found->second;
     service_.close(entry.player->id());
+    // Thân thể về lại Player trước khi đóng gói, và trước khi Player bị huỷ.
+    if (const auto fight = battles_.find(entry.scene); fight != battles_.end()) fight->second->leave(session);
     if (std::optional<account::PlayRecord> last = entry.player->record()) {
         out.keeps.push_back(Output::Keep{.session = session, .character = entry.character, .record = std::move(*last)});
     }
@@ -322,7 +332,14 @@ void Gameplay::autosave(Output& out) {
     for (auto& [session, entry] : players_) sync(session, entry, out);
 }
 
-void Gameplay::intent(std::uint64_t session, protocol::ByteView frame, const Surroundings& around, Output& out) {
+void Gameplay::step(Surroundings& around, Output& out) {
+    Report report;
+    const Env env{.stage = &around, .out = &out, .report = &report};
+    for (auto& [scene, fight] : battles_) fight->step(env);
+    settle(report, out);
+}
+
+void Gameplay::intent(std::uint64_t session, protocol::ByteView frame, Surroundings& around, Output& out) {
     const auto found = players_.find(session);
     const protocol::FrameResult head = protocol::peek_frame(frame, protocol::kClientBodyBytes);
     if (found == players_.end() || !head) {
@@ -349,7 +366,7 @@ void Gameplay::intent(std::uint64_t session, protocol::ByteView frame, const Sur
 }
 
 void Gameplay::handle(std::uint64_t session, Entry& who, const protocol::GameClientMessage& message,
-    const Surroundings& around, Output& out) {
+    Surroundings& around, Output& out) {
     const Call call{.session = session, .who = &who, .around = &around, .out = &out};
     std::visit([this, &call](const auto& one) { on(call, one); }, message);
 }
@@ -409,6 +426,51 @@ void Gameplay::on(const Call& call, const protocol::DialogClose& message) {
     if (!open || open->value() != message.session) return;
     service_.close(call.who->player->id());
     call.out->down(call.session, protocol::DialogClosed{.session = message.session, .reason = protocol::DialogCloseReason::kClient});
+}
+
+void Gameplay::on(const Call& call, const protocol::CastSkill& message) {
+    Report report;
+    battle(call.who->scene).cast(call.session, message, Env{.stage = call.around, .out = call.out, .report = &report});
+    settle(report, *call.out);
+}
+
+void Gameplay::on(const Call& call, const protocol::Respawn& message) {
+    Report report;
+    battle(call.who->scene).respawn(call.session, message, Env{.stage = call.around, .out = call.out, .report = &report});
+    settle(report, *call.out);
+}
+
+void Gameplay::on(const Call& call, const protocol::PickUp& message) {
+    Report report;
+    battle(call.who->scene).pick_up(call.session, message, Env{.stage = call.around, .out = call.out, .report = &report});
+    settle(report, *call.out);
+}
+
+void Gameplay::settle(const Report& report, Output& out) {
+    const ops::Calendar now = calendar();
+    const auto publish = [&](std::uint64_t session, const bus::Event& event) {
+        const auto found = players_.find(session);
+        if (found == players_.end()) return;
+        const mission::Outcome outcome = engine_.handle(*found->second.player, event, now);
+        notices(session, found->second, found->second.npc_name, outcome, out);
+    };
+    for (const Slain& kill : report.slain) {
+        const auto found = players_.find(kill.session);
+        if (found == players_.end()) continue;
+        publish(kill.session, bus::Event{.kind = bus::Kind::kKill, .hero = found->second.player->id(), .a = kill.monster,
+                                  .b = found->second.scene, .name = ops::name_id(kill.name), .c = 0});
+    }
+    for (const Picked& pick : report.picked) {
+        const auto found = players_.find(pick.session);
+        if (found == players_.end()) continue;
+        const auto held = found->second.player->ports().items.count(pick.item);
+        publish(pick.session, bus::Event{.kind = bus::Kind::kItemChanged, .hero = found->second.player->id(), .a = pick.item,
+                                  .b = 0, .name = 0, .c = static_cast<std::int32_t>(std::min<std::int64_t>(held, INT32_MAX))});
+    }
+    for (const std::uint64_t session : report.changed) {
+        const auto found = players_.find(session);
+        if (found != players_.end()) sync(session, found->second, out);
+    }
 }
 
 void Gameplay::finish(const Call& call, std::uint16_t request, talk::Result& answer) {
@@ -507,6 +569,23 @@ void Gameplay::sync(std::uint64_t session, Entry& who, Output& out) {
     if (!who.sent_once || !(hero.book() == who.sent_book)) {
         out.down(session, book_message(hero.book()));
         who.sent_book = hero.book();
+    }
+    // Lên cấp ngoài hội thoại (đánh quái): sổ nhiệm vụ có thể mở nhiệm vụ mới theo cấp.
+    if (who.sent_once && hero.level() > who.sent_level) {
+        const mission::Outcome opened = engine_.handle(hero, bus::Event{.kind = bus::Kind::kLevelUp, .hero = hero.id(),
+            .a = static_cast<std::uint32_t>(hero.level()), .b = 0, .name = 0, .c = who.sent_level}, calendar());
+        notices(session, who, who.npc_name, opened, out);
+    }
+    if (!who.sent_once || !(hero.bag().slots().size() == who.sent_bag.size() &&
+                             std::equal(hero.bag().slots().begin(), hero.bag().slots().end(), who.sent_bag.begin()))) {
+        protocol::SelfBag bag;
+        for (std::size_t at = 0; at < hero.bag().slots().size() && bag.slots.size() < protocol::kSelfBagSlotsCount; ++at) {
+            const BagSlot& held = hero.bag().slots()[at];
+            bag.slots.push_back(protocol::BagSlot{.slot = static_cast<std::uint16_t>(at), .item = held.item,
+                .count = static_cast<std::uint16_t>(std::min<std::uint32_t>(held.count, 65535U)), .bound = held.bound});
+        }
+        out.down(session, bag);
+        who.sent_bag.assign(hero.bag().slots().begin(), hero.bag().slots().end());
     }
     if (!who.sent_once || hero.level() != who.sent_level || hero.exp() != who.sent_exp || hero.money() != who.sent_money ||
         hero.bound() != who.sent_bound) {

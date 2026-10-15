@@ -20,6 +20,7 @@
 #include "ipc/link.hpp"
 #include "ipc/relay.hpp"
 #include "play/gameplay.hpp"
+#include "play/stage.hpp"
 #include "protocol/messages.hpp"
 #include "zone/content.hpp"
 #include "zone/outbox.hpp"
@@ -31,6 +32,7 @@
 #include <cstdint>
 #include <memory>
 #include <optional>
+#include <span>
 #include <utility>
 #include <vector>
 
@@ -40,13 +42,15 @@ namespace {
 
 // Một mét bằng trăm centimet: toạ độ của cảnh là centimet, khoảng cách hội thoại là mét.
 constexpr float kCmPerMeter = 100.0F;
+// EntityFlags bit 1: vật rơi nhặt được (bit 0 là bấm vào để nói chuyện).
+constexpr std::uint8_t kPickableFlag = 2;
 
 }  // namespace
 
-// Cầu từ Scene sang gameplay: NPC nào đứng đó và người chơi cách bao xa. Chỉ đọc.
+// Cầu từ Scene sang gameplay: NPC nào đứng đó, người chơi cách bao xa, và việc gameplay nhờ cảnh làm (xác, vật rơi, tin phát quanh).
 class Host::Around final : public play::Surroundings {
 public:
-    explicit Around(const Host& host) noexcept : host_(&host) {}
+    Around(Host& host, Outbox& out) noexcept : host_(&host), out_(&out) {}
 
     [[nodiscard]] std::optional<Npc> npc(std::uint64_t session, Target target) const override {
         const Scene* scene = host_->scene_of(session);
@@ -74,8 +78,81 @@ public:
             .distance_m = std::sqrt((along * along) + (across * across)) / kCmPerMeter};
     }
 
+    [[nodiscard]] std::optional<Unit> unit(Place place) const override {
+        const Scene* scene = host_->find(place.scene);
+        const std::optional<Info> seen = scene != nullptr ? scene->info(place.entity) : std::nullopt;
+        if (!seen) return std::nullopt;
+        Unit out = unit_of(place.entity, *seen);
+        out.name = seen->name;
+        return out;
+    }
+
+    void units_near(Place place, std::vector<Unit>& out) const override {
+        const Scene* scene = host_->find(place.scene);
+        if (scene == nullptr) return;
+        scene->for_each_near(place.entity, [&out](std::uint32_t id, const Info& seen) { out.push_back(unit_of(id, seen)); });
+    }
+
+    void tell(Place place, std::span<const std::byte> frame, bool include_self) override {
+        const Scene* scene = host_->find(place.scene);
+        if (scene == nullptr) return;
+        scene->tell_near(place.entity, std::vector<std::byte>{frame.begin(), frame.end()}, include_self, *out_);
+    }
+
+    void hurt(Place place, std::uint8_t percent) override {
+        if (Scene* scene = host_->find(place.scene)) scene->set_hp_percent(HpChange{.id = place.entity, .percent = percent}, *out_);
+    }
+
+    void fell(Place place) override {
+        if (Scene* scene = host_->find(place.scene)) scene->kill(place.entity);
+    }
+
+    void raise(Place place, std::int32_t x_cm, std::int32_t z_cm, std::uint8_t percent) override {
+        Scene* scene = host_->find(place.scene);
+        if (scene == nullptr) return;
+        const std::optional<Info> seen = scene->info(place.entity);
+        if (!seen || seen->session == 0) return;
+        scene->revive(place.entity, Point{.x_cm = static_cast<float>(x_cm), .z_cm = static_cast<float>(z_cm)}, percent, *out_);
+        // Gate đặt mốc mới cho guard::Pace rồi gửi Position: client dời nhân vật về chỗ hồi sinh.
+        out_->place(seen->session, static_cast<float>(x_cm), static_cast<float>(z_cm));
+    }
+
+    void promote(Place place, std::uint16_t level) override {
+        if (Scene* scene = host_->find(place.scene)) scene->set_level(place.entity, level);
+    }
+
+    [[nodiscard]] std::optional<std::uint32_t> drop(std::uint16_t scene_id, const DropSpot& spot) override {
+        Scene* scene = host_->find(scene_id);
+        if (scene == nullptr) return std::nullopt;
+        Spawn what;
+        what.kind = protocol::EntityKind::kDrop;
+        what.template_id = spot.item_template;
+        what.level = 1;
+        what.x_cm = static_cast<float>(spot.x_cm);
+        what.z_cm = static_cast<float>(spot.z_cm);
+        what.flags = kPickableFlag;
+        return scene->spawn(what, *out_);
+    }
+
+    void sweep(Place place) override {
+        if (Scene* scene = host_->find(place.scene)) scene->despawn(place.entity, *out_);
+    }
+
 private:
-    const Host* host_;
+    [[nodiscard]] static Unit unit_of(std::uint32_t id, const Info& seen) noexcept {
+        return Unit{.entity = id,
+            .kind = seen.kind,
+            .template_id = seen.template_id,
+            .level = seen.level,
+            .x_cm = static_cast<std::int32_t>(std::lround(seen.x_cm)),
+            .z_cm = static_cast<std::int32_t>(std::lround(seen.z_cm)),
+            .hp_percent = seen.hp_percent,
+            .dead = seen.state == protocol::EntityState::kDead,
+            .name = {}};
+    }
+
+    Host* host_;
+    Outbox* out_;
 };
 
 Host::Host(Config config) : config_(std::move(config)) {
@@ -145,7 +222,9 @@ void Host::seed(Scene& scene, const std::vector<Seed>& seeds) const {
     std::size_t placed = 0;
     for (const Seed& entry : seeds) {
         if (placed >= room) break;
-        if (scene.spawn(entry.what, nobody)) ++placed;
+        Spawn what = entry.what;
+        what.respawn_ms = entry.respawn_ms;
+        if (scene.spawn(what, nobody)) ++placed;
     }
 }
 
@@ -170,7 +249,9 @@ void Host::attach(std::uint64_t session, const ipc::Frame& frame, Outbox& out) {
     if (!play_) return;
     // Sau SceneEnter và EntityAppear: client đã vào cảnh khi nhận QuestBook và SelfStats.
     play::Output output;
-    if (!play_->attach(session, *arrival, output)) {
+    const std::optional<std::uint32_t> self = scene->entity_of(session);
+    Around around{*this, out};
+    if (!self || !play_->attach(play::Gameplay::Arrival{.session = session, .entity = *self}, *arrival, around, output)) {
         // Khối trạng thái chơi hỏng: không đoán, không cho vào với nhân vật nửa vời (vào lại được khi dữ liệu sửa).
         scene->detach(session, out);
         where_.erase(session);
@@ -214,7 +295,8 @@ void Host::handle(const ipc::Frame& frame, Outbox& out) {
             return;
         }
         play::Output output;
-        play_->intent(frame.session, frame.body, Around{*this}, output);
+        Around around{*this, out};
+        play_->intent(frame.session, frame.body, around, output);
         deliver(output, out);
         return;
     }
@@ -234,9 +316,11 @@ void Host::advance(Outbox& out) {
         scene.advance(out);
         if (save_now) scene.autosave(out);
     }
-    if (save_now && play_) {
+    if (play_) {
         play::Output output;
-        play_->autosave(output);
+        Around around{*this, out};
+        play_->step(around, output);
+        if (save_now) play_->autosave(output);
         deliver(output, out);
     }
 }

@@ -17,6 +17,16 @@ Giới hạn đã đo:
 - Túi là `play::Bag` tạm (khối kind 0x7302); `item::Inventory` vào ở lát cắt 3. `BodyLimits` dùng mặc định, giờ lịch nhiệm vụ cố định UTC+8, chỉ thị dịch chuyển/mở cửa hàng chưa làm. Dấu !/? trên đầu NPC chưa có (chỉ `DialogOpen.marks`). Chuyển cảnh bằng cổng truyền tống chưa làm vì đích nằm ở script Lua gốc chưa có trong cây.
 - `check.py --run` cho `play_tests` chưa chạy được trên Windows (liên kết MinGW thiếu ntdll/synchronization, Clang thiếu shell32); đã chạy `ctest` bản MSVC release, chưa chạy dưới ASan.
 
+## Máy chủ nối vào client: chiến đấu, xác, đồ rơi (lát cắt 3, 2026-10-15)
+
+Protocol v6 (`since 6`): `CastSkill`/`Respawn`/`PickUp` lên; `SelfVitals`, `SelfBag`, `SelfSkills`, `SkillCooldown`, `SkillCast`, `SkillCastEnd`, `CombatEvent`, `EntityDied`, `DeathNotice` xuống; thêm `ErrorCode` 33–40 (NotLearned … NotYours). Gate lọc tin theo `protocol::since_of(kind)` so với `Hello.version` (bỏ `kPlaySince`). Danh mục ở `docs/PROTOCOL-TIN.md`.
+
+Zone: `Scene` thêm `kill`/`revive`/`set_level`/`info`/`for_each_near`/`tell_near`; xác quái nằm lại `kCorpseTicks` (3 s) rồi `EntityDisappear`, quái có `respawn_ms` hồi sinh ở chỗ cũ với id mới (mặc định 30 s); người chết không đi được (`moved` kéo về bằng `kPlace`). Gameplay: `play/battle` giữ một `combat::Arena` mỗi cảnh (người chơi dùng chung thân thể với `play::Player`, quái dựng lười khi bị nhắm), `play/stage.hpp` là giao diện Gameplay↔Scene (`Surroundings`). Mỗi tick `Gameplay::step` chạy Arena, dịch sự kiện thành tin; quái chết chia kinh nghiệm (`ports().exp`), lên cấp thì báo `SelfStats`, đồ rơi theo `loot::Roller` thành thực thể `kDrop` (chủ nhặt trước, sau `public_from` ai cũng nhặt, hết hạn thì gỡ, trần 4096); chết người chơi áp `roll_penalty`, `Respawn` kiểu Town về chỗ vào cảnh, Here hồi 30%. Nhiệm vụ nhận sự kiện `kKill`/`kItemChanged`/`kLevelUp` qua bus.
+
+Đã chạy thật (cụm dev cài lại, `thienlong_bot --fight`): Đại Lý (cảnh 2), đòn thường id 0, 14 chiêu hạ 12 quái hồi sinh liên tục, kinh nghiệm +330; Kiếm Các (cảnh 7, quái cấp 1 có bảng rơi), 2 quái chết, 1 vật rơi, nhặt vào túi (`SelfBag` 1 ô), kinh nghiệm +30. `play_tests` 11 ca (kèm đòn thường, đầu vào thù địch, nhặt từ xa), `zone_tests` +3 ca (xác, hồi sinh, info), `protocol_tests`, `gate_tests`, `combat_tests` xanh; `check.py` xanh trên các tệp mã đã đổi (trừ hai tệp test cũ chưa từng sạch clang-tidy).
+
+Lỗi gốc đã sửa trên đường đi: (1) `combat::Catalog::level_of` trả null cho bảy kỹ năng chung có cả 16 ô cấp bằng 0 (id 0, 196 …) nên đòn thường báo `kUnknownSkill`; (2) `send_role_effect` bỏ mọi `effect_id <= 0` nên đòn thường (tham số 0 = dòng sát thương mặc định) không gây sát thương — nay chỉ đòn thường chung được gửi effect 0 (hơn 300 dòng logic 0 khác dùng 0 làm ô chưa dùng, đã đo); (3) `PlayRecord.hp` mặc định 1 bị coi là nhân vật sắp chết, nay `hp <= 1` nghĩa là nhân vật mới; (4) Rule quan hệ phe của `camp_relation` không cho người đánh quái, thay bằng luật người–quái thù địch riêng ở `play/battle`.
+
 ## Nhịp khung: trần 60 Hz của desktop (2026-10-15)
 
 Audit đường vẽ so với các kỹ thuật GPU-copy, dirty rect, render cache, culling, indirect, async compute,

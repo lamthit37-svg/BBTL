@@ -1,4 +1,17 @@
-// Bộ nạp bảng luật chiến đấu (xem catalog.hpp).
+/*==============================================================================
+ *  THIENLONG  |  GAME SERVER
+ *------------------------------------------------------------------------------
+ *  TỆP       : src/server/combat/catalog.cpp
+ *  PHÂN HỆ   : Server / Combat / Catalog
+ *  CHUẨN     : C++23
+ *------------------------------------------------------------------------------
+ *  CHỨC NĂNG
+ *  - Bộ nạp bảng luật chiến đấu (xem catalog.hpp).
+ *------------------------------------------------------------------------------
+ *  TÁC GIẢ   : HiepHoon
+ *  TELEGRAM  : @Hoon9xx
+ *============================================================================*/
+
 #include "combat/catalog.hpp"
 
 #include "actor/numeric.hpp"
@@ -390,7 +403,11 @@ const SkillLevel* Catalog::level_of(std::uint32_t skill_id, std::uint8_t level_n
     const SkillTemplate* tmpl = skill(skill_id);
     if (tmpl == nullptr || level_number == 0 || level_number > kInnerArtSlots) return nullptr;
     const std::uint32_t instance = tmpl->instance.at(static_cast<std::size_t>(level_number) - 1U);
-    return instance == 0 ? nullptr : level(instance);
+    if (instance != 0) return level(instance);
+    // Ô 0 là "không có cấp này", trừ cấp 1 của đòn thường chung (skills.tsv id 0, 196...): cả mười sáu ô của chúng là 0 và dòng cấp
+    // của chúng chính là dòng id 0 (đã đo trên dữ liệu 2026: bảy kỹ năng, cùng một dòng logic 0).
+    const bool generic = level_number == 1 && std::ranges::all_of(tmpl->instance, [](std::uint32_t slot) { return slot == 0; });
+    return generic ? level(0) : nullptr;
 }
 
 Relation Catalog::camp_relation(std::int32_t from_camp, std::int32_t to_camp) const noexcept {

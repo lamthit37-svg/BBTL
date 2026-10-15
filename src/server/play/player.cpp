@@ -28,6 +28,7 @@
 #include <cstddef>
 #include <cstdint>
 #include <expected>
+#include <limits>
 #include <memory>
 #include <optional>
 #include <string>
@@ -47,7 +48,7 @@ namespace {
 Player::Player(const World& world, Identity who, actor::Body body)
     : world_(&world),
       who_(std::move(who)),
-      body_(std::move(body)),
+      own_(std::move(body)),
       bag_(&world.items(), world.item_limits().unlocked[static_cast<std::size_t>(item::Place::kBaseBag)]) {}
 
 std::expected<std::unique_ptr<Player>, std::string> Player::restore(const World& world, Identity who,
@@ -58,8 +59,10 @@ std::expected<std::unique_ptr<Player>, std::string> Player::restore(const World&
         record = actor::Body::new_record(world.rules(), world.body_limits(), who.sect);
         record.level = std::clamp<std::uint16_t>(saved.level, 1, world.rules().max_level());
         record.exp = saved.exp;
-        record.hp = std::max(saved.hp, 1);
-        record.mp = saved.mp;
+        // Chưa có số sinh lực nào lưu (cột hp còn giá trị mặc định 1): nhân vật mới, đầy sinh lực và nội lực; Body kẹp về mức tối đa của cấp.
+        const bool fresh = saved.hp <= 1;
+        record.hp = fresh ? std::numeric_limits<std::int32_t>::max() : saved.hp;
+        record.mp = fresh ? std::numeric_limits<std::int32_t>::max() : saved.mp;
     } else {
         std::expected<actor::Record, actor::CodecError> decoded = actor::decode_record(saved.body, world.rules().max_level());
         if (!decoded) return std::unexpected("khối thân thể hỏng: " + std::string{actor::describe(decoded.error())});
@@ -78,19 +81,25 @@ std::expected<std::unique_ptr<Player>, std::string> Player::restore(const World&
 
 std::optional<account::PlayRecord> Player::record() const {
     account::PlayRecord out;
-    out.level = body_.level();
-    out.exp = body_.record().exp;
+    out.level = body().level();
+    out.exp = body().record().exp;
     out.money = money_;
     out.bound = bound_;
-    out.hp = body_.hp();
-    out.mp = body_.mp();
-    if (const auto encoded = actor::encode_record(body_.record(), out.body); !encoded) return std::nullopt;
+    out.hp = body().hp();
+    out.mp = body().mp();
+    if (const auto encoded = actor::encode_record(body().record(), out.body); !encoded) return std::nullopt;
     std::expected<mission::Blob, mission::CodecError> book = mission::encode(book_);
     if (!book) return std::nullopt;
     out.mission = std::move(*book);
     out.bag = bag_.encode();
     if (out.bag.empty()) return std::nullopt;
     return out;
+}
+
+void Player::unbind() {
+    if (live_ == &own_) return;
+    own_ = *live_;
+    live_ = &own_;
 }
 
 std::uint32_t Player::take_levels_gained() noexcept {
@@ -117,7 +126,7 @@ std::int64_t Player::WalletPort::balance(bool bound) const noexcept {
 }
 
 std::int64_t Player::WalletPort::room(bool bound) const noexcept {
-    const std::uint64_t cap = gold_cap(*owner_->world_, owner_->body_.level());
+    const std::uint64_t cap = gold_cap(*owner_->world_, owner_->body().level());
     const std::uint64_t held = bound ? owner_->bound_ : owner_->money_;
     return held >= cap ? 0 : static_cast<std::int64_t>(cap - held);
 }
@@ -149,20 +158,20 @@ void Player::WalletPort::rollback() noexcept {
 
 bool Player::ExpPort::give(std::int64_t amount) noexcept {
     if (amount < 0) return false;
-    const actor::LevelUp gained = owner_->body_.add_exp(static_cast<std::uint64_t>(amount));
+    const actor::LevelUp gained = owner_->body().add_exp(static_cast<std::uint64_t>(amount));
     levels_ += gained.levels_gained;
     owner_->levels_gained_ += gained.levels_gained;
     return true;
 }
 
 void Player::ExpPort::checkpoint() {
-    saved_ = owner_->body_;
+    saved_ = owner_->body();
     levels_ = 0;
 }
 
 // NOLINTNEXTLINE(bugprone-exception-escape): chép thân thể có thể ném bad_alloc; dự án không dùng ngoại lệ nên dừng tiến trình (LH-07)
 void Player::ExpPort::rollback() noexcept {
-    if (saved_) owner_->body_ = *saved_;
+    if (saved_) owner_->body() = *saved_;
     owner_->levels_gained_ -= std::min(owner_->levels_gained_, levels_);
     levels_ = 0;
 }

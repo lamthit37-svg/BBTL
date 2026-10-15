@@ -27,6 +27,7 @@
 #include <cmath>
 #include <cstddef>
 #include <cstdint>
+#include <functional>
 #include <numbers>
 #include <optional>
 #include <utility>
@@ -207,7 +208,8 @@ void Scene::moved(std::uint64_t session, const ipc::Moved& step, Outbox& out) {
     const auto found = players_.find(session);
     if (found == players_.end()) return;
     const Entity& who = entities_[found->second];
-    if (blocked(who, step)) {
+    // Người đã chết nằm yên: bước nào cũng bị kéo về chỗ nằm.
+    if (who.state == protocol::EntityState::kDead || blocked(who, step)) {
         out.place(session, who.x_cm, who.z_cm);
         return;
     }
@@ -249,6 +251,7 @@ std::optional<std::uint32_t> Scene::spawn(const Spawn& what, Outbox& out) {
     who.script = what.script;
     who.flags = what.flags;
     who.guid = what.guid;
+    if (what.kind == protocol::EntityKind::kMonster && what.respawn_ms >= 0) homes_[index] = what;
     enter_grid(index, out);
     if (what.nature) start_thinking(index, *what.nature);
     return id_at(index);
@@ -283,6 +286,93 @@ void Scene::set_hp_percent(HpChange change, Outbox& out) {
     if (who.session != 0) out.down_frame(who.session, frame);
 }
 
+void Scene::kill(std::uint32_t id) {
+    const std::optional<std::uint32_t> index = index_of(id);
+    if (!index) return;
+    Entity& who = entities_[*index];
+    if (who.state == protocol::EntityState::kDead) return;
+    stop_walking(*index);
+    stop_thinking(*index);
+    who.state = protocol::EntityState::kDead;
+    who.hp_percent = 0;
+    if (who.session == 0) corpses_.emplace(tick_ + kCorpseTicks, id);
+}
+
+void Scene::revive(std::uint32_t id, Point at, std::uint8_t hp_percent, Outbox& out) {
+    const std::optional<std::uint32_t> index = index_of(id);
+    if (!index) return;
+    Entity& who = entities_[*index];
+    if (who.session == 0 || who.state != protocol::EntityState::kDead) return;
+    who.state = protocol::EntityState::kIdle;
+    who.hp_percent = std::clamp<std::uint8_t>(hp_percent, 1, 100);
+    relocate(*index, at, out);
+    protocol::EntityVitals vitals;
+    vitals.id = id;
+    vitals.hp_percent = who.hp_percent;
+    tell_near(id, out.frame_of(vitals), true, out);
+}
+
+// NOLINTNEXTLINE(bugprone-easily-swappable-parameters): id thực thể và cấp khác vai, nơi gọi nêu tên (HP-07)
+void Scene::set_level(std::uint32_t id, std::uint16_t level) {
+    const std::optional<std::uint32_t> index = index_of(id);
+    if (index) entities_[*index].level = level;
+}
+
+std::optional<Info> Scene::info_at(std::uint32_t index, bool with_name) const {
+    const Entity& who = entities_[index];
+    return Info{.kind = who.kind,
+        .template_id = who.template_id,
+        .level = who.level,
+        .x_cm = who.x_cm,
+        .z_cm = who.z_cm,
+        .hp_percent = who.hp_percent,
+        .state = who.state,
+        .session = who.session,
+        .name = with_name ? who.name : std::string{}};
+}
+
+std::optional<Info> Scene::info(std::uint32_t id) const {
+    const std::optional<std::uint32_t> index = index_of(id);
+    if (!index) return std::nullopt;
+    return info_at(*index, true);
+}
+
+void Scene::for_each_near(std::uint32_t id, const std::function<void(std::uint32_t, const Info&)>& visit) const {
+    const std::optional<std::uint32_t> index = index_of(id);
+    if (!index) return;
+    grid_.for_each_in_window(entities_[*index].cell, [&](std::uint32_t other) {
+        const std::optional<Info> seen = info_at(other, false);
+        if (seen) visit(id_at(other), *seen);
+    });
+}
+
+void Scene::tell_near(std::uint32_t id, const std::vector<std::byte>& frame, bool include_self, Outbox& out) const {
+    const std::optional<std::uint32_t> index = index_of(id);
+    if (!index) return;
+    broadcast(entities_[*index].cell, include_self ? kNoSlot : *index, frame, out);
+}
+
+void Scene::tidy_corpses(Outbox& out) {
+    while (!corpses_.empty() && corpses_.begin()->first <= tick_) {
+        const std::uint32_t id = corpses_.begin()->second;
+        corpses_.erase(corpses_.begin());
+        const std::optional<std::uint32_t> index = index_of(id);
+        if (!index) continue;
+        if (const auto home = homes_.find(*index); home != homes_.end()) {
+            const std::int32_t wait = home->second.respawn_ms > 0 ? home->second.respawn_ms : kDefaultRespawnMs;
+            const auto ticks = static_cast<std::uint32_t>((static_cast<std::int64_t>(wait) * kTickHz + 999) / 1000);
+            respawns_.emplace(tick_ + ticks, std::move(home->second));
+            homes_.erase(home);
+        }
+        remove(*index, out);
+    }
+    while (!respawns_.empty() && respawns_.begin()->first <= tick_) {
+        const Spawn again = std::move(respawns_.begin()->second);
+        respawns_.erase(respawns_.begin());
+        static_cast<void>(spawn(again, out));
+    }
+}
+
 void Scene::start_walking(std::uint32_t index) {
     Entity& who = entities_[index];
     who.state = protocol::EntityState::kWalk;
@@ -304,6 +394,7 @@ void Scene::stop_walking(std::uint32_t index) {
 
 void Scene::advance(Outbox& out) {
     ++tick_;
+    tidy_corpses(out);
     think(out);
     // Duyệt ngược: stop_walking chép phần tử cuối vào chỗ vừa xoá, mà phần tử cuối đã được xét.
     for (std::size_t at = moving_.size(); at > 0; --at) {
@@ -396,6 +487,7 @@ void Scene::remove(std::uint32_t index, Outbox& out) {
     }
     stop_walking(index);
     stop_thinking(index);
+    homes_.erase(index);
     who.dirty = false;
     who.live = false;
     who.name.clear();

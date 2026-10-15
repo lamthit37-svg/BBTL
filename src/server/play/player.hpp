@@ -58,18 +58,24 @@ public:
     [[nodiscard]] std::uint32_t take_levels_gained() noexcept;
 
     [[nodiscard]] const std::string& name() const noexcept { return who_.name; }
-    [[nodiscard]] std::uint64_t exp() const noexcept { return body_.record().exp; }
+    [[nodiscard]] std::uint64_t exp() const noexcept { return live_->record().exp; }
     [[nodiscard]] std::uint64_t money() const noexcept { return money_; }
     [[nodiscard]] std::uint64_t bound() const noexcept { return bound_; }
-    [[nodiscard]] const actor::Body& body() const noexcept { return body_; }
+    // Thân thể đang dùng: của chính người chơi, hoặc (khi đã bind) của Fighter trong đấu trường.
+    [[nodiscard]] const actor::Body& body() const noexcept { return *live_; }
+    [[nodiscard]] actor::Body& body() noexcept { return *live_; }
+    // Đấu trường giữ thân thể chiến đấu của người chơi ở Fighter: bind trỏ mọi đọc/ghi sang đó (nơi gọi đã chép thân thể vào
+    // Fighter; địa chỉ Fighter ổn định tới khi gỡ khỏi đấu trường). unbind chép thân thể về chỗ của Player rồi trỏ lại.
+    void bind(actor::Body& live) noexcept { live_ = &live; }
+    void unbind();
     [[nodiscard]] const Bag& bag() const noexcept { return bag_; }
 
     // mission::Character
     [[nodiscard]] ids::CharacterId id() const noexcept override { return who_.id; }
     [[nodiscard]] mission::Book& book() noexcept override { return book_; }
     [[nodiscard]] const mission::Book& book() const noexcept override { return book_; }
-    [[nodiscard]] std::int32_t level() const noexcept override { return body_.level(); }
-    [[nodiscard]] std::int32_t sect() const noexcept override { return body_.sect(); }
+    [[nodiscard]] std::int32_t level() const noexcept override { return live_->level(); }
+    [[nodiscard]] std::int32_t sect() const noexcept override { return live_->sect(); }
     // Script gốc: 0 nữ, 1 nam (GetSex); trên dây là 1 nữ, 2 nam.
     [[nodiscard]] std::int32_t gender() const noexcept override { return who_.gender == 1 ? 0 : 1; }
     [[nodiscard]] std::int32_t team_size() const noexcept override { return 1; }
@@ -111,9 +117,19 @@ private:
 
     Player(const World& world, Identity who, actor::Body body);
 
+public:
+    Player(const Player&) = delete;
+    Player& operator=(const Player&) = delete;
+    Player(Player&&) = delete;
+    Player& operator=(Player&&) = delete;
+    ~Player() override = default;
+
+private:
+
     const World* world_;
     Identity who_;
-    actor::Body body_;
+    actor::Body own_;
+    actor::Body* live_ = &own_;
     std::uint64_t money_ = 0;
     std::uint64_t bound_ = 0;
     Bag bag_;

@@ -29,7 +29,9 @@
 #include "ipc/relay.hpp"
 #include "mission/engine.hpp"
 #include "ops/ops.hpp"
+#include "play/battle.hpp"
 #include "play/player.hpp"
+#include "play/stage.hpp"
 #include "play/text.hpp"
 #include "play/world.hpp"
 #include "protocol/messages.hpp"
@@ -37,6 +39,7 @@
 
 #include <cstddef>
 #include <cstdint>
+#include <map>
 #include <memory>
 #include <optional>
 #include <string>
@@ -44,67 +47,6 @@
 #include <vector>
 
 namespace game::play {
-
-// Cái zone cho gameplay biết về thế giới: NPC nào đứng đó và cách người chơi bao xa. Tách khỏi Scene để gameplay thử được riêng.
-class Surroundings {
-public:
-    // NPC nói chuyện được: `entity` là id thực thể trong cảnh (duy nhất mỗi cảnh, khác GUID của bảng cảnh vốn có thể trùng).
-    struct Npc {
-        std::uint32_t entity = 0;
-        std::int32_t scene = -1;
-        // GUID của bảng cảnh: khoá của danh bạ nhiệm vụ theo NPC (không duy nhất trong cảnh; `entity` mới duy nhất).
-        std::uint32_t guid = 0;
-        std::uint32_t script = 0;
-        std::string name;
-    };
-    // Thực thể được hỏi (đóng gói để không lẫn với mã phiên cùng kiểu số nguyên).
-    struct Target {
-        std::uint32_t entity = 0;
-    };
-    struct Spot {
-        std::uint32_t entity = 0;
-        std::int32_t scene = -1;
-    };
-    struct Presence {
-        std::int32_t hero_scene = -1;
-        std::int32_t npc_scene = -1;
-        float distance_m = 0.0F;
-    };
-
-    Surroundings() = default;
-    Surroundings(const Surroundings&) = delete;
-    Surroundings& operator=(const Surroundings&) = delete;
-    Surroundings(Surroundings&&) = delete;
-    Surroundings& operator=(Surroundings&&) = delete;
-    virtual ~Surroundings() = default;
-
-    // NPC (kind = Npc) có id thực thể `entity` trong cảnh của người chơi `session`; nullopt khi không có hay không phải NPC.
-    [[nodiscard]] virtual std::optional<Npc> npc(std::uint64_t session, Target target) const = 0;
-    // Cảnh và khoảng cách (mét, 2D) giữa người chơi và NPC; nullopt khi một trong hai không còn.
-    [[nodiscard]] virtual std::optional<Presence> presence(std::uint64_t session, Spot npc) const = 0;
-};
-
-struct Output {
-    struct Frame {
-        std::uint64_t session = 0;
-        std::vector<std::byte> bytes;
-    };
-    // Trạng thái chơi cần ghi: host ghép với điểm đứng hiện tại của nhân vật thành một lần ghi.
-    struct Keep {
-        std::uint64_t session = 0;
-        std::uint64_t character = 0;
-        account::PlayRecord record;
-    };
-
-    std::vector<Frame> frames;
-    std::vector<Keep> keeps;
-    // Tin không mã hoá được (trường quá trần): scene luôn điền trong trần, nên đây là lỗi lập trình lộ ra bằng số.
-    std::size_t encode_failures = 0;
-
-    template <typename Message>
-    void down(std::uint64_t session, const Message& message);
-    void reject(std::uint64_t session, std::uint16_t request, protocol::ErrorCode code);
-};
 
 class Gameplay {
 public:
@@ -125,14 +67,21 @@ public:
     // Giờ Unix hiện tại (giây) và tick của zone; host gọi mỗi tick trước các lời gọi khác.
     void set_time(const Clock& clock) noexcept;
 
-    // Người chơi vào cảnh (sau SceneEnter): dựng Player từ khối của gate, gửi QuestBook và SelfStats. false khi khối hỏng hay đã có.
-    [[nodiscard]] bool attach(std::uint64_t session, const ipc::Attach& arrival, Output& out);
+    // Người chơi vào cảnh (sau SceneEnter): dựng Player từ khối của gate, ngồi vào đấu trường của cảnh, gửi QuestBook, SelfStats,
+    // SelfSkills và SelfVitals. `entity` là id thực thể của họ trong cảnh. false khi khối hỏng, đấu trường đầy hay đã có.
+    struct Arrival {
+        std::uint64_t session = 0;
+        std::uint32_t entity = 0;
+    };
+    [[nodiscard]] bool attach(const Arrival& arrived, const ipc::Attach& arrival, Surroundings& around, Output& out);
     // Người chơi rời (hoặc rớt): đóng phiên hội thoại, đưa trạng thái lần cuối vào Output::keeps.
     void detach(std::uint64_t session, Output& out);
     // Người chơi sang cảnh khác: đóng phiên hội thoại (gửi DialogClosed), giữ nguyên Player.
     void left_scene(std::uint64_t session, Output& out);
     // Một khung protocol của client (Relay::kUp). Khung hỏng hay loại lạ thì bỏ và đếm.
-    void intent(std::uint64_t session, protocol::ByteView frame, const Surroundings& around, Output& out);
+    void intent(std::uint64_t session, protocol::ByteView frame, Surroundings& around, Output& out);
+    // Một bước 20 Hz của mọi đấu trường (kể cả cảnh vắng: vật rơi hết hạn).
+    void step(Surroundings& around, Output& out);
     // Ghi định kỳ trạng thái đã đổi mà chưa ghi (phần thưởng bên ngoài hội thoại). Gọi theo chu kỳ tự ghi của scene.
     void autosave(Output& out);
 
@@ -150,7 +99,11 @@ private:
         std::uint64_t sent_money = 0;
         std::uint64_t sent_bound = 0;
         std::uint16_t sent_level = 0;
+        std::vector<BagSlot> sent_bag;
         bool sent_once = false;
+        // Cảnh và thực thể của người chơi (đấu trường của cảnh giữ họ).
+        std::uint16_t scene = 0;
+        std::uint32_t entity = 0;
         std::optional<account::PlayRecord> saved;
         // NPC của phiên hội thoại gần nhất: các bước sau của cùng phiên vẽ lại với đúng NPC này, không tin client nhắc lại.
         std::uint32_t npc_entity = 0;
@@ -166,7 +119,7 @@ private:
     struct Call {
         std::uint64_t session = 0;
         Entry* who = nullptr;
-        const Surroundings* around = nullptr;
+        Surroundings* around = nullptr;
         Output* out = nullptr;
     };
     void on(const Call& call, const protocol::Talk& message);
@@ -175,6 +128,9 @@ private:
     void on(const Call& call, const protocol::QuestTurnIn& message);
     void on(const Call& call, const protocol::QuestAbandon& message);
     void on(const Call& call, const protocol::DialogClose& message);
+    void on(const Call& call, const protocol::CastSkill& message);
+    void on(const Call& call, const protocol::Respawn& message);
+    void on(const Call& call, const protocol::PickUp& message);
     // Mọi tin khác trong nhóm client không thuộc gameplay hội thoại/nhiệm vụ (di chuyển do gate xử lý).
     template <typename Other>
     void on(const Call&, const Other&) noexcept {
@@ -184,8 +140,12 @@ private:
     void fill_texts(protocol::DialogOpen& open, const talk::View& view, const Names& names, const ops::Context& context) const;
     static void fill_marks(protocol::DialogOpen& open, const talk::View& view);
     void sync(std::uint64_t session, Entry& who, Output& out);
-    void handle(std::uint64_t session, Entry& who, const protocol::GameClientMessage& message, const Surroundings& around,
+    void handle(std::uint64_t session, Entry& who, const protocol::GameClientMessage& message, Surroundings& around,
         Output& out);
+    // Đấu trường của cảnh, dựng lười.
+    [[nodiscard]] Battle& battle(std::uint16_t scene);
+    // Việc phải làm tiếp sau một lời gọi của đấu trường: tiến độ nhiệm vụ (giết quái, nhặt đồ), đồng bộ và ghi trạng thái.
+    void settle(const Report& report, Output& out);
     void reply(std::uint64_t session, Entry& who, const std::string& npc_name, std::uint32_t npc_entity,
         const talk::Reply& answer, Output& out);
     void fail(std::uint64_t session, std::uint16_t request, const talk::Failure& failure, Entry& who, const std::string& npc_name,
@@ -200,6 +160,7 @@ private:
     std::int64_t unix_seconds_ = 0;
     std::uint64_t tick_ = 0;
     std::unordered_map<std::uint64_t, Entry> players_;
+    std::map<std::uint16_t, std::unique_ptr<Battle>> battles_;
     std::size_t ignored_ = 0;
 };
 

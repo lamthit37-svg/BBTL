@@ -131,7 +131,10 @@ template <typename Pick>
 // Gửi hiệu ứng của một vai tới `receiver`, qua xác suất (`@`) và số lần lặp (`*`) khai trong vai.
 void send_role_effect(SkillRun& run, const Role& role, const Fighter& receiver, bool critical, bool attack_side) {
     const std::int32_t effect_id = param_at(run.info, role.param);
-    if (effect_id <= 0) return;  // -1 là ô trống; 0 là dòng sát thương mặc định, không bao giờ được kỹ năng gửi
+    // -1 là ô trống; 0 là dòng sát thương mặc định, chỉ đòn thường chung (cả mười sáu ô cấp đều 0, dùng chung dòng cấp
+    // id 0) gửi nó: các kỹ năng khác để 0 ở ô chưa dùng (đo trên skill_levels.tsv: hơn 300 dòng logic 0 có ô 0 mà không phải đòn thường).
+    const bool plain_attack = std::ranges::all_of(run.tmpl.instance, [](std::uint32_t slot) { return slot == 0; });
+    if (effect_id < 0 || (effect_id == 0 && !plain_attack)) return;
     const std::int32_t times = role.repeat < 0 ? 1 : std::clamp(param_at(run.info, role.repeat), 0, kMaxRepeat);
     const bool damage = attack_side && is_attack_damage(run.arena, static_cast<std::uint32_t>(effect_id));
     for (std::int32_t i = 0; i < times; ++i) {

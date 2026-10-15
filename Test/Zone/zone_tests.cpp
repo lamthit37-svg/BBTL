@@ -355,6 +355,145 @@ void spawned_entities_are_seen(Context& context) {
     context.expect(scene.has_session(11), "despawn không gỡ được người chơi");
 }
 
+// --- chết, xác và hồi sinh ---
+
+void fallen_monster_lies_then_vanishes_then_returns(Context& context) {
+    Scene scene = make_scene();
+    Outbox out;
+    static_cast<void>(scene.attach(11, arrival(1, 0.0F, 0.0F), out));
+    zone::Spawn wolf;
+    wolf.kind = protocol::EntityKind::kMonster;
+    wolf.template_id = 42;
+    wolf.level = 3;
+    wolf.x_cm = 300.0F;
+    wolf.respawn_ms = 2000;
+    const std::uint32_t id = scene.spawn(wolf, out).value_or(0);
+    zone::Spawn forever = wolf;
+    forever.x_cm = 400.0F;
+    forever.respawn_ms = -1;
+    const std::uint32_t gone_id = scene.spawn(forever, out).value_or(0);
+    out.clear();
+
+    scene.kill(id);
+    scene.kill(gone_id);
+    const std::optional<zone::Info> lying = scene.info(id);
+    context.expect(lying && lying->state == protocol::EntityState::kDead && lying->hp_percent == 0, "quái chết nằm lại với sinh lực 0");
+    // Người vào sau thấy xác (state Dead) chứ không thấy một con quái đứng.
+    static_cast<void>(scene.attach(12, arrival(2, 0.0F, 0.0F), out));
+    const auto later = of_kind<protocol::EntityAppear>(seen_in(out), 12);
+    const auto shown = std::ranges::find_if(later, [&](const protocol::EntityAppear& one) { return one.id == id; });
+    context.expect(shown != later.end() && shown->state == protocol::EntityState::kDead, "người vào sau thấy xác");
+    out.clear();
+
+    for (std::uint32_t tick = 0; tick + 1 < zone::kCorpseTicks; ++tick) scene.advance(out);
+    context.expect(scene.info(id).has_value(), "xác chưa biến mất trước hạn");
+    scene.advance(out);
+    context.expect(!scene.info(id).has_value() && !scene.info(gone_id).has_value(), "xác biến mất đúng hạn");
+    context.expect(of_kind<protocol::EntityDisappear>(seen_in(out), 11).size() == 2, "người quanh nhận hai lần EntityDisappear");
+    out.clear();
+
+    // 2000 ms = 40 tick: quái có respawn_ms hồi sinh ở chỗ cũ với id mới; quái không có thì không bao giờ về.
+    for (int tick = 0; tick < 39; ++tick) scene.advance(out);
+    context.expect(of_kind<protocol::EntityAppear>(seen_in(out), 11).empty(), "chưa tới giờ hồi sinh");
+    scene.advance(out);
+    const auto back = of_kind<protocol::EntityAppear>(seen_in(out), 11);
+    context.expect(back.size() == 1 && back[0].template_id == 42 && back[0].x_cm == 300.0F && back[0].state == protocol::EntityState::kIdle &&
+                       back[0].hp_percent == 100,
+        "quái hồi sinh đầy máu ở chỗ cũ");
+    context.expect(back.size() == 1 && back[0].id != id, "id mới, client không nhầm với xác cũ");
+    out.clear();
+    for (int tick = 0; tick < 2000; ++tick) scene.advance(out);
+    context.expect(of_kind<protocol::EntityAppear>(seen_in(out), 11).empty(), "quái không có respawn_ms không về");
+}
+
+void dead_player_lies_still_and_can_rise(Context& context) {
+    Scene scene = make_scene();
+    Outbox out;
+    static_cast<void>(scene.attach(11, arrival(1, 0.0F, 0.0F), out));
+    static_cast<void>(scene.attach(12, arrival(2, 100.0F, 0.0F), out));
+    const std::uint32_t id = *scene.entity_of(11);
+    out.clear();
+
+    scene.kill(id);
+    context.expect(scene.info(id)->state == protocol::EntityState::kDead, "người chết nằm");
+    scene.moved(11, ipc::Moved{.x_cm = 500.0F, .z_cm = 0.0F}, out);
+    context.expect(scene.where(id)->x_cm == 0.0F, "người chết không đi được");
+    bool pulled_back = false;
+    for (const zone::Letter& letter : out.letters()) pulled_back = pulled_back || letter.kind == ipc::Relay::kPlace;
+    context.expect(pulled_back, "bước của người chết bị kéo về chỗ nằm");
+    for (int tick = 0; tick < 200; ++tick) scene.advance(out);
+    context.expect(scene.info(id).has_value(), "xác người chơi không tự biến mất");
+    out.clear();
+
+    scene.revive(*scene.entity_of(12), zone::Point{.x_cm = 0.0F, .z_cm = 0.0F}, 50, out);
+    context.expect(scene.info(*scene.entity_of(12))->state == protocol::EntityState::kIdle, "người còn sống không bị hồi sinh");
+    scene.revive(id, zone::Point{.x_cm = 200.0F, .z_cm = 0.0F}, 30, out);
+    const std::optional<zone::Info> risen = scene.info(id);
+    context.expect(risen && risen->state != protocol::EntityState::kDead && risen->hp_percent == 30 && risen->x_cm == 200.0F, "hồi sinh tại chỗ mới với sinh lực đã định");
+    const auto seen = seen_in(out);
+    const auto vitals = of_kind<protocol::EntityVitals>(seen, 12);
+    context.expect(vitals.size() == 1 && vitals[0].id == id && vitals[0].hp_percent == 30, "người quanh nhận sinh lực mới");
+    context.expect(of_kind<protocol::EntityVitals>(seen, 11).size() == 1, "chính người hồi sinh cũng nhận sinh lực");
+    scene.moved(11, ipc::Moved{.x_cm = 250.0F, .z_cm = 0.0F}, out);
+    context.expect(scene.where(id)->x_cm == 250.0F, "hồi sinh xong đi lại được");
+}
+
+void info_and_neighbour_queries(Context& context) {
+    Scene scene = make_scene();
+    Outbox out;
+    static_cast<void>(scene.attach(11, arrival(1, 0.0F, 0.0F), out));
+    zone::Spawn wolf;
+    wolf.kind = protocol::EntityKind::kMonster;
+    wolf.template_id = 42;
+    wolf.level = 9;
+    wolf.name = "sói";
+    wolf.x_cm = 300.0F;
+    const std::uint32_t wolf_id = scene.spawn(wolf, out).value_or(0);
+    zone::Spawn far_wolf = wolf;
+    far_wolf.x_cm = 90000.0F;
+    const std::uint32_t far_id = scene.spawn(far_wolf, out).value_or(0);
+    const std::uint32_t self = *scene.entity_of(11);
+
+    const std::optional<zone::Info> info = scene.info(wolf_id);
+    context.expect(info && info->kind == protocol::EntityKind::kMonster && info->template_id == 42 && info->level == 9 && info->name == "sói",
+        "info trả loại, mẫu, cấp và tên");
+    context.expect(scene.info(self)->session == 11, "info của người chơi mang phiên");
+    context.expect(!scene.info(0xDEAD0001U).has_value(), "id lạ không có info");
+
+    std::vector<std::uint32_t> near;
+    bool named = false;
+    scene.for_each_near(self, [&near, &named](std::uint32_t id, const zone::Info& one) {
+        near.push_back(id);
+        named = named || !one.name.empty();
+    });
+    context.expect(near.size() == 2 && std::ranges::find(near, self) != near.end() && std::ranges::find(near, wolf_id) != near.end() &&
+                       std::ranges::find(near, far_id) == near.end(),
+        "for_each_near gồm chính nó và quái trong tầm, không có quái ở xa");
+    context.expect(!named, "for_each_near không điền tên");
+    scene.kill(wolf_id);
+    std::size_t corpses = 0;
+    scene.for_each_near(self, [&corpses](std::uint32_t, const zone::Info& one) {
+        if (one.state == protocol::EntityState::kDead) ++corpses;
+    });
+    context.expect(corpses == 1, "for_each_near vẫn duyệt xác và báo state kDead");
+
+    out.clear();
+    protocol::EntityDied note;
+    note.id = wolf_id;
+    scene.tell_near(wolf_id, out.frame_of(note), true, out);
+    context.expect(of_kind<protocol::EntityDied>(seen_in(out), 11).size() == 1, "tell_near gửi cho người quanh quái");
+    out.clear();
+    scene.tell_near(self, out.frame_of(note), false, out);
+    context.expect(seen_in(out).empty(), "tell_near không gồm chính người chơi khi include_self sai");
+    scene.tell_near(self, out.frame_of(note), true, out);
+    context.expect(of_kind<protocol::EntityDied>(seen_in(out), 11).size() == 1, "tell_near gồm chính người chơi khi include_self đúng");
+    scene.set_level(self, 12);
+    static_cast<void>(scene.attach(12, arrival(2, 10.0F, 0.0F), out));
+    const auto appeared = of_kind<protocol::EntityAppear>(seen_in(out), 12);
+    const auto lvl = std::ranges::find_if(appeared, [&](const protocol::EntityAppear& one) { return one.id == self; });
+    context.expect(lvl != appeared.end() && lvl->level == 12, "người vào sau thấy cấp mới");
+}
+
 // --- trí khôn của quái ---
 
 [[nodiscard]] zone::Temperament lively_nature() {
@@ -1110,6 +1249,9 @@ constexpr std::array kCases{
     Case{"same_character_replaces_old_session", same_character_replaces_old_session},
     Case{"player_cap", player_cap},
     Case{"spawned_entities_are_seen", spawned_entities_are_seen},
+    Case{"fallen_monster_lies_then_vanishes_then_returns", fallen_monster_lies_then_vanishes_then_returns},
+    Case{"dead_player_lies_still_and_can_rise", dead_player_lies_still_and_can_rise},
+    Case{"info_and_neighbour_queries", info_and_neighbour_queries},
     Case{"host_routes_frames", host_routes_frames},
     Case{"host_refuses_bad_attach", host_refuses_bad_attach},
     Case{"relay_codec_round_trip", relay_codec_round_trip},

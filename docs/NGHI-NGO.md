@@ -967,3 +967,11 @@ kết luận ngay dưới mục đó chứ không xoá.
     `is_discrete` nhưng thiết bị GPU tạo trong `Display`, sau chỗ nâng Hz (cố ý: nâng trước khi tạo swapchain). Chưa đo được vì máy phát
     triển không có GPU tích hợp (i5-14600KF). Cần để kết luận: chạy `thienlong_screen_pace` cùng client `--walk` trên một máy GPU tích hợp
     có màn 120 Hz trở lên; nếu tỉ lệ "đúng 1 nhịp quét" thấp hơn ở 60 Hz thì đưa `is_discrete` (hoặc số đo khung thật) vào trần.
+
+57. **Chiến đấu máy chủ lát cắt 3 (2026-10-15): các chỗ chưa kết luận được hoặc làm tạm** (`src/server/play/battle.cpp`, `src/server/zone/scene.cpp`).
+    (a) Kỹ năng ban đầu là luật tạm của bản thử: đòn thường (id 0) cộng mọi chiêu chủ động cấp 1 của môn phái nhân vật (`starting_skills`), vì chưa có học kỹ năng ở NPC; thay khi làm học kỹ năng.
+    (b) Chưa có trang bị: mọi người chơi coi như `weapon_type = 0`; `item::Inventory` thay `play::Bag` tạm ở lát cắt sau, nên thuộc tính vật phẩm đang bị mất khi nhặt.
+    (c) Quái chưa phản công, nên đường chết và hồi sinh của người chơi (DeathNotice, Respawn Town/Here, phạt kinh nghiệm và tiền) mới được kiểm bằng mã đọc, chưa có test hay chạy thật. Hồi tại chỗ 30% sinh lực là số tạm (`revival_here`); Town là chỗ vào cảnh, chưa phải điểm hồi sinh của cảnh.
+    (d) Đấu trường của một cảnh chỉ chạy tick khi có người chơi trong cảnh; cảnh vắng thì quái đứng yên (chỉ vật rơi vẫn hết hạn). Chấp nhận được khi quái không phản công; xem lại khi quái đuổi và đánh.
+    (e) Chuyển cảnh qua cổng truyền tống chưa làm: bot thử đặt nhân vật sang cảnh có quái bằng cách sửa bảng `player` trong PostgreSQL (`scene`, `position_x`, `position_z`).
+    (f) Ngày giờ và lịch (sự kiện theo ngày) vẫn UTC+8 cố định; chưa nối đồng hồ máy chủ thật.

@@ -20,8 +20,11 @@
 
 #include "actor/body.hpp"
 #include "actor/rules.hpp"
+#include "combat/catalog.hpp"
 #include "item/catalog.hpp"
+#include "item/factory.hpp"
 #include "item/limits.hpp"
+#include "loot/tables.hpp"
 #include "mission/catalog.hpp"
 #include "play/text.hpp"
 #include "talk/handler.hpp"
@@ -61,6 +64,10 @@ public:
     [[nodiscard]] const actor::BodyLimits& body_limits() const noexcept;
     [[nodiscard]] const item::Catalog& items() const noexcept;
     [[nodiscard]] const item::Limits& item_limits() const noexcept;
+    // Luật chiến đấu (kỹ năng, hiệu ứng, phe), bảng rơi đồ và nhà máy tạo vật phẩm.
+    [[nodiscard]] const combat::Catalog& combat() const noexcept;
+    [[nodiscard]] const loot::LootTables& loot() const noexcept;
+    [[nodiscard]] const item::Factory& factory() const noexcept;
     [[nodiscard]] std::span<const talk::HandlerSpec> handlers() const noexcept;
     // Script NPC này có hộp thoại gốc chạy được không: zone đặt cờ "nói chuyện được" lên NPC theo câu trả lời này.
     [[nodiscard]] bool speaks(std::uint32_t script) const noexcept;

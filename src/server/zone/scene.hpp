@@ -35,6 +35,7 @@
 #include <cstddef>
 #include <cstdint>
 #include <functional>
+#include <map>
 #include <optional>
 #include <string>
 #include <unordered_map>
@@ -64,6 +65,10 @@ inline constexpr float kMeleeCm = 150.0F;
 inline constexpr float kHoldSlackCm = 100.0F;
 // Số bước liền bị luật đi chặn thì bỏ cuộc (kMoveEvery tick một bước, nên chừng một giây).
 inline constexpr std::uint8_t kStuckSteps = 10;
+// Xác nằm lại 3 giây rồi mới biến mất (EntityDied đã báo từ lúc chết).
+inline constexpr std::uint32_t kCorpseTicks = 3 * kTickHz;
+// Quái dòng bảng không ghi thời gian hồi sinh (<= 0) hồi sau chừng này mili giây.
+inline constexpr std::int32_t kDefaultRespawnMs = 30'000;
 
 [[nodiscard]] constexpr std::uint32_t id_of(std::uint32_t index, std::uint16_t generation) noexcept {
     return (static_cast<std::uint32_t>(generation) << 16U) | (index + 1U);
@@ -112,6 +117,23 @@ struct Spawn {
     std::uint32_t guid = 0;
     // Có giá trị thì thực thể tự đứng, đi, đuổi theo mind.hpp; chỗ sinh là x_cm, z_cm.
     std::optional<Temperament> nature;
+    // Quái: âm là chết rồi thôi; từ 0 trở lên là hồi sinh sau chừng ấy mili giây kể từ lúc xác biến mất (0 lấy kDefaultRespawnMs).
+    std::int32_t respawn_ms = -1;
+};
+
+// Một thực thể nhìn từ bên ngoài cảnh (chiến đấu cần biết loại, mẫu, cấp, chỗ đứng và sống hay chết).
+struct Info {
+    protocol::EntityKind kind = protocol::EntityKind::kMonster;
+    std::uint32_t template_id = 0;
+    std::uint16_t level = 0;
+    float x_cm = 0.0F;
+    float z_cm = 0.0F;
+    std::uint8_t hp_percent = 100;
+    protocol::EntityState state = protocol::EntityState::kIdle;
+    // Phiên của người chơi; 0 với thực thể khác.
+    std::uint64_t session = 0;
+    // Chỉ `info(id)` điền tên; for_each_near để trống cho nhẹ.
+    std::string name;
 };
 
 class Scene {
@@ -149,6 +171,20 @@ public:
     // Thực thể không phải người đi tới (x, z); id lạ thì bỏ.
     void move_entity(std::uint32_t id, Point to, Outbox& out);
     void set_hp_percent(HpChange change, Outbox& out);
+    // Thực thể chết: nằm lại (state kDead, sinh lực 0), quái ngừng nghĩ; xác quái biến mất sau kCorpseTicks rồi quái có
+    // respawn_ms hồi sinh ở chỗ đặt. EntityDied do nơi gọi phát (cảnh không biết ai hạ gục). Id lạ hay đã chết thì bỏ.
+    void kill(std::uint32_t id);
+    // Người chơi hồi sinh tại `at` với sinh lực `hp_percent`; báo EntityPos và EntityVitals cho người quanh. Id không phải người
+    // đã chết thì bỏ.
+    void revive(std::uint32_t id, Point at, std::uint8_t hp_percent, Outbox& out);
+    // Cấp mới của thực thể (người chơi lên cấp); người sau này thấy nó hiện ra với cấp này.
+    void set_level(std::uint32_t id, std::uint16_t level);
+    [[nodiscard]] std::optional<Info> info(std::uint32_t id) const;
+    // Duyệt mọi thực thể trong cửa sổ vùng nhìn quanh `id` (gồm chính nó và xác chưa biến mất: Info::state là kDead).
+    // O(thực thể trong cửa sổ).
+    void for_each_near(std::uint32_t id, const std::function<void(std::uint32_t, const Info&)>& visit) const;
+    // Gửi `frame` cho mọi người chơi trong cửa sổ vùng nhìn quanh `id`; `include_self` là gồm cả chính nó nếu là người chơi.
+    void tell_near(std::uint32_t id, const std::vector<std::byte>& frame, bool include_self, Outbox& out) const;
 
     // Sang tick kế: chạy trí khôn của quái tới giờ (tối đa kThinkBudget con), rồi báo dừng (EntityPos kIdle) cho
     // thực thể đã đi mà không có bước mới suốt kIdleAfterTicks tick. O(số quái tới giờ + số thực thể đang đi).
@@ -233,6 +269,9 @@ private:
     // Một bước kMoveEvery tick về phía goal với tốc độ speed_cm; trượt dọc trục khi bước chéo bị chặn.
     [[nodiscard]] Step step_toward(std::uint32_t index, Point goal, std::uint32_t speed_cm, Outbox& out);
 
+    [[nodiscard]] std::optional<Info> info_at(std::uint32_t index, bool with_name) const;
+    // Xác hết hạn thì dọn, quái tới giờ hồi sinh thì đặt lại (gọi mỗi tick).
+    void tidy_corpses(Outbox& out);
     [[nodiscard]] std::optional<std::uint32_t> allocate();
     void start_walking(std::uint32_t index);
     void stop_walking(std::uint32_t index);
@@ -268,6 +307,10 @@ private:
     std::vector<std::uint32_t> thinkers_;
     std::size_t think_cursor_ = 0;
     dice::Dice rng_;
+    // Nơi sinh của quái có thể hồi sinh, theo chỉ số ô; xác chờ biến mất (tick -> id); quái chờ hồi sinh (tick -> chỗ đặt).
+    std::unordered_map<std::uint32_t, Spawn> homes_;
+    std::multimap<std::uint32_t, std::uint32_t> corpses_;
+    std::multimap<std::uint32_t, Spawn> respawns_;
     std::unordered_map<std::uint64_t, std::uint32_t> players_;
     std::unordered_map<std::uint64_t, std::uint32_t> by_character_;
 };
