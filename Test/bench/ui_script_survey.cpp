@@ -10,6 +10,7 @@
 #include "io/platform.hpp"
 #include "ui/script/gui_screen.hpp"
 #include "ui/script/host.hpp"
+#include "ui/script/natives.hpp"
 #include "ui/script/widget.hpp"
 #include "ui/script/windows.hpp"
 
@@ -146,7 +147,10 @@ int main(const int argc, const char* const* const argv) {
     const auto begin = std::chrono::steady_clock::now();
     game::ui::script::HostDesc desc;
     desc.data_root = options.data;
-    desc.natives = [](lua_State* lua) { game::ui::script::open_widget_classes(lua, game::ui::script::Missing::kRecord); };
+    desc.natives = [](lua_State* lua) {
+        game::ui::script::open_natives(lua);
+        game::ui::script::open_widget_classes(lua, game::ui::script::Missing::kRecord);
+    };
     auto opened = Host::open(desc, screen);
     if (!opened) {
         std::cerr << opened.error() << '\n';

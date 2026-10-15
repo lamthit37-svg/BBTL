@@ -53,6 +53,7 @@
 #include "ui/radar.hpp"
 #include "ui/script/gui_screen.hpp"
 #include "ui/script/host.hpp"
+#include "ui/script/natives.hpp"
 #include "ui/text.hpp"
 #include "ui/view.hpp"
 
@@ -979,6 +980,7 @@ void Hud::State::open_host() {
     script::HostDesc desc;
     desc.data_root = client_root;
     desc.only.assign(kScripted.begin(), kScripted.end());
+    desc.natives = script::open_natives;
     auto opened = script::Host::open(desc, *screen);
     if (!opened) {
         std::println(stderr, "Giao diện: không mở được giao diện Lua: {}", opened.error());

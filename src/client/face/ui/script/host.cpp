@@ -9,6 +9,7 @@
 #include "ui/panel/call.hpp"
 #include "ui/panel/deck.hpp"
 #include "ui/panel/widgets.hpp"
+#include "ui/script/raise.hpp"
 #include "ui/script/widget.hpp"
 #include "ui/script/windows.hpp"
 
@@ -227,20 +228,6 @@ bool guard(Core& core, std::string_view where, Body& body) {
     if (status == 0) return true;
     add_note(core, std::format("{}: {}", where, pop_error(core.lua)));
     return false;
-}
-
-// Báo lỗi Lua như luaL_error (vị trí trong script đứng đầu) với thông điệp là pieces giá trị đã đẩy sẵn trên đỉnh ngăn xếp
-// (chuỗi hay số, ghép bằng lua_concat): không gọi hàm vararg của C, không dựng đối tượng C++ trước khi longjmp.
-int raise_pushed(lua_State* lua, int pieces) {
-    luaL_where(lua, 1);
-    lua_insert(lua, -pieces - 1);
-    lua_concat(lua, pieces + 1);
-    return lua_error(lua);
-}
-
-int raise(lua_State* lua, const char* message) {
-    lua_pushstring(lua, message);
-    return raise_pushed(lua, 1);
 }
 
 void count_hook(lua_State* lua, lua_Debug* /*where*/) {

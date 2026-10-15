@@ -598,6 +598,7 @@ game_module(ui_script
     src/client/face/ui/script/gui_screen.cpp
     src/client/face/ui/script/windows.cpp
     src/client/face/ui/script/host.cpp
+    src/client/face/ui/script/natives.cpp
     src/client/face/ui/script/widget.cpp)
 target_link_libraries(game_ui_script PUBLIC game_ui_panel game_gui game_table game_io game_luaplus game_luanum game_core)
 # Cấu hình dựng client nằm ở src/client/client.build.toml (chủ dự án chốt 2026-10-14: gắn thẳng vào
@@ -1447,6 +1448,8 @@ if(NOT ANDROID AND TARGET ui_script_host_tests
         GAME_CLIENT_DATA="${PROJECT_SOURCE_DIR}/dev/client/assets"
         GAME_SCRIPT_SOURCE="${PROJECT_SOURCE_DIR}/src/client/script")
 endif()
+# Hàm game của script giao diện (tầng B): chạy đoạn Lua thật trên máy LuaPlus trần có open_natives.
+game_test(ui_script_natives game_ui_script)
 # Lượt chạy hàng loạt (không phải test): mở cả sổ cửa sổ, hiện/giấu từng cửa sổ và kê hàm game, phương thức widget mà script
 # đòi mà client chưa có, để xếp việc cho tầng B và widget (Test/bench/ui_script_survey.cpp).
 if(NOT ANDROID AND NOT IOS AND TARGET game_ui_script)
