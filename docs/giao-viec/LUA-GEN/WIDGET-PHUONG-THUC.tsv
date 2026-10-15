@@ -23,46 +23,46 @@ SetFakeObject	P1	364	82	MeshWindow	chuỗi	thuộc tính FakeObject	Widgets::set
 GetCheck	P1	249	100	CheckButton		1 hay 0	Widgets::is_checked	xong
 AddChild	P1	183	135	?				chưa
 SetCurrentSelect	P2	180	65	ComboBox		chọn mục theo chỉ số, đặt chữ ô nhập; ngoài danh sách thì bỏ qua	Widgets::select_index	xong
-RotateEnd	P2	178	76	MeshWindow				chưa
-RotateBegin	P2	172	76	MeshWindow				chưa
+RotateEnd	P2	178	76	MeshWindow		Call kMeshRotateEnd (FakeObject)	Call	xong
+RotateBegin	P2	172	76	MeshWindow		Call kMeshRotateBegin (FakeObject, nửa tốc độ)	Call	xong
 GetCurrentSelect	P2	171	83	ComboBox		(chữ, id) mục đang chọn; chưa chọn: ("-1", -1)	Widgets::chosen_item	xong
-Clear	P2	162	109	?				chưa
+Clear	P2	162	109	?		nhận mọi đối số, không làm gì (hiệu ứng chỉ để nhìn hay cửa sổ con động)	-	xong
 GetChildOffset	P2	159	48	this		phương thức của CUIWindowItem (nửa host)	-	host
 AddItem	P2	159	45	ListBox	chuỗi, số[, chuỗi]	chữ, id, màu AARRGGBB	Widgets::add_item	xong
 ClearAllElement	P2	143	32	ComplexWindow		bỏ mọi phần tử	Widgets::clear_elements	xong
 SetProgress	P2	123	49	ProgressBar	số, số	chỉ khi cả hai là số; mức = tử / mẫu	Widgets::set_progress	xong
 ComboBoxAddItem	P2	118	21	ComboBox		thêm mục (chữ, id); id thiếu là 0	Widgets::add_item	xong
-Flash	P2	110	39	?				chưa
+Flash	P2	110	39	?		nhận mọi đối số, không làm gì (hiệu ứng chỉ để nhìn hay cửa sổ con động)	-	xong
 ResetList	P2	108	61	ComboBox		bỏ mọi mục	Widgets::clear_list	xong
-SetSelected	P2	107	77	?				chưa
+SetSelected	P2	107	77	?		nhận mọi đối số, không làm gì (hiệu ứng chỉ để nhìn hay cửa sổ con động)	-	xong
 SetImage	P2	106	27	StaticImage		Image = icon đầy đủ, hoặc set:<a> image:<b>	Widgets::set	xong
 GetFirstSelectItem	P2	100	45	ListBox		id mục chọn, -1 khi không có	Widgets::selected_item	xong
 GetSelectItem	P2	86	38	CtrlList		id ô cột 0 của hàng chọn, -1 khi không; chỉ Kind::kCtrlList	Widgets::selected_row	xong
 RemoveAllItem	P2	83	52	CtrlList		bỏ hàng, giữ cột; chỉ Kind::kCtrlList	Widgets::clear_rows	xong
 AddItemElement	P2	79	41	ComplexWindow				chưa
 PlayWarning	P2	79	9	ActionButton		không có trạng thái: nhận lời gọi	-	xong
-CleanAllElement	P2	74	39	?				chưa
-RotateBeginEx	P2	70	32	?				chưa
-RotateEndEx	P2	69	32	?				chưa
-ClosePopMenu	P2	69	1	PopMenu				chưa
-SetPopMenuPos	P2	69	1	PopMenu				chưa
+CleanAllElement	P2	74	39	?		nhận mọi đối số, không làm gì (hiệu ứng chỉ để nhìn hay cửa sổ con động)	-	xong
+RotateBeginEx	P2	70	32	?		Call kMeshRotateBeginEx (tên, nửa tốc độ)	Call	xong
+RotateEndEx	P2	69	32	?		Call kMeshRotateEndEx (cửa sổ)	Call	xong
+ClosePopMenu	P2	69	1	PopMenu		giấu menu	Widgets::hide	xong
+SetPopMenuPos	P2	69	1	PopMenu		đặt theo tỉ lệ màn hình, lùi một cỡ khi tràn	Widgets::set	xong
 ClearListBox	P2	62	42	ListBox		bỏ mục, bỏ chọn, về đầu	Widgets::clear_list	xong
-DetachWindowEx	P2	57	34	?				chưa
-AttachWindowEx	P2	50	35	?				chưa
+DetachWindowEx	P2	57	34	?		Call kMeshDetach (cửa sổ)	Call	xong
+AttachWindowEx	P2	50	35	?		Call kMeshAttach (cửa sổ, tên, rộng, cao)	Call	xong
 SetPosition	P2	50	6	ScrollBar		kẹp 0..max(DocumentSize - PageSize, 0)	Widgets::set (ScrollPosition)	xong
-GetWindowSize	P2	42	30	?				chưa
+GetWindowSize	P2	42	30	?		(int)rộng, (int)cao từ Services::window_box; host chưa dàn trang thì 0, 0	Services::window_box	xong
 Activate	P2	41	38	this		phương thức của CUIWindowItem (nửa host)	-	host
-RefreshLayout	P2	41	28	?				chưa
+RefreshLayout	P2	41	28	?		nhận mọi đối số, không làm gì (hiệu ứng chỉ để nhìn hay cửa sổ con động)	-	xong
 SetItemSelectByItemID	P2	40	22	ListBox	số	chọn mục đầu mang id	Widgets::select_item	xong
-SetCameraEx	P2	38	21	?				chưa
-SetScrollPosition4Index	P2	37	20	?				chưa
-PositionSelf	P2	36	27	SuperTooltip				chưa
-GetCameraEx	P2	36	21	?				chưa
+SetCameraEx	P2	38	21	?		Call kMeshSetCamera + thuộc tính CameraEx	Call	xong
+SetScrollPosition4Index	P2	37	20	?		nhận mọi đối số, không làm gì (hiệu ứng chỉ để nhìn hay cửa sổ con động)	-	xong
+PositionSelf	P2	36	27	SuperTooltip		đặt cạnh điểm (cỡ + dời + 5 vừa màn hình thì dời + 0,5 không thì lùi); trả hai vị trí	Widgets::set	xong
+GetCameraEx	P2	36	21	?		đọc lại camera đã đặt, mặc định 0 0 0	Widgets::value	xong
 SetTextOriginal	P3	34	16	Window	chuỗi	giữ ở thuộc tính TextOriginal	Widgets::set	xong
-SetVertScrollbarPosition	P3	30	17	?				chưa
+SetVertScrollbarPosition	P3	30	17	?		giữ số script đưa (thuộc tính VertScrollbarPosition)	Widgets::set	xong
 GetPosition	P3	28	6	ScrollBar		vị trí hiện tại	Widgets::value (ScrollPosition)	xong
 AddChatBoardElement	P3	27	3	?				chưa
-SetEvent	P3	22	9	?				chưa
+SetEvent	P3	22	9	?		nối hàm vào sự kiện (host đọc Widgets::event_bindings)	Widgets::bind_event	xong
 RemoveAllChatString	P3	22	4	ChatHistory				chưa
 AddOptionElement	P3	22	4	ComplexWindow				chưa
 SetScrollPosition	P3	21	17	ComplexWindow		giữ chỗ cuộn	Widgets::keep_scroll	xong
@@ -70,15 +70,15 @@ AddItemExWithoutLayout	P3	19	4	?				chưa
 SetSelectItem	P3	18	14	CtrlList		chọn hàng; chỉ Kind::kCtrlList	Widgets::select_row	xong
 SetForce	P3	17	16	Window		không có trạng thái: nhận lời gọi	-	xong
 SetItemTooltip	P3	17	10	ListBox				chưa
-SetVertScrollbarHide	P3	16	8	?				chưa
+SetVertScrollbarHide	P3	16	8	?		nhận mọi đối số, không làm gì (hiệu ứng chỉ để nhìn hay cửa sổ con động)	-	xong
 ClearListBoxEx	P3	16	7	?				chưa
 GetCurrentFirstItem	P3	16	7	ListBox		mục đầu đang thấy, 0 khi chưa đặt	Widgets::first_item	xong
 InsertChatString	P3	16	4	ChatHistory				chưa
 SetCurrentFirstItem	P3	15	7	ListBox	số	đặt mục đầu đang thấy	Widgets::set_first_item	xong
-Tween_Play	P3	14	9	?				chưa
+Tween_Play	P3	14	9	?		nhận mọi đối số, không làm gì (hiệu ứng chỉ để nhìn hay cửa sổ con động)	-	xong
 SetAimEditBox	P3	14	4	SoftKeyWindow				chưa
-Tween_SetInfo	P3	13	9	?				chưa
-CenterWindow	P3	13	7	Window				chưa
+Tween_SetInfo	P3	13	9	?		nhận mọi đối số, không làm gì (hiệu ứng chỉ để nhìn hay cửa sổ con động)	-	xong
+CenterWindow	P3	13	7	Window		Override AbsolutePosition giữa cửa sổ cha (gốc: giữa màn hình)	Widgets::set	xong
 SetPushed	P3	13	3	ActionButton	số	Pushed = n == 1	Widgets::push	xong
 AddColumn	P3	12	3	CtrlList		cột (chữ, id, bề rộng)	Widgets::add_column	xong
 GetItemNumByItemId	P3	12	2	?				chưa
@@ -88,22 +88,22 @@ TogleShow	P3	11	6	this		phương thức của CUIWindowItem (nửa host)	-	host
 SetTextItemText	P3	11	5	ComboBox		đổi chữ mục theo chỉ số	Widgets::set_item_text	xong
 SetListItemText	P3	11	4	ListBox				chưa
 AddActionElement	P3	11	2	ComplexWindow	số, số, số[, any]	phần tử action	Widgets::add_element	xong
-PageEnd	P3	11	2	ComplexWindow				chưa
+PageEnd	P3	11	2	ComplexWindow		nhận mọi đối số, không làm gì (hiệu ứng chỉ để nhìn hay cửa sổ con động)	-	xong
 ResetLastSelectIndex	P3	10	8	ComboBox		không có trạng thái script thấy được	-	xong
-ScrollToEnd	P3	10	1	ChatHistory				chưa
+ScrollToEnd	P3	10	1	ChatHistory		nhận mọi đối số, không làm gì (hiệu ứng chỉ để nhìn hay cửa sổ con động)	-	xong
 GetScrollPosition	P3	8	8	?				chưa
-SetElementsInView	P3	8	7	?				chưa
+SetElementsInView	P3	8	7	?		nhận mọi đối số, không làm gì (hiệu ứng chỉ để nhìn hay cửa sổ con động)	-	xong
 DoScroll	P3	8	1	?				chưa
 InitWorldMap	P3	8	1	Scenemap				chưa
-Tween_Reset	P3	7	5	?				chưa
+Tween_Reset	P3	7	5	?		nhận mọi đối số, không làm gì (hiệu ứng chỉ để nhìn hay cửa sổ con động)	-	xong
 ResetText	P3	7	5	ComboBox		chữ ô nhập về rỗng	Widgets::set_text	xong
 StartFade	P3	7	2	Window	số, số, số	tới đích ngay (chưa có đồng hồ)	Widgets::set	xong
-GetPixelRect	P3	7	2	?				chưa
+GetPixelRect	P3	7	2	?		trái, phải, trên, dưới (int); chưa cắt theo cha	Services::window_box	xong
 GetClickedButtonItem	P3	6	4	?				chưa
-SetClippedByParent	P3	6	4	Window				chưa
-SetVScrollbarAlpha	P3	6	2	?				chưa
+SetClippedByParent	P3	6	4	Window		0: ClippedByParent False và AlwaysOnTop True; khác 0: ClippedByParent True	Widgets::set	xong
+SetVScrollbarAlpha	P3	6	2	?		nhận mọi đối số, không làm gì (hiệu ứng chỉ để nhìn hay cửa sổ con động)	-	xong
 GetSceneZoomMode	P3	6	1	?				chưa
-Tween_AddCurveVec3	P3	6	1	?				chưa
+Tween_AddCurveVec3	P3	6	1	?		nhận mọi đối số, không làm gì (hiệu ứng chỉ để nhìn hay cửa sổ con động)	-	xong
 SetSceneZoomMode	P3	6	1	Scenemap				chưa
 ClickHide	P3	5	5	this		phương thức của CUIWindowItem (nửa host)	-	host
 SetItemSelect	P3	5	3	ListBox				chưa
@@ -111,8 +111,8 @@ GetMouseScenePos	P3	5	2	Scenemap				chưa
 SetSceneFileName	P3	5	2	Scenemap				chưa
 AddItemPic	P3	5	2	?				chưa
 GetItemElementsString	P3	5	1	?				chưa
-SetXAttachPos	P3	4	4	?				chưa
-GetVertScrollbarPosition	P3	4	4	?				chưa
+SetXAttachPos	P3	4	4	?		neo bên phải khi còn chỗ không thì bên trái; Override UnifiedXPosition; trả x	Widgets::set	xong
+GetVertScrollbarPosition	P3	4	4	?		đọc lại, mặc định 0	Widgets::value	xong
 DoSubAction	P3	4	3	ActionButton				chưa
 SetImageColor	P3	4	2	StaticImage		ImageColours bốn góc cùng màu	Widgets::set	xong
 replayEffect	P3	4	2	?				chưa
@@ -122,7 +122,7 @@ SetFixMode	P3	4	1	?				chưa
 ResourceCheck	P3	4	1	?				chưa
 AddChannel	P3	4	1	ChatChannel				chưa
 AddNewButtonItem	P3	4	1	?				chưa
-Tween_Stop	P3	3	3	?				chưa
+Tween_Stop	P3	3	3	?		nhận mọi đối số, không làm gì (hiệu ứng chỉ để nhìn hay cửa sổ con động)	-	xong
 SetChatString	P3	3	3	?				chưa
 SetScrollInfoFixed	P3	3	3	?				chưa
 AddListboxItem	P3	3	3	?				chưa
@@ -133,7 +133,7 @@ RequestLayout	P3	3	2	?				chưa
 SetItemUserData	P3	3	1	?				chưa
 SetPhoneAimEditBox	P3	3	1	?				chưa
 SetSFZAimEditBox	P3	3	1	?				chưa
-ChangeCameraDistanceEx	P3	3	1	?				chưa
+ChangeCameraDistanceEx	P3	3	1	?		Call kMeshZoom (cửa sổ, tên, hướng, mức)	Call	xong
 SetBuffImageShow	P3	3	1	?				chưa
 SetCityCurrentScene	P3	3	1	?				chưa
 SetRowTooltip	P3	2	2	CtrlList		gợi ý của hàng	Widgets::set_row_tooltip	xong
@@ -156,7 +156,7 @@ CloseSceneMap	P3	1	1	Scenemap				chưa
 SetItemElementsString	P3	1	1	?				chưa
 GetCurrentSelectScene	P3	1	1	Scenemap				chưa
 GetItemCount	P3	1	1	CtrlList		số hàng; chỉ Kind::kCtrlList	Widgets::row_count	xong
-GetListItemCount	P3	1	1	?				chưa
+GetListItemCount	P3	1	1	?		số mục của danh sách; cửa sổ thường: số cửa sổ con khai trong layout	Widgets::item_count	xong
 GetItemText	P3	1	1	CtrlList		chữ ô (hàng, cột); ô không có: đối số cuối (lệch kỳ dị của gốc)	Widgets::cell_text	xong
 GetListCount	P3	1	1	ComboBox		số mục	Widgets::item_count	xong
 HideBuleCircle	P3	1	1	?				chưa
@@ -167,7 +167,7 @@ ZoomOutBlueCircle	P3	1	1	?				chưa
 ExtendClearRegion	P3	1	1	ChatHistory				chưa
 GetHoverChannelName	P3	1	1	?				chưa
 GetItemUserData	P3	1	1	?				chưa
-RestPositonEx	P3	1	1	?				chưa
+RestPositonEx	P3	1	1	?		Call kMeshRestPosition (cửa sổ)	Call	xong
 AddChild2Item	P3	1	1	?				chưa
 ClearAllChannel	P3	1	1	ChatChannel				chưa
 SetVertScollPosition	P3	1	1	CtrlList		cuộn tới hàng 0..số hàng; chỉ Kind::kCtrlList	Widgets::scroll_rows	xong
@@ -178,9 +178,9 @@ ResetScrollPosition	P3	1	1	ComplexWindow		về đầu	Widgets::reset_scroll	xong
 SetActionElementCheck	P3	1	1	?				chưa
 SetBarCompareProgress	P3	1	1	?				chưa
 SetBuffImage	P3	1	1	?				chưa
-SetWindowSize	P3	1	1	?				chưa
+SetWindowSize	P3	1	1	?		Override AbsoluteSize {(int)w,(int)h}	Widgets::set	xong
 TransAllWindowText	P3	1	1	?				chưa
-FlashMe	P3	0	0	?				chưa
+FlashMe	P3	0	0	?		thuộc tính Flash 1 khi số là 1 không thì 0	Widgets::set	xong
 InsertText	P3	0	0	?				chưa
 ActionDisable	P3	0	0	?				chưa
 SetNewFlash	P3	0	0	ActionButton		có action thì nháy	Widgets::flash	xong
@@ -189,7 +189,7 @@ Bright	P3	0	0	ActionButton		Gloom False	Widgets::gloom	xong
 SetAnimateID	P3	0	0	?				chưa
 GetThumbPositionX	P3	0	0	?				chưa
 SetRowUserData	P3	0	0	CtrlList		dữ liệu hàng (cất giá trị + 1)	Widgets::set_row_data	xong
-GetAbsolutePositionToScreen	P3	0	0	?				chưa
+GetAbsolutePositionToScreen	P3	0	0	?		vị trí trên màn hình (hai số thực)	Services::window_box	xong
 GetName	P3	0	0	Window				chưa
 GetRowUserData	P3	0	0	CtrlList		dữ liệu hàng, -1 khi chưa đặt	Widgets::row_data	xong
 InsertColumn	P3	0	0	CtrlList		cột tại vị trí	Widgets::add_column	xong
@@ -198,3 +198,11 @@ CaptureInput	-	0	0	Window		không có trạng thái: nhận lời gọi	-	xong
 Gloom	-	0	0	ActionButton		Gloom True	Widgets::gloom	xong
 AddNewItemTooltips	P3	0	0	CtrlList		như AddNewItem, đối số 5 là gợi ý	Widgets::put_cell	xong
 DeleteItem	P3	0	0	CtrlList		xoá hàng; chỉ Kind::kCtrlList	Widgets::remove_row	xong
+SetVertScrollbarShow	P3	0	0	?		nhận mọi đối số, không làm gì (hiệu ứng chỉ để nhìn hay cửa sổ con động)	-	xong
+SetSelect	P3	0	0	?		nhận mọi đối số, không làm gì (hiệu ứng chỉ để nhìn hay cửa sổ con động)	-	xong
+IsActive	P3	0	0	?		luôn false (chưa theo dõi kích hoạt)	-	xong
+SetWindowCenter	P3	0	0	?		Override AbsolutePosition = tâm - cỡ/2	Widgets::set	xong
+AutoMousePosition	P3	0	0	?		đặt ở điểm, kéo vào trong khi tràn màn hình	Widgets::set	xong
+OpenPopMenu	P3	0	0	?		hiện menu	Widgets::show	xong
+SetFlash	P3	0	0	?		thuộc tính Flash 1 khi số dương không thì 0; hai số (mục, cờ) bỏ qua	Widgets::set	xong
+RemoveEvent	P3	0	0	?		bỏ sự kiện cùng mọi hàm nối; trả chuỗi trên cùng ngăn xếp	Widgets::unbind_event	xong

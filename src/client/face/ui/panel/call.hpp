@@ -64,6 +64,20 @@ enum class Ask : std::uint8_t {
     // this:CareObject(id, cờ) của một cửa sổ: cờ khác 0 nhờ hệ đối tượng theo dõi khoảng cách tới đối tượng id, xa quá thì
     // đóng cửa sổ (UI_CEGUI.dll 3.71.9509 0x180077870; cờ 0 thì gốc không làm gì nên không ghi). Chữ: id, tên cửa sổ.
     kCareObject,
+    // Cửa sổ mô hình (MeshWindow) nhờ hệ mô hình của Game.exe; chữ là các đối số cách nhau tab (UI_CEGUI.dll 3.71.9509):
+    // RotateBegin(đối tượng, tốc độ) và RotateEnd(đối tượng) quay FakeObject (0x180033090, 0x180033250); RotateBeginEx(tên, tốc độ)
+    // và RotateEndEx(cửa sổ) quay mô hình của hệ cửa sổ (0x1800331c0, 0x180033330); AttachWindowEx(cửa sổ, tên, rộng, cao),
+    // DetachWindowEx(cửa sổ), RestPositonEx(cửa sổ) (0x180022ac0, 0x180024e60, 0x180033060); SetCameraEx(cửa sổ, x, y, z, w)
+    // (0x180036d70); ChangeCameraDistanceEx(cửa sổ, tên, hướng, mức) (0x1800230d0). Tốc độ đã nhân 0,5 như bản gốc.
+    kMeshRotateBegin,
+    kMeshRotateEnd,
+    kMeshRotateBeginEx,
+    kMeshRotateEndEx,
+    kMeshAttach,
+    kMeshDetach,
+    kMeshRestPosition,
+    kMeshSetCamera,
+    kMeshZoom,
 };
 
 struct Call {
@@ -100,6 +114,15 @@ struct Call {
     case Ask::kOpenFreshManGuide: return "OpenFreshManGuideNew";
     case Ask::kCloseFreshManGuide: return "CloseFreshManGuide";
     case Ask::kCareObject: return "CareObject";
+    case Ask::kMeshRotateBegin: return "RotateBegin";
+    case Ask::kMeshRotateEnd: return "RotateEnd";
+    case Ask::kMeshRotateBeginEx: return "RotateBeginEx";
+    case Ask::kMeshRotateEndEx: return "RotateEndEx";
+    case Ask::kMeshAttach: return "AttachWindowEx";
+    case Ask::kMeshDetach: return "DetachWindowEx";
+    case Ask::kMeshRestPosition: return "RestPositonEx";
+    case Ask::kMeshSetCamera: return "SetCameraEx";
+    case Ask::kMeshZoom: return "ChangeCameraDistanceEx";
     }
     return {};
 }

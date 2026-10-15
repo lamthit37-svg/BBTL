@@ -72,6 +72,13 @@ struct GridRowData {
     std::int32_t value = 0;
 };
 
+// Một hàm Lua mà script nối vào sự kiện CEGUI của cửa sổ lúc chạy (SetEvent): tên sự kiện, tên hàm và số nguyên đi kèm.
+struct EventBinding {
+    std::string event;
+    std::string handler;
+    std::int32_t flag = 0;
+};
+
 // Tuổi thọ của một mục InfoList (FalagardInfoList::AddInfo): thời gian sống còn lại (ms, âm là đang mờ), tốc độ mờ
 // (thuộc tính FadeSpeed của layout) và độ trong 1..0.
 struct InfoLife {
@@ -138,6 +145,13 @@ public:
     // sau. Thời gian âm hay NaN tính là 0, vô hạn hay quá lớn tính là mức int32 lớn nhất. Cửa sổ không phải danh sách có tuổi
     // thọ: không làm gì.
     void tick_info(std::string_view window, float seconds);
+    // SetEvent(sự kiện, hàm, số): nối thêm một hàm vào sự kiện của cửa sổ (Window::setdEvent). Chưa kiểm xem gốc có thay hay cộng dồn
+    // khi nối hai lần cùng sự kiện nên giữ cả hai theo thứ tự nối.
+    void bind_event(std::string_view window, EventBinding binding);
+    // RemoveEvent(sự kiện): bỏ sự kiện (name của event) của cửa sổ (window của event) cùng mọi hàm đã nối vào nó (EventSet::removeEvent); true khi có hàm bị bỏ.
+    bool unbind_event(const Key& event);
+    // Các hàm đã nối vào cửa sổ theo thứ tự nối; rỗng khi chưa có.
+    [[nodiscard]] std::span<const EventBinding> event_bindings(std::string_view window) const noexcept;
     // SetItemSelectByItemID: chọn mục đầu tiên mang id; không có mục nào mang id thì giữ nguyên.
     void select_item(std::string_view window, std::int32_t id);
     // Người chơi bấm mục mang id: mục đó thành mục đang chọn (không có thì bỏ chọn) và mục vừa
@@ -286,6 +300,7 @@ private:
         // (không già đi). Rỗng khi không phải danh sách ấy.
         std::vector<std::optional<InfoLife>> lives;
         bool is_info = false;
+        std::vector<EventBinding> bindings;
     };
 
     [[nodiscard]] Entry& entry_of(std::string_view window);

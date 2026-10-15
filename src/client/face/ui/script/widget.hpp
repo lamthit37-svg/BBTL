@@ -14,6 +14,7 @@
 #include "ui/panel/widgets.hpp"
 
 #include <cstdint>
+#include <optional>
 #include <string>
 #include <string_view>
 #include <type_traits>
@@ -55,6 +56,14 @@ enum class Kind : std::uint8_t {
 // Tên lớp để in ("ProgressBar", "CtrlList"...).
 [[nodiscard]] std::string_view kind_name(Kind kind) noexcept;
 
+// Hình chữ nhật theo điểm ảnh, gốc trái trên của màn hình.
+struct PixelBox {
+    float x = 0.0F;
+    float y = 0.0F;
+    float w = 0.0F;
+    float h = 0.0F;
+};
+
 // Thứ widget cần hỏi hay nhờ phía game/host mà Widgets không có. Mọi hàm có mặc định để chỗ dùng chỉ ghi đè
 // phần mình có.
 class Services {
@@ -72,6 +81,11 @@ public:
     // Cờ hiện của chính cửa sổ chủ (`this`): cửa sổ gốc của layout dùng cờ này, mọi cửa sổ con hiện khi gốc hiện.
     [[nodiscard]] virtual bool root_shown() const;
     virtual void set_root_shown(bool is_shown);
+    // Ô trên màn hình của cửa sổ theo lần dàn trang gần nhất (GetWindowSize, GetPixelRect, CenterWindow...); nullopt khi chưa dàn
+    // trang, khi đó mọi số đo của cửa sổ là 0. Mặc định nullopt.
+    [[nodiscard]] virtual std::optional<PixelBox> window_box(std::string_view window) const;
+    // Cỡ màn hình (cửa sổ gốc của CEGUI): x, y là 0. nullopt khi không biết, khi đó phép kẹp theo màn hình bị bỏ. Mặc định nullopt.
+    [[nodiscard]] virtual std::optional<PixelBox> screen_box() const;
 
 protected:
     Services(Services&&) = default;

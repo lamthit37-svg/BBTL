@@ -319,6 +319,21 @@ void Widgets::tick_info(std::string_view window, float seconds) {
     }
 }
 
+void Widgets::bind_event(std::string_view window, EventBinding binding) {
+    entry_of(window).bindings.push_back(std::move(binding));
+}
+
+bool Widgets::unbind_event(const Key& event) {
+    Entry& entry = entry_of(event.window);
+    return std::erase_if(entry.bindings, [&event](const EventBinding& bound) { return bound.event == event.name; }) != 0;
+}
+
+std::span<const EventBinding> Widgets::event_bindings(std::string_view window) const noexcept {
+    const Entry* entry = find(window);
+    if (entry == nullptr) return {};
+    return entry->bindings;
+}
+
 void Widgets::select_item(std::string_view window, std::int32_t id) {
     Entry& entry = entry_of(window);
     if (!entry.items) return;
