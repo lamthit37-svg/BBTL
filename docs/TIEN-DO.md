@@ -5,6 +5,18 @@ hiện tại của cả dự án đọc ở ba chỗ: mục "Khảo sát theo m�
 tệp này, và dòng "Trạng thái" ở mục 0 của `AGENTS.md`. Tên cũ của tệp là "cửa sổ, Vulkan và 57 vật
 thể tĩnh của map huoyangu": đó là đích của sáu bước B1 tới B6 đầu tiên, tả ngay dưới.
 
+## Máy chủ nối vào client: hội thoại và nhiệm vụ (lát cắt 2, 2026-10-15)
+
+Module `src/server/play` (World nạp bảng, Player, Bag tạm, Gameplay) nối `talk`, `mission`, `ledger`, `actor`, `item` vào zone. Đường đi: client gửi `Talk`/`DialogChoose`/`QuestAccept`/`QuestTurnIn`/`QuestAbandon`/`DialogClose` (protocol v5) -> gate giải mã và chuyển `Relay::kUp` -> `Host` -> `Gameplay::intent`; kết quả là `DialogOpen`/`DialogClosed`/`QuestBook`/`QuestNotice`/`SelfStats`/`Reject` quay về qua `Outbox`. Chữ do máy chủ dựng (`play/text`), không để client tra bảng. NPC bấm được nhận `EntityFlags` bit 0 (script có hộp thoại gốc chạy được: `World::speaks`). Trạng thái chơi (`PlayRecord`: thân thể, sổ nhiệm vụ, túi) đi Enter -> Attach -> Save, migration game 002.
+
+Đã chạy thật (cụm dev, bot `--talk 163,171`): vào Đại Lý, 6 NPC bấm được, Talk với Triệu Thiên Sư mở hộp thoại 15 lựa chọn, gặp bảng nhận nhiệm vụ 1, nhận, sổ 1 ô; vào lại sau đó menu còn 14 lựa chọn (nhiệm vụ đã ghi PostgreSQL). `play_tests` (6 ca trên bảng thật), `gate_*`, `zone_tests`, `talk_*`, `mission_*`, `server_boot` xanh.
+
+Giới hạn đã đo:
+- Danh bạ nhiệm vụ của client 2026 không có chuỗi tân thủ 440–712; Catalog mặc định chỉ chạy nhiệm vụ có trong danh bạ, nên hộp thoại không mời chúng (`talk::Service::run` trả kNoDialog). Nhiệm vụ của Triệu Thiên Sư trong danh bạ đòi cấp 20 và 30, nhân vật mới cấp 1 bị Reject kQuestUnavailable.
+- Nhiều lựa chọn trong menu NPC dẫn tới điểm vào chưa trích được từ Lua: Reject kNoSuchEntity, phiên vẫn mở. Lọc chúng khỏi menu làm đỏ `talk_flow_tests`/`talk_data_tests` (kỳ vọng của test mã hoá việc hiện đủ), nên để nguyên.
+- Túi là `play::Bag` tạm (khối kind 0x7302); `item::Inventory` vào ở lát cắt 3. `BodyLimits` dùng mặc định, giờ lịch nhiệm vụ cố định UTC+8, chỉ thị dịch chuyển/mở cửa hàng chưa làm. Dấu !/? trên đầu NPC chưa có (chỉ `DialogOpen.marks`). Chuyển cảnh bằng cổng truyền tống chưa làm vì đích nằm ở script Lua gốc chưa có trong cây.
+- `check.py --run` cho `play_tests` chưa chạy được trên Windows (liên kết MinGW thiếu ntdll/synchronization, Clang thiếu shell32); đã chạy `ctest` bản MSVC release, chưa chạy dưới ASan.
+
 ## Nhịp khung: trần 60 Hz của desktop (2026-10-15)
 
 Audit đường vẽ so với các kỹ thuật GPU-copy, dirty rect, render cache, culling, indirect, async compute,
@@ -2580,6 +2592,48 @@ trên `display/graphic/*.cpp` (header `state.hpp`, `prelude.hpp` đã có lỗi 
 Chưa làm: xác (`Pose::kDead` không vẽ; clip `death`/`corpse` đã có trong `CreatureFigure`), người chơi khác (`Kind::kPlayer`
 cần `PlayerActor`), bảng tên trên đầu, thú, Android và iOS (gói điện thoại cần đóng `creature.files.tsv`, bốn bảng, lưới,
 xương và ảnh material).
+
+## Client: hội thoại NPC và nhiệm vụ (2026-10-15)
+
+Lát cắt 2 phía client, theo giao thức v5 của a6 (`fcc16c7c`: `Talk`, `DialogChoose`, `QuestAccept`, `QuestTurnIn`, `QuestAbandon`,
+`DialogClose` lên; `DialogOpen`, `DialogClosed`, `QuestBook`, `QuestNotice`, `SelfStats`, `EntityFlags` xuống). Đường đi: tin máy
+chủ -> `session` -> `online::Bridge::hear_of` -> `Display::post_talk` -> `State::pump_talk` -> `Hud::deliver_talk` ->
+`ui/panel/npc_talk` -> `Deck` -> `gui::Hub`; việc người chơi nhờ đi ngược lại bằng `Hud::say` -> `drain_says` ->
+`Bridge::speak` -> `Speak` của phiên. Bảng vẽ trên layout thật `Quest/Quest.layout.xml` (port tay, không chạy `Quest.lua` vì nó cần
+khoảng 40 hàm DataPool chưa có): tiêu đề là tên NPC (tra theo mẫu), các dòng lựa chọn là phần tử mới `option` của
+`ComplexWindow` (nút `Option` của look `QuestButtonImage` kèm biểu tượng), phần thưởng chia "固定奖励" và "完成任务后可选一个作为奖品",
+ô tiền con vẽ ba icon vàng/bạc/đồng của look `TLBB_Look_Money` (giao tử dùng `Lace_Jiaozi*`), vật phẩm hiện tên từ
+`Table/items.tsv`. Ý nghĩa chế độ theo a6: `kMissionInfo` là bảng nhận (nút 接受), `kDemand` là bảng nộp (nút 完成, đủ điều kiện hay
+chưa do máy chủ quyết bằng `Reject(kQuestState)`), `kContinue` là nhiệm vụ đang làm (chỉ mô tả, không nút nộp).
+
+NPC: tia từ con trỏ vào hộp 0,7 x 2,4 m quanh chân thực thể (`control::ray_box_distance`), chỉ NPC có cờ `kFlagTalk` của
+`EntityFlags` (client không đoán); trỏ vào thì con trỏ thành "nói chuyện"; nhấp trái thì đi tới (tìm đường `kFind`) tới 2,5 m rồi
+gửi `Talk` (máy chủ nhận trong 8,0 m), bỏ sau 20 s hoặc khi người chơi nhấp chỗ khác hay bấm phím đi. Phiên hội thoại tăng ngặt,
+tin của phiên cũ bị bỏ; cùng phiên là cập nhật nội dung (giữ lựa chọn thưởng nếu mẫu còn); gửi việc rồi khoá tới khi máy chủ đáp
+hoặc 3 s. `SelfStats` ghi cấp, kinh nghiệm (trần theo `Config/PlayerExpLevel.txt`), tiền (kẹp int32; `bound_money` vào ô giao tử
+`money_voucher`) vào `hero`; `QuestNotice` thành dòng khung hệ thống (chữ của máy chủ nếu có, không thì tự dựng cho thưởng kinh
+nghiệm, tiền, vật phẩm); `QuestBook` ghi `quest::Log` của HUD.
+
+Công cụ thử `--talk-demo <click|menu|offer|turn>` (cùng `--creature`): NPC của `--creature` bấm được và việc nhờ ở hộp thoại được đáp
+bằng kịch bản có sẵn đúng hình tin v5 (`display/graphic/talk_demo.cpp`; Talk -> danh sách, lựa chọn 1 -> bảng nhận, 2 -> bảng nộp,
+nộp xong có thưởng, `SelfStats` và đóng hộp). `click` chờ người chơi bấm NPC; ba giá trị kia mở sẵn hộp ở khung đầu để chụp. Ví dụ:
+`thienlong_client.exe --data dev/client/assets --scene-id 2 --creature 6,9,10 --talk-demo offer --shot a.png --frames 60`.
+
+Đã đo (MSVC `msvc-release`, 0 warning): `ui_npc_talk_tests` (18 ca), `online_tests` (19, có 6 ca chuyển tin v5), `control_tests`
+(`ray_box_hits`), cùng `cast`, `gui_*`, `ui_widgets`, `ui_quest*`, `ui_script_host/golden`, `session*`, `pilot`, `touch`: 18 trên 18
+`ctest` xanh. `check.py` xanh trên `panel/npc_talk.*`, `panel/talk.hpp`, `gui/widgets.cpp`, `gui/hub.cpp`, `view_ray.*`, `cast/*`,
+`talk_demo.cpp`, `options.*`; `check.py --run` (Clang ASan + UBSan, GCC debug STL) xanh cho `ui_npc_talk_tests`. Ảnh chụp ba chế độ
+ở Đại Lý: tiêu đề tên NPC, dòng lựa chọn có biểu tượng, bảng nhận có 5 bạc 0 đồng và hai vật phẩm chọn một, bảng nộp có nút 完成
+mở. Sửa kèm: `Test/Control/control_tests.cpp` thiếu `ogre/quat.hpp`; `session.cpp` thiếu kiểm `line_` trước `send_frame`; `hud.cpp`
+khởi tạo có tên cho `SceneSize`.
+
+Chưa kiểm: đầu cuối với máy chủ thật (a6 chưa xử lý các tin này; chờ a6 báo); bấm thật bằng chuột (cấm điều khiển chuột; chủ dự án
+tự thử bằng `--talk-demo click`); vị trí chính xác của biểu tượng trong nút `Option` (ước lượng, ghi "Khác gốc" ở `gui/widgets.cpp`);
+`check.py` trên `display/graphic/*.cpp` và `hud.cpp` vẫn còn lỗi clang-tidy cũ không thuộc phần này (đệm `State`, include
+`TextureTier`); `src/shared/protocol/messages.hpp` (sinh) có sáu `switch` bị `bugprone-branch-clone` — của bộ sinh, báo a6.
+Chưa làm: sổ nhiệm vụ đang giữ chưa hiện trong `QuestLog` (bảng port tay còn rỗng: tên và mô tả nhiệm vụ chưa có nguồn ngoài id,
+cần a6 xác nhận máy chủ có gửi chữ hay client tra bảng); dấu !/? trên đầu NPC (cần tin `EntityMark`); `QuestAbandon` từ sổ nhiệm vụ;
+`kBox`, `kTips` chưa thử với tin thật.
 
 ## Còn lại
 
