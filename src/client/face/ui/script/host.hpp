@@ -23,6 +23,7 @@
 #include "ui/panel/call.hpp"
 #include "ui/panel/deck.hpp"
 #include "ui/panel/widgets.hpp"
+#include "ui/script/widget.hpp"
 
 #include <chrono>
 #include <cstddef>
@@ -74,6 +75,9 @@ public:
     [[nodiscard]] virtual std::optional<Spot> offset(std::string_view window, std::string_view root) const = 0;
     // Điểm có nằm trong cửa sổ window theo lần dàn trang gần nhất không (Window::isHit của CEGUI).
     [[nodiscard]] virtual bool hits(std::string_view window, Spot spot) const = 0;
+    // Ô trên màn hình của cửa sổ window theo lần dàn trang gần nhất, cho phương thức hình học của widget (GetWindowSize,
+    // CenterWindow...); nullopt khi chưa dàn trang hay cửa sổ đang ẩn. Mặc định nullopt.
+    [[nodiscard]] virtual std::optional<PixelBox> box(std::string_view window) const;
 
 protected:
     Screen(Screen&&) = default;

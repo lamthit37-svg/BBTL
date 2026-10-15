@@ -16,6 +16,16 @@ Bổ sung cho `TANG-C.md` (do nửa widget giữ). Địa chỉ **[M]** là củ
 - Mọi lời gọi từ host vào Lua đi qua `lua::protect` (LuaPlus báo lỗi bằng longjmp; lỗi chạy kèm traceback); hàm C gọi từ Lua chỉ báo lỗi ở đầu hàm bằng
   `luaL_where` + `lua_concat` (không `luaL_error` vararg, không đối tượng C++ có destructor qua lời gọi có thể báo lỗi).
 
+## Hàm toàn cục của host (nhóm C của TANG-B.md, 2026-10-15)
+
+`SetTimer`, `KillTimer` và, đọc từ decompile `TAILIEU/GAME-EXE-2026` (địa chỉ ở comment từng hàm trong `host.cpp`): `PushEvent` (0x140255060),
+`PushDebugMessage` (0x140233920), `OpenWindow` (0x140246320), `CloseWindow` (0x140246390, ép bằng boolean `true` thì đóng ngay),
+`IsWindowShow` (0x140237f50), `GetCurClientSize` (0x140248ba0, không nhỏ hơn 800x600, cỡ do HUD báo qua `Host::set_client_size`).
+Sự kiện đi qua hàng đợi `Call` rồi HUD đưa lại như CEventSystem; `OPEN_WINDOW`/`CLOSE_WINDOW` (0x176, 0x177) tới `Host::post` thì hiện (như `this:Show()`)
+hay giấu cửa sổ mang tên ở đối số đầu. Chưa đối chiếu: nơi xử lý hai sự kiện đó trong `UI_CEGUI.dll`. `IsWindowShow` chỉ biết cửa sổ của host (bảng
+port tay chưa chuyển trả false). Hình học widget (`GetWindowSize`...) đọc ô dàn trang của `Hub` qua `Screen::box` và cỡ màn qua `ItemServices::screen_box`.
+Chưa có: `ScriptGlobal_Format` (0x140233f50, 2 616 lần gọi trong khảo sát), `FUN_14007af80(3)` sau `PushDebugMessage`, cờ khoá `FUN_140229d50` của `OpenWindow`.
+
 ## Khác gốc
 
 - Hiện cửa sổ chưa nạp thì nạp trước (gốc gọi `setVisible` lên con trỏ rỗng).

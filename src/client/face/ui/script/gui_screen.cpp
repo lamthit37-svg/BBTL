@@ -4,6 +4,7 @@
 #include "gui/loader.hpp"
 #include "gui/sheet.hpp"
 #include "ui/script/host.hpp"
+#include "ui/script/widget.hpp"
 
 #include <algorithm>
 #include <cctype>
@@ -59,6 +60,13 @@ bool GuiScreen::hits(std::string_view window, Spot spot) const {
     if (hub_ == nullptr) return false;
     const std::optional<gui::Box> box = hub_->box(window);
     return box && spot.x >= box->x && spot.x < box->x + box->w && spot.y >= box->y && spot.y < box->y + box->h;
+}
+
+std::optional<PixelBox> GuiScreen::box(std::string_view window) const {
+    if (hub_ == nullptr) return std::nullopt;
+    const std::optional<gui::Box> found = hub_->box(window);
+    if (!found) return std::nullopt;
+    return PixelBox{.x = found->x, .y = found->y, .w = found->w, .h = found->h};
 }
 
 } // namespace game::ui::script

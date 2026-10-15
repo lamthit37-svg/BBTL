@@ -31,6 +31,7 @@ public:
     [[nodiscard]] const gui::GuiAsset& asset() const noexcept override { return loader_->asset(); }
     [[nodiscard]] std::optional<Spot> offset(std::string_view window, std::string_view root) const override;
     [[nodiscard]] bool hits(std::string_view window, Spot spot) const override;
+    [[nodiscard]] std::optional<PixelBox> box(std::string_view window) const override;
 
 private:
     gui::GuiLoader* loader_;

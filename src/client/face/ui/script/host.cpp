@@ -94,6 +94,8 @@ public:
 
     [[nodiscard]] bool root_shown() const override;
     void set_root_shown(bool is_shown) override;
+    [[nodiscard]] std::optional<PixelBox> window_box(std::string_view window) const override;
+    [[nodiscard]] std::optional<PixelBox> screen_box() const override;
 
 private:
     Core* core_;
@@ -939,6 +941,17 @@ bool ItemServices::root_shown() const {
     return core_->items[index_]->is_shown;
 }
 
+std::optional<PixelBox> ItemServices::window_box(std::string_view window) const {
+    return core_->screen->box(window);
+}
+
+// Cửa sổ gốc của CEGUI có cỡ màn hình, tức vùng khách của cửa sổ chương trình; chưa báo thì không kẹp.
+std::optional<PixelBox> ItemServices::screen_box() const {
+    const ClientSize size = core_->client_size;
+    if (size.width == 0 || size.height == 0) return std::nullopt;
+    return PixelBox{.x = 0.0F, .y = 0.0F, .w = static_cast<float>(size.width), .h = static_cast<float>(size.height)};
+}
+
 // Script đặt cờ hiện của cửa sổ gốc qua widget (SetFadeState, Show/Hide của chính cửa sổ gốc): đổi cờ của `this` và chồng
 // vẽ, không nhường chỗ, không phát Shown/Hidden.
 // Khác gốc: gốc giữ hai cờ (cờ hiện của cửa sổ CEGUI và m_bShow); bản này một cờ, như mô hình của trọng tài.
@@ -964,6 +977,10 @@ void open_close_by_event(Core& core, std::string_view event, std::span<const std
 }
 
 } // namespace
+
+std::optional<PixelBox> Screen::box(std::string_view /*window*/) const {
+    return std::nullopt;
+}
 
 struct Host::State {
     Core core;

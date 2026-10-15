@@ -4,6 +4,7 @@
 // ghi (Test/golden/panel/progress_bar_flow.tsv, cùng số vàng với ui_progress_bar_tests).
 #include "ui/script/gui_screen.hpp"
 #include "ui/script/host.hpp"
+#include "ui/script/widget.hpp"
 
 #include "gui/asset.hpp"
 #include "gui/loader.hpp"
@@ -183,6 +184,10 @@ public:
     }
     [[nodiscard]] bool hits(std::string_view window, Spot spot) const override {
         return window == "Pop_Frame" && spot.x < 10.0F && spot.y < 10.0F;
+    }
+    [[nodiscard]] std::optional<ui::script::PixelBox> box(std::string_view window) const override {
+        if (window == "Probe_Button") return ui::script::PixelBox{.x = 10.0F, .y = 20.0F, .w = 30.0F, .h = 40.0F};
+        return std::nullopt;
     }
 
     // Số lần host xin nạp layout.
@@ -577,7 +582,21 @@ void game_globals_follow_original(Context& context) {
     context.expect(host.take_notes().empty(), "không lỗi");
 }
 
-constexpr std::array<Case, 12> kCases = {{
+// Phương thức hình học của widget đọc ô dàn trang của màn qua Services (Screen::box); cửa sổ không có ô thì số đo 0.
+void widget_geometry_reads_the_screen(Context& context) {
+    Probe probe(context);
+    if (!probe.host) return;
+    Host& host = *probe.host;
+    static_cast<void>(host.take_notes());
+    post(host, "ALWAYS", {"show"});
+    context.expect(host.run(R"lua(w, h = Probe_Env.Probe_Button:GetWindowSize())lua") && global(host, "w") == "30" && global(host, "h") == "40",
+        "GetWindowSize theo ô của màn");
+    context.expect(host.run(R"lua(l, r, t, b = Probe_Env.Probe_Button:GetPixelRect())lua") && global(host, "l") == "10" && global(host, "r") == "40" &&
+                       global(host, "t") == "20" && global(host, "b") == "60", "GetPixelRect trái, phải, trên, dưới");
+    context.expect(host.take_notes().empty(), "không lỗi");
+}
+
+constexpr std::array<Case, 13> kCases = {{
     {.name = "sổ nhận dấu \\ của bản gốc", .body = registry_accepts_backslash},
     {.name = "sổ thật mở được", .body = real_registry_opens},
     {.name = "mở chạy PreLoad theo sổ", .body = open_runs_preload},
@@ -590,6 +609,7 @@ constexpr std::array<Case, 12> kCases = {{
     {.name = "ProgressBar.lua gốc khớp số vàng", .body = progress_bar_matches_original},
     {.name = "ProgressBar mờ dần theo nhịp", .body = progress_bar_fades_with_ticks},
     {.name = "hàm toàn cục của game: sự kiện, cửa sổ, cỡ màn", .body = game_globals_follow_original},
+    {.name = "hình học của widget đọc ô của màn", .body = widget_geometry_reads_the_screen},
 }};
 
 } // namespace
