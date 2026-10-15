@@ -1,6 +1,24 @@
+/*==============================================================================
+ *  ENGINEHP  |  HIGH-PERFORMANCE GAME ENGINE
+ *------------------------------------------------------------------------------
+ *  TỆP       : engine/io/file.cpp
+ *  PHÂN HỆ   : Io / File
+ *  CHUẨN     : C++23
+ *------------------------------------------------------------------------------
+ *  CHỨC NĂNG
+ *  - Đọc tệp văn bản và nhị phân của client theo đường dẫn UTF-8, tìm tên không
+ *    phân biệt hoa thường để dữ liệu của Windows chạy trên hệ tệp phân biệt hoa
+ *    thường (Android).
+ *  - Ghi vết tệp đã mở khi bật THIENLONG_TRACE_FILES (core/trace.hpp).
+ *------------------------------------------------------------------------------
+ *  TÁC GIẢ   : HiepHoon
+ *  TELEGRAM  : @Hoon9xx
+ *============================================================================*/
+
 #include "io/file.hpp"
 
 #include "core/text.hpp"
+#include "core/trace.hpp"
 #if defined(_WIN32)
 #include "core/win32.hpp" // IWYU pragma: keep
 
@@ -95,6 +113,8 @@ TextResult read_text(const std::filesystem::path& path) {
     if (size > kMaxFileBytes) return std::unexpected(FileError::kTooLarge);
     std::ifstream input(real, std::ios::binary);
     if (!input) return std::unexpected(FileError::kUnreadable);
+    // Ghi vết tệp dữ liệu đã mở để đọc (dựng gói APK, iOS): xem core/trace.hpp.
+    core::trace_file(utf8_of(real));
     std::string text(static_cast<std::size_t>(size), '\0');
     input.read(text.data(), static_cast<std::streamsize>(size));
     const bool is_whole = input.gcount() == static_cast<std::streamsize>(size);

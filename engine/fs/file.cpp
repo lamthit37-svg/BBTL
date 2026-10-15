@@ -1,18 +1,35 @@
-// Bảng chế độ mở thay fsFileModeToString của _Ref, nơi FM_READ_WRITE_APPEND và FM_APPEND rơi vào
-// "r" (mở chỉ đọc) và FM_READ_APPEND thành "ab+" (tạo tệp, ghi được). Ghi ép về cuối dùng offset
-// 0xFFFFFFFF'FFFFFFFF của WriteFile thay vì quyền FILE_APPEND_DATA, vì FlushFileBuffers cần
-// GENERIC_WRITE. Mở chỉ đọc chia cả FILE_SHARE_DELETE: trình sửa thay tệp bằng đổi tên trong lúc
-// engine còn giữ nó (nạp nóng) mà không gặp lỗi chia sẻ.
-// Nguồn: Forge2 src/fs/file.cpp@d7fcd76. Khác gốc (so với Forge2): macro của windows.h lấy từ
-// core/win32.hpp (gốc khai ở CMake), header con của Win32 include trực tiếp; các câu if trong vòng
-// của write_at và read_at lên điều kiện lặp (ghi tại chỗ); biến at của write_at thành target; bỏ
-// bốn phép ép uint64 sang size_t mà GCC báo thừa (kèm static_assert nền 64 bit).
+/*==============================================================================
+ *  ENGINEHP  |  HIGH-PERFORMANCE GAME ENGINE
+ *------------------------------------------------------------------------------
+ *  TỆP       : engine/fs/file.cpp
+ *  PHÂN HỆ   : Fs / File
+ *  CHUẨN     : C++23
+ *------------------------------------------------------------------------------
+ *  CHỨC NĂNG
+ *  - Bảng chế độ mở thay fsFileModeToString của _Ref, nơi FM_READ_WRITE_APPEND
+ *    và FM_APPEND rơi vào "r" (mở chỉ đọc) và FM_READ_APPEND thành "ab+" (tạo
+ *    tệp, ghi được). Ghi ép về cuối dùng offset 0xFFFFFFFF'FFFFFFFF của
+ *    WriteFile thay vì quyền FILE_APPEND_DATA, vì FlushFileBuffers cần
+ *    GENERIC_WRITE.
+ *------------------------------------------------------------------------------
+ *  TÁC GIẢ   : HiepHoon
+ *  TELEGRAM  : @Hoon9xx
+ *============================================================================*/
+
+// Mở chỉ đọc chia cả FILE_SHARE_DELETE: trình sửa thay tệp bằng đổi tên trong lúc engine còn giữ nó (nạp nóng) mà
+// không gặp lỗi chia sẻ. Nguồn: Forge2 src/fs/file.cpp@d7fcd76.
+
+// Khác gốc (so với Forge2): macro của windows.h lấy từ core/win32.hpp (gốc khai ở CMake), header con của Win32
+// include trực tiếp; các câu if trong vòng của write_at và read_at lên điều kiện lặp (ghi tại chỗ); biến at của
+// write_at thành target; bỏ bốn phép ép uint64 sang size_t mà GCC báo thừa (kèm static_assert nền 64 bit).
+
 #include "fs/file.hpp"
 
 #include "core/error.hpp"
 #include "core/handle.hpp"
 #include "core/log.hpp"
 #include "core/text.hpp"
+#include "core/trace.hpp"
 #include "core/win32.hpp" // IWYU pragma: keep
 #include "fs/stream.hpp"
 
@@ -242,6 +259,8 @@ Result<File> File::open(std::string_view path, Mode requested) {
     UniqueHandle handle(CreateFileW(wide.c_str(), plan.access, plan.share, &security, plan.disposition, plan.flags,
         nullptr));
     if (!handle) return open_failure(wide, path);
+    // Ghi vết tệp dữ liệu đã mở để đọc (dựng gói APK, iOS): xem core/trace.hpp.
+    if (has(mode, Mode::kRead)) core::trace_file(path);
     File file(std::move(handle), mode, 0);
     if (!has(mode, Mode::kAppend)) return file;
     const auto end = file.size();

@@ -164,6 +164,7 @@ set(game_core_sources
     engine/core/range.cpp
     engine/core/system.cpp
     engine/core/text.cpp
+    engine/core/trace.cpp
     engine/core/uarch.cpp)
 if(WIN32)
     list(APPEND game_core_sources engine/core/handle.cpp engine/core/thread.cpp)
