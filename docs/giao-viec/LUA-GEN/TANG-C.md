@@ -45,7 +45,7 @@ void advance_widgets(Widgets&, const gui::GuiAsset&, Services&, float seconds); 
 ```
 
 Điều kiện sống: `store`, `calls`, `asset`, `name`, `services` sống lâu hơn `lua_State`. Chỉ dùng C API thô (`lua.h` của LuaPlus), không phụ thuộc vỏ `lua::State` của e2.
-Bảng phương thức đã viết và hàng đợi còn lại: `WIDGET-PHUONG-THUC.tsv` (125 xong, 6 của `this` thuộc host, còn lại chưa). Kiểm: `Test/Ui/ui_script_widget_tests.cpp`
+Bảng phương thức đã viết và hàng đợi còn lại: `WIDGET-PHUONG-THUC.tsv` (132 xong, 6 của `this` thuộc host, còn lại chưa). Kiểm: `Test/Ui/ui_script_widget_tests.cpp`
 (22 ca; chạy `ProgressBar.lua` và `DebugListBox.lua` gốc qua một host tối thiểu của test, khớp 12/12 khối `progress_bar_flow.tsv` và 11/11 khối `debug_list_box_flow.tsv`). Lưu ý LuaPlus 5.0.1: `luaL_checkudata` trả NULL
 chứ không báo lỗi; `lua_getmetatable` chết khi ngăn xếp không có chỉ số; `lua_dobuffer` in lỗi ra stderr qua `_ALERT` (dùng `luaL_loadbuffer` + `lua_pcall`).
 

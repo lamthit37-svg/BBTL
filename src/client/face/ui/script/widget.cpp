@@ -1455,6 +1455,32 @@ int mesh_change_camera_distance(lua_State* state) {
     return 0;
 }
 
+// ---- Khung chat và vùng chứa ----
+
+// InsertChatString(chuỗi) (0x180028700): chèn một dòng chat vào cuối khung (chỉ số -1). Lưu như một phần tử chữ.
+int chat_insert(lua_State* state) {
+    const WindowRef& window = self(state);
+    if (!is_text(state, 2)) return 0;
+    window.store->add_element(window.name, std::format("text\t{}", from_script(text_at(state, 2))));
+    return 0;
+}
+
+// GetScrollPosition() (0x180027330): vị trí cuộn của vùng chứa danh sách, số thực; chưa đặt thì 0. Khác gốc: không có hàm đặt
+// riêng (SetScrollPosition của bản này chỉ là cờ giữ chỗ cuộn), nên chỉ trả thuộc tính ScrollPosition script hay layout đã đặt.
+int container_scroll_position(lua_State* state) {
+    const WindowRef& window = self(state);
+    lua_pushnumber(state, number_property(state, window, "ScrollPosition", 0.0));
+    return 1;
+}
+
+// SetAimEditBox(tên) (0x18003a0a0): ô nhập mà khung chat gửi chữ tới. Giữ tên làm thuộc tính AimEditBox.
+int chat_set_aim_edit_box(lua_State* state) {
+    const WindowRef& window = self(state);
+    if (!is_text(state, 2)) return 0;
+    window.store->set({.window = window.name, .name = "AimEditBox", .value = text_at(state, 2)});
+    return 0;
+}
+
 struct Method {
     const char* name;
     lua_CFunction function;
@@ -1583,6 +1609,13 @@ constexpr std::array kMethods = {
     Method{.name = "SetCameraEx", .function = &mesh_set_camera},
     Method{.name = "GetCameraEx", .function = &mesh_get_camera},
     Method{.name = "ChangeCameraDistanceEx", .function = &mesh_change_camera_distance},
+    Method{.name = "ClearListBoxEx", .function = &list_clear},
+    Method{.name = "RemoveAllText", .function = &complex_clear},
+    Method{.name = "RemoveAllChatString", .function = &complex_clear},
+    Method{.name = "InsertChatString", .function = &chat_insert},
+    Method{.name = "GetScrollPosition", .function = &container_scroll_position},
+    Method{.name = "SetAimEditBox", .function = &chat_set_aim_edit_box},
+    Method{.name = "CloseSceneMap", .function = &visual_only},
     Method{.name = "SetImage", .function = &image_set},
     Method{.name = "SetImageColor", .function = &image_set_colour},
     Method{.name = "SetPosition", .function = &scrollbar_set_position},
