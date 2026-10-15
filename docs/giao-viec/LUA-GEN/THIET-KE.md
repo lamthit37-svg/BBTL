@@ -25,6 +25,13 @@ có `continue`, OP_POW là XOR). Dựng thử thành DLL và chạy trọng tài
   3. Vỏ C++ hiện đại (RAII `lua::State`): trần heap, móc đếm lệnh cắt vòng lặp vô hạn, trần độ sâu, nạp/gọi trả `std::expected`.
   4. Sau khi chạy đúng, đo thật rồi mới tối ưu: `TObject` đóng gói 1 byte (`pshpack1`) có chậm không; GC dừng-toàn-bộ chạy giữa
      hai khung có ngân sách thời gian; script nạp lười theo cửa sổ. Không làm khi chưa có số.
+- Số đo nền của LuaPlus gốc dựng bằng MSVC `/O2` (i5-14600KF, 2026-10-15, nhỏ nhất trong 7 lượt, bộ đo tạm không vào repo):
+  dịch bytecode toàn bộ 2 043 tệp script (26,6 MB) mất 314-327 ms (77-81 MB/s), 0 lỗi cú pháp, nên nạp lười theo cửa sổ (vài
+  chục tệp đầu của HUD) tốn vài ms và không cần bytecode dựng sẵn (bytecode còn lớn hơn nguồn 2,4 lần: 66 so với 28 MB). Mỗi vòng:
+  `for` rỗng 2,3 ns, cộng số 3,6, đọc toàn cục 4,4, đọc trường chuỗi 4,2, gọi hàm native C 1 kết quả 15,0 (0 kết quả 11,0),
+  gọi hàm Lua 13,9, tạo bảng 38,8, nối chuỗi với số 276. Thử bỏ `pshpack1` ở `TObject` (12 thành 16 byte): chỉ lời gọi native
+  nhanh hơn (15,0 thành 12,1 ns), mọi phép khác không đổi — không đáng đổi bây giờ. Gốc nhanh hơn runtime tự viết (call 18,7 ns)
+  và tương đương mức "V1" mà e2 đề xuất (5,8 ns tính riêng phần gọi); script giao diện chạy theo sự kiện nên không phải điểm nghẽn.
 - Giữ làm mã tham khảo (không dựng): bộ phát C++ và bộ sinh (`TOOLS/port/luagen/ref_cpp/`), runtime tự viết
   (`TOOLS/port/luagen/ref_cpp/runtime/`). Giữ làm công cụ kiểm: bộ phân tích Python (khớp `luaL_loadbuffer` 24 942/24 942 chunk),
   `mass_units`, `mass_oracle`, `world.lua`, số vàng 10 835 ca của thư viện chuẩn.
