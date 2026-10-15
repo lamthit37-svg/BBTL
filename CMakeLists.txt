@@ -511,7 +511,8 @@ game_module(gui
     src/client/face/gui/softkey.cpp
     src/client/face/gui/widgets.cpp
     src/client/face/gui/radar.cpp
-    src/client/face/gui/hub.cpp)
+    src/client/face/gui/hub.cpp
+    src/client/face/gui/bar_tint.cpp)
 target_link_libraries(game_gui PUBLIC game_core game_io game_xml game_table)
 # hero: trạng thái của nhân vật người chơi mà giao diện hiển thị (tên, cấp, máu, khí, nộ, kinh
 # nghiệm). Giá trị thuần: mạng ghi vào, ui/panel đọc.

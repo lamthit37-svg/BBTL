@@ -77,6 +77,16 @@ struct Placed {
     bool is_resizing_children = false;
 };
 
+// Mức của một thanh FalagardSuperProgress ở lần vẽ này: mức muốn tới (d_progress, cửa sổ + 0x3f0), mức đang chạy
+// (d_curPos, + 0x91c) và màu mà hàm vẽ nhân vào state Enabled (ColourRect + 0xadc, xem bar_tint.hpp).
+struct BarLevel {
+    float target = 1.0F;
+    float shown = 1.0F;
+    std::uint32_t tint = kWhiteArgb;
+
+    [[nodiscard]] bool operator==(const BarLevel&) const = default;
+};
+
 // Mọi thứ một lượt vẽ cần: asset, đầu vào, các cửa sổ đã đặt, nơi ghi lệnh, và trạng thái chuột.
 struct Ctx {
     const GuiAsset* asset = nullptr;
@@ -85,8 +95,8 @@ struct Ctx {
     Sheet* sheet = nullptr;
     const ImageIndex* images = nullptr;
     const Placed* hot = nullptr;
-    // Mức đang vẽ của từng thanh trong input->bars (cùng thứ tự), sau khi Hub trượt.
-    std::span<const float> bar_fills;
+    // Mức của từng thanh trong input->bars (cùng thứ tự), sau khi Hub trượt.
+    std::span<const BarLevel> bar_levels;
     bool is_live_pass = false;
     bool is_down = false;
 };
@@ -141,6 +151,8 @@ struct FormatValue {
 
 // Ô local dời theo gốc origin.
 [[nodiscard]] Box shift(Box local, Box origin) noexcept;
+// Window::getAlpha: thuộc tính Alpha của chính cửa sổ (mặc định 1, kẹp vào 0..1).
+[[nodiscard]] float own_alpha(const Ctx& ctx, const Placed& self);
 [[nodiscard]] std::uint32_t colour_of(const GuiColourSource& source) noexcept;
 // Màu vẽ của một thành phần (khung, ảnh, chữ) trong section đi qua spec: màu của thành phần, nhân
 // với Colours của spec khi spec có (SectionSpecification::render rồi initColoursRect của CEGUI).

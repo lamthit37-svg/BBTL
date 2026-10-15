@@ -29,6 +29,7 @@ namespace game::gui::detail {
 namespace {
 
 constexpr float kMarker = 8.0F;
+constexpr float kHalf = 0.5F;
 constexpr std::uint32_t kMarkerColour = 0xFFFFFF00U;
 // Loại của mũi tên chính người chơi trong thuộc tính AnimateImage của radar.
 constexpr std::string_view kSelf = "Animate10";
@@ -365,18 +366,28 @@ void stretch_property(const Ctx& ctx, const Placed& self, std::string_view prope
     push_whole(*ctx.sheet, *image, self.screen, kWhiteArgb);
 }
 
-// Mức vẽ của thanh: mức Hub đã trượt khi người gọi đặt thanh này, không thì CurrentProgress của
-// cửa sổ (mặc định 1).
-float bar_amount(const Ctx& ctx, const Placed& self) {
+// Mức của thanh: mức Hub đã trượt khi người gọi đặt thanh này, không thì CurrentProgress của cửa sổ (mặc định 1) cho
+// cả mức muốn tới lẫn mức đang chạy.
+BarLevel bar_level(const Ctx& ctx, const Placed& self) {
     const std::span<const Bar> bars = ctx.input->bars;
     const auto is_mine = [&self](const Bar& bar) { return bar.window == self.window->name; };
     const auto found = std::ranges::find_if(bars, is_mine);
     const auto slot = static_cast<std::size_t>(std::distance(bars.begin(), found));
-    if (slot < ctx.bar_fills.size()) return std::clamp(ctx.bar_fills[slot], 0.0F, 1.0F);
-    if (found != bars.end()) return std::clamp(found->amount, 0.0F, 1.0F);
-    const auto text = effective(ctx, self, "CurrentProgress");
-    const auto parsed = text ? parse_float(*text) : std::nullopt;
-    return std::clamp(parsed.value_or(1.0F), 0.0F, 1.0F);
+    if (slot < ctx.bar_levels.size()) {
+        const BarLevel& held = ctx.bar_levels[slot];
+        return BarLevel{.target = std::clamp(held.target, 0.0F, 1.0F),
+            .shown = std::clamp(held.shown, 0.0F, 1.0F),
+            .tint = held.tint};
+    }
+    float amount = 1.0F;
+    if (found != bars.end()) {
+        amount = found->amount;
+    } else {
+        const auto text = effective(ctx, self, "CurrentProgress");
+        amount = text ? parse_float(*text).value_or(1.0F) : 1.0F;
+    }
+    const float level = std::clamp(amount, 0.0F, 1.0F);
+    return BarLevel{.target = level, .shown = level, .tint = kWhiteArgb};
 }
 
 // Điểm trên màn hình của người chơi trong radar, kẹp trong ô radar. Trục đang canh giữa người chơi thì đúng
@@ -659,10 +670,90 @@ void draw_edit(const Ctx& ctx, const Placed& self) {
     render_state(ctx, self, "Normal", self.screen);
 }
 
+const Placed* parent_of(const Ctx& ctx, const Placed& self) noexcept {
+    const std::int32_t parent = self.window->parent;
+    if (parent < 0 || std::cmp_greater_equal(parent, ctx.placed.size())) return nullptr;
+    return &ctx.placed[static_cast<std::size_t>(parent)];
+}
+
+// Window::getEffectiveAlpha: Alpha của cửa sổ nhân với Alpha của cha, trừ khi cửa sổ không kế thừa (InheritsAlpha, mặc
+// định true).
+float effective_alpha(const Ctx& ctx, const Placed& self) {
+    float alpha = 1.0F;
+    for (const Placed* at = &self; at != nullptr; at = parent_of(ctx, *at)) {
+        alpha *= own_alpha(ctx, *at);
+        const auto inherits = effective(ctx, *at, "InheritsAlpha");
+        if (inherits && !parse_bool(*inherits)) break;
+    }
+    return alpha;
+}
+
+// ColourRect trắng đã nhân alpha, dạng ARGB (ColourRect::setAlpha rồi colour::calculateARGB cắt phần thập phân).
+std::uint32_t white_with_alpha(float alpha) noexcept {
+    const auto channel = static_cast<std::uint32_t>(std::clamp(alpha, 0.0F, 1.0F) * 255.0F);
+    return (channel << 24U) | (kWhiteArgb & 0x00FFFFFFU);
+}
+
+// Window::isDisabled(false): cửa sổ hay một cha của nó bị khoá.
+bool is_disabled(const Ctx& ctx, const Placed& self) {
+    for (const Placed* at = &self; at != nullptr; at = parent_of(ctx, *at)) {
+        if (flag(ctx, *at, "Disabled")) return true;
+    }
+    return false;
+}
+
+// StateImagery::render(cửa sổ, ô, modColours = tint): vẽ state name vào ô local rồi nhân tint vào các quad vừa thêm;
+// false khi look không có state ấy.
+bool render_tinted(const Ctx& ctx, const Placed& self, std::string_view name, Box local, std::uint32_t tint) {
+    const std::size_t first = ctx.sheet->quads.size();
+    if (!render_state(ctx, self, name, local)) return false;
+    if (tint == kWhiteArgb) return true;
+    for (Quad& quad : std::span(ctx.sheet->quads).subspan(first)) quad.colour = modulate(quad.colour, tint);
+    return true;
+}
+
+// Thanh có đầu sáng (thuộc tính LightEnable, thanh kỹ năng của bảng ProgressBar): state Background phủ cả cửa sổ, state
+// Enabled (Disabled khi cửa sổ khoá) trên phần ProgressArea rộng bằng mức muốn tới, rồi state LightEnable đặt giữa theo
+// chiều dọc của ProgressArea và nằm trên mép phải của phần đã đầy, cỡ LightArea (không có thì vuông bằng cao ProgressArea).
+void draw_light_bar(const Ctx& ctx, const Placed& self, const Box& area, const BarLevel& level) {
+    const std::uint32_t alpha = white_with_alpha(effective_alpha(ctx, self));
+    render_tinted(ctx, self, "Background", self.screen, alpha);
+    const Box fill{.x = area.x, .y = area.y, .w = area.w * level.target, .h = area.h};
+    render_tinted(ctx, self, is_disabled(ctx, self) ? "Disabled" : "Enabled", fill, alpha);
+    if (state_named(*ctx.asset, *self.look, "LightEnable") == nullptr) return;
+    const std::optional<Box> light = named_area(ctx, self, "LightArea");
+    const float width = light ? light->w : area.h;
+    const float height = light ? light->h : area.h;
+    const float edge = (area.w * level.target) + area.x;
+    const Box head{.x = edge - (width * kHalf), .y = (area.h * kHalf) + area.y - (height * kHalf), .w = width,
+        .h = height};
+    render_tinted(ctx, self, "LightEnable", head, alpha);
+}
+
+// Thanh thường (thanh máu, nội, nộ): state Enabled trên phần ProgressArea rộng bằng mức NHỎ hơn trong mức muốn tới và
+// mức đang chạy, nhân màu hiện hành của thanh. Nên thanh giảm thì rơi ngay, thanh tăng thì chạy theo MoveSpeed.
+// Khác gốc: hàm gốc còn vẽ state Effect ở dải rộng bằng độ lệch hai mức (bắt đầu từ mép phải ProgressArea, nhân
+// EffectColor) khi look khai NamedArea Effect; không look nào của kho 2026 khai (0 trên 46 look), nên chưa vẽ.
+void draw_sliding_bar(const Ctx& ctx, const Placed& self, const Box& area, const BarLevel& level) {
+    const std::uint32_t alpha = white_with_alpha(effective_alpha(ctx, self));
+    const float low = std::min(level.target, level.shown);
+    const Box fill{.x = area.x, .y = area.y, .w = area.w * low, .h = area.h};
+    render_tinted(ctx, self, "Enabled", fill, modulate(level.tint, alpha));
+}
+
+// FalagardSuperProgress::populateRenderCache (CEGUIFalagard.dll 0x180078870), phần ảnh; chữ ở text.cpp. ProgressArea
+// của look (không có thì cả cửa sổ) là ô mà mức chia. Mọi thứ cắt theo ô cửa sổ như RenderCache của CEGUI.
 void draw_progress(const Ctx& ctx, const Placed& self) {
-    Box local = self.screen;
-    local.w *= bar_amount(ctx, self);
-    render_state(ctx, self, "Enabled", local);
+    if (self.look == nullptr) return;
+    const std::size_t first = ctx.sheet->quads.size();
+    const Box area = named_area(ctx, self, "ProgressArea").value_or(self.screen);
+    const BarLevel level = bar_level(ctx, self);
+    if (flag(ctx, self, "LightEnable")) {
+        draw_light_bar(ctx, self, area, level);
+    } else {
+        draw_sliding_bar(ctx, self, area, level);
+    }
+    clip_quads(*ctx.sheet, first, self.screen);
 }
 
 } // namespace
@@ -686,6 +777,11 @@ void clip_quads(Sheet& sheet, std::size_t first, const Box& clip) {
     const auto gone = std::ranges::remove_if(tail, is_empty);
     const auto kept = static_cast<std::size_t>(std::distance(sheet.quads.data(), gone.data()));
     sheet.quads.resize(kept);
+}
+
+float own_alpha(const Ctx& ctx, const Placed& self) {
+    const auto text = effective(ctx, self, "Alpha");
+    return std::clamp(text ? parse_float(*text).value_or(1.0F) : 1.0F, 0.0F, 1.0F);
 }
 
 Box shift(Box local, Box origin) noexcept {
