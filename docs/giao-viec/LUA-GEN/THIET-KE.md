@@ -23,11 +23,19 @@ Tách A khỏi B là chỗ then chốt: đối soát lớp A chạy với một 
   `select`, `string.gmatch` (có `string.gfind`). Có `loadstring`, `setfenv`, `unpack`; script giao diện không dùng ba hàm
   đầu (quét 2 043 tệp: 0 lần `loadstring`, `dofile`, `setfenv`, `setmetatable`, `coroutine`).
 - Chuỗi có bảng meta: `("abc"):len()` ra 3.
-- `^` gọi hàm toàn cục `__pow` (lvm.c 5.0 làm vậy với số), và `__pow` của LuaPlus là XOR trên số nguyên 32 bit không dấu:
-  `2^10` ra 8, `2.5^2` ra 0, `5^-1` ra 4294967290, `1e300^2` ra 2, `2^3^2` ra 3 (kết hợp phải). `math.pow(2,10)` vẫn 1024.
+- `^` của hai số là XOR trên số nguyên 32 bit không dấu ngay trong VM, kể cả khi toán hạng là biến (`local a,b=2,10`
+  thì `a^b` ra 8); có toán hạng là chuỗi thì Arith ép số rồi gọi hàm toàn cục `__pow`, mà `__pow` của DLL là pow thật
+  (`"3"^2` ra 9, `__pow(2,10)` ra 1024). Số đo khác: `2^10` ra 8, `2.5^2` ra 0, `5^-1` ra 4294967290, `1e300^2` ra 2, `2^3^2` ra 3 (kết hợp phải). `math.pow(2,10)` vẫn 1024.
 - `table.getn({1,2,nil,4})` ra 2; `math.mod(-7,3)` ra -1; `tostring(1e15)` là `1e+015`, `1/0` là `1.#INF`;
   `string.format('%5.2f|%d|%s|%x|%g', 3.14159, 42.9, 'x', 255, 1e20)` là ` 3.14|42|x|ff|1e+020`.
 - So sánh chuỗi theo byte: `'a' < 'B'` là false.
+- Đọc và ghi trường trên nil, boolean, số, hàm không lỗi: `local n=nil` thì `n.x` ra nil, `n.x=1` ghi vào bảng riêng của
+  kiểu nil (`getmetatable(nil).x` ra 1); mỗi kiểu một bảng, chuỗi dùng bảng `string`. `n:m()` vẫn lỗi gọi phương thức.
+- Literal `-0` và `-0.0` ra +0 (`tostring` là `0`), `-z` với `z=0` lúc chạy ra `-0`: bộ dịch phát hằng +0 cho dấu trừ đứng
+  trước literal số 0.
+- `_G` của DLL còn có `coroutine`, `newproxy`, `require`, `loadfile`, `dofile`, `loadstring`, `towstring`, `getfenv`,
+  `setfenv`, `gcinfo`, `_LOADED`, `string.dump`, `string.lualex`, `table.foreach`, `table.foreachi`; runtime có đủ tên để
+  `__index` của world.lua không biến chúng thành đối tượng giả khác phía gốc.
 - Thứ tự `pairs` theo bảng băm của ltable.c: `t.b=1 t.a=2 t[10]=3 t.zz=4 t[1]=5 t[2.5]=6` duyệt ra `10,1,b,2.5,a,zz`.
 - Game.exe tạo máy bằng `LuaPlus::LuaState::Create` (imports của `Game.exe`). Script dùng `os.` ở 6 tệp, `io.` ở 3 tệp.
 
@@ -45,7 +53,7 @@ Bề mặt mà mã sinh gọi là `src/client/face/lua/vm.hpp` (hợp đồng, �
   - ltm, lvm: arith (ép chuỗi theo `luaO_str2d`), `__pow` toàn cục, concat, equal/lessthan/lessequal (chuỗi theo
     `l_strcmp`), gettable/settable qua metamethod, OP_FORLOOP, gọi qua `__call`.
   - lbaselib, lstrlib (mẫu Lua, `format`), ltablib (`sort` là `auxsort` của gốc: thứ tự phần tử bằng nhau phải khớp),
-    lmathlib (`__pow` XOR như đo ở trên), getn/setn của lauxlib.
+    lmathlib (`__pow` là pow thật, `math.random` là rand/srand của MSVCR110: LCG 214013, 2531011), getn/setn của lauxlib.
   - Số ↔ chuỗi: dùng lại `ui/panel/lua_value` (đã đo `%.14g` và `strtod` của MSVCR110); dời nó vào module `lua` nếu cần.
 - Thu gom rác mark-sweep, chỉ chạy ở `State::collect()` khi độ sâu gọi là 0; gốc là bảng toàn cục, registry, giá trị chủ ghim.
 - Trần (Khác gốc, để client không treo hay tràn ngăn xếp C 1 MB): độ sâu gọi 200 ("stack overflow"), số lần quay vòng mỗi

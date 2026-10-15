@@ -55,7 +55,7 @@ using StatePtr = std::unique_ptr<State, StateDeleter>;
 [[nodiscard]] StatePtr new_state(const Limits& limits);
 
 // Thư viện chuẩn đúng như máy của trọng tài (TOOLS/port/luagen/mass_oracle.py): base, string, table, math; chuỗi có bảng
-// meta trỏ bảng string; __pow toàn cục là XOR 32 bit. Không os, io, debug.
+// meta trỏ bảng string; __pow toàn cục là pow thật. Không os, io, debug.
 void open_standard(State& state);
 
 // Ngữ cảnh chủ mà hàm C++ đọc bằng host(); State không sở hữu nó, nó phải sống lâu hơn mọi lần gọi.

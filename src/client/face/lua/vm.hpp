@@ -5,8 +5,9 @@
 // Ngữ nghĩa là của LuaPlus.dll trong client 2026 (_VERSION "Lua 5.0.1"; mã tham chiếu
 // C:\dev\third_party\reference\lua-5.0.1). Mỗi op làm đúng việc của lệnh máy ảo tương ứng trong lvm.c, lvm.h,
 // ltm.c, ltable.c của bản đó: metamethod, ép chuỗi sang số, thứ tự duyệt bảng, câu lỗi. Khác Lua chuẩn, đã đo
-// trên LuaPlus.dll ngày 2026-10-15: có `continue`; chuỗi có bảng meta (`("abc"):len()` ra 3); `^` gọi hàm
-// toàn cục `__pow` như lvm.c 5.0 làm với số, và `__pow` của LuaPlus là XOR 32 bit (2^10 ra 8, 5^-1 ra 4294967290).
+// trên LuaPlus.dll ngày 2026-10-15: có `continue`; chuỗi có bảng meta (`("abc"):len()` ra 3); `^` của hai số là
+// XOR 32 bit ngay trong VM, kể cả khi toán hạng là biến (2^10 ra 8, 5^-1 ra 4294967290); index và set_index trên
+// nil, boolean, số, hàm không lỗi mà dùng bảng riêng của kiểu đó.
 //
 // Lỗi không dùng ngoại lệ. Op gặp lỗi ghi lỗi vào State (failed() thành true) rồi trả giá trị rỗng; mã sinh hỏi
 // failed() ngay sau mỗi op có thể lỗi và trả về, nên không biểu thức hay lời gọi nào sau chỗ lỗi được chạy, đúng
@@ -183,8 +184,9 @@ void set_global(State& state, Value name, Value value);
 // method_of, hỏi failed(), rồi mới tính đối số và call(hàm, {object, đối số...}).
 [[nodiscard]] Value method_of(State& state, Value object, Value name);
 
-// OP_ADD .. OP_UNM (luaV_arith, Arith của lvm.c): ép chuỗi sang số theo luaO_str2d, rồi metamethod. pow gọi hàm
-// toàn cục `__pow` khi cả hai là số (lvm.c 5.0), metamethod __pow khi không.
+// OP_ADD .. OP_UNM (luaV_arith, Arith của lvm.c): ép chuỗi sang số theo luaO_str2d, rồi metamethod. pow của hai
+// số là XOR 32 bit không dấu (LuaPlus đổi OP_POW); có toán hạng là chuỗi thì Arith ép số rồi gọi hàm toàn cục
+// `__pow`, mà `__pow` của DLL là pow thật ("3"^2 ra 9, __pow(2,10) ra 1024; đo 2026-10-15).
 [[nodiscard]] Value add(State& state, Value left, Value right);
 [[nodiscard]] Value sub(State& state, Value left, Value right);
 [[nodiscard]] Value mul(State& state, Value left, Value right);
