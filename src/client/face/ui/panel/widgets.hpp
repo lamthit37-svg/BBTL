@@ -83,6 +83,10 @@ public:
     void clear_list(std::string_view window);
     // AddItem(text, id, colour).
     void add_item(std::string_view window, ListItem item);
+    // AddInfo(text) của danh sách TLBB_InfoList (FalagardInfoList::AddInfo, CEGUIFalagard.dll 0x18006b940): thêm mục info (script
+    // đưa chữ, id 0, không màu), bỏ mục cũ nhất cho tới khi còn tối đa limit mục (mục đang chọn dời theo, mất khi bị bỏ), rồi
+    // hiện chính danh sách.
+    void add_info(std::string_view window, ListItem info, std::size_t limit);
     // SetItemSelectByItemID: chọn mục đầu tiên mang id; không có mục nào mang id thì giữ nguyên.
     void select_item(std::string_view window, std::int32_t id);
     // Người chơi bấm mục mang id: mục đó thành mục đang chọn (không có thì bỏ chọn) và mục vừa

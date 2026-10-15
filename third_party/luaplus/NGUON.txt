@@ -62,6 +62,9 @@ Khác gốc (mỗi mục có chú thích `Khác gốc:` ngay tại chỗ sửa t
     (ASan: heap-buffer-overflow). Câu lỗi của ca đó là "invalid option to `format'" như DLL.
   - luanum_strtoul (tonumber(chuỗi, cơ số)): tràn 32 bit trả ULONG_MAX rồi vẫn đảo dấu theo "-" ra 1, như strtoul của MSVCR110
     ("-100000000" cơ số 16 ra 1); bản đầu trả 0xFFFFFFFF, ctest lua_golden_tests bắt được.
+  - src/lstate.c close_state, f_luaopen, lua_open: `luaState.allocFlags = 0` và, ở close_state, `globalState.nblocks` giả như hai hàm
+    kia. Gốc để hai trường ấy chưa khởi tạo mà luaM_realloc đọc (nblocks trong lua_assert, allocFlags đưa cho hàm cấp phát); bản không
+    NDEBUG dịch bằng Clang chết ở assert khi rác bằng 0 (đo 2026-10-15, đóng state trong ui_script_widget_tests dưới ASan+UBSan).
 - CMake: game_luaplus và luaplus_oracle liên kết game_luanum; không gộp a * b + c thành FMA (-ffp-contract=off) trên GCC, Clang.
 
 Dựng: third_party/luaplus/CMakeLists.txt (lõi C, không dịch lớp bọc C++ cũ, ltests.c, luiolib.c, lua.c, luac.c): game_luaplus

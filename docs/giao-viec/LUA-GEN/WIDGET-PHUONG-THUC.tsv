@@ -1,0 +1,198 @@
+# Bảng phương thức widget: bậc và tần suất lấy từ API-TAN-SUAT.tsv, lớp theo UILuaControl 2008, cột status (xong, host, chưa) sửa tay khi thêm phương thức vào widget.cpp.
+name	tier	sites	units	class	args	behavior	store	status
+SetText	P0	14203	1347	Window	số|chuỗi	số: %d; chuỗi: nguyên văn (chưa phân tích thẻ màu)	Widgets::set_text	xong
+RegisterEvent	P0	12175	2012	this		phương thức của CUIWindowItem (nửa host)	-	host
+Hide	P0	12105	2030	Window		setVisible(false)	Widgets::hide	xong
+Show	P0	11423	2023	Window		setVisible(true)	Widgets::show	xong
+SetProperty	P0	8335	1813	Window	chuỗi, chuỗi	ShortImage -> Image (icon); SetFadeState: <=0 hiện cửa sổ (và this nếu là gốc), Alpha=1	Widgets::set + Services	xong
+GetProperty	P0	4091	1663	Window	chuỗi	script đã đặt, layout, UnifiedX/Y/Position suy từ UnifiedAreaRect, Visible/Disabled/Selected/Alpha; lạ: rỗng	Widgets::value + GuiAsset	xong
+IsVisible	P0	2915	1196	Window		isVisible(false): cửa sổ và mọi cửa sổ cha; gốc layout = cờ của host	Widgets::is_shown + Services::root_shown	xong
+Disable	P0	2163	471	Window		setEnabled(false)	Widgets::disable	xong
+SetCheck	P0	2156	303	CheckButton	số	Selected = (int)n == 1; CheckMode 1 bật thì nút cùng cha tắt	Widgets::check / check_one	xong
+Enable	P0	1872	481	Window		setEnabled(true)	Widgets::enable	xong
+SetToolTip	P0	1830	255	Window	chuỗi	thuộc tính Tooltip	Widgets::set	xong
+SetActionItem	P0	1244	348	ActionButton	số	id -1 làm trống ô; sai kiểu là lỗi Lua	Widgets::set_action + Services::action_icon	xong
+CareObject	P0	1213	604	this		phương thức của CUIWindowItem (nửa host)	-	host
+GetText	P1	568	207	Window		chữ script đặt, không thì chữ layout	Widgets::value	xong
+Play	P1	547	109	AnimateWindow	boolean	Playing = lặp	Widgets::play	xong
+AddTextElement	P1	515	29	ComplexWindow	chuỗi[, chuỗi]	phần tử text	Widgets::add_element	xong
+AddTextItem	P1	426	64	?				chưa
+DoAction	P1	386	24	ActionButton		ô có action: nhờ game (Call kDoAction)	calls	xong
+AddNewItem	P1	384	49	CtrlList				chưa
+SetFakeObject	P1	364	82	MeshWindow	chuỗi	thuộc tính FakeObject	Widgets::set	xong
+GetCheck	P1	249	100	CheckButton		1 hay 0	Widgets::is_checked	xong
+AddChild	P1	183	135	?				chưa
+SetCurrentSelect	P2	180	65	ComboBox				chưa
+RotateEnd	P2	178	76	MeshWindow				chưa
+RotateBegin	P2	172	76	MeshWindow				chưa
+GetCurrentSelect	P2	171	83	ComboBox				chưa
+Clear	P2	162	109	?				chưa
+GetChildOffset	P2	159	48	this		phương thức của CUIWindowItem (nửa host)	-	host
+AddItem	P2	159	45	ListBox	chuỗi, số[, chuỗi]	chữ, id, màu AARRGGBB	Widgets::add_item	xong
+ClearAllElement	P2	143	32	ComplexWindow		bỏ mọi phần tử	Widgets::clear_elements	xong
+SetProgress	P2	123	49	ProgressBar	số, số	chỉ khi cả hai là số; mức = tử / mẫu	Widgets::set_progress	xong
+ComboBoxAddItem	P2	118	21	ComboBox				chưa
+Flash	P2	110	39	?				chưa
+ResetList	P2	108	61	ComboBox				chưa
+SetSelected	P2	107	77	?				chưa
+SetImage	P2	106	27	StaticImage				chưa
+GetFirstSelectItem	P2	100	45	ListBox		id mục chọn, -1 khi không có	Widgets::selected_item	xong
+GetSelectItem	P2	86	38	CtrlList				chưa
+RemoveAllItem	P2	83	52	CtrlList				chưa
+AddItemElement	P2	79	41	ComplexWindow				chưa
+PlayWarning	P2	79	9	ActionButton		không có trạng thái: nhận lời gọi	-	xong
+CleanAllElement	P2	74	39	?				chưa
+RotateBeginEx	P2	70	32	?				chưa
+RotateEndEx	P2	69	32	?				chưa
+ClosePopMenu	P2	69	1	PopMenu				chưa
+SetPopMenuPos	P2	69	1	PopMenu				chưa
+ClearListBox	P2	62	42	ListBox		bỏ mục, bỏ chọn, về đầu	Widgets::clear_list	xong
+DetachWindowEx	P2	57	34	?				chưa
+AttachWindowEx	P2	50	35	?				chưa
+SetPosition	P2	50	6	ScrollBar				chưa
+GetWindowSize	P2	42	30	?				chưa
+Activate	P2	41	38	this		phương thức của CUIWindowItem (nửa host)	-	host
+RefreshLayout	P2	41	28	?				chưa
+SetItemSelectByItemID	P2	40	22	ListBox	số	chọn mục đầu mang id	Widgets::select_item	xong
+SetCameraEx	P2	38	21	?				chưa
+SetScrollPosition4Index	P2	37	20	?				chưa
+PositionSelf	P2	36	27	SuperTooltip				chưa
+GetCameraEx	P2	36	21	?				chưa
+SetTextOriginal	P3	34	16	Window	chuỗi	giữ ở thuộc tính TextOriginal	Widgets::set	xong
+SetVertScrollbarPosition	P3	30	17	?				chưa
+GetPosition	P3	28	6	ScrollBar				chưa
+AddChatBoardElement	P3	27	3	?				chưa
+SetEvent	P3	22	9	?				chưa
+RemoveAllChatString	P3	22	4	ChatHistory				chưa
+AddOptionElement	P3	22	4	ComplexWindow				chưa
+SetScrollPosition	P3	21	17	ComplexWindow		giữ chỗ cuộn	Widgets::keep_scroll	xong
+AddItemExWithoutLayout	P3	19	4	?				chưa
+SetSelectItem	P3	18	14	?				chưa
+SetForce	P3	17	16	Window		không có trạng thái: nhận lời gọi	-	xong
+SetItemTooltip	P3	17	10	ListBox				chưa
+SetVertScrollbarHide	P3	16	8	?				chưa
+ClearListBoxEx	P3	16	7	?				chưa
+GetCurrentFirstItem	P3	16	7	ListBox		mục đầu đang thấy, 0 khi chưa đặt	Widgets::first_item	xong
+InsertChatString	P3	16	4	ChatHistory				chưa
+SetCurrentFirstItem	P3	15	7	ListBox	số	đặt mục đầu đang thấy	Widgets::set_first_item	xong
+Tween_Play	P3	14	9	?				chưa
+SetAimEditBox	P3	14	4	SoftKeyWindow				chưa
+Tween_SetInfo	P3	13	9	?				chưa
+CenterWindow	P3	13	7	Window				chưa
+SetPushed	P3	13	3	ActionButton	số	Pushed = n == 1	Widgets::push	xong
+AddColumn	P3	12	3	CtrlList				chưa
+GetItemNumByItemId	P3	12	2	?				chưa
+GetListItemAt	P3	12	2	?				chưa
+GetActionItem	P3	11	6	ActionButton		id đang giữ, -1 khi trống	Widgets::action_item	xong
+TogleShow	P3	11	6	this		phương thức của CUIWindowItem (nửa host)	-	host
+SetTextItemText	P3	11	5	?				chưa
+SetListItemText	P3	11	4	ListBox				chưa
+AddActionElement	P3	11	2	ComplexWindow	số, số, số[, any]	phần tử action	Widgets::add_element	xong
+PageEnd	P3	11	2	ComplexWindow				chưa
+ResetLastSelectIndex	P3	10	8	?				chưa
+ScrollToEnd	P3	10	1	ChatHistory				chưa
+GetScrollPosition	P3	8	8	?				chưa
+SetElementsInView	P3	8	7	?				chưa
+DoScroll	P3	8	1	?				chưa
+InitWorldMap	P3	8	1	Scenemap				chưa
+Tween_Reset	P3	7	5	?				chưa
+ResetText	P3	7	5	?				chưa
+StartFade	P3	7	2	Window	số, số, số	tới đích ngay (chưa có đồng hồ)	Widgets::set	xong
+GetPixelRect	P3	7	2	?				chưa
+GetClickedButtonItem	P3	6	4	?				chưa
+SetClippedByParent	P3	6	4	Window				chưa
+SetVScrollbarAlpha	P3	6	2	?				chưa
+GetSceneZoomMode	P3	6	1	?				chưa
+Tween_AddCurveVec3	P3	6	1	?				chưa
+SetSceneZoomMode	P3	6	1	Scenemap				chưa
+ClickHide	P3	5	5	this		phương thức của CUIWindowItem (nửa host)	-	host
+SetItemSelect	P3	5	3	ListBox				chưa
+GetMouseScenePos	P3	5	2	Scenemap				chưa
+SetSceneFileName	P3	5	2	Scenemap				chưa
+AddItemPic	P3	5	2	?				chưa
+GetItemElementsString	P3	5	1	?				chưa
+SetXAttachPos	P3	4	4	?				chưa
+GetVertScrollbarPosition	P3	4	4	?				chưa
+DoSubAction	P3	4	3	ActionButton				chưa
+SetImageColor	P3	4	2	StaticImage				chưa
+replayEffect	P3	4	2	?				chưa
+AddMoneyElement	P3	4	2	ComplexWindow	số|chuỗi	phần tử money	Widgets::add_element	xong
+AddJiaoZiElement	P3	4	2	ComplexWindow	số|chuỗi	phần tử jiaozi	Widgets::add_element	xong
+SetFixMode	P3	4	1	?				chưa
+ResourceCheck	P3	4	1	?				chưa
+AddChannel	P3	4	1	ChatChannel				chưa
+AddNewButtonItem	P3	4	1	?				chưa
+Tween_Stop	P3	3	3	?				chưa
+SetChatString	P3	3	3	?				chưa
+SetScrollInfoFixed	P3	3	3	?				chưa
+AddListboxItem	P3	3	3	?				chưa
+GetItemNumber	P3	3	3	?				chưa
+GetClickItem	P3	3	3	ListBox		id mục vừa bấm, -1 khi chưa	Widgets::clicked_item	xong
+ClearInfo	P3	3	3	?				chưa
+RequestLayout	P3	3	2	?				chưa
+SetItemUserData	P3	3	1	?				chưa
+SetPhoneAimEditBox	P3	3	1	?				chưa
+SetSFZAimEditBox	P3	3	1	?				chưa
+ChangeCameraDistanceEx	P3	3	1	?				chưa
+SetBuffImageShow	P3	3	1	?				chưa
+SetCityCurrentScene	P3	3	1	?				chưa
+SetRowTooltip	P3	2	2	?				chưa
+GetItem	P3	2	2	ListBox				chưa
+ClearSelectState	P3	2	2	?				chưa
+UpdateFlag	P3	2	2	Minimap				chưa
+ClearAllSelections	P3	2	2	?				chưa
+RemoveColumnByPos	P3	2	1	?				chưa
+GetAlpha	P3	2	1	Window		thuộc tính Alpha, mặc định 1	Widgets::value	xong
+GetColumnCount	P3	2	1	CtrlList				chưa
+UpdateSbgHumanFlag	P3	2	1	?				chưa
+AddInfo	P3	2	1	InfoList	chuỗi	thêm mục id 0, giữ 5 mục mới nhất, hiện danh sách	Widgets::add_info	xong
+DelItem	P3	2	1	ListBox				chưa
+SetItemText	P3	2	1	CtrlList				chưa
+SetFmInfo	P3	2	1	?				chưa
+ShowBuleCircle	P3	2	1	?				chưa
+UpdateWorldMapInfoFoGuildDomain	P3	2	1	?				chưa
+GetTextItemId	P3	1	1	?				chưa
+CloseSceneMap	P3	1	1	Scenemap				chưa
+SetItemElementsString	P3	1	1	?				chưa
+GetCurrentSelectScene	P3	1	1	Scenemap				chưa
+GetItemCount	P3	1	1	CtrlList				chưa
+GetListItemCount	P3	1	1	?				chưa
+GetItemText	P3	1	1	CtrlList				chưa
+GetListCount	P3	1	1	?				chưa
+HideBuleCircle	P3	1	1	?				chưa
+SetScrollInfo	P3	1	1	?				chưa
+SetScrollInfoFirst	P3	1	1	?				chưa
+UpdateWorldMap	P3	1	1	Scenemap				chưa
+ZoomOutBlueCircle	P3	1	1	?				chưa
+ExtendClearRegion	P3	1	1	ChatHistory				chưa
+GetHoverChannelName	P3	1	1	?				chưa
+GetItemUserData	P3	1	1	?				chưa
+RestPositonEx	P3	1	1	?				chưa
+AddChild2Item	P3	1	1	?				chưa
+ClearAllChannel	P3	1	1	ChatChannel				chưa
+SetVertScollPosition	P3	1	1	?				chưa
+ActionEnable	P3	1	1	?				chưa
+GetItemNumByMissionId	P3	1	1	?				chưa
+RemoveTopElement	P3	1	1	?				chưa
+ResetScrollPosition	P3	1	1	ComplexWindow		về đầu	Widgets::reset_scroll	xong
+SetActionElementCheck	P3	1	1	?				chưa
+SetBarCompareProgress	P3	1	1	?				chưa
+SetBuffImage	P3	1	1	?				chưa
+SetWindowSize	P3	1	1	?				chưa
+TransAllWindowText	P3	1	1	?				chưa
+FlashMe	P3	0	0	?				chưa
+InsertText	P3	0	0	?				chưa
+ActionDisable	P3	0	0	?				chưa
+SetNewFlash	P3	0	0	ActionButton		có action thì nháy	Widgets::flash	xong
+RemoveAllText	P3	0	0	?				chưa
+Bright	P3	0	0	ActionButton		Gloom False	Widgets::gloom	xong
+SetAnimateID	P3	0	0	?				chưa
+GetThumbPositionX	P3	0	0	?				chưa
+SetRowUserData	P3	0	0	?				chưa
+GetAbsolutePositionToScreen	P3	0	0	?				chưa
+GetName	P3	0	0	Window				chưa
+GetRowUserData	P3	0	0	?				chưa
+InsertColumn	P3	0	0	CtrlList				chưa
+TransText	-	0	0	Window		TextOriginal thành Text	Widgets::set_text	xong
+CaptureInput	-	0	0	Window		không có trạng thái: nhận lời gọi	-	xong
+Gloom	-	0	0	ActionButton		Gloom True	Widgets::gloom	xong

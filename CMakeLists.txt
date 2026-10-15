@@ -591,6 +591,10 @@ game_module(ui_panel
     src/client/face/ui/panel/data_pool.cpp
     src/client/face/ui/panel/debug_list_box.cpp)
 target_link_libraries(game_ui_panel PUBLIC game_gui game_hero game_luanum game_quest game_table game_core)
+# ui/script: máy chủ cửa sổ chạy script giao diện gốc trên LuaPlus (docs/giao-viec/LUA-GEN/TANG-C.md). widget.cpp là các lớp
+# Lua của widget (SetText, Show, AddItem...), ghi vào ui/panel::Widgets và hàng Call; không đụng GPU, dựng ở mọi nền tảng.
+game_module(ui_script src/client/face/ui/script/widget.cpp)
+target_link_libraries(game_ui_script PUBLIC game_ui_panel game_luaplus game_luanum game_core)
 # Cấu hình dựng client nằm ở src/client/client.build.toml (chủ dự án chốt 2026-10-14: gắn thẳng vào
 # exe lúc dựng, không đọc tệp lúc chạy, không qua server hay protocol). CMake đọc khoá avatar_frame
 # bằng regex (chỉ nhận dạng `khoá = "giá trị"` trên một dòng) rồi đặt macro cho riêng player_frame.cpp,
@@ -1419,6 +1423,13 @@ game_test(ui_select game_ui_panel)
 game_test(ui_create game_ui_panel game_io)
 if(NOT ANDROID)
     target_compile_definitions(ui_create_tests PRIVATE
+        GAME_PANEL_GOLDEN="${PROJECT_SOURCE_DIR}/Test/golden/panel")
+endif()
+# Widget của script giao diện trên LuaPlus thật; ca cuối chạy ProgressBar.lua gốc và so với số vàng (suy src/client/script
+# từ thư mục số vàng). Thiết bị Android không thấy cây nguồn nên ca đó tự bỏ qua.
+game_test(ui_script_widget game_ui_script game_io)
+if(NOT ANDROID AND TARGET ui_script_widget_tests)
+    target_compile_definitions(ui_script_widget_tests PRIVATE
         GAME_PANEL_GOLDEN="${PROJECT_SOURCE_DIR}/Test/golden/panel")
 endif()
 # Bảng port từ script Lua của client 2026 (đợt UI-PORT): test so trạng thái cửa sổ với số vàng của

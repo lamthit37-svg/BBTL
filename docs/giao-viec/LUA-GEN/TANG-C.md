@@ -11,26 +11,39 @@ client 2008 (`G:\TLBB\_ref\client\Game\Client\CEGUISystem\`, cùng dòng, không
 - Nửa chủ (thienlong-34): sổ cửa sổ `InterfaceEx` → `Table/interfaces.tsv`, `CUIWindowMng`/`CUIWindowItem` (môi trường, `this`,
   PreLoad/OnLoad/OnEvent, RegisterEvent, Demise, đoạn Lua của layout, hàng đợi sự kiện), nối `hud.cpp`.
 - Nửa widget (lane này): `src/client/face/ui/script/widget.{hpp,cpp}` — các lớp Lua của widget (`UILuaControl`) trên C API của
-  `lua_State*`, ghi vào `ui::panel::Widgets` và hàng `Call`. Target `game_ui_script` (link `game_ui_panel`, `game_luaplus`), không đụng GPU,
-  dựng được ở mọi preset; một dòng trong `cmake/GameLayers.cmake`.
+  `lua_State*`, ghi vào `ui::panel::Widgets` và hàng `Call`. Target `game_ui_script` (link `game_ui_panel`, `game_luaplus`, `game_luanum`, `game_core`),
+  không đụng GPU, dựng được ở mọi preset; một dòng `game_layer_ui/script` trong `cmake/GameLayers.cmake`. Host (`host.cpp`, `windows.cpp`) vào chính target này.
+
+Bản đã viết (`widget.hpp`; đối chiếu 2026-10-15), khác bản nháp ở hai trường cuối của `WindowRef` và lớp `Services`:
 
 ```cpp
 namespace game::ui::script {
-enum class Kind : std::uint8_t { kWindow, kProgressBar, kActionButton, kListBox, kComplexWindow, /* ... ~25 kiểu */ };
-[[nodiscard]] Kind kind_of(std::string_view falagard_type) noexcept;     // "Falagard/ProgressBar" -> kProgressBar; lạ -> kWindow
+enum class Kind : std::uint8_t { kWindow, kProgressBar, kActionButton, kCheckButton, kListBox, kComplexWindow, kCtrlList, /* ... 22 kiểu */ };
+[[nodiscard]] Kind kind_of(std::string_view falagard_type) noexcept;     // "Falagard/SuperProgress" -> kProgressBar; lạ -> kWindow
+class Services {                    // phía host/game mà widget hỏi; mọi hàm ảo có mặc định
+    virtual std::string icon_full_name(std::string_view icon) const;      // SetProperty("ShortImage")
+    virtual std::string action_icon(std::int32_t action) const;           // SetActionItem
+    virtual bool root_shown() const;                                       // cờ hiện của `this`: gốc layout = this
+    virtual void set_root_shown(bool);                                     // SetFadeState <= 0 trên cửa sổ gốc
+};
 struct WindowRef {                  // trivially copyable; sao vào userdata Lua
     panel::Widgets* store;          // Widgets của cửa sổ chủ (CUIWindowItem)
-    std::vector<panel::Call>* calls;// hàng việc nhờ game (DoAction, PushEvent...)
-    const gui::GuiAsset* asset;     // GetProperty đọc giá trị gốc của layout (UnifiedPosition... chiếm 2 481 / 3 800 chỗ gọi GetProperty)
+    std::vector<panel::Call>* calls;// hàng việc nhờ game (DoAction...)
+    const gui::GuiAsset* asset;     // GetProperty đọc giá trị gốc của layout; cha và anh em của nút đánh dấu
     std::string_view name;          // tên cửa sổ con; host giữ chuỗi
     Kind kind;
+    std::int32_t window = -1;       // chỉ số trong asset->windows; -1 thì widget tìm theo tên (chậm, sai khi hai layout trùng tên)
+    Services* services = nullptr;   // null: icon giữ nguyên tên, gốc coi là đang hiện
 };
 void open_widget_classes(lua_State*);                // một lần sau khi mở state
-void push_widget(lua_State*, const WindowRef&);      // userdata + metatable theo kind
+void push_widget(lua_State*, const WindowRef&);      // userdata + metatable chung; seed_hidden khi layout khai Visible=False
 }
 ```
 
-Điều kiện sống: `store`, `calls`, `asset`, `name` sống lâu hơn `lua_State`. Chỉ dùng C API thô (`lua.h` của LuaPlus), không phụ thuộc vỏ `lua::State` của e2.
+Điều kiện sống: `store`, `calls`, `asset`, `name`, `services` sống lâu hơn `lua_State`. Chỉ dùng C API thô (`lua.h` của LuaPlus), không phụ thuộc vỏ `lua::State` của e2.
+Bảng phương thức đã viết và hàng đợi còn lại: `WIDGET-PHUONG-THUC.tsv` (44 xong, 6 của `this` thuộc host, còn lại chưa). Kiểm: `Test/Ui/ui_script_widget_tests.cpp`
+(10 ca; ca cuối chạy `ProgressBar.lua` gốc qua một host tối thiểu của test và khớp 12/12 khối `progress_bar_flow.tsv`). Lưu ý LuaPlus 5.0.1: `luaL_checkudata` trả NULL
+chứ không báo lỗi; `lua_getmetatable` chết khi ngăn xếp không có chỉ số; `lua_dobuffer` in lỗi ra stderr qua `_ALERT` (dùng `luaL_loadbuffer` + `lua_pcall`).
 
 ## 1. Client gốc nạp một cửa sổ thế nào
 

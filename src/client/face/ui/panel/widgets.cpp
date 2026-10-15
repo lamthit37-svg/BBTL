@@ -219,6 +219,23 @@ void Widgets::add_item(std::string_view window, ListItem item) {
     entry.items->push_back(std::move(item));
 }
 
+void Widgets::add_info(std::string_view window, ListItem info, std::size_t limit) {
+    Entry& entry = entry_of(window);
+    if (!entry.items) entry.items.emplace();
+    std::vector<ListItem>& items = *entry.items;
+    items.push_back(std::move(info));
+    const std::size_t surplus = items.size() > limit ? items.size() - limit : 0;
+    items.erase(items.begin(), items.begin() + static_cast<std::ptrdiff_t>(surplus));
+    if (entry.selected) {
+        if (*entry.selected < surplus) {
+            entry.selected.reset();
+        } else {
+            *entry.selected -= surplus;
+        }
+    }
+    entry.is_visible = true;
+}
+
 void Widgets::select_item(std::string_view window, std::int32_t id) {
     Entry& entry = entry_of(window);
     if (!entry.items) return;

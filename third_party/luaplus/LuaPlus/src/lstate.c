@@ -223,6 +223,7 @@ static void f_luaopen (lua_State *L, void *ud) {
   luaState.allocName = "Lua_global_State";
 #endif _DEBUG
   luaState.l_G = &globalState;
+  luaState.allocFlags = 0;  /* Khác gốc: luaM_realloc đọc allocFlags (xem close_state) */
   globalState.reallocFunc = luaHelper_Realloc;
   globalState.freeFunc = luaHelper_Free;
   globalState.memData = luaHelper_memData;
@@ -365,6 +366,11 @@ static void close_state (lua_State *L) {
   globalState.reallocFunc = G(L)->reallocFunc;
   globalState.freeFunc = G(L)->freeFunc;
   globalState.memData = G(L)->memData;
+  /* Khác gốc: nblocks và allocFlags của hai biến cục bộ này để chưa khởi tạo. luaM_realloc đọc cả hai: nblocks trong
+  ** lua_assert (> 0), allocFlags đưa cho hàm cấp phát. Bản không NDEBUG chết ở assert khi rác bằng 0 (Clang, bước đóng state);
+  ** đặt giá trị giả như f_luaopen và lua_open. */
+  globalState.nblocks = sizeof(lua_State) + sizeof(global_State);
+  luaState.allocFlags = 0;
 
   if (G(L)) {  /* close global state */
     luaC_sweep(L, 1);  /* collect all elements */
@@ -426,6 +432,7 @@ LUA_API lua_State *lua_open (void) {
   luaState.allocName = "Lua_lua_State";
 #endif _DEBUG
   luaState.l_G = &globalState;
+  luaState.allocFlags = 0;  /* Khác gốc: luaM_realloc đọc allocFlags (xem close_state) */
   globalState.reallocFunc = luaHelper_Realloc;
   globalState.freeFunc = luaHelper_Free;
   globalState.memData = luaHelper_memData;
