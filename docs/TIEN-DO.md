@@ -2519,6 +2519,42 @@ khuôn mặt/tóc phải thuộc bảng của máy chủ (`default_look_policy`:
 Còn thiếu: gửi `Move`, vẽ thực thể `Entity*`, bộ đồ và chân dung theo máy chủ, báo mất kết nối khi đang chơi,
 `SceneEnter` khác cảnh đã nạp, Android và iOS (vẫn vào thẳng cảnh).
 
+## Dữ liệu quái và NPC cho client (2026-10-15)
+
+Phục vụ việc vẽ NPC và quái do máy chủ gửi (`EntityAppear` mang `template_id`). Hai công cụ mới ở `TOOLS/content/`,
+thuần Python: `export_creatures.py` (bảng) và `collect_creatures.py` (tệp tài nguyên), test `test_export_creatures.py`
+(29 ca, logic thuần). Nguồn là hai cây mới của `F:\tl 2026`: `_goc` thay `_raw` (Config nhị phân, `Model/all.obj`,
+`Effect/all.skill`) và `_cook` thay `_glb` (đã chứng minh tương đương: `export_look.py` ra `player_bodies.tsv` và
+`anim_sets.tsv` đúng từng dòng với bảng đang có).
+
+Một lệnh cho Đại Lý và Lạc Dương (cảnh nhận resid, thư mục máy chủ hay tên tệp cảnh của client; bảng ra chỉ phụ thuộc
+danh sách cảnh ở đối số, không cộng dồn):
+
+    python -B TOOLS/content/export_creatures.py "F:/tl 2026/_goc" "F:/tl 2026/_cook" dev/client/assets dali luoyang --collect
+
+`--check` (cho cả `--collect`) chỉ so và trả 1 khi lệch. Ghi vào `dev/client/assets` (bị ignore, không vào git): bốn bảng
+`Table/creature_templates.tsv`, `creatures.tsv`, `creature_clips.tsv`, `creature_materials.tsv`, danh sách đóng gói
+`Table/creature.files.tsv` (dạng `kind`/`path` như `avatar.files.tsv`; riêng một tệp vì APK chỉ đóng quái và NPC của các
+cảnh đã xuất), cùng `Model/*.glb` và `Material/*.png`. Lược đồ cột ở dòng chú thích đầu mỗi bảng.
+
+Số đo (chạy thật 2026-10-15): Đại Lý + Lạc Dương 371 chỗ đặt, 138 template, 130 mô hình, 889 dòng clip, 9 material chồng,
+726 tệp 37 298 017 byte (125 skeleton/clip, 302 lưới, 299 ảnh), cả 726 trùng byte với `_cook`; kiểm lại bằng một script
+riêng chỉ đọc cây đích: mọi lưới, skeleton, ảnh mà GLB trỏ tới, tên clip trong tệp animation, ảnh material đều có, 0 vấn đề.
+Cả 325 thư mục cảnh: 47 970 chỗ đặt (đúng tổng của `SERVER-SCENEDATA.md`), 3 831 template, 979 mô hình (14 tĩnh,
+13 không có action set), 9 752 clip, 229 material chồng, 3 616 tệp 392 MB, 41 template không có trong
+`MonsterAttrExTable` (đã là `known_missing`), không mô hình nào bị bỏ.
+
+Bẫy đã đo: (1) `Entity material` của `all.obj` là da chồng lên lưới (1 522 trên 3 407 entity có khai material): bỏ nó thì
+vẽ sai da, nên `creatures.tsv` có cột `materials` và `creature_materials.tsv` giải sẵn ảnh nền. (2) Cột 2 của
+`MonsterAttrExTable` là cờ không-bị-đánh (NPC khi lớn hơn 0), chọn cột `npc` (15) hay `monster` (14) của `ActionSetLine`;
+397 mô hình được cả hai loại dùng, nên `creature_clips.tsv` khoá theo `(model, kind)`. (3) Hệ số scale của quái ở
+`CharModelEx` cột 5, không ở `MonsterAttrExTable`. (4) `BoundingBox` có 3 số (cỡ) hay 6 số (min, max). (5) Hành động thiếu ở
+mô hình thì bỏ dòng (931 dòng bỏ ở hai cảnh, phần lớn NPC không có chạy/đánh/chết), không bịa clip.
+
+Chưa làm: vũ khí mặc định trong `Slot` của locator (hai trong 130 mô hình hai cảnh này) và locator của quái, thú hoang
+(`wild_pets.tsv`, bảng `PetAttrTable` khác), entity có `condition` (chỉ đếm; 0 ở hai cảnh, 6 ở cả 325 cảnh), hành động kỹ
+năng ngoài `attack*`, chưa nhìn tận mắt vì client chưa vẽ.
+
 ## Còn lại
 
 Đối chiếu với mã ngày 2026-10-08, `main` ở `501743a`; các dòng "Giao diện", "Hình" và "Dựng lại cây chung"

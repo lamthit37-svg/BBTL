@@ -557,6 +557,16 @@ mục ở mục 11.
   `wait_slot` chờ số của lần cuối dùng ảnh đó (và vòng `image_count` khung). Sau sửa 871 khung, trung vị 16,7 ms,
   p95 17,4 ms, 0 lỗi lớp kiểm. Bộ đệm mới đánh số theo ảnh swapchain phải đi sau `wait_slot`; số khung phải chờ in ở
   dòng "Khung phải chờ GPU nhả bộ đệm của ảnh" lúc thoát.
+- Cây nguồn của các công cụ `TOOLS/content` từ 2026-10-10 là `F:\tl 2026\_goc` (thay `_raw`, tên gốc đã giải) và
+  `F:\tl 2026\_cook` (thay `_glb`, GLB đã nấu); `_raw`, `_glb` không còn. Đo 2026-10-15: `export_look.py` trên hai cây
+  này ra `player_bodies.tsv` và `anim_sets.tsv` đúng từng dòng với bảng đang có; `outfits.tsv`, `faces.tsv`, `hairs.tsv`
+  trong `dev/client/assets/Table` là của bản công cụ cũ (`outfits` có thêm 48 dòng trỏ lưới không tồn tại ở client 2026,
+  hai bảng kia có cột `creatable`), chạy lại sẽ ra bản hiện hành.
+- Quái và NPC (`export_creatures.py`): `Entity material` của `Model/all.obj` là da chồng lên lưới (45% entity có khai
+  material làm vậy), nên GLB của lưới một mình vẽ sai da; cột 2 của `MonsterAttrExTable` là cờ không-bị-đánh chứ không phải
+  giới tính (bảng máy chủ `monsters.tsv` gọi nhầm là `gender`); hệ số scale nằm ở `CharModelEx` cột 5; `BoundingBox` có 3 số
+  (cỡ) hay 6 số (min, max) tuỳ mẫu, đừng đọc cứng một dạng; `read_action_tables` mặc định chỉ nạp các cột `ActionSetLine`
+  của vũ khí cầm tay, cột `monster` (14) và `npc` (15) phải truyền qua tham số `extra_columns` (không thì `KeyError`).
 
 ## Vũ khí, hiệu ứng đồ, đòn đánh
 

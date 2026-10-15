@@ -382,6 +382,11 @@
     môn phái của `Table/sect_models.tsv` do `export_look.py` sinh; danh sách
     `Table/avatar.files.tsv`; APK đóng theo danh sách đó). `Table/portraits.tsv` (ảnh chân dung kèm
     `choice`, `order`) do `collect_ui.py` sinh.
+  - Dữ liệu quái và NPC cho client: `python -B TOOLS/content/export_creatures.py "F:/tl 2026/_goc"
+    "F:/tl 2026/_cook" dev/client/assets dali luoyang --collect` (cảnh là resid, thư mục máy chủ hay tên
+    tệp cảnh; bảng `Table/creature_templates.tsv`, `creatures.tsv`, `creature_clips.tsv`,
+    `creature_materials.tsv` và danh sách `creature.files.tsv`; `collect_creatures.py` gom GLB, ảnh; `--check`
+    chỉ so; số đo và bẫy ở `docs/TIEN-DO.md` mục "Dữ liệu quái và NPC cho client").
   - Bảng nhiệm vụ và võ công: `python -B TOOLS/content/export_config.py "F:/tl 2026/_raw"
     dev/client/assets` (bảng `Table/*.tsv` xuất từ Config nhị phân, công cụ tự đối chiếu từng ô với bảng
     gốc; `--check` chỉ kiểm) và `python -B TOOLS/content/export_icons.py "F:/tl 2026/_raw"
@@ -398,7 +403,8 @@
     CPP23_C20="clang++ -msse4.1" python ~/.claude/cpp23/tools/check.py <tệp>` (CMake thêm cờ này cho
     game_math; check.py dịch từng tệp riêng nên phải tự thêm).
   - Dữ liệu của một map gom bằng `python TOOLS/content/collect_map.py <_raw> <_glb> dev/client/assets <map>`;
-    cây `_raw` và `_glb` nằm ở `F:\tl 2026`, ngoài dự án, chỉ là nguồn để gom. Cây `_glb` sinh từ
+    hai cây nằm ở `F:\tl 2026`, ngoài dự án, chỉ là nguồn để gom: từ 2026-10-10 `_raw` là `_goc` và `_glb`
+    là `_cook` (hai tên cũ không còn). Cây `_glb` sinh từ
     `_raw` bằng `python TOOLS/glb/export_glb.py <_raw> <_glb>` và kiểm lại bằng
     `TOOLS/glb/verify_glb.py`.
   - Mục 3, chép mã từ Forge2: `python TOOLS/port/forge2_port.py copy|measure|includes` (chép một
@@ -677,7 +683,8 @@ Chỉ mục `docs/BAY-DA-BIET.md`: sắp làm một việc kể dưới đây th
   `thienlong_client` (cần Pillow); sửa đường nạp cảnh hay giao diện (đo bằng `bench_load.py`, ba bẫy đã đo);
   chụp bằng `--shot` (cần `--frames`, cửa sổ thu nhỏ, ảnh hai lượt không giống hệt); gom lại map cũ (thiếu
   lưới đi `.path` và `.WCollision` nếu gom trước 2026-10-13); ghi bộ đệm GPU đánh số theo ảnh swapchain (phải
-  sau `wait_slot`); đọc chữ TRƯỢT của bảng đo nhịp khung.
+  sau `wait_slot`); đọc chữ TRƯỢT của bảng đo nhịp khung; xuất hay gom quái và NPC (`export_creatures.py`; đổi
+  `_raw`/`_glb` thành `_goc`/`_cook`).
 
 ## 12. Sổ tay
 
