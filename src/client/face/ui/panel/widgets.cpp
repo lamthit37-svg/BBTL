@@ -14,6 +14,7 @@
 #include <span>
 #include <string>
 #include <string_view>
+#include <type_traits>
 #include <utility>
 #include <vector>
 
@@ -126,6 +127,23 @@ void describe_elements(std::vector<std::string>& lines, std::string_view window,
     }
 }
 
+// Ô ở hàng row, cột chỉ số column của các hàng rows; nullptr khi ngoài bảng hay ô trống.
+template <typename Rows>
+[[nodiscard]] auto* find_cell(Rows& rows, std::int32_t row, std::int32_t column) noexcept {
+    using Cell = std::conditional_t<std::is_const_v<Rows>, const GridCell, GridCell>;
+    Cell* none = nullptr;
+    if (row < 0 || column < 0 || std::cmp_greater_equal(row, rows.size())) return none;
+    auto& cells = rows[static_cast<std::size_t>(row)];
+    if (std::cmp_greater_equal(column, cells.size())) return none;
+    auto& cell = cells[static_cast<std::size_t>(column)];
+    return cell ? &*cell : none;
+}
+
+// lhs + rhs theo số nguyên 32 bit có dấu quay vòng như lệnh máy của mã gốc (ADD và DEC không bắt tràn).
+[[nodiscard]] constexpr std::int32_t wrap_add(std::int32_t lhs, std::int32_t rhs) noexcept {
+    return static_cast<std::int32_t>(static_cast<std::uint32_t>(lhs) + static_cast<std::uint32_t>(rhs));
+}
+
 } // namespace
 
 Widgets::Entry& Widgets::entry_of(std::string_view window) {
@@ -206,6 +224,33 @@ void Widgets::gloom(std::string_view window, bool is_dim) {
     set(gui::Override{.window = window, .name = "Gloom", .value = is_dim ? "True" : "False"});
 }
 
+void Widgets::set_fade(std::string_view window, float total) {
+    Entry& entry = entry_of(window);
+    if (total > 0.0F) {
+        entry.fade = Fade{.total = total, .left = total};
+    } else {
+        entry.fade.reset();
+    }
+}
+
+std::vector<std::string> Widgets::fading() const {
+    std::vector<std::string> names;
+    for (const Entry& entry : entries_) {
+        if (entry.fade) names.push_back(entry.window);
+    }
+    return names;
+}
+
+bool Widgets::step_fade(std::string_view window, float seconds) {
+    Entry& entry = entry_of(window);
+    if (!entry.fade) return false;
+    entry.fade->left -= seconds;
+    set(gui::Override{.window = window, .name = kAlpha, .value = std::format("{}", entry.fade->left / entry.fade->total)});
+    if (!(entry.fade->left < 0.0F)) return false;
+    hide(window);
+    return true;
+}
+
 void Widgets::clear_list(std::string_view window) {
     Entry& entry = entry_of(window);
     entry.items.emplace();
@@ -251,6 +296,188 @@ void Widgets::pick_item(std::string_view window, std::int32_t id) {
 
 void Widgets::set_first_item(std::string_view window, std::int32_t index) {
     entry_of(window).first = index;
+}
+
+bool Widgets::select_index(std::string_view window, std::size_t index) {
+    Entry& entry = entry_of(window);
+    if (!entry.items || index >= entry.items->size()) return false;
+    entry.selected = index;
+    return true;
+}
+
+void Widgets::clear_selection(std::string_view window) {
+    entry_of(window).selected.reset();
+}
+
+bool Widgets::set_item_text(std::string_view window, std::size_t index, std::string text) {
+    Entry& entry = entry_of(window);
+    if (!entry.items || index >= entry.items->size()) return false;
+    (*entry.items)[index].text = std::move(text);
+    return true;
+}
+
+std::size_t Widgets::item_count(std::string_view window) const noexcept {
+    const Entry* entry = find(window);
+    return entry == nullptr || !entry->items ? 0 : entry->items->size();
+}
+
+const ListItem* Widgets::item_at(std::string_view window, std::size_t index) const noexcept {
+    const Entry* entry = find(window);
+    if (entry == nullptr || !entry->items || index >= entry->items->size()) return nullptr;
+    return &(*entry->items)[index];
+}
+
+const ListItem* Widgets::chosen_item(std::string_view window) const noexcept {
+    const Entry* entry = find(window);
+    if (entry == nullptr || !entry->selected) return nullptr;
+    return item_at(window, *entry->selected);
+}
+
+Widgets::Grid* Widgets::grid_of(std::string_view window) noexcept {
+    const auto found = std::ranges::find(entries_, window, &Entry::window);
+    return found == entries_.end() || !found->grid ? nullptr : &*found->grid;
+}
+
+const Widgets::Grid* Widgets::grid_of(std::string_view window) const noexcept {
+    const Entry* entry = find(window);
+    return entry == nullptr || !entry->grid ? nullptr : &*entry->grid;
+}
+
+GridCell* Widgets::cell_at(Grid& grid, std::int32_t row, std::int32_t column) noexcept {
+    return find_cell(grid.rows, row, column);
+}
+
+const GridCell* Widgets::cell_at(const Grid& grid, std::int32_t row, std::int32_t column) noexcept {
+    return find_cell(grid.rows, row, column);
+}
+
+void Widgets::add_column(std::string_view window, GridColumn column, std::optional<std::size_t> position) {
+    Entry& entry = entry_of(window);
+    if (!entry.grid) entry.grid.emplace();
+    Grid& grid = *entry.grid;
+    const std::size_t index = std::min(position.value_or(grid.columns.size()), grid.columns.size());
+    grid.columns.insert(grid.columns.begin() + static_cast<std::ptrdiff_t>(index), std::move(column));
+    for (auto& row : grid.rows) row.insert(row.begin() + static_cast<std::ptrdiff_t>(index), std::nullopt);
+}
+
+bool Widgets::remove_column(std::string_view window, std::size_t index) {
+    Grid* grid = grid_of(window);
+    if (grid == nullptr || index >= grid->columns.size()) return false;
+    grid->columns.erase(grid->columns.begin() + static_cast<std::ptrdiff_t>(index));
+    for (auto& row : grid->rows) row.erase(row.begin() + static_cast<std::ptrdiff_t>(index));
+    return true;
+}
+
+bool Widgets::put_cell(std::string_view window, GridCell cell, std::int32_t row) {
+    Entry& entry = entry_of(window);
+    if (!entry.grid) entry.grid.emplace();
+    Grid& grid = *entry.grid;
+    const auto column = std::ranges::find(grid.columns, cell.id, &GridColumn::id);
+    if (column == grid.columns.end()) return false;
+    const auto index = static_cast<std::size_t>(column - grid.columns.begin());
+    if (cell_at(grid, row, 0) != nullptr) {
+        grid.rows[static_cast<std::size_t>(row)][index] = std::move(cell);
+        return true;
+    }
+    cell.id = row;
+    std::vector<std::optional<GridCell>> made(grid.columns.size());
+    made[index] = std::move(cell);
+    grid.rows.push_back(std::move(made));
+    return true;
+}
+
+bool Widgets::set_cell_text(std::string_view window, std::int32_t row, std::int32_t column, std::string text) {
+    Grid* grid = grid_of(window);
+    GridCell* cell = grid == nullptr ? nullptr : cell_at(*grid, row, column);
+    if (cell == nullptr) return false;
+    cell->text = std::move(text);
+    return true;
+}
+
+std::optional<std::string_view> Widgets::cell_text(std::string_view window, std::int32_t row,
+    std::int32_t column) const noexcept {
+    const Grid* grid = grid_of(window);
+    const GridCell* cell = grid == nullptr ? nullptr : cell_at(*grid, row, column);
+    if (cell == nullptr) return std::nullopt;
+    return std::string_view(cell->text);
+}
+
+bool Widgets::set_row_data(std::string_view window, GridRowData data) {
+    Grid* grid = grid_of(window);
+    GridCell* cell = grid == nullptr ? nullptr : cell_at(*grid, data.row, 0);
+    if (cell == nullptr) return false;
+    cell->user = wrap_add(data.value, 1);
+    return true;
+}
+
+std::int32_t Widgets::row_data(std::string_view window, std::int32_t row) const noexcept {
+    const Grid* grid = grid_of(window);
+    const GridCell* cell = grid == nullptr ? nullptr : cell_at(*grid, row, 0);
+    if (cell == nullptr || cell->user == 0) return kNoRow;
+    return wrap_add(cell->user, -1);
+}
+
+bool Widgets::set_row_tooltip(std::string_view window, std::int32_t row, std::string text) {
+    Grid* grid = grid_of(window);
+    GridCell* cell = grid == nullptr ? nullptr : cell_at(*grid, row, 0);
+    if (cell == nullptr) return false;
+    cell->tooltip = std::move(text);
+    return true;
+}
+
+bool Widgets::remove_row(std::string_view window, std::int32_t row) {
+    Grid* grid = grid_of(window);
+    if (grid == nullptr || row < 0 || std::cmp_greater_equal(row, grid->rows.size())) return false;
+    const auto index = static_cast<std::size_t>(row);
+    grid->rows.erase(grid->rows.begin() + static_cast<std::ptrdiff_t>(index));
+    if (grid->selected) {
+        if (*grid->selected == index) {
+            grid->selected.reset();
+        } else if (*grid->selected > index) {
+            --*grid->selected;
+        }
+    }
+    return true;
+}
+
+void Widgets::clear_rows(std::string_view window) {
+    Entry& entry = entry_of(window);
+    if (!entry.grid) entry.grid.emplace();
+    entry.grid->rows.clear();
+    entry.grid->selected.reset();
+    entry.grid->scroll = 0;
+}
+
+bool Widgets::select_row(std::string_view window, std::int32_t row) {
+    Grid* grid = grid_of(window);
+    if (grid == nullptr || cell_at(*grid, row, 0) == nullptr) return false;
+    grid->selected = static_cast<std::size_t>(row);
+    return true;
+}
+
+std::int32_t Widgets::selected_row(std::string_view window) const noexcept {
+    const Grid* grid = grid_of(window);
+    if (grid == nullptr || !grid->selected) return kNoRow;
+    const GridCell* cell = cell_at(*grid, static_cast<std::int32_t>(*grid->selected), 0);
+    return cell == nullptr ? kNoRow : cell->id;
+}
+
+bool Widgets::scroll_rows(std::string_view window, std::int32_t row) {
+    Entry& entry = entry_of(window);
+    if (!entry.grid) entry.grid.emplace();
+    if (row < 0 || std::cmp_greater(row, entry.grid->rows.size())) return false;
+    entry.grid->scroll = row;
+    return true;
+}
+
+std::size_t Widgets::row_count(std::string_view window) const noexcept {
+    const Grid* grid = grid_of(window);
+    return grid == nullptr ? 0 : grid->rows.size();
+}
+
+std::size_t Widgets::column_count(std::string_view window) const noexcept {
+    const Grid* grid = grid_of(window);
+    return grid == nullptr ? 0 : grid->columns.size();
 }
 
 void Widgets::clear_elements(std::string_view window) {

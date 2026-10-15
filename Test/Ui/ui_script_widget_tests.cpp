@@ -86,11 +86,15 @@ void add_window(gui::GuiAsset& asset, std::string_view name, std::int32_t type, 
 }
 
 // Layout nhỏ: Root (gốc, tức `this`) có Child (layout giấu, có vị trí), ba nút đánh dấu CheckA, CheckB (CheckMode 1) và
-// CheckC (CheckMode 0), một nút action và một danh sách.
+// CheckC (CheckMode 0), một nút action, một danh sách, một hộp thả, một bảng nhiều cột và một thanh cuộn
+// (DocumentSize 10, PageSize 3).
 gui::GuiAsset small_layout() {
     gui::GuiAsset asset;
     asset.types.push_back(gui::GuiType{.name = "Plain", .renderer = "Falagard/StaticImage", .look = -1});
     asset.types.push_back(gui::GuiType{.name = "Check", .renderer = "Falagard/CheckBox", .look = -1});
+    asset.types.push_back(gui::GuiType{.name = "Dropdown", .renderer = "Falagard/Combobox", .look = -1});
+    asset.types.push_back(gui::GuiType{.name = "Table", .renderer = "Falagard/MultiColumnList", .look = -1});
+    asset.types.push_back(gui::GuiType{.name = "Slider", .renderer = "Falagard/Scrollbar", .look = -1});
     add_window(asset, "Root", 0, -1, {});
     add_window(asset, "Child", 0, 0,
         {{"Visible", "False"}, {"Text", "chữ layout"}, {"UnifiedAreaRect", "{{0.1,5},{0.2,6},{0.9,-5},{0.8,-6}}"}});
@@ -99,6 +103,9 @@ gui::GuiAsset small_layout() {
     add_window(asset, "CheckC", 1, 0, {{"CheckMode", "0"}});
     add_window(asset, "Action", 0, 0, {});
     add_window(asset, "List", 0, 0, {});
+    add_window(asset, "Combo", 2, 0, {});
+    add_window(asset, "Grid", 3, 0, {});
+    add_window(asset, "Bar", 4, 0, {{"DocumentSize", "10"}, {"PageSize", "3"}});
     return asset;
 }
 
@@ -337,6 +344,136 @@ void lists_and_elements(Context& context) {
     context.expect(has("Child\tElement4\taction\t7\t3\t0") && has("Child\tElement5\taction\t8\t1\t1\tthêm"), "phần tử action");
 }
 
+void combo_box_keeps_items_and_selection(Context& context) {
+    const Lab lab;
+    context.expect(lab.run("r, n = Combo:GetCurrentSelect()").empty() && lab.global("r") == "-1" && lab.global("n") == "-1",
+        "chưa chọn thì (\"-1\", -1)");
+    context.expect(lab.run("Combo:AddTextItem('một', 10) Combo:ComboBoxAddItem('hai', 20) Combo:AddTextItem(7, 30)"
+                           " Combo:AddTextItem({}, 1) Combo:AddTextItem('ba')")
+            .empty(),
+        "thêm mục: chữ hay số, id thiếu là 0, chữ sai kiểu bị bỏ");
+    context.expect(lab.run("n = Combo:GetListCount()").empty() && lab.global("n") == "4", "bốn mục");
+    context.expect(lab.run("Combo:SetCurrentSelect(1) r, n = Combo:GetCurrentSelect()").empty() && lab.global("r") == "hai"
+            && lab.global("n") == "20" && lab.text_of("Combo", "Text") == "hai",
+        "chọn mục thì ô nhập mang chữ của mục");
+    context.expect(lab.run("Combo:SetCurrentSelect(9) Combo:SetCurrentSelect(-1) Combo:SetCurrentSelect('x') r = Combo:GetCurrentSelect()")
+                .empty()
+            && lab.global("r") == "hai",
+        "chỉ số ngoài danh sách hay sai kiểu thì bỏ qua");
+    context.expect(lab.run("a = Combo:GetTextItemId(2) b = Combo:GetTextItemId(9)").empty() && lab.global("a") == "30" && lab.global("b").empty(),
+        "GetTextItemId: id của mục, ngoài danh sách thì không trả gì");
+    context.expect(lab.run("Combo:SetTextItemText(0, 'mới') Combo:SetCurrentSelect(0) r = Combo:GetCurrentSelect()").empty()
+            && lab.global("r") == "mới",
+        "SetTextItemText đổi chữ của mục");
+    context.expect(lab.run("Combo:ClearAllSelections() r = Combo:GetCurrentSelect()").empty() && lab.global("r") == "-1", "bỏ chọn");
+    context.expect(lab.run("Combo:ResetText()").empty() && lab.text_of("Combo", "Text").empty(), "ResetText");
+    context.expect(lab.run("Combo:ResetList() Combo:ResetLastSelectIndex() n = Combo:GetListCount()").empty() && lab.global("n") == "0",
+        "ResetList bỏ mọi mục");
+}
+
+void ctrl_list_follows_multi_column_list(Context& context) {
+    const Lab lab;
+    context.expect(lab.run("Grid:AddColumn('Tên', 0, 100) Grid:AddColumn('Cấp', 1, 50) n = Grid:GetColumnCount()").empty()
+            && lab.global("n") == "2",
+        "hai cột");
+    context.expect(lab.run("Grid:AddNewItem('A', 0, 0) Grid:AddNewItem('1', 1, 0) Grid:AddNewItem('B', 0, 1) Grid:AddNewItem('2', 1, 1)"
+                           " n = Grid:GetItemCount()")
+            .empty()
+            && lab.global("n") == "2",
+        "ô cùng hàng gộp vào một hàng");
+    context.expect(lab.run("a = Grid:GetItemText(0, 0) b = Grid:GetItemText(1, 1)").empty() && lab.global("a") == "A" && lab.global("b") == "2",
+        "GetItemText(hàng, cột)");
+    context.expect(lab.run("Grid:SetItemText(1, 1, '20') b = Grid:GetItemText(1, 1)").empty() && lab.global("b") == "20", "SetItemText");
+    context.expect(lab.run("Grid:AddNewItem('x', 9, 0) n = Grid:GetItemCount()").empty() && lab.global("n") == "2",
+        "cột không có id 9 thì ô bị bỏ");
+    context.expect(lab.run("r = Grid:GetItemText(5, 0)").empty() && lab.global("r") == "0",
+        "ô không có: Lua nhận giá trị ở đỉnh ngăn xếp (đối số cuối), như hàm gốc");
+    context.expect(lab.run("Grid:SetRowUserData(1, 77) a = Grid:GetRowUserData(1) b = Grid:GetRowUserData(0) c = Grid:GetRowUserData(5)")
+                .empty()
+            && lab.global("a") == "77" && lab.global("b") == "-1" && lab.global("c") == "-1",
+        "dữ liệu hàng: chưa đặt hay hàng không có là -1");
+    context.expect(lab.run("r = Grid:GetSelectItem()").empty() && lab.global("r") == "-1", "chưa chọn thì -1");
+    context.expect(lab.run("Grid:SetSelectItem(1) r = Grid:GetSelectItem() Grid:SetSelectItem(7) q = Grid:GetSelectItem()").empty()
+            && lab.global("r") == "1" && lab.global("q") == "1",
+        "chọn hàng: GetSelectItem trả số hàng script đưa lúc mở hàng, hàng không có thì giữ nguyên");
+    context.expect(lab.run("Grid:SetRowTooltip(0, 'gợi ý') Grid:DeleteItem(0) n = Grid:GetItemCount() r = Grid:GetSelectItem()").empty()
+            && lab.global("n") == "1" && lab.global("r") == "1",
+        "xoá hàng trước hàng đang chọn thì lựa chọn dời theo");
+    context.expect(lab.run("Grid:SetVertScollPosition(1) Grid:SetVertScollPosition(9)").empty(), "cuộn tới hàng");
+    context.expect(lab.run("Grid:InsertColumn('Giữa', 5, 10, 1) n = Grid:GetColumnCount() Grid:RemoveColumnByPos(0) m = Grid:GetColumnCount()")
+                .empty()
+            && lab.global("n") == "3" && lab.global("m") == "2",
+        "InsertColumn và RemoveColumnByPos");
+    context.expect(lab.run("Grid:RemoveAllItem() n = Grid:GetItemCount() m = Grid:GetColumnCount()").empty() && lab.global("n") == "0"
+            && lab.global("m") == "2",
+        "RemoveAllItem bỏ hàng, giữ cột");
+    context.expect(lab.run("Grid:AddNewItem('N', 1, 0) Grid:AddNewItem('M', 5, 0) n = Grid:GetItemCount() b = Grid:GetSelectItem()").empty()
+            && lab.global("n") == "2" && lab.global("b") == "-1",
+        "hàng mở bằng cột khác 0 có ô cột 0 trống, nên ô cùng số hàng sau đó vẫn mở hàng mới");
+}
+
+void shared_names_follow_the_kind(Context& context) {
+    const Lab lab;
+    context.expect(lab.run("Child:DeleteItem(0) Child:RemoveAllItem() Child:SetItemText(0, 0, 'x') r = Child:GetSelectItem()").empty()
+            && lab.global("r").empty(),
+        "tên trùng giữa các lớp: lớp khác CtrlList chưa có hành vi nên không làm gì");
+    ui::script::open_widget_classes(lab.lua.get(), ui::script::Missing::kRecord);
+    context.expect(lab.run("Child:DeleteItem(0) Child:DeleteItem(1) Grid:DeleteItem(0) Child:Nope()").empty(), "chạy ở chế độ đo");
+    const std::vector<ui::script::MissingMethod> missing = ui::script::missing_methods(lab.lua.get());
+    const auto count_of = [&missing](std::string_view name) {
+        const auto found = std::ranges::find(missing, name, &ui::script::MissingMethod::name);
+        return found == missing.end() ? std::uint32_t{0} : found->calls;
+    };
+    context.expect(count_of("DeleteItem@StaticImage") == 2 && count_of("Nope") == 1 && count_of("DeleteItem@CtrlList") == 0,
+        "chế độ đo ghi Tên@Lớp cho phương thức chưa có hành vi ở lớp ấy");
+}
+
+void image_and_scrollbar(Context& context) {
+    const Lab lab;
+    context.expect(lab.run("Child:SetImage('icon1')").empty() && lab.text_of("Child", "Image") == "set:Icon image:icon1",
+        "SetImage một đối số là tên icon đầy đủ");
+    context.expect(lab.run("Child:SetImage('Set', 'Name')").empty() && lab.text_of("Child", "Image") == "set:Set image:Name",
+        "SetImage hai đối số là bộ ảnh và ảnh");
+    context.expect(lab.run("Child:SetImageColor('80ff00ff')").empty()
+            && lab.text_of("Child", "ImageColours") == "tl:80FF00FF tr:80FF00FF bl:80FF00FF br:80FF00FF",
+        "SetImageColor");
+    context.expect(lab.run("Child:SetImageColor('zz')").empty() && lab.text_of("Child", "ImageColours") == "tl:FF000000 tr:FF000000 bl:FF000000 br:FF000000",
+        "màu không đọc được là đen đặc");
+    context.expect(lab.run("Bar:SetPosition(5) a = Bar:GetPosition() Bar:SetPosition(99) b = Bar:GetPosition() Bar:SetPosition(-4)"
+                           " c = Bar:GetPosition() Bar:SetPosition(2.5) d = Bar:GetPosition() Bar:SetPosition('x') e = Bar:GetPosition()")
+                .empty()
+            && lab.global("a") == "5" && lab.global("b") == "7" && lab.global("c") == "0" && lab.global("d") == "2.5"
+            && lab.global("e") == "2.5",
+        "SetPosition kẹp vào 0..(DocumentSize - PageSize) = 0..7");
+}
+
+void fade_follows_super_progress(Context& context) {
+    Lab lab;
+    const auto tick = [&lab](float seconds) { ui::script::advance_widgets(lab.widgets, lab.asset, lab.services, seconds); };
+    lab.services.root = true;
+    tick(5.0F);
+    context.expect(lab.text_of("Root", "Alpha") == "<chưa đặt>" && lab.services.root, "chưa mờ dần thì nhịp không làm gì");
+    context.expect(lab.run("Root:SetProperty('SetFadeState', 2)").empty() && lab.text_of("Root", "Alpha") == "1", "SetFadeState(2) mở đoạn mờ dần");
+    tick(1.0F);
+    context.expect(lab.text_of("Root", "Alpha") == "0.5" && lab.services.root, "giữa chừng vẫn hiện, độ trong còn một nửa");
+    tick(1.0F);
+    context.expect(lab.text_of("Root", "Alpha") == "0" && lab.services.root && !lab.widgets.is_hidden("Root"),
+        "còn đúng 0 thì chưa giấu (so sánh nhỏ hơn)");
+    tick(0.5F);
+    context.expect(lab.text_of("Root", "Alpha") == "-0.25" && !lab.services.root && lab.widgets.is_hidden("Root"),
+        "hết giờ thì giấu cửa sổ gốc và `this`");
+    tick(0.5F);
+    context.expect(lab.text_of("Root", "Alpha") == "-0.25", "đã giấu thì nhịp sau không làm gì");
+    context.expect(lab.run("Root:SetProperty('SetFadeState', 0)").empty() && lab.services.root && !lab.widgets.is_hidden("Root")
+            && lab.text_of("Root", "Alpha") == "1",
+        "SetFadeState(0) hiện lại và xoá đoạn mờ dần");
+    tick(1.0F);
+    context.expect(lab.text_of("Root", "Alpha") == "1", "đoạn mờ dần đã xoá thì nhịp không làm gì");
+    context.expect(lab.run("Child:Show() Child:SetProperty('SetFadeState', 1)").empty(), "cửa sổ con");
+    tick(2.0F);
+    context.expect(lab.widgets.is_hidden("Child") && lab.services.root, "cửa sổ con hết giờ thì chỉ giấu nó");
+}
+
 // ---- ProgressBar.lua gốc qua host tối thiểu ----
 
 // Phần của host mà ProgressBar.lua dùng: `this` có Show, Hide, IsVisible, RegisterEvent; sự kiện chỉ tới hàm
@@ -451,7 +588,7 @@ void progress_bar_matches_the_golden(Context& context) {
     settle(11, host.lab.run("Progress_close()"));
 }
 
-constexpr std::array<Case, 11> kCases = {{
+constexpr std::array<Case, 16> kCases = {{
     {.name = "kind_follows_the_falagard_type", .body = kind_follows_the_falagard_type},
     {.name = "text_follows_the_original_rules", .body = text_follows_the_original_rules},
     {.name = "set_property_special_cases", .body = set_property_special_cases},
@@ -462,6 +599,11 @@ constexpr std::array<Case, 11> kCases = {{
     {.name = "missing_methods_are_recorded_on_request", .body = missing_methods_are_recorded_on_request},
     {.name = "action_button_keeps_the_action", .body = action_button_keeps_the_action},
     {.name = "lists_and_elements", .body = lists_and_elements},
+    {.name = "combo_box_keeps_items_and_selection", .body = combo_box_keeps_items_and_selection},
+    {.name = "ctrl_list_follows_multi_column_list", .body = ctrl_list_follows_multi_column_list},
+    {.name = "shared_names_follow_the_kind", .body = shared_names_follow_the_kind},
+    {.name = "image_and_scrollbar", .body = image_and_scrollbar},
+    {.name = "fade_follows_super_progress", .body = fade_follows_super_progress},
     {.name = "progress_bar_matches_the_golden", .body = progress_bar_matches_the_golden},
 }};
 

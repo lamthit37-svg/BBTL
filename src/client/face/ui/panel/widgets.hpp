@@ -44,6 +44,34 @@ struct ActionFace {
     std::string icon;
 };
 
+// Một cột của bảng nhiều cột (MultiColumnList::addColumn): chữ đầu cột, id do script đặt và bề rộng.
+struct GridColumn {
+    std::string title;
+    std::int32_t id = 0;
+    float width = 0.0F;
+};
+
+// Một ô của bảng nhiều cột (ListboxTextItem do CtrlList:AddNewItem dựng).
+struct GridCell {
+    std::string text;
+    std::string tooltip;
+    // id của mục: id cột khi ô vào một hàng có sẵn, số hàng script đưa khi ô mở hàng mới (GetSelectItem trả số này).
+    std::int32_t id = 0;
+    // Màu chữ "AARRGGBB" (rỗng khi script không nêu).
+    std::string colour;
+    // SetRowUserData cất giá trị cộng một, nên 0 là chưa đặt (GetRowUserData trả -1).
+    std::int32_t user = 0;
+};
+
+// id của hàng (GetSelectItem, GetRowUserData) khi không có.
+inline constexpr std::int32_t kNoRow = -1;
+
+// SetRowUserData: số hàng và giá trị script đưa.
+struct GridRowData {
+    std::int32_t row = 0;
+    std::int32_t value = 0;
+};
+
 class Widgets {
 public:
     // SetProperty(name, value) của cửa sổ said.window; SetToolTip là thuộc tính "Tooltip".
@@ -78,6 +106,13 @@ public:
     void play(std::string_view window, bool is_looping);
     // Gloom() (is_dim) và Bright() của nút action: thuộc tính Gloom True và False (UI_CEGUI 0x180028cf0, 0x180028970).
     void gloom(std::string_view window, bool is_dim);
+    // SetFadeState(total) của thanh tiến trình (FalagardSuperProgress): total > 0 mở đoạn mờ dần total giây, ngược lại xoá nó.
+    void set_fade(std::string_view window, float total);
+    // Tên các cửa sổ đang có đoạn mờ dần.
+    [[nodiscard]] std::vector<std::string> fading() const;
+    // Nhịp thời gian của FalagardSuperProgress::updateSelf cho một cửa sổ đang mờ dần: trừ seconds khỏi thời gian còn, ghi
+    // Alpha = còn / tổng; còn nhỏ hơn 0 (bằng 0 chưa tính) thì giấu cửa sổ và trả true. Cửa sổ không mờ dần: false.
+    bool step_fade(std::string_view window, float seconds);
 
     // ClearListBox: bỏ mọi mục, bỏ mục đang chọn, về đầu danh sách.
     void clear_list(std::string_view window);
@@ -94,6 +129,46 @@ public:
     void pick_item(std::string_view window, std::int32_t id);
     // SetCurrentFirstItem(index).
     void set_first_item(std::string_view window, std::int32_t index);
+
+    // ---- Hộp thả (Combobox): danh sách thả dùng lại items/selected của danh sách thường ----
+    // SetCurrentSelect: chọn mục thứ index (từ 0); false khi index ngoài danh sách, khi đó không đổi gì.
+    bool select_index(std::string_view window, std::size_t index);
+    // ClearAllSelections: bỏ dấu chọn, giữ mục.
+    void clear_selection(std::string_view window);
+    // SetTextItemText: đổi chữ của mục thứ index; false khi index ngoài danh sách.
+    bool set_item_text(std::string_view window, std::size_t index, std::string text);
+    // Số mục (GetListCount), mục thứ index và mục đang chọn (GetTextItemId, GetCurrentSelect); nullptr khi không có.
+    [[nodiscard]] std::size_t item_count(std::string_view window) const noexcept;
+    [[nodiscard]] const ListItem* item_at(std::string_view window, std::size_t index) const noexcept;
+    [[nodiscard]] const ListItem* chosen_item(std::string_view window) const noexcept;
+
+    // ---- Bảng nhiều cột (MultiColumnList của CtrlList) ----
+    // AddColumn (position rỗng: thêm cuối) và InsertColumn (position vượt số cột thì thêm cuối); hàng có sẵn nhận ô trống ở cột mới.
+    void add_column(std::string_view window, GridColumn column, std::optional<std::size_t> position);
+    // RemoveColumnByPos; false khi index ngoài các cột.
+    bool remove_column(std::string_view window, std::size_t index);
+    // AddNewItem: cell.id là id cột. Hàng row đã có ô ở cột 0 thì ô vào hàng đó ở cột mang id cell.id; không thì mở hàng
+    // mới (ô đổi sang id row). false khi không có cột mang id cell.id (CEGUI ném ngoại lệ, script gốc dừng ở lời gọi).
+    bool put_cell(std::string_view window, GridCell cell, std::int32_t row);
+    // SetItemText(row, column index, text) và GetItemText; nullopt khi ô không có.
+    bool set_cell_text(std::string_view window, std::int32_t row, std::int32_t column, std::string text);
+    [[nodiscard]] std::optional<std::string_view> cell_text(std::string_view window, std::int32_t row,
+        std::int32_t column) const noexcept;
+    // SetRowUserData, GetRowUserData (kNoRow khi hàng không có ô ở cột 0 hay chưa đặt) và SetRowTooltip: đều theo ô cột 0.
+    bool set_row_data(std::string_view window, GridRowData data);
+    [[nodiscard]] std::int32_t row_data(std::string_view window, std::int32_t row) const noexcept;
+    bool set_row_tooltip(std::string_view window, std::int32_t row, std::string text);
+    // DeleteItem (false khi row ngoài các hàng), RemoveAllItem (bỏ hàng, giữ cột và vị trí cuộn về 0).
+    bool remove_row(std::string_view window, std::int32_t row);
+    void clear_rows(std::string_view window);
+    // SetSelectItem: chọn hàng row khi ô cột 0 của nó có; GetSelectItem trả id của ô cột 0 hàng đang chọn (kNoRow khi
+    // không có).
+    bool select_row(std::string_view window, std::int32_t row);
+    [[nodiscard]] std::int32_t selected_row(std::string_view window) const noexcept;
+    // SetVertScollPosition (0..số hàng).
+    bool scroll_rows(std::string_view window, std::int32_t row);
+    [[nodiscard]] std::size_t row_count(std::string_view window) const noexcept;
+    [[nodiscard]] std::size_t column_count(std::string_view window) const noexcept;
 
     // ClearAllElement của cửa sổ phức hợp.
     void clear_elements(std::string_view window);
@@ -152,6 +227,20 @@ private:
         std::string value;
     };
 
+    // Bảng nhiều cột: mỗi hàng giữ một ô (hoặc trống) cho từng cột theo thứ tự cột.
+    struct Grid {
+        std::vector<GridColumn> columns;
+        std::vector<std::vector<std::optional<GridCell>>> rows;
+        std::optional<std::size_t> selected;
+        std::int32_t scroll = 0;
+    };
+
+    // Đoạn mờ dần của thanh tiến trình: tổng và thời gian còn (giây).
+    struct Fade {
+        float total = 0.0F;
+        float left = 0.0F;
+    };
+
     // Trạng thái của một cửa sổ; trường optional là "chưa đụng tới".
     struct Entry {
         std::string window;
@@ -175,6 +264,8 @@ private:
         std::optional<std::vector<std::string>> elements;
         // true là giữ chỗ cuộn, false là về đầu.
         std::optional<bool> keeps_scroll;
+        std::optional<Grid> grid;
+        std::optional<Fade> fade;
     };
 
     [[nodiscard]] Entry& entry_of(std::string_view window);
@@ -184,6 +275,12 @@ private:
     static void describe_properties(const Entry& entry, std::vector<std::string>& lines);
     static void describe_entry(const Entry& entry, std::vector<std::string>& lines);
     static void paint_entry(const Entry& entry, Deck& deck);
+    // Bảng nhiều cột của cửa sổ; nullptr khi chưa có (chưa thêm cột hay hàng nào).
+    [[nodiscard]] Grid* grid_of(std::string_view window) noexcept;
+    [[nodiscard]] const Grid* grid_of(std::string_view window) const noexcept;
+    // Ô ở hàng row, cột chỉ số column; nullptr khi ngoài bảng hay ô trống.
+    [[nodiscard]] static GridCell* cell_at(Grid& grid, std::int32_t row, std::int32_t column) noexcept;
+    [[nodiscard]] static const GridCell* cell_at(const Grid& grid, std::int32_t row, std::int32_t column) noexcept;
 
     std::vector<Entry> entries_;
 };

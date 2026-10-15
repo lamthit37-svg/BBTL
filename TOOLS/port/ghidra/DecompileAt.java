@@ -9,6 +9,9 @@
 //   i:chuỗi              14 lệnh máy tại mỗi nơi tham chiếu chuỗi (khi hàm chứa quá lớn để decompile)
 //   a:địa chỉ            16 lệnh máy quanh địa chỉ (lùi 4 lệnh), khi chỉ cần xem cách nạp đối số
 //   e:địa chỉ            bảng đăng ký sự kiện trong hàm chứa địa chỉ: "0xid tên" (Game.exe 0x140a10f2d)
+//   m:địa chỉ            bảng đăng ký phương thức Lua trong hàm chứa địa chỉ: "0xhàm tên" (UI_CEGUI.dll 0x18002b600)
+//   d:địa chỉ            mọi lệnh máy của hàm chứa địa chỉ (khi decompile làm mất đối số dấu phẩy động: xmm0)
+//   r:địa chỉ            16 byte dữ liệu tại địa chỉ: hex, chuỗi ASCII, hai số double và hai số float đầu (hằng số của hàm)
 // Kết quả: tên hàm, địa chỉ, decompile, danh sách hàm được gọi. Chương trình chỉ đọc, không lưu.
 // Chạy bằng decompile.bat <chương trình> <tệp xuất> <khoá>...
 
@@ -65,6 +68,15 @@ public class DecompileAt extends GhidraScript {
                 continue;
             } else if (key.startsWith("e:")) {
                 listEvents(address(key.substring(2)), text);
+                continue;
+            } else if (key.startsWith("m:")) {
+                listMethods(address(key.substring(2)), text);
+                continue;
+            } else if (key.startsWith("d:")) {
+                listFunction(address(key.substring(2)), text);
+                continue;
+            } else if (key.startsWith("r:")) {
+                listData(address(key.substring(2)), text);
                 continue;
             } else if (key.startsWith("s:")) {
                 entries.addAll(byString(key.substring(2), functions));
@@ -170,6 +182,76 @@ public class DecompileAt extends GhidraScript {
         for (int count = 0; instruction != null && count < 16; count++) {
             text.append(instruction.getAddress()).append(": ").append(instruction).append('\n');
             instruction = instruction.getNext();
+        }
+    }
+
+    // 16 byte tại địa chỉ: hex, chuỗi ASCII (tới byte 0), số double ở +0, float ở +0 và +4.
+    private void listData(Address at, StringBuilder text) throws Exception {
+        Memory memory = currentProgram.getMemory();
+        byte[] bytes = new byte[16];
+        memory.getBytes(at, bytes);
+        StringBuilder hex = new StringBuilder();
+        for (byte value : bytes) {
+            hex.append(String.format("%02x", value & 0xFF));
+        }
+        java.nio.ByteBuffer buffer = java.nio.ByteBuffer.wrap(bytes).order(java.nio.ByteOrder.LITTLE_ENDIAN);
+        text.append(at).append(": ").append(hex).append(" \"").append(cstring(at)).append("\" double=")
+            .append(buffer.getDouble(0)).append(" float=").append(buffer.getFloat(0)).append(',').append(buffer.getFloat(4))
+            .append(" int=").append(buffer.getInt(0)).append('\n');
+    }
+
+    // Mọi lệnh máy của hàm chứa địa chỉ, mỗi lệnh một dòng "địa chỉ: lệnh".
+    private void listFunction(Address inside, StringBuilder text) {
+        Function function = currentProgram.getFunctionManager().getFunctionContaining(inside);
+        if (function == null) {
+            text.append("không có hàm chứa ").append(inside).append('\n');
+            return;
+        }
+        for (ghidra.program.model.listing.Instruction instruction
+            : currentProgram.getListing().getInstructions(function.getBody(), true)) {
+            text.append(instruction.getAddress()).append(": ").append(instruction).append('\n');
+        }
+    }
+
+    // Bảng đăng ký phương thức Lua của UI_CEGUI.dll: mỗi `LEA RDX,[chuỗi]` là tên được đăng ký, và con trỏ hàm của nó là
+    // `LEA reg,[địa chỉ trong khối mã]` gần nhất trước đó (đo ở 0x18002b600: con trỏ nạp vào RCX hay RSI rồi ghi vào [RAX] trước
+    // khi nạp R8 và RDX của lời gọi đăng ký). In "0xhàm tên" theo thứ tự lệnh; tên lớp cũng hiện, kèm
+    // con trỏ cũ (không có nghĩa).
+    private void listMethods(Address inside, StringBuilder text) throws Exception {
+        Function function = currentProgram.getFunctionManager().getFunctionContaining(inside);
+        if (function == null) {
+            text.append("không có hàm chứa ").append(inside).append('\n');
+            return;
+        }
+        Memory memory = currentProgram.getMemory();
+        Address pending = null;
+        for (ghidra.program.model.listing.Instruction instruction
+            : currentProgram.getListing().getInstructions(function.getBody(), true)) {
+            if (!"LEA".equals(instruction.getMnemonicString()) || instruction.getRegister(0) == null) {
+                continue;
+            }
+            Address target = null;
+            for (Reference reference : instruction.getReferencesFrom()) {
+                target = reference.getToAddress();
+            }
+            if (target == null) {
+                continue;
+            }
+            ghidra.program.model.mem.MemoryBlock block = memory.getBlock(target);
+            if (block == null) {
+                continue;
+            }
+            if (block.isExecute()) {
+                // R8 giữ bộ nối chung 0x18001cca0 của mọi phương thức, không phải hàm riêng.
+                if (!"R8".equals(instruction.getRegister(0).getName())) {
+                    pending = target;
+                }
+            } else if ("RDX".equals(instruction.getRegister(0).getName())) {
+                String name = cstring(target);
+                if (name.length() > 2 && pending != null) {
+                    text.append("0x").append(Long.toHexString(pending.getOffset())).append(' ').append(name).append('\n');
+                }
+            }
         }
     }
 

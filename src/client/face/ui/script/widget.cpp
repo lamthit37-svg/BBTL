@@ -16,6 +16,7 @@
 #include <cstddef>
 #include <cstdint>
 #include <format>
+#include <limits>
 #include <memory>
 #include <optional>
 #include <string>
@@ -49,6 +50,8 @@ namespace {
 
 using panel::Ask;
 using panel::Call;
+using panel::GridCell;
+using panel::GridColumn;
 using panel::kEmptyAction;
 using panel::ListItem;
 
@@ -161,6 +164,43 @@ int raise(lua_State* state, const char* message) {
         std::unreachable(); // lua_error nhảy khỏi hàm bằng longjmp
     }
     return static_cast<const Box*>(box)->ref;
+}
+
+// Số của script sang float32 như phép ép double sang float của mã gốc; số ngoài miền float32 (mã gốc ra vô cực) thành số
+// hữu hạn lớn nhất để phép ép không có hành vi không xác định. NaN giữ nguyên.
+[[nodiscard]] float to_float(double value) noexcept {
+    constexpr auto kLimit = static_cast<double>(std::numeric_limits<float>::max());
+    return static_cast<float>(std::clamp(value, -kLimit, kLimit));
+}
+
+// Khoá bảng đếm phương thức còn thiếu (tên -> số lần gọi) trong sổ đăng ký Lua; chỉ có từ khi mở Missing::kRecord.
+constexpr const char* kMissingName = "thienlong.ui.widget.missing";
+
+// Cộng một vào số lần gọi của `key` trong bảng đếm; false (không làm gì) khi state chưa mở chế độ đo.
+bool count_missing(lua_State* state, std::string_view key) {
+    lua_pushstring(state, kMissingName);
+    lua_rawget(state, LUA_REGISTRYINDEX);
+    if (lua_type(state, -1) != LUA_TTABLE) {
+        lua_pop(state, 1);
+        return false;
+    }
+    lua_pushlstring(state, key.data(), key.size());
+    lua_pushvalue(state, -1);
+    lua_rawget(state, -3);
+    const lua_Number seen = lua_type(state, -1) == LUA_TNUMBER ? lua_tonumber(state, -1) : 0;
+    lua_pop(state, 1);
+    lua_pushnumber(state, seen + 1);
+    lua_rawset(state, -3);
+    lua_pop(state, 1);
+    return true;
+}
+
+// Phương thức mà tên trùng giữa các lớp 2026 nhưng lớp của widget này chưa có hành vi: không làm gì. Chế độ đo ghi
+// "Tên@Lớp" (tên phương thức là upvalue 1 của hàm C) để lượt đo thấy chỗ còn thiếu.
+int other_kind(lua_State* state, const WindowRef& window) {
+    const char* method = lua_tostring(state, lua_upvalueindex(1));
+    count_missing(state, std::format("{}@{}", method == nullptr ? "?" : method, kind_name(window.kind)));
+    return 0;
 }
 
 // ---- Layout: thuộc tính gốc, cha và anh em ----
@@ -379,11 +419,13 @@ int window_set_tooltip(lua_State* state) {
     return 0;
 }
 
-// SetFadeState (FalagardSuperProgressProperties, CEGUIFalagard.dll 0x180079f20): giá trị <= 0 hiện cửa sổ lại (và cả
-// `this` khi cửa sổ là gốc layout), mọi giá trị đều đặt độ trong về 1.
-void set_fade_state(const WindowRef& window, std::string_view value, bool is_number_value, double number) {
+// SetFadeState (FalagardSuperProgressProperties, CEGUIFalagard.dll 0x180079f20): giá trị > 0 mở đoạn mờ dần chừng đó giây
+// (advance_widgets chạy nó), ngược lại xoá đoạn ấy và hiện cửa sổ lại (cả `this` khi cửa sổ là gốc layout); mọi giá trị đều
+// đặt độ trong về 1.
+void set_fade_state(const WindowRef& window, std::string_view value, float amount) {
     window.store->set({.window = window.name, .name = "SetFadeState", .value = value});
-    if (is_number_value && number <= 0.0) {
+    window.store->set_fade(window.name, amount);
+    if (!(amount > 0.0F)) {
         window.store->show(window.name);
         const std::int32_t index = window_index(window);
         if (index >= 0 && window.asset->windows[static_cast<std::size_t>(index)].parent < 0 && window.services != nullptr) {
@@ -399,7 +441,7 @@ int window_set_property(lua_State* state) {
     if (!is_text(state, 2) || !is_text(state, 3)) return 0;
     const std::string name{text_at(state, 2)};
     if (name == "SetFadeState") {
-        set_fade_state(window, text_at(state, 3), lua_isnumber(state, 3) != 0, lua_tonumber(state, 3));
+        set_fade_state(window, text_at(state, 3), lua_isnumber(state, 3) != 0 ? to_float(lua_tonumber(state, 3)) : 0.0F);
         return 0;
     }
     if (name == "ShortImage") {
@@ -661,9 +703,6 @@ int mesh_set_fake_object(lua_State* state) {
     return 0;
 }
 
-// Khoá bảng đếm phương thức còn thiếu (tên -> số lần gọi) trong sổ đăng ký Lua; chỉ có từ khi mở Missing::kRecord.
-constexpr const char* kMissingName = "thienlong.ui.widget.missing";
-
 // Phương thức giả của chế độ đo: trả 0 để phép tính và phép nối chuỗi sau lời gọi không lỗi.
 int missing_stub(lua_State* state) {
     lua_pushnumber(state, 0);
@@ -681,17 +720,343 @@ int index_recording(lua_State* state) {
     lua_rawget(state, lua_upvalueindex(1));
     if (lua_type(state, -1) != LUA_TNIL) return 1;
     lua_pop(state, 1);
-    lua_pushstring(state, kMissingName);
-    lua_rawget(state, LUA_REGISTRYINDEX);
-    lua_pushvalue(state, 2);
-    lua_pushvalue(state, 2);
-    lua_rawget(state, -3);
-    const lua_Number seen = lua_type(state, -1) == LUA_TNUMBER ? lua_tonumber(state, -1) : 0;
-    lua_pop(state, 1);
-    lua_pushnumber(state, seen + 1);
-    lua_rawset(state, -3);
-    lua_pop(state, 1);
+    count_missing(state, text_at(state, 2));
     lua_pushvalue(state, lua_upvalueindex(2));
+    return 1;
+}
+
+// ---- Hộp thả (Combobox) ----
+// Nguồn: hàm cùng tên trong UI_CEGUI.dll 3.71.9509 (D:\XTLBB\Bin64; đọc bằng TOOLS/port/ghidra/DecompileAt.java, khoá m:
+// cho địa chỉ hàm; bản trong dự án Ghidra TLBB cho cùng mã từng hàm). Danh sách thả giữ trong items/selected của Widgets
+// như danh sách thường.
+
+// ComboBoxAddItem và AddTextItem (0x180023700, 0x1800228f0): chữ (chuỗi hay số) và id (số, thiếu thì 0).
+int combo_add_item(lua_State* state) {
+    const WindowRef& window = self(state);
+    if (!is_text(state, 2)) return 0;
+    window.store->add_item(window.name, ListItem{.text = from_script(text_at(state, 2)), .id = int_at(state, 3), .colour = {}});
+    return 0;
+}
+
+// ResetList (Combobox::resetList -> Listbox::resetList): bỏ mọi mục.
+int combo_reset_list(lua_State* state) {
+    const WindowRef& window = self(state);
+    window.store->clear_list(window.name);
+    return 0;
+}
+
+// ResetText (Combobox::resetText): chữ của ô nhập về rỗng.
+int combo_reset_text(lua_State* state) {
+    const WindowRef& window = self(state);
+    window.store->set_text(window.name, {});
+    return 0;
+}
+
+int combo_clear_selections(lua_State* state) {
+    const WindowRef& window = self(state);
+    window.store->clear_selection(window.name);
+    return 0;
+}
+
+// GetCurrentSelect (0x180025d60): (chữ, id) của mục đang chọn; chưa chọn thì ("-1", -1).
+int combo_get_current(lua_State* state) {
+    const WindowRef& window = self(state);
+    const ListItem* item = window.store->chosen_item(window.name);
+    if (item == nullptr) {
+        lua_pushstring(state, "-1");
+        lua_pushnumber(state, -1);
+        return 2;
+    }
+    const std::string text = to_script(item->text);
+    lua_pushlstring(state, text.data(), text.size());
+    lua_pushnumber(state, item->id);
+    return 2;
+}
+
+// SetCurrentSelect(chỉ số từ 0) (0x180037f70): chọn mục rồi đặt chữ của ô nhập bằng chữ của mục; chỉ số ngoài danh sách
+// thì bỏ qua.
+int combo_set_current(lua_State* state) {
+    const WindowRef& window = self(state);
+    if (!is_number(state, 2)) return 0;
+    const std::int32_t index = int_at(state, 2);
+    if (index < 0 || !window.store->select_index(window.name, static_cast<std::size_t>(index))) return 0;
+    if (const ListItem* item = window.store->chosen_item(window.name); item != nullptr) {
+        const std::string text = item->text;
+        window.store->set_text(window.name, text);
+    }
+    return 0;
+}
+
+int combo_count(lua_State* state) {
+    const WindowRef& window = self(state);
+    lua_pushnumber(state, static_cast<lua_Number>(window.store->item_count(window.name)));
+    return 1;
+}
+
+// GetTextItemId(chỉ số) (0x180027740): id của mục; chỉ số ngoài danh sách thì không trả gì.
+int combo_item_id(lua_State* state) {
+    const WindowRef& window = self(state);
+    if (!is_number(state, 2)) return 0;
+    const std::int32_t index = int_at(state, 2);
+    const ListItem* item = index < 0 ? nullptr : window.store->item_at(window.name, static_cast<std::size_t>(index));
+    if (item == nullptr) return 0;
+    lua_pushnumber(state, item->id);
+    return 1;
+}
+
+// SetTextItemText(chỉ số, chữ) (0x18003b930).
+int combo_set_item_text(lua_State* state) {
+    const WindowRef& window = self(state);
+    if (!is_number(state, 2) || !is_text(state, 3)) return 0;
+    const std::int32_t index = int_at(state, 2);
+    if (index < 0) return 0;
+    window.store->set_item_text(window.name, static_cast<std::size_t>(index), from_script(text_at(state, 3)));
+    return 0;
+}
+
+// ---- Bảng nhiều cột (CtrlList, MultiColumnList của CEGUI) ----
+// Hàng và cột đánh số từ 0; id cột do script đặt ở AddColumn. Phương thức trùng tên với lớp khác (DeleteItem, SetItemText...)
+// chỉ chạy cho Kind::kCtrlList.
+
+[[nodiscard]] bool is_ctrl_list(const WindowRef& window) noexcept {
+    return window.kind == Kind::kCtrlList;
+}
+
+// AddColumn(chữ, id, bề rộng) (0x18001e570).
+int grid_add_column(lua_State* state) {
+    const WindowRef& window = self(state);
+    if (!is_text(state, 2)) return 0;
+    window.store->add_column(window.name,
+        GridColumn{.title = from_script(text_at(state, 2)), .id = int_at(state, 3), .width = to_float(lua_tonumber(state, 4))},
+        std::nullopt);
+    return 0;
+}
+
+// InsertColumn(chữ, id, bề rộng, vị trí) (0x180028840); vị trí âm hay vượt số cột thì thêm cuối.
+int grid_insert_column(lua_State* state) {
+    const WindowRef& window = self(state);
+    if (!is_text(state, 2)) return 0;
+    const auto position = static_cast<std::size_t>(static_cast<std::uint32_t>(int_at(state, 5)));
+    window.store->add_column(window.name,
+        GridColumn{.title = from_script(text_at(state, 2)), .id = int_at(state, 3), .width = to_float(lua_tonumber(state, 4))},
+        position);
+    return 0;
+}
+
+// Đối số 5 của AddNewItem là màu chữ, của AddNewItemTooltips là chữ gợi ý.
+enum class FifthArgument : std::uint8_t { kColour, kTooltip };
+
+// AddNewItem(chữ, id cột, hàng[, màu]) (0x1800216f0) và AddNewItemTooltips(chữ, id cột, hàng[, gợi ý]) (0x180021aa0): hàng
+// đã có ô ở cột 0 thì ô vào hàng đó ở cột mang id, không thì mở hàng mới.
+int grid_put(lua_State* state, FifthArgument fifth) {
+    const WindowRef& window = self(state);
+    if (!is_text(state, 2)) return 0;
+    const std::int32_t column = int_at(state, 3);
+    GridCell cell{.text = from_script(text_at(state, 2)), .tooltip = {}, .id = column, .colour = {}, .user = 0};
+    if (is_text(state, 5)) {
+        std::string extra = from_script(text_at(state, 5));
+        if (fifth == FifthArgument::kColour) {
+            cell.colour = std::move(extra);
+        } else {
+            cell.tooltip = std::move(extra);
+        }
+    }
+    window.store->put_cell(window.name, std::move(cell), int_at(state, 4));
+    return 0;
+}
+
+int grid_add_new_item(lua_State* state) {
+    return grid_put(state, FifthArgument::kColour);
+}
+
+int grid_add_new_item_tooltips(lua_State* state) {
+    return grid_put(state, FifthArgument::kTooltip);
+}
+
+// SetItemText(hàng, cột, chữ) (0x180039790).
+int grid_set_text(lua_State* state) {
+    const WindowRef& window = self(state);
+    if (!is_ctrl_list(window)) return other_kind(state, window);
+    if (!is_text(state, 4)) return 0;
+    window.store->set_cell_text(window.name, int_at(state, 2), int_at(state, 3), from_script(text_at(state, 4)));
+    return 0;
+}
+
+// GetItemText(hàng, cột) (0x180026410). Ô không có thì hàm gốc không đẩy gì rồi trả 1 kết quả, tức Lua nhận giá trị ở đỉnh
+// ngăn xếp (đối số cuối); giữ nguyên.
+int grid_get_text(lua_State* state) {
+    const WindowRef& window = self(state);
+    const std::optional<std::string_view> text = window.store->cell_text(window.name, int_at(state, 2), int_at(state, 3));
+    if (!text) return 1;
+    const std::string script = to_script(*text);
+    lua_pushlstring(state, script.data(), script.size());
+    return 1;
+}
+
+// SetRowUserData(hàng, số) (0x18003a5c0), GetRowUserData(hàng) (0x180027220), SetRowTooltip(hàng, chữ) (0x18003a440): theo ô
+// cột 0 của hàng.
+int grid_set_row_data(lua_State* state) {
+    const WindowRef& window = self(state);
+    window.store->set_row_data(window.name, {.row = int_at(state, 2), .value = int_at(state, 3)});
+    return 0;
+}
+
+int grid_get_row_data(lua_State* state) {
+    const WindowRef& window = self(state);
+    lua_pushnumber(state, window.store->row_data(window.name, int_at(state, 2)));
+    return 1;
+}
+
+int grid_set_row_tooltip(lua_State* state) {
+    const WindowRef& window = self(state);
+    if (!is_text(state, 3)) return 0;
+    window.store->set_row_tooltip(window.name, int_at(state, 2), from_script(text_at(state, 3)));
+    return 0;
+}
+
+// DeleteItem(hàng) (0x180024680), RemoveAllItem() (0x180032c40).
+int grid_delete(lua_State* state) {
+    const WindowRef& window = self(state);
+    if (!is_ctrl_list(window)) return other_kind(state, window);
+    window.store->remove_row(window.name, int_at(state, 2));
+    return 0;
+}
+
+int grid_clear(lua_State* state) {
+    const WindowRef& window = self(state);
+    if (!is_ctrl_list(window)) return other_kind(state, window);
+    window.store->clear_rows(window.name);
+    return 0;
+}
+
+// GetItemCount() (số hàng, 0x1800262d0), GetColumnCount() (0x180025cc0).
+int grid_row_count(lua_State* state) {
+    const WindowRef& window = self(state);
+    if (!is_ctrl_list(window)) return other_kind(state, window);
+    lua_pushnumber(state, static_cast<lua_Number>(window.store->row_count(window.name)));
+    return 1;
+}
+
+int grid_column_count(lua_State* state) {
+    const WindowRef& window = self(state);
+    lua_pushnumber(state, static_cast<lua_Number>(window.store->column_count(window.name)));
+    return 1;
+}
+
+// GetSelectItem() (0x180027380): id của ô cột 0 ở hàng đang chọn, -1 khi không chọn. SetSelectItem(hàng) (0x18003aa20).
+int grid_get_selected(lua_State* state) {
+    const WindowRef& window = self(state);
+    if (!is_ctrl_list(window)) return other_kind(state, window);
+    lua_pushnumber(state, window.store->selected_row(window.name));
+    return 1;
+}
+
+int grid_select(lua_State* state) {
+    const WindowRef& window = self(state);
+    if (!is_ctrl_list(window)) return other_kind(state, window);
+    window.store->select_row(window.name, int_at(state, 2));
+    return 0;
+}
+
+// SetVertScollPosition(hàng) (0x18003bcd0; tên sai chính tả của gốc): 0 đến số hàng.
+int grid_scroll(lua_State* state) {
+    const WindowRef& window = self(state);
+    if (!is_ctrl_list(window)) return other_kind(state, window);
+    window.store->scroll_rows(window.name, int_at(state, 2));
+    return 0;
+}
+
+// RemoveColumnByPos(chỉ số) (0x180032cb0).
+int grid_remove_column(lua_State* state) {
+    const WindowRef& window = self(state);
+    const std::int32_t index = int_at(state, 2);
+    if (index >= 0) window.store->remove_column(window.name, static_cast<std::size_t>(index));
+    return 0;
+}
+
+// ---- Ảnh tĩnh ----
+
+// SetImage(biểu tượng) hay SetImage(bộ ảnh, ảnh) (0x1800390f0): thuộc tính Image là tên đầy đủ của biểu tượng, hay
+// "set:<bộ ảnh> image:<ảnh>".
+int image_set(lua_State* state) {
+    const WindowRef& window = self(state);
+    if (!is_text(state, 2)) return 0;
+    std::string value;
+    if (is_text(state, 3)) {
+        value = std::format("set:{} image:{}", text_at(state, 2), text_at(state, 3));
+    } else if (window.services != nullptr) {
+        value = window.services->icon_full_name(text_at(state, 2));
+    } else {
+        value = std::string{text_at(state, 2)};
+    }
+    window.store->set({.window = window.name, .name = "Image", .value = value});
+    return 0;
+}
+
+// Đọc số 32 bit từ chuỗi thập lục phân "AARRGGBB" (stringToColour: tối đa 8 chữ số đầu); 0xFF000000 khi chuỗi không mở đầu
+// bằng chữ số thập lục phân.
+[[nodiscard]] std::uint32_t colour_of(std::string_view text) noexcept {
+    constexpr std::uint32_t kBlack = 0xFF000000U;
+    constexpr std::size_t kDigits = 8;
+    std::uint32_t value = 0;
+    std::size_t seen = 0;
+    for (const char letter : text.substr(0, kDigits)) {
+        std::uint32_t digit = 0;
+        if (letter >= '0' && letter <= '9') {
+            digit = static_cast<std::uint32_t>(letter - '0');
+        } else if (letter >= 'a' && letter <= 'f') {
+            digit = static_cast<std::uint32_t>(letter - 'a') + 10U;
+        } else if (letter >= 'A' && letter <= 'F') {
+            digit = static_cast<std::uint32_t>(letter - 'A') + 10U;
+        } else {
+            break;
+        }
+        value = (value << 4U) | digit;
+        ++seen;
+    }
+    return seen == 0 ? kBlack : value;
+}
+
+// SetImageColor("AARRGGBB") (0x1800393f0): thuộc tính ImageColours với cả bốn góc cùng màu.
+int image_set_colour(lua_State* state) {
+    const WindowRef& window = self(state);
+    if (!is_text(state, 2)) return 0;
+    const std::uint32_t colour = colour_of(text_at(state, 2));
+    window.store->set({.window = window.name,
+        .name = "ImageColours",
+        .value = std::format("tl:{0:08X} tr:{0:08X} bl:{0:08X} br:{0:08X}", colour)});
+    return 0;
+}
+
+// ---- Thanh cuộn ----
+
+// Số trong thuộc tính chuỗi của cửa sổ (script đặt, không thì layout); fallback khi không có hay không phải số.
+[[nodiscard]] double number_property(lua_State* state, const WindowRef& window, std::string_view name, double fallback) {
+    const std::string text = property_of(window, name);
+    lua_pushlstring(state, text.data(), text.size());
+    const double value = lua_isnumber(state, -1) != 0 ? lua_tonumber(state, -1) : fallback;
+    lua_pop(state, 1);
+    return value;
+}
+
+// SetPosition(số) (0x18003a340): Scrollbar::setScrollPosition kẹp vào 0..max(DocumentSize - PageSize, 0), NaN về 0
+// (docs/GIAO-DIEN-2026.md 6.4). Mặc định của Scrollbar: DocumentSize 1, PageSize 0.
+int scrollbar_set_position(lua_State* state) {
+    const WindowRef& window = self(state);
+    if (!is_number(state, 2)) return 0;
+    const float document = to_float(number_property(state, window, "DocumentSize", 1.0));
+    const float page = to_float(number_property(state, window, "PageSize", 0.0));
+    const float limit = std::max(document - page, 0.0F);
+    const float wanted = to_float(lua_tonumber(state, 2));
+    const float position = wanted >= 0.0F ? (wanted <= limit ? wanted : limit) : 0.0F;
+    window.store->set({.window = window.name, .name = "ScrollPosition", .value = std::format("{}", position)});
+    return 0;
+}
+
+// GetPosition() (0x180027150): vị trí hiện tại.
+int scrollbar_get_position(lua_State* state) {
+    const WindowRef& window = self(state);
+    lua_pushnumber(state, number_property(state, window, "ScrollPosition", 0.0));
     return 1;
 }
 
@@ -746,6 +1111,38 @@ constexpr std::array kMethods = {
     Method{.name = "SetScrollPosition", .function = &complex_keep_scroll},
     Method{.name = "ResetScrollPosition", .function = &complex_reset_scroll},
     Method{.name = "SetFakeObject", .function = &mesh_set_fake_object},
+    Method{.name = "ComboBoxAddItem", .function = &combo_add_item},
+    Method{.name = "AddTextItem", .function = &combo_add_item},
+    Method{.name = "ResetList", .function = &combo_reset_list},
+    Method{.name = "ResetText", .function = &combo_reset_text},
+    Method{.name = "ResetLastSelectIndex", .function = &window_ignore},
+    Method{.name = "ClearAllSelections", .function = &combo_clear_selections},
+    Method{.name = "GetCurrentSelect", .function = &combo_get_current},
+    Method{.name = "SetCurrentSelect", .function = &combo_set_current},
+    Method{.name = "GetListCount", .function = &combo_count},
+    Method{.name = "GetTextItemId", .function = &combo_item_id},
+    Method{.name = "SetTextItemText", .function = &combo_set_item_text},
+    Method{.name = "AddColumn", .function = &grid_add_column},
+    Method{.name = "InsertColumn", .function = &grid_insert_column},
+    Method{.name = "AddNewItem", .function = &grid_add_new_item},
+    Method{.name = "AddNewItemTooltips", .function = &grid_add_new_item_tooltips},
+    Method{.name = "SetItemText", .function = &grid_set_text},
+    Method{.name = "GetItemText", .function = &grid_get_text},
+    Method{.name = "SetRowUserData", .function = &grid_set_row_data},
+    Method{.name = "GetRowUserData", .function = &grid_get_row_data},
+    Method{.name = "SetRowTooltip", .function = &grid_set_row_tooltip},
+    Method{.name = "DeleteItem", .function = &grid_delete},
+    Method{.name = "RemoveAllItem", .function = &grid_clear},
+    Method{.name = "GetItemCount", .function = &grid_row_count},
+    Method{.name = "GetColumnCount", .function = &grid_column_count},
+    Method{.name = "GetSelectItem", .function = &grid_get_selected},
+    Method{.name = "SetSelectItem", .function = &grid_select},
+    Method{.name = "SetVertScollPosition", .function = &grid_scroll},
+    Method{.name = "RemoveColumnByPos", .function = &grid_remove_column},
+    Method{.name = "SetImage", .function = &image_set},
+    Method{.name = "SetImageColor", .function = &image_set_colour},
+    Method{.name = "SetPosition", .function = &scrollbar_set_position},
+    Method{.name = "GetPosition", .function = &scrollbar_get_position},
 };
 
 } // namespace
@@ -755,13 +1152,37 @@ Kind kind_of(std::string_view falagard_type) noexcept {
     return found == kKinds.end() ? Kind::kWindow : found->kind;
 }
 
+std::string_view kind_name(Kind kind) noexcept {
+    constexpr std::array<std::string_view, 22> kNames = {"Window", "ProgressBar", "ActionButton", "CheckButton", "ListBox",
+        "ComplexWindow", "CtrlList", "ComboBox", "StaticImage", "ScrollBar", "SuperTooltip", "MeshWindow", "ChatHistory",
+        "ChatChannel", "SceneMap", "WorldMap", "Minimap", "InfoList", "SoftKey", "Animate", "PopMenu", "EditBox"};
+    const auto index = static_cast<std::size_t>(kind);
+    return index < kNames.size() ? kNames.at(index) : "?";
+}
+
+void advance_widgets(ui::panel::Widgets& store, const gui::GuiAsset& asset, Services& services, float seconds) {
+    for (const std::string& name : store.fading()) {
+        const WindowRef window{.store = &store,
+            .calls = nullptr,
+            .asset = &asset,
+            .name = name,
+            .kind = Kind::kProgressBar,
+            .window = -1,
+            .services = &services};
+        if (!is_visible(window) || !store.step_fade(name, seconds)) continue;
+        const std::int32_t index = window_index(window);
+        if (index >= 0 && is_this_window(asset, index)) services.set_root_shown(false);
+    }
+}
+
 void open_widget_classes(lua_State* state, Missing missing) {
     luaL_newmetatable(state, kMetaName);
     lua_pushstring(state, "__index");
     lua_newtable(state);
     for (const Method& method : kMethods) {
         lua_pushstring(state, method.name);
-        lua_pushcclosure(state, method.function, 0);
+        lua_pushstring(state, method.name);
+        lua_pushcclosure(state, method.function, 1);
         lua_rawset(state, -3);
     }
     if (missing == Missing::kRecord) {
