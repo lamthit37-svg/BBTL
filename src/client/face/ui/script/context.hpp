@@ -15,6 +15,7 @@
 #include "hero/hero.hpp"
 #include "ui/panel/call.hpp"
 #include "ui/panel/scene_table.hpp"
+#include "ui/script/combat_facts.hpp"
 #include "ui/script/pool_image.hpp"
 #include "ui/script/variable.hpp"
 #include "ui/script/xscript.hpp"
@@ -94,6 +95,8 @@ struct Facts {
     std::array<std::int32_t, 43> red_points{};
     // Ảnh bộ nhớ CDataPool cho hàm chỉ đọc một trường số (native_pool.cpp): phía mạng ghi theo offset, chưa ghi thì giá trị của hàm dựng.
     PoolImage pool;
+    // Hiệu ứng trên nhân vật và số ô hành động theo loại (native_battle.cpp: GetActionNum, XRZPVP...).
+    CombatFacts combat;
     // Như trên cho CUIDataPool (DAT_141034c10 của gốc, kho dữ liệu của giao diện: cờ ngày, số lần trộm, kỹ năng cuối...).
     PoolImage ui_pool;
 };

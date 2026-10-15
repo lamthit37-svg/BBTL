@@ -46,6 +46,8 @@ struct Options {
     std::filesystem::path data = "dev/client/assets";
     std::filesystem::path out;
     bool is_events = false;
+    // --detail: in nguyên văn từng dòng lỗi (kèm traceback) ra stderr, kèm tên cửa sổ đang chạy, để tìm chỗ gọi.
+    bool is_detail = false;
 };
 
 // Một dòng lỗi của Lua 5.0: "attempt to <call|index> <global|method|field|local|upvalue> `tên' (a nil value)". Trả loại và tên;
@@ -101,6 +103,7 @@ public:
     // dòng lỗi nào khi hiện, nhận sự kiện và giấu) in thành một dòng cuối.
     void print_windows(std::ostream& out, const std::vector<std::string>& all) const {
         std::vector<const std::pair<const std::string, Window>*> rows;
+        rows.reserve(by_window_.size());
         for (const auto& entry : by_window_)
             rows.push_back(&entry);
         std::ranges::sort(rows, [](const auto* left, const auto* right) {
@@ -144,19 +147,23 @@ bool parse(const std::vector<std::string>& args, Options& options) {
         const std::string_view arg = args[at];
         if (arg == "--events") {
             options.is_events = true;
+        } else if (arg == "--detail") {
+            options.is_detail = true;
         } else if ((arg == "--data" || arg == "--out") && at + 1 < args.size()) {
             (arg == "--data" ? options.data : options.out) = game::io::path_from_utf8(args[++at]);
         } else {
-            std::cerr << "Cách dùng: ui_script_survey [--data <thư mục>] [--events] [--out <tệp>]\n";
+            std::cerr << "Cách dùng: ui_script_survey [--data <thư mục>] [--events] [--detail] [--out <tệp>]\n";
             return false;
         }
     }
     return true;
 }
 
-void drain(Host& host, const std::string& window, Tally& tally) {
-    for (const std::string& note : host.take_notes())
+void drain(Host& host, const std::string& window, Tally& tally, const bool is_detail) {
+    for (const std::string& note : host.take_notes()) {
+        if (is_detail) std::cerr << std::format("[{}] {}\n", window, note);
         tally.add(classify(note), window);
+    }
 }
 
 } // namespace
@@ -202,11 +209,11 @@ int main(const int argc, const char* const* const argv) {
     Host& host = *opened;
     const auto opened_at = std::chrono::steady_clock::now();
     Tally tally;
-    drain(host, "(mở)", tally);
+    drain(host, "(mở)", tally, options.is_detail);
     std::uint32_t events = 0;
     for (const game::ui::script::WindowDef& window : *windows) {
         static_cast<void>(host.set_shown(window.name, true));
-        drain(host, window.name, tally);
+        drain(host, window.name, tally, options.is_detail);
         if (options.is_events) {
             const std::vector<game::ui::script::Registration> registered(host.registrations(window.name).begin(),
                 host.registrations(window.name).end());
@@ -214,11 +221,11 @@ int main(const int argc, const char* const* const argv) {
                 host.post(one.name, {});
                 ++events;
             }
-            drain(host, window.name, tally);
+            drain(host, window.name, tally, options.is_detail);
             static_cast<void>(host.take_calls());
         }
         static_cast<void>(host.set_shown(window.name, false));
-        drain(host, window.name, tally);
+        drain(host, window.name, tally, options.is_detail);
         static_cast<void>(host.take_calls());
     }
     const auto done = std::chrono::steady_clock::now();

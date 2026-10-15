@@ -57,4 +57,9 @@ void register_pet(lua_State* lua);
 // Mục tiêu đang chọn khi chưa có mục tiêu: Target/CachedTarget:GetMenPai, IsPresent, Lua_CheckMainTargetHaveMaskBuff (native_target.cpp).
 void register_target(lua_State* lua);
 
+// Chiến đấu và thanh hành động (làn B): GetActionNum, Lua_IsInTXiongBa, XRZPVP:IsInBattleScene*, FYPVE:IsInFYPVEScene,
+// BattleAssist:AskIsNeiGuaOpen, MaritialSys:Get/SetLastDayMonsterTip, DataPool:GetZMSectUsePlanIndex,
+// DataPool:GetCurrentFreshManGuideItemValue, Sound:PlayUISound (native_battle.cpp, Facts::combat).
+void register_battle(lua_State* lua);
+
 } // namespace game::ui::script
