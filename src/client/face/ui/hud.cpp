@@ -445,12 +445,16 @@ struct Hud::State {
     panel::RoleCast cast;
     std::unique_ptr<gui::Hub> hub;
     // Màn của host trên loader và hub ở trên, và host chạy script các cửa sổ trong kScripted (không có thì còn bảng port tay).
-    // host_press là cửa sổ dưới chuột lúc nhấn trái, để nhận ra Clicked.
+    // host_press và host_right_press là cửa sổ dưới chuột lúc nhấn trái và phải, để nhận ra Clicked và RBClicked; host_hover là cửa
+    // sổ dưới chuột ở khung trước (MouseEnter, MouseLeave).
     // Trạng thái ghi được mà hàm game của script dùng chung (XSCRIPT, XParam); khai trước host để sống lâu hơn máy Lua.
     script::Context script_context;
     std::optional<script::GuiScreen> screen;
     std::optional<script::Host> host;
     std::string host_press;
+    std::string host_right_press;
+    std::string host_hover;
+    bool was_right_down = false;
     panel::Deck deck;
     panel::Maps maps;
     panel::Desk desk;
@@ -583,6 +587,8 @@ struct Hud::State {
     void note_host(const HudView& view);
     void note_host_press(std::string_view window, const HudView& view);
     void note_host_release(const HudView& view);
+    void note_host_pointer(const HudView& view);
+    void drain_host_calls();
     void open_host();
     void push_debug_message(std::string_view text);
     [[nodiscard]] core::Status add_map();
@@ -806,8 +812,22 @@ void Hud::State::note_host_press(std::string_view window, const HudView& view) {
         static_cast<void>(host->fire(window, "MouseLButtonDown", script::MouseButton::kLeft));
     }
     host->pressed(script::Spot{.x = view.pointer->x, .y = view.pointer->y});
-    for (const panel::Call& call : host->take_calls())
-        std::println(stderr, "Script giao diện: việc nhờ {} chưa có ở HUD", panel::name_of(call.ask));
+    drain_host_calls();
+}
+
+// Việc script nhờ game sau một thao tác của người chơi: PushEvent (và lời nhắn) thành sự kiện mới đi qua mọi bảng như sự kiện của
+// game; việc khác chưa có phía game để làm nên ghi một dòng.
+void Hud::State::drain_host_calls() {
+    if (!host) return;
+    std::vector<panel::PostedEvent> events;
+    for (const panel::Call& call : host->take_calls()) {
+        if (std::optional<panel::PostedEvent> next = panel::event_of(call)) {
+            events.push_back(std::move(*next));
+        } else {
+            std::println(stderr, "Script giao diện: việc nhờ {} chưa có ở HUD", panel::name_of(call.ask));
+        }
+    }
+    if (!events.empty()) dispatch(events);
 }
 
 // Nhả trái: MouseButtonUp lên cửa sổ dưới chuột, và Clicked khi nhả trên đúng cửa sổ đã nhấn (nút của CEGUI).
@@ -819,8 +839,7 @@ void Hud::State::note_host_release(const HudView& view) {
     if (!window) return;
     static_cast<void>(host->fire(*window, "MouseButtonUp", script::MouseButton::kLeft));
     if (*window == pressed) static_cast<void>(host->fire(*window, "Clicked", script::MouseButton::kLeft));
-    for (const panel::Call& call : host->take_calls())
-        std::println(stderr, "Script giao diện: việc nhờ {} chưa có ở HUD", panel::name_of(call.ask));
+    drain_host_calls();
 }
 
 // Nhấn trái lên một ô của thanh kỹ năng thú cưng: MainMenuBar_3_Clicked(index). Khác gốc: nhấn phải
@@ -994,15 +1013,55 @@ namespace {
 }
 } // namespace
 
+// Chuột lên các cửa sổ chạy bằng script ngoài nhấn trái: MouseLeave rồi MouseEnter khi cửa sổ dưới chuột đổi (CEGUI 0.4 chỉ báo
+// cửa sổ sâu nhất dưới chuột), và nút phải: MouseButtonDown khi nhấn, MouseButtonUp khi nhả cùng RBClicked và MouseRClick nếu nhả
+// trên chính cửa sổ đã nhấn.
+// Khác gốc: nghĩa của MouseRClick, MouseLClick, MouseClick trong CEGUIBase.dll 2026 chưa đối chiếu (đoán theo tên: bấm xong trên cùng
+// cửa sổ); MouseLClick chưa phát; nhấn đúp, phím, bánh xe, CaptureLost chưa có.
+void Hud::State::note_host_pointer(const HudView& view) {
+    if (!host || !hub || view.phase != Phase::kPlay) return;
+    std::string_view under;
+    if (view.pointer) {
+        if (const auto window = hub->hit(view.pointer->x, view.pointer->y, gui::Probe::kAny)) under = *window;
+    }
+    if (under != host_hover) {
+        const std::string left = std::exchange(host_hover, std::string(under));
+        if (!left.empty()) static_cast<void>(host->fire(left, "MouseLeave", script::MouseButton::kNone));
+        if (!under.empty()) static_cast<void>(host->fire(under, "MouseEnter", script::MouseButton::kNone));
+    }
+    const bool is_right = view.pointer.has_value() && view.pointer->is_right_down;
+    const bool is_press = is_right && !was_right_down;
+    const bool is_release = !is_right && was_right_down;
+    was_right_down = is_right;
+    if (is_press && view.pointer) {
+        host_right_press = under;
+        if (!under.empty()) static_cast<void>(host->fire(under, "MouseButtonDown", script::MouseButton::kRight));
+        host->pressed(script::Spot{.x = view.pointer->x, .y = view.pointer->y});
+    }
+    if (is_release) {
+        const std::string pressed = std::exchange(host_right_press, std::string());
+        if (!under.empty()) {
+            static_cast<void>(host->fire(under, "MouseButtonUp", script::MouseButton::kRight));
+            if (under == pressed) {
+                static_cast<void>(host->fire(under, "RBClicked", script::MouseButton::kRight));
+                static_cast<void>(host->fire(under, "MouseRClick", script::MouseButton::kRight));
+            }
+        }
+    }
+    drain_host_calls();
+}
+
 // Nhịp của khung cho host: đồng hồ hẹn giờ, rồi lỗi script kể từ khung trước.
 void Hud::State::note_host(const HudView& view) {
     if (!host) return;
-    host->set_client_size(script::ClientSize{.width = pixels_of(view.width), .height = pixels_of(view.height)});
-    host->tick(view.clock);
+    script::Host& active = *host;
+    active.set_client_size(script::ClientSize{.width = pixels_of(view.width), .height = pixels_of(view.height)});
+    active.tick(view.clock);
+    drain_host_calls();
     // Send_XSCRIPT của script: gói CGExecuteScript chưa có trong protocol nên chưa có chỗ gửi; ghi để nhận ra script đang đòi.
     for (const script::XScriptRecord& sent : script_context.xscript.take_sent())
         std::println(stderr, "Giao diện Lua: Send_XSCRIPT {} (script {}) chưa có đường gửi tới máy chủ", sent.function(), sent.script_id);
-    for (const std::string& note : host->take_notes())
+    for (const std::string& note : active.take_notes())
         std::println(stderr, "Giao diện Lua: {}", note);
 }
 
@@ -1372,6 +1431,7 @@ void Hud::prepare(const HudView& view) {
     state.enter(view.phase);
     state.note_hover(view);
     state.note_press(view);
+    state.note_host_pointer(view);
     state.note_text(view);
     state.note_hold(view);
     state.note_loading(view);
