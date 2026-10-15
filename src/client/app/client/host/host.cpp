@@ -118,7 +118,6 @@ void Online::on_display_made(Display& display, bool is_playing) {
             .hair = actor.hair,
             .school = actor.school,
             .pose = actor.pose});
-        if (actor.flags != 0) replay.emplace_back(cast::Flagged{.id = actor.id, .flags = actor.flags});
     }
     if (const std::optional<std::uint8_t> hp = seen_.self_hp()) {
         replay.emplace_back(cast::Hurt{.id = seen_.self_id(), .hp_percent = *hp});
@@ -154,8 +153,6 @@ void Online::on_frame(Display& display, world::World* playing, const std::filesy
         if (const auto* pulled = std::get_if<cast::Pulled>(&note)) spot_ = core::GroundPoint{.x = pulled->x, .z = pulled->z};
     }
     display.post_world(arrived);
-    display.post_talk(bridge_.take_heard());
-    bridge_.speak(display.take_says());
     seen_.advance(seconds);
     if (const std::optional<core::GroundPoint> spot = display.reported_spot()) {
         bridge_.report(spot->x, spot->z);

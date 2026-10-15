@@ -477,6 +477,7 @@ if(NOT CMAKE_CROSSCOMPILING)
             src/server/account/book.cpp
             src/server/account/cap.cpp
             src/server/account/ipc_key.cpp
+            src/server/account/play.cpp
             src/server/account/rpc.cpp
             src/server/account/realm.cpp)
         target_link_libraries(game_account PUBLIC game_core game_net game_protocol game_secure game_config
@@ -485,7 +486,6 @@ if(NOT CMAKE_CROSSCOMPILING)
         if(CMAKE_TOOLCHAIN_FILE MATCHES "[Vv]cpkg")
             find_package(PostgreSQL REQUIRED)
             game_module(store src/server/store/pg.cpp)
-            src/server/account/play.cpp
             target_link_libraries(game_store PUBLIC game_core PostgreSQL::PostgreSQL)
             if(WIN32)
                 target_link_libraries(game_store PUBLIC ws2_32)
@@ -514,6 +514,7 @@ endif()
 game_module(classic src/client/place/classic/classic.cpp)
 target_link_libraries(game_classic PUBLIC game_core game_math)
 game_module(look src/client/figure/look/appearance.cpp src/client/figure/look/look.cpp src/client/figure/look/head.cpp src/client/figure/look/sect.cpp
+    src/client/figure/look/creature.cpp
     src/client/figure/look/weapon.cpp src/client/figure/look/skill.cpp)
 target_link_libraries(game_look PUBLIC game_table game_core)
 
@@ -522,7 +523,6 @@ game_module(avatar src/client/figure/avatar/gait.cpp src/client/figure/avatar/tu
 target_link_libraries(game_avatar PUBLIC game_anim game_core game_look)
 
 # control: mặt đất của cảnh (độ cao, tia chạm đất, va chạm của mắt camera), tia từ màn hình, camera
-    src/client/figure/look/creature.cpp
 # bám theo, lệnh đi bằng chuột, chọn thứ dưới chuột, cử chỉ chạm và cần gạt ảo; port từ TLBB Dev.
 game_module(control
     src/client/figure/control/char_camera.cpp
@@ -998,6 +998,8 @@ if(GAME_HAS_GPU)
         src/client/app/client/display/graphic/play.cpp
         src/client/app/client/display/graphic/face.cpp
         src/client/app/client/display/graphic/effect.cpp
+        src/client/app/client/display/graphic/creature.cpp
+        src/client/app/client/display/creature.cpp
         src/client/app/client/display/player.cpp
         src/client/app/client/display/portrait.cpp src/client/app/client/display/role_preview.cpp src/client/app/client/display/fx_view.cpp
         src/client/app/client/display/role_stage.cpp
@@ -1006,8 +1008,6 @@ else()
     set(game_client_screen src/client/app/client/display/display_none.cpp)
 endif()
 if(WIN32)
-        src/client/app/client/display/graphic/creature.cpp
-        src/client/app/client/display/creature.cpp
     set(game_client_loop src/client/app/client/viewer/viewer_win32.cpp src/client/app/client/viewer/cursors.cpp
         src/client/app/client/viewer/sdl_input.cpp)
 else()
@@ -1018,12 +1018,12 @@ game_module(client_stage
     src/client/app/client/stage/sky.cpp
     src/client/app/client/stage/props.cpp)
 target_link_libraries(game_client_stage PUBLIC game_core game_xml game_scene)
-game_module(client_world src/client/app/client/world/world.cpp)
-target_link_libraries(game_client_world PUBLIC game_client_stage game_client_map game_io game_nav game_fs
-    game_collision)
 # client/cast: thực thể máy chủ cho client thấy và cách chúng chuyển động mượt; thuần logic, dùng chung PC và điện thoại.
 game_module(client_cast src/client/app/client/cast/cast.cpp)
 target_link_libraries(game_client_cast PUBLIC game_core)
+game_module(client_world src/client/app/client/world/world.cpp)
+target_link_libraries(game_client_world PUBLIC game_client_stage game_client_map game_io game_nav game_fs
+    game_collision)
 game_module(client_display ${game_client_screen})
 target_link_libraries(game_client_display PUBLIC game_core game_client_stage game_client_map
     game_client_world game_client_cast game_control)
@@ -1047,9 +1047,6 @@ if(WIN32)
 endif()
 game_module(client src/client/app/client/options.cpp src/client/app/client/assets.cpp src/client/app/client/boot.cpp)
 target_link_libraries(game_client PUBLIC game_core game_io game_client_map game_client_world)
-
-# iOS: điểm vào UIKit. Chưa build trên máy này (không có macOS). Android giữ main.cpp cho exe adb;
-# APK là thư viện riêng bên dưới.
 # client/host: việc mỗi khung của vỏ điện thoại (Android, iOS): đăng nhập trực tuyến, tin thế giới, nhạc cảnh. Dựng cả trên
 # máy tính để lỗi dịch lộ ở lượt dựng thường ngày; viewer PC không dùng nó.
 if(TARGET game_client_online)
@@ -1057,6 +1054,9 @@ if(TARGET game_client_online)
     target_link_libraries(game_client_host PUBLIC game_client_display game_client_online game_client_session
         game_client_cast game_client_world game_audio game_io game_core)
 endif()
+
+# iOS: điểm vào UIKit. Chưa build trên máy này (không có macOS). Android giữ main.cpp cho exe adb;
+# APK là thư viện riêng bên dưới.
 if(IOS)
     add_executable(thienlong_client src/client/app/client/ios_main.mm src/client/app/client/mobile_probe.cpp)
 else()
@@ -1110,9 +1110,6 @@ if(Python3_Interpreter_FOUND)
         VERBATIM)
     add_dependencies(thienlong_client thienlong_scripts)
 endif()
-# iOS chỉ chạy được exe nằm trong gói ứng dụng. Chưa build trên macOS (máy phát triển là Windows).
-if(IOS)
-    set_target_properties(thienlong_client PROPERTIES
 # Texture đã nấu ASTC 4x4 và ETC2 (TLTX) cho APK và bundle iOS, thay ảnh của vật liệu: GPU điện thoại không đọc BC, và
 # PNG giải ra RGBA8 tốn gấp bốn bộ nhớ GPU. Nấu tăng dần theo Table/mobile.files.tsv (TOOLS/run/trace_assets.py); tệp
 # không đổi thì bỏ qua.
@@ -1126,6 +1123,9 @@ if(ANDROID OR IOS)
         COMMENT "Nấu texture ASTC và ETC2 cho điện thoại"
         VERBATIM)
 endif()
+# iOS chỉ chạy được exe nằm trong gói ứng dụng. Chưa build trên macOS (máy phát triển là Windows).
+if(IOS)
+    set_target_properties(thienlong_client PROPERTIES
         MACOSX_BUNDLE TRUE
         MACOSX_BUNDLE_GUI_IDENTIFIER vn.thienlong.client
         MACOSX_BUNDLE_BUNDLE_NAME "Thiên Long Bát Bộ"
@@ -1141,21 +1141,21 @@ endif()
             "Thiếu gói shader tại ${GAME_IOS_SHADERS}. Dựng bản PC (thienlong_client) trên Windows rồi "
             "chép thư mục build/<preset>/shaders sang và đặt -DGAME_IOS_SHADERS=<thư mục đó>.")
     endif()
-    add_custom_command(TARGET thienlong_client POST_BUILD
-        COMMAND ${CMAKE_COMMAND} -E env PYTHONUTF8=1
-            python "${PROJECT_SOURCE_DIR}/android/package_apk.py"
     # Sound đã cook (.tla Opus, target cook_sound của preset PC) như APK; chưa cook thì bundle mang tệp gốc.
     set(game_ios_sound)
     if(EXISTS "${PROJECT_SOURCE_DIR}/build/cooked/sound/sound_table.xml")
         set(game_ios_sound --sound "${PROJECT_SOURCE_DIR}/build/cooked/sound")
     endif()
+    add_custom_command(TARGET thienlong_client POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E env PYTHONUTF8=1
+            python "${PROJECT_SOURCE_DIR}/android/package_apk.py"
             --stage "$<TARGET_BUNDLE_CONTENT_DIR:thienlong_client>/data"
             --data "${PROJECT_SOURCE_DIR}/dev/client/assets"
+            --baked "${GAME_MOBILE_TEXTURES}"
+            ${game_ios_sound}
         COMMAND ${CMAKE_COMMAND} -E copy_directory
             "${GAME_IOS_SHADERS}"
             "$<TARGET_BUNDLE_CONTENT_DIR:thienlong_client>/data/shaders"
-            --baked "${GAME_MOBILE_TEXTURES}"
-            ${game_ios_sound}
         COMMENT "Chép dữ liệu điện thoại và shader PC vào bundle iOS")
     add_dependencies(thienlong_client thienlong_mobile_textures)
 endif()
@@ -1204,13 +1204,13 @@ if(ANDROID)
     if(GAME_ANDROID_GATE_HOST)
         list(APPEND game_apk_assets --gate-host "${GAME_ANDROID_GATE_HOST}")
     endif()
-    add_custom_command(
-        OUTPUT "${game_apk}"
-        COMMAND ${CMAKE_COMMAND} -E env PYTHONUTF8=1
     # APK mang .so đã bỏ ký hiệu gỡ lỗi; bản đủ ở lại cây dựng cho ndk-stack.
     if(CMAKE_STRIP)
         list(APPEND game_apk_assets --strip "${CMAKE_STRIP}")
     endif()
+    add_custom_command(
+        OUTPUT "${game_apk}"
+        COMMAND ${CMAKE_COMMAND} -E env PYTHONUTF8=1
             python "${PROJECT_SOURCE_DIR}/android/package_apk.py"
             --library "$<TARGET_FILE:thienlong_activity>"
             --abi "${ANDROID_ABI}"
@@ -1346,10 +1346,10 @@ if(NOT ANDROID AND EXISTS "${PROJECT_SOURCE_DIR}/dev/client/assets/sound/sound_t
 endif()
 game_test(scene game_scene)
 game_test(map game_client_map)
+game_test(cast game_client_cast)
 if(NOT ANDROID AND EXISTS "${PROJECT_SOURCE_DIR}/dev/client/assets/Config/ScenePosDefineEx.txt")
     target_compile_definitions(map_tests PRIVATE
         "GAME_CLIENT_DATA=\"${PROJECT_SOURCE_DIR}/dev/client/assets\"")
-game_test(cast game_client_cast)
 endif()
 game_test(world game_client_world)
 game_test(transform game_scene)
@@ -1360,11 +1360,11 @@ game_test(stage game_client_stage)
 # core có bản POSIX nên test chạy trên Windows và trên thiết bị Android. Cửa sổ vẫn chỉ Windows.
 if(WIN32 OR ANDROID)
     game_test(core game_core)
+    game_test(gbk game_core)
+    game_test(governor game_core)
     game_test(log game_core)
     game_test(thread_slot game_core)
     game_test(function_fallback game_core)
-    game_test(gbk game_core)
-    game_test(governor game_core)
 endif()
 # Test chép kèm mã từ Forge2 ở các bước B2, B3. Chỉ Windows: fs_tests dùng disk, file, watcher (bản
 # Win32), shader_tests đi cùng chuỗi đồ hoạ; math_tests thuần nhưng chưa dựng thử cho Android.
@@ -1418,6 +1418,12 @@ if(GAME_HAS_GPU AND NOT ANDROID)
             target_compile_definitions(avatar_data_tests PRIVATE
                 GAME_CLIENT_DATA="${PROJECT_SOURCE_DIR}/dev/client/assets")
         endif()
+        # Bốn bảng quái và NPC (TOOLS/content/export_creatures.py) với bộ đọc của client.
+        if(EXISTS "${PROJECT_SOURCE_DIR}/dev/client/assets/Table/creature_templates.tsv")
+            game_test(creature_data game_avatar game_look game_io)
+            target_compile_definitions(creature_data_tests PRIVATE
+                GAME_CLIENT_DATA="${PROJECT_SOURCE_DIR}/dev/client/assets")
+        endif()
     endif()
 endif()
 game_test(ogre game_ogre)
@@ -1437,12 +1443,6 @@ endif()
 # (so-do/b-dinh-dang-tsv.md) và 435 tệp thật; collision_alloc_tests là G3 (Test/collision_hostile.hpp), H1, H2.
 # Thứ tự dò byte nguồn số vàng: dòng file, rồi GAME_CLIENT_DATA/Scene/<cảnh>.WCollision, rồi
 # GAME_RAW_SCENE/<cảnh>.WCollision (lingxingfeng, xihu_Valentine đọc GAME_CLIENT_DATA rồi GAME_RAW_SCENE trước);
-        # Bốn bảng quái và NPC (TOOLS/content/export_creatures.py) với bộ đọc của client.
-        if(EXISTS "${PROJECT_SOURCE_DIR}/dev/client/assets/Table/creature_templates.tsv")
-            game_test(creature_data game_avatar game_look game_io)
-            target_compile_definitions(creature_data_tests PRIVATE
-                GAME_CLIENT_DATA="${PROJECT_SOURCE_DIR}/dev/client/assets")
-        endif()
 # không có gì thì trả 77. Chưa có Model của C cũng trả 77 (CTest báo Skipped); ca hỏng vẫn trả 1. Đường dẫn là của
 # máy dựng nên Android tự bỏ qua.
 if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/Test/Collision/collision_tests.cpp")
@@ -1496,6 +1496,7 @@ game_test(building_height game_collision)
 game_test(table_localize game_table)
 game_test(table_tsv game_table)
 game_test(look game_look)
+game_test(creature game_look)
 game_test(head game_look)
 game_test(avatar game_avatar)
 game_test(control game_control)
@@ -1515,7 +1516,6 @@ if(NOT ANDROID AND EXISTS "${PROJECT_SOURCE_DIR}/dev/client/assets/Table/life_sk
         AND EXISTS "${PROJECT_SOURCE_DIR}/dev/client/assets/Table/formation_levels.tsv"
         AND EXISTS "${PROJECT_SOURCE_DIR}/dev/client/assets/Table/icons.tsv")
     target_compile_definitions(skill_tests PRIVATE
-game_test(creature game_look)
         GAME_CLIENT_DATA="${PROJECT_SOURCE_DIR}/dev/client/assets")
 endif()
 game_test(gui_value game_gui)

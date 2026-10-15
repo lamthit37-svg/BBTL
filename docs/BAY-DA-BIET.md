@@ -142,6 +142,14 @@ mục ở mục 11.
   commit với mọi `switch` trên enum đó, không thì commit trung gian dừng ở `-Wswitch` (đo
   2026-10-08: `control::InputKind::kText` và `display_gpu.cpp`). Cây cuối đúng không nói lên điều
   đó; chỉ dựng lại từng commit trong một worktree tạm mới lộ ra.
+- Đưa một phần cây làm việc vào index bằng `git diff -U0` rồi `git apply --cached --unidiff-zero` khi cây còn hunk của
+  phiên khác: git đặt dòng lệch chỗ mà không báo lỗi. Số dòng của hunk tính theo cây làm việc, còn index thì thiếu các hunk
+  kia. Đo 2026-10-15: `72f8e50b` đẩy `texture_tier` ra ngoài `HudDesc`, làm `hud.hpp` ở HEAD không dịch được, và gán
+  `hud_desc.texture_tier` sau `Hud::open`. `a54968cc` đặt `src/server/account/play.cpp` ra ngoài danh sách nguồn, làm
+  configure dừng với "Parse error. Expected a command name". Bản dựng ở cây làm việc vẫn xanh nên không ai thấy. Dùng diff có
+  ngữ cảnh (`git diff HEAD -U3`, `git apply --cached` không kèm `--unidiff-zero`: sai chỗ thì git từ chối). Hoặc dựng blob
+  HEAD + đúng phần sửa rồi `git update-index --cacheinfo`. Sau khi commit, configure và dựng HEAD trong một worktree sạch
+  (`git worktree add --detach .worktrees/<tên> HEAD`).
 - Nhánh `server` trùng tên với thư mục `SERVER` vì hệ tệp Windows không phân biệt hoa thường (đo
   2026-10-09): `git log --oneline -1 server` dừng với `fatal: ambiguous argument 'server': both
   revision and filename`. Thêm `--` sau tên nhánh: `git log --oneline -1 server --`; lệnh nhận cả
