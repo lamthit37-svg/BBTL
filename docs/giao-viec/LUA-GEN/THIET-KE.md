@@ -5,48 +5,34 @@ Chủ dự án chốt ngày 2026-10-15: thay việc port tay từng cửa sổ (
 mang ngữ nghĩa Lua (kiểu động), không phải C++ viết tay; không nhúng máy Lua. Bảy cửa sổ đã port tay giữ nguyên; số vàng
 của chúng thành ca kiểm thêm.
 
-## Đổi hướng 2026-10-15: máy ảo bytecode thay mã C++ sinh
+## Hướng chốt cuối 2026-10-15: dùng thẳng LuaPlus gốc
 
-Chủ dự án chốt cùng ngày, sau khi xem số đo cỡ mã (mục "Cỡ mã sinh"): "Quyết định lại của tôi là tối ưu lua. cho phần xử lý
-giao diện này, có thể nâng cấp lua đời mới hay cái gì bớt công sức thì làm và tốt hơn"; "cái đã làm giữ lại vào mã ref".
+LỊCH SỬ ĐỔI HƯỚNG trong một ngày, mỗi lần theo số đo: (1) sinh C++ từ script (bộ dịch + runtime tự viết, đối soát 2 060 đơn vị)
+ra 155-170 MB mã máy cho cả kho — quá nặng; (2) chủ dự án chốt bytecode + máy thông dịch tự viết — chưa viết dòng nào thì
+(3) tìm được NGUỒN C của chính LuaPlus 5.0.1 trong mã client TLBB của chủ dự án (`G:\TLBB\_ref\client\Game\Client\LuaPlus`;
+có `continue`, OP_POW là XOR). Dựng thử thành DLL và chạy trọng tài: 2 058/2 060 đơn vị trùng từng byte với `LuaPlus.dll` 2026,
+2 lệch chỉ vì CRT in NaN. Chủ dự án chốt: "Cái đó là mã của tôi lấy thẳng source sang, có gì cải tiến thì cải tiến luôn".
 
-- Lớp A không sinh C++ nữa. Script dịch lúc dựng (Python, bộ phân tích của `TOOLS/port/luagen`) ra bytecode gọn; client chạy
-  bytecode bằng một vòng thông dịch C++ trong module `lua`, gọi đúng các phép của `vm.hpp` mà runtime đã đối soát (10 835 ca).
-  Không trình biên dịch Lua nào trong client (0 script dùng `loadstring`, `dofile`).
-- Vì sao không nâng lên Lua đời mới (Lua 5.4, LuaJIT, Luau): script là phương ngữ LuaPlus 5.0.1 (`continue`, `^` là XOR,
-  bảng `arg`, `table.getn`, `string.gfind`, `math.mod`, đọc trường trên nil không lỗi). Lên bản mới phải viết lại nghĩa của
-  3 173 tệp và mất phép đối soát từng byte: thứ tự `pairs`, định dạng số, thư viện chuẩn đều khác. Phần đã có (bộ phân tích
-  khớp 24 942/24 942 chunk, runtime khớp 10 835 ca, trọng tài 2 060 đơn vị) chỉ dùng được cho đúng phương ngữ này.
-  Kiến trúc thì như cách hiện đại (Luau, Unreal sau khi bỏ Blueprint Nativization): bytecode và máy thông dịch cho mọi script,
-  mã máy chỉ cho hàm nóng đã đo — bộ phát C++ giữ ở mã tham khảo làm tầng ấy nếu cần.
-- Mã tham khảo: bộ phát C++ (`emit.py`, `generate.py`, test của nó) dời vào `TOOLS/port/luagen/ref_cpp/`, không dựng, không
-  vào ctest; ghi chú trạng thái và số đo ở `ref_cpp/GHI-CHU.md`.
-- Đối soát giữ nguyên: `thienlong_lua_mass` chạy bytecode thay mã sinh, cùng vết, cùng `oracle.tsv`.
-- Ngân sách: bytecode cả kho và máy thông dịch nhỏ hơn nguồn Lua (27,5 MB); `thienlong_lua_mass` chạy cả kho không chậm hơn
-  trọng tài trên LuaPlus.dll (6,7 s cả phần Python, đo 2026-10-15). Đo bằng số, ghi vào đây.
-
-### Tối ưu kết hợp tốc độ, dung lượng, bộ nhớ (chủ dự án hỏi "cách tối ưu nhất cả về tốc độ, dung lượng, hiệu năng có thể kết hợp")
-
-Mỗi điểm dưới là hướng thiết kế; điểm nào đổi chi phí thì đo trước và sau, không làm theo cảm giác.
-
-- Dung lượng: lệnh thanh ghi 32 bit (chọn theo số đo trần hằng, thanh ghi, nhánh mỗi proto; vượt trần thì lệnh mở rộng, như
-  Lua 5.x); một bảng chuỗi chung cho cả gói (gộp 423 387 chuỗi hằng của kho, hiện 10,4 MB chưa gộp); bảng dòng tách riêng,
-  chỉ đọc khi cần câu lỗi; gói nén zstd (đã có trong vcpkg) trong APK. Đoán trước khi đo: vài MB.
-- Tốc độ thông dịch: đường nhanh ngay trong vòng lặp cho số học và so sánh số, đọc trường bằng khoá chuỗi hằng, đọc biến toàn
-  cục (một phần tư số phép của kho là `get_global`, một phần tư là `call`): ô nhớ đệm trong lệnh (inline cache, như
-  GETGLOBAL/GETTABLEKS của Luau) giữ vị trí khe băm lần trước, kiểm lại rồi dùng, sai thì đi đường chung của `vm.hpp`.
-  Phát lệnh: `switch` trên MSVC; trên Clang (Android, iOS) thử `goto` tính toán hay `[[clang::musttail]]`, giữ cái nào nhanh
-  hơn có số.
-- Lời gọi: đối số là cửa sổ thanh ghi liền nhau, đưa thẳng thành `Args` (span), không chép; kết quả ghi thẳng vào thanh ghi
-  đích. Hàm game (lớp B) nhận đúng cửa sổ ấy.
-- Bộ nhớ: nạp gói một lần, chuỗi intern dùng chung; dịch cửa sổ nào nạp cửa sổ đó (lười theo đơn vị) nếu đo thấy nạp đầu
-  chậm hơn ngân sách nạp của client; GC chạy giữa hai khung có trần thời gian.
-- Biểu diễn `Value` 16 byte (`std::variant`) hay NaN-boxing 8 byte: đo trước trên vòng thông dịch đã chạy đúng; chỉ đổi khi
-  số đo cho thấy đáng, vì runtime đã đối soát 10 835 ca với dạng hiện tại.
-- Mã máy chỉ cho hàm nóng: bộ đo của client (bảng nhịp khung) chỉ ra hàm Lua nào tốn thời gian khung; chỉ khi ấy mới dùng bộ
-  phát C++ ở `ref_cpp/` cho đúng các hàm đó.
-
-Các mục dưới đây nói "mã sinh", "bộ phát C++" là của hướng cũ; phần ngôn ngữ nguồn, runtime, đối soát, lớp B và C vẫn đúng.
+- Máy Lua của script giao diện = chính LuaPlus, nguồn nguyên văn ở `third_party/luaplus` (NGUON.txt: nguồn, giấy phép, mục
+  "Khác gốc" — mọi vá có chú thích `Khác gốc:` tại chỗ). Bytecode của chính nó, một vòng thông dịch đã chạy 20 năm: không máy
+  thông dịch, bộ dịch bytecode hay bộ sinh C++ tự viết trong client.
+- Không nâng lên Lua đời mới (5.4, LuaJIT, Luau): script là phương ngữ LuaPlus 5.0.1 (`continue`, `^` là XOR, bảng `arg`,
+  `table.getn`, `string.gfind`, `math.mod`, đọc trường trên nil không lỗi); lên bản mới phải viết lại nghĩa của 3 173 tệp.
+- Cải tiến làm trên nền gốc, mỗi cái có số đo hay bằng chứng và một dòng "Khác gốc":
+  1. Sửa lỗi trình dịch: `computesizes` ở MSVC /O2 (đã làm, `ltable.c`).
+  2. Định dạng số cố định theo MSVCR110, độc lập CRT từng nền tảng (`luanum`): tostring/nối chuỗi, string.format, strtod,
+     math.random cho cùng chuỗi ở PC, Android, iOS.
+  3. Vỏ C++ hiện đại (RAII `lua::State`): trần heap, móc đếm lệnh cắt vòng lặp vô hạn, trần độ sâu, nạp/gọi trả `std::expected`.
+  4. Sau khi chạy đúng, đo thật rồi mới tối ưu: `TObject` đóng gói 1 byte (`pshpack1`) có chậm không; GC dừng-toàn-bộ chạy giữa
+     hai khung có ngân sách thời gian; script nạp lười theo cửa sổ. Không làm khi chưa có số.
+- Giữ làm mã tham khảo (không dựng): bộ phát C++ và bộ sinh (`TOOLS/port/luagen/ref_cpp/`), runtime tự viết
+  (`TOOLS/port/luagen/ref_cpp/runtime/`). Giữ làm công cụ kiểm: bộ phân tích Python (khớp `luaL_loadbuffer` 24 942/24 942 chunk),
+  `mass_units`, `mass_oracle`, `world.lua`, số vàng 10 835 ca của thư viện chuẩn.
+- Kiểm bản dựng của dự án so với DLL gốc: ctest `lua_oracle` (2 060 đơn vị, vết từng byte) và `lua_golden` (10 835 ca thư viện),
+  chạy ở mọi trình dịch và nền tảng dựng được.
+- Lớp B và C của bảng "Ba lớp" dưới đây vẫn là việc còn lại và là chỗ giá trị nằm; lớp A không còn việc (máy là hàng có sẵn).
+  Hàm game viết theo đúng Lua C API như `Game.exe` (không cần đổi quy ước gọi). Các mục "Runtime", "Bộ dịch", "Cỡ mã sinh",
+  "Thứ tự" bên dưới là của hướng sinh C++ đã bỏ, giữ như hồ sơ và vì chứa số đo ngôn ngữ nguồn còn đúng.
 
 ## Ba lớp
 
