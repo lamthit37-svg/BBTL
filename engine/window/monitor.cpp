@@ -13,6 +13,7 @@
 #include "window/types.hpp"
 
 #include <algorithm>
+#include <array>
 #include <cstddef>
 #include <cstdint>
 #include <iterator>
@@ -311,5 +312,122 @@ core::Status restore_display_mode(const Monitor& monitor) {
     if (status == DISP_CHANGE_SUCCESSFUL) return core::ok();
     return core::fail(core::ErrorCode::kIo, "không trả được độ phân giải cũ", "{}, mã {}", monitor.device, status);
 }
+
+namespace {
+
+// Trần một lần liệt kê: một độ phân giải có vài chục mức quét; 512 là biên khi driver trả rác.
+constexpr std::size_t kMaxModeRows = 512;
+// Các mức thử, cao nhất trước. 32 mức trên cùng một độ phân giải là quá sức một tấm nền.
+constexpr std::size_t kMaxRefreshRanks = 32;
+// Vòng EnumDisplaySettings phải có điểm dừng kể cả khi driver không bao giờ trả FALSE.
+constexpr DWORD kMaxEnumModes = 4096;
+
+struct CurrentMode {
+    std::wstring device;
+    DEVMODEW mode{};
+};
+
+// DEVMODEW là ABI của Win32: trường dm* nằm trong union (HP-07).
+// NOLINTBEGIN(cppcoreguidelines-pro-type-union-access)
+[[nodiscard]] std::optional<CurrentMode> current_of(HWND window) {
+    auto* const monitor = MonitorFromWindow(window, MONITOR_DEFAULTTONEAREST);
+    if (monitor == nullptr) return std::nullopt;
+    MONITORINFOEXW info{};
+    info.cbSize = sizeof(info);
+    if (GetMonitorInfoW(monitor, &info) == FALSE) return std::nullopt;
+    CurrentMode current;
+    current.device.assign(std::data(info.szDevice));
+    current.mode.dmSize = sizeof(current.mode);
+    if (EnumDisplaySettingsExW(current.device.c_str(), ENUM_CURRENT_SETTINGS, &current.mode, 0) == FALSE) {
+        return std::nullopt;
+    }
+    return current;
+}
+
+// Cùng rộng, cao, bpp với chế độ đang dùng, không xen kẽ. EDS_RAWMODE để mức Windows giấu
+// trong hộp thoại (tấm nền để 60 Hz) vẫn được thử; CDS_TEST loại mức driver không nhận.
+void collect_refresh(const CurrentMode& current, std::span<std::uint32_t> out, std::size_t& filled) {
+    filled = 0;
+    const DEVMODEW& now = current.mode;
+    DEVMODEW mode{};
+    mode.dmSize = sizeof(mode);
+    for (DWORD index = 0; index < kMaxEnumModes && filled < out.size(); ++index) {
+        if (EnumDisplaySettingsExW(current.device.c_str(), index, &mode, EDS_RAWMODE) == FALSE) return;
+        if (mode.dmPelsWidth != now.dmPelsWidth || mode.dmPelsHeight != now.dmPelsHeight) continue;
+        if (now.dmBitsPerPel != 0 && mode.dmBitsPerPel != now.dmBitsPerPel) continue;
+        if ((mode.dmDisplayFlags & DM_INTERLACED) != 0) continue;
+        out[filled] = mode.dmDisplayFrequency;
+        ++filled;
+    }
+}
+
+// 0 khi mức không được nhận hoặc không dính. CDS_TEST thất bại thì chưa đụng desktop.
+// Chỉ OR DM_DISPLAYFREQUENCY vào mặt nạ mà EnumDisplaySettings đã điền: ghi đè cả mặt nạ
+// bằng DM_POSITION kéo màn phụ về (0, 0) khi trường vị trí không hợp lệ.
+[[nodiscard]] std::uint32_t apply_refresh(const CurrentMode& current, std::uint32_t hz) {
+    DEVMODEW request = current.mode;
+    request.dmDisplayFrequency = hz;
+    request.dmFields |= DM_DISPLAYFREQUENCY;
+    if ((request.dmDisplayFlags & DM_INTERLACED) != 0) {
+        request.dmDisplayFlags &= ~static_cast<DWORD>(DM_INTERLACED);
+        request.dmFields |= DM_DISPLAYFLAGS;
+    }
+    const wchar_t* const device = current.device.c_str();
+    if (ChangeDisplaySettingsExW(device, &request, nullptr, CDS_TEST, nullptr) != DISP_CHANGE_SUCCESSFUL) return 0;
+    if (ChangeDisplaySettingsExW(device, &request, nullptr, CDS_FULLSCREEN, nullptr) != DISP_CHANGE_SUCCESSFUL) {
+        return 0;
+    }
+    DEVMODEW read{};
+    read.dmSize = sizeof(read);
+    const BOOL listed = EnumDisplaySettingsExW(device, ENUM_CURRENT_SETTINGS, &read, 0);
+    const bool is_higher = read.dmDisplayFrequency >= 2 && read.dmDisplayFrequency > current.mode.dmDisplayFrequency;
+    const bool stuck = listed != FALSE && is_higher;
+    if (!stuck) std::ignore = ChangeDisplaySettingsExW(device, nullptr, nullptr, 0, nullptr);
+    if (!stuck) return 0;
+    return read.dmDisplayFrequency;
+}
+
+} // namespace
+
+std::uint32_t display_refresh_hz(void* window) noexcept {
+    if (window == nullptr) return 0;
+    auto* const monitor = MonitorFromWindow(static_cast<HWND>(window), MONITOR_DEFAULTTONEAREST);
+    if (monitor == nullptr) return 0;
+    MONITORINFOEXW info{};
+    info.cbSize = sizeof(info);
+    if (GetMonitorInfoW(monitor, &info) == FALSE) return 0;
+    DEVMODEW mode{};
+    mode.dmSize = sizeof(mode);
+    if (EnumDisplaySettingsExW(std::data(info.szDevice), ENUM_CURRENT_SETTINGS, &mode, 0) == FALSE) return 0;
+    if (mode.dmDisplayFrequency < 2) return 0;
+    return mode.dmDisplayFrequency;
+}
+
+core::Result<RefreshLift> raise_refresh(void* window) {
+    if (window == nullptr) return core::fail(core::ErrorCode::kInvalidArgument, "không có cửa sổ để nâng tần số quét");
+    const std::optional<CurrentMode> current = current_of(static_cast<HWND>(window));
+    if (!current) return core::fail(core::ErrorCode::kNotFound, "không đọc được tần số quét của màn hình");
+    RefreshLift lift;
+    lift.device = core::narrow(current->device);
+    lift.before_hz = current->mode.dmDisplayFrequency;
+    std::array<std::uint32_t, kMaxModeRows> listed{};
+    std::size_t listed_count = 0;
+    collect_refresh(*current, listed, listed_count);
+    std::array<std::uint32_t, kMaxRefreshRanks> ranked{};
+    const std::span<const std::uint32_t> offered(listed.data(), listed_count);
+    const std::size_t ranks = rank_refresh(lift.before_hz, offered, ranked);
+    const std::span<const std::uint32_t> order(ranked.data(), ranks);
+    if (!order.empty()) lift.offered_hz = order.front();
+    for (const std::uint32_t hz : order) {
+        const std::uint32_t stuck = apply_refresh(*current, hz);
+        if (stuck < 2 || stuck <= lift.before_hz) continue;
+        lift.after_hz = stuck;
+        lift.changed = true;
+        return lift;
+    }
+    lift.after_hz = lift.before_hz;
+    return lift;
+}
+// NOLINTEND(cppcoreguidelines-pro-type-union-access)
 
 } // namespace game::window

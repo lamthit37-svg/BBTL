@@ -16,6 +16,8 @@
 #include "window/types.hpp"
 
 #include <cstddef>
+#include <cstdint>
+#include <span>
 #include <string>
 #include <vector>
 
@@ -65,5 +67,56 @@ struct Monitor {
 // CDS_FULLSCREEN: không ghi vào registry).
 [[nodiscard]] core::Status set_display_mode(const Monitor& monitor, Size mode);
 [[nodiscard]] core::Status restore_display_mode(const Monitor& monitor);
+
+// Kết quả nâng tần số quét. changed khi desktop đang ở after_hz và khác trước đó. offered_hz là
+// mức cao nhất cùng độ phân giải mà driver liệt kê, 0 khi không có mức nào cao hơn before_hz.
+// device là tên Windows ("\\.\DISPLAY1") để restore_display_mode trả lại chế độ trong registry.
+struct RefreshLift {
+    std::string device;
+    std::uint32_t before_hz = 0;
+    std::uint32_t after_hz = 0;
+    std::uint32_t offered_hz = 0;
+    bool changed = false;
+};
+
+// Xếp các tần số còn cao hơn current, giảm dần, không trùng. 0 và 1 là "mặc định của driver"
+// trong DEVMODE, không phải số Hertz. out đầy thì giữ các mức cao nhất. Trả số đã ghi.
+// O(n · out.size()) với n = offered.size(); n của một độ phân giải là vài chục, trần liệt kê ở
+// raise_refresh là 512.
+[[nodiscard]] constexpr std::size_t rank_refresh(std::uint32_t current, std::span<const std::uint32_t> offered,
+    std::span<std::uint32_t> out) noexcept {
+    std::size_t filled = 0;
+    for (const std::uint32_t hz : offered) {
+        if (hz < 2 || hz <= current) continue;
+        std::size_t slot = 0;
+        bool is_seen = false;
+        while (slot < filled) {
+            if (out[slot] == hz) {
+                is_seen = true;
+                break;
+            }
+            if (out[slot] < hz) break;
+            ++slot;
+        }
+        if (is_seen || slot == out.size()) continue;
+        const std::size_t last = filled < out.size() ? filled : out.size() - 1;
+        for (std::size_t index = last; index > slot; --index) {
+            out[index] = out[index - 1];
+        }
+        out[slot] = hz;
+        if (filled < out.size()) ++filled;
+    }
+    return filled;
+}
+
+// Hz của màn đang chứa cửa sổ; 0 khi không đọc được. Không đổi chế độ.
+[[nodiscard]] std::uint32_t display_refresh_hz(void* window) noexcept;
+
+// Nâng tần số quét của màn đang chứa cửa sổ lên mức cao nhất cùng độ phân giải và cùng bpp,
+// bỏ chế độ xen kẽ. Thử CDS_TEST trước rồi mới CDS_FULLSCREEN, nên mức driver từ chối không
+// làm nhấp màn. Không đổi độ phân giải, không hạ tần số, không ghi registry. Mức đã áp dụng
+// được hệ điều hành trả lại khi tiến trình thoát; gọi restore_display_mode khi thoát chủ động
+// để desktop về sớm hơn. Không có mức cao hơn thì changed = false và vẫn thành công.
+[[nodiscard]] core::Result<RefreshLift> raise_refresh(void* window);
 
 } // namespace game::window

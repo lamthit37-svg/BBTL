@@ -15,6 +15,8 @@
 
 #include <algorithm>
 #include <array>
+#include <cstddef>
+#include <cstdint>
 #include <span>
 #include <vector>
 
@@ -61,6 +63,53 @@ void recommended_size_relaxes_when_nothing_fits(Context& context) {
     constexpr std::array kOne{Size{.width = 1920, .height = 1080}};
     const Size only = window::recommended_size(monitor_with(kOne));
     context.expect(only == Size{.width = 1920, .height = 1080}, "một chế độ thì lấy chính nó");
+}
+
+constexpr std::array<std::uint32_t, 6> kOffered{60, 0, 1, 200, 120, 200};
+
+constexpr bool ranks_highest_first() {
+    std::array<std::uint32_t, 4> out{};
+    const std::size_t count = window::rank_refresh(60, kOffered, out);
+    return count == 2 && out[0] == 200 && out[1] == 120;
+}
+
+constexpr bool never_lowers() {
+    constexpr std::array<std::uint32_t, 4> offered{50, 60, 144, 60};
+    std::array<std::uint32_t, 4> out{};
+    return window::rank_refresh(144, offered, out) == 0;
+}
+
+constexpr bool keeps_highest_when_the_list_is_short() {
+    constexpr std::array<std::uint32_t, 3> offered{100, 200, 150};
+    std::array<std::uint32_t, 1> out{};
+    const std::size_t count = window::rank_refresh(60, offered, out);
+    return count == 1 && out[0] == 200;
+}
+
+constexpr bool treats_driver_default_as_absent() {
+    constexpr std::array<std::uint32_t, 3> offered{0, 1, 165};
+    std::array<std::uint32_t, 2> out{};
+    const std::size_t count = window::rank_refresh(0, offered, out);
+    return count == 1 && out[0] == 165;
+}
+
+static_assert(ranks_highest_first());
+static_assert(never_lowers());
+static_assert(keeps_highest_when_the_list_is_short());
+static_assert(treats_driver_default_as_absent());
+
+void rank_refresh_orders_higher_rates_only(Context& context) {
+    std::array<std::uint32_t, 4> out{};
+    const std::size_t count = window::rank_refresh(60, kOffered, out);
+    context.expect(count == 2 && out[0] == 200 && out[1] == 120, "200 rồi 120, bỏ 0, 1 và trùng");
+    context.expect(window::rank_refresh(200, kOffered, out) == 0, "không hạ xuống dưới mức đang dùng");
+}
+
+void raise_refresh_rejects_null_window(Context& context) {
+    const core::Result<window::RefreshLift> lifted = window::raise_refresh(nullptr);
+    context.expect(!lifted.has_value(), "không có cửa sổ thì không đổi màn");
+    if (lifted.has_value()) return;
+    context.expect(lifted.error().code() == core::ErrorCode::kInvalidArgument, "thiếu cửa sổ là đối số sai");
 }
 
 void monitors_list_starts_with_primary(Context& context) {
@@ -166,6 +215,8 @@ constexpr std::array kCases{
     Case{.name = "recommended_size_prefers_three_quarters_of_screen",
         .body = &recommended_size_prefers_three_quarters_of_screen},
     Case{.name = "recommended_size_relaxes_when_nothing_fits", .body = &recommended_size_relaxes_when_nothing_fits},
+    Case{.name = "rank_refresh_orders_higher_rates_only", .body = &rank_refresh_orders_higher_rates_only},
+    Case{.name = "raise_refresh_rejects_null_window", .body = &raise_refresh_rejects_null_window},
     Case{.name = "monitors_list_starts_with_primary", .body = &monitors_list_starts_with_primary},
     Case{.name = "window_opens_with_requested_client_size", .body = &window_opens_with_requested_client_size},
     Case{.name = "window_reports_resize_as_event", .body = &window_reports_resize_as_event},
