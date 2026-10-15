@@ -171,5 +171,7 @@ void main() {
         float depth = dot(frame.depth_row, vec4(varying_place, 1.0));
         color = mix(frame.fog_color.rgb, color, fog_share(depth));
     }
+    // kOpaqueAlpha (1024), như finish_pixel của model_ps.inc.slang.
+    if ((flags & 1024u) != 0u) alpha = 1.0;
     out_color = vec4(height_fog(color, varying_place), alpha);
 }

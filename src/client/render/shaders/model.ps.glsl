@@ -25,6 +25,8 @@ layout(std140, binding = 0) uniform FrameBlock {
 uniform highp uvec4 tl_push[8];
 
 layout(binding = 0) uniform sampler2D base_map;
+// Mặt nạ t1 của Particle_2Tex (map_bindings xếp t1 sau t0 nên ở unit 1, sampler s1 dùng chung unit ấy).
+layout(binding = 1) uniform sampler2D mask_map;
 
 layout(location = 0) in vec3 varying_normal;
 layout(location = 1) in vec2 varying_uv;
@@ -101,10 +103,15 @@ void main() {
     vec4 base_color = uintBitsToFloat(tl_push[3]);
     float alpha_cutoff = uintBitsToFloat(tl_push[5].w);
     vec4 texel = texture(base_map, varying_uv);
+    // Particle_2Tex: ảnh t1 nhân rgb và alpha, cùng UV đã cuộn. Cờ kMaskTex (512) tắt thì mặt nạ là 1.
+    bool has_mask = (flags & 512u) != 0u;
+    vec4 mask = has_mask ? texture(mask_map, varying_uv) : vec4(1.0);
     vec4 tint = (flags & 256u) != 0u ? varying_color : vec4(1.0);
-    float alpha = texel.a * base_color.a * tint.a;
+    float alpha = texel.a * mask.a * base_color.a * tint.a;
     if (alpha < alpha_cutoff) discard;
-    vec3 color = texel.rgb * base_color.rgb * tint.rgb;
+    vec3 color = texel.rgb * mask.rgb * base_color.rgb * tint.rgb;
+    // ColorX2 và ColorX4 kẹp sau khi nhân hệ số, chỉ với chất liệu có mặt nạ (như model.ps.slang).
+    if (has_mask) color = clamp(color, 0.0, 1.0);
     if ((flags & 1u) == 0u) {
         vec3 facing = varying_normal * inversesqrt(max(dot(varying_normal, varying_normal), 1.0e-12));
         vec3 light = (flags & 8u) != 0u ? diffuse_light(facing, varying_place, varying_lamp) : varying_light;

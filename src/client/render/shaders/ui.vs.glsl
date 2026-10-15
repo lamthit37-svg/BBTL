@@ -24,7 +24,10 @@ void main() {
     vec3 rgb = vec3(float((color >> 16u) & 255u), float((color >> 8u) & 255u),
                    float(color & 255u)) / 255.0;
     float alpha = float((color >> 24u) & 255u) / 255.0;
-    varying_color = vec4(pow(rgb, vec3(2.2)), alpha);
+    // Khác ui.vs.slang: không đổi sang tuyến tính. Backend GL là thiết bị màu thô (gpu/gles/device.hpp): ảnh không
+    // được giải mã sRGB và đích không mã hoá lại, nên màu đỉnh nhân thẳng với ảnh trong không gian gamma. Đổi
+    // pow 2,2 ở đây làm mọi chữ có màu tối đi (vàng (255, 242, 99) thành (255, 227, 32), đo 2026-10-15).
+    varying_color = vec4(rgb, alpha);
     varying_mask = (position - mask.xy) / mask.zw;
     varying_premultiplied = uintBitsToFloat(tl_push[0]).z;
 }
