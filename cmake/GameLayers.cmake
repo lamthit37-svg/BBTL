@@ -75,13 +75,15 @@ set(game_layer_classic "core math resource render classic")
 set(game_layer_look "core table look")
 set(game_layer_gui "core io xml table gui")
 # lua: runtime Lua 5.0.1 (LuaPlus của client 2026) cho mã C++ sinh từ script giao diện (docs/giao-viec/LUA-GEN).
-set(game_layer_lua "core lua")
+# luanum: số của script theo MSVCR110, lá của tầng; lua (runtime tự viết cũ) và ui/panel dùng, LuaPlus (C) gọi qua luanum.h.
+set(game_layer_luanum "luanum")
+set(game_layer_lua "core luanum lua")
 # luamass: đối soát hàng loạt; luagen là mã do TOOLS/port/luagen sinh vào cây dựng, không có thư mục nguồn.
 set(game_layer_luamass "core io lua luagen secure luamass")
 set(game_layer_hero "core hero")
 set(game_layer_quest "core table quest")
 set(game_layer_skill "core table skill")
-set(game_layer_ui/panel "core table gui hero quest lua ui/panel")
+set(game_layer_ui/panel "core table gui hero quest luanum ui/panel")
 # client/session: luồng nền giữ link::Link, máy trạng thái phiên và bảng cổng máy chủ. client/online: cầu nối giữa
 # chuỗi đăng nhập (ui/panel) và phiên mạng.
 set(game_layer_client/session "core net protocol secure link table client/session")

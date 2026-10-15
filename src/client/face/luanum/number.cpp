@@ -1,6 +1,6 @@
-#include "lua/number.hpp"
+#include "luanum/number.hpp"
 
-#include "lua/cformat.hpp"
+#include "luanum/cformat.hpp"
 
 #include <algorithm>
 #include <array>
@@ -14,7 +14,7 @@
 #include <string>
 #include <string_view>
 
-namespace game::lua {
+namespace game::luanum {
 namespace {
 
 // isspace của locale "C".
@@ -54,12 +54,12 @@ namespace {
 
 } // namespace
 
-std::optional<double> string_to_number(std::string_view text) {
-    text = text.substr(0, text.find('\0'));
+NumberPrefix scan_number(std::string_view text) noexcept {
     std::size_t at = 0;
     while (at < text.size() && is_space(text[at]))
         ++at;
-    const std::size_t begin = at;
+    NumberPrefix prefix;
+    prefix.begin = at;
     if (at < text.size() && is_sign(text[at])) ++at;
     const std::size_t whole = digits_at(text, at);
     at += whole;
@@ -68,13 +68,15 @@ std::optional<double> string_to_number(std::string_view text) {
         fraction = digits_at(text, at + 1);
         at += 1 + fraction;
     }
-    if (whole + fraction == 0) return std::nullopt;
+    if (whole + fraction == 0) return prefix;
     at += exponent_at(text, at);
-    const std::size_t end = at;
-    while (at < text.size() && is_space(text[at]))
-        ++at;
-    if (at != text.size()) return std::nullopt;
-    std::string number(text.substr(begin, end - begin));
+    prefix.end = at;
+    prefix.found = true;
+    return prefix;
+}
+
+double convert_number(std::string_view text, const NumberPrefix& prefix) {
+    std::string number(text.substr(prefix.begin, prefix.end - prefix.begin));
     std::ranges::replace(number, 'd', 'e');
     std::ranges::replace(number, 'D', 'E');
     errno = 0;
@@ -82,6 +84,17 @@ std::optional<double> string_to_number(std::string_view text) {
     // strtod của MSVCR110 trả +0 khi số âm nhỏ quá tràn xuống dưới mức biểu diễn (đo "-1e-400" ra "0");
     // chuỗi "-0" thì vẫn ra -0.
     return (errno == ERANGE && value == 0.0) ? 0.0 : value;
+}
+
+std::optional<double> string_to_number(std::string_view text) {
+    text = text.substr(0, text.find('\0'));
+    const NumberPrefix prefix = scan_number(text);
+    if (!prefix.found) return std::nullopt;
+    std::size_t at = prefix.end;
+    while (at < text.size() && is_space(text[at]))
+        ++at;
+    if (at != text.size()) return std::nullopt;
+    return convert_number(text, prefix);
 }
 
 std::string number_to_string(double value) {
@@ -97,4 +110,4 @@ std::string number_to_string(double value) {
     return format_double('g', FormatSpec{.precision = 14}, value);
 }
 
-} // namespace game::lua
+} // namespace game::luanum

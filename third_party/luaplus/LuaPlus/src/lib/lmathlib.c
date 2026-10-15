@@ -35,43 +35,57 @@
 #endif
 
 
+/*
+** Khác gốc (bản dựng của dự án, xem NGUON.txt): hàm toán trả NaN theo x64 ở mọi nền tảng (luanum_settle: NaN của đối số
+** thắng, không thì NaN âm "-1.#IND"), frexp theo MSVCR110, rand và srand là LCG của MSVCR110 (luanum_rand), phép tính cỡ
+** khoảng của random quấn vòng bằng số học không dấu như x64, đối số tính tuần tự từ trái sang phải.
+*/
+
 static int math_abs (lua_State *L) {
   lua_pushnumber(L, fabs(luaL_checknumber(L, 1)));
   return 1;
 }
 
 static int math_sin (lua_State *L) {
-  lua_pushnumber(L, sin(TORAD(luaL_checknumber(L, 1))));
+  lua_Number x = luaL_checknumber(L, 1);
+  lua_pushnumber(L, luanum_settle1(sin(TORAD(x)), x));
   return 1;
 }
 
 static int math_cos (lua_State *L) {
-  lua_pushnumber(L, cos(TORAD(luaL_checknumber(L, 1))));
+  lua_Number x = luaL_checknumber(L, 1);
+  lua_pushnumber(L, luanum_settle1(cos(TORAD(x)), x));
   return 1;
 }
 
 static int math_tan (lua_State *L) {
-  lua_pushnumber(L, tan(TORAD(luaL_checknumber(L, 1))));
+  lua_Number x = luaL_checknumber(L, 1);
+  lua_pushnumber(L, luanum_settle1(tan(TORAD(x)), x));
   return 1;
 }
 
 static int math_asin (lua_State *L) {
-  lua_pushnumber(L, FROMRAD(asin(luaL_checknumber(L, 1))));
+  lua_Number x = luaL_checknumber(L, 1);
+  lua_pushnumber(L, luanum_settle1(FROMRAD(asin(x)), x));
   return 1;
 }
 
 static int math_acos (lua_State *L) {
-  lua_pushnumber(L, FROMRAD(acos(luaL_checknumber(L, 1))));
+  lua_Number x = luaL_checknumber(L, 1);
+  lua_pushnumber(L, luanum_settle1(FROMRAD(acos(x)), x));
   return 1;
 }
 
 static int math_atan (lua_State *L) {
-  lua_pushnumber(L, FROMRAD(atan(luaL_checknumber(L, 1))));
+  lua_Number x = luaL_checknumber(L, 1);
+  lua_pushnumber(L, luanum_settle1(FROMRAD(atan(x)), x));
   return 1;
 }
 
 static int math_atan2 (lua_State *L) {
-  lua_pushnumber(L, FROMRAD(atan2(luaL_checknumber(L, 1), luaL_checknumber(L, 2))));
+  lua_Number x = luaL_checknumber(L, 1);
+  lua_Number y = luaL_checknumber(L, 2);
+  lua_pushnumber(L, luanum_settle2(FROMRAD(atan2(x, y)), x, y));
   return 1;
 }
 
@@ -86,32 +100,40 @@ static int math_floor (lua_State *L) {
 }
 
 static int math_mod (lua_State *L) {
-  lua_pushnumber(L, fmod(luaL_checknumber(L, 1), luaL_checknumber(L, 2)));
+  lua_Number x = luaL_checknumber(L, 1);
+  lua_Number y = luaL_checknumber(L, 2);
+  lua_pushnumber(L, luanum_settle2(fmod(x, y), x, y));
   return 1;
 }
 
 static int math_sqrt (lua_State *L) {
-  lua_pushnumber(L, sqrt(luaL_checknumber(L, 1)));
+  lua_Number x = luaL_checknumber(L, 1);
+  lua_pushnumber(L, luanum_settle1(sqrt(x), x));
   return 1;
 }
 
 static int math_pow (lua_State *L) {
-  lua_pushnumber(L, pow(luaL_checknumber(L, 1), luaL_checknumber(L, 2)));
+  lua_Number x = luaL_checknumber(L, 1);
+  lua_Number y = luaL_checknumber(L, 2);
+  lua_pushnumber(L, luanum_settle2(pow(x, y), x, y));
   return 1;
 }
 
 static int math_log (lua_State *L) {
-  lua_pushnumber(L, log(luaL_checknumber(L, 1)));
+  lua_Number x = luaL_checknumber(L, 1);
+  lua_pushnumber(L, luanum_settle1(log(x), x));
   return 1;
 }
 
 static int math_log10 (lua_State *L) {
-  lua_pushnumber(L, log10(luaL_checknumber(L, 1)));
+  lua_Number x = luaL_checknumber(L, 1);
+  lua_pushnumber(L, luanum_settle1(log10(x), x));
   return 1;
 }
 
 static int math_exp (lua_State *L) {
-  lua_pushnumber(L, exp(luaL_checknumber(L, 1)));
+  lua_Number x = luaL_checknumber(L, 1);
+  lua_pushnumber(L, luanum_settle1(exp(x), x));
   return 1;
 }
 
@@ -126,14 +148,22 @@ static int math_rad (lua_State *L) {
 }
 
 static int math_frexp (lua_State *L) {
-  int e;
-  lua_pushnumber(L, frexp(luaL_checknumber(L, 1), &e));
+  int e = 0;
+  lua_Number x = luaL_checknumber(L, 1);
+  lua_Number mantissa = 0;
+  /* MSVCR110: +0 và 0 cho cả -0; số vô hạn cho NaN âm và -1; NaN cho chính nó và -1 (đo trên LuaPlus.dll). */
+  if (x == 0) mantissa = 0;
+  else if (!isfinite(x)) { mantissa = luanum_settle1(x - x, x); e = -1; }
+  else mantissa = frexp(x, &e);
+  lua_pushnumber(L, mantissa);
   lua_pushnumber(L, e);
   return 2;
 }
 
 static int math_ldexp (lua_State *L) {
-  lua_pushnumber(L, ldexp(luaL_checknumber(L, 1), luaL_checkint(L, 2)));
+  lua_Number x = luaL_checknumber(L, 1);
+  int e = luaL_checkint(L, 2);
+  lua_pushnumber(L, luanum_settle1(ldexp(x, e), x));
   return 1;
 }
 
@@ -170,7 +200,7 @@ static int math_max (lua_State *L) {
 static int math_random (lua_State *L) {
   /* the `%' avoids the (rare) case of r==1, and is needed also because on
      some systems (SunOS!) `rand()' may return a value larger than RAND_MAX */
-  lua_Number r = (lua_Number)(rand()%RAND_MAX) / (lua_Number)RAND_MAX;
+  lua_Number r = (lua_Number)(luanum_rand()%LUANUM_RAND_MAX) / (lua_Number)LUANUM_RAND_MAX;
   switch (lua_gettop(L)) {  /* check number of arguments */
     case 0: {  /* no arguments */
       lua_pushnumber(L, r);  /* Number between 0 and 1 */
@@ -186,7 +216,8 @@ static int math_random (lua_State *L) {
       int l = luaL_checkint(L, 1);
       int u = luaL_checkint(L, 2);
       luaL_argcheck(L, l<=u, 2, "interval is empty");
-      lua_pushnumber(L, (int)floor(r*(u-l+1))+l);  /* int between `l' and `u' */
+      int span = (int)((unsigned int)u - (unsigned int)l + 1U);  /* u - l + 1 quấn vòng như x64 */
+      lua_pushnumber(L, (int)((unsigned int)(int)floor(r*span) + (unsigned int)l));  /* int between `l' and `u' */
       break;
     }
     default: return luaL_error(L, "wrong number of arguments");
@@ -196,7 +227,7 @@ static int math_random (lua_State *L) {
 
 
 static int math_randomseed (lua_State *L) {
-  srand(luaL_checkint(L, 1));
+  luanum_srand((unsigned int)luaL_checkint(L, 1));
   return 0;
 }
 

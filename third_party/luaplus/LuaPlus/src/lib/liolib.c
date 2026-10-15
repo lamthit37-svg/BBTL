@@ -530,8 +530,10 @@ static int g_write (lua_State *L, FILE *f, int arg) {
   for (; nargs--; arg++) {
     if (lua_type(L, arg) == LUA_TNUMBER) {
       /* optimization: could be done exactly as for strings */
-      status = status &&
-          fprintf(f, LUA_NUMBER_FMT, lua_tonumber(L, arg)) > 0;
+      /* Khác gốc: "%.14g" của MSVCR110 qua luanum_number2str thay fprintf của CRT máy dựng. */
+      char text[32];
+      int length = luanum_number2str(text, lua_tonumber(L, arg));
+      status = status && (fwrite(text, sizeof(char), (size_t)length, f) == (size_t)length);
     }
     else if (lua_type(L, arg) == LUA_TSTRING) {
       size_t l;

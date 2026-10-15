@@ -93,7 +93,8 @@ static int luaB_tonumber (lua_State *L) {
     char *s2;
     unsigned long n;
     luaL_argcheck(L, 2 <= base && base <= 36, 2, "base out of range");
-    n = strtoul(s1, &s2, base);
+    /* Khác gốc: strtoul của MSVCR110 (unsigned long 32 bit ở mọi nền tảng). */
+    n = luanum_strtoul(s1, &s2, base);
     if (s1 != s2) {  /* at least one valid digit? */
       while (isspace((unsigned char)(*s2))) s2++;  /* skip trailing spaces */
       if (*s2 == '\0') {  /* no invalid trailing characters? */

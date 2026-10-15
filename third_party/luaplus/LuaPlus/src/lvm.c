@@ -32,9 +32,15 @@
 
 /* function to convert a lua_Number to a string */
 #ifndef lua_number2str
-#define lua_number2str(s,n)     sprintf((s), LUA_NUMBER_FMT, (n))
+/* Khác gốc: "%.14g" của MSVCR110 (luanum_number2str: "1e+015", "1.#INF", "-1.#IND") thay sprintf của CRT máy dựng. */
+#include "luanum/luanum.h"
+#define lua_number2str(s,n)     luanum_number2str((s), (n))
 #endif
 
+
+/* Khác gốc: NaN do phép toán sinh ra từ toán hạng không phải NaN luôn là NaN âm "-1.#IND" của x64, NaN của toán hạng thắng
+** (toán hạng đầu trước), ở mọi nền tảng (ARM64 sinh NaN dương). Ép double sang unsigned qua luanum_to_uint32 (cvttsd2si 64
+** bit của MSVC x64, "5^-1" ra 4294967290) và số đếm dịch lấy 5 bit thấp: gốc dùng (unsigned int) và << của C. */
 
 /* limit for table tag-method chains (to avoid loops) */
 #define MAXTAGLOOP	100
@@ -421,10 +427,10 @@ static void Arith (lua_State *L, StkId ra,
   if ((b = luaV_tonumber(L, rb, &tempb)) != NULL &&
       (c = luaV_tonumber(L, rc, &tempc)) != NULL) {
     switch (op) {
-      case TM_ADD: setnvalue(ra, nvalue(b) + nvalue(c)); break;
-      case TM_SUB: setnvalue(ra, nvalue(b) - nvalue(c)); break;
-      case TM_MUL: setnvalue(ra, nvalue(b) * nvalue(c)); break;
-      case TM_DIV: setnvalue(ra, nvalue(b) / nvalue(c)); break;
+      case TM_ADD: setnvalue(ra, luanum_settle2(nvalue(b) + nvalue(c), nvalue(b), nvalue(c))); break;
+      case TM_SUB: setnvalue(ra, luanum_settle2(nvalue(b) - nvalue(c), nvalue(b), nvalue(c))); break;
+      case TM_MUL: setnvalue(ra, luanum_settle2(nvalue(b) * nvalue(c), nvalue(b), nvalue(c))); break;
+      case TM_DIV: setnvalue(ra, luanum_settle2(nvalue(b) / nvalue(c), nvalue(b), nvalue(c))); break;
       case TM_POW: {
         const TObject *f = luaH_getstr(hvalue(gt(L)), G(L)->tmname[TM_POW]);
         ptrdiff_t res = savestack(L, ra);
@@ -593,7 +599,7 @@ StkId luaV_execute (lua_State *L) {
         TObject *rb = RKB(i);
         TObject *rc = RKC(i);
         if (ttisnumber(rb) && ttisnumber(rc)) {
-          setnvalue(ra, nvalue(rb) + nvalue(rc));
+          setnvalue(ra, luanum_settle2(nvalue(rb) + nvalue(rc), nvalue(rb), nvalue(rc)));
         }
         else
           Arith(L, ra, rb, rc, TM_ADD);
@@ -603,7 +609,7 @@ StkId luaV_execute (lua_State *L) {
         TObject *rb = RKB(i);
         TObject *rc = RKC(i);
         if (ttisnumber(rb) && ttisnumber(rc)) {
-          setnvalue(ra, nvalue(rb) - nvalue(rc));
+          setnvalue(ra, luanum_settle2(nvalue(rb) - nvalue(rc), nvalue(rb), nvalue(rc)));
         }
         else
           Arith(L, ra, rb, rc, TM_SUB);
@@ -613,7 +619,7 @@ StkId luaV_execute (lua_State *L) {
         TObject *rb = RKB(i);
         TObject *rc = RKC(i);
         if (ttisnumber(rb) && ttisnumber(rc)) {
-          setnvalue(ra, nvalue(rb) * nvalue(rc));
+          setnvalue(ra, luanum_settle2(nvalue(rb) * nvalue(rc), nvalue(rb), nvalue(rc)));
         }
         else
           Arith(L, ra, rb, rc, TM_MUL);
@@ -623,7 +629,7 @@ StkId luaV_execute (lua_State *L) {
         TObject *rb = RKB(i);
         TObject *rc = RKC(i);
         if (ttisnumber(rb) && ttisnumber(rc)) {
-          setnvalue(ra, nvalue(rb) / nvalue(rc));
+          setnvalue(ra, luanum_settle2(nvalue(rb) / nvalue(rc), nvalue(rb), nvalue(rc)));
         }
         else
           Arith(L, ra, rb, rc, TM_DIV);
@@ -633,7 +639,7 @@ StkId luaV_execute (lua_State *L) {
         TObject *rb = RKB(i);
         TObject *rc = RKC(i);
         if (ttisnumber(rb) && ttisnumber(rc)) {
-          setnvalue(ra, (unsigned int)nvalue(rb) & (unsigned int)nvalue(rc));
+          setnvalue(ra, luanum_to_uint32(nvalue(rb)) & luanum_to_uint32(nvalue(rc)));
         }
         else
           luaG_aritherror(L, rb, rc);
@@ -643,7 +649,7 @@ StkId luaV_execute (lua_State *L) {
         TObject *rb = RKB(i);
         TObject *rc = RKC(i);
         if (ttisnumber(rb) && ttisnumber(rc)) {
-          setnvalue(ra, (unsigned int)nvalue(rb) | (unsigned int)nvalue(rc));
+          setnvalue(ra, luanum_to_uint32(nvalue(rb)) | luanum_to_uint32(nvalue(rc)));
         }
         else
           luaG_aritherror(L, rb, rc);
@@ -653,7 +659,7 @@ StkId luaV_execute (lua_State *L) {
         TObject *rb = RKB(i);
         TObject *rc = RKC(i);
         if (ttisnumber(rb) && ttisnumber(rc)) {
-          setnvalue(ra, ((unsigned int)nvalue(rb) << (unsigned int)nvalue(rc)));
+          setnvalue(ra, luanum_shl(luanum_to_uint32(nvalue(rb)), luanum_to_uint32(nvalue(rc))));
         }
         else
           luaG_aritherror(L, rb, rc);
@@ -663,7 +669,7 @@ StkId luaV_execute (lua_State *L) {
         TObject *rb = RKB(i);
         TObject *rc = RKC(i);
         if (ttisnumber(rb) && ttisnumber(rc)) {
-          setnvalue(ra, ((unsigned int)nvalue(rb) >> (unsigned int)nvalue(rc)));
+          setnvalue(ra, luanum_shr(luanum_to_uint32(nvalue(rb)), luanum_to_uint32(nvalue(rc))));
         }
         else
           luaG_aritherror(L, rb, rc);
@@ -673,7 +679,7 @@ StkId luaV_execute (lua_State *L) {
         TObject *rb = RKB(i);
         TObject *rc = RKC(i);
         if (ttisnumber(rb) && ttisnumber(rc)) {
-          setnvalue(ra, (unsigned int)nvalue(rb) ^ (unsigned int)nvalue(rc));
+          setnvalue(ra, luanum_to_uint32(nvalue(rb)) ^ luanum_to_uint32(nvalue(rc)));
         }
         else
           Arith(L, ra, rb, rc, TM_POW);

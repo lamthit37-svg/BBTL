@@ -10,9 +10,10 @@ Thành phần: Lua 5.0.1 của Tecgraf/PUC-Rio (giấy phép MIT ở cuối incl
 Leszek Buczkowski (đầu src/llex.c, src/lparser.c); OP_POW của hai số là XOR 32 bit không dấu (src/lvm.c).
 
 Đối chiếu với LuaPlus.dll của client 2026 (D:\XTLBB\Bin64), đo 2026-10-15 bằng TOOLS/port/luagen/mass_oracle.py trên một
-DLL dựng từ đúng các tệp này (MSVC, /Od, NDEBUG): 2 058/2 060 đơn vị giao diện cho vết trùng sha256 với bảng vàng
-Test/golden/lua_mass/oracle.tsv; 2 đơn vị lệch (SiXiangTu_Shop_Mbuy, ThreeCity_WarmUp_MBuy) chỉ ở chuỗi của số NaN:
-CRT của DLL gốc (MSVCR110) in `-1.#IND`, UCRT in `-nan(ind)`.
+DLL dựng từ các tệp này (MSVC, /O2): 2 060/2 060 đơn vị giao diện cho vết trùng sha256 với bảng vàng
+Test/golden/lua_mass/oracle.tsv (ctest lua_oracle, không đơn vị nào được phép lệch). Trước khi số đi qua module luanum (mục
+dưới), 2 đơn vị (SiXiangTu_Shop_Mbuy, ThreeCity_WarmUp_MBuy) lệch ở chuỗi của số NaN: CRT của DLL gốc (MSVCR110) in
+`-1.#IND`, UCRT in `-nan(ind)`.
 
 MANIFEST.sha256: sha256 của từng tệp lúc chép (dòng CRLF như ở nguồn; kho lưu LF theo .gitattributes).
 Commit đầu của thư mục này là bản nguyên văn; mọi sửa đổi sau đó liệt kê ở mục "Khác gốc" dưới đây.
@@ -27,7 +28,27 @@ Khác gốc (mỗi mục có chú thích `Khác gốc:` ngay tại chỗ sửa t
   (MSVC kéo vào qua header khác), dùng `_snwprintf` của Microsoft, và lwstrlib.c tự định nghĩa `wmemchr`/`wmemcmp` mâu thuẫn
   với libc: tệp đổi `_snwprintf` thành `swprintf` ngoài Windows và đổi tên hai hàm ấy. Kèm `LUAPLUS_HAS_WCHAR_T` (lua_WChar là
   wchar_t, đúng với các hàm w* của libc; MSVC giữ unsigned short). Đo 2026-10-15: cả 31 tệp C dịch sạch bằng Android NDK
-  (arm64, x86_64), Clang và GCC; ctest lua_oracle trên bản dựng GCC và Clang: 2 058/2 060 khớp, cùng hai đơn vị NaN như MSVC.
+  (arm64, x86_64), Clang và GCC; mass_oracle.py trên bản dựng GCC và Clang (trước khi số đi qua luanum): 2 058/2 060 khớp, cùng hai đơn vị NaN như MSVC.
+- Số của script đi qua module luanum (src/client/face/luanum, luanum.h), để PC, Android và iOS cho cùng chuỗi và cùng giá trị
+  với LuaPlus.dll dựng bằng MSVC x64 và chạy trên MSVCR110. Mỗi chỗ vá có chú thích `Khác gốc:` tại chỗ:
+  - include/lauxlib.h: luaL_checkint, luaL_checklong, luaL_optint, luaL_optlong ép bằng luanum_to_int32 (cvttsd2si 32 bit; long của
+    Windows là 32 bit, của Android và iOS 64 bit; ngoài miền hay NaN, x64 cho INT32_MIN, ARM64 dồn về hai đầu miền).
+  - src/lobject.c: lua_str2number là luanum_strtod (strtod của MSVCR110: không nhận thập lục phân, "inf", "nan"; nhận số mũ d/D).
+  - src/lvm.c: lua_number2str là luanum_number2str ("%.14g" của MSVCR110: "1e+015", "1.#INF", "-1.#IND"); cộng, trừ, nhân, chia
+    trả NaN của toán hạng (toán hạng đầu trước), không thì NaN âm mặc định (luanum_settle2; ARM64 sinh NaN dương); & | << >> ^ ép
+    toán hạng bằng luanum_to_uint32 (cvttsd2si 64 bit, "5^-1" ra 4294967290), số đếm dịch lấy 5 bit thấp.
+  - src/lib/lstrlib.c: string.format gọi luanum_format_int, _uint, _double, _text (sprintf của MSVCR110: số mũ ba chữ số, cờ '0'
+    đệm cả %s và %c, "1.#INF"); %x %o %u ép double bằng luanum_to_uint32.
+  - src/lib/lmathlib.c: hàm toán trả NaN theo luanum_settle (xem trên); frexp của MSVCR110 (±0 ra +0 và 0, số vô hạn ra NaN âm và
+    -1); random và randomseed dùng luanum_rand, luanum_srand (LCG 214013, 2531011; RAND_MAX 32767; mỗi luồng một hạt); phép
+    u - l + 1 của random(l, u) quấn vòng bằng số học không dấu như x64 (gốc là int tràn); đối số tính tuần tự từ trái sang phải.
+  - src/lib/lbaselib.c: tonumber(chuỗi, cơ số) dùng luanum_strtoul (unsigned long 32 bit ở mọi nền tảng).
+  - src/lib/liolib.c: io.write số in "%.14g" của MSVCR110.
+  Không vá, có chủ ý: chuỗi rộng (lua_WChar, lwstrlib.c, wcstod; script giao diện không dùng), io.read("*n") (fscanf),
+  tostring của bảng và hàm ("%p"; không tất định ở gốc), sin, cos, tan, asin, acos, atan, atan2, exp, log, log10, pow, fmod lấy
+  từ thư viện toán của máy dựng (chữ số thứ 17 của vài kết quả lệch MSVCR110 một ulp; chuỗi 14 chữ số không đổi), ltable.c
+  lua_number2int (kết quả ngoài miền int32 chỉ dùng để so với chính số đó nên mọi nền tảng cho cùng nhánh).
+- CMake: game_luaplus và luaplus_oracle liên kết game_luanum; không gộp a * b + c thành FMA (-ffp-contract=off) trên GCC, Clang.
 
 Dựng: third_party/luaplus/CMakeLists.txt (lõi C, không dịch lớp bọc C++ cũ, ltests.c, luiolib.c, lua.c, luac.c): game_luaplus
 (tĩnh, cho client) và luaplus_oracle (DLL, chỉ Windows, cho ctest lua_oracle).
