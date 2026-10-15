@@ -1,0 +1,46 @@
+# schema 1
+# source: server_config/NotifyDate.txt
+# tool: TOOLS/server/dialogue_i18n.py; sửa tay sẽ mất ở lượt xuất sau
+# types: int	int	int	text
+# layout: aligned
+index  	begin_date  	end_date  	info
+0      	20061224    	20061224  	Hôm nay là đêm Giáng Sinh, Thiên Long Bát Bộ chúc bạn vui vẻ.
+1      	20061225    	20061225  	Hôm nay là lễ Giáng Sinh, giữa khoảnh khắc Giáng Sinh tuyết trắng lả tả bay, Thiên Long Bát Bộ chúc bạn bình an.
+2      	20070101    	20070101  	Năm mới bắt đầu, vạn vật đổi mới, Thiên Long Bát Bộ chúc bạn trong năm mới tâm tưởng sự thành, vạn sự như ý.
+3      	20070214    	20070214  	Hôm nay là lễ Tình Nhân của phương Tây, nguyện cho những người có tình trong thiên hạ cuối cùng cũng nên duyên đôi lứa, Thiên Long Bát Bộ chúc bạn mãi mãi hạnh phúc.
+4      	20070217    	20070217  	Hôm nay là đêm Giao Thừa, đèn hoa rực rỡ, muôn nhà sum họp, Thiên Long Bát Bộ chúc bạn có một đêm Giao Thừa thật đẹp.
+5      	20070218    	20070224  	Chúc mừng năm mới, tinh thần phấn chấn như long mã, Thiên Long Bát Bộ chúc bạn năm mới mọi điều như ý, bình bình an an.
+6      	20070304    	20070304  	Tết Nguyên Tiêu náo nhiệt hội đèn hoa, Thiên Long Bát Bộ vui mừng tương phùng. Chúc bạn Tết Nguyên Tiêu vui vẻ.
+7      	20070501    	20070501  	Ngày Quốc tế Lao động mùng 1 tháng 5 đã đến, Thiên Long Bát Bộ chúc bạn mỗi ngày đều vui vẻ, vạn sự không lo.
+8      	20070513    	20070513  	Hôm nay là Ngày của Mẹ, Thiên Long Bát Bộ nhắc bạn, đừng quên gửi lời chúc mừng ngày lễ đến mẹ của bạn.
+9      	20070601    	20070601  	Hôm nay là Ngày Quốc tế Thiếu nhi, Thiên Long Bát Bộ chúc bạn mãi giữ được tấm lòng trẻ thơ vui tươi như các em nhỏ.
+10     	20070619    	20070619  	Hôm nay là Tết Đoan Ngọ, đua thuyền rồng, ăn bánh ú để tưởng nhớ nhà thơ yêu nước vĩ đại Khuất Nguyên, Thiên Long Bát Bộ chúc bạn Tết Đoan Ngọ vui vẻ.
+11     	20070617    	20070617  	Hôm nay là Ngày của Cha, Thiên Long Bát Bộ nhắc bạn, đừng quên gửi lời chúc mừng ngày lễ đến cha của bạn.
+12     	20070701    	20070701  	Hôm nay là ngày thành lập Đảng Cộng sản Trung Quốc, cũng là ngày Hồng Kông trở về với Tổ quốc, Thiên Long Bát Bộ chúc bạn ngày lễ vui vẻ.
+13     	20070707    	20070707  	Hôm nay là ngày kỷ niệm cuộc kháng chiến chống Nhật của nhân dân Trung Quốc, chớ quên lịch sử, không ngừng tự cường, mỗi người Trung Quốc hãy bắt đầu từ chính mình.
+14     	20070801    	20070801  	Hôm nay là ngày thành lập quân đội, Thiên Long Bát Bộ chúc bạn ngày lễ vui vẻ.
+15     	20070819    	20070819  	Hôm nay là ngày mùng 7 tháng 7, lễ Khất Xảo, tức lễ Tình Nhân của Trung Quốc, Thiên Long Bát Bộ chúc bạn hạnh phúc suốt đời.
+17     	20070925    	20070925  	Hoa đẹp trăng tròn, Trung Thu vui vẻ, Thiên Long Bát Bộ chúc bạn viên mãn tốt đẹp, đoàn viên sum vầy.
+18     	20071001    	20071003  	Thiên Long Bát Bộ chúc bạn Quốc Khánh vui vẻ, mong bạn trải qua kỳ nghỉ dài ngày mùng 1 tháng 10 thật vui.
+19     	20071101    	20071101  	Hôm nay là lễ Vạn Thánh (Halloween) của phương Tây, Thiên Long Bát Bộ chúc bạn ngày lễ vui vẻ.
+20     	20071122    	20071122  	Hôm nay là lễ Tạ Ơn của phương Tây, Thiên Long Bát Bộ chúc bạn ngày lễ vui vẻ.
+21     	20071224    	20071224  	Hôm nay là đêm Giáng Sinh, Thiên Long Bát Bộ chúc bạn vui vẻ.
+22     	20071225    	20071225  	Hôm nay là lễ Giáng Sinh, giữa khoảnh khắc Giáng Sinh tuyết trắng lả tả bay, Thiên Long Bát Bộ chúc bạn bình an.
+23     	20080428    	20080510  	Rước thánh hoả, giành giải lớn! Cơn sốt Olympic lan rộng không dứt, trong Thiên Long Bát Bộ sẽ tổ chức hoạt động “Rước Thánh Hoả” độc đáo. Người tham gia không chỉ nhận được nhiều phần thưởng kinh nghiệm, mà người chơi kiên trì hoàn thành hoạt động còn có cơ hội nhận giải thưởng may mắn lớn! Thời gian hoạt động: từ ngày 8 đến ngày 29 tháng 10 năm 2008, mỗi tối 19:45~22:45 tìm Thánh Hoả Đàn ở Tô Châu (91,84) để tham gia hoạt động. Cấp độ tham gia: từ cấp 10 trở lên.
+24     	20080501    	20080507  	Người chơi thân mến, chào mừng bạn đến với thế giới Thiên Long Bát Bộ. Từ ngày 1 tháng 5, mọi người chơi cấp 30 trở lên đều có thể đến chỗ Vân Phiêu Phiêu ở Đại Lý (266,127) nhận một tấm biển hiệu. Còn chờ gì nữa? Mau đến bày sạp thôi!␣
+25     	20080501    	20080503  	Hoạt động Xuân Ấm Hoa Nở sư môn tặng lễ đang diễn ra, trong thời gian hoạt động từ ngày 4 tháng 3 đến ngày 25 tháng 3, mọi người chơi đã gia nhập môn phái đều có thể đến chỗ Vân Phiêu Phiêu ở Đại Lý (265,127) tham gia hoạt động Xuân Ấm Hoa Nở sư môn tặng lễ. Phần thưởng sau khi hoàn thành hoạt động là một Chuồng Thú cấp 1, vật phẩm này giúp số lượng trân thú bạn có thể mang theo tăng thêm 1.
+28     	20080719    	20080824  	Xem Olympic, lên Sohu.
+29     	20090210    	20090216  	Ngày Lễ Tình Nhân lãng mạn đã đến, mau mau đến tìm Khâu Bích Đặc ở Lạc Dương (177,102) đi, anh ấy sẽ ban cho bạn vũ khí tình yêu bí ẩn đấy nhé!
+30     	20081204    	20090228  	Bạn vẫn còn phiền não vì trân thú lên cấp quá chậm sao? Bạn có muốn trân thú của mình trưởng thành siêu tốc không? Lạc Thiện ở (44,58) trong thành bang hội có thể giúp bạn giải quyết vấn đề này. Trân thú trưởng thành nhanh không còn là giấc mơ!
+31     	20081204    	20090228  	Bạn muốn dành cho tình yêu của mình một kỷ niệm độc đáo? Nếu cấp độ của bạn đã đạt 30, hãy mau cùng người yêu tổ đội đến chỗ Nguyệt Lão ở Lạc Dương (47,62) nhận Nhẫn Kim Cương Vĩnh Hằng có thể nâng cấp và được chúc phúc nhé!
+32     	20090125    	20090201  	Đệ tử các phái có thể đến chỗ người phát nhiệm vụ sư môn để báo danh tham gia hoạt động Sắm Tết Môn Phái trong khoảng từ 0 giờ ngày 25 tháng 1 năm 2009 đến 24 giờ ngày 1 tháng 2. Làm theo chỉ dẫn hoàn thành nhiệm vụ không chỉ nhận được kinh nghiệm mà còn có xác suất nhận được vật phẩm đặc biệt “Câu Đối Xuân”. Sau khi thu thập thành công một bộ câu đối xuân còn có thể đổi lấy phần thưởng bất ngờ đấy nhé, thời gian có hạn, mau hành động thôi!
+33     	20081215    	20081229  	Muốn có trang bị Võ Lâm Chí Tôn? Mau đến tham gia hoạt động bắt đầu từ 0 giờ ngày 15 tháng 12: Tặng Chí Tôn Chân·Trùng Lâu Ngọc! Nạp thẻ là giành ngay! Tặng Cửu Tinh Trùng Lâu Ngọc! Nạp thẻ mỗi ngày đều được tặng! Tặng Long Bài, Đại Phong, Hồng Bảo Thạch cấp 5! Ba phần quà lớn tặng mỗi ngày! Chi tiết xin truy cập trang web chính thức http://tl.sohu.com/events/czhd/index.shtml để tra cứu.
+35     	20090119    	20090226  	Người chơi thân mến, trong khoảng từ ngày 19 tháng 1 đến ngày 26 tháng 2, mỗi ngày bạn có thể đến chỗ Tôn Bát Gia ở Đại Lý (171,146) nhận một lần “Hào Quang Hài Hoà”. Hào Quang Hài Hoà có thể giúp sức chiến đấu của bạn được nâng cao tối đa trong 2 giờ tới!
+36     	20090311    	20090410  	#{TSJH_090224_1}
+37     	20090325    	20090405  	#{TWYRJ_090217_7}
+38     	20090408    	20090512  	#{TLXQC_090306_1}
+39     	20090527    	20090602  	Trong dịp Tết Đoan Ngọ, hoạt động “Bánh Ú Thơm Lừng” đã mở toàn diện! Từ ngày 27 tháng 5 năm 2009, người chơi có thể tham gia Kỳ Cục, Tặc Binh Xâm Nhập, Đánh Lén Môn Phái, Tầm Bảo Lâu Lan để nhận được “Bánh Ú Ngon”, sau khi dùng sẽ có thu hoạch bất ngờ. Đồng thời, đến chỗ Tôn Bát Gia ở Đại Lý (173,146) có thể tham gia hoạt động “Đoan Ngọ Vui Vẻ”, mỗi ngày nhận một lần hào quang tăng sức chiến đấu, giúp trò chơi nhẹ nhàng hơn.
+40     	20090801    	20090930  	Thiếu thầy hiền bạn tốt? Khao khát người tri kỷ? Giữa biển người mênh mông, bạn vẫn còn đang khổ công tìm kiếm sao? Chỉ cần nhấp vào nút “Tìm bạn” dưới ảnh đại diện là có thể dùng nền tảng tìm bạn để giúp bạn đạt được ước nguyện!
+41     	20090801    	20090930  	Không có võ công tuyệt thế, vẫn cứ hành tẩu giang hồ như thường; ngươi có bí kỹ võ học, ta có ám khí trong tay! Hệ thống ám khí hoàn toàn mới của Thiên Long Bát Bộ long trọng ra mắt! Bạn muốn luyện thành ám khí độc môn của riêng mình? Bạn muốn trở thành cao thủ ám khí uy chấn võ lâm? Hãy đến hỏi đại sư ám khí Yến Thanh ở Lạc Dương (112,202) nhé!
+42     	20090709    	20090816  	#{TLXQC_090629_1}
+43     	20090721    	20090829  	#{H1N1_090718_1}

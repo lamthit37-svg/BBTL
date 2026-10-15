@@ -1,0 +1,18 @@
+# schema 1
+# source: server_config/NotifyOnline.txt
+# tool: TOOLS/server/dialogue_i18n.py; sửa tay sẽ mất ở lượt xuất sau
+# types: int	int	int	text
+# layout: aligned
+index  	is_show  	mode  	info
+0      	1        	0     	Chào mừng bạn đến với thế giới Thiên Long Bát Bộ!
+1      	1        	4     	#WThời điểm bạn đăng nhập lần trước là #cff0000năm %d, tháng %d, ngày %d, %d giờ#W, địa chỉ IP đăng nhập: #cff0000%d.%d.%d.%d#W.
+2      	0        	0     	Thông báo tạm thời.
+3      	0        	1     	
+4      	1        	3     	Hôm nay là sinh nhật của bạn, chúc bạn sinh nhật vui vẻ!
+6      	1        	5     	#WThời điểm bạn đăng nhập lần trước là #cff0000năm %d, tháng %d, ngày %d, %d giờ#W, và có sử dụng dịch vụ proxy, địa chỉ IP đăng nhập: #cff0000%d.%d.%d.%d#W
+7      	1        	0     	Chào mừng bạn đến với “Thiên Long Bát Bộ”! Cổ đô Lâu Lan — thành chính hoàn toàn mới, nhiệm vụ mạo hiểm hoàn toàn mới, đồng minh bang hội... tất cả đều có trong bản mở rộng “Sa Mạc Mê Thành”, đang chờ bạn khám phá!
+8      	1        	0     	Nhà phát hành sẽ không chủ động yêu cầu người chơi cung cấp mật khẩu hay các thông tin khác. Xin mỗi người chơi bảo quản tài khoản cẩn thận, tuyệt đối đừng quên hay tiết lộ cho người khác!
+14     	1        	2     	
+15     	1        	0     	Người chơi thân mến, vị trí hiển thị của vàng và Giao tử trong hành trang của bạn đã được hoán đổi cho nhau. Giao tử là vàng khoá; ở mọi nơi có thể dùng Giao tử, hệ thống sẽ ưu tiên trừ Giao tử, sau khi trừ hết Giao tử mà vẫn chưa đủ thì phần còn thiếu mới trừ vào vàng. Để tìm hiểu chi tiết về Giao tử, bạn có thể tìm Dương Hy Bình ở Lạc Dương (80,152).
+16     	1        	0     	Kiểm phổ muôn hình vạn trạng, biến biến biến! Văn Ngạn Bác ở Tô Châu (168,168) đang giúp rạp hát dàn dựng vở kịch mới. Kiểm phổ của từng vai diễn đang dần định hình, mong được mượn “mặt mũi” của mọi người một phen. Đương nhiên cũng không thể thiếu phần thưởng nhé! Mỗi người mỗi ngày có thể tham gia 1 lần.
+17     	1        	0     	Chào mừng bạn đến với thế giới Thiên Long Bát Bộ! Từ nay trở đi, mọi người chơi cấp 30 trở lên đều có thể đến chỗ Tôn Bát Gia ở Đại Lý (174,145) nhận hiệu ứng Tần Hoàng Chiến Thần, hiệu ứng này sẽ tăng cường sức công kích nội công lẫn ngoại công của bạn. Còn chờ gì nữa, mau đi nhận thôi!

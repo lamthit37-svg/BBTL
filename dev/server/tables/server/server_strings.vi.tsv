@@ -1,0 +1,318 @@
+# schema 1
+# source: server_config/StringTable.txt
+# tool: TOOLS/server/dialogue_i18n.py; sửa tay sẽ mất ở lượt xuất sau
+# types: int	text
+# layout: aligned
+id   	text
+0    	Bạn đã bị người chơi %s giết chết.
+1    	Bạn đã giết %s. Vì kẻ này giết người quá nhiều nên bị trừng phạt. Trang bị trên người hắn đã rơi xuống quanh đây, hãy chú ý tìm nhặt.
+2    	@*;SrvMsg;GLD:Thương nhân #{_INFOUSR%s} của bổn bang, trong lúc làm nhiệm vụ thương nhân, chẳng may bị người của bang hội #G[%s]#W là #{_INFOUSR%s} cướp giết, số ngân phiếu và hàng hoá trị giá #{_MONEY%d} mất sạch, thật khiến người ta phiền muộn.
+3    	@*;SrvMsg;GLD:Thương nhân #{_INFOUSR%s} của bổn bang, trong lúc làm nhiệm vụ thương nhân, chẳng may bị #{_INFOUSR%s} cướp giết, số ngân phiếu và hàng hoá trị giá #{_MONEY%d} mất sạch, thật khiến người ta phiền muộn.
+4    	Bạn bị tấn công không rõ nguyên do, hiện đã vào trạng thái phòng vệ chính đáng!
+5    	Vật phẩm đã bị khoá, không thể giám định.
+6    	Danh sách mua lại
+7    	Hành trang
+8    	Đang trong trạng thái mệt mỏi, không thể nhận nhiệm vụ.
+9    	Bạn đã gửi lời mời quyết đấu thành công, đang chờ đối phương hồi đáp.
+10   	#RKhi điểm sát khí lớn hơn hoặc bằng 10, bạn sẽ bị cưỡng chế đưa vào nhà lao.
+11   	hai
+12   	ba
+13   	bốn
+14   	năm
+15   	sáu
+16   	của
+17   	Chức năng của nhân vật đã được khôi phục, xin hãy tự giác tuân thủ quy tắc trò chơi, chúc bạn chơi game vui vẻ!
+18   	#YRất tiếc phải thông báo, vì %s của bạn có #B[%s]#Y đã quá thời hạn hiệu lực nên bị hệ thống xoá bỏ.
+19   	trong túi đạo cụ
+20   	trong túi nguyên liệu
+21   	trên người
+22   	trong ngân hàng
+23   	Máy chủ đích không phản hồi
+24   	Cảnh đích đã đủ người
+25   	Bạn đang trong quá trình truyền tống
+26   	Bạn cần di chuyển một chút mới có thể truyền tống
+27   	Do dùng hack, bạn không thể truyền tống cảnh!
+28   	Bạn đang bị hạn chế tự do, không thể truyền tống, %d phút nữa sẽ được khôi phục!
+29   	Cảnh đích không khả dụng
+30   	Thành thị đích không khả dụng
+31   	Máy chủ đích đã đủ người
+32   	Máy chủ đích đang quá tải
+33   	Cảnh đích không phản hồi
+34   	Đã đạt giới hạn tối đa mà ngân phiếu này có thể chứa là #{_MONEY%d}.
+35   	Đồ đệ %s của bạn đã đóng góp cho bạn %d điểm kinh nghiệm, hãy đến chỗ người giới thiệu bái sư để nhận.
+36   	Chúc mừng, hợp thành thành công, ngộ tính trân thú của bạn +1.
+37   	#{_INFOUSR%s} #Hđã nỗ lực nâng ngộ tính của #{_INFOMSG%s} lên #Y%d#H, tăng tư chất cho trân thú.
+38   	Hợp thành thất bại, ngộ tính hiện tại của trân thú là %d.
+39   	Chức năng phát ngôn của nhân vật đã được khôi phục, xin hãy tự giác tuân thủ quy tắc trò chơi, chúc bạn chơi game vui vẻ!
+40   	Bạn cần ở trong nhà lao %d phút, đồng thời bị trừ toàn bộ kinh nghiệm hiện có!
+41   	Bạn cần ở trong nhà lao %d phút
+42   	Bạn đã bị ghi vào hồ sơ, ba lần đầu bạn có thể nhờ quản ngục cho ra ngoài tự do!
+43   	#{_INFOUSR%s} #Yđang tò mò xem xét trang bị và trân thú của bạn đấy.
+44   	Hãy nâng tất cả tâm pháp, trừ Tâm pháp thứ bảy, lên cấp 80.
+45   	#IChúc mừng, đồ đệ #W%s#I của bạn đã đạt #Gcấp %d#I. Nhưng vì độ thân mật giữa hai người là #G0#I nên không nhận được kinh nghiệm thưởng khi đồ đệ lên cấp, hãy quan tâm đồ đệ của mình nhiều hơn nhé.
+46   	Đã gia nhập bang hội cấp %d.
+47   	Bang hội đã gia nhập là bang hội cấp %d, kinh nghiệm thưởng giảm một nửa.
+48   	Chưa gia nhập bang hội, kinh nghiệm thưởng giảm một nửa.
+49   	Ưu
+50   	Khá
+51   	Kém
+52   	#IChúc mừng, đồ đệ #W%s#I của bạn đã đạt #Ycấp %d#I. %s#I Đồng thời đệ ấy đánh giá bạn là #Y%s#I, bạn sẽ nhận được #Y%d%%#I kinh nghiệm thưởng, tổng cộng nhận được #Y%d#I kinh nghiệm, hãy đến Đại Lý, tìm người lo việc bái sư là #RNhiếp Chính#I, dùng giá trị thiện ác để đổi.
+53   	#IPhụng thiên thừa vận, hoàng đế chiếu viết: #{_INFOUSR%s} #Idạy dỗ giúp đồ đệ #{_INFOUSR%s} #Ilên #Ycấp %d#I, triều đình đặc biệt thưởng #Y%d#I kinh nghiệm, khâm thử.
+54   	#ITruyền văn giang hồ, #{_INFOUSR%s} #Idạy đồ có phương pháp, đồ đệ #{_INFOUSR%s} #Idương danh lập vạn, lên đến #Ycấp %d#I, quần hùng giang hồ cùng ký tên tặng người ấy số kinh nghiệm là #Y%d.
+55   	#{_INFOUSR%s} #Ivì dạy đồ đệ #{_INFOUSR%s} #Ilên #Ycấp %d#I mà không quản nhọc nhằn, quần hùng giang hồ khâm phục không thôi, lúc cùng ký tên tặng biển còn nhất quyết tặng thêm #Y%d#I kinh nghiệm.
+56   	#IPhụng thiên thừa vận, hoàng đế chiếu viết: #W#{_INFOUSR%s} #Idạy dỗ đồ đệ #{_INFOUSR%s} #Ilên #Ycấp %d#I, lại đưa đệ ấy vào bang hội, triều đình đặc biệt thưởng #Y%d#I kinh nghiệm, khâm thử.
+57   	#ITruyền văn giang hồ, #W#{_INFOUSR%s} #Idạy đồ có phương pháp, đồ đệ #{_INFOUSR%s} #Idương danh lập vạn, lên đến #Ycấp %d#I, lại được đưa vào bang hội, quần hùng giang hồ cùng ký tên tặng người ấy số kinh nghiệm là #Y%d.
+58   	#W#{_INFOUSR%s} #Ivì dạy đồ đệ #{_INFOUSR%s} #Ilên cấp #Y%d#I và đưa đệ ấy vào bang hội mà không quản nhọc nhằn, quần hùng giang hồ cùng ký tên tặng biển còn nhất quyết tặng thêm #Y%d#I kinh nghiệm.
+59   	#IĐộ thân mật giữa sư đồ lớn hơn hoặc bằng 1000, nhận đủ kinh nghiệm thưởng.
+60   	#IVì độ thân mật giữa sư đồ chưa đủ 1000, kinh nghiệm thưởng nói trên chỉ bằng #Y%.2f%% mức kinh nghiệm thưởng đầy đủ.
+61   	Trân thú của bạn đã cao hơn cấp của bạn %d cấp, không thể nhận thêm kinh nghiệm.
+62   	Kẻ Huỷ Diệt Treo Máy
+63   	Xin lỗi, hiện chỉ có quan hệ bạn bè thông thường mới có thể kết hôn.
+64   	Xin lỗi, chỉ có quan hệ phu thê mới có thể ly hôn.
+65   	Xin lỗi, hiện chỉ có quan hệ bạn bè thông thường mới có thể bái sư.
+66   	Xin lỗi, hiện chỉ có thể thu bạn bè thông thường làm đồ đệ.
+67   	Xin lỗi, chỉ có thể thực hiện thao tác này đối với sư phụ.
+68   	Xin lỗi, chỉ có thể thực hiện thao tác này đối với đồ đệ.
+69   	Sạp tạp hoá
+70   	Tiền vốn cửa hàng của bạn đã thấp hơn 50% mức vốn cơ bản, hãy mau nạp thêm vốn, nếu không cửa hàng có nguy cơ phá sản.
+71   	Thật đáng tiếc, cửa hàng của bạn đã phá sản, số hàng còn lại trong tiệm đã bị các chủ nợ phẫn nộ khuân sạch.
+72   	#{_TIME%d}: #YBán ra #W[#R#{_ITEM%d}#W]X%d, thu được #{_MONEY%d}
+73   	#{_TIME%d}: #YBán ra #W[#R%s#W]X%d, thu được #{_MONEY%d}
+74   	#{_TIME%d}: %s #Ynhập hàng #W[#R#{_ITEM%d}#W]X%d món
+75   	#{_TIME%d}: %s #Ylấy lại #W[#R#{_ITEM%d}#W]X%d món
+76   	#{_TIME%d}: %s #Ynhập hàng #W[#R%s#W]X%d món
+77   	#{_TIME%d}: %s #Ylấy lại #W[#R%s#W]X%d món
+78   	#{_TIME%d}: %s #Yđưa lên kệ #W[#R#{_ITEM%d}#W]X%d món, giá niêm yết là#r #{_MONEY%d}
+79   	#{_TIME%d}: %s #Ygỡ khỏi kệ #W[#R#{_ITEM%d}#W]X%d món, giá niêm yết ban đầu là#r #{_MONEY%d}
+80   	#{_TIME%d}: %s #Yđưa lên kệ #W[#R%s#W]X%d món, giá niêm yết là#r #{_MONEY%d}
+81   	#{_TIME%d}: %s #Ygỡ khỏi kệ #W[#R%s#W]X%d món, giá niêm yết ban đầu là#r #{_MONEY%d}
+82   	#{_TIME%d}: %s #Ykhai trương #Wquầy thứ %d
+83   	#{_TIME%d}: %s #Yđóng cửa #Wquầy thứ %d
+84   	#{_TIME%d}: %s nạp vào #Ytiền vốn cửa hàng#r #{_MONEY%d}
+85   	#{_TIME%d}: %s nạp vào #Yquỹ lợi nhuận cửa hàng#r #{_MONEY%d}
+86   	Chào mừng bạn đến với sạp hàng này
+87   	Thông tin cá nhân không hợp lệ.
+88   	Vật phẩm này không được phép gửi vào ngân hàng!
+89   	Ngân hàng
+90   	Công trình không hợp lệ.
+91   	Vật phẩm không hợp lệ.
+92   	Hai bên chưa cùng mở tuyến thương mại, không thể giao dịch.
+93   	Ở trạng thái duy trì mức thấp, không thể thực hiện thao tác này.
+94   	Thao tác quá nhanh, cần chờ một lát.
+95   	Không có ngân phiếu, không thể mua.
+96   	Số tiền trong ngân phiếu đã đạt giới hạn, không thể mua thêm.
+97   	Không đủ tiền, không thể mua thêm.
+98   	Số tiền trong ngân phiếu không đủ, không thể mua thêm.
+99   	Bang cống không đủ, không thể mua thêm.
+100  	Hành trang không đủ chỗ, không thể mua.
+101  	Vật phẩm không tồn tại.
+102  	Không có ngân phiếu, không thể bán.
+103  	Chưa có bang hội thì không thể xin thành thị.
+104  	Đã có thành thị thì không thể xin.
+105  	Không đủ tiền.
+106  	Chỉ có bang chủ mới có thể xin thành thị.
+107  	Cấp của bạn chưa đủ 20, không thể chuyển chế độ PK
+108  	Mật khẩu cấp hai sai
+109  	Do dùng hack, bạn không thể sử dụng kỹ năng!
+110  	Bạn đang bị hạn chế tự do, %d phút nữa sẽ được khôi phục!
+111  	Bạn đã bị cấm ngôn, còn lại %d phút
+112  	#RTỉ lệ trưởng thành: %f
+113  	#RKhông tìm thấy trân thú chỉ định
+114  	Bạn không thể huỷ thủ công hiệu ứng này.
+115  	#YSố tiền của bạn đã đạt giới hạn, hãy mau xử lý; trong thời gian này đừng #Rthoát game hoặc chuyển cảnh#Y, nếu không số tiền vượt giới hạn sẽ biến mất.
+116  	Cấp bậc chưa đủ, không thể xin lập bang hội.
+117  	Không đủ tiền, không thể xin lập bang hội.
+118  	Đang trong trạng thái rời bang hội, không thể xin.
+119  	Tên không hợp lệ, không thể xin lập bang hội.
+120  	Phần mô tả không hợp lệ, không thể xin lập bang hội.
+121  	Phần mô tả không hợp lệ, không thể sửa đổi.
+122  	Nội dung chữ không hợp lệ, không thể sửa đổi.
+123  	Thông tin kết bạn không hợp lệ.
+124  	Vật phẩm này đã khoá
+125  	Không thể bỏ vào cửa hàng
+126  	Vật phẩm đã khoá
+127  	Do dùng hack, bạn không thể mở!
+128  	Bạn đang bị hạn chế tự do, không thể mở, %d phút nữa sẽ được khôi phục!
+129  	Cấp mang theo của trân thú này là %d, hiện tại bạn chưa thể mang theo.
+130  	%s đã tiếp quản cửa hàng của bạn
+131  	Đại chưởng quỹ %s
+132  	Phần mô tả không hợp lệ.
+133  	Tên cửa hàng không hợp lệ.
+134  	Trả lời chính xác, bạn nhận được phần thưởng #{_MONEY%d}!
+135  	Trả lời chính xác!
+136  	Tên trân thú không hợp lệ.
+137  	Không thể đưa lên kệ
+138  	#{_INFOUSR%s} mua #{_INFOMSG%s} X %d, tổng cộng tiêu tốn #{_MONEY%d}
+139  	#{_INFOUSR%s} mua trân thú #{_INFOMSG%s}, tổng cộng tiêu tốn #{_MONEY%d}
+140  	Hãy tháo túi hành nang đang trang bị ra trước rồi mới trang bị cái mới.
+141  	Hãy tháo hộp ngăn đang trang bị ra trước rồi mới trang bị cái mới.
+142  	Do dùng hack, bạn không thể sử dụng vật phẩm!
+143  	Hành trang đã đầy.
+144  	#-08 Bang chủ %s
+145  	Bạn đã gửi đơn xin gia nhập đến bang hội %s, xin chờ bang hội xử lý.
+146  	Bang chúng %s
+147  	Hoan nghênh bạn gia nhập %s, mong mọi người đồng lòng chung sức, cùng nhau xông pha giang hồ.
+148  	Người chơi #{_INFOUSR%s} vì vi phạm quy tắc trò chơi nên đã bị cấm ngôn %d phút.
+149  	Chức năng phát ngôn của nhân vật đã được khôi phục, xin hãy tự giác tuân thủ quy tắc trò chơi, chúc bạn chơi game vui vẻ!
+150  	Nhận trân thú thành công, bạn có thể tiếp tục cho các trân thú khác sinh sản rồi
+151  	Trân thú %s của bạn đang vui vẻ đùa giỡn cùng trân thú của %s là %s,
+152  	thêm %d phút nữa, chúng sẽ mang theo trân thú đời hai trở về bên bạn.
+153  	Bạn phải lập tổ đội cùng %s đến đây mới có thể nhận.
+154  	Đồng đội đã mất kết nối.
+155  	Không tìm thấy đồng đội...
+156  	Quỹ bang hội đã đạt giới hạn.
+157  	Nội dung đã thay đổi, hãy mở lại.
+158  	Đã đạt giới hạn trên của độ cống hiến bang hội là %d điểm, thao tác thất bại
+159  	Đã đạt giới hạn dưới của độ cống hiến bang hội là 0 điểm, thao tác thất bại
+160  	Đặt độ cống hiến bang hội thành %d điểm
+161  	Bạn nhận được %d điểm độ cống hiến bang hội
+162  	Bạn tiêu hao %d điểm độ cống hiến bang hội
+163  	Hãy gia nhập bang hội trước.
+164  	Phó bang chủ chỉ có thể xin làm bang chủ khi bang chủ đã một tuần trở lên chưa lên mạng; hình như bạn không phải phó bang chủ.
+165  	Bạn đã ở trong một bang hội, không thể xin.
+166  	Đang trong trạng thái mệt mỏi, không thể nộp nhiệm vụ.
+167  	Không tìm thấy câu hỏi này trong kho câu hỏi, hãy kiểm tra!
+168  	#{_INFOUSR%s} #Yxây dựng #R#{CityBuildingName_T%d_L%d}#Y cho bổn thành, góp gạch thêm ngói, tiến độ tăng thêm 1, còn %d lần nhiệm vụ xây dựng nữa là hoàn thành.
+169  	#{_INFOUSR%s} #Yvất vả nghiên cứu #R#{_ITEM%d}#Y cho bổn thành, tiến độ tăng thêm 1, còn %d lần nhiệm vụ nghiên cứu nữa là nghiên cứu thành công.
+170  	Giá trị công nghiệp bang hội tăng lên %d
+171  	Giá trị nông nghiệp bang hội tăng lên %d
+172  	Giá trị thương nghiệp bang hội tăng lên %d
+173  	Giá trị quốc phòng bang hội tăng lên %d
+174  	Giá trị khoa học kỹ thuật bang hội tăng lên %d
+175  	Giá trị mở rộng bang hội tăng lên %d
+176  	Quỹ bang hội tăng lên #{_MONEY%d}
+177  	#YĐộ cống hiến bang hội hiện tại của bạn là %d điểm.
+178  	Giá trị công nghiệp bang hội tăng %d
+179  	Giá trị nông nghiệp bang hội tăng %d
+180  	Giá trị thương nghiệp bang hội tăng %d
+181  	Giá trị quốc phòng bang hội tăng %d
+182  	Giá trị khoa học kỹ thuật bang hội tăng %d
+183  	Giá trị mở rộng bang hội tăng %d
+184  	Quỹ bang hội tăng #{_MONEY%d}
+185  	Quỹ bang hội giảm #{_MONEY%d}
+186  	#YĐộ cống hiến bang hội tăng %d điểm.
+187  	#YĐộ cống hiến bang hội bị trừ %d điểm.
+188  	Chúc mừng, bang hội %s mà bạn xin lập đã được tạo thành công, ID bang hội: %d. Bạn có thể dùng ALT+O hoặc vào mục “Bang hội” trong giao diện thuộc tính nhân vật để xem và quản lý bang hội của mình.#rHiện bang hội của bạn chưa có lãnh địa, bạn có thể gom 1000 vàng, hoặc dùng một Lệnh Bài Kiến Thành, đến Lạc Dương tìm “Phạm Thuần Nhân” (140,95) để xin lãnh địa bang hội. #Y(Số lượng lãnh địa có hạn, đến trước được trước.)
+189  	Bang hội %s đã từ chối đơn xin của bạn.
+190  	#B%s#W cho rằng bạn không cùng chí hướng với họ, đã trục xuất bạn khỏi #B%s#W.
+191  	Quyền hạn của bạn đã thay đổi, chúc mừng bạn trở thành bang chủ của bang hội.
+192  	Vì bang chủ bổn bang lâu ngày không lên mạng, phó bang chủ #{_INFOUSR%s} lấy sự hưng vong của bang hội làm trọng trách, đã chính thức trở thành bang chủ của bổn bang.
+193  	Do bạn đã một tuần chưa lên mạng, phó bang chủ %s vì sự hưng suy của thành thị bang hội nên đã xin trở thành chính bang chủ của bổn bang.
+194  	Bang hội #R%s#Y, thành thị #R%s#Y, đã nâng cấp thành công từ #R#{CityBuildingName_T0_L%d}#Y lên #R#{CityBuildingName_T0_L%d}#Y, vất vả cho mọi người rồi.
+195  	Thành thị của bổn bang đã nâng cấp thành công lên #{CityBuildingName_T0_L%d}, cấp %d, mong mọi người tiếp tục cố gắng, cùng nhau tạo nên ngày mai tươi đẹp.
+196  	Bổn thành hiện đang ở mức duy trì thấp, chi phí duy trì lần này là #{_MONEY%d}
+197  	Bổn thành hiện đang ở mức duy trì bình thường, chi phí duy trì lần này là #{_MONEY%d}
+198  	#YBổn thành đã nâng cấp thành công #R#{CityBuildingName_T%d_L%d}, #Ynhiệm vụ xây dựng đã kết thúc, vất vả cho mọi người rồi.
+199  	#YBổn thành đã nghiên cứu thành công #R#{_ITEM%d}#Y, vất vả cho mọi người rồi.
+200  	#IDưới sự dẫn dắt anh minh của %s#I, bang hội %s#I cuối cùng đã trở thành bá chủ một phương, chiếm lĩnh thành công lãnh địa %s#I làm thành thị bang hội.
+201  	Chúc mừng bang hội %s của bạn đã giành được lãnh địa %s làm thành thị của bang hội.
+202  	Bang hội %s có thành thị %s, vì kinh doanh không tốt nên đã bị đóng cửa.
+203  	Bang chúng
+204  	Bang chủ
+205  	Phó bang chủ
+206  	Nội vụ sứ
+207  	Công vụ sứ
+208  	Hoằng hoá sứ
+209  	Thương nhân
+210  	Tinh anh
+211  	Vì trong bảy ngày qua bang hội có chưa đến năm thành viên lên mạng, bang hội chưa đạt độ hoạt động cơ bản, nay đã bị xoá tên khỏi giang hồ; nếu cần lập lại bang hội, có thể tìm Phạm Thuần Nhân ở Lạc Dương (140,95) để xin.
+212  	Bang hội của bạn đã bị xoá tên khỏi giang hồ.
+213  	Hôm nay thời tiết đẹp quá!
+214  	Trân thú của bạn đã bắt đầu sinh sản, khoảng %d phút nữa sẽ sinh sản thành công. #GChú ý: nếu trên người chủ trân thú có trân thú đã khoá, thì khi nhận trân thú sau sinh sản, trên người cần chừa trống ít nhất hai chỗ mới có thể nhận bình thường, nếu không trân thú sẽ bị thất lạc đấy! Xin nhắc lại các vị chủ trân thú, trân thú đã khoá cần ba ngày mới mở khoá được, chỗ chứa trân thú trên người nhất định phải đủ nhé, đừng làm lỡ việc nhận trân thú sau sinh sản!!#W
+215  	Trân thú của bạn đã sinh sản thành công. Hãy đến chỗ #GTô Châu #PVân Phi Phi#W trong vòng #Y%d giờ#W sau khi sinh sản thành công để nhận trân thú con, nếu không trân thú con của lần sinh sản này sẽ bị hệ thống thu hồi. Khi nhận hãy lập tổ đội cùng #B%s#W đến nhận.#r                                %d-%d-%d  %d:%.2d
+216  	Vì bạn không kịp đến nhận trân thú đã sinh sản thành công ở đây, nó cùng hậu duệ của nó đã được chúng tôi nhận nuôi hộ, xin thông báo.
+217  	Mông Diện Đại Đạo
+218  	Chú ý: bang hội %s đã tuyên chiến với bang hội của bạn vào lúc #{_TIME%d}, trong hai giờ tới bạn sẽ ở trạng thái ứng chiến, giết thành viên bang hội đối phương sẽ không tăng điểm sát khí, nhưng sau khi chết vẫn bị trừng phạt.
+219  	Bang hội %s đã chủ động nhận lời tuyên chiến của bang ta, thật là không biết tự lượng sức! Để dương uy bang ta, ngay hôm nay, chư vị anh hùng hào kiệt hãy khoác giáp lên trận!
+220  	Bang ta sừng sững hiên ngang, hôm nay lại có kẻ đến xâm phạm, chư huynh đệ nghe lệnh, chúng ta ứng chiến với bang hội %s, cúc cung tận tuỵ, để chấn hưng bang uy!
+221  	Phong vân tế hội, long tranh hổ đấu! Bang hội #Y%s#cFF0000 một tiếng hiệu lệnh đã tuyên chiến với bang hội #Y%s#cFF0000, hai quân đối trận, kiếm tuốt cung giương, ai sẽ là bá chủ của trận chiến hôm nay, chúng ta hãy cùng chờ xem!
+222  	Keng, keng, keng! Đánh chiêng thu quân! Chư vị bang chúng xin tạm ngừng chiến đấu, trận chiến hôm nay giữa bang ta và bang hội %s vô cùng kịch liệt, đến mức người mệt ngựa mỏi, hai bên đều quyết định chỉnh đốn lại quân mã, chọn ngày tái chiến!
+223  	%s #cff0000Xin chú ý! Bang hội của bạn đang trong trạng thái tuyên chiến, nhấn nút tuyên chiến bang hội trên giao diện bang hội để xem chi tiết.
+224  	@*;SrvMsg;GLD:Chủ lực #{_INFOUSR%s} của bổn bang lại bị #{_INFOUSR%s} sát hại, thật khiến người ta phẫn nộ!
+225  	@*;SrvMsg;GLD:Chủ lực #{_INFOUSR%s} của bổn bang lại bị người của bang hội #G[%s]#W là #{_INFOUSR%s} sát hại, thật khiến người ta phẫn nộ!
+226  	#cff0000Lời nhắn bang hội: #c6699ff%s
+227  	Bạn chưa từng kết bái, không thể nhận danh hiệu kết bái.
+228  	Bạn chưa từng kết bái, không thể sửa danh hiệu kết bái.
+229  	#{_TIME%d}: Thu mua thành công nguyên liệu từ %s [#R#{_ITEM%d}#W]X%d món, số tiền thu mua là #{_MONEY%d}
+230  	trong ô nhiệm vụ
+231  	#RChúc mừng bạn đã thu mua thành công nguyên liệu #{_INFOMSG%s}, hãy đến chỗ ông chủ Cửu Châu Thương Hội ở Lạc Dương, Kiều Phục Thịnh [232,155] để nhận nguyên liệu.
+232  	Hãy nâng tất cả tâm pháp, trừ Tâm pháp thứ bảy, lên cấp 90.
+233  	Hãy nâng tất cả tâm pháp, trừ Tâm pháp thứ bảy, lên cấp 100.
+234  	Hãy nâng tất cả tâm pháp, trừ Tâm pháp thứ bảy, lên cấp 110.
+235  	Hãy nâng tất cả tâm pháp, trừ Tâm pháp thứ bảy, lên cấp 120.
+236  	Hãy nâng tất cả tâm pháp, trừ Tâm pháp thứ bảy, lên cấp 130.
+237  	#{safeboxmsg1}
+238  	Chú ý!#rKét sắt của bạn đang trong thời gian bảo vệ mở két, sẽ chính thức mở sau %d ngày nữa, #{safeboxmsg2}
+239  	Chú ý!#rKét sắt của bạn đang trong thời gian bảo vệ mở két, sẽ chính thức mở sau %d giờ %d phút nữa, #{safeboxmsg3}
+240  	Thương nhân #{_INFOUSR%s} của bổn bang, trong lúc làm nhiệm vụ thương nhân, chẳng may bị người của bang hội #G[%s]#W là #{_INFOUSR%s} cướp giết, ngân phiếu và hàng hoá mất sạch, thật khiến người ta phiền muộn.
+241  	Thương nhân #{_INFOUSR%s} của bổn bang, trong lúc làm nhiệm vụ thương nhân, chẳng may bị #{_INFOUSR%s} cướp giết, ngân phiếu và hàng hoá mất sạch, thật khiến người ta phiền muộn.
+242  	Bạn đang rút thưởng hoặc đổi Nguyên Bảo, không thể truyền tống
+243  	Tên bang hội này đã có người dùng, tạo thất bại, số tiền bạn đã bỏ ra đã được hoàn trả.
+244  	Cấp của bạn chưa đủ cấp %d, không thể đổi
+245  	Sửa tên chức vị thành công
+246  	Sửa thất bại, chưa quá 24 giờ kể từ lần sửa tên chức vị trước
+247  	Tên chức vị không hợp lệ
+248  	Quan viên
+249  	Tân nhân
+250  	Quan Nội Hầu
+251  	Đình Hầu
+252  	Hương Hầu
+253  	Huyện Hầu
+254  	Quận Hầu
+255  	Huyện Công
+256  	Quận Công
+257  	Quốc Công
+258  	Quận Vương
+259  	Thân Vương
+260  	Nhận tên chức vị thành công
+261  	Không có tên chức vị nào để nhận
+262  	Bang chủ đã sửa tên chức vị tự đặt, xin chư vị quan viên mang theo Danh Thiếp Mạ Vàng đến #GLạc Dương (200,103) #RChương Đôn#Y để nhận danh hiệu mới.
+263  	Bang chủ của bạn đã sửa tên chức vị của bạn, hãy mang theo Danh Thiếp Mạ Vàng đến #GLạc Dương (200,103) #RChương Đôn#Y để nhận danh hiệu mới.
+264  	#YBổn thành đã nâng cấp thành công lên #R#{CityBuildingName_T%d_L%d}, #Ynhiệm vụ xây dựng đã kết thúc, vất vả cho mọi người rồi.
+265  	Do chịu đả kích nặng nề vì cái chết, trang bị #{_ITEM%d} đã khoá trên người bạn bị mất.
+266  	Do chịu đả kích nặng nề vì cái chết, số lần sửa chữa của trang bị #{_ITEM%d} đã khoá trên người bạn giảm xuống còn 0.
+267  	Do chịu đả kích nặng nề vì cái chết, trang bị #{_ITEM%d} đã khoá trên người bạn bị mất.
+268  	Do chịu đả kích nặng nề vì cái chết, số lần sửa chữa của trang bị #{_ITEM%d} đã khoá trên người bạn giảm đi 1.
+269  	Do chịu đả kích nặng nề vì cái chết, trang bị #{_ITEM%d} trên người bạn đã bị rơi mất.
+270  	Do chịu đả kích nặng nề vì cái chết, #{_ITEM%d} trong hành trang của bạn đã bị rơi mất.
+271  	Do chịu đả kích nặng nề vì cái chết, #{_ITEM%d} đã khoá trong hành trang của bạn bị mất.
+272  	Do chịu đả kích nặng nề vì cái chết, #{_ITEM%d} đã khoá trong hành trang của bạn bị mất.
+273  	Tên thành thị không hợp lệ
+274  	#IGiang hồ phong vân nổi dậy, bang hội mới lập %s#I dưới sự dẫn dắt của hào kiệt một thời %s#I đã trỗi dậy như kỳ tích trong võ lâm.
+275  	Danh hiệu #Y%s#W của bạn đã quá thời hạn sử dụng, bị hệ thống thu hồi
+276  	Bạn bị người chơi %s đánh bại.
+277  	Chúc mừng bang hội %s của bạn đã chiếm thành công lãnh địa %s làm thành thị bang hội. Bạn có thể thiết lập hướng xây dựng và nghiên cứu của bang hội trong thành thị bang hội. Quỹ bang hội chủ yếu có được nhờ chạy thương, hiện bạn có thể bổ nhiệm 8 bang chúng làm thương nhân.
+278  	Chỉ có bang chủ mới có thể sửa người quản lý công việc bang hội
+279  	Sửa thất bại, dữ liệu đã hết hạn
+280  	Sửa thành công
+281  	Do nhiệm vụ được nâng lên
+282  	Do nhiệm vụ bị hạ xuống
+283  	Do nhiệm vụ không điều chỉnh nên thu nhập không đổi.
+284  	Nhận thêm bang cống
+285  	Nhận thêm tiền
+286  	Trừ bang cống từ phần thưởng
+287  	Trừ tiền từ phần thưởng
+288  	Trong vòng 24 giờ chỉ có thể quản lý nhiệm vụ bang hội một lần.
+289  	Không có bang hội này
+290  	Bang hội này không phải thành viên của đồng minh này
+291  	Trục xuất khỏi đồng minh thành công
+292  	Chỉ có minh chủ mới có thể trục xuất khỏi đồng minh
+293  	Không thể trục xuất bang hội của minh chủ
+294  	Đang bày sạp, không thể truyền tống
+295  	#{_INFOUSR%s} mua #{_INFOMSG%s} X %d, tổng cộng tiêu tốn %d Nguyên Bảo
+296  	Vật phẩm này là vật phẩm giao dịch bằng Nguyên Bảo
+297  	Sạp Nguyên Bảo
+298  	Bạn đang biến thành chiến xa, không thể truyền tống
+299  	Đang bị biến thành cừu, không thể truyền tống
+300  	#PPhong vân tế hội, long tranh hổ đấu! Bang hội #H%s#P một tiếng hiệu lệnh đã tuyên chiến với bang hội #H%s#P, bang hội #H%s#P có đủ can đảm tiếp chiến không? Hai quân đối trận, ai sẽ là bá chủ của trận chiến hôm nay? Chúng ta hãy cùng chờ xem!
+301  	#IBang ta có tin khẩn! Bang hội #H%s#I không biết trời cao đất dày, dám công khai khiêu khích, tuyên chiến với bang ta, xin bang chủ mau chóng tập hợp nhân mã, nâng cao chí khí quân ta, tăng uy thế bang ta, cho bang hội #H%s#I biết tay!
+302  	Bang hội #H%s#P đã chấp nhận lời tuyên chiến của bang hội #H%s#P, kèn lệnh chiến đấu đã vang lên! Ai có thể làm chủ chiến cục biến đổi trong chớp mắt, ai sẽ trở thành anh hùng xoay chuyển càn khôn? Chiến sĩ hỡi, hãy đến cổ chiến trường Trác Lộc giành lấy vinh quang của các bạn đi!
+303  	Bang hội #H%s#P đã khuất phục trước thực lực hùng mạnh và đấu chí ngút trời của bang hội #H%s#P, không dám ứng chiến, một trận chiến tan biến vô hình. Thiên hạ rộng lớn, lẽ nào không có bang hội nào là đối thủ của bang hội #H%s#P sao?
+304  	#IChiến tranh giữa bang ta và bang hội #H%s#I đã như tên trên dây cung, sắp bùng nổ! Để dương uy bang ta, ngay hôm nay, chư vị anh hùng hào kiệt hãy khoác giáp lên trận! Có thể vào chiến trường từ chỗ Chu Nhiên ở Lạc Dương (265,50).
+305  	#PTrong trận chiến vừa kết thúc, bang hội #H%s#P đồng lòng như thành, hợp sức đồng tâm, đánh bang hội #H%s#P tơi bời hoa lá, rụng cả răng, có thể nói là giành được đại thắng thống khoái. Các anh hùng trở về đang tề tựu ở quảng trường Lạc Dương, hãy cùng hoan hô họ!
+306  	#PTrong trận chiến vừa kết thúc, bang hội #H%s#P tài không bằng người, không địch lại bang hội #H%s#P, tự thấy không còn mặt mũi nào gặp lại phụ lão Giang Đông, thay hình đổi dạng, mặt mày lem luốc trốn ở cửa tây Lạc Dương. Đúng là tường đổ thì ai cũng xô!
+307  	Bạn đã rời bang hội, danh hiệu #Y%s#W của bạn đã mất hiệu lực.
+308  	Bang hội của bạn không sở hữu thành Lạc Dương, danh hiệu #Y%s#W của bạn đã mất hiệu lực.
+309  	#{_INFOUSR%s} mua trân thú #{_INFOMSG%s}, tổng cộng tiêu tốn %d Nguyên Bảo
+310  	Hãy hạ cánh trước rồi mới thực hiện thao tác này.
+311  	Đối phương đang bay, hãy chờ người đó hạ cánh.

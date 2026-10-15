@@ -1,3 +1,17 @@
+#===============================================================================
+#  THIENLONG  |  TOOLS
+#-------------------------------------------------------------------------------
+#  TỆP       : TOOLS/server/dialogue_text.py
+#  PHÂN HỆ   : Server / Dialogue Text
+#  CHUẨN     : Python 3.13
+#-------------------------------------------------------------------------------
+#  CHỨC NĂNG
+#  - Chữ thoại của máy chủ ở dạng văn bản: tables/server/dialogue.zh.txt.
+#-------------------------------------------------------------------------------
+#  TÁC GIẢ   : HiepHoon
+#  TELEGRAM  : @Hoon9xx
+#===============================================================================
+
 """Chữ thoại của máy chủ ở dạng văn bản: tables/server/dialogue.zh.txt.
 
 Chữ ở đây là những câu viết thẳng trong script Lua gốc (lời NPC, lựa chọn, chuỗi nhiệm vụ); đoạn thoại nằm ở khoá
@@ -41,13 +55,17 @@ OWNER = re.compile(r"\d+:-?\d+|quest:\d+")
 GROUP = "##"
 MARK = tsv_file.SPACE_MARK
 GAP = tsv_file.ALIGN_GAP
-NOTES = (
-    "# Chữ thoại của máy chủ: lời NPC, lựa chọn và chuỗi nhiệm vụ viết thẳng trong script Lua gốc.",
-    "# Nhà phát hành KHÔNG sửa tệp này (lần nâng bản sau ghi đè): chép dòng muốn đổi sang",
-    "# config/text/dialogue.zh.txt, giữ nguyên khoá, sửa chữ. Khoá trùng thì câu của config thắng.",
-    "# Mỗi dòng: khoá, dấu cách cho thẳng cột, MỘT tab, chữ. Dấu cách đầu chữ giữ nguyên; dấu cách cuối ghi bằng ␣.",
-    "# Dòng \"## <script>:<số>\" hoặc \"## quest:<số>\" mở nhóm của một script NPC hay nhiệm vụ; phần sau là nhãn.",
-)
+
+
+def notes(language: str) -> tuple[str, ...]:
+    """Các dòng chú thích đầu tệp của bản ngôn ngữ đó (tệp đè của nhà phát hành cùng tên ngôn ngữ)."""
+    return (
+        "# Chữ thoại của máy chủ: lời NPC, lựa chọn và chuỗi nhiệm vụ viết thẳng trong script Lua gốc.",
+        "# Nhà phát hành KHÔNG sửa tệp này (lần nâng bản sau ghi đè): chép dòng muốn đổi sang",
+        f"# config/text/dialogue.{language}.txt, giữ nguyên khoá, sửa chữ. Khoá trùng thì câu của config thắng.",
+        "# Mỗi dòng: khoá, dấu cách cho thẳng cột, MỘT tab, chữ. Dấu cách đầu chữ giữ nguyên; dấu cách cuối ghi bằng ␣.",
+        "# Dòng \"## <script>:<số>\" hoặc \"## quest:<số>\" mở nhóm của một script NPC hay nhiệm vụ; phần sau là nhãn.",
+    )
 
 
 class DialogueError(ValueError):
@@ -97,7 +115,7 @@ def check_ids(entries: list[Entry]) -> None:
         by_id[ident] = entry.key
 
 
-def render(entries: list[Entry], labels: dict[str, str]) -> str:
+def render(entries: list[Entry], labels: dict[str, str], language: str = "zh", tool: str = TOOL) -> str:
     """Nội dung tệp: nhóm theo chủ (script rồi nhiệm vụ), trong nhóm theo khoá. O(n log n)."""
     groups: dict[str, list[Entry]] = {}
     for entry in sorted(entries, key=lambda item: item.key):
@@ -109,10 +127,10 @@ def render(entries: list[Entry], labels: dict[str, str]) -> str:
     lines = [
         f"# schema {tsv_file.SCHEMA}",
         f"# source: {SOURCE}",
-        f"# tool: {TOOL}{tsv_file.TOOL_SUFFIX}",
+        f"# tool: {tool}{tsv_file.TOOL_SUFFIX}",
         "# types: text\ttext",
         f"{tsv_file.LAYOUT_PREFIX}aligned",
-        *NOTES,
+        *notes(language),
         f"{COLUMNS[0].ljust(width)}\t{COLUMNS[1]}",
     ]
     for owner in sorted(groups, key=_owner_order):
@@ -189,11 +207,11 @@ def labels_of(entries: list[Entry], table_dir: Path) -> dict[str, str]:
     return labels
 
 
-def write(path: Path, entries: list[Entry], labels: dict[str, str]) -> None:
-    """Ghi tệp qua tệp tạm. Tệp có sẵn mà không phải của lua_extract thì không ghi đè."""
-    if path.exists() and tsv_file.owned_tool(path) != TOOL:
-        raise DialogueError(f"{path}: không phải tệp do {TOOL} ghi")
-    text = render(entries, labels)
+def write(path: Path, entries: list[Entry], labels: dict[str, str], language: str = "zh", tool: str = TOOL) -> None:
+    """Ghi tệp qua tệp tạm. Tệp có sẵn mà không phải của công cụ `tool` thì không ghi đè."""
+    if path.exists() and tsv_file.owned_tool(path) != tool:
+        raise DialogueError(f"{path}: không phải tệp do {tool} ghi")
+    text = render(entries, labels, language, tool)
     path.parent.mkdir(parents=True, exist_ok=True)
     descriptor, temporary = tempfile.mkstemp(prefix=f"{path.name}.", suffix=".tmp", dir=path.parent)
     try:

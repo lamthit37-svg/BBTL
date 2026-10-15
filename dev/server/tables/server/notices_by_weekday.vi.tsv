@@ -1,0 +1,13 @@
+# schema 1
+# source: server_config/NotifyWeek.txt
+# tool: TOOLS/server/dialogue_i18n.py; sửa tay sẽ mất ở lượt xuất sau
+# types: int	int	text
+# layout: aligned
+index  	week  	info
+0      	0     	#PHôm nay là ngày Tào Vận, trước #Y24:00#P, thu nhập người chơi nhận được khi làm Tào Vận được nhân đôi. Xin hãy tìm #GLạc Dương (228,175) #YTào Vận Sứ Triệu Minh Thành#P hoặc #GTô Châu (234,78) #YTào Vận Sứ Lục Sĩ Tranh#P hoặc #GĐại Lý (54,192) #YTào Vận Sứ Vương Nhược Vũ#P để bắt đầu Tào Vận.
+1      	6     	#PHôm nay là ngày Thương Nhân, người chơi hoàn thành nhiệm vụ thương nhân trong bang hội sẽ nhận được thu nhập tăng lên rõ rệt. Xin hãy tìm #Gtrong thành bang hội (149,56) #YTiền Vi Nhất#P để bắt đầu đi buôn.
+2      	4     	#PHoa Sơn Luận Kiếm kỳ mới sẽ bắt đầu lúc #Y15:00#P hôm nay, xin đệ tử các môn phái đến tìm #GTô Châu (193,138) #YTô Kiếm Lĩnh#P để báo danh tham gia.
+3      	0     	#PHoa Sơn Luận Kiếm kỳ mới sẽ bắt đầu lúc #Y15:00#P hôm nay, xin đệ tử các môn phái đến tìm #GTô Châu (193,138) #YTô Kiếm Lĩnh#P để báo danh tham gia.
+4      	3     	#PĐại hội Tỷ Võ kỳ mới sẽ bắt đầu lúc #Y15:35#P hôm nay, xin các vị anh hùng đến tìm #GTô Châu (173,130) #YTuỳ Báo Minh#P để báo danh tham gia.
+5      	6     	#PĐại hội Tỷ Võ kỳ mới sẽ bắt đầu lúc #Y15:35#P hôm nay, xin các vị anh hùng đến tìm #GTô Châu (173,130) #YTuỳ Báo Minh#P để báo danh tham gia.
+6      	6     	#PHoạt động vây tiễu #Ythủ lĩnh thuỷ phỉ Kính Hồ#P sẽ bắt đầu từ #Y13:00#P chiều nay đến #Y22:00#P thì kết thúc. Nhiệm vụ này cần tổ đội từ #Y3 người#P trở lên đến #GKính Hồ (199,54)#P để tham gia, mỗi người tham gia cần #Y1 cây #WNgân Phi Lệnh Tiễn#P. #WNgân Phi Lệnh Tiễn#P xin hãy nhận tại chỗ #YQuan viên võ sự Vũ Đại Uy#P trong thành bang hội.

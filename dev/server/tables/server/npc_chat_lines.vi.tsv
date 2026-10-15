@@ -1,0 +1,18 @@
+# schema 1
+# source: server_config/NPCChat.txt
+# tool: TOOLS/server/dialogue_i18n.py; sửa tay sẽ mất ở lượt xuất sau
+# types: int	text
+# layout: aligned
+id    	chat
+1000  	Ha ha
+1001  	Xem ta dạy dỗ ngươi thế nào
+2000  	Ngươi hẳn là đang gian lận.
+2001  	Đừng chọc vào ta!
+2002  	Ta rất tức giận!
+2003  	Tức tức tức
+3000  	Ôi...
+3001  	Thật là thất bại!
+3002  	Lòng tự trọng bị tổn thương rồi, ta đi đây.
+4000  	Hì hì
+4001  	Ồ hì hì
+4002  	Ồ hì hì hì

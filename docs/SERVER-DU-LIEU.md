@@ -101,3 +101,22 @@ của client (`#{BSQZ_...}`), không ở tệp này.
 Chưa có: máy chủ chưa nạp tệp này; client chưa có chữ của các khoá `lua.*` (`assets/i18n/zh.tsv` không có khoá nào
 như vậy), nên lời NPC viết thẳng trong Lua chưa hiện được ở client. Cách đưa chữ xuống client (theo tin mạng hay theo
 gói chữ tải lúc vào game) quyết khi làm hộp thoại NPC phía client.
+
+### Bản tiếng Việt
+
+`tables/server/dialogue.vi.txt` là bản dịch của cả 2.507 câu (cùng khoá, cùng 1.181 nhóm, cùng thứ tự với bản zh). Sáu bảng
+chuỗi hệ thống có bảng anh em `<bảng>.vi.tsv` cùng cột, chỉ cột chữ đổi sang tiếng Việt: `server_strings` (312 câu),
+`notices_on_login`, `notices_by_weekday`, `notices_by_date`, `rolling_announcements`, `npc_chat_lines` (79 câu). Chủ dự án giao
+ngày 2026-10-15: tiếng Việt có dấu chuẩn, văn phong võ hiệp cổ điển đúng chất Thiên Long Bát Bộ bản FPT. Quy ước đã dùng: dấu thanh
+kiểu cũ như `assets/i18n/vi.tsv` (hoà, thuỷ, tuỳ), tên theo `assets/i18n/glossary.tsv` và theo tên mà client đang hiển thị (item,
+kỹ năng, nội công, cảnh), NPC xưng "ngươi/các hạ", chuỗi hệ thống xưng "bạn", cặp câu hai giới giữ song song (`Thiếu hiệp {0}` và
+`Cô nương {0}`), tên nhiệm vụ viết hoa từng âm tiết, môn phái viết "Thiếu Lâm phái".
+
+Cổng: `python -X utf8 TOOLS/server/dialogue_i18n.py check <zh> <vi>` (thẻ màu, `#{...}`, chỗ điền `%s %d {0} $N`, dấu cách đầu và
+cuối, chữ Hán sót, NFC; thứ tự chỗ điền không được đảo vì máy chủ điền lần lượt), `terms` (thuật ngữ của glossary, chỉ cảnh báo),
+`build <ngôn ngữ> <tệp phần>...` và `tables <ngôn ngữ> <tệp phần>...` (gộp phần dịch rồi ghi, kiểm trước, có lỗi thì không ghi).
+Bản vi là nguồn của chữ Việt: sửa chữ thì sửa thẳng tệp (dòng `# tool:` chỉ để công cụ nhận tệp của nó). Khi `lua_extract.py` sinh
+lại bản zh, `test_dialogue_i18n.py` đỏ cho tới khi bản vi có đủ khoá mới.
+
+Chưa có: máy chủ chưa chọn ngôn ngữ lúc chạy, vì chưa nạp tệp chữ nào (mục 3). Bộ nạp làm cùng lượt với tính năng đầu tiên đọc
+chữ thoại: đọc `dialogue.<ngôn ngữ>.txt`, rồi tệp đè `config/text/dialogue.<ngôn ngữ>.txt`.
