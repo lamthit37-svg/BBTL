@@ -487,7 +487,12 @@ def list_text(collector: Collector, made: list[str]) -> str:
 # các dòng của bảng và cỡ đã chép theo loại; thứ thiếu nằm ở collector.missing.
 def collect(collector: Collector, scenes: list[str]) -> tuple[Wanted, list[Row], Counter]:
     wanted = Wanted()
-    for path in scene_paths(collector.target, scenes):
+    paths = scene_paths(collector.target, scenes)
+    if not paths:
+        folder = os.path.join(collector.target, SCENE_FOLDER)
+        collector.missing.append(("scene", os.path.join(folder, "*.Scene") + " (chạy collect_map.py gom .Scene trước: "
+                                  "python collect_map.py <_raw> <_glb> <dữ liệu client> <tên map> rồi mới chạy collect_fx.py)"))
+    for path in paths:
         if os.path.isfile(path):
             add_scene(wanted, path)
         else:
