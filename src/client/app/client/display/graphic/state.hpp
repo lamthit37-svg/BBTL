@@ -14,6 +14,7 @@
 
 #pragma once
 #include "client/display/graphic/prelude.hpp"
+#include "core/governor.hpp"
 #include "motion/jump.hpp"
 
 #include <random>
@@ -157,6 +158,9 @@ struct Display::State {
     void record_interval(IntervalNote note);
     void ensure_clock();
     void hold_pace(double spent_ms);
+    // Điện thoại: trần khung theo năng lực đo được (core::RateGovernor). Gọi mỗi khung sau khi có khoảng cách khung.
+    void govern_rate(double interval_ms);
+    void hold_governed_rate();
     // Ngân sách một khung của bảng đo, ms; 0 khi chưa biết gì.
     [[nodiscard]] float frame_budget_ms() const noexcept;
     // --walk: thay phím đi của khung bằng "giữ W" và xoay hướng nhìn theo thời gian khung.
@@ -437,6 +441,12 @@ struct Display::State {
     std::deque<Crowd> crowds;
     ui::PaceOverlay pace_board;
     std::optional<core::FixedStep> frame_clock;
+    // Điện thoại: bộ chọn trần khung, dựng lại khi tần số quét hay trần hạng máy đổi. Chỉ luồng vẽ đụng.
+    std::optional<core::RateGovernor> governor;
+    double governed_refresh = 0.0;
+    std::uint32_t governed_ceiling = 0;
+    // Mốc khung kế tiếp được phép bắt đầu khi trần thấp hơn nhịp quét.
+    core::Clock::time_point governed_deadline{};
     std::optional<core::FixedStep> sim_clock;
     std::uint32_t render_hz = 120;
     // Display::set_refresh: tần số quét của màn, Hz; 0 là chưa biết. Luồng cửa sổ ghi, luồng vẽ đọc.

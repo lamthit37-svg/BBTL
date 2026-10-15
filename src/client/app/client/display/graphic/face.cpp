@@ -384,8 +384,43 @@ void Display::State::ensure_clock() {
     frame_clock = *made;
 }
 
+// Điện thoại không có ngân sách cố định: màn 120 Hz không bảo đảm máy vẽ nổi 120 khung. Trần bắt đầu ở mức vững rồi
+// tự nâng khi khung còn dư sức (core/governor.hpp). Chưa biết tần số quét thì không giới hạn, Fifo tự khoá nhịp.
+void Display::State::govern_rate(double interval_ms) {
+    const double refresh = refresh_hz.load(std::memory_order_relaxed);
+    if (refresh <= 0.0) return;
+    if (!governor || governed_refresh != refresh || governed_ceiling != render_hz) {
+        governed_refresh = refresh;
+        governed_ceiling = render_hz;
+        governor.emplace(core::GovernorConfig{.refresh_hz = refresh, .ceiling_hz = render_hz});
+        governed_deadline = core::Clock::now();
+        return;
+    }
+    // Việc thật của khung: nạp, dựng bảng, ghi lệnh. Không gồm xin ảnh và trình bày, chỗ khung chờ nhịp quét.
+    const double busy_ms = last_load_ms + last_prepare_ms + static_cast<double>(pace_last.draw_ms);
+    if (governor->note_frame({.interval_ms = interval_ms, .busy_ms = busy_ms})) {
+        governed_deadline = core::Clock::now();
+    }
+}
+
+// Trần thấp hơn nhịp quét thì ngủ tới mốc kế tiếp (lưới đều, không trôi); bằng nhịp quét thì để Fifo khoá nhịp.
+void Display::State::hold_governed_rate() {
+    if (!governor) return;
+    const double target = governor->target_hz();
+    if (target >= governed_refresh * 0.99) return;
+    const core::Clock::time_point now = core::Clock::now();
+    const auto period = std::chrono::duration_cast<core::Clock::duration>(std::chrono::duration<double>(1.0 / target));
+    governed_deadline += period;
+    // Khung trễ quá một chu kỳ: bắt đầu lưới mới từ bây giờ, không ngủ bù để đuổi.
+    if (governed_deadline + period < now) governed_deadline = now;
+    if (governed_deadline > now) core::sleep_until(governed_deadline);
+}
+
 void Display::State::hold_pace(double spent_ms) {
-    if constexpr (ui::kPhone) return;
+    if constexpr (ui::kPhone) {
+        hold_governed_rate();
+        return;
+    }
     // Fifo đã chờ nhịp quét trong lúc xin ảnh và trình: ngủ thêm theo đồng hồ riêng chỉ làm khung trượt
     // khỏi nhịp quét. Đồng hồ trần chỉ còn cho bề mặt không có Fifo (driver từ chối, trình ngay).
     if (screen->swapchain()->present_mode() == gpu::PresentMode::kFifo) return;
@@ -406,6 +441,8 @@ void Display::State::hold_pace(double spent_ms) {
 float Display::State::frame_budget_ms() const noexcept {
     const double rate = refresh_hz.load(std::memory_order_relaxed);
     const bool is_fifo = screen != nullptr && screen->swapchain()->present_mode() == gpu::PresentMode::kFifo;
+    // Điện thoại có trần tự chọn: khung đạt ngân sách khi giữ được trần đó, không phải mọi nhịp quét.
+    if (ui::kPhone && governor) return static_cast<float>(1000.0 / governor->target_hz());
     if (is_fifo && rate > 0.0) return static_cast<float>(1000.0 / rate);
     return render_hz > 0 ? 1000.0F / static_cast<float>(render_hz) : 0.0F;
 }

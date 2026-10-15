@@ -401,6 +401,7 @@ bool Display::State::turn(core::Clock::time_point& previous) {
     note.interval = std::chrono::duration<double, std::milli>(now - previous).count();
     note.render_ms = render_ms;
     note.pace_ms = pace_ms;
+    if constexpr (ui::kPhone) govern_rate(note.interval);
     record_interval(note);
     previous = now;
     publish();

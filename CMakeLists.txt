@@ -160,6 +160,7 @@ set(game_core_sources
     engine/core/clock.cpp
     engine/core/error.cpp
     engine/core/gbk.cpp
+    engine/core/governor.cpp
     engine/core/log.cpp
     engine/core/log_sink.cpp
     engine/core/range.cpp
@@ -1363,6 +1364,7 @@ if(WIN32 OR ANDROID)
     game_test(thread_slot game_core)
     game_test(function_fallback game_core)
     game_test(gbk game_core)
+    game_test(governor game_core)
 endif()
 # Test chép kèm mã từ Forge2 ở các bước B2, B3. Chỉ Windows: fs_tests dùng disk, file, watcher (bản
 # Win32), shader_tests đi cùng chuỗi đồ hoạ; math_tests thuần nhưng chưa dựng thử cho Android.
