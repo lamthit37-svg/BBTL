@@ -1,4 +1,4 @@
 // 1 is the client icon (assets/icon1.ico). 2 is the title-bar icon (assets/icon2.ico).
 // The same numbers are kClientIcon and kTitleIcon in window.cpp.
-1 ICON "../../assets/icon1.ico"
-2 ICON "../../assets/icon2.ico"
+1 ICON "../../../../assets/icon1.ico"
+2 ICON "../../../../assets/icon2.ico"
