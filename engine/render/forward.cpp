@@ -556,6 +556,7 @@ struct Forward::State {
     // Gán Item::range cho mọi lệnh: mức chi tiết theo budget, nâng bias cho tới khi tổng tam giác nằm trong trần.
     void choose_lods();
     [[nodiscard]] std::uint64_t assign_ranges(float bias);
+    [[nodiscard]] float lowest_bias(std::uint64_t cap, float from);
     void emit(gpu::CommandList& list, const Slot& slot) const;
 
     gpu::Device* device = nullptr;
@@ -576,6 +577,8 @@ struct Forward::State {
     float focal_px = 0.0F;
     // Hệ số thô hoá mức chi tiết của khung trước (>= 1): giảm từ từ để cảnh không nhấp nháy giữa hai mức.
     float lod_bias = 1.0F;
+    // Số khung từ lần nới LOD gần nhất mà cảnh đã dưới trần; xem choose_lods.
+    std::uint32_t ease_frames = 0;
     // Tổng tam giác của khung vừa chọn mức (đã nhân bản sao), để báo cáo.
     std::uint64_t drawn_triangles = 0;
     // Bản sao còn thấy của instance đang gom, theo thứ tự ghi vào buffer worlds, kèm đèn của từng
@@ -1176,13 +1179,45 @@ std::uint64_t Forward::State::assign_ranges(float bias) {
     return total;
 }
 
+// Hệ số LOD nhỏ nhất trong [1, from] mà tổng tam giác không quá cap, tìm nhị phân theo tỉ lệ (tổng giảm dần theo hệ số).
+// Tiền điều kiện: ở hệ số from tổng đã không quá cap. assign_ranges chỉ tốn vài phép tính mỗi lệnh vẽ nên chạy hai
+// chục lần vẫn rẻ hơn một lệnh vẽ.
+float Forward::State::lowest_bias(std::uint64_t cap, float from) {
+    constexpr int kSteps = 24;
+    if (assign_ranges(1.0F) <= cap) return 1.0F;
+    float low = 1.0F;
+    float high = from;
+    for (int step = 0; step < kSteps; ++step) {
+        const float middle = std::sqrt(low * high);
+        if (assign_ranges(middle) <= cap) {
+            high = middle;
+        } else {
+            low = middle;
+        }
+    }
+    return high;
+}
+
+// Chọn đoạn chỉ số (mức LOD) của từng lệnh vẽ sao cho tổng tam giác không quá trần. Hệ số lod_bias giữ nguyên giữa các
+// khung để mức chi tiết không nhảy qua lại: chỉ tăng khi vượt trần (nhân kLodStep cho tới khi vừa), và chỉ nới (tìm lại
+// hệ số nhỏ nhất vừa trần) mỗi kEasePeriod khung khi tổng đã thấp hơn 90% trần. Đo 2026-10-16 trên tablet: cách cũ, hạ
+// 10% mỗi khung rồi tăng 15% tới khi vừa, làm 177 lệnh vẽ đổi mức trong 120 khung (chớp ở vật thể xa); cách này gần 0.
 void Forward::State::choose_lods() {
+    constexpr float kLodStep = 1.15F;
+    constexpr std::uint32_t kEasePeriod = 60;
+    constexpr double kLooseShare = 0.9;
+    constexpr double kEaseShare = 0.95;
     const std::uint32_t cap = desc.triangle_cap;
-    // Mỗi khung thử từ hệ số nhỏ hơn khung trước một chút, nên cảnh nhẹ lại thì chi tiết trở về dần.
-    float bias = std::max(1.0F, lod_bias * 0.9F);
+    float bias = std::max(1.0F, lod_bias);
     std::uint64_t total = assign_ranges(bias);
     while (cap != 0 && total > cap && bias < kMaxLodBias) {
-        bias *= 1.15F;
+        bias *= kLodStep;
+        total = assign_ranges(bias);
+    }
+    const bool is_loose = cap != 0 && bias > 1.0F && static_cast<double>(total) < static_cast<double>(cap) * kLooseShare;
+    if (is_loose && ++ease_frames >= kEasePeriod) {
+        ease_frames = 0;
+        bias = lowest_bias(static_cast<std::uint64_t>(static_cast<double>(cap) * kEaseShare), bias);
         total = assign_ranges(bias);
     }
     lod_bias = bias;

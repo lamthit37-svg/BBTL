@@ -2826,3 +2826,7 @@ Màn đăng nhập trên TB-X306F (GE8320, 1280x800) vẫn 40 ms mỗi khung sau
 ### Viền thừa dưới ô đuôi tài khoản (2026-10-16)
 
 Bảng nhập tài khoản để hiện danh sách thả tự dựng của Combobox đuôi tài khoản (`LogOn_Region__auto_droplist__`), khung của nó thành một vạch viền dưới ô. Nay `paint_logon` giấu nó như `select_server` giấu danh sách của mình. Test hồi quy trong `ui_logon_tests` (đỏ khi bỏ dòng giấu, xanh khi có). Chưa nhìn bằng mắt trong ảnh chụp vì tới bảng này cần nhấn nút (không có cờ dòng lệnh).
+
+### Hệ số LOD ổn định, hết chớp ở vật thể xa (2026-10-16)
+
+Sau khi lưới skin có LOD, trần tam giác của điện thoại đạt được nên `Forward::choose_lods` bắt đầu tác dụng thật. Cách cũ mỗi khung hạ hệ số 10% rồi nhân 1,15 tới khi vừa trần, nên hệ số dao động và các vật thể gần ngưỡng đổi mức qua lại: đo trên tablet 177 lệnh vẽ đổi mức trong 120 khung (đứng yên, nhìn thấy là chớp). Cách mới giữ hệ số giữa các khung, chỉ tăng khi vượt trần, và mỗi 60 khung khi tổng dưới 90% trần thì tìm nhị phân hệ số nhỏ nhất vừa 95% trần (`lowest_bias`): 0 lần đổi mức trong 120 khung, cảnh đăng nhập 143 nghìn tam giác, tablet 30,0 FPS, chậm nhất 33,4 ms. Máy bàn (trần 0) không đổi.
