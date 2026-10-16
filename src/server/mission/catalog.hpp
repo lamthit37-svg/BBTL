@@ -77,7 +77,8 @@ struct Objective {
     std::int32_t rate = 0;
     std::int32_t scene = 0;
     std::int32_t flag = 0;
-    std::uint32_t name = 0;
+    std::uint32_t name = 0; // mã băm để so với script
+    std::string label; // tên chữ trong bảng, để nút dấu nêu mục tiêu
 };
 
 enum class RewardGroup : std::uint8_t { kFixed, kChoice, kHidden };

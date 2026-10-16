@@ -402,7 +402,7 @@ std::string mark_line(char stage, int quest, std::string_view name) {
 
 void quest_mark_line_is_a_local_button(Context& context) {
     tk::Dialog dialog = list_dialog(5);
-    dialog.lines.push_back(mark_line('1', 1400, "初涉江湖"));
+    dialog.lines.push_back(mark_line('1', 1400, "初涉江湖") + "\x1f" "赵天师");
     dialog.lines.push_back(mark_line('2', 1401, "拜访"));
     dialog.lines.push_back(mark_line('3', 1403, ""));
     dialog.lines.push_back("TLQ khong phai dau");
@@ -417,7 +417,7 @@ void quest_mark_line_is_a_local_button(Context& context) {
     const std::string doing = std::string(gui::kTextElement) + field + "?拜访";
     const std::string doing_button = std::string(gui::kOptionElement) + field + "?拜访";
     context.expect(elements.contains("你好，少侠。"), "lời NPC còn");
-    context.expect(elements.contains("!初涉江湖"), "dấu nhận thành nút");
+    context.expect(elements.contains("!初涉江湖·赵天师"), "dấu nhận kèm mục tiêu");
     context.expect(elements.contains(doing), "đang làm là chữ");
     context.expect(!elements.contains(doing_button), "đang làm không phải nút");
     context.expect(elements.contains("?1403"), "thiếu tên thì hiện số");

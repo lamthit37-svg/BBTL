@@ -60,9 +60,10 @@ inline constexpr std::string_view kTalkClose = "Quest_Close";
 // giao nhau.
 inline constexpr std::uint32_t kRewardBase = 0x10000;
 
-// Dòng dấu do Gameplay gắn cuối hội thoại danh sách. Dạng trùng mark_text ở play/gameplay.cpp:
-// "TLQ", US, '1' nhận / '2' đang làm / '3' nộp được, US, id thập phân, US, tên. Không có header
-// chung vì ui/panel không include protocol. Chỉ số bấm là cục bộ, không phải DialogChoose.
+// Dòng dấu do Gameplay gắn cuối hội thoại danh sách. Dạng trùng mark_text ở
+// play/gameplay.cpp: "TLQ", US, '1' nhận / '2' đang làm / '3' nộp được, US, id
+// thập phân, US, tên, rồi US và mục tiêu khi có. Không có header chung vì
+// ui/panel không include protocol. Chỉ số bấm là cục bộ, không phải DialogChoose.
 inline constexpr std::uint32_t kMarkAccept = 0x8000;
 inline constexpr std::uint32_t kMarkTurn = 0x9000;
 inline constexpr std::uint32_t kMarkSpan = 4096;

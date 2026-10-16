@@ -42,9 +42,11 @@
 #include <cstddef>
 #include <cstdint>
 #include <expected>
+#include <format>
 #include <memory>
 #include <optional>
 #include <string>
+#include <string_view>
 #include <utility>
 #include <variant>
 #include <vector>
@@ -220,10 +222,16 @@ void put_done(protocol::QuestBook& out, const mission::Book& book) {
     return out;
 }
 
-// Dòng dấu nhiệm vụ trên hội thoại danh sách. Client không vẽ DialogOpen.marks. Không đưa vào
-// DialogChoice: ca thử bấm mọi lựa chọn, một lựa chọn nhận sẽ nhận nhầm.
-// Dạng trùng npc_talk.cpp: TLQ, US, '1'|'2'|'3' (MarkStage của protocol), US, id, US, tên.
+// Dòng dấu nhiệm vụ trên hội thoại danh sách. Client không vẽ DialogOpen.marks.
+// Không đưa vào DialogChoice: ca thử bấm mọi lựa chọn sẽ nhận nhầm nhiệm vụ.
+// Dạng trùng npc_talk.cpp: TLQ, US, '1'|'2'|'3', US, id, US, tên, rồi US và mục tiêu.
+// Mục tiêu lấy từ script đang giữ, hoặc từ đúng một biến thể chạy được. Không đoán
+// khi có nhiều biến thể. Giết và nhặt ghi số lần khi số lớn hơn 1. Trần 64 byte.
 constexpr char kUnitSep = '\x1f';
+constexpr char kRecordSep = '\x1e';
+constexpr std::string_view kHintGap = "、";
+constexpr std::string_view kCountMark = "×";
+constexpr std::size_t kHintBytes = 64;
 
 void keep_label(std::string_view& chosen, bool& locked, const mission::Quest* row) {
     if (row == nullptr || row->name.empty() || locked) return;
@@ -246,7 +254,8 @@ char stage_digit(talk::Stage stage) noexcept {
     return static_cast<char>('0' + wire);
 }
 
-std::string mark_text(char stage, std::int32_t quest, std::string_view name) {
+std::string mark_text(char stage, std::int32_t quest, std::string_view name,
+    std::string_view hint) {
     std::string line = "TLQ";
     line.push_back(kUnitSep);
     line.push_back(stage);
@@ -254,26 +263,101 @@ std::string mark_text(char stage, std::int32_t quest, std::string_view name) {
     line.append(std::to_string(quest));
     line.push_back(kUnitSep);
     line.append(name);
+    if (hint.empty()) return line;
+    line.push_back(kUnitSep);
+    line.append(hint);
     return line;
 }
 
+bool is_blank(std::string_view label) {
+    for (const char one : label) {
+        if (one != ' ') return false;
+    }
+    return true;
+}
+
+bool label_ok(std::string_view label) {
+    if (is_blank(label)) return false;
+    if (label.find(kUnitSep) != std::string_view::npos) return false;
+    if (label.find(kRecordSep) != std::string_view::npos) return false;
+    if (label.find('#') != std::string_view::npos) return false;
+    return true;
+}
+
+std::string objective_piece(const mission::Objective& step) {
+    if (!label_ok(step.label)) return {};
+    const bool is_kill = step.kind == mission::ObjectiveKind::kKill;
+    const bool is_loot = step.kind == mission::ObjectiveKind::kLoot;
+    const bool counted = (is_kill || is_loot) && step.count > 1;
+    if (!counted) return step.label;
+    return std::format("{}{}{}", step.label, kCountMark, step.count);
+}
+
+void add_objective(std::string& hint, const mission::Objective& step) {
+    const std::string piece = objective_piece(step);
+    if (piece.empty()) return;
+    const std::size_t gap = hint.empty() ? 0U : kHintGap.size();
+    if (hint.size() + gap + piece.size() > kHintBytes) return;
+    if (!hint.empty()) hint.append(kHintGap);
+    hint.append(piece);
+}
+
+std::string objective_hint(const mission::Quest* row) {
+    std::string hint;
+    if (row == nullptr) return hint;
+    for (const mission::Objective& step : row->objectives) {
+        add_objective(hint, step);
+    }
+    return hint;
+}
+
+const mission::Quest* held_quest(const mission::Catalog& catalog, const mission::Book& book,
+    std::int32_t quest) {
+    const mission::Slot* slot = book.find(quest);
+    if (slot == nullptr || slot->script < 0) return nullptr;
+    const auto script = static_cast<std::uint32_t>(slot->script);
+    const mission::Quest* row = catalog.by_script(script);
+    if (row == nullptr || row->quest != quest) return nullptr;
+    return row;
+}
+
+const mission::Quest* sole_quest(const mission::Catalog& catalog, std::int32_t quest) {
+    const mission::Quest* only = nullptr;
+    for (const mission::Quest* row : catalog.variants(quest)) {
+        if (row == nullptr || !row->runnable()) continue;
+        if (only != nullptr) return nullptr;
+        only = row;
+    }
+    return only;
+}
+
+const mission::Quest* hint_quest(const mission::Catalog& catalog, const mission::Book& book,
+    std::int32_t quest) {
+    const mission::Quest* held = held_quest(catalog, book, quest);
+    if (held != nullptr) return held;
+    return sole_quest(catalog, quest);
+}
+
 void append_one_mark(protocol::DialogOpen& open, const talk::Mark& mark,
-    const mission::Catalog& catalog) {
+    const mission::Catalog& catalog, const mission::Book& book) {
     if (open.lines.size() >= protocol::kDialogOpenLinesCount) return;
     if (mark.quest < 0 || mark.quest >= mission::kQuestIdLimit) return;
     const std::string name = quest_label(catalog, mark.quest);
+    const mission::Quest* row = hint_quest(catalog, book, mark.quest);
+    const std::string hint = objective_hint(row);
     const char stage = stage_digit(mark.stage);
-    const std::string line = mark_text(stage, mark.quest, name);
+    std::string line = mark_text(stage, mark.quest, name, hint);
+    if (line.size() > kLineBytes) line = mark_text(stage, mark.quest, name, {});
     if (line.size() > kLineBytes) return;
     open.lines.push_back(protocol::DialogLine{.text = line});
 }
 
 void append_mark_lines(protocol::DialogOpen& open, const talk::View& view,
-    const mission::Catalog& catalog) {
+    const mission::Catalog& catalog, const mission::Book& book) {
     const bool listed = view.mode == talk::Mode::kList || view.mode == talk::Mode::kBox;
     if (!listed) return;
     for (const talk::Mark& mark : view.marks) {
-        append_one_mark(open, mark, catalog);
+        append_one_mark(open, mark, catalog, book);
     }
 }
 
@@ -580,7 +664,7 @@ void Gameplay::reply(std::uint64_t session, Entry& who, const std::string& npc_n
     fill_texts(open, answer.view, names, context);
     fill_marks(open, answer.view);
     const mission::Catalog& catalog = engine_.catalog();
-    append_mark_lines(open, answer.view, catalog);
+    append_mark_lines(open, answer.view, catalog, who.player->book());
     out.down(session, open);
 }
 

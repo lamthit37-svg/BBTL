@@ -251,6 +251,24 @@ bool text_has(const protocol::DialogOpen& open, std::string_view needle) {
     return false;
 }
 
+const protocol::DialogLine* mark_for(const protocol::DialogOpen& open, std::string_view quest) {
+    const std::string token = std::string("\x1f") + std::string(quest) + "\x1f";
+    for (const protocol::DialogLine& line : open.lines) {
+        if (!line.text.starts_with("TLQ")) continue;
+        if (line.text.find(token) == std::string::npos) continue;
+        return &line;
+    }
+    return nullptr;
+}
+
+int sep_count(std::string_view text) {
+    int count = 0;
+    for (const char one : text) {
+        if (one == '\x1f') ++count;
+    }
+    return count;
+}
+
 // Vào lại từ bản ghi: sổ còn nguyên.
 void expect_survives_rejoin(Context& context, Fixture& fixture, const account::PlayRecord& kept) {
     const std::expected<std::vector<std::byte>, account::PlayError> packed = account::pack(kept);
@@ -280,6 +298,12 @@ void talk_accept_and_keep(Context& context) {
     context.expect(dialog->npc == kNpcEntity, "hộp thoại gắn đúng NPC");
     context.expect(!dialog->lines.empty() && !dialog->lines.front().text.empty(), "lời NPC có chữ");
     context.expect(text_has(*dialog, "初涉江湖"), "lời hội thoại có tên 初涉江湖");
+    const protocol::DialogLine* newbie = mark_for(*dialog, "1400");
+    const bool newbie_ok = newbie != nullptr && newbie->text.ends_with("\x1f赵天师");
+    context.expect(newbie_ok && sep_count(newbie->text) == 4, "dấu 1400 nêu 赵天师");
+    const protocol::DialogLine* decade = mark_for(*dialog, "1424");
+    const bool decade_ok = decade != nullptr && sep_count(decade->text) == 3;
+    context.expect(decade_ok, "1424 không bịa mục tiêu");
     context.expect(!dialog->choices.empty(), "có lựa chọn");
 
     const auto offer = find_offer(*fixture, *dialog);

@@ -476,12 +476,14 @@ void press_talk(NpcTalk& talk, std::string_view window, std::chrono::millisecond
 }
 
 constexpr char kUnitSep = '\x1f';
+constexpr char kRecordSep = '\x1e';
 
 struct MarkLine {
     bool ok = false;
     char stage = 0;
     std::uint32_t quest = 0;
     std::string_view name;
+    std::string_view hint;
 };
 
 bool take_digit(std::uint32_t& quest, char digit) {
@@ -515,16 +517,29 @@ MarkLine parse_mark(std::string_view line) {
     const std::size_t split = line.find(kUnitSep, 6);
     if (split == std::string_view::npos) return parsed;
     if (!read_quest(line.substr(6, split - 6), parsed.quest)) return parsed;
+    const std::string_view rest = line.substr(split + 1);
+    const std::size_t hint_at = rest.find(kUnitSep);
     parsed.ok = true;
     parsed.stage = stage;
-    parsed.name = line.substr(split + 1);
+    parsed.name = rest;
+    if (hint_at != std::string_view::npos) parsed.name = rest.substr(0, hint_at);
+    if (hint_at != std::string_view::npos) parsed.hint = rest.substr(hint_at + 1);
     return parsed;
+}
+
+bool hint_ok(std::string_view hint) {
+    if (hint.empty()) return false;
+    if (hint.find(kUnitSep) != std::string_view::npos) return false;
+    if (hint.find(kRecordSep) != std::string_view::npos) return false;
+    return true;
 }
 
 std::string mark_label(const MarkLine& parsed) {
     const char sigil = parsed.stage == '1' ? '!' : '?';
-    if (!parsed.name.empty()) return std::format("{}{}", sigil, parsed.name);
-    return std::format("{}{}", sigil, parsed.quest);
+    const bool named = !parsed.name.empty();
+    const std::string base = named ? std::string{parsed.name} : std::to_string(parsed.quest);
+    if (!hint_ok(parsed.hint)) return std::format("{}{}", sigil, base);
+    return std::format("{}{}·{}", sigil, base, parsed.hint);
 }
 
 void add_mark_line(std::string& blob, const MarkLine& parsed) {

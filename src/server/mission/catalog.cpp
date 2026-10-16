@@ -257,6 +257,7 @@ private:
             if (!parsed) return failure(LoadError::kUnknownWord, "mission_objectives", where(table, row, kind));
             one.kind = *parsed;
             one.name = name.empty() ? 0U : ops::name_id(name);
+            one.label.assign(name);
             Quest* const quest = quest_of_script(script);
             if (quest == nullptr) return failure(LoadError::kUnknownScript, "mission_objectives", where(table, row, std::to_string(script)));
             if (next_seq[script]++ != seq) return failure(LoadError::kBadOrder, "mission_objectives", where(table, row, std::to_string(script)));
