@@ -1031,8 +1031,17 @@ kết luận ngay dưới mục đó chứ không xoá.
     (a) Sương thung lũng của ảnh gốc dày và sáng hơn (trắng xanh quanh x 330-760, y 330-460 của ảnh 1252x719), bản này
     chỉ nhạt. Nguồn nghi: hệ billboard `方向雾_深灰` (300 hạt, 400-800 đơn vị, chỉ 2 trên 7 chỗ đặt nằm trong khung),
     `远景雾片_3`, hay sương cao độ (`EnvKey height_fog_param`). Cần: so từng nguồn bằng cách tắt riêng.
-    (b) Thác nước: client chưa có thác chảy bên trái và màn chọn nhân vật đứng im (chủ dự án báo). Đường UV scroll
-    cho chất liệu không đèn đã có (`take_scroll`, `emissive.xy`), cần tìm vì sao không chạy ở hai chỗ đó.
+    (b) Thác nước: chủ dự án báo thác đứng im ở màn chọn nhân vật và thiếu thác bên trái. Nguyên nhân tìm được và đã
+    sửa: `decode_model` (đường đọc cache `.tlms`) không gán `emissive` từ `scroll_anim`, nên mesh nào đã có cache thì
+    thác đứng im (test `cached_load_keeps_scroll`, `shipped_waterfall_scrolls`). Chưa chứng minh bằng mắt: ảnh `--shot`
+    luôn lấy khung đầu nên không thấy chuyển động, và chưa rõ "thác bên trái" của ảnh gốc là mesh nào (cảnh có thác ở
+    x 245 và x 645 trên ảnh 1280x720). Cần chủ dự án xem lại bản dựng mới.
     (c) Gió lung lay cây: chưa làm. Cần đọc cách bản gốc rung đỉnh (shader cây) trước khi viết.
     (d) Độ nét: bản gốc có chuỗi hậu xử lý (`hdr.hlsl`, `Bloom.hlsl`, `ColorLUT.hlsl`, `AntiAlias.hlsl`) mà client chưa có;
     lọc dị hướng 16x và MSAA 4x đã bật, cỡ texture khớp bản gốc (đo 14 tệp). Chưa chứng minh nguyên nhân.
+
+62. **`TOOLS/bake/bake.py` treo khi chạy không người gõ trên Windows** (2026-10-16). Không đặt `BAKE_PASSPHRASE` mà
+    chạy `new-key` với stdin là `NUL`: `_tty()` (`sys.stdin.isatty()`) trả True cho `NUL`, rồi `getpass` đọc thẳng
+    bàn phím console nên chờ mãi. Trên Windows không đặt được biến môi trường rỗng (gán rỗng là xoá), nên không có cách
+    nào chạy `new-key` không cụm mật khẩu ở chế độ tự động. Cần: `_tty()` kiểm console thật (`GetConsoleMode`) thay vì
+    `isatty`; hiện chỉ gặp khi tự động hoá, người dùng gõ tay hay dùng cửa sổ không bị. Chưa sửa.

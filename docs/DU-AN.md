@@ -164,12 +164,22 @@ nhật ký cũ [tài liệu].
   một bộ ảnh 16/24/32/48/64/256), `android/res/mipmap-*/ic_launcher.png` (aapt2 qua `package_apk.py
   --res`) và `apple/icons/*.png` (nền đen vì App Store cấm alpha; chưa build trên macOS). Ninja
   không biết `app.rc` đọc `.ico` nên exe giữ icon cũ sau khi đổi ảnh; đã khai `OBJECT_DEPENDS`.
-- APK `build/android-arm64/thienlong.apk` và `release/client/APK/thienlong.apk` ngày 10-16 12:24 còn
-  mang lớp dịch `vi` (`ui_strings.lang.tsv`, `scene_names.lang.tsv`, bảy bảng `*.lang.tsv`). Đã
-  đóng lại 16:43 bằng `package_apk.py` với thư viện `libthienlong.so` cũ (12:22): 12 284 tệp,
-  không còn `*.lang.tsv`, ba tệp thử khớp bản `zh`. Chưa dựng lại `.so`: cây đang có sửa dở của
-  phiên khác làm `game_client_display` đỏ (`graphic/effect.cpp:299` `-Wshadow`, `fx_view.cpp:300`
-  dùng `pipeline` chưa khai báo). Chưa cài lên thiết bị nên chưa nhìn màn hình thật.
+- APK `build/android-arm64/thienlong.apk` và `release/client/APK/thienlong.apk` dựng lại 2026-10-16
+  21:19 từ cây hiện tại (`cmake --build --preset android-arm64 --target thienlong_apk`; không build
+  mọi target vì test máy chủ của cây Android đang thiếu include `guard/pace.hpp`): `.so` 21:12,
+  12 297 tệp, mang logo mới, hạt mesh theo mã máy, thác cuộn UV và shader ánh lửa. Hai lỗi chặn
+  đường đi tới APK đã sửa cùng ngày: (1) `bake_mobile_textures.py` đọc `x.dds` gốc nên ảnh giao diện
+  địa hoá (`x.dds.png`, như logo) không bao giờ lên điện thoại và kiểm tươi báo 0 tệp cần nấu; nay
+  theo luật `sheet_file` của painter (cùng cỡ mới thay), nấu lại 8 tệp. (2) `decode_model` bỏ
+  `scroll_anim` nên thác đã có cache đứng im trên cả PC lẫn gói điện thoại (chỉ mang cache). Chưa
+  cài lên thiết bị nên chưa nhìn màn hình thật. iOS: không có thay đổi riêng, vẫn chưa dựng được
+  (không có macOS); hai sửa trên cũng áp cho bundle iOS vì dùng chung bộ nấu và `decode_model`.
+- Packer `.tlpak` (`TOOLS/bake/bake.py`, `thienlong_seal`): đã chạy vòng `new-key`, `seal`, `verify`,
+  `open` với cụm mật khẩu (Argon2id mức vừa): byte mở ra trùng, lật một byte thì `verify` thoát 1,
+  bản mã không chứa chữ gốc; 24 test Python đạt (2 bỏ qua vì thiếu quyền symlink của Windows), gồm test chéo
+  Python ↔ `thienlong_seal.exe` mở được gói của nhau. Game cố ý không đọc gói này. Khi không đặt
+  `BAKE_PASSPHRASE` mà chạy với stdin là `NUL` trên Windows thì `bake.py` treo chờ bàn phím (xem
+  `docs/NGHI-NGO.md` mục 62).
 - Thoại máy chủ bản `vi`: 2 507 câu, `dialogue_i18n.py check` 0 lỗi; máy chủ chưa nạp ngôn ngữ nào.
 
 ## 4. Vấn đề

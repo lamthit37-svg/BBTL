@@ -24,7 +24,19 @@ import tlpak
 import tree
 from errors import MISMATCH_TEXT, BakeError, Code, KdfLevel, NeedPassphrase, PassphraseTooLong
 
-SEAL_EXE = ROOT.parents[1] / "build" / "gcc-debug" / "thienlong_seal.exe"
+def _seal_exe() -> Path:
+    # THIENLONG_SEAL_EXE thắng; không đặt thì lấy bản dựng đầu tiên có sẵn. Không có bản nào thì trả đường
+    # dẫn gcc-debug để lời nhắn bỏ qua nói rõ cần dựng gì.
+    named = os.environ.get("THIENLONG_SEAL_EXE")
+    if named:
+        return Path(named)
+    builds = ROOT.parents[1] / "build"
+    found = [builds / name / "thienlong_seal.exe" for name in ("gcc-debug", "msvc-release", "msvc-debug")]
+    existing = [path for path in found if path.is_file()]
+    return existing[0] if existing else found[0]
+
+
+SEAL_EXE = _seal_exe()
 FIRST = "âm/một.bin"
 SECOND = "CongRen_Login.mp3"
 
