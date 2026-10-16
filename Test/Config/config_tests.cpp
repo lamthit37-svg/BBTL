@@ -321,9 +321,10 @@ void real_gate(Context& context) {
     const std::optional gate = real(context, "gate.toml", config::read_gate);
     if (!gate) return;
     const config::GateListen& listen = gate->listen;
+    // Cụm thử nghe loopback 7100/7101: cổng 7000/7001 trên máy này do cụm TLBB giữ (gate.toml).
     const bool is_listen = gate->identity_key_file == "../data/gate/identity.key" && gate->trusted_proxies.empty() &&
-        listen.game.host.text() == "0.0.0.0" && listen.game.port.value() == 7000 &&
-        listen.auth.host.text() == "0.0.0.0" && listen.auth.port.value() == 7001;
+        listen.game.host.text() == "127.0.0.1" && listen.game.port.value() == 7100 &&
+        listen.auth.host.text() == "127.0.0.1" && listen.auth.port.value() == 7101;
     context.expect(is_listen, "khoá danh tính và cổng nghe");
     const config::GateLimits& limits = gate->limits;
     const bool is_limits = limits.max_connections == 2000 && limits.per_ip_connections == 8 &&

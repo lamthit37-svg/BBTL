@@ -249,10 +249,11 @@ struct CharacterSummary {
     std::string name;
     std::uint16_t level = 0;
     Gender gender = Gender::kFemale;
-    // Id mặt trong faces.tsv mà server đã lưu; server thay kDefaultLook bằng id thật lúc tạo nhân vật, nên ở đây không
-    // có nghĩa mặc định.
+    // Id mặt trong faces.tsv mà server đã lưu; server thay kDefaultLook bằng id thật lúc tạo nhân
+    // vật, nên ở đây không có nghĩa mặc định.
     std::uint16_t face = 0;
-    // Id tóc trong hairs.tsv mà server đã lưu (0 là id tóc hợp lệ); kDefaultLook chỉ có nghĩa trong CreateCharacter.
+    // Id tóc trong hairs.tsv mà server đã lưu (0 là id tóc hợp lệ); kDefaultLook chỉ có nghĩa trong
+    // CreateCharacter.
     std::uint16_t hair = 0;
     // Môn phái; 0 là chưa vào môn phái, giữ giá trị canh của Dev thay cho optional.
     std::uint8_t school = 0;
@@ -305,7 +306,8 @@ struct QuestSlot {
     std::int32_t script = 0;
     // Bit 1 giết, 2 vùng, 4 vật phẩm: loại sự kiện nhiệm vụ này theo dõi.
     std::uint8_t flags = 0;
-    // Tám tham số của ô; nhiệm vụ bảng: tham số 0 là cờ đủ điều kiện nộp, 1 + i là tiến độ mục tiêu i.
+    // Tám tham số của ô; nhiệm vụ bảng: tham số 0 là cờ đủ điều kiện nộp, 1 + i là tiến độ mục tiêu
+    // i.
     std::vector<std::uint32_t> params;
     friend bool operator==(const QuestSlot&, const QuestSlot&) = default;
 };
@@ -321,8 +323,8 @@ struct SkillEntry {
     friend bool operator==(const SkillEntry&, const SkillEntry&) = default;
 };
 
-// 0x0101, client gửi, cổng both, từ bản 1: Tin đầu tiên của mọi kết nối, báo phiên bản giao thức, nền tảng và bản dựng
-// client.
+// 0x0101, client gửi, cổng both, từ bản 1: Tin đầu tiên của mọi kết nối, báo phiên bản giao thức,
+// nền tảng và bản dựng client.
 struct Hello {
     static constexpr std::uint16_t kKind = 0x0101;
     // Phiên bản giao thức của client.
@@ -333,8 +335,8 @@ struct Hello {
     friend bool operator==(const Hello&, const Hello&) = default;
 };
 
-// 0x0102, client gửi, cổng game, từ bản 1: Đăng nhập cổng game bằng vé do cổng xác thực cấp, không bao giờ mang mật
-// khẩu.
+// 0x0102, client gửi, cổng game, từ bản 1: Đăng nhập cổng game bằng vé do cổng xác thực cấp, không
+// bao giờ mang mật khẩu.
 struct Login {
     static constexpr std::uint16_t kKind = 0x0102;
     // Tên tài khoản (kAccountBytes của Dev).
@@ -352,12 +354,13 @@ struct Resume {
     friend bool operator==(const Resume&, const Resume&) = default;
 };
 
-// 0x0104, client gửi, cổng game, từ bản 1: Nhịp tim của client, mang giờ client để đo độ trễ khứ hồi.
+// 0x0104, client gửi, cổng game, từ bản 1: Nhịp tim của client, mang giờ client để đo độ trễ khứ
+// hồi.
 struct Ping {
     static constexpr std::uint16_t kKind = 0x0104;
-    // Giờ client lúc gửi, server trả lại nguyên trong Pong. Khác Dev (duration<uint32_t, milli>): ta dùng
-    // std::chrono::milliseconds có dấu để trừ hai mốc không bị quấn; trên dây vẫn u32 như Dev, ghi số âm hay trên 2^32
-    // - 1 ra kOutOfRange.
+    // Giờ client lúc gửi, server trả lại nguyên trong Pong. Khác Dev (duration<uint32_t, milli>):
+    // ta dùng std::chrono::milliseconds có dấu để trừ hai mốc không bị quấn; trên dây vẫn u32 như
+    // Dev, ghi số âm hay trên 2^32 - 1 ra kOutOfRange.
     std::chrono::milliseconds client_time = std::chrono::milliseconds::zero();
     friend bool operator==(const Ping&, const Ping&) = default;
 };
@@ -368,7 +371,8 @@ struct Logout {
     friend bool operator==(const Logout&, const Logout&) = default;
 };
 
-// 0x0201, client gửi, cổng game, từ bản 1: Tạo nhân vật mới với tên, giới tính, khuôn mặt và kiểu tóc.
+// 0x0201, client gửi, cổng game, từ bản 1: Tạo nhân vật mới với tên, giới tính, khuôn mặt và kiểu
+// tóc.
 struct CreateCharacter {
     static constexpr std::uint16_t kKind = 0x0201;
     // Tên nhân vật muốn tạo.
@@ -397,16 +401,16 @@ struct EnterGame {
     friend bool operator==(const EnterGame&, const EnterGame&) = default;
 };
 
-// 0x0301, client gửi, cổng game, từ bản 1: Client xin một bước trên mặt phẳng ngang; server đo bằng guard::Pace theo
-// tick của server, không tin vị trí client.
+// 0x0301, client gửi, cổng game, từ bản 1: Client xin một bước trên mặt phẳng ngang; server đo bằng
+// guard::Pace theo tick của server, không tin vị trí client.
 struct Move {
     static constexpr std::uint16_t kKind = 0x0301;
     // Toạ độ X muốn tới, centimet. NaN/vô cực bị Pace từ chối.
     float x_cm = 0.0F;
     // Toạ độ Z muốn tới, centimet.
     float z_cm = 0.0F;
-    // Tick client (30/giây) đếm từ tick trong Position gần nhất; chỉ làm trần dưới của thời gian, server cắt theo đồng
-    // hồ của mình.
+    // Tick client (30/giây) đếm từ tick trong Position gần nhất; chỉ làm trần dưới của thời gian,
+    // server cắt theo đồng hồ của mình.
     std::uint32_t tick = 0;
     friend bool operator==(const Move&, const Move&) = default;
 };
@@ -431,8 +435,8 @@ struct SignIn {
     friend bool operator==(const SignIn&, const SignIn&) = default;
 };
 
-// 0x0601, client gửi, cổng game, từ bản 5: Bấm vào NPC để nói chuyện: mở phiên hội thoại. Server kiểm khoảng cách, cảnh
-// và NPC còn đó.
+// 0x0601, client gửi, cổng game, từ bản 5: Bấm vào NPC để nói chuyện: mở phiên hội thoại. Server
+// kiểm khoảng cách, cảnh và NPC còn đó.
 struct Talk {
     static constexpr std::uint16_t kKind = 0x0601;
     // EntityAppear.id của NPC.
@@ -440,8 +444,8 @@ struct Talk {
     friend bool operator==(const Talk&, const Talk&) = default;
 };
 
-// 0x0602, client gửi, cổng game, từ bản 5: Chọn một lựa chọn của hộp thoại đang mở (theo index server đã gửi, không
-// phải id script).
+// 0x0602, client gửi, cổng game, từ bản 5: Chọn một lựa chọn của hộp thoại đang mở (theo index
+// server đã gửi, không phải id script).
 struct DialogChoose {
     static constexpr std::uint16_t kKind = 0x0602;
     // Mã phiên trong DialogOpen.
@@ -469,7 +473,8 @@ struct QuestTurnIn {
     friend bool operator==(const QuestTurnIn&, const QuestTurnIn&) = default;
 };
 
-// 0x0605, client gửi, cổng game, từ bản 5: Bỏ nhiệm vụ đang làm; bấm từ sổ nhiệm vụ nên không cần phiên hội thoại.
+// 0x0605, client gửi, cổng game, từ bản 5: Bỏ nhiệm vụ đang làm; bấm từ sổ nhiệm vụ nên không cần
+// phiên hội thoại.
 struct QuestAbandon {
     static constexpr std::uint16_t kKind = 0x0605;
     std::uint16_t quest = 0;
@@ -483,12 +488,12 @@ struct DialogClose {
     friend bool operator==(const DialogClose&, const DialogClose&) = default;
 };
 
-// 0x0801, client gửi, cổng game, từ bản 6: Ra chiêu (đánh thường cũng là một kỹ năng). Chỉ là ý định: server kiểm đã
-// học, hồi chiêu, tiêu hao, tầm, mục tiêu rồi mới tính; lỗi trả Reject.
+// 0x0801, client gửi, cổng game, từ bản 6: Ra chiêu (đánh thường cũng là một kỹ năng). Chỉ là ý
+// định: server kiểm đã học, hồi chiêu, tiêu hao, tầm, mục tiêu rồi mới tính; lỗi trả Reject.
 struct CastSkill {
     static constexpr std::uint16_t kKind = 0x0801;
-    // Số thứ tự client gán; server chép lại vào SkillCast gửi cho chính người ra chiêu (seq khác 0). Reject không mang
-    // seq.
+    // Số thứ tự client gán; server chép lại vào SkillCast gửi cho chính người ra chiêu (seq khác
+    // 0). Reject không mang seq.
     std::uint16_t seq = 0;
     // Id kỹ năng.
     std::uint16_t skill = 0;
@@ -501,15 +506,16 @@ struct CastSkill {
     friend bool operator==(const CastSkill&, const CastSkill&) = default;
 };
 
-// 0x0802, client gửi, cổng game, từ bản 6: Xin hồi sinh khi đã chết, ở thành hay tại chỗ; server áp phạt chết và đặt
-// lại máu.
+// 0x0802, client gửi, cổng game, từ bản 6: Xin hồi sinh khi đã chết, ở thành hay tại chỗ; server áp
+// phạt chết và đặt lại máu.
 struct Respawn {
     static constexpr std::uint16_t kKind = 0x0802;
     RespawnPlace place = RespawnPlace::kTown;
     friend bool operator==(const Respawn&, const Respawn&) = default;
 };
 
-// 0x0803, client gửi, cổng game, từ bản 6: Nhặt một vật rơi trong tầm 3 m; server kiểm luật chủ nhặt.
+// 0x0803, client gửi, cổng game, từ bản 6: Nhặt một vật rơi trong tầm 3 m; server kiểm luật chủ
+// nhặt.
 struct PickUp {
     static constexpr std::uint16_t kKind = 0x0803;
     // EntityAppear.id của vật rơi.
@@ -517,17 +523,20 @@ struct PickUp {
     friend bool operator==(const PickUp&, const PickUp&) = default;
 };
 
-// 0x8101, server gửi, cổng both, từ bản 1: Server đáp Hello: phiên bản giao thức, giờ server và chu kỳ nhịp tim.
+// 0x8101, server gửi, cổng both, từ bản 1: Server đáp Hello: phiên bản giao thức, giờ server và chu
+// kỳ nhịp tim.
 struct Welcome {
     static constexpr std::uint16_t kKind = 0x8101;
     // Phiên bản giao thức của server.
     std::uint16_t version = 0;
-    // Giờ server theo mili giây. Khác Dev (duration<uint64_t, milli>): ta dùng std::chrono::milliseconds nền int64 có
-    // dấu để trừ hai mốc không bị quấn; trên dây vẫn u64, nhưng số trên 2^63 - 1 (khoảng 292 triệu năm, chỉ có ở dữ
-    // liệu hỏng) đọc ra kOutOfRange, ghi số âm cũng ra kOutOfRange.
+    // Giờ server theo mili giây. Khác Dev (duration<uint64_t, milli>): ta dùng
+    // std::chrono::milliseconds nền int64 có dấu để trừ hai mốc không bị quấn; trên dây vẫn u64,
+    // nhưng số trên 2^63 - 1 (khoảng 292 triệu năm, chỉ có ở dữ liệu hỏng) đọc ra kOutOfRange, ghi
+    // số âm cũng ra kOutOfRange.
     std::chrono::milliseconds server_time = std::chrono::milliseconds::zero();
-    // Chu kỳ client phải gửi Ping. Khác Dev (duration<uint16_t>): ta dùng std::chrono::seconds có dấu cho cùng kiểu giờ
-    // với phần còn lại; trên dây vẫn u16 như Dev, ghi số âm hay trên 65535 ra kOutOfRange.
+    // Chu kỳ client phải gửi Ping. Khác Dev (duration<uint16_t>): ta dùng std::chrono::seconds có
+    // dấu cho cùng kiểu giờ với phần còn lại; trên dây vẫn u16 như Dev, ghi số âm hay trên 65535 ra
+    // kOutOfRange.
     std::chrono::seconds heartbeat = std::chrono::seconds::zero();
     friend bool operator==(const Welcome&, const Welcome&) = default;
 };
@@ -551,11 +560,11 @@ struct ContentKey {
 // 0x8104, server gửi, cổng game, từ bản 1: Server đáp Ping, trả lại giờ client kèm giờ server.
 struct Pong {
     static constexpr std::uint16_t kKind = 0x8104;
-    // Giờ client lấy nguyên từ Ping. Khác Dev như Ping.client_time: std::chrono::milliseconds có dấu thay cho
-    // duration<uint32_t, milli>, trên dây vẫn u32.
+    // Giờ client lấy nguyên từ Ping. Khác Dev như Ping.client_time: std::chrono::milliseconds có
+    // dấu thay cho duration<uint32_t, milli>, trên dây vẫn u32.
     std::chrono::milliseconds client_time = std::chrono::milliseconds::zero();
-    // Giờ server lúc trả lời. Khác Dev như Welcome.server_time: nền int64 có dấu thay cho u64, số trên 2^63 - 1 đọc ra
-    // kOutOfRange.
+    // Giờ server lúc trả lời. Khác Dev như Welcome.server_time: nền int64 có dấu thay cho u64, số
+    // trên 2^63 - 1 đọc ra kOutOfRange.
     std::chrono::milliseconds server_time = std::chrono::milliseconds::zero();
     friend bool operator==(const Pong&, const Pong&) = default;
 };
@@ -563,7 +572,8 @@ struct Pong {
 // 0x8106, server gửi, cổng both, từ bản 1: Server từ chối một tin của client và nêu mã lỗi.
 struct Reject {
     static constexpr std::uint16_t kKind = 0x8106;
-    // Mã tin của client bị từ chối; để u16 thay vì enum để giữ nguyên byte của Dev và không chép mã tin vào enums.tsv.
+    // Mã tin của client bị từ chối; để u16 thay vì enum để giữ nguyên byte của Dev và không chép mã
+    // tin vào enums.tsv.
     std::uint16_t request = 0;
     ErrorCode code = ErrorCode::kMalformed;
     friend bool operator==(const Reject&, const Reject&) = default;
@@ -576,7 +586,8 @@ struct Goodbye {
     friend bool operator==(const Goodbye&, const Goodbye&) = default;
 };
 
-// 0x8108, server gửi, cổng game, từ bản 1: Dấu băm của gói nội dung để client đối chiếu với bản đang có.
+// 0x8108, server gửi, cổng game, từ bản 1: Dấu băm của gói nội dung để client đối chiếu với bản
+// đang có.
 struct ContentStamp {
     static constexpr std::uint16_t kKind = 0x8108;
     // Dấu băm của gói nội dung.
@@ -584,8 +595,8 @@ struct ContentStamp {
     friend bool operator==(const ContentStamp&, const ContentStamp&) = default;
 };
 
-// 0x8109, server gửi, cổng game, từ bản 2: Cấu hình giao diện do nhà phát hành đặt ở server (client.toml): gửi sau
-// SessionStart, chỉ cho client khai phiên bản giao thức từ 2.
+// 0x8109, server gửi, cổng game, từ bản 2: Cấu hình giao diện do nhà phát hành đặt ở server
+// (client.toml): gửi sau SessionStart, chỉ cho client khai phiên bản giao thức từ 2.
 struct UiConfig {
     static constexpr std::uint16_t kKind = 0x8109;
     // Dạng khung chân dung của HUD (client.toml, [hud] avatar_frame).
@@ -601,8 +612,8 @@ struct CharacterList {
     friend bool operator==(const CharacterList&, const CharacterList&) = default;
 };
 
-// 0x8301, server gửi, cổng game, từ bản 1: Vị trí server làm chủ: gửi khi vào game (mốc đầu), khi dịch chuyển hợp lệ,
-// và khi bước của client bị từ chối (kéo về).
+// 0x8301, server gửi, cổng game, từ bản 1: Vị trí server làm chủ: gửi khi vào game (mốc đầu), khi
+// dịch chuyển hợp lệ, và khi bước của client bị từ chối (kéo về).
 struct Position {
     static constexpr std::uint16_t kKind = 0x8301;
     // Toạ độ X server chấp nhận, centimet.
@@ -614,8 +625,8 @@ struct Position {
     friend bool operator==(const Position&, const Position&) = default;
 };
 
-// 0x8401, server gửi, cổng game, từ bản 4: Server báo nhân vật đã vào một cảnh: id cảnh, vị trí và hướng đầu tiên. Gửi
-// lúc vào game và mỗi lần đổi cảnh.
+// 0x8401, server gửi, cổng game, từ bản 4: Server báo nhân vật đã vào một cảnh: id cảnh, vị trí và
+// hướng đầu tiên. Gửi lúc vào game và mỗi lần đổi cảnh.
 struct SceneEnter {
     static constexpr std::uint16_t kKind = 0x8401;
     // Id cảnh (SceneAttr của client 2026).
@@ -626,13 +637,15 @@ struct SceneEnter {
     float z_cm = 0.0F;
     // Hướng nhìn: 0..65535 ứng với 0..2π; 0 là hướng +X, tăng dần quay về phía +Z.
     std::uint16_t direction = 0;
-    // Id thực thể của chính nhân vật trong cảnh này (cùng không gian id với EntityAppear.id): client dùng để chọn mục
-    // tiêu và nhận ra mình trong EntityPos/EntityVitals. Đổi mỗi lần vào cảnh.
+    // Id thực thể của chính nhân vật trong cảnh này (cùng không gian id với EntityAppear.id):
+    // client dùng để chọn mục tiêu và nhận ra mình trong EntityPos/EntityVitals. Đổi mỗi lần vào
+    // cảnh.
     std::uint32_t self_id = 0;
     friend bool operator==(const SceneEnter&, const SceneEnter&) = default;
 };
 
-// 0x8402, server gửi, cổng game, từ bản 4: Một thực thể (người, quái, NPC...) bước vào vùng nhìn của client.
+// 0x8402, server gửi, cổng game, từ bản 4: Một thực thể (người, quái, NPC...) bước vào vùng nhìn
+// của client.
 struct EntityAppear {
     static constexpr std::uint16_t kKind = 0x8402;
     // Id thực thể trong cảnh; không dùng lại ngay sau khi thực thể biến mất (có số thế hệ).
@@ -661,13 +674,14 @@ struct EntityAppear {
     std::uint16_t hair = 0;
     // Môn phái 0..15; chỉ có nghĩa với người chơi.
     std::uint8_t school = 0;
-    // Trạng thái lúc hiện: Idle, Walk (đang đi, EntityPos tiếp theo sẽ tới) hay Dead (xác còn nằm lại, hp_percent là
-    // 0).
+    // Trạng thái lúc hiện: Idle, Walk (đang đi, EntityPos tiếp theo sẽ tới) hay Dead (xác còn nằm
+    // lại, hp_percent là 0).
     EntityState state = EntityState::kIdle;
     friend bool operator==(const EntityAppear&, const EntityAppear&) = default;
 };
 
-// 0x8403, server gửi, cổng game, từ bản 4: Một thực thể rời vùng nhìn của client hoặc biến mất khỏi cảnh.
+// 0x8403, server gửi, cổng game, từ bản 4: Một thực thể rời vùng nhìn của client hoặc biến mất khỏi
+// cảnh.
 struct EntityDisappear {
     static constexpr std::uint16_t kKind = 0x8403;
     // Id thực thể.
@@ -675,8 +689,8 @@ struct EntityDisappear {
     friend bool operator==(const EntityDisappear&, const EntityDisappear&) = default;
 };
 
-// 0x8404, server gửi, cổng game, từ bản 4: Vị trí mới của một thực thể trong vùng nhìn; client nội suy giữa hai lần
-// nhận.
+// 0x8404, server gửi, cổng game, từ bản 4: Vị trí mới của một thực thể trong vùng nhìn; client nội
+// suy giữa hai lần nhận.
 struct EntityPos {
     static constexpr std::uint16_t kKind = 0x8404;
     // Id thực thể.
@@ -687,15 +701,16 @@ struct EntityPos {
     float z_cm = 0.0F;
     // Hướng nhìn: 0..65535 ứng với 0..2π; 0 là hướng +X, tăng dần quay về phía +Z.
     std::uint16_t direction = 0;
-    // Tick của cảnh lúc ghi nhận, 20 tick mỗi giây (50 ms một tick); khác bộ đếm tick 30/giây của Move/Position. Client
-    // nội suy giữa hai gói theo hiệu hai tick.
+    // Tick của cảnh lúc ghi nhận, 20 tick mỗi giây (50 ms một tick); khác bộ đếm tick 30/giây của
+    // Move/Position. Client nội suy giữa hai gói theo hiệu hai tick.
     std::uint32_t tick = 0;
     // Walk khi đang di chuyển; gói cuối của một chặng đi mang Idle cùng toạ độ đích. Dead khi chết.
     EntityState state = EntityState::kIdle;
     friend bool operator==(const EntityPos&, const EntityPos&) = default;
 };
 
-// 0x8405, server gửi, cổng game, từ bản 4: Sinh lực của một thực thể trong vùng nhìn, theo phần trăm.
+// 0x8405, server gửi, cổng game, từ bản 4: Sinh lực của một thực thể trong vùng nhìn, theo phần
+// trăm.
 struct EntityVitals {
     static constexpr std::uint16_t kKind = 0x8405;
     // Id thực thể.
@@ -705,8 +720,8 @@ struct EntityVitals {
     friend bool operator==(const EntityVitals&, const EntityVitals&) = default;
 };
 
-// 0x8406, server gửi, cổng game, từ bản 5: Cờ của một thực thể trong vùng nhìn; gửi ngay sau EntityAppear khi cờ khác 0
-// và mỗi khi cờ đổi.
+// 0x8406, server gửi, cổng game, từ bản 5: Cờ của một thực thể trong vùng nhìn; gửi ngay sau
+// EntityAppear khi cờ khác 0 và mỗi khi cờ đổi.
 struct EntityFlags {
     static constexpr std::uint16_t kKind = 0x8406;
     // Id thực thể.
@@ -716,7 +731,8 @@ struct EntityFlags {
     friend bool operator==(const EntityFlags&, const EntityFlags&) = default;
 };
 
-// 0x8501, server gửi, cổng auth, từ bản 1: Vé vào cổng game do cổng xác thực cấp sau khi đăng nhập đúng.
+// 0x8501, server gửi, cổng auth, từ bản 1: Vé vào cổng game do cổng xác thực cấp sau khi đăng nhập
+// đúng.
 struct Ticket {
     static constexpr std::uint16_t kKind = 0x8501;
     // Vé vào cổng game (kConnectTokenBytes của Dev).
@@ -724,8 +740,8 @@ struct Ticket {
     friend bool operator==(const Ticket&, const Ticket&) = default;
 };
 
-// 0x8601, server gửi, cổng game, từ bản 5: Server mở hay thay hộp thoại của phiên: lời NPC, lựa chọn, dấu nhiệm vụ,
-// bảng nhiệm vụ và phần thưởng.
+// 0x8601, server gửi, cổng game, từ bản 5: Server mở hay thay hộp thoại của phiên: lời NPC, lựa
+// chọn, dấu nhiệm vụ, bảng nhiệm vụ và phần thưởng.
 struct DialogOpen {
     static constexpr std::uint16_t kKind = 0x8601;
     // Mã phiên, tăng ngặt, không dùng lại; gửi lại trong mọi tin sau của hộp thoại này.
@@ -750,18 +766,19 @@ struct DialogClosed {
     friend bool operator==(const DialogClosed&, const DialogClosed&) = default;
 };
 
-// 0x8603, server gửi, cổng game, từ bản 5: Toàn bộ sổ nhiệm vụ: ô đang giữ và tập nhiệm vụ đã xong. Gửi sau SceneEnter
-// và mỗi khi sổ đổi.
+// 0x8603, server gửi, cổng game, từ bản 5: Toàn bộ sổ nhiệm vụ: ô đang giữ và tập nhiệm vụ đã xong.
+// Gửi sau SceneEnter và mỗi khi sổ đổi.
 struct QuestBook {
     static constexpr std::uint16_t kKind = 0x8603;
     std::vector<QuestSlot> slots;
-    // 128 từ u32 little-endian: bit (id % 32) của từ (id / 32) bật là nhiệm vụ id đã xong (id 0..4095).
+    // 128 từ u32 little-endian: bit (id % 32) của từ (id / 32) bật là nhiệm vụ id đã xong (id
+    // 0..4095).
     std::array<std::byte, kQuestBookDoneBytes> done{};
     friend bool operator==(const QuestBook&, const QuestBook&) = default;
 };
 
-// 0x8604, server gửi, cổng game, từ bản 5: Thông báo của hệ nhiệm vụ cho người chơi: nhận, tiến độ, đủ điều kiện nộp,
-// thưởng, chữ.
+// 0x8604, server gửi, cổng game, từ bản 5: Thông báo của hệ nhiệm vụ cho người chơi: nhận, tiến độ,
+// đủ điều kiện nộp, thưởng, chữ.
 struct QuestNotice {
     static constexpr std::uint16_t kKind = 0x8604;
     QuestNoticeKind kind = QuestNoticeKind::kAdded;
@@ -776,8 +793,8 @@ struct QuestNotice {
     friend bool operator==(const QuestNotice&, const QuestNotice&) = default;
 };
 
-// 0x8701, server gửi, cổng game, từ bản 5: Cấp, kinh nghiệm và tiền của chính nhân vật. Gửi sau SceneEnter và mỗi khi
-// đổi.
+// 0x8701, server gửi, cổng game, từ bản 5: Cấp, kinh nghiệm và tiền của chính nhân vật. Gửi sau
+// SceneEnter và mỗi khi đổi.
 struct SelfStats {
     static constexpr std::uint16_t kKind = 0x8701;
     std::uint16_t level = 0;
@@ -790,8 +807,8 @@ struct SelfStats {
     friend bool operator==(const SelfStats&, const SelfStats&) = default;
 };
 
-// 0x8702, server gửi, cổng game, từ bản 6: Sinh lực, nội lực và nộ khí thật của chính nhân vật (người khác chỉ thấy
-// phần trăm ở EntityVitals). Gộp, tối đa 5 lần mỗi giây.
+// 0x8702, server gửi, cổng game, từ bản 6: Sinh lực, nội lực và nộ khí thật của chính nhân vật
+// (người khác chỉ thấy phần trăm ở EntityVitals). Gộp, tối đa 5 lần mỗi giây.
 struct SelfVitals {
     static constexpr std::uint16_t kKind = 0x8702;
     std::int32_t hp = 0;
@@ -803,8 +820,8 @@ struct SelfVitals {
     friend bool operator==(const SelfVitals&, const SelfVitals&) = default;
 };
 
-// 0x8703, server gửi, cổng game, từ bản 6: Ảnh chụp toàn bộ túi đồ của chính nhân vật. Gửi sau SceneEnter và mỗi khi
-// túi đổi.
+// 0x8703, server gửi, cổng game, từ bản 6: Ảnh chụp toàn bộ túi đồ của chính nhân vật. Gửi sau
+// SceneEnter và mỗi khi túi đổi.
 struct SelfBag {
     static constexpr std::uint16_t kKind = 0x8703;
     // Các ô có đồ; ô trống không gửi.
@@ -812,8 +829,8 @@ struct SelfBag {
     friend bool operator==(const SelfBag&, const SelfBag&) = default;
 };
 
-// 0x8801, server gửi, cổng game, từ bản 6: Một thực thể bắt đầu ra chiêu: client chạy hành động và hiệu ứng, đạn tự nội
-// suy từ nguồn tới đích. seq khác 0 chỉ khi là chiêu của chính client.
+// 0x8801, server gửi, cổng game, từ bản 6: Một thực thể bắt đầu ra chiêu: client chạy hành động và
+// hiệu ứng, đạn tự nội suy từ nguồn tới đích. seq khác 0 chỉ khi là chiêu của chính client.
 struct SkillCast {
     static constexpr std::uint16_t kKind = 0x8801;
     // 0 nếu không phải chiêu của chính client nhận tin.
@@ -841,8 +858,8 @@ struct SkillCastEnd {
     friend bool operator==(const SkillCastEnd&, const SkillCastEnd&) = default;
 };
 
-// 0x8803, server gửi, cổng game, từ bản 6: Kết quả của một chiêu lên một mục tiêu: sát thương, hồi, trượt hay miễn
-// nhiễm. Chiêu nhiều mục tiêu gửi nhiều tin.
+// 0x8803, server gửi, cổng game, từ bản 6: Kết quả của một chiêu lên một mục tiêu: sát thương, hồi,
+// trượt hay miễn nhiễm. Chiêu nhiều mục tiêu gửi nhiều tin.
 struct CombatEvent {
     static constexpr std::uint16_t kKind = 0x8803;
     // Id thực thể gây ra; 0 nếu không rõ (hiệu ứng treo).
@@ -857,7 +874,8 @@ struct CombatEvent {
     friend bool operator==(const CombatEvent&, const CombatEvent&) = default;
 };
 
-// 0x8804, server gửi, cổng game, từ bản 6: Một thực thể chết; xác còn lại một lúc rồi mới có EntityDisappear.
+// 0x8804, server gửi, cổng game, từ bản 6: Một thực thể chết; xác còn lại một lúc rồi mới có
+// EntityDisappear.
 struct EntityDied {
     static constexpr std::uint16_t kKind = 0x8804;
     std::uint32_t id = 0;
@@ -866,8 +884,8 @@ struct EntityDied {
     friend bool operator==(const EntityDied&, const EntityDied&) = default;
 };
 
-// 0x8805, server gửi, cổng game, từ bản 6: Gửi riêng người chơi vừa chết: kinh nghiệm và tiền mất, để dựng bảng hồi
-// sinh.
+// 0x8805, server gửi, cổng game, từ bản 6: Gửi riêng người chơi vừa chết: kinh nghiệm và tiền mất,
+// để dựng bảng hồi sinh.
 struct DeathNotice {
     static constexpr std::uint16_t kKind = 0x8805;
     std::uint64_t exp_lost = 0;
@@ -875,16 +893,16 @@ struct DeathNotice {
     friend bool operator==(const DeathNotice&, const DeathNotice&) = default;
 };
 
-// 0x8806, server gửi, cổng game, từ bản 6: Các kỹ năng đã học của chính nhân vật kèm hồi chiêu còn lại. Gửi sau
-// SceneEnter và mỗi khi đổi.
+// 0x8806, server gửi, cổng game, từ bản 6: Các kỹ năng đã học của chính nhân vật kèm hồi chiêu còn
+// lại. Gửi sau SceneEnter và mỗi khi đổi.
 struct SelfSkills {
     static constexpr std::uint16_t kKind = 0x8806;
     std::vector<SkillEntry> skills;
     friend bool operator==(const SelfSkills&, const SelfSkills&) = default;
 };
 
-// 0x8807, server gửi, cổng game, từ bản 6: Hồi chiêu mới của một kỹ năng sau khi ra chiêu thành công, để client vẽ nhịp
-// hồi.
+// 0x8807, server gửi, cổng game, từ bản 6: Hồi chiêu mới của một kỹ năng sau khi ra chiêu thành
+// công, để client vẽ nhịp hồi.
 struct SkillCooldown {
     static constexpr std::uint16_t kKind = 0x8807;
     std::uint16_t skill = 0;
@@ -893,13 +911,15 @@ struct SkillCooldown {
     friend bool operator==(const SkillCooldown&, const SkillCooldown&) = default;
 };
 
-using GameClientMessage = std::variant<Hello, Login, Resume, Ping, Logout, CreateCharacter, DeleteCharacter, EnterGame,
-    Move, Talk, DialogChoose, QuestAccept, QuestTurnIn, QuestAbandon, DialogClose, CastSkill, Respawn, PickUp>;
+using GameClientMessage = std::variant<Hello, Login, Resume, Ping, Logout, CreateCharacter,
+    DeleteCharacter, EnterGame, Move, Talk, DialogChoose, QuestAccept, QuestTurnIn, QuestAbandon,
+    DialogClose, CastSkill, Respawn, PickUp>;
 using GameClientResult = std::expected<GameClientMessage, WireError>;
-using GameServerMessage = std::variant<Welcome, SessionStart, ContentKey, Pong, Reject, Goodbye, ContentStamp, UiConfig,
-    CharacterList, Position, SceneEnter, EntityAppear, EntityDisappear, EntityPos, EntityVitals, EntityFlags,
-    DialogOpen, DialogClosed, QuestBook, QuestNotice, SelfStats, SelfVitals, SelfBag, SkillCast, SkillCastEnd,
-    CombatEvent, EntityDied, DeathNotice, SelfSkills, SkillCooldown>;
+using GameServerMessage = std::variant<Welcome, SessionStart, ContentKey, Pong, Reject, Goodbye,
+    ContentStamp, UiConfig, CharacterList, Position, SceneEnter, EntityAppear, EntityDisappear,
+    EntityPos, EntityVitals, EntityFlags, DialogOpen, DialogClosed, QuestBook, QuestNotice,
+    SelfStats, SelfVitals, SelfBag, SkillCast, SkillCastEnd, CombatEvent, EntityDied, DeathNotice,
+    SelfSkills, SkillCooldown>;
 using GameServerResult = std::expected<GameServerMessage, WireError>;
 using AuthClientMessage = std::variant<Hello, CreateAccount, SignIn>;
 using AuthClientResult = std::expected<AuthClientMessage, WireError>;
@@ -959,8 +979,8 @@ using AuthServerResult = std::expected<AuthServerMessage, WireError>;
 [[nodiscard]] WireStatus encode(std::vector<std::byte>& out, const SelfSkills& message);
 [[nodiscard]] WireStatus encode(std::vector<std::byte>& out, const SkillCooldown& message);
 
-// Giải mã thân của một khung đã tách bằng peek_frame. Kind không thuộc cổng hoặc chiều của bộ giải mã là kUnknownKind;
-// còn byte sau trường cuối là kTrailingBytes.
+// Giải mã thân của một khung đã tách bằng peek_frame. Kind không thuộc cổng hoặc chiều của bộ giải
+// mã là kUnknownKind; còn byte sau trường cuối là kTrailingBytes.
 [[nodiscard]] GameClientResult decode_game_client(const Frame& frame, ByteView body);
 [[nodiscard]] GameServerResult decode_game_server(const Frame& frame, ByteView body);
 [[nodiscard]] AuthClientResult decode_auth_client(const Frame& frame, ByteView body);
