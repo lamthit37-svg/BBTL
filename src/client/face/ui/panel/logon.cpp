@@ -36,6 +36,7 @@ constexpr std::array<std::string_view, 9> kSuffixes = {"@changyou.com", "@game.s
 constexpr std::size_t kOtherSuffix = 7;
 constexpr std::string_view kEnterButton = "LogOn_LogOnGame";
 constexpr std::string_view kSituation = "SeverSituation_InfoWindow";
+constexpr std::string_view kLogo = "Logon_Logo";
 
 // MaxTextLength của layout: 50 ở LogOn_ID và LogOn_MailID, 32 ở LogOn_PassWord.
 constexpr std::size_t kAccountLimit = 50;
@@ -270,11 +271,19 @@ void paint_suffix_list(Deck& deck, const Logon& logon) {
 
 } // namespace
 
+void place_logo(Deck& deck, std::string_view window) {
+    const std::string_view position = "{{1.000000,-270.000000},{0.000000,-14.000000}}";
+    const std::string_view size = "w:240.0 h:140.0";
+    deck.set(gui::Override{.window = window, .name = "UnifiedPosition", .value = position});
+    deck.set(gui::Override{.window = window, .name = "AbsoluteSize", .value = size});
+}
+
 void paint_logon(Deck& deck, const Logon& logon) {
     const bool is_classic = logon.kind == AccountKind::kClassic;
     const bool is_on_account = logon.focus == LogonField::kAccount;
     const std::string_view masked = kMask.substr(0, logon.password.size());
     deck.show(kRoot);
+    place_logo(deck, kLogo);
     hide_all(deck, kNeverShown);
     if (is_classic) hide_all(deck, kCustomOnly);
     if (!is_classic) hide_all(deck, kClassicOnly);

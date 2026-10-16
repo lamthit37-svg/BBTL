@@ -20,6 +20,7 @@
 #include "gui/strings.hpp"
 #include "ui/panel/code_text.hpp"
 #include "ui/panel/deck.hpp"
+#include "ui/panel/logon.hpp"
 #include "ui/panel/names.hpp"
 #include "ui/panel/servers.hpp"
 #include "ui/panel/wording.hpp"
@@ -37,6 +38,7 @@ namespace game::ui::panel {
 namespace {
 
 constexpr std::string_view kRoot = "SelectServer_Frame";
+constexpr std::string_view kLogo = "SelectServer_Logo";
 constexpr std::string_view kRecommendFrame = "SelectServer_Frame2_Sub1";
 constexpr std::string_view kFluencyFrame = "SelectServer_Frame2_Sub4";
 constexpr std::string_view kAreaFrame = "SelectServer_Frame2_Sub2";
@@ -756,6 +758,7 @@ std::optional<ServerRequest> take_server_request(SelectServer& panel) noexcept {
 
 void paint_server(Deck& deck, const SelectServer& panel) {
     deck.show(kRoot);
+    place_logo(deck, kLogo);
     deck.hide(kWeGameCancel);
     deck.hide(kFluencyFrame);
     // SelectServer.lua (dòng 2893) giấu 上一步 lúc nạp và không hiện lại; handler nhấn của nó đã bị chú thích.

@@ -8,14 +8,15 @@
 # - image/<bộ ảnh>/<tên ảnh>: giá trị là tệp PNG trong assets/i18n/vi/, đúng cỡ điểm ảnh của mảnh
 #   ảnh gốc; bộ dựng thay mảnh đó ngay trong atlas của bộ ảnh.
 # - file/<đường dẫn trong CLIENT/data>: giá trị là tệp trong assets/i18n/vi/, chép nguyên.
-# Ảnh. logo.png: logo tiếng Việt chủ dự án đưa ngày 2026-10-08, cắt về cỡ mảnh ảnh gốc.
-# CHỜ ẢNH NGUỒN (2026-10-13): 13 dòng bắt đầu bằng "#CHO_ANH " dưới đây trỏ tới PNG đã mất khi cây client trên ổ F (thư mục tl 2026) bị xoá
-# nhầm ngày 2026-10-09 (logo.png và button_sheet.png do chủ dự án vẽ, 12 nút sinh từ tấm đó). Chưa có
+# Ảnh. logo.png: logo "Thiên Long Bát Bộ" chủ dự án đưa ngày 2026-10-16 (thay bản 2026-10-08 đã mất), cắt khoảng
+# trống và đặt giữa mảnh 252 x 148 của CommonFrame9/Logo.
+# CHỜ ẢNH NGUỒN (2026-10-13): 12 dòng bắt đầu bằng "#CHO_ANH " dưới đây trỏ tới PNG đã mất khi cây client trên ổ F (thư mục tl 2026) bị xoá
+# nhầm ngày 2026-10-09 (button_sheet.png do chủ dự án vẽ, 12 nút sinh từ tấm đó; logo.png đã có lại 2026-10-16). Chưa có
 # bản thay nên các ảnh này tạm giữ ảnh gốc của client; có ảnh thì đặt vào assets/i18n/vi/ rồi bỏ tiền
 # tố "#CHO_ANH " để dựng lại. build_i18n coi dòng bắt đầu bằng # là chú thích.
 # >>> letter_labels: khối dưới do TOOLS/content/letter_labels.py --sync ghi theo source/labels.tsv, không sửa tay.
 # <<< letter_labels
-#CHO_ANH image/CommonFrame9/Logo	logo.png
+image/CommonFrame9/Logo	logo.png
 # Ba thẻ kiểu tài khoản và nút vào game của bảng nhập tài khoản: chữ lấy từ tấm nút tiếng Việt chủ
 # dự án đưa ngày 2026-10-08 (source/button_sheet.png), đặt lên đúng nền nút gốc bằng
 # TOOLS/content/letter_buttons.py; không sửa tay 12 tệp này. Thẻ truyền thống mang chữ "Đăng Nhập",

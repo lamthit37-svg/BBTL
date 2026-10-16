@@ -5,6 +5,9 @@
 # Sinh ngày 2026-10-13 từ Config/StrDictionary của client 2026 (bản gom ở dev/client/assets/Table/
 # ui_strings.tsv) cho các layout client đang nạp; báo cáo phủ ở docs/I18N-BAO-CAO-2026-10-13.md,
 # bảng thuật ngữ ở assets/i18n/glossary.tsv.
+# --- Ảnh ---
+# Logo "Thiên Long Bát Bộ" của chủ dự án thay logo gốc ở góc trên bên phải màn đăng nhập (mọi ngôn ngữ như nhau).
+image/CommonFrame9/Logo	logo.png
 # --- Chuỗi giao diện ---
 AQZX_130812_01	Click to open the Tianlong Babu Security Center and fully protect your account and assets.
 AQZX_130812_02	Security Center

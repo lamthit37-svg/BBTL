@@ -7,6 +7,9 @@
 # bảng thuật ngữ ở assets/i18n/glossary.tsv.
 # Giá trị là nguyên văn chữ gốc của client 2026 (StrDictionary/layout), ghi rõ để bản zh không phụ
 # thuộc chuyện khoá thiếu thì hiện chữ gốc.
+# --- Ảnh ---
+# Logo "Thiên Long Bát Bộ" của chủ dự án thay logo gốc ở góc trên bên phải màn đăng nhập (mọi ngôn ngữ như nhau).
+image/CommonFrame9/Logo	logo.png
 # --- Chuỗi giao diện ---
 AQZX_130812_01	点击进入天龙八部安全中心，全方位保护您的账号财产安全。
 AQZX_130812_02	安全中心

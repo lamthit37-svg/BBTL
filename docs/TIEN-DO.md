@@ -15,7 +15,7 @@ Chủ dự án giao bản dựng tiếng Việt hoàn chỉnh. Đã làm phần 
 - Thoại máy chủ: `[text] language = "vi"` trong `dev/server/config/zone.toml`; zone nạp `dialogue.vi.txt`. Sáu bảng thông báo `.vi.tsv` vẫn chưa có nơi nạp (sổ nghi mục 56).
 - Chữ Việt không bị cắt giữa từ khi bẻ dòng; mép cắt chữ nới 2 điểm lên trên để dấu thanh không mất, chỉ khi chữ không có ô cắt riêng (`writer_clip` giữ clip gốc). Giá trị i18n ghi ra NFC.
 - Glossary: xoá 11 dòng zh lặp (giữ dòng gặp trước). `build_i18n.check_glossary` chặn lần sau.
-- Ảnh chờ, chưa vẽ thay: 13 khoá `#CHO_ANH` trong `assets/i18n/vi.tsv` — `CommonFrame9/Logo`, sáu nút `Logon_Houzhui_*`, ba nút `Logon_Erweima_*`, ba nút `EnterGame_*` trên `CommonFrame18`/`CommonFrame28`.
+- Ảnh chờ, chưa vẽ thay: 12 khoá `#CHO_ANH` trong `assets/i18n/vi.tsv` (logo đã có lại 2026-10-16) — sáu nút `Logon_Houzhui_*`, ba nút `Logon_Erweima_*`, ba nút `EnterGame_*` trên `CommonFrame18`/`CommonFrame28`.
 
 Đã nhìn ảnh (`C:\Users\myhea\AppData\Local\Temp\thienlong-i18n-shots`, exe `build/i18n-vi/thienlong_client.exe`, Vulkan, `--frames 40`):
 

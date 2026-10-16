@@ -45,6 +45,11 @@ inline constexpr std::string_view kLogonKeysButton = "LogOn_Keyboard";
 // Danh sách thả của ô đuôi tài khoản: Combobox LogOn_Region dựng con từ look (nameSuffix của <Child>).
 inline constexpr std::string_view kLogonSuffixList = "LogOn_Region__auto_droplist__";
 
+// Đặt logo góc trên phải cho cả trang tài khoản (Logon_Logo) lẫn trang máy chủ (SelectServer_Logo).
+// Khác gốc: layout gốc đặt {{1, -204}, {0, 0}} cỡ 202x118; logo mới cỡ 240x140, lệch lên 14 điểm
+// và giữ lề phải 30 điểm (chủ dự án yêu cầu 2026-10-16).
+void place_logo(Deck& deck, std::string_view window);
+
 // g_AccountType của script: 1 là tên truyền thống kèm đuôi chọn trong danh sách, 2 là tên tự đặt.
 enum class AccountKind : std::uint8_t { kClassic, kCustom };
 
