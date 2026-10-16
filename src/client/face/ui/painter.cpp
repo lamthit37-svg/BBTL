@@ -1,3 +1,19 @@
+/*==============================================================================
+ *  THIENLONG  |  GAME CLIENT
+ *------------------------------------------------------------------------------
+ *  TỆP       : src/client/face/ui/painter.cpp
+ *  PHÂN HỆ   : Client / UI
+ *  CHUẨN     : C++23
+ *------------------------------------------------------------------------------
+ *  CHỨC NĂNG
+ *  - Đưa quad giao diện lên lượt vẽ 2D.
+ *  - PNG vá chỉ thay ảnh gốc khi cùng cỡ, kẻo toạ độ imageset kẹp thành một
+ *    màu.
+ *------------------------------------------------------------------------------
+ *  TÁC GIẢ   : HiepHoon
+ *  TELEGRAM  : @Hoon9xx
+ *============================================================================*/
+
 #include "ui/painter.hpp"
 
 #include "core/error.hpp"
@@ -12,6 +28,7 @@
 
 #include <algorithm>
 #include <array>
+#include <cctype>
 #include <cstddef>
 #include <cstdint>
 #include <cmath>
@@ -23,6 +40,7 @@
 #include <print>
 #include <span>
 #include <string>
+#include <string_view>
 #include <utility>
 #include <vector>
 
@@ -160,17 +178,114 @@ void snap(std::span<render::UiVertex> vertices, float scale) {
     }
 }
 
+// Cỡ ảnh đọc từ đầu tệp. Ảnh ghép hỏng (CommonFrame.tga.png 188x63 cạnh TGA 256x256) không được
+// thay: toạ độ PaoPao_BK nằm ngoài tấm nhỏ, sampler kẹp vào ô xanh và lát kín bảng chọn máy chủ.
+struct Extent {
+    std::uint32_t width = 0;
+    std::uint32_t height = 0;
+    friend constexpr bool operator==(const Extent&, const Extent&) = default;
+};
+
+[[nodiscard]] std::uint8_t byte_at(std::span<const std::byte> bytes, std::size_t index) noexcept {
+    return std::to_integer<std::uint8_t>(bytes[index]);
+}
+
+[[nodiscard]] std::uint32_t le32(std::span<const std::byte> bytes, std::size_t at) noexcept {
+    const std::uint32_t b0 = byte_at(bytes, at);
+    const std::uint32_t b1 = byte_at(bytes, at + 1U);
+    const std::uint32_t b2 = byte_at(bytes, at + 2U);
+    const std::uint32_t b3 = byte_at(bytes, at + 3U);
+    return b0 | (b1 << 8U) | (b2 << 16U) | (b3 << 24U);
+}
+
+[[nodiscard]] std::uint32_t be32(std::span<const std::byte> bytes, std::size_t at) noexcept {
+    const std::uint32_t b0 = byte_at(bytes, at);
+    const std::uint32_t b1 = byte_at(bytes, at + 1U);
+    const std::uint32_t b2 = byte_at(bytes, at + 2U);
+    const std::uint32_t b3 = byte_at(bytes, at + 3U);
+    return (b0 << 24U) | (b1 << 16U) | (b2 << 8U) | b3;
+}
+
+[[nodiscard]] std::optional<Extent> extent_or(std::uint32_t width, std::uint32_t height) noexcept {
+    if (width == 0 || height == 0) return std::nullopt;
+    return Extent{.width = width, .height = height};
+}
+
+[[nodiscard]] std::uint32_t le16(std::span<const std::byte> bytes, std::size_t at) noexcept {
+    const std::uint32_t low = byte_at(bytes, at);
+    const std::uint32_t high = byte_at(bytes, at + 1U);
+    return low | (high << 8U);
+}
+
+[[nodiscard]] std::optional<Extent> png_extent(std::span<const std::byte> bytes) noexcept {
+    if (bytes.size() < 24) return std::nullopt;
+    const bool lead = byte_at(bytes, 0) == 0x89 && byte_at(bytes, 1) == 0x50;
+    const bool kind = byte_at(bytes, 2) == 0x4E && byte_at(bytes, 3) == 0x47;
+    const bool mark = byte_at(bytes, 4) == 0x0D && byte_at(bytes, 5) == 0x0A;
+    const bool tail = byte_at(bytes, 6) == 0x1A && byte_at(bytes, 7) == 0x0A;
+    if (!lead || !kind || !mark || !tail) return std::nullopt;
+    return extent_or(be32(bytes, 16), be32(bytes, 20));
+}
+
+[[nodiscard]] std::optional<Extent> dds_extent(std::span<const std::byte> bytes) noexcept {
+    if (bytes.size() < 20) return std::nullopt;
+    const bool lead = byte_at(bytes, 0) == 'D' && byte_at(bytes, 1) == 'D';
+    const bool rest = byte_at(bytes, 2) == 'S' && byte_at(bytes, 3) == ' ';
+    if (!lead || !rest) return std::nullopt;
+    return extent_or(le32(bytes, 16), le32(bytes, 12));
+}
+
+[[nodiscard]] std::optional<Extent> tga_extent(std::span<const std::byte> bytes) noexcept {
+    if (bytes.size() < 18) return std::nullopt;
+    return extent_or(le16(bytes, 12), le16(bytes, 14));
+}
+
+[[nodiscard]] bool same_letter(char left, char right) noexcept {
+    const auto first = static_cast<unsigned char>(left);
+    const auto second = static_cast<unsigned char>(right);
+    return std::tolower(first) == std::tolower(second);
+}
+
+[[nodiscard]] bool ends_with_ci(std::string_view text, std::string_view suffix) noexcept {
+    if (text.size() < suffix.size()) return false;
+    const std::string_view tail = text.substr(text.size() - suffix.size());
+    return std::ranges::equal(tail, suffix, same_letter);
+}
+
+[[nodiscard]] std::optional<Extent> stored_extent(std::string_view path,
+    std::span<const std::byte> bytes) noexcept {
+    if (ends_with_ci(path, ".png")) return png_extent(bytes);
+    if (ends_with_ci(path, ".dds")) return dds_extent(bytes);
+    if (ends_with_ci(path, ".tga")) return tga_extent(bytes);
+    return std::nullopt;
+}
+
+// PNG vá chỉ thay ảnh gốc khi cùng cỡ. Lệch cỡ thì giữ gốc: imageset viết toạ độ theo tệp gốc.
+[[nodiscard]] std::string sheet_file(const std::string& chosen) {
+    const std::string patched = chosen + ".png";
+    const std::filesystem::path patch_path = io::path_from_utf8(patched);
+    if (!std::filesystem::is_regular_file(patch_path)) return chosen;
+    const io::TextResult patch_bytes = io::read_text(patch_path);
+    if (!patch_bytes) return chosen;
+    const io::TextResult source_bytes = io::read_text(io::path_from_utf8(chosen));
+    if (!source_bytes) return patched;
+    const auto patch_raw = std::as_bytes(std::span(*patch_bytes));
+    const auto source_raw = std::as_bytes(std::span(*source_bytes));
+    const std::optional<Extent> source = stored_extent(chosen, source_raw);
+    const std::optional<Extent> patch = png_extent(patch_raw);
+    if (!source || !patch || *source != *patch) return chosen;
+    return patched;
+}
+
 } // namespace
 
 Painter::Painter(render::UiPass& pass, std::filesystem::path data_root, resource::TextureTier tier)
     : pass_(&pass), root_(std::move(data_root)), tier_(tier) {}
 
-// Đọc bản PNG cạnh Imagefile khi có (collect giải ra, build_i18n vá chữ Việt vào đó), không thì tệp gốc
-// hay bản đã nấu của tier. Lỗi thì ghi một dòng và trả bản hỏng.
+// PNG cùng cỡ cạnh Imagefile thì dùng; lệch cỡ thì tệp gốc. Lỗi thì ghi một dòng và trả bản hỏng.
 Painter::Loaded Painter::load(const std::string& name) {
     const std::string chosen = resource::texture_file(io::utf8_of(root_), "Interface/" + name, tier_);
-    const std::string patched = chosen + ".png";
-    const std::string used = std::filesystem::is_regular_file(io::path_from_utf8(patched)) ? patched : chosen;
+    const std::string used = sheet_file(chosen);
     const std::filesystem::path file = io::path_from_utf8(used);
     const io::TextResult bytes = io::read_text(file);
     if (!bytes) {

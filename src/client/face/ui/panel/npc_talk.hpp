@@ -32,6 +32,7 @@
 
 #pragma once
 
+#include "table/tsv.hpp"
 #include "ui/panel/deck.hpp"
 #include "quest/log.hpp"
 #include "ui/panel/talk.hpp"
@@ -69,6 +70,8 @@ public:
     bool load(std::string_view tsv_text);
     // Thêm mẫu chưa có. Thiếu cột id thì không đụng bảng đã nạp và trả false. Id đã có thì bỏ qua dòng đó.
     bool absorb(std::string_view tsv_text);
+    // Như load/absorb nhưng trên bảng đã dịch. replace xoá bảng cũ. Dòng tên dự trữ (未使用) không vào.
+    bool load_table(const table::Tsv& table, bool replace);
     // Đọc cột icon và imageset. Thiếu một trong hai cột thì giữ bảng icon cũ và trả false.
     bool load_icons(std::string_view tsv_text);
     // Tên của mẫu; rỗng khi không có hoặc id không vừa int32.

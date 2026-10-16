@@ -615,6 +615,8 @@ game_module(ui_panel
     src/client/face/ui/panel/scene_trans.cpp
     src/client/face/ui/panel/start.cpp
     src/client/face/ui/panel/player_frame.cpp
+    src/client/face/ui/panel/target_frame.cpp
+    src/client/face/ui/panel/relive.cpp
     src/client/face/ui/panel/minimap.cpp
     src/client/face/ui/panel/maps.cpp
     src/client/face/ui/panel/menubar.cpp
@@ -1716,6 +1718,15 @@ if(TARGET game_render)
     game_test(camera game_render)
     game_test(catalog game_render)
     game_test(detail game_render)
+endif()
+if(TARGET game_ui AND NOT ANDROID)
+    # Cỡ giao diện theo mật độ và cỡ màn (ui/hud.hpp layout_scale); không cần dữ liệu.
+    game_test(ui_layout game_ui)
+    game_test(ui_i18n game_ui)
+    target_compile_definitions(ui_i18n_tests PRIVATE
+        GAME_CLIENT_DATA="${PROJECT_SOURCE_DIR}/dev/client/assets"
+        GAME_I18N_VI="${PROJECT_SOURCE_DIR}/assets/i18n/vi.tsv"
+        GAME_DIALOGUE_VI="${PROJECT_SOURCE_DIR}/dev/server/tables/server/dialogue.vi.txt")
 endif()
 if(TARGET game_ui AND NOT ANDROID
         AND EXISTS "${PROJECT_SOURCE_DIR}/dev/client/assets/Interface/Schema/VTNAM14.bin")

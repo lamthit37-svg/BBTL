@@ -1,13 +1,29 @@
-// Cầu nối từ dàn trang (gui::Hub) sang đỉnh và lô của lượt vẽ 2D (render::UiPass). Mỗi khung gom
-// ba danh sách của Hub theo lớp (cửa sổ gốc): ảnh tĩnh, ảnh động rồi chữ của một gốc vẽ xong mới
-// tới gốc kế, nên bảng mở sau đè trọn lên bảng dưới nó. Ô nguồn theo điểm ảnh đổi sang toạ độ ảnh
-// 0..1; quad liền nhau cùng texture gom thành một lô; texture gốc tải lên GPU khi gặp lần đầu.
-// Texture của asset là tên Imagefile gốc ("Common/Button.dds"), mở đúng tệp đó dưới Interface; điện
-// thoại mở bản đã nấu cùng tên dưới mobile/astc hay mobile/etc2 (resource::texture_file) khi có, vì
-// GPU điện thoại không đọc khối BC của DDS.
-// Quad ảnh cảnh (kSceneMap) vẽ bằng atlas minimap của PaintKit; quad tròn (LookLikeRound) thành
-// quạt 16 tam giác, ghép đôi thành 8 quad có chung đỉnh tâm.
-// Nguồn: bản mới của dự án, tương ứng pc_hud.cpp của TLBB Dev (bgfx) ở phần đưa quad lên thiết bị.
+/*==============================================================================
+ *  THIENLONG  |  GAME CLIENT
+ *------------------------------------------------------------------------------
+ *  TỆP       : src/client/face/ui/painter.hpp
+ *  PHÂN HỆ   : Face / Ui / Painter
+ *  CHUẨN     : C++23
+ *------------------------------------------------------------------------------
+ *  CHỨC NĂNG
+ *  - Cầu nối từ dàn trang (gui::Hub) sang đỉnh và lô của lượt vẽ 2D
+ *    (render::UiPass). Mỗi khung gom ba danh sách của Hub theo lớp (cửa sổ
+ *    gốc): ảnh tĩnh, ảnh động rồi chữ của một gốc vẽ xong mới tới gốc kế, nên
+ *    bảng mở sau đè trọn lên bảng dưới nó. Ô nguồn theo điểm ảnh đổi sang toạ
+ *    độ ảnh 0..1; quad liền nhau cùng texture gom thành một lô; texture gốc tải
+ *    lên GPU khi gặp lần đầu.
+ *------------------------------------------------------------------------------
+ *  TÁC GIẢ   : HiepHoon
+ *  TELEGRAM  : @Hoon9xx
+ *============================================================================*/
+
+// Texture của asset là tên Imagefile gốc ("Common/Button.dds"), mở tệp đó dưới Interface. PNG cạnh tệp (chữ đã vá)
+// chỉ thay khi cùng chiều rộng và chiều cao: ảnh lệch cỡ làm toạ độ imageset kẹp thành một màu. Điện thoại mở bản đã
+// nấu cùng tên dưới mobile/astc hay mobile/etc2 (resource::texture_file) khi có, vì GPU điện thoại không đọc khối BC
+// của DDS. Quad ảnh cảnh (kSceneMap) vẽ bằng atlas minimap của PaintKit; quad tròn (LookLikeRound) thành quạt 16 tam
+// giác, ghép đôi thành 8 quad có chung đỉnh tâm. Nguồn: bản mới của dự án, tương ứng pc_hud.cpp của TLBB Dev (bgfx) ở
+// phần đưa quad lên thiết bị.
+
 #pragma once
 
 #include "gui/asset.hpp"

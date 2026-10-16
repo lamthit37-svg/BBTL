@@ -30,10 +30,13 @@
 #include "hero/hero.hpp"
 #include "render/ui.hpp"
 #include "resource/tier.hpp"
+#include "table/tsv.hpp"
 #include "ui/panel/events.hpp"
 #include "ui/panel/login_flow.hpp"
 #include "ui/panel/online.hpp"
 #include "ui/panel/talk.hpp"
+#include "ui/panel/relive.hpp"
+#include "ui/panel/target_frame.hpp"
 #include "ui/view.hpp"
 
 #include <chrono>
@@ -95,6 +98,9 @@ struct HudView {
     Phase phase = Phase::kPlay;
     float width = 0.0F;
     float height = 0.0F;
+    // Điểm ảnh của màn cho một điểm của layout khi màn đủ chỗ: 1 trên PC, dpi/160 trên Android, contentScaleFactor trên
+    // iOS, để giao diện giữ cỡ vật lý trên màn mật độ cao.
+    float density = 1.0F;
     std::optional<gui::Pointer> pointer;
     HudScene scene;
     // Nhân vật của người chơi; nullptr thì khung nhân vật giữ chữ của layout.
@@ -116,6 +122,11 @@ struct HudView {
     std::string_view talk_title;
     // Hồi chiêu còn lại (ms) của từng ô thanh kỹ năng, cùng chỉ số với hero.skills. Ô không có trong span là đã hồi.
     std::span<const std::uint32_t> bar_left_ms;
+    // Mục tiêu đang chọn. Rỗng thì khung mục tiêu giấu. name mượn phải sống tới hết prepare.
+    std::optional<panel::Target> target;
+    // Người chơi đã chết: hiện cửa sổ hồi sinh. loss là phạt kinh nghiệm và tiền nếu máy chủ đã báo.
+    bool is_dead = false;
+    std::optional<panel::DeathLoss> loss;
 };
 
 // Việc một nút của giao diện nhờ client làm ngoài giao diện (vào game, mở trang web, rời bảng).
@@ -128,6 +139,12 @@ struct RunTo {
     float z = 0.0F;
 };
 
+// Bảng chuỗi giao diện: gốc rồi lớp phủ của ngôn ngữ đang dựng. Thiếu tệp thì bảng giữ phần đã nạp.
+[[nodiscard]] gui::StringBook strings_of(const std::filesystem::path& data_root);
+
+// Đọc một bảng Table và thay ô theo <bảng>.lang.tsv khi có. Thiếu tệp hay hỏng thì rỗng.
+[[nodiscard]] std::optional<table::Tsv> read_localized_table(const std::filesystem::path& file);
+
 // Bảng tên cảnh của ngôn ngữ đang dựng. Thiếu tệp thì bảng rỗng và tên trả nguyên.
 [[nodiscard]] gui::StringBook scene_names(const std::filesystem::path& data_root);
 
@@ -135,6 +152,10 @@ struct RunTo {
 // bảng cảnh, bảng chân dung, dữ liệu hai phông). Chạy ở luồng riêng ngay khi start gọi, để trùng với việc tạo thiết bị
 // GPU và nạp cảnh thay vì nối đuôi chúng; Hud::open nhận kết quả (chờ nếu chưa xong) rồi chỉ còn đưa phông lên GPU.
 // Huỷ HudPrep khi chưa dùng thì chờ luồng đọc xong.
+// Điểm ảnh của màn cho một điểm của layout: density khi màn chứa được khung ảo 800 x 640 điểm layout ở mật độ ấy, nhỏ hơn
+// khi không đủ chỗ (cả giao diện co cho vừa thay vì cắt bảng). Mật độ không dương coi như 1.
+[[nodiscard]] float layout_scale(float width, float height, float density) noexcept;
+
 class HudPrep {
 public:
     [[nodiscard]] static HudPrep start(const HudDesc& desc);
@@ -165,9 +186,9 @@ public:
     Hud& operator=(const Hud&) = delete;
     ~Hud();
 
-    // Dàn trang lại khi cần và dựng đỉnh cho khung. Gọi ngoài begin_rendering. Màn nhỏ hơn 800 x 640 (gần cỡ cửa sổ nhỏ nhất
-    // của client 2026) thì dàn trên khung ảo 800 x 640 rồi co cả giao diện cho vừa màn; mọi toạ độ vào và ra API này vẫn là
-    // điểm ảnh của màn.
+    // Dàn trang lại khi cần và dựng đỉnh cho khung. Gọi ngoài begin_rendering. Giao diện phóng theo view.density, và màn nhỏ
+    // hơn 800 x 640 điểm layout (gần cỡ cửa sổ nhỏ nhất của client 2026) thì co thêm cho vừa (layout_scale); mọi toạ độ vào
+    // và ra API này vẫn là điểm ảnh của màn.
     void prepare(const HudView& view);
 
     // Quad vẽ thêm cùng lượt HUD (bảng nhịp), theo điểm ảnh của màn và không co theo giao diện. Rỗng thì chỉ vẽ giao diện.
@@ -201,6 +222,8 @@ public:
     [[nodiscard]] std::optional<RunTo> take_run_to() noexcept;
     // Ô Button_Action vừa nhấn (0 là Button_Action1). Rỗng khi nhấn ô trống hoặc không phải ô kỹ năng. Lấy rồi thì hết.
     [[nodiscard]] std::optional<std::uint32_t> take_skill_slot() noexcept;
+    // Nút hồi sinh vừa nhấn. Rỗng khi không nhấn. Lấy một lần.
+    [[nodiscard]] std::optional<panel::talk::Place> take_revive() noexcept;
     // Tốc độ xoay người mẫu của bảng nhân vật theo đối số RotateBeginEx của script (âm là sang trái, 0 là
     // không giữ nút xoay): client đổi ra góc cho ảnh toàn thân.
     [[nodiscard]] float equip_spin() const noexcept;

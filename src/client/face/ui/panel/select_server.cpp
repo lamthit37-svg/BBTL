@@ -1,5 +1,18 @@
-// Bảng chọn máy chủ (xem select_server.hpp). Mỗi hàm dưới đây là bản dịch của một hàm trong
-// SelectServer.lua; tên hàm gốc ghi ở đầu từng hàm.
+/*==============================================================================
+ *  THIENLONG  |  GAME CLIENT
+ *------------------------------------------------------------------------------
+ *  TỆP       : src/client/face/ui/panel/select_server.cpp
+ *  PHÂN HỆ   : Ui / Panel / Select Server
+ *  CHUẨN     : C++23
+ *------------------------------------------------------------------------------
+ *  CHỨC NĂNG
+ *  - Bảng chọn máy chủ (xem select_server.hpp). Mỗi hàm dưới đây là bản dịch
+ *    của một hàm trong SelectServer.lua; tên hàm gốc ghi ở đầu từng hàm.
+ *------------------------------------------------------------------------------
+ *  TÁC GIẢ   : HiepHoon
+ *  TELEGRAM  : @Hoon9xx
+ *============================================================================*/
+
 #include "ui/panel/select_server.hpp"
 
 #include "gui/content.hpp"
@@ -172,7 +185,8 @@ constexpr std::string_view kHelpPicked = "#{FWQWL_201130_02}";
 constexpr std::string_view kNewMark = "#{DLYHQF_12121324}";
 constexpr std::string_view kServerWord = "#{DLYHQF_12121333}";
 constexpr std::string_view kArenaMark = "#{GJHC_260424_18}";
-constexpr std::string_view kNoLast = "无";
+// Khoá từ điển "无": bản tiếng Việt là "Không", bản gốc giữ chữ Hán. Bộ vẽ giải #{ID} lúc vẽ.
+constexpr std::string_view kNoLast = "#{INTERFACE_XML_720}";
 
 [[nodiscard]] constexpr std::size_t slot(BigArea big) noexcept {
     return std::to_underlying(big);
@@ -666,7 +680,7 @@ void paint_servers(Deck& deck, const SelectServer& panel) {
     }
 }
 
-// Nút lần đăng nhập trước: tên máy chủ, hoặc "无" và khoá khi chưa có hay đang bảo trì.
+// Nút lần đăng nhập trước: tên máy chủ, hoặc "Không" và khoá khi chưa có hay đang bảo trì.
 void paint_last(Deck& deck, const SelectServer& panel) {
     const LoginServer* server = panel.last ? server_of(panel, *panel.last) : nullptr;
     set_text(deck, kLastButton, server == nullptr ? kNoLast : std::string_view(server->name));

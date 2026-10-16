@@ -50,6 +50,8 @@
 #include "ui/panel/online.hpp"
 #include "ui/panel/packet.hpp"
 #include "ui/panel/player_frame.hpp"
+#include "ui/panel/relive.hpp"
+#include "ui/panel/target_frame.hpp"
 #include "ui/panel/portraits.hpp"
 #include "ui/panel/quest_book.hpp"
 #include "ui/panel/quest_log.hpp"
@@ -106,8 +108,10 @@ namespace {
 // Layout của HUD, của ba bảng mở từ thanh menu chính, của các bảng đăng nhập (chọn máy chủ, tài khoản,
 // chọn và tạo nhân vật) và bàn phím ảo của chúng
 // (đường dẫn tương đối với Interface).
-constexpr std::array<std::string_view, 41> kLayouts = {
+constexpr std::array<std::string_view, 43> kLayouts = {
     "PlayerFrame/PlayerFrame.layout.xml",
+    "TargetFrame/TargetFrame.layout.xml",
+    "Relive/Relive.layout.xml",
     "MiniMap/MiniMap.layout.xml",
     "MainMenuBar/MainMenuBar.layout.xml",
     "MainMenuBar_2/MainMenuBar_2.layout.xml",
@@ -191,16 +195,12 @@ constexpr std::string_view kFontFile = "Schema/GBK12.bin";
 constexpr std::string_view kViFontFile = "Schema/VTNAM14.bin";
 
 // Cỡ cửa sổ nhỏ nhất của client 2026 là 800 x 600 (hàm đặt độ phân giải của Game.exe, docs/TIEN-DO.md "Khung chơi trên PC"); bảng
-// đăng nhập cần cao khoảng 620 điểm ảnh (đo trên LDPlayer 960 x 540: ở 600 hàng nút dưới cùng bị cắt) nên khung ảo cao 640. Bản gốc không co giao diện (Imageset::notifyDisplaySizeChanged đặt hệ số co 1,0): từ cỡ này trở
-// lên mọi điểm ảnh là 1:1 nên ảnh và chữ bitmap sắc nét. Chỉ màn nhỏ hơn (LDPlayer 960 x 540, điện thoại) mới dàn trang trên
-// khung ảo 800 x 640 rồi co cho vừa màn, thay vì cắt bảng. PC mặc định 1280 x 720 vẫn là 1:1.
+// đăng nhập cần cao khoảng 620 điểm ảnh (đo trên LDPlayer 960 x 540: ở 600 hàng nút dưới cùng bị cắt) nên khung ảo cao 640. Bản
+// gốc không co giao diện (Imageset::notifyDisplaySizeChanged đặt hệ số co 1,0): PC có mật độ 1 nên từ cỡ này trở lên mọi điểm
+// ảnh là 1:1, ảnh và chữ bitmap sắc nét. Màn mật độ cao (iPad Retina, tablet 320 dpi) phóng theo mật độ để giữ cỡ vật lý, như
+// Constant Physical Size của Unity. Màn nhỏ hơn khung ảo (LDPlayer 960 x 540, điện thoại) co cho vừa thay vì cắt bảng.
 constexpr float kLayoutWidth = 800.0F;
 constexpr float kLayoutHeight = 640.0F;
-// Số điểm ảnh của màn cho một điểm ảnh của layout: 1 khi màn không nhỏ hơn khung ảo, nhỏ hơn 1 khi màn nhỏ hơn.
-[[nodiscard]] float layout_scale(float width, float height) noexcept {
-    if (!(width > 0.0F) || !(height > 0.0F)) return 1.0F;
-    return std::min({width / kLayoutWidth, height / kLayoutHeight, 1.0F});
-}
 
 // Đầu vào của khung đổi từ điểm ảnh của màn sang điểm ảnh của layout: cỡ và con trỏ chia cho scale.
 [[nodiscard]] HudView layout_view(const HudView& view, float scale) {
@@ -291,14 +291,6 @@ panel::RoleCast cast_of(const std::filesystem::path& data_root, const std::optio
     return cast;
 }
 
-// Bảng chuỗi gốc của client (Table/ui_strings.tsv, trích StrDictionary). Bản dịch
-// Table/ui_strings.lang.tsv chưa nạp: chủ dự án muốn hết bản gốc trước, tiếng Việt để sau.
-gui::StringBook strings_of(const std::filesystem::path& data_root) {
-    gui::StringBook book;
-    add_strings(book, data_root / "Table" / "ui_strings.tsv");
-    return book;
-}
-
 // Tên fake object của đầu người chơi nếu nơi vẽ đã dựng ảnh của nó; rỗng thì chưa có.
 std::string_view head_model(std::span<const ViewPaint> views) noexcept {
     const auto is_head = [](const ViewPaint& view) { return view.name == panel::kPlayerHead; };
@@ -321,6 +313,18 @@ bool same_map(const std::optional<MapPaint>& left, const std::optional<MapPaint>
 }
 
 } // namespace
+
+// Bảng chuỗi gốc rồi lớp phủ Table/ui_strings.lang.tsv. Khoá không có trong bản dịch giữ chữ gốc.
+gui::StringBook strings_of(const std::filesystem::path& data_root) {
+    gui::StringBook book;
+    add_strings(book, data_root / "Table" / "ui_strings.tsv");
+    add_strings(book, data_root / "Table" / "ui_strings.lang.tsv");
+    return book;
+}
+
+std::optional<table::Tsv> read_localized_table(const std::filesystem::path& file) {
+    return read_table(file);
+}
 
 gui::StringBook scene_names(const std::filesystem::path& data_root) {
     gui::StringBook book;
@@ -541,6 +545,7 @@ struct Hud::State {
     bool has_skill_icons_failed = false;
     // Ô kỹ năng vừa nhấn; prepare xong thì Display lấy đi và ra chiêu.
     std::optional<std::uint32_t> skill_press;
+    std::optional<panel::talk::Place> revive_press;
     // Thanh kỹ năng thú cưng (MainMenuBar_3) và việc nó nhờ ở lần nhấn gần nhất. Danh sách action của
     // thanh do hệ thú cưng giữ, client chưa có hệ đó nên thanh chưa hiện (xem main_menu_bar_3.hpp).
     panel::MainMenuBar3 pet_bar;
@@ -872,6 +877,7 @@ void Hud::State::note_press(const HudView& view) {
         panel::pick_talk_option(talk, *option, view.clock);
     }
     panel::press_packet(packet, *window);
+    if (const std::optional<panel::talk::Place> place = panel::relive_place(*window)) revive_press = *place;
     if (const std::optional<std::uint32_t> slot = panel::skill_slot_of(*window)) {
         const bool known = view.hero != nullptr && *slot < view.hero->skills.size();
         if (known) skill_press = *slot;
@@ -1267,6 +1273,8 @@ void Hud::State::fill_play(const HudView& view) {
     if (panel::is_open(desk, panel::Board::kBag)) {
         panel::paint_packet(deck, packet, item_names, view.hero != nullptr ? view.hero->purse : hero::Purse{});
     }
+    panel::fill_target(deck, view.target);
+    panel::fill_relive(deck, view.is_dead, view.loss);
     if (view.hero == nullptr) return;
     panel::Face face;
     face.image = portraits.image_of(view.hero->portrait);
@@ -1554,9 +1562,15 @@ core::Result<Hud> Hud::open(render::UiPass& pass, const HudDesc& desc, HudPrep p
     return Hud(std::move(state));
 }
 
+float layout_scale(float width, float height, float density) noexcept {
+    const float ceiling = density > 0.0F ? density : 1.0F;
+    if (!(width > 0.0F) || !(height > 0.0F)) return ceiling;
+    return std::min({width / kLayoutWidth, height / kLayoutHeight, ceiling});
+}
+
 void Hud::prepare(const HudView& screen_view) {
     State& state = *state_;
-    state.scale = layout_scale(screen_view.width, screen_view.height);
+    state.scale = layout_scale(screen_view.width, screen_view.height, screen_view.density);
     const HudView view = layout_view(screen_view, state.scale);
     state.views = view.views;
     state.enter(view.phase);
@@ -1648,19 +1662,23 @@ std::optional<std::uint32_t> Hud::take_skill_slot() noexcept {
     return std::exchange(state_->skill_press, std::nullopt);
 }
 
+std::optional<panel::talk::Place> Hud::take_revive() noexcept {
+    return std::exchange(state_->revive_press, std::nullopt);
+}
+
 // Bảng tên vật phẩm đọc ở lần đầu một phần thưởng hay yêu cầu cần tên; hỏng thì thôi, phần thưởng hiện theo số mẫu.
 void Hud::State::ensure_item_names() {
     if (item_names.is_loaded() || has_item_names_failed) return;
-    const io::TextResult text = io::read_text(client_root / "Table" / "items.tsv");
-    if (!text || !item_names.load(*text)) {
+    const std::optional<table::Tsv> text = read_table(client_root / "Table" / "items.tsv");
+    if (!text || !item_names.load_table(*text, true)) {
         has_item_names_failed = true;
         std::println(stderr, "Hộp thoại: không đọc được Table/items.tsv, phần thưởng hiện theo số mẫu");
         return;
     }
     // Trang bị, bảo thạch và vật phẩm hoạt động không có trong items.tsv. Thiếu tệp thì ô đó dùng ảnh thay.
     const auto take = [this](const char* file) {
-        const io::TextResult extra = io::read_text(client_root / "Table" / file);
-        if (!extra || !item_names.absorb(*extra)) {
+        const std::optional<table::Tsv> extra = read_table(client_root / "Table" / file);
+        if (!extra || !item_names.load_table(*extra, false)) {
             std::println(stderr, "Hòm đồ: không đọc được Table/{}, mẫu ở bảng đó không có tên", file);
         }
     };
@@ -1676,8 +1694,8 @@ void Hud::State::ensure_item_names() {
 // Bảng kỹ năng và bảng icon cho mười ô MainMenuBar. Thiếu tệp thì ô vẫn bấm được, ảnh là set:X image:X.
 void Hud::State::ensure_skill_book() {
     if (!skill_book.is_loaded() && !has_skill_book_failed) {
-        const io::TextResult text = io::read_text(client_root / "Table" / "skills.tsv");
-        if (!text || !skill_book.load(*text)) {
+        const std::optional<table::Tsv> text = read_table(client_root / "Table" / "skills.tsv");
+        if (!text || !skill_book.load_table(*text)) {
             has_skill_book_failed = true;
             std::println(stderr, "Thanh kỹ năng: không đọc được Table/skills.tsv, ô dùng ảnh thay");
         }

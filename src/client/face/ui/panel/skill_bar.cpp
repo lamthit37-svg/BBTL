@@ -15,6 +15,8 @@
 #include "ui/panel/skill_bar.hpp"
 
 #include "core/number.hpp"
+#include "table/localize.hpp"
+#include "table/tsv.hpp"
 #include "gui/sheet.hpp"
 #include "ui/panel/deck.hpp"
 #include "ui/panel/npc_talk.hpp"
@@ -120,6 +122,28 @@ void paint_slot(Deck& deck, std::size_t slot, std::span<const std::uint32_t> ski
 }
 
 } // namespace
+
+bool SkillBook::load_table(const table::Tsv& table) {
+    rows_.clear();
+    is_loaded_ = false;
+    const std::optional<std::size_t> id_column = table::column_of(table, "id");
+    const std::optional<std::size_t> name_column = table::column_of(table, "name");
+    const std::optional<std::size_t> icon_column = table::column_of(table, "icon");
+    if (!id_column || !name_column) return false;
+    for (const std::vector<std::string>& cells : table.rows) {
+        if (rows_.size() >= kSkillBookRows) break;
+        if (cells.size() <= *id_column || cells.size() <= *name_column) continue;
+        const std::optional<int> id = core::parse_whole_int(cells[*id_column]);
+        if (!id || rows_.contains(*id)) continue;
+        const std::string_view skill_name{cells[*name_column]};
+        if (table::is_reserved_name(skill_name)) continue;
+        const std::string_view skill_icon = icon_column && cells.size() > *icon_column ? std::string_view{cells[*icon_column]}
+                                                                                       : std::string_view{};
+        rows_.emplace(*id, Entry{.name = std::string(skill_name), .icon = std::string(skill_icon)});
+    }
+    is_loaded_ = true;
+    return true;
+}
 
 bool SkillBook::load(std::string_view text) {
     rows_.clear();

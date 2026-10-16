@@ -21,6 +21,8 @@
 
 #pragma once
 
+#include "table/tsv.hpp"
+
 #include <cstddef>
 #include <cstdint>
 #include <optional>
@@ -44,6 +46,8 @@ class SkillBook {
 public:
     // Đọc cột id, name, icon. Thiếu id hoặc name thì giữ sách rỗng và trả false. Id lặp giữ dòng đầu.
     bool load(std::string_view tsv_text);
+    // Như load trên bảng đã dịch. Dòng tên dự trữ không vào. Quá kSkillBookRows thì bỏ phần dư.
+    bool load_table(const table::Tsv& table);
     [[nodiscard]] std::string_view name(std::int32_t skill) const noexcept;
     [[nodiscard]] std::string_view icon(std::int32_t skill) const noexcept;
     // "set:<imageset> image:<icon>" qua icons. Id vượt int32, thiếu icon hoặc thiếu imageset thì "set:X image:X".

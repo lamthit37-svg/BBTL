@@ -16,6 +16,8 @@
 #include "ui/panel/npc_talk.hpp"
 
 #include "core/number.hpp"
+#include "table/localize.hpp"
+#include "table/tsv.hpp"
 #include "gui/content.hpp"
 #include "gui/sheet.hpp"
 #include "quest/log.hpp"
@@ -294,6 +296,32 @@ bool ItemNames::load(std::string_view text) {
     });
     is_loaded_ = loaded;
     return loaded;
+}
+
+bool ItemNames::load_table(const table::Tsv& table, bool replace) {
+    const std::optional<std::size_t> id_column = table::column_of(table, "id");
+    const std::optional<std::size_t> name_column = table::column_of(table, "name");
+    const std::optional<std::size_t> icon_column = table::column_of(table, "icon");
+    if (!id_column) return false;
+    if (replace && !name_column) return false;
+    if (replace) {
+        rows_.clear();
+        is_loaded_ = false;
+    }
+    for (const std::vector<std::string>& cells : table.rows) {
+        if (cells.size() <= *id_column) continue;
+        const std::optional<int> id = core::parse_whole_int(cells[*id_column]);
+        if (!id) continue;
+        if (!replace && rows_.contains(*id)) continue;
+        const std::string_view item_name = name_column && cells.size() > *name_column ? std::string_view{cells[*name_column]}
+                                                                                      : std::string_view{};
+        if (table::is_reserved_name(item_name)) continue;
+        const std::string_view item_icon = icon_column && cells.size() > *icon_column ? std::string_view{cells[*icon_column]}
+                                                                                      : std::string_view{};
+        rows_.insert_or_assign(*id, Entry{.name = std::string(item_name), .icon = std::string(item_icon)});
+    }
+    if (replace) is_loaded_ = true;
+    return true;
 }
 
 bool ItemNames::absorb(std::string_view text) {

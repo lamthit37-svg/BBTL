@@ -177,7 +177,7 @@ void arrow_animate_is_collected(Context& context) {
     context.expect(image.width == 32.0F && image.height == 32.0F, "ảnh 32 x 32");
 }
 
-// Bộ vẽ mở đúng tệp Imagefile gốc (dds, tga, png, jpg) dưới Interface, không nối ".png" (ui/painter.cpp).
+// Tên texture trong asset vẫn là Imagefile gốc. Bộ vẽ có thể mở PNG cùng cỡ cạnh tệp đó (ui/painter.cpp).
 void every_texture_has_file(Context& context) {
     const gui::DiskSource files(interface_root());
     const Loaded loaded = load_all(files);
