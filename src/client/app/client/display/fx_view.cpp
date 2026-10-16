@@ -19,6 +19,7 @@
 #include "render/catalog.hpp"
 #include "resource/image.hpp"
 #include "resource/model.hpp"
+#include "resource/tier.hpp"
 #include "resource/upload.hpp"
 #include "scene/placement.hpp"
 #include "shader/reflection.hpp"
@@ -88,30 +89,13 @@ static_assert(offsetof(FxVertex, red) == render::kFxColour);
     return model;
 }
 
-[[nodiscard]] core::Result<resource::Image> read_image(const std::filesystem::path& file) {
-    const io::TextResult bytes = io::read_text(file);
+// Điện thoại mở bản đã nấu (mobile/astc, mobile/etc2) thay ảnh gốc: gói APK không mang PNG của Material/.
+[[nodiscard]] core::Result<resource::Image> read_image(const std::filesystem::path& root, std::string_view image,
+    resource::TextureTier tier) {
+    const std::string chosen = resource::texture_file(io::utf8_of(root), image, tier);
+    const io::TextResult bytes = io::read_text(io::path_from_utf8(chosen));
     if (!bytes) return core::fail(core::ErrorCode::kNotFound, "không đọc được tệp ảnh", io::describe(bytes.error()));
-    return resource::decode_image(std::as_bytes(std::span(*bytes)));
-}
-
-// Kiểu trộn "one one" của bản gốc không cho alpha của ảnh tham gia; shader fx thì nhân alpha, nên
-// ảnh của kiểu ấy được tải lên với alpha 255.
-void drop_alpha(resource::Image& image) noexcept {
-    for (std::size_t index = 3; index < image.rgba.size(); index += 4) {
-        image.rgba[index] = 255;
-    }
-}
-
-// Kiểu trộn "zero one_minus_src_colour" (khói) nhân đích với (1 - màu ảnh). Pipeline trộn alpha thẳng có sẵn cho cùng
-// kết quả khi màu là đen và alpha là độ sáng của ảnh: đúng với ảnh xám, gần đúng với ảnh có màu.
-void darken_from_brightness(resource::Image& image) noexcept {
-    for (std::size_t index = 0; index + 3 < image.rgba.size(); index += 4) {
-        const std::uint8_t brightest = std::max({image.rgba[index], image.rgba[index + 1], image.rgba[index + 2]});
-        image.rgba[index] = 0;
-        image.rgba[index + 1] = 0;
-        image.rgba[index + 2] = 0;
-        image.rgba[index + 3] = brightest;
-    }
+    return resource::read_stored(std::as_bytes(std::span(*bytes)));
 }
 
 // Tấm sương của cảnh đăng nhập. Không dựng: chúng phủ trời thành một lớp xám.
@@ -119,6 +103,16 @@ void darken_from_brightness(resource::Image& image) noexcept {
     const bool directional = name.contains("方向雾");
     const bool sheets = name.contains("远景雾片");
     return directional || sheets;
+}
+
+// Cách shader đọc ảnh (FxPush::mode.y). Ảnh nén của điện thoại không sửa từng điểm ảnh ở CPU được, nên alpha của kiểu
+// "one one" và độ tối của khói do shader tính.
+enum class ImageUse : std::uint8_t { kKeep = 0, kOpaque = 1, kSmoke = 2 };
+
+[[nodiscard]] ImageUse image_use_of(fx::Blend blend) noexcept {
+    if (blend == fx::Blend::kAdd) return ImageUse::kOpaque;
+    if (blend == fx::Blend::kDarken) return ImageUse::kSmoke;
+    return ImageUse::kKeep;
 }
 
 [[nodiscard]] fx::Spawn spawn_of(const FxPlace& place) {
@@ -231,6 +225,7 @@ struct BatchDraw {
     std::uint32_t quads = 0;
     // src_alpha one_minus_src_alpha: pipeline trộn alpha, shader không nhân sẵn alpha vào rgb.
     bool is_straight = false;
+    ImageUse use = ImageUse::kKeep;
 };
 
 // Hình của một khung: đỉnh của mọi lô nối nhau, bốn đỉnh một quad, và lệnh vẽ của từng lô.
@@ -257,7 +252,7 @@ struct FxView::Body {
     std::uint32_t indexed_quads = 0;
     std::vector<SlotBuffer> slots;
     std::vector<KeptTexture> textures;
-    // Ảnh đã tải theo đường dẫn và việc có bỏ alpha hay không; rỗng là ảnh không nạp được.
+    // Ảnh đã tải theo đường dẫn và kiểu lặp của sampler; rỗng là ảnh không nạp được.
     std::map<std::string, std::optional<std::uint32_t>, std::less<>> by_image;
     // Lối tắt của texture_of theo chính material trong bảng của library (địa chỉ ổn định tới lần load kế):
     // mỗi lô mỗi khung chỉ còn một lần tra băm con trỏ, không dựng chuỗi khoá. load() xoá cùng library.
@@ -267,6 +262,8 @@ struct FxView::Body {
     std::unique_ptr<fx::Library> library;
     std::unique_ptr<fx::Cast> cast;
     std::filesystem::path data_root;
+    // Bản texture của thiết bị (FxView::load); kBc là ảnh gốc của PC.
+    resource::TextureTier tier = resource::TextureTier::kBc;
     // Tuổi của cảnh đang vẽ và các số đo cho dòng log một lần của nó.
     float scene_age = 0.0F;
     double decode_ms = 0.0;
@@ -327,12 +324,9 @@ core::Result<std::uint32_t> FxView::Body::add_image(const resource::Image& image
 }
 
 core::Result<std::uint32_t> FxView::Body::load_texture(const fx::Paint& paint) {
-    const std::filesystem::path file = data_root / io::path_from_utf8(paint.image);
-    core::Result<resource::Image> image = read_image(file);
+    core::Result<resource::Image> image = read_image(data_root, paint.image, tier);
     if (!image) return std::unexpected(image.error());
     image->name = paint.image;
-    if (paint.blend == fx::Blend::kAdd) drop_alpha(*image);
-    if (paint.blend == fx::Blend::kDarken) darken_from_brightness(*image);
     const bool repeats =
         paint.scroll_u != 0.0F || paint.scroll_v != 0.0F || paint.scale_u != 1.0F || paint.scale_v != 1.0F;
     return add_image(*image, repeats);
@@ -340,11 +334,9 @@ core::Result<std::uint32_t> FxView::Body::load_texture(const fx::Paint& paint) {
 
 // Mỗi ảnh chỉ đọc đĩa một lần cho mỗi cách dùng alpha; ảnh hỏng được nhớ để không đọc lại mỗi khung.
 std::optional<std::uint32_t> FxView::Body::texture_of(const fx::Paint& paint) {
-    const bool is_opaque = paint.blend == fx::Blend::kAdd;
     const bool repeats =
         paint.scroll_u != 0.0F || paint.scroll_v != 0.0F || paint.scale_u != 1.0F || paint.scale_v != 1.0F;
-    const std::string key =
-        std::format("{}|{}|{}|{}", paint.image, is_opaque, repeats, paint.blend == fx::Blend::kDarken);
+    const std::string key = std::format("{}|{}", paint.image, repeats);
     const auto found = by_image.find(key);
     if (found != by_image.end()) return found->second;
     const core::Clock::time_point began = core::Clock::now();
@@ -372,6 +364,7 @@ void FxView::Body::take_batch(Frame& frame, const fx::BillboardBatch& batch) {
     draw.first = static_cast<std::uint32_t>(frame.vertices.size() / 4U);
     draw.quads = static_cast<std::uint32_t>(quads);
     draw.is_straight = is_straight;
+    draw.use = image_use_of(paint->blend);
     const Tint tint{.gain = paint->gain, .keeps_alpha = paint->blend != fx::Blend::kAdd};
     const float shift_u = paint->scroll_u * scene_age;
     const float shift_v = paint->scroll_v * scene_age;
@@ -443,11 +436,18 @@ struct FxGpuPush {
     math::Float4 mode{};
 };
 
-void bind_fx(gpu::CommandList& list, const render::Camera& camera, gpu::PipelineHandle pipeline, bool straight) {
+struct FxBind {
+    gpu::PipelineHandle pipeline{};
+    bool straight = false;
+    ImageUse use = ImageUse::kKeep;
+};
+
+void bind_fx(gpu::CommandList& list, const render::Camera& camera, const FxBind& bind) {
     FxGpuPush push;
     push.view_proj = math::store(camera.projection * camera.view);
-    push.mode.x = straight ? 1.0F : 0.0F;
-    list.bind_pipeline(pipeline);
+    push.mode.x = bind.straight ? 1.0F : 0.0F;
+    push.mode.y = static_cast<float>(bind.use);
+    list.bind_pipeline(bind.pipeline);
     list.push_constants(std::as_bytes(std::span(&push, 1)), 0);
 }
 
@@ -474,7 +474,10 @@ core::Status FxView::Body::submit(const Pass& pass, const Frame& frame) {
     pass.list->bind_vertex_buffer(0, buffer.vertices, 0);
     pass.list->bind_index_buffer(indices, gpu::IndexType::kUint32, 0);
     for (const BatchDraw& draw : frame.draws) {
-        bind_fx(*pass.list, *pass.camera, draw.is_straight ? blend_pipeline : pipeline, draw.is_straight);
+        const FxBind bind{.pipeline = draw.is_straight ? blend_pipeline : pipeline,
+            .straight = draw.is_straight,
+            .use = draw.use};
+        bind_fx(*pass.list, *pass.camera, bind);
         draw_batch(*pass.list, draw);
     }
     return core::ok();
@@ -520,7 +523,7 @@ std::unique_ptr<FxView> FxView::open(gpu::Device& device, gpu::PipelineHandle pi
     return std::unique_ptr<FxView>(new FxView(std::move(body)));
 }
 
-void FxView::load(const std::filesystem::path& data_root) {
+void FxView::load(const std::filesystem::path& data_root, resource::TextureTier tier) {
     const core::Clock::time_point began = core::Clock::now();
     const std::filesystem::path folder = data_root / "effect";
     io::TextResult particles = io::read_text(folder / "all.particle");
@@ -539,6 +542,7 @@ void FxView::load(const std::filesystem::path& data_root) {
     body_->cast.reset();
     body_->by_paint.clear();
     body_->data_root = data_root;
+    body_->tier = tier;
     body_->library = std::make_unique<fx::Library>(std::move(text));
     body_->cast = std::make_unique<fx::Cast>(body_->library.get());
     const std::size_t paints = body_->library->palette().size();

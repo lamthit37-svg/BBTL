@@ -7,6 +7,7 @@
 struct FxPush {
     float4x4 view_proj;
     // x = 1: màu thẳng, alpha thật (pipeline src_alpha). x = 0: nhân alpha vào rgb, alpha ra 1.
+    // y: cách đọc ảnh, 0 giữ, 1 bỏ alpha của ảnh, 2 khói (fx_view.cpp, ImageUse).
     float4 mode;
 };
 F2_PUSH_CONSTANTS(FxPush, fx_push);

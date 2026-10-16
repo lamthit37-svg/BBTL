@@ -103,7 +103,7 @@ void Display::State::open_fx() {
     const gpu::PipelineHandle blend = catalog->get(render::Pso::kFxBlend);
     fx_view = FxView::open(*device, pipeline, blend);
     if (!fx_view) return;
-    fx_view->load(data_root);
+    fx_view->load(data_root, texture_tier);
     if (stage != nullptr) fx_view->adopt(*stage);
 }
 

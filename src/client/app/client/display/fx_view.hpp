@@ -13,6 +13,7 @@
 #include "fx/field.hpp"
 #include "gpu/handle.hpp"
 #include "render/camera.hpp"
+#include "resource/tier.hpp"
 
 #include <cstdint>
 #include <filesystem>
@@ -45,8 +46,9 @@ public:
         gpu::PipelineHandle blend);
 
     // Nạp thư viện hiệu ứng của thư mục dữ liệu: effect/all.particle, all.effect, materials.tsv. Gọi
-    // một lần sau open. Thiếu tệp thì ghi một dòng log và bộ vẽ không vẽ gì.
-    void load(const std::filesystem::path& data_root);
+    // một lần sau open. Thiếu tệp thì ghi một dòng log và bộ vẽ không vẽ gì. tier chọn bản ảnh: điện thoại mở bản nấu
+    // dưới mobile/astc hay mobile/etc2 (resource::texture_file), PC mở ảnh gốc.
+    void load(const std::filesystem::path& data_root, resource::TextureTier tier);
     // Nhận cảnh mới: bỏ hiệu ứng của cảnh cũ rồi dựng hiệu ứng của stage.
     void adopt(const Stage& stage);
     // Dựng thêm một hệ hạt hay effect giữa cảnh (hiệu ứng đòn đánh, hiệu ứng đồ của người chơi); thứ chưa vẽ đúng được

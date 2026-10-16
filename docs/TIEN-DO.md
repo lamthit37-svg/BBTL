@@ -2830,3 +2830,10 @@ Bảng nhập tài khoản để hiện danh sách thả tự dựng của Combo
 ### Hệ số LOD ổn định, hết chớp ở vật thể xa (2026-10-16)
 
 Sau khi lưới skin có LOD, trần tam giác của điện thoại đạt được nên `Forward::choose_lods` bắt đầu tác dụng thật. Cách cũ mỗi khung hạ hệ số 10% rồi nhân 1,15 tới khi vừa trần, nên hệ số dao động và các vật thể gần ngưỡng đổi mức qua lại: đo trên tablet 177 lệnh vẽ đổi mức trong 120 khung (đứng yên, nhìn thấy là chớp). Cách mới giữ hệ số giữa các khung, chỉ tăng khi vượt trần, và mỗi 60 khung khi tổng dưới 90% trần thì tìm nhị phân hệ số nhỏ nhất vừa 95% trần (`lowest_bias`): 0 lần đổi mức trong 120 khung, cảnh đăng nhập 143 nghìn tam giác, tablet 30,0 FPS, chậm nhất 33,4 ms. Máy bàn (trần 0) không đổi.
+
+### Hiệu ứng hiện trên APK: ảnh hạt đọc theo bản nấu (2026-10-16)
+
+Màn đăng nhập của APK không có hạt nào (lửa, ánh xanh, khói). Log tablet: `Hiệu ứng: bỏ ảnh Material/png_flare.dds.png: không thấy tệp` cho mọi ảnh, `khung có 0 quad trong 0 lô từ 147 Field; 0 ảnh đã tải`. Nguyên nhân gốc: `FxView` (hạt billboard) và `paint_particle` (hạt mesh) mở ảnh `Material/*.dds.png` thẳng ở gốc dữ liệu, còn gói APK chỉ mang bản nấu dưới `mobile/astc/Material` (1477 tệp, đủ ảnh hạt). Hai đường này không đi qua `resource::texture_file` như mesh, quái, giao diện.
+- Sửa: `fx_view.cpp` và `graphic/scene.cpp` chọn tệp bằng `texture_file(root, ảnh, texture_tier)` rồi `read_stored` (TLTX, DDS, PNG). `FxView::load` nhận `TextureTier`.
+- Ảnh nén không sửa từng điểm ảnh ở CPU được, nên hai phép sửa alpha cũ (`drop_alpha` cho "one one", `darken_from_brightness` cho khói) chuyển vào shader: `FxPush::mode.y` = 0 giữ ảnh, 1 bỏ alpha của ảnh, 2 khói (đen, alpha là độ sáng). Cùng một đường cho PC và điện thoại; `fx.ps.slang` và `fx.ps.glsl` sửa như nhau. Khoá bộ nhớ đệm ảnh còn `đường dẫn|lặp`.
+- Đo sau sửa (tablet PowerVR GE8320, 1280x800): `khung có 2907 quad trong 138 lô từ 147 Field; 25 ảnh đã tải`, không còn dòng bỏ ảnh hay bỏ hạt mesh; khung vẫn 33,3 ms (30,0 FPS, chậm nhất 33,5). Ảnh chụp: lửa cam mép trái, ánh xanh mép phải, khói quanh logo. PC 120 Hz: lửa và sói xanh như trước.

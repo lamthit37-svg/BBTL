@@ -157,10 +157,9 @@ void Display::State::attach_cached_ground() {
 namespace {
 
 [[nodiscard]] std::optional<resource::Image> read_paint_image(const std::filesystem::path& root,
-    std::string_view file) {
+    std::string_view file, resource::TextureTier tier) {
     if (file.empty()) return std::nullopt;
-    const std::filesystem::path path = root / io::path_from_utf8(std::string(file));
-    core::Result<resource::Image> image = resource::load_image_file(io::utf8_of(path));
+    core::Result<resource::Image> image = resource::load_image_file(resource::texture_file(io::utf8_of(root), file, tier));
     if (!image) return std::nullopt;
     image->name = std::string(file);
     return std::move(*image);
@@ -201,10 +200,11 @@ void bind_mesh_material(resource::Mesh& mesh) {
 }
 
 // Sai khi ảnh nền không đọc được: vẽ BaseWhite là một tấm trắng. Thiếu mặt nạ thì vẫn vẽ ảnh nền.
-[[nodiscard]] bool paint_particle(resource::Model& model, const fx::Paint& paint, const std::filesystem::path& root) {
-    std::optional<resource::Image> color = read_paint_image(root, paint.image);
+[[nodiscard]] bool paint_particle(resource::Model& model, const fx::Paint& paint, const std::filesystem::path& root,
+    resource::TextureTier tier) {
+    std::optional<resource::Image> color = read_paint_image(root, paint.image, tier);
     if (!color) return false;
-    std::optional<resource::Image> mask = read_paint_image(root, paint.second);
+    std::optional<resource::Image> mask = read_paint_image(root, paint.second, tier);
     if (!paint.second.empty() && !mask) std::println(stderr, "Hạt mesh: thiếu mặt nạ {}", paint.second);
     resource::Sampler sampler;
     sampler.wrap_u = resource::Wrap::kRepeat;
@@ -237,7 +237,7 @@ std::size_t Display::State::load_painted_mesh(const std::string& mesh, std::stri
         kept_by_name.emplace(key, kMissing);
         return kMissing;
     }
-    if (!paint_particle(*model, paint, data_root)) {
+    if (!paint_particle(*model, paint, data_root, texture_tier)) {
         std::println(stderr, "Bỏ hạt mesh {}: thiếu ảnh {}", mesh, paint.image);
         kept_by_name.emplace(key, kMissing);
         return kMissing;
