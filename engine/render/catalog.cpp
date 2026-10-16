@@ -1,4 +1,4 @@
-// Dựng bảy PSO của bảng catalog từ gói .f2s. Mỗi cặp shader nạp một lần cho mọi biến thể của nó.
+// Dựng PSO của bảng catalog từ gói .f2s. Mỗi cặp shader nạp một lần cho mọi biến thể của nó.
 // Bốn biến thể model khác nhau ở cull và blend; chỉ số ô trùng bit mà forward chọn chất liệu.
 #include "render/catalog.hpp"
 
@@ -59,14 +59,14 @@ constexpr std::array<gpu::VertexAttribute, 3> kFxAttributes{
     attribute(2, gpu::Format::kRgba32Float, kFxColour),
 };
 
-// Trộn cộng: màu nguồn cộng màu đích, dùng cho hạt sáng.
-[[nodiscard]] gpu::BlendState add_blend() noexcept {
+// Hai hệ số scene_blend cho cả màu và alpha. Client gốc để separate = 0 nên hai kênh cùng một cặp.
+[[nodiscard]] gpu::BlendState fx_factors(gpu::BlendFactor src, gpu::BlendFactor dst) noexcept {
     gpu::BlendState blend;
     blend.is_enabled = true;
-    blend.src_color = gpu::BlendFactor::kOne;
-    blend.dst_color = gpu::BlendFactor::kOne;
-    blend.src_alpha = gpu::BlendFactor::kOne;
-    blend.dst_alpha = gpu::BlendFactor::kOne;
+    blend.src_color = src;
+    blend.dst_color = dst;
+    blend.src_alpha = src;
+    blend.dst_alpha = dst;
     return blend;
 }
 
@@ -144,6 +144,13 @@ static_assert(model_kind(Pso::kModelSolid) == 0 && model_kind(Pso::kModelSolidTw
     return device.create_pipeline(pipeline);
 }
 
+[[nodiscard]] core::Result<gpu::PipelineHandle> build_fx(gpu::Device& device,
+    const CatalogDesc& desc, std::span<const gpu::ShaderHandle> shaders, gpu::BlendFactor src,
+    gpu::BlendFactor dst, std::string_view name) {
+    const gpu::BlendState blend = fx_factors(src, dst);
+    return make_fx(device, desc, shaders, blend, name);
+}
+
 [[nodiscard]] constexpr std::string_view tier_name(Tier tier) noexcept {
     switch (tier) {
     case Tier::kBootstrap: return "0";
@@ -189,7 +196,7 @@ core::Result<Catalog> Catalog::open(gpu::Device& device, CatalogDesc desc) {
 const Catalog::SlotState& Catalog::state_of(Pso pso) const noexcept {
     const auto index = static_cast<std::size_t>(pso);
     const std::size_t clamped = index < slots_.size() ? index : 0;
-    // Pso chỉ có bảy giá trị, 0..6, đã kẹp trước khi lấy ô.
+    // Pso là chỉ số ô. Giá trị lạ kẹp về 0.
     // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-constant-array-index)
     return slots_[clamped];
 }
@@ -260,6 +267,12 @@ void Catalog::warm_family(Tier tier, const Entry& pair, std::uint32_t& created, 
 }
 
 core::Result<gpu::PipelineHandle> Catalog::build(const Entry& entry, std::span<const gpu::ShaderHandle> shaders) const {
+    const gpu::BlendFactor one = gpu::BlendFactor::kOne;
+    const gpu::BlendFactor zero = gpu::BlendFactor::kZero;
+    const gpu::BlendFactor src_alpha = gpu::BlendFactor::kSrcAlpha;
+    const gpu::BlendFactor inv_alpha = gpu::BlendFactor::kOneMinusSrcAlpha;
+    const gpu::BlendFactor src_colour = gpu::BlendFactor::kSrcColor;
+    const gpu::BlendFactor inv_colour = gpu::BlendFactor::kOneMinusSrcColor;
     switch (entry.pso) {
     case Pso::kModelOpaque:
     case Pso::kModelTwoSided:
@@ -269,8 +282,14 @@ core::Result<gpu::PipelineHandle> Catalog::build(const Entry& entry, std::span<c
     case Pso::kModelSolid:
     case Pso::kModelSolidTwoSided: return make_model(*device_, desc_, entry, shaders);
     case Pso::kUi: return make_ui(*device_, desc_, shaders);
-    case Pso::kFx: return make_fx(*device_, desc_, shaders, add_blend(), entry.name);
-    case Pso::kFxBlend: return make_fx(*device_, desc_, shaders, alpha_blend(), entry.name);
+    case Pso::kFx: return build_fx(*device_, desc_, shaders, one, one, entry.name);
+    case Pso::kFxAlphaAdd: return build_fx(*device_, desc_, shaders, src_alpha, one, entry.name);
+    case Pso::kFxBlend: return build_fx(*device_, desc_, shaders, src_alpha, inv_alpha, entry.name);
+    case Pso::kFxDarken: return build_fx(*device_, desc_, shaders, zero, inv_colour, entry.name);
+    case Pso::kFxGlow: return build_fx(*device_, desc_, shaders, one, inv_colour, entry.name);
+    case Pso::kFxColour:
+        return build_fx(*device_, desc_, shaders, src_colour, inv_colour, entry.name);
+    case Pso::kFxReplace: return build_fx(*device_, desc_, shaders, one, zero, entry.name);
     }
     std::unreachable();
 }

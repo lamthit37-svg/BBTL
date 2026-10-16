@@ -105,6 +105,9 @@ struct Row {
     if (text == kAlphaAddBlend) return Blend::kAlphaAdd;
     if (text == "src_alpha one_minus_src_alpha") return Blend::kAlpha;
     if (text == "zero one_minus_src_colour") return Blend::kDarken;
+    if (text == "one one_minus_src_colour") return Blend::kGlow;
+    if (text == "src_colour one_minus_src_colour") return Blend::kColour;
+    if (text == "one zero") return Blend::kReplace;
     return Blend::kOther;
 }
 

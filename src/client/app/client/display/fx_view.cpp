@@ -105,16 +105,6 @@ static_assert(offsetof(FxVertex, red) == render::kFxColour);
     return directional || sheets;
 }
 
-// Cách shader đọc ảnh (FxPush::mode.y). Ảnh nén của điện thoại không sửa từng điểm ảnh ở CPU được, nên alpha của kiểu
-// "one one" và độ tối của khói do shader tính.
-enum class ImageUse : std::uint8_t { kKeep = 0, kOpaque = 1, kSmoke = 2 };
-
-[[nodiscard]] ImageUse image_use_of(fx::Blend blend) noexcept {
-    if (blend == fx::Blend::kAdd) return ImageUse::kOpaque;
-    if (blend == fx::Blend::kDarken) return ImageUse::kSmoke;
-    return ImageUse::kKeep;
-}
-
 [[nodiscard]] fx::Spawn spawn_of(const FxPlace& place) {
     const scene::Placement& placement = place.placement;
     fx::Spawn spawn;
@@ -148,28 +138,23 @@ enum class ImageUse : std::uint8_t { kKeep = 0, kOpaque = 1, kSmoke = 2 };
     return axes;
 }
 
-// Cách đổi màu đỉnh của fx sang màu shader nhận, theo material của lô.
-struct Tint {
-    float gain = 1.0F;
-    // Sai với kiểu trộn "one one": alpha của đỉnh không tham gia, shader nhận 1.
-    bool keeps_alpha = true;
-};
-
 [[nodiscard]] float unit(float value) noexcept {
     return std::clamp(value, 0.0F, 1.0F);
 }
 
-[[nodiscard]] FxVertex vertex_of(const fx::BillboardVertex& source, Tint tint) noexcept {
+// Gain nhân sau khi kẹp rgb về 0..1, đúng vertex shader gốc (saturate rồi mới nhân BLEND_OP).
+// Alpha không kẹp ở đây: mốc opacity đo được tới 2, shader kẹp sau khi nhân alpha của ảnh.
+[[nodiscard]] FxVertex vertex_of(const fx::BillboardVertex& source, float gain) noexcept {
     FxVertex vertex;
     vertex.x = source.x;
     vertex.y = source.y;
     vertex.z = source.z;
     vertex.u = source.u;
     vertex.v = source.v;
-    vertex.red = unit(source.red) * tint.gain;
-    vertex.green = unit(source.green) * tint.gain;
-    vertex.blue = unit(source.blue) * tint.gain;
-    vertex.alpha = tint.keeps_alpha ? unit(source.alpha) : 1.0F;
+    vertex.red = unit(source.red) * gain;
+    vertex.green = unit(source.green) * gain;
+    vertex.blue = unit(source.blue) * gain;
+    vertex.alpha = source.alpha;
     return vertex;
 }
 
@@ -223,9 +208,8 @@ struct BatchDraw {
     std::uint32_t texture = 0;
     std::uint32_t first = 0;
     std::uint32_t quads = 0;
-    // src_alpha one_minus_src_alpha: pipeline trộn alpha, shader không nhân sẵn alpha vào rgb.
-    bool is_straight = false;
-    ImageUse use = ImageUse::kKeep;
+    // Chỉ số fx::Blend, cũng là ô trong Body::pipelines.
+    std::uint8_t kind = 0;
 };
 
 // Hình của một khung: đỉnh của mọi lô nối nhau, bốn đỉnh một quad, và lệnh vẽ của từng lô.
@@ -245,8 +229,7 @@ struct Pass {
 
 struct FxView::Body {
     gpu::Device* device = nullptr;
-    gpu::PipelineHandle pipeline{};
-    gpu::PipelineHandle blend_pipeline{};
+    std::array<gpu::PipelineHandle, fx::kDrawnBlends> pipelines{};
     // Mẫu chỉ số 0 1 2, 0 2 3 lặp cho từng quad, dùng chung cho mọi slot.
     gpu::BufferHandle indices{};
     std::uint32_t indexed_quads = 0;
@@ -314,7 +297,7 @@ core::Result<std::uint32_t> FxView::Body::add_image(const resource::Image& image
     entries.back().resource = uploaded->samplers().front();
     gpu::BindGroupDesc group;
     group.name = "fx.texture";
-    group.pipeline = pipeline;
+    group.pipeline = pipelines[static_cast<std::size_t>(fx::Blend::kAdd)];
     group.space = kTextureSpace;
     group.entries = entries;
     const core::Result<gpu::BindGroupHandle> bound = device->create_bind_group(group);
@@ -351,9 +334,9 @@ std::optional<std::uint32_t> FxView::Body::texture_of(const fx::Paint& paint) {
 // Lô không có trong bảng, hoặc kiểu trộn chưa có pipeline, thì bỏ. Không vẽ bằng ảnh thay thế.
 void FxView::Body::take_batch(Frame& frame, const fx::BillboardBatch& batch) {
     const fx::Paint* paint = library->palette().find(batch.material);
-    if (paint == nullptr || paint->blend == fx::Blend::kOther) return;
-    const bool is_straight = paint->blend == fx::Blend::kAlpha || paint->blend == fx::Blend::kDarken;
-    if (is_straight && !blend_pipeline) return;
+    if (paint == nullptr) return;
+    const auto kind = static_cast<std::size_t>(paint->blend);
+    if (kind >= pipelines.size() || !pipelines[kind]) return;
     const auto cached = by_paint.find(paint);
     const std::optional<std::uint32_t> texture =
         cached != by_paint.end() ? cached->second : by_paint.emplace(paint, texture_of(*paint)).first->second;
@@ -363,16 +346,14 @@ void FxView::Body::take_batch(Frame& frame, const fx::BillboardBatch& batch) {
     draw.texture = *texture;
     draw.first = static_cast<std::uint32_t>(frame.vertices.size() / 4U);
     draw.quads = static_cast<std::uint32_t>(quads);
-    draw.is_straight = is_straight;
-    draw.use = image_use_of(paint->blend);
-    const Tint tint{.gain = paint->gain, .keeps_alpha = paint->blend != fx::Blend::kAdd};
+    draw.kind = static_cast<std::uint8_t>(kind);
     const float shift_u = paint->scroll_u * scene_age;
     const float shift_v = paint->scroll_v * scene_age;
     for (const fx::BillboardVertex& source : std::span(batch.vertices).first(quads * 4U)) {
         fx::BillboardVertex shifted = source;
         shifted.u = (source.u * paint->scale_u) + shift_u;
         shifted.v = (source.v * paint->scale_v) + shift_v;
-        frame.vertices.push_back(vertex_of(shifted, tint));
+        frame.vertices.push_back(vertex_of(shifted, paint->gain));
     }
     frame.draws.push_back(draw);
 }
@@ -436,18 +417,10 @@ struct FxGpuPush {
     math::Float4 mode{};
 };
 
-struct FxBind {
-    gpu::PipelineHandle pipeline{};
-    bool straight = false;
-    ImageUse use = ImageUse::kKeep;
-};
-
-void bind_fx(gpu::CommandList& list, const render::Camera& camera, const FxBind& bind) {
+void bind_fx(gpu::CommandList& list, const render::Camera& camera, gpu::PipelineHandle pipeline) {
     FxGpuPush push;
     push.view_proj = math::store(camera.projection * camera.view);
-    push.mode.x = bind.straight ? 1.0F : 0.0F;
-    push.mode.y = static_cast<float>(bind.use);
-    list.bind_pipeline(bind.pipeline);
+    list.bind_pipeline(pipeline);
     list.push_constants(std::as_bytes(std::span(&push, 1)), 0);
 }
 
@@ -474,10 +447,7 @@ core::Status FxView::Body::submit(const Pass& pass, const Frame& frame) {
     pass.list->bind_vertex_buffer(0, buffer.vertices, 0);
     pass.list->bind_index_buffer(indices, gpu::IndexType::kUint32, 0);
     for (const BatchDraw& draw : frame.draws) {
-        const FxBind bind{.pipeline = draw.is_straight ? blend_pipeline : pipeline,
-            .straight = draw.is_straight,
-            .use = draw.use};
-        bind_fx(*pass.list, *pass.camera, bind);
+        bind_fx(*pass.list, *pass.camera, pipelines[draw.kind]);
         draw_batch(*pass.list, draw);
     }
     return core::ok();
@@ -510,16 +480,18 @@ FxView::FxView(FxView&&) noexcept = default;
 FxView& FxView::operator=(FxView&&) noexcept = default;
 FxView::~FxView() = default;
 
-std::unique_ptr<FxView> FxView::open(gpu::Device& device, gpu::PipelineHandle pipeline, gpu::PipelineHandle blend) {
-    if (!pipeline) {
+std::unique_ptr<FxView> FxView::open(gpu::Device& device,
+    std::span<const gpu::PipelineHandle> pipelines) {
+    const std::size_t add = static_cast<std::size_t>(fx::Blend::kAdd);
+    const bool has_add = pipelines.size() == fx::kDrawnBlends && static_cast<bool>(pipelines[add]);
+    if (!has_add) {
         std::println(stderr, "Hiệu ứng: bỏ qua, không dựng được bộ vẽ");
         return nullptr;
     }
     auto body = std::make_unique<Body>();
     body->device = &device;
-    body->pipeline = pipeline;
-    body->blend_pipeline = blend;
-    if (!blend) std::println(stderr, "Hiệu ứng: không có pipeline trộn alpha, sương và bọt suối không vẽ");
+    for (std::size_t index = 0; index < pipelines.size(); ++index)
+        body->pipelines[index] = pipelines[index];
     return std::unique_ptr<FxView>(new FxView(std::move(body)));
 }
 

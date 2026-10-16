@@ -6,7 +6,7 @@
  *  CHUẨN     : C++23
  *------------------------------------------------------------------------------
  *  CHỨC NĂNG
- *  - Hạt và dải của cảnh, cộng mesh hiệu ứng đã nhận material hạt.
+ *  - Hạt và dải của cảnh. Mỗi scene_blend của hạt một pipeline.
  *------------------------------------------------------------------------------
  *  TÁC GIẢ   : HiepHoon
  *  TELEGRAM  : @Hoon9xx
@@ -18,6 +18,7 @@
 #include "ogre/vec3.hpp"
 
 #include <algorithm>
+#include <array>
 #include <charconv>
 #include <chrono>
 #include <cmath>
@@ -289,10 +290,14 @@ void Display::State::say_fx_fault() {
 
 void Display::State::open_fx() {
     if (fx_view || catalog == nullptr || device == nullptr) return;
-    const gpu::PipelineHandle pipeline = catalog->get(render::Pso::kFx);
-    if (!pipeline) return say_fx_fault();
-    const gpu::PipelineHandle blend = catalog->get(render::Pso::kFxBlend);
-    fx_view = FxView::open(*device, pipeline, blend);
+    constexpr std::array<render::Pso, fx::kDrawnBlends> fx_psos{render::Pso::kFx,
+        render::Pso::kFxAlphaAdd, render::Pso::kFxBlend, render::Pso::kFxDarken,
+        render::Pso::kFxGlow, render::Pso::kFxColour, render::Pso::kFxReplace};
+    std::array<gpu::PipelineHandle, fx::kDrawnBlends> pipelines{};
+    for (std::size_t index = 0; index < fx_psos.size(); ++index)
+        pipelines[index] = catalog->get(fx_psos[index]);
+    if (!pipelines[static_cast<std::size_t>(fx::Blend::kAdd)]) return say_fx_fault();
+    fx_view = FxView::open(*device, pipelines);
     if (!fx_view) return;
     fx_view->load(data_root, texture_tier);
     if (stage != nullptr) fx_view->adopt(*stage);

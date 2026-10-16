@@ -52,8 +52,9 @@ enum class Tier : std::uint8_t { kBootstrap, kEssential, kScene, kOptional };
     return caps.mesh_shader || caps.ray_query;
 }
 
-// Mười PSO đang có. Bốn ô model trùng bit chất liệu: bit 0 hai mặt, bit 1 trộn alpha.
-// kFxBlend dùng cùng shader với kFx; khác ở hệ số trộn src_alpha / one_minus_src_alpha.
+// PSO đang có. Bốn ô model trùng bit chất liệu: bit 0 hai mặt, bit 1 trộn alpha.
+// Hạt dùng chung fx.vs và fx.ps; mỗi scene_blend một PSO. kFx là one one, kFxBlend là
+// src_alpha / one_minus_src_alpha. Năm ô sau kModelSolidTwoSided là các cặp còn lại.
 // kTerrain là mặt đất lớp cọ: đỉnh của model, điểm ảnh của terrain.ps; đục, hai mặt.
 enum class Pso : std::uint8_t {
     kModelOpaque = 0,
@@ -68,6 +69,12 @@ enum class Pso : std::uint8_t {
     // trên PowerVR GE8320: vật đục ăn 160 trong 217 ms mỗi khung. Không bắt buộc: thiếu gói thì vẽ bằng kModelOpaque.
     kModelSolid = 8,
     kModelSolidTwoSided = 9,
+    // Không chen trước kModelSolid: bit chất liệu model nằm ở các giá trị 0..3 và 8..9.
+    kFxAlphaAdd = 10,
+    kFxDarken = 11,
+    kFxGlow = 12,
+    kFxColour = 13,
+    kFxReplace = 14,
 };
 
 inline constexpr std::uint32_t kModelTwoSided = 1;
@@ -77,7 +84,7 @@ inline constexpr std::uint32_t kModelFrameBytes = 1344;
 inline constexpr std::uint32_t kModelDrawBytes = gpu::kMaxPushBytes;
 inline constexpr std::size_t kModelVariants = 4;
 inline constexpr std::size_t kPackageCount = 8;
-inline constexpr std::size_t kSlotCount = 10;
+inline constexpr std::size_t kSlotCount = 15;
 
 // Bố cục đỉnh hạt. fx_view giữ struct cùng các số này; catalog dựng pipeline theo chúng.
 inline constexpr std::uint32_t kFxStride = 36;
@@ -189,6 +196,41 @@ inline constexpr std::array<Entry, kSlotCount> kEntries{{
         .is_required = false,
         .frame_bytes = kModelFrameBytes,
         .draw_bytes = kModelDrawBytes},
+    {.name = "render.fx.alpha_add",
+        .group = Group::kVfx,
+        .tier = Tier::kScene,
+        .pso = Pso::kFxAlphaAdd,
+        .vertex = "fx.vs",
+        .pixel = "fx.ps",
+        .is_required = false},
+    {.name = "render.fx.darken",
+        .group = Group::kVfx,
+        .tier = Tier::kScene,
+        .pso = Pso::kFxDarken,
+        .vertex = "fx.vs",
+        .pixel = "fx.ps",
+        .is_required = false},
+    {.name = "render.fx.glow",
+        .group = Group::kVfx,
+        .tier = Tier::kScene,
+        .pso = Pso::kFxGlow,
+        .vertex = "fx.vs",
+        .pixel = "fx.ps",
+        .is_required = false},
+    {.name = "render.fx.colour",
+        .group = Group::kVfx,
+        .tier = Tier::kScene,
+        .pso = Pso::kFxColour,
+        .vertex = "fx.vs",
+        .pixel = "fx.ps",
+        .is_required = false},
+    {.name = "render.fx.replace",
+        .group = Group::kVfx,
+        .tier = Tier::kScene,
+        .pso = Pso::kFxReplace,
+        .vertex = "fx.vs",
+        .pixel = "fx.ps",
+        .is_required = false},
 }};
 
 static_assert(std::to_underlying(Pso::kModelTwoSided) == kModelTwoSided);

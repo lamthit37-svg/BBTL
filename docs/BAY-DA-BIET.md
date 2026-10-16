@@ -462,7 +462,7 @@ mục ở mục 11.
   cảnh một dòng "Hiệu ứng: N chỗ đặt thành ... ; bỏ M: ..." đếm từng lý do bỏ, bảy lý do của
   `fx::Skip` (`SRC/fx/cast.hpp`): tên không có trong thư viện, element chưa hỗ trợ, affector chưa hỗ
   trợ, hạt mesh, material không có trong bảng hoặc thiếu ảnh, material cần ảnh thứ hai hay cuộn UV
-  hay shader riêng, material không cộng sáng; muốn biết một cảnh thiếu hiệu ứng gì thì đọc dòng đó
+  hay shader riêng, cặp scene_blend không có pipeline; muốn biết một cảnh thiếu hiệu ứng gì thì đọc dòng đó
   trong log, đừng nhìn ảnh mà đoán. Dòng đó không kể những thứ vẫn vẽ nhưng vẽ thiếu (xoay hạt của
   Rotator, thời lượng và lặp của emitter): xem `docs/NGHI-NGO.md` mục 40.
 - Đường nạp đo bằng mốc, không đoán (2026-10-13). Ba bẫy đã đo ở đợt đưa nạp đầu Đại Lý từ 1,06 s xuống 0,39 s:

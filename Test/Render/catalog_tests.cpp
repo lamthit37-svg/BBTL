@@ -72,17 +72,18 @@ void model_variants_are_character(Context& context) {
 void fx_waits_for_the_scene(Context& context) {
     bool saw_add = false;
     bool saw_blend = false;
+    std::size_t fx = 0;
     for (const Entry& entry : render::entries()) {
-        const bool is_fx = entry.pso == Pso::kFx || entry.pso == Pso::kFxBlend;
-        if (!is_fx) continue;
+        if (entry.group != Group::kVfx) continue;
+        ++fx;
         if (entry.pso == Pso::kFx) saw_add = true;
         if (entry.pso == Pso::kFxBlend) saw_blend = true;
-        context.expect(entry.group == Group::kVfx, "fx thuộc nhóm VFX");
         context.expect(entry.tier == Tier::kScene, "fx thuộc tầng 2");
         context.expect(!entry.is_required, "fx thiếu thì bỏ qua hiệu ứng");
         context.expect(entry.frame_bytes == 0, "fx không kiểm khối khung");
-        context.expect(same(entry.vertex, "fx.vs") && same(entry.pixel, "fx.ps"), "hai pipeline hạt chung shader");
+        context.expect(same(entry.vertex, "fx.vs") && same(entry.pixel, "fx.ps"), "pipeline hạt chung shader");
     }
+    context.expect(fx == 7, "bảy cách trộn của hạt");
     context.expect(saw_add && saw_blend, "có hạt cộng sáng và hạt trộn alpha");
 }
 

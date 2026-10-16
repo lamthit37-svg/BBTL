@@ -1,5 +1,5 @@
-// Cùng công thức với fx.vs.slang. Push là 5 uvec4 theo FxPush: bốn cột của view-projection rồi mode (pixel
-// shader đọc). Hai giai đoạn khai cùng một mảng vì uniform cùng tên của một chương trình GL phải cùng kiểu.
+// Cùng công thức với fx.vs.slang. Push là 5 uvec4 theo FxPush: bốn cột view-projection rồi mode.
+// Hai giai đoạn khai cùng một mảng vì uniform cùng tên của một chương trình GL phải cùng kiểu.
 uniform highp uvec4 tl_push[5];
 
 layout(location = 0) in vec3 position;
