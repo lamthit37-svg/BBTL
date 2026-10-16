@@ -1,10 +1,25 @@
-// Test của camera dựng ma trận (render/camera): camera nhìn từ mắt tới điểm nhìn (look_camera, của
-// camera bám theo), camera đặt bằng vị trí và hướng (posed_camera, của màn đăng nhập) và camera quay
-// quanh một điểm (orbit_camera, của chế độ xem cảnh).
-// Nguồn: TLBB Dev tests/render/render_test.cpp@e0d89a6 (orbit, look_camera_centre, view_culling).
-// Khác gốc: khung test của dự án; độ sâu đảo của gpu nên phép kiểm độ sâu chỉ đòi nằm giữa 0 và 1;
-// thêm ca góc nhìn dọc, khung cao 0, frame_camera và posed_camera; cắt khuất chỉ kiểm một phép chiếu
-// độ sâu đảo.
+/*==============================================================================
+ *  THIENLONG  |  TEST
+ *------------------------------------------------------------------------------
+ *  TỆP       : Test/Render/camera_tests.cpp
+ *  PHÂN HỆ   : Render / Camera Tests
+ *  CHUẨN     : C++23
+ *------------------------------------------------------------------------------
+ *  CHỨC NĂNG
+ *  - Test của camera dựng ma trận (render/camera): camera nhìn từ mắt tới điểm
+ *    nhìn (look_camera, của camera bám theo), camera đặt bằng vị trí và hướng
+ *    (posed_camera, của màn đăng nhập) và camera quay quanh một điểm
+ *    (orbit_camera, của chế độ xem cảnh). Nguồn: TLBB Dev
+ *    tests/render/render_test.cpp@e0d89a6 (orbit, look_camera_centre,
+ *    view_culling).
+ *------------------------------------------------------------------------------
+ *  TÁC GIẢ   : HiepHoon
+ *  TELEGRAM  : @Hoon9xx
+ *============================================================================*/
+
+// Khác gốc: khung test của dự án; độ sâu đảo của gpu nên phép kiểm độ sâu chỉ đòi nằm giữa 0 và 1; thêm ca góc nhìn
+// dọc, khung cao 0, frame_camera và posed_camera; cắt khuất chỉ kiểm một phép chiếu độ sâu đảo.
+
 #include "core/check.hpp"
 #include "math/matrix.hpp"
 #include "math/quat.hpp"
@@ -126,6 +141,40 @@ void look_camera_vertical_fov(Context& context) {
     context.expect(near_value(right.x() / right.w(), 1.0F, Tolerance{}), "mép phải theo tỉ lệ");
 }
 
+// Lens có khung tham chiếu 16:9: khung hẹp hơn (máy tính bảng 16:10, iPad 4:3) vẫn thấy đúng bề ngang của khung tham
+// chiếu và thấy thêm trên dưới; khung rộng hơn (điện thoại 20:9) giữ góc dọc. Không đặt tham chiếu thì luôn giữ góc dọc.
+void look_camera_keeps_reference_frame(Context& context) {
+    constexpr float kReference = 16.0F / 9.0F;
+    Lens lens;
+    lens.fov_degrees = 35.0F;
+    lens.reference_aspect = kReference;
+    const Point3 eye(0.0F, 0.0F, 0.0F);
+    const Point3 target(0.0F, 0.0F, -10.0F);
+    const float half_tan = std::tan(35.0F * 0.5F * std::numbers::pi_v<float> / 180.0F);
+    const Point3 reference_right(10.0F * half_tan * kReference, 0.0F, -10.0F);
+    const Point3 reference_top(0.0F, 10.0F * half_tan, -10.0F);
+
+    const ViewSize tablet{.width = 1280, .height = 800};
+    const Camera narrow = render::look_camera(eye, target, lens, tablet);
+    const Vector4 right = clip_of(narrow, reference_right);
+    context.expect(near_value(right.x() / right.w(), 1.0F, Tolerance{}), "16:10 giữ mép phải của khung 16:9");
+    const Vector4 top = clip_of(narrow, reference_top);
+    const float tablet_aspect = 1280.0F / 800.0F;
+    context.expect(near_value(top.y() / top.w(), tablet_aspect / kReference, Tolerance{}), "16:10 thấy thêm trên dưới");
+
+    const ViewSize phone{.width = 2400, .height = 1080};
+    const Camera wide = render::look_camera(eye, target, lens, phone);
+    const Vector4 wide_top = clip_of(wide, reference_top);
+    context.expect(near_value(wide_top.y() / wide_top.w(), 1.0F, Tolerance{}), "20:9 giữ góc dọc");
+
+    const float fov_y = 35.0F * std::numbers::pi_v<float> / 180.0F;
+    context.expect(render::fitted_fov_y(fov_y, 1.0F, 0.0F) == fov_y, "không có tham chiếu thì giữ góc dọc");
+    context.expect(render::fitted_fov_y(fov_y, kReference, kReference) == fov_y, "đúng tỉ lệ tham chiếu thì giữ nguyên");
+    const float ipad = render::fitted_fov_y(fov_y, 4.0F / 3.0F, kReference);
+    const float ipad_half_x = std::tan(ipad * 0.5F) * (4.0F / 3.0F);
+    context.expect(near_value(ipad_half_x, half_tan * kReference, Tolerance{}), "4:3 giữ bề ngang của khung 16:9");
+}
+
 // Khung cao 0 (cửa sổ đang thu nhỏ) coi như khung vuông: không ra NaN.
 void look_camera_flat_window(Context& context) {
     const Lens lens;
@@ -243,6 +292,7 @@ constexpr std::array kCases{
     Case{.name = "orbit", .body = &orbit},
     Case{.name = "look_camera_centre", .body = &look_camera_centre},
     Case{.name = "look_camera_vertical_fov", .body = &look_camera_vertical_fov},
+    Case{.name = "look_camera_keeps_reference_frame", .body = &look_camera_keeps_reference_frame},
     Case{.name = "look_camera_flat_window", .body = &look_camera_flat_window},
     Case{.name = "posed_camera_yaw", .body = &posed_camera_yaw},
     Case{.name = "posed_camera_roll", .body = &posed_camera_roll},

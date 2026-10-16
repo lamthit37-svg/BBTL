@@ -1,3 +1,19 @@
+/*==============================================================================
+ *  ENGINEHP  |  HIGH-PERFORMANCE GAME ENGINE
+ *------------------------------------------------------------------------------
+ *  TỆP       : engine/render/camera.cpp
+ *  PHÂN HỆ   : Render / Camera
+ *  CHUẨN     : C++23
+ *------------------------------------------------------------------------------
+ *  CHỨC NĂNG
+ *  - Ma trận nhìn và chiếu của camera (look, posed, orbit, frame), góc dọc
+ *    giữ khung tham chiếu trong tầm nhìn (fitted_fov_y), cắt khuất hộp và
+ *    hình cầu, ma trận nút ở tư thế nghỉ và hộp bao của model.
+ *------------------------------------------------------------------------------
+ *  TÁC GIẢ   : HiepHoon
+ *  TELEGRAM  : @Hoon9xx
+ *============================================================================*/
+
 // check.py dịch tệp này một mình, không kèm -msse4.1 mà CMake gắn vào game_math.
 // Chỉ cho x86-64: đích ARM không có tính năng này, clang in cảnh báo rồi bỏ qua.
 #if defined(__clang__) && defined(__x86_64__)
@@ -110,10 +126,11 @@ void add_node(math::Aabb& box, const resource::Model& model, std::span<const mat
     return static_cast<float>(size.width) / static_cast<float>(size.height);
 }
 
-// Phép chiếu tay phải, độ sâu đảo, theo góc nhìn DỌC của Lens (Ogre::Camera::setFOVy);
-// perspective_rh của math nhận góc ngang nên đổi qua tỉ lệ khung.
+// Phép chiếu tay phải, độ sâu đảo, theo góc nhìn DỌC của Lens (Ogre::Camera::setFOVy) đã chỉnh theo khung tham chiếu
+// (fitted_fov_y); perspective_rh của math nhận góc ngang nên đổi qua tỉ lệ khung.
 [[nodiscard]] math::Matrix4 perspective_of(const Lens& lens, float aspect) noexcept {
-    const float fov_y = lens.fov_degrees * (std::numbers::pi_v<float> / 180.0F);
+    const float lens_fov = lens.fov_degrees * (std::numbers::pi_v<float> / 180.0F);
+    const float fov_y = fitted_fov_y(lens_fov, aspect, lens.reference_aspect);
     math::FovLens reversed;
     reversed.fov_x = 2.0F * std::atan(std::tan(fov_y * 0.5F) * aspect);
     reversed.aspect_inverse = 1.0F / aspect;
@@ -124,6 +141,15 @@ void add_node(math::Aabb& box, const resource::Model& model, std::span<const mat
 }
 
 } // namespace
+
+// Nửa bề ngang của khung tham chiếu trên mặt cách mắt một đơn vị là tan(fov_y / 2) * reference_aspect; khung hẹp hơn
+// giữ đúng nửa bề ngang ấy, nên tan của nửa góc dọc mới là nó chia aspect.
+float fitted_fov_y(float fov_y, float aspect, float reference_aspect) noexcept {
+    const bool is_narrow = reference_aspect > 0.0F && aspect > 0.0F && aspect < reference_aspect;
+    if (!is_narrow) return fov_y;
+    const float half_width = std::tan(fov_y * 0.5F) * reference_aspect;
+    return 2.0F * std::atan(half_width / aspect);
+}
 
 std::vector<math::Matrix4> rest_nodes(const resource::Model& model) {
     const std::size_t count = model.nodes.size();

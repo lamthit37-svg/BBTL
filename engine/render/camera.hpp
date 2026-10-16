@@ -70,7 +70,14 @@ struct Lens {
     float fov_degrees = 35.0F;
     float near_plane = 0.25F;
     float far_plane = 150.0F;
+    // Tỉ lệ rộng trên cao của khung tham chiếu phải luôn thấy trọn (fitted_fov_y); 0 là luôn giữ góc dọc như Ogre.
+    float reference_aspect = 0.0F;
 };
+
+// Góc dọc (radian) cho khung tỉ lệ aspect sao cho khung tham chiếu tỉ lệ reference_aspect, ở góc dọc fov_y, nằm trọn
+// trong khung: khung rộng hơn tham chiếu giữ góc dọc (Unreal MaintainYFOV), khung hẹp hơn giữ góc ngang của tham chiếu
+// và thấy thêm trên dưới (MaintainXFOV). reference_aspect hay aspect không dương thì giữ góc dọc.
+[[nodiscard]] float fitted_fov_y(float fov_y, float aspect, float reference_aspect) noexcept;
 
 // Camera nhìn từ eye tới target, trục lên +y, như Camera_Scene của client gốc đặt Ogre::Camera bằng
 // setPosition rồi lookAt. Tỉ lệ khung lấy từ size; chiều cao 0 thì coi như khung vuông.
