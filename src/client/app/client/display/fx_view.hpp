@@ -16,6 +16,7 @@
 #include "resource/tier.hpp"
 
 #include <cstdint>
+#include <span>
 #include <filesystem>
 #include <memory>
 #include <string_view>
@@ -64,7 +65,9 @@ public:
     [[nodiscard]] std::vector<const fx::Field*> fields() const;
     // nullptr khi thư viện chưa nạp hoặc bảng không có tên. Con trỏ sống cùng thư viện.
     [[nodiscard]] const fx::Paint* paint(std::string_view material) const;
-    void draw(gpu::CommandList& list, std::uint32_t slot, const render::Camera& camera);
+    // extra là các lô cộng sáng thêm (dải ribbon của đòn), cùng cách vẽ với strips của thư viện.
+    void draw(gpu::CommandList& list, std::uint32_t slot, const render::Camera& camera,
+        std::span<const fx::BillboardBatch> extra = {});
 
 private:
     struct Body;

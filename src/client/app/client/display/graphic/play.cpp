@@ -17,6 +17,7 @@
 
 #include "client/display/display.hpp"
 
+#include <chrono>
 #include <utility>
 namespace game::client {
 
@@ -156,10 +157,13 @@ render::Camera Display::State::frame_camera(FrameAsk ask) {
     const float delta_seconds = step_clock(ask.elapsed);
     enter_camera(scene_id);
     if (!creature_demo.empty()) seed_creature_demo(scene_id);
+    if (peer_demo != 0) seed_peer_demo(scene_id);
+    if (!pet_demo.empty()) seed_pet_demo(scene_id);
     Steering keys = is_auto_walk ? auto_walk(taken.keys, delta_seconds) : taken.keys;
     walk_to_talk(keys, now);
-    pursue_target(now, keys);
+    // Trước đuổi mục tiêu: khung tuyệt chiêu xoá lệnh đi của chính khung đó, rồi pursue mới khỏi đặt lại.
     if (auto_strike_from != 0) note_auto_strike(keys);
+    pursue_target(now, keys);
     steer_camera(keys);
     pilot_frame(now, delta_seconds);
     hold_stick_frame(now);
@@ -170,6 +174,7 @@ render::Camera Display::State::frame_camera(FrameAsk ask) {
     publish_spot(true);
     // NOLINTNEXTLINE(bugprone-unchecked-optional-access): terrain đã kiểm ở đầu hàm
     follow.set_look_at(*terrain, foot());
+    follow.tick_shake(*terrain);
     const control::CameraPose& pose = follow.pose();
     clip_near = pose.near_plane;
     clip_far = pose.far_plane;
@@ -314,7 +319,7 @@ bool Display::State::flip_button(const control::InputEvent& event) {
     const bool is_down = event.kind == control::InputKind::kPress;
     if (is_button_down.at(slot) == is_down) return true;
     if (has_button_changed.at(slot)) return false;
-    pointer = control::ScreenPoint{.x = event.x, .y = event.y};
+    pointer = framed_point(event);
     is_button_down.at(slot) = is_down;
     has_button_changed.at(slot) = true;
     const bool is_left_press = is_down && event.button == control::MouseButton::kLeft;
@@ -332,7 +337,7 @@ void Display::State::cancel_left() noexcept {
 
 // Độ dời cộng dồn cho cả khung, như MouseTick lấy vị trí nhịp này trừ nhịp trước.
 void Display::State::move_pointer(const control::InputEvent& event) {
-    pointer = control::ScreenPoint{.x = event.x, .y = event.y};
+    pointer = framed_point(event);
     drag_x += static_cast<int>(event.dx);
     drag_y += static_cast<int>(event.dy);
 }
@@ -458,25 +463,50 @@ void Display::State::simulate_motion(const Steering& keys, core::Clock::time_poi
     has_shown = true;
 }
 
-// Phím ô thao tác: skill ở ô đó (hero.skills), bước chọn ngẫu nhiên rand() % số bước như Start_MagicSend với skill
-// kiểu NONE. Đang đi, nhảy hay đang trong đòn chưa tới BreakTime thì không ra đòn (DoSimulantCommand trả RC_WAIT; gốc
-// xếp lệnh vào hàng chờ, ở đây bỏ). Ô trống, skill không có clip cho giới và loại vũ khí này thì không làm gì.
-// Khác gốc: gốc nhận lệnh từ máy chủ và chọn bước liên hoàn theo lệnh nối tiếp (docs/NGHI-NGO.md).
+// Phím ô thao tác: skill ở ô đó (hero.skills). Bước do accept_strike (Start_MagicSend). Đang đi, nhảy hay
+// đang khoá thì bỏ lệnh (gốc xếp hàng RC_WAIT). Ô trống hoặc không có clip thì không làm gì.
 void Display::State::begin_strike(std::optional<std::uint32_t> slot) {
     if (!slot || !player || is_player_running || jump.is_jumping || player->is_locked(frame_time)) return;
     if (*slot >= hero.skills.size()) return;
     const std::uint32_t skill = hero.skills.at(*slot);
-    const std::vector<std::uint32_t> steps = player->steps_of(skill);
-    if (steps.empty()) return;
-    strike_begun = StrikeCall{.skill = skill, .step = steps.at(strike_dice() % steps.size())};
+    const std::optional<std::uint32_t> step = player->accept_strike(skill, strike_dice(), frame_time);
+    if (!step) return;
+    strike_begun = StrikeCall{.skill = skill, .step = *step};
 }
 
 // Công cụ đo: ô cuối của hero.skills được nhấn ở khung màn chơi auto_strike_from rồi mỗi 180 khung.
+// Có --skill thì đứng yên tới lần bấm đầu (press_slot bỏ lệnh lúc đang chạy) và thêm 2,5 s sau đó,
+// vì Gait::update đổi đòn thành chạy ngay khung cơ thể đang đi, hạt của clip không kịp hiện.
 void Display::State::note_auto_strike(Steering& keys) {
     constexpr std::uint32_t kPeriod = 180;
+    constexpr std::uint32_t kGiveUp = 600;
+    constexpr auto kStill = std::chrono::milliseconds{2500};
     ++play_frames;
+    const bool waits = skill_id && *skill_id > 0 && !ultimate_sent;
+    const bool holds = frame_time < auto_still_until;
+    const auto stand_still = [&] {
+        order.reset();
+        chase_leg.reset();
+        is_player_running = false;
+        keys.has_walk = false;
+        keys.walk_forward = 0.0F;
+        keys.walk_right = 0.0F;
+    };
+    if (waits || holds) stand_still();
+    if (holds) return;
+    if (waits && play_frames > auto_strike_from + kGiveUp) {
+        std::println(stderr, "Đòn: --skill {} chưa ra, đuổi tiếp", *skill_id);
+        ultimate_sent = true;
+    }
     const bool is_due = play_frames >= auto_strike_from && (play_frames - auto_strike_from) % kPeriod == 0;
-    if (is_due && !hero.skills.empty()) keys.strike_slot = static_cast<std::uint32_t>(hero.skills.size() - 1);
+    if (!is_due || hero.skills.empty()) return;
+    if (jump.is_jumping || (player && player->is_locked(frame_time))) return;
+    const auto slot = static_cast<std::uint32_t>(hero.skills.size() - 1);
+    const std::uint32_t skill = hero.skills.at(slot);
+    if (skill != 0) stand_still();
+    keys.strike_slot = slot;
+    if (skill != 0) auto_still_until = frame_time + kStill;
+    if (skill_id && skill == *skill_id) ultimate_sent = true;
 }
 
 // Giữ W suốt, hướng nhìn quay đều theo thời gian khung: nhân vật chạy vòng tròn thay vì đứng ì trước
@@ -661,6 +691,7 @@ void Display::State::load_player() {
     desc.weapon_gem = hero.equipment.gem_at(hero::EquipPoint::kWeapon).value_or(0);
     desc.skills = hero.skills;
     if (tables_job.valid()) desc.tables = tables_job.get();
+    player_tables = desc.tables;
     const MeshLoader loader = [this](const std::string& mesh) -> const render::Drawable* {
         const std::size_t index = load_mesh(mesh);
         return index == kMissing ? nullptr : &kept.at(index).loaded.drawable;
@@ -818,8 +849,9 @@ void Display::State::step_role_stage() {
         static_cast<std::uint32_t>(std::chrono::duration_cast<std::chrono::milliseconds>(now - started).count());
     if (role_stamp) frame.seconds = std::chrono::duration<float>(now - *role_stamp).count();
     // Chuột nằm trên khung cuộn chữ của giao diện thì nấc lăn thuộc về khung đó, camera không phóng.
-    const bool is_ui_wheel = hud->takes_wheel(pointer.x * static_cast<float>(screen->width()),
-        pointer.y * static_cast<float>(screen->height()));
+    const FrameRect fitted = frame_rect();
+    const bool is_ui_wheel = hud->takes_wheel(pointer.x * static_cast<float>(fitted.width),
+        pointer.y * static_cast<float>(fitted.height));
     frame.is_wheel_up = is_wheel_up && !is_ui_wheel;
     frame.is_wheel_down = is_wheel_down && !is_ui_wheel;
     role_stamp = now;

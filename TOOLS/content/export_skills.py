@@ -17,7 +17,7 @@
 # - Khối con của skill giữ nguyên chữ (skill_events.tsv): kind, thời điểm, điểm gắn, tên (effect, material
 #   hay âm thanh), vị trí lệch, quay lệch (w x y z) và phần còn lại dạng khoá=giá trị cách nhau bằng "|".
 # - Cột 5 của SkillTemplate_V1 là m_nSkillActionType (0 NONE: chọn ngẫu nhiên một bước; 1 CONCATENATION_EX; 2
-#   CONCATENATION:轻功 nhảy nối) và cột 34 là m_nSendTime (ms): đọc từ cách Game.exe 2026 dùng hai trường ở
+#   CONCATENATION). Toán tử chọn bước nằm ở accept_chain, không phải chuỗi chú thích của enum. Cột 34 là m_nSendTime (ms): đọc từ cách Game.exe 2026 dùng hai trường ở
 #   Start_MagicSend (0x1405ee920) đối chiếu bố cục _DBC_SKILL_DATA của ref (Common/GameStruct_Skill.h) và dữ
 #   liệu (mọi skill nhiều bước đều có cột 5 trong 0..2; cột 34 của đánh thường là 1200).
 # - Mốc BreakTime, HitTime, ShakeTime và AttachTime của khối con là PHẦN của độ dài animation (0..1), không phải

@@ -230,12 +230,15 @@ void print_visit(const world::ShownScene& shown) {
     viewer.auto_strike_from = options.auto_strike_from;
     viewer.ui_events = options.ui_events;
     viewer.creatures = options.creatures;
+    viewer.pets = options.pets;
+    viewer.peer_count = options.peer_count;
     viewer.talk_demo = options.talk_demo;
     viewer.weapon_item = options.weapon_item;
     viewer.weapon_gem = options.weapon_gem;
     viewer.skill_id = options.skill_id;
     viewer.is_validated = options.validate.value_or(kValidatedByBuild);
     viewer.backend = options.backend;
+    viewer.quality = options.quality;
     viewer.client_size = options.client_size;
     return viewer;
 }
@@ -385,9 +388,13 @@ void report_named(const client::NamedScene& named, std::string_view label) {
     core::mark("main bắt đầu");
     const std::vector<std::string_view> texts(arguments.begin(), arguments.end());
     const auto options = client::parse_options(texts);
-    if (options) return run(*options);
-    std::println(stderr, "{}", client::kUsage);
-    return 2;
+    if (!options) {
+        std::println(stderr, "{}", client::kUsage);
+        return 2;
+    }
+    const int code = run(*options);
+    core::mark("đóng: cửa sổ và thế giới huỷ xong");
+    return code;
 }
 
 } // namespace

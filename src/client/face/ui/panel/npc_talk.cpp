@@ -28,9 +28,11 @@
 #include <cstdint>
 #include <format>
 #include <initializer_list>
+#include <limits>
 #include <optional>
 #include <string>
 #include <string_view>
+#include <unordered_map>
 #include <utility>
 #include <vector>
 
@@ -221,51 +223,139 @@ void paint_buttons(Deck& deck, const tk::Dialog& dialog) {
     deck.set(gui::Override{.window = kTalkRefuse, .name = "Text", .value = refuse});
 }
 
-} // namespace
+// Một dòng TSV đã tách ô. Cột không có trong tệp là npos.
+struct ItemColumns {
+    std::size_t id = std::string_view::npos;
+    std::size_t name = std::string_view::npos;
+    std::size_t icon = std::string_view::npos;
+};
 
-bool ItemNames::load(std::string_view text) {
-    names_.clear();
-    is_loaded_ = false;
-    constexpr std::size_t kNone = std::string_view::npos;
-    std::size_t id_column = kNone;
-    std::size_t name_column = kNone;
-    bool has_header = false;
+std::size_t column_at(const std::vector<std::string_view>& fields, std::string_view title) {
+    const auto found = std::ranges::find(fields, title);
+    if (found == fields.end()) return std::string_view::npos;
+    return static_cast<std::size_t>(found - fields.begin());
+}
+
+std::vector<std::string_view> split_fields(std::string_view line) {
     std::vector<std::string_view> fields;
+    for (std::size_t from = 0;;) {
+        const std::size_t tab = line.find('\t', from);
+        fields.push_back(line.substr(from, tab == std::string_view::npos ? tab : tab - from));
+        if (tab == std::string_view::npos) break;
+        from = tab + 1;
+    }
+    return fields;
+}
+
+std::string_view field_at(const std::vector<std::string_view>& fields, std::size_t column) {
+    if (column == std::string_view::npos || column >= fields.size()) return {};
+    return fields[column];
+}
+
+// need_name: bảng tên bắt buộc có cột name. Bảng phụ chỉ bắt buộc id. Dòng hỏng bị bỏ, không làm hỏng cả tệp.
+template <typename Put>
+bool take_item_rows(std::string_view text, bool need_name, Put put) {
+    ItemColumns columns;
+    bool has_header = false;
     while (!text.empty()) {
         const std::size_t end = text.find('\n');
         std::string_view line = text.substr(0, end);
         text = end == std::string_view::npos ? std::string_view{} : text.substr(end + 1);
         if (line.ends_with('\r')) line.remove_suffix(1);
         if (line.empty() || line.starts_with('#')) continue;
-        fields.clear();
-        for (std::size_t from = 0;;) {
-            const std::size_t tab = line.find('\t', from);
-            fields.push_back(line.substr(from, tab == std::string_view::npos ? tab : tab - from));
-            if (tab == std::string_view::npos) break;
-            from = tab + 1;
-        }
+        const std::vector<std::string_view> fields = split_fields(line);
         if (!has_header) {
-            const auto id = std::ranges::find(fields, "id");
-            const auto name = std::ranges::find(fields, "name");
-            if (id == fields.end() || name == fields.end()) return false;
-            id_column = static_cast<std::size_t>(id - fields.begin());
-            name_column = static_cast<std::size_t>(name - fields.begin());
+            columns.id = column_at(fields, "id");
+            columns.name = column_at(fields, "name");
+            columns.icon = column_at(fields, "icon");
+            const bool has_name = !need_name || columns.name != std::string_view::npos;
+            if (columns.id == std::string_view::npos || !has_name) return false;
             has_header = true;
             continue;
         }
-        if (fields.size() <= std::max(id_column, name_column)) continue;
-        const std::string_view id_text = fields.at(id_column);
-        const std::optional<int> id = core::parse_whole_int(id_text);
+        if (fields.size() <= columns.id) continue;
+        if (need_name && fields.size() <= columns.name) continue;
+        const std::optional<int> id = core::parse_whole_int(field_at(fields, columns.id));
         if (!id) continue;
-        names_.emplace(*id, std::string(fields.at(name_column)));
+        put(*id, field_at(fields, columns.name), field_at(fields, columns.icon));
     }
-    is_loaded_ = has_header;
     return has_header;
 }
 
+constexpr std::string_view kMissingFace = "set:X image:X";
+
+} // namespace
+
+bool ItemNames::load(std::string_view text) {
+    rows_.clear();
+    is_loaded_ = false;
+    const bool loaded = take_item_rows(text, true, [this](int id, std::string_view item_name, std::string_view item_icon) {
+        rows_.emplace(id, Entry{.name = std::string(item_name), .icon = std::string(item_icon)});
+    });
+    is_loaded_ = loaded;
+    return loaded;
+}
+
+bool ItemNames::absorb(std::string_view text) {
+    return take_item_rows(text, false, [this](int id, std::string_view item_name, std::string_view item_icon) {
+        if (rows_.contains(id)) return;
+        rows_.emplace(id, Entry{.name = std::string(item_name), .icon = std::string(item_icon)});
+    });
+}
+
+bool ItemNames::load_icons(std::string_view text) {
+    std::unordered_map<std::string, std::string> next;
+    std::size_t icon_column = std::string_view::npos;
+    std::size_t set_column = std::string_view::npos;
+    bool has_header = false;
+    while (!text.empty()) {
+        const std::size_t end = text.find('\n');
+        std::string_view line = text.substr(0, end);
+        text = end == std::string_view::npos ? std::string_view{} : text.substr(end + 1);
+        if (line.ends_with('\r')) line.remove_suffix(1);
+        if (line.empty() || line.starts_with('#')) continue;
+        const std::vector<std::string_view> fields = split_fields(line);
+        if (!has_header) {
+            icon_column = column_at(fields, "icon");
+            set_column = column_at(fields, "imageset");
+            if (icon_column == std::string_view::npos || set_column == std::string_view::npos) return false;
+            has_header = true;
+            continue;
+        }
+        const std::string_view icon = field_at(fields, icon_column);
+        const std::string_view imageset = field_at(fields, set_column);
+        if (icon.empty()) continue;
+        next.emplace(std::string(icon), std::string(imageset));
+    }
+    if (!has_header) return false;
+    imagesets_ = std::move(next);
+    has_icons_ = true;
+    return true;
+}
+
+std::string ItemNames::image(std::string_view icon) const {
+    if (icon.empty()) return std::string(kMissingFace);
+    const auto imageset = imagesets_.find(std::string(icon));
+    if (imageset == imagesets_.end() || imageset->second.empty()) return std::string(kMissingFace);
+    return std::format("set:{} image:{}", imageset->second, icon);
+}
+
 std::string_view ItemNames::name(std::int32_t item) const noexcept {
-    const auto found = names_.find(item);
-    return found == names_.end() ? std::string_view{} : std::string_view(found->second);
+    const auto found = rows_.find(item);
+    return found == rows_.end() ? std::string_view{} : std::string_view(found->second.name);
+}
+
+std::string_view ItemNames::icon(std::int32_t item) const noexcept {
+    const auto found = rows_.find(item);
+    return found == rows_.end() ? std::string_view{} : std::string_view(found->second.icon);
+}
+
+std::string ItemNames::face(std::uint32_t item) const {
+    const auto largest = static_cast<std::uint32_t>(std::numeric_limits<std::int32_t>::max());
+    if (item > largest) return std::string(kMissingFace);
+    const auto found = rows_.find(static_cast<std::int32_t>(item));
+    if (found == rows_.end()) return std::string(kMissingFace);
+    return image(found->second.icon);
 }
 
 void open_talk(NpcTalk& talk, tk::Dialog dialog) {

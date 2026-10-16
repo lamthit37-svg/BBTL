@@ -35,7 +35,6 @@ constexpr std::string_view kLastImage = "SelectServer_Server_Last_Img";
 constexpr std::string_view kUpPage = "SelectServer_UpPage";
 constexpr std::string_view kDownPage = "SelectServer_DownPage";
 constexpr std::string_view kLineEdit = "SelectServer_LineSelect__auto_editbox__";
-constexpr std::string_view kLineList = "SelectServer_LineSelect__auto_droplist__";
 constexpr std::string_view kAccept = "SelectServer_Accept";
 constexpr std::string_view kRegister = "SelectServer_Regist";
 constexpr std::string_view kCharge = "SelectServer_Charge";
@@ -760,9 +759,8 @@ void paint_server(Deck& deck, const SelectServer& panel) {
     set_text(deck, kInfo, panel.info);
     set_text(deck, kServerSearchBox, panel.search);
     deck.set(gui::Override{.window = kServerSearchBox, .name = "Caret", .value = flag(panel.is_search_focused)});
-    // Combobox: chữ đã chọn nằm ở ô nhập con; danh sách thả chưa mở được nên luôn giấu.
+    // Combobox: chữ đã chọn nằm ở ô nhập con; danh sách thả của nó ẩn cho tới khi bảng hiện nó (chưa có bảng nào mở).
     set_text(deck, kLineEdit, kLineNames.at(std::min(panel.line, kLineCount - 1)));
-    deck.hide(kLineList);
 }
 
 } // namespace game::ui::panel

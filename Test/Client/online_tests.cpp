@@ -587,6 +587,28 @@ void hear_of_stats_notices_and_refusals(Context& context) {
     context.expect(!elsewhere, "Reject của việc ngoài hộp thoại không thuộc nhóm này");
     const auto unrelated = client::online::hear_of(Event{World{.message = protocol::EntityVitals{.id = 1, .hp_percent = 3}}});
     context.expect(!unrelated, "tin thế giới khác không phải tin hội thoại");
+
+    protocol::SelfBag bag;
+    bag.slots.push_back(protocol::BagSlot{.slot = 4, .item = 0, .count = 3, .bound = false});
+    bag.slots.push_back(protocol::BagSlot{.slot = 5, .item = 101, .count = 0, .bound = true});
+    bag.slots.push_back(protocol::BagSlot{.slot = 2, .item = 10100001, .count = 12, .bound = true});
+    bag.slots.push_back(protocol::BagSlot{.slot = 80, .item = 7, .count = 1, .bound = false});
+    const auto heard_bag = client::online::hear_of(Event{World{.message = bag}});
+    const auto* held = heard_bag ? std::get_if<talk::Bag>(&*heard_bag) : nullptr;
+    context.expect(held != nullptr && held->slots.size() == 2, "SelfBag bỏ ô trống");
+    if (held == nullptr || held->slots.size() != 2) return;
+    context.expect(held->slots[0].slot == 2 && held->slots[0].item == 10100001 && held->slots[0].count == 12 &&
+            held->slots[0].bound,
+        "ô có đồ giữ chỉ số, mẫu, số chồng và cờ khoá");
+    context.expect(held->slots[1].slot == 80 && held->slots[1].item == 7 && held->slots[1].count == 1 && !held->slots[1].bound,
+        "ô ngoài lưới vẫn giữ trong ảnh, phần vẽ mới bỏ");
+    protocol::SelfBag huge;
+    for (std::uint16_t index = 0; index < 300; ++index) {
+        huge.slots.push_back(protocol::BagSlot{.slot = index, .item = 1, .count = 1, .bound = false});
+    }
+    const auto heard_huge = client::online::hear_of(Event{World{.message = huge}});
+    const auto* capped = heard_huge ? std::get_if<talk::Bag>(&*heard_huge) : nullptr;
+    context.expect(capped != nullptr && capped->slots.size() == talk::kBagSlots, "ảnh túi cắt ở 256 ô");
 }
 
 void speech_of_maps_every_request(Context& context) {

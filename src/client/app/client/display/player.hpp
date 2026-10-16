@@ -125,6 +125,8 @@ struct SkillCue {
     bool is_attached = false;
     // Dấu để nơi vẽ nối hiệu ứng bám với follows() (CueFollow::token); 0 khi không bám.
     std::uint32_t token = 0;
+    // Ribbon: chuỗi PointCount=…|LifeTime=… của all.skill. Rỗng với hạt và tiếng.
+    std::string props;
 };
 
 // Vị trí mới của một hiệu ứng bám (SkillCue::token) trong khung: nơi vẽ dời hệ hạt theo đó.
@@ -159,10 +161,15 @@ public:
     [[nodiscard]] const look::Figure& figure() const noexcept { return avatar_.figure(); }
     // Số bước đã nạp clip của skill, theo thứ tự bước; rỗng khi skill không có đòn cho người chơi này.
     [[nodiscard]] std::vector<std::uint32_t> steps_of(std::uint32_t skill) const;
+    // Start_MagicSend lúc now. roll là giá trị ngẫu nhiên của nơi gọi (chỉ kRandom dùng). nullopt khi
+    // hoãn tới hết clip, hoặc skill không có clip phát được. Hoãn thì is_locked giữ lệnh sau.
+    [[nodiscard]] std::optional<std::uint32_t> accept_strike(std::uint32_t skill, std::uint32_t roll,
+        core::Clock::time_point now);
     // Từ lúc bắt đầu bước call tới mốc đòn trúng đầu tiên của clip (HitTime), theo tốc độ phát thật; 0 khi bước không có clip
     // hay kịch bản không có mốc trúng.
     [[nodiscard]] std::chrono::milliseconds hit_after(const StrikeCall& call) const;
-    // Đang trong đòn mà chưa tới BreakTime: lệnh đi, nhảy, đòn khác phải chờ (Gait::is_locked).
+    // Đang trong đòn mà chưa tới BreakTime, hoặc đã nhận lệnh nối và đang chờ hết clip (m_bCanBreak
+    // bị Start_MagicSend đặt lại false). Lệnh đi, nhảy, đòn khác phải chờ.
     [[nodiscard]] bool is_locked(core::Clock::time_point now) const;
     // Chuyển các khối vừa tới mốc ở update gần nhất sang out (cộng thêm), rồi xoá khỏi người chơi.
     void take_cues(std::vector<SkillCue>& out);
@@ -178,6 +185,13 @@ private:
         bool fidget, bool demo);
 
     [[nodiscard]] avatar::StrikePlan plan_of(std::size_t index) const;
+    // Clip của bước này phát được: có trong avatar và length, rate đều dương (NaN thì không).
+    [[nodiscard]] bool can_play(std::uint32_t skill, std::uint32_t step) const;
+    // Bước thứ slot trong các đòn của skill, theo thứ tự strikes(). Không cấp phát.
+    [[nodiscard]] std::optional<std::uint32_t> step_at(std::uint32_t skill, std::uint32_t slot) const noexcept;
+    // Chỉ gọi khi chain_.do_next. finish_chain chạy trước, kể cả khi bước không phát được.
+    [[nodiscard]] bool play_deferred(core::Clock::time_point now, const Stand& stand);
+    void release_chain(core::Clock::time_point now, const Stand& stand);
     void begin_strike(core::Clock::time_point now, const StrikeCall& call);
     void fire_cues(const avatar::Playing& playing, const Stand& drawn);
     void place_gear(const Stand& drawn);
@@ -199,6 +213,8 @@ private:
         float fraction = 0.0F;
     };
     std::optional<Active> active_;
+    // Phiên đòn của người này (Start_MagicSend). Không dùng chung giữa hai nhân vật.
+    look::Chain chain_;
     std::vector<SkillCue> cues_;
     std::vector<GearEffect> gear_;
     // Hiệu ứng bám đã bắn: đòn, khối con và dấu; chỗ mới của chúng tính lại mỗi update vào follows_.

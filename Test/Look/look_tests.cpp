@@ -1,9 +1,25 @@
-// Kiểm giải ngoại hình người chơi: bộ mặc định của giới, mặt và tóc sai giới hay không có thì về
-// mặc định, kiểu tóc không lưới, mũ và trang phục không có, thứ tự vẽ (tóc sau cùng), clip đứng và
-// chạy, lỗi khi bảng thiếu thứ bắt buộc, và nạp bảng từ một thư mục qua hàm đọc tệp của bên gọi.
-// Nguồn: TLBB Dev tests/look/look_test.cpp@e0d89a6. Khác gốc: khung test của dự án; giới là Race;
-// bỏ các ca vũ khí, NPC và chọn được lúc tạo nhân vật (chưa làm); tên tệp là tên gốc dưới Model/. Thêm các ca
-// bảng đòn đánh (skill.hpp): bộ đọc năm bảng, mảng mốc, giải skill thành đòn theo giới và loại vũ khí.
+/*==============================================================================
+ *  THIENLONG  |  TEST
+ *------------------------------------------------------------------------------
+ *  TỆP       : Test/Look/look_tests.cpp
+ *  PHÂN HỆ   : Look / Look Tests
+ *  CHUẨN     : C++23
+ *------------------------------------------------------------------------------
+ *  CHỨC NĂNG
+ *  - Kiểm giải ngoại hình người chơi: bộ mặc định của giới, mặt và tóc sai giới
+ *    hay không có thì về mặc định, kiểu tóc không lưới, mũ và trang phục không
+ *    có, thứ tự vẽ (tóc sau cùng), clip đứng và chạy, lỗi khi bảng thiếu thứ
+ *    bắt buộc, và nạp bảng từ một thư mục qua hàm đọc tệp của bên gọi. Nguồn:
+ *    TLBB Dev tests/look/look_test.cpp@e0d89a6.
+ *------------------------------------------------------------------------------
+ *  TÁC GIẢ   : HiepHoon
+ *  TELEGRAM  : @Hoon9xx
+ *============================================================================*/
+
+// Khác gốc: khung test của dự án; giới là Race; bỏ các ca vũ khí, NPC và chọn được lúc tạo nhân vật (chưa làm); tên
+// tệp là tên gốc dưới Model/. Thêm các ca bảng đòn đánh (skill.hpp): bộ đọc năm bảng, mảng mốc, giải skill thành đòn
+// theo giới và loại vũ khí.
+
 #include "core/check.hpp"
 #include "look/appearance.hpp"
 #include "look/look.hpp"
@@ -13,6 +29,7 @@
 #include "test.hpp"
 
 #include <algorithm>
+#include <limits>
 #include <array>
 #include <cstddef>
 #include <cstdint>
@@ -506,6 +523,37 @@ void strikes_resolve(Context& context) {
     context.expect(linked.size() == 1 && linked.at(0).kind == look::ActionKind::kLinked, "kiểu liên hoàn giữ nguyên");
 }
 
+// Start_MagicSend + FreshAnimation. Chuỗi phát là ô GetRandAnim, không phải chú thích (1,2,3) của enum.
+void chain_picks(Context& context) {
+    context.expect(look::chain_skips_middle() && look::random_picks_remainder(), "liên hoàn bỏ bước giữa, ngẫu nhiên lấy dư");
+    look::Chain chain;
+    const look::ChainPick ended = look::accept_chain(chain, 4, look::ActionKind::kLinked, 3, 0, true);
+    const look::ChainPick again = look::accept_chain(chain, 4, look::ActionKind::kLinked, 3, 0, true);
+    context.expect(ended.plays && ended.slot == 0 && again.plays && again.slot == 1, "clip đã hết: tăng một lần rồi phát");
+    const look::ChainPick wrapped = look::accept_chain(chain, 4, look::ActionKind::kLinked, 3, 0, true);
+    const look::ChainPick back = look::accept_chain(chain, 4, look::ActionKind::kLinked, 3, 0, true);
+    context.expect(wrapped.slot == 2 && back.plays && back.slot == 0, "CONCATENATION quay về 0");
+    look::Chain ex;
+    static_cast<void>(look::accept_chain(ex, 5, look::ActionKind::kLinkedEx, 3, 0, true));
+    const look::ChainPick second = look::accept_chain(ex, 5, look::ActionKind::kLinkedEx, 3, 0, true);
+    const look::ChainPick third = look::accept_chain(ex, 5, look::ActionKind::kLinkedEx, 3, 0, true);
+    context.expect(second.slot == 1 && third.slot == 1, "CONCATENATION_EX kẹt ở bước 1, không phát bước cuối");
+    look::Chain one;
+    static_cast<void>(look::accept_chain(one, 6, look::ActionKind::kLinkedEx, 1, 0, true));
+    const look::ChainPick only = look::accept_chain(one, 6, look::ActionKind::kLinkedEx, 1, 0, true);
+    context.expect(only.plays && only.slot == 0, "một bước: index thô 1 vẫn phát ô 0");
+    look::Chain other;
+    static_cast<void>(look::accept_chain(other, 1, look::ActionKind::kLinked, 3, 0, true));
+    const look::ChainPick fresh = look::accept_chain(other, 2, look::ActionKind::kLinked, 4, 0, false);
+    context.expect(fresh.plays && fresh.slot == 0, "đổi skill thì về bước 0");
+    look::Chain idle;
+    context.expect(!look::finish_chain(idle).plays, "hết clip khi không có lệnh nối thì không phát");
+    look::Chain wide;
+    context.expect(!look::accept_chain(wide, 1, look::ActionKind::kRandom, 65, 1, false).plays, "quá trần bước thì bỏ");
+    context.expect(look::moment_due(0.95F, 0.9F, 0.1F) && !look::moment_due(0.5F, 0.9F, 0.1F), "mốc lúc clip quay vòng");
+    context.expect(!look::moment_due(std::numeric_limits<float>::quiet_NaN(), 0.0F, 1.0F), "mốc NaN không bắn");
+}
+
 void missing_rows(Context& context) {
     Tables no_male = sample();
     no_male.bodies.pop_back();
@@ -622,6 +670,7 @@ constexpr std::array kCases{
     Case{.name = "gem_tables_reject_bad_rows", .body = &gem_tables_reject_bad_rows},
     Case{.name = "skill_tables_read", .body = &skill_tables_read},
     Case{.name = "strikes_resolve", .body = &strikes_resolve},
+    Case{.name = "chain_picks", .body = &chain_picks},
     Case{.name = "missing_rows", .body = &missing_rows},
     Case{.name = "load_folder", .body = &load_folder},
     Case{.name = "load_failures", .body = &load_failures},

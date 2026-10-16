@@ -13,10 +13,13 @@
  *============================================================================*/
 
 #pragma once
+#include "client/display/frame_fit.hpp"
 #include "client/display/graphic/prelude.hpp"
 #include "core/governor.hpp"
 #include "motion/jump.hpp"
+#include "ui/panel/skill_bar.hpp"
 
+#include <array>
 #include <random>
 namespace game::client {
 
@@ -134,6 +137,8 @@ struct Display::State {
     void begin_strike(std::optional<std::uint32_t> slot);
     // Khối con kịch bản đòn vừa tới mốc: hiệu ứng thành hệ hạt trong FxView, âm thanh vào sounds_due cho luồng cửa sổ.
     void dispatch_cues();
+    // Cùng pipe hạt, ribbon, tiếng của nhân vật mình. owner 0 là mình.
+    void dispatch_actor_cues(PlayerActor& actor, std::uint32_t owner);
     // Hiệu ứng đồ của người chơi (PlayerActor::gear_effects): dựng khi có, dừng khi hết, dời theo điểm 武器特效点 mỗi khung.
     void sync_gear();
     // Hiệu ứng bám của đòn (SkillCue::token): dời theo điểm gắn mỗi khung tới khi hiệu ứng hết.
@@ -141,6 +146,15 @@ struct Display::State {
     void apply_kept(const KeptRole& restored);
     void start_play();
     [[nodiscard]] ui::HudView hud_view() const;
+    // Phần của policy mà việc nướng mesh cần (texture, LOD, atlas cọ).
+    [[nodiscard]] BakeRules bake_rules() const noexcept {
+        return {.texture_edge = policy.texture_edge, .builds_lods = policy.builds_lods, .atlas_edge = atlas_edge};
+    }
+    // Vùng của màn hình mà khung này vẽ vào: khung cố định khi đang ở màn đăng nhập có login_frame, còn lại
+    // là trọn màn. Cỡ camera, giao diện và toạ độ chuột đều tính theo vùng này.
+    [[nodiscard]] FrameRect frame_rect() const noexcept;
+    // Điểm chuột của sự kiện (chuẩn hoá theo cả màn) đổi sang chuẩn hoá theo frame_rect.
+    [[nodiscard]] control::ScreenPoint framed_point(const control::InputEvent& event) const noexcept;
     [[nodiscard]] std::optional<ui::SceneLoad> scene_load() const;
     [[nodiscard]] bool is_on_hud(control::ScreenPoint point) const;
     void fill_pace_board();
@@ -170,6 +184,7 @@ struct Display::State {
     [[nodiscard]] float frame_budget_ms() const noexcept;
     // --walk: thay phím đi của khung bằng "giữ W" và xoay hướng nhìn theo thời gian khung.
     [[nodiscard]] Steering auto_walk(const Steering& keys, float seconds);
+    // --auto-strike: ô cuối. Có --skill thì đứng yên tới khi bấm được, rồi giữ đứng cho clip khỏi bị chạy xoá.
     void note_auto_strike(Steering& keys);
     // --walk: ghi quãng chân đi được ở khung này (sau simulate_motion) và in tổng kết lúc thoát.
     void note_walk_step();
@@ -253,7 +268,10 @@ struct Display::State {
     // template, rồi từng thực thể dựng tư thế mỗi khung. budget là số hình mới còn được nạp ở khung này.
     void append_creatures();
     void seed_creature_demo(int scene_id);
+    void seed_peer_demo(int scene_id);
+    void seed_pet_demo(int scene_id);
     void show_creature(const cast::Actor& actor, std::size_t& budget);
+    void show_player(const cast::Actor& actor, std::size_t& budget);
     [[nodiscard]] math::Point3 stand_of(const cast::Actor& actor) const;
     // Chân thực thể trong toạ độ thế giới (stand_of ở dạng ogre::Vec3, cho phép thử tia). Cần ground và terrain đã có.
     [[nodiscard]] ogre::Vec3 world_foot(const cast::Actor& actor) const;
@@ -261,8 +279,13 @@ struct Display::State {
     // cần thấy); note_fight nhận tin thế giới về chiêu và đòn trúng (apply_world gọi sau khi Cast đã áp tin).
     [[nodiscard]] bool hear_fight(const ui::panel::talk::Hear& note);
     void note_fight(const cast::Note& note);
+    // Chiêu của người chơi khác: cùng accept_strike và pipe hiệu ứng, không cần seq của mình.
+    void play_peer_cast(const cast::Casting& casting);
     void apply_vitals(const ui::panel::talk::Vitals& vitals);
     void apply_skills(const ui::panel::talk::Skills& skills);
+    // Hồi chiêu còn lại của mười ô thanh, cùng chỉ số với hero.skills. Chỉ luồng vẽ, trước mỗi hud_view.
+    void fill_bar_cooldown();
+    void note_bar_left(std::size_t slot);
     // Đưa sinh lực và danh sách kỹ năng máy chủ đã báo vào hero: lúc tin tới, và sau apply_role vì hero dựng mới đè mất chúng.
     void show_fight();
     // Phím ô thao tác lúc chơi nối máy chủ: ra chiêu ở ô đó lên mục tiêu đang chọn; đã chết thì ô 1 và 2 là hồi sinh.
@@ -383,10 +406,37 @@ struct Display::State {
     std::vector<GearHandle> gear_handles;
     // Hiệu ứng bám của đòn: dấu của PlayerActor và handle trong fx_view.
     struct FollowHandle {
+        // 0 là nhân vật mình. Id thực thể là người chơi khác.
+        std::uint32_t owner = 0;
         std::uint32_t token = 0;
         std::uint32_t handle = 0;
     };
     std::vector<FollowHandle> follow_handles;
+    // Dải AnimationRibbon đang sống. Cạnh mới nhất ở đầu: tay và đầu ngoài (tay + trục X của xương * width).
+    struct SkillRibbon {
+        // 0 là nhân vật mình. Id thực thể là người chơi khác.
+        std::uint32_t owner = 0;
+        std::uint32_t token = 0;
+        float age = 0.0F;
+        float life = 0.0F;
+        float width = 0.0F;
+        std::uint32_t point_count = 0;
+        float start_red = 1.0F;
+        float start_green = 1.0F;
+        float start_blue = 1.0F;
+        float end_red = 1.0F;
+        float end_green = 1.0F;
+        float end_blue = 1.0F;
+        float start_alpha = 1.0F;
+        float end_alpha = 1.0F;
+        std::vector<ogre::Vec3> hands;
+        std::vector<ogre::Vec3> outers;
+    };
+    std::vector<SkillRibbon> skill_ribbons;
+    core::Clock::time_point ribbon_stamp{};
+    [[nodiscard]] std::optional<SkillRibbon> make_ribbon(const SkillCue& cue) const;
+    void push_ribbon_edge(SkillRibbon& ribbon, ogre::Vec3 hand, ogre::Quat orientation) const;
+    void paint_skill_ribbon(const SkillRibbon& ribbon, fx::BillboardBatch& batch) const;
     // Đã in lỗi dựng hiệu ứng một lần. PSO chưa được yêu cầu thì fault còn trống, không in.
     bool fx_fault_noted = false;
     // Giao diện 2D. Rỗng khi thiếu shader hay dữ liệu; game vẫn chạy.
@@ -468,6 +518,8 @@ struct Display::State {
     std::optional<TalkGoal> talk_goal;
     // Chiến đấu của chính người chơi (mục tiêu, hồi chiêu, đánh tự động, số bay); chỉ luồng vẽ chạm.
     fight::Combat combat;
+    // Ms còn lại của Button_Action1..10. hud_view mượn span này trong prepare.
+    std::array<std::uint32_t, ui::panel::kSkillBarSlots> bar_left_ms{};
     // Sinh lực lần cuối máy chủ báo, để dựng lại hero sau apply_role.
     std::optional<ui::panel::talk::Vitals> vitals_seen;
     // Đã vào game qua máy chủ (chuỗi đăng nhập báo kEntered, tới khi mất phiên): ô thao tác gửi CastSkill thay vì phát đòn tại
@@ -495,6 +547,12 @@ struct Display::State {
     std::unordered_map<std::uint32_t, std::int32_t> demo_life;
     // Đã vẽ ít nhất một số bay: --shot của chế độ fight chờ tới đó mới chụp.
     bool has_floated = false;
+    // Tên tuyệt chiêu đang hiện trên đầu người chơi. text rỗng là không có.
+    struct SkillBanner {
+        std::string text;
+        core::Clock::time_point from{};
+    };
+    SkillBanner skill_banner;
     // Tin thế giới của phiên mạng chờ luồng vẽ (world_guard), các thực thể đang thấy (chỉ luồng vẽ), và chỗ đứng cho
     // phiên báo máy chủ (spot_guard: luồng vẽ ghi mỗi khung, luồng cửa sổ đọc).
     std::mutex world_guard;
@@ -514,6 +572,22 @@ struct Display::State {
     std::unordered_map<std::uint32_t, std::shared_ptr<const CreatureAsset>> creature_assets;
     std::unordered_map<std::uint32_t, CreatureSlot> creatures;
     std::uint64_t creature_epoch = 0;
+    // Người chơi khác: một PlayerActor mỗi id. Xác chưa vẽ (phần sau). seen cùng ý với CreatureSlot.
+    struct PeerSlot {
+        std::uint8_t gender = 0;
+        std::uint16_t face = 0;
+        std::uint16_t hair = 0;
+        std::uint64_t seen = 0;
+        bool is_broken = false;
+        std::optional<PlayerActor> actor;
+        // Clip đã nạp. Bắt đầu bằng bộ nhân vật mới; chiêu lạ của máy chủ được thêm khi họ đánh.
+        std::vector<std::uint32_t> skills{0, 1, 21, 22, 34, 35};
+        std::optional<std::uint32_t> pending_skill;
+    };
+    std::unordered_map<std::uint32_t, PeerSlot> peers;
+    std::uint64_t peer_epoch = 0;
+    // Bảng ngoại hình người mình vừa đọc, để người khác không đọc lại đĩa.
+    std::shared_ptr<const PlayerTables> player_tables;
     mutable std::mutex spot_guard;
     std::optional<core::GroundPoint> spot_report;
     // Chỗ vào game cho lần place_at kế; spawn_guard bảo vệ (luồng cửa sổ ghi, luồng vẽ đọc).
@@ -585,8 +659,16 @@ struct Display::State {
     // DisplayDesc::auto_strike_from, và số khung màn chơi đã chạy để đếm nhịp.
     std::uint32_t auto_strike_from = 0;
     std::uint32_t play_frames = 0;
+    // Giữ đứng tới mốc này: Gait::update đổi đòn thành chạy ngay khung cơ thể đang đi.
+    core::Clock::time_point auto_still_until{};
+    // --skill đã được bấm một lần. Trước đó đuổi mục tiêu không kéo người chơi, vì press_slot bỏ lệnh lúc đang chạy.
+    bool ultimate_sent = false;
     // DisplayDesc::creatures còn chờ khung màn chơi đầu tiên có chỗ đứng của nhân vật.
     std::vector<std::uint32_t> creature_demo;
+    // --pet còn chưa gieo.
+    std::vector<std::uint32_t> pet_demo;
+    // --peer còn chưa gieo. 0 là không có.
+    std::uint32_t peer_demo = 0;
     // DisplayDesc::ui_events đã phân tích, còn chờ khung màn chơi đầu tiên; hud_events là phần HUD nhận ở khung
     // đó (rỗng ở các khung khác).
     std::vector<ui::panel::PostedEvent> posted_events;
@@ -624,6 +706,12 @@ struct Display::State {
     Procedure procedure = Procedure::kPlay;
     // DisplayDesc::is_bare: paint_hud không ghi lệnh vẽ nào.
     bool is_bare = false;
+    // DisplayDesc::login_frame: khung cố định của màn đăng nhập; rỗng là vẽ trọn màn.
+    std::optional<PixelSize> login_frame;
+    // Chính sách đồ hoạ của phiên (DisplayDesc::quality), đặt một lần đầu launch. Đường vẽ đọc nó thay vì hỏi nền tảng.
+    GraphicsPolicy policy;
+    // Trần cạnh atlas cọ: kAtlasEdge, hạ theo cỡ texture lớn nhất của thiết bị khi open_gpu đã có thiết bị.
+    std::uint32_t atlas_edge = kAtlasEdge;
     // Mặt đất đang đi: độ cao tam giác đã vẽ, tia chạm đất, va chạm của mắt camera.
     std::optional<control::Ground> terrain;
     core::Status outcome{core::ok()};

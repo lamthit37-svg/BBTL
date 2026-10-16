@@ -62,9 +62,41 @@ struct Screen::State {
     // Ảnh màu đa mẫu khi desc.samples trên 1; rỗng khi vẽ thẳng vào ảnh của swapchain.
     gpu::TextureHandle colour_ms{};
     gpu::TextureViewHandle colour_ms_view{};
+    // Khung con xin từ set_view; chỉ có hiệu lực khi is_framed.
+    ScreenView view{};
     // Ảnh của khung đang vẽ, từ lần begin gần nhất.
     std::uint32_t image = 0;
+
+    // Khung con có hiệu lực: có diện tích, nằm trọn trong ảnh swapchain và nhỏ hơn ảnh. Trùng trọn ảnh
+    // thì không tính, để cỡ khớp tỉ lệ vẫn xoá bằng màu nền của cảnh.
+    [[nodiscard]] bool is_framed() const noexcept;
+    // Đặt viewport và scissor vào khung con; gọi ngay sau begin_rendering.
+    void fit_view(gpu::CommandList& list) const;
 };
+
+bool Screen::State::is_framed() const noexcept {
+    if (view.width == 0 || view.height == 0) return false;
+    const std::uint64_t right = std::uint64_t{view.x} + view.width;
+    const std::uint64_t bottom = std::uint64_t{view.y} + view.height;
+    if (right > swapchain->width() || bottom > swapchain->height()) return false;
+    const bool is_whole = view.width == swapchain->width() && view.height == swapchain->height();
+    return !is_whole;
+}
+
+void Screen::State::fit_view(gpu::CommandList& list) const {
+    gpu::Viewport viewport;
+    viewport.x = static_cast<float>(view.x);
+    viewport.y = static_cast<float>(view.y);
+    viewport.width = static_cast<float>(view.width);
+    viewport.height = static_cast<float>(view.height);
+    list.set_viewport(viewport);
+    gpu::Scissor scissor;
+    scissor.x = static_cast<std::int32_t>(view.x);
+    scissor.y = static_cast<std::int32_t>(view.y);
+    scissor.width = view.width;
+    scissor.height = view.height;
+    list.set_scissor(scissor);
+}
 
 // Ảnh màu đa mẫu: vẽ vào đây rồi resolve xuống ảnh của swapchain, trên chip của GPU.
 core::Result<std::pair<gpu::TextureHandle, gpu::TextureViewHandle>> Screen::State::make_colour_ms(bool wanted) const {
@@ -186,6 +218,10 @@ void Screen::set_clear(const gpu::ClearColor& clear) noexcept {
     state_->desc.clear = clear;
 }
 
+void Screen::set_view(const ScreenView& view) noexcept {
+    state_->view = view;
+}
+
 core::Result<std::uint32_t> Screen::begin(gpu::CommandList& list) {
     State& state = *state_;
     const core::Result<std::uint32_t> index = state.swapchain->acquire();
@@ -197,13 +233,16 @@ core::Result<std::uint32_t> Screen::begin(gpu::CommandList& list) {
     gpu::ColorTarget color_target;
     color_target.view = is_multisampled ? state.colour_ms_view : state.swapchain->view(state.image);
     color_target.resolve = is_multisampled ? state.swapchain->view(state.image) : gpu::TextureViewHandle{};
-    color_target.clear = state.desc.clear;
+    // Có khung con thì xoá đen cả ảnh để hai dải ngoài khung là đen; viewport thu nhỏ không đổi vùng xoá.
+    const bool is_framed = state.is_framed();
+    color_target.clear = is_framed ? gpu::ClearColor{} : state.desc.clear;
     gpu::DepthTarget depth_target;
     depth_target.view = state.depth_view;
     gpu::RenderingDesc rendering;
     rendering.colors = std::span(&color_target, 1);
     rendering.depth = depth_target;
     list.begin_rendering(rendering);
+    if (is_framed) state.fit_view(list);
     return index;
 }
 

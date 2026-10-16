@@ -30,7 +30,7 @@ enum class SdlKey : std::uint8_t {
     kTab,
     kEnter,
     kEscape,
-    // Phím số 1..9, liền nhau: ô thao tác 1..9.
+    // Phím số 1..9 rồi 0, liền nhau: ô thao tác 1..9 và ô thứ mười.
     kDigit1,
     kDigit2,
     kDigit3,
@@ -40,6 +40,7 @@ enum class SdlKey : std::uint8_t {
     kDigit7,
     kDigit8,
     kDigit9,
+    kDigit0,
 };
 
 // Một việc SDL vừa báo, theo thứ tự PollEvent.

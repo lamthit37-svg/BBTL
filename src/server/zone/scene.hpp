@@ -29,6 +29,7 @@
 #include "dice/dice.hpp"
 #include "ipc/relay.hpp"
 #include "zone/aoi.hpp"
+#include "zone/gates.hpp"
 #include "zone/mind.hpp"
 #include "zone/outbox.hpp"
 
@@ -144,6 +145,23 @@ public:
         std::size_t player_max = 4000;
         // Luật đi: bước từ chỗ đi được sang chỗ không đi được bị hoàn lại bằng kPlace (xem moved).
         Walkable walkable{};
+        // Vùng sự kiện của cảnh, mét. Rỗng là cảnh không có cổng.
+        std::vector<AreaRect> areas;
+    };
+
+    // Hồ sơ hiển thị của người chơi đang đứng, đủ để dựng lại Attach khi đổi cảnh. Không gồm khối chơi.
+    struct PlayerCard {
+        std::uint64_t character = 0;
+        std::string name;
+        std::uint16_t level = 0;
+        std::uint8_t gender = 0;
+        std::uint16_t face = 0;
+        std::uint16_t hair = 0;
+        std::uint8_t school = 0;
+        std::uint16_t direction = 0;
+        protocol::EntityState state = protocol::EntityState::kIdle;
+        float x_cm = 0.0F;
+        float z_cm = 0.0F;
     };
 
     struct Where {
@@ -194,6 +212,14 @@ public:
 
     [[nodiscard]] std::uint16_t id() const noexcept { return config_.id; }
     [[nodiscard]] std::uint32_t tick() const noexcept { return tick_; }
+    // Còn chỗ cho một người chơi nữa (trần người và trần thực thể).
+    [[nodiscard]] bool can_admit() const noexcept;
+    // Vùng chứa điểm centimet; rỗng khi không vùng nào chứa.
+    [[nodiscard]] AreaStand standing(float x_cm, float z_cm) const noexcept;
+    // Hồ sơ người chơi; nullopt khi phiên không ở cảnh.
+    [[nodiscard]] std::optional<PlayerCard> player_card(std::uint64_t session) const;
+    // Ghi điểm đứng hiện tại của phiên (đổi cảnh xong, để sập không còn ở cảnh cũ).
+    void keep_spot(std::uint64_t session, Outbox& out) const;
     [[nodiscard]] std::size_t player_count() const noexcept { return players_.size(); }
     [[nodiscard]] std::size_t entity_count() const noexcept { return live_; }
     [[nodiscard]] bool has_session(std::uint64_t session) const noexcept { return players_.contains(session); }

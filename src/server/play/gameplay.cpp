@@ -38,6 +38,7 @@
 
 #include <algorithm>
 #include <array>
+#include <cmath>
 #include <cstddef>
 #include <cstdint>
 #include <expected>
@@ -326,6 +327,27 @@ void Gameplay::left_scene(std::uint64_t session, Output& out) {
     if (open) {
         out.down(session, protocol::DialogClosed{.session = open->value(), .reason = protocol::DialogCloseReason::kSceneChanged});
     }
+}
+
+// NOLINTNEXTLINE(bugprone-easily-swappable-parameters): entity là id thực thể, x_cm là toạ độ (HP-07)
+bool Gameplay::change_scene(std::uint64_t session, std::uint16_t scene, std::uint32_t entity, float x_cm, float z_cm,
+    Surroundings& around, Output& out) {
+    const auto found = players_.find(session);
+    if (found == players_.end()) return true;
+    Entry& entry = found->second;
+    if (const auto fight = battles_.find(entry.scene); fight != battles_.end()) fight->second->leave(session);
+    const Seat seat{.session = session,
+        .entity = entity,
+        .player = entry.player.get(),
+        .x_cm = static_cast<std::int32_t>(std::lround(x_cm)),
+        .z_cm = static_cast<std::int32_t>(std::lround(z_cm))};
+    Report report;
+    const Env env{.stage = &around, .out = &out, .report = &report};
+    if (!battle(scene).join(seat, env)) return false;
+    entry.scene = scene;
+    entry.entity = entity;
+    settle(report, out);
+    return true;
 }
 
 void Gameplay::autosave(Output& out) {

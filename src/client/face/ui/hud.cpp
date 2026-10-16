@@ -62,6 +62,7 @@
 #include "ui/panel/select_role.hpp"
 #include "ui/panel/select_server.hpp"
 #include "ui/panel/self_equip.hpp"
+#include "ui/panel/skill_bar.hpp"
 #include "ui/panel/softkey.hpp"
 #include "ui/panel/start.hpp"
 #include "ui/panel/system_info.hpp"
@@ -86,6 +87,7 @@
 #include <filesystem>
 #include <format>
 #include <future>
+#include <limits>
 #include <memory>
 #include <optional>
 #include <print>
@@ -194,7 +196,6 @@ constexpr std::string_view kViFontFile = "Schema/VTNAM14.bin";
 // khung ảo 800 x 640 rồi co cho vừa màn, thay vì cắt bảng. PC mặc định 1280 x 720 vẫn là 1:1.
 constexpr float kLayoutWidth = 800.0F;
 constexpr float kLayoutHeight = 640.0F;
-
 // Số điểm ảnh của màn cho một điểm ảnh của layout: 1 khi màn không nhỏ hơn khung ảo, nhỏ hơn 1 khi màn nhỏ hơn.
 [[nodiscard]] float layout_scale(float width, float height) noexcept {
     if (!(width > 0.0F) || !(height > 0.0F)) return 1.0F;
@@ -535,6 +536,11 @@ struct Hud::State {
     panel::NpcTalk talk;
     panel::ItemNames item_names;
     bool has_item_names_failed = false;
+    panel::SkillBook skill_book;
+    bool has_skill_book_failed = false;
+    bool has_skill_icons_failed = false;
+    // Ô kỹ năng vừa nhấn; prepare xong thì Display lấy đi và ra chiêu.
+    std::optional<std::uint32_t> skill_press;
     // Thanh kỹ năng thú cưng (MainMenuBar_3) và việc nó nhờ ở lần nhấn gần nhất. Danh sách action của
     // thanh do hệ thú cưng giữ, client chưa có hệ đó nên thanh chưa hiện (xem main_menu_bar_3.hpp).
     panel::MainMenuBar3 pet_bar;
@@ -632,6 +638,7 @@ struct Hud::State {
     [[nodiscard]] bool is_on_scroll(float across, float down) const;
     void note_scroll(const HudView& view, float seconds);
     void press_login(std::string_view window, const HudView& view);
+    void release_login(const HudView& view);
     void press_pet_bar(std::string_view window);
     void press_action_bars(std::string_view window);
     [[nodiscard]] bool can_do_action_now() const;
@@ -644,6 +651,7 @@ struct Hud::State {
     void step_panels(const HudView& view);
     void dispatch(std::span<const panel::PostedEvent> first);
     void ensure_item_names();
+    void ensure_skill_book();
     void post_to_host(panel::EventQueue& queue, const panel::PostedEvent& posted);
     void note_host(const HudView& view);
     void note_host_press(std::string_view window, const HudView& view);
@@ -813,7 +821,11 @@ void Hud::State::note_hover(const HudView& view) {
     if (window == panel::kServerAreaList && view.pointer.has_value()) {
         element = hub->element_at(panel::kServerAreaList, *view.pointer);
     }
-    panel::hover_flow(flow, window.value_or(std::string_view{}), element);
+    if (window == panel::kLogonSuffixList && view.pointer.has_value()) {
+        element = hub->list_item(panel::kLogonSuffixList, *view.pointer);
+    }
+    const bool is_down = view.pointer.has_value() && view.pointer->is_down;
+    panel::hover_flow(flow, window.value_or(std::string_view{}), element, is_down);
 }
 
 void Hud::State::note_press(const HudView& view) {
@@ -821,7 +833,7 @@ void Hud::State::note_press(const HudView& view) {
     const bool is_press = is_down && !was_down;
     const bool is_release = !is_down && was_down;
     was_down = is_down;
-    if (is_release && view.phase == Phase::kLogin) panel::release_flow(flow);
+    if (is_release && view.phase == Phase::kLogin) release_login(view);
     if (is_release && view.phase == Phase::kPlay) {
         note_board_release(view);
         note_world_release(view);
@@ -832,6 +844,7 @@ void Hud::State::note_press(const HudView& view) {
     const gui::Pointer spot = *view.pointer;
     const auto window = hub->hit(spot.x, spot.y, gui::Probe::kLeftButton);
     if (view.phase == Phase::kPlay) note_host_press(window.value_or(std::string_view{}), view);
+    if (!window && view.phase == Phase::kLogin) panel::dismiss_flow(flow);
     if (!window) return;
     if (const std::optional<Action> next = panel::menu_action(*window)) {
         asked = next;
@@ -859,6 +872,10 @@ void Hud::State::note_press(const HudView& view) {
         panel::pick_talk_option(talk, *option, view.clock);
     }
     panel::press_packet(packet, *window);
+    if (const std::optional<std::uint32_t> slot = panel::skill_slot_of(*window)) {
+        const bool known = view.hero != nullptr && *slot < view.hero->skills.size();
+        if (known) skill_press = *slot;
+    }
     press_pet_bar(*window);
     press_action_bars(*window);
     note_board_press(*window, view);
@@ -990,7 +1007,13 @@ void Hud::State::press_login(std::string_view window, const HudView& view) {
     if (window == panel::kServerAreaList && view.pointer.has_value()) {
         facts.element = hub->element_at(panel::kServerAreaList, *view.pointer);
     }
+    if (window == panel::kLogonSuffixList && view.pointer.has_value()) {
+        facts.element = hub->list_item(panel::kLogonSuffixList, *view.pointer);
+    }
+    // Danh sách đuôi tài khoản đang mở chiếm chuột: lần nhấn này không tới bàn phím ảo hay nút nào khác.
+    const bool was_taken = panel::suffix_list_open(flow);
     panel::press_flow(flow, window, facts);
+    if (was_taken) return;
     if (!panel::on_account(flow)) {
         panel::close_soft_keys(keys);
         return;
@@ -1002,6 +1025,13 @@ void Hud::State::press_login(std::string_view window, const HudView& view) {
     const std::optional<std::size_t> cell = hub->soft_key(panel::kSoftKeysWindow, *view.pointer);
     const std::optional<char32_t> typed = cell ? panel::strike_soft_key(keys, *cell) : std::nullopt;
     if (typed) panel::key_flow(flow, *typed);
+}
+
+// Nhả nút trái trong thủ tục đăng nhập: cửa sổ dưới chuột và mục danh sách đuôi dưới chuột cho danh sách đuôi đang mở.
+void Hud::State::release_login(const HudView& view) {
+    std::string_view window;
+    if (view.pointer && hub) window = hub->hit(view.pointer->x, view.pointer->y, gui::Probe::kAny).value_or(window);
+    panel::release_flow(flow, window);
 }
 
 // Ký tự gõ từ bàn phím tới ô đang nhận phím của bảng nhập tài khoản; màn chơi chưa có ô nhập nào.
@@ -1207,6 +1237,10 @@ void Hud::State::fill_panels(const HudView& view) {
 void Hud::State::fill_play(const HudView& view) {
     panel::follow_here(maps, view.scene.id);
     panel::show_start(deck);
+    ensure_skill_book();
+    const std::span<const std::uint32_t> learned = view.hero != nullptr ? std::span<const std::uint32_t>{view.hero->skills}
+                                                                        : std::span<const std::uint32_t>{};
+    panel::paint_skill_bar(deck, learned, view.bar_left_ms, skill_book, item_names);
     panel::MapSeen seen;
     const std::string_view floor = panel::floor_key(maps);
     const std::string_view scene_key = floor.empty() ? view.scene.name : floor;
@@ -1231,9 +1265,7 @@ void Hud::State::fill_play(const HudView& view) {
     fill_board(view);
     fill_world(view);
     if (panel::is_open(desk, panel::Board::kBag)) {
-        panel::paint_packet(deck, packet, view.hero != nullptr ? view.hero->purse : hero::Purse{});
-    } else {
-        packet = panel::Packet{};
+        panel::paint_packet(deck, packet, item_names, view.hero != nullptr ? view.hero->purse : hero::Purse{});
     }
     if (view.hero == nullptr) return;
     panel::Face face;
@@ -1612,6 +1644,10 @@ std::optional<RunTo> Hud::take_run_to() noexcept {
     return run;
 }
 
+std::optional<std::uint32_t> Hud::take_skill_slot() noexcept {
+    return std::exchange(state_->skill_press, std::nullopt);
+}
+
 // Bảng tên vật phẩm đọc ở lần đầu một phần thưởng hay yêu cầu cần tên; hỏng thì thôi, phần thưởng hiện theo số mẫu.
 void Hud::State::ensure_item_names() {
     if (item_names.is_loaded() || has_item_names_failed) return;
@@ -1619,6 +1655,38 @@ void Hud::State::ensure_item_names() {
     if (!text || !item_names.load(*text)) {
         has_item_names_failed = true;
         std::println(stderr, "Hộp thoại: không đọc được Table/items.tsv, phần thưởng hiện theo số mẫu");
+        return;
+    }
+    // Trang bị, bảo thạch và vật phẩm hoạt động không có trong items.tsv. Thiếu tệp thì ô đó dùng ảnh thay.
+    const auto take = [this](const char* file) {
+        const io::TextResult extra = io::read_text(client_root / "Table" / file);
+        if (!extra || !item_names.absorb(*extra)) {
+            std::println(stderr, "Hòm đồ: không đọc được Table/{}, mẫu ở bảng đó không có tên", file);
+        }
+    };
+    take("equips.tsv");
+    take("gems.tsv");
+    take("campaign_items.tsv");
+    const io::TextResult icons = io::read_text(client_root / "Table" / "icons.tsv");
+    if (!icons || !item_names.load_icons(*icons)) {
+        std::println(stderr, "Hòm đồ: không đọc được Table/icons.tsv, icon vật phẩm dùng ảnh thay");
+    }
+}
+
+// Bảng kỹ năng và bảng icon cho mười ô MainMenuBar. Thiếu tệp thì ô vẫn bấm được, ảnh là set:X image:X.
+void Hud::State::ensure_skill_book() {
+    if (!skill_book.is_loaded() && !has_skill_book_failed) {
+        const io::TextResult text = io::read_text(client_root / "Table" / "skills.tsv");
+        if (!text || !skill_book.load(*text)) {
+            has_skill_book_failed = true;
+            std::println(stderr, "Thanh kỹ năng: không đọc được Table/skills.tsv, ô dùng ảnh thay");
+        }
+    }
+    if (item_names.has_icons() || has_skill_icons_failed) return;
+    const io::TextResult icons = io::read_text(client_root / "Table" / "icons.tsv");
+    if (!icons || !item_names.load_icons(*icons)) {
+        has_skill_icons_failed = true;
+        std::println(stderr, "Thanh kỹ năng: không đọc được Table/icons.tsv, icon dùng ảnh thay");
     }
 }
 
@@ -1646,6 +1714,11 @@ void Hud::deliver_talk(const panel::talk::Hear& heard) {
         void operator()(const panel::talk::Cooldown& /*cooldown*/) const {}
         void operator()(const panel::talk::Slain& /*slain*/) const {}
         void operator()(const panel::talk::Declined& /*declined*/) const {}
+        // Ảnh chụp thay cả túi. Đóng hòm không xoá bản này: máy chủ chỉ gửi lại khi túi đổi.
+        void operator()(const panel::talk::Bag& bag) const {
+            state->ensure_item_names();
+            state->packet.bag = bag;
+        }
     };
     std::visit(Apply{state_.get()}, heard);
 }
@@ -1732,6 +1805,12 @@ const panel::ShownModel& Hud::role_model() const noexcept {
 Hud::ExtraFont Hud::extra_font() const noexcept {
     if (!state_->font) return {};
     return ExtraFont{.font = &*state_->font, .texture = state_->font_texture};
+}
+
+std::string_view Hud::skill_name(std::uint32_t skill) {
+    if (skill > static_cast<std::uint32_t>(std::numeric_limits<std::int32_t>::max())) return {};
+    state_->ensure_skill_book();
+    return state_->skill_book.name(static_cast<std::int32_t>(skill));
 }
 
 std::size_t Hud::quad_count() const noexcept {

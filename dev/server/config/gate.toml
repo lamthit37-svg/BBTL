@@ -2,8 +2,8 @@
 # CẤU HÌNH CỔNG CÔNG KHAI (GATE)
 #==================================================
 # Tệp: gate.toml. Chỉ tiến trình gate đọc tệp này.
-# Gate là cổng công khai duy nhất: client nối vào đây, mọi tiến trình khác nằm phía sau. Máy này
-# là máy chủ thử online nên gate nghe mọi giao diện mạng, để máy khác trong LAN nối được.
+# Gate là cổng công khai duy nhất: client nối vào đây, mọi tiến trình khác nằm phía sau. Cổng
+# 7000/7001 trên máy này do cụm TLBB giữ, nên cụm thử nghe loopback để client trên máy nối được.
 # "Số tạm" là số chưa có phép đo.
 
 #==================================================
@@ -16,10 +16,10 @@ trusted_proxies   = []                            # Proxy được tin để đ�
 #==================================================
 # Cổng nghe
 #==================================================
-# "0.0.0.0" là nghe mọi giao diện mạng.
+# 127.0.0.1: client trên chính máy này. 7100/7101 tránh cổng mà tlbb_gate đang nghe.
 [listen]
-game = "0.0.0.0:7000"   # Cổng chơi game: client đã có vé nối vào đây
-auth = "0.0.0.0:7001"   # Cổng xác thực: đăng ký, đăng nhập lấy vé; mật khẩu chỉ đi qua đây
+game = "127.0.0.1:7100"   # Cổng chơi game: client đã có vé nối vào đây
+auth = "127.0.0.1:7101"   # Cổng xác thực: đăng ký, đăng nhập lấy vé; mật khẩu chỉ đi qua đây
 
 #==================================================
 # Trần chống lạm dụng

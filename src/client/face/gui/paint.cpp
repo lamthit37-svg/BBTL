@@ -112,37 +112,71 @@ struct ImageFill {
     std::uint32_t colour = kWhiteArgb;
 };
 
-// Một hàng ô lát: toạ độ dọc của hàng và số ô trên hàng.
-struct TileRow {
-    float down = 0.0F;
-    unsigned columns = 0;
+// Một trục của lưới ô: mỗi trục tự quyết lát, kéo giãn hay căn, như ImageryComponent của CEGUI —
+// "HorzFormat=Tiled" mà dọc không ghi thì ảnh chỉ lát ngang và vẫn kéo giãn theo chiều cao ô
+// (EditBox_M cao 18 px lót ô cao 19 px của combobox).
+struct TileAxis {
+    float origin = 0.0F;
+    float length = 0.0F;
+    float end = 0.0F;
+    float image = 0.0F;
+    unsigned count = 1;
+    bool tiled = false;
+    bool stretched = false;
 };
 
-void emit_tile(Sheet& sheet, const ImageFill& fill, float across, float down) {
-    const float remain_w = fill.area.x + fill.area.w - across;
-    const float remain_h = fill.area.y + fill.area.h - down;
-    if (remain_w <= 0.0F || remain_h <= 0.0F) return;
-    const float width = std::min(fill.image->width, remain_w);
-    const float height = std::min(fill.image->height, remain_h);
-    const Box dest{.x = across, .y = down, .w = width, .h = height};
-    const Box crop{.x = 0.0F, .y = 0.0F, .w = dest.w, .h = dest.h};
-    push_image(sheet, *fill.image, ImagePlace{.dest = dest, .crop = crop, .colour = fill.colour});
+TileAxis tile_axis(Axis axis, float size, Align mode) noexcept {
+    TileAxis result;
+    result.end = axis.start + axis.span;
+    result.image = size;
+    if (mode == Align::kTile) {
+        result.origin = axis.start;
+        result.length = size;
+        result.tiled = true;
+        result.count = static_cast<unsigned>(std::ceil(axis.span / size));
+        return result;
+    }
+    const Placement placement = align_axis(axis, size, mode);
+    result.origin = placement.origin;
+    result.length = placement.length;
+    result.stretched = mode == Align::kStretch;
+    return result;
 }
 
-void tile_row(Sheet& sheet, const ImageFill& fill, const TileRow& row) {
-    for (unsigned column = 0; column < row.columns; ++column) {
-        const float across = fill.area.x + (static_cast<float>(column) * fill.image->width);
-        emit_tile(sheet, fill, across, row.down);
+// Đoạn của ô thứ index trên một trục: điểm đầu, độ dài vẽ, độ dài lấy từ ảnh. Ô lát cuối bị cắt
+// ở mép vùng; ô kéo giãn lấy cả ảnh, ô căn lấy đúng phần vẽ.
+struct Slice {
+    float start = 0.0F;
+    float length = 0.0F;
+    float source = 0.0F;
+};
+
+Slice slice_of(const TileAxis& axis, unsigned index) noexcept {
+    Slice slice;
+    slice.start = axis.origin + (static_cast<float>(index) * axis.length);
+    slice.length = axis.length;
+    if (axis.tiled) slice.length = std::min(axis.length, axis.end - slice.start);
+    slice.source = axis.stretched ? axis.image : slice.length;
+    return slice;
+}
+
+struct TileGrid {
+    TileAxis horz;
+    TileAxis vert;
+};
+
+void tile_row(Sheet& sheet, const ImageFill& fill, const TileGrid& grid, const Slice& row) {
+    for (unsigned column = 0; column < grid.horz.count; ++column) {
+        const Slice col = slice_of(grid.horz, column);
+        const Box dest{.x = col.start, .y = row.start, .w = col.length, .h = row.length};
+        const Box crop{.x = 0.0F, .y = 0.0F, .w = col.source, .h = row.source};
+        push_image(sheet, *fill.image, ImagePlace{.dest = dest, .crop = crop, .colour = fill.colour});
     }
 }
 
-void tile_image(Sheet& sheet, const ImageFill& fill) {
-    if (fill.image->width <= 0.0F || fill.image->height <= 0.0F) return;
-    const auto columns = static_cast<unsigned>(std::ceil(fill.area.w / fill.image->width));
-    const auto rows = static_cast<unsigned>(std::ceil(fill.area.h / fill.image->height));
-    for (unsigned row = 0; row < rows; ++row) {
-        const float down = fill.area.y + (static_cast<float>(row) * fill.image->height);
-        tile_row(sheet, fill, TileRow{.down = down, .columns = columns});
+void paint_grid(Sheet& sheet, const ImageFill& fill, const TileGrid& grid) {
+    for (unsigned row = 0; row < grid.vert.count; ++row) {
+        tile_row(sheet, fill, grid, slice_of(grid.vert, row));
     }
 }
 
@@ -160,19 +194,11 @@ void paint_image(const Ctx& ctx, const Placed& self, const ImageJob& job) {
     const FormatValue vert = format_value(ctx, self, *job.vert);
     const Align horz_mode = align_of(horz.index_in(kImageHorz));
     const Align vert_mode = align_of(vert.index_in(kImageVert));
-    if (horz_mode == Align::kTile || vert_mode == Align::kTile) {
-        tile_image(*ctx.sheet, job.fill);
-        return;
-    }
-    const Axis along{.start = area.x, .span = area.w};
-    const Axis across_axis{.start = area.y, .span = area.h};
-    const Placement across = align_axis(along, image.width, horz_mode);
-    const Placement down = align_axis(across_axis, image.height, vert_mode);
-    const Box dest{.x = across.origin, .y = down.origin, .w = across.length, .h = down.length};
-    Box crop{.x = 0.0F, .y = 0.0F, .w = image.width, .h = image.height};
-    if (horz_mode != Align::kStretch) crop.w = dest.w;
-    if (vert_mode != Align::kStretch) crop.h = dest.h;
-    push_image(*ctx.sheet, image, ImagePlace{.dest = dest, .crop = crop, .colour = job.fill.colour});
+    if (image.width <= 0.0F || image.height <= 0.0F) return;
+    const TileGrid grid{
+        .horz = tile_axis(Axis{.start = area.x, .span = area.w}, image.width, horz_mode),
+        .vert = tile_axis(Axis{.start = area.y, .span = area.h}, image.height, vert_mode)};
+    paint_grid(*ctx.sheet, job.fill, grid);
 }
 
 // Khung

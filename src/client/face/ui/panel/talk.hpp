@@ -225,7 +225,25 @@ struct Declined {
     Decline why = Decline::kOther;
 };
 
-using Hear = std::variant<Dialog, Closed, Book, Notice, Stats, Refused, Vitals, Skills, Cooldown, Slain, Declined>;
+// Trần số ô của một ảnh chụp túi, cùng protocol::kSelfBagSlotsCount. Ô thừa bị bỏ, không cấp phát theo số máy chủ khai.
+inline constexpr std::size_t kBagSlots = 256;
+
+// Một ô có đồ. slot là chỉ số ô (0 là ô đầu của túi đang gửi). item 0 hoặc count 0 không có trong ảnh: đó là ô trống.
+struct BagSlot {
+    std::uint16_t slot = 0;
+    std::uint32_t item = 0;
+    std::uint16_t count = 0;
+    // Đã khoá giao dịch. Bản 2008 không làm tối ô túi vì cờ này; giữ để lần sau không mất.
+    bool bound = false;
+};
+
+// Ảnh chụp cả túi: thay bản đang giữ, không cộng vào. Khác gốc: client 2008 có ba túi (đạo cụ, vật liệu,
+// nhiệm vụ) và sức chứa từng túi trên dây; protocol v6 chỉ có một túi, không có loại túi và không có sức chứa.
+struct Bag {
+    std::vector<BagSlot> slots;
+};
+
+using Hear = std::variant<Dialog, Closed, Book, Notice, Stats, Refused, Vitals, Skills, Cooldown, Slain, Declined, Bag>;
 
 // Việc người chơi nhờ gửi lên máy chủ.
 struct Talk {

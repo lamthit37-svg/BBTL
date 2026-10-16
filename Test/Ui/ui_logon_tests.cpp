@@ -6,6 +6,7 @@
 
 #include "core/check.hpp"
 #include "gui/asset.hpp"
+#include "gui/content.hpp"
 #include "gui/loader.hpp"
 #include "gui/sheet.hpp"
 #include "test.hpp"
@@ -46,7 +47,9 @@ constexpr std::array<std::string_view, 8> kNeverShown = {"LogOn_Wegame_Frame", "
 constexpr std::array<std::string_view, 4> kClassicOnly = {
     "LogOn_ID", "LogOn_Region", "LogOn_ID_Text", "LogOn_Region_Text"};
 constexpr std::array<std::string_view, 3> kCustomOnly = {"LogOn_MailID", "LogOn_MailID_Text", "LogOn_TiShi"};
-// Danh sách thả của Combobox đuôi tài khoản: chưa mở được nên luôn giấu, không thì khung của nó thành vạch viền thừa.
+// Cửa sổ con của Combobox đuôi tài khoản: ô chữ, nút xổ và danh sách thả (ẩn cho tới khi bảng hiện nó).
+constexpr std::string_view kSuffixEdit = "LogOn_Region__auto_editbox__";
+constexpr std::string_view kSuffixButton = "LogOn_Region__auto_button__";
 constexpr std::string_view kSuffixDropList = "LogOn_Region__auto_droplist__";
 
 // Giá trị cuối cùng đặt cho một thuộc tính trong khung này; nullopt khi bảng không đặt.
@@ -92,13 +95,13 @@ void opens_on_classic_account(Context& context) {
     context.expect(all_hidden(deck, kNeverShown), "khung WeGame, bản cũ và lời nhắc Caps Lock bị giấu");
     context.expect(all_hidden(deck, kCustomOnly), "ô và nhãn của kiểu tự đặt bị giấu");
     context.expect(none_hidden(deck, kClassicOnly), "ô, nhãn và đuôi của kiểu truyền thống còn hiện");
-    context.expect(is_hidden(deck, kSuffixDropList), "danh sách thả của đuôi tài khoản bị giấu (không vạch viền thừa)");
+    context.expect(said(deck, kSuffixDropList, "Visible") != kTrue, "danh sách thả đóng thì không được hiện (không vạch viền thừa)");
     context.expect(said(deck, "LogOn_TraditionLogon", "Selected") == kTrue, "thẻ truyền thống đang chọn");
     context.expect(said(deck, "LogOn_OwnDefineLogon", "Selected") == kFalse, "thẻ tự đặt không chọn");
     context.expect(said(deck, "LogOn_PassWord_Protect_Check", "Selected") == kFalse, "ô thẻ bảo mật trống");
     context.expect(said(deck, "LogOn_ID", "Caret") == kTrue, "con nháy ở ô tài khoản");
     context.expect(said(deck, "LogOn_PassWord", "Caret") == kFalse, "ô mật khẩu không có con nháy");
-    context.expect(said(deck, "LogOn_Region", "Text") == "@changyou.com", "đuôi đầu tiên của TailName");
+    context.expect(said(deck, kSuffixEdit, "Text") == "@changyou.com", "ô chữ của Combobox mang đuôi đầu tiên của TailName");
 }
 
 // LogOn_OwnDefineLogon_MouseDown: đổi ô tài khoản, giấu đuôi, hiện dòng nhắc quay lại.
@@ -111,7 +114,7 @@ void custom_tab_swaps_fields(Context& context) {
     context.expect(logon.focus == LogonField::kAccount, "đổi kiểu thì ô tài khoản nhận phím");
     Deck deck = painted(logon);
     context.expect(all_hidden(deck, kClassicOnly), "ô, nhãn và đuôi của kiểu truyền thống bị giấu");
-    context.expect(is_hidden(deck, kSuffixDropList), "danh sách thả của đuôi vẫn giấu ở kiểu tự đặt");
+    context.expect(said(deck, kSuffixDropList, "Visible") != kTrue, "danh sách thả vẫn đóng ở kiểu tự đặt");
     context.expect(none_hidden(deck, kCustomOnly), "ô, nhãn và dòng nhắc của kiểu tự đặt hiện");
     context.expect(all_hidden(deck, kNeverShown), "phần luôn giấu vẫn giấu");
     context.expect(said(deck, "LogOn_TraditionLogon", "Selected") == kFalse, "thẻ truyền thống thôi chọn");
@@ -379,6 +382,94 @@ void names_exist_in_layout(Context& context) {
     }
 }
 
+// Mục thứ index của danh sách thả như Hub báo: bản ghi "màu, chữ" cách nhau bằng kRecordMark.
+std::string_view record_at(std::string_view items, std::size_t index) {
+    std::size_t begin = 0;
+    for (std::size_t seen = 0; seen < index; ++seen) {
+        const std::size_t mark = items.find(gui::kRecordMark, begin);
+        if (mark == std::string_view::npos) return {};
+        begin = mark + 1;
+    }
+    const std::size_t end = items.find(gui::kRecordMark, begin);
+    return items.substr(begin, end == std::string_view::npos ? end : end - begin);
+}
+
+// Nhấn nút xổ rồi nhấn mục trong danh sách thì mục đó sáng; nhả trong danh sách nhận mục và đóng (ComboDropList).
+void suffix_list_picks_on_press_and_release(Context& context) {
+    Logon logon;
+    ui::panel::open_logon(logon);
+    ui::panel::press_logon(logon, kSuffixButton);
+    context.expect(ui::panel::is_suffix_open(logon), "nhấn nút xổ thì danh sách mở");
+    context.expect(logon.drop.lit == 0U, "mở ra thì mục đang chọn sáng sẵn");
+    Deck open = painted(logon);
+    context.expect(said(open, kSuffixDropList, "Visible") == kTrue, "danh sách mở thì được hiện");
+    context.expect(said(open, kSuffixDropList, "SelectedItem") == "0", "mục sáng là mục đang chọn");
+    const auto items = said(open, kSuffixDropList, "Items");
+    context.expect(items.has_value(), "danh sách mang các mục");
+    context.expect(record_at(items.value_or(std::string_view{}), 8) == "无后缀账号登录", "đủ chín mục của TailName");
+    ui::panel::press_suffix_list(logon, kSuffixDropList, 3);
+    context.expect(logon.drop.lit == 3U, "nhấn trong danh sách thì mục dưới chuột sáng");
+    context.expect(logon.suffix == 0U, "chưa nhả thì chưa nhận mục");
+    ui::panel::release_suffix_list(logon, kSuffixDropList);
+    context.expect(!ui::panel::is_suffix_open(logon), "nhả trong danh sách thì đóng");
+    context.expect(logon.suffix == 3U, "nhả trong danh sách thì nhận mục đã nhấn");
+    Deck closed = painted(logon);
+    context.expect(said(closed, kSuffixEdit, "Text") == "@chinaren.com", "ô chữ đổi theo mục vừa nhận");
+}
+
+// Mục dưới chuột chỉ sáng sau khi đã nhấn trong danh sách (d_armed của ComboDropList), trừ khi danh sách mở bằng ô chữ:
+// lần nhả của chính cú nhấn mở nó đã lên cò.
+void suffix_list_lights_only_when_armed(Context& context) {
+    Logon logon;
+    ui::panel::open_logon(logon);
+    ui::panel::press_logon(logon, kSuffixButton);
+    ui::panel::move_suffix_list(logon, kSuffixDropList, 2, false);
+    context.expect(logon.drop.lit == 0U, "mở bằng nút xổ: rê chuột chưa làm mục nào sáng");
+    ui::panel::press_suffix_list(logon, kSuffixDropList, 2);
+    ui::panel::move_suffix_list(logon, kSuffixDropList, 4, true);
+    context.expect(logon.drop.lit == 4U, "đã nhấn trong danh sách: mục dưới chuột sáng theo");
+    Logon typed;
+    ui::panel::open_logon(typed);
+    ui::panel::press_logon(typed, kSuffixEdit);
+    context.expect(typed.drop.is_opening && !typed.drop.is_armed, "mở bằng ô chữ: chờ lần nhả của cú nhấn mở");
+    ui::panel::release_suffix_list(typed, kSuffixEdit);
+    context.expect(typed.drop.is_open && typed.drop.is_armed, "lần nhả đó chỉ lên cò, danh sách vẫn mở");
+    ui::panel::move_suffix_list(typed, kSuffixDropList, 5, false);
+    context.expect(typed.drop.lit == 5U, "đã lên cò: rê chuột làm mục sáng");
+    ui::panel::move_suffix_list(typed, "LogOn_ID", std::nullopt, true);
+    context.expect(!typed.drop.lit.has_value(), "giữ nút trái và rời danh sách thì bỏ mục sáng");
+}
+
+// Nhấn ngoài danh sách chỉ đóng nó, đuôi cũ giữ nguyên.
+void suffix_list_closes_on_outside_press(Context& context) {
+    Logon logon;
+    ui::panel::open_logon(logon);
+    ui::panel::press_logon(logon, kSuffixButton);
+    ui::panel::press_suffix_list(logon, "LogOn_PassWord", std::nullopt);
+    context.expect(!ui::panel::is_suffix_open(logon), "nhấn ngoài danh sách thì đóng");
+    context.expect(logon.suffix == 0U, "đuôi cũ giữ nguyên");
+    ui::panel::press_logon(logon, kSuffixButton);
+    ui::panel::dismiss_suffix_list(logon);
+    context.expect(!ui::panel::is_suffix_open(logon), "nhấn khoảng trống thì đóng");
+    Deck deck = painted(logon);
+    context.expect(said(deck, kSuffixDropList, "Visible") != kTrue, "danh sách đóng thì ẩn");
+}
+
+// LogOn_Region_Accept: mục 7 (nhập đuôi khác) đổi sang tên tự đặt; về lại kiểu truyền thống thì mục ấy quay về mục 0
+// (LogOn_TraditionLogon_MouseDown).
+void suffix_seven_switches_to_custom(Context& context) {
+    Logon logon;
+    ui::panel::open_logon(logon);
+    ui::panel::press_logon(logon, kSuffixButton);
+    ui::panel::press_suffix_list(logon, kSuffixDropList, 7);
+    ui::panel::release_suffix_list(logon, kSuffixDropList);
+    context.expect(logon.kind == AccountKind::kCustom, "chọn mục 7 thì sang kiểu tự đặt");
+    context.expect(!ui::panel::is_suffix_open(logon), "danh sách đóng sau khi nhận mục");
+    ui::panel::press_logon(logon, "LogOn_TraditionLogon");
+    context.expect(logon.kind == AccountKind::kClassic, "nhấn thẻ truyền thống về kiểu truyền thống");
+    context.expect(logon.suffix == 0U, "mục 7 quay về mục 0");
+}
+
 constexpr std::array kCases{
     Case{.name = "opens_on_classic_account", .body = &opens_on_classic_account},
     Case{.name = "custom_tab_swaps_fields", .body = &custom_tab_swaps_fields},
@@ -393,6 +484,10 @@ constexpr std::array kCases{
     Case{.name = "keys_button_aims_at_the_password", .body = &keys_button_aims_at_the_password},
     Case{.name = "soft_keys_edit_the_aimed_box", .body = &soft_keys_edit_the_aimed_box},
     Case{.name = "names_exist_in_layout", .body = &names_exist_in_layout},
+    Case{.name = "suffix_list_picks_on_press_and_release", .body = &suffix_list_picks_on_press_and_release},
+    Case{.name = "suffix_list_lights_only_when_armed", .body = &suffix_list_lights_only_when_armed},
+    Case{.name = "suffix_list_closes_on_outside_press", .body = &suffix_list_closes_on_outside_press},
+    Case{.name = "suffix_seven_switches_to_custom", .body = &suffix_seven_switches_to_custom},
 };
 
 } // namespace

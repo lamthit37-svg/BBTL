@@ -681,11 +681,13 @@ void pump_until_done(Session& session) {
     }
     // Nhịp modal giữ tham chiếu tới session và phần hiển thị, cả hai chết trước cửa sổ: gỡ nó ra.
     opened.set_modal_tick({}, kFramePause);
+    core::mark("đóng: vòng thông điệp dừng");
 }
 
 // Dừng luồng vẽ, in tóm tắt, và đổi kết quả của lần chạy thành mã thoát.
 [[nodiscard]] int report(const Session& session) {
     const core::Status finished = session.display->finish();
+    core::mark("đóng: luồng vẽ dừng, GPU rỗi");
     const LoopStats& stats = session.stats;
     const window::Size size = session.opened->client_size();
     const std::uint64_t faults = session.display->validation_errors();
@@ -764,6 +766,7 @@ void begin_speaker(audio::Engine& speaker, const std::filesystem::path& data_roo
     const audio::Stats heard = speaker.stats();
     std::println("Âm thanh: {}", audio::describe(heard));
     speaker.close();
+    core::mark("đóng: âm thanh tắt");
     return report(session);
 }
 
@@ -849,26 +852,10 @@ private:
     std::optional<window::Monitor> raised_;
 };
 
-} // namespace
-
-int run_viewer(const ViewerDesc& desc) {
-    const window::WindowConfig config = window_config_of(desc);
-    core::Result<window::Window> opened = window::Window::create(config);
-    if (!opened) {
-        std::println(stderr, "Lỗi: không mở được cửa sổ: {}", opened.error());
-        return 1;
-    }
-    core::mark("cửa sổ mở");
-    // Lần ShowWindow đầu của tiến trình bị Windows đổi theo STARTUPINFO: lối tắt "Run: Minimized" cho cửa sổ ra thu
-    // nhỏ với vùng vẽ 0x0, mà swapchain không tạo được ở cỡ 0 ("texture: rộng hoặc cao bằng 0"). Đưa nó về cỡ thường.
-    if (opened->is_minimized()) opened->restore();
-    // Trước swapchain: Fifo khoá vào nhịp quét, nên trần khung là Hz của desktop chứ không phải
-    // lượng việc GPU. Mailbox không dùng — đo 2026-10-13, khung lệch pha nhịp quét, nhân vật chạy giật.
-    const RaisedRefresh refresh(opened->native_handle());
-    static_cast<void>(window::pump_messages());
-    const window::Size initial = opened->client_size();
+[[nodiscard]] DisplayDesc display_desc_of(const window::Window& opened, const ViewerDesc& desc) {
+    const window::Size initial = opened.client_size();
     DisplayDesc shown;
-    shown.window = opened->native_handle();
+    shown.window = opened.native_handle();
     shown.size = {.width = initial.width, .height = initial.height};
     shown.stage = desc.stage;
     shown.ground = desc.ground;
@@ -882,23 +869,69 @@ int run_viewer(const ViewerDesc& desc) {
     shown.auto_strike_from = desc.auto_strike_from;
     shown.ui_events = desc.ui_events;
     shown.creatures = desc.creatures;
+    shown.pets = desc.pets;
+    shown.peer_count = desc.peer_count;
     shown.talk_demo = desc.talk_demo;
     shown.weapon_item = desc.weapon_item;
     shown.weapon_gem = desc.weapon_gem;
     shown.skill_id = desc.skill_id;
     shown.is_validated = desc.is_validated;
     shown.backend = desc.backend;
+    shown.quality = desc.quality;
     shown.procedure = desc.procedure;
     shown.preload = desc.preload;
-    online::Bridge bridge{read_gate_book_of(desc.data_folder)};
-    shown.online_servers = bridge.servers();
+    return shown;
+}
+
+// Phần hiển thị sống trọn trong hàm này: trả về là nó đã huỷ, cửa sổ và phiên mạng còn sống.
+[[nodiscard]] int run_display(window::Window& opened, const DisplayDesc& shown, const ViewerDesc& desc,
+    online::Bridge& bridge) {
     core::Result<Display> display = Display::create(shown);
     if (!display) {
         std::println(stderr, "Lỗi: không khởi tạo được phần hiển thị: {}", display.error());
         return 1;
     }
     core::mark("Display::create xong");
-    return present(*opened, *display, desc, bridge);
+    return present(opened, *display, desc, bridge);
+}
+
+// Phiên mạng sống trọn trong hàm này, lâu hơn phần hiển thị một chặng.
+[[nodiscard]] int run_online(window::Window& opened, const ViewerDesc& desc) {
+    DisplayDesc shown = display_desc_of(opened, desc);
+    online::Bridge bridge{read_gate_book_of(desc.data_folder)};
+    shown.online_servers = bridge.servers();
+    const int code = run_display(opened, shown, desc, bridge);
+    core::mark("đóng: phần hiển thị huỷ xong");
+    return code;
+}
+
+// Tần số quét nâng trong suốt hàm này; trả về là đã trả lại cho màn.
+[[nodiscard]] int run_raised(window::Window& opened, const ViewerDesc& desc) {
+    // Trước swapchain: Fifo khoá vào nhịp quét, nên trần khung là Hz của desktop chứ không phải
+    // lượng việc GPU. Mailbox không dùng — đo 2026-10-13, khung lệch pha nhịp quét, nhân vật chạy giật.
+    const RaisedRefresh refresh(opened.native_handle());
+    static_cast<void>(window::pump_messages());
+    const int code = run_online(opened, desc);
+    core::mark("đóng: phiên mạng huỷ xong");
+    return code;
+}
+
+} // namespace
+
+int run_viewer(const ViewerDesc& desc) {
+    const window::WindowConfig config = window_config_of(desc);
+    core::Result<window::Window> opened = window::Window::create(config);
+    if (!opened) {
+        std::println(stderr, "Lỗi: không mở được cửa sổ: {}", opened.error());
+        return 1;
+    }
+    core::mark("cửa sổ mở");
+    // Lần ShowWindow đầu của tiến trình bị Windows đổi theo STARTUPINFO: lối tắt "Run: Minimized" cho cửa sổ ra thu
+    // nhỏ với vùng vẽ 0x0, mà swapchain không tạo được ở cỡ 0 ("texture: rộng hoặc cao bằng 0"). Đưa nó về cỡ thường.
+    if (opened->is_minimized()) opened->restore();
+    const int code = run_raised(*opened, desc);
+    core::mark("đóng: tần số quét trả xong");
+    return code;
 }
 
 } // namespace game::client

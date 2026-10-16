@@ -28,6 +28,7 @@
 #include "client/display/display.hpp"
 #include "client/host/host.hpp"
 #include "client/mobile.hpp"
+#include "client/viewer/client_size.hpp"
 #include "control/input.hpp"
 #include "control/touch.hpp"
 #include "io/file.hpp"
@@ -316,6 +317,33 @@ void arm_desc(const Shell& shell, game::client::DisplayDesc& desc) {
     return std::string(name);
 }
 
+// Chẩn đoán trên thiết bị: `adb shell setprop debug.thienlong.direct 1` bỏ qua màn đăng nhập và vào thẳng cảnh khởi đầu
+// cục bộ (Config/startup.id), như --scene-id của bản PC, để đo và chụp cảnh chơi mà không cần máy chủ. Mặc định tắt.
+[[nodiscard]] bool wants_direct_entry() {
+    char value[PROP_VALUE_MAX] = {};
+    const int length = __system_property_get("debug.thienlong.direct", value);
+    return length > 0 && value[0] == '1';
+}
+
+void enter_directly(Shell& shell) {
+    if (shell.is_playing || !wants_direct_entry()) return;
+    const game::client::Request request{.kind = game::client::RequestKind::kEnterGame};
+    const game::client::HostStep step = game::client::host_step(shell.boot, shell.is_playing, request);
+    if (!step.detail.empty()) log_error("Vào thẳng: " + step.detail);
+}
+
+// Chẩn đoán: `adb shell setprop debug.thienlong.quality desktop` chạy chính sách đồ hoạ của PC trên máy này (display/policy.hpp),
+// để so cùng một đường vẽ ở hai bộ số. Không đặt hoặc tên lạ thì theo nền tảng.
+[[nodiscard]] std::optional<game::client::QualityClass> quality_override() {
+    char value[PROP_VALUE_MAX] = {};
+    const int length = __system_property_get("debug.thienlong.quality", value);
+    if (length <= 0) return std::nullopt;
+    const std::string_view name(value, static_cast<std::size_t>(length));
+    const std::optional<game::client::QualityClass> quality = game::client::quality_class_of(name);
+    if (!quality) log_error("debug.thienlong.quality: chỉ nhận desktop hoặc mobile");
+    return quality;
+}
+
 // Tần số quét của màn đang chứa activity, Hz; định nghĩa cạnh các hàm JNI bên dưới.
 [[nodiscard]] double refresh_rate(android_app* app);
 
@@ -326,15 +354,21 @@ void start_display(android_app* app) {
         prepare_shell(app, *shell);
         shell->is_prepared = true;
     }
+    enter_directly(*shell);
     start_speaker(*shell);
     game::client::DisplayDesc desc;
     desc.backend = backend_override();
+    desc.quality = quality_override();
     desc.window = app->window;
     desc.size = {.width = static_cast<std::uint32_t>(ANativeWindow_getWidth(app->window)),
         .height = static_cast<std::uint32_t>(ANativeWindow_getHeight(app->window))};
     arm_desc(*shell, desc);
     desc.uses_phone_layout = is_phone_screen(app);
     log_line(desc.uses_phone_layout ? "giao diện: layout điện thoại" : "giao diện: layout PC (máy tính bảng)");
+    // Máy tính bảng 16:10 mở màn đăng nhập trong khung 1280x720 như cửa sổ PC; điện thoại dùng layout riêng nên để trọn màn.
+    const game::client::ClientSize login = game::client::kLoginClientSize;
+    const game::client::PixelSize login_frame{.width = login.width, .height = login.height};
+    if (!desc.uses_phone_layout) desc.login_frame = login_frame;
     fit_gestures(app, *shell);
     desc.is_validated = game::client::validation_by_build();
     auto made = game::client::Display::create(desc);

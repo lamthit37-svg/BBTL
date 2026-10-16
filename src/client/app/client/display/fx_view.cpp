@@ -598,13 +598,15 @@ const fx::Paint* FxView::paint(std::string_view material) const {
     return body_->library->palette().find(material);
 }
 
-void FxView::draw(gpu::CommandList& list, std::uint32_t slot, const render::Camera& camera) {
+void FxView::draw(gpu::CommandList& list, std::uint32_t slot, const render::Camera& camera,
+    std::span<const fx::BillboardBatch> extra) {
     if (!body_->cast) return;
     const std::vector<const fx::Field*> fields = body_->cast->live();
     const fx::CameraAxes axes = axes_of(camera);
     std::vector<fx::BillboardBatch> batches = fx::billboards_of(fields, axes);
     std::vector<fx::BillboardBatch> strips = body_->cast->strips(axes);
     std::ranges::move(strips, std::back_inserter(batches));
+    batches.insert(batches.end(), extra.begin(), extra.end());
     Frame& frame = body_->scratch;
     frame.vertices.clear();
     frame.draws.clear();

@@ -117,13 +117,18 @@ void recall_last(LoginFlow& flow, std::string_view text);
 void mark_last_saved(LoginFlow& flow) noexcept;
 // Đang ở bảng tài khoản: bàn phím ảo chỉ mở ở bước này.
 [[nodiscard]] bool on_account(const LoginFlow& flow) noexcept;
-// Một lần nhấn trái.
+// Một lần nhấn trái. facts.element còn là mục của danh sách đuôi tài khoản dưới chuột khi cửa sổ nhấn là danh sách ấy.
 void press_flow(LoginFlow& flow, std::string_view window, const LoginFacts& facts);
-// Nhả nút trái: nút xoay hay phóng của bảng tạo thôi tác dụng.
-void release_flow(LoginFlow& flow);
-// Cửa sổ đang nằm dưới chuột (rỗng khi không có) và nút phần tử của cột vùng dưới chuột: bảng tạo đổi
-// dòng mô tả, bảng chọn máy chủ đổi thanh thông tin.
-void hover_flow(LoginFlow& flow, std::string_view window, std::optional<std::size_t> element);
+// Danh sách đuôi tài khoản đang mở: lần nhấn kế là của nó, không bấm gì khác.
+[[nodiscard]] bool suffix_list_open(const LoginFlow& flow) noexcept;
+// Nhấn trái vào khoảng trống: danh sách đuôi đang mở thì đóng.
+void dismiss_flow(LoginFlow& flow) noexcept;
+// Nhả nút trái (window là cửa sổ dưới chuột, rỗng khi không có): nút xoay hay phóng của bảng tạo thôi tác dụng; danh sách
+// đuôi đang mở thì nhận mục khi nhả trong nó.
+void release_flow(LoginFlow& flow, std::string_view window);
+// Cửa sổ đang nằm dưới chuột (rỗng khi không có) và mục dưới chuột (nút phần tử của cột vùng, mục của danh sách đuôi): bảng
+// tạo đổi dòng mô tả, bảng chọn máy chủ đổi thanh thông tin, danh sách đuôi sáng mục dưới chuột; is_down là nút trái đang giữ.
+void hover_flow(LoginFlow& flow, std::string_view window, std::optional<std::size_t> element, bool is_down);
 // Nút dưới chuột đang giữ, cho hai nút xoay của bảng chọn. Rỗng hay nút khác thì hết quay. Ở bảng
 // tạo, tốc độ quay là thứ bảng đã đặt cho game.
 void hold_flow(LoginFlow& flow, std::string_view window) noexcept;

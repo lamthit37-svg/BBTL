@@ -494,6 +494,25 @@ if(NOT CMAKE_CROSSCOMPILING)
             if(WIN32)
                 target_link_libraries(game_store PUBLIC ws2_32)
             endif()
+            # libpq tĩnh tách pgport và pgcommon. Wrapper của vcpkg chỉ gắn chúng khi gói nằm trong
+            # VCPKG_INSTALLED_DIR. Find qua prefix chỉ đưa pq.lib, linker thiếu gettimeofday và
+            # AcquireCredentialsHandle. Nối hai thư viện cùng thư mục với pq.lib bản release
+            # (RelWithDebInfo không được lấy bản debug). Wrapper đã gắn rồi thì không gắn lần hai.
+            get_target_property(_pq_iface PostgreSQL::PostgreSQL INTERFACE_LINK_LIBRARIES)
+            if(NOT _pq_iface MATCHES "pgcommon" AND PostgreSQL_LIBRARY_RELEASE)
+                cmake_path(GET PostgreSQL_LIBRARY_RELEASE PARENT_PATH _pq_dir)
+                foreach(_pq_extra IN ITEMS pgport pgcommon)
+                    if(EXISTS "${_pq_dir}/${_pq_extra}.lib")
+                        target_link_libraries(game_store PUBLIC "${_pq_dir}/${_pq_extra}.lib")
+                    endif()
+                endforeach()
+                if(WIN32)
+                    target_link_libraries(game_store PUBLIC secur32 wldap32)
+                endif()
+            endif()
+            unset(_pq_iface)
+            unset(_pq_dir)
+            unset(_pq_extra)
             target_sources(game_account PRIVATE src/server/account/sql.cpp src/server/account/serve.cpp)
             target_link_libraries(game_account PUBLIC game_store)
             target_compile_definitions(game_service PRIVATE GAME_HAS_LIBPQ)
@@ -610,6 +629,7 @@ game_module(ui_panel
     src/client/face/ui/panel/select_role.cpp
     src/client/face/ui/panel/create_role.cpp
     src/client/face/ui/panel/packet.cpp
+    src/client/face/ui/panel/skill_bar.cpp
     src/client/face/ui/panel/scene_board.cpp
     src/client/face/ui/panel/world_map.cpp
     src/client/face/ui/panel/scene_table.cpp

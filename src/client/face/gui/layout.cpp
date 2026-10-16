@@ -63,9 +63,10 @@ constexpr std::array<std::pair<std::string_view, Kind>, 11> kKinds = {{
 // SelfFitWindow kế thừa FalagardSimpleText nên vẽ chữ như nó (cỡ của SelfFitWindow do người gọi đặt:
 // gốc tự co theo chữ bằng FalagardSelfFitWindow::getRenderSize, bản này để bảng tính và đưa qua Override).
 // Falagard/Editbox (chữ b thường) là ô nhập của Combobox, vẽ như EditBox của bản TLBB.
-constexpr std::array<std::pair<std::string_view, Kind>, 12> kExactKinds = {{
+constexpr std::array<std::pair<std::string_view, Kind>, 13> kExactKinds = {{
     {"Falagard/ActionButton", Kind::kAction},
     {"Falagard/Listbox", Kind::kList},
+    {"Falagard/ComboDropList", Kind::kList},
     {"Falagard/ComplexWindow", Kind::kComplex},
     {"Falagard/ComplexWindow/ParentWindow", Kind::kPlain},
     {"Falagard/AchievementWindow", Kind::kCatalog},
@@ -694,6 +695,27 @@ const GuiChild* look_child(const GuiAsset& asset, const Placed& self, std::strin
     return found == children.end() ? nullptr : &*found;
 }
 
+namespace {
+
+// Hậu tố của <Child> danh sách thả trong look của Combobox.
+constexpr std::string_view kDropListSuffix = "__auto_droplist__";
+
+bool is_drop_list(const GuiAsset& asset, std::size_t index) noexcept {
+    const GuiWindow& window = asset.windows.at(index);
+    return asset.children.at(static_cast<std::size_t>(window.child)).suffix == kDropListSuffix;
+}
+
+// Danh sách thả của Combobox: ẩn cho tới khi bảng hiện nó (Deck::reveal), cao theo số mục khi hiện (resizeSelf), và vẽ đè
+// lên mọi cửa sổ khác.
+void seat_drop_list(const Ctx& ctx, Placed& placed) {
+    const bool is_open = effective(ctx, placed, "Visible") == std::string_view{"True"};
+    placed.is_visible = placed.is_visible && is_open;
+    placed.is_overlay = true;
+    if (placed.is_visible) placed.screen.h = drop_list_height(ctx, placed);
+}
+
+} // namespace
+
 // Cha luôn đứng trước con, nên một lượt xuôi là đủ; windows đã giữ chỗ đủ nên span của các cửa sổ
 // đã đặt còn đúng trong lúc thêm.
 std::vector<Placed> layout(const GuiAsset& asset, const Place& input) {
@@ -706,6 +728,7 @@ std::vector<Placed> layout(const GuiAsset& asset, const Place& input) {
         ctx.placed = windows;
         const bool is_child = is_look_child(asset, index);
         Placed placed = is_child ? place_child(ctx, index) : place_window(asset, input, windows, index);
+        if (is_child && placed.kind == Kind::kList && is_drop_list(asset, index)) seat_drop_list(ctx, placed);
         if (placed.kind == Kind::kList || placed.kind == Kind::kComplex) {
             const ScrollView view = scroll_view(ctx, placed);
             placed.span = view.span;

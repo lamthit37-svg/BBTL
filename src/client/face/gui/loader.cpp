@@ -430,10 +430,11 @@ void add_windows(Cook& cook, const Node& root) {
 }
 
 // TargetType mà bản này dựng cửa sổ con của look: bộ vẽ của chúng cần thanh cuộn và vùng nội dung.
-// Combobox dựng ô nhập chữ, nút xổ và danh sách thả của nó (danh sách thả luôn bị giấu: bản này chưa
-// mở danh sách). Kiểu khác có <Child> (ChatHistory, Star) chưa có bộ vẽ nên con của chúng chưa dựng.
-constexpr std::array<std::string_view, 6> kChildHosts = {"Falagard/Listbox", "Falagard/ListBoxEx",
-    "Falagard/ComplexWindow", "Falagard/StaticText", "Falagard/Scrollbar", "Falagard/Combobox"};
+// Combobox dựng ô nhập chữ, nút xổ và danh sách thả của nó (ComboDropList, cũng là danh sách có thanh cuộn). Kiểu khác
+// có <Child> (ChatHistory, Star) chưa có bộ vẽ nên con của chúng chưa dựng.
+constexpr std::array<std::string_view, 7> kChildHosts = {"Falagard/Listbox", "Falagard/ListBoxEx",
+    "Falagard/ComplexWindow", "Falagard/StaticText", "Falagard/Scrollbar", "Falagard/Combobox",
+    "Falagard/ComboDropList"};
 
 // Các <Child> của look mà cửa sổ index dùng; rỗng khi kiểu của nó không thuộc kChildHosts.
 GuiRange look_children(const GuiAsset& asset, std::size_t index) {

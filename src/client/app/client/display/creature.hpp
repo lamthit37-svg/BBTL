@@ -93,6 +93,10 @@ public:
     [[nodiscard]] core::Status update(core::Clock::time_point now, const CreatureStand& stand);
     // Thêm một instance cho mỗi lưới; ma trận skin trỏ vào bộ đệm của lần update gần nhất.
     void append(std::vector<render::Instance>& out) const;
+    // Độ nâng bảng tên so với chân, đơn vị thế giới. plate_height > 0 là mét nhân terrain_scale_y;
+    // không thì chiều cao BoundingBox (đã nhân sy của mẫu) cộng 0,1 mét. Trần 40 mét.
+    // terrain_scale_y không dương thì 0. Khác gốc: Actor_GetInfoBoardPos cộng bbox chưa nhân Scale của mẫu.
+    [[nodiscard]] float board_lift(float terrain_scale_y) const noexcept;
 
 private:
     std::shared_ptr<const CreatureAsset> asset_;

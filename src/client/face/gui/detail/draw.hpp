@@ -79,6 +79,9 @@ struct Placed {
     const GuiLook* look = nullptr;
     Kind kind = Kind::kPlain;
     bool is_on_top = false;
+    // Danh sách thả của Combobox: CEGUI cho nó chiếm chuột (captureInput) và vẽ đè lên mọi cửa sổ khác, nên Hub vẽ
+    // nó và con của nó sau tất cả các gốc, như một lớp riêng.
+    bool is_overlay = false;
     // Cuộn của danh sách, cửa sổ phức hợp và của thanh cuộn thuộc về chúng: cỡ tài liệu, cỡ trang
     // và vị trí đã kẹp. Cửa sổ khác để 0.
     ScrollSpan span;
@@ -202,6 +205,9 @@ struct ScrollView {
     float row = 0.0F;
 };
 [[nodiscard]] ScrollView scroll_view(const Ctx& ctx, const Placed& self);
+// Cao của danh sách thả self khi mở (ComboDropList::resizeSelf, CEGUIBase.dll 0x1800c5330): tổng cao các mục cộng hai
+// lề 3 của ItemRenderingArea, không quá khoảng từ mép trên của nó tới đáy màn hình trừ 20.
+[[nodiscard]] float drop_list_height(const Ctx& ctx, const Placed& self);
 // Rãnh của con chạy trong thanh cuộn bar, toạ độ màn hình: mép trên ThumbTrackArea và quãng chạy.
 [[nodiscard]] ThumbTrack thumb_track(const Ctx& ctx, const Placed& bar);
 // Vùng nội dung trên màn hình của một danh sách (ItemRenderingArea, hẹp lại khi thanh cuộn hiện)

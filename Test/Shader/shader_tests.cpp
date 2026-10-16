@@ -1,17 +1,35 @@
-// Test của shader và fs. Trọng tâm là đọc gói shader (tiêu chí của bước B3): gói dựng trong bộ nhớ
-// bằng write_package, Package::parse đọc lại và so từng trường; dữ liệu hỏng (cắt cụt, lật byte,
-// magic, phiên bản, offset vượt biên) phải ra lỗi Corrupt chứ không sập. Kèm phản chiếu khứ hồi,
-// merge, check_interface, các hàm parse của types, tổng kiểm XXH3, codec lz4 và zstd, find và rfind
-// của fs/stream, bảng băm Buny. Mã được kiểm chép từ Forge2; giá trị vàng (XXH3, MurmurHash64A,
-// bảng băm, khoá biến thể) đo bằng cả mã gốc Forge2@d7fcd76 lẫn bản chép, hai bên trùng nhau. Các
-// offset trong tệp gói là đặc tả byte của định dạng F2SH phiên bản 1. Test tự chứa: không GPU,
-// không DXC, không đọc tệp ngoài; tệp tạm của ca load nằm ở thư mục làm việc và bị xoá khi xong.
+/*==============================================================================
+ *  THIENLONG  |  TEST
+ *------------------------------------------------------------------------------
+ *  TỆP       : Test/Shader/shader_tests.cpp
+ *  PHÂN HỆ   : Shader / Shader Tests
+ *  CHUẨN     : C++23
+ *------------------------------------------------------------------------------
+ *  CHỨC NĂNG
+ *  - Test của shader và fs. Trọng tâm là đọc gói shader (tiêu chí của bước B3):
+ *    gói dựng trong bộ nhớ bằng write_package, Package::parse đọc lại và so
+ *    từng trường; dữ liệu hỏng (cắt cụt, lật byte, magic, phiên bản, offset
+ *    vượt biên) phải ra lỗi Corrupt chứ không sập. Kèm phản chiếu khứ hồi,
+ *    merge, check_interface, các hàm parse của types, tổng kiểm XXH3, codec lz4
+ *    và zstd, find và rfind của fs/stream, bảng băm Buny.
+ *------------------------------------------------------------------------------
+ *  TÁC GIẢ   : HiepHoon
+ *  TELEGRAM  : @Hoon9xx
+ *============================================================================*/
+
+// Mã được kiểm chép từ Forge2; giá trị vàng (XXH3, MurmurHash64A, bảng băm, khoá biến thể) đo bằng cả mã gốc
+// Forge2@d7fcd76 lẫn bản chép, hai bên trùng nhau. Các offset trong tệp gói là đặc tả byte của định dạng F2SH phiên
+// bản 1. Test tự chứa: không GPU, không DXC, không đọc tệp ngoài; tệp tạm của ca load nằm ở thư mục làm việc và bị
+// xoá khi xong.
+
 #include "core/check.hpp"
 #include "core/error.hpp"
 #include "fs/buny.hpp"
 #include "fs/codec.hpp"
 #include "fs/stream.hpp"
 #include "shader/detail/reconcile.hpp"
+#include "shader/detail/roots.hpp"
+#include "shader/manifest.hpp"
 #include "shader/package.hpp"
 #include "shader/reflection.hpp"
 #include "shader/types.hpp"
@@ -1013,6 +1031,39 @@ void reconcile_reports_every_kind_of_layout_drift(Context& context) {
     }
 }
 
+void watch_roots_uses_directory_boundaries(Context& context) {
+    shader::Manifest manifest;
+    manifest.directory = "C:/shaders";
+    manifest.include_dirs = {"C:/shaders/lib", "C:/shaders_extra", "C:/shaders/lib/deep", "C:/other", "C:/other"};
+    const std::vector<std::string> wanted{"C:/other", "C:/shaders", "C:/shaders_extra"};
+    context.expect(shader::detail::watch_roots(manifest) == wanted, "anh em không bị nuốt, con thì gộp, trùng thì một");
+
+    shader::Manifest parent;
+    parent.directory = "C:/proj/src";
+    parent.include_dirs = {"C:/proj/src/a", "C:/proj"};
+    const std::vector<std::string> covered{"C:/proj"};
+    context.expect(shader::detail::watch_roots(parent) == covered, "cha phủ con dù khai sau");
+
+    shader::Manifest bare;
+    bare.directory = "";
+    bare.include_dirs = {"lib"};
+    const std::vector<std::string> both = shader::detail::watch_roots(bare);
+    const bool bare_ok = both.size() == 2 && both[0].empty() && both[1] == "lib";
+    context.expect(bare_ok, "thư mục rỗng không phủ mọi include");
+
+    shader::Manifest slash;
+    slash.directory = "C:/shaders/";
+    slash.include_dirs = {"C:/shaders", "C:/shaders/lib"};
+    const std::vector<std::string> same{"C:/shaders"};
+    context.expect(shader::detail::watch_roots(slash) == same, "dấu / cuối vẫn là cùng thư mục");
+
+    shader::Manifest hyphen;
+    hyphen.directory = "C:/a";
+    hyphen.include_dirs = {"C:/a-extra", "C:/a/child"};
+    const std::vector<std::string> split{"C:/a", "C:/a-extra"};
+    context.expect(shader::detail::watch_roots(hyphen) == split, "anh em có '-' không che mất thư mục con");
+}
+
 constexpr std::array kCases{
     Case{.name = "package_reads_back_header_fields", .body = &package_reads_back_header_fields},
     Case{.name = "package_reads_back_every_variant", .body = &package_reads_back_every_variant},
@@ -1043,6 +1094,7 @@ constexpr std::array kCases{
     Case{.name = "read_helpers_loop_until_full_or_end", .body = &read_helpers_loop_until_full_or_end},
     Case{.name = "buny_table_finds_every_name", .body = &buny_table_finds_every_name},
     Case{.name = "buny_hash_and_names_follow_the_original", .body = &buny_hash_and_names_follow_the_original},
+    Case{.name = "watch_roots_uses_directory_boundaries", .body = &watch_roots_uses_directory_boundaries},
 };
 
 } // namespace

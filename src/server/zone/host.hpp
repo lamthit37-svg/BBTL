@@ -80,11 +80,26 @@ private:
     void detach(std::uint64_t session, Outbox& out);
     [[nodiscard]] Scene* scene_for(std::uint16_t id);
     void seed(Scene& scene, const std::vector<Seed>& seeds) const;
+    // Nhớ vùng đang đứng lúc đặt chân, để bước sau chỉ chuyển cảnh khi vùng đổi.
+    void remember_foot(std::uint64_t session, const Scene& scene);
+    void consider_gate(std::uint64_t session, Outbox& out);
+    void transfer(std::uint64_t session, Scene& from, const AreaStand& stand, Outbox& out);
+    // Dựng lại người chơi ở cảnh cũ sau khi cảnh đích không nhận. Card là hồ sơ trước khi rời.
+    void restore(std::uint64_t session, std::uint16_t scene, float x_cm, float z_cm, const Scene::PlayerCard& card,
+        Outbox& out);
+
+    // Vùng sự kiện người chơi đang đứng. known = false cho tới lần đặt chân.
+    struct Foot {
+        bool known = false;
+        bool inside = false;
+        std::uint32_t index = 0;
+    };
 
     Config config_;
     // map để thứ tự chạy các cảnh cố định (logic tất định).
     std::map<std::uint16_t, Scene> scenes_;
     std::unordered_map<std::uint64_t, std::uint16_t> where_;
+    std::unordered_map<std::uint64_t, Foot> feet_;
     std::uint64_t ignored_ = 0;
     std::uint32_t ticks_ = 0;
     std::int64_t unix_seconds_ = 0;

@@ -20,8 +20,10 @@
 // Place::meter, không có thì danh sách và cửa sổ phức hợp không có mục nào.
 // Khác gốc: mục danh sách chỉ có kiểu một dòng (tham số định dạng thứ tư của AddItem chưa có nơi
 // dùng); cửa sổ phức hợp mới có phần tử chữ, tiền, giao tử, nút action và Option (Item, ChatBoard,
-// HyperLink chưa có script nào trong phạm vi gọi); ô tiền mới giữ chỗ, chưa vẽ; nút action chưa có
-// chữ góc, hoạt ảnh hồi chiêu và nháy.
+// HyperLink chưa có script nào trong phạm vi gọi); ô tiền mới giữ chỗ, chưa vẽ; nút action vẽ bốn
+// chữ góc qua thuộc tính CornerTopLeft/TopRight/BotLeft/BotRight (bản gốc giữ chuỗi trong widget,
+// kèm mã 0xFB/0xFC). Bộ vẽ chữ không nhận mã đã quét đó, nên bóng là một dòng lệch 1px màu 010101
+// rồi chữ trắng. Hoạt ảnh hồi chiêu và nháy chưa có. Ô trống chỉ vẽ góc trên phải (drawAcceCorner).
 
 #include "core/number.hpp"
 #include "gui/asset.hpp"
@@ -54,6 +56,8 @@ namespace {
 constexpr float kLineSpace = 3.0F;
 // ListboxTextItem::draw dời chữ xuống (int)(LineSpace * 0,5 + 0,5) = 2 (Base 0x1800d8f29).
 constexpr float kItemTextDrop = 2.0F;
+// Khoảng chừa dưới danh sách thả tới đáy màn hình (hằng 20 của ComboDropList::resizeSelf).
+constexpr float kDropListBottom = 20.0F;
 // GuiTextHorz::kWordWrapLeftAligned: định dạng lớp nối truyền cho AddTextElement.
 constexpr std::uint8_t kWrapLeft = 4;
 // Ô tiền cao lineSpacing x 1,4 (Fal 0x180137e60).
@@ -419,6 +423,59 @@ void draw_covers(const Ctx& ctx, const Placed& self, const ActionFlags& flags) {
     if (flags.is_hovering && !flags.is_checked) overlay(ctx, self, kHoverCover);
 }
 
+// Bốn góc của drawCorner (docs/GIAO-DIEN-2026.md mục 2.5). on_empty: ô trống chỉ vẽ TopRight.
+struct CornerPlace {
+    std::string_view property;
+    bool is_right = false;
+    bool is_bottom = false;
+    bool on_empty = false;
+};
+
+constexpr std::array<CornerPlace, 4> kCorners{{
+    {.property = "CornerTopLeft", .is_right = false, .is_bottom = false, .on_empty = false},
+    {.property = "CornerTopRight", .is_right = true, .is_bottom = false, .on_empty = true},
+    {.property = "CornerBotLeft", .is_right = false, .is_bottom = true, .on_empty = false},
+    {.property = "CornerBotRight", .is_right = true, .is_bottom = true, .on_empty = false},
+}};
+
+constexpr std::uint32_t kCornerShadow = 0xFF010101U;
+constexpr float kCornerInset = 2.0F;
+
+// Chữ góc khi thuộc tính khác rỗng. Không có số đo chữ thì bỏ, cùng danh sách. Thuộc tính trống thì không vẽ.
+void draw_corners(const Ctx& ctx, const Placed& self, bool is_empty) {
+    const TextMeter* meter = ctx.input->meter;
+    if (meter == nullptr) return;
+    const float height = meter->font_height();
+    const std::string_view font = window_font(ctx, self);
+    const auto right = static_cast<std::uint8_t>(GuiTextHorz::kRightAligned);
+    const auto left = static_cast<std::uint8_t>(GuiTextHorz::kLeftAligned);
+    for (const CornerPlace& corner : kCorners) {
+        if (is_empty && !corner.on_empty) continue;
+        const auto text = effective(ctx, self, corner.property);
+        if (!text || text->empty()) continue;
+        const float edge = corner.is_right ? 0.0F : kCornerInset;
+        const float far = corner.is_right ? self.screen.w - kCornerInset : self.screen.w;
+        const float top = corner.is_bottom ? self.screen.h - height - kCornerInset : kCornerInset;
+        const float width = far - edge;
+        const float box_height = self.screen.h - top;
+        if (width <= 0.0F || box_height <= 0.0F) continue;
+        TextRun shadow;
+        shadow.text = *text;
+        shadow.box = Box{.x = self.screen.x + edge + 1.0F, .y = self.screen.y + top + 1.0F, .w = width, .h = box_height};
+        shadow.rule = TextRule::kRaw;
+        shadow.colour = kCornerShadow;
+        shadow.horz = corner.is_right ? right : left;
+        shadow.is_plain = true;
+        shadow.font = font;
+        ctx.sheet->texts.push_back(shadow);
+        TextRun ink = shadow;
+        ink.box.x -= 1.0F;
+        ink.box.y -= 1.0F;
+        ink.colour = kWhiteArgb;
+        ctx.sheet->texts.push_back(ink);
+    }
+}
+
 // FalagardActionButton::drawSelf (Fal 0x1800abac0) cho cửa sổ self với trạng thái flags.
 void paint_action(const Ctx& ctx, const Placed& self, const ActionFlags& flags) {
     render_state(ctx, self, "BackgroundImage", self.screen);
@@ -427,10 +484,12 @@ void paint_action(const Ctx& ctx, const Placed& self, const ActionFlags& flags) 
     if (flags.is_empty) {
         const bool is_touched = (flags.is_hovering || flags.is_pushed) && !flags.is_disabled;
         if (is_touched) overlay(ctx, self, kHoverCover);
+        draw_corners(ctx, self, true);
         return;
     }
     draw_icon(ctx, self);
     draw_covers(ctx, self, flags);
+    draw_corners(ctx, self, false);
 }
 
 // Kiểu cửa sổ của một khoá ChildItem ("key:<khoá> name:<kiểu>") trong look của cửa sổ phức hợp.
@@ -657,6 +716,15 @@ MoneyPlan plan_money(const Ctx& ctx, const Placed& self) {
 }
 
 } // namespace
+
+float drop_list_height(const Ctx& ctx, const Placed& self) {
+    const std::size_t rows = content_of(ctx, self, kItemsProperty).size();
+    const std::optional<Box> area = named_area(ctx, self, "ItemRenderingArea");
+    const float margin = area ? area->y - self.screen.y : 0.0F;
+    const float wanted = (static_cast<float>(rows) * row_height(ctx)) + (margin * 2.0F);
+    const float room = ctx.input->height - self.screen.y - kDropListBottom;
+    return std::min(wanted, room);
+}
 
 ScrollView scroll_view(const Ctx& ctx, const Placed& self) {
     ScrollView view;

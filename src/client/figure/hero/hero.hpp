@@ -189,9 +189,10 @@ struct Hero {
     LevelLock level_lock = LevelLock::kOpen;
     Purse purse;
     Equipment equipment;
-    // Skill đã học theo id của SkillTemplate_V1, theo thứ tự ô thao tác. 0 là 普通攻击 (đánh thường) mà mọi
-    // nhân vật có sẵn. Máy chủ ghi (gói skill); chưa có máy chủ thì công cụ thử gieo thêm.
-    std::vector<std::uint32_t> skills{0};
+    // Skill đã học theo id của SkillTemplate_V1, theo thứ tự ô thao tác. Bộ mặc định khớp
+    // account::starter::kSkills: đánh thường, bắt thú, gọi thú cưỡi, về Đại Lý, khinh công tân thủ, ngồi.
+    // Máy chủ ghi đè bằng gói skill. 0 là 普通攻击.
+    std::vector<std::uint32_t> skills{0, 1, 21, 22, 34, 35};
 };
 
 // Lên cấp được chưa, như Player:IsCanLevelup của Game.exe 2026 (0x1403954d0): kinh nghiệm đang có

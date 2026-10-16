@@ -15,6 +15,7 @@
 
 #include "client/display/graphic/state.hpp"
 
+#include "client/display/creature.hpp"
 #include "client/display/display.hpp"
 #include "client/display/graphic/prelude.hpp"
 #include "ui/panel/online.hpp"
@@ -103,10 +104,17 @@ void Display::State::arm_scene(const DisplayDesc& desc) {
     save_root = desc.save_root;
     shot_path = desc.shot_path;
     is_bare = desc.is_bare;
+    login_frame = desc.login_frame;
     is_auto_walk = desc.is_auto_walk;
     auto_strike_from = desc.auto_strike_from;
     seed_ui_events(desc.ui_events);
     creature_demo = desc.creatures;
+    pet_demo = desc.pets;
+    peer_demo = desc.peer_count;
+    // Bảng quái đọc vài chục ms. Bắt đầu ngay để khung đầu của --pet/--creature đã có mẫu.
+    if ((!creature_demo.empty() || !pet_demo.empty()) && !data_root.empty() && !creature_job.valid()) {
+        creature_job = start_creature_tables(data_root);
+    }
     talk_demo = desc.talk_demo;
     weapon_item = desc.weapon_item;
     weapon_gem = desc.weapon_gem;
@@ -261,6 +269,7 @@ void Display::State::prepare_hud() {
     if (procedure == Procedure::kPlay) hud_events.swap(posted_events);
     pump_online();
     pump_talk();
+    fill_bar_cooldown();
     hud->prepare(hud_view());
     drain_says();
     hud_events.clear();
@@ -268,6 +277,7 @@ void Display::State::prepare_hud() {
     hud_wheel = 0;
     const std::optional<ui::Action> action = hud->take_action();
     if (action) post_request(*action);
+    if (const std::optional<std::uint32_t> slot = hud->take_skill_slot()) press_slot(*slot);
     std::vector<ui::panel::OnlineAsk> asks = hud->take_online_asks();
     if (!asks.empty()) {
         const std::scoped_lock<std::mutex> locked(online_guard);
@@ -323,9 +333,27 @@ void Display::State::post_request(ui::Action action) {
 
 // Đầu vào của HUD ở khung này: cỡ khung, chuột theo điểm ảnh, nhân vật, đồng hồ, và cảnh cùng chỗ
 // đứng, hướng mặt cho minimap.
+FrameRect Display::State::frame_rect() const noexcept {
+    const FrameRect whole{.x = 0, .y = 0, .width = screen->width(), .height = screen->height()};
+    const bool is_login = procedure == Procedure::kLogin;
+    if (!is_login || !login_frame) return whole;
+    return fit_frame(whole.width, whole.height, login_frame->width, login_frame->height);
+}
+
+// Chuột của sự kiện tính theo cả màn; khi màn đăng nhập thu vào khung cố định thì phải tính lại theo khung,
+// nếu không nút nằm lệch đúng bằng dải đen.
+control::ScreenPoint Display::State::framed_point(const control::InputEvent& event) const noexcept {
+    const FrameRect frame = frame_rect();
+    const FrameSpan across{.origin = frame.x, .length = frame.width};
+    const FrameSpan down{.origin = frame.y, .length = frame.height};
+    return control::ScreenPoint{.x = unit_in_frame(event.x, screen->width(), across),
+        .y = unit_in_frame(event.y, screen->height(), down)};
+}
+
 ui::HudView Display::State::hud_view() const {
-    const auto width = static_cast<float>(screen->width());
-    const auto height = static_cast<float>(screen->height());
+    const FrameRect frame = frame_rect();
+    const auto width = static_cast<float>(frame.width);
+    const auto height = static_cast<float>(frame.height);
     ui::HudView view;
     view.phase = procedure == Procedure::kLogin ? ui::Phase::kLogin : ui::Phase::kPlay;
     view.width = width;
@@ -343,6 +371,7 @@ ui::HudView Display::State::hud_view() const {
     view.loading = scene_load();
     view.events = hud_events;
     view.talk_title = talk_title;
+    view.bar_left_ms = bar_left_ms;
     if (!held || !terrain) return view;
     const core::GroundPoint feet = terrain->to_game(foot());
     view.scene.radar = held->radar;
@@ -375,8 +404,9 @@ std::optional<ui::SceneLoad> Display::State::scene_load() const {
 
 bool Display::State::is_on_hud(control::ScreenPoint point) const {
     if (!hud) return false;
-    const auto width = static_cast<float>(screen->width());
-    const auto height = static_cast<float>(screen->height());
+    const FrameRect frame = frame_rect();
+    const auto width = static_cast<float>(frame.width);
+    const auto height = static_cast<float>(frame.height);
     return hud->contains(point.x * width, point.y * height);
 }
 
@@ -390,7 +420,7 @@ void Display::State::fill_pace_board() {
     // Góc phải, dưới bản đồ nhỏ: bên trái là khung chat, bên trên là khung nhân vật.
     place.origin_x = 16.0F;
     place.origin_y = 240.0F;
-    place.screen_width = static_cast<float>(screen->width());
+    place.screen_width = static_cast<float>(frame_rect().width);
     ui::write_pace(place, pace_shown, pace_board);
 }
 
@@ -463,7 +493,7 @@ void Display::State::hold_governed_rate() {
 }
 
 void Display::State::hold_pace(double spent_ms) {
-    if constexpr (ui::kPhone) {
+    if (policy.adapts_rate) {
         hold_governed_rate();
         return;
     }
@@ -487,8 +517,8 @@ void Display::State::hold_pace(double spent_ms) {
 float Display::State::frame_budget_ms() const noexcept {
     const double rate = refresh_hz.load(std::memory_order_relaxed);
     const bool is_fifo = screen != nullptr && screen->swapchain()->present_mode() == gpu::PresentMode::kFifo;
-    // Điện thoại có trần tự chọn: khung đạt ngân sách khi giữ được trần đó, không phải mọi nhịp quét.
-    if (ui::kPhone && governor) return static_cast<float>(1000.0 / governor->target_hz());
+    // Trần nhịp tự chọn (GraphicsPolicy::adapts_rate): khung đạt ngân sách khi giữ được trần đó, không phải mọi nhịp quét.
+    if (policy.adapts_rate && governor) return static_cast<float>(1000.0 / governor->target_hz());
     if (is_fifo && rate > 0.0) return static_cast<float>(1000.0 / rate);
     return render_hz > 0 ? 1000.0F / static_cast<float>(render_hz) : 0.0F;
 }

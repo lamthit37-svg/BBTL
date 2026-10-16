@@ -14,16 +14,22 @@
 // ô ngắm của bàn phím ảo là SetSoftKeyAim ở LoginLogOn_OnEvent 297, LogOn_KeyBoard 623 và ba hàm
 // Active 665, 679, 721).
 // SystemSetup:IsClassic luôn trả 1 (Game.exe 0x14045fbb0), nên ba nhãn đổi theo kiểu tài khoản.
+// Danh sách đuôi tài khoản (LogOn_Region, Falagard/Combobox) chạy như CEGUI::Combobox và ComboDropList của
+// CEGUIBase.dll 2026 (decompile showDropList, resizeSelf, onMouseButtonDown, onMouseButtonUp, onMouseMove,
+// droplist_SelectionAcceptedHandler): bấm nút xổ hay ô chữ thì mở; mục dưới chuột chỉ sáng sau khi đã nhấn trong danh
+// sách; nhấn trong danh sách chọn mục, nhả trong danh sách nhận mục và đóng; nhấn ngoài danh sách chỉ đóng.
 // Khác gốc: đi nhánh không phải client WeGame (IsWeGameClient bằng 0); ô nhập chỉ nhận ASCII in
-// được (chưa có IME, chọn vùng, dán, cuộn ngang); chưa có danh sách đuôi tài khoản,
-// lời nhắc Caps Lock, tooltip và mã QR; kiểu tài khoản và
+// được (chưa có IME, chọn vùng, dán, cuộn ngang); chưa có lời nhắc Caps Lock, tooltip và mã QR;
+// đuôi đã chọn (Account_MailIndex) và kiểu tài khoản và
 // ô thẻ bảo mật chưa lưu giữa hai lần chạy (Account_LogonType, Game_MiBao), nên lần nào cũng mở ở
-// kiểu truyền thống. Dòng chữ LogOn_Info không port: khung chứa nó ẩn trong layout và script không
+// kiểu truyền thống với đuôi đầu tiên; đuôi chọn chưa được ghép vào tên gửi máy chủ; nút xổ mở lúc nhấn
+// (CEGUI mở lúc nhả). Dòng chữ LogOn_Info không port: khung chứa nó ẩn trong layout và script không
 // bao giờ hiện.
 #pragma once
 
 #include "ui/panel/deck.hpp"
 
+#include <cstddef>
 #include <cstdint>
 #include <optional>
 #include <string>
@@ -36,6 +42,8 @@ inline constexpr std::string_view kLogonLayout = "Logon/LogOn.layout.xml";
 // Nút bàn phím ảo của bảng: LogOn_KeyBoard gọi ToggleWindow("SoftKeyBoard"), việc đó là của người
 // gọi (ui/panel/softkey.hpp); bảng chỉ đổi ô ngắm.
 inline constexpr std::string_view kLogonKeysButton = "LogOn_Keyboard";
+// Danh sách thả của ô đuôi tài khoản: Combobox LogOn_Region dựng con từ look (nameSuffix của <Child>).
+inline constexpr std::string_view kLogonSuffixList = "LogOn_Region__auto_droplist__";
 
 // g_AccountType của script: 1 là tên truyền thống kèm đuôi chọn trong danh sách, 2 là tên tự đặt.
 enum class AccountKind : std::uint8_t { kClassic, kCustom };
@@ -59,8 +67,24 @@ enum class LogonAction : std::uint8_t {
     kLeave,
 };
 
+// ComboDropList của ô đuôi tài khoản.
+struct DropList {
+    bool is_open = false;
+    // ComboDropList::d_armed: đã nhấn trong danh sách (hay đã nhả lần nhấn mở bằng ô chữ); từ đó mục dưới chuột sáng lên
+    // và nhả trong danh sách là nhận mục.
+    bool is_armed = false;
+    // Danh sách mở lúc nhấn ô chữ: lần nhả của chính lần nhấn ấy làm danh sách chiếm chuột, nên nó thành lần nhả đầu
+    // tiên của danh sách và chỉ lên cò.
+    bool is_opening = false;
+    // Mục đang sáng (SelectBrush): mục đang chọn lúc mở, rồi mục dưới chuột.
+    std::optional<std::size_t> lit;
+};
+
 struct Logon {
     AccountKind kind = AccountKind::kClassic;
+    // Mục của danh sách đuôi tài khoản đang chọn (TailName của script, đếm từ 0) và trạng thái danh sách thả.
+    std::size_t suffix = 0;
+    DropList drop;
     LogonField focus = LogonField::kAccount;
     // Ô bàn phím ảo gõ vào (SetSoftKeyAim): đi theo ô nhận phím mỗi khi ô đó đổi; riêng nút bàn
     // phím ảo đưa nó về ô mật khẩu mà không đổi ô nhận phím.
@@ -85,6 +109,20 @@ void open_logon(Logon& logon) noexcept;
 // ba ô nhập, nút bàn phím ảo (ô ngắm về ô mật khẩu), và các nút nhờ client (vào game chỉ khi tài
 // khoản và mật khẩu đều đã gõ). Cửa sổ khác không đổi gì.
 void press_logon(Logon& logon, std::string_view window) noexcept;
+// Danh sách đuôi tài khoản đang mở: nó chiếm chuột, nên lần nhấn kế chỉ dành cho nó.
+[[nodiscard]] inline bool is_suffix_open(const Logon& logon) noexcept {
+    return logon.drop.is_open;
+}
+// Nhấn trái khi danh sách thả đang mở: window là cửa sổ dưới chuột (rỗng khi nhấn vào khoảng trống), row là mục của danh
+// sách dưới chuột. Trong danh sách thì chọn mục dưới chuột; ngoài danh sách thì đóng, giữ đuôi cũ.
+void press_suffix_list(Logon& logon, std::string_view window, std::optional<std::size_t> row);
+// Nhả trái khi danh sách thả đang mở: nhả trong danh sách sau khi đã nhấn trong đó thì nhận mục đang sáng và đóng;
+// mục 7 (nhập đuôi khác) đổi sang tên tự đặt (LogOn_Region_Accept).
+void release_suffix_list(Logon& logon, std::string_view window);
+// Chuột đi trong lúc danh sách thả đang mở: window là cửa sổ dưới chuột, row là mục dưới chuột, is_down là nút trái đang giữ.
+void move_suffix_list(Logon& logon, std::string_view window, std::optional<std::size_t> row, bool is_down);
+// Đóng danh sách thả, giữ đuôi đang chọn (nhấn ra khoảng trống).
+void dismiss_suffix_list(Logon& logon) noexcept;
 // Một ký tự từ bàn phím cho ô đang nhận phím: ASCII in được thì nối vào (trần của ô theo
 // MaxTextLength của layout), xoá lùi bỏ ký tự cuối, Tab đổi ô, Enter ở ô tài khoản sang ô mật khẩu
 // và ở ô mật khẩu là kiểm tài khoản như nút vào game. Mã khác bị bỏ.

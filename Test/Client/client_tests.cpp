@@ -18,6 +18,8 @@
 
 #include "client/assets.hpp"
 #include "client/display/display.hpp"
+#include "client/display/frame_fit.hpp"
+#include "client/display/policy.hpp"
 #include "client/options.hpp"
 #include "client/viewer/client_size.hpp"
 #include "client/viewer/viewer.hpp"
@@ -26,6 +28,7 @@
 #include "test.hpp"
 
 #include <array>
+#include <cmath>
 #include <cstddef>
 #include <cstdint>
 #include <optional>
@@ -144,6 +147,43 @@ void login_window_ignores_chosen_size(Context& context) {
     context.expect(client::client_size_of(desc) == client::kDefaultClientSize, "màn chơi không chọn thì mặc định");
 }
 
+// Màn đăng nhập của máy tính bảng 1280x800 (16:10) vào khung 1280x720: dải đen 40 điểm trên và dưới.
+void login_frame_letterboxes_tablet(Context& context) {
+    using Rect = client::FrameRect;
+    const Rect tablet = client::fit_frame(1280, 800, 1280, 720);
+    context.expect(tablet == Rect{.x = 0, .y = 40, .width = 1280, .height = 720}, "16:10 thu về 16:9");
+    const Rect same = client::fit_frame(1280, 720, 1280, 720);
+    context.expect(same == Rect{.x = 0, .y = 0, .width = 1280, .height = 720}, "đúng tỉ lệ thì trọn màn");
+    const Rect wide = client::fit_frame(2400, 1080, 1280, 720);
+    context.expect(wide == Rect{.x = 240, .y = 0, .width = 1920, .height = 1080}, "màn dài thì dải đen hai bên");
+    const Rect big = client::fit_frame(1920, 1200, 1280, 720);
+    context.expect(big == Rect{.x = 0, .y = 60, .width = 1920, .height = 1080}, "cỡ lớn vẫn giữ tỉ lệ");
+}
+
+// Cỡ suy biến không được chia cho 0: trả trọn màn để khung vẫn vẽ được.
+void login_frame_survives_empty_sizes(Context& context) {
+    using Rect = client::FrameRect;
+    const Rect no_design = client::fit_frame(1280, 800, 0, 720);
+    context.expect(no_design == Rect{.x = 0, .y = 0, .width = 1280, .height = 800}, "khung thiết kế rỗng");
+    const Rect no_screen = client::fit_frame(0, 0, 1280, 720);
+    context.expect(no_screen == Rect{}, "màn rỗng thì khung rỗng");
+}
+
+// Chạm vào mép khung phải ra 0 và 1, chạm vào dải đen thì ra ngoài [0, 1] để giao diện không nhận.
+void login_frame_maps_touch_to_frame(Context& context) {
+    const client::FrameRect frame = client::fit_frame(1280, 800, 1280, 720);
+    const client::FrameSpan across{.origin = frame.x, .length = frame.width};
+    const client::FrameSpan down{.origin = frame.y, .length = frame.height};
+    const auto is_near = [](float value, float want) { return std::abs(value - want) < 1e-5F; };
+    context.expect(is_near(client::unit_in_frame(0.5F, 1280, across), 0.5F), "giữa ngang vẫn giữa");
+    context.expect(is_near(client::unit_in_frame(0.5F, 800, down), 0.5F), "giữa dọc vẫn giữa");
+    context.expect(is_near(client::unit_in_frame(0.05F, 800, down), 0.0F), "mép trên khung là 0");
+    context.expect(is_near(client::unit_in_frame(0.95F, 800, down), 1.0F), "mép dưới khung là 1");
+    context.expect(client::unit_in_frame(0.0F, 800, down) < 0.0F, "dải đen trên ra ngoài khung");
+    context.expect(client::unit_in_frame(1.0F, 800, down) > 1.0F, "dải đen dưới ra ngoài khung");
+    context.expect(is_near(client::unit_in_frame(0.25F, 800, client::FrameSpan{}), 0.25F), "khung rỗng giữ nguyên");
+}
+
 void options_accept_client_size_limits(Context& context) {
     constexpr std::array<Text, 2> kSmallest{"--size", "800x600"};
     const std::optional<client::Options> smallest = client::parse_options(kSmallest);
@@ -223,6 +263,71 @@ void options_take_creature_list(Context& context) {
     context.expect(!client::parse_options(too_many).has_value(), "quá ba mươi hai id bị từ chối");
 }
 
+void options_take_pet_list(Context& context) {
+    constexpr std::array<Text, 2> kList{"--pet", "339,11158"};
+    const std::optional<client::Options> list = client::parse_options(kList);
+    context.expect(list.has_value() && list->pets == std::vector<std::uint32_t>({339, 11158}), "--pet giữ id mẫu");
+    constexpr std::array<Text, 2> kEmpty{"--pet", ""};
+    context.expect(!client::parse_options(kEmpty).has_value(), "--pet rỗng bị từ chối");
+}
+
+void options_take_peer_count(Context& context) {
+    constexpr std::array<Text, 2> kTwo{"--peer", "2"};
+    const std::optional<client::Options> two = client::parse_options(kTwo);
+    context.expect(two.has_value() && two->peer_count == 2, "--peer 2 nhận hai người");
+    for (const Text bad : {Text{"0"}, Text{"5"}, Text{"x"}, Text{""}}) {
+        const std::array<Text, 2> arguments{"--peer", bad};
+        context.expect(!client::parse_options(arguments).has_value(), "--peer ngoài 1..4 bị từ chối");
+    }
+}
+
+// Chính sách là nơi duy nhất PC và điện thoại khác nhau trên đường vẽ. Hai bộ số dưới đây là số đã đo trên máy thật (ghi ở
+// policy.hpp); đổi một số là đổi hình hay nhịp khung, nên test giữ chúng.
+void policy_desktop_is_full_detail(Context& context) {
+    const client::GraphicsPolicy policy = client::policy_of(client::QualityClass::kDesktop);
+    context.expect(policy.samples == 4, "PC khử răng cưa 4 mẫu");
+    context.expect(!policy.is_raw_color, "PC giữ sRGB của phần cứng");
+    context.expect(!policy.lights_at_vertices, "PC tính ánh sáng ở điểm ảnh");
+    context.expect(policy.triangle_cap == 0 && !policy.adapts_detail, "PC không giới hạn tam giác");
+    context.expect(!policy.builds_lods, "PC không sinh LOD");
+    context.expect(policy.texture_edge == 0, "PC giữ cỡ texture gốc");
+    context.expect(policy.pending_bytes == (std::size_t{1} << 30U), "PC cho hàng đợi mesh 1 GiB");
+    context.expect(!policy.shows_first_frame_early && !policy.adapts_rate, "PC chờ đủ mesh và giữ nhịp quét");
+    context.expect(policy.fixed_tier == resource::TextureTier::kBc, "PC luôn texture BC");
+}
+
+void policy_mobile_keeps_measured_limits(Context& context) {
+    const client::GraphicsPolicy policy = client::policy_of(client::QualityClass::kMobile);
+    context.expect(policy.samples == 1, "điện thoại một mẫu");
+    context.expect(policy.is_raw_color, "điện thoại dùng màu thô");
+    context.expect(policy.lights_at_vertices, "điện thoại tính ánh sáng ở đỉnh");
+    context.expect(policy.triangle_cap == 150'000 && policy.adapts_detail, "trần 150 nghìn tam giác, tự chỉnh");
+    context.expect(policy.builds_lods, "điện thoại sinh LOD");
+    context.expect(policy.texture_edge == 512, "texture cạnh tối đa 512");
+    context.expect(policy.pending_bytes == (std::size_t{96} << 20U), "hàng đợi mesh 96 MiB");
+    context.expect(policy.shows_first_frame_early && policy.adapts_rate, "hiện khung đầu sớm, trần nhịp tự chỉnh");
+    context.expect(!policy.fixed_tier.has_value(), "loại texture nén do thiết bị khai");
+}
+
+void quality_names_round_trip(Context& context) {
+    context.expect(client::quality_class_of("desktop") == client::QualityClass::kDesktop, "desktop");
+    context.expect(client::quality_class_of("mobile") == client::QualityClass::kMobile, "mobile");
+    context.expect(!client::quality_class_of("phone").has_value(), "tên lạ bị từ chối");
+    context.expect(!client::quality_class_of("").has_value(), "tên rỗng bị từ chối");
+    context.expect(client::quality_name(client::QualityClass::kMobile) == "mobile", "tên của mobile");
+    context.expect(client::quality_name(client::QualityClass::kDesktop) == "desktop", "tên của desktop");
+}
+
+void options_take_quality(Context& context) {
+    constexpr std::array<Text, 2> kMobile{"--quality", "mobile"};
+    const std::optional<client::Options> mobile = client::parse_options(kMobile);
+    context.expect(mobile.has_value() && mobile->quality == client::QualityClass::kMobile, "--quality mobile");
+    const std::optional<client::Options> none = client::parse_options({});
+    context.expect(none.has_value() && !none->quality.has_value(), "không nêu thì theo nền tảng");
+    constexpr std::array<Text, 2> kBad{"--quality", "ultra"};
+    context.expect(!client::parse_options(kBad).has_value(), "--quality lạ bị từ chối");
+}
+
 void options_allow_launch_without_arguments(Context& context) {
     const std::optional<client::Options> bare = client::parse_options({});
     context.expect(bare.has_value(), "không đối số nào (bấm đúp exe) là hợp lệ");
@@ -298,10 +403,19 @@ constexpr std::array kCases{
     Case{.name = "options_take_client_size", .body = &options_take_client_size},
     Case{.name = "options_accept_client_size_limits", .body = &options_accept_client_size_limits},
     Case{.name = "login_window_ignores_chosen_size", .body = &login_window_ignores_chosen_size},
+    Case{.name = "login_frame_letterboxes_tablet", .body = &login_frame_letterboxes_tablet},
+    Case{.name = "login_frame_survives_empty_sizes", .body = &login_frame_survives_empty_sizes},
+    Case{.name = "login_frame_maps_touch_to_frame", .body = &login_frame_maps_touch_to_frame},
     Case{.name = "options_take_bare_validate_flag", .body = &options_take_bare_validate_flag},
     Case{.name = "options_take_bare_login_flag", .body = &options_take_bare_login_flag},
     Case{.name = "options_take_bare_flag", .body = &options_take_bare_flag},
     Case{.name = "options_take_creature_list", .body = &options_take_creature_list},
+    Case{.name = "options_take_pet_list", .body = &options_take_pet_list},
+    Case{.name = "options_take_peer_count", .body = &options_take_peer_count},
+    Case{.name = "policy_desktop_is_full_detail", .body = &policy_desktop_is_full_detail},
+    Case{.name = "policy_mobile_keeps_measured_limits", .body = &policy_mobile_keeps_measured_limits},
+    Case{.name = "quality_names_round_trip", .body = &quality_names_round_trip},
+    Case{.name = "options_take_quality", .body = &options_take_quality},
     Case{.name = "asset_book_reads_group_stamp_and_path", .body = &asset_book_reads_group_stamp_and_path},
     Case{.name = "assets_copy_only_what_changed", .body = &assets_copy_only_what_changed},
 };

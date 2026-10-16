@@ -28,6 +28,7 @@
 
 #pragma once
 
+#include "client/display/policy.hpp"
 #include "client/map/ground.hpp"
 #include "client/stage/stage.hpp"
 #include "client/cast/note.hpp"
@@ -122,6 +123,13 @@ struct DisplayDesc {
     // Màn điện thoại (nhỏ hơn 600 dp ở cạnh ngắn, hay iPhone): giao diện dùng layout Interface/phone. Máy tính bảng và PC
     // để false: dùng giao diện PC.
     bool uses_phone_layout = false;
+    // Cỡ khung cố định của thủ tục đăng nhập (client gốc: 1280x720). Có giá trị thì màn đăng nhập vẽ trong khung
+    // cỡ đó, canh giữa, dư ra là dải đen, thay vì kéo dãn theo tỉ lệ màn hình: máy tính bảng 16:10 thấy cảnh nền
+    // như cửa sổ PC. Rỗng thì vẽ trọn màn; cửa sổ PC luôn mở đúng cỡ này nên không cần.
+    std::optional<PixelSize> login_frame;
+    // Chính sách đồ hoạ (policy.hpp): rỗng thì default_quality() của nền tảng. Đường vẽ chỉ đọc chính sách, không hỏi nền
+    // tảng, nên PC chạy được chính sách của điện thoại để so ảnh.
+    std::optional<QualityClass> quality;
     // Ghi ảnh chụp khung đầu tiên vẽ được ra tệp PNG này; rỗng thì không chụp.
     std::filesystem::path shot_path;
     // Không vẽ lớp giao diện (HUD, bảng đăng nhập, bảng đo): khung hình chỉ còn cảnh 3D và hiệu
@@ -140,6 +148,10 @@ struct DisplayDesc {
     // Công cụ thử của dự án (--creature), client gốc không có: id mẫu quái hay NPC đứng thành lưới trước mặt nhân vật ở
     // khung màn chơi đầu tiên, như máy chủ vừa báo chúng vào vùng nhìn. Để nhìn hình mà không cần máy chủ.
     std::vector<std::uint32_t> creatures;
+    // Công cụ thử (--pet): id mẫu trân thú đứng trước mặt, như máy chủ gửi EntityKind::kPet.
+    std::vector<std::uint32_t> pets;
+    // Công cụ thử (--peer): số người chơi khác đứng trước mặt ở khung đầu, như máy chủ vừa cho thấy họ.
+    std::uint32_t peer_count = 0;
     // Công cụ thử của dự án (--talk-demo), client gốc không có: NPC của --creature mang cờ bấm được, và việc người chơi nhờ
     // ở hộp thoại được đáp bằng kịch bản có sẵn (graphic/talk_demo.cpp) thay cho máy chủ. "click" chờ người chơi bấm NPC;
     // "menu", "offer", "turn" mở sẵn hộp tương ứng ở khung màn chơi đầu. "fight": quái của --creature đánh được và chiêu được

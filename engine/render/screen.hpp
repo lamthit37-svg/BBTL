@@ -27,6 +27,14 @@ struct ScreenDesc {
     gpu::ClearColor clear{};
 };
 
+// Hình chữ nhật con của ảnh swapchain, điểm ảnh, gốc ở góc trên trái.
+struct ScreenView {
+    std::uint32_t x = 0;
+    std::uint32_t y = 0;
+    std::uint32_t width = 0;
+    std::uint32_t height = 0;
+};
+
 class Screen {
 public:
     // Mượn device: Screen phải bị huỷ trước nó.
@@ -51,6 +59,10 @@ public:
     [[nodiscard]] gpu::Swapchain* swapchain() noexcept;
     // Màu xoá của các lần begin kế tiếp (cảnh đổi thì nền đổi theo màu sương của nó).
     void set_clear(const gpu::ClearColor& clear) noexcept;
+    // Khung con mà các lần begin kế tiếp vẽ vào (viewport và scissor); phần ngoài khung là dải đen. Rộng hoặc
+    // cao bằng 0, hoặc khung vượt ảnh swapchain, là trọn ảnh và màu xoá của set_clear. Có khung con thì cả ảnh
+    // xoá đen: nền cảnh nào không có gì phủ lên cũng đen, nên cảnh phải tự vẽ trời.
+    void set_view(const ScreenView& view) noexcept;
 
     // Lấy ảnh của khung, đưa nó và ảnh độ sâu về bố cục vẽ, mở lượt vẽ và xoá cả hai. Trả chỉ số
     // ảnh, dùng làm slot của renderer.

@@ -1,23 +1,37 @@
-#pragma once
-// Clip của một nhân vật theo trạng thái, port từ client ref (Obj_Character_Logic.cpp), chung cho
-// người chơi và NPC. Đi là clip chạy, lặp (CHARACTER_LOGIC_MOVE, BASE_ACTION_N_RUN). Dừng thì
-// Start_Idle: phát clip đứng một lần, ghi mốc động tác nghỉ là lúc đó và rút khoảng
-// CalcIdleRandInterval. Hết clip thì FreshAnimation: quá mốc cộng khoảng thì dời mốc, rút khoảng
-// mới rồi rand() % 2 + BASE_ACTION_N_IDLE_EX0 chọn một trong hai động tác nghỉ, không thì phát lại
-// clip đứng. Động tác không có clip thì phát clip đứng (ref về tư thế bind). Khoảng là
-// GetIdleInterval của đối tượng. Logic thuần, không I/O; mỗi nhân vật một Gait.
-// Nhảy theo CObject_Character::Jump và NotifyPhyEvent của ref, đối chiếu Game.exe 2026 (0x1405ea2b0,
-// ChangeAction 0x1405e2740): ChangeAction(N_JUMP_N hay N_JUMP_R, 1.f, FALSE) phát clip nhảy một lần từ
-// đầu, cờ nhảy bật. Lúc cờ bật, Start_Idle và Start_Move đổi logic nhưng không đổi clip. Hết clip nhảy
-// mà chưa chạm đất thì OnAnimationEnd gọi FreshAnimation: logic MOVE thì chạy lại từ đầu, IDLE thì như
-// lúc hết clip đứng. Chạm đất (PE_COLLISION_WITH_GROUND) thì tắt cờ rồi FreshAnimation một lần nữa.
-// Hành động không có clip thì ChangeAction của gốc bỏ qua: clip đang phát giữ nguyên.
-// Đòn đánh và tuyệt chiêu (strike) là clip phát một lần từ đầu do skill chọn (Start_MagicSend: ChangeAction
-// với tên kịch bản của all.skill, tốc độ phát là Actor_ChangeActionRate): hết clip thì FreshAnimation như hết clip
-// nhảy; đang nhảy thì không bắt đầu đòn. Lệnh mới (đi, nhảy, đòn khác) chỉ ngắt được đòn từ mốc BreakTime của
-// kịch bản (DoSimulantCommand trả RC_WAIT tới khi OnAnimationCanBreak đặt m_bCanBreak): is_locked.
-// Nguồn: TLBB Dev src/client_app/gait.hpp@e0d89a6. Khác gốc: namespace game::avatar; đồng hồ là
+/*==============================================================================
+ *  THIENLONG  |  GAME CLIENT
+ *------------------------------------------------------------------------------
+ *  TỆP       : src/client/figure/avatar/gait.hpp
+ *  PHÂN HỆ   : Figure / Avatar / Gait
+ *  CHUẨN     : C++23
+ *------------------------------------------------------------------------------
+ *  CHỨC NĂNG
+ *  - Clip của một nhân vật theo trạng thái, port từ client ref
+ *    (Obj_Character_Logic.cpp), chung cho người chơi và NPC. Đi là clip chạy,
+ *    lặp (CHARACTER_LOGIC_MOVE, BASE_ACTION_N_RUN). Dừng thì Start_Idle: phát
+ *    clip đứng một lần, ghi mốc động tác nghỉ là lúc đó và rút khoảng
+ *    CalcIdleRandInterval.
+ *------------------------------------------------------------------------------
+ *  TÁC GIẢ   : HiepHoon
+ *  TELEGRAM  : @Hoon9xx
+ *============================================================================*/
+
+// Hết clip thì FreshAnimation: quá mốc cộng khoảng thì dời mốc, rút khoảng mới rồi rand() % 2 +
+// BASE_ACTION_N_IDLE_EX0 chọn một trong hai động tác nghỉ, không thì phát lại clip đứng. Động tác không có clip thì
+// phát clip đứng (ref về tư thế bind). Khoảng là GetIdleInterval của đối tượng. Logic thuần, không I/O; mỗi nhân vật
+// một Gait. Nhảy theo CObject_Character::Jump và NotifyPhyEvent của ref, đối chiếu Game.exe 2026 (0x1405ea2b0,
+// ChangeAction 0x1405e2740): ChangeAction(N_JUMP_N hay N_JUMP_R, 1.f, FALSE) phát clip nhảy một lần từ đầu, cờ nhảy
+// bật. Lúc cờ bật, Start_Idle và Start_Move đổi logic nhưng không đổi clip. Hết clip nhảy mà chưa chạm đất thì
+// OnAnimationEnd gọi FreshAnimation: logic MOVE thì chạy lại từ đầu, IDLE thì như lúc hết clip đứng. Chạm đất
+// (PE_COLLISION_WITH_GROUND) thì tắt cờ rồi FreshAnimation một lần nữa. Hành động không có clip thì ChangeAction của
+// gốc bỏ qua: clip đang phát giữ nguyên. Đòn đánh và tuyệt chiêu (strike) là clip phát một lần từ đầu do skill chọn
+// (Start_MagicSend: ChangeAction với tên kịch bản của all.skill, tốc độ phát là Actor_ChangeActionRate): hết clip thì
+// FreshAnimation như hết clip nhảy; đang nhảy thì không bắt đầu đòn. Lệnh mới (đi, nhảy, đòn khác) chỉ ngắt được đòn
+// từ mốc BreakTime của kịch bản (DoSimulantCommand trả RC_WAIT tới khi OnAnimationCanBreak đặt m_bCanBreak):
+// is_locked. Nguồn: TLBB Dev src/client_app/gait.hpp@e0d89a6. Khác gốc: namespace game::avatar; đồng hồ là
 // core::Clock; enumerator mang tiền tố k.
+
+#pragma once
 
 #include "core/clock.hpp"
 
@@ -85,6 +99,11 @@ public:
     void strike(core::Clock::time_point now, const StrikePlan& plan);
     // Đang trong đòn mà chưa tới BreakTime: lệnh đi, nhảy, đòn khác phải chờ (RC_WAIT của gốc).
     [[nodiscard]] bool is_locked(core::Clock::time_point now) const;
+    // Clip đòn còn đang chạy (chưa tới hết độ dài). IsAnimationEnd() của gốc là phủ định của việc này
+    // trong lúc SKILL_SEND.
+    [[nodiscard]] bool in_strike(core::Clock::time_point now) const;
+    // Clip đòn đã chạy hết nhưng gait chưa đổi stance (trước update của khung này).
+    [[nodiscard]] bool strike_finished(core::Clock::time_point now) const;
     [[nodiscard]] bool is_jumping() const noexcept { return is_jumping_; }
     // Phát stance ở khung kế, rồi về đứng. Dùng cho bài múa lúc người mẫu môn phái hiện.
     void cue(Stance stance) noexcept;

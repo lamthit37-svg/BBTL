@@ -300,7 +300,12 @@ void press_servers(LoginFlow& flow, std::string_view window, const LoginFacts& f
     pull_servers(flow, facts);
 }
 
-void press_account(LoginFlow& flow, std::string_view window) {
+// Danh sách đuôi đang mở thì nó chiếm chuột: lần nhấn chỉ dành cho nó (facts.element là mục dưới chuột).
+void press_account(LoginFlow& flow, std::string_view window, const LoginFacts& facts) {
+    if (is_suffix_open(flow.logon)) {
+        press_suffix_list(flow.logon, window, facts.element);
+        return;
+    }
     press_logon(flow.logon, window);
     pull_logon(flow);
 }
@@ -509,14 +514,24 @@ bool on_account(const LoginFlow& flow) noexcept {
     return flow.step == FlowStep::kAccount;
 }
 
-void release_flow(LoginFlow& flow) {
+bool suffix_list_open(const LoginFlow& flow) noexcept {
+    return flow.step == FlowStep::kAccount && is_suffix_open(flow.logon);
+}
+
+void dismiss_flow(LoginFlow& flow) noexcept {
+    if (flow.step == FlowStep::kAccount) dismiss_suffix_list(flow.logon);
+}
+
+void release_flow(LoginFlow& flow, std::string_view window) {
     flow.pose.zoom = 0;
+    if (flow.step == FlowStep::kAccount) release_suffix_list(flow.logon, window);
     if (flow.step != FlowStep::kCreate) return;
     std::vector<Call> calls;
     release_create(flow.create, calls);
 }
 
-void hover_flow(LoginFlow& flow, std::string_view window, std::optional<std::size_t> element) {
+void hover_flow(LoginFlow& flow, std::string_view window, std::optional<std::size_t> element, bool is_down) {
+    if (flow.step == FlowStep::kAccount) move_suffix_list(flow.logon, window, element, is_down);
     if (flow.step == FlowStep::kCreate) hover_create(flow.create, window);
     if (flow.step == FlowStep::kServers) hover_server(flow.servers, window, element);
 }
@@ -570,7 +585,7 @@ void press_flow(LoginFlow& flow, std::string_view window, const LoginFacts& fact
         return;
     }
     if (flow.step == FlowStep::kAccount) {
-        press_account(flow, window);
+        press_account(flow, window, facts);
         return;
     }
     if (flow.step == FlowStep::kRoles) {

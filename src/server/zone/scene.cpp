@@ -21,6 +21,7 @@
 #include "ipc/relay.hpp"
 #include "protocol/messages.hpp"
 #include "zone/aoi.hpp"
+#include "zone/gates.hpp"
 #include "zone/outbox.hpp"
 
 #include <algorithm>
@@ -506,6 +507,39 @@ std::optional<std::uint32_t> Scene::entity_of(std::uint64_t session) const noexc
     const auto found = players_.find(session);
     if (found == players_.end()) return std::nullopt;
     return id_at(found->second);
+}
+
+bool Scene::can_admit() const noexcept {
+    return players_.size() < config_.player_max && live_ < kEntityMax;
+}
+
+AreaStand Scene::standing(float x_cm, float z_cm) const noexcept {
+    return area_stand(config_.areas, x_cm * kGameUnitsPerCm, z_cm * kGameUnitsPerCm);
+}
+
+std::optional<Scene::PlayerCard> Scene::player_card(std::uint64_t session) const {
+    const auto found = players_.find(session);
+    if (found == players_.end()) return std::nullopt;
+    const Entity& who = entities_[found->second];
+    PlayerCard card;
+    card.character = who.character;
+    card.name = who.name;
+    card.level = who.level;
+    card.gender = who.gender;
+    card.face = who.face;
+    card.hair = who.hair;
+    card.school = who.school;
+    card.direction = who.direction;
+    card.state = who.state;
+    card.x_cm = who.x_cm;
+    card.z_cm = who.z_cm;
+    return card;
+}
+
+void Scene::keep_spot(std::uint64_t session, Outbox& out) const {
+    const auto found = players_.find(session);
+    if (found == players_.end()) return;
+    save_spot(entities_[found->second], out);
 }
 
 std::optional<Scene::Npc> Scene::npc(std::uint32_t id) const {

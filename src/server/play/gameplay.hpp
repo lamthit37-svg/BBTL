@@ -78,6 +78,11 @@ public:
     void detach(std::uint64_t session, Output& out);
     // Người chơi sang cảnh khác: đóng phiên hội thoại (gửi DialogClosed), giữ nguyên Player.
     void left_scene(std::uint64_t session, Output& out);
+    // Đưa người chơi sang đấu trường của cảnh mới sau khi cảnh đã có thực thể mới. Giữ Player.
+    // false khi chưa rời được đấu trường cũ mà đấu trường mới không nhận: người gọi dựng lại thực thể
+    // cảnh cũ rồi gọi lại với id mới. Không có người chơi thì true (zone không gameplay).
+    [[nodiscard]] bool change_scene(std::uint64_t session, std::uint16_t scene, std::uint32_t entity, float x_cm,
+        float z_cm, Surroundings& around, Output& out);
     // Một khung protocol của client (Relay::kUp). Khung hỏng hay loại lạ thì bỏ và đếm.
     void intent(std::uint64_t session, protocol::ByteView frame, Surroundings& around, Output& out);
     // Một bước 20 Hz của mọi đấu trường (kể cả cảnh vắng: vật rơi hết hạn).

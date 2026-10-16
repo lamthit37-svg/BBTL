@@ -726,7 +726,7 @@ Gameplay đợt 1 (2026-10-14; nhật ký và số đo ở `docs/TIEN-DO.md`, m�
 - `ipc` đã có (kênh bền niêm phong bằng khoá cụm, khung relay gate ↔ zone): mục "Còn thiếu để P2 đạt" ở trên về `ipc`
   và việc gate chưa chuyển tiếp là của ngày 2026-10-08, nay không còn đúng. `metrics` vẫn như cũ.
 - P4 đạt một phần: `zone` thật (tick 20 Hz, AOI, cảnh tạo lười, quái/NPC đặt từ dữ liệu cảnh), nhiều khách thấy nhau
-  trên cụm thật, luật đi do zone giữ (lưới `.path` của client 2026, hoàn bước bằng `Relay::kPlace`). Chưa đạt: đổi cảnh,
+  trên cụm thật, luật đi do zone giữ (lưới `.path` của client 2026, hoàn bước bằng `Relay::kPlace`). Đổi cảnh đi bộ đã có từ 2026-10-16 (vùng `areas` + `ScenePosDefineEx`, tin `SceneEnter`). Chưa đạt:
   400 bot một cảnh với p99 so ngân sách 50 ms, TSan, client hiện người chơi khác (client đã có module nối máy chủ từ 2026-10-15 nhưng chưa gửi `Move` và chưa vẽ thực thể).
 - P9 có mã đủ lớp: sổ điểm chỉ-thêm, webhook ký HMAC, đổi điểm hai pha, mã đổi, tiến trình `thienlong_billing`, nhà cung
   cấp giả; `docs/SERVER-BILLING.md`. Chưa nối world (world còn là bản `ready` rồi chờ), nên hai pha mới chạy tới ranh

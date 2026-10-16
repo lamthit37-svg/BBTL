@@ -20,6 +20,7 @@
 #include "test.hpp"
 #include "zone/aoi.hpp"
 #include "zone/content.hpp"
+#include "zone/gates.hpp"
 #include "zone/host.hpp"
 #include "zone/outbox.hpp"
 #include "zone/saver.hpp"
@@ -33,11 +34,13 @@
 #include <cstddef>
 #include <cstdint>
 #include <filesystem>
+#include <limits>
 #include <memory>
 #include <numbers>
 #include <optional>
 #include <mutex>
 #include <set>
+#include <string>
 #include <thread>
 #include <variant>
 #include <vector>
@@ -1046,7 +1049,9 @@ void real_scene_seeds(Context& context) {
         zone::DiskPaths{.scenes = root / "scenes",
             .ids_table = root / "tables" / "server" / "scene_ids.tsv",
             .templates = root / "tables" / "shared" / "monsters.tsv",
-            .ai_types = root / "tables" / "server" / "monster_ai_types.tsv"},
+            .ai_types = root / "tables" / "server" / "monster_ai_types.tsv",
+            .gates = root / "tables" / "shared" / "scene_positions_extended.tsv",
+            .scripts = root / "tables" / "server" / "script_index.tsv"},
         49000);
     const zone::SceneContent dali = seeder(2);
     const std::vector<zone::Seed>& seeds = dali.seeds;
@@ -1074,6 +1079,12 @@ void real_scene_seeds(Context& context) {
         context.expect(npcs > 0, "có NPC trong số đó");
     }
     context.expect(inside, "toạ độ đổi ra centimet nằm trong khoảng hợp lý (0..1000 m)");
+    bool erhai = false;
+    for (const zone::AreaRect& area : dali.areas) {
+        const bool gate = area.crossing && area.dest_scene == 24 && area.dest_x_cm == 28700.0F && area.dest_z_cm == 3200.0F;
+        erhai = erhai || gate;
+    }
+    context.expect(erhai, "vùng Đại Lý đi Nhĩ Hải lấy điểm đến 287, 32 của ScenePosDefineEx");
     context.expect(seeder(65534).seeds.empty() && !seeder(65534).walkable, "id lạ không có cảnh nào");
     Host::Config config;
     config.seeder = seeder;
@@ -1237,6 +1248,110 @@ void relay_codec_round_trip(Context& context) {
     context.expect(!ipc::is_single_frame({}), "rỗng không phải khung");
 }
 
+// --- cổng cảnh ---
+
+[[nodiscard]] zone::AreaRect rect_of(float left, float top, float right, float bottom) {
+    zone::AreaRect area;
+    area.left = left;
+    area.top = top;
+    area.right = right;
+    area.bottom = bottom;
+    return area;
+}
+
+void gate_edges_and_bind(Context& context) {
+    const zone::AreaRect exit = rect_of(155.0F, 286.0F, 165.0F, 292.0F);
+    context.expect(zone::area_stand(std::array{exit}, 155.0F, 286.0F).inside, "cạnh trái và cạnh trên thuộc vùng");
+    context.expect(!zone::area_stand(std::array{exit}, 165.0F, 289.0F).inside, "cạnh phải không thuộc vùng");
+    context.expect(!zone::area_stand(std::array{exit}, 160.0F, 292.0F).inside, "cạnh dưới không thuộc vùng");
+    context.expect(!zone::area_stand(std::array{exit}, std::numeric_limits<float>::quiet_NaN(), 289.0F).inside, "NaN không thuộc vùng");
+
+    const zone::AreaRect first = rect_of(0.0F, 0.0F, 10.0F, 10.0F);
+    zone::AreaRect second = rect_of(0.0F, 0.0F, 10.0F, 10.0F);
+    second.crossing = true;
+    second.dest_scene = 9;
+    const zone::AreaStand overlap = zone::area_stand(std::array{first, second}, 1.0F, 1.0F);
+    context.expect(overlap.inside && overlap.index == 0 && !overlap.crossing, "vùng đứng trước trong tệp thắng vùng cổng chồng lên");
+
+    constexpr std::string_view gates_text =
+        "column_0\tcolumn_1\tcolumn_2\tcolumn_3\tcolumn_4\tcolumn_5\tcolumn_6\tcolumn_7\tcolumn_8\tcolumn_9\tcolumn_10\tcolumn_11\n"
+        "7\tx\t2\t160\t295\ty\t24\t287\t32\t0\t1\t10\n"
+        "8\tx\t2\t160\t295\ty\t7\t36\t286\t1\t0\t0\n"
+        "9\tx\t2\t160\t295\ty\t2\t1\t1\t0\t0\t0\n"
+        "10\tx\t2\t10\t10\ty\t100000\t1\t1\t0\t0\t0\n"
+        "bad\tx\t2\t1\t1\ty\t3\t1\t1\t0\t0\t0\n";
+    const auto gates = zone::parse_gates(gates_text);
+    context.expect(gates.has_value() && gates->size() == 4, "dòng sai kiểu bị bỏ, bốn dòng còn lại");
+    constexpr std::string_view scripts_text = "script_id\tpath\n400008\t/event/chuansong/echuansong_dali_erhai.lua\n1\t/obj/a.lua\n";
+    const auto scripts = zone::parse_chuansong(scripts_text);
+    context.expect(scripts.has_value() && scripts->size() == 1 && scripts->front() == 400008, "chỉ script chuansong");
+    const zone::AreaSource source{.script_id = 400008, .left = 155.0F, .top = 286.0F, .right = 165.0F, .bottom = 292.0F};
+    if (!gates || !scripts) return;
+    const std::vector<zone::AreaRect> bound = zone::area_rects(2, std::array{source}, *gates, *scripts, {});
+    context.expect(bound.size() == 1 && bound[0].crossing && bound[0].dest_scene == 24, "cổng đi bộ gần nhất, không lấy dòng NPC");
+    context.expect(bound.size() == 1 && bound[0].dest_x_cm == 28700.0F && bound[0].dest_z_cm == 3200.0F, "điểm đến đổi sang centimet");
+    const auto refused = zone::area_rects(2, std::array{source}, *gates, *scripts, [](std::uint16_t) { return false; });
+    context.expect(!refused.empty() && !refused[0].crossing, "cảnh đích không có trong sổ thì không mở cổng");
+    context.expect(!zone::parse_gates("column_0\tcolumn_1\n1\tx\n").has_value(), "thiếu cột là lỗi cả bảng");
+}
+
+[[nodiscard]] zone::SceneContent gate_scenes(std::uint16_t scene) {
+    zone::SceneContent content;
+    if (scene == 2) {
+        zone::AreaRect gate = rect_of(155.0F, 286.0F, 165.0F, 292.0F);
+        gate.crossing = true;
+        gate.dest_scene = 7;
+        gate.dest_x_cm = 3600.0F;
+        gate.dest_z_cm = 28600.0F;
+        content.areas.push_back(gate);
+    }
+    if (scene == 7) {
+        zone::AreaRect back = rect_of(31.0F, 285.0F, 38.0F, 293.0F);
+        back.crossing = true;
+        back.dest_scene = 2;
+        back.dest_x_cm = 3200.0F;
+        back.dest_z_cm = 14900.0F;
+        content.areas.push_back(back);
+    }
+    return content;
+}
+
+void host_walks_through_a_gate(Context& context) {
+    Host::Config config;
+    config.seeder = gate_scenes;
+    Host host{config};
+    Outbox out;
+    host.handle(frame_of(ipc::Relay::kAttach, 11, ipc::encode_body(arrival(1, 16000.0F, 28900.0F, 2))), out);
+    context.expect(host.find(2) != nullptr && host.find(2)->has_session(11), "đặt chân trong vùng cổng chưa chuyển cảnh");
+    context.expect(host.find(7) == nullptr, "chưa có cảnh đích");
+    Scene* home = host.find(2);
+    const std::optional<std::uint32_t> self = home != nullptr ? home->entity_of(11) : std::nullopt;
+    context.expect(self.has_value(), "có thực thể");
+    if (home != nullptr && self) home->kill(*self);
+    out.clear();
+    host.handle(frame_of(ipc::Relay::kMoved, 11, ipc::encode_body(ipc::Moved{.x_cm = 100.0F, .z_cm = 100.0F})), out);
+    context.expect(host.find(2)->has_session(11) && host.find(7) == nullptr, "người chết không đi cổng");
+
+    out.clear();
+    host.handle(frame_of(ipc::Relay::kAttach, 22, ipc::encode_body(arrival(2, 0.0F, 0.0F, 2))), out);
+    out.clear();
+    host.handle(frame_of(ipc::Relay::kMoved, 22, ipc::encode_body(ipc::Moved{.x_cm = 16000.0F, .z_cm = 28900.0F})), out);
+    const Scene* dest = host.find(7);
+    context.expect(dest != nullptr && dest->has_session(22) && !host.find(2)->has_session(22), "bước vào vùng thì sang cảnh đích");
+    const auto entered = of_kind<protocol::SceneEnter>(seen_in(out), 22);
+    context.expect(entered.size() == 1 && entered[0].scene == 7, "client nhận SceneEnter của cảnh đích");
+    context.expect(entered.size() == 1 && entered[0].x_cm == 3600.0F && entered[0].z_cm == 28600.0F, "đứng ở điểm đến của cổng");
+    const std::vector<ipc::Place> placed = places_in(out, 22);
+    context.expect(!placed.empty() && placed.back().x_cm == 3600.0F && placed.back().z_cm == 28600.0F, "gate nhận mốc pace mới");
+    out.clear();
+    host.handle(frame_of(ipc::Relay::kMoved, 22, ipc::encode_body(ipc::Moved{.x_cm = 3700.0F, .z_cm = 28600.0F})), out);
+    context.expect(host.find(7)->has_session(22), "đứng trong vùng về chưa bị đẩy ngược");
+    context.expect(of_kind<protocol::SceneEnter>(seen_in(out), 22).empty(), "chưa rời vùng thì không SceneEnter mới");
+    host.handle(frame_of(ipc::Relay::kMoved, 22, ipc::encode_body(ipc::Moved{.x_cm = 10000.0F, .z_cm = 10000.0F})), out);
+    host.handle(frame_of(ipc::Relay::kMoved, 22, ipc::encode_body(ipc::Moved{.x_cm = 3600.0F, .z_cm = 28600.0F})), out);
+    context.expect(host.find(2)->has_session(22) && !host.find(7)->has_session(22), "rời rồi bước lại vùng về thì về cảnh cũ");
+}
+
 constexpr std::array kCases{
     Case{"grid_cells_and_clamp", grid_cells_and_clamp},
     Case{"grid_window_difference", grid_window_difference},
@@ -1268,6 +1383,8 @@ constexpr std::array kCases{
     Case{"walkable_of_keeps_the_edge_slack", walkable_of_keeps_the_edge_slack},
     Case{"host_ignores_place_from_gate", host_ignores_place_from_gate},
     Case{"host_gives_scene_the_walkable_rule", host_gives_scene_the_walkable_rule},
+    Case{"gate_edges_and_bind", gate_edges_and_bind},
+    Case{"host_walks_through_a_gate", host_walks_through_a_gate},
     Case{"detach_saves_final_spot", detach_saves_final_spot},
     Case{"autosave_writes_only_walkers", autosave_writes_only_walkers},
     Case{"scene_enter_names_self", scene_enter_names_self},

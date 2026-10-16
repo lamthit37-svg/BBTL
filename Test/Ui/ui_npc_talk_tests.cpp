@@ -24,6 +24,7 @@
 #include "quest/log.hpp"
 #include "test.hpp"
 #include "ui/panel/deck.hpp"
+#include "ui/panel/packet.hpp"
 #include "ui/panel/talk.hpp"
 
 #include <array>
@@ -282,9 +283,60 @@ void item_names_read_the_name_column(Context& context) {
         "10100003\t2\n";
     context.expect(items.load(table), "đọc được bảng");
     context.expect(items.name(10100001) == "铁剑" && items.name(10100002) == "布衣", "tên theo mẫu, kể cả dòng kết thúc CRLF");
-    context.expect(items.name(10100003).empty() && items.name(1).empty(), "dòng thiếu ô và mẫu lạ cho tên rỗng");
+    context.expect(items.icon(10100001) == "Icon_A" && items.icon(10100002) == "Icon_B", "cột icon");
+    context.expect(items.name(10100003).empty() && items.icon(10100003).empty() && items.name(1).empty(),
+        "dòng thiếu ô và mẫu lạ cho tên rỗng");
     ui::panel::ItemNames broken;
     context.expect(!broken.load("a\tb\n1\t2\n") && !broken.is_loaded(), "bảng thiếu cột id/name thì hỏng, không nạp");
+    ui::panel::ItemNames plain;
+    context.expect(plain.load("id\tname\n7\t七\n"), "bảng không có cột icon vẫn đọc được");
+    context.expect(plain.name(7) == "七" && plain.icon(7).empty(), "không có cột icon thì icon rỗng");
+    context.expect(!plain.absorb("x\ty\n1\t2\n") && plain.name(7) == "七", "bảng phụ thiếu cột id thì bỏ, không xoá tên");
+    context.expect(plain.absorb("id\ticon\tname\n7\tKhac\t别\n8\tGem\t宝石\n"), "bảng phụ thêm mẫu mới");
+    context.expect(plain.name(7) == "七" && plain.icon(7).empty(), "id đã có thì không đè");
+    context.expect(plain.name(8) == "宝石" && plain.icon(8) == "Gem", "id mới giữ tên và icon");
+    context.expect(!plain.load_icons("a\tb\n1\t2\n") && plain.face(8) == "set:X image:X", "bảng icon thiếu cột thì ảnh thay");
+    context.expect(plain.load_icons("icon\timageset\nGem\tGemSet\n"), "đọc bảng icon");
+    context.expect(plain.face(8) == "set:GemSet image:Gem", "ảnh đầy đủ");
+    context.expect(plain.face(7) == "set:X image:X", "không có tên icon thì ảnh thay");
+    context.expect(plain.face(0xFFFFFFFFU) == "set:X image:X", "id vượt int32 thì ảnh thay");
+}
+
+// Ô túi: chỉ số 0 là Line1_Row1. Số chồng > 1 cắt 3 ký tự. Ô trong vùng khoá vẫn hiện đồ. Thẻ khác không lấy túi đạo cụ.
+void bag_paint_puts_the_icon_on_the_base_tab(Context& context) {
+    ui::panel::ItemNames items;
+    context.expect(items.load("id\ticon\tname\n101\tSword\t铁剑\n"), "bảng tên");
+    context.expect(items.load_icons("icon\timageset\nSword\tCommonItem\n"), "bảng icon");
+    ui::panel::Packet packet;
+    packet.bag.slots.push_back(ui::panel::talk::BagSlot{.slot = 0, .item = 101, .count = 12, .bound = true});
+    packet.bag.slots.push_back(ui::panel::talk::BagSlot{.slot = 0, .item = 101, .count = 3, .bound = false});
+    packet.bag.slots.push_back(ui::panel::talk::BagSlot{.slot = 1, .item = 999, .count = 1, .bound = false});
+    packet.bag.slots.push_back(ui::panel::talk::BagSlot{.slot = 25, .item = 101, .count = 1000, .bound = false});
+    packet.bag.slots.push_back(ui::panel::talk::BagSlot{.slot = 70, .item = 101, .count = 9, .bound = false});
+    ui::panel::Deck deck;
+    ui::panel::paint_packet(deck, packet, items, {});
+    context.expect(deck_value(deck, "Packet_Space_Line1_Row1_button", "Empty") == "False", "ô 0 có đồ");
+    context.expect(deck_value(deck, "Packet_Space_Line1_Row1_button", "NormalImage") == "set:CommonItem image:Sword", "icon ô 0");
+    context.expect(deck_value(deck, "Packet_Space_Line1_Row1_button", "CornerBotRight") == "3", "dòng sau thắng, số chồng 3");
+    context.expect(deck_value(deck, "Packet_Space_Line1_Row1_button", "BackImage").empty(), "có đồ thì không hình khoá");
+    context.expect(deck_value(deck, "Packet_Space_Line1_Row1_button", "Tooltip") == "铁剑", "tên làm tooltip");
+    context.expect(deck_value(deck, "Packet_Space_Line1_Row2_button", "NormalImage") == "set:X image:X", "mẫu lạ dùng ảnh thay");
+    context.expect(deck_value(deck, "Packet_Space_Line1_Row2_button", "CornerBotRight").empty(), "số chồng 1 không ghi góc");
+    context.expect(deck_value(deck, "Packet_Space_Line1_Row3_button", "Empty") == "True", "ô trống");
+    context.expect(deck_value(deck, "Packet_Space_Line1_Row3_button", "BackImage").empty(), "ô trống trong sức chứa không khoá");
+    context.expect(deck_value(deck, "Packet_Space_Line3_Row1_button", "BackImage") == "set:CommonFrame38 image:ActionLock",
+        "ô trống quá sức chứa thì khoá");
+    context.expect(deck_value(deck, "Packet_Space_Line3_Row6_button", "Empty") == "False", "ô trong vùng khoá vẫn hiện đồ");
+    context.expect(deck_value(deck, "Packet_Space_Line3_Row6_button", "CornerBotRight") == "100", "số chồng cắt 3 ký tự");
+    context.expect(deck_value(deck, "Packet_Space_Line3_Row6_button", "BackImage").empty(), "có đồ thì không đè hình khoá");
+    bool line_hidden = false;
+    for (const std::string_view name : deck.hidden()) line_hidden = line_hidden || name == "Packet_Space_Line7";
+    context.expect(line_hidden, "hàng ngoài sức chứa bị giấu, ô 70 không hiện");
+    packet.tab = 1;
+    ui::panel::Deck other;
+    ui::panel::paint_packet(other, packet, items, {});
+    context.expect(deck_value(other, "Packet_Space_Line1_Row1_button", "Empty") == "True", "thẻ vật liệu không lấy túi đạo cụ");
+    context.expect(deck_value(other, "Packet_Space_Line1_Row1_button", "NormalImage").empty(), "thẻ vật liệu không có icon");
 }
 
 // Thông báo nhiệm vụ: chữ của máy chủ giữ nguyên; thiếu chữ thì phần thưởng tự dựng từ số, loại khác im.
@@ -337,7 +389,7 @@ void book_becomes_the_client_log(Context& context) {
     context.expect(quest::is_done(log, 37) && !quest::is_done(log, 36), "nhiệm vụ 37 là bit 5 của từ 1");
 }
 
-constexpr std::array<Case, 18> kCases = {{
+constexpr std::array<Case, 19> kCases = {{
     {.name = "choice_goes_up_with_the_session", .body = choice_goes_up_with_the_session},
     {.name = "second_click_is_dropped_while_waiting", .body = second_click_is_dropped_while_waiting},
     {.name = "unknown_option_is_ignored", .body = unknown_option_is_ignored},
@@ -354,6 +406,7 @@ constexpr std::array<Case, 18> kCases = {{
     {.name = "paint_while_closed_shows_nothing", .body = paint_while_closed_shows_nothing},
     {.name = "button_state_follows_mode", .body = button_state_follows_mode},
     {.name = "item_names_read_the_name_column", .body = item_names_read_the_name_column},
+    {.name = "bag_paint_puts_the_icon_on_the_base_tab", .body = bag_paint_puts_the_icon_on_the_base_tab},
     {.name = "notices_prefer_server_text", .body = notices_prefer_server_text},
     {.name = "book_becomes_the_client_log", .body = book_becomes_the_client_log},
 }};

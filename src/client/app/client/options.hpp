@@ -16,6 +16,7 @@
 
 #pragma once
 
+#include "client/display/policy.hpp"
 #include "client/viewer/client_size.hpp"
 
 #include <cstdint>
@@ -82,6 +83,9 @@ struct Options {
     std::optional<bool> validate;
     // Rỗng: tự chọn. Có thì ép đúng backend đó, không đổi sang backend khác.
     std::optional<std::string> backend;
+    // --quality desktop|mobile: chính sách đồ hoạ (display/policy.hpp). Rỗng thì theo nền tảng. mobile trên PC vẽ đúng như
+    // điện thoại (LOD, trần tam giác, một mẫu, texture 512) để so ảnh mà không cần máy thật.
+    std::optional<QualityClass> quality;
     // Cỡ vùng chơi của cửa sổ PC; không nêu thì kDefaultClientSize (View_Resoution của 2026).
     std::optional<ClientSize> client_size;
     // Ép mở đăng nhập kể cả khi đã nêu --scene hoặc --scene-id. Không nêu cảnh thì main cũng
@@ -105,6 +109,10 @@ struct Options {
     // --creature: id mẫu quái hay NPC đứng thành lưới trước mặt nhân vật ở màn chơi, để nhìn hình mà không cần máy chủ.
     // Công cụ thử của dự án.
     std::vector<std::uint32_t> creatures;
+    // --pet: id mẫu trân thú (cùng bảng creature) đứng trước mặt. Công cụ thử, client gốc không có.
+    std::vector<std::uint32_t> pets;
+    // --peer: số người chơi khác đứng trước mặt (1..4), nữ rồi nam, bộ mặc định. Công cụ thử, client gốc không có.
+    std::uint32_t peer_count = 0;
     // --talk-demo <click|menu|offer|turn|fight|fall>: NPC của --creature bấm được và hộp thoại được đáp bằng kịch bản có sẵn thay cho
     // máy chủ. click chờ người chơi bấm NPC; menu, offer, turn mở sẵn hộp tương ứng ở khung đầu (để chụp). fight: quái của
     // --creature đánh được, chiêu của người chơi được đáp bằng sát thương giả như máy chủ v6 và tự đánh quái đầu; fall như fight

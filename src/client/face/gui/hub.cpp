@@ -272,19 +272,39 @@ std::vector<std::size_t> root_list(std::span<const std::size_t> kids, const Tree
     return list;
 }
 
-// Thứ tự vẽ: duyệt trước cây cửa sổ theo visit_list, bằng ngăn xếp (con thăm đầu nằm trên đỉnh).
+// Các con của window theo thứ tự vẽ, trừ lớp phủ (danh sách thả của Combobox): lớp phủ dồn vào overlays để vẽ sau cùng.
+std::vector<std::size_t> kids_of(std::span<const std::size_t> group, const Tree& tree, std::vector<std::size_t>& overlays) {
+    std::vector<std::size_t> kids;
+    for (const std::size_t index : visit_list(group, tree)) {
+        const bool is_overlay = tree.placed[index].is_overlay;
+        if (is_overlay) overlays.push_back(index);
+        if (!is_overlay) kids.push_back(index);
+    }
+    return kids;
+}
+
+// Thứ tự vẽ: duyệt trước cây cửa sổ theo visit_list, bằng ngăn xếp (con thăm đầu nằm trên đỉnh). Lớp phủ và cây con của nó
+// đứng sau mọi gốc, theo thứ tự gặp.
 std::vector<std::size_t> draw_order(const Tree& tree) {
     const std::vector<std::vector<std::size_t>> groups = group_by_parent(tree.placed);
     std::vector<std::size_t> order;
     order.reserve(tree.placed.size());
+    std::vector<std::size_t> overlays;
     const std::vector<std::size_t> first = root_list(groups.front(), tree);
     std::vector<std::size_t> stack(first.rbegin(), first.rend());
-    while (!stack.empty()) {
-        const std::size_t index = stack.back();
-        stack.pop_back();
-        order.push_back(index);
-        const std::vector<std::size_t> kids = visit_list(groups.at(index + 1), tree);
-        stack.insert(stack.end(), kids.rbegin(), kids.rend());
+    const auto walk = [&] {
+        while (!stack.empty()) {
+            const std::size_t index = stack.back();
+            stack.pop_back();
+            order.push_back(index);
+            const std::vector<std::size_t> kids = kids_of(groups.at(index + 1), tree, overlays);
+            stack.insert(stack.end(), kids.rbegin(), kids.rend());
+        }
+    };
+    walk();
+    for (std::size_t seen = 0; seen < overlays.size(); ++seen) {
+        stack.assign(1, overlays.at(seen));
+        walk();
     }
     return order;
 }
@@ -295,10 +315,10 @@ struct LayerCount {
     std::uint16_t next = 0;
 };
 
-// Số lớp của một cửa sổ khi các cửa sổ vẽ trước nó đã có số: gốc mở lớp mới, con theo cha.
+// Số lớp của một cửa sổ khi các cửa sổ vẽ trước nó đã có số: gốc và lớp phủ mở lớp mới, con theo cha.
 void assign_layer(LayerCount& count, const Placed& window, std::size_t index) {
     const std::int32_t parent = window.window->parent;
-    if (parent >= 0) {
+    if (parent >= 0 && !window.is_overlay) {
         count.layers.at(index) = count.layers.at(static_cast<std::size_t>(parent));
         return;
     }

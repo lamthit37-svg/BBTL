@@ -18,7 +18,9 @@
 #include "ui/panel/minimap.hpp"
 #include "ui/panel/player_frame.hpp"
 #include "ui/panel/portraits.hpp"
+#include "ui/panel/npc_talk.hpp"
 #include "ui/panel/select_server.hpp"
+#include "ui/panel/skill_bar.hpp"
 #include "ui/panel/start.hpp"
 
 #include <algorithm>
@@ -652,6 +654,57 @@ void desk_names_exist(Context& context) {
 // SelectServer.lua bản 2026 giấu 上一步 (SelectServer_shangyibu) lúc nạp và không hiện lại, handler nhấn đã
 // bị chú thích. Trong layout gốc nó đè lên 退出游戏 28 px (x 146 so với 44 + 130), nên hiện nó thì hai nút
 // chồng nhau trên màn chọn máy chủ. WeGame_Cancel và khung Fluency cũng bị giấu như script.
+[[nodiscard]] std::string last_value(Deck& deck, std::string_view window, std::string_view name) {
+    std::string found;
+    for (const gui::Override& item : deck.overrides()) {
+        if (item.window == window && item.name == name) found = std::string(item.value);
+    }
+    return found;
+}
+
+// Trang 1 của MainMenuBar: ô k là kỹ năng thứ k, id lặp giữ dòng đầu, đang hồi thì Gloom.
+void skill_bar_paints_learned_slots(Context& context) {
+    ui::panel::SkillBook book;
+    context.expect(!book.load("name\ticon\n"), "thiếu cột id thì không nhận");
+    context.expect(book.load("id\tname\ticon\n"
+                             "0\t普通攻击\tTaskTools2_13\n"
+                             "0\ttrùng\tOther\n"
+                             "21\t排山倒海\tSkillA\n"),
+        "đọc được bảng kỹ năng");
+    context.expect(book.name(0) == "普通攻击", "id lặp giữ dòng đầu");
+    context.expect(book.icon(0) == "TaskTools2_13", "icon của dòng đầu");
+    context.expect(!book.load("khong-phai-bang\n"), "header hỏng");
+    context.expect(!book.is_loaded(), "header hỏng thì sách rỗng");
+    context.expect(book.load("id\tname\ticon\n0\t普通攻击\tTaskTools2_13\n21\t排山倒海\tSkillA\n"), "đọc lại được");
+    ui::panel::ItemNames icons;
+    context.expect(icons.load_icons("icon\timageset\nTaskTools2_13\tCommonSkill\n"), "đọc bảng icon");
+    context.expect(icons.has_icons(), "đã có bảng icon");
+    context.expect(icons.image("TaskTools2_13") == "set:CommonSkill image:TaskTools2_13", "ghép imageset");
+    context.expect(icons.image("missing") == "set:X image:X", "icon lạ");
+    context.expect(icons.image({}) == "set:X image:X", "icon rỗng");
+    context.expect(!icons.load_icons("icon\nGem\tGemSet\n"), "thiếu cột imageset thì giữ bảng cũ");
+    context.expect(icons.image("TaskTools2_13") == "set:CommonSkill image:TaskTools2_13", "header hỏng không xoá icon");
+    context.expect(book.face(0xFFFFFFFFU, icons) == "set:X image:X", "id vượt int32");
+    context.expect(!ui::panel::skill_slot_of("Button_Action11").has_value(), "trang 2 không phải ô này");
+    context.expect(!ui::panel::skill_slot_of("Button_Action").has_value(), "thiếu số thì không phải ô");
+    context.expect(ui::panel::skill_slot_of("Button_Action1") == 0U, "ô 1 là chỉ số 0");
+    context.expect(ui::panel::skill_slot_of("Button_Action10") == 9U, "ô 10 là chỉ số 9");
+    const std::array<std::uint32_t, 2> skills{0U, 21U};
+    const std::array<std::uint32_t, 2> left{0U, 1500U};
+    Deck deck;
+    ui::panel::paint_skill_bar(deck, skills, left, book, icons);
+    context.expect(last_value(deck, "Button_Action1", "Empty") == "False", "ô 1 có chiêu");
+    context.expect(last_value(deck, "Button_Action1", "NormalImage") == "set:CommonSkill image:TaskTools2_13", "icon đòn thường");
+    context.expect(last_value(deck, "Button_Action1", "Gloom") == "False", "đã hồi thì sáng");
+    context.expect(last_value(deck, "Button_Action1", "Tooltip") == "普通攻击", "tên làm tooltip");
+    context.expect(last_value(deck, "Button_Action2", "NormalImage") == "set:X image:X", "icon chưa có imageset thì ảnh thay");
+    context.expect(last_value(deck, "Button_Action2", "Gloom") == "True", "còn hồi thì tối");
+    context.expect(last_value(deck, "Button_Action2", "Tooltip") == "排山倒海", "tên chiêu thứ hai");
+    context.expect(last_value(deck, "Button_Action3", "Empty") == "True", "ô không có chiêu thì trống");
+    context.expect(last_value(deck, "Button_Action3", "Gloom") == "False", "ô trống không tối");
+    context.expect(last_value(deck, "Button_Action10", "Empty") == "True", "ô cuối trống khi danh sách ngắn");
+}
+
 void server_hides_the_back_button(Context& context) {
     Deck deck;
     const ui::panel::SelectServer panel;
@@ -664,6 +717,7 @@ void server_hides_the_back_button(Context& context) {
 
 constexpr std::array kCases{
     Case{.name = "deck_keeps_root_order", .body = &deck_keeps_root_order},
+    Case{.name = "skill_bar_paints_learned_slots", .body = &skill_bar_paints_learned_slots},
     Case{.name = "server_hides_the_back_button", .body = &server_hides_the_back_button},
     Case{.name = "deck_copies_values", .body = &deck_copies_values},
     Case{.name = "deck_composes_in_place", .body = &deck_composes_in_place},

@@ -24,6 +24,7 @@
 #pragma once
 
 #include "scenedata/types.hpp"
+#include "zone/gates.hpp"
 #include "zone/scene.hpp"
 
 #include <cstddef>
@@ -151,6 +152,8 @@ inline constexpr float kWalkSlackCm = 20.0F;
 struct SceneContent {
     std::vector<Seed> seeds;
     Walkable walkable{};
+    // Vùng sự kiện, cổng đi bộ đã buộc vào ScenePosDefineEx. Rỗng khi cảnh không có areas.
+    std::vector<AreaRect> areas;
 };
 
 using Seeder = std::function<SceneContent(std::uint16_t scene)>;
@@ -162,6 +165,10 @@ struct DiskPaths {
     std::filesystem::path templates;
     // tables/server/monster_ai_types.tsv; có thể vắng (quái đứng yên).
     std::filesystem::path ai_types;
+    // tables/shared/scene_positions_extended.tsv; vắng thì không cổng đi bộ.
+    std::filesystem::path gates;
+    // tables/server/script_index.tsv; vắng thì không nhận ra script chuansong.
+    std::filesystem::path scripts;
 };
 
 // Seeder đọc đĩa: thiếu bảng id hay thư mục cảnh thì cảnh để trống (không quái, không luật đi) và nói ra stderr. `cap` là số thực thể tối đa

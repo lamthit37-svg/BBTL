@@ -29,6 +29,7 @@
 #include "ui/panel/player_frame.hpp"
 #include "ui/panel/roles.hpp"
 
+#include <algorithm>
 #include <cstddef>
 #include <cstdint>
 #include <numbers>
@@ -402,6 +403,25 @@ struct NotePick {
     return made;
 }
 
+// Ảnh chụp túi. Ô item 0 hoặc count 0 là ô trống gửi nhầm: bỏ. Giữ tối đa talk::kBagSlots ô đã nhận,
+// kể cả khi bản dựng trong tiến trình dài hơn trần dây. Khác gốc: một túi, không loại túi.
+talk::Bag bag_of(const protocol::SelfBag& source) {
+    talk::Bag made;
+    const std::size_t room = std::min(source.slots.size(), talk::kBagSlots);
+    made.slots.reserve(room);
+    for (const protocol::BagSlot& slot : source.slots) {
+        if (made.slots.size() == talk::kBagSlots) break;
+        if (slot.item == 0 || slot.count == 0) continue;
+        talk::BagSlot held;
+        held.slot = slot.slot;
+        held.item = slot.item;
+        held.count = slot.count;
+        held.bound = slot.bound;
+        made.slots.push_back(held);
+    }
+    return made;
+}
+
 struct HearPick {
     std::optional<talk::Hear> operator()(const protocol::DialogOpen& open) const { return dialog_of(open); }
     std::optional<talk::Hear> operator()(const protocol::DialogClosed& closed) const {
@@ -447,6 +467,7 @@ struct HearPick {
         if (!is_speech_request(refused.request)) return std::nullopt;
         return talk::Refused{.why = refusal_of(refused.code)};
     }
+    std::optional<talk::Hear> operator()(const protocol::SelfBag& bag) const { return bag_of(bag); }
     template <typename Other>
     std::optional<talk::Hear> operator()(const Other& /*message*/) const {
         return std::nullopt;

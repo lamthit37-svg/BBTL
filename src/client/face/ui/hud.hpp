@@ -114,6 +114,8 @@ struct HudView {
     std::span<const panel::PostedEvent> events;
     // Tên NPC đang nói chuyện (tiêu đề hộp thoại); rỗng khi không có hộp hay chưa tra được tên.
     std::string_view talk_title;
+    // Hồi chiêu còn lại (ms) của từng ô thanh kỹ năng, cùng chỉ số với hero.skills. Ô không có trong span là đã hồi.
+    std::span<const std::uint32_t> bar_left_ms;
 };
 
 // Việc một nút của giao diện nhờ client làm ngoài giao diện (vào game, mở trang web, rời bảng).
@@ -181,6 +183,9 @@ public:
         std::uint32_t texture = render::kUiWhite;
     };
     [[nodiscard]] ExtraFont extra_font() const noexcept;
+    // Tên chữ của kỹ năng trong Table/skills.tsv. Rỗng khi không có dòng hoặc id vượt int32.
+    // View sống tới lần nạp sách kế (sách chỉ nạp một lần).
+    [[nodiscard]] std::string_view skill_name(std::uint32_t skill);
 
     // Ghi lệnh vẽ HUD vào list, giữa begin_rendering và end_rendering, sau các lượt vẽ 3D.
     [[nodiscard]] core::Status draw(gpu::CommandList& list, std::uint32_t slot, HudExtra extra);
@@ -194,6 +199,8 @@ public:
     [[nodiscard]] std::optional<Action> take_action() noexcept;
     // Điểm mà lần nhấp gần nhất trên bản đồ lớn nhờ đi tới; lấy rồi thì hết.
     [[nodiscard]] std::optional<RunTo> take_run_to() noexcept;
+    // Ô Button_Action vừa nhấn (0 là Button_Action1). Rỗng khi nhấn ô trống hoặc không phải ô kỹ năng. Lấy rồi thì hết.
+    [[nodiscard]] std::optional<std::uint32_t> take_skill_slot() noexcept;
     // Tốc độ xoay người mẫu của bảng nhân vật theo đối số RotateBeginEx của script (âm là sang trái, 0 là
     // không giữ nút xoay): client đổi ra góc cho ảnh toàn thân.
     [[nodiscard]] float equip_spin() const noexcept;

@@ -1,12 +1,26 @@
-// Giữ các gói shader đã nạp và nạp lại khi tệp nguồn đổi.
-// Gói do chính Library ghi ra không tính là thay đổi của nguồn.
-// Watcher đứng cuối State để bị hủy trước, lúc signal còn sống.
+/*==============================================================================
+ *  ENGINEHP  |  HIGH-PERFORMANCE GAME ENGINE
+ *------------------------------------------------------------------------------
+ *  TỆP       : engine/shader/library.cpp
+ *  PHÂN HỆ   : Shader / Library
+ *  CHUẨN     : C++23
+ *------------------------------------------------------------------------------
+ *  CHỨC NĂNG
+ *  - Giữ các gói shader đã nạp và nạp lại khi tệp nguồn đổi. Gói do chính
+ *    Library ghi ra không tính là thay đổi của nguồn. Watcher đứng cuối State
+ *    để bị hủy trước, lúc signal còn sống.
+ *------------------------------------------------------------------------------
+ *  TÁC GIẢ   : HiepHoon
+ *  TELEGRAM  : @Hoon9xx
+ *============================================================================*/
+
 #include "shader/library.hpp"
 
 #include "core/log.hpp"
 #include "fs/disk.hpp"
 #include "fs/path.hpp"
 #include "fs/watcher.hpp"
+#include "shader/detail/roots.hpp"
 #include "shader/failure.hpp"
 
 #include <algorithm>
@@ -58,16 +72,28 @@ struct Reload {
     return fs::extension(path) == kPackageExtension;
 }
 
-// Thư mục cần theo dõi: thư mục của danh sách, cộng mỗi thư mục include không nằm trong nó
-// (Watcher đã theo dõi cả thư mục con).
-[[nodiscard]] std::vector<std::string> watch_roots(const Manifest& manifest) {
-    std::vector<std::string> roots{manifest.directory};
-    for (const std::string& directory : manifest.include_dirs) {
-        const bool covered = directory.starts_with(manifest.directory);
-        const bool known = std::ranges::find(roots, directory) != roots.end();
-        if (!covered && !known) roots.push_back(directory);
-    }
-    return roots;
+// Tên gói thành tên tệp. Dấu phân cách hay ".." thoát khỏi thư mục gói qua package_path.
+[[nodiscard]] bool is_package_file_name(std::string_view name) noexcept {
+    if (name.empty() || name.contains("..")) return false;
+    const auto escapes = [](char unit) noexcept { return unit == '/' || unit == '\\' || unit == ':'; };
+    return std::ranges::none_of(name, escapes);
+}
+
+void note_source(Signal* signal, std::string_view path) {
+    if (is_package(path)) return;
+    signal->raise(Clock::now());
+}
+
+[[nodiscard]] fs::Watcher::Callback on_source(Signal* signal) {
+    return [signal](std::string_view path, fs::Change) { note_source(signal, path); };
+}
+
+[[nodiscard]] Status start_root(std::vector<fs::Watcher>& watchers, const std::string& root, Signal* signal,
+    fs::Change events) {
+    Result<fs::Watcher> watcher = fs::Watcher::start(root, events, on_source(signal));
+    if (!watcher) return pass(watcher);
+    watchers.push_back(std::move(*watcher));
+    return ok();
 }
 
 } // namespace
@@ -83,27 +109,34 @@ struct Library::State {
 
 namespace {
 
+// Đọc hỏng thì giữ danh sách đang dùng: một lần ghi dở của trình soạn không xoá shader đang chạy.
 void reload_manifest(Reload& reload) {
     Result<Manifest> manifest = Manifest::load(reload.manifest_path);
-    if (!manifest) core::error("Danh sách shader không đọc lại được: {}", manifest.error());
-    if (manifest) reload.manifest = std::move(*manifest);
+    if (!manifest) {
+        core::error("Danh sách shader không đọc lại được: {}", manifest.error());
+        return;
+    }
+    reload.manifest = std::move(*manifest);
 }
 
-// Dịch lại spec nếu đã cũ; gói mới đọc từ đĩa, đúng thứ lần chạy sau sẽ đọc. nullptr khi gói còn
-// mới hoặc dịch hỏng.
-[[nodiscard]] std::shared_ptr<const Package> rebuild(const Reload& reload, const ShaderSpec& spec) {
-    if (is_fresh(reload.compiler, reload.manifest, spec, reload.options)) return nullptr;
-    BuildOptions options = reload.options;
-    options.force = true;
-    const BuildResult result = build_shader(reload.compiler, reload.manifest, spec, options);
-    if (result.outcome != Outcome::kBuilt) {
-        core::error("Shader {} không dịch lại được: {}", spec.name, result.messages);
+[[nodiscard]] std::shared_ptr<const Package> load_built(std::string_view output, std::string_view name) {
+    Result<Package> package = Package::load(package_path(output, name));
+    if (!package) {
+        core::error("Gói shader {} không đọc lại được: {}", name, package.error());
         return nullptr;
     }
-    Result<Package> package = Package::load(package_path(options.output, spec.name));
-    if (!package) core::error("Gói shader {} không đọc lại được: {}", spec.name, package.error());
-    if (!package) return nullptr;
     return std::make_shared<const Package>(std::move(*package));
+}
+
+// nullptr khi gói còn mới hoặc dịch hỏng. is_fresh xem options gốc; forced.force đã bật để
+// build_shader không đọc gói thêm một lần nữa.
+[[nodiscard]] std::shared_ptr<const Package> rebuild(const Reload& reload, const BuildOptions& forced,
+    const ShaderSpec& spec) {
+    if (is_fresh(reload.compiler, reload.manifest, spec, reload.options)) return nullptr;
+    const BuildResult result = build_shader(reload.compiler, reload.manifest, spec, forced);
+    if (result.outcome == Outcome::kBuilt) return load_built(forced.output, spec.name);
+    core::error("Shader {} không dịch lại được: {}", spec.name, result.messages);
+    return nullptr;
 }
 
 } // namespace
@@ -125,6 +158,7 @@ Result<Library> Library::open(std::string_view directory) {
 Result<std::shared_ptr<const Package>> Library::get(std::string_view name) {
     const auto found = state_->packages.find(name);
     if (found != state_->packages.end()) return found->second;
+    if (!is_package_file_name(name)) return fail(ErrorCode::kInvalidArgument, "tên gói sai", name);
     Result<Package> package = Package::load(package_path(state_->directory, name));
     if (!package) return pass(package);
     auto shared = std::make_shared<const Package>(std::move(*package));
@@ -146,15 +180,12 @@ Status Library::watch(std::string_view manifest_path, Compiler compiler, BuildOp
     if (!manifest) return pass(manifest);
     options.output = state_->directory;
     Signal* signal = &state_->signal;
+    const std::vector<std::string> roots = detail::watch_roots(*manifest);
     std::vector<fs::Watcher> watchers;
-    for (const std::string& root : watch_roots(*manifest)) {
-        const auto raise = [signal](std::string_view path, fs::Change) {
-            if (!is_package(path)) signal->raise(Clock::now());
-        };
-        const fs::Change events = fs::Change::kModified | fs::Change::kCreated | fs::Change::kDeleted;
-        Result<fs::Watcher> watcher = fs::Watcher::start(root, events, raise);
-        if (!watcher) return pass(watcher);
-        watchers.push_back(std::move(*watcher));
+    watchers.reserve(roots.size());
+    const fs::Change events = fs::Change::kModified | fs::Change::kCreated | fs::Change::kDeleted;
+    for (const std::string& root : roots) {
+        if (Status started = start_root(watchers, root, signal, events); !started) return started;
     }
     state_->watchers = std::move(watchers);
     state_->reload.emplace(std::string(manifest_path), std::move(*manifest), std::move(compiler), std::move(options));
@@ -171,10 +202,13 @@ std::vector<std::string> Library::refresh() {
     State& state = *state_;
     if (!state.reload || !state.signal.take(kSettle)) return {};
     reload_manifest(*state.reload);
+    BuildOptions forced = state.reload->options;
+    forced.force = true;
     std::vector<std::string> changed;
+    changed.reserve(state.reload->manifest.shaders.size());
     for (const ShaderSpec& spec : state.reload->manifest.shaders) {
-        std::shared_ptr<const Package> package = rebuild(*state.reload, spec);
-        if (package == nullptr) continue;
+        std::shared_ptr<const Package> package = rebuild(*state.reload, forced, spec);
+        if (!package) continue;
         state.packages.insert_or_assign(spec.name, std::move(package));
         changed.push_back(spec.name);
     }

@@ -1,5 +1,6 @@
 #include "ui/panel/logon.hpp"
 
+#include "gui/content.hpp"
 #include "gui/sheet.hpp"
 #include "ui/panel/deck.hpp"
 
@@ -25,13 +26,16 @@ constexpr std::string_view kClassicEdit = "LogOn_ID";
 constexpr std::string_view kCustomEdit = "LogOn_MailID";
 constexpr std::string_view kPasswordEdit = "LogOn_PassWord";
 constexpr std::string_view kSuffixList = "LogOn_Region";
-// Danh sách thả của Combobox đuôi tài khoản, cửa sổ con mà look tự dựng: chưa mở được danh sách nên luôn giấu, không thì
-// khung của nó hiện thành một vạch viền dưới ô.
-constexpr std::string_view kSuffixDropList = "LogOn_Region__auto_droplist__";
+// Cửa sổ con mà look của Combobox tự dựng: ô chữ, nút xổ (danh sách thả là kLogonSuffixList).
+constexpr std::string_view kSuffixEdit = "LogOn_Region__auto_editbox__";
+constexpr std::string_view kSuffixButton = "LogOn_Region__auto_button__";
+// TailName của LogOn.lua: chín mục của danh sách đuôi, chữ Hán là chữ của script gốc. Mục 6 là đăng nhập bằng số điện
+// thoại, mục 7 chuyển sang tên tự đặt, mục 8 là tên không đuôi.
+constexpr std::array<std::string_view, 9> kSuffixes = {"@changyou.com", "@game.sohu.com", "@Sohu.com",
+    "@chinaren.com", "@sogou.com", "@17173.com", "手机号码登录", "输入其他账号后缀", "无后缀账号登录"};
+constexpr std::size_t kOtherSuffix = 7;
 constexpr std::string_view kEnterButton = "LogOn_LogOnGame";
 constexpr std::string_view kSituation = "SeverSituation_InfoWindow";
-// TailName[0] của script: LoginLogOn_OnLoad chọn dòng 0 khi Account_MailIndex chưa lưu.
-constexpr std::string_view kFirstSuffix = "@changyou.com";
 
 // MaxTextLength của layout: 50 ở LogOn_ID và LogOn_MailID, 32 ở LogOn_PassWord.
 constexpr std::size_t kAccountLimit = 50;
@@ -88,6 +92,8 @@ void focus_on(Logon& logon, LogonField field) noexcept {
 void choose(Logon& logon, AccountKind kind) noexcept {
     if (logon.kind == kind) return;
     logon.kind = kind;
+    // LogOn_TraditionLogon_MouseDown: về kiểu truyền thống thì mục "nhập đuôi khác" quay về mục 0.
+    if (kind == AccountKind::kClassic && logon.suffix == kOtherSuffix) logon.suffix = 0;
     focus_on(logon, LogonField::kAccount);
 }
 
@@ -146,12 +152,71 @@ void edit_box(const TypedBox& box, char32_t code) {
     if (is_printable && box.text->size() < box.limit) box.text->push_back(static_cast<char>(code));
 }
 
+// Nhận mục index của danh sách đuôi (ComboDropList::EventListSelectionAccepted): đổi chữ ô đuôi, đóng danh sách, rồi
+// LogOn_Region_Accept đổi sang tên tự đặt khi là mục 7.
+void accept_suffix(Logon& logon, std::size_t index) noexcept {
+    logon.drop = DropList{};
+    logon.suffix = std::min(index, kSuffixes.size() - 1);
+    if (logon.suffix == kOtherSuffix) choose(logon, AccountKind::kCustom);
+}
+
+// Cửa sổ của danh sách thả: chính nó hay con của nó (thanh cuộn).
+[[nodiscard]] bool is_in_drop_list(std::string_view window) noexcept {
+    return window.starts_with(kLogonSuffixList);
+}
+
+// Combobox::button_PressHandler và editbox_MouseDownHandler: mở danh sách, mục đang chọn sáng sẵn.
+void open_suffix_list(Logon& logon, bool is_from_text) noexcept {
+    logon.drop = DropList{.is_open = true, .is_armed = false, .is_opening = is_from_text, .lit = logon.suffix};
+}
+
 } // namespace
 
 void open_logon(Logon& logon) noexcept {
     focus_on(logon, LogonField::kAccount);
     logon.uses_card = false;
     logon.request.reset();
+}
+
+void press_suffix_list(Logon& logon, std::string_view window, std::optional<std::size_t> row) {
+    if (!logon.drop.is_open) return;
+    if (!is_in_drop_list(window)) {
+        // ComboDropList::onMouseButtonDown ngoài danh sách: bỏ mục sáng và trả chuột; mục chọn cuối giữ nguyên.
+        logon.drop = DropList{};
+        return;
+    }
+    logon.drop.lit = window == kLogonSuffixList ? row : std::nullopt;
+    logon.drop.is_armed = true;
+}
+
+void release_suffix_list(Logon& logon, std::string_view window) {
+    DropList& drop = logon.drop;
+    if (!drop.is_open) return;
+    const bool is_on_bar = is_in_drop_list(window) && window != kLogonSuffixList;
+    const bool was_opening = std::exchange(drop.is_opening, false);
+    if (!drop.is_armed || is_on_bar || was_opening) {
+        drop.is_armed = true;
+        return;
+    }
+    if (drop.lit) {
+        accept_suffix(logon, *drop.lit);
+        return;
+    }
+    drop = DropList{};
+}
+
+void move_suffix_list(Logon& logon, std::string_view window, std::optional<std::size_t> row, bool is_down) {
+    DropList& drop = logon.drop;
+    if (!drop.is_open) return;
+    if (!is_in_drop_list(window)) {
+        if (is_down) drop.lit.reset();
+        return;
+    }
+    if (window == kLogonSuffixList && drop.is_armed) drop.lit = row;
+}
+
+void dismiss_suffix_list(Logon& logon) noexcept {
+    logon.drop = DropList{};
 }
 
 void press_logon(Logon& logon, std::string_view window) noexcept {
@@ -164,6 +229,8 @@ void press_logon(Logon& logon, std::string_view window) noexcept {
     if (window == kPasswordEdit) focus_on(logon, LogonField::kPassword);
     // LogOn_KeyBoard: SetSoftKeyAim("LogOn_PassWord") sau khi bật tắt bàn phím ảo.
     if (window == kLogonKeysButton) logon.aim = LogonField::kPassword;
+    if (window == kSuffixButton) open_suffix_list(logon, false);
+    if (window == kSuffixEdit) open_suffix_list(logon, true);
     press_button(logon, window);
 }
 
@@ -183,6 +250,26 @@ std::optional<LogonAction> take_request(Logon& logon) noexcept {
     return std::exchange(logon.request, std::nullopt);
 }
 
+namespace {
+
+// Danh sách thả: chỉ hiện khi mở (cửa sổ tự dựng của look ẩn từ đầu), kèm chín mục và mục đang sáng.
+void paint_suffix_list(Deck& deck, const Logon& logon) {
+    if (!logon.drop.is_open) return;
+    deck.reveal(kLogonSuffixList);
+    std::string& items = deck.compose(Key{.window = kLogonSuffixList, .name = gui::kItemsProperty});
+    for (const std::string_view suffix : kSuffixes) {
+        if (!items.empty()) items += gui::kRecordMark;
+        items += gui::kFieldMark;
+        items += suffix;
+    }
+    if (!logon.drop.lit) return;
+    deck.set(gui::Override{.window = kLogonSuffixList,
+        .name = gui::kSelectedProperty,
+        .value = std::to_string(*logon.drop.lit)});
+}
+
+} // namespace
+
 void paint_logon(Deck& deck, const Logon& logon) {
     const bool is_classic = logon.kind == AccountKind::kClassic;
     const bool is_on_account = logon.focus == LogonField::kAccount;
@@ -191,7 +278,6 @@ void paint_logon(Deck& deck, const Logon& logon) {
     hide_all(deck, kNeverShown);
     if (is_classic) hide_all(deck, kCustomOnly);
     if (!is_classic) hide_all(deck, kClassicOnly);
-    deck.hide(kSuffixDropList);
     deck.set(gui::Override{.window = kClassicTab, .name = "Selected", .value = flag(is_classic)});
     deck.set(gui::Override{.window = kCustomTab, .name = "Selected", .value = flag(!is_classic)});
     deck.set(gui::Override{.window = kCardCheck, .name = "Selected", .value = flag(logon.uses_card)});
@@ -201,7 +287,8 @@ void paint_logon(Deck& deck, const Logon& logon) {
     deck.set(gui::Override{.window = kClassicEdit, .name = "Text", .value = logon.account});
     deck.set(gui::Override{.window = kCustomEdit, .name = "Text", .value = logon.mail});
     deck.set(gui::Override{.window = kPasswordEdit, .name = "Text", .value = masked});
-    deck.set(gui::Override{.window = kSuffixList, .name = "Text", .value = kFirstSuffix});
+    deck.set(gui::Override{.window = kSuffixEdit, .name = "Text", .value = kSuffixes.at(logon.suffix)});
+    paint_suffix_list(deck, logon);
     deck.set(gui::Override{.window = kSituation, .name = "Text", .value = logon.situation});
 }
 

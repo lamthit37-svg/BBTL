@@ -26,6 +26,7 @@
 #include "client/display/fx_view.hpp"
 #include "client/display/lighting.hpp"
 #include "client/display/login_data.hpp"
+#include "client/display/policy.hpp"
 #include "client/display/sky_mesh.hpp"
 #include "client/display/water_mesh.hpp"
 #include "client/map/gates.hpp"
@@ -116,7 +117,6 @@
 #include "ui/panel/events.hpp"
 #include "ui/panel/role_pose.hpp"
 #include "ui/panel/roles.hpp"
-#include "ui/phone.hpp"
 #include "ui/view.hpp"
 
 #ifdef __ANDROID__
@@ -269,10 +269,6 @@ inline void say_steady(std::span<const double> frames, std::size_t from) {
     std::ranges::sort(steady);
     say_rank("Khung sau khi cảnh hiện", rank_frames(steady), steady.size());
 }
-// Khử răng cưa đa mẫu 4x: cảnh đá chi tiết quay chậm mà không có nó thì cạnh và hoạ tiết lăn tăn
-// từng khung, nhìn như giật dù nhịp khung đều (đã đo: median 16,6 ms). Resolve chạy trên chip.
-// Điện thoại một mẫu: GLES dựng MSAA bằng texture đa mẫu rồi blit resolve, GPU tile phải ghi cả bốn mẫu ra RAM.
-constexpr std::uint32_t kSamples = ui::kPhone ? 1 : 4;
 // Trần nộp mesh trong một khung. Dev dùng 8 ms: 2 ms thì cảnh lớn hiện chậm vì việc bị xé vụn,
 // quá 8 ms thì khung 120 Hz trượt một nhịp. Địa hình ngồi một khung riêng, không cộng vào đây.
 inline constexpr std::chrono::milliseconds kLoadSlice{8};
@@ -406,24 +402,18 @@ using PackedSize = std::uint64_t;
     return std::filesystem::exists(packaged, ignored) ? packaged.string() : std::string{};
 }
 
-// Trần tam giác khởi đầu mỗi khung trên điện thoại; DetailGovernor chỉnh tiếp theo thời gian khung thực. Đo 2026-10-16 trên
-// tablet GE8320 (cảnh đăng nhập 1280 x 800, 1,05 triệu tam giác khi không giới hạn): trước khi lưới có skin sinh LOD, trần
-// 300 nghìn là sàn không hạ nổi (235 nghìn tam giác nằm trên lưới không LOD) và khung 40 ms dù đổi độ phân giải xuống một
-// nửa; sau đó sàn là 124 nghìn tam giác và khung 22 đến 24 ms ở độ phân giải gốc, còn trần 200 nghìn đã 40 đến 46 ms.
-inline constexpr std::uint32_t kPhoneTriangleCap = 150'000;
-
+// Số của trần tam giác và lý do chọn nó ở display/policy.hpp (GraphicsPolicy::triangle_cap).
 [[nodiscard]] inline ForwardResult make_forward(gpu::Device& device, const render::Screen& screen, std::string shaders,
-    const render::Catalog& catalog) {
+    const render::Catalog& catalog, const GraphicsPolicy& policy) {
     render::ForwardDesc pass;
     pass.color_format = screen.color_format();
     pass.depth_format = screen.depth_format();
     // Phần đầu cho lượt vẽ màn hình, rồi một phần cho ảnh đầu và một phần cho toàn thân.
     pass.slots = screen.image_count() * 3;
     pass.samples = screen.samples();
-    // Điện thoại và tablet (kể cả PowerVR GE8320 chạy Vulkan 1.1) và backend GLES dự phòng: ánh sáng
-    // tính ở đỉnh để giữ nhịp khung.
-    pass.lights_at_vertices = ui::kPhone || device.adapter().backend == gpu::Backend::kGles;
-    pass.triangle_cap = ui::kPhone ? kPhoneTriangleCap : 0U;
+    // Ánh sáng ở đỉnh theo chính sách, và luôn bật trên backend GLES dự phòng để giữ nhịp khung.
+    pass.lights_at_vertices = policy.lights_at_vertices || device.adapter().backend == gpu::Backend::kGles;
+    pass.triangle_cap = policy.triangle_cap;
     pass.shader_dir = std::move(shaders);
     const std::array solid{catalog.get(render::Pso::kModelSolid), catalog.get(render::Pso::kModelSolidTwoSided)};
     return render::Forward::create(device, pass, catalog.models(), catalog.get(render::Pso::kTerrain), solid);
@@ -705,9 +695,19 @@ struct DecodeOne {
     return view;
 }
 
-// Cạnh dài tối đa của atlas cọ: PC 4096, điện thoại 2048 vì GLES 3 chỉ bảo đảm texture 2048. Bản đồ thật cần ~1024
-// (11 ảnh cọ 128 tới 512 cạnh, mỗi ảnh đệm 16 điểm ảnh).
-inline constexpr std::uint32_t kAtlasEdge = ui::kPhone ? 2048 : 4096;
+// Cạnh dài tối đa của atlas cọ trên mọi nền; open_gpu hạ tiếp xuống cỡ texture lớn nhất thiết bị khai (DeviceCaps). Bản đồ
+// thật cần ~1024 (11 ảnh cọ 128 tới 512 cạnh, mỗi ảnh đệm 16 điểm ảnh).
+inline constexpr std::uint32_t kAtlasEdge = 4096;
+
+// Phần chính sách mà việc đọc đĩa và nướng mesh cần. Chép vào từng việc vì luồng đọc không giữ State.
+struct BakeRules {
+    // GraphicsPolicy::texture_edge: cạnh lớn nhất của texture vật thể, 0 là cỡ gốc.
+    std::uint32_t texture_edge = 0;
+    // GraphicsPolicy::builds_lods.
+    bool builds_lods = false;
+    // Trần cạnh atlas cọ của mặt đất (kAtlasEdge đã hạ theo thiết bị).
+    std::uint32_t atlas_edge = kAtlasEdge;
+};
 
 // Mức mip lớn nhất mà sampler atlas được dùng: atlas đệm 16 điểm ảnh và đặt ở bội của 16, nên tới mức 4 mip không
 // trộn ảnh cọ kề nhau (map/splat.hpp).
@@ -722,7 +722,8 @@ struct GroundPaint {
 
 // Đọc đĩa và dựng. Chỉ giải mã những cọ có ô dùng tới (brushes_in_use): bản đồ thật dùng 3 tới 11 trong số cọ
 // của file.
-[[nodiscard]] inline GroundPaint ground_paint(const MapGround& ground, const std::filesystem::path& root) {
+[[nodiscard]] inline GroundPaint ground_paint(const MapGround& ground, const std::filesystem::path& root,
+    std::uint32_t atlas_edge) {
     const std::size_t brush_count = ground.file.textures.size();
     const std::vector<std::uint8_t> used = game::client::map::brushes_in_use(ground.file, ground.grid);
     const bool has_light = !ground.file.lightmap.empty();
@@ -735,7 +736,7 @@ struct GroundPaint {
     std::vector<game::client::map::BrushImage> views(brush_count);
     std::ranges::transform(std::span(stored).first(brush_count), views.begin(), view_of);
     GroundPaint paint;
-    paint.splat = game::client::map::build_splat(ground.file, ground.grid, views, kAtlasEdge);
+    paint.splat = game::client::map::build_splat(ground.file, ground.grid, views, atlas_edge);
     if (has_light) paint.light = std::move(stored.back());
     return paint;
 }
@@ -958,18 +959,13 @@ struct ReadMesh {
     std::vector<resource::StagedImage> baked;
 };
 
-// Cạnh lớn nhất của texture vật thể trên điện thoại. Đo 2026-10-15 trên tablet GE8320, cảnh erengu_DL: 136 texture ASTC
-// 1024x1024 chiếm 181 trong 313 MB texture, trình điều khiển chép từng mức mip trên CPU nên đặt 170 mesh mất 14 giây,
-// và bộ nhớ đồ hoạ đẩy máy 2 GB tới chỗ lmkd giết tiến trình. Mức 512 bằng một phần tư số byte. PC giữ nguyên cỡ gốc.
-inline constexpr std::uint32_t kMobileTextureEdge = ui::kPhone ? 512U : 0U;
-
-// with_lods: sinh mức chi tiết thấp cho lưới tĩnh của vật thể cảnh (chỉ điện thoại, nơi số tam giác là thứ giới hạn
-// khung hình). Mặt đất, trời, nước, hạt và nhân vật không dùng: chúng không giản lược được theo từng vật.
-[[nodiscard]] inline ReadMesh baked_mesh(resource::Model model, bool with_lods = false) {
+// with_lods: lưới tĩnh của vật thể cảnh, nhận mức chi tiết thấp khi rules.builds_lods. Mặt đất, trời, nước, hạt và nhân
+// vật không dùng: chúng không giản lược được theo từng vật. Texture thu về rules.texture_edge (display/policy.hpp).
+[[nodiscard]] inline ReadMesh baked_mesh(resource::Model model, const BakeRules& rules, bool with_lods = false) {
     classic::note(model);
-    if (ui::kPhone && with_lods) resource::build_lods(model);
+    if (rules.builds_lods && with_lods) resource::build_lods(model);
     ReadMesh read;
-    auto baked = resource::stage_images(model, kMobileTextureEdge);
+    auto baked = resource::stage_images(model, rules.texture_edge);
     if (baked) read.baked = std::move(*baked);
     read.model = std::move(model);
     return read;
@@ -1026,11 +1022,10 @@ struct FeedJob {
     bool bake_ground = false;
     std::vector<Need> needs;
     resource::TextureTier tier = resource::TextureTier::kBc;
+    BakeRules bake;
+    // Trần byte của mesh đã đọc mà luồng vẽ chưa lấy (GraphicsPolicy::pending_bytes); đầu đọc chờ khi hàng đợi đầy.
+    std::size_t pending_limit = std::size_t{1} << 30U;
 };
-
-// Trần byte của mesh đã đọc mà luồng vẽ chưa lấy. Máy 2 GB bị lmkd giết khi cả 170 mesh cùng giữ bản nướng (đo 2026-10-15:
-// 830 MB anon sau 2,3 giây); đầu đọc chờ khi hàng đợi đầy. PC không cần trần chặt.
-inline constexpr std::size_t kPendingBudget = ui::kPhone ? (std::size_t{96} << 20U) : (std::size_t{1} << 30U);
 
 struct Feed {
     std::mutex mu;
@@ -1043,6 +1038,8 @@ struct Feed {
     // Byte ảnh của các ô kReady chưa kTaken, và ô đầu tiên chưa kTaken (luồng vẽ lấy ô theo thứ tự). Cả hai dưới mu.
     std::size_t pending_bytes = 0;
     std::size_t next_untaken = 0;
+    // FeedJob::pending_limit của việc đang chạy, dưới mu.
+    std::size_t pending_limit = std::size_t{1} << 30U;
     std::optional<ReadMesh> ground;
     bool ground_ready = false;
     bool quit = false;
@@ -1068,9 +1065,9 @@ struct Feed {
 inline void bake_job(const FeedJob& job, Feed& feed) {
     if (!job.bake_ground || !job.scene || !job.scene->ground) return;
     const TimePoint began = core::Clock::now();
-    GroundPaint paint = ground_paint(*job.scene->ground, job.root);
+    GroundPaint paint = ground_paint(*job.scene->ground, job.root, job.bake.atlas_edge);
     const double painted_ms = millis_between(began, core::Clock::now());
-    ReadMesh model = baked_mesh(model_of(*job.scene->ground, std::move(paint)));
+    ReadMesh model = baked_mesh(model_of(*job.scene->ground, std::move(paint)), job.bake);
     const double baked_ms = millis_between(began, core::Clock::now());
     const int scene_id = job.scene->id;
     {
@@ -1096,7 +1093,7 @@ inline void store_read(Feed& feed, const FeedJob& job, const Need& need) {
     auto loaded = resource::load_named_model(need.name, io::utf8_of(job.root), job.tier);
     if (!loaded) std::println(stderr, "Bỏ mesh {}: {}", need.name, loaded.error());
     std::optional<ReadMesh> read;
-    if (loaded) read = baked_mesh(std::move(*loaded), true);
+    if (loaded) read = baked_mesh(std::move(*loaded), job.bake, true);
     const std::size_t bytes = read ? held_bytes(*read) : 0;
     const std::scoped_lock<std::mutex> lock(feed.mu);
     if (feed.epoch != job.epoch) return;
@@ -1186,6 +1183,7 @@ inline std::uint64_t Feed::post(FeedJob next) {
     next.epoch = epoch;
     slots.assign(slot_span(next.needs), {});
     pending_bytes = 0;
+    pending_limit = next.pending_limit;
     next_untaken = 0;
     ground.reset();
     ground_ready = false;
@@ -1238,7 +1236,7 @@ inline MeshReady Feed::take_mesh(std::uint64_t current, std::size_t slot) {
 inline bool Feed::wait_room(const std::stop_token& stop, std::uint64_t current, std::size_t index) {
     std::unique_lock<std::mutex> lock(mu);
     const bool is_open = room.wait(
-        lock, stop, [&] { return epoch != current || pending_bytes < kPendingBudget || index <= next_untaken; });
+        lock, stop, [&] { return epoch != current || pending_bytes < pending_limit || index <= next_untaken; });
     return is_open && epoch == current;
 }
 
@@ -1330,6 +1328,7 @@ struct GroundUpload {
     const std::filesystem::path* data_root = nullptr;
     gpu::Device* device = nullptr;
     render::Forward* forward = nullptr;
+    BakeRules bake;
 };
 
 struct SeatTarget {
@@ -1361,8 +1360,8 @@ struct SeatTarget {
 
 [[nodiscard]] inline bool upload_ground(GroundUpload upload) {
     GroundPaint paint;
-    if (upload.data_root != nullptr) paint = ground_paint(*upload.ground, *upload.data_root);
-    ReadMesh mesh = baked_mesh(model_of(*upload.ground, std::move(paint)));
+    if (upload.data_root != nullptr) paint = ground_paint(*upload.ground, *upload.data_root, upload.bake.atlas_edge);
+    ReadMesh mesh = baked_mesh(model_of(*upload.ground, std::move(paint)), upload.bake);
     SeatTarget target;
     target.slot = upload.slot;
     target.device = upload.device;

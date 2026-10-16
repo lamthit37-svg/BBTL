@@ -859,10 +859,15 @@ kết luận ngay dưới mục đó chứ không xoá.
     (d) Bảng `CharEffect`, `SpecialDressEffect`, `CangPinSetEffect`, `ChongLouEffect`, `GemEffect_Cloth`,
     `Exterior_GemEffect`, `DressGem`, `WeaponVisualLocator` (hiệu ứng đồ không phải vũ khí: áo, bộ, cường hoá, tinh luyện)
     chưa đọc và chưa xuất bảng nào; hiệu ứng của trang phục khác vũ khí vẫn thiếu.
-    (e) Kịch bản: nối `CONCATENATION`/`CONCATENATION_EX` (liên hoàn 1, 2, 3 và 轻功 nhảy nối) mới chọn bước đầu; số lần
-    `OnAnimationHit` (lúc đòn trúng) chưa phát; `ShakeTime` (rung camera) và khối Ribbon, SceneLight của kịch bản chưa
-    dựng; âm thanh phát phẳng, chưa có âm thanh không gian 3D; chưa có mục tiêu, đạn (`BeHit`, bullet), tốc độ đánh
-    (`rate` luôn 1) và đường nhảy nối của skill kind 2. 116 tên animation của `skill_clips` không có clip trong kho.
+    (e) Kịch bản, cập nhật 2026-10-16: `accept_chain`/`finish_chain` (`look/skill.hpp`) port `Start_MagicSend` và
+    nhánh `FreshAnimation` của `SKILL_SEND` — `kRandom`, `kLinkedEx`, `kLinked` đều vào danh sách bước; lệnh cùng skill
+    khi clip chưa hết thì hoãn và tăng chỉ số hai lần (phát 0 rồi 2 với liên hoàn 3 bước), không phát theo chú thích
+    (1,2,3) của enum. `ShakeTime` bắn cue `kShake`, camera gọi `AddOneVib(10, 8, 2)` một nhịp mỗi khung. `kRandom` có
+    `send_ms` ngắn hơn clip thì `rate` là clip/send (không còn luôn 1). Còn thiếu: `OnAnimationHit` chỉ đặt cờ hoàn tất
+    lệnh ở gốc, chưa có hàng lệnh đó nên không phát số lần trúng; Ribbon (`AnimationRibbon`, material không nằm trong
+    thư viện hạt) và SceneLight (đèn cảnh, bảng sự kiện không có dòng) chưa dựng; âm thanh phát phẳng, chưa có âm thanh
+    không gian 3D; chưa có mục tiêu, đạn (`BeHit`, bullet) và đường nhảy của khinh công. 116 tên animation của
+    `skill_clips` không có clip trong kho.
     (f) Hiệu ứng theo dõi: emitter chỉ theo `duration` và `repeat_delay` ở hiệu ứng skill và hiệu ứng đồ
     (`Spawn::is_tracked`); hiệu ứng của cảnh vẫn phát mãi, CHƯA đo bản gốc có lặp lại theo `repeat_delay` hay không.
     `LifeTime` của element Particle (không phải dải) chưa dùng; hiệu ứng đồ chưa theo tỉ lệ người chơi (`Stand::scale`).
@@ -995,13 +1000,13 @@ kết luận ngay dưới mục đó chứ không xoá.
 
 58. **Chiến đấu phía client lát cắt 3 (2026-10-15): các chỗ chưa làm hoặc chưa chạy thật** (`src/client/app/client/fight`, `display/graphic/fight.cpp`).
     (a) Chưa chạy client thật với cụm v6: đăng nhập chỉ đi được bằng giao diện (chuột), mà agent bị cấm chiếm chuột. Đường mạng kiểm bằng `online_tests` (bridge hai chiều) và `fight_tests` (logic); đường vẽ và vòng đánh kiểm bằng `--talk-demo fight|fall` (máy chủ giả đúng hình tin, `graphic/fight_demo.cpp`), có ảnh chụp. Hai đường chưa gặp nhau trên một lần chạy duy nhất.
-    (b) HUD chưa có thanh kỹ năng, khung mục tiêu, tên và thanh máu quái, chỉ báo mục tiêu đang chọn, cửa sổ hồi sinh. Tạm: phím 1–9 là ô kỹ năng, nhấp quái là chọn và đuổi đánh, khi chết phím 1 hồi sinh ở thành và phím 2 tại chỗ, lời nhắc hồi sinh là chữ Hán vẽ bằng phông giao diện giữa màn.
+    (b) Thanh kỹ năng trang 1 (`Button_Action1`..`10`) vẽ kỹ năng đã học theo thứ tự `SelfSkills`: phím 1–9, phím 0 và nhấp ô đi qua `press_slot`; đang hồi thì `Gloom` (chưa có vệt `CoolDownEnd2`); không kéo thả; trang 2–3 và hàng biến thân vẫn giấu. Tên và thanh máu của quái, NPC, trân thú vẽ trên đầu (phông GBK12; thanh máu là thêm so với bảng 2008). Tên tuyệt chiêu chữ vàng hiện trên đầu người chơi khi chiêu khác 0 được xác nhận. Đã nhìn ảnh: sói 11158 tên 雪山狼, thanh máu ngắn, số bay, chữ 亢龙有悔 (`--skill 358 --auto-strike`, log `Đòn: skill 358 bước 0 là g01_gb_大鹏展翅`, 4 khối con). Còn thiếu khung mục tiêu, chỉ báo mục tiêu đang chọn, cửa sổ hồi sinh. Khi chết phím 1 hồi sinh ở thành và phím 2 tại chỗ; lời nhắc hồi sinh là chữ Hán vẽ bằng phông giao diện giữa màn.
     (c) Số bay dùng phông bitmap GBK12 phóng 2 lần (3 lần khi hội tâm), không phải ảnh số của client 2026; màu, độ cao và nhịp bay chọn theo mắt, chưa port từ mã máy.
     (d) Lời từ chối của máy chủ (`Declined`) chỉ chỉnh logic đánh tự động (hồi chiêu, quá tầm, chưa học...), không có dòng thông báo cho người chơi.
-    (e) `SelfBag` chưa dùng (không có hành trang). Vật rơi chọn được khi có cờ nhặt (bit 1 của `EntityFlags`), chưa có tên theo template, chưa có con trỏ riêng khi rê chuột.
+    (e) `SelfBag` đổ vào thẻ đạo cụ (tab 0) của `Packet` theo chỉ số ô; ảnh lấy từ `Table/icons.tsv`; số chồng ghi `CornerBotRight`. Dây không có loại túi và sức chứa, nên thẻ vật liệu và nhiệm vụ để trống và sức chứa giữ mặc định script 20/60 (mục 51(f) vẫn đúng). Vật rơi chọn được khi có cờ nhặt (bit 1 của `EntityFlags`), chưa có tên theo template, chưa có con trỏ riêng khi rê chuột.
     (f) Xác quái không vẽ (`show_creature` bỏ tư thế chết, đã có từ lát cắt 1) và chưa có clip chết; người chơi chết cũng chưa có động tác chết.
     (g) Tầm tiếp cận chung 2,5 m (`fight::kReach`) cho mọi chiêu, thu ngắn mỗi lần máy chủ báo quá tầm; chiêu tầm xa vẫn đi tới 2,5 m rồi mới đánh. Máy chủ mới là nơi kiểm tầm từng chiêu.
-    (h) Ô kỹ năng k là kỹ năng học thứ k của `SelfSkills`, chưa có thanh action để kéo thả; danh sách đổi thì người chơi dựng lại một lần để nạp clip.
+    (h) Ô kỹ năng k là kỹ năng học thứ k của `SelfSkills` (ô 10 là phím 0). `show_fight` nạp lại clip khi danh sách đổi. Chưa có thanh action kéo thả của client 2026 (bố cục do người chơi xếp, máy chủ nhớ).
     (i) Cổng `check.py`/clang-tidy: phần của lát cắt sạch (đo bằng clang-tidy với `--header-filter` rỗng cho từng tệp, `check.py --run` cho `fight_tests`). Cả nhóm `display/graphic` vẫn không qua `check.py` nguyên tệp vì lỗi có sẵn ở HEAD: `misc-include-cleaner` hàng loạt (các tệp dựa vào `prelude.hpp`), `State` đệm 125 byte, `sky_mesh.hpp`/`water_mesh.hpp` khởi tạo không chỉ định tên.
 
 59. **Treo đơ trên điện thoại, màn đăng nhập (2026-10-16): các chỗ chưa kết luận được** (`engine/render/forward.cpp`, `engine/resource/lod.cpp`, `engine/render/detail_governor.hpp`).

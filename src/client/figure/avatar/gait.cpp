@@ -1,7 +1,21 @@
-// Chọn clip của một nhân vật; luật và nguồn ở gait.hpp. Thứ tự hai lần rand() khi tới lượt động
-// tác nghỉ giữ như FreshAnimation: rút khoảng mới trước, rồi mới chọn động tác.
-// Nguồn: TLBB Dev src/client_app/gait.cpp@e0d89a6. Khác gốc: namespace game::avatar; core::Clock;
-// loop_time của anim/pose; enumerator mang tiền tố k.
+/*==============================================================================
+ *  THIENLONG  |  GAME CLIENT
+ *------------------------------------------------------------------------------
+ *  TỆP       : src/client/figure/avatar/gait.cpp
+ *  PHÂN HỆ   : Figure / Avatar / Gait
+ *  CHUẨN     : C++23
+ *------------------------------------------------------------------------------
+ *  CHỨC NĂNG
+ *  - Chọn clip của một nhân vật; luật và nguồn ở gait.hpp. Thứ tự hai lần
+ *    rand() khi tới lượt động tác nghỉ giữ như FreshAnimation: rút khoảng mới
+ *    trước, rồi mới chọn động tác. Nguồn: TLBB Dev
+ *    src/client_app/gait.cpp@e0d89a6. Khác gốc: namespace game::avatar;
+ *    core::Clock; loop_time của anim/pose; enumerator mang tiền tố k.
+ *------------------------------------------------------------------------------
+ *  TÁC GIẢ   : HiepHoon
+ *  TELEGRAM  : @Hoon9xx
+ *============================================================================*/
+
 #include "avatar/gait.hpp"
 
 #include "anim/pose.hpp"
@@ -93,6 +107,14 @@ bool Gait::is_locked(Clock::time_point now) const {
     const float time = strike_time(now);
     if (time >= plan_.length) return false;
     return !plan_.break_at || time < *plan_.break_at * plan_.length;
+}
+
+bool Gait::in_strike(Clock::time_point now) const {
+    return stance_ == Stance::kStrike && strike_time(now) < plan_.length;
+}
+
+bool Gait::strike_finished(Clock::time_point now) const {
+    return stance_ == Stance::kStrike && !(strike_time(now) < plan_.length);
 }
 
 void Gait::land(Clock::time_point now, const ClipLengths& lengths) {

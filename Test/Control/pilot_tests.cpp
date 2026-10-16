@@ -1,7 +1,21 @@
-// Test của camera cảnh (control/follow_camera) và chuột của người chơi (control/player_input) theo
-// client 2026. Số mong đợi tính tay từ công thức đọc trong Render.dll và Game.exe bản 3.71 (địa chỉ
-// ở docs/CAMERA-2026.md), ghi cạnh phép kiểm. Map phẳng tỉ lệ 100 như mọi cảnh của client: một đơn
-// vị game là 100 đơn vị thế giới.
+/*==============================================================================
+ *  THIENLONG  |  TEST
+ *------------------------------------------------------------------------------
+ *  TỆP       : Test/Control/pilot_tests.cpp
+ *  PHÂN HỆ   : Control / Pilot Tests
+ *  CHUẨN     : C++23
+ *------------------------------------------------------------------------------
+ *  CHỨC NĂNG
+ *  - Test của camera cảnh (control/follow_camera) và chuột của người chơi
+ *    (control/player_input) theo client 2026. Số mong đợi tính tay từ công thức
+ *    đọc trong Render.dll và Game.exe bản 3.71 (địa chỉ ở docs/CAMERA-2026.md),
+ *    ghi cạnh phép kiểm. Map phẳng tỉ lệ 100 như mọi cảnh của client: một đơn
+ *    vị game là 100 đơn vị thế giới.
+ *------------------------------------------------------------------------------
+ *  TÁC GIẢ   : HiepHoon
+ *  TELEGRAM  : @Hoon9xx
+ *============================================================================*/
+
 #include "control/follow_camera.hpp"
 #include "control/ground.hpp"
 #include "control/player_input.hpp"
@@ -545,6 +559,16 @@ void restore_view(Context& context) {
     context.expect(near_value(play->camera.pitch(), pulled), "vừa tự kéo: không chỉnh lại");
 }
 
+void skill_shake(Context& context) {
+    context.expect(control::vib_one_time(), "AddOneVib(10, 8, 2) đủ 14 nhịp rồi tắt");
+    control::Vib vib;
+    control::add_vib(vib, 0.0F, 8.0F, 2);
+    context.expect(!vib.active, "biên độ không dương thì không rung");
+    control::add_vib(vib, 10.0F, 8.0F, 2);
+    control::add_vib(vib, 4.0F, 1.0F, 1);
+    context.expect(vib.range == 10.0F, "đang rung thì lần sau bỏ qua");
+}
+
 constexpr std::array kCases{
     Case{.name = "eye_formula", .body = &eye_formula},
     Case{.name = "enter_scene", .body = &enter_scene},
@@ -563,6 +587,7 @@ constexpr std::array kCases{
     Case{.name = "over_ui", .body = &over_ui},
     Case{.name = "reset_camera", .body = &reset_camera},
     Case{.name = "restore_view", .body = &restore_view},
+    Case{.name = "skill_shake", .body = &skill_shake},
 };
 
 } // namespace

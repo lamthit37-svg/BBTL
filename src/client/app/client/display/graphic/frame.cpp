@@ -251,8 +251,8 @@ std::optional<control::CursorKind> Display::cursor_choice() const noexcept {
 core::Status Display::State::open_gpu(const DisplayDesc& desc) {
     gpu::DeviceDesc device_desc;
     device_desc.is_validated = desc.is_validated;
-    // Điện thoại: màu thô như GLES (gpu/gles/device.hpp), bỏ pow gamma từng điểm ảnh; PC giữ sRGB của phần cứng.
-    device_desc.is_raw_color = ui::kPhone;
+    // Màu thô như GLES (gpu/gles/device.hpp) bỏ pow gamma từng điểm ảnh; tắt thì giữ sRGB của phần cứng.
+    device_desc.is_raw_color = policy.is_raw_color;
     const core::Status backend = apply_backend(device_desc, desc);
     if (!backend) return backend;
     const std::string shaders = shader_dir_of(desc.data_root);
@@ -283,7 +283,7 @@ core::Status Display::State::open_gpu(const DisplayDesc& desc) {
     screen_desc.window = desc.window;
     screen_desc.width = desc.size.width;
     screen_desc.height = desc.size.height;
-    screen_desc.samples = kSamples;
+    screen_desc.samples = policy.samples;
     screen_desc.clear = kBackdrop;
     // Mọi nền trình Fifo: khung khoá vào nhịp quét của màn. Đo 2026-10-13 trên màn 60 Hz: mailbox với
     // trần 120 Hz vẽ 893 khung 8,3 ms mà màn chỉ hiện một nửa, khung được hiện lệch pha so với nhịp
@@ -291,10 +291,14 @@ core::Status Display::State::open_gpu(const DisplayDesc& desc) {
     // Trần 60 fps của cửa sổ thật là Hz Windows đang đặt. Viewer nâng Hz đó trước khi tạo swapchain,
     // nhưng không quá render_hz của hạng máy (60 hoặc 120). Vẫn Fifo để mỗi nhịp quét đúng một khung.
     screen_desc.present_mode = gpu::PresentMode::kFifo;
+    // Cạnh atlas cọ theo khả năng thiết bị, không theo nền tảng: không vừa thì build_splat thu nhỏ ảnh cọ.
+    const std::uint32_t texture_limit = device->caps().max_texture_size;
+    atlas_edge = texture_limit == 0 ? kAtlasEdge : std::min(kAtlasEdge, texture_limit);
     const gpu::FormatSupport astc = device->format_support(gpu::Format::kAstc4x4Unorm);
     const bool has_astc = gpu::has(astc, gpu::FormatSupport::kSampled);
-    if (ui::kPhone) texture_tier = has_astc ? resource::TextureTier::kAstc : resource::TextureTier::kEtc2;
-    if (ui::kPhone) kick_loading(desc);
+    const resource::TextureTier probed = has_astc ? resource::TextureTier::kAstc : resource::TextureTier::kEtc2;
+    if (!policy.fixed_tier) texture_tier = probed;
+    if (!policy.fixed_tier) kick_loading(desc);
     core::Result<render::Screen> shown = render::Screen::create(*device, screen_desc);
     if (!shown) return std::unexpected(shown.error());
     screen = std::make_unique<render::Screen>(std::move(*shown));
@@ -320,7 +324,7 @@ core::Status Display::State::open_gpu(const DisplayDesc& desc) {
     if (const core::Error* fault = catalog->fault(render::Pso::kTerrain)) {
         std::println(stderr, "Pipeline địa hình: {}", *fault);
     }
-    core::Result<render::Forward> pass = make_forward(*device, *screen, shaders, *catalog);
+    core::Result<render::Forward> pass = make_forward(*device, *screen, shaders, *catalog, policy);
     if (!pass) return std::unexpected(pass.error());
     forward = std::make_unique<render::Forward>(std::move(*pass));
     core::mark("GPU: lượt vẽ và pipeline xong");
@@ -331,8 +335,12 @@ core::Status Display::State::open_gpu(const DisplayDesc& desc) {
 }
 
 core::Status Display::State::launch(const DisplayDesc& desc) {
-    // PC: texture luôn BC, nên việc đọc đĩa không phải chờ thiết bị.
-    if (!ui::kPhone) kick_loading(desc);
+    const QualityClass quality = desc.quality.value_or(default_quality());
+    policy = policy_of(quality);
+    std::println("Chính sách đồ hoạ: {}", quality_name(quality));
+    // Loại texture biết trước (PC: BC) thì việc đọc đĩa không phải chờ thiết bị.
+    if (policy.fixed_tier) texture_tier = *policy.fixed_tier;
+    if (policy.fixed_tier) kick_loading(desc);
     const core::Status opened = open_gpu(desc);
     if (!opened) return opened;
     arm_scene(desc);
@@ -418,10 +426,8 @@ bool Display::State::turn(core::Clock::time_point& previous) {
     note.interval = std::chrono::duration<double, std::milli>(now - previous).count();
     note.render_ms = render_ms;
     note.pace_ms = pace_ms;
-    if constexpr (ui::kPhone) {
-        govern_rate(note.interval);
-        adapt_detail(note.interval);
-    }
+    if (policy.adapts_rate) govern_rate(note.interval);
+    if (policy.adapts_detail) adapt_detail(note.interval);
     record_interval(note);
     previous = now;
     publish();
@@ -497,6 +503,8 @@ core::Status Display::State::render() {
     const core::Result<gpu::CommandList*> list = device->begin_commands(gpu::QueueType::kGraphics);
     if (!list) return std::unexpected(list.error());
     screen->set_clear(light.clear_color());
+    const FrameRect frame = frame_rect();
+    screen->set_view({.x = frame.x, .y = frame.y, .width = frame.width, .height = frame.height});
     const core::Result<std::uint32_t> slot = screen->begin(**list);
     // Bề mặt đổi cỡ giữa chừng: bỏ khung này, spin() dựng lại ở khung kế.
     const bool is_wait = !slot && slot.error().code() == core::ErrorCode::kTimeout;
@@ -564,7 +572,8 @@ core::Status Display::State::draw_world(gpu::CommandList& list, std::uint32_t sl
     const float elapsed = std::chrono::duration<float>(frame_time - started).count();
     FrameAsk ask;
     ask.elapsed = elapsed;
-    ask.size = render::ViewSize{.width = screen->width(), .height = screen->height()};
+    const FrameRect frame = frame_rect();
+    ask.size = render::ViewSize{.width = frame.width, .height = frame.height};
     render::Camera camera = ask.size.height > 0 ? frame_camera(ask) : render::Camera{};
     camera.pixels_high = static_cast<float>(ask.size.height);
     advance_fx(elapsed);
@@ -737,6 +746,7 @@ void Display::State::wrap_up() {
     if (is_wrapped || device == nullptr) return;
     is_wrapped = true;
     store_pipeline_cache();
+    core::mark("đóng: pipeline cache đã ghi");
     publish();
     report_frames();
     report_walk();
@@ -774,6 +784,7 @@ void Display::State::settle() {
     if (spinner.joinable()) {
         spinner.request_stop();
         spinner.join();
+        core::mark("đóng: luồng vẽ dừng");
     }
     wrap_up();
 }

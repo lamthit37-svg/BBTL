@@ -29,8 +29,10 @@
 #include "ui/panel/talk.hpp"
 
 #include <algorithm>
+#include <array>
 #include <cstdint>
 #include <mutex>
+#include <ranges>
 #include <utility>
 #include <variant>
 #include <vector>
@@ -55,10 +57,32 @@ constexpr std::int32_t kFallDamage = 999;
 
 } // namespace
 
+// Chiêu Cái Bang trên thanh, đúng id sect 2 của skills.tsv bản 2026. Phím 1 là ô đầu.
+constexpr std::array<std::uint16_t, 10> kGaibangSkills{341, 347, 358, 357, 360, 361, 364, 365, 353, 359};
+
 void Display::State::start_fight_demo(std::uint32_t first) {
     is_online_play = true;
     apply_vitals(tk::Vitals{.hp = 800, .hp_max = 1000, .mp = 400, .mp_max = 500, .rage = 0, .rage_max = 100});
-    apply_skills(tk::Skills{.learned = {tk::Learned{.skill = 0, .level = 1, .cooldown_ms = 0}}});
+    // Gậy Cái Bang (丐帮门派高手武器): cả thanh là chiêu môn, phím 1 là 蟠龙击. Không có gậy thì đánh thường
+    // đứng trước và --skill đứng sau, để đuổi mục tiêu vẫn ra đòn thường.
+    constexpr std::uint32_t kGaibangStaff = 10101047;
+    std::vector<tk::Learned> learned;
+    if (weapon_item && *weapon_item == kGaibangStaff) {
+        for (const std::uint16_t skill : kGaibangSkills) {
+            learned.push_back(tk::Learned{.skill = skill, .level = 1, .cooldown_ms = 0});
+        }
+    } else {
+        // Nhân vật mới và mọi nhân vật không cầm gậy Cái Bang: giữ bộ skill đang có (mặc định là bộ tân thủ).
+        for (const std::uint32_t skill : hero.skills) {
+            if (skill > 0xFFFFU) continue;
+            learned.push_back(tk::Learned{.skill = static_cast<std::uint16_t>(skill), .level = 1, .cooldown_ms = 0});
+        }
+        const bool is_known = skill_id && std::ranges::find(hero.skills, *skill_id) != hero.skills.end();
+        if (skill_id && *skill_id > 0 && *skill_id <= 0xFFFFU && !is_known) {
+            learned.push_back(tk::Learned{.skill = static_cast<std::uint16_t>(*skill_id), .level = 1, .cooldown_ms = 0});
+        }
+    }
+    apply_skills(tk::Skills{.learned = std::move(learned)});
     combat.engage(first);
 }
 

@@ -43,6 +43,7 @@
 #include <memory>
 #include <optional>
 #include <print>
+#include <span>
 #include <string>
 #include <utility>
 #include <vector>
@@ -90,21 +91,28 @@ struct Built {
     bool demo = false;
 };
 
-// Môn phái xem trước dùng mẫu riêng. Không thì khối đã chọn, rồi bộ mặc định của giới.
-[[nodiscard]] core::Result<Built> figure_of(const look::Tables& tables, const PlayerDesc& desc) {
-    if (desc.sect) {
-        const std::string path = (desc.data_root / "Table" / "sect_models.tsv").string();
-        const auto text = read_table(path);
-        if (!text) return core::fail(core::ErrorCode::kNotFound, "không đọc được bảng người mẫu môn phái");
-        auto figure = look::sect_figure(*text, desc.race, *desc.sect);
-        if (!figure) return core::fail(core::ErrorCode::kCorrupt, "không giải được người mẫu môn phái", figure.error());
-        return Built{.figure = std::move(figure->figure), .weapon = look::Weapon::kNone, .fidget = figure->has_fidget, .demo = true};
-    }
+// Người mẫu môn phái: bảng sect_models, không vũ khí, fidget theo dòng mẫu.
+[[nodiscard]] core::Result<Built> sect_figure(const PlayerDesc& desc, std::uint8_t sect) {
+    const std::string path = (desc.data_root / "Table" / "sect_models.tsv").string();
+    const auto text = read_table(path);
+    if (!text) return core::fail(core::ErrorCode::kNotFound, "không đọc được bảng người mẫu môn phái");
+    auto figure = look::sect_figure(*text, desc.race, sect);
+    if (!figure) return core::fail(core::ErrorCode::kCorrupt, "không giải được người mẫu môn phái", figure.error());
+    return Built{.figure = std::move(figure->figure), .weapon = look::Weapon::kNone, .fidget = figure->has_fidget, .demo = true};
+}
+
+// Khối đã chọn, không thì bộ mặc định của giới, rồi vũ khí đang cầm.
+[[nodiscard]] core::Result<Built> player_figure(const look::Tables& tables, const PlayerDesc& desc) {
     const auto wanted = look_of(tables, desc);
     if (!wanted) return std::unexpected(wanted.error());
     auto figure = look::resolve(tables, desc.race, *wanted);
     if (!figure) return core::fail(core::ErrorCode::kCorrupt, "không giải được ngoại hình", "{}", look::describe(figure.error()));
     return Built{.figure = std::move(*figure), .weapon = wanted->weapon};
+}
+
+[[nodiscard]] core::Result<Built> figure_of(const look::Tables& tables, const PlayerDesc& desc) {
+    if (desc.sect) return sect_figure(desc, *desc.sect);
+    return player_figure(tables, desc);
 }
 
 // Drawable của một bộ phận, hoặc nullptr kèm log khi nơi vẽ không nạp được lưới.
@@ -124,16 +132,24 @@ struct Built {
     return parts;
 }
 
-// Các lưới của vũ khí mà hình đang cầm; lưới nào nơi vẽ không nạp được thì bỏ và ghi log (khe vẫn
-// vẽ các lưới còn lại).
+// Một lưới của mẫu. Không nạp được thì ghi log và bỏ; mẫu vẫn giữ các lưới đã nạp.
+void add_held_mesh(std::vector<HeldMesh>& drawn, std::size_t mount, const std::string& mesh, const MeshLoader& load_mesh) {
+    const render::Drawable* drawable = load_mesh(mesh);
+    if (drawable == nullptr) {
+        std::println(stderr, "Người chơi: bỏ lưới vũ khí {}", mesh);
+        return;
+    }
+    drawn.push_back(HeldMesh{.mount = mount, .drawable = drawable});
+}
+
+void load_mount(std::vector<HeldMesh>& drawn, std::size_t mount, const look::Held& held, const MeshLoader& load_mesh) {
+    for (const std::string& mesh : held.meshes) add_held_mesh(drawn, mount, mesh, load_mesh);
+}
+
 [[nodiscard]] std::vector<HeldMesh> load_held(const look::Figure& figure, const MeshLoader& load_mesh) {
     std::vector<HeldMesh> drawn;
     for (std::size_t mount = 0; mount < figure.held.size(); ++mount) {
-        for (const std::string& mesh : figure.held.at(mount).meshes) {
-            const render::Drawable* drawable = load_mesh(mesh);
-            if (drawable == nullptr) std::println(stderr, "Người chơi: bỏ lưới vũ khí {}", mesh);
-            if (drawable != nullptr) drawn.push_back(HeldMesh{.mount = mount, .drawable = drawable});
-        }
+        load_mount(drawn, mount, figure.held[mount], load_mesh);
     }
     return drawn;
 }
@@ -207,6 +223,24 @@ struct WorldPose {
     ogre::Quat orientation;
 };
 
+// Các bước của một skill theo thứ tự strikes(), và kiểu chọn bước của bước đầu tiên gặp.
+struct SkillRun {
+    std::vector<std::uint32_t> steps;
+    look::ActionKind kind = look::ActionKind::kRandom;
+};
+
+void take_step(SkillRun& run, const look::Strike& strike, std::uint32_t skill) {
+    if (strike.skill != skill) return;
+    if (run.steps.empty()) run.kind = strike.kind;
+    run.steps.push_back(strike.step);
+}
+
+[[nodiscard]] SkillRun skill_run(std::span<const look::Strike> strikes, std::uint32_t skill) {
+    SkillRun run;
+    for (const look::Strike& strike : strikes) take_step(run, strike, skill);
+    return run;
+}
+
 // Điểm trong không gian mẫu nhân vật sang toạ độ thế giới bằng nút chính của mẫu: phóng theo tỉ lệ, xoay quanh +y theo
 // hướng mặt, dời tới chân (cùng phép với placement).
 [[nodiscard]] WorldPose world_of(const anim::Transform& pose, const Stand& drawn) {
@@ -267,6 +301,7 @@ core::Status PlayerActor::update(core::Clock::time_point now, const Stand& stand
     }
     if (stand.jump) gait_.jump(now, *stand.jump, lengths_);
     if (stand.has_landed) gait_.land(now, lengths_);
+    release_chain(now, stand);
     if (stand.strike && !gait_.is_locked(now)) begin_strike(now, *stand.strike);
     const avatar::Playing playing = gait_.update(now, stand.is_moving, lengths_);
     const core::Status posed = skinner_.update(avatar_, playing);
@@ -282,17 +317,70 @@ core::Status PlayerActor::update(core::Clock::time_point now, const Stand& stand
     return core::ok();
 }
 
-// kLinked (liên hoàn 1 2 3: 轻功 nhảy nối) không phải đòn đánh: gốc cho đi qua Jump, chưa có ở đây.
+// Mọi kiểu bước, kể cả kLinked. Kiểu chỉ chọn chỉ số (accept_chain), không loại đòn khỏi danh sách.
+// Bước không có clip đã bị strikes_of bỏ: count ở đây ngắn hơn m_nActionCount gốc khi thiếu clip.
 std::vector<std::uint32_t> PlayerActor::steps_of(std::uint32_t skill) const {
-    std::vector<std::uint32_t> steps;
-    for (const look::Strike& strike : avatar_.strikes()) {
-        if (strike.skill == skill && strike.kind != look::ActionKind::kLinked) steps.push_back(strike.step);
+    return skill_run(avatar_.strikes(), skill).steps;
+}
+
+std::optional<std::uint32_t> PlayerActor::accept_strike(std::uint32_t skill, std::uint32_t roll, core::Clock::time_point now) {
+    const SkillRun run = skill_run(avatar_.strikes(), skill);
+    if (run.steps.empty() || run.steps.size() > static_cast<std::size_t>(look::kMaxChainSteps)) return std::nullopt;
+    const auto count = static_cast<std::int32_t>(run.steps.size());
+    const look::ChainPick pick = look::accept_chain(chain_, skill, run.kind, count, roll, !gait_.in_strike(now));
+    if (!pick.plays || pick.slot >= run.steps.size()) return std::nullopt;
+    const std::uint32_t step = run.steps[pick.slot];
+    if (!can_play(skill, step)) {
+        look::stop_chain(chain_);
+        return std::nullopt;
     }
-    return steps;
+    return step;
 }
 
 bool PlayerActor::is_locked(core::Clock::time_point now) const {
-    return gait_.is_locked(now);
+    return chain_.do_next || gait_.is_locked(now);
+}
+
+bool PlayerActor::can_play(std::uint32_t skill, std::uint32_t step) const {
+    const std::optional<std::size_t> index = avatar_.strike_index(skill, step);
+    if (!index) return false;
+    const avatar::StrikePlan plan = plan_of(*index);
+    return plan.length > 0.0F && plan.rate > 0.0F;
+}
+
+std::optional<std::uint32_t> PlayerActor::step_at(std::uint32_t skill, std::uint32_t slot) const noexcept {
+    std::uint32_t seen = 0;
+    for (const look::Strike& strike : avatar_.strikes()) {
+        if (strike.skill != skill) continue;
+        if (seen == slot) return strike.step;
+        ++seen;
+    }
+    return std::nullopt;
+}
+
+[[nodiscard]] bool PlayerActor::play_deferred(core::Clock::time_point now, const Stand& stand) {
+    const look::ChainPick next = look::finish_chain(chain_);
+    if (!next.plays) return false;
+    const std::optional<std::uint32_t> step = step_at(chain_.skill, next.slot);
+    if (!step || !can_play(chain_.skill, *step)) return false;
+    const avatar::Playing ended{.stance = avatar::Stance::kIdle};
+    fire_cues(ended, stand);
+    begin_strike(now, StrikeCall{.skill = chain_.skill, .step = *step});
+    return true;
+}
+
+// Hết clip: lệnh nối đã hoãn thì FreshAnimation tăng lần hai và phát bước đó. Đi thì bỏ phiên
+// (Start_Move đổi logic, cờ nối không còn được FreshAnimation của SKILL_SEND ăn). Lệnh phát ngay
+// trong cùng khung (stand.strike) giữ phiên mà accept_strike vừa mở.
+void PlayerActor::release_chain(core::Clock::time_point now, const Stand& stand) {
+    if (stand.is_moving || stand.jump) {
+        look::stop_chain(chain_);
+        return;
+    }
+    if (!gait_.strike_finished(now)) return;
+    const bool played = chain_.do_next && play_deferred(now, stand);
+    if (played || stand.strike) return;
+    look::stop_chain(chain_);
 }
 
 void PlayerActor::take_cues(std::vector<SkillCue>& out) {
@@ -379,22 +467,31 @@ void PlayerActor::fire_cues(const avatar::Playing& playing, const Stand& drawn) 
     const look::Strike& strike = avatar_.strikes()[active_->index];
     for (std::size_t event = 0; event < strike.events.size(); ++event) {
         const look::StrikeEvent& block = strike.events.at(event);
-        if (block.time < active_->fraction || block.time >= reached) continue;
+        if (!look::moment_due(block.time, active_->fraction, reached)) continue;
         SkillCue cue;
         cue.kind = block.kind;
         cue.name = block.name;
         cue.is_attached = block.is_attached;
+        cue.props = block.props;
         const std::optional<anim::Transform> pose = avatar_.event_pose(active_->index, event, skinner_.derived());
         const WorldPose placed = world_of(pose.value_or(anim::Transform{}), drawn);
         cue.position = placed.position;
         cue.orientation = placed.orientation;
-        const bool is_following = block.is_attached && block.kind == look::EventKind::kAnimEffect && pose;
+        // Ribbon của all.skill không có cờ Attach nhưng LogicModel::_updateAnimationRibbon vẫn bám xương mỗi khung.
+        const bool is_ribbon = block.kind == look::EventKind::kRibbon;
+        const bool is_following = pose && (is_ribbon || (block.is_attached && block.kind == look::EventKind::kAnimEffect));
         if (is_following) {
             cue.token = ++last_token_;
             if (followers_.size() >= kMaxFollowers) followers_.erase(followers_.begin());
             followers_.push_back(Follower{.token = cue.token, .strike = active_->index, .event = event});
         }
         cues_.push_back(std::move(cue));
+    }
+    for (const float mark : strike.shake_times) {
+        if (!look::moment_due(mark, active_->fraction, reached)) continue;
+        SkillCue shake;
+        shake.kind = look::EventKind::kShake;
+        cues_.push_back(std::move(shake));
     }
     active_->fraction = reached;
     if (!is_playing) active_.reset();

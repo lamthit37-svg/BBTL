@@ -61,18 +61,39 @@ inline constexpr std::uint32_t kRewardBase = 0x10000;
 // Hạn chờ máy chủ đáp một việc của hộp thoại trước khi bảng mở khoá.
 inline constexpr std::chrono::milliseconds kReplyTimeout{3000};
 
-// Tên vật phẩm theo mẫu (Table/items.tsv, cột id và name) cho phần thưởng và yêu cầu.
+// Tên và icon ngắn của vật phẩm (Table/items.tsv, rồi equips, gems, campaign_items) và bảng icon → imageset
+// (Table/icons.tsv). Tra theo id: kết quả không phụ thuộc thứ tự băm.
 class ItemNames {
 public:
-    // Đọc cột id và name của bảng TSV (văn bản cả tệp). Bảng hỏng hay thiếu cột thì giữ bảng rỗng và trả false.
+    // Đọc cột id và name; cột icon dùng khi có. Bảng hỏng hay thiếu id/name thì giữ bảng rỗng và trả false.
     bool load(std::string_view tsv_text);
-    // Tên của mẫu; rỗng khi không có.
+    // Thêm mẫu chưa có. Thiếu cột id thì không đụng bảng đã nạp và trả false. Id đã có thì bỏ qua dòng đó.
+    bool absorb(std::string_view tsv_text);
+    // Đọc cột icon và imageset. Thiếu một trong hai cột thì giữ bảng icon cũ và trả false.
+    bool load_icons(std::string_view tsv_text);
+    // Tên của mẫu; rỗng khi không có hoặc id không vừa int32.
     [[nodiscard]] std::string_view name(std::int32_t item) const noexcept;
+    // Tên icon ngắn (cột icon); rỗng khi mẫu không có.
+    [[nodiscard]] std::string_view icon(std::int32_t item) const noexcept;
+    // "set:<imageset> image:<icon>" của mẫu. Thiếu icon, thiếu imageset, imageset rỗng, hoặc id vượt int32 thì
+    // "set:X image:X" (cùng lối skill::icon_full_name khi không tra được).
+    [[nodiscard]] std::string face(std::uint32_t item) const;
+    // Cùng dạng face, nhưng tra theo tên icon ngắn (cột icon của bảng khác, ví dụ skills.tsv). Tên rỗng,
+    // thiếu imageset hoặc imageset rỗng thì "set:X image:X".
+    [[nodiscard]] std::string image(std::string_view icon) const;
+    [[nodiscard]] bool has_icons() const noexcept { return has_icons_; }
     [[nodiscard]] bool is_loaded() const noexcept { return is_loaded_; }
 
 private:
-    std::unordered_map<std::int32_t, std::string> names_;
+    struct Entry {
+        std::string name;
+        std::string icon;
+    };
+
+    std::unordered_map<std::int32_t, Entry> rows_;
+    std::unordered_map<std::string, std::string> imagesets_;
     bool is_loaded_ = false;
+    bool has_icons_ = false;
 };
 
 struct NpcTalk {

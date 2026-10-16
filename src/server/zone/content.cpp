@@ -18,6 +18,7 @@
 #include "zone/content.hpp"
 
 #include "core/ground_point.hpp"
+#include "zone/gates.hpp"
 #include "ids/ids.hpp"
 #include "io/file.hpp"
 #include "protocol/messages.hpp"
@@ -312,6 +313,8 @@ struct DiskState {
     TemplateTable templates;
     AiTypeTable ai_types;
     bool has_ai_types = false;
+    std::vector<WalkGate> gates;
+    std::vector<std::int32_t> chuansong;
 
     void open() {
         tried = true;
@@ -328,6 +331,33 @@ struct DiskState {
         directory = std::move(*parsed);
         open_templates();
         open_ai_types();
+        open_gates();
+        open_scripts();
+    }
+
+    void open_gates() {
+        if (paths.gates.empty()) return;
+        const io::TextResult text = io::read_text(paths.gates);
+        if (!text) {
+            std::println(stderr, "zone: không đọc được {}: không có cổng cảnh", paths.gates.string());
+            return;
+        }
+        if (std::expected<std::vector<WalkGate>, std::string> parsed = parse_gates(*text)) {
+            gates = std::move(*parsed);
+        } else {
+            std::println(stderr, "zone: {}: {}", paths.gates.string(), parsed.error());
+        }
+    }
+
+    void open_scripts() {
+        if (paths.scripts.empty()) return;
+        const io::TextResult text = io::read_text(paths.scripts);
+        if (!text) return;
+        if (std::expected<std::vector<std::int32_t>, std::string> parsed = parse_chuansong(*text)) {
+            chuansong = std::move(*parsed);
+        } else {
+            std::println(stderr, "zone: {}: {}", paths.scripts.string(), parsed.error());
+        }
     }
 
     // Như bảng mẫu: vắng thì im lặng, có mà hỏng thì nói.
@@ -373,7 +403,20 @@ struct DiskState {
             std::println(stderr, "zone: cảnh {} ({}): bỏ {} thực thể vượt trần {}", scene, name, seeding.over_cap, cap);
         }
         Walkable walkable = walkable_of(std::make_shared<const scenedata::Walk>(std::move(loaded->walk)));
-        return SceneContent{.seeds = std::move(seeding.seeds), .walkable = std::move(walkable)};
+        std::vector<AreaSource> sources;
+        sources.reserve(loaded->areas.size());
+        for (const scenedata::Area& area : loaded->areas) {
+            AreaSource source;
+            source.script_id = area.script_id;
+            source.left = area.left;
+            source.top = area.top;
+            source.right = area.right;
+            source.bottom = area.bottom;
+            sources.push_back(source);
+        }
+        const auto known = [this](std::uint16_t id) { return directory && !directory->dir_of(id).empty(); };
+        std::vector<AreaRect> areas = area_rects(static_cast<std::int32_t>(scene), sources, gates, chuansong, known);
+        return SceneContent{.seeds = std::move(seeding.seeds), .walkable = std::move(walkable), .areas = std::move(areas)};
     }
 };
 

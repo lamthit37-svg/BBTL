@@ -23,6 +23,7 @@
 #include "play/stage.hpp"
 #include "protocol/messages.hpp"
 #include "zone/content.hpp"
+#include "zone/gates.hpp"
 #include "zone/outbox.hpp"
 #include "zone/scene.hpp"
 
@@ -211,7 +212,8 @@ Scene* Host::scene_for(std::uint16_t id) {
                              Scene::Config{.id = id,
                                  .grid = config_.grid,
                                  .player_max = config_.player_max,
-                                 .walkable = std::move(content.walkable)})
+                                 .walkable = std::move(content.walkable),
+                                 .areas = std::move(content.areas)})
                          .first->second;
     seed(created, content.seeds);
     return &created;
@@ -248,7 +250,10 @@ void Host::attach(std::uint64_t session, const ipc::Frame& frame, Outbox& out) {
         return;
     }
     where_[session] = arrival->scene;
-    if (!play_) return;
+    if (!play_) {
+        remember_foot(session, *scene);
+        return;
+    }
     // Sau SceneEnter và EntityAppear: client đã vào cảnh khi nhận QuestBook và SelfStats.
     play::Output output;
     const std::optional<std::uint32_t> self = scene->entity_of(session);
@@ -261,6 +266,7 @@ void Host::attach(std::uint64_t session, const ipc::Frame& frame, Outbox& out) {
         return;
     }
     deliver(output, out);
+    remember_foot(session, *scene);
 }
 
 void Host::detach(std::uint64_t session, Outbox& out) {
@@ -274,6 +280,7 @@ void Host::detach(std::uint64_t session, Outbox& out) {
     }
     if (Scene* scene = find(found->second)) scene->detach(session, out);
     where_.erase(found);
+    feet_.erase(session);
 }
 
 void Host::handle(const ipc::Frame& frame, Outbox& out) {
@@ -286,6 +293,7 @@ void Host::handle(const ipc::Frame& frame, Outbox& out) {
         Scene* scene = found == where_.end() ? nullptr : find(found->second);
         if (scene != nullptr && step) {
             scene->moved(frame.session, *step, out);
+            consider_gate(frame.session, out);
             return;
         }
         ++ignored_;
@@ -325,6 +333,128 @@ void Host::advance(Outbox& out) {
         if (save_now) play_->autosave(output);
         deliver(output, out);
     }
+}
+
+void Host::remember_foot(std::uint64_t session, const Scene& scene) {
+    const std::optional<std::uint32_t> self = scene.entity_of(session);
+    const std::optional<Scene::Where> at = self ? scene.where(*self) : std::nullopt;
+    if (!at) {
+        feet_.erase(session);
+        return;
+    }
+    const AreaStand stand = scene.standing(at->x_cm, at->z_cm);
+    feet_[session] = Foot{.known = true, .inside = stand.inside, .index = stand.index};
+}
+
+void Host::consider_gate(std::uint64_t session, Outbox& out) {
+    const auto found = where_.find(session);
+    if (found == where_.end()) return;
+    Scene* scene = find(found->second);
+    if (scene == nullptr) return;
+    const std::optional<Scene::PlayerCard> card = scene->player_card(session);
+    const std::optional<std::uint32_t> self = scene->entity_of(session);
+    const std::optional<Scene::Where> at = self ? scene->where(*self) : std::nullopt;
+    if (!card || !at || card->state == protocol::EntityState::kDead) return;
+    const AreaStand stand = scene->standing(at->x_cm, at->z_cm);
+    Foot& foot = feet_[session];
+    if (!foot.known) {
+        foot.known = true;
+        foot.inside = stand.inside;
+        foot.index = stand.index;
+        return;
+    }
+    const bool same = stand.inside == foot.inside && (!stand.inside || stand.index == foot.index);
+    if (same) return;
+    foot.inside = stand.inside;
+    foot.index = stand.index;
+    if (!stand.crossing || stand.dest_scene == scene->id()) return;
+    transfer(session, *scene, stand, out);
+}
+
+namespace {
+
+// NOLINTNEXTLINE(bugprone-easily-swappable-parameters): scene rồi toạ độ, nơi gọi ghi tên (HP-07)
+[[nodiscard]] ipc::Attach attach_of(const Scene::PlayerCard& card, std::uint16_t scene, float x_cm, float z_cm) {
+    ipc::Attach next;
+    next.character = card.character;
+    next.scene = scene;
+    next.x_cm = x_cm;
+    next.z_cm = z_cm;
+    next.direction = card.direction;
+    next.name = card.name;
+    next.level = card.level;
+    next.gender = card.gender;
+    next.face = card.face;
+    next.hair = card.hair;
+    next.school = card.school;
+    return next;
+}
+
+} // namespace
+
+void Host::restore(std::uint64_t session, std::uint16_t scene, float x_cm, float z_cm, const Scene::PlayerCard& card,
+    Outbox& out) {
+    Scene* back = find(scene);
+    const ipc::Attach next = attach_of(card, scene, x_cm, z_cm);
+    if (back == nullptr || back->attach(session, next, out)) {
+        where_.erase(session);
+        feet_.erase(session);
+        if (!play_) return;
+        play::Output output;
+        play_->detach(session, output);
+        deliver(output, out);
+        return;
+    }
+    where_[session] = scene;
+    out.place(session, x_cm, z_cm);
+    remember_foot(session, *back);
+}
+
+void Host::transfer(std::uint64_t session, Scene& from, const AreaStand& stand, Outbox& out) {
+    Scene* dest = scene_for(stand.dest_scene);
+    if (dest == nullptr || dest == &from || !dest->can_admit()) return;
+    const std::optional<Scene::PlayerCard> card = from.player_card(session);
+    if (!card || card->state == protocol::EntityState::kDead) return;
+    const float old_x = card->x_cm;
+    const float old_z = card->z_cm;
+    const std::uint16_t old_scene = from.id();
+    const Scene::PlayerCard& kept = *card;
+
+    if (play_) {
+        play::Output dialog;
+        play_->left_scene(session, dialog);
+        deliver(dialog, out);
+    }
+    from.detach(session, out);
+    const ipc::Attach next = attach_of(kept, stand.dest_scene, stand.dest_x_cm, stand.dest_z_cm);
+    if (dest->attach(session, next, out)) {
+        restore(session, old_scene, old_x, old_z, kept, out);
+        return;
+    }
+    where_[session] = stand.dest_scene;
+    out.place(session, stand.dest_x_cm, stand.dest_z_cm);
+    if (play_) {
+        const std::optional<std::uint32_t> self = dest->entity_of(session);
+        play::Output moved;
+        Around around{*this, out};
+        const bool seated = self && play_->change_scene(session, stand.dest_scene, *self, stand.dest_x_cm, stand.dest_z_cm,
+                                              around, moved);
+        deliver(moved, out);
+        if (!seated) {
+            dest->detach(session, out);
+            restore(session, old_scene, old_x, old_z, kept, out);
+            const Scene* back = find(old_scene);
+            const std::optional<std::uint32_t> again = back != nullptr ? back->entity_of(session) : std::nullopt;
+            if (!again) return;
+            play::Output returned;
+            Around second{*this, out};
+            static_cast<void>(play_->change_scene(session, old_scene, *again, old_x, old_z, second, returned));
+            deliver(returned, out);
+            return;
+        }
+    }
+    dest->keep_spot(session, out);
+    remember_foot(session, *dest);
 }
 
 void Host::drop_all(Outbox& out) {

@@ -68,6 +68,10 @@ struct ViewerDesc {
     std::vector<std::string> ui_events;
     // --creature: id mẫu quái hay NPC đứng trước mặt nhân vật ở màn chơi (DisplayDesc::creatures).
     std::vector<std::uint32_t> creatures;
+    // --pet: id mẫu trân thú (DisplayDesc::pets).
+    std::vector<std::uint32_t> pets;
+    // --peer: số người chơi khác đứng trước mặt (DisplayDesc::peer_count).
+    std::uint32_t peer_count = 0;
     // --talk-demo: NPC của --creature bấm được, hộp thoại đáp bằng kịch bản có sẵn (DisplayDesc::talk_demo).
     std::string talk_demo;
     // --weapon: vật phẩm khe 0 mà nhân vật ở màn chơi cầm (DisplayDesc::weapon_item).
@@ -80,6 +84,8 @@ struct ViewerDesc {
     bool is_validated = true;
     // Rỗng: tự chọn. Có thì ép backend.
     std::optional<std::string> backend;
+    // Chính sách đồ hoạ (DisplayDesc::quality); rỗng thì theo nền tảng.
+    std::optional<QualityClass> quality;
     // Cỡ vùng chơi của cửa sổ PC; rỗng thì kDefaultClientSize (View_Resoution của client 2026).
     std::optional<ClientSize> client_size;
     // Việc đã bắt đầu sớm (DisplayPreload, cùng data_folder và backend); nullptr thì Display tự bắt đầu.

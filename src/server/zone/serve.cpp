@@ -151,7 +151,9 @@ struct Roots {
         DiskPaths{.scenes = data_root / "scenes",
             .ids_table = data_root / "tables" / "server" / "scene_ids.tsv",
             .templates = data_root / "tables" / "shared" / "monsters.tsv",
-            .ai_types = data_root / "tables" / "server" / "monster_ai_types.tsv"},
+            .ai_types = data_root / "tables" / "server" / "monster_ai_types.tsv",
+            .gates = data_root / "tables" / "shared" / "scene_positions_extended.tsv",
+            .scripts = data_root / "tables" / "server" / "script_index.tsv"},
         static_cast<std::size_t>(zone->monsters),
         [world](std::uint32_t script) { return world != nullptr && world->speaks(script); });
     bool found = false;

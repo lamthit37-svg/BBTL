@@ -5,6 +5,14 @@ hiện tại của cả dự án đọc ở ba chỗ: mục "Khảo sát theo m�
 tệp này, và dòng "Trạng thái" ở mục 0 của `AGENTS.md`. Tên cũ của tệp là "cửa sổ, Vulkan và 57 vật
 thể tĩnh của map huoyangu": đó là đích của sáu bước B1 tới B6 đầu tiên, tả ngay dưới.
 
+## Một quái để nhìn tuyệt chiêu, máu và tên (2026-10-16)
+
+`--talk-demo fight` đuổi mục tiêu ngay, người chơi chạy nên `press_slot` bỏ `--auto-strike` và `Gait::update` đổi đòn thành chạy. Nay khi có `--skill`, đứng yên tới lần bấm ô cuối rồi giữ thêm 2,5 s. Một mẫu `--creature` đứng trước mặt (lưới tám cột chỉ khi có nhiều mẫu). Cái Bang thử bằng `--weapon 10101047` (丐帮门派高手武器, loại thương): đòn thường là `g01_普通攻击01_changqiang` / `03`, tuyệt chiêu `--skill 358` là `g01_gb_大鹏展翅`. Ảnh `build/gaibang-fight.png`: gậy ngang, chữ vàng 亢龙有悔, sói 雪山狼 phía trước, số 117. Áo môn Cái Bang chưa có bản nấu `.glb` nên thân vẫn đồ tân thủ. Mẫu cao mô môn chỉ có đứng và 演武, không có clip đánh.
+
+## Máy chủ: cổng đi bộ giữa các cảnh (2026-10-16)
+
+Người chơi bước vào vùng `areas` của mã 2008 (script `/event/chuansong/`) thì zone phát `SceneEnter` sang cảnh đích. Điểm đến lấy từ `ScenePosDefineEx` của client 2026, chỉ dòng `field_nine == 0` (cổng bản đồ; dòng `1` là dịch chuyển NPC). Đặt chân trong vùng về không bị đẩy ngược; phải ra rồi bước vào lại. Cùng một zone giữ cả hai cảnh. `zone_tests` `gate_edges_and_bind`, `host_walks_through_a_gate` và `real_scene_seeds` (Đại Lý → Nhĩ Hải 287, 32) xanh. `thienlong_zone.exe` link được sau khi nối `pgport`, `pgcommon`, `secur32`, `wldap32` cạnh `pq.lib` (wrapper vcpkg không chạy khi Find đi qua prefix). Chưa chạy cửa sổ client đi qua cổng. Chưa có: cửa hàng, xã hội, trang bị trên `EntityAppear`, tiến trình world.
+
 ## Treo đơ, ms cao trên APK và iOS: màn đăng nhập (2026-10-16)
 
 Máy thử: Lenovo TB-X306F (PowerVR Rogue GE8320, GLES, 1280x800). Màn đăng nhập/chọn máy chủ (núi nền 1,05–1,3 triệu tam
@@ -73,7 +81,7 @@ Lỗi gốc đã sửa trên đường đi: (1) `combat::Catalog::level_of` tr�
 
 ## Client nối chiến đấu (lát cắt 3 phía client, 2026-10-15)
 
-Protocol v6 từ phía client: `online::Bridge` dịch `SkillCast`/`SkillCastEnd`/`CombatEvent`/`EntityDied` thành `cast::Casting`/`CastEnded`/`Struck`/`Died` (mét của game, không biết giao thức) và `SelfVitals`/`SelfSkills`/`SkillCooldown`/`DeathNotice`/lời từ chối (`ErrorCode` 31–40, `Busy`, `NoSuchEntity`) thành `talk::Vitals`/`Skills`/`Cooldown`/`Slain`/`Declined`; việc người chơi nhờ `Cast`/`Revive`/`PickUp` thành `CastSkill`/`Respawn`/`PickUp`. `SelfBag` bỏ qua.
+Protocol v6 từ phía client: `online::Bridge` dịch `SkillCast`/`SkillCastEnd`/`CombatEvent`/`EntityDied` thành `cast::Casting`/`CastEnded`/`Struck`/`Died` (mét của game, không biết giao thức) và `SelfVitals`/`SelfSkills`/`SkillCooldown`/`DeathNotice`/lời từ chối (`ErrorCode` 31–40, `Busy`, `NoSuchEntity`) thành `talk::Vitals`/`Skills`/`Cooldown`/`Slain`/`Declined`; việc người chơi nhờ `Cast`/`Revive`/`PickUp` thành `CastSkill`/`Respawn`/`PickUp`. `SelfBag` đổ vào thẻ đạo cụ của `Packet` (tab 0, theo chỉ số ô; sức chứa vẫn 20/60 vì dây không gửi CurrNum). Thanh `MainMenuBar` trang 1 vẽ `SelfSkills` (phím 1–9 và 0, nhấp ô, `Gloom` khi còn hồi).
 
 Module mới `client/fight` (`fight::Combat`, thuần logic, dùng chung PC và điện thoại): mục tiêu, kỹ năng đã học và hồi chiêu, chiêu chờ xác nhận (số thứ tự khác 0, quá `kCastWait` 1,5 s thì coi như mất), đánh tự động (đi tới tầm 2,5 m rồi ra chiêu đầu tiên của `SelfSkills`), trạng thái chết, số bay (trần 64). Client không đoán kết quả: động tác nhân vật chỉ chạy khi máy chủ gửi `SkillCast` mang đúng số thứ tự; số bay hẹn tới mốc đòn trúng của clip (`PlayerActor::hit_after`). Nối vào `Display::State` ở `graphic/fight.cpp`: phím 1–9 gửi chiêu (đang đi, nhảy hay giữa đòn thì bỏ phím như chơi tại chỗ), nhấp quái là chọn và đuổi đánh, nhấp vật rơi là đi tới nhặt (`PickUp` trong 1,5 m, máy chủ nhận 3 m), người chơi tự đi hay nhấp đất thì thôi đánh tự động, đã chết thì đứng yên và phím 1/2 hồi sinh. Chữ bay và lời nhắc hồi sinh vẽ bằng phông GBK12 của HUD (`Hud::extra_font`) qua `HudExtra`, nối cuối bảng đo.
 
@@ -2827,13 +2835,22 @@ Màn đăng nhập trên TB-X306F (GE8320, 1280x800) vẫn 40 ms mỗi khung sau
 
 Bảng nhập tài khoản để hiện danh sách thả tự dựng của Combobox đuôi tài khoản (`LogOn_Region__auto_droplist__`), khung của nó thành một vạch viền dưới ô. Nay `paint_logon` giấu nó như `select_server` giấu danh sách của mình. Test hồi quy trong `ui_logon_tests` (đỏ khi bỏ dòng giấu, xanh khi có). Chưa nhìn bằng mắt trong ảnh chụp vì tới bảng này cần nhấn nút (không có cờ dòng lệnh).
 
+### Combobox đuôi tài khoản theo gốc, khung lát một trục, cỡ giao diện tablet (2026-10-16)
+
+`LogOn_Region` (`Falagard/Combobox`) nay chạy như `CEGUIFalagard.dll`/`CEGUIBase.dll` (đã dịch ngược): danh sách thả ẩn tới lúc nhấn nút xổ hay ô chữ; nhấn trong danh sách chọn mục, thả trong danh sách nhận và đóng, nhấn ngoài chỉ đóng; sáng theo chuột chỉ sau khi đã "lên đạn"; chín mục `TailName` của `LogOn.lua`; mục 7 sang tab tên tự đặt. Danh sách là lớp phủ (`Placed::is_overlay`): vẽ sau mọi cửa sổ gốc, mở lớp xếp riêng (`hub.cpp`), cao theo số hàng nhưng không tràn đáy màn (`drop_list_height`). Chữ của ô đặt trên `LogOn_Region__auto_editbox__`. Chưa làm: lưu `Account_MailIndex` và ghép đuôi vào tên gửi máy chủ (ghi ở `logon.hpp`).
+
+Gạch thừa ở đáy ô: `EditBox_M` cao 18 px lót ô cao 19 px với `HorzFormat=Tiled`, còn `paint_image` hễ một trục là `Tiled` thì lát cả hai trục ở cỡ gốc nên khung ngắn 1 px. CEGUI `ImageryComponent` quyết từng trục (ngang lát, dọc vẫn kéo giãn). `paint.cpp` nay dựng lưới theo từng trục (`TileAxis`, `Slice`); không có đường nào cần lát cả hai trục mà đổi kết quả. Đo pixel cột x=560 (ô ID) và x=690 (ô đuôi) trên cửa sổ thật: hai khung trùng từng hàng (viền 270/286, bóng 271/285). `ui_logon_tests` 4 ca mới, `gui_sheet_tests`, `gui_real_tests`, `ui_flow_tests` xanh. Không thêm test cho đường vẽ (kiểm bằng ảnh).
+
+Tablet: `kTabletScale = 0.8` ở `hud.cpp` (`layout_scale`; `State::is_tablet` = Android/iOS mà không dùng layout điện thoại). Màn 1280x800 mật độ 160 là 10,1 inch nên layout PC ở 1:1 chiếm 62% bề ngang (bảng chọn máy chủ 790 px); dàn trên khung ảo lớn hơn màn 1,25 lần thì bảng còn 632 px, chữ vẫn dàn theo điểm ảnh của màn. 0.8 là giá trị ước, chờ mắt người xem trên máy thật.
+
+### APK thiếu khung và chữ tràn ô so với PC (2026-10-16)
+
+Cùng một luồng vẽ (`gui::Hub` → `paint.cpp` → `Painter`) mà APK lệch PC vì hai nhánh riêng của nền tảng, không phải vì mã vẽ khác:
+- Thiếu khung: log tablet `không đọc được Common/CommonFrame28.tga`. Danh sách gói `Table/mobile.files.tsv` lập từ một lần chạy vết (`TOOLS/run/trace_assets.py`) ngày 2026-10-15, trước khi bảng đăng nhập có thanh tab và viền trang trí, nên APK không mang ảnh đó. Chạy lại vết thấy thêm đúng 4 tệp (`CommonFrame28.tga`, `Quest.layout.xml`, `gates.tsv`, `icons.tsv`). Chú ý: `trace_assets.py` ghi đè cả danh sách và chỉ ra 780 dòng trong khi danh sách cũ 2775 dòng (còn script, config, effect, layout khác), nên danh sách mới là hợp của cũ và vết; chạy lại công cụ này mà không gộp thì gói thiếu tệp. Sau khi nấu và đóng lại, tablet hiện đủ thanh tab, viền, đường kẻ quanh "即将登录" và log sạch lỗi đọc tệp.
+- Chữ tràn ô và nhoè: nhánh `kTabletScale = 0.8` co khung nhưng `Painter::add_text` dàn chữ ở cỡ điểm ảnh của màn, nên chữ không co theo (`@changyou.co`, `绑定翻牌\密保卡` bị cắt). Thử co cả chữ cùng khung thì phông bitmap 12 px thành ~9,6 px, nhoè và nhỏ: tablet xấu hơn bản trước. Đã gỡ cả hai (`kTabletScale`, `State::is_tablet`, đường co chữ trong `Painter`): tablet về layout PC 1:1, chữ bitmap sắc nét như bản gốc (`hud.cpp`, comment `kLayoutWidth`). Cỡ giao diện trên tablet muốn nhỏ hơn mà vẫn nét thì cần chữ vector dựng theo cỡ điểm ảnh (như `engine/ui/font.cpp` của JDtlbb dùng stb_truetype), chưa làm.
+- MSAA 4x trên tablet (thử vì gfxview của JDtlbb chạy MSAA 4x 60 FPS trên đúng máy này): cảnh đăng nhập từ khung 33,3 ms (30 Hz đạt) lên 40 ms, 24,8 FPS, vượt ngân sách 90%, phần "nộp" 25 ms. Đã hoàn lại một mẫu (`kSamples` ở `prelude.hpp`, ghi số đo ở comment).
+- Còn lệch: mô hình cảnh (thiếu tượng đá, xích, tán cây, cổng vòm ở góc trái) trên tablet. Nghi do trần tam giác của điện thoại (`kPhoneTriangleCap` 150 nghìn, cảnh không giới hạn là 1,05 triệu) ép LOD thô; số lệnh vẽ gần bằng PC (309 so với 315) và cùng 170 mesh, 186 vật thể nên không phải thiếu tệp. Chưa so cùng khung từng vật thể.
+
 ### Hệ số LOD ổn định, hết chớp ở vật thể xa (2026-10-16)
 
 Sau khi lưới skin có LOD, trần tam giác của điện thoại đạt được nên `Forward::choose_lods` bắt đầu tác dụng thật. Cách cũ mỗi khung hạ hệ số 10% rồi nhân 1,15 tới khi vừa trần, nên hệ số dao động và các vật thể gần ngưỡng đổi mức qua lại: đo trên tablet 177 lệnh vẽ đổi mức trong 120 khung (đứng yên, nhìn thấy là chớp). Cách mới giữ hệ số giữa các khung, chỉ tăng khi vượt trần, và mỗi 60 khung khi tổng dưới 90% trần thì tìm nhị phân hệ số nhỏ nhất vừa 95% trần (`lowest_bias`): 0 lần đổi mức trong 120 khung, cảnh đăng nhập 143 nghìn tam giác, tablet 30,0 FPS, chậm nhất 33,4 ms. Máy bàn (trần 0) không đổi.
-
-### Hiệu ứng hiện trên APK: ảnh hạt đọc theo bản nấu (2026-10-16)
-
-Màn đăng nhập của APK không có hạt nào (lửa, ánh xanh, khói). Log tablet: `Hiệu ứng: bỏ ảnh Material/png_flare.dds.png: không thấy tệp` cho mọi ảnh, `khung có 0 quad trong 0 lô từ 147 Field; 0 ảnh đã tải`. Nguyên nhân gốc: `FxView` (hạt billboard) và `paint_particle` (hạt mesh) mở ảnh `Material/*.dds.png` thẳng ở gốc dữ liệu, còn gói APK chỉ mang bản nấu dưới `mobile/astc/Material` (1477 tệp, đủ ảnh hạt). Hai đường này không đi qua `resource::texture_file` như mesh, quái, giao diện.
-- Sửa: `fx_view.cpp` và `graphic/scene.cpp` chọn tệp bằng `texture_file(root, ảnh, texture_tier)` rồi `read_stored` (TLTX, DDS, PNG). `FxView::load` nhận `TextureTier`.
-- Ảnh nén không sửa từng điểm ảnh ở CPU được, nên hai phép sửa alpha cũ (`drop_alpha` cho "one one", `darken_from_brightness` cho khói) chuyển vào shader: `FxPush::mode.y` = 0 giữ ảnh, 1 bỏ alpha của ảnh, 2 khói (đen, alpha là độ sáng). Cùng một đường cho PC và điện thoại; `fx.ps.slang` và `fx.ps.glsl` sửa như nhau. Khoá bộ nhớ đệm ảnh còn `đường dẫn|lặp`.
-- Đo sau sửa (tablet PowerVR GE8320, 1280x800): `khung có 2907 quad trong 138 lô từ 147 Field; 25 ảnh đã tải`, không còn dòng bỏ ảnh hay bỏ hạt mesh; khung vẫn 33,3 ms (30,0 FPS, chậm nhất 33,5). Ảnh chụp: lửa cam mép trái, ánh xanh mép phải, khói quanh logo. PC 120 Hz: lửa và sói xanh như trước.

@@ -38,7 +38,7 @@ void Display::State::ensure_water() {
     if (key.empty() || data_root.empty()) return;
     resource::Model model = water_model(*stage, *ground, material_script(), data_root);
     if (model.meshes.empty()) return;
-    ReadMesh read = baked_mesh(std::move(model));
+    ReadMesh read = baked_mesh(std::move(model), bake_rules());
     water_mesh.emplace();
     water_mesh->model = std::move(read.model);
     auto uploaded = resource::upload_queued(*device, water_mesh->model, read.baked);
@@ -75,7 +75,7 @@ void Display::State::ensure_sky() {
     if (key.empty() || data_root.empty()) return;
     resource::Model model = sky_model(*stage, data_root);
     if (model.meshes.empty()) return;
-    ReadMesh read = baked_mesh(std::move(model));
+    ReadMesh read = baked_mesh(std::move(model), bake_rules());
     // prepare giữ con trỏ vào model và uploaded, nên hai thứ phải đứng yên trước khi prepare.
     sky_mesh.emplace();
     sky_mesh->model = std::move(read.model);
@@ -121,6 +121,7 @@ KeptGround* Display::State::make_ground(int scene_id) {
     upload.data_root = &data_root;
     upload.device = device.get();
     upload.forward = forward.get();
+    upload.bake = bake_rules();
     if (!upload_ground(upload)) {
         grounds.pop_back();
         return nullptr;
@@ -242,7 +243,7 @@ std::size_t Display::State::load_painted_mesh(const std::string& mesh, std::stri
         kept_by_name.emplace(key, kMissing);
         return kMissing;
     }
-    return keep_model(key, baked_mesh(std::move(*model)));
+    return keep_model(key, baked_mesh(std::move(*model), bake_rules()));
 }
 
 bool Display::State::keep_ground(int scene_id, ReadMesh read) {

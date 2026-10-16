@@ -257,7 +257,7 @@ void held_turn_spins_one_revolution_per_second(Context& context) {
     ui::panel::advance_flow(flow, 0.5F);
     const float full = ui::panel::shown_model(flow, facts).yaw + ui::panel::kFullTurn;
     context.expect(full > -0.001F && full < 0.001F, "giữ chuột thì quay tiếp dù đã trượt khỏi nút");
-    ui::panel::release_flow(flow);
+    ui::panel::release_flow(flow, {});
     ui::panel::hold_flow(flow, "");
     ui::panel::advance_flow(flow, 1.0F);
     const float rest = ui::panel::shown_model(flow, facts).yaw + ui::panel::kFullTurn;
@@ -289,10 +289,10 @@ void hover_reaches_the_create_panel(Context& context) {
     const LoginFacts facts = world.facts();
     LoginFlow flow;
     sign_in(flow);
-    ui::panel::hover_flow(flow, "CreateRole_Author", std::nullopt);
-    ui::panel::release_flow(flow);
+    ui::panel::hover_flow(flow, "CreateRole_Author", std::nullopt, false);
+    ui::panel::release_flow(flow, {});
     ui::panel::press_flow(flow, "SelectRole_Create", facts);
-    ui::panel::hover_flow(flow, "CreateRole_Author", std::nullopt);
+    ui::panel::hover_flow(flow, "CreateRole_Author", std::nullopt, false);
     const ui::panel::Key info{.window = "CreateRole_Info", .name = "Text"};
     context.expect(flow.create.widgets.value(info) == "#{DLJM_XML_22}", "rê vào nút tạo thì hiện mô tả");
     ui::panel::Deck deck;
@@ -331,17 +331,17 @@ void zoom_buttons_set_the_shown_speed(Context& context) {
     context.expect(ui::panel::shown_model(flow, facts).zoom == 1, "bảng chọn giữ nút cộng thì phóng tới");
     ui::panel::hold_flow(flow, "");
     context.expect(ui::panel::shown_model(flow, facts).zoom == 1, "trượt khỏi nút mà chưa nhả thì còn phóng");
-    ui::panel::release_flow(flow);
+    ui::panel::release_flow(flow, {});
     ui::panel::hold_flow(flow, "");
     context.expect(ui::panel::shown_model(flow, facts).zoom == 0, "nhả nút bảng chọn thì thôi phóng");
     ui::panel::hold_flow(flow, "SelectRole_ModelZoomOut");
     context.expect(ui::panel::shown_model(flow, facts).zoom == -1, "bảng chọn giữ nút trừ thì lùi ra");
-    ui::panel::release_flow(flow);
+    ui::panel::release_flow(flow, {});
     ui::panel::press_flow(flow, "SelectRole_Create", facts);
     ui::panel::press_flow(flow, "CreateRole_ModelZoomIn", facts);
     ui::panel::hold_flow(flow, "");
     context.expect(ui::panel::shown_model(flow, facts).zoom == 1, "màn tạo giữ phóng dù chuột đã trượt");
-    ui::panel::release_flow(flow);
+    ui::panel::release_flow(flow, {});
     ui::panel::hold_flow(flow, "");
     context.expect(ui::panel::shown_model(flow, facts).zoom == 0, "nhả nút màn tạo thì thôi phóng");
 }

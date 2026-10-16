@@ -92,6 +92,8 @@ void Display::State::post_load(std::shared_ptr<const world::ShownScene> next, bo
     FeedJob job;
     job.root = data_root;
     job.tier = texture_tier;
+    job.bake = bake_rules();
+    job.pending_limit = policy.pending_bytes;
     job.scene = loading.scene;
     job.bake_ground = needs_fresh_ground(loading);
     remember_meshes(loading, job);
@@ -294,9 +296,8 @@ void Display::State::settle_first_scene(const std::stop_token& stop) {
             core::sleep_for(kWaitPause);
             continue;
         }
-        // Điện thoại: mặt đất xong là vẽ khung đầu, mesh vào dần qua pump_load. Tablet GE8320 (đo 2026-10-15) mất hơn
-        // 10 giây đặt 170 mesh, suốt lúc đó màn trắng.
-        if (ui::kPhone) break;
+        // Mặt đất xong là vẽ khung đầu, mesh vào dần qua pump_load (GraphicsPolicy::shows_first_frame_early).
+        if (policy.shows_first_frame_early) break;
         while (loading.cursor < loading.table.meshes.size() && !stop.stop_requested()) {
             if (!step_mesh(loading)) core::sleep_for(kWaitPause);
         }
@@ -336,7 +337,7 @@ std::size_t Display::State::load_mesh(const std::string& mesh) {
         kept_by_name.emplace(mesh, kMissing);
         return kMissing;
     }
-    return keep_model(mesh, baked_mesh(std::move(*model), true));
+    return keep_model(mesh, baked_mesh(std::move(*model), bake_rules(), true));
 }
 
 std::size_t Display::State::keep_model(const std::string& mesh, ReadMesh read) {

@@ -1,5 +1,19 @@
-// Camera cảnh của client 2026; luật và nguồn ở follow_camera.hpp. Mỗi hàm dưới ghi địa chỉ hàm
-// tương ứng trong Render.dll bản 3.71 (gốc 0x180000000).
+/*==============================================================================
+ *  THIENLONG  |  GAME CLIENT
+ *------------------------------------------------------------------------------
+ *  TỆP       : src/client/figure/control/follow_camera.cpp
+ *  PHÂN HỆ   : Figure / Control / Follow Camera
+ *  CHUẨN     : C++23
+ *------------------------------------------------------------------------------
+ *  CHỨC NĂNG
+ *  - Camera cảnh của client 2026; luật và nguồn ở follow_camera.hpp. Mỗi hàm
+ *    dưới ghi địa chỉ hàm tương ứng trong Render.dll bản 3.71 (gốc
+ *    0x180000000).
+ *------------------------------------------------------------------------------
+ *  TÁC GIẢ   : HiepHoon
+ *  TELEGRAM  : @Hoon9xx
+ *============================================================================*/
+
 #include "control/follow_camera.hpp"
 
 #include "control/ground.hpp"
@@ -288,9 +302,17 @@ void FollowCamera::update(const Ground& ground) noexcept {
     const Try settled{.distance = distance_, .pitch = pitch_};
     pose_.eye = eye_position(probe.target, arm_of(probe, settled));
     pose_.target = probe.target;
+    pose_.eye.y += vib_.bias;
+    pose_.target.y += vib_.bias;
     pose_.fov_degrees = fov();
     pose_.near_plane = rules_.near_plane;
     pose_.far_plane = rules_.far_plane;
+}
+
+void FollowCamera::tick_shake(const Ground& ground) noexcept {
+    const bool was = vib_.active;
+    static_cast<void>(vib_step(vib_));
+    if (was) update(ground);
 }
 
 } // namespace game::control

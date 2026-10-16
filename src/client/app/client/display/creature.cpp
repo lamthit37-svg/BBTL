@@ -25,6 +25,7 @@
 #include "math/vector.hpp"
 #include "render/forward.hpp"
 
+#include <algorithm>
 #include <array>
 #include <cmath>
 #include <cstdint>
@@ -118,6 +119,20 @@ core::Status CreatureActor::update(core::Clock::time_point now, const CreatureSt
     }
     placed_ = placement(stand, asset_->figure().scale);
     return core::ok();
+}
+
+float CreatureActor::board_lift(float terrain_scale_y) const noexcept {
+    if (!(terrain_scale_y > 0.0F) || !std::isfinite(terrain_scale_y)) return 0.0F;
+    const look::CreatureFigure& figure = asset_->figure();
+    // 0,1 mét trên đỉnh, cùng số RFObj_Actor.cpp cộng sau bbox hay fBoardHeight.
+    constexpr float kClearanceMetres = 0.1F;
+    constexpr float kMaxBoardMetres = 40.0F;
+    const float clearance = kClearanceMetres * terrain_scale_y;
+    const float cap = kMaxBoardMetres * terrain_scale_y;
+    float lift = clearance;
+    if (figure.plate_height > 0.0F) lift += figure.plate_height * terrain_scale_y;
+    else lift += figure.height * figure.scale[1];
+    return std::min(lift, cap);
 }
 
 void CreatureActor::append(std::vector<render::Instance>& out) const {
