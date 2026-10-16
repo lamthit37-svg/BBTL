@@ -13,6 +13,7 @@
  *============================================================================*/
 
 #pragma once
+#include "client/display/auto_login.hpp"
 #include "client/display/frame_fit.hpp"
 #include "client/display/graphic/prelude.hpp"
 #include "core/governor.hpp"
@@ -113,6 +114,8 @@ struct Display::State {
     // Ghi chỗ đứng cho luồng cửa sổ báo máy chủ (hoặc xoá khi không có gì để báo).
     void publish_spot(bool is_live);
     [[nodiscard]] render::Camera frame_camera(FrameAsk ask);
+    // Chép mắt và hướng camera sang tai nghe cho luồng cửa sổ. Gọi khi has_lens vừa đúng.
+    void publish_ear();
     [[nodiscard]] render::Camera idle_view(FrameAsk ask);
     [[nodiscard]] bool shows_world_role() const;
     [[nodiscard]] bool shows_role_scene() const;
@@ -123,6 +126,10 @@ struct Display::State {
     void seed_ui_events(std::span<const std::string> texts);
     void post_request(ui::Action action);
     void pump_online();
+    void arm_auto_login(const DisplayDesc& desc);
+    void start_auto_login();
+    void drive_auto_login(const ui::panel::OnlineReply& reply);
+    void queue_online(ui::panel::OnlineAsk ask);
     void run_to_scene_point(ui::RunTo target);
     void open_login();
     void store_roles() const;
@@ -150,8 +157,8 @@ struct Display::State {
     [[nodiscard]] BakeRules bake_rules() const noexcept {
         return {.texture_edge = policy.texture_edge, .builds_lods = policy.builds_lods, .atlas_edge = atlas_edge};
     }
-    // Vùng của màn hình mà khung này vẽ vào: khung cố định khi đang ở màn đăng nhập có login_frame, còn lại
-    // là trọn màn. Cỡ camera, giao diện và toạ độ chuột đều tính theo vùng này.
+    // Vùng giao diện của khung: khung tham chiếu (placed_frame) khi đang ở màn đăng nhập và frames_login, còn lại trọn
+    // màn. Giao diện và toạ độ chuột tính theo vùng này; cảnh 3D luôn vẽ trọn màn (screen_size).
     [[nodiscard]] FrameRect frame_rect() const noexcept;
     // Điểm chuột của sự kiện (chuẩn hoá theo cả màn) đổi sang chuẩn hoá theo frame_rect.
     [[nodiscard]] control::ScreenPoint framed_point(const control::InputEvent& event) const noexcept;
@@ -189,6 +196,8 @@ struct Display::State {
     // --walk: ghi quãng chân đi được ở khung này (sau simulate_motion) và in tổng kết lúc thoát.
     void note_walk_step();
     void report_walk() const;
+    // Đặt viewport của lượt vẽ vào frame_rect cho giao diện: cảnh vừa vẽ trọn màn, giao diện vẽ theo điểm ảnh của khung.
+    void bound_hud(gpu::CommandList& list) const;
     [[nodiscard]] core::Status paint_hud(gpu::CommandList& list, std::uint32_t slot) const;
     struct FxAsk {
         gpu::CommandList* list = nullptr;
@@ -200,6 +209,7 @@ struct Display::State {
     [[nodiscard]] std::size_t fx_mesh_slot(const fx::Field& field);
     void push_fx_field(const fx::Field& field, std::size_t slot);
     void append_fx_meshes();
+    void paint_select_ring(std::vector<fx::BillboardBatch>& out) const;
     void draw_fx(const FxAsk& ask) const;
     // Camera, mọi instance, hiệu ứng rồi HUD của một khung, vào ảnh slot.
     [[nodiscard]] core::Status draw_world(gpu::CommandList& list, std::uint32_t slot);
@@ -495,6 +505,14 @@ struct Display::State {
     std::vector<ui::panel::OnlineAsk> online_asks;
     std::vector<ui::panel::OnlineReply> online_replies;
     std::optional<EntryPoint> online_entry;
+    // Đăng nhập tự động của công cụ thử (auto_login.hpp) và máy chủ nó nối; rỗng khi không bật. Chỉ luồng vẽ chạm vào.
+    std::optional<AutoLogin> auto_login;
+    ui::panel::ServerName auto_server;
+    // Có đăng nhập tự động thì --shot chờ tới khung online_shot_from (đặt khi vào game), để người chơi khác kịp hiện.
+    bool shot_waits_online = false;
+    std::optional<std::uint64_t> online_shot_from;
+    // Số lần máy chủ kéo nhân vật về (pull_to), để đo đi giật khi chơi trực tuyến.
+    std::uint32_t pulls = 0;
     // Hội thoại NPC: tin của phiên mạng chờ luồng vẽ và việc người chơi nhờ chờ vòng cửa sổ (talk_guard bảo vệ cả hai).
     // talk_title là tên NPC của hộp đang mở. hovered_npc là NPC bấm được dưới chuột ở khung này; is_npc_press: nhấn trái bắt
     // đầu trên NPC, quái hay vật rơi thì không thành lệnh đi tới khi nhả. talk_goal là NPC hay vật rơi người chơi vừa bấm và đang
@@ -520,6 +538,8 @@ struct Display::State {
     fight::Combat combat;
     // Ms còn lại của Button_Action1..10. hud_view mượn span này trong prepare.
     std::array<std::uint32_t, ui::panel::kSkillBarSlots> bar_left_ms{};
+    // Tên mục tiêu đã tra. hud_view là const nên chuỗi này mutable, sống tới hết prepare.
+    mutable std::string hud_target_name;
     // Sinh lực lần cuối máy chủ báo, để dựng lại hero sau apply_role.
     std::optional<ui::panel::talk::Vitals> vitals_seen;
     // Đã vào game qua máy chủ (chuỗi đăng nhập báo kEntered, tới khi mất phiên): ô thao tác gửi CastSkill thay vì phát đòn tại
@@ -706,8 +726,10 @@ struct Display::State {
     Procedure procedure = Procedure::kPlay;
     // DisplayDesc::is_bare: paint_hud không ghi lệnh vẽ nào.
     bool is_bare = false;
-    // DisplayDesc::login_frame: khung cố định của màn đăng nhập; rỗng là vẽ trọn màn.
-    std::optional<PixelSize> login_frame;
+    // Bảng đăng nhập nằm trong khung tham chiếu (placed_frame): mọi màn trừ layout điện thoại, vốn dàn cho trọn màn.
+    bool frames_login = false;
+    // DisplayDesc::ui_density, đã thay giá trị hỏng bằng 1.
+    float ui_density = 1.0F;
     // Chính sách đồ hoạ của phiên (DisplayDesc::quality), đặt một lần đầu launch. Đường vẽ đọc nó thay vì hỏi nền tảng.
     GraphicsPolicy policy;
     // Trần cạnh atlas cọ: kAtlasEdge, hạ theo cỡ texture lớn nhất của thiết bị khi open_gpu đã có thiết bị.
@@ -763,7 +785,8 @@ struct Display::State {
     // Số lăn thay cho rand() của Start_MagicSend khi chọn bước của skill kiểu ngẫu nhiên.
     std::linear_congruential_engine<std::uint32_t, 48271U, 0U, 2147483647U> strike_dice{std::random_device{}()};
     // Tên âm thanh của khối con kịch bản vừa tới mốc mà luồng cửa sổ chưa lấy, có khoá steer_guard.
-    std::vector<std::string> sounds_due;
+    std::vector<HeardSound> sounds_due;
+    std::optional<HeardEar> heard_ear;
     std::uint32_t sim_ms = 0;
     // minstd_rand với kiểu kết quả đúng 32 bit trên mọi nền (như avatar::Gait), để không phải ép kiểu số lăn.
     std::linear_congruential_engine<std::uint32_t, 48271U, 0U, 2147483647U> jump_dice{std::random_device{}()};

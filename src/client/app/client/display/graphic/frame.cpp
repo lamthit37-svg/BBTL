@@ -129,11 +129,12 @@ void Display::act(PlayAct what, std::uint32_t slot) noexcept {
     }
 }
 
-std::vector<std::string> Display::take_sounds() {
+Display::SoundBatch Display::take_sounds() {
     const std::scoped_lock<std::mutex> locked(state_->steer_guard);
-    std::vector<std::string> due;
-    due.swap(state_->sounds_due);
-    return due;
+    SoundBatch batch;
+    batch.ear = state_->heard_ear;
+    batch.due.swap(state_->sounds_due);
+    return batch;
 }
 
 void Display::input(std::span<const control::InputEvent> events) {
@@ -503,8 +504,8 @@ core::Status Display::State::render() {
     const core::Result<gpu::CommandList*> list = device->begin_commands(gpu::QueueType::kGraphics);
     if (!list) return std::unexpected(list.error());
     screen->set_clear(light.clear_color());
-    const FrameRect frame = frame_rect();
-    screen->set_view({.x = frame.x, .y = frame.y, .width = frame.width, .height = frame.height});
+    // Cảnh luôn vẽ trọn màn; bảng đăng nhập thu vào khung tham chiếu ở bound_hud.
+    screen->set_view({.x = 0, .y = 0, .width = screen->width(), .height = screen->height()});
     const core::Result<std::uint32_t> slot = screen->begin(**list);
     // Bề mặt đổi cỡ giữa chừng: bỏ khung này, spin() dựng lại ở khung kế.
     const bool is_wait = !slot && slot.error().code() == core::ErrorCode::kTimeout;
@@ -572,8 +573,7 @@ core::Status Display::State::draw_world(gpu::CommandList& list, std::uint32_t sl
     const float elapsed = std::chrono::duration<float>(frame_time - started).count();
     FrameAsk ask;
     ask.elapsed = elapsed;
-    const FrameRect frame = frame_rect();
-    ask.size = render::ViewSize{.width = frame.width, .height = frame.height};
+    ask.size = render::ViewSize{.width = screen->width(), .height = screen->height()};
     render::Camera camera = ask.size.height > 0 ? frame_camera(ask) : render::Camera{};
     camera.pixels_high = static_cast<float>(ask.size.height);
     advance_fx(elapsed);
@@ -590,7 +590,25 @@ core::Status Display::State::draw_world(gpu::CommandList& list, std::uint32_t sl
     const FxAsk effects{.list = &list, .camera = &camera, .slot = slot, .elapsed = elapsed};
     draw_fx(effects);
     build_extras();
+    bound_hud(list);
     return paint_hud(list, slot);
+}
+
+void Display::State::bound_hud(gpu::CommandList& list) const {
+    const FrameRect frame = frame_rect();
+    const bool is_whole = frame.width == screen->width() && frame.height == screen->height();
+    if (is_whole) return;
+    gpu::Viewport viewport;
+    viewport.x = static_cast<float>(frame.x);
+    viewport.y = static_cast<float>(frame.y);
+    viewport.width = static_cast<float>(frame.width);
+    viewport.height = static_cast<float>(frame.height);
+    list.set_viewport(viewport);
+    const gpu::Scissor scissor{.x = static_cast<std::int32_t>(frame.x),
+        .y = static_cast<std::int32_t>(frame.y),
+        .width = frame.width,
+        .height = frame.height};
+    list.set_scissor(scissor);
 }
 
 core::Status Display::State::submit_frame(gpu::CommandList& list) const {
@@ -637,6 +655,8 @@ std::optional<ShotPlan> Display::State::record_shot(gpu::CommandList& list, std:
     if (pace_font && !is_bare && pace_filled < kSamplesForShot) return std::nullopt;
     // --talk-demo fight hay fall: chờ tới khi có số bay trên màn, nếu không ảnh chụp ở khung 30 chỉ thấy nhân vật đang chạy tới quái.
     if (is_fight_demo() && !has_floated) return std::nullopt;
+    const bool is_online_due = online_shot_from.has_value() && frame_serial >= *online_shot_from;
+    if (shot_waits_online && !is_online_due) return std::nullopt;
     shot_taken = true;
     const gpu::Format colour = screen->color_format();
     const std::uint32_t width = screen->width();

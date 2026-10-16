@@ -14,6 +14,7 @@
 
 #include "client/display/creature.hpp"
 
+#include "anim/pose.hpp"
 #include "avatar/avatar.hpp"
 #include "avatar/gait.hpp"
 #include "core/clock.hpp"
@@ -27,6 +28,7 @@
 
 #include <algorithm>
 #include <array>
+#include <chrono>
 #include <cmath>
 #include <cstdint>
 #include <cstdio>
@@ -42,6 +44,26 @@
 
 namespace game::client {
 namespace {
+
+// Trần phần lùi mốc khi xác đã nằm sẵn. Clip chết dài hơn là dữ liệu hỏng; lùi quá thì duration_cast sang
+// nano-giây tràn (hành vi không xác định). Hai phút đủ mọi cú ngã của client gốc.
+constexpr float kLongestDeath = 120.0F;
+
+// Clip chết phát một lần. Hết thì lặp xác, không có xác thì giữ đúng độ dài: apply chỉ quay về khung đầu khi thời
+// điểm vượt độ dài, đúng bằng độ dài thì giữ khoá cuối. Không có clip nào thì thời điểm 0 (tư thế đứng).
+[[nodiscard]] avatar::Playing death_playing(float elapsed, float death_length, float corpse_length) noexcept {
+    if (!std::isfinite(elapsed) || elapsed < 0.0F) elapsed = 0.0F;
+    const bool has_death = std::isfinite(death_length) && death_length > 0.0F;
+    const bool has_corpse = std::isfinite(corpse_length) && corpse_length > 0.0F;
+    if (has_death && elapsed < death_length) return {.stance = avatar::Stance::kDeath, .time = elapsed};
+    if (has_corpse) {
+        const float into = has_death ? elapsed - death_length : elapsed;
+        const float time = into > 0.0F ? anim::loop_time(into, corpse_length) : 0.0F;
+        return {.stance = avatar::Stance::kCorpse, .time = time};
+    }
+    if (has_death) return {.stance = avatar::Stance::kDeath, .time = death_length};
+    return {.stance = avatar::Stance::kDeath, .time = 0.0F};
+}
 
 // Ma trận đặt: phóng theo ba trục của mẫu, quay quanh +y theo hướng mặt rồi dời tới chân. Hướng 0 nhìn +z, hướng pi/2
 // nhìn +x (cùng phép với PlayerActor, chỉ thêm tỉ lệ riêng từng trục).
@@ -111,10 +133,29 @@ CreatureActor::CreatureActor(std::shared_ptr<const CreatureAsset> asset, std::ui
     gait_.set_fidget(true);
 }
 
+avatar::Playing CreatureActor::clip_at(core::Clock::time_point now, const CreatureStand& stand) {
+    const std::optional<avatar::Avatar>& loaded = asset_->avatar();
+    if (!loaded) return {};
+    const avatar::Avatar& body = *loaded;
+    if (!stand.is_dead) {
+        died_at_.reset();
+        has_lived_ = true;
+        return gait_.update(now, stand.is_moving, lengths_);
+    }
+    if (!died_at_) {
+        float skip = has_lived_ ? 0.0F : body.death_length();
+        if (!std::isfinite(skip) || skip < 0.0F) skip = 0.0F;
+        if (skip > kLongestDeath) skip = kLongestDeath;
+        const auto lead = std::chrono::duration_cast<core::Clock::duration>(std::chrono::duration<float>(skip));
+        died_at_ = now - lead;
+    }
+    const float elapsed = std::chrono::duration<float>(now - *died_at_).count();
+    return death_playing(elapsed, body.death_length(), body.corpse_length());
+}
+
 core::Status CreatureActor::update(core::Clock::time_point now, const CreatureStand& stand) {
     if (asset_->avatar()) {
-        const avatar::Playing playing = gait_.update(now, stand.is_moving, lengths_);
-        const core::Status posed = skinner_.update(*asset_->avatar(), playing);
+        const core::Status posed = skinner_.update(*asset_->avatar(), clip_at(now, stand));
         if (!posed) return posed;
     }
     placed_ = placement(stand, asset_->figure().scale);

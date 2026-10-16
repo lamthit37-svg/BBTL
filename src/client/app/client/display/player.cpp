@@ -330,39 +330,50 @@ std::optional<std::uint32_t> PlayerActor::accept_strike(std::uint32_t skill, std
     const look::ChainPick pick = look::accept_chain(chain_, skill, run.kind, count, roll, !gait_.in_strike(now));
     if (!pick.plays || pick.slot >= run.steps.size()) return std::nullopt;
     const std::uint32_t step = run.steps[pick.slot];
-    if (!can_play(skill, step)) {
+    if (!can_play(StrikeCall{.skill = skill, .step = step})) {
         look::stop_chain(chain_);
         return std::nullopt;
     }
     return step;
 }
 
-bool PlayerActor::is_locked(core::Clock::time_point now) const {
-    return chain_.do_next || gait_.is_locked(now);
-}
+namespace {
 
-bool PlayerActor::can_play(std::uint32_t skill, std::uint32_t step) const {
-    const std::optional<std::size_t> index = avatar_.strike_index(skill, step);
-    if (!index) return false;
-    const avatar::StrikePlan plan = plan_of(*index);
-    return plan.length > 0.0F && plan.rate > 0.0F;
-}
+// slot là chỉ số trong các đòn của skill, không phải số bước ghi trong bảng.
+struct ChainSlot {
+    std::uint32_t skill = 0;
+    std::uint32_t slot = 0;
+};
 
-std::optional<std::uint32_t> PlayerActor::step_at(std::uint32_t skill, std::uint32_t slot) const noexcept {
+[[nodiscard]] std::optional<std::uint32_t> step_of(std::span<const look::Strike> strikes, ChainSlot which) noexcept {
     std::uint32_t seen = 0;
-    for (const look::Strike& strike : avatar_.strikes()) {
-        if (strike.skill != skill) continue;
-        if (seen == slot) return strike.step;
+    for (const look::Strike& strike : strikes) {
+        if (strike.skill != which.skill) continue;
+        if (seen == which.slot) return strike.step;
         ++seen;
     }
     return std::nullopt;
 }
 
+} // namespace
+
+bool PlayerActor::is_locked(core::Clock::time_point now) const {
+    return chain_.do_next || gait_.is_locked(now);
+}
+
+bool PlayerActor::can_play(const StrikeCall& call) const {
+    const std::optional<std::size_t> index = avatar_.strike_index(call.skill, call.step);
+    if (!index) return false;
+    const avatar::StrikePlan plan = plan_of(*index);
+    return plan.length > 0.0F && plan.rate > 0.0F;
+}
+
 [[nodiscard]] bool PlayerActor::play_deferred(core::Clock::time_point now, const Stand& stand) {
     const look::ChainPick next = look::finish_chain(chain_);
     if (!next.plays) return false;
-    const std::optional<std::uint32_t> step = step_at(chain_.skill, next.slot);
-    if (!step || !can_play(chain_.skill, *step)) return false;
+    const ChainSlot which{.skill = chain_.skill, .slot = next.slot};
+    const std::optional<std::uint32_t> step = step_of(avatar_.strikes(), which);
+    if (!step || !can_play(StrikeCall{.skill = chain_.skill, .step = *step})) return false;
     const avatar::Playing ended{.stance = avatar::Stance::kIdle};
     fire_cues(ended, stand);
     begin_strike(now, StrikeCall{.skill = chain_.skill, .step = *step});

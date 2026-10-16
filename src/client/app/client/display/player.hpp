@@ -185,10 +185,8 @@ private:
         bool fidget, bool demo);
 
     [[nodiscard]] avatar::StrikePlan plan_of(std::size_t index) const;
-    // Clip của bước này phát được: có trong avatar và length, rate đều dương (NaN thì không).
-    [[nodiscard]] bool can_play(std::uint32_t skill, std::uint32_t step) const;
-    // Bước thứ slot trong các đòn của skill, theo thứ tự strikes(). Không cấp phát.
-    [[nodiscard]] std::optional<std::uint32_t> step_at(std::uint32_t skill, std::uint32_t slot) const noexcept;
+    // Clip của call phát được: có trong avatar và length, rate đều dương (NaN thì không).
+    [[nodiscard]] bool can_play(const StrikeCall& call) const;
     // Chỉ gọi khi chain_.do_next. finish_chain chạy trước, kể cả khi bước không phát được.
     [[nodiscard]] bool play_deferred(core::Clock::time_point now, const Stand& stand);
     void release_chain(core::Clock::time_point now, const Stand& stand);

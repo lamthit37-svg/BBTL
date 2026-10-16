@@ -156,8 +156,8 @@ void Cast::on(const Flagged& note) {
     if (found != index_.end()) actors_[found->second].flags = note.flags;
 }
 
-// Chết là đứng tại chỗ rồi biến mất khỏi khung: đặt cả đích lẫn dáng hiện tại, không chờ advance, để khung kế đã không vẽ.
-// Chính nhân vật không nằm trong danh sách; nơi vẽ tự giữ trạng thái chết của mình.
+// Chết là nằm tại chỗ: đặt cả đích lẫn dáng hiện tại, không chờ advance. Nơi vẽ phát clip chết rồi giữ khung cuối,
+// hoặc lặp clip xác. Chính nhân vật không nằm trong danh sách; nơi vẽ tự giữ trạng thái chết của mình.
 void Cast::on(const Died& note) {
     if (note.id == self_id_) self_hp_ = std::uint8_t{0};
     const auto found = index_.find(note.id);

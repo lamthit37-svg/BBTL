@@ -17,6 +17,7 @@
  *============================================================================*/
 
 #include "client/assets.hpp"
+#include "client/display/auto_login.hpp"
 #include "client/display/display.hpp"
 #include "client/display/frame_fit.hpp"
 #include "client/display/policy.hpp"
@@ -158,6 +159,24 @@ void login_frame_letterboxes_tablet(Context& context) {
     context.expect(wide == Rect{.x = 240, .y = 0, .width = 1920, .height = 1080}, "màn dài thì dải đen hai bên");
     const Rect big = client::fit_frame(1920, 1200, 1280, 720);
     context.expect(big == Rect{.x = 0, .y = 60, .width = 1920, .height = 1080}, "cỡ lớn vẫn giữ tỉ lệ");
+}
+
+// Bảng chỉ thiết kế cho 1280x720 đặt giữa màn, cỡ vật lý theo mật độ: không lớn hơn 1280x720 điểm giao diện nhân mật độ,
+// thu nhỏ giữ tỉ lệ khi màn không đủ chỗ. Mật độ không dương coi như 1.
+void placed_frame_caps_by_density(Context& context) {
+    using Rect = client::FrameRect;
+    const Rect tablet = client::placed_frame(1280, 800, 1.0F);
+    context.expect(tablet == Rect{.x = 0, .y = 40, .width = 1280, .height = 720}, "tablet 160 dpi: 1280x720 giữa màn");
+    const Rect same = client::placed_frame(1280, 720, 1.0F);
+    context.expect(same == Rect{.x = 0, .y = 0, .width = 1280, .height = 720}, "PC 1280x720 trọn màn");
+    const Rect retina = client::placed_frame(2732, 2048, 2.0F);
+    context.expect(retina == Rect{.x = 86, .y = 304, .width = 2560, .height = 1440}, "iPad Pro mật độ 2: 2560x1440");
+    const Rect cramped = client::placed_frame(2048, 1536, 2.0F);
+    context.expect(cramped == Rect{.x = 0, .y = 192, .width = 2048, .height = 1152}, "không đủ chỗ thì thu giữ tỉ lệ");
+    const Rect roomy = client::placed_frame(1920, 1200, 1.0F);
+    context.expect(roomy == Rect{.x = 320, .y = 240, .width = 1280, .height = 720}, "màn lớn mật độ 1 giữ 1:1");
+    const Rect broken = client::placed_frame(1280, 800, 0.0F);
+    context.expect(broken == tablet, "mật độ hỏng coi như 1");
 }
 
 // Cỡ suy biến không được chia cho 0: trả trọn màn để khung vẫn vẽ được.
@@ -328,6 +347,47 @@ void options_take_quality(Context& context) {
     context.expect(!client::parse_options(kBad).has_value(), "--quality lạ bị từ chối");
 }
 
+// Chuỗi của đăng nhập tự động: SignIn, rồi Create khi tài khoản chưa có nhân vật, rồi Enter nhân vật đầu, rồi vào game.
+void auto_login_walks_sign_in_create_enter(Context& context) {
+    using Kind = ui::panel::OnlineReply::Kind;
+    client::AutoLogin login{.account = "tester01"};
+    const ui::panel::OnlineAsk sign = client::auto_sign_in(login, ui::panel::ServerName{.area = "a", .server = "s"});
+    context.expect(sign.work == ui::panel::OnlineWork::kSignIn && sign.account == "tester01", "đăng nhập đúng tài khoản");
+    context.expect(sign.server.server == "s", "đúng máy chủ đã chọn");
+    context.expect(sign.password.size() >= 6 && sign.password != sign.account, "mật khẩu máy chủ nhận được");
+    ui::panel::OnlineReply empty;
+    empty.kind = Kind::kRoster;
+    const std::optional<ui::panel::OnlineAsk> create = client::auto_next(login, empty);
+    context.expect(create && create->work == ui::panel::OnlineWork::kCreate, "chưa có nhân vật thì tạo");
+    context.expect(create && create->role.name == "tester01" && create->role.sex == 1, "nhân vật nam tên tài khoản");
+    ui::panel::OnlineReply roster = empty;
+    ui::panel::Role made;
+    made.name = "tester01";
+    made.id = 42;
+    roster.roles.push_back(made);
+    const std::optional<ui::panel::OnlineAsk> enter = client::auto_next(login, roster);
+    context.expect(enter && enter->work == ui::panel::OnlineWork::kEnter && enter->role.id == 42, "vào nhân vật đầu");
+    context.expect(!client::auto_next(login, roster).has_value(), "danh sách lặp lại thì không gửi lần hai");
+    ui::panel::OnlineReply entered;
+    entered.kind = Kind::kEntered;
+    context.expect(!client::auto_next(login, entered).has_value(), "vào game không cần gửi gì");
+    context.expect(login.step == client::AutoLogin::Step::kPlay, "tới bước chơi");
+}
+
+// Bị từ chối hay mất phiên thì dừng hẳn, không thử lại và không gửi gì nữa.
+void auto_login_stops_on_refusal(Context& context) {
+    using Kind = ui::panel::OnlineReply::Kind;
+    client::AutoLogin login{.account = "tester02"};
+    static_cast<void>(client::auto_sign_in(login, ui::panel::ServerName{}));
+    ui::panel::OnlineReply refused;
+    refused.kind = Kind::kRefused;
+    context.expect(!client::auto_next(login, refused).has_value(), "từ chối thì không gửi");
+    context.expect(login.step == client::AutoLogin::Step::kStopped, "dừng hẳn");
+    ui::panel::OnlineReply roster;
+    roster.kind = Kind::kRoster;
+    context.expect(!client::auto_next(login, roster).has_value(), "đã dừng thì bỏ qua trả lời sau");
+}
+
 void options_allow_launch_without_arguments(Context& context) {
     const std::optional<client::Options> bare = client::parse_options({});
     context.expect(bare.has_value(), "không đối số nào (bấm đúp exe) là hợp lệ");
@@ -404,6 +464,7 @@ constexpr std::array kCases{
     Case{.name = "options_accept_client_size_limits", .body = &options_accept_client_size_limits},
     Case{.name = "login_window_ignores_chosen_size", .body = &login_window_ignores_chosen_size},
     Case{.name = "login_frame_letterboxes_tablet", .body = &login_frame_letterboxes_tablet},
+    Case{.name = "placed_frame_caps_by_density", .body = &placed_frame_caps_by_density},
     Case{.name = "login_frame_survives_empty_sizes", .body = &login_frame_survives_empty_sizes},
     Case{.name = "login_frame_maps_touch_to_frame", .body = &login_frame_maps_touch_to_frame},
     Case{.name = "options_take_bare_validate_flag", .body = &options_take_bare_validate_flag},
@@ -416,6 +477,8 @@ constexpr std::array kCases{
     Case{.name = "policy_mobile_keeps_measured_limits", .body = &policy_mobile_keeps_measured_limits},
     Case{.name = "quality_names_round_trip", .body = &quality_names_round_trip},
     Case{.name = "options_take_quality", .body = &options_take_quality},
+    Case{.name = "auto_login_walks_sign_in_create_enter", .body = &auto_login_walks_sign_in_create_enter},
+    Case{.name = "auto_login_stops_on_refusal", .body = &auto_login_stops_on_refusal},
     Case{.name = "asset_book_reads_group_stamp_and_path", .body = &asset_book_reads_group_stamp_and_path},
     Case{.name = "assets_copy_only_what_changed", .body = &assets_copy_only_what_changed},
 };

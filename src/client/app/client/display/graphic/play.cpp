@@ -61,6 +61,10 @@ void Display::State::place_at(int scene_id) {
 void Display::State::pull_to(core::GroundPoint spot) {
     if (ground == nullptr || !scale_ok(ground->file)) return;
     const map::TerrainFile& file = ground->file;
+    ++pulls;
+    const core::GroundPoint here = game_of(file, walk);
+    std::println("Máy chủ kéo về lần {}: tới ({:.2f}, {:.2f}) m, client đang ở ({:.2f}, {:.2f}) m", pulls, spot.x,
+        spot.z, here.x, here.z);
     walk.x = file.origin.x + (spot.x * file.scale.x);
     walk.z = file.origin.z + (spot.z * file.scale.z);
     prev_x = walk.x;
@@ -180,7 +184,21 @@ render::Camera Display::State::frame_camera(FrameAsk ask) {
     clip_far = pose.far_plane;
     lens = lens_of(pose, aspect_of(ask.size));
     has_lens = true;
+    publish_ear();
     return camera_of(pose, ask.size);
+}
+
+void Display::State::publish_ear() {
+    if (!has_lens) return;
+    HeardEar ear;
+    ear.x = lens.eye.x;
+    ear.y = lens.eye.y;
+    ear.z = lens.eye.z;
+    ear.forward_x = lens.forward.x;
+    ear.forward_y = lens.forward.y;
+    ear.forward_z = lens.forward.z;
+    const std::scoped_lock<std::mutex> locked(steer_guard);
+    heard_ear = ear;
 }
 
 // Sự kiện tới theo thứ tự; cái nào chưa dùng được ở khung này thì nó và mọi cái sau nó quay lại

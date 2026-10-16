@@ -52,6 +52,9 @@ public:
     [[nodiscard]] std::optional<std::size_t> strike_index(std::uint32_t skill, std::uint32_t step) const noexcept;
     // Độ dài clip của đòn thứ index, giây.
     [[nodiscard]] float strike_length(std::size_t index) const noexcept;
+    // Độ dài clip chết và xác, giây. 0 khi mẫu không có clip đó.
+    [[nodiscard]] float death_length() const noexcept;
+    [[nodiscard]] float corpse_length() const noexcept;
     // Biến đổi (không gian mẫu nhân vật) của điểm gắn của khối con thứ event của đòn thứ strike kèm phần lệch của khối
     // (OffsetPos, OffsetRotation), như getLocatorWorldTransform rồi getBoneWorldTransform của LogicModel. Rỗng khi
     // khối không có điểm gắn hay tên không là locator lẫn xương.
@@ -80,6 +83,8 @@ private:
     anim::Animation run_;
     std::optional<anim::Animation> jump_stand_;
     std::optional<anim::Animation> jump_run_;
+    std::optional<anim::Animation> death_;
+    std::optional<anim::Animation> corpse_;
     // Cùng chỉ số: định nghĩa đòn và clip của nó.
     std::vector<look::Strike> strike_defs_;
     std::vector<anim::Animation> strike_clips_;

@@ -94,4 +94,5 @@ Danh sách cuộn dùng dòng cao ít nhất 120.
   Chữ 30 tới 44 điểm thiết kế cần một bộ dựng phông vector dựng glyph đúng cỡ điểm ảnh màn. Chưa làm.
 - Layout: bản thiết kế đi vào `Interface/phone/<tên>.layout.xml` theo điểm thiết kế. Khi các tệp đó thay bộ
   tạm, HUD điện thoại đổi tỉ lệ sang `cao màn / 1080` và neo theo vùng an toàn. Hiện HUD vẫn co khung ảo
-  800 x 640 cho bộ tạm (`layout_scale` ở `src/client/face/ui/hud.cpp`).
+  800 x 640 cho bộ tạm (`ui::layout_scale` ở `src/client/face/ui/hud.cpp`), với trần là mật độ màn
+  (`DisplayDesc::ui_density`: dpi/160 trên Android, contentScaleFactor trên iOS, 1 trên PC).

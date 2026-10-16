@@ -34,7 +34,9 @@ Cùng một mã client với PC và Android (src/client/app/client/host dùng ch
     mang DDS gốc và MoltenVK không đọc được khối BC.
   - Nhảy: chạm nhanh hai ngón. Tần số quét: lấy từ UIScreen; iPhone chỉ 60 Hz trừ khi khai
     CADisableMinimumFrameDurationOnPhone trong Info.plist.
-  - Giao diện co lại khi màn nhỏ hơn 800 x 640 điểm ảnh; iPad và iPhone ngang đều lớn hơn nên 1:1.
+  - Giao diện tính theo point như UIKit (DisplayDesc::ui_density = contentScaleFactor): iPad Retina phóng
+    gấp đôi để giữ cỡ vật lý, rồi co thêm khi màn nhỏ hơn 800 x 640 point (ui::layout_scale). Bảng đăng
+    nhập trên iPad nằm trong khung 1280 x 720 point giữa màn, cảnh nền tràn ra phần còn lại.
 apple/Info.plist khai mạng nội bộ và màn mở LaunchScreen. PrivacyInfo không
 theo dõi và chưa khai API bắt buộc lý do: chưa có lượt dịch trên máy Apple để
 đối chiếu. Bundle đọc data/ tại chỗ. Sổ nhân vật ghi ở Documents.

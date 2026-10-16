@@ -182,6 +182,8 @@ float Gait::length_of(Stance stance, const ClipLengths& lengths) const {
     case Stance::kJumpStand: return lengths.jump_stand.value_or(lengths.idle);
     case Stance::kJumpRun: return lengths.jump_run.value_or(lengths.idle);
     case Stance::kStrike: return plan_.length;
+    case Stance::kDeath:
+    case Stance::kCorpse: return lengths.idle;
     }
     return lengths.idle;
 }

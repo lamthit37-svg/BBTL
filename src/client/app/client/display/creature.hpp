@@ -23,6 +23,10 @@
 //   một lưới trong mô hình không nạp được -> bỏ lưới đó, vẽ phần còn lại (như PlayerActor).
 //   mô hình tĩnh                         -> không dựng avatar; vẽ ở tư thế nghỉ của lưới.
 //   tỉ lệ khác 1 theo từng trục          -> ma trận đặt phóng theo ba trục riêng.
+//   chết mà không có clip chết           -> vẫn vẽ, tư thế đứng (animation của kDeath về clip đứng).
+//   chết sau khi đã thấy sống            -> phát clip chết từ đầu, rồi giữ khung cuối; có clip xác thì lặp xác.
+//   thấy xác trước khi thấy sống         -> nằm ở khung cuối ngay, không diễn lại cú ngã.
+//   hồi sinh                             -> xoá mốc chết và về dáng đi đứng.
 
 #pragma once
 
@@ -60,6 +64,8 @@ struct CreatureStand {
     math::Point3 foot;
     float facing = 0.0F;
     bool is_moving = false;
+    // Chết: phát clip chết một lần rồi giữ khung cuối, hoặc lặp xác nếu có.
+    bool is_dead = false;
 };
 
 class CreatureAsset {
@@ -89,7 +95,7 @@ public:
     // seed cho khoảng nghỉ ngẫu nhiên của riêng thực thể này, để hai NPC đứng cạnh nhau không nghỉ cùng lúc.
     CreatureActor(std::shared_ptr<const CreatureAsset> asset, std::uint32_t seed);
 
-    // Dựng tư thế và ma trận đặt ở thời điểm now; now không được lùi.
+    // Dựng tư thế và ma trận đặt ở thời điểm now; now không được lùi. Đang chết thì không gọi Gait.
     [[nodiscard]] core::Status update(core::Clock::time_point now, const CreatureStand& stand);
     // Thêm một instance cho mỗi lưới; ma trận skin trỏ vào bộ đệm của lần update gần nhất.
     void append(std::vector<render::Instance>& out) const;
@@ -99,11 +105,18 @@ public:
     [[nodiscard]] float board_lift(float terrain_scale_y) const noexcept;
 
 private:
+    // Clip của khung này. Avatar phải có: update chỉ gọi khi asset có xương.
+    [[nodiscard]] avatar::Playing clip_at(core::Clock::time_point now, const CreatureStand& stand);
+
     std::shared_ptr<const CreatureAsset> asset_;
     avatar::Gait gait_;
     avatar::Skinner skinner_;
     avatar::ClipLengths lengths_;
     math::Matrix4 placed_ = math::Matrix4::identity();
+    // Mốc bắt đầu clip chết. Rỗng khi đang sống. Xác thấy lần đầu lùi mốc bằng độ dài clip để nằm sẵn.
+    std::optional<core::Clock::time_point> died_at_;
+    // Đã có một khung còn sống. Sai thì lần đầu thấy chết là xác có sẵn, không phải cú ngã vừa xảy ra.
+    bool has_lived_ = false;
 };
 
 } // namespace game::client

@@ -104,6 +104,9 @@ struct Figure {
     // khi đó giữ nguyên clip đang phát).
     std::optional<Clip> jump_stand;
     std::optional<Clip> jump_run;
+    // Clip chết và xác của quái, NPC, trân thú. Người chơi không có dòng trong anim_sets.
+    std::optional<Clip> death;
+    std::optional<Clip> corpse;
     // Có thì áp lên clip đứng (xem resolve); người mẫu môn phái và nữ không có.
     std::optional<BoneTrim> idle_trim;
 };

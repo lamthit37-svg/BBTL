@@ -10,7 +10,7 @@
  *    tác thành CastSkill, đánh tự động (đi tới mục tiêu rồi ra chiêu), động tác
  *    chỉ chạy khi máy chủ xác nhận, sinh lực và kỹ năng máy chủ báo vào hero,
  *    số sát thương bay trên đầu thực thể, bảng tên và thanh máu, tên tuyệt
- *    chiêu và lời nhắc hồi sinh.
+ *    chiêu. Cửa sổ hồi sinh nằm ở ui/panel/relive.
  *------------------------------------------------------------------------------
  *  TÁC GIẢ   : HiepHoon
  *  TELEGRAM  : @Hoon9xx
@@ -99,10 +99,6 @@ constexpr std::uint32_t kAlphaMask = 0x00FFFFFFU;
 
 constexpr std::string_view kMissText = "闪避";
 constexpr std::string_view kImmuneText = "免疫";
-constexpr std::string_view kDeadTitle = "您已经死亡";
-constexpr std::string_view kDeadHint = "按 1 回城复活 | 按 2 原地复活";
-// Lời nhắc hồi sinh nằm ở một phần ba chiều cao màn từ trên xuống.
-constexpr float kDeadLine = 0.33F;
 
 // Bảng tên trên đầu quái, NPC và trân thú. Hiện đủ trong 18 mét, mờ tới mất ở 25 mét: bình phương mét,
 // cùng m_nMaxDistance 324 và m_nMaxDispearDistance 625 của UICreatureBoardSystem.cpp.
@@ -531,7 +527,7 @@ std::optional<ogre::Vec3> Display::State::head_of(std::uint32_t id) const {
     return spot;
 }
 
-// Số bay và lời nhắc hồi sinh nối vào cuối bảng đo: cùng một lô quad chữ (phông Hán của giao diện), vẽ trong lượt của HUD.
+// Số bay nối vào cuối bảng đo: cùng một lô quad chữ (phông Hán của giao diện), vẽ trong lượt của HUD.
 void Display::State::build_extras() {
     combat.expire(frame_time);
     if (!hud || procedure != Procedure::kPlay || !is_online_play || !has_lens || !terrain) return;
@@ -578,12 +574,6 @@ void Display::State::build_extras() {
         const float centre = (at->x * width) + (static_cast<float>(lane - 1) * kLaneWidth);
         const Line line{.centre = centre, .top = at->y * height, .scale = scale};
         put_line(*face.font, text_of(shown), line, ink, out);
-    }
-    if (combat.is_dead()) {
-        const float step = static_cast<float>(face.font->pixel_size()) * kCriticalScale;
-        put_line(*face.font, kDeadTitle, Line{.centre = width * 0.5F, .top = height * kDeadLine, .scale = kCriticalScale}, kHurtInk, out);
-        put_line(*face.font, kDeadHint, Line{.centre = width * 0.5F, .top = (height * kDeadLine) + step + 6.0F, .scale = kNormalScale},
-            0xFFFFFFFFU, out);
     }
     for (const cast::Actor& actor : people.actors()) {
         const std::optional<PlateAt> plate = plate_of(actor);

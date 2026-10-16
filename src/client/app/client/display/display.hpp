@@ -123,10 +123,10 @@ struct DisplayDesc {
     // Màn điện thoại (nhỏ hơn 600 dp ở cạnh ngắn, hay iPhone): giao diện dùng layout Interface/phone. Máy tính bảng và PC
     // để false: dùng giao diện PC.
     bool uses_phone_layout = false;
-    // Cỡ khung cố định của thủ tục đăng nhập (client gốc: 1280x720). Có giá trị thì màn đăng nhập vẽ trong khung
-    // cỡ đó, canh giữa, dư ra là dải đen, thay vì kéo dãn theo tỉ lệ màn hình: máy tính bảng 16:10 thấy cảnh nền
-    // như cửa sổ PC. Rỗng thì vẽ trọn màn; cửa sổ PC luôn mở đúng cỡ này nên không cần.
-    std::optional<PixelSize> login_frame;
+    // Điểm ảnh của màn cho một điểm giao diện: 1 trên PC (bản gốc không co giao diện), dpi/160 trên Android,
+    // contentScaleFactor trên iOS. Giao diện giữ cỡ vật lý trên màn mật độ cao (ui::layout_scale); bảng đăng nhập nằm trong
+    // khung 1280x720 điểm giao diện giữa màn (placed_frame), cảnh nền vẫn vẽ trọn màn.
+    float ui_density = 1.0F;
     // Chính sách đồ hoạ (policy.hpp): rỗng thì default_quality() của nền tảng. Đường vẽ chỉ đọc chính sách, không hỏi nền
     // tảng, nên PC chạy được chính sách của điện thoại để so ảnh.
     std::optional<QualityClass> quality;
@@ -168,6 +168,8 @@ struct DisplayDesc {
     std::optional<std::string> backend;
     // Máy chủ trong danh sách đăng nhập có cổng thật (client/session): chọn chúng thì thủ tục đăng nhập nối máy chủ.
     std::vector<ui::panel::ServerName> online_servers;
+    // Công cụ thử: tài khoản đăng nhập tự động vào máy chủ đầu của online_servers (auto_login.hpp). Rỗng là không bật.
+    std::optional<std::string> auto_account;
     // Có has thì màn chơi dùng ngoại hình này thay cho nhân vật mặc định.
     KeptRole restored;
     // Việc đã bắt đầu sớm (DisplayPreload); nullptr thì Display::create tự bắt đầu.
@@ -278,9 +280,33 @@ public:
     // Đưa một thao tác chơi cho luồng vẽ; nó dùng ở bước mô phỏng kế. An toàn mọi luồng.
     // slot chỉ dùng cho kStrike: ô thao tác (0 là ô 1).
     void act(PlayAct what, std::uint32_t slot = 0) noexcept;
-    // Tên âm thanh (đường dẫn trong SoundInfo) của các khối Sound của kịch bản đòn vừa tới mốc, từ lần gọi trước. Luồng cửa
-    // sổ phát chúng ra loa; nơi vẽ không giữ loa. An toàn mọi luồng.
-    [[nodiscard]] std::vector<std::string> take_sounds();
+    // Tai nghe của khung vừa vẽ, centimet thế giới, hướng nhìn của camera. Rỗng khi chưa có camera.
+    struct HeardEar {
+        float x = 0.0F;
+        float y = 0.0F;
+        float z = 0.0F;
+        float forward_x = 0.0F;
+        float forward_y = 0.0F;
+        float forward_z = -1.0F;
+        float up_x = 0.0F;
+        float up_y = 1.0F;
+        float up_z = 0.0F;
+    };
+    // Một tiếng của kịch bản đòn. is_spatial thì x, y, z là centimet thế giới của điểm gắn.
+    struct HeardSound {
+        std::string name;
+        float x = 0.0F;
+        float y = 0.0F;
+        float z = 0.0F;
+        bool is_spatial = false;
+    };
+    struct SoundBatch {
+        std::optional<HeardEar> ear;
+        std::vector<HeardSound> due;
+    };
+    // Khối Sound của kịch bản đòn vừa tới mốc, kèm tai nghe. Luồng cửa sổ phát ra loa; nơi vẽ không giữ loa.
+    // An toàn mọi luồng.
+    [[nodiscard]] SoundBatch take_sounds();
     // Đưa thao tác chuột hay chạm (nhấn, nhả, di, lăn, cần gạt) cho luồng vẽ; nó gom thành mẫu
     // chuột của khung kế, như CInputSystem::MouseTick. Vị trí chuẩn hoá về [0, 1] theo vùng vẽ.
     // An toàn mọi luồng, không chặn lâu.

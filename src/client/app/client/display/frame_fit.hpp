@@ -1,12 +1,35 @@
-// Khung cố định của một thủ tục đặt vào màn hình khác tỉ lệ: lấy trọn một cạnh, canh giữa, dư ra hai dải
-// đen. Máy tính bảng Android 16:10 mở màn đăng nhập trong khung 1280x720 như cửa sổ PC của client gốc
-// (CGamePro_Login::Init cố định vùng chơi 0x500 x 0x2d0), nên cảnh nền, camera và giao diện dựng đúng tỉ
-// lệ 16:9 thay vì kéo dãn sang 16:10. Cùng ý fit_frame của dự án 2027 (Map/Xform.cpp).
+/*==============================================================================
+ *  THIENLONG  |  GAME CLIENT
+ *------------------------------------------------------------------------------
+ *  TỆP       : src/client/app/client/display/frame_fit.hpp
+ *  PHÂN HỆ   : Client / Display / Frame Fit
+ *  CHUẨN     : C++23
+ *------------------------------------------------------------------------------
+ *  CHỨC NĂNG
+ *  - Khung tham chiếu 1280x720 trên màn khác tỉ lệ hay khác mật độ. Cảnh 3D
+ *    luôn vẽ trọn màn và camera giữ khung tham chiếu trong tầm nhìn
+ *    (render::fitted_fov_y), nên không có dải đen.
+ *------------------------------------------------------------------------------
+ *  TÁC GIẢ   : HiepHoon
+ *  TELEGRAM  : @Hoon9xx
+ *============================================================================*/
+
+// Chỉ bảng thiết kế cho đúng 1280x720 (màn đăng nhập: client gốc cố định vùng chơi 0x500 x 0x2d0 ở
+// CGamePro_Login::Init) mới nằm trong khung đặt giữa màn (placed_frame), như Expand của Unity; fit_frame cùng ý
+// Map/Xform.cpp của dự án 2027, khác ở chỗ phần ngoài khung là cảnh chứ không phải màu đen.
+
 #pragma once
 
 #include <cstdint>
 
 namespace game::client {
+
+// Khung tham chiếu của mọi màn: View_Resoution mặc định và vùng chơi cố định của màn đăng nhập client 2026
+// (viewer/client_size.hpp). Camera luôn thấy trọn khung này (render::fitted_fov_y), và bảng chỉ thiết kế cho đúng
+// khung này đặt trong placed_frame.
+inline constexpr std::uint32_t kReferenceWidth = 1280;
+inline constexpr std::uint32_t kReferenceHeight = 720;
+inline constexpr float kReferenceAspect = static_cast<float>(kReferenceWidth) / static_cast<float>(kReferenceHeight);
 
 // Hình chữ nhật trong màn hình, điểm ảnh, gốc ở góc trên trái.
 struct FrameRect {
@@ -36,6 +59,18 @@ struct FrameRect {
     // Màn cao hơn khung: lấy trọn chiều rộng, dải đen trên dưới. Chiều cao tính ra không vượt pixels_h vì have < want.
     const auto height = static_cast<std::uint32_t>(std::uint64_t{pixels_w} * design_h / design_w);
     return {.x = 0, .y = (pixels_h - height) / 2, .width = pixels_w, .height = height};
+}
+
+// Khung tham chiếu kReferenceWidth x kReferenceHeight điểm giao diện đặt giữa màn, density điểm ảnh mỗi điểm giao diện
+// (1 trên PC, dpi/160 trên Android, contentScaleFactor trên iOS): không lớn hơn khung nhân mật độ, thu nhỏ giữ tỉ lệ khi
+// màn không đủ chỗ. Mật độ không dương coi như 1.
+[[nodiscard]] constexpr FrameRect placed_frame(std::uint32_t pixels_w, std::uint32_t pixels_h, float density) noexcept {
+    const FrameRect fitted = fit_frame(pixels_w, pixels_h, kReferenceWidth, kReferenceHeight);
+    const float scale = density > 0.0F ? density : 1.0F;
+    const auto cap_w = static_cast<std::uint32_t>(static_cast<float>(kReferenceWidth) * scale);
+    const auto cap_h = static_cast<std::uint32_t>(static_cast<float>(kReferenceHeight) * scale);
+    if (fitted.width <= cap_w || fitted.height <= cap_h) return fitted;
+    return {.x = (pixels_w - cap_w) / 2, .y = (pixels_h - cap_h) / 2, .width = cap_w, .height = cap_h};
 }
 
 // Một trục của khung: gốc và độ dài, điểm ảnh.

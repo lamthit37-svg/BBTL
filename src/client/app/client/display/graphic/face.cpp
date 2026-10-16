@@ -104,10 +104,12 @@ void Display::State::arm_scene(const DisplayDesc& desc) {
     save_root = desc.save_root;
     shot_path = desc.shot_path;
     is_bare = desc.is_bare;
-    login_frame = desc.login_frame;
+    frames_login = !desc.uses_phone_layout;
+    ui_density = desc.ui_density > 0.0F ? desc.ui_density : 1.0F;
     is_auto_walk = desc.is_auto_walk;
     auto_strike_from = desc.auto_strike_from;
     seed_ui_events(desc.ui_events);
+    arm_auto_login(desc);
     creature_demo = desc.creatures;
     pet_demo = desc.pets;
     peer_demo = desc.peer_count;
@@ -267,6 +269,7 @@ void Display::State::prepare_hud() {
     if (!hud) return;
     // Sự kiện thử chờ khung màn chơi đầu tiên; HUD nhận chúng đúng một lần (posted_events rỗng từ khung sau).
     if (procedure == Procedure::kPlay) hud_events.swap(posted_events);
+    start_auto_login();
     pump_online();
     pump_talk();
     fill_bar_cooldown();
@@ -278,6 +281,9 @@ void Display::State::prepare_hud() {
     const std::optional<ui::Action> action = hud->take_action();
     if (action) post_request(*action);
     if (const std::optional<std::uint32_t> slot = hud->take_skill_slot()) press_slot(*slot);
+    if (const std::optional<ui::panel::talk::Place> place = hud->take_revive()) {
+        send_say(ui::panel::talk::Revive{.place = *place});
+    }
     std::vector<ui::panel::OnlineAsk> asks = hud->take_online_asks();
     if (!asks.empty()) {
         const std::scoped_lock<std::mutex> locked(online_guard);
@@ -319,7 +325,44 @@ void Display::State::pump_online() {
             combat.leave();
         }
         hud->deliver_online(reply);
+        drive_auto_login(reply);
     }
+}
+
+// Đăng nhập tự động (auto_login.hpp): chỉ khi có tài khoản thử và có máy chủ thật để nối.
+void Display::State::arm_auto_login(const DisplayDesc& desc) {
+    if (!desc.auto_account || desc.online_servers.empty()) return;
+    auto_login = AutoLogin{.account = *desc.auto_account};
+    auto_server = desc.online_servers.front();
+    shot_waits_online = true;
+    std::println("Đăng nhập tự động: tài khoản {} vào máy chủ {}", *desc.auto_account, auto_server.server);
+}
+
+// Gửi SignIn ở khung đầu của màn đăng nhập, đúng một lần.
+void Display::State::start_auto_login() {
+    const bool is_waiting = auto_login && auto_login->step == AutoLogin::Step::kSignIn;
+    if (!is_waiting || procedure != Procedure::kLogin) return;
+    queue_online(auto_sign_in(*auto_login, auto_server));
+}
+
+void Display::State::drive_auto_login(const ui::panel::OnlineReply& reply) {
+    if (!auto_login) return;
+    std::optional<ui::panel::OnlineAsk> next = auto_next(*auto_login, reply);
+    if (next) queue_online(std::move(*next));
+    const AutoLogin::Step step = auto_login->step;
+    const auto kind = static_cast<int>(reply.kind);
+    const auto fault = static_cast<int>(reply.fault);
+    if (step == AutoLogin::Step::kStopped) std::println(stderr, "Đăng nhập tự động: dừng, trả lời {} lỗi {}", kind, fault);
+    // Máy chủ đã nhận EnterGame: bấm "vào game" thay người chơi; online_entry vừa được pump_online ghi.
+    constexpr std::uint64_t kShotDelayFrames = 300;
+    if (step == AutoLogin::Step::kPlay) online_shot_from = frame_serial + kShotDelayFrames;
+    if (step == AutoLogin::Step::kPlay) post_request(ui::Action::kEnterGame);
+    if (step == AutoLogin::Step::kPlay || step == AutoLogin::Step::kStopped) auto_login.reset();
+}
+
+void Display::State::queue_online(ui::panel::OnlineAsk ask) {
+    const std::scoped_lock<std::mutex> locked(online_guard);
+    online_asks.push_back(std::move(ask));
 }
 
 void Display::State::post_request(ui::Action action) {
@@ -336,12 +379,12 @@ void Display::State::post_request(ui::Action action) {
 FrameRect Display::State::frame_rect() const noexcept {
     const FrameRect whole{.x = 0, .y = 0, .width = screen->width(), .height = screen->height()};
     const bool is_login = procedure == Procedure::kLogin;
-    if (!is_login || !login_frame) return whole;
-    return fit_frame(whole.width, whole.height, login_frame->width, login_frame->height);
+    if (!is_login || !frames_login) return whole;
+    return placed_frame(whole.width, whole.height, ui_density);
 }
 
-// Chuột của sự kiện tính theo cả màn; khi màn đăng nhập thu vào khung cố định thì phải tính lại theo khung,
-// nếu không nút nằm lệch đúng bằng dải đen.
+// Chuột của sự kiện tính theo cả màn; khi bảng đăng nhập nằm trong khung tham chiếu thì phải tính lại theo khung,
+// nếu không nút nằm lệch đúng bằng phần màn ngoài khung.
 control::ScreenPoint Display::State::framed_point(const control::InputEvent& event) const noexcept {
     const FrameRect frame = frame_rect();
     const FrameSpan across{.origin = frame.x, .length = frame.width};
@@ -358,6 +401,7 @@ ui::HudView Display::State::hud_view() const {
     view.phase = procedure == Procedure::kLogin ? ui::Phase::kLogin : ui::Phase::kPlay;
     view.width = width;
     view.height = height;
+    view.density = ui_density;
     view.hero = &hero;
     if (view_count > 0) view.views = std::span(head_views).first(view_count);
     view.clock = std::chrono::duration_cast<std::chrono::milliseconds>(frame_time - started);
@@ -372,6 +416,27 @@ ui::HudView Display::State::hud_view() const {
     view.events = hud_events;
     view.talk_title = talk_title;
     view.bar_left_ms = bar_left_ms;
+    view.is_dead = combat.is_dead();
+    if (const std::optional<ui::panel::talk::Slain> slain = combat.loss()) {
+        view.loss = ui::panel::DeathLoss{.exp = slain->exp_lost, .money = slain->money_lost};
+    }
+    hud_target_name.clear();
+    const std::optional<std::uint32_t> chosen = combat.target();
+    const cast::Actor* actor = chosen ? people.find(*chosen) : nullptr;
+    if (actor != nullptr && actor->pose != cast::Pose::kDead) {
+        if (!actor->name.empty()) hud_target_name = actor->name;
+        else if (creature_tables) {
+            const look::CreatureTemplate* row = creature_tables->find_template(actor->template_id);
+            if (row != nullptr) hud_target_name = row->name;
+        }
+        ui::panel::Target mark;
+        mark.name = hud_target_name;
+        mark.level = actor->level;
+        mark.player_level = hero.level;
+        mark.hp = std::min(static_cast<float>(actor->hp_percent), 100.0F) / 100.0F;
+        mark.is_hostile = actor->kind == cast::Kind::kMonster;
+        view.target = mark;
+    }
     if (!held || !terrain) return view;
     const core::GroundPoint feet = terrain->to_game(foot());
     view.scene.radar = held->radar;

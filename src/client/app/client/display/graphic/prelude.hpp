@@ -23,6 +23,7 @@
 #endif
 #include "client/display/assets.hpp"
 #include "client/display/display.hpp"
+#include "client/display/frame_fit.hpp"
 #include "client/display/fx_view.hpp"
 #include "client/display/lighting.hpp"
 #include "client/display/login_data.hpp"
@@ -581,7 +582,9 @@ inline void place_walk(WalkPose& pose, const MapGround& ground, int scene_id, ma
     control::Lens lens;
     lens.eye = pose.eye;
     lens.forward = ogre::normalize_vec3(toward);
-    lens.fov_y = pose.fov_degrees * (std::numbers::pi_v<float> / 180.0F);
+    // Cùng góc dọc với camera_of: tia chọn phải đi qua đúng điểm ảnh đã vẽ.
+    const float fov_y = pose.fov_degrees * (std::numbers::pi_v<float> / 180.0F);
+    lens.fov_y = render::fitted_fov_y(fov_y, aspect, kReferenceAspect);
     lens.aspect = aspect;
     return lens;
 }
@@ -592,6 +595,7 @@ inline void place_walk(WalkPose& pose, const MapGround& ground, int scene_id, ma
     optics.fov_degrees = pose.fov_degrees;
     optics.near_plane = pose.near_plane;
     optics.far_plane = pose.far_plane;
+    optics.reference_aspect = kReferenceAspect;
     return render::look_camera(point_of(pose.eye), point_of(pose.target), optics, size);
 }
 
@@ -626,6 +630,7 @@ inline constexpr std::array<ActionRequest, 8> kActionRequests = {{
     optics.fov_degrees = fixed.fov_degrees;
     optics.near_plane = fixed.near_plane;
     optics.far_plane = fixed.far_plane;
+    optics.reference_aspect = kReferenceAspect;
     const ogre::Quat& turn = fixed.orientation;
     const math::Quat orientation(turn.x, turn.y, turn.z, turn.w);
     return render::posed_camera(point_of(fixed.eye), orientation, optics, size);
@@ -637,6 +642,7 @@ inline constexpr std::array<ActionRequest, 8> kActionRequests = {{
     optics.fov_degrees = control::kRoleFov;
     optics.near_plane = control::kRoleNear;
     optics.far_plane = control::kRoleFar;
+    optics.reference_aspect = kReferenceAspect;
     const math::Quat orientation(turn.x, turn.y, turn.z, turn.w);
     return render::posed_camera(point_of(eye), orientation, optics, size);
 }

@@ -154,6 +154,10 @@ core::Result<Avatar> Avatar::load(const look::Figure& figure, const std::filesys
     if (!jump_stand) return std::unexpected(jump_stand.error());
     auto jump_run = optional_clip_of(loader, figure.jump_run, bones);
     if (!jump_run) return std::unexpected(jump_run.error());
+    auto death = optional_clip_of(loader, figure.death, bones);
+    if (!death) return std::unexpected(death.error());
+    auto corpse = optional_clip_of(loader, figure.corpse, bones);
+    if (!corpse) return std::unexpected(corpse.error());
     std::vector<anim::Animation> strike_clips;
     strike_clips.reserve(strikes.size());
     for (const look::Strike& strike : strikes) {
@@ -178,6 +182,8 @@ core::Result<Avatar> Avatar::load(const look::Figure& figure, const std::filesys
     avatar.idle_alt2_ = std::move(*alt2);
     avatar.jump_stand_ = std::move(*jump_stand);
     avatar.jump_run_ = std::move(*jump_run);
+    avatar.death_ = std::move(*death);
+    avatar.corpse_ = std::move(*corpse);
     avatar.mounts_.reserve(figure.held.size());
     for (const look::Held& held : figure.held) {
         const ogre::Vec3 scale{.x = held.scale.at(0), .y = held.scale.at(1), .z = held.scale.at(2)};
@@ -264,6 +270,14 @@ float Avatar::strike_length(std::size_t index) const noexcept {
     return index < strike_clips_.size() ? strike_clips_.at(index).length : 0.0F;
 }
 
+float Avatar::death_length() const noexcept {
+    return death_ ? death_->length : 0.0F;
+}
+
+float Avatar::corpse_length() const noexcept {
+    return corpse_ ? corpse_->length : 0.0F;
+}
+
 const anim::Animation& Avatar::animation(const Playing& playing) const noexcept {
     if (playing.stance == Stance::kStrike && playing.strike < strike_clips_.size()) {
         return strike_clips_.at(playing.strike);
@@ -276,6 +290,8 @@ const anim::Animation& Avatar::animation(const Playing& playing) const noexcept 
     case Stance::kJumpStand: return jump_stand_ ? *jump_stand_ : idle_;
     case Stance::kJumpRun: return jump_run_ ? *jump_run_ : idle_;
     case Stance::kStrike: return idle_;
+    case Stance::kDeath: return death_ ? *death_ : idle_;
+    case Stance::kCorpse: return corpse_ ? *corpse_ : (death_ ? *death_ : idle_);
     }
     return idle_;
 }

@@ -15,6 +15,7 @@
 #include "look/creature.hpp"
 
 #include "look/look.hpp"
+#include "table/localize.hpp"
 #include "table/tsv.hpp"
 
 #include <algorithm>
@@ -123,9 +124,15 @@ struct TableSpec {
     return std::nullopt;
 }
 
-[[nodiscard]] std::expected<std::vector<CreatureTemplate>, std::string> read_templates(std::string_view text) {
-    const auto table = parse_named({.name = "creature_templates", .columns = kTemplateColumns}, text);
+[[nodiscard]] std::expected<std::vector<CreatureTemplate>, std::string> read_templates(std::string_view text,
+    std::string_view lang_text = {}) {
+    auto table = parse_named({.name = "creature_templates", .columns = kTemplateColumns}, text);
     if (!table) return std::unexpected(table.error());
+    // Cột khoá của bảng này là template, không phải id. Thiếu bản dịch thì giữ tên gốc.
+    if (!lang_text.empty()) {
+        const table::TsvResult lang = table::parse_tsv(lang_text);
+        if (lang) static_cast<void>(table::localize(*table, *lang, "template"));
+    }
     std::vector<CreatureTemplate> rows;
     rows.reserve(table->rows.size());
     for (std::size_t at = 0; at < table->rows.size(); ++at) {
@@ -133,6 +140,7 @@ struct TableSpec {
         CreatureTemplate row;
         row.id = reader.number("template", 0, kMostTemplate);
         row.name = reader.text("name");
+        if (table::is_reserved_name(row.name)) row.name.clear();
         row.model = reader.integer("model", -1, kMostModel);
         row.plate_height = reader.real("plate_height");
         row.ring_size = reader.real("ring_size");
@@ -329,6 +337,8 @@ std::expected<CreatureFigure, std::string> creature_figure(const CreatureTables&
     made.figure.run = run ? *run : (made.walk ? *made.walk : *idle);
     made.death = clip_of(tables, id, kind, CreatureAction::kDeath);
     made.corpse = clip_of(tables, id, kind, CreatureAction::kCorpse);
+    made.figure.death = made.death;
+    made.figure.corpse = made.corpse;
     return made;
 }
 
@@ -339,14 +349,25 @@ std::expected<CreatureTables, std::string> load_creature_tables(std::string_view
     };
     auto templates = text_of("creature_templates.tsv");
     if (!templates) return std::unexpected(templates.error());
+    std::string lang_held;
+    if (auto lang = read(std::format("{}/creature_templates.lang.tsv", folder))) lang_held = std::move(*lang);
     auto models = text_of("creatures.tsv");
     if (!models) return std::unexpected(models.error());
     auto clips = text_of("creature_clips.tsv");
     if (!clips) return std::unexpected(clips.error());
     auto materials = text_of("creature_materials.tsv");
     if (!materials) return std::unexpected(materials.error());
-    return parse_creature_tables(
+    if (lang_held.empty()) {
+        return parse_creature_tables(
+            CreatureTexts{.templates = *templates, .models = *models, .clips = *clips, .materials = *materials});
+    }
+    auto parsed = read_templates(*templates, lang_held);
+    if (!parsed) return std::unexpected(parsed.error());
+    auto rest = parse_creature_tables(
         CreatureTexts{.templates = *templates, .models = *models, .clips = *clips, .materials = *materials});
+    if (!rest) return std::unexpected(rest.error());
+    rest->templates = std::move(*parsed);
+    return rest;
 }
 
 } // namespace game::look

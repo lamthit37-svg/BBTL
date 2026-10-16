@@ -210,7 +210,8 @@ math::Point3 Display::State::stand_of(const cast::Actor& actor) const {
 }
 
 void Display::State::show_player(const cast::Actor& actor, std::size_t& budget) {
-    // Xác người nằm lại là phần sau: 2008 dùng CHARACTER_LOGIC_DEAD, client này chưa có tư thế xác.
+    // Người chơi khác chết thì giấu. CharActionSet có 倒地 và 死亡 nhưng anim_sets không xuất hai clip đó,
+    // vẽ tư thế đứng sẽ thành xác đang đứng. Quái và NPC đi đường show_creature.
     if (actor.pose == cast::Pose::kDead) return;
     const std::optional<look::Race> race = race_of_wire(actor.gender);
     if (!race) return;
@@ -285,8 +286,7 @@ void Display::State::show_creature(const cast::Actor& actor, std::size_t& budget
     // Trang bị đè lên mẫu chưa có trên dây, cùng lỗ với người chơi khác.
     const bool is_body = actor.kind == cast::Kind::kMonster || actor.kind == cast::Kind::kNpc || actor.kind == cast::Kind::kPet;
     if (!is_body) return;
-    // Xác chưa vẽ: thực thể chết không có chỗ nào đứng trong khung (hợp đồng ở creature.hpp).
-    if (actor.pose == cast::Pose::kDead) return;
+    // Xác vẫn dựng hình: chết trước khi nạp xong cũng phải có asset, nếu không cú ngã không có gì để phát.
     auto slot = creatures.find(actor.id);
     if (slot == creatures.end() || slot->second.template_id != actor.template_id) {
         std::shared_ptr<const CreatureAsset> asset = creature_asset(actor.template_id, budget);
@@ -300,7 +300,8 @@ void Display::State::show_creature(const cast::Actor& actor, std::size_t& budget
     CreatureStand stand;
     stand.foot = stand_of(actor);
     stand.facing = actor.facing;
-    stand.is_moving = actor.pose == cast::Pose::kWalk;
+    stand.is_dead = actor.pose == cast::Pose::kDead;
+    stand.is_moving = !stand.is_dead && actor.pose == cast::Pose::kWalk;
     const core::Status posed = shown.actor.update(frame_time, stand);
     if (!posed) {
         const char* const who = actor.kind == cast::Kind::kPet ? "Trân thú" : "Quái/NPC";

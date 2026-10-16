@@ -64,7 +64,17 @@ struct ClipLengths {
     std::optional<float> jump_run;
 };
 
-enum class Stance : std::uint8_t { kIdle = 1, kIdleAlt, kIdleAlt2, kRun, kJumpStand, kJumpRun, kStrike };
+enum class Stance : std::uint8_t {
+    kIdle = 1,
+    kIdleAlt,
+    kIdleAlt2,
+    kRun,
+    kJumpStand,
+    kJumpRun,
+    kStrike,
+    kDeath,
+    kCorpse,
+};
 
 // Clip đang phát và thời điểm trong clip, giây, trong [0, độ dài).
 struct Playing {
