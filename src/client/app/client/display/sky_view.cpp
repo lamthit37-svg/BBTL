@@ -164,6 +164,17 @@ struct TextureSet {
     return {value.x, value.y, value.z};
 }
 
+// Khác gốc: chủ dự án chốt 2026-10-16 trăng to thêm 30% so với scale của EnScene.
+constexpr float kMoonEnlarge = 1.3F;
+
+// Draw như vẽ ra màn hình: chỉ trăng bị phóng thêm, kế hoạch của ensky/ vẫn đúng mã máy.
+[[nodiscard]] ensky::Draw shown_draw(const ensky::Draw& draw) noexcept {
+    if (draw.kind != ensky::Kind::kMoon) return draw;
+    ensky::Draw larger = draw;
+    larger.scale = ogre::scale_vec3(draw.scale, kMoonEnlarge);
+    return larger;
+}
+
 // T(offset) * R(orientation) * S(scale) của nút cảnh, tương đối với camera.
 [[nodiscard]] math::Matrix4 node_matrix(const ensky::Draw& draw) noexcept {
     const math::Matrix4 place(quat_of(draw.orientation), vector_of(draw.offset));
@@ -707,9 +718,10 @@ void SkyView::Body::fill_ring(SkyDrawBlock& block, const ensky::Draw& draw, floa
 
 void SkyView::Body::fill_layer(SkyDrawBlock& block, const ensky::Draw& draw,
     const math::Matrix4& view_proj, float eye_y) const {
+    const ensky::Draw shown = shown_draw(draw);
     fill_light(block);
-    block.mvp = math::store(view_proj * node_matrix(draw));
-    put_world(block, draw);
+    block.mvp = math::store(view_proj * node_matrix(shown));
+    put_world(block, shown);
     block.misc.x = kKindBody;
     if (draw.kind == ensky::Kind::kCloud) fill_cloud(block, draw);
     if (draw.kind == ensky::Kind::kRing) fill_ring(block, draw, eye_y);
