@@ -1,5 +1,19 @@
-// Bảng góc là Terrain::_getPixmapCorner, cornerIndexMap[lật đường chéo][orientation][góc].
-// Mỗi byte: nibble cao là cạnh U, nibble thấp là cạnh V. 0 trái, 1 trên, 2 phải, 3 dưới.
+/*==============================================================================
+ *  THIENLONG  |  GAME CLIENT
+ *------------------------------------------------------------------------------
+ *  TỆP       : src/client/app/client/map/splat.cpp
+ *  PHÂN HỆ   : Client / Map / Splat
+ *  CHUẨN     : C++23
+ *------------------------------------------------------------------------------
+ *  CHỨC NĂNG
+ *  - Bảng góc là Terrain::_getPixmapCorner, cornerIndexMap[lật đường
+ *    chéo][orientation][góc]. Mỗi byte: nibble cao là cạnh U, nibble thấp là
+ *    cạnh V. 0 trái, 1 trên, 2 phải, 3 dưới.
+ *------------------------------------------------------------------------------
+ *  TÁC GIẢ   : HiepHoon
+ *  TELEGRAM  : @Hoon9xx
+ *============================================================================*/
+
 #include "client/map/splat.hpp"
 
 #include "client/map/picture.hpp"
@@ -11,7 +25,7 @@
 #include <cmath>
 #include <cstddef>
 #include <cstdint>
-#include <initializer_list>
+#include <limits>
 #include <optional>
 #include <span>
 #include <utility>
@@ -127,33 +141,52 @@ struct Arrangement {
     return brush;
 }
 
+// (tổng 4 mẫu + 2) / 4: làm tròn 0,5 lên, cùng phép với bản trước.
+[[nodiscard]] std::uint8_t box_channel(const Brush& from, std::span<const std::size_t, 4> taps,
+    std::size_t channel) noexcept {
+    std::uint32_t sum = 2U;
+    for (const std::size_t tap : taps) sum += from.rgba[tap + channel];
+    return static_cast<std::uint8_t>(sum / 4U);
+}
+
+struct BoxWindow {
+    std::uint32_t row = 0;
+    std::uint32_t column = 0;
+    std::uint32_t top = 0;
+    std::uint32_t bottom = 0;
+};
+
+void write_halved_texel(const Brush& from, Brush& brush, BoxWindow window) {
+    const std::uint32_t left = std::min(window.column * 2U, from.width - 1U);
+    const std::uint32_t right = std::min(left + 1U, from.width - 1U);
+    const std::array<std::size_t, 4> taps{
+        ((static_cast<std::size_t>(window.top) * from.width) + left) * 4U,
+        ((static_cast<std::size_t>(window.top) * from.width) + right) * 4U,
+        ((static_cast<std::size_t>(window.bottom) * from.width) + left) * 4U,
+        ((static_cast<std::size_t>(window.bottom) * from.width) + right) * 4U,
+    };
+    const std::size_t target = ((static_cast<std::size_t>(window.row) * brush.width) + window.column) * 4U;
+    for (std::size_t channel = 0; channel < 4U; ++channel) {
+        brush.rgba[target + channel] = box_channel(from, taps, channel);
+    }
+}
+
+void halve_row(const Brush& from, Brush& brush, std::uint32_t row) {
+    const std::uint32_t top = std::min(row * 2U, from.height - 1U);
+    const std::uint32_t bottom = std::min(top + 1U, from.height - 1U);
+    for (std::uint32_t column = 0; column < brush.width; ++column) {
+        const BoxWindow window{.row = row, .column = column, .top = top, .bottom = bottom};
+        write_halved_texel(from, brush, window);
+    }
+}
+
 // Trung bình hộp 2 x 2 (kẹp mép) của ảnh đã nhân alpha: thu nhỏ một nửa.
 [[nodiscard]] Brush halved(const Brush& from) {
     Brush brush;
     brush.width = std::max(from.width / 2U, 1U);
     brush.height = std::max(from.height / 2U, 1U);
     brush.rgba.resize(static_cast<std::size_t>(brush.width) * static_cast<std::size_t>(brush.height) * 4U);
-    for (std::uint32_t row = 0; row < brush.height; ++row) {
-        const std::uint32_t top = std::min(row * 2U, from.height - 1U);
-        const std::uint32_t bottom = std::min(top + 1U, from.height - 1U);
-        for (std::uint32_t column = 0; column < brush.width; ++column) {
-            const std::uint32_t left = std::min(column * 2U, from.width - 1U);
-            const std::uint32_t right = std::min(left + 1U, from.width - 1U);
-            const std::array<std::size_t, 4> taps{
-                ((static_cast<std::size_t>(top) * from.width) + left) * 4U,
-                ((static_cast<std::size_t>(top) * from.width) + right) * 4U,
-                ((static_cast<std::size_t>(bottom) * from.width) + left) * 4U,
-                ((static_cast<std::size_t>(bottom) * from.width) + right) * 4U,
-            };
-            const std::size_t target = ((static_cast<std::size_t>(row) * brush.width) + column) * 4U;
-            for (std::size_t channel = 0; channel < 4U; ++channel) {
-                std::uint32_t sum = 2U;
-                for (const std::size_t tap : taps)
-                    sum += from.rgba[tap + channel];
-                brush.rgba[target + channel] = static_cast<std::uint8_t>(sum / 4U);
-            }
-        }
-    }
+    for (std::uint32_t row = 0; row < brush.height; ++row) halve_row(from, brush, row);
     return brush;
 }
 
@@ -170,6 +203,28 @@ struct Limits {
     std::uint32_t max_edge = 0;
 };
 
+struct Shelf {
+    std::uint32_t cursor = 0;
+    std::uint32_t top = 0;
+    std::uint32_t height = 0;
+};
+
+// false khi ảnh rộng hơn kệ. So bằng trừ: cursor + width có thể tràn uint32 khi trần cạnh rất lớn.
+[[nodiscard]] bool place_on_shelf(Arrangement& layout, Shelf& shelf, std::size_t index, const Slot& size,
+    std::uint32_t limit) {
+    if (size.width > limit) return false;
+    if (shelf.cursor > limit - size.width) {
+        if (shelf.height > std::numeric_limits<std::uint32_t>::max() - shelf.top) return false;
+        shelf.top += shelf.height;
+        shelf.cursor = 0;
+        shelf.height = 0;
+    }
+    layout.slots[index] = Slot{.x = shelf.cursor, .y = shelf.top, .width = size.width, .height = size.height};
+    shelf.cursor += size.width;
+    shelf.height = std::max(shelf.height, size.height);
+    return true;
+}
+
 // Xếp theo kệ, ảnh cao trước, kệ rộng limits.width. Vị trí luôn là bội của kAlign vì kích cỡ đệm là bội của nó.
 [[nodiscard]] std::optional<Arrangement> shelf_pack(const std::vector<Brush>& brushes, Limits limits) {
     std::vector<std::size_t> order;
@@ -183,22 +238,13 @@ struct Limits {
     Arrangement layout;
     layout.width = limits.width;
     layout.slots.assign(brushes.size(), Slot{});
-    std::uint32_t cursor = 0;
-    std::uint32_t top = 0;
-    std::uint32_t shelf_height = 0;
+    Shelf shelf;
     for (const std::size_t index : order) {
         const Slot size = padded_size(brushes[index]);
-        if (size.width > limits.width) return std::nullopt;
-        if (cursor + size.width > limits.width) {
-            top += shelf_height;
-            cursor = 0;
-            shelf_height = 0;
-        }
-        layout.slots[index] = Slot{.x = cursor, .y = top, .width = size.width, .height = size.height};
-        cursor += size.width;
-        shelf_height = std::max(shelf_height, size.height);
+        if (!place_on_shelf(layout, shelf, index, size, limits.width)) return std::nullopt;
     }
-    layout.height = round_up(top + shelf_height, kAlign);
+    if (shelf.height > std::numeric_limits<std::uint32_t>::max() - shelf.top) return std::nullopt;
+    layout.height = round_up(shelf.top + shelf.height, kAlign);
     if (layout.height > limits.max_edge) return std::nullopt;
     return layout;
 }
@@ -207,26 +253,37 @@ struct Limits {
     return static_cast<std::uint64_t>(layout.width) * layout.height;
 }
 
+// false khi lần nhân hai sẽ tràn uint32 hoặc vượt trần. width *= 2 lúc width > 2^31 ra 0 và vòng lặp không thoát.
+[[nodiscard]] bool widen(std::uint32_t& width, std::uint32_t max_edge) noexcept {
+    if (width > max_edge / 2U) return false;
+    width *= 2U;
+    return true;
+}
+
 // Bề rộng nhỏ nhất (lũy thừa của hai) cho atlas gần vuông; không có bề rộng nào vừa trần thì rỗng.
 [[nodiscard]] std::optional<Arrangement> best_layout(const std::vector<Brush>& brushes, std::uint32_t max_edge) {
     std::optional<Arrangement> best;
-    for (std::uint32_t width = kStartEdge; width <= max_edge; width *= 2U) {
+    for (std::uint32_t width = kStartEdge; width <= max_edge;) {
         std::optional<Arrangement> tried = shelf_pack(brushes, Limits{.width = width, .max_edge = max_edge});
-        if (!tried) continue;
-        const bool is_square = tried->height <= width;
-        if (!best || area_of(*tried) < area_of(*best)) best = std::move(tried);
-        if (is_square) break;
+        const bool is_square = tried && tried->height <= width;
+        const bool tighter = tried && (!best || area_of(*tried) < area_of(*best));
+        if (tighter) best = std::move(tried);
+        if (is_square || !widen(width, max_edge)) break;
     }
     return best;
+}
+
+void shrink_used(std::vector<Brush>& brushes) {
+    for (Brush& brush : brushes) {
+        if (brush.is_used()) brush = halved(brush);
+    }
 }
 
 // Không vừa trần thì thu nhỏ mọi ảnh một nửa rồi thử lại: giữ tỉ lệ giữa các ảnh, nên mức chi tiết giảm đều.
 [[nodiscard]] std::optional<Arrangement> arrange(std::vector<Brush>& brushes, std::uint32_t max_edge) {
     for (int shrink = 0; shrink <= kMaxShrink; ++shrink) {
         if (std::optional<Arrangement> layout = best_layout(brushes, max_edge)) return layout;
-        for (Brush& brush : brushes) {
-            if (brush.is_used()) brush = halved(brush);
-        }
+        shrink_used(brushes);
     }
     return std::nullopt;
 }
@@ -237,26 +294,28 @@ struct Limits {
     return std::min(position - kPad, size - 1U);
 }
 
+void blit_row(Picture& atlas, const Brush& brush, const Slot& slot, std::uint32_t row) {
+    const std::size_t from_row = source_index(row, brush.height);
+    const std::size_t target_row = static_cast<std::size_t>(slot.y) + row;
+    for (std::uint32_t column = 0; column < slot.width; ++column) {
+        const std::size_t from = ((from_row * brush.width) + source_index(column, brush.width)) * 4U;
+        const std::size_t target = ((target_row * atlas.width) + slot.x + column) * 4U;
+        const std::span<const std::uint8_t> pixel = std::span<const std::uint8_t>(brush.rgba).subspan(from, 4);
+        std::ranges::copy(pixel, atlas.rgba.begin() + static_cast<std::ptrdiff_t>(target));
+    }
+}
+
+void blit_brush(Picture& atlas, const Brush& brush, const Slot& slot) {
+    if (!brush.is_used()) return;
+    for (std::uint32_t row = 0; row < slot.height; ++row) blit_row(atlas, brush, slot, row);
+}
+
 [[nodiscard]] Picture render_atlas(const std::vector<Brush>& brushes, const Arrangement& layout) {
     Picture atlas;
     atlas.width = layout.width;
     atlas.height = layout.height;
     atlas.rgba.assign(static_cast<std::size_t>(layout.width) * layout.height * 4U, 0);
-    for (std::size_t index = 0; index < brushes.size(); ++index) {
-        const Brush& brush = brushes[index];
-        if (!brush.is_used()) continue;
-        const Slot& slot = layout.slots[index];
-        for (std::uint32_t row = 0; row < slot.height; ++row) {
-            const std::size_t from_row = source_index(row, brush.height);
-            const std::size_t target_row = static_cast<std::size_t>(slot.y) + row;
-            for (std::uint32_t column = 0; column < slot.width; ++column) {
-                const std::size_t from = ((from_row * brush.width) + source_index(column, brush.width)) * 4U;
-                const std::size_t target = ((target_row * layout.width) + slot.x + column) * 4U;
-                const std::span<const std::uint8_t> pixel = std::span<const std::uint8_t>(brush.rgba).subspan(from, 4);
-                std::ranges::copy(pixel, atlas.rgba.begin() + static_cast<std::ptrdiff_t>(target));
-            }
-        }
-    }
+    for (std::size_t index = 0; index < brushes.size(); ++index) blit_brush(atlas, brushes[index], layout.slots[index]);
     return atlas;
 }
 
@@ -291,6 +350,19 @@ void put_pair(std::span<std::uint8_t> texel, float first, float second) noexcept
     return 1U + ((texels + kSplatTableWidth - 1U) / kSplatTableWidth);
 }
 
+void write_pixmap(Picture& table, const Pixmap& pixmap, const Brush& brush, const Slot& slot, std::size_t id,
+    const Arrangement& layout) {
+    const auto across = static_cast<float>(layout.width);
+    const auto down = static_cast<float>(layout.height);
+    const std::size_t first = id * kPixmapTexels;
+    const std::size_t base = ((1U + (first / kSplatTableWidth)) * kSplatTableWidth) + (first % kSplatTableWidth);
+    const std::span<std::uint8_t> texels = std::span<std::uint8_t>(table.rgba).subspan(base * 4U, kPixmapTexels * 4U);
+    put_pair(texels.subspan(0, 4), pixmap.left, pixmap.top);
+    put_pair(texels.subspan(4, 4), pixmap.right, pixmap.bottom);
+    put_pair(texels.subspan(8, 4), static_cast<float>(slot.x + kPad) / across, static_cast<float>(slot.y + kPad) / down);
+    put_pair(texels.subspan(12, 4), static_cast<float>(brush.width) / across, static_cast<float>(brush.height) / down);
+}
+
 // Hàng 0 là bốn góc theo (lật đường chéo * 16 + orientation); từ hàng 1, pixmap id chiếm bốn texel liền nhau từ
 // vị trí 4 * id: hộp (trái, trên | phải, dưới) rồi phép đổi (gốc x, gốc y | tỉ lệ x, tỉ lệ y) sang atlas.
 [[nodiscard]] Picture table_image(const TerrainFile& file, const std::vector<Brush>& brushes, const Arrangement& layout,
@@ -308,20 +380,7 @@ void put_pair(std::span<std::uint8_t> texel, float first, float second) noexcept
         const Pixmap& pixmap = file.pixmaps[id - 1U];
         const bool is_ready = pixmap.texture < ready.size() && ready[pixmap.texture] != 0;
         if (!is_ready) continue;
-        const Brush& brush = brushes[pixmap.texture];
-        const Slot& slot = layout.slots[pixmap.texture];
-        const auto across = static_cast<float>(layout.width);
-        const auto down = static_cast<float>(layout.height);
-        const std::size_t first = id * kPixmapTexels;
-        const std::size_t base = ((1U + (first / kSplatTableWidth)) * kSplatTableWidth) + (first % kSplatTableWidth);
-        const std::span<std::uint8_t> texels =
-            std::span<std::uint8_t>(table.rgba).subspan(base * 4U, kPixmapTexels * 4U);
-        put_pair(texels.subspan(0, 4), pixmap.left, pixmap.top);
-        put_pair(texels.subspan(4, 4), pixmap.right, pixmap.bottom);
-        put_pair(texels.subspan(8, 4), static_cast<float>(slot.x + kPad) / across,
-            static_cast<float>(slot.y + kPad) / down);
-        put_pair(texels.subspan(12, 4), static_cast<float>(brush.width) / across,
-            static_cast<float>(brush.height) / down);
+        write_pixmap(table, pixmap, brushes[pixmap.texture], layout.slots[pixmap.texture], id, layout);
     }
     return table;
 }
@@ -361,6 +420,13 @@ void put_pair(std::span<std::uint8_t> texel, float first, float second) noexcept
     return grid.cells.size() >= cells;
 }
 
+void mark_layer(const TerrainFile& file, std::vector<std::uint8_t>& used, std::span<const std::uint8_t> ready,
+    Layer layer) {
+    const std::uint32_t id = usable_id(file, ready, layer);
+    if (id == 0) return;
+    used[file.pixmaps[id - 1U].texture] = 1;
+}
+
 } // namespace
 
 std::vector<std::uint8_t> brushes_in_use(const TerrainFile& file, const GridField& grid) {
@@ -369,11 +435,8 @@ std::vector<std::uint8_t> brushes_in_use(const TerrainFile& file, const GridFiel
     const std::vector<std::uint8_t> everything(file.textures.size(), 1);
     const std::size_t count = static_cast<std::size_t>(file.x_size) * static_cast<std::size_t>(file.z_size);
     for (std::size_t index = 0; index < count; ++index) {
-        const Cell& cell = grid.cells[index];
-        for (const Layer layer : {cell.base, cell.cover}) {
-            const std::uint32_t id = usable_id(file, everything, layer);
-            if (id != 0) used[file.pixmaps[id - 1U].texture] = 1;
-        }
+        mark_layer(file, used, everything, grid.cells[index].base);
+        mark_layer(file, used, everything, grid.cells[index].cover);
     }
     return used;
 }
