@@ -7,6 +7,7 @@
 #pragma once
 
 #include "client/stage/stage.hpp"
+#include "fx/billboard.hpp"
 #include "fx/cast.hpp"
 #include "fx/field.hpp"
 #include "gpu/handle.hpp"
@@ -30,6 +31,9 @@ class Device;
 } // namespace game::gpu
 
 namespace game::client {
+
+// Trục và vị trí mắt của camera cho các phép tính hạt (billboard, hướng mesh).
+[[nodiscard]] fx::CameraAxes fx_axes_of(const render::Camera& camera);
 
 class FxView {
 public:

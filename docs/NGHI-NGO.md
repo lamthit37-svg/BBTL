@@ -1026,3 +1026,13 @@ kết luận ngay dưới mục đó chứ không xoá.
     (e) Tên quái và NPC trên đầu lấy cột `name` của `creature_templates.tsv`. Không có `creature_templates.lang.tsv`. Đường nạp đã chờ tệp đó.
     (f) Lời chết trong `display/graphic/fight.cpp` (`您已经死亡`, `按 1 回城复活`) là chữ Hán cứng. Phiên khác đang sửa thư mục đó nên chưa đổi.
     (g) Sáu bảng thông báo `.vi.tsv` chưa được zone nạp; chỉ `dialogue.<language>.txt` đi theo `[text] language`.
+
+61. **Màn đăng nhập: sương thung lũng, thác nước, cây gió, độ nét so với ảnh gốc** (chủ dự án gửi ảnh gốc 2026-10-16).
+    (a) Sương thung lũng của ảnh gốc dày và sáng hơn (trắng xanh quanh x 330-760, y 330-460 của ảnh 1252x719), bản này
+    chỉ nhạt. Nguồn nghi: hệ billboard `方向雾_深灰` (300 hạt, 400-800 đơn vị, chỉ 2 trên 7 chỗ đặt nằm trong khung),
+    `远景雾片_3`, hay sương cao độ (`EnvKey height_fog_param`). Cần: so từng nguồn bằng cách tắt riêng.
+    (b) Thác nước: client chưa có thác chảy bên trái và màn chọn nhân vật đứng im (chủ dự án báo). Đường UV scroll
+    cho chất liệu không đèn đã có (`take_scroll`, `emissive.xy`), cần tìm vì sao không chạy ở hai chỗ đó.
+    (c) Gió lung lay cây: chưa làm. Cần đọc cách bản gốc rung đỉnh (shader cây) trước khi viết.
+    (d) Độ nét: bản gốc có chuỗi hậu xử lý (`hdr.hlsl`, `Bloom.hlsl`, `ColorLUT.hlsl`, `AntiAlias.hlsl`) mà client chưa có;
+    lọc dị hướng 16x và MSAA 4x đã bật, cỡ texture khớp bản gốc (đo 14 tệp). Chưa chứng minh nguyên nhân.

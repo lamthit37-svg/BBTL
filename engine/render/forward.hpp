@@ -216,6 +216,9 @@ struct Instance {
     std::span<const math::Matrix4> joints;
     // Nhân vật (LogicModel của bản gốc): nhận ambient và màu đèn riêng của nhân vật.
     bool is_actor = false;
+    // Hệ số nhân vào màu và alpha của chất liệu (base_color), mỗi bản vẽ một giá trị: hạt mesh mang
+    // màu và độ mờ của hạt. Trắng là không đổi.
+    math::Float4 tint{.x = 1.0F, .y = 1.0F, .z = 1.0F, .w = 1.0F};
 };
 
 class Forward {

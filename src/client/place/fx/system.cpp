@@ -9,6 +9,7 @@
 namespace game::fx {
 namespace {
 
+using ogre::Quat;
 using ogre::Vec3;
 
 [[nodiscard]] float number_of(const ScriptProperty& property, float fallback, std::size_t index) {
@@ -23,6 +24,25 @@ using ogre::Vec3;
     value.y = number_of(property, 0.0F, 1);
     value.z = number_of(property, 0.0F, 2);
     return value;
+}
+
+// OGRE StringConverter::parseQuaternion: w x y z.
+[[nodiscard]] Quat quat_of(const ScriptProperty& property) {
+    Quat value;
+    value.w = number_of(property, 1.0F, 0);
+    value.x = number_of(property, 0.0F, 1);
+    value.y = number_of(property, 0.0F, 2);
+    value.z = number_of(property, 0.0F, 3);
+    return value;
+}
+
+[[nodiscard]] MeshFacing mesh_facing(std::string_view name) {
+    if (name == "oriented_self") return MeshFacing::kSelf;
+    if (name == "oriented_camera") return MeshFacing::kCamera;
+    if (name == "oriented_common") return MeshFacing::kCommon;
+    if (name == "perpendicular_common") return MeshFacing::kPerpendicularCommon;
+    if (name == "perpendicular_self") return MeshFacing::kPerpendicularSelf;
+    return MeshFacing::kOrigin;
 }
 
 [[nodiscard]] Colour colour_of(const ScriptProperty& property) {
@@ -228,91 +248,68 @@ void set_mesh(MeshRotator& spin, const ScriptProperty& property) {
     if (rest == "rotation_range_end") set_mesh_axis(spin.angle_end, axis, value);
 }
 
-// Loại không có trong Plugin_ParticleFX2.dll thì bỏ, không biến thành ScaleInterpolator.
-[[nodiscard]] std::optional<Affector> affector_of(const ScriptBlock& block, const SystemDef& system) {
-    const std::string_view kind = block.word(1);
-    if (kind == "LinearForce") {
-        LinearForce force;
-        for (const ScriptProperty& property : block.properties) {
-            if (property.key == "force_vector") force.force = vec3_of(property);
-        }
-        return force;
-    }
-    if (kind == "Scaler") {
-        Scaler scaler;
-        for (const ScriptProperty& property : block.properties) {
-            if (property.key == "rate") scaler.rate = number_of(property, 0.0F, 0);
-        }
-        return scaler;
-    }
-    if (kind == "Rotator") {
-        Rotator rotator;
-        for (const ScriptProperty& property : block.properties)
-            set_rotator(rotator, property);
-        return rotator;
-    }
-    if (kind == "ColourFading") {
-        ColourFading fading;
-        for (const ScriptProperty& property : block.properties)
-            set_colour(fading, property);
-        return fading;
-    }
-    if (kind == "Movement") {
-        Movement movement;
-        for (const ScriptProperty& property : block.properties)
-            set_movement(movement, property);
-        return movement;
-    }
-    if (kind == "Revolution" || kind == "RevoluMove") {
-        Revolution spin;
-        spin.move = kind == "RevoluMove";
-        for (const ScriptProperty& property : block.properties)
-            set_revolution(spin, property);
-        return spin;
-    }
-    if (kind == "MeshRotator") {
-        MeshRotator spin;
-        for (const ScriptProperty& property : block.properties)
-            set_mesh(spin, property);
-        return spin;
-    }
-    if (kind == "MeshAnimationAffector") {
-        MeshAnimation clip;
-        for (const ScriptProperty& property : block.properties) {
-            if (property.key == "animation_name" && !property.args.empty()) clip.name = property.args.front();
-            if (property.key == "animation_loop")
-                clip.loop = parse_bool(property.args.empty() ? "" : property.args.front());
-            if (property.key == "animation_speed") clip.speed = number_of(property, 1.0F, 0);
-        }
-        return clip;
-    }
-    if (kind == "SequenceFrame") {
-        SequenceFrame frames;
-        for (const ScriptProperty& property : block.properties) {
-            if (property.key == "stacks") frames.stacks = std::max(1, static_cast<int>(number_of(property, 1.0F, 0)));
-            if (property.key == "slices") frames.slices = std::max(1, static_cast<int>(number_of(property, 1.0F, 0)));
-            if (property.key == "repeat_times") frames.repeat_times = number_of(property, 1.0F, 0);
-            if (property.key == "loop") frames.loop = parse_bool(property.args.empty() ? "" : property.args.front());
-            if (property.key == "pingpang")
-                frames.pingpang = parse_bool(property.args.empty() ? "" : property.args.front());
-            if (property.key == "start_range") {
-                frames.start_min = number_of(property, 0.0F, 0);
-                frames.start_max = number_of(property, 0.0F, 1);
-            }
-        }
-        return frames;
-    }
-    if (kind == "DirectionRandomiser") {
-        DirectionRandomiser jitter;
-        for (const ScriptProperty& property : block.properties) {
-            if (property.key == "randomness") jitter.randomness = number_of(property, 1.0F, 0);
-            if (property.key == "scope") jitter.scope = number_of(property, 100.0F, 0);
-            if (property.key == "keep_velocity")
-                jitter.keep_velocity = parse_bool(property.args.empty() ? "" : property.args.front());
-        }
-        return jitter;
-    }
-    if (kind != "ScaleInterpolator") return std::nullopt;
+// Thuộc tính logic: rỗng là false, như bản gốc.
+[[nodiscard]] bool flag_of(const ScriptProperty& property) {
+    if (property.args.empty()) return parse_bool(std::string_view{});
+    return parse_bool(property.args.front());
+}
+
+[[nodiscard]] int count_of(const ScriptProperty& property) {
+    const int number = static_cast<int>(number_of(property, 1.0F, 0));
+    return std::max(1, number);
+}
+
+void set_force(LinearForce& force, const ScriptProperty& property) {
+    if (property.key == "force_vector") force.force = vec3_of(property);
+}
+
+void set_scaler(Scaler& scaler, const ScriptProperty& property) {
+    if (property.key == "rate") scaler.rate = number_of(property, 0.0F, 0);
+}
+
+void set_clip(MeshAnimation& clip, const ScriptProperty& property) {
+    const std::string_view key = property.key;
+    const bool has_arg = !property.args.empty();
+    if (key == "animation_name" && has_arg) clip.name = property.args.front();
+    if (key == "animation_loop") clip.loop = flag_of(property);
+    if (key == "animation_speed") clip.speed = number_of(property, 1.0F, 0);
+}
+
+void set_frames(SequenceFrame& frames, const ScriptProperty& property) {
+    const std::string_view key = property.key;
+    if (key == "stacks") frames.stacks = count_of(property);
+    if (key == "slices") frames.slices = count_of(property);
+    if (key == "repeat_times") frames.repeat_times = number_of(property, 1.0F, 0);
+    if (key == "loop") frames.loop = flag_of(property);
+    if (key == "pingpang") frames.pingpang = flag_of(property);
+    if (key != "start_range") return;
+    frames.start_min = number_of(property, 0.0F, 0);
+    frames.start_max = number_of(property, 0.0F, 1);
+}
+
+void set_jitter(DirectionRandomiser& jitter, const ScriptProperty& property) {
+    const std::string_view key = property.key;
+    if (key == "randomness") jitter.randomness = number_of(property, 1.0F, 0);
+    if (key == "scope") jitter.scope = number_of(property, 100.0F, 0);
+    if (key == "keep_velocity") jitter.keep_velocity = flag_of(property);
+}
+
+// Dựng một affector rồi nạp từng thuộc tính của khối vào nó bằng `Set`.
+template <class Kind, void (*Set)(Kind&, const ScriptProperty&)>
+[[nodiscard]] Kind read_affector(const ScriptBlock& block) {
+    Kind affector;
+    for (const ScriptProperty& property : block.properties)
+        Set(affector, property);
+    return affector;
+}
+
+[[nodiscard]] Revolution revolution_of(const ScriptBlock& block, bool is_move) {
+    Revolution spin = read_affector<Revolution, set_revolution>(block);
+    spin.move = is_move;
+    return spin;
+}
+
+[[nodiscard]] ScaleInterpolator scale_of(const ScriptBlock& block, const SystemDef& system) {
     ScaleInterpolator scale;
     scale.width_start = system.width;
     scale.width_end = system.width;
@@ -321,6 +318,25 @@ void set_mesh(MeshRotator& spin, const ScriptProperty& property) {
     for (const ScriptProperty& property : block.properties)
         set_scale(scale, property);
     return scale;
+}
+
+// Loại không có trong Plugin_ParticleFX2.dll thì bỏ, không biến thành ScaleInterpolator.
+[[nodiscard]] std::optional<Affector> affector_of(const ScriptBlock& block,
+    const SystemDef& system) {
+    const std::string_view kind = block.word(1);
+    if (kind == "LinearForce") return read_affector<LinearForce, set_force>(block);
+    if (kind == "Scaler") return read_affector<Scaler, set_scaler>(block);
+    if (kind == "Rotator") return read_affector<Rotator, set_rotator>(block);
+    if (kind == "ColourFading") return read_affector<ColourFading, set_colour>(block);
+    if (kind == "Movement") return read_affector<Movement, set_movement>(block);
+    if (kind == "MeshRotator") return read_affector<MeshRotator, set_mesh>(block);
+    if (kind == "MeshAnimationAffector") return read_affector<MeshAnimation, set_clip>(block);
+    if (kind == "SequenceFrame") return read_affector<SequenceFrame, set_frames>(block);
+    if (kind == "DirectionRandomiser") return read_affector<DirectionRandomiser, set_jitter>(block);
+    if (kind == "Revolution") return revolution_of(block, false);
+    if (kind == "RevoluMove") return revolution_of(block, true);
+    if (kind == "ScaleInterpolator") return scale_of(block, system);
+    return std::nullopt;
 }
 
 [[nodiscard]] BillboardKind billboard_of(std::string_view name) {
@@ -340,8 +356,10 @@ void set_system(SystemDef& system, const ScriptProperty& property) {
     if (key == "particle_depth") system.depth = number_of(property, system.depth, 0);
     if (key == "renderer" && !property.args.empty()) system.renderer = renderer_kind(property.args.front());
     if (key == "mesh_name" && !property.args.empty()) system.mesh_name = property.args.front();
-    if (key == "orientation_type" && !property.args.empty())
-        system.face_direction = property.args.front() == "oriented_self";
+    const bool has_arg = !property.args.empty();
+    if (key == "orientation_type" && has_arg) system.facing = mesh_facing(property.args.front());
+    if (key == "local_position") system.local_position = vec3_of(property);
+    if (key == "local_rotation") system.local_rotation = quat_of(property);
     if (key == "stacks") system.stacks = std::max(1, static_cast<int>(number_of(property, 1.0F, 0)));
     if (key == "slices") system.slices = std::max(1, static_cast<int>(number_of(property, 1.0F, 0)));
     if (key == "repeat_times") system.repeat_times = number_of(property, system.repeat_times, 0);
@@ -358,15 +376,6 @@ void set_system(SystemDef& system, const ScriptProperty& property) {
     if (key == "common_direction") system.common_direction = vec3_of(property);
     if (key == "common_up_vector") system.common_up = vec3_of(property);
     if (key == "speed_relatived_size_factor") system.speed_factor = number_of(property, system.speed_factor, 0);
-}
-
-[[nodiscard]] ogre::Quat quat_of(const ScriptProperty& property) {
-    ogre::Quat turn;
-    turn.w = number_of(property, 1.0F, 0);
-    turn.x = number_of(property, 0.0F, 1);
-    turn.y = number_of(property, 0.0F, 2);
-    turn.z = number_of(property, 0.0F, 3);
-    return turn;
 }
 
 [[nodiscard]] std::optional<std::size_t> fade_slot(std::string_view key, std::string_view prefix) {

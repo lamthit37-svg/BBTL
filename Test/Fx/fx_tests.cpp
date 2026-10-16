@@ -192,6 +192,7 @@ quota 1
 material white
 particle_width 2
 particle_height 4
+particle_depth 3
 renderer mesh
 mesh_name ice.mesh
 emitter Point
@@ -213,6 +214,93 @@ affector MeshAnimationAffector
 animation_name run
 animation_loop true
 animation_speed 1
+}
+}
+)";
+
+// Hạt mesh có ColourFading: sáu mốc cùng một màu để kết quả không phụ thuộc tuổi hạt.
+// Tấm mesh có local_rotation 90 độ quanh x và local_position, như cj_恶人谷_远景雾片_1 của cảnh đăng nhập.
+constexpr std::string_view kPlate = R"(plate
+{
+quota 1
+material white
+particle_width 2
+particle_height 4
+particle_depth 3
+renderer mesh
+mesh_name sheet.mesh
+local_rotation 0.707107 0.707107 0 0
+local_position 0 10 0
+emitter Point
+{
+emission_rate 1000
+position 5 0 0
+velocity 0
+time_to_live 4
+}
+}
+)";
+
+// Không khai particle_depth: bề sâu mặc định 0 (ParticleSystem::ParticleSystem gọi setDefaultDimensions(100, 100, 0)).
+constexpr std::string_view kFlat = R"(flat
+{
+quota 1
+material white
+particle_width 2
+particle_height 4
+renderer mesh
+mesh_name flat.mesh
+emitter Point
+{
+emission_rate 1000
+position 0 0 0
+velocity 0
+time_to_live 4
+}
+}
+)";
+
+// oriented_camera: trục z của mesh hướng vào camera.
+constexpr std::string_view kFacing = R"(facing
+{
+quota 1
+material white
+particle_width 1
+particle_height 1
+renderer mesh
+mesh_name facing.mesh
+orientation_type oriented_camera
+emitter Point
+{
+emission_rate 1000
+position 0 0 0
+velocity 0
+time_to_live 4
+}
+}
+)";
+
+constexpr std::string_view kMist = R"(mist
+{
+quota 1
+material white
+renderer mesh
+mesh_name mist.mesh
+emitter Point
+{
+emission_rate 1000
+velocity 0
+time_to_live 4
+}
+affector ColourFading
+{
+colour0 0.5 0.25 0.75 1
+colour1 0.5 0.25 0.75 1
+colour2 0.5 0.25 0.75 1
+colour3 0.5 0.25 0.75 1
+colour4 0.5 0.25 0.75 1
+colour5 0.5 0.25 0.75 1
+opacity 0.4
 }
 }
 )";
@@ -629,7 +717,7 @@ void ribbon_faces(Context& context) {
 
 [[nodiscard]] bool is_ice_pose(const fx::MeshPose& pose) {
     const ogre::Quat yaw = ogre::quat_from_angle_axis(90.0F * fx::kDegree, ogre::Vec3{.y = 1.0F});
-    const bool sized = is_tiny(pose.scale.x - 2.0F) && is_tiny(pose.scale.y - 4.0F) && is_tiny(pose.scale.z - 2.0F);
+    const bool sized = is_tiny(pose.scale.x - 2.0F) && is_tiny(pose.scale.y - 4.0F) && is_tiny(pose.scale.z - 3.0F);
     const bool turned = is_tiny(pose.orientation.w - yaw.w) && is_tiny(pose.orientation.y - yaw.y);
     return is_tiny(pose.position.x - 3.0F) && sized && turned;
 }
@@ -643,10 +731,79 @@ void mesh_places(Context& context) {
     context.expect(clip, "giữ MeshAnimationAffector");
     fx::Field field(*system, 1);
     field.update(0.033F, fx::Node{});
-    const std::vector<fx::MeshPose> poses = fx::mesh_poses(field);
+    const std::vector<fx::MeshPose> poses = fx::mesh_poses(field, fx::CameraAxes{});
     context.expect(poses.size() == 1, "một tư thế mesh");
     if (poses.size() != 1) return;
-    context.expect(is_ice_pose(poses.front()), "vị trí, scale xz/y và yaw 90 độ");
+    context.expect(is_ice_pose(poses.front()), "vị trí, scale rộng/cao/sâu và yaw 90 độ");
+}
+
+// Hạt mesh mang màu của hạt (rgb và alpha đã nhân độ mờ): bản gốc đưa nó vào chất liệu của hạt. Thiếu thì tấm sương
+// mesh vẽ đục và trắng như ảnh gốc nhân hệ số, phủ kín cảnh.
+void mesh_carries_colour(Context& context) {
+    fx::Library library = particles_only(kMist);
+    const fx::SystemDef* system = library.system("mist");
+    context.expect(system != nullptr, "có hệ sương mesh");
+    if (system == nullptr) return;
+    fx::Field field(*system, 1);
+    field.update(0.1F, fx::Node{});
+    const std::vector<fx::MeshPose> poses = fx::mesh_poses(field, fx::CameraAxes{});
+    context.expect(poses.size() == 1, "một tư thế mesh");
+    if (poses.size() != 1) return;
+    const fx::Colour& colour = poses.front().colour;
+    const bool is_rgb = is_tiny(colour[0] - 0.2F) && is_tiny(colour[1] - 0.1F) && is_tiny(colour[2] - 0.3F);
+    context.expect(is_rgb && is_tiny(colour[3] - 0.4F), "màu hạt nhân độ mờ 0,4");
+}
+
+// local_position nhân scale của nút ngoài rồi xoay theo nó (Node::_updateFromParent); local_rotation ghép vào
+// phép xoay. Bản gốc: Render.dll 0x1801f4a90.
+void mesh_local_pose(Context& context) {
+    fx::Library library = particles_only(kPlate);
+    const fx::SystemDef* system = library.system("plate");
+    context.expect(system != nullptr, "có hệ tấm mesh");
+    if (system == nullptr) return;
+    fx::Field field(*system, 1);
+    field.update(0.1F, fx::Node{});
+    const std::vector<fx::MeshPose> poses = fx::mesh_poses(field, fx::CameraAxes{});
+    context.expect(poses.size() == 1, "một tư thế mesh");
+    if (poses.size() != 1) return;
+    const fx::MeshPose& pose = poses.front();
+    const ogre::Quat pitch = ogre::quat_from_angle_axis(90.0F * fx::kDegree, ogre::Vec3{.x = 1.0F});
+    const bool is_turned = is_tiny(pose.orientation.w - pitch.w) && is_tiny(pose.orientation.x - pitch.x);
+    const bool is_shifted = is_tiny(pose.position.x - 5.0F) && is_tiny(pose.position.y - 40.0F);
+    context.expect(is_turned, "local_rotation quay 90 độ quanh x");
+    context.expect(is_shifted && is_tiny(pose.position.z), "local_position 10 nhân bề cao 4");
+    context.expect(is_tiny(pose.scale.z - 3.0F), "scale z là particle_depth");
+}
+
+void mesh_default_depth(Context& context) {
+    fx::Library library = particles_only(kFlat);
+    const fx::SystemDef* system = library.system("flat");
+    context.expect(system != nullptr, "có hệ tấm dẹt");
+    if (system == nullptr) return;
+    fx::Field field(*system, 1);
+    field.update(0.1F, fx::Node{});
+    const std::vector<fx::MeshPose> poses = fx::mesh_poses(field, fx::CameraAxes{});
+    context.expect(poses.size() == 1, "một tư thế mesh");
+    if (poses.size() != 1) return;
+    context.expect(is_tiny(poses.front().scale.z), "bề sâu mặc định 0");
+}
+
+void mesh_faces_camera(Context& context) {
+    fx::Library library = particles_only(kFacing);
+    const fx::SystemDef* system = library.system("facing");
+    context.expect(system != nullptr, "có hệ oriented_camera");
+    if (system == nullptr) return;
+    fx::Field field(*system, 1);
+    field.update(0.1F, fx::Node{});
+    fx::CameraAxes axes;
+    axes.eye = ogre::Vec3{.x = 10.0F};
+    axes.forward = ogre::Vec3{.x = -1.0F};
+    axes.right = ogre::Vec3{.z = -1.0F};
+    const std::vector<fx::MeshPose> poses = fx::mesh_poses(field, axes);
+    context.expect(poses.size() == 1, "một tư thế mesh");
+    if (poses.size() != 1) return;
+    const ogre::Vec3 normal = ogre::quat_rotate(poses.front().orientation, ogre::Vec3{.z = 1.0F});
+    context.expect(is_tiny(normal.x - 1.0F) && is_tiny(normal.y) && is_tiny(normal.z), "trục z hướng về camera");
 }
 
 void beam_line(Context& context) {
@@ -972,6 +1129,10 @@ constexpr std::array kCases{
     Case{.name = "trail_follows", .body = &trail_follows},
     Case{.name = "projector_deck", .body = &projector_deck},
     Case{.name = "mesh_places", .body = &mesh_places},
+    Case{.name = "mesh_carries_colour", .body = &mesh_carries_colour},
+    Case{.name = "mesh_local_pose", .body = &mesh_local_pose},
+    Case{.name = "mesh_default_depth", .body = &mesh_default_depth},
+    Case{.name = "mesh_faces_camera", .body = &mesh_faces_camera},
     Case{.name = "texcoord_frame", .body = &texcoord_frame},
     Case{.name = "revolution_turns", .body = &revolution_turns},
     Case{.name = "polar_places", .body = &polar_places},

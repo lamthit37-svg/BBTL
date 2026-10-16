@@ -101,13 +101,6 @@ static_assert(offsetof(FxVertex, red) == render::kFxColour);
     return resource::read_stored(std::as_bytes(std::span(*bytes)));
 }
 
-// Tấm sương của cảnh đăng nhập. Không dựng: chúng phủ trời thành một lớp xám.
-[[nodiscard]] bool is_mist(std::string_view name) noexcept {
-    const bool directional = name.contains("方向雾");
-    const bool sheets = name.contains("远景雾片");
-    return directional || sheets;
-}
-
 [[nodiscard]] fx::Spawn spawn_of(const FxPlace& place) {
     const scene::Placement& placement = place.placement;
     fx::Spawn spawn;
@@ -268,6 +261,10 @@ void bind_texture(std::array<gpu::BindEntry, 4>& entries, std::uint32_t slot,
 }
 
 } // namespace
+
+fx::CameraAxes fx_axes_of(const render::Camera& camera) {
+    return axes_of(camera);
+}
 
 struct FxView::Body {
     gpu::Device* device = nullptr;
@@ -602,7 +599,6 @@ void FxView::adopt(const Stage& stage) {
     body_->scene_age = 0.0F;
     body_->is_reported = false;
     for (const FxPlace& place : stage.effects) {
-        if (is_mist(place.name)) continue;
         const fx::Spawn spawn = spawn_of(place);
         body_->cast->add(spawn);
     }

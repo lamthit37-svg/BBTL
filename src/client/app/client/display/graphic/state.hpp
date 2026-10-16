@@ -207,8 +207,8 @@ struct Display::State {
     };
     void advance_fx(float elapsed);
     [[nodiscard]] std::size_t fx_mesh_slot(const fx::Field& field);
-    void push_fx_field(const fx::Field& field, std::size_t slot);
-    void append_fx_meshes();
+    void push_fx_field(const fx::Field& field, std::size_t slot, const fx::CameraAxes& axes);
+    void append_fx_meshes(const render::Camera& camera);
     void paint_select_ring(std::vector<fx::BillboardBatch>& out) const;
     void draw_fx(const FxAsk& ask) const;
     // Camera, mọi instance, hiệu ứng rồi HUD của một khung, vào ảnh slot.

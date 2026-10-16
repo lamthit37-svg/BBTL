@@ -209,6 +209,41 @@ phát lặp độc lập; ma trận gắn nhân vào chỗ đặt, ma trận ski
 skeleton suy từ tên lưới (glb của lưới không lộ liên kết `ogre.skeleton`); mọi object bắt đầu cùng giây
 nạp cảnh, không lệch pha.
 
+Tấm sương của cảnh (2026-10-16): các hiệu ứng `cj_恶人谷_方向雾_深灰`, `cj_恶人谷_方向雾_深灰_减粒子` và
+`cj_恶人谷_远景雾片` trước đây bị loại khỏi cảnh vì vẽ thành một mảng xám đục phủ kín núi. Có hai nguyên nhân gốc, cả hai
+ở bộ dựng hạt mesh (`renderer mesh`, `MeshParticleRenderer::_updateRenderQueue`, Render.dll 0x1801452e0):
+
+1. Màu và độ mờ của hạt bị bỏ qua. Bản gốc gọi `Material::setSelfIlluminationAndDiffuseAlpha(r, g, b, a)` lên chất
+   liệu của từng hạt (0x1801f4570; màu hạt ở +0x3c của hạt): rgb thành emissive, cộng vào màu đỉnh rồi nhân với ảnh
+   (`Calc_Light_Particle_In_Vs`, `Calc_Light_Particle_In_Ps`), alpha nhân vào alpha của ảnh (`surface_diffuse_colour.a`
+   của `Particle_ps.hlsl` và `Particle_2Tex_ps.hlsl`). Nay `fx::MeshPose::colour` mang màu hạt và
+   `render::Instance::tint` nhân vào `base_color` của chất liệu.
+2. Tư thế bị dựng sai. Mỗi hạt có hai nút OGRE: nút ngoài (`+0x78`: vị trí hạt, scale = `particle_width`,
+   `particle_height`, `particle_depth`, phép xoay theo `orientation_type`) và nút trong là con của nó (`+0x80`:
+   `local_rotation`, `local_position`, gắn mesh; `FUN_1801f4a90`). Bản cũ bỏ `local_rotation`, `local_position` và đặt
+   scale z bằng bề rộng. Nay `fx::mesh_poses(field, axes)` dựng đủ:
+   - scale theo trục của mesh (OGRE nhân scale cha với scale con từng thành phần): x rộng, y cao, z sâu;
+   - bề sâu mặc định là 0, không phải 1: `ParticleSystem::ParticleSystem` gọi `setDefaultDimensions(100, 100, 0)`
+     (OgreMain.dll 0x18011fe74). Mesh không khai `particle_depth` bị dẹt theo trục z của nó (468 trên 564 hệ mesh, đa số
+     là mặt phẳng nên khớp ý người làm);
+   - vị trí nút trong = vị trí hạt + xoay nút ngoài của (scale nhân `local_position`), `Node::_updateFromParent` luôn
+     nhân vị trí con với scale cha; phép xoay = nút ngoài rồi `local_rotation` (w x y z như `parseQuaternion`);
+   - sáu kiểu `orientation_type` theo thứ tự `CmdOrientationType::doSet` (0x1801464b0): origin 0, self 1, camera 2,
+     common 3, perpendicular_common 4, perpendicular_self 5. Trục tính trong hệ nút hạt, camera đổi về hệ đó
+     (`_notifyCurrentCamera`, 0x1801450b0; `camBack` là camera nhân +z). self và common: y dọc hướng hạt hay
+     `common_direction`, mặt quay về camera. camera: z hướng vào camera, y theo "lên" của camera, rồi nhân roll.
+     perpendicular: x = `common_up × hướng`. Góc `MeshRotator` nhân trước kiểu xoay (cờ `+0x119`, bản gốc đặt khi
+     có hạt quay).
+   - Khác gốc: trục suy biến (song song hướng nhìn) cho phép xoay đơn vị, bản gốc chuẩn hoá vector 0.
+
+Kết quả trên cảnh đăng nhập (đo ảnh chụp, kèm làm nóng hệ hạt 8 giây): `远景雾片_2` (`particle_depth 12`) là một tấm
+dày 6720 x 840 x 9900 đơn vị mesh, `远景雾片_1` (bề sâu 0) là mặt phẳng ngang; cả hai nằm sau dãy núi xa (tâm cách
+camera 20 nghìn đơn vị, lệch phải 15 độ), nên không còn lớp xám phủ lên núi: núi hai bên tối và rõ nét như ảnh gốc.
+Sương thung lũng của ảnh gốc dày và sáng hơn bản này: chưa rõ nguồn (xem `docs/NGHI-NGO.md` mục 61).
+Ảnh `--shot` luôn lấy khung đầu (giây 0,43), lúc hệ hạt vừa phát; muốn xem trạng thái ổn định phải làm nóng hệ hạt.
+
+Ánh lửa phơ phất (2026-10-16, chủ dự án yêu cầu): xem mục 13.
+
 Trăng to thêm 30% (2026-10-16, chủ dự án yêu cầu): `sky_view.cpp` nhân scale của lớp trăng với 1,3 khi vẽ,
 đo trên ảnh từ khoảng 87 lên 113 điểm ảnh. Khác gốc: bản gốc không phóng trăng, số trong `.EnScene` giữ nguyên.
 
@@ -242,6 +277,16 @@ khung nhìn mỗi khung; ba hàng nghịch đảo của ma trận đặt hộp t
 Khác gốc: máy yếu tính ánh sáng ở đỉnh (`lights_at_vertices`, gồm mọi GLES) bỏ đèn giả; bề mặt trong suốt
 và hiệu ứng hạt không nhận đèn (bản gốc cũng cộng lên chúng vì depth); độ sáng cảnh tính từ màu đã nhân
 cường độ (bản gốc đọc diffuse thô của hai Ogre::Light); chưa cắt theo khoảng cách như bản gốc.
+
+Ánh lửa phơ phất (2026-10-16, chủ dự án yêu cầu; Khác gốc, hộp FakeLight của bản gốc đứng yên): `fake_flow` ở
+`model.inc.slang` (cùng bản trong `model.ps.glsl` và `terrain.ps.glsl`) uốn toạ độ hộp trước khi tính `spread`.
+Mỗi đèn có pha riêng suy từ cột dịch của ma trận hộp. Cường độ nhân thêm bốn sóng sin lệch tần (cộng dồn tối đa
+±44%), tâm vùng sáng lay ba trục 0,09 đơn vị hộp, thêm gợn theo vị trí thế giới 0,045 theo ba hướng chéo, nửa trên
+(+y của thế giới) vươn xa hơn 1,8 lần và nửa dưới ngắn lại 0,8 lần để vùng sáng thành hình giọt chứ không tròn. Đèn
+nhỏ (scale tới 8, lửa) nhận trọn hiệu ứng, đèn lớn (scale từ 22, ánh trăng) nhận 55%. Thời gian lấy từ
+`rules.y`. Ảnh chụp `--shot` luôn lấy khung đầu tiên (giây 0,43) dù `--frames` là bao nhiêu, nên không thấy chuyển
+động trong ảnh tĩnh; đã kiểm bằng cách cộng lệch giây rồi so ảnh (độ lệch chuẩn theo thời gian tới 15% ở chỗ gần
+lửa).
 
 Bẫy đã gặp: `diffuse` của FakeLight có bốn số, `parse_vector3` trả đen khi số token khác 3 nên mọi đèn
 ra đen và không thấy gì dù mọi bước khác đúng. Sửa bằng `scene::parse_colour` (ba hoặc bốn số theo

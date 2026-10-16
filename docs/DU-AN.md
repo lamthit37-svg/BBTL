@@ -94,6 +94,11 @@ nhật ký cũ [tài liệu].
 - Sương mù của cảnh (tuyến tính và cao độ, từ Scene, `.hfog` và EnvKey) và object Model có xương (quạ bay,
   quạ đậu ở màn đăng nhập, `avatar::Ambient`) đã bật, chụp màn đăng nhập thấy quạ vỗ cánh (2026-10-16).
   Chưa đối chiếu sương với ảnh bản gốc; lệch pha giữa các quạ chưa làm.
+- Hạt mesh dựng theo mã máy (2026-10-16): màu và độ mờ của hạt, `local_position`, `local_rotation`, bề sâu mặc định 0
+  và sáu kiểu `orientation_type`. Tấm sương `远景雾片` nay nằm sau núi xa thay vì phủ xám lên núi. Sương thung lũng còn
+  nhạt hơn ảnh gốc (`docs/NGHI-NGO.md` mục 61). Logo "Thiên Long Bát Bộ" chủ dự án đưa thay logo gốc ở góc
+  trên bên phải bảng đăng nhập (`assets/i18n/<mã>/logo.png` qua `image/CommonFrame9/Logo`); ánh lửa của đèn giả phơ phất
+  theo thời gian (mục 13 của `docs/TAILIEU/EN-SCENE-RENDER-DLL.md`).
 - Đèn giả FakeLight (51 đèn ở màn đăng nhập: đầu Phật, miệng quỷ) tính ở điểm ảnh của model và địa hình, chụp
   thấy mặt Phật ánh cam, mặt quỷ ánh xanh (2026-10-16). Trăng to thêm 30% theo yêu cầu. Máy yếu (GLES, ánh
   sáng ở đỉnh) bỏ đèn giả; shader GLSL dịch được bằng glslangValidator (310 es và 450 core), chưa chạy ở thiết bị.

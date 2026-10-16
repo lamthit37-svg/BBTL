@@ -954,7 +954,13 @@ void Forward::State::add_item(const Pass& pass, const Placed& placed, std::size_
         drawable.part_extents_.at(placed.mesh).at(part));
     const ShadeAsk ask{.material = material, .lighting = pass.lighting, .is_actor = pass.instance->is_actor};
     const Shade shade = shade_of(ask);
-    item.block.base_color = shade.base_color;
+    const math::Float4& tint = pass.instance->tint;
+    const math::Float4& base = shade.base_color;
+    const float red = base.x * tint.x;
+    const float green = base.y * tint.y;
+    const float blue = base.z * tint.z;
+    const float alpha = base.w * tint.w;
+    item.block.base_color = {.x = red, .y = green, .z = blue, .w = alpha};
     item.block.glow = shade.glow;
     item.block.diffuse = shade.diffuse;
     item.block.specular = shade.specular;

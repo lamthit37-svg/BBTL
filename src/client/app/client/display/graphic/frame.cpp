@@ -586,7 +586,7 @@ core::Status Display::State::draw_world(gpu::CommandList& list, std::uint32_t sl
     append_sky(camera);
     ensure_water();
     append_water();
-    append_fx_meshes();
+    append_fx_meshes(camera);
     render::Lighting lighting = light.view();
     lighting.seconds = elapsed;
     if (sky_view) sky_view->prepare(slot, camera);

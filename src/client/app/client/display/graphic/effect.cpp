@@ -403,21 +403,25 @@ std::size_t Display::State::fx_mesh_slot(const fx::Field& field) {
     return load_painted_mesh(field.definition().mesh_name, field.definition().material, *paint);
 }
 
-void Display::State::push_fx_field(const fx::Field& field, std::size_t slot) {
+void Display::State::push_fx_field(const fx::Field& field, std::size_t slot,
+    const fx::CameraAxes& axes) {
     if (slot == kMissing) return;
     const fx::Node& node = field.node();
     const math::Matrix4 parent = fx_placed(node.position, node.orientation, node.scale);
     const render::Drawable& drawable = kept.at(slot).loaded.drawable;
-    for (const fx::MeshPose& pose : fx::mesh_poses(field)) {
+    for (const fx::MeshPose& pose : fx::mesh_poses(field, axes)) {
         render::Instance instance;
         instance.drawable = &drawable;
         instance.world = parent * fx_placed(pose.position, pose.orientation, pose.scale);
+        const fx::Colour& colour = pose.colour;
+        instance.tint = {.x = colour[0], .y = colour[1], .z = colour[2], .w = colour[3]};
         frame_instances.push_back(instance);
     }
 }
 
-void Display::State::append_fx_meshes() {
+void Display::State::append_fx_meshes(const render::Camera& camera) {
     if (!fx_view) return;
+    const fx::CameraAxes axes = fx_axes_of(camera);
     const std::vector<const fx::Field*> live = fx_view->fields();
     std::vector<std::size_t> slots;
     slots.reserve(live.size());
@@ -425,7 +429,7 @@ void Display::State::append_fx_meshes() {
         slots.push_back(fx_mesh_slot(*field));
     }
     for (std::size_t index = 0; index < live.size(); ++index) {
-        push_fx_field(*live[index], slots[index]);
+        push_fx_field(*live[index], slots[index], axes);
     }
 }
 

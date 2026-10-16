@@ -186,6 +186,16 @@ enum class BillboardKind : std::uint8_t {
     kPerpendicularSelf
 };
 
+// Kiểu xoay mesh hạt, thứ tự đúng CmdOrientationType::doSet của Render.dll (0x1801464b0).
+enum class MeshFacing : std::uint8_t {
+    kOrigin,
+    kSelf,
+    kCamera,
+    kCommon,
+    kPerpendicularCommon,
+    kPerpendicularSelf
+};
+
 struct Origin {
     float left = -0.5F;
     float right = 0.5F;
@@ -199,12 +209,17 @@ struct SystemDef {
     std::size_t quota = 10;
     float width = 1.0F;
     float height = 1.0F;
-    float depth = 1.0F;
+    // Mặc định 0: ParticleSystem::ParticleSystem gọi setDefaultDimensions(100, 100, 0)
+    // (OgreMain.dll 0x18011fe74).
+    float depth = 0.0F;
     RendererKind renderer = RendererKind::kBillboard;
     // Tên tệp .mesh. GLB nằm ở Model/<tên>.glb. Rỗng khi không phải renderer mesh.
     std::string mesh_name;
-    // true: mesh quay theo hướng hạt (MOT_ORIENTED_SELF). Mặc định gốc là origin.
-    bool face_direction = false;
+    MeshFacing facing = MeshFacing::kOrigin;
+    // Tư thế của mesh trong nút hạt (local_rotation w x y z, local_position), theo
+    // MeshParticleRenderData.
+    ogre::Quat local_rotation{};
+    ogre::Vec3 local_position{};
     int stacks = 1;
     int slices = 1;
     float repeat_times = 1.0F;
