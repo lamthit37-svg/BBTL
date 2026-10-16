@@ -79,6 +79,33 @@ vec3 diffuse_light(vec3 facing, vec3 place, uint which) {
     return mix(clamp(lit, 0.0, 1.0), lit, frame.rules.x);
 }
 
+// Pha riêng, lửa phơ phất và chập chờn: xem fake_flow của model.inc.slang.
+float fake_phase(FakeLight fake) {
+    vec3 seed = vec3(fake.row0.w, fake.row1.w, fake.row2.w);
+    return fract(sin(dot(seed, vec3(12.9898, 78.233, 37.719))) * 43758.5453) * 6.2831853;
+}
+
+vec3 fake_flow(FakeLight fake, vec3 box, vec3 place, out float flicker) {
+    float time = frame.rules.y;
+    float phase = fake_phase(fake);
+    float scale = 0.01 / max(length(fake.row0.xyz), 1.0e-6);
+    float weight = 1.0 - (0.45 * clamp((scale - 8.0) / 14.0, 0.0, 1.0));
+    float beat = (0.18 * sin((time * 9.0) + phase)) + (0.12 * sin((time * 17.3) + (phase * 2.3)));
+    float gust = (0.08 * sin((time * 4.1) + (phase * 0.7))) + (0.06 * sin((time * 27.0) + (phase * 3.1)));
+    flicker = 1.0 + (weight * (beat + gust));
+    vec3 sway = vec3(sin((time * 1.9) + phase), sin((time * 2.7) + (phase * 1.3)),
+        sin((time * 2.2) + (phase * 0.7)));
+    vec3 ripple = vec3(sin(dot(place, vec3(0.021, 0.027, 0.014)) + (time * 3.1) + phase),
+        sin(dot(place, vec3(-0.017, 0.019, 0.026)) + (time * 2.6) + (phase * 1.7)),
+        sin(dot(place, vec3(0.024, -0.015, 0.022)) - (time * 2.9) + (phase * 0.6)));
+    vec3 flow = box + (weight * ((0.09 * sway) + (0.045 * ripple)));
+    vec3 raised = vec3(fake.row0.y, fake.row1.y, fake.row2.y);
+    vec3 up = raised / max(length(raised), 1.0e-6);
+    float lift = dot(flow, up);
+    float stretch = lift > 0.0 ? 0.55 : -0.25;
+    return flow - (up * lift * stretch * weight);
+}
+
 // Hệ số nhân màu của mọi đèn giả (xem fake_gain của model.inc.slang).
 vec3 fake_gain(vec3 place) {
     vec3 gain = vec3(1.0);
@@ -90,10 +117,12 @@ vec3 fake_gain(vec3 place) {
         vec3 reach = abs(box);
         if (max(reach.x, max(reach.y, reach.z)) > 0.5) continue;
         float size = frame.fakes[index].color.w;
-        float spread = clamp(size - (length(box.xy) * 3.0), 0.0, 1.0);
-        spread *= clamp(size - (length(box.xz) * 3.0), 0.0, 1.0);
-        spread *= clamp(size - (length(box.yz) * 3.0), 0.0, 1.0);
-        gain *= 1.0 + (frame.fakes[index].color.rgb * spread);
+        float flicker = 1.0;
+        vec3 flow = fake_flow(frame.fakes[index], box, place, flicker);
+        float spread = clamp(size - (length(flow.xy) * 3.0), 0.0, 1.0);
+        spread *= clamp(size - (length(flow.xz) * 3.0), 0.0, 1.0);
+        spread *= clamp(size - (length(flow.yz) * 3.0), 0.0, 1.0);
+        gain *= 1.0 + (frame.fakes[index].color.rgb * (spread * flicker));
     }
     return gain;
 }

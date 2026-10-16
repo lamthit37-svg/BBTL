@@ -141,6 +141,37 @@ float3 lamp_light(float3 normal, float3 place, uint which) {
     return fade * max(dot(normal, reach / span), 0.0) * lamp.color.rgb;
 }
 
+// Pha riêng của đèn giả, suy từ chỗ đặt (cột dịch của ma trận hộp) nên không đổi khi đèn đổi ô.
+float fake_phase(FakeLight fake) {
+    const float3 seed = float3(fake.row0.w, fake.row1.w, fake.row2.w);
+    return frac(sin(dot(seed, float3(12.9898, 78.233, 37.719))) * 43758.5453) * 6.2831853;
+}
+
+// Lửa phơ phất. Khác gốc (2026-10-16, chủ dự án yêu cầu): hộp FakeLight của bản gốc đứng yên, ở đây vùng sáng
+// lay ngang, gợn theo vị trí và kéo dài lên phía trên như ngọn lửa, cường độ chập chờn bằng ba sóng lệch tần.
+// Đèn lớn (ánh trăng, scale trên 8) lay nhẹ hơn đèn nhỏ (lửa). Trả về toạ độ hộp đã uốn; flicker nhân vào cường độ.
+float3 fake_flow(FakeLight fake, float3 box, float3 place, out float flicker) {
+    const float time = frame.rules.y;
+    const float phase = fake_phase(fake);
+    const float scale = 0.01 / max(length(fake.row0.xyz), 1.0e-6);
+    const float weight = 1.0 - (0.45 * saturate((scale - 8.0) / 14.0));
+    const float beat = (0.18 * sin((time * 9.0) + phase)) + (0.12 * sin((time * 17.3) + (phase * 2.3)));
+    const float gust = (0.08 * sin((time * 4.1) + (phase * 0.7))) + (0.06 * sin((time * 27.0) + (phase * 3.1)));
+    flicker = 1.0 + (weight * (beat + gust));
+    const float3 sway = float3(sin((time * 1.9) + phase), sin((time * 2.7) + (phase * 1.3)),
+        sin((time * 2.2) + (phase * 0.7)));
+    const float3 ripple = float3(sin(dot(place, float3(0.021, 0.027, 0.014)) + (time * 3.1) + phase),
+        sin(dot(place, float3(-0.017, 0.019, 0.026)) + (time * 2.6) + (phase * 1.7)),
+        sin(dot(place, float3(0.024, -0.015, 0.022)) - (time * 2.9) + (phase * 0.6)));
+    float3 flow = box + (weight * ((0.09 * sway) + (0.045 * ripple)));
+    // +y của thế giới trong toạ độ hộp: nửa trên của lửa vươn xa hơn, nửa dưới ngắn lại.
+    const float3 raised = float3(fake.row0.y, fake.row1.y, fake.row2.y);
+    const float3 up = raised / max(length(raised), 1.0e-6);
+    const float lift = dot(flow, up);
+    const float stretch = lift > 0.0 ? 0.55 : -0.25;
+    return flow - (up * lift * stretch * weight);
+}
+
 // Hệ số nhân màu của mọi đèn giả tại một điểm: dst * (1 + src) của scene_blend dest_colour one (Mtl_FakePointLight),
 // với src là công thức của Model_FakePointLight_ps.hlsl. Điểm ngoài hộp thì đèn bị bỏ (clip của bản gốc).
 float3 fake_gain(float3 place) {
@@ -152,10 +183,12 @@ float3 fake_gain(float3 place) {
         const float3 box = float3(dot(fake.row0, point), dot(fake.row1, point), dot(fake.row2, point));
         const float3 reach = abs(box);
         if (max(reach.x, max(reach.y, reach.z)) > 0.5) continue;
-        float spread = saturate(fake.color.w - (length(box.xy) * 3.0));
-        spread *= saturate(fake.color.w - (length(box.xz) * 3.0));
-        spread *= saturate(fake.color.w - (length(box.yz) * 3.0));
-        gain *= 1.0 + (fake.color.rgb * spread);
+        float flicker = 1.0;
+        const float3 flow = fake_flow(fake, box, place, flicker);
+        float spread = saturate(fake.color.w - (length(flow.xy) * 3.0));
+        spread *= saturate(fake.color.w - (length(flow.xz) * 3.0));
+        spread *= saturate(fake.color.w - (length(flow.yz) * 3.0));
+        gain *= 1.0 + (fake.color.rgb * (spread * flicker));
     }
     return gain;
 }
