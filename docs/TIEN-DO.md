@@ -5,6 +5,38 @@ hiện tại của cả dự án đọc ở ba chỗ: mục "Khảo sát theo m�
 tệp này, và dòng "Trạng thái" ở mục 0 của `AGENTS.md`. Tên cũ của tệp là "cửa sổ, Vulkan và 57 vật
 thể tĩnh của map huoyangu": đó là đích của sáu bước B1 tới B6 đầu tiên, tả ngay dưới.
 
+## Bản tiếng Việt: nối dây và thước đo chữ Hán (2026-10-16)
+
+Chủ dự án giao bản dựng tiếng Việt hoàn chỉnh. Đã làm phần nối dây và thước đo; chưa chốt phông mới, mẫu tên trang bị, hay ảnh thay.
+
+- `GAME_LANGUAGE` từng đặt `vi`; cùng ngày chủ dự án trả về `zh` (xem cuối mục này), bản `vi` dựng bằng `-DGAME_LANGUAGE=vi`. Lượt dựng client in `i18n vi: 13765 chuỗi, 257 tên cảnh, 106581 ô của 7 bảng`.
+- `strings_of` nạp `Table/ui_strings.lang.tsv` đè lên bảng gốc. Túi, trang bị, bảo thạch, vật phẩm hoạt động và sách kỹ năng đi qua `read_table` rồi `load_table`. Tên quái/NPC trong `creature_templates` nhận `creature_templates.lang.tsv` khi có (hiện chưa có bản dịch tên). Dòng `未使用` / `Chưa Dùng` / `Unused` không vào tên hiện ra.
+- (Đã bỏ khi dọn commit 2026-10-16: trái bảng tầng và chỉ có ích khi làm bản địa hoá; mã lưu ở `D:\THIENLONG-luu-tru\chua-commit-2026-10-16\`.) `--trace-cjk` (Android: `debug.thienlong.cjk=1`, không sửa `android_main.cpp`) ghi mỗi chuỗi đang vẽ còn chữ Hán một lần. `ui_i18n_tests` 5 ca xanh, gồm phủ glyph: mọi chữ Việt trong `vi.tsv` và `dialogue.vi.txt` có nét riêng trên VTNAM14. `config_tests` `real_zone` xanh với `language = vi`.
+- Thoại máy chủ: `[text] language = "vi"` trong `dev/server/config/zone.toml`; zone nạp `dialogue.vi.txt`. Sáu bảng thông báo `.vi.tsv` vẫn chưa có nơi nạp (sổ nghi mục 56).
+- Chữ Việt không bị cắt giữa từ khi bẻ dòng; mép cắt chữ nới 2 điểm lên trên để dấu thanh không mất, chỉ khi chữ không có ô cắt riêng (`writer_clip` giữ clip gốc). Giá trị i18n ghi ra NFC.
+- Glossary: xoá 11 dòng zh lặp (giữ dòng gặp trước). `build_i18n.check_glossary` chặn lần sau.
+- Ảnh chờ, chưa vẽ thay: 13 khoá `#CHO_ANH` trong `assets/i18n/vi.tsv` — `CommonFrame9/Logo`, sáu nút `Logon_Houzhui_*`, ba nút `Logon_Erweima_*`, ba nút `EnterGame_*` trên `CommonFrame18`/`CommonFrame28`.
+
+Đã nhìn ảnh (`C:\Users\myhea\AppData\Local\Temp\thienlong-i18n-shots`, exe `build/i18n-vi/thienlong_client.exe`, Vulkan, `--frames 40`):
+
+- Đăng nhập: bộ đếm **7** chuỗi Hán (tên cụm máy chủ và nút khu vực). Nút Đăng Ký, Nạp Thẻ, Thoát, Thoát là chữ Việt. Logo và một số nút khu vực vẫn là ảnh chữ Hán.
+- Màn Đại Lý: bộ đếm **0**. Tên cảnh "Đại Lý", kênh Tổng/Bảo/Riêng/Chiêu/G.Hội, bảng đo tiếng Việt. Nút vẽ bằng ảnh (tự tìm đường, nạp thẻ, đổi) vẫn chữ Hán. `--ui-event OPEN_WINDOW|Packet_Frame|ActionSkill_Frame|SceneMap_Frame|QuestLog_Frame` không mở được cửa sổ: bốn ảnh sau giống màn chơi, không có túi, sách kỹ năng, bản đồ hay sổ nhiệm vụ.
+
+Chưa: APK và tablet, mẫu tên trang bị, chọn phông mới (VTNAM14 đã phủ chữ Việt của bảng; chưa đóng gói phông hệ thống). `ui_text_fit.py` dừng vì một layout không phải UTF-8.
+
+## Nút: chữ Việt trên khung gốc (2026-10-16)
+
+Nút có chữ nướng trong ảnh được `letter_labels.py` xoá chữ Hán rồi vẽ Merienda Bold lên đúng nền (164 ảnh, mọi trạng thái). Nút chọn máy chủ là chữ từ điển, không phải ảnh: các khoá `DLYHQF` / `DLJM_XML_46|48|50` và tên trong `vi/table/login_servers.tsv` (tiền tố `电信-` giữ để gom khu). Nút "Không" khi chưa đăng nhập lần nào là `#{INTERFACE_XML_720}`.
+
+Đã nhìn `09-login.png` và `10-hud.png` (exe `build/i18n-vi/thienlong_client.exe`, Vulkan, `--frames 40`, `--trace-cjk`):
+
+- Chọn máy chủ: Khu Điện Tín, Khu Võng Thông, Khu Song Tuyến, viên Khu Thử-Máy Thử, Mặc định, Không, Hãy chọn máy chủ, hàng Lục/Nhạt/Cam/Đỏ/Xám. Bộ đếm **0**. Logo góc phải vẫn là ảnh chữ Hán (không phải nút).
+- Đại Lý: Nạp, Đổi, An Toàn, Hiến Lễ, Mới, Thẻ, Hạn, Nạp Đầu, Lễ Hội, Kênh, Bắc, Bảng, Hội, Đánh, Tự Tìm, Bang. Bộ đếm **0**.
+
+Chưa chụp túi, sách kỹ năng, bản đồ, sổ nhiệm vụ (`OPEN_WINDOW` không mở được các khung đó). APK chưa dựng.
+
+Cùng ngày chủ dự án bảo hồi toàn bộ assets về bản gom gốc. Đã xoá `ui_strings.lang.tsv`, `scene_names.lang.tsv` và 7 tệp `Table/*.lang.tsv`. Client đọc thẳng bảng gốc. `thienlong_i18n` không còn chạy trong lượt dựng thường; gọi tay khi muốn phủ ngôn ngữ lại. Nút ảnh đã là bản gốc.
+
 ## Một quái để nhìn tuyệt chiêu, máu và tên (2026-10-16)
 
 `--talk-demo fight` đuổi mục tiêu ngay, người chơi chạy nên `press_slot` bỏ `--auto-strike` và `Gait::update` đổi đòn thành chạy. Nay khi có `--skill`, đứng yên tới lần bấm ô cuối rồi giữ thêm 2,5 s. Một mẫu `--creature` đứng trước mặt (lưới tám cột chỉ khi có nhiều mẫu). Cái Bang thử bằng `--weapon 10101047` (丐帮门派高手武器, loại thương): đòn thường là `g01_普通攻击01_changqiang` / `03`, tuyệt chiêu `--skill 358` là `g01_gb_大鹏展翅`. Ảnh `build/gaibang-fight.png`: gậy ngang, chữ vàng 亢龙有悔, sói 雪山狼 phía trước, số 117. Áo môn Cái Bang chưa có bản nấu `.glb` nên thân vẫn đồ tân thủ. Mẫu cao mô môn chỉ có đứng và 演武, không có clip đánh.

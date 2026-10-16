@@ -865,8 +865,9 @@ kết luận ngay dưới mục đó chứ không xoá.
     (1,2,3) của enum. `ShakeTime` bắn cue `kShake`, camera gọi `AddOneVib(10, 8, 2)` một nhịp mỗi khung. `kRandom` có
     `send_ms` ngắn hơn clip thì `rate` là clip/send (không còn luôn 1). Còn thiếu: `OnAnimationHit` chỉ đặt cờ hoàn tất
     lệnh ở gốc, chưa có hàng lệnh đó nên không phát số lần trúng; Ribbon (`AnimationRibbon`, material không nằm trong
-    thư viện hạt) và SceneLight (đèn cảnh, bảng sự kiện không có dòng) chưa dựng; âm thanh phát phẳng, chưa có âm thanh
-    không gian 3D; chưa có mục tiêu, đạn (`BeHit`, bullet) và đường nhảy của khinh công. 116 tên animation của
+    thư viện hạt) và SceneLight (đèn cảnh, bảng sự kiện không có dòng) chưa dựng; âm thanh chiêu phát 3D tại điểm
+    gắn, tai nghe là camera, nhỏ dần từ 2 m tới 40 m (2008 để rolloff factor 0 nên chỉ pan); chưa có đạn (`BeHit`,
+    bullet) và đường nhảy của khinh công. 116 tên animation của
     `skill_clips` không có clip trong kho.
     (f) Hiệu ứng theo dõi: emitter chỉ theo `duration` và `repeat_delay` ở hiệu ứng skill và hiệu ứng đồ
     (`Spawn::is_tracked`); hiệu ứng của cảnh vẫn phát mãi, CHƯA đo bản gốc có lặp lại theo `repeat_delay` hay không.
@@ -1000,11 +1001,11 @@ kết luận ngay dưới mục đó chứ không xoá.
 
 58. **Chiến đấu phía client lát cắt 3 (2026-10-15): các chỗ chưa làm hoặc chưa chạy thật** (`src/client/app/client/fight`, `display/graphic/fight.cpp`).
     (a) Chưa chạy client thật với cụm v6: đăng nhập chỉ đi được bằng giao diện (chuột), mà agent bị cấm chiếm chuột. Đường mạng kiểm bằng `online_tests` (bridge hai chiều) và `fight_tests` (logic); đường vẽ và vòng đánh kiểm bằng `--talk-demo fight|fall` (máy chủ giả đúng hình tin, `graphic/fight_demo.cpp`), có ảnh chụp. Hai đường chưa gặp nhau trên một lần chạy duy nhất.
-    (b) Thanh kỹ năng trang 1 (`Button_Action1`..`10`) vẽ kỹ năng đã học theo thứ tự `SelfSkills`: phím 1–9, phím 0 và nhấp ô đi qua `press_slot`; đang hồi thì `Gloom` (chưa có vệt `CoolDownEnd2`); không kéo thả; trang 2–3 và hàng biến thân vẫn giấu. Tên và thanh máu của quái, NPC, trân thú vẽ trên đầu (phông GBK12; thanh máu là thêm so với bảng 2008). Tên tuyệt chiêu chữ vàng hiện trên đầu người chơi khi chiêu khác 0 được xác nhận. Đã nhìn ảnh: sói 11158 tên 雪山狼, thanh máu ngắn, số bay, chữ 亢龙有悔 (`--skill 358 --auto-strike`, log `Đòn: skill 358 bước 0 là g01_gb_大鹏展翅`, 4 khối con). Còn thiếu khung mục tiêu, chỉ báo mục tiêu đang chọn, cửa sổ hồi sinh. Khi chết phím 1 hồi sinh ở thành và phím 2 tại chỗ; lời nhắc hồi sinh là chữ Hán vẽ bằng phông giao diện giữa màn.
+    (b) Thanh kỹ năng trang 1 (`Button_Action1`..`10`) vẽ kỹ năng đã học theo thứ tự `SelfSkills`: phím 1–9, phím 0 và nhấp ô đi qua `press_slot`; đang hồi thì `Gloom` (chưa có vệt `CoolDownEnd2`); không kéo thả; trang 2–3 và hàng biến thân vẫn giấu. Tên và thanh máu của quái, NPC, trân thú vẽ trên đầu (phông GBK12; thanh máu là thêm so với bảng 2008). Tên tuyệt chiêu chữ vàng hiện trên đầu người chơi khi chiêu khác 0 được xác nhận. Đã nhìn ảnh: sói 11158 tên 雪山狼, thanh máu ngắn, số bay, chữ 亢龙有悔 (`--skill 358 --auto-strike`, log `Đòn: skill 358 bước 0 là g01_gb_大鹏展翅`, 4 khối con). Khung mục tiêu (`TargetFrame`) hiện khi đang chọn mục tiêu: tên, cấp theo chênh với mình, thanh máu. Không có mục tiêu thì giấu. Chưa có khí, nộ, môn phái, loại NPC và chân dung. Vòng chọn dưới chân lấy `ring_size` (centimét) của mẫu, tô đỏ với quái, lục với NPC, lam với trân thú, vàng với người chơi; ảnh vòng là material cộng sáng có sẵn vì không có mesh chọn riêng. Cửa sổ Relive hiện khi chết: hồi thành và hồi tại chỗ, cùng phím 1 và 2. Không có hồn xuất khiếu, cờ hồi sinh hay đếm giờ. Khi chết phím 1 hồi sinh ở thành và phím 2 tại chỗ; lời nhắc hồi sinh là chữ Hán vẽ bằng phông giao diện giữa màn.
     (c) Số bay dùng phông bitmap GBK12 phóng 2 lần (3 lần khi hội tâm), không phải ảnh số của client 2026; màu, độ cao và nhịp bay chọn theo mắt, chưa port từ mã máy.
     (d) Lời từ chối của máy chủ (`Declined`) chỉ chỉnh logic đánh tự động (hồi chiêu, quá tầm, chưa học...), không có dòng thông báo cho người chơi.
     (e) `SelfBag` đổ vào thẻ đạo cụ (tab 0) của `Packet` theo chỉ số ô; ảnh lấy từ `Table/icons.tsv`; số chồng ghi `CornerBotRight`. Dây không có loại túi và sức chứa, nên thẻ vật liệu và nhiệm vụ để trống và sức chứa giữ mặc định script 20/60 (mục 51(f) vẫn đúng). Vật rơi chọn được khi có cờ nhặt (bit 1 của `EntityFlags`), chưa có tên theo template, chưa có con trỏ riêng khi rê chuột.
-    (f) Xác quái không vẽ (`show_creature` bỏ tư thế chết, đã có từ lát cắt 1) và chưa có clip chết; người chơi chết cũng chưa có động tác chết.
+    (f) Quái, NPC và trân thú chết thì nằm lại: clip `death` (sói 11158 là `倒地`) phát một lần rồi giữ khung cuối; có `corpse` thì lặp clip đó. Xác đã chết từ trước khi vào tầm nhìn nằm sẵn, không diễn lại cú ngã. Mẫu không có clip chết vẫn hiện, ở tư thế đứng. Người chơi chết chưa có động tác: `CharActionSet` có `倒地` (id 24) và `死亡` (id 25) nhưng `anim_sets.tsv` không xuất hai dòng đó, nên người chơi khác bị giấu và nhân vật mình giữ clip đứng.
     (g) Tầm tiếp cận chung 2,5 m (`fight::kReach`) cho mọi chiêu, thu ngắn mỗi lần máy chủ báo quá tầm; chiêu tầm xa vẫn đi tới 2,5 m rồi mới đánh. Máy chủ mới là nơi kiểm tầm từng chiêu.
     (h) Ô kỹ năng k là kỹ năng học thứ k của `SelfSkills` (ô 10 là phím 0). `show_fight` nạp lại clip khi danh sách đổi. Chưa có thanh action kéo thả của client 2026 (bố cục do người chơi xếp, máy chủ nhớ).
     (i) Cổng `check.py`/clang-tidy: phần của lát cắt sạch (đo bằng clang-tidy với `--header-filter` rỗng cho từng tệp, `check.py --run` cho `fight_tests`). Cả nhóm `display/graphic` vẫn không qua `check.py` nguyên tệp vì lỗi có sẵn ở HEAD: `misc-include-cleaner` hàng loạt (các tệp dựa vào `prelude.hpp`), `State` đệm 125 byte, `sky_mesh.hpp`/`water_mesh.hpp` khởi tạo không chỉ định tên.
@@ -1016,3 +1017,12 @@ kết luận ngay dưới mục đó chứ không xoá.
     (d) `kPhoneTriangleCap` 300k và các hệ số của `DetailGovernor` chọn theo một máy; máy mạnh hơn nâng trần tự động, máy yếu hơn bị kẹp ở sàn 120k mà vẫn có thể chậm.
     (e) LOD chỉ cho lưới tĩnh (không skin, không morph): nhân vật và quái skin vẫn vẽ đủ tam giác.
     (f) `lod_tests` chưa chạy dưới sanitizer (`check.py --run`); chỉ chạy bản `msvc-release`.
+
+60. **Bản tiếng Việt 2026-10-16: chỗ cần chủ dự án hoặc chưa có dữ liệu** (`assets/i18n`, `zone.toml`).
+    (a) 坐骑: glossary là "thú cưỡi", bản dịch bảng dùng "Toạ Kỵ" khoảng 4.000 ô. Chưa gộp.
+    (b) Tên trang bị dạng `之` còn hai kiểu ("X Chi Y" và "Y X"). Chưa sinh lại.
+    (c) Phông: VTNAM14 phủ hết chữ Việt của `vi.tsv` và `dialogue.vi.txt` (test `vietnamese_letters_have_glyphs`). Chưa chọn phông vector OFL để thay `tahoma.ttf` thiếu trong gói; không đóng gói phông hệ thống.
+    (d) 13 ảnh `#CHO_ANH` còn chữ Hán trên nút đăng nhập. Chưa vẽ thay.
+    (e) Tên quái và NPC trên đầu lấy cột `name` của `creature_templates.tsv`. Không có `creature_templates.lang.tsv`. Đường nạp đã chờ tệp đó.
+    (f) Lời chết trong `display/graphic/fight.cpp` (`您已经死亡`, `按 1 回城复活`) là chữ Hán cứng. Phiên khác đang sửa thư mục đó nên chưa đổi.
+    (g) Sáu bảng thông báo `.vi.tsv` chưa được zone nạp; chỉ `dialogue.<language>.txt` đi theo `[text] language`.
