@@ -32,7 +32,7 @@
 
 namespace game::client {
 
-// Tên trên thanh tiêu đề, đúng chữ trong assets/icon1.png và assets/icon2.png.
+// Tên trên thanh tiêu đề (chủ dự án chốt 2026-10-16: dùng tên Việt). Icon là icon gốc của Game.exe.
 inline constexpr std::string_view kGameTitle = "Thiên Long Bát Bộ";
 
 struct ViewerDesc {

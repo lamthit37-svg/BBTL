@@ -303,6 +303,17 @@ def run(command: list[str]) -> None:
     raise SystemExit(result.stdout + result.stderr + f"\nandroid: lệnh thoát {result.returncode}")
 
 
+def compile_resources(build_tools: Path, res: Path, work: Path) -> Path:
+    # Icon của ứng dụng: aapt2 gom thư mục res thành một gói .flata để link đưa vào resources.arsc.
+    if not res.is_dir():
+        raise SystemExit(f"android: không thấy thư mục res {res}")
+    read_inputs.append(res)
+    read_inputs.extend(path for path in sorted(res.rglob("*")))
+    compiled = work / "res.flata"
+    run([str(build_tools / "aapt2.exe"), "compile", "--dir", str(res), "-o", str(compiled)])
+    return compiled
+
+
 def debug_keystore(work: Path) -> Path:
     # Khoá ký bản dev nằm ngoài cây dựng, chung mọi preset Android: khoá đổi thì APK mới không cập nhật được bản đã cài
     # (INSTALL_FAILED_UPDATE_INCOMPATIBLE) và người thử phải gỡ ứng dụng, mất dữ liệu trong máy. Trước đây mỗi cây
@@ -400,6 +411,8 @@ def main() -> None:
                         help="địa chỉ IPv4 máy chủ mà thiết bị thấy, thay cột host của Table/gates.tsv")
     parser.add_argument("--strip", default="",
                         help="llvm-strip của NDK: APK mang bản .so đã bỏ ký hiệu gỡ lỗi, bản đủ ở lại cây dựng")
+    parser.add_argument("--res", default="",
+                        help="thư mục res của APK (mipmap/ic_launcher.png), biên dịch bằng aapt2 vào resources.arsc")
     parser.add_argument("--depfile", default="", help="ghi depfile của --out cho Ninja")
     args = parser.parse_args()
     baked = Path(args.baked) if args.baked else None
@@ -426,18 +439,19 @@ def main() -> None:
     work.mkdir(parents=True, exist_ok=True)
     unsigned = work / "unsigned.apk"
     aligned = work / "aligned.apk"
-    run(
-        [
-            str(build_tools / "aapt2.exe"),
-            "link",
-            "-o",
-            str(unsigned),
-            "--manifest",
-            args.manifest,
-            "-I",
-            str(platform / "android.jar"),
-        ]
-    )
+    link = [
+        str(build_tools / "aapt2.exe"),
+        "link",
+        "-o",
+        str(unsigned),
+        "--manifest",
+        args.manifest,
+        "-I",
+        str(platform / "android.jar"),
+    ]
+    if args.res:
+        link += ["-R", str(compile_resources(build_tools, Path(args.res), work))]
+    run(link)
     shipped = library
     if args.strip:
         # Bản RelWithDebInfo mang DWARF (đo 2026-10-15: 122 MiB). Thiết bị không cần; ndk-stack và llvm-symbolizer đọc

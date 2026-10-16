@@ -1110,6 +1110,9 @@ if(WIN32)
     add_library(thienlong_client_icon OBJECT src/client/app/client/app.rc)
     target_sources(thienlong_client PRIVATE $<TARGET_OBJECTS:thienlong_client_icon>)
 endif()
+    # rc đọc .ico qua lệnh ICON nên bộ quét include không thấy: khai tường minh để đổi icon thì dịch lại.
+    set_source_files_properties(src/client/app/client/app.rc PROPERTIES OBJECT_DEPENDS
+        "${PROJECT_SOURCE_DIR}/assets/icon1.ico;${PROJECT_SOURCE_DIR}/assets/icon2.ico")
 target_link_libraries(thienlong_client PRIVATE game_client game_client_viewer game_client_stage
     game_io game_scene game::warnings)
 # Đo nhịp màn hình thật bằng DXGI Desktop Duplication (TOOLS/run/screen_pace.cpp): kiểm thay đổi về nhịp khung bằng cái
@@ -1126,12 +1129,16 @@ if(IOS)
         "-framework WebKit" game_audio game_client_host)
     target_sources(thienlong_client PRIVATE
         "${PROJECT_SOURCE_DIR}/apple/LaunchScreen.storyboard"
-        "${PROJECT_SOURCE_DIR}/apple/PrivacyInfo.xcprivacy")
+    # Icon ứng dụng (export_app_icon.py): PNG rời nằm ở gốc Resources, Info.plist khai tên trong CFBundleIcons.
+    file(GLOB apple_icons CONFIGURE_DEPENDS "${PROJECT_SOURCE_DIR}/apple/icons/*.png")
+        "${PROJECT_SOURCE_DIR}/apple/PrivacyInfo.xcprivacy"
+        ${apple_icons})
     set_source_files_properties(
         "${PROJECT_SOURCE_DIR}/apple/LaunchScreen.storyboard"
         "${PROJECT_SOURCE_DIR}/apple/PrivacyInfo.xcprivacy"
         PROPERTIES MACOSX_PACKAGE_LOCATION Resources)
 endif()
+        ${apple_icons}
 game_split_debug(thienlong_client)
 # PC vào <prefix>/client/bin. Bundle iOS vào <prefix>/client/IOS. APK vào <prefix>/client/APK.
 install(TARGETS thienlong_client RUNTIME DESTINATION client/bin BUNDLE DESTINATION client/IOS)
@@ -1251,6 +1258,8 @@ if(ANDROID)
     endif()
     add_custom_command(
         OUTPUT "${game_apk}"
+    # Icon của ứng dụng (export_app_icon.py): đổi ảnh thì APK đóng lại.
+    file(GLOB_RECURSE game_apk_res CONFIGURE_DEPENDS "${PROJECT_SOURCE_DIR}/android/res/*")
         COMMAND ${CMAKE_COMMAND} -E env PYTHONUTF8=1
             python "${PROJECT_SOURCE_DIR}/android/package_apk.py"
             --library "$<TARGET_FILE:thienlong_activity>"
@@ -1258,6 +1267,7 @@ if(ANDROID)
             --manifest "${PROJECT_SOURCE_DIR}/android/AndroidManifest.xml"
             --out "${game_apk}"
             --depfile "${game_apk}.d"
+            --res "${PROJECT_SOURCE_DIR}/android/res"
             ${game_apk_assets}
         COMMAND ${CMAKE_COMMAND} -E make_directory "${CMAKE_INSTALL_PREFIX}/client/APK"
         COMMAND ${CMAKE_COMMAND} -E copy "${game_apk}" "${CMAKE_INSTALL_PREFIX}/client/APK/thienlong.apk"
@@ -1266,6 +1276,7 @@ if(ANDROID)
             "${PROJECT_SOURCE_DIR}/android/AndroidManifest.xml"
             "${GAME_ANDROID_SHADERS}/model.vs.f2s"
             "${GAME_ANDROID_SHADERS}/model.ps.f2s"
+            ${game_apk_res}
             # Mốc của bước i18n (cmake/GameI18n.cmake; rỗng khi không có Python): APK đóng sau khi
             # chữ và ảnh của ngôn ngữ đã chọn nằm trong assets/client, và đóng lại khi chúng đổi.
             ${GAME_I18N_STAMP}
