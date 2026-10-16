@@ -155,8 +155,14 @@ void Display::State::dispatch_actor_cues(PlayerActor& actor, std::uint32_t owner
             continue;
         }
         if (cue.kind == look::EventKind::kSound) {
+            HeardSound due;
+            due.name = std::move(cue.name);
+            due.x = cue.position.x;
+            due.y = cue.position.y;
+            due.z = cue.position.z;
+            due.is_spatial = true;
             const std::scoped_lock<std::mutex> locked(steer_guard);
-            sounds_due.push_back(std::move(cue.name));
+            sounds_due.push_back(std::move(due));
             continue;
         }
         // SceneLight là đèn cảnh: chưa có chỗ vẽ. Ribbon là dải của AnimationRibbon, dựng ở step_skill_ribbons.
@@ -311,6 +317,66 @@ void Display::State::advance_fx(float elapsed) {
     fx_view->advance(step);
 }
 
+void Display::State::open_sky() {
+    if (sky_view || catalog == nullptr || device == nullptr) return;
+    SkyPipelines pipelines;
+    pipelines.dome = catalog->get(render::Pso::kSkyDome);
+    pipelines.cloud = catalog->get(render::Pso::kSkyCloud);
+    pipelines.body = catalog->get(render::Pso::kSkyBody);
+    pipelines.star = catalog->get(render::Pso::kSkyStar);
+    sky_view = SkyView::open(*device, pipelines);
+    if (!sky_view) return;
+    sky_view->load(data_root, texture_tier);
+    // Màn đăng nhập của Game.exe không ghim giờ: ngày chạy tự do một phút từ 0.
+    if (procedure == Procedure::kLogin) sky_view->run_day();
+    if (procedure == Procedure::kPlay) sky_view->pin_day(kOfflineDayTime);
+    adopt_sky();
+}
+
+void Display::State::adopt_sky() {
+    sky_effects.clear();
+    if (!sky_view || stage == nullptr) return;
+    sky_view->adopt(*stage);
+    sky_light_serial = 0;
+    if (!fx_view) return;
+    for (const std::string& name : sky_view->effects()) {
+        fx::Spawn spawn;
+        spawn.name = name;
+        spawn.is_effect = true;
+        spawn.is_tracked = true;
+        const std::uint32_t handle = fx_view->spawn(spawn);
+        if (handle != 0) sky_effects.push_back(handle);
+    }
+}
+
+void Display::State::follow_sky_effects(const render::Camera& camera) {
+    if (sky_effects.empty() || !fx_view) return;
+    const math::Matrix4 placed = math::affine_inverse(camera.view);
+    fx::Node node;
+    node.position = {.x = placed.at(3, 0), .y = placed.at(3, 1), .z = placed.at(3, 2)};
+    for (const std::uint32_t handle : sky_effects) {
+        fx_view->move(handle, node);
+    }
+}
+
+void Display::State::refresh_sky_light() {
+    if (!sky_view || stage == nullptr) return;
+    const std::uint32_t serial = sky_view->env_serial();
+    if (serial == 0 || serial == sky_light_serial) return;
+    const std::optional<ensky::EnvKey> env = sky_view->env();
+    if (!env) return;
+    sky_light_serial = serial;
+    light = SceneLight(*stage, *env);
+}
+
+void Display::State::advance_sky(float elapsed) {
+    if (!sky_view) return;
+    const float raw = elapsed - en_sky_stamp;
+    const float step = en_sky_stamp < 0.0F ? 0.016F : std::min(raw, kMaxStep);
+    en_sky_stamp = elapsed;
+    sky_view->advance(step);
+}
+
 namespace {
 
 [[nodiscard]] math::Quat fx_quat(ogre::Quat value) {
@@ -363,13 +429,43 @@ void Display::State::append_fx_meshes() {
     }
 }
 
+// Vòng chọn dưới chân. ring_size của CharModelEx là centimét, cùng đơn vị thế giới với chân
+// (terrain scale 100: 1 mét = 100). Khác gốc: client 2026 chiếu một mesh chọn riêng; thư viện hạt
+// không có mesh đó, nên dùng ảnh vòng cộng sáng có sẵn và tô theo loại mục tiêu.
+void Display::State::paint_select_ring(std::vector<fx::BillboardBatch>& out) const {
+    if (!ground || !terrain) return;
+    const std::optional<std::uint32_t> chosen = combat.target();
+    if (!chosen) return;
+    const cast::Actor* actor = people.find(*chosen);
+    if (actor == nullptr || actor->pose == cast::Pose::kDead) return;
+    float size = 120.0F;
+    if (creature_tables) {
+        const look::CreatureTemplate* row = creature_tables->find_template(actor->template_id);
+        if (row != nullptr && row->ring_size > 0.0F && std::isfinite(row->ring_size)) size = row->ring_size;
+    }
+    size = std::clamp(size, 40.0F, 4000.0F);
+    ogre::Vec3 foot = world_foot(*actor);
+    foot.y += 4.0F;
+    fx::Colour ink{1.0F, 0.25F, 0.25F, 1.0F};
+    if (actor->kind == cast::Kind::kNpc) ink = {0.25F, 0.88F, 0.38F, 1.0F};
+    if (actor->kind == cast::Kind::kPet) ink = {0.38F, 0.75F, 1.0F, 1.0F};
+    if (actor->kind == cast::Kind::kPlayer) ink = {1.0F, 0.85F, 0.35F, 1.0F};
+    fx::Node node;
+    node.position = foot;
+    fx::BillboardBatch ring;
+    ring.material = "m01_cr_千里追击A03";
+    fx::append_deck(ring, node, size, ink);
+    if (!ring.vertices.empty()) out.push_back(std::move(ring));
+}
+
 void Display::State::draw_fx(const FxAsk& ask) const {
     if (!fx_view) return;
-    std::vector<fx::BillboardBatch> ribbons;
+    std::vector<fx::BillboardBatch> extras;
     fx::BillboardBatch batch;
     batch.material = std::string(kRibbonPaint);
     for (const SkillRibbon& ribbon : skill_ribbons) paint_skill_ribbon(ribbon, batch);
-    if (!batch.vertices.empty()) ribbons.push_back(std::move(batch));
-    fx_view->draw(*ask.list, ask.slot, *ask.camera, ribbons);
+    if (!batch.vertices.empty()) extras.push_back(std::move(batch));
+    paint_select_ring(extras);
+    fx_view->draw(*ask.list, ask.slot, *ask.camera, extras);
 }
 } // namespace game::client

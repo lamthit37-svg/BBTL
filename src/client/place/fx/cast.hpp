@@ -49,14 +49,24 @@ struct Paint {
     Blend blend = Blend::kOther;
     // Hệ số nhân màu ảnh của shader ColorX2 và ColorX4.
     float gain = 1.0F;
-    // Ảnh thứ hai (mặt nạ) và tốc độ cuộn UV. Billboad thường bỏ qua khi có hai ảnh;
-    // hạt mesh vẫn vẽ, mặt nạ nhân lên ảnh nền.
+    // Ảnh thứ hai. cover_gain > 0 là Particle_TwoTex: rgb nhân thêm ảnh này, alpha cũng vậy.
+    // 0 là không có lớp thứ hai (hoặc shader không phải phép nhân hai ảnh).
     std::string second;
+    float cover_gain = 0.0F;
+    // scroll_anim của unit đầu, đơn vị mỗi giây. shift là scroll tĩnh. scale 1 là không đổi.
     float scroll_u = 0.0F;
     float scroll_v = 0.0F;
-    // scale của texture_unit. 1 là không đổi. Cuộn UV nhân thời gian cảnh rồi cộng vào.
+    float shift_u = 0.0F;
+    float shift_v = 0.0F;
     float scale_u = 1.0F;
     float scale_v = 1.0F;
+    // Ma trận UV của unit thứ hai. Mặc định là đồng nhất khi script không ghi.
+    float cover_scroll_u = 0.0F;
+    float cover_scroll_v = 0.0F;
+    float cover_shift_u = 0.0F;
+    float cover_shift_v = 0.0F;
+    float cover_scale_u = 1.0F;
+    float cover_scale_v = 1.0F;
     // Shader fixed hoặc particle: màu là ảnh nhân màu đỉnh. Shader khác không vẽ ở billboard.
     bool is_common = false;
     // Một ảnh, không cuộn, không scale, shader thường. Hai ảnh vẫn không phải thường.

@@ -163,6 +163,9 @@ struct Stage {
     std::vector<DayKey> days;
     // Các dải có ảnh của thời tiết đang dùng. Rỗng khi cảnh không có bầu trời.
     std::vector<SkyBand> sky;
+    // Tên tệp .EnScene (thuộc tính config_file của object EnScene), cùng thư mục với tệp cảnh. Rỗng khi cảnh
+    // không có bầu trời EnScene; client/display đọc và vẽ nó (Render.dll EnSky).
+    std::string en_scene;
 };
 
 // Nội dung cần vẽ của một tệp cảnh đã đọc.

@@ -161,6 +161,33 @@ def add_scene(wanted: Wanted, path: str) -> None:
         tally.update(name for name in names if name)
 
 
+# Effect của bầu trời: thẻ Effect effect_name trong .EnScene mà phần tử Object type="EnScene" của cảnh nêu (Render.dll
+# 0x1801e7d50 tạo chúng, gắn vào nút en_effect đặt tại camera). Kho gốc lưu GBK hay UTF-8.
+def add_sky_effects(wanted: Wanted, collector: Collector, path: str) -> None:
+    root = ElementTree.parse(path).getroot()
+    for node in root.iter("Object"):
+        if node.get("type") != "EnScene":
+            continue
+        names = [item.get("value", "") for item in node.findall("Property") if item.get("name") == "config_file"]
+        for name in names:
+            sky_path = os.path.join(collector.raw_root, SCENE_FOLDER, name)
+            if not os.path.isfile(sky_path):
+                continue
+            with open(sky_path, "rb") as stream:
+                data = stream.read()
+            text = data.decode("utf-8") if is_utf8(data) else data.decode(SOURCE_ENCODING)
+            sky = ElementTree.fromstring(text.split("?>", 1)[-1])
+            wanted.effects.update(item.get("effect_name", "") for item in sky.iter("Effect") if item.get("effect_name"))
+
+
+def is_utf8(data: bytes) -> bool:
+    try:
+        data.decode("utf-8")
+    except UnicodeDecodeError:
+        return False
+    return True
+
+
 # Tên effect mà khối AnimEffect của các skill người chơi gọi (cột name của Table/skill_events.tsv).
 def add_skills(wanted: Wanted, target: str) -> None:
     path = os.path.join(target, "Table", "skill_events.tsv")
@@ -495,6 +522,7 @@ def collect(collector: Collector, scenes: list[str]) -> tuple[Wanted, list[Row],
     for path in paths:
         if os.path.isfile(path):
             add_scene(wanted, path)
+            add_sky_effects(wanted, collector, path)
         else:
             collector.missing.append(("scene", path))
     add_skills(wanted, collector.target)

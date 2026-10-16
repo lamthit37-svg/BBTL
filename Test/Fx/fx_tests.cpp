@@ -250,8 +250,8 @@ velocity 0
 )";
 
 // flame và fog dựng được (fog trộn alpha). card và falls là hạt mesh trộn alpha, falls có mặt nạ.
-// plane là hạt mesh cộng sáng, vẫn bỏ. candle có affector bộ đọc không biết; scrolled dùng
-// material hai ảnh trên billboad; bare dùng material ngoài bảng.
+// plane là hạt mesh cộng sáng, vẫn bỏ. candle có affector bộ đọc không biết; scrolled là
+// Particle_TwoTex, được nhận. bare dùng material ngoài bảng.
 constexpr std::string_view kGateParticles = R"(flame
 {
 quota 2
@@ -768,15 +768,16 @@ void palette_reads_columns(Context& context) {
     const fx::Paint* mist = palette.find("mist");
     context.expect(mist != nullptr && mist->blend == fx::Blend::kAlpha && mist->is_plain, "mist: trộn alpha, một ảnh");
     const fx::Paint* flow = palette.find("flow");
-    const bool flow_mask = flow != nullptr && flow->second == "Material/mask.png" && !flow->is_plain;
-    context.expect(flow_mask, "flow: hai ảnh, shader riêng");
+    const bool flow_mask = flow != nullptr && flow->second == "Material/mask.png" && flow->cover_gain == 1.0F;
+    context.expect(flow_mask && !flow->is_plain, "flow: hai ảnh, hệ số lớp sau là 1");
     const fx::Paint* drift = palette.find("drift");
     context.expect(drift != nullptr && drift->scroll_v == 0.5F && !drift->is_plain, "drift: cuộn UV");
     const fx::Paint* veil = palette.find("veil");
     const bool veiled = veil != nullptr && veil->second == "Material/mask.png" && veil->scroll_v == 0.3F;
     context.expect(veiled && veil->blend == fx::Blend::kAlpha, "veil: mặt nạ, cuộn và trộn alpha");
     const fx::Paint* sized = palette.find("sized");
-    context.expect(sized != nullptr && !sized->is_plain, "sized: có thiết lập riêng");
+    const bool sized_uv = sized != nullptr && sized->scale_u == 2.0F && sized->scale_v == 1.0F;
+    context.expect(sized_uv && !sized->is_plain, "sized: scale của unit đầu");
     context.expect(palette.find("ghost") == nullptr, "tên lạ không có trong bảng");
 }
 
@@ -798,9 +799,8 @@ void palette_survives_odd_table(Context& context) {
     context.expect(fx::Palette("").size() == 0, "bảng rỗng không làm hỏng gì");
 }
 
-// Mỗi lý do bỏ phải đếm đúng một lần cho mỗi hệ. Trộn alpha một ảnh được nhận (pipeline riêng).
-// Billboad hai ảnh vẫn bị bỏ: vẽ thiếu mặt nạ thì sương thành tấm đặc. Hạt mesh trộn alpha thì nhận,
-// kể cả khi có mặt nạ. Hạt mesh cộng sáng vẫn bỏ.
+// Mỗi lý do bỏ phải đếm đúng một lần cho mỗi hệ. Trộn alpha một ảnh được nhận. Billboad
+// Particle_TwoTex được nhận. Hạt mesh trộn alpha thì nhận, kể cả khi có mặt nạ. Hạt mesh cộng sáng vẫn bỏ.
 void cast_skips_by_reason(Context& context) {
     fx::Library library = gate_library();
     fx::Cast cast(&library);
@@ -811,17 +811,17 @@ void cast_skips_by_reason(Context& context) {
     cast.add(spawn_of("nope", true));
     cast.update(0.1F);
     const fx::Tally& tally = cast.tally();
-    context.expect(tally.systems == 6 && tally.strips == 1, "flame, fog, card, falls và projector");
-    context.expect(cast.live().size() == 6, "sáu Field có hạt");
+    context.expect(tally.systems == 7 && tally.strips == 1, "flame, fog, scrolled, card, falls và projector");
+    context.expect(cast.live().size() == 7, "bảy Field có hạt");
     context.expect(cast.strips(fx::CameraAxes{}).size() == 1, "projector trộn alpha thành một dải");
     context.expect(tally.count(fx::Skip::kBlend) == 0, "trộn alpha một ảnh không bị bỏ");
     context.expect(tally.count(fx::Skip::kMeshRenderer) == 1, "plane: hạt mesh cộng sáng");
     context.expect(tally.count(fx::Skip::kUnknownAffector) == 1, "candle: affector lạ");
-    context.expect(tally.count(fx::Skip::kShading) == 1, "scrolled: billboad hai ảnh");
+    context.expect(tally.count(fx::Skip::kShading) == 0, "scrolled: Particle_TwoTex được nhận");
     context.expect(tally.count(fx::Skip::kNoMaterial) == 1, "bare: material ngoài bảng");
     context.expect(tally.count(fx::Skip::kUnknownName) == 2, "ghost và nope: tên lạ");
     context.expect(tally.count(fx::Skip::kUnknownElement) == 1, "PointLight: element lạ");
-    context.expect(tally.total_skipped() == 7, "tổng bảy thứ bị bỏ");
+    context.expect(tally.total_skipped() == 6, "tổng sáu thứ bị bỏ");
     const auto kind = tally.affectors.find("NoSuchAffector");
     const bool named = tally.affectors.size() == 1 && kind != tally.affectors.end() && kind->second == 1;
     context.expect(named, "nêu tên loại affector làm hệ bị bỏ");

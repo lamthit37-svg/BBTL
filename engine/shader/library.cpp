@@ -19,15 +19,27 @@
 #include "core/log.hpp"
 #include "fs/disk.hpp"
 #include "fs/path.hpp"
+#include "fs/stream.hpp"
 #include "fs/watcher.hpp"
+#include "shader/builder.hpp"
+#include "shader/compiler.hpp"
 #include "shader/detail/roots.hpp"
 #include "shader/failure.hpp"
+#include "shader/manifest.hpp"
+#include "shader/package.hpp"
+#include "shader/types.hpp"
 
 #include <algorithm>
+#include <chrono>
+#include <functional>
 #include <map>
+#include <memory>
 #include <mutex>
 #include <optional>
+#include <string>
+#include <string_view>
 #include <utility>
+#include <vector>
 
 namespace game::shader {
 

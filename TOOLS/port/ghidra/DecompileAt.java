@@ -4,6 +4,7 @@
 //   s:chuỗi              mọi hàm tham chiếu chuỗi ASCII chứa "chuỗi"
 //   x:địa chỉ            mọi hàm gọi hay trỏ tới địa chỉ (callers, kèm tên hàm gọi)
 //   l:tên                chỉ tên symbol chứa "tên", mỗi tên một dòng kèm địa chỉ (không dump vtable)
+//   g:0xthấp-0xcao       mọi hàm có điểm vào trong khoảng địa chỉ [thấp, cao)
 //   v:lớp                decompile mọi hàm ảo của "<lớp>::vftable" (ví dụ v:Packets::LCRetLogin)
 //   n:tên                symbol có tên chứa "tên"; vtable kèm các hàm ảo của nó (không decompile)
 //   i:chuỗi              14 lệnh máy tại mỗi nơi tham chiếu chuỗi (khi hàm chứa quá lớn để decompile)
@@ -78,6 +79,8 @@ public class DecompileAt extends GhidraScript {
             } else if (key.startsWith("r:")) {
                 listData(address(key.substring(2)), text);
                 continue;
+            } else if (key.startsWith("g:")) {
+                entries.addAll(inRange(key.substring(2), functions));
             } else if (key.startsWith("s:")) {
                 entries.addAll(byString(key.substring(2), functions));
             } else if (key.startsWith("x:")) {
@@ -101,6 +104,22 @@ public class DecompileAt extends GhidraScript {
         decomp.dispose();
         Files.writeString(Path.of(args[0]), text.toString(), StandardCharsets.UTF_8);
         println("xuất " + args[0]);
+    }
+
+    // Mọi hàm có điểm vào trong [thấp, cao) của "0xthấp-0xcao" (khoá g:). Dùng để đọc trọn một lớp khi
+    // các hàm của nó nằm liền nhau (Render.dll EnSky 0x180235000-0x180240000).
+    private Set<Long> inRange(String text, FunctionManager functions) {
+        Set<Long> entries = new TreeSet<>();
+        String[] bounds = text.split("-");
+        Address low = address(bounds[0]);
+        Address high = address(bounds[1]);
+        for (Function function : functions.getFunctions(low, true)) {
+            if (function.getEntryPoint().compareTo(high) >= 0) {
+                break;
+            }
+            entries.add(function.getEntryPoint().getOffset());
+        }
+        return entries;
     }
 
     // Hàm của vtable có tên đúng "<lớp>::vftable" (tối đa 24 ô); dừng ở ô không phải hàm. Dùng để đọc

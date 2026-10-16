@@ -81,6 +81,46 @@ void take_day(render::Lighting& lighting, const DayKey& day) noexcept {
     lighting.specular = vector_of(day.light_one_specular);
 }
 
+[[nodiscard]] Rgb rgb_of(const ensky::Colour& colour) noexcept {
+    return {.red = colour.red, .green = colour.green, .blue = colour.blue};
+}
+
+// Mốc EnvKey của EnScene thành DayKey: cùng các trường ánh sáng mà take_day áp.
+[[nodiscard]] DayKey day_of(const ensky::EnvKey& env) noexcept {
+    DayKey day;
+    day.time = env.time;
+    day.ambient = rgb_of(env.ambient);
+    day.fog = rgb_of(env.fog);
+    day.fog_near = env.fog_near;
+    day.fog_far = env.fog_far;
+    day.light_one = rgb_of(env.light_one);
+    day.light_one_specular = rgb_of(env.light_one_specular);
+    day.light_two = rgb_of(env.light_two);
+    day.light_two_specular = rgb_of(env.light_two_specular);
+    day.actor_one = rgb_of(env.actor_one);
+    day.actor_two = rgb_of(env.actor_two);
+    day.actor_ambient = rgb_of(env.actor_ambient);
+    day.light_one_power = env.light_one_intensity;
+    day.light_two_power = env.light_two_intensity;
+    day.actor_one_power = env.actor_one_intensity;
+    day.actor_two_power = env.actor_two_intensity;
+    return day;
+}
+
+[[nodiscard]] bool is_aimed(const ogre::Vec3& ray) noexcept {
+    return ray.x != 0.0F || ray.y != 0.0F || ray.z != 0.0F;
+}
+
+// Hướng đèn của EnvKey chỉ áp khi khác (0 0 0); không thì giữ hướng của tệp .Scene (0x1801e8130).
+void take_aim(render::Lighting& lighting, const ensky::EnvKey& env) noexcept {
+    const scene::Vector3 one{.x = env.light_one_direction.x, .y = env.light_one_direction.y,
+        .z = env.light_one_direction.z};
+    const scene::Vector3 two{.x = env.light_two_direction.x, .y = env.light_two_direction.y,
+        .z = env.light_two_direction.z};
+    if (is_aimed(env.light_one_direction)) lighting.suns[0].toward = toward_of(one);
+    if (is_aimed(env.light_two_direction)) lighting.suns[1].toward = toward_of(two);
+}
+
 // Giải mã sRGB chính xác của một kênh.
 [[nodiscard]] float to_linear(float encoded) noexcept {
     const float value = std::clamp(encoded, 0.0F, 1.0F);
@@ -93,6 +133,17 @@ void take_day(render::Lighting& lighting, const DayKey& day) noexcept {
 SceneLight::SceneLight(const Stage& stage, float time) {
     take_scene(base_, stage);
     if (!stage.days.empty()) take_day(base_, day_at(stage.days, time));
+    finish(stage);
+}
+
+SceneLight::SceneLight(const Stage& stage, const ensky::EnvKey& env) {
+    take_scene(base_, stage);
+    take_day(base_, day_of(env));
+    take_aim(base_, env);
+    finish(stage);
+}
+
+void SceneLight::finish(const Stage& stage) {
     lamps_.reserve(stage.lamps.size());
     for (const Lamp& lamp : stage.lamps) {
         lamps_.push_back(lamp_of(lamp));

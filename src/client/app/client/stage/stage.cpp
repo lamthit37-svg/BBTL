@@ -136,6 +136,11 @@ void take_fx(Stage& stage, const scene::Object& object, bool is_effect) {
     stage.effects.push_back(std::move(place));
 }
 
+void take_en_scene(Stage& stage, const scene::Object& object) {
+    const scene::OptionalText file = scene::property(object, "config_file");
+    if (file) stage.en_scene = std::string(*file);
+}
+
 void take_object(Stage& stage, const scene::Object& object) {
     if (object.type == "StaticEntity")
         take_prop(stage, object);
@@ -151,6 +156,8 @@ void take_object(Stage& stage, const scene::Object& object) {
         take_fx(stage, object, false);
     else if (object.type == "Effect")
         take_fx(stage, object, true);
+    else if (object.type == "EnScene")
+        take_en_scene(stage, object);
 }
 
 [[nodiscard]] bool is_sun(const scene::Object& object) noexcept {

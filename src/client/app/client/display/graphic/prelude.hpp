@@ -25,6 +25,7 @@
 #include "client/display/display.hpp"
 #include "client/display/frame_fit.hpp"
 #include "client/display/fx_view.hpp"
+#include "client/display/sky_view.hpp"
 #include "client/display/lighting.hpp"
 #include "client/display/login_data.hpp"
 #include "client/display/policy.hpp"

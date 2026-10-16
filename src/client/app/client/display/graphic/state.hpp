@@ -233,6 +233,16 @@ struct Display::State {
     // Mở bộ vẽ hiệu ứng sau khi tầng 2 đã tạo PSO. Chưa có cảnh thì chưa gọi prepare, không báo lỗi.
     void open_fx();
     void say_fx_fault();
+    // Bầu trời EnScene: mở sau tầng 2 như open_fx, mô phỏng mỗi khung, vòm vẽ trước thế giới còn mây,
+    // trăng và mặt trời vẽ sau hiệu ứng (nhóm hàng đợi 59 của Render.dll).
+    void open_sky();
+    // Nhận bầu trời của stage hiện tại và buộc dựng lại ánh sáng theo EnvKey của nó ở khung kế.
+    void adopt_sky();
+    void advance_sky(float elapsed);
+    // Cảnh có EnvKey: dựng lại ánh sáng mỗi khi môi trường tính lại theo giờ của ngày.
+    void refresh_sky_light();
+    // Effect của bầu trời bám camera: đặt vị trí mắt mỗi khung, hướng đơn vị (nút en_effect của Render.dll).
+    void follow_sky_effects(const render::Camera& camera);
     void ensure_sky();
     void append_sky(const render::Camera& camera);
     void ensure_water();
@@ -405,6 +415,7 @@ struct Display::State {
     std::unique_ptr<render::Screen> screen;
     std::unique_ptr<render::Forward> forward;
     std::unique_ptr<FxView> fx_view;
+    std::unique_ptr<SkyView> sky_view;
     // Hiệu ứng đồ đang chạy trong fx_view: mẫu con, tên effect và màu đã dựng (đổi một trong ba thì dựng lại), handle
     // (0 là fx không dựng được, không thử lại).
     struct GearHandle {
@@ -742,6 +753,9 @@ struct Display::State {
     // GCNotifyChangeScene của máy chủ phát, Game.exe 0x1405493da); lần vào đầu từ đăng nhập thì không.
     bool has_entered_world = false;
     float fx_stamp = -1.0F;
+    float en_sky_stamp = -1.0F;
+    std::uint32_t sky_light_serial = 0;
+    std::vector<std::uint32_t> sky_effects;
     std::uint32_t head_turns = 0;
     std::uint32_t scene_draws = 0;
     std::uint32_t pace_texture = 0;

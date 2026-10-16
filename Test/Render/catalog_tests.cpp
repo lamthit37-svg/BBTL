@@ -87,6 +87,25 @@ void fx_waits_for_the_scene(Context& context) {
     context.expect(saw_add && saw_blend, "có hạt cộng sáng và hạt trộn alpha");
 }
 
+// Bầu trời: ba PSO chung cặp sky.vs, sky.ps, sao có cặp star.vs, star.ps; cả bốn chung một khối hằng cho cả
+// khung; tầng 2, thiếu thì không vẽ trời.
+void sky_waits_for_the_scene(Context& context) {
+    std::size_t sky = 0;
+    for (const Entry& entry : render::entries()) {
+        if (entry.group != Group::kSky) continue;
+        ++sky;
+        context.expect(entry.tier == Tier::kScene, "bầu trời thuộc tầng 2");
+        context.expect(!entry.is_required, "bầu trời thiếu thì bỏ qua");
+        context.expect(entry.frame_bytes == render::kSkyFrameBytes, "khối khung của bầu trời");
+        context.expect(entry.draw_bytes == render::kSkyDrawBytes, "khối lệnh vẽ của bầu trời");
+        const bool is_star = entry.pso == render::Pso::kSkyStar;
+        const char* vertex = is_star ? "star.vs" : "sky.vs";
+        const char* pixel = is_star ? "star.ps" : "sky.ps";
+        context.expect(same(entry.vertex, vertex) && same(entry.pixel, pixel), "bầu trời chung shader");
+    }
+    context.expect(sky == 4, "vòm, mây, trăng mặt trời và sao");
+}
+
 void optional_tier_follows_the_gpu(Context& context) {
     gpu::DeviceCaps caps;
     gpu::AdapterInfo adapter;
@@ -131,11 +150,12 @@ void idle_groups_stay_empty(Context& context) {
     }
 }
 
-constexpr std::array<Case, 7> kCases{{
+constexpr std::array<Case, 8> kCases{{
     {.name = "ui_opens_with_the_client", .body = &ui_opens_with_the_client},
     {.name = "names_are_unique", .body = &names_are_unique},
     {.name = "model_variants_are_character", .body = &model_variants_are_character},
     {.name = "fx_waits_for_the_scene", .body = &fx_waits_for_the_scene},
+    {.name = "sky_waits_for_the_scene", .body = &sky_waits_for_the_scene},
     {.name = "optional_tier_follows_the_gpu", .body = &optional_tier_follows_the_gpu},
     {.name = "world_group_extends_the_model", .body = &world_group_extends_the_model},
     {.name = "idle_groups_stay_empty", .body = &idle_groups_stay_empty},

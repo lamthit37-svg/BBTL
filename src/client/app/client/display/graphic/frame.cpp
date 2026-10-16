@@ -576,7 +576,10 @@ core::Status Display::State::draw_world(gpu::CommandList& list, std::uint32_t sl
     ask.size = render::ViewSize{.width = screen->width(), .height = screen->height()};
     render::Camera camera = ask.size.height > 0 ? frame_camera(ask) : render::Camera{};
     camera.pixels_high = static_cast<float>(ask.size.height);
+    follow_sky_effects(camera);
     advance_fx(elapsed);
+    advance_sky(elapsed);
+    refresh_sky_light();
     compose_frame();
     ensure_sky();
     append_sky(camera);
@@ -585,10 +588,13 @@ core::Status Display::State::draw_world(gpu::CommandList& list, std::uint32_t sl
     append_fx_meshes();
     render::Lighting lighting = light.view();
     lighting.seconds = elapsed;
+    if (sky_view) sky_view->prepare(slot, camera);
+    if (sky_view) sky_view->draw_dome(list, slot);
     const core::Status drawn = forward->draw(list, slot, camera, lighting, frame_instances);
     if (!drawn) return drawn;
     const FxAsk effects{.list = &list, .camera = &camera, .slot = slot, .elapsed = elapsed};
     draw_fx(effects);
+    if (sky_view) sky_view->draw_layers(list, slot);
     build_extras();
     bound_hud(list);
     return paint_hud(list, slot);

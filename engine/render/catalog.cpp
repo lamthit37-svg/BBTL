@@ -53,10 +53,25 @@ constexpr std::array<gpu::VertexAttribute, 3> kUiAttributes{
     attribute(2, gpu::Format::kR32Uint, offsetof(UiVertex, colour)),
 };
 
-constexpr std::array<gpu::VertexAttribute, 3> kFxAttributes{
+constexpr std::array<gpu::VertexAttribute, 4> kFxAttributes{
     attribute(0, gpu::Format::kRgb32Float, 0),
     attribute(1, gpu::Format::kRg32Float, kFxUv),
     attribute(2, gpu::Format::kRgba32Float, kFxColour),
+    attribute(3, gpu::Format::kRg32Float, kFxCoverUv),
+};
+
+// Theo location của sky.vs.slang: vị trí và UV của resource::Vertex (mesh .mesh của Ogre). Pháp tuyến
+// không vào shader: bản gốc tính hướng từ vị trí, nên SPIR-V sẽ bỏ nó còn DXIL giữ lại và hai bên lệch.
+constexpr std::array<gpu::VertexAttribute, 2> kSkyAttributes{
+    attribute(0, gpu::Format::kRgb32Float, offsetof(resource::Vertex, position)),
+    attribute(1, gpu::Format::kRg32Float, offsetof(resource::Vertex, uv)),
+};
+
+// Theo location của star.vs.slang: vị trí, góc của hình chữ nhật, màu và độ sáng ngẫu nhiên.
+constexpr std::array<gpu::VertexAttribute, 3> kStarAttributes{
+    attribute(0, gpu::Format::kRgb32Float, 0),
+    attribute(1, gpu::Format::kRg32Float, kStarCorner),
+    attribute(2, gpu::Format::kRgba32Float, kStarColour),
 };
 
 // Hai hệ số scene_blend cho cả màu và alpha. Client gốc để separate = 0 nên hai kênh cùng một cặp.
@@ -134,6 +149,50 @@ static_assert(model_kind(Pso::kModelSolid) == 0 && model_kind(Pso::kModelSolidTw
     pipeline.shaders = shaders;
     pipeline.vertex_buffers = std::span(&layout, 1);
     pipeline.vertex_attributes = kFxAttributes;
+    pipeline.raster.cull = gpu::CullMode::kNone;
+    pipeline.depth.format = desc.depth;
+    pipeline.depth.is_tested = true;
+    pipeline.depth.is_written = false;
+    pipeline.color_formats = std::span(&desc.color, 1);
+    pipeline.samples = desc.samples;
+    pipeline.blends = std::span(&blend, 1);
+    return device.create_pipeline(pipeline);
+}
+
+// Bầu trời: thử độ sâu, không ghi. Vòm đục (scene_blend one zero), mây và trăng trộn alpha.
+// Mây hai mặt (cull_hardware none); vòm và trăng theo mặc định của Ogre (loại mặt kim đồng hồ).
+[[nodiscard]] core::Result<gpu::PipelineHandle> make_sky(gpu::Device& device,
+    const CatalogDesc& desc, const Entry& entry, std::span<const gpu::ShaderHandle> shaders) {
+    const bool is_dome = entry.pso == Pso::kSkyDome;
+    const bool is_cloud = entry.pso == Pso::kSkyCloud;
+    const gpu::VertexBufferLayout layout{.stride = sizeof(resource::Vertex)};
+    const gpu::BlendState blend = is_dome ? gpu::BlendState{} : alpha_blend();
+    gpu::GraphicsPipelineDesc pipeline;
+    pipeline.name = entry.name;
+    pipeline.shaders = shaders;
+    pipeline.vertex_buffers = std::span(&layout, 1);
+    pipeline.vertex_attributes = kSkyAttributes;
+    pipeline.raster.cull = is_cloud ? gpu::CullMode::kNone : gpu::CullMode::kBack;
+    pipeline.depth.format = desc.depth;
+    pipeline.depth.is_tested = true;
+    pipeline.depth.is_written = false;
+    pipeline.color_formats = std::span(&desc.color, 1);
+    pipeline.samples = desc.samples;
+    pipeline.blends = std::span(&blend, 1);
+    return device.create_pipeline(pipeline);
+}
+
+// Sao: thử độ sâu, không ghi; cộng một một (kết quả đã nhân độ trong); không loại mặt vì hình chữ nhật
+// của bốn đỉnh có thể quay mặt nào tuỳ góc nhìn.
+[[nodiscard]] core::Result<gpu::PipelineHandle> make_sky_star(gpu::Device& device,
+    const CatalogDesc& desc, const Entry& entry, std::span<const gpu::ShaderHandle> shaders) {
+    const gpu::VertexBufferLayout layout{.stride = kStarStride};
+    const gpu::BlendState blend = fx_factors(gpu::BlendFactor::kOne, gpu::BlendFactor::kOne);
+    gpu::GraphicsPipelineDesc pipeline;
+    pipeline.name = entry.name;
+    pipeline.shaders = shaders;
+    pipeline.vertex_buffers = std::span(&layout, 1);
+    pipeline.vertex_attributes = kStarAttributes;
     pipeline.raster.cull = gpu::CullMode::kNone;
     pipeline.depth.format = desc.depth;
     pipeline.depth.is_tested = true;
@@ -290,6 +349,10 @@ core::Result<gpu::PipelineHandle> Catalog::build(const Entry& entry, std::span<c
     case Pso::kFxColour:
         return build_fx(*device_, desc_, shaders, src_colour, inv_colour, entry.name);
     case Pso::kFxReplace: return build_fx(*device_, desc_, shaders, one, zero, entry.name);
+    case Pso::kSkyDome:
+    case Pso::kSkyCloud:
+    case Pso::kSkyBody: return make_sky(*device_, desc_, entry, shaders);
+    case Pso::kSkyStar: return make_sky_star(*device_, desc_, entry, shaders);
     }
     std::unreachable();
 }

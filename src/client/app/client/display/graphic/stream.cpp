@@ -59,6 +59,7 @@ void Display::State::warm_scene() {
     const core::Status tier = catalog->prepare(render::Tier::kScene);
     if (!tier) std::println(stderr, "Pipeline: tầng cảnh: {}", tier.error());
     open_fx();
+    open_sky();
 }
 
 void Display::State::promote_prefetch(Arrival& loading) {
@@ -150,6 +151,7 @@ void Display::State::reveal(Arrival& loading) {
     loading.revealed = true;
     attach_cached_ground();
     if (fx_view && stage != nullptr) fx_view->adopt(*stage);
+    adopt_sky();
     if (shows_role_scene()) role_stage.replay();
 }
 

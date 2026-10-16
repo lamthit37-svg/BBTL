@@ -36,6 +36,8 @@ enum class Group : std::uint8_t {
     kVfx,
     kPost,
     kCompute,
+    // Bầu trời EnScene: vòm, mây, trăng và mặt trời (sky.vs, sky.ps).
+    kSky,
 };
 
 // Cấp tải, độc lập với nhóm. Một nhóm có PSO ở nhiều tầng.
@@ -75,6 +77,14 @@ enum class Pso : std::uint8_t {
     kFxGlow = 12,
     kFxColour = 13,
     kFxReplace = 14,
+    // Bầu trời EnScene (sky.vs, sky.ps; một cbuffer cho cả khung, xem display/sky_view.cpp). kSkyDome là vòm:
+    // đục, hai mặt kề nhau, nhìn từ trong; kSkyCloud là lớp mây và mây vòng: trộn alpha, hai mặt; kSkyBody là
+    // trăng và mặt trời: trộn alpha, một mặt. Ba PSO đều thử độ sâu và không ghi.
+    kSkyDome = 15,
+    kSkyCloud = 16,
+    kSkyBody = 17,
+    // Sao (star.vs, star.ps): mỗi sao một hình chữ nhật bốn đỉnh, cộng màu một một, một mặt cắt không loại.
+    kSkyStar = 18,
 };
 
 inline constexpr std::uint32_t kModelTwoSided = 1;
@@ -83,17 +93,29 @@ inline constexpr std::uint32_t kModelBlended = 2;
 inline constexpr std::uint32_t kModelFrameBytes = 1344;
 inline constexpr std::uint32_t kModelDrawBytes = gpu::kMaxPushBytes;
 inline constexpr std::size_t kModelVariants = 4;
-inline constexpr std::size_t kPackageCount = 8;
-inline constexpr std::size_t kSlotCount = 15;
+inline constexpr std::size_t kPackageCount = 12;
+inline constexpr std::size_t kSlotCount = 19;
+// Cỡ khối hằng của sky.inc.slang: SkyBlock (32 lệnh, mỗi lệnh 16 float4) và push constant (một uvec4).
+inline constexpr std::uint32_t kSkyFrameBytes = 8192;
+inline constexpr std::uint32_t kSkyDrawBytes = 16;
+
+// Bố cục đỉnh sao (display/sky_view.cpp giữ struct cùng các số này): vị trí, góc 0..1 của hình chữ nhật, rồi
+// (r, g, b, độ sáng ngẫu nhiên). Cùng cbuffer SkyBlock với ba PSO bầu trời khác.
+inline constexpr std::uint32_t kStarStride = 36;
+inline constexpr std::uint32_t kStarCorner = 12;
+inline constexpr std::uint32_t kStarColour = 20;
 
 // Bố cục đỉnh hạt. fx_view giữ struct cùng các số này; catalog dựng pipeline theo chúng.
-inline constexpr std::uint32_t kFxStride = 36;
+inline constexpr std::uint32_t kFxStride = 44;
 inline constexpr std::uint32_t kFxUv = 12;
 inline constexpr std::uint32_t kFxColour = 20;
+// UV của ảnh thứ hai, sau màu. Particle_vs gốc copy uv thành xyxy rồi mỗi unit một ma trận.
+inline constexpr std::uint32_t kFxCoverUv = 36;
 
 // Mọi gói .f2s catalog có thể nạp. Hash cache đĩa đi theo danh sách này, mỗi tên một lần.
-inline constexpr std::array<std::string_view, kPackageCount> kPackageNames{
-    "model.vs", "model.ps", "ui.vs", "ui.ps", "fx.vs", "fx.ps", "terrain.ps", "model_solid.ps"};
+inline constexpr std::array<std::string_view, kPackageCount> kPackageNames{"model.vs",
+    "model.ps", "ui.vs", "ui.ps", "fx.vs", "fx.ps", "terrain.ps", "model_solid.ps", "sky.vs",
+    "sky.ps", "star.vs", "star.ps"};
 
 // Một dòng của bảng. is_required: thiếu PSO ấy thì prepare của tầng trả lỗi.
 // frame_bytes và draw_bytes là cỡ khối hằng mà mã ghi. 0 nghĩa là không kiểm khối đó.
@@ -231,6 +253,42 @@ inline constexpr std::array<Entry, kSlotCount> kEntries{{
         .vertex = "fx.vs",
         .pixel = "fx.ps",
         .is_required = false},
+    {.name = "render.sky.dome",
+        .group = Group::kSky,
+        .tier = Tier::kScene,
+        .pso = Pso::kSkyDome,
+        .vertex = "sky.vs",
+        .pixel = "sky.ps",
+        .is_required = false,
+        .frame_bytes = kSkyFrameBytes,
+        .draw_bytes = kSkyDrawBytes},
+    {.name = "render.sky.cloud",
+        .group = Group::kSky,
+        .tier = Tier::kScene,
+        .pso = Pso::kSkyCloud,
+        .vertex = "sky.vs",
+        .pixel = "sky.ps",
+        .is_required = false,
+        .frame_bytes = kSkyFrameBytes,
+        .draw_bytes = kSkyDrawBytes},
+    {.name = "render.sky.body",
+        .group = Group::kSky,
+        .tier = Tier::kScene,
+        .pso = Pso::kSkyBody,
+        .vertex = "sky.vs",
+        .pixel = "sky.ps",
+        .is_required = false,
+        .frame_bytes = kSkyFrameBytes,
+        .draw_bytes = kSkyDrawBytes},
+    {.name = "render.sky.star",
+        .group = Group::kSky,
+        .tier = Tier::kScene,
+        .pso = Pso::kSkyStar,
+        .vertex = "star.vs",
+        .pixel = "star.ps",
+        .is_required = false,
+        .frame_bytes = kSkyFrameBytes,
+        .draw_bytes = kSkyDrawBytes},
 }};
 
 static_assert(std::to_underlying(Pso::kModelTwoSided) == kModelTwoSided);

@@ -141,7 +141,7 @@ endfunction()
 set(game_engine_names audio audiotool capture core fs gpu io jobs math net render resource shader
     shadertool window xml)
 set(game_shared_names protocol secure table link nav collision ids)
-set(game_client_names anim avatar classic client control fx gui hero look lua luanum motion ogre
+set(game_client_names anim avatar classic client control ensky fx gui hero look lua luanum motion ogre
     quest scene seal sealtool skill ui)
 set(game_server_names account actor authd billing billingd bus combat config content dice forge gate gated guard handlers ipc
     ledger linttool metrics mission item loot ops play process scenedata service shop social store stored supervise supervisor talk
@@ -316,6 +316,11 @@ game_module(fx
     src/client/place/fx/strip.cpp
     src/client/place/fx/cast.cpp)
 target_link_libraries(game_fx PUBLIC game_ogre)
+# ensky: bầu trời EnScene của Render.dll (đọc .EnScene, đồng hồ ngày, nội suy TimeNode, hướng trăng và
+# mặt trời). Thuần C++, không đụng GPU; lớp vẽ nằm ở client/display.
+game_module(ensky src/client/place/ensky/scene.cpp src/client/place/ensky/sky.cpp
+    src/client/place/ensky/plan.cpp src/client/place/ensky/star.cpp)
+target_link_libraries(game_ensky PUBLIC game_core game_xml game_ogre)
 game_module(anim src/client/figure/anim/pose.cpp src/client/figure/anim/rig.cpp)
 target_link_libraries(game_anim PUBLIC game_ogre)
 
@@ -1042,6 +1047,7 @@ if(GAME_HAS_GPU)
         src/client/app/client/display/creature.cpp
         src/client/app/client/display/player.cpp
         src/client/app/client/display/portrait.cpp src/client/app/client/display/role_preview.cpp src/client/app/client/display/fx_view.cpp
+        src/client/app/client/display/sky_view.cpp
         src/client/app/client/display/role_stage.cpp
         src/client/app/client/display/lighting.cpp src/client/app/client/display/login_data.cpp)
 else()
@@ -1072,7 +1078,7 @@ target_link_libraries(game_client_display PUBLIC game_core game_client_stage gam
     game_client_world game_client_cast game_client_fight game_control)
 if(GAME_HAS_GPU)
     target_link_libraries(game_client_display PRIVATE game_gpu game_render game_capture
-        game_avatar game_look game_motion game_ui game_fx game_classic)
+        game_avatar game_look game_motion game_ui game_fx game_ensky game_classic)
 endif()
 game_module(client_viewer ${game_client_loop})
 target_link_libraries(game_client_viewer PUBLIC game_core game_client_stage
@@ -1369,6 +1375,7 @@ function(game_test name)
     add_test(NAME ${name}_tests COMMAND ${name}_tests)
 endfunction()
 game_test(fx game_fx)
+game_test(ensky game_ensky)
 # Thư viện chuẩn và máy ảo của game_luaplus so với LuaPlus.dll của client 2026 (số vàng do TOOLS/port/lua_rt_golden.py sinh).
 # Thiết bị Android không thấy cây nguồn nên ca số vàng ở đó tự bỏ qua.
 game_test(lua_golden game_luaplus game_io)

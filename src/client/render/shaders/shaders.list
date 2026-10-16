@@ -9,3 +9,9 @@ shader ui.vs ui.vs.slang
 shader ui.ps ui.ps.slang
 shader fx.vs fx.vs.slang
 shader fx.ps fx.ps.slang
+# Bầu trời EnScene (vòm, mây, mây vòng, trăng, mặt trời): một cặp shader, nhánh chọn theo lệnh vẽ. render::Pso::kSkyDome.
+shader sky.vs sky.vs.slang
+shader sky.ps sky.ps.slang
+# Sao của bầu trời EnScene (FixStar.hlsl): bốn đỉnh mỗi sao, cộng màu. render::Pso::kSkyStar.
+shader star.vs star.vs.slang
+shader star.ps star.ps.slang

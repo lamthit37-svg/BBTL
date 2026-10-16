@@ -23,7 +23,6 @@
 #include "shader/manifest.hpp"
 
 #include <algorithm>
-#include <cstddef>
 #include <functional>
 #include <span>
 #include <string>
@@ -42,7 +41,7 @@ namespace game::shader::detail {
 }
 
 [[nodiscard]] inline bool contains_key(std::span<const std::string> sorted, std::string_view key) noexcept {
-    const auto found = std::lower_bound(sorted.begin(), sorted.end(), key, std::less<>{});
+    const auto found = std::ranges::lower_bound(sorted, key, std::less<>{});
     return found != sorted.end() && *found == key;
 }
 

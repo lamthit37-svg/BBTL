@@ -66,14 +66,17 @@ struct FxVertex {
     float green = 1.0F;
     float blue = 1.0F;
     float alpha = 1.0F;
+    float cover_u = 0.0F;
+    float cover_v = 0.0F;
 };
 static_assert(sizeof(FxVertex) == render::kFxStride);
 static_assert(offsetof(FxVertex, u) == render::kFxUv);
 static_assert(offsetof(FxVertex, red) == render::kFxColour);
 
-[[nodiscard]] resource::Model model_of(const resource::Image& image, bool repeats) {
+[[nodiscard]] resource::Model model_of(const resource::Image& image, const resource::Image& cover, bool repeats) {
     resource::Model model;
     model.images.push_back(image);
+    model.images.push_back(cover);
     resource::Sampler sampler;
     sampler.name = "fx";
     const resource::Wrap wrap = repeats ? resource::Wrap::kRepeat : resource::Wrap::kClamp;
@@ -158,6 +161,12 @@ static_assert(offsetof(FxVertex, red) == render::kFxColour);
     return vertex;
 }
 
+void place_uv(float& across, float& down, float source_u, float source_v, float scale_u,
+    float scale_v, float shift_u, float shift_v, float anim_u, float anim_v, float age) noexcept {
+    across = (source_u * scale_u) + shift_u + (anim_u * age);
+    down = (source_v * scale_v) + shift_v + (anim_v * age);
+}
+
 void append_kind(std::string& text, std::string_view kind, std::uint32_t count) {
     if (!text.empty()) text += ", ";
     text += std::format("{} {}", kind, count);
@@ -210,6 +219,8 @@ struct BatchDraw {
     std::uint32_t quads = 0;
     // Chỉ số fx::Blend, cũng là ô trong Body::pipelines.
     std::uint8_t kind = 0;
+    // 0: không nhân ảnh thứ hai. Khác 0 là BLEND_OP_1 (1, 2 hoặc 4).
+    float cover_gain = 0.0F;
 };
 
 // Hình của một khung: đỉnh của mọi lô nối nhau, bốn đỉnh một quad, và lệnh vẽ của từng lô.
@@ -224,6 +235,37 @@ struct Pass {
     const render::Camera* camera = nullptr;
     std::uint32_t slot = 0;
 };
+
+[[nodiscard]] resource::Image white_image() {
+    resource::Image image;
+    image.name = "fx.white";
+    image.width = 1;
+    image.height = 1;
+    image.rgba = {255, 255, 255, 255};
+    image.has_mips = false;
+    return image;
+}
+
+void bind_texture(std::array<gpu::BindEntry, 4>& entries, std::uint32_t slot,
+    gpu::TextureViewHandle view, gpu::SamplerHandle sampler) {
+    const std::size_t base = static_cast<std::size_t>(slot) * 2U;
+    entries[base].type = shader::RegisterType::kResource;
+    entries[base].slot = slot;
+    entries[base].resource = view;
+    entries[base + 1].type = shader::RegisterType::kSampler;
+    entries[base + 1].slot = slot;
+    entries[base + 1].resource = sampler;
+}
+
+[[nodiscard]] bool uv_repeats(const fx::Paint& paint) noexcept {
+    const bool slides = paint.scroll_u != 0.0F || paint.scroll_v != 0.0F;
+    const bool shifted = paint.shift_u != 0.0F || paint.shift_v != 0.0F;
+    const bool scaled = paint.scale_u != 1.0F || paint.scale_v != 1.0F;
+    const bool cover_moves = paint.cover_scroll_u != 0.0F || paint.cover_scroll_v != 0.0F;
+    const bool cover_shifted = paint.cover_shift_u != 0.0F || paint.cover_shift_v != 0.0F;
+    const bool cover_scaled = paint.cover_scale_u != 1.0F || paint.cover_scale_v != 1.0F;
+    return slides || shifted || scaled || cover_moves || cover_shifted || cover_scaled;
+}
 
 } // namespace
 
@@ -260,7 +302,9 @@ struct FxView::Body {
     Body& operator=(Body&&) = delete;
     ~Body();
 
-    [[nodiscard]] core::Result<std::uint32_t> add_image(const resource::Image& image, bool repeats);
+    [[nodiscard]] core::Result<resource::Image> cover_image(const fx::Paint& paint) const;
+    [[nodiscard]] core::Result<std::uint32_t> add_image(const resource::Image& image, const resource::Image& cover,
+        bool repeats);
     [[nodiscard]] core::Result<std::uint32_t> load_texture(const fx::Paint& paint);
     [[nodiscard]] std::optional<std::uint32_t> texture_of(const fx::Paint& paint);
     void take_batch(Frame& frame, const fx::BillboardBatch& batch);
@@ -286,15 +330,18 @@ FxView::Body::~Body() {
     device->destroy(indices);
 }
 
-core::Result<std::uint32_t> FxView::Body::add_image(const resource::Image& image, bool repeats) {
-    const resource::Model model = model_of(image, repeats);
+core::Result<std::uint32_t> FxView::Body::add_image(const resource::Image& image,
+    const resource::Image& cover, bool repeats) {
+    const resource::Model model = model_of(image, cover, repeats);
     core::Result<resource::Uploaded> uploaded = resource::upload_queued(*device, model);
     if (!uploaded) return std::unexpected(uploaded.error());
-    std::array<gpu::BindEntry, 2> entries;
-    entries.front().type = shader::RegisterType::kResource;
-    entries.front().resource = uploaded->images().front().view;
-    entries.back().type = shader::RegisterType::kSampler;
-    entries.back().resource = uploaded->samplers().front();
+    if (uploaded->images().size() < 2 || uploaded->samplers().empty()) {
+        return core::fail(core::ErrorCode::kInvalidArgument, "thiếu ảnh hạt");
+    }
+    const gpu::SamplerHandle sampler = uploaded->samplers().front();
+    std::array<gpu::BindEntry, 4> entries;
+    bind_texture(entries, 0, uploaded->images()[0].view, sampler);
+    bind_texture(entries, 1, uploaded->images()[1].view, sampler);
     gpu::BindGroupDesc group;
     group.name = "fx.texture";
     group.pipeline = pipelines[static_cast<std::size_t>(fx::Blend::kAdd)];
@@ -306,20 +353,26 @@ core::Result<std::uint32_t> FxView::Body::add_image(const resource::Image& image
     return static_cast<std::uint32_t>(textures.size() - 1);
 }
 
+core::Result<resource::Image> FxView::Body::cover_image(const fx::Paint& paint) const {
+    if (paint.cover_gain <= 0.0F) return white_image();
+    core::Result<resource::Image> mask = read_image(data_root, paint.second, tier);
+    if (!mask) return std::unexpected(mask.error());
+    mask->name = paint.second;
+    return std::move(*mask);
+}
+
 core::Result<std::uint32_t> FxView::Body::load_texture(const fx::Paint& paint) {
     core::Result<resource::Image> image = read_image(data_root, paint.image, tier);
     if (!image) return std::unexpected(image.error());
     image->name = paint.image;
-    const bool repeats =
-        paint.scroll_u != 0.0F || paint.scroll_v != 0.0F || paint.scale_u != 1.0F || paint.scale_v != 1.0F;
-    return add_image(*image, repeats);
+    core::Result<resource::Image> cover = cover_image(paint);
+    if (!cover) return std::unexpected(cover.error());
+    return add_image(*image, *cover, uv_repeats(paint));
 }
 
 // Mỗi ảnh chỉ đọc đĩa một lần cho mỗi cách dùng alpha; ảnh hỏng được nhớ để không đọc lại mỗi khung.
 std::optional<std::uint32_t> FxView::Body::texture_of(const fx::Paint& paint) {
-    const bool repeats =
-        paint.scroll_u != 0.0F || paint.scroll_v != 0.0F || paint.scale_u != 1.0F || paint.scale_v != 1.0F;
-    const std::string key = std::format("{}|{}", paint.image, repeats);
+    const std::string key = std::format("{}|{}|{}", paint.image, paint.second, uv_repeats(paint));
     const auto found = by_image.find(key);
     if (found != by_image.end()) return found->second;
     const core::Clock::time_point began = core::Clock::now();
@@ -347,13 +400,15 @@ void FxView::Body::take_batch(Frame& frame, const fx::BillboardBatch& batch) {
     draw.first = static_cast<std::uint32_t>(frame.vertices.size() / 4U);
     draw.quads = static_cast<std::uint32_t>(quads);
     draw.kind = static_cast<std::uint8_t>(kind);
-    const float shift_u = paint->scroll_u * scene_age;
-    const float shift_v = paint->scroll_v * scene_age;
+    draw.cover_gain = paint->cover_gain;
     for (const fx::BillboardVertex& source : std::span(batch.vertices).first(quads * 4U)) {
-        fx::BillboardVertex shifted = source;
-        shifted.u = (source.u * paint->scale_u) + shift_u;
-        shifted.v = (source.v * paint->scale_v) + shift_v;
-        frame.vertices.push_back(vertex_of(shifted, paint->gain));
+        FxVertex vertex = vertex_of(source, paint->gain);
+        place_uv(vertex.u, vertex.v, source.u, source.v, paint->scale_u, paint->scale_v,
+            paint->shift_u, paint->shift_v, paint->scroll_u, paint->scroll_v, scene_age);
+        place_uv(vertex.cover_u, vertex.cover_v, source.u, source.v, paint->cover_scale_u,
+            paint->cover_scale_v, paint->cover_shift_u, paint->cover_shift_v, paint->cover_scroll_u,
+            paint->cover_scroll_v, scene_age);
+        frame.vertices.push_back(vertex);
     }
     frame.draws.push_back(draw);
 }
@@ -417,9 +472,10 @@ struct FxGpuPush {
     math::Float4 mode{};
 };
 
-void bind_fx(gpu::CommandList& list, const render::Camera& camera, gpu::PipelineHandle pipeline) {
+void bind_fx(gpu::CommandList& list, const render::Camera& camera, gpu::PipelineHandle pipeline, float cover_gain) {
     FxGpuPush push;
     push.view_proj = math::store(camera.projection * camera.view);
+    push.mode.x = cover_gain;
     list.bind_pipeline(pipeline);
     list.push_constants(std::as_bytes(std::span(&push, 1)), 0);
 }
@@ -447,7 +503,7 @@ core::Status FxView::Body::submit(const Pass& pass, const Frame& frame) {
     pass.list->bind_vertex_buffer(0, buffer.vertices, 0);
     pass.list->bind_index_buffer(indices, gpu::IndexType::kUint32, 0);
     for (const BatchDraw& draw : frame.draws) {
-        bind_fx(*pass.list, *pass.camera, pipelines[draw.kind]);
+        bind_fx(*pass.list, *pass.camera, pipelines[draw.kind], draw.cover_gain);
         draw_batch(*pass.list, draw);
     }
     return core::ok();

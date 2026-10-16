@@ -158,6 +158,7 @@ void Display::State::arm_scene(const DisplayDesc& desc) {
 void Display::State::start_play() {
     if (procedure == Procedure::kPlay) return;
     procedure = Procedure::kPlay;
+    if (sky_view) sky_view->pin_day(kOfflineDayTime);
     typed.clear();
     apply_role();
     load_player();

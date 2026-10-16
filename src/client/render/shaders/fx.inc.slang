@@ -6,7 +6,7 @@
 
 struct FxPush {
     float4x4 view_proj;
-    // Giữ trong khối push cho khớp FxGpuPush. Công thức màu không đọc trường này.
+    // x: hệ số ảnh thứ hai (BLEND_OP_1). 0 là không có ảnh ấy.
     float4 mode;
 };
 F2_PUSH_CONSTANTS(FxPush, fx_push);
@@ -15,6 +15,7 @@ struct Varying {
     float4 clip : SV_Position;
     float2 uv : TEXCOORD0;
     float4 color : COLOR0;
+    float2 uv_cover : TEXCOORD1;
 };
 
 #endif

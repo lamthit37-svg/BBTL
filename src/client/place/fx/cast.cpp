@@ -116,23 +116,128 @@ struct Row {
     return scroll.empty() || (speed && *speed == 0.0F);
 }
 
-// "scale 1.1 1.1" hoặc "scale 0.8 0.5; ..." trong cột extra. Thiếu số thì giữ 1.
-void take_scale(Paint& paint, std::string_view extra) {
-    constexpr std::string_view kMark = "scale ";
-    const std::size_t at = extra.find(kMark);
-    if (at == std::string_view::npos) return;
-    const std::string_view rest = extra.substr(at + kMark.size());
-    const std::size_t gap = rest.find(' ');
+enum class UvKey : std::uint8_t { kScale, kScroll, kAnim, kOther };
+
+[[nodiscard]] UvKey uv_key(std::string_view name) noexcept {
+    if (name == "scale") return UvKey::kScale;
+    if (name == "scroll") return UvKey::kScroll;
+    if (name == "scroll_anim") return UvKey::kAnim;
+    return UvKey::kOther;
+}
+
+[[nodiscard]] std::uint8_t uv_bit(UvKey key) noexcept {
+    if (key == UvKey::kScale) return 1;
+    if (key == UvKey::kScroll) return 2;
+    return 4;
+}
+
+struct UvUnit {
+    float scale_u = 1.0F;
+    float scale_v = 1.0F;
+    float scroll_u = 0.0F;
+    float scroll_v = 0.0F;
+    float anim_u = 0.0F;
+    float anim_v = 0.0F;
+};
+
+void write_uv(UvUnit& unit, UvKey key, float across, float down) {
+    if (key == UvKey::kScale) {
+        unit.scale_u = across;
+        unit.scale_v = down;
+        return;
+    }
+    if (key == UvKey::kScroll) {
+        unit.scroll_u = across;
+        unit.scroll_v = down;
+        return;
+    }
+    unit.anim_u = across;
+    unit.anim_v = down;
+}
+
+// extra liệt kê lệnh unit theo thứ tự collect_fx: từ khoá lặp lại là sang unit sau.
+// scroll_anim của unit đầu nằm ở cột, nên gặp nó lúc còn unit đầu là sang unit sau.
+void take_uv_piece(std::array<UvUnit, 2>& units, int& slot, std::array<std::uint8_t, 2>& seen,
+    std::string_view piece) {
+    const std::size_t gap = piece.find(' ');
     if (gap == std::string_view::npos) return;
-    const std::optional<float> across = parse_float(rest.substr(0, gap));
-    std::string_view down = rest.substr(gap + 1);
-    const std::size_t end = down.find_first_of(" ;");
-    if (end != std::string_view::npos) down = down.substr(0, end);
-    const std::optional<float> along = parse_float(down);
-    if (!across || !along) return;
-    if (*across == 0.0F || *along == 0.0F) return;
-    paint.scale_u = *across;
-    paint.scale_v = *along;
+    const UvKey key = uv_key(piece.substr(0, gap));
+    if (key == UvKey::kOther) return;
+    const std::string_view rest = piece.substr(gap + 1);
+    const std::size_t next = rest.find(' ');
+    if (next == std::string_view::npos) return;
+    const std::optional<float> across = parse_float(rest.substr(0, next));
+    std::string_view tail = rest.substr(next + 1);
+    const std::size_t end = tail.find_first_of(" ;");
+    if (end != std::string_view::npos) tail = tail.substr(0, end);
+    const std::optional<float> down = parse_float(tail);
+    if (!across || !down) return;
+    if (key == UvKey::kScale && (*across == 0.0F || *down == 0.0F)) return;
+    const std::uint8_t bit = uv_bit(key);
+    const bool repeats = (seen[static_cast<std::size_t>(slot)] & bit) != 0;
+    const bool anim_starts_cover = key == UvKey::kAnim && slot == 0;
+    if ((repeats || anim_starts_cover) && slot == 0) slot = 1;
+    const std::size_t index = static_cast<std::size_t>(slot);
+    if ((seen[index] & bit) != 0) return;
+    seen[index] = static_cast<std::uint8_t>(seen[index] | bit);
+    write_uv(units[index], key, *across, *down);
+}
+
+[[nodiscard]] std::size_t consume_piece(std::string_view extra, std::size_t cursor, std::array<UvUnit, 2>& units,
+    int& slot, std::array<std::uint8_t, 2>& seen) {
+    const std::size_t stop = extra.find(';', cursor);
+    const std::size_t end = stop == std::string_view::npos ? extra.size() : stop;
+    const std::string_view piece = extra.substr(cursor, end - cursor);
+    const std::size_t from = piece.find_first_not_of(' ');
+    if (from != std::string_view::npos) take_uv_piece(units, slot, seen, piece.substr(from));
+    if (stop == std::string_view::npos) return extra.size();
+    return stop + 1;
+}
+
+void read_uv(Paint& paint, std::string_view extra) {
+    std::array<UvUnit, 2> units;
+    std::array<std::uint8_t, 2> seen{};
+    int slot = 0;
+    std::size_t cursor = 0;
+    while (cursor < extra.size())
+        cursor = consume_piece(extra, cursor, units, slot, seen);
+    paint.scale_u = units[0].scale_u;
+    paint.scale_v = units[0].scale_v;
+    paint.shift_u = units[0].scroll_u;
+    paint.shift_v = units[0].scroll_v;
+    paint.cover_scale_u = units[1].scale_u;
+    paint.cover_scale_v = units[1].scale_v;
+    paint.cover_shift_u = units[1].scroll_u;
+    paint.cover_shift_v = units[1].scroll_v;
+    paint.cover_scroll_u = units[1].anim_u;
+    paint.cover_scroll_v = units[1].anim_v;
+}
+
+// Cột sinh từ script gốc thắng extra: extra không ghi unit nào sở hữu lệnh khi chỉ có một lệnh.
+void take_axis(float& across, float& down, const Row& row, std::string_view across_name,
+    std::string_view down_name) {
+    const std::optional<float> left = parse_float(row.cell(across_name));
+    const std::optional<float> right = parse_float(row.cell(down_name));
+    if (!left || !right) return;
+    across = *left;
+    down = *right;
+}
+
+void take_axes(Paint& paint, const Row& row) {
+    take_axis(paint.scale_u, paint.scale_v, row, "scale_u", "scale_v");
+    take_axis(paint.shift_u, paint.shift_v, row, "shift_u", "shift_v");
+    take_axis(paint.cover_scale_u, paint.cover_scale_v, row, "cover_scale_u", "cover_scale_v");
+    take_axis(paint.cover_shift_u, paint.cover_shift_v, row, "cover_shift_u", "cover_shift_v");
+    take_axis(paint.cover_scroll_u, paint.cover_scroll_v, row, "cover_scroll_u", "cover_scroll_v");
+}
+
+// BLEND_OP_1 của Particle_2Tex. 0 là shader không nhân ảnh thứ hai.
+[[nodiscard]] float cover_gain_of(std::string_view shader) noexcept {
+    if (!shader.starts_with("Particle_TwoTex")) return 0.0F;
+    if (shader.find("Dissolve") != std::string_view::npos) return 0.0F;
+    if (shader.find("Tex2_ColorX4") != std::string_view::npos) return 4.0F;
+    if (shader.find("Tex2_ColorX2") != std::string_view::npos) return 2.0F;
+    return 1.0F;
 }
 
 [[nodiscard]] bool is_plain(const Row& row) {
@@ -157,9 +262,14 @@ void take_paint(Paints& paints, const Row& row) {
     paint.second = std::string(row.cell(kSecondColumn));
     if (const std::optional<float> along_u = parse_float(row.cell(kScrollUColumn))) paint.scroll_u = *along_u;
     if (const std::optional<float> along_v = parse_float(row.cell(kScrollVColumn))) paint.scroll_v = *along_v;
-    take_scale(paint, row.cell(kExtraColumn));
+    read_uv(paint, row.cell(kExtraColumn));
+    take_axes(paint, row);
     const std::string_view shader = row.cell(kShaderColumn);
-    paint.is_common = std::ranges::find(kPlainShaders, shader) != kPlainShaders.end();
+    const float cover = cover_gain_of(shader);
+    const bool plain = std::ranges::find(kPlainShaders, shader) != kPlainShaders.end();
+    const bool layered = cover > 0.0F && !paint.second.empty();
+    paint.cover_gain = layered ? cover : 0.0F;
+    paint.is_common = (plain && paint.second.empty()) || layered;
     paint.is_plain = is_plain(row);
     paints.try_emplace(std::string(name), std::move(paint));
 }
@@ -293,10 +403,8 @@ std::optional<Skip> Library::refuse_material(std::string_view material) const {
     const Paint* found = palette_.find(material);
     if (found == nullptr || found->image.empty()) return Skip::kNoMaterial;
     if (found->blend == Blend::kOther) return Skip::kBlend;
-    // Một ảnh, shader thường: cuộn UV và scale vẫn vẽ. Hai ảnh hoặc shader riêng thì bỏ,
-    // vì thiếu mặt nạ biến sương thành tấm đặc.
-    const bool draws = found->second.empty() && found->is_common;
-    if (!draws) return Skip::kShading;
+    // Hai ảnh chỉ vẽ khi shader là Particle_TwoTex (nhân ảnh). Dissolve và shader lạ vẫn bỏ.
+    if (!found->is_common) return Skip::kShading;
     return std::nullopt;
 }
 

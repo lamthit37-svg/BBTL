@@ -88,6 +88,9 @@ nhật ký cũ [tài liệu].
 
 - Địa hình, vật thể tĩnh, hạt cộng sáng, nước và vòm trời của bản 2026. Nước và vòm trời có mã
   vẽ, chưa ai đối chiếu ảnh [tài liệu].
+- Bầu trời EnScene của Render.dll (vòm, mây, mây vòng, trăng, mặt trời, sao, EnvKey, hiệu ứng nền) vẽ
+  theo mã máy, đã chụp màn đăng nhập (2026-10-16). Còn thiếu: chùm sáng mặt trời, trộn nhiều vùng, tắt
+  dải `.skysphere` cũ, gom tài sản các map khác. Chi tiết và danh sách: `docs/TAILIEU/EN-SCENE-RENDER-DLL.md` mục 12.
 - Người chơi có xương trên PC và tablet. Vũ khí bảy khe, đòn thường, tuyệt chiêu, hiệu ứng đá quý
   chạy bằng công cụ thử `--weapon --skill --gem --auto-strike`. Nhảy có mã, chưa ai nhìn tận mắt.
 - Quái và NPC vẽ từ tin máy chủ. Người chơi khác có mã `show_player` và cờ `--peer` (`834caccb`),

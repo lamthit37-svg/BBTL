@@ -28,6 +28,7 @@ set(game_layer_window "core window")
 set(game_layer_math "core math")
 set(game_layer_ogre "ogre")
 set(game_layer_fx "ogre fx")
+set(game_layer_ensky "core xml ogre ensky")
 set(game_layer_anim "ogre anim")
 set(game_layer_motion "core motion")
 set(game_layer_nav "core nav")
@@ -124,7 +125,7 @@ set(game_layer_client/cast "core client/cast")
 # ui/panel/talk.hpp và tin của client/cast.
 set(game_layer_client/fight "core ui/panel client/cast client/fight")
 set(game_layer_client/display
-    "core io math scene gpu resource capture render shader avatar look anim ogre fx control motion nav hero gui ui/panel ui classic client/stage client/map client/world client/cast client/fight client/display")
+    "core io math scene gpu resource capture render shader avatar look anim ogre fx ensky control motion nav hero gui ui/panel ui classic client/stage client/map client/world client/cast client/fight client/display")
 # client/viewer dùng client/host/play_sound.hpp: cùng cách phát tiếng đòn 3D với vỏ điện thoại.
 set(game_layer_client/viewer
     "core io window control audio ui/panel client/stage client/display client/map client/world client/cast client/online client/session client/host client/viewer")

@@ -11,6 +11,7 @@
 #pragma once
 
 #include "client/stage/stage.hpp"
+#include "ensky/scene.hpp"
 #include "gpu/types.hpp"
 #include "math/vector.hpp"
 #include "render/forward.hpp"
@@ -28,6 +29,9 @@ public:
     SceneLight() = default;
     // Ánh sáng của stage tại thời điểm time (phần của ngày, 0..1).
     SceneLight(const Stage& stage, float time);
+    // Ánh sáng của stage khi bầu trời EnScene khai EnvKey: mốc đè ambient, màu đèn, nhân vật và hướng đèn
+    // (khi khác 0), theo Render.dll 0x1801e8130; nó thay mốc .skysphere của cùng cảnh.
+    SceneLight(const Stage& stage, const ensky::EnvKey& env);
 
     // Mượn mảng đèn điểm của đối tượng này: chỉ dùng khi nó còn sống và chưa bị gán lại.
     [[nodiscard]] render::Lighting view() const noexcept;
@@ -35,6 +39,9 @@ public:
     [[nodiscard]] gpu::ClearColor clear_color() const noexcept;
 
 private:
+    // Đèn điểm và màu nền: phần chung của hai hàm dựng.
+    void finish(const Stage& stage);
+
     render::Lighting base_;
     std::vector<render::Lamp> lamps_;
     // Màu nền trong không gian gamma, như số của tệp cảnh.

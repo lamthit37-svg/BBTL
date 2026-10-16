@@ -246,6 +246,7 @@ public:
     // True khi swapchain đã đúng cỡ này và còn dùng được: resize lúc ấy chỉ tốn một lần chờ GPU rỗi và dựng
     // lại ảnh. Android báo đổi cỡ lại mỗi khi swapchain được dựng lại, nên chỗ gọi cần chặn vòng đó.
     // Mặc định false: backend nào không biết thì cứ dựng lại.
+    // NOLINTNEXTLINE(bugprone-easily-swappable-parameters): width rồi height, cùng thứ tự resize
     [[nodiscard]] virtual bool is_current(std::uint32_t width, std::uint32_t height) const noexcept {
         static_cast<void>(width);
         static_cast<void>(height);
