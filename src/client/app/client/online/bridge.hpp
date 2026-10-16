@@ -24,6 +24,7 @@
 #include "ui/panel/talk.hpp"
 #include "client/session/gates.hpp"
 #include "client/session/session.hpp"
+#include "net/net.hpp"
 #include "protocol/messages.hpp"
 #include "ui/panel/online.hpp"
 
@@ -88,6 +89,9 @@ private:
     session::Session& line();
     void refuse(ui::panel::OnlineFault fault);
 
+    // Thư viện mạng của tiến trình (WSAStartup trên Windows). Khai đầu tiên: huỷ sau cùng, sau phiên và mọi socket của
+    // nó. Thiếu nó thì mọi socket hỏng và đăng nhập báo "không nối được máy chủ" dù máy chủ đang chạy (đo 2026-10-16).
+    net::NetResult<net::Network> network_;
     session::GateBook book_;
     std::optional<session::Session> session_;
     // Trả lời tạo ngay lúc serve (máy chủ không có trong bảng cổng, hàng đợi lệnh đầy).

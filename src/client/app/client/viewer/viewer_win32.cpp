@@ -23,6 +23,7 @@
 #include "client/world/world.hpp"
 
 #include "client/display/display.hpp"
+#include "client/host/play_sound.hpp"
 #include "client/online/bridge.hpp"
 #include "client/session/gates.hpp"
 #include "client/viewer/client_size.hpp"
@@ -499,15 +500,12 @@ void play_scene_music(audio::Engine* speaker, const world::ShownScene& scene) {
 // Âm thanh của khối Sound trong kịch bản đòn mà luồng vẽ vừa báo tới mốc: phát phẳng (chưa có vị trí 3D). Lỗi (thiếu tệp)
 // chỉ ghi log; không có loa thì bỏ.
 void play_due_sounds(const Session& session) {
-    const std::vector<std::string> due = session.display->take_sounds();
+    const Display::SoundBatch due = session.display->take_sounds();
     if (session.speaker == nullptr || !session.speaker->device_is_open()) return;
-    for (const std::string& name : due) {
-        // SoundName của all.skill tính từ thư mục Sound của kho gốc, nằm ở sound/ của dữ liệu client (như giá trị của
-        // sound_table.xml); engine nhận đường dẫn trực tiếp.
-        const std::string path = "sound/" + name;
-        const audio::SoundResult played = session.speaker->play_flat(path, 1.0F);
-        if (!played) std::println(stderr, "Âm thanh: {}: {}", path, played.error());
-    }
+    // SoundName của all.skill tính từ thư mục Sound của kho gốc, nằm ở sound/ của dữ liệu client.
+    play_heard(*session.speaker, due, [](const std::string& path, const core::Error& error) {
+        std::println(stderr, "Âm thanh: {}: {}", path, error);
+    });
 }
 
 // Cảnh đang chơi đổi thì in một dòng và đặt lại tiêu đề cửa sổ, tên cảnh theo ngôn ngữ của bản dựng.
@@ -852,6 +850,17 @@ private:
     std::optional<window::Monitor> raised_;
 };
 
+// Công cụ thử: biến môi trường THIENLONG_ACCOUNT bật đăng nhập tự động (client/display/auto_login.hpp). Rỗng là tắt.
+[[nodiscard]] std::optional<std::string> auto_account_of() {
+    char* value = nullptr;
+    std::size_t length = 0;
+    if (_dupenv_s(&value, &length, "THIENLONG_ACCOUNT") != 0 || value == nullptr) return std::nullopt;
+    std::string text(value);
+    std::free(value); // NOLINT(cppcoreguidelines-no-malloc,cppcoreguidelines-owning-memory): bộ nhớ của _dupenv_s
+    if (text.empty()) return std::nullopt;
+    return text;
+}
+
 [[nodiscard]] DisplayDesc display_desc_of(const window::Window& opened, const ViewerDesc& desc) {
     const window::Size initial = opened.client_size();
     DisplayDesc shown;
@@ -900,6 +909,7 @@ private:
     DisplayDesc shown = display_desc_of(opened, desc);
     online::Bridge bridge{read_gate_book_of(desc.data_folder)};
     shown.online_servers = bridge.servers();
+    shown.auto_account = auto_account_of();
     const int code = run_display(opened, shown, desc, bridge);
     core::mark("đóng: phần hiển thị huỷ xong");
     return code;

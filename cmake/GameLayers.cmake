@@ -102,7 +102,8 @@ set(game_layer_ui/script "core io table gui hero luanum lua ui/panel ui/script")
 # client/session: luồng nền giữ link::Link, máy trạng thái phiên và bảng cổng máy chủ. client/online: cầu nối giữa
 # chuỗi đăng nhập (ui/panel) và phiên mạng.
 set(game_layer_client/session "core net protocol secure link table client/session")
-set(game_layer_client/online "core protocol secure ui/panel client/session client/cast client/online")
+# Bridge giữ net::Network (WSAStartup) của tiến trình: khai đầu tiên để huỷ sau cùng, sau phiên và mọi socket.
+set(game_layer_client/online "core net protocol secure ui/panel client/session client/cast client/online")
 set(game_layer_ui "core io table gpu resource render gui hero ui/panel ui/script ui")
 set(game_layer_control "core ogre control")
 set(game_layer_avatar "core io math ogre anim look resource classic avatar")
@@ -124,8 +125,9 @@ set(game_layer_client/cast "core client/cast")
 set(game_layer_client/fight "core ui/panel client/cast client/fight")
 set(game_layer_client/display
     "core io math scene gpu resource capture render shader avatar look anim ogre fx control motion nav hero gui ui/panel ui classic client/stage client/map client/world client/cast client/fight client/display")
+# client/viewer dùng client/host/play_sound.hpp: cùng cách phát tiếng đòn 3D với vỏ điện thoại.
 set(game_layer_client/viewer
-    "core io window control audio ui/panel client/stage client/display client/map client/world client/cast client/online client/session client/viewer")
+    "core io window control audio ui/panel client/stage client/display client/map client/world client/cast client/online client/session client/host client/viewer")
 # client/host: việc mỗi khung của vỏ điện thoại (nối đăng nhập với phiên mạng, nhạc cảnh, bảng cổng máy chủ); không API
 # hệ điều hành.
 set(game_layer_client/host

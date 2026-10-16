@@ -22,6 +22,7 @@
 #include "client/session/machine.hpp"
 #include "client/session/session.hpp"
 #include "core/check.hpp"
+#include "guard/pace.hpp"
 #include "net/net.hpp"
 #include "protocol/messages.hpp"
 #include "support/fake_gate.hpp"
@@ -39,6 +40,8 @@
 #include <limits>
 #include <numbers>
 #include <optional>
+#include <print>
+#include <span>
 #include <string>
 #include <thread>
 #include <utility>
@@ -182,6 +185,17 @@ void serve_one(Bridge& bridge, OnlineAsk ask) {
     ask.account = "nguoi-choi";
     ask.password = std::move(password);
     return ask;
+}
+
+// Client PC nối máy chủ phải tự khởi động thư viện mạng (WSAStartup); thiếu thì mọi socket hỏng và màn đăng nhập báo
+// "không nối được máy chủ" dù máy chủ đang chạy (đo 2026-10-16). Ca này chạy khi không còn máy chủ giả nào sống.
+void bridge_starts_the_network(Context& context) {
+    const Bridge bridge{client::session::GateBook{}};
+    const net::NetResult<net::Endpoint> loopback = net::parse_endpoint("127.0.0.1:0", net::ZeroPort::kAllow);
+    context.expect(loopback.has_value(), "địa chỉ loopback");
+    if (!loopback) return;
+    const net::NetResult<net::TcpListener> opened = net::TcpListener::open(*loopback);
+    context.expect(opened.has_value(), "có Bridge thì mở được socket mà không ai khác khởi động thư viện mạng");
 }
 
 void bridge_lists_only_gated_servers(Context& context) {
@@ -466,6 +480,45 @@ void report_sends_moves_at_a_steady_pace(Context& context) {
     bridge.report(std::numeric_limits<float>::infinity(), 169.0F);
     pump_for(bridge, notes, 150ms);
     context.expect(fake.moves().size() == after, "vô cực không đi ra dây");
+}
+
+// Đếm Move mà guard::Pace của máy chủ không nhận. Đồng hồ máy chủ cho đi cùng tick client nên chỉ tick khai quyết định
+// thời gian được tính cho mỗi bước.
+[[nodiscard]] std::size_t refused_by_pace(std::span<const protocol::Move> sent, guard::Anchor start) {
+    guard::Pace pace;
+    pace.reset(start, 0, 0);
+    std::size_t refused = 0;
+    for (const protocol::Move& move : sent) {
+        const guard::Step step{.x_cm = move.x_cm, .z_cm = move.z_cm, .tick = move.tick};
+        if (pace.observe(step, move.tick) != guard::Verdict::kOk) ++refused;
+    }
+    return refused;
+}
+
+// Chạy đều ở tốc độ chạy với nhịp khung chừng 8 ms: không Move nào bị máy chủ kéo về. Hiệu tick giữa hai Move phải phủ
+// đủ thời gian thật giữa hai chỗ đứng; làm tròn tick tuyệt đối thì hiệu hụt tới gần một tick (14 cm ở 4,2 m/s).
+void running_moves_pass_the_pace(Context& context) {
+    FakeGate fake;
+    Bridge bridge{book_of(fake)};
+    std::vector<client::cast::Note> notes;
+    context.expect(enter_fake_world(bridge, notes), "vào game");
+    pump_for(bridge, notes, 250ms);
+
+    constexpr float kRunMetersPerSecond = 4.2F;
+    constexpr float kRunSeconds = 1.5F;
+    const auto begin = std::chrono::steady_clock::now();
+    while (true) {
+        const std::chrono::duration<float> ran = std::chrono::steady_clock::now() - begin;
+        if (ran.count() > kRunSeconds) break;
+        bridge.report(165.0F + (kRunMetersPerSecond * ran.count()), 169.0F);
+        std::this_thread::sleep_for(8ms);
+    }
+    pump_for(bridge, notes, 150ms);
+    const std::vector<protocol::Move> sent = fake.moves();
+    context.expect(sent.size() >= 10, "đủ gói để đo");
+    const std::size_t refused = refused_by_pace(sent, guard::Anchor{.x_cm = 16500.0F, .z_cm = 16900.0F});
+    context.expect(refused == 0, "không Move nào bị guard::Pace từ chối khi chạy đều");
+    if (refused != 0) std::println("  {} trên {} Move bị từ chối", refused, sent.size());
 }
 
 void pull_back_rebases_the_tick(Context& context) {
@@ -813,6 +866,7 @@ constexpr std::array kCases{
     Case{.name = "note_of_converts_units", .body = &note_of_converts_units},
     Case{.name = "bridge_delivers_world_notes", .body = &bridge_delivers_world_notes},
     Case{.name = "report_sends_moves_at_a_steady_pace", .body = &report_sends_moves_at_a_steady_pace},
+    Case{.name = "running_moves_pass_the_pace", .body = &running_moves_pass_the_pace},
     Case{.name = "pull_back_rebases_the_tick", .body = &pull_back_rebases_the_tick},
     Case{.name = "hear_of_converts_dialogue", .body = &hear_of_converts_dialogue},
     Case{.name = "hear_of_decodes_the_quest_book", .body = &hear_of_decodes_the_quest_book},
@@ -820,14 +874,13 @@ constexpr std::array kCases{
     Case{.name = "speech_of_maps_every_request", .body = &speech_of_maps_every_request},
     Case{.name = "reply_of_ignores_refused_speech", .body = &reply_of_ignores_refused_speech},
     Case{.name = "note_of_flags", .body = &note_of_flags},
+    Case{.name = "bridge_starts_the_network", .body = &bridge_starts_the_network},
 };
 
 } // namespace
 } // namespace game::test
 
 int main() {
-    const auto network = game::net::Network::start();
-    game::core::check(network.has_value(), "online_tests: khởi động được thư viện mạng");
     game::core::check(game::test::run_all(game::test::kCases) == 0, "online_tests: mọi ca phải qua");
     return 0;
 }

@@ -530,6 +530,9 @@ private:
         return true;
     }
 
+    // Máy chủ giả tự giữ thư viện mạng (WSAStartup đếm lượt): test không được khởi động hộ client, nếu không thì
+    // client quên khởi động cũng không ai thấy. Khai đầu tiên để sống lâu hơn mọi socket bên dưới.
+    net::NetResult<net::Network> network_ = net::Network::start();
     secure::Identity identity_ = make_identity();
     net::TcpListener auth_listener_;
     net::TcpListener game_listener_;

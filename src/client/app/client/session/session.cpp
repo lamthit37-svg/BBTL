@@ -147,10 +147,11 @@ struct Framed {
     return text;
 }
 
-// Chỗ đứng luồng game báo, mét của game.
+// Chỗ đứng luồng game báo (mét của game) và lúc báo: tick của Move tính theo lúc báo, không theo lúc gửi.
 struct Footing {
     float x_m = 0.0F;
     float z_m = 0.0F;
+    Clock::time_point reported{};
 };
 
 // Hai chỗ đứng chênh dưới kStillCm theo cả hai trục là cùng một chỗ.
@@ -511,12 +512,14 @@ private:
         if (!sent) lose(fault_of(sent.error()));
     }
 
-    // Tick client (30 mỗi giây) của lúc now: tick máy chủ giao lần gần nhất cộng thời gian đã trôi, làm tròn lên để bước
-    // không bao giờ bị tính ít thời gian hơn thực tế (máy chủ cắt theo đồng hồ của nó nên khai dư không mua thêm quãng).
-    [[nodiscard]] std::uint32_t client_tick(Clock::time_point now) const noexcept {
-        constexpr std::int64_t kMillis = 1000;
-        const std::int64_t elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(now - tick_at_).count();
-        const std::int64_t ticks = ((std::max<std::int64_t>(elapsed, 0) * kTicksPerSecond) + kMillis - 1) / kMillis;
+    // Tick client (30 mỗi giây) của chỗ đứng báo lúc reported: tick gốc cộng thời gian từ gốc, làm tròn lên.
+    // Gốc là Move gửi gần nhất nên hiệu tick giữa hai Move không ít hơn thời gian thật giữa hai chỗ đứng; làm
+    // tròn tick tuyệt đối thì hiệu hụt tới gần một tick và guard::Pace kéo về khi đang chạy. Khai dư không
+    // mua thêm quãng: máy chủ cắt theo đồng hồ của nó (G2 trong guard/pace.hpp).
+    [[nodiscard]] std::uint32_t client_tick(Clock::time_point reported) const noexcept {
+        constexpr std::int64_t kMicros = 1'000'000;
+        const std::int64_t elapsed = std::chrono::duration_cast<std::chrono::microseconds>(reported - tick_at_).count();
+        const std::int64_t ticks = ((std::max<std::int64_t>(elapsed, 0) * kTicksPerSecond) + kMicros - 1) / kMicros;
         return static_cast<std::uint32_t>(static_cast<std::uint64_t>(tick_base_) + static_cast<std::uint64_t>(ticks));
     }
 
@@ -539,7 +542,7 @@ private:
         if (!std::isfinite(x_cm) || !std::isfinite(z_cm)) return;
         if (sent_ && is_same_spot(*sent_, *latest)) return;
         std::vector<std::byte> frame;
-        const protocol::Move move{.x_cm = x_cm, .z_cm = z_cm, .tick = client_tick(now)};
+        const protocol::Move move{.x_cm = x_cm, .z_cm = z_cm, .tick = client_tick(latest->reported)};
         if (!protocol::encode(frame, move)) return;
         const link::LinkResult<void> sent = line_->send_frame(frame, kSend);
         if (!sent) {
@@ -547,6 +550,8 @@ private:
             return;
         }
         sent_ = *latest;
+        tick_base_ = move.tick;
+        tick_at_ = latest->reported;
         next_move_ = now + kMoveEvery;
     }
 
@@ -615,7 +620,7 @@ private:
     Clock::time_point heard_ = epoch_;
     Clock::time_point next_ping_ = epoch_;
     Clock::time_point reply_by_ = epoch_;
-    // Gốc tick của Move: tick trong Position gần nhất và lúc nhận nó.
+    // Gốc tick của Move: tick của Move gửi gần nhất và lúc báo chỗ đứng đó, hoặc tick của Position và lúc nhận.
     std::uint32_t tick_base_ = 0;
     Clock::time_point tick_at_ = epoch_;
     // Chỗ đứng đã gửi hay máy chủ đã giao gần nhất; so để không gửi lại chỗ cũ.
@@ -648,7 +653,7 @@ std::vector<Event> Session::drain() {
 }
 
 void Session::report(float x_m, float z_m) {
-    shared_->box.set_footing(Footing{.x_m = x_m, .z_m = z_m});
+    shared_->box.set_footing(Footing{.x_m = x_m, .z_m = z_m, .reported = Clock::now()});
 }
 
 Phase Session::phase() const noexcept {

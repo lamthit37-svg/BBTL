@@ -15,6 +15,7 @@
  *============================================================================*/
 
 #include "client/host/host.hpp"
+#include "client/host/play_sound.hpp"
 
 #include "audio/engine.hpp"
 #include "client/cast/cast.hpp"
@@ -176,20 +177,17 @@ void play_scene_music(audio::Engine& speaker, const world::ShownScene& scene, No
     notes.push_back(problem(std::format("Âm thanh: nhạc nền cảnh {} (id {}): {}", scene.id, id, played.error())));
 }
 
-void play_due_sounds(audio::Engine& speaker, const std::vector<std::string>& due, Notes& notes) {
-    for (const std::string& name : due) {
-        // SoundName của all.skill tính từ thư mục Sound của kho gốc, nằm ở sound/ của dữ liệu client.
-        const std::string path = "sound/" + name;
-        const audio::SoundResult played = speaker.play_flat(path, 1.0F);
-        if (!played) notes.push_back(problem(std::format("Âm thanh: {}: {}", path, played.error())));
-    }
+void play_due_sounds(audio::Engine& speaker, const Display::SoundBatch& batch, Notes& notes) {
+    play_heard(speaker, batch, [&notes](const std::string& path, const core::Error& error) {
+        notes.push_back(problem(std::format("Âm thanh: {}: {}", path, error)));
+    });
 }
 
 } // namespace
 
 void Soundscape::on_frame(audio::Engine* speaker, Display& display, const world::ShownScene* scene, Notes& notes) {
     // Luôn rút hàng đợi: không rút thì âm thanh đòn dồn lại tới lúc có loa.
-    const std::vector<std::string> due = display.take_sounds();
+    const Display::SoundBatch due = display.take_sounds();
     if (speaker == nullptr || !speaker->device_is_open()) return;
     const bool is_new_scene = scene != nullptr && scene->id != shown_id_;
     if (is_new_scene) {

@@ -28,7 +28,6 @@
 #include "client/display/display.hpp"
 #include "client/host/host.hpp"
 #include "client/mobile.hpp"
-#include "client/viewer/client_size.hpp"
 #include "control/input.hpp"
 #include "control/touch.hpp"
 #include "io/file.hpp"
@@ -344,6 +343,15 @@ void enter_directly(Shell& shell) {
     return quality;
 }
 
+// Công cụ thử: `adb shell setprop debug.thienlong.account <tên>` đăng nhập tự động vào máy chủ thật đầu bảng cổng
+// (display/auto_login.hpp), như biến THIENLONG_ACCOUNT của bản PC. Không đặt thì đăng nhập bằng tay như thường.
+[[nodiscard]] std::optional<std::string> auto_account_override() {
+    char value[PROP_VALUE_MAX] = {};
+    const int length = __system_property_get("debug.thienlong.account", value);
+    if (length <= 0) return std::nullopt;
+    return std::string(value, static_cast<std::size_t>(length));
+}
+
 // Tần số quét của màn đang chứa activity, Hz; định nghĩa cạnh các hàm JNI bên dưới.
 [[nodiscard]] double refresh_rate(android_app* app);
 
@@ -363,13 +371,12 @@ void start_display(android_app* app) {
     desc.size = {.width = static_cast<std::uint32_t>(ANativeWindow_getWidth(app->window)),
         .height = static_cast<std::uint32_t>(ANativeWindow_getHeight(app->window))};
     arm_desc(*shell, desc);
+    desc.auto_account = auto_account_override();
     desc.uses_phone_layout = is_phone_screen(app);
     log_line(desc.uses_phone_layout ? "giao diện: layout điện thoại" : "giao diện: layout PC (máy tính bảng)");
-    // Máy tính bảng 16:10 mở màn đăng nhập trong khung 1280x720 như cửa sổ PC; điện thoại dùng layout riêng nên để trọn màn.
-    const game::client::ClientSize login = game::client::kLoginClientSize;
-    const game::client::PixelSize login_frame{.width = login.width, .height = login.height};
-    if (!desc.uses_phone_layout) desc.login_frame = login_frame;
     fit_gestures(app, *shell);
+    // Giao diện theo dp như cử chỉ: tablet 160 dpi là 1:1, tablet 320 dpi phóng gấp đôi.
+    desc.ui_density = shell->per_dp;
     desc.is_validated = game::client::validation_by_build();
     auto made = game::client::Display::create(desc);
     if (!made) {

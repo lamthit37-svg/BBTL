@@ -418,6 +418,8 @@ void open_page(game::client::WebLink link) {
     desc.data_root = session.boot.data_root;
     desc.save_root = session.save_root;
     desc.uses_phone_layout = UIDevice.currentDevice.userInterfaceIdiom == UIUserInterfaceIdiomPhone;
+    // Giao diện theo point như UIKit: layoutSubviews đặt contentsScale bằng contentScaleFactor (iPad Retina là 2).
+    desc.ui_density = static_cast<float>(layer.contentsScale);
     desc.restored = session.played;
     const bool playing = session.is_playing && session.boot.playing && session.boot.playing->current;
     if (playing) {

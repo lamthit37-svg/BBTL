@@ -23,6 +23,7 @@
 #include "client/session/gates.hpp"
 #include "client/session/machine.hpp"
 #include "client/session/session.hpp"
+#include "net/net.hpp"
 #include "protocol/messages.hpp"
 #include "secure/secure.hpp"
 #include "ui/panel/online.hpp"
@@ -34,6 +35,7 @@
 #include <cstdint>
 #include <numbers>
 #include <optional>
+#include <print>
 #include <span>
 #include <string>
 #include <utility>
@@ -594,7 +596,10 @@ session::Speech speech_of(const talk::Say& say) {
     return std::visit(SpeechPick{}, say);
 }
 
-Bridge::Bridge(session::GateBook book) : book_(std::move(book)) {}
+Bridge::Bridge(session::GateBook book) : network_(net::Network::start()), book_(std::move(book)) {
+    // Không mở được thư viện mạng thì vẫn chạy cục bộ; SignIn sau đó hỏng ở socket và báo kUnreachable như mất mạng.
+    if (!network_) std::println(stderr, "Mạng: không khởi động được thư viện mạng: {}", net::describe(network_.error()));
+}
 
 Bridge::~Bridge() = default;
 
