@@ -145,6 +145,21 @@ def listed_textures(listings: list[Path]) -> list[str]:
     return list(found)
 
 
+def patched_source(source: Path) -> Path:
+    # Ảnh giao diện đã địa hoá (logo, nút) nằm cạnh bản gốc dưới tên <gốc>.png. Painter (ui/painter.cpp sheet_file) chỉ
+    # dùng nó khi cùng cỡ với bản gốc; điện thoại chỉ đọc bản nấu nên bản nấu phải theo đúng luật đó, không thì ảnh đã
+    # thay không bao giờ lên máy.
+    patch = source.with_name(source.name + ".png")
+    if not patch.is_file():
+        return source
+    try:
+        with Image.open(source) as original, Image.open(patch) as replaced:
+            is_same_size = original.size == replaced.size
+    except (OSError, ValueError, NotImplementedError):
+        return source
+    return patch if is_same_size else source
+
+
 def is_stale(source: Path, targets: list[Path]) -> bool:
     if not all(target.is_file() for target in targets):
         return True
@@ -171,9 +186,11 @@ def main() -> None:
         targets = [out / ASTC_ROOT / relative, out / ETC2_ROOT / relative]
         if not source.is_file():
             raise SystemExit(f"nấu texture: danh sách có {relative} mà dữ liệu không có")
-        if is_current and not is_stale(source, targets):
+        is_interface = relative.startswith(FLAT_ROOTS)
+        used = patched_source(source) if is_interface else source
+        if is_current and not is_stale(used, targets):
             continue
-        jobs.append((str(source), str(targets[0]), str(targets[1]), relative.startswith(FLAT_ROOTS)))
+        jobs.append((str(used), str(targets[0]), str(targets[1]), is_interface))
     print(f"nấu texture: {len(jobs)} tệp cần nấu")
     failures = []
     if jobs:

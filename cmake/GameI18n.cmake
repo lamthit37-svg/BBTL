@@ -38,3 +38,7 @@ add_custom_target(thienlong_i18n
 add_test(NAME i18n_tool_tests
     COMMAND "${Python3_EXECUTABLE}" -B TOOLS/content/test_build_i18n.py
     WORKING_DIRECTORY "${PROJECT_SOURCE_DIR}")
+# Bộ nấu texture điện thoại phải lấy ảnh giao diện đã địa hoá (<gốc>.png cùng cỡ), không phải bản gốc.
+add_test(NAME bake_mobile_textures_tests
+    COMMAND "${Python3_EXECUTABLE}" -B TOOLS/content/test_bake_mobile_textures.py
+    WORKING_DIRECTORY "${PROJECT_SOURCE_DIR}")
