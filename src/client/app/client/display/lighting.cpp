@@ -15,8 +15,10 @@
 #include "scene/placement.hpp"
 
 #include <algorithm>
+#include <array>
 #include <cmath>
 #include <cstddef>
+#include <utility>
 #include <vector>
 
 namespace game::client {
@@ -40,12 +42,21 @@ namespace {
     return made;
 }
 
+[[nodiscard]] render::FogKind fog_kind_of(FogMode mode) noexcept {
+    switch (mode) {
+    case FogMode::kExp: return render::FogKind::kExp;
+    case FogMode::kExp2: return render::FogKind::kExp2;
+    case FogMode::kLinear: return render::FogKind::kLinear;
+    case FogMode::kNone: return render::FogKind::kNone;
+    }
+    std::unreachable();
+}
+
 // Số của tệp cảnh: nhân vật nhận cùng ambient và cùng màu đèn với cảnh.
 void take_scene(render::Lighting& lighting, const Stage& stage) noexcept {
     lighting.ambient = vector_of(stage.ambient);
     lighting.actor_ambient = lighting.ambient;
-    // Tắt lớp sương: không trộn màu sương lên vật thể. Màu vẫn giữ để nền trời không thành đen.
-    lighting.fog.kind = render::FogKind::kNone;
+    lighting.fog.kind = fog_kind_of(stage.fog.mode);
     lighting.fog.color = vector_of(stage.fog.colour);
     lighting.fog.density = stage.fog.density;
     lighting.fog.start = stage.fog.start;
@@ -63,7 +74,7 @@ void take_scene(render::Lighting& lighting, const Stage& stage) noexcept {
     const HeightFog& fog = *stage.height_fog;
     lighting.hfog = {fog.density, fog.height, fog.height_falloff, fog.pow_factor};
     lighting.dfog = {fog.depth_density, fog.depth_falloff, fog.depth_start, 0.0F};
-    lighting.hfog_color = {fog.color_r, fog.color_g, fog.color_b, 0.0F};
+    lighting.hfog_color = {fog.color_r, fog.color_g, fog.color_b, 1.0F};
     lighting.hfog_scatter = {fog.scatter_r, fog.scatter_g, fog.scatter_b, fog.inscatter};
 }
 
@@ -107,6 +118,16 @@ void take_day(render::Lighting& lighting, const DayKey& day) noexcept {
     return day;
 }
 
+// Sương chiều cao của EnvKey thay cho tệp .hfog: cùng bộ số, thứ tự khác (xem ensky::EnvKey).
+void take_height_fog(render::Lighting& lighting, const ensky::EnvKey& env) noexcept {
+    const std::array<float, 16>& param = env.height_fog;
+    const float is_on = env.has_height_fog ? 1.0F : 0.0F;
+    lighting.hfog = {param[8], param[9], param[10], param[11]};
+    lighting.dfog = {param[12], param[13], param[14], 0.0F};
+    lighting.hfog_color = {param[0], param[1], param[2], is_on};
+    lighting.hfog_scatter = {param[4], param[5], param[6], param[15]};
+}
+
 [[nodiscard]] bool is_aimed(const ogre::Vec3& ray) noexcept {
     return ray.x != 0.0F || ray.y != 0.0F || ray.z != 0.0F;
 }
@@ -140,6 +161,7 @@ SceneLight::SceneLight(const Stage& stage, const ensky::EnvKey& env) {
     take_scene(base_, stage);
     take_day(base_, day_of(env));
     take_aim(base_, env);
+    take_height_fog(base_, env);
     finish(stage);
 }
 
