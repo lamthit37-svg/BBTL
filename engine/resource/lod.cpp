@@ -6,13 +6,12 @@
  *  CHUẨN     : C++23
  *------------------------------------------------------------------------------
  *  CHỨC NĂNG
- *  - Sinh LOD bằng meshopt_simplifyWithAttributes. Mỗi mức đơn giản hoá từ mức
- *    trước để rẻ; cạnh biên không khoá vì vật thể trong cảnh là mảnh rời, vết
- *    nứt giữa các mảnh không xảy ra ở đây. Lưới có morph bị bỏ. Lưới có skin vẫn
- *    giản lược được: mức thô chỉ chọn lại chỉ số của đỉnh gốc (giữ khớp và trọng số
- *    của chúng), và trọng số cùng chỉ số khớp đi kèm như thuộc tính để meshopt
- *    không gộp hai đỉnh do khớp khác nhau kéo. Vật thể cảnh của TLBB gần như đều
- *    mang xương dù đứng yên, nên bỏ skin là bỏ gần hết LOD.
+ *  - LOD bằng meshoptimizer, mỗi mức giản lược từ mức trước, luôn trong trần
+ *    sai số hình học; gom cụm sloppy chỉ là đường cuối. Biên không khoá: vật
+ *    cảnh là mảnh rời. Bỏ lưới morph. Lưới skin chỉ chọn lại chỉ số đỉnh gốc,
+ *    khớp và trọng số đi kèm như thuộc tính để không gộp hai đỉnh khác khớp:
+ *    vật cảnh TLBB gần như đều mang xương dù đứng yên, bỏ skin là bỏ gần hết
+ *    LOD.
  *------------------------------------------------------------------------------
  *  TÁC GIẢ   : HiepHoon
  *  TELEGRAM  : @Hoon9xx
@@ -37,6 +36,8 @@ namespace game::resource {
 
 namespace {
 
+using Indices = std::vector<std::uint32_t>;
+
 // Primitive dưới ngưỡng này vẽ rẻ hơn công sức giản lược.
 constexpr std::size_t kMinIndices = std::size_t{100} * 3;
 // Mức thô nhất vẫn giữ tối thiểu chừng này chỉ số, dưới đó hình không còn nhận ra.
@@ -53,16 +54,20 @@ struct Level {
     bool allow_sloppy;
 };
 
-constexpr std::array<Level, 3> kLevels{{{.keep = 0.35, .error = 0.05F, .allow_sloppy = false},
-    {.keep = 0.12, .error = 0.12F, .allow_sloppy = true}, {.keep = 0.04, .error = 0.3F, .allow_sloppy = true}}};
+constexpr std::array<Level, 3> kLevels{{
+    {.keep = 0.35, .error = 0.05F, .allow_sloppy = false},
+    {.keep = 0.12, .error = 0.12F, .allow_sloppy = true},
+    {.keep = 0.04, .error = 0.3F, .allow_sloppy = true},
+}};
 
 // Normal 3, uv 2, màu rgb 3. Trọng số theo meshoptimizer: vị trí là 1.
 constexpr std::size_t kBaseAttributes = 8;
-// Lưới có skin thêm bốn trọng số skin rồi bốn chỉ số khớp (0 ở ô trọng số 0). Chỉ số khớp lệch một đơn vị đã cho
-// sai số 0,25, lớn hơn mọi sai số cho phép của kLevels nên hai đỉnh khác khớp không bao giờ bị gộp.
+// Lưới có skin thêm bốn trọng số skin rồi bốn chỉ số khớp (0 ở ô trọng số 0). Chỉ số khớp lệch
+// một đơn vị đã cho sai số 0,25, lớn hơn mọi sai số cho phép của kLevels nên hai đỉnh khác khớp
+// không bao giờ bị gộp.
 constexpr std::size_t kSkinAttributes = kBaseAttributes + 8;
-constexpr std::array<float, kSkinAttributes> kWeights{0.5F, 0.5F, 0.5F, 1.0F, 1.0F, 0.25F, 0.25F, 0.25F, 2.0F, 2.0F, 2.0F,
-    2.0F, 0.25F, 0.25F, 0.25F, 0.25F};
+constexpr std::array<float, kSkinAttributes> kWeights{0.5F, 0.5F, 0.5F, 1.0F, 1.0F, 0.25F, 0.25F,
+    0.25F, 2.0F, 2.0F, 2.0F, 2.0F, 0.25F, 0.25F, 0.25F, 0.25F};
 
 // Lưới tam giác không morph. Có skin hay không do is_skinned nói.
 [[nodiscard]] bool is_lodable(const Primitive& primitive) noexcept {
@@ -76,23 +81,38 @@ constexpr std::array<float, kSkinAttributes> kWeights{0.5F, 0.5F, 0.5F, 1.0F, 1.
     return std::ranges::any_of(primitive.vertices, weighted);
 }
 
+[[nodiscard]] std::array<float, 4> weights_of(const Vertex& vertex) noexcept {
+    return {vertex.weights.x, vertex.weights.y, vertex.weights.z, vertex.weights.w};
+}
+
 // Chỉ số khớp của ô k nếu ô đó có trọng số, 0 nếu không (ô trống có thể mang số rác).
 [[nodiscard]] float joint_of(const Vertex& vertex, std::size_t slot) noexcept {
-    const std::array<float, 4> weight{vertex.weights.x, vertex.weights.y, vertex.weights.z, vertex.weights.w};
+    const std::array<float, 4> weight = weights_of(vertex);
     return weight.at(slot) > 0.0F ? static_cast<float>(vertex.joints.at(slot)) : 0.0F;
 }
 
-[[nodiscard]] std::vector<float> attributes_of(const std::vector<Vertex>& vertices, std::size_t count) {
+// Normal, uv, màu: đúng thứ tự tám trọng số đầu của kWeights.
+void append_base(std::vector<float>& out, const Vertex& vertex) {
+    out.insert(out.end(), {vertex.normal.x, vertex.normal.y, vertex.normal.z});
+    out.insert(out.end(), {vertex.uv.x, vertex.uv.y});
+    out.insert(out.end(), {vertex.color.x, vertex.color.y, vertex.color.z});
+}
+
+// Trọng số skin rồi chỉ số khớp: tám trọng số cuối của kWeights.
+void append_skin(std::vector<float>& out, const Vertex& vertex) {
+    const std::array<float, 4> weights = weights_of(vertex);
+    out.insert(out.end(), weights.begin(), weights.end());
+    for (std::size_t slot = 0; slot < 4; ++slot) {
+        out.push_back(joint_of(vertex, slot));
+    }
+}
+
+[[nodiscard]] std::vector<float> attributes_of(const Primitive& primitive, std::size_t count) {
     std::vector<float> out;
-    out.reserve(vertices.size() * count);
-    for (const Vertex& vertex : vertices) {
-        out.insert(out.end(), {vertex.normal.x, vertex.normal.y, vertex.normal.z, vertex.uv.x, vertex.uv.y, vertex.color.x,
-            vertex.color.y, vertex.color.z});
-        if (count == kBaseAttributes) continue;
-        out.insert(out.end(), {vertex.weights.x, vertex.weights.y, vertex.weights.z, vertex.weights.w});
-        for (std::size_t slot = 0; slot < 4; ++slot) {
-            out.push_back(joint_of(vertex, slot));
-        }
+    out.reserve(primitive.vertices.size() * count);
+    for (const Vertex& vertex : primitive.vertices) {
+        append_base(out, vertex);
+        if (count != kBaseAttributes) append_skin(out, vertex);
     }
     return out;
 }
@@ -104,53 +124,104 @@ struct Source {
     std::size_t count = kBaseAttributes;
 };
 
-// Thứ tự thử một mức: giữ normal, uv, màu (đẹp nhất); chỉ vị trí (gỡ ràng buộc seam mà meshopt không chịu bỏ); rồi gom
-// cụm không giữ tô-pô, chỉ cho hai mức thô vì ở đó vật chỉ còn vài chục điểm ảnh.
-enum class Method : std::uint8_t { kWithAttributes, kPositionOnly, kSloppy };
+// Thứ tự thử một mức, đẹp trước: giữ normal, uv, màu; rồi cho gộp qua ranh giới thuộc tính
+// (Permissive), vì đá flat shading của cảnh có ranh giới ở mọi đỉnh nên cách đầu không gộp nổi gì;
+// rồi chỉ vị trí. Cả ba bỏ dần mảnh rời nhỏ (Prune, lá và cỏ) và giữ trần sai số hình học. Gom cụm
+// sloppy không giữ tô-pô là đường cuối, chỉ cho hai mức thô, và cũng chỉ trong trần sai số của mức:
+// trước đây nó được nhân bốn (tới 120% cỡ lưới) và là thứ biến đá gần camera trên tablet thành
+// mảng tam giác nhọn (đo 2026-10-16, cảnh đăng nhập: 121 và 131 lưới ở hai mức thô đi đường này).
+enum class Method : std::uint8_t { kWithAttributes, kAcrossSeams, kPositionOnly, kSloppy };
+
+constexpr std::array<Method, 4> kMethods{
+    Method::kWithAttributes, Method::kAcrossSeams, Method::kPositionOnly, Method::kSloppy};
+
+constexpr unsigned int kPrune = meshopt_SimplifyPrune;
+constexpr unsigned int kAcross = meshopt_SimplifyPrune | meshopt_SimplifyPermissive;
 
 struct Attempt {
     const Source* source = nullptr;
-    const std::vector<std::uint32_t>* from = nullptr;
+    const Indices* from = nullptr;
     std::size_t target = 0;
     float error = 0.0F;
 };
 
-[[nodiscard]] std::size_t run_method(Method method, const Attempt& attempt, std::vector<std::uint32_t>& out) {
+// Đầu vào chung của mọi cách giản lược: chỉ số của mức trước và vị trí đỉnh gốc.
+struct Input {
+    const std::uint32_t* indices = nullptr;
+    std::size_t index_count = 0;
+    const float* positions = nullptr;
+    std::size_t vertex_count = 0;
+};
+
+[[nodiscard]] Input input_of(const Attempt& attempt) noexcept {
     const std::vector<Vertex>& vertices = attempt.source->primitive->vertices;
-    const float* positions = &vertices.front().position.x;
-    const std::vector<std::uint32_t>& from = *attempt.from;
+    const Indices& from = *attempt.from;
+    return {.indices = from.data(),
+        .index_count = from.size(),
+        .positions = &vertices.front().position.x,
+        .vertex_count = vertices.size()};
+}
+
+// Giữ normal, uv, màu (và skin) theo kWeights; kAcrossSeams cho gộp qua ranh giới thuộc tính.
+[[nodiscard]] std::size_t simplify_attributes(Method method, const Attempt& attempt, Indices& out) {
+    const Input input = input_of(attempt);
+    const Source& source = *attempt.source;
+    const std::size_t stride = source.count * sizeof(float);
+    const unsigned int options = method == Method::kAcrossSeams ? kAcross : kPrune;
     float error = 0.0F;
+    return meshopt_simplifyWithAttributes(out.data(), input.indices, input.index_count,
+        input.positions, input.vertex_count, sizeof(Vertex), source.attributes->data(), stride,
+        kWeights.data(), source.count, nullptr, attempt.target, attempt.error, options, &error);
+}
+
+// Chỉ vị trí: bỏ ràng buộc thuộc tính mà hai cách trên không gỡ được.
+[[nodiscard]] std::size_t simplify_positions(const Attempt& attempt, Indices& out) {
+    const Input input = input_of(attempt);
+    float error = 0.0F;
+    return meshopt_simplify(out.data(), input.indices, input.index_count, input.positions,
+        input.vertex_count, sizeof(Vertex), attempt.target, attempt.error, kAcross, &error);
+}
+
+// Gom cụm không giữ tô-pô: đường cuối, chỉ cho hai mức thô.
+[[nodiscard]] std::size_t simplify_sloppy(const Attempt& attempt, Indices& out) {
+    const Input input = input_of(attempt);
+    float error = 0.0F;
+    return meshopt_simplifySloppy(out.data(), input.indices, input.index_count, input.positions,
+        input.vertex_count, sizeof(Vertex), nullptr, attempt.target, attempt.error, &error);
+}
+
+[[nodiscard]] std::size_t run_method(Method method, const Attempt& attempt, Indices& out) {
     switch (method) {
     case Method::kWithAttributes:
-        return meshopt_simplifyWithAttributes(out.data(), from.data(), from.size(), positions, vertices.size(),
-            sizeof(Vertex), attempt.source->attributes->data(), attempt.source->count * sizeof(float), kWeights.data(),
-            attempt.source->count, nullptr, attempt.target, attempt.error, 0, &error);
-    case Method::kPositionOnly:
-        return meshopt_simplify(out.data(), from.data(), from.size(), positions, vertices.size(), sizeof(Vertex),
-            attempt.target, attempt.error * 2.0F, 0, &error);
-    case Method::kSloppy:
-        return meshopt_simplifySloppy(out.data(), from.data(), from.size(), positions, vertices.size(), sizeof(Vertex),
-            nullptr, attempt.target, attempt.error * 4.0F, &error);
+    case Method::kAcrossSeams: return simplify_attributes(method, attempt, out);
+    case Method::kPositionOnly: return simplify_positions(attempt, out);
+    case Method::kSloppy: return simplify_sloppy(attempt, out);
     }
     return 0;
 }
 
 // Một mức từ `from`; rỗng khi không cách nào giảm đủ.
-[[nodiscard]] std::vector<std::uint32_t> simplified(const Source& source, const std::vector<std::uint32_t>& from,
-    const Level& level) {
+[[nodiscard]] Indices simplified(const Source& source, const Indices& from, const Level& level) {
     const std::vector<Vertex>& vertices = source.primitive->vertices;
-    const auto wanted = static_cast<std::size_t>(static_cast<double>(source.primitive->indices.size()) * level.keep);
-    const Attempt attempt{.source = &source, .from = &from, .target = std::max(wanted, kFloorIndices) / 3 * 3,
-        .error = level.error};
-    const std::size_t limit = static_cast<std::size_t>(static_cast<double>(from.size()) * kMinShrink);
-    std::vector<std::uint32_t> out(from.size());
-    for (const Method method : {Method::kWithAttributes, Method::kPositionOnly, Method::kSloppy}) {
+    const auto base_count = static_cast<double>(source.primitive->indices.size());
+    const auto wanted = static_cast<std::size_t>(base_count * level.keep);
+    const std::size_t target = std::max(wanted, kFloorIndices) / 3 * 3;
+    const Attempt attempt{.source = &source, .from = &from, .target = target, .error = level.error};
+    const auto from_count = static_cast<double>(from.size());
+    const auto limit = static_cast<std::size_t>(from_count * kMinShrink);
+    // Đích tính theo mức 0 nhưng đầu vào là mức trước: sloppy hay giảm quá đích (nhất là lưới rời
+    // đỉnh, đo 2026-10-16: N=714, mức 1 còn 24 chỉ số, đích mức 2 là 27). Mức trước đã thô tới đây
+    // thì mức này thừa; meshopt cũng đòi target <= index_count, bản dựng có assert thì dừng hẳn
+    // chương trình.
+    if (attempt.target >= limit) return {};
+    Indices out(from.size());
+    for (const Method method : kMethods) {
         if (method == Method::kSloppy && !level.allow_sloppy) break;
         const std::size_t kept = run_method(method, attempt, out);
         if (kept < 3 || kept > limit) continue;
         out.resize(kept);
         // Thứ tự tam giác theo vertex cache: mức thô vẫn chạy nhanh trên GPU có cache đỉnh.
-        std::vector<std::uint32_t> ordered(kept);
+        Indices ordered(kept);
         meshopt_optimizeVertexCache(ordered.data(), out.data(), kept, vertices.size());
         return ordered;
     }
@@ -158,16 +229,24 @@ struct Attempt {
 }
 
 void build_primitive_lods(Primitive& primitive) {
-    if (!is_lodable(primitive) || primitive.indices.size() < kMinIndices || primitive.vertices.empty()) return;
+    const bool is_small = primitive.indices.size() < kMinIndices || primitive.vertices.empty();
+    if (!is_lodable(primitive) || is_small) return;
     const std::size_t count = is_skinned(primitive) ? kSkinAttributes : kBaseAttributes;
-    const std::vector<float> attributes = attributes_of(primitive.vertices, count);
+    const std::vector<float> attributes = attributes_of(primitive, count);
     const Source source{.primitive = &primitive, .attributes = &attributes, .count = count};
-    const std::vector<std::uint32_t>* from = &primitive.indices;
+    const Indices* from = &primitive.indices;
     for (const Level& level : kLevels) {
-        std::vector<std::uint32_t> next = simplified(source, *from, level);
+        Indices next = simplified(source, *from, level);
         if (next.empty()) continue;
         primitive.lods.push_back(std::move(next));
         from = &primitive.lods.back();
+    }
+}
+
+void build_mesh_lods(Mesh& mesh) {
+    for (Primitive& primitive : mesh.primitives) {
+        primitive.lods.clear();
+        build_primitive_lods(primitive);
     }
 }
 
@@ -179,7 +258,7 @@ struct TileGrid {
     std::size_t down = 1;
 };
 
-// Số khối tối đa của một primitive: quá nhiều khối thì lệnh vẽ mỗi khung nhiều hơn lợi từ việc bỏ khối.
+// Trần số khối của một primitive: nhiều khối quá thì lệnh vẽ mỗi khung tốn hơn lợi từ việc bỏ khối.
 constexpr std::size_t kMaxTiles = std::size_t{1} << 16;
 
 [[nodiscard]] bool indices_fit(const Primitive& primitive) noexcept {
@@ -199,15 +278,19 @@ constexpr std::size_t kMaxTiles = std::size_t{1} << 16;
         low_z = std::min(low_z, vertex.position.z);
         high_z = std::max(high_z, vertex.position.z);
     }
-    const double across = std::floor(static_cast<double>(high_x - low_x) / static_cast<double>(span)) + 1.0;
-    const double down = std::floor(static_cast<double>(high_z - low_z) / static_cast<double>(span)) + 1.0;
-    const bool is_sane = std::isfinite(across) && std::isfinite(down) && across * down <= static_cast<double>(kMaxTiles);
+    const auto step = static_cast<double>(span);
+    const double across = std::floor(static_cast<double>(high_x - low_x) / step) + 1.0;
+    const double down = std::floor(static_cast<double>(high_z - low_z) / step) + 1.0;
+    const bool is_finite = std::isfinite(across) && std::isfinite(down);
+    const bool is_sane = is_finite && across * down <= static_cast<double>(kMaxTiles);
     if (!is_sane) return std::nullopt;
-    return TileGrid{.low_x = low_x, .low_z = low_z, .span = span, .across = static_cast<std::size_t>(across),
-        .down = static_cast<std::size_t>(down)};
+    const auto columns = static_cast<std::size_t>(across);
+    const auto rows = static_cast<std::size_t>(down);
+    return TileGrid{.low_x = low_x, .low_z = low_z, .span = span, .across = columns, .down = rows};
 }
 
-[[nodiscard]] std::size_t axis_cell(float value, float low, const TileGrid& grid, std::size_t count) noexcept {
+[[nodiscard]] std::size_t axis_cell(float value, float low, const TileGrid& grid,
+    std::size_t count) noexcept {
     const float along = (value - low) / grid.span;
     if (!(along > 0.0F)) return 0;
     return std::min(static_cast<std::size_t>(along), count - 1);
@@ -218,7 +301,8 @@ struct KeyedTriangle {
     std::uint32_t triangle = 0;
 };
 
-[[nodiscard]] KeyedTriangle key_of(const Primitive& primitive, const TileGrid& grid, std::uint32_t triangle) noexcept {
+[[nodiscard]] KeyedTriangle key_of(const Primitive& primitive, const TileGrid& grid,
+    std::uint32_t triangle) noexcept {
     const std::size_t corner = std::size_t{triangle} * 3;
     float sum_x = 0.0F;
     float sum_z = 0.0F;
@@ -232,21 +316,34 @@ struct KeyedTriangle {
     return {.key = cell_z * grid.across + cell_x, .triangle = triangle};
 }
 
-// Hình cầu bao của các đỉnh mà đoạn chỉ số [first, first + count) dùng: tâm hộp bao, bán kính tới đỉnh xa nhất.
+[[nodiscard]] math::Float3 corner_min(const math::Float3& lhs, const math::Float3& rhs) noexcept {
+    return {.x = std::min(lhs.x, rhs.x), .y = std::min(lhs.y, rhs.y), .z = std::min(lhs.z, rhs.z)};
+}
+
+[[nodiscard]] math::Float3 corner_max(const math::Float3& lhs, const math::Float3& rhs) noexcept {
+    return {.x = std::max(lhs.x, rhs.x), .y = std::max(lhs.y, rhs.y), .z = std::max(lhs.z, rhs.z)};
+}
+
+[[nodiscard]] math::Float3 centre_of(const math::Float3& lhs, const math::Float3& rhs) noexcept {
+    return {.x = (lhs.x + rhs.x) * 0.5F, .y = (lhs.y + rhs.y) * 0.5F, .z = (lhs.z + rhs.z) * 0.5F};
+}
+
+// Hình cầu bao của các đỉnh mà đoạn chỉ số [first, first + count) dùng: tâm hộp bao, bán kính tới
+// đỉnh xa nhất.
 [[nodiscard]] Tile tile_of(const Primitive& sorted, std::size_t first, std::size_t count) {
-    math::Float3 low{.x = std::numeric_limits<float>::max(), .y = std::numeric_limits<float>::max(),
-        .z = std::numeric_limits<float>::max()};
-    math::Float3 high{.x = std::numeric_limits<float>::lowest(), .y = std::numeric_limits<float>::lowest(),
-        .z = std::numeric_limits<float>::lowest()};
+    constexpr float kMax = std::numeric_limits<float>::max();
+    constexpr float kLowest = std::numeric_limits<float>::lowest();
+    math::Float3 low{.x = kMax, .y = kMax, .z = kMax};
+    math::Float3 high{.x = kLowest, .y = kLowest, .z = kLowest};
     for (std::size_t at = first; at < first + count; ++at) {
         const math::Float3& point = sorted.vertices[sorted.indices[at]].position;
-        low = {.x = std::min(low.x, point.x), .y = std::min(low.y, point.y), .z = std::min(low.z, point.z)};
-        high = {.x = std::max(high.x, point.x), .y = std::max(high.y, point.y), .z = std::max(high.z, point.z)};
+        low = corner_min(low, point);
+        high = corner_max(high, point);
     }
     Tile tile;
     tile.first_index = static_cast<std::uint32_t>(first);
     tile.index_count = static_cast<std::uint32_t>(count);
-    tile.centre = {.x = (low.x + high.x) * 0.5F, .y = (low.y + high.y) * 0.5F, .z = (low.z + high.z) * 0.5F};
+    tile.centre = centre_of(low, high);
     float farthest = 0.0F;
     for (std::size_t at = first; at < first + count; ++at) {
         const math::Float3& point = sorted.vertices[sorted.indices[at]].position;
@@ -257,6 +354,14 @@ struct KeyedTriangle {
     }
     tile.radius = farthest;
     return tile;
+}
+
+// Cuối dãy tam giác cùng khối bắt đầu ở begin; keyed đã sắp theo khoá.
+[[nodiscard]] std::size_t run_end(const std::vector<KeyedTriangle>& keyed, std::size_t begin) {
+    std::size_t end = begin;
+    while (end < keyed.size() && keyed[end].key == keyed[begin].key)
+        ++end;
+    return end;
 }
 
 } // namespace
@@ -275,17 +380,17 @@ void build_tiles(Primitive& primitive, float span) {
         keyed.push_back(key_of(primitive, *grid, triangle));
     }
     std::ranges::stable_sort(keyed, {}, &KeyedTriangle::key);
-    std::vector<std::uint32_t> sorted;
+    Indices sorted;
     sorted.reserve(primitive.indices.size());
     for (const KeyedTriangle& entry : keyed) {
-        const auto first = primitive.indices.begin() + static_cast<std::ptrdiff_t>(std::size_t{entry.triangle} * 3);
+        const std::size_t corner = std::size_t{entry.triangle} * 3;
+        const auto first = primitive.indices.begin() + static_cast<std::ptrdiff_t>(corner);
         sorted.insert(sorted.end(), first, first + 3);
     }
     primitive.indices = std::move(sorted);
     std::size_t begin = 0;
     while (begin < keyed.size()) {
-        std::size_t end = begin;
-        while (end < keyed.size() && keyed[end].key == keyed[begin].key) ++end;
+        const std::size_t end = run_end(keyed, begin);
         primitive.tiles.push_back(tile_of(primitive, begin * 3, (end - begin) * 3));
         begin = end;
     }
@@ -293,10 +398,7 @@ void build_tiles(Primitive& primitive, float span) {
 
 void build_lods(Model& model) {
     for (Mesh& mesh : model.meshes) {
-        for (Primitive& primitive : mesh.primitives) {
-            primitive.lods.clear();
-            build_primitive_lods(primitive);
-        }
+        build_mesh_lods(mesh);
     }
 }
 
