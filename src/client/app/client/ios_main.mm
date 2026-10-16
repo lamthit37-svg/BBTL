@@ -323,7 +323,7 @@ void serve_session() {
     self.page.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
     [self.view addSubview:self.page];
     self.close = [UIButton buttonWithType:UIButtonTypeSystem];
-    [self.close setTitle:@"Đóng" forState:UIControlStateNormal];
+    [self.close setTitle:@"关闭" forState:UIControlStateNormal];
     [self.close addTarget:self action:@selector(closePage) forControlEvents:UIControlEventTouchUpInside];
     [self.view addSubview:self.close];
     if (self.path == nil) return;

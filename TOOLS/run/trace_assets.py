@@ -36,6 +36,9 @@ from pathlib import Path
 SKIPPED_PREFIXES = ("Save/", "cache/pipeline-", "dev/")
 # cache/mesh/*.tlms là mesh đã nấu; client thấy cache mà không thấy .mesh thì dùng cache (resource/ogre_mesh.cpp).
 KEPT_CACHE_PREFIX = "cache/mesh/"
+# Lớp dịch do thienlong_i18n ghi, có hay không tuỳ ngôn ngữ đã dựng; Table/ được đóng nguyên thư mục nên
+# không cần vết, còn tệp nằm trong danh sách mà không có trên đĩa thì đóng gói báo lỗi.
+OVERLAY_SUFFIXES = (".lang.tsv", "Table/i18n.applied.tsv")
 
 CREATE_NO_ACTIVATE = 7  # SW_SHOWMINNOACTIVE
 
@@ -83,6 +86,8 @@ def relative_to_data(line: str, data: Path) -> str | None:
 
 
 def kept(relative: str) -> bool:
+    if relative.endswith(OVERLAY_SUFFIXES):
+        return False
     if relative.startswith(KEPT_CACHE_PREFIX):
         return True
     return not relative.startswith("cache/") and not relative.startswith(SKIPPED_PREFIXES)
