@@ -14,8 +14,10 @@
 #include "render/forward.hpp"
 #include "resource/model.hpp"
 
+#include <array>
 #include <cstdint>
 #include <limits>
+#include <optional>
 #include <span>
 #include <vector>
 
@@ -96,5 +98,12 @@ struct CopyAsk {
 // gốc, mỗi bản kèm đèn điểm của riêng nó. Bản nằm hẳn ngoài một mặt của khung thì bỏ. Tốn số bản
 // sao nhân số đèn; không cấp phát khi seen đã đủ sức chứa.
 void see_copies(const CopyAsk& ask, const Frustum& frustum, std::vector<SeenCopy>& seen);
+
+// Ba hàng đổi vị trí thế giới (w = 1) sang toạ độ hộp của FakeLight, từ ba hàng của ma trận đặt hộp. Hộp gốc
+// có nửa cạnh 50 và shader gốc nhân vị trí trong hộp với 0,01, nên điểm ở mặt hộp ra 0,5. nullopt khi ma
+// trận suy biến.
+using WorldRows = std::array<std::array<double, 4>, 3>;
+using BoxRows = std::array<math::Float4, 3>;
+[[nodiscard]] std::optional<BoxRows> fake_box_rows(const WorldRows& world) noexcept;
 
 } // namespace game::render

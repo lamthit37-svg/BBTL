@@ -13,9 +13,9 @@
 namespace game::client {
 namespace {
 
-// Ba số của thuộc tính màu, cùng luật token với parseVector3: sai số token thì đen.
+// Thuộc tính màu: ba hoặc bốn số (FakeLight ghi "r g b 1"), sai số token thì đen.
 [[nodiscard]] Rgb rgb_of(std::string_view text) noexcept {
-    const scene::Vector3 colour = scene::parse_vector3(text);
+    const scene::Vector3 colour = scene::parse_colour(text);
     return Rgb{.red = colour.x, .green = colour.y, .blue = colour.z};
 }
 
@@ -88,6 +88,19 @@ void take_lamp(Stage& stage, const scene::Object& object) {
     stage.lamps.push_back(lamp);
 }
 
+void take_fake(Stage& stage, const scene::Object& object) {
+    FakeLight fake;
+    fake.placement = scene::placement_of(object);
+    fake.colour = colour_or(object, {.name = "diffuse", .fallback = kWhite});
+    fake.intensity = real_or(object, {.name = "intensity", .fallback = fake.intensity});
+    fake.size = real_or(object, {.name = "size", .fallback = fake.size});
+    const RealAsk begin{.name = "begin brightness", .fallback = fake.begin_brightness};
+    const RealAsk end{.name = "end brightness", .fallback = fake.end_brightness};
+    fake.begin_brightness = real_or(object, begin);
+    fake.end_brightness = real_or(object, end);
+    stage.fakes.push_back(fake);
+}
+
 // Đèn không khai type, đèn điểm và đèn spot đều dùng công thức đèn điểm. Bản 2026 không đọc
 // góc nón. Đèn directional lấy ở take_suns vì đèn chính phải đứng đầu.
 void take_light(Stage& stage, const scene::Object& object) {
@@ -148,6 +161,8 @@ void take_object(Stage& stage, const scene::Object& object) {
         take_figure(stage, object);
     else if (object.type == "Light")
         take_light(stage, object);
+    else if (object.type == "FakeLight")
+        take_fake(stage, object);
     else if (object.type == "Enviroment")
         take_enviroment(stage, object);
     else if (object.type == "TerrainLiquid")

@@ -94,6 +94,10 @@ nhật ký cũ [tài liệu].
 - Sương mù của cảnh (tuyến tính và cao độ, từ Scene, `.hfog` và EnvKey) và object Model có xương (quạ bay,
   quạ đậu ở màn đăng nhập, `avatar::Ambient`) đã bật, chụp màn đăng nhập thấy quạ vỗ cánh (2026-10-16).
   Chưa đối chiếu sương với ảnh bản gốc; lệch pha giữa các quạ chưa làm.
+- Đèn giả FakeLight (51 đèn ở màn đăng nhập: đầu Phật, miệng quỷ) tính ở điểm ảnh của model và địa hình, chụp
+  thấy mặt Phật ánh cam, mặt quỷ ánh xanh (2026-10-16). Trăng to thêm 30% theo yêu cầu. Máy yếu (GLES, ánh
+  sáng ở đỉnh) bỏ đèn giả; shader GLSL dịch được bằng glslangValidator (310 es và 450 core), chưa chạy ở thiết bị.
+  Chi tiết: `docs/TAILIEU/EN-SCENE-RENDER-DLL.md` mục 13.
 - Người chơi có xương trên PC và tablet. Vũ khí bảy khe, đòn thường, tuyệt chiêu, hiệu ứng đá quý
   chạy bằng công cụ thử `--weapon --skill --gem --auto-strike`. Nhảy có mã, chưa ai nhìn tận mắt.
 - Quái và NPC vẽ từ tin máy chủ. Người chơi khác có mã `show_player` và cờ `--peer` (`834caccb`),

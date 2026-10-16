@@ -12,12 +12,16 @@
 #include "gpu/types.hpp"
 #include "math/vector.hpp"
 #include "render/forward.hpp"
+#include "render/shade.hpp"
 #include "scene/placement.hpp"
+#include "scene/transform.hpp"
 
 #include <algorithm>
 #include <array>
 #include <cmath>
 #include <cstddef>
+#include <numbers>
+#include <optional>
 #include <utility>
 #include <vector>
 
@@ -39,6 +43,44 @@ namespace {
     made.color = vector_of(lamp.colour) * lamp.power;
     made.range = lamp.range;
     made.falloff = lamp.falloff;
+    return made;
+}
+
+// unitbox.mesh có nửa cạnh 50 (Render.dll 0x18010db90).
+constexpr float kBoxHalf = 50.0F;
+// Độ sáng cảnh của FakeLight: 0x1800db690 chia 3, 0x18010d780 chia 3 lần nữa; tổng chín kênh của
+// ambient và hai đèn chính chia 9.
+constexpr float kBrightnessDivisor = 9.0F;
+
+[[nodiscard]] float sum_of(const math::Vector3& colour) noexcept {
+    return colour.x() + colour.y() + colour.z();
+}
+
+// Khác gốc: bản gốc đọc diffuse thô của hai Ogre::Light; ở đây là màu đã nhân cường độ.
+[[nodiscard]] float scene_brightness(const render::Lighting& lighting) noexcept {
+    const float ambient = sum_of(lighting.ambient);
+    const float one = sum_of(lighting.suns[0].color);
+    const float two = sum_of(lighting.suns[1].color);
+    return (ambient + one + two) / kBrightnessDivisor;
+}
+
+[[nodiscard]] float widest_scale(const scene::Vector3& scale) noexcept {
+    return std::max({std::fabs(scale.x), std::fabs(scale.y), std::fabs(scale.z)});
+}
+
+// Đèn giả của stage thành dữ liệu cho Forward; nullopt khi scale suy biến. gain nhân vào màu.
+[[nodiscard]] std::optional<render::FakeLight> fake_of(const FakeLight& fake, float gain) noexcept {
+    const scene::Transform placed = scene::world_transform(fake.placement);
+    const auto rows = render::fake_box_rows(placed.rows);
+    if (!rows) return std::nullopt;
+    render::FakeLight made;
+    const scene::Vector3& origin = fake.placement.position;
+    made.centre = math::Vector3(origin.x, origin.y, origin.z);
+    made.radius = kBoxHalf * widest_scale(fake.placement.scale) * std::numbers::sqrt3_v<float>;
+    made.rows = *rows;
+    const float power = fake.intensity * gain;
+    made.color = {.x = fake.colour.red * power, .y = fake.colour.green * power,
+        .z = fake.colour.blue * power, .w = fake.size};
     return made;
 }
 
@@ -154,7 +196,7 @@ void take_aim(render::Lighting& lighting, const ensky::EnvKey& env) noexcept {
 SceneLight::SceneLight(const Stage& stage, float time) {
     take_scene(base_, stage);
     if (!stage.days.empty()) take_day(base_, day_at(stage.days, time));
-    finish(stage);
+    finish(stage, 1.0F);
 }
 
 SceneLight::SceneLight(const Stage& stage, const ensky::EnvKey& env) {
@@ -162,13 +204,21 @@ SceneLight::SceneLight(const Stage& stage, const ensky::EnvKey& env) {
     take_day(base_, day_of(env));
     take_aim(base_, env);
     take_height_fog(base_, env);
-    finish(stage);
+    finish(stage, env.fake_light_intensity);
 }
 
-void SceneLight::finish(const Stage& stage) {
+void SceneLight::finish(const Stage& stage, float fake_gain) {
     lamps_.reserve(stage.lamps.size());
     for (const Lamp& lamp : stage.lamps) {
         lamps_.push_back(lamp_of(lamp));
+    }
+    // FakeLight (0x18010d780): chỉ sáng khi độ sáng cảnh nằm trong [begin, end] của từng đèn.
+    const float brightness = scene_brightness(base_);
+    for (const FakeLight& fake : stage.fakes) {
+        const bool is_on = fake.begin_brightness <= brightness && brightness <= fake.end_brightness;
+        if (!is_on) continue;
+        const std::optional<render::FakeLight> made = fake_of(fake, fake_gain);
+        if (made) fakes_.push_back(*made);
     }
     const bool has_colour = stage.fog.mode != FogMode::kNone;
     backdrop_ = has_colour ? vector_of(stage.fog.colour) : vector_of(stage.background);
@@ -177,6 +227,7 @@ void SceneLight::finish(const Stage& stage) {
 render::Lighting SceneLight::view() const noexcept {
     render::Lighting lighting = base_;
     lighting.lamps = lamps_;
+    lighting.fakes = fakes_;
     return lighting;
 }
 

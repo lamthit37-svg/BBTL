@@ -81,6 +81,11 @@ void parsing_matches_ogre_string_converter(Context& context) noexcept {
     context.expect(scene::parse_vector3("1 2 3 4") == scene::Vector3{}, "thừa token: 0 0 0");
     const scene::Vector3 spaced{.x = 1.0F, .y = 2.0F, .z = 3.0F};
     context.expect(scene::parse_vector3("  1\t2\n3 ") == spaced, "tách theo cách, tab, xuống dòng");
+    const scene::Vector3 colour{.x = 0.5F, .y = 0.25F, .z = 0.75F};
+    context.expect(scene::parse_colour("0.5 0.25 0.75") == colour, "màu ba số");
+    context.expect(scene::parse_colour("0.5 0.25 0.75 1") == colour, "màu bốn số bỏ alpha");
+    context.expect(scene::parse_colour("0.5 0.25") == scene::Vector3{}, "màu thiếu token: đen");
+    context.expect(scene::parse_colour("1 2 3 4 5") == scene::Vector3{}, "màu thừa token: đen");
     context.expect(scene::parse_quaternion("1 0 0") == scene::Quaternion{}, "thiếu token: đơn vị");
 }
 

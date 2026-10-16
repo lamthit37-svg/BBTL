@@ -169,6 +169,8 @@ struct EnvKey {
     Colour actor_ambient;
     Colour dome_ambient{.red = 1.0F, .green = 1.0F, .blue = 1.0F};
     float dome_strength = 1.0F;
+    // fake_point_light_intensity: hệ số nhân màu của mọi FakeLight (globalIntensity của Render.dll, 0x1801e8130).
+    float fake_light_intensity = 1.0F;
     // Sương chiều cao (height_fog_enabled, height_fog_param). Mười sáu số theo thứ tự chuỗi: màu (4),
     // màu tán xạ (4), mật độ, độ cao, độ giảm theo cao, mũ, mật độ theo sâu, độ giảm theo sâu, điểm
     // bắt đầu theo sâu, mũ tán xạ. Render.dll 0x1801e8130 chỉ bật bộ hậu kỳ HeightFog khi cờ bật.

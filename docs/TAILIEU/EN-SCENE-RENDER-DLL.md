@@ -209,8 +209,40 @@ phát lặp độc lập; ma trận gắn nhân vào chỗ đặt, ma trận ski
 skeleton suy từ tên lưới (glb của lưới không lộ liên kết `ogre.skeleton`); mọi object bắt đầu cùng giây
 nạp cảnh, không lệch pha.
 
+Trăng to thêm 30% (2026-10-16, chủ dự án yêu cầu): `sky_view.cpp` nhân scale của lớp trăng với 1,3 khi vẽ,
+đo trên ảnh từ khoảng 87 lên 113 điểm ảnh. Khác gốc: bản gốc không phóng trăng, số trong `.EnScene` giữ nguyên.
+
+Đèn giả FakeLight (2026-10-16, mục 13): đã dựng, đã chụp màn đăng nhập thấy mặt Phật ánh cam và mặt quỷ ánh xanh.
+
 Chưa dựng: chùm sáng mặt trời (sunflare, cường độ theo truy vấn che khuất GPU), lens flare (không cảnh nào
 dùng), trộn nhiều vùng theo trọng số (36 cảnh; hiện chỉ lấy vùng `backgroud` hoặc vùng đầu), tắt dải
 `.skysphere` cũ ở cảnh đã có EnScene, đồng hồ ghim của màn chọn và tạo nhân vật, các trường EnvKey còn lại
 (`pbr_ambient`, hậu kỳ), gom tài sản bầu trời của các map khác `erengu_DL` (chạy
 `TOOLS/content/collect_sky.py`).
+
+## 13. Đèn giả `FakeLight` (Render.dll 0x18010c960 dựng, 0x18010d780 mỗi khung, 0x18010db90 tạo hộp)
+
+Object `FakeLight` của tệp `.Scene` (erengu_DL có 51) là một hộp `unitbox.mesh` (nửa cạnh 50) nhân scale của
+object, vẽ sau cảnh bằng chất liệu `Mtl_FakePointLight` (tắt kiểm và ghi độ sâu, `scene_blend dest_colour
+one`, vẽ mặt sau). Shader `Model_FakePointLight_ps.hlsl` dựng lại vị trí điểm ảnh từ depth buffer, đổi sang
+toạ độ hộp rồi nhân 0,01 (điểm ở mặt hộp ra 0,5), bỏ điểm ngoài hộp, và ra
+`diffuse * intensity * Π saturate(size - length(q.xy | q.xz | q.yz) * 3) * fake_point_light_intensity`.
+Màu cuối là `dst * (1 + ra)`, tức sáng lên theo màu của bề mặt, và chạy sau sương.
+
+Thuộc tính của object: `diffuse` (bốn số "r g b a", alpha bỏ; mặc định trắng), `intensity` (1), `size` (1,8),
+`begin brightness` (0), `end brightness` (0,4); `fake_point_light_intensity` của EnvKey nhân thêm (mặc định 1).
+Đèn chỉ sáng khi độ sáng cảnh nằm trong [begin, end]; độ sáng cảnh là tổng chín kênh (ambient, đèn chính
+một, đèn chính hai) chia 9 (0x1800db690 và 0x18010d780 mỗi chỗ chia 3). erengu_DL ra 0,478 nên cả 51 đèn bật.
+
+Cài đặt: renderer không đọc lại được depth buffer (buffer thoáng qua của GPU xếp ô), nên từng điểm ảnh
+của model và địa hình tự đổi vị trí của chính nó sang toạ độ hộp (`fake_gain` ở `model.inc.slang` và
+`model.ps.glsl`), cho cùng kết quả với bề mặt đục. `Forward` chọn tối đa 24 đèn gần mắt nhất còn trong
+khung nhìn mỗi khung; ba hàng nghịch đảo của ma trận đặt hộp tính một lần ở CPU (`render::fake_box_rows`).
+
+Khác gốc: máy yếu tính ánh sáng ở đỉnh (`lights_at_vertices`, gồm mọi GLES) bỏ đèn giả; bề mặt trong suốt
+và hiệu ứng hạt không nhận đèn (bản gốc cũng cộng lên chúng vì depth); độ sáng cảnh tính từ màu đã nhân
+cường độ (bản gốc đọc diffuse thô của hai Ogre::Light); chưa cắt theo khoảng cách như bản gốc.
+
+Bẫy đã gặp: `diffuse` của FakeLight có bốn số, `parse_vector3` trả đen khi số token khác 3 nên mọi đèn
+ra đen và không thấy gì dù mọi bước khác đúng. Sửa bằng `scene::parse_colour` (ba hoặc bốn số theo
+parseColourValue của Ogre).

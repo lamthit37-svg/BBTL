@@ -346,6 +346,7 @@ void read_rings(const Document& document, const Element& group, Sky& sky) {
     const Colour white{.red = 1.0F, .green = 1.0F, .blue = 1.0F};
     key.dome_ambient = attr_colour(element, "skyDomeAmbientColor", white);
     key.dome_strength = attr_float(element, "skyDomeAmbientColorStrength", 1.0F);
+    key.fake_light_intensity = attr_float(element, "fake_point_light_intensity", 1.0F);
     key.has_height_fog = attr_bool(element, "height_fog_enabled");
     std::string param = attr_text(element, "height_fog_param");
     std::ranges::replace(param, '|', ' ');

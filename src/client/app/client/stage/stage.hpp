@@ -6,7 +6,7 @@
 // 0x108960): tầm 100000, cường độ 1, số mũ suy giảm 1. Bản 2026 chỉ còn "range", "intensity" và
 // "attenuation"; "attenuation.linear", "attenuation.quadric" của tệp cảnh cũ không còn được đọc.
 // Model của cảnh giữ tên tệp .model; world bung mesh. Đèn spot không có góc nón ở bản 2026
-// nên đi cùng đèn điểm. Chưa lấy: Actor có xương, FakeLight, Projector. Địa hình ở client/map.
+// nên đi cùng đèn điểm. Chưa lấy: Actor có xương, Projector. Địa hình ở client/map.
 #pragma once
 
 #include "scene/placement.hpp"
@@ -52,6 +52,19 @@ struct Ambient {
     // Tên mesh tương đối với Model/, như Prop::mesh.
     std::string mesh;
     scene::Placement placement;
+};
+
+// Một FakeLight: hộp cộng sáng (Render.dll 0x18010c960), nửa cạnh 50 nhân scale, đặt theo placement. Mặc
+// định của hàm dựng: diffuse trắng, cường độ 1, size 1,8, bật khi độ sáng cảnh nằm trong [0, 0,4].
+struct FakeLight {
+    scene::Placement placement;
+    Rgb colour{.red = 1.0F, .green = 1.0F, .blue = 1.0F};
+    float intensity = 1.0F;
+    float size = 1.8F;
+    // "begin brightness" và "end brightness": đèn chỉ sáng khi độ sáng cảnh (tổng ambient và hai đèn chính
+    // chia 9) nằm giữa hai số này.
+    float begin_brightness = 0.0F;
+    float end_brightness = 0.4F;
 };
 
 // Một đèn directional. direction là hướng tia sáng đi (từ đèn tới vật), theo quy ước của OGRE.
@@ -165,6 +178,8 @@ struct Stage {
     // trao cho shader); đèn directional khác theo thứ tự tệp.
     std::vector<Sun> suns;
     std::vector<Lamp> lamps;
+    // Object FakeLight, đúng thứ tự tệp: sáng lên các bề mặt lân cận (đầu phật, miệng quỷ).
+    std::vector<FakeLight> fakes;
     std::vector<Liquid> liquids;
     std::vector<FxPlace> effects;
     Rgb ambient;

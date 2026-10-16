@@ -50,6 +50,20 @@ Vector3 parse_vector3(std::string_view text) noexcept {
     return vector;
 }
 
+Vector3 parse_colour(std::string_view text) noexcept {
+    const std::string_view first = take_token(text);
+    const std::string_view second = take_token(text);
+    const std::string_view third = take_token(text);
+    [[maybe_unused]] const std::string_view alpha = take_token(text);
+    const bool is_valid = !third.empty() && take_token(text).empty();
+    if (!is_valid) return {};
+    Vector3 colour;
+    colour.x = parse_real(first);
+    colour.y = parse_real(second);
+    colour.z = parse_real(third);
+    return colour;
+}
+
 Quaternion parse_quaternion(std::string_view text) noexcept {
     const std::string_view first = take_token(text);
     const std::string_view second = take_token(text);

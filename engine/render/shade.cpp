@@ -16,13 +16,34 @@
 #include "resource/model.hpp"
 
 #include <algorithm>
+#include <array>
+#include <cmath>
+#include <cstddef>
 #include <cstdint>
 #include <limits>
+#include <optional>
 #include <span>
 #include <vector>
 
 namespace game::render {
 namespace {
+
+// Shader gốc nhân vị trí trong hộp (nửa cạnh 50) với 0,01.
+constexpr double kBoxToUnit = 0.01;
+
+[[nodiscard]] float unit_of(double value) noexcept {
+    return static_cast<float>(value * kBoxToUnit);
+}
+
+// Một hàng của nghịch đảo kèm phần dịch -A^-1 t, đã nhân 0,01.
+[[nodiscard]] math::Float4 box_row(const std::array<double, 4>& line,
+    const WorldRows& world) noexcept {
+    const double along_x = line[0] * world[0][3];
+    const double along_y = line[1] * world[1][3];
+    const double along_z = line[2] * world[2][3];
+    return {.x = unit_of(line[0]), .y = unit_of(line[1]), .z = unit_of(line[2]),
+        .w = unit_of(-(along_x + along_y + along_z))};
+}
 
 [[nodiscard]] math::Float4 rgb_and(const math::Vector3& color, float last) noexcept {
     return math::store(math::Vector4(color, last));
@@ -129,6 +150,32 @@ void see_copies(const CopyAsk& ask, const Frustum& frustum, std::vector<SeenCopy
         if (!sphere_in_view(frustum, reach.centre, reach.radius)) continue;
         seen.push_back(SeenCopy{.index = index, .lamp = nearest_lamp(ask.lamps, reach)});
     }
+}
+
+std::optional<BoxRows> fake_box_rows(const WorldRows& world) noexcept {
+    const double a = world[0][0];
+    const double b = world[0][1];
+    const double c = world[0][2];
+    const double d = world[1][0];
+    const double e = world[1][1];
+    const double f = world[1][2];
+    const double g = world[2][0];
+    const double h = world[2][1];
+    const double i = world[2][2];
+    const double cof00 = (e * i) - (f * h);
+    const double cof01 = (f * g) - (d * i);
+    const double cof02 = (d * h) - (e * g);
+    const double det = (a * cof00) + (b * cof01) + (c * cof02);
+    if (det == 0.0 || !std::isfinite(det)) return std::nullopt;
+    const double scale = 1.0 / det;
+    WorldRows inverse{};
+    inverse[0] = {cof00 * scale, ((c * h) - (b * i)) * scale, ((b * f) - (c * e)) * scale, 0.0};
+    inverse[1] = {cof01 * scale, ((a * i) - (c * g)) * scale, ((c * d) - (a * f)) * scale, 0.0};
+    inverse[2] = {cof02 * scale, ((b * g) - (a * h)) * scale, ((a * e) - (b * d)) * scale, 0.0};
+    BoxRows rows{};
+    for (std::size_t row = 0; row < 3; ++row)
+        rows[row] = box_row(inverse[row], world);
+    return rows;
 }
 
 } // namespace game::render

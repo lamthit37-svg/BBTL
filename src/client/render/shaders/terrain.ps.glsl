@@ -3,6 +3,13 @@
 // Ô và bảng tra chỉ đọc bằng texelFetch nên không có sampler (backend nhả sampler khỏi unit của chúng).
 precision highp sampler2D;
 
+struct FakeLight {
+    vec4 row0;
+    vec4 row1;
+    vec4 row2;
+    vec4 color;
+};
+
 struct Lamp {
     vec4 place;
     vec4 color;
@@ -23,6 +30,8 @@ layout(std140, binding = 0) uniform FrameBlock {
     vec4 dfog;
     vec4 hfog_color;
     vec4 hfog_scatter;
+    vec4 fake_count;
+    FakeLight fakes[24];
 } frame;
 
 // Khối hằng đẩy của từng lệnh vẽ, cùng bố cục 128 byte với Draw của model.inc.slang (xem model.vs.glsl).
@@ -71,6 +80,25 @@ vec3 diffuse_light(vec3 facing, vec3 place, uint which) {
     if (!is_raw) three = clamp(three, 0.0, 1.0);
     vec3 lit = ((one + two + three) * uintBitsToFloat(tl_push[5]).rgb) + uintBitsToFloat(tl_push[4]).rgb;
     return mix(clamp(lit, 0.0, 1.0), lit, frame.rules.x);
+}
+
+// Hệ số nhân màu của mọi đèn giả (xem fake_gain của model.inc.slang).
+vec3 fake_gain(vec3 place) {
+    vec3 gain = vec3(1.0);
+    uint count = min(uint(frame.fake_count.x), 24u);
+    vec4 point = vec4(place, 1.0);
+    for (uint index = 0u; index < count; ++index) {
+        vec3 box = vec3(dot(frame.fakes[index].row0, point), dot(frame.fakes[index].row1, point),
+            dot(frame.fakes[index].row2, point));
+        vec3 reach = abs(box);
+        if (max(reach.x, max(reach.y, reach.z)) > 0.5) continue;
+        float size = frame.fakes[index].color.w;
+        float spread = clamp(size - (length(box.xy) * 3.0), 0.0, 1.0);
+        spread *= clamp(size - (length(box.xz) * 3.0), 0.0, 1.0);
+        spread *= clamp(size - (length(box.yz) * 3.0), 0.0, 1.0);
+        gain *= 1.0 + (frame.fakes[index].color.rgb * spread);
+    }
+    return gain;
 }
 
 vec3 gloss(vec3 facing, vec3 place) {
@@ -146,5 +174,6 @@ void main() {
     }
     // kOpaqueAlpha (1024), như finish_pixel của model_ps.inc.slang.
     if ((flags & 1024u) != 0u) alpha = 1.0;
-    out_color = vec4((color * varying_fog.w) + varying_fog.rgb, alpha);
+    vec3 shown = (color * varying_fog.w) + varying_fog.rgb;
+    out_color = vec4(shown * fake_gain(varying_place), alpha);
 }

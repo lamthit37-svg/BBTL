@@ -1,5 +1,12 @@
 // Cùng bố cục và công thức với model.vs.slang. Binding do map_bindings: frame 0, draw 1, palette 0,
 // worlds 1. Không có TL_ZERO_TO_ONE thì đổi z [0,1] về clip [-1,1] của GL cũ.
+struct FakeLight {
+    vec4 row0;
+    vec4 row1;
+    vec4 row2;
+    vec4 color;
+};
+
 struct Lamp {
     vec4 place;
     vec4 color;
@@ -20,6 +27,8 @@ layout(std140, binding = 0) uniform FrameBlock {
     vec4 dfog;
     vec4 hfog_color;
     vec4 hfog_scatter;
+    vec4 fake_count;
+    FakeLight fakes[24];
 } frame;
 
 struct Joint {

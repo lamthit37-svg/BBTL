@@ -121,6 +121,7 @@ template <class Key>
     key.actor_ambient = mix(from.actor_ambient, upper.actor_ambient, ratio);
     key.dome_ambient = mix(from.dome_ambient, upper.dome_ambient, ratio);
     key.dome_strength = mix(from.dome_strength, upper.dome_strength, ratio);
+    key.fake_light_intensity = mix(from.fake_light_intensity, upper.fake_light_intensity, ratio);
     // Cờ lấy của mốc trước: chưa đối chiếu cách mã máy nội suy cờ này giữa hai mốc khác cờ.
     key.has_height_fog = from.has_height_fog;
     for (std::size_t index = 0; index < key.height_fog.size(); ++index) {

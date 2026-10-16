@@ -233,6 +233,42 @@ void stage_turns_spot_lights_into_lamps(Context& context) {
     context.expect(spot.colour == colour, "màu đèn spot");
 }
 
+void stage_takes_fake_lights_with_original_defaults(Context& context) {
+    constexpr std::string_view text =
+        "<Scene name=\"den\">\n"
+        "  <Object type=\"FakeLight\">\n"
+        "    <Property name=\"position\" value=\"10 20 30\"/>\n"
+        "    <Property name=\"scale\" value=\"2 3 4\"/>\n"
+        "    <Property name=\"diffuse\" value=\"0.9 0.5 0.1 1\"/>\n"
+        "    <Property name=\"intensity\" value=\"1.2\"/>\n"
+        "    <Property name=\"size\" value=\"1.4\"/>\n"
+        "    <Property name=\"end brightness\" value=\"0.7\"/>\n"
+        "  </Object>\n"
+        "  <Object type=\"FakeLight\"/>\n"
+        "</Scene>\n";
+    const auto file = scene::read_scene(text);
+    context.expect(file.has_value(), "cảnh đèn giả đọc được");
+    if (!file) return;
+    const client::Stage stage = client::stage_of(*file);
+    context.expect(stage.fakes.size() == 2, "hai object FakeLight");
+    if (stage.fakes.size() != 2) return;
+    const client::FakeLight& given = stage.fakes[0];
+    const scene::Vector3 position{.x = 10.0F, .y = 20.0F, .z = 30.0F};
+    const scene::Vector3 scale{.x = 2.0F, .y = 3.0F, .z = 4.0F};
+    context.expect(given.placement.position == position && given.placement.scale == scale, "vị trí và scale");
+    context.expect(given.intensity == 1.2F && given.size == 1.4F, "cường độ và size");
+    // Màu FakeLight có bốn số "r g b a": phải lấy ba số đầu, không ra đen.
+    const client::Rgb orange{.red = 0.9F, .green = 0.5F, .blue = 0.1F};
+    context.expect(given.colour == orange, "diffuse bốn số lấy rgb");
+    context.expect(given.begin_brightness == 0.0F && given.end_brightness == 0.7F, "khoảng độ sáng");
+    // Hàm dựng của Render.dll: trắng, cường độ 1, size 1,8, bật khi độ sáng cảnh trong [0, 0,4].
+    const client::FakeLight& bare = stage.fakes[1];
+    const client::Rgb white{.red = 1.0F, .green = 1.0F, .blue = 1.0F};
+    context.expect(bare.colour == white && bare.intensity == 1.0F, "diffuse trắng, cường độ 1");
+    context.expect(bare.size == 1.8F, "size mặc định 1,8");
+    context.expect(bare.begin_brightness == 0.0F && bare.end_brightness == 0.4F, "độ sáng mặc định 0 tới 0,4");
+}
+
 void model_file_lists_entity_meshes(Context& context) {
     constexpr std::string_view text =
         "<model>\n"
@@ -295,6 +331,7 @@ constexpr std::array kCases{
     Case{.name = "stage_of_empty_scene_is_empty", .body = &stage_of_empty_scene_is_empty},
     Case{.name = "stage_keeps_scene_models", .body = &stage_keeps_scene_models},
     Case{.name = "stage_turns_spot_lights_into_lamps", .body = &stage_turns_spot_lights_into_lamps},
+    Case{.name = "stage_takes_fake_lights_with_original_defaults", .body = &stage_takes_fake_lights_with_original_defaults},
     Case{.name = "model_file_lists_entity_meshes", .body = &model_file_lists_entity_meshes},
     Case{.name = "model_file_reads_frame_and_nodes", .body = &model_file_reads_frame_and_nodes},
     Case{.name = "height_fog_reads_sixty_four_bytes", .body = &height_fog_reads_sixty_four_bytes},

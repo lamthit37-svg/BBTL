@@ -93,7 +93,7 @@ constexpr std::string_view kLogin = R"(<EnScene version="1.0">
             fog_near_distance="1000" fog_far_distance="25000" light_one="0.639216 0.721569 0.756863"
             light_one_direction="-0.3 -0.3 -0.5" light_one_intensity="1"
             light_two_direction="0 0 0" skyDomeAmbientColor="1 1 1"
-            skyDomeAmbientColorStrength="1" />
+            skyDomeAmbientColorStrength="1" fake_point_light_intensity="0.6" />
         </LightAndFog>
       </EnSky>
     </EnRegion>
@@ -130,6 +130,7 @@ void reads_login_sample(Context& context) noexcept {
     context.expect(sky.env.size() == 1, "một EnvKey");
     context.expect(sky.env.front().fog_far == 25000.0F, "fog_far_distance");
     context.expect(sky.env.front().light_two_direction.x == 0.0F, "hướng đèn hai bằng 0");
+    context.expect(sky.env.front().fake_light_intensity == 0.6F, "fake_point_light_intensity");
 }
 
 void reads_gbk_texture_names(Context& context) noexcept {

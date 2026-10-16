@@ -39,11 +39,13 @@ public:
     [[nodiscard]] gpu::ClearColor clear_color() const noexcept;
 
 private:
-    // Đèn điểm và màu nền: phần chung của hai hàm dựng.
-    void finish(const Stage& stage);
+    // Đèn điểm, đèn giả và màu nền: phần chung của hai hàm dựng. fake_gain là fake_point_light_intensity của EnvKey.
+    void finish(const Stage& stage, float fake_gain);
 
     render::Lighting base_;
     std::vector<render::Lamp> lamps_;
+    // Đèn giả đang bật ở độ sáng hiện tại của cảnh.
+    std::vector<render::FakeLight> fakes_;
     // Màu nền trong không gian gamma, như số của tệp cảnh.
     math::Vector3 backdrop_{0.2479F, 0.2722F, 0.3140F};
 };

@@ -96,6 +96,12 @@ struct LampWords {
     math::Float4 color{};
 };
 
+// Khớp struct FakeLight của model.inc.slang.
+struct FakeWords {
+    std::array<math::Float4, 3> rows{};
+    math::Float4 color{};
+};
+
 // Khớp struct Frame của model.inc.slang.
 struct FrameBlock {
     std::array<math::Float4, 4> view_proj{};
@@ -112,6 +118,9 @@ struct FrameBlock {
     math::Float4 dfog{};
     math::Float4 hfog_color{};
     math::Float4 hfog_scatter{};
+    // x: số đèn giả đang dùng trong fakes.
+    math::Float4 fake_count{};
+    std::array<FakeWords, kFakeSlots> fakes{};
 };
 static_assert(sizeof(FrameBlock) == kModelFrameBytes);
 
@@ -1099,6 +1108,46 @@ void write_lamps(FrameBlock& block, std::span<const Lamp> lamps) noexcept {
     }
 }
 
+struct FakePick {
+    float distance = 0.0F;
+    std::size_t index = 0;
+};
+
+// Đèn giả còn thấy trong khung nhìn, gần mắt nhất trước.
+[[nodiscard]] bool is_nearer(const FakePick& left, const FakePick& right) noexcept {
+    return left.distance < right.distance;
+}
+
+[[nodiscard]] std::vector<FakePick> seen_fakes(std::span<const FakeLight> fakes,
+    const Frustum& frustum, const math::Vector3& eye) {
+    std::vector<FakePick> seen;
+    for (std::size_t index = 0; index < fakes.size(); ++index) {
+        const FakeLight& fake = fakes[index];
+        if (!sphere_in_view(frustum, fake.centre, fake.radius)) continue;
+        const math::Vector3 apart = fake.centre - eye;
+        seen.push_back({.distance = math::dot(apart, apart), .index = index});
+    }
+    std::ranges::stable_sort(seen, is_nearer);
+    return seen;
+}
+
+struct FakeAsk {
+    std::span<const FakeLight> fakes;
+    const Frustum* frustum = nullptr;
+    math::Vector3 eye{0.0F, 0.0F, 0.0F};
+};
+
+void write_fakes(FrameBlock& block, const FakeAsk& ask) {
+    const std::vector<FakePick> seen = seen_fakes(ask.fakes, *ask.frustum, ask.eye);
+    const std::size_t count = std::min(seen.size(), kFakeSlots);
+    block.fake_count.x = static_cast<float>(count);
+    for (std::size_t slot = 0; slot < count; ++slot) {
+        const FakeLight& fake = ask.fakes[seen[slot].index];
+        block.fakes.at(slot).rows = fake.rows;
+        block.fakes.at(slot).color = fake.color;
+    }
+}
+
 } // namespace
 
 core::Status Forward::State::write(Slot& slot, const Camera& camera, const Lighting& lights) const {
@@ -1117,6 +1166,12 @@ core::Status Forward::State::write(Slot& slot, const Camera& camera, const Light
     block.hfog_color = lights.hfog_color;
     block.hfog_scatter = lights.hfog_scatter;
     write_lamps(block, lights.lamps);
+    // Máy yếu tính ánh sáng ở đỉnh: đèn giả là phép tính ở điểm ảnh nên bỏ (Khác gốc).
+    const math::Vector3 eye = math::affine_inverse(camera.view).translation();
+    std::span<const FakeLight> candidates = lights.fakes;
+    if (desc.lights_at_vertices) candidates = {};
+    const FakeAsk fake_ask{.fakes = candidates, .frustum = &frustum, .eye = eye};
+    write_fakes(block, fake_ask);
     const auto frame_bytes = std::as_bytes(std::span(&block, 1));
     const core::Status status = device->write_buffer(slot.frame, 0, frame_bytes);
     if (!status) return status;

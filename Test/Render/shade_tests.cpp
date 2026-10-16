@@ -24,6 +24,7 @@
 
 #include <array>
 #include <cmath>
+#include <cstddef>
 #include <cstdint>
 #include <vector>
 
@@ -285,7 +286,36 @@ void stale_shader_package_is_refused(Context& context) {
         "không khai cỡ thì không kiểm");
 }
 
+// Hộp FakeLight: điểm ở tâm ra gốc, điểm ở mặt hộp (cách tâm 50 nhân scale theo trục của hộp) ra 0,5.
+[[nodiscard]] float box_coordinate(const std::array<math::Float4, 3>& rows, std::size_t axis,
+    const std::array<double, 3>& point) noexcept {
+    const math::Float4& row = rows.at(axis);
+    return static_cast<float>((row.x * point[0]) + (row.y * point[1]) + (row.z * point[2]) + row.w);
+}
+
+void fake_box_maps_the_light_volume_to_a_unit_box(Context& context) {
+    // Quay 90 độ quanh y: trục x của hộp chỉ về -z của thế giới, trục z của hộp chỉ về +x. Tỉ lệ (2, 3, 4), tâm (100, 200, 300).
+    const render::WorldRows world{{{0.0, 0.0, 4.0, 100.0}, {0.0, 3.0, 0.0, 200.0}, {-2.0, 0.0, 0.0, 300.0}}};
+    const auto rows = render::fake_box_rows(world);
+    context.expect(rows.has_value(), "phép đặt khả nghịch cho ba hàng");
+    if (!rows) return;
+    const std::array<double, 3> centre{100.0, 200.0, 300.0};
+    context.expect(near_value(box_coordinate(*rows, 0, centre), 0.0F), "tâm ra x = 0");
+    context.expect(near_value(box_coordinate(*rows, 1, centre), 0.0F), "tâm ra y = 0");
+    context.expect(near_value(box_coordinate(*rows, 2, centre), 0.0F), "tâm ra z = 0");
+    // Mặt hộp theo trục z của hộp: 50 * 4 = 200 đơn vị về phía +x của thế giới.
+    const std::array<double, 3> along_z{300.0, 200.0, 300.0};
+    context.expect(near_value(box_coordinate(*rows, 2, along_z), 0.5F), "mặt hộp theo z ra 0,5");
+    context.expect(near_value(box_coordinate(*rows, 0, along_z), 0.0F), "dời dọc z không đổi x");
+    // Mặt hộp theo trục x của hộp: 50 * 2 = 100 đơn vị về phía -z của thế giới.
+    const std::array<double, 3> along_x{100.0, 200.0, 200.0};
+    context.expect(near_value(box_coordinate(*rows, 0, along_x), 0.5F), "mặt hộp theo x ra 0,5");
+    const render::WorldRows flat{{{1.0, 0.0, 0.0, 0.0}, {0.0, 0.0, 0.0, 0.0}, {0.0, 0.0, 1.0, 0.0}}};
+    context.expect(!render::fake_box_rows(flat).has_value(), "scale 0 thì suy biến");
+}
+
 constexpr std::array kCases{
+    Case{.name = "fake_box_maps_the_light_volume_to_a_unit_box", .body = &fake_box_maps_the_light_volume_to_a_unit_box},
     Case{.name = "bare_primitive_gets_scene_ambient", .body = &bare_primitive_gets_scene_ambient},
     Case{.name = "classic_material_adds_emissive_and_specular", .body = &classic_material_adds_emissive_and_specular},
     Case{.name = "actor_uses_actor_ambient", .body = &actor_uses_actor_ambient},

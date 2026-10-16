@@ -48,6 +48,9 @@ struct Placement {
 // "x y z" theo parseVector3; số token khác 3 thì 0 0 0.
 [[nodiscard]] Vector3 parse_vector3(std::string_view text) noexcept;
 
+// Màu theo parseColourValue của Ogre: ba số r g b, hoặc bốn số r g b a (alpha bỏ); token khác thì 0 0 0.
+[[nodiscard]] Vector3 parse_colour(std::string_view text) noexcept;
+
 // "w x y z" theo parseQuaternion; số token khác 4 thì quaternion đơn vị.
 [[nodiscard]] Quaternion parse_quaternion(std::string_view text) noexcept;
 

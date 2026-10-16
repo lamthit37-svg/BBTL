@@ -25,6 +25,19 @@ struct Lamp {
     float4 color;
 };
 
+// Số đèn giả một khung mang theo (kFakeSlots ở forward.hpp).
+static const uint kFakes = 24u;
+
+// Đèn giả FakeLight (Model_FakePointLight_ps.hlsl).
+struct FakeLight {
+    // Ba hàng đổi vị trí thế giới (w = 1) sang toạ độ hộp đơn vị, đã nhân 0,01 như shader gốc.
+    float4 row0;
+    float4 row1;
+    float4 row2;
+    // rgb: diffuse nhân cường độ; w: size (lightParams.w).
+    float4 color;
+};
+
 struct Frame {
     float4x4 view_proj;
     // Tích vô hướng với (vị trí thế giới, 1) cho độ sâu trong không gian camera.
@@ -52,6 +65,9 @@ struct Frame {
     float4 hfog_color;
     // rgb màu tán xạ; w là InscatteringFactor.
     float4 hfog_scatter;
+    // x: số đèn giả đang dùng trong fakes.
+    float4 fake_count;
+    FakeLight fakes[kFakes];
 };
 #ifndef F2_DXBC
 ConstantBuffer<Frame> frame : register(b0, space0);
@@ -123,6 +139,25 @@ float3 lamp_light(float3 normal, float3 place, uint which) {
     const float span = max(length(reach), 0.0001);
     const float fade = pow(saturate(1.0 - (span / lamp.place.w)), lamp.color.a);
     return fade * max(dot(normal, reach / span), 0.0) * lamp.color.rgb;
+}
+
+// Hệ số nhân màu của mọi đèn giả tại một điểm: dst * (1 + src) của scene_blend dest_colour one (Mtl_FakePointLight),
+// với src là công thức của Model_FakePointLight_ps.hlsl. Điểm ngoài hộp thì đèn bị bỏ (clip của bản gốc).
+float3 fake_gain(float3 place) {
+    float3 gain = float3(1.0, 1.0, 1.0);
+    const uint count = min(uint(frame.fake_count.x), kFakes);
+    const float4 point = float4(place, 1.0);
+    for (uint index = 0u; index < count; ++index) {
+        const FakeLight fake = frame.fakes[index];
+        const float3 box = float3(dot(fake.row0, point), dot(fake.row1, point), dot(fake.row2, point));
+        const float3 reach = abs(box);
+        if (max(reach.x, max(reach.y, reach.z)) > 0.5) continue;
+        float spread = saturate(fake.color.w - (length(box.xy) * 3.0));
+        spread *= saturate(fake.color.w - (length(box.xz) * 3.0));
+        spread *= saturate(fake.color.w - (length(box.yz) * 3.0));
+        gain *= 1.0 + (fake.color.rgb * spread);
+    }
+    return gain;
 }
 
 // Ánh sáng khuếch tán của một điểm: hai đèn chính, đèn điểm thứ which, ánh sáng nền. Model tính ở

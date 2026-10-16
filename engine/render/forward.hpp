@@ -68,6 +68,24 @@ struct Lamp {
     float falloff = 1.0F;
 };
 
+// Số đèn giả một khung mang theo (kFakes ở model.inc.slang). Forward chọn những đèn gần mắt nhất còn trong
+// khung nhìn.
+inline constexpr std::size_t kFakeSlots = 24;
+
+// Đèn giả FakeLight của Render.dll (0x18010c960): một hộp (unitbox.mesh, nửa cạnh 50) nhân scale, cộng sáng
+// lên mọi bề mặt nằm trong hộp (Model_FakePointLight_ps.hlsl, scene_blend dest_colour one). Bản gốc vẽ hộp rồi
+// đọc depth buffer; ở đây từng điểm ảnh của model và địa hình tự đổi vị trí của chính nó sang toạ độ hộp, cho
+// cùng kết quả với bề mặt đục.
+struct FakeLight {
+    // Tâm hộp trong thế giới và bán kính hình cầu bao hộp, để bỏ đèn ngoài khung nhìn.
+    math::Vector3 centre{0.0F, 0.0F, 0.0F};
+    float radius = 0.0F;
+    // Ba hàng đổi vị trí thế giới (w = 1) sang toạ độ hộp: gốc ở tâm, mỗi cạnh dài 1 (đã nhân 0,01).
+    std::array<math::Float4, 3> rows{};
+    // rgb: diffuse nhân cường độ và fake_point_light_intensity của EnvKey; w: size (lightParams.w).
+    math::Float4 color{};
+};
+
 // Đúng thứ tự Ogre::FogMode.
 enum class FogKind : std::uint8_t { kNone, kExp, kExp2, kLinear };
 
@@ -98,6 +116,8 @@ struct Lighting {
     math::Vector3 specular{0.0F, 0.0F, 0.0F};
     // Đèn điểm của cảnh; phải sống tới khi draw trả về. Mỗi vật thể nhận đèn gần nhất còn với tới.
     std::span<const Lamp> lamps;
+    // Đèn giả đang bật của cảnh (độ sáng cảnh nằm trong khoảng của từng đèn); phải sống tới khi draw xong.
+    std::span<const FakeLight> fakes;
     Fog fog;
     // ColorGreaterOne của bản gốc: ánh sáng không bị kẹp ở 1.
     bool is_overbright = false;

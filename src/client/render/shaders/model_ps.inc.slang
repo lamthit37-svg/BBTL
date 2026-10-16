@@ -82,6 +82,8 @@ float4 finish_pixel(float3 gamma_color, float alpha, Varying input) {
         color = lerp(frame.fog_color.rgb, color, fog_share(depth));
     }
     color = height_fog(color, input.place);
+    // Đèn giả nhân lên màu cuối cùng, sau cả sương: bản gốc chạy sau khi cảnh đã ghi vào buffer màu.
+    color *= fake_gain(input.place);
     // Chất liệu không trộn: điểm ảnh đã qua phép cắt alpha là đặc. Giữ alpha của texture thì ảnh đích
     // có nền trong suốt (ảnh đầu 3D của ô chân dung) bị xuyên thấu ở tóc, mi và mép.
     if ((draw.flags & kOpaqueAlpha) != 0u) alpha = 1.0;
