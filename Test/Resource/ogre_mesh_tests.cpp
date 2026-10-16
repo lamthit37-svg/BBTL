@@ -174,6 +174,68 @@ void child_inherits_blend_and_cull(Context& context) {
     std::filesystem::remove_all(root);
 }
 
+// Hồi quy: đường đọc cache bỏ emissive nên thác đã có cache đứng im. Gói điện thoại chỉ mang cache,
+// nên APK và iOS cũng đứng im.
+void cached_load_keeps_scroll(Context& context) {
+    const std::string root = "ogre_mesh_cache_scroll_out";
+    static_cast<void>(fs::create_directories(root + "/Material"));
+    static_cast<void>(fs::create_directories(root + "/Model"));
+    const char* script = "material Thac\n{\ntechnique\n{\npass\n{\nlighting off\ntexture_unit\n{\n"
+                         "texture khac.dds\nscroll_anim 0.25 0.3\n}\n}\n}\n}\n";
+    const auto* bytes = reinterpret_cast<const std::byte*>(script);
+    const core::Status written = fs::write_file(root + "/Material/all.material", std::span<const std::byte>(bytes, std::strlen(script)));
+    context.expect(static_cast<bool>(written), "ghi material thác");
+    if (!written) return;
+    std::vector<std::byte> dds;
+    put_u32(dds, 0x20534444U);
+    put_u32(dds, 124);
+    for (int index = 0; index < 30; ++index) put_u32(dds, 0);
+    dds.resize(128 + 8);
+    dds[12] = std::byte{4};
+    dds[16] = std::byte{4};
+    dds[80] = std::byte{4};
+    dds[84] = std::byte{'D'};
+    dds[85] = std::byte{'X'};
+    dds[86] = std::byte{'T'};
+    dds[87] = std::byte{'1'};
+    const core::Status texture = fs::write_file(root + "/Material/khac.dds", dds);
+    const std::vector<std::byte> mesh = triangle_mesh("Thac");
+    const core::Status stored = fs::write_file(root + "/Model/thac.mesh", mesh);
+    context.expect(static_cast<bool>(texture) && static_cast<bool>(stored), "ghi dds và mesh thác");
+    if (!texture || !stored) return;
+    const auto first = resource::load_named_model("thac.mesh", root);
+    const auto cached = resource::load_named_model("thac.mesh", root);
+    context.expect(first.has_value() && cached.has_value(), "nạp thác hai lần");
+    if (!first || !cached) return;
+    context.expect(fs::is_file(root + "/cache/mesh/thac.mesh.tlms"), "lần đầu ghi cache");
+    const resource::Material& fresh = first->materials[0];
+    const resource::Material& material = cached->materials[0];
+    context.expect(fresh.emissive.x == 0.25F && fresh.emissive.y == 0.3F, "lần đầu có tốc độ cuộn");
+    context.expect(material.unlit, "cache giữ tắt đèn");
+    context.expect(material.emissive.x == 0.25F && material.emissive.y == 0.3F, "cache giữ tốc độ cuộn");
+    std::filesystem::remove_all(root);
+}
+
+// Dữ liệu thật: pubu5 khai "scroll_anim 0 0.3" trong Material/all.material; đọc hai lần để lần hai
+// đi qua cache. Bỏ qua khi máy không có dữ liệu client (như reads_shipped_mesh_when_present).
+void shipped_waterfall_scrolls(Context& context) {
+#ifdef GAME_CLIENT_DATA
+    const std::string root = GAME_CLIENT_DATA;
+    const std::string name = "水瀑布/pubu5.mesh";
+    if (!fs::is_file(root + "/Model/" + name)) return;
+    const auto first = resource::load_named_model(name, root);
+    const auto cached = resource::load_named_model(name, root);
+    context.expect(first.has_value() && cached.has_value(), "nạp thác thật hai lần");
+    if (!first || !cached) return;
+    const resource::Material& fresh = first->materials[0];
+    const resource::Material& material = cached->materials[0];
+    context.expect(fresh.emissive.y == 0.3F, "thác thật có tốc độ cuộn V");
+    context.expect(material.unlit && material.emissive.y == 0.3F, "thác thật qua cache vẫn cuộn");
+#else
+    static_cast<void>(context);
+#endif
+}
+
 // Vũ khí và một số bộ đồ ghi <BaseTexture>, không phải <baseTexture>.
 void capital_alias_is_the_diffuse_map(Context& context) {
     const std::string root = "ogre_mesh_base_out";
@@ -247,6 +309,8 @@ constexpr std::array kCases{
     Case{.name = "named_load_uses_mesh_suffix", .body = &named_load_uses_mesh_suffix},
     Case{.name = "reads_shipped_mesh_when_present", .body = &reads_shipped_mesh_when_present},
     Case{.name = "child_inherits_blend_and_cull", .body = &child_inherits_blend_and_cull},
+    Case{.name = "cached_load_keeps_scroll", .body = &cached_load_keeps_scroll},
+    Case{.name = "shipped_waterfall_scrolls", .body = &shipped_waterfall_scrolls},
     Case{.name = "capital_alias_is_the_diffuse_map", .body = &capital_alias_is_the_diffuse_map},
     Case{.name = "trailing_spaces_keep_the_texture", .body = &trailing_spaces_keep_the_texture},
 };

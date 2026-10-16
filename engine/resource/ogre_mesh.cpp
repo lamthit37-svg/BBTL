@@ -996,6 +996,8 @@ void ensure_static_root(Model& model) {
         material.alpha_cutoff = look.cutoff;
         material.double_sided = look.double_sided;
         material.unlit = look.unlit;
+        // Cache chỉ giữ hình học: tốc độ cuộn UV của thác lấy lại từ look như đường nạp trực tiếp.
+        if (look.has_scroll) material.emissive = math::Float3{look.scroll_u, look.scroll_v, 0.0F};
         const std::string& texture = stored.empty() ? look.texture : stored;
         if (!attach_texture(model, material, data_root, texture, tier)) return corrupt("ảnh mesh hỏng");
         if (!take_u32(rest, vertex_count) || !take_u32(rest, index_count)) return corrupt("cache mesh cụt");
