@@ -8,8 +8,11 @@
  *  CHỨC NĂNG
  *  - Sinh LOD bằng meshopt_simplifyWithAttributes. Mỗi mức đơn giản hoá từ mức
  *    trước để rẻ; cạnh biên không khoá vì vật thể trong cảnh là mảnh rời, vết
- *    nứt giữa các mảnh không xảy ra ở đây. Lưới có skin hoặc morph bị bỏ: giản
- *    lược theo vị trí làm méo hoạt cảnh.
+ *    nứt giữa các mảnh không xảy ra ở đây. Lưới có morph bị bỏ. Lưới có skin vẫn
+ *    giản lược được: mức thô chỉ chọn lại chỉ số của đỉnh gốc (giữ khớp và trọng số
+ *    của chúng), và trọng số cùng chỉ số khớp đi kèm như thuộc tính để meshopt
+ *    không gộp hai đỉnh do khớp khác nhau kéo. Vật thể cảnh của TLBB gần như đều
+ *    mang xương dù đứng yên, nên bỏ skin là bỏ gần hết LOD.
  *------------------------------------------------------------------------------
  *  TÁC GIẢ   : HiepHoon
  *  TELEGRAM  : @Hoon9xx
@@ -54,24 +57,42 @@ constexpr std::array<Level, 3> kLevels{{{.keep = 0.35, .error = 0.05F, .allow_sl
     {.keep = 0.12, .error = 0.12F, .allow_sloppy = true}, {.keep = 0.04, .error = 0.3F, .allow_sloppy = true}}};
 
 // Normal 3, uv 2, màu rgb 3. Trọng số theo meshoptimizer: vị trí là 1.
-constexpr std::size_t kAttributes = 8;
-constexpr std::array<float, kAttributes> kWeights{0.5F, 0.5F, 0.5F, 1.0F, 1.0F, 0.25F, 0.25F, 0.25F};
+constexpr std::size_t kBaseAttributes = 8;
+// Lưới có skin thêm bốn trọng số skin rồi bốn chỉ số khớp (0 ở ô trọng số 0). Chỉ số khớp lệch một đơn vị đã cho
+// sai số 0,25, lớn hơn mọi sai số cho phép của kLevels nên hai đỉnh khác khớp không bao giờ bị gộp.
+constexpr std::size_t kSkinAttributes = kBaseAttributes + 8;
+constexpr std::array<float, kSkinAttributes> kWeights{0.5F, 0.5F, 0.5F, 1.0F, 1.0F, 0.25F, 0.25F, 0.25F, 2.0F, 2.0F, 2.0F,
+    2.0F, 0.25F, 0.25F, 0.25F, 0.25F};
 
-[[nodiscard]] bool is_static(const Primitive& primitive) noexcept {
-    if (primitive.topology != Topology::kTriangles || !primitive.targets.empty()) return false;
-    const auto skinned = [](const Vertex& vertex) {
-        return vertex.weights.x + vertex.weights.y + vertex.weights.z + vertex.weights.w > 0.0F;
-    };
-    return std::ranges::none_of(primitive.vertices, skinned);
+// Lưới tam giác không morph. Có skin hay không do is_skinned nói.
+[[nodiscard]] bool is_lodable(const Primitive& primitive) noexcept {
+    return primitive.topology == Topology::kTriangles && primitive.targets.empty();
 }
 
-[[nodiscard]] std::vector<float> attributes_of(const std::vector<Vertex>& vertices) {
+[[nodiscard]] bool is_skinned(const Primitive& primitive) noexcept {
+    const auto weighted = [](const Vertex& vertex) {
+        return vertex.weights.x + vertex.weights.y + vertex.weights.z + vertex.weights.w > 0.0F;
+    };
+    return std::ranges::any_of(primitive.vertices, weighted);
+}
+
+// Chỉ số khớp của ô k nếu ô đó có trọng số, 0 nếu không (ô trống có thể mang số rác).
+[[nodiscard]] float joint_of(const Vertex& vertex, std::size_t slot) noexcept {
+    const std::array<float, 4> weight{vertex.weights.x, vertex.weights.y, vertex.weights.z, vertex.weights.w};
+    return weight.at(slot) > 0.0F ? static_cast<float>(vertex.joints.at(slot)) : 0.0F;
+}
+
+[[nodiscard]] std::vector<float> attributes_of(const std::vector<Vertex>& vertices, std::size_t count) {
     std::vector<float> out;
-    out.reserve(vertices.size() * kAttributes);
+    out.reserve(vertices.size() * count);
     for (const Vertex& vertex : vertices) {
-        const std::array<float, kAttributes> one{vertex.normal.x, vertex.normal.y, vertex.normal.z, vertex.uv.x,
-            vertex.uv.y, vertex.color.x, vertex.color.y, vertex.color.z};
-        out.insert(out.end(), one.begin(), one.end());
+        out.insert(out.end(), {vertex.normal.x, vertex.normal.y, vertex.normal.z, vertex.uv.x, vertex.uv.y, vertex.color.x,
+            vertex.color.y, vertex.color.z});
+        if (count == kBaseAttributes) continue;
+        out.insert(out.end(), {vertex.weights.x, vertex.weights.y, vertex.weights.z, vertex.weights.w});
+        for (std::size_t slot = 0; slot < 4; ++slot) {
+            out.push_back(joint_of(vertex, slot));
+        }
     }
     return out;
 }
@@ -79,6 +100,8 @@ constexpr std::array<float, kAttributes> kWeights{0.5F, 0.5F, 0.5F, 1.0F, 1.0F, 
 struct Source {
     const Primitive* primitive = nullptr;
     const std::vector<float>* attributes = nullptr;
+    // Số thuộc tính mỗi đỉnh trong attributes: kBaseAttributes hoặc kSkinAttributes.
+    std::size_t count = kBaseAttributes;
 };
 
 // Thứ tự thử một mức: giữ normal, uv, màu (đẹp nhất); chỉ vị trí (gỡ ràng buộc seam mà meshopt không chịu bỏ); rồi gom
@@ -100,8 +123,8 @@ struct Attempt {
     switch (method) {
     case Method::kWithAttributes:
         return meshopt_simplifyWithAttributes(out.data(), from.data(), from.size(), positions, vertices.size(),
-            sizeof(Vertex), attempt.source->attributes->data(), kAttributes * sizeof(float), kWeights.data(),
-            kAttributes, nullptr, attempt.target, attempt.error, 0, &error);
+            sizeof(Vertex), attempt.source->attributes->data(), attempt.source->count * sizeof(float), kWeights.data(),
+            attempt.source->count, nullptr, attempt.target, attempt.error, 0, &error);
     case Method::kPositionOnly:
         return meshopt_simplify(out.data(), from.data(), from.size(), positions, vertices.size(), sizeof(Vertex),
             attempt.target, attempt.error * 2.0F, 0, &error);
@@ -135,9 +158,10 @@ struct Attempt {
 }
 
 void build_primitive_lods(Primitive& primitive) {
-    if (!is_static(primitive) || primitive.indices.size() < kMinIndices || primitive.vertices.empty()) return;
-    const std::vector<float> attributes = attributes_of(primitive.vertices);
-    const Source source{.primitive = &primitive, .attributes = &attributes};
+    if (!is_lodable(primitive) || primitive.indices.size() < kMinIndices || primitive.vertices.empty()) return;
+    const std::size_t count = is_skinned(primitive) ? kSkinAttributes : kBaseAttributes;
+    const std::vector<float> attributes = attributes_of(primitive.vertices, count);
+    const Source source{.primitive = &primitive, .attributes = &attributes, .count = count};
     const std::vector<std::uint32_t>* from = &primitive.indices;
     for (const Level& level : kLevels) {
         std::vector<std::uint32_t> next = simplified(source, *from, level);

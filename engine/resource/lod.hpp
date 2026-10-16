@@ -23,7 +23,7 @@
 
 namespace game::resource {
 
-// Điền Primitive::lods cho mọi primitive tĩnh (không skin, không morph, tam giác rời) đủ lớn. Không đụng GPU; gọi ở
+// Điền Primitive::lods cho mọi primitive tam giác không morph (kể cả có skin: mức thô chỉ chọn lại chỉ số) đủ lớn. Không đụng GPU; gọi ở
 // luồng nạp. Primitive nhỏ hoặc không giảm nổi thì lods để rỗng.
 void build_lods(Model& model);
 

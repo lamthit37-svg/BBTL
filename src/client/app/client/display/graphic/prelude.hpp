@@ -407,8 +407,10 @@ using PackedSize = std::uint64_t;
 }
 
 // Trần tam giác khởi đầu mỗi khung trên điện thoại; DetailGovernor chỉnh tiếp theo thời gian khung thực. Đo 2026-10-16 trên
-// tablet GE8320 (cảnh đăng nhập, 1,05 triệu tam giác: 142 ms mỗi khung): trần 300 nghìn cho 44 ms, 600 nghìn cho 90 ms.
-inline constexpr std::uint32_t kPhoneTriangleCap = 300'000;
+// tablet GE8320 (cảnh đăng nhập 1280 x 800, 1,05 triệu tam giác khi không giới hạn): trước khi lưới có skin sinh LOD, trần
+// 300 nghìn là sàn không hạ nổi (235 nghìn tam giác nằm trên lưới không LOD) và khung 40 ms dù đổi độ phân giải xuống một
+// nửa; sau đó sàn là 124 nghìn tam giác và khung 22 đến 24 ms ở độ phân giải gốc, còn trần 200 nghìn đã 40 đến 46 ms.
+inline constexpr std::uint32_t kPhoneTriangleCap = 150'000;
 
 [[nodiscard]] inline ForwardResult make_forward(gpu::Device& device, const render::Screen& screen, std::string shaders,
     const render::Catalog& catalog) {

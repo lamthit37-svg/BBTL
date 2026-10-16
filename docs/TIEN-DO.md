@@ -2811,3 +2811,18 @@ Số đo cuối (TB-X306F, màn đăng nhập, 1280x800, mục tiêu 30 Hz): Vul
 ### Màu thô trên điện thoại cho Vulkan (2026-10-16)
 
 `DeviceDesc::is_raw_color` (client đặt `ui::kPhone`) cho Vulkan chạy màu thô như GLES: định dạng khai sRGB được cất UNORM (`VulkanDevice::vk_format`, `raw_of` ở `convert.cpp`), swapchain khai sRGB nhưng cất UNORM, màu xoá tuyến tính mã hoá ở CPU (`Commands::fill_color`). Shader đọc `frame.rules.w` (model, terrain) và `screen.size.w` (UI) để bỏ `to_gamma`/`to_linear`/`pow(2.2)`: hai đường cong triệt tiêu nhau trên đích sRGB, còn trộn alpha chạy trong không gian gamma như GLES và game gốc. PC giữ sRGB phần cứng (cờ tắt, hai nhánh shader chỉ là rẽ nhánh theo hằng của khung). TB-X306F, màn đăng nhập: 43,9 xuống 40,1 ms (24,9 FPS); GLES 42 ms. PC: `--validate` 0 lỗi, `gpu_tests` xanh; ảnh trên tablet đã nhìn, cùng dáng với GLES.
+
+### Hình học của vật thể cảnh mới là nút cổ chai trên tablet (2026-10-16)
+
+Màn đăng nhập trên TB-X306F (GE8320, 1280x800) vẫn 40 ms mỗi khung sau hai đợt sửa shader. Công tắc tạm bằng system property (đã gỡ) cắt từng loại lệnh vẽ và đổi độ phân giải cảnh:
+- Địa hình chỉ ≈ 9 ms ở độ phân giải gốc và ≈ 2 ms ở nửa độ phân giải (tốn ở điểm ảnh).
+- Model ≈ 12 ms ở cả hai mức: không phụ thuộc độ phân giải nên không phải điểm ảnh. Giảm điểm ảnh cảnh còn 25% (vẽ nhỏ rồi phóng lên) chỉ cho 40 ms xuống 34,5 ms mà chữ và cảnh nhoè; kết luận cùng với `Crazy` (`AGENTS.md`: "ảnh nét đi trước số khung", phóng lên 950‰ chậm hơn nguyên bản 3,7 ms). Bộ thu nhỏ cảnh đã dựng thử rồi bỏ.
+- Thủ phạm: trần tam giác 300 nghìn là sàn không hạ nổi. In phân bố lệnh vẽ: 235 nghìn trong 299 nghìn tam giác nằm trên lệnh không LOD (66 nghìn là địa hình, phần còn lại là vật thể). `build_lods` bỏ mọi lưới có skin, mà vật thể cảnh của TLBB gần như đều mang xương dù đứng yên. Cảnh đầy đủ 1,05 triệu tam giác; chi phí tăng phi tuyến theo tam giác (trần 200 nghìn: 40 đến 46 ms; trần 1 triệu: 88 ms).
+- Sửa: `engine/resource/lod.cpp` giản lược cả lưới có skin (chỉ chọn lại chỉ số của đỉnh gốc nên hoạt cảnh còn đúng); trọng số skin và chỉ số khớp đi kèm như thuộc tính để meshopt không gộp hai đỉnh do khớp khác nhau kéo. Lưới morph và lưới nhỏ vẫn bị bỏ. Trần tam giác khởi đầu của điện thoại 300 nghìn xuống 150 nghìn.
+- Số đo sau sửa (độ phân giải gốc, không hạ gì): sàn 124 nghìn tam giác, khung 22 đến 24 ms; bản cuối (trần 150 nghìn, DetailGovernor tự chỉnh) tablet đứng 30,0 FPS, khung 33,3 ms, p95 33,4 ms, chậm nhất 33,5 ms, vượt ngân sách 0%.
+- Test: `lod_tests` (`lods_cover_skinned`, `lods_skip_morph_and_small`).
+- Còn lại: địa hình ≈ 9 ms vẫn là phần điểm ảnh lớn nhất (khoảng 14 lần lấy mẫu mỗi điểm: bảng tra từng lớp). Hướng nếu cần thêm: đưa hằng của từng ô vào thuộc tính đỉnh để chỉ còn ba lần lấy mẫu. Chưa làm vì khung đã đạt 30 Hz.
+
+### Viền thừa dưới ô đuôi tài khoản (2026-10-16)
+
+Bảng nhập tài khoản để hiện danh sách thả tự dựng của Combobox đuôi tài khoản (`LogOn_Region__auto_droplist__`), khung của nó thành một vạch viền dưới ô. Nay `paint_logon` giấu nó như `select_server` giấu danh sách của mình. Test hồi quy trong `ui_logon_tests` (đỏ khi bỏ dòng giấu, xanh khi có). Chưa nhìn bằng mắt trong ảnh chụp vì tới bảng này cần nhấn nút (không có cờ dòng lệnh).

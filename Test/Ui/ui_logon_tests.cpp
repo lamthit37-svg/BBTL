@@ -46,6 +46,8 @@ constexpr std::array<std::string_view, 8> kNeverShown = {"LogOn_Wegame_Frame", "
 constexpr std::array<std::string_view, 4> kClassicOnly = {
     "LogOn_ID", "LogOn_Region", "LogOn_ID_Text", "LogOn_Region_Text"};
 constexpr std::array<std::string_view, 3> kCustomOnly = {"LogOn_MailID", "LogOn_MailID_Text", "LogOn_TiShi"};
+// Danh sách thả của Combobox đuôi tài khoản: chưa mở được nên luôn giấu, không thì khung của nó thành vạch viền thừa.
+constexpr std::string_view kSuffixDropList = "LogOn_Region__auto_droplist__";
 
 // Giá trị cuối cùng đặt cho một thuộc tính trong khung này; nullopt khi bảng không đặt.
 std::optional<std::string_view> said(Deck& deck, std::string_view window, std::string_view name) {
@@ -90,6 +92,7 @@ void opens_on_classic_account(Context& context) {
     context.expect(all_hidden(deck, kNeverShown), "khung WeGame, bản cũ và lời nhắc Caps Lock bị giấu");
     context.expect(all_hidden(deck, kCustomOnly), "ô và nhãn của kiểu tự đặt bị giấu");
     context.expect(none_hidden(deck, kClassicOnly), "ô, nhãn và đuôi của kiểu truyền thống còn hiện");
+    context.expect(is_hidden(deck, kSuffixDropList), "danh sách thả của đuôi tài khoản bị giấu (không vạch viền thừa)");
     context.expect(said(deck, "LogOn_TraditionLogon", "Selected") == kTrue, "thẻ truyền thống đang chọn");
     context.expect(said(deck, "LogOn_OwnDefineLogon", "Selected") == kFalse, "thẻ tự đặt không chọn");
     context.expect(said(deck, "LogOn_PassWord_Protect_Check", "Selected") == kFalse, "ô thẻ bảo mật trống");
@@ -108,6 +111,7 @@ void custom_tab_swaps_fields(Context& context) {
     context.expect(logon.focus == LogonField::kAccount, "đổi kiểu thì ô tài khoản nhận phím");
     Deck deck = painted(logon);
     context.expect(all_hidden(deck, kClassicOnly), "ô, nhãn và đuôi của kiểu truyền thống bị giấu");
+    context.expect(is_hidden(deck, kSuffixDropList), "danh sách thả của đuôi vẫn giấu ở kiểu tự đặt");
     context.expect(none_hidden(deck, kCustomOnly), "ô, nhãn và dòng nhắc của kiểu tự đặt hiện");
     context.expect(all_hidden(deck, kNeverShown), "phần luôn giấu vẫn giấu");
     context.expect(said(deck, "LogOn_TraditionLogon", "Selected") == kFalse, "thẻ truyền thống thôi chọn");

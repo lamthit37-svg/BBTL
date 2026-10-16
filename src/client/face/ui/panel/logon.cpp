@@ -25,6 +25,9 @@ constexpr std::string_view kClassicEdit = "LogOn_ID";
 constexpr std::string_view kCustomEdit = "LogOn_MailID";
 constexpr std::string_view kPasswordEdit = "LogOn_PassWord";
 constexpr std::string_view kSuffixList = "LogOn_Region";
+// Danh sách thả của Combobox đuôi tài khoản, cửa sổ con mà look tự dựng: chưa mở được danh sách nên luôn giấu, không thì
+// khung của nó hiện thành một vạch viền dưới ô.
+constexpr std::string_view kSuffixDropList = "LogOn_Region__auto_droplist__";
 constexpr std::string_view kEnterButton = "LogOn_LogOnGame";
 constexpr std::string_view kSituation = "SeverSituation_InfoWindow";
 // TailName[0] của script: LoginLogOn_OnLoad chọn dòng 0 khi Account_MailIndex chưa lưu.
@@ -188,6 +191,7 @@ void paint_logon(Deck& deck, const Logon& logon) {
     hide_all(deck, kNeverShown);
     if (is_classic) hide_all(deck, kCustomOnly);
     if (!is_classic) hide_all(deck, kClassicOnly);
+    deck.hide(kSuffixDropList);
     deck.set(gui::Override{.window = kClassicTab, .name = "Selected", .value = flag(is_classic)});
     deck.set(gui::Override{.window = kCustomTab, .name = "Selected", .value = flag(!is_classic)});
     deck.set(gui::Override{.window = kCardCheck, .name = "Selected", .value = flag(logon.uses_card)});

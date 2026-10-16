@@ -8,8 +8,8 @@
  *  CHỨC NĂNG
  *  - LOD và chia khối: build_tiles chỉ sắp lại tam giác (không mất, không thêm,
  *    khối liền nhau phủ kín), từ chối đầu vào xấu mà không đổi gì; build_lods
- *    ra các mức giảm dần, mọi chỉ số nằm trong đỉnh, bỏ qua lưới skin và lưới
- *    nhỏ.
+ *    ra các mức giảm dần, mọi chỉ số nằm trong đỉnh; lưới có skin vẫn có mức thô
+ *    còn lưới morph và lưới nhỏ thì bị bỏ qua.
  *------------------------------------------------------------------------------
  *  TÁC GIẢ   : HiepHoon
  *  TELEGRAM  : @Hoon9xx
@@ -140,16 +140,39 @@ void lods_shrink_and_stay_in_range(Context& context) {
     }
 }
 
-void lods_skip_skinned_and_small(Context& context) {
+// Lưới skin hai khớp, nửa trái khớp 0 và nửa phải khớp 1: mức thô vẫn có và chỉ chọn lại chỉ số của đỉnh gốc.
+void lods_cover_skinned(Context& context) {
     resource::Model model;
     resource::Mesh mesh;
     resource::Primitive skinned = grid_primitive(32);
-    skinned.vertices.front().weights = {.x = 1.0F, .y = 0.0F, .z = 0.0F, .w = 0.0F};
+    const float middle = skinned.vertices[skinned.vertices.size() / 2].position.x;
+    for (resource::Vertex& vertex : skinned.vertices) {
+        const bool is_left = vertex.position.x < middle;
+        vertex.joints = {static_cast<std::uint16_t>(is_left ? 0 : 1), 0, 0, 0};
+        vertex.weights = {.x = 1.0F, .y = 0.0F, .z = 0.0F, .w = 0.0F};
+    }
     mesh.primitives.push_back(std::move(skinned));
+    model.meshes.push_back(std::move(mesh));
+    resource::build_lods(model);
+    const resource::Primitive& primitive = model.meshes.front().primitives.front();
+    context.expect(!primitive.lods.empty(), "lưới skin có mức thô");
+    for (const std::vector<std::uint32_t>& level : primitive.lods) {
+        const auto outside = [&](std::uint32_t index) { return index >= primitive.vertices.size(); };
+        context.expect(level.size() % 3 == 0 && std::ranges::none_of(level, outside), "mức skin gồm chỉ số của đỉnh gốc");
+        context.expect(level.size() < primitive.indices.size(), "mức skin ít chỉ số hơn mức 0");
+    }
+}
+
+void lods_skip_morph_and_small(Context& context) {
+    resource::Model model;
+    resource::Mesh mesh;
+    resource::Primitive morphed = grid_primitive(32);
+    morphed.targets.emplace_back();
+    mesh.primitives.push_back(std::move(morphed));
     mesh.primitives.push_back(grid_primitive(4));
     model.meshes.push_back(std::move(mesh));
     resource::build_lods(model);
-    context.expect(model.meshes.front().primitives[0].lods.empty(), "lưới skin không giản lược");
+    context.expect(model.meshes.front().primitives[0].lods.empty(), "lưới morph không giản lược");
     context.expect(model.meshes.front().primitives[1].lods.empty(), "lưới nhỏ không giản lược");
 }
 
@@ -158,7 +181,8 @@ constexpr std::array kCases{
     Case{.name = "tile_sphere_contains_its_vertices", .body = &tile_sphere_contains_its_vertices},
     Case{.name = "tiles_refuse_bad_input", .body = &tiles_refuse_bad_input},
     Case{.name = "lods_shrink_and_stay_in_range", .body = &lods_shrink_and_stay_in_range},
-    Case{.name = "lods_skip_skinned_and_small", .body = &lods_skip_skinned_and_small},
+    Case{.name = "lods_cover_skinned", .body = &lods_cover_skinned},
+    Case{.name = "lods_skip_morph_and_small", .body = &lods_skip_morph_and_small},
 };
 
 } // namespace
