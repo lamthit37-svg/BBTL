@@ -83,6 +83,8 @@ public:
     // Thêm quad của ô vuông rỗng mà client gốc vẽ thay cho mã phông không có (ô cuối của atlas);
     // góc trái trên của ô bitmap ở (pen_x, pen_y).
     void append_missing(float pen_x, float pen_y, std::uint32_t colour, std::vector<render::UiVertex>& out) const;
+    // Mã có nét riêng, không phải ô vuông giữ chỗ dùng chung cho cả dải mã thiếu.
+    [[nodiscard]] bool paints(char32_t code) const;
 
 private:
     struct Glyph {
@@ -98,6 +100,9 @@ private:
     int columns_ = 0;
     resource::Image atlas_;
     std::vector<Glyph> glyphs_;
+    // Ô atlas mà nhiều mã cùng trỏ tới (ô giữ chỗ). 0 khi chưa tính.
+    mutable std::uint32_t blank_cell_ = 0;
+    mutable bool blank_known_ = false;
 
     // Một ô atlas đặt lên màn hình: cột và hàng của ô, góc trái trên và màu của quad.
     struct Placed {

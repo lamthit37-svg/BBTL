@@ -46,7 +46,8 @@ ROWS_CLOSE = "# <<< letter_labels"
 # Chữ vẽ ở cỡ gấp SCALE lần rồi thu về, để nét và viền mịn ở cỡ 10 đến 17 điểm ảnh.
 SCALE = 4
 SIZE_STEP = 0.25
-SMALLEST_SIZE = 8.0
+# Nút la bàn và nút 17 điểm chỉ còn chỗ cho cỡ 6; nhóm khác vẫn đứng ở cỡ trần của nhóm.
+SMALLEST_SIZE = 6.0
 # Viền sẫm quanh nét (điểm ảnh cuối) và bóng đổ xuống dưới.
 OUTLINE_REACH = 1.0
 SHADOW_DROP = 1.0
@@ -128,6 +129,34 @@ KINDS = {
     "verse": Kind("wipe", None, ((4, 1, 176, 21), (4, 22, 176, 21)), ("centre", "centre"), "verse", 13.5),
     # Dòng chú dưới ô tên cảnh của tấm chuyển cảnh 256 x 256: chữ trắng trên dải đồng.
     "trans": Kind("mask", (66, 212, 124, 17), ((60, 210, 136, 19),), ("centre",), "trans", 12.0, green=105),
+    # Thẻ đăng nhập 88 x 17 (chọn hậu tố, tự nhập, mã QR).
+    "tab": Kind("span", (4, 2, 76, 13), ((2, 0, 84, 17),), ("centre",), "tab", 9.0, pad=0.0),
+    # Thẻ đăng nhập cũ 130 x 22.
+    "mail": Kind("span", (6, 3, 114, 15), ((4, 1, 122, 20),), ("centre",), "mail", 11.0, pad=0.2),
+    # Nút quà 103 x 29 và 90 x 28 trên khung nhân vật.
+    "gift": Kind("span", (8, 5, 84, 18), ((4, 2, 95, 24),), ("centre",), "gift", 11.0, pad=0.2),
+    "card": Kind("span", (6, 4, 76, 18), ((4, 2, 82, 24),), ("centre",), "card", 11.0, pad=0.2),
+    # Nút an toàn 50 x 25, nạp/đổi 43 x 21, tự tìm đường 70 x 23.
+    "safe": Kind("span", (4, 4, 40, 16), ((2, 2, 46, 21),), ("centre",), "safe", 9.0, pad=0.0),
+    "pay": Kind("span", (4, 3, 33, 14), ((2, 1, 39, 19),), ("centre",), "pay", 9.0, pad=0.0),
+    "seek": Kind("span", (4, 3, 60, 16), ((2, 1, 66, 21),), ("centre",), "seek", 10.0, pad=0.0),
+    # Nút tròn một chữ. Ô mask nằm trong lòng để viền vàng còn nguyên; ô chữ rộng hơn cho từ Việt.
+    "comm": Kind("mask", (6, 6, 13, 14), ((3, 2, 19, 22),), ("centre",), "comm", 10.0, pad=0.0, green=160),
+    "shortcut": Kind("mask", (5, 5, 12, 12), ((2, 2, 18, 18),), ("centre",), "shortcut", 9.0, pad=0.0, green=160),
+    "board": Kind("mask", (6, 6, 15, 16), ((2, 3, 23, 22),), ("centre",), "board", 9.0, pad=0.0, green=160),
+    "fight": Kind("mask", (8, 6, 16, 18), ((2, 2, 28, 26),), ("centre",), "fight", 10.0, pad=0.0, green=210),
+    "north": Kind("mask", (2, 3, 11, 16), ((0, 1, 15, 20),), ("centre",), "north", 8.0, pad=0.0, green=140),
+    "line": Kind("mask", (6, 6, 15, 16), ((2, 3, 23, 22),), ("centre",), "line", 9.0, pad=0.0, green=200),
+    "near": Kind("mask", (3, 3, 11, 11), ((1, 1, 15, 15),), ("centre",), "near", 7.0, pad=0.0, green=160),
+    # Áp phích nút: chỉ xoá dải chữ vàng ở đáy, giữ hình túi và bộ bài.
+    "poster": Kind("mask", (8, 48, 62, 26), ((4, 46, 70, 28),), ("centre",), "poster", 12.0, pad=0.0, green=200),
+    "reward": Kind("mask", (4, 40, 51, 22), ((2, 40, 55, 22),), ("centre",), "reward", 11.0, pad=0.0, green=170),
+    # Biển gỗ 86 x 27 của sổ môn phái: xoá chữ giữa, giữ mép gỗ.
+    "plaque": Kind("span", (12, 6, 62, 15), ((8, 1, 70, 25),), ("centre",), "plaque", 11.0, pad=0.0),
+    # Áp phích 62 x 78, chữ nằm ở đáy.
+    "fair": Kind("mask", (4, 50, 54, 24), ((2, 48, 58, 26),), ("centre",), "fair", 11.0, pad=0.0, green=200),
+    # Khiên chữ 帮 64 x 64. Chỉ xoá lòng khiên.
+    "crest": Kind("mask", (20, 16, 24, 28), ((14, 14, 36, 34),), ("centre",), "crest", 12.0, pad=0.0, green=150),
 }
 
 
@@ -211,7 +240,14 @@ def read_atlas(data: Path, state: Path, atlas: str) -> np.ndarray:
     kept = state / "base" / (atlas + ".png")
     path = kept if kept.is_file() else data / "Interface" / (atlas + ".png")
     if not path.is_file():
-        raise LabelError(f"không có atlas {path}")
+        source = data / "Interface" / atlas
+        if not source.is_file():
+            raise LabelError(f"không có atlas {path}")
+        # collect_ui chưa giải atlas này. Giải một lần để vá chữ và để client đọc PNG.
+        sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "glb"))
+        import texture
+        path.parent.mkdir(parents=True, exist_ok=True)
+        texture.convert_to_png(str(source), str(path))
     with Image.open(path) as picture:
         return np.asarray(picture.convert("RGBA")).astype(np.float32)
 
@@ -492,6 +528,31 @@ def settle_rows(jobs: list[Job], manifest: Path, is_sync: bool) -> None:
     manifest.write_text("\n".join(lines[:first + 1] + wanted + lines[last:]), encoding="utf-8", newline="\n")
 
 
+def restore_overlaps(jobs: list[Job], regions: dict, atlases: dict[str, np.ndarray], out: Path) -> None:
+    placed = [(job, regions[(job.imageset, job.image)]) for job in jobs]
+    for index, (job, region) in enumerate(placed):
+        for other, second in placed[index + 1:]:
+            if region.atlas != second.atlas:
+                continue
+            left = max(region.left, second.left)
+            top = max(region.top, second.top)
+            right = min(region.left + region.width, second.left + second.width)
+            bottom = min(region.top + region.height, second.top + second.height)
+            if left >= right or top >= bottom:
+                continue
+            source = atlases[region.atlas][top:bottom, left:right].round().astype(np.uint8)
+            restore_shared(out / job.file, region, source, left, top)
+            restore_shared(out / other.file, second, source, left, top)
+
+
+def restore_shared(path: Path, region, source: np.ndarray, left: int, top: int) -> None:
+    with Image.open(path) as picture:
+        cell = np.asarray(picture.convert("RGBA")).copy()
+    y0, x0 = top - region.top, left - region.left
+    cell[y0:y0 + source.shape[0], x0:x0 + source.shape[1]] = source
+    Image.fromarray(cell, "RGBA").save(path)
+
+
 def make(args: argparse.Namespace) -> int:
     table, data, state, out = Path(args.table), Path(args.data), Path(args.state), Path(args.out)
     manifest = out.parent / (out.name + ".tsv")
@@ -524,6 +585,9 @@ def make(args: argparse.Namespace) -> int:
         target.parent.mkdir(parents=True, exist_ok=True)
         Image.fromarray(made, "RGBA").save(target)
         pairs.append((job.file, cell, made.astype(np.float32)))
+    # Ô bộ ảnh gốc có khi đè nhau vài điểm. Hai ảnh thay phải giống nhau ở phần chung, nên phần ấy
+    # giữ nguyên điểm ảnh gốc (chữ mới không được tràn vào đó).
+    restore_overlaps(jobs, regions, atlases, out)
     if args.sheet:
         write_sheet(Path(args.sheet), pairs)
     sizes = ", ".join(f"{group} {found.size:g}" for group, found in sorted(metrics.items()))

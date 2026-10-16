@@ -49,6 +49,7 @@
 #include <optional>
 #include <print>
 #include <string>
+#include <string_view>
 #include <system_error>
 #include <utility>
 
@@ -109,7 +110,7 @@ struct Roots {
     Path config;
 };
 
-[[nodiscard]] bool load_world(const Roots& roots, Settings& settings, std::string& error) {
+[[nodiscard]] bool load_world(const Roots& roots, Settings& settings, std::string_view language, std::string& error) {
     const Path tables = roots.data / "tables";
     std::error_code missing;
     if (!std::filesystem::exists(tables / "server" / "mission_quests.tsv", missing)) {
@@ -118,7 +119,7 @@ struct Roots {
     }
     const Path base = roots.config.has_filename() ? roots.config : roots.config.parent_path();
     std::expected<play::World, std::string> loaded =
-        play::World::load(play::Paths{.tables = tables, .text_override = base / "text", .language = "zh"});
+        play::World::load(play::Paths{.tables = tables, .text_override = base / "text", .language = std::string(language)});
     if (!loaded) {
         error = "dữ liệu chơi: " + loaded.error();
         return false;
@@ -145,7 +146,7 @@ struct Roots {
     if (!tune(*zone, settings, error)) return std::nullopt;
     // Bố cục dev/server và release/server: config, scenes và tables là anh em.
     const Path data_root = (config_dir.has_filename() ? config_dir : config_dir.parent_path()).parent_path();
-    if (!load_world(Roots{.data = data_root, .config = config_dir}, settings, error)) return std::nullopt;
+    if (!load_world(Roots{.data = data_root, .config = config_dir}, settings, zone->language, error)) return std::nullopt;
     const std::shared_ptr<const play::World> world = settings.world;
     settings.host.seeder = disk_seeder(
         DiskPaths{.scenes = data_root / "scenes",

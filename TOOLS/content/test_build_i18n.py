@@ -132,6 +132,18 @@ class Outputs(unittest.TestCase):
             outside = {atlas.getpixel((x, y)) for x in range(8) for y in range(8) if not (2 <= x < 6 and 3 <= y < 5)}
         return inside, outside
 
+    def test_glossary_rejects_a_repeated_term(self) -> None:
+        path = self.source / "glossary.tsv"
+        path.write_text("坐骑\tmount\tToạ Kỵ\n坐骑\tmount\tThú Cưỡi\n", encoding="utf-8")
+        with self.assertRaises(build_i18n.ManifestError):
+            build_i18n.check_glossary(path)
+
+    def test_nfc_composes_combining_marks(self) -> None:
+        self.write_manifest("KEY_A\ta\u0301\n")
+        self.assertEqual(self.run_tool(), 0)
+        strings = (self.data / "Table" / "ui_strings.lang.tsv").read_text(encoding="utf-8")
+        self.assertIn("KEY_A\tá\n", strings)
+
     def test_text_tables_are_written_without_gathered_data(self) -> None:
         self.assertEqual(self.run_tool(), 0)
         strings = (self.data / "Table" / "ui_strings.lang.tsv").read_text(encoding="utf-8")

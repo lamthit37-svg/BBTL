@@ -2,8 +2,9 @@
 # ..\Patch\loginserver.txt do bộ khởi động tải về; bản này đọc bảng TSV thường này, mỗi dòng một máy
 # chủ, các dòng cùng tên vùng liền nhau gộp vào một vùng. Phần tên vùng trước dấu '-' chọn đại khu ở
 # cột trái (电信, 网通, 双线, 争霸赛, 轻享, 特色服, 至尊帮派邀请赛, 天下会武, 巅峰赛, WG独立大区;
-# tên không có dấu '-' thuộc 电信). status: 0 đầy, 1 bận, 2 tốt, 3 rất tốt, 4 bảo trì, 10 ẩn.
+# tên không có dấu '-' thuộc 电信). Phần sau dấu '-' và cột server là chữ người chơi thấy.
+# status: 0 đầy, 1 bận, 2 tốt, 3 rất tốt, 4 bảo trì, 10 ẩn.
 # recommend lớn hơn 0 thì máy chủ vào mục đề cử (nhỏ trước). prize là mức thưởng 0 tới 18.
 # Máy chủ thử (dev) của dự án hiện chỉ có một máy chủ.
 area	tip	area_recommend	server	status	recommend	is_new	prize	has_arena
-电信-开发区	开发用测试服务器	1	开发一服	3	1	0	0	0
+电信-Khu Thử	Máy chủ dùng để thử	1	Máy Thử	3	1	0	0	0

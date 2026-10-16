@@ -20,6 +20,7 @@
 #include <span>
 #include <string>
 #include <string_view>
+#include <unordered_map>
 #include <vector>
 
 namespace game::ui {
@@ -576,6 +577,29 @@ void BitmapFont::append_missing(float pen_x, float pen_y, std::uint32_t colour,
     const Placed placed{
         .column = cell % columns_, .row = cell / columns_, .pen_x = pen_x, .pen_y = pen_y, .colour = colour};
     append_cell(placed, out);
+}
+
+bool BitmapFont::paints(char32_t code) const {
+    const Glyph* glyph = find(code);
+    if (glyph == nullptr) return false;
+    if (!blank_known_) {
+        std::unordered_map<std::uint32_t, int> counts;
+        for (const Glyph& one : glyphs_) {
+            const auto key = (static_cast<std::uint32_t>(one.column) << 16U) | one.row;
+            ++counts[key];
+        }
+        int most = 0;
+        std::uint32_t shared = 0xFFFFFFFFU;
+        for (const auto& [key, count] : counts) {
+            if (count <= most) continue;
+            most = count;
+            shared = key;
+        }
+        blank_cell_ = most >= 8 ? shared : 0xFFFFFFFFU;
+        blank_known_ = true;
+    }
+    const auto cell = (static_cast<std::uint32_t>(glyph->column) << 16U) | glyph->row;
+    return cell != blank_cell_;
 }
 
 void BitmapFont::append_text(std::string_view text, float pen_x, float pen_y, std::uint32_t colour,

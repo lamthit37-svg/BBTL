@@ -37,6 +37,7 @@
 from __future__ import annotations
 
 import argparse
+import unicodedata
 import hashlib
 import io
 import sys
@@ -150,6 +151,7 @@ def add_table_cell(manifest: Manifest, key: str, value: str, where: str) -> None
 
 
 def add_row(manifest: Manifest, key: str, value: str, where: str) -> None:
+    value = unicodedata.normalize("NFC", value)
     if key.startswith(TABLE):
         add_table_cell(manifest, key, value, where)
         return
@@ -409,7 +411,22 @@ def deploy_files(contents: dict[str, bytes], data: Path, state: Path) -> int:
     return written
 
 
+def check_glossary(path: Path) -> None:
+    """Mỗi chữ zh đúng một dòng. Lặp là lỗi: bản dịch không biết theo dòng nào."""
+    seen: dict[str, int] = {}
+    for number, line in enumerate(path.read_text(encoding="utf-8").splitlines(), 1):
+        if not line or line.startswith("#"):
+            continue
+        zh = line.split("\t", 1)[0]
+        if zh in seen:
+            raise ManifestError(f"glossary dòng {number}: {zh} lặp với dòng {seen[zh]}")
+        seen[zh] = number
+
+
 def build(source: Path, data: Path, state: Path) -> int:
+    glossary = source.parent / "glossary.tsv"
+    if glossary.is_file():
+        check_glossary(glossary)
     language = source.stem
     manifest = read_manifest(source.read_text(encoding="utf-8"))
     contents = read_files(manifest, source.parent / language)

@@ -303,8 +303,16 @@ void expand_aim(Scan& scan, const Aim& aim, bool is_map) {
     Frame* frame = open_frame(scan);
     if (frame == nullptr) return;
     if (is_map) push(scan, kMapLink);
-    frame->own = std::format("#aB{{{},{},{},0,{}}}#u[{},{}]#u#aE", aim.across, aim.down, aim.scene, aim.name,
-        aim.across, aim.down);
+    // Tên trong #{_INFOAIM...,tên} là tham số chữ Hán. Bảng chuỗi có bản dịch nguyên văn thì vẽ bản đó.
+    std::string_view shown = aim.name;
+    if (scan.strings != nullptr) {
+        const std::optional<std::string_view> literal = scan.strings->find_literal(aim.name);
+        const std::optional<std::string_view> entry = literal ? std::nullopt : scan.strings->find(aim.name);
+        if (literal) shown = *literal;
+        if (entry) shown = *entry;
+    }
+    frame->own = std::format("#aB{{{},{},{},0,{}}}#u[{},{}]#u#aE", aim.across, aim.down, aim.scene, shown, aim.across,
+        aim.down);
     frame->text = frame->own;
     frame->after = is_map ? kPlainLink : Code{0};
 }
@@ -854,13 +862,19 @@ gui::TextSize Typesetter::wrapped_size(std::span<const Code> text, float width) 
     gui::TextSize size;
     std::size_t first = 0;
     Tally tally;
+    // Khác gốc: tiếng Việt không cắt giữa từ. Không có dấu ngắt từ đầu dòng tới chỗ tràn thì giữ
+    // nguyên từ (dòng được phép rộng hơn ô). Tiếng Trung không có dấu cách nên vẫn ngắt từng ký tự.
+    const bool is_vietnamese = std::ranges::any_of(text, [](Code code) { return is_vietnamese_letter(code); });
     for (std::size_t index = 0; index < text.size(); ++index) {
         add(tally, text[index]);
         const float reached = std::max(0.0F, tally.width);
         size.width = std::max(size.width, reached);
         if (!(reached > width)) continue;
+        const auto earlier = text.subspan(first, index - first);
+        const bool can_split = !is_vietnamese || std::ranges::find_if(earlier, is_breaker) != earlier.end();
+        if (!can_split) continue;
         std::size_t count = (index - first) + 1;
-        const std::size_t reach = std::min(count, kLookBack + 1);
+        const std::size_t reach = is_vietnamese ? count : std::min(count, kLookBack + 1);
         const auto tail = text.subspan(first + count - reach, reach);
         const auto found = std::ranges::find_if(tail.rbegin(), tail.rend(), is_breaker);
         const auto back = found == tail.rend() ? std::size_t{0} : static_cast<std::size_t>(found - tail.rbegin());
@@ -978,6 +992,7 @@ float Typesetter::draw_wrapped(std::span<const Code> text, const Area& area, std
     float total = 0.0F;
     std::size_t first = 0;
     Tally tally;
+    const bool is_vietnamese = std::ranges::any_of(text, [](Code code) { return is_vietnamese_letter(code); });
     for (std::size_t index = 0; index < text.size(); ++index) {
         Tally tried = tally;
         add(tried, text[index]);
@@ -985,8 +1000,15 @@ float Typesetter::draw_wrapped(std::span<const Code> text, const Area& area, std
             tally = tried;
             continue;
         }
+        const auto earlier = text.subspan(first, index - first);
+        const bool can_split = !is_vietnamese || std::ranges::find_if(earlier, is_breaker) != earlier.end();
+        if (!can_split) {
+            tally = tried;
+            continue;
+        }
         std::size_t count = index - first;
-        const auto tail = text.subspan(first + count - std::min(count, kLookBack), std::min(count, kLookBack));
+        const std::size_t look = is_vietnamese ? count : std::min(count, kLookBack);
+        const auto tail = text.subspan(first + count - look, look);
         const auto found = std::ranges::find_if(tail.rbegin(), tail.rend(), is_breaker);
         const bool is_backed = !is_breaker(text[index]) && found != tail.rend();
         const auto back = is_backed ? static_cast<std::size_t>(found - tail.rbegin()) + 1 : std::size_t{0};
@@ -1089,6 +1111,15 @@ void Typesetter::draw_underline(const Corner& pen, float advance) {
 std::optional<gui::Box> Typesetter::write(const gui::TextRun& run, std::span<const Code> text, Vertices& out) {
     out_ = &out;
     clip_ = run.clip.value_or(run.box);
+    // Bẻ dòng dời chữ lên 2 điểm so với ô. Dấu thanh nằm ở hàng trên ô glyph; cắt đúng ô thì mất
+    // dấu. Khác gốc: chỉ khi ô cắt là chính box và chữ có dấu tiếng Việt; ô cắt riêng, chữ Hán và
+    // ASCII giữ đúng clip của client gốc.
+    const bool is_vietnamese =
+        std::ranges::any_of(text, [](Code code) { return is_vietnamese_letter(code); });
+    if (is_vietnamese && !run.clip) {
+        clip_.y -= 2.0F;
+        clip_.h += 3.0F;
+    }
     if (run.rule == gui::TextRule::kEdit) return write_edit(run, text);
     Area area{.top = run.box.y, .bottom = run.box.y + run.box.h, .left = run.box.x, .right = run.box.x + run.box.w};
     settle(area, run, text);

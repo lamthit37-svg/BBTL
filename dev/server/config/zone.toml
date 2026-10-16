@@ -62,3 +62,10 @@ box_recycle_ms = 60000   # Gói đồ không ai nhặt biến mất sau bao nhi�
 #==================================================
 [audit]
 packet_stats_ms = 0   # Chu kỳ ghi thống kê tin mạng, mili giây; 0 là không thống kê
+
+#==================================================
+# Chữ người chơi
+#==================================================
+# Thoại lấy dialogue.<language>.txt. zh là chữ gốc của script.
+[text]
+language = "zh"   # vi, zh hoặc en

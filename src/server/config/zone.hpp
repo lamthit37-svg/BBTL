@@ -5,6 +5,7 @@
 
 #include <chrono>
 #include <cstdint>
+#include <string>
 #include <string_view>
 
 namespace game::config {
@@ -26,6 +27,8 @@ struct Zone {
     std::chrono::milliseconds period_change_ms{0};
     std::chrono::milliseconds box_recycle_ms{0};
     std::chrono::milliseconds packet_stats_ms{0};
+    // Đuôi tệp chữ: dialogue.<language>.txt. Mặc định tiếng Việt.
+    std::string language = "vi";
 };
 
 [[nodiscard]] ReadResult<Zone> read_zone(std::string_view text);

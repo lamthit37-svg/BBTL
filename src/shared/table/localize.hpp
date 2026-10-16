@@ -39,4 +39,9 @@ using LocalizeResult = std::expected<LocalizeCount, std::string>;
 // build_i18n.py).
 [[nodiscard]] std::string lang_name(std::string_view name);
 
+// Dòng dự trữ của bảng gốc (未使用) và bản dịch của nó. Lọc ở logic khi hiện tên, không xoá khỏi bản dịch.
+[[nodiscard]] constexpr bool is_reserved_name(std::string_view name) noexcept {
+    return name == "未使用" || name == "Chưa Dùng" || name == "Unused";
+}
+
 } // namespace game::table

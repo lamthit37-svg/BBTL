@@ -13,6 +13,8 @@
 # nhầm ngày 2026-10-09 (logo.png và button_sheet.png do chủ dự án vẽ, 12 nút sinh từ tấm đó). Chưa có
 # bản thay nên các ảnh này tạm giữ ảnh gốc của client; có ảnh thì đặt vào assets/i18n/vi/ rồi bỏ tiền
 # tố "#CHO_ANH " để dựng lại. build_i18n coi dòng bắt đầu bằng # là chú thích.
+# >>> letter_labels: khối dưới do TOOLS/content/letter_labels.py --sync ghi theo source/labels.tsv, không sửa tay.
+# <<< letter_labels
 #CHO_ANH image/CommonFrame9/Logo	logo.png
 # Ba thẻ kiểu tài khoản và nút vào game của bảng nhập tài khoản: chữ lấy từ tấm nút tiếng Việt chủ
 # dự án đưa ngày 2026-10-08 (source/button_sheet.png), đặt lên đúng nền nút gốc bằng
@@ -3605,6 +3607,45 @@ XZJC_200309_42	#LGiao tử hiện có:
 XZJC_200309_43	#LTiền hiện có:
 DXTZ_130812_05	#GXác minh
 DLYHQF_12121301	#e010101#gFF0FA0Server đề xuất
+DLYHQF_12121302	#e010101#gFF0FA0Chung kết Tranh Bá
+DLYHQF_12121303	#e010101#gFF0FA0Vòng khu Tranh Bá
+DLYHQF_12121304	#e010101#gFF0FA0Khu Điện Tín
+DLYHQF_12121305	#e010101#gFF0FA0Khu Võng Thông
+DLYHQF_12121306	#e010101#gFF0FA0Khu Song Tuyến
+DLYHQF_12121307	Nhấn để hiện máy chủ đề xuất
+DLYHQF_12121308	Nhấn để hiện máy chủ chung kết Tranh Bá
+DLYHQF_12121309	Nhấn để hiện máy chủ vòng khu Tranh Bá
+DLYHQF_12121310	Nhấn để hiện danh sách khu Điện Tín
+DLYHQF_12121311	Nhấn để ẩn danh sách khu Điện Tín
+DLYHQF_12121312	Nhấn để hiện danh sách khu Võng Thông
+DLYHQF_12121313	Nhấn để ẩn danh sách khu Võng Thông
+DLYHQF_12121314	Nhấn để hiện danh sách khu Song Tuyến
+DLYHQF_12121315	Nhấn để ẩn danh sách khu Song Tuyến
+DLYHQF_12121316	Kết quả tìm
+DLYHQF_12121317	Không thấy máy chủ khớp
+DLYHQF_12121324	(mới)
+DLYHQF_12121333	 máy chủ
+DLYHQF_12121344	Mặc định
+DLYHQF_12121362	#e010101#gFF0FA0Khu Đặc Sắc
+DLYHQF_12121363	Nhấn để hiện danh sách khu Đặc Sắc
+DLYHQF_12121364	Nhấn để ẩn danh sách khu Đặc Sắc
+DLYHQF_12121365	#e010101#gFF0FA0Khu Khinh Hưởng
+DLYHQF_12121366	Nhấn để hiện danh sách khu Khinh Hưởng
+DLYHQF_12121367	Nhấn để ẩn danh sách khu Khinh Hưởng
+DLJM_XML_46	Điện Tín
+DLJM_XML_48	Võng Thông
+DLJM_XML_50	Mạng Giáo Dục
+FWQWL_201130_01	#cfff263Hãy chọn máy chủ
+BHKF_150323_198	#e010101#gFF0FA0Bang Chí Tôn
+BHKF_150323_199	Nhấn để hiện máy chủ giải mời bang hội chí tôn
+WCJS_180521_71	#e010101#gFF0FA0Thiên Hạ Hội Võ
+WCJS_180521_72	Nhấn để hiện máy chủ Thiên Hạ Hội Võ
+SJDF_190603_194	#e010101#gFF0FA0Khu Đỉnh Phong
+SJDF_190603_195	Nhấn để hiện danh sách khu Đỉnh Phong
+SJDF_190603_196	Nhấn để ẩn danh sách khu Đỉnh Phong
+WEJR_251216_03	#e010101#gFF0FA0Khu WG
+WEJR_251216_04	#e010101#gFF0FA0Nhấn để hiện danh sách khu WG
+WEJR_251216_05	#e010101#gFF0FA0Nhấn để ẩn danh sách khu WG
 XLDL_140606_122	#cfff263Đặt lại
 SJSHL_140919_38	#cfff263Đã đổi tích luỹ:
 SJSHL_140919_39	#cfff263Tiêu dùng tích luỹ:
@@ -9257,11 +9298,11 @@ INTERFACE_XML_1012	Hãy nhập số lượng muốn thu mua
 INTERFACE_SELREC_1	Hãy nhập đơn giá nguyên liệu thu mua
 INTERFACE_SELREC_2	Tổng giá nguyên liệu thu mua
 INTERFACE_XML_1008	#c000000Công nguyên
-INTERFACE_XML_446	Màu lục: rất tốt
-INTERFACE_XML_501	Màu nhạt: tốt
-INTERFACE_XML_182	Màu cam: bận
-INTERFACE_XML_324	Màu đỏ: quá tải
-INTERFACE_XML_334	Màu xám: bảo trì
+INTERFACE_XML_446	Lục: tốt
+INTERFACE_XML_501	Nhạt: ổn
+INTERFACE_XML_182	Cam: bận
+INTERFACE_XML_324	Đỏ: đầy
+INTERFACE_XML_334	Xám: ngưng
 INTERFACE_XML_880	Trạng thái: quá tải
 INTERFACE_XML_711	Tốc độ mạng: thông suốt
 DLJM_XML_4	Bước trước

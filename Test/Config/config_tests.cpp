@@ -409,6 +409,7 @@ void real_zone(Context& context) {
         zone->period_change_ms.count() == 150000 && zone->box_recycle_ms.count() == 60000 &&
         zone->packet_stats_ms.count() == 0;
     context.expect(is_times, "các thời lượng");
+    context.expect(zone->language == "zh", "chữ thoại mặc định là chữ gốc");
 }
 
 void real_store(Context& context) {

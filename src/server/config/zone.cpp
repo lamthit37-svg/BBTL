@@ -25,6 +25,16 @@ constexpr std::string_view kRoot[] = {
     "world_clock",
     "drops",
     "audit",
+    "text",
+};
+constexpr std::string_view kText[] = {"language"};
+
+enum class Speech : std::uint8_t { kVi, kZh, kEn };
+
+constexpr detail::Choice<Speech> kSpeech[] = {
+    {.name = "vi", .value = Speech::kVi},
+    {.name = "zh", .value = Speech::kZh},
+    {.name = "en", .value = Speech::kEn},
 };
 constexpr std::string_view kTick[] = {"hz"};
 constexpr std::string_view kAoi[] = {"cell_size"};
@@ -94,6 +104,17 @@ void read_drops(Bag& bag, const Node* table, Zone& zone) {
     keep(cursor.millis("box_recycle_ms"), zone.box_recycle_ms);
 }
 
+void read_speech(Bag& bag, const Node* table, Zone& zone) {
+    if (table == nullptr) return;
+    Cursor cursor{bag, *table};
+    cursor.only(kText);
+    const std::optional<Speech> speech = cursor.choice("language", kSpeech);
+    if (!speech) return;
+    if (*speech == Speech::kZh) zone.language = "zh";
+    if (*speech == Speech::kEn) zone.language = "en";
+    if (*speech == Speech::kVi) zone.language = "vi";
+}
+
 void read_audit(Bag& bag, const Node* table, Zone& zone) {
     if (table == nullptr) return;
     Cursor cursor{bag, *table};
@@ -106,6 +127,7 @@ void read_audit(Bag& bag, const Node* table, Zone& zone) {
     cursor.schema();
     cursor.only(kRoot);
     Zone zone;
+    if (cursor.has("text")) read_speech(bag, cursor.child("text"), zone);
     read_tick(bag, cursor.child("tick"), zone);
     read_aoi(bag, cursor.child("aoi"), zone);
     read_capacity(bag, cursor.child("capacity"), zone);
