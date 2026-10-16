@@ -1,3 +1,19 @@
+/*==============================================================================
+ *  THIENLONG  |  SHARED
+ *------------------------------------------------------------------------------
+ *  TỆP       : src/shared/link/link.cpp
+ *  PHÂN HỆ   : Shared / Link / Link
+ *  CHUẨN     : C++23
+ *------------------------------------------------------------------------------
+ *  CHỨC NĂNG
+ *  - Phía client của kết nối cổng: TCP không chặn, bắt tay ghim khoá máy chủ,
+ *    rồi khung đã niêm.
+ *  - Hết hạn là giờ tường. Trần inbox chặn peer flood.
+ *------------------------------------------------------------------------------
+ *  TÁC GIẢ   : HiepHoon
+ *  TELEGRAM  : @Hoon9xx
+ *============================================================================*/
+
 #include "link/link.hpp"
 
 #include "net/net.hpp"
@@ -49,21 +65,32 @@ struct Deadline {
     return *sent;
 }
 
-// Các hàm trả std::optional<LinkError> dùng nullopt cho "xong, không lỗi": LinkError không có giá trị 0.
+// nullopt là "chưa xong, không lỗi". Bước gửi lớn hơn phần còn lại là lỗi mạng: subspan sau đó sẽ
+// ném.
+[[nodiscard]] std::optional<LinkError> send_step(net::TcpStream& stream, net::PollSet& poll,
+    std::span<const std::byte> data, std::size_t& sent, const Deadline& deadline) {
+    if (deadline.late()) return LinkError::kTimeout;
+    const LinkResult<std::size_t> step = take_send(stream, data.subspan(sent));
+    if (!step) return step.error();
+    if (*step > data.size() - sent) return LinkError::kNetwork;
+    if (*step > 0) {
+        sent += *step;
+        return std::nullopt;
+    }
+    poll.want_write(kSocket, true);
+    net::PollEvents events;
+    if (!poll.wait(deadline.left(), events)) return LinkError::kNetwork;
+    return std::nullopt;
+}
+
+// Các hàm trả std::optional<LinkError> dùng nullopt cho "xong, không lỗi": LinkError không có giá
+// trị 0.
 [[nodiscard]] std::optional<LinkError> send_all(net::TcpStream& stream, net::PollSet& poll,
     std::span<const std::byte> data, const Deadline& deadline) {
     std::size_t sent = 0;
     while (sent < data.size()) {
-        if (deadline.late()) return LinkError::kTimeout;
-        const LinkResult<std::size_t> step = take_send(stream, data.subspan(sent));
-        if (!step) return step.error();
-        if (*step > 0) {
-            sent += *step;
-            continue;
-        }
-        poll.want_write(kSocket, true);
-        net::PollEvents events;
-        if (!poll.wait(deadline.left(), events)) return LinkError::kNetwork;
+        const std::optional<LinkError> problem = send_step(stream, poll, data, sent, deadline);
+        if (problem) return problem;
     }
     poll.want_write(kSocket, false);
     return std::nullopt;
@@ -135,22 +162,51 @@ struct Deadline {
     return send_all(stream, poll, std::span{record}.first(*wrote), deadline);
 }
 
-[[nodiscard]] LinkResult<std::vector<std::byte>> open_one(net::TcpStream& stream, net::PollSet& poll,
-    secure::RecordPipe& pipe, const Deadline& deadline) {
+struct Drained {
+    std::optional<std::vector<std::byte>> frame;
+    bool progressed = false;
+};
+
+[[nodiscard]] bool erase_prefix(std::vector<std::byte>& inbox, std::size_t count) {
+    if (count > inbox.size()) return false;
+    if (count == 0) return true;
+    const auto drop = static_cast<std::ptrdiff_t>(count);
+    inbox.erase(inbox.begin(), inbox.begin() + drop);
+    return true;
+}
+
+[[nodiscard]] std::vector<std::byte> copy_plain(std::span<const std::byte> plain,
+    std::size_t written) {
+    const auto count = static_cast<std::ptrdiff_t>(written);
+    return std::vector<std::byte>(plain.begin(), plain.begin() + count);
+}
+
+// progressed: pipe đã kéo byte vào bộ đệm riêng, inbox còn việc thì caller gọi lại trước khi chờ
+// socket.
+[[nodiscard]] LinkResult<Drained> drain_record(secure::RecordPipe& pipe,
+    std::vector<std::byte>& inbox, std::span<std::byte> plain) {
+    const secure::ByteView input{inbox.data(), inbox.size()};
+    const secure::OpenResult opened = pipe.open_bytes(input, plain);
+    if (!opened) return std::unexpected(LinkError::kSecure);
+    if (!erase_prefix(inbox, opened->consumed)) return std::unexpected(LinkError::kSecure);
+    if (opened->written > plain.size()) return std::unexpected(LinkError::kSecure);
+    Drained drained;
+    drained.progressed = opened->consumed > 0;
+    if (opened->written > 0) drained.frame = copy_plain(plain, opened->written);
+    return drained;
+}
+
+[[nodiscard]] LinkResult<std::vector<std::byte>> open_one(net::TcpStream& stream,
+    net::PollSet& poll, secure::RecordPipe& pipe, const Deadline& deadline) {
     std::vector<std::byte> inbox;
     std::array<std::byte, secure::kMaxPlainBytes> plain{};
     while (true) {
         if (deadline.late()) return std::unexpected(LinkError::kTimeout);
-        const secure::ByteView input{inbox.data(), inbox.size()};
-        const secure::OpenResult opened = pipe.open_bytes(input, plain);
-        if (!opened) return std::unexpected(LinkError::kSecure);
-        if (opened->consumed > 0)
-            inbox.erase(inbox.begin(), inbox.begin() + static_cast<std::ptrdiff_t>(opened->consumed));
-        if (opened->written > 0)
-            return std::vector<std::byte>(plain.begin(), plain.begin() + static_cast<std::ptrdiff_t>(opened->written));
-        if (const std::optional<LinkError> more = recv_some(stream, poll, inbox, deadline)) {
-            return std::unexpected(*more);
-        }
+        const LinkResult<Drained> drained = drain_record(pipe, inbox, plain);
+        if (!drained) return std::unexpected(drained.error());
+        if (drained->frame) return std::move(*drained->frame);
+        const std::optional<LinkError> more = recv_some(stream, poll, inbox, deadline);
+        if (more) return std::unexpected(*more);
     }
 }
 
@@ -228,20 +284,13 @@ LinkResult<std::vector<std::byte>> Link::receive_frame(net::Milliseconds timeout
     if (!poll.add(stream_.handle(), kSocket)) return std::unexpected(LinkError::kNetwork);
     std::array<std::byte, secure::kMaxPlainBytes> plain{};
     while (true) {
-        const secure::ByteView input{inbox_.data(), inbox_.size()};
-        const secure::OpenResult opened = pipe_.open_bytes(input, plain);
-        if (!opened) return std::unexpected(LinkError::kSecure);
-        if (opened->consumed > 0) {
-            inbox_.erase(inbox_.begin(), inbox_.begin() + static_cast<std::ptrdiff_t>(opened->consumed));
-        }
-        if (opened->written > 0) {
-            const auto end = plain.begin() + static_cast<std::ptrdiff_t>(opened->written);
-            return std::vector<std::byte>(plain.begin(), end);
-        }
-        if (opened->consumed > 0) continue;
+        const LinkResult<Drained> drained = drain_record(pipe_, inbox_, plain);
+        if (!drained) return std::unexpected(drained.error());
+        if (drained->frame) return std::move(*drained->frame);
+        if (drained->progressed) continue;
         if (deadline.late()) return std::unexpected(LinkError::kTimeout);
         const std::optional<LinkError> more = recv_some(stream_, poll, inbox_, deadline);
-        if (more && *more != LinkError::kTimeout) return std::unexpected(*more);
+        if (more) return std::unexpected(*more);
     }
 }
 

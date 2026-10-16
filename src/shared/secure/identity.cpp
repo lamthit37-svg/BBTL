@@ -1,5 +1,19 @@
-// Khoá danh tính trên đĩa và các kiểu giữ bí mật. Tệp đúng 64 byte, riêng của tài khoản chạy gate
-// (secure/private_file.hpp), không ghi đè, không ghi log.
+/*==============================================================================
+ *  THIENLONG  |  SHARED
+ *------------------------------------------------------------------------------
+ *  TỆP       : src/shared/secure/identity.cpp
+ *  PHÂN HỆ   : Shared / Secure / Identity
+ *  CHUẨN     : C++23
+ *------------------------------------------------------------------------------
+ *  CHỨC NĂNG
+ *  - Khoá danh tính trên đĩa và các kiểu giữ bí mật. Tệp đúng 64 byte, riêng
+ *    của tài khoản chạy gate (secure/private_file.hpp), không ghi đè, không ghi
+ *    log.
+ *------------------------------------------------------------------------------
+ *  TÁC GIẢ   : HiepHoon
+ *  TELEGRAM  : @Hoon9xx
+ *============================================================================*/
+
 #include "secure/secure.hpp"
 
 #include "secure/detail/sodium.hpp"
@@ -7,11 +21,8 @@
 
 #include <array>
 #include <cstddef>
-#include <cstring>
 #include <expected>
 #include <filesystem>
-#include <fstream>
-#include <ios>
 #include <span>
 #include <string>
 #include <string_view>
@@ -41,29 +52,23 @@ void append_hex(std::string& text, std::byte value) {
     return !error;
 }
 
-// Quyền xét trước nội dung: tệp mà tài khoản khác đọc được thì khoá coi như đã lộ, dù nội dung đúng hay hỏng.
-[[nodiscard]] Result<std::array<std::byte, kSecretBytes>> read_secret(const std::filesystem::path& path) {
-    std::error_code error;
-    // Kiểu trước mã lỗi: MSVC đặt cả mã lỗi khi tệp không có, nên xét mã lỗi trước thì tệp thiếu thành kIo.
-    const std::filesystem::file_status found = std::filesystem::status(path, error);
-    if (found.type() == std::filesystem::file_type::not_found) return std::unexpected(Error::kNotFound);
-    if (error) return std::unexpected(Error::kIo);
-    if (found.type() != std::filesystem::file_type::regular) return std::unexpected(Error::kNotFound);
+[[nodiscard]] Error secret_error(PrivateRead read) noexcept {
+    if (read == PrivateRead::kMissing || read == PrivateRead::kNotFile) return Error::kNotFound;
+    if (read == PrivateRead::kExposed) return Error::kExposed;
+    if (read == PrivateRead::kWrongSize) return Error::kCorrupt;
+    return Error::kIo;
+}
+
+using SecretBytes = std::array<std::byte, kSecretBytes>;
+
+// Quyền và byte lấy trên cùng một handle. Không chứng minh được là riêng thì coi như đã lộ.
+[[nodiscard]] Result<SecretBytes> read_secret(const std::filesystem::path& path) {
+    SecretBytes bytes{};
     std::string reason;
-    if (!file_private(path, "khoá danh tính", reason)) return std::unexpected(Error::kExposed);
-    std::ifstream input{path, std::ios::binary};
-    if (!input) return std::unexpected(Error::kIo);
-    const auto size = std::filesystem::file_size(path, error);
-    if (error) return std::unexpected(Error::kIo);
-    if (size != kSecretBytes) return std::unexpected(Error::kCorrupt);
-    std::array<char, kSecretBytes> raw{};
-    input.read(raw.data(), static_cast<std::streamsize>(raw.size()));
-    const bool complete = static_cast<bool>(input);
-    std::array<std::byte, kSecretBytes> bytes{};
-    if (complete) std::memcpy(bytes.data(), raw.data(), bytes.size());
-    detail::wipe(std::as_writable_bytes(std::span{raw}));
-    if (!complete) return std::unexpected(Error::kIo);
-    return bytes;
+    const PrivateRead read = read_private_exact(path, bytes, "khoá danh tính", reason);
+    if (read == PrivateRead::kOk) return bytes;
+    detail::wipe(bytes);
+    return std::unexpected(secret_error(read));
 }
 
 [[nodiscard]] Result<void> write_secret(const std::filesystem::path& path, ByteView bytes) {
@@ -74,6 +79,10 @@ void append_hex(std::string& text, std::byte value) {
     if (create_private_file(path, bytes, "khoá danh tính", existed, reason)) return {};
     return std::unexpected(existed ? Error::kExists : Error::kIo);
 }
+
+constexpr std::string_view kExposedReason =
+    "tệp khoá danh tính không riêng (tài khoản khác làm chủ hoặc đọc được): "
+    "coi như khoá đã lộ, sinh khoá mới bằng --gen-key rồi phát lại khoá công khai cho client";
 
 } // namespace
 
@@ -90,9 +99,7 @@ std::string_view describe(Error error) noexcept {
     case Error::kCorrupt: return "tệp khoá danh tính hỏng";
     case Error::kExists: return "tệp khoá danh tính đã có, không ghi đè";
     case Error::kIo: return "không đọc hay ghi được tệp khoá danh tính";
-    case Error::kExposed:
-        return "tệp khoá danh tính không riêng (tài khoản khác làm chủ hoặc đọc được): coi như khoá đã lộ, sinh khoá "
-               "mới bằng --gen-key rồi phát lại khoá công khai cho client";
+    case Error::kExposed: return kExposedReason;
     }
     return "lỗi bảo mật không rõ";
 }

@@ -1,4 +1,17 @@
-// Đọc bảng TSV và các ô của một bản ghi (xem tsv.hpp).
+/*==============================================================================
+ *  THIENLONG  |  SHARED
+ *------------------------------------------------------------------------------
+ *  TỆP       : src/shared/table/tsv.cpp
+ *  PHÂN HỆ   : Shared / Table / Tsv
+ *  CHUẨN     : C++23
+ *------------------------------------------------------------------------------
+ *  CHỨC NĂNG
+ *  - Đọc bảng TSV và các ô của một bản ghi (xem tsv.hpp).
+ *------------------------------------------------------------------------------
+ *  TÁC GIẢ   : HiepHoon
+ *  TELEGRAM  : @Hoon9xx
+ *============================================================================*/
+
 #include "table/tsv.hpp"
 
 #include "core/aligned.hpp"
@@ -32,14 +45,22 @@ std::string cell_text(std::string_view cell, core::Layout layout) {
     return text;
 }
 
+// stop == npos nghĩa là hết dòng. Không lấy npos - start: size_t sẽ cuốn, substr chỉ tình cờ kẹp.
+[[nodiscard]] std::string take_cell(std::string_view line, std::size_t start, std::size_t stop,
+    core::Layout layout) {
+    const std::size_t end = stop == std::string_view::npos ? line.size() : stop;
+    const std::string_view raw = line.substr(start, end - start);
+    return cell_text(raw, layout);
+}
+
 // Tách một dòng theo tab; dòng rỗng cho một ô rỗng, nên ô cuối rỗng vẫn được tính.
 std::vector<std::string> split_tabs(std::string_view line, core::Layout layout) {
     std::vector<std::string> cells;
     std::size_t start = 0;
-    std::size_t stop = 0;
-    while (stop != std::string_view::npos) {
-        stop = line.find(kTab, start);
-        cells.push_back(cell_text(line.substr(start, stop - start), layout));
+    while (start <= line.size()) {
+        const std::size_t stop = line.find(kTab, start);
+        cells.push_back(take_cell(line, start, stop, layout));
+        if (stop == std::string_view::npos) break;
         start = stop + 1;
     }
     return cells;

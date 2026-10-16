@@ -1,9 +1,24 @@
-// Bộ đệm khung của một kết nối. Hai hộp là vector kèm vị trí bắt đầu: tiêu thụ ở đầu chỉ dời vị
-// trí, phần đã dùng được dồn đi ở lần thêm kế tiếp, nên mỗi lần thêm dời byte tối đa một lần.
-// Nguồn: TLBB Dev src/net/connection.cpp.
+/*==============================================================================
+ *  THIENLONG  |  SHARED
+ *------------------------------------------------------------------------------
+ *  TỆP       : src/shared/protocol/channel.cpp
+ *  PHÂN HỆ   : Shared / Protocol / Channel
+ *  CHUẨN     : C++23
+ *------------------------------------------------------------------------------
+ *  CHỨC NĂNG
+ *  - Bộ đệm khung của một kết nối. Hai hộp là vector kèm vị trí bắt đầu: tiêu
+ *    thụ ở đầu chỉ dời vị trí, phần đã dùng được dồn đi ở lần thêm kế tiếp, nên
+ *    mỗi lần thêm dời byte tối đa một lần. Nguồn: TLBB Dev
+ *    src/net/connection.cpp.
+ *------------------------------------------------------------------------------
+ *  TÁC GIẢ   : HiepHoon
+ *  TELEGRAM  : @Hoon9xx
+ *============================================================================*/
+
 // Khác gốc: compact dồn luôn, không kiểm start == 0 như Dev; mark_sent quá số byte đang chờ dừng
 // bằng core::check thay vì kẹp như Dev; receive so với inbox_room() (trần trừ phần còn giữ sau khi
 // bỏ khung đã trả) và trần mặc định chừa một mẩu đọc, xem channel.hpp.
+
 #include "protocol/channel.hpp"
 
 #include "core/check.hpp"
@@ -75,11 +90,15 @@ NextFrame Channel::next() noexcept {
 ChannelStatus Channel::queue(ByteView frame) {
     if (broken_) return std::unexpected(*broken_);
     const FrameResult whole = peek_frame(frame, kMaxBodyBytes);
-    const bool is_one_frame = whole && whole->has_value() && kHeaderBytes + (*whole)->body_bytes == frame.size();
+    const bool has_frame = whole && whole->has_value();
+    const std::size_t body = has_frame ? (*whole)->body_bytes : 0;
+    const bool is_one_frame = has_frame && kHeaderBytes + body == frame.size();
     core::check(is_one_frame, "Channel::queue: đầu vào không phải đúng một khung đã mã hoá");
-    if (frame.size() > limits_.outbox_bytes - outgoing().size()) {
-        return std::unexpected(ChannelError::kOutboxFull);
-    }
+    // So trước khi trừ: pending vượt trần thì phép trừ size_t cuốn thành "còn chỗ".
+    const std::size_t pending = outgoing().size();
+    const bool over = pending > limits_.outbox_bytes;
+    const std::size_t room = over ? 0 : limits_.outbox_bytes - pending;
+    if (over || frame.size() > room) return std::unexpected(ChannelError::kOutboxFull);
     compact(outbox_, outbox_start_);
     outbox_.insert(outbox_.end(), frame.begin(), frame.end());
     return {};
@@ -105,7 +124,11 @@ std::size_t Channel::inbox_held() const noexcept {
 // quá trần.
 std::size_t Channel::inbox_room() const noexcept {
     if (broken_) return 0;
-    return limits_.inbox_bytes - (inbox_held() - returned_bytes_);
+    const std::size_t held = inbox_held();
+    if (returned_bytes_ > held) return 0;
+    const std::size_t kept = held - returned_bytes_;
+    if (kept > limits_.inbox_bytes) return 0;
+    return limits_.inbox_bytes - kept;
 }
 
 void Channel::release_frame() noexcept {

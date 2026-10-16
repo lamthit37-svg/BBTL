@@ -1,9 +1,25 @@
-// Cây OPCODE 1.3 của Model::Build (PathLib.dll 0x180037330), vai C, B3. Từng bước theo so-do/b-b1-opcode-cay.md:
-// AABBTree::Build 0x18003bfb0 (mục 4), ComputeGlobalBox 0x18003e500 (4.1), Subdivide 0x18003c220 (4.2), Split
-// 0x18003c160 và GetSplittingValue 0x18003e810/0x18003ea30 (4.3), _BuildNoLeafTree 0x18003e250 (5),
-// AABBQuantizedNoLeafTree::Build 0x18003ce50 (6) với vòng sửa theo so-do/b-fenghuang-bo.md mục 5.
-// Mỗi phép f32 một biểu thức con, đúng nhóm như mã máy; không đệ quy (ngăn xếp tường minh) để tệp hỏng không làm
-// tràn ngăn xếp; thứ tự kết quả không đổi vì mỗi nút chỉ đụng đoạn chỉ số của nó.
+/*==============================================================================
+ *  THIENLONG  |  SHARED
+ *------------------------------------------------------------------------------
+ *  TỆP       : src/shared/collision/opcode_tree.cpp
+ *  PHÂN HỆ   : Shared / Collision / Opcode Tree
+ *  CHUẨN     : C++23
+ *------------------------------------------------------------------------------
+ *  CHỨC NĂNG
+ *  - Cây OPCODE 1.3 của Model::Build (PathLib.dll 0x180037330), vai C, B3. Từng
+ *    bước theo so-do/b-b1-opcode-cay.md: AABBTree::Build 0x18003bfb0 (mục 4),
+ *    ComputeGlobalBox 0x18003e500 (4.1), Subdivide 0x18003c220 (4.2), Split
+ *    0x18003c160 và GetSplittingValue 0x18003e810/0x18003ea30 (4.3),
+ *    _BuildNoLeafTree 0x18003e250 (5), AABBQuantizedNoLeafTree::Build
+ *    0x18003ce50 (6) với vòng sửa theo so-do/b-fenghuang-bo.md mục 5.
+ *------------------------------------------------------------------------------
+ *  TÁC GIẢ   : HiepHoon
+ *  TELEGRAM  : @Hoon9xx
+ *============================================================================*/
+
+// Mỗi phép f32 một biểu thức con, đúng nhóm như mã máy. Không đệ quy (ngăn xếp tường minh)
+// để tệp hỏng không làm tràn ngăn xếp. Thứ tự kết quả không đổi: mỗi nút chỉ đụng đoạn của nó.
+
 #include "collision/opcode_tree.hpp"
 
 #include "core/check.hpp"
@@ -101,26 +117,46 @@ private:
         return sum * kThird;
     }
 
-    // ComputeGlobalBox 0x18003e500: min nhận khi !(v > mn), max khi !(mx > v) (bằng nhau lấy giá trị mới).
-    void global_box(std::uint32_t id) noexcept {
-        BuildNode& node = pool_[id];
-        Axes low{kFloatMax, kFloatMax, kFloatMax};
-        Axes high{-kFloatMax, -kFloatMax, -kFloatMax};
-        for (std::uint32_t at = node.first; at < node.first + node.count; ++at) {
-            const std::uint32_t triangle = perm_[at];
-            for (std::size_t corner = 0; corner < 3; ++corner) {
-                for (std::size_t axis = 0; axis < 3; ++axis) {
-                    const float value = coordinate(triangle, corner, axis);
-                    if (!(value > low[axis])) low[axis] = value;
-                }
-            }
-            for (std::size_t corner = 0; corner < 3; ++corner) {
-                for (std::size_t axis = 0; axis < 3; ++axis) {
-                    const float value = coordinate(triangle, corner, axis);
-                    if (!(high[axis] > value)) high[axis] = value;
-                }
-            }
-        }
+    // ComputeGlobalBox 0x18003e500: min nhận khi !(v > mn), max khi !(mx > v) (bằng nhau lấy giá
+    // trị mới).
+    void lower_axis(Axes& low, std::uint32_t triangle, std::size_t corner,
+        std::size_t axis) const noexcept {
+        const float value = coordinate(triangle, corner, axis);
+        if (!(value > low[axis])) low[axis] = value;
+    }
+
+    void lower_corner(Axes& low, std::uint32_t triangle, std::size_t corner) const noexcept {
+        for (std::size_t axis = 0; axis < 3; ++axis)
+            lower_axis(low, triangle, corner, axis);
+    }
+
+    void lower_triangle(Axes& low, std::uint32_t triangle) const noexcept {
+        for (std::size_t corner = 0; corner < 3; ++corner)
+            lower_corner(low, triangle, corner);
+    }
+
+    void raise_axis(Axes& high, std::uint32_t triangle, std::size_t corner,
+        std::size_t axis) const noexcept {
+        const float value = coordinate(triangle, corner, axis);
+        if (!(high[axis] > value)) high[axis] = value;
+    }
+
+    void raise_corner(Axes& high, std::uint32_t triangle, std::size_t corner) const noexcept {
+        for (std::size_t axis = 0; axis < 3; ++axis)
+            raise_axis(high, triangle, corner, axis);
+    }
+
+    void raise_triangle(Axes& high, std::uint32_t triangle) const noexcept {
+        for (std::size_t corner = 0; corner < 3; ++corner)
+            raise_corner(high, triangle, corner);
+    }
+
+    void fold_triangle(std::uint32_t triangle, Axes& low, Axes& high) const noexcept {
+        lower_triangle(low, triangle);
+        raise_triangle(high, triangle);
+    }
+
+    void write_box(BuildNode& node, const Axes& low, const Axes& high) const noexcept {
         for (std::size_t axis = 0; axis < 3; ++axis) {
             const float sum = low[axis] + high[axis];
             node.box.center[axis] = sum * kHalf;
@@ -129,47 +165,82 @@ private:
         }
     }
 
-    // Subdivide 0x18003c220 (SPLATTER_POINTS) + Split 0x18003c160 (GEOM_CENTER); trả số phần tử con dương.
+    void global_box(std::uint32_t id) noexcept {
+        BuildNode& node = pool_[id];
+        Axes low{kFloatMax, kFloatMax, kFloatMax};
+        Axes high{-kFloatMax, -kFloatMax, -kFloatMax};
+        for (std::uint32_t at = node.first; at < node.first + node.count; ++at) {
+            fold_triangle(perm_[at], low, high);
+        }
+        write_box(node, low, high);
+    }
+
+    void add_centroids(Axes& sum, std::uint32_t triangle) const noexcept {
+        for (std::size_t axis = 0; axis < 3; ++axis)
+            sum[axis] += centroid(triangle, axis);
+    }
+
+    void add_variance(Axes& variance, const Axes& mean, std::uint32_t triangle) const noexcept {
+        for (std::size_t axis = 0; axis < 3; ++axis) {
+            const float delta = centroid(triangle, axis) - mean[axis];
+            const float square = delta * delta;
+            variance[axis] += square;
+        }
+    }
+
+    void scale_variance(Axes& variance, float inverse_less) const noexcept {
+        for (float& value : variance)
+            value *= inverse_less;
+    }
+
+    void add_split_vertices(float& vertex_sum, std::uint32_t triangle,
+        std::size_t axis) const noexcept {
+        for (std::size_t corner = 0; corner < 3; ++corner) {
+            vertex_sum += coordinate(triangle, corner, axis);
+        }
+    }
+
+    // Tâm > giá trị chia (so chặt, NaN sang âm) thì hoán lên đầu phần dương.
+    [[nodiscard]] std::uint32_t take_positive(std::uint32_t first, std::uint32_t index,
+        std::uint32_t positive, std::size_t axis, float split) noexcept {
+        const std::uint32_t at = first + index;
+        if (!(centroid(perm_[at], axis) > split)) return positive;
+        std::swap(perm_[at], perm_[first + positive]);
+        return positive + 1U;
+    }
+
+    // Subdivide 0x18003c220 (SPLATTER_POINTS) + Split 0x18003c160 (GEOM_CENTER); trả số phần tử con
+    // dương.
     [[nodiscard]] std::uint32_t subdivide(std::uint32_t id) noexcept {
         const std::uint32_t first = pool_[id].first;
         const std::uint32_t count = pool_[id].count;
         Axes sum{0.0F, 0.0F, 0.0F};
-        for (std::uint32_t at = first; at < first + count; ++at) {
-            for (std::size_t axis = 0; axis < 3; ++axis)
-                sum[axis] += centroid(perm_[at], axis);
-        }
-        const float inverse = 1.0F / static_cast<float>(std::uint64_t{count}); // cvtsi2ss 64 bit, divss
+        for (std::uint32_t at = first; at < first + count; ++at)
+            add_centroids(sum, perm_[at]);
+        const float inverse =
+            1.0F / static_cast<float>(std::uint64_t{count}); // cvtsi2ss 64 bit, divss
         Axes mean{};
         for (std::size_t axis = 0; axis < 3; ++axis)
             mean[axis] = sum[axis] * inverse;
         Axes variance{0.0F, 0.0F, 0.0F};
-        for (std::uint32_t at = first; at < first + count; ++at) {
-            for (std::size_t axis = 0; axis < 3; ++axis) {
-                const float delta = centroid(perm_[at], axis) - mean[axis];
-                const float square = delta * delta;
-                variance[axis] += square;
-            }
-        }
+        for (std::uint32_t at = first; at < first + count; ++at)
+            add_variance(variance, mean, perm_[at]);
         const float inverse_less = 1.0F / static_cast<float>(std::uint64_t{count} - 1U);
-        for (float& value : variance)
-            value *= inverse_less;
+        scale_variance(variance, inverse_less);
         std::size_t axis = 0;
         if (variance[1] > variance[0]) axis = 1;
         if (variance[2] > variance[axis]) axis = 2;
-        // GetSplittingValue(prims, n, box, axis) 0x18003e810: trung bình đỉnh, một thanh ghi tích luỹ, chia thật.
+        // GetSplittingValue(prims, n, box, axis) 0x18003e810: trung bình đỉnh, một thanh ghi tích
+        // luỹ, chia thật.
         float vertex_sum = 0.0F;
         for (std::uint32_t at = first; at < first + count; ++at) {
-            for (std::size_t corner = 0; corner < 3; ++corner)
-                vertex_sum += coordinate(perm_[at], corner, axis);
+            add_split_vertices(vertex_sum, perm_[at], axis);
         }
         const float split = vertex_sum / static_cast<float>(std::uint64_t{count} * 3U);
-        // Phân hoạch hoán đổi tại chỗ, không ổn định: tâm > giá trị chia (so chặt, NaN sang âm) dồn lên đầu.
+        // Phân hoạch hoán đổi tại chỗ, không ổn định.
         std::uint32_t positive = 0;
         for (std::uint32_t index = 0; index < count; ++index) {
-            if (centroid(perm_[first + index], axis) > split) {
-                std::swap(perm_[first + index], perm_[first + positive]);
-                ++positive;
-            }
+            positive = take_positive(first, index, positive, axis, split);
         }
         if (positive == 0 || positive == count) positive = count >> 1U; // chia hỏng, mLimit == 1
         return positive;
@@ -187,36 +258,55 @@ struct Pending {
     bool has_parent = false;
 };
 
-// _BuildNoLeafTree 0x18003e250: tiền thứ tự, con dương trước; trả hộp f32 từng nút và liên kết.
-void link_nodes(const TreeBuilder& builder, std::vector<QuantizedNode>& nodes, std::vector<Box>& boxes) {
+void bind_parent(std::vector<QuantizedNode>& nodes, const Pending& item,
+    std::uint32_t id) noexcept {
+    if (!item.has_parent) return;
+    QuantizedNode& node = nodes[item.parent];
+    std::uint32_t& slot = item.positive_side ? node.positive : node.negative;
+    slot = id << 1U;
+}
+
+Pending make_pending(std::uint32_t pool_id, std::uint32_t parent, bool positive_side) noexcept {
+    Pending next;
+    next.pool_id = pool_id;
+    next.parent = parent;
+    next.positive_side = positive_side;
+    next.has_parent = true;
+    return next;
+}
+
+void enqueue_side(std::vector<Pending>& pending, const TreeBuilder& builder, const BuildNode& child,
+    std::uint32_t pool_id, std::uint32_t parent, bool positive_side, std::uint32_t& slot) {
+    if (child.count == 1) {
+        slot = (builder.leaf_triangle(child) << 1U) | 1U;
+        return;
+    }
+    pending.push_back(make_pending(pool_id, parent, positive_side));
+}
+
+void link_one(const TreeBuilder& builder, std::vector<Pending>& pending,
+    std::vector<QuantizedNode>& nodes, std::vector<Box>& boxes, std::uint32_t& next) {
     const std::vector<BuildNode>& pool = builder.pool();
+    const Pending item = pending.back();
+    pending.pop_back();
+    const std::uint32_t id = next++;
+    bind_parent(nodes, item, id);
+    const BuildNode& node = pool[item.pool_id];
+    boxes[id] = node.box;
+    const BuildNode& positive = pool[node.positive];
+    const BuildNode& negative = pool[node.positive + 1];
+    // Con âm xếp trước con dương: lần rút sau lấy con dương (tiền thứ tự, con dương trước).
+    enqueue_side(pending, builder, negative, node.positive + 1, id, false, nodes[id].negative);
+    enqueue_side(pending, builder, positive, node.positive, id, true, nodes[id].positive);
+}
+
+// _BuildNoLeafTree 0x18003e250: tiền thứ tự, con dương trước; trả hộp f32 từng nút và liên kết.
+void link_nodes(const TreeBuilder& builder, std::vector<QuantizedNode>& nodes,
+    std::vector<Box>& boxes) {
     std::vector<Pending> pending{Pending{}};
     std::uint32_t next = 0;
-    while (!pending.empty()) {
-        const Pending item = pending.back();
-        pending.pop_back();
-        const std::uint32_t id = next++;
-        if (item.has_parent) {
-            std::uint32_t& slot = item.positive_side ? nodes[item.parent].positive : nodes[item.parent].negative;
-            slot = id << 1U;
-        }
-        const BuildNode& node = pool[item.pool_id];
-        boxes[id] = node.box;
-        const BuildNode& positive = pool[node.positive];
-        const BuildNode& negative = pool[node.positive + 1];
-        if (negative.count == 1) {
-            nodes[id].negative = (builder.leaf_triangle(negative) << 1U) | 1U;
-        } else {
-            pending.push_back(Pending{
-                .pool_id = node.positive + 1, .parent = id, .positive_side = false, .has_parent = true});
-        }
-        if (positive.count == 1) {
-            nodes[id].positive = (builder.leaf_triangle(positive) << 1U) | 1U;
-        } else {
-            pending.push_back(Pending{
-                .pool_id = node.positive, .parent = id, .positive_side = true, .has_parent = true});
-        }
-    }
+    while (!pending.empty())
+        link_one(builder, pending, nodes, boxes, next);
 }
 
 [[nodiscard]] float axis_of(Point3 point, std::size_t axis) noexcept {
@@ -233,41 +323,73 @@ void set_axis(Point3& point, std::size_t axis, float value) noexcept {
     }
 }
 
-// AABBQuantizedNoLeafTree::Build 0x18003ce50 sau _BuildNoLeafTree: cực đại, hệ số, lượng tử, vòng sửa.
+void raise_limits(Axes& center_max, Axes& extent_max, const Box& box) noexcept {
+    for (std::size_t axis = 0; axis < 3; ++axis) {
+        const float center = std::fabs(box.center[axis]);
+        if (center > center_max[axis]) center_max[axis] = center;
+        const float extent = std::fabs(box.extents[axis]);
+        if (extent > extent_max[axis]) extent_max[axis] = extent;
+    }
+}
+
+// ucomiss: NaN đi nhánh chia như "khác 0".
+[[nodiscard]] float safe_ratio(float max_value) noexcept {
+    if (is_zero(max_value)) return 0.0F;
+    return kQuantMax / max_value;
+}
+
+[[nodiscard]] float safe_inverse(float quant) noexcept {
+    if (is_zero(quant)) return 0.0F;
+    return 1.0F / quant;
+}
+
+void store_coeff(OpcodeTree& tree, const Axes& center_max, const Axes& extent_max,
+    Axes& center_quant, Axes& extent_quant, std::size_t axis) noexcept {
+    center_quant[axis] = safe_ratio(center_max[axis]);
+    extent_quant[axis] = safe_ratio(extent_max[axis]);
+    set_axis(tree.center_coeff, axis, safe_inverse(center_quant[axis]));
+    set_axis(tree.extents_coeff, axis, safe_inverse(extent_quant[axis]));
+}
+
+void quantize_axis(QuantizedNode& node, const Box& box, const OpcodeTree& tree,
+    const Axes& center_quant, const Axes& extent_quant, std::size_t axis) noexcept {
+    const float scaled_center = center_quant[axis] * box.center[axis];
+    const auto center_bits = static_cast<std::uint32_t>(truncate_to_int32(scaled_center));
+    const auto center_low = static_cast<std::uint16_t>(center_bits & 0xFFFFU);
+    node.center[axis] = std::bit_cast<std::int16_t>(center_low);
+    const float scaled_extent = extent_quant[axis] * box.extents[axis];
+    const auto extent_bits = static_cast<std::uint64_t>(truncate_to_int64(scaled_extent));
+    const auto quantized = static_cast<std::uint16_t>(extent_bits & 0xFFFFU);
+    const float center_f = static_cast<float>(node.center[axis]);
+    const float dequantized_center = center_f * axis_of(tree.center_coeff, axis);
+    const float coeff = axis_of(tree.extents_coeff, axis);
+    node.extents[axis] =
+        fix_extent(quantized, box.center[axis], box.extents[axis], dequantized_center, coeff);
+}
+
+void quantize_node(OpcodeTree& tree, const std::vector<Box>& boxes, const Axes& center_quant,
+    const Axes& extent_quant, std::size_t index) noexcept {
+    QuantizedNode& node = tree.nodes[index];
+    const Box& box = boxes[index];
+    for (std::size_t axis = 0; axis < 3; ++axis) {
+        quantize_axis(node, box, tree, center_quant, extent_quant, axis);
+    }
+}
+
+// AABBQuantizedNoLeafTree::Build 0x18003ce50 sau _BuildNoLeafTree: cực đại, hệ số, lượng tử, vòng
+// sửa.
 void quantize(OpcodeTree& tree, const std::vector<Box>& boxes) noexcept {
     Axes center_max{-kFloatMax, -kFloatMax, -kFloatMax};
     Axes extent_max{-kFloatMax, -kFloatMax, -kFloatMax};
-    for (const Box& box : boxes) {
-        for (std::size_t axis = 0; axis < 3; ++axis) {
-            const float center = std::fabs(box.center[axis]);
-            if (center > center_max[axis]) center_max[axis] = center;
-            const float extent = std::fabs(box.extents[axis]);
-            if (extent > extent_max[axis]) extent_max[axis] = extent;
-        }
-    }
+    for (const Box& box : boxes)
+        raise_limits(center_max, extent_max, box);
     Axes center_quant{};
     Axes extent_quant{};
     for (std::size_t axis = 0; axis < 3; ++axis) {
-        // ucomiss: NaN đi nhánh chia như "khác 0".
-        center_quant[axis] = !is_zero(center_max[axis]) ? kQuantMax / center_max[axis] : 0.0F;
-        extent_quant[axis] = !is_zero(extent_max[axis]) ? kQuantMax / extent_max[axis] : 0.0F;
-        set_axis(tree.center_coeff, axis, !is_zero(center_quant[axis]) ? 1.0F / center_quant[axis] : 0.0F);
-        set_axis(tree.extents_coeff, axis, !is_zero(extent_quant[axis]) ? 1.0F / extent_quant[axis] : 0.0F);
+        store_coeff(tree, center_max, extent_max, center_quant, extent_quant, axis);
     }
     for (std::size_t index = 0; index < boxes.size(); ++index) {
-        QuantizedNode& node = tree.nodes[index];
-        const Box& box = boxes[index];
-        for (std::size_t axis = 0; axis < 3; ++axis) {
-            const float scaled_center = center_quant[axis] * box.center[axis];
-            const auto center_bits = static_cast<std::uint32_t>(truncate_to_int32(scaled_center));
-            node.center[axis] = std::bit_cast<std::int16_t>(static_cast<std::uint16_t>(center_bits & 0xFFFFU));
-            const float scaled_extent = extent_quant[axis] * box.extents[axis];
-            const auto extent_bits = static_cast<std::uint64_t>(truncate_to_int64(scaled_extent));
-            const auto quantized = static_cast<std::uint16_t>(extent_bits & 0xFFFFU);
-            const float dequantized_center = static_cast<float>(node.center[axis]) * axis_of(tree.center_coeff, axis);
-            node.extents[axis] = fix_extent(quantized, box.center[axis], box.extents[axis], dequantized_center,
-                axis_of(tree.extents_coeff, axis));
-        }
+        quantize_node(tree, boxes, center_quant, extent_quant, index);
     }
 }
 
@@ -303,11 +425,21 @@ std::uint16_t fix_extent_reference(std::uint16_t quantized, float center, float 
 
 namespace {
 
-[[nodiscard]] bool grows(std::uint32_t value, float top, float bottom, float dequantized_center, float coeff) noexcept {
+[[nodiscard]] bool grows(std::uint32_t value, float top, float bottom, float dequantized_center,
+    float coeff) noexcept {
     const float dequantized = static_cast<float>(value) * coeff;
     const float upper = dequantized + dequantized_center;
     const float lower = dequantized_center - dequantized;
     return top > upper || lower > bottom;
+}
+
+void step_extent(std::uint32_t& low, std::uint32_t& high, std::uint32_t middle,
+    bool grow) noexcept {
+    if (grow) {
+        low = middle + 1U;
+        return;
+    }
+    high = middle;
 }
 
 } // namespace
@@ -328,11 +460,8 @@ std::uint16_t fix_extent(std::uint16_t quantized, float center, float extent, fl
     std::uint32_t high = std::uint32_t{kWrapped} + 1U; // 0x10000 = "không có"
     while (low < high) {
         const std::uint32_t middle = low + ((high - low) >> 1U);
-        if (grows(middle, top, bottom, dequantized_center, extents_coeff)) {
-            low = middle + 1U;
-        } else {
-            high = middle;
-        }
+        const bool grow = grows(middle, top, bottom, dequantized_center, extents_coeff);
+        step_extent(low, high, middle, grow);
     }
     return low > kWrapped ? kWrapped : static_cast<std::uint16_t>(low);
 }

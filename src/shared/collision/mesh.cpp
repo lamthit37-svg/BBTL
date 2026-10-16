@@ -1,5 +1,19 @@
-// Lưới sau nạp của BuildingCollision (vai C, B3): mã 1 theo ô 1 lớp get 0x180004580, mã 2 theo 0x180004a00 của
-// PathLib.dll; luật và địa chỉ ở so-do/b-fenghuang-bo.md (B), đã trùng byte bộ nhớ DLL trên 26 cảnh.
+/*==============================================================================
+ *  THIENLONG  |  SHARED
+ *------------------------------------------------------------------------------
+ *  TỆP       : src/shared/collision/mesh.cpp
+ *  PHÂN HỆ   : Shared / Collision / Mesh
+ *  CHUẨN     : C++23
+ *------------------------------------------------------------------------------
+ *  CHỨC NĂNG
+ *  - Lưới sau nạp của BuildingCollision (vai C, B3): mã 1 theo ô 1 lớp get
+ *    0x180004580, mã 2 theo 0x180004a00 của PathLib.dll; luật và địa chỉ ở
+ *    so-do/b-fenghuang-bo.md (B), đã trùng byte bộ nhớ DLL trên 26 cảnh.
+ *------------------------------------------------------------------------------
+ *  TÁC GIẢ   : HiepHoon
+ *  TELEGRAM  : @Hoon9xx
+ *============================================================================*/
+
 #include "collision/mesh.hpp"
 
 #include "collision/transform.hpp"
@@ -25,7 +39,10 @@ constexpr float kKeyScale = 10000.0F; // hằng 10000 ở 0x180043c18 (mulss)
 constexpr std::uint32_t kCountMask = 0xFFFFU; // movzx word: NbTris, NbVerts mod 65536
 
 [[nodiscard]] Key vertex_key(Point3 point) noexcept {
-    return Key{vertex_key_component(point.x), vertex_key_component(point.y), vertex_key_component(point.z)};
+    const std::int32_t x = vertex_key_component(point.x);
+    const std::int32_t y = vertex_key_component(point.y);
+    const std::int32_t z = vertex_key_component(point.z);
+    return Key{x, y, z};
 }
 
 // Map đỉnh 0x180002b10: khoá đã có thì trả chỉ số cũ; chưa có thì đẩy f32 GỐC, chỉ số = cỡ vector − 1.
@@ -45,6 +62,17 @@ private:
     std::map<Key, std::uint32_t> ids_; // so từ điển có dấu trên 3 i32 như 0x180002c20..0x180002c39
 };
 
+// Thứ tự gọi map: đỉnh 2 (0x1800046d5), đỉnh 1 (0x1800046e9), đỉnh 0 (0x1800046fd).
+void append_cell(VertexMap& map, std::vector<Corners>& triples, const CellView& cell) {
+    for (std::uint32_t index = 0; index < cell.triangle_count; ++index) {
+        const Triangle triangle = cell.triangle(index);
+        const std::uint32_t third = map.id(triangle.corners[2]);
+        const std::uint32_t second = map.id(triangle.corners[1]);
+        const std::uint32_t first = map.id(triangle.corners[0]);
+        triples.push_back(Corners{first, second, third});
+    }
+}
+
 [[nodiscard]] std::expected<Mesh, MeshError> build_cells(const BuildingFileView& view) {
     if (view.triangle_count > kMaxCellRecords) return std::unexpected(MeshError::kTooLarge);
     Mesh mesh;
@@ -54,14 +82,7 @@ private:
     std::size_t offset = 0;
     for (std::uint32_t cell_index = 0; cell_index < view.cell_count; ++cell_index) {
         const CellView cell = view.cell_at(offset);
-        for (std::uint32_t index = 0; index < cell.triangle_count; ++index) {
-            const Triangle triangle = cell.triangle(index);
-            // Thứ tự gọi map: đỉnh 2 (0x1800046d5), đỉnh 1 (0x1800046e9), đỉnh 0 (0x1800046fd).
-            const std::uint32_t third = map.id(triangle.corners[2]);
-            const std::uint32_t second = map.id(triangle.corners[1]);
-            const std::uint32_t first = map.id(triangle.corners[0]);
-            triples.push_back(Corners{first, second, third});
-        }
+        append_cell(map, triples, cell);
         offset = cell.next;
     }
     // std::set (0x180001d30) rồi chép theo thứ tự duyệt giữa = sắp tăng từ điển, bỏ trùng. Chỉ số < 2^31 nên so
@@ -73,6 +94,32 @@ private:
     mesh.triangle_count = static_cast<std::uint32_t>(mesh.triangles.size()) & kCountMask;
     mesh.vertex_count = static_cast<std::uint32_t>(mesh.vertices.size()) & kCountMask;
     return mesh;
+}
+
+void append_vertices(Mesh& mesh, const BuildingFileView& view, const BlockView& block,
+    const Placement& placement) {
+    for (std::uint32_t vertex = 0; vertex < block.vertex_count; ++vertex) {
+        const Point3 local = block.vertex(vertex);
+        const Point3 world = transform_vertex(view.frame, placement, local);
+        mesh.vertices.push_back(world);
+    }
+}
+
+void append_faces(Mesh& mesh, const BlockView& block, std::uint32_t base) {
+    for (std::uint32_t face_index = 0; face_index < block.face_count; ++face_index) {
+        const Face face = block.face(face_index);
+        const std::uint32_t first = face.corners[0] + base;
+        const std::uint32_t second = face.corners[1] + base;
+        const std::uint32_t third = face.corners[2] + base;
+        mesh.triangles.push_back(Corners{first, second, third});
+    }
+}
+
+void append_placement(Mesh& mesh, const BuildingFileView& view, const BlockView& block,
+    const Placement& placement) {
+    const auto base = static_cast<std::uint32_t>(mesh.vertices.size());
+    append_vertices(mesh, view, block, placement);
+    append_faces(mesh, block, base);
 }
 
 [[nodiscard]] std::expected<Mesh, MeshError> build_blocks(const BuildingFileView& view) {
@@ -92,21 +139,14 @@ private:
         vertex_total += blocks[placement.block].vertex_count;
         face_total += blocks[placement.block].face_count;
     }
-    if (vertex_total > kMaxMeshVertices || face_total > kMaxMeshTriangles) return std::unexpected(MeshError::kTooLarge);
+    const bool too_many = vertex_total > kMaxMeshVertices || face_total > kMaxMeshTriangles;
+    if (too_many) return std::unexpected(MeshError::kTooLarge);
     Mesh mesh;
     mesh.vertices.reserve(vertex_total);
     mesh.triangles.reserve(face_total);
     for (std::uint32_t index = 0; index < view.placement_count; ++index) {
         const Placement placement = view.placement(index);
-        const BlockView& block = blocks[placement.block];
-        const auto base = static_cast<std::uint32_t>(mesh.vertices.size());
-        for (std::uint32_t vertex = 0; vertex < block.vertex_count; ++vertex) {
-            mesh.vertices.push_back(transform_vertex(view.frame, placement, block.vertex(vertex)));
-        }
-        for (std::uint32_t face_index = 0; face_index < block.face_count; ++face_index) {
-            const Face face = block.face(face_index);
-            mesh.triangles.push_back(Corners{face.corners[0] + base, face.corners[1] + base, face.corners[2] + base});
-        }
+        append_placement(mesh, view, blocks[placement.block], placement);
     }
     mesh.triangle_count = static_cast<std::uint32_t>(mesh.triangles.size());
     mesh.vertex_count = static_cast<std::uint32_t>(mesh.vertices.size());

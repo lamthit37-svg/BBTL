@@ -1,8 +1,22 @@
-// Cài đặt tầng byte. Số ghép và tách từng byte bằng phép dịch nên byte trên dây chỉ phụ thuộc giá
-// trị, không phụ thuộc endianness hay padding; không memcpy struct, không reinterpret_cast vùng
-// byte. Nguồn: TLBB Dev src/protocol/wire.cpp. Khác gốc: kiểm UTF-8 trên vùng byte và coi byte 0 là
-// byte đầu sai ngay trong bảng phân loại; Writer kiểm trần thân ở từng lần nối thay vì chỉ ở
-// finish.
+/*==============================================================================
+ *  THIENLONG  |  SHARED
+ *------------------------------------------------------------------------------
+ *  TỆP       : src/shared/protocol/wire.cpp
+ *  PHÂN HỆ   : Shared / Protocol / Wire
+ *  CHUẨN     : C++23
+ *------------------------------------------------------------------------------
+ *  CHỨC NĂNG
+ *  - Cài đặt tầng byte. Số ghép và tách từng byte bằng phép dịch nên byte trên
+ *    dây chỉ phụ thuộc giá trị, không phụ thuộc endianness hay padding; không
+ *    memcpy struct, không reinterpret_cast vùng byte. Nguồn: TLBB Dev
+ *    src/protocol/wire.cpp. Khác gốc: kiểm UTF-8 trên vùng byte và coi byte 0
+ *    là byte đầu sai ngay trong bảng phân loại; Writer kiểm trần thân ở từng
+ *    lần nối thay vì chỉ ở finish.
+ *------------------------------------------------------------------------------
+ *  TÁC GIẢ   : HiepHoon
+ *  TELEGRAM  : @Hoon9xx
+ *============================================================================*/
+
 #include "protocol/wire.hpp"
 
 #include <algorithm>
@@ -85,6 +99,10 @@ constexpr std::array kLeads{
 
 [[nodiscard]] bool is_continuation(std::byte byte) noexcept {
     return (std::to_integer<unsigned>(byte) & 0xC0U) == 0x80U;
+}
+
+[[nodiscard]] char as_char(std::byte part) noexcept {
+    return static_cast<char>(part);
 }
 
 // Số byte của ký tự ở đầu text, 0 khi ký tự hỏng hay bị cắt cụt. text không rỗng.
@@ -297,7 +315,7 @@ std::string Reader::text(std::size_t max_bytes) {
     if (!is_text(raw)) fail(WireError::kBadText);
     if (error_) return {};
     std::string value(size, '\0');
-    std::ranges::transform(raw, value.begin(), [](std::byte part) { return static_cast<char>(part); });
+    std::ranges::transform(raw, value.begin(), as_char);
     return value;
 }
 
@@ -312,8 +330,9 @@ std::size_t Reader::count(std::size_t max_count) noexcept {
     // Dựa vào bất biến "mỗi phần tử chiếm ít nhất một byte trên dây", do luật G6 của
     // gen_protocol.py bảo đảm (phần tử list không được là record mã hoá ra 0 byte). Nhờ đó số
     // khai vượt số byte còn lại thì thân chắc chắn thiếu: báo luôn để bên gọi không cấp phát theo
-    // số khai.
-    if (size > body_.size() - position_) fail(WireError::kTruncated);
+    // số khai. So trước khi trừ: position_ lệch thì không cuốn size_t.
+    const std::size_t rest = position_ > body_.size() ? 0 : body_.size() - position_;
+    if (size > rest) fail(WireError::kTruncated);
     if (error_) return 0;
     return size;
 }

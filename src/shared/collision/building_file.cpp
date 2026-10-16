@@ -1,11 +1,26 @@
-// Bộ đọc .WCollision: một lượt đi trọn tệp, kiểm rồi ghi số đếm và các span vào view. Không cấp
-// phát: lỗi trả qua std::expected của một enum, view chỉ chứa số và span.
-// Theo PathLib.dll ở mọi chỗ DLL có hành vi xác định (nguyên tắc L): mã bản khác 0xFF000002 đọc như bản 1, số ô
-// n <= 0 là mô hình rỗng, byte sau phần cuối bị bỏ qua (oracle của B: so-do/b-goc-n-am-ma-la.log và
-// so-do/b-goc-byte-thua.log). Từ chối khi bản gốc đọc ngoài biên (cụt, số đếm vượt tệp, chỉ số ngoài khối) và ở
-// các chỗ ghi `Khác gốc:` bên dưới.
+/*==============================================================================
+ *  THIENLONG  |  SHARED
+ *------------------------------------------------------------------------------
+ *  TỆP       : src/shared/collision/building_file.cpp
+ *  PHÂN HỆ   : Shared / Collision / Building File
+ *  CHUẨN     : C++23
+ *------------------------------------------------------------------------------
+ *  CHỨC NĂNG
+ *  - Bộ đọc .WCollision: một lượt đi trọn tệp, kiểm rồi ghi số đếm và các span
+ *    vào view. Không cấp phát: lỗi trả qua std::expected của một enum, view chỉ
+ *    chứa số và span. Theo PathLib.dll ở mọi chỗ DLL có hành vi xác định
+ *    (nguyên tắc L): mã bản khác 0xFF000002 đọc như bản 1, số ô n <= 0 là mô
+ *    hình rỗng, byte sau phần cuối bị bỏ qua (oracle của B:
+ *    so-do/b-goc-n-am-ma-la.log và so-do/b-goc-byte-thua.log).
+ *------------------------------------------------------------------------------
+ *  TÁC GIẢ   : HiepHoon
+ *  TELEGRAM  : @Hoon9xx
+ *============================================================================*/
+
+// Từ chối khi bản gốc đọc ngoài biên (cụt, số đếm vượt tệp, chỉ số ngoài khối) và ở các chỗ ghi `Khác gốc:` bên dưới.
 // Mọi kích cỡ lấy từ tệp được so với số byte còn lại và trả LoadError; core::check chỉ giữ bất biến nội bộ (offset
 // trong vùng đã cắt đúng cỡ, chỉ số truyền vào hàm truy cập).
+
 #include "collision/building_file.hpp"
 
 #include "core/check.hpp"
@@ -244,6 +259,15 @@ private:
 // không chuẩn hoá, không có ngưỡng nào (quaternion toàn 0 của G3-50 cũng nạp), vì Model phải tái hiện đúng hình méo
 // mà bản gốc dựng cho họ congren từ quaternion không đơn vị của họ đó; congrentx trong T2 là chốt kiểm. Tỉ lệ lượt
 // đặt bằng 0, âm hay subnormal cũng nhận (V-6); chỉ tỉ lệ khung bị kiểm (check_frame).
+void note_placement(std::uint32_t& nonfinite, std::uint32_t& largest, Bytes placements,
+    std::size_t at) noexcept {
+    const Bytes placement = drop(placements, at);
+    const Bytes floats = head(placement, kPlacementFloatBytes);
+    nonfinite += count_nonfinite(floats);
+    const std::uint32_t block = load_at<std::uint16_t>(placements, at + kPlacementFloatBytes);
+    largest = std::max(largest, block);
+}
+
 [[nodiscard]] Problem check_placements(Reader& reader, BuildingFileView& view) noexcept {
     const Word count = take_half(reader, kTruncatedPlacementCount);
     if (!count) return count.error();
@@ -254,8 +278,7 @@ private:
     std::uint32_t nonfinite = 0;
     std::uint32_t largest = 0;
     for (std::size_t at = 0; at < placements->size(); at += kPlacementBytes) {
-        nonfinite += count_nonfinite(head(drop(*placements, at), kPlacementFloatBytes));
-        largest = std::max<std::uint32_t>(largest, load_at<std::uint16_t>(*placements, at + kPlacementFloatBytes));
+        note_placement(nonfinite, largest, *placements, at);
     }
     // Khác gốc: lượt đặt NaN hay vô cực bị từ chối, bản gốc giữ; 435 tệp thật có 0 giá trị như vậy.
     if (nonfinite != 0) return kNonfinitePlacement;

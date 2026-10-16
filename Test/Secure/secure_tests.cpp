@@ -344,6 +344,14 @@ void missing_key_is_not_found(Context& context) {
     remove_scratch(dir);
 }
 
+// Thư mục không phải tệp khoá. CreateFile từ chối thư mục; phải ra không thấy, không phải lỗi đĩa.
+void directory_key_is_not_found(Context& context) {
+    const std::filesystem::path dir = scratch_dir();
+    const secure::Result<Identity> loaded = Identity::load(dir);
+    context.expect(!loaded.has_value() && loaded.error() == Error::kNotFound, "thư mục không phải tệp khoá");
+    remove_scratch(dir);
+}
+
 void short_key_is_corrupt(Context& context) {
     const std::filesystem::path dir = scratch_dir();
     const std::filesystem::path file = dir / "identity.key";
@@ -378,6 +386,19 @@ void exposed_key_is_refused(Context& context) {
     context.expect(game::test::write_world_readable(file, std::string(secure::kSecretBytes, 'x')), "dựng được tệp lỏng");
     const secure::Result<Identity> loaded = Identity::load(file);
     context.expect(!loaded.has_value() && loaded.error() == Error::kExposed, "tệp khoá lỏng quyền bị từ chối");
+    remove_scratch(dir);
+}
+
+// Hồi quy: grants_read cũ bỏ qua FILE_GENERIC_WRITE. Everyone ghi được thì ghi đè khoá rồi siết DACL.
+void writable_key_is_refused(Context& context) {
+    const std::filesystem::path dir = scratch_dir();
+    const std::filesystem::path file = dir / "identity.key";
+    const std::string bytes(secure::kSecretBytes, 'x');
+    context.expect(game::test::write_world_writable(file, bytes), "dựng được tệp ai cũng ghi");
+    std::string error;
+    context.expect(!secure::file_private(file, "identity.key", error) && !error.empty(), "tệp ai cũng ghi không riêng");
+    const secure::Result<Identity> loaded = Identity::load(file);
+    context.expect(!loaded.has_value() && loaded.error() == Error::kExposed, "nạp khoá ai cũng ghi là lộ");
     remove_scratch(dir);
 }
 
@@ -450,9 +471,11 @@ constexpr std::array kCases{
     Case{.name = "short_reply_is_protocol", .body = short_reply_is_protocol},
     Case{.name = "key_file_round_trip", .body = key_file_round_trip},
     Case{.name = "missing_key_is_not_found", .body = missing_key_is_not_found},
+    Case{.name = "directory_key_is_not_found", .body = directory_key_is_not_found},
     Case{.name = "short_key_is_corrupt", .body = short_key_is_corrupt},
     Case{.name = "stored_key_is_private", .body = stored_key_is_private},
     Case{.name = "exposed_key_is_refused", .body = exposed_key_is_refused},
+    Case{.name = "writable_key_is_refused", .body = writable_key_is_refused},
     Case{.name = "flipped_key_is_corrupt", .body = flipped_key_is_corrupt},
     Case{.name = "wiped_after_destroy", .body = wiped_after_destroy},
     Case{.name = "public_hex_is_lowercase", .body = public_hex_is_lowercase},

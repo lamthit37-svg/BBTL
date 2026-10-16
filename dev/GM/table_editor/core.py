@@ -211,7 +211,7 @@ def annotations(relpath: str, repo: Path = REPO) -> dict[str, dict[str, str]]:
     out = {}
     for row in table.rows:
         get = lambda key: row[idx[key]] if key in idx else ""
-        out[get("name")] = {"original": get("original"), "type": get("type"), "note": get("note")}
+        out[get("name")] = {"original": get("original"), "type": get("type"), "note": get("note"), "index": get("index")}
     return out
 
 

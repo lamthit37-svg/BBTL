@@ -9,19 +9,22 @@ HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE))
 
 try:
-    from PySide6.QtCore import QByteArray, QRectF, QSize
-    from PySide6.QtGui import QIcon, QPainter, QPalette, QPixmap
+    from PySide6.QtCore import QByteArray, QEvent, QObject, QRect, QRectF, QSize, QTimer
+    from PySide6.QtWidgets import QToolTip
+    from PySide6.QtGui import QCursor, QIcon, QPainter, QPalette, QPixmap
     from PySide6.QtSvg import QSvgRenderer
     from PySide6.QtCore import QAbstractTableModel, QModelIndex, QSortFilterProxyModel, Qt
     from PySide6.QtGui import QAction, QColor, QKeySequence, QPen, QUndoCommand, QUndoStack
     from PySide6.QtWidgets import (
         QAbstractItemView, QApplication, QFileDialog, QHBoxLayout, QLabel, QLineEdit, QMainWindow,
         QMessageBox, QPlainTextEdit, QSplitter, QStyledItemDelegate, QTableView, QToolBar, QTreeWidget,
-        QTreeWidgetItem, QVBoxLayout, QWidget,
+        QTreeWidgetItem, QVBoxLayout, QWidget, QMenu, QDialog, QFormLayout, QCheckBox, QDialogButtonBox,
+        QDockWidget, QUndoView,
     )
 except ImportError:
     sys.exit("Chưa có PySide6. Cài bằng: py -3 -m pip install PySide6")
 
+import bulk
 import core  # đặt sys.path tới TOOLS/server của repo
 import tsv_file as tf
 
@@ -62,7 +65,7 @@ MAX_COL_CHARS = 48
 
 class EditCell(QUndoCommand):
     def __init__(self, model, row, col, old, new):
-        super().__init__(f"sửa ô {row + 1},{col + 1}")
+        super().__init__(f"Sửa ô dòng {row + 1}, cột {model.lt.columns[col]}")
         self.m, self.r, self.c, self.old, self.new = model, row, col, old, new
 
     def redo(self):
@@ -72,31 +75,45 @@ class EditCell(QUndoCommand):
         self.m._set(self.r, self.c, self.old)
 
 
-class InsertRow(QUndoCommand):
-    def __init__(self, model, row):
-        super().__init__("thêm dòng")
-        self.m, self.r = model, row
+class BulkEdit(QUndoCommand):
+    """Một thao tác hàng loạt = một bước hoàn tác; lưu (dòng, cột, cũ, mới) của từng ô."""
+
+    def __init__(self, model, label, changes):
+        super().__init__(label)
+        self.m, self.changes = model, changes
 
     def redo(self):
-        self.m._insert(self.r, [""] * len(self.m.lt.columns))
+        self.m.apply_changes(self.changes, True)
 
     def undo(self):
-        self.m._remove(self.r)
+        self.m.apply_changes(self.changes, False)
+
+
+class InsertRows(QUndoCommand):
+    """items: (vị trí sau khi chèn, dữ liệu dòng), tăng dần."""
+
+    def __init__(self, model, label, items):
+        super().__init__(label)
+        self.m, self.items = model, items
+
+    def redo(self):
+        self.m.insert_many(self.items)
+
+    def undo(self):
+        self.m.remove_many([p for p, _ in self.items])
 
 
 class RemoveRows(QUndoCommand):
-    def __init__(self, model, rows):
-        super().__init__("xoá dòng")
+    def __init__(self, model, rows, label=None):
+        super().__init__(label or f"Xoá {len(rows)} dòng")
         self.m, self.rows, self.saved = model, sorted(rows), []
 
     def redo(self):
-        self.saved = [(r, self.m.rows[r]) for r in self.rows]
-        for r in reversed(self.rows):
-            self.m._remove(r)
+        self.saved = [(r, list(self.m.rows[r])) for r in self.rows]
+        self.m.remove_many(self.rows)
 
     def undo(self):
-        for r, data in self.saved:
-            self.m._insert(r, data)
+        self.m.insert_many(self.saved)
 
 
 class TableModel(QAbstractTableModel):
@@ -106,6 +123,14 @@ class TableModel(QAbstractTableModel):
         super().__init__()
         self.lt, self.rows, self.ann, self.stack = lt, lt.rows, ann, stack
         self.has_ann_file = core.annotation_path(lt.relpath) is not None
+        self._stats: dict[int, bulk.Stats] = {}
+        # Thống kê cột tính dần lúc rảnh, mỗi nhịp một cột (≈10 ms với 20k dòng): mở bảng không chậm,
+        # chú giải cột không phải chờ tính. Sửa ô chỉ huỷ cột bị sửa rồi xếp lại.
+        self._warm = QTimer()
+        self._warm.setInterval(0)
+        self._warm.timeout.connect(self._warm_step)
+        self._pending = list(range(len(lt.columns)))
+        self._warm.start()
 
     def rowCount(self, parent=QModelIndex()):
         return 0 if parent.isValid() else len(self.rows)
@@ -135,10 +160,38 @@ class TableModel(QAbstractTableModel):
             if role == Qt.DisplayRole:
                 return self.lt.columns[section]
             if role == Qt.ToolTipRole:
-                return "\n".join(self.column_lines(section))
+                return self.tooltip(section)
         elif role == Qt.DisplayRole:
             return str(section + 1)
         return None
+
+    def _warm_step(self):
+        while self._pending:
+            c = self._pending.pop(0)
+            if c not in self._stats:
+                self.stats(c)
+                return
+        self._warm.stop()
+
+    def invalidate(self, cols=None):
+        cols = range(len(self.lt.columns)) if cols is None else cols
+        for c in cols:
+            self._stats.pop(c, None)
+            if c not in self._pending:
+                self._pending.append(c)
+        self._warm.start()
+
+    def stats(self, c):
+        """Thống kê cột, tính khi cần và giữ đến lần sửa kế tiếp."""
+        if c not in self._stats:
+            self._stats[c] = bulk.column_stats(self.rows, c, self.kind(c) if self.lt.kind == 1 else "text")
+        return self._stats[c]
+
+    def tooltip(self, c):
+        name = self.lt.columns[c]
+        entry = self.ann.get(name)
+        return bulk.tooltip_html(name, c, self.kind(c), entry, self.has_ann_file, self.stats(c),
+                                 entry.get("index") if entry else None)
 
     def column_lines(self, c):
         return core.column_lines(self.lt.columns[c], self.kind(c), self.ann, self.has_ann_file)
@@ -156,7 +209,40 @@ class TableModel(QAbstractTableModel):
         self.stack.push(EditCell(self, index.row(), index.column(), old, str(value)))
         return True
 
+    def apply_changes(self, changes, new):
+        if not changes:
+            return
+        bulk.apply(self.rows, changes, new)
+        rs = [ch[0] for ch in changes]
+        cs = [ch[1] for ch in changes]
+        self.invalidate(set(cs))
+        self.dataChanged.emit(self.index(min(rs), min(cs)), self.index(max(rs), max(cs)))
+
+    def insert_many(self, items):
+        self.invalidate()
+        if len(items) > 200:
+            self.beginResetModel()
+            for p, data in items:
+                self.rows.insert(p, list(data))
+            self.endResetModel()
+            return
+        for p, data in items:
+            self._insert(p, data)
+
+    def remove_many(self, rows):
+        self.invalidate()
+        rows = sorted(rows, reverse=True)
+        if len(rows) > 200:
+            self.beginResetModel()
+            for r in rows:
+                del self.rows[r]
+            self.endResetModel()
+            return
+        for r in rows:
+            self._remove(r)
+
     def _set(self, r, c, v):
+        self.invalidate([c])
         self.rows[r][c] = v
         i = self.index(r, c)
         self.dataChanged.emit(i, i)
@@ -170,6 +256,49 @@ class TableModel(QAbstractTableModel):
         self.beginRemoveRows(QModelIndex(), r, r)
         del self.rows[r]
         self.endRemoveRows()
+
+
+class HeaderTips(QObject):
+    """Chú giải cột hiện sau TIP_DELAY_MS khi rê chuột lên tiêu đề cột, thay cho độ trễ mặc định của Qt."""
+
+    TIP_DELAY_MS = 150
+
+    def __init__(self, header, model_of):
+        super().__init__(header)
+        self.header, self.model_of, self.section, self.shown_at = header, model_of, -1, None
+        self.timer = QTimer(self)
+        self.timer.setSingleShot(True)
+        self.timer.setInterval(self.TIP_DELAY_MS)
+        self.timer.timeout.connect(self.show)
+        header.setMouseTracking(True)
+        header.viewport().setMouseTracking(True)
+        header.viewport().installEventFilter(self)
+
+    def eventFilter(self, obj, event):
+        t = event.type()
+        if t == QEvent.MouseMove:
+            section = self.header.logicalIndexAt(event.position().toPoint())
+            if section != self.section:
+                QToolTip.hideText()
+                self.section = section
+                self.timer.start() if section >= 0 else self.timer.stop()
+        elif t in (QEvent.Leave, QEvent.MouseButtonPress, QEvent.Wheel):
+            self.timer.stop()
+            self.section = -1
+            QToolTip.hideText()
+        elif t == QEvent.ToolTip:
+            return True  # đã tự hiện, bỏ tooltip trễ mặc định
+        return False
+
+    def show(self):
+        model = self.model_of()
+        if model is None or not (0 <= self.section < model.columnCount()):
+            return
+        h = self.header
+        rect = QRect(h.sectionViewportPosition(self.section), 0, h.sectionSize(self.section), h.viewport().height())
+        # Tooltip tự ẩn khi chuột ra khỏi rect của cột này.
+        QToolTip.showText(QCursor.pos(), model.tooltip(self.section), h.viewport(), rect)
+        self.shown_at = self.section
 
 
 class WarnDelegate(QStyledItemDelegate):
@@ -216,8 +345,11 @@ class Window(QMainWindow):
         self.view.verticalHeader().setDefaultSectionSize(self.fontMetrics().height() + 6)
         self.proxy = QSortFilterProxyModel(self)
         self.proxy.setFilterKeyColumn(-1)
+        # Không lọc lại khi sửa: dòng vừa sửa không biến mất khỏi tầm mắt, và sửa hàng loạt không phải lọc lại cả bảng.
+        self.proxy.setDynamicSortFilter(False)
         self.proxy.setFilterCaseSensitivity(Qt.CaseInsensitive)
         self.view.setModel(self.proxy)
+        self.header_tips = HeaderTips(self.view.horizontalHeader(), lambda: self.model)
         self.detail = QPlainTextEdit(readOnly=True)
         self.detail.setMaximumHeight(190)
         mid = QWidget()
@@ -243,12 +375,12 @@ class Window(QMainWindow):
         self.addToolBar(bar)
         self.act_scan = QAction(icon("refresh-cw"), "Quét lại", self, triggered=self.rescan, shortcut=QKeySequence.Refresh)
         self.act_add = QAction(icon("list-plus"), "Thêm dòng", self, triggered=self.add_row)
-        self.act_del = QAction(icon("list-minus"), "Xoá dòng", self, triggered=self.del_rows, shortcut=QKeySequence("Ctrl+Del"))
-        self.act_undo = self.stack.createUndoAction(self, "Hoàn tác")
-        self.act_undo.setShortcut(QKeySequence.Undo)
+        self.act_del = QAction(icon("list-minus"), "Xoá dòng", self, triggered=lambda: self.del_rows(), shortcut=QKeySequence("Ctrl+Del"))
+        self.act_undo = self.stack.createUndoAction(self, "Hoàn tác:")
+        self.act_undo.setShortcuts([QKeySequence("Ctrl+Z")])
         self.act_undo.setIcon(icon("undo-2"))
-        self.act_redo = self.stack.createRedoAction(self, "Làm lại")
-        self.act_redo.setShortcut(QKeySequence.Redo)
+        self.act_redo = self.stack.createRedoAction(self, "Làm lại:")
+        self.act_redo.setShortcuts([QKeySequence("Ctrl+Y"), QKeySequence("Ctrl+Shift+Z")])
         self.act_redo.setIcon(icon("redo-2"))
         self.act_export = QAction(icon("file-output"), "Xuất…", self, triggered=self.export)
         self.act_save = QAction(icon("save"), "Ghi trực tiếp", self, triggered=self.save_inplace, shortcut=QKeySequence.Save)
@@ -267,6 +399,21 @@ class Window(QMainWindow):
         edit = self.menuBar().addMenu("&Sửa")
         for a in (self.act_undo, self.act_redo, self.act_add, self.act_del):
             edit.addAction(a)
+        self.history = QUndoView(self.stack)
+        self.history.setEmptyLabel("Trạng thái lúc mở bảng")
+        dock = QDockWidget("Lịch sử thao tác", self)
+        dock.setObjectName("history")
+        dock.setWidget(self.history)
+        self.addDockWidget(Qt.RightDockWidgetArea, dock)
+        view_menu = self.menuBar().addMenu("&Xem")
+        view_menu.addAction(dock.toggleViewAction())
+        self.build_bulk_actions()
+        bulk_menu = self.menuBar().addMenu("&Hàng loạt")
+        for a in self.bulk_actions:
+            bulk_menu.addAction(a) if a is not None else bulk_menu.addSeparator()
+        self.view.setContextMenuPolicy(Qt.CustomContextMenu)
+        self.view.customContextMenuRequested.connect(self.context_menu)
+        self.view.selectionModel().selectionChanged.connect(lambda *_: self.update_bulk_enabled())
         self.status_icon = QLabel()
         self.status = QLabel()
         self.statusBar().addWidget(self.status_icon)
@@ -387,6 +534,7 @@ class Window(QMainWindow):
             QApplication.restoreOverrideCursor()
         self.update_title()
         self.update_actions()
+        self.update_bulk_enabled()
         self.update_status()
         self._mark_current()
         self.show_column(0 if lt.columns else -1)
@@ -457,17 +605,271 @@ class Window(QMainWindow):
         self.detail.setPlainText("\n".join(lines))
 
     # ---- sửa ----
-    def add_row(self):
-        idx = self.proxy.mapToSource(self.view.currentIndex())
-        r = idx.row() + 1 if idx.isValid() else len(self.model.rows)
-        self.stack.push(InsertRow(self.model, r))
+    # ---- sửa hàng loạt ----
+    def build_bulk_actions(self):
+        def act(text, slot, shortcut=None, icon_name=None):
+            a = QAction(text, self, triggered=slot)
+            if icon_name:
+                a.setIcon(icon(icon_name))
+            if shortcut:
+                a.setShortcut(QKeySequence(shortcut))
+                a.setShortcutContext(Qt.WidgetWithChildrenShortcut)
+                self.view.addAction(a)
+            return a
+
+        self.b_assign = act("Gán giá trị cho các ô đã chọn…", self.do_assign)
+        self.b_delta = act("Tăng/giảm số…", self.do_delta)
+        self.b_scale = act("Nhân theo hệ số…", self.do_scale)
+        self.b_replace = act("Tìm và thay trong vùng chọn…", self.do_replace, "Ctrl+H")
+        self.b_affix = act("Thêm tiền tố/hậu tố…", self.do_affix)
+        self.b_series = act("Điền chuỗi số tăng dần…", self.do_series)
+        self.b_filldown = act("Điền xuống từ ô đầu", self.do_filldown, "Ctrl+D")
+        self.b_clear = act("Xoá nội dung ô", self.do_clear, "Delete")
+        self.b_copy = act("Sao chép", self.do_copy, "Ctrl+C")
+        self.b_paste = act("Dán", self.do_paste, "Ctrl+V")
+        self.b_ins_above = act("Chèn dòng phía trên", lambda: self.do_insert(True), icon_name="list-plus")
+        self.b_ins_below = act("Chèn dòng phía dưới", lambda: self.do_insert(False), icon_name="list-plus")
+        self.b_dup = act("Nhân bản dòng", self.do_duplicate)
+        self.b_delrows = act("Xoá các dòng đã chọn", lambda: self.del_rows(), icon_name="list-minus")
+        self.bulk_actions = [self.b_assign, self.b_delta, self.b_scale, self.b_replace, self.b_affix, self.b_series,
+                             self.b_filldown, self.b_clear, None, self.b_copy, self.b_paste, None, self.b_ins_above,
+                             self.b_ins_below, self.b_dup, self.b_delrows]
+        self.stack.indexChanged.connect(self._on_stack_index)
+
+    def _on_stack_index(self, _index):
         self.update_status()
 
-    def del_rows(self):
-        rows = {self.proxy.mapToSource(i).row() for i in self.view.selectionModel().selectedIndexes()}
+    def selected_cells(self):
+        """Ô nguồn của vùng chọn, chỉ những ô đang hiện qua bộ lọc; sắp theo (dòng, cột)."""
+        if not self.model:
+            return []
+        sel = self.view.selectionModel().selection()
+        if self.proxy.rowCount() != self.model.rowCount() or self.row_filter.text():
+            sel = self.proxy.mapSelectionToSource(sel)  # có lọc: ánh xạ qua proxy, chỉ ô đang hiện
+        # không lọc và không sắp xếp: dòng proxy trùng dòng nguồn, bỏ qua ánh xạ từng dòng (chậm với 100k ô)
+        cells = set()
+        for rng in sel:
+            cols = range(rng.left(), rng.right() + 1)
+            for r in range(rng.top(), rng.bottom() + 1):
+                cells.update((r, c) for c in cols)
+        return sorted(cells)
+
+    def selected_rows(self):
+        return sorted({r for r, _ in self.selected_cells()})
+
+    def update_bulk_enabled(self):
+        if not hasattr(self, "b_assign"):
+            return
+        lt = self.lt
+        has_sel = bool(self.model) and self.view.selectionModel().hasSelection()
+        writable = bool(lt and lt.kind == 1)
+        cols = set()
+        if has_sel:
+            for rng in self.view.selectionModel().selection():
+                cols.update(range(rng.left(), rng.right() + 1))
+        numeric = writable and bool(cols) and all(lt.types[c] in ("int", "float") for c in cols)
+        for a in (self.b_assign, self.b_replace, self.b_affix, self.b_series, self.b_filldown, self.b_clear,
+                  self.b_dup, self.b_delrows):
+            a.setEnabled(writable and has_sel)
+        self.b_series.setEnabled(writable and has_sel and all(lt.types[c] != "text" for c in cols) if cols else False)
+        self.b_clear.setEnabled(writable and has_sel and len(lt.columns) > 1)
+        self.b_delta.setEnabled(numeric and has_sel)
+        self.b_scale.setEnabled(numeric and has_sel)
+        self.b_copy.setEnabled(has_sel)
+        self.b_paste.setEnabled(writable and (has_sel or self.view.currentIndex().isValid()))
+        self.b_ins_above.setEnabled(writable)
+        self.b_ins_below.setEnabled(writable)
+
+    def context_menu(self, pos):
+        self.update_bulk_enabled()
+        menu = QMenu(self)
+        n = len(self.selected_cells()) if self.model else 0
+        head = menu.addAction(f"{n} ô đã chọn" + ("" if self.lt and self.lt.kind == 1 else " — tệp chỉ xem"))
+        head.setEnabled(False)
+        menu.addSeparator()
+        for a in self.bulk_actions:
+            menu.addAction(a) if a is not None else menu.addSeparator()
+        self._menu = menu
+        menu.popup(self.view.viewport().mapToGlobal(pos))
+        return menu
+
+    def form(self, title, fields, check=None):
+        """Hộp thoại nhập: fields [(nhãn, mặc định)]; trả (giá trị, trạng thái hộp kiểm) hoặc None."""
+        dlg = QDialog(self)
+        dlg.setWindowTitle(title)
+        lay = QFormLayout(dlg)
+        edits = []
+        for label, default in fields:
+            e = QLineEdit(default)
+            lay.addRow(label, e)
+            edits.append(e)
+        box = None
+        if check:
+            box = QCheckBox(check)
+            lay.addRow(box)
+        buttons = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel)
+        buttons.button(QDialogButtonBox.Ok).setText("Áp dụng")
+        buttons.button(QDialogButtonBox.Cancel).setText("Huỷ")
+        buttons.accepted.connect(dlg.accept)
+        buttons.rejected.connect(dlg.reject)
+        lay.addRow(buttons)
+        if self.form_answers is not None:  # dùng cho kiểm thử tự động
+            values, checked = self.form_answers.pop(0)
+            return values, checked
+        if dlg.exec() != QDialog.Accepted:
+            return None
+        return [e.text() for e in edits], (box.isChecked() if box else False)
+
+    form_answers = None
+
+    def run_changes(self, label, compute):
+        """Tính thay đổi (thuần), chặn nếu lỗi, đẩy một bước hoàn tác, báo số ô."""
+        if not self.model or self.lt.kind != 1:
+            return 0
+        try:
+            result = compute()
+        except bulk.BulkError as exc:
+            QMessageBox.warning(self, label, str(exc)) if self.form_answers is None else None
+            self.statusBar().showMessage(f"{label}: không áp dụng — {exc}", 10000)
+            self.last_error = str(exc)
+            return -1
+        changes, extra = result if isinstance(result, tuple) else (result, "")
+        if not changes:
+            self.statusBar().showMessage(f"{label}: không có ô nào thay đổi{extra}", 6000)
+            return 0
+        self.stack.push(BulkEdit(self.model, f"{label} {len(changes)} ô", changes))
+        bad = sum(1 for r, c, _o, v in changes if not core.type_ok(self.model.kind(c), v))
+        warn = f"; {bad} ô sai kiểu (viền cảnh báo)" if bad else ""
+        self.statusBar().showMessage(f"{label}: đã đổi {len(changes)} ô{extra}{warn}", 8000)
+        return len(changes)
+
+    def _skipped(self, skipped):
+        return f"; bỏ qua {len(skipped)} ô không phải số" if skipped else ""
+
+    def do_assign(self):
+        cells = self.selected_cells()
+        ans = self.form(f"Gán giá trị cho {len(cells)} ô", [("Giá trị:", "")])
+        if ans:
+            m = self.model
+            return self.run_changes("Gán giá trị", lambda: bulk.op_assign(m.rows, cells, ans[0][0], m.lt.columns))
+
+    def do_delta(self):
+        cells = self.selected_cells()
+        ans = self.form(f"Tăng/giảm số cho {len(cells)} ô", [("Cộng thêm (số âm để giảm):", "1")])
+        if ans:
+            m = self.model
+
+            def compute():
+                ch, sk = bulk.op_delta(m.rows, cells, m.lt.types, ans[0][0], m.lt.columns)
+                return ch, self._skipped(sk)
+            return self.run_changes("Tăng/giảm số", compute)
+
+    def do_scale(self):
+        cells = self.selected_cells()
+        has_int = any(self.lt.types[c] == "int" for _, c in cells)
+        label = "Hệ số nhân:" + (" (cột int chỉ nhận hệ số nguyên, không tự làm tròn)" if has_int else "")
+        ans = self.form(f"Nhân theo hệ số cho {len(cells)} ô", [(label, "1")])
+        if ans:
+            m = self.model
+
+            def compute():
+                ch, sk = bulk.op_scale(m.rows, cells, m.lt.types, ans[0][0], m.lt.columns)
+                return ch, self._skipped(sk)
+            return self.run_changes("Nhân theo hệ số", compute)
+
+    def do_replace(self):
+        cells = self.selected_cells()
+        ans = self.form(f"Tìm và thay trong {len(cells)} ô", [("Tìm (nguyên văn):", ""), ("Thay bằng:", "")],
+                        "Phân biệt chữ hoa/thường")
+        if ans:
+            (find, repl), case = ans
+            m = self.model
+            return self.run_changes("Tìm và thay", lambda: bulk.op_replace(m.rows, cells, find, repl, case, m.lt.columns))
+
+    def do_affix(self):
+        cells = self.selected_cells()
+        ans = self.form(f"Thêm tiền tố/hậu tố cho {len(cells)} ô", [("Tiền tố:", ""), ("Hậu tố:", "")])
+        if ans:
+            (pre, suf), _ = ans
+            m = self.model
+            return self.run_changes("Thêm tiền tố/hậu tố", lambda: bulk.op_affix(m.rows, cells, pre, suf, m.lt.columns))
+
+    def do_series(self):
+        cells = self.selected_cells()
+        ans = self.form(f"Điền chuỗi số cho {len(cells)} ô (mỗi cột đi xuống)", [("Giá trị đầu:", "1"), ("Bước:", "1")])
+        if ans:
+            (start, step), _ = ans
+            m = self.model
+            return self.run_changes("Điền chuỗi số", lambda: bulk.op_series(m.rows, cells, m.lt.types, start, step, m.lt.columns))
+
+    def do_filldown(self):
+        cells = self.selected_cells()
+        m = self.model
+        return self.run_changes("Điền xuống", lambda: bulk.op_filldown(m.rows, cells, m.lt.columns))
+
+    def do_clear(self):
+        cells = self.selected_cells()
+        m = self.model
+        if len(m.lt.columns) == 1:
+            QMessageBox.warning(self, "Xoá nội dung ô", "Bảng một cột không được có ô rỗng (hợp đồng schema 1).")
+            return -1
+        return self.run_changes("Xoá nội dung", lambda: bulk.op_clear(m.rows, cells, m.lt.columns))
+
+    def do_copy(self):
+        cells = self.selected_cells()
+        if cells:
+            QApplication.clipboard().setText(bulk.copy_text(self.model.rows, cells))
+            self.statusBar().showMessage(f"Đã sao chép {len(cells)} ô", 5000)
+
+    def do_paste(self):
+        m = self.model
+        grid = bulk.parse_paste(QApplication.clipboard().text())
+        if not grid or not m:
+            return 0
+        cells = self.selected_cells()
+        if cells:
+            top_src = min(cells)[0]
+            left = min(c for _, c in cells)
+            top_proxy = self.proxy.mapFromSource(m.index(top_src, left)).row()
+        else:
+            cur = self.view.currentIndex()
+            top_proxy, left = cur.row(), cur.column()
+        order = [self.proxy.mapToSource(self.proxy.index(i, 0)).row()
+                 for i in range(top_proxy, min(top_proxy + len(grid), self.proxy.rowCount()))]
+
+        def compute():
+            ch, clipped = bulk.op_paste(m.rows, grid, order[0], left, len(m.lt.columns), order, m.lt.columns)
+            return ch, (f"; cắt {clipped} ô vượt bảng" if clipped else "")
+        return self.run_changes("Dán", compute)
+
+    def do_insert(self, above):
+        rows = self.selected_rows()
         if rows:
-            self.stack.push(RemoveRows(self.model, rows))
-            self.update_status()
+            pos = rows[0] if above else rows[-1] + 1
+        else:
+            pos = len(self.model.rows)
+        self.stack.push(InsertRows(self.model, "Chèn 1 dòng", [(pos, [""] * len(self.lt.columns))]))
+        self.goto(pos, 0)
+
+    def do_duplicate(self):
+        rows = self.selected_rows()
+        if rows:
+            items = [(r + 1 + k, list(self.model.rows[r])) for k, r in enumerate(rows)]
+            self.stack.push(InsertRows(self.model, f"Nhân bản {len(rows)} dòng", items))
+            self.statusBar().showMessage(f"Đã nhân bản {len(rows)} dòng", 6000)
+
+    def add_row(self):
+        self.do_insert(False)
+
+    def del_rows(self, confirm=True):
+        rows = self.selected_rows()
+        if not rows or not self.lt or self.lt.kind != 1:
+            return
+        if confirm and self.form_answers is None and QMessageBox.question(
+                self, "Xoá dòng", f"Xoá {len(rows)} dòng đã chọn? (hoàn tác được)",
+                QMessageBox.Yes | QMessageBox.No, QMessageBox.No) != QMessageBox.Yes:
+            return
+        self.stack.push(RemoveRows(self.model, rows))
 
     def goto(self, r, c):
         i = self.proxy.mapFromSource(self.model.index(r, c))
