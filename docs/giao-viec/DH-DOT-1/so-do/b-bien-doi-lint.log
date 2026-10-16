@@ -1,2 +1,0 @@
-# b-bien-doi-lint.log 2026-10-08 15:12:34, Hoon; so-do/b-bien-doi-gen.py sha 09E09330900C4B7A4F97EB893182BEE2D5C3667CFFBE41307F0C63F2DB1795C8
-$ python -B -W error TOOLS/server/lint_py.py docs/giao-viec/DH-DOT-1/so-do/b-bien-doi-gen.py   (mã thoát 0)

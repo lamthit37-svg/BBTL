@@ -1,6 +1,0 @@
-# 2026-10-08 16:25:07 cmake --build --preset gcc-debug --target collision_tests,collision_alloc_tests,collision_fuzz_tests,collision_model_tests (mã 0, 1 s)
-[0/2] Re-checking globbed directories...
-[1/5] Building CXX object CMakeFiles/collision_fuzz_tests.dir/tests/collision_fuzz_tests.cpp.obj
-[2/5] Linking CXX executable collision_fuzz_tests.exe
-[3/5] Building CXX object CMakeFiles/collision_alloc_tests.dir/tests/collision_alloc_tests.cpp.obj
-[4/5] Linking CXX executable collision_alloc_tests.exe

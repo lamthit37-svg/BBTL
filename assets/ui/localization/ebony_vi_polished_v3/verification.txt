@@ -1,1 +1,0 @@
-Đã mở lại 3 PNG RGBA, nền trong suốt, kích thước 198×83 / 198×81 / 198×81. Tăng 50% từ nguồn, làm tròn 82,5 lên 83. Dùng imagegen tích hợp tinh chỉnh viền theo mẫu người dùng. Có ảnh kiểm trên nền sáng và tối. Chưa kiểm trong game; không xác nhận hoàn hảo tuyệt đối hoặc đồng nhất hình học từng pixel.

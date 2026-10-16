@@ -1,4 +1,0 @@
-# b-or-chan-dem-lint-lan2.log 2026-10-08 15:08:01, Hoon. Lần 1 (b-or-chan-dem-lint.log, giữ nguyên) gộp cả so-do/b-vang-gen.py nên mã 1 do 2 lỗi CŨ của b-vang-gen.py (dòng 295 dài 122, fire thiếu kiểu call), không phải của oracle; lần này lint riêng.
-# building_oracle.py sha A82AFED94A1EBF7FCEE3402E4388A9FA8E4C5F275895B7DB3B4909C11AF8A24A
-$ python -B -W error TOOLS/server/lint_py.py TOOLS/port/building_oracle.py   (mã thoát 0)
-$ python -B -W error TOOLS/server/lint_py.py build/tam/b-or-chan-dem-kho.py   (mã thoát 0; sẽ chép thành so-do/b-or-chan-dem-kho.py)

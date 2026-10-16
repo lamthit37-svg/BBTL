@@ -1,8 +1,0 @@
-lệnh: g++ -O2 -Wall -Wextra -Wpedantic -Wconversion -Wsign-conversion -Wshadow -Wnon-virtual-dtor -Wold-style-cast -Wcast-align -Wcast-qual -Woverloaded-virtual -Wnull-dereference -Wdouble-promotion -Wformat=2 -Wimplicit-fallthrough -Wundef -Wsuggest-override -Wduplicated-cond -Wduplicated-branches -Wlogical-op -Wuseless-cast -Wmissing-declarations -Wredundant-decls -Werror -std=c++23 -I SRC -I tests tests/collision_alloc_tests.cpp -static -o build/dh-a/collision_alloc_tests_o2.exe
-thư mục: F:\tl 2026\THIENLONG\build\dh-dot-1
-bắt đầu: 2026-10-08 13:49:20
----
-
----
-mã thoát: 0
-kết thúc: 2026-10-08 13:49:20

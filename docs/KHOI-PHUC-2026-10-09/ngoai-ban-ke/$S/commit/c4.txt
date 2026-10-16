@@ -1,9 +1,0 @@
-render, ui: ảnh vẽ ra texture trên OpenGL báo lộn chiều để giao diện lật.
-
-Framebuffer của OpenGL có gốc ở dưới trái nên texture vẽ qua FBO có hàng
-đầu là hàng dưới cùng của hình. Canvas::is_bottom_up báo điều đó,
-ViewPaint mang cờ sang bộ vẽ giao diện và painter lật trục v của ảnh.
-
-Đã kiểm: ảnh đầu đứng thẳng trên PC Vulkan, PC GLES và tablet.
-
-Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>

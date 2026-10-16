@@ -1,1 +1,0 @@
-3 PNG RGBA kiểm kích thước: 198×83, 198×81, 198×81. Tỷ lệ 150%, làm tròn nửa pixel lên. Đã chỉnh khung thẳng và tai bên nhỏ dựa trên hình gốc; chi tiết AI tái tạo chưa phải bản khớp hình học từng pixel. Nền gỗ mun và màu chữ theo mẫu đã duyệt. Chưa kiểm trong game. Công cụ imagegen tích hợp; prompt.txt lưu kèm.

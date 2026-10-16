@@ -84,7 +84,10 @@ là rác. `// pak gốc ghi offset little-endian kể cả khi header nói ngư�
 
 - **Đầu file:** vai trò module trong hệ thống, quyết định thiết kế đã chốt (kể cả chính sách lỗi,
   III.7), nguồn gốc định dạng hay thuật toán. Tối đa 15 dòng. Changelog, tác giả, ngày, liệt kê
-  hàm — để git giữ.
+  hàm — để git giữ. **Ngoại lệ do chủ dự án chốt 2026-10-15:** khung ENGINEHP (`/*====*/` 80
+  cột, 16–18 dòng, có TÁC GIẢ và TELEGRAM) là mẫu cố định của dự án này, thắng giới hạn 15 dòng
+  và lệnh cấm ghi tác giả ở đây. Chạm tệp nào thì `source_headers.py --fix` tệp đó; chi tiết ở
+  `AGENTS.md` mục 0.
 - **API công khai trong `.hpp`:** đúng một chỗ, một câu tiếng Việt cạnh khai báo, nói ý định hoặc
   hợp đồng mà chữ ký chưa nói hết. Trong `.cpp` chỉ comment chi tiết cài đặt. Hai bản mô tả cho
   cùng một hàm chắc chắn sẽ lệch.
@@ -489,6 +492,12 @@ node %USERPROFILE%\.claude\bin\check_style.js <thư-mục-nguồn>
 
 Cổng viết bằng Node.js (lý do ở VIII); đừng viết lại bằng Python. Mã thoát đã đo: **1 khi có vi
 phạm, 0 khi sạch**, nên gắn vào CMake là chặn được thật. Cách gắn ở X.3.
+
+**Đo lại ngày 2026-10-16: `~/.claude/bin/check_style.js` hiện là bản đã gỡ (từ 2026-10-08), luôn
+thoát 0 và không kiểm gì**, nên đoạn trên chưa đúng với máy này. Cổng thật đang có là
+`~/.claude/bin/shape.js` (cấp lồng, bậc thang, dòng dài, lời gọi lồng) cộng `clang-format
+--dry-run -Werror`; gắn chúng vào CMake là bước B3 của `docs/DU-AN.md`. Cho tới khi đó, exit 0
+của cổng không phải bằng chứng mã sạch (I.6).
 
 **Cổng phải chạy SAU `dev.bat`.** Phép kiểm thứ nhất gọi `clang-format`, thứ chỉ vào PATH sau
 `dev.bat` (II.1). Gọi thẳng từ PowerShell thì cổng đỏ với `'clang-format' is not recognized` (đo

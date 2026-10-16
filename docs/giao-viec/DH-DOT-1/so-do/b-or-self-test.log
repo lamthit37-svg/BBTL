@@ -1,9 +1,0 @@
-lệnh: python -B -W error TOOLS/port/building_oracle.py self-test
-thư mục chạy: F:\tl 2026\THIENLONG\build\dh-dot-1
-tệp: TOOLS/port/building_oracle.py, 24697 byte, 499 dòng, sha256 eb4e2acd8ef4604fd1e30160695d252a270358576b87cef1c2cb56c8972afcba, byte đầu 34 (không BOM: True), số byte CR: 0
-bắt đầu: 2026-10-08 13:51:39
----
-tự kiểm: định dạng hex, chặn ô chưa có chữ ký, tiến trình con, 4 hộp x 2000 truy vấn o3 (tất định theo hạt): 0 lỗi
----
-mã thoát: 0
-kết thúc: 2026-10-08 13:51:39

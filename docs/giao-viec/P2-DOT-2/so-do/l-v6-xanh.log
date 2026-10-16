@@ -1,9 +1,0 @@
-# 2026-10-08 10:20:25  V6 lượt xanh: wire_loop_tests mới với channel.cpp thật, clang-asan.
-$ cmake --build build/clang-asan --target wire_loop_tests (qua dev.bat)
-[0/2] Re-checking globbed directories...
-[1/3] Building CXX object CMakeFiles/wire_loop_tests.dir/tests/wire_loop_tests.cpp.obj
-[2/3] Linking CXX executable wire_loop_tests.exe
-mã thoát: 0
-$ build/clang-asan/wire_loop_tests.exe (không qua dev.bat)
-
-exit=0 ms=136

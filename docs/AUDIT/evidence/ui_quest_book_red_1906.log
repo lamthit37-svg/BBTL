@@ -1,8 +1,0 @@
-# Nguyên nhân ui_quest_book_tests ĐỎ ở ctest ~19:06 (HEAD 7e1c6a4)
-Do WIP của executor-gameplay (chưa commit): ca mới list_click_picks_item trong Test/Ui/ui_quest_book_tests.cpp mở bảng nhưng chưa bấm thẻ QuestLog_AcceptMission, nên danh sách đang là thẻ nhiệm vụ đang giữ (rỗng) -> kỳ vọng 'danh sách nhiệm vụ nhận được có mục' sai. 6 ca cũ vẫn đạt. Không phải do agent khác.
-Lỗi ở test, không ở mã: đã thêm bước bấm QuestLog_AcceptMission; chạy lại ở dưới.
-
-## Lần chạy đỏ (exe build lúc 19:06):
-[ca] tables_load_or_report..paints_only_when_shown: đạt (6 ca)
-[ca] list_click_picks_item: ĐỎ (1 kỳ vọng sai)
-D:\THIENLONG\Test\Ui\ui_quest_book_tests.cpp:128: [list_click_picks_item] danh sách nhiệm vụ nhận được có mục

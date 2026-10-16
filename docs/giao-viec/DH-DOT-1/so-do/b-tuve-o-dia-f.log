@@ -1,8 +1,0 @@
-lệnh: (Get-PSDrive F).Free; Win32_Process lọc python/PathLib/Game
-lúc: 2026-10-08 14:36:46
-F trống: 166315585536 byte = 154.89 GiB
-tiến trình:
-34024 python.exe 12:22:30
-29092 python.exe 12:22:30
-33688 python.exe 12:59:29
-36768 python.exe 12:59:29

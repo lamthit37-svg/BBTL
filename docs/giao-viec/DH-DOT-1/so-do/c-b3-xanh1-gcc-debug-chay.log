@@ -1,7 +1,0 @@
-# 2026-10-08 16:24:39 F:\tl 2026\THIENLONG\build\dh-dot-1\build\gcc-debug\collision_model_tests.exe (mã 0, 13 s)
-# stdout:
-
-# stderr:
-collision_model_tests: tree_matches_golden_xihu_Valentine: khớp 2542/2542 dòng nut (port 2542 nút)
-collision_model_tests: tree_matches_golden_fenghuang: khớp 10442/10442 dòng nut (port 10442 nút)
-collision_model_tests: tree_matches_golden_bianjing: sha256 toàn văn port 713770c38d933e8281ddeacf2f399654c026db9035dcd9df2b255f50555306da = #sha256_day_du 713770c38d933e8281ddeacf2f399654c026db9035dcd9df2b255f50555306da; dòng giữ khớp 4000/4000; bản đầy đủ build/vang khớp 293603/293603 dòng

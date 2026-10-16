@@ -1,7 +1,0 @@
-# b-bien-doi-lan1.log 2026-10-08 15:12:43, Hoon; lượt 1; gen sha 09E09330…; Bin64 F:\tl 2026\Bin64
-$ python -B -W error docs/giao-viec/DH-DOT-1/so-do/b-bien-doi-gen.py driver "F:\tl 2026\Bin64" build\tam\lan1 build\tam\bd-lan1.tsv   (mã thoát 0, 574 ms, tệp ra 4633943 byte)
-bd0_9600_100: 210096 byte, 5000 bản đặt, #nap	True	so_f32=60000
-bd1_12800_100: 210096 byte, 5000 bản đặt, #nap	True	so_f32=60000
-bd2_30000_100: 210096 byte, 5000 bản đặt, #nap	True	so_f32=60000
-bd3_30000_37p5: 210096 byte, 5000 bản đặt, #nap	True	so_f32=60000
-ghi build\tam\bd-lan1.tsv: 20000 dòng, sha256 cc58f2294a4bf064637142703b5104b1191501d7eec3e2726e51d47879c04492

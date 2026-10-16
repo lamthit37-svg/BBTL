@@ -1,9 +1,0 @@
-# 2026-10-08 15:39:32  configure: giữ NANG.lock
-> cmake --preset gcc-debug
-
--- chưa có SERVER/tables/shared: bỏ test server_data_lint, sinh bằng build_data.py
--- Configuring done (0.4s)
--- Generating done (0.2s)
--- Build files have been written to: F:/tl 2026/THIENLONG/build/dh-dot-1/build/gcc-debug
-
-# 2026-10-08 15:39:33  exit=0

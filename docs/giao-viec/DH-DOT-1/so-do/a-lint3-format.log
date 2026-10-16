@@ -1,8 +1,0 @@
-lệnh: clang-format --dry-run --Werror tests/collision_tests.cpp tests/collision_golden.hpp tests/collision_report.hpp tests/collision_hostile.hpp
-thư mục: F:\tl 2026\THIENLONG\build\dh-dot-1
-bắt đầu: 2026-10-08 15:08:30
----
-
----
-mã thoát: 0
-kết thúc: 2026-10-08 15:08:30

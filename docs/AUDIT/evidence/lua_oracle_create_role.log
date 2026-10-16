@@ -1,7 +1,0 @@
-﻿# 2026-10-13T18:50:26.8157809+07:00  HEAD fb21453
-> python -B TOOLS/port/lua_oracle.py "F:/tl 2026/2026/Bin64" build/lua-2026/Interface/CreateRole/CreateRole.lua dev/client/assets/Interface/CreateRole/CreateRole.layout.xml TOOLS/port/oracle/create_role_newcomer.lua build\scratch\create_role_newcomer.oracle.tsv --name LoginCreateRole --words TOOLS/port/oracle/words.vi.tsv --lib TOOLS/port/oracle/create_role_api.lua --table portraits=dev/client/assets/Table/portraits.tsv --table faces=dev/client/assets/Table/faces.tsv --table hairs=dev/client/assets/Table/hairs.tsv --table outfits=dev/client/assets/Table/newbie_outfits.tsv
-─æ├ú ghi 2393 d├▓ng v├áo build\scratch\create_role_newcomer.oracle.tsv
-exit=0
-oracle_out  0BC602DA3B0F9D1A3412FC157769C1DF2A3B83956175F350A3EB3A2BBFC96E8C
-golden      0BC602DA3B0F9D1A3412FC157769C1DF2A3B83956175F350A3EB3A2BBFC96E8C
-identical=True

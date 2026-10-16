@@ -1,6 +1,0 @@
-# 2026-10-08 10:46:55 -> 2026-10-08 10:46:56  Lệnh: cmake --preset gcc-debug (không qua dev.bat)  (giữ NANG.lock, phiên cuối trên mã cuối)
--- chưa có SERVER/tables/shared: bỏ test server_data_lint, sinh bằng build_data.py
--- Configuring done (0.3s)
--- Generating done (0.1s)
--- Build files have been written to: F:/tl 2026/THIENLONG/build/p2-dot-2/build/gcc-debug
-exit=0

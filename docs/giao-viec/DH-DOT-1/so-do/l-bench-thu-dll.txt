@@ -1,6 +1,0 @@
-# 2026-10-08 14:32:50  chạy thử một lượt, bản gcc-debug, KHÔNG phải số đo (chưa ghim lõi, không năm lượt)
-> build\l-bench\dll_bench.exe "F:\tl 2026\Bin64" "F:\tl 2026\_raw\Scene\fenghuang.WCollision" 0 0 512 512
-
-9523328	1	20	41231.6	200000	5190	0.010963	0.0548
-
-# exit=0

@@ -1,8 +1,0 @@
-lệnh: python -B TOOLS/port/pe_refs.py "F:\tl 2026\Bin64\PathLib.dll" func 0x1800374c0 (chỉ đọc tệp, không nạp DLL)
-bắt đầu: 2026-10-08 14:23:46
----
-; hàm lá (không có trong .pdata) 0x1800374c0..0x1800374c5 (5 byte)
-0x1800374c0: jmp 0x1800371f0
----
-mã thoát: 0
-kết thúc: 2026-10-08 14:23:46

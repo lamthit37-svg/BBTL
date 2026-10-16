@@ -1,2 +1,0 @@
-# b-vang-gen-lint-lan1.log 2026-10-08 15:14:58, Hoon; so-do/b-vang-gen.py sha FE94E0A45A70C60FAC8C3872E914B75EC6DC6846A59186BD6CEAAE786FDFFAC4 (sau sửa)
-$ python -B -W error TOOLS/server/lint_py.py docs/giao-viec/DH-DOT-1/so-do/b-vang-gen.py   (mã thoát 0)

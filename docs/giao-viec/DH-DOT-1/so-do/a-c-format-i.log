@@ -1,8 +1,0 @@
-lệnh: clang-format -i SRC/collision/building_file.hpp SRC/collision/building_file.cpp tests/collision_alloc_tests.cpp tests/collision_file_tests.cpp
-thư mục: F:\tl 2026\THIENLONG\build\dh-dot-1
-bắt đầu: 2026-10-08 14:21:03
----
-
----
-mã thoát: 0
-kết thúc: 2026-10-08 14:21:03

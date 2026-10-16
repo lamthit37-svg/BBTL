@@ -1,8 +1,0 @@
-> cmd /c call %USERPROFILE%\.claude\skills\cpp-build\dev.bat >nul && cmake --build --preset msvc-release --target collision_tests
-[0/2] Re-checking globbed directories...
-[1/7] Building CXX object CMakeFiles\game_collision.dir\SRC\collision\building_file.cpp.obj
-[2/7] Building CXX object CMakeFiles\game_collision.dir\SRC\collision\opcode_tree.cpp.obj
-[3/7] Building CXX object CMakeFiles\game_collision.dir\SRC\collision\mesh.cpp.obj
-[4/7] Linking CXX static library game_collision.lib
-[5/7] Building CXX object CMakeFiles\collision_tests.dir\tests\collision_tests.cpp.obj
-[6/7] Linking CXX executable collision_tests.exe

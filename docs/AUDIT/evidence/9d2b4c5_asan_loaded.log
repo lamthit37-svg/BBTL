@@ -1,8 +1,0 @@
-=== dumpbin io_tests.exe imports (asan)
-    clang_rt.asan_dynamic-x86_64.dll
-=== run io_tests with ASAN_OPTIONS=verbosity=1
-==14020==AddressSanitizer: libc interceptors initialized
-==14020==AddressSanitizer: failed to intercept 'ucrtbase!_recalloc_base'
-==14020==T0: stack [0x00818ba00000,0x00818bb00000) size 0x100000; local=0x00818bafe750
-==14020==AddressSanitizer Init done
-exit 0

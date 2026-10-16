@@ -1,7 +1,0 @@
-# 2026-10-08 11:01:14 T18 phần CMake trên mã cuối
-> git -c safe.directory=* diff --numstat -- CMakeLists.txt cmake/GameLayers.cmake
-44	0	CMakeLists.txt
-2	0	cmake/GameLayers.cmake
-> git -c safe.directory=* status --short (tệp đã theo dõi bị đổi)
- M CMakeLists.txt
- M cmake/GameLayers.cmake

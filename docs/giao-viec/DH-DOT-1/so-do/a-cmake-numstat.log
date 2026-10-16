@@ -1,9 +1,0 @@
-lệnh: git -c safe.directory=* diff --numstat 30172db -- CMakeLists.txt cmake/GameLayers.cmake
-thư mục: F:\tl 2026\THIENLONG\build\dh-dot-1
-bắt đầu: 2026-10-08 14:26:57
----
-12	0	CMakeLists.txt
-1	0	cmake/GameLayers.cmake
----
-mã thoát: 0
-kết thúc: 2026-10-08 14:26:57

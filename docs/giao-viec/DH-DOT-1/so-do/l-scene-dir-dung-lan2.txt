@@ -1,8 +1,0 @@
-# 2026-10-08 16:12:00  dựng đích collision_bench (gcc-debug, không cấu hình lại): không có bản dựng nào khác đang chạy (giữ NANG.lock)
-> cmake --build build/gcc-debug --target collision_bench  (PATH thêm WinLibs)
-
-[0/2] Re-checking globbed directories...
-[1/3] Building CXX object CMakeFiles/collision_bench.dir/tests/bench/collision_bench.cpp.obj
-[2/3] Linking CXX executable collision_bench.exe
-
-# 2026-10-08 16:12:03  exit=0

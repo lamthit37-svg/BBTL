@@ -1,8 +1,0 @@
-docs: ảnh đầu 3D của khung người chơi, nhịp khung GL và mục còn ngờ.
-
-TIEN-DO: đường đi gốc của Player_Head (bộ ảnh giả cũ, AdjustHeadCamera,
-SetFaceDir, camera ở Render.dll 0x36DC0) kèm địa chỉ đã đọc.
-NGHI-NGO: 24 (loại ô, ánh sáng, mặt cắt xa chưa chốt), 25 (D3D12, D3D11
-không khởi tạo được), 26 (nhịp khung GL), 27 (số Vừa rồi trên tablet).
-
-Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>

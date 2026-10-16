@@ -1,3 +1,0 @@
-# b-so-port-lint.log 2026-10-08 15:20:25, Hoon, B. sha256 b-so-port.py 1c93446bcf05731aedf1378fa3a5865d6b6caa65a9d7b79172557750f6b1b9d0, b-so-port-gia.py eee7da2357deb307592eda6b36766a7296ff8e9176cf7d4f9aa624c329f83055
-$ python -B -W error TOOLS/server/lint_py.py docs/giao-viec/DH-DOT-1/so-do/b-so-port.py docs/giao-viec/DH-DOT-1/so-do/b-so-port-gia.py   (mã thoát 0)
-

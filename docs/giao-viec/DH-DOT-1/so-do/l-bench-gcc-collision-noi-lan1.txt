@@ -1,5 +1,0 @@
-# 2026-10-08 14:32:30  collision-noi: CÓ tiến trình dựng khác lúc bắt đầu: ctest.exe (pid 25120)
-> C:\Users\myhea\AppData\Local\Microsoft\WinGet\Packages\BrechtSanders.WinLibs.POSIX.UCRT_Microsoft.Winget.Source_8wekyb3d8bbwe\mingw64\bin\g++.exe "F:\tl 2026\THIENLONG\build\dh-dot-1\build\l-bench\collision_bench.o" "F:\tl 2026\THIENLONG\build\dh-dot-1\build\gcc-debug\libgame_collision.a" "F:\tl 2026\THIENLONG\build\dh-dot-1\build\gcc-debug\libgame_core.a" -o "F:\tl 2026\THIENLONG\build\dh-dot-1\build\l-bench\collision_bench.exe"
-
-
-# 2026-10-08 14:32:30  exit=0, số dòng chứa 'warning': 0

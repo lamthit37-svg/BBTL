@@ -1,7 +1,0 @@
-# 2026-10-13T18:59:19.665638+07:00 HEAD fe36a46
-Vấn đề: release/server/scenes (sinh 2026-10-09) thiếu scene.toml, spawns.tsv, walk.nav... của mọi cảnh, gồm huoyangu (chỉ có areas/grow_points/patrols).
-Trước: release 1687 tệp; dev/server/scenes 3797 tệp. Tệp chỉ release có: 0; tệp chung khác nội dung: 0
-> python -B TOOLS/server/export_scene.py "<THIENLONG_LEGACY_ROOT>" build/scratch/scenes_export  (exit 0; 3797 tệp, SHA256 trùng dev/server/scenes 3797/3797)
-Chép build/scratch/scenes_export -> release/server/scenes (chỉ thêm/ghi đè, không xoá). Backup trước: build/backup-release-server-20261013-185417
-Sau: release 3797 tệp; khớp export: True; tệp thừa ngoài export: 0
-huoyangu: huoyangu/areas.tsv 4aa48a38dda6, huoyangu/grow_points.tsv d40f217f63c5, huoyangu/patrols.tsv f8345fb36fbc, huoyangu/scene.toml 9fbdd098276f, huoyangu/spawns.tsv 487df8faf492, huoyangu/walk.nav 6c711f4a7f85

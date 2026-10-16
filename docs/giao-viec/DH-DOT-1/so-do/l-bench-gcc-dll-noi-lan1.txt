@@ -1,5 +1,0 @@
-# 2026-10-08 14:32:31  dll-noi: CÓ tiến trình dựng khác lúc bắt đầu: ctest.exe (pid 25120)
-> C:\Users\myhea\AppData\Local\Microsoft\WinGet\Packages\BrechtSanders.WinLibs.POSIX.UCRT_Microsoft.Winget.Source_8wekyb3d8bbwe\mingw64\bin\g++.exe "F:\tl 2026\THIENLONG\build\dh-dot-1\build\l-bench\dll_bench.o" -o "F:\tl 2026\THIENLONG\build\dh-dot-1\build\l-bench\dll_bench.exe"
-
-
-# 2026-10-08 14:32:32  exit=0, số dòng chứa 'warning': 0

@@ -1,8 +1,0 @@
-lệnh: g++ <cờ cảnh báo, -Werror> -std=c++23 -O2 -g -I SRC -I tests -DGAME_COLLISION_HOSTILE=\"tests/data/collision/hostile\" tests/collision_alloc_tests.cpp SRC/collision/building_file.cpp -static -o build/dh-a/collision_alloc_tests.exe
-thư mục: F:\tl 2026\THIENLONG\build\dh-dot-1
-bắt đầu: 2026-10-08 14:21:03
----
-
----
-mã thoát: 0
-kết thúc: 2026-10-08 14:21:05

@@ -1,8 +1,0 @@
-lenh: clang-format --dry-run --Werror tests/collision_tests.cpp tests/collision_golden.hpp tests/collision_report.hpp tests/collision_bien_doi.hpp
-thu muc: F:\tl 2026\THIENLONG\build\dh-dot-1
-bat dau: 2026-10-08 15:35:58
----
-
----
-ma thoat: 0
-ket thuc: 2026-10-08 15:35:58

@@ -1,5 +1,0 @@
-# 2026-10-08 10:47:15 -> 2026-10-08 10:47:15  T2
-$ python -B -W error TOOLS/server/lint_py.py
-
-mã thoát: 0
-

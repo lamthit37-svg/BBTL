@@ -1,7 +1,0 @@
-# b-bao-bien-doi-va.log 2026-10-08 15:15:36, Hoon: thêm mục số vàng biến đổi V-2 + sửa lint b-vang-gen.py + 1 dòng Lệch vào BAO-CAO-B.md
-# patch build\tam\patch_bao2.py 3927B54E9F2A197D3D69482ACE6452C98B7F566FE7F59A306A6820E36174DF93
-$ python -B build\tam\patch_bao2.py docs\giao-viec\DH-DOT-1\BAO-CAO-B.md write   (mã thoát 0)
-dòng 782 byte 69339 sha 606b1d9b355e078d04134e4d9773279c2fce7fa0b49d328b4762f2730cb07009
-đã ghi
-# sha trước 6CD59FAA825E17C1E63C8299544FF091308723566F7A6D4EFCA2B43BC1E3A290
-# sha sau   606B1D9B355E078D04134E4D9773279C2FCE7FA0B49D328B4762F2730CB07009

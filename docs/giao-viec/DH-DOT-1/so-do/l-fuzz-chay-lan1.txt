@@ -1,7 +1,0 @@
-# 2026-10-08 14:38:00  fuzz: giữ NANG.lock
-> python -B tests/fuzz/fuzz_building.py --runs 1000000 --seed 20261008
-
-target	runs	seconds	runs_per_s	cov	ft	seed_files	corpus_files	exit_code
-building	1000000	2.68	372477	127	301	68	205	0
-
-# 2026-10-08 14:38:04  exit=0

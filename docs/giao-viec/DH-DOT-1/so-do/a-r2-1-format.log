@@ -1,9 +1,0 @@
-lenh: clang-format --dry-run --Werror SRC/collision/building_file.cpp SRC/collision/building_file.hpp tests/collision_hostile.hpp tests/collision_nap_goc.hpp tests/collision_alloc_tests.cpp
-thu muc: F:\tl 2026\THIENLONG\build\dh-dot-1
-giu khoa build\NANG.lock
-bat dau: 2026-10-08 16:01:49
----
-
----
-ma thoat: 0
-ket thuc: 2026-10-08 16:01:49

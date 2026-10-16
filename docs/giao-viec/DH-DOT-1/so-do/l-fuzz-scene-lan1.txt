@@ -1,7 +1,0 @@
-# 2026-10-08 14:42:44  fuzz-scene: giữ NANG.lock
-> python -B tests/fuzz/fuzz_building.py --runs 1000000 --seed 20261008 --scene "F:/tl 2026/_raw/Scene" --max-len 9523328 --max-total-time 300
-
-target	runs	seconds	runs_per_s	cov	ft	seed_files	scene_files	max_len	corpus_files	exit_code
-building	1000000	272.19	3674	128	533	68	435	9523328	640	0
-
-# 2026-10-08 14:47:18  exit=0

@@ -1,7 +1,0 @@
-lệnh: python -B so-do/b-mxcsr-scan.py "F:\tl 2026\Bin64\PathLib.dll" (bản 2: thêm đếm lệnh đã giải; capstone quét tuyến tính .text, skipdata, chỉ đọc byte)
-bắt đầu: 2026-10-08 14:10:41
----
-tong 0 lenh da giai {'all': 74289, 'mulss': 927, 'divss': 103}
----
-mã thoát: 0
-kết thúc: 2026-10-08 14:10:41

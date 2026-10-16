@@ -1,7 +1,0 @@
-# 2026-10-08 14:55:37  libfuzzer-thu: giữ NANG.lock
-> python -B TOOLS/port/fuzz_building.py --runs 200000 --seed 20261008 --no-hostile-hpp
-
-target	runs	seconds	runs_per_s	cov	ft	drawn_files	hostile_hpp_files	scene_files	max_len	corpus_files	exit_code
-building	200000	0.96	208836	133	300	38	0	0	4096	159	0
-
-# 2026-10-08 14:55:39  exit=0

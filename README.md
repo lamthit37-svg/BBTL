@@ -4,9 +4,9 @@ Client tự viết nạp và vẽ lại tài nguyên của client Thiên Long B�
 đúng toạ độ gốc, chạy offline trước, trên PC và mobile. Mã nguồn C++23, công cụ
 xử lý dữ liệu bằng Python ở `TOOLS/`.
 
-Trạng thái chi tiết theo mã hiện tại: mục 0 của `AGENTS.md` (đối chiếu mã ngày
-2026-10-14, `main` ở `1ff6703`). Nhật ký theo phiên: `docs/TIEN-DO.md`. Chỉ mục
-toàn bộ tài liệu: `docs/README.md`. Phân tích mã máy client gốc: `TAILIEU/README.md`.
+Hiện trạng, vấn đề và hướng đi: `docs/DU-AN.md` (tài liệu dự án duy nhất, kèm chỉ mục các
+đặc tả còn giữ). Nhật ký theo phiên: `docs/TIEN-DO.md`. Phân tích mã máy client gốc:
+`docs/TAILIEU/README.md`.
 
 ## Bố cục
 
@@ -26,8 +26,7 @@ toàn bộ tài liệu: `docs/README.md`. Phân tích mã máy client gốc: `TA
   (`zh` mặc định, `vi`/`en` giữ làm nguồn).
 - `dev/` — bản thử cho người chơi (exe ở `client/bin`, assets ở `client/assets`;
   máy chủ thử ở `server/` kèm PostgreSQL). `release/` — bản chính thức cùng hình.
-- `WEB/` — trang giới thiệu tĩnh (Vite, React, three.js), không backend, không nằm
-  trong CMake. `android/` — vỏ APK. `apple/` — vỏ iOS (chưa build, cần macOS).
+- `android/` — vỏ APK. `apple/` — vỏ iOS (chưa build, cần macOS).
 - `third_party/` — nguồn chép (`libsodium`, `miniaudio`, mỗi thư mục có `NGUON.txt`);
   thư viện tải về nằm ở `C:\dev\third_party`, khai ở `vcpkg.json`.
 - `cmake/` — `GameLayers.cmake` là bảng tầng (nguồn sự thật về ai include ai),

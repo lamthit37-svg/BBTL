@@ -1,8 +1,0 @@
-lệnh: g++ -std=c++23 -g -DGAME_DEBUG_CHECKS <cảnh báo của config/warnings-common.txt và warnings-gcc.txt> -Werror -I SRC -I tests tests/collision_alloc_tests.cpp -static -o build/dh-a/collision_alloc_tests_g.exe
-thư mục: F:\tl 2026\THIENLONG\build\dh-dot-1
-bắt đầu: 2026-10-08 13:48:59
----
-
----
-mã thoát: 0
-kết thúc: 2026-10-08 13:49:00

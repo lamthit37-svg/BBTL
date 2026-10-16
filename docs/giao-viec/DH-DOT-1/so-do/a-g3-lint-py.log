@@ -1,8 +1,0 @@
-lệnh: python -B -W error TOOLS/server/lint_py.py TOOLS/port/make_hostile_files.py
-thư mục: F:\tl 2026\THIENLONG\build\dh-dot-1
-bắt đầu: 2026-10-08 14:08:38
----
-
----
-mã thoát: 0
-kết thúc: 2026-10-08 14:08:38

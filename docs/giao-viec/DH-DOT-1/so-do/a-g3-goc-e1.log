@@ -1,8 +1,0 @@
-lệnh: python -B TOOLS/port/make_building_file.py write build/dh-a/g3-vao/e1.WCollision --version 1 --empty
-thư mục: F:\tl 2026\THIENLONG\build\dh-dot-1
-bắt đầu: 2026-10-08 14:08:38
----
-e1.WCollision: 8 byte, mã 0xFF000001, đọc 8, ô 0, tam giác 0, khối 0, bản đặt 0
----
-mã thoát: 0
-kết thúc: 2026-10-08 14:08:39

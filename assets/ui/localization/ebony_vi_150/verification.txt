@@ -1,1 +1,0 @@
-3 PNG RGBA đã mở lại và kiểm kích thước. 132×54 → 198×81; 132×55 → 198×83 (làm tròn 82,5). Chỉ tiếng Việt. Bản thử chất liệu gỗ mun bằng imagegen tích hợp; chưa tích hợp game. Ảnh và prompt lưu kèm.

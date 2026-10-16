@@ -1,6 +1,0 @@
-target	runs	seconds	runs_per_s	cov	ft	corpus_files	exit_code
-frame	1000000	30.78	32485	86	395	148	0
-game_client	1000000	3.37	296545	231	389	108	0
-game_server	1000000	5.91	169205	269	581	119	0
-auth_client	1000000	3.45	289473	179	321	104	0
-auth_server	1000000	2.94	340676	123	146	69	0

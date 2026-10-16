@@ -1,3 +1,0 @@
-# 2026-10-08 10:37:19  V7: tìm chữ sleep trong tests/wire_loop_tests.cpp sau khi viết lại chú thích dòng 1-7, 1 lần chạy
-> @(Select-String -Path tests/wire_loop_tests.cpp -Pattern 'sleep').Count
-0

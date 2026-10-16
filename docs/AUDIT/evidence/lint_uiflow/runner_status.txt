@@ -1,4 +1,0 @@
-﻿configure EXIT=0
-build EXIT=0
-ctest EXIT=0
-lint_run EXIT=1

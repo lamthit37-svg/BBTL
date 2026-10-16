@@ -1,7 +1,0 @@
-# 2026-10-08 13:53:27  B0 clang-asan cau-hinh: không có bản dựng nào khác đang chạy (giữ NANG.lock)
-> call "%USERPROFILE%\.claude\skills\cpp-build\dev.bat" >nul && cmake --preset clang-asan
-
-'\"C:\Users\myhea\.claude\skills\cpp-build\dev.bat\"' is not recognized as an internal or external command,
-operable program or batch file.
-
-# 2026-10-08 13:53:27  exit=1, số dòng chứa 'warning': 0

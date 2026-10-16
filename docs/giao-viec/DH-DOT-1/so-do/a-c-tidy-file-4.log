@@ -1,8 +1,0 @@
-lệnh: clang-tidy --config-file=.clang-tidy --quiet tests/collision_file_tests.cpp -- -std=c++23 -I SRC -I tests -DGAME_COLLISION_SCENE=\"../../../_raw/Scene\" -DGAME_COLLISION_COUNTS=\"docs/giao-viec/DH-DOT-1/so-do/b-t1-tep-2.tsv\"
-thư mục: F:\tl 2026\THIENLONG\build\dh-dot-1
-bắt đầu: 2026-10-08 14:27:19
----
-
----
-mã thoát: 0
-kết thúc: 2026-10-08 14:27:25

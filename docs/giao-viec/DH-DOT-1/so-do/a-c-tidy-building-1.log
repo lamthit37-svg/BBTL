@@ -1,8 +1,0 @@
-lệnh: clang-tidy --config-file=.clang-tidy --quiet SRC/collision/building_file.cpp -- -std=c++23 -I SRC -I tests 
-thư mục: F:\tl 2026\THIENLONG\build\dh-dot-1
-bắt đầu: 2026-10-08 14:21:35
----
-
----
-mã thoát: 0
-kết thúc: 2026-10-08 14:21:38

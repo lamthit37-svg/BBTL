@@ -1,8 +1,0 @@
-lệnh: python -B -W error TOOLS/server/lint_py.py TOOLS/port/building_oracle.py TOOLS/port/make_building_file.py
-thư mục chạy: F:\tl 2026\THIENLONG\build\dh-dot-1
-tệp: TOOLS/port/building_oracle.py, 24697 byte, 499 dòng, sha256 eb4e2acd8ef4604fd1e30160695d252a270358576b87cef1c2cb56c8972afcba, byte đầu 34 (không BOM: True), số byte CR: 0
-bắt đầu: 2026-10-08 13:51:39
----
----
-mã thoát: 0
-kết thúc: 2026-10-08 13:51:39

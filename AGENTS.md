@@ -5,8 +5,9 @@
 - Tên: THIENLONG
 - Mục tiêu một câu: client tự viết nạp và vẽ lại tài nguyên của client Thiên Long Bát Bộ (XTLBB-JD
   3.71) đúng toạ độ gốc, chạy offline trước, trên PC và mobile.
-- Trạng thái (đối chiếu với mã ngày 2026-10-14, `main` ở `1ff6703`; số đo tốc độ là của các ngày
-  trước, ở `docs/TIEN-DO.md`; chỉ mục tài liệu ở `docs/README.md`):
+- Trạng thái: **đọc `docs/DU-AN.md` (đo 2026-10-16)**. Các dòng dưới là bản cũ đối chiếu mã ngày
+  2026-10-14 (`main` ở `1ff6703`), có chỗ đã sai (`docs/DU-AN.md` mục A1); chỉ đọc như lịch sử,
+  còn "Quyết định đã chốt" vẫn hiệu lực:
   - Khôi phục (2026-10-09), đọc như lịch sử, không như hiện trạng: `F:\tl 2026` bị xoá nhầm ngày 2026-10-09; cây
     này ghép lại từ nhật ký của các công cụ và nằm ở `D:\THIENLONG`. Lúc mới ghép chưa có `.git`, chưa dựng và
     chưa chạy test lần nào sau khôi phục (56 tệp `SRC` và 31 tệp test là bản cũ hơn bản cuối, 12
@@ -14,7 +15,7 @@
     `_raw`, `_glb`, `dev/client/assets`, `SERVER/tables`, `SERVER/scenes`, `Test/golden`, ảnh
     `assets/i18n` và `third_party/libsodium` phải cài, sinh hoặc tải lại). Nay cây đã có `.git`,
     đã dựng được (`build/msvc-release/` có đủ exe và lib) và `ctest` đã chạy; hồ sơ vụ mất
-    (danh sách từng tệp, lịch sử git 25 commit đầu) ở `docs/KHOI-PHUC-2026-10-09/`. Các dòng dưới tả mã hiện tại.
+    (danh sách từng tệp, lịch sử git 25 commit đầu) đã lưu ở `D:\THIENLONG-luu-tru\tai-lieu-cu\docs\KHOI-PHUC-2026-10-09\`. Các dòng dưới tả mã hiện tại.
   - Hình: vẽ được map (địa hình, vật thể tĩnh, hạt và hiệu ứng cộng sáng của bản 2026) và người
     chơi có xương trên PC và máy tính bảng. Nhịp khung trên cửa sổ khoá Fifo vào tần số quét của
     màn; lúc mở cửa sổ client nâng tần số đó lên mức cao nhất cùng độ phân giải rồi trả lại khi thoát.
@@ -305,7 +306,7 @@
   Vulkan SDK của máy cho shader (`slang.dll` dịch nguồn `.slang`, `dxcompiler.dll` chỉ đọc phản chiếu DXIL). Cho máy chủ: libpq
   (không default-features) đã vào manifest, module `store/pg` đã dùng; đã duyệt ngày 2026-10-06 và đã build thử.
   PostgreSQL 18.6 nằm trong `dev/server/pgsql`, tải bằng `setup_db.py`.
-- Tài liệu dự án (chỉ mục ở `docs/README.md`): `docs/TIEN-DO.md` (tiến độ việc nhiều phiên), `docs/NGUON-FORGE2.md` (tệp chép từ
+- Tài liệu dự án (chỉ mục ở mục 8 của `docs/DU-AN.md`): `docs/TIEN-DO.md` (tiến độ việc nhiều phiên), `docs/NGUON-FORGE2.md` (tệp chép từ
   Forge2: nguồn, khác gốc, số đo), `docs/NGUON-TLBB.md` (tệp port từ TLBB Dev),
   `docs/CAMERA-2026.md` (camera và chuột đọc từ mã máy của client 2026: địa chỉ, hành vi, lệnh
   tái hiện), `docs/VA-CHAM-2026.md` (mặt công trình `.WCollision` đọc từ mã máy `PathLib.dll`; module
@@ -315,14 +316,14 @@
   `Game.exe`, phân bố ảnh chân dung, mặt, tóc, bộ đồ, thói quen của `CreateRole.lua`, lệnh sinh số
   vàng), `docs/NGHI-NGO.md` (sổ nghi ngờ), `docs/KE-HOACH-SERVER.md` (kế hoạch máy chủ, mười ba mốc), `docs/SERVER-TEP-CAU-HINH.md`
   (từng tệp cấu hình và bảng của máy chủ, tên gốc sang tên tiếng Anh), `docs/PROTOCOL-TIN.md`
-  (bảng tra danh mục tin của protocol, tệp sinh), `docs/NHIEM-VU-VO-CONG-2026.md` (VẮNG sau vụ mất
-  2026-10-09 — code `src/client/book/*`, `Test/Quest`, `Test/Skill`, `TOOLS/port/oracle/*` còn trỏ
-  tới; bản cũ ở `docs/KHOI-PHUC-2026-10-09/chua-du/docs/`), `docs/GIAO-DIEN-2026.md` (widget của bản 2026 đọc
+  (bảng tra danh mục tin của protocol, tệp sinh), `docs/NHIEM-VU-VO-CONG-2026.md` (MẤT thật sau vụ mất
+  2026-10-09: bản khôi phục chỉ có 223/6 226 dòng thật; code `src/client/book/*`, `Test/Quest`,
+  `Test/Skill`, `TOOLS/port/oracle/*` còn trỏ tới, xem `docs/DU-AN.md` mục A8), `docs/GIAO-DIEN-2026.md` (widget của bản 2026 đọc
   từ mã máy CEGUI: listbox, thanh cuộn, cửa sổ phức hợp, nút action, ô tiền, phông và thẻ chữ),
   `docs/SERVER-BAO-MAT.md` (thiết kế bắt tay, bản ghi mã hoá và mặt trước của gate),
   `docs/SERVER-DI-CHUYEN.md` (di chuyển do server làm chủ),
   `docs/SERVER-DU-LIEU.md` (định dạng dữ liệu máy chủ, thư mục nào của nhà phát hành, tệp đè, tệp chữ thoại),
-  `docs/CHEP-FORGE2.md` (quy trình chép một tệp từ Forge2), `docs/DINH-DANG-TLA.md` (định dạng
+  `docs/DINH-DANG-TLA.md` (định dạng
   tệp âm thanh đã cook `.tla`), `docs/I18N-BAO-CAO-2026-10-13.md` (báo cáo bản địa hoá, bản cuối),
   `docs/TAILIEU/` (phân tích mã máy mới: `DANG-NHAP-GOC`, `GOI-TIN-DANG-NHAP`, `MAY-CHU-SUY-RA`,
   `MAN-CHOI-GIAO-DIEN-2026`, `TOC-DO-NAP-SO-VOI-TLBB`; `docs/TAILIEU/GAME-EXE-2026/` là bản trích đầy đủ của `Game.exe` 2026:

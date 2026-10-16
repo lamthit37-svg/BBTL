@@ -1,8 +1,0 @@
-Use case text-localization, game UI remaster. Produce one sprite sheet with exactly THREE columns and FIVE rows, 15 complete buttons. Reference is the APPROVED style C, entire button and integrated soft bold lettering. Closely match its softly curved bold Vietnamese letterforms, balanced slight slant, gold ivory highlight and modest bevel. All columns consistent. Reference backdrop is NOT part of the asset: output truly transparent alpha, no gradient backdrop, no cast shadow outside button, no labels or text outside buttons.
-Layout equal grid, three columns Chinese / Vietnamese / English, five rows; generous fully transparent gutters at least 40 px, edge margin40 px, no touching. Every button SAME size/aspect132:54, frame based on reference thin angular double antique gold, central geometric ornaments, dark ruby satin inset normal-state. Match border shape across all 15. Large canvas about1536x1536 or higher, make each word crisp at downsample132x54. Whole button including ornaments inside bounds.
-Row1 exact strings: "取消预览" | "Hủy xem" | "Cancel"
-Row2: "进入游戏" | "Vào game" | "Enter"
-Row3: "创建角色" | "Tạo vai" | "Create"
-Row4: "删除角色" | "Xóa vai" | "Delete"
-Row5: "上一步" | "Trở lại" | "Back"
-Chinese should be authentic source brush calligraphy. Vietnamese and English MUST follow approved C lettering in reference, not Times New Roman, not angular rough brush variant, not generic sans serif. All Vietnamese diacritics exact, gracefully integrated, no clipping, no weird accent placement. Keep text bounded by inner inset with spacious margins; shorter words optically larger, all rows balanced, no huge shadows. Render whole buttons at high detail, not pasted text on low quality backgrounds. No extra rows or columns.

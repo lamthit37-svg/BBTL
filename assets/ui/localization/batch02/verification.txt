@@ -1,8 +1,0 @@
-138/138 PNG RGBA đúng kích thước parts.tsv.
-46 mục nguồn, 3 ngôn ngữ. Cộng dồn 114/582; còn 468.
-Alpha giữa các trạng thái cùng nút khớp nhau.
-Board 2070 × 42857; pixel ngoài vùng cập nhật giữ nguyên so với batch01.
-Ảnh nguồn và parts.tsv không thay đổi trong lần xuất/kiểm này.
-Đã nhìn hai bảng so sánh ở kích thước thật.
-Chưa tích hợp hoặc kiểm trong game. Font tái tạo theo kiểu C, không xác nhận trùng font gốc.
-Độ sắc nét và độ giống phong cách là đánh giá thị giác, không bảo đảm giống tuyệt đối.
