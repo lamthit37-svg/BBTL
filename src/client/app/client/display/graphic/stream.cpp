@@ -49,6 +49,8 @@ void Display::State::clear_shown() {
     ground = nullptr;
     instances.clear();
     crowds.clear();
+    scene_models.clear();
+    scene_models_built = false;
     world = {};
     arrival.reset();
     if (feeder) feeder->cancel();
@@ -145,6 +147,8 @@ void Display::State::reveal(Arrival& loading) {
     order.reset();
     instances.clear();
     crowds.clear();
+    scene_models.clear();
+    scene_models_built = false;
     loading.crowd_of.clear();
     world = {};
     light = stage != nullptr ? light_of(*stage) : SceneLight{};

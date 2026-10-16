@@ -247,6 +247,10 @@ struct Display::State {
     void append_sky(const render::Camera& camera);
     void ensure_water();
     void append_water();
+    // Quạ và các object Model có xương: nạp một lần khi cảnh đổi, dựng tư thế mỗi khung.
+    void ensure_scene_models();
+    void add_scene_model(const Ambient& item);
+    void append_scene_models();
     [[nodiscard]] const std::string& material_script();
     void remember_mesh(Arrival& loading, FeedJob& job, std::size_t index);
     void remember_meshes(Arrival& loading, FeedJob& job);
@@ -645,6 +649,8 @@ struct Display::State {
     std::deque<KeptGround> grounds;
     // deque: thêm đám mới không kéo đám cũ, span ma trận của lệnh vẽ không đứt.
     std::deque<Crowd> crowds;
+    std::vector<SceneModel> scene_models;
+    bool scene_models_built = false;
     ui::PaceOverlay pace_board;
     std::optional<core::FixedStep> frame_clock;
     // Điện thoại: bộ chọn trần khung, dựng lại khi tần số quét hay trần hạng máy đổi. Chỉ luồng vẽ đụng.

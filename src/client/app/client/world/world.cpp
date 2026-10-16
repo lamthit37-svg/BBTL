@@ -25,6 +25,7 @@
 #include <span>
 #include <string>
 #include <string_view>
+#include <system_error>
 #include <utility>
 #include <vector>
 
@@ -175,16 +176,43 @@ namespace {
     return false;
 }
 
-void add_figure_mesh(Stage& stage, const std::filesystem::path& model_root, const std::filesystem::path& model_file,
-    const Figure& figure, const std::string& mesh) {
-    const std::filesystem::path full = (model_file.parent_path() / io::path_from_utf8(mesh)).lexically_normal();
+// Tên mesh tương đối với Model/; rỗng khi nó thoát khỏi thư mục Model.
+[[nodiscard]] std::string mesh_relative(const std::filesystem::path& model_root,
+    const std::filesystem::path& model_file, const std::string& mesh) {
+    const std::filesystem::path beside = model_file.parent_path() / io::path_from_utf8(mesh);
+    const std::filesystem::path full = beside.lexically_normal();
     const std::filesystem::path relative = full.lexically_relative(model_root.lexically_normal());
-    if (escapes_model(relative)) return;
-    Prop prop;
+    if (escapes_model(relative)) return {};
     // generic_string ném khi tên mesh có chữ ngoài trang mã ANSI. Đường trong dữ liệu là UTF-8.
-    prop.mesh = io::utf8_of(relative);
+    return io::utf8_of(relative);
+}
+
+// Lưới có xương khi cạnh gốc Model có <tên mesh>.skeleton.glb (clip nằm ở đó).
+[[nodiscard]] bool has_skeleton(const std::filesystem::path& model_root, const std::string& mesh) {
+    std::filesystem::path stem = io::path_from_utf8(mesh).filename();
+    stem.replace_extension();
+    std::filesystem::path file = model_root / stem;
+    file += ".skeleton.glb";
+    std::error_code ignored;
+    return std::filesystem::is_regular_file(file, ignored);
+}
+
+void add_prop(Stage& stage, const Figure& figure, std::string mesh) {
+    Prop prop;
+    prop.mesh = std::move(mesh);
     prop.placement = figure.placement;
     stage.props.push_back(std::move(prop));
+}
+
+void add_ambient(Stage& stage, const Figure& figure, const ModelFile& file,
+    const ModelEntity& entity, std::string mesh) {
+    Ambient ambient;
+    ambient.model = figure.model;
+    ambient.frame = file.frame;
+    ambient.node = entity.node;
+    ambient.mesh = std::move(mesh);
+    ambient.placement = figure.placement;
+    stage.ambients.push_back(std::move(ambient));
 }
 
 void add_figure(Stage& stage, const std::filesystem::path& data_root, const Figure& figure) {
@@ -192,9 +220,15 @@ void add_figure(Stage& stage, const std::filesystem::path& data_root, const Figu
     const std::filesystem::path model_file = model_root / io::path_from_utf8(figure.model);
     const io::TextResult text = io::read_text(model_file);
     if (!text) return;
-    const std::vector<std::string> meshes = model_meshes(*text);
-    for (const std::string& mesh : meshes)
-        add_figure_mesh(stage, model_root, model_file, figure, mesh);
+    const ModelFile file = read_model(*text);
+    for (const ModelEntity& entity : file.entities) {
+        std::string mesh = mesh_relative(model_root, model_file, entity.mesh);
+        if (mesh.empty()) continue;
+        const bool has_frame = !file.frame.empty() && !entity.node.empty();
+        const bool is_animated = has_frame && has_skeleton(model_root, mesh);
+        if (is_animated) add_ambient(stage, figure, file, entity, std::move(mesh));
+        else add_prop(stage, figure, std::move(mesh));
+    }
 }
 
 } // namespace

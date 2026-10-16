@@ -195,8 +195,22 @@ Hiệu ứng `cj_挂屏_风吹落叶` (lá rơi gắn màn hình).
 bản gốc), sao, EnvKey đổi ánh sáng thế giới, hiệu ứng nền gắn `en_effect` tại camera, đồng hồ ngày chạy tự do
 ở màn đăng nhập và ghim 12 giờ ở màn chơi.
 
+Sương mù (2026-10-16): trước đó `lighting.cpp` cố ý tắt sương (kNone). Nay sương tuyến tính lấy từ
+`fog.mode` của Scene, màu và `near`/`far` của EnvKey (1000..25000 đơn vị Ogre ở màn đăng nhập). Sương cao độ
+lấy `.hfog` cạnh cảnh, hoặc `height_fog_param` của EnvKey (mười trường: màu, tán xạ, mật độ, cao độ, suy
+giảm, mũ, mật độ theo sâu, suy giảm theo sâu, độ sâu bắt đầu, inscatter); bảng này được nội suy theo giờ
+cùng EnvKey. Shader `height_fog` chỉ chạy khi `hfog_color.a >= 0,5`. Chưa đối chiếu ảnh với bản gốc.
+
+Chim bay (2026-10-16): object `Model` có lưới liên kết skeleton (`<tên mesh>.skeleton.glb` ở gốc Model)
+không còn bung thành vật thể tĩnh. `stage.ambients` giữ frame, nút gắn và lưới; `avatar::Ambient` đọc hai
+clip tên `auto` của frame (đường đi của nút, ví dụ Dummy02 của quạ bay, 8 giây) và của skeleton (vỗ cánh),
+phát lặp độc lập; ma trận gắn nhân vào chỗ đặt, ma trận skin đưa vào `Instance::joints`. Màn đăng nhập có
+12 object như vậy: 8 quạ bay `从刃_乌鸦_飞姿`, 3 quạ đậu `从刃_乌鸦_站姿`, 1 `恶人谷_乌鸦04`. Khác gốc: tên
+skeleton suy từ tên lưới (glb của lưới không lộ liên kết `ogre.skeleton`); mọi object bắt đầu cùng giây
+nạp cảnh, không lệch pha.
+
 Chưa dựng: chùm sáng mặt trời (sunflare, cường độ theo truy vấn che khuất GPU), lens flare (không cảnh nào
 dùng), trộn nhiều vùng theo trọng số (36 cảnh; hiện chỉ lấy vùng `backgroud` hoặc vùng đầu), tắt dải
 `.skysphere` cũ ở cảnh đã có EnScene, đồng hồ ghim của màn chọn và tạo nhân vật, các trường EnvKey còn lại
-(`pbr_ambient`, `height_fog_param`, hậu kỳ), gom tài sản bầu trời của các map khác `erengu_DL` (chạy
+(`pbr_ambient`, hậu kỳ), gom tài sản bầu trời của các map khác `erengu_DL` (chạy
 `TOOLS/content/collect_sky.py`).

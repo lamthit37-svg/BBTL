@@ -109,15 +109,6 @@ struct Loader {
 // Tên locator trên mẫu vũ khí nơi hiệu ứng đồ gắn vào (CRFObj_Actor::SetRightWeaponEffect của ref: addEffect(.., "武器特效点")).
 constexpr std::string_view kEffectPoint = "武器特效点";
 
-// Affine 3x4 theo hàng của OGRE sang Matrix4 theo cột, hàng cuối (0, 0, 0, 1).
-[[nodiscard]] math::Matrix4 matrix_of(const anim::Affine& rows) {
-    const math::Vector4 col0(rows.at(0), rows.at(4), rows.at(8), 0.0F);
-    const math::Vector4 col1(rows.at(1), rows.at(5), rows.at(9), 0.0F);
-    const math::Vector4 col2(rows.at(2), rows.at(6), rows.at(10), 0.0F);
-    const math::Vector4 col3(rows.at(3), rows.at(7), rows.at(11), 1.0F);
-    return {col0, col1, col2, col3};
-}
-
 // Điểm gắn theo tên: locator của mẫu nhân vật trước, rồi xương cùng tên (như LogicModel::getLocatorWorldTransform
 // rồi getBoneWorldTransform); xương coi như locator không lệch. Tên rỗng hay không có thì rỗng.
 [[nodiscard]] std::optional<Locator> point_of(const std::string& object, const std::string& name,
@@ -133,6 +124,14 @@ constexpr std::string_view kEffectPoint = "武器特效点";
 }
 
 } // namespace
+
+math::Matrix4 matrix_of(const anim::Affine& rows) {
+    const math::Vector4 col0(rows.at(0), rows.at(4), rows.at(8), 0.0F);
+    const math::Vector4 col1(rows.at(1), rows.at(5), rows.at(9), 0.0F);
+    const math::Vector4 col2(rows.at(2), rows.at(6), rows.at(10), 0.0F);
+    const math::Vector4 col3(rows.at(3), rows.at(7), rows.at(11), 1.0F);
+    return {col0, col1, col2, col3};
+}
 
 core::Result<Avatar> Avatar::load(const look::Figure& figure, const std::filesystem::path& data_root,
     std::span<const look::Strike> strikes, std::span<const look::LocatorRow> locators) {

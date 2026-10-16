@@ -46,6 +46,7 @@
 #include "fx/mesh.hpp"
 #include "fx/system.hpp"
 
+#include "avatar/ambient.hpp"
 #include "capture/frame.hpp"
 #include "capture/png.hpp"
 #include "classic/bake.hpp"
@@ -328,6 +329,13 @@ struct KeptGround {
 struct Crowd {
     const render::Drawable* drawable = nullptr;
     std::vector<math::Matrix4> worlds;
+};
+
+// Object Model có xương của cảnh (quạ bay, quạ đậu): lưới gắn nút frame và chạy clip xương mỗi khung.
+struct SceneModel {
+    avatar::Ambient motion;
+    const render::Drawable* drawable = nullptr;
+    math::Matrix4 placed = math::Matrix4::identity();
 };
 
 // Cảnh đang chảy vào GPU. Map cũ vẫn vẽ tới khi revealed: lúc ấy địa hình mới thế chỗ.

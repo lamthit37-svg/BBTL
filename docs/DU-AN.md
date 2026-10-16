@@ -91,6 +91,9 @@ nhật ký cũ [tài liệu].
 - Bầu trời EnScene của Render.dll (vòm, mây, mây vòng, trăng, mặt trời, sao, EnvKey, hiệu ứng nền) vẽ
   theo mã máy, đã chụp màn đăng nhập (2026-10-16). Còn thiếu: chùm sáng mặt trời, trộn nhiều vùng, tắt
   dải `.skysphere` cũ, gom tài sản các map khác. Chi tiết và danh sách: `docs/TAILIEU/EN-SCENE-RENDER-DLL.md` mục 12.
+- Sương mù của cảnh (tuyến tính và cao độ, từ Scene, `.hfog` và EnvKey) và object Model có xương (quạ bay,
+  quạ đậu ở màn đăng nhập, `avatar::Ambient`) đã bật, chụp màn đăng nhập thấy quạ vỗ cánh (2026-10-16).
+  Chưa đối chiếu sương với ảnh bản gốc; lệch pha giữa các quạ chưa làm.
 - Người chơi có xương trên PC và tablet. Vũ khí bảy khe, đòn thường, tuyệt chiêu, hiệu ứng đá quý
   chạy bằng công cụ thử `--weapon --skill --gem --auto-strike`. Nhảy có mã, chưa ai nhìn tận mắt.
 - Quái và NPC vẽ từ tin máy chủ. Người chơi khác có mã `show_player` và cờ `--peer` (`834caccb`),

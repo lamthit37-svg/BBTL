@@ -94,8 +94,13 @@ class Collector:
             return
         self.want("mesh", self.glb_root, relative)
         folder = os.path.dirname(relative)
-        for uri in image_uris(os.path.join(self.glb_root, relative)):
+        document = glb_document(os.path.join(self.glb_root, relative))
+        for uri in image_uris_of(document):
             self.want("texture", self.glb_root, os.path.join(folder, unquote(uri)))
+        # Mesh có xương liên kết skeleton ở gốc Model (clip vỗ cánh, đi, chạy nằm ở đó).
+        link = skeleton_of(document)
+        if link:
+            self.want("skeleton", self.glb_root, os.path.join(MODEL_FOLDER, link + ".glb"))
 
     # .model: XML liệt kê skeleton (frame) và các mesh gắn vào nó, tên tương đối với chính tệp đó.
     def add_model(self, name: str) -> None:
@@ -123,14 +128,26 @@ class Collector:
             self.want("brush", self.raw_root, os.path.join(BRUSH_FOLDER, texture.get("filename")))
 
 
-def image_uris(path: str) -> list:
+def glb_document(path: str) -> dict:
     with open(path, "rb") as stream:
         header = stream.read(20)
         length, kind = struct.unpack_from("<II", header, 12)
         if kind != JSON_CHUNK:
             raise ValueError(f"GLB hỏng: {path}")
-        document = json.loads(stream.read(length).decode("utf-8"))
+        return json.loads(stream.read(length).decode("utf-8"))
+
+
+def image_uris_of(document: dict) -> list:
     return [image["uri"] for image in document.get("images", []) if "uri" in image]
+
+
+# Tên skeleton mà mesh liên kết (extras.ogre.skeleton của mesh đầu), không có đuôi .glb.
+def skeleton_of(document: dict) -> str | None:
+    for mesh in document.get("meshes", []):
+        link = mesh.get("extras", {}).get("ogre", {}).get("skeleton")
+        if link:
+            return link
+    return None
 
 
 def property_of(node, name: str) -> str | None:

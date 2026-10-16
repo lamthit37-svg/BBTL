@@ -339,6 +339,7 @@ void Display::State::build_instances(const PropTable& table, std::span<const std
 // Instance của khung: cảnh tĩnh rồi người chơi (nếu có), dựng tư thế mới theo điểm đứng.
 void Display::State::compose_frame() {
     frame_instances = instances;
+    append_scene_models();
     append_login_role();
     if (!player || ground == nullptr || !terrain) return;
     append_creatures();

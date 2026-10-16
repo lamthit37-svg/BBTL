@@ -30,6 +30,9 @@
 
 namespace game::avatar {
 
+// Affine 3x4 theo hàng của OGRE sang Matrix4 theo cột, hàng cuối (0, 0, 0, 1).
+[[nodiscard]] math::Matrix4 matrix_of(const anim::Affine& rows);
+
 class Avatar {
 public:
     // Nạp skeleton chính và các clip của figure từ thư mục dữ liệu client (tệp dưới Model/). Lỗi

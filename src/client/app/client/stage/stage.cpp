@@ -207,6 +207,39 @@ Stage stage_of(const scene::SceneFile& file) {
     return stage;
 }
 
+namespace {
+
+[[nodiscard]] ModelEntity entity_of(std::string_view mesh, const xml::OptionalText& node) {
+    ModelEntity entity;
+    entity.mesh = std::string(mesh);
+    if (node) entity.node = std::string(*node);
+    return entity;
+}
+
+void take_parts(const xml::Document& document, std::uint32_t index, ModelFile& file) {
+    if (index >= document.elements.size()) return;
+    const xml::Element& element = document.elements[index];
+    const xml::OptionalText name = xml::attribute(element, "name");
+    const xml::OptionalText mesh = xml::attribute(element, "mesh");
+    const xml::OptionalText node = xml::attribute(element, "node");
+    const bool is_frame = element.name == "frame" && name && file.frame.empty();
+    if (is_frame) file.frame = std::string(*name);
+    const bool is_entity = element.name == "entity" && mesh && !mesh->empty();
+    if (is_entity) file.entities.push_back(entity_of(*mesh, node));
+    for (const std::uint32_t child : element.children)
+        take_parts(document, child, file);
+}
+
+} // namespace
+
+ModelFile read_model(std::string_view text) {
+    const xml::ParseResult document = xml::parse(text);
+    ModelFile file;
+    if (!document) return file;
+    take_parts(*document, 0, file);
+    return file;
+}
+
 std::vector<std::string> model_meshes(std::string_view text) {
     const xml::ParseResult document = xml::parse(text);
     std::vector<std::string> meshes;

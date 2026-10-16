@@ -41,6 +41,19 @@ struct Figure {
     scene::Placement placement;
 };
 
+// Một object Model có xương: lưới gắn vào nút của frame và chạy clip của skeleton mà lưới liên
+// kết. Tên tương đối với thư mục của tệp .model; world mới tìm ra từ model.
+struct Ambient {
+    // Tên model đầy đủ tương đối với Model/, ví dụ "从刃/从刃_乌鸦_飞姿.model".
+    std::string model;
+    // Tên frame (không đuôi .glb) và nút của frame mà lưới gắn vào.
+    std::string frame;
+    std::string node;
+    // Tên mesh tương đối với Model/, như Prop::mesh.
+    std::string mesh;
+    scene::Placement placement;
+};
+
 // Một đèn directional. direction là hướng tia sáng đi (từ đèn tới vật), theo quy ước của OGRE.
 struct Sun {
     scene::Vector3 direction;
@@ -146,6 +159,8 @@ struct Stage {
     std::vector<Prop> props;
     // Object type Model, đúng thứ tự tệp. Mesh nằm trong XML .model, world mới bung ra props.
     std::vector<Figure> figures;
+    // Phần của figures mà lưới có xương: world đưa chúng ra đây thay vì props.
+    std::vector<Ambient> ambients;
     // Đèn mang tên "#FairyMainLightOne" đứng đầu, "#FairyMainLightTwo" đứng thứ hai (thứ tự Ogre
     // trao cho shader); đèn directional khác theo thứ tự tệp.
     std::vector<Sun> suns;
@@ -174,5 +189,20 @@ struct Stage {
 // Thuộc tính mesh của mọi phần tử entity trong XML .model. Chuỗi rỗng và XML hỏng bị bỏ.
 // Đường dẫn còn tương đối với thư mục của chính tệp .model.
 [[nodiscard]] std::vector<std::string> model_meshes(std::string_view text);
+
+// Một phần tử entity của .model: lưới và nút của frame nó gắn vào (rỗng khi XML không ghi).
+struct ModelEntity {
+    std::string mesh;
+    std::string node;
+};
+
+// Nội dung .model: tên frame (phần tử frame đầu, rỗng khi không có) và các entity theo thứ tự.
+struct ModelFile {
+    std::string frame;
+    std::vector<ModelEntity> entities;
+};
+
+// XML hỏng cho ModelFile rỗng.
+[[nodiscard]] ModelFile read_model(std::string_view text);
 
 } // namespace game::client

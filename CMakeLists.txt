@@ -978,7 +978,8 @@ if(GAME_HAS_GPU)
             engine/render/forward.cpp engine/render/shade.cpp engine/render/ui.cpp engine/render/canvas.cpp)
         target_link_libraries(game_render PUBLIC game_math game_resource PRIVATE game_shader)
         # Nạp người chơi từ GLB và ra ma trận skin mỗi khung (cần resource, look, io).
-        target_sources(game_avatar PRIVATE src/client/figure/avatar/avatar.cpp src/client/figure/avatar/rig.cpp)
+        target_sources(game_avatar PRIVATE src/client/figure/avatar/avatar.cpp src/client/figure/avatar/rig.cpp
+            src/client/figure/avatar/ambient.cpp)
         target_link_libraries(game_avatar PUBLIC game_look game_math game_io game_resource game_anim game_ogre
             game_classic)
         # ui: HUD của game: bộ vẽ quad của giao diện gốc lên lượt vẽ 2D (render/ui), gom bộ nạp, dàn trang
@@ -1040,6 +1041,7 @@ if(GAME_HAS_GPU)
         src/client/app/client/display/graphic/face.cpp
         src/client/app/client/display/graphic/effect.cpp
         src/client/app/client/display/graphic/creature.cpp
+        src/client/app/client/display/graphic/scene_model.cpp
         src/client/app/client/display/graphic/talk.cpp
         src/client/app/client/display/graphic/talk_demo.cpp
         src/client/app/client/display/graphic/fight.cpp
@@ -1474,6 +1476,9 @@ if(GAME_HAS_GPU AND NOT ANDROID)
         game_test(shade game_render game_classic)
         game_test(rig game_avatar)
         target_compile_definitions(rig_tests PRIVATE
+            GAME_CLIENT_DATA="${PROJECT_SOURCE_DIR}/dev/client/assets")
+        game_test(ambient game_avatar game_io)
+        target_compile_definitions(ambient_tests PRIVATE
             GAME_CLIENT_DATA="${PROJECT_SOURCE_DIR}/dev/client/assets")
         # Kiểm trên dữ liệu thật của người chơi: chỉ đăng ký khi đã gom bằng TOOLS/content.
         if(EXISTS "${PROJECT_SOURCE_DIR}/dev/client/assets/Table/player_bodies.tsv")

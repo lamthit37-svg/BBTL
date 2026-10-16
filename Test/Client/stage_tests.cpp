@@ -249,6 +249,25 @@ void model_file_lists_entity_meshes(Context& context) {
     context.expect(client::model_meshes("<not").empty(), "XML hỏng không có mesh");
 }
 
+void model_file_reads_frame_and_nodes(Context& context) {
+    constexpr std::string_view text =
+        "<model>\n"
+        "  <frame name=\"bay.frame\" />\n"
+        "  <frame name=\"khac.frame\" />\n"
+        "  <entity mesh=\"bay.mesh\" node=\"Dummy02\" />\n"
+        "  <entity mesh=\"dau.mesh\" />\n"
+        "</model>\n";
+    const client::ModelFile file = client::read_model(text);
+    context.expect(file.frame == "bay.frame", "lấy frame đầu tiên");
+    context.expect(file.entities.size() == 2, "hai entity");
+    if (file.entities.size() != 2) return;
+    context.expect(file.entities[0].mesh == "bay.mesh", "mesh đầu");
+    context.expect(file.entities[0].node == "Dummy02", "nút gắn của mesh đầu");
+    context.expect(file.entities[1].node.empty(), "entity không ghi nút thì rỗng");
+    const client::ModelFile broken = client::read_model("<not");
+    context.expect(broken.frame.empty() && broken.entities.empty(), "XML hỏng cho model rỗng");
+}
+
 void height_fog_reads_sixty_four_bytes(Context& context) {
     float source[16] = {0.3F, 0.4F, 0.5F, 1.0F, 1.0F, -1781.0F, 0.132F, 8.8F,
         0.178F, 0.499F, 0.0F, 2.0F, 0.7F, 0.84F, 1.0F, 1.0F};
@@ -277,6 +296,7 @@ constexpr std::array kCases{
     Case{.name = "stage_keeps_scene_models", .body = &stage_keeps_scene_models},
     Case{.name = "stage_turns_spot_lights_into_lamps", .body = &stage_turns_spot_lights_into_lamps},
     Case{.name = "model_file_lists_entity_meshes", .body = &model_file_lists_entity_meshes},
+    Case{.name = "model_file_reads_frame_and_nodes", .body = &model_file_reads_frame_and_nodes},
     Case{.name = "height_fog_reads_sixty_four_bytes", .body = &height_fog_reads_sixty_four_bytes},
 };
 

@@ -580,6 +580,7 @@ core::Status Display::State::draw_world(gpu::CommandList& list, std::uint32_t sl
     advance_fx(elapsed);
     advance_sky(elapsed);
     refresh_sky_light();
+    ensure_scene_models();
     compose_frame();
     ensure_sky();
     append_sky(camera);
