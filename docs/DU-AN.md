@@ -386,6 +386,7 @@ Bẫy riêng từng vùng ở `docs/BAY-DA-BIET.md` (giữ cho tới B2); đây 
 | `docs/TAILIEU/` | Trích xuất `Game.exe` 2026; công cụ `TOOLS/port/rea/*` đọc và ghi ở đây | Không |
 | `docs/giao-viec/LUA-GEN`, `UI-FULL`, `UI-PORT`, `KD-DOT-1`, `P2-DOT-1`, `GAMEPLAY-DOT-1` | Thiết kế Lua tầng B/C; ý tối ưu hoãn; `boot_check.py` kiểm đầu cuối trình giám sát | Dời `boot_check.py` sang `TOOLS/server/` |
 | `docs/AUDIT/` (5 tệp) | Bằng chứng mã còn trỏ tới: `G-XJL7457.md`, `evidence/xjl7457_config_coverage.md`, `evidence/jump_oracle.log`, `evidence/jump_re.log`, `TIEN-DO-DU-LIEU-HINH.md` | Không |
+| `docs/NHIEM-VU-NGUON.md` | Sổ nguồn nhiệm vụ (bảng client 2026, Lua 14 phái, id 1400–1424). Không phải đặc tả cột và không dựng lại `NHIEM-VU-VO-CONG-2026.md` | Đếm lại khi xuất bảng lại |
 | `docs/refs/` | Bộ quy cách (D-3) | Chờ quyết định |
 | `docs/ui-dien-thoai/` | Ảnh phác điện thoại | Đã chuyển sang thư mục tự chế |
 | `AGENTS.md`, `CLAUDE.md`, `README.md` | Quy tắc làm việc, hiến pháp mã, giới thiệu | `AGENTS.md` mục 0 cắt ở B2; `CLAUDE.md` V.5 sửa lại cho khớp (A2) |
