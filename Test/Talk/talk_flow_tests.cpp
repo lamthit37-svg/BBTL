@@ -107,6 +107,17 @@ bool has_mark(const talk::View& view, std::int32_t quest, Stage stage) {
     return std::ranges::find(view.marks, talk::Mark{quest, stage}) != view.marks.end();
 }
 
+bool bonus_is(const talk::Bonus& bonus, talk::BonusKind kind, std::int32_t a, std::int32_t b) {
+    return bonus.kind == kind && bonus.a == a && bonus.b == b;
+}
+
+bool has_bonus(const talk::View& view, talk::BonusKind kind, std::int32_t a, std::int32_t b) {
+    for (const talk::Bonus& bonus : view.bonuses) {
+        if (bonus_is(bonus, kind, a, b)) return true;
+    }
+    return false;
+}
+
 bool failed_with(const talk::Result& result, Error error) { return !result.has_value() && result.error().error == error; }
 
 std::int32_t choice_of(const talk::View& view, std::uint32_t text) {
@@ -347,8 +358,18 @@ void accept_and_turn_in_through_the_session(Context& context) {
     context.expect(back.has_value() && has_mark(back->view, w::kKillQuest, Stage::kReady), "dấu đủ điều kiện nộp");
     context.expect(!has_mark(back->view, w::kKillQuest, Stage::kAvailable), "đang làm thì không còn dấu nhận");
     if (!back) return;
-    context.expect(failed_with(f.turn_in(back->session, w::kKillQuest), Error::kMission), "thiếu lựa chọn phần thưởng thì từ chối");
-    const talk::Result done = f.turn_in(back->session, w::kKillQuest, 5001);
+    const talk::Result sheet = f.turn_in(back->session, w::kKillQuest);
+    context.expect(sheet.has_value() && !sheet->closed, "thiếu lựa chọn thì mở bảng nộp");
+    if (!sheet) return;
+    context.expect(sheet->view.mode == talk::Mode::kDemand, "bảng nộp");
+    context.expect(sheet->view.panel_quest == w::kKillQuest, "đúng nhiệm vụ trên bảng");
+    context.expect(has_bonus(sheet->view, talk::BonusKind::kRadio, 5001, 1), "món 5001");
+    context.expect(has_bonus(sheet->view, talk::BonusKind::kRadio, 5002, 1), "món 5002");
+    context.expect(has_bonus(sheet->view, talk::BonusKind::kMoney, 50, 0), "tiền thường");
+    context.expect(has_bonus(sheet->view, talk::BonusKind::kItem, 4001, 2), "vật phẩm cố định");
+    context.expect(!has_bonus(sheet->view, talk::BonusKind::kItem, 6001, 1), "món ẩn không hiện");
+    context.expect(f.service.session_of(f.hero.id()) == sheet->session, "phiên còn để chọn thưởng");
+    const talk::Result done = f.turn_in(sheet->session, w::kKillQuest, 5001);
     context.expect(done.has_value() && done->closed && f.hero.book().is_done(w::kKillQuest), "nộp được");
     context.expect(f.hero.bundle.exp.total == 100 && f.hero.have(5001) == 1, "thưởng đúng");
 }
@@ -476,8 +497,29 @@ void hand_written_handlers_fill_unsupported_entries(Context& context) {
         "handler từ chối thành lỗi có kiểu");
 }
 
+void opening_a_dialogue_records_a_held_talk(Context& context) {
+    Fixture box;
+    const talk::Result opened = box.talk();
+    if (!opened) return context.expect(false, "mở được");
+    context.expect(box.hero.book().find(w::kAutoQuest) == nullptr, "chưa nhận thì lần gặp không thêm nhiệm vụ");
+    const talk::Result accepted = box.accept(opened->session, w::kAutoQuest);
+    context.expect(accepted.has_value(), "nhận được nhiệm vụ nói chuyện");
+    const mission::Slot* held = box.hero.book().find(w::kAutoQuest);
+    context.expect(held != nullptr && held->params[0] == 0 && held->params[1] == 0, "mới nhận thì chưa gặp");
+    const talk::Result again = box.talk();
+    context.expect(again.has_value(), "mở lại được");
+    held = box.hero.book().find(w::kAutoQuest);
+    context.expect(held != nullptr && held->params[1] == 1 && held->params[0] == 1, "gặp NPC thì mục nói xong");
+    if (!again) return;
+    const bool ready = std::ranges::any_of(again->outcome.notices, [](const mission::Notice& notice) {
+        return notice.kind == mission::NoticeKind::kReady && notice.quest == w::kAutoQuest;
+    });
+    context.expect(ready, "hội thoại mang tin sẵn sàng nộp");
+}
+
 constexpr std::array kCases{
     Case{.name = "open_builds_the_first_dialogue", .body = open_builds_the_first_dialogue},
+    Case{.name = "opening_a_dialogue_records_a_held_talk", .body = opening_a_dialogue_records_a_held_talk},
     Case{.name = "unsupported_and_empty_npcs", .body = unsupported_and_empty_npcs},
     Case{.name = "session_ids_are_strictly_increasing_and_stale_ones_refused", .body = session_ids_are_strictly_increasing_and_stale_ones_refused},
     Case{.name = "choose_runs_the_entry_atomically", .body = choose_runs_the_entry_atomically},

@@ -133,6 +133,24 @@ void tell(Surroundings& stage, Output& out, Surroundings::Place place, const Mes
     stage.tell(place, frame, include_self);
 }
 
+bool already_held(std::span<const combat::SkillEntry> skills, std::uint32_t id) noexcept {
+    for (const combat::SkillEntry& one : skills) {
+        if (one.id == id) return true;
+    }
+    return false;
+}
+
+// Kỹ năng đã học, kể cả tân thủ sect -1 mà vòng môn phái bỏ qua. Bỏ qua mã không có cấp 1.
+void append_learned(std::vector<combat::SkillEntry>& skills, const Player& player,
+    const combat::Catalog& catalog) {
+    for (const std::uint32_t id : player.body().record().skills) {
+        if (skills.size() >= combat::kMaxSkills) return;
+        if (catalog.skill(id) == nullptr || catalog.level_of(id, 1) == nullptr) continue;
+        if (already_held(skills, id)) continue;
+        skills.push_back(combat::SkillEntry{.id = id, .level = 1});
+    }
+}
+
 } // namespace
 
 // NOLINTNEXTLINE(bugprone-easily-swappable-parameters): cảnh và hạt khác vai, nơi gọi nêu tên (HP-07)
@@ -167,12 +185,14 @@ std::vector<combat::SkillEntry> Battle::starting_skills(const Player& player) co
     for (const combat::SkillTemplate& tmpl : world_->combat().skills()) {
         if (skills.size() >= combat::kMaxSkills) break;
         if (tmpl.id == kPlainAttack) continue;
-        // Quy tắc tạm của bản thử: chưa có học kỹ năng ở NPC, nên cấp 1 mọi chiêu chủ động thuộc tâm pháp của môn phái.
-        if (tmpl.sect != sect || tmpl.user_class != 0 || tmpl.passive || tmpl.type == combat::SkillType::kPassive) continue;
+        const bool other_sect = tmpl.sect != sect || tmpl.user_class != 0;
+        const bool not_active = tmpl.passive || tmpl.type == combat::SkillType::kPassive;
+        if (other_sect || not_active) continue;
         if (tmpl.skill_class < 0 || tmpl.instance.front() == 0) continue;
         if (world_->combat().level_of(tmpl.id, 1) == nullptr) continue;
         skills.push_back(combat::SkillEntry{.id = tmpl.id, .level = 1});
     }
+    append_learned(skills, player, world_->combat());
     return skills;
 }
 

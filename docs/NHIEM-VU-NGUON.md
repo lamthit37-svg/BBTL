@@ -99,7 +99,9 @@ Khảo sát chỉ đọc `docs/AUDIT/G-XJL7457.md`, ngày 2026-10-13: `Public\Co
 
 `catalog.hpp` còn có phân loại lúc nạp, khác cột `status` của TSV: `kRunnable`, `kUnsupported`, `kNotInClient`, `kBlocked`. Loại mục tiêu: `kTalk`, `kKill`, `kLoot`, `kDeliver`, `kArea`, `kEscort` (lời trong mã: chưa có bộ chạy), `kProgress`, `kCollect`. Khoá chính của danh mục là `script`. Nhiều dòng có thể cùng một `quest`.
 
-## 4. Số đếm trên đĩa ngày 2026-10-16
+## 4. Số đếm trên đĩa ngày 2026-10-16, trước khi gộp tân thủ
+
+Số trong mục này đo trước khi `quest_chains.py` gộp 22 dòng. Số sau gộp ở mục 9.
 
 Đếm `dev/server/tables/server/mission_quests.tsv` bằng `tsv_file.read_table`:
 
@@ -123,7 +125,7 @@ Lý do gặp nhiều nhất trong cột `reason`, đúng chuỗi của ô:
 | 5 | `CheckAccept: API LuaFnGetCopySceneData_Param` |
 | 5 | `CheckAccept: thiếu hàm CheckAccept` |
 
-`docs/SERVER-MISSION.md` mục 3 ghi số của `mission_data_tests` lúc commit `9e0cc4d0`: 1349 nhiệm vụ, 1063 chạy được, 260 chưa hỗ trợ, 26 ngoài client, 0 bị chặn. Đó là phân loại của catalog sau khi nạp. Phiên này không chạy lại test ấy. Mục 5 của cùng tệp, đo 2026-10-15, ghi 1617 id và 827 id vắng, trong đó 22 id 1400–1408 và 1412–1424: hai số này trùng với lần đếm lại ở trên.
+`docs/SERVER-MISSION.md` mục 3 ghi số của `mission_data_tests` lúc commit `9e0cc4d0`: 1349 nhiệm vụ, 1063 chạy được, 260 chưa hỗ trợ, 26 ngoài client, 0 bị chặn. Đó là phân loại của catalog sau khi nạp, trước lần gộp. Lần chạy sau khi gộp ở mục 9. Mục 5 của cùng tệp, đo 2026-10-15, ghi 1617 id và 827 id vắng, trong đó 22 id 1400–1408 và 1412–1424: hai số này trùng với lần đếm lại ở trên, cũng là lúc các id ấy chưa có dòng máy chủ.
 
 Tìm chữ `1400` trong cùng TSV gặp 4 dòng có cột `quest` khác 1400, vì guid NPC chứa các chữ số đó: quest 610 script 1030170, quest 611 script 1030171, quest 612 script 1030172 (cả `accept_guid` và `turn_guid`), quest 614 script 1010171 (`turn_guid`). Đó không phải id nhiệm vụ 1400.
 
@@ -198,20 +200,48 @@ Chỗ trang này và tệp trong cây cùng nói một việc thì ghi cả hai,
 ## 7. Chỗ dễ lấy nhầm
 
 - `第一把武器` xuất hiện ở mission 1401 script 210255 và ở mission 440 script 210200. Cùng một chuỗi tên, hai id.
-- Chữ `1400` trong `mission_quests.tsv` gặp guid của quest 610–612 và 614. Cột `quest` của dải 1400–1424 thì trống.
+- Chữ `1400` trong `mission_quests.tsv` gặp guid của quest 610–612 và 614. Trước lần gộp, cột `quest` của dải 1400–1424 trống. Sau lần gộp ở mục 9, cột ấy có 22 id.
 - Cột `status` của TSV (`ok` 1202, `unsupported` 147) và số `1063 / 260 / 26 / 0` trong `SERVER-MISSION.md` mục 3 là hai lần phân loại khác nhau. Số sau là test lúc commit `9e0cc4d0`, chưa chạy lại.
 - Thứ tự id số và thứ tự `g_NextScriptId` khác nhau: 何谓行善 là 1423 và đứng trước 再访天师 1412 trên đường `NextScriptId`. 十年 là 1424, tệp `000`, cấp 1, `g_NextScriptId` trỏ tới 210268.
 - Nhánh chú thích đã tắt trong `MissionTrack.lua` ghi `Mission:1424` là 初涉江湖. `g_MissionName` và ô danh bạ cùng ghi 十年. Nhánh đang dùng của cùng tệp cũng chú thích 十年.
 - Chú thích `QuestLog.lua` gom 890252 với 第一件防具. Tệp script của 890252 ghi mission 1683.
 - Bài 01zt nói tệp tên `Mission*` không gồm nhiệm vụ kịch. `mission_quests.tsv` của dự án vẫn có dòng `source = script` từ `event/juqing/`, vì công cụ trích script chứ không chỉ đọc năm bảng `Mission_*`.
-- Ô danh bạ được `client_quest_summary` gọi là loại đang là 0 với 22 id này. `edali_newquest_001.lua` và `edali_newquest_002.lua` ghi `g_MissionKind = 13`. Nếu một dòng máy chủ được dựng cho các id này, `fill_from_client` sẽ ghi đè tên và loại bằng ô danh bạ.
+- Ô danh bạ được `client_quest_summary` gọi là loại đang là 0 với 22 id này. `edali_newquest_001.lua` và `edali_newquest_002.lua` ghi `g_MissionKind = 13`. Lần gộp ở mục 9 không gọi `fill_from_client`. Nếu một lượt xuất sau gọi hàm ấy lên 22 id này, ô danh bạ sẽ ghi đè tên script và loại 13.
 
 ## 8. Chưa làm trong lần ghi này
 
 - Chưa mở `Script.dat` của `G:\XJL7457` cho 210200 và 210262.
 - Chưa giải `#{XMPHM_210604_22}` và `#{XSLC_130831_03}`.
 - Chưa so từng ô hai bản `mission_outline.tsv`, chưa tính lại sha256 ghi trong đầu tệp client.
-- Chưa chạy lại `test_lua_tables.py` và `mission_data_tests`.
+- Chưa chạy lại `test_lua_tables.py`. Đã chạy lại `mission_data_tests` sau khi gộp; số ở mục 9.
 - Chưa đọc `xinshoujineng.lua`.
 - Kết quả tìm có một đoạn của [szonline, 2023-03-21](http://m.szonline.cn/care/rd/2023/0321/131192.html) nói chuỗi kịch bắt đầu ở cấp 20 (万劫谷) và cấp 30 (燕子坞), NPC giao là 赵天师. Trang đó chưa được mở hết. Phần đã chắc nằm ở các dòng `event/juqing/` của mục 4.
 - Tìm `XJL7457`, `MissionDictionary` và `MissionOutline` kèm từ khoá nhiệm vụ không ra trang nào ghi thứ tự cột, cũng không ra trang nào dùng tên thư mục `XJL7457`. Các kết quả còn lại là hướng dẫn game khác, tiểu thuyết, hoặc bài cấu hình của game 传奇. Không dùng chúng làm nguồn.
+
+## 9. Chuỗi tân thủ đã gộp
+
+22 tệp `src/client/script/Config/event/dali/edali_newquest_*.lua` chỉ có khối MisDesc, hết ở `--MisDescEnd`. Không có `OnAccept` hay `OnSubmit`, nên `lua_flow` không hạ được. `TOOLS/server/newquest.py` đọc tĩnh và dựng `source = table`. Bộ chạy bảng là: một `DemandTrueKill` có tên và số lớn hơn 0 thành mục tiêu giết; một custom mở đầu bằng `已找到` thành mục tiêu nói chuyện; mọi custom mở đầu bằng `学习` và khớp hết thầy trong `edali_zhidao_0209.lua` cùng `skill_id` nhỏ nhất có icon `FightSkillXinShou` thành mục tiêu học (mở hội thoại với thầy thì học); đúng một custom `已达等级` với `num` lớn hơn 0 thành mục tiêu đạt cấp. Còn lại giữ `status = unsupported`. Thưởng của script vẫn ghi, kể cả dòng chưa chạy được. `g_MissionIdPre` dương mới là tiền đề. `g_MissionIdPer` của 1421 không phải tiền đề. `g_AcceptNPC_Name` khác `g_Name` thì NPC giao lấy tên đó; 1405 giao ở 赵天师 và trả ở 钱龙.
+
+`fill_from_client` không áp cho 22 id này. Ô NPC danh bạ là `-1`. Ô loại là 0, không có trong `mission_kinds` (loại bắt đầu từ 1; script ghi 13, tức 大理). Ba tên lệch giữ nguyên tên script: 1400 script `初涉江湖` và ô danh bạ `初入江湖`; 1417 script `大理美景` và ô danh bạ `喜庆焰火`; 1421 script `#{XMPHM_210604_22}` và ô danh bạ `十一大门派`. Khoá chuỗi không có trong `StrDictionary.tsv` thì để nguyên.
+
+`TOOLS/server/quest_chains.py` ghi một lần `docs/NHIEM-VU-CHUOI.xlsx` và gộp vào các bảng `mission_*` mà `lua_extract.py` sở hữu. Lệnh: `py -B TOOLS/server/quest_chains.py`. `--check` in kế hoạch và không ghi. Lượt `lua_extract` sau gọi `newquest.append_quests` trước `resolve_next`. Sửa tay các TSV này sẽ mất ở lượt xuất đó.
+
+Tiền và kinh nghiệm giữ số trong script, không quy đổi chữ trên trang hướng dẫn. Vòng cày có sẵn không chỉnh số. Id chỉ có trong danh bạ không được bịa thành nhiệm vụ. Bước không có bộ chạy không đổi thành nói chuyện.
+
+Đếm `mission_quests.tsv` sau lần gộp học kỹ năng và đạt cấp, cùng ngày: 1371 dòng. 22 dòng có đường `Config/event/dali/edali_newquest_`: 16 `ok`, 6 `unsupported`, mọi dòng `source = table`. Tên giữ đúng script, gồm `初涉江湖` ở 1400 và khoá `#{XMPHM_210604_22}` ở 1421. 1405 có hai mục tiêu `skill`: mã 244 với 张获 (guid 3202248) và mã 248 với 程青霜 (guid 3542065). 1424 có một mục tiêu `level` với số 10; thưởng là tiền khoá 500; `g_exp` bằng 0 nên không có dòng kinh nghiệm.
+
+`talk::Service::talk` ghi lần gặp NPC (`bus::Kind::kTalk`) trước khi dựng hội thoại. `choose` không ghi. `Gameplay::sync` gửi `kLevelUp` khi cấp tăng, `a` là cấp mới và `c` là cấp đã gửi. Học kỹ năng ghi vào `actor::Record`: sổ rỗng vẫn là phiên bản 1, có kỹ năng thì phiên bản 2.
+
+`build/msvc-release/mission_data_tests.exe` dựng lại rồi chạy trên bảng sau gộp. Output:
+
+- `[độ phủ] 1371 nhiệm vụ: chạy được 1079, chưa hỗ trợ 266, ngoài client 26, bị chặn 0; 18 có tiền đề ngoài danh mục`
+- `[đi hết] nhiệm vụ bảng chạy được: 1045, đi hết nhận-tiến độ-nộp: 1045`
+- `[chuỗi] dài nhất 50 nhiệm vụ (bắt đầu script 1020100, cấp 75), đi hết 50`
+- `[chuỗi] cấp thấp nhất 9 nhiệm vụ (bắt đầu script 210262, cấp 1), đi hết 9`
+- Bốn ca `real_catalog_loads`, `every_table_quest_completes`, `longest_chain_end_to_end`, `lowest_chain_end_to_end`: đạt.
+
+Đoạn người chơi đi được khi đứng nói chuyện với NPC: 1400 tới 1408 (dừng trước 1423), nhánh 1413, và 1424 đạt cấp 10 (dừng trước 1421). 1412, 1416, 1418, 1420, 1422 có bộ chạy nhưng đứng sau bước không nộp được. Sáu bước không có bộ chạy, cố ý: 1414 trân thú lên cấp, 1415 bắt trân thú, 1417 đốt pháo, 1419 năm câu hỏi, 1421 vào môn phái, 1423 bốn món tặng không có mã vật phẩm. Ca `every_table_quest_completes` đánh dấu tiền đề là xong trước khi thử, nên 16 dòng `ok` đều nộp được trong test; người chơi thật không vượt bước unsupported.
+
+`actor_tests` và `talk_flow_tests` cùng lượt dựng đều đạt, gồm ca học kỹ năng (phiên bản 1/2) và ca mở hội thoại ghi mục nói chuyện. `test_lua_tables.py` chưa chạy lại. Client HUD và zone thật chưa chạy với bảng này.
+
+Hội thoại danh sách (`kList`, `kBox`) gắn thêm một dòng dấu cho mỗi nhiệm vụ của NPC, sau lời NPC, khi còn chỗ trong 16 dòng của `DialogOpen`. Dạng là `TLQ`, dấu US, `1` nhận hoặc `2` đang làm hoặc `3` nộp được (đúng `MarkStage` của protocol), dấu US, id thập phân, dấu US, tên trong danh mục. Có biến thể chạy được thì lấy tên biến thể đó. Client vẽ `!tên` thành nút gửi `QuestAccept`, `?tên` của bước nộp được thành nút gửi `QuestTurnIn` với thưởng `-1`, bước đang làm chỉ là chữ. Thiếu tên thì nút hiện số id. Chỉ số nút là cục bộ (`0x8000+id`, `0x9000+id`), không đi qua `DialogChoose`. Nộp khi `Engine::turn_in` trả `kNeedChoice` thì giữ phiên và mở bảng nộp (`kDemand`) với tiền thường, vật phẩm cố định và các món chọn một. Tiền khoá, kinh nghiệm, quan hệ và nhóm ẩn không có ô trên dây đó. `Engine::turn_in` không đổi. Ca `talk_accept_and_keep` thấy tên `初涉江湖` trong lời của 赵天师 cấp 30. Cửa sổ client thật chưa mở. Sáu bước 1414, 1415, 1417, 1419, 1421, 1423 vẫn `unsupported`.

@@ -1,4 +1,18 @@
-#pragma once
+/*==============================================================================
+ *  THIENLONG  |  GAME SERVER
+ *------------------------------------------------------------------------------
+ *  TỆP       : src/server/actor/body.hpp
+ *  PHÂN HỆ   : Server / Actor / Body
+ *  CHUẨN     : C++23
+ *------------------------------------------------------------------------------
+ *  CHỨC NĂNG
+ *  - Thân thể chiến đấu và bản ghi bền của nhân vật.
+ *  - Danh sách kỹ năng rỗng vẫn ghi phiên bản 1, đúng byte bản cũ.
+ *------------------------------------------------------------------------------
+ *  TÁC GIẢ   : HiepHoon
+ *  TELEGRAM  : @Hoon9xx
+ *============================================================================*/
+
 // Thân thể chiến đấu (người, quái): bản ghi bền, chỉ số dẫn xuất, HP/MP/nộ khí, kinh nghiệm và lên cấp,
 // hình phạt chết, hồi sinh. Lõi thuần: không mạng, không đồng hồ thật, không luồng; ngẫu nhiên đi vào
 // qua dice::Dice do nơi gọi đưa; thời gian đi vào qua số mili giây trôi qua.
@@ -6,6 +20,8 @@
 // Nguồn: GameServer 2008 Obj_Human_Attributes.cpp, Obj_Character_Attributes.cpp (công thức chỉ số),
 // Obj_Human.cpp (lên cấp, hồi HP/MP, chết), Main/DiePenaltyManager.cpp, MenPai/*.cpp (nộ khí).
 // Mọi công thức nguyên (Float2Int bằng actor::round_ratio). Khác gốc ghi tại chỗ bằng "Khác gốc:".
+
+#pragma once
 
 #include "actor/attr.hpp"
 #include "actor/numeric.hpp"
@@ -54,6 +70,10 @@ struct Modifiers {
     void merge(const Modifiers& other) noexcept;
 };
 
+// Trần kỹ năng võ đã học ghi vào bản ghi. Rỗng thì codec vẫn ghi phiên bản 1, đúng byte của bản
+// không có danh sách.
+inline constexpr std::size_t kMaxLearnedSkills = 64;
+
 // Bản ghi bền của nhân vật. Mọi trường được kiểm miền khi giải mã (codec.hpp).
 struct Record {
     std::uint8_t sect = 9;
@@ -66,7 +86,10 @@ struct Record {
     std::int32_t rage = 0;
     std::int32_t strike_points = 0;
     bool alive = true;
-    std::vector<std::pair<std::uint32_t, std::uint16_t>> inner_arts; // (id, cấp), sắp theo id, không lặp
+    std::vector<std::pair<std::uint32_t, std::uint16_t>>
+        inner_arts; // (id, cấp), sắp theo id, không lặp
+    std::vector<std::uint32_t>
+        skills; // id skills.tsv đã học, tăng dần, không có 0. Rỗng thì bản ghi vẫn là phiên bản 1.
 
     friend bool operator==(const Record&, const Record&) noexcept = default;
 };
@@ -185,6 +208,11 @@ public:
     // Đổi môn phái: tính lại điểm như thể lên mọi cấp bằng bảng của phái mới (cấp dưới 60 vào điểm cấp một,
     // từ 60 vào điểm tự do). Suy luận từ ChangeMenpaiPoints; điểm đã cộng tay mất.
     bool change_sect(std::uint8_t sect) noexcept;
+    // Đã học mã kỹ năng võ này chưa. Quái và thân chưa dựng luôn false.
+    [[nodiscard]] bool skill_known(std::uint32_t id) const noexcept;
+    // Học kỹ năng võ. true khi đã có hoặc vừa thêm. false khi không phải người, mã 0, hoặc đầy
+    // kMaxLearnedSkills.
+    bool learn_skill(std::uint32_t id) noexcept;
     // Tẩy điểm: trả mọi điểm cấp một đã cộng ngoài bảng về điểm tự do không; ở đây là tính lại như change_sect
     // cho cùng phái.
     bool wash_points() noexcept;

@@ -244,6 +244,13 @@ std::optional<std::pair<std::int32_t, std::uint64_t>> find_offer(Fixture& fixtur
     return std::nullopt;
 }
 
+bool text_has(const protocol::DialogOpen& open, std::string_view needle) {
+    for (const protocol::DialogLine& line : open.lines) {
+        if (line.text.find(needle) != std::string::npos) return true;
+    }
+    return false;
+}
+
 // Vào lại từ bản ghi: sổ còn nguyên.
 void expect_survives_rejoin(Context& context, Fixture& fixture, const account::PlayRecord& kept) {
     const std::expected<std::vector<std::byte>, account::PlayError> packed = account::pack(kept);
@@ -272,6 +279,7 @@ void talk_accept_and_keep(Context& context) {
     if (dialog == nullptr) return;
     context.expect(dialog->npc == kNpcEntity, "hộp thoại gắn đúng NPC");
     context.expect(!dialog->lines.empty() && !dialog->lines.front().text.empty(), "lời NPC có chữ");
+    context.expect(text_has(*dialog, "初涉江湖"), "lời hội thoại có tên 初涉江湖");
     context.expect(!dialog->choices.empty(), "có lựa chọn");
 
     const auto offer = find_offer(*fixture, *dialog);

@@ -108,15 +108,20 @@ std::uint32_t Player::take_levels_gained() noexcept {
     return gained;
 }
 
-// Kỹ năng sống và kỹ năng võ chưa nối: chưa ai có kỹ năng nào cho tới khi bước chiến đấu và kỹ năng sống vào (docs/SERVER-MISSION.md).
+// Kỹ năng sống chưa nối (docs/SERVER-MISSION.md). Kỹ năng võ đã học nằm trên thân thể.
 std::int32_t Player::ability(std::int32_t skill) const noexcept {
     static_cast<void>(skill);
     return 0;
 }
 
 bool Player::skill_known(std::int32_t skill) const noexcept {
-    static_cast<void>(skill);
-    return false;
+    if (skill <= 0) return false;
+    return live_->skill_known(static_cast<std::uint32_t>(skill));
+}
+
+bool Player::learn_skill(std::int32_t skill) noexcept {
+    if (skill <= 0) return false;
+    return live_->learn_skill(static_cast<std::uint32_t>(skill));
 }
 
 // ---- ví ----

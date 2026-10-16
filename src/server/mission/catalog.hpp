@@ -1,4 +1,19 @@
-#pragma once
+/*==============================================================================
+ *  THIENLONG  |  GAME SERVER
+ *------------------------------------------------------------------------------
+ *  TỆP       : src/server/mission/catalog.hpp
+ *  PHÂN HỆ   : Server / Mission / Catalog
+ *  CHUẨN     : C++23
+ *------------------------------------------------------------------------------
+ *  CHỨC NĂNG
+ *  - Danh mục nhiệm vụ nạp từ các bảng mission_*.tsv.
+ *  - Khoá là script. Nhiệm vụ chạy được khi ok, có trong danh bạ và không vòng
+ *    tiền đề.
+ *------------------------------------------------------------------------------
+ *  TÁC GIẢ   : HiepHoon
+ *  TELEGRAM  : @Hoon9xx
+ *============================================================================*/
+
 // Danh mục nhiệm vụ của máy chủ, nạp từ các bảng mission_*.tsv do TOOLS/server/lua_extract.py trích tĩnh từ script Lua 4.0
 // của máy chủ 14 môn phái và bảng nhiệm vụ của client 2026 (client là thẩm quyền cao nhất: tên, cấp, NPC giao/trả, loại).
 // Không có Lua nào chạy ở đây: điều kiện và hiệu ứng nằm trong ops::Program, bộ chạy chung của nhiệm vụ bảng là module engine.
@@ -10,6 +25,8 @@
 // Một nhiệm vụ chạy được (Support::kRunnable) khi: bảng trích đánh dấu `ok`, có trong danh bạ client (trừ khi Options cho phép),
 // mọi loại mục tiêu đều có bộ chạy, và chuỗi tiền đề không vòng. Phần còn lại KHÔNG bị bỏ im: mỗi nhiệm vụ mang Support và
 // lý do, và Catalog::report() đếm theo từng lý do.
+
+#pragma once
 
 #include "ops/ops.hpp"
 #include "table/tsv.hpp"
@@ -38,14 +55,17 @@ enum class Support : std::uint8_t {
 };
 
 enum class ObjectiveKind : std::uint8_t {
-    kTalk,      // nói chuyện với NPC: target = guid (0 nếu chưa đặt), name = mã tên
-    kKill,      // giết quái: target = mã nhóm tên, count
-    kLoot,      // giết quái và nhặt vật phẩm nhiệm vụ: target = mã nhóm tên, item, rate (phần trăm), count
-    kDeliver,   // giao vật phẩm: item, count; flag = 1 nếu nhiệm vụ cấp đồ lúc nhận
-    kArea,      // vào vùng: target = vùng, scene
-    kEscort,    // hộ tống (chưa có bộ chạy)
-    kProgress,  // script: tham số `index` của ô đạt count
-    kCollect,   // script: có đủ count vật phẩm `item`
+    kTalk, // nói chuyện với NPC: target = guid (0 nếu chưa đặt), name = mã tên
+    kKill, // giết quái: target = mã nhóm tên, count
+    kLoot, // giết quái và nhặt vật phẩm nhiệm vụ: target = mã nhóm tên, item, rate (phần trăm),
+           // count
+    kDeliver, // giao vật phẩm: item, count; flag = 1 nếu nhiệm vụ cấp đồ lúc nhận
+    kArea, // vào vùng: target = vùng, scene
+    kEscort, // hộ tống (chưa có bộ chạy)
+    kProgress, // script: tham số `index` của ô đạt count
+    kCollect, // script: có đủ count vật phẩm `item`
+    kSkill, // học kỹ năng: item = mã skills.tsv, name = thầy; ô ghi 0/1 khi đã biết
+    kLevel, // đạt cấp: count = cấp cần; ô ghi 0/1 khi level() >= count
 };
 
 struct Objective {

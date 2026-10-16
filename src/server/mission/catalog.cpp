@@ -1,5 +1,22 @@
+/*==============================================================================
+ *  THIENLONG  |  GAME SERVER
+ *------------------------------------------------------------------------------
+ *  TỆP       : src/server/mission/catalog.cpp
+ *  PHÂN HỆ   : Server / Mission / Catalog
+ *  CHUẨN     : C++23
+ *------------------------------------------------------------------------------
+ *  CHỨC NĂNG
+ *  - Đọc bảng và phân loại mục tiêu.
+ *  - Học kỹ năng thiếu mã hoặc thiếu thầy, và đạt cấp thiếu số, thì không chạy
+ *    được.
+ *------------------------------------------------------------------------------
+ *  TÁC GIẢ   : HiepHoon
+ *  TELEGRAM  : @Hoon9xx
+ *============================================================================*/
+
 // Nạp danh mục nhiệm vụ từ các bảng mission_*.tsv. Mọi ô là dữ liệu từ tệp nên bị coi là thù địch: ô sai kiểu, id ngoài miền,
 // tham chiếu treo tới ops::Program, seq không liền và từ khoá lạ đều là lỗi nạp có số dòng, không có check/assert.
+
 #include "mission/catalog.hpp"
 
 #include "mission/book.hpp"
@@ -45,7 +62,7 @@ template <typename Enum, std::size_t Count>
     return std::nullopt;
 }
 
-constexpr std::array<Word<ObjectiveKind>, 8> kObjectiveWords{{
+constexpr std::array<Word<ObjectiveKind>, 10> kObjectiveWords{{
     {.text = "talk", .value = ObjectiveKind::kTalk},
     {.text = "kill", .value = ObjectiveKind::kKill},
     {.text = "loot", .value = ObjectiveKind::kLoot},
@@ -54,7 +71,29 @@ constexpr std::array<Word<ObjectiveKind>, 8> kObjectiveWords{{
     {.text = "escort", .value = ObjectiveKind::kEscort},
     {.text = "progress", .value = ObjectiveKind::kProgress},
     {.text = "collect", .value = ObjectiveKind::kCollect},
+    {.text = "skill", .value = ObjectiveKind::kSkill},
+    {.text = "level", .value = ObjectiveKind::kLevel},
 }};
+
+[[nodiscard]] bool skill_without_id(const Objective& one) noexcept {
+    return one.kind == ObjectiveKind::kSkill && one.item <= 0;
+}
+
+[[nodiscard]] bool skill_without_teacher(const Objective& one) noexcept {
+    return one.kind == ObjectiveKind::kSkill && one.target == 0 && one.name == 0;
+}
+
+// Thiếu dữ liệu thì không được nhận: người chơi không có cách làm xong.
+[[nodiscard]] std::string_view table_gap(const Objective& one) noexcept {
+    if (skill_without_id(one)) return "học kỹ năng thiếu mã";
+    if (skill_without_teacher(one)) return "học kỹ năng thiếu thầy";
+    if (one.kind == ObjectiveKind::kLevel && one.count <= 0) return "cấp thiếu số";
+    return {};
+}
+
+[[nodiscard]] std::string_view escort_gap() noexcept {
+    return "mục tiêu hộ tống: cần NPC đi theo (vai AI/zone)";
+}
 constexpr std::array<Word<RewardGroup>, 3> kGroupWords{{
     {.text = "fixed", .value = RewardGroup::kFixed},
     {.text = "choice", .value = RewardGroup::kChoice},
@@ -356,7 +395,9 @@ private:
             if (quest.source == Source::kTable && static_cast<std::size_t>(one.index) + 1 >= kParamCount) {
                 return "nhiều mục tiêu hơn số tham số của ô nhiệm vụ";
             }
-            if (one.kind == ObjectiveKind::kEscort) return "mục tiêu hộ tống: cần NPC đi theo (vai AI/zone)";
+            const std::string_view gap = table_gap(one);
+            if (!gap.empty()) return gap;
+            if (one.kind == ObjectiveKind::kEscort) return escort_gap();
             if (one.kind == ObjectiveKind::kLoot && one.flag != 0) {
                 return "mục tiêu loot ngẫu nhiên theo bảng MissionItem (flag khác 0): chưa có bộ chạy";
             }

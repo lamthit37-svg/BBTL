@@ -1,5 +1,21 @@
+/*==============================================================================
+ *  THIENLONG  |  GAME SERVER
+ *------------------------------------------------------------------------------
+ *  TỆP       : src/server/mission/events.cpp
+ *  PHÂN HỆ   : Server / Mission / Events
+ *  CHUẨN     : C++23
+ *------------------------------------------------------------------------------
+ *  CHỨC NĂNG
+ *  - Đưa sự kiện trên bus vào nhiệm vụ đang giữ, gộp một giao dịch.
+ *  - Gặp đúng thầy thì học kỹ năng. Lên cấp thì đối chiếu lại mục tiêu đạt cấp.
+ *------------------------------------------------------------------------------
+ *  TÁC GIẢ   : HiepHoon
+ *  TELEGRAM  : @Hoon9xx
+ *============================================================================*/
+
 // Sự kiện từ bus tới nhiệm vụ đang làm: nói chuyện, giết quái, vào vùng, đổi vật phẩm, lên cấp. Duyệt ô theo chỉ số tăng dần
 // (tất định); nhiệm vụ nào không quan tâm sự kiện thì không bị đụng tới. Mọi thay đổi của một sự kiện gộp vào MỘT giao dịch.
+
 #include "bus/bus.hpp"
 #include "dice/dice.hpp"
 #include "ledger/ledger.hpp"
@@ -39,10 +55,34 @@ struct Pass {
 };
 // NOLINTEND(cppcoreguidelines-avoid-const-or-ref-data-members)
 
-[[nodiscard]] bool talk_matches(const Objective& objective, const bus::Event& event) noexcept {
-    if (objective.kind != ObjectiveKind::kTalk) return false;
+[[nodiscard]] bool person_matches(const Objective& objective, const bus::Event& event) noexcept {
     if (objective.target != 0) return std::cmp_equal(objective.target, event.a);
     return objective.name != 0 && objective.name == event.name;
+}
+
+[[nodiscard]] bool talk_matches(const Objective& objective, const bus::Event& event) noexcept {
+    if (objective.kind != ObjectiveKind::kTalk) return false;
+    return person_matches(objective, event);
+}
+
+// Học đúng kỹ năng của mục tiêu khi gặp đúng thầy. true khi vừa đủ để sync ghi ô (param còn 0).
+[[nodiscard]] bool teach_skill(const Pass& pass, const Slot& slot, const Objective& objective) {
+    if (objective.kind != ObjectiveKind::kSkill) return false;
+    if (!person_matches(objective, pass.event)) return false;
+    const std::size_t param = detail::param_of(objective);
+    if (param >= kParamCount || objective.item <= 0) return false;
+    if (slot.params.at(param) != 0) return false;
+    Character& who = pass.work.who();
+    if (!who.skill_known(objective.item) && !who.learn_skill(objective.item)) return false;
+    return who.skill_known(objective.item);
+}
+
+[[nodiscard]] bool apply_talk(const Pass& pass, Slot& slot, const Objective& objective,
+    std::uint32_t& param) {
+    if (objective.kind == ObjectiveKind::kSkill) return teach_skill(pass, slot, objective);
+    if (!talk_matches(objective, pass.event) || param != 0) return false;
+    param = 1;
+    return true;
 }
 
 [[nodiscard]] bool kill_matches(const Catalog& catalog, const Objective& objective, const bus::Event& event) noexcept {
@@ -66,22 +106,19 @@ bool advance_table(const Pass& pass, const Quest& quest) {
         if (detail::param_of(objective) >= kParamCount) continue;
         std::uint32_t& param = slot->params.at(detail::param_of(objective));
         switch (pass.event.kind) {
-            case bus::Kind::kTalk:
-                if (talk_matches(objective, pass.event) && param == 0) {
-                    param = 1;
-                    touched = true;
-                }
-                break;
-            case bus::Kind::kEnterArea: {
-                const bool here = objective.kind == ObjectiveKind::kArea &&
-                                  std::cmp_equal(objective.target, pass.event.b) &&
-                                  (objective.scene <= 0 || std::cmp_equal(objective.scene, pass.event.a));
-                if (here && param == 0) {
-                    param = 1;
-                    touched = true;
-                }
-                break;
+        case bus::Kind::kTalk:
+            touched = apply_talk(pass, *slot, objective, param) || touched;
+            break;
+        case bus::Kind::kEnterArea: {
+            const bool here = objective.kind == ObjectiveKind::kArea &&
+                std::cmp_equal(objective.target, pass.event.b) &&
+                (objective.scene <= 0 || std::cmp_equal(objective.scene, pass.event.a));
+            if (here && param == 0) {
+                param = 1;
+                touched = true;
             }
+            break;
+        }
             case bus::Kind::kKill:
                 if (!kill_matches(pass.catalog, objective, pass.event)) break;
                 touched = true;
@@ -162,7 +199,26 @@ void level_up(detail::Work& work, const Catalog& catalog, const bus::Event& even
     }
 }
 
-// Vật phẩm nhiệm vụ rơi: mỗi món là một giao dịch riêng để túi đầy không làm mất tiến độ giết quái đã ghi.
+[[nodiscard]] const Quest* held_table(const Catalog& catalog, const Slot& slot) {
+    if (!slot.used()) return nullptr;
+    const auto script = static_cast<std::uint32_t>(std::max(slot.script, 0));
+    const Quest* const quest = catalog.by_script(script);
+    if (quest == nullptr || quest->source != Source::kTable) return nullptr;
+    if (quest->quest != slot.mission) return nullptr;
+    return quest;
+}
+
+// Cấp đổi thì đối chiếu lại mục tiêu đạt cấp và túi của mọi nhiệm vụ bảng đang giữ.
+void sync_held_tables(detail::Work& work, const Catalog& catalog) {
+    for (const Slot& slot : work.draft().slots) {
+        const Quest* const quest = held_table(catalog, slot);
+        if (quest == nullptr) continue;
+        detail::sync_table(work, *quest);
+    }
+}
+
+// Vật phẩm nhiệm vụ rơi: mỗi món là một giao dịch riêng để túi đầy không làm mất tiến độ giết quái
+// đã ghi.
 void deliver_drops(Character& who, const Catalog& catalog, const ops::Calendar& calendar, const std::vector<Drop>& drops,
     Outcome& out) {
     for (const Drop& drop : drops) {
@@ -196,6 +252,7 @@ Outcome Engine::handle(Character& who, const bus::Event& event, const ops::Calen
     const Pass pass{.work = work, .catalog = catalog_, .dice = dice_, .event = event, .drops = drops};
     if (event.kind == bus::Kind::kLevelUp) {
         level_up(work, catalog_, event, who.level());
+        sync_held_tables(work, catalog_);
     } else {
         const std::uint8_t wanted = event.kind == bus::Kind::kKill       ? kWatchKill
                                     : event.kind == bus::Kind::kEnterArea ? kWatchArea

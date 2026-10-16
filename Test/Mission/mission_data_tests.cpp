@@ -123,6 +123,19 @@ void prepare(FakeCharacter& hero, const Quest& quest) {
     hero.bundle.wallet.normal = 1'000'000;
 }
 
+// Đạt cấp: a là cấp mới, c là cấp cũ để mission_auto chỉ đi các bậc ở giữa, không đi từ 0.
+void raise_level(mission::Engine& engine, FakeCharacter& hero, std::int32_t count, const ops::Calendar& calendar) {
+    const std::int32_t before = hero.level_value;
+    const std::int32_t reached = std::max(before, count);
+    hero.level_value = reached;
+    bus::Event event;
+    event.kind = bus::Kind::kLevelUp;
+    event.hero = hero.id();
+    event.a = static_cast<std::uint32_t>(std::max(reached, 0));
+    event.c = before;
+    static_cast<void>(engine.handle(hero, event, calendar));
+}
+
 // Làm cho mọi mục tiêu của nhiệm vụ bảng đạt bằng các sự kiện thật; trả false nếu có mục tiêu không thể làm bằng sự kiện.
 bool satisfy(mission::Engine& engine, FakeCharacter& hero, const Quest& quest, const ops::Calendar& calendar) {
     // NOLINTNEXTLINE(bugprone-easily-swappable-parameters): tham số a, b và mã tên của sự kiện khác vai, nơi gọi nêu tên (HP-07)
@@ -149,6 +162,10 @@ bool satisfy(mission::Engine& engine, FakeCharacter& hero, const Quest& quest, c
             case ObjectiveKind::kArea:
                 send(bus::Kind::kEnterArea, static_cast<std::uint32_t>(std::max(one.scene, 0)), static_cast<std::uint32_t>(one.target), 0);
                 break;
+            case ObjectiveKind::kSkill:
+                send(bus::Kind::kTalk, static_cast<std::uint32_t>(one.target), 0, one.name);
+                break;
+            case ObjectiveKind::kLevel: raise_level(engine, hero, one.count, calendar); break;
             case ObjectiveKind::kEscort:
             case ObjectiveKind::kProgress:
             case ObjectiveKind::kCollect: return false;
@@ -303,8 +320,9 @@ void longest_chain_end_to_end(Context& context) {
     context.expect(finished == best->size(), "đi hết chuỗi next_script dài nhất bằng một người chơi");
 }
 
-// Chuỗi cấp thấp nhất có từ 3 nhiệm vụ: nhiệm vụ tân thủ của client (1400..1424) không có trong dữ liệu máy chủ nào nên đây
-// là chuỗi gần "người mới" nhất mà dữ liệu thật cho phép.
+// Chuỗi cấp thấp nhất có từ 3 nhiệm vụ. Dải tân thủ 1400..1424 đã có trong bảng: đoạn chạy được
+// là nói chuyện, giết quái, học kỹ năng và đạt cấp; bước không có bộ chạy thì chuỗi dừng.
+// Hàm này chọn chuỗi có cấp đầu thấp nhất, không khoá id.
 void lowest_chain_end_to_end(Context& context) {
     const auto all = read_all();
     if (!all) return;

@@ -43,6 +43,14 @@ public:
         return found == abilities.end() ? 0 : found->second;
     }
     [[nodiscard]] bool skill_known(std::int32_t skill) const noexcept override { return skills.contains(skill); }
+    // Cùng trần actor::kMaxLearnedSkills. Đã biết thì true, không thêm dòng.
+    [[nodiscard]] bool learn_skill(std::int32_t skill) noexcept override {
+        if (skill <= 0) return false;
+        if (skills.contains(skill)) return true;
+        if (skills.size() >= 64) return false;
+        skills.insert(skill);
+        return true;
+    }
     [[nodiscard]] ledger::Ports ports() noexcept override { return bundle.ports(); }
 
     void give(std::uint32_t item, std::int64_t amount) { bundle.items.total[item] += amount; }

@@ -22,6 +22,7 @@
 #include <string>
 #include <string_view>
 #include <utility>
+#include <vector>
 
 // Các thử nghiệm nằm trong namespace actor để gọi thẳng tên của module (google-build-using-namespace cấm using-directive).
 namespace game::actor {
@@ -526,9 +527,14 @@ void codec_rejects_bad_input(Context& context) {
             if (!result) continue;
             ++accepted;
             const Record& got = *result;
+            bool skills_hold = got.skills.size() <= kMaxLearnedSkills;
+            for (std::size_t i = 0; i < got.skills.size(); ++i) {
+                skills_hold = skills_hold && got.skills[i] != 0;
+                if (i > 0) skills_hold = skills_hold && got.skills[i - 1] < got.skills[i];
+            }
             context.expect(got.sect < kSectSlots && got.level >= 1 && got.level <= 150 && got.hp >= 0 && got.mp >= 0 &&
                     got.rage >= 0 && got.strike_points >= 0 && got.remain_points >= 0 && got.alive == (got.hp > 0) &&
-                    got.inner_arts.size() <= kMaxInnerArtsPerRecord,
+                    got.inner_arts.size() <= kMaxInnerArtsPerRecord && skills_hold,
                 "bản ghi chấp nhận luôn hợp lệ");
         }
     }
@@ -558,7 +564,50 @@ void codec_rejects_bad_input(Context& context) {
     context.expect(!describe(CodecError::kTruncated).empty() && !describe(static_cast<CodecError>(99)).empty(), "describe");
 }
 
-constexpr std::array<Case, 17> kCases{{
+[[nodiscard]] std::uint16_t version_of(const Bytes& bytes) {
+    const std::size_t at = protocol::kHeaderBytes;
+    const auto low = static_cast<unsigned>(std::to_integer<unsigned char>(bytes.at(at)));
+    const auto high = static_cast<unsigned>(std::to_integer<unsigned char>(bytes.at(at + 1)));
+    return static_cast<std::uint16_t>(low | (high << 8));
+}
+
+void learned_skills_round_trip(Context& context) {
+    const Rules* sheet = rules(context);
+    if (sheet == nullptr) return;
+    Body plain;
+    context.expect(!plain.learn_skill(244), "thân chưa phải người không học");
+    Body body = Body::human(*sheet, BodyLimits{}, record_of(3, 60, {13, 127, 75, 63, 37}, 5));
+    context.expect(!body.learn_skill(0) && !body.skill_known(0), "mã 0 bị từ chối");
+    context.expect(body.learn_skill(248) && body.learn_skill(244), "học hai kỹ năng");
+    context.expect(body.record().skills == std::vector<std::uint32_t>{244U, 248U}, "giữ tăng dần");
+    context.expect(body.learn_skill(244) && body.record().skills.size() == 2, "học lại không thêm dòng");
+    context.expect(body.change_sect(5) && body.skill_known(244) && body.skill_known(248), "đổi phái không xoá kỹ năng");
+    for (std::uint32_t id = 1; id <= kMaxLearnedSkills; ++id) static_cast<void>(body.learn_skill(id));
+    context.expect(body.record().skills.size() == kMaxLearnedSkills, "đầy sổ");
+    context.expect(!body.learn_skill(1000), "sổ đầy thì từ chối mã mới");
+    context.expect(body.learn_skill(244), "mã đã biết vẫn đúng khi đầy");
+    Record empty = sample_record();
+    Bytes empty_bytes;
+    context.expect(encode_record(empty, empty_bytes).has_value(), "mã hoá sổ rỗng");
+    context.expect(version_of(empty_bytes) == kRecordVersion, "sổ rỗng là phiên bản 1");
+    Record learned = empty;
+    learned.skills = {244U, 248U};
+    Bytes learned_bytes;
+    context.expect(encode_record(learned, learned_bytes).has_value(), "mã hoá có kỹ năng");
+    context.expect(version_of(learned_bytes) == kRecordVersionSkills, "có kỹ năng là phiên bản 2");
+    const auto back = decode_record(learned_bytes, 150);
+    context.expect(back && *back == learned, "giải mã trả đúng danh sách");
+    Record messy = learned;
+    messy.skills = {248U, 244U};
+    Bytes sink;
+    context.expect(!encode_record(messy, sink).has_value(), "không tăng dần thì không ghi");
+    messy.skills = {0U};
+    context.expect(!encode_record(messy, sink).has_value(), "mã 0 không ghi");
+    messy.skills = {244U, 244U};
+    context.expect(!encode_record(messy, sink).has_value(), "trùng id không ghi");
+}
+
+constexpr std::array<Case, 18> kCases{{
     {.name = "rules_load_real_tables", .body = rules_load_real_tables},
     {.name = "rules_reject_bad_tables", .body = rules_reject_bad_tables},
     {.name = "stats_golden", .body = stats_golden},
@@ -576,6 +625,7 @@ constexpr std::array<Case, 17> kCases{{
     {.name = "penalty_ids_and_rolls", .body = penalty_ids_and_rolls},
     {.name = "codec_round_trip", .body = codec_round_trip},
     {.name = "codec_rejects_bad_input", .body = codec_rejects_bad_input},
+    {.name = "learned_skills_round_trip", .body = learned_skills_round_trip},
 }};
 
 } // namespace

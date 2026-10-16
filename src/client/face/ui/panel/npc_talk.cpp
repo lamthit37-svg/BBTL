@@ -475,8 +475,127 @@ void press_talk(NpcTalk& talk, std::string_view window, std::chrono::millisecond
     if (window == kTalkContinue) send_turn_in(talk, clock);
 }
 
+constexpr char kUnitSep = '\x1f';
+
+struct MarkLine {
+    bool ok = false;
+    char stage = 0;
+    std::uint32_t quest = 0;
+    std::string_view name;
+};
+
+bool take_digit(std::uint32_t& quest, char digit) {
+    if (digit < '0' || digit > '9') return false;
+    if (quest > (kMarkSpan - 1U) / 10U) return false;
+    const auto value = static_cast<std::uint32_t>(digit - '0');
+    const std::uint32_t next = quest * 10U + value;
+    if (next >= kMarkSpan) return false;
+    quest = next;
+    return true;
+}
+
+bool read_quest(std::string_view digits, std::uint32_t& quest) {
+    if (digits.empty()) return false;
+    quest = 0;
+    for (const char digit : digits) {
+        if (!take_digit(quest, digit)) return false;
+    }
+    return true;
+}
+
+// Cùng dạng mark_text ở src/server/play/gameplay.cpp. Dòng không đúng dạng giữ làm chữ thường.
+MarkLine parse_mark(std::string_view line) {
+    MarkLine parsed;
+    if (!line.starts_with("TLQ")) return parsed;
+    if (line.size() < 6) return parsed;
+    if (line[3] != kUnitSep || line[5] != kUnitSep) return parsed;
+    const char stage = line[4];
+    const bool known = stage == '1' || stage == '2' || stage == '3';
+    if (!known) return parsed;
+    const std::size_t split = line.find(kUnitSep, 6);
+    if (split == std::string_view::npos) return parsed;
+    if (!read_quest(line.substr(6, split - 6), parsed.quest)) return parsed;
+    parsed.ok = true;
+    parsed.stage = stage;
+    parsed.name = line.substr(split + 1);
+    return parsed;
+}
+
+std::string mark_label(const MarkLine& parsed) {
+    const char sigil = parsed.stage == '1' ? '!' : '?';
+    if (!parsed.name.empty()) return std::format("{}{}", sigil, parsed.name);
+    return std::format("{}{}", sigil, parsed.quest);
+}
+
+void add_mark_line(std::string& blob, const MarkLine& parsed) {
+    const std::string label = mark_label(parsed);
+    if (parsed.stage == '2') add_text(blob, label);
+    if (parsed.stage == '2') return;
+    const std::uint32_t base = parsed.stage == '1' ? kMarkAccept : kMarkTurn;
+    const std::uint32_t index = base + parsed.quest;
+    add_option(blob, label, {.index = index, .icon = kNoIcon});
+}
+
+// US là dấu trường của cửa sổ phức hợp. Chữ thường không được mang nó, kẻo vỡ bản ghi.
+std::string plain_text(std::string_view line) {
+    std::string plain{line};
+    for (char& one : plain) {
+        if (one == kUnitSep) one = ' ';
+    }
+    return plain;
+}
+
+void add_spoken(std::string& blob, std::string_view line) {
+    const MarkLine parsed = parse_mark(line);
+    if (parsed.ok) add_mark_line(blob, parsed);
+    if (parsed.ok) return;
+    const std::string plain = plain_text(line);
+    add_text(blob, plain);
+}
+
+bool in_span(std::uint32_t index, std::uint32_t base) {
+    return index >= base && index < base + kMarkSpan;
+}
+
+bool same_mark(std::string_view line, char stage, std::uint32_t quest) {
+    const MarkLine parsed = parse_mark(line);
+    return parsed.ok && parsed.stage == stage && parsed.quest == quest;
+}
+
+bool dialog_has_mark(const tk::Dialog& dialog, char stage, std::uint32_t quest) {
+    for (const std::string& line : dialog.lines) {
+        if (same_mark(line, stage, quest)) return true;
+    }
+    return false;
+}
+
+void send_accept_mark(NpcTalk& talk, std::uint32_t quest, std::chrono::milliseconds clock) {
+    const auto id = static_cast<std::uint16_t>(quest);
+    request(talk, tk::Accept{.session = talk.dialog.session, .quest = id}, clock);
+}
+
+void send_turn_mark(NpcTalk& talk, std::uint32_t quest, std::chrono::milliseconds clock) {
+    const auto id = static_cast<std::uint16_t>(quest);
+    const tk::TurnIn turn{.session = talk.dialog.session, .quest = id, .reward = -1};
+    request(talk, turn, clock);
+}
+
+bool send_mark(NpcTalk& talk, std::uint32_t index, std::chrono::milliseconds clock) {
+    const bool is_turn = in_span(index, kMarkTurn);
+    const bool is_accept = in_span(index, kMarkAccept);
+    if (!is_turn && !is_accept) return false;
+    const std::uint32_t base = is_turn ? kMarkTurn : kMarkAccept;
+    const std::uint32_t quest = index - base;
+    const char stage = is_turn ? '3' : '1';
+    if (!dialog_has_mark(talk.dialog, stage, quest)) return true;
+    if (is_accept) send_accept_mark(talk, quest, clock);
+    if (is_turn) send_turn_mark(talk, quest, clock);
+    return true;
+}
+
 void pick_talk_option(NpcTalk& talk, std::uint32_t index, std::chrono::milliseconds clock) {
     if (!talk.is_open || talk.is_waiting) return;
+    if (send_mark(talk, index, clock)) return;
     if (index >= kRewardBase) {
         const std::size_t at = index - kRewardBase;
         if (at < talk.dialog.bonuses.size() && talk.dialog.bonuses.at(at).kind == tk::BonusKind::kRadio) {
@@ -497,7 +616,9 @@ void paint_talk(Deck& deck, const NpcTalk& talk, std::string_view title, const I
     heading.append(kTitleTint);
     heading.append(title);
     std::string& blob = deck.compose(Key{.window = kTalkDesc, .name = gui::kElementsProperty});
-    for (const std::string& line : dialog.lines) add_text(blob, line);
+    for (const std::string& line : dialog.lines) {
+        add_spoken(blob, line);
+    }
     BonusFlow flow;
     for (std::size_t at = 0; at < dialog.bonuses.size(); ++at) add_bonus(blob, flow, dialog, at, talk, items);
     for (const tk::Choice& choice : dialog.choices) {

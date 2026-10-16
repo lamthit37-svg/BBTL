@@ -1,7 +1,25 @@
+/*==============================================================================
+ *  THIENLONG  |  GAME SERVER
+ *------------------------------------------------------------------------------
+ *  TỆP       : src/server/mission/detail/progress.hpp
+ *  PHÂN HỆ   : Mission / Detail / Progress
+ *  CHUẨN     : C++23
+ *------------------------------------------------------------------------------
+ *  CHỨC NĂNG
+ *  - Tiến độ nhiệm vụ bảng: đếm vật phẩm, ghi 0 hoặc 1 cho nói chuyện, học và
+ *    cấp.
+ *------------------------------------------------------------------------------
+ *  TÁC GIẢ   : HiepHoon
+ *  TELEGRAM  : @Hoon9xx
+ *============================================================================*/
+
+// Nội bộ mission: tiến độ của nhiệm vụ BẢNG. Quy ước tham số của ô (khớp book.hpp): tham số 0 = cờ
+// đủ điều kiện nộp, tham số 1 + chỉ số mục tiêu = tiến độ. Mục tiêu giết quái, nói chuyện, vào vùng
+// tăng tham số theo sự kiện; mục tiêu loot và giao vật phẩm lấy tiến độ từ số vật phẩm trong túi
+// (nên mất đồ thì tiến độ tụt, đúng bản gốc). Học kỹ năng và đạt cấp ghi 0/1 theo trạng thái nhân
+// vật lúc sync, không đếm số lần sự kiện.
+
 #pragma once
-// Nội bộ mission: tiến độ của nhiệm vụ BẢNG. Quy ước tham số của ô (khớp book.hpp): tham số 0 = cờ đủ điều kiện nộp, tham số
-// 1 + chỉ số mục tiêu = tiến độ. Mục tiêu giết quái, nói chuyện, vào vùng tăng tham số theo sự kiện; mục tiêu loot và giao
-// vật phẩm lấy tiến độ từ số vật phẩm trong túi (nên mất đồ thì tiến độ tụt, đúng bản gốc).
 
 #include "ledger/ledger.hpp"
 #include "mission/catalog.hpp"

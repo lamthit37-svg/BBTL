@@ -389,7 +389,65 @@ void book_becomes_the_client_log(Context& context) {
     context.expect(quest::is_done(log, 37) && !quest::is_done(log, 36), "nhiệm vụ 37 là bit 5 của từ 1");
 }
 
-constexpr std::array<Case, 19> kCases = {{
+std::string mark_line(char stage, int quest, std::string_view name) {
+    std::string line = "TLQ";
+    line.push_back('\x1f');
+    line.push_back(stage);
+    line.push_back('\x1f');
+    line.append(std::to_string(quest));
+    line.push_back('\x1f');
+    line.append(name);
+    return line;
+}
+
+void quest_mark_line_is_a_local_button(Context& context) {
+    tk::Dialog dialog = list_dialog(5);
+    dialog.lines.push_back(mark_line('1', 1400, "初涉江湖"));
+    dialog.lines.push_back(mark_line('2', 1401, "拜访"));
+    dialog.lines.push_back(mark_line('3', 1403, ""));
+    dialog.lines.push_back("TLQ khong phai dau");
+    dialog.lines.push_back("TLQ\x1f" "9\x1f" "12\x1f" "x");
+    NpcTalk talk;
+    ui::panel::open_talk(talk, dialog);
+    ui::panel::Deck deck;
+    const ui::panel::ItemNames items;
+    ui::panel::paint_talk(deck, talk, "赵天师", items);
+    const std::string elements = deck_value(deck, ui::panel::kTalkDesc, gui::kElementsProperty);
+    const std::string field(1, gui::kFieldMark);
+    const std::string doing = std::string(gui::kTextElement) + field + "?拜访";
+    const std::string doing_button = std::string(gui::kOptionElement) + field + "?拜访";
+    context.expect(elements.contains("你好，少侠。"), "lời NPC còn");
+    context.expect(elements.contains("!初涉江湖"), "dấu nhận thành nút");
+    context.expect(elements.contains(doing), "đang làm là chữ");
+    context.expect(!elements.contains(doing_button), "đang làm không phải nút");
+    context.expect(elements.contains("?1403"), "thiếu tên thì hiện số");
+    context.expect(elements.contains("TLQ khong phai dau"), "dòng lệch dạng vẫn là chữ");
+    context.expect(elements.contains("TLQ 9 12 x"), "US lạ thành khoảng trắng");
+    const std::string accept = std::to_string(ui::panel::kMarkAccept + 1400U);
+    const std::string turn = std::to_string(ui::panel::kMarkTurn + 1403U);
+    context.expect(elements.contains(accept), "nút nhận mang chỉ số cục bộ");
+    context.expect(elements.contains(turn), "nút nộp mang chỉ số cục bộ");
+    ui::panel::pick_talk_option(talk, ui::panel::kMarkAccept + 1400U, kStart);
+    const auto* taken = last_say<tk::Accept>(talk);
+    context.expect(taken != nullptr && taken->quest == 1400 && taken->session == 5, "gửi Accept");
+    context.expect(last_say<tk::Choose>(talk) == nullptr, "không gửi Choose");
+    talk.is_waiting = false;
+    talk.says.clear();
+    ui::panel::pick_talk_option(talk, ui::panel::kMarkTurn + 1403U, kStart);
+    const auto* turned = last_say<tk::TurnIn>(talk);
+    context.expect(turned != nullptr && turned->quest == 1403 && turned->reward == -1, "gửi TurnIn");
+    talk.is_waiting = false;
+    talk.says.clear();
+    ui::panel::pick_talk_option(talk, ui::panel::kMarkAccept + 1401U, kStart);
+    context.expect(talk.says.empty(), "dòng đang làm không gửi");
+    ui::panel::pick_talk_option(talk, ui::panel::kMarkAccept + 1403U, kStart);
+    context.expect(talk.says.empty(), "nút nộp không gửi Accept");
+    ui::panel::pick_talk_option(talk, 3, kStart);
+    const auto* chosen = last_say<tk::Choose>(talk);
+    context.expect(chosen != nullptr && chosen->index == 3, "lựa chọn script vẫn là Choose");
+}
+
+constexpr std::array<Case, 20> kCases = {{
     {.name = "choice_goes_up_with_the_session", .body = choice_goes_up_with_the_session},
     {.name = "second_click_is_dropped_while_waiting", .body = second_click_is_dropped_while_waiting},
     {.name = "unknown_option_is_ignored", .body = unknown_option_is_ignored},
@@ -409,6 +467,7 @@ constexpr std::array<Case, 19> kCases = {{
     {.name = "bag_paint_puts_the_icon_on_the_base_tab", .body = bag_paint_puts_the_icon_on_the_base_tab},
     {.name = "notices_prefer_server_text", .body = notices_prefer_server_text},
     {.name = "book_becomes_the_client_log", .body = book_becomes_the_client_log},
+    {.name = "quest_mark_line_is_a_local_button", .body = quest_mark_line_is_a_local_button},
 }};
 
 } // namespace

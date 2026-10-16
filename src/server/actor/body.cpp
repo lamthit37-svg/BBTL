@@ -1,3 +1,18 @@
+/*==============================================================================
+ *  THIENLONG  |  GAME SERVER
+ *------------------------------------------------------------------------------
+ *  TỆP       : src/server/actor/body.cpp
+ *  PHÂN HỆ   : Server / Actor / Body
+ *  CHUẨN     : C++23
+ *------------------------------------------------------------------------------
+ *  CHỨC NĂNG
+ *  - Cộng điểm, đổi phái và học kỹ năng trên thân người.
+ *  - Đổi phái không xoá kỹ năng đã học.
+ *------------------------------------------------------------------------------
+ *  TÁC GIẢ   : HiepHoon
+ *  TELEGRAM  : @Hoon9xx
+ *============================================================================*/
+
 #include "actor/body.hpp"
 
 #include "actor/attr.hpp"
@@ -563,6 +578,19 @@ bool Body::change_sect(std::uint8_t sect) noexcept {
     if (!human_ || sect >= kSectSlots) return false;
     rebuild_points(sect);
     recalc();
+    return true;
+}
+
+bool Body::skill_known(std::uint32_t id) const noexcept {
+    return std::ranges::binary_search(record_.skills, id);
+}
+
+bool Body::learn_skill(std::uint32_t id) noexcept {
+    if (!human_ || id == 0) return false;
+    const auto found = std::ranges::lower_bound(record_.skills, id);
+    if (found != record_.skills.end() && *found == id) return true;
+    if (record_.skills.size() >= kMaxLearnedSkills) return false;
+    record_.skills.insert(found, id);
     return true;
 }
 

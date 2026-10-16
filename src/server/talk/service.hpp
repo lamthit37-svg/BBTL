@@ -154,7 +154,12 @@ private:
     [[nodiscard]] std::expected<Built, Failure> run(mission::Character& hero, const NpcRef& npc, std::uint32_t script,
         std::int32_t num, bool root, bool dry, const ops::Calendar& calendar);
     Result commit_open(mission::Character& hero, Session session, Built built, ids::Tick now);
-    Result finish_intent(mission::Character& hero, Session& open, mission::Outcome outcome, const ops::Calendar& calendar);
+    Result finish_intent(mission::Character& hero, Session& open, mission::Outcome outcome,
+        const ops::Calendar& calendar);
+    // Nộp thiếu thưởng chọn một: giữ phiên và mở bảng nộp. Không có hàng trong danh mục thì trả lỗi
+    // gốc.
+    [[nodiscard]] Result reward_sheet(Session& open, mission::Character& hero, std::int32_t quest,
+        const mission::Failure& why);
     void erase(ids::CharacterId hero) noexcept;
 
     // NOLINTBEGIN(cppcoreguidelines-avoid-const-or-ref-data-members): chương trình và Engine do cảnh sở hữu, sống lâu hơn Service, không sở hữu, không giữ qua tick (SH-04)

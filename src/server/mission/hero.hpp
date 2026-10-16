@@ -1,7 +1,23 @@
-#pragma once
+/*==============================================================================
+ *  THIENLONG  |  GAME SERVER
+ *------------------------------------------------------------------------------
+ *  TỆP       : src/server/mission/hero.hpp
+ *  PHÂN HỆ   : Server / Mission / Hero
+ *  CHUẨN     : C++23
+ *------------------------------------------------------------------------------
+ *  CHỨC NĂNG
+ *  - Cửa vào của nhiệm vụ tới một nhân vật.
+ *  - Học kỹ năng võ mặc định từ chối. Zone nối thân thể thật vào.
+ *------------------------------------------------------------------------------
+ *  TÁC GIẢ   : HiepHoon
+ *  TELEGRAM  : @Hoon9xx
+ *============================================================================*/
+
 // Cửa vào của mission tới MỘT nhân vật: sổ nhiệm vụ của nó, vài chỉ số chỉ đọc (cấp, môn phái, đội, bang, kỹ năng) và ba cổng
 // của sổ cái (túi, ví, kinh nghiệm). Lõi không biết Actor hay Inventory thật (thuộc vai khác); zone hay test nối chúng vào
 // đây, nhờ vậy mission chạy và thử được thuần.
+
+#pragma once
 
 #include "ids/ids.hpp"
 #include "ledger/ledger.hpp"
@@ -35,6 +51,11 @@ public:
     [[nodiscard]] virtual std::int32_t guild() const noexcept = 0;  // -1 là không có bang
     [[nodiscard]] virtual std::int32_t ability(std::int32_t skill) const noexcept = 0;
     [[nodiscard]] virtual bool skill_known(std::int32_t skill) const noexcept = 0;
+    // Học kỹ năng võ. true khi đã biết hoặc vừa học. false khi mã 0, không phải người, hoặc sổ đầy.
+    [[nodiscard]] virtual bool learn_skill(std::int32_t skill) noexcept {
+        static_cast<void>(skill);
+        return false;
+    }
     // Đang chịu hiệu ứng (buff) mã `impact`; hệ hiệu ứng thuộc vai combat, mặc định chưa có hiệu ứng nào.
     [[nodiscard]] virtual bool has_impact(std::int32_t impact) const noexcept {
         static_cast<void>(impact);

@@ -1,3 +1,18 @@
+/*==============================================================================
+ *  THIENLONG  |  GAME SERVER
+ *------------------------------------------------------------------------------
+ *  TỆP       : src/server/actor/codec.cpp
+ *  PHÂN HỆ   : Server / Actor / Codec
+ *  CHUẨN     : C++23
+ *------------------------------------------------------------------------------
+ *  CHỨC NĂNG
+ *  - Ghi và đọc bản ghi. Sai một byte thì trả lỗi.
+ *  - Danh sách kỹ năng phải tăng dần, không trùng và không có mã 0.
+ *------------------------------------------------------------------------------
+ *  TÁC GIẢ   : HiepHoon
+ *  TELEGRAM  : @Hoon9xx
+ *============================================================================*/
+
 #include "actor/codec.hpp"
 
 #include "actor/body.hpp"
@@ -24,6 +39,33 @@ CodecError from_wire(protocol::WireError error) noexcept {
     }
 }
 
+bool skill_at_ok(const Record& record, std::size_t index) noexcept {
+    if (record.skills[index] == 0) return false;
+    if (index == 0) return true;
+    return record.skills[index - 1] < record.skills[index];
+}
+
+bool skills_ok(const Record& record) noexcept {
+    if (record.skills.size() > kMaxLearnedSkills) return false;
+    for (std::size_t i = 0; i < record.skills.size(); ++i) {
+        if (!skill_at_ok(record, i)) return false;
+    }
+    return true;
+}
+
+void write_skills(protocol::Writer& writer, const std::vector<std::uint32_t>& skills) {
+    writer.count(skills.size(), kMaxLearnedSkills);
+    for (const std::uint32_t id : skills)
+        writer.u32(id);
+}
+
+void read_skills(protocol::Reader& reader, Record& record) {
+    const std::size_t count = reader.count(kMaxLearnedSkills);
+    record.skills.reserve(count);
+    for (std::size_t i = 0; i < count && reader.is_ok(); ++i)
+        record.skills.push_back(reader.u32());
+}
+
 bool valid(const Record& record) noexcept {
     if (record.sect >= kSectSlots || record.level == 0) return false;
     if (record.remain_points < 0 || record.hp < 0 || record.mp < 0 || record.rage < 0 || record.strike_points < 0) return false;
@@ -34,7 +76,7 @@ bool valid(const Record& record) noexcept {
         if (record.inner_arts[i].second == 0) return false;
         if (i > 0 && record.inner_arts[i - 1].first >= record.inner_arts[i].first) return false;
     }
-    return true;
+    return skills_ok(record);
 }
 
 } // namespace
@@ -54,7 +96,8 @@ std::string_view describe(CodecError error) noexcept {
 std::expected<void, CodecError> encode_record(const Record& record, Bytes& out) {
     if (!valid(record)) return std::unexpected(CodecError::kBadValue);
     protocol::Writer writer(out);
-    writer.u16(kRecordVersion);
+    const std::uint16_t version = record.skills.empty() ? kRecordVersion : kRecordVersionSkills;
+    writer.u16(version);
     writer.u8(record.sect);
     writer.u16(record.level);
     writer.u64(record.exp);
@@ -70,6 +113,7 @@ std::expected<void, CodecError> encode_record(const Record& record, Bytes& out) 
         writer.u32(id);
         writer.u16(level);
     }
+    if (!record.skills.empty()) write_skills(writer, record.skills);
     const protocol::WireStatus status = writer.finish(kRecordKind);
     if (!status) return std::unexpected(from_wire(status.error()));
     return {};
@@ -83,9 +127,10 @@ std::expected<Record, CodecError> decode_record(protocol::ByteView bytes, std::u
     if (frame.kind != kRecordKind) return std::unexpected(CodecError::kBadKind);
     if (bytes.size() != protocol::kHeaderBytes + frame.body_bytes) return std::unexpected(CodecError::kTrailing);
     protocol::Reader reader(bytes.subspan(protocol::kHeaderBytes, frame.body_bytes));
-    if (reader.u16() != kRecordVersion) {
-        return std::unexpected(reader.is_ok() ? CodecError::kBadVersion : CodecError::kTruncated);
-    }
+    const std::uint16_t version = reader.u16();
+    if (!reader.is_ok()) return std::unexpected(CodecError::kTruncated);
+    const bool known_version = version == kRecordVersion || version == kRecordVersionSkills;
+    if (!known_version) return std::unexpected(CodecError::kBadVersion);
     Record record;
     record.sect = reader.u8();
     record.level = reader.u16();
@@ -104,6 +149,7 @@ std::expected<Record, CodecError> decode_record(protocol::ByteView bytes, std::u
         const std::uint16_t level = reader.u16();
         record.inner_arts.emplace_back(id, level);
     }
+    if (version == kRecordVersionSkills) read_skills(reader, record);
     const protocol::WireStatus status = reader.finish();
     if (!status) return std::unexpected(from_wire(status.error()));
     if (!valid(record) || record.level > max_level) return std::unexpected(CodecError::kBadValue);

@@ -83,6 +83,7 @@ public:
     [[nodiscard]] std::int32_t guild() const noexcept override { return -1; }
     [[nodiscard]] std::int32_t ability(std::int32_t skill) const noexcept override;
     [[nodiscard]] bool skill_known(std::int32_t skill) const noexcept override;
+    [[nodiscard]] bool learn_skill(std::int32_t skill) noexcept override;
     [[nodiscard]] ledger::Ports ports() noexcept override { return ledger::Ports{.items = bag_, .wallet = wallet_, .exp = exp_}; }
 
 private:

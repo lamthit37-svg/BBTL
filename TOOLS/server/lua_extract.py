@@ -7,7 +7,9 @@ cách dùng:
 Không bao giờ chạy Lua: đọc tĩnh bằng bộ phân tích riêng (lua_syntax.py) rồi hạ từng hàm bằng bộ đánh giá từng phần
 (lua_flow.py) với trạng thái người chơi tượng trưng. Kết quả là điều kiện và hiệu ứng thuộc tập op đóng của module C++
 `ops`; mọi thứ không qui được về tập đó bị ghi `unsupported` kèm lý do, không bỏ im. Danh bạ nhiệm vụ của client 2026
-là thẩm quyền cao nhất: tên, cấp, NPC giao/trả lấy từ đó; Lua chỉ quyết định logic.
+là thẩm quyền cao nhất với script 14 môn: tên, cấp, NPC giao/trả lấy từ đó; Lua chỉ quyết định logic.
+Ngoại lệ `edali_newquest`: tệp MisDesc của client không có thân hàm, ô NPC danh bạ là "-1", nên
+`newquest.append_quests` dựng dòng bảng từ chính script và không gọi `fill_from_client`.
 `--check` chạy hết nhưng không ghi bảng (in báo cáo).
 """
 from __future__ import annotations
@@ -24,6 +26,7 @@ import lua_dialog as D
 import lua_emit as E
 import lua_npc as N
 import lua_out as O
+import newquest
 import lua_quest as Q
 import lua_quest_npcs as QN
 import lua_report
@@ -91,6 +94,7 @@ def build(lua_dir: Path, tables: Path, scenes: Path) -> Context:
     ctx = load_context(lua_dir, tables, scenes)
     extract_script_quests(ctx)
     extract_table_quests(ctx, tables)
+    newquest.append_quests(ctx)
     BU.resolve_next(ctx.quests)
     extract_dialogs(ctx)
     extract_auto(ctx, lua_dir)

@@ -15,6 +15,7 @@
 
 #include "talk/service.hpp"
 
+#include "bus/bus.hpp"
 #include "ids/ids.hpp"
 #include "mission/book.hpp"
 #include "mission/catalog.hpp"
@@ -30,6 +31,7 @@
 #include <cstddef>
 #include <cstdint>
 #include <expected>
+#include <limits>
 #include <map>
 #include <optional>
 #include <span>
@@ -195,16 +197,64 @@ Result Service::commit_open(mission::Character& hero, Session session, Built bui
     return reply;
 }
 
+namespace {
+
+mission::Outcome remember_visit(mission::Engine& engine, mission::Character& hero,
+    const NpcRef& npc, const ops::Calendar& calendar) {
+    bus::Event event;
+    event.kind = bus::Kind::kTalk;
+    event.hero = hero.id();
+    event.a = npc.guid;
+    event.name = npc.name;
+    if (npc.scene >= 0) event.b = static_cast<std::uint32_t>(npc.scene);
+    return engine.handle(hero, event, calendar);
+}
+
+void push_notice(std::vector<mission::Notice>& into, const mission::Notice& notice) {
+    into.push_back(notice);
+}
+
+void push_order(std::vector<mission::Directive>& into, const mission::Directive& one) {
+    into.push_back(one);
+}
+
+void append_notices(std::vector<mission::Notice>& into, const std::vector<mission::Notice>& extra) {
+    for (const mission::Notice& notice : extra) {
+        push_notice(into, notice);
+    }
+}
+
+void append_orders(std::vector<mission::Directive>& into,
+    const std::vector<mission::Directive>& extra) {
+    for (const mission::Directive& one : extra) {
+        push_order(into, one);
+    }
+}
+
+void fold_visit(mission::Outcome& into, const mission::Outcome& visit) {
+    if (visit.refused.has_value()) return;
+    append_notices(into.notices, visit.notices);
+    append_orders(into.directives, visit.directives);
+}
+
+} // namespace
+
 Result Service::talk(mission::Character& hero, const NpcRef& npc, const World& world, ids::Tick now,
     const ops::Calendar& calendar) {
     const std::optional<Presence> here = world.presence(hero.id(), npc);
     if (!here) return fail(Error::kNoNpc);
     if (here->hero_scene != here->npc_scene || here->npc_scene != npc.scene) return fail(Error::kSceneChanged);
     if (!(here->distance <= options_.range)) return fail(Error::kFar);
-    if (!sessions_.contains(hero.id()) && sessions_.size() >= options_.max_sessions) return fail(Error::kTooMany);
+    const bool first = !sessions_.contains(hero.id());
+    const bool full = sessions_.size() >= options_.max_sessions;
+    if (first && full) return fail(Error::kTooMany);
+    // Mở hội thoại là lần gặp NPC. Tính trước khi dựng dấu để dấu thấy sổ đã cập nhật.
+    // Chọn mục không ghi lần gặp: choose chạy khô rồi mới chạy lựa chọn.
+    const mission::Outcome visit = remember_visit(engine_, hero, npc, calendar);
     auto built = run(hero, npc, npc.script, -1, true, false, calendar);
     if (!built) return std::unexpected(std::move(built.error()));
     if (built->view.empty()) return fail(Error::kNoDialog);
+    fold_visit(built->outcome, visit);
     Session session;
     session.npc = npc;
     session.script = npc.script;
@@ -298,18 +348,88 @@ Result Service::accept(mission::Character& hero, SessionId session, std::int32_t
     return finish_intent(hero, open, std::move(*done), calendar);
 }
 
-Result Service::turn_in(mission::Character& hero, SessionId session, std::int32_t quest, std::int32_t choice, const World& world,
-    ids::Tick now, const ops::Calendar& calendar) {
+namespace {
+
+// Dấu đủ điều kiện nộp hoặc đang làm: stage nhận không được nộp.
+bool mark_ready(const Mark& mark, std::int32_t quest) {
+    return mark.quest == quest && mark.stage != Stage::kAvailable;
+}
+
+// Thưởng hiện trên bảng nộp. Nhóm ẩn không hiện. Tiền khoá, kinh nghiệm và quan hệ để thông báo lúc
+// nộp, vì dây hội thoại không có ô riêng cho chúng.
+void add_shown_reward(View& view, const mission::Reward& reward) {
+    if (reward.group == mission::RewardGroup::kHidden) return;
+    if (reward.count <= 0) return;
+    if (reward.count > std::numeric_limits<std::int32_t>::max()) return;
+    if (view.bonuses.size() >= kMaxBonuses) return;
+    const auto count = static_cast<std::int32_t>(reward.count);
+    const bool is_choice = reward.group == mission::RewardGroup::kChoice;
+    const bool is_fixed = reward.group == mission::RewardGroup::kFixed;
+    const bool is_item = reward.kind == mission::RewardKind::kItem;
+    const bool is_money = reward.kind == mission::RewardKind::kMoney;
+    const bool show_radio = is_choice && is_item;
+    const bool show_money = is_fixed && is_money;
+    const bool show_item = is_fixed && is_item;
+    if (!show_radio && !show_money && !show_item) return;
+    Bonus bonus;
+    bonus.kind = talk::BonusKind::kItem;
+    bonus.a = reward.ref;
+    bonus.b = count;
+    if (show_radio) bonus.kind = talk::BonusKind::kRadio;
+    if (show_money) bonus.kind = talk::BonusKind::kMoney;
+    if (show_money) bonus.a = count;
+    if (show_money) bonus.b = 0;
+    view.bonuses.push_back(bonus);
+}
+
+const mission::Quest* held_quest(const mission::Engine& engine, const mission::Character& hero,
+    std::int32_t quest) {
+    const mission::Slot* const slot = hero.book().find(quest);
+    if (slot == nullptr || slot->script < 0) return nullptr;
+    const auto script = static_cast<std::uint32_t>(slot->script);
+    const mission::Catalog& catalog = engine.catalog();
+    const mission::Quest* const row = catalog.by_script(script);
+    if (row == nullptr || row->quest != quest) return nullptr;
+    return row;
+}
+
+} // namespace
+
+// Nộp khi chưa chọn thưởng chọn một: giữ phiên và mở bảng nộp để người chơi chọn. Không từ chối
+// suông.
+Result Service::reward_sheet(Session& open, mission::Character& hero, std::int32_t quest,
+    const mission::Failure& why) {
+    const mission::Quest* const row = held_quest(engine_, hero, quest);
+    if (row == nullptr) return refused(why);
+    open.mode = Mode::kDemand;
+    open.panel_quest = quest;
+    open.options.clear();
+    Reply reply;
+    reply.session = open.id;
+    reply.view.mode = Mode::kDemand;
+    reply.view.panel_quest = quest;
+    reply.view.marks = open.marks;
+    for (const mission::Reward& reward : row->rewards) {
+        add_shown_reward(reply.view, reward);
+    }
+    return reply;
+}
+
+Result Service::turn_in(mission::Character& hero, SessionId session, std::int32_t quest,
+    std::int32_t choice, const World& world, ids::Tick now, const ops::Calendar& calendar) {
     const auto checked = validate(hero, session, world, now);
     if (!checked) return std::unexpected(checked.error());
     Session& open = **checked;
-    const bool offered = std::ranges::any_of(open.marks, [quest](const Mark& one) {
-        return one.quest == quest && one.stage != Stage::kAvailable;
-    }) || (open.panel_quest == quest && open.mode != Mode::kTips);
+    const auto ready = [quest](const Mark& one) { return mark_ready(one, quest); };
+    const bool on_mark = std::ranges::any_of(open.marks, ready);
+    const bool on_sheet = open.panel_quest == quest && open.mode != Mode::kTips;
+    const bool offered = on_mark || on_sheet;
     if (!offered) return fail(Error::kNotOffered);
     auto done = engine_.turn_in(hero, quest, choice, calendar);
-    if (!done) return refused(done.error());
-    return finish_intent(hero, open, std::move(*done), calendar);
+    if (done) return finish_intent(hero, open, std::move(*done), calendar);
+    const mission::Failure& why = done.error();
+    if (why.error == mission::Error::kNeedChoice) return reward_sheet(open, hero, quest, why);
+    return refused(why);
 }
 
 mission::Result Service::abandon(mission::Character& hero, std::int32_t quest, const ops::Calendar& calendar) {

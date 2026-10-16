@@ -220,6 +220,63 @@ void put_done(protocol::QuestBook& out, const mission::Book& book) {
     return out;
 }
 
+// Dòng dấu nhiệm vụ trên hội thoại danh sách. Client không vẽ DialogOpen.marks. Không đưa vào
+// DialogChoice: ca thử bấm mọi lựa chọn, một lựa chọn nhận sẽ nhận nhầm.
+// Dạng trùng npc_talk.cpp: TLQ, US, '1'|'2'|'3' (MarkStage của protocol), US, id, US, tên.
+constexpr char kUnitSep = '\x1f';
+
+void keep_label(std::string_view& chosen, bool& locked, const mission::Quest* row) {
+    if (row == nullptr || row->name.empty() || locked) return;
+    chosen = row->name;
+    locked = row->runnable();
+}
+
+std::string quest_label(const mission::Catalog& catalog, std::int32_t quest) {
+    std::string_view chosen;
+    bool locked = false;
+    for (const mission::Quest* row : catalog.variants(quest)) {
+        keep_label(chosen, locked, row);
+    }
+    if (chosen.find(kUnitSep) != std::string_view::npos) return {};
+    return std::string{chosen};
+}
+
+char stage_digit(talk::Stage stage) noexcept {
+    const auto wire = static_cast<unsigned>(stage_of(stage));
+    return static_cast<char>('0' + wire);
+}
+
+std::string mark_text(char stage, std::int32_t quest, std::string_view name) {
+    std::string line = "TLQ";
+    line.push_back(kUnitSep);
+    line.push_back(stage);
+    line.push_back(kUnitSep);
+    line.append(std::to_string(quest));
+    line.push_back(kUnitSep);
+    line.append(name);
+    return line;
+}
+
+void append_one_mark(protocol::DialogOpen& open, const talk::Mark& mark,
+    const mission::Catalog& catalog) {
+    if (open.lines.size() >= protocol::kDialogOpenLinesCount) return;
+    if (mark.quest < 0 || mark.quest >= mission::kQuestIdLimit) return;
+    const std::string name = quest_label(catalog, mark.quest);
+    const char stage = stage_digit(mark.stage);
+    const std::string line = mark_text(stage, mark.quest, name);
+    if (line.size() > kLineBytes) return;
+    open.lines.push_back(protocol::DialogLine{.text = line});
+}
+
+void append_mark_lines(protocol::DialogOpen& open, const talk::View& view,
+    const mission::Catalog& catalog) {
+    const bool listed = view.mode == talk::Mode::kList || view.mode == talk::Mode::kBox;
+    if (!listed) return;
+    for (const talk::Mark& mark : view.marks) {
+        append_one_mark(open, mark, catalog);
+    }
+}
+
 } // namespace
 
 Gameplay::Gameplay(const World& world, const Settings& settings)
@@ -522,6 +579,8 @@ void Gameplay::reply(std::uint64_t session, Entry& who, const std::string& npc_n
     open.panel_quest = answer.view.panel_quest;
     fill_texts(open, answer.view, names, context);
     fill_marks(open, answer.view);
+    const mission::Catalog& catalog = engine_.catalog();
+    append_mark_lines(open, answer.view, catalog);
     out.down(session, open);
 }
 

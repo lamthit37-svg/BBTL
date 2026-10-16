@@ -55,9 +55,17 @@ inline constexpr std::string_view kTalkAccept = "Quest_Button_Accept";
 inline constexpr std::string_view kTalkRefuse = "Quest_Button_Refuse";
 inline constexpr std::string_view kTalkClose = "Quest_Close";
 
-// Chỉ số lựa chọn từ kRewardBase trở lên là mục thưởng chọn một (kRewardBase + vị trí trong Dialog::bonuses), không phải
-// Choice::index của máy chủ. Choice::index là u16 nên hai miền không giao nhau.
+// Chỉ số lựa chọn từ kRewardBase trở lên là mục thưởng chọn một (kRewardBase + vị trí trong
+// Dialog::bonuses), không phải Choice::index của máy chủ. Choice::index là u16 nên hai miền không
+// giao nhau.
 inline constexpr std::uint32_t kRewardBase = 0x10000;
+
+// Dòng dấu do Gameplay gắn cuối hội thoại danh sách. Dạng trùng mark_text ở play/gameplay.cpp:
+// "TLQ", US, '1' nhận / '2' đang làm / '3' nộp được, US, id thập phân, US, tên. Không có header
+// chung vì ui/panel không include protocol. Chỉ số bấm là cục bộ, không phải DialogChoose.
+inline constexpr std::uint32_t kMarkAccept = 0x8000;
+inline constexpr std::uint32_t kMarkTurn = 0x9000;
+inline constexpr std::uint32_t kMarkSpan = 4096;
 
 // Hạn chờ máy chủ đáp một việc của hộp thoại trước khi bảng mở khoá.
 inline constexpr std::chrono::milliseconds kReplyTimeout{3000};
