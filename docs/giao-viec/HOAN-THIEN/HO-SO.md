@@ -1,7 +1,8 @@
 # Hồ sơ đợt hoàn thiện tính năng giao diện client và máy chủ (2026-10-18)
 
-Người điều phối: phiên `thienlong-f7`. Hai làn: `thienlong-14` (làn K, client) và `thienlong-6a` (làn
-M, máy chủ). Commit nền: `c85f0491` trên `chuan-hoa`, đã push lên `origin`. Chỉ `thienlong-f7` sửa
+Người điều phối: phiên `thienlong-f7`. Ba làn: `thienlong-14` (làn K, client), `thienlong-6a` (làn
+M, máy chủ) và `thienlong-1e` (làn N, nội dung: chuỗi nhiệm vụ, phụ bản, boss, sự kiện; thêm ngày
+2026-10-18). Commit nền: `c85f0491` trên `chuan-hoa`, đã push lên `origin`. Chỉ `thienlong-f7` sửa
 tệp này; làn nào cần đổi thì nhắn điều phối.
 
 Hồ sơ dựng từ bốn lượt rà chỉ đọc ngày 2026-10-18 (UI client so với gốc, máy chủ và giao thức, cầu
@@ -151,13 +152,19 @@ Không dùng được: `G:\TLBB\_ref` (đã mất), `F:\tl 2026\2026\Bin64` (kh�
 `Desktop\ghidra` (đã mất). Client gốc nối máy chủ thật ở `42.119.219.227`, không nối được cụm của ta
 và đăng nhập phải bấm chuột, nên không chạy song song làm trọng tài tự động được.
 
-## 4. Hai làn và quyền sở hữu tệp
+## 4. Ba làn và quyền sở hữu tệp
 
 | Làn | Phiên | Phần việc | Tệp được sửa |
 |---|---|---|---|
 | K | `thienlong-14` | Client: hoàn thiện cửa sổ (script gốc, hoặc panel C++ nếu tốt hơn theo mục 2), hàm game tầng B, kho dữ liệu, sự kiện, công cụ E2E phía client | `src/client/**`, `engine/**`, `Test/` các thư mục của client và engine, `TOOLS/run/**`, `TOOLS/port/**`, `TOOLS/content/**`, `dev/client/**`, `assets/**` (trừ `assets/logo.png`), `android/**`, `apple/**` |
-| M | `thienlong-6a` | Máy chủ và giao thức: tin mới, nối module, luật gốc, log kiểm, bot | `src/server/**`, `src/shared/**`, `Test/` các thư mục của máy chủ và shared, `TOOLS/server/**`, `dev/server/**` (phần git theo dõi), `cmake/server/**`, `docs/SERVER-*.md`, `docs/KE-HOACH-SERVER.md`, `docs/PROTOCOL-TIN.md` (tệp sinh) |
-| Chung | cả hai | Theo luật khoá bên dưới | `CMakeLists.txt`, `cmake/*.cmake`, `docs/DU-AN.md`, `docs/TIEN-DO.md`, `docs/NGHI-NGO.md`, `docs/BAY-DA-BIET.md`, `AGENTS.md` |
+| M | `thienlong-6a` | Máy chủ và giao thức: tin mới, nối module, luật gốc, log kiểm, bot | `src/server/**` trừ phần của N, `src/shared/**` trừ catalog giao thức, `Test/` các thư mục của máy chủ và shared trừ phần của N, `TOOLS/server/**` trừ phần của N, `dev/server/**` (phần git theo dõi) trừ bảng nội dung, `cmake/server/**`, `docs/SERVER-*.md` trừ `SERVER-MISSION.md`, `docs/KE-HOACH-SERVER.md` |
+| N | `thienlong-1e` | Nội dung: NPC, hội thoại, chuỗi nhiệm vụ, phụ bản, boss, sự kiện, cả phần máy chủ lẫn cửa sổ client của nội dung | `src/server/mission/**`, `src/server/talk/**`, `src/server/ops/**`, module nội dung mới (phụ bản, sự kiện, boss) dưới `src/server/`, `Test/Mission`, `Test/Talk`, `Test/Ops`, `Test/Quest`, `TOOLS/server/lua_*.py`, `dialogue_*.py`, `newquest.py`, `quest_chains.py` và test của chúng, bảng nhiệm vụ, thoại và nội dung trong `dev/server/tables/**`, `docs/SERVER-MISSION.md`, `docs/NHIEM-VU-NGUON.md`; client: `src/client/face/ui/panel/npc_talk.*`, `quest_log.*` và tệp mới cho cửa sổ và hàm game của nội dung |
+| Chung | cả ba | Theo luật khoá bên dưới | `CMakeLists.txt`, `cmake/*.cmake`, catalog giao thức `src/shared/protocol/catalog/*.tsv` cùng tệp sinh và `docs/PROTOCOL-TIN.md` (M và N), `docs/DU-AN.md`, `docs/TIEN-DO.md`, `docs/NGHI-NGO.md`, `docs/BAY-DA-BIET.md`, `AGENTS.md` |
+
+Làn N cần móc vào tệp của làn khác (ví dụ `src/server/play/**`, `src/server/zone/**` cho phụ bản,
+bảng đăng ký hàm game của host Lua ở client) thì dùng đúng luật khoá như tệp chung, và chủ tệp được
+hỏi trước. Giữ cây luôn dựng được: không để tệp ở trạng thái không biên dịch quá một bước làm, vì ba
+làn dựng chung một cây nguồn.
 
 Không ai sửa `CLAUDE.md`, `.clang-format`, `CMakePresets.json`, `CMakeUserPresets.json`, tệp này,
 `assets/logo.png` (tệp của chủ dự án, không commit) và `.worktrees/ride-check` (worktree của điều
@@ -166,7 +173,7 @@ phối; trong đó `dev/server/tables/shared` là junction trỏ vào dữ liệ
 **Khoá tệp chung.**
 
 1. `git diff --quiet -- <tệp>` phải sạch. Không sạch nghĩa là làn kia đang sửa: nhắn họ, chờ.
-2. Nhắn làn kia và điều phối: `KHOÁ <tệp> (G<n>)`.
+2. Nhắn hai làn kia và điều phối: `KHOÁ <tệp> (<gói>)`.
 3. Sửa, dựng, rồi commit tệp đó cùng việc của mình trong cùng đợt làm.
 4. Nhắn `MỞ <tệp>`.
 
@@ -186,20 +193,25 @@ Với `TIEN-DO.md` và `NGHI-NGO.md`, chỉ thêm mục mới ở cuối, không
 - Khi M đổi `src/shared/**`, client cũng phải dựng được. Trước khi commit, M dựng thêm
   `thienlong_client` trong `build/lane-server`. Nếu hỏng vì mã đang sửa dở của K, nhắn K, không sửa
   hộ.
+- N dùng preset `lane-content` (cây `build/lane-content`, cài vào `dev`), dựng cả máy chủ lẫn client
+  vì làn N chạm cả hai. Lần đầu `cmake --preset lane-content`. N không cài client vào
+  `dev/client/bin` (của K); muốn chạy client của mình thì chạy thẳng từ `build/lane-content` với
+  `--data dev/client/assets`, hoặc nhờ K cài sau khi phần client của N đã commit.
 - Mọi lệnh dựng qua `cmd /c "call %USERPROFILE%\.claude\skills\cpp-build\dev.bat && …"`, chạy nền.
 
-**Cụm máy chủ dùng chung.** Cụm ở `dev/server` (cổng 7100 game, 7101 auth, PostgreSQL 5432) là bản
-cài của M.
+**Cụm máy chủ dùng chung.** Cụm ở `dev/server` (cổng 7100 game, 7101 auth, PostgreSQL 5432) do M
+dựng và quản. N cài bản máy chủ của mình vào đó khi cần kiểm nội dung.
 
-- Cài lại hay khởi động lại cụm thì M nhắn K trước.
-- Tài khoản thử tách theo làn: `e2ek<gói><số>` cho K, `e2em<gói><số>` cho M.
+- Ai cài lại hay khởi động lại cụm thì nhắn hai làn kia trước, chờ họ không đang chạy E2E.
+- Tài khoản thử tách theo làn: `e2ek<gói><số>` cho K, `e2em<gói><số>` cho M, `e2en<gói><số>` cho N.
 - `auto_register = true` ở dev nên tên mới tự tạo tài khoản.
 
 ## 5. Gói tính năng
 
-Làm đúng thứ tự. Mỗi gói có phần K và phần M chạy song song. Gói chỉ trọn khi cả hai phần đạt và đã
-commit. Làn nào xong phần mình trước thì kiểm chéo phần của làn kia, rồi lấy việc đệm ở mục 5.11.
-Không nhảy sang gói sau khi gói trước chưa trọn, trừ việc đệm.
+Làm đúng thứ tự. Gói G có phần K và phần M chạy song song (trừ G3, làn N làm cả gói). Gói chỉ trọn
+khi mọi phần đạt và đã commit. Làn nào xong phần mình trước thì kiểm chéo phần của làn kia, rồi lấy
+việc đệm ở mục 5.11. Không nhảy sang gói sau khi gói trước chưa trọn, trừ việc đệm. Làn N đi chuỗi
+gói riêng N0–N6 (mục 5.12), song song với chuỗi G.
 
 Trước khi viết mã cho một gói, mỗi làn viết phiếu `docs/giao-viec/HOAN-THIEN/G<n>-K.md` hoặc
 `G<n>-M.md`, tối đa một trang. Phiếu gồm:
@@ -292,21 +304,22 @@ FunctionBarRight_2, MiniMap, PlayerImpactFrame, TargetBuff, AutoAttack_Button, P
 **Đạt khi** ảnh HUD sau khi vào game mang số của máy chủ (khớp log kiểm và PostgreSQL). Chọn một
 quái thì TargetFrame đổi. Thanh kỹ năng có đúng các chiêu DefaultChar.
 
-### G3 — NPC, hội thoại, nhiệm vụ, lệnh giao diện từ máy chủ
+### G3 — NPC, hội thoại, nhiệm vụ, lệnh giao diện từ máy chủ (làn N làm cả gói)
 
-Cửa sổ: NewNpcChat, Quest, MissionReply, QuestLog, MissionTrack, ScrollInfo.
+Cửa sổ: NewNpcChat, Quest, MissionReply, QuestLog, MissionTrack, ScrollInfo. Gói này thuộc làn N
+từ 2026-10-18; K và M chỉ kiểm chéo (K phần client, M phần máy chủ).
 
-**K:**
+**N, phía client:**
 - Hàm `Talk:*` và các hàm nhiệm vụ mà các cửa sổ trên gọi.
 - `Send_XSCRIPT` gửi tin thật.
 - Nhận `UI_COMMAND` và mở cửa sổ do máy chủ yêu cầu.
 - `npc_talk` và `quest_log` viết tay: so với bản script theo mục 2, giữ bản tốt hơn. Các cửa sổ
   còn lại đi đường script.
 
-**M:**
+**N, phía máy chủ:**
 - Tin ExecuteScript theo gói CGExecuteScript (opcode 2219) và tin lệnh giao diện theo gói gốc.
-- Xử lý lệnh `teleport`, `ui_command`, `signpost` ở `play`.
-- Sửa B1: khung lớn bị bỏ lặng.
+- Xử lý lệnh `teleport`, `ui_command`, `signpost` ở `play` (tệp của M, theo luật khoá).
+- Sửa B1: khung lớn bị bỏ lặng (`gate/table.cpp`, tệp của M, theo luật khoá).
 - Chuỗi nhiệm vụ tân thủ 1414–1423 chạy hết.
 
 **Đạt khi** kịch bản đi trọn chuỗi tân thủ đầu tiên: nói chuyện, nhận, theo dõi, trả nhiệm vụ, nhận
@@ -400,6 +413,48 @@ khi tới.
   - đọc `rules/*.toml` lúc chạy thay cho số viết cứng;
   - `box_recycle_ms`.
 
+### 5.12 Gói nội dung của làn N
+
+Bằng chứng gốc chính: script máy chủ XJL7457 (`G:\XJL7457\Server\rootfs\home\tlbb\Public\Data\Script`,
+trong đó `event/` có 1 700 tệp chia theo mảng: `fuben`, `bossgroup`, `huodong`, `festival`, `juqing`,
+`shimen`, `xunhuan`, `caoyun`, `quiz`, `challenge`, các phụ bản `piaomiaofeng`, `sijuezhuang`,
+`yanziwu`, `langhuanfudi`...), cấu hình `...\Server\Config\CopyScene.ini`, `SceneInfo.ini`,
+`MonsterDropBoxs.txt`, script và bảng của client 2026 (`src/client/script/Config/event/**`), mã
+2008. Máy chủ của ta không chạy Lua (quyết định đã chốt): script gốc được trích tĩnh bằng
+`TOOLS/server/lua_*.py` thành bảng, `mission`, `talk`, `ops` chạy các bảng ấy. Hoàn thiện nội dung là
+mở rộng bộ trích và bộ chạy cho từng mẫu script gốc, không viết tay nội dung.
+
+- **N0 — Kiểm kê nội dung gốc (không viết mã).**
+  - Sản phẩm: `docs/giao-viec/HOAN-THIEN/NOI-DUNG.tsv` kèm một trang tóm tắt `N0.md`.
+  - Mỗi dòng TSV là một chuỗi nhiệm vụ, phụ bản, boss hay sự kiện, với các cột: tên gốc, loại, cấp
+    vào, NPC vào, điều kiện (đội, giờ, vật phẩm), tệp bằng chứng, mẫu script dùng, trạng thái ở ta
+    (chạy được, trích được nhưng thiếu bộ chạy, chưa trích), cửa sổ client liên quan, phụ thuộc gói
+    khác (G4 chiến đấu, G5 túi, G9 đội...).
+  - Kèm danh sách mẫu script mà bộ trích chưa hiểu, xếp theo số dòng nội dung bị chặn: 1 330/3 916
+    điểm vào hội thoại chưa trích, 286 nhiệm vụ không chạy, 827/1 617 id nhiệm vụ của client không
+    có dòng.
+  - Đề xuất thứ tự theo đường lên cấp của người chơi.
+  - Điều phối duyệt N0 rồi mới chốt thứ tự N2–N6.
+- **N1 — G3** (mục 5): NPC, hội thoại, nhiệm vụ, ExecuteScript, UI_COMMAND, chuỗi tân thủ. Bắt đầu
+  sau khi G0 có cụm chạy và `--script`.
+- **N2 — Chuỗi nhiệm vụ chính theo cấp:** cốt truyện và nhiệm vụ vùng theo thứ tự lên cấp, tới mức
+  N0 chỉ ra.
+- **N3 — Nhiệm vụ lặp:** sư môn, nhiệm vụ vòng, vận tiêu, nhiệm vụ hằng ngày, theo luật gốc (số
+  vòng, thưởng, giới hạn mỗi ngày theo giờ máy chủ).
+- **N4 — Phụ bản:** hạ tầng cảnh bản sao theo `CopyScene.ini` (tạo theo người hay theo đội, giờ,
+  ra vào, thưởng; móc vào `zone` theo luật khoá), rồi một phụ bản đi được trọn từ vào tới thưởng,
+  rồi các phụ bản còn lại. Phụ bản cần đội thì phụ thuộc G9: làm phụ bản đi một mình trước, tới lúc
+  cần đội thì nhắn điều phối để kéo G9 lên.
+- **N5 — Boss:** nhóm boss (`bossgroup`, `BossCreatLingPai.lua`), lịch xuất hiện, chiêu và AI riêng,
+  thời gian xác `DefaultBossBodyTime`, rơi đồ. Cần G4 (quái ra đòn) đạt trước.
+- **N6 — Sự kiện:** lịch hoạt động theo giờ máy chủ (`huodong`, `festival`, `quiz`, `challenge`...),
+  thông báo toàn máy chủ, thưởng.
+
+Mỗi gói N có phiếu `N<n>.md` như gói G. Tiêu chí đạt chung: kịch bản E2E đi trọn nội dung từ NPC vào
+tới thưởng (client thật cho phần có giao diện, bot cho phần lặp nhiều), mỗi bước có ảnh, dòng log
+mạng và dòng kiểm của máy chủ; số thưởng, giờ, giới hạn trùng script gốc (trích dòng). Kiểm chéo:
+M kiểm phần máy chủ, K kiểm phần client.
+
 ## 6. Quy trình một gói và kiểm chéo
 
 1. Phiếu (mục 5), làn kia duyệt.
@@ -473,10 +528,20 @@ python -B TOOLS/run/desk_watch.py <lệnh> [đối số]... — mã thoát là m
 | G0 | chưa | chưa | Giao 2026-10-18 |
 | G1 | chưa | chưa | |
 | G2 | chưa | chưa | |
-| G3 | chưa | chưa | |
+| G3 | — | — | Làn N làm cả gói (N1) |
 | G4 | chưa | chưa | |
 | G5 | chưa | chưa | |
 | G6 | chưa | chưa | |
 | G7 | chưa | chưa | |
 | G8 | chưa | chưa | |
 | G9 | chưa | chưa | |
+
+| Gói N | Trạng thái | Ghi chú |
+|---|---|---|
+| N0 | chưa | Giao 2026-10-18 |
+| N1 (G3) | chưa | Sau G0 |
+| N2 | chưa | |
+| N3 | chưa | |
+| N4 | chưa | Phụ bản cần đội phụ thuộc G9 |
+| N5 | chưa | Cần G4 |
+| N6 | chưa | |

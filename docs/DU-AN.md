@@ -295,8 +295,9 @@ suy đoán.
 
 ## 5. Hướng đi
 
-**Đợt hoàn thiện tính năng (giao 2026-10-18).** Hai phiên làm theo gói G0–G9: làn K (client,
-`thienlong-14`) và làn M (máy chủ, `thienlong-6a`), điều phối `thienlong-f7`. Hồ sơ, quyền sở hữu
+**Đợt hoàn thiện tính năng (giao 2026-10-18).** Ba phiên: làn K (client, `thienlong-14`) và làn M
+(máy chủ, `thienlong-6a`) làm gói G0–G9; làn N (nội dung: nhiệm vụ, phụ bản, boss, sự kiện,
+`thienlong-1e`) làm gói N0–N6. Điều phối `thienlong-f7`. Hồ sơ, quyền sở hữu
 tệp, quy trình kiểm chéo và trạng thái từng gói ở `docs/giao-viec/HOAN-THIEN/HO-SO.md`.
 
 Chuẩn hoá đi từng bước. Mỗi bước có tiêu chí "xong khi"; chưa qua rà soát của chủ dự án thì không
