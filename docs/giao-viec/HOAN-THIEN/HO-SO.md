@@ -425,10 +425,10 @@ khi tới.
 Mọi lệnh dưới chạy nền (`run_in_background`), chờ thông báo, không ngủ chờ.
 
 ```
-python -B TOOLS/server/local_cluster.py start      (status, stop; log dev/server/log/cluster_*.txt)
+python -B TOOLS/server/local_cluster.py start — còn status, stop; log ở dev/server/log/cluster_*.txt
 build\lane-server\thienlong_bot.exe --identity dev\server\data\gate\identity.key --game 7100 --auth 7101 --count 1 --seconds 8
 cmd /c "set THIENLONG_ACCOUNT=e2ek0a1&& cd /d dev\client\bin && thienlong_client.exe --login --frames 4000 --shot ..\..\..\build\e2e\G0\vao.png"
-python -B TOOLS/run/desk_watch.py <lệnh> [đối số]...      (mã thoát là mã của lệnh)
+python -B TOOLS/run/desk_watch.py <lệnh> [đối số]... — mã thoát là mã của lệnh
 ```
 
 - `--shot` phải đi cùng `--frames` (từ 30 trở lên), nếu không client không thoát.
