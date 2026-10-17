@@ -160,8 +160,11 @@ struct Display::State {
     void place_at(int scene_id);
     // Chỗ đứng khi vào scene_id: chỗ máy chủ đặt cho đúng cảnh ấy, không thì điểm đến của cổng.
     [[nodiscard]] map::GateStand stand_for(int scene_id, const std::optional<EntryPoint>& entry);
-    // Chỗ vào game máy chủ đã gửi: take lấy ra khỏi hàng (place_at), peek chỉ xem (stream.cpp).
-    [[nodiscard]] std::optional<EntryPoint> take_entry();
+    // Chỗ vào game máy chủ đã gửi: take lấy ra khỏi hàng (place_at) chỉ khi nó nói đúng cảnh
+    // scene_id, peek chỉ xem (stream.cpp). Cảnh nền chọn nhân vật (-2) còn giữ mặt đất lúc play()
+    // vừa ghi chỗ vào; lấy nhầm ở đó thì chỗ vào mất và nhân vật bị đặt giữa lưới, Move đầu bị cổng
+    // kéo về.
+    [[nodiscard]] std::optional<EntryPoint> take_entry_for(int scene_id);
     [[nodiscard]] std::optional<EntryPoint> peek_entry();
     // Áp tin thế giới tới từ phiên mạng: kéo về thì đặt lại chỗ đứng, còn lại cập nhật các thực thể.
     void apply_world();

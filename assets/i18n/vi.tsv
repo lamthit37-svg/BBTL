@@ -39,10 +39,6 @@ file/Web/coming_soon.html	web/coming_soon.html
 # Danh sách máy chủ của bảng chọn máy chủ (ui/panel/servers.hpp); bản thử chỉ có một máy chủ.
 file/Table/login_servers.tsv	table/login_servers.tsv
 # Chữ giao diện.
-# Bảng chuyển cảnh: hai mẫu chữ viết thẳng trong SceneTrans.lua (ui/panel/scene_trans), %s0 là tên
-# cảnh sẽ tới, %s1 là phần trăm đã nạp.
-=前往%s0	Đến %s0
-=前往%s0[%s1]	Đến %s0 [%s1]
 =帮助	Trợ giúp
 =门派手册	Sổ tay môn phái
 =门派简介	Giới thiệu môn phái

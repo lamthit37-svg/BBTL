@@ -46,21 +46,18 @@
 #include "ui/panel/menubar.hpp"
 #include "ui/panel/minimap.hpp"
 #include "ui/panel/npc_talk.hpp"
-#include "ui/panel/talk.hpp"
 #include "ui/panel/online.hpp"
 #include "ui/panel/packet.hpp"
 #include "ui/panel/player_frame.hpp"
-#include "ui/panel/relive.hpp"
-#include "ui/panel/target_frame.hpp"
 #include "ui/panel/portraits.hpp"
 #include "ui/panel/quest_book.hpp"
 #include "ui/panel/quest_log.hpp"
+#include "ui/panel/relive.hpp"
 #include "ui/panel/role_cast.hpp"
 #include "ui/panel/role_pose.hpp"
 #include "ui/panel/roles.hpp"
 #include "ui/panel/scene_board.hpp"
 #include "ui/panel/scene_table.hpp"
-#include "ui/panel/scene_trans.hpp"
 #include "ui/panel/select_role.hpp"
 #include "ui/panel/select_server.hpp"
 #include "ui/panel/self_equip.hpp"
@@ -68,12 +65,15 @@
 #include "ui/panel/softkey.hpp"
 #include "ui/panel/start.hpp"
 #include "ui/panel/system_info.hpp"
+#include "ui/panel/talk.hpp"
+#include "ui/panel/target_frame.hpp"
 #include "ui/panel/world_map.hpp"
 #include "ui/radar.hpp"
 #include "ui/script/context.hpp"
 #include "ui/script/gui_screen.hpp"
 #include "ui/script/host.hpp"
 #include "ui/script/natives.hpp"
+#include "ui/script/windows.hpp"
 #include "ui/script/xscript.hpp"
 #include "ui/text.hpp"
 #include "ui/view.hpp"
@@ -151,13 +151,13 @@ constexpr std::array<std::string_view, 43> kLayouts = {
     panel::kSelectLayout,
     panel::kCreateLayout,
     panel::kSoftKeysLayout,
-    panel::kSceneTransLayout,
+    "SceneTrans/SceneTrans.layout.xml",
 };
 
 // Cửa sổ chạy bằng script Lua gốc của client 2026 qua ui/script (docs/giao-viec/LUA-GEN/HOST.md). Cửa sổ khác còn là bảng
 // port tay (ui/panel) cho tới khi hàm game mà script của nó gọi (tầng B) có đủ; hết bảng port tay thì danh sách này bỏ và host
 // chạy cả sổ.
-constexpr std::array<std::string_view, 2> kScripted = {"ProgressBar", "DebugListBox"};
+constexpr std::array<std::string_view, 3> kScripted = {"ProgressBar", "DebugListBox", "SceneTrans"};
 
 // Trần số sự kiện giao diện xử lý mỗi khung, kể cả sự kiện do các bảng tự đẩy (xem Hud::State::step_panels và EventQueue:
 // gốc không có trần, đây là chốt an toàn).
@@ -559,10 +559,17 @@ struct Hud::State {
     // Đã phát PLAYER_ENTERING_WORLD cho lần vào màn chơi này (đặt lại khi rời màn chơi).
     bool has_entered_world = false;
     panel::SoftKeys keys;
-    // Bảng chuyển cảnh, phần trăm đã đưa cho nó ở khung trước và lúc nó hiện ra.
-    panel::SceneTrans trans;
+    // Bảng chuyển cảnh chạy bằng SceneTrans.lua gốc. note_loading đẩy ba sự kiện của gốc
+    // (PLAYER_LEAVE_WORLD, ON_SCENE_TRANSING, SCENE_TRANSED) vào trans_events, step_panels đưa
+    // chúng vào dispatch. is_trans_open là bảng đang hiện theo dòng sự kiện đó; trans_percent là
+    // phần trăm đã báo ở khung trước.
     std::int32_t trans_percent = -1;
     std::chrono::milliseconds trans_since{0};
+    bool is_trans_open = false;
+    std::vector<panel::PostedEvent> trans_events;
+    // Cửa sổ chạy bằng script gốc: kScripted cộng công tắc so sánh THIENLONG_UI_SCRIPT
+    // (script/windows.hpp).
+    std::vector<std::string> scripted;
     // Các bảng port từ script (UI-PORT): ui_args là kho arg<k> dùng chung của mọi bảng (xem ui/panel/events.hpp).
     panel::EventArgs ui_args;
     bool is_app_inited = false;
@@ -651,6 +658,7 @@ struct Hud::State {
     void note_hover(const HudView& view);
     void note_text(const HudView& view);
     void note_loading(const HudView& view);
+    void push_trans(std::string name, std::vector<std::string> args);
     void fill_panels(const HudView& view);
     void fill_play(const HudView& view);
     void step_panels(const HudView& view);
@@ -1058,18 +1066,31 @@ void Hud::State::note_loading(const HudView& view) {
     trans_since = std::min(trans_since, view.clock);
     if (!view.loading) {
         const bool is_due = view.clock - trans_since >= kTransShown;
-        if (trans.is_shown && is_due) panel::scene_transed(trans);
-        if (!trans.is_shown) trans_percent = -1;
+        if (is_trans_open && is_due) push_trans("SCENE_TRANSED", {});
+        if (is_trans_open && is_due) is_trans_open = false;
+        if (!is_trans_open) trans_percent = -1;
         return;
     }
-    if (!trans.is_shown) {
-        panel::leave_world(trans, scene_names.find(view.loading->name).value_or(view.loading->name), strings);
+    if (!is_trans_open) {
+        const std::string& raw = view.loading->name;
+        const std::string_view found = scene_names.find(raw).value_or(raw);
+        const std::string text(found);
+        push_trans("PLAYER_LEAVE_WORLD", {text});
+        is_trans_open = true;
         trans_percent = -1;
         trans_since = view.clock;
     }
     if (view.loading->percent == trans_percent) return;
     trans_percent = view.loading->percent;
-    if (trans_percent > 0) panel::scene_transing(trans, trans_percent, strings);
+    const std::string percent = std::to_string(trans_percent);
+    if (trans_percent > 0) push_trans("ON_SCENE_TRANSING", {percent});
+}
+
+void Hud::State::push_trans(std::string name, std::vector<std::string> args) {
+    panel::PostedEvent event;
+    event.name = std::move(name);
+    event.args = std::move(args);
+    trans_events.push_back(std::move(event));
 }
 
 // Bộ gửi sự kiện của game (CEventSystem::Tick): đặt arg<k> dùng chung một lần cho mỗi sự kiện, trước khi hỏi từng bảng
@@ -1082,8 +1103,9 @@ void Hud::State::dispatch(std::span<const panel::PostedEvent> first) {
         const panel::PostedEvent& posted = *posted_event;
         const std::vector<std::string_view> given = posted.arguments();
         const panel::UiEvent event = ui_args.raise(posted.name, given);
-        if (panel::is_delivered(panel::kMainMenuBar3Events, event.name, pet_bar.is_shown))
-            panel::on_main_menu_bar_3_event(pet_bar, event, panel::PetSkillBar{});
+        const auto& bar3_events = panel::kMainMenuBar3Events;
+        const bool is_bar3 = panel::is_delivered(bar3_events, event.name, pet_bar.is_shown);
+        if (is_bar3) panel::on_main_menu_bar_3_event(pet_bar, event, panel::PetSkillBar{});
         bar_calls.clear();
         action_bars.raise(event, bar_facts, bar_calls);
         for (const panel::Call& call : bar_calls) {
@@ -1119,7 +1141,9 @@ void Hud::State::open_host() {
     screen->bind(hub.get());
     script::HostDesc desc;
     desc.data_root = client_root;
-    desc.only.assign(kScripted.begin(), kScripted.end());
+    scripted.assign(kScripted.begin(), kScripted.end());
+    std::ranges::move(script::requested_windows(), std::back_inserter(scripted));
+    desc.only = scripted;
     desc.natives = script::make_natives(script_context);
     auto opened = script::Host::open(desc, *screen);
     if (!opened) {
@@ -1217,6 +1241,8 @@ void Hud::State::step_panels(const HudView& view) {
         has_entered_world = true;
         first.push_back(panel::PostedEvent{.name = "PLAYER_ENTERING_WORLD", .args = {}});
     }
+    first.insert(first.end(), trans_events.begin(), trans_events.end());
+    trans_events.clear();
     first.insert(first.end(), view.events.begin(), view.events.end());
     dispatch(first);
     note_host(view);
@@ -1235,7 +1261,6 @@ void Hud::State::fill_panels(const HudView& view) {
         shown = {};
         fill_play(view);
     }
-    panel::paint_scene_trans(deck, trans);
 }
 
 // Màn chơi: trạng thái lúc vào game rồi tới từng bảng. Không có nhân vật thì khung nhân vật và

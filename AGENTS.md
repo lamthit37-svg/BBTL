@@ -40,7 +40,8 @@
     thiếu cả hai; `collect_map.py` đã có `collect_walk` gom hai tệp ấy (trước 2026-10-13 bản cũ
     không gom, chỉ hai map Đại Lý và Lạc Dương gom tay mới có).
   - Giao diện: HUD nạp 36 layout của client 2026. Lúc nạp một cảnh của màn chơi, bảng chuyển cảnh
-    `SceneTrans` của bản gốc hiện tên cảnh sẽ tới và phần trăm đã nạp (`ui/panel/scene_trans`).
+    `SceneTrans` của bản gốc hiện tên cảnh sẽ tới và phần trăm đã nạp (chạy bằng `SceneTrans.lua`
+    gốc, `hud.cpp` đẩy ba sự kiện của nó).
     Khung nhân vật, minimap, thanh kinh nghiệm và
     bảng nhân vật có số, số lấy từ nhân vật mẫu viết cứng `hero::newcomer()`. Hành trang, nhiệm
     vụ, thương thành, hệ thống và bốn trang cài đặt, sách kỹ năng, trân thú, hảo hữu, tổ đội mới là

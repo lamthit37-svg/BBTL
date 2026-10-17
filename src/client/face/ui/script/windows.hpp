@@ -46,6 +46,14 @@ struct WindowDef {
 // Đọc sổ từ chữ của Script/windows.tsv. Lỗi (câu tiếng Việt kèm số dòng): thiếu cột id, name, layout, script, demise; ô
 // sai kiểu hay ngoài miền; tên rỗng hay lặp; đường dẫn rỗng, tuyệt đối, có ổ đĩa hay có "..". Dấu \ của đường dẫn đổi
 // thành /. O(độ dài văn bản + n log n).
-[[nodiscard]] std::expected<std::vector<WindowDef>, std::string> parse_windows(std::string_view text);
+using WindowList = std::expected<std::vector<WindowDef>, std::string>;
+[[nodiscard]] WindowList parse_windows(std::string_view text);
+
+// Công cụ so sánh của dự án (HO-SO mục 2), client gốc không có: biến môi trường THIENLONG_UI_SCRIPT
+// nêu tên cửa sổ, cách nhau bằng dấu phẩy, để cửa sổ đó chạy bằng script gốc thay cho bảng C++ cùng
+// tên. Không phải tuỳ chọn người chơi; khi bảng so của một cửa sổ đã chốt, đường thắng thành cố
+// định trong mã và cửa sổ đó bỏ khỏi chỗ chọn này. Biến không đặt thì rỗng. Bỏ hẳn hàm này và
+// biến môi trường khi cửa sổ so cuối cùng của G1 chốt (SceneTrans đã chốt, vô nghĩa với nó).
+[[nodiscard]] std::vector<std::string> requested_windows();
 
 } // namespace game::ui::script

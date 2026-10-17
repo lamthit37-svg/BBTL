@@ -628,7 +628,6 @@ game_module(ui_panel
     src/client/face/ui/panel/desk.cpp
     src/client/face/ui/panel/logon.cpp
     src/client/face/ui/panel/softkey.cpp
-    src/client/face/ui/panel/scene_trans.cpp
     src/client/face/ui/panel/start.cpp
     src/client/face/ui/panel/player_frame.cpp
     src/client/face/ui/panel/target_frame.cpp

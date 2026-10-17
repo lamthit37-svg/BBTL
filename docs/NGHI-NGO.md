@@ -758,8 +758,8 @@ kết luận ngay dưới mục đó chứ không xoá.
     giao kèo nằm trong gói (hoặc băm nguồn shader) để `ShaderPair::load` so; chưa làm.
 
 46. **Bảng chuyển cảnh: lúc nào bản gốc phát `PLAYER_LEAVE_WORLD`** (2026-10-09,
-    `ui/panel/scene_trans`, `Display::State::scene_load`). Bản port hiện bảng `SceneTrans` mỗi khi
-    một cảnh của màn chơi đang nạp, kể cả lần vào game đầu tiên từ bảng chọn nhân vật và lần nạp
+    `Hud::note_loading`, `Display::State::scene_load`; panel C++ đã gỡ ở G1-K, bảng chạy bằng
+    `SceneTrans.lua` gốc). Bản port hiện bảng `SceneTrans` mỗi khi một cảnh của màn chơi đang nạp, kể cả lần vào game đầu tiên từ bảng chọn nhân vật và lần nạp
     đầu của tiến trình khi chạy không có `--login`. Script gốc chỉ hiện bảng ở sự kiện
     `PLAYER_LEAVE_WORLD`; chưa tháo chỗ `Game.exe` phát sự kiện đó (chuỗi ở `0x140afc7f8`), nên
     chưa biết lần vào game đầu tiên bản gốc hiện bảng này, hiện video nạp (`PlayLoadingVideo`) hay
@@ -1158,3 +1158,12 @@ kết luận ngay dưới mục đó chứ không xoá.
     (OgreMain `0x18005ff70`: nhân 255, CVTPS2DQ, PACKUSWB), bão hoà về [0, 255]; log Fairy của client gốc trên máy
     này báo SSE, MMX, MMXEXT có nên chạy nhánh này. 11 hiệu ứng có độ mờ ColourFading lớn hơn 1 nay kẹp alpha
     ở `fx_view.cpp`. Khác gốc còn lại: không lượng tử về 8 bit.
+
+66. **Đăng nhập: máy chủ gốc gửi `LCRetLogin` 0x15, 0x17, 0x18 trong điều kiện nào** (2026-10-18, G1-K; handler
+    `docs/TAILIEU/ghidra/login_packets.txt:1125-1190`). 0x15 đẩy sự kiện `0x1f5` OPEN_AGREEMENT_DLG (cửa sổ
+    Agreement); 0x17 là hàng chờ (`LOGIN_MUST_WAIT`, cửa sổ LoginTimer, chữ `DLYH_180224_01` kèm số giây); 0x18
+    đẩy `0x20c` OPEN_FANGCHENGMI_DLG (FangChenMi) khi cờ `DAT_140fb73b8` khác 2. Máy chủ 2008 chỉ có năm mã
+    `LOGINR_*` 0 đến 4 (`Common/ResultDefine.h:118-122`), nên ba mã này là phần của máy chủ 2026 mà ta chưa có luật
+    hay gói tương ứng. Hiện tại ta không làm Agreement, FangChenMi, LoginTimer. Cần: gói hay luật máy chủ gốc nói
+    điều kiện gửi; khi có thì M thêm kết quả đăng nhập và K mở cửa sổ. Tương tự `LOGIN_MIBAO` (`0x1c1`, Pswprotect):
+    chưa tìm thấy nơi đẩy trong `login_packets.txt`.

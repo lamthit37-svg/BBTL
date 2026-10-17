@@ -94,7 +94,7 @@ void Display::State::ensure_gates() {
 }
 
 void Display::State::place_at(int scene_id) {
-    const std::optional<EntryPoint> entry = take_entry();
+    const std::optional<EntryPoint> entry = take_entry_for(scene_id);
     const map::GateStand stand = stand_for(scene_id, entry);
     place_walk(walk, *ground, scene_id, stand);
 }
@@ -110,8 +110,9 @@ map::GateStand Display::State::stand_for(int scene_id, const std::optional<Entry
     return map::GateStand{.x = entry->x, .z = entry->z, .has = true};
 }
 
-std::optional<EntryPoint> Display::State::take_entry() {
+std::optional<EntryPoint> Display::State::take_entry_for(int scene_id) {
     const std::scoped_lock<std::mutex> locked(spawn_guard);
+    if (!entry_spot || entry_spot->scene != scene_id) return std::nullopt;
     return std::exchange(entry_spot, std::nullopt);
 }
 

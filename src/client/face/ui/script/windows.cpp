@@ -5,6 +5,7 @@
 #include <algorithm>
 #include <cstddef>
 #include <cstdint>
+#include <cstdlib>
 #include <expected>
 #include <format>
 #include <limits>
@@ -45,7 +46,7 @@ constexpr auto kLastDemise = static_cast<std::int32_t>(Demise::kPopup);
 
 } // namespace
 
-std::expected<std::vector<WindowDef>, std::string> parse_windows(std::string_view text) {
+WindowList parse_windows(std::string_view text) {
     auto table = table::parse_tsv(text);
     if (!table) return std::unexpected(std::move(table.error()));
     std::vector<WindowDef> windows;
@@ -64,6 +65,28 @@ std::expected<std::vector<WindowDef>, std::string> parse_windows(std::string_vie
     const auto repeat = std::ranges::adjacent_find(names);
     if (repeat != names.end()) return std::unexpected(std::format("windows.tsv: tên cửa sổ {} lặp", *repeat));
     return windows;
+}
+
+std::vector<std::string> requested_windows() {
+    constexpr const char* kVariable = "THIENLONG_UI_SCRIPT";
+#if defined(_WIN32)
+    char* value = nullptr;
+    std::size_t length = 0;
+    if (_dupenv_s(&value, &length, kVariable) != 0 || value == nullptr) return {};
+    const std::string text(value);
+    // NOLINTNEXTLINE(cppcoreguidelines-no-malloc,cppcoreguidelines-owning-memory): của _dupenv_s
+    std::free(value);
+#else
+    // Đọc một lần lúc mở HUD, trước khi luồng nào đổi môi trường.
+    const char* value = std::getenv(kVariable); // NOLINT(concurrency-mt-unsafe)
+    const std::string text = value == nullptr ? std::string{} : std::string(value);
+#endif
+    std::vector<std::string> names;
+    for (const auto part : std::views::split(text, ',')) {
+        const std::string_view name(part.begin(), part.end());
+        if (!name.empty()) names.emplace_back(name);
+    }
+    return names;
 }
 
 } // namespace game::ui::script

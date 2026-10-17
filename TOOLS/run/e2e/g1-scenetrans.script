@@ -1,0 +1,23 @@
+# G1-K: so bảng chuyển cảnh C++ với bản script gốc (SceneTrans.lua) bằng chính ba sự kiện của game.
+# Bản C++: chạy không biến. Bản script: đặt THIENLONG_UI_SCRIPT=SceneTrans trước khi chạy.
+# Cần cụm máy chủ; tài khoản đã có nhân vật thì đăng nhập thẳng vào game.
+# Chạy: py -X utf8 TOOLS/run/e2e_client.py TOOLS/run/e2e/g1-scenetrans.script --account e2ek1a2 --out build/e2e/G1/trans-cpp
+#! account e2ek1a2
+#! out build/e2e/G1/trans
+#! timeout 200
+#! expect-exit 0
+#! expect-shots trans-0 trans-1 trans-2 trans-3
+
+wait play 120
+wait 2s
+shot trans-0
+event PLAYER_LEAVE_WORLD|大理
+wait 3
+shot trans-1
+event ON_SCENE_TRANSING|42
+wait 3
+shot trans-2
+event SCENE_TRANSED
+wait 3
+shot trans-3
+quit
