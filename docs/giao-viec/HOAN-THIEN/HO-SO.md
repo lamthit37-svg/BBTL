@@ -105,13 +105,27 @@ chạy nền, build 0 cảnh báo và đọc hết log (tìm `D9002`), `shape.js
 
 ## 2. Kiến trúc đích
 
-**Client.** Cửa sổ là layout gốc cộng script Lua gốc, không sửa script, chạy trên LuaPlus 5.0.1
-gốc. C++ cài các hàm mà `Game.exe` đăng ký cho Lua (tầng B), mỗi hàm theo ngữ nghĩa đọc từ mã máy
+**Client.** Đường mặc định của một cửa sổ là layout gốc cộng script Lua gốc, không sửa script, chạy
+trên LuaPlus 5.0.1 gốc. C++ cài các hàm mà `Game.exe` đăng ký cho Lua (tầng B), mỗi hàm theo ngữ nghĩa đọc từ mã máy
 (địa chỉ ghi trong comment). Dữ liệu nằm trong kho mô phỏng CDataPool, CObjectManager, CActionSystem
 của `Game.exe`, được ghi từ tin mạng. Sự kiện phát từ trạng thái giống `Game.exe` (tên trong
-`SU-KIEN-GAME.tsv`). Khi cửa sổ chạy bằng script đã kiểm ĐẠT thì xoá panel C++ viết tay tương ứng
-cùng test của nó, và gỡ tên khỏi danh sách viết tay. Đích cuối là bỏ `kScripted`: mọi cửa sổ đi qua
-script.
+`SU-KIEN-GAME.tsv`).
+
+**Cái nào tốt hơn thì giữ (chủ dự án chốt 2026-10-18).** Panel C++ viết tay điều khiển đúng cửa sổ
+gốc nên không phải tính năng tự chế; nó chỉ là một cách làm khác. Cửa sổ nào đã có panel C++ thì so
+nó với bản chạy script gốc theo bốn tiêu chí, xét đúng thứ tự:
+
+1. Đúng gốc: hình và hành vi khớp layout gốc, số vàng, mã máy; ít chỗ "Khác gốc" hơn.
+2. Đủ: phủ hết thao tác người chơi của cửa sổ gốc, dữ liệu lấy từ máy chủ.
+3. Hiệu năng đo ở Release: thời gian mở cửa sổ, chi phí mỗi khung, phần đóng vào ngân sách nạp đầu
+   450 ms.
+4. Chất lượng mã: an toàn, dễ đọc, dễ đối chiếu với gốc.
+
+Giữ bản thắng. Hai bản ngang nhau thì giữ bản đang chạy, không đổi cho có. Bảng so (số đo, ảnh,
+danh sách khác gốc của từng bản) ghi trong phiếu gói; không xoá panel C++ nào khi chưa có bảng so
+chứng minh bản script tốt hơn. Panel C++ được giữ vẫn phải lấy số từ máy chủ và đóng hoặc giải thích
+từng mục "Khác gốc" của nó. Cửa sổ chưa có bản chạy được nào thì mặc định đi đường script, vì đó là
+đường ngắn nhất tới đúng hành vi gốc; chỉ viết C++ khi đo được là tốt hơn theo bốn tiêu chí trên.
 
 **Máy chủ.** Luật lấy từ cấu hình và Lua gốc (XJL7457) cùng mã 2008, giữ toán tử và thứ tự; chỗ lệch
 ghi `// Khác gốc:`. Giao thức của ta giữ lớp bảo mật riêng (X25519, Ed25519), nhưng mỗi tin mới phải
@@ -141,7 +155,7 @@ và đăng nhập phải bấm chuột, nên không chạy song song làm trọn
 
 | Làn | Phiên | Phần việc | Tệp được sửa |
 |---|---|---|---|
-| K | `thienlong-14` | Client: hàm game tầng B, kho dữ liệu, sự kiện, chuyển cửa sổ sang script, công cụ E2E phía client | `src/client/**`, `engine/**`, `Test/` các thư mục của client và engine, `TOOLS/run/**`, `TOOLS/port/**`, `TOOLS/content/**`, `dev/client/**`, `assets/**` (trừ `assets/logo.png`), `android/**`, `apple/**` |
+| K | `thienlong-14` | Client: hoàn thiện cửa sổ (script gốc, hoặc panel C++ nếu tốt hơn theo mục 2), hàm game tầng B, kho dữ liệu, sự kiện, công cụ E2E phía client | `src/client/**`, `engine/**`, `Test/` các thư mục của client và engine, `TOOLS/run/**`, `TOOLS/port/**`, `TOOLS/content/**`, `dev/client/**`, `assets/**` (trừ `assets/logo.png`), `android/**`, `apple/**` |
 | M | `thienlong-6a` | Máy chủ và giao thức: tin mới, nối module, luật gốc, log kiểm, bot | `src/server/**`, `src/shared/**`, `Test/` các thư mục của máy chủ và shared, `TOOLS/server/**`, `dev/server/**` (phần git theo dõi), `cmake/server/**`, `docs/SERVER-*.md`, `docs/KE-HOACH-SERVER.md`, `docs/PROTOCOL-TIN.md` (tệp sinh) |
 | Chung | cả hai | Theo luật khoá bên dưới | `CMakeLists.txt`, `cmake/*.cmake`, `docs/DU-AN.md`, `docs/TIEN-DO.md`, `docs/NGHI-NGO.md`, `docs/BAY-DA-BIET.md`, `AGENTS.md` |
 
@@ -197,9 +211,10 @@ Trước khi viết mã cho một gói, mỗi làn viết phiếu `docs/giao-vie
 
 Làn kia đọc phiếu và trả lời trong một lượt, để bắt ngay việc tự chế.
 
-### G0 — Hạ tầng E2E và hai lỗi H1, H2
+### G0 — Hạ tầng E2E tối thiểu để kiểm tính năng
 
-Gói này đóng DU-AN C1.
+Chủ dự án nhắc ngày 2026-10-18: tập trung hoàn thiện giao diện và tính năng. G0 chỉ dựng đúng phần
+cần để chứng minh tính năng bằng chạy thật, làm gọn rồi sang G1 ngay. Gói này đóng DU-AN C1.
 
 **M:**
 - Dựng `lane-server`, cài máy chủ vào `dev`, chạy cụm bằng `python -B TOOLS/server/local_cluster.py
@@ -209,8 +224,6 @@ Gói này đóng DU-AN C1.
 - Zone ghi một dòng kiểm cho mỗi việc của người chơi (vào cảnh, bị kéo về, Talk, chọn, nhận và trả
   nhiệm vụ, tung chiêu, trúng đòn, chết, hồi sinh, nhặt). Dòng ghi tài khoản, nhân vật, tick, toạ độ
   và kết quả. Bật bằng một khoá trong `log.toml`; tắt thì không tốn gì.
-- Sửa H1 theo cách kiểm tốc của máy chủ gốc. Đọc kiểm di chuyển trong mã 2008 trước, port giữ toán
-  tử, chỗ lệch ghi `Khác gốc:`. Kèm một chế độ bot gửi Move nhanh gấp 4 lần để chứng minh bị kéo về.
 
 **K:**
 - `TOOLS/run/e2e_client.py`, điều phối một lần chạy:
@@ -227,19 +240,15 @@ Gói này đóng DU-AN C1.
 - Khi chạy bằng `--script`: không nâng tần số quét, không kích hoạt cửa sổ.
 - Biến môi trường `THIENLONG_NET_TRACE=<tệp>`: mỗi tin gửi hay nhận ghi một dòng (hướng, tên tin,
   trường chính).
-- Sửa H2: giữ `io.open`, `os.time`, `os.date`, đặt `nil` các hàm còn lại của `io` và `os`; ghi
-  `// Khác gốc:` (LuaState::Init của gốc mở đủ `io` và `os`).
 
 **Đạt khi** một lệnh `e2e_client.py` chạy trọn:
 - tài khoản mới tự đăng nhập, tạo nhân vật, vào Đại Lý, đi hai bước, chụp hai ảnh, thoát mã 0;
 - log mạng có SignIn, CreateCharacter, EnterGame, Move;
 - log kiểm của zone có dòng vào cảnh và đi;
 - bot quan sát thấy thực thể của client;
-- `desk_watch` không báo đổi tiêu điểm hay chuột;
-- bot tăng tốc bị kéo về, log kiểm ghi lần kéo;
-- cửa sổ Agreement (dùng `io.open`) vẫn chạy và chụp được.
+- `desk_watch` không báo đổi tiêu điểm hay chuột.
 
-### G1 — Đăng nhập tới vào game bằng script gốc
+### G1 — Đăng nhập tới vào game
 
 Cửa sổ: LoginLogOn, LoginSelectServer, SoftKeyBoard, LoginSelectRole, LoginCreateRole, SceneTrans,
 cùng hộp thông báo lỗi mà luồng gốc mở. Agreement, FangChenMi*, SafeCenter_*, Pswprotect chỉ làm nếu
@@ -248,9 +257,8 @@ luồng gốc mở chúng với máy chủ loại này (ghi bằng chứng trong
 **K:**
 - Cài `GameProduceLogin:*` và các hàm DataPool mà script đăng nhập gọi, theo mã máy (địa chỉ trong
   comment).
-- Chuyển các cửa sổ trên sang script.
-- Xoá `logon`, `select_server`, `softkey`, `select_role`, `create_role`, `scene_trans` viết tay sau
-  khi bản script đạt.
+- Với `logon`, `select_server`, `softkey`, `select_role`, `create_role`, `scene_trans` viết tay:
+  dựng bản script, so theo bốn tiêu chí ở mục 2, giữ bản tốt hơn.
 - Ô nhập theo widget gốc: NGHI-NGO 40 (e)(f)(h)(i)(j).
 
 **M:**
@@ -271,7 +279,8 @@ FunctionBarRight_2, MiniMap, PlayerImpactFrame, TargetBuff, AutoAttack_Button, P
 - Kho dữ liệu kiểu CDataPool, CObjectManager, CActionSystem: trường và hành vi theo mã máy.
 - Hàm `Player:*`, `Target:*`, `DataPool:*`, EnumAction và ActionItem mà các cửa sổ trên gọi.
 - Sự kiện `UNIT_*`, `MAIN_TARGET_CHANGED` phát từ tin mạng.
-- Chuyển các cửa sổ trên sang script; xoá panel viết tay tương ứng.
+- Cửa sổ đã có panel C++ (`action_bar`, `desk`, `skill_bar`, `player_frame`, `minimap`, TargetFrame):
+  so với bản script theo mục 2, giữ bản tốt hơn. Cửa sổ chưa có bản chạy được thì đi đường script.
 - Ở chế độ online, không dùng `hero::newcomer()`.
 
 **M:**
@@ -291,7 +300,8 @@ Cửa sổ: NewNpcChat, Quest, MissionReply, QuestLog, MissionTrack, ScrollInfo.
 - Hàm `Talk:*` và các hàm nhiệm vụ mà các cửa sổ trên gọi.
 - `Send_XSCRIPT` gửi tin thật.
 - Nhận `UI_COMMAND` và mở cửa sổ do máy chủ yêu cầu.
-- Chuyển các cửa sổ trên sang script; xoá `npc_talk` và `quest_log` viết tay.
+- `npc_talk` và `quest_log` viết tay: so với bản script theo mục 2, giữ bản tốt hơn. Các cửa sổ
+  còn lại đi đường script.
 
 **M:**
 - Tin ExecuteScript theo gói CGExecuteScript (opcode 2219) và tin lệnh giao diện theo gói gốc.
@@ -327,7 +337,8 @@ thưởng, dịch chuyển qua NPC. Mỗi bước có ảnh và dòng kiểm.
 - Vũ khí thật thay "loại 0".
 
 **K:**
-- Packet, SelfEquip, SelfData, SplitItem, LootPacket, SuperTooltip bằng script.
+- Packet, SelfEquip, SelfData, SplitItem, LootPacket, SuperTooltip. `packet` và `self_equip` đã có
+  panel C++: so theo mục 2, giữ bản tốt hơn; còn lại đi đường script.
 - `PlayerPackage:*`, ActionItem cho vật phẩm, `PACKAGE_ITEM_CHANGED_EX`.
 
 **Đạt khi** nhặt, xem túi, mặc đồ (mô hình đổi), xem tooltip, thoát vào lại, đồ còn nguyên.
@@ -378,9 +389,13 @@ khi tới.
   - phím, bánh xe, nhấn đúp vào host (`LUA-GEN/HOST.md:45-50`);
   - MessageBox_Self/Other, ContexMenu;
   - mở host ở luồng chuẩn bị cho đỡ 469–522 ms nạp đầu;
-  - chạy lại `ui_script_survey` và ghi số.
+  - chạy lại `ui_script_survey` và ghi số;
+  - H2: giữ `io.open`, `os.time`, `os.date` mà script gốc dùng, đặt `nil` các hàm còn lại của `io`
+    và `os`, ghi `// Khác gốc:` (LuaState::Init của gốc mở đủ `io` và `os`). Kiểm: Agreement vẫn
+    chạy và chụp được.
 - **M:**
-  - B19 (quét đoạn đi);
+  - H1 (hack tốc độ) cùng B19 (quét đoạn đi): port kiểm di chuyển của mã 2008, giữ toán tử, kèm
+    chế độ bot gửi Move nhanh gấp 4 lần để chứng minh bị kéo về;
   - B21 (nhiệm vụ thiếu dòng);
   - đọc `rules/*.toml` lúc chạy thay cho số viết cứng;
   - `box_recycle_ms`.
