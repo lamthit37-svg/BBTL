@@ -125,7 +125,19 @@ bằng `open_then_close`: hành vi mà chúng kiểm (nút đóng gọi `this:Hi
 hai ký tự ngẫu nhiên; thử hai lần liên tiếp ra hai tên khác), luôn có `CreateCharacter`; `#! account <tên>` còn
 cho kịch bản cố ý dùng tài khoản có sẵn; không khai thì không đăng nhập tự động. `{account}` thay được trong
 dòng `#! sidecar` (tiền tố tài khoản của bot). `g0.script`, `g0-talk.script`, `g1-scenetrans.script` chuyển sang `fresh`.
-Chưa chạy lại ba kịch bản đó trên cụm (6a đang khởi động lại cụm, bot chờ bản v8).
+Đã chạy `g0.script` và `g0-talk.script` trên cụm v8 (đo 2026-10-18, exe dựng từ cây, `--client`): cả hai ĐẠT; `g0.script` dùng
+bot ở `dev/server/bin/thienlong_bot.exe` (đã cài, v8). `g1-scenetrans.script` chưa chạy lại trên cụm v8.
+
+## Nút duyệt thú cưỡi và layout MissionTrack (f7, 1e; 2026-10-18)
+
+- Cụm nút "Thú trước", "Thú sau" và dòng "Chưa cưỡi 0/N" là công cụ dev (8bfa3cb6); client gốc không có nên chỉ vẽ và
+  nhận bấm khi client mở với `--mount`. Cờ `Display::State::browses_rides` chốt lúc khởi động từ `DisplayDesc::ride_id`
+  (không suy từ `ride_id` hiện tại vì nó đổi khi bấm). Không xoá mã duyệt thú. Kiểm: `g0.script` không `--mount` thì
+  ảnh `g0-vao` không còn ba dòng đó; `--mount 0` thì hiện đủ ("Thú trước", "Thú sau", "0 1/353": 353 là tổng thú trong bảng CharMount lúc đo; hổ dưới nhân vật).
+  Chưa kiểm: bấm nút (kịch bản chưa có bước chuột, và không chiếm chuột người dùng); đường bấm không đổi.
+- `kLayouts` thêm `MissionTrack/MissionTrack.layout.xml` (1e nhờ): trước đó `THIENLONG_UI_SCRIPT=MissionTrack` mở cửa sổ
+  thì báo "không nạp được layout MissionTrack"; nay layout nạp được và lỗi kế tiếp là native `GetPlayerMission_InUse`
+  còn thiếu (họ DataPool nhiệm vụ của 1e).
 
 ## Không làm (không có bằng chứng gốc hoặc ngoài loại máy chủ này)
 

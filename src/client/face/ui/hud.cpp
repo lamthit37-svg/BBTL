@@ -108,7 +108,7 @@ namespace {
 // Layout của HUD, của ba bảng mở từ thanh menu chính, của các bảng đăng nhập (chọn máy chủ, tài khoản,
 // chọn và tạo nhân vật) và bàn phím ảo của chúng
 // (đường dẫn tương đối với Interface).
-constexpr std::array<std::string_view, 43> kLayouts = {
+constexpr std::array<std::string_view, 44> kLayouts = {
     "PlayerFrame/PlayerFrame.layout.xml",
     "TargetFrame/TargetFrame.layout.xml",
     "Relive/Relive.layout.xml",
@@ -126,6 +126,7 @@ constexpr std::array<std::string_view, 43> kLayouts = {
     "SelfEquip/SelfEquip.layout.xml",
     "Packet/Packet.layout.xml",
     "QuestLog/QuestLog.layout.xml",
+    "MissionTrack/MissionTrack.layout.xml",
     "Quest/Quest.layout.xml",
     "YuanbaoShop/YuanbaoShop.layout.xml",
     "Operation/Operation.layout.xml",

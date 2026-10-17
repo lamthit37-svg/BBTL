@@ -6,7 +6,7 @@
 #! account fresh
 #! out build/e2e/G0
 #! timeout 300
-#! sidecar build\lane-server\thienlong_bot.exe --identity dev\server\data\gate\identity.key --count 1 --seconds 40 --peers 1 --prefix {account}m
+#! sidecar dev\server\bin\thienlong_bot.exe --identity dev\server\data\gate\identity.key --count 1 --seconds 40 --peers 1 --prefix {account}m
 #! expect-exit 0
 #! expect-shots g0-vao g0-di
 #! expect-net gửi:SignIn gửi:CreateCharacter gửi:EnterGame gửi:Move nhận:SceneEnter

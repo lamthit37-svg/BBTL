@@ -124,6 +124,7 @@ void Display::State::arm_scene(const DisplayDesc& desc) {
     talk_demo = desc.talk_demo;
     weapon_item = desc.weapon_item;
     ride_id = desc.ride_id;
+    browses_rides = desc.ride_id.has_value();
     weapon_gem = desc.weapon_gem;
     skill_id = desc.skill_id;
     seed_equipment();
@@ -546,7 +547,7 @@ bool Display::State::is_on_hud(control::ScreenPoint point) const {
 
 void Display::State::paint_ride_switch() {
     ride_buttons_live = false;
-    const bool hides = is_bare || procedure != Procedure::kPlay;
+    const bool hides = is_bare || procedure != Procedure::kPlay || !browses_rides;
     if (hides || !pace_font) return;
     if (!ensure_ride_catalog()) return;
     const ui::BitmapFont& font = *pace_font;

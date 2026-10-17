@@ -975,6 +975,9 @@ struct Display::State {
     std::optional<std::uint32_t> weapon_item;
     // DisplayDesc::ride_id: id CharMount của --mount. Ảnh chân dung không dùng.
     std::optional<std::uint32_t> ride_id;
+    // Chốt lúc khởi động: client mở với --mount. Cụm nút duyệt thú là công cụ dev, client gốc không
+    // có nó, nên chỉ vẽ và nhận bấm khi cờ này bật. Không suy từ ride_id vì ride_id đổi khi bấm.
+    bool browses_rides = false;
     // Mọi id CharMount >= 0, đúng thứ tự bảng, để nút duyệt từng con. Nạp một lần.
     std::vector<std::int32_t> ride_catalog;
     bool ride_catalog_ready = false;
