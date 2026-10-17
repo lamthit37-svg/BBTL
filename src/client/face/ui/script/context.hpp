@@ -13,6 +13,7 @@
 #pragma once
 
 #include "hero/hero.hpp"
+#include "quest/log.hpp"
 #include "ui/panel/call.hpp"
 #include "ui/panel/scene_table.hpp"
 #include "ui/script/combat_facts.hpp"
@@ -55,6 +56,9 @@ struct Facts {
     // Nhân vật người chơi đang điều khiển (Player:GetData...); nullptr khi chưa vào cảnh, như gốc chưa có đối tượng người chơi.
     // Chủ host đặt lại mỗi khung; con trỏ chỉ dùng trong lúc script chạy, không giữ qua khung.
     const hero::Hero* hero = nullptr;
+    // Sổ 20 ô nhiệm vụ đang giữ (DataPool:GetPlayerMission_*, native_mission.cpp); nullptr thì coi
+    // là sổ rỗng. Chủ host đặt lại mỗi khung; con trỏ chỉ dùng trong lúc script chạy.
+    const quest::Log* missions = nullptr;
     // Cờ loại máy chủ ở đối tượng hệ thống của gốc (DAT_141034c40 + 0x6f5868, 0x6f586c, 0x6f5874), Player:GetData đọc ra bằng
     // "IsPKServer_JD", "IsOriginalJD", "Is2606S". Máy chủ ghi; hàm dựng của gốc đặt 0 (Game.exe 0x1400d1120 vùng khởi tạo).
     struct ServerFlags {

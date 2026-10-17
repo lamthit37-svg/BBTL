@@ -697,7 +697,8 @@ game_module(ui_script
     src/client/face/ui/script/xscript.cpp
     src/client/face/ui/script/action_type.cpp
     src/client/face/ui/script/native_battle.cpp
-    src/client/face/ui/script/native_character.cpp)
+    src/client/face/ui/script/native_character.cpp
+    src/client/face/ui/script/native_mission.cpp)
 target_link_libraries(game_ui_script PUBLIC game_ui_panel game_hero game_gui game_table game_io game_lua game_luaplus game_luanum game_core)
 # Cấu hình dựng client nằm ở src/client/client.build.toml (chủ dự án chốt 2026-10-14: gắn thẳng vào
 # exe lúc dựng, không đọc tệp lúc chạy, không qua server hay protocol). CMake đọc khoá avatar_frame
@@ -1740,6 +1741,8 @@ game_test(ui_script_pet game_ui_script)
 game_test(ui_script_battle game_ui_script)
 # Hàm nhân vật và mục tiêu (tầng B, làn B): số buff, tra buff theo hiệu ứng, biến hình, Target khi chưa chọn.
 game_test(ui_script_character game_ui_script)
+# Sổ nhiệm vụ và cờ theo dõi (tầng B, làn N): ô, tham số theo byte, mặc định State_n và MissionVar_<script>.
+game_test(ui_script_mission game_ui_script)
 # Lượt chạy hàng loạt (không phải test): mở cả sổ cửa sổ, hiện/giấu từng cửa sổ và kê hàm game, phương thức widget mà script
 # đòi mà client chưa có, để xếp việc cho tầng B và widget (Test/bench/ui_script_survey.cpp).
 if(NOT ANDROID AND NOT IOS AND TARGET game_ui_script)

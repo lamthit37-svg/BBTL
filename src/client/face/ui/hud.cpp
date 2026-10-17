@@ -963,6 +963,7 @@ void Hud::State::update_script_facts(const HudView& view) {
     script::Facts& facts = script_context.facts;
     facts.scene_id = view.phase == Phase::kPlay && view.scene.id >= 0 ? std::optional<std::int32_t>(view.scene.id) : std::nullopt;
     facts.hero = view.phase == Phase::kPlay ? view.hero : nullptr;
+    facts.missions = &quests.log;
     facts.clock = view.clock;
     facts.scenes = &scenes;
     facts.scene_size = view.phase == Phase::kPlay && view.scene.id >= 0

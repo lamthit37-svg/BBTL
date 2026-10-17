@@ -75,4 +75,10 @@ void register_battle(lua_State* lua);
 // CheckBuffImpactExist, GetData; Player:GetBuffNumber, CheckBuffImpactExist, IsTransferMode (native_character.cpp, Facts::combat).
 void register_character(lua_State* lua);
 
+// Sổ nhiệm vụ và cờ theo dõi (làn N, native_mission.cpp, Facts::missions):
+// DataPool:GetPlayerMission_Num, GetPlayerMission_InUse, GetPlayerMissionIndexByID,
+// GetPlayerMission_Variable, GetPlayerMission_VariableByByte, GetPlayerMission_Name,
+// IsMissionTrackOpen, SetMissionTrackOpen, IsTrackFuncShow, SetTrackFuncShow.
+void register_mission(lua_State* lua);
+
 } // namespace game::ui::script
