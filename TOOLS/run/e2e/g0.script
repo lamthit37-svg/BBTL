@@ -2,11 +2,11 @@
 # Hướng +x ở điểm sinh Đại Lý (165,169) bị địa hình chặn (walk +4,+0: không tìm được đường), nên
 # hai đoạn đi theo trục z: 4 m tới rồi 4 m về.
 # Chạy: py -X utf8 TOOLS/run/e2e_client.py TOOLS/run/e2e/g0.script   (cụm máy chủ đang chạy)
-# Tài khoản đã có nhân vật thì không còn CreateCharacter: đổi tên bằng --account e2ek0a2...
-#! account e2ek0a1
+# Tài khoản mới mỗi lượt (account fresh), nên luôn có CreateCharacter; bot kèm lấy tên tài khoản đó làm tiền tố.
+#! account fresh
 #! out build/e2e/G0
 #! timeout 300
-#! sidecar build\lane-server\thienlong_bot.exe --identity dev\server\data\gate\identity.key --count 1 --seconds 40 --peers 1 --prefix e2em2
+#! sidecar build\lane-server\thienlong_bot.exe --identity dev\server\data\gate\identity.key --count 1 --seconds 40 --peers 1 --prefix {account}m
 #! expect-exit 0
 #! expect-shots g0-vao g0-di
 #! expect-net gửi:SignIn gửi:CreateCharacter gửi:EnterGame gửi:Move nhận:SceneEnter

@@ -1,0 +1,28 @@
+# G1-K: bàn phím ảo đăng nhập chạy bằng SoftKeyBoard.lua gốc ở màn đăng nhập (host chạy ở Phase::kLogin).
+# Bản script: đặt THIENLONG_UI_SCRIPT=SoftKeyBoard (công tắc so sánh); bản C++: chạy không biến (khi đó bước
+# event OPEN_WINDOW không có tác dụng). Bàn phím chỉ mở ở bước nhập tài khoản, nên đi qua bước chọn máy chủ
+# trước. Không cần tài khoản hay cụm máy chủ: dừng ở màn đăng nhập.
+# Chạy: $env:THIENLONG_UI_SCRIPT='SoftKeyBoard'; py -X utf8 TOOLS/run/e2e_client.py TOOLS/run/e2e/g1-softkey.script
+#! out build/e2e/G1/softkey
+#! timeout 90
+#! expect-exit 0
+#! expect-shots soft-0 soft-1 soft-typed soft-2 soft-3
+
+wait 6s
+click SelectServer_Server_Last
+click SelectServer_Accept
+wait 2s
+shot soft-0
+click LogOn_Keyboard
+wait 2
+shot soft-1
+click SoftKeyBoard_SoftKey
+wait 2
+shot soft-typed
+click LogOn_Keyboard
+wait 2
+shot soft-2
+event OPEN_WINDOW|SoftKeyBoard
+wait 2
+shot soft-3
+quit

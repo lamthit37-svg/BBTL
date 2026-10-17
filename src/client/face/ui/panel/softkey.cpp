@@ -15,7 +15,6 @@ namespace game::ui::panel {
 namespace {
 
 constexpr std::string_view kRoot = "SoftKeyBoard_Back";
-constexpr std::string_view kCloseButton = "SoftKeyBoard_SoftKey_Close";
 // Hai nhãn chữ con của cửa sổ phím, nằm đè lên phím xoá lùi và Shift (MouseHollow False).
 constexpr std::array<std::string_view, 2> kFaceLabels = {"SoftKeyBoard_SoftKey_Text", "SoftKeyBoard_SoftKey_Text1"};
 
@@ -78,19 +77,14 @@ void append_faces(std::string& faces, const SoftKeys& keys, const Bank& bank) {
 
 } // namespace
 
-void toggle_soft_keys(SoftKeys& keys, std::uint32_t salt) noexcept {
-    keys.is_open = !keys.is_open;
-    if (!keys.is_open) return;
+void open_soft_keys(SoftKeys& keys, std::uint32_t salt) noexcept {
+    keys.is_open = true;
     keys.dice = (keys.dice ^ salt) | 1U;
     shuffle(keys);
 }
 
 void close_soft_keys(SoftKeys& keys) noexcept {
     keys.is_open = false;
-}
-
-void press_soft_keys(SoftKeys& keys, std::string_view window) noexcept {
-    if (window == kCloseButton) close_soft_keys(keys);
 }
 
 bool is_soft_key_face(std::string_view window) noexcept {

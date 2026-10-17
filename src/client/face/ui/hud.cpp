@@ -157,7 +157,11 @@ constexpr std::array<std::string_view, 43> kLayouts = {
 // Cửa sổ chạy bằng script Lua gốc của client 2026 qua ui/script (docs/giao-viec/LUA-GEN/HOST.md). Cửa sổ khác còn là bảng
 // port tay (ui/panel) cho tới khi hàm game mà script của nó gọi (tầng B) có đủ; hết bảng port tay thì danh sách này bỏ và host
 // chạy cả sổ.
-constexpr std::array<std::string_view, 3> kScripted = {"ProgressBar", "DebugListBox", "SceneTrans"};
+constexpr std::array<std::string_view, 4> kScripted = {
+    "ProgressBar", "DebugListBox", "SceneTrans", "SoftKeyBoard"};
+
+// Tên trong sổ (Script/windows.tsv) của bàn phím ảo đăng nhập.
+constexpr std::string_view kSoftKeyBoard = "SoftKeyBoard";
 
 // Trần số sự kiện giao diện xử lý mỗi khung, kể cả sự kiện do các bảng tự đẩy (xem Hud::State::step_panels và EventQueue:
 // gốc không có trần, đây là chốt an toàn).
@@ -642,7 +646,7 @@ struct Hud::State {
     void seat_fonts(Prepared& ready);
     [[nodiscard]] bool note_double(std::string_view window, const HudView& view);
     [[nodiscard]] panel::PlaceText place_under(const HudView& view);
-    void enter(Phase next) noexcept;
+    void enter(Phase next);
     void note_press(const HudView& view);
     void note_hold(const HudView& view);
     [[nodiscard]] float frame_seconds(std::chrono::milliseconds now);
@@ -650,6 +654,9 @@ struct Hud::State {
     [[nodiscard]] bool is_on_scroll(float across, float down) const;
     void note_scroll(const HudView& view, float seconds);
     void press_login(std::string_view window, const HudView& view);
+    void press_keys(std::string_view window, const HudView& view);
+    void close_keys();
+    void send_window_event(std::string name);
     void release_login(const HudView& view);
     void press_pet_bar(std::string_view window);
     void press_action_bars(std::string_view window);
@@ -662,6 +669,8 @@ struct Hud::State {
     void fill_panels(const HudView& view);
     void fill_play(const HudView& view);
     void step_panels(const HudView& view);
+    void step_login(const HudView& view);
+    void sync_soft_keys(const HudView& view);
     void dispatch(std::span<const panel::PostedEvent> first);
     void ensure_item_names();
     void ensure_skill_book();
@@ -760,11 +769,11 @@ panel::PlaceText Hud::State::place_under(const HudView& view) {
 // Thủ tục đổi (kể cả khung đầu): vào thủ tục đăng nhập thì mở bảng nhập tài khoản, như sự kiện
 // GAMELOGIN_OPEN_COUNT_INPUT của client gốc; rời nó thì đóng bàn phím ảo, như CloseWindow của
 // LoginLogOn_OnEvent khi bảng đóng.
-void Hud::State::enter(Phase next) noexcept {
+void Hud::State::enter(Phase next) {
     if (phase == next) return;
     phase = next;
     if (next == Phase::kLogin) panel::start_login(flow);
-    if (next != Phase::kLogin) panel::close_soft_keys(keys);
+    if (next != Phase::kLogin) close_keys();
 }
 
 // Lần nhấn trái mới lên một cửa sổ thì báo cho các bảng nghe nút của thủ tục đang chạy, thay sự
@@ -846,7 +855,10 @@ void Hud::State::note_press(const HudView& view) {
     const bool is_press = is_down && !was_down;
     const bool is_release = !is_down && was_down;
     was_down = is_down;
-    if (is_release && view.phase == Phase::kLogin) release_login(view);
+    if (is_release && view.phase == Phase::kLogin) {
+        release_login(view);
+        note_host_release(view);
+    }
     if (is_release && view.phase == Phase::kPlay) {
         note_board_release(view);
         note_world_release(view);
@@ -856,7 +868,8 @@ void Hud::State::note_press(const HudView& view) {
     if (!is_press || !hub || !view.pointer) return;
     const gui::Pointer spot = *view.pointer;
     const auto window = hub->hit(spot.x, spot.y, gui::Probe::kLeftButton);
-    if (view.phase == Phase::kPlay) note_host_press(window.value_or(std::string_view{}), view);
+    const std::string_view pressed = window.value_or("");
+    note_host_press(pressed, view);
     if (!window && view.phase == Phase::kLogin) panel::dismiss_flow(flow);
     if (!window) return;
     if (const std::optional<Action> next = panel::menu_action(*window)) {
@@ -1029,16 +1042,37 @@ void Hud::State::press_login(std::string_view window, const HudView& view) {
     panel::press_flow(flow, window, facts);
     if (was_taken) return;
     if (!panel::on_account(flow)) {
-        panel::close_soft_keys(keys);
+        close_keys();
         return;
     }
-    panel::press_soft_keys(keys, window);
-    const auto salt = static_cast<std::uint32_t>(view.clock.count());
-    if (window == panel::kLogonKeysButton) panel::toggle_soft_keys(keys, salt);
+    press_keys(window, view);
+}
+
+// Bàn phím ảo ở một lần nhấn của bảng tài khoản: nút của bảng mở hay đóng nó, và mặt phím gõ ký tự
+// vào ô đang ngắm. Cửa sổ do SoftKeyBoard.lua mở và đóng (nút đóng là Clicked của layout), bảng chỉ
+// còn việc gõ.
+void Hud::State::press_keys(std::string_view window, const HudView& view) {
+    if (window == panel::kLogonKeysButton) send_window_event("TOGGLE_WINDOW");
     if (!panel::is_soft_key_face(window) || !view.pointer) return;
     const std::optional<std::size_t> cell = hub->soft_key(panel::kSoftKeysWindow, *view.pointer);
     const std::optional<char32_t> typed = cell ? panel::strike_soft_key(keys, *cell) : std::nullopt;
     if (typed) panel::key_flow(flow, *typed);
+}
+
+// CloseWindow("SoftKeyBoard") khi bảng tài khoản đóng: sự kiện CLOSE_WINDOW nếu bàn phím đang hiện.
+void Hud::State::close_keys() {
+    if (!keys.is_open) return;
+    send_window_event("CLOSE_WINDOW");
+}
+
+// Sự kiện OPEN_WINDOW, CLOSE_WINDOW, TOGGLE_WINDOW của game cho cửa sổ bàn phím ảo (arg0 là tên cửa
+// sổ).
+void Hud::State::send_window_event(std::string name) {
+    panel::PostedEvent event;
+    event.name = std::move(name);
+    event.args.emplace_back(kSoftKeyBoard);
+    const std::array<panel::PostedEvent, 1> events{std::move(event)};
+    dispatch(events);
 }
 
 // Nhả nút trái trong thủ tục đăng nhập: cửa sổ dưới chuột và mục danh sách đuôi dưới chuột cho danh sách đuôi đang mở.
@@ -1053,7 +1087,7 @@ void Hud::State::note_text(const HudView& view) {
     if (view.phase != Phase::kLogin) return;
     for (const char32_t code : view.typed)
         panel::type_flow(flow, code, login_facts(view));
-    if (!panel::on_account(flow)) panel::close_soft_keys(keys);
+    if (!panel::on_account(flow)) close_keys();
 }
 
 // Sự kiện của bảng chuyển cảnh theo việc nạp cảnh mà client báo: bắt đầu nạp là
@@ -1169,7 +1203,7 @@ namespace {
 // Khác gốc: nghĩa của MouseRClick, MouseLClick, MouseClick trong CEGUIBase.dll 2026 chưa đối chiếu (đoán theo tên: bấm xong trên cùng
 // cửa sổ); MouseLClick chưa phát; nhấn đúp, phím, bánh xe, CaptureLost chưa có.
 void Hud::State::note_host_pointer(const HudView& view) {
-    if (!host || !hub || view.phase != Phase::kPlay) return;
+    if (!host || !hub) return;
     std::string_view under;
     if (view.pointer) {
         if (const auto window = hub->hit(view.pointer->x, view.pointer->y, gui::Probe::kAny)) under = *window;
@@ -1221,7 +1255,29 @@ void Hud::State::push_debug_message(std::string_view text) {
     dispatch(message);
 }
 
-// Sự kiện của game tới từng bảng đã đăng ký nghe, rồi nhịp của host (hẹn giờ và updateSelf của widget).
+// Thủ tục đăng nhập một khung: sự kiện của game tới các cửa sổ chạy bằng script, rồi nhịp của host.
+// Không có host (thiếu dữ liệu script) thì không có gì để chạy.
+void Hud::State::step_login(const HudView& view) {
+    if (!host) return;
+    dispatch(view.events);
+    sync_soft_keys(view);
+    note_host(view);
+}
+
+// Bàn phím ảo chạy bằng SoftKeyBoard.lua: script mở và đóng cửa sổ (OPEN_WINDOW, CLOSE_WINDOW,
+// TOGGLE_WINDOW, nút đóng của layout), còn mặt phím là việc của lớp widget SoftKey
+// (CEGUIFalagard.dll gốc, panel/softkey), nên bảng giữ ký tự theo cờ hiện của cửa sổ: hiện thì xoay
+// vòng phím như onShown, ẩn thì đóng.
+void Hud::State::sync_soft_keys(const HudView& view) {
+    const bool is_shown = host->is_shown(kSoftKeyBoard);
+    if (is_shown == keys.is_open) return;
+    const auto salt = static_cast<std::uint32_t>(view.clock.count());
+    if (is_shown) panel::open_soft_keys(keys, salt);
+    if (!is_shown) panel::close_soft_keys(keys);
+}
+
+// Sự kiện của game tới từng bảng đã đăng ký nghe, rồi nhịp của host (hẹn giờ và updateSelf của
+// widget).
 void Hud::State::step_panels(const HudView& view) {
     update_script_facts(view);
     if (!is_app_inited) {
@@ -1232,10 +1288,12 @@ void Hud::State::step_panels(const HudView& view) {
     }
     if (view.phase != Phase::kPlay) {
         has_entered_world = false;
+        step_login(view);
         return;
     }
-    // CGamePro_Main::Init (Game.exe 0x140648b80) phát PLAYER_ENTERING_WORLD một lần lúc vào thủ tục chơi, trước mọi sự
-    // kiện khác. Khác gốc: 0x14021d2f0 phát lại sự kiện này khi bỏ chế độ ẩn giao diện (HideMain), chưa có chế độ đó.
+    // CGamePro_Main::Init (Game.exe 0x140648b80) phát PLAYER_ENTERING_WORLD một lần lúc vào thủ tục
+    // chơi, trước mọi sự kiện khác. Khác gốc: 0x14021d2f0 phát lại sự kiện này khi bỏ chế độ ẩn
+    // giao diện (HideMain), chưa có chế độ đó.
     std::vector<panel::PostedEvent> first;
     if (!has_entered_world) {
         has_entered_world = true;
@@ -1256,7 +1314,8 @@ void Hud::State::fill_panels(const HudView& view) {
     if (view.phase == Phase::kLogin) {
         panel::paint_flow(deck, flow, writer ? &*writer : nullptr);
         shown = panel::shown_model(flow, login_facts(view));
-        if (panel::on_account(flow)) panel::paint_soft_keys(deck, keys);
+        panel::paint_soft_keys(deck, keys);
+        if (host) host->paint(deck);
     } else {
         shown = {};
         fill_play(view);

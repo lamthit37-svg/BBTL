@@ -86,6 +86,47 @@ nguyên văn, hai khoá mẫu `=前往%s0`, `=前往%s0[%s1]` không bao giờ t
 tiếng Việt thì khoá theo từng tên cảnh ("前往大理" → "Đến Đại Lý"); hiện bảng chữ là phép đồng nhất
 nên chưa thấy lệch.
 
+## Host chạy ở màn đăng nhập (G1-K (2), đo 2026-10-18)
+
+`Hud::step_login` đưa sự kiện của game và nhịp hẹn giờ cho host ở `Phase::kLogin`; `fill_panels` vẽ cửa sổ
+của host sau bảng đăng nhập; chuột (nhấn, nhả, di chuột) tới host ở cả hai thủ tục (trước đây chỉ `kPlay`).
+Ô nhập, phím và IME của host chưa có: chờ cửa sổ có ô nhập (LogOn, CreateRole) chạy bằng script.
+
+Lượt chẩn đoán đầu cho "đạt" mà cửa sổ không hiện: báo cáo E2E chỉ phán các bước chạy xong, không phán
+ảnh. Nhìn ảnh thấy bàn phím không hiện vì kịch bản đang ở bước chọn máy chủ và bảng đăng nhập đóng bàn phím
+mỗi khung ngoài bước nhập tài khoản (đúng luật gốc: CloseWindow khi bảng đóng). Sửa kịch bản đi qua chọn
+máy chủ bằng `click`, không sửa mã.
+
+## Bảng so SoftKeyBoard (panel C++ với `SoftKeyBoard.lua` gốc, đo 2026-10-18, Release)
+
+Cách chạy: cùng kịch bản `TOOLS/run/e2e/g1-softkey.script` (qua chọn máy chủ, bấm `LogOn_Keyboard` mở, bấm một
+phím, bấm lại đóng, rồi sự kiện `OPEN_WINDOW`). Bản C++: exe trước khi chốt, không biến; bản script: cùng exe với
+`THIENLONG_UI_SCRIPT=SoftKeyBoard`. Ảnh: `build/e2e/G1/softkey-cpp/shots`, `softkey-script/shots`; bản chốt:
+`softkey-final/shots`.
+
+| Tiêu chí | Panel C++ (phần mở/đóng đã gỡ) | Script gốc (giữ) |
+|---|---|---|
+| 1 Đúng gốc: hình | Cùng layout, khung 484 x 190 cùng chỗ trên màn; mặt phím xoay ngẫu nhiên mỗi lần mở ở cả hai (gốc dùng `rand()`), nên ảnh hai lượt không so từng điểm được. Gõ một phím: ký tự vào ô đang nhắm của bảng tài khoản (`Logon::aim`) ở cả hai; ảnh `soft-typed` là ô mật khẩu (dấu `*`) vì kịch bản đã sang ô đó. | Như cột trái. |
+| 1 Đúng gốc: khác gốc | (a) chỉ mở bằng nút của bảng tài khoản, không nhận `OPEN_WINDOW`, `CLOSE_WINDOW`, `TOGGLE_WINDOW` của game (ảnh `soft-3`: bản C++ không mở khi nhận `OPEN_WINDOW`); (b) nút đóng của bảng do C++ đóng, layout nối `this:Hide()`. | Không có (a), (b). Còn chung hai bản: phím ăn ngay lúc nhấn, chưa kéo cửa sổ bằng `TLBB_DragTitle`, nút trợ giúp không làm gì, `xorshift32` thay `rand()` (NGHI-NGO 40 h). Thêm: `SET_SOFTKEY_AIM` ghi thuộc tính `AimEditBox` mà ký tự vẫn vào ô đang nhắm của bảng C++ (`Logon::aim`) (đường đúng là ô nhập của host, chờ LogOn chạy script). |
+| 2 Đủ | mở bằng nút, đóng bằng nút đóng. | `OPEN_WINDOW`, `CLOSE_WINDOW`, `TOGGLE_WINDOW`, nút đóng của layout, `SET_SOFTKEY_AIM` (ghi, chưa dẫn đường). |
+| 3 Hiệu năng | Mở HUD (`Hud::open` trừ lượt vẽ xong, offline, 15 cặp xen kẽ; máy có việc của phiên khác nên nhiễu): trung vị 41,4 ms (18,9 đến 273,2). Dựng UI mỗi khung khi bàn phím mở: 0,1 ms. | Trung vị 46,5 ms (17,9 đến 389,7); chênh từng cặp (script trừ C++) trung vị −1,2 ms. Dựng UI mỗi khung khi mở: 0,1 ms. Không đo được khác biệt. |
+| 4 Chất lượng mã | `toggle_soft_keys`, `press_soft_keys`, hằng nút đóng: 10 dòng trong `softkey.cpp`, hai test (19 dòng). | `SoftKeyBoard.lua` gốc 44 dòng không sửa. Lúc này C++ nhiều hơn: chỗ nối trong `hud.cpp` 31 dòng (`step_login`, `sync_soft_keys`, `press_keys`, `close_keys`, `send_window_event`) và test mới 7 dòng; chỗ nối thu lại còn `sync_soft_keys` khi LogOn chạy script (LogOn.lua gọi `ToggleWindow`, `CloseWindow` thẳng). |
+
+Quyết định: script thắng tiêu chí 1 và 2, ngang 3, thua tạm 4 (mã C++ cộng 21 dòng: 31 thêm, 10 bớt; trả khi LogOn chạy script).
+Theo thứ tự tiêu chí: giữ script. `kScripted` có `SoftKeyBoard`; `panel/softkey` bỏ `press_soft_keys`, đổi
+`toggle_soft_keys` thành `open_soft_keys` (cờ mở theo cờ hiện của cửa sổ); phần mặt phím (lớp widget SoftKey
+của `CEGUIFalagard.dll`, gốc cũng là C++) giữ ở C++. Test `toggle_opens_then_closes` và `close_button_closes` thay
+bằng `open_then_close`: hành vi mà chúng kiểm (nút đóng gọi `this:Hide()`) nay là của script và chứng minh bằng ảnh
+`soft-2`; không nới kỳ vọng nào còn lại.
+
+## Kịch bản E2E tái lập được (yêu cầu f7, 2026-10-18)
+
+`e2e_client.py` có chỉ thị `#! account fresh [<tiền tố>]`: mỗi lượt một tài khoản mới (tiền tố, mốc giờ viết hệ 36,
+hai ký tự ngẫu nhiên; thử hai lần liên tiếp ra hai tên khác), luôn có `CreateCharacter`; `#! account <tên>` còn
+cho kịch bản cố ý dùng tài khoản có sẵn; không khai thì không đăng nhập tự động. `{account}` thay được trong
+dòng `#! sidecar` (tiền tố tài khoản của bot). `g0.script`, `g0-talk.script`, `g1-scenetrans.script` chuyển sang `fresh`.
+Chưa chạy lại ba kịch bản đó trên cụm (6a đang khởi động lại cụm, bot chờ bản v8).
+
 ## Không làm (không có bằng chứng gốc hoặc ngoài loại máy chủ này)
 
 - Agreement, FangChenMi*, LoginTimer, Pswprotect, SafeCenter_*: máy chủ của ta không có kết quả

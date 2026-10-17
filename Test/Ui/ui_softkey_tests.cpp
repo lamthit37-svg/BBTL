@@ -50,7 +50,7 @@ constexpr std::size_t kFirstReturn = gui::kSoftReturn.first;
 
 SoftKeys opened(std::uint32_t salt) {
     SoftKeys keys;
-    ui::panel::toggle_soft_keys(keys, salt);
+    ui::panel::open_soft_keys(keys, salt);
     return keys;
 }
 
@@ -76,32 +76,21 @@ std::string expected_faces(const ui::panel::SoftKeyStarts& starts, std::string_v
     return turned(kDigits, starts.numbers) + turned(letters, starts.letters) + turned(kMarks, starts.marks);
 }
 
-void toggle_opens_then_closes(Context& context) {
+void open_then_close(Context& context) {
     SoftKeys keys;
     Deck closed;
     ui::panel::paint_soft_keys(closed, keys);
     context.expect(closed.roots().empty() && closed.overrides().empty(), "đang đóng thì không ghi chỉ thị nào");
-    ui::panel::toggle_soft_keys(keys, 7);
-    context.expect(keys.is_open, "ToggleWindow lúc đang đóng thì mở");
+    ui::panel::open_soft_keys(keys, 7);
+    context.expect(keys.is_open, "cửa sổ hiện thì bàn phím mở");
     Deck deck;
     ui::panel::paint_soft_keys(deck, keys);
     context.expect(deck.is_shown(kRoot), "đang mở thì kê gốc của bàn phím");
     context.expect(faces_of(keys).size() == gui::kSoftCharCells, "mỗi ô ký tự có đúng một ký tự");
-    ui::panel::toggle_soft_keys(keys, 7);
-    context.expect(!keys.is_open, "ToggleWindow lúc đang mở thì đóng");
-}
-
-void close_button_closes(Context& context) {
-    SoftKeys keys = opened(1);
     keys.is_shifted = true;
-    ui::panel::press_soft_keys(keys, "LogOn_Frame");
-    context.expect(keys.is_open, "nhấn cửa sổ khác thì bàn phím còn mở");
-    ui::panel::press_soft_keys(keys, kCloseButton);
-    context.expect(!keys.is_open, "nút đóng gọi this:Hide()");
-    context.expect(keys.is_shifted, "đóng không đổi Shift");
-    ui::panel::toggle_soft_keys(keys, 1);
     ui::panel::close_soft_keys(keys);
-    context.expect(!keys.is_open, "CloseWindow đóng bàn phím");
+    context.expect(!keys.is_open, "cửa sổ ẩn thì bàn phím đóng");
+    context.expect(keys.is_shifted, "đóng không đổi Shift");
 }
 
 // ResetAllKey: ô thứ i của nhóm mang ký tự thứ (i + nStart) của nhóm, quay vòng.
@@ -221,8 +210,7 @@ void names_exist_in_layout(Context& context) {
 }
 
 constexpr std::array kCases{
-    Case{.name = "toggle_opens_then_closes", .body = &toggle_opens_then_closes},
-    Case{.name = "close_button_closes", .body = &close_button_closes},
+    Case{.name = "open_then_close", .body = &open_then_close},
     Case{.name = "faces_follow_the_starts", .body = &faces_follow_the_starts},
     Case{.name = "every_opening_is_a_rotation", .body = &every_opening_is_a_rotation},
     Case{.name = "salts_change_the_layout", .body = &salts_change_the_layout},

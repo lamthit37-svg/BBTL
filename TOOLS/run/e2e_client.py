@@ -6,11 +6,14 @@
 # desk_watch bỏ stdout của lệnh con, nên công cụ này tự ghi mọi thứ ra thư mục kết quả: stdout.txt
 # (đầu ra của client, có các dòng SCRIPT), net.log (vết mạng), shots/*.png, sidecar-N.txt, report.txt.
 # Mã thoát: 0 khi mọi chỉ thị đạt, 1 khi có chỉ thị hỏng, 2 khi kịch bản hay đối số sai.
-# Tài khoản đã có nhân vật thì đăng nhập tự động không gửi CreateCharacter nữa: chạy lại kịch bản
-# cần tạo nhân vật thì đổi tên bằng --account.
+# Tài khoản đã có nhân vật thì đăng nhập tự động không gửi CreateCharacter nữa, nên kịch bản cần tạo
+# nhân vật khai "account fresh": mỗi lượt chạy một tài khoản mới, không ai phải nhớ đổi tên.
 #
 # Chỉ thị (mỗi dòng "#! tên đối số..."):
-#   account <tên>                tài khoản đăng nhập tự động (THIENLONG_ACCOUNT); --account thắng
+#   account fresh [<tiền tố>]    tài khoản MỚI mỗi lượt: <tiền tố, mặc định e2e><mốc giờ base36><hai ký
+#                                tự ngẫu nhiên>; có CreateCharacter ở mọi lượt
+#   account <tên>                tài khoản CỐ ĐỊNH, dùng khi kịch bản cố ý cần tài khoản đã có (nhân vật
+#                                sẵn); --account thắng cả hai dạng. Không khai: không đăng nhập tự động
 #   out <thư mục>                thư mục kết quả; mặc định build/e2e/<tên tệp kịch bản>
 #   timeout <giây>               hạn cho cả lượt chạy; mặc định 240
 #   expect-exit <mã>             mã thoát của client; mặc định 0 (kéo theo: có dòng SCRIPT end, 0 hỏng)
@@ -18,10 +21,12 @@
 #   expect-net <tin>...          net.log có tin đó; "gửi:Tên" hay "nhận:Tên" để chỉ rõ chiều
 #   expect-file <tệp> <regex>    dòng MỚI của tệp (từ lúc bắt đầu chạy) có chỗ khớp regex; {account}
 #                                trong regex là tên tài khoản của lượt chạy này
-#   sidecar <lệnh>               chạy kèm một tiến trình (bot) từ lúc mở client; phải thoát mã 0
+#   sidecar <lệnh>               chạy kèm một tiến trình (bot) từ lúc mở client; phải thoát mã 0; {account}
+#                                trong lệnh là tên tài khoản của lượt này (tiền tố tài khoản cho bot)
 import argparse
 import os
 import re
+import secrets
 import shlex
 import subprocess
 import sys
@@ -38,6 +43,10 @@ SIDECAR_GRACE = 60.0
 FILE_RETRY = 10.0
 SW_SHOWNOACTIVATE = 4
 CREATE_NO_WINDOW = 0x08000000
+# Tài khoản mới: mốc giờ tính từ đầu 2026 theo giây, viết hệ 36; tên tài khoản chỉ nhận chữ số, chữ và dấu _.
+FRESH_EPOCH = 1_767_225_600
+DEFAULT_FRESH_PREFIX = "e2e"
+BASE36 = "0123456789abcdefghijklmnopqrstuvwxyz"
 PNG_SIGNATURE = b"\x89PNG\r\n\x1a\n"
 
 
@@ -45,6 +54,8 @@ PNG_SIGNATURE = b"\x89PNG\r\n\x1a\n"
 class Plan:
     """Những gì kịch bản đòi: đọc từ các dòng #!."""
     account: str = ""
+    # Tiền tố của tên tài khoản mới khi kịch bản khai "account fresh"; None là không khai.
+    fresh_prefix: str | None = None
     out: str = ""
     timeout: float = DEFAULT_TIMEOUT
     exit_code: int = 0
@@ -78,10 +89,31 @@ def parse_net(tokens: list[str]) -> list[tuple[str, str]]:
     return pairs
 
 
+def set_account(plan: Plan, words: list[str]) -> None:
+    if not words:
+        raise ValueError("thiếu tên tài khoản")
+    if words[0] == "fresh":
+        plan.fresh_prefix = words[1] if len(words) > 1 else DEFAULT_FRESH_PREFIX
+        plan.account = ""
+        return
+    plan.fresh_prefix = None
+    plan.account = " ".join(words)
+
+
+def fresh_account(prefix: str) -> str:
+    stamp = max(int(time.time()) - FRESH_EPOCH, 0)
+    digits = ""
+    while stamp:
+        stamp, rest = divmod(stamp, 36)
+        digits = BASE36[rest] + digits
+    salt = "".join(BASE36[secrets.randbelow(36)] for _ in range(2))
+    return f"{prefix}{digits}{salt}"
+
+
 def apply_directive(plan: Plan, key: str, rest: str, number: int) -> None:
     words = rest.split()
     if key == "account":
-        plan.account = rest.strip()
+        set_account(plan, words)
     elif key == "out":
         plan.out = rest.strip()
     elif key == "timeout":
@@ -131,6 +163,10 @@ def clear_output(out: Path) -> None:
 
 def sizes_of(paths: list[Path]) -> dict[Path, int]:
     return {path: path.stat().st_size if path.exists() else 0 for path in paths}
+
+
+def with_account(command: list[str], account: str) -> list[str]:
+    return [token.replace("{account}", account) for token in command]
 
 
 def start_sidecar(command: list[str], log: Path) -> subprocess.Popen:
@@ -240,11 +276,15 @@ def check_files(plan: Plan, starts: dict[Path, int]) -> list[Check]:
     return checks
 
 
+def account_note(plan: Plan) -> str:
+    return " (mới cho lượt này)" if plan.fresh_prefix is not None and plan.account else ""
+
+
 def write_report(out: Path, script: Path, plan: Plan, code: int | None, seconds: float,
                  checks: list[Check]) -> str:
     steps, _ = read_steps(out / "stdout.txt")
     lines = [f"E2E {script.name}: client thoát {code if code is not None else 'QUÁ HẠN'}"
-             f" sau {seconds:.1f} giây, tài khoản {plan.account or '(không)'}", ""]
+             f" sau {seconds:.1f} giây, tài khoản {plan.account or '(không)'}{account_note(plan)}", ""]
     lines += ["\t".join(step[1:]) for step in steps]
     lines.append("")
     lines += [f"{'ĐẠT' if one.ok else 'HỎNG'}\t{one.name}\t{one.detail}" for one in checks]
@@ -259,6 +299,8 @@ def run(script: Path, args: argparse.Namespace) -> int:
     plan = read_plan(script)
     if args.account:
         plan.account = args.account
+    if not plan.account and plan.fresh_prefix is not None:
+        plan.account = fresh_account(plan.fresh_prefix)
     out = resolve(args.out or plan.out or f"build/e2e/{script.stem}")
     clear_output(out)
     starts = sizes_of([path for path, _ in plan.files])
@@ -266,7 +308,7 @@ def run(script: Path, args: argparse.Namespace) -> int:
     if plan.account:
         env["THIENLONG_ACCOUNT"] = plan.account
     began = time.monotonic()
-    helpers = [start_sidecar(cmd, out / f"sidecar-{index}.txt")
+    helpers = [start_sidecar(with_account(cmd, plan.account), out / f"sidecar-{index}.txt")
                for index, cmd in enumerate(plan.sidecars, start=1)]
     client = start_client(Path(args.client), script.resolve(), out, env)
     code = wait_exit(client, plan.timeout)
@@ -287,7 +329,7 @@ def main() -> int:
     parser = argparse.ArgumentParser(description="Chạy một kịch bản E2E của thienlong_client.")
     parser.add_argument("script", help="tệp kịch bản (--script của client)")
     parser.add_argument("--client", default=str(DEFAULT_CLIENT), help="đường dẫn thienlong_client.exe")
-    parser.add_argument("--account", default="", help="ghi đè chỉ thị #! account")
+    parser.add_argument("--account", default="", help="ghi đè chỉ thị #! account (kể cả fresh)")
     parser.add_argument("--out", default="", help="ghi đè chỉ thị #! out")
     args = parser.parse_args()
     script = resolve(args.script)

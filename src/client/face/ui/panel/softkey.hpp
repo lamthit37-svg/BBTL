@@ -1,8 +1,9 @@
 // Bàn phím ảo (SoftKeyBoard, layout SoftKeyBoard/SoftKeyBoard.layout.xml) của thủ tục đăng nhập:
-// đang mở hay đóng, Shift, và ký tự đang nằm ở từng ô phím. Client gốc mở, đóng nó bằng sự kiện
-// TOGGLE_WINDOW (SoftKeyBoard.lua); mọi việc còn lại nằm trong lớp FalagardSoftKeyBoard của
-// CEGUIFalagard.dll. Bảng ở đây chỉ là trạng thái: ô nào bị nhấn do gui::Hub cho biết, ký tự gõ ra
-// trả cho người gọi đưa vào ô nhập đang ngắm.
+// đang mở hay đóng, Shift, và ký tự đang nằm ở từng ô phím. Cửa sổ do SoftKeyBoard.lua gốc mở và
+// đóng (OPEN_WINDOW, CLOSE_WINDOW, TOGGLE_WINDOW, nút đóng của layout), chạy trong host script;
+// cờ đang mở ở đây theo cờ hiện của cửa sổ đó. Mọi việc còn lại nằm trong lớp FalagardSoftKeyBoard
+// của CEGUIFalagard.dll. Bảng ở đây chỉ là trạng thái: ô nào bị nhấn do gui::Hub cho biết, ký tự
+// gõ ra trả cho người gọi đưa vào ô nhập đang ngắm.
 // Nguồn (CEGUIFalagard.dll bản 2026): initialise 0x18007df30 (bốn dải ký tự), ResetAllKey
 // 0x18007d200 (mỗi nhóm ký tự xoay vòng từ một ô bắt đầu ngẫu nhiên), onMouseButtonUp 0x18007e0b0
 // (phím ký tự gõ xong thì xoay vòng lại; Shift đổi hoa thường rồi xoay vòng lại; xoá lùi; Return
@@ -41,13 +42,11 @@ struct SoftKeys {
     std::uint32_t dice = 0x9E3779B9U;
 };
 
-// ToggleWindow("SoftKeyBoard"): đang đóng thì mở và xoay vòng lại các phím (onShown), đang mở thì
-// đóng. salt là số bất kỳ của người gọi (đồng hồ khung) trộn vào bộ sinh để mỗi lần mở một khác.
-void toggle_soft_keys(SoftKeys& keys, std::uint32_t salt) noexcept;
-// CloseWindow("SoftKeyBoard"): đóng, giữ Shift.
+// Cửa sổ vừa hiện (onShown): mở và xoay vòng lại các phím. salt là số bất kỳ của người gọi (đồng hồ
+// khung) trộn vào bộ sinh để mỗi lần mở một khác.
+void open_soft_keys(SoftKeys& keys, std::uint32_t salt) noexcept;
+// Cửa sổ vừa ẩn: đóng, giữ Shift.
 void close_soft_keys(SoftKeys& keys) noexcept;
-// Một lần nhấn trái lên cửa sổ window: nút đóng của bàn phím thì đóng. Cửa sổ khác không đổi gì.
-void press_soft_keys(SoftKeys& keys, std::string_view window) noexcept;
 // Cửa sổ window có phải mặt phím không: cửa sổ phím, hoặc một trong hai nhãn chữ nằm đè lên phím
 // xoá lùi và Shift (layout để chúng nhận chuột).
 [[nodiscard]] bool is_soft_key_face(std::string_view window) noexcept;
