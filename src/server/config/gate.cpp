@@ -29,7 +29,8 @@ constexpr std::array<std::string_view, 2> kResume{"bind_to_ip", "grace_ms"};
 constexpr detail::Bound kPrefix{.least = 16, .most = 32};
 // Trần 5 phút cho cửa sổ token Resume còn hiệu lực.
 constexpr detail::Bound kGraceMs{.least = 0, .most = 300000};
-constexpr std::array<std::string_view, 1> kClient{"min_version"};
+constexpr std::array<std::string_view, 2> kClient{"min_version", "allowed_builds"};
+constexpr detail::Bound kBuildId{.least = 1, .most = 4294967295};
 constexpr std::array<std::string_view, 2> kFilter{"allow", "deny"};
 
 void read_listen(Bag& bag, const Node* table, GateListen& listen) {
@@ -69,6 +70,8 @@ void read_client(Bag& bag, const Node* table, GateClient& client) {
     Cursor cursor{bag, *table};
     cursor.only(kClient);
     keep(cursor.bounded("min_version", detail::kCount), client.min_version);
+    if (!cursor.has("allowed_builds")) return;
+    keep(cursor.integers("allowed_builds", kBuildId, 32), client.allowed_builds);
 }
 
 void read_filter(Bag& bag, const Node* table, GateIpFilter& filter) {

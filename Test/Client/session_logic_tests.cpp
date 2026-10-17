@@ -91,11 +91,12 @@ void decode_key_checks_shape(Context& context) {
 void machine_allows_by_phase(Context& context) {
     using client::session::allows;
     const std::array all{Phase::kIdle, Phase::kSigningIn, Phase::kChoosing, Phase::kEditing, Phase::kEntering,
-        Phase::kInGame, Phase::kLost};
+        Phase::kInGame, Phase::kResuming, Phase::kLost};
     for (const Phase phase : all) {
         context.expect(allows(phase, Ask::kDrop), "trả phiên được ở mọi pha");
         const bool is_idle = phase == Phase::kIdle || phase == Phase::kLost;
-        context.expect(allows(phase, Ask::kSignIn) == is_idle, "đăng nhập chỉ ở kIdle và kLost");
+        const bool can_sign = is_idle || phase == Phase::kResuming;
+        context.expect(allows(phase, Ask::kSignIn) == can_sign, "đăng nhập ở kIdle, kLost, kResuming");
         const bool is_choosing = phase == Phase::kChoosing;
         context.expect(allows(phase, Ask::kCreate) == is_choosing, "tạo chỉ ở kChoosing");
         context.expect(allows(phase, Ask::kDelete) == is_choosing, "xoá chỉ ở kChoosing");
@@ -135,7 +136,7 @@ void machine_routes_server_messages(Context& context) {
     context.expect(on_server(Phase::kInGame, reject) == step_of(Phase::kInGame, Outcome::kRejected), "từ chối trong game");
 
     const std::array all{Phase::kIdle, Phase::kSigningIn, Phase::kChoosing, Phase::kEditing, Phase::kEntering,
-        Phase::kInGame, Phase::kLost};
+        Phase::kInGame, Phase::kResuming, Phase::kLost};
     for (const Phase phase : all) {
         context.expect(on_server(phase, bye) == step_of(Phase::kLost, Outcome::kClosed), "Goodbye ở mọi pha là kLost");
         if (phase == Phase::kIdle) {
@@ -150,6 +151,23 @@ void machine_routes_server_messages(Context& context) {
     context.expect(on_server(Phase::kInGame, roster).outcome == Outcome::kViolation, "CharacterList trong game là sai trình tự");
     context.expect(on_server(Phase::kSigningIn, spot).outcome == Outcome::kViolation, "Position khi đăng nhập là sai trình tự");
     context.expect(on_server(Phase::kLost, world).outcome == Outcome::kQuiet, "tin muộn sau khi mất phiên bị bỏ");
+    context.expect(on_server(Phase::kResuming, spot) == step_of(Phase::kInGame, Outcome::kDeliver), "Resume xong thì vào game");
+    context.expect(on_server(Phase::kResuming, reject) == step_of(Phase::kLost, Outcome::kRejected), "Resume bị từ chối thì mất phiên");
+    context.expect(on_server(Phase::kResuming, opening) == step_of(Phase::kResuming, Outcome::kDeliver), "token mới giữ kResuming");
+}
+
+void resume_only_after_a_live_game(Context& context) {
+    using client::session::LinkBreak;
+    using client::session::can_resume;
+    using client::session::resume_again;
+    context.expect(can_resume(LinkBreak::kDown, Phase::kInGame, true), "đứt lúc chơi thì nối lại");
+    context.expect(can_resume(LinkBreak::kTimeout, Phase::kEntering, true), "hết giờ lúc vào game thì nối lại");
+    context.expect(can_resume(LinkBreak::kDown, Phase::kResuming, true), "lần nối lại hỏng thì thử tiếp");
+    context.expect(!can_resume(LinkBreak::kFatal, Phase::kInGame, true), "lỗi giao thức không nối lại");
+    context.expect(!can_resume(LinkBreak::kDown, Phase::kInGame, false), "chưa có token thì không nối lại");
+    context.expect(!can_resume(LinkBreak::kDown, Phase::kChoosing, true), "còn ở bảng chọn thì không nối lại");
+    context.expect(!resume_again(true, LinkBreak::kDown, Phase::kResuming, true), "đã gửi token thì không gửi lại");
+    context.expect(resume_again(false, LinkBreak::kDown, Phase::kInGame, true), "chưa gửi token thì còn được thử");
 }
 
 constexpr std::array kCases{
@@ -158,6 +176,7 @@ constexpr std::array kCases{
     Case{.name = "decode_key_checks_shape", .body = &decode_key_checks_shape},
     Case{.name = "machine_allows_by_phase", .body = &machine_allows_by_phase},
     Case{.name = "machine_routes_server_messages", .body = &machine_routes_server_messages},
+    Case{.name = "resume_only_after_a_live_game", .body = &resume_only_after_a_live_game},
 };
 
 } // namespace

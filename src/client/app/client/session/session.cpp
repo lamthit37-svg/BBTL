@@ -8,8 +8,8 @@
  *  CHỨC NĂNG
  *  - Phiên mạng của client: luồng nền giữ link tới gate, máy trạng thái thuần
  *    và hàng đợi hai chiều có trần.
- *  - Lệnh từ luồng game qua Mailbox có trần; sự kiện về luồng game đầy thì bỏ
- *    tin bỏ được rồi báo Lost kQueueFull.
+ *  - Hàng sự kiện đầy thì bỏ snapshot đi cũ đã có bản sau, giữ tin dừng chưa
+ *    bị thay; vẫn đầy thì Lost kQueueFull.
  *------------------------------------------------------------------------------
  *  TÁC GIẢ   : HiepHoon
  *  TELEGRAM  : @Hoon9xx
@@ -26,6 +26,7 @@
 #include "secure/secure.hpp"
 
 #include <algorithm>
+#include <array>
 #include <atomic>
 #include <chrono>
 #include <cmath>
@@ -48,6 +49,9 @@ namespace game::client::session {
 namespace {
 
 using Clock = std::chrono::steady_clock;
+
+constexpr int kMaxResume = 4;
+constexpr std::chrono::milliseconds kResumeBase{200};
 
 // Hạn nối và bắt tay một cổng.
 constexpr net::Milliseconds kConnect{4000};
@@ -114,12 +118,140 @@ void forget(std::vector<std::byte>& bytes) noexcept {
     return std::visit(Pick{}, command);
 }
 
-// Tin Entity* chỉ là trạng thái tức thời: mất một tin không làm hỏng gì, tin sau thay nó.
-[[nodiscard]] bool droppable(const Event& event) noexcept {
+// Mất gói dừng hoặc chết cuối thì client không hội tụ và không biết thực thể đã chết.
+// Chỉ bỏ snapshot đi khi đã có bản sau cùng id, hoặc một tin đi thuần khi hàng đầy.
+
+[[nodiscard]] const protocol::GameServerMessage* message_of(const Event& event) noexcept {
     const World* world = std::get_if<World>(&event);
-    if (world == nullptr) return false;
-    return std::holds_alternative<protocol::EntityPos>(world->message) ||
-           std::holds_alternative<protocol::EntityVitals>(world->message);
+    if (world == nullptr) return nullptr;
+    return &world->message;
+}
+
+[[nodiscard]] bool batch_has_id(const protocol::EntityPosBatch& batch, std::uint32_t id) noexcept {
+    for (const protocol::PosEntry& place : batch.places)
+        if (place.id == id) return true;
+    return false;
+}
+
+[[nodiscard]] bool covers_pos(const protocol::GameServerMessage& message,
+    std::uint32_t id) noexcept {
+    const auto* pos = std::get_if<protocol::EntityPos>(&message);
+    const bool same = pos != nullptr && pos->id == id;
+    if (same) return true;
+    const auto* batch = std::get_if<protocol::EntityPosBatch>(&message);
+    if (batch == nullptr) return false;
+    return batch_has_id(*batch, id);
+}
+
+[[nodiscard]] bool event_covers_pos(const Event& event, std::uint32_t id) noexcept {
+    const protocol::GameServerMessage* message = message_of(event);
+    if (message == nullptr) return false;
+    return covers_pos(*message, id);
+}
+
+[[nodiscard]] bool later_pos(const std::vector<Event>& events, std::size_t at, std::uint32_t id,
+    const Event& incoming) noexcept {
+    for (std::size_t i = at + 1; i < events.size(); ++i)
+        if (event_covers_pos(events[i], id)) return true;
+    return event_covers_pos(incoming, id);
+}
+
+[[nodiscard]] bool covers_vitals(const protocol::GameServerMessage& message,
+    std::uint32_t id) noexcept {
+    const auto* vitals = std::get_if<protocol::EntityVitals>(&message);
+    if (vitals == nullptr) return false;
+    return vitals->id == id;
+}
+
+[[nodiscard]] bool event_covers_vitals(const Event& event, std::uint32_t id) noexcept {
+    const protocol::GameServerMessage* message = message_of(event);
+    if (message == nullptr) return false;
+    return covers_vitals(*message, id);
+}
+
+[[nodiscard]] bool later_vitals(const std::vector<Event>& events, std::size_t at, std::uint32_t id,
+    const Event& incoming) noexcept {
+    for (std::size_t i = at + 1; i < events.size(); ++i)
+        if (event_covers_vitals(events[i], id)) return true;
+    return event_covers_vitals(incoming, id);
+}
+
+[[nodiscard]] bool batch_replaced(const protocol::EntityPosBatch& batch,
+    const std::vector<Event>& events, std::size_t at, const Event& incoming) noexcept {
+    if (batch.places.empty()) return false;
+    for (const protocol::PosEntry& place : batch.places)
+        if (!later_pos(events, at, place.id, incoming)) return false;
+    return true;
+}
+
+[[nodiscard]] bool event_is_old(const Event& event, const std::vector<Event>& events,
+    std::size_t at, const Event& incoming) noexcept {
+    const protocol::GameServerMessage* message = message_of(event);
+    if (message == nullptr) return false;
+    const auto* pos = std::get_if<protocol::EntityPos>(message);
+    if (pos != nullptr) return later_pos(events, at, pos->id, incoming);
+    const auto* vitals = std::get_if<protocol::EntityVitals>(message);
+    if (vitals != nullptr) return later_vitals(events, at, vitals->id, incoming);
+    const auto* batch = std::get_if<protocol::EntityPosBatch>(message);
+    if (batch == nullptr) return false;
+    return batch_replaced(*batch, events, at, incoming);
+}
+
+std::size_t keep_fresh(std::vector<Event>& events, std::size_t at, std::size_t keep,
+    const Event& incoming) {
+    if (event_is_old(events[at], events, at, incoming)) return keep;
+    if (keep != at) events[keep] = std::move(events[at]);
+    return keep + 1;
+}
+
+void drop_old_snapshots(std::vector<Event>& events, const Event& incoming) {
+    std::size_t keep = 0;
+    for (std::size_t i = 0; i < events.size(); ++i)
+        keep = keep_fresh(events, i, keep, incoming);
+    events.resize(keep);
+}
+
+[[nodiscard]] bool walk_batch(const protocol::EntityPosBatch& batch) noexcept {
+    if (batch.places.empty()) return false;
+    for (const protocol::PosEntry& place : batch.places)
+        if (place.state != protocol::EntityState::kWalk) return false;
+    return true;
+}
+
+[[nodiscard]] bool pos_is_walk(const protocol::EntityPos& pos) noexcept {
+    return pos.state == protocol::EntityState::kWalk;
+}
+
+[[nodiscard]] bool pure_walk(const Event& event) noexcept {
+    const protocol::GameServerMessage* message = message_of(event);
+    if (message == nullptr) return false;
+    const auto* pos = std::get_if<protocol::EntityPos>(message);
+    if (pos != nullptr) return pos_is_walk(*pos);
+    const auto* batch = std::get_if<protocol::EntityPosBatch>(message);
+    if (batch == nullptr) return false;
+    return walk_batch(*batch);
+}
+
+[[nodiscard]] std::size_t oldest_walk(const std::vector<Event>& events) noexcept {
+    for (std::size_t i = 0; i < events.size(); ++i)
+        if (pure_walk(events[i])) return i;
+    return events.size();
+}
+
+void shed_walk(std::vector<Event>& events) {
+    if (events.size() < kEventCap) return;
+    const std::size_t at = oldest_walk(events);
+    if (at >= events.size()) return;
+    const auto index = static_cast<std::ptrdiff_t>(at);
+    events.erase(events.begin() + index);
+}
+
+void note_full(std::vector<Event>& events) {
+    events.clear();
+    Lost lost;
+    lost.fault = Fault::kQueueFull;
+    lost.phase = Phase::kLost;
+    events.emplace_back(lost);
 }
 
 // Một khung đã giải mật mã, tách đầu khung. Đúng một khung và không thừa byte (Link giao đúng một bản ghi).
@@ -204,18 +336,23 @@ struct Mailbox {
         static_cast<void>(wake.wait(lock, stop, [this] { return !commands.empty(); }));
     }
 
-    // false khi sự kiện không còn chỗ mà cũng không bỏ được tin nào: hàng đã bị xoá và chỉ còn Lost{kQueueFull}.
+    // Chờ lệnh, dừng, hoặc tới hạn nối lại.
+    void wait_until(const std::stop_token& stop, Clock::time_point until) {
+        std::unique_lock lock{guard};
+        static_cast<void>(wake.wait_until(lock, stop, until, [this] { return !commands.empty(); }));
+    }
+
+    // false khi không còn chỗ: hàng bị xoá và chỉ còn Lost{kQueueFull}. Không trả true nếu vừa bỏ
+    // tin mới.
     [[nodiscard]] bool push(Event event) {
         const std::scoped_lock lock{guard};
-        if (events.size() >= kEventCap) std::erase_if(events, droppable);
-        if (events.size() >= kEventCap) {
-            if (droppable(event)) return true;
-            events.clear();
-            events.emplace_back(Lost{.fault = Fault::kQueueFull, .phase = Phase::kLost, .reason = std::nullopt});
-            return false;
-        }
-        events.push_back(std::move(event));
-        return true;
+        if (events.size() >= kEventCap) drop_old_snapshots(events, event);
+        if (events.size() >= kEventCap) shed_walk(events);
+        const bool room = events.size() < kEventCap;
+        if (room) events.push_back(std::move(event));
+        if (room) return true;
+        note_full(events);
+        return false;
     }
 
     [[nodiscard]] std::vector<Event> drain() {
@@ -229,13 +366,28 @@ class Worker {
 public:
     Worker(Mailbox& box, std::stop_token stop, Timing timing) : box_(&box), stop_(std::move(stop)), timing_(timing) {}
 
+    void take_commands() {
+        for (;;) {
+            std::optional<Command> command = box_->pop();
+            if (!command) return;
+            Command held = std::move(*command);
+            handle(held);
+        }
+    }
+
+    void turn() {
+        const bool due = !line_ && want_resume_ && Clock::now() >= resume_at_;
+        if (due) try_resume();
+        if (!line_ && want_resume_) box_->wait_until(stop_, resume_at_);
+        if (!line_ && !want_resume_) box_->wait_for_command(stop_);
+        take_commands();
+        if (line_ && !stop_.stop_requested()) pump();
+    }
+
     void run() {
         core::set_thread_name("net");
-        while (!stop_.stop_requested()) {
-            if (!line_) box_->wait_for_command(stop_);
-            for (std::optional<Command> command = box_->pop(); command; command = box_->pop()) handle(*command);
-            if (line_ && !stop_.stop_requested()) pump();
-        }
+        while (!stop_.stop_requested())
+            turn();
         farewell();
     }
 
@@ -256,13 +408,109 @@ private:
         emit(Rejected{.ask = ask, .request = request, .code = code});
     }
 
-    // Mất phiên: báo, đóng link, về kLost.
-    void lose(Fault fault, std::optional<protocol::DisconnectReason> reason = std::nullopt) {
-        const Phase where = phase_;
+    [[nodiscard]] LinkBreak break_of(Fault fault) const noexcept {
+        if (fault == Fault::kUnreachable) return LinkBreak::kDown;
+        if (fault == Fault::kTimeout) return LinkBreak::kTimeout;
+        return LinkBreak::kFatal;
+    }
+
+    void wipe_token() noexcept {
+        secure::wipe_bytes(token_);
+        have_token_ = false;
+        token_sent_ = false;
+    }
+
+    void give_up() {
+        want_resume_ = false;
+        tries_ = 0;
+        wipe_token();
         line_.reset();
         roster_.clear();
         set_phase(Phase::kLost);
-        emit(Lost{.fault = fault, .phase = where, .reason = reason});
+        emit(Lost{.fault = broke_, .phase = broke_where_, .reason = broke_reason_});
+    }
+
+    [[nodiscard]] std::chrono::milliseconds resume_wait(int tries) const noexcept {
+        int shift = tries - 1;
+        if (shift < 0) shift = 0;
+        if (shift > 3) shift = 3;
+        return kResumeBase * (1 << shift);
+    }
+
+    void schedule_resume(Phase where, Fault fault,
+        std::optional<protocol::DisconnectReason> reason) {
+        if (!want_resume_) {
+            broke_ = fault;
+            broke_where_ = where;
+            broke_reason_ = reason;
+        }
+        if (tries_ >= kMaxResume) {
+            give_up();
+            return;
+        }
+        ++tries_;
+        want_resume_ = true;
+        resume_at_ = Clock::now() + resume_wait(tries_);
+        set_phase(Phase::kResuming);
+    }
+
+    // Mất phiên. Đứt socket lúc đang chơi thì hẹn Resume; hết lượt hoặc lỗi nặng thì báo Lost.
+    void lose(Fault fault, std::optional<protocol::DisconnectReason> reason = std::nullopt) {
+        const Phase where = phase_;
+        line_.reset();
+        const bool again = resume_again(token_sent_, break_of(fault), where, have_token_);
+        if (again) {
+            schedule_resume(where, fault, reason);
+            return;
+        }
+        if (!want_resume_) {
+            broke_ = fault;
+            broke_where_ = where;
+            broke_reason_ = reason;
+        }
+        give_up();
+    }
+
+    void try_resume() {
+        if (!home_held_ || !have_token_) {
+            give_up();
+            return;
+        }
+        link::Link::HelloDesc desc = hello_for(home_game_, home_key_);
+        link::LinkResult<link::Link> opened = link::Link::open(desc);
+        if (!opened) {
+            lose(fault_of(opened.error()));
+            return;
+        }
+        std::vector<std::byte> frame;
+        protocol::Resume message;
+        message.token = token_;
+        if (!protocol::encode(frame, message)) {
+            lose(Fault::kProtocol);
+            return;
+        }
+        const link::LinkResult<void> sent = opened->send_frame(frame, kSend);
+        if (!sent) {
+            lose(fault_of(sent.error()));
+            return;
+        }
+        // Gate xoá phiên ngay khi nhận Resume. Gửi lại token này sẽ nhận kNoSession.
+        token_sent_ = true;
+        const Clock::time_point now = Clock::now();
+        line_.emplace(std::move(*opened));
+        heard_ = now;
+        next_ping_ = now + beat_;
+        arm_reply();
+    }
+
+    using Token = std::array<std::byte, protocol::kSessionStartTokenBytes>;
+
+    void keep_token(const Token& token) noexcept {
+        token_ = token;
+        have_token_ = true;
+        token_sent_ = false;
+        tries_ = 0;
+        want_resume_ = false;
     }
 
     void arm_reply() noexcept { reply_by_ = Clock::now() + timing_.reply; }
@@ -289,6 +537,11 @@ private:
     }
 
     void perform(SignIn& request) {
+        want_resume_ = false;
+        wipe_token();
+        home_game_ = request.gate.game;
+        home_key_ = request.gate.key;
+        home_held_ = true;
         close_link();
         set_phase(begin(phase_, Ask::kSignIn));
         std::optional<std::string> ticket = obtain_ticket(request);
@@ -320,6 +573,8 @@ private:
     }
 
     void perform(Drop& /*request*/) {
+        want_resume_ = false;
+        wipe_token();
         farewell();
         close_link();
         set_phase(Phase::kIdle);
@@ -491,7 +746,8 @@ private:
     }
 
     [[nodiscard]] bool is_waiting() const noexcept {
-        return phase_ == Phase::kSigningIn || phase_ == Phase::kEditing || phase_ == Phase::kEntering;
+        const bool signing = phase_ == Phase::kSigningIn || phase_ == Phase::kEditing;
+        return signing || phase_ == Phase::kEntering || phase_ == Phase::kResuming;
     }
 
     void check_deadlines(Clock::time_point now) {
@@ -588,6 +844,8 @@ private:
             emit(Roster{.characters = std::move(list->characters)});
             return;
         }
+        const auto* started = std::get_if<protocol::SessionStart>(&message);
+        if (started != nullptr) keep_token(started->token);
         const auto* spot = std::get_if<protocol::Position>(&message);
         if (spot != nullptr) on_placed(*spot, Clock::now());
         if (spot != nullptr && before == Phase::kEntering) {
@@ -603,7 +861,11 @@ private:
             return;
         }
         set_phase(step.next);
-        if (step.next == Phase::kIdle) close_link();
+        if (step.next == Phase::kIdle || step.next == Phase::kLost) {
+            want_resume_ = false;
+            wipe_token();
+            close_link();
+        }
         reject(pending_, refused.request, refused.code);
     }
 
@@ -627,6 +889,18 @@ private:
     std::optional<Footing> sent_;
     Clock::time_point next_move_ = epoch_;
     Clock::time_point quiet_until_ = epoch_;
+    net::Endpoint home_game_{};
+    secure::PublicKey home_key_{};
+    bool home_held_ = false;
+    Token token_{};
+    bool have_token_ = false;
+    bool token_sent_ = false;
+    bool want_resume_ = false;
+    int tries_ = 0;
+    Clock::time_point resume_at_ = epoch_;
+    Fault broke_ = Fault::kUnreachable;
+    Phase broke_where_ = Phase::kIdle;
+    std::optional<protocol::DisconnectReason> broke_reason_{};
 };
 
 } // namespace

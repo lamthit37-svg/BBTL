@@ -38,6 +38,8 @@ struct GateResume {
 
 struct GateClient {
     std::int64_t min_version = 0;
+    // Rỗng: không lọc bản dựng. Có số: Hello.build phải nằm trong danh sách.
+    std::vector<std::int64_t> allowed_builds;
 };
 
 struct GateIpFilter {

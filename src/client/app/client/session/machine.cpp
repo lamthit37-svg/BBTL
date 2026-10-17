@@ -33,7 +33,7 @@ enum class Kind : std::uint8_t {
     // SessionStart, ContentKey, ContentStamp, UiConfig: phần mở đầu phiên sau EnterGame.
     kOpening,
     kPosition,
-    // SceneEnter, EntityAppear, EntityDisappear, EntityPos, EntityVitals.
+    // SceneEnter, EntityAppear, EntityDisappear, EntityPos, EntityPosBatch, EntityVitals.
     kWorld,
     // Welcome: chỉ hợp lệ một lần lúc bắt tay, lúc đó Link đã nhận.
     kStray,
@@ -101,6 +101,15 @@ constexpr Step kViolation{.next = Phase::kLost, .outcome = Outcome::kViolation};
     return kViolation;
 }
 
+[[nodiscard]] Step resuming(Kind kind) noexcept {
+    const bool keep = kind == Kind::kOpening || kind == Kind::kWorld;
+    if (keep) return stay(Phase::kResuming, Outcome::kDeliver);
+    if (kind == Kind::kPosition) return stay(Phase::kInGame, Outcome::kDeliver);
+    if (kind == Kind::kReject) return stay(Phase::kLost, Outcome::kRejected);
+    if (kind == Kind::kPong) return stay(Phase::kResuming, Outcome::kQuiet);
+    return kViolation;
+}
+
 [[nodiscard]] Step in_game(Kind kind) noexcept {
     if (kind == Kind::kOpening || kind == Kind::kWorld || kind == Kind::kPosition) {
         return stay(Phase::kInGame, Outcome::kDeliver);
@@ -112,9 +121,20 @@ constexpr Step kViolation{.next = Phase::kLost, .outcome = Outcome::kViolation};
 
 } // namespace
 
+bool can_resume(LinkBreak kind, Phase phase, bool have_token) noexcept {
+    if (!have_token || kind == LinkBreak::kFatal) return false;
+    return phase == Phase::kInGame || phase == Phase::kEntering || phase == Phase::kResuming;
+}
+
+bool resume_again(bool token_sent, LinkBreak kind, Phase phase, bool have_token) noexcept {
+    if (token_sent) return false;
+    return can_resume(kind, phase, have_token);
+}
+
 bool allows(Phase phase, Ask ask) noexcept {
     switch (ask) {
-    case Ask::kSignIn: return phase == Phase::kIdle || phase == Phase::kLost;
+    case Ask::kSignIn:
+        return phase == Phase::kIdle || phase == Phase::kLost || phase == Phase::kResuming;
     case Ask::kCreate:
     case Ask::kDelete:
     case Ask::kEnter: return phase == Phase::kChoosing;
@@ -146,6 +166,7 @@ Step on_server(Phase phase, const protocol::GameServerMessage& message) {
     case Phase::kEditing: return editing(kind);
     case Phase::kEntering: return entering(kind);
     case Phase::kInGame: return in_game(kind);
+    case Phase::kResuming: return resuming(kind);
     case Phase::kLost: return stay(Phase::kLost, Outcome::kQuiet);
     }
     return kViolation;

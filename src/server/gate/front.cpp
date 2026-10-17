@@ -123,6 +123,17 @@ void fail_listen(std::string_view name, net::NetError error) {
     return std::ranges::all_of(rows, add);
 }
 
+std::size_t build_count(const config::Gate& gate) noexcept {
+    const std::size_t listed = gate.client.allowed_builds.size();
+    if (listed > 32) return 32;
+    return listed;
+}
+
+void store_build(Limits& limits, const config::Gate& gate, std::size_t index) noexcept {
+    const std::int64_t value = gate.client.allowed_builds[index];
+    limits.allowed_builds[index] = static_cast<std::uint32_t>(value);
+}
+
 [[nodiscard]] Limits limits_of(const config::Gate& gate) noexcept {
     Limits limits;
     limits.max_connections = static_cast<std::size_t>(gate.limits.max_connections);
@@ -132,6 +143,10 @@ void fail_listen(std::string_view name, net::NetError error) {
     limits.frame_bytes = static_cast<std::size_t>(gate.limits.client_frame_bytes);
     limits.per_second = gate.limits.messages_per_second;
     limits.min_version = static_cast<std::uint16_t>(gate.client.min_version);
+    const std::size_t builds = build_count(gate);
+    limits.allowed_build_count = static_cast<std::uint8_t>(builds);
+    for (std::size_t index = 0; index < builds; ++index)
+        store_build(limits, gate, index);
     limits.per_ip_prefix = static_cast<std::uint32_t>(gate.limits.per_ip_prefix);
     limits.resume_grace_ns = gate.resume.grace_ms.count() * kNsPerMs;
     limits.resume_bind_ip = gate.resume.bind_to_ip;
@@ -145,7 +160,8 @@ void fail_listen(std::string_view name, net::NetError error) {
     }
     const bool frame_ok = gate.limits.client_frame_bytes >= 0 && gate.limits.client_frame_bytes <= 4096;
     const bool version_ok = gate.client.min_version >= 0 && gate.client.min_version <= 65535;
-    if (frame_ok && version_ok) return true;
+    const bool builds_ok = gate.client.allowed_builds.size() <= 32;
+    if (frame_ok && version_ok && builds_ok) return true;
     std::println(stderr, "gate: trần khung hoặc phiên bản tối thiểu ngoài miền bản này");
     return false;
 }

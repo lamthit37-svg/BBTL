@@ -332,6 +332,41 @@ void session_goodbye_in_game_closes_with_reason(Context& context) {
     context.expect(lost != nullptr && lost->reason == protocol::DisconnectReason::kKicked, "mang lý do của máy chủ");
 }
 
+[[nodiscard]] bool kept_idle(const std::vector<Event>& seen, std::uint32_t id) {
+    for (const Event& event : seen) {
+        const auto* world = std::get_if<client::session::World>(&event);
+        if (world == nullptr) continue;
+        const auto* pos = std::get_if<protocol::EntityPos>(&world->message);
+        if (pos == nullptr) continue;
+        if (pos->id == id && pos->state == protocol::EntityState::kIdle) return true;
+    }
+    return false;
+}
+
+[[nodiscard]] bool kept_vitals(const std::vector<Event>& seen, std::uint32_t id) {
+    for (const Event& event : seen) {
+        const auto* world = std::get_if<client::session::World>(&event);
+        if (world == nullptr) continue;
+        const auto* vitals = std::get_if<protocol::EntityVitals>(&world->message);
+        if (vitals == nullptr) continue;
+        if (vitals->id == id && vitals->hp_percent == 0) return true;
+    }
+    return false;
+}
+
+[[nodiscard]] bool kept_batch_idle(const std::vector<Event>& seen, std::uint32_t id) {
+    for (const Event& event : seen) {
+        const auto* world = std::get_if<client::session::World>(&event);
+        if (world == nullptr) continue;
+        const auto* batch = std::get_if<protocol::EntityPosBatch>(&world->message);
+        if (batch == nullptr) continue;
+        for (const protocol::PosEntry& place : batch->places) {
+            if (place.id == id && place.state == protocol::EntityState::kIdle) return true;
+        }
+    }
+    return false;
+}
+
 void session_entity_flood_is_dropped_not_fatal(Context& context) {
     const Aftermath after = enter_then(Mode::kFloodDroppable, context);
     context.expect(after.is_lost_phase, "pha kLost vì Goodbye cuối");
@@ -347,6 +382,9 @@ void session_entity_flood_is_dropped_not_fatal(Context& context) {
     context.expect(is_entered_seen, "tin quan trọng (Entered) còn nguyên");
     context.expect(positions < 1500, "tin vị trí thừa đã bị bỏ");
     context.expect(after.seen.size() <= client::session::kEventCap, "hàng đợi không vượt trần");
+    context.expect(kept_idle(after.seen, 42), "tin dừng cuối của id 42 còn");
+    context.expect(kept_vitals(after.seen, 42), "sinh lực 0 của id 42 còn");
+    context.expect(kept_batch_idle(after.seen, 43), "lô dừng của id 43 còn");
 }
 
 void session_critical_flood_ends_with_queue_full(Context& context) {

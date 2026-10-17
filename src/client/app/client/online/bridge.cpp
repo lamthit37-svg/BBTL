@@ -157,6 +157,38 @@ constexpr float kDirectionSteps = 65536.0F;
     return cast::Pose::kIdle;
 }
 
+struct Spot {
+    std::uint32_t id = 0;
+    float x_cm = 0.0F;
+    float z_cm = 0.0F;
+    std::uint16_t direction = 0;
+    std::uint32_t tick = 0;
+    protocol::EntityState state = protocol::EntityState::kIdle;
+};
+
+template <typename Place>
+[[nodiscard]] Spot spot_of(const Place& pos) {
+    Spot spot;
+    spot.id = pos.id;
+    spot.x_cm = pos.x_cm;
+    spot.z_cm = pos.z_cm;
+    spot.direction = pos.direction;
+    spot.tick = pos.tick;
+    spot.state = pos.state;
+    return spot;
+}
+
+[[nodiscard]] cast::Moved moved_note(Spot spot) {
+    cast::Moved moved;
+    moved.id = spot.id;
+    moved.x = meters(spot.x_cm);
+    moved.z = meters(spot.z_cm);
+    moved.facing = facing_of(spot.direction);
+    moved.tick = spot.tick;
+    moved.pose = pose_of(spot.state);
+    return moved;
+}
+
 // CombatEvent::flags bit 0: hội tâm (chí mạng).
 constexpr std::uint8_t kCriticalFlag = 1;
 
@@ -203,12 +235,7 @@ struct NotePick {
         return cast::Vanish{.id = gone.id};
     }
     std::optional<cast::Note> operator()(const protocol::EntityPos& moved) const {
-        return cast::Moved{.id = moved.id,
-            .x = meters(moved.x_cm),
-            .z = meters(moved.z_cm),
-            .facing = facing_of(moved.direction),
-            .tick = moved.tick,
-            .pose = pose_of(moved.state)};
+        return moved_note(spot_of(moved));
     }
     std::optional<cast::Note> operator()(const protocol::EntityVitals& vitals) const {
         return cast::Hurt{.id = vitals.id, .hp_percent = vitals.hp_percent};
@@ -580,6 +607,43 @@ std::optional<OnlineReply> reply_of(const session::Event& event) {
     return std::visit(Pick{}, event);
 }
 
+using Entry = protocol::PosEntry;
+
+void push_place(Notes& notes, const Entry& place, std::size_t cap, std::size_t& added) {
+    if (notes.size() >= cap) return;
+    const cast::Moved moved = moved_note(spot_of(place));
+    notes.push_back(moved);
+    ++added;
+}
+
+std::size_t append_positions(Notes& notes, const PosBatch& batch, std::size_t cap) {
+    std::size_t added = 0;
+    for (const Entry& place : batch.places)
+        push_place(notes, place, cap, added);
+    return added;
+}
+
+void keep_one(Notes& notes, cast::Note note) {
+    const bool is_move = std::holds_alternative<cast::Moved>(note);
+    const bool is_hurt = std::holds_alternative<cast::Hurt>(note);
+    const bool is_state = is_move || is_hurt;
+    if (is_state && notes.size() >= kNoteCap) return;
+    notes.push_back(std::move(note));
+}
+
+void keep_world_note(const session::Event& event, Notes& notes) {
+    const session::World* world = std::get_if<session::World>(&event);
+    const protocol::EntityPosBatch* batch = nullptr;
+    if (world != nullptr) batch = std::get_if<protocol::EntityPosBatch>(&world->message);
+    if (batch != nullptr) {
+        static_cast<void>(append_positions(notes, *batch, kNoteCap));
+        return;
+    }
+    std::optional<cast::Note> note = note_of(event);
+    if (!note) return;
+    keep_one(notes, std::move(*note));
+}
+
 std::optional<cast::Note> note_of(const session::Event& event) {
     const auto* world = std::get_if<session::World>(&event);
     if (world == nullptr) return std::nullopt;
@@ -651,11 +715,7 @@ std::vector<OnlineReply> Bridge::collect() {
             if (heard_.size() >= kHeardCap) heard_.erase(heard_.begin());
             heard_.push_back(std::move(*heard));
         }
-        std::optional<cast::Note> note = note_of(event);
-        if (!note) continue;
-        const bool is_state = std::holds_alternative<cast::Moved>(*note) || std::holds_alternative<cast::Hurt>(*note);
-        if (is_state && notes_.size() >= kNoteCap) continue;
-        notes_.push_back(std::move(*note));
+        keep_world_note(event, notes_);
     }
     return replies;
 }

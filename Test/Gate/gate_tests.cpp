@@ -1,5 +1,6 @@
 // Giới hạn và tin mức phiên của bảng kết nối, không mở socket và không ngủ.
 #include "gate/table.hpp"
+#include "zone/outbox.hpp"
 #include "metrics/metrics.hpp"
 #include "net/net.hpp"
 #include "protocol/messages.hpp"
@@ -34,6 +35,8 @@ using gate::Table;
 using metrics::Counter;
 using metrics::Gauge;
 using secure::ByteView;
+
+static_assert(zone::kPosFrameMax + secure::kRecordHeaderBytes + secure::kTagBytes <= gate::kOutboxBytes);
 
 constexpr net::Ipv4 kOne{10, 0, 0, 1};
 constexpr net::Ipv4 kTwo{10, 0, 0, 2};
@@ -190,6 +193,27 @@ void drain(Linked& linked) {
     linked.table.mark_sent(linked.handle, pending.size());
 }
 
+void unknown_build_is_rejected(Context& context) {
+    const secure::Identity identity = make_identity();
+    gate::Limits limits = small_limits();
+    limits.allowed_builds[0] = 1;
+    limits.allowed_build_count = 1;
+    Linked linked = connected(identity, limits);
+    std::vector<std::byte> frame;
+    protocol::Hello hello;
+    hello.version = 1;
+    hello.platform = protocol::Platform::kWindows;
+    hello.build = 7;
+    core::check(protocol::encode(frame, hello).has_value(), "mã hoá Hello");
+    send_bytes(linked, frame, kNow);
+    drain(linked);
+    context.expect(!linked.table.is_live(linked.handle), "bản lạ bị ngắt");
+    context.expect(linked.table.drops(Drop::kBuild) == 1, "đếm bản dựng lạ");
+    Linked known = connected(identity, limits);
+    send_hello(known, 1);
+    context.expect(known.table.is_live(known.handle), "bản 1 vẫn vào");
+}
+
 void ping_and_rate(Context& context) {
     const secure::Identity identity = make_identity();
     Linked linked = connected(identity, small_limits());
@@ -213,6 +237,16 @@ void reject_version(Context& context) {
     send_hello(high, 99);
     drain(high);
     context.expect(high.table.drops(Drop::kVersion) == 1, "đếm phiên bản cao");
+    Limits current = small_limits();
+    current.min_version = protocol::kVersion;
+    Linked old = connected(identity, current);
+    send_hello(old, static_cast<std::uint16_t>(protocol::kVersion - 1));
+    drain(old);
+    context.expect(!old.table.is_live(old.handle), "bản giao thức cũ hơn mức tối thiểu bị ngắt");
+    context.expect(old.table.drops(Drop::kVersion) == 1, "đếm từ chối lúc bắt tay");
+    Linked same = connected(identity, current);
+    send_hello(same, protocol::kVersion);
+    context.expect(same.table.is_live(same.handle), "đúng bản giao thức thì vào");
 }
 
 void foreign_is_not_decoded(Context& context) {
@@ -412,7 +446,7 @@ struct DropMetric {
     Counter counter;
 };
 
-constexpr std::array<DropMetric, 16> kDropMetrics{{
+constexpr std::array<DropMetric, 17> kDropMetrics{{
     {.reason = Drop::kHandshake, .counter = Counter::kGateDropHandshake},
     {.reason = Drop::kIdle, .counter = Counter::kGateDropIdle},
     {.reason = Drop::kRate, .counter = Counter::kGateDropRate},
@@ -425,6 +459,7 @@ constexpr std::array<DropMetric, 16> kDropMetrics{{
     {.reason = Drop::kSlow, .counter = Counter::kGateDropSlow},
     {.reason = Drop::kForeign, .counter = Counter::kGateDropForeign},
     {.reason = Drop::kVersion, .counter = Counter::kGateDropVersion},
+    {.reason = Drop::kBuild, .counter = Counter::kGateDropVersion},
     {.reason = Drop::kLogout, .counter = Counter::kGateDropLogout},
     {.reason = Drop::kClosed, .counter = Counter::kGateDropClosed},
     {.reason = Drop::kStop, .counter = Counter::kGateDropStop},
@@ -525,6 +560,7 @@ constexpr std::array kCases{
     Case{.name = "deny_and_allow", .body = deny_and_allow},
     Case{.name = "handshake_times_out", .body = handshake_times_out},
     Case{.name = "session_round_trip", .body = session_round_trip},
+    Case{.name = "unknown_build_is_rejected", .body = unknown_build_is_rejected},
     Case{.name = "ping_and_rate", .body = ping_and_rate},
     Case{.name = "reject_version", .body = reject_version},
     Case{.name = "foreign_is_not_decoded", .body = foreign_is_not_decoded},

@@ -51,6 +51,12 @@ namespace game::client::online {
 // quay về +Z) thành góc của client (atan2(dx, dz)).
 [[nodiscard]] std::optional<cast::Note> note_of(const session::Event& event);
 
+using Notes = std::vector<cast::Note>;
+using PosBatch = protocol::EntityPosBatch;
+
+// Đổ từng vị trí của một lô đã giải mã xong, theo thứ tự. Đầy cap thì dừng.
+[[nodiscard]] std::size_t append_positions(Notes& notes, const PosBatch& batch, std::size_t cap);
+
 // Một sự kiện của phiên thành tin hội thoại, sổ nhiệm vụ hay chỉ số bản thân; không có khi sự kiện không thuộc nhóm đó. Tin
 // Reject của việc ngoài hộp thoại (mã tin ngoài 0x0601..0x0606) không phải của nhóm này. Chữ giữ nguyên như máy chủ dựng.
 [[nodiscard]] std::optional<ui::panel::talk::Hear> hear_of(const session::Event& event);

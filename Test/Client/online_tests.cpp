@@ -401,6 +401,30 @@ void note_of_converts_units(Context& context) {
     const auto* back_to = pulled ? std::get_if<cast::Pulled>(&*pulled) : nullptr;
     context.expect(back_to != nullptr && near_value(back_to->x, 3.0F) && near_value(back_to->z, 0.5F), "Position đang chơi là Pulled");
 
+    protocol::EntityPosBatch batch;
+    protocol::PosEntry first;
+    first.id = 4;
+    first.x_cm = 250.0F;
+    first.z_cm = 50.0F;
+    first.direction = 0;
+    first.tick = 2;
+    first.state = protocol::EntityState::kWalk;
+    protocol::PosEntry second = first;
+    second.id = 5;
+    second.x_cm = 450.0F;
+    second.tick = 3;
+    second.state = protocol::EntityState::kIdle;
+    batch.places.push_back(first);
+    batch.places.push_back(second);
+    std::vector<cast::Note> notes;
+    const std::size_t added = client::online::append_positions(notes, batch, 8);
+    context.expect(added == 2 && notes.size() == 2, "lô thành hai tin đi, đúng thứ tự");
+    const auto* lead = std::get_if<cast::Moved>(&notes[0]);
+    const auto* tail = std::get_if<cast::Moved>(&notes[1]);
+    context.expect(lead != nullptr && lead->id == 4 && near_value(lead->x, 2.5F) && lead->pose == cast::Pose::kWalk, "mục đầu");
+    context.expect(tail != nullptr && tail->id == 5 && near_value(tail->x, 4.5F) && tail->tick == 3, "mục sau");
+    notes.clear();
+    context.expect(client::online::append_positions(notes, batch, 0) == 0 && notes.empty(), "đầy trần thì không áp một phần");
     context.expect(!client::online::note_of(Event{World{.message = protocol::UiConfig{}}}), "UiConfig không phải tin thế giới");
     context.expect(!client::online::note_of(Event{client::session::Roster{}}), "Roster không phải tin thế giới");
 }

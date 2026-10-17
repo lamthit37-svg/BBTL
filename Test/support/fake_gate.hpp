@@ -450,12 +450,7 @@ private:
                             line.send(protocol::Position{.x_cm = kStartX, .z_cm = kStartZ, .tick = 0});
         if (!opened) return false;
         const Mode mode = mode_.load(std::memory_order_relaxed);
-        if (mode == Mode::kFloodDroppable) {
-            for (std::uint32_t at = 0; at < 1500; ++at) {
-                if (!line.send(protocol::EntityPos{.id = at, .x_cm = 1.0F, .z_cm = 1.0F, .direction = 0, .tick = at})) return false;
-            }
-            return line.send(protocol::Goodbye{.reason = protocol::DisconnectReason::kKicked});
-        }
+        if (mode == Mode::kFloodDroppable) return send_walk_flood(line);
         if (mode == Mode::kFloodCritical) {
             for (std::uint32_t at = 0; at < 400; ++at) {
                 protocol::EntityAppear shown;
@@ -473,6 +468,39 @@ private:
             .self_id = kSelfId};
         if (!line.send(entered)) return false;
         return mode == Mode::kWorld ? send_world(line) : true;
+    }
+
+    // 1500 tin đi của 1500 thực thể, rồi tin dừng, sinh lực và một lô dừng. Goodbye đóng phiên.
+    [[nodiscard]] static bool send_walk_flood(ServerLine& line) {
+        for (std::uint32_t at = 0; at < 1500; ++at) {
+            protocol::EntityPos step;
+            step.id = at;
+            step.x_cm = 1.0F;
+            step.z_cm = 1.0F;
+            step.tick = at;
+            step.state = protocol::EntityState::kWalk;
+            if (!line.send(step)) return false;
+        }
+        protocol::EntityPos stopped;
+        stopped.id = 42;
+        stopped.x_cm = 2.0F;
+        stopped.z_cm = 2.0F;
+        stopped.tick = 1500;
+        stopped.state = protocol::EntityState::kIdle;
+        protocol::EntityVitals vitals;
+        vitals.id = 42;
+        vitals.hp_percent = 0;
+        protocol::PosEntry place;
+        place.id = 43;
+        place.x_cm = 3.0F;
+        place.z_cm = 3.0F;
+        place.tick = 1500;
+        place.state = protocol::EntityState::kIdle;
+        protocol::EntityPosBatch batch;
+        batch.places.push_back(place);
+        const bool sent = line.send(stopped) && line.send(vitals) && line.send(batch);
+        if (!sent) return false;
+        return line.send(protocol::Goodbye{.reason = protocol::DisconnectReason::kKicked});
     }
 
     // Một quái id 7 hiện ở (170 m, 170 m) hướng +Z, đi tới (171 m, 170 m), mất nửa sinh lực rồi biến mất.

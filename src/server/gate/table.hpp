@@ -6,6 +6,7 @@
 #include "net/net.hpp"
 #include "secure/secure.hpp"
 
+#include <array>
 #include <cstddef>
 #include <cstdint>
 #include <functional>
@@ -65,6 +66,8 @@ enum class Drop : std::uint8_t {
     kSlow,
     kForeign,
     kVersion,
+    // Bản dựng client không nằm trong danh sách cho phép.
+    kBuild,
     kLogout,
     kClosed,
     kStop,
@@ -90,6 +93,9 @@ struct Limits {
     std::size_t frame_bytes = 0;
     std::int64_t per_second = 0;
     std::uint16_t min_version = 1;
+    // Rỗng (count = 0): mọi Hello.build đều được. Có phần tử: chỉ những số này.
+    std::array<std::uint32_t, 32> allowed_builds{};
+    std::uint8_t allowed_build_count = 0;
     // Trần per_ip đếm theo dải /per_ip_prefix (gate.toml [limits] per_ip_prefix).
     std::uint32_t per_ip_prefix = 32;
     // gate.toml [resume].

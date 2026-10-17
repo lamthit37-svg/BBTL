@@ -16,14 +16,16 @@
  *============================================================================*/
 
 // Cách hỏng đã tính trước (CL-03):
-//   mạng đứt giữa chừng           -> Lost{kUnreachable} và đóng link; lệnh kế tiếp là SignIn hay Drop.
-//   máy chủ gửi rác, khung hỏng   -> Lost{kProtocol} (record hỏng thì kSecure).
+//   mạng đứt lúc đang chơi        -> nối lại bằng Resume tối đa 4 lần; hết lượt thì
+//   Lost{kUnreachable}. máy chủ gửi rác, khung hỏng   -> Lost{kProtocol} (record hỏng thì kSecure).
 //   tin lạ hay sai trình tự       -> machine.hpp trả kViolation, Lost{kProtocol}.
-//   máy chủ im                    -> mỗi lần chờ trả lời có hạn Timing::reply; im quá Timing::silence thì Lost{kTimeout}.
-//   luồng game không rút sự kiện  -> hàng đợi có trần kEventCap: tin Entity* bỏ trước, nếu vẫn đầy thì Lost{kQueueFull}.
-//   hàng đợi lệnh đầy             -> submit trả false.
-//   thoát giữa lúc bắt tay        -> Link::open nhận stop_token nên huỷ trong khoảng 50 ms; hàm huỷ chờ luồng.
-//   mật khẩu                      -> chỉ nằm trong lệnh SignIn và khung gửi đi; cả hai bị xoá ngay sau khi gửi.
+//   máy chủ im                    -> mỗi lần chờ trả lời có hạn Timing::reply; im quá
+//   Timing::silence thì Lost{kTimeout}. luồng game không rút sự kiện  -> hàng đợi có trần
+//   kEventCap: bỏ snapshot đi đã có bản sau. Giữ dừng, chết, sinh lực chưa bị thay.
+//   Vẫn đầy thì Lost{kQueueFull}. hàng đợi lệnh đầy -> submit
+//   trả false. thoát giữa lúc bắt tay        -> Link::open nhận stop_token nên huỷ trong khoảng 50
+//   ms; hàm huỷ chờ luồng. mật khẩu                      -> chỉ nằm trong lệnh SignIn và khung gửi
+//   đi; cả hai bị xoá ngay sau khi gửi.
 // Bản mới của dự án.
 
 #pragma once

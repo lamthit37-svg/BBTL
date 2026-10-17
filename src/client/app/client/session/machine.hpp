@@ -41,6 +41,8 @@ enum class Phase : std::uint8_t {
     kEntering,
     // Đã vào game: nhận tin thế giới.
     kInGame,
+    // Đứt socket lúc đang chơi: đang nối lại bằng Resume, chưa báo Lost.
+    kResuming,
     // Kết nối hỏng hay bị máy chủ đóng; chờ Drop để về kIdle.
     kLost,
 };
@@ -48,8 +50,17 @@ enum class Phase : std::uint8_t {
 // Việc người chơi nhờ phiên làm.
 enum class Ask : std::uint8_t { kSignIn, kCreate, kDelete, kEnter, kDrop, kSpeak };
 
-// Việc ask có được nhận ở pha phase không. kSignIn nhận ở kIdle và kLost (nối lại sau khi hỏng không cần Drop),
+// Việc ask có được nhận ở pha phase không. kSignIn nhận ở kIdle, kLost và kResuming.
 // kDrop nhận ở mọi pha, kSpeak chỉ nhận ở kInGame.
+
+// Đứt link có nên gửi Resume không. Chỉ khi đang chơi hoặc đang nối lại, và đã có token.
+enum class LinkBreak : std::uint8_t { kDown, kTimeout, kFatal };
+
+[[nodiscard]] bool can_resume(LinkBreak kind, Phase phase, bool have_token) noexcept;
+
+// Token Resume dùng một lần: gửi xong mà đứt thì không gửi lại.
+[[nodiscard]] bool resume_again(bool token_sent, LinkBreak kind, Phase phase,
+    bool have_token) noexcept;
 [[nodiscard]] bool allows(Phase phase, Ask ask) noexcept;
 
 // Pha ngay sau khi nhận ask ở pha phase (đã qua allows).

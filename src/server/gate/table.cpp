@@ -379,6 +379,7 @@ void count(const Engine& state, metrics::Counter which) noexcept {
     case Drop::kSlow: return metrics::Counter::kGateDropSlow;
     case Drop::kForeign: return metrics::Counter::kGateDropForeign;
     case Drop::kVersion: return metrics::Counter::kGateDropVersion;
+    case Drop::kBuild: return metrics::Counter::kGateDropVersion;
     case Drop::kLogout: return metrics::Counter::kGateDropLogout;
     case Drop::kClosed: return metrics::Counter::kGateDropClosed;
     case Drop::kStop: return metrics::Counter::kGateDropStop;
@@ -770,15 +771,34 @@ void relay_up(Engine& state, Slot& slot, std::uint32_t index, const protocol::Ga
     if (!sent) state.zone.lost = true;
 }
 
-void on_hello(Engine& state, Slot& slot, std::uint32_t index, const protocol::Hello& hello, std::int64_t now) {
+using Why = protocol::DisconnectReason;
+
+void deny_hello(Engine& state, Slot& slot, std::uint32_t index, Why why, Drop drop) {
+    send_goodbye(state, slot, index, why, drop);
+}
+
+bool build_listed(const Limits& limits, std::uint32_t build) noexcept {
+    if (limits.allowed_build_count == 0) return true;
+    for (std::uint8_t index = 0; index < limits.allowed_build_count; ++index) {
+        if (limits.allowed_builds[index] == build) return true;
+    }
+    return false;
+}
+
+void on_hello(Engine& state, Slot& slot, std::uint32_t index, const protocol::Hello& hello,
+    std::int64_t now) {
     if (slot.greeted) {
-        send_goodbye(state, slot, index, protocol::DisconnectReason::kProtocolViolation, Drop::kProtocol);
+        deny_hello(state, slot, index, Why::kProtocolViolation, Drop::kProtocol);
         return;
     }
     const bool too_old = hello.version < state.limits.min_version;
     const bool too_new = hello.version > protocol::kVersion;
     if (too_old || too_new) {
-        send_goodbye(state, slot, index, protocol::DisconnectReason::kVersionMismatch, Drop::kVersion);
+        deny_hello(state, slot, index, Why::kVersionMismatch, Drop::kVersion);
+        return;
+    }
+    if (!build_listed(state.limits, hello.build)) {
+        deny_hello(state, slot, index, Why::kContentMismatch, Drop::kBuild);
         return;
     }
     slot.greeted = true;
@@ -1636,6 +1656,7 @@ std::string_view describe(Drop reason) noexcept {
     case Drop::kSlow: return "đọc quá chậm";
     case Drop::kForeign: return "tin không thuộc mức phiên";
     case Drop::kVersion: return "phiên bản client quá thấp hoặc quá mới";
+    case Drop::kBuild: return "bản dựng client không được phép";
     case Drop::kLogout: return "client đóng phiên";
     case Drop::kClosed: return "bên kia đóng kết nối";
     case Drop::kStop: return "gate dừng";

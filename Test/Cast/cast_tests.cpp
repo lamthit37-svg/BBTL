@@ -105,6 +105,21 @@ void vanish_keeps_index(Context& context) {
     context.expect(cast.actors().size() == 3, "xoá id lạ hay xoá hai lần không làm gì");
 }
 
+void move_after_vanish_does_not_revive(Context& context) {
+    Cast cast;
+    cast.apply(Arrive{});
+    cast.apply(monster(1, {.x = 1.0F, .z = 0.0F}));
+    cast.apply(Moved{.id = 1, .x = 3.0F, .z = 0.0F, .facing = 0.0F, .tick = 1, .pose = Pose::kWalk});
+    cast.apply(Vanish{.id = 1});
+    cast.apply(Moved{.id = 1, .x = 9.0F, .z = 0.0F, .facing = 0.0F, .tick = 2, .pose = Pose::kWalk});
+    context.expect(cast.find(1) == nullptr, "vị trí tới sau khi biến mất không hồi sinh id cũ");
+    cast.apply(monster(2, {.x = 2.0F, .z = 0.0F}));
+    cast.apply(Moved{.id = 2, .x = 4.0F, .z = 0.0F, .facing = 0.0F, .tick = 1, .pose = Pose::kWalk});
+    settle(cast);
+    context.expect(cast.find(1) == nullptr && cast.find(2) != nullptr, "id mới không nhận vị trí của id cũ");
+    context.expect(near_value(cast.find(2)->x, 4.0F), "id mới nhận đúng vị trí của chính nó");
+}
+
 void chases_goal(Context& context) {
     Cast cast;
     cast.apply(Arrive{});
@@ -245,6 +260,7 @@ constexpr std::array kCases{
     Case{.name = "arrive_clears", .body = &arrive_clears},
     Case{.name = "self_is_not_drawn", .body = &self_is_not_drawn},
     Case{.name = "vanish_keeps_index", .body = &vanish_keeps_index},
+    Case{.name = "move_after_vanish_does_not_revive", .body = &move_after_vanish_does_not_revive},
     Case{.name = "chases_goal", .body = &chases_goal},
     Case{.name = "walk_grace", .body = &walk_grace},
     Case{.name = "snaps_far", .body = &snaps_far},
