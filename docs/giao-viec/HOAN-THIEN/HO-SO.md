@@ -517,8 +517,12 @@ M kiểm phần máy chủ, K kiểm phần client.
    - thông điệp tiếng Việt, dòng đầu `G<n> <K|M>: <việc>`, thân nêu bằng chứng gốc, kết quả E2E,
      dòng `Kiểm chéo: <phiên> ĐẠT`;
    - M commit phần giao thức và máy chủ trước; K commit phần client dựa trên đó sau, để mỗi commit
-     tự dựng được.
-7. Điều phối chạy lại E2E của gói trên HEAD, cập nhật `DU-AN.md` và tệp này, rồi push.
+     tự dựng được;
+   - ngay sau commit, nhắn điều phối một dòng `COMMIT <hash> <gói>, kiểm chéo <phiên> ĐẠT`.
+7. Điều phối chạy lại E2E của gói trên HEAD, cập nhật `DU-AN.md` và tệp này, rồi push. Không làn nào
+   tự push. Trước khi push, điều phối đọc `git log origin/chuan-hoa..HEAD` ở một lệnh riêng; commit
+   nào trong đó chưa kiểm trên HEAD thì kiểm xong mới push (hai lần 2026-10-18 lượt push hồ sơ kéo
+   theo commit của làn chưa kiểm: `8030927b`, `81bb6785`, cả hai kiểm bù đạt).
 
 ## 7. Lệnh kiểm thực E2E
 
