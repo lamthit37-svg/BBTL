@@ -450,6 +450,31 @@ mở rộng bộ trích và bộ chạy cho từng mẫu script gốc, không vi
 - **N6 — Sự kiện:** lịch hoạt động theo giờ máy chủ (`huodong`, `festival`, `quiz`, `challenge`...),
   thông báo toàn máy chủ, thưởng.
 
+**Quyết định sau N0 (điều phối chốt 2026-10-18, đọc `N0.md` và `NOI-DUNG.tsv`).**
+
+1. Nhiệm vụ 1400 初涉江湖 cấp tự động ở lần đăng nhập đầu sau khi tạo nhân vật, trả tại 赵天师. Bằng
+   chứng: danh bạ 2026 ghi giver −1, mục tiêu là "đã tìm thấy 赵天师"; cơ chế cấp lúc đăng nhập đầu là
+   `scene.lua:805` (XJL7457 cấp 718/210238 của bản 2008). Ghi `Khác gốc:` vì id lấy theo 2026.
+2. Id nhiệm vụ chưa có dòng máy chủ (804/1 616): không dựng từ MisDesc, vì MisDesc thiếu mục tiêu và
+   thưởng, dựng ra là tự chế. Trước khi kết luận "chờ nguồn", làn N phải đối chiếu các id ấy với bảng
+   nhiệm vụ dữ liệu của XJL7457: `Public\Config\Mission_Delivery.txt` 768 dòng, `Mission_LootItem.txt`
+   304, `Mission_KillMonster.txt` 215, `Mission_EnterArea.txt` 63, `Mission_NpcDefault.txt` 20,
+   `Mission_Husong.txt` 8, cùng các `Mission*_HashTable.txt`. Làm thêm như vậy với bảng nhiệm vụ của
+   client 2026 nếu có. Id nào có mục tiêu và thưởng ở các nguồn đó thì vào N2.
+3. Hoạt động chỉ có ở client 2026 (43) và chỉ có logic ở add-on mod (17): hoãn, ghi trong
+   `NOI-DUNG.tsv`. Add-on mod (2018–2023) không phải bằng chứng gốc, không dùng làm tham chiếu luật
+   hay số. Đơn vị Lua gốc bị mod chạm thì lấy phần `chinh_thuc`, phần mod ghi rõ. Khi Lua lệch dữ
+   liệu client 2026 ở thứ client hiển thị (cấp vào, giờ mở trong lịch hoạt động) thì lấy số của
+   client 2026 và ghi `Khác gốc:` nêu cả hai nguồn. Ví dụ: 燕子坞 75 và 60, 少室山 80 và 60.
+4. Lỗi trong Lua gốc: giữ hành vi người chơi quan sát được. Chỉ sửa chỗ mà ở bản gốc gây lỗi lúc chạy
+   làm tính năng hỏng (biến chưa khai báo, hằng bị chú thích mà vẫn dùng, bảng thiếu môn phái), sửa ít
+   nhất có thể, ghi `// Khác gốc:` kèm tệp:dòng Lua. Logic lạ mà vẫn chạy được (như điều kiện đảo) thì
+   port y nguyên và ghi vào `NGHI-NGO.md`.
+5. Lỗi bộ trích `lua_units.py:read_script_dat` (giữ chú thích `;` nên 147 mục `Script.dat` mất) sửa
+   ở đầu N1, kèm test hồi quy (đỏ trước, xanh sau).
+6. Thứ tự: theo bảng mục 5 của `N0.md`. N4 gồm cả hạ tầng cảnh bản sao ở `zone`, theo luật khoá với
+   M. N5 bắt đầu khi G4 đạt (quái ra đòn).
+
 Mỗi gói N có phiếu `N<n>.md` như gói G. Tiêu chí đạt chung: kịch bản E2E đi trọn nội dung từ NPC vào
 tới thưởng (client thật cho phần có giao diện, bot cho phần lặp nhiều), mỗi bước có ảnh, dòng log
 mạng và dòng kiểm của máy chủ; số thưởng, giờ, giới hạn trùng script gốc (trích dòng). Kiểm chéo:
@@ -538,7 +563,7 @@ python -B TOOLS/run/desk_watch.py <lệnh> [đối số]... — mã thoát là m
 
 | Gói N | Trạng thái | Ghi chú |
 |---|---|---|
-| N0 | chưa | Giao 2026-10-18 |
+| N0 | đạt | Điều phối duyệt 2026-10-18; quyết định ở mục 5.12 |
 | N1 (G3) | chưa | Sau G0 |
 | N2 | chưa | |
 | N3 | chưa | |
