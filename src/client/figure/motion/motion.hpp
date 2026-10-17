@@ -1,9 +1,25 @@
+/*==============================================================================
+ *  THIENLONG  |  GAME CLIENT
+ *------------------------------------------------------------------------------
+ *  TỆP       : src/client/figure/motion/motion.hpp
+ *  PHÂN HỆ   : Figure / Motion
+ *  CHUẨN     : C++23
+ *------------------------------------------------------------------------------
+ *  CHỨC NĂNG
+ *  - Đi trên mặt đất theo đơn vị game. Tốc độ người và tốc độ cưỡi theo phần
+ *    trăm.
+ *------------------------------------------------------------------------------
+ *  TÁC GIẢ   : HiepHoon
+ *  TELEGRAM  : @Hoon9xx
+ *============================================================================*/
+
 #pragma once
 // Đi trên mặt đất theo đơn vị game (một đơn vị là một ô lưới).
 // advance là hàm đóng theo thời gian đã đi, giữ cho bài test đường gãy.
 // move_tick là một khung của CObject_Character::Tick khi logic là MOVE: quãng = tốc độ * giây,
 // dưới 0.01 thì không nhích, gần đích dưới 0.01 thì dừng, vượt đoạn thì đứng đúng đích.
 // human_speed là Obj_Human::GetMoveSpeed: gốc 2800 / 1000, rồi nhân mode.
+// mounted_speed là chạy nhân (100 + phần trăm Exterior_Ride) / 100. 0 giữ nguyên chạy.
 // verify_pos là Map::VerifyPos: âm thì 0, quá cạnh thì cạnh trừ 0.1.
 // face_angle là TDU_GetYAngle. Khác gốc: chưa có vùng cấm và file nav, nên không phản xạ bước.
 
@@ -65,6 +81,10 @@ struct MapLimit {
 
 // Tốc độ người theo mode, đơn vị game mỗi giây.
 [[nodiscard]] float human_speed(MoveMode mode) noexcept;
+
+// Tốc độ cưỡi: chạy nhân (100 + phần trăm) / 100. Phần trăm 0 hoặc âm giữ nguyên tốc độ chạy.
+// Nguồn phần trăm là Exterior_Ride cột Speed. Game.exe không tra bảng này lúc đi.
+[[nodiscard]] float mounted_speed(float run, std::int32_t percent) noexcept;
 
 // Góc mặt từ start tới toward. 0 nhìn +z, π/2 nhìn +x.
 [[nodiscard]] float face_angle(GroundPoint start, GroundPoint toward) noexcept;

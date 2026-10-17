@@ -7,7 +7,8 @@
 #   dấu } khép; tên trùng giữ khối đầu. Nhờ vậy tên client tra được cũng là tên bộ gom chép.
 # - Chỉ gom tên cảnh gọi, tên effect mà khối AnimEffect của skill gọi (Table/skill_events.tsv do export_skills.py
 #   sinh; chưa có tệp thì bỏ qua; tên mẫu có "<" là hiệu ứng đi đường của LogicModel, chưa phát) và tên effect của hiệu
-#   ứng đồ (Table/weapon_effects.tsv do export_weapons.py sinh): cả thư viện là 73 MB, client nạp trọn tệp lúc mở.
+#   ứng đồ (Table/weapon_effects.tsv do export_weapons.py sinh) và hạt thú cưỡi (cột effect của
+#   Table/ride_effects.tsv do export_rides.py sinh): cả thư viện là 73 MB, client nạp trọn tệp lúc mở.
 # - Material giải kế thừa bằng TOOLS/glb/ogre_material.py; bảng ghi thứ client cần để quyết có vẽ
 #   được không (ảnh, chế độ trộn, hệ số màu, ảnh thứ hai, cuộn, shader, thiết lập khác). Cột
 #   shader là "fixed" (không shader, lighting off), "particle" (Particle_ps.hlsl thường) hoặc tên
@@ -211,6 +212,23 @@ def add_equipment(wanted: Wanted, target: str) -> None:
     column = header.index("effects")
     for row in rows:
         wanted.effects.update(name for name in row[column].split(";") if name)
+
+
+# Tên effect gắn sẵn trên mẫu thú (cột effect của Table/ride_effects.tsv do export_rides.py sinh).
+def add_rides(wanted: Wanted, target: str) -> None:
+    path = os.path.join(target, "Table", "ride_effects.tsv")
+    if not os.path.isfile(path):
+        return
+    with open(path, encoding="utf-8") as stream:
+        lines = [line.rstrip("\n").split("\t") for line in stream if line.strip() and not line.startswith("#")]
+    if not lines:
+        return
+    header, rows = lines[0], lines[1:]
+    column = header.index("effect")
+    for row in rows:
+        if len(row) <= column or not row[column]:
+            continue
+        wanted.effects[row[column]] += 1
 
 
 def values_of(block: str, keyword: str) -> list[str]:
@@ -527,6 +545,7 @@ def collect(collector: Collector, scenes: list[str]) -> tuple[Wanted, list[Row],
             collector.missing.append(("scene", path))
     add_skills(wanted, collector.target)
     add_equipment(wanted, collector.target)
+    add_rides(wanted, collector.target)
     effects = read_script(collector.raw_root, "all.effect", 1)
     particles = read_script(collector.raw_root, "all.particle", 0)
     follow(wanted, effects, particles)

@@ -54,9 +54,9 @@ void names_are_unique(Context& context) {
 
 void model_variants_are_character(Context& context) {
     std::size_t models = 0;
+    std::size_t additive = 0;
     for (const Entry& entry : render::entries()) {
         if (entry.group != Group::kCharacter) continue;
-        ++models;
         context.expect(entry.tier == Tier::kEssential, "nhân vật thuộc tầng 1");
         context.expect(same(entry.vertex, "model.vs"), "model dùng model.vs");
         context.expect(same(entry.pixel, "model.ps"), "model dùng model.ps");
@@ -64,9 +64,13 @@ void model_variants_are_character(Context& context) {
         context.expect(entry.frame_bytes == render::kModelFrameBytes, "khối khung của model");
         context.expect(entry.draw_bytes == render::kModelDrawBytes, "khối lệnh vẽ của model");
         const auto index = static_cast<std::size_t>(entry.pso);
-        context.expect(index < render::kModelVariants, "biến thể model nằm ở bốn ô đầu");
+        const bool is_add = entry.pso == Pso::kModelAdd || entry.pso == Pso::kModelAddTwoSided;
+        if (is_add) ++additive;
+        if (!is_add) context.expect(index < render::kModelVariants, "biến thể model nằm ở bốn ô đầu");
+        if (!is_add) ++models;
     }
     context.expect(models == render::kModelVariants, "đúng bốn biến thể model");
+    context.expect(additive == 2, "hai pipeline cộng sáng của model");
 }
 
 void fx_waits_for_the_scene(Context& context) {

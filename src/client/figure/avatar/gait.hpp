@@ -101,8 +101,10 @@ public:
 
     // Clip lúc now khi đang đi hay đứng. now không được lùi.
     [[nodiscard]] Playing update(core::Clock::time_point now, bool is_moving, const ClipLengths& lengths);
-    // CObject_Character::Jump lúc now: stance là kJumpStand hay kJumpRun; stance khác thì không làm gì.
-    void jump(core::Clock::time_point now, Stance stance, const ClipLengths& lengths);
+    // CObject_Character::Jump lúc now: stance là kJumpStand hay kJumpRun; stance khác thì không làm
+    // gì. stays_airborne false: cưỡi mà đứng, gốc không bật vật lý nên không khoá clip tới land.
+    void jump(core::Clock::time_point now, Stance stance, const ClipLengths& lengths,
+        bool stays_airborne = true);
     // Chạm đất lúc now: hết nhảy rồi FreshAnimation. Không đang nhảy thì không làm gì.
     void land(core::Clock::time_point now, const ClipLengths& lengths);
     // Phát đòn theo plan từ đầu lúc now. Đang nhảy hay length hay rate không dương thì không làm gì.

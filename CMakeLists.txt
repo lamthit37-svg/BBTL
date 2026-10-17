@@ -547,6 +547,7 @@ game_module(classic src/client/place/classic/classic.cpp)
 target_link_libraries(game_classic PUBLIC game_core game_math)
 game_module(look src/client/figure/look/appearance.cpp src/client/figure/look/look.cpp src/client/figure/look/head.cpp src/client/figure/look/sect.cpp
     src/client/figure/look/creature.cpp
+    src/client/figure/look/mount.cpp
     src/client/figure/look/weapon.cpp src/client/figure/look/skill.cpp)
 target_link_libraries(game_look PUBLIC game_table game_core)
 
@@ -1571,6 +1572,7 @@ game_test(table_localize game_table)
 game_test(table_tsv game_table)
 game_test(look game_look)
 game_test(creature game_look)
+game_test(mount game_look)
 game_test(head game_look)
 game_test(avatar game_avatar)
 game_test(control game_control)

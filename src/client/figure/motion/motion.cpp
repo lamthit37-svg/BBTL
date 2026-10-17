@@ -1,7 +1,21 @@
+/*==============================================================================
+ *  THIENLONG  |  GAME CLIENT
+ *------------------------------------------------------------------------------
+ *  TỆP       : src/client/figure/motion/motion.cpp
+ *  PHÂN HỆ   : Figure / Motion
+ *  CHUẨN     : C++23
+ *------------------------------------------------------------------------------
+ *  CHỨC NĂNG
+ *  - Luật đi và tốc độ. Phần trăm cưỡi nhân vào tốc độ chạy, không đổi clip.
+ *------------------------------------------------------------------------------
+ *  TÁC GIẢ   : HiepHoon
+ *  TELEGRAM  : @Hoon9xx
+ *============================================================================*/
+
 // Đi trên mặt đất. advance giữ hàm đóng của đường gãy. move_tick, human_speed, face_angle và
 // verify_pos chép phép của client 2008 và server: Tick_Move, GetMoveSpeed, TDU_GetYAngle,
-// VerifyPos. Khác gốc: else-if của tốc độ tách thành return sớm; một đích nên không có vòng sang
-// nút kế.
+// VerifyPos. mounted_speed nhân tốc độ chạy với phần trăm Exterior_Ride.
+// Khác gốc: else-if của tốc độ tách thành return sớm; một đích nên không có vòng sang nút kế.
 #include "motion/motion.hpp"
 
 #include <algorithm>
@@ -103,6 +117,13 @@ float human_speed(MoveMode mode) noexcept {
     if (mode == MoveMode::kRun) return speed * 1.5F;
     if (mode == MoveMode::kSprint) return speed * 5.0F;
     return speed;
+}
+
+float mounted_speed(float run, std::int32_t percent) noexcept {
+    if (percent <= 0) return run;
+    const float extra = static_cast<float>(percent);
+    const float scale = (100.0F + extra) / 100.0F;
+    return run * scale;
 }
 
 float face_angle(GroundPoint start, GroundPoint toward) noexcept {

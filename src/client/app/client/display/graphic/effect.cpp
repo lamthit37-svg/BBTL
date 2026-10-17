@@ -24,6 +24,7 @@
 #include <cmath>
 #include <optional>
 #include <ranges>
+#include <span>
 #include <string>
 #include <string_view>
 namespace game::client {
@@ -281,9 +282,80 @@ void Display::State::sync_gear() {
         spawn.is_tracked = true;
         spawn.node = node;
         spawn.tint = gem_tint(slot.effect_colour);
-        gear_handles.push_back(GearHandle{.mount = place.mount, .name = slot.effect, .colour = slot.effect_colour,
-            .handle = fx_view->spawn(spawn)});
+        const std::uint32_t handle = fx_view->spawn(spawn);
+        GearHandle made;
+        made.mount = place.mount;
+        made.name = slot.effect;
+        made.colour = slot.effect_colour;
+        made.handle = handle;
+        gear_handles.push_back(std::move(made));
     }
+}
+
+namespace {
+
+[[nodiscard]] fx::Node ride_node(const RideFx& place) {
+    return fx::Node{.position = place.position, .orientation = place.orientation};
+}
+
+} // namespace
+
+bool Display::State::same_ride(const RideFx& place, const RideHandle& prior) {
+    const bool same_slot = place.ride == prior.ride && place.index == prior.index;
+    return same_slot && place.name == prior.name;
+}
+
+const Display::State::RideHandle* Display::State::find_ride(const RideFx& place) const {
+    for (const RideHandle& prior : ride_handles) {
+        if (same_ride(place, prior)) return &prior;
+    }
+    return nullptr;
+}
+
+bool Display::State::wants_ride(std::span<const RideFx> wanted, const RideHandle& prior) const {
+    for (const RideFx& place : wanted) {
+        if (same_ride(place, prior)) return true;
+    }
+    return false;
+}
+
+bool Display::State::drop_ride(const RideHandle& prior, std::span<const RideFx> wanted) {
+    const bool is_live = prior.handle == 0 || fx_view->is_live(prior.handle);
+    const bool keep = wants_ride(wanted, prior) && is_live;
+    if (keep) return false;
+    fx_view->release(prior.handle);
+    return true;
+}
+
+void Display::State::spawn_ride(const RideFx& place) {
+    fx::Spawn spawn;
+    spawn.name = place.name;
+    spawn.is_effect = true;
+    spawn.is_tracked = true;
+    spawn.node = ride_node(place);
+    const std::uint32_t handle = fx_view->spawn(spawn);
+    if (handle == 0) std::println(stderr, "Thú cưỡi: không dựng {}", place.name);
+    RideHandle made;
+    made.ride = place.ride;
+    made.index = place.index;
+    made.name = place.name;
+    made.handle = handle;
+    ride_handles.push_back(std::move(made));
+}
+
+void Display::State::move_or_spawn_ride(const RideFx& place) {
+    const RideHandle* known = find_ride(place);
+    if (known == nullptr) return spawn_ride(place);
+    fx_view->move(known->handle, ride_node(place));
+}
+
+void Display::State::sync_ride() {
+    if (!fx_view || !player) return;
+    const std::span<const RideFx> wanted = player->ride_fx();
+    const auto drop = [&](const RideHandle& prior) { return drop_ride(prior, wanted); };
+    std::erase_if(ride_handles, drop);
+    for (const RideFx& place : wanted)
+        move_or_spawn_ride(place);
 }
 
 void Display::State::say_fx_fault() {

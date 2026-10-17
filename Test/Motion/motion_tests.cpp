@@ -1,7 +1,22 @@
-// Kiểm luật đi dọc đường: khoảng cách, chiều dài đường, vị trí giữa đoạn, qua góc, vượt điểm cuối,
-// và các ca biên (tốc độ không dương, đường rỗng, đoạn dài 0) không được sinh NaN.
-// Nguồn: TLBB Dev tests/motion/motion_test.cpp@e0d89a6. Khác gốc: khung test của dự án
-// (Context::expect); đường góc là hàm trả mảng thay cho biến toàn cục vector.
+/*==============================================================================
+ *  THIENLONG  |  TEST
+ *------------------------------------------------------------------------------
+ *  TỆP       : Test/Motion/motion_tests.cpp
+ *  PHÂN HỆ   : Motion / Motion Tests
+ *  CHUẨN     : C++23
+ *------------------------------------------------------------------------------
+ *  CHỨC NĂNG
+ *  - Kiểm luật đi dọc đường: khoảng cách, chiều dài đường, vị trí giữa đoạn,
+ *    qua góc, vượt điểm cuối, và các ca biên (tốc độ không dương, đường rỗng,
+ *    đoạn dài 0) không được sinh NaN. Nguồn: TLBB Dev
+ *    tests/motion/motion_test.cpp@e0d89a6. Khác gốc: khung test của dự án
+ *    (Context::expect); đường góc là hàm trả mảng thay cho biến toàn cục
+ *    vector.
+ *------------------------------------------------------------------------------
+ *  TÁC GIẢ   : HiepHoon
+ *  TELEGRAM  : @Hoon9xx
+ *============================================================================*/
+
 #include "core/check.hpp"
 #include "core/ground_point.hpp"
 #include "motion/motion.hpp"
@@ -85,6 +100,12 @@ void speeds(Context& context) {
     context.expect(near_value(hobble, 1.4F), "đi khập khiễng còn một nửa");
     context.expect(near_value(run, 4.2F), "chạy là 1.5 lần");
     context.expect(near_value(sprint, 14.0F), "nước rút là 5 lần");
+    context.expect(near_value(motion::mounted_speed(run, 0), run), "không có dòng thì giữ chạy");
+    context.expect(near_value(motion::mounted_speed(run, -5), run), "phần trăm âm không cộng");
+    context.expect(near_value(motion::mounted_speed(run, 10), run * 1.1F), "lục hành điêu +10%");
+    context.expect(near_value(motion::mounted_speed(run, 40), run * 1.4F), "hổ +40%");
+    context.expect(near_value(motion::mounted_speed(run, 80), run * 1.8F), "lạc đà +80%");
+    context.expect(near_value(motion::mounted_speed(run, 125), run * 2.25F), "+125%");
 }
 
 void faces(Context& context) {

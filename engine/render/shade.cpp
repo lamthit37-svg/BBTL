@@ -53,6 +53,12 @@ constexpr double kBoxToUnit = 0.01;
     return color.x() > 0.0F || color.y() > 0.0F || color.z() > 0.0F;
 }
 
+// Tấm scene_blend add có ảnh mặt nạ: shader nhân ảnh thứ hai.
+[[nodiscard]] bool is_add_sheet(const resource::Material& material) noexcept {
+    const bool is_add = material.alpha == resource::Alpha::kAdd;
+    return is_add && material.surface.image.has_value();
+}
+
 // Màu nền và ngưỡng alpha của glTF. Pass do người gọi điền thì unlit của glTF không áp.
 void take_gltf(Shade& shade, const resource::Material& material) noexcept {
     const bool is_specular = material.shading == resource::Shading::kSpecular;
@@ -60,9 +66,12 @@ void take_gltf(Shade& shade, const resource::Material& material) noexcept {
     shade.base_color = is_specular ? material.diffuse : material.base_color;
     shade.diffuse.w = is_masked ? material.alpha_cutoff : 0.0F;
     if (material.unlit && !material.pass) shade.flags |= kUnlit;
+    if (is_add_sheet(material)) shade.flags |= kMaskTex;
+    if (material.suppress_fog) shade.flags |= kNoFog;
 }
 
-// Thác OGRE không đèn: emissive.xy là tốc độ scroll_anim, shader cộng vào UV theo giây của khung.
+// Thác OGRE không đèn: emissive.xy là tốc độ scroll_anim, shader trừ khỏi UV theo giây của khung
+// như Ogre (ScaleControllerFunction(-speed)).
 void take_scroll(Shade& shade, const resource::Material& material) noexcept {
     if ((shade.flags & kUnlit) == 0) return;
     shade.specular.x = material.emissive.x;

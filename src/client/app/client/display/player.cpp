@@ -17,18 +17,25 @@
 #include "anim/rig.hpp"
 #include "avatar/avatar.hpp"
 #include "avatar/gait.hpp"
+#include "avatar/locator.hpp"
+#include "avatar/rig.hpp"
 #include "core/clock.hpp"
 #include "core/error.hpp"
 #include "io/file.hpp"
 #include "look/appearance.hpp"
 #include "look/look.hpp"
+#include "look/mount.hpp"
 #include "look/sect.hpp"
 #include "look/skill.hpp"
+#include "look/weapon.hpp"
 #include "math/matrix.hpp"
 #include "math/vector.hpp"
+#include "motion/motion.hpp"
 #include "ogre/quat.hpp"
 #include "ogre/vec3.hpp"
 #include "render/forward.hpp"
+#include "resource/ogre_mesh.hpp"
+#include "table/tsv.hpp"
 
 #include <algorithm>
 #include <chrono>
@@ -36,10 +43,11 @@
 #include <cstddef>
 #include <cstdint>
 #include <cstdio>
-#include <iterator>
 #include <expected>
 #include <filesystem>
 #include <future>
+#include <iterator>
+#include <limits>
 #include <memory>
 #include <optional>
 #include <print>
@@ -117,7 +125,7 @@ struct Built {
 
 // Drawable của một bộ phận, hoặc nullptr kèm log khi nơi vẽ không nạp được lưới.
 [[nodiscard]] const render::Drawable* part_drawable(const MeshLoader& load_mesh, const look::Part& part) {
-    const render::Drawable* drawable = load_mesh(part.mesh);
+    const render::Drawable* drawable = load_mesh(part.mesh, {});
     if (drawable == nullptr) std::println(stderr, "Người chơi: bỏ bộ phận {}", part.mesh);
     return drawable;
 }
@@ -134,7 +142,7 @@ struct Built {
 
 // Một lưới của mẫu. Không nạp được thì ghi log và bỏ; mẫu vẫn giữ các lưới đã nạp.
 void add_held_mesh(std::vector<HeldMesh>& drawn, std::size_t mount, const std::string& mesh, const MeshLoader& load_mesh) {
-    const render::Drawable* drawable = load_mesh(mesh);
+    const render::Drawable* drawable = load_mesh(mesh, {});
     if (drawable == nullptr) {
         std::println(stderr, "Người chơi: bỏ lưới vũ khí {}", mesh);
         return;
@@ -146,12 +154,513 @@ void load_mount(std::vector<HeldMesh>& drawn, std::size_t mount, const look::Hel
     for (const std::string& mesh : held.meshes) add_held_mesh(drawn, mount, mesh, load_mesh);
 }
 
-[[nodiscard]] std::vector<HeldMesh> load_held(const look::Figure& figure, const MeshLoader& load_mesh) {
+[[nodiscard]] std::vector<HeldMesh> load_held(const look::Figure& figure,
+    const MeshLoader& load_mesh) {
     std::vector<HeldMesh> drawn;
     for (std::size_t mount = 0; mount < figure.held.size(); ++mount) {
         load_mount(drawn, mount, figure.held[mount], load_mesh);
     }
     return drawn;
+}
+
+// Id CharMount vừa int32 của cột gốc. 0 là hổ, vẫn hợp lệ.
+[[nodiscard]] bool ride_id_fits(std::uint32_t id) noexcept {
+    const auto cap = static_cast<std::uint32_t>(std::numeric_limits<std::int32_t>::max());
+    return id <= cap;
+}
+
+[[nodiscard]] core::Failure ride_fail(std::string_view detail) {
+    return core::fail(core::ErrorCode::kNotFound, "thú cưỡi", detail);
+}
+
+[[nodiscard]] core::Failure ride_id_fail() {
+    return core::fail(core::ErrorCode::kInvalidArgument, "id thú vượt int32");
+}
+
+void say_ride_name(const look::RideFigure& figure) {
+    std::println("Thú cưỡi {} {} lưới {}", figure.id, figure.name, figure.mesh);
+}
+
+void say_ride_anchor(const look::RideFigure& figure) {
+    std::println("Neo {} cao {}", figure.anchor, figure.add_height);
+}
+
+void say_ride_place(const look::RideFigure& figure) {
+    say_ride_anchor(figure);
+    std::println("Camera {}", figure.camera_y);
+}
+
+void say_ride_speed(const look::RideFigure& figure) {
+    const float run = motion::human_speed(motion::MoveMode::kRun);
+    const float speed = motion::mounted_speed(run, figure.speed_percent);
+    std::println("Tốc độ +{}% {:.2f}", figure.speed_percent, speed);
+}
+
+// Đuôi .mesh thành hậu tố khác. Tên không phải lưới thì giữ nguyên.
+[[nodiscard]] std::string with_suffix(std::string_view mesh, std::string_view suffix) {
+    constexpr std::string_view kMesh = ".mesh";
+    std::string name(mesh);
+    const bool is_mesh = name.size() >= kMesh.size() && name.ends_with(kMesh);
+    if (is_mesh) name.replace(name.size() - kMesh.size(), kMesh.size(), suffix);
+    return name;
+}
+
+void say_attached(std::string_view name, std::string_view bone, const math::Vector3& moved) {
+    std::println("Gắn {} {} {} {} {}", name, bone, moved.x(), moved.y(), moved.z());
+}
+
+[[nodiscard]] bool bone_missing(const anim::SourceSkeleton& bones, std::string_view name) {
+    if (name.empty()) return false;
+    const auto found = std::ranges::find(bones.bones, name, &anim::Bone::name);
+    return found == bones.bones.end();
+}
+
+// Tư thế bind của locator. Xương ghi trong mẫu mà skeleton không có thì không bịa vị trí lệch.
+[[nodiscard]] std::optional<math::Matrix4> seat_from_model(const resource::Model& model,
+    const look::LocatorRow& row) {
+    auto bones = resource::bones_of(model);
+    if (!bones) return std::nullopt;
+    if (bone_missing(*bones, row.bone)) return std::nullopt;
+    auto rig = anim::Rig::create(*bones);
+    if (!rig) return std::nullopt;
+    const std::span<const anim::Transform> local = rig->initial();
+    const std::vector<anim::Transform> derived = rig->derive(local);
+    const avatar::Locator locator = avatar::make_locator(row, *bones);
+    const anim::Transform pose = avatar::locator_pose(locator, derived);
+    const anim::Affine rows = anim::affine_of(pose);
+    return avatar::matrix_of(rows);
+}
+
+[[nodiscard]] std::optional<look::LocatorRow> ride_locator(const PlayerDesc& desc,
+    std::string_view object, std::string_view anchor) {
+    const std::string path = io::utf8_of(desc.data_root / "Table" / "ride_locators.tsv");
+    auto text = read_table(path);
+    if (!text) return std::nullopt;
+    const auto table = table::parse_tsv(*text);
+    if (!table) return std::nullopt;
+    auto rows = look::read_locators(*table);
+    if (!rows) return std::nullopt;
+    const look::LocatorRow* found = look::find_locator(*rows, object, anchor);
+    if (found == nullptr) return std::nullopt;
+    return *found;
+}
+
+constexpr std::int32_t kMaxModel = std::numeric_limits<std::int32_t>::max();
+
+// Neo bind và handle xương. Thiếu locator hoặc skeleton thì đơn vị, không bịa toạ độ.
+struct SeatPose {
+    math::Matrix4 seat = math::Matrix4::identity();
+    std::optional<avatar::Locator> point;
+};
+
+[[nodiscard]] std::optional<table::Tsv> open_table(const PlayerDesc& desc, std::string_view file) {
+    const std::string path = io::utf8_of(desc.data_root / "Table" / file);
+    auto text = read_table(path);
+    if (!text) {
+        std::println(stderr, "Thú cưỡi: không đọc {}", file);
+        return std::nullopt;
+    }
+    auto parsed = table::parse_tsv(*text);
+    if (!parsed) {
+        std::println(stderr, "Thú cưỡi: {}", parsed.error());
+        return std::nullopt;
+    }
+    return std::move(*parsed);
+}
+
+[[nodiscard]] std::string skeleton_cell(const table::Tsv& table, std::size_t row,
+    std::int32_t model) {
+    table::RowReader reader(table, row);
+    const auto id = reader.integer("model", 0, kMaxModel);
+    if (reader.error() || id != model) return {};
+    return std::string(reader.text("skeleton"));
+}
+
+[[nodiscard]] std::string keep_name(std::string current, const table::Tsv& table, std::size_t row,
+    std::int32_t model) {
+    if (!current.empty()) return current;
+    return skeleton_cell(table, row, model);
+}
+
+[[nodiscard]] std::string with_glb(std::string_view skeleton) {
+    std::string file(skeleton);
+    file += ".glb";
+    return file;
+}
+
+[[nodiscard]] std::string skeleton_in(const table::Tsv& table, std::int32_t model) {
+    std::string name;
+    for (std::size_t row = 0; row < table.rows.size(); ++row)
+        name = keep_name(std::move(name), table, row, model);
+    return name;
+}
+
+// Tên .skeleton thật trong ride_skeletons. Không có dòng thì đuôi lưới.
+[[nodiscard]] std::string ride_skeleton_name(const PlayerDesc& desc,
+    const look::RideFigure& figure) {
+    auto table = open_table(desc, "ride_skeletons.tsv");
+    std::string name;
+    if (table) name = skeleton_in(*table, figure.model_id);
+    if (!name.empty()) return name;
+    return with_suffix(figure.mesh, ".skeleton");
+}
+
+[[nodiscard]] SeatPose seat_pose(const PlayerDesc& desc, const look::RideFigure& figure,
+    std::string_view skeleton_glb) {
+    SeatPose made;
+    const std::string object = with_suffix(figure.mesh, ".obj");
+    auto row = ride_locator(desc, object, figure.anchor);
+    if (!row) {
+        std::println(stderr, "Thú cưỡi: {} không có neo {}", object, figure.anchor);
+        return made;
+    }
+    const std::string root = io::utf8_of(desc.data_root);
+    auto model = resource::load_named_model(skeleton_glb, root);
+    if (!model) {
+        std::println(stderr, "Thú cưỡi: không nạp {}", skeleton_glb);
+        return made;
+    }
+    auto seat = seat_from_model(*model, *row);
+    if (!seat) {
+        std::println(stderr, "Thú cưỡi: không dựng neo {} xương {}", row->name, row->bone);
+        return made;
+    }
+    made.seat = *seat;
+    const math::Vector3 moved = made.seat.translation();
+    say_attached(row->name, row->bone, moved);
+    auto bones = resource::bones_of(*model);
+    if (!bones) return made;
+    made.point = avatar::make_locator(*row, *bones);
+    return made;
+}
+
+[[nodiscard]] std::vector<look::AnimRow> load_ride_anims(const PlayerDesc& desc) {
+    auto table = open_table(desc, "ride_anims.tsv");
+    if (!table) return {};
+    auto rows = look::read_anim_sets(*table);
+    if (!rows) {
+        std::println(stderr, "Thú cưỡi: {}", rows.error());
+        return {};
+    }
+    return std::move(*rows);
+}
+
+const look::AnimRow* ride_anim(std::span<const look::AnimRow> rows, std::uint32_t set,
+    look::Action action, look::Weapon weapon) {
+    const look::AnimRow* armed = look::find_anim(rows, set, action, weapon);
+    const look::AnimRow* bare = look::find_anim(rows, set, action, look::Weapon::kNone);
+    return armed != nullptr ? armed : bare;
+}
+
+void apply_action(look::Figure& figure, std::span<const look::AnimRow> rows, std::uint32_t set,
+    look::Action action, look::Weapon weapon) {
+    const look::AnimRow* row = ride_anim(rows, set, action, weapon);
+    if (row == nullptr) return;
+    const look::Clip clip{.anim = row->anim, .name = row->clip};
+    if (action == look::Action::kIdle) figure.idle = clip;
+    if (action == look::Action::kIdleAlt) figure.idle_alt = clip;
+    if (action == look::Action::kIdleAlt2) figure.idle_alt2 = clip;
+    if (action == look::Action::kRun) figure.run = clip;
+    if (action == look::Action::kJumpStand) figure.jump_stand = clip;
+    if (action == look::Action::kJumpRun) figure.jump_run = clip;
+}
+
+// Đổi clip đi, đứng, nhảy của người sang bộ động tác CharMount. Không có dòng thì giữ clip thân.
+void apply_ride_anims(look::Figure& figure, std::span<const look::AnimRow> rows,
+    std::int32_t action_set, look::Weapon weapon) {
+    if (action_set < 0) return;
+    const auto set = static_cast<std::uint32_t>(action_set);
+    const look::Clip previous = figure.idle;
+    apply_action(figure, rows, set, look::Action::kIdle, weapon);
+    const bool changed = figure.idle.name != previous.name || figure.idle.anim != previous.anim;
+    if (!changed) return;
+    figure.idle_trim.reset();
+    figure.idle_alt.reset();
+    figure.idle_alt2.reset();
+    figure.jump_stand.reset();
+    figure.jump_run.reset();
+    apply_action(figure, rows, set, look::Action::kIdleAlt, weapon);
+    apply_action(figure, rows, set, look::Action::kIdleAlt2, weapon);
+    apply_action(figure, rows, set, look::Action::kRun, weapon);
+    apply_action(figure, rows, set, look::Action::kJumpStand, weapon);
+    apply_action(figure, rows, set, look::Action::kJumpRun, weapon);
+    std::println("Clip cưỡi {} / {}", figure.idle.anim, figure.idle.name);
+}
+
+struct MountPose {
+    std::optional<look::Clip> idle;
+    std::optional<look::Clip> idle_alt;
+    std::optional<look::Clip> idle_alt2;
+    std::optional<look::Clip> run;
+    std::optional<look::Clip> jump_stand;
+    std::optional<look::Clip> jump_run;
+};
+
+void store_pose(MountPose& pose, std::string_view action, look::Clip clip) {
+    if (action == "idle") pose.idle = std::move(clip);
+    if (action == "idle_alt") pose.idle_alt = std::move(clip);
+    if (action == "idle_alt2") pose.idle_alt2 = std::move(clip);
+    if (action == "run") pose.run = std::move(clip);
+    if (action == "jump_stand") pose.jump_stand = std::move(clip);
+    if (action == "jump_run") pose.jump_run = std::move(clip);
+}
+
+void read_pose_row(MountPose& pose, const table::Tsv& table, std::size_t row, std::int32_t model) {
+    table::RowReader reader(table, row);
+    const auto id = reader.integer("model", 0, kMaxModel);
+    if (reader.error() || id != model) return;
+    look::Clip clip;
+    clip.anim = std::string(reader.text("anim"));
+    clip.name = std::string(reader.text("clip"));
+    const std::string action(reader.text("action"));
+    if (reader.error()) return;
+    store_pose(pose, action, std::move(clip));
+}
+
+[[nodiscard]] MountPose mount_pose(const PlayerDesc& desc, std::int32_t model) {
+    MountPose pose;
+    auto table = open_table(desc, "ride_model_clips.tsv");
+    if (!table) return pose;
+    for (std::size_t row = 0; row < table->rows.size(); ++row)
+        read_pose_row(pose, *table, row, model);
+    return pose;
+}
+
+void say_mount_run(const look::Figure& body) {
+    if (body.run.name == body.idle.name) return;
+    std::println("Clip thú chạy {} / {}", body.run.anim, body.run.name);
+}
+
+[[nodiscard]] std::optional<avatar::Avatar> mount_avatar(const PlayerDesc& desc,
+    std::string_view skeleton, const MountPose& pose) {
+    if (skeleton.empty() || !pose.idle) return std::nullopt;
+    look::Figure body;
+    body.skeleton = std::string(skeleton);
+    body.idle = *pose.idle;
+    body.run = pose.run ? *pose.run : *pose.idle;
+    body.idle_alt = pose.idle_alt;
+    body.idle_alt2 = pose.idle_alt2;
+    body.jump_stand = pose.jump_stand;
+    body.jump_run = pose.jump_run;
+    auto loaded = avatar::Avatar::load(body, desc.data_root);
+    if (!loaded) {
+        std::println(stderr, "Thú cưỡi: không phát clip {}", skeleton);
+        return std::nullopt;
+    }
+    std::println("Clip thú {} / {}", body.idle.anim, body.idle.name);
+    say_mount_run(body);
+    return std::move(*loaded);
+}
+
+void say_halo(const look::RideOffset& offset) {
+    std::println("Quầng {} lệch {} {} {}", look::kHaloSlot, offset.x, offset.y, offset.z);
+    std::println("Góc {} trục {} {} {}", offset.angle, offset.axis_x, offset.axis_y, offset.axis_z);
+}
+
+void say_ride(const look::RideFigure& figure) {
+    say_ride_name(figure);
+    say_ride_place(figure);
+    say_ride_speed(figure);
+    if (!figure.offset) return;
+    say_halo(*figure.offset);
+}
+
+// desc.ride_id đã có và vừa int32. Mã giới là giá trị Race (0 nữ, 1 nam), chưa chứng minh khớp
+// +0x1c.
+[[nodiscard]] core::Result<look::RideFigure> figure_for_ride(const PlayerDesc& desc) {
+    const std::string folder = io::utf8_of(desc.data_root / "Table");
+    auto tables = look::load_ride_tables(folder, read_table);
+    if (!tables) return ride_fail(tables.error());
+    const int sex = static_cast<int>(desc.race);
+    const auto id = static_cast<std::int32_t>(*desc.ride_id);
+    auto figure = look::ride_figure(*tables, id, sex, sex, look::kRideOwner);
+    if (!figure) return ride_fail(figure.error());
+    return std::move(*figure);
+}
+
+// Lưới, neo và clip. Khác gốc: chưa cộng add_height, chưa áp lệch quầng.
+struct RideDrawn {
+    std::vector<const render::Drawable*> meshes;
+    math::Matrix4 seat = math::Matrix4::identity();
+    std::optional<avatar::Avatar> body;
+    std::optional<avatar::Locator> point;
+    avatar::ClipLengths lengths{};
+    bool fidget = false;
+    std::int32_t speed_percent = 0;
+    std::vector<RideSpark> sparks;
+};
+
+[[nodiscard]] std::vector<look::LocatorRow> locator_rows(const PlayerDesc& desc) {
+    auto table = open_table(desc, "ride_locators.tsv");
+    if (!table) return {};
+    auto rows = look::read_locators(*table);
+    if (!rows) {
+        std::println(stderr, "Thú cưỡi: {}", rows.error());
+        return {};
+    }
+    return std::move(*rows);
+}
+
+[[nodiscard]] anim::SourceSkeleton skeleton_bones(const PlayerDesc& desc,
+    std::string_view skeleton_glb) {
+    anim::SourceSkeleton bones;
+    const std::string root = io::utf8_of(desc.data_root);
+    auto model = resource::load_named_model(std::string(skeleton_glb), root);
+    if (!model) return bones;
+    auto read = resource::bones_of(*model);
+    if (!read) return bones;
+    return std::move(*read);
+}
+
+[[nodiscard]] RideSpark spark_from(const look::RideEffect& effect, const look::LocatorRow& row,
+    const anim::SourceSkeleton& bones) {
+    RideSpark spark;
+    spark.name = effect.effect;
+    spark.locator = avatar::make_locator(row, bones);
+    spark.translate_all = effect.translate_all;
+    return spark;
+}
+
+void add_spark(std::vector<RideSpark>& out, const look::RideEffect& effect,
+    std::span<const look::LocatorRow> locators, const anim::SourceSkeleton& bones) {
+    const look::LocatorRow* row = look::find_locator(locators, effect.object, effect.locator);
+    if (row == nullptr) {
+        std::println(stderr, "Thú cưỡi: {} thiếu điểm {}", effect.object, effect.locator);
+        return;
+    }
+    out.push_back(spark_from(effect, *row, bones));
+}
+
+void add_object_sparks(std::vector<RideSpark>& out, std::span<const look::RideEffect> effects,
+    std::string_view object, std::span<const look::LocatorRow> locators,
+    const anim::SourceSkeleton& bones) {
+    for (const look::RideEffect& effect : effects) {
+        if (effect.object != object) continue;
+        add_spark(out, effect, locators, bones);
+    }
+}
+
+void fill_sparks(std::vector<RideSpark>& out, const PlayerDesc& desc,
+    const look::RideFigure& figure, std::string_view skeleton_glb) {
+    const std::string path = io::utf8_of(desc.data_root / "Table" / "ride_effects.tsv");
+    auto text = read_table(path);
+    if (!text) {
+        std::println(stderr, "Thú cưỡi: không đọc ride_effects.tsv");
+        return;
+    }
+    auto effects = look::parse_ride_effects(*text);
+    if (!effects) {
+        std::println(stderr, "Thú cưỡi: {}", effects.error());
+        return;
+    }
+    const std::string object = with_suffix(figure.mesh, ".obj");
+    const std::vector<look::LocatorRow> locators = locator_rows(desc);
+    const anim::SourceSkeleton bones = skeleton_bones(desc, skeleton_glb);
+    add_object_sparks(out, *effects, object, locators, bones);
+    std::println("Hiệu ứng thú {} điểm", out.size());
+}
+
+[[nodiscard]] const render::Drawable* take_ride_mesh(const MeshLoader& load_mesh,
+    const std::string& file, std::string_view materials) {
+    const render::Drawable* drawable = load_mesh(file, materials);
+    if (drawable == nullptr) std::println(stderr, "Người chơi: bỏ lưới thú {}", file);
+    return drawable;
+}
+
+void keep_ride_mesh(RideDrawn& drawn, const render::Drawable* drawable) {
+    if (drawable == nullptr) return;
+    drawn.meshes.push_back(drawable);
+}
+
+void use_baked_mesh(RideDrawn& drawn, const MeshLoader& load_mesh, const std::string& file) {
+    const std::string_view baked;
+    const render::Drawable* drawable = take_ride_mesh(load_mesh, file, baked);
+    keep_ride_mesh(drawn, drawable);
+}
+
+void add_ride_entity(RideDrawn& drawn, const MeshLoader& load_mesh,
+    const look::RideEntity& entity) {
+    if (!entity.condition.empty()) {
+        std::println(stderr, "Thú cưỡi: bỏ lưới có điều kiện {}", entity.file);
+        return;
+    }
+    const render::Drawable* drawable = take_ride_mesh(load_mesh, entity.file, entity.materials);
+    keep_ride_mesh(drawn, drawable);
+}
+
+void add_object_entities(RideDrawn& drawn, const MeshLoader& load_mesh,
+    std::span<const look::RideEntity> rows, std::string_view object) {
+    for (const look::RideEntity& entity : rows) {
+        if (entity.object != object) continue;
+        add_ride_entity(drawn, load_mesh, entity);
+    }
+}
+
+// Danh sách Entity của all.obj. Không có dòng thì mới rơi về tên lưới của CharModelEx.
+void fill_entities(RideDrawn& drawn, const PlayerDesc& desc, const look::RideFigure& figure,
+    const MeshLoader& load_mesh) {
+    const std::string object = with_suffix(figure.mesh, ".obj");
+    const std::string path = io::utf8_of(desc.data_root / "Table" / "ride_entities.tsv");
+    auto text = read_table(path);
+    if (!text) {
+        std::println(stderr, "Thú cưỡi: không đọc ride_entities.tsv");
+        use_baked_mesh(drawn, load_mesh, figure.mesh);
+        return;
+    }
+    auto rows = look::parse_ride_entities(*text);
+    if (!rows) {
+        std::println(stderr, "Thú cưỡi: {}", rows.error());
+        use_baked_mesh(drawn, load_mesh, figure.mesh);
+        return;
+    }
+    const std::size_t before = drawn.meshes.size();
+    add_object_entities(drawn, load_mesh, *rows, object);
+    if (drawn.meshes.size() != before) {
+        std::println("Lưới thú {} tệp", drawn.meshes.size() - before);
+        return;
+    }
+    std::println(stderr, "Thú cưỡi: {} không có danh sách lưới", object);
+    use_baked_mesh(drawn, load_mesh, figure.mesh);
+}
+
+void fill_ride(RideDrawn& drawn, const PlayerDesc& desc, const look::RideFigure& figure,
+    const MeshLoader& load_mesh) {
+    const std::string skeleton = ride_skeleton_name(desc, figure);
+    const std::string skeleton_glb = with_glb(skeleton);
+    const SeatPose seated = seat_pose(desc, figure, skeleton_glb);
+    drawn.seat = seated.seat;
+    drawn.point = seated.point;
+    const MountPose pose = mount_pose(desc, figure.model_id);
+    drawn.body = mount_avatar(desc, skeleton, pose);
+    if (drawn.body) drawn.lengths = drawn.body->lengths();
+    drawn.fidget = pose.idle_alt.has_value();
+    fill_entities(drawn, desc, figure, load_mesh);
+    fill_sparks(drawn.sparks, desc, figure, skeleton_glb);
+}
+
+// desc.ride_id đã có. Đổi clip người trước khi nạp avatar người.
+[[nodiscard]] core::Result<RideDrawn> ride_drawn(const PlayerDesc& desc, look::Figure& rider,
+    look::Weapon weapon, const MeshLoader& load_mesh) {
+    if (!ride_id_fits(*desc.ride_id)) return ride_id_fail();
+    auto figure = figure_for_ride(desc);
+    if (!figure) return std::unexpected(figure.error());
+    say_ride(*figure);
+    const std::vector<look::AnimRow> anims = load_ride_anims(desc);
+    apply_ride_anims(rider, anims, figure->rider_action, weapon);
+    RideDrawn drawn;
+    fill_ride(drawn, desc, *figure, load_mesh);
+    drawn.speed_percent = figure->speed_percent;
+    return drawn;
+}
+
+[[nodiscard]] core::Result<RideDrawn> take_ride(const PlayerDesc& desc, Built& built,
+    const MeshLoader& load_mesh) {
+    RideDrawn drawn;
+    if (!desc.ride_id) return drawn;
+    auto ready = ride_drawn(desc, built.figure, built.weapon, load_mesh);
+    if (!ready) return std::unexpected(ready.error());
+    if (!built.figure.idle_alt) built.fidget = false;
+    return std::move(*ready);
 }
 
 // Đòn của mọi skill đã học theo giới và loại vũ khí đang cầm. Người mẫu môn phái không đánh nên bỏ qua.
@@ -235,6 +744,13 @@ void take_step(SkillRun& run, const look::Strike& strike, std::uint32_t skill) {
     run.steps.push_back(strike.step);
 }
 
+[[nodiscard]] ogre::Vec3 offset_of(const math::Point3& foot, const ogre::Vec3& around) {
+    const float x = foot.x() + around.x;
+    const float y = foot.y() + around.y;
+    const float z = foot.z() + around.z;
+    return ogre::Vec3{.x = x, .y = y, .z = z};
+}
+
 [[nodiscard]] SkillRun skill_run(std::span<const look::Strike> strikes, std::uint32_t skill) {
     SkillRun run;
     for (const look::Strike& strike : strikes) take_step(run, strike, skill);
@@ -248,9 +764,30 @@ void take_step(SkillRun& run, const look::Strike& strike, std::uint32_t skill) {
     const ogre::Vec3 grown{.x = pose.position.x * drawn.scale, .y = pose.position.y * drawn.scale,
         .z = pose.position.z * drawn.scale};
     const ogre::Vec3 around = ogre::quat_rotate(turn, grown);
-    return WorldPose{.position = ogre::Vec3{.x = drawn.foot.x() + around.x, .y = drawn.foot.y() + around.y,
-                         .z = drawn.foot.z() + around.z},
-        .orientation = ogre::quat_multiply(turn, pose.orientation)};
+    const ogre::Vec3 position = offset_of(drawn.foot, around);
+    const ogre::Quat facing = ogre::quat_multiply(turn, pose.orientation);
+    return WorldPose{.position = position, .orientation = facing};
+}
+
+// translateAll thiếu hoặc false (parser gốc để 0): giữ vị trí điểm neo, hướng chỉ theo người cưỡi.
+[[nodiscard]] RideFx ride_fx_at(const RideSpark& spark, std::uint32_t index, std::int32_t ride,
+    std::span<const anim::Transform> bones, const Stand& drawn) {
+    anim::Transform pose = avatar::locator_pose(spark.locator, bones);
+    if (!spark.translate_all) pose.orientation = {};
+    const WorldPose placed = world_of(pose, drawn);
+    RideFx made;
+    made.ride = ride;
+    made.index = index;
+    made.name = spark.name;
+    made.position = placed.position;
+    made.orientation = placed.orientation;
+    return made;
+}
+
+[[nodiscard]] core::Result<avatar::Avatar> load_rider(const look::Figure& figure,
+    const PlayerDesc& desc, std::span<const look::Strike> strikes,
+    std::span<const look::LocatorRow> locators) {
+    return avatar::Avatar::load(figure, desc.data_root, strikes, locators);
 }
 
 } // namespace
@@ -262,6 +799,7 @@ PlayerActor::PlayerActor(avatar::Avatar avatar, std::vector<const render::Drawab
       lengths_(avatar_.lengths()),
       parts_(std::move(parts)),
       held_(std::move(held)),
+      ride_gait_(kSeed, avatar::kIdleInterval),
       cue_demo_(demo) {
     gait_.set_fidget(fidget);
 }
@@ -284,22 +822,68 @@ core::Result<PlayerActor> PlayerActor::create(const PlayerDesc& desc, const Mesh
         if (!read) return std::unexpected(read.error());
         tables = std::move(*read);
     }
-    const auto built = figure_of(tables->look, desc);
+    auto built = figure_of(tables->look, desc);
     if (!built) return std::unexpected(built.error());
+    auto ride = take_ride(desc, *built, load_mesh);
+    if (!ride) return std::unexpected(ride.error());
     const std::vector<look::Strike> strikes = strikes_for(tables->skills, desc, built->weapon);
-    auto avatar = avatar::Avatar::load(built->figure, desc.data_root, strikes, tables->look.weapons.locators);
+    const auto locators = std::span<const look::LocatorRow>{tables->look.weapons.locators};
+    auto avatar = load_rider(built->figure, desc, strikes, locators);
     if (!avatar) return std::unexpected(avatar.error());
     std::vector<const render::Drawable*> parts = load_parts(built->figure, load_mesh);
     std::vector<HeldMesh> held = load_held(built->figure, load_mesh);
-    return PlayerActor(std::move(*avatar), std::move(parts), std::move(held), built->fidget, built->demo);
+    const bool fidget = built->fidget;
+    const bool demo = built->demo;
+    PlayerActor actor(std::move(*avatar), std::move(parts), std::move(held), fidget, demo);
+    actor.ride_ = std::move(ride->meshes);
+    actor.seat_ = ride->seat;
+    actor.ride_body_ = std::move(ride->body);
+    actor.ride_point_ = std::move(ride->point);
+    actor.ride_lengths_ = ride->lengths;
+    actor.ride_gait_.set_fidget(ride->fidget);
+    const bool has_mesh = !actor.ride_.empty();
+    const bool has_body = actor.ride_body_.has_value();
+    actor.riding_ = desc.ride_id.has_value() && (has_mesh || has_body);
+    actor.ride_speed_percent_ = ride->speed_percent;
+    const bool keep_fx = actor.riding_ && desc.ride_id.has_value();
+    if (!keep_fx) return actor;
+    actor.ride_sparks_ = std::move(ride->sparks);
+    actor.ride_id_ = static_cast<std::int32_t>(*desc.ride_id);
+    return actor;
+}
+
+bool PlayerActor::stays_airborne(const Stand& stand) const noexcept {
+    const bool planted = riding_ && !stand.is_moving;
+    return !planted;
+}
+
+void PlayerActor::begin_ride_jump(core::Clock::time_point now, const Stand& stand) {
+    if (stand.jump) ride_gait_.jump(now, *stand.jump, ride_lengths_, stays_airborne(stand));
+    if (stand.has_landed) ride_gait_.land(now, ride_lengths_);
+}
+
+core::Status PlayerActor::pose_ride(core::Clock::time_point now, const Stand& stand) {
+    if (!ride_body_) return core::ok();
+    // ChangeAction param_8 = 1 (0x1405e2680): thú nhận cùng hành động 9 hoặc 12 trước update.
+    begin_ride_jump(now, stand);
+    const avatar::Playing playing = ride_gait_.update(now, stand.is_moving, ride_lengths_);
+    const core::Status posed = ride_skin_.update(*ride_body_, playing);
+    if (!posed) return posed;
+    if (!ride_point_) return core::ok();
+    const anim::Transform pose = avatar::locator_pose(*ride_point_, ride_skin_.derived());
+    const anim::Affine rows = anim::affine_of(pose);
+    seat_ = avatar::matrix_of(rows);
+    return core::ok();
 }
 
 core::Status PlayerActor::update(core::Clock::time_point now, const Stand& stand) {
+    const core::Status riding = pose_ride(now, stand);
+    if (!riding) return riding;
     if (cue_demo_) {
         gait_.cue(avatar::Stance::kIdleAlt);
         cue_demo_ = false;
     }
-    if (stand.jump) gait_.jump(now, *stand.jump, lengths_);
+    if (stand.jump) gait_.jump(now, *stand.jump, lengths_, stays_airborne(stand));
     if (stand.has_landed) gait_.land(now, lengths_);
     release_chain(now, stand);
     if (stand.strike && !gait_.is_locked(now)) begin_strike(now, *stand.strike);
@@ -314,6 +898,7 @@ core::Status PlayerActor::update(core::Clock::time_point now, const Stand& stand
     fire_cues(playing, drawn);
     place_gear(drawn);
     place_follows(drawn);
+    place_ride_fx(drawn);
     return core::ok();
 }
 
@@ -353,6 +938,16 @@ struct ChainSlot {
         ++seen;
     }
     return std::nullopt;
+}
+
+void add_ride(std::vector<render::Instance>& out, const render::Drawable* drawable,
+    const math::Matrix4& world, std::span<const math::Matrix4> joints) {
+    render::Instance instance;
+    instance.drawable = drawable;
+    instance.world = world;
+    instance.joints = joints;
+    instance.is_actor = true;
+    out.push_back(instance);
 }
 
 } // namespace
@@ -463,7 +1058,28 @@ void PlayerActor::place_follows(const Stand& drawn) {
         const std::optional<anim::Transform> pose = avatar_.event_pose(follower.strike, follower.event, skinner_.derived());
         if (!pose) continue;
         const WorldPose placed = world_of(*pose, drawn);
-        follows_.push_back(CueFollow{.token = follower.token, .position = placed.position, .orientation = placed.orientation});
+        CueFollow follow;
+        follow.token = follower.token;
+        follow.position = placed.position;
+        follow.orientation = placed.orientation;
+        follows_.push_back(follow);
+    }
+}
+
+std::span<const anim::Transform> PlayerActor::ride_bones_now() const noexcept {
+    if (!ride_body_) return {};
+    return ride_skin_.derived();
+}
+
+void PlayerActor::place_ride_fx(const Stand& drawn) {
+    ride_fx_.clear();
+    if (!riding_) return;
+    const std::span<const anim::Transform> bones = ride_bones_now();
+    std::uint32_t index = 0;
+    for (const RideSpark& spark : ride_sparks_) {
+        const RideFx made = ride_fx_at(spark, index, ride_id_, bones, drawn);
+        ride_fx_.push_back(made);
+        ++index;
     }
 }
 
@@ -512,7 +1128,7 @@ void PlayerActor::append(std::vector<render::Instance>& out) const {
     for (const render::Drawable* drawable : parts_) {
         render::Instance instance;
         instance.drawable = drawable;
-        instance.world = placed_;
+        instance.world = placed_ * seat_;
         instance.joints = skinner_.joints();
         instance.is_actor = true;
         out.push_back(instance);
@@ -521,10 +1137,14 @@ void PlayerActor::append(std::vector<render::Instance>& out) const {
         if (held.mount >= mounts_.size()) continue;
         render::Instance instance;
         instance.drawable = held.drawable;
-        instance.world = placed_ * mounts_[held.mount];
+        instance.world = placed_ * seat_ * mounts_[held.mount];
         instance.is_actor = true;
         out.push_back(instance);
     }
+    std::span<const math::Matrix4> joints;
+    if (ride_body_) joints = ride_skin_.joints();
+    for (const render::Drawable* drawable : ride_)
+        add_ride(out, drawable, placed_, joints);
 }
 
 } // namespace game::client

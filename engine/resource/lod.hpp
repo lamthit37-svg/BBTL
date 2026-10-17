@@ -27,6 +27,9 @@ namespace game::resource {
 // luồng nạp. Primitive nhỏ hoặc không giảm nổi thì lods để rỗng.
 void build_lods(Model& model);
 
+// Bỏ mọi mức chi tiết (và has_lods): cho nơi dùng không vẽ theo mức, như nhân vật hay bản PC.
+void drop_lods(Model& model) noexcept;
+
 // Chia primitive tam giác thành khối vuông cạnh span (đơn vị thế giới, theo trục x và z) bằng cách sắp lại tam giác theo ô
 // chứa trọng tâm của chúng, rồi điền Primitive::tiles. Đỉnh giữ nguyên; thứ tự tam giác trong cùng khối giữ như cũ. Bỏ qua
 // (không đổi gì) khi span không dương, chỉ số ngoài đỉnh, hoặc số khối vượt trần.

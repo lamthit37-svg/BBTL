@@ -24,7 +24,17 @@
 
 #include <array>
 #include <random>
+#include <string>
+#include <string_view>
 namespace game::client {
+
+// Ô bấm đổi thú, điểm ảnh của frame_rect, gốc trái trên.
+struct RideBox {
+    float left = 0.0F;
+    float top = 0.0F;
+    float right = 0.0F;
+    float bottom = 0.0F;
+};
 
 // Chặng CPU của draw_world, đúng thứ tự các lần cpu_stages.next() ở frame.cpp. Tên là vùng ATrace.
 inline constexpr std::array<const char*, 7> kCpuStages{
@@ -105,6 +115,8 @@ struct Display::State {
     [[nodiscard]] ogre::Vec3 foot() const;
     void move_player(const Steering& keys, float dt);
     void walk_free(const Steering& keys, float dt);
+    // Chạy người. Đang cưỡi thì nhân (100 + speed_percent) / 100.
+    [[nodiscard]] float travel_speed() const noexcept;
     void step_jump(bool wants_jump, float dt);
     [[nodiscard]] float jump_lift(float surface) const noexcept;
     void walk_order(float dt);
@@ -117,6 +129,11 @@ struct Display::State {
     void ensure_gates();
     // Resid đổi: điểm đến của cổng, không có điểm thì ô trống gần giữa map.
     void place_at(int scene_id);
+    // Chỗ đứng khi vào scene_id: chỗ máy chủ đặt cho đúng cảnh ấy, không thì điểm đến của cổng.
+    [[nodiscard]] map::GateStand stand_for(int scene_id, const std::optional<EntryPoint>& entry);
+    // Chỗ vào game máy chủ đã gửi: take lấy ra khỏi hàng (place_at), peek chỉ xem.
+    [[nodiscard]] std::optional<EntryPoint> take_entry();
+    [[nodiscard]] std::optional<EntryPoint> peek_entry();
     // Áp tin thế giới tới từ phiên mạng: kéo về thì đặt lại chỗ đứng, còn lại cập nhật các thực thể.
     void apply_world();
     // Đặt nhân vật vào chỗ (đơn vị game) máy chủ nói: bỏ lệnh đi đang chạy.
@@ -124,6 +141,8 @@ struct Display::State {
     // Ghi chỗ đứng cho luồng cửa sổ báo máy chủ (hoặc xoá khi không có gì để báo).
     void publish_spot(bool is_live);
     [[nodiscard]] render::Camera frame_camera(FrameAsk ask);
+    // Ghi khung nhìn của khung đang vẽ.
+    void note_view(const render::Camera& camera);
     // Chép mắt và hướng camera sang tai nghe cho luồng cửa sổ. Gọi khi has_lens vừa đúng.
     void publish_ear();
     [[nodiscard]] render::Camera idle_view(FrameAsk ask);
@@ -158,6 +177,8 @@ struct Display::State {
     void dispatch_actor_cues(PlayerActor& actor, std::uint32_t owner);
     // Hiệu ứng đồ của người chơi (PlayerActor::gear_effects): dựng khi có, dừng khi hết, dời theo điểm 武器特效点 mỗi khung.
     void sync_gear();
+    // Hạt luôn bật của thú (PlayerActor::ride_fx): dựng theo thẻ Effect, dừng khi đổi thú.
+    void sync_ride();
     // Hiệu ứng bám của đòn (SkillCue::token): dời theo điểm gắn mỗi khung tới khi hiệu ứng hết.
     void sync_follows();
     void apply_kept(const KeptRole& restored);
@@ -174,6 +195,9 @@ struct Display::State {
     [[nodiscard]] control::ScreenPoint framed_point(const control::InputEvent& event) const noexcept;
     [[nodiscard]] std::optional<ui::SceneLoad> scene_load() const;
     [[nodiscard]] bool is_on_hud(control::ScreenPoint point) const;
+    [[nodiscard]] bool hits_ride(float x, float y, const RideBox& box) const noexcept;
+    void note_ride_press();
+    void paint_ride_switch();
     void fill_pace_board();
     void prepare_board();
     // Ba mốc của một khung: bắt đầu xin ảnh, đã có ảnh, đã ghi xong lệnh vẽ.
@@ -287,6 +311,13 @@ struct Display::State {
     [[nodiscard]] std::vector<std::size_t> load_listed(const PropTable& table);
     void load_stage();
     void load_player();
+    // with_head false: đổi thú, không dựng lại chân dung.
+    [[nodiscard]] bool spawn_player(bool with_head);
+    void apply_ride_step();
+    void clear_ride_jump();
+    void say_ride_switch() const;
+    [[nodiscard]] bool ensure_ride_catalog();
+    [[nodiscard]] std::string ride_caption() const;
     void load_head(const PlayerDesc& desc, const MeshLoader& loader);
     void keep_view(HeadShot& shot, std::string_view name);
     void record_head(gpu::CommandList& list);
@@ -300,6 +331,10 @@ struct Display::State {
     void bind_ground(const KeptGround* slot);
     [[nodiscard]] KeptGround* make_ground(int scene_id);
     [[nodiscard]] std::size_t load_mesh(const std::string& mesh);
+    // materials rỗng đi đường load_mesh. Khác rỗng thì chồng tên submesh và nhớ riêng.
+    [[nodiscard]] std::size_t load_ride_mesh(const std::string& mesh, std::string_view materials);
+    [[nodiscard]] const render::Drawable* ride_drawable(const std::string& mesh,
+        std::string_view materials);
     // Quái và NPC (graphic/creature.cpp): bảng đọc ở luồng riêng từ lúc thấy thực thể đầu tiên, hình dùng chung theo
     // template, rồi từng thực thể dựng tư thế mỗi khung. budget là số hình mới còn được nạp ở khung này.
     void append_creatures();
@@ -450,6 +485,20 @@ struct Display::State {
         std::uint32_t handle = 0;
     };
     std::vector<GearHandle> gear_handles;
+    // Hạt thú đang chạy. handle 0 là không dựng được, không thử lại. Đổi id thú thì thả cái cũ.
+    struct RideHandle {
+        std::int32_t ride = -1;
+        std::uint32_t index = 0;
+        std::string name;
+        std::uint32_t handle = 0;
+    };
+    std::vector<RideHandle> ride_handles;
+    [[nodiscard]] static bool same_ride(const RideFx& place, const RideHandle& prior);
+    [[nodiscard]] const RideHandle* find_ride(const RideFx& place) const;
+    [[nodiscard]] bool wants_ride(std::span<const RideFx> wanted, const RideHandle& prior) const;
+    [[nodiscard]] bool drop_ride(const RideHandle& prior, std::span<const RideFx> wanted);
+    void spawn_ride(const RideFx& place);
+    void move_or_spawn_ride(const RideFx& place);
     // Hiệu ứng bám của đòn: dấu của PlayerActor và handle trong fx_view.
     struct FollowHandle {
         // 0 là nhân vật mình. Id thực thể là người chơi khác.
@@ -655,6 +704,10 @@ struct Display::State {
     // Số ảnh 3D đã gắn vào giao diện: đầu, rồi toàn thân nếu dựng được.
     std::uint8_t view_count = 0;
     std::vector<render::Instance> instances;
+    // Khung nhìn của khung vừa vẽ. note_view ghi.
+    render::Frustum view_frustum{};
+    math::Vector3 view_eye{0.0F, 0.0F, 0.0F};
+    int view_scene = -1;
     std::vector<map::Gate> gates;
     std::vector<double> frame_ms;
     // Luồng vẽ; join trong settle.
@@ -734,6 +787,16 @@ struct Display::State {
     // DisplayDesc::weapon_item: vật phẩm khe 0 mà công cụ thử gieo vào hero.equipment như gói trang bị của
     // máy chủ; ngoại hình đọc từ hero.equipment, không đọc biến này.
     std::optional<std::uint32_t> weapon_item;
+    // DisplayDesc::ride_id: id CharMount của --mount. Ảnh chân dung không dùng.
+    std::optional<std::uint32_t> ride_id;
+    // Mọi id CharMount >= 0, đúng thứ tự bảng, để nút duyệt từng con. Nạp một lần.
+    std::vector<std::int32_t> ride_catalog;
+    bool ride_catalog_ready = false;
+    RideBox ride_prev{};
+    RideBox ride_next{};
+    bool ride_buttons_live = false;
+    // -1 thú trước, +1 thú sau, 0 là không bấm. apply_ride_step xoá sau một lần.
+    int ride_step = 0;
     // DisplayDesc::weapon_gem: đá quý của vũ khí mà công cụ thử gieo vào hero.equipment.
     std::optional<std::uint32_t> weapon_gem;
     // DisplayDesc::skill_id: skill học thêm mà công cụ thử gieo vào hero.skills.

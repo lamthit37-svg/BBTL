@@ -14,6 +14,8 @@
  *============================================================================*/
 
 #include "client/display/graphic/state.hpp"
+
+#include <format>
 namespace game::client {
 
 // Một lượt của luồng vẽ, kể cả lúc cửa sổ bị che; false khi dừng vì lỗi vẽ.
@@ -334,6 +336,29 @@ void Display::State::load_stage() {
     std::println("Nạp cảnh: {} mesh nhớ, {} vật thể", kept.size(), instances.size());
 }
 
+namespace {
+
+void append_material(std::vector<std::string>& names, std::string_view text, std::size_t from,
+    std::size_t until) {
+    names.emplace_back(text.substr(from, until - from));
+}
+
+[[nodiscard]] std::vector<std::string> material_names(std::string_view text) {
+    std::vector<std::string> names;
+    std::size_t from = 0;
+    while (from <= text.size()) {
+        const std::size_t mark = text.find(';', from);
+        const bool last = mark == std::string_view::npos;
+        const std::size_t until = last ? text.size() : mark;
+        append_material(names, text, from, until);
+        if (last) return names;
+        from = mark + 1;
+    }
+    return names;
+}
+
+} // namespace
+
 std::size_t Display::State::load_mesh(const std::string& mesh) {
     const auto found = kept_by_name.find(mesh);
     if (found != kept_by_name.end()) return found->second;
@@ -344,6 +369,29 @@ std::size_t Display::State::load_mesh(const std::string& mesh) {
         return kMissing;
     }
     return keep_model(mesh, baked_mesh(std::move(*model), bake_rules(), true));
+}
+
+std::size_t Display::State::load_ride_mesh(const std::string& mesh, std::string_view materials) {
+    if (materials.empty()) return load_mesh(mesh);
+    const std::string key = std::format("{}\n{}", mesh, materials);
+    const auto found = kept_by_name.find(key);
+    if (found != kept_by_name.end()) return found->second;
+    const std::vector<std::string> names = material_names(materials);
+    const std::string root = io::utf8_of(data_root);
+    auto model = resource::load_mesh_painted(mesh, root, names, texture_tier);
+    if (!model) {
+        std::println(stderr, "Bỏ mesh {}: {}", mesh, model.error());
+        kept_by_name.emplace(key, kMissing);
+        return kMissing;
+    }
+    return keep_model(key, baked_mesh(std::move(*model), bake_rules(), true));
+}
+
+const render::Drawable* Display::State::ride_drawable(const std::string& mesh,
+    std::string_view materials) {
+    const std::size_t index = load_ride_mesh(mesh, materials);
+    if (index == kMissing) return nullptr;
+    return &kept.at(index).loaded.drawable;
 }
 
 std::size_t Display::State::keep_model(const std::string& mesh, ReadMesh read) {

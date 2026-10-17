@@ -79,6 +79,14 @@ struct Argument {
 }
 
 // Mã vật phẩm: số nguyên không âm hệ mười chiếm trọn chuỗi.
+// Id CharMount: số nguyên không âm hệ mười chiếm trọn chuỗi. 0 là hổ, vẫn hợp lệ.
+[[nodiscard]] bool set_ride(Options& options, std::string_view text) noexcept {
+    const core::OptionalUnsigned parsed = core::parse_unsigned(text, 10);
+    if (!parsed || parsed->length != text.size()) return false;
+    options.ride_id = parsed->value;
+    return true;
+}
+
 [[nodiscard]] bool set_weapon(Options& options, std::string_view text) noexcept {
     const core::OptionalUnsigned parsed = core::parse_unsigned(text, 10);
     if (!parsed || parsed->length != text.size()) return false;
@@ -199,6 +207,7 @@ constexpr std::size_t kMostDemoCreatures = 32;
     if (argument.key == "--backend") return set_backend(options, argument.value);
     if (argument.key == "--size") return set_size(options, argument.value);
     if (argument.key == "--weapon") return set_weapon(options, argument.value);
+    if (argument.key == "--mount") return set_ride(options, argument.value);
     if (argument.key == "--gem") return set_gem(options, argument.value);
     if (argument.key == "--skill") return set_skill(options, argument.value);
     if (argument.key == "--auto-strike") return set_auto_strike(options, argument.value);

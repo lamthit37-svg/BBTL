@@ -882,6 +882,7 @@ private:
     shown.peer_count = desc.peer_count;
     shown.talk_demo = desc.talk_demo;
     shown.weapon_item = desc.weapon_item;
+    shown.ride_id = desc.ride_id;
     shown.weapon_gem = desc.weapon_gem;
     shown.skill_id = desc.skill_id;
     shown.is_validated = desc.is_validated;

@@ -67,8 +67,9 @@ enum class Pso : std::uint8_t {
     kFx = 5,
     kFxBlend = 6,
     kTerrain = 7,
-    // Model đục không cắt alpha (model_solid.ps, không discard): discard làm GPU tile mất khử che khuất. Đo 2026-10-15
-    // trên PowerVR GE8320: vật đục ăn 160 trong 217 ms mỗi khung. Không bắt buộc: thiếu gói thì vẽ bằng kModelOpaque.
+    // Model đục không cắt alpha (model_solid.ps, không discard): discard làm GPU tile mất khử che
+    // khuất. Đo 2026-10-15 trên PowerVR GE8320: vật đục ăn 160 trong 217 ms mỗi khung. Không bắt
+    // buộc: thiếu gói thì vẽ bằng kModelOpaque.
     kModelSolid = 8,
     kModelSolidTwoSided = 9,
     // Không chen trước kModelSolid: bit chất liệu model nằm ở các giá trị 0..3 và 8..9.
@@ -77,14 +78,20 @@ enum class Pso : std::uint8_t {
     kFxGlow = 12,
     kFxColour = 13,
     kFxReplace = 14,
-    // Bầu trời EnScene (sky.vs, sky.ps; một cbuffer cho cả khung, xem display/sky_view.cpp). kSkyDome là vòm:
-    // đục, hai mặt kề nhau, nhìn từ trong; kSkyCloud là lớp mây và mây vòng: trộn alpha, hai mặt; kSkyBody là
-    // trăng và mặt trời: trộn alpha, một mặt. Ba PSO đều thử độ sâu và không ghi.
+    // Bầu trời EnScene (sky.vs, sky.ps; một cbuffer cho cả khung, xem display/sky_view.cpp).
+    // kSkyDome là vòm: đục, hai mặt kề nhau, nhìn từ trong; kSkyCloud là lớp mây và mây vòng: trộn
+    // alpha, hai mặt; kSkyBody là trăng và mặt trời: trộn alpha, một mặt. Ba PSO đều thử độ sâu và
+    // không ghi.
     kSkyDome = 15,
     kSkyCloud = 16,
     kSkyBody = 17,
-    // Sao (star.vs, star.ps): mỗi sao một hình chữ nhật bốn đỉnh, cộng màu một một, một mặt cắt không loại.
+    // Sao (star.vs, star.ps): mỗi sao một hình chữ nhật bốn đỉnh, cộng màu một một, một mặt cắt
+    // không loại.
     kSkyStar = 18,
+    // Cộng sáng one one (scene_blend add). Bit của 19 và 20 không phải cờ trộn hay hai mặt:
+    // make_model nhận riêng hai giá trị này. Không chen trước kModelSolid.
+    kModelAdd = 19,
+    kModelAddTwoSided = 20,
 };
 
 inline constexpr std::uint32_t kModelTwoSided = 1;
@@ -94,7 +101,7 @@ inline constexpr std::uint32_t kModelFrameBytes = 2896;
 inline constexpr std::uint32_t kModelDrawBytes = gpu::kMaxPushBytes;
 inline constexpr std::size_t kModelVariants = 4;
 inline constexpr std::size_t kPackageCount = 12;
-inline constexpr std::size_t kSlotCount = 19;
+inline constexpr std::size_t kSlotCount = 21;
 // Cỡ khối hằng của sky.inc.slang: SkyBlock (32 lệnh, mỗi lệnh 16 float4) và push constant (một uvec4).
 inline constexpr std::uint32_t kSkyFrameBytes = 8192;
 inline constexpr std::uint32_t kSkyDrawBytes = 16;
@@ -132,163 +139,130 @@ struct Entry {
     std::uint32_t draw_bytes = 0;
 };
 
-// Bảng tĩnh. Thêm shader là thêm một dòng. prepare đi theo bảng, không theo tên viết cứng.
+// Bảng tĩnh. Thêm shader là thêm một hàm rồi một tên vào mảng. prepare đi theo bảng.
+constexpr Entry character_entry(std::string_view name, Pso pso) {
+    Entry entry;
+    entry.name = name;
+    entry.group = Group::kCharacter;
+    entry.tier = Tier::kEssential;
+    entry.pso = pso;
+    entry.vertex = "model.vs";
+    entry.pixel = "model.ps";
+    entry.is_required = true;
+    entry.frame_bytes = kModelFrameBytes;
+    entry.draw_bytes = kModelDrawBytes;
+    return entry;
+}
+
+constexpr Entry world_entry(std::string_view name, Pso pso, std::string_view pixel) {
+    Entry entry;
+    entry.name = name;
+    entry.group = Group::kWorld;
+    entry.tier = Tier::kEssential;
+    entry.pso = pso;
+    entry.vertex = "model.vs";
+    entry.pixel = pixel;
+    entry.is_required = false;
+    entry.frame_bytes = kModelFrameBytes;
+    entry.draw_bytes = kModelDrawBytes;
+    return entry;
+}
+
+constexpr Entry solid_entry(std::string_view name, Pso pso) {
+    return world_entry(name, pso, "model_solid.ps");
+}
+
+constexpr Entry terrain_entry() {
+    return world_entry("render.terrain", Pso::kTerrain, "terrain.ps");
+}
+
+constexpr Entry effect_entry(std::string_view name, Pso pso) {
+    Entry entry;
+    entry.name = name;
+    entry.group = Group::kVfx;
+    entry.tier = Tier::kScene;
+    entry.pso = pso;
+    entry.vertex = "fx.vs";
+    entry.pixel = "fx.ps";
+    entry.is_required = false;
+    return entry;
+}
+
+constexpr Entry sky_entry(std::string_view name, Pso pso, std::string_view vertex,
+    std::string_view pixel) {
+    Entry entry;
+    entry.name = name;
+    entry.group = Group::kSky;
+    entry.tier = Tier::kScene;
+    entry.pso = pso;
+    entry.vertex = vertex;
+    entry.pixel = pixel;
+    entry.is_required = false;
+    entry.frame_bytes = kSkyFrameBytes;
+    entry.draw_bytes = kSkyDrawBytes;
+    return entry;
+}
+
+constexpr Entry ui_entry() {
+    Entry entry;
+    entry.name = "render.ui";
+    entry.group = Group::kUi;
+    entry.tier = Tier::kBootstrap;
+    entry.pso = Pso::kUi;
+    entry.vertex = "ui.vs";
+    entry.pixel = "ui.ps";
+    entry.is_required = false;
+    return entry;
+}
+
+// Tên nằm trong row để không đụng kTwoSided, kFxColour của forward và của đỉnh hạt.
+namespace row {
+constexpr auto opaque = character_entry("render.model.opaque", Pso::kModelOpaque);
+constexpr auto two_sided = character_entry("render.model.two_sided", Pso::kModelTwoSided);
+constexpr auto blend = character_entry("render.model.blend", Pso::kModelBlend);
+constexpr auto blend_two =
+    character_entry("render.model.blend_two_sided", Pso::kModelBlendTwoSided);
+constexpr auto ui = ui_entry();
+constexpr auto fx = effect_entry("render.fx", Pso::kFx);
+constexpr auto fx_blend = effect_entry("render.fx.blend", Pso::kFxBlend);
+constexpr auto terrain = terrain_entry();
+constexpr auto solid = solid_entry("render.model.solid", Pso::kModelSolid);
+constexpr auto solid_two = solid_entry("render.model.solid_two_sided", Pso::kModelSolidTwoSided);
+constexpr auto fx_alpha = effect_entry("render.fx.alpha_add", Pso::kFxAlphaAdd);
+constexpr auto fx_darken = effect_entry("render.fx.darken", Pso::kFxDarken);
+constexpr auto fx_glow = effect_entry("render.fx.glow", Pso::kFxGlow);
+constexpr auto fx_tint = effect_entry("render.fx.colour", Pso::kFxColour);
+constexpr auto fx_replace = effect_entry("render.fx.replace", Pso::kFxReplace);
+constexpr auto dome = sky_entry("render.sky.dome", Pso::kSkyDome, "sky.vs", "sky.ps");
+constexpr auto cloud = sky_entry("render.sky.cloud", Pso::kSkyCloud, "sky.vs", "sky.ps");
+constexpr auto body = sky_entry("render.sky.body", Pso::kSkyBody, "sky.vs", "sky.ps");
+constexpr auto star = sky_entry("render.sky.star", Pso::kSkyStar, "star.vs", "star.ps");
+constexpr auto add = character_entry("render.model.add", Pso::kModelAdd);
+constexpr auto add_two = character_entry("render.model.add_two_sided", Pso::kModelAddTwoSided);
+} // namespace row
+
 inline constexpr std::array<Entry, kSlotCount> kEntries{{
-    {.name = "render.model.opaque",
-        .group = Group::kCharacter,
-        .tier = Tier::kEssential,
-        .pso = Pso::kModelOpaque,
-        .vertex = "model.vs",
-        .pixel = "model.ps",
-        .is_required = true,
-        .frame_bytes = kModelFrameBytes,
-        .draw_bytes = kModelDrawBytes},
-    {.name = "render.model.two_sided",
-        .group = Group::kCharacter,
-        .tier = Tier::kEssential,
-        .pso = Pso::kModelTwoSided,
-        .vertex = "model.vs",
-        .pixel = "model.ps",
-        .is_required = true,
-        .frame_bytes = kModelFrameBytes,
-        .draw_bytes = kModelDrawBytes},
-    {.name = "render.model.blend",
-        .group = Group::kCharacter,
-        .tier = Tier::kEssential,
-        .pso = Pso::kModelBlend,
-        .vertex = "model.vs",
-        .pixel = "model.ps",
-        .is_required = true,
-        .frame_bytes = kModelFrameBytes,
-        .draw_bytes = kModelDrawBytes},
-    {.name = "render.model.blend_two_sided",
-        .group = Group::kCharacter,
-        .tier = Tier::kEssential,
-        .pso = Pso::kModelBlendTwoSided,
-        .vertex = "model.vs",
-        .pixel = "model.ps",
-        .is_required = true,
-        .frame_bytes = kModelFrameBytes,
-        .draw_bytes = kModelDrawBytes},
-    {.name = "render.ui",
-        .group = Group::kUi,
-        .tier = Tier::kBootstrap,
-        .pso = Pso::kUi,
-        .vertex = "ui.vs",
-        .pixel = "ui.ps",
-        .is_required = false},
-    {.name = "render.fx",
-        .group = Group::kVfx,
-        .tier = Tier::kScene,
-        .pso = Pso::kFx,
-        .vertex = "fx.vs",
-        .pixel = "fx.ps",
-        .is_required = false},
-    {.name = "render.fx.blend",
-        .group = Group::kVfx,
-        .tier = Tier::kScene,
-        .pso = Pso::kFxBlend,
-        .vertex = "fx.vs",
-        .pixel = "fx.ps",
-        .is_required = false},
-    {.name = "render.terrain",
-        .group = Group::kWorld,
-        .tier = Tier::kEssential,
-        .pso = Pso::kTerrain,
-        .vertex = "model.vs",
-        .pixel = "terrain.ps",
-        .is_required = false,
-        .frame_bytes = kModelFrameBytes,
-        .draw_bytes = kModelDrawBytes},
-    {.name = "render.model.solid",
-        .group = Group::kWorld,
-        .tier = Tier::kEssential,
-        .pso = Pso::kModelSolid,
-        .vertex = "model.vs",
-        .pixel = "model_solid.ps",
-        .is_required = false,
-        .frame_bytes = kModelFrameBytes,
-        .draw_bytes = kModelDrawBytes},
-    {.name = "render.model.solid_two_sided",
-        .group = Group::kWorld,
-        .tier = Tier::kEssential,
-        .pso = Pso::kModelSolidTwoSided,
-        .vertex = "model.vs",
-        .pixel = "model_solid.ps",
-        .is_required = false,
-        .frame_bytes = kModelFrameBytes,
-        .draw_bytes = kModelDrawBytes},
-    {.name = "render.fx.alpha_add",
-        .group = Group::kVfx,
-        .tier = Tier::kScene,
-        .pso = Pso::kFxAlphaAdd,
-        .vertex = "fx.vs",
-        .pixel = "fx.ps",
-        .is_required = false},
-    {.name = "render.fx.darken",
-        .group = Group::kVfx,
-        .tier = Tier::kScene,
-        .pso = Pso::kFxDarken,
-        .vertex = "fx.vs",
-        .pixel = "fx.ps",
-        .is_required = false},
-    {.name = "render.fx.glow",
-        .group = Group::kVfx,
-        .tier = Tier::kScene,
-        .pso = Pso::kFxGlow,
-        .vertex = "fx.vs",
-        .pixel = "fx.ps",
-        .is_required = false},
-    {.name = "render.fx.colour",
-        .group = Group::kVfx,
-        .tier = Tier::kScene,
-        .pso = Pso::kFxColour,
-        .vertex = "fx.vs",
-        .pixel = "fx.ps",
-        .is_required = false},
-    {.name = "render.fx.replace",
-        .group = Group::kVfx,
-        .tier = Tier::kScene,
-        .pso = Pso::kFxReplace,
-        .vertex = "fx.vs",
-        .pixel = "fx.ps",
-        .is_required = false},
-    {.name = "render.sky.dome",
-        .group = Group::kSky,
-        .tier = Tier::kScene,
-        .pso = Pso::kSkyDome,
-        .vertex = "sky.vs",
-        .pixel = "sky.ps",
-        .is_required = false,
-        .frame_bytes = kSkyFrameBytes,
-        .draw_bytes = kSkyDrawBytes},
-    {.name = "render.sky.cloud",
-        .group = Group::kSky,
-        .tier = Tier::kScene,
-        .pso = Pso::kSkyCloud,
-        .vertex = "sky.vs",
-        .pixel = "sky.ps",
-        .is_required = false,
-        .frame_bytes = kSkyFrameBytes,
-        .draw_bytes = kSkyDrawBytes},
-    {.name = "render.sky.body",
-        .group = Group::kSky,
-        .tier = Tier::kScene,
-        .pso = Pso::kSkyBody,
-        .vertex = "sky.vs",
-        .pixel = "sky.ps",
-        .is_required = false,
-        .frame_bytes = kSkyFrameBytes,
-        .draw_bytes = kSkyDrawBytes},
-    {.name = "render.sky.star",
-        .group = Group::kSky,
-        .tier = Tier::kScene,
-        .pso = Pso::kSkyStar,
-        .vertex = "star.vs",
-        .pixel = "star.ps",
-        .is_required = false,
-        .frame_bytes = kSkyFrameBytes,
-        .draw_bytes = kSkyDrawBytes},
+    row::opaque,
+    row::two_sided,
+    row::blend,
+    row::blend_two,
+    row::ui,
+    row::fx,
+    row::fx_blend,
+    row::terrain,
+    row::solid,
+    row::solid_two,
+    row::fx_alpha,
+    row::fx_darken,
+    row::fx_glow,
+    row::fx_tint,
+    row::fx_replace,
+    row::dome,
+    row::cloud,
+    row::body,
+    row::star,
+    row::add,
+    row::add_two,
 }};
 
 static_assert(std::to_underlying(Pso::kModelTwoSided) == kModelTwoSided);

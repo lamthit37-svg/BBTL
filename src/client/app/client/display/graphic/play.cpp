@@ -16,10 +16,62 @@
 #include "client/display/graphic/state.hpp"
 
 #include "client/display/display.hpp"
+#include "look/mount.hpp"
 
+#include <algorithm>
 #include <chrono>
+#include <cstdint>
+#include <expected>
+#include <format>
+#include <optional>
+#include <string>
 #include <utility>
+#include <vector>
 namespace game::client {
+namespace {
+
+[[nodiscard]] std::expected<std::string, std::string> read_ride_file(const std::string& path) {
+    const std::filesystem::path file = io::path_from_utf8(path);
+    const io::TextResult text = io::read_text(file);
+    if (text) return *text;
+    const std::string reason(io::describe(text.error()));
+    return std::unexpected(reason);
+}
+
+void keep_ride_id(std::vector<std::int32_t>& ids, std::int32_t id) {
+    if (id < 0) return;
+    const auto found = std::ranges::find(ids, id);
+    if (found != ids.end()) return;
+    ids.push_back(id);
+}
+
+[[nodiscard]] std::size_t index_of_ride(const std::vector<std::int32_t>& ids,
+    std::optional<std::uint32_t> ride) {
+    if (!ride) return ids.size();
+    const auto id = static_cast<std::int32_t>(*ride);
+    const auto found = std::ranges::find(ids, id);
+    if (found == ids.end()) return ids.size();
+    return static_cast<std::size_t>(found - ids.begin());
+}
+
+[[nodiscard]] std::optional<std::int32_t> edge_ride(const std::vector<std::int32_t>& ids,
+    int step) {
+    if (step > 0) return ids.front();
+    return ids.back();
+}
+
+[[nodiscard]] std::optional<std::int32_t> stepped_ride(const std::vector<std::int32_t>& ids,
+    std::optional<std::uint32_t> ride, int step) {
+    if (ids.empty() || step == 0) return std::nullopt;
+    const std::size_t index = index_of_ride(ids, ride);
+    if (index == ids.size()) return edge_ride(ids, step);
+    const auto width = static_cast<std::int64_t>(ids.size());
+    const auto shifted = static_cast<std::int64_t>(index) + step;
+    const auto wrapped = (shifted % width + width) % width;
+    return ids[static_cast<std::size_t>(wrapped)];
+}
+
+} // namespace
 
 void Display::State::ensure_gates() {
     if (gates_ready || data_root.empty()) return;
@@ -42,19 +94,39 @@ void Display::State::ensure_gates() {
 }
 
 void Display::State::place_at(int scene_id) {
+    const std::optional<EntryPoint> entry = take_entry();
+    const map::GateStand stand = stand_for(scene_id, entry);
+    place_walk(walk, *ground, scene_id, stand);
+}
+
+map::GateStand Display::State::stand_for(int scene_id, const std::optional<EntryPoint>& entry) {
     ensure_gates();
-    std::optional<EntryPoint> entry;
-    {
-        const std::scoped_lock<std::mutex> locked(spawn_guard);
-        entry = std::exchange(entry_spot, std::nullopt);
-    }
     map::SceneStep step;
     step.previous = walk.scene_id;
     step.scene = scene_id;
-    map::GateStand stand = map::arrival_at(gates, step);
+    const map::GateStand gate = map::arrival_at(gates, step);
     // Chỗ đứng máy chủ đặt thắng điểm đến mặc định, nhưng chỉ cho đúng cảnh nó nói tới.
-    if (entry && entry->scene == scene_id) stand = map::GateStand{.x = entry->x, .z = entry->z, .has = true};
-    place_walk(walk, *ground, scene_id, stand);
+    if (!entry || entry->scene != scene_id) return gate;
+    return map::GateStand{.x = entry->x, .z = entry->z, .has = true};
+}
+
+std::optional<EntryPoint> Display::State::take_entry() {
+    const std::scoped_lock<std::mutex> locked(spawn_guard);
+    return std::exchange(entry_spot, std::nullopt);
+}
+
+std::optional<EntryPoint> Display::State::peek_entry() {
+    const std::scoped_lock<std::mutex> locked(spawn_guard);
+    return entry_spot;
+}
+
+void Display::State::note_view(const render::Camera& camera) {
+    const math::Matrix4 clip = camera.projection * camera.view;
+    view_frustum = render::frustum_of(clip);
+    // View dựng bằng look_at nên trực chuẩn: nghịch đảo của nó đặt mắt ở cột tịnh tiến.
+    const math::Matrix4 placed = math::ortho_inverse(camera.view);
+    view_eye = placed.translation();
+    view_scene = held ? held->id : -1;
 }
 
 // Máy chủ đặt lại chỗ đứng (kéo về sau bước bị từ chối, dịch chuyển): chỗ dự đoán của nơi này bị bỏ.
@@ -158,6 +230,7 @@ render::Camera Display::State::frame_camera(FrameAsk ask) {
     const Taken taken = take_steering();
     view_size = ask.size;
     take_events(taken.events);
+    apply_ride_step();
     const float delta_seconds = step_clock(ask.elapsed);
     enter_camera(scene_id);
     if (!creature_demo.empty()) seed_creature_demo(scene_id);
@@ -342,8 +415,25 @@ bool Display::State::flip_button(const control::InputEvent& event) {
     is_button_down.at(slot) = is_down;
     has_button_changed.at(slot) = true;
     const bool is_left_press = is_down && event.button == control::MouseButton::kLeft;
-    if (is_left_press) is_hud_press = is_on_hud(pointer);
+    if (is_left_press) note_ride_press();
     return true;
+}
+
+bool Display::State::hits_ride(float x, float y, const RideBox& box) const noexcept {
+    if (!ride_buttons_live) return false;
+    const bool across = x >= box.left && x < box.right;
+    const bool down = y >= box.top && y < box.bottom;
+    return across && down;
+}
+
+void Display::State::note_ride_press() {
+    is_hud_press = is_on_hud(pointer);
+    if (!is_hud_press) return;
+    const FrameRect frame = frame_rect();
+    const float x = pointer.x * static_cast<float>(frame.width);
+    const float y = pointer.y * static_cast<float>(frame.height);
+    if (hits_ride(x, y, ride_prev)) ride_step = -1;
+    if (hits_ride(x, y, ride_next)) ride_step = 1;
 }
 
 // Thao tác trái bị huỷ (ngón thứ hai chạm xuống, mất focus): không thành lệnh đi và không còn giữ
@@ -584,8 +674,8 @@ void Display::State::step_jump(bool wants_jump, float dt) {
     if (wants_jump && !is_waiting) {
         motion::JumpGate gate;
         gate.is_moving = is_player_running;
-        const motion::JumpStart leap =
-            motion::start_jump(jump, gate, ground_game, jump_dice());
+        gate.is_mounted = player && player->is_riding();
+        const motion::JumpStart leap = motion::start_jump(jump, gate, ground_game, jump_dice());
         if (leap.has_started) {
             jump_begun = leap.action == motion::JumpAction::kJumpRun ? avatar::Stance::kJumpRun
                                                                          : avatar::Stance::kJumpStand;
@@ -654,7 +744,15 @@ void Display::State::place_step(const motion::MoveStep& step, core::GroundPoint 
     is_player_running = is_shifted && !step.arrived;
 }
 
-// Đi theo phím W A S D so với hướng nhìn của camera. Tốc độ là chạy (MOVE_MODE_RUN).
+// Chạy người. Cưỡi thì cộng phần trăm Exterior_Ride của đúng con đang vẽ.
+float Display::State::travel_speed() const noexcept {
+    const float run = motion::human_speed(motion::MoveMode::kRun);
+    const bool on_foot = !player || !player->is_riding();
+    if (on_foot) return run;
+    return motion::mounted_speed(run, player->ride_speed_percent());
+}
+
+// Đi theo phím W A S D so với hướng nhìn của camera. Tốc độ là travel_speed.
 void Display::State::walk_free(const Steering& keys, float dt) {
     if (ground == nullptr || !scale_ok(ground->file)) return;
     const map::TerrainFile& file = ground->file;
@@ -670,7 +768,7 @@ void Display::State::walk_free(const Steering& keys, float dt) {
         is_player_running = false;
         return;
     }
-    const float speed = motion::human_speed(motion::MoveMode::kRun);
+    const float speed = travel_speed();
     const float reach = (speed * dt) + 1.0F;
     const core::GroundPoint here = game_of(file, walk);
     motion::MoveAsk ask;
@@ -684,14 +782,15 @@ void Display::State::walk_free(const Steering& keys, float dt) {
     apply_tick(ask);
 }
 
-// Đi theo lệnh: một khung Tick_Move tới điểm đang hướng tới của lệnh, tốc độ chạy.
+// Đi theo lệnh: một khung Tick_Move tới điểm đang hướng tới. Cùng tốc độ với đi phím.
 void Display::State::walk_order(float dt) {
     is_player_running = false;
-    if (!order || ground == nullptr || !scale_ok(ground->file)) return;
+    const bool can_walk = order && ground != nullptr && scale_ok(ground->file);
+    if (!can_walk) return;
     motion::MoveAsk ask;
     ask.here = game_of(ground->file, walk);
     ask.target = order->path[order->next];
-    ask.speed = motion::human_speed(motion::MoveMode::kRun);
+    ask.speed = travel_speed();
     ask.seconds = dt;
     apply_tick(ask);
 }
@@ -701,7 +800,11 @@ void Display::State::load_player() {
         const core::Status tier = catalog->prepare(render::Tier::kEssential);
         if (!tier) std::println(stderr, "Pipeline: tầng chơi: {}", tier.error());
     }
-    if (data_root.empty()) return;
+    static_cast<void>(spawn_player(true));
+}
+
+bool Display::State::spawn_player(bool with_head) {
+    if (data_root.empty()) return false;
     PlayerDesc desc;
     desc.data_root = data_root;
     if (has_role_look) desc.race = role_race;
@@ -709,21 +812,81 @@ void Display::State::load_player() {
     desc.weapon_item = hero.equipment.at(hero::EquipPoint::kWeapon);
     desc.weapon_gem = hero.equipment.gem_at(hero::EquipPoint::kWeapon).value_or(0);
     desc.skills = hero.skills;
+    desc.ride_id = ride_id;
+    if (player_tables) desc.tables = player_tables;
     if (tables_job.valid()) desc.tables = tables_job.get();
-    player_tables = desc.tables;
-    const MeshLoader loader = [this](const std::string& mesh) -> const render::Drawable* {
-        const std::size_t index = load_mesh(mesh);
-        return index == kMissing ? nullptr : &kept.at(index).loaded.drawable;
+    if (desc.tables) player_tables = desc.tables;
+    const MeshLoader loader = [this](const std::string& mesh, std::string_view materials) {
+        return ride_drawable(mesh, materials);
     };
     auto made = PlayerActor::create(desc, loader);
     if (!made) {
         std::println(stderr, "Không có người chơi: {}", made.error());
-        return;
+        return false;
     }
     player.emplace(std::move(*made));
     follow_handles.clear();
     std::println("Người chơi: {} bộ phận", player->figure().parts.size());
+    if (!with_head) return true;
+    // Ảnh chân dung không cưỡi: --mount chỉ để nhìn thú ở thế giới.
+    desc.ride_id.reset();
     load_head(desc, loader);
+    return true;
+}
+
+void Display::State::clear_ride_jump() {
+    jump = {};
+    jump_begun.reset();
+    jump_landed = false;
+    strike_begun.reset();
+}
+
+void Display::State::say_ride_switch() const {
+    const std::size_t index = index_of_ride(ride_catalog, ride_id);
+    if (!ride_id || index == ride_catalog.size()) return;
+    const std::size_t shown = index + 1;
+    std::println("Đổi thú id {} ({}/{})", *ride_id, shown, ride_catalog.size());
+}
+
+void Display::State::apply_ride_step() {
+    const int step = std::exchange(ride_step, 0);
+    if (step == 0) return;
+    if (!ensure_ride_catalog()) return;
+    const std::optional<std::int32_t> next = stepped_ride(ride_catalog, ride_id, step);
+    if (!next) return;
+    const std::optional<std::uint32_t> previous = ride_id;
+    ride_id = static_cast<std::uint32_t>(*next);
+    if (!spawn_player(false)) {
+        ride_id = previous;
+        return;
+    }
+    clear_ride_jump();
+    say_ride_switch();
+}
+
+bool Display::State::ensure_ride_catalog() {
+    if (ride_catalog_ready) return !ride_catalog.empty();
+    ride_catalog_ready = true;
+    if (data_root.empty()) return false;
+    const std::string folder = io::utf8_of(data_root / "Table");
+    auto tables = look::load_ride_tables(folder, read_ride_file);
+    if (!tables) {
+        std::println(stderr, "Bảng thú: {}", tables.error());
+        return false;
+    }
+    for (const look::RideRow& row : tables->rides)
+        keep_ride_id(ride_catalog, row.id);
+    std::println("Thú cưỡi để duyệt: {}", ride_catalog.size());
+    return !ride_catalog.empty();
+}
+
+std::string Display::State::ride_caption() const {
+    const std::size_t count = ride_catalog.size();
+    const std::size_t index = index_of_ride(ride_catalog, ride_id);
+    if (!ride_id) return std::format("Chưa cưỡi  0/{}", count);
+    if (index == count) return std::format("{}  ?/{}", *ride_id, count);
+    const std::size_t shown = index + 1;
+    return std::format("{}  {}/{}", *ride_id, shown, count);
 }
 
 // Ảnh đầu 3D cho ô chân dung: một bản mô hình cùng ngoại hình với người chơi. Không dựng được thì
@@ -822,9 +985,8 @@ PlayerDesc Display::State::role_player(const ui::panel::ShownModel& model) const
 }
 
 MeshLoader Display::State::meshes() {
-    return [this](const std::string& mesh) -> const render::Drawable* {
-        const std::size_t index = load_mesh(mesh);
-        return index == kMissing ? nullptr : &kept.at(index).loaded.drawable;
+    return [this](const std::string& mesh, std::string_view materials) {
+        return ride_drawable(mesh, materials);
     };
 }
 

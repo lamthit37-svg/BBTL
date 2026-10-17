@@ -243,6 +243,11 @@ void build_primitive_lods(Primitive& primitive) {
     }
 }
 
+void drop_mesh_lods(Mesh& mesh) noexcept {
+    for (Primitive& primitive : mesh.primitives)
+        primitive.lods.clear();
+}
+
 void build_mesh_lods(Mesh& mesh) {
     for (Primitive& primitive : mesh.primitives) {
         primitive.lods.clear();
@@ -400,6 +405,13 @@ void build_lods(Model& model) {
     for (Mesh& mesh : model.meshes) {
         build_mesh_lods(mesh);
     }
+    model.has_lods = true;
+}
+
+void drop_lods(Model& model) noexcept {
+    for (Mesh& mesh : model.meshes)
+        drop_mesh_lods(mesh);
+    model.has_lods = false;
 }
 
 } // namespace game::resource

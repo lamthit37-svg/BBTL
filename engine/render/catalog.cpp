@@ -96,17 +96,29 @@ void note_required(const Entry& entry, const core::Error& error, std::optional<c
     if (pso == Pso::kTerrain) return kModelTwoSided;
     const bool is_solid = pso == Pso::kModelSolid || pso == Pso::kModelSolidTwoSided;
     if (is_solid) return static_cast<std::uint32_t>(pso) & kModelTwoSided;
+    const bool is_add = pso == Pso::kModelAdd || pso == Pso::kModelAddTwoSided;
+    if (is_add) return 0;
     return static_cast<std::uint32_t>(pso);
 }
-static_assert(model_kind(Pso::kModelSolid) == 0 && model_kind(Pso::kModelSolidTwoSided) == kModelTwoSided);
+static_assert(model_kind(Pso::kModelSolid) == 0 &&
+    model_kind(Pso::kModelSolidTwoSided) == kModelTwoSided);
+static_assert(model_kind(Pso::kModelAdd) == 0 && model_kind(Pso::kModelAddTwoSided) == 0);
 
 [[nodiscard]] core::Result<gpu::PipelineHandle> make_model(gpu::Device& device, const CatalogDesc& desc,
     const Entry& entry, std::span<const gpu::ShaderHandle> shaders) {
+    const bool is_add = entry.pso == Pso::kModelAdd || entry.pso == Pso::kModelAddTwoSided;
     const std::uint32_t kind = model_kind(entry.pso);
-    const bool is_blended = (kind & kModelBlended) != 0;
-    const bool is_two_sided = (kind & kModelTwoSided) != 0;
+    const bool from_blend = (kind & kModelBlended) != 0;
+    const bool is_blended = is_add || from_blend;
+    const bool bit_two = (kind & kModelTwoSided) != 0;
+    const bool add_two = entry.pso == Pso::kModelAddTwoSided;
+    const bool is_two_sided = is_add ? add_two : bit_two;
+    const gpu::BlendFactor one = gpu::BlendFactor::kOne;
+    gpu::BlendState blend{};
+    if (is_add) blend = fx_factors(one, one);
+    const bool uses_alpha = !is_add && is_blended;
+    if (uses_alpha) blend = alpha_blend();
     const gpu::VertexBufferLayout layout{.stride = sizeof(resource::Vertex)};
-    const gpu::BlendState blend = is_blended ? alpha_blend() : gpu::BlendState{};
     gpu::GraphicsPipelineDesc pipeline;
     pipeline.name = entry.name;
     pipeline.shaders = shaders;
@@ -339,7 +351,9 @@ core::Result<gpu::PipelineHandle> Catalog::build(const Entry& entry, std::span<c
     case Pso::kModelBlendTwoSided:
     case Pso::kTerrain:
     case Pso::kModelSolid:
-    case Pso::kModelSolidTwoSided: return make_model(*device_, desc_, entry, shaders);
+    case Pso::kModelSolidTwoSided:
+    case Pso::kModelAdd:
+    case Pso::kModelAddTwoSided: return make_model(*device_, desc_, entry, shaders);
     case Pso::kUi: return make_ui(*device_, desc_, shaders);
     case Pso::kFx: return build_fx(*device_, desc_, shaders, one, one, entry.name);
     case Pso::kFxAlphaAdd: return build_fx(*device_, desc_, shaders, src_alpha, one, entry.name);

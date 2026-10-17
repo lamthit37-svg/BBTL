@@ -76,6 +76,8 @@ struct ViewerDesc {
     std::string talk_demo;
     // --weapon: vật phẩm khe 0 mà nhân vật ở màn chơi cầm (DisplayDesc::weapon_item).
     std::optional<std::uint32_t> weapon_item;
+    // --mount: id CharMount (DisplayDesc::ride_id). 0 là hổ.
+    std::optional<std::uint32_t> ride_id;
     // --gem: đá quý gắn vào vũ khí (DisplayDesc::weapon_gem).
     std::optional<std::uint32_t> weapon_gem;
     // --skill: skill gieo thêm vào hero.skills (DisplayDesc::skill_id).

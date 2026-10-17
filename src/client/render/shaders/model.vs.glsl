@@ -174,7 +174,8 @@ void main() {
     varying_normal = facing;
     varying_uv = uv;
     // scroll_anim của thác: tốc độ ở specular.xy (tl_push[6]), giây của khung ở rules.y. Chỉ chất liệu không đèn.
-    if ((flags & 1u) != 0u) varying_uv += uintBitsToFloat(tl_push[6]).xy * frame.rules.y;
+    // Ogre trừ, không cộng (ScaleControllerFunction(-speed)): cộng thì thác chảy ngược.
+    if ((flags & 1u) != 0u) varying_uv -= uintBitsToFloat(tl_push[6]).xy * frame.rules.y;
     varying_color = color;
     varying_place = place;
     varying_light = (flags & 9u) == 0u ? diffuse_light(facing, place, lamp) : vec3(1.0);

@@ -432,7 +432,10 @@ inline constexpr std::uint32_t kFrameSlots = 3;
     pass.triangle_cap = policy.triangle_cap;
     pass.shader_dir = std::move(shaders);
     const std::array solid{catalog.get(render::Pso::kModelSolid), catalog.get(render::Pso::kModelSolidTwoSided)};
-    return render::Forward::create(device, pass, catalog.models(), catalog.get(render::Pso::kTerrain), solid);
+    const auto terrain = catalog.get(render::Pso::kTerrain);
+    const std::array additive{
+        catalog.get(render::Pso::kModelAdd), catalog.get(render::Pso::kModelAddTwoSided)};
+    return render::Forward::create(device, pass, catalog.models(), terrain, solid, additive);
 }
 
 // Lượt vẽ 2D của giao diện: cùng đích vẽ và thư mục shader với Forward.
@@ -922,7 +925,9 @@ inline constexpr float kTerrainTileCells = 16.0F;
 }
 
 [[nodiscard]] inline bool is_opaque(const resource::Material& material) noexcept {
-    return material.alpha != resource::Alpha::kBlend;
+    const bool is_blend = material.alpha == resource::Alpha::kBlend;
+    const bool is_add = material.alpha == resource::Alpha::kAdd;
+    return !is_blend && !is_add;
 }
 
 // Model đặc (không trộn alpha) mà vẽ ở tư thế nghỉ như lưới không skin (không skin, hoặc skin trung tính

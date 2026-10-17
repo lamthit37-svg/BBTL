@@ -1,11 +1,26 @@
-// Kiểm chọn clip của người chơi theo ref (Obj_Character_Logic.cpp): đi là clip chạy lặp, đứng là
-// clip đứng phát một lần rồi chọn lại, động tác nghỉ chỉ sau khoảng CalcIdleRandInterval, công
-// thức khoảng giữ đúng toán tử của ref; và hướng mặt xoay dần: mới thấy thì lấy thẳng hướng
-// logic, sau kTurnTime quay được 1 − 1/e phần góc, đi theo cung ngắn nhất qua ±π, không phụ thuộc
-// tốc độ khung, và bỏ đối tượng đã rời vùng nhìn. Nhảy theo Jump và NotifyPhyEvent của ref (gait.hpp); đòn đánh
-// phát một lần ở tốc độ của kế hoạch, khoá lệnh khác tới BreakTime (Start_MagicSend).
-// Nguồn: TLBB Dev tests/client_app/gait_test.cpp và turning_test.cpp@e0d89a6. Khác gốc: khung test
-// của dự án (Context::expect); core::Clock; id đối tượng là số nguyên không dấu.
+/*==============================================================================
+ *  THIENLONG  |  TEST
+ *------------------------------------------------------------------------------
+ *  TỆP       : Test/Avatar/avatar_tests.cpp
+ *  PHÂN HỆ   : Avatar / Avatar Tests
+ *  CHUẨN     : C++23
+ *------------------------------------------------------------------------------
+ *  CHỨC NĂNG
+ *  - Kiểm chọn clip của người chơi theo ref (Obj_Character_Logic.cpp): đi là
+ *    clip chạy lặp, đứng là clip đứng phát một lần rồi chọn lại, động tác nghỉ
+ *    chỉ sau khoảng CalcIdleRandInterval, công thức khoảng giữ đúng toán tử của
+ *    ref; và hướng mặt xoay dần: mới thấy thì lấy thẳng hướng logic, sau
+ *    kTurnTime quay được 1 − 1/e phần góc, đi theo cung ngắn nhất qua ±π, không
+ *    phụ thuộc tốc độ khung, và bỏ đối tượng đã rời vùng nhìn.
+ *------------------------------------------------------------------------------
+ *  TÁC GIẢ   : HiepHoon
+ *  TELEGRAM  : @Hoon9xx
+ *============================================================================*/
+
+// Nhảy theo Jump và NotifyPhyEvent của ref (gait.hpp); đòn đánh phát một lần ở tốc độ của kế hoạch, khoá lệnh khác
+// tới BreakTime (Start_MagicSend). Nguồn: TLBB Dev tests/client_app/gait_test.cpp và turning_test.cpp@e0d89a6. Khác
+// gốc: khung test của dự án (Context::expect); core::Clock; id đối tượng là số nguyên không dấu.
+
 #include "anim/asset.hpp"
 #include "anim/rig.hpp"
 #include "avatar/gait.hpp"
@@ -294,6 +309,32 @@ void jump_without_clip(Context& context) {
     context.expect(landed.stance == Stance::kRun && near_value(landed.time, 0.1F), "chạm đất hai lần chỉ tính một");
 }
 
+// Cưỡi đứng: Jump không bật vật lý nên không khoá. Hết clip về đứng. Đi giữa clip thì cắt sang chạy.
+// Không có clip thì không đổi tư thế và không bật cờ.
+void mounted_stand_jump_does_not_latch(Context& context) {
+    const ClipLengths lengths = lengths_with_jump();
+    Gait gait{1, avatar::kIdleInterval};
+    static_cast<void>(gait.update(at(0.0F), false, lengths));
+    gait.jump(at(0.1F), Stance::kJumpStand, lengths, false);
+    context.expect(!gait.is_jumping(), "cưỡi đứng không khoá bay");
+    const Playing mid = gait.update(at(0.3F), false, lengths);
+    context.expect(mid.stance == Stance::kJumpStand && near_value(mid.time, 0.2F), "vẫn phát clip nhảy");
+    const Playing moved = gait.update(at(0.4F), true, lengths);
+    context.expect(moved.stance == Stance::kRun, "đi giữa clip thì cắt sang chạy");
+    Gait parked{2, avatar::kIdleInterval};
+    static_cast<void>(parked.update(at(0.0F), false, lengths));
+    parked.jump(at(0.1F), Stance::kJumpStand, lengths, false);
+    const Playing ended = parked.update(at(1.0F), false, lengths);
+    context.expect(ended.stance == Stance::kIdle, "hết clip đứng thì về đứng");
+    context.expect(!parked.is_jumping(), "không bao giờ bật cờ bay");
+    Gait bare{3, avatar::kIdleInterval};
+    const ClipLengths plain = lengths_with_alt();
+    static_cast<void>(bare.update(at(0.0F), false, plain));
+    bare.jump(at(0.2F), Stance::kJumpStand, plain, false);
+    const Playing kept = bare.update(at(0.3F), false, plain);
+    context.expect(kept.stance == Stance::kIdle && !bare.is_jumping(), "không clip thì không đổi");
+}
+
 // Đòn đánh (Start_MagicSend): clip phát một lần từ đầu ở tốc độ plan.rate, hết clip thì FreshAnimation về đứng; lệnh khác
 // chỉ ngắt được từ mốc BreakTime.
 [[nodiscard]] avatar::StrikePlan plan_of(float length, float rate, std::optional<float> break_at) {
@@ -439,6 +480,7 @@ constexpr std::array kCases{
     Case{.name = "jump_while_running", .body = &jump_while_running},
     Case{.name = "jump_keeps_clip_until_land", .body = &jump_keeps_clip_until_land},
     Case{.name = "jump_without_clip", .body = &jump_without_clip},
+    Case{.name = "mounted_stand_jump_does_not_latch", .body = &mounted_stand_jump_does_not_latch},
     Case{.name = "strike_plays_once", .body = &strike_plays_once},
     Case{.name = "strike_locks_until_break", .body = &strike_locks_until_break},
     Case{.name = "strike_refused", .body = &strike_refused},

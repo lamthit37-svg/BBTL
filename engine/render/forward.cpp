@@ -78,15 +78,19 @@ namespace game::render {
 namespace {
 
 constexpr std::uint32_t kNone = std::numeric_limits<std::uint32_t>::max();
-// Bốn biến thể model, pipeline địa hình lớp cọ, rồi hai ô model đục không discard ở 8 và 9: chỉ số giữ đúng
-// bit hai mặt (bit 0) và không đụng bit trộn (bit 1), vì draws_before và cờ kOpaqueAlpha đọc bit của chỉ số.
+// Bốn biến thể model, địa hình ở 4, cộng sáng one one ở 6 và 7, model đục không discard ở 8 và 9.
+// Chỉ số 6 mang bit trộn (bit 1) và không mang bit hai mặt (bit 0): draws_before xếp tấm cộng sáng
+// sau vật đục, cùng cách với lưới trộn alpha. 19 và 20 của catalog không mang các bit ấy.
 constexpr std::size_t kPipelines = 10;
 constexpr std::uint32_t kTerrainPipeline = static_cast<std::uint32_t>(kModelVariants);
+constexpr std::uint32_t kAddPipeline = 6;
 constexpr std::uint32_t kSolidPipeline = 8;
-static_assert(kTerrainPipeline < kSolidPipeline && (kSolidPipeline & 3U) == 0 && std::size_t{kSolidPipeline} + 1 < kPipelines);
-// Cùng bit với Pso của catalog: 0 đục một mặt, 1 đục hai mặt, 2 trộn một mặt, 3 trộn hai mặt.
 constexpr std::uint32_t kTwoSided = kModelTwoSided;
 constexpr std::uint32_t kBlended = kModelBlended;
+static_assert((kAddPipeline & kBlended) != 0 && (kAddPipeline & kTwoSided) == 0);
+static_assert(kAddPipeline + 1 < kPipelines);
+static_assert(kTerrainPipeline < kSolidPipeline && (kSolidPipeline & 3U) == 0);
+static_assert(std::size_t{kSolidPipeline} + 1 < kPipelines);
 // Sức chứa ban đầu của bảng khớp; tăng gấp đôi khi một khung cần nhiều hơn.
 constexpr std::uint32_t kStartJoints = 256;
 // Số ma trận thế giới buffer instanced chứa lúc tạo. Tăng gấp đôi khi một khung cần nhiều hơn.
@@ -210,6 +214,7 @@ static_assert(sizeof(JointRows) == 48);
     if (material == nullptr) return 0;
     if (material->splat) return kTerrainPipeline;
     const std::uint32_t sides = material->double_sided ? kTwoSided : 0;
+    if (material->alpha == resource::Alpha::kAdd) return sides | kAddPipeline;
     return material->alpha == resource::Alpha::kBlend ? sides | kBlended : sides;
 }
 
@@ -1419,7 +1424,8 @@ Forward& Forward::operator=(Forward&&) noexcept = default;
 Forward::~Forward() = default;
 
 core::Result<Forward> Forward::create(gpu::Device& device, const ForwardDesc& desc,
-    std::array<gpu::PipelineHandle, 4> pipelines, gpu::PipelineHandle terrain, std::array<gpu::PipelineHandle, 2> solid) {
+    std::array<gpu::PipelineHandle, 4> pipelines, gpu::PipelineHandle terrain,
+    std::array<gpu::PipelineHandle, 2> solid, std::array<gpu::PipelineHandle, 2> additive) {
     if (desc.slots == 0) return bad("renderer cần ít nhất một slot");
     for (const gpu::PipelineHandle pipeline : pipelines) {
         if (!pipeline) return bad("pipeline model chưa chuẩn bị");
@@ -1431,6 +1437,8 @@ core::Result<Forward> Forward::create(gpu::Device& device, const ForwardDesc& de
     state->pipelines.at(kTerrainPipeline) = terrain;
     state->pipelines.at(kSolidPipeline) = solid[0];
     state->pipelines.at(kSolidPipeline | kTwoSided) = solid[1];
+    state->pipelines.at(kAddPipeline) = additive[0];
+    state->pipelines.at(kAddPipeline | kTwoSided) = additive[1];
     state->slots.resize(desc.slots);
     core::Status filled = core::ok();
     for (Slot& slot : state->slots) {

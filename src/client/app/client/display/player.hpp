@@ -23,6 +23,7 @@
 
 #include "avatar/avatar.hpp"
 #include "avatar/gait.hpp"
+#include "avatar/locator.hpp"
 #include "avatar/turning.hpp"
 #include "core/clock.hpp"
 #include "core/error.hpp"
@@ -44,13 +45,16 @@
 #include <optional>
 #include <span>
 #include <string>
+#include <string_view>
 #include <vector>
 
 namespace game::client {
 
-// Tên lưới (tên gốc dưới Model/, không có .glb) thành drawable đã tải lên GPU của nơi vẽ; nullptr
-// khi không nạp được. Drawable phải sống lâu hơn PlayerActor.
-using MeshLoader = std::function<const render::Drawable*(const std::string& mesh)>;
+// Tên lưới (tên gốc dưới Model/) thành drawable của nơi vẽ; nullptr khi không nạp được.
+// materials rỗng giữ material trong lưới. Khác rỗng là danh sách tên submesh ngăn bởi ';'.
+// Drawable phải sống lâu hơn PlayerActor.
+using MeshLoader =
+    std::function<const render::Drawable*(const std::string& mesh, std::string_view materials)>;
 
 // Một lưới của mẫu vũ khí và mẫu con (chỉ số trong look::Figure::held) mà nó thuộc về.
 struct HeldMesh {
@@ -83,9 +87,11 @@ struct PlayerDesc {
     std::optional<std::uint32_t> weapon_item;
     // Vật phẩm đá quý gắn vào vũ khí (Get_EquipGem của ref); 0 là không có. Cho hiệu ứng đồ (look::gem_effect).
     std::uint32_t weapon_gem = 0;
-    // Skill đã học (hero.skills): clip của mọi bước của chúng được nạp theo giới và loại vũ khí cầm. Rỗng thì
-    // không nạp bảng đòn đánh.
+    // Skill đã học (hero.skills): clip của mọi bước của chúng được nạp theo giới và loại vũ khí
+    // cầm. Rỗng thì không nạp bảng đòn đánh.
     std::vector<std::uint32_t> skills;
+    // Id CharMount của --mount. 0 là hổ. Không có thì không vẽ thú. Chân dung không nhận.
+    std::optional<std::uint32_t> ride_id;
     // Có thì người mẫu là mẫu riêng của môn (Table/sect_models.tsv), không phải look ở trên.
     std::optional<std::uint8_t> sect;
     // Bảng đã đọc sẵn (load_player_tables). Không có thì create tự đọc phần mà desc cần.
@@ -136,12 +142,29 @@ struct CueFollow {
     ogre::Quat orientation;
 };
 
-// Chỗ của hiệu ứng đồ trong khung: mẫu con (chỉ số trong figure().held; tên effect và màu ở đó) và điểm 武器特效点
-// của nó ở toạ độ thế giới.
+// Chỗ của hiệu ứng đồ trong khung: mẫu con (chỉ số trong figure().held; tên effect và màu ở đó) và
+// điểm 武器特效点 của nó ở toạ độ thế giới.
 struct GearEffect {
     std::size_t mount = 0;
     ogre::Vec3 position;
     ogre::Quat orientation;
+};
+
+// Hạt gắn sẵn của thú trong khung. ride là id CharMount, -1 khi không cưỡi. Đổi id thì nơi vẽ dựng
+// lại.
+struct RideFx {
+    std::int32_t ride = -1;
+    std::uint32_t index = 0;
+    std::string name;
+    ogre::Vec3 position{};
+    ogre::Quat orientation{};
+};
+
+// Điểm hạt đã đổi sang xương thú. translate_all sai thì chỉ vị trí điểm đi theo xương.
+struct RideSpark {
+    std::string name;
+    avatar::Locator locator;
+    bool translate_all = false;
 };
 
 // NOLINTNEXTLINE(bugprone-exception-escape): giả dương của STL MSVC (HP-07)
@@ -154,11 +177,15 @@ public:
     // Dựng tư thế và ma trận đặt cho khung ở thời điểm now.
     [[nodiscard]] core::Status update(core::Clock::time_point now, const Stand& stand);
 
-    // Thêm một instance cho mỗi bộ phận và mỗi lưới của vũ khí; ma trận skin trỏ vào bộ đệm của lần
-    // update gần nhất.
+    // Thêm một instance cho mỗi bộ phận, mỗi lưới vũ khí và mỗi lưới thú cưỡi. Ma trận skin của
+    // người chơi trỏ vào bộ đệm của lần update gần nhất. Người cưỡi đặt theo neo của thú.
     void append(std::vector<render::Instance>& out) const;
 
     [[nodiscard]] const look::Figure& figure() const noexcept { return avatar_.figure(); }
+    // Đang cưỡi: có lưới hoặc skeleton của thú. Nhảy dùng cờ này, không dùng tên mount vũ khí.
+    [[nodiscard]] bool is_riding() const noexcept { return riding_; }
+    // Phần trăm Exterior_Ride của thú đang cưỡi. 0 khi đi bộ hoặc không có dòng.
+    [[nodiscard]] std::int32_t ride_speed_percent() const noexcept { return ride_speed_percent_; }
     // Số bước đã nạp clip của skill, theo thứ tự bước; rỗng khi skill không có đòn cho người chơi này.
     [[nodiscard]] std::vector<std::uint32_t> steps_of(std::uint32_t skill) const;
     // Start_MagicSend lúc now. roll là giá trị ngẫu nhiên của nơi gọi (chỉ kRandom dùng). nullopt khi
@@ -179,10 +206,12 @@ public:
     void drop_follow(std::uint32_t token);
     // Hiệu ứng đồ ở update gần nhất: mỗi mẫu con có hiệu ứng một phần tử.
     [[nodiscard]] std::span<const GearEffect> gear_effects() const noexcept { return gear_; }
+    // Hạt của thú ở update gần nhất. Rỗng khi không cưỡi hoặc mẫu không có thẻ Effect.
+    [[nodiscard]] std::span<const RideFx> ride_fx() const noexcept { return ride_fx_; }
 
 private:
-    PlayerActor(avatar::Avatar avatar, std::vector<const render::Drawable*> parts, std::vector<HeldMesh> held,
-        bool fidget, bool demo);
+    PlayerActor(avatar::Avatar avatar, std::vector<const render::Drawable*> parts,
+        std::vector<HeldMesh> held, bool fidget, bool demo);
 
     [[nodiscard]] avatar::StrikePlan plan_of(std::size_t index) const;
     // Clip của call phát được: có trong avatar và length, rate đều dương (NaN thì không).
@@ -194,6 +223,13 @@ private:
     void fire_cues(const avatar::Playing& playing, const Stand& drawn);
     void place_gear(const Stand& drawn);
     void place_follows(const Stand& drawn);
+    void place_ride_fx(const Stand& drawn);
+    [[nodiscard]] std::span<const anim::Transform> ride_bones_now() const noexcept;
+    // Clip của thú và neo người theo xương đang phát. Không có thú thì không làm gì.
+    [[nodiscard]] core::Status pose_ride(core::Clock::time_point now, const Stand& stand);
+    // Cưỡi mà đứng thì không bay (Jump không ghi cờ vật lý). Còn lại khoá clip tới land.
+    [[nodiscard]] bool stays_airborne(const Stand& stand) const noexcept;
+    void begin_ride_jump(core::Clock::time_point now, const Stand& stand);
 
     avatar::Avatar avatar_;
     avatar::Skinner skinner_;
@@ -202,6 +238,18 @@ private:
     avatar::ClipLengths lengths_;
     std::vector<const render::Drawable*> parts_;
     std::vector<HeldMesh> held_;
+    // Lưới thú cưỡi tại chân. Rỗng khi không cưỡi. Không phải mounts_ (điểm cầm vũ khí).
+    std::vector<const render::Drawable*> ride_;
+    // Neo người trên thú, trong không gian mẫu của thú. Đơn vị khi không cưỡi hoặc chưa có locator.
+    // Có clip thú thì pose_ride ghi lại mỗi khung theo xương đang phát.
+    math::Matrix4 seat_ = math::Matrix4::identity();
+    // Thú có skeleton và clip idle thì avatar này phát clip; lưới thú nhận ma trận khớp của nó.
+    std::optional<avatar::Avatar> ride_body_;
+    avatar::Skinner ride_skin_;
+    avatar::Gait ride_gait_;
+    avatar::ClipLengths ride_lengths_{};
+    // Neo attach đã đổi sang handle. Rỗng khi locator không gắn xương.
+    std::optional<avatar::Locator> ride_point_;
     // Ma trận từng mẫu con trong không gian mẫu nhân vật, dựng lại mỗi update.
     std::vector<math::Matrix4> mounts_;
     math::Matrix4 placed_ = math::Matrix4::identity();
@@ -215,6 +263,11 @@ private:
     look::Chain chain_;
     std::vector<SkillCue> cues_;
     std::vector<GearEffect> gear_;
+    // Hạt của mẫu thú đang cưỡi, dựng một lần lúc tạo. ride_fx_ là chỗ thế giới của khung này.
+    std::vector<RideSpark> ride_sparks_;
+    std::vector<RideFx> ride_fx_;
+    // Id CharMount đang cưỡi. -1 khi đi bộ. Nơi vẽ dùng để biết phải dựng lại hạt.
+    std::int32_t ride_id_ = -1;
     // Hiệu ứng bám đã bắn: đòn, khối con và dấu; chỗ mới của chúng tính lại mỗi update vào follows_.
     struct Follower {
         std::uint32_t token = 0;
@@ -226,6 +279,10 @@ private:
     std::uint32_t last_token_ = 0;
     // Môn phái: khung đầu phát bài múa một lần. fidget sai thì không múa lại lúc nghỉ.
     bool cue_demo_ = false;
+    // desc.ride_id có và take_ride để lại lưới hoặc skeleton. Không thì nhảy như đi bộ.
+    bool riding_ = false;
+    // Exterior_Ride Speed của thú đang cưỡi. 0 khi đi bộ hoặc không có dòng.
+    std::int32_t ride_speed_percent_ = 0;
 };
 
 } // namespace game::client

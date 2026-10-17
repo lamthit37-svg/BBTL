@@ -44,7 +44,8 @@ inline constexpr std::string_view kUsage =
     "--size: cỡ vùng chơi, như View_Resoution của client 2026 (1280x720 hoặc 1280,720), mỗi\n"
     "cạnh từ 800x600 tới 16384. Không nêu thì 1280x720. Cửa sổ cố định như bản gốc.\n"
     "--backend: vulkan, gles, d3d12 hoặc d3d11. Không nêu thì tự chọn.\n"
-    "--validate: bật lớp kiểm tra của API đồ hoạ (bản debug bật sẵn, bản phát hành tắt cho nhanh).\n"
+    "--validate: bật lớp kiểm tra của API đồ hoạ (bản debug bật sẵn, bản phát hành tắt cho "
+    "nhanh).\n"
     "--login: mở thủ tục đăng nhập (bảng nhập tài khoản) thay vì vào thẳng một cảnh.\n"
     "--bare: không vẽ lớp giao diện, chỉ cảnh 3D và hiệu ứng; dùng với --shot để chụp cảnh nền.\n"
     "--frames: thoát sau chừng ấy lượt của vòng vẽ (khung đã vẽ cộng lượt nghỉ khi cửa sổ ẩn).\n"
@@ -54,15 +55,24 @@ inline constexpr std::string_view kUsage =
     "--walk: ở màn chơi nhân vật tự chạy vòng (giữ W, hướng nhìn xoay đều) để đo nhịp lúc di\n"
     "chuyển; lúc thoát in bước chân mỗi khung. Công cụ đo, client gốc không có.\n"
     "--weapon: ở màn chơi nhân vật cầm vũ khí của vật phẩm khe 0 này (mã trong EquipBase, ví dụ\n"
-    "10100000 là Thanh Đồng Đao): mẫu gắn vào tay theo locator của mẫu nhân vật, clip đứng và chạy\n"
+    "10100000 là Thanh Đồng Đao): mẫu gắn vào tay theo locator của mẫu nhân vật, clip đứng và "
+    "chạy\n"
     "theo loại vũ khí. Công cụ thử, tới khi có hành trang nối vào ngoại hình.\n"
-    "--gem: đá quý gắn vào vũ khí của --weapon (mã trong GemInfo, ví dụ 20101001): vũ khí có hiệu ứng đồ theo màu và\n"
+    "--mount: ở màn chơi nhân vật cưỡi thú có id này trong CharMount (0 là hổ). Người gắn vào\n"
+    "neo của mẫu .obj. Công cụ thử, chưa có trường thú cưỡi trên dây.\n"
+    "--gem: đá quý gắn vào vũ khí của --weapon (mã trong GemInfo, ví dụ 20101001): vũ khí có hiệu "
+    "ứng đồ theo màu và\n"
     "kiểu của đá. Công cụ thử, tới khi có hành trang nối vào ngoại hình.\n"
-    "--skill: ở màn chơi nhân vật học thêm skill này (mã trong SkillTemplate_V1, ví dụ 1 hay 2); phím\n"
-    "1 tới 9 dùng skill ở ô thứ n (ô 1 là đánh thường). Công cụ thử, tới khi có gói skill của máy chủ.\n"
-    "--auto-strike: ở màn chơi tự nhấn ô thao tác cuối ở khung màn chơi thứ <khung> (từ 1) rồi mỗi 180\n"
-    "khung, để chụp hay đo đòn đánh mà không cần phím thật. --shot chụp ở khung cố định sau khi bảng đo\n"
-    "đủ 30 mẫu, không theo --frames: đổi <khung> để chụp đòn ở thời điểm khác. Công cụ đo, client gốc\n"
+    "--skill: ở màn chơi nhân vật học thêm skill này (mã trong SkillTemplate_V1, ví dụ 1 hay 2); "
+    "phím\n"
+    "1 tới 9 dùng skill ở ô thứ n (ô 1 là đánh thường). Công cụ thử, tới khi có gói skill của máy "
+    "chủ.\n"
+    "--auto-strike: ở màn chơi tự nhấn ô thao tác cuối ở khung màn chơi thứ <khung> (từ 1) rồi mỗi "
+    "180\n"
+    "khung, để chụp hay đo đòn đánh mà không cần phím thật. --shot chụp ở khung cố định sau khi "
+    "bảng đo\n"
+    "đủ 30 mẫu, không theo --frames: đổi <khung> để chụp đòn ở thời điểm khác. Công cụ đo, client "
+    "gốc\n"
     "không có.\n"
     "--ui-event: ở khung màn chơi đầu tiên phát một sự kiện của game cho các bảng giao diện (như\n"
     "PushEvent(tên, arg0...) của game gốc), ví dụ \"PROGRESSBAR_SHOW|Đang luyện công\"; nêu nhiều\n"
@@ -98,6 +108,8 @@ struct Options {
     bool is_auto_walk = false;
     // --weapon: vật phẩm khe 0 mà nhân vật ở màn chơi cầm. Công cụ thử của dự án.
     std::optional<std::uint32_t> weapon_item;
+    // --mount: id CharMount. 0 là một thú thật (hổ), nên vắng mặt mới là không cưỡi.
+    std::optional<std::uint32_t> ride_id;
     // --gem: đá quý gắn vào vũ khí. Công cụ thử của dự án.
     std::optional<std::uint32_t> weapon_gem;
     // --skill: skill học thêm. Công cụ thử của dự án.

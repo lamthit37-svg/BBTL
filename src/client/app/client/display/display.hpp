@@ -157,9 +157,12 @@ struct DisplayDesc {
     // "menu", "offer", "turn" mở sẵn hộp tương ứng ở khung màn chơi đầu. "fight": quái của --creature đánh được và chiêu được
     // đáp bằng sát thương giả (graphic/fight_demo.cpp); "fall" như "fight" nhưng người chơi chết ở chiêu đầu. Rỗng là tắt.
     std::string talk_demo;
-    // Công cụ thử của dự án (--weapon): vật phẩm khe 0 mà nhân vật ở màn chơi cầm; không có thì tay không
-    // (hay ngoại hình đã chọn). Hành trang thật nối vào ngoại hình sau (docs/NGHI-NGO.md).
+    // Công cụ thử của dự án (--weapon): vật phẩm khe 0 mà nhân vật ở màn chơi cầm; không có thì tay
+    // không (hay ngoại hình đã chọn). Hành trang thật nối vào ngoại hình sau (docs/NGHI-NGO.md).
     std::optional<std::uint32_t> weapon_item;
+    // Công cụ thử (--mount): id CharMount. 0 là hổ. Không có thì không cưỡi. Chưa có trường trên
+    // dây.
+    std::optional<std::uint32_t> ride_id;
     // Công cụ thử của dự án (--gem): đá quý gắn vào vũ khí, gieo vào hero.equipment như gói trang bị của máy chủ.
     std::optional<std::uint32_t> weapon_gem;
     // Công cụ thử của dự án (--skill): skill học thêm, gieo vào hero.skills như gói skill của máy chủ.

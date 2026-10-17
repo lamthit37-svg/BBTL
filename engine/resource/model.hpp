@@ -152,7 +152,8 @@ struct TexSlot {
     float rotation = 0.0F;
 };
 
-enum class Alpha : std::uint8_t { kOpaque, kMask, kBlend };
+// kAdd là scene_blend add của OGRE (one one): tấm hiệu ứng cộng sáng, không trộn alpha.
+enum class Alpha : std::uint8_t { kOpaque, kMask, kBlend, kAdd };
 
 // Specular khi tệp có KHR_materials_pbrSpecularGlossiness. Khối metallic vẫn được giữ.
 enum class Shading : std::uint8_t { kMetallic, kSpecular };
@@ -242,6 +243,8 @@ struct Material {
     float alpha_cutoff = 0.5F;
     bool double_sided = false;
     bool unlit = false;
+    // fog_override true: không nhuộm sương cảnh. Tấm scene_blend add của thú cưỡi khai vậy.
+    bool suppress_fog = false;
     Shading shading = Shading::kMetallic;
     TexSlot color{};
     TexSlot surface{};
@@ -387,6 +390,9 @@ struct Model {
     std::vector<Variant> variants;
     // Nút gốc của cảnh mặc định. Không có cảnh thì mọi nút không cha.
     std::vector<std::uint32_t> roots;
+    // build_lods đã chạy, hay cache mesh đã mang sẵn kết quả của nó: Primitive::lods rỗng khi ấy là
+    // primitive không giảm được, không phải chưa tính.
+    bool has_lods = false;
 };
 
 // `bytes` là cả tệp GLB, hoặc JSON glTF mà buffer nằm trong tệp. Ảnh data-URI nạp được ở đây.

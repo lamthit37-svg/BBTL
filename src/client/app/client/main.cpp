@@ -234,6 +234,7 @@ void print_visit(const world::ShownScene& shown) {
     viewer.peer_count = options.peer_count;
     viewer.talk_demo = options.talk_demo;
     viewer.weapon_item = options.weapon_item;
+    viewer.ride_id = options.ride_id;
     viewer.weapon_gem = options.weapon_gem;
     viewer.skill_id = options.skill_id;
     viewer.is_validated = options.validate.value_or(kValidatedByBuild);

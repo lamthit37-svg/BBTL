@@ -119,6 +119,7 @@ void Display::State::arm_scene(const DisplayDesc& desc) {
     }
     talk_demo = desc.talk_demo;
     weapon_item = desc.weapon_item;
+    ride_id = desc.ride_id;
     weapon_gem = desc.weapon_gem;
     skill_id = desc.skill_id;
     seed_equipment();
@@ -468,17 +469,101 @@ std::optional<ui::SceneLoad> Display::State::scene_load() const {
     return load;
 }
 
-bool Display::State::is_on_hud(control::ScreenPoint point) const {
-    if (!hud) return false;
-    const FrameRect frame = frame_rect();
-    const auto width = static_cast<float>(frame.width);
-    const auto height = static_cast<float>(frame.height);
-    return hud->contains(point.x * width, point.y * height);
+namespace {
+
+constexpr float kRidePad = 8.0F;
+constexpr float kRideGap = 8.0F;
+constexpr std::uint32_t kRideFill = 0xE0202018U;
+constexpr std::uint32_t kRideInk = 0xFFFFFFFFU;
+
+[[nodiscard]] float ride_row_top(int height) noexcept {
+    const float room = static_cast<float>(height) - 72.0F;
+    if (room < 16.0F) return 16.0F;
+    return room;
 }
+
+void push_fill(std::vector<render::UiVertex>& out, const RideBox& box, std::uint32_t colour) {
+    out.push_back({.x = box.left, .y = box.top, .u = 0.0F, .v = 0.0F, .colour = colour});
+    out.push_back({.x = box.right, .y = box.top, .u = 1.0F, .v = 0.0F, .colour = colour});
+    out.push_back({.x = box.right, .y = box.bottom, .u = 1.0F, .v = 1.0F, .colour = colour});
+    out.push_back({.x = box.left, .y = box.bottom, .u = 0.0F, .v = 0.0F, .colour = colour});
+}
+
+void push_batch(ui::PaceOverlay& board, std::size_t first, std::uint32_t texture) {
+    if (board.vertices.size() < first) return;
+    const std::size_t count = board.vertices.size() - first;
+    if (count == 0 || count % 4 != 0) return;
+    render::UiBatch batch;
+    batch.texture = texture;
+    batch.first_quad = static_cast<std::uint32_t>(first / 4);
+    batch.quad_count = static_cast<std::uint32_t>(count / 4);
+    board.batches.push_back(batch);
+}
+
+[[nodiscard]] RideBox button_box(const ui::BitmapFont& font, std::string_view label, float left,
+    float top) {
+    const float text_w = font.width_of(label);
+    const auto size = static_cast<float>(font.pixel_size());
+    RideBox box;
+    box.left = left;
+    box.top = top;
+    box.right = left + text_w + (kRidePad * 2.0F);
+    box.bottom = top + size + (kRidePad * 2.0F);
+    return box;
+}
+
+void paint_label(ui::PaceOverlay& board, const ui::BitmapFont& font, std::string_view label,
+    const RideBox& box, std::uint32_t texture) {
+    const std::size_t panel = board.vertices.size();
+    push_fill(board.vertices, box, kRideFill);
+    push_batch(board, panel, render::kUiWhite);
+    const std::size_t text = board.vertices.size();
+    const float pen_x = box.left + kRidePad;
+    const float pen_y = box.top + kRidePad;
+    font.append_text(label, pen_x, pen_y, kRideInk, board.vertices);
+    push_batch(board, text, texture);
+}
+
+} // namespace
+
+bool Display::State::is_on_hud(control::ScreenPoint point) const {
+    const FrameRect frame = frame_rect();
+    const float x = point.x * static_cast<float>(frame.width);
+    const float y = point.y * static_cast<float>(frame.height);
+    if (hits_ride(x, y, ride_prev)) return true;
+    if (hits_ride(x, y, ride_next)) return true;
+    if (!hud) return false;
+    return hud->contains(x, y);
+}
+
+void Display::State::paint_ride_switch() {
+    ride_buttons_live = false;
+    const bool hides = is_bare || procedure != Procedure::kPlay;
+    if (hides || !pace_font) return;
+    if (!ensure_ride_catalog()) return;
+    const ui::BitmapFont& font = *pace_font;
+    const FrameRect frame = frame_rect();
+    const float top = ride_row_top(frame.height);
+    const RideBox prev = button_box(font, "Thú trước", 16.0F, top);
+    paint_label(pace_board, font, "Thú trước", prev, pace_texture);
+    const float next_left = prev.right + kRideGap;
+    const RideBox next = button_box(font, "Thú sau", next_left, top);
+    paint_label(pace_board, font, "Thú sau", next, pace_texture);
+    ride_prev = prev;
+    ride_next = next;
+    const std::string line = ride_caption();
+    const std::size_t text = pace_board.vertices.size();
+    const float caption_y = prev.bottom + 4.0F;
+    font.append_text(line, prev.left, caption_y, kRideInk, pace_board.vertices);
+    push_batch(pace_board, text, pace_texture);
+    ride_buttons_live = true;
+}
+
 
 void Display::State::fill_pace_board() {
     pace_board.vertices.clear();
     pace_board.batches.clear();
+    ride_buttons_live = false;
     if (!pace_font) return;
     ui::PacePlace place;
     place.font = &*pace_font;
@@ -488,6 +573,7 @@ void Display::State::fill_pace_board() {
     place.origin_y = 240.0F;
     place.screen_width = static_cast<float>(frame_rect().width);
     ui::write_pace(place, pace_shown, pace_board);
+    paint_ride_switch();
 }
 
 void Display::State::prepare_board() {

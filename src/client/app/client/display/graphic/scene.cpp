@@ -358,6 +358,7 @@ void Display::State::compose_frame() {
     dispatch_cues();
     sync_follows();
     sync_gear();
+    sync_ride();
     player->append(frame_instances);
 }
 } // namespace game::client

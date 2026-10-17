@@ -85,10 +85,12 @@ void Gait::enter(Clock::time_point now, bool is_moving) {
     if (stops) start_idle(now);
 }
 
-void Gait::jump(Clock::time_point now, Stance stance, const ClipLengths& lengths) {
+void Gait::jump(Clock::time_point now, Stance stance, const ClipLengths& lengths,
+    bool stays_airborne) {
     const bool is_stand = stance == Stance::kJumpStand;
     if (!is_stand && stance != Stance::kJumpRun) return;
-    is_jumping_ = true;
+    // Cưỡi đứng: Jump không ghi param_1[0x32], lệnh đi sau cắt clip. Có bay thì khoá tới land.
+    if (stays_airborne) is_jumping_ = true;
     const bool has_clip = is_stand ? lengths.jump_stand.has_value() : lengths.jump_run.has_value();
     if (!has_clip) return;
     stance_ = stance;

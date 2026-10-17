@@ -3,15 +3,19 @@
 #include "core/error.hpp"
 #include "fs/disk.hpp"
 #include "fs/file.hpp"
+#include "resource/lod.hpp"
 #include "resource/ogre_mesh.hpp"
 #include "test.hpp"
 
+#include <algorithm>
 #include <array>
+#include <cmath>
 #include <cstdio>
 #include <cstdint>
 #include <cstring>
 #include <filesystem>
 #include <string>
+#include <string_view>
 #include <vector>
 
 namespace game::test {
@@ -304,8 +308,245 @@ void trailing_spaces_keep_the_texture(Context& context) {
     std::filesystem::remove_all(root);
 }
 
+// Lưới side x side đỉnh gợn sóng (đủ tam giác để build_lods sinh mức thô), chỉ số 16 bit.
+std::vector<std::byte> grid_mesh(std::uint16_t side) {
+    const std::uint32_t vertex_count = std::uint32_t{side} * side;
+    const std::uint32_t cells = std::uint32_t{side - 1U} * (side - 1U);
+    std::vector<std::byte> out;
+    put_u16(out, 0x1000);
+    line(out, "[MeshSerializer_v1.40]");
+    chunk(out, 0x3000);
+    out.push_back(std::byte{0});
+    chunk(out, 0x5000);
+    put_u32(out, vertex_count);
+    chunk(out, 0x5100);
+    chunk(out, 0x5110);
+    put_u16(out, 0);
+    put_u16(out, 2);
+    put_u16(out, 1);
+    put_u16(out, 0);
+    put_u16(out, 0);
+    chunk(out, 0x5200);
+    put_u16(out, 0);
+    put_u16(out, 12);
+    chunk(out, 0x5210);
+    for (std::uint32_t index = 0; index < vertex_count; ++index) {
+        const auto across = static_cast<float>(index % side);
+        const auto along = static_cast<float>(index / side);
+        put_f32(out, across);
+        put_f32(out, std::sin(across * 0.7F) * std::cos(along * 0.5F));
+        put_f32(out, along);
+    }
+    chunk(out, 0x4000);
+    line(out, "luoi");
+    out.push_back(std::byte{1});
+    put_u32(out, cells * 6);
+    out.push_back(std::byte{0});
+    for (std::uint32_t cell = 0; cell < cells; ++cell) {
+        const auto corner = static_cast<std::uint16_t>((cell / (side - 1U)) * side + (cell % (side - 1U)));
+        const auto right = static_cast<std::uint16_t>(corner + 1U);
+        const auto below = static_cast<std::uint16_t>(corner + side);
+        const auto diagonal = static_cast<std::uint16_t>(below + 1U);
+        for (const std::uint16_t vertex : {corner, below, right, right, below, diagonal}) put_u16(out, vertex);
+    }
+    return out;
+}
+
+// Bộ mã chỉ số của meshoptimizer chỉ giữ nguyên tới phép xoay vòng ba đỉnh trong một tam giác (giữ
+// chiều quấn): so tam giác sau khi xoay đỉnh nhỏ nhất lên đầu.
+std::vector<std::uint32_t> canonical(const std::vector<std::uint32_t>& indices) {
+    std::vector<std::uint32_t> out = indices;
+    for (std::size_t corner = 0; corner + 2 < out.size(); corner += 3) {
+        const auto first = out.begin() + static_cast<std::ptrdiff_t>(corner);
+        std::rotate(first, std::min_element(first, first + 3), first + 3);
+    }
+    return out;
+}
+
+bool same_levels(const std::vector<std::vector<std::uint32_t>>& left,
+    const std::vector<std::vector<std::uint32_t>>& right) {
+    if (left.size() != right.size()) return false;
+    for (std::size_t level = 0; level < left.size(); ++level) {
+        if (canonical(left[level]) != canonical(right[level])) return false;
+    }
+    return true;
+}
+
+// Cache bản 2 mang mức chi tiết: lần nạp từ cache với LodUse::kKeep trả đúng các mức build_lods
+// dựng từ mesh gốc (máy chạy khỏi giản lược lại), còn lần nạp mặc định không có mức nào.
+void cache_carries_lods(Context& context) {
+    const std::string root = "ogre_mesh_lod_out";
+    static_cast<void>(fs::create_directories(root + "/Model"));
+    const std::vector<std::byte> bytes = grid_mesh(24);
+    const core::Status written = fs::write_file(root + "/Model/luoi.mesh", bytes);
+    context.expect(static_cast<bool>(written), "ghi lưới thử");
+    if (!written) return;
+    auto expected = resource::load_ogre_mesh(bytes, root);
+    context.expect(expected.has_value(), "lưới gốc đọc được");
+    if (!expected) return;
+    resource::build_lods(*expected);
+    const auto& wanted = expected->meshes[0].primitives[0].lods;
+    context.expect(!wanted.empty(), "lưới đủ lớn để có mức thô");
+    constexpr auto kKeep = resource::LodUse::kKeep;
+    const auto first = resource::load_named_model("luoi.mesh", root, resource::TextureTier::kBc, kKeep);
+    const auto cached = resource::load_named_model("luoi.mesh", root, resource::TextureTier::kBc, kKeep);
+    const auto plain = resource::load_named_model("luoi.mesh", root);
+    context.expect(first.has_value() && cached.has_value() && plain.has_value(), "nạp lưới ba lần");
+    if (!first || !cached || !plain) return;
+    context.expect(first->has_lods && first->meshes[0].primitives[0].lods == wanted, "lần đầu có mức");
+    const bool keeps = same_levels(cached->meshes[0].primitives[0].lods, wanted);
+    context.expect(cached->has_lods && keeps, "cache giữ mức");
+    context.expect(!plain->has_lods && plain->meshes[0].primitives[0].lods.empty(), "mặc định bỏ mức");
+    std::filesystem::remove_all(root);
+}
+
+std::vector<std::byte> tiny_dxt1() {
+    std::vector<std::byte> dds;
+    put_u32(dds, 0x20534444U);
+    put_u32(dds, 124);
+    for (int index = 0; index < 30; ++index)
+        put_u32(dds, 0);
+    dds.resize(128 + 8);
+    dds[12] = std::byte{4};
+    dds[16] = std::byte{4};
+    dds[80] = std::byte{4};
+    dds[84] = std::byte{'D'};
+    dds[85] = std::byte{'X'};
+    dds[86] = std::byte{'T'};
+    dds[87] = std::byte{'1'};
+    return dds;
+}
+
+bool length_matches(const std::vector<std::byte>& bytes, std::size_t found, std::size_t size) {
+    if (found < 4 || found == std::string_view::npos) return false;
+    std::uint32_t length = 0;
+    std::memcpy(&length, bytes.data() + found - 4, 4);
+    return length == size;
+}
+
+// Đổi đúng ô tên ảnh (u32 độ dài + byte), không đụng hình học nén.
+bool patch_name(std::vector<std::byte>& bytes, std::string_view from, std::string_view to) {
+    if (from.size() != to.size() || from.empty()) return false;
+    const auto* text = reinterpret_cast<const char*>(bytes.data());
+    const std::string_view view(text, bytes.size());
+    const std::size_t found = view.find(from);
+    if (!length_matches(bytes, found, from.size())) return false;
+    std::memcpy(bytes.data() + found, to.data(), to.size());
+    return true;
+}
+
+void expect_add_sheet(Context& context, const resource::Model& model) {
+    const resource::Material& material = model.materials[0];
+    context.expect(material.alpha == resource::Alpha::kAdd, "tấm cộng sáng");
+    context.expect(material.unlit, "tấm cộng sáng không đèn để cuộn UV");
+    context.expect(material.suppress_fog, "fog_override tắt sương");
+    context.expect(material.base_color.x == 4.0F, "ColorX4 nhân bốn");
+    context.expect(material.base_color.w == 1.0F, "alpha của hệ số là 1");
+    context.expect(material.emissive.x == 0.6F, "scroll_anim là tốc độ cuộn");
+    context.expect(material.color.image.has_value(), "có ảnh phát sáng");
+    if (!material.color.image) return;
+    context.expect(model.images[*material.color.image].name == "mau.dds", "ảnh màu là scrollTex");
+    context.expect(material.surface.image.has_value(), "có ảnh mặt nạ");
+    if (!material.surface.image) return;
+    context.expect(model.images[*material.surface.image].name == "mat.dds", "mặt nạ là baseTexture");
+}
+
+// Mẫu TwoTex_Tex2_ColorX4 không có thân. scene_blend add lấy scrollTex làm màu và baseTexture làm
+// mặt nạ. Cache lưu tên ảnh màu; sửa ô đó vẫn phải lấy lại scrollTex từ script.
+void additive_sheet_uses_scroll_and_mask(Context& context) {
+    const std::string root = "ogre_mesh_add_out";
+    static_cast<void>(fs::create_directories(root + "/Material"));
+    static_cast<void>(fs::create_directories(root + "/Model"));
+    const char* script = "material Tam : Mtl_Model_TwoTex_Tex2_ColorX4\n"
+                         "{\nset_texture_alias <baseTexture> mat.dds\n"
+                         "set_texture_alias <scrollTex> mau.dds\n"
+                         "fog_override true none\nscene_blend add\nscroll_anim 0.6 0\n}\n"
+                         "material Mot\n{\nscene_blend one one\n}\n";
+    const auto* bytes = reinterpret_cast<const std::byte*>(script);
+    const auto script_bytes = std::span<const std::byte>(bytes, std::strlen(script));
+    const core::Status written = fs::write_file(root + "/Material/all.material", script_bytes);
+    context.expect(static_cast<bool>(written), "ghi material cộng sáng");
+    if (!written) return;
+    const std::vector<std::byte> dds = tiny_dxt1();
+    const core::Status glow = fs::write_file(root + "/Material/mau.dds", dds);
+    const core::Status mask = fs::write_file(root + "/Material/mat.dds", dds);
+    const std::vector<std::byte> mesh = triangle_mesh("Tam");
+    const core::Status stored = fs::write_file(root + "/Model/tam.mesh", mesh);
+    const bool files = static_cast<bool>(glow) && static_cast<bool>(mask) && static_cast<bool>(stored);
+    context.expect(files, "ghi ảnh và mesh");
+    if (!files) return;
+    const std::vector<std::byte> factors = triangle_mesh("Mot");
+    const auto plain = resource::load_ogre_mesh(factors, root);
+    context.expect(plain.has_value(), "one one đọc được");
+    if (!plain) return;
+    context.expect(plain->materials[0].alpha == resource::Alpha::kAdd, "one one là cộng sáng");
+    context.expect(plain->materials[0].unlit, "one one không đèn");
+    context.expect(plain->materials[0].base_color.x == 1.0F, "không có ColorX4 thì hệ số 1");
+    const auto first = resource::load_named_model("tam.mesh", root);
+    context.expect(first.has_value(), "nạp tấm lần đầu");
+    if (!first) return;
+    expect_add_sheet(context, *first);
+    const std::string cache = root + "/cache/mesh/tam.mesh.tlms";
+    auto cached_bytes = fs::read_file(cache);
+    context.expect(static_cast<bool>(cached_bytes), "đọc cache tấm");
+    if (!cached_bytes) return;
+    std::vector<std::byte> patched(cached_bytes->span().begin(), cached_bytes->span().end());
+    const bool renamed = patch_name(patched, "mau.dds", "mat.dds");
+    context.expect(renamed, "đổi tên ảnh trong cache");
+    if (!renamed) return;
+    const core::Status rewritten = fs::write_file(cache, patched);
+    context.expect(static_cast<bool>(rewritten), "ghi cache đã sửa");
+    if (!rewritten) return;
+    const auto again = resource::load_named_model("tam.mesh", root);
+    context.expect(again.has_value(), "nạp tấm từ cache");
+    if (!again) return;
+    expect_add_sheet(context, *again);
+    std::filesystem::remove_all(root);
+}
+
+// all.material giữ tên GBK. Bảng thú chồng tên UTF-8 lên cùng lưới. Tra chỉ theo byte gốc thì
+// trượt, scene_blend và ảnh không áp, con đổi màu thành trắng.
+void painted_utf8_finds_gbk_material(Context& context) {
+    const std::string root = "ogre_mesh_gbk_out";
+    static_cast<void>(fs::create_directories(root + "/Material"));
+    static_cast<void>(fs::create_directories(root + "/Model"));
+    const unsigned char gbk_ice[] = {0xB1, 0xF9};
+    std::string script = "material ";
+    script.append(reinterpret_cast<const char*>(gbk_ice), sizeof(gbk_ice));
+    script += "\n{\nset_texture_alias <baseTexture> vang.dds\n}\n";
+    const auto* raw = reinterpret_cast<const std::byte*>(script.data());
+    const auto script_bytes = std::span<const std::byte>(raw, script.size());
+    const core::Status written = fs::write_file(root + "/Material/all.material", script_bytes);
+    context.expect(static_cast<bool>(written), "ghi material GBK");
+    if (!written) return;
+    const std::vector<std::byte> dds = tiny_dxt1();
+    const core::Status image = fs::write_file(root + "/Material/vang.dds", dds);
+    const std::vector<std::byte> mesh = triangle_mesh("Goc");
+    const core::Status stored = fs::write_file(root + "/Model/son.mesh", mesh);
+    const bool files = static_cast<bool>(image) && static_cast<bool>(stored);
+    context.expect(files, "ghi ảnh và mesh");
+    if (!files) return;
+    const std::vector<std::string> names{"\u51B0"};
+    const auto painted = resource::load_mesh_painted("son.mesh", root, names);
+    context.expect(painted.has_value(), "nạp material chồng UTF-8");
+    if (!painted) return;
+    const bool has_image = painted->materials[0].color.image.has_value();
+    context.expect(has_image, "UTF-8 khớp khoá GBK");
+    if (!has_image) return;
+    const auto slot = *painted->materials[0].color.image;
+    context.expect(painted->images[slot].name == "vang.dds", "ảnh của tên GBK");
+    const std::string raw_name(reinterpret_cast<const char*>(gbk_ice), sizeof(gbk_ice));
+    const std::vector<std::byte> direct = triangle_mesh(raw_name);
+    const auto from_mesh = resource::load_ogre_mesh(direct, root);
+    context.expect(from_mesh.has_value(), "tên GBK trong lưới vẫn khớp");
+    if (!from_mesh) return;
+    context.expect(from_mesh->materials[0].color.image.has_value(), "lưới GBK có ảnh");
+    std::filesystem::remove_all(root);
+}
+
 constexpr std::array kCases{
     Case{.name = "reads_triangle_positions", .body = &reads_triangle_positions},
+    Case{.name = "cache_carries_lods", .body = &cache_carries_lods},
     Case{.name = "named_load_uses_mesh_suffix", .body = &named_load_uses_mesh_suffix},
     Case{.name = "reads_shipped_mesh_when_present", .body = &reads_shipped_mesh_when_present},
     Case{.name = "child_inherits_blend_and_cull", .body = &child_inherits_blend_and_cull},
@@ -313,6 +554,8 @@ constexpr std::array kCases{
     Case{.name = "shipped_waterfall_scrolls", .body = &shipped_waterfall_scrolls},
     Case{.name = "capital_alias_is_the_diffuse_map", .body = &capital_alias_is_the_diffuse_map},
     Case{.name = "trailing_spaces_keep_the_texture", .body = &trailing_spaces_keep_the_texture},
+    Case{.name = "additive_sheet_uses_scroll_and_mask", .body = &additive_sheet_uses_scroll_and_mask},
+    Case{.name = "painted_utf8_finds_gbk_material", .body = &painted_utf8_finds_gbk_material},
 };
 
 } // namespace
