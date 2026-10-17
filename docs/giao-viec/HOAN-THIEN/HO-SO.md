@@ -560,8 +560,8 @@ python -B TOOLS/run/desk_watch.py <lệnh> [đối số]... — mã thoát là m
 | Gói | K | M | Ghi chú |
 |---|---|---|---|
 | G0 | đạt (`9adc2de5`, `d08b9b6e`) | đạt (`bba77680`) | Điều phối chạy lại trên HEAD 2026-10-18: bot 6/6 đạt; client tạo nhân vật, vào game, đi, bot quan sát thấy. Đã push |
-| G1 | đang làm; phần 1 đạt (`a9ab3e1a`: SceneTrans chạy script gốc, sửa Move đầu); phần 2 đạt (`8030927b`: host chạy ở màn đăng nhập, SoftKeyBoard chạy script gốc) | đang làm (D1–D4 đã duyệt; D4 điểm sinh 14 kiểm đạt, chờ commit) | Điều phối kiểm `8030927b` trên HEAD: `g1-softkey` 18/18 bước, `g0` bằng client HEAD đạt |
-| G2 | chưa | chưa | |
+| G1 | đang làm; phần 1 đạt (`a9ab3e1a`: SceneTrans chạy script gốc, sửa Move đầu); phần 2 đạt (`8030927b`: host chạy ở màn đăng nhập, SoftKeyBoard chạy script gốc); `41f14873` nút duyệt thú chỉ với `--mount` | đang làm (D1–D4 đã duyệt; D4 điểm sinh 14 kiểm đạt, chờ commit) | Điều phối kiểm `8030927b` trên HEAD: `g1-softkey` 18/18 bước, `g0` bằng client HEAD đạt |
+| G2 | đang làm; phần 1 đạt (`020df092`: tên, thanh máu, chữ bay vẽ dưới cửa sổ) | chưa | Điều phối kiểm `020df092`: ảnh 任务日志 mở che tên 赵天师, 都大爽 |
 | G3 | — | — | Làn N làm cả gói (N1) |
 | G4 | chưa | chưa | |
 | G5 | chưa | chưa | |
@@ -573,7 +573,7 @@ python -B TOOLS/run/desk_watch.py <lệnh> [đối số]... — mã thoát là m
 | Gói N | Trạng thái | Ghi chú |
 |---|---|---|
 | N0 | đạt | Điều phối duyệt 2026-10-18; quyết định ở mục 5.12 |
-| N1 (G3) | đang làm; phần 1 đạt (`1381feef`: cấp 1400 lần vào đầu, menu 赵天师 hết mục chết, hết `}` thừa, giao thức v8) | Điều phối kiểm trên HEAD: bot 6/6, `n1-tanthu` A 12/12. Còn phía client: QuestLog trống, MissionTrack, dấu `?`/`!` là chữ thay vì biểu tượng |
+| N1 (G3) | đang làm; phần 1 đạt (`1381feef`: cấp 1400 lần vào đầu, menu 赵天师 hết mục chết, hết `}` thừa, giao thức v8) | Điều phối kiểm trên HEAD: bot 6/6, `n1-tanthu` A 12/12. Phần 2 đạt (`2a03a240`: dòng nhiệm vụ dùng biểu tượng QuestButtonImage). Còn phía client: QuestLog trống, MissionTrack |
 | N2 | chưa | |
 | N3 | chưa | |
 | N4 | chưa | Phụ bản cần đội phụ thuộc G9 |
