@@ -6,12 +6,10 @@
  *  CHUẨN     : C++23
  *------------------------------------------------------------------------------
  *  CHỨC NĂNG
- *  - Một lần chờ cho nhiều kết nối, để máy chủ không phải quét mọi socket mỗi
- *    vòng như PollSet (WSAPoll). Windows: cổng hoàn thành, AcceptEx nhận sẵn,
- *    WSASend chồng bản sao tối đa 2 KiB.
- *  - Một luồng gọi wait/watch/submit; wake() gọi từ luồng khác, chỉ đăng một
- *    gói đánh thức. Reactor không sở hữu socket dữ liệu; gỡ nhãn trước khi
- *    đóng.
+ *  - Một lần chờ cho nhiều socket. Windows: IOCP, AcceptEx, WSASend tới 8 KiB.
+ *    Linux và Android: epoll. Apple: poll. Không quét cả tập mỗi vòng.
+ *  - UDP đăng bằng watch_udp, lấy bằng take_udp. Một luồng gọi wait; wake()
+ *    từ luồng khác. Reactor không sở hữu socket; gỡ nhãn trước khi đóng.
  *------------------------------------------------------------------------------
  *  TÁC GIẢ   : HiepHoon
  *  TELEGRAM  : @Hoon9xx
@@ -62,8 +60,14 @@ public:
     // Nghe bằng AcceptEx (Windows) hoặc poll (POSIX). Listener phải sống lâu hơn nhãn.
     [[nodiscard]] bool watch_listener(TcpListener& listener, std::uint64_t tag);
     [[nodiscard]] NetResult<std::optional<Accepted>> take_accept(std::uint64_t tag);
-    // Sao tối đa 2 KiB rồi gửi chồng. POSIX gửi ngay trên socket không chặn.
-    [[nodiscard]] SendOutcome submit_send(std::uint64_t tag, std::span<const std::byte> data) noexcept;
+    // Sao tối đa 8 KiB rồi gửi chồng. POSIX gửi ngay trên socket không chặn.
+    [[nodiscard]] SendOutcome submit_send(std::uint64_t tag,
+        std::span<const std::byte> data) noexcept;
+    // Đăng nhận datagram. false khi nhãn đã có hoặc không gắn được vào cổng.
+    [[nodiscard]] bool watch_udp(UdpSocket& socket, std::uint64_t tag);
+    // Một datagram đã sẵn. nullopt khi chưa có. Gói dài hơn sink thì truncated.
+    using UdpRead = UdpSocket::UdpRead;
+    [[nodiscard]] UdpRead take_udp(std::uint64_t tag, std::span<std::byte> sink);
     [[nodiscard]] NetResult<void> wait(Milliseconds limit, PollEvents& events);
     // Luồng khác. Đánh thức wait đang ngủ; nhiều lần gộp thành một gói.
     void wake() noexcept;

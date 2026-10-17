@@ -587,6 +587,65 @@ void reactor_wakes_from_another_thread(Context& context) {
     context.expect(elapsed < Milliseconds{500}, "luồng khác đánh thức lần chờ");
 }
 
+void reactor_takes_udp(Context& context) {
+    auto left = net::UdpSocket::open(kAnyLoopbackPort);
+    auto right = net::UdpSocket::open(kAnyLoopbackPort);
+    context.expect(left.has_value() && right.has_value(), "mở UDP");
+    if (!left || !right) return;
+    const auto dest = right->local();
+    context.expect(dest.has_value(), "cổng nhận");
+    if (!dest) return;
+    net::Reactor reactor;
+    context.expect(reactor.watch_udp(*right, 4), "gắn UDP vào cổng hoàn thành");
+    const auto payload = bytes_of("iocp");
+    context.expect(left->send_to(*dest, payload).has_value(), "gửi datagram");
+    PollEvents events;
+    const auto waited = reactor.wait(kReadyLimit, events);
+    context.expect(waited.has_value() && has_tag(events, 4), "IOCP báo datagram");
+    std::array<std::byte, 16> buf{};
+    const auto got = reactor.take_udp(4, buf);
+    context.expect(got.has_value() && got->has_value(), "lấy được datagram");
+    if (!got || !got->has_value()) return;
+    context.expect(!got->value().truncated && got->value().size == 4, "đủ 4 byte");
+    const auto none = reactor.take_udp(4, buf);
+    context.expect(none.has_value() && !none->has_value(), "hết datagram thì rỗng");
+}
+
+void reactor_udp_burst(Context& context) {
+    auto left = net::UdpSocket::open(kAnyLoopbackPort);
+    auto right = net::UdpSocket::open(kAnyLoopbackPort);
+    context.expect(left.has_value() && right.has_value(), "mở UDP");
+    if (!left || !right) return;
+    const auto dest = right->local();
+    context.expect(dest.has_value(), "cổng nhận");
+    if (!dest) return;
+    net::Reactor reactor;
+    context.expect(reactor.watch_udp(*right, 6), "treo nhiều lượt nhận");
+    constexpr int kBurst = 8;
+    for (int index = 0; index < kBurst; ++index) {
+        std::array<std::byte, 1> payload{static_cast<std::byte>(index)};
+        context.expect(left->send_to(*dest, payload).has_value(), "gửi một gói trong đợt");
+    }
+    PollEvents events;
+    const auto waited = reactor.wait(kReadyLimit, events);
+    context.expect(waited.has_value() && has_tag(events, 6), "IOCP báo đợt gói");
+    std::array<bool, kBurst> seen{};
+    int got_count = 0;
+    for (int index = 0; index < kBurst; ++index) {
+        std::array<std::byte, 8> buf{};
+        const auto got = reactor.take_udp(6, buf);
+        if (!got || !got->has_value() || got->value().size != 1) break;
+        const auto mark = static_cast<unsigned>(buf[0]);
+        if (mark >= static_cast<unsigned>(kBurst) || seen[mark]) break;
+        seen[mark] = true;
+        ++got_count;
+    }
+    context.expect(got_count == kBurst, "một lần chờ lấy đủ 8 gói");
+    std::array<std::byte, 8> extra{};
+    const auto none = reactor.take_udp(6, extra);
+    context.expect(none.has_value() && !none->has_value(), "hàng nhận hết");
+}
+
 void empty_poll_set_waits_out_limit(Context& context) {
     PollSet poll;
     PollEvents events{net::PollEvent{.tag = 5}};
@@ -626,6 +685,8 @@ constexpr std::array kCases{
     Case{.name = "lanes_prefer_login_then_share", .body = lanes_prefer_login_then_share},
     Case{.name = "reactor_accepts_and_echoes", .body = reactor_accepts_and_echoes},
     Case{.name = "reactor_wakes_from_another_thread", .body = reactor_wakes_from_another_thread},
+    Case{.name = "reactor_takes_udp", .body = reactor_takes_udp},
+    Case{.name = "reactor_udp_burst", .body = reactor_udp_burst},
 };
 
 } // namespace

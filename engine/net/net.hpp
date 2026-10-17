@@ -161,8 +161,10 @@ public:
 
     [[nodiscard]] SocketHandle handle() const noexcept { return socket_.handle(); }
     [[nodiscard]] bool is_open() const noexcept { return socket_.is_open(); }
-    // Socket đã không chặn. Reactor bọc socket AcceptEx vừa nhận, chưa đi qua TcpListener::accept.
-    [[nodiscard]] static TcpStream from_socket(Socket socket) noexcept { return TcpStream{std::move(socket)}; }
+    // Socket không chặn. Reactor bọc AcceptEx, chưa đi qua TcpListener::accept.
+    [[nodiscard]] static TcpStream from_socket(Socket taken) noexcept {
+        return TcpStream{std::move(taken)};
+    }
 
 private:
     friend class TcpListener;
@@ -248,6 +250,42 @@ private:
     [[nodiscard]] Native& state() const noexcept;
 
     std::unique_ptr<Native> native_;
+};
+
+// Một datagram vừa nhận. truncated: gói lớn hơn sink, đã bỏ, không được đọc sink.
+struct UdpInbound {
+    Endpoint from{};
+    std::size_t size = 0;
+    bool truncated = false;
+};
+
+// Socket UDP IPv4 không chặn. Bật cờ không phân mảnh IP. Windows tắt báo
+// WSAECONNRESET do ICMP, nếu không một gói trước làm hỏng mọi lần nhận sau.
+class UdpSocket {
+public:
+    UdpSocket() = default;
+    ~UdpSocket() = default;
+    UdpSocket(UdpSocket&&) noexcept = default;
+    UdpSocket& operator=(UdpSocket&&) noexcept = default;
+    UdpSocket(const UdpSocket&) = delete;
+    UdpSocket& operator=(const UdpSocket&) = delete;
+
+    // Cổng 0: hệ điều hành chọn. Đọc lại bằng local.
+    [[nodiscard]] static NetResult<UdpSocket> open(Endpoint local) noexcept;
+    [[nodiscard]] NetResult<Endpoint> local() const noexcept;
+    // 0 khi phải chờ, hoặc khi data rỗng. Kích thước là số byte đã giao cho kernel.
+    [[nodiscard]] NetResult<std::size_t> send_to(Endpoint to,
+        std::span<const std::byte> data) noexcept;
+    // nullopt khi chưa có datagram. truncated thì datagram đã bị bỏ.
+    using UdpRead = NetResult<std::optional<UdpInbound>>;
+    [[nodiscard]] UdpRead receive_from(std::span<std::byte> sink) noexcept;
+    [[nodiscard]] SocketHandle handle() const noexcept { return socket_.handle(); }
+    [[nodiscard]] bool is_open() const noexcept { return socket_.is_open(); }
+
+private:
+    explicit UdpSocket(Socket socket) noexcept : socket_(std::move(socket)) {}
+
+    Socket socket_;
 };
 
 } // namespace game::net

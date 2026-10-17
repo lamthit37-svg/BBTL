@@ -37,9 +37,14 @@
 #include <vector>
 
 #include <inaddr.h>
+#include <mstcpip.h>
 #include <winerror.h>
 #include <winsock2.h>
 #include <ws2tcpip.h>
+
+#ifndef SIO_UDP_CONNRESET
+#define SIO_UDP_CONNRESET _WSAIOW(IOC_VENDOR, 12)
+#endif
 
 namespace game::net {
 namespace {
@@ -188,6 +193,72 @@ void append_event(const WSAPOLLFD& item, std::uint64_t tag, PollEvents& events) 
 template <typename Item>
 void make_room(std::vector<Item>& items) {
     if (items.size() == items.capacity()) items.reserve((items.size() * 2) + 1);
+}
+
+// ICMP "cổng đóng" làm recvfrom sau đó trả WSAECONNRESET. Tắt để một gói hỏng không khoá socket.
+int drop_reset(SOCKET sock, BOOL* flag, DWORD* back) noexcept {
+    const DWORD size = sizeof(BOOL);
+    return WSAIoctl(sock, SIO_UDP_CONNRESET, flag, size, nullptr, 0, back, nullptr, nullptr);
+}
+
+bool disable_udp_reset(SOCKET socket) noexcept {
+    BOOL report = FALSE;
+    DWORD returned = 0;
+    return drop_reset(socket, &report, &returned) == 0;
+}
+
+bool set_dont_fragment(SOCKET socket) noexcept {
+    const DWORD on = 1;
+    return set_option(socket, IPPROTO_IP, IP_DONTFRAGMENT, on);
+}
+
+bool bind_exclusive(SOCKET socket, Endpoint local) noexcept {
+    const int exclusive = 1;
+    if (!set_option(socket, SOL_SOCKET, SO_EXCLUSIVEADDRUSE, exclusive)) return false;
+    const sockaddr_in where = to_native(local);
+    return bind(socket, as_sockaddr(where), kAddressSize) == 0;
+}
+
+NetResult<Socket> make_udp() noexcept {
+    const DWORD flags = WSA_FLAG_OVERLAPPED | WSA_FLAG_NO_HANDLE_INHERIT;
+    const SOCKET raw = WSASocketW(AF_INET, SOCK_DGRAM, IPPROTO_UDP, nullptr, 0, flags);
+    if (raw == kNoNative) return std::unexpected(NetError::kSocket);
+    Socket socket{wrap(raw)};
+    if (!set_nonblocking(raw)) return std::unexpected(NetError::kSocket);
+    if (!disable_udp_reset(raw)) return std::unexpected(NetError::kSocket);
+    if (!set_dont_fragment(raw)) return std::unexpected(NetError::kSocket);
+    return socket;
+}
+
+NetResult<std::size_t> udp_send_error(int code) noexcept {
+    if (code == WSAEWOULDBLOCK) return std::size_t{0};
+    return std::unexpected(NetError::kReset);
+}
+
+UdpInbound truncated_packet() noexcept {
+    UdpInbound inbound;
+    inbound.truncated = true;
+    return inbound;
+}
+
+NetResult<std::optional<UdpInbound>> udp_recv_error(int code) noexcept {
+    if (code == WSAEWOULDBLOCK || code == WSAECONNRESET) return std::optional<UdpInbound>{};
+    if (code == WSAEMSGSIZE) return truncated_packet();
+    return std::unexpected(NetError::kReset);
+}
+
+int post_udp(SOCKET raw, std::span<const std::byte> data, const sockaddr_in& where) noexcept {
+    const char* bytes = as_chars(data);
+    const int count = chunk_of(data.size());
+    const sockaddr* address = as_sockaddr(where);
+    return sendto(raw, bytes, count, 0, address, kAddressSize);
+}
+
+int pull_udp(SOCKET raw, std::span<std::byte> buf, sockaddr_in& peer, int& size) noexcept {
+    char* bytes = as_chars(buf);
+    const int count = chunk_of(buf.size());
+    sockaddr* address = as_sockaddr(peer);
+    return recvfrom(raw, bytes, count, 0, address, &size);
 }
 
 } // namespace
@@ -427,6 +498,44 @@ NetResult<void> PollSet::wait(Milliseconds limit, PollEvents& events) {
         append_event(set.items[index], set.tags[index], events);
     }
     return {};
+}
+
+NetResult<UdpSocket> UdpSocket::open(Endpoint local) noexcept {
+    auto socket = make_udp();
+    if (!socket) return std::unexpected(socket.error());
+    const SOCKET raw = raw_of(socket->handle());
+    if (!bind_exclusive(raw, local)) return std::unexpected(NetError::kBind);
+    return UdpSocket{std::move(*socket)};
+}
+
+NetResult<Endpoint> UdpSocket::local() const noexcept {
+    return local_of(handle());
+}
+
+NetResult<std::size_t> UdpSocket::send_to(Endpoint to, std::span<const std::byte> data) noexcept {
+    if (!is_open()) return std::unexpected(NetError::kReset);
+    if (data.empty()) return std::size_t{0};
+    const sockaddr_in where = to_native(to);
+    const int sent = post_udp(raw_of(handle()), data, where);
+    if (sent >= 0) return static_cast<std::size_t>(sent);
+    return udp_send_error(WSAGetLastError());
+}
+
+NetResult<std::optional<UdpInbound>> UdpSocket::receive_from(std::span<std::byte> sink) noexcept {
+    if (!is_open()) return std::unexpected(NetError::kReset);
+    std::byte scratch{};
+    std::span<std::byte> buf = sink;
+    if (sink.empty()) buf = std::span<std::byte>{&scratch, 1};
+    sockaddr_in peer{};
+    int size = kAddressSize;
+    const int got = pull_udp(raw_of(handle()), buf, peer, size);
+    if (got == SOCKET_ERROR) return udp_recv_error(WSAGetLastError());
+    UdpInbound inbound;
+    inbound.from = from_native(peer);
+    inbound.size = static_cast<std::size_t>(got);
+    if (sink.empty()) inbound.truncated = true;
+    if (sink.empty()) inbound.size = 0;
+    return inbound;
 }
 
 } // namespace game::net

@@ -6,11 +6,10 @@
  *  CHUẨN     : C++23
  *------------------------------------------------------------------------------
  *  CHỨC NĂNG
- *  - Reactor trên POSIX: cùng hợp đồng với bản Windows, phía dưới vẫn là
- *    PollSet.
+ *  - Reactor trên Apple: cùng hợp đồng với IOCP và epoll, phía dưới là poll.
+ *    Linux và Android dùng reactor_epoll.cpp.
  *  - Đánh thức từ luồng khác bằng một pipe không chặn, gộp nhiều lần thành một
- *    byte.
- *  - Chưa chạy trên Linux thật: máy phát triển dịch nhánh này bằng NDK khi cần.
+ *    byte. UDP lấy bằng recvfrom khi take_udp.
  *------------------------------------------------------------------------------
  *  TÁC GIẢ   : HiepHoon
  *  TELEGRAM  : @Hoon9xx
@@ -19,6 +18,7 @@
 #include "net/reactor.hpp"
 
 #include "core/check.hpp"
+#include "net/detail/native.hpp"
 
 #include <algorithm>
 #include <array>
@@ -31,6 +31,7 @@
 #include <utility>
 
 #include <fcntl.h>
+#include <netinet/in.h>
 #include <poll.h>
 #include <sys/socket.h>
 #include <sys/types.h>
@@ -67,6 +68,7 @@ struct ReactorNative {
     PollSet poll;
     std::unordered_map<std::uint64_t, SocketHandle> sockets;
     std::unordered_map<std::uint64_t, TcpListener*> listeners;
+    std::unordered_map<std::uint64_t, bool> datagrams;
     int wake_read = kClosedFd;
     int wake_write = kClosedFd;
     std::atomic<std::uint32_t> wake_flag{0};
@@ -129,6 +131,7 @@ void Reactor::unwatch(std::uint64_t tag) {
     native.poll.remove(tag);
     native.sockets.erase(tag);
     native.listeners.erase(tag);
+    native.datagrams.erase(tag);
 }
 
 void Reactor::want_write(std::uint64_t tag, bool wanted) {
@@ -181,6 +184,49 @@ SendOutcome Reactor::submit_send(std::uint64_t tag, std::span<const std::byte> d
         return SendOutcome{.state = SendState::kPending};
     }
     return SendOutcome{.state = SendState::kReset};
+}
+
+bool Reactor::watch_udp(UdpSocket& socket, std::uint64_t tag) {
+    if (!socket.is_open() || !watch(socket.handle(), tag)) return false;
+    state().datagrams.emplace(tag, true);
+    return true;
+}
+
+ssize_t read_udp(int fd, std::span<std::byte> buf, sockaddr_in& peer, int flags) noexcept {
+    socklen_t size = static_cast<socklen_t>(sizeof(peer));
+    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast): hợp đồng recvfrom
+    sockaddr* address = reinterpret_cast<sockaddr*>(&peer);
+    return ::recvfrom(fd, buf.data(), buf.size(), flags, address, &size);
+}
+
+UdpSocket::UdpRead pull_udp(int fd, std::span<std::byte> sink) noexcept {
+    std::byte scratch{};
+    std::span<std::byte> buf = sink;
+    if (sink.empty()) buf = std::span<std::byte>{&scratch, 1};
+    sockaddr_in peer{};
+#ifdef MSG_TRUNC
+    constexpr int kFlags = MSG_TRUNC;
+#else
+    constexpr int kFlags = 0;
+#endif
+    const ssize_t got = read_udp(fd, buf, peer, kFlags);
+    if (got < 0 && (errno == EAGAIN || errno == EWOULDBLOCK)) return std::optional<UdpInbound>{};
+    if (got < 0) return std::unexpected(NetError::kReset);
+    UdpInbound inbound;
+    const auto host = static_cast<std::uint32_t>(ntohl(peer.sin_addr.s_addr));
+    inbound.from.address = detail::unpack(host);
+    inbound.from.port = ntohs(peer.sin_port);
+    if (static_cast<std::size_t>(got) > sink.size()) inbound.truncated = true;
+    if (!inbound.truncated) inbound.size = static_cast<std::size_t>(got);
+    return inbound;
+}
+
+UdpSocket::UdpRead Reactor::take_udp(std::uint64_t tag, std::span<std::byte> sink) {
+    ReactorNative& native = state();
+    const auto found = native.sockets.find(tag);
+    const bool missing = found == native.sockets.end() || !native.datagrams.contains(tag);
+    if (missing) return std::unexpected(NetError::kReset);
+    return pull_udp(fd_of(found->second), sink);
 }
 
 NetResult<void> Reactor::wait(Milliseconds limit, PollEvents& events) {

@@ -7,10 +7,9 @@
  *------------------------------------------------------------------------------
  *  CHỨC NĂNG
  *  - Reactor trên Windows: một cổng hoàn thành cho mọi socket của luồng.
- *  - Đọc là WSARecv 0 byte (không nuốt dữ liệu) để biết lúc recv() có việc; gửi
- *    là WSASend bản sao, nên outbox của gate dịch chuyển được khi kernel còn
- *    giữ bản sao.
- *  - Nhận kết nối là AcceptEx đăng sẵn, khỏi đánh thức rồi mới accept.
+ *  - Đọc TCP là WSARecv 0 byte. UDP treo 8 WSARecvFrom: gói xong thì chép ra
+ *    hàng và đăng lại ngay, socket không bao giờ hết lượt nhận đang chờ.
+ *  - Nhận kết nối là AcceptEx đăng sẵn. Gửi là WSASend bản sao 8 KiB.
  *------------------------------------------------------------------------------
  *  TÁC GIẢ   : HiepHoon
  *  TELEGRAM  : @Hoon9xx
@@ -48,19 +47,46 @@ namespace {
 constexpr SOCKET kInvalid = INVALID_SOCKET;
 constexpr int kAcceptPosts = 32;
 constexpr DWORD kAddrLen = static_cast<DWORD>(sizeof(sockaddr_in) + 16);
-constexpr std::size_t kSendCap = 2048;
+constexpr std::size_t kSendCap = 8192;
+constexpr std::size_t kUdpCap = 2048;
+constexpr int kUdpPosts = 8;
+constexpr int kUdpQueue = 32;
 constexpr ULONG kBatch = 32;
 constexpr std::uint32_t kCancelled = 995;
 
 enum class Kind : std::uint8_t { kRead, kWrite, kAccept };
 
 struct Slot;
+struct UdpPost;
 
 struct Op {
     OVERLAPPED ov{};
     Kind kind = Kind::kRead;
     Slot* slot = nullptr;
+    UdpPost* udp_post = nullptr;
     bool posted = false;
+};
+
+struct UdpPost {
+    Op op{};
+    std::array<std::byte, kUdpCap> buf{};
+    sockaddr_in from{};
+    int from_len = static_cast<int>(sizeof(sockaddr_in));
+};
+
+struct UdpPacket {
+    Endpoint from{};
+    std::uint16_t size = 0;
+    bool truncated = false;
+    std::array<std::byte, kUdpCap> buf{};
+};
+
+struct UdpPlane {
+    std::array<UdpPost, kUdpPosts> posts{};
+    std::array<UdpPacket, kUdpQueue> queue{};
+    int head = 0;
+    int tail = 0;
+    int count = 0;
 };
 
 struct AcceptOp {
@@ -87,6 +113,7 @@ struct Slot {
     std::size_t completed_send = 0;
     std::vector<std::unique_ptr<AcceptOp>> accepts;
     std::vector<AcceptOp*> ready;
+    std::unique_ptr<UdpPlane> udp;
 };
 
 [[nodiscard]] SOCKET raw_of(SocketHandle handle) noexcept {
@@ -243,7 +270,60 @@ void finish_op(ReactorNative& native, Op& op) noexcept {
     return true;
 }
 
-void apply_read(ReactorNative& native, Slot& slot, bool ok, int error) {
+int arm_udp(SOCKET fd, UdpPost& post) noexcept {
+    WSABUF buf{};
+    buf.len = static_cast<ULONG>(post.buf.size());
+    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast): hợp đồng Winsock
+    buf.buf = reinterpret_cast<CHAR*>(post.buf.data());
+    DWORD flags = 0;
+    DWORD got = 0;
+    post.from_len = static_cast<int>(sizeof(sockaddr_in));
+    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast): địa chỉ gốc của datagram
+    auto* from = reinterpret_cast<sockaddr*>(&post.from);
+    return WSARecvFrom(fd, &buf, 1, &got, &flags, from, &post.from_len, &post.op.ov, nullptr);
+}
+
+bool post_udp_slot(ReactorNative& native, Slot& slot, UdpPost& post) noexcept {
+    if (slot.dead || post.op.posted) return !slot.dead;
+    post.op.ov = {};
+    post.op.kind = Kind::kRead;
+    post.op.slot = &slot;
+    post.op.udp_post = &post;
+    const int code = arm_udp(slot.fd, post);
+    if (code != 0 && WSAGetLastError() != WSA_IO_PENDING) return false;
+    post.op.posted = true;
+    ++slot.posted;
+    ++native.pending;
+    return true;
+}
+
+void fill_packet(UdpPacket& pkt, const UdpPost& post, DWORD bytes) {
+    pkt.from = endpoint_of(post.from);
+    pkt.size = static_cast<std::uint16_t>(bytes);
+    pkt.truncated = false;
+    std::copy_n(post.buf.begin(), static_cast<std::size_t>(bytes), pkt.buf.begin());
+}
+
+bool enqueue_udp(UdpPlane& plane, const UdpPost& post, DWORD bytes) {
+    if (plane.count >= kUdpQueue || bytes > kUdpCap) return false;
+    fill_packet(plane.queue[static_cast<std::size_t>(plane.tail)], post, bytes);
+    plane.tail = (plane.tail + 1) % kUdpQueue;
+    ++plane.count;
+    return true;
+}
+
+void apply_udp(ReactorNative& native, Slot& slot, UdpPost& post, bool ok, int error, DWORD bytes) {
+    const bool overflow = error == WSAEMSGSIZE;
+    if (!ok && !overflow && !slot.dead) slot.failed = true;
+    const bool keep = ok && bytes > 0 && slot.udp != nullptr;
+    bool stored = false;
+    if (keep) stored = enqueue_udp(*slot.udp, post, bytes);
+    if (stored) slot.read_hot = true;
+    if (stored || slot.failed) mark(native, slot);
+    if (!slot.dead && !slot.failed) static_cast<void>(post_udp_slot(native, slot, post));
+}
+
+void apply_read(ReactorNative& native, Slot& slot, bool ok, int error, DWORD /*bytes*/) {
     slot.read.posted = false;
     if (slot.dead || error == static_cast<int>(kCancelled)) return;
     if (!ok) slot.failed = true;
@@ -292,8 +372,10 @@ void apply(ReactorNative& native, const OVERLAPPED_ENTRY& entry) {
         apply_accept(native, *slot, *reinterpret_cast<AcceptOp*>(op), done == TRUE, error);
     } else if (kind == Kind::kWrite) {
         apply_write(native, *slot, done == TRUE, error, bytes);
+    } else if (op->udp_post != nullptr) {
+        apply_udp(native, *slot, *op->udp_post, done == TRUE, error, bytes);
     } else {
-        apply_read(native, *slot, done == TRUE, error);
+        apply_read(native, *slot, done == TRUE, error, bytes);
     }
     retire(native, *slot);
 }
@@ -407,6 +489,12 @@ void drop_ready(Slot& slot) noexcept {
     slot.ready.clear();
 }
 
+void refill_udp(ReactorNative& native, Slot& slot) {
+    if (slot.udp == nullptr || slot.dead) return;
+    for (UdpPost& post : slot.udp->posts)
+        static_cast<void>(post_udp_slot(native, slot, post));
+}
+
 } // namespace
 
 ReactorNative::~ReactorNative() {
@@ -493,6 +581,10 @@ void Reactor::note_read(std::uint64_t tag, std::size_t got) {
     ReactorNative& native = state();
     Slot* slot = find(native, tag);
     if (slot == nullptr || slot->dead || slot->listener) return;
+    if (slot->udp != nullptr) {
+        refill_udp(native, *slot);
+        return;
+    }
     if (got > 0) {
         u_long avail = 0;
         if (ioctlsocket(slot->fd, FIONREAD, &avail) == 0 && avail > 0) {
@@ -558,6 +650,50 @@ SendOutcome Reactor::submit_send(std::uint64_t tag, std::span<const std::byte> d
     ++slot->posted;
     ++native.pending;
     return SendOutcome{.state = SendState::kPending};
+}
+
+bool Reactor::watch_udp(UdpSocket& socket, std::uint64_t tag) {
+    if (!socket.is_open()) return false;
+    ReactorNative& native = state();
+    if (native.slots.contains(tag)) return false;
+    auto slot = std::make_unique<Slot>();
+    slot->fd = raw_of(socket.handle());
+    slot->tag = tag;
+    slot->udp = std::make_unique<UdpPlane>();
+    if (!join_port(native, slot->fd)) return false;
+    Slot* view = slot.get();
+    native.slots.emplace(tag, std::move(slot));
+    refill_udp(native, *view);
+    if (view->posted == kUdpPosts) return true;
+    unwatch(tag);
+    return false;
+}
+
+void copy_packet(std::span<std::byte> sink, const UdpPacket& pkt, UdpInbound& inbound) {
+    inbound.from = pkt.from;
+    inbound.truncated = pkt.truncated;
+    if (sink.size() < pkt.size) inbound.truncated = true;
+    if (inbound.truncated) return;
+    std::copy_n(pkt.buf.begin(), static_cast<std::size_t>(pkt.size), sink.begin());
+    inbound.size = pkt.size;
+}
+
+UdpSocket::UdpRead Reactor::take_udp(std::uint64_t tag, std::span<std::byte> sink) {
+    ReactorNative& native = state();
+    Slot* slot = find(native, tag);
+    const bool missing = slot == nullptr || slot->udp == nullptr || slot->dead;
+    if (missing) return std::unexpected(NetError::kReset);
+    UdpPlane& plane = *slot->udp;
+    if (plane.count == 0) return std::optional<UdpInbound>{};
+    const UdpPacket& pkt = plane.queue[static_cast<std::size_t>(plane.head)];
+    UdpInbound inbound;
+    copy_packet(sink, pkt, inbound);
+    plane.head = (plane.head + 1) % kUdpQueue;
+    --plane.count;
+    if (plane.count == 0) return inbound;
+    slot->read_hot = true;
+    mark(native, *slot);
+    return inbound;
 }
 
 NetResult<void> Reactor::wait(Milliseconds limit, PollEvents& events) {

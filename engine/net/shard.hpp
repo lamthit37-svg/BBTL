@@ -141,16 +141,18 @@ private:
     static constexpr std::uint32_t kMask = static_cast<std::uint32_t>(Capacity - 1);
     static constexpr std::size_t kLine = kCacheLine;
 
+    using Counter = std::atomic<std::uint32_t>;
+
     struct alignas(kLine) Producer {
-        std::atomic<std::uint32_t> tail{0};
+        Counter tail{0};
         std::uint32_t cached_head = 0;
-        static constexpr std::size_t kPad = kLine - sizeof(std::atomic<std::uint32_t>) - sizeof(std::uint32_t);
+        static constexpr std::size_t kPad = kLine - sizeof(Counter) - sizeof(std::uint32_t);
         unsigned char pad_[kPad]{};
     };
     struct alignas(kLine) Consumer {
-        std::atomic<std::uint32_t> head{0};
+        Counter head{0};
         std::uint32_t cached_tail = 0;
-        static constexpr std::size_t kPad = kLine - sizeof(std::atomic<std::uint32_t>) - sizeof(std::uint32_t);
+        static constexpr std::size_t kPad = kLine - sizeof(Counter) - sizeof(std::uint32_t);
         unsigned char pad_[kPad]{};
     };
     struct alignas(kLine) Parked {
@@ -232,32 +234,38 @@ private:
         std::size_t index = 0;
         bool found = false;
     };
+    struct Hot {
+        std::size_t index = 0;
+        std::size_t step = 0;
+        std::uint16_t priority = 0;
+        bool found = false;
+    };
 
     [[nodiscard]] std::size_t live_at(std::size_t index) const noexcept {
         const Lane& lane = lanes_[index];
         return lane.items.size() - lane.from;
     }
 
+    void consider(std::size_t step, Hot& hot) const noexcept {
+        std::size_t index = cursor_ + step;
+        if (index >= used_) index -= used_;
+        if (live_at(index) == 0) return;
+        const std::uint16_t priority = lanes_[index].spec.priority;
+        if (hot.found && priority > hot.priority) return;
+        if (hot.found && priority == hot.priority && step >= hot.step) return;
+        hot.index = index;
+        hot.step = step;
+        hot.priority = priority;
+        hot.found = true;
+    }
+
     [[nodiscard]] Pick pick_hot() const noexcept {
+        Hot hot;
+        for (std::size_t step = 0; step < used_; ++step)
+            consider(step, hot);
         Pick pick;
-        bool any = false;
-        std::uint16_t best = 0;
-        for (std::size_t index = 0; index < used_; ++index) {
-            if (live_at(index) == 0) continue;
-            const std::uint16_t priority = lanes_[index].spec.priority;
-            if (any && priority >= best) continue;
-            best = priority;
-            any = true;
-        }
-        if (!any) return pick;
-        for (std::size_t step = 0; step < used_; ++step) {
-            const std::size_t index = (cursor_ + step) % used_;
-            if (lanes_[index].spec.priority != best) continue;
-            if (live_at(index) == 0) continue;
-            pick.index = index;
-            pick.found = true;
-            return pick;
-        }
+        pick.index = hot.index;
+        pick.found = hot.found;
         return pick;
     }
 
