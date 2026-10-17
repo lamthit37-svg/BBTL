@@ -338,6 +338,7 @@ core::Status Display::State::open_gpu(const DisplayDesc& desc) {
 core::Status Display::State::launch(const DisplayDesc& desc) {
     const QualityClass quality = desc.quality.value_or(default_quality());
     policy = policy_of(quality);
+    saved_zoom = policy.start_zoom;
     std::println("Chính sách đồ hoạ: {}", quality_name(quality));
     // Loại texture biết trước (PC: BC) thì việc đọc đĩa không phải chờ thiết bị.
     if (policy.fixed_tier) texture_tier = *policy.fixed_tier;

@@ -585,26 +585,29 @@ inline void place_walk(WalkPose& pose, const MapGround& ground, int scene_id, ma
 }
 
 // Thông số nhìn của tư thế camera: mắt, hướng nhìn đơn vị và góc dọc, để đổi điểm màn hình thành
-// tia và để cần gạt biết hướng nhìn.
-[[nodiscard]] inline control::Lens lens_of(const control::CameraPose& pose, float aspect) noexcept {
+// tia và để cần gạt biết hướng nhìn. reference_aspect 0 là giữ góc dọc cố định
+// (GraphicsPolicy::fixed_vertical_fov).
+[[nodiscard]] inline control::Lens lens_of(const control::CameraPose& pose, float aspect,
+    float reference_aspect) noexcept {
     const ogre::Vec3 toward = ogre::sub_vec3(pose.target, pose.eye);
     control::Lens lens;
     lens.eye = pose.eye;
     lens.forward = ogre::normalize_vec3(toward);
     // Cùng góc dọc với camera_of: tia chọn phải đi qua đúng điểm ảnh đã vẽ.
     const float fov_y = pose.fov_degrees * (std::numbers::pi_v<float> / 180.0F);
-    lens.fov_y = render::fitted_fov_y(fov_y, aspect, kReferenceAspect);
+    lens.fov_y = render::fitted_fov_y(fov_y, aspect, reference_aspect);
     lens.aspect = aspect;
     return lens;
 }
 
 // Như CCamera_Scene::Update đặt Ogre::Camera: setPosition, lookAt, rồi mặt cắt và góc nhìn.
-[[nodiscard]] inline render::Camera camera_of(const control::CameraPose& pose, render::ViewSize size) {
+[[nodiscard]] inline render::Camera camera_of(const control::CameraPose& pose,
+    render::ViewSize size, float reference_aspect) {
     render::Lens optics;
     optics.fov_degrees = pose.fov_degrees;
     optics.near_plane = pose.near_plane;
     optics.far_plane = pose.far_plane;
-    optics.reference_aspect = kReferenceAspect;
+    optics.reference_aspect = reference_aspect;
     return render::look_camera(point_of(pose.eye), point_of(pose.target), optics, size);
 }
 

@@ -45,6 +45,15 @@ struct GraphicsPolicy {
     // Loại texture nén biết trước khi có thiết bị, để việc đọc đĩa chạy song song với lúc tạo thiết bị. Rỗng thì hỏi thiết
     // bị: ASTC nếu đọc được, không thì ETC2.
     std::optional<resource::TextureTier> fixed_tier = resource::TextureTier::kBc;
+    // Zoom camera lúc vào cảnh đầu tiên, trong [0, 1] giữa khoảng cách gần nhất và xa nhất
+    // (control/follow_camera). PC giữ xa nhất như bản gốc. Điện thoại bắt đầu gần hơn để nhân vật
+    // không bé; chụm và mở hai ngón vẫn zoom cả khoảng. Số 0,45 theo D:\Dev (kStartZoom của client
+    // điện thoại ở đó).
+    float start_zoom = 1.0F;
+    // Camera cảnh chơi giữ góc dọc cố định, màn rộng hay hẹp chỉ đổi bề ngang nhìn thấy, nên nhân
+    // vật chiếm cùng một phần chiều cao ở mọi tỉ lệ màn. Đúng cách của D:\Dev (render::look_camera,
+    // góc dọc 35 độ). PC giữ khung 16:9 trọn trong tầm nhìn (render::fitted_fov_y) như client gốc.
+    bool fixed_vertical_fov = false;
 };
 
 [[nodiscard]] constexpr GraphicsPolicy policy_of(QualityClass quality) noexcept {
@@ -61,6 +70,8 @@ struct GraphicsPolicy {
     policy.shows_first_frame_early = true;
     policy.adapts_rate = true;
     policy.fixed_tier = std::nullopt;
+    policy.start_zoom = 0.45F;
+    policy.fixed_vertical_fov = true;
     return policy;
 }
 

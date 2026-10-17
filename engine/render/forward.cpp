@@ -950,9 +950,15 @@ void Forward::State::add_item(const Pass& pass, const Placed& placed, std::size_
     if (item.pipeline == kTerrainPipeline && !pipelines.at(kTerrainPipeline)) item.pipeline = kTwoSided;
     // Tay phải: phía trước camera là z âm.
     item.distance = -(pass.camera->view * placed_center).z();
-    item.budget = budget_of(pass, placed, drawable.centers_.at(placed.mesh).at(part),
-        drawable.part_extents_.at(placed.mesh).at(part));
-    const ShadeAsk ask{.material = material, .lighting = pass.lighting, .is_actor = pass.instance->is_actor};
+    const auto& centers = drawable.centers_.at(placed.mesh);
+    const auto& extents = drawable.part_extents_.at(placed.mesh);
+    item.budget = budget_of(pass, placed, centers.at(part), extents.at(part));
+    // Nhân vật luôn vẽ đủ chi tiết: mức thô của lưới skin (gom cụm sloppy) làm mất đầu và tay chân
+    // khi người nhỏ trên màn hình, đo trên LD 2026-10-16 (zoom 0,45 mất mặt, zoom xa nhất vỡ thành
+    // mảnh). D:\Dev không có LOD.
+    if (pass.instance->is_actor) item.budget = -1.0F;
+    const ShadeAsk ask{
+        .material = material, .lighting = pass.lighting, .is_actor = pass.instance->is_actor};
     const Shade shade = shade_of(ask);
     const math::Float4& tint = pass.instance->tint;
     const math::Float4& base = shade.base_color;

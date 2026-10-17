@@ -313,6 +313,8 @@ void policy_desktop_is_full_detail(Context& context) {
     context.expect(policy.pending_bytes == (std::size_t{1} << 30U), "PC cho hàng đợi mesh 1 GiB");
     context.expect(!policy.shows_first_frame_early && !policy.adapts_rate, "PC chờ đủ mesh và giữ nhịp quét");
     context.expect(policy.fixed_tier == resource::TextureTier::kBc, "PC luôn texture BC");
+    context.expect(policy.start_zoom == 1.0F, "PC vào cảnh ở khoảng cách xa nhất như bản gốc");
+    context.expect(!policy.fixed_vertical_fov, "PC giữ khung 16:9 trọn trong tầm nhìn");
 }
 
 void policy_mobile_keeps_measured_limits(Context& context) {
@@ -326,6 +328,8 @@ void policy_mobile_keeps_measured_limits(Context& context) {
     context.expect(policy.pending_bytes == (std::size_t{96} << 20U), "hàng đợi mesh 96 MiB");
     context.expect(policy.shows_first_frame_early && policy.adapts_rate, "hiện khung đầu sớm, trần nhịp tự chỉnh");
     context.expect(!policy.fixed_tier.has_value(), "loại texture nén do thiết bị khai");
+    context.expect(policy.start_zoom == 0.45F, "điện thoại vào cảnh gần hơn để nhân vật không bé");
+    context.expect(policy.fixed_vertical_fov, "điện thoại giữ góc dọc cố định như D:\\Dev");
 }
 
 void quality_names_round_trip(Context& context) {

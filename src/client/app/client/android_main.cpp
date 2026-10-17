@@ -726,6 +726,15 @@ void lift_fingers(Shell& shell, const AInputEvent* event, game::control::TouchTi
     }
 }
 
+// Con lăn chuột (giả lập, chuột gắn máy): trục VSCROLL dương là lăn ra phía trước, cùng dấu với
+// wheel.y của SDL ở bản PC.
+void feed_scroll(Shell& shell, const AInputEvent* event) {
+    game::control::InputEvent wheel;
+    wheel.kind = game::control::InputKind::kWheel;
+    wheel.wheel = AMotionEvent_getAxisValue(event, AMOTION_EVENT_AXIS_VSCROLL, 0);
+    shell.events.push_back(wheel);
+}
+
 void feed_motion(Shell& shell, const AInputEvent* event) {
     const int32_t action = AMotionEvent_getAction(event);
     const std::size_t index = acting_index(action);
@@ -741,6 +750,7 @@ void feed_motion(Shell& shell, const AInputEvent* event) {
         break;
     case AMOTION_EVENT_ACTION_MOVE: move_fingers(shell, event, now); break;
     case AMOTION_EVENT_ACTION_CANCEL: lift_fingers(shell, event, now); break;
+    case AMOTION_EVENT_ACTION_SCROLL: feed_scroll(shell, event); break;
     default: break;
     }
 }

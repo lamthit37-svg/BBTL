@@ -182,10 +182,11 @@ render::Camera Display::State::frame_camera(FrameAsk ask) {
     const control::CameraPose& pose = follow.pose();
     clip_near = pose.near_plane;
     clip_far = pose.far_plane;
-    lens = lens_of(pose, aspect_of(ask.size));
+    const float reference = policy.fixed_vertical_fov ? 0.0F : kReferenceAspect;
+    lens = lens_of(pose, aspect_of(ask.size), reference);
     has_lens = true;
     publish_ear();
-    return camera_of(pose, ask.size);
+    return camera_of(pose, ask.size, reference);
 }
 
 void Display::State::publish_ear() {
