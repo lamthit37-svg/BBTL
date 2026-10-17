@@ -408,6 +408,9 @@ khi tới.
   - H2: giữ `io.open`, `os.time`, `os.date` mà script gốc dùng, đặt `nil` các hàm còn lại của `io`
     và `os`, ghi `// Khác gốc:` (LuaState::Init của gốc mở đủ `io` và `os`). Kiểm: Agreement vẫn
     chạy và chụp được.
+  - Nút duyệt thú cưỡi ("Thú trước", "Thú sau", "Chưa cưỡi 0/N" ở `face.cpp` `paint_ride_switch`)
+    là công cụ dev, client gốc không có: chỉ vẽ và nhận click khi mở bằng `--mount`; không xoá mã
+    (f7 chốt 2026-10-18, giao cùng G1-K phần 2).
 - **M:**
   - H1 (hack tốc độ) cùng B19 (quét đoạn đi): port kiểm di chuyển của mã 2008, giữ toán tử, kèm
     chế độ bot gửi Move nhanh gấp 4 lần để chứng minh bị kéo về;
