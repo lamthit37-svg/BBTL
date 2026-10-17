@@ -546,11 +546,19 @@ struct Display::State {
     [[nodiscard]] StepOutcome poll_walk();
     [[nodiscard]] StepOutcome step_talk(const Step& step);
     [[nodiscard]] StepOutcome poll_talk();
-    [[nodiscard]] StepOutcome step_choose(const Step& step) const;
+    [[nodiscard]] StepOutcome step_choose(const Step& step);
+    [[nodiscard]] StepOutcome poll_reply();
     [[nodiscard]] StepOutcome step_cast(const Step& step);
+    [[nodiscard]] StepOutcome poll_cast();
     [[nodiscard]] StepOutcome step_pick();
     [[nodiscard]] StepOutcome poll_pick();
     [[nodiscard]] StepOutcome step_quit();
+    // Tin máy chủ đáp cho bước đang chạy: watch_script đếm ở pump_talk (hộp thoại, từ chối) và
+    // note_fight (chiêu được xác nhận); mark_hearing ghi mốc lúc bước gửi việc, refused_since đọc
+    // lý do từ chối kể từ mốc.
+    void watch_script(const ui::panel::talk::Hear& note);
+    void mark_hearing();
+    [[nodiscard]] std::optional<std::string> refused_since() const;
     // Đối tượng của bước chưa có: chờ, quá kFindSeconds thì hỏng.
     [[nodiscard]] StepOutcome wait_for(std::string_view what) const;
     [[nodiscard]] bool is_script_late(double seconds) const;
@@ -1100,11 +1108,25 @@ struct Display::State {
         std::uint64_t waited = 0;
         std::uint32_t shots_mark = 0;
         std::uint32_t pulls_mark = 0;
+        // walk: số lần kéo đã thấy và lúc cuối cùng nhân vật còn đang đi hay vừa bị kéo; đứng yên
+        // đủ kSettleSeconds kể từ đó thì chỗ đứng coi như máy chủ đã chốt.
+        std::uint32_t pulls_seen = 0;
+        core::Clock::time_point calm;
+        std::uint32_t replies_mark = 0;
+        std::uint32_t casts_mark = 0;
+        std::uint32_t refusals_mark = 0;
         std::uint32_t subject = 0;
         core::GroundPoint goal{};
         std::filesystem::path shot_dir;
     };
     std::optional<ScriptRun> script;
+    // Tin máy chủ đáp mà các bước talk, choose, cast, pick chờ (đếm ở luồng vẽ, không cần khoá):
+    // tin hộp thoại (Dialog, Closed, Book, Notice), chiêu của mình được xác nhận, lời từ chối
+    // (Refused, Declined) cùng lý do của lần gần nhất.
+    std::uint32_t script_replies = 0;
+    std::uint32_t script_casts = 0;
+    std::uint32_t script_refusals = 0;
+    std::string script_refusal;
     std::atomic<bool> script_over{false};
     std::atomic<std::uint32_t> script_faults{0};
     // Ảnh bước shot xin chụp ở khung này; plan_shot lấy đi. shots_done đếm lần chụp đã xong,

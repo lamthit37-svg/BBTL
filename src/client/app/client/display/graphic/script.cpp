@@ -68,8 +68,64 @@ constexpr double kFindSeconds = 5.0;
 constexpr double kShotSeconds = 10.0;
 constexpr double kWalkSeconds = 40.0;
 constexpr double kTalkSeconds = 20.0;
-// Mét của game: tới đích khi còn cách chừng này.
+// Giây chờ máy chủ đáp một việc đã gửi (chọn dòng, ra chiêu) trước khi bước hỏng.
+constexpr double kReplySeconds = 5.0;
+// Mét của game: tới đích khi còn cách chừng này (sai số của walk, in cả vào dòng SCRIPT).
 constexpr float kArriveMeters = 1.5F;
+// Giây nhân vật phải đứng yên và không bị kéo thêm thì chỗ đứng coi như máy chủ đã chốt: dài hơn
+// nhịp Move và một lượt hồi đáp của gate.
+constexpr double kSettleSeconds = 1.5;
+
+namespace tk = ui::panel::talk;
+
+std::string_view refusal_name(tk::Refusal why) noexcept {
+    switch (why) {
+    case tk::Refusal::kNoSession: return "NoSession";
+    case tk::Refusal::kStaleSession: return "StaleSession";
+    case tk::Refusal::kBadOption: return "BadOption";
+    case tk::Refusal::kTooFar: return "TooFar";
+    case tk::Refusal::kNoSuchEntity: return "NoSuchEntity";
+    case tk::Refusal::kQuestUnavailable: return "QuestUnavailable";
+    case tk::Refusal::kQuestLogFull: return "QuestLogFull";
+    case tk::Refusal::kQuestState: return "QuestState";
+    case tk::Refusal::kBagFull: return "BagFull";
+    case tk::Refusal::kNotEnoughMoney: return "NotEnoughMoney";
+    case tk::Refusal::kNotEnoughItems: return "NotEnoughItems";
+    case tk::Refusal::kBadChoice: return "BadChoice";
+    case tk::Refusal::kCannotAbandon: return "CannotAbandon";
+    case tk::Refusal::kRateLimited: return "RateLimited";
+    case tk::Refusal::kOther: return "Other";
+    }
+    return "?";
+}
+
+// Tin hộp thoại hay sổ nhiệm vụ: máy chủ đã đáp một việc của hộp thoại.
+bool is_dialog_reply(const tk::Hear& note) noexcept {
+    const bool is_dialog = std::holds_alternative<tk::Dialog>(note);
+    const bool is_closed = std::holds_alternative<tk::Closed>(note);
+    const bool is_book = std::holds_alternative<tk::Book>(note);
+    const bool is_notice = std::holds_alternative<tk::Notice>(note);
+    return is_dialog || is_closed || is_book || is_notice;
+}
+
+std::string_view decline_name(tk::Decline why) noexcept {
+    switch (why) {
+    case tk::Decline::kNotLearned: return "NotLearned";
+    case tk::Decline::kCooldown: return "Cooldown";
+    case tk::Decline::kNotEnoughMana: return "NotEnoughMana";
+    case tk::Decline::kNotEnoughRage: return "NotEnoughRage";
+    case tk::Decline::kBadTarget: return "BadTarget";
+    case tk::Decline::kOutOfRange: return "OutOfRange";
+    case tk::Decline::kCannotAttack: return "CannotAttack";
+    case tk::Decline::kGone: return "Gone";
+    case tk::Decline::kDead: return "Dead";
+    case tk::Decline::kNotDead: return "NotDead";
+    case tk::Decline::kNotYours: return "NotYours";
+    case tk::Decline::kBusy: return "Busy";
+    case tk::Decline::kOther: return "Other";
+    }
+    return "?";
+}
 
 [[nodiscard]] StepOutcome still_going() {
     return {};
@@ -254,11 +310,11 @@ StepOutcome Display::State::poll_step(const Step& step) {
     case StepKind::kClick: return step_click(step);
     case StepKind::kWalk: return poll_walk();
     case StepKind::kTalk: return step_talk(step);
+    case StepKind::kChoose: return poll_reply();
+    case StepKind::kCast: return poll_cast();
     case StepKind::kPick: return step_pick();
     case StepKind::kEvent:
     case StepKind::kType:
-    case StepKind::kChoose:
-    case StepKind::kCast:
     case StepKind::kQuit: return step_fail("bước này không có pha chờ");
     }
     return step_fail("bước lạ");
@@ -354,27 +410,34 @@ StepOutcome Display::State::step_walk(const Step& step) {
     const core::GroundPoint here = game_of(ground->file, walk);
     script->goal = core::GroundPoint{.x = resolved(step.x, here.x), .z = resolved(step.z, here.z)};
     script->pulls_mark = pulls;
+    script->pulls_seen = pulls;
+    script->calm = core::Clock::now();
     order.reset();
     order_move(script->goal, nav::MoveMode::kFind);
     if (!order) return step_fail("không tìm được đường tới đích");
     return still_going();
 }
 
+// Xong khi nhân vật đã đứng yên kSettleSeconds mà không bị kéo thêm (chỗ đứng đã được máy chủ chốt)
+// và chỗ đó cách đích không quá kArriveMeters. Bị kéo về mà cuối cùng vẫn tới đích thì đạt; không
+// tới thì hỏng dù do máy chủ kéo hay do đường. Dòng SCRIPT ghi toạ độ cuối và số lần bị kéo.
 StepOutcome Display::State::poll_walk() {
-    if (order && is_script_late(kWalkSeconds)) return step_fail("quá hạn khi đi");
-    if (order) return still_going();
+    ScriptRun& run = *script;
+    const bool is_moving = order.has_value();
+    if (is_moving && is_script_late(kWalkSeconds)) return step_fail("quá hạn khi đi");
+    const bool is_dragged = pulls != run.pulls_seen;
+    if (is_moving || is_dragged) run.calm = core::Clock::now();
+    run.pulls_seen = pulls;
+    const std::chrono::duration<double> quiet = core::Clock::now() - run.calm;
+    if (is_moving || quiet.count() < kSettleSeconds) return still_going();
     const core::GroundPoint here = game_of(ground->file, walk);
-    const core::GroundPoint goal = script->goal;
-    const float apart = std::hypot(goal.x - here.x, goal.z - here.z);
-    const std::uint32_t pulled = pulls - script->pulls_mark;
-    const bool is_there = apart <= kArriveMeters;
-    const bool is_pulled = pulled != 0;
-    const std::string arrived = std::format("tới nơi, cách đích {:.2f} m", apart);
-    const std::string dragged = std::format("bị kéo về {} lần, cách đích {:.1f} m", pulled, apart);
-    if (is_there) return step_ok(arrived);
-    if (is_pulled) return step_ok(dragged);
-    const std::string stopped = std::format("dừng cách đích {:.1f} m", apart);
-    return step_fail(stopped);
+    const float apart = std::hypot(run.goal.x - here.x, run.goal.z - here.z);
+    const std::uint32_t pulled = pulls - run.pulls_mark;
+    const std::string spot = std::format("({:.1f},{:.1f})", here.x, here.z);
+    const std::string gap = std::format("cách đích {:.2f} m (sai số {:g} m)", apart, kArriveMeters);
+    const std::string text = std::format("{} {}, kéo về {} lần", spot, gap, pulled);
+    if (apart <= kArriveMeters) return step_ok("tới nơi " + text);
+    return step_fail("không tới đích: " + text);
 }
 
 // NPC theo id hay theo tên (chứa chuỗi đã cho).
@@ -396,6 +459,7 @@ StepOutcome Display::State::step_talk(const Step& step) {
     const cast::Actor* npc = find_npc(step.text);
     if (npc == nullptr) return wait_for(step.text);
     run.subject = npc->id;
+    mark_hearing();
     start_talk(*npc);
     return poll_talk();
 }
@@ -404,26 +468,47 @@ StepOutcome Display::State::poll_talk() {
     const std::uint32_t npc = script->subject;
     const std::optional<std::uint32_t> open = hud ? hud->talking_with() : std::nullopt;
     if (open && *open == npc) return step_ok(std::format("hộp thoại mở với NPC {}", npc));
+    if (const std::optional<std::string> why = refused_since()) return step_fail(*why);
     if (people.find(npc) == nullptr) return step_fail("NPC biến mất");
     if (is_script_late(kTalkSeconds)) return step_fail("quá hạn chờ hộp thoại");
     return still_going();
 }
 
-StepOutcome Display::State::step_choose(const Step& step) const {
+// Gửi lựa chọn rồi chờ máy chủ đáp (poll_reply): đạt khi có tin hộp thoại mới, hỏng khi bị từ chối.
+StepOutcome Display::State::step_choose(const Step& step) {
     if (!hud) return step_fail("chưa có giao diện");
     const auto position = static_cast<std::size_t>(step.amount) - 1U;
     const core::Clock::duration since = frame_time - started;
     const auto clock = std::chrono::duration_cast<std::chrono::milliseconds>(since);
+    mark_hearing();
     const bool is_chosen = hud->choose_option(position, clock);
     if (!is_chosen) return step_fail("không có hộp thoại hay lựa chọn này");
-    return step_ok(std::format("lựa chọn {}", position + 1U));
+    return still_going();
 }
 
+StepOutcome Display::State::poll_reply() {
+    if (const std::optional<std::string> why = refused_since()) return step_fail(*why);
+    const std::uint32_t got = script_replies - script->replies_mark;
+    if (got != 0) return step_ok(std::format("máy chủ đáp {} tin hộp thoại", got));
+    if (is_script_late(kReplySeconds)) return step_fail("máy chủ không đáp lựa chọn");
+    return still_going();
+}
+
+// Bấm ô kỹ năng rồi chờ máy chủ xác nhận chiêu (poll_cast); client không gửi (đang bận, thiếu mục
+// tiêu) cũng hiện ra là hỏng sau kReplySeconds.
 StepOutcome Display::State::step_cast(const Step& step) {
     const auto slot = static_cast<std::uint32_t>(step.amount) - 1U;
     if (slot >= hero.skills.size()) return step_fail("ô kỹ năng trống");
+    mark_hearing();
     press_slot(slot);
-    return step_ok(std::format("đã bấm ô {}", slot + 1U));
+    return still_going();
+}
+
+StepOutcome Display::State::poll_cast() {
+    if (const std::optional<std::string> why = refused_since()) return step_fail(*why);
+    if (script_casts != script->casts_mark) return step_ok("máy chủ xác nhận chiêu");
+    if (is_script_late(kReplySeconds)) return step_fail("máy chủ không xác nhận chiêu");
+    return still_going();
 }
 
 // Vật rơi nhặt được gần người chơi nhất.
@@ -449,21 +534,52 @@ StepOutcome Display::State::step_pick() {
     const cast::Actor* drop = find_drop();
     if (drop == nullptr) return wait_for("vật rơi nhặt được");
     run.subject = drop->id;
+    mark_hearing();
     start_pick(*drop);
     return poll_pick();
 }
 
-// Xong khi việc đi tới đã hết (đã gửi PickUp hoặc bỏ cuộc); bằng chứng nhặt thật nằm ở log mạng và
-// log kiểm.
+// Đạt khi PickUp đã gửi (hết việc đi tới) và máy chủ đã nhận: vật rơi biến khỏi cảnh. Bị từ chối,
+// hay quá hạn khi đi hoặc chờ nhận, thì hỏng.
 StepOutcome Display::State::poll_pick() {
-    if (talk_goal && is_script_late(kTalkSeconds)) return step_fail("quá hạn đi tới vật rơi");
-    if (talk_goal) return still_going();
-    return step_ok(std::format("đã xong việc nhặt vật {}", script->subject));
+    if (const std::optional<std::string> why = refused_since()) return step_fail(*why);
+    const bool is_sent = !talk_goal.has_value();
+    if (is_sent && people.find(script->subject) == nullptr) return step_ok("vật rơi đã được nhặt");
+    if (!is_script_late(kTalkSeconds)) return still_going();
+    if (is_sent) return step_fail("máy chủ không nhận việc nhặt");
+    return step_fail("quá hạn đi tới vật rơi");
 }
 
 StepOutcome Display::State::step_quit() {
     script->is_quitting = true;
     return step_ok("thoát");
+}
+
+// ---- tin máy chủ đáp ----
+
+void Display::State::watch_script(const tk::Hear& note) {
+    if (const auto* refused = std::get_if<tk::Refused>(&note)) {
+        ++script_refusals;
+        script_refusal = refusal_name(refused->why);
+        return;
+    }
+    if (const auto* declined = std::get_if<tk::Declined>(&note)) {
+        ++script_refusals;
+        script_refusal = decline_name(declined->why);
+        return;
+    }
+    if (is_dialog_reply(note)) ++script_replies;
+}
+
+void Display::State::mark_hearing() {
+    script->replies_mark = script_replies;
+    script->casts_mark = script_casts;
+    script->refusals_mark = script_refusals;
+}
+
+std::optional<std::string> Display::State::refused_since() const {
+    if (script_refusals == script->refusals_mark) return std::nullopt;
+    return std::format("máy chủ từ chối: {}", script_refusal);
 }
 
 } // namespace game::client

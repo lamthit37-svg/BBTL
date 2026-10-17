@@ -369,6 +369,7 @@ void Display::State::note_fight(const cast::Note& note) {
             return;
         }
         if (casting->seq == 0 || !combat.confirm(casting->seq)) return;
+        ++script_casts;
         const std::chrono::milliseconds delay = play_confirmed(*casting);
         hit_window = HitWindow{.until = frame_time + kHitSlack, .delay = delay};
         return;

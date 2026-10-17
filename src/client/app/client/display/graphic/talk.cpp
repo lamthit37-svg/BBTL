@@ -78,6 +78,7 @@ void Display::State::pump_talk() {
         heard = std::exchange(talk_heard, {});
     }
     for (const ui::panel::talk::Hear& note : heard) {
+        watch_script(note);
         // Sinh lực, kỹ năng, hồi chiêu và lời từ chối chiêu thuộc chiến đấu, không phải giao diện.
         if (hear_fight(note)) continue;
         // Chỉ số của nhân vật nằm ở hero của Display, không ở HUD.

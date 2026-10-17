@@ -73,11 +73,19 @@ trí, cửa sổ ở trước.
   `plan_move` cho người đang đứng trong vật cản chỉ đi thẳng ra qua không quá một cạnh, nên NPC mà
   đoạn thẳng từ điểm sinh cắt từ hai cạnh trở lên (孙八爷, 洪大贵) bị từ chối tới khi nhân vật bước ra
   chỗ đi được. Không phải lỗi nạp lưới.
-- `g0-talk.script` với 赵天师 (`e2ek0t2`): đạt. `talk` mở hộp thoại với NPC 140 sau 2,6 s, `choose 1`
-  ok, hai ảnh đã xem (hộp thoại 赵天师 ba mục), `net.log` có gửi `Talk`, nhận `DialogOpen`, gửi
-  `DialogChoose`, zone có `việc=nói`. Báo cáo ở `build/e2e/G0/talk/report.txt`.
-- Bước `walk` tính ok cả khi máy chủ kéo về (ghi "bị kéo về N lần" ở ghi chú); gói sau cần coi kéo
-  về là hỏng thì thêm tuỳ chọn cho bước, không đổi mặc định.
+- `g0-talk.script` với 赵天师: đạt. `talk` mở hộp thoại với NPC 140 sau 2,6 s, ảnh đã xem (hộp thoại
+  赵天师 ba mục), `net.log` có gửi `Talk`, nhận `DialogOpen`, zone có `việc=nói`. Bước `choose 1`
+  không đưa vào kịch bản vì máy chủ từ chối (xem dưới). Báo cáo ở `build/e2e/G0/talk/report.txt`.
+- Các bước phải chờ máy chủ chốt, không xanh khi chỉ gửi được tin (sửa theo điều phối, làm sau
+  commit 9adc2de5):
+  - `walk`: chờ nhân vật đứng yên 1,5 s không bị kéo thêm, rồi so chỗ đứng với đích theo sai số 1,5 m;
+    đạt thì dòng SCRIPT ghi "tới nơi (x,z) cách đích d m (sai số 1,5 m), kéo về N lần"; không tới
+    (bị kéo hay hết đường) thì hỏng, ghi cùng số liệu.
+  - `talk`: hỏng ngay khi máy chủ từ chối (Refused, Declined), không đợi hết 20 giây.
+  - `choose`: đạt khi có tin hộp thoại mới, hỏng khi bị từ chối hay 5 giây không đáp. Đo thật: máy
+    chủ trả Reject NoSuchEntity cho DialogChoose ngay sau DialogOpen (phía G3, đã báo 1e).
+  - `cast`: đạt khi máy chủ xác nhận chiêu (Casting của mình), hỏng khi bị từ chối hay 5 giây không
+    xác nhận. `pick`: đạt khi PickUp đã gửi và vật rơi biến khỏi cảnh. Hai bước này chưa chạy thật.
 
 ## Chưa kiểm
 
