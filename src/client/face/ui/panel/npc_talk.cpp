@@ -62,6 +62,12 @@ constexpr std::int32_t kDefaultIcon = 8;
 constexpr std::int32_t kLastIcon = 34;
 // Chỉ số không ứng với ảnh nào của look: nút không có biểu tượng.
 constexpr std::int32_t kNoIcon = -1;
+// Biểu tượng của dòng nhiệm vụ: trạng thái AddNumText của gốc (edali_0210.lua: 1 là nhận được, 2 là
+// đang giữ và nộp) đi thẳng thành chỉ số ảnh QuestButtonImage
+// (TLBBLook_ComplexWindow.looknfeel.xml: 1 là QuestIcon_0, 2 là QuestIcon_1), như
+// Quest_EventListUpdate của Quest.lua (resState). Mục dùng cho nút nhận (1) và nút nộp (2).
+constexpr std::int32_t kAcceptIcon = 1;
+constexpr std::int32_t kTurnInIcon = 2;
 
 [[nodiscard]] std::int32_t icon_of(std::int32_t icon) noexcept {
     return icon <= 0 || icon > kLastIcon ? kDefaultIcon : icon;
@@ -534,12 +540,13 @@ bool hint_ok(std::string_view hint) {
     return true;
 }
 
+// Chữ của dòng nhiệm vụ: tên (thiếu thì số) kèm mục tiêu. Không ghép ký tự trạng thái: gốc vẽ trạng
+// thái bằng biểu tượng.
 std::string mark_label(const MarkLine& parsed) {
-    const char sigil = parsed.stage == '1' ? '!' : '?';
     const bool named = !parsed.name.empty();
-    const std::string base = named ? std::string{parsed.name} : std::to_string(parsed.quest);
-    if (!hint_ok(parsed.hint)) return std::format("{}{}", sigil, base);
-    return std::format("{}{}·{}", sigil, base, parsed.hint);
+    std::string base = named ? std::string{parsed.name} : std::to_string(parsed.quest);
+    if (!hint_ok(parsed.hint)) return base;
+    return std::format("{}·{}", base, parsed.hint);
 }
 
 void add_mark_line(std::string& blob, const MarkLine& parsed) {
@@ -548,7 +555,8 @@ void add_mark_line(std::string& blob, const MarkLine& parsed) {
     if (parsed.stage == '2') return;
     const std::uint32_t base = parsed.stage == '1' ? kMarkAccept : kMarkTurn;
     const std::uint32_t index = base + parsed.quest;
-    add_option(blob, label, {.index = index, .icon = kNoIcon});
+    const std::int32_t icon = parsed.stage == '1' ? kAcceptIcon : kTurnInIcon;
+    add_option(blob, label, {.index = index, .icon = icon});
 }
 
 // US là dấu trường của cửa sổ phức hợp. Chữ thường không được mang nó, kẻo vỡ bản ghi.
