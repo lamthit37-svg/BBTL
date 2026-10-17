@@ -78,6 +78,26 @@ của D3. Thứ tự: commit G0-M khi 14 trả ĐẠT, rồi mới viết mã G1
     mở bảng tạo, để hiện `Role_Is_Full` đúng lúc. Ta không thêm tin hỏi riêng: `CharacterList` mang cờ `can_create`
     do máy chủ quyết (số nhân vật dưới `DB_CHAR_NUMBER` = 5 và phiên đang ở trạng thái cho tạo), K đọc cờ đó khi bấm
     "tạo". Giữ catalog nhỏ; nếu 14 thấy cần tin riêng cho giống gốc thì nói trước khi viết mã.
+  - Chốt cuối D3 (14 gửi 2026-10-18, đọc thêm `0x1400b7f80` và `docs/TAO-NHAN-VAT-2026.md`): `0x08` giới (RaceID, assert
+    gốc `nRaceID < 2`) là `gender` đang có; `0x38` hair_model (setter `0x140171df0`, id + 10000) ánh xạ vào `hair`; `0x3c`
+    face_model (`0x1401725b0`, id + 10000) vào `face`; dây giữ id chưa cộng 10000, client cộng. `0x30` hair_color
+    (setter `0x1401722e0`, chỉ có vị trí và kiểu làm chứng) và `0x50` (setter `0x1401738c0`, ghi `+0x968` rồi gọi hàm ảo
+    `0x7e0`, cập nhật ảnh chân dung của dữ liệu nhân vật) KHÔNG lên dây: màn tạo 2026 không có ô chọn màu tóc
+    (`CreateRole.lua` không có SetHairColor; đổi màu tóc là chức năng trong game sau này, `Change_MyHairColor`).
+  - Ảnh chân dung PHẢI lên dây, không suy từ `face` (bằng chứng 14): (a) `docs/TAO-NHAN-VAT-2026.md` dòng 22 "Ảnh chân
+    dung không gắn với kiểu mặt" và bảng dòng 17 (chín ô `CreateRole_Select_Head1..9`, `SetFaceId` lúc bấm tạo; bản
+    port cũ suy ảnh từ kiểu mặt đã sai, sửa 2026-10-09); (b) `Game.exe` `0x1403435b0` (SetFaceId) ghi ô `+0x1b4` của
+    đối tượng tạo (`FUN_140641a50` → `FUN_14063ed20`/`ed50`), khác ô `+0x1a4` của SetFaceModelId (`FUN_140641ab0`);
+    (c) gói tạo `0x140641270` gửi cả hai ô (`+0x1a4` kiểu mặt, `+0x1b4` ảnh chân dung, `+0x1ac` tóc, `+0x1b0` giới,
+    `+0x1b8` id bộ đồ); (d) bản ghi danh sách `0x48` là ảnh chân dung (`GetRoleInfo` `0x1403416e0` tra FaceImage theo
+    `+0x48`), khác `0x3c` kiểu mặt. Bộ đồ tân thủ (`ChangeNewRoleEquipSet`, ô `+0x1b8` của gói tạo) cũng đi theo: server
+    chỉ kiểm thuộc bảng và lưu, client đổi ra áo, giày, bao tay cho người mẫu màn chọn tới khi G5 có trang bị thật.
+  - Danh sách trường CUỐI trên dây (v9): `CharacterSummary` = `id, name, level, gender, face, hair, school, scene` (đã có)
+    cộng `portrait u16` và `equip_set u16`; `CreateCharacter` = `name, gender, face, hair` cộng `portrait`, `equip_set`;
+    `CharacterList` cộng `can_create bool`. Không lên dây: `delete_days` và `pk_level` (luôn 0, client đặt cứng),
+    `equip[19]` (rỗng tới G5), màu mặt/dye/mẫu, `hair_color`, `0x50`, `camp`, `sale_state` (xem `NGHI-NGO.md` 73).
+    Hợp lệ phía server: ảnh chân dung thuộc đúng giới (15 id mỗi giới, `portraits.tsv` choice 1 hay 3), bộ đồ 0..2
+    (`newbie_outfits.tsv`); cả hai là tập đóng trong `account/rules.cpp` (chưa có khoá `store.toml`).
 
 - **D4 — điểm xuất phát nhân vật mới (điều phối chốt, ưu tiên cao: chặn mọi kịch bản nói chuyện với NPC).**
   Quy tắc chốt: nhân vật mới vào cảnh 2. Nếu (165,169) nằm trong vùng đi được liền với ô của 赵天师 (160,159)
@@ -165,3 +185,65 @@ của D3. Thứ tự: commit G0-M khi 14 trả ĐẠT, rồi mới viết mã G1
 2. Client của K đi bằng chuột: gõ tài khoản, chọn máy chủ, tạo, xoá rồi tạo lại, vào game; ảnh từng màn so
    layout gốc; mỗi hộp lỗi hiện đúng khoá chữ của bảng trên.
 3. PostgreSQL: `deleted_at` được đặt đúng một dòng; các cột mới có giá trị đúng sau khi tạo và nạp lại.
+
+## Kết quả D1 đến D3 (2026-10-18)
+
+### Đã sửa
+
+- Xoá nhân vật theo bảy bước gốc. `account/rules.*`: `RemoveStep` và `remove_step` dùng chung cho `MemoryBook` và
+  `GameDb`, hết nhân vật là `kNoCharacterToDelete`, còn nhưng không có id này là `kNoSuchCharacter`. `GameDb::remove_character`
+  chạy trong một giao dịch với khoá tài khoản chung với tạo nhân vật, đếm trước và sau, `affected == 1` và số giảm một,
+  nếu không là `kInternal`. Gate (`gate/table.cpp`): nhịp 500 ms mỗi tài khoản (`kDeleteGapNs`, lần bị từ chối không làm
+  mới mốc) trả `kRateLimited`; nhân vật còn trong phiên (đang chơi hay rớt mạng chờ Resume, chỉ so phiên của chính tài
+  khoản nên không lộ nhân vật của ai) trả `kCharacterOnline`.
+- Catalog v9 (`enums.tsv`, `fields.tsv`, `messages.tsv`, tệp sinh, `protocol_samples.hpp`, `PROTOCOL-TIN.md`): ErrorCode
+  41 `NoCharacterToDelete`, 42 `CharacterOnline`, 43 `Internal`; `CreateCharacter` và `CharacterSummary` thêm `portrait u16`
+  và `equip_set u16`; `CharacterList` thêm `can_create bool` (gate tính: dưới `kCharacterCap` = 3 nhân vật). Lý do nâng
+  `min_version` lên 9 (`gate.toml`): `CharacterSummary` và `CreateCharacter` đổi bố cục và ErrorCode có giá trị mới, client
+  v8 giải mã hỏng (`kBadEnum`, sai độ dài).
+- Dữ liệu: migration `dev/server/sql/game/003_look.sql` (cột `portrait`, `equip_set`, nhân vật cũ nhận ảnh đầu bảng của
+  giới: nữ 49, nam 52), `GameDb::create_character` nhận `Look` (mặt, tóc, ảnh chân dung, bộ đồ) và kiểm tập đóng của
+  `LookPolicy` (ảnh chân dung đúng giới, bộ đồ 0..2); `rpc`, `realm`, `serve`, `book` đổi theo.
+- Gate ghi một dòng khi bỏ khung zone lớn hơn `kMaxPlainBytes` (B1, việc sửa riêng làm sau): `gate: bỏ khung zone 0x<kind>
+  (<n> byte), lần <k>`, ghi ở lần 1, 2, 4, 8...
+- Công cụ và test: bot `--roster 1`; `Test/Server/account_tests.cpp` thêm `remove_tells_empty_from_not_owner` và các ca
+  ảnh chân dung, bộ đồ trong `look_rejects_unlisted`; `config_tests` đổi kỳ vọng `min_version` 7 thành 9 (số vàng của
+  `gate.toml`, giữ so sánh bằng); `fake_gate.hpp` và `gate_attack.cpp` mang `portrait`, `equip_set`, `can_create`.
+
+### Đã chạy
+
+- Dựng `lane-server` 0 cảnh báo, không `D9002` (`build/lane-server-build9.log`, `build10.log`). ctest 14/14 xanh
+  (`build/lane-server-ctest9.log`): `config_tests`, `service_tests`, `server_boot`, `server_boot_source_clean`,
+  `protocol_tests`, `account_tests`, `protocol_catalog_tests`, `play_tests`, `zone_tests`, `gate_tests`,
+  `gate_motion_tests`, `gate_loop_tests`, `protocol_catalog_fresh`, `server_config_lint`.
+- Hồi quy NOT_OWNER và EMPTY: đỏ trước, xanh sau. Với `remove_code(kEmpty)` vá tạm về `kNoSuchCharacter` (hành vi cũ)
+  `account_tests` báo đúng một kỳ vọng sai: `account_tests.cpp:435: [remove_tells_empty_from_not_owner] hết nhân vật là
+  EMPTY` (`build/lane-server-red-run.log`); khôi phục thì 14/14 xanh.
+- Hồi quy xoá nhân vật đang chơi: đỏ trước, xanh sau, bằng bot `--roster 1` trên cụm thật. Gate thử đỏ dựng NGOÀI cây
+  làm việc (`red_gate_build.py` ở scratchpad: biên dịch bản sao `table.cpp` có `is_online` luôn false bằng lệnh Ninja, link
+  riêng; cây làm việc và `git diff` không dính dòng vá). Kết quả đỏ (`build/e2e/G1/m/roster-red-out.txt`), 2 bước sai:
+  `SAI xoá nhân vật đang chơi: thành công, mong mã 42` (nhân vật đang chơi bị xoá được) và bước sau nó lệch theo
+  (`SAI xoá nhân vật cuối sau khi đăng xuất: Reject mã 41`, vì nhân vật đã mất). Gate đúng trả về (SHA-256 của
+  `dev/server/bin/thienlong_gate.exe` trùng bản trước khi thử) cho kết quả xanh (`roster-green2-out.txt`):
+  `đúng xoá nhân vật đang chơi: Reject mã 42, mong mã 42`, `roster: 0 bước sai`.
+- E2E `thienlong_bot --roster 1` trên cụm v9 (`build/e2e/G1/m/roster-g1-out.txt`), 14/14 bước đúng: tạo ba nhân vật
+  (`can_create` true, true, false); xoá id của tài khoản khác mã 10 (`kNoSuchCharacter`); xoá nhân vật của mình, còn hai và
+  `can_create` true; xoá lại id đã xoá mã 10; vào game rồi kết nối thứ hai xoá nhân vật đang chơi mã 42 (`kCharacterOnline`);
+  đăng xuất rồi xoá được; xoá dồn dưới 500 ms mã 12 (`kRateLimited`); xoá khi hết nhân vật mã 41 (`kNoCharacterToDelete`).
+- PostgreSQL (`pg_check.py`, chỉ đọc): `schema_version` 1, 2, 3; hai cột mới có; mọi nhân vật còn sống (400, kể cả
+  dòng cũ được điền lại) mang ảnh chân dung đầu bảng của giới (nữ 198 dòng với 49, nam 202 dòng với 52); lượt `--roster` để lại ba nhân vật `deleted_at` đã đặt và một nhân
+  vật của tài khoản kia còn nguyên.
+- Cụm v9 chạy từ 06:39, `thienlong_bot --probe 1`: `giao thức: bot v9, cụm v9`.
+
+### Chưa kiểm
+
+- Client v9 (K): màn tạo gửi `portrait` và `equip_set`, hộp lỗi theo mã 41 đến 43, đọc `can_create`, người mẫu màn chọn
+  mặc đúng bộ đồ. Client dựng từ HEAD (v8) bị từ chối bắt tay cho tới khi K đổi.
+- Xoá dồn từ hai kết nối khác nhau của cùng tài khoản (mốc nhịp theo tài khoản nên phải chặn, chưa có bước E2E riêng).
+- Đồng hồ nhịp ở tải cao: `delete_marks` giới hạn 4096 tài khoản trong cửa sổ 500 ms, chưa đo bằng `gate_attack`.
+- Không làm (đã nêu ở `Không làm`): xoá trễ, `CLCancelDelChar`, nhịp 500 ms cho tạo nhân vật (gốc có, ta chưa).
+
+### Tồn đọng
+
+- B1 (khung zone lớn hơn 4104 byte bị bỏ im) mới có dòng log, chưa sửa nguyên nhân: gói riêng sau G1-M.
+- `NGHI-NGO.md` 73: các trường gốc chưa có trên dây (`delete_days`, `pk_level`, `equip[19]`, màu tóc và màu mặt, trường `0x50`).

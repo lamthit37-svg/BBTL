@@ -1,6 +1,6 @@
 # schema 1
 # source: TLBB Dev src/protocol/protocol.hpp @e0d89a6 (bản 2026-10-05, nhóm 01, 02, 05)
-# version 8
+# version 9
 # types: kind	ident	port	int	text
 kind	name	port	since	summary
 record	CharacterSummary			Tóm tắt một nhân vật trong danh sách chọn nhân vật.

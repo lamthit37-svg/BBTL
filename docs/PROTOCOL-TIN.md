@@ -2,7 +2,7 @@
 
 # Danh mục tin của giao thức
 
-Bản danh mục 8: 54 tin, 10 record, 14 enum.
+Bản danh mục 9: 54 tin, 10 record, 14 enum.
 Khung có 8 byte đầu (u32 số byte thân, u16 kind, u16 flags bằng 0), little-endian; thân tối đa 65 536 byte, tin client gửi tối đa 4 096 byte.
 Byte cao của kind là nhóm, bit 15 bật là tin server gửi. Trần của text tính bằng byte UTF-8, trần của list tính bằng số phần tử.
 
@@ -167,16 +167,16 @@ Nhân vật: danh sách, tạo, xoá và vào game.
 
 | Kind | Tin | Cổng | Chiều | Từ bản | Thân tối đa (byte) |
 |---|---|---|---|---|---|
-| `0x0201` | CreateCharacter | game | client | 1 | 55 |
+| `0x0201` | CreateCharacter | game | client | 1 | 59 |
 | `0x0202` | DeleteCharacter | game | client | 1 | 8 |
 | `0x0203` | EnterGame | game | client | 1 | 8 |
-| `0x8201` | CharacterList | game | server | 1 | 546 |
+| `0x8201` | CharacterList | game | server | 1 | 579 |
 
 ### CreateCharacter (0x0201)
 
 Tạo nhân vật mới với tên, giới tính, khuôn mặt và kiểu tóc.
 
-Cổng game, client gửi, có từ bản 1. Thân tối đa 55 byte.
+Cổng game, client gửi, có từ bản 1. Thân tối đa 59 byte.
 
 | Thứ tự | Trường | Kiểu | Trần | Ghi chú |
 |---|---|---|---|---|
@@ -184,6 +184,8 @@ Cổng game, client gửi, có từ bản 1. Thân tối đa 55 byte.
 | 2 | `gender` | `enum:Gender` | – | – |
 | 3 | `face` | `u16` | – | 0 là mặt mặc định (kDefaultLook của Dev). |
 | 4 | `hair` | `u16` | – | 0 là tóc mặc định (kDefaultLook của Dev). |
+| 5 | `portrait` | `u16` | – | Id ảnh chân dung phải thuộc đúng giới (cột id của portraits.tsv, choice 1 hay 3); khác face vì màn tạo 2026 chọn riêng. |
+| 6 | `equip_set` | `u16` | – | Id bộ đồ tân thủ (cột id của newbie_outfits.tsv); mọi giới dùng chung ba bộ. |
 
 ### DeleteCharacter (0x0202)
 
@@ -209,11 +211,12 @@ Cổng game, client gửi, có từ bản 1. Thân tối đa 8 byte.
 
 Danh sách nhân vật của tài khoản để chọn vào game.
 
-Cổng game, server gửi, có từ bản 1. Thân tối đa 546 byte.
+Cổng game, server gửi, có từ bản 1. Thân tối đa 579 byte.
 
 | Thứ tự | Trường | Kiểu | Trần | Ghi chú |
 |---|---|---|---|---|
 | 1 | `characters` | `list:record:CharacterSummary` | 8 | Tối đa 8 nhân vật mỗi tài khoản (kCharacterSlots của Dev). |
+| 2 | `can_create` | `bool` | – | Server quyết: còn dưới trần số nhân vật của tài khoản nên bảng tạo mở được; client đọc cờ này thay cho tin hỏi riêng CLCheckAllowCreateChar của gốc. |
 
 ## Nhóm 03: move
 
@@ -764,7 +767,7 @@ Thân tối đa 9 byte.
 
 Tóm tắt một nhân vật trong danh sách chọn nhân vật.
 
-Thân tối đa 68 byte.
+Thân tối đa 72 byte.
 
 | Thứ tự | Trường | Kiểu | Trần | Ghi chú |
 |---|---|---|---|---|
@@ -772,10 +775,12 @@ Thân tối đa 68 byte.
 | 2 | `name` | `text` | 48 | Tên nhân vật, UTF-8, tối đa 48 byte (kNameBytes của Dev). |
 | 3 | `level` | `u16` | – | – |
 | 4 | `gender` | `enum:Gender` | – | – |
-| 5 | `face` | `u16` | – | Id mặt trong faces.tsv mà server đã lưu; server thay kDefaultLook bằng id thật lúc tạo nhân vật, nên ở đây không có nghĩa mặc định. |
-| 6 | `hair` | `u16` | – | Id tóc trong hairs.tsv mà server đã lưu (0 là id tóc hợp lệ); kDefaultLook chỉ có nghĩa trong CreateCharacter. |
+| 5 | `face` | `u16` | – | Id mặt trong faces.tsv mà server đã lưu (gốc: face_model ở 0x3c); server thay kDefaultLook bằng id thật lúc tạo nhân vật, nên ở đây không có nghĩa mặc định. Dây giữ id chưa cộng 10000, client cộng khi dựng người mẫu. |
+| 6 | `hair` | `u16` | – | Id tóc trong hairs.tsv mà server đã lưu (0 là id tóc hợp lệ; gốc: hair_model ở 0x38); kDefaultLook chỉ có nghĩa trong CreateCharacter. Dây giữ id chưa cộng 10000, client cộng khi dựng người mẫu. |
 | 7 | `school` | `u8` | – | Môn phái; 0 là chưa vào môn phái, giữ giá trị canh của Dev thay cho optional. |
 | 8 | `scene` | `u16` | – | SceneId của Dev: cảnh nhân vật đang đứng. |
+| 9 | `portrait` | `u16` | – | Id ảnh chân dung (cột id của portraits.tsv) mà người chơi chọn lúc tạo; không suy từ face. Gốc ghi ở 0x48 của bản ghi 0x1a4 (GetRoleInfo tra FaceImage). |
+| 10 | `equip_set` | `u16` | – | Id bộ đồ tân thủ (cột id của newbie_outfits.tsv) đã chọn lúc tạo; server chỉ lưu và trả lại, client đổi ra áo, giày, bao tay cho người mẫu màn chọn tới khi có trang bị thật (G5). |
 
 ### DialogBonus
 
@@ -1004,6 +1009,9 @@ Giá trị ngoài bảng là lỗi kBadEnum ở cả hai chiều.
 | 38 | `kDead` | – |
 | 39 | `kNotDead` | – |
 | 40 | `kNotYours` | – |
+| 41 | `kNoCharacterToDelete` | – |
+| 42 | `kCharacterOnline` | – |
+| 43 | `kInternal` | – |
 
 ### Gender (u8)
 

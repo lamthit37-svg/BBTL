@@ -1,6 +1,19 @@
+/*==============================================================================
+ *  THIENLONG  |  GAME SERVER
+ *------------------------------------------------------------------------------
+ *  TỆP       : src/server/account/sql.hpp
+ *  PHÂN HỆ   : Server / Account / Sql
+ *  CHUẨN     : C++23
+ *------------------------------------------------------------------------------
+ *  CHỨC NĂNG
+ *  - Bản PostgreSQL của sổ tài khoản và sổ nhân vật. Hai database khác nhau,
+ *    hai lớp: auth không mở database game, store không mở database auth. Thứ tự
+ *    quyết định trùng MemoryBook.
+ *------------------------------------------------------------------------------
+ *  TÁC GIẢ   : HiepHoon
+ *  TELEGRAM  : @Hoon9xx
+ *============================================================================*/
 #pragma once
-// Bản PostgreSQL của sổ tài khoản và sổ nhân vật. Hai database khác nhau, hai lớp: auth không
-// mở database game, store không mở database auth. Thứ tự quyết định trùng MemoryBook.
 
 #include "account/book.hpp"
 #include "account/cap.hpp"
@@ -50,8 +63,8 @@ public:
     explicit GameDb(store::PgConn& conn, CharacterPolicy policy = {});
 
     [[nodiscard]] ListResult list(std::uint64_t account);
-    [[nodiscard]] ListResult create_character(std::uint64_t account, std::string_view name, protocol::Gender gender,
-        std::uint16_t face, std::uint16_t hair);
+    [[nodiscard]] ListResult create_character(std::uint64_t account, std::string_view name,
+        const Look& look);
     [[nodiscard]] ListResult remove_character(std::uint64_t account, std::uint64_t character);
     [[nodiscard]] EnterResult enter(std::uint64_t account, std::uint64_t character);
     // Ghi điểm đứng (zone). ok khi đúng một nhân vật chưa xoá được cập nhật.

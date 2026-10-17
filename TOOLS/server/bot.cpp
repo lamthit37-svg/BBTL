@@ -18,7 +18,7 @@
 
 // Chạy: thienlong_bot --identity <identity.key> [--game 7100] [--auth 7101] [--count 4]
 //       [--seconds 6] [--prefix bot] [--straight 1] [--hunt <x_m>,<z_m>] [--talk <x_m>,<z_m>]
-//       [--fight <x_m>,<z_m>] [--peers <n>] [--walk <walk.path>]
+//       [--fight <x_m>,<z_m>] [--peers <n>] [--walk <walk.path>] [--roster 1] [--probe 1]
 // Thoát 0 khi mọi khách vào được cảnh và thấy đủ những khách còn lại; khác 0 kèm lý do.
 // --walk <walk.path>: tệp .path của cảnh vào (dev/server/scenes/<cảnh>/walk.path). --hunt, --talk,
 // --fight đi theo các điểm rẽ của luật đi client (nav::Field::plan_move, nhấp chuột tìm đường vòng
@@ -38,6 +38,11 @@
 // mình, sát thương, EntityDied và kinh nghiệm tăng. --seconds là tổng giờ săn (mặc định 6 giây là
 // quá ngắn, nên đặt 60 trở lên). Server báo ngoài tầm (mã 31) thì đứng sát hơn; sau 8 lần liên tiếp
 // ở tầm sát nhất thì bỏ quái đó, đánh con khác.
+// --roster 1: không vào cảnh; hai tài khoản `<prefix>r` và `<prefix>x` (dùng --prefix mới mỗi lần,
+// vì nhân vật nằm lại trong database) đi qua các bước tạo và xoá nhân vật, in mã server trả cho
+// từng bước và thoát 1 nếu một bước sai mã mong đợi (G1-M): trần ba nhân vật (can_create), xoá id
+// của tài khoản khác, xoá lại id đã xoá, xoá nhân vật đang chơi qua kết nối thứ hai, xoá dồn dưới
+// 500 ms, xoá khi hết nhân vật.
 
 #include "io/platform.hpp"
 #include "link/link.hpp"
@@ -101,6 +106,8 @@ struct Options {
     bool straight = false;
     // --probe 1: chỉ bắt tay với cổng game rồi in phiên bản giao thức của bot và của cụm.
     bool probe = false;
+    // --roster 1: kịch bản tạo và xoá nhân vật thay cho việc vào cảnh.
+    bool roster = false;
     // Điểm tới của --hunt, centimet.
     std::optional<std::pair<float, float>> hunt;
     // Điểm tới của --talk, centimet.
@@ -815,6 +822,19 @@ void fight(link::Link& line, Seen& seen, Tally& tally, const protocol::Position&
     if (Clock::now() >= strike.deadline) std::println("  hết {} giây săn quái", seconds);
 }
 
+// Nhân vật nam mới với lựa chọn nằm trong danh sách tạo được: mặt 100, tóc 5 (store.toml), ảnh chân
+// dung 52 (đầu bảng của nam trong portraits.tsv) và bộ đồ tân thủ 0.
+[[nodiscard]] protocol::CreateCharacter novice(const std::string& name) {
+    protocol::CreateCharacter create;
+    create.name = name;
+    create.gender = protocol::Gender::kMale;
+    create.face = 100;
+    create.hair = 5;
+    create.portrait = 52;
+    create.equip_set = 0;
+    return create;
+}
+
 void run_bot(const Options& options, const secure::PublicKey& server, int index, Tally& tally) {
     // Auth băm Argon2id từng vé và hàng hỏi của gate chỉ chứa 64 câu. Cả đám cùng xin thì vé sau bị
     // kBusy.
@@ -838,10 +858,8 @@ void run_bot(const Options& options, const secure::PublicKey& server, int index,
     }
     if (!seen.roster) return fail("Login bị từ chối");
     if (seen.roster->characters.empty()) {
-        // Mặt 100 và tóc 5 nằm trong danh sách nam tạo được của store.toml.
-        const protocol::CreateCharacter create{
-            .name = std::format("{}nv{}", options.prefix, index), .gender = protocol::Gender::kMale,
-            .face = 100, .hair = 5};
+        const std::string name = std::format("{}nv{}", options.prefix, index);
+        const protocol::CreateCharacter create = novice(name);
         if (!send(*line, create)) return fail("gửi CreateCharacter hỏng");
         seen.roster.reset();
         for (int round = 0; round < 8 && !seen.roster && !seen.refused; ++round) {
@@ -884,6 +902,199 @@ void run_bot(const Options& options, const secure::PublicKey& server, int index,
     }
     if (seen.refused || !walked) return fail("bị server đóng giữa chừng");
     static_cast<void>(send(*line, protocol::Logout{}));
+}
+
+// ---- Chế độ --roster: tạo và xoá nhân vật, in mã server trả cho từng bước ----------------------
+
+// Một kết nối đã đăng nhập cùng danh sách nhân vật mới nhất server gửi về.
+struct Session {
+    link::Link line;
+    protocol::CharacterList roster;
+};
+
+// Kết quả một lệnh: danh sách mới (is_done) hoặc mã của Reject.
+struct Reply {
+    bool is_done = false;
+    protocol::ErrorCode code = protocol::ErrorCode::kMalformed;
+};
+
+// Hai tài khoản và số bước sai. mine giữ nhân vật thử; other chỉ để lấy một id của người khác.
+struct Rig {
+    Session mine;
+    Session other;
+    std::string prefix;
+    int wrong = 0;
+};
+
+// Cách lần xoá trước hơn 500 ms của gate (kDeleteGapNs) một chút.
+constexpr std::chrono::milliseconds kBeyondGap{700};
+
+// Đọc tới khi có CharacterList hoặc Reject; Goodbye hay im lặng là nullopt.
+[[nodiscard]] std::optional<Reply> await_roster(Session& session) {
+    for (int round = 0; round < 8; ++round) {
+        const auto message = read_game(session.line, kStep);
+        if (!message) return std::nullopt;
+        if (std::holds_alternative<protocol::Goodbye>(*message)) return std::nullopt;
+        const auto* list = std::get_if<protocol::CharacterList>(&*message);
+        const auto* reject = std::get_if<protocol::Reject>(&*message);
+        if (list != nullptr) session.roster = *list;
+        if (list != nullptr) return Reply{.is_done = true};
+        if (reject != nullptr) return Reply{.is_done = false, .code = reject->code};
+    }
+    return std::nullopt;
+}
+
+template <typename Message>
+[[nodiscard]] std::optional<Reply> ask(Session& session, const Message& message) {
+    if (!send(session.line, message)) return std::nullopt;
+    return await_roster(session);
+}
+
+[[nodiscard]] std::optional<Session> open_session(const Options& options,
+    const secure::PublicKey& server, const std::string& account) {
+    const std::optional<std::string> ticket = ticket_for(options, server, account);
+    if (!ticket) return std::nullopt;
+    std::optional<link::Link> line = dial(options.game_port, server);
+    if (!line) return std::nullopt;
+    const protocol::Login login{.account = account, .ticket = *ticket};
+    if (!send(*line, login)) return std::nullopt;
+    Session session{.line = std::move(*line), .roster = {}};
+    const std::optional<Reply> got = await_roster(session);
+    if (!got || !got->is_done) return std::nullopt;
+    return session;
+}
+
+[[nodiscard]] std::string describe(const std::optional<Reply>& got) {
+    if (!got) return "không có trả lời";
+    if (got->is_done) return "thành công";
+    return std::format("Reject mã {}", static_cast<unsigned>(got->code));
+}
+
+void judge(Rig& rig, std::string_view step, bool is_right, const std::string& seen) {
+    const std::string_view mark = is_right ? "đúng" : "SAI";
+    std::println("  {} {}: {}", mark, step, seen);
+    if (!is_right) ++rig.wrong;
+}
+
+void want_refusal(Rig& rig, std::string_view step, const std::optional<Reply>& got,
+    protocol::ErrorCode want) {
+    const bool is_refused = got.has_value() && !got->is_done;
+    const bool is_right = is_refused && got->code == want;
+    const std::string shown = describe(got);
+    const auto wanted = static_cast<unsigned>(want);
+    const std::string seen = std::format("{}, mong mã {}", shown, wanted);
+    judge(rig, step, is_right, seen);
+}
+
+void want_done(Rig& rig, std::string_view step, const std::optional<Reply>& got, std::size_t count,
+    bool can_create) {
+    const protocol::CharacterList& roster = rig.mine.roster;
+    const bool is_done = got.has_value() && got->is_done;
+    const bool is_count = roster.characters.size() == count;
+    const bool is_shaped = is_count && roster.can_create == can_create;
+    const std::string shown = describe(got);
+    const std::size_t size = roster.characters.size();
+    const bool open = roster.can_create;
+    const std::string seen = std::format("{}, {} nhân vật, can_create={}", shown, size, open);
+    judge(rig, step, is_done && is_shaped, seen);
+}
+
+void create_one(Rig& rig, std::string_view suffix, std::size_t count, bool can_create) {
+    const std::string name = std::format("{}r{}", rig.prefix, suffix);
+    const std::optional<Reply> got = ask(rig.mine, novice(name));
+    const std::string step = std::format("tạo {}", name);
+    want_done(rig, step, got, count, can_create);
+}
+
+[[nodiscard]] std::uint64_t id_at(const Session& session, std::size_t at) {
+    return session.roster.characters.at(at).id;
+}
+
+void delete_one(Rig& rig, std::string_view step, std::uint64_t id, protocol::ErrorCode want) {
+    const protocol::DeleteCharacter request{.character = id};
+    const std::optional<Reply> got = ask(rig.mine, request);
+    want_refusal(rig, step, got, want);
+}
+
+// Vào game bằng nhân vật `id`: chờ tới Position (gate đã mở phiên và attach zone).
+[[nodiscard]] bool enter_game(Session& session, std::uint64_t id) {
+    if (!send(session.line, protocol::EnterGame{.character = id})) return false;
+    for (int round = 0; round < 16; ++round) {
+        const auto message = read_game(session.line, kStep);
+        if (!message) return false;
+        if (std::holds_alternative<protocol::Position>(*message)) return true;
+        if (std::holds_alternative<protocol::Reject>(*message)) return false;
+    }
+    return false;
+}
+
+// Ba nhân vật là trần (can_create tắt); xoá id của người khác và xoá lại id đã xoá đều NOT_OWNER.
+void fill_and_trim(Rig& rig) {
+    create_one(rig, "a", 1, true);
+    create_one(rig, "b", 2, true);
+    create_one(rig, "c", 3, false);
+    const std::uint64_t first = id_at(rig.mine, 0);
+    const std::string other_name = rig.prefix + "xa";
+    const std::optional<Reply> made = ask(rig.other, novice(other_name));
+    const std::uint64_t foreign = id_at(rig.other, 0);
+    const protocol::ErrorCode not_owner = protocol::ErrorCode::kNoSuchCharacter;
+    delete_one(rig, "xoá id của tài khoản khác", foreign, not_owner);
+    std::this_thread::sleep_for(kBeyondGap);
+    const protocol::DeleteCharacter own{.character = first};
+    const std::optional<Reply> gone = ask(rig.mine, own);
+    want_done(rig, "xoá nhân vật của mình", gone, 2, true);
+    std::this_thread::sleep_for(kBeyondGap);
+    delete_one(rig, "xoá lại id đã xoá", first, not_owner);
+    std::this_thread::sleep_for(kBeyondGap);
+    const bool is_made = made.has_value() && made->is_done;
+    judge(rig, "tài khoản kia tạo được nhân vật", is_made, describe(made));
+}
+
+void want_gone(Rig& rig, std::string_view step, const std::optional<Reply>& got) {
+    const bool is_done = got.has_value() && got->is_done;
+    judge(rig, step, is_done, describe(got));
+}
+
+// Nhân vật đang chơi: kết nối thứ hai của cùng tài khoản xoá nó phải bị từ chối ONLINE; đăng xuất
+// rồi thì xoá được. Dồn hai lần xoá dưới 500 ms thì lần sau OP_TIMES; hết nhân vật thì EMPTY.
+void online_and_pace(Rig& rig, const Options& options, const secure::PublicKey& server) {
+    const std::uint64_t playing = id_at(rig.mine, 0);
+    const std::uint64_t spare = id_at(rig.mine, 1);
+    const bool is_in = enter_game(rig.mine, playing);
+    const std::string entered = is_in ? "có Position" : "không vào được";
+    judge(rig, "vào game bằng nhân vật thứ nhất", is_in, entered);
+    const std::string account = rig.prefix + "r";
+    std::optional<Session> second = open_session(options, server, account);
+    judge(rig, "mở kết nối thứ hai của cùng tài khoản", second.has_value(), "đăng nhập lại");
+    if (!second) return;
+    const protocol::DeleteCharacter play_request{.character = playing};
+    const protocol::DeleteCharacter spare_request{.character = spare};
+    const std::optional<Reply> online = ask(*second, play_request);
+    want_refusal(rig, "xoá nhân vật đang chơi", online, protocol::ErrorCode::kCharacterOnline);
+    static_cast<void>(send(rig.mine.line, protocol::Logout{}));
+    std::this_thread::sleep_for(kBeyondGap);
+    const std::optional<Reply> freed = ask(*second, spare_request);
+    want_gone(rig, "xoá nhân vật dự phòng", freed);
+    const std::optional<Reply> quick = ask(*second, play_request);
+    want_refusal(rig, "xoá dồn dưới 500 ms", quick, protocol::ErrorCode::kRateLimited);
+    std::this_thread::sleep_for(kBeyondGap);
+    const std::optional<Reply> last = ask(*second, play_request);
+    want_gone(rig, "xoá nhân vật cuối sau khi đăng xuất", last);
+    std::this_thread::sleep_for(kBeyondGap);
+    const std::optional<Reply> empty = ask(*second, play_request);
+    want_refusal(rig, "xoá khi hết nhân vật", empty, protocol::ErrorCode::kNoCharacterToDelete);
+}
+
+[[nodiscard]] int run_roster(const Options& options, const secure::PublicKey& server) {
+    std::optional<Session> mine = open_session(options, server, options.prefix + "r");
+    std::optional<Session> other = open_session(options, server, options.prefix + "x");
+    if (!mine || !other) std::println(stderr, "không đăng nhập được hai tài khoản thử");
+    if (!mine || !other) return 1;
+    Rig rig{.mine = std::move(*mine), .other = std::move(*other), .prefix = options.prefix};
+    fill_and_trim(rig);
+    online_and_pace(rig, options, server);
+    std::println("roster: {} bước sai", rig.wrong);
+    return rig.wrong == 0 ? 0 : 1;
 }
 
 // Số nguyên thập phân chiếm trọn chuỗi; stoi sẽ ném ngoại lệ với đối số hỏng, ở đây thì trả nullopt.
@@ -954,7 +1165,9 @@ void run_bot(const Options& options, const secure::PublicKey& server, int index,
     if (key == "--prefix") options.prefix = value;
     if (key == "--straight") options.straight = value == "1";
     if (key == "--probe") options.probe = value == "1";
-    return key == "--prefix" || key == "--straight" || key == "--probe";
+    if (key == "--roster") options.roster = value == "1";
+    const bool is_flag = key == "--prefix" || key == "--straight";
+    return is_flag || key == "--probe" || key == "--roster";
 }
 
 [[nodiscard]] std::optional<Options> parse(std::span<const char* const> args) {
@@ -1009,7 +1222,7 @@ void run_bot(const Options& options, const secure::PublicKey& server, int index,
 void print_usage() {
     std::println(stderr, "dùng: thienlong_bot --identity <khoá> [--game 7100] [--auth 7101]");
     std::println(stderr, "  [--count 4] [--seconds 6] [--prefix bot] [--straight 1] [--peers <n>]");
-    std::println(stderr, "  [--probe 1] [--hunt <x_m>,<z_m>] [--talk <x_m>,<z_m>]");
+    std::println(stderr, "  [--probe 1] [--roster 1] [--hunt <x_m>,<z_m>] [--talk <x_m>,<z_m>]");
     std::println(stderr, "  [--fight <x_m>,<z_m>] [--walk <walk.path>]");
 }
 
@@ -1034,6 +1247,7 @@ int main(int argc, char** argv) {
     }
     const secure::PublicKey server = identity->public_key();
     if (options->probe) return probe(*options, server);
+    if (options->roster) return run_roster(*options, server);
     Tally tally;
     {
         std::vector<std::jthread> bots;

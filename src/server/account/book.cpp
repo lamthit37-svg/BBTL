@@ -41,14 +41,15 @@ using Clock = std::chrono::system_clock;
     return result;
 }
 
-[[nodiscard]] protocol::CharacterSummary summary_of(std::string name, protocol::Gender gender, std::uint16_t face,
-    std::uint16_t hair) {
+[[nodiscard]] protocol::CharacterSummary summary_of(std::string name, const Look& look) {
     protocol::CharacterSummary summary;
     summary.name = std::move(name);
     summary.level = static_cast<std::uint16_t>(starter::kLevel);
-    summary.gender = gender;
-    summary.face = face;
-    summary.hair = hair;
+    summary.gender = look.gender;
+    summary.face = look.face;
+    summary.hair = look.hair;
+    summary.portrait = look.portrait;
+    summary.equip_set = look.equip_set;
     summary.school = static_cast<std::uint8_t>(starter::kSchool);
     summary.scene = static_cast<std::uint16_t>(starter::kScene);
     return summary;
@@ -185,11 +186,11 @@ ListResult MemoryBook::login(std::string_view ticket_hex, Clock::time_point now)
     return result;
 }
 
-ListResult MemoryBook::create_character(std::uint64_t account, std::string_view name, protocol::Gender gender,
-    std::uint16_t face, std::uint16_t hair) {
+ListResult MemoryBook::create_character(std::uint64_t account, std::string_view name,
+    const Look& look) {
     const bool owned = std::ranges::any_of(accounts_, [&](const AccountRow& row) { return row.id == account; });
     if (!owned) return fail_list(protocol::ErrorCode::kNotAuthenticated);
-    if (!look_ok(config_.look, gender, face, hair)) return fail_list(protocol::ErrorCode::kBadOption);
+    if (!look_ok(config_.look, look)) return fail_list(protocol::ErrorCode::kBadOption);
     const std::optional<std::string> canonical = canonical_character_name(name);
     if (!canonical) return fail_list(protocol::ErrorCode::kNameInvalid);
     const std::string fold = fold_character_name(*canonical);
@@ -198,7 +199,7 @@ ListResult MemoryBook::create_character(std::uint64_t account, std::string_view 
     CharacterRow row;
     row.id = next_character_++;
     row.account = account;
-    row.summary = summary_of(*canonical, gender, face, hair);
+    row.summary = summary_of(*canonical, look);
     row.summary.id = row.id;
     characters_.push_back(std::move(row));
     ListResult result;
@@ -213,7 +214,8 @@ ListResult MemoryBook::remove_character(std::uint64_t account, std::uint64_t cha
     for (CharacterRow& item : characters_) {
         if (item.id == character && item.account == account && !item.deleted) row = &item;
     }
-    if (row == nullptr) return fail_list(protocol::ErrorCode::kNoSuchCharacter);
+    const RemoveStep step = remove_step(live_count(account), row != nullptr);
+    if (step != RemoveStep::kOk) return fail_list(remove_code(step));
     row->deleted = true;
     ListResult result;
     result.ok = true;

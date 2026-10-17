@@ -38,7 +38,7 @@ messages_per_second  = 60      # Số tin tối đa mỗi giây của một clie
 # Bản client
 #==================================================
 [client]
-min_version    = 7     # Phiên bản protocol thấp nhất được vào; thấp hơn bị từ chối
+min_version    = 9     # Phiên bản protocol thấp nhất được vào; thấp hơn bị từ chối
 allowed_builds = [1]   # Bản dựng được vào; rỗng là không lọc. Client gửi 1
 
 #==================================================

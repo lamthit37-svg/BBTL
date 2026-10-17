@@ -326,7 +326,24 @@ struct Loaded {
     return value >= 0 && value <= max;
 }
 
-[[nodiscard]] std::optional<protocol::CharacterSummary> read_summary(const PgExec& exec, std::size_t row) {
+// Ảnh chân dung và bộ đồ tân thủ nằm ở hai cột liền nhau bắt đầu từ col (migration 003).
+[[nodiscard]] bool read_look(const PgExec& exec, std::size_t row, std::size_t col,
+    protocol::CharacterSummary& summary) {
+    const std::string* portrait = cell(exec, row, col);
+    const std::string* set = cell(exec, row, col + 1);
+    if (portrait == nullptr || set == nullptr) return false;
+    const std::optional<std::int64_t> portrait_value = as_i64(*portrait);
+    const std::optional<std::int64_t> set_value = as_i64(*set);
+    if (!portrait_value || !set_value) return false;
+    const bool is_fit = fits_wire(*portrait_value, 65535) && fits_wire(*set_value, 65535);
+    if (!is_fit) return false;
+    summary.portrait = static_cast<std::uint16_t>(*portrait_value);
+    summary.equip_set = static_cast<std::uint16_t>(*set_value);
+    return true;
+}
+
+[[nodiscard]] std::optional<protocol::CharacterSummary> read_summary(const PgExec& exec,
+    std::size_t row, std::size_t look_col) {
     const std::string* id = cell(exec, row, 0);
     const std::string* name = cell(exec, row, 1);
     const std::string* level = cell(exec, row, 2);
@@ -361,26 +378,67 @@ struct Loaded {
     summary.hair = static_cast<std::uint16_t>(*hair_value);
     summary.school = static_cast<std::uint8_t>(*school_value);
     summary.scene = static_cast<std::uint16_t>(*scene_value);
+    if (!read_look(exec, row, look_col, summary)) return std::nullopt;
     return summary;
 }
+
+// Cột 0..7 của summary, rồi ảnh chân dung và bộ đồ ở cột 8 và 9.
+constexpr std::size_t kListLookCol = 8;
+
+constexpr std::string_view kListSql =
+    "SELECT id::text, name, level::text, gender::text, face::text, hair::text, school::text, "
+    "scene::text, portrait::text, equip_set::text "
+    "FROM player WHERE account_id = $1 AND deleted_at IS NULL ORDER BY id LIMIT 8";
 
 [[nodiscard]] ListResult list_players(PgConn& conn, std::uint64_t account) {
     Args args;
     args.i64(static_cast<std::int64_t>(account));
-    const PgExec found =
-        conn.exec("SELECT id::text, name, level::text, gender::text, face::text, hair::text, school::text, scene::text "
-                  "FROM player WHERE account_id = $1 AND deleted_at IS NULL ORDER BY id LIMIT 8",
-            args.span());
+    const PgExec found = conn.exec(kListSql, args.span());
     if (!found.ok) return ListResult{};
     ListResult result;
     result.ok = true;
     result.account = account;
     for (std::size_t row = 0; row < found.rows.size(); ++row) {
-        const std::optional<protocol::CharacterSummary> summary = read_summary(found, row);
-        if (!summary) return ListResult{};
-        result.characters.push_back(*summary);
+        const auto shown = read_summary(found, row, kListLookCol);
+        if (!shown) return ListResult{};
+        result.characters.push_back(*shown);
     }
     return result;
+}
+
+// Số nhân vật còn sống của tài khoản và id này có nằm trong số đó không (xoá nhân vật).
+struct Census {
+    int live = 0;
+    bool owned = false;
+};
+
+constexpr std::int64_t kCensusMax = 1'000'000;
+
+constexpr std::string_view kCensusSql =
+    "SELECT count(*)::text, (count(*) FILTER (WHERE id = $2))::text "
+    "FROM player WHERE account_id = $1 AND deleted_at IS NULL";
+
+constexpr std::string_view kRemoveSql =
+    "UPDATE player SET deleted_at = now() WHERE id = $1 AND account_id = $2 AND deleted_at IS NULL";
+
+[[nodiscard]] std::optional<std::int64_t> number_at(const PgExec& found, std::size_t col) {
+    const std::string* text = cell(found, 0, col);
+    if (text == nullptr) return std::nullopt;
+    return as_i64(*text);
+}
+
+[[nodiscard]] std::optional<Census> census_of(PgConn& conn, std::uint64_t who, std::uint64_t id) {
+    Args args;
+    args.i64(static_cast<std::int64_t>(who));
+    args.i64(static_cast<std::int64_t>(id));
+    const PgExec found = conn.exec(kCensusSql, args.span());
+    if (!found.ok) return std::nullopt;
+    const std::optional<std::int64_t> live = number_at(found, 0);
+    const std::optional<std::int64_t> hit = number_at(found, 1);
+    if (!live || !hit) return std::nullopt;
+    const bool is_sane = *live >= 0 && *live <= kCensusMax;
+    if (!is_sane) return std::nullopt;
+    return Census{.live = static_cast<int>(*live), .owned = *hit > 0};
 }
 
 [[nodiscard]] bool grant_starter(PgConn& conn, std::int64_t player) {
@@ -620,9 +678,18 @@ ListResult GameDb::list(std::uint64_t account) {
     return list_players(*conn_, account);
 }
 
-ListResult GameDb::create_character(std::uint64_t account, std::string_view name, protocol::Gender gender,
-    std::uint16_t face, std::uint16_t hair) {
-    if (!protocol::is_valid(gender) || !look_ok(policy_.look, gender, face, hair)) {
+constexpr std::string_view kInsertSql =
+    "INSERT INTO player (account_id, name, name_fold, gender, face, hair, school, level, exp, "
+    "scene, "
+    "position_x, position_z, hp, mp, camp, money, vigor, max_vigor, energy, max_energy, strength, "
+    "spirit, constitution, intellect, dexterity, actual_age, motto, portrait, equip_set) "
+    "VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$21,$22,$23,"
+    "$24,$25,$26,$27,$28,$29) RETURNING id::text";
+
+ListResult GameDb::create_character(std::uint64_t account, std::string_view name,
+    const Look& look) {
+    const bool is_fit = protocol::is_valid(look.gender) && look_ok(policy_.look, look);
+    if (!is_fit) {
         ListResult result;
         result.code = protocol::ErrorCode::kBadOption;
         return result;
@@ -667,9 +734,9 @@ ListResult GameDb::create_character(std::uint64_t account, std::string_view name
     insert.i64(static_cast<std::int64_t>(account));
     insert.text(*canonical);
     insert.text(fold);
-    insert.i64(static_cast<std::int64_t>(gender));
-    insert.i64(face);
-    insert.i64(hair);
+    insert.i64(static_cast<std::int64_t>(look.gender));
+    insert.i64(look.face);
+    insert.i64(look.hair);
     insert.i64(starter::kSchool);
     insert.i64(starter::kLevel);
     insert.i64(starter::kExp);
@@ -691,13 +758,9 @@ ListResult GameDb::create_character(std::uint64_t account, std::string_view name
     insert.i64(starter::kDexterity);
     insert.i64(starter::kActualAge);
     insert.text(std::string{starter::kMotto});
-    const PgExec wrote = conn_->exec(
-        "INSERT INTO player (account_id, name, name_fold, gender, face, hair, school, level, exp, scene, "
-        "position_x, position_z, hp, mp, camp, money, vigor, max_vigor, energy, max_energy, strength, spirit, "
-        "constitution, intellect, dexterity, actual_age, motto) "
-        "VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$21,$22,$23,$24,$25,$26,$27) "
-        "RETURNING id::text",
-        insert.span());
+    insert.i64(look.portrait);
+    insert.i64(look.equip_set);
+    const PgExec wrote = conn_->exec(kInsertSql, insert.span());
     if (unique_hit(wrote)) {
         ListResult result;
         result.code = protocol::ErrorCode::kNameTaken;
@@ -710,20 +773,31 @@ ListResult GameDb::create_character(std::uint64_t account, std::string_view name
     return list_players(*conn_, account);
 }
 
+// Xoá ngay theo máy chủ gốc (G1-M D1): hết nhân vật là EMPTY, không có id này là NOT_OWNER, xoá
+// xong đếm lại mà số không giảm một là INTERNAL_ERROR. Cùng khoá tài khoản với tạo nhân vật.
 ListResult GameDb::remove_character(std::uint64_t account, std::uint64_t character) {
+    Tx tx{*conn_};
+    if (!tx.begin()) return {};
+    Args lock;
+    lock.i64(static_cast<std::int64_t>(account));
+    const PgExec locked = conn_->exec("SELECT pg_advisory_xact_lock($1)", lock.span());
+    if (!locked.ok) return {};
+    const std::optional<Census> before = census_of(*conn_, account, character);
+    if (!before) return {};
+    const RemoveStep step = remove_step(before->live, before->owned);
+    if (step != RemoveStep::kOk) return fail_list(remove_code(step));
     Args args;
     args.i64(static_cast<std::int64_t>(character));
     args.i64(static_cast<std::int64_t>(account));
-    const PgExec wrote =
-        conn_->exec("UPDATE player SET deleted_at = now() WHERE id = $1 AND account_id = $2 AND deleted_at IS NULL",
-            args.span());
+    const PgExec wrote = conn_->exec(kRemoveSql, args.span());
     if (!wrote.ok) return {};
-    if (wrote.affected != 1) {
-        ListResult result;
-        result.code = protocol::ErrorCode::kNoSuchCharacter;
-        return result;
-    }
-    return list_players(*conn_, account);
+    const std::optional<Census> after = census_of(*conn_, account, character);
+    if (!after) return {};
+    const bool is_dropped = wrote.affected == 1 && after->live + 1 == before->live;
+    if (!is_dropped) return fail_list(protocol::ErrorCode::kInternal);
+    ListResult left = list_players(*conn_, account);
+    if (!left.ok || !tx.commit()) return {};
+    return left;
 }
 
 namespace {
@@ -767,26 +841,31 @@ constexpr std::int64_t kInt32Max = std::numeric_limits<std::int32_t>::max();
 
 } // namespace
 
+// Cột 0..7 là summary, 8..9 toạ độ, 10..17 trạng thái chơi (read_play), ảnh chân dung và bộ đồ
+// ở 18.
+constexpr std::size_t kEnterLookCol = 18;
+
+constexpr std::string_view kEnterSql =
+    "SELECT id::text, name, level::text, gender::text, face::text, hair::text, school::text, "
+    "scene::text, round(position_x * 100)::bigint::text, round(position_z * 100)::bigint::text, "
+    "exp::text, money::text, bound_coin::text, hp::text, mp::text, "
+    "coalesce(encode(body, 'hex'), ''), coalesce(encode(mission, 'hex'), ''), "
+    "coalesce(encode(bag, 'hex'), ''), portrait::text, equip_set::text "
+    "FROM player WHERE id = $1 AND account_id = $2 AND deleted_at IS NULL";
+
 EnterResult GameDb::enter(std::uint64_t account, std::uint64_t character) {
     Args args;
     args.i64(static_cast<std::int64_t>(character));
     args.i64(static_cast<std::int64_t>(account));
     // position_x/position_z lưu mét; gate làm việc bằng centimet nguyên.
-    const PgExec found =
-        conn_->exec("SELECT id::text, name, level::text, gender::text, face::text, hair::text, school::text, "
-                   "scene::text, round(position_x * 100)::bigint::text, round(position_z * 100)::bigint::text, "
-                   "exp::text, money::text, bound_coin::text, hp::text, mp::text, "
-                   "coalesce(encode(body, 'hex'), ''), coalesce(encode(mission, 'hex'), ''), "
-                   "coalesce(encode(bag, 'hex'), '') "
-                   "FROM player WHERE id = $1 AND account_id = $2 AND deleted_at IS NULL",
-            args.span());
+    const PgExec found = conn_->exec(kEnterSql, args.span());
     EnterResult result;
     if (!found.ok) return result;
     if (found.rows.empty()) {
         result.code = protocol::ErrorCode::kNoSuchCharacter;
         return result;
     }
-    const std::optional<protocol::CharacterSummary> summary = read_summary(found, 0);
+    const std::optional<protocol::CharacterSummary> summary = read_summary(found, 0, kEnterLookCol);
     const std::string* x_cm = cell(found, 0, 8);
     const std::string* z_cm = cell(found, 0, 9);
     const std::optional<std::int64_t> x_value = x_cm == nullptr ? std::nullopt : as_i64(*x_cm);

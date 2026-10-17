@@ -253,6 +253,8 @@ public:
 
 private:
     static constexpr std::int32_t kScene = 2;
+    // Trần nhân vật của gate thật (account::kCharacterCap): quyết CharacterList::can_create.
+    static constexpr std::size_t kCharacterCap = 3;
     static constexpr float kStartX = 16500.0F;
     static constexpr float kStartZ = 16900.0F;
     static constexpr std::uint32_t kSelfId = 100;
@@ -361,7 +363,8 @@ private:
 
     [[nodiscard]] protocol::CharacterList list_of(const std::string& account) {
         const std::scoped_lock lock{guard_};
-        return protocol::CharacterList{.characters = roster_[account]};
+        const std::vector<protocol::CharacterSummary>& mine = roster_[account];
+        return protocol::CharacterList{.characters = mine, .can_create = mine.size() < kCharacterCap};
     }
 
     void serve_game(ServerLine& line, const std::stop_token& stop) {
@@ -418,6 +421,8 @@ private:
             made.gender = create.gender;
             made.face = create.face;
             made.hair = create.hair;
+            made.portrait = create.portrait;
+            made.equip_set = create.equip_set;
             made.school = 9;
             made.scene = static_cast<std::uint16_t>(kScene);
             roster_[account].push_back(std::move(made));

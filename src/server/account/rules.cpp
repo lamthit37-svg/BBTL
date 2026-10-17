@@ -1,3 +1,19 @@
+/*==============================================================================
+ *  THIENLONG  |  GAME SERVER
+ *------------------------------------------------------------------------------
+ *  TỆP       : src/server/account/rules.cpp
+ *  PHÂN HỆ   : Server / Account / Rules
+ *  CHUẨN     : C++23
+ *------------------------------------------------------------------------------
+ *  CHỨC NĂNG
+ *  - Cài đặt luật của rules.hpp: tên, mật khẩu, bước đăng nhập, tạo và xoá nhân
+ *    vật. Bảng mặt, tóc, ảnh chân dung và bộ đồ tân thủ là mảng constexpr khớp
+ *    bảng client; sổ nhớ và bản PostgreSQL dùng chung hàm ở đây để khỏi lệch.
+ *------------------------------------------------------------------------------
+ *  TÁC GIẢ   : HiepHoon
+ *  TELEGRAM  : @Hoon9xx
+ *============================================================================*/
+
 #include "account/rules.hpp"
 
 #include <algorithm>
@@ -86,6 +102,12 @@ CreateStep create_step(bool name_ok, int live_count, bool taken) noexcept {
     return CreateStep::kOk;
 }
 
+RemoveStep remove_step(int live_count, bool owned) noexcept {
+    if (live_count <= 0) return RemoveStep::kEmpty;
+    if (!owned) return RemoveStep::kNotOwner;
+    return RemoveStep::kOk;
+}
+
 protocol::ErrorCode fault_code(NameFault fault) noexcept {
     if (fault == NameFault::kAccount) return protocol::ErrorCode::kNameInvalid;
     if (fault == NameFault::kPassword) return protocol::ErrorCode::kPasswordInvalid;
@@ -102,6 +124,12 @@ protocol::ErrorCode create_code(CreateStep step) noexcept {
     if (step == CreateStep::kFull) return protocol::ErrorCode::kCharacterLimit;
     if (step == CreateStep::kTaken) return protocol::ErrorCode::kNameTaken;
     return protocol::ErrorCode::kMalformed;
+}
+
+protocol::ErrorCode remove_code(RemoveStep step) noexcept {
+    if (step == RemoveStep::kEmpty) return protocol::ErrorCode::kNoCharacterToDelete;
+    if (step == RemoveStep::kNotOwner) return protocol::ErrorCode::kNoSuchCharacter;
+    return protocol::ErrorCode::kInternal;
 }
 
 namespace {
@@ -379,48 +407,95 @@ constexpr std::array<std::uint16_t, 6> kDefaultMaleFaces{100, 101, 102, 103, 104
 constexpr std::array<std::uint16_t, 3> kDefaultFemaleHairs{1, 17, 19};
 constexpr std::array<std::uint16_t, 3> kDefaultMaleHairs{5, 12, 14};
 
+constexpr std::array<std::uint16_t, 15> kDefaultFemalePortraits{
+    49, 50, 51, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
+constexpr std::array<std::uint16_t, 15> kDefaultMalePortraits{
+    52, 53, 54, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24};
+constexpr std::array<std::uint16_t, 3> kDefaultEquipSets{0, 1, 2};
+
 struct LookSets {
     std::span<const std::uint16_t> female_faces;
     std::span<const std::uint16_t> male_faces;
     std::span<const std::uint16_t> female_hairs;
     std::span<const std::uint16_t> male_hairs;
+    std::span<const std::uint16_t> female_portraits;
+    std::span<const std::uint16_t> male_portraits;
+    std::span<const std::uint16_t> equip_sets;
 };
 
-[[nodiscard]] bool look_in(const LookSets& sets, protocol::Gender gender, std::uint16_t face,
-    std::uint16_t hair) noexcept {
-    const auto has = [](std::span<const std::uint16_t> set, std::uint16_t id) {
-        return std::ranges::find(set, id) != set.end();
-    };
-    if (gender == protocol::Gender::kFemale) return has(sets.female_faces, face) && has(sets.female_hairs, hair);
-    if (gender == protocol::Gender::kMale) return has(sets.male_faces, face) && has(sets.male_hairs, hair);
+[[nodiscard]] bool has_id(std::span<const std::uint16_t> set, std::uint16_t id) noexcept {
+    return std::ranges::find(set, id) != set.end();
+}
+
+[[nodiscard]] bool female_ok(const LookSets& sets, const Look& look) noexcept {
+    const bool is_face = has_id(sets.female_faces, look.face);
+    const bool is_hair = has_id(sets.female_hairs, look.hair);
+    const bool is_portrait = has_id(sets.female_portraits, look.portrait);
+    return is_face && is_hair && is_portrait;
+}
+
+[[nodiscard]] bool male_ok(const LookSets& sets, const Look& look) noexcept {
+    const bool is_face = has_id(sets.male_faces, look.face);
+    const bool is_hair = has_id(sets.male_hairs, look.hair);
+    const bool is_portrait = has_id(sets.male_portraits, look.portrait);
+    return is_face && is_hair && is_portrait;
+}
+
+[[nodiscard]] bool look_in(const LookSets& sets, const Look& look) noexcept {
+    if (!has_id(sets.equip_sets, look.equip_set)) return false;
+    if (look.gender == protocol::Gender::kFemale) return female_ok(sets, look);
+    if (look.gender == protocol::Gender::kMale) return male_ok(sets, look);
     return false;
+}
+
+[[nodiscard]] LookSets sets_of(const LookPolicy& policy) noexcept {
+    LookSets sets;
+    sets.female_faces = policy.female_faces;
+    sets.male_faces = policy.male_faces;
+    sets.female_hairs = policy.female_hairs;
+    sets.male_hairs = policy.male_hairs;
+    sets.female_portraits = policy.female_portraits;
+    sets.male_portraits = policy.male_portraits;
+    sets.equip_sets = policy.equip_sets;
+    return sets;
+}
+
+[[nodiscard]] LookSets default_sets() noexcept {
+    LookSets sets;
+    sets.female_faces = kDefaultFemaleFaces;
+    sets.male_faces = kDefaultMaleFaces;
+    sets.female_hairs = kDefaultFemaleHairs;
+    sets.male_hairs = kDefaultMaleHairs;
+    sets.female_portraits = kDefaultFemalePortraits;
+    sets.male_portraits = kDefaultMalePortraits;
+    sets.equip_sets = kDefaultEquipSets;
+    return sets;
+}
+
+[[nodiscard]] std::vector<std::uint16_t> ids_of(std::span<const std::uint16_t> set) {
+    return std::vector<std::uint16_t>(set.begin(), set.end());
 }
 
 } // namespace
 
 LookPolicy default_look_policy() {
-    return LookPolicy{
-        .female_faces{kDefaultFemaleFaces.begin(), kDefaultFemaleFaces.end()},
-        .male_faces{kDefaultMaleFaces.begin(), kDefaultMaleFaces.end()},
-        .female_hairs{kDefaultFemaleHairs.begin(), kDefaultFemaleHairs.end()},
-        .male_hairs{kDefaultMaleHairs.begin(), kDefaultMaleHairs.end()},
-    };
+    LookPolicy policy;
+    policy.female_faces = ids_of(kDefaultFemaleFaces);
+    policy.male_faces = ids_of(kDefaultMaleFaces);
+    policy.female_hairs = ids_of(kDefaultFemaleHairs);
+    policy.male_hairs = ids_of(kDefaultMaleHairs);
+    policy.female_portraits = ids_of(kDefaultFemalePortraits);
+    policy.male_portraits = ids_of(kDefaultMalePortraits);
+    policy.equip_sets = ids_of(kDefaultEquipSets);
+    return policy;
 }
 
-bool look_ok(const LookPolicy& policy, protocol::Gender gender, std::uint16_t face, std::uint16_t hair) noexcept {
-    const LookSets sets{.female_faces = policy.female_faces,
-        .male_faces = policy.male_faces,
-        .female_hairs = policy.female_hairs,
-        .male_hairs = policy.male_hairs};
-    return look_in(sets, gender, face, hair);
+bool look_ok(const LookPolicy& policy, const Look& look) noexcept {
+    return look_in(sets_of(policy), look);
 }
 
-bool look_ok(protocol::Gender gender, std::uint16_t face, std::uint16_t hair) noexcept {
-    const LookSets sets{.female_faces = kDefaultFemaleFaces,
-        .male_faces = kDefaultMaleFaces,
-        .female_hairs = kDefaultFemaleHairs,
-        .male_hairs = kDefaultMaleHairs};
-    return look_in(sets, gender, face, hair);
+bool look_ok(const Look& look) noexcept {
+    return look_in(default_sets(), look);
 }
 
 std::string fold_character_name(std::string_view canonical) {

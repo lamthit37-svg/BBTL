@@ -103,8 +103,8 @@ public:
     [[nodiscard]] TicketResult sign_in(std::string_view name, std::string_view password,
         std::chrono::system_clock::time_point now);
     [[nodiscard]] ListResult login(std::string_view ticket_hex, std::chrono::system_clock::time_point now);
-    [[nodiscard]] ListResult create_character(std::uint64_t account, std::string_view name, protocol::Gender gender,
-        std::uint16_t face, std::uint16_t hair);
+    [[nodiscard]] ListResult create_character(std::uint64_t account, std::string_view name,
+        const Look& look);
     [[nodiscard]] ListResult remove_character(std::uint64_t account, std::uint64_t character);
     [[nodiscard]] EnterResult enter(std::uint64_t account, std::uint64_t character);
 

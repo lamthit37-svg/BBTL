@@ -1,7 +1,20 @@
+/*==============================================================================
+ *  THIENLONG  |  GAME SERVER
+ *------------------------------------------------------------------------------
+ *  TỆP       : src/server/account/rules.hpp
+ *  PHÂN HỆ   : Server / Account / Rules
+ *  CHUẨN     : C++23
+ *------------------------------------------------------------------------------
+ *  CHỨC NĂNG
+ *  - Luật tên, mật khẩu và bước đăng nhập. Không đụng database và không đọc
+ *    đồng hồ. Trần tên tài khoản ngắn hơn trần byte của tin (64) để chặn chuỗi
+ *    rác; tên nhân vật giữ trần 48 byte của protocol vì client 2026 có tên Hán
+ *    và tên Việt.
+ *------------------------------------------------------------------------------
+ *  TÁC GIẢ   : HiepHoon
+ *  TELEGRAM  : @Hoon9xx
+ *============================================================================*/
 #pragma once
-// Luật tên, mật khẩu và bước đăng nhập. Không đụng database và không đọc đồng hồ.
-// Trần tên tài khoản ngắn hơn trần byte của tin (64) để chặn chuỗi rác; tên nhân vật giữ trần 48
-// byte của protocol vì client 2026 có tên Hán và tên Việt.
 
 #include "protocol/messages.hpp"
 
@@ -33,6 +46,10 @@ enum class SignStep : std::uint8_t { kRate, kCreate, kMissing, kDisabled, kMisma
 
 enum class CreateStep : std::uint8_t { kBadName, kFull, kTaken, kOk };
 
+// Xoá nhân vật theo máy chủ gốc: hết nhân vật là kEmpty (EMPTY), còn nhưng không có id này là
+// kNotOwner (NOT_OWNER). Tài khoản khác sở hữu id đó cũng là kNotOwner, không lộ nhân vật của ai.
+enum class RemoveStep : std::uint8_t { kEmpty, kNotOwner, kOk };
+
 // Chỉ hạ chữ ASCII. Dùng cho tên tài khoản (chỉ có ASCII) và mật khẩu.
 [[nodiscard]] std::string fold_ascii(std::string_view text);
 
@@ -44,22 +61,37 @@ enum class CreateStep : std::uint8_t { kBadName, kFull, kTaken, kOk };
 // trong hạn (chống chiếm tên vừa xoá để giả danh). Mặc định; store.toml name_reserve_days đè lên.
 inline constexpr std::chrono::hours kNameReserve{24 * 30};
 
-// Mặt và tóc nhân vật mới: chỉ id có creatable = 1 trong faces.tsv/hairs.tsv của client (race 0 = nữ,
-// race 1 = nam). Client tự gửi id nên máy chủ đối chiếu danh sách đóng; ngoài danh sách là từ chối.
-// Danh sách đọc từ store.toml [security] female_faces/male_faces/female_hairs/male_hairs; thiếu khoá
-// thì dùng default_look_policy() (khớp bảng client hiện tại).
+// Mặt và tóc nhân vật mới: chỉ id có creatable = 1 trong faces.tsv/hairs.tsv của client (race 0 =
+// nữ, race 1 = nam). Client tự gửi id nên máy chủ đối chiếu danh sách đóng; ngoài danh sách là từ
+// chối. Danh sách đọc từ store.toml [security] female_faces/male_faces/female_hairs/male_hairs;
+// thiếu khoá thì dùng default_look_policy() (khớp bảng client hiện tại).
+//
+// Ảnh chân dung và bộ đồ tân thủ (G1-M D3) cũng là tập đóng, nhưng cố định theo bảng client
+// (portraits.tsv choice 1 hay 3 theo giới, newbie_outfits.tsv) nên chưa có khoá trong store.toml:
+// luôn lấy mặc định của default_look_policy().
 struct LookPolicy {
     std::vector<std::uint16_t> female_faces;
     std::vector<std::uint16_t> male_faces;
     std::vector<std::uint16_t> female_hairs;
     std::vector<std::uint16_t> male_hairs;
+    std::vector<std::uint16_t> female_portraits;
+    std::vector<std::uint16_t> male_portraits;
+    std::vector<std::uint16_t> equip_sets;
+};
+
+// Năm lựa chọn ngoại hình của một lần tạo nhân vật, đúng thứ tự trong CreateCharacter.
+struct Look {
+    protocol::Gender gender = protocol::Gender::kFemale;
+    std::uint16_t face = 0;
+    std::uint16_t hair = 0;
+    std::uint16_t portrait = 0;
+    std::uint16_t equip_set = 0;
 };
 
 [[nodiscard]] LookPolicy default_look_policy();
-[[nodiscard]] bool look_ok(const LookPolicy& policy, protocol::Gender gender, std::uint16_t face,
-    std::uint16_t hair) noexcept;
+[[nodiscard]] bool look_ok(const LookPolicy& policy, const Look& look) noexcept;
 // Theo default_look_policy().
-[[nodiscard]] bool look_ok(protocol::Gender gender, std::uint16_t face, std::uint16_t hair) noexcept;
+[[nodiscard]] bool look_ok(const Look& look) noexcept;
 
 // Nút cấu hình của sổ nhân vật (store.toml [security]).
 struct CharacterPolicy {
@@ -88,8 +120,11 @@ struct CharacterPolicy {
 
 [[nodiscard]] CreateStep create_step(bool name_ok, int live_count, bool taken) noexcept;
 
+[[nodiscard]] RemoveStep remove_step(int live_count, bool owned) noexcept;
+
 [[nodiscard]] protocol::ErrorCode fault_code(NameFault fault) noexcept;
 [[nodiscard]] protocol::ErrorCode sign_code(SignStep step) noexcept;
 [[nodiscard]] protocol::ErrorCode create_code(CreateStep step) noexcept;
+[[nodiscard]] protocol::ErrorCode remove_code(RemoveStep step) noexcept;
 
 } // namespace game::account

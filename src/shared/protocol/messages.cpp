@@ -242,6 +242,8 @@ void put_character_summary(Writer& writer, const CharacterSummary& message) {
     writer.u16(message.hair);
     writer.u8(message.school);
     writer.u16(message.scene);
+    writer.u16(message.portrait);
+    writer.u16(message.equip_set);
 }
 
 [[nodiscard]] CharacterSummary get_character_summary(Reader& reader) {
@@ -254,6 +256,8 @@ void put_character_summary(Writer& writer, const CharacterSummary& message) {
     message.hair = reader.u16();
     message.school = reader.u8();
     message.scene = reader.u16();
+    message.portrait = reader.u16();
+    message.equip_set = reader.u16();
     return message;
 }
 
@@ -438,6 +442,8 @@ void put_create_character(Writer& writer, const CreateCharacter& message) {
     put_gender(writer, message.gender);
     writer.u16(message.face);
     writer.u16(message.hair);
+    writer.u16(message.portrait);
+    writer.u16(message.equip_set);
 }
 
 [[nodiscard]] CreateCharacter get_create_character(Reader& reader) {
@@ -446,6 +452,8 @@ void put_create_character(Writer& writer, const CreateCharacter& message) {
     message.gender = get_gender(reader);
     message.face = reader.u16();
     message.hair = reader.u16();
+    message.portrait = reader.u16();
+    message.equip_set = reader.u16();
     return message;
 }
 
@@ -753,11 +761,13 @@ void put_list_3(Writer& writer, const std::vector<CharacterSummary>& values) {
 
 void put_character_list(Writer& writer, const CharacterList& message) {
     put_list_3(writer, message.characters);
+    writer.boolean(message.can_create);
 }
 
 [[nodiscard]] CharacterList get_character_list(Reader& reader) {
     CharacterList message;
     message.characters = get_list_3(reader);
+    message.can_create = reader.boolean();
     return message;
 }
 
@@ -1375,7 +1385,7 @@ bool is_valid(EntityState value) noexcept {
 
 bool is_valid(ErrorCode value) noexcept {
     const auto raw = std::to_underlying(value);
-    return raw >= 1 && raw <= 40;
+    return raw >= 1 && raw <= 43;
 }
 
 bool is_valid(Gender value) noexcept {

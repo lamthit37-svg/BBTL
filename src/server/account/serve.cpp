@@ -1,3 +1,20 @@
+/*==============================================================================
+ *  THIENLONG  |  GAME SERVER
+ *------------------------------------------------------------------------------
+ *  TỆP       : src/server/account/serve.cpp
+ *  PHÂN HỆ   : Server / Account / Serve
+ *  CHUẨN     : C++23
+ *------------------------------------------------------------------------------
+ *  CHỨC NĂNG
+ *  - Vòng phục vụ của hai dịch vụ tài khoản: auth (đăng ký, đăng nhập, đổi vé
+ *    lấy cap) và store (danh sách, tạo, xoá, vào game, lưu điểm đứng). Nhận Call
+ *    của gate qua ipc, mở cap rồi gọi AuthDb hoặc GameDb; chính sách nhân vật
+ *    đọc từ store.toml [security].
+ *------------------------------------------------------------------------------
+ *  TÁC GIẢ   : HiepHoon
+ *  TELEGRAM  : @Hoon9xx
+ *============================================================================*/
+
 #include "account/serve.hpp"
 
 #include "account/book.hpp"
@@ -254,13 +271,11 @@ Reply on_game(void* ctx, const Call& call) {
     }
     if (call.op == Op::kCreateCharacter) {
         std::string name;
-        protocol::Gender gender = protocol::Gender::kFemale;
-        std::uint16_t face = 0;
-        std::uint16_t hair = 0;
-        if (!read_character_call(call, token, name, gender, face, hair)) return reply_of(ListResult{});
+        Look look;
+        if (!read_character_call(call, token, name, look)) return reply_of(ListResult{});
         const OpenedCap who = open_standing(*box, token);
         if (!who.ok) return reply_of(ListResult{.code = who.code});
-        return reply_of(box->db->create_character(who.account, name, gender, face, hair));
+        return reply_of(box->db->create_character(who.account, name, look));
     }
     if (call.op == Op::kDeleteCharacter) {
         std::uint64_t character = 0;

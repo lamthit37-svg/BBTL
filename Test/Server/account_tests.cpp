@@ -49,6 +49,17 @@ using account::NameFault;
 using account::SignStep;
 using Clock = std::chrono::system_clock;
 
+// Ngoại hình hợp lệ của giới: ảnh chân dung đầu bảng (nữ 49, nam 52) và bộ đồ tân thủ 0.
+account::Look look_for(protocol::Gender gender, std::uint16_t face, std::uint16_t hair) {
+    account::Look look;
+    look.gender = gender;
+    look.face = face;
+    look.hair = hair;
+    look.portrait = gender == protocol::Gender::kFemale ? 49 : 52;
+    look.equip_set = 0;
+    return look;
+}
+
 bool hash_plain(void*, std::string_view password, std::string& out) {
     out = "v1:";
     out.append(password);
@@ -132,18 +143,18 @@ void three_characters_then_one_slot(Context& context) {
     const account::ListResult session = book.login(ticket.hex, now);
     context.expect(session.ok, "có phiên");
     const std::uint64_t account = session.account;
-    context.expect(book.create_character(account, "Lý Mộ", protocol::Gender::kFemale, 1, 1).ok, "nhân vật một");
-    context.expect(book.create_character(account, "Trần Phong", protocol::Gender::kMale, 100, 5).ok, "nhân vật hai");
-    const account::ListResult third = book.create_character(account, "Vô Danh", protocol::Gender::kMale, 100, 5);
+    context.expect(book.create_character(account, "Lý Mộ", look_for(protocol::Gender::kFemale, 1, 1)).ok, "nhân vật một");
+    context.expect(book.create_character(account, "Trần Phong", look_for(protocol::Gender::kMale, 100, 5)).ok, "nhân vật hai");
+    const account::ListResult third = book.create_character(account, "Vô Danh", look_for(protocol::Gender::kMale, 100, 5));
     context.expect(third.ok && third.characters.size() == 3, "đủ ba");
-    const account::ListResult full = book.create_character(account, "Thêm", protocol::Gender::kFemale, 1, 1);
+    const account::ListResult full = book.create_character(account, "Thêm", look_for(protocol::Gender::kFemale, 1, 1));
     context.expect(full.code == protocol::ErrorCode::kCharacterLimit, "hết ô");
-    const account::ListResult other = book.create_character(account, "Lý Mộ", protocol::Gender::kMale, 100, 5);
+    const account::ListResult other = book.create_character(account, "Lý Mộ", look_for(protocol::Gender::kMale, 100, 5));
     context.expect(other.code == protocol::ErrorCode::kCharacterLimit, "đầy thì chưa tới lỗi trùng tên");
     const std::uint64_t removed = third.characters.front().id;
     const account::ListResult left = book.remove_character(account, removed);
     context.expect(left.ok && left.characters.size() == 2, "xoá mềm giải phóng ô");
-    const account::ListResult reused = book.create_character(account, "Lý Mộ", protocol::Gender::kFemale, 1, 1);
+    const account::ListResult reused = book.create_character(account, "Lý Mộ", look_for(protocol::Gender::kFemale, 1, 1));
     context.expect(reused.ok, "tên đã xoá dùng lại được");
     context.expect(book.enter(account, reused.characters.back().id).ok, "vào được nhân vật của mình");
     context.expect(!book.enter(account, 999).ok, "không vào nhân vật không có");
@@ -398,48 +409,81 @@ void deleted_name_stays_reserved(Context& context) {
     const Clock::time_point now = Clock::time_point{std::chrono::seconds{6'000}};
     const account::ListResult owner = book.login(book.create_account("owner", "longenough", now).hex, now);
     const account::ListResult thief = book.login(book.create_account("thief", "longenough", now).hex, now);
-    const account::ListResult made = book.create_character(owner.account, "Danh", protocol::Gender::kMale, 100, 5);
+    const account::ListResult made = book.create_character(owner.account, "Danh", look_for(protocol::Gender::kMale, 100, 5));
     context.expect(made.ok, "chủ tạo tên");
     context.expect(book.remove_character(owner.account, made.characters.front().id).ok, "chủ xoá mềm");
-    const account::ListResult stolen = book.create_character(thief.account, "DANH", protocol::Gender::kMale, 100, 5);
+    const account::ListResult stolen = book.create_character(thief.account, "DANH", look_for(protocol::Gender::kMale, 100, 5));
     context.expect(stolen.code == protocol::ErrorCode::kNameTaken, "tài khoản khác không chiếm tên vừa xoá");
-    context.expect(book.create_character(owner.account, "Danh", protocol::Gender::kMale, 100, 5).ok, "chủ lấy lại được");
+    context.expect(book.create_character(owner.account, "Danh", look_for(protocol::Gender::kMale, 100, 5)).ok, "chủ lấy lại được");
+}
+
+// Xoá nhân vật theo máy chủ gốc: hết nhân vật là EMPTY, còn nhưng không phải của mình là NOT_OWNER.
+void remove_tells_empty_from_not_owner(Context& context) {
+    using protocol::Gender;
+    MemoryBook book{test_config(false)};
+    const Clock::time_point now = Clock::time_point{std::chrono::seconds{8'000}};
+    const account::ListResult mine = book.login(book.create_account("mine", "longenough", now).hex, now);
+    const account::ListResult theirs = book.login(book.create_account("theirs", "longenough", now).hex, now);
+    const account::ListResult first = book.create_character(mine.account, "Mot", look_for(Gender::kMale, 100, 5));
+    const account::ListResult other = book.create_character(theirs.account, "Hai", look_for(Gender::kMale, 100, 5));
+    const std::uint64_t own_id = first.characters.front().id;
+    const std::uint64_t foreign_id = other.characters.front().id;
+    const account::ListResult stolen = book.remove_character(mine.account, foreign_id);
+    context.expect(stolen.code == protocol::ErrorCode::kNoSuchCharacter, "id của tài khoản khác là NOT_OWNER");
+    context.expect(book.remove_character(mine.account, own_id).ok, "xoá nhân vật của mình");
+    const account::ListResult empty = book.remove_character(mine.account, own_id);
+    context.expect(empty.code == protocol::ErrorCode::kNoCharacterToDelete, "hết nhân vật là EMPTY");
+    const account::ListResult again = book.create_character(mine.account, "Ba", look_for(Gender::kMale, 100, 5));
+    const account::ListResult gone = book.remove_character(mine.account, own_id);
+    context.expect(again.ok && gone.code == protocol::ErrorCode::kNoSuchCharacter, "còn nhân vật khác: id đã xoá là NOT_OWNER");
+    context.expect(book.remove_character(theirs.account, foreign_id).ok, "nhân vật của tài khoản kia còn nguyên");
 }
 
 void look_rejects_unlisted(Context& context) {
     using protocol::Gender;
-    context.expect(account::look_ok(Gender::kFemale, 1, 1), "mat toc nu hop le");
-    context.expect(account::look_ok(Gender::kMale, 100, 5), "mat toc nam hop le");
-    context.expect(!account::look_ok(Gender::kFemale, 65535, 1), "mat ngoai bang bi chan");
-    context.expect(!account::look_ok(Gender::kFemale, 1, 65535), "toc ngoai bang bi chan");
-    context.expect(!account::look_ok(Gender::kMale, 1, 1), "mat cua gioi khac bi chan");
-    context.expect(!account::look_ok(Gender::kFemale, 0, 0), "id khong tao duoc bi chan");
+    context.expect(account::look_ok(look_for(Gender::kFemale, 1, 1)), "mat toc nu hop le");
+    context.expect(account::look_ok(look_for(Gender::kMale, 100, 5)), "mat toc nam hop le");
+    context.expect(!account::look_ok(look_for(Gender::kFemale, 65535, 1)), "mat ngoai bang bi chan");
+    context.expect(!account::look_ok(look_for(Gender::kFemale, 1, 65535)), "toc ngoai bang bi chan");
+    context.expect(!account::look_ok(look_for(Gender::kMale, 1, 1)), "mat cua gioi khac bi chan");
+    context.expect(!account::look_ok(look_for(Gender::kFemale, 0, 0)), "id khong tao duoc bi chan");
+    account::Look foreign = look_for(Gender::kFemale, 1, 1);
+    foreign.portrait = 52;
+    context.expect(!account::look_ok(foreign), "anh chan dung cua gioi khac bi chan");
+    account::Look unknown = look_for(Gender::kMale, 100, 5);
+    unknown.portrait = 1;
+    context.expect(!account::look_ok(unknown), "anh chan dung nu cua nam bi chan");
+    account::Look odd_set = look_for(Gender::kFemale, 1, 1);
+    odd_set.equip_set = 3;
+    context.expect(!account::look_ok(odd_set), "bo do ngoai bang bi chan");
+    odd_set.equip_set = 2;
+    context.expect(account::look_ok(odd_set), "bo do cuoi bang hop le");
     MemoryBook book{test_config(false)};
     const Clock::time_point now = Clock::time_point{std::chrono::seconds{7'000}};
     const account::ListResult who = book.login(book.create_account("looker", "longenough", now).hex, now);
-    const account::ListResult odd = book.create_character(who.account, "Mat", Gender::kFemale, 65535, 65535);
+    const account::ListResult odd = book.create_character(who.account, "Mat", look_for(Gender::kFemale, 65535, 65535));
     context.expect(!odd.ok && odd.code == protocol::ErrorCode::kBadOption, "book tu choi mat toc ngoai bang");
 }
 
 // Danh sách mặt/tóc đến từ store.toml: id ngoài danh sách cấu hình bị chặn kể cả khi có ở mặc định.
 void look_follows_configured_policy(Context& context) {
     using protocol::Gender;
-    account::LookPolicy policy;
+    account::LookPolicy policy = account::default_look_policy();
     policy.female_faces = {7};
     policy.male_faces = {200};
     policy.female_hairs = {8};
     policy.male_hairs = {201};
-    context.expect(account::look_ok(policy, Gender::kFemale, 7, 8), "id cấu hình được nhận");
-    context.expect(!account::look_ok(policy, Gender::kFemale, 1, 1), "id mặc định không còn được nhận");
-    context.expect(!account::look_ok(policy, Gender::kMale, 7, 8), "id của giới khác bị chặn");
-    context.expect(!account::look_ok(account::LookPolicy{}, Gender::kFemale, 1, 1), "danh sách rỗng chặn hết");
+    context.expect(account::look_ok(policy, look_for(Gender::kFemale, 7, 8)), "id cấu hình được nhận");
+    context.expect(!account::look_ok(policy, look_for(Gender::kFemale, 1, 1)), "id mặc định không còn được nhận");
+    context.expect(!account::look_ok(policy, look_for(Gender::kMale, 7, 8)), "id của giới khác bị chặn");
+    context.expect(!account::look_ok(account::LookPolicy{}, look_for(Gender::kFemale, 1, 1)), "danh sách rỗng chặn hết");
     BookConfig config = test_config(false);
     config.look = std::move(policy);
     MemoryBook book{config};
     const Clock::time_point now = Clock::time_point{std::chrono::seconds{7'000}};
     const account::ListResult who = book.login(book.create_account("policy", "longenough", now).hex, now);
-    context.expect(!book.create_character(who.account, "Mot", Gender::kFemale, 1, 1).ok, "book theo danh sách cấu hình");
-    context.expect(book.create_character(who.account, "Hai", Gender::kFemale, 7, 8).ok, "id cấu hình tạo được");
+    context.expect(!book.create_character(who.account, "Mot", look_for(Gender::kFemale, 1, 1)).ok, "book theo danh sách cấu hình");
+    context.expect(book.create_character(who.account, "Hai", look_for(Gender::kFemale, 7, 8)).ok, "id cấu hình tạo được");
 }
 
 void sha256_of_empty(Context& context) {
@@ -553,6 +597,7 @@ constexpr std::array kCases{
     Case{.name = "character_fold_covers_vietnamese", .body = &character_fold_covers_vietnamese},
     Case{.name = "duplicate_account_looks_like_bad_login", .body = &duplicate_account_looks_like_bad_login},
     Case{.name = "deleted_name_stays_reserved", .body = &deleted_name_stays_reserved},
+    Case{.name = "remove_tells_empty_from_not_owner", .body = &remove_tells_empty_from_not_owner},
     Case{.name = "look_rejects_unlisted", .body = &look_rejects_unlisted},
     Case{.name = "look_follows_configured_policy", .body = &look_follows_configured_policy},
     Case{.name = "sha256_of_empty", .body = &sha256_of_empty},

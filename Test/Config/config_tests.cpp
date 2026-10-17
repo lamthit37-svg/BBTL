@@ -329,7 +329,7 @@ void real_gate(Context& context) {
     const config::GateLimits& limits = gate->limits;
     const bool is_limits = limits.max_connections == 2000 && limits.per_ip_connections == 8 &&
         limits.handshake_timeout_ms.count() == 5000 && limits.idle_timeout_ms.count() == 10000 &&
-        limits.client_frame_bytes == 4096 && limits.messages_per_second == 60 && gate->client.min_version == 7;
+        limits.client_frame_bytes == 4096 && limits.messages_per_second == 60 && gate->client.min_version == 9;
     context.expect(is_limits, "trần chống lạm dụng");
     context.expect(gate->ip_filter.allow.empty() && gate->ip_filter.deny.empty(), "lọc địa chỉ");
 }

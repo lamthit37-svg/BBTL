@@ -6,10 +6,12 @@ CharacterSummary	1	id	u64		CharacterId của Dev.
 CharacterSummary	2	name	text	48	Tên nhân vật, UTF-8, tối đa 48 byte (kNameBytes của Dev).
 CharacterSummary	3	level	u16		
 CharacterSummary	4	gender	enum:Gender		
-CharacterSummary	5	face	u16		Id mặt trong faces.tsv mà server đã lưu; server thay kDefaultLook bằng id thật lúc tạo nhân vật, nên ở đây không có nghĩa mặc định.
-CharacterSummary	6	hair	u16		Id tóc trong hairs.tsv mà server đã lưu (0 là id tóc hợp lệ); kDefaultLook chỉ có nghĩa trong CreateCharacter.
+CharacterSummary	5	face	u16		Id mặt trong faces.tsv mà server đã lưu (gốc: face_model ở 0x3c); server thay kDefaultLook bằng id thật lúc tạo nhân vật, nên ở đây không có nghĩa mặc định. Dây giữ id chưa cộng 10000, client cộng khi dựng người mẫu.
+CharacterSummary	6	hair	u16		Id tóc trong hairs.tsv mà server đã lưu (0 là id tóc hợp lệ; gốc: hair_model ở 0x38); kDefaultLook chỉ có nghĩa trong CreateCharacter. Dây giữ id chưa cộng 10000, client cộng khi dựng người mẫu.
 CharacterSummary	7	school	u8		Môn phái; 0 là chưa vào môn phái, giữ giá trị canh của Dev thay cho optional.
 CharacterSummary	8	scene	u16		SceneId của Dev: cảnh nhân vật đang đứng.
+CharacterSummary	9	portrait	u16		Id ảnh chân dung (cột id của portraits.tsv) mà người chơi chọn lúc tạo; không suy từ face. Gốc ghi ở 0x48 của bản ghi 0x1a4 (GetRoleInfo tra FaceImage).
+CharacterSummary	10	equip_set	u16		Id bộ đồ tân thủ (cột id của newbie_outfits.tsv) đã chọn lúc tạo; server chỉ lưu và trả lại, client đổi ra áo, giày, bao tay cho người mẫu màn chọn tới khi có trang bị thật (G5).
 Hello	1	version	u16		Phiên bản giao thức của client.
 Hello	2	platform	enum:Platform		
 Hello	3	build	u32		Số bản dựng client.
@@ -21,6 +23,8 @@ CreateCharacter	1	name	text	48	Tên nhân vật muốn tạo.
 CreateCharacter	2	gender	enum:Gender		
 CreateCharacter	3	face	u16		0 là mặt mặc định (kDefaultLook của Dev).
 CreateCharacter	4	hair	u16		0 là tóc mặc định (kDefaultLook của Dev).
+CreateCharacter	5	portrait	u16		Id ảnh chân dung phải thuộc đúng giới (cột id của portraits.tsv, choice 1 hay 3); khác face vì màn tạo 2026 chọn riêng.
+CreateCharacter	6	equip_set	u16		Id bộ đồ tân thủ (cột id của newbie_outfits.tsv); mọi giới dùng chung ba bộ.
 DeleteCharacter	1	character	u64		CharacterId của Dev.
 EnterGame	1	character	u64		CharacterId của Dev.
 Move	1	x_cm	f32		Toạ độ X muốn tới, centimet. NaN/vô cực bị Pace từ chối.
@@ -43,6 +47,7 @@ Goodbye	1	reason	enum:DisconnectReason
 ContentStamp	1	stamp	bytes	32	Dấu băm của gói nội dung.
 UiConfig	1	avatar_frame	enum:AvatarFrame		Dạng khung chân dung của HUD (client.toml, [hud] avatar_frame).
 CharacterList	1	characters	list:record:CharacterSummary	8	Tối đa 8 nhân vật mỗi tài khoản (kCharacterSlots của Dev).
+CharacterList	2	can_create	bool		Server quyết: còn dưới trần số nhân vật của tài khoản nên bảng tạo mở được; client đọc cờ này thay cho tin hỏi riêng CLCheckAllowCreateChar của gốc.
 Ticket	1	token	bytes	204	Vé vào cổng game (kConnectTokenBytes của Dev).
 Position	1	x_cm	f32		Toạ độ X server chấp nhận, centimet.
 Position	2	z_cm	f32		Toạ độ Z server chấp nhận, centimet.

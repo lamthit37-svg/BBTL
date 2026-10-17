@@ -1224,3 +1224,15 @@ kết luận ngay dưới mục đó chứ không xoá.
     đọc danh sách này (`starter.hpp` chỉ dùng `kScene` = 2). Cần: lưới đi của cảnh 71 và 72 hoặc bằng chứng gốc về chỗ sinh,
     rồi đo lại bằng đúng quy tắc 20 cm. `import_rules.py` giữ giá trị đổi qua mọi lượt nhập lại (không chép số gốc về
     `starter.hpp`).
+
+73. **Danh sách nhân vật 2026: các trường gốc chưa có trên dây** (2026-10-18, G1-M D3; `docs/giao-viec/HOAN-THIEN/G1-M.md`,
+    `src/shared/protocol/catalog/fields.tsv`). Bản ghi gốc 0x1a4 byte có trường mà catalog v9 KHÔNG mang vì ta không có dữ
+    liệu hay chưa có chứng cứ: `delete_days` (0x128, luôn 0 vì xoá ngay), `pk_level` (0x1a0, luôn 0 tới khi có PvP),
+    `equip[19]` (u16 ở 0xa0..0xc5, rỗng tới G5; tạm thay bằng `equip_set` của bộ đồ tân thủ), `hair_color` (0x30: màn tạo
+    2026 không có ô chọn, đổi màu tóc là chức năng trong game sau này), màu mặt/dye và hai mẫu u16 (0x190, 0x194, 0x18a,
+    0x18c; để khi G5 có trang bị), trường 0x50 (setter 0x1401738c0 ghi +0x968 rồi gọi hàm ảo 0x7e0, chưa gọi được tên), thú
+    cưng (0x130, 0x134), `sale_state` (mảng toàn cục theo ô, ngoài bản ghi), `camp` (không thấy ở CharSel hay Lua). Client
+    đặt cứng 0 cho những cái cần hiển thị. Chưa kiểm: người mẫu màn chọn mặc đúng bộ đồ tân thủ đã chọn (K dựng). Cần:
+    khi G5 có trang bị thì thêm `equip[19]`, khi có PvP thì thêm `pk_level`, rồi nâng phiên bản giao thức. Chưa có khoá
+    `store.toml` cho danh sách ảnh chân dung và bộ đồ tân thủ (tập đóng trong `account/rules.cpp`, khớp `portraits.tsv`
+    choice 1 hay 3 và `newbie_outfits.tsv`); client đổi bảng thì phải sửa mã.

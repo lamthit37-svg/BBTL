@@ -113,7 +113,13 @@ RosterReply Realm::login(std::string_view name, std::string_view ticket_hex) con
 
 RosterReply Realm::create_character(std::span<const std::byte, kCapBytes> cap,
     const protocol::CreateCharacter& request) const {
-    const Call call = character_call(cap, request.name, request.gender, request.face, request.hair);
+    Look look;
+    look.gender = request.gender;
+    look.face = request.face;
+    look.hair = request.hair;
+    look.portrait = request.portrait;
+    look.equip_set = request.equip_set;
+    const Call call = character_call(cap, request.name, look);
     const std::optional<Reply> reply = exchange(store_, call, kFast, key_);
     if (!reply) return {};
     return roster_from(list_from(*reply), 0);

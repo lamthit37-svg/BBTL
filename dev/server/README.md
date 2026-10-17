@@ -172,7 +172,11 @@ Việc: `vào`, `rời`, `đi` (tối đa một dòng mỗi giây mỗi người
 nối cụm thật, mặc định cổng 7100 và 7101. Bot được cài cùng lượt với các exe của cụm, vì bot dựng
 từ cây khác đời với gate thì bắt tay hỏng và mọi kịch bản E2E báo không lấy được vé. `--probe 1`
 chỉ bắt tay rồi in `giao thức: bot v<N>, cụm v<M>` (thoát 1 nếu cụm từ chối); `e2e_g0.py` chạy nó
-trước mỗi lượt và ghi hai số đó vào báo cáo. Ví dụ: `thienlong_bot --identity
+trước mỗi lượt và ghi hai số đó vào báo cáo. `--roster 1` không vào cảnh: hai tài khoản
+`<prefix>r` và `<prefix>x` (đặt `--prefix` mới mỗi lần, nhân vật nằm lại trong database) đi qua
+tạo và xoá nhân vật, in mã server trả cho từng bước (trần ba nhân vật, xoá id người khác, xoá
+lại id đã xoá, xoá nhân vật đang chơi, xoá dồn dưới 500 ms, xoá khi hết nhân vật) và thoát 1
+nếu một bước sai mã mong đợi. Ví dụ: `thienlong_bot --identity
 dev\server\data\gate\identity.key --count 2 --seconds 8 --prefix e2em1`. `--peers N` cho một bot đứng
 yên đủ `--seconds` giây rồi thoát 0 nếu thấy ít nhất N người chơi khác; đặt cạnh client thật trong
 kịch bản E2E. `--walk dev\server\scenes\dali\walk.path` cho `--hunt`, `--talk`, `--fight` đi theo luật

@@ -242,6 +242,8 @@ void write_summary(Out& out, const protocol::CharacterSummary& summary) {
     out.u16(summary.hair);
     out.u8(summary.school);
     out.u16(summary.scene);
+    out.u16(summary.portrait);
+    out.u16(summary.equip_set);
 }
 
 [[nodiscard]] bool read_summary(In& in, protocol::CharacterSummary& summary) {
@@ -253,6 +255,8 @@ void write_summary(Out& out, const protocol::CharacterSummary& summary) {
     summary.hair = in.u16();
     summary.school = in.u8();
     summary.scene = in.u16();
+    summary.portrait = in.u16();
+    summary.equip_set = in.u16();
     if (!in.ok || !protocol::is_valid(gender)) return false;
     summary.gender = gender;
     return true;
@@ -304,14 +308,16 @@ Call standing_call(std::span<const std::byte, kCapBytes> cap) {
     return Call{.op = Op::kStanding, .body = std::move(out.bytes)};
 }
 
-Call character_call(std::span<const std::byte, kCapBytes> cap, std::string_view name, protocol::Gender gender,
-    std::uint16_t face, std::uint16_t hair) {
+Call character_call(std::span<const std::byte, kCapBytes> cap, std::string_view name,
+    const Look& look) {
     Out out;
     out.bytes.insert(out.bytes.end(), cap.begin(), cap.end());
     out.text(name);
-    out.u8(static_cast<std::uint8_t>(gender));
-    out.u16(face);
-    out.u16(hair);
+    out.u8(static_cast<std::uint8_t>(look.gender));
+    out.u16(look.face);
+    out.u16(look.hair);
+    out.u16(look.portrait);
+    out.u16(look.equip_set);
     return Call{.op = Op::kCreateCharacter, .body = std::move(out.bytes)};
 }
 
@@ -377,14 +383,17 @@ bool read_list_call(const Call& call, std::array<std::byte, kCapBytes>& cap) {
 }
 
 bool read_character_call(const Call& call, std::array<std::byte, kCapBytes>& cap, std::string& name,
-    protocol::Gender& gender, std::uint16_t& face, std::uint16_t& hair) {
+    Look& look) {
     In in{call.body};
     const bool copied = in.copy_to(cap);
     name = in.text(protocol::kCreateCharacterNameBytes);
-    gender = static_cast<protocol::Gender>(in.u8());
-    face = in.u16();
-    hair = in.u16();
-    return copied && in.ok && in.rest.empty() && protocol::is_valid(gender);
+    look.gender = static_cast<protocol::Gender>(in.u8());
+    look.face = in.u16();
+    look.hair = in.u16();
+    look.portrait = in.u16();
+    look.equip_set = in.u16();
+    const bool is_whole = copied && in.ok && in.rest.empty();
+    return is_whole && protocol::is_valid(look.gender);
 }
 
 bool read_id_call(const Call& call, std::array<std::byte, kCapBytes>& cap, std::uint64_t& character) {

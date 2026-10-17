@@ -61,7 +61,7 @@ struct Reply {
 [[nodiscard]] Call redeem_call(std::string_view ticket_hex);
 [[nodiscard]] Call list_call(std::span<const std::byte, kCapBytes> cap);
 [[nodiscard]] Call character_call(std::span<const std::byte, kCapBytes> cap, std::string_view name,
-    protocol::Gender gender, std::uint16_t face, std::uint16_t hair);
+    const Look& look);
 [[nodiscard]] Call standing_call(std::span<const std::byte, kCapBytes> cap);
 [[nodiscard]] Call id_call(Op op, std::span<const std::byte, kCapBytes> cap, std::uint64_t character);
 // nullopt khi trạng thái chơi đi kèm không đóng gói được (số ngoài miền, khối quá trần): gọi lại cũng vậy, nên không có Call.
@@ -70,8 +70,8 @@ struct Reply {
 [[nodiscard]] bool read_account_call(const Call& call, std::string& name, std::string& password, std::string& ip);
 [[nodiscard]] bool read_text_call(const Call& call, std::string& text);
 [[nodiscard]] bool read_list_call(const Call& call, std::array<std::byte, kCapBytes>& cap);
-[[nodiscard]] bool read_character_call(const Call& call, std::array<std::byte, kCapBytes>& cap, std::string& name,
-    protocol::Gender& gender, std::uint16_t& face, std::uint16_t& hair);
+[[nodiscard]] bool read_character_call(const Call& call, std::array<std::byte, kCapBytes>& cap,
+    std::string& name, Look& look);
 [[nodiscard]] bool read_id_call(const Call& call, std::array<std::byte, kCapBytes>& cap, std::uint64_t& character);
 // Thân sai cỡ hoặc toạ độ ngoài trần thì false.
 [[nodiscard]] bool read_save_call(const Call& call, SaveSpot& spot);

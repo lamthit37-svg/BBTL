@@ -33,7 +33,7 @@
 namespace game::protocol {
 
 // Bản của danh mục; tin có since lớn hơn bản bên kia đang chạy thì bên kia chưa hiểu.
-inline constexpr std::uint16_t kVersion = 8;
+inline constexpr std::uint16_t kVersion = 9;
 
 enum class AvatarFrame : std::uint8_t {
     kRound = 1,
@@ -144,6 +144,9 @@ enum class ErrorCode : std::uint16_t {
     kDead = 38,
     kNotDead = 39,
     kNotYours = 40,
+    kNoCharacterToDelete = 41,
+    kCharacterOnline = 42,
+    kInternal = 43,
 };
 
 enum class Gender : std::uint8_t {
@@ -255,16 +258,24 @@ struct CharacterSummary {
     std::string name;
     std::uint16_t level = 0;
     Gender gender = Gender::kFemale;
-    // Id mặt trong faces.tsv mà server đã lưu; server thay kDefaultLook bằng id thật lúc tạo nhân
-    // vật, nên ở đây không có nghĩa mặc định.
+    // Id mặt trong faces.tsv mà server đã lưu (gốc: face_model ở 0x3c); server thay kDefaultLook
+    // bằng id thật lúc tạo nhân vật, nên ở đây không có nghĩa mặc định. Dây giữ id chưa cộng 10000,
+    // client cộng khi dựng người mẫu.
     std::uint16_t face = 0;
-    // Id tóc trong hairs.tsv mà server đã lưu (0 là id tóc hợp lệ); kDefaultLook chỉ có nghĩa trong
-    // CreateCharacter.
+    // Id tóc trong hairs.tsv mà server đã lưu (0 là id tóc hợp lệ; gốc: hair_model ở 0x38);
+    // kDefaultLook chỉ có nghĩa trong CreateCharacter. Dây giữ id chưa cộng 10000, client cộng khi
+    // dựng người mẫu.
     std::uint16_t hair = 0;
     // Môn phái; 0 là chưa vào môn phái, giữ giá trị canh của Dev thay cho optional.
     std::uint8_t school = 0;
     // SceneId của Dev: cảnh nhân vật đang đứng.
     std::uint16_t scene = 0;
+    // Id ảnh chân dung (cột id của portraits.tsv) mà người chơi chọn lúc tạo; không suy từ face.
+    // Gốc ghi ở 0x48 của bản ghi 0x1a4 (GetRoleInfo tra FaceImage).
+    std::uint16_t portrait = 0;
+    // Id bộ đồ tân thủ (cột id của newbie_outfits.tsv) đã chọn lúc tạo; server chỉ lưu và trả lại,
+    // client đổi ra áo, giày, bao tay cho người mẫu màn chọn tới khi có trang bị thật (G5).
+    std::uint16_t equip_set = 0;
     friend bool operator==(const CharacterSummary&, const CharacterSummary&) = default;
 };
 
@@ -412,6 +423,11 @@ struct CreateCharacter {
     std::uint16_t face = 0;
     // 0 là tóc mặc định (kDefaultLook của Dev).
     std::uint16_t hair = 0;
+    // Id ảnh chân dung phải thuộc đúng giới (cột id của portraits.tsv, choice 1 hay 3); khác face
+    // vì màn tạo 2026 chọn riêng.
+    std::uint16_t portrait = 0;
+    // Id bộ đồ tân thủ (cột id của newbie_outfits.tsv); mọi giới dùng chung ba bộ.
+    std::uint16_t equip_set = 0;
     friend bool operator==(const CreateCharacter&, const CreateCharacter&) = default;
 };
 
@@ -653,6 +669,9 @@ struct CharacterList {
     static constexpr std::uint16_t kKind = 0x8201;
     // Tối đa 8 nhân vật mỗi tài khoản (kCharacterSlots của Dev).
     std::vector<CharacterSummary> characters;
+    // Server quyết: còn dưới trần số nhân vật của tài khoản nên bảng tạo mở được; client đọc cờ này
+    // thay cho tin hỏi riêng CLCheckAllowCreateChar của gốc.
+    bool can_create = false;
     friend bool operator==(const CharacterList&, const CharacterList&) = default;
 };
 

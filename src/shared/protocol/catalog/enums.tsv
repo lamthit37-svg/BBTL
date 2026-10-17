@@ -47,6 +47,9 @@ ErrorCode	u16	37	BadTarget
 ErrorCode	u16	38	Dead	
 ErrorCode	u16	39	NotDead	
 ErrorCode	u16	40	NotYours	
+ErrorCode	u16	41	NoCharacterToDelete	
+ErrorCode	u16	42	CharacterOnline	
+ErrorCode	u16	43	Internal	
 DisconnectReason	u8	1	LoggedOut	
 DisconnectReason	u8	2	LoginElsewhere	
 DisconnectReason	u8	3	Idle	

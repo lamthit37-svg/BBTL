@@ -477,6 +477,7 @@ void play_one(int index) {
     made.gender = protocol::Gender::kFemale;
     made.face = 1;
     made.hair = 1;
+    made.portrait = 49;
     start = Clock::now();
     if (!game.send(made)) return;
     Got created = game.await_game<protocol::CharacterList>();
@@ -1156,6 +1157,7 @@ void scenario_data() {
             one.gender = protocol::Gender::kFemale;
             one.face = 1;
             one.hair = 1;
+            one.portrait = 49;
             protocol::CreateCharacter two = one;
             two.name = std::string("T\xC3\x88") + g_run_tag.substr(0, 3); // TÈ + tag
             bool first_ok = false;

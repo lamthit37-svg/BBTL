@@ -19,6 +19,7 @@
 
 #include "account/book.hpp"
 #include "account/realm.hpp"
+#include "account/rules.hpp"
 #include "ipc/link.hpp"
 #include "ipc/relay.hpp"
 #include "metrics/metrics.hpp"
@@ -257,6 +258,10 @@ struct Engine {
     Ui ui;
     // Khoá là 8 byte đầu của digest; so khớp cả 32 byte bằng phép so thời gian hằng.
     std::unordered_map<std::uint64_t, Session> sessions;
+    // Lần xoá nhân vật gần nhất của mỗi tài khoản (ns, đồng hồ của gate); chỉ luồng tick đụng.
+    std::unordered_map<std::uint64_t, std::int64_t> delete_marks;
+    // Số khung zone bị bỏ vì lớn hơn trần của một bản ghi mật (queue_down); chỉ luồng tick đụng.
+    std::uint64_t oversize_frames = 0;
     ZoneLink zone;
     // Chỉ số các ô còn khung zone chờ gửi (Slot::down); mục cũ được bỏ khi duyệt.
     std::vector<std::uint32_t> backlog;
@@ -592,12 +597,33 @@ void enqueue_down(Engine& state, Slot& slot, std::uint32_t index, secure::ByteVi
     state.backlog.push_back(index);
 }
 
+[[nodiscard]] unsigned kind_of(secure::ByteView frame) {
+    const protocol::FrameResult head = protocol::peek_frame(frame, frame.size());
+    if (!head || !head->has_value()) return 0;
+    return (*head)->kind;
+}
+
+// Khung zone lớn hơn một bản ghi mật không gửi được: bỏ lặng lẽ thì client mất tin mà không ai
+// biết. Ghi thưa theo luỹ thừa hai của số lần bỏ để không ngập log.
+void note_oversize(Engine& state, secure::ByteView frame) {
+    ++state.oversize_frames;
+    const std::uint64_t times = state.oversize_frames;
+    const bool is_logged = (times & (times - 1)) == 0;
+    if (!is_logged) return;
+    const unsigned kind = kind_of(frame);
+    const std::size_t bytes = frame.size();
+    std::println(stderr, "gate: bỏ khung zone 0x{:04x} ({} byte), lần {}", kind, bytes, times);
+}
+
 // Gửi một khung zone cho client; hộp đầy thì giữ lại sau những khung đang chờ.
 void queue_down(Engine& state, Slot& slot, std::uint32_t index, secure::ByteView frame) {
     const bool closed = !slot.pipe || slot.draining;
     const bool old_client = slot.client_version < kWorldSince;
     if (closed || old_client) return;
-    if (frame.size() > secure::kMaxPlainBytes) return;
+    if (frame.size() > kFrameBytes) {
+        note_oversize(state, frame);
+        return;
+    }
     // Tin có since lớn hơn bản client khai thì client coi là vi phạm giao thức: lọc ở đây, zone
     // không cần biết bản của từng người.
     const protocol::FrameResult head = protocol::peek_frame(frame, secure::kMaxPlainBytes);
@@ -880,7 +906,10 @@ void send_roster(Engine& state, Slot& slot, std::uint32_t index, const account::
         return;
     }
     slot.scratch.clear();
-    const protocol::CharacterList message{.characters = roster.characters};
+    const auto cap = static_cast<std::size_t>(account::kCharacterCap);
+    protocol::CharacterList message;
+    message.characters = roster.characters;
+    message.can_create = roster.characters.size() < cap;
     const bool encoded = protocol::encode(slot.scratch, message).has_value();
     if (!encoded || !seal_to(state, slot, index, slot.scratch)) release(state, slot, index, Drop::kSlow);
 }
@@ -952,17 +981,62 @@ void on_create_character(Engine& state, Slot& slot, std::uint32_t index, const p
     post_ask(state, slot, index, ask, protocol::CreateCharacter::kKind);
 }
 
-void on_delete_character(Engine& state, Slot& slot, std::uint32_t index, const protocol::DeleteCharacter& request) {
-    if (!slot.greeted || !slot.has_cap || !state.realm.has_value()) {
-        send_reject(state, slot, index, protocol::DeleteCharacter::kKind, protocol::ErrorCode::kNotAuthenticated);
+// Khoảng cách tối thiểu giữa hai lần xoá của một tài khoản: DB_OPERATION_TIME của máy chủ gốc.
+constexpr std::int64_t kDeleteGapNs = 500 * kNsPerMs;
+constexpr std::size_t kDeleteMarkRoom = 4096;
+
+void drop_old_marks(Engine& state, std::int64_t now) {
+    const auto is_old = [now](const auto& row) { return now - row.second >= kDeleteGapNs; };
+    std::erase_if(state.delete_marks, is_old);
+}
+
+// Lần bị từ chối vì nhịp không làm mới mốc, nếu không client bấm dồn sẽ không bao giờ xoá được; lần
+// được qua nhịp thì ăn mốc dù sau đó bị kCharacterOnline (gốc cũng kiểm nhịp trước kiểm online).
+// Bảng mốc đầy mà không dọn được mục nào thì từ chối luôn: tới đó là có kẻ xoay vòng rất nhiều
+// tài khoản.
+[[nodiscard]] bool pace_delete(Engine& state, std::uint64_t account, std::int64_t now) {
+    if (state.delete_marks.size() >= kDeleteMarkRoom) drop_old_marks(state, now);
+    if (state.delete_marks.size() >= kDeleteMarkRoom) return false;
+    const auto found = state.delete_marks.find(account);
+    const bool is_known = found != state.delete_marks.end();
+    if (is_known && now - found->second < kDeleteGapNs) return false;
+    state.delete_marks.insert_or_assign(account, now);
+    return true;
+}
+
+// Nhân vật còn trong phiên (đang nối, hoặc rớt mạng đang chờ Resume) thì zone vẫn giữ nó: xoá sẽ để
+// lại thực thể mồ côi. Chỉ so phiên của chính tài khoản, nên mã trả về không lộ nhân vật của ai
+// khác. Quét tuyến tính, nhưng mỗi tài khoản tới đây không quá hai lần mỗi giây (pace_delete).
+[[nodiscard]] bool is_online(const Engine& state, std::uint64_t account, std::uint64_t character) {
+    for (const auto& row : state.sessions) {
+        const Session& session = row.second;
+        if (session.account == account && session.character == character) return true;
+    }
+    return false;
+}
+
+void on_delete_character(Engine& state, Slot& slot, std::uint32_t index,
+    const protocol::DeleteCharacter& request, std::int64_t now) {
+    const std::uint16_t kind = protocol::DeleteCharacter::kKind;
+    const bool is_ready = slot.greeted && slot.has_cap && state.realm.has_value();
+    if (!is_ready) {
+        send_reject(state, slot, index, kind, protocol::ErrorCode::kNotAuthenticated);
         return;
     }
-    if (!may_ask(state, slot, index, protocol::DeleteCharacter::kKind)) return;
+    if (!may_ask(state, slot, index, kind)) return;
+    if (!pace_delete(state, slot.account_id, now)) {
+        send_reject(state, slot, index, kind, protocol::ErrorCode::kRateLimited);
+        return;
+    }
+    if (is_online(state, slot.account_id, request.character)) {
+        send_reject(state, slot, index, kind, protocol::ErrorCode::kCharacterOnline);
+        return;
+    }
     Ask ask;
     ask.kind = AskKind::kDeleteCharacter;
     ask.cap = slot.cap;
     ask.character = request.character;
-    post_ask(state, slot, index, ask, protocol::DeleteCharacter::kKind);
+    post_ask(state, slot, index, ask, kind);
 }
 
 void on_enter(Engine& state, Slot& slot, std::uint32_t index, const protocol::EnterGame& request) {
@@ -1442,7 +1516,7 @@ void dispatch_game(SlotNow in, protocol::Frame frame, secure::ByteView body) {
         on_create_character(in.state, in.slot, in.index, *create);
     }
     if (const auto* remove = std::get_if<protocol::DeleteCharacter>(&*decoded)) {
-        on_delete_character(in.state, in.slot, in.index, *remove);
+        on_delete_character(in.state, in.slot, in.index, *remove, in.now);
     }
     if (const auto* enter = std::get_if<protocol::EnterGame>(&*decoded)) on_enter(in.state, in.slot, in.index, *enter);
     if (const auto* move = std::get_if<protocol::Move>(&*decoded)) on_move(in.state, in.slot, in.index, *move, in.now);
