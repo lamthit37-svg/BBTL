@@ -33,7 +33,7 @@
 namespace game::protocol {
 
 // Bản của danh mục; tin có since lớn hơn bản bên kia đang chạy thì bên kia chưa hiểu.
-inline constexpr std::uint16_t kVersion = 7;
+inline constexpr std::uint16_t kVersion = 8;
 
 enum class AvatarFrame : std::uint8_t {
     kRound = 1,
@@ -204,6 +204,7 @@ inline constexpr std::size_t kCharacterSummaryNameBytes = 48;
 inline constexpr std::size_t kDialogChoiceTextBytes = 256;
 inline constexpr std::size_t kDialogLineTextBytes = 1024;
 inline constexpr std::size_t kQuestSlotParamsCount = 8;
+inline constexpr std::size_t kUiStringTextBytes = 255;
 inline constexpr std::size_t kLoginAccountBytes = 64;
 inline constexpr std::size_t kLoginTicketBytes = 512;
 inline constexpr std::size_t kResumeTokenBytes = 16;
@@ -212,6 +213,8 @@ inline constexpr std::size_t kCreateAccountAccountBytes = 64;
 inline constexpr std::size_t kCreateAccountPasswordBytes = 128;
 inline constexpr std::size_t kSignInAccountBytes = 64;
 inline constexpr std::size_t kSignInPasswordBytes = 128;
+inline constexpr std::size_t kExecuteScriptFunctionBytes = 63;
+inline constexpr std::size_t kExecuteScriptParamsCount = 14;
 inline constexpr std::size_t kSessionStartTokenBytes = 16;
 inline constexpr std::size_t kContentKeyKeyBytes = 32;
 inline constexpr std::size_t kContentStampStampBytes = 32;
@@ -226,6 +229,8 @@ inline constexpr std::size_t kDialogOpenBonusesCount = 24;
 inline constexpr std::size_t kQuestBookSlotsCount = 20;
 inline constexpr std::size_t kQuestBookDoneBytes = 512;
 inline constexpr std::size_t kQuestNoticeTextBytes = 512;
+inline constexpr std::size_t kUiCommandIntsCount = 16;
+inline constexpr std::size_t kUiCommandStringsCount = 16;
 inline constexpr std::size_t kSelfBagSlotsCount = 256;
 inline constexpr std::size_t kSelfSkillsSkillsCount = 128;
 
@@ -339,6 +344,13 @@ struct SkillEntry {
     // Hồi chiêu còn lại, mili giây; 0 là dùng được.
     std::uint32_t cooldown_ms = 0;
     friend bool operator==(const SkillEntry&, const SkillEntry&) = default;
+};
+
+// Record: Một chuỗi tham số của UiCommand.
+struct UiString {
+    // Chuỗi UTF-8; tổng các chuỗi của một UiCommand không quá 511 byte (kho XParam của client gốc).
+    std::string text;
+    friend bool operator==(const UiString&, const UiString&) = default;
 };
 
 // 0x0101, client gửi, cổng both, từ bản 1: Tin đầu tiên của mọi kết nối, báo phiên bản giao thức,
@@ -504,6 +516,20 @@ struct DialogClose {
     static constexpr std::uint16_t kKind = 0x0606;
     std::uint64_t session = 0;
     friend bool operator==(const DialogClose&, const DialogClose&) = default;
+};
+
+// 0x0607, client gửi, cổng game, từ bản 8: Client gọi một hàm của script phía máy chủ theo
+// CGExecuteScript (2219) của Game.exe: id script, tên hàm và tối đa 14 số. Server chỉ chạy hàm có
+// trong bảng xử lý, hàm lạ bị từ chối.
+struct ExecuteScript {
+    static constexpr std::uint16_t kKind = 0x0607;
+    // Id script phía máy chủ (Script.dat); -1 là rỗng.
+    std::int32_t script = 0;
+    // Tên hàm trong script, ASCII, 1 đến 63 byte (bản ghi gốc có 64 byte kèm NUL).
+    std::string function;
+    // Tham số số nguyên của lời gọi; tối đa 14 như bản ghi XSCRIPT gốc.
+    std::vector<std::int32_t> params;
+    friend bool operator==(const ExecuteScript&, const ExecuteScript&) = default;
 };
 
 // 0x0801, client gửi, cổng game, từ bản 6: Ra chiêu (đánh thường cũng là một kỹ năng). Chỉ là ý
@@ -820,6 +846,21 @@ struct QuestNotice {
     friend bool operator==(const QuestNotice&, const QuestNotice&) = default;
 };
 
+// 0x8605, server gửi, cổng game, từ bản 8: Server bảo client mở cửa sổ hay đẩy sự kiện UI_COMMAND
+// theo GCUICommand (481) của Game.exe: chỉ số lệnh, chế độ, tối đa 16 số và 16 chuỗi.
+struct UiCommand {
+    static constexpr std::uint16_t kKind = 0x8605;
+    // Chỉ số lệnh giao diện (arg0 của sự kiện UI_COMMAND; khoá của UICommandIndex.tsv).
+    std::int32_t index = 0;
+    // 0: lưu XParam rồi bắn sự kiện UI_COMMAND (0x13a); khác 0: gọi bộ xử lý lệnh theo chỉ số.
+    std::int32_t mode = 0;
+    // Số của XParam, tối đa 16.
+    std::vector<std::int32_t> ints;
+    // Chuỗi của XParam, tối đa 16.
+    std::vector<UiString> strings;
+    friend bool operator==(const UiCommand&, const UiCommand&) = default;
+};
+
 // 0x8701, server gửi, cổng game, từ bản 5: Cấp, kinh nghiệm và tiền của chính nhân vật. Gửi sau
 // SceneEnter và mỗi khi đổi.
 struct SelfStats {
@@ -940,13 +981,13 @@ struct SkillCooldown {
 
 using GameClientMessage = std::variant<Hello, Login, Resume, Ping, Logout, CreateCharacter,
     DeleteCharacter, EnterGame, Move, Talk, DialogChoose, QuestAccept, QuestTurnIn, QuestAbandon,
-    DialogClose, CastSkill, Respawn, PickUp>;
+    DialogClose, ExecuteScript, CastSkill, Respawn, PickUp>;
 using GameClientResult = std::expected<GameClientMessage, WireError>;
 using GameServerMessage = std::variant<Welcome, SessionStart, ContentKey, Pong, Reject, Goodbye,
     ContentStamp, UiConfig, CharacterList, Position, SceneEnter, EntityAppear, EntityDisappear,
     EntityPos, EntityVitals, EntityFlags, EntityPosBatch, DialogOpen, DialogClosed, QuestBook,
-    QuestNotice, SelfStats, SelfVitals, SelfBag, SkillCast, SkillCastEnd, CombatEvent, EntityDied,
-    DeathNotice, SelfSkills, SkillCooldown>;
+    QuestNotice, UiCommand, SelfStats, SelfVitals, SelfBag, SkillCast, SkillCastEnd, CombatEvent,
+    EntityDied, DeathNotice, SelfSkills, SkillCooldown>;
 using GameServerResult = std::expected<GameServerMessage, WireError>;
 using AuthClientMessage = std::variant<Hello, CreateAccount, SignIn>;
 using AuthClientResult = std::expected<AuthClientMessage, WireError>;
@@ -971,6 +1012,7 @@ using AuthServerResult = std::expected<AuthServerMessage, WireError>;
 [[nodiscard]] WireStatus encode(std::vector<std::byte>& out, const QuestTurnIn& message);
 [[nodiscard]] WireStatus encode(std::vector<std::byte>& out, const QuestAbandon& message);
 [[nodiscard]] WireStatus encode(std::vector<std::byte>& out, const DialogClose& message);
+[[nodiscard]] WireStatus encode(std::vector<std::byte>& out, const ExecuteScript& message);
 [[nodiscard]] WireStatus encode(std::vector<std::byte>& out, const CastSkill& message);
 [[nodiscard]] WireStatus encode(std::vector<std::byte>& out, const Respawn& message);
 [[nodiscard]] WireStatus encode(std::vector<std::byte>& out, const PickUp& message);
@@ -996,6 +1038,7 @@ using AuthServerResult = std::expected<AuthServerMessage, WireError>;
 [[nodiscard]] WireStatus encode(std::vector<std::byte>& out, const DialogClosed& message);
 [[nodiscard]] WireStatus encode(std::vector<std::byte>& out, const QuestBook& message);
 [[nodiscard]] WireStatus encode(std::vector<std::byte>& out, const QuestNotice& message);
+[[nodiscard]] WireStatus encode(std::vector<std::byte>& out, const UiCommand& message);
 [[nodiscard]] WireStatus encode(std::vector<std::byte>& out, const SelfStats& message);
 [[nodiscard]] WireStatus encode(std::vector<std::byte>& out, const SelfVitals& message);
 [[nodiscard]] WireStatus encode(std::vector<std::byte>& out, const SelfBag& message);
@@ -1069,6 +1112,8 @@ using AuthServerResult = std::expected<AuthServerMessage, WireError>;
     case 0x8806:
     case 0x8807: return 6;
     case 0x8407: return 7;
+    case 0x0607:
+    case 0x8605: return 8;
     default: return 0;
     }
 }

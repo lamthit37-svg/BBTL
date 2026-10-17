@@ -130,6 +130,35 @@ constexpr std::int64_t kFirstMondayOffset = 3;
     }
 }
 
+// Tên hàm của ExecuteScript là dữ liệu của client: chỉ chữ, số và gạch dưới (script gốc đặt tên hàm
+// theo kiểu C).
+[[nodiscard]] bool is_word_char(char one) noexcept {
+    const bool is_letter = (one >= 'a' && one <= 'z') || (one >= 'A' && one <= 'Z');
+    const bool is_digit = one >= '0' && one <= '9';
+    return is_letter || is_digit || one == '_';
+}
+
+// Id đối tượng của lệnh giao diện chỉ có lúc chạy: bộ trích đặt -1 cho NPC đang đối thoại và -2 cho
+// chính người chơi.
+struct UiTargets {
+    std::uint32_t npc = 0;
+    std::uint32_t self = 0;
+};
+
+[[nodiscard]] std::int32_t ui_value(std::int32_t value, const UiTargets& targets) noexcept {
+    if (value == -1) return static_cast<std::int32_t>(targets.npc);
+    if (value == -2) return static_cast<std::int32_t>(targets.self);
+    return value;
+}
+
+// Mỗi nhiệm vụ vừa vào sổ ghi một dòng nhận trong log kiểm (value là id nhiệm vụ).
+void note_accepts(std::uint64_t session, const mission::Outcome& outcome, Output& out) {
+    for (const mission::Notice& notice : outcome.notices) {
+        if (notice.kind != mission::NoticeKind::kAdded) continue;
+        out.note(session, Act::kAccept, 0, notice.quest);
+    }
+}
+
 [[nodiscard]] protocol::ErrorCode ledger_code(ledger::Reason reason) noexcept {
     switch (reason) {
     case ledger::Reason::kNoRoom: return protocol::ErrorCode::kBagFull;
@@ -425,12 +454,14 @@ bool Gameplay::attach(const Arrival& arrived, const ipc::Attach& arrival, Surrou
     detach(session, out);
     account::PlayRecord saved;
     if (!arrival.play.empty()) {
-        std::expected<account::PlayRecord, account::PlayError> unpacked = account::unpack(arrival.play);
+        auto unpacked = account::unpack(arrival.play);
         if (!unpacked) return false;
         saved = std::move(*unpacked);
     } else {
         saved.level = std::max<std::uint16_t>(arrival.level, 1);
     }
+    // Chưa có khối thân thể lẫn sổ nhiệm vụ ở kho: nhân vật mới tạo, đây là lần vào game đầu tiên.
+    const bool is_first_entry = saved.body.empty() && saved.mission.empty();
     Identity who{.id = ids::CharacterId{arrival.character}, .name = arrival.name, .gender = arrival.gender, .sect = arrival.school};
     std::expected<std::unique_ptr<Player>, std::string> made = Player::restore(*world_, std::move(who), saved);
     if (!made) return false;
@@ -450,8 +481,26 @@ bool Gameplay::attach(const Arrival& arrived, const ipc::Attach& arrival, Surrou
     }
     // Cái vừa đọc từ store là cái đã ghi: so với nó để biết khi nào có gì mới cần ghi.
     entry.saved = entry.player->record();
+    if (is_first_entry) grant_first_entry(session, entry, out);
     sync(session, entry, out);
     return true;
+}
+
+// Khác gốc: scene.lua gốc cấp nhiệm vụ đầu trong x888888_OnScenePlayerFirstLogin bằng
+// AddMission(718, 210238) (id 2008); 2026 là 1400 初涉江湖 (danh bạ client: người giao -1). Sự kiện
+// lên cấp 0 -> 1 là điều kiện của hàng cấp 1 trong mission_auto (TOOLS/server/lua_auto.py,
+// FIRST_ENTRY_2026); chỉ cấp 1, không theo cấp thật của nhân vật (nhân vật dựng sẵn ở cấp cao
+// không nhận nhiệm vụ các cấp thấp). Nhân vật đã giữ hay đã xong 1400 thì không nhận lại.
+void Gameplay::grant_first_entry(std::uint64_t session, Entry& who, Output& out) {
+    Player& hero = *who.player;
+    bus::Event event;
+    event.kind = bus::Kind::kLevelUp;
+    event.hero = hero.id();
+    event.a = 1;
+    event.c = 0;
+    const mission::Outcome opened = engine_.handle(hero, event, calendar());
+    notices(session, who, who.npc_name, opened, out);
+    note_accepts(session, opened, out);
 }
 
 void Gameplay::detach(std::uint64_t session, Output& out) {
@@ -617,8 +666,21 @@ void Gameplay::on(const Call& call, const protocol::Respawn& message) {
 
 void Gameplay::on(const Call& call, const protocol::PickUp& message) {
     Report report;
-    battle(call.who->scene).pick_up(call.session, message, Env{.stage = call.around, .out = call.out, .report = &report});
+    const Env env{.stage = call.around, .out = call.out, .report = &report};
+    battle(call.who->scene).pick_up(call.session, message, env);
     settle(report, *call.out);
+}
+
+// ExecuteScript (CGExecuteScript 2219 của Game.exe): lời gọi hàm của script phía máy chủ. Máy chủ
+// không chạy Lua nên chỉ nhận lời gọi có trong bảng xử lý; bảng chưa có hàm nào, nên lời gọi đúng
+// hình bị từ chối kNoSuchEntity, tên hàm sai hình kMalformed. Tên hàm và id script không bao giờ đi
+// vào đường dẫn hay lệnh.
+void Gameplay::on(const Call& call, const protocol::ExecuteScript& message) {
+    const bool is_word = std::ranges::all_of(message.function, is_word_char);
+    const bool is_named = !message.function.empty() && is_word;
+    using Code = protocol::ErrorCode;
+    const Code code = is_named ? Code::kNoSuchEntity : Code::kMalformed;
+    call.out->reject(call.session, protocol::ExecuteScript::kKind, code);
 }
 
 void Gameplay::settle(const Report& report, Output& out) {
@@ -743,6 +805,21 @@ void Gameplay::notices(std::uint64_t session, const Entry& who, const std::strin
         one.value = notice.value;
         one.ref = notice.ref;
         out.down(session, one);
+    }
+    ui_commands(session, who, outcome, out);
+}
+
+void Gameplay::ui_commands(std::uint64_t session, const Entry& who, const mission::Outcome& outcome,
+    Output& out) {
+    const UiTargets targets{.npc = who.npc_entity, .self = who.entity};
+    for (const mission::Directive& one : outcome.directives) {
+        if (one.op != ops::EffectOp::kUiCommand) continue;
+        protocol::UiCommand command;
+        command.index = one.arg[0];
+        command.mode = 0;
+        command.ints.push_back(ui_value(one.arg[1], targets));
+        command.ints.push_back(ui_value(one.arg[2], targets));
+        out.down(session, command);
     }
 }
 

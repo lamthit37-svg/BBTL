@@ -80,6 +80,7 @@ PosEntry	3	z_cm	f32		Toạ độ Z, centimet.
 PosEntry	4	direction	u16		Hướng nhìn: 0..65535 ứng với 0..2π; 0 là hướng +X, tăng dần quay về phía +Z.
 PosEntry	5	tick	u32		Tick của cảnh lúc ghi nhận. Nhịp zone mặc định 20, cũng có thể là 30 hoặc 40.
 PosEntry	6	state	enum:EntityState		Walk khi đang di chuyển; Idle khi dừng; Dead khi chết.
+UiString	1	text	text	255	Chuỗi UTF-8; tổng các chuỗi của một UiCommand không quá 511 byte (kho XParam của client gốc).
 EntityPosBatch	1	places	list:record:PosEntry	52	Tối đa 52 vị trí: khung sau khi niêm phong phải vừa hộp gửi 1024 byte của gate.
 EntityVitals	1	id	u32		Id thực thể.
 EntityVitals	2	hp_percent	u8		Sinh lực theo phần trăm 0..100.
@@ -107,6 +108,9 @@ QuestTurnIn	2	quest	u16
 QuestTurnIn	3	reward	i32		Mẫu vật phẩm đã chọn trong nhóm thưởng chọn một; -1 nếu nhiệm vụ không có nhóm đó.
 QuestAbandon	1	quest	u16		
 DialogClose	1	session	u64		
+ExecuteScript	1	script	i32		Id script phía máy chủ (Script.dat); -1 là rỗng.
+ExecuteScript	2	function	text	63	Tên hàm trong script, ASCII, 1 đến 63 byte (bản ghi gốc có 64 byte kèm NUL).
+ExecuteScript	3	params	list:i32	14	Tham số số nguyên của lời gọi; tối đa 14 như bản ghi XSCRIPT gốc.
 EntityFlags	1	id	u32		Id thực thể.
 EntityFlags	2	flags	u8		Bit 0: bấm vào được để nói chuyện (Talk).
 DialogOpen	1	session	u64		Mã phiên, tăng ngặt, không dùng lại; gửi lại trong mọi tin sau của hộp thoại này.
@@ -126,6 +130,10 @@ QuestNotice	2	quest	i32		Id nhiệm vụ; -1 nếu không gắn nhiệm vụ.
 QuestNotice	3	text	text	512	Chữ đã dựng; rỗng với kind không có chữ.
 QuestNotice	4	value	i64		RewardExp: kinh nghiệm. RewardMoney: số tiền. RewardItem: số lượng. Relation: giá trị mới.
 QuestNotice	5	ref	i32		RewardMoney: 1 nếu tiền khoá. RewardItem: mẫu vật phẩm. Relation: chỉ số quan hệ.
+UiCommand	1	index	i32		Chỉ số lệnh giao diện (arg0 của sự kiện UI_COMMAND; khoá của UICommandIndex.tsv).
+UiCommand	2	mode	i32		0: lưu XParam rồi bắn sự kiện UI_COMMAND (0x13a); khác 0: gọi bộ xử lý lệnh theo chỉ số.
+UiCommand	3	ints	list:i32	16	Số của XParam, tối đa 16.
+UiCommand	4	strings	list:record:UiString	16	Chuỗi của XParam, tối đa 16.
 SelfStats	1	level	u16		
 SelfStats	2	exp	u64		Kinh nghiệm hiện có trong cấp.
 SelfStats	3	money	u64		Tiền thường.

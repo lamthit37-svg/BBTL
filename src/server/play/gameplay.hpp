@@ -138,7 +138,9 @@ private:
     void on(const Call& call, const protocol::CastSkill& message);
     void on(const Call& call, const protocol::Respawn& message);
     void on(const Call& call, const protocol::PickUp& message);
-    // Mọi tin khác trong nhóm client không thuộc gameplay hội thoại/nhiệm vụ (di chuyển do gate xử lý).
+    void on(const Call& call, const protocol::ExecuteScript& message);
+    // Mọi tin khác trong nhóm client không thuộc gameplay hội thoại/nhiệm vụ (di chuyển do gate xử
+    // lý).
     template <typename Other>
     void on(const Call&, const Other&) noexcept {
         ++ignored_;
@@ -157,7 +159,15 @@ private:
         const talk::Reply& answer, Output& out);
     void fail(std::uint64_t session, std::uint16_t request, const talk::Failure& failure, Entry& who, const std::string& npc_name,
         std::uint32_t npc_entity, Output& out);
-    void notices(std::uint64_t session, const Entry& who, const std::string& npc_name, const mission::Outcome& outcome, Output& out);
+    void notices(std::uint64_t session, const Entry& who, const std::string& npc_name,
+        const mission::Outcome& outcome, Output& out);
+    // Chỉ thị ui_command của một kết quả thành tin UiCommand cho client (DispatchUICommand của
+    // script gốc).
+    static void ui_commands(std::uint64_t session, const Entry& who,
+        const mission::Outcome& outcome, Output& out);
+    // Lần vào game đầu tiên: phát sự kiện lên cấp 0 -> cấp hiện tại để mission_auto cấp nhiệm vụ
+    // cấp 1 (1400 初涉江湖).
+    void grant_first_entry(std::uint64_t session, Entry& who, Output& out);
 
     const World* world_;
     Settings settings_;

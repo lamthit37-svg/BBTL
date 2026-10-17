@@ -57,6 +57,28 @@ void clip_never_splits_a_character(Context& context) {
     context.expect(play::clip_utf8(text, 0).empty(), "trần 0 cho rỗng");
 }
 
+// Hồi quy N1: mẫu thật của 赵天师 (dialogue.zh.txt) có `{0}` là tham số, `{{` và `}}` là hai dấu ngoặc thật
+// (lua_emit.py thoát chúng). Trước khi sửa, `render` gửi nguyên `#{{OBJ_dali_0011}}` và client để lại một `}`.
+void render_unescapes_braces(Context& context) {
+    table::Tsv rows;
+    rows.rows.push_back({"npc_line", "  {0}-bro#{{OBJ_dali_0011}}"});
+    rows.rows.push_back({"literal", "{{0}} va {0} va }}x{{ va { lone }"});
+    play::TextBook book;
+    context.expect(book.add(rows) == 2, "nạp hai mẫu");
+    const play::Names names{.player = "hero", .npc = "npc"};
+    const ops::Context ops_context;
+    ops::TextRef line;
+    line.id = ops::string_id("npc_line");
+    line.params.push_back(ops::TextParam{});
+    const std::string shown = play::render(book, line, names, ops_context, 200);
+    context.expect(shown == "  hero-bro#{OBJ_dali_0011}", "ngoặc đôi thành ngoặc đơn, tham số vẫn thay");
+    ops::TextRef plain;
+    plain.id = ops::string_id("literal");
+    plain.params.push_back(ops::TextParam{});
+    const std::string kept = play::render(book, plain, names, ops_context, 200);
+    context.expect(kept == "{0} va hero va }x{ va { lone }", "{{0}} là chữ thật, ngoặc lẻ giữ nguyên");
+}
+
 #ifdef GAME_SERVER_TABLES
 
 constexpr std::uint64_t kSession = 41;
@@ -203,7 +225,12 @@ void attach_sends_book_and_stats(Context& context) {
     const auto all = decoded(out);
     const auto* book = first_of<protocol::QuestBook>(all);
     const auto* stats = first_of<protocol::SelfStats>(all);
-    context.expect(book != nullptr && book->slots.empty(), "sổ nhiệm vụ rỗng");
+    // Vào game lần đầu cấp 1400 初涉江湖 (mission_auto, hàng cấp 1); chỉ một nhiệm vụ và chỉ ở lần đầu.
+    context.expect(book != nullptr && book->slots.size() == 1 && book->slots[0].quest == 1400,
+        "lần vào đầu: sổ có đúng nhiệm vụ 1400");
+    const auto* opened = first_of<protocol::QuestNotice>(all);
+    context.expect(opened != nullptr && opened->kind == protocol::QuestNoticeKind::kAdded && opened->quest == 1400,
+        "báo QuestNotice nhận 1400");
     context.expect(stats != nullptr && stats->level == 1, "SelfStats cấp 1");
     context.expect(fixture->gameplay->player_count() == 1, "đang giữ một người chơi");
     context.expect(out.encode_failures == 0, "không tin nào mã hoá hỏng");
@@ -280,7 +307,8 @@ void expect_survives_rejoin(Context& context, Fixture& fixture, const account::P
     context.expect(fixture.gameplay->attach(arrive(kSession + 2), back, fixture.around, second), "vào lại từ bản ghi");
     const auto restored = decoded(second);
     const auto* book = first_of<protocol::QuestBook>(restored);
-    context.expect(book != nullptr && book->slots.size() == 1, "sổ nhiệm vụ còn sau khi vào lại");
+    context.expect(book != nullptr && book->slots.size() == 2, "sổ nhiệm vụ còn sau khi vào lại, 1400 không cấp lại");
+    context.expect(first_of<protocol::QuestNotice>(restored) == nullptr, "vào lại không báo nhận nhiệm vụ nào");
 }
 
 void talk_accept_and_keep(Context& context) {
@@ -316,9 +344,14 @@ void talk_accept_and_keep(Context& context) {
         fixture->around, accepted);
     const auto result = decoded(accepted);
     const auto* book = first_of<protocol::QuestBook>(result);
-    context.expect(book != nullptr && book->slots.size() == 1, "sổ có đúng một nhiệm vụ sau khi nhận");
-    context.expect(book != nullptr && !book->slots.empty() && std::cmp_equal(book->slots.front().quest, offer->first),
-        "đúng nhiệm vụ được mời");
+    // Sổ có 1400 (cấp lúc vào game lần đầu) và nhiệm vụ vừa nhận.
+    context.expect(book != nullptr && book->slots.size() == 2, "sổ có hai nhiệm vụ sau khi nhận");
+    const auto has_offered = [&] {
+        return book != nullptr && std::ranges::any_of(book->slots, [&](const protocol::QuestSlot& slot) {
+            return std::cmp_equal(slot.quest, offer->first);
+        });
+    };
+    context.expect(has_offered(), "đúng nhiệm vụ được mời");
     context.expect(first_of<protocol::QuestNotice>(result) != nullptr, "có thông báo nhận nhiệm vụ");
     context.expect(accepted.keeps.size() == 1 && accepted.keeps.front().character == 9001,
         "trạng thái đổi thì có lần ghi");
@@ -372,6 +405,22 @@ void unknown_ids_are_rejected(Context& context) {
             protocol::ErrorCode::kNoSession,
         "nộp khi chưa có phiên");
     context.expect(probe.code_of(frame_of(protocol::QuestAbandon{.quest = 4000})).has_value(), "bỏ nhiệm vụ không có trong sổ");
+}
+
+// ExecuteScript (CGExecuteScript 2219): máy chủ không chạy Lua, nên lời gọi đúng hình bị từ chối vì chưa có hàm nào trong bảng;
+// tên hàm sai hình (rỗng, ký tự lạ, dấu chấm) là khung hỏng. Tên hàm không bao giờ đi vào đường dẫn hay lệnh.
+void execute_script_is_refused(Context& context) {
+    const std::unique_ptr<Fixture> fixture = open_fixture(context);
+    if (fixture == nullptr) return;
+    play::Output joined;
+    context.expect(fixture->gameplay->attach(arrive(kSession), newcomer(), fixture->around, joined), "attach");
+    Prober probe{*fixture};
+    const protocol::ExecuteScript known{.script = 210262, .function = "OnDefaultEvent", .params = {1, 2}};
+    context.expect(probe.code_of(frame_of(known)) == protocol::ErrorCode::kNoSuchEntity, "hàm chưa có trong bảng: NoSuchEntity");
+    const protocol::ExecuteScript dotted{.script = 1, .function = "..\\x", .params = {}};
+    context.expect(probe.code_of(frame_of(dotted)) == protocol::ErrorCode::kMalformed, "tên hàm có ký tự lạ: Malformed");
+    const protocol::ExecuteScript blank{.script = 1, .function = "", .params = {}};
+    context.expect(probe.code_of(frame_of(blank)) == protocol::ErrorCode::kMalformed, "tên hàm rỗng: Malformed");
 }
 
 void far_and_stale_sessions_are_rejected(Context& context) {
@@ -719,10 +768,12 @@ void combat_refuses_hostile_input(Context& context) {
 
 constexpr std::array kCases{
     Case{.name = "clip_never_splits_a_character", .body = &clip_never_splits_a_character},
+    Case{.name = "render_unescapes_braces", .body = &render_unescapes_braces},
 #ifdef GAME_SERVER_TABLES
     Case{.name = "attach_sends_book_and_stats", .body = &attach_sends_book_and_stats},
     Case{.name = "talk_accept_and_keep", .body = &talk_accept_and_keep},
     Case{.name = "unknown_ids_are_rejected", .body = &unknown_ids_are_rejected},
+    Case{.name = "execute_script_is_refused", .body = &execute_script_is_refused},
     Case{.name = "far_and_stale_sessions_are_rejected", .body = &far_and_stale_sessions_are_rejected},
     Case{.name = "junk_is_ignored", .body = &junk_is_ignored},
     Case{.name = "flood_is_rate_limited", .body = &flood_is_rate_limited},

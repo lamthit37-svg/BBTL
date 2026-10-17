@@ -52,6 +52,14 @@ struct Placeholder {
     return Placeholder{.index = index, .close = close};
 }
 
+// `{{` và `}}` là một dấu ngoặc thật: bộ xuất lua_emit.py thoát chúng trong bảng thoại để tách khỏi
+// tham số {n}. Dấu lẻ (`{` không theo sau bởi số rồi `}`, hay `}` đứng một mình) giữ nguyên.
+[[nodiscard]] bool is_doubled_brace(std::string_view source, std::size_t cursor) noexcept {
+    const char brace = source[cursor];
+    const bool is_brace = brace == '{' || brace == '}';
+    return is_brace && cursor + 1 < source.size() && source[cursor + 1] == brace;
+}
+
 // Chữ của tham số thứ `at`; chỉ số ngoài danh sách cho rỗng (dữ liệu hỏng không làm hỏng câu).
 [[nodiscard]] std::string param_text(const ops::TextRef& text, std::size_t slot, const Names& names,
     const ops::Context& context) {
@@ -60,6 +68,33 @@ struct Placeholder {
     if (param.kind == ops::TextParam::Kind::kPlayer) return std::string{names.player};
     if (param.kind == ops::TextParam::Kind::kNpc) return std::string{names.npc};
     return std::to_string(ops::param_value(param, context));
+}
+
+// Nguồn của tham số {n}.
+// NOLINTBEGIN(cppcoreguidelines-avoid-const-or-ref-data-members): chỉ mượn từ lời gọi render, sống
+// ngắn hơn nó, không giữ qua tick (SH-04)
+struct Fill {
+    const ops::TextRef& text;
+    const Names& names;
+    const ops::Context& context;
+};
+// NOLINTEND(cppcoreguidelines-avoid-const-or-ref-data-members)
+
+// Dựng một đơn vị chữ tại `cursor`: cặp ngoặc đôi, tham số {n}, hay một byte nguyên văn. Trả vị trí
+// của byte cuối cùng đã dùng.
+[[nodiscard]] std::size_t emit_unit(std::string& out, std::string_view source, std::size_t cursor,
+    const Fill& fill) {
+    if (is_doubled_brace(source, cursor)) {
+        out.push_back(source[cursor]);
+        return cursor + 1;
+    }
+    const std::optional<Placeholder> hole = placeholder_at(source, cursor);
+    if (!hole) {
+        out.push_back(source[cursor]);
+        return cursor;
+    }
+    out += param_text(fill.text, hole->index, fill.names, fill.context);
+    return hole->close;
 }
 
 } // namespace
@@ -94,14 +129,9 @@ std::string render(const TextBook& book, const ops::TextRef& text, const Names& 
     const std::string_view source{*pattern};
     std::string out;
     out.reserve(source.size());
+    const Fill fill{.text = text, .names = names, .context = context};
     for (std::size_t cursor = 0; cursor < source.size() && out.size() <= max_bytes; ++cursor) {
-        const std::optional<Placeholder> hole = placeholder_at(source, cursor);
-        if (!hole) {
-            out.push_back(source[cursor]);
-            continue;
-        }
-        out += param_text(text, hole->index, names, context);
-        cursor = hole->close;
+        cursor = emit_unit(out, source, cursor, fill);
     }
     return clip_utf8(std::move(out), max_bytes);
 }

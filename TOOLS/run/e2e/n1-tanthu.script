@@ -1,0 +1,26 @@
+# N1 (G3) giai đoạn A: vào game lần đầu, 1400 初涉江湖 đã nằm trong sổ, nói chuyện với 赵天师.
+# Tiêu chí (docs/giao-viec/HOAN-THIEN/N1.md mục 4): 1400 có trong QuestLog và MissionTrack ngay lần
+# đăng nhập đầu; menu 赵天师 chỉ có mục chạy được; chữ hộp thoại không còn `}` thừa.
+# Điểm sinh (165,169.71) cách 赵天师 (160,159) vài mét nên không cần walk.
+# Chạy: py -X utf8 TOOLS/run/e2e_client.py TOOLS/run/e2e/n1-tanthu.script
+#! account fresh e2en1a
+#! out build/e2e/N1/a
+#! timeout 300
+#! expect-exit 0
+#! expect-shots n1-a-hud n1-a-log n1-a-talk
+#! expect-net gửi:EnterGame nhận:QuestBook nhận:QuestNotice gửi:Talk nhận:DialogOpen
+#! expect-file dev/server/log/cluster_err.txt zone: kiểm .* việc=nhận .* ten="{account}"
+#! expect-file dev/server/log/cluster_err.txt zone: kiểm .* việc=nói .* ten="{account}"
+
+wait play 120
+wait 2s
+shot n1-a-hud
+click Button_Mission
+wait 1s
+shot n1-a-log
+click Button_Mission
+wait 1s
+talk 赵天师
+wait 1s
+shot n1-a-talk
+quit

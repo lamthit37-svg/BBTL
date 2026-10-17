@@ -1,6 +1,6 @@
 # schema 1
 # source: TLBB Dev src/protocol/protocol.hpp @e0d89a6 (bản 2026-10-05, nhóm 01, 02, 05)
-# version 7
+# version 8
 # types: kind	ident	port	int	text
 kind	name	port	since	summary
 record	CharacterSummary			Tóm tắt một nhân vật trong danh sách chọn nhân vật.
@@ -12,6 +12,7 @@ record	QuestSlot			Một ô của sổ nhiệm vụ.
 record	SkillEntry			Một kỹ năng đã học của chính nhân vật, kèm hồi chiêu còn lại.
 record	BagSlot			Một ô của túi đồ.
 record	PosEntry			Một vị trí tuyệt đối trong EntityPosBatch. Cùng bố cục 19 byte với thân EntityPos.
+record	UiString			Một chuỗi tham số của UiCommand.
 0x0101	Hello	both	1	Tin đầu tiên của mọi kết nối, báo phiên bản giao thức, nền tảng và bản dựng client.
 0x0102	Login	game	1	Đăng nhập cổng game bằng vé do cổng xác thực cấp, không bao giờ mang mật khẩu.
 0x0103	Resume	game	1	Nối lại phiên cũ bằng token phiên sau khi rớt mạng.
@@ -29,6 +30,7 @@ record	PosEntry			Một vị trí tuyệt đối trong EntityPosBatch. Cùng b�
 0x0604	QuestTurnIn	game	5	Nộp nhiệm vụ đang làm, kèm phần thưởng chọn một nếu có.
 0x0605	QuestAbandon	game	5	Bỏ nhiệm vụ đang làm; bấm từ sổ nhiệm vụ nên không cần phiên hội thoại.
 0x0606	DialogClose	game	5	Client đóng hộp thoại; server đóng phiên.
+0x0607	ExecuteScript	game	8	Client gọi một hàm của script phía máy chủ theo CGExecuteScript (2219) của Game.exe: id script, tên hàm và tối đa 14 số. Server chỉ chạy hàm có trong bảng xử lý, hàm lạ bị từ chối.
 0x0801	CastSkill	game	6	Ra chiêu (đánh thường cũng là một kỹ năng). Chỉ là ý định: server kiểm đã học, hồi chiêu, tiêu hao, tầm, mục tiêu rồi mới tính; lỗi trả Reject.
 0x0802	Respawn	game	6	Xin hồi sinh khi đã chết, ở thành hay tại chỗ; server áp phạt chết và đặt lại máu.
 0x0803	PickUp	game	6	Nhặt một vật rơi trong tầm 3 m; server kiểm luật chủ nhặt.
@@ -54,6 +56,7 @@ record	PosEntry			Một vị trí tuyệt đối trong EntityPosBatch. Cùng b�
 0x8602	DialogClosed	game	5	Server đóng phiên hội thoại và nêu lý do.
 0x8603	QuestBook	game	5	Toàn bộ sổ nhiệm vụ: ô đang giữ và tập nhiệm vụ đã xong. Gửi sau SceneEnter và mỗi khi sổ đổi.
 0x8604	QuestNotice	game	5	Thông báo của hệ nhiệm vụ cho người chơi: nhận, tiến độ, đủ điều kiện nộp, thưởng, chữ.
+0x8605	UiCommand	game	8	Server bảo client mở cửa sổ hay đẩy sự kiện UI_COMMAND theo GCUICommand (481) của Game.exe: chỉ số lệnh, chế độ, tối đa 16 số và 16 chuỗi.
 0x8701	SelfStats	game	5	Cấp, kinh nghiệm và tiền của chính nhân vật. Gửi sau SceneEnter và mỗi khi đổi.
 0x8702	SelfVitals	game	6	Sinh lực, nội lực và nộ khí thật của chính nhân vật (người khác chỉ thấy phần trăm ở EntityVitals). Gộp, tối đa 5 lần mỗi giây.
 0x8703	SelfBag	game	6	Ảnh chụp toàn bộ túi đồ của chính nhân vật. Gửi sau SceneEnter và mỗi khi túi đổi.

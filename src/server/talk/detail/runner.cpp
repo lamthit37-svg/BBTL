@@ -97,6 +97,13 @@ private:
         return env_.engine.catalog().program().holds(cond, context);
     }
 
+    // Mục dẫn tới nhiệm vụ không chạy được (ngoài danh bạ client 2026, hay bộ chạy chưa làm được)
+    // không được mời: chọn nó chỉ ra kNoDialog. Script không phải nhiệm vụ thì luôn được mời.
+    [[nodiscard]] bool offerable(std::uint32_t script) const {
+        const mission::Quest* const quest = env_.engine.catalog().by_script(script);
+        return quest == nullptr || quest->runnable();
+    }
+
     // Vào một khối con. Khi khung hiện tại đã chạy hết (lời gọi/nhánh là bước cuối, như mọi chuỗi `if ... elseif` mà bộ trích dựng)
     // thì thay khung đó thay vì chồng thêm: khung hết bước chỉ còn chờ bị bỏ, giữ nó lại làm độ sâu tăng theo độ dài chuỗi nhánh
     // chứ không theo độ lồng thật. Khung mới thừa hưởng cờ `call` của khung bị thay để `ret` vẫn thoát đúng khối được gọi.
@@ -128,14 +135,19 @@ private:
         }
     }
 
+    [[nodiscard]] std::expected<void, Failure> add_choice(const Step& step) {
+        const auto script = static_cast<std::uint32_t>(std::max(step.a, 0));
+        if (!offerable(script)) return {};
+        const bool added = dialogue_.choice(script, step.b, step.c, step.text);
+        if (!added) return too_long();
+        return {};
+    }
+
     [[nodiscard]] std::expected<void, Failure> execute(const Step& step) {
         switch (step.kind) {
             case StepKind::kBegin: dialogue_.begin(); return {};
             case StepKind::kText: return dialogue_.line(step.text) ? std::expected<void, Failure>{} : too_long();
-            case StepKind::kOption: {
-                const auto script = static_cast<std::uint32_t>(std::max(step.a, 0));
-                return dialogue_.choice(script, step.b, step.c, step.text) ? std::expected<void, Failure>{} : too_long();
-            }
+            case StepKind::kOption: return add_choice(step);
             case StepKind::kBranch: {
                 const bool taken = holds(step.cond);
                 const std::int32_t chosen = taken ? step.a : step.b;

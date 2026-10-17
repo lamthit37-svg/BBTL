@@ -14,6 +14,13 @@ import lua_units as U
 ACCEPT = "x888888_g_AutoAccept_MissionList"
 FULL = "x888888_g_FullLevel_MissionList"
 
+# Khác gốc: 1400 初涉江湖 được cấp ngay khi nhân vật vào game lần đầu. Máy chủ XJL7457 làm việc đó trong
+# x888888_OnScenePlayerFirstLogin (scene.lua) bằng AddMission(718, 210238), id 2008 đã thay bằng id 2026.
+# Bằng chứng id 2026: danh bạ client ghi người giao -1 (không NPC giao) và MisDesc edali_newquest_001.lua nói mục
+# tiêu "已找到赵天师". Hàng nhận theo cấp 1: nơi gọi phát sự kiện lên cấp 0 -> cấp hiện tại ở lần vào đầu tiên.
+# (cấp nhận, quest, script, tiền đề, mã sự kiện, cấp hoàn thành, chỉ số, chỉ số ghi, tin)
+FIRST_ENTRY_2026 = ((1, 1400, 210262, 0, 0, -1, -1, -1, ""),)
+
 
 def load_scene_unit(low: F.Lowerer, script_dir: Path) -> F.Unit:
     unit = F.Unit(888888, "scene.lua", {}, {})
@@ -49,4 +56,4 @@ def auto_rows(unit: F.Unit) -> list:
         rows.append((level if take else -1, quest, script, take.get("PreMissionId", 0), take.get("EventId", 0),
                      done.get("LevelLimit", -1), done.get("CompleteIdx", -1), done.get("RecordIdx", -1),
                      done.get("MsgStr", "")))
-    return rows
+    return [*FIRST_ENTRY_2026, *rows]

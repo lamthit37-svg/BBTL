@@ -99,6 +99,20 @@ def lowerer_for(text: str) -> tuple[F.Lowerer, F.Unit]:
     return low, unit
 
 
+class ScriptDatTests(unittest.TestCase):
+    """Script.dat: chú thích `;` sau đường dẫn không được dính vào đường dẫn (N0: 147 mục từng bị bỏ)."""
+
+    def test_trailing_comment_is_not_part_of_the_path(self) -> None:
+        text = "005117=\\event\\jinghu\\ejinghu_Boss_1.lua ;comment\n401000=\\event\\fuben\\a.lua\t; ghi chú\n"
+        found = U.read_script_dat(text)
+        self.assertEqual(found[5117], "event/jinghu/ejinghu_Boss_1.lua")
+        self.assertEqual(found[401000], "event/fuben/a.lua")
+
+    def test_comment_lines_and_plain_lines_still_work(self) -> None:
+        text = "; cả dòng là chú thích\n\n000001=\\obj\\x.lua\nthiếu dấu bằng\nabc=\\bad.lua\n"
+        self.assertEqual(U.read_script_dat(text), {1: "obj/x.lua"})
+
+
 class SyntaxTests(unittest.TestCase):
     def test_upvalue_prefix_and_c_style_not_equal(self) -> None:
         tree = S.parse("local a = 1\nfunction f()\n  local b = %a\n  if b != 2 then b = 3 end\nend\n")

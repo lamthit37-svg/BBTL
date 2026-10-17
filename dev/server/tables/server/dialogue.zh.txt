@@ -2482,12 +2482,17 @@ lua.ff545706  	      好久没有见到你了，以你这样的天资，真可�
 lua.ffe8087e  	引荐加入门派
 ## 400962:-1  obj/changbai/ochangbai_chargetransfer.lua
 lua.f3f92cca  	洛阳
+## 401001:1
+lua.89386b13  	珍珑棋局[普通]
+lua.8a0f62e4  	#G珍珑棋局[快速]
 ## 402000:-1  obj/fuben/ofuben_1_zhenlong.lua
 lua.84e4d575  	  {0} ，赶快来吧。␣
 ## 402001:-1  obj/fuben/ofuben_1_zhenlongRest.lua
+lua.1dcae260  	棋局快速模式介绍
 lua.2c43a5a4  	棋局介绍
 lua.527c6f5c  	离开休息室
 lua.72242338  	如何在刷棋中获得更多的经验
+lua.a63d1bd1  	珍珑棋局
 ## 402001:11  obj/fuben/ofuben_1_zhenlongRest.lua
 lua.271e4b44  	确定
 lua.5dfd5bdd  	  如果你的队友都在休息室中，而你却独自离开的话，他们会因此无法进入棋局。你确认要离开吗？
@@ -2536,7 +2541,6 @@ lua.0344935f  	药理学大师
 lua.81b68d33  	养生法大师
 ## 500000:8
 lua.7ab605a6  	洛阳漕运使
-lua.a63d1bd1  	珍珑棋局
 ## 500000:9
 lua.4fce9263  	月下老人
 lua.e0324bdd  	我要结婚：

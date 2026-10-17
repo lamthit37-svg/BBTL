@@ -4,6 +4,7 @@
 # types: int	int	int	int	int	int	int	int	text
 # layout: aligned
 level  	quest  	script   	pre_quest  	event  	full_level  	complete_idx  	record_idx  	message
+1      	1400   	210262   	0          	0      	-1          	-1            	-1          	
 26     	400    	1018700  	0          	4      	-1          	-1            	-1          	
 28     	403    	500606   	0          	0      	28          	0             	1           	#{YD_20080421_188}
 30     	409    	500602   	0          	0      	30          	0             	1           	#{YD_20080421_181}

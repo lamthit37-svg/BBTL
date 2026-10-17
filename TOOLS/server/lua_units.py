@@ -17,15 +17,16 @@ PREFIX = re.compile(r"^x0*(\d+)_")
 
 
 def read_script_dat(text: str) -> dict:
-    """Script.dat: các dòng 'id=đường dẫn' (dòng bắt đầu bằng ; là chú thích). Trả {id: đường dẫn}."""
+    """Script.dat: các dòng 'id=đường dẫn' (từ dấu ; trở đi là chú thích). Trả {id: đường dẫn}."""
     found: dict = {}
     for line in text.splitlines():
         line = line.strip()
         if not line or line.startswith(";") or "=" not in line:
             continue
         key, _, value = line.partition("=")
-        if key.strip().isdigit():
-            found[int(key.strip())] = value.strip().replace("\\", "/").lstrip("/")
+        path = value.partition(";")[0].strip()
+        if key.strip().isdigit() and path:
+            found[int(key.strip())] = path.replace("\\", "/").lstrip("/")
     return found
 
 

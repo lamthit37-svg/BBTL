@@ -377,6 +377,16 @@ void put_skill_entry(Writer& writer, const SkillEntry& message) {
     return message;
 }
 
+void put_ui_string(Writer& writer, const UiString& message) {
+    writer.text(message.text, kUiStringTextBytes);
+}
+
+[[nodiscard]] UiString get_ui_string(Reader& reader) {
+    UiString message;
+    message.text = reader.text(kUiStringTextBytes);
+    return message;
+}
+
 void put_hello(Writer& writer, const Hello& message) {
     writer.u16(message.version);
     put_platform(writer, message.platform);
@@ -565,6 +575,38 @@ void put_dialog_close(Writer& writer, const DialogClose& message) {
     return message;
 }
 
+// list:i32, tối đa kExecuteScriptParamsCount phần tử.
+void put_list_2(Writer& writer, const std::vector<std::int32_t>& values) {
+    writer.count(values.size(), kExecuteScriptParamsCount);
+    for (const auto& value : values) {
+        writer.i32(value);
+    }
+}
+
+[[nodiscard]] std::vector<std::int32_t> get_list_2(Reader& reader) {
+    const std::size_t count = reader.count(kExecuteScriptParamsCount);
+    std::vector<std::int32_t> values;
+    values.reserve(count);
+    for (std::size_t i = 0; i < count && reader.is_ok(); ++i) {
+        values.push_back(reader.i32());
+    }
+    return values;
+}
+
+void put_execute_script(Writer& writer, const ExecuteScript& message) {
+    writer.i32(message.script);
+    writer.text(message.function, kExecuteScriptFunctionBytes);
+    put_list_2(writer, message.params);
+}
+
+[[nodiscard]] ExecuteScript get_execute_script(Reader& reader) {
+    ExecuteScript message;
+    message.script = reader.i32();
+    message.function = reader.text(kExecuteScriptFunctionBytes);
+    message.params = get_list_2(reader);
+    return message;
+}
+
 void put_cast_skill(Writer& writer, const CastSkill& message) {
     writer.u16(message.seq);
     writer.u16(message.skill);
@@ -692,14 +734,14 @@ void put_ui_config(Writer& writer, const UiConfig& message) {
 }
 
 // list:record:CharacterSummary, tối đa kCharacterListCharactersCount phần tử.
-void put_list_2(Writer& writer, const std::vector<CharacterSummary>& values) {
+void put_list_3(Writer& writer, const std::vector<CharacterSummary>& values) {
     writer.count(values.size(), kCharacterListCharactersCount);
     for (const auto& value : values) {
         put_character_summary(writer, value);
     }
 }
 
-[[nodiscard]] std::vector<CharacterSummary> get_list_2(Reader& reader) {
+[[nodiscard]] std::vector<CharacterSummary> get_list_3(Reader& reader) {
     const std::size_t count = reader.count(kCharacterListCharactersCount);
     std::vector<CharacterSummary> values;
     values.reserve(count);
@@ -710,12 +752,12 @@ void put_list_2(Writer& writer, const std::vector<CharacterSummary>& values) {
 }
 
 void put_character_list(Writer& writer, const CharacterList& message) {
-    put_list_2(writer, message.characters);
+    put_list_3(writer, message.characters);
 }
 
 [[nodiscard]] CharacterList get_character_list(Reader& reader) {
     CharacterList message;
-    message.characters = get_list_2(reader);
+    message.characters = get_list_3(reader);
     return message;
 }
 
@@ -844,14 +886,14 @@ void put_entity_flags(Writer& writer, const EntityFlags& message) {
 }
 
 // list:record:PosEntry, tối đa kEntityPosBatchPlacesCount phần tử.
-void put_list_3(Writer& writer, const std::vector<PosEntry>& values) {
+void put_list_4(Writer& writer, const std::vector<PosEntry>& values) {
     writer.count(values.size(), kEntityPosBatchPlacesCount);
     for (const auto& value : values) {
         put_pos_entry(writer, value);
     }
 }
 
-[[nodiscard]] std::vector<PosEntry> get_list_3(Reader& reader) {
+[[nodiscard]] std::vector<PosEntry> get_list_4(Reader& reader) {
     const std::size_t count = reader.count(kEntityPosBatchPlacesCount);
     std::vector<PosEntry> values;
     values.reserve(count);
@@ -862,12 +904,12 @@ void put_list_3(Writer& writer, const std::vector<PosEntry>& values) {
 }
 
 void put_entity_pos_batch(Writer& writer, const EntityPosBatch& message) {
-    put_list_3(writer, message.places);
+    put_list_4(writer, message.places);
 }
 
 [[nodiscard]] EntityPosBatch get_entity_pos_batch(Reader& reader) {
     EntityPosBatch message;
-    message.places = get_list_3(reader);
+    message.places = get_list_4(reader);
     return message;
 }
 
@@ -882,14 +924,14 @@ void put_ticket(Writer& writer, const Ticket& message) {
 }
 
 // list:record:DialogLine, tối đa kDialogOpenLinesCount phần tử.
-void put_list_4(Writer& writer, const std::vector<DialogLine>& values) {
+void put_list_5(Writer& writer, const std::vector<DialogLine>& values) {
     writer.count(values.size(), kDialogOpenLinesCount);
     for (const auto& value : values) {
         put_dialog_line(writer, value);
     }
 }
 
-[[nodiscard]] std::vector<DialogLine> get_list_4(Reader& reader) {
+[[nodiscard]] std::vector<DialogLine> get_list_5(Reader& reader) {
     const std::size_t count = reader.count(kDialogOpenLinesCount);
     std::vector<DialogLine> values;
     values.reserve(count);
@@ -900,14 +942,14 @@ void put_list_4(Writer& writer, const std::vector<DialogLine>& values) {
 }
 
 // list:record:DialogChoice, tối đa kDialogOpenChoicesCount phần tử.
-void put_list_5(Writer& writer, const std::vector<DialogChoice>& values) {
+void put_list_6(Writer& writer, const std::vector<DialogChoice>& values) {
     writer.count(values.size(), kDialogOpenChoicesCount);
     for (const auto& value : values) {
         put_dialog_choice(writer, value);
     }
 }
 
-[[nodiscard]] std::vector<DialogChoice> get_list_5(Reader& reader) {
+[[nodiscard]] std::vector<DialogChoice> get_list_6(Reader& reader) {
     const std::size_t count = reader.count(kDialogOpenChoicesCount);
     std::vector<DialogChoice> values;
     values.reserve(count);
@@ -918,14 +960,14 @@ void put_list_5(Writer& writer, const std::vector<DialogChoice>& values) {
 }
 
 // list:record:DialogMark, tối đa kDialogOpenMarksCount phần tử.
-void put_list_6(Writer& writer, const std::vector<DialogMark>& values) {
+void put_list_7(Writer& writer, const std::vector<DialogMark>& values) {
     writer.count(values.size(), kDialogOpenMarksCount);
     for (const auto& value : values) {
         put_dialog_mark(writer, value);
     }
 }
 
-[[nodiscard]] std::vector<DialogMark> get_list_6(Reader& reader) {
+[[nodiscard]] std::vector<DialogMark> get_list_7(Reader& reader) {
     const std::size_t count = reader.count(kDialogOpenMarksCount);
     std::vector<DialogMark> values;
     values.reserve(count);
@@ -936,14 +978,14 @@ void put_list_6(Writer& writer, const std::vector<DialogMark>& values) {
 }
 
 // list:record:DialogBonus, tối đa kDialogOpenBonusesCount phần tử.
-void put_list_7(Writer& writer, const std::vector<DialogBonus>& values) {
+void put_list_8(Writer& writer, const std::vector<DialogBonus>& values) {
     writer.count(values.size(), kDialogOpenBonusesCount);
     for (const auto& value : values) {
         put_dialog_bonus(writer, value);
     }
 }
 
-[[nodiscard]] std::vector<DialogBonus> get_list_7(Reader& reader) {
+[[nodiscard]] std::vector<DialogBonus> get_list_8(Reader& reader) {
     const std::size_t count = reader.count(kDialogOpenBonusesCount);
     std::vector<DialogBonus> values;
     values.reserve(count);
@@ -957,11 +999,11 @@ void put_dialog_open(Writer& writer, const DialogOpen& message) {
     writer.u64(message.session);
     writer.u32(message.npc);
     put_dialog_mode(writer, message.mode);
-    put_list_4(writer, message.lines);
-    put_list_5(writer, message.choices);
-    put_list_6(writer, message.marks);
+    put_list_5(writer, message.lines);
+    put_list_6(writer, message.choices);
+    put_list_7(writer, message.marks);
     writer.i32(message.panel_quest);
-    put_list_7(writer, message.bonuses);
+    put_list_8(writer, message.bonuses);
 }
 
 [[nodiscard]] DialogOpen get_dialog_open(Reader& reader) {
@@ -969,11 +1011,11 @@ void put_dialog_open(Writer& writer, const DialogOpen& message) {
     message.session = reader.u64();
     message.npc = reader.u32();
     message.mode = get_dialog_mode(reader);
-    message.lines = get_list_4(reader);
-    message.choices = get_list_5(reader);
-    message.marks = get_list_6(reader);
+    message.lines = get_list_5(reader);
+    message.choices = get_list_6(reader);
+    message.marks = get_list_7(reader);
     message.panel_quest = reader.i32();
-    message.bonuses = get_list_7(reader);
+    message.bonuses = get_list_8(reader);
     return message;
 }
 
@@ -990,14 +1032,14 @@ void put_dialog_closed(Writer& writer, const DialogClosed& message) {
 }
 
 // list:record:QuestSlot, tối đa kQuestBookSlotsCount phần tử.
-void put_list_8(Writer& writer, const std::vector<QuestSlot>& values) {
+void put_list_9(Writer& writer, const std::vector<QuestSlot>& values) {
     writer.count(values.size(), kQuestBookSlotsCount);
     for (const auto& value : values) {
         put_quest_slot(writer, value);
     }
 }
 
-[[nodiscard]] std::vector<QuestSlot> get_list_8(Reader& reader) {
+[[nodiscard]] std::vector<QuestSlot> get_list_9(Reader& reader) {
     const std::size_t count = reader.count(kQuestBookSlotsCount);
     std::vector<QuestSlot> values;
     values.reserve(count);
@@ -1008,13 +1050,13 @@ void put_list_8(Writer& writer, const std::vector<QuestSlot>& values) {
 }
 
 void put_quest_book(Writer& writer, const QuestBook& message) {
-    put_list_8(writer, message.slots);
+    put_list_9(writer, message.slots);
     writer.bytes(message.done);
 }
 
 [[nodiscard]] QuestBook get_quest_book(Reader& reader) {
     QuestBook message;
-    message.slots = get_list_8(reader);
+    message.slots = get_list_9(reader);
     reader.bytes(message.done);
     return message;
 }
@@ -1034,6 +1076,58 @@ void put_quest_notice(Writer& writer, const QuestNotice& message) {
     message.text = reader.text(kQuestNoticeTextBytes);
     message.value = reader.i64();
     message.ref = reader.i32();
+    return message;
+}
+
+// list:i32, tối đa kUiCommandIntsCount phần tử.
+void put_list_10(Writer& writer, const std::vector<std::int32_t>& values) {
+    writer.count(values.size(), kUiCommandIntsCount);
+    for (const auto& value : values) {
+        writer.i32(value);
+    }
+}
+
+[[nodiscard]] std::vector<std::int32_t> get_list_10(Reader& reader) {
+    const std::size_t count = reader.count(kUiCommandIntsCount);
+    std::vector<std::int32_t> values;
+    values.reserve(count);
+    for (std::size_t i = 0; i < count && reader.is_ok(); ++i) {
+        values.push_back(reader.i32());
+    }
+    return values;
+}
+
+// list:record:UiString, tối đa kUiCommandStringsCount phần tử.
+void put_list_11(Writer& writer, const std::vector<UiString>& values) {
+    writer.count(values.size(), kUiCommandStringsCount);
+    for (const auto& value : values) {
+        put_ui_string(writer, value);
+    }
+}
+
+[[nodiscard]] std::vector<UiString> get_list_11(Reader& reader) {
+    const std::size_t count = reader.count(kUiCommandStringsCount);
+    std::vector<UiString> values;
+    values.reserve(count);
+    for (std::size_t i = 0; i < count && reader.is_ok(); ++i) {
+        values.push_back(get_ui_string(reader));
+    }
+    return values;
+}
+
+void put_ui_command(Writer& writer, const UiCommand& message) {
+    writer.i32(message.index);
+    writer.i32(message.mode);
+    put_list_10(writer, message.ints);
+    put_list_11(writer, message.strings);
+}
+
+[[nodiscard]] UiCommand get_ui_command(Reader& reader) {
+    UiCommand message;
+    message.index = reader.i32();
+    message.mode = reader.i32();
+    message.ints = get_list_10(reader);
+    message.strings = get_list_11(reader);
     return message;
 }
 
@@ -1074,14 +1168,14 @@ void put_self_vitals(Writer& writer, const SelfVitals& message) {
 }
 
 // list:record:BagSlot, tối đa kSelfBagSlotsCount phần tử.
-void put_list_9(Writer& writer, const std::vector<BagSlot>& values) {
+void put_list_12(Writer& writer, const std::vector<BagSlot>& values) {
     writer.count(values.size(), kSelfBagSlotsCount);
     for (const auto& value : values) {
         put_bag_slot(writer, value);
     }
 }
 
-[[nodiscard]] std::vector<BagSlot> get_list_9(Reader& reader) {
+[[nodiscard]] std::vector<BagSlot> get_list_12(Reader& reader) {
     const std::size_t count = reader.count(kSelfBagSlotsCount);
     std::vector<BagSlot> values;
     values.reserve(count);
@@ -1092,12 +1186,12 @@ void put_list_9(Writer& writer, const std::vector<BagSlot>& values) {
 }
 
 void put_self_bag(Writer& writer, const SelfBag& message) {
-    put_list_9(writer, message.slots);
+    put_list_12(writer, message.slots);
 }
 
 [[nodiscard]] SelfBag get_self_bag(Reader& reader) {
     SelfBag message;
-    message.slots = get_list_9(reader);
+    message.slots = get_list_12(reader);
     return message;
 }
 
@@ -1182,14 +1276,14 @@ void put_death_notice(Writer& writer, const DeathNotice& message) {
 }
 
 // list:record:SkillEntry, tối đa kSelfSkillsSkillsCount phần tử.
-void put_list_10(Writer& writer, const std::vector<SkillEntry>& values) {
+void put_list_13(Writer& writer, const std::vector<SkillEntry>& values) {
     writer.count(values.size(), kSelfSkillsSkillsCount);
     for (const auto& value : values) {
         put_skill_entry(writer, value);
     }
 }
 
-[[nodiscard]] std::vector<SkillEntry> get_list_10(Reader& reader) {
+[[nodiscard]] std::vector<SkillEntry> get_list_13(Reader& reader) {
     const std::size_t count = reader.count(kSelfSkillsSkillsCount);
     std::vector<SkillEntry> values;
     values.reserve(count);
@@ -1200,12 +1294,12 @@ void put_list_10(Writer& writer, const std::vector<SkillEntry>& values) {
 }
 
 void put_self_skills(Writer& writer, const SelfSkills& message) {
-    put_list_10(writer, message.skills);
+    put_list_13(writer, message.skills);
 }
 
 [[nodiscard]] SelfSkills get_self_skills(Reader& reader) {
     SelfSkills message;
-    message.skills = get_list_10(reader);
+    message.skills = get_list_13(reader);
     return message;
 }
 
@@ -1231,6 +1325,7 @@ template <class Message>
 
 [[nodiscard]] GameServerResult decode_game_server_2_of_2(std::uint16_t kind, Reader& reader) {
     switch (kind) {
+    case SelfSkills::kKind: return checked(reader, get_self_skills(reader));
     case SkillCooldown::kKind: return checked(reader, get_skill_cooldown(reader));
     default: return std::unexpected(WireError::kUnknownKind);
     }
@@ -1409,6 +1504,12 @@ WireStatus encode(std::vector<std::byte>& out, const DialogClose& message) {
     return writer.finish(DialogClose::kKind);
 }
 
+WireStatus encode(std::vector<std::byte>& out, const ExecuteScript& message) {
+    Writer writer{out};
+    put_execute_script(writer, message);
+    return writer.finish(ExecuteScript::kKind);
+}
+
 WireStatus encode(std::vector<std::byte>& out, const CastSkill& message) {
     Writer writer{out};
     put_cast_skill(writer, message);
@@ -1559,6 +1660,12 @@ WireStatus encode(std::vector<std::byte>& out, const QuestNotice& message) {
     return writer.finish(QuestNotice::kKind);
 }
 
+WireStatus encode(std::vector<std::byte>& out, const UiCommand& message) {
+    Writer writer{out};
+    put_ui_command(writer, message);
+    return writer.finish(UiCommand::kKind);
+}
+
 WireStatus encode(std::vector<std::byte>& out, const SelfStats& message) {
     Writer writer{out};
     put_self_stats(writer, message);
@@ -1637,6 +1744,7 @@ GameClientResult decode_game_client(const Frame& frame, ByteView body) {
     case QuestTurnIn::kKind: return checked(reader, get_quest_turn_in(reader));
     case QuestAbandon::kKind: return checked(reader, get_quest_abandon(reader));
     case DialogClose::kKind: return checked(reader, get_dialog_close(reader));
+    case ExecuteScript::kKind: return checked(reader, get_execute_script(reader));
     case CastSkill::kKind: return checked(reader, get_cast_skill(reader));
     case Respawn::kKind: return checked(reader, get_respawn(reader));
     case PickUp::kKind: return checked(reader, get_pick_up(reader));
@@ -1668,6 +1776,7 @@ GameServerResult decode_game_server(const Frame& frame, ByteView body) {
     case DialogClosed::kKind: return checked(reader, get_dialog_closed(reader));
     case QuestBook::kKind: return checked(reader, get_quest_book(reader));
     case QuestNotice::kKind: return checked(reader, get_quest_notice(reader));
+    case UiCommand::kKind: return checked(reader, get_ui_command(reader));
     case SelfStats::kKind: return checked(reader, get_self_stats(reader));
     case SelfVitals::kKind: return checked(reader, get_self_vitals(reader));
     case SelfBag::kKind: return checked(reader, get_self_bag(reader));
@@ -1676,7 +1785,6 @@ GameServerResult decode_game_server(const Frame& frame, ByteView body) {
     case CombatEvent::kKind: return checked(reader, get_combat_event(reader));
     case EntityDied::kKind: return checked(reader, get_entity_died(reader));
     case DeathNotice::kKind: return checked(reader, get_death_notice(reader));
-    case SelfSkills::kKind: return checked(reader, get_self_skills(reader));
     default: return decode_game_server_2_of_2(frame.kind, reader);
     }
 }

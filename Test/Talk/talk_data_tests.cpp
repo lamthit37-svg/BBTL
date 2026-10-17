@@ -181,6 +181,44 @@ void every_npc_script_walks(Context& context) {
         "với nhân vật đủ tiền và túi rộng, không bước effects nào bị sổ cái từ chối vì lỗi dữ liệu");
 }
 
+// Hồi quy N1: menu của 赵天师 (script 2030, NPC đầu tiên của người mới) từng mời mục dẫn tới nhiệm vụ ngoài danh bạ client 2026
+// (440) hay chưa chạy được (718); chọn chúng ra kNoDialog, client nhận Reject 21. Mọi mục còn lại trong menu phải chạy được.
+void newbie_npc_menu_has_no_dead_option(Context& context) {
+    const auto all = read_all();
+    if (!all) return;
+    const World world = load_world(*all, context);
+    if (!world.script || !world.catalog) return;
+    dice::Dice dice(3);
+    mission::Engine engine(*world.catalog, dice);
+    talk::Service service(*world.script, engine, {}, talk::Options{});
+    const FakeTalkWorld place;
+    ops::Calendar calendar;
+    calendar.day = 100;
+    calendar.hour = 12;
+    const talk::NpcRef npc{.guid = 9002, .scene = 3, .name = 0, .script = 2030};
+    FakeCharacter looker;
+    looker.level_value = 1;
+    const talk::Result root = service.talk(looker, npc, place, ids::Tick{1}, calendar);
+    context.expect(root.has_value(), "赵天师 mở được hộp thoại gốc");
+    if (!root) return;
+    const std::size_t count = root->view.choices.size();
+    context.expect(count > 0, "menu của 赵天师 còn mục");
+    std::size_t dead = 0;
+    for (std::uint32_t index = 0; index < count; ++index) {
+        FakeCharacter chooser;
+        chooser.level_value = 1;
+        const talk::Result again = service.talk(chooser, npc, place, ids::Tick{1}, calendar);
+        if (!again) continue;
+        const talk::Result chosen = service.choose(chooser, again->session, index, place, ids::Tick{1}, calendar);
+        if (chosen) continue;
+        ++dead;
+        const std::uint32_t text_id = again->view.choices[index].text.id;
+        std::print("[mục chết] 赵天师 #{}: chuỗi {}: {}\n", index, text_id, talk::describe(chosen.error().error));
+    }
+    std::print("[赵天师] {} mục, {} mục chết\n", count, dead);
+    context.expect(dead == 0, "mọi mục trong menu của 赵天师 chạy được");
+}
+
 // Script nhiệm vụ có hộp thoại bảng (mission_info/continue/demand): chỉ ra nhiệm vụ nào trong danh mục để client biết nhận/nộp cái nào.
 void mission_panels_name_their_quests(Context& context) {
     const auto all = read_all();
@@ -306,6 +344,7 @@ void ring_quest_npc_menu(Context& context) {
 constexpr std::array kCases{
     Case{.name = "real_script_loads", .body = real_script_loads},
     Case{.name = "every_npc_script_walks", .body = every_npc_script_walks},
+    Case{.name = "newbie_npc_menu_has_no_dead_option", .body = newbie_npc_menu_has_no_dead_option},
     Case{.name = "mission_panels_name_their_quests", .body = mission_panels_name_their_quests},
     Case{.name = "ring_quest_npc_menu", .body = ring_quest_npc_menu},
 };

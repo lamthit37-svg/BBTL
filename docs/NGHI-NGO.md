@@ -1167,3 +1167,48 @@ kết luận ngay dưới mục đó chứ không xoá.
     hay gói tương ứng. Hiện tại ta không làm Agreement, FangChenMi, LoginTimer. Cần: gói hay luật máy chủ gốc nói
     điều kiện gửi; khi có thì M thêm kết quả đăng nhập và K mở cửa sổ. Tương tự `LOGIN_MIBAO` (`0x1c1`, Pswprotect):
     chưa tìm thấy nơi đẩy trong `login_packets.txt`.
+
+67. **Menu NPC ẩn mục dẫn tới nhiệm vụ không chạy được** (2026-10-18, N1; `talk/detail/runner.cpp` hàm `offerable`, ca
+    `newbie_npc_menu_has_no_dead_option`). Trước đây menu dựng từ bảng thoại 2008 mời cả mục dẫn tới nhiệm vụ mà client
+    2026 không có (440 第一把武器, 718 十年 bản 2008) hay chưa chạy được; chọn chúng ra `kNoDialog`, `play` đổi thành Reject
+    21 (14 và 6a đo ở 赵天师: chọn 1 và 2 hỏng, chọn 3 ổn). Nay bước `option` có script là một nhiệm vụ không `runnable()` thì
+    bị bỏ khỏi menu. Số bước `option` bị bỏ trên bảng sinh 2026-10-18: 847 trỏ nhiệm vụ ngoài danh bạ client và chưa hỗ
+    trợ (nội dung 2008, không có bằng chứng 2026, bỏ đúng), 72 trỏ nhiệm vụ `ok` nhưng ngoài danh bạ (bỏ đúng), và 137 trỏ
+    59 script nhiệm vụ CÓ trong danh bạ client 2026 mà bộ trích chưa chạy được. Nhóm 137/59 là lỗ của ta, không phải nội dung
+    2008: lý do theo họ là 13 `OnAccept: phép tính * trên giá trị không phải hằng` (212119–212133 vùng Thảo Nguyên, anh hùng
+    250–255), 12 `CheckSubmit: id vật phẩm không phải số nguyên hằng` (sư môn 229000–229014 và 546), 6 `OnAccept không AddMission
+    đúng nhiệm vụ` (713–716 ngự tứ, 949), 5 `API GetMonsterCount`, 6 API phụ bản (`LuaFnGet/SetCopySceneData_Param`, thuộc
+    N4), còn lại lẻ. Cần: N2 (chuỗi nhiệm vụ theo cấp) và N3 (sư môn) viết bộ chạy hay bộ trích cho từng nhóm; khi một script
+    chạy được thì mục tự trở lại menu, không phải sửa chỗ khác. Lấy danh sách: bước `option` của `talk_blocks.tsv` có cột
+    `a` là script nhiệm vụ mà `mission_quests.tsv` ghi `in_client=1` và `status` khác `ok`.
+
+68. **Lựa chọn trỏ tới điểm vào hội thoại chưa trích được vẫn hiện, chọn ra Reject 21** (2026-10-18, N1). Bộ lọc mục 67 chỉ
+    xét nhiệm vụ. Mục menu của NPC trỏ tới hàm sự kiện (cửa hàng, dịch chuyển, luyện nghề...) mà `talk_entries.tsv` ghi
+    `unsupported` hay `no_dialog` vẫn hiện, chọn ra `kNoDialog`. `talk_data_tests` (ca `every_npc_script_walks`, 1 727 script
+    NPC, ba mức cấp) in `chọn: không có hội thoại` 1 548 trên 3 394 lượt chọn sau bộ lọc. Chưa ẩn vì mục cửa hàng và dịch
+    chuyển là việc của G6 và N-sau: ẩn chúng làm người chơi tưởng NPC không có chức năng. Cần: mỗi gói sở hữu chức năng
+    làm bộ chạy; riêng mã lỗi: `gameplay.cpp:166` ép `kNoDialog` thành `kNoSuchEntity` (21), nên client hiện câu "mục tiêu không
+    tồn tại" cho một mục chỉ là chưa làm; đổi sang mã riêng khi `gameplay.cpp` được mở (6a). Kiểm 赵天师 cấp 1 thì 0 mục
+    chết (`[赵天师] 1 mục, 0 mục chết`).
+
+69. **Chuỗi tân thủ: bước chặn và gói chặn** (2026-10-18, N1; `NHIEM-VU-NGUON.md` mục 5 và 9). Đi hết trong G3: 1400–1408, 1413,
+    1424. Chặn: 1414 và 1415 (cần sổ trân thú: data id 559 `飘飘兔` lên cấp 2, giữ 558 `飘飘鸭`; gói trân thú sau G9, HO-SO 5.10),
+    1417 (dùng 七彩烟花 38000173 tại cảnh 2 (160,93); gói dùng vật phẩm G5), 1419 (năm câu đúng liên tiếp ở 钱龙, `equiz.lua`
+    311100; N6), 1421 (nhập phái, môn phái khác 9; G7, và mở nó khoá 1422), 1423 (xem mục 70). Kéo theo 1412, 1416, 1418, 1420,
+    1422 vì tiền đề của chúng nằm sau bước không nộp được. Khi một gói đạt, chạy lại ca `longest_chain_end_to_end` và kịch bản
+    `n1-tanthu.script` kéo dài tới bước đó.
+
+70. **1423 何谓行善: ba vật phẩm có định nghĩa, thiếu nguồn cấp** (2026-10-18, N1; kiểm lại theo yêu cầu của 6a). `items_common.tsv`
+    (client 2026 `CommonItem.txt`) có đủ 40004514 小馒头, 40004515 衣服, 40004516 锄头 (loại 任务道具, mô tả "段延庆让你送给
+    大理（250，271）小乞丐"). Cái thiếu là nguồn cấp: chuỗi `XSRW_100111_120` bảo lấy ba món trong 杂货车 tại (282,261), mà
+    杂货车 không có trong bảng phát, spawn, điểm thu hoạch hay script nào (mesh trong `dali_new_320.Scene` là vật tĩnh; mẫu quái
+    629 và 636 tên 杂货车 không được thả ở Đại Lý). Ghi chú "không có trong bảng nào" ở `NHIEM-VU-NGUON.md` mục 9 chỉ đúng với
+    nguồn cấp, không đúng với định nghĩa vật phẩm. Không phát ba món lúc nhận nhiệm vụ để cho qua. Cần: cơ chế vật cảnh tương tác
+    cho ra vật phẩm (gói thu hoạch/vật cảnh) hoặc bằng chứng gốc về nơi 杂货车 phát đồ.
+
+71. **Chữ hộp thoại có `}` thừa trước đợt này** (2026-10-18, N1; đã sửa). `lua_emit.py:65` thoát `{`→`{{` và `}`→`}}` trong bảng
+    thoại (28 mẫu có `#{{OBJ_...}}`), còn `play/text.cpp` `render` chỉ thay `{n}` nên gửi nguyên `#{{OBJ_dali_0011}}`; client đọc
+    khoá lạ và để lại một `}` (`e2ek0t2兄弟}`, ảnh `g0-talk.png` của 14). Nay `render` đổi `{{`→`{` và `}}`→`}`, ca
+    `render_unescapes_braces` trong `play_tests`. Còn lại, chưa kiểm: dòng đầu bắt đầu bằng `!` trong cùng ảnh. Cần: chụp lại sau
+    khi dựng cụm với bản mới, đọc bằng mắt; nếu `!` vẫn có thì tra `dialogue.zh.txt` mẫu của 赵天师 xem `!` nằm trong chữ gốc
+    hay do client thêm.

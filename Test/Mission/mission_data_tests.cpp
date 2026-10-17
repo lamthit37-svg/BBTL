@@ -342,8 +342,42 @@ void lowest_chain_end_to_end(Context& context) {
     context.expect(finished == lowest->size(), "đi hết chuỗi cấp thấp nhất");
 }
 
+// Hồi quy N1: 1400 初涉江湖 được cấp khi nhân vật vào game lần đầu (sự kiện lên cấp 0 -> 1, hàng cấp 1 của mission_auto) và
+// không cấp lại khi đã giữ hay đã xong. Nơi gọi (play) chỉ phát sự kiện ở lần vào đầu tiên.
+void first_entry_grants_the_first_newbie_quest(Context& context) {
+    const auto all = read_all();
+    if (!all) return;
+    auto catalog = load_catalog(*all, context);
+    if (!catalog) return;
+    dice::Dice dice(5);
+    mission::Engine engine(*catalog, dice);
+    ops::Calendar calendar;
+    calendar.day = 100;
+    const auto enter = [&](FakeCharacter& hero) {
+        bus::Event event;
+        event.kind = bus::Kind::kLevelUp;
+        event.hero = hero.id();
+        event.a = 1;
+        event.c = 0;
+        static_cast<void>(engine.handle(hero, event, calendar));
+    };
+    FakeCharacter fresh;
+    fresh.level_value = 1;
+    enter(fresh);
+    context.expect(fresh.book().find(1400) != nullptr, "vào game lần đầu: 1400 nằm trong sổ");
+    const std::size_t held = fresh.book().active();
+    enter(fresh);
+    context.expect(fresh.book().active() == held, "phát lại sự kiện không nhận hai lần");
+    FakeCharacter finished;
+    finished.level_value = 1;
+    finished.book().mark_done(1400);
+    enter(finished);
+    context.expect(finished.book().find(1400) == nullptr, "đã xong 1400 thì không nhận lại");
+}
+
 constexpr std::array kCases{
     Case{.name = "real_catalog_loads", .body = real_catalog_loads},
+    Case{.name = "first_entry_grants_the_first_newbie_quest", .body = first_entry_grants_the_first_newbie_quest},
     Case{.name = "every_table_quest_completes", .body = every_table_quest_completes},
     Case{.name = "longest_chain_end_to_end", .body = longest_chain_end_to_end},
     Case{.name = "lowest_chain_end_to_end", .body = lowest_chain_end_to_end},

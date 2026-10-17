@@ -2,7 +2,7 @@
 
 # Danh mục tin của giao thức
 
-Bản danh mục 7: 52 tin, 9 record, 14 enum.
+Bản danh mục 8: 54 tin, 10 record, 14 enum.
 Khung có 8 byte đầu (u32 số byte thân, u16 kind, u16 flags bằng 0), little-endian; thân tối đa 65 536 byte, tin client gửi tối đa 4 096 byte.
 Byte cao của kind là nhóm, bit 15 bật là tin server gửi. Trần của text tính bằng byte UTF-8, trần của list tính bằng số phần tử.
 
@@ -411,10 +411,12 @@ Hội thoại với NPC và nhiệm vụ: mở hộp thoại, chọn mục, nh�
 | `0x0604` | QuestTurnIn | game | client | 5 | 14 |
 | `0x0605` | QuestAbandon | game | client | 5 | 2 |
 | `0x0606` | DialogClose | game | client | 5 | 8 |
+| `0x0607` | ExecuteScript | game | client | 8 | 127 |
 | `0x8601` | DialogOpen | game | server | 5 | 29 473 |
 | `0x8602` | DialogClosed | game | server | 5 | 9 |
 | `0x8603` | QuestBook | game | server | 5 | 1 334 |
 | `0x8604` | QuestNotice | game | server | 5 | 531 |
+| `0x8605` | UiCommand | game | server | 8 | 4 188 |
 
 ### Talk (0x0601)
 
@@ -480,6 +482,18 @@ Cổng game, client gửi, có từ bản 5. Thân tối đa 8 byte.
 |---|---|---|---|---|
 | 1 | `session` | `u64` | – | – |
 
+### ExecuteScript (0x0607)
+
+Client gọi một hàm của script phía máy chủ theo CGExecuteScript (2219) của Game.exe: id script, tên hàm và tối đa 14 số. Server chỉ chạy hàm có trong bảng xử lý, hàm lạ bị từ chối.
+
+Cổng game, client gửi, có từ bản 8. Thân tối đa 127 byte.
+
+| Thứ tự | Trường | Kiểu | Trần | Ghi chú |
+|---|---|---|---|---|
+| 1 | `script` | `i32` | – | Id script phía máy chủ (Script.dat); -1 là rỗng. |
+| 2 | `function` | `text` | 63 | Tên hàm trong script, ASCII, 1 đến 63 byte (bản ghi gốc có 64 byte kèm NUL). |
+| 3 | `params` | `list:i32` | 14 | Tham số số nguyên của lời gọi; tối đa 14 như bản ghi XSCRIPT gốc. |
+
 ### DialogOpen (0x8601)
 
 Server mở hay thay hộp thoại của phiên: lời NPC, lựa chọn, dấu nhiệm vụ, bảng nhiệm vụ và phần thưởng.
@@ -532,6 +546,19 @@ Cổng game, server gửi, có từ bản 5. Thân tối đa 531 byte.
 | 3 | `text` | `text` | 512 | Chữ đã dựng; rỗng với kind không có chữ. |
 | 4 | `value` | `i64` | – | RewardExp: kinh nghiệm. RewardMoney: số tiền. RewardItem: số lượng. Relation: giá trị mới. |
 | 5 | `ref` | `i32` | – | RewardMoney: 1 nếu tiền khoá. RewardItem: mẫu vật phẩm. Relation: chỉ số quan hệ. |
+
+### UiCommand (0x8605)
+
+Server bảo client mở cửa sổ hay đẩy sự kiện UI_COMMAND theo GCUICommand (481) của Game.exe: chỉ số lệnh, chế độ, tối đa 16 số và 16 chuỗi.
+
+Cổng game, server gửi, có từ bản 8. Thân tối đa 4 188 byte.
+
+| Thứ tự | Trường | Kiểu | Trần | Ghi chú |
+|---|---|---|---|---|
+| 1 | `index` | `i32` | – | Chỉ số lệnh giao diện (arg0 của sự kiện UI_COMMAND; khoá của UICommandIndex.tsv). |
+| 2 | `mode` | `i32` | – | 0: lưu XParam rồi bắn sự kiện UI_COMMAND (0x13a); khác 0: gọi bộ xử lý lệnh theo chỉ số. |
+| 3 | `ints` | `list:i32` | 16 | Số của XParam, tối đa 16. |
+| 4 | `strings` | `list:record:UiString` | 16 | Chuỗi của XParam, tối đa 16. |
 
 ## Nhóm 07: self
 
@@ -835,6 +862,16 @@ Thân tối đa 7 byte.
 | 1 | `skill` | `u16` | – | Id kỹ năng (cột id của skills.tsv). |
 | 2 | `level` | `u8` | – | Cấp kỹ năng. |
 | 3 | `cooldown_ms` | `u32` | – | Hồi chiêu còn lại, mili giây; 0 là dùng được. |
+
+### UiString
+
+Một chuỗi tham số của UiCommand.
+
+Thân tối đa 257 byte.
+
+| Thứ tự | Trường | Kiểu | Trần | Ghi chú |
+|---|---|---|---|---|
+| 1 | `text` | `text` | 255 | Chuỗi UTF-8; tổng các chuỗi của một UiCommand không quá 511 byte (kho XParam của client gốc). |
 
 ## Enum
 
