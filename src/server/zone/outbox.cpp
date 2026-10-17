@@ -168,6 +168,24 @@ std::vector<Letter> Outbox::take() {
     return std::exchange(letters_, {});
 }
 
+void Outbox::drop_front(std::size_t count) {
+    if (count == 0) return;
+    if (count >= letters_.size()) {
+        letters_.clear();
+        return;
+    }
+    const auto last = letters_.begin() + static_cast<std::ptrdiff_t>(count);
+    letters_.erase(letters_.begin(), last);
+}
+
+std::size_t Outbox::queued_bytes() const noexcept {
+    std::size_t bytes = 0;
+    for (const Letter& letter : letters_) {
+        bytes += letter.body.size();
+    }
+    return bytes;
+}
+
 void Outbox::clear() noexcept {
     letters_.clear();
     std::size_t at = 0;

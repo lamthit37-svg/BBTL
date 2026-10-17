@@ -137,6 +137,10 @@ public:
     [[nodiscard]] const std::vector<Letter>& letters();
     [[nodiscard]] const std::vector<Save>& saves() const noexcept { return saves_; }
     [[nodiscard]] std::vector<Letter> take();
+    // Bỏ `count` thư ở đầu hàng (đã đẩy lên kênh). Quá số thư đang có thì bỏ hết.
+    void drop_front(std::size_t count);
+    // Tổng byte thân của thư còn trong hàng, để so với trần hộp ipc.
+    [[nodiscard]] std::size_t queued_bytes() const noexcept;
     [[nodiscard]] std::vector<Save> take_saves() noexcept { return std::exchange(saves_, {}); }
     [[nodiscard]] std::size_t failures() const noexcept { return failures_; }
     // Gameplay mã hoá tin riêng (play::Output); số tin hỏng của nó cộng vào cùng bộ đếm.

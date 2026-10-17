@@ -1,4 +1,17 @@
-// Giới hạn và tin mức phiên của bảng kết nối, không mở socket và không ngủ.
+/*==============================================================================
+ *  THIENLONG  |  TEST
+ *------------------------------------------------------------------------------
+ *  TỆP       : Test/Gate/gate_tests.cpp
+ *  PHÂN HỆ   : Gate / Gate Tests
+ *  CHUẨN     : C++23
+ *------------------------------------------------------------------------------
+ *  CHỨC NĂNG
+ *  - Giới hạn và tin mức phiên của bảng kết nối, không mở socket và không ngủ.
+ *------------------------------------------------------------------------------
+ *  TÁC GIẢ   : HiepHoon
+ *  TELEGRAM  : @Hoon9xx
+ *============================================================================*/
+
 #include "gate/table.hpp"
 #include "zone/outbox.hpp"
 #include "metrics/metrics.hpp"
@@ -276,15 +289,22 @@ void frame_too_big(Context& context) {
 void slow_reader(Context& context) {
     const secure::Identity identity = make_identity();
     Limits limits = small_limits();
-    limits.per_second = 200;
+    // 40 Pong đã đầy hộp 1024 byte. Cắt phiên lúc ấy biến một lô vị trí thành "đọc quá chậm".
+    // Hàng xuống chịu tới 256 KiB; quá trần đó mới ngắt.
+    limits.per_second = 20000;
     Linked linked = connected(identity, limits);
     send_hello(linked, 1);
-    int left = 40;
-    while (left > 0 && linked.table.is_live(linked.handle)) {
+    int sent = 0;
+    while (sent < 40 && linked.table.is_live(linked.handle)) {
         send_ping(linked, kNow);
-        --left;
+        ++sent;
     }
-    context.expect(!linked.table.is_live(linked.handle), "hộp gửi đầy thì ngắt");
+    context.expect(linked.table.is_live(linked.handle), "hộp 1024 đầy thì xếp hàng");
+    while (sent < 14000 && linked.table.is_live(linked.handle)) {
+        send_ping(linked, kNow);
+        ++sent;
+    }
+    context.expect(!linked.table.is_live(linked.handle), "hàng xuống quá trần thì ngắt");
     context.expect(linked.table.drops(Drop::kSlow) == 1, "đếm đọc chậm");
 }
 

@@ -323,7 +323,10 @@ struct Gait {
 // 200 cm). Nhận Position thì đặt lại vị trí của mình như client thật phải làm (không thì bước sau bị gate coi là
 // nhảy vọt), đếm một lần kéo về và so với chỗ mình tưởng đang đứng: tới lúc Position đến, khách đã gửi thêm một hai
 // bước nữa vào chỗ bị chặn, nên điểm kéo về chỉ được cách vài bước (đi dọc tường thì điểm này trượt theo).
-void walk(link::Link& line, Seen& seen, Tally& tally, const protocol::Position& start, Gait gait, int seconds) {
+// false khi gửi Move hỏng (socket đã đóng). Người gọi phải tính là lỗi: Goodbye có thể còn nằm trong
+// hàng chưa đọc, nên seen.refused một mình không đủ để biết phiên đã chết.
+[[nodiscard]] bool walk(link::Link& line, Seen& seen, Tally& tally, const protocol::Position& start, Gait gait,
+    int seconds) {
     constexpr float kStepCm = 10.0F;
     constexpr float kMaxBehindCm = 45.0F;
     float x = start.x_cm;
@@ -335,7 +338,7 @@ void walk(link::Link& line, Seen& seen, Tally& tally, const protocol::Position& 
         gait.heading += gait.turn;
         x += kStepCm * std::cos(gait.heading);
         z += kStepCm * std::sin(gait.heading);
-        if (!send(line, protocol::Move{.x_cm = x, .z_cm = z, .tick = tick})) return;
+        if (!send(line, protocol::Move{.x_cm = x, .z_cm = z, .tick = tick})) return false;
         const auto frame_end = Clock::now() + std::chrono::milliseconds{33};
         while (Clock::now() < frame_end) {
             const auto message = read_game(line, net::Milliseconds{3});
@@ -349,6 +352,7 @@ void walk(link::Link& line, Seen& seen, Tally& tally, const protocol::Position& 
             z = spot->z_cm;
         }
     }
+    return true;
 }
 
 // Đi thẳng tới khi cách `goal` không quá `close_cm` (10 cm mỗi bước, 30 bước mỗi giây), vẫn đọc mọi tin. Position kéo
@@ -566,6 +570,9 @@ void fight(link::Link& line, Seen& seen, Tally& tally, const protocol::Position&
 }
 
 void run_bot(const Options& options, const secure::PublicKey& server, int index, Tally& tally) {
+    // Auth băm Argon2id từng vé và hàng hỏi của gate chỉ chứa 64 câu. Cả đám cùng xin thì vé sau bị
+    // kBusy.
+    std::this_thread::sleep_for(std::chrono::milliseconds{index * 200});
     const std::string account = std::format("{}{}", options.prefix, index);
     const auto fail = [&](std::string_view why) {
         report(account, why);
@@ -606,7 +613,12 @@ void run_bot(const Options& options, const secure::PublicKey& server, int index,
         note(*message, seen, tally);
     }
     if (!seen.position) return fail("EnterGame bị từ chối");
-    std::println("[{}] vào tại x={:.0f} z={:.0f} (cm)", account, seen.position->x_cm, seen.position->z_cm);
+    const float arrived_x = seen.position->x_cm;
+    const float arrived_z = seen.position->z_cm;
+    std::println("[{}] vào tại x={:.0f} z={:.0f} (cm)", account, arrived_x, arrived_z);
+    const float share = static_cast<float>(index) / static_cast<float>(options.count);
+    const float heading = 2.0F * std::numbers::pi_v<float> * share;
+    bool walked = true;
     if (options.fight) {
         fight(*line, seen, tally, *seen.position, *options.fight);
     } else if (options.talk) {
@@ -614,13 +626,15 @@ void run_bot(const Options& options, const secure::PublicKey& server, int index,
     } else if (options.hunt) {
         hunt(*line, seen, tally, *seen.position, *options.hunt, options.seconds);
     } else if (options.straight) {
-        const float heading = 2.0F * std::numbers::pi_v<float> * static_cast<float>(index) / static_cast<float>(options.count);
-        walk(*line, seen, tally, *seen.position, Gait{.heading = heading, .turn = 0.0F}, options.seconds);
+        const Gait gait{.heading = heading, .turn = 0.0F};
+        walked = walk(*line, seen, tally, *seen.position, gait, options.seconds);
     } else {
-        // Vòng tròn bán kính 200 cm bắt đầu từ điểm sinh (mỗi bước 10 cm, dưới trần 15,5 cm của guard::Pace).
-        walk(*line, seen, tally, *seen.position, Gait{.heading = 0.0F, .turn = 0.05F}, options.seconds);
+        // Vòng tròn bán kính 200 cm bắt đầu từ điểm sinh (mỗi bước 10 cm, dưới trần 15,5 cm của
+        // guard::Pace).
+        const Gait gait{.heading = 0.0F, .turn = 0.05F};
+        walked = walk(*line, seen, tally, *seen.position, gait, options.seconds);
     }
-    if (seen.refused) return fail("bị server đóng giữa chừng");
+    if (seen.refused || !walked) return fail("bị server đóng giữa chừng");
     static_cast<void>(send(*line, protocol::Logout{}));
 }
 

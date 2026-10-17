@@ -43,8 +43,9 @@ inline constexpr std::size_t kKeyBytes = 32;
 inline constexpr std::size_t kBodyMax = std::size_t{80} * 1024;
 // Byte chờ gửi tối đa; vượt thì send trả false.
 inline constexpr std::size_t kOutboxMax = std::size_t{8} << 20U;
-// Khung đã giải mã chờ bên gọi lấy; đầy thì pump ngừng đọc socket (TCP tự kìm bên gửi).
-inline constexpr std::size_t kInboxMax = 4096;
+// Khung đã giải mã chờ bên gọi lấy. Đầy thì pump ngừng đọc, TCP tự kìm bên gửi.
+// Trần 256: một lần pump không mở cả hộp gửi. Mở hàng nghìn khung giữ nhịp vài giây.
+inline constexpr std::size_t kInboxMax = 256;
 
 struct Frame {
     std::uint16_t kind = 0;

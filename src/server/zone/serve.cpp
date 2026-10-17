@@ -8,8 +8,8 @@
  *  CHỨC NĂNG
  *  - Vòng chạy của thienlong_zone: nghe kênh ipc của gate, nạp cảnh lười, chạy
  *    nhịp đã chọn (mặc định 20 Hz), ghi điểm đứng qua store.
- *  - Mỗi tick chặn số khung xử lý; kênh chậm quá trần thì bỏ phần dư, gate nối
- *    lại sẽ mất phiên.
+ *  - Mỗi tick chặn số khung xử lý. Thư chưa gửi được giữ tới trần hộp ipc; vượt
+ *    trần thì bỏ kênh, gate nối lại sẽ mất phiên.
  *------------------------------------------------------------------------------
  *  TÁC GIẢ   : HiepHoon
  *  TELEGRAM  : @Hoon9xx
@@ -38,6 +38,7 @@
 #include "zone/saver.hpp"
 #include "zone/scene.hpp"
 
+#include <algorithm>
 #include <array>
 #include <chrono>
 #include <cstddef>
@@ -46,6 +47,7 @@
 #include <expected>
 #include <filesystem>
 #include <format>
+#include <iterator>
 #include <memory>
 #include <optional>
 #include <print>
@@ -210,16 +212,35 @@ struct Session {
     std::optional<ipc::Link> link;
 };
 
-// Đẩy thư của một lượt lên kênh rồi bật quan tâm ghi nếu còn byte chờ. Kênh đầy thì bỏ phần dư: bên nhận
-// chậm tới trần 8 MiB là gate hỏng, và gate nối lại sẽ mất phiên.
-void flush(Session& session, Outbox& out) {
-    if (!session.link) return;
+[[nodiscard]] bool send_one(ipc::Link& link, const Letter& letter) {
+    const std::uint16_t kind = ipc::value_of(letter.kind);
+    return link.send(kind, letter.session, letter.body);
+}
+
+// 256 khung/lượt * 20 Hz = 5120 khung/s, trên quạt vị trí của 64 người (~1280 khung/s). Niêm cả
+// hàng tồn (có thể tới hộp 8 MiB) giữ luồng tick vài giây; gate xử lý dồn rồi cắt vì vượt trần tin.
+constexpr std::size_t kSendPerWake = 256;
+
+[[nodiscard]] bool can_send(ipc::Link& link, const Letter& letter, std::size_t sent) {
+    if (sent >= kSendPerWake) return false;
+    return send_one(link, letter);
+}
+
+// Đẩy thư lên kênh rồi bật quan tâm ghi nếu còn byte chờ. Phần chưa vào được hộp 8 MiB thì giữ lại.
+// Giữ quá trần ấy là gate không đọc: trả false để bên gọi bỏ kênh, không nuốt thư rồi giả vờ đã
+// gửi. Một lượt chỉ niêm kSendPerWake khung; phần còn lại chờ lượt sau, không bị xoá.
+[[nodiscard]] bool flush(Session& session, Outbox& out) {
+    if (!session.link) return true;
     ipc::Link& link = *session.link;
-    for (Letter& letter : out.take()) {
-        if (!link.send(ipc::value_of(letter.kind), letter.session, letter.body)) break;
-    }
+    static_cast<void>(link.pump());
+    const std::vector<Letter>& mail = out.letters();
+    std::size_t sent = 0;
+    while (sent < mail.size() && can_send(link, mail[sent], sent))
+        ++sent;
+    out.drop_front(sent);
     static_cast<void>(link.pump());
     session.polls.want_write(kLinkTag, link.wants_write());
+    return out.queued_bytes() <= ipc::kOutboxMax;
 }
 
 // Điểm đứng không bao giờ bị bỏ cùng thư: chuyển hết cho luồng ghi.
@@ -266,11 +287,35 @@ void accept_gate(net::TcpListener& listener, World& world, secure::ByteView key)
     adopt(world, std::move(accepted.stream), key);
 }
 
+[[nodiscard]] std::uint64_t micros_since(Clock::time_point began) noexcept {
+    const auto elapsed = Clock::now() - began;
+    const auto micros = std::chrono::duration_cast<std::chrono::microseconds>(elapsed);
+    return static_cast<std::uint64_t>(micros.count());
+}
+
+// Thời gian một lần kéo khung, micro giây. Nợ tick mà catch_up vẫn nhỏ thì chỗ chậm nằm ở đây.
+struct Phases {
+    std::uint64_t pump_us = 0;
+    std::uint64_t handle_us = 0;
+    std::uint64_t flush_us = 0;
+};
+
+// In ngay khi một pha vượt nửa giây: cửa sổ một giây có thể nuốt mất pha ấy nếu tiến trình chết
+// giữa chừng.
+void warn_slow(std::string_view name, std::uint64_t us) {
+    if (us < 500'000ULL) return;
+    std::println(stderr, "zone: chậm {} {}", name, us);
+}
+
 // Kéo khung từ kênh vào Host. false khi kênh đã hỏng hay đóng.
-[[nodiscard]] bool drain(World& world) {
+[[nodiscard]] bool drain(World& world, Phases& phases) {
     if (!world.session.link) return false;
     ipc::Link& link = *world.session.link;
+    const auto pump_began = Clock::now();
     const ipc::LinkState state = link.pump();
+    phases.pump_us = micros_since(pump_began);
+    warn_slow("bơm", phases.pump_us);
+    const auto handle_began = Clock::now();
     std::size_t budget = kFramesPerTick;
     while (budget > 0) {
         std::optional<ipc::Frame> frame = link.next();
@@ -278,8 +323,16 @@ void accept_gate(net::TcpListener& listener, World& world, secure::ByteView key)
         world.host.handle(*frame, world.out);
         --budget;
     }
-    flush(world.session, world.out);
-    hand_over(world.out, world.saver);
+    phases.handle_us = micros_since(handle_began);
+    warn_slow("xử lý", phases.handle_us);
+    // flush và hand_over cùng một pha: push điểm đứng có thể chờ khoá của luồng ghi.
+    const auto flush_began = Clock::now();
+    const bool flushed = flush(world.session, world.out);
+    if (!flushed) lose(world);
+    if (flushed) hand_over(world.out, world.saver);
+    phases.flush_us = micros_since(flush_began);
+    warn_slow("đẩy", phases.flush_us);
+    if (!flushed) return false;
     return state == ipc::LinkState::kUp;
 }
 
@@ -300,6 +353,26 @@ void accept_gate(net::TcpListener& listener, World& world, secure::ByteView key)
     return reply.has_value() && account::enter_from(*reply).ok;
 }
 
+// Cửa sổ một giây của phần mô phỏng (catch_up), không tính lúc chờ hạn tick. p99 lấy hạng
+// (n - 1) * 99 / 100, cùng cách pos_fan_bench. late là số lần catch_up vượt ngân sách của số tick
+// nó chạy, ngân sách là một nhịp đầy đủ chứ chưa phải mức 70%.
+constexpr std::size_t kMeterSlots = 128;
+constexpr std::int64_t kMeterNs = 1'000'000'000;
+
+struct Meter {
+    std::array<std::uint64_t, kMeterSlots> samples{};
+    std::size_t filled = 0;
+    std::uint64_t max_us = 0;
+    std::uint64_t late = 0;
+    std::uint64_t debt = 0;
+    int ran = 0;
+    std::uint64_t wait_us = 0;
+    std::uint64_t pump_us = 0;
+    std::uint64_t handle_us = 0;
+    std::uint64_t flush_us = 0;
+    std::int64_t next_ns = 0;
+};
+
 struct Loop {
     World& world;
     net::TcpListener& listener;
@@ -308,7 +381,72 @@ struct Loop {
     Pace pace{};
     bool told = false;
     net::PollEvents events;
+    Meter meter{};
 };
+
+[[nodiscard]] std::uint64_t rank_p99(const std::uint64_t* data, std::size_t count) {
+    std::array<std::uint64_t, kMeterSlots> ordered{};
+    const std::size_t have = count < ordered.size() ? count : ordered.size();
+    if (have == 0) return 0;
+    std::copy_n(data, have, ordered.begin());
+    const auto last = std::next(ordered.begin(), static_cast<std::ptrdiff_t>(have));
+    std::sort(ordered.begin(), last);
+    const std::size_t at = (have - 1) * 99 / 100;
+    return ordered[at];
+}
+
+void store_sample(Meter& meter, std::uint64_t per_us, std::uint64_t debt, int ran, bool over) {
+    if (meter.filled >= meter.samples.size()) return;
+    meter.samples[meter.filled] = per_us;
+    ++meter.filled;
+    if (per_us > meter.max_us) meter.max_us = per_us;
+    if (over) ++meter.late;
+    if (debt > meter.debt) meter.debt = debt;
+    if (ran > meter.ran) meter.ran = ran;
+}
+
+// per_us là thời gian catch_up chia cho số tick vừa chạy. Bỏ qua lần thức không có tick.
+void remember_sim(Meter& meter, std::int64_t hz, int ran, std::uint64_t debt,
+    std::uint64_t spent_us) {
+    if (ran <= 0 || hz <= 0) return;
+    const auto ticks = static_cast<std::uint64_t>(ran);
+    const auto budget = static_cast<std::uint64_t>(1'000'000 / hz);
+    const std::uint64_t per_us = spent_us / ticks;
+    const bool over = spent_us > ticks * budget;
+    store_sample(meter, per_us, debt, ran, over);
+}
+
+void write_meter(const Meter& meter, std::int64_t hz) {
+    const std::uint64_t p99 = rank_p99(meter.samples.data(), meter.filled);
+    const std::size_t n = meter.filled;
+    const std::uint64_t hi = meter.max_us;
+    const std::uint64_t late = meter.late;
+    const std::uint64_t debt = meter.debt;
+    const int ran = meter.ran;
+    const std::string head = std::format("zone: hz={} n={} p99_us={} max_us={}", hz, n, p99, hi);
+    const std::string tail = std::format("late={} debt={} ran={}", late, debt, ran);
+    const std::uint64_t wait_us = meter.wait_us;
+    const std::uint64_t pump_us = meter.pump_us;
+    const std::uint64_t handle_us = meter.handle_us;
+    const std::uint64_t flush_us = meter.flush_us;
+    std::println(stderr, "{} {}", head, tail);
+    std::println(stderr, "zone: pha w={} p={} h={} f={}", wait_us, pump_us, handle_us, flush_us);
+}
+
+void publish_sim(Meter& meter, std::int64_t hz, std::int64_t now_ns) {
+    if (meter.next_ns == 0 || now_ns < meter.next_ns) return;
+    if (meter.filled > 0) write_meter(meter, hz);
+    meter.filled = 0;
+    meter.max_us = 0;
+    meter.late = 0;
+    meter.debt = 0;
+    meter.ran = 0;
+    meter.wait_us = 0;
+    meter.pump_us = 0;
+    meter.handle_us = 0;
+    meter.flush_us = 0;
+    meter.next_ns = now_ns + kMeterNs;
+}
 
 [[nodiscard]] std::int64_t nanos_since(Clock::time_point origin, Clock::time_point now) noexcept {
     const auto elapsed = std::chrono::duration_cast<std::chrono::nanoseconds>(now - origin);
@@ -331,8 +469,12 @@ void step_world(World& world) {
     const auto seconds = std::chrono::duration_cast<std::chrono::seconds>(wall);
     world.host.set_unix_time(seconds.count());
     world.host.advance(world.out);
-    if (world.session.link) flush(world.session, world.out);
-    world.out.clear();
+    if (!world.session.link) {
+        world.out.clear();
+        hand_over(world.out, world.saver);
+        return;
+    }
+    if (!flush(world.session, world.out)) lose(world);
     hand_over(world.out, world.saver);
 }
 
@@ -359,17 +501,35 @@ void accept_ready(Loop& loop) {
         accept_one(loop, event);
 }
 
+void keep_phase(Meter& meter, std::uint64_t wait_us, const Phases& phases) {
+    if (wait_us > meter.wait_us) meter.wait_us = wait_us;
+    if (phases.pump_us > meter.pump_us) meter.pump_us = phases.pump_us;
+    if (phases.handle_us > meter.handle_us) meter.handle_us = phases.handle_us;
+    if (phases.flush_us > meter.flush_us) meter.flush_us = phases.flush_us;
+}
+
 [[nodiscard]] bool one_turn(Loop& loop) {
     const std::int64_t now_ns = nanos_since(loop.origin, Clock::now());
     const int wait_ms = wait_ms_for(loop.pace, now_ns);
     const net::Milliseconds wait{wait_ms};
-    if (!loop.world.session.polls.wait(wait, loop.events)) return false;
+    const auto wait_began = Clock::now();
+    const net::NetResult<void> waited = loop.world.session.polls.wait(wait, loop.events);
+    const std::uint64_t wait_us = micros_since(wait_began);
+    warn_slow("chờ", wait_us);
+    if (!waited) return false;
     accept_ready(loop);
-    if (loop.world.session.link && !drain(loop.world)) lose(loop.world);
+    Phases phases;
+    if (loop.world.session.link && !drain(loop.world, phases)) lose(loop.world);
+    keep_phase(loop.meter, wait_us, phases);
     const std::int64_t after_ns = nanos_since(loop.origin, Clock::now());
     const Wake wake = take_wake(loop.pace, after_ns);
     note_overload(loop.pace, wake, loop.told);
+    const auto began = Clock::now();
     catch_up(loop.world, wake.run);
+    const std::uint64_t spent_us = micros_since(began);
+    const std::int64_t done_ns = nanos_since(loop.origin, Clock::now());
+    remember_sim(loop.meter, loop.pace.hz, wake.run, loop.pace.debt, spent_us);
+    publish_sim(loop.meter, loop.pace.hz, done_ns);
     return true;
 }
 
@@ -393,6 +553,7 @@ void accept_ready(Loop& loop) {
     Pace pace;
     pace.hz = settings.hz;
     Loop loop{world, listener, key, Clock::now(), pace, false, {}};
+    loop.meter.next_ns = kMeterNs;
     int code = 0;
     while (!process::stop_requested() && one_turn(loop))
         ;

@@ -570,21 +570,19 @@ void lose_zone(Engine& state) {
     return plain_bytes + kRecordOverhead <= slot.outbox.size() - held;
 }
 
-// Gửi một khung zone cho client; hộp đầy thì giữ lại sau những khung đang chờ.
-void queue_down(Engine& state, Slot& slot, std::uint32_t index, secure::ByteView frame) {
-    if (!slot.pipe || slot.draining || slot.client_version < kWorldSince) return;
-    if (frame.size() > secure::kMaxPlainBytes) return;
-    // Tin có since lớn hơn bản client khai thì client coi là vi phạm giao thức: lọc ở đây, zone không cần biết bản của từng người.
-    const protocol::FrameResult head = protocol::peek_frame(frame, secure::kMaxPlainBytes);
-    if (!head) return;
-    const std::optional<protocol::Frame>& parsed = *head;
-    if (!parsed || protocol::since_of(parsed->kind) > slot.client_version) return;
-    const bool nothing_waiting = slot.down_from == slot.down.size();
-    if (nothing_waiting && outbox_has_room(slot, frame.size())) {
-        if (!seal_to(state, slot, index, frame)) release(state, slot, index, Drop::kSlow);
+// Hộp gửi 1024 byte chỉ chứa một lô vị trí đầy (1016 byte đã niêm). Tin đến lúc hộp còn đầy phải
+// xếp vào hàng xuống, không cắt phiên: cắt lúc ấy biến một lần kéo về thành "đọc quá chậm". Chỉ cắt
+// khi hàng xuống thật sự vượt trần.
+void enqueue_down(Engine& state, Slot& slot, std::uint32_t index, secure::ByteView frame) {
+    const bool waiting = slot.down_from != slot.down.size();
+    const bool fits = !waiting && outbox_has_room(slot, frame.size());
+    if (fits && seal_to(state, slot, index, frame)) return;
+    if (fits) {
+        release(state, slot, index, Drop::kSlow);
         return;
     }
-    if (slot.down.size() - slot.down_from + frame.size() > kDownBacklogMax) {
+    const std::size_t queued = slot.down.size() - slot.down_from;
+    if (queued + frame.size() > kDownBacklogMax) {
         release(state, slot, index, Drop::kSlow);
         return;
     }
@@ -592,6 +590,32 @@ void queue_down(Engine& state, Slot& slot, std::uint32_t index, secure::ByteView
     if (slot.down_listed) return;
     slot.down_listed = true;
     state.backlog.push_back(index);
+}
+
+// Gửi một khung zone cho client; hộp đầy thì giữ lại sau những khung đang chờ.
+void queue_down(Engine& state, Slot& slot, std::uint32_t index, secure::ByteView frame) {
+    const bool closed = !slot.pipe || slot.draining;
+    const bool old_client = slot.client_version < kWorldSince;
+    if (closed || old_client) return;
+    if (frame.size() > secure::kMaxPlainBytes) return;
+    // Tin có since lớn hơn bản client khai thì client coi là vi phạm giao thức: lọc ở đây, zone
+    // không cần biết bản của từng người.
+    const protocol::FrameResult head = protocol::peek_frame(frame, secure::kMaxPlainBytes);
+    if (!head) return;
+    const std::optional<protocol::Frame>& parsed = *head;
+    if (!parsed || protocol::since_of(parsed->kind) > slot.client_version) return;
+    enqueue_down(state, slot, index, frame);
+}
+
+// Position, Pong và Reject cũng đi đường này. Chúng có từ phiên bản 1, nên không lọc kWorldSince.
+template <typename Message>
+void send_now(Engine& state, Slot& slot, std::uint32_t index, const Message& message) {
+    slot.scratch.clear();
+    if (!protocol::encode(slot.scratch, message)) {
+        release(state, slot, index, Drop::kSlow);
+        return;
+    }
+    enqueue_down(state, slot, index, slot.scratch);
 }
 
 // Đẩy khung chờ của một ô vào hộp gửi, theo thứ tự, tới khi hộp đầy. true khi ô hết khung chờ.
@@ -818,12 +842,10 @@ void on_ping(Engine& state, Slot& slot, std::uint32_t index, const protocol::Pin
         send_goodbye(state, slot, index, protocol::DisconnectReason::kProtocolViolation, Drop::kProtocol);
         return;
     }
-    slot.scratch.clear();
     protocol::Pong pong;
     pong.client_time = ping.client_time;
     pong.server_time = std::chrono::milliseconds{now / kNsPerMs};
-    const bool encoded = protocol::encode(slot.scratch, pong).has_value();
-    if (!encoded || !seal_to(state, slot, index, slot.scratch)) release(state, slot, index, Drop::kSlow);
+    send_now(state, slot, index, pong);
 }
 
 void on_logout(Engine& state, Slot& slot, std::uint32_t index) {
@@ -839,19 +861,17 @@ void forget(std::string& secret) {
     return std::format("{}.{}.{}.{}", address[0], address[1], address[2], address[3]);
 }
 
-void send_reject(Engine& state, Slot& slot, std::uint32_t index, std::uint16_t request, protocol::ErrorCode code) {
-    slot.scratch.clear();
+void send_reject(Engine& state, Slot& slot, std::uint32_t index, std::uint16_t request,
+    protocol::ErrorCode code) {
     protocol::Reject message;
     message.request = request;
     message.code = code;
-    const bool encoded = protocol::encode(slot.scratch, message).has_value();
-    if (!encoded || !seal_to(state, slot, index, slot.scratch)) release(state, slot, index, Drop::kSlow);
+    send_now(state, slot, index, message);
 }
 
-void send_position(Engine& state, Slot& slot, std::uint32_t index, const protocol::Position& position) {
-    slot.scratch.clear();
-    const bool encoded = protocol::encode(slot.scratch, position).has_value();
-    if (!encoded || !seal_to(state, slot, index, slot.scratch)) release(state, slot, index, Drop::kSlow);
+void send_position(Engine& state, Slot& slot, std::uint32_t index,
+    const protocol::Position& position) {
+    send_now(state, slot, index, position);
 }
 
 void send_roster(Engine& state, Slot& slot, std::uint32_t index, const account::RosterReply& roster) {
