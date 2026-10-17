@@ -260,7 +260,7 @@ suy đoán.
 
 | Mã | Mức | Vấn đề | Bằng chứng |
 |---|---|---|---|
-| C1 | cao | Chưa chạy client thật với cụm v7 (NGHI-NGO 58a). Đường tự đăng nhập đã có từ `bdbd214d` (`THIENLONG_ACCOUNT` cùng `--login`, `display/auto_login.hpp`, nối ở `viewer_win32.cpp` và `face.cpp`) nhưng chưa ai chạy: exe ở `dev/server/bin` dựng 10-15 và 10-16 nên gate (`min_version = 7`, `allowed_builds`) từ chối. Gói G0 của đợt hoàn thiện đóng mục này | [tự kiểm 2026-10-18] |
+| C1 | cao | **ĐÃ SỬA** 2026-10-18 (gói G0: `9adc2de5`, `d08b9b6e`, `bba77680`): client thật tự đăng nhập, tạo nhân vật, vào Đại Lý và đi trên cụm v7, chạy bằng `TOOLS/run/e2e_client.py TOOLS/run/e2e/g0.script` không chiếm chuột; bot quan sát thấy client, log kiểm của zone ghi từng việc | [tự kiểm 2026-10-18] |
 | C2 | cao | `SceneDefineEx` client đang nạp không phải bảng 2026: 297 so với 680 dòng, 43 dòng khác, thiếu 395 id (NGHI-NGO 20) | [tài liệu] |
 | C3 | vừa | Nạp đầu 490–528 ms, vượt ngân sách 450 ms (NGHI-NGO 51g); phải nhanh hơn `G:\TLBB` là cam kết của chủ dự án. Đo lại 2026-10-17: trung vị 566 ms; swapchain Vulkan dựng ở luồng phụ → 498 ms. Còn lại trên luồng vẽ: `prepare_hud` ~70 ms thuần CPU, mesh ~90 ms sau `Display::create` | [tài liệu + tự kiểm] |
 | C4 | vừa | Mô hình cảnh còn thiếu ở góc trái tablet, nghi LOD thô (`TIEN-DO.md:2884`); APK bản `vi` chưa dựng | [tài liệu] |

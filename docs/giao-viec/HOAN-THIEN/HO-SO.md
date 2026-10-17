@@ -552,8 +552,8 @@ python -B TOOLS/run/desk_watch.py <lệnh> [đối số]... — mã thoát là m
 
 | Gói | K | M | Ghi chú |
 |---|---|---|---|
-| G0 | chưa | chưa | Giao 2026-10-18 |
-| G1 | chưa | chưa | |
+| G0 | đạt (`9adc2de5`, `d08b9b6e`) | đạt (`bba77680`) | Điều phối chạy lại trên HEAD 2026-10-18: bot 6/6 đạt; client tạo nhân vật, vào game, đi, bot quan sát thấy. Đã push |
+| G1 | đang làm; phần 1 đạt (`a9ab3e1a`: SceneTrans chạy script gốc, sửa Move đầu) | đang làm (D1–D4 đã duyệt) | |
 | G2 | chưa | chưa | |
 | G3 | — | — | Làn N làm cả gói (N1) |
 | G4 | chưa | chưa | |
