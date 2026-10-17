@@ -260,9 +260,8 @@ core::Status Display::State::open_gpu(const DisplayDesc& desc) {
     const std::string folder = render::resolved_shader_folder(shaders);
     const std::uint64_t shader_hash = hash_packages(folder);
     const std::filesystem::path root = writable_root(desc);
-    std::vector<std::byte> cache;
-    if (!root.empty()) cache = read_cache(cache_file(root, predict_cache(device_desc, shader_hash)));
-    device_desc.pipeline_cache = cache;
+    const CacheLoader loader{.root = root, .shaders = shader_hash};
+    if (!root.empty()) device_desc.load_pipeline_cache = loader;
     const bool is_forced = desc.backend.has_value();
     auto made = is_forced ? gpu::create_device(device_desc) : gpu::create_present_device(device_desc);
     if (!made) return std::unexpected(made.error());
@@ -272,14 +271,8 @@ core::Status Display::State::open_gpu(const DisplayDesc& desc) {
     if (!line) return std::unexpected(line.error());
     frame_line = std::move(*line);
     const gpu::AdapterInfo& adapter = device->adapter();
-    if (!root.empty()) {
-        CacheId actual;
-        actual.backend = adapter.backend;
-        actual.vendor = adapter.vendor_id;
-        actual.device = adapter.device_id;
-        actual.shaders = shader_hash;
-        pipeline_cache_file = cache_file(root, actual);
-    }
+    const CacheId actual = cache_id(adapter, shader_hash);
+    if (!root.empty()) pipeline_cache_file = cache_file(root, actual);
     render::ScreenDesc screen_desc;
     screen_desc.window = desc.window;
     screen_desc.width = desc.size.width;

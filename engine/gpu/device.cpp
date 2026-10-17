@@ -8,17 +8,16 @@
  *  CHỨC NĂNG
  *  - Cửa chọn backend của tầng đồ hoạ: tên và phép phân tích của các enum công
  *    khai, danh sách backend có trong bản dựng, liệt kê adapter và tạo thiết
- *    bị. Tệp duy nhất của phần chung biết tên các backend; mọi thứ khác đi qua
- *    giao diện Device.
- *  - Nguồn: Forge2 src/gpu/device.cpp@d7fcd76. Khác gốc: enumerator mang tiền
- *    tố k; CMake của game_gpu định nghĩa GAME_GPU_D3D12 và GAME_GPU_D3D11;
- *    thiếu macro thì backend đó trả kUnsupported; tham số c của lower thành
- *    letter; tham số lambda của is_same_word đổi tên vì trùng tên tham số của
- *    hàm.
+ *    bị. Tệp duy nhất của phần chung biết tên các backend.
+ *  - Nguồn: Forge2 src/gpu/device.cpp@d7fcd76.
  *------------------------------------------------------------------------------
  *  TÁC GIẢ   : HiepHoon
  *  TELEGRAM  : @Hoon9xx
  *============================================================================*/
+
+// Khác gốc: enumerator mang tiền tố k; CMake của game_gpu định nghĩa GAME_GPU_D3D12 và
+// GAME_GPU_D3D11, thiếu macro thì backend đó trả kUnsupported; tham số c của lower thành letter;
+// tham số lambda của is_same_word đổi tên vì trùng tên tham số của hàm.
 
 #include "gpu/device.hpp"
 
@@ -232,7 +231,8 @@ void try_rest(DeviceResult& opened, const DeviceDesc& desc) {
         try_one(opened, desc, backend);
 }
 
-[[nodiscard]] bool has_hardware(Backend backend) {
+// Bản dựng chỉ có Vulkan (iOS) không gọi tới: mọi lời gọi nằm sau macro backend.
+[[nodiscard, maybe_unused]] bool has_hardware(Backend backend) {
     const Result<std::vector<AdapterInfo>> list = enumerate_adapters(backend);
     if (!list) return false;
     for (const AdapterInfo& info : *list) {
@@ -243,8 +243,13 @@ void try_rest(DeviceResult& opened, const DeviceDesc& desc) {
 
 // Vulkan 1.3 phần cứng trước. Hết thì D3D phần cứng (Windows), rồi GLES phần cứng, rồi bản CPU.
 // Không đo khung: bài đo ngắn của TLBB đã xếp nhầm backend trên RTX 5060.
+// Tạo thẳng Vulkan trên adapter đầu (phần cứng xếp trước phần mềm) thay vì liệt kê rồi mới tạo:
+// instance Vulkan chỉ dựng một lần. Adapter đầu là phần mềm, hoặc tạo hỏng, thì mới dò backend
+// khác; trước đây Vulkan phần cứng tạo hỏng là trả lỗi luôn, nay còn thử D3D phần cứng.
 Result<std::unique_ptr<Device>> open_automatic(const DeviceDesc& desc) {
-    if (has_hardware(Backend::kVulkan)) return try_backend(desc, Backend::kVulkan);
+    DeviceResult vulkan = try_backend(desc, Backend::kVulkan);
+    const bool is_hardware = vulkan && !(*vulkan)->adapter().is_software;
+    if (is_hardware) return vulkan;
 #if defined(GAME_GPU_D3D12)
     if (has_hardware(Backend::kD3D12)) return try_backend(desc, Backend::kD3D12);
 #endif
@@ -254,9 +259,8 @@ Result<std::unique_ptr<Device>> open_automatic(const DeviceDesc& desc) {
 #if defined(GAME_GPU_GLES)
     if (has_hardware(Backend::kGles)) return try_backend(desc, Backend::kGles);
 #endif
-    Result<std::unique_ptr<Device>> opened = try_backend(desc, Backend::kVulkan);
-    try_rest(opened, desc);
-    return opened;
+    try_rest(vulkan, desc);
+    return vulkan;
 }
 
 } // namespace
@@ -267,6 +271,11 @@ Result<std::unique_ptr<Device>> create_present_device(const DeviceDesc& desc) {
     Result<std::unique_ptr<Device>> opened = create_device(desc);
     try_rest(opened, desc);
     return opened;
+}
+
+std::vector<std::byte> stored_cache(const DeviceDesc& desc, const AdapterInfo& info) {
+    if (!desc.load_pipeline_cache) return {};
+    return desc.load_pipeline_cache(info);
 }
 
 } // namespace game::gpu

@@ -1401,46 +1401,13 @@ struct CacheId {
     std::uint64_t shaders = 0;
 };
 
-[[nodiscard]] inline bool has_hardware(std::span<const gpu::AdapterInfo> list) noexcept {
-    return std::ranges::any_of(list, [](const gpu::AdapterInfo& info) { return !info.is_software; });
-}
-
-// id (backend và hash shader đã điền) cùng vendor và device của adapter thứ index trong list; index ngoài list thì giữ
-// id.
-[[nodiscard]] inline CacheId identity_in(std::span<const gpu::AdapterInfo> list, std::size_t index,
-    CacheId id) noexcept {
-    if (index >= list.size()) return id;
-    id.vendor = list[index].vendor_id;
-    id.device = list[index].device_id;
-    return id;
-}
-
-[[nodiscard]] inline CacheId identity_of(gpu::Backend backend, std::uint32_t index, std::uint64_t shaders) {
+[[nodiscard]] inline CacheId cache_id(const gpu::AdapterInfo& info, std::uint64_t hash) noexcept {
     CacheId id;
-    id.backend = backend;
-    id.shaders = shaders;
-    const gpu::Result<std::vector<gpu::AdapterInfo>> list = gpu::enumerate_adapters(backend);
-    if (!list) return id;
-    return identity_in(*list, index, id);
-}
-
-// Cùng thứ tự create_present_device: Vulkan phần cứng, rồi D3D12, D3D11, GLES. Backend ép thì
-// lấy đúng backend ấy.
-[[nodiscard]] inline CacheId predict_cache(const gpu::DeviceDesc& desc, std::uint64_t shaders) {
-    const bool is_automatic = desc.backend == gpu::Backend::kVulkan && !desc.adapter;
-    if (!is_automatic) return identity_of(desc.backend, desc.adapter.value_or(0), shaders);
-    constexpr std::array<gpu::Backend, 4> order{
-        gpu::Backend::kVulkan, gpu::Backend::kD3D12, gpu::Backend::kD3D11, gpu::Backend::kGles};
-    // Mỗi backend liệt kê một lần: dựng instance của driver là phần đắt, không làm hai lần cho cùng một danh sách.
-    for (const gpu::Backend backend : order) {
-        const gpu::Result<std::vector<gpu::AdapterInfo>> list = gpu::enumerate_adapters(backend);
-        if (!list || !has_hardware(*list)) continue;
-        CacheId id;
-        id.backend = backend;
-        id.shaders = shaders;
-        return identity_in(*list, 0, id);
-    }
-    return identity_of(gpu::Backend::kVulkan, 0, shaders);
+    id.backend = info.backend;
+    id.vendor = info.vendor_id;
+    id.device = info.device_id;
+    id.shaders = hash;
+    return id;
 }
 
 [[nodiscard]] inline std::uint64_t hash_packages(const std::string& folder) {
@@ -1472,9 +1439,23 @@ struct CacheId {
     const io::TextResult text = io::read_text(path);
     if (!text) return {};
     std::vector<std::byte> bytes(text->size());
-    std::ranges::copy(std::as_bytes(std::span(*text)), bytes.begin());
+    const std::span<const char> chars(*text);
+    std::ranges::copy(std::as_bytes(chars), bytes.begin());
     return bytes;
 }
+
+// DeviceDesc::load_pipeline_cache của client: backend gọi khi đã chọn adapter, nên tên tệp lấy
+// đúng adapter thật mà khỏi liệt kê adapter trước (liệt kê D3D12 tạo cả thiết bị, ~250 ms).
+struct CacheLoader {
+    std::filesystem::path root;
+    std::uint64_t shaders = 0;
+
+    [[nodiscard]] std::vector<std::byte> operator()(const gpu::AdapterInfo& adapter) const {
+        const CacheId id = cache_id(adapter, shaders);
+        const std::filesystem::path path = cache_file(root, id);
+        return read_cache(path);
+    }
+};
 
 [[nodiscard]] inline core::Status apply_backend(gpu::DeviceDesc& device_desc, const DisplayDesc& desc) {
     if (!desc.backend) return core::ok();

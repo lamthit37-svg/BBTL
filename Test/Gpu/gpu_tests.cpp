@@ -1111,6 +1111,46 @@ void d3d11_vertex_stride_follows_pipeline(Context& context) {
     vertex_stride_follows_pipeline(context, gpu::Backend::kD3D11);
 }
 
+struct CacheAsk {
+    int calls = 0;
+    std::string adapter;
+};
+
+// DeviceDesc::load_pipeline_cache ghi lại lần hỏi; trả rỗng như máy chưa có cache.
+struct CacheProbe {
+    CacheAsk* asked = nullptr;
+
+    [[nodiscard]] std::vector<std::byte> operator()(const gpu::AdapterInfo& info) const {
+        ++asked->calls;
+        asked->adapter = info.name;
+        return {};
+    }
+};
+
+// Backend hỏi cache đúng một lần, cho đúng adapter vừa chọn. Sai thì cache của lần chạy trước không
+// bao giờ được nạp mà không gì báo: chỉ thấy qua thời gian tạo pipeline.
+void cache_asked_once(Context& context, gpu::Backend backend) {
+    CacheAsk asked;
+    gpu::DeviceDesc desc;
+    desc.backend = backend;
+    desc.is_validated = true;
+    desc.load_pipeline_cache = CacheProbe{.asked = &asked};
+    const DeviceResult made = gpu::create_device(desc);
+    context.expect(made.has_value(), "tạo được thiết bị có lớp kiểm tra");
+    if (!made) return;
+    const std::string& chosen = (*made)->adapter().name;
+    context.expect(asked.calls == 1, std::format("hỏi cache {} lần, cần đúng 1", asked.calls));
+    context.expect(asked.adapter == chosen, std::format("hỏi cho {}, đã chọn {}", asked.adapter, chosen));
+}
+
+void vulkan_cache_asked_once(Context& context) {
+    cache_asked_once(context, gpu::Backend::kVulkan);
+}
+
+void d3d12_cache_asked_once(Context& context) {
+    cache_asked_once(context, gpu::Backend::kD3D12);
+}
+
 #if defined(_WIN32)
 // ColorTarget sang Present, như Screen::end khi khung không bị chụp: không truy cập nào sau rào.
 [[nodiscard]] gpu::TextureBarrier to_present(gpu::TextureHandle texture) noexcept {
@@ -1346,6 +1386,8 @@ constexpr std::array kCases{
     Case{.name = "vulkan_vertex_stride_follows_pipeline", .body = &vulkan_vertex_stride_follows_pipeline},
     Case{.name = "d3d12_vertex_stride_follows_pipeline", .body = &d3d12_vertex_stride_follows_pipeline},
     Case{.name = "d3d11_vertex_stride_follows_pipeline", .body = &d3d11_vertex_stride_follows_pipeline},
+    Case{.name = "vulkan_cache_asked_once", .body = &vulkan_cache_asked_once},
+    Case{.name = "d3d12_cache_asked_once", .body = &d3d12_cache_asked_once},
     Case{.name = "gles_device_starts", .body = &gles_device_starts},
     Case{.name = "gles_buffer_round_trip", .body = &gles_buffer_round_trip},
     Case{.name = "gles_rejects_duplicate_list", .body = &gles_rejects_duplicate_list},

@@ -6,32 +6,27 @@
  *  CHUẨN     : C++23
  *------------------------------------------------------------------------------
  *  CHỨC NĂNG
- *  - Thiết bị đồ hoạ: cửa duy nhất để tạo tài nguyên, nộp lệnh và trình bày —
- *    Renderer, Queue, Fence, Semaphore, SwapChain, QueryPool của IGraphics.h
- *    trong _Ref; rhi/device.hpp của Platium; GraphicsDevice của Wicked. Khác
- *    gốc:
- *  - đồng bộ chỉ bằng Timeline (bộ đếm u64 đơn điệu: ID3D12Fence, timeline
- *    semaphore của Vulkan); semaphore nhị phân mà WSI của Vulkan đòi bị giấu
- *    sau Swapchain. _Ref lộ cả Fence lẫn Semaphore;
- *  - huỷ tài nguyên là hoãn: tay nắm mất hiệu lực ngay, tài nguyên biến mất khi
- *    GPU chạy xong mọi lần nộp đã có lúc huỷ. _Ref huỷ ngay, chỗ gọi phải tự
- *    waitQueueIdle;
- *  - mất thiết bị là trạng thái hỏi được (loss()), không phải một mã lỗi lẫn
- *    trong đám khác;
- *  - ghi và đọc buffer bằng write_buffer, read_buffer, không trao con trỏ map
- *    ra ngoài;
- *  - mọi hàm tạo và huỷ an toàn đa luồng: hệ thống job nạp tài nguyên trên
- *    nhiều luồng.
- *  - Hàm vận hành trả Result hoặc Status; dùng sai (tay nắm chết, tham số ngoài
- *    hợp đồng) là InvalidArgument chứ không sập.
- *  - Nguồn: Forge2 src/gpu/device.hpp@d7fcd76. Khác gốc (so với Forge2):
- *    enumerator mang tiền tố k; bỏ {} thừa của các thành viên string,
- *    string_view, optional và span ở AdapterInfo, DeviceDesc, SubmitDesc,
- *    QueryPoolDesc.
+ *  - Thiết bị đồ hoạ: cửa duy nhất để tạo tài nguyên, nộp lệnh và trình bày.
+ *    Mọi hàm tạo và huỷ an toàn đa luồng; dùng sai (tay nắm chết, tham số
+ *    ngoài hợp đồng) là InvalidArgument chứ không sập.
+ *  - Nguồn: Forge2 src/gpu/device.hpp@d7fcd76.
  *------------------------------------------------------------------------------
  *  TÁC GIẢ   : HiepHoon
  *  TELEGRAM  : @Hoon9xx
  *============================================================================*/
+
+// Tương ứng Renderer, Queue, Fence, Semaphore, SwapChain, QueryPool của IGraphics.h trong _Ref;
+// rhi/device.hpp của Platium; GraphicsDevice của Wicked. Khác gốc:
+// - đồng bộ chỉ bằng Timeline (bộ đếm u64 đơn điệu: ID3D12Fence, timeline semaphore của
+//   Vulkan); semaphore nhị phân mà WSI của Vulkan đòi bị giấu sau Swapchain. _Ref lộ cả Fence
+//   lẫn Semaphore;
+// - huỷ tài nguyên là hoãn: tay nắm mất hiệu lực ngay, tài nguyên biến mất khi GPU chạy xong
+//   mọi lần nộp đã có lúc huỷ. _Ref huỷ ngay, chỗ gọi phải tự waitQueueIdle;
+// - mất thiết bị là trạng thái hỏi được (loss()), không phải một mã lỗi lẫn trong đám khác;
+// - ghi và đọc buffer bằng write_buffer, read_buffer, không trao con trỏ map ra ngoài;
+// - mọi hàm tạo và huỷ an toàn đa luồng: hệ thống job nạp tài nguyên trên nhiều luồng.
+// Khác Forge2: enumerator mang tiền tố k; bỏ {} thừa của các thành viên string, string_view,
+// optional và span ở AdapterInfo, DeviceDesc, SubmitDesc, QueryPoolDesc.
 
 #pragma once
 
@@ -45,6 +40,7 @@
 #include <chrono>
 #include <cstddef>
 #include <cstdint>
+#include <functional>
 #include <memory>
 #include <optional>
 #include <span>
@@ -136,9 +132,11 @@ struct DeviceDesc {
     std::optional<std::uint32_t> adapter;
     // Lớp kiểm tra của API. Thiếu lớp trên máy thì ghi cảnh báo rồi chạy tiếp.
     bool is_validated = false;
-    // Nội dung Device::pipeline_cache của một lần chạy trước; sai thiết bị hay sai bản trình điều
-    // khiển thì bị bỏ qua.
-    std::span<const std::byte> pipeline_cache;
+    // Đọc nội dung Device::pipeline_cache mà một lần chạy trước đã ghi cho adapter này. Backend gọi
+    // nhiều nhất một lần, sau khi chọn adapter và trước khi dựng cache, nên chỗ gọi khỏi liệt kê
+    // adapter để đoán tên tệp (liệt kê D3D12 phải tạo cả thiết bị). Rỗng là không có cache; nội
+    // dung sai thiết bị hay sai bản trình điều khiển thì bị bỏ qua.
+    std::function<std::vector<std::byte>(const AdapterInfo&)> load_pipeline_cache;
     // Màu thô như GLES (xem gles/device.hpp): định dạng khai sRGB được lấy mẫu, trộn và ghi như UNORM, nên shader
     // khỏi đổi gamma từng điểm ảnh. Chỉ Vulkan đọc cờ này; GLES luôn thô, D3D luôn theo phần cứng.
     bool is_raw_color = false;
@@ -357,7 +355,8 @@ public:
     // tới hạn. DeviceLost khi thiết bị mất.
     [[nodiscard]] virtual Status end_frame() = 0;
 
-    // Dữ liệu cache pipeline để ghi ra đĩa và trao lại ở DeviceDesc::pipeline_cache lần chạy sau.
+    // Dữ liệu cache pipeline để ghi ra đĩa và trao lại qua DeviceDesc::load_pipeline_cache lần chạy
+    // sau.
     [[nodiscard]] virtual std::vector<std::byte> pipeline_cache() const = 0;
 };
 
@@ -373,5 +372,8 @@ public:
 
 // Thử đúng backend đã xin. Chỉ khi lỗi là kUnsupported thì thử lần lượt backend còn lại.
 [[nodiscard]] Result<std::unique_ptr<Device>> create_present_device(const DeviceDesc& desc);
+
+// Kết quả DeviceDesc::load_pipeline_cache cho adapter đã chọn; không có hàm thì rỗng.
+[[nodiscard]] std::vector<std::byte> stored_cache(const DeviceDesc& desc, const AdapterInfo& info);
 
 } // namespace game::gpu

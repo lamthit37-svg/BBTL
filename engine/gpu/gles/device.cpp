@@ -1,4 +1,18 @@
-// Vòng đời thiết bị GL: context, buffer, hàng đợi một mutex và hàng rào fence.
+/*==============================================================================
+ *  ENGINEHP  |  HIGH-PERFORMANCE GAME ENGINE
+ *------------------------------------------------------------------------------
+ *  TỆP       : engine/gpu/gles/device.cpp
+ *  PHÂN HỆ   : Gpu / Gles / Device
+ *  CHUẨN     : C++23
+ *------------------------------------------------------------------------------
+ *  CHỨC NĂNG
+ *  - Vòng đời thiết bị GL: context, buffer, hàng đợi một mutex và hàng rào
+ *    fence.
+ *------------------------------------------------------------------------------
+ *  TÁC GIẢ   : HiepHoon
+ *  TELEGRAM  : @Hoon9xx
+ *============================================================================*/
+
 #include "gpu/gles/device.hpp"
 
 #include "gpu/check.hpp"
@@ -713,7 +727,8 @@ Result<std::unique_ptr<Device>> create(const DeviceDesc& desc) {
     if (desc.adapter && *desc.adapter != 0) {
         return fail(kBad, "GLES chỉ thấy một context của process");
     }
-    for (ProgramBinary& binary : parse_binaries(desc.pipeline_cache))
+    const std::vector<std::byte> stored = stored_cache(desc, device->adapter());
+    for (ProgramBinary& binary : parse_binaries(stored))
         device->remember_binary(std::move(binary));
     return device;
 }

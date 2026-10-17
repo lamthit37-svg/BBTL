@@ -328,7 +328,14 @@ kết luận ngay dưới mục đó chứ không xoá.
     (lớn nhất 21 mức) giữa hai lần chạy cùng bản, ở mép lá và chỗ hai mặt trùng độ sâu; tắt MSAA
     (samples = 1) thì trùng từng điểm ảnh, Vulkan và D3D12 luôn trùng. Đo: ba lần
     `--scene-id 2 --bare --backend d3d11 --frames 120`, so bằng `diff.py`. Chưa biết do trình điều
-    khiển hay do mã; cần thử MSAA với một lượt vẽ duy nhất trong `gpu_tests` để tách.
+    khiển hay do mã; cần thử MSAA với một lượt vẽ duy nhất trong `gpu_tests` để tách. Mã máy gốc
+    (`G:\XTLBB\Bin64\RenderSystem_Direct3D11.dll`, đọc 2026-10-17) không có MSAA trên D3D11:
+    swapchain gọi `determineFSAASettings` với fsaa 0 cứng (`0x180021934`), render texture luôn
+    `SampleDesc` 1/0, cả DLL không có `ResolveSubresource`. Đặt D3D11 về một mẫu là khớp gốc và hết
+    lệch; chưa làm vì đổi chất lượng hình của backend, chờ chủ dự án chọn.
+    Cũng ngày đó: `open` của D3D12 có `--validate` rơi xuống Microsoft Basic Render Driver (3/3 lần)
+    khi luồng làm nóng driver của client còn giữ thiết bị dò lúc bật lớp kiểm tra. Đã sửa bằng khoá
+    dò của backend (`d3d12/device.cpp`, `probe_mutex`); sau sửa 3/3 lần chọn RTX 5060.
 26. **Nhịp khung của backend GL** (2026-10-06, `gpu/gles/swapchain.cpp`). Desktop xin Mailbox và tự
     giữ nhịp 120 Hz; commit e404d1e đổi GL sang chờ quét cho mọi chế độ khác Immediate, từ đó PC
     GLES (WGL, màn 60 Hz) nhảy 7/16/32 ms: 120 trong 449 khung quá 20 ms khi có lượt ảnh đầu, 34

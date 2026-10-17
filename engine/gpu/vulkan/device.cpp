@@ -1,13 +1,29 @@
-// Vòng đời thiết bị, hàng đợi, fence, timeline, nộp lệnh và ranh giới khung hình của backend Vulkan.
-// Mức tối thiểu 1.1 (api.hpp): không timeline semaphore, nên "lần nộp thứ n đã xong" là fence của lần
-// nộp ấy (Queue::flights), và Timeline của chỗ gọi là bộ đếm CPU tiến lên theo các fence đó.
-// Nguồn: Forge2 src/gpu/vulkan/device.cpp@d7fcd76. Khác gốc: enumerator mang tiền tố k; include
-// trực tiếp header của mọi tên dùng tới; hàm dài hoặc có nhánh trong thân vòng lặp tách hàm ở ranh
-// giới câu lệnh, thứ tự lời gọi Vulkan và phép kiểm lỗi giữ nguyên (ghi tại chỗ): fill đưa điều
-// kiện dừng lên điều kiện lặp; pick_queues tách take_family; create_device tách pick_extensions;
-// create_queues tách start_queue; begin_commands tách Contexts::refill; submit tách find_target;
-// wait_idle tách wait_queue; handle Vulkan cục bộ khai auto* const; NOLINT kèm lý do cho các hàm
-// noexcept của gốc và hai chữ ký có tham số cùng kiểu.
+/*==============================================================================
+ *  ENGINEHP  |  HIGH-PERFORMANCE GAME ENGINE
+ *------------------------------------------------------------------------------
+ *  TỆP       : engine/gpu/vulkan/device.cpp
+ *  PHÂN HỆ   : Gpu / Vulkan / Device
+ *  CHUẨN     : C++23
+ *------------------------------------------------------------------------------
+ *  CHỨC NĂNG
+ *  - Vòng đời thiết bị, hàng đợi, fence, timeline, nộp lệnh và ranh giới khung
+ *    hình của backend Vulkan. Mức tối thiểu 1.1 (api.hpp): không timeline
+ *    semaphore, nên "lần nộp thứ n đã xong" là fence của lần nộp ấy
+ *    (Queue::flights), và Timeline của chỗ gọi là bộ đếm CPU tiến lên theo các
+ *    fence đó. Nguồn: Forge2 src/gpu/vulkan/device.cpp@d7fcd76.
+ *------------------------------------------------------------------------------
+ *  TÁC GIẢ   : HiepHoon
+ *  TELEGRAM  : @Hoon9xx
+ *============================================================================*/
+
+// Khác gốc: enumerator mang tiền tố k; include trực tiếp header của mọi tên dùng tới; hàm dài hoặc
+// có nhánh trong thân vòng lặp tách hàm ở ranh giới câu lệnh, thứ tự lời gọi Vulkan và phép kiểm
+// lỗi giữ nguyên (ghi tại chỗ): fill đưa điều kiện dừng lên điều kiện lặp; pick_queues tách
+// take_family; create_device tách pick_extensions; create_queues tách start_queue; begin_commands
+// tách Contexts::refill; submit tách find_target; wait_idle tách wait_queue; handle Vulkan cục bộ
+// khai auto* const; NOLINT kèm lý do cho các hàm noexcept của gốc và hai chữ ký có tham số cùng
+// kiểu.
+
 #include "gpu/vulkan/device.hpp"
 
 #include "core/error.hpp"
@@ -503,7 +519,8 @@ Status VulkanDevice::start(const PhysicalDevice& physical, const DeviceDesc& des
     const Status queued = create_queues();
     if (!queued) return queued;
     read_caps(indexing);
-    if (is_cache_usable(desc.pipeline_cache, properties)) create_cache(desc.pipeline_cache);
+    const std::vector<std::byte> stored = stored_cache(desc, adapter_);
+    if (is_cache_usable(stored, properties)) create_cache(stored);
     if (cache_ == VK_NULL_HANDLE) create_cache({});
     passes_ = std::make_unique<Passes>(device_, traits_.store_none, is_raw_color_);
     contexts_ = std::make_unique<Contexts>();

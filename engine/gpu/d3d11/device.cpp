@@ -63,6 +63,7 @@
 #include <iterator>
 #include <memory>
 #include <mutex>
+#include <optional>
 #include <span>
 #include <thread>
 #include <utility>
@@ -104,19 +105,6 @@ enum class Poll : std::uint8_t { kPending, kDone, kLost };
     return left.info.memory_bytes > right.info.memory_bytes;
 }
 
-[[nodiscard]] bool supports_11(IDXGIAdapter1& adapter) noexcept {
-    ComPtr<ID3D11Device> device;
-    ComPtr<ID3D11DeviceContext> context;
-    D3D_FEATURE_LEVEL chosen = D3D_FEATURE_LEVEL_11_0;
-    const auto* levels = kLevels.data();
-    const auto count = static_cast<UINT>(kLevels.size());
-    const HRESULT created =
-        D3D11CreateDevice(&adapter, D3D_DRIVER_TYPE_UNKNOWN, nullptr, D3D11_CREATE_DEVICE_BGRA_SUPPORT, levels, count,
-            D3D11_SDK_VERSION, device.GetAddressOf(), &chosen, context.GetAddressOf());
-    if (FAILED(created)) return false;
-    return chosen >= D3D_FEATURE_LEVEL_11_0;
-}
-
 [[nodiscard]] Candidate describe(IDXGIAdapter1& adapter) {
     DXGI_ADAPTER_DESC1 desc{};
     adapter.GetDesc1(&desc);
@@ -136,9 +124,9 @@ enum class Poll : std::uint8_t { kPending, kDone, kLost };
     return item;
 }
 
-void take_adapter(std::vector<Candidate>& out, IDXGIAdapter1& adapter) {
-    if (!supports_11(adapter)) return;
-    out.push_back(describe(adapter));
+void add_adapter(std::vector<Candidate>& out, IDXGIAdapter1& adapter) {
+    Candidate item = describe(adapter);
+    out.push_back(std::move(item));
 }
 
 // Một bước liệt kê. keep tắt khi hết adapter hoặc chạm trần 64.
@@ -164,9 +152,11 @@ void enum_step(EnumState& state) {
         return;
     }
     if (FAILED(listed)) return;
-    take_adapter(*state.out, *adapter.Get());
+    add_adapter(*state.out, *adapter.Get());
 }
 
+// Mọi adapter theo thứ tự is_before, chưa dò mức 11.0. Xếp ổn định nên lọc trước hay sau đều ra
+// cùng thứ tự; dò để sau để open chỉ tạo thiết bị tới adapter cần dùng.
 [[nodiscard]] core::Result<std::vector<Candidate>> list_candidates(IDXGIFactory1& factory) {
     std::vector<Candidate> out;
     EnumState state;
@@ -175,7 +165,7 @@ void enum_step(EnumState& state) {
     while (state.keep) {
         enum_step(state);
     }
-    std::ranges::sort(out, is_before);
+    std::ranges::stable_sort(out, is_before);
     return out;
 }
 
@@ -191,25 +181,21 @@ void enum_step(EnumState& state) {
     return factory;
 }
 
-[[nodiscard]] core::Result<Candidate> pick(const DeviceDesc& desc, std::vector<Candidate>& all) {
-    if (all.empty()) return fail(ErrorCode::kUnsupported, "không adapter feature level 11.0");
-    if (!desc.adapter) return std::move(all.front());
-    const bool past = *desc.adapter >= all.size();
-    if (past) return fail(ErrorCode::kInvalidArgument, "chỉ số adapter vượt biên");
-    return std::move(all.at(*desc.adapter));
-}
-
 [[nodiscard]] HRESULT create_raw(IDXGIAdapter1& adapter, UINT flags, Opened& opened) {
     ID3D11Device** device = opened.device.GetAddressOf();
     ID3D11DeviceContext** context = opened.context.GetAddressOf();
+    D3D_FEATURE_LEVEL* const level = &opened.level;
     const auto kind = D3D_DRIVER_TYPE_UNKNOWN;
-    const UINT version = D3D11_SDK_VERSION;
+    const HMODULE none = nullptr;
+    const UINT sdk = D3D11_SDK_VERSION;
     const auto* levels = kLevels.data();
-    const auto count = static_cast<UINT>(kLevels.size());
-    return D3D11CreateDevice(&adapter, kind, nullptr, flags, levels, count, version, device, &opened.level, context);
+    const auto n = static_cast<UINT>(kLevels.size());
+    return D3D11CreateDevice(&adapter, kind, none, flags, levels, n, sdk, device, level, context);
 }
 
-[[nodiscard]] core::Result<Opened> open_device(IDXGIAdapter1& adapter, bool validated) {
+// Thiết bị mức 11.0 trở lên trên adapter; rỗng khi không đạt. Máy thiếu lớp kiểm tra đã xin thì
+// tạo lại không có lớp ấy.
+[[nodiscard]] std::optional<Opened> probe(IDXGIAdapter1& adapter, bool validated) {
     const UINT base = D3D11_CREATE_DEVICE_BGRA_SUPPORT;
     UINT flags = base;
     if (validated) flags |= D3D11_CREATE_DEVICE_DEBUG;
@@ -220,11 +206,36 @@ void enum_step(EnumState& state) {
         opened = Opened{};
         created = create_raw(adapter, base, opened);
     }
-    if (FAILED(created)) return failed(created, "không tạo được thiết bị D3D11");
-    if (opened.level < D3D_FEATURE_LEVEL_11_0) {
-        return fail(ErrorCode::kUnsupported, "máy không có feature level 11.0");
-    }
+    if (FAILED(created)) return std::nullopt;
+    if (opened.level < D3D_FEATURE_LEVEL_11_0) return std::nullopt;
     return opened;
+}
+
+struct Chosen {
+    Candidate candidate;
+    Opened opened;
+};
+
+// Adapter đạt thứ desc.adapter (rỗng là 0) theo thứ tự của adapters(), kèm thiết bị tạo lúc dò.
+// Khác gốc: gốc tạo thiết bị trên mọi adapter để lọc rồi tạo lại trên adapter chọn; thiết bị D3D11
+// không dùng lại giữa hai lần tạo nên mỗi lần là trọn giá. Nay dò lần lượt và dừng ở adapter chọn.
+[[nodiscard]] core::Result<Chosen> pick(const DeviceDesc& desc, std::vector<Candidate>& all) {
+    const std::size_t index = desc.adapter.value_or(0);
+    std::size_t passed = 0;
+    for (Candidate& item : all) {
+        std::optional<Opened> opened = probe(*item.adapter.Get(), desc.is_validated);
+        const bool is_chosen = opened && passed == index;
+        if (is_chosen) return Chosen{.candidate = std::move(item), .opened = std::move(*opened)};
+        if (opened) ++passed;
+    }
+    if (passed == 0) return fail(ErrorCode::kUnsupported, "không adapter feature level 11.0");
+    return fail(ErrorCode::kInvalidArgument, "chỉ số adapter vượt biên");
+}
+
+// Thêm adapter vào danh sách khi nó tạo được thiết bị mức 11.0.
+void add_capable(std::vector<AdapterInfo>& infos, const Candidate& item) {
+    const std::optional<Opened> opened = probe(*item.adapter.Get(), false);
+    if (opened) infos.push_back(item.info);
 }
 
 void fill_caps(DeviceCaps& caps) {
@@ -845,7 +856,7 @@ Result<std::vector<AdapterInfo>> adapters() {
     std::vector<AdapterInfo> infos;
     infos.reserve(listed->size());
     for (const Candidate& item : *listed) {
-        infos.push_back(item.info);
+        add_capable(infos, item);
     }
     return infos;
 }
@@ -860,16 +871,15 @@ Result<std::unique_ptr<Device>> D3d11Device::open(const DeviceDesc& desc) {
     const core::Result<std::vector<Candidate>> listed = candidates_of(factory);
     if (!listed) return std::unexpected(listed.error());
     std::vector<Candidate> all = *listed;
-    const core::Result<Candidate> chosen = pick(desc, all);
+    const core::Result<Chosen> chosen = pick(desc, all);
     if (!chosen) return std::unexpected(chosen.error());
-    const core::Result<Opened> opened = open_device(*chosen->adapter.Get(), desc.is_validated);
-    if (!opened) return std::unexpected(opened.error());
+    const Opened& opened = chosen->opened;
     auto device = std::make_unique<D3d11Device>();
-    device->device_ = opened->device;
-    device->immediate_ = opened->context;
-    device->adapter_dxgi_ = chosen->adapter;
-    device->adapter_ = chosen->info;
-    if (opened->level >= D3D_FEATURE_LEVEL_11_1) device->adapter_.driver = "d3d11 11.1";
+    device->device_ = opened.device;
+    device->immediate_ = opened.context;
+    device->adapter_dxgi_ = chosen->candidate.adapter;
+    device->adapter_ = chosen->candidate.info;
+    if (opened.level >= D3D_FEATURE_LEVEL_11_1) device->adapter_.driver = "d3d11 11.1";
     fill_caps(device->caps_);
     ID3D11Device* hardware = device->device_.Get();
     if (hardware == nullptr) return core::fail(core::ErrorCode::kInternal, "thiết bị D3D11 rỗng");

@@ -348,7 +348,8 @@ public:
 private:
     struct Contexts;
 
-    [[nodiscard]] Status start(const AdapterInfo& info, IDXGIAdapter1* adapter, const DeviceDesc& desc);
+    // Dựng phần còn lại trên thiết bị open đã tạo; adapter_ và adapter_com_ đã điền.
+    [[nodiscard]] Status start(ID3D12Device* made, const DeviceDesc& desc);
     [[nodiscard]] bool add_queue(QueueType kind);
     [[nodiscard]] Status create_queues();
     [[nodiscard]] Status create_heaps();

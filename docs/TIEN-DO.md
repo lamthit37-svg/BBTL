@@ -5,6 +5,39 @@ hiện tại của cả dự án đọc ở ba chỗ: mục "Khảo sát theo m�
 tệp này, và dòng "Trạng thái" ở mục 0 của `AGENTS.md`. Tên cũ của tệp là "cửa sổ, Vulkan và 57 vật
 thể tĩnh của map huoyangu": đó là đích của sáu bước B1 tới B6 đầu tiên, tả ngay dưới.
 
+## Khởi động GPU: bỏ thiết bị tạo thừa (2026-10-17)
+
+Đo bằng mốc tạm (đã gỡ): trước khi có thiết bị, client gọi `predict_cache`, tức
+`gpu::enumerate_adapters`, chỉ để đoán tên tệp cache pipeline. Với D3D12, liệt kê nghĩa là tạo một
+thiết bị trên mỗi adapter để hỏi Enhanced Barriers. Sau đó `open` liệt kê lại, rồi `start` tạo thiết
+bị lần thứ ba. Mỗi lần tạo trên RTX 5060 tốn ~105 ms. D3D11 cũng tạo một thiết bị để lọc mức 11.0
+rồi tạo lại. Vulkan mặc định dựng instance ba lần (đoán tên, `has_hardware`, tạo).
+
+- `DeviceDesc::pipeline_cache` (span) thành `load_pipeline_cache` (hàm). Backend gọi nó khi đã chọn
+  adapter, nên client bỏ hẳn `predict_cache`. Test `*_cache_asked_once` (Vulkan, D3D12): đột biến
+  `stored_cache` không gọi hàm thì đỏ "hỏi cache 0 lần", trả lại thì xanh.
+- D3D12 và D3D11 xếp adapter trước, dò sau, dừng ở adapter cần dùng, và giữ thiết bị tạo lúc dò cho
+  `start`. Xếp ổn định nên thứ tự trùng thứ tự của `adapters()`.
+- `open_automatic` tạo thẳng Vulkan rồi xem adapter có phải phần cứng không. Khác trước: Vulkan
+  phần cứng tạo hỏng thì còn thử D3D phần cứng thay vì trả lỗi.
+- Lỗi lộ ra khi bỏ được 250 ms nối tiếp: D3D12 có lớp kiểm tra chọn Basic Render Driver 3/3 lần, vì
+  luồng làm nóng driver còn giữ thiết bị lúc bật lớp kiểm tra. Sửa bằng khoá dò của backend; sau sửa
+  3/3 lần chọn RTX (NGHI-NGO 25).
+
+| Đường (`bench_load.py --runs 10`, mốc "khung đầu đã trình") | Trước | Sau |
+|---|---|---|
+| D3D12 | trung vị 1014 ms (992–1135) | 652 ms (637–678) |
+| Vulkan mặc định | 592 ms (564–731) | 598 ms (578–639), trong nhiễu |
+
+D3D11 (3 lần tay, cửa sổ mở → thiết bị): 168–265 ms → 44–51 ms. Đã kiểm: `gpu_tests` 49/49; Đại Lý
+`--validate` trên Vulkan, D3D12, D3D11 và đường mặc định đều 0 lỗi lớp kiểm tra; Vulkan và D3D12
+trùng từng điểm ảnh với bản trước, D3D11 lệch 114 điểm (MSAA, NGHI-NGO 25); `game_gpu` cho Android
+arm64 biên dịch sạch.
+
+Đường găng còn lại của Vulkan mặc định: luồng nạp nướng xong địa hình lúc ~338 ms, còn luồng vẽ xong
+`Display::create` lúc 464 ms vì `vkCreateSwapchainKHR` tốn 145–160 ms trên RTX 5060 (D3D12 tạo
+swapchain 5 ms). D3D12 thì đường găng là dựng GPU cho mesh: 226 ms, so với 80 ms của Vulkan.
+
 ## D3D12 và D3D11 vẽ như Vulkan; cột nhiễu ở Đại Lý (2026-10-17)
 
 Commit `a0b31fa3`. Vulkan vẫn là mặc định; đường D3D đóng theo DU-AN E3 và C12.

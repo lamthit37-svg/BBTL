@@ -88,6 +88,9 @@ constexpr std::uint64_t kMsaaAlign = D3D12_DEFAULT_MSAA_RESOURCE_PLACEMENT_ALIGN
 struct Candidate {
     AdapterInfo info{};
     ComPtr<IDXGIAdapter1> adapter;
+    // Thiết bị tạo lúc dò Enhanced Barriers, rỗng khi chưa dò hoặc không đạt. open trao nó cho
+    // start: nhả rồi tạo lại tốn thêm ~105 ms trên RTX 5060 (đo 2026-10-17).
+    ComPtr<ID3D12Device> device;
 };
 
 [[nodiscard]] bool is_before(const Candidate& left, const Candidate& right) noexcept {
@@ -100,14 +103,19 @@ struct Candidate {
     return left.info.memory_bytes > right.info.memory_bytes;
 }
 
-[[nodiscard]] bool has_barriers(IDXGIAdapter1* adapter) noexcept {
+// Thiết bị mức 12.0 có Enhanced Barriers trên adapter; rỗng khi không đạt.
+[[nodiscard]] ComPtr<ID3D12Device> probe(IDXGIAdapter1* adapter) noexcept {
     ComPtr<ID3D12Device> device;
-    const HRESULT created = D3D12CreateDevice(adapter, D3D_FEATURE_LEVEL_12_0, com_iid(device), com_pp(device));
-    if (FAILED(created)) return false;
+    void** const slot = com_pp(device);
+    constexpr D3D_FEATURE_LEVEL kLevel = D3D_FEATURE_LEVEL_12_0;
+    const HRESULT created = D3D12CreateDevice(adapter, kLevel, com_iid(device), slot);
+    if (FAILED(created)) return {};
     D3D12_FEATURE_DATA_D3D12_OPTIONS12 options{};
-    const HRESULT checked = device->CheckFeatureSupport(D3D12_FEATURE_D3D12_OPTIONS12, &options, sizeof(options));
-    if (FAILED(checked)) return false;
-    return options.EnhancedBarriersSupported == TRUE;
+    constexpr D3D12_FEATURE kOptions = D3D12_FEATURE_D3D12_OPTIONS12;
+    const HRESULT checked = device->CheckFeatureSupport(kOptions, &options, sizeof(options));
+    if (FAILED(checked)) return {};
+    if (options.EnhancedBarriersSupported != TRUE) return {};
+    return device;
 }
 
 [[nodiscard]] Candidate describe(IDXGIAdapter1* adapter, bool is_software) {
@@ -128,13 +136,13 @@ struct Candidate {
     return item;
 }
 
-// Khác gốc: if trong vòng EnumAdapters1 của collect.
-void keep_adapter(std::vector<Candidate>& found, ComPtr<IDXGIAdapter1>& adapter) {
-    IDXGIAdapter1* const raw = adapter.Get();
-    if (!has_barriers(raw)) return;
-    Candidate item = describe(raw, false);
+void add_adapter(std::vector<Candidate>& found, IDXGIAdapter1* adapter, bool is_software) {
+    Candidate item = describe(adapter, is_software);
     found.push_back(std::move(item));
-    adapter.Reset();
+}
+
+[[nodiscard]] bool lacks_device(const Candidate& item) noexcept {
+    return item.device == nullptr;
 }
 
 [[nodiscard]] ComPtr<IDXGIFactory4> make_factory(bool debug) {
@@ -146,21 +154,50 @@ void keep_adapter(std::vector<Candidate>& found, ComPtr<IDXGIAdapter1>& adapter)
     return factory;
 }
 
+// Mọi adapter kể cả WARP, theo thứ tự is_before, chưa dò. Khác gốc: gốc dò từng adapter trong
+// vòng liệt kê rồi mới xếp, mỗi lần dò tạo một thiết bị. Nay xếp ổn định trước rồi dò, để open chỉ
+// tạo thiết bị tới adapter cần dùng; xếp ổn định nên lọc trước hay sau đều ra cùng thứ tự.
 [[nodiscard]] std::vector<Candidate> collect(IDXGIFactory4* factory) {
     std::vector<Candidate> found;
     ComPtr<IDXGIAdapter1> adapter;
-    for (UINT index = 0; factory->EnumAdapters1(index, &adapter) != DXGI_ERROR_NOT_FOUND; ++index) {
-        keep_adapter(found, adapter);
-    }
-    const ComPtr<IDXGIFactory4> warp_factory = factory;
+    for (UINT index = 0; factory->EnumAdapters1(index, &adapter) != DXGI_ERROR_NOT_FOUND; ++index)
+        add_adapter(found, adapter.Get(), false);
     ComPtr<IDXGIAdapter1> warp;
-    const HRESULT warped = warp_factory->EnumWarpAdapter(com_iid(warp), com_pp(warp));
-    if (FAILED(warped)) return found;
-    IDXGIAdapter1* const raw = warp.Get();
-    if (!has_barriers(raw)) return found;
-    Candidate item = describe(raw, true);
-    found.push_back(std::move(item));
+    const HRESULT warped = factory->EnumWarpAdapter(com_iid(warp), com_pp(warp));
+    if (SUCCEEDED(warped)) add_adapter(found, warp.Get(), true);
+    std::ranges::stable_sort(found, is_before);
     return found;
+}
+
+// Lớp kiểm tra D3D12 phải bật trước mọi thiết bị sống của tiến trình. Bật khi luồng khác đang giữ
+// thiết bị dò (adapters() của luồng làm nóng driver ở client) thì runtime gỡ thiết bị ấy, lần dò
+// RTX hỏng và open rơi xuống Basic Render Driver (đo 2026-10-17, 3/3 lần). Khoá giữ suốt lúc dò
+// của adapters(), và từ lúc bật lớp kiểm tra tới lúc tạo xong thiết bị của open có lớp kiểm tra.
+[[nodiscard]] std::mutex& probe_mutex() noexcept {
+    static std::mutex mutex;
+    return mutex;
+}
+
+// Chỉ giữ adapter dò đạt, kèm thiết bị của chúng.
+void probe_all(std::vector<Candidate>& found) {
+    for (Candidate& item : found)
+        item.device = probe(item.adapter.Get());
+    std::erase_if(found, lacks_device);
+}
+
+// Adapter đạt thứ index trong danh sách của adapters(), kèm thiết bị đã dò. Dò lần lượt và dừng ở
+// adapter đó; thiết bị của adapter đạt đứng trước được nhả ngay.
+[[nodiscard]] Result<Candidate> pick(std::vector<Candidate>& found, std::size_t index) {
+    std::size_t passed = 0;
+    for (Candidate& item : found) {
+        item.device = probe(item.adapter.Get());
+        const bool is_chosen = item.device != nullptr && passed == index;
+        if (is_chosen) return std::move(item);
+        if (item.device != nullptr) ++passed;
+        item.device.Reset();
+    }
+    if (passed == 0) return fail(ErrorCode::kUnsupported, "không adapter nào có Enhanced Barriers");
+    return fail(ErrorCode::kInvalidArgument, "chỉ số adapter ngoài danh sách");
 }
 
 [[nodiscard]] ErrorCode code_of(HRESULT result) noexcept {
@@ -533,10 +570,12 @@ struct D3d12Device::Contexts {
 };
 
 Result<std::vector<AdapterInfo>> adapters() {
+    // Khai trước found: thiết bị dò nhả xong rồi mới mở khoá.
+    const std::scoped_lock lock(probe_mutex());
     const ComPtr<IDXGIFactory4> factory = make_factory(false);
     if (factory == nullptr) return fail(ErrorCode::kInternal, "không tạo được factory DXGI");
     std::vector<Candidate> found = collect(factory.Get());
-    std::ranges::sort(found, is_before);
+    probe_all(found);
     std::vector<AdapterInfo> infos;
     infos.reserve(found.size());
     for (const Candidate& item : found) {
@@ -553,33 +592,33 @@ Result<std::unique_ptr<Device>> create(const DeviceDesc& desc) {
 }
 
 Result<std::unique_ptr<Device>> D3d12Device::open(const DeviceDesc& desc) {
+    // Không có lớp kiểm tra thì không khoá: dò song song với luồng làm nóng vẫn được D3D12 trả lại
+    // đúng thiết bị luồng ấy đang giữ (mỗi adapter một thiết bị), khỏi tạo lại.
+    std::unique_lock lock(probe_mutex(), std::defer_lock);
+    if (desc.is_validated) lock.lock();
     if (desc.is_validated) enable_debug();
     const ComPtr<IDXGIFactory4> factory = make_factory(desc.is_validated);
     if (factory == nullptr) return fail(ErrorCode::kInternal, "không tạo được factory DXGI");
     IDXGIFactory4* const raw = factory.Get();
     std::vector<Candidate> found = collect(raw);
-    std::ranges::sort(found, is_before);
-    if (found.empty()) {
-        return fail(ErrorCode::kUnsupported, "không adapter nào có Enhanced Barriers");
-    }
     const std::size_t index = desc.adapter.value_or(0);
-    if (index >= found.size()) return fail(kBad, "chỉ số adapter ngoài danh sách");
+    Result<Candidate> chosen = pick(found, index);
+    if (!chosen) return std::unexpected(std::move(chosen).error());
     auto device = std::make_unique<D3d12Device>();
     device->factory_ = factory;
     device->debug_ = desc.is_validated;
-    const Candidate& chosen = found.at(index);
-    IDXGIAdapter1* const adapter = chosen.adapter.Get();
-    Status started = device->start(chosen.info, adapter, desc);
+    device->adapter_ = chosen->info;
+    device->adapter_com_ = chosen->adapter;
+    ID3D12Device* const made = chosen->device.Get();
+    Status started = device->start(made, desc);
     if (!started) return std::unexpected(std::move(started).error());
     return device;
 }
 
-Status D3d12Device::start(const AdapterInfo& info, IDXGIAdapter1* adapter, const DeviceDesc& desc) {
-    adapter_ = info;
-    adapter_com_ = adapter;
-    IDXGIAdapter1* const hardware = adapter_com_.Get();
-    const HRESULT created = D3D12CreateDevice(hardware, D3D_FEATURE_LEVEL_12_0, com_iid(device_), com_pp(device_));
-    if (FAILED(created)) return failed(created, "không tạo được thiết bị D3D12");
+// Khác gốc: gốc tạo thiết bị lần nữa ở đây; nay nhận thiết bị pick đã tạo lúc dò.
+Status D3d12Device::start(ID3D12Device* made, const DeviceDesc& desc) {
+    const HRESULT queried = made->QueryInterface(com_iid(device_), com_pp(device_));
+    if (FAILED(queried)) return failed(queried, "thiết bị D3D12 thiếu ID3D12Device2");
     ID3D12Device* const device = device_.Get();
     if (debug_) attach_info(device, info_);
     const Status queues = create_queues();
@@ -587,7 +626,8 @@ Status D3d12Device::start(const AdapterInfo& info, IDXGIAdapter1* adapter, const
     const Status heaps = create_heaps();
     if (!heaps) return heaps;
     read_caps();
-    create_library(desc.pipeline_cache);
+    const std::vector<std::byte> stored = stored_cache(desc, adapter_);
+    create_library(stored);
     contexts_ = std::make_unique<Contexts>();
     return ok();
 }

@@ -77,7 +77,10 @@ nhật ký cũ [tài liệu].
 ### Đồ hoạ và nền tảng
 
 - Vulkan (mặc định) và GLES vẽ lên cửa sổ. D3D12 và D3D11 vẽ Đại Lý như Vulkan, lớp kiểm tra
-  báo 0 lỗi, `gpu_tests` 47/47 (2026-10-17, `a0b31fa3`; xem E3). GLES dừng phát triển.
+  báo 0 lỗi, `gpu_tests` 49/49 (2026-10-17, `a0b31fa3`; xem E3). GLES dừng phát triển.
+- Khởi động GPU không còn tạo thiết bị thừa (2026-10-17): khung đầu D3D12 1014 → 652 ms
+  (`bench_load.py`, 10 lượt); Vulkan mặc định 592 → 598 ms, trong nhiễu. Đường găng còn lại của
+  Vulkan là `vkCreateSwapchainKHR` 145–160 ms (TIEN-DO cùng ngày).
 - Vulkan hạ xuống lõi 1.1 và chạy trên tablet PowerVR GE8320 (`e10bdbdc`); màu thô cho Vulkan trên
   điện thoại 43,9 → 40,1 ms (`db617d7d`).
 - Trên cửa sổ khoá Fifo vào nhịp quét, nâng Hz theo `loop_plan`; đo 120 Hz, 99,8% khung đúng một
@@ -240,7 +243,7 @@ suy đoán.
 |---|---|---|---|
 | C1 | cao | Chưa chạy client thật với cụm v6 (NGHI-NGO 58a). Agent bị cấm chiếm chuột nên mọi đường giao diện chỉ kiểm bằng demo/test. `display/auto_login.hpp` (chưa track) là đường gỡ, chưa thấy kết quả | [tài liệu] |
 | C2 | cao | `SceneDefineEx` client đang nạp không phải bảng 2026: 297 so với 680 dòng, 43 dòng khác, thiếu 395 id (NGHI-NGO 20) | [tài liệu] |
-| C3 | vừa | Nạp đầu 490–528 ms, vượt ngân sách 450 ms (NGHI-NGO 51g); phải nhanh hơn `G:\TLBB` là cam kết của chủ dự án | [tài liệu] |
+| C3 | vừa | Nạp đầu 490–528 ms, vượt ngân sách 450 ms (NGHI-NGO 51g); phải nhanh hơn `G:\TLBB` là cam kết của chủ dự án. Đo lại 2026-10-17: trung vị 598 ms; luồng vẽ xong `Display::create` sau mặt đất ~126 ms vì swapchain Vulkan 145–160 ms nằm trên đường găng | [tài liệu + tự kiểm] |
 | C4 | vừa | Mô hình cảnh còn thiếu ở góc trái tablet, nghi LOD thô (`TIEN-DO.md:2884`); APK bản `vi` chưa dựng | [tài liệu] |
 | C5 | vừa | HUD: số viết cứng `hero::newcomer()`; `--ui-event OPEN_WINDOW` không mở được túi, sách kỹ năng, bản đồ, sổ nhiệm vụ; module `book/skill` không nơi dùng (`grep '#include "skill/'` ngoài chính nó: 0) | [đọc mã] |
 | C6 | vừa | Camera: 59 cảnh `SpecialSceneCamera` chưa nối; tia chuột trúng mặt công trình chưa nối (`raycast(` không có trong `src/client`); ô `+0x260` chưa tháo hết | [đọc mã] |
