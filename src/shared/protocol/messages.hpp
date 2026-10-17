@@ -33,7 +33,7 @@
 namespace game::protocol {
 
 // Bản của danh mục; tin có since lớn hơn bản bên kia đang chạy thì bên kia chưa hiểu.
-inline constexpr std::uint16_t kVersion = 6;
+inline constexpr std::uint16_t kVersion = 7;
 
 enum class AvatarFrame : std::uint8_t {
     kRound = 1,
@@ -217,6 +217,7 @@ inline constexpr std::size_t kContentKeyKeyBytes = 32;
 inline constexpr std::size_t kContentStampStampBytes = 32;
 inline constexpr std::size_t kCharacterListCharactersCount = 8;
 inline constexpr std::size_t kEntityAppearNameBytes = 48;
+inline constexpr std::size_t kEntityPosBatchPlacesCount = 52;
 inline constexpr std::size_t kTicketTokenBytes = 204;
 inline constexpr std::size_t kDialogOpenLinesCount = 16;
 inline constexpr std::size_t kDialogOpenChoicesCount = 48;
@@ -296,6 +297,23 @@ struct DialogMark {
     std::uint16_t quest = 0;
     MarkStage stage = MarkStage::kAvailable;
     friend bool operator==(const DialogMark&, const DialogMark&) = default;
+};
+
+// Record: Một vị trí tuyệt đối trong EntityPosBatch. Cùng bố cục 19 byte với thân EntityPos.
+struct PosEntry {
+    // Id thực thể.
+    std::uint32_t id = 0;
+    // Toạ độ X, centimet.
+    float x_cm = 0.0F;
+    // Toạ độ Z, centimet.
+    float z_cm = 0.0F;
+    // Hướng nhìn: 0..65535 ứng với 0..2π; 0 là hướng +X, tăng dần quay về phía +Z.
+    std::uint16_t direction = 0;
+    // Tick của cảnh lúc ghi nhận, 20 tick mỗi giây.
+    std::uint32_t tick = 0;
+    // Walk khi đang di chuyển; Idle khi dừng; Dead khi chết.
+    EntityState state = EntityState::kIdle;
+    friend bool operator==(const PosEntry&, const PosEntry&) = default;
 };
 
 // Record: Một ô của sổ nhiệm vụ.
@@ -731,6 +749,15 @@ struct EntityFlags {
     friend bool operator==(const EntityFlags&, const EntityFlags&) = default;
 };
 
+// 0x8407, server gửi, cổng game, từ bản 7: Nhiều vị trí tuyệt đối của cùng một tick cho một client.
+// Không gửi khi rỗng.
+struct EntityPosBatch {
+    static constexpr std::uint16_t kKind = 0x8407;
+    // Tối đa 52 vị trí: khung sau khi niêm phong phải vừa hộp gửi 1024 byte của gate.
+    std::vector<PosEntry> places;
+    friend bool operator==(const EntityPosBatch&, const EntityPosBatch&) = default;
+};
+
 // 0x8501, server gửi, cổng auth, từ bản 1: Vé vào cổng game do cổng xác thực cấp sau khi đăng nhập
 // đúng.
 struct Ticket {
@@ -917,9 +944,9 @@ using GameClientMessage = std::variant<Hello, Login, Resume, Ping, Logout, Creat
 using GameClientResult = std::expected<GameClientMessage, WireError>;
 using GameServerMessage = std::variant<Welcome, SessionStart, ContentKey, Pong, Reject, Goodbye,
     ContentStamp, UiConfig, CharacterList, Position, SceneEnter, EntityAppear, EntityDisappear,
-    EntityPos, EntityVitals, EntityFlags, DialogOpen, DialogClosed, QuestBook, QuestNotice,
-    SelfStats, SelfVitals, SelfBag, SkillCast, SkillCastEnd, CombatEvent, EntityDied, DeathNotice,
-    SelfSkills, SkillCooldown>;
+    EntityPos, EntityVitals, EntityFlags, EntityPosBatch, DialogOpen, DialogClosed, QuestBook,
+    QuestNotice, SelfStats, SelfVitals, SelfBag, SkillCast, SkillCastEnd, CombatEvent, EntityDied,
+    DeathNotice, SelfSkills, SkillCooldown>;
 using GameServerResult = std::expected<GameServerMessage, WireError>;
 using AuthClientMessage = std::variant<Hello, CreateAccount, SignIn>;
 using AuthClientResult = std::expected<AuthClientMessage, WireError>;
@@ -963,6 +990,7 @@ using AuthServerResult = std::expected<AuthServerMessage, WireError>;
 [[nodiscard]] WireStatus encode(std::vector<std::byte>& out, const EntityPos& message);
 [[nodiscard]] WireStatus encode(std::vector<std::byte>& out, const EntityVitals& message);
 [[nodiscard]] WireStatus encode(std::vector<std::byte>& out, const EntityFlags& message);
+[[nodiscard]] WireStatus encode(std::vector<std::byte>& out, const EntityPosBatch& message);
 [[nodiscard]] WireStatus encode(std::vector<std::byte>& out, const Ticket& message);
 [[nodiscard]] WireStatus encode(std::vector<std::byte>& out, const DialogOpen& message);
 [[nodiscard]] WireStatus encode(std::vector<std::byte>& out, const DialogClosed& message);
@@ -1040,6 +1068,7 @@ using AuthServerResult = std::expected<AuthServerMessage, WireError>;
     case 0x8805:
     case 0x8806:
     case 0x8807: return 6;
+    case 0x8407: return 7;
     default: return 0;
     }
 }

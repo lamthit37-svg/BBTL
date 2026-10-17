@@ -1,8 +1,23 @@
-// Mã logic hiệu ứng làm việc qua hook: khiên và phản đòn, miễn nhiễm và gỡ buff, chỉnh kỹ năng và hiệu ứng khác,
-// hồi sinh, khuếch đại sát thương, kích hoạt hiệu ứng con khi đánh hoặc bị đánh, và các sự kiện giao cho module ngoài.
-//
+/*==============================================================================
+ *  THIENLONG  |  GAME SERVER
+ *------------------------------------------------------------------------------
+ *  TỆP       : src/server/combat/detail/effects_hook.cpp
+ *  PHÂN HỆ   : Combat / Detail / Effects Hook
+ *  CHUẨN     : C++23
+ *------------------------------------------------------------------------------
+ *  CHỨC NĂNG
+ *  - Mã logic hiệu ứng làm việc qua hook: khiên và phản đòn, miễn nhiễm và gỡ
+ *    buff, chỉnh kỹ năng và hiệu ứng khác, hồi sinh, khuếch đại sát thương,
+ *    kích hoạt hiệu ứng con khi đánh hoặc bị đánh, và các sự kiện giao cho
+ *    module ngoài.
+ *------------------------------------------------------------------------------
+ *  TÁC GIẢ   : HiepHoon
+ *  TELEGRAM  : @Hoon9xx
+ *============================================================================*/
+
 // Nguồn: GameServer 2008 StdImpact008, 009, 017..029, 053, 054, 058 (cùng số logic); các logic 60..95 chỉ có ở dữ liệu
 // client 2026, nghĩa tham số lấy từ cột mô tả trong effects.tsv (docs/SERVER-COMBAT.md). Khác gốc ghi tại chỗ.
+
 #include "actor/attr.hpp"
 #include "actor/body.hpp"
 #include "actor/numeric.hpp"
@@ -331,7 +346,8 @@ public:
         origin.caster = ctx.me.handle;
         origin.skill = ctx.buff.skill;
         origin.computed = true;
-        origin.delay_ticks = ms_to_ticks(kCounterDelayMs);
+        const std::int64_t delay = ctx.arena.milliseconds_to_ticks(kCounterDelayMs);
+        origin.delay_ticks = delay;
         const std::int32_t strikes = std::clamp(param_of(ctx.effect, 1), 0, kMaxStrikes);
         for (std::int32_t i = 0; i < strikes; ++i) {
             static_cast<void>(ctx.arena.send_effect(attacker->handle, static_cast<std::uint32_t>(kDefaultDamageEffect), origin));

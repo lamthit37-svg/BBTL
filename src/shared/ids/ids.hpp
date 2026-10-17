@@ -1,10 +1,25 @@
-#pragma once
-// Id mạnh của nội dung và thực thể (cpp23 KG-06..11). Mỗi id là một kiểu riêng nên không trộn được
-// vật phẩm với kỹ năng. Nền số nguyên không dấu; 0 là "không có" chỉ ở chỗ bảng gốc quy ước thế,
-// còn nơi khác dùng std::optional. Id không có phép số học: chỉ so sánh, băm và đọc giá trị.
-//
+/*==============================================================================
+ *  THIENLONG  |  SHARED
+ *------------------------------------------------------------------------------
+ *  TỆP       : src/shared/ids/ids.hpp
+ *  PHÂN HỆ   : Shared / Ids / Ids
+ *  CHUẨN     : C++23
+ *------------------------------------------------------------------------------
+ *  CHỨC NĂNG
+ *  - Id mạnh của nội dung và thực thể (cpp23 KG-06..11). Mỗi id là một kiểu
+ *    riêng nên không trộn được vật phẩm với kỹ năng. Nền số nguyên không dấu; 0
+ *    là "không có" chỉ ở chỗ bảng gốc quy ước thế, còn nơi khác dùng
+ *    std::optional. Id không có phép số học: chỉ so sánh, băm và đọc giá trị.
+ *------------------------------------------------------------------------------
+ *  TÁC GIẢ   : HiepHoon
+ *  TELEGRAM  : @Hoon9xx
+ *============================================================================*/
+
 // Nguồn: TLBB Dev src/ids (docs/LOGIC.md mục 3). Khác gốc: một template StrongId thay cho từng
-// enum class rời, để có chung băm và toán tử so sánh; thêm Tick/TickSpan cho mô phỏng 20 Hz.
+// enum class rời, để có chung băm và toán tử so sánh; thêm Tick/TickSpan. Nhịp chọn lúc zone
+// khởi động (mặc định 20 Hz); mili giây làm tròn lên, không sớm hơn hợp đồng.
+
+#pragma once
 
 #include <cstddef>
 #include <cstdint>
@@ -95,7 +110,38 @@ struct TickSpan {
     constexpr std::int64_t kMilli = 1000;
     const std::int64_t whole = milliseconds / kMilli;
     const std::int64_t rest = milliseconds % kMilli;
-    return TickSpan{(whole * ticks_per_second) + (((rest * ticks_per_second) + kMilli - 1) / kMilli)};
+    return TickSpan{
+        (whole * ticks_per_second) + (((rest * ticks_per_second) + kMilli - 1) / kMilli)};
+}
+
+// Mili giây đã trôi tới hết tick `tick_index` (1-based), chia phần để không tràn.
+[[nodiscard]] constexpr std::uint64_t ms_through(std::uint64_t tick_index,
+    std::uint64_t hz) noexcept {
+    if (hz == 0) return 0;
+    const std::uint64_t whole = tick_index / hz;
+    const std::uint64_t part = tick_index % hz;
+    return (whole * 1000ULL) + ((part * 1000ULL) / hz);
+}
+
+// Độ dài mili giây của một tick. Mọi hz tick liên tiếp cộng đúng 1000. 30 Hz là 33, 33, 34.
+[[nodiscard]] constexpr std::int64_t slice_ms(std::uint64_t tick_index,
+    std::int64_t ticks_per_second) noexcept {
+    if (tick_index == 0 || ticks_per_second <= 0) return 0;
+    const auto step = static_cast<std::uint64_t>(ticks_per_second);
+    const std::uint64_t end = ms_through(tick_index, step);
+    const std::uint64_t start = ms_through(tick_index - 1ULL, step);
+    return static_cast<std::int64_t>(end - start);
+}
+
+// Tick còn lại sang mili giây, làm tròn lên. 20 Hz đúng n*50; 30 Hz không được dùng 33 (60*33 =
+// 1980).
+[[nodiscard]] constexpr std::int64_t ticks_to_ms_up(std::int64_t ticks,
+    std::int64_t ticks_per_second) noexcept {
+    if (ticks <= 0 || ticks_per_second <= 0) return 0;
+    constexpr std::int64_t kMilli = 1000;
+    const std::int64_t room = std::numeric_limits<std::int64_t>::max() - (ticks_per_second - 1);
+    if (ticks > room / kMilli) return std::numeric_limits<std::int64_t>::max();
+    return ((ticks * kMilli) + ticks_per_second - 1) / ticks_per_second;
 }
 
 } // namespace game::ids

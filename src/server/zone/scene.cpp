@@ -38,11 +38,36 @@ namespace game::zone {
 namespace {
 
 constexpr float kMinStepCm = 1.0F;
+
+bool motion_due(std::uint32_t sent, std::uint32_t tick, std::uint32_t stride) noexcept {
+    if (sent == kNeverSent || sent == tick) return true;
+    return tick - sent >= stride;
+}
 constexpr float kTurn = 65536.0F;
 
 [[nodiscard]] float clamp_cm(float value) noexcept {
     if (std::isnan(value)) return 0.0F;
     return std::clamp(value, -Grid::kCoordLimitCm, Grid::kCoordLimitCm);
+}
+
+[[nodiscard]] std::uint32_t respawn_ticks(std::int32_t respawn_ms, std::int64_t hz) noexcept {
+    const std::int32_t wait = respawn_ms > 0 ? respawn_ms : kDefaultRespawnMs;
+    const std::int64_t wait_ms = wait;
+    const ids::TickSpan span = ids::to_ticks(wait_ms, hz);
+    return static_cast<std::uint32_t>(span.count);
+}
+
+struct RespawnSlot {
+    std::unordered_map<std::uint32_t, Spawn>& homes;
+    std::multimap<std::uint32_t, Spawn>& respawns;
+};
+
+void schedule_respawn(RespawnSlot& slot, std::uint32_t index, std::uint32_t tick, std::int64_t hz) {
+    const auto home = slot.homes.find(index);
+    if (home == slot.homes.end()) return;
+    const std::uint32_t ticks = respawn_ticks(home->second.respawn_ms, hz);
+    slot.respawns.emplace(tick + ticks, std::move(home->second));
+    slot.homes.erase(home);
 }
 
 } // namespace
@@ -60,7 +85,12 @@ std::uint16_t direction_of(Delta step, std::uint16_t keep) noexcept {
 // Hạt giống ngẫu nhiên của cảnh: mỗi cảnh một dòng riêng, cùng id cho cùng dòng (phát lại được).
 constexpr std::uint64_t kSeedBase = 0x5A17'E000'0000'0000ULL;
 
-Scene::Scene(Config config) : config_(std::move(config)), grid_(config_.grid), rng_(kSeedBase + config_.id) {
+Scene::Scene(Config config)
+    : config_(std::move(config)),
+      grid_(config_.grid),
+      rate_(rate_of(config_.hz)),
+      rng_(kSeedBase + config_.id) {
+    core::check(accepted_hz(config_.hz), "hz cảnh phải là 20, 30 hoặc 40");
     core::check(config_.player_max <= kEntityMax, "player_max vượt trần thực thể của cảnh");
 }
 
@@ -119,12 +149,50 @@ void Scene::show_to(std::uint64_t session, std::uint32_t index, Outbox& out) con
     out.down_frame(session, flags_frame(index, out));
 }
 
-void Scene::broadcast(Cell around, std::uint32_t skip, const std::vector<std::byte>& frame, Outbox& out) const {
+void Scene::broadcast(Cell around, std::uint32_t skip, const std::vector<std::byte>& frame,
+    Outbox& out) const {
     grid_.for_each_in_window(around, [&](std::uint32_t index) {
         if (index == skip) return;
         const Entity& viewer = entities_[index];
         if (viewer.session != 0) out.down_frame(viewer.session, frame);
     });
+}
+
+void Scene::broadcast_pos(Cell around, std::uint32_t skip, const protocol::EntityPos& pos,
+    Outbox& out) const {
+    const Outbox::PosBlob blob = out.blob(pos);
+    grid_.for_each_in_window(around, [&](std::uint32_t index) {
+        if (index == skip) return;
+        const Entity& viewer = entities_[index];
+        if (viewer.session != 0) out.stage_blob(viewer.session, blob);
+    });
+}
+
+void Scene::give_position(PosGate& gate, std::uint32_t self, std::uint32_t other, Cell at,
+    const Outbox::PosBlob& blob, Outbox& out) {
+    if (other == self) return;
+    const Entity& viewer = entities_[other];
+    if (viewer.session == 0) return;
+    const bool near = grid_.rings(at, viewer.cell) <= 1;
+    if (near && !gate.near_ok) return;
+    if (!near && !gate.far_ok) return;
+    out.stage_blob(viewer.session, blob);
+    if (near) gate.sent_near = true;
+    if (!near) gate.sent_far = true;
+}
+
+void Scene::fan_position(std::uint32_t index, Cell around, const protocol::EntityPos& pos,
+    Outbox& out) {
+    Entity& who = entities_[index];
+    PosGate gate;
+    gate.near_ok = motion_due(who.near_pos_tick, tick_, rate_.near_stride);
+    gate.far_ok = motion_due(who.far_pos_tick, tick_, rate_.far_stride);
+    if (!gate.near_ok && !gate.far_ok) return;
+    const Outbox::PosBlob blob = out.blob(pos);
+    grid_.for_each_in_window(around,
+        [&](std::uint32_t other) { give_position(gate, index, other, around, blob, out); });
+    if (gate.sent_near) who.near_pos_tick = tick_;
+    if (gate.sent_far) who.far_pos_tick = tick_;
 }
 
 void Scene::show_neighbours(std::uint32_t viewer, Cell around, Outbox& out) const {
@@ -296,7 +364,7 @@ void Scene::kill(std::uint32_t id) {
     stop_thinking(*index);
     who.state = protocol::EntityState::kDead;
     who.hp_percent = 0;
-    if (who.session == 0) corpses_.emplace(tick_ + kCorpseTicks, id);
+    if (who.session == 0) corpses_.emplace(tick_ + rate_.corpse_ticks, id);
 }
 
 void Scene::revive(std::uint32_t id, Point at, std::uint8_t hp_percent, Outbox& out) {
@@ -359,12 +427,8 @@ void Scene::tidy_corpses(Outbox& out) {
         corpses_.erase(corpses_.begin());
         const std::optional<std::uint32_t> index = index_of(id);
         if (!index) continue;
-        if (const auto home = homes_.find(*index); home != homes_.end()) {
-            const std::int32_t wait = home->second.respawn_ms > 0 ? home->second.respawn_ms : kDefaultRespawnMs;
-            const auto ticks = static_cast<std::uint32_t>((static_cast<std::int64_t>(wait) * kTickHz + 999) / 1000);
-            respawns_.emplace(tick_ + ticks, std::move(home->second));
-            homes_.erase(home);
-        }
+        RespawnSlot slot{.homes = homes_, .respawns = respawns_};
+        schedule_respawn(slot, *index, tick_, rate_.hz);
         remove(*index, out);
     }
     while (!respawns_.empty() && respawns_.begin()->first <= tick_) {
@@ -401,7 +465,7 @@ void Scene::advance(Outbox& out) {
     for (std::size_t at = moving_.size(); at > 0; --at) {
         const std::uint32_t index = moving_[at - 1];
         const Entity& who = entities_[index];
-        if (tick_ - who.moved_at < kIdleAfterTicks) continue;
+        if (tick_ - who.moved_at < rate_.idle_after) continue;
         stop_walking(index);
         protocol::EntityPos rest;
         rest.id = id_at(index);
@@ -410,7 +474,7 @@ void Scene::advance(Outbox& out) {
         rest.direction = who.direction;
         rest.tick = tick_;
         rest.state = protocol::EntityState::kIdle;
-        broadcast(who.cell, index, out.frame_of(rest), out);
+        broadcast_pos(who.cell, index, rest, out);
     }
 }
 
@@ -435,9 +499,8 @@ void Scene::relocate(std::uint32_t index, Point to, Outbox& out) {
     pos.state = protocol::EntityState::kWalk;
     start_walking(index);
     who.moved_at = tick_;
-    const std::vector<std::byte> moving = out.frame_of(pos);
     if (before == after) {
-        broadcast(after, index, moving, out);
+        fan_position(index, after, pos, out);
         return;
     }
     const std::vector<std::byte> shown = out.frame_of(appear_of(index));
@@ -445,15 +508,22 @@ void Scene::relocate(std::uint32_t index, Point to, Outbox& out) {
     gone.id = id;
     const std::vector<std::byte> hidden = out.frame_of(gone);
     const std::vector<std::byte> marked = flags_frame(index, out);
+    PosGate gate;
+    gate.near_ok = motion_due(who.near_pos_tick, tick_, rate_.near_stride);
+    gate.far_ok = motion_due(who.far_pos_tick, tick_, rate_.far_stride);
+    const Outbox::PosBlob blob = out.blob(pos);
     // Người thấy tôi cả trước lẫn sau chỉ nhận vị trí; người mới thấy nhận hiện ra.
     grid_.for_each_in_window(after, [&](std::uint32_t other) {
         if (other == index) return;
         const Entity& viewer = entities_[other];
         if (viewer.session == 0) return;
         const bool kept = grid_.sees(before, viewer.cell);
-        out.down_frame(viewer.session, kept ? moving : shown);
+        if (!kept) out.down_frame(viewer.session, shown);
         if (!kept) out.down_frame(viewer.session, marked);
+        if (kept) give_position(gate, index, other, after, blob, out);
     });
+    if (gate.sent_near) who.near_pos_tick = tick_;
+    if (gate.sent_far) who.far_pos_tick = tick_;
     grid_.for_each_left(before, after, [&](std::uint32_t other) {
         const Entity& viewer = entities_[other];
         if (other != index && viewer.session != 0) out.down_frame(viewer.session, hidden);

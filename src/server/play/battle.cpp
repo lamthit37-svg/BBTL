@@ -6,8 +6,9 @@
  *  CHUẨN     : C++23
  *------------------------------------------------------------------------------
  *  CHỨC NĂNG
- *  - Cài đặt chiến đấu của một cảnh: ra chiêu, hồi sinh, nhặt đồ, bước 20 Hz,
- *    dịch sự kiện đấu trường thành tin, chia kinh nghiệm và đồ khi quái chết.
+ *  - Cài đặt chiến đấu của một cảnh: ra chiêu, hồi sinh, nhặt đồ, bước theo
+ *    nhịp zone, dịch sự kiện đấu trường thành tin, chia kinh nghiệm và đồ
+ *    khi quái chết.
  *------------------------------------------------------------------------------
  *  TÁC GIẢ   : HiepHoon
  *  TELEGRAM  : @Hoon9xx
@@ -22,6 +23,7 @@
 #include "combat/catalog.hpp"
 #include "combat/fighter.hpp"
 #include "combat/types.hpp"
+#include "core/check.hpp"
 #include "ids/ids.hpp"
 #include "item/catalog.hpp"
 #include "item/instance.hpp"
@@ -40,6 +42,7 @@
 #include <cmath>
 #include <cstddef>
 #include <cstdint>
+#include <limits>
 #include <optional>
 #include <span>
 #include <utility>
@@ -56,14 +59,22 @@ constexpr std::int32_t kPickRangeCm = 300;
 // Quái trong tầm này quanh người ra chiêu được dựng Fighter để chiêu vùng quét tới, ngoài tầm đánh và bán kính chiêu.
 constexpr std::int32_t kReachSlackCm = 200;
 constexpr std::int32_t kMaxReachCm = 5000;
-// SelfVitals tối đa 5 lần mỗi giây (20 tick mỗi giây).
-constexpr std::uint64_t kVitalsGapTicks = 4;
-constexpr std::uint64_t kPruneEveryTicks = std::uint64_t{20} * 60;
-constexpr std::uint64_t kPruneIdleTicks = std::uint64_t{20} * 60;
 // Số vật rơi tối đa chờ nhặt trong một cảnh: kẻ giết quái hàng loạt không làm phình bộ nhớ.
 constexpr std::size_t kMaxDrops = 4096;
 constexpr std::size_t kMaxSkillsSent = 128;
-constexpr std::int64_t kMsPerTick = 1000 / combat::kTicksPerSecond;
+
+[[nodiscard]] std::uint32_t ms_of_ticks(std::int64_t ticks, std::int64_t hz) noexcept {
+    constexpr std::int64_t kU32Max = std::numeric_limits<std::uint32_t>::max();
+    const std::int64_t shown = ids::ticks_to_ms_up(std::max<std::int64_t>(ticks, 0), hz);
+    return static_cast<std::uint32_t>(std::min(shown, kU32Max));
+}
+
+[[nodiscard]] loot::LootConfig loot_at(std::int64_t hz) noexcept {
+    loot::LootConfig config;
+    config.box_lifetime = ids::to_ticks(60'000, hz);
+    config.ticks_per_second = hz;
+    return config;
+}
 // Số khối serial cấp cho vật rơi của cảnh: vật rơi chỉ để chuyển thành chồng trong túi, nên serial không cần duy nhất toàn cụm.
 constexpr std::uint64_t kSerialFirst = 1;
 constexpr std::uint64_t kSerialLast = 1ULL << 40U;
@@ -154,13 +165,19 @@ void append_learned(std::vector<combat::SkillEntry>& skills, const Player& playe
 } // namespace
 
 // NOLINTNEXTLINE(bugprone-easily-swappable-parameters): cảnh và hạt khác vai, nơi gọi nêu tên (HP-07)
-Battle::Battle(const World& world, std::uint16_t scene, std::uint64_t seed)
+Battle::Battle(const World& world, std::uint16_t scene, std::uint64_t seed, std::int64_t hz)
     : world_(&world),
       scene_(scene),
       dice_(seed),
-      arena_(world.combat(), dice_),
+      arena_(world.combat(), dice_, {}, hz),
       serials_(kSerialFirst, kSerialLast),
-      roller_(world.loot(), world.factory()) {
+      roller_(world.loot(), world.factory(), loot_at(hz)) {
+    const bool hz_ok = hz == 20 || hz == 30 || hz == 40;
+    core::check(hz_ok, "hz chiến đấu phải là 20, 30 hoặc 40");
+    hz_ = hz;
+    vitals_gap_ = static_cast<std::uint64_t>(hz / 5);
+    prune_every_ = static_cast<std::uint64_t>(hz) * 60U;
+    prune_idle_ = prune_every_;
     // Đợt này chỉ có người đánh quái: người với người là bạn (chưa có PK, tổ đội, bang), người với quái là địch. Ma trận phe của
     // bảng (camp_relations) chưa dùng vì mọi người chơi cùng một phe và NPC chưa vào đấu trường.
     arena_.set_relation_policy([](const combat::Fighter& from, const combat::Fighter& to) {
@@ -282,7 +299,7 @@ void Battle::send_skills(std::uint64_t session, const Member& who, const Env& en
         protocol::SkillEntry& one = list.skills.emplace_back();
         one.skill = static_cast<std::uint16_t>(entry.id);
         one.level = entry.level;
-        one.cooldown_ms = static_cast<std::uint32_t>(std::max<std::int64_t>(left, 0) * kMsPerTick);
+        one.cooldown_ms = ms_of_ticks(left, hz_);
     }
     env.out->down(session, list);
 }
@@ -290,7 +307,7 @@ void Battle::send_skills(std::uint64_t session, const Member& who, const Env& en
 void Battle::push_vitals(std::uint64_t session, Member& who, const Env& env, bool force) {
     const combat::Fighter* fighter = arena_.find(handle_of(who.entity));
     if (fighter == nullptr) return;
-    if (!force && tick_ - who.vitals_tick < kVitalsGapTicks) return;
+    if (!force && tick_ - who.vitals_tick < vitals_gap_) return;
     const actor::Body& body = fighter->body;
     const std::int32_t max_hp = body.stat(actor::Stat::kMaxHp);
     const std::int32_t max_mp = body.stat(actor::Stat::kMaxMp);
@@ -387,7 +404,11 @@ void Battle::cast(std::uint64_t session, const protocol::CastSkill& message, con
     drain(env, true);
     const std::int64_t left = arena_.cooldown_remaining(*me, tmpl->cooldown_id);
     if (left > 0) {
-        out.down(session, protocol::SkillCooldown{.skill = message.skill, .ms = static_cast<std::uint32_t>(left * kMsPerTick)});
+        const std::uint32_t ms = ms_of_ticks(left, hz_);
+        protocol::SkillCooldown note;
+        note.skill = message.skill;
+        note.ms = ms;
+        out.down(session, note);
     }
     push_vitals(session, who, env, false);
     env.report->changed.push_back(session);
@@ -673,7 +694,7 @@ void Battle::step(const Env& env) {
         return true;
     });
     for (auto& [session, who] : members_) push_vitals(session, who, env, false);
-    if (tick_ % kPruneEveryTicks == 0) prune();
+    if (tick_ % prune_every_ == 0) prune();
 }
 
 void Battle::prune() {
@@ -681,7 +702,7 @@ void Battle::prune() {
         const combat::Fighter* fighter = arena_.find(handle);
         if (fighter == nullptr || fighter->kind != combat::FighterKind::kMonster) continue;
         const auto seen = touched_.find(handle.index);
-        const bool idle = seen == touched_.end() || tick_ - seen->second >= kPruneIdleTicks;
+        const bool idle = seen == touched_.end() || tick_ - seen->second >= prune_idle_;
         const bool whole = fighter->body.hp() >= fighter->body.stat(actor::Stat::kMaxHp);
         if (!idle || !whole || fighter->buff_count != 0) continue;
         static_cast<void>(arena_.remove(handle));

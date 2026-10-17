@@ -32,6 +32,7 @@
 #include "zone/gates.hpp"
 #include "zone/mind.hpp"
 #include "zone/outbox.hpp"
+#include "zone/rate.hpp"
 
 #include <cstddef>
 #include <cstdint>
@@ -50,13 +51,19 @@ using Walkable = std::function<bool(float x_cm, float z_cm)>;
 // Tốc độ chạy cơ bản của người chơi, centimet mỗi giây: ngưỡng 4,65 m/s của guard::Pace.
 inline constexpr std::uint16_t kPlayerSpeedCm = 465;
 inline constexpr std::uint32_t kEntityMax = 0xFFFE;
-// Nhịp mô phỏng của zone (zone.toml [tick] hz); EntityPos.tick đếm theo nhịp này.
+// Nhịp nền. Nhịp thật là Config::hz (20, 30 hoặc 40), chọn lúc tạo cảnh; EntityPos.tick đếm bước
+// đó.
 inline constexpr std::int64_t kTickHz = 20;
-// Số tick không có bước mới thì một thực thể đang đi được coi là đã dừng: lớn hơn khoảng cách hai Move liên tiếp của
-// client (30 bước/giây, ngắn hơn một tick) để không nhấp nháy Walk/Idle giữa chừng.
+// Mốc 20 Hz của 150 ms không có bước mới (dài hơn khoảng Move của client) để không nhấp nháy
+// Walk/Idle. Lúc chạy dùng rate_.idle_after.
 inline constexpr std::uint32_t kIdleAfterTicks = 3;
-// Quái đi một bước mỗi kMoveEvery tick (10 EntityPos mỗi giây), bước dài gấp đôi nên mắt client vẫn thấy mượt.
+// Mốc 20 Hz: quái một bước mỗi 2 tick, tức 10 bước mỗi giây. Lúc chạy dùng rate_.move_every.
 inline constexpr std::uint32_t kMoveEvery = 2;
+// Mốc 20 Hz của vị trí tuyệt đối: gần 10 Hz, xa 5 Hz. Lúc chạy dùng rate_. Cùng tick vẫn gửi bước
+// mới nhất. Đòn và hiện/ẩn không đi đường này.
+inline constexpr std::uint32_t kNearPosStride = 2;
+inline constexpr std::uint32_t kFarPosStride = 4;
+inline constexpr std::uint32_t kNeverSent = 0xFFFFFFFFU;
 // Trần số con được nghĩ mỗi tick mỗi cảnh; con nào tới giờ mà hết lượt thì sang tick sau (vòng tròn, không bỏ đói).
 inline constexpr std::size_t kThinkBudget = 512;
 // Chạy nhanh gấp rưỡi đi bộ (Obj_Monster::GetMoveSpeed, MOVE_MODE_RUN).
@@ -147,6 +154,8 @@ public:
         Walkable walkable{};
         // Vùng sự kiện của cảnh, mét. Rỗng là cảnh không có cổng.
         std::vector<AreaRect> areas;
+        // 20, 30 hoặc 40. Mặc định 20 cho tới khi đo chứng minh nhịp cao hơn.
+        std::int64_t hz = kTickHz;
     };
 
     // Hồ sơ hiển thị của người chơi đang đứng, đủ để dựng lại Attach khi đổi cảnh. Không gồm khối chơi.
@@ -258,6 +267,9 @@ private:
         protocol::EntityState state = protocol::EntityState::kIdle;
         // Tick của bước cuối; có nghĩa khi state là kWalk.
         std::uint32_t moved_at = 0;
+        // Tick lần gửi vị trí gần nhất cho vành gần và vành xa. kNeverSent là chưa gửi.
+        std::uint32_t near_pos_tick = kNeverSent;
+        std::uint32_t far_pos_tick = kNeverSent;
         // Vị trí trong moving_ khi state là kWalk (kNotMoving nếu không).
         std::uint32_t moving_slot = kNotMoving;
         [[nodiscard]] Point spot() const noexcept { return Point{.x_cm = x_cm, .z_cm = z_cm}; }
@@ -315,7 +327,23 @@ private:
     void save_spot(const Entity& who, Outbox& out) const;
     void remove(std::uint32_t index, Outbox& out);
     // Gửi `frame` cho mọi người chơi trong cửa sổ quanh `around`, trừ thực thể `skip`.
-    void broadcast(Cell around, std::uint32_t skip, const std::vector<std::byte>& frame, Outbox& out) const;
+    void broadcast(Cell around, std::uint32_t skip, const std::vector<std::byte>& frame,
+        Outbox& out) const;
+    // Gom một vị trí (không giảm nhịp) cho mọi người chơi trong cửa sổ, trừ `skip`.
+    void broadcast_pos(Cell around, std::uint32_t skip, const protocol::EntityPos& pos,
+        Outbox& out) const;
+    struct PosGate {
+        bool near_ok = false;
+        bool far_ok = false;
+        bool sent_near = false;
+        bool sent_far = false;
+    };
+
+    // Vị trí: gần mỗi rate_.near_stride tick, vành ngoài mỗi rate_.far_stride.
+    void fan_position(std::uint32_t index, Cell around, const protocol::EntityPos& pos,
+        Outbox& out);
+    void give_position(PosGate& gate, std::uint32_t self, std::uint32_t other, Cell at,
+        const Outbox::PosBlob& blob, Outbox& out);
     // Gửi cho người chơi `viewer` một EntityAppear của mọi thực thể trong cửa sổ quanh `around` (trừ chính nó).
     void show_neighbours(std::uint32_t viewer, Cell around, Outbox& out) const;
 
@@ -332,6 +360,8 @@ private:
     std::vector<Mind> minds_;
     std::vector<std::uint32_t> thinkers_;
     std::size_t think_cursor_ = 0;
+    // Chu kỳ của nhịp đã chọn. Hằng kNearPosStride... chỉ là mốc 20 Hz cho test.
+    Rate rate_{};
     dice::Dice rng_;
     // Nơi sinh của quái có thể hồi sinh, theo chỉ số ô; xác chờ biến mất (tick -> id); quái chờ hồi sinh (tick -> chỗ đặt).
     std::unordered_map<std::uint32_t, Spawn> homes_;

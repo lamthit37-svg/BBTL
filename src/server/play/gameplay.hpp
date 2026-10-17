@@ -56,6 +56,8 @@ public:
         std::uint32_t intents_per_second = 10;
         // Đổi giờ Unix sang giờ của lịch nhiệm vụ: Bắc Kinh như máy chủ gốc.
         std::int32_t utc_offset_seconds = 8 * 3600;
+        // Nhịp zone: 20, 30 hoặc 40. Cửa sổ ý định là một giây của nhịp này.
+        std::int64_t hz = 20;
     };
 
     Gameplay(const World& world, const Settings& settings);

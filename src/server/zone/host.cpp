@@ -17,6 +17,7 @@
 
 #include "zone/host.hpp"
 
+#include "core/check.hpp"
 #include "ipc/link.hpp"
 #include "ipc/relay.hpp"
 #include "play/gameplay.hpp"
@@ -25,6 +26,7 @@
 #include "zone/content.hpp"
 #include "zone/gates.hpp"
 #include "zone/outbox.hpp"
+#include "zone/rate.hpp"
 #include "zone/scene.hpp"
 
 #include <algorithm>
@@ -46,7 +48,19 @@ constexpr float kCmPerMeter = 100.0F;
 // EntityFlags bit 1: vật rơi nhặt được (bit 0 là bấm vào để nói chuyện).
 constexpr std::uint8_t kPickableFlag = 2;
 
-}  // namespace
+[[nodiscard]] Scene::Config config_of(const Host::Config& host, std::uint16_t id,
+    SceneContent& content) {
+    Scene::Config made;
+    made.id = id;
+    made.grid = host.grid;
+    made.player_max = host.player_max;
+    made.walkable = std::move(content.walkable);
+    made.areas = std::move(content.areas);
+    made.hz = host.hz;
+    return made;
+}
+
+} // namespace
 
 // Cầu từ Scene sang gameplay: NPC nào đứng đó, người chơi cách bao xa, và việc gameplay nhờ cảnh làm (xác, vật rơi, tin phát quanh).
 class Host::Around final : public play::Surroundings {
@@ -155,7 +169,10 @@ private:
 };
 
 Host::Host(Config config) : config_(std::move(config)) {
-    if (config_.world != nullptr) play_ = std::make_unique<play::Gameplay>(*config_.world, config_.play);
+    core::check(accepted_hz(config_.hz), "hz zone phải là 20, 30 hoặc 40");
+    config_.play.hz = config_.hz;
+    if (config_.world == nullptr) return;
+    play_ = std::make_unique<play::Gameplay>(*config_.world, config_.play);
 }
 
 void Host::set_unix_time(std::int64_t seconds) noexcept {
@@ -207,14 +224,8 @@ Scene* Host::scene_for(std::uint16_t id) {
     if (Scene* existing = find(id)) return existing;
     if (scenes_.size() >= config_.scene_max) return nullptr;
     SceneContent content = config_.seeder ? config_.seeder(id) : SceneContent{};
-    Scene& created = scenes_
-                         .try_emplace(id,
-                             Scene::Config{.id = id,
-                                 .grid = config_.grid,
-                                 .player_max = config_.player_max,
-                                 .walkable = std::move(content.walkable),
-                                 .areas = std::move(content.areas)})
-                         .first->second;
+    Scene::Config made = config_of(config_, id, content);
+    Scene& created = scenes_.try_emplace(id, std::move(made)).first->second;
     seed(created, content.seeds);
     return &created;
 }
@@ -321,7 +332,8 @@ void Host::handle(const ipc::Frame& frame, Outbox& out) {
 void Host::advance(Outbox& out) {
     ++ticks_;
     clock_play();
-    const bool save_now = ticks_ % kAutosaveTicks == 0;
+    const auto every = static_cast<std::uint32_t>(60 * config_.hz);
+    const bool save_now = ticks_ % every == 0;
     for (auto& [id, scene] : scenes_) {
         scene.advance(out);
         if (save_now) scene.autosave(out);

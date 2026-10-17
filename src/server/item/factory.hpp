@@ -1,11 +1,25 @@
-#pragma once
-// Tạo thể hiện vật phẩm mới: cấp serial, đặt độ bền, ô đá, thuộc tính ngẫu nhiên và hạn dùng theo mẫu.
-//
+/*==============================================================================
+ *  THIENLONG  |  GAME SERVER
+ *------------------------------------------------------------------------------
+ *  TỆP       : src/server/item/factory.hpp
+ *  PHÂN HỆ   : Server / Item / Factory
+ *  CHUẨN     : C++23
+ *------------------------------------------------------------------------------
+ *  CHỨC NĂNG
+ *  - Tạo thể hiện vật phẩm mới: cấp serial, đặt độ bền, ô đá, thuộc tính ngẫu
+ *    nhiên và hạn dùng theo mẫu.
+ *------------------------------------------------------------------------------
+ *  TÁC GIẢ   : HiepHoon
+ *  TELEGRAM  : @Hoon9xx
+ *============================================================================*/
+
 // Nguồn: ItemManager::CreateNewItem/_CreateEquipFromTable và ItemCreateRuler của 2008 (CreateCommonEquipAttrib,
 // CreateBlueEquipAttrib: độ bền = tối đa, số ô đá của đồ lam ngẫu nhiên theo cột MaxGem, giám định lại khi có
 // thuộc tính lam). Khác gốc: thuộc tính ngẫu nhiên đi qua RollTables (roll.hpp) vì bảng gộp của client 2026 dùng
 // ItemSeg thay ItemQuality/ItemValue; đồ nào ngoài đồ lam đều lấy số ô đá thẳng từ bảng, 2008 cũng làm vậy với đồ
 // trắng và lục.
+
+#pragma once
 
 #include "item/catalog.hpp"
 #include "item/instance.hpp"
@@ -39,8 +53,10 @@ struct CreateRequest {
     TemplateId tmpl;
     std::uint16_t count = 1;
     bool picked = false;  // nhặt từ đất: đồ có cờ khoá-khi-nhặt thì khoá ngay
-    ids::Tick now{};      // mốc tính hạn dùng
-    RollContext roll{};   // nguồn món đồ (quái, rương, rèn...): chọn cột ItemSegQuality của trang bị
+    ids::Tick now{}; // mốc tính hạn dùng
+    RollContext roll{}; // nguồn món đồ (quái, rương, rèn...): chọn cột ItemSegQuality của trang bị
+    // Nhịp đổi duration_hours sang tick. Mặc định 20. Tick đã lưu không tự đổi khi nâng hz.
+    std::int64_t ticks_per_second = kTicksPerSecond;
 };
 
 class Factory {

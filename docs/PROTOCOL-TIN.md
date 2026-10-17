@@ -2,7 +2,7 @@
 
 # Danh mục tin của giao thức
 
-Bản danh mục 6: 51 tin, 8 record, 14 enum.
+Bản danh mục 7: 52 tin, 9 record, 14 enum.
 Khung có 8 byte đầu (u32 số byte thân, u16 kind, u16 flags bằng 0), little-endian; thân tối đa 65 536 byte, tin client gửi tối đa 4 096 byte.
 Byte cao của kind là nhóm, bit 15 bật là tin server gửi. Trần của text tính bằng byte UTF-8, trần của list tính bằng số phần tử.
 
@@ -260,6 +260,7 @@ Thế giới: người chơi vào cảnh, thực thể xuất hiện, di chuyể
 | `0x8404` | EntityPos | game | server | 4 | 19 |
 | `0x8405` | EntityVitals | game | server | 4 | 5 |
 | `0x8406` | EntityFlags | game | server | 5 | 5 |
+| `0x8407` | EntityPosBatch | game | server | 7 | 990 |
 
 ### SceneEnter (0x8401)
 
@@ -345,6 +346,16 @@ Cổng game, server gửi, có từ bản 5. Thân tối đa 5 byte.
 |---|---|---|---|---|
 | 1 | `id` | `u32` | – | Id thực thể. |
 | 2 | `flags` | `u8` | – | Bit 0: bấm vào được để nói chuyện (Talk). |
+
+### EntityPosBatch (0x8407)
+
+Nhiều vị trí tuyệt đối của cùng một tick cho một client. Không gửi khi rỗng.
+
+Cổng game, server gửi, có từ bản 7. Thân tối đa 990 byte.
+
+| Thứ tự | Trường | Kiểu | Trần | Ghi chú |
+|---|---|---|---|---|
+| 1 | `places` | `list:record:PosEntry` | 52 | Tối đa 52 vị trí: khung sau khi niêm phong phải vừa hộp gửi 1024 byte của gate. |
 
 ## Nhóm 05: auth
 
@@ -784,6 +795,21 @@ Thân tối đa 3 byte.
 |---|---|---|---|---|
 | 1 | `quest` | `u16` | – | Id nhiệm vụ (0..4095). |
 | 2 | `stage` | `enum:MarkStage` | – | – |
+
+### PosEntry
+
+Một vị trí tuyệt đối trong EntityPosBatch. Cùng bố cục 19 byte với thân EntityPos.
+
+Thân tối đa 19 byte.
+
+| Thứ tự | Trường | Kiểu | Trần | Ghi chú |
+|---|---|---|---|---|
+| 1 | `id` | `u32` | – | Id thực thể. |
+| 2 | `x_cm` | `f32` | – | Toạ độ X, centimet. |
+| 3 | `z_cm` | `f32` | – | Toạ độ Z, centimet. |
+| 4 | `direction` | `u16` | – | Hướng nhìn: 0..65535 ứng với 0..2π; 0 là hướng +X, tăng dần quay về phía +Z. |
+| 5 | `tick` | `u32` | – | Tick của cảnh lúc ghi nhận, 20 tick mỗi giây. |
+| 6 | `state` | `enum:EntityState` | – | Walk khi đang di chuyển; Idle khi dừng; Dead khi chết. |
 
 ### QuestSlot
 

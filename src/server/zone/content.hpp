@@ -119,7 +119,8 @@ inline constexpr std::uint32_t kWanderRangeCm = 1000;
 // (cùng phép đổi như điểm sinh của nhân vật, docs/SERVER-DI-CHUYEN.md).
 // Hướng: bảng ghi độ (Spawn::heading_degrees); đổi sang 0..65535 ứng với 0..2π. Quy ước gốc của góc (từ trục nào,
 // chiều nào) chưa đối chiếu với client 2026 (docs/NGHI-NGO.md), nên hướng NPC có thể lệch một góc cố định.
-[[nodiscard]] Seeding seeds_of(const scenedata::Scene& scene, std::size_t cap, const SeedTables& tables);
+[[nodiscard]] Seeding seeds_of(const scenedata::Scene& scene, std::size_t cap,
+    const SeedTables& tables, std::int64_t hz = kTickHz);
 
 // Cầu từ id cảnh của client sang thư mục cảnh.
 // NOLINTNEXTLINE(bugprone-exception-escape): ctor ngầm định của map chuẩn ném bad_alloc; không dùng ngoại lệ (LH-07)
@@ -175,6 +176,6 @@ struct DiskPaths {
 // mỗi cảnh. Chỉ một luồng được gọi nó (luồng tick của zone); đọc một cảnh lớn tốn vài chục mili giây, lần đầu
 // có người vào cảnh đó.
 [[nodiscard]] Seeder disk_seeder(const DiskPaths& paths, std::size_t cap,
-    std::function<bool(std::uint32_t script)> talks = {});
+    std::function<bool(std::uint32_t script)> talks = {}, std::int64_t hz = kTickHz);
 
 } // namespace game::zone

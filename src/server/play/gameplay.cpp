@@ -17,6 +17,7 @@
 
 #include "account/play.hpp"
 #include "bus/bus.hpp"
+#include "core/check.hpp"
 #include "ids/ids.hpp"
 #include "ipc/relay.hpp"
 #include "ledger/ledger.hpp"
@@ -368,7 +369,10 @@ Gameplay::Gameplay(const World& world, const Settings& settings)
       settings_(settings),
       dice_(settings.seed),
       engine_(world.catalog(), dice_),
-      service_(world.script(), engine_, world.handlers(), talk::Options{}) {}
+      service_(world.script(), engine_, world.handlers(), talk::Options{}) {
+    const bool hz_ok = settings_.hz == 20 || settings_.hz == 30 || settings_.hz == 40;
+    core::check(hz_ok, "hz gameplay phải là 20, 30 hoặc 40");
+}
 
 void Gameplay::set_time(const Clock& clock) noexcept {
     unix_seconds_ = std::max<std::int64_t>(clock.unix_seconds, 0);
@@ -397,8 +401,8 @@ const Player* Gameplay::find(std::uint64_t session) const noexcept {
 }
 
 bool Gameplay::allow(Entry& who) const noexcept {
-    constexpr std::uint64_t kTicksPerSecond = 20;
-    if (tick_ - who.window_start >= kTicksPerSecond) {
+    const auto window = static_cast<std::uint64_t>(settings_.hz);
+    if (tick_ - who.window_start >= window) {
         who.window_start = tick_;
         who.window_count = 0;
     }
@@ -407,8 +411,11 @@ bool Gameplay::allow(Entry& who) const noexcept {
 
 Battle& Gameplay::battle(std::uint16_t scene) {
     std::unique_ptr<Battle>& slot = battles_[scene];
+    if (slot) return *slot;
     // Hạt riêng mỗi cảnh: hai cảnh không rút chung dãy số, và chạy lại ra đúng dãy cũ.
-    if (!slot) slot = std::make_unique<Battle>(*world_, scene, settings_.seed ^ (0x9E3779B97F4A7C15ULL * (scene + 1ULL)));
+    const auto scene_id = static_cast<std::uint64_t>(scene);
+    const std::uint64_t salt = 0x9E3779B97F4A7C15ULL * (scene_id + 1ULL);
+    slot = std::make_unique<Battle>(*world_, scene, settings_.seed ^ salt, settings_.hz);
     return *slot;
 }
 

@@ -25,7 +25,7 @@
 
 namespace game::zone {
 
-// Số đo đã đổi đơn vị: centimet, tick cảnh (kTickHz) và centimet mỗi giây.
+// Số đo đã đổi đơn vị: centimet, tick của nhịp cảnh (mặc định kTickHz) và centimet mỗi giây.
 struct Temperament {
     // > 0: chủ động, quét người mỗi chừng này tick (AIPARAM_SCANTIME). 0: không bao giờ tự đuổi.
     std::uint32_t scan_ticks = 0;

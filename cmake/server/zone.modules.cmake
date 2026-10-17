@@ -19,6 +19,7 @@ if(TARGET game_account)
         src/server/zone/content.cpp
         src/server/zone/gates.cpp
         src/server/zone/mind.cpp
+        src/server/zone/outbox.cpp
         src/server/zone/scene.cpp
         src/server/zone/host.cpp
         src/server/zone/saver.cpp

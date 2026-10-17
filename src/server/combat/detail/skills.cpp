@@ -1,9 +1,23 @@
-// Mã logic kỹ năng: mã xử lý theo vai (standard, dash), kỹ năng bị động chỉnh trang bị (passive_armor, passive_weapon) và
-// logic chưa có mã (unsupported). Arena làm phần chung của một lượt ra chiêu; ở đây chỉ quyết định hiệu ứng nào đi
-// tới ai (xem skills.hpp).
-//
+/*==============================================================================
+ *  THIENLONG  |  GAME SERVER
+ *------------------------------------------------------------------------------
+ *  TỆP       : src/server/combat/detail/skills.cpp
+ *  PHÂN HỆ   : Combat / Detail / Skills
+ *  CHUẨN     : C++23
+ *------------------------------------------------------------------------------
+ *  CHỨC NĂNG
+ *  - Mã logic kỹ năng: mã xử lý theo vai (standard, dash), kỹ năng bị động
+ *    chỉnh trang bị (passive_armor, passive_weapon) và logic chưa có mã
+ *    (unsupported). Arena làm phần chung của một lượt ra chiêu; ở đây chỉ quyết
+ *    định hiệu ứng nào đi tới ai (xem skills.hpp).
+ *------------------------------------------------------------------------------
+ *  TÁC GIẢ   : HiepHoon
+ *  TELEGRAM  : @Hoon9xx
+ *============================================================================*/
+
 // Nguồn: GameServer 2008 SkillLogic.cpp, ImpactsToTarget.cpp, ImpactsToTargetAndSelf.cpp, GaiBangSkill001.cpp,
 // ArmorMastery.cpp, WeaponMastery.cpp. Khác gốc ghi tại chỗ.
+
 #include "combat/detail/skills.hpp"
 
 #include "actor/attr.hpp"
@@ -190,7 +204,8 @@ void apply_self_role(SkillRun& run, const Role& role) {
     case RoleKind::kCutCooldown: {
         // Giảm hồi chiêu của một nhóm đi `aux` mili giây (không âm).
         const std::int32_t group = param_at(run.info, role.param);
-        const std::int64_t cut = ms_to_ticks(std::max(0, param_at(run.info, role.aux)));
+        const std::int32_t aux_ms = std::max(0, param_at(run.info, role.aux));
+        const std::int64_t cut = run.arena.milliseconds_to_ticks(aux_ms);
         const std::int64_t remaining = group < 0 ? 0 : run.arena.cooldown_remaining(me, group);
         if (remaining > 0 && cut > 0) {
             run.arena.set_cooldown(me, group, std::max<std::int64_t>(0, remaining - cut));

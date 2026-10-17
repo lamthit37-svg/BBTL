@@ -189,23 +189,26 @@ const AiType* AiTypeTable::find(std::int32_t ai_id) const noexcept {
 
 namespace {
 
-[[nodiscard]] std::uint32_t ticks_of(std::int32_t milliseconds) noexcept {
-    return static_cast<std::uint32_t>(ids::to_ticks(milliseconds, kTickHz).count);
+[[nodiscard]] std::uint32_t ticks_of(std::int32_t milliseconds, std::int64_t hz) noexcept {
+    const ids::TickSpan span = ids::to_ticks(milliseconds, hz);
+    return static_cast<std::uint32_t>(span.count);
 }
 
-// Tính nết của một quái/NPC đặt sẵn, hoặc nullopt khi thiếu bảng AI hay chẳng có hành vi nào (đứng yên mãi).
-[[nodiscard]] std::optional<Temperament> nature_of(const scenedata::Spawn& row, protocol::EntityKind kind,
-    const TemplateInfo* info, const AiTypeTable* ai_types) {
+// Tính nết của một quái/NPC đặt sẵn, hoặc nullopt khi thiếu bảng AI hay chẳng có hành vi nào (đứng
+// yên mãi).
+[[nodiscard]] std::optional<Temperament> nature_of(const scenedata::Spawn& row,
+    protocol::EntityKind kind, const TemplateInfo* info, const AiTypeTable* ai_types,
+    std::int64_t hz) {
     if (info == nullptr || ai_types == nullptr || info->move_speed <= 0) return std::nullopt;
     const AiType* const type = ai_types->find(row.base_ai.value_or(info->base_ai));
     if (type == nullptr) return std::nullopt;
     Temperament nature;
     nature.walk_cm = static_cast<std::uint16_t>(std::min<std::int32_t>(info->move_speed / 10, 0xFFFF));
-    nature.wander_ticks = ticks_of(type->wander_ms);
+    nature.wander_ticks = ticks_of(type->wander_ms, hz);
     nature.range_cm = kWanderRangeCm;
     // Chỉ quái mới tự đuổi người; NPC và thú cưng nhiều lắm chỉ đi lang thang.
     if (kind == protocol::EntityKind::kMonster) {
-        nature.scan_ticks = ticks_of(type->scan_ms);
+        nature.scan_ticks = ticks_of(type->scan_ms, hz);
         nature.scan_cm = static_cast<std::uint32_t>(std::max(type->scan_mm, 0) / 10);
         nature.return_cm = static_cast<std::uint32_t>(std::max(type->return_mm, 0) / 10);
     }
@@ -214,7 +217,8 @@ namespace {
 
 } // namespace
 
-Seeding seeds_of(const scenedata::Scene& scene, std::size_t cap, const SeedTables& tables) {
+Seeding seeds_of(const scenedata::Scene& scene, std::size_t cap, const SeedTables& tables,
+    std::int64_t hz) {
     Seeding result;
     result.seeds.reserve(std::min(scene.spawns.size(), cap));
     for (const scenedata::Spawn& row : scene.spawns) {
@@ -246,7 +250,7 @@ Seeding seeds_of(const scenedata::Scene& scene, std::size_t cap, const SeedTable
             what.script = static_cast<std::uint32_t>(row.script_id);
             if (tables.talks && tables.talks(what.script)) what.flags = 1;
         }
-        what.nature = nature_of(row, what.kind, info, tables.ai_types);
+        what.nature = nature_of(row, what.kind, info, tables.ai_types, hz);
         if (what.nature) what.speed_cm = what.nature->walk_cm;
         result.seeds.push_back(Seed{.what = std::move(what), .respawn_ms = row.respawn_ms});
     }
@@ -302,12 +306,14 @@ namespace {
 // Trạng thái của DiskSeeder. Bảng id đọc ở lần hỏi đầu, không phải lúc dựng: cụm khởi động (và test cụm với thư mục
 // cấu hình tạm) không đọc đĩa khi chưa có cảnh nào. Chỉ luồng tick của zone gọi, nên không cần khoá.
 struct DiskState {
-    DiskState(DiskPaths where, std::size_t limit, std::function<bool(std::uint32_t)> speaks)
-        : paths(std::move(where)), cap(limit), talks(std::move(speaks)) {}
+    DiskState(DiskPaths where, std::size_t limit, std::function<bool(std::uint32_t)> speaks,
+        std::int64_t rate)
+        : paths(std::move(where)), cap(limit), talks(std::move(speaks)), hz(rate) {}
 
     DiskPaths paths;
     std::size_t cap = 0;
     std::function<bool(std::uint32_t)> talks;
+    std::int64_t hz = kTickHz;
     bool tried = false;
     std::optional<SceneDirectory> directory;
     TemplateTable templates;
@@ -398,7 +404,7 @@ struct DiskState {
             return {};
         }
         const SeedTables tables{.templates = &templates, .ai_types = has_ai_types ? &ai_types : nullptr, .talks = talks};
-        Seeding seeding = seeds_of(*loaded, cap, tables);
+        Seeding seeding = seeds_of(*loaded, cap, tables, hz);
         if (seeding.over_cap > 0) {
             std::println(stderr, "zone: cảnh {} ({}): bỏ {} thực thể vượt trần {}", scene, name, seeding.over_cap, cap);
         }
@@ -422,8 +428,9 @@ struct DiskState {
 
 } // namespace
 
-Seeder disk_seeder(const DiskPaths& paths, std::size_t cap, std::function<bool(std::uint32_t script)> talks) {
-    const auto state = std::make_shared<DiskState>(paths, cap, std::move(talks));
+Seeder disk_seeder(const DiskPaths& paths, std::size_t cap,
+    std::function<bool(std::uint32_t script)> talks, std::int64_t hz) {
+    const auto state = std::make_shared<DiskState>(paths, cap, std::move(talks), hz);
     return [state](std::uint16_t scene) { return state->content(scene); };
 }
 

@@ -1,10 +1,26 @@
-#pragma once
-// Người ra đòn / chịu đòn: thân thể (actor::Body) cộng danh sách buff, sổ kỹ năng, hồi chiêu và trạng thái
-// đang ra chiêu. Là túi dữ liệu có bất biến nhỏ (số buff <= kMaxBuffs, số hồi chiêu <= kMaxCooldowns, số kỹ
-// năng <= kMaxSkills); mọi thay đổi đi qua Arena (arena.hpp) để sự kiện và hook chạy đúng thứ tự.
-//
+/*==============================================================================
+ *  THIENLONG  |  GAME SERVER
+ *------------------------------------------------------------------------------
+ *  TỆP       : src/server/combat/fighter.hpp
+ *  PHÂN HỆ   : Server / Combat / Fighter
+ *  CHUẨN     : C++23
+ *------------------------------------------------------------------------------
+ *  CHỨC NĂNG
+ *  - Người ra đòn / chịu đòn: thân thể (actor::Body) cộng danh sách buff, sổ kỹ
+ *    năng, hồi chiêu và trạng thái đang ra chiêu. Là túi dữ liệu có bất biến
+ *    nhỏ (số buff <= kMaxBuffs, số hồi chiêu <= kMaxCooldowns, số kỹ năng <=
+ *    kMaxSkills); mọi thay đổi đi qua Arena (arena.hpp) để sự kiện và hook chạy
+ *    đúng thứ tự.
+ *------------------------------------------------------------------------------
+ *  TÁC GIẢ   : HiepHoon
+ *  TELEGRAM  : @Hoon9xx
+ *============================================================================*/
+
 // Nguồn: GameServer 2008 Obj_Character*.cpp (danh sách buff _IMPACT_LIST, hồi chiêu, ActionParams),
-// Common/GameStruct_Impact.h (OWN_IMPACT). Thời gian tính bằng tick 20 Hz, hết hạn lưu thành tick tuyệt đối.
+// Common/GameStruct_Impact.h (OWN_IMPACT). Thời gian tính bằng tick của nhịp zone (mặc định 20 Hz);
+// mili giây làm tròn lên. Hết hạn lưu thành tick tuyệt đối của nhịp lúc ghi.
+
+#pragma once
 
 #include "actor/body.hpp"
 #include "combat/catalog.hpp"

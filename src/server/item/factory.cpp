@@ -1,4 +1,17 @@
-// Tạo thể hiện vật phẩm: xem factory.hpp.
+/*==============================================================================
+ *  THIENLONG  |  GAME SERVER
+ *------------------------------------------------------------------------------
+ *  TỆP       : src/server/item/factory.cpp
+ *  PHÂN HỆ   : Server / Item / Factory
+ *  CHUẨN     : C++23
+ *------------------------------------------------------------------------------
+ *  CHỨC NĂNG
+ *  - Tạo thể hiện vật phẩm: xem factory.hpp.
+ *------------------------------------------------------------------------------
+ *  TÁC GIẢ   : HiepHoon
+ *  TELEGRAM  : @Hoon9xx
+ *============================================================================*/
+
 #include "item/factory.hpp"
 
 #include "item/catalog.hpp"
@@ -28,8 +41,13 @@ std::uint8_t roll_blue_gem_slots(std::uint8_t cap, dice::Dice& dice) noexcept {
     case 1: return r >= 800 ? 1 : 0;
     case 2: return r >= 900 ? 2 : (r >= 600 ? 1 : 0);
     case 3: return r >= 960 ? 3 : (r >= 800 ? 2 : (r >= 400 ? 1 : 0));
-    default: return cap;  // bảng có 4 ô (9 món lam): không có xác suất gốc, giữ đủ ô
+    default: return cap; // bảng có 4 ô (9 món lam): không có xác suất gốc, giữ đủ ô
     }
+}
+
+[[nodiscard]] std::int64_t expiry_hz(std::int64_t requested) noexcept {
+    if (requested > 0) return requested;
+    return kTicksPerSecond;
 }
 
 } // namespace
@@ -51,7 +69,9 @@ std::expected<Instance, Error> Factory::create(const CreateRequest& request, dic
     out.count = request.count;
     out.bound = request.picked && tmpl->rule.pick_bind;
     if (tmpl->duration_hours > 0) {
-        const ids::TickSpan span = ids::to_ticks(std::int64_t{tmpl->duration_hours} * 3'600'000, kTicksPerSecond);
+        const std::int64_t hz = expiry_hz(request.ticks_per_second);
+        const std::int64_t hours_ms = std::int64_t{tmpl->duration_hours} * 3'600'000;
+        const ids::TickSpan span = ids::to_ticks(hours_ms, hz);
         out.expires_at = ids::advance(request.now, span).value();
     }
     if (tmpl->kind == Kind::kEquipment) {

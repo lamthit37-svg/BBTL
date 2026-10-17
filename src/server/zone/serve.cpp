@@ -6,8 +6,8 @@
  *  CHUẨN     : C++23
  *------------------------------------------------------------------------------
  *  CHỨC NĂNG
- *  - Vòng chạy của thienlong_zone: nghe kênh ipc của gate, nạp cảnh lười, tick
- *    20 Hz, ghi điểm đứng qua store.
+ *  - Vòng chạy của thienlong_zone: nghe kênh ipc của gate, nạp cảnh lười, chạy
+ *    nhịp đã chọn (mặc định 20 Hz), ghi điểm đứng qua store.
  *  - Mỗi tick chặn số khung xử lý; kênh chậm quá trần thì bỏ phần dư, gate nối
  *    lại sẽ mất phiên.
  *------------------------------------------------------------------------------
@@ -34,6 +34,7 @@
 #include "zone/content.hpp"
 #include "zone/host.hpp"
 #include "zone/outbox.hpp"
+#include "zone/rate.hpp"
 #include "zone/saver.hpp"
 #include "zone/scene.hpp"
 
@@ -89,8 +90,8 @@ struct Settings {
 }
 
 [[nodiscard]] bool tune(const config::Zone& zone, Settings& settings, std::string& error) {
-    if (zone.hz < 1 || zone.hz > 120) {
-        error = "zone.toml [tick] hz ngoài miền 1..120";
+    if (!accepted_hz(zone.hz)) {
+        error = "zone.toml [tick] hz chỉ nhận 20, 30 hoặc 40";
         return false;
     }
     if (zone.cell_size < 1 || zone.cell_size > 1000) {
@@ -98,9 +99,37 @@ struct Settings {
         return false;
     }
     settings.hz = zone.hz;
+    settings.host.hz = zone.hz;
     // cell_size tính bằng mét của cảnh; lưới tính centimet.
     settings.host.grid.cell_cm = static_cast<float>(zone.cell_size) * 100.0F;
     return true;
+}
+
+struct SeedAsk {
+    const Path* root = nullptr;
+    std::size_t cap = 0;
+    const play::World* world = nullptr;
+    std::int64_t hz = kTickHz;
+};
+
+[[nodiscard]] bool scene_speaks(const play::World* world, std::uint32_t script) {
+    return world != nullptr && world->speaks(script);
+}
+
+[[nodiscard]] Seeder make_seeder(const SeedAsk& ask) {
+    const Path tables = *ask.root / "tables";
+    const Path server = tables / "server";
+    const Path shared = tables / "shared";
+    DiskPaths paths;
+    paths.scenes = *ask.root / "scenes";
+    paths.ids_table = server / "scene_ids.tsv";
+    paths.templates = shared / "monsters.tsv";
+    paths.ai_types = server / "monster_ai_types.tsv";
+    paths.gates = shared / "scene_positions_extended.tsv";
+    paths.scripts = server / "script_index.tsv";
+    const play::World* world = ask.world;
+    const auto speaks = [world](std::uint32_t script) { return scene_speaks(world, script); };
+    return disk_seeder(paths, ask.cap, speaks, ask.hz);
 }
 
 // Nạp dữ liệu chơi. Cây bảng nhiệm vụ vắng hẳn thì chạy không gameplay (nói ra stderr); có mà hỏng thì dừng: nửa vời
@@ -147,16 +176,12 @@ struct Roots {
     // Bố cục dev/server và release/server: config, scenes và tables là anh em.
     const Path data_root = (config_dir.has_filename() ? config_dir : config_dir.parent_path()).parent_path();
     if (!load_world(Roots{.data = data_root, .config = config_dir}, settings, zone->language, error)) return std::nullopt;
-    const std::shared_ptr<const play::World> world = settings.world;
-    settings.host.seeder = disk_seeder(
-        DiskPaths{.scenes = data_root / "scenes",
-            .ids_table = data_root / "tables" / "server" / "scene_ids.tsv",
-            .templates = data_root / "tables" / "shared" / "monsters.tsv",
-            .ai_types = data_root / "tables" / "server" / "monster_ai_types.tsv",
-            .gates = data_root / "tables" / "shared" / "scene_positions_extended.tsv",
-            .scripts = data_root / "tables" / "server" / "script_index.tsv"},
-        static_cast<std::size_t>(zone->monsters),
-        [world](std::uint32_t script) { return world != nullptr && world->speaks(script); });
+    SeedAsk ask;
+    ask.root = &data_root;
+    ask.cap = static_cast<std::size_t>(zone->monsters);
+    ask.world = settings.world.get();
+    ask.hz = settings.hz;
+    settings.host.seeder = make_seeder(ask);
     bool found = false;
     for (const config::ProcessBlock& block : cluster->processes) {
         if (block.id.value() != 0) continue;
@@ -275,8 +300,81 @@ void accept_gate(net::TcpListener& listener, World& world, secure::ByteView key)
     return reply.has_value() && account::enter_from(*reply).ok;
 }
 
-[[nodiscard]] int run(const Settings& settings, net::TcpListener& listener, const net::Endpoint& local,
-    const std::array<std::byte, account::kIpcKeyBytes>& key) {
+struct Loop {
+    World& world;
+    net::TcpListener& listener;
+    secure::ByteView key;
+    Clock::time_point origin{};
+    Pace pace{};
+    bool told = false;
+    net::PollEvents events;
+};
+
+[[nodiscard]] std::int64_t nanos_since(Clock::time_point origin, Clock::time_point now) noexcept {
+    const auto elapsed = std::chrono::duration_cast<std::chrono::nanoseconds>(now - origin);
+    return elapsed.count();
+}
+
+[[nodiscard]] int wait_ms_for(const Pace& pace, std::int64_t now_ns) noexcept {
+    const std::uint64_t due = due_count(now_ns, pace.hz);
+    if (due > pace.done) return 0;
+    const std::int64_t next = tick_due_ns(pace.done, pace.hz);
+    if (next <= now_ns) return 0;
+    const std::int64_t left = next - now_ns;
+    const std::int64_t ms = left / 1'000'000;
+    if (ms > 1000) return 1000;
+    return static_cast<int>(ms);
+}
+
+void step_world(World& world) {
+    const auto wall = std::chrono::system_clock::now().time_since_epoch();
+    const auto seconds = std::chrono::duration_cast<std::chrono::seconds>(wall);
+    world.host.set_unix_time(seconds.count());
+    world.host.advance(world.out);
+    if (world.session.link) flush(world.session, world.out);
+    world.out.clear();
+    hand_over(world.out, world.saver);
+}
+
+void catch_up(World& world, int steps) {
+    for (int step = 0; step < steps; ++step)
+        step_world(world);
+}
+
+void note_overload(const Pace& pace, const Wake& wake, bool& told) {
+    if (wake.entered_overload && !told) {
+        told = true;
+        std::println(stderr, "zone: quá tải, tick trễ hơn một giây");
+    }
+    if (!pace.overloaded) told = false;
+}
+
+void accept_one(Loop& loop, const net::PollEvent& event) {
+    if (event.tag != kListenTag) return;
+    accept_gate(loop.listener, loop.world, loop.key);
+}
+
+void accept_ready(Loop& loop) {
+    for (const net::PollEvent& event : loop.events)
+        accept_one(loop, event);
+}
+
+[[nodiscard]] bool one_turn(Loop& loop) {
+    const std::int64_t now_ns = nanos_since(loop.origin, Clock::now());
+    const int wait_ms = wait_ms_for(loop.pace, now_ns);
+    const net::Milliseconds wait{wait_ms};
+    if (!loop.world.session.polls.wait(wait, loop.events)) return false;
+    accept_ready(loop);
+    if (loop.world.session.link && !drain(loop.world)) lose(loop.world);
+    const std::int64_t after_ns = nanos_since(loop.origin, Clock::now());
+    const Wake wake = take_wake(loop.pace, after_ns);
+    note_overload(loop.pace, wake, loop.told);
+    catch_up(loop.world, wake.run);
+    return true;
+}
+
+[[nodiscard]] int run(const Settings& settings, net::TcpListener& listener,
+    const net::Endpoint& local, const std::array<std::byte, account::kIpcKeyBytes>& key) {
     std::unique_ptr<Saver> saver;
     if (settings.store) {
         const net::Endpoint store = *settings.store;
@@ -292,33 +390,13 @@ void accept_gate(net::TcpListener& listener, World& world, secure::ByteView key)
     std::println("ready ipc={}", local.port);
     static_cast<void>(std::fflush(stdout));
 
-    const auto period = std::chrono::nanoseconds{std::chrono::seconds{1}} / settings.hz;
-    auto deadline = Clock::now() + period;
-    net::PollEvents events;
+    Pace pace;
+    pace.hz = settings.hz;
+    Loop loop{world, listener, key, Clock::now(), pace, false, {}};
     int code = 0;
-    while (!process::stop_requested()) {
-        const auto now = Clock::now();
-        const auto left = deadline > now ? deadline - now : Clock::duration::zero();
-        const auto wait = std::chrono::duration_cast<std::chrono::milliseconds>(left);
-        if (!world.session.polls.wait(net::Milliseconds{static_cast<int>(wait.count())}, events)) {
-            code = 1;
-            break;
-        }
-        for (const net::PollEvent& event : events) {
-            if (event.tag == kListenTag) accept_gate(listener, world, key);
-        }
-        if (world.session.link && !drain(world)) lose(world);
-        if (Clock::now() < deadline) continue;
-        world.host.set_unix_time(std::chrono::duration_cast<std::chrono::seconds>(
-            std::chrono::system_clock::now().time_since_epoch()).count());
-        world.host.advance(world.out);
-        if (world.session.link) flush(world.session, world.out);
-        world.out.clear();
-        hand_over(world.out, world.saver);
-        // Chậm quá một nhịp thì bỏ nhịp đã lỡ thay vì chạy bù dồn dập.
-        deadline += period;
-        if (deadline < Clock::now()) deadline = Clock::now() + period;
-    }
+    while (!process::stop_requested() && one_turn(loop))
+        ;
+    if (!process::stop_requested()) code = 1;
     // Dừng êm: mọi người còn trong cảnh được ghi điểm đứng, rồi Saver gửi nốt trước khi thoát.
     world.host.drop_all(world.out);
     world.out.clear();

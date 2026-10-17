@@ -1,7 +1,20 @@
-// Danh sách buff, hàng đợi hiệu ứng và các hook của Arena (xem arena.hpp).
-//
-// Nguồn: GameServer 2008 Obj_Character_Impact.cpp (danh sách _IMPACT_LIST, thay thế loại trừ, gỡ, hook),
-// Impact_Core.cpp (dựng hiệu ứng từ dữ liệu, tra cứu tập id), ImpactLogic.cpp (nhịp buff).
+/*==============================================================================
+ *  THIENLONG  |  GAME SERVER
+ *------------------------------------------------------------------------------
+ *  TỆP       : src/server/combat/arena_buff.cpp
+ *  PHÂN HỆ   : Server / Combat / Arena Buff
+ *  CHUẨN     : C++23
+ *------------------------------------------------------------------------------
+ *  CHỨC NĂNG
+ *  - Danh sách buff, hàng đợi hiệu ứng và các hook của Arena (xem arena.hpp).
+ *  - Nguồn: GameServer 2008 Obj_Character_Impact.cpp (danh sách _IMPACT_LIST,
+ *    thay thế loại trừ, gỡ, hook), Impact_Core.cpp (dựng hiệu ứng từ dữ liệu,
+ *    tra cứu tập id), ImpactLogic.cpp (nhịp buff).
+ *------------------------------------------------------------------------------
+ *  TÁC GIẢ   : HiepHoon
+ *  TELEGRAM  : @Hoon9xx
+ *============================================================================*/
+
 #include "combat/arena.hpp"
 
 #include "actor/body.hpp"
@@ -326,7 +339,9 @@ bool Arena::send_effect(ids::EntityHandle target, std::uint32_t effect_id, const
     if (continuance_ms > 0 && (origin.time_percent != 0 || origin.time_ms != 0)) {
         continuance_ms = std::max<std::int64_t>(0, round_ratio(continuance_ms * (100 + static_cast<std::int64_t>(origin.time_percent)), 100) + origin.time_ms);
     }
-    impact.continuance = effect->continuance_ms < 0 ? -1 : ms_to_ticks(continuance_ms);
+    const bool forever = effect->continuance_ms < 0;
+    const std::int64_t steps = milliseconds_to_ticks(continuance_ms);
+    impact.continuance = forever ? -1 : steps;
     logic->init(impact, *effect);
     if (origin.power_percent != 0) static_cast<void>(logic->refix_power(impact, *effect, origin.power_percent));
     if (origin.computed && caster != nullptr) logic->compute(*this, *caster, *receiver, impact, *effect);
@@ -435,7 +450,7 @@ void Arena::buff_heartbeat(Fighter& unit) {
         }
         if (r.logic->intervaled()) {
             // Khác gốc: chu kỳ 0 (dữ liệu thiếu) bị bỏ qua; bản 2008 lặp vô hạn trong `while (elapsed >= interval)`.
-            const std::int64_t interval = ms_to_ticks(r.effect->interval_ms);
+            const std::int64_t interval = milliseconds_to_ticks(r.effect->interval_ms);
             if (interval > 0) {
                 buff.interval_elapsed += 1;
                 while (buff.interval_elapsed >= interval && !buff.fade_out) {
@@ -445,8 +460,9 @@ void Arena::buff_heartbeat(Fighter& unit) {
             }
         }
         if (!buff.fade_out && buff.continuance >= 0) {
-            // Khác gốc: tan khi đã trôi ĐỦ thời gian (elapsed >= continuance); bản 2008 chờ thêm một nhịp (elapsed >
-            // continuance). Buff 1000 ms nhận ở bước t còn đúng 20 bước rồi tan ở bước t+20.
+            // Khác gốc: tan khi đã trôi đủ thời gian (elapsed >= continuance); bản 2008 chờ thêm
+            // một nhịp. Số bước là ceil(ms * hz / 1000). Buff 1000 ms là 20 bước ở nhịp nền, không
+            // sớm hơn hợp đồng.
             buff.elapsed += 1;
             if (buff.elapsed >= buff.continuance) fade_out(unit, buff);
         }

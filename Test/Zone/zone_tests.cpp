@@ -17,6 +17,7 @@
 #include "ipc/relay.hpp"
 #include "protocol/messages.hpp"
 #include "protocol/wire.hpp"
+#include "secure/secure.hpp"
 #include "test.hpp"
 #include "zone/aoi.hpp"
 #include "zone/content.hpp"
@@ -62,7 +63,7 @@ struct Seen {
     protocol::GameServerMessage message;
 };
 
-[[nodiscard]] std::vector<Seen> seen_in(const Outbox& out) {
+[[nodiscard]] std::vector<Seen> seen_in(Outbox& out) {
     std::vector<Seen> seen;
     for (const zone::Letter& letter : out.letters()) {
         if (letter.kind != ipc::Relay::kDown) continue;
@@ -74,6 +75,37 @@ struct Seen {
         if (decoded) seen.push_back(Seen{.session = letter.session, .message = std::move(*decoded)});
     }
     return seen;
+}
+
+[[nodiscard]] protocol::EntityPos as_pos(const protocol::PosEntry& place) {
+    protocol::EntityPos pos;
+    pos.id = place.id;
+    pos.x_cm = place.x_cm;
+    pos.z_cm = place.z_cm;
+    pos.direction = place.direction;
+    pos.tick = place.tick;
+    pos.state = place.state;
+    return pos;
+}
+
+void push_positions(std::vector<protocol::EntityPos>& found, const Seen& one) {
+    const auto* pos = std::get_if<protocol::EntityPos>(&one.message);
+    if (pos != nullptr) {
+        found.push_back(*pos);
+        return;
+    }
+    const auto* batch = std::get_if<protocol::EntityPosBatch>(&one.message);
+    if (batch == nullptr) return;
+    for (const protocol::PosEntry& place : batch->places) found.push_back(as_pos(place));
+}
+
+[[nodiscard]] std::vector<protocol::EntityPos> positions_of(const std::vector<Seen>& seen, std::uint64_t session) {
+    std::vector<protocol::EntityPos> found;
+    for (const Seen& one : seen) {
+        if (one.session != session) continue;
+        push_positions(found, one);
+    }
+    return found;
 }
 
 template <typename Message>
@@ -103,8 +135,9 @@ template <typename Message>
     return attach;
 }
 
-[[nodiscard]] Scene make_scene(std::size_t player_max = 100) {
-    return Scene{Scene::Config{.id = 1, .grid = {.cell_cm = kCell, .radius = 2}, .player_max = player_max}};
+[[nodiscard]] Scene make_scene(std::size_t player_max = 100, std::int64_t hz = zone::kTickHz) {
+    return Scene{Scene::Config{
+        .id = 1, .grid = {.cell_cm = kCell, .radius = 2}, .player_max = player_max, .hz = hz}};
 }
 
 // --- aoi ---
@@ -192,7 +225,7 @@ void walker_rests_after_idle_ticks(Context& context) {
     out.clear();
 
     scene.moved(22, ipc::Moved{.x_cm = 600.0F, .z_cm = 0.0F}, out);
-    const auto walking = of_kind<protocol::EntityPos>(seen_in(out), 11);
+    const auto walking = positions_of(seen_in(out), 11);
     context.expect(walking.size() == 1 && walking[0].state == protocol::EntityState::kWalk, "bước đi mang trạng thái Walk");
     out.clear();
 
@@ -200,10 +233,10 @@ void walker_rests_after_idle_ticks(Context& context) {
     context.expect(out.letters().empty(), "chưa đủ số tick thì chưa báo dừng");
     scene.advance(out);
     const auto seen = seen_in(out);
-    const auto rest = of_kind<protocol::EntityPos>(seen, 11);
+    const auto rest = positions_of(seen, 11);
     context.expect(rest.size() == 1 && rest[0].state == protocol::EntityState::kIdle && rest[0].x_cm == 600.0F,
         "đủ số tick thì báo dừng đúng chỗ đứng");
-    context.expect(of_kind<protocol::EntityPos>(seen, 22).empty(), "không báo dừng cho chính mình");
+    context.expect(positions_of(seen, 22).empty(), "không báo dừng cho chính mình");
     out.clear();
     scene.advance(out);
     context.expect(out.letters().empty(), "báo dừng đúng một lần");
@@ -216,6 +249,24 @@ void walker_rests_after_idle_ticks(Context& context) {
     out.clear();
     for (std::uint32_t tick = 0; tick < zone::kIdleAfterTicks + 1; ++tick) scene.advance(out);
     context.expect(out.letters().empty(), "người đã rời thì không còn gì để báo dừng");
+}
+
+void near_position_skips_one_tick(Context& context) {
+    Scene scene = make_scene();
+    Outbox out;
+    static_cast<void>(scene.attach(11, arrival(1, 0.0F, 0.0F), out));
+    static_cast<void>(scene.attach(22, arrival(2, 500.0F, 0.0F), out));
+    out.clear();
+    scene.moved(22, ipc::Moved{.x_cm = 600.0F, .z_cm = 0.0F}, out);
+    context.expect(positions_of(seen_in(out), 11).size() == 1, "bước đầu vẫn gửi");
+    scene.advance(out);
+    out.clear();
+    scene.moved(22, ipc::Moved{.x_cm = 700.0F, .z_cm = 0.0F}, out);
+    context.expect(positions_of(seen_in(out), 11).empty(), "tick kế của vành gần bị giãn");
+    scene.advance(out);
+    out.clear();
+    scene.moved(22, ipc::Moved{.x_cm = 800.0F, .z_cm = 0.0F}, out);
+    context.expect(positions_of(seen_in(out), 11).size() == 1, "đủ stride thì gửi lại vị trí mới");
 }
 
 void far_players_do_not_see_each_other(Context& context) {
@@ -243,14 +294,14 @@ void moving_in_and_out_of_view(Context& context) {
 
     scene.moved(22, ipc::Moved{.x_cm = 2600.0F, .z_cm = 0.0F}, out);
     seen = seen_in(out);
-    context.expect(of_kind<protocol::EntityPos>(seen, 11).size() == 1 && of_kind<protocol::EntityAppear>(seen, 11).empty(),
+    context.expect(positions_of(seen, 11).size() == 1 && of_kind<protocol::EntityAppear>(seen, 11).empty(),
         "cùng ô: chỉ vị trí");
-    context.expect(of_kind<protocol::EntityPos>(seen, 22).empty(), "không gửi vị trí cho chính mình");
+    context.expect(positions_of(seen, 22).empty(), "không gửi vị trí cho chính mình");
     out.clear();
 
     scene.moved(22, ipc::Moved{.x_cm = 1900.0F, .z_cm = 0.0F}, out);
     seen = seen_in(out);
-    context.expect(of_kind<protocol::EntityPos>(seen, 11).size() == 1, "đổi ô nhưng vẫn thấy nhau: vị trí");
+    context.expect(positions_of(seen, 11).size() == 1, "đổi ô nhưng vẫn thấy nhau: vị trí");
     out.clear();
 
     scene.moved(22, ipc::Moved{.x_cm = 9000.0F, .z_cm = 0.0F}, out);
@@ -539,7 +590,7 @@ void monster_wanders_inside_its_range(Context& context) {
     std::vector<protocol::EntityPos> seen;
     for (int tick = 0; tick < 600; ++tick) {
         scene.advance(out);
-        for (const protocol::EntityPos& pos : of_kind<protocol::EntityPos>(seen_in(out), 11)) {
+        for (const protocol::EntityPos& pos : positions_of(seen_in(out), 11)) {
             if (pos.id == wolf) seen.push_back(pos);
         }
         out.clear();
@@ -575,7 +626,7 @@ void monster_respects_walk_rule(Context& context) {
     float leftmost = 1e9F;
     for (int tick = 0; tick < 1200; ++tick) {
         scene.advance(out);
-        for (const protocol::EntityPos& pos : of_kind<protocol::EntityPos>(seen_in(out), 11)) {
+        for (const protocol::EntityPos& pos : positions_of(seen_in(out), 11)) {
             if (pos.id == wolf) leftmost = std::min(leftmost, pos.x_cm);
         }
         out.clear();
@@ -714,8 +765,8 @@ void host_routes_frames(Context& context) {
     out.clear();
     host.handle(frame_of(ipc::Relay::kMoved, 22, ipc::encode_body(ipc::Moved{.x_cm = 200.0F, .z_cm = 0.0F})), out);
     const auto seen = seen_in(out);
-    context.expect(of_kind<protocol::EntityPos>(seen, 11).size() == 1, "vị trí chỉ tới người cùng cảnh");
-    context.expect(of_kind<protocol::EntityPos>(seen, 33).empty(), "không tới cảnh khác");
+    context.expect(positions_of(seen, 11).size() == 1, "vị trí chỉ tới người cùng cảnh");
+    context.expect(positions_of(seen, 33).empty(), "không tới cảnh khác");
     out.clear();
     host.handle(frame_of(ipc::Relay::kDetach, 22, {}), out);
     host.handle(frame_of(ipc::Relay::kDetach, 22, {}), out);
@@ -1108,7 +1159,7 @@ void real_scene_seeds(Context& context) {
         .id = 1, .grid = {.cell_cm = kCell, .radius = 2}, .player_max = 100, .walkable = &in_yard}};
 }
 
-[[nodiscard]] std::vector<ipc::Place> places_in(const Outbox& out, std::uint64_t session) {
+[[nodiscard]] std::vector<ipc::Place> places_in(Outbox& out, std::uint64_t session) {
     std::vector<ipc::Place> found;
     for (const zone::Letter& letter : out.letters()) {
         if (letter.kind != ipc::Relay::kPlace || letter.session != session) continue;
@@ -1132,7 +1183,7 @@ void walkable_blocks_step_into_wall(Context& context) {
     const std::vector<ipc::Place> back = places_in(out, 11);
     context.expect(back.size() == 1 && back[0] == ipc::Place{.x_cm = 1100.0F, .z_cm = 1000.0F},
         "zone ra lệnh đặt lại đúng chỗ cũ");
-    context.expect(of_kind<protocol::EntityPos>(seen_in(out), 11).empty(), "không phát EntityPos của bước bị chặn");
+    context.expect(positions_of(seen_in(out), 11).empty(), "không phát EntityPos của bước bị chặn");
 }
 
 void walkable_neighbour_does_not_see_blocked_step(Context& context) {
@@ -1142,7 +1193,7 @@ void walkable_neighbour_does_not_see_blocked_step(Context& context) {
     static_cast<void>(scene.attach(22, arrival(2, 1200.0F, 1000.0F), out));
     out.clear();
     scene.moved(11, ipc::Moved{.x_cm = 5200.0F, .z_cm = 1000.0F}, out);
-    context.expect(of_kind<protocol::EntityPos>(seen_in(out), 22).empty(), "người đứng cạnh không thấy bước bị chặn");
+    context.expect(positions_of(seen_in(out), 22).empty(), "người đứng cạnh không thấy bước bị chặn");
     context.expect(places_in(out, 22).empty() && places_in(out, 11).size() == 1, "chỉ người đi sai bị đặt lại");
 }
 
@@ -1352,6 +1403,356 @@ void host_walks_through_a_gate(Context& context) {
     context.expect(host.find(2)->has_session(22) && !host.find(7)->has_session(22), "rời rồi bước lại vùng về thì về cảnh cũ");
 }
 
+[[nodiscard]] std::vector<protocol::EntityPosBatch> batches_of(const std::vector<Seen>& seen, std::uint64_t session) {
+    return of_kind<protocol::EntityPosBatch>(seen, session);
+}
+
+void position_batch_matches_single_values(Context& context) {
+    Scene scene = make_scene();
+    Outbox out;
+    static_cast<void>(scene.attach(11, arrival(1, 100.0F, 100.0F), out));
+    static_cast<void>(scene.attach(22, arrival(2, 200.0F, 100.0F), out));
+    static_cast<void>(scene.attach(33, arrival(3, 300.0F, 100.0F), out));
+    static_cast<void>(scene.attach(44, arrival(4, 400.0F, 100.0F), out));
+    out.clear();
+    context.expect(out.letters().empty(), "không gửi lô rỗng");
+    scene.moved(22, ipc::Moved{.x_cm = 210.0F, .z_cm = 100.0F}, out);
+    scene.moved(33, ipc::Moved{.x_cm = 310.0F, .z_cm = 100.0F}, out);
+    scene.moved(44, ipc::Moved{.x_cm = 410.0F, .z_cm = 100.0F}, out);
+    const auto seen = seen_in(out);
+    const auto batches = batches_of(seen, 11);
+    const auto places = positions_of(seen, 11);
+    context.expect(batches.size() == 1 && places.size() == 3, "ba vị trí cùng tick vào một lô");
+    context.expect(of_kind<protocol::EntityPos>(seen, 11).empty(), "không còn khung EntityPos riêng");
+    context.expect(places[0].x_cm == 210.0F && places[1].x_cm == 310.0F && places[2].x_cm == 410.0F, "đúng toạ độ");
+    context.expect(places[0].state == protocol::EntityState::kWalk && places[0].tick == scene.tick(), "trạng thái và tick");
+    context.expect(places[0].id != places[1].id && places[1].id != places[2].id, "không lặp id");
+}
+
+void position_batch_splits_without_dropping(Context& context) {
+    constexpr int kMovers = 53;
+    Scene scene = make_scene(static_cast<std::size_t>(kMovers) + 1);
+    Outbox out;
+    static_cast<void>(scene.attach(1, arrival(1, 100.0F, 100.0F), out));
+    for (int index = 0; index < kMovers; ++index) {
+        const auto id = static_cast<std::uint64_t>(index + 2);
+        static_cast<void>(scene.attach(id, arrival(id, 150.0F, 100.0F), out));
+    }
+    out.clear();
+    for (int index = 0; index < kMovers; ++index) {
+        const auto id = static_cast<std::uint64_t>(index + 2);
+        const float x_cm = 160.0F + static_cast<float>(index);
+        scene.moved(id, ipc::Moved{.x_cm = x_cm, .z_cm = 100.0F}, out);
+    }
+    const auto seen = seen_in(out);
+    const auto batches = batches_of(seen, 1);
+    const auto places = positions_of(seen, 1);
+    context.expect(batches.size() == 2, "vượt 52 mục thì tách thành hai lô");
+    context.expect(batches.size() == 2 && batches[0].places.size() == 52 && batches[1].places.size() == 1, "52 rồi 1");
+    context.expect(places.size() == static_cast<std::size_t>(kMovers), "không mất mục");
+    std::set<std::uint32_t> ids;
+    for (const protocol::EntityPos& pos : places) ids.insert(pos.id);
+    context.expect(ids.size() == places.size(), "không lặp mục");
+    bool grew = true;
+    for (std::size_t index = 1; index < places.size(); ++index) grew = grew && places[index].x_cm > places[index - 1].x_cm;
+    context.expect(grew, "giữ thứ tự đã xếp");
+    for (const protocol::EntityPosBatch& batch : batches) {
+        std::vector<std::byte> frame;
+        context.expect(protocol::encode(frame, batch).has_value(), "lô mã hoá được");
+        context.expect(frame.size() <= zone::kPosFrameMax, "không vượt trần bản rõ của gate");
+    }
+}
+
+void same_tick_sends_the_latest_without_waiting(Context& context) {
+    Scene scene = make_scene();
+    Outbox out;
+    static_cast<void>(scene.attach(11, arrival(1, 0.0F, 0.0F), out));
+    static_cast<void>(scene.attach(22, arrival(2, 500.0F, 0.0F), out));
+    out.clear();
+    scene.moved(22, ipc::Moved{.x_cm = 600.0F, .z_cm = 0.0F}, out);
+    scene.moved(22, ipc::Moved{.x_cm = 700.0F, .z_cm = 0.0F}, out);
+    const auto places = positions_of(seen_in(out), 11);
+    context.expect(places.size() == 2 && places[0].x_cm == 600.0F && places[1].x_cm == 700.0F, "cùng tick giữ cả hai, mới nhất sau");
+    context.expect(places.size() == 2 && places[0].tick == places[1].tick, "không chờ thêm một tick");
+}
+
+void position_stays_before_appear_disappear_and_stop(Context& context) {
+    Scene scene = make_scene();
+    Outbox out;
+    static_cast<void>(scene.attach(11, arrival(1, 0.0F, 0.0F), out));
+    static_cast<void>(scene.attach(22, arrival(2, 500.0F, 0.0F), out));
+    const std::uint32_t old_id = *scene.entity_of(22);
+    out.clear();
+    scene.moved(22, ipc::Moved{.x_cm = 600.0F, .z_cm = 0.0F}, out);
+    static_cast<void>(scene.attach(33, arrival(3, 200.0F, 0.0F), out));
+    const auto appeared = seen_in(out);
+    std::size_t pos_at = appeared.size();
+    std::size_t show_at = appeared.size();
+    for (std::size_t index = 0; index < appeared.size(); ++index) {
+        if (appeared[index].session != 11) continue;
+        const bool is_pos = std::holds_alternative<protocol::EntityPosBatch>(appeared[index].message);
+        const bool is_show = std::holds_alternative<protocol::EntityAppear>(appeared[index].message);
+        if (is_pos && pos_at == appeared.size()) pos_at = index;
+        if (is_show) show_at = index;
+    }
+    context.expect(pos_at < show_at, "vị trí đã gom được chốt trước khi hiện thực thể mới");
+    out.clear();
+    scene.moved(22, ipc::Moved{.x_cm = 610.0F, .z_cm = 0.0F}, out);
+    scene.detach(22, out);
+    const auto left = seen_in(out);
+    std::size_t gone_at = left.size();
+    bool pos_after = false;
+    for (std::size_t index = 0; index < left.size(); ++index) {
+        if (left[index].session != 11) continue;
+        const bool is_pos = std::holds_alternative<protocol::EntityPosBatch>(left[index].message);
+        const bool is_gone = std::holds_alternative<protocol::EntityDisappear>(left[index].message);
+        if (is_gone && gone_at == left.size()) gone_at = index;
+        if (is_pos && gone_at != left.size() && index > gone_at) pos_after = true;
+    }
+    context.expect(gone_at < left.size() && !pos_after, "không có vị trí sau tin biến mất");
+    static_cast<void>(scene.attach(44, arrival(4, 500.0F, 0.0F), out));
+    const std::uint32_t fresh_id = *scene.entity_of(44);
+    context.expect(fresh_id != old_id, "id mới khác id cũ");
+    out.clear();
+    scene.moved(44, ipc::Moved{.x_cm = 620.0F, .z_cm = 0.0F}, out);
+    const auto again = positions_of(seen_in(out), 11);
+    bool old_seen = false;
+    bool fresh_seen = false;
+    for (const protocol::EntityPos& pos : again) {
+        old_seen = old_seen || pos.id == old_id;
+        fresh_seen = fresh_seen || pos.id == fresh_id;
+    }
+    context.expect(!old_seen && fresh_seen, "vị trí mới không áp lên id đã tái sử dụng");
+    out.clear();
+    scene.moved(44, ipc::Moved{.x_cm = 630.0F, .z_cm = 0.0F}, out);
+    for (std::uint32_t tick = 0; tick < zone::kIdleAfterTicks; ++tick) scene.advance(out);
+    const auto rested = positions_of(seen_in(out), 11);
+    context.expect(rested.size() >= 2, "bước đi rồi dừng");
+    bool walk_before_idle = false;
+    if (rested.size() >= 2) walk_before_idle = rested.front().state == protocol::EntityState::kWalk;
+    if (rested.size() >= 2) walk_before_idle = walk_before_idle && rested.back().state == protocol::EntityState::kIdle;
+    context.expect(walk_before_idle, "dừng đứng sau bước đi, không đè lên");
+}
+
+void batch_rejects_a_short_or_lying_body(Context& context) {
+    protocol::EntityPosBatch batch;
+    protocol::PosEntry place;
+    place.id = 7;
+    place.x_cm = 12.0F;
+    place.z_cm = 34.0F;
+    place.direction = 8;
+    place.tick = 3;
+    place.state = protocol::EntityState::kWalk;
+    batch.places.push_back(place);
+    batch.places.push_back(place);
+    std::vector<std::byte> frame;
+    context.expect(protocol::encode(frame, batch).has_value(), "mã hoá lô hai mục");
+    const protocol::FrameResult whole = protocol::peek_frame(frame, frame.size());
+    context.expect(whole && whole->has_value(), "khung đủ thì tách được");
+    if (!whole || !whole->has_value()) return;
+    const auto body = std::span{frame}.subspan(protocol::kHeaderBytes, (*whole)->body_bytes);
+    context.expect(protocol::decode_game_server(**whole, body).has_value(), "thân đủ thì giải được");
+    const auto cut = body.first(body.size() - 1);
+    protocol::Frame short_frame = **whole;
+    short_frame.body_bytes = cut.size();
+    context.expect(!protocol::decode_game_server(short_frame, cut), "thân cụt thì bỏ cả lô");
+    std::vector<std::byte> lying = frame;
+    lying[protocol::kHeaderBytes] = std::byte{9};
+    const protocol::FrameResult lied = protocol::peek_frame(lying, lying.size());
+    context.expect(lied && lied->has_value(), "đầu khung vẫn tách được");
+    if (!lied || !lied->has_value()) return;
+    const auto lied_body = std::span{lying}.subspan(protocol::kHeaderBytes, (*lied)->body_bytes);
+    context.expect(!protocol::decode_game_server(**lied, lied_body), "số mục khai dối thì bỏ cả lô");
+    std::vector<std::byte> stream = frame;
+    stream.insert(stream.end(), frame.begin(), frame.end());
+    const auto prefix = std::span<const std::byte>{stream}.first(protocol::kHeaderBytes + 4);
+    const protocol::FrameResult early = protocol::peek_frame(prefix, prefix.size());
+    context.expect(!early || !early->has_value(), "TCP đọc thiếu thì chờ thêm, không coi là mất khung");
+    const protocol::FrameResult first = protocol::peek_frame(stream, stream.size());
+    context.expect(first && first->has_value(), "đủ byte thì ra khung đầu");
+    if (!first || !first->has_value()) return;
+    const std::size_t first_bytes = protocol::kHeaderBytes + (*first)->body_bytes;
+    const auto second_bytes = std::span<const std::byte>{stream}.subspan(first_bytes);
+    const protocol::FrameResult second = protocol::peek_frame(second_bytes, second_bytes.size());
+    context.expect(second && second->has_value(), "khung sau vẫn đúng thứ tự");
+    protocol::PosEntry extra = place;
+    extra.id = 99;
+    while (batch.places.size() < protocol::kEntityPosBatchPlacesCount) batch.places.push_back(extra);
+    std::vector<std::byte> full;
+    context.expect(protocol::encode(full, batch).has_value(), "mã hoá đúng trần 52");
+    context.expect(full.size() <= zone::kPosFrameMax, "52 mục vừa trần bản rõ");
+    context.expect(full.size() + secure::kRecordHeaderBytes + secure::kTagBytes <= 1024, "vừa hộp gửi của gate");
+}
+
+[[nodiscard]] bool one_deadline(std::uint64_t index, std::int64_t hz) {
+    const std::int64_t due = zone::tick_due_ns(index, hz);
+    const std::int64_t prev = zone::tick_due_ns(index - 1ULL, hz);
+    if (due <= prev) return false;
+    if (zone::due_count(due, hz) != index + 1ULL) return false;
+    return zone::due_count(due - 1, hz) == index;
+}
+
+[[nodiscard]] bool deadlines_hold(std::int64_t hz) {
+    const std::uint64_t hour = static_cast<std::uint64_t>(hz) * 3600ULL;
+    for (std::uint64_t index = 1; index <= hour; ++index) {
+        if (!one_deadline(index, hz)) return false;
+    }
+    for (int second = 0; second <= 3600; ++second) {
+        const auto index = static_cast<std::uint64_t>(second) * static_cast<std::uint64_t>(hz);
+        const auto expect = static_cast<std::int64_t>(second) * 1'000'000'000LL;
+        if (zone::tick_due_ns(index, hz) != expect) return false;
+    }
+    return zone::tick_due_ns(0, hz) == 0;
+}
+
+void clock_hits_each_second(Context& context) {
+    context.expect(deadlines_hold(20), "20 Hz: hạn tăng, đúng từng giây, lệch dưới 1 ns");
+    context.expect(deadlines_hold(30), "30 Hz: hạn tăng, đúng từng giây, lệch dưới 1 ns");
+    context.expect(deadlines_hold(40), "40 Hz: hạn tăng, đúng từng giây, lệch dưới 1 ns");
+}
+
+void catch_up_is_bounded(Context& context) {
+    zone::Pace pace;
+    pace.hz = 30;
+    constexpr std::int64_t kJump = 5'000'000'000;
+    const zone::Wake first = zone::take_wake(pace, kJump);
+    const std::uint64_t due = zone::due_count(kJump, 30);
+    context.expect(first.run == 2 && pace.done == 2, "một lần thức chỉ chạy 2 tick");
+    context.expect(first.entered_overload && pace.overloaded && pace.debt > 0, "nhảy 5 giây là quá tải, còn nợ");
+    int wakes = 1;
+    bool bounded = true;
+    bool logged_once = true;
+    while (pace.done < due && wakes < 100000) {
+        const zone::Wake again = zone::take_wake(pace, kJump);
+        bounded = bounded && again.run <= 2 && again.run > 0;
+        logged_once = logged_once && !again.entered_overload;
+        ++wakes;
+    }
+    context.expect(bounded && logged_once, "mỗi lần sau vẫn tối đa 2 tick và không báo lại");
+    context.expect(pace.done == due && pace.debt == 0 && !pace.overloaded, "chạy đủ số tick, hết nợ thì hết cờ");
+    context.expect(pace.late_wakes > 1, "thức khi nợ hơn một tick thì đếm");
+}
+
+void chase_distance_matches_time(Context& context, std::int64_t hz) {
+    Scene scene = make_scene(100, hz);
+    Outbox out;
+    static_cast<void>(scene.attach(11, arrival(1, 2000.0F, 0.0F), out));
+    zone::Temperament nature = lively_nature();
+    nature.scan_ticks = 1;
+    nature.wander_ticks = 0;
+    nature.walk_cm = 100;
+    nature.return_cm = 100000;
+    nature.scan_cm = 5000;
+    const std::uint32_t wolf = spawn_monster(scene, 0.0F, 0.0F, nature, out);
+    out.clear();
+    scene.advance(out);
+    scene.advance(out);
+    const std::optional<Scene::Where> first = scene.where(wolf);
+    context.expect(first.has_value() && first->x_cm >= 14.0F && first->x_cm <= 16.0F, "bước đuổi đầu khoảng 15 cm");
+    const int left = static_cast<int>(hz) * 2 - 2;
+    for (int tick = 0; tick < left; ++tick) scene.advance(out);
+    const std::optional<Scene::Where> there = scene.where(wolf);
+    context.expect(there.has_value() && there->x_cm >= 299.0F && there->x_cm <= 301.0F, "2 giây đuổi đi khoảng 300 cm");
+}
+
+void chase_covers_the_same_ground(Context& context) {
+    chase_distance_matches_time(context, 20);
+    chase_distance_matches_time(context, 30);
+    chase_distance_matches_time(context, 40);
+}
+
+void check_position_tier(Context& context, std::int64_t hz, std::uint32_t stride, float x_cm) {
+    Scene scene = make_scene(100, hz);
+    Outbox out;
+    static_cast<void>(scene.attach(11, arrival(1, 0.0F, 0.0F), out));
+    static_cast<void>(scene.attach(22, arrival(2, x_cm, 0.0F), out));
+    out.clear();
+    float x = x_cm + 40.0F;
+    scene.moved(22, ipc::Moved{.x_cm = x, .z_cm = 0.0F}, out);
+    context.expect(positions_of(seen_in(out), 11).size() == 1, "bước đầu vẫn gửi");
+    bool quiet = true;
+    for (std::uint32_t gap = 1; gap < stride; ++gap) {
+        scene.advance(out);
+        out.clear();
+        x += 40.0F;
+        scene.moved(22, ipc::Moved{.x_cm = x, .z_cm = 0.0F}, out);
+        quiet = quiet && positions_of(seen_in(out), 11).empty();
+    }
+    context.expect(quiet, "chưa đủ chu kỳ thì không gửi");
+    scene.advance(out);
+    out.clear();
+    scene.moved(22, ipc::Moved{.x_cm = x + 40.0F, .z_cm = 0.0F}, out);
+    context.expect(positions_of(seen_in(out), 11).size() == 1, "đủ chu kỳ thì gửi vị trí mới nhất");
+}
+
+void position_rate_follows_simulation_time(Context& context) {
+    check_position_tier(context, 30, 3, 500.0F);
+    check_position_tier(context, 30, 6, 2100.0F);
+    check_position_tier(context, 40, 4, 500.0F);
+    check_position_tier(context, 40, 8, 2100.0F);
+}
+
+void idle_follows_150_ms(Context& context, std::int64_t hz, std::uint32_t idle_after) {
+    Scene scene = make_scene(100, hz);
+    Outbox out;
+    static_cast<void>(scene.attach(11, arrival(1, 0.0F, 0.0F), out));
+    static_cast<void>(scene.attach(22, arrival(2, 500.0F, 0.0F), out));
+    out.clear();
+    scene.moved(22, ipc::Moved{.x_cm = 600.0F, .z_cm = 0.0F}, out);
+    out.clear();
+    for (std::uint32_t tick = 1; tick < idle_after; ++tick) scene.advance(out);
+    context.expect(out.letters().empty(), "chưa đủ 150 ms thì chưa báo dừng");
+    scene.advance(out);
+    const auto rest = positions_of(seen_in(out), 11);
+    context.expect(rest.size() == 1 && rest[0].state == protocol::EntityState::kIdle, "đủ 150 ms thì báo dừng");
+}
+
+void idle_stop_follows_simulation_time(Context& context) {
+    idle_follows_150_ms(context, 30, 5);
+    idle_follows_150_ms(context, 40, 6);
+}
+
+void corpse_lasts_three_seconds_at_40(Context& context) {
+    Scene scene = make_scene(100, 40);
+    Outbox out;
+    static_cast<void>(scene.attach(11, arrival(1, 0.0F, 0.0F), out));
+    zone::Spawn wolf;
+    wolf.kind = protocol::EntityKind::kMonster;
+    wolf.template_id = 42;
+    wolf.x_cm = 300.0F;
+    wolf.respawn_ms = -1;
+    const std::uint32_t id = scene.spawn(wolf, out).value_or(0);
+    out.clear();
+    scene.kill(id);
+    for (std::uint32_t tick = 0; tick + 1 < 120; ++tick) scene.advance(out);
+    context.expect(scene.info(id).has_value(), "xác 3 giây chưa hết ở nhịp 40");
+    scene.advance(out);
+    context.expect(!scene.info(id).has_value(), "hết 120 tick thì xác biến mất");
+}
+
+void ai_periods_follow_hz(Context& context) {
+    const std::expected<zone::AiTypeTable, std::string> types = zone::AiTypeTable::parse(
+        "ai_id\tdesc\taiparam0\taiparam1\taiparam2\taiparam3\taiparam4\n"
+        "0\tchủ động\t2000\t10000\t0\t30000\t6000\n");
+    const std::expected<zone::TemplateTable, std::string> templates = zone::TemplateTable::parse(
+        "monster_id\tlevel\tcan_interact\tmove_speed\tbase_ai\n101\t5\t0\t1800\t0\n");
+    if (!types || !templates) {
+        context.expect(false, "bảng AI mẫu");
+        return;
+    }
+    scenedata::Scene disk;
+    scenedata::Spawn row;
+    row.type = ids::MonsterTemplateId{101};
+    row.position = core::GroundPoint{.x = 1.0F, .z = 1.0F};
+    row.position_given = true;
+    disk.spawns.push_back(row);
+    const zone::SeedTables tables{.templates = &*templates, .ai_types = &*types};
+    const zone::Seeding fast = zone::seeds_of(disk, 100, tables, 40);
+    const auto nature = fast.seeds.empty() ? std::nullopt : fast.seeds[0].what.nature;
+    context.expect(nature.has_value() && nature->scan_ticks == 80 && nature->wander_ticks == 400,
+        "40 Hz: quét 2000 ms = 80 tick, lang thang 10000 ms = 400 tick");
+}
+
 constexpr std::array kCases{
     Case{"grid_cells_and_clamp", grid_cells_and_clamp},
     Case{"grid_window_difference", grid_window_difference},
@@ -1389,6 +1790,19 @@ constexpr std::array kCases{
     Case{"autosave_writes_only_walkers", autosave_writes_only_walkers},
     Case{"scene_enter_names_self", scene_enter_names_self},
     Case{"walker_rests_after_idle_ticks", walker_rests_after_idle_ticks},
+    Case{"near_position_skips_one_tick", near_position_skips_one_tick},
+    Case{"clock_hits_each_second", clock_hits_each_second},
+    Case{"catch_up_is_bounded", catch_up_is_bounded},
+    Case{"chase_covers_the_same_ground", chase_covers_the_same_ground},
+    Case{"position_rate_follows_simulation_time", position_rate_follows_simulation_time},
+    Case{"idle_stop_follows_simulation_time", idle_stop_follows_simulation_time},
+    Case{"corpse_lasts_three_seconds_at_40", corpse_lasts_three_seconds_at_40},
+    Case{"ai_periods_follow_hz", ai_periods_follow_hz},
+    Case{"position_batch_matches_single_values", position_batch_matches_single_values},
+    Case{"position_batch_splits_without_dropping", position_batch_splits_without_dropping},
+    Case{"same_tick_sends_the_latest_without_waiting", same_tick_sends_the_latest_without_waiting},
+    Case{"position_stays_before_appear_disappear_and_stop", position_stays_before_appear_disappear_and_stop},
+    Case{"batch_rejects_a_short_or_lying_body", batch_rejects_a_short_or_lying_body},
     Case{"monster_wanders_inside_its_range", monster_wanders_inside_its_range},
     Case{"monster_respects_walk_rule", monster_respects_walk_rule},
     Case{"monster_chases_then_gives_up_and_goes_home", monster_chases_then_gives_up_and_goes_home},

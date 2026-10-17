@@ -8,9 +8,9 @@
  *  CHỨC NĂNG
  *  - Trí khôn của quái và NPC: Scene::think và các bước của nó. Hành vi và
  *    nguồn: zone/mind.hpp.
- *  - Mỗi con chạy khi tới `wake`; con đang đi dậy mỗi kMoveEvery tick, con đứng
- *    ngủ tới giờ quét hoặc đi lang thang kế. Tổng việc mỗi tick bị chặn bởi
- *    kThinkBudget; một lượt quét người là O(thực thể trong cửa sổ vùng nhìn).
+ *  - Mỗi con chạy khi tới wake. Con đang đi dậy 10 bước mỗi giây
+ *    (rate_.move_every). Con đứng ngủ tới giờ quét hoặc lần lang thang kế.
+ *    Tổng việc mỗi tick bị chặn bởi kThinkBudget.
  *------------------------------------------------------------------------------
  *  TÁC GIẢ   : HiepHoon
  *  TELEGRAM  : @Hoon9xx
@@ -118,7 +118,9 @@ Scene::Step Scene::step_toward(std::uint32_t index, Point goal, std::uint32_t sp
     const float dx = goal.x_cm - who.x_cm;
     const float dz = goal.z_cm - who.z_cm;
     const float length = std::sqrt((dx * dx) + (dz * dz));
-    const float stride = static_cast<float>(speed_cm) * static_cast<float>(kMoveEvery) / static_cast<float>(kTickHz);
+    const float every = static_cast<float>(rate_.move_every);
+    const float steps = static_cast<float>(rate_.hz);
+    const float stride = static_cast<float>(speed_cm) * every / steps;
     const bool arrives = length <= stride;
     const Point next = arrives ? goal
                                : Point{.x_cm = who.x_cm + (dx / length * stride), .z_cm = who.z_cm + (dz / length * stride)};
@@ -210,7 +212,7 @@ void Scene::think_idle(std::uint32_t index, Outbox& out) {
         const Step result = step_toward(index, Point{.x_cm = mind.goal_x_cm, .z_cm = mind.goal_z_cm},
             mind.nature.walk_cm, out);
         if (result == Step::kMoved) {
-            mind.wake = tick_ + kMoveEvery;
+            mind.wake = tick_ + rate_.move_every;
             return;
         }
         // Tới nơi, hay bị chặn: đứng lại.
@@ -253,7 +255,7 @@ void Scene::think_chase(std::uint32_t index, Outbox& out) {
     } else {
         mind.stuck = 0;
     }
-    mind.wake = tick_ + kMoveEvery;
+    mind.wake = tick_ + rate_.move_every;
 }
 
 void Scene::think_hold(std::uint32_t index) {
@@ -268,7 +270,7 @@ void Scene::think_hold(std::uint32_t index) {
     const Entity& target = entities_[*prey];
     const float limit = kMeleeCm + kHoldSlackCm;
     if (who.spot().distance_squared(target.spot()) > limit * limit) mind.mode = Mode::kChase;
-    mind.wake = tick_ + kMoveEvery;
+    mind.wake = tick_ + rate_.move_every;
 }
 
 void Scene::think_home(std::uint32_t index, Outbox& out) {
@@ -283,7 +285,7 @@ void Scene::think_home(std::uint32_t index, Outbox& out) {
     }
     if (result == Step::kMoved) mind.stuck = 0;
     if (!arrived) {
-        mind.wake = tick_ + kMoveEvery;
+        mind.wake = tick_ + rate_.move_every;
         return;
     }
     mind.mode = Mode::kIdle;

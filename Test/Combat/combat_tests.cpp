@@ -481,7 +481,7 @@ const Catalog* real_catalog(Context& context) {
 // Cảnh dựng nhanh
 
 struct Scene {
-    Scene(const Catalog& catalog, std::uint64_t seed) : dice(seed), arena(catalog, dice) {}
+    Scene(const Catalog& catalog, std::uint64_t seed, std::int64_t hz = 20) : dice(seed), arena(catalog, dice, {}, hz) {}
 
     dice::Dice dice;
     Arena arena;
@@ -1458,7 +1458,41 @@ void snapshot_and_restore(Context& context) {
     }
 }
 
-constexpr std::array<Case, 22> kCases{{
+void durations_follow_hz(Context& context, std::int64_t hz) {
+    const Catalog* catalog = synthetic_catalog(context);
+    const actor::Rules* rules = real_rules(context);
+    if (catalog == nullptr || rules == nullptr) return;
+    Scene scene(*catalog, 1, hz);
+    const ids::EntityHandle who = add_person(scene, *rules, kWudang, {0, 0});
+    context.expect(scene.arena.send_effect(who, 9002, origin_from(who)), "xếp hàng buff");
+    scene.arena.tick();
+    run_ticks(scene.arena, static_cast<std::int32_t>(hz - 1));
+    context.expect(has_buff(scene, who, 9002), "buff 1000 ms còn tới đúng số bước");
+    scene.arena.tick();
+    context.expect(!has_buff(scene, who, 9002), "buff tan ở bước kế, không sớm");
+    const std::vector<Event> added = events_of(scene.arena, EventKind::kBuffAdded);
+    context.expect(added.size() == 1 && added.front().value == static_cast<std::int32_t>(hz), "thời gian buff bằng số bước");
+
+    Scene dots(*catalog, 2, hz);
+    const ids::EntityHandle a = add_person(dots, *rules, kWudang, {0, 0});
+    const ids::EntityHandle b = add_person(dots, *rules, kShaolin, {100, 0});
+    context.expect(dots.arena.send_effect(b, 9003, origin_from(a)), "gửi độc");
+    run_ticks(dots.arena, static_cast<std::int32_t>(hz * 3 + 2));
+    std::vector<std::uint64_t> ticks;
+    for (const Event& event : events_of(dots.arena, EventKind::kDamaged)) ticks.push_back(event.tick.value());
+    const std::uint64_t step = static_cast<std::uint64_t>(hz);
+    const std::vector<std::uint64_t> expect{1 + step, 1 + step * 2, 1 + step * 3};
+    context.expect(ticks == expect, "ba nhát trong 3 giây mô phỏng");
+    const std::vector<Event> removed = events_of(dots.arena, EventKind::kBuffRemoved);
+    context.expect(removed.size() == 1 && removed.front().tick.value() == 1 + step * 3, "độc tan cùng nhát cuối");
+}
+
+void durations_follow_simulation_time(Context& context) {
+    durations_follow_hz(context, 30);
+    durations_follow_hz(context, 40);
+}
+
+constexpr std::array<Case, 23> kCases{{
     {"catalog_real_tables", catalog_real_tables},
     {"catalog_rejects_bad_tables", catalog_rejects_bad_tables},
     {"roles_grammar", roles_grammar},
@@ -1481,6 +1515,7 @@ constexpr std::array<Case, 22> kCases{{
     {"codec_round_trip", codec_round_trip},
     {"codec_rejects_bad_input", codec_rejects_bad_input},
     {"snapshot_and_restore", snapshot_and_restore},
+    {"durations_follow_simulation_time", durations_follow_simulation_time},
 }};
 
 } // namespace

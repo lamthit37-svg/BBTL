@@ -1,6 +1,17 @@
-#pragma once
-// Cuộn đồ rơi khi quái chết và chia hộp cho những người có quyền.
-//
+/*==============================================================================
+ *  THIENLONG  |  GAME SERVER
+ *------------------------------------------------------------------------------
+ *  TỆP       : src/server/loot/roller.hpp
+ *  PHÂN HỆ   : Server / Loot / Roller
+ *  CHUẨN     : C++23
+ *------------------------------------------------------------------------------
+ *  CHỨC NĂNG
+ *  - Cuộn đồ rơi khi quái chết và chia hộp cho những người có quyền.
+ *------------------------------------------------------------------------------
+ *  TÁC GIẢ   : HiepHoon
+ *  TELEGRAM  : @Hoon9xx
+ *============================================================================*/
+
 // Nguồn: ItemBoxRuler::CreateItemFromMonsterDrop (cuộn từng gói của quái theo mvalue / box_value, hệ số chênh cấp, DropParam,
 // hệ số chống nghiện; chọn đều một vật phẩm trong gói), MonsterDropRuler::CaculateBossDropRuler (BDR_BOSS: mỗi người chia tự
 // cuộn một hộp; BDR_COMMON và quái không có dòng bảng: chọn đều một người nhận đồ, người khác chỉ nhận đồ nhiệm vụ), và
@@ -11,6 +22,8 @@
 // đồ nhiệm vụ đứng trước, đồ cuộn lấp phần còn lại (2008 ghi tràn mảng khi hơn 10 món); (4) vật phẩm rơi mang nguồn sinh đồ lấy
 // từ ô cấp của gói (1..6), để trống thì lấy hạng của quái; (5) việc tìm người có quyền chia (sát thương tối thiểu, nhóm, tầm
 // nhìn) là của zone: hàm nhận danh sách người đã lọc.
+
+#pragma once
 
 #include "item/factory.hpp"
 #include "item/roll.hpp"
@@ -35,8 +48,11 @@ inline constexpr std::uint32_t kMaxDropParamPpm = 100 * kPpm;  // DropParam lớ
 struct LootConfig {
     // ConfigInfo.ini DropParam: hệ số rơi toàn cục theo phần triệu. Lớn hơn kMaxDropParamPpm bị kẹp.
     std::uint32_t drop_param_ppm = kPpm;
-    // zone.toml [drops] box_recycle_ms đã đổi sang tick (ids::to_ticks). Dưới một tick bị nâng lên một tick.
+    // zone.toml [drops] box_recycle_ms đã đổi sang tick (ids::to_ticks). Dưới một tick bị nâng lên
+    // một tick.
     ids::TickSpan box_lifetime = ids::to_ticks(60'000, item::kTicksPerSecond);
+    // Nhịp Factory khi cuộn đồ. Mặc định 20, cùng item::kTicksPerSecond.
+    std::int64_t ticks_per_second = item::kTicksPerSecond;
 };
 
 // Một con quái chết.

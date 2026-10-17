@@ -44,6 +44,8 @@ public:
         Grid::Spec grid{.cell_cm = 1000.0F, .radius = 2};
         std::size_t player_max = 4000;
         std::size_t scene_max = 256;
+        // Nhịp cố định 20, 30 hoặc 40. Mặc định 20 cho tới khi đo chứng minh nhịp cao hơn.
+        std::int64_t hz = kTickHz;
         // Quái và NPC đặt sẵn khi cảnh được tạo; rỗng thì cảnh chỉ có người chơi.
         Seeder seeder{};
         // Dữ liệu chơi (hội thoại, nhiệm vụ). Con trỏ rỗng thì Host không có gameplay: chỉ ai thấy ai. World sống lâu hơn Host.
@@ -57,7 +59,7 @@ public:
 
     // Một khung từ gate.
     void handle(const ipc::Frame& frame, Outbox& out);
-    // Một bước mô phỏng (1/kTickHz giây) cho mọi cảnh, theo thứ tự id cảnh.
+    // Một bước của nhịp đã chọn (mặc định 1/20 giây) cho mọi cảnh, theo thứ tự id.
     void advance(Outbox& out);
     // Chu kỳ ghi điểm đứng, tính bằng tick.
     static constexpr std::uint32_t kAutosaveTicks = 60 * 20;

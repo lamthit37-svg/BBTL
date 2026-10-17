@@ -1,6 +1,20 @@
-// Sổ thực thể, nhịp tick, hàng đợi sự kiện, quan hệ phe, lưu và khôi phục của Arena (xem arena.hpp).
-//
-// Nguồn: GameServer 2008 Obj_Character.cpp (HeartBeat), Obj_Character_Impact.cpp (lưu/nạp danh sách buff).
+/*==============================================================================
+ *  THIENLONG  |  GAME SERVER
+ *------------------------------------------------------------------------------
+ *  TỆP       : src/server/combat/arena.cpp
+ *  PHÂN HỆ   : Server / Combat / Arena
+ *  CHUẨN     : C++23
+ *------------------------------------------------------------------------------
+ *  CHỨC NĂNG
+ *  - Sổ thực thể, nhịp tick, hàng đợi sự kiện, quan hệ phe, lưu và khôi phục
+ *    của Arena (xem arena.hpp).
+ *  - Nguồn: GameServer 2008 Obj_Character.cpp (HeartBeat),
+ *    Obj_Character_Impact.cpp (lưu/nạp danh sách buff).
+ *------------------------------------------------------------------------------
+ *  TÁC GIẢ   : HiepHoon
+ *  TELEGRAM  : @Hoon9xx
+ *============================================================================*/
+
 #include "combat/arena.hpp"
 
 #include "actor/body.hpp"
@@ -38,15 +52,28 @@ template <typename Handler, typename Finder>
 }
 
 [[nodiscard]] std::uint32_t clamp_u32(std::int64_t value) noexcept {
-    return static_cast<std::uint32_t>(std::clamp<std::int64_t>(value, 0, std::numeric_limits<std::uint32_t>::max()));
+    constexpr std::int64_t kU32Max = std::numeric_limits<std::uint32_t>::max();
+    const std::int64_t capped = std::clamp(value, std::int64_t{0}, kU32Max);
+    return static_cast<std::uint32_t>(capped);
+}
+
+[[nodiscard]] std::vector<const detail::EffectLogic*> effect_rows(const Catalog& catalog) {
+    const std::span<const LogicSpec> specs = catalog.effect_logics();
+    return build_table<detail::EffectLogic>(specs, detail::find_effect_handler);
+}
+
+[[nodiscard]] std::vector<const detail::SkillHandler*> skill_rows(const Catalog& catalog) {
+    const std::span<const LogicSpec> specs = catalog.skill_logics();
+    return build_table<detail::SkillHandler>(specs, detail::find_skill_handler);
 }
 
 } // namespace
 
-Arena::Arena(const Catalog& catalog, dice::Dice& dice, ArenaLimits limits)
-    : catalog_(&catalog), dice_(&dice), limits_(limits),
-      effect_table_(build_table<detail::EffectLogic>(catalog.effect_logics(), detail::find_effect_handler)),
-      skill_table_(build_table<detail::SkillHandler>(catalog.skill_logics(), detail::find_skill_handler)) {}
+Arena::Arena(const Catalog& catalog, dice::Dice& dice, ArenaLimits limits, std::int64_t hz)
+    : catalog_(&catalog), dice_(&dice), limits_(limits), hz_(hz) {
+    effect_table_ = effect_rows(catalog);
+    skill_table_ = skill_rows(catalog);
+}
 
 Arena::~Arena() = default;
 
@@ -114,9 +141,11 @@ void Arena::heartbeat(Fighter& unit) {
     action_heartbeat(unit);
     if (unit.alive()) {
         // Hồi tự nhiên theo nhịp RECOVER_INTERVAL của thân thể; sự kiện chỉ phát khi giá trị thật sự đổi.
+        const std::uint64_t step = now_.value();
+        const std::int64_t elapsed = ids::slice_ms(step, hz_);
         const std::int32_t hp = unit.body.hp();
         const std::int32_t mp = unit.body.mp();
-        unit.body.advance(kTickMs);
+        unit.body.advance(elapsed);
         if (unit.body.hp() != hp) emit(EventKind::kHealed, unit.handle, unit.handle, 0, unit.body.hp() - hp);
         if (unit.body.mp() != mp) emit(EventKind::kManaChanged, unit.handle, unit.handle, 0, unit.body.mp() - mp);
     }

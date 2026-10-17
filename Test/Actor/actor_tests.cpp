@@ -8,6 +8,7 @@
 #include "actor/rules.hpp"
 #include "actor/sheet.hpp"
 #include "dice/dice.hpp"
+#include "ids/ids.hpp"
 #include "support/actor_rules.hpp"
 #include "test.hpp"
 
@@ -607,7 +608,25 @@ void learned_skills_round_trip(Context& context) {
     context.expect(!encode_record(messy, sink).has_value(), "trùng id không ghi");
 }
 
-constexpr std::array<Case, 18> kCases{{
+void regen_one_beat_per_three_seconds(Context& context) {
+    const Rules* r = rules(context);
+    if (r == nullptr) return;
+    const std::int64_t rates[] = {20, 30, 40};
+    for (const std::int64_t hz : rates) {
+        Body body = Body::human(*r, BodyLimits{}, record_of(0, 1, {8, 1, 10, 2, 4}, 0));
+        Modifiers equip;
+        static_cast<void>(equip.add_item({.attr_id = 2, .value = 7}));
+        static_cast<void>(equip.add_item({.attr_id = 5, .value = 3}));
+        body.set_equipment(equip);
+        static_cast<void>(body.change_hp(-500));
+        std::int32_t beats = 0;
+        const auto steps = static_cast<std::uint64_t>(hz) * 3ULL;
+        for (std::uint64_t index = 1; index <= steps; ++index) beats += body.advance(ids::slice_ms(index, hz));
+        context.expect(beats == 1 && body.hp() == 587, "3 giây mô phỏng đúng một nhịp hồi");
+    }
+}
+
+constexpr std::array<Case, 19> kCases{{
     {.name = "rules_load_real_tables", .body = rules_load_real_tables},
     {.name = "rules_reject_bad_tables", .body = rules_reject_bad_tables},
     {.name = "stats_golden", .body = stats_golden},
@@ -626,6 +645,7 @@ constexpr std::array<Case, 18> kCases{{
     {.name = "codec_round_trip", .body = codec_round_trip},
     {.name = "codec_rejects_bad_input", .body = codec_rejects_bad_input},
     {.name = "learned_skills_round_trip", .body = learned_skills_round_trip},
+    {.name = "regen_one_beat_per_three_seconds", .body = regen_one_beat_per_three_seconds},
 }};
 
 } // namespace

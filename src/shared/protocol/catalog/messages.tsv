@@ -1,6 +1,6 @@
 # schema 1
 # source: TLBB Dev src/protocol/protocol.hpp @e0d89a6 (bản 2026-10-05, nhóm 01, 02, 05)
-# version 6
+# version 7
 # types: kind	ident	port	int	text
 kind	name	port	since	summary
 record	CharacterSummary			Tóm tắt một nhân vật trong danh sách chọn nhân vật.
@@ -11,6 +11,7 @@ record	DialogBonus			Một dòng phần thưởng hay yêu cầu của bảng nh
 record	QuestSlot			Một ô của sổ nhiệm vụ.
 record	SkillEntry			Một kỹ năng đã học của chính nhân vật, kèm hồi chiêu còn lại.
 record	BagSlot			Một ô của túi đồ.
+record	PosEntry			Một vị trí tuyệt đối trong EntityPosBatch. Cùng bố cục 19 byte với thân EntityPos.
 0x0101	Hello	both	1	Tin đầu tiên của mọi kết nối, báo phiên bản giao thức, nền tảng và bản dựng client.
 0x0102	Login	game	1	Đăng nhập cổng game bằng vé do cổng xác thực cấp, không bao giờ mang mật khẩu.
 0x0103	Resume	game	1	Nối lại phiên cũ bằng token phiên sau khi rớt mạng.
@@ -47,6 +48,7 @@ record	BagSlot			Một ô của túi đồ.
 0x8404	EntityPos	game	4	Vị trí mới của một thực thể trong vùng nhìn; client nội suy giữa hai lần nhận.
 0x8405	EntityVitals	game	4	Sinh lực của một thực thể trong vùng nhìn, theo phần trăm.
 0x8406	EntityFlags	game	5	Cờ của một thực thể trong vùng nhìn; gửi ngay sau EntityAppear khi cờ khác 0 và mỗi khi cờ đổi.
+0x8407	EntityPosBatch	game	7	Nhiều vị trí tuyệt đối của cùng một tick cho một client. Không gửi khi rỗng.
 0x8501	Ticket	auth	1	Vé vào cổng game do cổng xác thực cấp sau khi đăng nhập đúng.
 0x8601	DialogOpen	game	5	Server mở hay thay hộp thoại của phiên: lời NPC, lựa chọn, dấu nhiệm vụ, bảng nhiệm vụ và phần thưởng.
 0x8602	DialogClosed	game	5	Server đóng phiên hội thoại và nêu lý do.

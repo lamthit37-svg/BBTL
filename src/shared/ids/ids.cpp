@@ -1,3 +1,18 @@
+/*==============================================================================
+ *  THIENLONG  |  SHARED
+ *------------------------------------------------------------------------------
+ *  TỆP       : src/shared/ids/ids.cpp
+ *  PHÂN HỆ   : Shared / Ids / Ids
+ *  CHUẨN     : C++23
+ *------------------------------------------------------------------------------
+ *  CHỨC NĂNG
+ *  - Khẳng định id không chuyển ngầm và tick làm tròn lên.
+ *  - slice_ms cộng đủ 1000 ms mỗi giây ở nhịp 20, 30 và 40.
+ *------------------------------------------------------------------------------
+ *  TÁC GIẢ   : HiepHoon
+ *  TELEGRAM  : @Hoon9xx
+ *============================================================================*/
+
 #include "ids/ids.hpp"
 
 #include <type_traits>
@@ -15,6 +30,30 @@ static_assert(sizeof(CharacterId) == sizeof(std::uint64_t));
 static_assert(to_ticks(1, 20).count == 1);
 static_assert(to_ticks(500, 20).count == 10);
 static_assert(to_ticks(0, 20).count == 0);
-static_assert(advance(Tick{5}, TickSpan{-9}).value() == 0);
+constexpr Tick kFrom{5};
+constexpr TickSpan kBack{-9};
+static_assert(advance(kFrom, kBack).value() == 0);
+static_assert(slice_ms(1, 20) == 50);
+static_assert(slice_ms(1, 40) == 25);
+static_assert(slice_ms(1, 30) == 33);
+static_assert(slice_ms(2, 30) == 33);
+static_assert(slice_ms(3, 30) == 34);
+static_assert(slice_ms(0, 20) == 0);
+static_assert(ticks_to_ms_up(1, 20) == 50);
+static_assert(ticks_to_ms_up(20, 20) == 1000);
+static_assert(ticks_to_ms_up(1, 30) == 34);
+static_assert(ticks_to_ms_up(60, 30) == 2000);
+static_assert(ticks_to_ms_up(0, 20) == 0);
+
+constexpr std::int64_t sum_slices(std::int64_t hz) {
+    std::int64_t total = 0;
+    const auto steps = static_cast<std::uint64_t>(hz);
+    for (std::uint64_t i = 1; i <= steps; ++i)
+        total += slice_ms(i, hz);
+    return total;
+}
+static_assert(sum_slices(20) == 1000);
+static_assert(sum_slices(30) == 1000);
+static_assert(sum_slices(40) == 1000);
 
 } // namespace game::ids

@@ -1,18 +1,38 @@
-#pragma once
-// Đấu trường: nơi mọi người ra đòn/chịu đòn của một cảnh sống chung. Giữ sổ thực thể (Fighter), hàng đợi hiệu
-// ứng chờ giao, hàng đợi sự kiện đầu ra; chạy bước 20 Hz; xử lý lệnh ra chiêu, hiệu ứng, chuỗi sát thương, buff,
-// hồi chiêu, gom khí/dẫn, chết và hồi sinh. Lõi thuần: không mạng, không đồng hồ thật, không luồng; ngẫu nhiên là
-// dice::Dice do nơi gọi đưa vào (một nguồn cho mỗi cảnh, rút theo thứ tự cố định để phát lại được).
+/*==============================================================================
+ *  THIENLONG  |  GAME SERVER
+ *------------------------------------------------------------------------------
+ *  TỆP       : src/server/combat/arena.hpp
+ *  PHÂN HỆ   : Server / Combat / Arena
+ *  CHUẨN     : C++23
+ *------------------------------------------------------------------------------
+ *  CHỨC NĂNG
+ *  - Đấu trường: nơi mọi người ra đòn/chịu đòn của một cảnh sống chung. Giữ sổ
+ *    thực thể (Fighter), hàng đợi hiệu ứng chờ giao, hàng đợi sự kiện đầu ra;
+ *    chạy một bước mỗi tick zone; xử lý lệnh ra chiêu, hiệu ứng, chuỗi sát
+ *    thương, buff, hồi chiêu, gom khí/dẫn, chết và hồi sinh.
+ *------------------------------------------------------------------------------
+ *  TÁC GIẢ   : HiepHoon
+ *  TELEGRAM  : @Hoon9xx
+ *============================================================================*/
+
+// Lõi thuần: không mạng, không đồng hồ thật, không luồng; ngẫu nhiên là dice::Dice do nơi gọi đưa vào (một nguồn cho
+// mỗi cảnh, rút theo thứ tự cố định để phát lại được).
 //
 // Thứ tự của một bước tick():
 //   1. now += 1.
-//   2. Mỗi thực thể theo thứ tự handle tăng: dọn buff đã tan, nhịp buff (từ cuối về đầu), nhịp gom/dẫn, hồi HP/MP.
-//   3. Giao mọi hiệu ứng đến hạn theo (hạn, thứ tự gửi). Hiệu ứng giao ở bước t chỉ bắt đầu đếm giờ từ bước t+1,
-//      nên buff 1000 ms tồn tại đúng 20 bước sau khi nhận.
-// Lệnh (cast, send_effect...) chạy giữa hai bước: hiệu ứng không trễ vẫn qua hàng đợi và tới ở bước kế.
+//   2. Mỗi thực thể theo thứ tự handle tăng: dọn buff đã tan, nhịp buff (từ cuối về đầu), nhịp
+//   gom/dẫn, hồi HP/MP.
+//   3. Giao mọi hiệu ứng đến hạn theo (hạn, thứ tự gửi). Hiệu ứng giao ở bước t chỉ bắt đầu đếm giờ
+//   từ bước t+1,
+//      nên buff 1000 ms tồn tại đúng to_ticks(1000, hz) bước sau khi nhận (20 bước ở nhịp nền).
+// Lệnh (cast, send_effect...) chạy giữa hai bước: hiệu ứng không trễ vẫn qua hàng đợi và tới ở bước
+// kế.
 //
-// Nguồn: GameServer 2008 Skills/Skill_Core.cpp, SkillLogic.cpp, Impact_Core.cpp, Obj_Character_Impact.cpp,
-// Obj_Character_Event.cpp, Obj_Character_Skill.cpp, Action/*.cpp. Khác gốc ghi tại chỗ bằng "Khác gốc:".
+// Nguồn: GameServer 2008 Skills/Skill_Core.cpp, SkillLogic.cpp, Impact_Core.cpp,
+// Obj_Character_Impact.cpp, Obj_Character_Event.cpp, Obj_Character_Skill.cpp, Action/*.cpp. Khác
+// gốc ghi tại chỗ bằng "Khác gốc:".
+
+#pragma once
 
 #include "actor/body.hpp"
 #include "combat/catalog.hpp"
@@ -133,7 +153,8 @@ using SpousePolicy = std::function<bool(const Fighter& from, const Fighter& to)>
 
 class Arena {
 public:
-    Arena(const Catalog& catalog, dice::Dice& dice, ArenaLimits limits = {});
+    Arena(const Catalog& catalog, dice::Dice& dice, ArenaLimits limits = {},
+        std::int64_t hz = kTicksPerSecond);
     ~Arena();
     Arena(const Arena&) = delete;
     Arena& operator=(const Arena&) = delete;
@@ -152,6 +173,11 @@ public:
 
     // ----- Thời gian -----
     [[nodiscard]] ids::Tick now() const noexcept { return now_; }
+    [[nodiscard]] std::int64_t hz() const noexcept { return hz_; }
+    // Mili giây thiết kế sang tick của nhịp này, làm tròn lên. Không sớm hơn hợp đồng.
+    [[nodiscard]] std::int64_t milliseconds_to_ticks(std::int64_t milliseconds) const noexcept {
+        return ids::to_ticks(milliseconds, hz_).count;
+    }
     void tick();
 
     // ----- Lệnh -----
@@ -370,6 +396,7 @@ private:
     const Catalog* catalog_;
     dice::Dice* dice_;
     ArenaLimits limits_;
+    std::int64_t hz_ = kTicksPerSecond;
     ids::Tick now_;
     std::map<ids::EntityHandle, Fighter> fighters_;
     std::map<PendingKey, Pending> pending_;

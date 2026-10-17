@@ -88,7 +88,7 @@ struct Seat {
 
 class Battle {
 public:
-    Battle(const World& world, std::uint16_t scene, std::uint64_t seed);
+    Battle(const World& world, std::uint16_t scene, std::uint64_t seed, std::int64_t hz);
     ~Battle();
     Battle(const Battle&) = delete;
     Battle& operator=(const Battle&) = delete;
@@ -104,7 +104,8 @@ public:
     void cast(std::uint64_t session, const protocol::CastSkill& message, const Env& env);
     void respawn(std::uint64_t session, const protocol::Respawn& message, const Env& env);
     void pick_up(std::uint64_t session, const protocol::PickUp& message, const Env& env);
-    // Một bước 20 Hz: đấu trường chạy một tick, vật rơi hết hạn bị gỡ, sinh lực người chơi đổi thì báo.
+    // Một bước của nhịp zone: đấu trường chạy một tick, vật rơi hết hạn bị gỡ, sinh lực đổi thì
+    // báo.
     void step(const Env& env);
 
     [[nodiscard]] std::size_t member_count() const noexcept { return members_.size(); }
@@ -175,8 +176,14 @@ private:
     std::unordered_map<std::uint32_t, std::uint16_t> last_skill_;
     // Quái đã bị chạm tới ở tick nào, để dọn Fighter không còn dính líu.
     std::unordered_map<std::uint32_t, std::uint64_t> touched_;
-    // Đồng hồ của Battle: đếm mọi bước, kể cả khi cảnh vắng (vật rơi vẫn hết hạn); đấu trường chỉ chạy khi có người.
+    // Đồng hồ của Battle: đếm mọi bước, kể cả khi cảnh vắng (vật rơi vẫn hết hạn); đấu trường chỉ
+    // chạy khi có người.
     std::uint64_t tick_ = 0;
+    std::int64_t hz_ = 20;
+    // SelfVitals tối đa 5 Hz; dọn quái đứng yên mỗi 60 giây. Mốc 20 Hz là 4 và 1200.
+    std::uint64_t vitals_gap_ = 4;
+    std::uint64_t prune_every_ = 1200;
+    std::uint64_t prune_idle_ = 1200;
 };
 
 } // namespace game::play

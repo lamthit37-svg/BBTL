@@ -181,7 +181,7 @@ struct Fixture {
     FakeAround around;
 };
 
-std::unique_ptr<Fixture> open_fixture(Context& context) {
+std::unique_ptr<Fixture> open_fixture(Context& context, play::Gameplay::Settings settings = {}) {
     std::expected<play::World, std::string> loaded =
         play::World::load(play::Paths{.tables = GAME_SERVER_TABLES, .text_override = {}, .language = "zh"});
     if (!loaded) {
@@ -190,7 +190,7 @@ std::unique_ptr<Fixture> open_fixture(Context& context) {
     }
     auto fixture = std::make_unique<Fixture>();
     fixture->world = std::make_unique<play::World>(std::move(*loaded));
-    fixture->gameplay = std::make_unique<play::Gameplay>(*fixture->world, play::Gameplay::Settings{});
+    fixture->gameplay = std::make_unique<play::Gameplay>(*fixture->world, settings);
     fixture->gameplay->set_time(play::Gameplay::Clock{.unix_seconds = 1'700'000'000, .tick = 100});
     return fixture;
 }
@@ -438,6 +438,28 @@ void flood_is_rate_limited(Context& context) {
     play::Output later;
     fixture->gameplay->intent(kSession, frame_of(protocol::Talk{.npc = kNpcEntity}), fixture->around, later);
     context.expect(first_of<protocol::DialogOpen>(decoded(later)) != nullptr, "hết cửa sổ thì lại được");
+}
+
+void flood_window_follows_hz(Context& context) {
+    play::Gameplay::Settings settings;
+    settings.hz = 40;
+    const std::unique_ptr<Fixture> fixture = open_fixture(context, settings);
+    if (fixture == nullptr) return;
+    play::Output joined;
+    context.expect(fixture->gameplay->attach(arrive(kSession), newcomer(), fixture->around, joined), "attach");
+    for (int at = 0; at < 40; ++at) {
+        play::Output out;
+        fixture->gameplay->intent(kSession, frame_of(protocol::Talk{.npc = kNpcEntity}), fixture->around, out);
+    }
+    fixture->gameplay->set_time(play::Gameplay::Clock{.unix_seconds = 1'700'000'001, .tick = 120});
+    play::Output early;
+    fixture->gameplay->intent(kSession, frame_of(protocol::Talk{.npc = kNpcEntity}), fixture->around, early);
+    const auto* blocked = first_of<protocol::Reject>(decoded(early));
+    context.expect(blocked != nullptr && blocked->code == protocol::ErrorCode::kRateLimited, "tick 120 vẫn trong một giây");
+    fixture->gameplay->set_time(play::Gameplay::Clock{.unix_seconds = 1'700'000'002, .tick = 140});
+    play::Output later;
+    fixture->gameplay->intent(kSession, frame_of(protocol::Talk{.npc = kNpcEntity}), fixture->around, later);
+    context.expect(first_of<protocol::DialogOpen>(decoded(later)) != nullptr, "tick 140 mở cửa sổ mới");
 }
 
 void detach_hands_back_state(Context& context) {
@@ -704,6 +726,7 @@ constexpr std::array kCases{
     Case{.name = "far_and_stale_sessions_are_rejected", .body = &far_and_stale_sessions_are_rejected},
     Case{.name = "junk_is_ignored", .body = &junk_is_ignored},
     Case{.name = "flood_is_rate_limited", .body = &flood_is_rate_limited},
+    Case{.name = "flood_window_follows_hz", .body = &flood_window_follows_hz},
     Case{.name = "detach_hands_back_state", .body = &detach_hands_back_state},
     Case{.name = "kill_a_monster_end_to_end", .body = &kill_a_monster_end_to_end},
     Case{.name = "plain_attack_kills", .body = &plain_attack_kills},

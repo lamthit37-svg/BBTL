@@ -12,6 +12,8 @@ schema = 1   # Phiên bản bố cục của tệp; bộ đọc từ chối số
 #==================================================
 # Nhịp mô phỏng
 #==================================================
+# Chỉ nhận 20, 30 hoặc 40. Mặc định 20 cho tới khi đo chứng minh nhịp cao hơn.
+# Tick đã lưu là số bước của nhịp lúc ghi: đổi hz trên database đang chạy cần migration.
 [tick]
 hz = 20   # Số bước mô phỏng mỗi giây; 20 là mỗi bước 50 mili giây
 

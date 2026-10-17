@@ -63,8 +63,16 @@ public:
         for_each_difference(Pair{.inside = before, .outside = after}, visit);
     }
 
+    // Số ô Chebyshev giữa hai ô. 0 là cùng ô, 1 là sát, bằng radius là vành ngoài.
+    [[nodiscard]] std::int32_t rings(Cell from, Cell to) const noexcept {
+        const std::int32_t along = distance(from.column, to.column);
+        const std::int32_t across = distance(from.row, to.row);
+        if (along > across) return along;
+        return across;
+    }
+
     [[nodiscard]] bool sees(Cell viewer, Cell target) const noexcept {
-        return distance(viewer.column, target.column) <= radius_ && distance(viewer.row, target.row) <= radius_;
+        return rings(viewer, target) <= radius_;
     }
 
     [[nodiscard]] std::size_t population() const noexcept { return population_; }

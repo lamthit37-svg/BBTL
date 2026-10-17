@@ -214,6 +214,37 @@ struct Seen {
     bool tolerate_reject = false;
 };
 
+void note_gap(Tally& tally, int gap) {
+    int best = tally.closest_cm.load();
+    while (gap < best && !tally.closest_cm.compare_exchange_weak(best, gap)) {
+    }
+}
+
+template <typename Place>
+void note_pos(const Place& moved, Seen& seen, Tally& tally) {
+    ++tally.position;
+    const auto known = seen.monsters.find(moved.id);
+    if (known != seen.monsters.end()) {
+        known->second.x_cm = moved.x_cm;
+        known->second.z_cm = moved.z_cm;
+    }
+    const auto kind = seen.kinds.find(moved.id);
+    if (kind == seen.kinds.end()) return;
+    if (kind->second != protocol::EntityKind::kMonster) return;
+    const bool walking = moved.state == protocol::EntityState::kWalk;
+    if (walking) ++tally.monster_walking;
+    if (!walking) ++tally.monster_resting;
+    const float along = moved.x_cm - seen.x_cm;
+    const float across = moved.z_cm - seen.z_cm;
+    const auto gap = static_cast<int>(std::hypot(along, across));
+    note_gap(tally, gap);
+}
+
+void note_batch(const protocol::EntityPosBatch& batch, Seen& seen, Tally& tally) {
+    for (const protocol::PosEntry& place : batch.places)
+        note_pos(place, seen, tally);
+}
+
 void note(const protocol::GameServerMessage& message, Seen& seen, Tally& tally) {
     if (const auto* reject = std::get_if<protocol::Reject>(&message)) {
         std::println(stderr, "  server từ chối tin 0x{:04x}: mã {}", reject->request,
@@ -276,21 +307,10 @@ void note(const protocol::GameServerMessage& message, Seen& seen, Tally& tally) 
     if (const auto* died = std::get_if<protocol::EntityDied>(&message)) {
         if (seen.monsters.erase(died->id) != 0) ++tally.deaths;
     }
-    if (const auto* moved = std::get_if<protocol::EntityPos>(&message)) {
-        ++tally.position;
-        if (const auto known = seen.monsters.find(moved->id); known != seen.monsters.end()) {
-            known->second.x_cm = moved->x_cm;
-            known->second.z_cm = moved->z_cm;
-        }
-        const auto kind = seen.kinds.find(moved->id);
-        if (kind != seen.kinds.end() && kind->second == protocol::EntityKind::kMonster) {
-            ++(moved->state == protocol::EntityState::kWalk ? tally.monster_walking : tally.monster_resting);
-            const auto gap = static_cast<int>(std::hypot(moved->x_cm - seen.x_cm, moved->z_cm - seen.z_cm));
-            int best = tally.closest_cm.load();
-            while (gap < best && !tally.closest_cm.compare_exchange_weak(best, gap)) {
-            }
-        }
-    }
+    const auto* moved = std::get_if<protocol::EntityPos>(&message);
+    if (moved != nullptr) note_pos(*moved, seen, tally);
+    const auto* batch = std::get_if<protocol::EntityPosBatch>(&message);
+    if (batch != nullptr) note_batch(*batch, seen, tally);
 }
 
 // Hướng đi (radian) và độ rẽ sau mỗi bước.

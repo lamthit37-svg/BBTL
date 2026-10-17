@@ -1,8 +1,22 @@
-// Ra chiêu: kiểm điều kiện, tiêu hao, nhắm mục tiêu, trúng/né, hội tâm, gom khí, dẫn khí, hồi chiêu (xem arena.hpp).
-//
+/*==============================================================================
+ *  THIENLONG  |  GAME SERVER
+ *------------------------------------------------------------------------------
+ *  TỆP       : src/server/combat/arena_cast.cpp
+ *  PHÂN HỆ   : Server / Combat / Arena Cast
+ *  CHUẨN     : C++23
+ *------------------------------------------------------------------------------
+ *  CHỨC NĂNG
+ *  - Ra chiêu: kiểm điều kiện, tiêu hao, nhắm mục tiêu, trúng/né, hội tâm, gom
+ *    khí, dẫn khí, hồi chiêu (xem arena.hpp).
+ *------------------------------------------------------------------------------
+ *  TÁC GIẢ   : HiepHoon
+ *  TELEGRAM  : @Hoon9xx
+ *============================================================================*/
+
 // Nguồn: GameServer 2008 Skill_Core.cpp (ProcessSkillRequest, ActiveSkillNow, InstanceSkill), SkillLogic.cpp
 // (StartCharging, StartChanneling, Action_ActivateOnceHandler, ActivateOnce, CalculateTargetList, HitThisTarget,
 // CriticalHitThisTarget, TargetCheck*), ConditionAndDeplete_Core.cpp, Action/*.cpp (gom/dẫn/gián đoạn).
+
 #include "combat/arena.hpp"
 
 #include "actor/attr.hpp"
@@ -110,7 +124,7 @@ void Arena::apply_cooldown(Fighter& unit, const SkillTemplate& tmpl, const CastI
         action_ms = row->attack_animation_ms;
     }
     cooldown_ms = std::max(cooldown_ms, action_ms);  // hồi chiêu không ngắn hơn thời gian diễn hoạt
-    const std::int64_t ticks = ms_to_ticks(cooldown_ms);
+    const std::int64_t ticks = milliseconds_to_ticks(cooldown_ms);
     if (tmpl.auto_shot) {
         // Khác gốc: bản 2008 cộng dồn phần còn lại của đồng hồ đòn tự lặp vào lần đặt mới; ở đây chỉ đặt lại.
         unit.auto_repeat_until = ids::advance(now_, ids::TickSpan{ticks});
@@ -475,7 +489,8 @@ bool Arena::cast_borrowed(Fighter& unit, std::uint32_t skill, const Target& targ
     detail::SkillRun run{.arena = *this, .me = unit, .tmpl = *tmpl, .info = info, .target = target, .spec = *spec};
     if (handler->on_start(run) != CastOutcome::kOk) return false;
     ++borrow_depth_;
-    activate(unit, *tmpl, info, target, false, ms_to_ticks(tmpl->delay_ms));
+    const std::int64_t delay_ticks = milliseconds_to_ticks(tmpl->delay_ms);
+    activate(unit, *tmpl, info, target, false, delay_ticks);
     --borrow_depth_;
     return true;
 }
@@ -532,7 +547,7 @@ void Arena::disturb_action(Fighter& unit) {
     if (action.phase == ActionState::Phase::kCharging) {
         // Đẩy lùi gom khí: cộng thêm thời gian đã gom, tối đa 500 ms (và tối đa tỉ lệ `disrupt_time` của tổng thời gian gom
         // nếu cột ấy có giá trị); không bao giờ vượt tổng thời gian gom.
-        std::int64_t cap = ms_to_ticks(kMaxDisturbChargeMs);
+        std::int64_t cap = milliseconds_to_ticks(kMaxDisturbChargeMs);
         if (tmpl->disrupt_time_permille > 0) cap = std::min(cap, (action.charge_total * tmpl->disrupt_time_permille + 999) / 1000);
         const std::int64_t gathered = action.charge_total - action.remaining;
         action.remaining += std::min(gathered, cap);
@@ -559,11 +574,12 @@ bool Arena::run_activation(Fighter& unit, const SkillTemplate& tmpl, const CastI
         if (const actor::MonsterRow* row = monster_row_of(unit)) action_ms = row->attack_animation_ms;
     }
     action_ms = std::max<std::int64_t>(action_ms, kMinActionTimeMs);
-    unit.action_lock_until = ids::advance(now_, ids::TickSpan{ms_to_ticks(action_ms)});
+    const std::int64_t lock_ticks = milliseconds_to_ticks(action_ms);
+    unit.action_lock_until = ids::advance(now_, ids::TickSpan{lock_ticks});
     apply_cooldown(unit, tmpl, working);
 
     const std::int32_t times = std::clamp(tmpl.charges_or_interval, 1, kMaxActivations);
-    const std::int64_t delay = ms_to_ticks(tmpl.delay_ms);
+    const std::int64_t delay = milliseconds_to_ticks(tmpl.delay_ms);
     for (std::int32_t k = 1; k <= times; ++k) {
         // Mỗi lần phát sau trễ thêm một khoảng `delay` (bản gốc cộng dồn DelayTime qua các lần phát).
         activate(unit, tmpl, working, target, false, delay * k);
@@ -582,8 +598,10 @@ CastOutcome Arena::begin_instant(Fighter& unit, const SkillTemplate& tmpl, const
 CastOutcome Arena::begin_charge(Fighter& unit, const SkillTemplate& tmpl, const CastInfo& info, const Target& target) {
     if (info.charge_ms <= 0) return begin_instant(unit, tmpl, info, target);
     emit(EventKind::kCastStarted, unit.handle, target.unit, tmpl.id, 1, info.level, target.position);
-    start_action(unit, ActionState::Phase::kCharging, info, target, ms_to_ticks(info.charge_ms), 0);
-    unit.action_lock_until = ids::advance(now_, ids::TickSpan{ms_to_ticks(kMinActionTimeMs)});
+    const std::int64_t charge_ticks = milliseconds_to_ticks(info.charge_ms);
+    start_action(unit, ActionState::Phase::kCharging, info, target, charge_ticks, 0);
+    const std::int64_t min_lock = milliseconds_to_ticks(kMinActionTimeMs);
+    unit.action_lock_until = ids::advance(now_, ids::TickSpan{min_lock});
     return CastOutcome::kOk;
 }
 
@@ -597,8 +615,11 @@ CastOutcome Arena::begin_channel(Fighter& unit, const SkillTemplate& tmpl, const
     if (!deplete(unit, working)) return CastOutcome::kConditionFailed;
     run_on_use_skill(unit, working);
     emit(EventKind::kCastStarted, unit.handle, target.unit, tmpl.id, 2, info.level, target.position);
-    start_action(unit, ActionState::Phase::kChanneling, working, target, ms_to_ticks(total_ms), ms_to_ticks(interval_ms));
-    unit.action_lock_until = ids::advance(now_, ids::TickSpan{ms_to_ticks(kMinActionTimeMs)});
+    const std::int64_t total = milliseconds_to_ticks(total_ms);
+    const std::int64_t every = milliseconds_to_ticks(interval_ms);
+    start_action(unit, ActionState::Phase::kChanneling, working, target, total, every);
+    const std::int64_t min_lock = milliseconds_to_ticks(kMinActionTimeMs);
+    unit.action_lock_until = ids::advance(now_, ids::TickSpan{min_lock});
     apply_cooldown(unit, tmpl, working);
     activate(unit, tmpl, working, target, false, 0);
     return CastOutcome::kOk;
@@ -634,7 +655,8 @@ void Arena::action_heartbeat(Fighter& unit) {
             interrupt_action(unit);
             return;
         }
-        activate(unit, *tmpl, info, target, true, ms_to_ticks(tmpl->delay_ms));
+        const std::int64_t delay_ticks = milliseconds_to_ticks(tmpl->delay_ms);
+        activate(unit, *tmpl, info, target, true, delay_ticks);
     }
     if (unit.action.phase == ActionState::Phase::kChanneling && unit.action.remaining <= 0) finish_action(unit);
 }
