@@ -34,7 +34,9 @@
 
 #include "core/error.hpp"
 #include "gpu/device.hpp"
+#include "math/geometry.hpp"
 #include "math/matrix.hpp"
+#include "render/bound.hpp"
 #include "render/camera.hpp"
 #include "resource/model.hpp"
 #include "resource/upload.hpp"
@@ -197,6 +199,12 @@ private:
     // Kích thước hình học của từng primitive, cùng chỉ số với centers_: bán kính hình cầu bao quanh tâm và diện tích bề mặt
     // (radius_ đo từ gốc model nên có thể lớn hơn nhiều so với hình học). Dùng chọn mức chi tiết.
     std::vector<std::vector<PartExtent>> part_extents_;
+    // Hộp bao của từng primitive trong không gian lưới, cùng chỉ số với centers_: lệnh vẽ của
+    // primitive không skin mà hộp nằm ngoài khung nhìn thì bỏ.
+    std::vector<std::vector<math::Aabb>> part_boxes_;
+    // Hộp theo khớp của lưới skin đặt ở từng nút, theo chỉ số nút; nút không skin giữ SkinBox
+    // rỗng. Lưới skin mà hộp ở tư thế của khung nằm ngoài khung nhìn thì bỏ.
+    std::vector<SkinBox> skin_boxes_;
 };
 
 // Một lần vẽ một model trong khung.

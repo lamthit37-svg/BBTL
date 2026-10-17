@@ -977,7 +977,8 @@ if(GAME_HAS_GPU)
             PRIVATE meshoptimizer::meshoptimizer)
         # Forward đọc gói .f2s và vẽ model đã tải lên. Header của nó kéo math và resource.
         target_sources(game_render PRIVATE engine/render/camera.cpp engine/render/catalog.cpp
-            engine/render/forward.cpp engine/render/shade.cpp engine/render/ui.cpp engine/render/canvas.cpp)
+            engine/render/forward.cpp engine/render/shade.cpp engine/render/ui.cpp engine/render/canvas.cpp
+            engine/render/bound.cpp)
         target_link_libraries(game_render PUBLIC game_math game_resource PRIVATE game_shader)
         # Nạp người chơi từ GLB và ra ma trận skin mỗi khung (cần resource, look, io).
         target_sources(game_avatar PRIVATE src/client/figure/avatar/avatar.cpp src/client/figure/avatar/rig.cpp
@@ -1731,6 +1732,7 @@ endif()
 # Camera dựng ma trận bằng math và render/camera.cpp; chỉ cần module render, không cần GPU thật.
 if(TARGET game_render)
     game_test(camera game_render)
+    game_test(bound game_render)
     game_test(catalog game_render)
     game_test(detail game_render)
 endif()

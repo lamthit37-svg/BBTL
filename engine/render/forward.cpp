@@ -20,17 +20,19 @@
 #pragma GCC target("sse4.1")
 #endif
 // Bốn pipeline cùng shader, cùng bố cục gắn, do Catalog tạo: bit 0 của chỉ số là chất liệu hai mặt
-// (không loại mặt sau), bit 1 là trộn alpha (không ghi độ sâu). Pipeline thứ năm (tuỳ chọn) là mặt đất lớp cọ
-// (Pso::kTerrain, terrain.ps): chất liệu có Material::splat dùng nó, với bốn ảnh của chất liệu thay ảnh màu.
-// Register space của shader: 0 là hằng của khung, 1 là chất liệu, 2 là bảng khớp và ma trận instanced; hằng của
-// lệnh vẽ đi bằng push constant.
-// Một khung: gom lệnh vẽ của mọi instance (dựng bảng khớp của từng skin một lần), ghi buffer của
-// slot, xếp lệnh (đục trước, trộn alpha sau và xa trước), rồi mới ghi lệnh.
-// Đèn điểm chọn như Ogre chọn cho shader ba đèn của bản gốc: sau hai đèn chính là đèn điểm gần gốc
-// vật thể nhất mà tầm của nó cộng bán kính bao còn với tới. Bản sao instanced của một model vẽ
-// bằng một lệnh cho mỗi primitive, dù các bản nhận đèn khác nhau: chỉ số đèn của từng bản nằm
-// trong buffer worlds cạnh ma trận của nó (append_copies), không nằm ở hằng của lệnh vẽ.
-// Vật thể đứng yên và bản sao có hình cầu bao nằm hẳn ngoài khung nhìn không sinh lệnh vẽ nào.
+// (không loại mặt sau), bit 1 là trộn alpha (không ghi độ sâu). Pipeline thứ năm (tuỳ chọn) là mặt
+// đất lớp cọ (Pso::kTerrain, terrain.ps): chất liệu có Material::splat dùng nó, với bốn ảnh của
+// chất liệu thay ảnh màu. Register space của shader: 0 là hằng của khung, 1 là chất liệu, 2 là bảng
+// khớp và ma trận instanced; hằng của lệnh vẽ đi bằng push constant. Một khung: gom lệnh vẽ của mọi
+// instance (dựng bảng khớp của từng skin một lần), ghi buffer của slot, xếp lệnh (đục trước, trộn
+// alpha sau và xa trước), rồi mới ghi lệnh. Đèn điểm chọn như Ogre chọn cho shader ba đèn của bản
+// gốc: sau hai đèn chính là đèn điểm gần gốc vật thể nhất mà tầm của nó cộng bán kính bao còn với
+// tới. Bản sao instanced của một model vẽ bằng một lệnh cho mỗi primitive, dù các bản nhận đèn khác
+// nhau: chỉ số đèn của từng bản nằm trong buffer worlds cạnh ma trận của nó (append_copies), không
+// nằm ở hằng của lệnh vẽ. Vật thể đứng yên và bản sao có hình cầu bao nằm hẳn ngoài khung nhìn
+// không sinh lệnh vẽ nào; với instance một bản, primitive không skin và lưới skin còn được loại
+// riêng bằng hộp đúng tư thế của khung (render/bound.hpp), nên nhân vật ngoài màn hình không tốn
+// lệnh vẽ.
 #include "render/forward.hpp"
 
 #include "core/bits.hpp"
@@ -41,9 +43,11 @@
 #include "gpu/handle.hpp"
 #include "gpu/resource.hpp"
 #include "gpu/types.hpp"
+#include "math/geometry.hpp"
 #include "math/matrix.hpp"
 #include "math/types.hpp"
 #include "math/vector.hpp"
+#include "render/bound.hpp"
 #include "render/camera.hpp"
 #include "render/catalog.hpp"
 #include "render/shade.hpp"
@@ -61,6 +65,7 @@
 #include <expected>
 #include <limits>
 #include <memory>
+#include <optional>
 #include <print>
 #include <span>
 #include <string>
@@ -377,16 +382,10 @@ struct Placed {
     Item base{};
 };
 
-[[nodiscard]] math::Vector3 center_of(const resource::Primitive& primitive) noexcept {
-    if (primitive.vertices.empty()) return math::Vector3(0.0F);
-    math::Vector3 low(std::numeric_limits<float>::max());
-    math::Vector3 high(-std::numeric_limits<float>::max());
-    for (const resource::Vertex& vertex : primitive.vertices) {
-        const math::Vector3 point(vertex.position.x, vertex.position.y, vertex.position.z);
-        low = math::min(low, point);
-        high = math::max(high, point);
-    }
-    return (low + high) * 0.5F;
+// Tâm hộp bao của primitive; primitive không đỉnh lấy gốc lưới.
+[[nodiscard]] math::Vector3 center_of(const math::Aabb& box) noexcept {
+    if (is_empty(box)) return math::Vector3(0.0F);
+    return (box.min + box.max) * 0.5F;
 }
 
 // Khoảng cách xa nhất từ gốc model tới một đỉnh khi mọi nút ở tư thế nghỉ. Lưới có skin đo ở tư
@@ -487,13 +486,42 @@ constexpr float kNeutralEpsilon = 2.0e-3F;
     return extents;
 }
 
-[[nodiscard]] std::vector<math::Vector3> centers_of(const resource::Mesh& mesh) {
+[[nodiscard]] std::vector<math::Vector3> centers_of(std::span<const math::Aabb> boxes) {
     std::vector<math::Vector3> centers;
-    centers.reserve(mesh.primitives.size());
-    for (const resource::Primitive& primitive : mesh.primitives) {
-        centers.push_back(center_of(primitive));
+    centers.reserve(boxes.size());
+    for (const math::Aabb& box : boxes) {
+        centers.push_back(center_of(box));
     }
     return centers;
+}
+
+[[nodiscard]] std::vector<math::Aabb> boxes_of(const resource::Mesh& mesh) {
+    std::vector<math::Aabb> boxes;
+    boxes.reserve(mesh.primitives.size());
+    for (const resource::Primitive& primitive : mesh.primitives) {
+        boxes.push_back(box_of(primitive.vertices));
+    }
+    return boxes;
+}
+
+// Hộp theo khớp của lưới skin mà nút mang; nút thiếu lưới hay skin thì rỗng (không bảo đảm).
+[[nodiscard]] SkinBox node_skin_box(const resource::Model& model, const resource::Node& node) {
+    const bool has_mesh = node.mesh && *node.mesh < model.meshes.size();
+    const bool has_skin = node.skin && *node.skin < model.skins.size();
+    if (!has_mesh || !has_skin) return {};
+    const auto count = static_cast<std::uint32_t>(model.skins[*node.skin].joints.size());
+    return skin_box(model.meshes[*node.mesh].primitives, count);
+}
+
+// Một SkinBox cho mỗi nút; model không skin thì rỗng hẳn để không tốn chỗ cho cảnh tĩnh.
+[[nodiscard]] std::vector<SkinBox> skin_boxes_of(const resource::Model& model) {
+    std::vector<SkinBox> boxes;
+    if (model.skins.empty()) return boxes;
+    boxes.reserve(model.nodes.size());
+    for (const resource::Node& node : model.nodes) {
+        boxes.push_back(node_skin_box(model, node));
+    }
+    return boxes;
 }
 
 } // namespace
@@ -545,6 +573,9 @@ struct Forward::State {
     [[nodiscard]] Skinning skin_of(const Pass& pass, const resource::Node& node);
     [[nodiscard]] static bool is_flat_copy(const Pass& pass) noexcept;
     void add_joint(const Pass& pass, const resource::Skin& skin, std::size_t joint);
+    void add_matrix(const math::Matrix4& matrix);
+    [[nodiscard]] bool is_node_seen(const Pass& pass, std::size_t index, Skinning skinning) const;
+    [[nodiscard]] bool is_part_seen(const Pass& pass, const Placed& placed, std::size_t part) const;
     void add_item(const Pass& pass, const Placed& placed, std::size_t part);
     void push_item(const Item& item, const Placed& placed, bool is_copied);
     void push_tile_run(const Item& item, const resource::IndexRange& run);
@@ -577,6 +608,8 @@ struct Forward::State {
     // Vùng làm việc của một lần draw, giữ lại giữa các khung để không cấp phát lại.
     std::vector<Item> items;
     std::vector<JointRows> palette;
+    // Ma trận của từng ô palette, cùng chỉ số: hộp tư thế của lưới skin (posed_box) đọc ở đây.
+    std::vector<math::Matrix4> joint_matrices;
     std::vector<WorldWords> world_words;
     // Vị trí bảng khớp của từng skin của instance đang gom; kNone là chưa dựng.
     std::vector<std::uint32_t> skin_bases;
@@ -794,10 +827,15 @@ core::Result<gpu::BindGroupHandle> Forward::State::material_group(const resource
     return device->create_bind_group(group);
 }
 
+void Forward::State::add_matrix(const math::Matrix4& matrix) {
+    palette.push_back(rows_of(matrix));
+    joint_matrices.push_back(matrix);
+}
+
 void Forward::State::add_joint(const Pass& pass, const resource::Skin& skin, std::size_t joint) {
     const std::span<const math::Matrix4> ready = pass.instance->joints;
     if (joint < ready.size()) {
-        palette.push_back(rows_of(ready[joint]));
+        add_matrix(ready[joint]);
         return;
     }
     const std::uint32_t node = skin.joints.at(joint);
@@ -805,7 +843,7 @@ void Forward::State::add_joint(const Pass& pass, const resource::Skin& skin, std
     const math::Matrix4 bind = has_bind ? skin.inverse_bind.at(joint) : math::Matrix4::identity();
     const bool has_node = node < pass.nodes.size();
     const math::Matrix4 placed = has_node ? core::at(pass.nodes, node) : math::Matrix4::identity();
-    palette.push_back(rows_of(placed * bind));
+    add_matrix(placed * bind);
 }
 
 // Bảng khớp của skin mà nút dùng; dựng một lần cho mỗi skin của mỗi instance.
@@ -848,8 +886,9 @@ bool Forward::State::is_flat_copy(const Pass& pass) noexcept {
 
 // Chọn đèn cho instance và cho biết nó còn gì để vẽ trong khung. Có bản sao: seen nhận những bản
 // còn chạm khung nhìn, mỗi bản kèm đèn của nó. Một bản: vật thể đứng yên ở tư thế nghỉ mà hình cầu
-// bao nằm hẳn ngoài khung thì bỏ; model có skin hay đang được đặt tư thế thì không loại, vì bán
-// kính bao của Drawable đo ở tư thế nghỉ chỉ gần đúng với chúng.
+// bao nằm hẳn ngoài khung thì bỏ cả instance. Model có skin hay đang được đặt tư thế không loại ở
+// đây, vì bán kính bao đo ở tư thế nghỉ chỉ gần đúng với chúng: is_node_seen và is_part_seen loại
+// từng nút và từng primitive bằng hộp đúng tư thế của khung.
 bool Forward::State::enters_frame(Pass& pass) {
     const Instance& instance = *pass.instance;
     const std::span<const Lamp> lamps = frame_lamps(*pass.lighting);
@@ -862,6 +901,33 @@ bool Forward::State::enters_frame(Pass& pass) {
     if (is_still && !sphere_in_view(frustum, reach.centre, reach.radius)) return false;
     pass.lamp = nearest_lamp(lamps, reach);
     return true;
+}
+
+// Lưới skin của instance một bản: hộp theo khớp đưa qua bảng khớp của khung (skin_of vừa dựng) rồi
+// qua world của instance. Lưới không skin, bản sao, hay skin không có hộp bảo đảm thì để
+// is_part_seen hoặc see_copies quyết.
+bool Forward::State::is_node_seen(const Pass& pass, std::size_t index, Skinning skinning) const {
+    const std::span<const SkinBox> boxes = pass.instance->drawable->skin_boxes_;
+    const bool is_skinned = skinning.count > 0 && !pass.is_copied && index < boxes.size();
+    if (!is_skinned) return true;
+    const std::span<const math::Matrix4> all = joint_matrices;
+    const std::size_t end = std::size_t{skinning.base} + skinning.count;
+    if (end > all.size()) return true;
+    const std::span<const math::Matrix4> joints = all.subspan(skinning.base, skinning.count);
+    const std::optional<math::Aabb> posed = posed_box(boxes[index], joints);
+    if (!posed) return true;
+    const math::Aabb placed = moved_box(*posed, pass.instance->world);
+    return box_seen(frustum, placed);
+}
+
+// Primitive không skin của instance một bản: hộp của nó qua ma trận thế giới của nút. Bản sao đã
+// được see_copies chọn; lưới skin đã qua is_node_seen.
+bool Forward::State::is_part_seen(const Pass& pass, const Placed& placed, std::size_t part) const {
+    const bool is_skinned = placed.base.block.joint_count > 0;
+    if (pass.is_copied || is_skinned) return true;
+    const auto& boxes = pass.instance->drawable->part_boxes_.at(placed.mesh);
+    const math::Aabb placed_box = moved_box(boxes.at(part), placed.world);
+    return box_seen(frustum, placed_box);
 }
 
 // Ma trận thế giới của từng bản sao còn thấy, nối vào buffer worlds theo thứ tự của seen. Ô hàng
@@ -937,6 +1003,7 @@ void Forward::State::add_item(const Pass& pass, const Placed& placed, std::size_
     const resource::GpuPrimitive& buffers = uploaded.primitives.at(part);
     const bool is_drawable = source.topology == resource::Topology::kTriangles && buffers.vertices;
     if (!is_drawable || buffers.vertex_count == 0) return;
+    if (!is_part_seen(pass, placed, part)) return;
     const bool has_material = source.material && *source.material < model.materials.size();
     const std::size_t slot = has_material ? *source.material : model.materials.size();
     const resource::Material* material = has_material ? &model.materials.at(slot) : nullptr;
@@ -1043,6 +1110,7 @@ void Forward::State::collect_node(Pass& pass, std::size_t index) {
     Placed placed;
     placed.mesh = mesh;
     place_world(pass, index, skinning, placed);
+    if (!is_node_seen(pass, index, skinning)) return;
     placed.base.block.world = world_rows(placed.world);
     placed.base.block.joint_base = skinning.base;
     placed.base.block.joint_count = skinning.count;
@@ -1311,7 +1379,9 @@ Drawable::Drawable(Drawable&& other) noexcept
       is_rest_neutral_(other.is_rest_neutral_),
       radius_(other.radius_),
       centers_(std::move(other.centers_)),
-      part_extents_(std::move(other.part_extents_)) {}
+      part_extents_(std::move(other.part_extents_)),
+      part_boxes_(std::move(other.part_boxes_)),
+      skin_boxes_(std::move(other.skin_boxes_)) {}
 
 Drawable& Drawable::operator=(Drawable&& other) noexcept {
     if (this == &other) return *this;
@@ -1325,6 +1395,8 @@ Drawable& Drawable::operator=(Drawable&& other) noexcept {
     radius_ = other.radius_;
     centers_ = std::move(other.centers_);
     part_extents_ = std::move(other.part_extents_);
+    part_boxes_ = std::move(other.part_boxes_);
+    skin_boxes_ = std::move(other.skin_boxes_);
     return *this;
 }
 
@@ -1389,10 +1461,13 @@ core::Result<Drawable> Forward::prepare(const resource::Model& model, const reso
     drawable.radius_ = radius_of(model, drawable.rest_);
     drawable.centers_.reserve(model.meshes.size());
     drawable.part_extents_.reserve(model.meshes.size());
+    drawable.part_boxes_.reserve(model.meshes.size());
     for (const resource::Mesh& mesh : model.meshes) {
-        drawable.centers_.push_back(centers_of(mesh));
+        drawable.part_boxes_.push_back(boxes_of(mesh));
+        drawable.centers_.push_back(centers_of(drawable.part_boxes_.back()));
         drawable.part_extents_.push_back(extents_of(mesh, drawable.centers_.back()));
     }
+    drawable.skin_boxes_ = skin_boxes_of(model);
     drawable.materials_.reserve(model.materials.size() + 1);
     core::Status status = core::ok();
     for (const resource::Material& material : model.materials) {
@@ -1426,6 +1501,7 @@ core::Status Forward::draw(gpu::CommandList& list, std::uint32_t slot, const Cam
     if (slot >= state.slots.size()) return bad("slot ngoài số đã khai lúc tạo renderer");
     state.items.clear();
     state.palette.clear();
+    state.joint_matrices.clear();
     state.world_words.clear();
     state.frustum = frustum_of(camera.projection * camera.view);
     state.focal_px = focal_of(camera);
