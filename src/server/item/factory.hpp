@@ -55,7 +55,8 @@ struct CreateRequest {
     bool picked = false;  // nhặt từ đất: đồ có cờ khoá-khi-nhặt thì khoá ngay
     ids::Tick now{}; // mốc tính hạn dùng
     RollContext roll{}; // nguồn món đồ (quái, rương, rèn...): chọn cột ItemSegQuality của trang bị
-    // Nhịp đổi duration_hours sang tick. Mặc định 20. Tick đã lưu không tự đổi khi nâng hz.
+    // Nhịp của expires_at trong bộ nhớ. Mặc định 20. Blob nơi chứa phiên bản 2 ghi nhịp này và đổi
+    // lúc đọc.
     std::int64_t ticks_per_second = kTicksPerSecond;
 };
 

@@ -8,7 +8,7 @@
  *  CHỨC NĂNG
  *  - Chiến đấu của một cảnh: một combat::Arena giữ người chơi (thân thể dùng
  *    chung với play::Player) và quái (dựng lười khi bị nhắm), nhận CastSkill,
- *    Respawn, PickUp, chạy bước 20 Hz và dịch sự kiện của đấu trường thành tin
+ *    Respawn, PickUp, chạy đúng nhịp zone đã chọn và dịch sự kiện thành tin
  *    cho client: SkillCast, CombatEvent, EntityDied, SelfVitals, DeathNotice,
  *    SelfSkills, SkillCooldown. Quái chết thì chia kinh nghiệm, cuộn đồ rơi,
  *    đặt vật rơi vào cảnh; người chết chịu phạt chết rồi chờ hồi sinh.
@@ -180,7 +180,7 @@ private:
     // chạy khi có người.
     std::uint64_t tick_ = 0;
     std::int64_t hz_ = 20;
-    // SelfVitals tối đa 5 Hz; dọn quái đứng yên mỗi 60 giây. Mốc 20 Hz là 4 và 1200.
+    // SelfVitals tối đa 5 Hz; dọn quái đứng yên mỗi 60 giây. Constructor gán theo hz.
     std::uint64_t vitals_gap_ = 4;
     std::uint64_t prune_every_ = 1200;
     std::uint64_t prune_idle_ = 1200;

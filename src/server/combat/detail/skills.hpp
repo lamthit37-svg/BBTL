@@ -1,7 +1,20 @@
+/*==============================================================================
+ *  THIENLONG  |  GAME SERVER
+ *------------------------------------------------------------------------------
+ *  TỆP       : src/server/combat/detail/skills.hpp
+ *  PHÂN HỆ   : Combat / Detail / Skills
+ *  CHUẨN     : C++23
+ *------------------------------------------------------------------------------
+ *  CHỨC NĂNG
+ *  - Giao diện mã xử lý logic kỹ năng (tương đương SkillLogic_T của GameServer
+ *    2008). Arena làm phần chung (nhắm mục tiêu, trúng/né, hội tâm, tiêu hao,
+ *    hồi chiêu, gom/dẫn); handler chỉ quyết định hiệu ứng nào đi tới ai. Header
+ *    nội bộ module combat: module khác không include.
+ *------------------------------------------------------------------------------
+ *  TÁC GIẢ   : HiepHoon
+ *  TELEGRAM  : @Hoon9xx
+ *============================================================================*/
 #pragma once
-// Giao diện mã xử lý logic kỹ năng (tương đương SkillLogic_T của GameServer 2008). Arena làm phần chung (nhắm
-// mục tiêu, trúng/né, hội tâm, tiêu hao, hồi chiêu, gom/dẫn); handler chỉ quyết định hiệu ứng nào đi tới ai.
-// Header nội bộ module combat: module khác không include.
 
 #include "actor/body.hpp"
 #include "combat/arena.hpp"
@@ -15,10 +28,12 @@
 
 namespace game::combat::detail {
 
-// Ngữ cảnh một lượt phát kỹ năng. `tick` là true ở nhịp dẫn (ActivateEachTick), false ở lượt phát một lần.
-// `delay_ticks` là trễ từ lúc phát tới lúc hiệu ứng tới đích (bước 20 Hz). Gói tham chiếu sống đúng một lời gọi handler,
-// không rỗng và không sao chép.
-// NOLINTBEGIN(cppcoreguidelines-avoid-const-or-ref-data-members): gói tham chiếu sống một lời gọi, không sao chép (HP-07)
+// Ngữ cảnh một lượt phát kỹ năng. `tick` là true ở nhịp dẫn (ActivateEachTick), false ở lượt phát
+// một lần. `delay_ticks` là trễ từ lúc phát tới lúc hiệu ứng tới đích, đã đổi từ mili giây
+// sang bước của nhịp arena. Gói tham chiếu sống đúng một lời gọi handler, không rỗng và
+// không sao chép.
+// NOLINTBEGIN(cppcoreguidelines-avoid-const-or-ref-data-members): gói tham chiếu sống một lời gọi,
+// không sao chép (HP-07)
 struct SkillRun {
     Arena& arena;
     Fighter& me;

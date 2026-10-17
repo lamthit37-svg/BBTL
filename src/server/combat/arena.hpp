@@ -117,7 +117,8 @@ struct Hit {
     Relation relation = Relation::kEnemy;
 };
 
-// Bản ghi bền của riêng chiến đấu: sổ kỹ năng, hồi chiêu còn lại, buff mang theo. Thời gian lưu dạng số bước còn lại.
+// Bản ghi bền của riêng chiến đấu: sổ kỹ năng, hồi chiêu còn lại, buff mang theo. Thời gian là số
+// bước của `hz` lúc ghi. Bản ghi phiên bản 1 không có nhịp và được hiểu là 20.
 struct SavedCooldown {
     std::int32_t id = 0;
     std::uint32_t remaining_ticks = 0;
@@ -140,6 +141,7 @@ struct SavedBuff {
 };
 
 struct CombatRecord {
+    std::int64_t hz = kTicksPerSecond;
     std::vector<SkillEntry> skills;
     std::vector<SavedCooldown> cooldowns;
     std::vector<SavedBuff> buffs;
@@ -222,8 +224,10 @@ public:
 
     // ----- Lưu trữ -----
     [[nodiscard]] CombatRecord snapshot(const Fighter& unit) const;
-    // Khôi phục sổ kỹ năng, hồi chiêu, buff vào `unit` (đè lên cái đang có). Dòng hiệu ứng không còn trong bảng bị bỏ.
-    // `offline_ticks` là thời gian đã trôi lúc ngoại tuyến; chỉ buff có cờ tính giờ ngoại tuyến bị cộng vào đồng hồ.
+    // Khôi phục sổ kỹ năng, hồi chiêu, buff vào `unit` (đè lên cái đang có). Dòng hiệu ứng không
+    // còn trong bảng bị bỏ. `offline_ticks` là bước của nhịp arena hiện tại, không phải nhịp lúc
+    // ghi. Chỉ buff có cờ tính giờ ngoại tuyến bị cộng. Bước đã lưu được đổi từ record.hz sang nhịp
+    // này trước khi cộng.
     void restore(Fighter& unit, const CombatRecord& record, std::int64_t offline_ticks = 0);
 
     // ----- Dành cho handler logic (effects.cpp, skills.cpp) và zone -----

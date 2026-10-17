@@ -1,3 +1,20 @@
+/*==============================================================================
+ *  THIENLONG  |  GAME SERVER
+ *------------------------------------------------------------------------------
+ *  TỆP       : src/server/combat/codec.cpp
+ *  PHÂN HỆ   : Server / Combat / Codec
+ *  CHUẨN     : C++23
+ *------------------------------------------------------------------------------
+ *  CHỨC NĂNG
+ *  - Mã hoá và giải mã bản ghi chiến đấu: phiên bản 2 ghi nhịp ngay sau số
+ *    phiên bản
+ *  - Phiên bản 1 không có nhịp, mọi bước là 20 Hz; phiên bản lạ là lỗi
+ *  - Dữ liệu từ database là thù địch: sai miền thì trả lỗi, không assert
+ *------------------------------------------------------------------------------
+ *  TÁC GIẢ   : HiepHoon
+ *  TELEGRAM  : @Hoon9xx
+ *============================================================================*/
+
 #include "combat/codec.hpp"
 
 #include "combat/arena.hpp"
@@ -34,8 +51,19 @@ CodecError from_wire(protocol::WireError error) noexcept {
     return buff.continuance < 0 || buff.elapsed < buff.continuance;
 }
 
+[[nodiscard]] bool known_rate(std::int64_t hz) noexcept {
+    if (hz == 20) return true;
+    if (hz == 30) return true;
+    return hz == 40;
+}
+
 [[nodiscard]] bool valid(const CombatRecord& record) noexcept {
-    if (record.skills.size() > kMaxSkills || record.cooldowns.size() > kMaxCooldowns || record.buffs.size() > kMaxBuffs) return false;
+    if (!known_rate(record.hz)) return false;
+    const bool skills_big = record.skills.size() > kMaxSkills;
+    const bool cooldowns_big = record.cooldowns.size() > kMaxCooldowns;
+    const bool buffs_big = record.buffs.size() > kMaxBuffs;
+    const bool too_big = skills_big || cooldowns_big || buffs_big;
+    if (too_big) return false;
     for (std::size_t i = 0; i < record.skills.size(); ++i) {
         const SkillEntry& entry = record.skills.at(i);
         if (entry.level == 0 || entry.level > kMaxSkillLevel) return false;
@@ -67,6 +95,7 @@ std::expected<void, CodecError> encode_combat(const CombatRecord& record, Bytes&
     if (!valid(record)) return std::unexpected(CodecError::kBadValue);
     protocol::Writer writer(out);
     writer.u16(kRecordVersion);
+    writer.u16(static_cast<std::uint16_t>(record.hz));
     writer.count(record.skills.size(), kMaxSkills);
     for (const SkillEntry& entry : record.skills) {
         writer.u32(entry.id);
@@ -101,10 +130,16 @@ std::expected<CombatRecord, CodecError> decode_combat(protocol::ByteView bytes) 
     if (frame.kind != kRecordKind) return std::unexpected(CodecError::kBadKind);
     if (bytes.size() != protocol::kHeaderBytes + frame.body_bytes) return std::unexpected(CodecError::kTrailing);
     protocol::Reader reader(bytes.subspan(protocol::kHeaderBytes, frame.body_bytes));
-    if (reader.u16() != kRecordVersion) {
-        return std::unexpected(reader.is_ok() ? CodecError::kBadVersion : CodecError::kTruncated);
-    }
+    const std::uint16_t version = reader.u16();
+    const bool legacy = version == kLegacyRecordVersion;
+    const bool current = version == kRecordVersion;
+    if (!reader.is_ok()) return std::unexpected(CodecError::kTruncated);
+    const bool unknown = !legacy && !current;
+    if (unknown) return std::unexpected(CodecError::kBadVersion);
     CombatRecord record;
+    record.hz = kTicksPerSecond;
+    if (current) record.hz = static_cast<std::int64_t>(reader.u16());
+    if (!reader.is_ok()) return std::unexpected(CodecError::kTruncated);
     const std::size_t skills = reader.count(kMaxSkills);
     record.skills.reserve(skills);
     for (std::size_t i = 0; i < skills && reader.is_ok(); ++i) {

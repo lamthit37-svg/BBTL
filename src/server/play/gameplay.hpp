@@ -87,7 +87,7 @@ public:
         float z_cm, Surroundings& around, Output& out);
     // Một khung protocol của client (Relay::kUp). Khung hỏng hay loại lạ thì bỏ và đếm.
     void intent(std::uint64_t session, protocol::ByteView frame, Surroundings& around, Output& out);
-    // Một bước 20 Hz của mọi đấu trường (kể cả cảnh vắng: vật rơi hết hạn).
+    // Một bước của nhịp zone (20, 30 hoặc 40 Hz) của mọi đấu trường, kể cả cảnh vắng.
     void step(Surroundings& around, Output& out);
     // Ghi định kỳ trạng thái đã đổi mà chưa ghi (phần thưởng bên ngoài hội thoại). Gọi theo chu kỳ tự ghi của scene.
     void autosave(Output& out);

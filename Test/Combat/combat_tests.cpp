@@ -1296,7 +1296,7 @@ void codec_round_trip(Context& context) {
     Bytes empty_bytes;
     const auto empty_back = encode_combat(empty, empty_bytes).has_value() ? decode_combat(empty_bytes) : decode_combat({});
     context.expect(empty_back.has_value() && *empty_back == empty, "bản ghi rỗng");
-    context.expect(kRecordKind == 0x5202 && kRecordVersion == 1, "kind và phiên bản đã chốt");
+    context.expect(kRecordKind == 0x5202 && kRecordVersion == 2, "kind và phiên bản đã chốt");
 }
 
 void codec_rejects_bad_input(Context& context) {
@@ -1458,6 +1458,60 @@ void snapshot_and_restore(Context& context) {
     }
 }
 
+// Bản phiên bản 1 không có từ nhịp. Cắt từ nhịp khỏi bản 2 vừa ghi để dựng đúng bố cục cũ.
+Bytes legacy_record(const Bytes& current) {
+    Bytes out;
+    if (current.size() < protocol::kHeaderBytes + 4) return out;
+    protocol::Writer writer(out);
+    writer.u16(kLegacyRecordVersion);
+    const std::size_t head = protocol::kHeaderBytes + 4;
+    const protocol::ByteView rest(current.data() + head, current.size() - head);
+    writer.bytes(rest);
+    if (!writer.finish(kRecordKind)) return {};
+    return out;
+}
+
+void saved_ticks_follow_rate(Context& context) {
+    const CombatRecord original = sample_record();
+    Bytes current;
+    context.expect(encode_combat(original, current).has_value(), "mã hoá bản 2");
+    const Bytes legacy = legacy_record(current);
+    const auto old = decode_combat(legacy);
+    const bool same_fields = old.has_value() && old->hz == kTicksPerSecond && old->skills == original.skills &&
+        old->cooldowns == original.cooldowns && old->buffs == original.buffs;
+    context.expect(same_fields, "bản 1 là nhịp 20, số bước giữ nguyên");
+    Bytes sink;
+    CombatRecord bad_rate = original;
+    bad_rate.hz = 25;
+    context.expect(!encode_combat(bad_rate, sink).has_value() && sink.empty(), "nhịp lạ không ghi");
+
+    const Catalog* catalog = synthetic_catalog(context);
+    const actor::Rules* rules = real_rules(context);
+    if (catalog == nullptr || rules == nullptr) return;
+    Scene scene(*catalog, 7);
+    const ids::EntityHandle who = add_person(scene, *rules, kWudang, {0, 0}, 4242);
+    static_cast<void>(scene.arena.learn(who, 1003, 1));
+    static_cast<void>(scene.arena.learn(who, 1001, 1));
+    context.expect(scene.arena.cast(who, 1003, 1, Target{who, {0, 0}, 0}) == CastOutcome::kOk, "ra chiêu");
+    for (const std::uint32_t effect : {9002U, 9010U}) static_cast<void>(scene.arena.send_effect(who, effect, origin_from(who)));
+    run_ticks(scene.arena, 5);
+    const Fighter* fighter = scene.arena.find(who);
+    if (fighter == nullptr) return;
+    const CombatRecord saved = scene.arena.snapshot(*fighter);
+    context.expect(saved.hz == 20 && saved.cooldowns.size() == 1 && saved.cooldowns.front().remaining_ticks == 55, "lưu ở 20 Hz");
+
+    Scene fast(*catalog, 11, 40);
+    const ids::EntityHandle again = add_person(fast, *rules, kWudang, {0, 0}, 4242);
+    Fighter* restored = fast.arena.find(again);
+    fast.arena.restore(*restored, saved, 0);
+    context.expect(fast.arena.cooldown_remaining(*restored, 7) == 110, "55 bước 20 Hz thành 110 bước 40 Hz");
+    context.expect(restored->buff_count == 2 && restored->buffs.at(0).effect == 9002 && restored->buffs.at(0).continuance == 40 &&
+            restored->buffs.at(0).elapsed == 8,
+        "buff 20/4 ở 20 Hz thành 40/8 ở 40 Hz, không xong sớm");
+    context.expect(restored->buffs.at(1).effect == 9010 && restored->buffs.at(1).continuance == 2400 && restored->buffs.at(1).elapsed == 8,
+        "một phút đã trôi 4 bước vẫn còn đủ một phút");
+}
+
 void durations_follow_hz(Context& context, std::int64_t hz) {
     const Catalog* catalog = synthetic_catalog(context);
     const actor::Rules* rules = real_rules(context);
@@ -1492,7 +1546,7 @@ void durations_follow_simulation_time(Context& context) {
     durations_follow_hz(context, 40);
 }
 
-constexpr std::array<Case, 23> kCases{{
+constexpr std::array<Case, 24> kCases{{
     {"catalog_real_tables", catalog_real_tables},
     {"catalog_rejects_bad_tables", catalog_rejects_bad_tables},
     {"roles_grammar", roles_grammar},
@@ -1515,6 +1569,7 @@ constexpr std::array<Case, 23> kCases{{
     {"codec_round_trip", codec_round_trip},
     {"codec_rejects_bad_input", codec_rejects_bad_input},
     {"snapshot_and_restore", snapshot_and_restore},
+    {"saved_ticks_follow_rate", saved_ticks_follow_rate},
     {"durations_follow_simulation_time", durations_follow_simulation_time},
 }};
 

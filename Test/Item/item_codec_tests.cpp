@@ -118,6 +118,7 @@ struct ItemBytes {
     std::vector<std::uint32_t> gems;
     std::uint8_t attr_count = 0;
     std::vector<AttrEntry> attrs;
+    std::uint64_t expires = 0;
 };
 
 void write_item(protocol::Writer& w, const ItemBytes& it) {
@@ -138,7 +139,7 @@ void write_item(protocol::Writer& w, const ItemBytes& it) {
         w.u16(attr.id);
         w.i32(attr.value);
     }
-    w.u64(0);  // expires_at
+    w.u64(it.expires);
 }
 
 // Khối túi gồm ba nơi chứa; chỉ nơi đầu có vật phẩm.
@@ -533,6 +534,39 @@ void real_catalog_roundtrip(Context& context) {
 #endif
 }
 
+void expiry_follows_saved_rate(Context& context) {
+    const World w = make_world();
+    ItemBytes timed;
+    timed.expires = 72000;
+    item::Inventory from_v1(w.limits);
+    context.expect(item::decode_bags(bag_blob({timed}), w.catalog, from_v1, 40).has_value(), "đọc bản 1");
+    const Instance* slowed = from_v1.get(bag(0));
+    context.expect(slowed != nullptr && slowed->expires_at == 144000, "72000 bước 20 Hz thành 144000 bước 40 Hz");
+    ItemBytes forever;
+    item::Inventory still(w.limits);
+    context.expect(item::decode_bags(bag_blob({forever}), w.catalog, still, 40).has_value(), "hạn 0 đọc được");
+    const Instance* endless = still.get(bag(0));
+    context.expect(endless != nullptr && endless->expires_at == 0, "hạn 0 vẫn vĩnh viễn");
+
+    Bench b;
+    Instance hour = b.make(kPotion, 1);
+    hour.expires_at = 80;
+    b.put(bag(0), hour);
+    const auto saved = item::encode_bags(b.inventory, 40);
+    context.expect(saved.has_value(), "ghi nhịp 40");
+    if (!saved) return;
+    item::Inventory at20(b.world.limits);
+    context.expect(item::decode_bags(*saved, b.world.catalog, at20, 20).has_value(), "đọc về 20");
+    const Instance* back = at20.get(bag(0));
+    context.expect(back != nullptr && back->expires_at == 40, "80 bước 40 Hz thành 40 bước 20 Hz");
+    item::Inventory same(b.world.limits);
+    context.expect(item::decode_bags(*saved, b.world.catalog, same, 40).has_value(), "đọc cùng nhịp");
+    const Instance* kept = same.get(bag(0));
+    context.expect(kept != nullptr && kept->expires_at == 80, "cùng nhịp giữ nguyên hạn");
+    const auto bad = item::encode_bags(b.inventory, 25);
+    context.expect(!bad.has_value() && bad.error() == item::Error::kBadBlob, "nhịp lạ không ghi");
+}
+
 constexpr std::array kCases{
     Case{"roundtrip_is_exact", roundtrip_is_exact},
     Case{"every_truncation_fails_cleanly", every_truncation_fails_cleanly},
@@ -543,6 +577,7 @@ constexpr std::array kCases{
     Case{"cross_blob_serial_collision", cross_blob_serial_collision},
     Case{"decode_invalidates_plans", decode_invalidates_plans},
     Case{"real_catalog_roundtrip", real_catalog_roundtrip},
+    Case{"expiry_follows_saved_rate", expiry_follows_saved_rate},
 };
 
 } // namespace

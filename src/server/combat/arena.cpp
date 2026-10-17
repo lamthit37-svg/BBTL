@@ -57,6 +57,53 @@ template <typename Handler, typename Finder>
     return static_cast<std::uint32_t>(capped);
 }
 
+[[nodiscard]] std::int64_t saved_rate(std::int64_t hz) noexcept {
+    if (hz == 20) return hz;
+    if (hz == 30) return hz;
+    if (hz == 40) return hz;
+    return kTicksPerSecond;
+}
+
+void retick_forever(std::int64_t& elapsed, std::int64_t from, std::int64_t to) noexcept {
+    elapsed = ids::rescale_ticks_up(elapsed, from, to);
+}
+
+void retick_finite(std::int64_t& continuance, std::int64_t& elapsed, std::int64_t from,
+    std::int64_t to) noexcept {
+    const std::int64_t left = continuance - elapsed;
+    const std::int64_t done = ids::rescale_ticks_down(elapsed, from, to);
+    const std::int64_t remain = ids::rescale_ticks_up(left, from, to);
+    elapsed = done;
+    continuance = done + remain;
+}
+
+void retick_buff(std::int64_t& continuance, std::int64_t& elapsed, std::int64_t from,
+    std::int64_t to) noexcept {
+    if (from == to) return;
+    if (continuance < 0) retick_forever(elapsed, from, to);
+    if (continuance < 0) return;
+    retick_finite(continuance, elapsed, from, to);
+}
+
+[[nodiscard]] bool has_cooldown(const std::vector<Cooldown>& cooldowns, std::int32_t id) noexcept {
+    for (const Cooldown& cooldown : cooldowns)
+        if (cooldown.id == id) return true;
+    return false;
+}
+
+void keep_cooldown(std::vector<Cooldown>& cooldowns, const SavedCooldown& saved, std::int64_t from,
+    std::int64_t to, ids::Tick now) {
+    if (saved.remaining_ticks == 0) return;
+    if (cooldowns.size() >= kMaxCooldowns) return;
+    if (has_cooldown(cooldowns, saved.id)) return;
+    const std::int64_t raw = static_cast<std::int64_t>(saved.remaining_ticks);
+    const std::int64_t left = ids::rescale_ticks_up(raw, from, to);
+    Cooldown cooled;
+    cooled.id = saved.id;
+    cooled.until = ids::advance(now, ids::TickSpan{left});
+    cooldowns.push_back(cooled);
+}
+
 [[nodiscard]] std::vector<const detail::EffectLogic*> effect_rows(const Catalog& catalog) {
     const std::span<const LogicSpec> specs = catalog.effect_logics();
     return build_table<detail::EffectLogic>(specs, detail::find_effect_handler);
@@ -163,6 +210,7 @@ void Arena::tick() {
 
 CombatRecord Arena::snapshot(const Fighter& unit) const {
     CombatRecord record;
+    record.hz = hz_;
     record.skills = unit.skills;
     for (const Cooldown& cooldown : unit.cooldowns) {
         const std::int64_t remaining = cooldown_remaining(unit, cooldown.id);
@@ -202,12 +250,9 @@ void Arena::restore(Fighter& unit, const CombatRecord& record, std::int64_t offl
     if (unit.skills.size() > kMaxSkills) unit.skills.resize(kMaxSkills);
 
     unit.cooldowns.clear();
-    for (const SavedCooldown& saved : record.cooldowns) {
-        if (saved.remaining_ticks == 0 || unit.cooldowns.size() >= kMaxCooldowns) continue;
-        if (std::ranges::any_of(unit.cooldowns, [&saved](const Cooldown& cooldown) { return cooldown.id == saved.id; })) continue;
-        unit.cooldowns.push_back(
-            Cooldown{.id = saved.id, .until = ids::advance(now_, ids::TickSpan{static_cast<std::int64_t>(saved.remaining_ticks)})});
-    }
+    const std::int64_t from = saved_rate(record.hz);
+    for (const SavedCooldown& saved : record.cooldowns)
+        keep_cooldown(unit.cooldowns, saved, from, hz_, now_);
 
     // Buff: đặt thẳng vào danh sách, không chạy on_active (hiệu ứng một lần như hồi máu đã xảy ra trước khi lưu; trạng
     // thái còn lại nằm trong `slot`).
@@ -224,11 +269,15 @@ void Arena::restore(Fighter& unit, const CombatRecord& record, std::int64_t offl
         buff.caster_character = saved.caster_character;
         buff.by_player = saved.by_player;
         buff.critical = saved.critical;
-        buff.continuance = saved.continuance;
-        buff.elapsed = saved.elapsed;
+        std::int64_t continuance = saved.continuance;
+        std::int64_t elapsed = saved.elapsed;
+        retick_buff(continuance, elapsed, from, hz_);
+        buff.continuance = continuance;
+        buff.elapsed = elapsed;
         buff.refix = saved.refix;
         buff.slot = saved.slot;
-        if (effect->timing_offline && buff.continuance >= 0) buff.elapsed = saved.elapsed + std::max<std::int64_t>(0, offline_ticks);
+        const bool count_offline = effect->timing_offline && buff.continuance >= 0;
+        if (count_offline) buff.elapsed = elapsed + std::max<std::int64_t>(0, offline_ticks);
         if (buff.continuance >= 0 && buff.elapsed >= buff.continuance) continue;  // hết hạn trong lúc ngoại tuyến
         buff.sn = next_sn(unit);
         unit.buffs.at(unit.buff_count) = buff;

@@ -309,7 +309,7 @@ struct PosEntry {
     float z_cm = 0.0F;
     // Hướng nhìn: 0..65535 ứng với 0..2π; 0 là hướng +X, tăng dần quay về phía +Z.
     std::uint16_t direction = 0;
-    // Tick của cảnh lúc ghi nhận, 20 tick mỗi giây.
+    // Tick của cảnh lúc ghi nhận. Nhịp zone mặc định 20, cũng có thể là 30 hoặc 40.
     std::uint32_t tick = 0;
     // Walk khi đang di chuyển; Idle khi dừng; Dead khi chết.
     EntityState state = EntityState::kIdle;
@@ -719,8 +719,8 @@ struct EntityPos {
     float z_cm = 0.0F;
     // Hướng nhìn: 0..65535 ứng với 0..2π; 0 là hướng +X, tăng dần quay về phía +Z.
     std::uint16_t direction = 0;
-    // Tick của cảnh lúc ghi nhận, 20 tick mỗi giây (50 ms một tick); khác bộ đếm tick 30/giây của
-    // Move/Position. Client nội suy giữa hai gói theo hiệu hai tick.
+    // Tick của cảnh lúc ghi nhận. Nhịp zone mặc định 20 bước mỗi giây, cũng có thể là 30 hoặc 40;
+    // khác bộ đếm tick 30/giây của Move/Position. Client nội suy giữa hai gói theo hiệu hai tick.
     std::uint32_t tick = 0;
     // Walk khi đang di chuyển; gói cuối của một chặng đi mang Idle cùng toạ độ đích. Dead khi chết.
     EntityState state = EntityState::kIdle;

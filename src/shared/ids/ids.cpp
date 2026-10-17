@@ -44,6 +44,16 @@ static_assert(ticks_to_ms_up(20, 20) == 1000);
 static_assert(ticks_to_ms_up(1, 30) == 34);
 static_assert(ticks_to_ms_up(60, 30) == 2000);
 static_assert(ticks_to_ms_up(0, 20) == 0);
+static_assert(rescale_ticks_up(60, 20, 20) == 60);
+static_assert(rescale_ticks_up(60, 20, 40) == 120);
+static_assert(rescale_ticks_up(60, 20, 30) == 90);
+static_assert(rescale_ticks_up(1, 30, 30) == 1);
+static_assert(rescale_ticks_up(1, 30, 20) == 1);
+static_assert(rescale_ticks_up(0, 20, 40) == 0);
+static_assert(rescale_ticks_down(2, 30, 20) == 1);
+static_assert(rescale_ticks_down(4, 20, 40) == 8);
+static_assert(rescale_ticks_up(55, 20, 40) == 110);
+static_assert(rescale_ticks_up(55, 20, 30) == 83);
 
 constexpr std::int64_t sum_slices(std::int64_t hz) {
     std::int64_t total = 0;

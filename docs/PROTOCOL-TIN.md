@@ -322,7 +322,7 @@ Cổng game, server gửi, có từ bản 4. Thân tối đa 19 byte.
 | 2 | `x_cm` | `f32` | – | Toạ độ X, centimet. |
 | 3 | `z_cm` | `f32` | – | Toạ độ Z, centimet. |
 | 4 | `direction` | `u16` | – | Hướng nhìn: 0..65535 ứng với 0..2π; 0 là hướng +X, tăng dần quay về phía +Z. |
-| 5 | `tick` | `u32` | – | Tick của cảnh lúc ghi nhận, 20 tick mỗi giây (50 ms một tick); khác bộ đếm tick 30/giây của Move/Position. Client nội suy giữa hai gói theo hiệu hai tick. |
+| 5 | `tick` | `u32` | – | Tick của cảnh lúc ghi nhận. Nhịp zone mặc định 20 bước mỗi giây, cũng có thể là 30 hoặc 40; khác bộ đếm tick 30/giây của Move/Position. Client nội suy giữa hai gói theo hiệu hai tick. |
 | 6 | `state` | `enum:EntityState` | – | Walk khi đang di chuyển; gói cuối của một chặng đi mang Idle cùng toạ độ đích. Dead khi chết. |
 
 ### EntityVitals (0x8405)
@@ -808,7 +808,7 @@ Thân tối đa 19 byte.
 | 2 | `x_cm` | `f32` | – | Toạ độ X, centimet. |
 | 3 | `z_cm` | `f32` | – | Toạ độ Z, centimet. |
 | 4 | `direction` | `u16` | – | Hướng nhìn: 0..65535 ứng với 0..2π; 0 là hướng +X, tăng dần quay về phía +Z. |
-| 5 | `tick` | `u32` | – | Tick của cảnh lúc ghi nhận, 20 tick mỗi giây. |
+| 5 | `tick` | `u32` | – | Tick của cảnh lúc ghi nhận. Nhịp zone mặc định 20, cũng có thể là 30 hoặc 40. |
 | 6 | `state` | `enum:EntityState` | – | Walk khi đang di chuyển; Idle khi dừng; Dead khi chết. |
 
 ### QuestSlot

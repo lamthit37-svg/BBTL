@@ -1,6 +1,20 @@
-// Bản ghi nhị phân của túi, trang bị, kho, ví: xem codec.hpp.
+/*==============================================================================
+ *  THIENLONG  |  GAME SERVER
+ *------------------------------------------------------------------------------
+ *  TỆP       : src/server/item/codec.cpp
+ *  PHÂN HỆ   : Server / Item / Codec
+ *  CHUẨN     : C++23
+ *------------------------------------------------------------------------------
+ *  CHỨC NĂNG
+ *  - Bản ghi nhị phân của túi, trang bị, kho, ví: xem codec.hpp.
+ *------------------------------------------------------------------------------
+ *  TÁC GIẢ   : HiepHoon
+ *  TELEGRAM  : @Hoon9xx
+ *============================================================================*/
+
 #include "item/codec.hpp"
 
+#include "ids/ids.hpp"
 #include "item/catalog.hpp"
 #include "item/instance.hpp"
 #include "item/inventory.hpp"
@@ -13,6 +27,7 @@
 #include <cstddef>
 #include <cstdint>
 #include <expected>
+#include <limits>
 #include <optional>
 #include <span>
 #include <utility>
@@ -32,9 +47,30 @@ constexpr std::uint8_t kFlagMask = kFlagBound | kFlagIdentified;
 constexpr std::uint16_t kMaxWear = 5000;       // gấp 10 lần ngưỡng hao mòn của ConfigInfo.ini
 constexpr std::uint8_t kMaxEnhanceLevel = 99;  // chặn rác, không phải luật chơi (luật nằm ở forge)
 constexpr std::int64_t kMaxBalance = std::int64_t{1} << 40;
-constexpr std::size_t kMaxItemsPerPlace = 1000;  // trần thô của số vật phẩm một nơi chứa (lớn nhất thật: 100)
+constexpr std::size_t kMaxItemsPerPlace =
+    1000; // trần thô của số vật phẩm một nơi chứa (lớn nhất thật: 100)
 
-// ----- ghi -------------------------------------------------------------------------------------------
+// Nhịp lưu trong blob. 25 hay 33 không có vì bước 10 Hz không chia hết.
+[[nodiscard]] bool known_rate(std::int64_t hz) noexcept {
+    if (hz == 20) return true;
+    if (hz == 30) return true;
+    return hz == 40;
+}
+
+// Hạn 0 là vĩnh viễn. Cùng nhịp thì đúng số cũ; khác nhịp làm tròn lên để không hết hạn sớm.
+[[nodiscard]] std::uint64_t retick_deadline(std::uint64_t stored, std::int64_t from_hz,
+    std::int64_t dest_hz) noexcept {
+    if (stored == 0) return 0;
+    constexpr auto kMax = static_cast<std::uint64_t>(std::numeric_limits<std::int64_t>::max());
+    std::uint64_t capped = stored;
+    if (stored > kMax) capped = kMax;
+    const auto ticks = static_cast<std::int64_t>(capped);
+    const std::int64_t scaled = ids::rescale_ticks_up(ticks, from_hz, dest_hz);
+    return static_cast<std::uint64_t>(scaled);
+}
+
+// ----- ghi
+// -------------------------------------------------------------------------------------------
 
 void write_instance(Writer& w, std::uint16_t slot, const Instance& item) {
     w.u16(slot);
@@ -58,10 +94,12 @@ void write_instance(Writer& w, std::uint16_t slot, const Instance& item) {
 }
 
 std::expected<Blob, Error> encode_places(const Inventory& inventory, std::span<const Place> places,
-    std::uint16_t kind) {
+    std::uint16_t kind, std::int64_t hz) {
+    if (!known_rate(hz)) return Unexpected(Error::kBadBlob);
     Blob out;
     Writer w(out);
-    w.u16(kCodecVersion);
+    w.u16(kPlaceVersion);
+    w.u16(static_cast<std::uint16_t>(hz));
     w.u8(static_cast<std::uint8_t>(places.size()));
     for (const Place place : places) {
         w.u8(static_cast<std::uint8_t>(place));
@@ -82,7 +120,9 @@ std::expected<Blob, Error> encode_places(const Inventory& inventory, std::span<c
 // ----- đọc -------------------------------------------------------------------------------------------
 
 // Đọc một vật phẩm và kiểm với mẫu. false = khối hỏng (Reader hoặc giá trị sai).
-bool read_instance(Reader& r, const Catalog& catalog, Instance& out) {
+// file_hz là nhịp đã ghi; dest_hz là nhịp đang chạy. Hạn đổi ở đây, không đổi mẫu.
+bool read_instance(Reader& r, const Catalog& catalog, Instance& out, std::int64_t file_hz,
+    std::int64_t dest_hz) {
     out.serial = Serial{r.u64()};
     out.tmpl = TemplateId{r.u32()};
     out.count = r.u16();
@@ -121,8 +161,10 @@ bool read_instance(Reader& r, const Catalog& catalog, Instance& out) {
         if (id >= kAttrCount) return false;
         out.attrs.at(a) = AttrValue{.id = AttrId{id}, .value = value};
     }
-    out.expires_at = r.u64();
-    return r.is_ok();
+    const std::uint64_t stored = r.u64();
+    if (!r.is_ok()) return false;
+    out.expires_at = retick_deadline(stored, file_hz, dest_hz);
+    return true;
 }
 
 // Ô `slot` của `place` nhận món này được không (khớp luật Planner: túi theo home, kho trừ túi nhiệm vụ, trang bị
@@ -144,7 +186,57 @@ std::optional<ByteView> open_frame(ByteView blob, std::uint16_t kind) {
     return blob.subspan(protocol::kHeaderBytes, (*frame)->body_bytes);
 }
 
-bool read_place(Reader& r, const Catalog& catalog, Place expected, Inventory& staged) {
+struct SlotLoad {
+    Reader* reader = nullptr;
+    const Catalog* catalog = nullptr;
+    Place place = Place::kBaseBag;
+    std::uint16_t unlocked = 0;
+    std::vector<bool>* seen = nullptr;
+    Inventory* staged = nullptr;
+    std::int64_t file_hz = 0;
+    std::int64_t dest_hz = 0;
+};
+
+// Một ô. so_far sai thì không đọc thêm: khối đã hỏng, người gọi bỏ cả bản nháp.
+[[nodiscard]] bool store_slot(bool so_far, SlotLoad& load) {
+    if (!so_far) return false;
+    Reader& reader = *load.reader;
+    const std::uint16_t slot = reader.u16();
+    const bool in_range = reader.is_ok() && slot < load.unlocked;
+    if (!in_range) return false;
+    const bool duplicate = (*load.seen)[slot];
+    if (duplicate) return false;
+    Instance item;
+    if (!read_instance(reader, *load.catalog, item, load.file_hz, load.dest_hz)) return false;
+    const Template* tmpl = load.catalog->find(item.tmpl);
+    if (tmpl == nullptr) return false;
+    if (!fits(*tmpl, load.place, slot)) return false;
+    (*load.seen)[slot] = true;
+    const SlotRef where{.place = load.place, .index = slot};
+    return load.staged->restore(where, item);
+}
+
+struct PlaceCursor {
+    Reader* reader = nullptr;
+    const Catalog* catalog = nullptr;
+    Inventory* staged = nullptr;
+    std::int64_t file_hz = 0;
+    std::int64_t dest_hz = 0;
+};
+
+bool read_place(Reader& r, const Catalog& catalog, Place expected, Inventory& staged,
+    std::int64_t file_hz, std::int64_t dest_hz);
+
+[[nodiscard]] bool take_place(bool so_far, PlaceCursor& cursor, Place place) {
+    if (!so_far) return false;
+    Reader& reader = *cursor.reader;
+    const Catalog& catalog = *cursor.catalog;
+    Inventory& staged = *cursor.staged;
+    return read_place(reader, catalog, place, staged, cursor.file_hz, cursor.dest_hz);
+}
+
+bool read_place(Reader& r, const Catalog& catalog, Place expected, Inventory& staged,
+    std::int64_t file_hz, std::int64_t dest_hz) {
     const std::uint8_t raw = r.u8();
     const std::uint16_t unlocked = r.u16();
     const std::size_t count = r.count(kMaxItemsPerPlace);  // Reader còn chặn theo số byte còn lại
@@ -154,15 +246,19 @@ bool read_place(Reader& r, const Catalog& catalog, Place expected, Inventory& st
     if (expected == Place::kEquip && unlocked != kEquipSlots) return false;
     if (count > unlocked) return false;
     std::vector<bool> seen(unlocked, false);
-    for (std::size_t i = 0; i < count; ++i) {
-        const std::uint16_t slot = r.u16();
-        Instance item;
-        if (!r.is_ok() || slot >= unlocked || seen[slot] || !read_instance(r, catalog, item)) return false;
-        const Template* tmpl = catalog.find(item.tmpl);
-        if (tmpl == nullptr || !fits(*tmpl, expected, slot)) return false;
-        seen[slot] = true;
-        if (!staged.restore(SlotRef{.place = expected, .index = slot}, item)) return false;
-    }
+    SlotLoad load;
+    load.reader = &r;
+    load.catalog = &catalog;
+    load.place = expected;
+    load.unlocked = unlocked;
+    load.seen = &seen;
+    load.staged = &staged;
+    load.file_hz = file_hz;
+    load.dest_hz = dest_hz;
+    bool filled = true;
+    for (std::size_t i = 0; i < count; ++i)
+        filled = store_slot(filled, load);
+    if (!filled) return false;
     return true;
 }
 
@@ -178,18 +274,36 @@ bool serials_unique(const Inventory& inventory) {
     return std::ranges::adjacent_find(serials) == serials.end();
 }
 
-std::expected<void, Error> decode_places(ByteView blob, std::uint16_t kind, std::span<const Place> places,
-    const Catalog& catalog, Inventory& into) {
+std::expected<void, Error> decode_places(ByteView blob, std::uint16_t kind,
+    std::span<const Place> places, const Catalog& catalog, Inventory& into, std::int64_t dest_hz) {
     const std::optional<ByteView> body = open_frame(blob, kind);
     if (!body) return Unexpected(Error::kBadBlob);
+    if (!known_rate(dest_hz)) return Unexpected(Error::kBadBlob);
     Reader r(*body);
     const std::uint16_t version = r.u16();
+    if (!r.is_ok()) return Unexpected(Error::kBadBlob);
+    const bool legacy = version == kCodecVersion;
+    const bool current = version == kPlaceVersion;
+    const bool unknown = !legacy && !current;
+    if (unknown) return Unexpected(Error::kBadBlob);
+    std::int64_t file_hz = kTicksPerSecond;
+    if (current) file_hz = static_cast<std::int64_t>(r.u16());
+    if (!r.is_ok()) return Unexpected(Error::kBadBlob);
+    if (!known_rate(file_hz)) return Unexpected(Error::kBadBlob);
     const std::uint8_t place_count = r.u8();
-    if (!r.is_ok() || version != kCodecVersion || place_count != places.size()) return Unexpected(Error::kBadBlob);
+    const bool count_bad = !r.is_ok() || place_count != places.size();
+    if (count_bad) return Unexpected(Error::kBadBlob);
     Inventory staged = into;
-    for (const Place place : places) {
-        if (!read_place(r, catalog, place, staged)) return Unexpected(Error::kBadBlob);
-    }
+    PlaceCursor cursor;
+    cursor.reader = &r;
+    cursor.catalog = &catalog;
+    cursor.staged = &staged;
+    cursor.file_hz = file_hz;
+    cursor.dest_hz = dest_hz;
+    bool loaded = true;
+    for (const Place place : places)
+        loaded = take_place(loaded, cursor, place);
+    if (!loaded) return Unexpected(Error::kBadBlob);
     if (!r.finish() || !serials_unique(staged)) return Unexpected(Error::kBadBlob);
     into = std::move(staged);
     return {};
@@ -201,16 +315,16 @@ constexpr std::array<Place, 1> kBankPlace{Place::kBank};
 
 } // namespace
 
-std::expected<Blob, Error> encode_bags(const Inventory& inventory) {
-    return encode_places(inventory, kBagPlaces, kBlobBags);
+std::expected<Blob, Error> encode_bags(const Inventory& inventory, std::int64_t hz) {
+    return encode_places(inventory, kBagPlaces, kBlobBags, hz);
 }
 
-std::expected<Blob, Error> encode_equipment(const Inventory& inventory) {
-    return encode_places(inventory, kEquipPlace, kBlobEquipment);
+std::expected<Blob, Error> encode_equipment(const Inventory& inventory, std::int64_t hz) {
+    return encode_places(inventory, kEquipPlace, kBlobEquipment, hz);
 }
 
-std::expected<Blob, Error> encode_bank(const Inventory& inventory) {
-    return encode_places(inventory, kBankPlace, kBlobBank);
+std::expected<Blob, Error> encode_bank(const Inventory& inventory, std::int64_t hz) {
+    return encode_places(inventory, kBankPlace, kBlobBank, hz);
 }
 
 std::expected<Blob, Error> encode_wallet(const Inventory& inventory) {
@@ -232,16 +346,19 @@ std::expected<Blob, Error> encode_wallet(const Inventory& inventory) {
     return out;
 }
 
-std::expected<void, Error> decode_bags(ByteView blob, const Catalog& catalog, Inventory& into) {
-    return decode_places(blob, kBlobBags, kBagPlaces, catalog, into);
+std::expected<void, Error> decode_bags(ByteView blob, const Catalog& catalog, Inventory& into,
+    std::int64_t dest_hz) {
+    return decode_places(blob, kBlobBags, kBagPlaces, catalog, into, dest_hz);
 }
 
-std::expected<void, Error> decode_equipment(ByteView blob, const Catalog& catalog, Inventory& into) {
-    return decode_places(blob, kBlobEquipment, kEquipPlace, catalog, into);
+std::expected<void, Error> decode_equipment(ByteView blob, const Catalog& catalog, Inventory& into,
+    std::int64_t dest_hz) {
+    return decode_places(blob, kBlobEquipment, kEquipPlace, catalog, into, dest_hz);
 }
 
-std::expected<void, Error> decode_bank(ByteView blob, const Catalog& catalog, Inventory& into) {
-    return decode_places(blob, kBlobBank, kBankPlace, catalog, into);
+std::expected<void, Error> decode_bank(ByteView blob, const Catalog& catalog, Inventory& into,
+    std::int64_t dest_hz) {
+    return decode_places(blob, kBlobBank, kBankPlace, catalog, into, dest_hz);
 }
 
 std::expected<void, Error> decode_wallet(ByteView blob, Inventory& into) {

@@ -144,6 +144,30 @@ struct TickSpan {
     return ((ticks * kMilli) + ticks_per_second - 1) / ticks_per_second;
 }
 
+// Đổi số bước từ nhịp này sang nhịp kia. Cùng nhịp thì đúng nguyên số, nên ghi rồi đọc lại không
+// dài thêm. Làm tròn lên: hạn không bao giờ xong sớm hơn hợp đồng mili giây.
+[[nodiscard]] constexpr std::int64_t rescale_ticks_up(std::int64_t ticks, std::int64_t from_hz,
+    std::int64_t to_hz) noexcept {
+    const bool bad = ticks <= 0 || from_hz <= 0 || to_hz <= 0;
+    if (bad) return 0;
+    if (from_hz == to_hz) return ticks;
+    constexpr std::int64_t kMax = std::numeric_limits<std::int64_t>::max();
+    const std::int64_t room = (kMax - (from_hz - 1)) / to_hz;
+    if (ticks > room) return kMax;
+    return (ticks * to_hz + (from_hz - 1)) / from_hz;
+}
+
+// Phần đã trôi, làm tròn xuống, để phần còn lại làm tròn lên không bị phần đã trôi nuốt mất.
+[[nodiscard]] constexpr std::int64_t rescale_ticks_down(std::int64_t ticks, std::int64_t from_hz,
+    std::int64_t to_hz) noexcept {
+    const bool bad = ticks <= 0 || from_hz <= 0 || to_hz <= 0;
+    if (bad) return 0;
+    if (from_hz == to_hz) return ticks;
+    constexpr std::int64_t kMax = std::numeric_limits<std::int64_t>::max();
+    if (ticks > kMax / to_hz) return kMax;
+    return (ticks * to_hz) / from_hz;
+}
+
 } // namespace game::ids
 
 template <typename Tag, typename Rep>
