@@ -17,12 +17,22 @@
 #include "client/display/frame_fit.hpp"
 #include "client/display/graphic/prelude.hpp"
 #include "core/governor.hpp"
+#include "core/stages.hpp"
 #include "motion/jump.hpp"
+#include "render/gpu_clock.hpp"
 #include "ui/panel/skill_bar.hpp"
 
 #include <array>
 #include <random>
 namespace game::client {
+
+// Chặng CPU của draw_world, đúng thứ tự các lần cpu_stages.next() ở frame.cpp. Tên là vùng ATrace.
+inline constexpr std::array<const char*, 7> kCpuStages{
+    "chuẩn bị", "gom", "trời", "cảnh", "hiệu ứng", "lớp trời", "giao diện"};
+// Chặng GPU: mốc đầu trước lượt vẽ màn hình, mốc giữa sau từng phần của draw_world, mốc cuối sau
+// ảnh chân dung (lượt vẽ riêng).
+inline constexpr std::array<const char*, 6> kGpuStages{
+    "trời", "cảnh", "hiệu ứng", "lớp trời", "giao diện", "chân dung"};
 
 // Toàn bộ trạng thái của luồng vẽ. Luồng thông điệp chỉ đọc các ô atomic cuối tệp; mọi thứ khác
 // thuộc riêng luồng vẽ. Huỷ ngược thứ tự khai báo: mesh (drawable trước uploaded trước model),
@@ -213,6 +223,8 @@ struct Display::State {
     void draw_fx(const FxAsk& ask) const;
     // Camera, mọi instance, hiệu ứng rồi HUD của một khung, vào ảnh slot.
     [[nodiscard]] core::Status draw_world(gpu::CommandList& list, std::uint32_t slot);
+    // Sang chặng kế của cpu_stages; marks_gpu thì ghi cả mốc GPU (chỉ sau một phần đã ghi lệnh vẽ).
+    void lap(gpu::CommandList& list, bool marks_gpu);
     struct PresentAsk {
         gpu::CommandList* list = nullptr;
         std::optional<ShotPlan> shot;
@@ -384,6 +396,8 @@ struct Display::State {
     void publish() noexcept;
     // In một dòng tổng kết khoảng thời gian khung; gọi một lần lúc dừng.
     void report_frames() const;
+    // Thời gian theo chặng của draw_world trên CPU và trên GPU; gọi sau khi GPU rỗi.
+    void report_stages() const;
     // Lưu lỗi vẽ của luồng vào outcome (giữ lỗi đầu tiên).
     void keep(const core::Status& failure) noexcept;
     // Cuối vòng đời của luồng vẽ: lưu số cuối, chờ GPU rỗi, giữ lỗi đầu tiên. Không join.
@@ -418,6 +432,8 @@ struct Display::State {
     std::filesystem::path pipeline_cache_file;
     std::unique_ptr<render::Screen> screen;
     std::unique_ptr<render::Forward> forward;
+    // Thời gian GPU theo kGpuStages; rỗng khi thiết bị không ghi dấu thời gian (GLES). Sau device.
+    std::optional<render::GpuClock> gpu_clock;
     std::unique_ptr<FxView> fx_view;
     std::unique_ptr<SkyView> sky_view;
     // Hiệu ứng đồ đang chạy trong fx_view: mẫu con, tên effect và màu đã dựng (đổi một trong ba thì dựng lại), handle
@@ -640,6 +656,8 @@ struct Display::State {
     std::jthread spinner;
     control::StickMove stick;
     PhaseSums phase_ms;
+    // Thời gian CPU theo kCpuStages của draw_world; chỉ luồng vẽ chạm, in lúc dừng.
+    core::StageClock cpu_stages{kCpuStages};
     std::filesystem::path data_root;
     resource::TextureTier texture_tier = resource::TextureTier::kBc;
     std::filesystem::path save_root;

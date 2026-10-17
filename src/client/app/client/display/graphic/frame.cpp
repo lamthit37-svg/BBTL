@@ -328,6 +328,10 @@ core::Status Display::State::open_gpu(const DisplayDesc& desc) {
     core::Result<render::Forward> pass = make_forward(*device, *screen, shaders, *catalog, policy);
     if (!pass) return std::unexpected(pass.error());
     forward = std::make_unique<render::Forward>(std::move(*pass));
+    // Không có dấu thời gian (GLES) thì chỉ thiếu số GPU ở dòng tổng kết; vẽ không đổi.
+    constexpr auto kGpuStageCount = static_cast<std::uint32_t>(kGpuStages.size());
+    core::Result<render::GpuClock> clock = render::GpuClock::create(*device, kGpuStageCount);
+    if (clock) gpu_clock.emplace(std::move(*clock));
     core::mark("GPU: lượt vẽ và pipeline xong");
     open_hud(desc);
     core::mark("HUD: Hud::open xong");
@@ -507,6 +511,9 @@ core::Status Display::State::render() {
     screen->set_clear(light.clear_color());
     // Cảnh luôn vẽ trọn màn; bảng đăng nhập thu vào khung tham chiếu ở bound_hud.
     screen->set_view({.x = 0, .y = 0, .width = screen->width(), .height = screen->height()});
+    // Mốc GPU đầu nằm ngoài lượt vẽ màn hình: GPU chia ô chỉ cho tổng khung đúng khi hai mốc bao
+    // trọn lượt vẽ.
+    if (gpu_clock) gpu_clock->start(**list);
     const core::Result<std::uint32_t> slot = screen->begin(**list);
     // Bề mặt đổi cỡ giữa chừng: bỏ khung này, spin() dựng lại ở khung kế.
     const bool is_wait = !slot && slot.error().code() == core::ErrorCode::kTimeout;
@@ -527,6 +534,7 @@ core::Status Display::State::render() {
     screen->end(**list);
     scene_draws = forward->draw_count();
     record_head(**list);
+    if (gpu_clock) gpu_clock->finish(**list);
     const std::optional<ShotPlan> shot = record_shot(**list, *slot);
     const PresentAsk present{.list = *list, .shot = shot};
     const core::Status submitted = present_drawn(present);
@@ -570,7 +578,15 @@ core::Clock::time_point Display::State::await_shown() {
     return woke;
 }
 
+// Ranh giới giữa hai chặng của draw_world: chặng CPU (kCpuStages) và mốc GPU (kGpuStages).
+void Display::State::lap(gpu::CommandList& list, bool marks_gpu) {
+    cpu_stages.next();
+    if (marks_gpu && gpu_clock) gpu_clock->mark(list);
+}
+
+// Thứ tự lap phải khớp kCpuStages (bảy chặng, sáu lần lap rồi end) và kGpuStages (năm mốc giữa).
 core::Status Display::State::draw_world(gpu::CommandList& list, std::uint32_t slot) {
+    cpu_stages.begin();
     const float elapsed = std::chrono::duration<float>(frame_time - started).count();
     FrameAsk ask;
     ask.elapsed = elapsed;
@@ -583,6 +599,7 @@ core::Status Display::State::draw_world(gpu::CommandList& list, std::uint32_t sl
     refresh_sky_light();
     ensure_scene_models();
     compose_frame();
+    lap(list, false);
     ensure_sky();
     append_sky(camera);
     ensure_water();
@@ -591,15 +608,23 @@ core::Status Display::State::draw_world(gpu::CommandList& list, std::uint32_t sl
     render::Lighting lighting = light.view();
     lighting.seconds = elapsed;
     if (sky_view) sky_view->prepare(slot, camera);
+    lap(list, false);
     if (sky_view) sky_view->draw_dome(list, slot);
+    lap(list, true);
     const core::Status drawn = forward->draw(list, slot, camera, lighting, frame_instances);
     if (!drawn) return drawn;
+    lap(list, true);
     const FxAsk effects{.list = &list, .camera = &camera, .slot = slot, .elapsed = elapsed};
     draw_fx(effects);
+    lap(list, true);
     if (sky_view) sky_view->draw_layers(list, slot);
+    lap(list, true);
     build_extras();
     bound_hud(list);
-    return paint_hud(list, slot);
+    const core::Status painted = paint_hud(list, slot);
+    if (gpu_clock) gpu_clock->mark(list);
+    cpu_stages.end();
+    return painted;
 }
 
 void Display::State::bound_hud(gpu::CommandList& list) const {
@@ -776,11 +801,35 @@ void Display::State::wrap_up() {
     store_pipeline_cache();
     core::mark("đóng: pipeline cache đã ghi");
     publish();
+    // GPU rỗi trước khi tổng kết: ô dấu thời gian của các khung cuối mới đọc được.
+    const core::Status waited = device->wait_idle();
+    if (gpu_clock) gpu_clock->drain();
     report_frames();
     report_walk();
-    const core::Status waited = device->wait_idle();
     const std::scoped_lock<std::mutex> locked(outcome_guard);
     if (outcome) outcome = waited;
+}
+
+namespace {
+
+// Một dòng tổng kết ra stdout, và ra logcat trên Android (stdout của NativeActivity không đi đâu).
+void say_summary(const std::string& line) {
+    if (line.empty()) return;
+    std::println("{}", line);
+#ifdef __ANDROID__
+    __android_log_write(ANDROID_LOG_INFO, "THIENLONG", line.c_str());
+#endif
+}
+
+} // namespace
+
+void Display::State::report_stages() const {
+    say_summary(core::describe("CPU theo chặng mỗi khung", kCpuStages, cpu_stages.stats()));
+    if (!gpu_clock) {
+        say_summary("GPU theo chặng: không đo, thiết bị không ghi dấu thời gian");
+        return;
+    }
+    say_summary(core::describe("GPU theo chặng mỗi khung", kGpuStages, gpu_clock->stats()));
 }
 
 // Một dòng tổng kết khoảng thời gian khung: giật hiện ra ngay ở p95 và số khung trần 20 ms.
@@ -800,12 +849,10 @@ void Display::State::report_frames() const {
     const std::string acquire_ms = std::format("{:.2f}", phase_ms.acquire / frames);
     const std::string draw_ms = std::format("{:.2f}", phase_ms.draw / frames);
     const std::string submit_ms = std::format("{:.2f}", phase_ms.submit / frames);
-    const std::string phases = "Chặng mỗi khung: xin ảnh " + acquire_ms + " ms, ghi lệnh vẽ " + draw_ms +
-        " ms, nộp và trình bày " + submit_ms + " ms";
-    std::println("{}", phases);
-#ifdef __ANDROID__
-    __android_log_write(ANDROID_LOG_INFO, "THIENLONG", phases.c_str());
-#endif
+    const std::string opening = "Chặng mỗi khung: xin ảnh " + acquire_ms + " ms, ghi lệnh vẽ ";
+    const std::string phases = opening + draw_ms + " ms, nộp và trình bày " + submit_ms + " ms";
+    say_summary(phases);
+    report_stages();
 }
 
 void Display::State::settle() {

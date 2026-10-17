@@ -164,6 +164,7 @@ set(game_core_sources
     engine/core/log.cpp
     engine/core/log_sink.cpp
     engine/core/range.cpp
+    engine/core/stages.cpp
     engine/core/system.cpp
     engine/core/text.cpp
     engine/core/trace.cpp
@@ -182,7 +183,8 @@ if(WIN32)
     target_link_libraries(game_core PRIVATE synchronization ntdll)
 endif()
 if(ANDROID)
-    target_link_libraries(game_core PRIVATE log)
+    # android: ATrace của core/stages (vùng thời gian xem bằng Perfetto).
+    target_link_libraries(game_core PRIVATE log android)
 endif()
 
 # Phần phụ thuộc hệ điều hành của io nằm ở tệp riêng theo nền tảng.
@@ -952,7 +954,7 @@ if(GAME_HAS_GPU)
 
     # render: màn hình vẽ lên cửa sổ (swapchain kèm ảnh độ sâu, vòng acquire, vẽ, present).
     # camera và forward cần math và resource; thêm ở khối resource bên dưới khi cả hai có.
-    game_module(render engine/render/screen.cpp)
+    game_module(render engine/render/screen.cpp engine/render/gpu_clock.cpp)
     target_link_libraries(game_render PUBLIC game_core game_gpu)
 
     # resource: nạp GLB (cgltf, stb) và tải lên GPU (meshoptimizer giải EXT_meshopt_compression).
@@ -1426,6 +1428,7 @@ if(WIN32 OR ANDROID)
     game_test(core game_core)
     game_test(gbk game_core)
     game_test(governor game_core)
+    game_test(stages game_core)
     game_test(log game_core)
     game_test(thread_slot game_core)
     game_test(function_fallback game_core)
