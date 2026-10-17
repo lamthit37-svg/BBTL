@@ -5,6 +5,38 @@ hiện tại của cả dự án đọc ở ba chỗ: mục "Khảo sát theo m�
 tệp này, và dòng "Trạng thái" ở mục 0 của `AGENTS.md`. Tên cũ của tệp là "cửa sổ, Vulkan và 57 vật
 thể tĩnh của map huoyangu": đó là đích của sáu bước B1 tới B6 đầu tiên, tả ngay dưới.
 
+## D3D12 và D3D11 vẽ như Vulkan; cột nhiễu ở Đại Lý (2026-10-17)
+
+Commit `a0b31fa3`. Vulkan vẫn là mặc định; đường D3D đóng theo DU-AN E3 và C12.
+
+- Cột xanh nhiễu trước mặt nhân vật ở Đại Lý (chỉ D3D12, D3D11): lệnh vẽ của lô hạt
+  `yanjiangzhengqi` (hơi dung nham, `scene_blend colour_blend`) đọc đỉnh sai bước. Hình thật của lô
+  nằm ngoài khung (x/w ≈ 1,3, y/w ≈ 1,8). Backend chốt stride của pipeline đang gắn lúc
+  `bind_vertex_buffer`, mà `FxView` gắn buffer hạt trước pipeline hạt, nên đỉnh 44 byte bị đọc
+  theo stride của pipeline vẽ trước. D3D11 còn bỏ qua lần gắn lại cùng buffer cùng offset. Cách
+  tìm: dò từng lô hạt bằng mã tạm (đã gỡ). Bỏ `光柱`, `昆仑`, `yun`, `pubu`, `langhua` thì cột còn.
+  Bỏ `yanjiangzhengqi` thì cột mất. Bỏ `yanjiangwuqi` (lô đứng trước) thì cột đổi sang màu hồng.
+- Sửa: hai backend giữ buffer của từng khe, `bind_pipeline` áp lại khe nào có stride khác, gắn
+  buffer trước mọi pipeline là hợp lệ (như Vulkan). GPU chặng hiệu ứng ở Đại Lý trên D3D12:
+  1,07 → 0,00 ms; tổng trung vị 1,33 → 0,31 ms.
+- Cùng đợt: `model.vs` ghi bốn cột thay `float4x4` vì fxc đọc ma trận của buffer có cấu trúc theo
+  hàng (bản sao instanced trên D3D11 bị chuyển vị); D3D12 chép texture sang buffer làm tròn
+  footprint và hộp nguồn theo khối nén; D3D11 staging BC làm tròn theo khối; `submit` của D3D12 chỉ
+  ghi `submitted` khi `Signal` thành công.
+
+Test hồi quy trong `gpu_tests` (đỏ trên backend cũ, xanh sau; cả ba backend):
+
+| Ca | Trước sửa | Sau sửa |
+|---|---|---|
+| `*_vertex_stride_follows_pipeline` | D3D12, D3D11: 10/16 điểm đỏ, gắn buffer trước pipeline bị từ chối | 16/16 |
+| `*_block_mips_round_trip` | D3D12: không đóng được command list; D3D11: E_INVALIDARG | đạt |
+| `*_part_round_trip` | D3D12: chép từ góc (0, 0) | đạt |
+| `*_resolve_into_fresh_target`, `*_swapchain_presents_frames` | — | đạt |
+
+Đã đo: `gpu_tests` 47/47; `ctest` 185/186, ca đỏ là `zone_tests` của phiên máy chủ đang sửa AOI;
+Đại Lý `--bare` của Vulkan và D3D12 trùng từng điểm ảnh với bản trước sửa. Còn mở: D3D11 bật MSAA
+lệch khoảng 200 điểm ảnh giữa hai lần chạy (NGHI-NGO 25).
+
 ## Bản tiếng Việt: nối dây và thước đo chữ Hán (2026-10-16)
 
 Chủ dự án giao bản dựng tiếng Việt hoàn chỉnh. Đã làm phần nối dây và thước đo; chưa chốt phông mới, mẫu tên trang bị, hay ảnh thay.

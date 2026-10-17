@@ -76,7 +76,8 @@ nhật ký cũ [tài liệu].
 
 ### Đồ hoạ và nền tảng
 
-- Vulkan và GLES vẽ lên cửa sổ. D3D12 và D3D11 dựng được nhưng không hiển thị (V-E3).
+- Vulkan (mặc định) và GLES vẽ lên cửa sổ. D3D12 và D3D11 vẽ Đại Lý như Vulkan, lớp kiểm tra
+  báo 0 lỗi, `gpu_tests` 47/47 (2026-10-17, `a0b31fa3`; xem E3). GLES dừng phát triển.
 - Vulkan hạ xuống lõi 1.1 và chạy trên tablet PowerVR GE8320 (`e10bdbdc`); màu thô cho Vulkan trên
   điện thoại 43,9 → 40,1 ms (`db617d7d`).
 - Trên cửa sổ khoá Fifo vào nhịp quét, nâng Hz theo `loop_plan`; đo 120 Hz, 99,8% khung đúng một
@@ -248,7 +249,7 @@ suy đoán.
 | C9 | vừa | Animation (NGHI-NGO 52): sampler lệch số đếm thì `.at()` ném và chương trình thoát 1; key times không sắp thì nội suy sai thầm; `check_same_bones` chỉ so tiền tố; NaN/Inf lọt | [tài liệu] |
 | C10 | vừa | Âm thanh giải mã trên luồng game, thu hồi clip chờ tới 200 ms (NGHI-NGO 14) | [tài liệu] |
 | C11 | thấp | Chiến đấu client: số bay dùng phông bitmap, `Declined` không hiện, người chơi chết không có động tác, tầm 2,5 m dùng chung mọi chiêu; client chưa dùng GPU timestamp | [tài liệu + đọc mã] |
-| C12 | vừa | Lệnh d3d12 `submit` lưu `submitted` và park list trước khi kiểm HRESULT của `Signal` (`d3d12/device.cpp:858-870`) | [đọc mã] |
+| C12 | vừa | **ĐÃ SỬA** `a0b31fa3`: `submit` chỉ ghi `submitted` khi `Signal` thành công (`d3d12/device.cpp:877-881`) | [tự kiểm] |
 
 ### D. Dữ liệu và bản địa hoá
 
@@ -267,7 +268,7 @@ suy đoán.
 |---|---|---|---|
 | E1 | chặn (cho iOS) | iOS chưa từng qua trình dịch; 11 điểm cần máy Apple (NGHI-NGO 49). Điểm Vulkan 1.3 có thể đã đổi nghĩa sau `e10bdbdc` | [tài liệu] |
 | E2 | vừa | Prefix cài APK: `android-arm64` là `release`, `android-x86_64` không đặt nên kế thừa `dev`, dễ lẫn APK | [đọc mã] |
-| E3 | vừa | D3D12 (swapchain `0x887a0001`) và D3D11 (SRV) không khởi tạo được, DXIL/DXBC chưa chạy lần nào (NGHI-NGO 25) | [tài liệu] |
+| E3 | vừa | **ĐÃ SỬA** `a0b31fa3` (2026-10-17): D3D12 và D3D11 khởi tạo, vẽ và chụp Đại Lý với lớp kiểm tra 0 lỗi. Gốc của các lỗi thấy được: stride đỉnh chốt lúc gắn buffer (cột nhiễu ở Đại Lý), fxc đọc ma trận instanced theo hàng, chép mip BC nhỏ. Còn mở: D3D11 có MSAA lệch khoảng 200 điểm ảnh giữa hai lần chạy (NGHI-NGO 25) | [tự kiểm] |
 | E4 | vừa | `msvc-release` và `android` dùng chung thư mục vcpkg installed: cấu hình xen kẽ hai nền thì gói của bên kia bị gỡ (`BAY-DA-BIET`) | [tài liệu] |
 
 ## 5. Hướng đi

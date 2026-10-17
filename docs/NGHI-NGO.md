@@ -320,11 +320,15 @@ kết luận ngay dưới mục đó chứ không xoá.
     lý cũ (Render.dll 0x35E50 tạo đúng cỡ được giao) và nơi giao cỡ ở UI_CEGUI.dll chưa đọc; dự án
     dùng 128, không đổi bố cục vì tỉ lệ khung bằng rộng chia cao và ảnh phủ kín ô. (e) Nền
     `TLBB/UIModelBackground` chưa làm (tên nền của khung người chơi rỗng).
-25. **D3D12 và D3D11 không khởi tạo được phần hiển thị trên máy dựng** (2026-10-06, chạy
-    `--backend d3d12` và `--backend d3d11`). D3D12: `gpu/d3d12/swapchain.cpp:304` không tạo được
-    swapchain (0x887a0001). D3D11: `gpu/d3d11/resources.cpp:1057` không tạo được SRV. Cả hai lỗi
-    xảy ra trước khi giao diện dựng; chưa xác định từ commit nào. Vulkan và GLES chạy sạch với lớp
-    kiểm tra. Nhánh `F2_DXBC` của `ui.ps.slang` (mặt nạ ở t1/s1) vì thế chưa chạy được lần nào.
+25. **(Đã đóng phần khởi tạo và vẽ 2026-10-17, `a0b31fa3`) D3D12 và D3D11.** Lỗi khởi tạo ghi
+    2026-10-06 không còn: cả hai backend vẽ Đại Lý với lớp kiểm tra 0 lỗi, `gpu_tests` 47/47. Các
+    gốc đã sửa: stride đỉnh chốt lúc `bind_vertex_buffer` nên lô hạt `yanjiangzhengqi` vẽ thành
+    cột nhiễu trước mặt nhân vật; fxc đọc `float4x4` của buffer instanced theo hàng; chép mip BC
+    2x2 và chép một phần trên D3D12. Còn mở một chỗ: D3D11 khi bật MSAA lệch khoảng 200 điểm ảnh
+    (lớn nhất 21 mức) giữa hai lần chạy cùng bản, ở mép lá và chỗ hai mặt trùng độ sâu; tắt MSAA
+    (samples = 1) thì trùng từng điểm ảnh, Vulkan và D3D12 luôn trùng. Đo: ba lần
+    `--scene-id 2 --bare --backend d3d11 --frames 120`, so bằng `diff.py`. Chưa biết do trình điều
+    khiển hay do mã; cần thử MSAA với một lượt vẽ duy nhất trong `gpu_tests` để tách.
 26. **Nhịp khung của backend GL** (2026-10-06, `gpu/gles/swapchain.cpp`). Desktop xin Mailbox và tự
     giữ nhịp 120 Hz; commit e404d1e đổi GL sang chờ quét cho mọi chế độ khác Immediate, từ đó PC
     GLES (WGL, màn 60 Hz) nhảy 7/16/32 ms: 120 trong 449 khung quá 20 ms khi có lượt ảnh đầu, 34
@@ -363,8 +367,9 @@ kết luận ngay dưới mục đó chứ không xoá.
     (d) APK không có `Config/ScenePosDefineEx.txt` (trong `Config/` sổ chỉ có `startup.id` và
     `SceneDefineEx.txt`); chưa xem hệ quả với bảng cổng. (e) Depfile kê thư mục đã quét nên thêm
     tệp vào `music/` hay `sound/` làm APK đóng lại, nhưng chưa thử ca đó.
-32. **Gợi ý cho mục 25 từ mã bgfx** (2026-10-06, do tác tử phụ đọc bgfx và mã dự án; CHƯA chạy thử
-    trên máy). D3D12: `CreateSwapChainForHwnd` với flip model không nhận định dạng
+32. **Gợi ý cho mục 25 từ mã bgfx** (2026-10-06, do tác tử phụ đọc bgfx và mã dự án). Đã đóng
+    2026-10-17: swapchain UNORM với sRGB ở view (có từ `fd4a1afe`) và D3D11 chỉ gọi `GetBuffer(0)`
+    (có từ `8e13f0d4`) đã nằm trong mã; mục 25 nay chạy được. D3D12: `CreateSwapChainForHwnd` với flip model không nhận định dạng
     `B8G8R8A8_UNORM_SRGB` (0x887A0001); tạo chain UNORM và giữ sRGB ở view. D3D11: ảnh swapchain bị
     gắn `kSampled` nên tạo SRV trên back buffer hỏng; sửa xong sẽ lộ tiếp `GetBuffer(1)` và chỉ số
     back buffer của flip model; `SetMaximumFrameLatency(1)` hỏng khi chain không waitable. Ngoài ra
