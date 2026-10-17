@@ -623,25 +623,46 @@ struct Hud::State {
     std::vector<render::UiVertex> joined_vertices;
     std::vector<render::UiBatch> joined_batches;
 
-    // Nối quad của extra vào sau quad của giao diện (painter), dời chỉ số quad của các lô thêm. Quad của extra tính
-    // theo điểm ảnh của màn nên đổi sang khung ảo của layout: không co theo giao diện.
-    void join(Hud::HudExtra extra) {
-        const std::span<const render::UiVertex> own = painter.vertices();
-        const std::span<const render::UiBatch> own_batches = painter.batches();
-        const auto base = static_cast<std::uint32_t>(own.size() / 4);
-        joined_vertices.assign(own.begin(), own.end());
-        for (render::UiVertex vertex : extra.vertices) {
+    // Quad của extra tính theo điểm ảnh của màn nên đổi sang khung ảo của layout: không co theo
+    // giao diện.
+    void append_extra_vertices(std::span<const render::UiVertex> extra) {
+        for (render::UiVertex vertex : extra) {
             vertex.x /= scale;
             vertex.y /= scale;
             joined_vertices.push_back(vertex);
         }
-        joined_batches.assign(own_batches.begin(), own_batches.end());
-        for (render::UiBatch batch : extra.batches) {
+    }
+
+    // Lô của extra: dời chỉ số quad theo chỗ extra nằm trong mảng đỉnh, đổi mặt nạ sang khung ảo.
+    void append_extra_batches(std::span<const render::UiBatch> extra, std::uint32_t base) {
+        for (render::UiBatch batch : extra) {
             batch.first_quad += base;
-            batch.mask_box = render::UiRect{.x = batch.mask_box.x / scale, .y = batch.mask_box.y / scale,
-                .width = batch.mask_box.width / scale, .height = batch.mask_box.height / scale};
+            const render::UiRect box = batch.mask_box;
+            const float px = box.x / scale;
+            const float py = box.y / scale;
+            const float pw = box.width / scale;
+            const float ph = box.height / scale;
+            batch.mask_box = render::UiRect{.x = px, .y = py, .width = pw, .height = ph};
             joined_batches.push_back(batch);
         }
+    }
+
+    // Mảng đỉnh: giao diện (painter), rồi quad thế giới, rồi quad trên cùng. Thứ tự VẼ là thứ tự
+    // lô: lô thế giới trước lô giao diện (cửa sổ che tên), lô trên cùng sau cùng. Chỉ số quad của
+    // lô giao diện không đổi.
+    void join(Hud::HudExtra extra) {
+        const std::span<const render::UiVertex> own = painter.vertices();
+        const std::span<const render::UiBatch> own_batches = painter.batches();
+        const auto world_base = static_cast<std::uint32_t>(own.size() / 4);
+        const auto world_quads = static_cast<std::uint32_t>(extra.world_vertices.size() / 4);
+        const std::uint32_t top_base = world_base + world_quads;
+        joined_vertices.assign(own.begin(), own.end());
+        append_extra_vertices(extra.world_vertices);
+        append_extra_vertices(extra.vertices);
+        joined_batches.clear();
+        append_extra_batches(extra.world_batches, world_base);
+        joined_batches.insert(joined_batches.end(), own_batches.begin(), own_batches.end());
+        append_extra_batches(extra.batches, top_base);
     }
 
     void seat_fonts(Prepared& ready);
@@ -1711,7 +1732,8 @@ core::Status Hud::draw(gpu::CommandList& list, std::uint32_t slot, HudExtra extr
     State& state = *state_;
     std::span<const render::UiVertex> vertices = state.painter.vertices();
     std::span<const render::UiBatch> batches = state.painter.batches();
-    if (!extra.vertices.empty()) {
+    const bool has_extra = !extra.vertices.empty() || !extra.world_vertices.empty();
+    if (has_extra) {
         state.join(extra);
         vertices = state.joined_vertices;
         batches = state.joined_batches;

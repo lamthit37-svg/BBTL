@@ -191,10 +191,15 @@ public:
     // và ra API này vẫn là điểm ảnh của màn.
     void prepare(const HudView& view);
 
-    // Quad vẽ thêm cùng lượt HUD (bảng nhịp), theo điểm ảnh của màn và không co theo giao diện. Rỗng thì chỉ vẽ giao diện.
+    // Quad vẽ thêm cùng lượt HUD, theo điểm ảnh của màn và không co theo giao diện. Rỗng thì chỉ vẽ
+    // giao diện. vertices và batches vẽ SAU mọi cửa sổ (bảng nhịp, nút thử). world_vertices và
+    // world_batches vẽ TRƯỚC mọi cửa sổ: chữ gắn với thực thể trong cảnh (tên, thanh máu, số bay)
+    // nằm dưới giao diện như bản gốc, nên cửa sổ mở thì che chúng.
     struct HudExtra {
         std::span<const render::UiVertex> vertices;
         std::span<const render::UiBatch> batches;
+        std::span<const render::UiVertex> world_vertices;
+        std::span<const render::UiBatch> world_batches;
     };
 
     // Phông Hán của giao diện (GBK12) và texture của nó trong UiPass, để nơi gọi vẽ chữ riêng qua HudExtra (số sát thương bay

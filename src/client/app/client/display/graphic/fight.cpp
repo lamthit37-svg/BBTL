@@ -528,8 +528,11 @@ std::optional<ogre::Vec3> Display::State::head_of(std::uint32_t id) const {
     return spot;
 }
 
-// Số bay nối vào cuối bảng đo: cùng một lô quad chữ (phông Hán của giao diện), vẽ trong lượt của HUD.
+// Tên, thanh máu và số bay ghi vào world_board: lô quad chữ (phông Hán của giao diện) mà HUD vẽ
+// dưới mọi cửa sổ, vì gốc vẽ chữ trên đầu trong cảnh, dưới giao diện.
 void Display::State::build_extras() {
+    world_board.vertices.clear();
+    world_board.batches.clear();
     combat.expire(frame_time);
     if (!hud || procedure != Procedure::kPlay || !is_online_play || !has_lens || !terrain) return;
     if (ground == nullptr || !scale_ok(ground->file)) return;
@@ -538,7 +541,7 @@ void Display::State::build_extras() {
     const auto width = static_cast<float>(screen->width());
     const auto height = static_cast<float>(screen->height());
     const float unit = ground->file.scale.x;
-    std::vector<render::UiVertex>& out = pace_board.vertices;
+    std::vector<render::UiVertex>& out = world_board.vertices;
     const core::GroundPoint here = game_of(ground->file, walk);
     const float name_h = static_cast<float>(face.font->pixel_size()) * kPlateNameScale;
     const auto plate_of = [&](const cast::Actor& actor) -> std::optional<PlateAt> {
@@ -555,7 +558,7 @@ void Display::State::build_extras() {
         if (!plate) continue;
         paint_bar(*plate, name_h, out);
     }
-    push_extra(out, pace_board.batches, bars_at, render::kUiWhite);
+    push_extra(out, world_board.batches, bars_at, render::kUiWhite);
     const std::size_t first = out.size();
     const auto life_ms = static_cast<float>(fight::kFloatLife.count());
     for (const fight::Float& shown : combat.floats()) {
@@ -600,7 +603,7 @@ void Display::State::build_extras() {
                 Line{.centre = banner_at->x * width, .top = banner_at->y * height, .scale = kBannerScale}, ink, out);
         }
     }
-    push_extra(out, pace_board.batches, first, face.texture);
+    push_extra(out, world_board.batches, first, face.texture);
 }
 
 } // namespace game::client

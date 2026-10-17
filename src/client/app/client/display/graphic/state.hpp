@@ -467,8 +467,8 @@ struct Display::State {
     [[nodiscard]] bool is_fight_demo() const noexcept { return talk_demo == "fight" || talk_demo == "fall"; }
     void answer_fight_demo(const ui::panel::talk::Say& said);
     void fall_in_demo(std::vector<cast::Note>& notes, std::uint32_t killer);
-    // Chữ bay (số sát thương, hồi, trượt) và lời nhắc hồi sinh của khung, nối vào cuối bảng đo (pace_board). Gọi sau
-    // frame_camera: cần lens của khung.
+    // Tên, thanh máu, chữ bay (số sát thương, hồi, trượt) và lời nhắc hồi sinh của khung, ghi vào
+    // world_board. Gọi sau frame_camera: cần lens của khung.
     void build_extras();
     // Đầu thực thể (hay chính nhân vật) trong toạ độ thế giới để đặt chữ bay; rỗng khi thực thể không còn trong cảnh.
     [[nodiscard]] std::optional<ogre::Vec3> head_of(std::uint32_t id) const;
@@ -887,6 +887,10 @@ struct Display::State {
     std::vector<SceneModel> scene_models;
     bool scene_models_built = false;
     ui::PaceOverlay pace_board;
+    // Chữ gắn với thực thể trong cảnh (tên, thanh máu, số bay, lời nhắc hồi sinh): build_extras ghi
+    // lại mỗi khung, HUD vẽ DƯỚI mọi cửa sổ giao diện (HudExtra::world_*) như bản gốc. pace_board ở
+    // trên cùng.
+    ui::PaceOverlay world_board;
     std::optional<core::FixedStep> frame_clock;
     // Điện thoại: bộ chọn trần khung, dựng lại khi tần số quét hay trần hạng máy đổi. Chỉ luồng vẽ đụng.
     std::optional<core::RateGovernor> governor;

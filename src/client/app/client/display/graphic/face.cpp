@@ -824,6 +824,8 @@ core::Status Display::State::paint_hud(gpu::CommandList& list, std::uint32_t slo
     ui::Hud::HudExtra extra;
     extra.vertices = pace_board.vertices;
     extra.batches = pace_board.batches;
+    extra.world_vertices = world_board.vertices;
+    extra.world_batches = world_board.batches;
     return hud->draw(list, slot, extra);
 }
 } // namespace game::client
