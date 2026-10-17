@@ -531,11 +531,14 @@ core::Status Display::State::render() {
     const core::Status shown = draw_world(**list, *slot);
     if (!shown) return shown;
     const core::Clock::time_point recorded = core::Clock::now();
-    screen->end(**list);
+    const std::optional<ShotPlan> shot = plan_shot();
+    const bool is_shot = shot.has_value();
+    const render::ScreenHandoff handoff = handoff_for(is_shot);
+    screen->end(**list, handoff);
     scene_draws = forward->draw_count();
     record_head(**list);
     if (gpu_clock) gpu_clock->finish(**list);
-    const std::optional<ShotPlan> shot = record_shot(**list, *slot);
+    if (shot) copy_shot(**list, *shot, *slot);
     const PresentAsk present{.list = *list, .shot = shot};
     const core::Status submitted = present_drawn(present);
     if (!submitted) return submitted;
@@ -681,15 +684,23 @@ core::Status Display::State::wait_slot(std::uint32_t slot) {
     return waited;
 }
 
-std::optional<ShotPlan> Display::State::record_shot(gpu::CommandList& list, std::uint32_t slot) {
-    if (shot_taken || shot_path.empty() || arrival.has_value()) return std::nullopt;
-    // Bảng đo luôn hiện (khi có phông và có vẽ giao diện): chờ đủ mẫu, khung đầu chưa có số nào để chụp.
+bool Display::State::is_shot_due() const {
+    const bool is_idle = shot_taken || shot_path.empty() || arrival.has_value();
+    if (is_idle) return false;
+    // Bảng đo luôn hiện (khi có phông và có vẽ giao diện): chờ đủ mẫu, khung đầu chưa có số nào để
+    // chụp.
     constexpr std::size_t kSamplesForShot = 30;
-    if (pace_font && !is_bare && pace_filled < kSamplesForShot) return std::nullopt;
-    // --talk-demo fight hay fall: chờ tới khi có số bay trên màn, nếu không ảnh chụp ở khung 30 chỉ thấy nhân vật đang chạy tới quái.
-    if (is_fight_demo() && !has_floated) return std::nullopt;
+    const bool shows_pace = pace_font && !is_bare;
+    if (shows_pace && pace_filled < kSamplesForShot) return false;
+    // --talk-demo fight hay fall: chờ tới khi có số bay trên màn, nếu không ảnh chụp ở khung 30 chỉ
+    // thấy nhân vật đang chạy tới quái.
+    if (is_fight_demo() && !has_floated) return false;
     const bool is_online_due = online_shot_from.has_value() && frame_serial >= *online_shot_from;
-    if (shot_waits_online && !is_online_due) return std::nullopt;
+    return !shot_waits_online || is_online_due;
+}
+
+std::optional<ShotPlan> Display::State::plan_shot() {
+    if (!is_shot_due()) return std::nullopt;
     shot_taken = true;
     const gpu::Format colour = screen->color_format();
     const std::uint32_t width = screen->width();
@@ -710,13 +721,6 @@ std::optional<ShotPlan> Display::State::record_shot(gpu::CommandList& list, std:
         std::println(stderr, "Lỗi chụp {}: {}", io::utf8_of(shot_path), made.error());
         return std::nullopt;
     }
-    const gpu::TextureHandle image = screen->swapchain()->image(slot);
-    shot_barrier(list, image, true);
-    gpu::BufferTextureCopy region;
-    region.width = width;
-    region.height = height;
-    list.copy_texture_to_buffer(image, *made, std::span(&region, 1));
-    shot_barrier(list, image, false);
     ShotPlan plan;
     plan.staging = *made;
     plan.size = buffer.size;
@@ -725,6 +729,16 @@ std::optional<ShotPlan> Display::State::record_shot(gpu::CommandList& list, std:
     plan.height = height;
     plan.format = *format;
     return plan;
+}
+
+void Display::State::copy_shot(gpu::CommandList& list, const ShotPlan& plan,
+    std::uint32_t slot) const {
+    const gpu::TextureHandle image = screen->swapchain()->image(slot);
+    gpu::BufferTextureCopy region;
+    region.width = plan.width;
+    region.height = plan.height;
+    list.copy_texture_to_buffer(image, plan.staging, std::span(&region, 1));
+    shot_to_present(list, image);
 }
 
 void Display::State::finish_shot(const ShotPlan& plan) const {

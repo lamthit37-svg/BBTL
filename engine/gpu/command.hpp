@@ -6,31 +6,30 @@
  *  CHUẨN     : C++23
  *------------------------------------------------------------------------------
  *  CHỨC NĂNG
- *  - Danh sách lệnh: ghi lệnh cho GPU, chưa thực thi — Cmd và các hàm cmd* của
- *    IGraphics.h trong _Ref, rhi/command.hpp của Platium, phần lệnh của
- *    GraphicsDevice trong Wicked. Device cấp một CommandList cho một luồng,
- *    luồng ghi xong thì nộp (Device::submit), Device thu hồi khi GPU chạy xong;
- *    chỗ gọi không huỷ và không giữ qua lần nộp. Một CommandList thuộc đúng một
- *    luồng: nhiều luồng ghi song song thì mỗi luồng xin một cái. Khác gốc:
- *  - không begin/end tay và không pool lệnh lộ ra ngoài (initCmdPool, beginCmd,
- *    endCmd của _Ref);
- *  - vẽ vào attachment khai tại chỗ, load và store bắt khai, resolve đa mẫu
- *    ngay trong lần vẽ;
- *  - buffer đỉnh không nhận bước: bước nằm trong pipeline (gốc khai ở cả hai
- *    nơi, lệch là sai câm);
- *  - kết quả truy vấn phải resolve bằng lệnh rồi mới đọc (D3D12 đòi; Vulkan bỏ
- *    qua lệnh ấy).
- *  - Lệnh ghi sai (tay nắm chết, thiếu cờ, sai trạng thái) không đi xuống trình
- *    điều khiển: lỗi đầu tiên được giữ lại, các lệnh sau của danh sách bị bỏ,
- *    và Device::submit trả lỗi ấy. Trạng thái động khi danh sách mới mở:
- *    stencil reference 0, hằng trộn 0, khoảng độ sâu [0, 1].
- *  - Nguồn: Forge2 src/gpu/command.hpp@d7fcd76. Khác gốc (so với Forge2):
- *    enumerator mang tiền tố k; bỏ {} thừa của RenderingDesc::colors và
- *    RenderingDesc::depth.
+ *  - Danh sách lệnh GPU: một luồng xin, ghi, nộp qua Device::submit.
+ *  - Lệnh ghi sai không xuống trình điều khiển; submit trả lỗi đầu tiên.
+ *  - Stride của khe đỉnh thuộc pipeline, như Vulkan.
+ *  - Nguồn: Forge2 src/gpu/command.hpp@d7fcd76. Khác gốc: xem dưới khung.
  *------------------------------------------------------------------------------
  *  TÁC GIẢ   : HiepHoon
  *  TELEGRAM  : @Hoon9xx
  *============================================================================*/
+
+// Danh sách lệnh: ghi lệnh cho GPU, chưa thực thi — Cmd và các hàm cmd* của IGraphics.h trong _Ref,
+// rhi/command.hpp của Platium, phần lệnh của GraphicsDevice trong Wicked. Device cấp một
+// CommandList cho một luồng, luồng ghi xong thì nộp (Device::submit), Device thu hồi khi GPU chạy
+// xong; chỗ gọi không huỷ và không giữ qua lần nộp. Một CommandList thuộc đúng một luồng: nhiều
+// luồng ghi song song thì mỗi luồng xin một cái.
+//
+// Khác gốc (_Ref): không begin/end tay và không pool lệnh lộ ra ngoài (initCmdPool, beginCmd,
+// endCmd); vẽ vào attachment khai tại chỗ, load và store bắt khai, resolve đa mẫu ngay trong lần
+// vẽ; buffer đỉnh không nhận stride, stride nằm trong pipeline (gốc khai ở cả hai nơi, lệch là sai
+// câm); kết quả truy vấn phải resolve bằng lệnh rồi mới đọc (D3D12 đòi, Vulkan bỏ qua lệnh ấy).
+// Khác Forge2: enumerator mang tiền tố k; bỏ {} thừa của RenderingDesc::colors và depth.
+//
+// Lệnh ghi sai (tay nắm chết, thiếu cờ, sai trạng thái) không đi xuống trình điều khiển: lỗi đầu
+// tiên được giữ lại, các lệnh sau của danh sách bị bỏ, và Device::submit trả lỗi ấy. Trạng thái
+// động khi danh sách mới mở: stencil reference 0, hằng trộn 0, khoảng độ sâu [0, 1].
 
 #pragma once
 
@@ -186,8 +185,10 @@ public:
     // kMaxPushBytes.
     virtual void push_constants(std::span<const std::byte> data, std::uint32_t offset) = 0;
 
-    // Gắn pipeline trước: D3D12 lấy bước đỉnh của khe từ pipeline.
-    virtual void bind_vertex_buffer(std::uint32_t slot, BufferHandle buffer, std::uint64_t offset) = 0;
+    // Stride của khe là của pipeline đang gắn lúc vẽ, như Vulkan: gắn buffer trước hay sau pipeline
+    // đều được, và đổi sang pipeline khác stride không phải gắn lại buffer.
+    virtual void bind_vertex_buffer(std::uint32_t slot, BufferHandle buffer,
+        std::uint64_t offset) = 0;
     virtual void bind_index_buffer(BufferHandle buffer, IndexType type, std::uint64_t offset) = 0;
 
     virtual void draw(const DrawArguments& arguments) = 0;

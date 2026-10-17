@@ -1,11 +1,25 @@
-// Danh sách lệnh D3D12: một allocator và một command list 7. Lệnh ghi sai không xuống trình điều
-// khiển; lỗi đầu tiên được giữ và submit trả lỗi ấy. D3D12 không lật trục Y.
-// Nguồn: Forge2 src/gpu/d3d12/commands.hpp@d7fcd76. Khác gốc: bỏ {} thừa của error_;
-// alias để chữ ký còn một dòng.
+/*==============================================================================
+ *  ENGINEHP  |  HIGH-PERFORMANCE GAME ENGINE
+ *------------------------------------------------------------------------------
+ *  TỆP       : engine/gpu/d3d12/commands.hpp
+ *  PHÂN HỆ   : Gpu / D3d12 / Commands
+ *  CHUẨN     : C++23
+ *------------------------------------------------------------------------------
+ *  CHỨC NĂNG
+ *  - Danh sách lệnh D3D12: một allocator và một command list 7. Lệnh ghi sai
+ *    không xuống trình điều khiển; lỗi đầu tiên được giữ và submit trả lỗi ấy.
+ *    D3D12 không lật trục Y. Nguồn: Forge2 src/gpu/d3d12/commands.hpp@d7fcd76.
+ *    Khác gốc: bỏ {} thừa của error_; alias để chữ ký còn một dòng.
+ *------------------------------------------------------------------------------
+ *  TÁC GIẢ   : HiepHoon
+ *  TELEGRAM  : @Hoon9xx
+ *============================================================================*/
+
 #pragma once
 
 #include "gpu/d3d12/device.hpp"
 
+#include <array>
 #include <vector>
 
 namespace game::gpu::d3d12 {
@@ -102,6 +116,8 @@ private:
         std::uint32_t count);
     [[nodiscard]] const Buffer* need_arguments(BufferHandle handle, std::uint64_t offset, std::uint32_t count,
         std::uint32_t stride, std::uint32_t size);
+    void apply_vertex_view(std::uint32_t slot);
+    void apply_vertex_views();
     [[nodiscard]] bool can_draw();
     [[nodiscard]] bool can_dispatch();
     [[nodiscard]] bool is_bound() const noexcept;
@@ -131,6 +147,10 @@ private:
     Status error_;
     Pipeline pipeline_{};
     std::uint32_t bound_ = 0;
+    // Khe đỉnh đã gắn. Stride thuộc pipeline như Vulkan: bind_pipeline áp lại khe nào có stride
+    // khác stride đã áp. StrideInBytes là stride đang nằm trên list, 0 khi chưa áp.
+    std::array<D3D12_VERTEX_BUFFER_VIEW, kMaxVertexBuffers> vertex_views_{};
+    std::array<bool, kMaxVertexBuffers> vertex_set_{};
     std::uint32_t extent_width_ = 0;
     std::uint32_t extent_height_ = 0;
     std::vector<D3D12_BUFFER_BARRIER> buffer_barriers_;

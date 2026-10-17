@@ -1,6 +1,19 @@
-// Danh sách lệnh D3D11 ghi trên deferred context. Lỗi đầu được giữ, lệnh sau bỏ.
-// Không lật trục Y. Cache pipeline, nhóm gắn, đỉnh và trạng thái để khỏi gắn lại.
-// Khác gốc: bgfx chỉ có immediate context.
+/*==============================================================================
+ *  ENGINEHP  |  HIGH-PERFORMANCE GAME ENGINE
+ *------------------------------------------------------------------------------
+ *  TỆP       : engine/gpu/d3d11/commands.cpp
+ *  PHÂN HỆ   : Gpu / D3d11 / Commands
+ *  CHUẨN     : C++23
+ *------------------------------------------------------------------------------
+ *  CHỨC NĂNG
+ *  - Danh sách lệnh D3D11 ghi trên deferred context. Lỗi đầu được giữ, lệnh sau
+ *    bỏ. Không lật trục Y. Cache pipeline, nhóm gắn, đỉnh và trạng thái để khỏi
+ *    gắn lại. Khác gốc: bgfx chỉ có immediate context.
+ *------------------------------------------------------------------------------
+ *  TÁC GIẢ   : HiepHoon
+ *  TELEGRAM  : @Hoon9xx
+ *============================================================================*/
+
 #include "gpu/d3d11/commands.hpp"
 
 #include "core/error.hpp"
@@ -271,6 +284,13 @@ void bind_fixed(DeviceContext& context, const Pipeline& pipeline, const FixedSta
     context.OMSetBlendState(blend, factors, 0xFFFFFFFFU);
 }
 
+// Làm tròn edge lên bội của block (block 0 coi như 1).
+// NOLINTNEXTLINE(bugprone-easily-swappable-parameters): cạnh rồi bước như mọi phép làm tròn.
+[[nodiscard]] UINT round_to_block(UINT edge, UINT block) noexcept {
+    const UINT step = std::max(block, 1U);
+    return (edge + step - 1) / step * step;
+}
+
 void bind_uniform_whole(ID3D11DeviceContext& list, const GroupBuffer& item, ID3D11Buffer& buffer) {
     // D3D11 không nhận const.
     // NOLINTNEXTLINE(misc-const-correctness)
@@ -280,14 +300,29 @@ void bind_uniform_whole(ID3D11DeviceContext& list, const GroupBuffer& item, ID3D
     if (item.in_compute) list.CSSetConstantBuffers(item.slot, 1, &resource);
 }
 
+// Runtime giả lập command list bỏ qua lần đổi offset khi buffer ở slot không đổi; gắn null trước
+// như tài liệu của VSSetConstantBuffers1 hướng dẫn.
+void unbind_cb(ID3D11DeviceContext& list, const GroupBuffer& item) {
+    ID3D11Buffer* const none = nullptr;
+    if (item.in_vertex) list.VSSetConstantBuffers(item.slot, 1, &none);
+    if (item.in_pixel) list.PSSetConstantBuffers(item.slot, 1, &none);
+    if (item.in_compute) list.CSSetConstantBuffers(item.slot, 1, &none);
+}
+
 [[nodiscard]] core::Status bind_range(Context1& list, const GroupBuffer& item, GpuBuffer& gpu) {
-    const bool aligned = item.offset % 16U == 0U && item.bytes % 16U == 0U;
-    if (!aligned) return fail(kBad, "bind_group: cbuffer không căn 16 byte");
+    // D3D11.1 đo offset và số hằng (16 byte) theo bội của 16 hằng. check.cpp đã đòi offset là bội
+    // của kUniformAlignment và buffer còn đủ khối làm tròn 256 byte; cửa sổ vượt cuối buffer vẫn
+    // hợp lệ, shader thấy phần giao.
+    const bool aligned = item.offset % kUniformAlignment == 0U && item.bytes % 16U == 0U;
+    if (!aligned) return fail(kBad, "bind_group: cbuffer không căn 256 byte");
     if (item.offset / 16U > kUintMax) {
         return fail(core::ErrorCode::kOverflow, "bind_group: offset cbuffer không vừa UINT");
     }
+    constexpr UINT kConstantStep = 16;
+    constexpr UINT kMostConstants = 4'096;
     const UINT first = static_cast<UINT>(item.offset / 16U);
-    const UINT count = item.bytes / 16U;
+    const UINT rounded = round_to_block(item.bytes / 16U, kConstantStep);
+    const UINT count = std::min(rounded, kMostConstants);
     // D3D11 không nhận const.
     // NOLINTNEXTLINE(misc-const-correctness)
     ID3D11Buffer* resource = &gpu;
@@ -310,7 +345,10 @@ void bind_uniform_whole(ID3D11DeviceContext& list, const GroupBuffer& item, ID3D
     if (item.offset != 0 && env.context1 == nullptr) {
         return fail(core::ErrorCode::kUnsupported, "D3D11.1 mới gắn được một khoảng cbuffer");
     }
-    if (ranged && env.context1 != nullptr) return bind_range(*env.context1, item, gpu);
+    const bool is_ranged = ranged && env.context1 != nullptr;
+    const bool is_emulated = is_ranged && env.device->emulates_lists();
+    if (is_emulated) unbind_cb(*env.context, item);
+    if (is_ranged) return bind_range(*env.context1, item, gpu);
     bind_uniform_whole(*env.context, item, gpu);
     return ok();
 }
@@ -493,13 +531,19 @@ void emit_indexed(DeviceContext& list, GpuBuffer& buffer, const IndirectRange& r
     return box;
 }
 
-[[nodiscard]] D3D11_BOX region_box(const CopyRegion& region) noexcept {
+// D3D11 đo box của ảnh nén theo khối trọn: mép phải và dưới làm tròn lên bội của khối, kể cả mip
+// nhỏ hơn một khối (mip 2x2 của BC là một khối 4x4). fits_box đã đòi mép trong vùng ảnh căn khối,
+// nên chỉ mép trùng biên mip bị làm tròn. Định dạng không nén có khối 1x1.
+[[nodiscard]] D3D11_BOX region_box(const CopyRegion& region, Format format) noexcept {
+    const FormatInfo facts = info(format);
+    const UINT right = region.x + region.width;
+    const UINT bottom = region.y + region.height;
     D3D11_BOX box{};
     box.left = region.x;
     box.top = region.y;
     box.front = region.z;
-    box.right = region.x + region.width;
-    box.bottom = region.y + region.height;
+    box.right = round_to_block(right, facts.block_width);
+    box.bottom = round_to_block(bottom, facts.block_height);
     box.back = region.z + region.depth;
     return box;
 }
@@ -541,38 +585,14 @@ void copy_texture_layer(const LayerCopy& job, U32 layer) {
     job.context->CopySubresourceRegion(target, dest_sub, dest_x, dest_y, dest_z, origin, source_sub, &box);
 }
 
-// Nhân factor với count phải ra product.
-// NOLINTNEXTLINE(bugprone-easily-swappable-parameters)
-[[nodiscard]] bool product_fits(U64 factor, U64 count, U64 product) noexcept {
-    if (factor == 0) return true;
-    return product / factor == count;
-}
-
-[[nodiscard]] bool shadow_products(const CopyRegion& region, U64& bytes) noexcept {
-    const U64 row = region.row_bytes;
-    const U64 row_span = row * region.rows;
-    if (!product_fits(row, region.rows, row_span)) return false;
-    const U64 slice = row_span * region.depth;
-    if (!product_fits(row_span, region.depth, slice)) return false;
-    const U64 total = slice * region.layer_count;
-    if (!product_fits(slice, region.layer_count, total)) return false;
-    if (row > kUintMax || row_span > kUintMax) return false;
-    bytes = total;
-    return true;
-}
-
-[[nodiscard]] bool fits_shadow(const Buffer& source, const CopyRegion& region, U64 bytes) noexcept {
-    if (region.buffer_offset > source.shadow.size()) return false;
-    if (bytes > source.shadow.size() - region.buffer_offset) return false;
-    if (bytes != 0 && source.shadow.data() == nullptr) return false;
-    return true;
-}
-
+// resolve_copy đã kiểm vùng chép nằm trong buffer theo luật chung của mọi backend (check_rows: dòng
+// cuối của lát cuối không đệm). Ở đây chỉ còn: buffer upload, shadow phủ trọn buffer, và bước lát
+// vừa UINT của UpdateSubresource.
 [[nodiscard]] bool shadow_covers(const Buffer& source, const CopyRegion& region) noexcept {
     if (source.domain != MemoryDomain::kUpload) return false;
-    U64 bytes = 0;
-    if (!shadow_products(region, bytes)) return false;
-    return fits_shadow(source, region, bytes);
+    if (source.shadow.size() < source.size) return false;
+    const U64 slice_pitch = U64{region.row_bytes} * region.rows;
+    return slice_pitch <= kUintMax;
 }
 
 [[nodiscard]] const void* layer_pixels(const Buffer& source, const CopyRegion& region, U32 layer) {
@@ -599,7 +619,7 @@ void upload_layer(const UploadSlice& job, U32 layer) {
     const UINT subresource = D3D11CalcSubresource(mip, slice, target.mip_levels);
     const UINT row_pitch = region.row_bytes;
     const UINT depth_pitch = region.row_bytes * region.rows;
-    const D3D11_BOX box = region_box(region);
+    const D3D11_BOX box = region_box(region, target.format);
     const void* pixels = layer_pixels(*job.source, region, layer);
     ID3D11Resource* resource = target.resource.Get();
     job.context->UpdateSubresource(resource, subresource, &box, pixels, row_pitch, depth_pitch);
@@ -664,7 +684,7 @@ void stage_layer(const StageCopy& job, U32 layer) {
     const UINT slice = region.first_layer + layer;
     const UINT source_sub = D3D11CalcSubresource(mip, slice, source.mip_levels);
     const UINT dest_sub = D3D11CalcSubresource(0, layer, 1);
-    const D3D11_BOX box = region_box(region);
+    const D3D11_BOX box = region_box(region, source.format);
     ID3D11Resource* origin = source.resource.Get();
     job.context->CopySubresourceRegion(job.staging, dest_sub, 0, 0, 0, origin, source_sub, &box);
 }
@@ -677,10 +697,13 @@ void stage_layer(const StageCopy& job, U32 layer) {
         return std::unexpected(cause);
     }
     const CopyRegion copy = *resolved;
+    // Texture BC phải rộng và cao bằng bội của khối, kể cả ảnh staging của một mip 2x2 (lớp kiểm
+    // tra trả E_INVALIDARG): ảnh staging trùm trọn hộp đã làm tròn của region_box.
+    const FormatInfo facts = info(job.source->format);
     StagingDesc staging;
     staging.device = job.device;
-    staging.width = copy.width;
-    staging.height = copy.height;
+    staging.width = round_to_block(copy.width, facts.block_width);
+    staging.height = round_to_block(copy.height, facts.block_height);
     staging.layers = copy.layer_count;
     staging.format = to_dxgi(job.source->format);
     ComPtr<ID3D11Texture2D> texture;
@@ -877,6 +900,7 @@ core::Status Commands::open() {
     layout_hash_ = 0;
     forget_groups();
     vertex_set_.fill(false);
+    vertex_strides_.fill(0);
     index_set_ = false;
     viewport_set_ = false;
     scissor_set_ = false;
@@ -1171,6 +1195,7 @@ void Commands::bind_pipeline(PipelineHandle pipeline) {
     layout_hash_ = found->layout.hash;
     if (layout_hash_ != previous) forget_groups();
     pipeline_ = pipeline;
+    apply_vertex_buffers(*found);
 }
 
 void Commands::bind_group(std::uint32_t space, BindGroupHandle group) {
@@ -1236,41 +1261,56 @@ void Commands::push_constants(std::span<const std::byte> data, std::uint32_t off
     context_->CSSetConstantBuffers(kPushRegister, 1, &buffer);
 }
 
+// Stride của D3D11 đi cùng lời gắn buffer nhưng thuộc pipeline ở hợp đồng chung (như Vulkan), nên
+// khe được áp lên context khi pipeline đang gắn đọc nó bằng stride khác stride đã áp. Trước
+// 2026-10-17 stride chốt lúc gắn, và lần gắn lại cùng buffer cùng offset còn bị bỏ qua dù pipeline
+// đã đổi stride: FxView gắn buffer hạt trước pipeline hạt và vẽ ra cột nhiễu ở Đại Lý.
+void Commands::apply_vertex_buffer(const Pipeline& pipeline, std::uint32_t slot) {
+    const UINT stride = pipeline.strides.at(slot);
+    const bool is_due = vertex_set_.at(slot) && stride != 0 && vertex_strides_.at(slot) != stride;
+    if (!is_due) return;
+    const Buffer* found = device_->find(vertices_.at(slot));
+    if (found == nullptr || found->resource == nullptr) {
+        reject(fail(kBad, "bind_pipeline: buffer đỉnh đã gắn đã chết"));
+        return;
+    }
+    const auto byte_at = static_cast<UINT>(vertex_at_.at(slot));
+    // D3D11 không nhận const.
+    // NOLINTNEXTLINE(misc-const-correctness)
+    ID3D11Buffer* resource = found->resource.Get();
+    context_->IASetVertexBuffers(slot, 1, &resource, &stride, &byte_at);
+    vertex_strides_.at(slot) = stride;
+}
+
+void Commands::apply_vertex_buffers(const Pipeline& pipeline) {
+    for (std::uint32_t slot = 0; slot < kMaxVertexBuffers; ++slot)
+        apply_vertex_buffer(pipeline, slot);
+}
+
 void Commands::bind_vertex_buffer(U32 slot, Buf buffer, U64 offset) {
     if (!live()) return;
     if (slot >= kMaxVertexBuffers) {
         reject(fail(kBad, "bind_vertex_buffer: khe vượt kMaxVertexBuffers"));
         return;
     }
-    // Chỉ số đã nhỏ hơn trần.
-    // NOLINTBEGIN(cppcoreguidelines-pro-bounds-constant-array-index)
-    const bool same_slot = vertex_set_[slot] && vertices_[slot] == buffer;
-    const bool cached = same_slot && vertex_at_[slot] == offset;
+    const bool same_slot = vertex_set_.at(slot) && vertices_.at(slot) == buffer;
+    const bool cached = same_slot && vertex_at_.at(slot) == offset;
     if (cached) return;
     const Buffer* found = device_->find(buffer);
     if (found == nullptr || found->resource == nullptr) {
         reject(fail(kBad, "bind_vertex_buffer: buffer chưa hiện thực"));
         return;
     }
-    const Pipeline* pipeline = device_->find(pipeline_);
-    if (pipeline == nullptr) {
-        reject(fail(kState, "bind_vertex_buffer: thiếu pipeline"));
-        return;
-    }
     if (!fits_uint(offset)) {
         reject(fail(core::ErrorCode::kOverflow, "bind_vertex_buffer: offset không vừa UINT"));
         return;
     }
-    const UINT stride = pipeline->strides[slot];
-    const UINT byte_at = static_cast<UINT>(offset);
-    // D3D11 không nhận const.
-    // NOLINTNEXTLINE(misc-const-correctness)
-    ID3D11Buffer* resource = found->resource.Get();
-    context_->IASetVertexBuffers(slot, 1, &resource, &stride, &byte_at);
-    vertices_[slot] = buffer;
-    vertex_at_[slot] = offset;
-    vertex_set_[slot] = true;
-    // NOLINTEND(cppcoreguidelines-pro-bounds-constant-array-index)
+    vertices_.at(slot) = buffer;
+    vertex_at_.at(slot) = offset;
+    vertex_set_.at(slot) = true;
+    vertex_strides_.at(slot) = 0;
+    const Pipeline* pipeline = device_->find(pipeline_);
+    if (pipeline != nullptr) apply_vertex_buffer(*pipeline, slot);
 }
 
 void Commands::bind_index_buffer(Buf buffer, IndexType type, U64 offset) {

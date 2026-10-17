@@ -1,8 +1,22 @@
-// Thiết bị D3D11: cài gpu::Device cho máy không chạy được Vulkan hoặc D3D12. Một immediate context
-// dưới mutex; mỗi danh sách lệnh là deferred context để nhiều luồng ghi song song. Buffer upload
-// dạng constant hoặc structured dùng USAGE_DYNAMIC và MAP_WRITE_DISCARD. Mesh shader và ray tracing
-// trả Unsupported. Đối chiếu feature level và swapchain với bgfx renderer_d3d11. Khác gốc: không
-// chép file đó vì nó không cài gpu::Device.
+/*==============================================================================
+ *  ENGINEHP  |  HIGH-PERFORMANCE GAME ENGINE
+ *------------------------------------------------------------------------------
+ *  TỆP       : engine/gpu/d3d11/device.hpp
+ *  PHÂN HỆ   : Gpu / D3d11 / Device
+ *  CHUẨN     : C++23
+ *------------------------------------------------------------------------------
+ *  CHỨC NĂNG
+ *  - Thiết bị D3D11: cài gpu::Device cho máy không chạy được Vulkan hoặc D3D12.
+ *    Một immediate context dưới mutex; mỗi danh sách lệnh là deferred context
+ *    để nhiều luồng ghi song song. Buffer upload dạng constant hoặc structured
+ *    dùng USAGE_DYNAMIC và MAP_WRITE_DISCARD. Mesh shader và ray tracing trả
+ *    Unsupported. Đối chiếu feature level và swapchain với bgfx renderer_d3d11.
+ *    Khác gốc: không chép file đó vì nó không cài gpu::Device.
+ *------------------------------------------------------------------------------
+ *  TÁC GIẢ   : HiepHoon
+ *  TELEGRAM  : @Hoon9xx
+ *============================================================================*/
+
 #pragma once
 
 #include "core/win32.hpp" // IWYU pragma: keep
@@ -278,6 +292,9 @@ public:
     [[nodiscard]] std::uint64_t completed_fence() const noexcept { return completed_.load(std::memory_order_acquire); }
     [[nodiscard]] IDXGIAdapter1* adapter_dxgi() const noexcept { return adapter_dxgi_.Get(); }
     [[nodiscard]] bool allows_tearing() const noexcept { return allows_tearing_; }
+    // Runtime giả lập command list: bản giả lập bỏ qua lần đổi offset của *SetConstantBuffers1 khi
+    // buffer ở slot không đổi (tài liệu của ID3D11DeviceContext1::VSSetConstantBuffers1).
+    [[nodiscard]] bool emulates_lists() const noexcept { return emulates_lists_; }
     void pump();
     [[nodiscard]] Status wait_until(std::uint64_t ticket, std::chrono::nanoseconds timeout);
     [[nodiscard]] Result<TextureHandle> adopt_swap_image(SwapImage image);
@@ -327,6 +344,7 @@ private:
     AdapterInfo adapter_{};
     DeviceCaps caps_{};
     bool allows_tearing_ = false;
+    bool emulates_lists_ = false;
     Slots<Buffer, BufferTag> buffers_;
     Slots<Texture, TextureTag> textures_;
     Slots<View, TextureViewTag> views_;

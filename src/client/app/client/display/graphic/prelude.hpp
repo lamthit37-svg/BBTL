@@ -1291,16 +1291,22 @@ inline void Feed::run(const std::stop_token& stop) {
     return core::fail(core::ErrorCode::kUnsupported, "định dạng màu của màn hình chưa chụp được");
 }
 
-// Rào ảnh của khung qua lại giữa bố cục Present (trình bày) và CopySource (chép ra buffer).
-inline void shot_barrier(gpu::CommandList& list, const gpu::TextureHandle& texture, bool to_copy) {
+// Khung chụp đi thẳng từ bố cục vẽ sang CopySource, khung thường sang Present.
+[[nodiscard]] inline render::ScreenHandoff handoff_for(bool is_shot) noexcept {
+    if (is_shot) return render::ScreenHandoff::kCopy;
+    return render::ScreenHandoff::kPresent;
+}
+
+// Chép ảnh chụp xong: rào ảnh của khung từ CopySource (Screen::end với ScreenHandoff::kCopy) về
+// Present. Không quyền truy cập nào sau, stage ColorOutput nối chuỗi với semaphore trình bày.
+inline void shot_to_present(gpu::CommandList& list, const gpu::TextureHandle& texture) {
     gpu::TextureBarrier fence;
     fence.texture = texture;
-    fence.stage_before = to_copy ? gpu::SyncStage::kColorOutput : gpu::SyncStage::kCopy;
-    fence.stage_after = to_copy ? gpu::SyncStage::kCopy : gpu::SyncStage::kColorOutput;
-    fence.access_before = to_copy ? gpu::Access::kColorWrite : gpu::Access::kCopyRead;
-    fence.access_after = to_copy ? gpu::Access::kCopyRead : gpu::Access::kColorWrite;
-    fence.layout_before = to_copy ? gpu::TextureLayout::kPresent : gpu::TextureLayout::kCopySource;
-    fence.layout_after = to_copy ? gpu::TextureLayout::kCopySource : gpu::TextureLayout::kPresent;
+    fence.stage_before = gpu::SyncStage::kCopy;
+    fence.stage_after = gpu::SyncStage::kColorOutput;
+    fence.access_before = gpu::Access::kCopyRead;
+    fence.layout_before = gpu::TextureLayout::kCopySource;
+    fence.layout_after = gpu::TextureLayout::kPresent;
     list.barrier({}, std::span(&fence, 1), {});
 }
 

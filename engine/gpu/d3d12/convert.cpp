@@ -1,8 +1,22 @@
-// Bảng đổi kiểu engine sang Direct3D 12. Thứ tự kFormats khớp enum Format.
-// Nguồn: Forge2 src/gpu/d3d12/convert.cpp@d7fcd76. Khác gốc: enumerator mang tiền tố k;
-// hàng kStages, kAccess, kTypeless và kDepthSrv ghi đủ tên trường; if trong for của
-// map_flags và to_visibility tách thành or_row và note_stage; map_flags nhận FlagRows;
-// to_dxgi(Format) tách chỉ số khỏi .at; include trực tiếp header của mọi tên dùng tới.
+/*==============================================================================
+ *  ENGINEHP  |  HIGH-PERFORMANCE GAME ENGINE
+ *------------------------------------------------------------------------------
+ *  TỆP       : engine/gpu/d3d12/convert.cpp
+ *  PHÂN HỆ   : Gpu / D3d12 / Convert
+ *  CHUẨN     : C++23
+ *------------------------------------------------------------------------------
+ *  CHỨC NĂNG
+ *  - Bảng đổi kiểu engine sang Direct3D 12. Thứ tự kFormats khớp enum Format.
+ *    Nguồn: Forge2 src/gpu/d3d12/convert.cpp@d7fcd76. Khác gốc: enumerator mang
+ *    tiền tố k; hàng kStages, kAccess, kTypeless và kDepthSrv ghi đủ tên
+ *    trường; if trong for của map_flags và to_visibility tách thành or_row và
+ *    note_stage; map_flags nhận FlagRows; to_dxgi(Format) tách chỉ số khỏi .at;
+ *    include trực tiếp header của mọi tên dùng tới.
+ *------------------------------------------------------------------------------
+ *  TÁC GIẢ   : HiepHoon
+ *  TELEGRAM  : @Hoon9xx
+ *============================================================================*/
+
 #include "gpu/d3d12/convert.hpp"
 
 #include "gpu/barrier.hpp"
@@ -340,6 +354,26 @@ D3D12_BLEND to_dxgi(BlendFactor value) noexcept {
     return D3D12_BLEND_ONE;
 }
 
+// Hằng (BLEND_FACTOR) và SRC_ALPHA_SAT hợp lệ cho alpha nên giữ nguyên.
+D3D12_BLEND to_alpha_blend(BlendFactor value) noexcept {
+    switch (value) {
+    case BlendFactor::kSrcColor: return D3D12_BLEND_SRC_ALPHA;
+    case BlendFactor::kOneMinusSrcColor: return D3D12_BLEND_INV_SRC_ALPHA;
+    case BlendFactor::kDstColor: return D3D12_BLEND_DEST_ALPHA;
+    case BlendFactor::kOneMinusDstColor: return D3D12_BLEND_INV_DEST_ALPHA;
+    case BlendFactor::kZero:
+    case BlendFactor::kOne:
+    case BlendFactor::kSrcAlpha:
+    case BlendFactor::kOneMinusSrcAlpha:
+    case BlendFactor::kDstAlpha:
+    case BlendFactor::kOneMinusDstAlpha:
+    case BlendFactor::kSrcAlphaSaturate:
+    case BlendFactor::kConstant:
+    case BlendFactor::kOneMinusConstant: return to_dxgi(value);
+    }
+    return D3D12_BLEND_ONE;
+}
+
 D3D12_BLEND_OP to_dxgi(BlendOp value) noexcept {
     switch (value) {
     case BlendOp::kAdd: return D3D12_BLEND_OP_ADD;
@@ -400,17 +434,33 @@ DXGI_FORMAT to_index(IndexType value) noexcept {
     return DXGI_FORMAT_R16_UINT;
 }
 
+namespace {
+
+[[nodiscard]] UINT filter_bits(Filter filter, UINT shift) noexcept {
+    const bool is_linear = filter == Filter::kLinear;
+    const UINT type = is_linear ? D3D12_FILTER_TYPE_LINEAR : D3D12_FILTER_TYPE_POINT;
+    return type << shift;
+}
+
+} // namespace
+
+// Như D3D12_ENCODE_BASIC_FILTER của d3d12.h: mỗi phép lọc hai bit ở vị trí riêng (min 4, mag 2,
+// mip 0), kiểu giảm ở bit 7; dị hướng là lọc tuyến tính cả ba cộng D3D12_ANISOTROPIC_FILTERING_BIT
+// (D3D12_ENCODE_ANISOTROPIC_FILTER). Mã khác các tổ hợp ấy làm lớp kiểm tra gỡ thiết bị.
 D3D12_FILTER to_filter(const SamplerDesc& desc) noexcept {
     const bool is_compare = desc.compare != CompareOp::kNever;
-    const bool is_min_linear = desc.min_filter == Filter::kLinear;
-    const bool is_mag_linear = desc.mag_filter == Filter::kLinear;
-    const bool is_mip_linear = desc.mip_filter == Filter::kLinear;
     const bool is_aniso = desc.max_anisotropy > 1;
-    if (is_aniso && is_compare) return D3D12_FILTER_COMPARISON_ANISOTROPIC;
-    if (is_aniso) return D3D12_FILTER_ANISOTROPIC;
-    const int code = (is_min_linear ? 4 : 0) + (is_mag_linear ? 2 : 0) + (is_mip_linear ? 1 : 0);
-    if (!is_compare) return static_cast<D3D12_FILTER>(code);
-    return static_cast<D3D12_FILTER>(D3D12_FILTER_COMPARISON_MIN_MAG_MIP_POINT + code);
+    const auto comparison = static_cast<UINT>(D3D12_FILTER_REDUCTION_TYPE_COMPARISON);
+    const auto standard = static_cast<UINT>(D3D12_FILTER_REDUCTION_TYPE_STANDARD);
+    const UINT reduction = is_compare ? comparison : standard;
+    const Filter min = is_aniso ? Filter::kLinear : desc.min_filter;
+    const Filter mag = is_aniso ? Filter::kLinear : desc.mag_filter;
+    const Filter mip = is_aniso ? Filter::kLinear : desc.mip_filter;
+    UINT code = filter_bits(min, D3D12_MIN_FILTER_SHIFT) | filter_bits(mag, D3D12_MAG_FILTER_SHIFT);
+    code |= filter_bits(mip, D3D12_MIP_FILTER_SHIFT);
+    code |= reduction << D3D12_FILTER_REDUCTION_TYPE_SHIFT;
+    if (is_aniso) code |= D3D12_ANISOTROPIC_FILTERING_BIT;
+    return static_cast<D3D12_FILTER>(code);
 }
 
 D3D12_TEXTURE_ADDRESS_MODE to_dxgi(AddressMode value) noexcept {

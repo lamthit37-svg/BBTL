@@ -1,6 +1,20 @@
-// Swapchain flip-model và timeline (ID3D12Fence) của backend D3D12. Hình dạng acquire rồi present
-// giống Vulkan: D3D12 lấy chỉ số ảnh hiện tại, present là một lời gọi riêng.
-// Nguồn: Forge2 src/gpu/d3d12/swapchain.hpp@d7fcd76. Khác gốc: không.
+/*==============================================================================
+ *  ENGINEHP  |  HIGH-PERFORMANCE GAME ENGINE
+ *------------------------------------------------------------------------------
+ *  TỆP       : engine/gpu/d3d12/swapchain.hpp
+ *  PHÂN HỆ   : Gpu / D3d12 / Swapchain
+ *  CHUẨN     : C++23
+ *------------------------------------------------------------------------------
+ *  CHỨC NĂNG
+ *  - Swapchain flip-model và timeline (ID3D12Fence) của backend D3D12. Hình
+ *    dạng acquire rồi present giống Vulkan: D3D12 lấy chỉ số ảnh hiện tại,
+ *    present là một lời gọi riêng. Nguồn: Forge2
+ *    src/gpu/d3d12/swapchain.hpp@d7fcd76. Khác gốc: không.
+ *------------------------------------------------------------------------------
+ *  TÁC GIẢ   : HiepHoon
+ *  TELEGRAM  : @Hoon9xx
+ *============================================================================*/
+
 #pragma once
 
 #include "gpu/d3d12/device.hpp"
@@ -44,8 +58,10 @@ public:
     [[nodiscard]] std::uint32_t width() const noexcept override { return width_; }
     [[nodiscard]] std::uint32_t height() const noexcept override { return height_; }
 
-    [[nodiscard]] bool is_awaiting_submit() const noexcept { return is_awaiting_; }
-    void mark_submitted() noexcept { is_awaiting_ = false; }
+    [[nodiscard]] bool is_awaiting_submit() const noexcept {
+        return is_acquired_ && !is_submitted_;
+    }
+    void mark_submitted() noexcept { is_submitted_ = true; }
 
 private:
     [[nodiscard]] Status adopt_images();
@@ -62,7 +78,9 @@ private:
     std::uint32_t width_ = 0;
     std::uint32_t height_ = 0;
     UINT flags_ = 0;
-    bool is_awaiting_ = false;
+    // Vòng một khung như SwapchainVk: acquire, submit với present_target, present.
+    bool is_acquired_ = false;
+    bool is_submitted_ = false;
     std::vector<TextureHandle> images_;
     std::vector<TextureViewHandle> views_;
 };

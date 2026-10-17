@@ -14,12 +14,21 @@ struct Joint {
     float4 row1;
     float4 row2;
 };
+// Ma trận thế giới của một bản sao instanced: bốn cột đúng thứ tự WorldWords của forward.cpp. Ghi
+// từng cột thay cho float4x4 vì fxc (DXBC) đọc float4x4 của buffer có cấu trúc theo hàng và bỏ qua
+// pack_matrix, còn DXIL và SPIR-V đọc theo cột: cùng dữ liệu ra ma trận chuyển vị trên D3D11.
+struct WorldCopy {
+    float4 col0;
+    float4 col1;
+    float4 col2;
+    float4 col3;
+};
 #ifndef F2_DXBC
 StructuredBuffer<Joint> palette : register(t0, space2);
-StructuredBuffer<float4x4> worlds : register(t1, space2);
+StructuredBuffer<WorldCopy> worlds : register(t1, space2);
 #else
 StructuredBuffer<Joint> palette : register(t8);
-StructuredBuffer<float4x4> worlds : register(t9);
+StructuredBuffer<WorldCopy> worlds : register(t9);
 #endif
 
 struct Vertex {
@@ -51,18 +60,20 @@ Joint blend_joints(Vertex vertex) {
 
 // Điểm hoặc hướng (w là 1 hoặc 0) qua ma trận thế giới của lệnh vẽ hay của bản sao instanced.
 float3 to_world(float4 local, uint instance_id) {
-    if ((draw.flags & kInstanced) != 0u) return mul(worlds[draw.joint_base + instance_id], local).xyz;
-    return float3(dot(draw.world0, local), dot(draw.world1, local), dot(draw.world2, local));
+    if ((draw.flags & kInstanced) == 0u) {
+        return float3(dot(draw.world0, local), dot(draw.world1, local), dot(draw.world2, local));
+    }
+    const WorldCopy copy = worlds[draw.joint_base + instance_id];
+    const float4 spun = copy.col0 * local.x + copy.col1 * local.y + copy.col2 * local.z;
+    return (spun + copy.col3 * local.w).xyz;
 }
 
 // Đèn điểm của vật thể: của lệnh vẽ, hoặc của bản sao instanced. forward.cpp ghi chỉ số đèn của
 // bản sao vào ô hàng cuối, cột đầu của ma trận thế giới của nó (ô ấy của ma trận affine là 0, và
-// to_world chỉ lấy xyz). Đọc bằng chính phép mul(M, v) mà to_world dùng, nên không phụ thuộc cách
-// buffer có cấu trúc xếp ma trận.
+// to_world chỉ lấy xyz).
 uint lamp_of(uint instance_id) {
     if ((draw.flags & kInstanced) == 0u) return draw.lamp;
-    const float4 first_axis = float4(1.0, 0.0, 0.0, 0.0);
-    return uint(mul(worlds[draw.joint_base + instance_id], first_axis).w + 0.5);
+    return uint(worlds[draw.joint_base + instance_id].col0.w + 0.5);
 }
 
 Varying main(Vertex vertex, uint instance_id : SV_InstanceID) {

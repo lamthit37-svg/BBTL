@@ -1,9 +1,22 @@
-// Đổi kiểu của tầng đồ hoạ sang kiểu Direct3D 12. Mỗi hàm là một bảng một chiều; không hàm nào có
-// default trên enum của engine, nên thêm enumerator mà quên ở đây là lỗi dịch (C4062). Enhanced
-// Barriers: D3D12 không có giai đoạn nạp đỉnh tách khỏi vertex shader, VertexInput gồm cả
-// INDEX_INPUT và VERTEX_SHADING.
-// Nguồn: Forge2 src/gpu/d3d12/convert.hpp@d7fcd76. Khác gốc: core/win32.hpp trước d3d12.h vì
-// check.py không có NOMINMAX của CMake.
+/*==============================================================================
+ *  ENGINEHP  |  HIGH-PERFORMANCE GAME ENGINE
+ *------------------------------------------------------------------------------
+ *  TỆP       : engine/gpu/d3d12/convert.hpp
+ *  PHÂN HỆ   : Gpu / D3d12 / Convert
+ *  CHUẨN     : C++23
+ *------------------------------------------------------------------------------
+ *  CHỨC NĂNG
+ *  - Đổi kiểu của tầng đồ hoạ sang kiểu Direct3D 12. Mỗi hàm là một bảng một
+ *    chiều; không hàm nào có default trên enum của engine, nên thêm enumerator
+ *    mà quên ở đây là lỗi dịch (C4062). Enhanced Barriers: D3D12 không có giai
+ *    đoạn nạp đỉnh tách khỏi vertex shader, VertexInput gồm cả INDEX_INPUT và
+ *    VERTEX_SHADING. Nguồn: Forge2 src/gpu/d3d12/convert.hpp@d7fcd76. Khác gốc:
+ *    core/win32.hpp trước d3d12.h vì check.py không có NOMINMAX của CMake.
+ *------------------------------------------------------------------------------
+ *  TÁC GIẢ   : HiepHoon
+ *  TELEGRAM  : @Hoon9xx
+ *============================================================================*/
+
 #pragma once
 
 #include "core/win32.hpp" // IWYU pragma: keep
@@ -27,6 +40,8 @@ namespace game::gpu::d3d12 {
 [[nodiscard]] D3D12_COMPARISON_FUNC to_dxgi(CompareOp value) noexcept;
 [[nodiscard]] D3D12_STENCIL_OP to_dxgi(StencilOp value) noexcept;
 [[nodiscard]] D3D12_BLEND to_dxgi(BlendFactor value) noexcept;
+// Hệ số cho kênh alpha: D3D cấm hệ số *_COLOR ở đây, Vulkan đọc thành phần alpha của chúng.
+[[nodiscard]] D3D12_BLEND to_alpha_blend(BlendFactor value) noexcept;
 [[nodiscard]] D3D12_BLEND_OP to_dxgi(BlendOp value) noexcept;
 [[nodiscard]] D3D12_CULL_MODE to_dxgi(CullMode value) noexcept;
 [[nodiscard]] D3D12_FILL_MODE to_dxgi(FillMode value) noexcept;

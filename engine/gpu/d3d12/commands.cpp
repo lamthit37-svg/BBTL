@@ -1,7 +1,21 @@
-// Ghi lệnh D3D12. Viewport giữ nguyên trục: NDC Y hướng lên là mặc định của API này, khác Vulkan.
-// Nguồn: Forge2 src/gpu/d3d12/commands.cpp@d7fcd76. Khác gốc: enumerator mang tiền tố k; thân vòng
-// lồng tách hàm hoặc đưa điều kiện dừng lên for; return reject trong hàm void thành gọi rồi return;
-// aggregate ghi tên trường; include trực tiếp header của mọi tên dùng tới.
+/*==============================================================================
+ *  ENGINEHP  |  HIGH-PERFORMANCE GAME ENGINE
+ *------------------------------------------------------------------------------
+ *  TỆP       : engine/gpu/d3d12/commands.cpp
+ *  PHÂN HỆ   : Gpu / D3d12 / Commands
+ *  CHUẨN     : C++23
+ *------------------------------------------------------------------------------
+ *  CHỨC NĂNG
+ *  - Ghi lệnh D3D12. Viewport giữ nguyên trục: NDC Y hướng lên là mặc định của
+ *    API này, khác Vulkan. Nguồn: Forge2 src/gpu/d3d12/commands.cpp@d7fcd76.
+ *    Khác gốc: enumerator mang tiền tố k; thân vòng lồng tách hàm hoặc đưa điều
+ *    kiện dừng lên for; return reject trong hàm void thành gọi rồi return;
+ *    aggregate ghi tên trường; include trực tiếp header của mọi tên dùng tới.
+ *------------------------------------------------------------------------------
+ *  TÁC GIẢ   : HiepHoon
+ *  TELEGRAM  : @Hoon9xx
+ *============================================================================*/
+
 #include "gpu/d3d12/commands.hpp"
 
 #include "core/error.hpp"
@@ -22,6 +36,7 @@
 #include <winerror.h>
 #include <winnt.h>
 
+#include <algorithm>
 #include <array>
 #include <bit>
 #include <cstddef>
@@ -107,16 +122,43 @@ struct BufferImage {
     bool to_texture = false;
 };
 
+// Làm tròn edge lên bội của block (block 0 coi như 1).
+// NOLINTNEXTLINE(bugprone-easily-swappable-parameters): cạnh rồi bước như mọi phép làm tròn.
+[[nodiscard]] UINT round_to_block(UINT edge, UINT block) noexcept {
+    const UINT step = std::max(block, 1U);
+    return (edge + step - 1) / step * step;
+}
+
+// Footprint và hộp chép của ảnh nén đo theo khối trọn, như GetCopyableFootprints trả về: mip BC
+// 2x2 có footprint 4x4. Footprint 2x2 làm đích của lần chép từ texture thì lớp kiểm tra báo vùng
+// đích tràn biên, vì nguồn luôn được đo bằng khối 4x4 (đo 2026-10-17). fits_box đã đòi mép trong
+// vùng ảnh căn khối, nên chỉ mép trùng biên mip bị làm tròn.
+[[nodiscard]] D3D12_BOX block_box(const CopyRegion& region, Format format) noexcept {
+    const FormatInfo facts = info(format);
+    const UINT width = round_to_block(region.width, facts.block_width);
+    const UINT height = round_to_block(region.height, facts.block_height);
+    D3D12_BOX box{};
+    box.left = region.x;
+    box.top = region.y;
+    box.front = region.z;
+    box.right = region.x + width;
+    box.bottom = region.y + height;
+    box.back = region.z + region.depth;
+    return box;
+}
+
 void copy_one(List7* list, const BufferImage& pair, const CopyRegion& region, UINT layer) {
     const std::uint64_t slice = std::uint64_t{region.rows} * region.row_bytes;
+    const Format format = pair.texture->desc.format;
+    const D3D12_BOX box = block_box(region, format);
     D3D12_TEXTURE_COPY_LOCATION footprint{};
     footprint.pResource = pair.buffer->resource.Get();
     footprint.Type = D3D12_TEXTURE_COPY_TYPE_PLACED_FOOTPRINT;
     const std::uint64_t layer_bytes = std::uint64_t{layer} * slice;
     footprint.PlacedFootprint.Offset = region.buffer_offset + layer_bytes;
-    footprint.PlacedFootprint.Footprint.Format = to_dxgi(pair.texture->desc.format);
-    footprint.PlacedFootprint.Footprint.Width = region.width;
-    footprint.PlacedFootprint.Footprint.Height = region.height;
+    footprint.PlacedFootprint.Footprint.Format = to_dxgi(format);
+    footprint.PlacedFootprint.Footprint.Width = box.right - box.left;
+    footprint.PlacedFootprint.Footprint.Height = box.bottom - box.top;
     footprint.PlacedFootprint.Footprint.Depth = region.depth;
     footprint.PlacedFootprint.Footprint.RowPitch = region.row_bytes;
     D3D12_TEXTURE_COPY_LOCATION image{};
@@ -129,7 +171,8 @@ void copy_one(List7* list, const BufferImage& pair, const CopyRegion& region, UI
     if (pair.to_texture) {
         list->CopyTextureRegion(&image, region.x, region.y, region.z, &footprint, nullptr);
     }
-    if (!pair.to_texture) list->CopyTextureRegion(&footprint, 0, 0, 0, &image, nullptr);
+    // Hộp nguồn là đúng vùng xin chép: không có hộp thì D3D12 chép trọn mức mip từ góc (0, 0).
+    if (!pair.to_texture) list->CopyTextureRegion(&footprint, 0, 0, 0, &image, &box);
 }
 
 void copy_layers(List7* list, const BufferImage& pair, const CopyRegion& region) {
@@ -466,6 +509,8 @@ Status Commands::open() {
     error_ = ok();
     pipeline_ = {};
     bound_ = 0;
+    vertex_views_ = {};
+    vertex_set_.fill(false);
     extent_width_ = 0;
     extent_height_ = 0;
     resolves_.clear();
@@ -640,14 +685,25 @@ void Commands::add_texture(const TextureBarrier& item) {
     if (texture == nullptr) return;
     D3D12_TEXTURE_BARRIER barrier{};
     barrier.SyncBefore = to_sync(item.stage_before);
-    barrier.SyncAfter = to_sync(item.stage_after);
     barrier.AccessBefore = to_access(item.access_before);
     barrier.AccessAfter = to_access(item.access_after);
+    // Không quyền truy cập nào sau barrier: D3D12 coi đổi bố cục là việc cuối trên ảnh trong lần
+    // nộp và đòi SyncAfter NONE (ColorTarget sang Present). Vulkan giữ stage để nối với semaphore.
+    const bool is_final = barrier.AccessAfter == D3D12_BARRIER_ACCESS_NO_ACCESS;
+    barrier.SyncAfter = is_final ? D3D12_BARRIER_SYNC_NONE : to_sync(item.stage_after);
     barrier.LayoutBefore = to_layout(item.layout_before, queue_);
     barrier.LayoutAfter = to_layout(item.layout_after, queue_);
     barrier.pResource = texture->resource.Get();
     barrier.Subresources = whole(*texture, item);
-    barrier.Flags = D3D12_TEXTURE_BARRIER_FLAG_NONE;
+    // Ảnh RT/DS trên heap CREATE_NOT_ZEROED phải qua Discard, Clear hoặc Copy trước mọi thao tác
+    // khác, kể cả làm đích resolve. Từ Undefined là bỏ nội dung cũ: DISCARD đúng nghĩa đó và khởi
+    // tạo metadata nén.
+    const bool is_undefined = barrier.LayoutBefore == D3D12_BARRIER_LAYOUT_UNDEFINED;
+    const bool is_color = has(texture->desc.usage, TextureUsage::kColorTarget);
+    const bool is_depth = has(texture->desc.usage, TextureUsage::kDepthStencilTarget);
+    const bool is_discarded = is_undefined && (is_color || is_depth);
+    const auto discard = D3D12_TEXTURE_BARRIER_FLAG_DISCARD;
+    barrier.Flags = is_discarded ? discard : D3D12_TEXTURE_BARRIER_FLAG_NONE;
     texture_barriers_.push_back(barrier);
 }
 
@@ -878,7 +934,9 @@ void Commands::bind_pipeline(PipelineHandle pipeline) {
     list_->SetPipelineState(pipeline_.state.Get());
     if (pipeline_.is_compute) list_->SetComputeRootSignature(pipeline_.layout->signature.Get());
     if (!pipeline_.is_compute) list_->SetGraphicsRootSignature(pipeline_.layout->signature.Get());
-    if (!pipeline_.is_compute) list_->IASetPrimitiveTopology(pipeline_.topology);
+    if (pipeline_.is_compute) return;
+    list_->IASetPrimitiveTopology(pipeline_.topology);
+    apply_vertex_views();
 }
 
 void Commands::bind_group(std::uint32_t space, BindGroupHandle group) {
@@ -933,21 +991,42 @@ void Commands::push_constants(std::span<const std::byte> data, std::uint32_t off
     if (!pipeline_.is_compute) list_->SetGraphicsRoot32BitConstants(root, words, bytes, index);
 }
 
+// Stride nằm trong view của D3D12 nhưng thuộc pipeline ở hợp đồng chung (như Vulkan), nên view giữ
+// ở đây và chỉ lên list khi pipeline đang gắn đọc khe ấy bằng stride khác stride đã áp. Trước
+// 2026-10-17 stride chốt lúc gắn buffer: FxView gắn buffer hạt trước pipeline hạt, đỉnh 44 byte bị
+// đọc theo stride của pipeline trước và vẽ thành cột nhiễu ở Đại Lý.
+void Commands::apply_vertex_view(std::uint32_t slot) {
+    const UINT stride = pipeline_.strides.at(slot);
+    D3D12_VERTEX_BUFFER_VIEW& view = vertex_views_.at(slot);
+    const bool is_due = vertex_set_.at(slot) && stride != 0 && view.StrideInBytes != stride;
+    if (!is_due) return;
+    view.StrideInBytes = stride;
+    list_->IASetVertexBuffers(slot, 1, &view);
+}
+
+void Commands::apply_vertex_views() {
+    for (std::uint32_t slot = 0; slot < kMaxVertexBuffers; ++slot)
+        apply_vertex_view(slot);
+}
+
 void Commands::bind_vertex_buffer(std::uint32_t slot, BufferHandle buffer, std::uint64_t offset) {
     if (!live()) return;
-    const Buffer* const found =
-        need(buffer, BufferUsage::kVertex, "bind_vertex_buffer: buffer đã chết hoặc thiếu cờ Vertex");
+    const core::Message dead{"bind_vertex_buffer: buffer đã chết hoặc thiếu cờ Vertex"};
+    const Buffer* const found = need(buffer, BufferUsage::kVertex, dead);
     if (found == nullptr) return;
-    const bool is_valid = slot < kMaxVertexBuffers && offset <= found->size && pipeline_.state != nullptr;
+    const bool is_valid = slot < kMaxVertexBuffers && offset <= found->size;
     if (!is_valid) {
-        reject(fail(kBad, "bind_vertex_buffer: khe, offset hoặc pipeline sai"));
+        reject(fail(kBad, "bind_vertex_buffer: khe hoặc offset sai"));
         return;
     }
-    const auto size = static_cast<UINT>(found->size - offset);
-    const D3D12_VERTEX_BUFFER_VIEW view{.BufferLocation = found->gpu_address + offset,
-        .SizeInBytes = size,
-        .StrideInBytes = pipeline_.strides.at(slot)};
-    list_->IASetVertexBuffers(slot, 1, &view);
+    D3D12_VERTEX_BUFFER_VIEW& view = vertex_views_.at(slot);
+    view.BufferLocation = found->gpu_address + offset;
+    view.SizeInBytes = static_cast<UINT>(found->size - offset);
+    // Chưa áp: apply_vertex_view đặt stride khi có pipeline đồ hoạ đọc khe này.
+    view.StrideInBytes = 0;
+    vertex_set_.at(slot) = true;
+    const bool has_graphics = pipeline_.state != nullptr && !pipeline_.is_compute;
+    if (has_graphics) apply_vertex_view(slot);
 }
 
 void Commands::bind_index_buffer(BufferHandle buffer, IndexType type, std::uint64_t offset) {

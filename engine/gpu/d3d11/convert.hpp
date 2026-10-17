@@ -1,5 +1,19 @@
-// Đổi kiểu của tầng đồ hoạ sang Direct3D 11. Mỗi hàm là một bảng một chiều.
-// Đối chiếu bảng DXGI với SRC/gpu/d3d12/convert.cpp. Khác gốc: D3D11 không có barrier tường minh.
+/*==============================================================================
+ *  ENGINEHP  |  HIGH-PERFORMANCE GAME ENGINE
+ *------------------------------------------------------------------------------
+ *  TỆP       : engine/gpu/d3d11/convert.hpp
+ *  PHÂN HỆ   : Gpu / D3d11 / Convert
+ *  CHUẨN     : C++23
+ *------------------------------------------------------------------------------
+ *  CHỨC NĂNG
+ *  - Đổi kiểu của tầng đồ hoạ sang Direct3D 11. Mỗi hàm là một bảng một chiều.
+ *    Đối chiếu bảng DXGI với SRC/gpu/d3d12/convert.cpp. Khác gốc: D3D11 không
+ *    có barrier tường minh.
+ *------------------------------------------------------------------------------
+ *  TÁC GIẢ   : HiepHoon
+ *  TELEGRAM  : @Hoon9xx
+ *============================================================================*/
+
 #pragma once
 
 #include "core/win32.hpp" // IWYU pragma: keep
@@ -29,6 +43,8 @@ namespace game::gpu::d3d11 {
 [[nodiscard]] D3D11_STENCIL_OP to_dxgi(StencilOp value) noexcept;
 // Hệ số nhân trong phép trộn.
 [[nodiscard]] D3D11_BLEND to_dxgi(BlendFactor value) noexcept;
+// Hệ số cho kênh alpha: D3D cấm hệ số *_COLOR ở đây, Vulkan đọc thành phần alpha của chúng.
+[[nodiscard]] D3D11_BLEND to_alpha_blend(BlendFactor value) noexcept;
 // Phép cộng, trừ, min hoặc max khi trộn.
 [[nodiscard]] D3D11_BLEND_OP to_dxgi(BlendOp value) noexcept;
 // Mặt trước, mặt sau, hoặc không loại.

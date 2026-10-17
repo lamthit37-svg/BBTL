@@ -1,9 +1,24 @@
-// Đích vẽ lên cửa sổ: swapchain của gpu kèm ảnh độ sâu cùng cỡ, và vòng acquire, vẽ, present của
-// một khung. Gom phần mà _Ref rải trong từng ví dụ (acquireNextImage, cmdBindRenderTargets,
-// cmdResourceBarrier về PRESENT, queuePresent, rồi tự dựng lại depth buffer khi đổi cỡ).
+/*==============================================================================
+ *  ENGINEHP  |  HIGH-PERFORMANCE GAME ENGINE
+ *------------------------------------------------------------------------------
+ *  TỆP       : engine/render/screen.hpp
+ *  PHÂN HỆ   : Render / Screen
+ *  CHUẨN     : C++23
+ *------------------------------------------------------------------------------
+ *  CHỨC NĂNG
+ *  - Đích vẽ lên cửa sổ: swapchain của gpu kèm ảnh độ sâu cùng cỡ, và vòng
+ *    acquire, vẽ, present của một khung. Gom phần mà _Ref rải trong từng ví dụ
+ *    (acquireNextImage, cmdBindRenderTargets, cmdResourceBarrier về PRESENT,
+ *    queuePresent, rồi tự dựng lại depth buffer khi đổi cỡ).
+ *------------------------------------------------------------------------------
+ *  TÁC GIẢ   : HiepHoon
+ *  TELEGRAM  : @Hoon9xx
+ *============================================================================*/
+
 // Vòng dùng mỗi khung: begin (trả slot), ghi lệnh vẽ, end, Device::submit với present_target là
 // swapchain(), present. begin trả InvalidState khi bề mặt đã đổi cỡ: gọi resize rồi bỏ khung ấy.
 // Nguồn: Forge2 src/render/screen.hpp@d7fcd76. Khác gốc: enumerator mang tiền tố k.
+
 #pragma once
 
 #include "core/error.hpp"
@@ -34,6 +49,10 @@ struct ScreenView {
     std::uint32_t width = 0;
     std::uint32_t height = 0;
 };
+
+// Ảnh của khung sau lượt vẽ: trình bày thẳng, hoặc chép ra trước (ảnh chụp). Chép thẳng từ bố cục
+// vẽ, không vòng qua Present: D3D12 cấm chạm ảnh sau rào cuối về Present trong cùng lần nộp.
+enum class ScreenHandoff : std::uint8_t { kPresent, kCopy };
 
 class Screen {
 public:
@@ -67,8 +86,9 @@ public:
     // Lấy ảnh của khung, đưa nó và ảnh độ sâu về bố cục vẽ, mở lượt vẽ và xoá cả hai. Trả chỉ số
     // ảnh, dùng làm slot của renderer.
     [[nodiscard]] core::Result<std::uint32_t> begin(gpu::CommandList& list);
-    // Đóng lượt vẽ và đưa ảnh về bố cục Present.
-    void end(gpu::CommandList& list);
+    // Đóng lượt vẽ và đưa ảnh về bố cục Present, hoặc CopySource khi khung được chép ra (kCopy):
+    // khi đó người gọi chép xong tự rào ảnh về Present trước khi nộp.
+    void end(gpu::CommandList& list, ScreenHandoff handoff);
     // Đưa ảnh lên màn hình; gọi sau Device::submit.
     [[nodiscard]] core::Status present();
     // Dựng lại swapchain và ảnh độ sâu theo cỡ mới; chờ GPU rỗi. Cỡ 0 (cửa sổ thu nhỏ) bị từ chối.

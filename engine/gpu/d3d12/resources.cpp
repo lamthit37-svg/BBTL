@@ -1,13 +1,28 @@
-// Tài nguyên D3D12 đặt bằng CreatePlacedResource2, bố cục đầu là UNDEFINED (API bắt vậy với
-// buffer). View nằm ở heap descriptor CPU; sampler cũng vậy. Query kèm buffer readback để
-// ResolveQueryData ghi, CPU đọc sau khi fence của lần nộp đã xong.
-// Nguồn: Forge2 src/gpu/d3d12/resources.cpp@d7fcd76. Khác gốc: enumerator mang tiền tố k;
-// make_views tách make_sampled, make_storage, make_color vì if lồng if; is_ready đưa điều kiện
-// dừng lên while qua slot_done; fill_srv tách hai case mảng và create_query_pool tách mô tả
-// readback vì quá 40 dòng; place gộp if trùng điều kiện, format_support tách phép lọc vì
-// cognitive quá 10; NOLINT cho .at() trong hàm noexcept; MinGW không đặt tên
-// D3D12_UAV_DIMENSION_TEXTURE2DMS nên hai case đó chỉ dịch khi không phải MinGW, vẫn return false;
-// IID lấy từ hằng của SDK; include trực tiếp header của từng tên.
+/*==============================================================================
+ *  ENGINEHP  |  HIGH-PERFORMANCE GAME ENGINE
+ *------------------------------------------------------------------------------
+ *  TỆP       : engine/gpu/d3d12/resources.cpp
+ *  PHÂN HỆ   : Gpu / D3d12 / Resources
+ *  CHUẨN     : C++23
+ *------------------------------------------------------------------------------
+ *  CHỨC NĂNG
+ *  - Tài nguyên D3D12 đặt bằng CreatePlacedResource2, bố cục đầu là UNDEFINED
+ *    (API bắt vậy với buffer). View nằm ở heap descriptor CPU; sampler cũng
+ *    vậy. Query kèm buffer readback để ResolveQueryData ghi, CPU đọc sau khi
+ *    fence của lần nộp đã xong. Nguồn: Forge2
+ *    src/gpu/d3d12/resources.cpp@d7fcd76.
+ *------------------------------------------------------------------------------
+ *  TÁC GIẢ   : HiepHoon
+ *  TELEGRAM  : @Hoon9xx
+ *============================================================================*/
+
+// Khác gốc: enumerator mang tiền tố k; make_views tách make_sampled, make_storage, make_color vì if
+// lồng if; is_ready đưa điều kiện dừng lên while qua slot_done; fill_srv tách hai case mảng và
+// create_query_pool tách mô tả readback vì quá 40 dòng; place gộp if trùng điều kiện,
+// format_support tách phép lọc vì cognitive quá 10; NOLINT cho .at() trong hàm noexcept; MinGW
+// không đặt tên D3D12_UAV_DIMENSION_TEXTURE2DMS nên hai case đó chỉ dịch khi không phải MinGW, vẫn
+// return false; IID lấy từ hằng của SDK; include trực tiếp header của từng tên.
+
 #include "gpu/d3d12/device.hpp"
 
 #include "core/error.hpp"
@@ -94,9 +109,12 @@ using SrvDim = D3D12_SRV_DIMENSION;
     info.Format = DXGI_FORMAT_UNKNOWN;
     info.SampleDesc.Count = 1;
     info.Layout = D3D12_TEXTURE_LAYOUT_ROW_MAJOR;
-    if (has(desc.usage, BufferUsage::kStorage)) {
-        info.Flags = D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS;
-    }
+    // Heap UPLOAD và READBACK cấm ALLOW_UNORDERED_ACCESS (CreatePlacedResource2 trả E_INVALIDARG).
+    // Buffer storage mà CPU ghi, như palette và worlds của forward, chỉ được đọc qua SRV;
+    // write_buffer ở programs.cpp từ chối UAV trên chúng.
+    const bool is_device = desc.memory == MemoryDomain::kDevice;
+    const bool is_writable = has(desc.usage, BufferUsage::kStorage) && is_device;
+    if (is_writable) info.Flags = D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS;
     return info;
 }
 

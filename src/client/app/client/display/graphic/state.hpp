@@ -388,8 +388,13 @@ struct Display::State {
     };
     void place_prop(PropPlace place);
     void build_instances(const PropTable& table, std::span<const std::size_t> loaded);
-    // Ghi lệnh chép ảnh khung ra buffer đọc ngược; rỗng khi không chụp hoặc hỏng.
-    [[nodiscard]] std::optional<ShotPlan> record_shot(gpu::CommandList& list, std::uint32_t slot);
+    // Đã tới lúc chụp: có đường dẫn, chưa chụp, cảnh nạp xong và đủ điều kiện của chế độ chạy.
+    [[nodiscard]] bool is_shot_due() const;
+    // Khung này chụp thì tạo buffer đọc ngược; rỗng khi không chụp hoặc hỏng. Gọi trước
+    // Screen::end để ảnh đi thẳng từ bố cục vẽ sang CopySource.
+    [[nodiscard]] std::optional<ShotPlan> plan_shot();
+    // Ghi lệnh chép ảnh khung ra buffer của plan rồi rào ảnh về Present.
+    void copy_shot(gpu::CommandList& list, const ShotPlan& plan, std::uint32_t slot) const;
     // Chờ GPU chép xong, đọc buffer, nén PNG và ghi tệp; lỗi được in ra.
     void finish_shot(const ShotPlan& plan) const;
     // Lưu các số báo cáo cho luồng thông điệp đọc không khoá.

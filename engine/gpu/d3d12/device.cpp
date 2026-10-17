@@ -1,9 +1,25 @@
-// Vòng đời thiết bị D3D12: liệt kê adapter, tạo thiết bị mức 12.0 có Enhanced Barriers, hàng đợi,
-// heap descriptor và nộp lệnh. Tài nguyên nằm ở resources.cpp, pipeline ở programs.cpp.
-// Nguồn: Forge2 src/gpu/d3d12/device.cpp@d7fcd76. Khác gốc: enumerator mang tiền tố k; if trong
-// for hoặc if tách hàm hoặc đưa lên điều kiện lặp; submit tách vì dài quá 40 dòng; thứ tự lời gọi
-// D3D12 và phép kiểm HRESULT giữ nguyên; const HANDLE thành auto* const; include đúng header của
-// từng tên; IID lấy từ hằng của SDK; NOLINT kèm lý do và mã quy tắc.
+/*==============================================================================
+ *  ENGINEHP  |  HIGH-PERFORMANCE GAME ENGINE
+ *------------------------------------------------------------------------------
+ *  TỆP       : engine/gpu/d3d12/device.cpp
+ *  PHÂN HỆ   : Gpu / D3d12 / Device
+ *  CHUẨN     : C++23
+ *------------------------------------------------------------------------------
+ *  CHỨC NĂNG
+ *  - Vòng đời thiết bị D3D12: liệt kê adapter, tạo thiết bị mức 12.0 có
+ *    Enhanced Barriers, hàng đợi, heap descriptor và nộp lệnh. Tài nguyên nằm ở
+ *    resources.cpp, pipeline ở programs.cpp. Nguồn: Forge2
+ *    src/gpu/d3d12/device.cpp@d7fcd76.
+ *------------------------------------------------------------------------------
+ *  TÁC GIẢ   : HiepHoon
+ *  TELEGRAM  : @Hoon9xx
+ *============================================================================*/
+
+// Khác gốc: enumerator mang tiền tố k; if trong for hoặc if tách hàm hoặc đưa lên điều kiện lặp;
+// submit tách vì dài quá 40 dòng; thứ tự lời gọi D3D12 và phép kiểm HRESULT giữ nguyên; const
+// HANDLE thành auto* const; include đúng header của từng tên; IID lấy từ hằng của SDK; NOLINT kèm
+// lý do và mã quy tắc.
+
 #include "gpu/d3d12/device.hpp"
 
 #include "core/error.hpp"
@@ -715,7 +731,7 @@ D3d12Device::~D3d12Device() {
     }
 }
 
-void D3d12Device::pump_messages() const {
+void D3d12Device::pump_messages() const noexcept {
     if (info_ == nullptr) return;
     const std::uint64_t count = info_->GetNumStoredMessages();
     for (std::uint64_t index = logged_; index < count; ++index) {
@@ -745,6 +761,9 @@ core::Failure D3d12Device::failed(HRESULT result, core::Message message) noexcep
     // Hết bộ nhớ của một lần cấp phát không gỡ thiết bị. Chỉ DEVICE_REMOVED mới hỏi lý do.
     if (is_lost) note_loss();
     core::warn("D3D12 {:#x}: {}", static_cast<std::uint32_t>(result), message.text());
+    // Lớp kiểm tra ghi lý do của HRESULT hỏng vào hàng thông điệp; in ngay, vì lỗi lúc khởi tạo
+    // thoát trước lần validation_errors() đầu tiên và lý do sẽ mất.
+    pump_messages();
     return fail(code_of(result), message);
 }
 
@@ -857,7 +876,9 @@ Status D3d12Device::submit(QueueType queue, const SubmitDesc& desc) {
     ID3D12Fence* const fence = physical.fence.Get();
     const HRESULT signaled = physical.queue->Signal(fence, value);
     record_signals(physical, submission);
-    physical.submitted.store(value);
+    // Signal hỏng thì fence không tới value: giữ submitted để wait_idle không chờ mãi. List vẫn
+    // park với value, vì lần Signal thành công kế mang cùng số và hàng đợi chạy theo thứ tự.
+    if (SUCCEEDED(signaled)) physical.submitted.store(value);
     stamp_lists(submission.lists, value);
     Swapchain12* const target = *found;
     if (target != nullptr) target->mark_submitted();
@@ -1022,7 +1043,10 @@ void D3d12Device::discard(Pipeline& pipeline) noexcept {
 
 void D3d12Device::discard(BindGroup& group) noexcept {
     if (group.resource_at != kNoDescriptor) free_resource(group.resource_at, group.resource_count);
-    if (group.sampler_at != kNoDescriptor) free_sampler(group.sampler_at, group.sampler_count);
+    const bool is_shared = !group.sampler_key.empty();
+    const bool is_private = !is_shared && group.sampler_at != kNoDescriptor;
+    if (is_shared) unshare_samplers(group.sampler_key);
+    if (is_private) free_sampler(group.sampler_at, group.sampler_count);
     group = {};
 }
 

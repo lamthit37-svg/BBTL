@@ -1,6 +1,19 @@
-// Shader, pipeline và nhóm gắn của D3D11. DXBC vào Create*Shader; semantic của layout đỉnh lấy từ
-// phản chiếu vertex shader. Khác gốc: trạng thái raster/depth/blend nằm trên pipeline, không cache
-// toàn cục như bgfx.
+/*==============================================================================
+ *  ENGINEHP  |  HIGH-PERFORMANCE GAME ENGINE
+ *------------------------------------------------------------------------------
+ *  TỆP       : engine/gpu/d3d11/programs.cpp
+ *  PHÂN HỆ   : Gpu / D3d11 / Programs
+ *  CHUẨN     : C++23
+ *------------------------------------------------------------------------------
+ *  CHỨC NĂNG
+ *  - Shader, pipeline và nhóm gắn của D3D11. DXBC vào Create*Shader; semantic
+ *    của layout đỉnh lấy từ phản chiếu vertex shader. Khác gốc: trạng thái
+ *    raster/depth/blend nằm trên pipeline, không cache toàn cục như bgfx.
+ *------------------------------------------------------------------------------
+ *  TÁC GIẢ   : HiepHoon
+ *  TELEGRAM  : @Hoon9xx
+ *============================================================================*/
+
 #include "gpu/d3d11/device.hpp"
 
 #include "core/error.hpp"
@@ -278,8 +291,11 @@ template <class Value>
     return std::unexpected(error);
 }
 
+// object rỗng là ô không dùng (SRV hoặc UAV của chỗ gắn buffer, shader hull của pipeline thường):
+// As() trên con trỏ rỗng gọi QueryInterface qua nullptr.
 template <class T>
 void retire_com(D3d11Device& device, ComPtr<T>& object) {
+    if (object == nullptr) return;
     // MIDL che IUnknown.
     // NOLINTNEXTLINE(misc-include-cleaner)
     ComPtr<IUnknown> unknown;
@@ -551,8 +567,8 @@ template <class T>
     desc.SrcBlend = to_dxgi(state.src_color);
     desc.DestBlend = to_dxgi(state.dst_color);
     desc.BlendOp = to_dxgi(state.color_op);
-    desc.SrcBlendAlpha = to_dxgi(state.src_alpha);
-    desc.DestBlendAlpha = to_dxgi(state.dst_alpha);
+    desc.SrcBlendAlpha = to_alpha_blend(state.src_alpha);
+    desc.DestBlendAlpha = to_alpha_blend(state.dst_alpha);
     desc.BlendOpAlpha = to_dxgi(state.alpha_op);
     desc.RenderTargetWriteMask = state.write_mask;
     return desc;

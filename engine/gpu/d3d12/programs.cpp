@@ -1,9 +1,25 @@
-// Pipeline D3D12: root signature 1.1 (mảng không chặn là DESCRIPTORS_VOLATILE để update khi đang
-// nộp), PSO đồ hoạ cổ điển, PSO stream chỉ khi bật phép thử khoảng độ sâu. Một nhóm gắn là một
-// hoặc hai descriptor table (tài nguyên và sampler) trong heap nhìn thấy từ shader.
-// Nguồn: Forge2 src/gpu/d3d12/programs.cpp@d7fcd76. Khác gốc: enumerator mang tiền tố k; thân vòng
-// có nhánh tách hàm một lượt hoặc đưa điều kiện dừng lên điều kiện lặp; chữ ký dài gom tham số;
-// include trực tiếp header của từng tên. Stream đệm tường minh tới bội của căn.
+/*==============================================================================
+ *  ENGINEHP  |  HIGH-PERFORMANCE GAME ENGINE
+ *------------------------------------------------------------------------------
+ *  TỆP       : engine/gpu/d3d12/programs.cpp
+ *  PHÂN HỆ   : Gpu / D3d12 / Programs
+ *  CHUẨN     : C++23
+ *------------------------------------------------------------------------------
+ *  CHỨC NĂNG
+ *  - Pipeline D3D12: root signature 1.1 (mảng không chặn là
+ *    DESCRIPTORS_VOLATILE để update khi đang nộp), PSO đồ hoạ cổ điển, PSO
+ *    stream chỉ khi bật phép thử khoảng độ sâu. Một nhóm gắn là một hoặc hai
+ *    descriptor table (tài nguyên và sampler) trong heap nhìn thấy từ shader.
+ *    Nguồn: Forge2 src/gpu/d3d12/programs.cpp@d7fcd76.
+ *------------------------------------------------------------------------------
+ *  TÁC GIẢ   : HiepHoon
+ *  TELEGRAM  : @Hoon9xx
+ *============================================================================*/
+
+// Khác gốc: enumerator mang tiền tố k; thân vòng có nhánh tách hàm một lượt hoặc đưa điều kiện dừng
+// lên điều kiện lặp; chữ ký dài gom tham số; include trực tiếp header của từng tên. Stream đệm
+// tường minh tới bội của căn.
+
 #include "gpu/d3d12/device.hpp"
 
 #include "core/error.hpp"
@@ -249,6 +265,8 @@ struct SlotWrite {
     const SpaceLayout* space = nullptr;
     const shader::Resource* resource = nullptr;
     UINT element = 0;
+    // Khác null khi nhóm dùng bảng sampler chung: sampler ghi vào đây thay vì vào dải của nhóm.
+    SamplerPick* pick = nullptr;
 };
 
 struct StorageWrite {
@@ -541,8 +559,8 @@ void assign_stage(D3D12_SHADER_BYTECODE& slot, const Shader* shader) noexcept {
     desc.SrcBlend = to_dxgi(state.src_color);
     desc.DestBlend = to_dxgi(state.dst_color);
     desc.BlendOp = to_dxgi(state.color_op);
-    desc.SrcBlendAlpha = to_dxgi(state.src_alpha);
-    desc.DestBlendAlpha = to_dxgi(state.dst_alpha);
+    desc.SrcBlendAlpha = to_alpha_blend(state.src_alpha);
+    desc.DestBlendAlpha = to_alpha_blend(state.dst_alpha);
     desc.BlendOpAlpha = to_dxgi(state.alpha_op);
     desc.RenderTargetWriteMask = state.write_mask;
     return desc;
@@ -1039,8 +1057,11 @@ void on_index(IndexWalk& walk, const shader::Resource& item, const IndexQuery& q
         span.size = *size;
         return write_uniform(hardware, span, cpu);
     }
-    const bool is_uav =
-        resource.kind == shader::ResourceKind::kRwBuffer || resource.kind == shader::ResourceKind::kRwTexelBuffer;
+    const bool is_rw_buffer = resource.kind == shader::ResourceKind::kRwBuffer;
+    const bool is_uav = is_rw_buffer || resource.kind == shader::ResourceKind::kRwTexelBuffer;
+    // Chỉ buffer ở heap DEFAULT mang cờ UAV (buffer_desc ở resources.cpp).
+    const bool is_cpu_side = buffer->domain != MemoryDomain::kDevice;
+    if (is_uav && is_cpu_side) return fail(kBad, "nhóm gắn: UAV cần buffer ở bộ nhớ thiết bị");
     StorageWrite write;
     write.resource = &resource;
     write.buffer = buffer->resource.Get();
@@ -1078,6 +1099,17 @@ void on_index(IndexWalk& walk, const shader::Resource& item, const IndexQuery& q
     return ok();
 }
 
+// Ghi sampler vào dãy chọn của bảng dùng chung; share_samplers chép descriptor sau. Thế hệ của tay
+// nắm sống luôn lẻ nên khoá đóng gói không bao giờ bằng 0 của ô rỗng.
+[[nodiscard]] Status pick_sampler(SamplerPick& pick, UINT index, SamplerHandle handle,
+    UINT staging) {
+    if (index >= pick.key.size()) return fail(kBad, "nhóm gắn: sampler vượt bảng");
+    const std::uint64_t high = std::uint64_t{handle.index} << 32U;
+    pick.key[index] = high | handle.generation;
+    pick.staging[index] = staging;
+    return ok();
+}
+
 [[nodiscard]] Status write_sampler(ConstDevice& device, SlotWrite slot, SamplerHandle handle) {
     const Sampler* const sampler = device.find(handle);
     if (sampler == nullptr) return fail(kBad, "nhóm gắn: sampler đã chết");
@@ -1089,6 +1121,7 @@ void on_index(IndexWalk& walk, const shader::Resource& item, const IndexQuery& q
     query.samplers = true;
     query.caps = &caps;
     const UINT index = table_index(*slot.space, query);
+    if (slot.pick != nullptr) return pick_sampler(*slot.pick, index, handle, sampler->index);
     Device12* const hardware = device.device();
     const CpuHandle destination = device.sampler_cpu(slot.group->sampler_at + index);
     const CpuHandle source_cpu = device.sampler_staging_cpu(sampler->index);
@@ -1096,7 +1129,43 @@ void on_index(IndexWalk& walk, const shader::Resource& item, const IndexQuery& q
     return ok();
 }
 
-[[nodiscard]] Status write_entry(ConstDevice& device, const Group& group, const BindEntry& entry) {
+// Chép một sampler vào ô destination của heap nhìn thấy từ shader; ô staging rỗng nhận sampler
+// rỗng.
+void fill_sampler(ConstDevice& device, UINT staging, CpuHandle destination) noexcept {
+    Device12* const hardware = device.device();
+    const bool is_empty = staging == kNoDescriptor;
+    if (is_empty) null_sampler(hardware, destination);
+    if (is_empty) return;
+    const CpuHandle source = device.sampler_staging_cpu(staging);
+    hardware->CopyDescriptorsSimple(1, destination, source, D3D12_DESCRIPTOR_HEAP_TYPE_SAMPLER);
+}
+
+// Dựng dải bắt đầu ở start của một bảng sampler dùng chung từ dãy đã chọn.
+void fill_samplers(ConstDevice& device, const SamplerPick& pick, UINT start) noexcept {
+    const auto count = static_cast<UINT>(pick.staging.size());
+    for (UINT index = 0; index < count; ++index) {
+        const CpuHandle destination = device.sampler_cpu(start + index);
+        fill_sampler(device, pick.staging[index], destination);
+    }
+}
+
+// Bảng sampler chỉ ghi lại được qua mảng sampler không chặn (check_update); không có mảng đó thì
+// bảng bất biến sau khi tạo nhóm và dùng chung được.
+[[nodiscard]] bool has_open_samplers(const SpaceLayout& space) noexcept {
+    const shader::Resource* const open = unbounded_resource(space);
+    if (open == nullptr) return false;
+    return open->kind == shader::ResourceKind::kSampler;
+}
+
+[[nodiscard]] SamplerPick empty_pick(UINT samplers) {
+    SamplerPick pick;
+    pick.key.assign(samplers, 0);
+    pick.staging.assign(samplers, kNoDescriptor);
+    return pick;
+}
+
+[[nodiscard]] Status write_entry(ConstDevice& device, const Group& group, const BindEntry& entry,
+    SamplerPick* pick) {
     const SpaceLayout& space = group.layout->program.spaces.at(group.space);
     const shader::Resource* const resource = find_resource(space, entry.type, entry.slot);
     if (resource == nullptr) return fail(kBad, "nhóm gắn: chỗ gắn không có");
@@ -1105,6 +1174,7 @@ void on_index(IndexWalk& walk, const shader::Resource& item, const IndexQuery& q
     slot.space = &space;
     slot.resource = resource;
     slot.element = entry.element;
+    slot.pick = pick;
     if (const auto* range = std::get_if<BufferRange>(&entry.resource)) {
         return write_buffer(device, slot, *range);
     }
@@ -1390,22 +1460,31 @@ Result<BindGroupHandle> D3d12Device::create_bind_group(const BindGroupDesc& desc
     group.layout = pipeline->layout;
     group.space = desc.space;
     group.capacity = desc.capacity;
-    const UINT resources = table_count(space, false, caps_);
-    const UINT samplers = table_count(space, true, caps_);
-    GroupNeed need;
-    need.resources = resources;
-    need.samplers = samplers;
-    const Status slots = take_group_slots(*this, group, need);
-    if (!slots) discard(group);
-    if (!slots) return unexpected_error(slots);
-    null_group(*this, group, space);
-    const Status written = write_group(group, desc.entries);
-    if (!written) discard(group);
-    if (!written) return unexpected_error(written);
+    const Status filled = fill_group(group, space, desc.entries);
+    if (!filled) discard(group);
+    if (!filled) return unexpected_error(filled);
     const BindGroupHandle handle = groups_.insert(group);
     if (handle) return handle;
     discard(group);
     return fail(ErrorCode::kExhausted, "hết ô trong bảng nhóm gắn");
+}
+
+Status D3d12Device::fill_group(Group& group, const SpaceLayout& space,
+    std::span<const BindEntry> entries) {
+    const UINT resources = table_count(space, false, caps_);
+    const UINT samplers = table_count(space, true, caps_);
+    const bool is_shared = samplers != 0 && !has_open_samplers(space);
+    GroupNeed need;
+    need.resources = resources;
+    need.samplers = is_shared ? 0 : samplers;
+    const Status slots = take_group_slots(*this, group, need);
+    if (!slots) return slots;
+    null_group(*this, group, space);
+    SamplerPick pick = empty_pick(is_shared ? samplers : 0);
+    SamplerPick* const picked = is_shared ? &pick : nullptr;
+    const Status written = write_group(group, entries, picked);
+    if (!written) return written;
+    return share_samplers(group, std::move(pick));
 }
 
 Status D3d12Device::update_bind_group(BindGroupHandle group, std::span<const BindEntry> entries) {
@@ -1414,19 +1493,53 @@ Status D3d12Device::update_bind_group(BindGroupHandle group, std::span<const Bin
     const SpaceLayout& space = found->layout->program.spaces.at(found->space);
     const Status checked = check_update(space, entries, found->capacity);
     if (!checked) return checked;
-    return write_group(*found, entries);
+    // check_update chỉ nhận mảng không chặn; nhóm có mảng sampler không chặn giữ dải riêng, nên
+    // bảng dùng chung không bao giờ bị ghi lại ở đây.
+    return write_group(*found, entries, nullptr);
 }
 
 // Chữ ký chốt ở header, không thêm const (API-06).
 // NOLINTNEXTLINE(readability-make-member-function-const)
-Status D3d12Device::write_group(const Group& group, std::span<const BindEntry> entries) {
+Status D3d12Device::write_group(const Group& group, std::span<const BindEntry> entries,
+    SamplerPick* pick) {
     Status written = ok();
     const auto end = entries.end();
     // Khác gốc: dừng ở entry lỗi đầu, cùng thứ tự write_entry (PH-01).
     for (auto entry = entries.begin(); entry != end && written; ++entry) {
-        written = write_entry(*this, group, *entry);
+        written = write_entry(*this, group, *entry, pick);
     }
     return written;
+}
+
+Status D3d12Device::share_samplers(Group& group, SamplerPick pick) {
+    if (pick.key.empty()) return ok();
+    const auto count = static_cast<UINT>(pick.key.size());
+    const std::scoped_lock lock(sampler_tables_mutex_);
+    const auto [table, is_new] = sampler_tables_.try_emplace(pick.key);
+    SharedSamplers& shared = table->second;
+    if (is_new) shared.at = allocate_sampler(count).value_or(kNoDescriptor);
+    // Đọc cờ trước erase: erase huỷ shared.
+    const bool is_full = shared.at == kNoDescriptor;
+    if (is_full) sampler_tables_.erase(table);
+    if (is_full) return fail(ErrorCode::kExhausted, "hết descriptor sampler");
+    if (is_new) fill_samplers(*this, pick, shared.at);
+    ++shared.users;
+    group.sampler_at = shared.at;
+    group.sampler_count = count;
+    group.sampler_key = std::move(pick.key);
+    return ok();
+}
+
+void D3d12Device::unshare_samplers(const SamplerKey& key) noexcept {
+    const std::scoped_lock lock(sampler_tables_mutex_);
+    const auto found = sampler_tables_.find(key);
+    // Khoá chỉ vào nhóm sau khi share_samplers thành công, nên bảng luôn còn ở đây.
+    if (found == sampler_tables_.end()) return;
+    SharedSamplers& shared = found->second;
+    --shared.users;
+    if (shared.users != 0) return;
+    free_sampler(shared.at, static_cast<UINT>(key.size()));
+    sampler_tables_.erase(found);
 }
 
 // NOLINTEND(cppcoreguidelines-pro-type-union-access,bugprone-invalid-enum-default-initialization)

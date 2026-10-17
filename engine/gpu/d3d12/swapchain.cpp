@@ -1,9 +1,24 @@
-// Swapchain flip-discard và timeline của D3D12. acquire trả chỉ số ảnh hiện tại; present là lời gọi
-// riêng, cùng hình dạng Vulkan. Immediate chỉ bật tearing khi factory cho phép, không thì về Fifo.
-// Nguồn: Forge2 src/gpu/d3d12/swapchain.cpp@d7fcd76. Khác gốc: enumerator mang tiền tố k; vòng
-// adopt_images đưa điều kiện dừng lên điều kiện lặp; hai if chọn tearing tách thành present_choice;
-// ChosenFormat khởi tạo có tên trường; const HANDLE viết auto* const; include đúng header của từng
-// tên; IID lấy từ hằng của SDK.
+/*==============================================================================
+ *  ENGINEHP  |  HIGH-PERFORMANCE GAME ENGINE
+ *------------------------------------------------------------------------------
+ *  TỆP       : engine/gpu/d3d12/swapchain.cpp
+ *  PHÂN HỆ   : Gpu / D3d12 / Swapchain
+ *  CHUẨN     : C++23
+ *------------------------------------------------------------------------------
+ *  CHỨC NĂNG
+ *  - Swapchain flip-discard và timeline của D3D12. acquire trả chỉ số ảnh hiện
+ *    tại; present là lời gọi riêng, cùng hình dạng Vulkan. Immediate chỉ bật
+ *    tearing khi factory cho phép, không thì về Fifo. Nguồn: Forge2
+ *    src/gpu/d3d12/swapchain.cpp@d7fcd76.
+ *------------------------------------------------------------------------------
+ *  TÁC GIẢ   : HiepHoon
+ *  TELEGRAM  : @Hoon9xx
+ *============================================================================*/
+
+// Khác gốc: enumerator mang tiền tố k; vòng adopt_images đưa điều kiện dừng lên điều kiện lặp; hai
+// if chọn tearing tách thành present_choice; ChosenFormat khởi tạo có tên trường; const HANDLE viết
+// auto* const; include đúng header của từng tên; IID lấy từ hằng của SDK.
+
 #include "gpu/d3d12/swapchain.hpp"
 
 #include "core/error.hpp"
@@ -221,7 +236,7 @@ void Swapchain12::release_images() {
 }
 
 Result<std::uint32_t> Swapchain12::acquire() {
-    if (is_awaiting_) return fail(kState, "acquire chồng lên ảnh chưa present");
+    if (is_acquired_) return fail(kState, "acquire chồng lên ảnh chưa present");
     RECT rect{};
     const BOOL read = GetClientRect(window_, &rect);
     if (read == FALSE) return fail(kState, "không đọc được kích thước cửa sổ");
@@ -229,7 +244,8 @@ Result<std::uint32_t> Swapchain12::acquire() {
     const auto height = static_cast<std::uint32_t>(std::max<LONG>(rect.bottom - rect.top, 0));
     const bool is_same = width == width_ && height == height_ && width != 0 && height != 0;
     if (!is_same) return fail(kState, "swapchain cần resize");
-    is_awaiting_ = true;
+    is_acquired_ = true;
+    is_submitted_ = false;
     return swap_->GetCurrentBackBufferIndex();
 }
 
@@ -248,14 +264,15 @@ std::uint32_t Swapchain12::image_count() const noexcept {
 }
 
 Status Swapchain12::present() {
-    if (!is_awaiting_) return fail(kState, "present khi chưa acquire");
+    const bool is_ready = is_acquired_ && is_submitted_;
+    if (!is_ready) return fail(kState, "present: chưa acquire hoặc chưa nộp với present_target");
     // Mailbox của DXGI không có: chờ quét như Fifo để không xé. Immediate mới trình ngay.
     const bool is_vsync = mode_ != PresentMode::kImmediate;
     const UINT sync = is_vsync ? 1U : 0U;
     const UINT flags =
         (flags_ & DXGI_SWAP_CHAIN_FLAG_ALLOW_TEARING) != 0 && sync == 0 ? DXGI_PRESENT_ALLOW_TEARING : 0U;
     const HRESULT presented = swap_->Present(sync, flags);
-    is_awaiting_ = false;
+    is_acquired_ = false;
     if (FAILED(presented)) return device_->failed(presented, "present thất bại");
     device_->note_presented();
     return ok();
@@ -267,7 +284,8 @@ Status Swapchain12::resize(std::uint32_t width, std::uint32_t height) {
     if (!idle) return idle;
     release_images();
     device_->collect_retired();
-    is_awaiting_ = false;
+    is_acquired_ = false;
+    is_submitted_ = false;
     const HRESULT resized = swap_->ResizeBuffers(0, width, height, DXGI_FORMAT_UNKNOWN, flags_);
     if (FAILED(resized)) return device_->failed(resized, "không dựng lại được swapchain");
     width_ = width;

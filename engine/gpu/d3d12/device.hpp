@@ -1,8 +1,22 @@
-// Thiết bị D3D12: cài gpu::Device bằng Enhanced Barriers (command list 7). Bộ nhớ là ID3D12Heap
-// chia bởi gpu/memory.hpp, đơn vị 64 KiB; heap texture căn 4 MiB để đặt được tài nguyên đa mẫu.
-// Hàng đợi thiếu thì mượn Graphics. Mesh shader và ray tracing trả Unsupported.
-// Nguồn: Forge2 src/gpu/d3d12/device.hpp@d7fcd76. Khác gốc: core/win32.hpp trước d3d12.h vì
-// check.py không có NOMINMAX của CMake.
+/*==============================================================================
+ *  ENGINEHP  |  HIGH-PERFORMANCE GAME ENGINE
+ *------------------------------------------------------------------------------
+ *  TỆP       : engine/gpu/d3d12/device.hpp
+ *  PHÂN HỆ   : Gpu / D3d12 / Device
+ *  CHUẨN     : C++23
+ *------------------------------------------------------------------------------
+ *  CHỨC NĂNG
+ *  - Thiết bị D3D12: cài gpu::Device bằng Enhanced Barriers (command list 7).
+ *    Bộ nhớ là ID3D12Heap chia bởi gpu/memory.hpp, đơn vị 64 KiB; heap texture
+ *    căn 4 MiB để đặt được tài nguyên đa mẫu. Hàng đợi thiếu thì mượn Graphics.
+ *    Mesh shader và ray tracing trả Unsupported. Nguồn: Forge2
+ *    src/gpu/d3d12/device.hpp@d7fcd76. Khác gốc: core/win32.hpp trước d3d12.h
+ *    vì check.py không có NOMINMAX của CMake.
+ *------------------------------------------------------------------------------
+ *  TÁC GIẢ   : HiepHoon
+ *  TELEGRAM  : @Hoon9xx
+ *============================================================================*/
+
 #pragma once
 
 #include "core/win32.hpp" // IWYU pragma: keep
@@ -19,6 +33,7 @@
 #include <array>
 #include <atomic>
 #include <cstdint>
+#include <map>
 #include <memory>
 #include <mutex>
 #include <optional>
@@ -120,6 +135,16 @@ struct Pipeline {
     std::array<std::uint32_t, kMaxVertexBuffers> strides{};
 };
 
+// Dãy sampler của một bảng sampler, mỗi phần tử là SamplerHandle đóng gói, 0 là ô rỗng. Tay nắm
+// mang thế hệ nên sampler huỷ rồi tạo lại ở cùng ô không trùng khoá với bảng cũ.
+using SamplerKey = std::vector<std::uint64_t>;
+
+// Sampler đã chọn cho một bảng dùng chung, theo thứ tự trong bảng: khoá và ô staging để chép.
+struct SamplerPick {
+    SamplerKey key;
+    std::vector<UINT> staging;
+};
+
 struct BindGroup {
     const Layout* layout = nullptr;
     std::uint32_t space = 0;
@@ -128,6 +153,8 @@ struct BindGroup {
     UINT resource_count = 0;
     UINT sampler_at = kNoDescriptor;
     UINT sampler_count = 0;
+    // Khoá của bảng sampler dùng chung; rỗng khi nhóm giữ dải riêng hoặc không có sampler.
+    SamplerKey sampler_key;
 };
 
 struct QueryPool {
@@ -327,7 +354,7 @@ private:
     [[nodiscard]] Status create_heaps();
     void read_caps();
     void create_library(std::span<const std::byte> cache);
-    void pump_messages() const;
+    void pump_messages() const noexcept;
     void note_loss() noexcept;
     [[nodiscard]] QueueMarks marks() const noexcept;
     [[nodiscard]] QueueMarks finished() const noexcept;
@@ -365,7 +392,17 @@ private:
 
     [[nodiscard]] Result<const Layout*> keep_layout(std::unique_ptr<Layout> layout);
     [[nodiscard]] Status fill_signature(Layout& layout);
-    [[nodiscard]] Status write_group(const BindGroup& group, std::span<const BindEntry> entries);
+    // Cấp dải descriptor cho group rồi ghi entries; lỗi thì người gọi discard(group).
+    [[nodiscard]] Status fill_group(BindGroup& group, const SpaceLayout& space,
+        std::span<const BindEntry> entries);
+    // pick khác null: sampler ghi vào pick để share_samplers, không ghi vào dải của nhóm.
+    [[nodiscard]] Status write_group(const BindGroup& group, std::span<const BindEntry> entries,
+        SamplerPick* pick);
+    // Gắn group vào bảng sampler của dãy pick: thêm một người dùng nếu bảng đã có, không thì cấp
+    // dải mới và chép descriptor. pick rỗng thì không làm gì. Exhausted khi heap sampler hết chỗ.
+    [[nodiscard]] Status share_samplers(BindGroup& group, SamplerPick pick);
+    // Bớt một người dùng; người cuối thì thả dải. Chỉ gọi khi GPU đã xong với nhóm (discard).
+    void unshare_samplers(const SamplerKey& key) noexcept;
     [[nodiscard]] Result<PipelineHandle> keep_pipeline(Pipeline pipeline, std::string_view name);
 
     Microsoft::WRL::ComPtr<IDXGIFactory4> factory_;
@@ -405,6 +442,16 @@ private:
     Slots<BindGroup, BindGroupTag> groups_;
     Slots<QueryPool, QueryPoolTag> queries_;
     Retired retired_;
+
+    // Heap sampler nhìn thấy từ shader trần 2048 ô, mà mỗi material một dải riêng thì cảnh lớn
+    // vượt trần; nhóm cùng dãy sampler dùng chung một dải. Thứ tự khoá: sampler_tables_mutex_
+    // rồi mới tới mutex của samplers_gpu_.
+    struct SharedSamplers {
+        UINT at = kNoDescriptor;
+        UINT users = 0;
+    };
+    std::mutex sampler_tables_mutex_; // bảo vệ sampler_tables_
+    std::map<SamplerKey, SharedSamplers> sampler_tables_;
 
     std::mutex memory_mutex_;
     std::array<std::unique_ptr<MemoryPool<HeapBlock>>, std::to_underlying(PoolKind::kCount)> pools_{};

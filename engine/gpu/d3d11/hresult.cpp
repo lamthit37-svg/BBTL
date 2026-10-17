@@ -1,3 +1,20 @@
+/*==============================================================================
+ *  ENGINEHP  |  HIGH-PERFORMANCE GAME ENGINE
+ *------------------------------------------------------------------------------
+ *  TỆP       : engine/gpu/d3d11/hresult.cpp
+ *  PHÂN HỆ   : Gpu / D3d11 / Hresult
+ *  CHUẨN     : C++23
+ *------------------------------------------------------------------------------
+ *  CHỨC NĂNG
+ *  - Đổi HRESULT của D3D11 và DXGI sang mã lỗi chung của core và sang loại mất
+ *    thiết bị (DeviceLoss).
+ *  - Đặt tên gỡ lỗi cho đối tượng D3D11: xoá tên cũ trước, vì runtime dùng
+ *    chung state object cùng mô tả và shader dùng chung giữa các pipeline.
+ *------------------------------------------------------------------------------
+ *  TÁC GIẢ   : HiepHoon
+ *  TELEGRAM  : @Hoon9xx
+ *============================================================================*/
+
 #include "gpu/d3d11/hresult.hpp"
 
 #include "core/error.hpp"
@@ -37,6 +54,9 @@ core::Failure failed(HRESULT code, core::Message message) {
 
 void set_debug_name(ID3D11DeviceChild& child, std::string_view name) noexcept {
     if (name.empty()) return;
+    // Runtime trả chung một state object cho cùng mô tả, và shader dùng chung được nhiều pipeline
+    // đặt tên: tên cũ khác độ dài thì lớp kiểm tra báo lỗi. Xoá tên cũ trước, tên sau cùng thắng.
+    child.SetPrivateData(WKPDID_D3DDebugObjectName, 0, nullptr);
     const auto bytes = static_cast<UINT>(name.size());
     child.SetPrivateData(WKPDID_D3DDebugObjectName, bytes, name.data());
 }

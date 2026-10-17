@@ -1,7 +1,21 @@
-// Ảnh swapchain mỗi khung đi từ Undefined (nội dung cũ bỏ, vì khung nào cũng xoá) sang ColorTarget
-// rồi Present. Ảnh độ sâu là Transient như ở render/target.cpp.
-// Nguồn: Forge2 src/render/screen.cpp@d7fcd76. Khác gốc: enumerator mang tiền tố k; bỏ khởi tạo {}
-// thừa của State::swapchain; include trực tiếp header của mọi tên dùng tới.
+/*==============================================================================
+ *  ENGINEHP  |  HIGH-PERFORMANCE GAME ENGINE
+ *------------------------------------------------------------------------------
+ *  TỆP       : engine/render/screen.cpp
+ *  PHÂN HỆ   : Render / Screen
+ *  CHUẨN     : C++23
+ *------------------------------------------------------------------------------
+ *  CHỨC NĂNG
+ *  - Ảnh swapchain mỗi khung đi từ Undefined (nội dung cũ bỏ, vì khung nào cũng
+ *    xoá) sang ColorTarget rồi Present. Ảnh độ sâu là Transient như ở
+ *    render/target.cpp. Nguồn: Forge2 src/render/screen.cpp@d7fcd76. Khác gốc:
+ *    enumerator mang tiền tố k; bỏ khởi tạo {} thừa của State::swapchain;
+ *    include trực tiếp header của mọi tên dùng tới.
+ *------------------------------------------------------------------------------
+ *  TÁC GIẢ   : HiepHoon
+ *  TELEGRAM  : @Hoon9xx
+ *============================================================================*/
+
 #include "render/screen.hpp"
 
 #include "core/error.hpp"
@@ -52,6 +66,11 @@ struct Screen::State {
     [[nodiscard]] core::Result<std::pair<gpu::TextureHandle, gpu::TextureViewHandle>> make_colour_ms(bool wanted) const;
     // Chuyển ảnh của khung và hai ảnh đích về bố cục vẽ; có ảnh đa mẫu thì kèm ảnh resolve.
     void to_render_layout(gpu::CommandList& list, bool is_multisampled) const;
+    // Màu xoá của lượt vẽ tới: đen khi có khung con, không thì màu nền của cảnh.
+    [[nodiscard]] gpu::ClearColor clear_now() const noexcept;
+    // D3D12 chỉ xoá nhanh khi màu xoá khớp màu báo lúc tạo ảnh, lệch thì lớp kiểm tra cảnh báo:
+    // màu nền đổi (sang cảnh khác, bật tắt khung con) thì dựng lại ảnh đa mẫu.
+    [[nodiscard]] core::Status match_clear();
 
     gpu::Device* device = nullptr;
     ScreenDesc desc{};
@@ -62,6 +81,8 @@ struct Screen::State {
     // Ảnh màu đa mẫu khi desc.samples trên 1; rỗng khi vẽ thẳng vào ảnh của swapchain.
     gpu::TextureHandle colour_ms{};
     gpu::TextureViewHandle colour_ms_view{};
+    // Màu xoá đã báo cho colour_ms lúc tạo.
+    gpu::ClearColor colour_ms_clear{};
     // Khung con xin từ set_view; chỉ có hiệu lực khi is_framed.
     ScreenView view{};
     // Ảnh của khung đang vẽ, từ lần begin gần nhất.
@@ -109,6 +130,7 @@ core::Result<std::pair<gpu::TextureHandle, gpu::TextureViewHandle>> Screen::Stat
     colour_desc.height = swapchain->height();
     colour_desc.samples = desc.samples;
     colour_desc.usage = gpu::TextureUsage::kColorTarget | gpu::TextureUsage::kTransient;
+    colour_desc.clear_color = clear_now();
     const core::Result<gpu::TextureHandle> made = device->create_texture(colour_desc);
     if (!made) return std::unexpected(made.error());
     gpu::TextureViewDesc view_desc;
@@ -155,6 +177,26 @@ core::Status Screen::State::make_targets() {
     depth_view = made_depth->second;
     colour_ms = made_colour->first;
     colour_ms_view = made_colour->second;
+    colour_ms_clear = clear_now();
+    return core::ok();
+}
+
+gpu::ClearColor Screen::State::clear_now() const noexcept {
+    if (is_framed()) return gpu::ClearColor{};
+    return desc.clear;
+}
+
+core::Status Screen::State::match_clear() {
+    const gpu::ClearColor clear = clear_now();
+    const bool is_current = desc.samples <= 1 || clear == colour_ms_clear;
+    if (is_current) return core::ok();
+    const auto made = make_colour_ms(true);
+    if (!made) return std::unexpected(made.error());
+    device->destroy(colour_ms_view);
+    device->destroy(colour_ms);
+    colour_ms = made->first;
+    colour_ms_view = made->second;
+    colour_ms_clear = clear;
     return core::ok();
 }
 
@@ -224,18 +266,23 @@ void Screen::set_view(const ScreenView& view) noexcept {
 
 core::Result<std::uint32_t> Screen::begin(gpu::CommandList& list) {
     State& state = *state_;
+    // Trước acquire: dựng lại ảnh hỏng thì chưa giữ ảnh nào của swapchain.
+    const core::Status matched = state.match_clear();
+    if (!matched) return std::unexpected(matched.error());
     const core::Result<std::uint32_t> index = state.swapchain->acquire();
     if (!index) return index;
     state.image = *index;
     const bool is_multisampled = state.desc.samples > 1;
     state.to_render_layout(list, is_multisampled);
     // Vẽ vào ảnh đa mẫu (nếu có) rồi resolve xuống ảnh của swapchain lúc kết thúc lượt vẽ.
+    const gpu::TextureViewHandle frame_view = state.swapchain->view(state.image);
     gpu::ColorTarget color_target;
-    color_target.view = is_multisampled ? state.colour_ms_view : state.swapchain->view(state.image);
-    color_target.resolve = is_multisampled ? state.swapchain->view(state.image) : gpu::TextureViewHandle{};
-    // Có khung con thì xoá đen cả ảnh để hai dải ngoài khung là đen; viewport thu nhỏ không đổi vùng xoá.
+    color_target.view = is_multisampled ? state.colour_ms_view : frame_view;
+    color_target.resolve = is_multisampled ? frame_view : gpu::TextureViewHandle{};
+    // Có khung con thì xoá đen cả ảnh để hai dải ngoài khung là đen; viewport thu nhỏ không đổi
+    // vùng xoá.
     const bool is_framed = state.is_framed();
-    color_target.clear = is_framed ? gpu::ClearColor{} : state.desc.clear;
+    color_target.clear = state.clear_now();
     gpu::DepthTarget depth_target;
     depth_target.view = state.depth_view;
     gpu::RenderingDesc rendering;
@@ -271,16 +318,20 @@ void Screen::State::to_render_layout(gpu::CommandList& list, bool is_multisample
     list.barrier({}, barriers, {});
 }
 
-void Screen::end(gpu::CommandList& list) {
+void Screen::end(gpu::CommandList& list, ScreenHandoff handoff) {
     const State& state = *state_;
     list.end_rendering();
+    const bool is_copied = handoff == ScreenHandoff::kCopy;
     gpu::TextureBarrier color;
     color.texture = state.swapchain->image(state.image);
     color.stage_before = gpu::SyncStage::kColorOutput;
-    color.stage_after = gpu::SyncStage::kColorOutput;
     color.access_before = gpu::Access::kColorWrite;
     color.layout_before = gpu::TextureLayout::kColorTarget;
-    color.layout_after = gpu::TextureLayout::kPresent;
+    // Về Present: không quyền truy cập nào sau, stage ColorOutput nối chuỗi với semaphore trình
+    // bày.
+    color.stage_after = is_copied ? gpu::SyncStage::kCopy : gpu::SyncStage::kColorOutput;
+    color.access_after = is_copied ? gpu::Access::kCopyRead : gpu::Access::kNone;
+    color.layout_after = is_copied ? gpu::TextureLayout::kCopySource : gpu::TextureLayout::kPresent;
     list.barrier({}, std::span(&color, 1), {});
 }
 

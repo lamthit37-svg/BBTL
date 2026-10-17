@@ -1,7 +1,21 @@
-// Vòng đời thiết bị D3D11: liệt kê adapter, tạo thiết bị feature level 11, nộp deferred context.
-// Tài nguyên ở resources.cpp, pipeline ở programs.cpp, lệnh ở commands.cpp, cửa sổ ở swapchain.cpp.
-// Đối chiếu thứ tự adapter và lớp kiểm tra với D3D12. Khác gốc: một hàng immediate cho cả ba
-// hàng đợi; mốc hoàn thành là query sự kiện chứ không phải fence.
+/*==============================================================================
+ *  ENGINEHP  |  HIGH-PERFORMANCE GAME ENGINE
+ *------------------------------------------------------------------------------
+ *  TỆP       : engine/gpu/d3d11/device.cpp
+ *  PHÂN HỆ   : Gpu / D3d11 / Device
+ *  CHUẨN     : C++23
+ *------------------------------------------------------------------------------
+ *  CHỨC NĂNG
+ *  - Vòng đời thiết bị D3D11: liệt kê adapter, tạo thiết bị feature level 11,
+ *    nộp deferred context. Tài nguyên ở resources.cpp, pipeline ở programs.cpp,
+ *    lệnh ở commands.cpp, cửa sổ ở swapchain.cpp. Đối chiếu thứ tự adapter và
+ *    lớp kiểm tra với D3D12. Khác gốc: một hàng immediate cho cả ba hàng đợi;
+ *    mốc hoàn thành là query sự kiện chứ không phải fence.
+ *------------------------------------------------------------------------------
+ *  TÁC GIẢ   : HiepHoon
+ *  TELEGRAM  : @Hoon9xx
+ *============================================================================*/
+
 #include "gpu/d3d11/device.hpp"
 
 #include "gpu/d3d11/entry.hpp"
@@ -250,6 +264,14 @@ void attach_info(ID3D11Device& device, ComPtr<ID3D11InfoQueue>& info) {
     const HRESULT checked = fifth->CheckFeatureSupport(feature, &allow, bytes);
     if (FAILED(checked)) return false;
     return allow == TRUE;
+}
+
+// Driver không tự làm command list thì runtime giả lập deferred context.
+[[nodiscard]] bool has_driver_lists(ID3D11Device& device) noexcept {
+    D3D11_FEATURE_DATA_THREADING threading{};
+    const UINT bytes = sizeof(threading);
+    const HRESULT checked = device.CheckFeatureSupport(D3D11_FEATURE_THREADING, &threading, bytes);
+    return SUCCEEDED(checked) && threading.DriverCommandLists != FALSE;
 }
 
 void log_stored(ID3D11InfoQueue& info, std::uint64_t index) noexcept {
@@ -558,11 +580,11 @@ void snap_layer(const SnapArgs& args) {
     args.out->ok = true;
 }
 
+// Cùng luật với check_rows (gpu/format.hpp): khối lẻ ở mép vẫn chiếm trọn một khối. Vừa uint32 vì
+// không vượt row_bytes của vùng chép, resolve_copy đã kiểm.
 [[nodiscard]] std::uint32_t tight_row(Format format, std::uint32_t width) noexcept {
-    const FormatInfo facts = info(format);
-    const std::uint32_t block = std::max<std::uint32_t>(facts.block_width, 1U);
-    const std::uint32_t blocks = std::max(width / block, 1U);
-    return blocks * facts.block_bytes;
+    const std::uint64_t tight = row_bytes(format, width);
+    return static_cast<std::uint32_t>(tight);
 }
 
 struct LayArgs {
@@ -655,12 +677,19 @@ struct WritePacked {
     Buffer* buffer = nullptr;
     const CopyRegion* region = nullptr;
     const std::vector<std::byte>* laid = nullptr;
+    // Byte thật của một dòng (tight_row), không tính đệm.
+    std::uint32_t tight = 0;
 };
 
 void write_packed(const WritePacked& write) {
     const auto offset = static_cast<std::size_t>(write.region->buffer_offset);
+    // Dòng cuối của lát cuối không có phần đệm trong buffer (check_rows): chỉ ghi tới hết nó.
+    const std::size_t pad = write.region->row_bytes - write.tight;
+    const std::size_t laid = write.laid->size();
+    const std::size_t bytes = laid > pad ? laid - pad : 0;
     const bool in_range = offset <= write.buffer->size;
-    const bool fits = in_range && write.laid->size() <= write.buffer->size - offset;
+    const bool fits = in_range && bytes <= write.buffer->size - offset;
+    if (!fits) core::error("D3D11: vùng readback vượt buffer đích");
     if (!fits) return;
     D3D11_MAPPED_SUBRESOURCE mapped{};
     ID3D11Buffer* resource = write.buffer->resource.Get();
@@ -669,7 +698,6 @@ void write_packed(const WritePacked& write) {
     if (FAILED(opened)) core::error("D3D11: không map được buffer readback");
     if (FAILED(opened)) return;
     auto* const dest = static_cast<std::byte*>(mapped.pData);
-    const std::size_t bytes = write.laid->size();
     const auto mapped_size = static_cast<std::size_t>(write.buffer->size);
     const std::span<std::byte> mapped_bytes(dest, mapped_size);
     const std::span<std::byte> slot = mapped_bytes.subspan(offset, bytes);
@@ -698,6 +726,7 @@ void read_one(D3d11Device& device, ID3D11DeviceContext& context, const PendingRe
     write.buffer = buffer;
     write.region = &item.region;
     write.laid = &laid;
+    write.tight = tight_row(state.format, item.region.width);
     write_packed(write);
 }
 
@@ -849,6 +878,8 @@ Result<std::unique_ptr<Device>> D3d11Device::open(const DeviceDesc& desc) {
     IDXGIFactory1* raw_factory = factory->Get();
     const bool tearing = raw_factory != nullptr && tearing_ok(*raw_factory);
     device->allows_tearing_ = tearing;
+    device->emulates_lists_ = !has_driver_lists(*hardware);
+    if (device->emulates_lists_) core::info("D3D11: runtime giả lập command list của driver");
     return device;
 }
 

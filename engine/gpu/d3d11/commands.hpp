@@ -1,6 +1,20 @@
-// Danh sách lệnh D3D11: một deferred context. Lỗi đầu tiên được giữ, lệnh sau bỏ, submit trả lỗi
-// ấy. Không lật trục Y. Cache pipeline, nhóm gắn và buffer đỉnh để khỏi gắn lại thứ không đổi.
-// Push constant là cbuffer DEFAULT 256 byte ở b1, UpdateSubresource lúc ghi.
+/*==============================================================================
+ *  ENGINEHP  |  HIGH-PERFORMANCE GAME ENGINE
+ *------------------------------------------------------------------------------
+ *  TỆP       : engine/gpu/d3d11/commands.hpp
+ *  PHÂN HỆ   : Gpu / D3d11 / Commands
+ *  CHUẨN     : C++23
+ *------------------------------------------------------------------------------
+ *  CHỨC NĂNG
+ *  - Danh sách lệnh D3D11: một deferred context. Lỗi đầu tiên được giữ, lệnh
+ *    sau bỏ, submit trả lỗi ấy. Không lật trục Y. Cache pipeline, nhóm gắn và
+ *    buffer đỉnh để khỏi gắn lại thứ không đổi. Push constant là cbuffer
+ *    DEFAULT 256 byte ở b1, UpdateSubresource lúc ghi.
+ *------------------------------------------------------------------------------
+ *  TÁC GIẢ   : HiepHoon
+ *  TELEGRAM  : @Hoon9xx
+ *============================================================================*/
+
 #pragma once
 
 #include "gpu/d3d11/binding_map.hpp"
@@ -82,6 +96,8 @@ private:
     void unbind_targets();
     void apply_area(const Scissor& area);
     void forget_groups() noexcept;
+    void apply_vertex_buffer(const Pipeline& pipeline, std::uint32_t slot);
+    void apply_vertex_buffers(const Pipeline& pipeline);
 
     D3d11Device* device_;
     QueueType queue_;
@@ -101,6 +117,9 @@ private:
     std::array<BufferHandle, kMaxVertexBuffers> vertices_{};
     std::array<std::uint64_t, kMaxVertexBuffers> vertex_at_{};
     std::array<bool, kMaxVertexBuffers> vertex_set_{};
+    // Stride đang nằm trên context của từng khe, 0 khi chưa áp. Stride thuộc pipeline như Vulkan:
+    // bind_pipeline áp lại khe nào có stride khác.
+    std::array<std::uint32_t, kMaxVertexBuffers> vertex_strides_{};
     BufferHandle index_{};
     IndexType index_type_ = IndexType::kUint32;
     std::uint64_t index_at_ = 0;

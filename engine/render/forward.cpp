@@ -239,7 +239,7 @@ void write_bind(gpu::BindEntry& entry, shader::RegisterType type, std::uint32_t 
     entry.resource = resource;
 }
 
-// Bốn cột của một ma trận thế giới, cùng bố cục float4x4 trong buffer worlds.
+// Bốn cột của một ma trận thế giới, cùng bố cục WorldCopy của model.vs trong buffer worlds.
 struct WorldWords {
     std::array<math::Float4, 4> columns{};
 };
@@ -932,7 +932,7 @@ bool Forward::State::is_part_seen(const Pass& pass, const Placed& placed, std::s
 
 // Ma trận thế giới của từng bản sao còn thấy, nối vào buffer worlds theo thứ tự của seen. Ô hàng
 // cuối, cột đầu của mỗi ma trận mang chỉ số đèn của bản đó: ma trận affine luôn có 0 ở ô ấy, và
-// shader chỉ dùng ba hàng đầu khi đưa đỉnh ra thế giới (copy_lamp của model.vs đọc lại ô này).
+// shader chỉ dùng ba hàng đầu khi đưa đỉnh ra thế giới (lamp_of của model.vs đọc lại ô này).
 void Forward::State::append_copies(Pass& pass, const math::Matrix4& node) {
     const std::span<const math::Matrix4> copies = pass.instance->copies;
     pass.world_base = static_cast<std::uint32_t>(world_words.size());
