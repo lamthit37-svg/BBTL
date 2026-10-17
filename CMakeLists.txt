@@ -1030,6 +1030,32 @@ if(GAME_HAS_GPU AND WIN32)
         VERBATIM)
     add_custom_target(game_client_shaders DEPENDS ${game_shader_packages})
     install(FILES ${game_shader_packages} DESTINATION client/bin/shaders)
+    # Shader HLSL của client gốc (src/client/render/shaders/origin, 289 chương trình): bộ chuyển
+    # TOOLS/port/hlsl_origin.py sinh nguồn Slang và danh sách gói vào cây dựng, thienlong_shader
+    # dịch thành gói .f2s ở shaders/origin. Số gói do danh sách sinh ra quyết định nên bước dựng
+    # ghi một tệp mốc thay cho danh sách gói. Chưa cài và chưa vào APK: lượt vẽ chưa nạp các gói
+    # này. Bộ chuyển giữ đúng mã máy fxc của bản gốc: kiểm bằng `hlsl_origin.py oracle` (cần
+    # D3DCompiler_43.dll của client gốc nên không chạy trong bước dựng).
+    find_package(Python3 COMPONENTS Interpreter)
+    if(Python3_Interpreter_FOUND)
+        set(game_origin_src "${game_shader_src}/origin")
+        set(game_origin_gen "${CMAKE_BINARY_DIR}/shaders-origin")
+        set(game_origin_out "${game_shader_dir}/origin")
+        set(game_origin_stamp "${game_origin_out}/built.stamp")
+        file(GLOB_RECURSE game_origin_sources CONFIGURE_DEPENDS "${game_origin_src}/*")
+        add_custom_command(
+            OUTPUT "${game_origin_stamp}"
+            COMMAND ${CMAKE_COMMAND} -E env PYTHONUTF8=1 "${Python3_EXECUTABLE}" -B
+                "${PROJECT_SOURCE_DIR}/TOOLS/port/hlsl_origin.py" generate "${game_origin_src}" "${game_origin_gen}"
+            COMMAND thienlong_shader build "${game_origin_gen}/origin.list"
+                --out "${game_origin_out}" --target spirv,dxil,dxbc
+            COMMAND ${CMAKE_COMMAND} -E touch "${game_origin_stamp}"
+            DEPENDS thienlong_shader ${game_origin_sources}
+                "${PROJECT_SOURCE_DIR}/TOOLS/port/hlsl_origin.py" "${PROJECT_SOURCE_DIR}/TOOLS/glb/ogre_material.py"
+            COMMENT "Chuyển và dịch shader HLSL của client gốc thành gói .f2s"
+            VERBATIM)
+        add_custom_target(game_origin_shaders ALL DEPENDS "${game_origin_stamp}")
+    endif()
 endif()
 
 # client: phần của exe kiểm được bằng test (tuỳ chọn dòng lệnh) và vòng lặp cửa sổ. Vòng lặp cửa sổ

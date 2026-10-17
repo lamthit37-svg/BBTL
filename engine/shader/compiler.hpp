@@ -1,12 +1,27 @@
-// Trình dịch shader: bọc Slang (slang.dll) để dịch một nguồn .slang ra SPIR-V, DXIL hoặc DXBC kèm
-// phản chiếu và danh sách tệp phụ thuộc; DXC (dxcompiler.dll) chỉ đọc phản chiếu của DXIL. Thay
-// compilers.py cùng ba bộ sinh của FSL (_Ref): ở đó mỗi lần dịch là một tiến trình mcpp rồi một
-// tiến trình dxc hay glslangValidator, lỗi dò bằng cách tách chuỗi stdout. Ở đây hai DLL nạp một lần
-// trong tiến trình qua giao diện COM, lỗi và cảnh báo trả nguyên văn. DLL nạp lúc chạy nên module
-// không phụ thuộc chúng lúc link: thiếu DLL thì create() trả Unsupported, còn gói đã dịch sẵn vẫn
-// đọc được (shader/package.hpp).
-// Nguồn: Forge2 src/shader/compiler.hpp@d7fcd76. Khác gốc: bỏ {} thừa ở thành viên string và
-// vector của các struct; nguồn là Slang, đích thêm DXBC, bỏ Stage::kLibrary.
+/*==============================================================================
+ *  ENGINEHP  |  HIGH-PERFORMANCE GAME ENGINE
+ *------------------------------------------------------------------------------
+ *  TỆP       : engine/shader/compiler.hpp
+ *  PHÂN HỆ   : Shader / Compiler
+ *  CHUẨN     : C++23
+ *------------------------------------------------------------------------------
+ *  CHỨC NĂNG
+ *  - Trình dịch shader: bọc Slang (slang.dll) để dịch một nguồn .slang ra
+ *    SPIR-V, DXIL hoặc DXBC kèm phản chiếu và danh sách tệp phụ thuộc; DXC
+ *    (dxcompiler.dll) chỉ đọc phản chiếu của DXIL. Thay compilers.py cùng ba bộ
+ *    sinh của FSL (_Ref): ở đó mỗi lần dịch là một tiến trình mcpp rồi một tiến
+ *    trình dxc hay glslangValidator, lỗi dò bằng cách tách chuỗi stdout.
+ *------------------------------------------------------------------------------
+ *  TÁC GIẢ   : HiepHoon
+ *  TELEGRAM  : @Hoon9xx
+ *============================================================================*/
+
+// Ở đây hai DLL nạp một lần trong tiến trình qua giao diện COM, lỗi và cảnh báo trả nguyên văn. DLL
+// nạp lúc chạy nên module không phụ thuộc chúng lúc link: thiếu DLL thì create() trả Unsupported,
+// còn gói đã dịch sẵn vẫn đọc được (shader/package.hpp). Nguồn: Forge2
+// src/shader/compiler.hpp@d7fcd76. Khác gốc: bỏ {} thừa ở thành viên string và vector của các
+// struct; nguồn là Slang, đích thêm DXBC, bỏ Stage::kLibrary.
+
 #pragma once
 
 #include "shader/reflection.hpp"
@@ -33,6 +48,10 @@ struct CompileOptions {
     bool debug = false;
     // Hiến pháp I.3: cảnh báo là lỗi.
     bool strict = true;
+    // Ma trận của cbuffer gói theo hàng; mặc định theo cột (ShaderSpec::row_major).
+    bool row_major = false;
+    // Cách gán location vào ra mà phản chiếu DXIL và phép đối chiếu theo (Manifest::locations).
+    Locations locations = Locations::kDeclared;
     // Môi trường đích của SPIR-V: vulkan1.<vulkan_minor>.
     std::uint8_t vulkan_minor = 1;
 };

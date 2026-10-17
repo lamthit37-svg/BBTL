@@ -1,18 +1,35 @@
-// Phản chiếu shader: tài nguyên, bố cục cbuffer, đầu vào, đầu ra của một stage, và phép gộp các
-// stage thành phản chiếu của cả chương trình. Thay IShaderReflection.h của _Ref, vốn chỉ còn tên
-// đầu vào đỉnh và cỡ nhóm compute: bố cục descriptor ở đó khai tay hai lần bằng macro SRT, một lần
-// cho C++ và một lần cho shader. Ở đây một cấu trúc dùng cho cả DXIL lẫn SPIR-V, mỗi tài nguyên
-// mang cả hai hệ toạ độ (register của D3D12, set và binding của Vulkan), nên tầng đồ hoạ dựng root
-// signature và descriptor set layout từ cùng một nguồn. Cùng một tệp .slang phải ra hai phản chiếu
-// bằng nhau; shader/detail/reconcile.cpp kiểm điều đó mỗi lần dịch.
-// Nguồn: Forge2 src/shader/reflection.hpp@d7fcd76. Khác gốc: bỏ {} thừa ở thành viên string, vector
-// và StageSet của các struct.
+/*==============================================================================
+ *  ENGINEHP  |  HIGH-PERFORMANCE GAME ENGINE
+ *------------------------------------------------------------------------------
+ *  TỆP       : engine/shader/reflection.hpp
+ *  PHÂN HỆ   : Shader / Reflection
+ *  CHUẨN     : C++23
+ *------------------------------------------------------------------------------
+ *  CHỨC NĂNG
+ *  - Phản chiếu shader: tài nguyên, bố cục cbuffer, đầu vào, đầu ra của một
+ *    stage, và phép gộp các stage thành phản chiếu của cả chương trình. Thay
+ *    IShaderReflection.h của _Ref, vốn chỉ còn tên đầu vào đỉnh và cỡ nhóm
+ *    compute: bố cục descriptor ở đó khai tay hai lần bằng macro SRT, một lần
+ *    cho C++ và một lần cho shader.
+ *------------------------------------------------------------------------------
+ *  TÁC GIẢ   : HiepHoon
+ *  TELEGRAM  : @Hoon9xx
+ *============================================================================*/
+
+// Ở đây một cấu trúc dùng cho cả DXIL lẫn SPIR-V, mỗi tài nguyên mang cả hai hệ toạ độ (register
+// của D3D12, set và binding của Vulkan), nên tầng đồ hoạ dựng root signature và descriptor set
+// layout từ cùng một nguồn. Cùng một tệp .slang phải ra hai phản chiếu bằng nhau;
+// shader/detail/reconcile.cpp kiểm điều đó mỗi lần dịch. Nguồn: Forge2
+// src/shader/reflection.hpp@d7fcd76. Khác gốc: bỏ {} thừa ở thành viên string, vector và StageSet
+// của các struct.
+
 #pragma once
 
 #include "shader/types.hpp"
 
 #include <array>
 #include <cstdint>
+#include <optional>
 #include <span>
 #include <string>
 #include <string_view>
@@ -145,7 +162,8 @@ struct Attribute {
     // "TEXCOORD" của TEXCOORD1; index là 1.
     std::string semantic;
     std::uint32_t index = 0;
-    // Location của Vulkan; ở DXIL là thứ tự khai báo, trùng với location mà Slang gán ở SPIR-V.
+    // Location của Vulkan. Ở DXIL là thứ tự khai báo (Locations::kDeclared, trùng location mà Slang
+    // gán ở SPIR-V) hoặc lấy từ bảng semantic_location (Locations::kSemantic).
     std::uint32_t location = 0;
     Scalar scalar = Scalar::kNone;
     std::uint8_t bits = 0;
@@ -153,6 +171,22 @@ struct Attribute {
 
     [[nodiscard]] bool operator==(const Attribute&) const = default;
 };
+
+// Cách gán location cho đầu vào và đầu ra không phải SV_Target.
+enum class Locations : std::uint8_t {
+    // Theo thứ tự khai báo: Slang gán như vậy ở SPIR-V, DXIL lấy thứ tự của chữ ký.
+    kDeclared,
+    // Theo semantic, bảng của semantic_location: shader gắn [[vk::location]] theo cùng bảng nên VS
+    // và PS nối theo semantic như D3D, kể cả khi PS chỉ khai một phần đầu ra của VS.
+    kSemantic,
+};
+
+// Location của semantic và index ở Locations::kSemantic. Đầu vào của vertex shader theo một bảng,
+// biến truyền giữa các stage theo bảng kia; nullopt khi không có trong bảng. Hai bảng chép y hệt
+// INPUT_LOCATIONS và VARYING_LOCATIONS của TOOLS/port/hlsl_origin.py (bộ shader chuyển từ client
+// gốc); lệch nhau thì reconcile báo lỗi lúc dựng gói.
+[[nodiscard]] std::optional<std::uint32_t> semantic_location(bool vertex_input,
+    std::string_view semantic, std::uint32_t index) noexcept;
 
 struct StageReflection {
     Stage stage = Stage::kVertex;

@@ -1,9 +1,22 @@
-// Dạng nhị phân của phản chiếu shader, phiên bản định dạng 1.
-// Mỗi loại phần tử có số byte tối thiểu để Reader::count chặn số phần tử.
-// Hai tài nguyên trùng space, loại register và slot được coi là một.
-// Nguồn: Forge2 src/shader/reflection.cpp@d7fcd76. Khác gốc: ba vòng for dừng ở lỗi đầu tiên
-// (add_stage, merge, check_interface) đi qua hàm chung first_error; thân vòng lặp của renumber và
-// merge tách thành hàm (ghi tại chỗ).
+/*==============================================================================
+ *  ENGINEHP  |  HIGH-PERFORMANCE GAME ENGINE
+ *------------------------------------------------------------------------------
+ *  TỆP       : engine/shader/reflection.cpp
+ *  PHÂN HỆ   : Shader / Reflection
+ *  CHUẨN     : C++23
+ *------------------------------------------------------------------------------
+ *  CHỨC NĂNG
+ *  - Dạng nhị phân của phản chiếu shader, phiên bản định dạng 1. Mỗi loại phần
+ *    tử có số byte tối thiểu để Reader::count chặn số phần tử. Hai tài nguyên
+ *    trùng space, loại register và slot được coi là một. Nguồn: Forge2
+ *    src/shader/reflection.cpp@d7fcd76. Khác gốc: ba vòng for dừng ở lỗi đầu
+ *    tiên (add_stage, merge, check_interface) đi qua hàm chung first_error;
+ *    thân vòng lặp của renumber và merge tách thành hàm (ghi tại chỗ).
+ *------------------------------------------------------------------------------
+ *  TÁC GIẢ   : HiepHoon
+ *  TELEGRAM  : @Hoon9xx
+ *============================================================================*/
+
 #include "shader/reflection.hpp"
 
 #include "fs/codec.hpp"
@@ -17,6 +30,7 @@
 #include <cstdint>
 #include <format>
 #include <iterator>
+#include <optional>
 #include <span>
 #include <string>
 #include <string_view>
@@ -42,6 +56,37 @@ constexpr std::size_t kLeastResource = 38;
 constexpr std::size_t kLeastVariable = 20;
 constexpr std::size_t kLeastBlock = 12;
 constexpr std::size_t kLeastAttribute = 15;
+
+// Bảng của semantic_location: semantic, index, location. TEXCOORD tính riêng theo cơ sở và số ô.
+struct SemanticSlot {
+    std::string_view semantic;
+    std::uint32_t index = 0;
+    std::uint32_t location = 0;
+};
+
+// Đầu vào của vertex shader; TEXCOORD0 tới TEXCOORD7 ở 6 tới 13.
+constexpr std::array kVertexSlots{
+    SemanticSlot{.semantic = "POSITION", .index = 0, .location = 0},
+    SemanticSlot{.semantic = "BLENDWEIGHT", .index = 0, .location = 1},
+    SemanticSlot{.semantic = "BLENDINDICES", .index = 0, .location = 2},
+    SemanticSlot{.semantic = "NORMAL", .index = 0, .location = 3},
+    SemanticSlot{.semantic = "COLOR", .index = 0, .location = 4},
+    SemanticSlot{.semantic = "COLOR", .index = 1, .location = 5},
+    SemanticSlot{.semantic = "TANGENT", .index = 0, .location = 14},
+    SemanticSlot{.semantic = "TANGENT", .index = 1, .location = 15},
+};
+constexpr std::uint32_t kVertexTexcoordBase = 6;
+constexpr std::uint32_t kVertexTexcoords = 8;
+
+// Biến truyền giữa các stage; TEXCOORD0 tới TEXCOORD10 ở 0 tới 10.
+constexpr std::array kVaryingSlots{
+    SemanticSlot{.semantic = "COLOR", .index = 0, .location = 11},
+    SemanticSlot{.semantic = "COLOR", .index = 1, .location = 12},
+    SemanticSlot{.semantic = "FOG", .index = 0, .location = 13},
+    SemanticSlot{.semantic = "PSIZE", .index = 0, .location = 14},
+    SemanticSlot{.semantic = "NORMAL", .index = 0, .location = 15},
+};
+constexpr std::uint32_t kVaryingTexcoords = 11;
 
 constexpr std::uint8_t kArrayBit = 1U << 0U;
 constexpr std::uint8_t kMultisampleBit = 1U << 1U;
@@ -434,6 +479,23 @@ std::string_view name(Scalar scalar) noexcept {
     case Scalar::kStruct: return "struct";
     }
     return {};
+}
+
+std::optional<std::uint32_t> semantic_location(bool vertex_input, std::string_view semantic,
+    std::uint32_t index) noexcept {
+    const std::uint32_t texcoords = vertex_input ? kVertexTexcoords : kVaryingTexcoords;
+    const std::uint32_t base = vertex_input ? kVertexTexcoordBase : 0;
+    const bool is_texcoord = semantic == "TEXCOORD" && index < texcoords;
+    if (is_texcoord) return base + index;
+    const std::span<const SemanticSlot> vertex = kVertexSlots;
+    const std::span<const SemanticSlot> varying = kVaryingSlots;
+    const std::span<const SemanticSlot> slots = vertex_input ? vertex : varying;
+    const auto same = [&](const SemanticSlot& slot) {
+        return slot.semantic == semantic && slot.index == index;
+    };
+    const auto found = std::ranges::find_if(slots, same);
+    if (found == slots.end()) return std::nullopt;
+    return found->location;
 }
 
 void normalize(StageReflection& reflection) {

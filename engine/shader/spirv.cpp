@@ -1,5 +1,19 @@
-// Đọc module SPIR-V lấy entry, kiểu và chỗ gắn, không gọi trình điều khiển.
-// Magic 0x07230203. Theo kiểu lồng tối đa 8 tầng: module thù địch có thể tạo vòng.
+/*==============================================================================
+ *  ENGINEHP  |  HIGH-PERFORMANCE GAME ENGINE
+ *------------------------------------------------------------------------------
+ *  TỆP       : engine/shader/spirv.cpp
+ *  PHÂN HỆ   : Shader / Spirv
+ *  CHUẨN     : C++23
+ *------------------------------------------------------------------------------
+ *  CHỨC NĂNG
+ *  - Đọc module SPIR-V lấy entry, kiểu và chỗ gắn, không gọi trình điều khiển.
+ *    Magic 0x07230203. Theo kiểu lồng tối đa 8 tầng: module thù địch có thể tạo
+ *    vòng.
+ *------------------------------------------------------------------------------
+ *  TÁC GIẢ   : HiepHoon
+ *  TELEGRAM  : @Hoon9xx
+ *============================================================================*/
+
 #include "shader/spirv.hpp"
 
 #include "shader/failure.hpp"
@@ -30,6 +44,9 @@ constexpr std::uint32_t kNone = ~std::uint32_t{0};
 // vòng.
 constexpr int kMaxDepth = 8;
 constexpr std::uint32_t kBlockAlign = 16;
+// Trần số phần tử của một mảng vào ra được tách theo location; Vulkan cho tối đa vài chục location
+// mỗi stage, module thù địch có thể khai mảng hàng tỉ phần tử.
+constexpr std::uint32_t kMaxLocations = 64;
 
 // Opcode, SPIR-V 1.6 mục 3.32; đối chiếu với spirv.h của Vulkan SDK 1.4.357.0.
 constexpr std::uint16_t kOpName = 5;
@@ -424,6 +441,10 @@ struct Element {
     // ArrayStride của tầng ngoài cùng.
     std::uint32_t stride = 0;
     bool array = false;
+    // RowMajor và MatrixStride của mảng ma trận: Slang ghi chúng trên thành viên của lớp bọc mảng,
+    // không trên thành viên chứa mảng. matrix_stride 0 khi không lớp bọc nào mang chúng.
+    std::uint32_t matrix_stride = 0;
+    bool row_major = false;
 };
 
 [[nodiscard]] std::uint32_t constant(const Module& module, std::uint32_t id) noexcept {
@@ -447,14 +468,24 @@ struct Element {
     return name_of(module, type).starts_with("_Array_");
 }
 
+// Bố cục ma trận mà lớp bọc mảng mang trên thành viên duy nhất của nó.
+void keep_matrix_layout(const Module& module, std::uint32_t wrapper, Element& element) {
+    const Member inside = member(module, wrapper, 0);
+    if (inside.matrix_stride == 0) return;
+    element.matrix_stride = inside.matrix_stride;
+    element.row_major = inside.row_major;
+}
+
 // Bóc một tầng mảng của element; false khi kiểu hiện tại không phải mảng, element giữ nguyên.
 // Khác gốc: thân vòng for của strip_arrays tách ra đây; thêm bóc lớp bọc mảng của Slang.
 [[nodiscard]] bool strip_layer(const Module& module, Element& element) {
     const std::uint32_t outer = element.type;
-    const std::uint32_t inner = is_array_wrapper(module, outer) ? word(definition(module, outer), 2) : outer;
+    const bool wrapped = is_array_wrapper(module, outer);
+    const std::uint32_t inner = wrapped ? word(definition(module, outer), 2) : outer;
     const Words words = definition(module, inner);
     const std::uint16_t code = opcode(words);
     if (!is_array_type(code)) return false;
+    if (wrapped) keep_matrix_layout(module, outer, element);
     const std::uint32_t length = code == kOpTypeArray ? constant(module, word(words, 3)) : 0;
     if (!element.array) element.stride = info(module, inner).stride;
     element.count = element.array ? element.count * length : length;
@@ -530,10 +561,22 @@ struct Numeric {
     return (holder.matrix_stride * (rows - 1)) + (columns * bytes);
 }
 
+// Bố cục ma trận của phần tử: lớp bọc mảng mang nó thì theo lớp bọc, không thì theo thành viên
+// chứa.
+[[nodiscard]] Member matrix_layout(const Member& holder, const Element& element) {
+    if (element.matrix_stride == 0) return holder;
+    Member layout = holder;
+    layout.matrix_stride = element.matrix_stride;
+    layout.row_major = element.row_major;
+    return layout;
+}
+
 // NOLINTNEXTLINE(misc-no-recursion)
-[[nodiscard]] std::uint32_t member_size(const Module& module, std::uint32_t type, const Member& holder, int depth) {
+[[nodiscard]] std::uint32_t member_size(const Module& module, std::uint32_t type,
+    const Member& holder, int depth) {
     const Element element = strip_arrays(module, type);
-    const std::uint32_t single = element_size(module, element.type, holder, depth);
+    const Member layout = matrix_layout(holder, element);
+    const std::uint32_t single = element_size(module, element.type, layout, depth);
     if (!element.array) return single;
     if (element.count == 0) return 0;
     return (element.stride * (element.count - 1)) + single;
@@ -722,30 +765,57 @@ void store_matrix(StageReflection& reflection, bool input, const Attribute& base
     }
 }
 
+// Một phần tử ở location: ma trận tách từng hàng, còn lại một thuộc tính.
+void store_element(StageReflection& reflection, bool input, Attribute attribute,
+    const Numeric& shape, std::uint32_t location) {
+    if (shape.rows > 1) {
+        store_matrix(reflection, input, attribute, shape, location);
+        return;
+    }
+    attribute.location = location;
+    attribute.components = shape.columns;
+    store_attribute(reflection, input, std::move(attribute));
+}
+
+// Số phần tử tách riêng của một biến giao diện. Ở vertex và pixel shader, mảng (float4 uv[3] :
+// TEXCOORD0) chiếm các location liền nhau và DXIL tách thành TEXCOORD0 tới TEXCOORD2, nên tách
+// theo. Stage khác giữ một thuộc tính: mảng ở đó là mảng theo đỉnh của primitive, không phải nhiều
+// location.
+[[nodiscard]] Result<std::uint32_t> element_count(const StageReflection& reflection,
+    const Element& element) {
+    const Stage stage = reflection.stage;
+    const bool per_location = stage == Stage::kVertex || stage == Stage::kPixel;
+    if (!element.array || !per_location) return 1;
+    const bool fits = element.count > 0 && element.count <= kMaxLocations;
+    if (!fits) return corrupt("mảng vào ra quá số location");
+    return element.count;
+}
+
 // Thêm biến giao diện id vào inputs hay outputs; biến builtin không có Location nên bị bỏ.
-void add_attribute(const Module& module, std::uint32_t id, StageReflection& reflection) {
+[[nodiscard]] Status add_attribute(const Module& module, std::uint32_t id,
+    StageReflection& reflection) {
     const Words variable = definition(module, id);
     const std::uint32_t storage = word(variable, 3);
     const bool signal = storage == kStorageInput || storage == kStorageOutput;
     const Id& located = info(module, id);
     const bool wanted = opcode(variable) == kOpVariable && signal && located.location != kNone;
-    if (!wanted || located.builtin) return;
+    if (!wanted || located.builtin) return ok();
     const Words pointer = definition(module, word(variable, 1));
     const Element element = strip_arrays(module, word(pointer, 3));
     const Numeric shape = numeric(module, element.type);
+    Result<std::uint32_t> count = element_count(reflection, element);
+    if (!count) return pass(count);
     // Slang không ghi semantic của HLSL vào SPIR-V: semantic và index để trống, compiler.cpp lấy
     // từ DXIL cùng nguồn (shader/detail/reconcile.cpp).
     Attribute attribute;
     attribute.scalar = shape.scalar;
     attribute.bits = shape.bits;
     const bool input = storage == kStorageInput;
-    if (shape.rows > 1) {
-        store_matrix(reflection, input, attribute, shape, located.location);
-        return;
+    const std::uint32_t span = std::max<std::uint32_t>(shape.rows, 1);
+    for (std::uint32_t item = 0; item < *count; ++item) {
+        store_element(reflection, input, attribute, shape, located.location + (item * span));
     }
-    attribute.location = located.location;
-    attribute.components = shape.columns;
-    store_attribute(reflection, input, std::move(attribute));
+    return ok();
 }
 
 [[nodiscard]] bool model_matches(Stage stage, std::uint32_t model) noexcept {
@@ -815,7 +885,8 @@ void apply_mode(const Module& module, std::uint32_t start, const Entry& entry, S
         return fail(ErrorCode::kInvalidArgument, "entry point thuộc stage khác", reflection.entry);
     }
     for (const std::uint32_t id : entry->interface) {
-        add_attribute(module, id, reflection);
+        Status added = add_attribute(module, id, reflection);
+        if (!added) return pass(added);
     }
     for (const std::uint32_t start : module.modes) {
         apply_mode(module, start, *entry, reflection);

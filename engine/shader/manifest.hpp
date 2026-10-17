@@ -1,18 +1,36 @@
-// Danh sách shader của một thư mục: tệp chữ khai mỗi gói dịch từ nguồn nào, stage nào, với những
-// define và biến thể nào. Thay ShaderList.fsl của _Ref, vốn là một tệp FSL có `#frag tên`,
-// `#include` và `#end` mà fsl.py tách bằng cách dò từng dòng rồi đưa cả tệp qua mcpp một lần cho
-// mỗi shader. Ở đây mỗi dòng là một lệnh, tên lạ hay khoá lạ là lỗi kèm số dòng chứ không bị bỏ
-// qua:
+/*==============================================================================
+ *  ENGINEHP  |  HIGH-PERFORMANCE GAME ENGINE
+ *------------------------------------------------------------------------------
+ *  TỆP       : engine/shader/manifest.hpp
+ *  PHÂN HỆ   : Shader / Manifest
+ *  CHUẨN     : C++23
+ *------------------------------------------------------------------------------
+ *  CHỨC NĂNG
+ *  - Danh sách shader của một thư mục: tệp chữ khai mỗi gói dịch từ nguồn nào,
+ *    stage nào, với những define và biến thể nào. Thay ShaderList.fsl của _Ref,
+ *    vốn là một tệp FSL có `#frag tên`, `#include` và `#end` mà fsl.py tách
+ *    bằng cách dò từng dòng rồi đưa cả tệp qua mcpp một lần cho mỗi shader. Ở
+ *    đây mỗi dòng là một lệnh, tên lạ hay khoá lạ là lỗi kèm số dòng chứ không
+ *    bị bỏ qua:
+ *------------------------------------------------------------------------------
+ *  TÁC GIẢ   : HiepHoon
+ *  TELEGRAM  : @Hoon9xx
+ *============================================================================*/
+
 //   include ../common — thư mục tìm #include, tính từ thư mục của danh sách
 //   define QUALITY=2 — define cho mọi shader
 //   model 6.6 — shader model mặc định
+//   locations semantic — location vào ra theo semantic (shader/reflection.hpp), mặc định declared
 //   shader sky.ps sky.slang entry=sky_main variant=FOG variant=FOG,SHADOW permute=A,B
 // Stage lấy từ khoá stage=, không có thì từ đuôi của tên gói ("sky.ps") hoặc của nguồn
-// ("sky.ps.slang"). Mã thông báo có khoảng trắng thì bọc trong dấu nháy kép; `#` mở chú thích.
+// ("sky.ps.slang"). matrix=row gói ma trận của cbuffer theo hàng (mặc định theo cột). Mã thông
+// báo có khoảng trắng thì bọc trong dấu nháy kép; `#` mở chú thích.
 // Nguồn: Forge2 src/shader/manifest.hpp@d7fcd76. Khác gốc: bỏ {} thừa ở thành viên string, vector
 // và optional của các struct.
+
 #pragma once
 
+#include "shader/reflection.hpp"
 #include "shader/types.hpp"
 
 #include <cstdint>
@@ -39,6 +57,9 @@ struct ShaderSpec {
     std::vector<std::string> defines;
     // Tập define của từng biến thể; phần tử đầu luôn là tập rỗng (biến thể mặc định).
     std::vector<std::vector<std::string>> variants;
+    // Ma trận của cbuffer gói theo hàng (matrix=row): shader chuyển từ bộ gốc mà .program khai
+    // column_major_matrices false, như mảng float3x4 của skinning (48 byte mỗi xương).
+    bool row_major = false;
     // Dòng khai trong danh sách, để báo lỗi.
     std::uint32_t line = 0;
 };
@@ -49,6 +70,8 @@ struct Manifest {
     std::vector<std::string> include_dirs;
     std::vector<std::string> defines;
     ShaderModel model{};
+    // Cách gán location vào ra cho mọi shader của danh sách (lệnh locations).
+    Locations locations = Locations::kDeclared;
     std::vector<ShaderSpec> shaders;
 
     // InvalidArgument kèm số dòng khi một dòng sai.

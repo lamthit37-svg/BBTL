@@ -1,15 +1,32 @@
-// Đọc phản chiếu container DXIL qua giao diện phản chiếu của D3D12.
-// Bảng thành phần đánh chỉ số bằng enum SDK; static_assert bắt bảng lệch enum.
-// Trong cbuffer, cột ma trận và phần tử mảng nằm trên biên 16 byte.
-// Nguồn: Forge2 src/shader/dxil.cpp@d7fcd76. Khác gốc: macro của windows.h lấy từ
-// core/win32.hpp; Block gán name sau khi khai; thân vòng có nhánh tách thành hàm; bỏ phản chiếu
-// thư viện nhiều hàm (Slang không dịch Stage::kLibrary); add_resource nhận thẳng ID3D12ShaderReflection.
+/*==============================================================================
+ *  ENGINEHP  |  HIGH-PERFORMANCE GAME ENGINE
+ *------------------------------------------------------------------------------
+ *  TỆP       : engine/shader/dxil.cpp
+ *  PHÂN HỆ   : Shader / Dxil
+ *  CHUẨN     : C++23
+ *------------------------------------------------------------------------------
+ *  CHỨC NĂNG
+ *  - Đọc phản chiếu container DXIL qua giao diện phản chiếu của D3D12. Bảng
+ *    thành phần đánh chỉ số bằng enum SDK; static_assert bắt bảng lệch enum.
+ *    Trong cbuffer, cột ma trận và phần tử mảng nằm trên biên 16 byte. Nguồn:
+ *    Forge2 src/shader/dxil.cpp@d7fcd76.
+ *------------------------------------------------------------------------------
+ *  TÁC GIẢ   : HiepHoon
+ *  TELEGRAM  : @Hoon9xx
+ *============================================================================*/
+
+// Khác gốc: macro của windows.h lấy từ core/win32.hpp; Block gán name sau khi khai; thân vòng có
+// nhánh tách thành hàm; bỏ phản chiếu thư viện nhiều hàm (Slang không dịch Stage::kLibrary);
+// add_resource nhận thẳng ID3D12ShaderReflection; location vào ra theo semantic khi
+// Locations::kSemantic; lớp bọc _MatrixStorage_ của Slang báo lại thành ma trận.
+
 #include "shader/dxil.hpp"
 
 #include "shader/failure.hpp"
 #include "shader/reflection.hpp"
 #include "shader/types.hpp"
 
+#include "core/error.hpp"
 #include "core/win32.hpp" // IWYU pragma: keep
 
 #include <d3d12shader.h>
@@ -188,6 +205,65 @@ template <class T, std::size_t N>
     return (round_up(single) * (desc.Elements - 1)) + single;
 }
 
+struct MatrixShape {
+    std::uint8_t rows = 0;
+    std::uint8_t columns = 0;
+};
+
+[[nodiscard]] constexpr bool is_dimension(char letter) noexcept {
+    return letter >= '1' && letter <= '4';
+}
+
+// Slang hạ ma trận khai layout khác layout chung của module (row_major trong module theo cột, hay
+// ngược lại) về struct `_MatrixStorage_<kiểu><R>x<C><layout>_N` có một thành viên `data` là mảng
+// vector; DXC đặt tên kiểu thêm tiền tố "struct.". R và C đọc từ tên; nullopt khi không phải dạng
+// ấy.
+[[nodiscard]] std::optional<MatrixShape> storage_shape(std::string_view name) noexcept {
+    constexpr std::string_view kStruct = "struct.";
+    constexpr std::string_view kStorage = "_MatrixStorage_";
+    if (name.starts_with(kStruct)) name.remove_prefix(kStruct.size());
+    if (!name.starts_with(kStorage)) return std::nullopt;
+    name.remove_prefix(kStorage.size());
+    const std::size_t digit = name.find_first_of("1234");
+    if (digit == std::string_view::npos) return std::nullopt;
+    const std::string_view dims = name.substr(digit, 3);
+    const bool crossed = dims.size() == 3 && dims[1] == 'x';
+    const bool shaped = crossed && is_dimension(dims[0]) && is_dimension(dims[2]);
+    if (!shaped) return std::nullopt;
+    const auto rows = static_cast<std::uint8_t>(dims[0] - '0');
+    const auto columns = static_cast<std::uint8_t>(dims[2] - '0');
+    return MatrixShape{.rows = rows, .columns = columns};
+}
+
+// Kiểu số của thành viên data trong lớp bọc ma trận; nullopt khi struct không đúng dạng ấy.
+[[nodiscard]] std::optional<Numeric> storage_numeric(ID3D12ShaderReflectionType* type,
+    const D3D12_SHADER_TYPE_DESC& desc) {
+    if (desc.Members != 1) return std::nullopt;
+    ID3D12ShaderReflectionType* data = type->GetMemberTypeByIndex(0);
+    D3D12_SHADER_TYPE_DESC inner{};
+    if (FAILED(data->GetDesc(&inner))) return std::nullopt;
+    const bool numeric_member = inner.Class == D3D_SVC_VECTOR || inner.Class == D3D_SVC_SCALAR;
+    if (!numeric_member) return std::nullopt;
+    return numeric(inner.Type);
+}
+
+// Struct thật báo Scalar::kStruct. Lớp bọc ma trận của Slang báo lại ma trận R×C như phía SPIR-V
+// thấy: bố cục byte giống hệt, chỉ hình kiểu khác.
+[[nodiscard]] Variable struct_variable(ID3D12ShaderReflectionType* type,
+    const D3D12_SHADER_TYPE_DESC& desc, Variable variable) {
+    variable.scalar = Scalar::kStruct;
+    const std::string_view name = desc.Name != nullptr ? desc.Name : "";
+    const std::optional<MatrixShape> shape = storage_shape(name);
+    if (!shape) return variable;
+    const std::optional<Numeric> element = storage_numeric(type, desc);
+    if (!element) return variable;
+    variable.scalar = element->scalar;
+    variable.bits = element->bits;
+    variable.rows = shape->rows;
+    variable.columns = shape->columns;
+    return variable;
+}
+
 // Một biến của cbuffer. size là cỡ do D3D báo; nullopt thì tính từ kiểu (thành viên của
 // ConstantBuffer<T>, D3D không báo cỡ từng thành viên).
 [[nodiscard]] Variable variable_of(std::string name, std::uint32_t offset, ID3D12ShaderReflectionType* type,
@@ -199,10 +275,7 @@ template <class T, std::size_t N>
     D3D12_SHADER_TYPE_DESC desc{};
     if (FAILED(type->GetDesc(&desc))) return variable;
     variable.elements = desc.Elements;
-    if (desc.Class == D3D_SVC_STRUCT) {
-        variable.scalar = Scalar::kStruct;
-        return variable;
-    }
+    if (desc.Class == D3D_SVC_STRUCT) return struct_variable(type, desc, std::move(variable));
     const Numeric shape = numeric(desc.Type);
     variable.scalar = shape.scalar;
     variable.bits = shape.bits;
@@ -363,51 +436,85 @@ void fill_image(const D3D12_SHADER_INPUT_BIND_DESC& bind, Resource& resource) no
     return lower ? static_cast<char>(letter - 'a' + 'A') : letter;
 }
 
+// Một phía của chữ ký: danh sách đích và cách tính location.
+struct Signature {
+    std::vector<Attribute>* list = nullptr;
+    Locations locations = Locations::kDeclared;
+    // Đầu vào của vertex shader có bảng riêng ở Locations::kSemantic.
+    bool vertex_input = false;
+};
+
+// SV_Target nhận đúng số của render target. Còn lại theo thứ tự khai báo (Slang gán location của
+// SPIR-V cùng thứ tự ấy) hoặc theo bảng semantic_location.
+[[nodiscard]] std::optional<std::uint32_t> location_of(const Signature& side,
+    const Attribute& attribute, bool target) {
+    if (target) return attribute.index;
+    const bool declared = side.locations == Locations::kDeclared;
+    if (declared) return static_cast<std::uint32_t>(side.list->size());
+    return semantic_location(side.vertex_input, attribute.semantic, attribute.index);
+}
+
+// Semantic không có trong bảng của semantic_location.
+[[nodiscard]] core::Failure off_table(std::string_view word, std::uint32_t number) {
+    constexpr ErrorCode kCode = ErrorCode::kInvalidArgument;
+    return fail(kCode, "semantic ngoài bảng location", "{}{}", word, number);
+}
+
 // Giá trị hệ thống (SV_Position, SV_VertexID...) không vào chữ ký, trừ SV_Target.
-void add_attribute(const D3D12_SIGNATURE_PARAMETER_DESC& parameter, std::vector<Attribute>& list) {
+[[nodiscard]] Status add_attribute(const D3D12_SIGNATURE_PARAMETER_DESC& parameter,
+    const Signature& side) {
     const bool target = parameter.SystemValueType == D3D_NAME_TARGET;
     const bool user = parameter.SystemValueType == D3D_NAME_UNDEFINED;
-    if ((!target && !user) || parameter.SemanticName == nullptr) return;
+    const bool is_listed = target || user;
+    if (!is_listed || parameter.SemanticName == nullptr) return ok();
     const Numeric shape = lookup(kComponents, static_cast<std::size_t>(parameter.ComponentType));
     Attribute attribute;
     attribute.semantic = parameter.SemanticName;
     std::ranges::transform(attribute.semantic, attribute.semantic.begin(), upper);
     attribute.index = parameter.SemanticIndex;
-    // DXC gán location của SPIR-V theo thứ tự khai báo; SV_Target nhận đúng số của render target.
-    const auto ordinal = static_cast<std::uint32_t>(list.size());
-    attribute.location = target ? parameter.SemanticIndex : ordinal;
+    const std::optional<std::uint32_t> location = location_of(side, attribute, target);
+    if (!location) return off_table(attribute.semantic, attribute.index);
+    attribute.location = *location;
     attribute.scalar = shape.scalar;
     attribute.bits = shape.bits;
     attribute.components = static_cast<std::uint8_t>(std::popcount(parameter.Mask));
-    list.push_back(std::move(attribute));
+    side.list->push_back(std::move(attribute));
+    return ok();
 }
 
 // Khác gốc: thân vòng chữ ký vào tách ra. GetInputParameterDesc lỗi thì bỏ qua.
-void add_input(ID3D12ShaderReflection& shader, UINT index, StageReflection& reflection) {
+[[nodiscard]] Status add_input(ID3D12ShaderReflection& shader, UINT index, const Signature& side) {
     D3D12_SIGNATURE_PARAMETER_DESC parameter{};
-    if (FAILED(shader.GetInputParameterDesc(index, &parameter))) return;
-    add_attribute(parameter, reflection.inputs);
+    if (FAILED(shader.GetInputParameterDesc(index, &parameter))) return ok();
+    return add_attribute(parameter, side);
 }
 
 // Khác gốc: thân vòng chữ ký ra tách ra. GetOutputParameterDesc lỗi thì bỏ qua.
-void add_output(ID3D12ShaderReflection& shader, UINT index, StageReflection& reflection) {
+[[nodiscard]] Status add_output(ID3D12ShaderReflection& shader, UINT index, const Signature& side) {
     D3D12_SIGNATURE_PARAMETER_DESC parameter{};
-    if (FAILED(shader.GetOutputParameterDesc(index, &parameter))) return;
-    add_attribute(parameter, reflection.outputs);
+    if (FAILED(shader.GetOutputParameterDesc(index, &parameter))) return ok();
+    return add_attribute(parameter, side);
 }
 
-void add_signatures(ID3D12ShaderReflection& shader, const D3D12_SHADER_DESC& desc, StageReflection& reflection) {
-    for (UINT index = 0; index < desc.InputParameters; ++index) {
-        add_input(shader, index, reflection);
+[[nodiscard]] Status add_signatures(ID3D12ShaderReflection& shader, const D3D12_SHADER_DESC& desc,
+    Locations locations, StageReflection& reflection) {
+    Signature inputs{.list = &reflection.inputs, .locations = locations};
+    inputs.vertex_input = reflection.stage == Stage::kVertex;
+    const Signature outputs{.list = &reflection.outputs, .locations = locations};
+    Status added = ok();
+    for (UINT index = 0; index < desc.InputParameters && added; ++index) {
+        added = add_input(shader, index, inputs);
     }
-    for (UINT index = 0; index < desc.OutputParameters; ++index) {
-        add_output(shader, index, reflection);
+    for (UINT index = 0; index < desc.OutputParameters && added; ++index) {
+        added = add_output(shader, index, outputs);
     }
+    return added;
 }
 
 } // namespace
 
-Result<StageReflection> reflect_dxil(ID3D12ShaderReflection& shader, Stage stage, std::string_view entry) {
+Result<StageReflection> reflect_dxil(ID3D12ShaderReflection& shader, Stage stage,
+    std::string_view entry, Locations locations) {
     // Cấu trúc ra của SDK: enum MinFeatureLevel không có giá trị 0, GetDesc ghi đè cả.
     // NOLINTNEXTLINE(bugprone-invalid-enum-default-initialization)
     D3D12_SHADER_DESC desc{};
@@ -420,7 +527,8 @@ Result<StageReflection> reflect_dxil(ID3D12ShaderReflection& shader, Stage stage
         added = add_resource(shader, index, reflection);
     }
     if (!added) return pass(added);
-    add_signatures(shader, desc, reflection);
+    Status signatures = add_signatures(shader, desc, locations, reflection);
+    if (!signatures) return pass(signatures);
     if (stage == Stage::kHull) reflection.control_points = desc.cControlPoints;
     const bool threaded = stage == Stage::kCompute || stage == Stage::kMesh;
     if (threaded || stage == Stage::kAmplification) {

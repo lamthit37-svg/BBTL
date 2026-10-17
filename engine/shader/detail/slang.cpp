@@ -1,12 +1,28 @@
-// Dịch nguồn .slang bằng Slang (slang.dll): ba đích SPIR-V, DXIL, DXBC từ một nguồn. Bộ cờ khớp
-// những gì DXC và D3DCompile từng nhận để phản chiếu và bố cục không đổi:
-// - ma trận xếp theo cột như DXC (Slang mặc định xếp theo hàng, sẽ đảo mọi mul(M, v));
-// - SPIR-V: -fvk-use-dx-layout giữ bố cục cbuffer của HLSL, định dạng ảnh storage để unknown, binding
-//   = slot cộng độ dịch của lớp register (b 0, t 1000, u 2000, s 3000; binding_shift), tên entry giữ
-//   nguyên thay cho "main";
+/*==============================================================================
+ *  ENGINEHP  |  HIGH-PERFORMANCE GAME ENGINE
+ *------------------------------------------------------------------------------
+ *  TỆP       : engine/shader/detail/slang.cpp
+ *  PHÂN HỆ   : Shader / Detail / Slang
+ *  CHUẨN     : C++23
+ *------------------------------------------------------------------------------
+ *  CHỨC NĂNG
+ *  - Dịch nguồn .slang bằng Slang (slang.dll): ba đích SPIR-V, DXIL, DXBC từ
+ *    một nguồn. Bộ cờ khớp những gì DXC và D3DCompile từng nhận để phản chiếu
+ *    và bố cục không đổi:
+ *  - ma trận xếp theo cột như DXC (Slang mặc định xếp theo hàng, sẽ đảo mọi
+ *    mul(M, v));
+ *  - SPIR-V: -fvk-use-dx-layout giữ bố cục cbuffer của HLSL, định dạng ảnh
+ *------------------------------------------------------------------------------
+ *  TÁC GIẢ   : HiepHoon
+ *  TELEGRAM  : @Hoon9xx
+ *============================================================================*/
+
+// storage để unknown, binding = slot cộng độ dịch của lớp register (b 0, t 1000, u 2000, s 3000;
+// binding_shift), tên entry giữ nguyên thay cho "main";
 // - cảnh báo là lỗi khi options.strict.
-// Include đi qua một hệ thống tệp của riêng mình: "f2/shader.inc.slang" lấy từ bộ nhớ (builtin.hpp),
-// mọi tệp khác đọc bằng fs::read_file và được ghi lại làm phụ thuộc.
+// Include đi qua một hệ thống tệp của riêng mình: "f2/shader.inc.slang" lấy từ bộ nhớ
+// (builtin.hpp), mọi tệp khác đọc bằng fs::read_file và được ghi lại làm phụ thuộc.
+
 #include "shader/detail/slang.hpp"
 
 #include "core/error.hpp"
@@ -122,15 +138,20 @@ void add_define(std::vector<std::string>& args, std::string_view define) {
     args.emplace_back(define);
 }
 
-// Cờ dòng lệnh của slangc mà IGlobalSession::parseCommandLineArguments đổi thành SessionDesc. Entry,
-// stage và tệp nguồn không nằm ở đây: chúng đi qua API.
+// Cờ dòng lệnh của slangc mà IGlobalSession::parseCommandLineArguments đổi thành SessionDesc.
+// Entry, stage và tệp nguồn không nằm ở đây: chúng đi qua API. Gói ma trận của cbuffer
+// (ShaderSpec::row_major).
+[[nodiscard]] constexpr std::string_view matrix_layout(bool row_major) noexcept {
+    return row_major ? "-matrix-layout-row-major" : "-matrix-layout-column-major";
+}
+
 [[nodiscard]] std::vector<std::string> arguments(const CompileOptions& options) {
     std::vector<std::string> args;
     args.emplace_back("-target");
     args.emplace_back(target_of(options.target));
     args.emplace_back("-profile");
     args.push_back(profile_of(options));
-    args.emplace_back("-matrix-layout-column-major");
+    args.emplace_back(matrix_layout(options.row_major));
     if (options.strict) {
         args.emplace_back("-warnings-as-errors");
         args.emplace_back("all");

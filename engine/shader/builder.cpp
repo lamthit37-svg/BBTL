@@ -1,6 +1,20 @@
-// Dựng gói shader và quyết định gói trên đĩa còn dùng được hay phải dịch lại.
-// Tăng kBuildVersion khi cờ dịch hoặc định dạng gói đổi thì mọi gói cũ hết hạn.
-// Đường trong gói tương đối với thư mục danh sách, không mang đường máy dựng.
+/*==============================================================================
+ *  ENGINEHP  |  HIGH-PERFORMANCE GAME ENGINE
+ *------------------------------------------------------------------------------
+ *  TỆP       : engine/shader/builder.cpp
+ *  PHÂN HỆ   : Shader / Builder
+ *  CHUẨN     : C++23
+ *------------------------------------------------------------------------------
+ *  CHỨC NĂNG
+ *  - Dựng gói shader và quyết định gói trên đĩa còn dùng được hay phải dịch
+ *    lại. Tăng kBuildVersion khi cờ dịch hoặc định dạng gói đổi thì mọi gói cũ
+ *    hết hạn. Đường trong gói tương đối với thư mục danh sách, không mang đường
+ *    máy dựng.
+ *------------------------------------------------------------------------------
+ *  TÁC GIẢ   : HiepHoon
+ *  TELEGRAM  : @Hoon9xx
+ *============================================================================*/
+
 #include "shader/builder.hpp"
 
 #include "fs/codec.hpp"
@@ -47,6 +61,8 @@ constexpr std::uint32_t kBuildVersion = 2;
     out.put(model.major);
     out.put(model.minor);
     out.put_text(spec.entry);
+    out.put_flag(spec.row_major);
+    out.put(std::to_underlying(manifest.locations));
     out.put_text(variant_text(manifest.defines));
     out.put_text(variant_text(spec.defines));
     for (const std::vector<std::string>& variant : spec.variants) {
@@ -96,6 +112,8 @@ struct Work {
     compile.defines.append_range(variant);
     compile.include_dirs = work.manifest->include_dirs;
     compile.debug = work.options->debug;
+    compile.row_major = work.spec->row_major;
+    compile.locations = work.manifest->locations;
     compile.vulkan_minor = work.options->vulkan_minor;
     Result<Compiled> compiled = work.compiler->compile(work.spec->source, compile);
     if (!compiled) return pass(compiled);

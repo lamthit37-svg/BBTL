@@ -1,0 +1,52 @@
+vertex_program CartoonEffect/VS/DrawDepth hlsl
+{
+	source DrawDepth.hlsl
+	entry_point cartoonDrawDepth_VS
+	target vs_2_0
+
+	default_params
+	{
+		param_named_auto WorldViewXf	worldview_matrix
+    param_named_auto WvpXf		worldviewproj_matrix
+	}
+}
+
+fragment_program CartoonEffect/PS/DrawDepth hlsl
+{
+	source DrawDepth.hlsl
+	entry_point cartoonDrawDepth_PS
+	target ps_2_a
+	preprocessor_defines TEXTURE_USED=1
+	
+	default_params
+	{
+		param_named specialFlag	float 1.5
+	}
+}
+
+vertex_program CartoonEffect/VS/DrawDepth_NoTex hlsl
+{
+	source DrawDepth.hlsl
+	entry_point cartoonDrawDepth_VS
+	target vs_2_0
+	preprocessor_defines TEXTURE_USED=0
+
+	default_params
+	{
+		param_named_auto WorldViewXf	worldview_matrix
+    param_named_auto WvpXf		worldviewproj_matrix
+	}
+}
+
+fragment_program CartoonEffect/PS/DrawDepth_NoTex hlsl
+{
+	source DrawDepth.hlsl
+	entry_point cartoonDrawDepth_PS
+	target ps_2_a
+	preprocessor_defines TEXTURE_USED=0
+	
+	default_params
+	{
+		param_named specialFlag	float 1.5
+	}
+}

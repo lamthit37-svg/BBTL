@@ -1,10 +1,26 @@
-// Trình dịch shader: Slang dịch nguồn .slang ra SPIR-V, DXIL và DXBC (shader/detail/slang.cpp). DXC
-// chỉ còn lấy phản chiếu của DXIL: IDxcUtils::CreateReflection đọc phần STAT của container DXIL mà
-// Slang sinh ra. Mỗi lần dịch, bất kể đích nào, đều dịch cả SPIR-V lẫn DXIL của cùng nguồn rồi
-// đối chiếu phản chiếu của chúng (shader/detail/reconcile.cpp): SPIR-V cho tên sạch và bố cục
-// descriptor của Vulkan, DXIL cho semantic và bố cục của D3D12. Hai bên lệch nhau thì dừng ở đây,
-// nên ba đích của một gói luôn ra cùng một phản chiếu. DXBC lấy phản chiếu chung đó vì bytecode
-// shader model 5 không mang đủ thông tin cho bố cục của dự án.
+/*==============================================================================
+ *  ENGINEHP  |  HIGH-PERFORMANCE GAME ENGINE
+ *------------------------------------------------------------------------------
+ *  TỆP       : engine/shader/compiler.cpp
+ *  PHÂN HỆ   : Shader / Compiler
+ *  CHUẨN     : C++23
+ *------------------------------------------------------------------------------
+ *  CHỨC NĂNG
+ *  - Trình dịch shader: Slang dịch nguồn .slang ra SPIR-V, DXIL và DXBC
+ *    (shader/detail/slang.cpp). DXC chỉ còn lấy phản chiếu của DXIL:
+ *    IDxcUtils::CreateReflection đọc phần STAT của container DXIL mà Slang sinh
+ *    ra.
+ *------------------------------------------------------------------------------
+ *  TÁC GIẢ   : HiepHoon
+ *  TELEGRAM  : @Hoon9xx
+ *============================================================================*/
+
+// Mỗi lần dịch, bất kể đích nào, đều dịch cả SPIR-V lẫn DXIL của cùng nguồn rồi đối chiếu phản
+// chiếu của chúng (shader/detail/reconcile.cpp): SPIR-V cho tên sạch và bố cục descriptor của
+// Vulkan, DXIL cho semantic và bố cục của D3D12. Hai bên lệch nhau thì dừng ở đây, nên ba đích của
+// một gói luôn ra cùng một phản chiếu. DXBC lấy phản chiếu chung đó vì bytecode shader model 5
+// không mang đủ thông tin cho bố cục của dự án.
+
 #include "shader/compiler.hpp"
 
 #include "core/text.hpp"
@@ -81,7 +97,7 @@ template <typename T>
     ComPtr<ID3D12ShaderReflection> shader;
     const HRESULT made = utils.CreateReflection(&buffer, kIidShader, dxc_pp(shader));
     if (FAILED(made) || shader == nullptr) return internal("DXC không mở được phản chiếu của DXIL do Slang sinh ra");
-    return reflect_dxil(*shader.Get(), options.stage, options.entry);
+    return reflect_dxil(*shader.Get(), options.stage, options.entry, options.locations);
 }
 
 // Container DXIL: 4 byte "DXBC" rồi 16 byte digest. Digest toàn 0 là chưa ký, D3D12 sẽ từ chối.
@@ -135,7 +151,7 @@ template <typename T>
     if (!is_signed(dxil.code)) return fail(ErrorCode::kUnsupported, "Slang không ký được DXIL");
     Result<StageReflection> direct = reflect_dxil_code(*utils.Get(), dxil.code, options);
     if (!direct) return pass(direct);
-    return detail::reconcile(std::move(*vulkan), *direct);
+    return detail::reconcile(std::move(*vulkan), *direct, options.locations);
 }
 
 } // namespace

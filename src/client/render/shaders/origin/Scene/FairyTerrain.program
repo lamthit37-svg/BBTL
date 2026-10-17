@@ -1,0 +1,492 @@
+//////////////////////////////////////////////////////////////////
+vertex_program Terrain/OneLayer_vs hlsl
+{
+	source FairyTerrainColorMap.hlsl
+	entry_point terrain_vs
+	target vs_3_0
+	column_major_matrices false
+	preprocessor_defines HAS_TWO_LAYER=0;HAS_LIGHTMAP=0;HAS_COLORMAP=0
+
+	default_params
+	{
+		param_named_auto world_matrix world_matrix
+		param_named_auto viewproj_matrix viewproj_matrix
+		param_named_auto view_matrix	view_matrix
+		param_named_auto camera_position camera_position
+		
+		param_named_auto light_count light_count
+		param_named_auto light_position_array[0] light_position_array 8
+		param_named_auto light_attenuation_array[0]	light_attenuation_array 8
+		param_named_auto light_diffuse_colour_array[0] light_diffuse_colour_array 8
+		
+		param_named_auto derived_scene_colour derived_scene_colour
+		param_named_auto surface_specular_colour surface_specular_colour
+		param_named_auto surface_shininess surface_shininess
+		param_named_auto light_specular_colour0	light_specular_colour	0
+		
+		param_named_auto isystem_userdata isystem_userdata
+	}
+}
+
+vertex_program Terrain/OneLayerLightmap_vs hlsl
+{
+	source FairyTerrainColorMap.hlsl
+	entry_point terrain_vs
+	target vs_3_0
+	column_major_matrices false
+	preprocessor_defines HAS_TWO_LAYER=0;HAS_LIGHTMAP=1;HAS_COLORMAP=0
+
+	default_params
+	{
+		param_named_auto world_matrix world_matrix
+		param_named_auto viewproj_matrix viewproj_matrix
+		param_named_auto view_matrix	view_matrix
+		param_named_auto camera_position camera_position
+		
+		param_named_auto light_count light_count
+		param_named_auto light_position_array[0] light_position_array 8
+		param_named_auto light_attenuation_array[0]	light_attenuation_array 8
+		param_named_auto light_diffuse_colour_array[0] light_diffuse_colour_array 8
+		
+		param_named_auto derived_scene_colour derived_scene_colour
+		param_named_auto surface_specular_colour surface_specular_colour
+		param_named_auto surface_shininess surface_shininess
+		param_named_auto light_specular_colour0	light_specular_colour	0
+		
+		param_named_auto isystem_userdata isystem_userdata
+	}
+}
+
+vertex_program Terrain/TwoLayer_vs hlsl
+{
+	source FairyTerrainColorMap.hlsl
+	entry_point terrain_vs
+	target vs_3_0
+	column_major_matrices false
+	preprocessor_defines HAS_TWO_LAYER=1;HAS_LIGHTMAP=0;HAS_COLORMAP=0
+
+	default_params
+	{
+		param_named_auto world_matrix world_matrix
+		param_named_auto viewproj_matrix viewproj_matrix
+		param_named_auto view_matrix	view_matrix
+		param_named_auto camera_position camera_position
+		
+		param_named_auto light_count light_count
+		param_named_auto light_position_array[0] light_position_array 8
+		param_named_auto light_attenuation_array[0]	light_attenuation_array 8
+		param_named_auto light_diffuse_colour_array[0] light_diffuse_colour_array 8
+		
+		param_named_auto derived_scene_colour derived_scene_colour
+		param_named_auto surface_specular_colour surface_specular_colour
+		param_named_auto surface_shininess surface_shininess
+		param_named_auto light_specular_colour0	light_specular_colour	0
+		
+		param_named_auto isystem_userdata isystem_userdata
+	}
+}
+
+vertex_program Terrain/TwoLayerLightmap_vs hlsl
+{
+	source FairyTerrainColorMap.hlsl
+	entry_point terrain_vs
+	target vs_3_0
+	column_major_matrices false
+	preprocessor_defines HAS_TWO_LAYER=1;HAS_LIGHTMAP=1;HAS_COLORMAP=0
+
+	default_params
+	{
+		param_named_auto world_matrix world_matrix
+		param_named_auto viewproj_matrix viewproj_matrix
+		param_named_auto view_matrix	view_matrix
+		param_named_auto camera_position camera_position
+		
+		param_named_auto light_count light_count
+		param_named_auto light_position_array[0] light_position_array 8
+		param_named_auto light_attenuation_array[0]	light_attenuation_array 8
+		param_named_auto light_diffuse_colour_array[0] light_diffuse_colour_array 8
+		
+		param_named_auto derived_scene_colour derived_scene_colour
+		param_named_auto surface_specular_colour surface_specular_colour
+		param_named_auto surface_shininess surface_shininess
+		param_named_auto light_specular_colour0	light_specular_colour	0
+		
+		param_named_auto isystem_userdata isystem_userdata
+	}
+}
+
+///////////////////////////////////////////////////////////////////////
+fragment_program Terrain/TwoLayerLightmap_ps hlsl
+{
+	source FairyTerrainColorMap.hlsl
+	entry_point terrain_ps
+	target ps_3_0
+	column_major_matrices false
+	preprocessor_defines HAS_TWO_LAYER=1;HAS_LIGHTMAP=1;HAS_COLORMAP=0
+	default_params
+	{
+		//param_named_auto derived_scene_colour derived_scene_colour
+		//param_named_auto surface_specular_colour surface_specular_colour
+		//param_named_auto surface_shininess surface_shininess
+		//param_named_auto light_specular_colour0	light_specular_colour	0
+		
+		//param_named_auto light_count light_count
+		//param_named_auto light_position_view_space_array[0] light_position_view_space_array 8
+		//param_named_auto light_attenuation_array[0]	light_attenuation_array 8
+		//param_named_auto derived_light_diffuse_colour_array[0] derived_light_diffuse_colour_array 8
+		
+	}
+}
+
+fragment_program Terrain/TwoLayer_ps hlsl
+{
+	source FairyTerrainColorMap.hlsl
+	entry_point terrain_ps
+	target ps_3_0
+	column_major_matrices false
+	preprocessor_defines HAS_TWO_LAYER=1;HAS_LIGHTMAP=0;HAS_COLORMAP=0
+	default_params
+	{
+		//param_named_auto derived_scene_colour derived_scene_colour
+		//param_named_auto surface_specular_colour surface_specular_colour
+		//param_named_auto surface_shininess surface_shininess
+		//param_named_auto light_specular_colour0	light_specular_colour	0
+		
+		//param_named_auto light_count light_count
+		//param_named_auto light_position_view_space_array[0] light_position_view_space_array 8
+		//param_named_auto light_attenuation_array[0]	light_attenuation_array 8
+		//param_named_auto derived_light_diffuse_colour_array[0] derived_light_diffuse_colour_array 8
+	}
+}
+
+fragment_program Terrain/OneLayerLightmap_ps hlsl
+{
+	source FairyTerrainColorMap.hlsl
+	entry_point terrain_ps
+	target ps_3_0
+	column_major_matrices false
+	preprocessor_defines HAS_TWO_LAYER=0;HAS_LIGHTMAP=1;HAS_COLORMAP=0
+	default_params
+	{
+		//param_named_auto derived_scene_colour derived_scene_colour
+		//param_named_auto surface_specular_colour surface_specular_colour
+		//param_named_auto surface_shininess surface_shininess
+		//param_named_auto light_specular_colour0	light_specular_colour	0
+		
+		//param_named_auto light_count light_count
+		//param_named_auto light_position_view_space_array[0] light_position_view_space_array 8
+		//param_named_auto light_attenuation_array[0]	light_attenuation_array 8
+		//param_named_auto derived_light_diffuse_colour_array[0] derived_light_diffuse_colour_array 8
+		
+	}
+}
+
+fragment_program Terrain/OneLayer_ps hlsl
+{
+	source FairyTerrainColorMap.hlsl
+	entry_point terrain_ps
+	target ps_3_0
+	column_major_matrices false
+	preprocessor_defines HAS_TWO_LAYER=0;HAS_LIGHTMAP=0;HAS_COLORMAP=0
+	default_params
+	{
+		//param_named_auto derived_scene_colour derived_scene_colour
+		//param_named_auto surface_specular_colour surface_specular_colour
+		//param_named_auto surface_shininess surface_shininess
+		//param_named_auto light_specular_colour0	light_specular_colour	0
+		
+		//param_named_auto light_count light_count
+		//param_named_auto light_position_view_space_array[0] light_position_view_space_array 8
+		//param_named_auto light_attenuation_array[0]	light_attenuation_array 8
+		//param_named_auto derived_light_diffuse_colour_array[0] derived_light_diffuse_colour_array 8
+		
+	}
+}
+
+fragment_program Terrain/TwoLayerLightmap_ps%fog_linear hlsl
+{
+	source FairyTerrainColorMap.hlsl
+	entry_point terrain_ps
+	target ps_3_0
+	column_major_matrices false
+	preprocessor_defines HAS_TWO_LAYER=1;HAS_LIGHTMAP=1;ARB_fog_linear=1;HAS_COLORMAP=0
+	default_params
+	{
+		//param_named_auto derived_scene_colour derived_scene_colour
+		//param_named_auto surface_specular_colour surface_specular_colour
+		//param_named_auto surface_shininess surface_shininess
+		//param_named_auto light_specular_colour0	light_specular_colour	0
+		
+		//param_named_auto light_count light_count
+		//param_named_auto light_position_view_space_array[0] light_position_view_space_array 8
+		//param_named_auto light_attenuation_array[0]	light_attenuation_array 8
+		//param_named_auto derived_light_diffuse_colour_array[0] derived_light_diffuse_colour_array 8
+		
+		param_named_auto fog_params fog_params
+		param_named_auto fog_colour fog_colour
+	}
+}
+
+fragment_program Terrain/TwoLayer_ps%fog_linear hlsl
+{
+	source FairyTerrainColorMap.hlsl
+	entry_point terrain_ps
+	target ps_3_0
+	column_major_matrices false
+	preprocessor_defines HAS_TWO_LAYER=1;HAS_LIGHTMAP=0;ARB_fog_linear=1;HAS_COLORMAP=0
+	default_params
+	{
+		//param_named_auto derived_scene_colour derived_scene_colour
+		//param_named_auto surface_specular_colour surface_specular_colour
+		//param_named_auto surface_shininess surface_shininess
+		//param_named_auto light_specular_colour0	light_specular_colour	0
+		
+		//param_named_auto light_count light_count
+		//param_named_auto light_position_view_space_array[0] light_position_view_space_array 8
+		//param_named_auto light_attenuation_array[0]	light_attenuation_array 8
+		//param_named_auto derived_light_diffuse_colour_array[0] derived_light_diffuse_colour_array 8
+		
+		param_named_auto fog_params fog_params
+		param_named_auto fog_colour fog_colour
+	}
+}
+
+fragment_program Terrain/OneLayerLightmap_ps%fog_linear hlsl
+{
+	source FairyTerrainColorMap.hlsl
+	entry_point terrain_ps
+	target ps_3_0
+	column_major_matrices false
+	preprocessor_defines HAS_TWO_LAYER=0;HAS_LIGHTMAP=1;ARB_fog_linear=1;HAS_COLORMAP=0
+	default_params
+	{
+		//param_named_auto derived_scene_colour derived_scene_colour
+		//param_named_auto surface_specular_colour surface_specular_colour
+		//param_named_auto surface_shininess surface_shininess
+		//param_named_auto light_specular_colour0	light_specular_colour	0
+		
+		//param_named_auto light_count light_count
+		//param_named_auto light_position_view_space_array[0] light_position_view_space_array 8
+		//param_named_auto light_attenuation_array[0]	light_attenuation_array 8
+		//param_named_auto derived_light_diffuse_colour_array[0] derived_light_diffuse_colour_array 8
+		
+		param_named_auto fog_params fog_params
+		param_named_auto fog_colour fog_colour
+	}
+}
+
+fragment_program Terrain/OneLayer_ps%fog_linear hlsl
+{
+	source FairyTerrainColorMap.hlsl
+	entry_point terrain_ps
+	target ps_3_0
+	column_major_matrices false
+	preprocessor_defines HAS_TWO_LAYER=0;HAS_LIGHTMAP=0;ARB_fog_linear=1;HAS_COLORMAP=0
+	default_params
+	{
+		//param_named_auto derived_scene_colour derived_scene_colour
+		//param_named_auto surface_specular_colour surface_specular_colour
+		//param_named_auto surface_shininess surface_shininess
+		//param_named_auto light_specular_colour0	light_specular_colour	0
+		
+		//param_named_auto light_count light_count
+		//param_named_auto light_position_view_space_array[0] light_position_view_space_array 8
+		//param_named_auto light_attenuation_array[0]	light_attenuation_array 8
+		//param_named_auto derived_light_diffuse_colour_array[0] derived_light_diffuse_colour_array 8
+		
+		param_named_auto fog_params fog_params
+		param_named_auto fog_colour fog_colour
+	}
+}
+
+fragment_program Terrain/TwoLayerLightmap_ps%fog_exp hlsl
+{
+	source FairyTerrainColorMap.hlsl
+	entry_point terrain_ps
+	target ps_3_0
+	column_major_matrices false
+	preprocessor_defines HAS_TWO_LAYER=1;HAS_LIGHTMAP=1;ARB_fog_exp=1;HAS_COLORMAP=0
+	default_params
+	{
+		//param_named_auto derived_scene_colour derived_scene_colour
+		//param_named_auto surface_specular_colour surface_specular_colour
+		//param_named_auto surface_shininess surface_shininess
+		//param_named_auto light_specular_colour0	light_specular_colour	0
+		
+		//param_named_auto light_count light_count
+		//param_named_auto light_position_view_space_array[0] light_position_view_space_array 8
+		//param_named_auto light_attenuation_array[0]	light_attenuation_array 8
+		//param_named_auto derived_light_diffuse_colour_array[0] derived_light_diffuse_colour_array 8
+		
+		param_named_auto fog_params fog_params
+		param_named_auto fog_colour fog_colour
+	}
+}
+
+fragment_program Terrain/TwoLayer_ps%fog_exp hlsl
+{
+	source FairyTerrainColorMap.hlsl
+	entry_point terrain_ps
+	target ps_3_0
+	column_major_matrices false
+	preprocessor_defines HAS_TWO_LAYER=1;HAS_LIGHTMAP=0;ARB_fog_exp=1;HAS_COLORMAP=0
+	default_params
+	{
+		//param_named_auto derived_scene_colour derived_scene_colour
+		//param_named_auto surface_specular_colour surface_specular_colour
+		//param_named_auto surface_shininess surface_shininess
+		//param_named_auto light_specular_colour0	light_specular_colour	0
+		
+		//param_named_auto light_count light_count
+		//param_named_auto light_position_view_space_array[0] light_position_view_space_array 8
+		//param_named_auto light_attenuation_array[0]	light_attenuation_array 8
+		//param_named_auto derived_light_diffuse_colour_array[0] derived_light_diffuse_colour_array 8
+		
+		param_named_auto fog_params fog_params
+		param_named_auto fog_colour fog_colour
+	}
+}
+
+fragment_program Terrain/OneLayerLightmap_ps%fog_exp hlsl
+{
+	source FairyTerrainColorMap.hlsl
+	entry_point terrain_ps
+	target ps_3_0
+	column_major_matrices false
+	preprocessor_defines HAS_TWO_LAYER=0;HAS_LIGHTMAP=1;ARB_fog_exp=1;HAS_COLORMAP=0
+	default_params
+	{
+		//param_named_auto derived_scene_colour derived_scene_colour
+		//param_named_auto surface_specular_colour surface_specular_colour
+		//param_named_auto surface_shininess surface_shininess
+		//param_named_auto light_specular_colour0	light_specular_colour	0
+		
+		//param_named_auto light_count light_count
+		//param_named_auto light_position_view_space_array[0] light_position_view_space_array 8
+		//param_named_auto light_attenuation_array[0]	light_attenuation_array 8
+		//param_named_auto derived_light_diffuse_colour_array[0] derived_light_diffuse_colour_array 8
+		
+		param_named_auto fog_params fog_params
+		param_named_auto fog_colour fog_colour
+	}
+}
+
+fragment_program Terrain/OneLayer_ps%fog_exp hlsl
+{
+	source FairyTerrainColorMap.hlsl
+	entry_point terrain_ps
+	target ps_3_0
+	column_major_matrices false
+	preprocessor_defines HAS_TWO_LAYER=0;HAS_LIGHTMAP=0;ARB_fog_exp=1;HAS_COLORMAP=0
+	default_params
+	{
+		//param_named_auto derived_scene_colour derived_scene_colour
+		//param_named_auto surface_specular_colour surface_specular_colour
+		//param_named_auto surface_shininess surface_shininess
+		//param_named_auto light_specular_colour0	light_specular_colour	0
+		
+		//param_named_auto light_count light_count
+		//param_named_auto light_position_view_space_array[0] light_position_view_space_array 8
+		//param_named_auto light_attenuation_array[0]	light_attenuation_array 8
+		//param_named_auto derived_light_diffuse_colour_array[0] derived_light_diffuse_colour_array 8
+		
+		param_named_auto fog_params fog_params
+		param_named_auto fog_colour fog_colour
+	}
+}
+
+fragment_program Terrain/TwoLayerLightmap_ps%fog_exp2 hlsl
+{
+	source FairyTerrainColorMap.hlsl
+	entry_point terrain_ps
+	target ps_3_0
+	column_major_matrices false
+	preprocessor_defines HAS_TWO_LAYER=1;HAS_LIGHTMAP=1;ARB_fog_exp2=1;HAS_COLORMAP=0
+	default_params
+	{
+		//param_named_auto derived_scene_colour derived_scene_colour
+		//param_named_auto surface_specular_colour surface_specular_colour
+		//param_named_auto surface_shininess surface_shininess
+		//param_named_auto light_specular_colour0	light_specular_colour	0
+		
+		//param_named_auto light_count light_count
+		//param_named_auto light_position_view_space_array[0] light_position_view_space_array 8
+		//param_named_auto light_attenuation_array[0]	light_attenuation_array 8
+		//param_named_auto derived_light_diffuse_colour_array[0] derived_light_diffuse_colour_array 8
+		
+		param_named_auto fog_params fog_params
+		param_named_auto fog_colour fog_colour
+	}
+}
+
+fragment_program Terrain/TwoLayer_ps%fog_exp2 hlsl
+{
+	source FairyTerrainColorMap.hlsl
+	entry_point terrain_ps
+	target ps_3_0
+	column_major_matrices false
+	preprocessor_defines HAS_TWO_LAYER=1;HAS_LIGHTMAP=0;ARB_fog_exp2=1;HAS_COLORMAP=0
+	default_params
+	{
+		//param_named_auto derived_scene_colour derived_scene_colour
+		//param_named_auto surface_specular_colour surface_specular_colour
+		//param_named_auto surface_shininess surface_shininess
+		//param_named_auto light_specular_colour0	light_specular_colour	0
+		
+		//param_named_auto light_count light_count
+		//param_named_auto light_position_view_space_array[0] light_position_view_space_array 8
+		//param_named_auto light_attenuation_array[0]	light_attenuation_array 8
+		//param_named_auto derived_light_diffuse_colour_array[0] derived_light_diffuse_colour_array 8
+		
+		param_named_auto fog_params fog_params
+		param_named_auto fog_colour fog_colour
+	}
+}
+
+fragment_program Terrain/OneLayerLightmap_ps%fog_exp2 hlsl
+{
+	source FairyTerrainColorMap.hlsl
+	entry_point terrain_ps
+	target ps_3_0
+	column_major_matrices false
+	preprocessor_defines HAS_TWO_LAYER=0;HAS_LIGHTMAP=1;ARB_fog_exp2=1;HAS_COLORMAP=0
+	default_params
+	{
+		//param_named_auto derived_scene_colour derived_scene_colour
+		//param_named_auto surface_specular_colour surface_specular_colour
+		//param_named_auto surface_shininess surface_shininess
+		//param_named_auto light_specular_colour0	light_specular_colour	0
+		
+		//param_named_auto light_count light_count
+		//param_named_auto light_position_view_space_array[0] light_position_view_space_array 8
+		//param_named_auto light_attenuation_array[0]	light_attenuation_array 8
+		//param_named_auto derived_light_diffuse_colour_array[0] derived_light_diffuse_colour_array 8
+		
+		param_named_auto fog_params fog_params
+		param_named_auto fog_colour fog_colour
+	}
+}
+
+fragment_program Terrain/OneLayer_ps%fog_exp2 hlsl
+{
+	source FairyTerrainColorMap.hlsl
+	entry_point terrain_ps
+	target ps_3_0
+	column_major_matrices false
+	preprocessor_defines HAS_TWO_LAYER=0;HAS_LIGHTMAP=0;ARB_fog_exp2=1;HAS_COLORMAP=0
+	default_params
+	{
+		//param_named_auto derived_scene_colour derived_scene_colour
+		//param_named_auto surface_specular_colour surface_specular_colour
+		//param_named_auto surface_shininess surface_shininess
+		//param_named_auto light_specular_colour0	light_specular_colour	0
+		
+		//param_named_auto light_count light_count
+		//param_named_auto light_position_view_space_array[0] light_position_view_space_array 8
+		//param_named_auto light_attenuation_array[0]	light_attenuation_array 8
+		//param_named_auto derived_light_diffuse_colour_array[0] derived_light_diffuse_colour_array 8
+		
+		param_named_auto fog_params fog_params
+		param_named_auto fog_colour fog_colour
+	}
+}

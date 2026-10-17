@@ -1,6 +1,19 @@
-// Đọc danh sách shader: tên gói, stage, tệp nguồn và các biến thể.
-// Tối đa 6 define permute, vì 2^6 tập con đúng bằng kMaxVariants.
-// Tên gói không có dấu phân cách hay ".."; nháy kép giữ khoảng trắng và '#'.
+/*==============================================================================
+ *  ENGINEHP  |  HIGH-PERFORMANCE GAME ENGINE
+ *------------------------------------------------------------------------------
+ *  TỆP       : engine/shader/manifest.cpp
+ *  PHÂN HỆ   : Shader / Manifest
+ *  CHUẨN     : C++23
+ *------------------------------------------------------------------------------
+ *  CHỨC NĂNG
+ *  - Đọc danh sách shader: tên gói, stage, tệp nguồn và các biến thể. Tối đa 6
+ *    define permute, vì 2^6 tập con đúng bằng kMaxVariants. Tên gói không có
+ *    dấu phân cách hay ".."; nháy kép giữ khoảng trắng và '#'.
+ *------------------------------------------------------------------------------
+ *  TÁC GIẢ   : HiepHoon
+ *  TELEGRAM  : @Hoon9xx
+ *============================================================================*/
+
 #include "shader/manifest.hpp"
 
 #include "core/error.hpp"
@@ -9,6 +22,7 @@
 #include "fs/stream.hpp"
 #include "shader/failure.hpp"
 #include "shader/package.hpp"
+#include "shader/reflection.hpp"
 #include "shader/types.hpp"
 
 #include <algorithm>
@@ -167,15 +181,35 @@ using Tokens = std::vector<std::string>;
     return ok();
 }
 
+// matrix=row hoặc matrix=column.
+[[nodiscard]] Status apply_matrix(ShaderSpec& spec, std::string_view value, std::uint32_t line) {
+    const bool is_row = value == "row";
+    if (!is_row && value != "column") return bad(line, "matrix nhận row hoặc column", value);
+    spec.row_major = is_row;
+    return ok();
+}
+
+// Khoá có hàm xử lý riêng (variant, permute, matrix); nullopt khi key không thuộc nhóm này.
+// Khác gốc: tách khỏi apply_option cho trần cognitive. Khoá rồi giá trị, chỗ gọi duy nhất tách sẵn
+// hai phần quanh dấu '='.
+// NOLINTNEXTLINE(bugprone-easily-swappable-parameters)
+[[nodiscard]] std::optional<Status> apply_handled(ShaderSpec& spec, std::string_view key,
+    std::string_view value, std::uint32_t line) {
+    if (key == "variant") return add_variant(spec, split_list(value), line);
+    if (key == "permute") return add_permutations(spec, value, line);
+    if (key == "matrix") return apply_matrix(spec, value, line);
+    return std::nullopt;
+}
+
 // Một khoá=giá_trị sau tên và nguồn của lệnh shader.
-[[nodiscard]] Status apply_option(ShaderSpec& spec, std::optional<Stage>& stage, std::string_view option,
-    std::uint32_t line) {
+[[nodiscard]] Status apply_option(ShaderSpec& spec, std::optional<Stage>& stage,
+    std::string_view option, std::uint32_t line) {
     const std::size_t equals = option.find('=');
     if (equals == std::string_view::npos) return bad(line, "thiếu '='", option);
     const std::string_view key = option.substr(0, equals);
     const std::string_view value = option.substr(equals + 1);
-    if (key == "variant") return add_variant(spec, split_list(value), line);
-    if (key == "permute") return add_permutations(spec, value, line);
+    std::optional<Status> handled = apply_handled(spec, key, value, line);
+    if (handled) return std::move(*handled);
     if (key == "stage") stage = parse_stage(value);
     if (key == "stage" && stage) return ok();
     if (key == "model") spec.model = parse_model(value);
@@ -207,7 +241,17 @@ using Tokens = std::vector<std::string>;
     return ok();
 }
 
-// Lệnh một tham số: include, define, model.
+// locations semantic hoặc locations declared.
+[[nodiscard]] Status apply_locations(Manifest& manifest, std::string_view value,
+    std::uint32_t line) {
+    const bool is_semantic = value == "semantic";
+    const bool is_known = is_semantic || value == "declared";
+    if (!is_known) return bad(line, "locations sai giá trị", value);
+    manifest.locations = is_semantic ? Locations::kSemantic : Locations::kDeclared;
+    return ok();
+}
+
+// Lệnh một tham số: include, define, model, locations.
 [[nodiscard]] Status apply_setting(Manifest& manifest, const Tokens& tokens, std::uint32_t line) {
     const std::string& verb = tokens.front();
     if (tokens.size() != 2) return bad(line, "lệnh cần đúng một tham số", verb);
@@ -220,6 +264,7 @@ using Tokens = std::vector<std::string>;
         manifest.defines.push_back(value);
         return ok();
     }
+    if (verb == "locations") return apply_locations(manifest, value, line);
     const std::optional<ShaderModel> model = parse_model(value);
     if (verb != "model" || !model) return bad(line, "lệnh lạ hoặc giá trị sai", verb);
     manifest.model = *model;

@@ -1,0 +1,26 @@
+# Vá mã gốc trước khi chuyển: tệp (tính từ MaterialTemplates), đoạn cũ, đoạn mới, lý do.
+# Đoạn cũ phải khớp đúng một lần; \n là xuống dòng. Mọi bản vá phải giữ nguyên mã máy fxc
+# của bản gốc: `hlsl_origin.py oracle` dịch lại bằng D3DCompiler_43 và so SHEX với bản chưa vá.
+Base_Water_ps.hlsl	tex2D(baseTexture, IN.oUV)	tex2D(baseTexture, IN.oUV.xy)	fxc cắt ngầm float4 về float2 (.xy); Slang báo lỗi kiểu nên viết phép cắt ra
+FixStar.hlsl	GetFlickerAmount(pos, StarSize)	GetFlickerAmount(pos.xyz, StarSize)	fxc cắt ngầm float4 về float3 (.xyz); Slang báo lỗi kiểu nên viết phép cắt ra
+FixStar.hlsl	OUT.PSize = StarSize.xy;	OUT.PSize = StarSize.x;	fxc cắt ngầm float2 về float (.x); Slang báo lỗi kiểu nên viết phép cắt ra
+Model_Face_ps.hlsl	(float3(1,0.58,0.54)) * sceneColor;	(float3(1,0.58,0.54)) * sceneColor.rgb;	fxc cắt ngầm float4 về float3 (.rgb); Slang báo lỗi kiểu nên viết phép cắt ra
+Model_Face_ps.hlsl	light_specular_colour_array[0].xyz * sceneColor * 	light_specular_colour_array[0].xyz * sceneColor.rgb * 	fxc cắt ngầm float4 về float3 (.rgb); Slang báo lỗi kiểu nên viết phép cắt ra
+Model_FakePointLight_ps.hlsl	mul(inverse_worldview_matrix_3x4, vPos);	mul(inverse_worldview_matrix_3x4, vPos).xyz;	fxc cắt ngầm float4 về float3 (.xyz); biến mang tên 3x4 nhưng khai float4x4; Slang báo lỗi kiểu nên viết phép cắt ra
+Model_Hair_ps.hlsl	surface_emissive_colour  * lerp(1,0.8,	surface_emissive_colour.rgb  * lerp(1,0.8,	fxc cắt ngầm float4 về float3 (.rgb); Slang báo lỗi kiểu nên viết phép cắt ra
+Model_Hair_ps.hlsl	float bbb = params.cLight * params.cLight;	float bbb = (params.cLight * params.cLight).x;	fxc cắt ngầm float3 về float (.x); Slang báo lỗi kiểu nên viết phép cắt ra
+Model_ps.hlsl	float noiseUV = params.FI.baseTC.xy + time_0_x.xx*0.2;	float noiseUV = (params.FI.baseTC.xy + time_0_x.xx*0.2).x;	fxc cắt ngầm float2 về float (.x); Slang báo lỗi kiểu nên viết phép cắt ra
+Model_ps.hlsl	dot(params.FI.fTw, params.FI.fView),dot(params.FI.fBw, params.FI.fView),dot(params.FI.fNw, params.FI.fView)	dot(params.FI.fTw, params.FI.fView.xyz),dot(params.FI.fBw, params.FI.fView.xyz),dot(params.FI.fNw, params.FI.fView)	fxc cắt ngầm fView float4 về float3 (.xyz) khi nhân với fTw, fBw float3; fNw là float4; Slang báo lỗi kiểu nên viết phép cắt ra
+Model_ps.hlsl	float3 Inner = tex2D(InnerSampler,innerUV) + tex2D(InnerSampler,innerUV) * float3(0.0,0.75,1.0);	float3 Inner = tex2D(InnerSampler,innerUV).rgb + tex2D(InnerSampler,innerUV).rgb * float3(0.0,0.75,1.0);	fxc cắt ngầm float4 về float3 (.rgb) ở cả hai vế; Slang báo lỗi kiểu nên viết phép cắt ra
+Model_ps.hlsl	lerp(IceEmissive,Inner*1.5,0.2)	lerp(IceEmissive.rgb,Inner*1.5,0.2)	fxc cắt ngầm float4 về float3 (.rgb); Slang báo lỗi kiểu nên viết phép cắt ra
+Model_vs.hlsl	OUT.oViewNormal = params.nv;	OUT.oViewNormal = params.nv.xyz;	fxc cắt ngầm float4 về float3 (.xyz); Slang báo lỗi kiểu nên viết phép cắt ra
+ShaderLib/CalcLight.inc	specular *= sceneColor;	specular *= sceneColor.rgb;	fxc cắt ngầm float4 về float3 (.rgb); Slang báo lỗi kiểu nên viết phép cắt ra
+ShaderLib/CalcLight.inc	(sceneColor+0.1)	(sceneColor.rgb+0.1)	fxc cắt ngầm float4 về float3 (.rgb); Slang báo lỗi kiểu nên viết phép cắt ra
+Water_vs.hlsl	mul(world_matrix, view_direction)	mul((float4x3)world_matrix, view_direction)	fxc cắt ngầm float4x4 về float4x3 để nhân với float3; Slang không chọn được overload
+WaveGrass.hlsl	float waveParam = tex2Dlod(vtNoise, float4(posUV.xy, 0, 0));	float waveParam = tex2Dlod(vtNoise, float4(posUV.xy, 0, 0)).x;	fxc cắt ngầm float4 về float (.x); Slang báo lỗi kiểu nên viết phép cắt ra
+WaveGrass.hlsl	waveMove = WaveGrass(float4(waveMove.xyz, 0), interactivePos, vertexPosWorld, propertyParam);	waveMove = WaveGrass(float4(waveMove.xyz, 0), interactivePos, vertexPosWorld, propertyParam).xyz;	fxc cắt ngầm float4 về float3 (.xyz); Slang báo lỗi kiểu nên viết phép cắt ra
+WaveGrass.hlsl	dot(normal, HalfDir)	dot(normal.xyz, HalfDir)	fxc cắt ngầm float4 về float3 (.xyz); Slang báo lỗi kiểu nên viết phép cắt ra
+hdr.hlsl	bloom.rgb*adjust)	bloom.rgb*adjust.rgb)	fxc cắt ngầm float4 về float3 (.rgb); Slang báo lỗi kiểu nên viết phép cắt ra
+WaveGrass.hlsl	VS_OUTPUT mainVS(VS_INPUT In,	void mainVS(out VS_OUTPUT Out, VS_INPUT In,	struct trả về cùng biến ra rời: Slang dời location trường của struct (PIN_LOCATION của hlsl_origin.py), nên chuyển struct thành tham số out để ghim được gốc
+WaveGrass.hlsl	\tVS_OUTPUT Out = (VS_OUTPUT)0;	\tOut = (VS_OUTPUT)0;	struct trả về cùng biến ra rời: Slang dời location trường của struct (PIN_LOCATION của hlsl_origin.py), nên chuyển struct thành tham số out để ghim được gốc
+WaveGrass.hlsl	\treturn Out;	\treturn;	struct trả về cùng biến ra rời: Slang dời location trường của struct (PIN_LOCATION của hlsl_origin.py), nên chuyển struct thành tham số out để ghim được gốc

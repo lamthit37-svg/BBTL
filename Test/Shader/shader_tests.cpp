@@ -27,11 +27,13 @@
 #include "fs/buny.hpp"
 #include "fs/codec.hpp"
 #include "fs/stream.hpp"
+#include "shader/compiler.hpp"
 #include "shader/detail/reconcile.hpp"
 #include "shader/detail/roots.hpp"
 #include "shader/manifest.hpp"
 #include "shader/package.hpp"
 #include "shader/reflection.hpp"
+#include "shader/spirv.hpp"
 #include "shader/types.hpp"
 #include "test.hpp"
 
@@ -1031,6 +1033,238 @@ void reconcile_reports_every_kind_of_layout_drift(Context& context) {
     }
 }
 
+// Bảng location theo semantic của bộ shader chuyển từ client gốc: đầu vào đỉnh và biến truyền mỗi
+// bên một bảng (khớp INPUT_LOCATIONS và VARYING_LOCATIONS của TOOLS/port/hlsl_origin.py).
+struct SlotCase {
+    bool vertex_input = false;
+    std::string_view semantic;
+    std::uint32_t index = 0;
+    std::optional<std::uint32_t> location;
+};
+
+constexpr std::array kSlotCases{
+    SlotCase{.vertex_input = true, .semantic = "POSITION", .index = 0, .location = 0},
+    SlotCase{.vertex_input = true, .semantic = "BLENDINDICES", .index = 0, .location = 2},
+    SlotCase{.vertex_input = true, .semantic = "TEXCOORD", .index = 0, .location = 6},
+    SlotCase{.vertex_input = true, .semantic = "TEXCOORD", .index = 7, .location = 13},
+    SlotCase{.vertex_input = true, .semantic = "TEXCOORD", .index = 8, .location = std::nullopt},
+    SlotCase{.vertex_input = true, .semantic = "TANGENT", .index = 1, .location = 15},
+    SlotCase{.vertex_input = false, .semantic = "TEXCOORD", .index = 0, .location = 0},
+    SlotCase{.vertex_input = false, .semantic = "TEXCOORD", .index = 10, .location = 10},
+    SlotCase{.vertex_input = false, .semantic = "TEXCOORD", .index = 11, .location = std::nullopt},
+    SlotCase{.vertex_input = false, .semantic = "COLOR", .index = 1, .location = 12},
+    SlotCase{.vertex_input = false, .semantic = "NORMAL", .index = 0, .location = 15},
+    SlotCase{.vertex_input = false, .semantic = "POSITION", .index = 0, .location = std::nullopt},
+    SlotCase{.vertex_input = false, .semantic = "BINORMAL", .index = 0, .location = std::nullopt},
+};
+
+void semantic_location_follows_the_origin_tables(Context& context) {
+    for (const SlotCase& one : kSlotCases) {
+        const std::optional<std::uint32_t> found = shader::semantic_location(one.vertex_input, one.semantic, one.index);
+        context.expect(found == one.location, std::format("{}{} vertex_input={}", one.semantic, one.index,
+                                                  one.vertex_input));
+    }
+}
+
+// Ở Locations::kSemantic chữ ký DXIL còn đầu vào khai mà không dùng, SPIR-V của Slang thì bỏ hẳn: đối
+// chiếu bỏ đầu vào thừa ấy theo location. Ở kDeclared cùng chỗ thừa ấy vẫn là lỗi, và đầu vào SPIR-V
+// không có ở DXIL là lỗi ở cả hai chế độ.
+void reconcile_by_semantic_drops_unused_dxil_inputs(Context& context) {
+    const StageReflection truth = pixel_reflection();
+    StageReflection dxil = truth;
+    Attribute unused = dxil.inputs.front();
+    unused.semantic = "TEXCOORD";
+    unused.index = 5;
+    unused.location = 5;
+    dxil.inputs.push_back(std::move(unused));
+    shader::normalize(dxil);
+    StageReflection spirv = truth;
+    for (Attribute& attribute : spirv.inputs) {
+        attribute.semantic.clear();
+    }
+    const core::Result<StageReflection> semantic = shader::detail::reconcile(spirv, dxil, shader::Locations::kSemantic);
+    context.expect(semantic.has_value() && *semantic == truth, "đầu vào thừa của DXIL bị bỏ, semantic lấy đúng chỗ");
+    const core::Result<StageReflection> declared = shader::detail::reconcile(spirv, dxil, shader::Locations::kDeclared);
+    context.expect(failed_with(declared, core::ErrorCode::kInternal), "kDeclared vẫn đòi hai bên khớp đủ");
+    StageReflection missing = dxil;
+    missing.inputs.erase(missing.inputs.begin());
+    const core::Result<StageReflection> absent = shader::detail::reconcile(spirv, missing, shader::Locations::kSemantic);
+    context.expect(failed_with(absent, core::ErrorCode::kInternal), "đầu vào SPIR-V không có ở DXIL là lỗi");
+}
+
+// Bộ dựng SPIR-V tay cho test phản chiếu.
+using SpirvWords = std::vector<std::uint32_t>;
+
+// Chuỗi literal của SPIR-V: UTF-8, kết thúc bằng byte 0, đệm tới bội 4 byte, little-endian.
+[[nodiscard]] SpirvWords spirv_literal(std::string_view text) {
+    SpirvWords words((text.size() / 4) + 1, 0U);
+    for (std::size_t index = 0; index < text.size(); ++index) {
+        const auto byte = static_cast<std::uint32_t>(static_cast<unsigned char>(text[index]));
+        words.at(index / 4) |= byte << ((index % 4) * 8);
+    }
+    return words;
+}
+
+// Một lệnh: word đầu là (số word << 16) | opcode, rồi toán hạng.
+void spirv_op(SpirvWords& module, std::uint32_t code, const SpirvWords& operands) {
+    const auto count = static_cast<std::uint32_t>(operands.size() + 1);
+    module.push_back((count << 16U) | code);
+    module.insert(module.end(), operands.begin(), operands.end());
+}
+
+// Lệnh có chuỗi đứng sau các toán hạng head.
+void spirv_named(SpirvWords& module, std::uint32_t code, const SpirvWords& head, std::string_view text) {
+    SpirvWords operands = head;
+    const SpirvWords packed = spirv_literal(text);
+    operands.insert(operands.end(), packed.begin(), packed.end());
+    spirv_op(module, code, operands);
+}
+
+// Đúng dạng Slang 2026.17 sinh cho `float3x4 bones[4]; float4x4 viewProj;` ma trận theo cột (đã
+// đối chiếu spirv-dis): mảng bọc trong struct `_Array_*` một thành viên, RowMajor và MatrixStride
+// của mảng nằm trên thành viên của lớp bọc. Id: 1 float, 2 main, 3 vec4, 4 mat3v4, 5 int, 6 hằng
+// 4, 7 mảng, 8 lớp bọc, 9 mat4v4, 10 khối, 11 con trỏ, 12 biến.
+[[nodiscard]] Buffer wrapped_matrix_module() {
+    constexpr std::uint32_t kName = 5;
+    constexpr std::uint32_t kMemberName = 6;
+    constexpr std::uint32_t kDecorate = 71;
+    constexpr std::uint32_t kMemberDecorate = 72;
+    constexpr std::uint32_t kBlock = 2;
+    constexpr std::uint32_t kRowMajor = 4;
+    constexpr std::uint32_t kArrayStride = 6;
+    constexpr std::uint32_t kMatrixStride = 7;
+    constexpr std::uint32_t kBinding = 33;
+    constexpr std::uint32_t kDescriptorSet = 34;
+    constexpr std::uint32_t kOffset = 35;
+    constexpr std::uint32_t kUniform = 2;
+    SpirvWords module{0x0723'0203U, 0x0001'0300U, 0U, 13U, 0U};
+    spirv_op(module, 17, {1});
+    spirv_op(module, 14, {0, 1});
+    spirv_named(module, 15, {0, 2}, "main");
+    spirv_named(module, kName, {8}, "_Array_default_matrix<float,3,4>4");
+    spirv_named(module, kMemberName, {8, 0}, "data");
+    spirv_named(module, kName, {10}, "GlobalParams_default");
+    spirv_named(module, kMemberName, {10, 0}, "bones");
+    spirv_named(module, kMemberName, {10, 1}, "viewProj");
+    spirv_named(module, kName, {12}, "globalParams");
+    spirv_op(module, kDecorate, {7, kArrayStride, 64});
+    spirv_op(module, kMemberDecorate, {8, 0, kOffset, 0});
+    spirv_op(module, kMemberDecorate, {8, 0, kRowMajor});
+    spirv_op(module, kMemberDecorate, {8, 0, kMatrixStride, 16});
+    spirv_op(module, kDecorate, {10, kBlock});
+    spirv_op(module, kMemberDecorate, {10, 0, kOffset, 0});
+    spirv_op(module, kMemberDecorate, {10, 1, kOffset, 256});
+    spirv_op(module, kMemberDecorate, {10, 1, kRowMajor});
+    spirv_op(module, kMemberDecorate, {10, 1, kMatrixStride, 16});
+    spirv_op(module, kDecorate, {12, kBinding, 0});
+    spirv_op(module, kDecorate, {12, kDescriptorSet, 0});
+    spirv_op(module, 22, {1, 32});
+    spirv_op(module, 23, {3, 1, 4});
+    spirv_op(module, 24, {4, 3, 3});
+    spirv_op(module, 21, {5, 32, 1});
+    spirv_op(module, 43, {5, 6, 4});
+    spirv_op(module, 28, {7, 4, 6});
+    spirv_op(module, 30, {8, 7});
+    spirv_op(module, 24, {9, 3, 4});
+    spirv_op(module, 30, {10, 8, 9});
+    spirv_op(module, 32, {11, kUniform, 10});
+    spirv_op(module, 59, {11, 12, kUniform});
+    Buffer bytes(module.size() * sizeof(std::uint32_t));
+    std::memcpy(bytes.data(), module.data(), bytes.size());
+    return bytes;
+}
+
+[[nodiscard]] Variable matrix_variable(std::string_view name, std::uint32_t offset, std::uint32_t size,
+    std::uint8_t rows, std::uint32_t elements) {
+    return Variable{.name = std::string(name), .offset = offset, .size = size, .scalar = Scalar::kFloat,
+        .bits = 32, .rows = rows, .columns = 4, .elements = elements};
+}
+
+// Hồi quy: phản chiếu từng lấy bố cục ma trận ở thành viên chứa mảng (không có MatrixStride) nên
+// báo bones 240 byte (64*3 + 48) trong khi DXIL báo 252 (64*3 + 60, phần tử cuối 4 cột float3),
+// và 56 shader chuyển từ client gốc hỏng ở bước đối chiếu.
+void spirv_reads_matrix_layout_from_array_wrappers(Context& context) {
+    const Buffer code = wrapped_matrix_module();
+    const core::Result<StageReflection> reflection = shader::reflect_spirv(code, Stage::kVertex, "main");
+    context.expect(reflection.has_value(), "module đọc được");
+    if (!reflection) return;
+    const bool one_block = reflection->blocks.size() == 1;
+    context.expect(one_block, "một cbuffer");
+    if (!one_block) return;
+    const Block& block = reflection->blocks.front();
+    context.expect(block.size == 320, std::format("cỡ khối {}", block.size));
+    const std::vector<Variable> expected{
+        matrix_variable("bones", 0, 252, 3, 4),
+        matrix_variable("viewProj", 256, 64, 4, 0),
+    };
+    const bool two = block.variables.size() == 2;
+    const std::uint32_t bones = two ? block.variables.front().size : 0;
+    context.expect(block.variables == expected, std::format("bones 252 byte, đọc được {}", bones));
+}
+
+// Hai dạng ma trận của ParamNamedAuto.inc client gốc trong module theo cột: mảng float3x4 (Slang
+// bọc mảng ở SPIR-V) và row_major float4x4 khai riêng (Slang hạ về struct _MatrixStorage_ ở DXIL).
+constexpr std::string_view kMatrixSource = "uniform float3x4 bones[4];\n"
+                                           "uniform row_major float4x4 shadow;\n"
+                                           "float4 main(float4 p : POSITION, uint i : BLENDINDICES)"
+                                           " : SV_Position {\n"
+                                           "    float4 w = float4(mul(bones[i], p), 1);\n"
+                                           "    return w * shadow[i % 4];\n"
+                                           "}\n";
+
+[[nodiscard]] const Variable* variable_named(const Block& block, std::string_view name) {
+    const auto found = std::ranges::find(block.variables, name, &Variable::name);
+    if (found == block.variables.end()) return nullptr;
+    return &*found;
+}
+
+// Hồi quy: hai bên phản chiếu từng lệch nhau ở cả hai dạng nên 56 shader chuyển từ client gốc hỏng ở
+// bước đối chiếu SPIR-V với DXIL. Dịch thật bằng Slang và DXC.
+void compile_reconciles_wrapped_matrices(Context& context) {
+    const core::Result<shader::Compiler> compiler = shader::Compiler::create();
+    context.expect(compiler.has_value(), "nạp được Slang và DXC");
+    if (!compiler) return;
+    shader::CompileOptions options;
+    options.stage = Stage::kVertex;
+    options.target = Target::kSpirV;
+    const shader::MemorySource source{.path = "matrix.vs.slang", .text = kMatrixSource};
+    const core::Result<shader::Compiled> compiled = compiler->compile(source, options);
+    const std::string why = compiled ? std::string() : std::string(compiled.error().detail());
+    context.expect(compiled.has_value(), std::format("dịch và đối chiếu được: {}", why));
+    if (!compiled) return;
+    const std::vector<Block>& blocks = compiled->reflection.blocks;
+    context.expect(blocks.size() == 1, "một cbuffer");
+    if (blocks.size() != 1) return;
+    const Variable* bones = variable_named(blocks.front(), "bones");
+    const Variable* shadow = variable_named(blocks.front(), "shadow");
+    const Variable bones_expected = matrix_variable("bones", 0, 252, 3, 4);
+    const Variable shadow_expected = matrix_variable("shadow", 256, 64, 4, 0);
+    context.expect(bones != nullptr && *bones == bones_expected, "bones: 4 phần tử float3x4, 252 byte");
+    context.expect(shadow != nullptr && *shadow == shadow_expected, "shadow: float4x4, 64 byte");
+}
+
+// Lệnh locations và khoá matrix= của danh sách shader.
+void manifest_reads_locations_and_matrix_layout(Context& context) {
+    constexpr std::string_view kText = "locations semantic\n"
+                                       "shader a.vs a.slang matrix=row\n"
+                                       "shader b.ps b.slang matrix=column\n";
+    const core::Result<shader::Manifest> parsed = shader::Manifest::parse(kText, "C:/shaders");
+    context.expect(parsed.has_value(), "danh sách hợp lệ đọc được");
+    if (!parsed) return;
+    context.expect(parsed->locations == shader::Locations::kSemantic, "locations semantic");
+    const bool two = parsed->shaders.size() == 2;
+    context.expect(two && parsed->shaders.front().row_major, "matrix=row");
+    context.expect(two && !parsed->shaders.back().row_major, "matrix=column");
+    const core::Result<shader::Manifest> plain = shader::Manifest::parse("shader a.vs a.slang\n", "C:/shaders");
+    const bool declared = plain.has_value() && plain->locations == shader::Locations::kDeclared;
+    context.expect(declared && !plain->shaders.front().row_major, "mặc định declared, ma trận theo cột");
+    const core::Result<shader::Manifest> odd_locations = shader::Manifest::parse("locations random\n", "C:/shaders");
+    context.expect(failed_with(odd_locations, core::ErrorCode::kInvalidArgument), "locations lạ là lỗi");
+    const core::Result<shader::Manifest> odd_matrix =
+        shader::Manifest::parse("shader a.vs a.slang matrix=diagonal\n", "C:/shaders");
+    context.expect(failed_with(odd_matrix, core::ErrorCode::kInvalidArgument), "matrix lạ là lỗi");
+}
+
 void watch_roots_uses_directory_boundaries(Context& context) {
     shader::Manifest manifest;
     manifest.directory = "C:/shaders";
@@ -1095,6 +1329,15 @@ constexpr std::array kCases{
     Case{.name = "buny_table_finds_every_name", .body = &buny_table_finds_every_name},
     Case{.name = "buny_hash_and_names_follow_the_original", .body = &buny_hash_and_names_follow_the_original},
     Case{.name = "watch_roots_uses_directory_boundaries", .body = &watch_roots_uses_directory_boundaries},
+    Case{.name = "semantic_location_follows_the_origin_tables",
+        .body = &semantic_location_follows_the_origin_tables},
+    Case{.name = "reconcile_by_semantic_drops_unused_dxil_inputs",
+        .body = &reconcile_by_semantic_drops_unused_dxil_inputs},
+    Case{.name = "manifest_reads_locations_and_matrix_layout",
+        .body = &manifest_reads_locations_and_matrix_layout},
+    Case{.name = "spirv_reads_matrix_layout_from_array_wrappers",
+        .body = &spirv_reads_matrix_layout_from_array_wrappers},
+    Case{.name = "compile_reconciles_wrapped_matrices", .body = &compile_reconciles_wrapped_matrices},
 };
 
 } // namespace

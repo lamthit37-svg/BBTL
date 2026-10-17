@@ -1,0 +1,11 @@
+fragment_program Font/FontBorder_ps hlsl
+{
+	source Schema/FontBorder.hlsl
+	entry_point FontBorder_ps
+	target ps_2_0
+	
+	default_params
+	{
+		param_named borderColor float4 0.0 0.0 0.0 1.0
+	}
+}
