@@ -320,7 +320,9 @@ từ 2026-10-18; K và M chỉ kiểm chéo (K phần client, M phần máy ch�
 - Tin ExecuteScript theo gói CGExecuteScript (opcode 2219) và tin lệnh giao diện theo gói gốc.
 - Xử lý lệnh `teleport`, `ui_command`, `signpost` ở `play` (tệp của M, theo luật khoá).
 - Sửa B1: khung lớn bị bỏ lặng (`gate/table.cpp`, tệp của M, theo luật khoá).
-- Chuỗi nhiệm vụ tân thủ 1414–1423 chạy hết.
+- Chuỗi tân thủ: 1400–1408, 1413 và 1424 đi hết. Các bước cần hệ thống của gói khác (1414, 1415 trân
+  thú; 1417 G5; 1419 N6; 1421 G7; 1423 thiếu vật phẩm trong mọi bảng; kéo theo 1412, 1416, 1418, 1420,
+  1422) ghi `NGHI-NGO.md` kèm gói chặn, làm khi gói đó đạt (điều phối sửa theo `N1.md`, 2026-10-18).
 
 **Đạt khi** kịch bản đi trọn chuỗi tân thủ đầu tiên: nói chuyện, nhận, theo dõi, trả nhiệm vụ, nhận
 thưởng, dịch chuyển qua NPC. Mỗi bước có ảnh và dòng kiểm.
