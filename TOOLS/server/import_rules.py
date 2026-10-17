@@ -191,6 +191,17 @@ TABLE_TITLE = {
 }
 
 
+# Khác gốc: giá trị ta cố ý đổi so với ini gốc. Lượt nhập sau giữ chúng và nối lý do vào chú thích, để
+# không ai chép lại số gốc vào account/starter.hpp. Khoá là (tệp, bảng, khoá) như ở legacy_rules.tsv.
+# G1-M D4: (165; 169) của DefaultChar.ini là tam giác vật cản của lưới đi 2026, nhân vật mới bị kéo về;
+# (165,00; 169,71) là điểm đi được gần nhất, cách mọi cạnh ràng buộc ít nhất 20 cm. Chỉ cảnh 2 có lưới.
+SPAWN_NOTE = "Khác gốc (cảnh 2), xem G1-M D4."
+DEVIATIONS = {
+    ("new_character.toml", "profile", "position_z"): ("169.71", SPAWN_NOTE),
+    ("new_character.toml", "start_position", "position_z"): ("[169.71, 169.0, 169.0]", SPAWN_NOTE),
+}
+
+
 class RulesError(Exception):
     """Lỗi có vị trí tệp:dòng: nội dung."""
 
@@ -520,8 +531,16 @@ def _literals(
     built = []
     for ident, group in _grouped(rows):
         literal, note = _one_literal(group, values)
+        literal, note = _deviated(ident, literal, note)
         built.append((ident, literal, note))
     return built
+
+
+def _deviated(ident: tuple[str, str, str], literal: str, note: str) -> tuple[str, str]:
+    swap = DEVIATIONS.get(ident)
+    if swap is None:
+        return literal, note
+    return swap[0], f"{note} {swap[1]}"
 
 
 def _render_file(filename: str, literals: list[tuple[tuple[str, str, str], str, str]]) -> str:

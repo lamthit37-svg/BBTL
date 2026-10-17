@@ -148,7 +148,7 @@ void three_characters_then_one_slot(Context& context) {
     context.expect(book.enter(account, reused.characters.back().id).ok, "vào được nhân vật của mình");
     context.expect(!book.enter(account, 999).ok, "không vào nhân vật không có");
     const account::EnterResult spot = book.enter(account, reused.characters.back().id);
-    context.expect(spot.x_cm == 16500 && spot.z_cm == 16900, "vào ở điểm sinh của hồ sơ mới, đổi mét ra centimet");
+    context.expect(spot.x_cm == 16500 && spot.z_cm == 16971, "vào ở điểm sinh của hồ sơ mới, đổi mét ra centimet");
     context.expect(spot.summary.id == reused.characters.back().id && spot.summary.name == "Lý Mộ",
         "vào game mang hồ sơ nhân vật");
 }

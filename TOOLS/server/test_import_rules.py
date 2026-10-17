@@ -237,6 +237,28 @@ class ExportRulesTest(unittest.TestCase):
         text = (self.output / "new_character.toml").read_text(encoding="utf-8")
         self.assertIn("position_x = 165.10", text)
 
+    def test_deviation_survives_reimport(self) -> None:
+        source = self.legacy / "Server" / "Config" / "Demo.ini"
+        source.write_text("[Pos]\nz=169.0\n", encoding="utf-8", newline="\n")
+        row = _cell(
+            "Server/Config/Demo.ini",
+            "Pos",
+            "z",
+            "rule",
+            "new_character.toml",
+            "profile",
+            "position_z",
+            convert="decimal",
+            note="Tung độ.",
+            basis="name",
+        )
+        self.rules.write_text(_sheet((row,)), encoding="utf-8", newline="\n")
+        errors, _summary = self._export()
+        self.assertEqual(errors, [])
+        text = (self.output / "new_character.toml").read_text(encoding="utf-8")
+        self.assertIn("position_z = 169.71", text)
+        self.assertIn("Khác gốc", text)
+
     def test_hash_equals_is_a_key(self) -> None:
         source = self.legacy / "Server" / "Config" / "Demo.ini"
         source.write_text("[Global]\nDropParam=1.5\n#extra=9\n", encoding="utf-8", newline="\n")

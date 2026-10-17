@@ -1,7 +1,20 @@
+/*==============================================================================
+ *  THIENLONG  |  GAME SERVER
+ *------------------------------------------------------------------------------
+ *  TỆP       : src/server/account/starter.hpp
+ *  PHÂN HỆ   : Server / Account / Starter
+ *  CHUẨN     : C++23
+ *------------------------------------------------------------------------------
+ *  CHỨC NĂNG
+ *  - Hồ sơ nhân vật mới, chép từ dev/server/config/rules/new_character.toml
+ *    schema 1. Giới tính, tên, mặt và tóc do client gửi. sex = 0 trong tệp toml
+ *    không phải giới tính trên dây (protocol: nữ = 1, nam = 2). Môn 9 là Vô
+ *    Phái của client 2026.
+ *------------------------------------------------------------------------------
+ *  TÁC GIẢ   : HiepHoon
+ *  TELEGRAM  : @Hoon9xx
+ *============================================================================*/
 #pragma once
-// Hồ sơ nhân vật mới, chép từ dev/server/config/rules/new_character.toml schema 1.
-// Giới tính, tên, mặt và tóc do client gửi. sex = 0 trong tệp toml không phải giới tính trên dây
-// (protocol: nữ = 1, nam = 2). Môn 9 là Vô Phái của client 2026.
 
 #include <array>
 #include <cstdint>
@@ -11,7 +24,11 @@ namespace game::account::starter {
 
 inline constexpr std::int32_t kScene = 2;
 inline constexpr double kPositionX = 165.0;
-inline constexpr double kPositionZ = 169.0;
+// Khác gốc: DefaultChar.ini ghi 169.0, nhưng (165; 169) là tam giác vật cản của lưới đi 2026 nên
+// nhân vật mới bị kéo về ngay bước đầu. 169.71 là điểm đi được gần nhất, liền với 赵天师 (160; 159)
+// và cách mọi cạnh ràng buộc ít nhất 20 cm (kWalkSlackCm của zone). Đo trên walk.path của Đại Lý,
+// xem docs/giao-viec/HOAN-THIEN/G1-M.md mục D4. Cảnh 71 và 72 chưa có lưới, giữ 169.
+inline constexpr double kPositionZ = 169.71;
 inline constexpr std::int32_t kHp = 999;
 inline constexpr std::int32_t kMp = 999;
 inline constexpr std::int32_t kLevel = 1;

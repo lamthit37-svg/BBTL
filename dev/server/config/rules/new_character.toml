@@ -15,7 +15,7 @@ schema = 1   # Phiên bản bố cục của tệp; bộ đọc từ chối số
 name       = "天龙八部"            # Tên nhân vật mới.
 scene      = 2                 # Cảnh bắt đầu.
 position_x = 165.0             # Hoành độ lúc vào game.
-position_z = 169.0             # Tung độ lúc vào game.
+position_z = 169.71            # Tung độ lúc vào game. Khác gốc (cảnh 2), xem G1-M D4.
 sex        = 0                 # Giới tính.
 hp         = 999               # Máu ban đầu.
 mp         = 999               # Nội lực ban đầu.
@@ -95,7 +95,7 @@ data  = [0, 22, 35, 1, 1, 4]   # Giá trị thiết lập.
 # Vị trí xuất phát thêm
 #==================================================
 [start_position]
-scene_count = 3                       # Giá trị scenecount.
-scene       = [2, 71, 72]             # Id cảnh của một điểm xuất phát.
-position_x  = [165.0, 165.0, 165.0]   # Hoành độ của một điểm xuất phát.
-position_z  = [169.0, 169.0, 169.0]   # Tung độ của một điểm xuất phát.
+scene_count = 3                        # Giá trị scenecount.
+scene       = [2, 71, 72]              # Id cảnh của một điểm xuất phát.
+position_x  = [165.0, 165.0, 165.0]    # Hoành độ của một điểm xuất phát.
+position_z  = [169.71, 169.0, 169.0]   # Tung độ của một điểm xuất phát. Khác gốc (cảnh 2), xem G1-M D4.

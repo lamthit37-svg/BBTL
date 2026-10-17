@@ -1212,3 +1212,15 @@ kết luận ngay dưới mục đó chứ không xoá.
     `render_unescapes_braces` trong `play_tests`. Còn lại, chưa kiểm: dòng đầu bắt đầu bằng `!` trong cùng ảnh. Cần: chụp lại sau
     khi dựng cụm với bản mới, đọc bằng mắt; nếu `!` vẫn có thì tra `dialogue.zh.txt` mẫu của 赵天师 xem `!` nằm trong chữ gốc
     hay do client thêm.
+
+72. **Điểm sinh nhân vật mới: số gốc là vật cản, cảnh 71 và 72 chưa có lưới để đo** (2026-10-18, G1-M D4; `account/starter.hpp`
+    `kPositionZ`, `rules/new_character.toml`, `TOOLS/server/import_rules.py` bảng `DEVIATIONS`). `DefaultChar.ini` (bản 2008
+    và XJL7457) ghi (165; 169) ở cảnh 2. Trên lưới đi `.path` 2026 của Đại Lý đó là một tam giác VẬT CẢN, nên nhân vật mới bị
+    kéo về hay không tới được 赵天师 (160; 159). Đã đổi cảnh 2 thành (165,00; 169,71): điểm đi được gần nhất, liền với 赵天师,
+    cách mọi cạnh ràng buộc ít nhất 20 cm (đúng độ lệch `kWalkSlackCm` của zone). Bot mới của cả sáu kịch bản G0 vào ở
+    16500; 16971 và không bị kéo về (pair, peers, walker 0 lần, trước đây 59 và 30). Chưa biết: bản gốc 2026 sinh nhân vật ở
+    toạ độ nào (`Config/startup.id` chỉ có cảnh 2; `ScenePosDefineEx.txt` nhị phân chưa mở; log client gốc không có dòng vào
+    cảnh). `[start_position]` còn hai cảnh 71 và 72, nhưng `dev/server/scenes/` chưa có lưới của chúng nên giữ 169,0; mã chưa
+    đọc danh sách này (`starter.hpp` chỉ dùng `kScene` = 2). Cần: lưới đi của cảnh 71 và 72 hoặc bằng chứng gốc về chỗ sinh,
+    rồi đo lại bằng đúng quy tắc 20 cm. `import_rules.py` giữ giá trị đổi qua mọi lượt nhập lại (không chép số gốc về
+    `starter.hpp`).
